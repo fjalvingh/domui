@@ -60,28 +60,6 @@ public class PageMaker {
 		return cc.findPage(clz); // Is this page already current in this context?
 	}
 
-	/**
-	 * FIXME Move to WindowSession?
-	 * @param pg
-	 * @param papa
-	 * @return
-	 * @throws Exception
-	 */
-	static public boolean pageAcceptsParameters(final Page pg, final PageParameters papa) throws Exception {
-		if(papa == null)
-			return true;
-		if(papa.equals(pg.getPageParameters()))
-			return true;
-		UrlPage nc = pg.getBody();
-		if(nc instanceof IParameterChangeListener) {
-			IParameterChangeListener pcl = (IParameterChangeListener) nc;
-			pg.internalInitialize(papa, pg.getConversation()); // Update parameters
-			pcl.pageParametersChanged(papa); // Send the event to the page
-			return true;
-		}
-		return false;
-	}
-
 	static Page createPageWithContent(final IRequestContext ctx, final Constructor< ? extends UrlPage> con, final ConversationContext cc, final PageParameters pp) throws Exception {
 		UrlPage nc = createPageContent(ctx, con, cc, pp);
 		Page pg = new Page(nc);

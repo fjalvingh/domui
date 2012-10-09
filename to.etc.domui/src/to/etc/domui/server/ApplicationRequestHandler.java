@@ -181,6 +181,14 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			cm = ctx.getSession().createWindowSession();
 			if(LOG.isDebugEnabled())
 				LOG.debug("$cid: input windowid=" + cid + " not found - created wid=" + cm.getWindowID());
+
+			//-- EXPERIMENTAL 20121008 jal - if the code was sent through a POST - the data can be huge so we need a workaround for the get URL.
+			if("post".equalsIgnoreCase(ctx.getRequest().getMethod())) {
+				redirectForPost(ctx, cm);
+				return;
+			}
+			//-- END EXPERIMENTAL
+
 			StringBuilder sb = new StringBuilder(256);
 
 			//			sb.append('/');
@@ -194,6 +202,9 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			generateHttpRedirect(ctx, sb.toString(), "Your session has expired. Starting a new session.");
 			return;
 		}
+		if(cida == null)
+			throw new IllegalStateException("Cannot happen: cida is null??");
+
 		ctx.internalSetWindowSession(cm);
 		cm.clearGoto();
 
@@ -211,9 +222,21 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		 * request we'll always respond with a full page re-render, but we must check to see if
 		 * the page has been requested with different parameters this time.
 		 */
-		PageParameters papa = null;
+		PageParameters papa = null;							// Null means: ajax request, not a full page.
 		if(action == null) {
-			papa = PageParameters.createFrom(ctx); 			// Create page parameters from the request,
+			papa = PageParameters.createFrom(ctx);
+
+			//-- If this request is a huge post request - get the huge post parameters.
+			String hpq = papa.getString(Constants.PARAM_POST_CONVERSATION_KEY, null);
+			if(null != hpq) {
+				ConversationContext	coco = cm.findConversation(cida[1]);
+				if(null == coco)
+					throw new IllegalStateException("The conversation "+cida[1]+" containing POST data is missing in windowSession "+cm);
+
+				papa = (PageParameters) coco.getAttribute("__ORIPP");
+				if(null == papa)
+					throw new IllegalStateException("The conversation " + cid + " no (longer) has the post data??");
+			}
 		}
 
 		Page page = cm.makeOrGetPage(ctx, clz, papa);
@@ -347,6 +370,39 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 		//-- Start any delayed actions now.
 		page.getConversation().startDelayedExecution();
+	}
+
+	/**
+	 * EXPERIMENTAL - fix for huge POST requests being resent as a get.
+	 * @param ctx
+	 * @param cm
+	 */
+	private void redirectForPost(RequestContextImpl ctx, WindowSession cm) throws Exception {
+		//-- Create conversation
+		ConversationContext cc = cm.createConversation(ctx, ConversationContext.class);
+		cm.acceptNewConversation(cc);
+
+		//-- Now: store the original PageParameters inside this conversation.
+		PageParameters pp = PageParameters.createFrom(ctx);			// Create the page parameters
+		cc.setAttribute("__ORIPP", pp);
+
+		//-- Create an unique hash for the page parameters
+		String hashString = pp.calculateHashString();				// The unique hash of a page with these parameters
+		pp.addParameter(Constants.PARAM_POST_CONVERSATION_KEY, hashString);
+
+		StringBuilder sb = new StringBuilder(256);
+
+		//			sb.append('/');
+		sb.append(ctx.getRelativePath(ctx.getInputPath()));
+		sb.append('?');
+		StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
+		sb.append('=');
+		sb.append(cm.getWindowID());
+		sb.append(".");
+		sb.append(cc.getId());
+		sb.append("&");
+		sb.append(Constants.PARAM_POST_CONVERSATION_KEY).append("=").append(hashString);
+		generateHttpRedirect(ctx, sb.toString(), "Your session has expired. Starting a new session.");
 	}
 
 	/**

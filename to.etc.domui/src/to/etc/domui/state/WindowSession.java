@@ -127,7 +127,8 @@ final public class WindowSession {
 	 * @param cid
 	 * @return
 	 */
-	ConversationContext findConversation(final String cid) throws Exception {
+	@Nullable
+	public ConversationContext findConversation(@Nonnull final String cid) throws Exception {
 		ConversationContext cc = m_conversationMap.get(cid);
 		if(null != cc)
 			internalAttachConversations();
@@ -480,8 +481,20 @@ final public class WindowSession {
 		sb.append('=');
 		sb.append(to.getConversation().getFullId());
 
-		//-- Add any parameters
+		//-- If the parameter string is too big we need to keep them in memory.
 		PageParameters pp = to.getPageParameters();
+		if(pp.getDataLength() > 1024) {
+			//-- We need a large referral
+			to.getConversation().setAttribute("__ORIPP", pp);
+
+			//-- Create an unique hash for the page parameters
+			String hashString = pp.calculateHashString();				// The unique hash of a page with these parameters
+
+			pp = new PageParameters();							// Create a new page parameters,
+			pp.addParameter(Constants.PARAM_POST_CONVERSATION_KEY, hashString);
+		}
+
+		//-- Add any parameters
 		if(pp != null) {
 			DomUtil.addUrlParameters(sb, pp, false);
 		}
@@ -623,7 +636,9 @@ final public class WindowSession {
 	}
 
 	/**
-	 * Get a valid Page, either from the shelve stack or some other location.
+	 * Get a valid Page, either from the shelve stack or some other location. If this is for a full page request
+	 * the 'papa' parameters are from the request and must be non-null. For an AJAX request the page parameters,
+	 * since they are <b>not repeated</b> in an AJAX request, is null.
 	 * @param rctx
 	 * @param clz
 	 * @param papa
@@ -683,7 +698,9 @@ final public class WindowSession {
 		internalAttachConversations(); // ORDERED 3
 
 		//-- Create the page && add to shelve,
-		Page newpg = PageMaker.createPageWithContent(rctx, bestpc, coco, PageParameters.createFrom(rctx));
+		if(null == papa)
+			throw new IllegalStateException("Internal: trying to create a page for an AJAX request??");
+		Page newpg = PageMaker.createPageWithContent(rctx, bestpc, coco, papa);
 		shelvePage(newpg); // Append the current page to the shelve,
 
 		//-- Call all of the page's listeners.
@@ -717,10 +734,10 @@ final public class WindowSession {
 	 *
 	 * @param cc
 	 * @param clz
-	 * @param papa
+	 * @param papa	Nonnull for a "new page" request, null for an AJAX request to an existing page.
 	 * @return
 	 */
-	private int findInPageStack(final ConversationContext cc, final Class< ? extends UrlPage> clz, final PageParameters papa) throws Exception {
+	private int findInPageStack(final ConversationContext cc, final Class< ? extends UrlPage> clz, @Nullable final PageParameters papa) throws Exception {
 		//		if(cc == null) FIXME jal 20090824 Revisit: this is questionable; why can it be null? Has code path from UIGoto-> handleGoto.
 		//			throw new IllegalStateException("The conversation cannot be empty here.");
 		for(int ix = m_shelvedPageStack.size(); --ix >= 0;) {
@@ -728,17 +745,19 @@ final public class WindowSession {
 			if(se instanceof ShelvedDomUIPage) {
 				ShelvedDomUIPage sdp = (ShelvedDomUIPage) se;
 
-				if(sdp.getPage().getBody().getClass() != clz) // Of the appropriate type?
-					continue; // No -> not acceptable
+				if(sdp.getPage().getBody().getClass() != clz)	// Of the appropriate type?
+					continue; 									// No -> not acceptable
 				if(cc != null && cc != sdp.getPage().getConversation()) // Is in the conversation supplied?
-					continue; // No -> not acceptable
+					continue;									// No -> not acceptable
 
 				//-- Page AND context are acceptable; check parameters;
-				if(PageMaker.pageAcceptsParameters(sdp.getPage(), papa)) // Got a page; must make sure the parameters, if present, are equal.
+				if(papa == null)								// AJAX request -> page acceptable
+					return ix;
+				if(papa.equals(sdp.getPage().getPageParameters()))	// New page request -> acceptable if same parameters.
 					return ix;
 			}
 		}
-		return -1; // Nothing acceptable
+		return -1;												// Nothing acceptable
 	}
 
 	@Override
