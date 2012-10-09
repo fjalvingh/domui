@@ -367,6 +367,7 @@ public class ConversationContext implements IQContextContainer {
 	 * @param name
 	 * @return
 	 */
+	@Nullable
 	public Object getAttribute(final String name) {
 		return m_map.get(name);
 	}

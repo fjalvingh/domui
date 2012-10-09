@@ -53,4 +53,6 @@ public interface IShelvedEntry {
 	 * @return
 	 */
 	String getURL();
+
+	boolean isClose();
 }

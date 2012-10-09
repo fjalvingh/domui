@@ -70,14 +70,14 @@ public class UrlPage extends Div {
 	public void setPageTitle(String pageTitle) {
 		m_pageTitle = pageTitle;
 	}
-	
+
 	/**
 	 * Adds javascript to close page window.
 	 */
-	protected void closeWindow() {
+	public void closeWindow() {
 		appendJavascript("window.close();");
 	}
-	
+
 	/**
 	 * In case that stretch layout is used, this needs to be called for UrlPage that does not have already set height on its body (usually case for normal UrlPage that is shown inside new browser popup window - it is not needed for regular subclasses of {@link Window}).
 	 */

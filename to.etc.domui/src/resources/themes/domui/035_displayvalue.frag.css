@@ -5,4 +5,5 @@
 	border: 1px solid <%= readonly_border %>;
 	display:block;
 	padding:2px;
+	min-height:1em;
 }

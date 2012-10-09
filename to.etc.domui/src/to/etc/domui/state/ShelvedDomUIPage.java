@@ -73,4 +73,9 @@ final public class ShelvedDomUIPage implements IShelvedEntry {
 	public String toString() {
 		return getPage() + " in " + getPage().internalGetConversation() + ": " + getPage().internalGetConversation().getState();
 	}
+
+	@Override
+	public boolean isClose() {
+		return false;
+	}
 }

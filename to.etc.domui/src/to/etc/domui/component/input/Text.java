@@ -184,7 +184,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 				if(getRegexpUserString() != null)
 					setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_NO_RE_MATCH, getRegexpUserString()));// Input format must be {0}
 				else
-					setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_INVALID));
+					setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_INVALID, raw));
 				m_wasvalid = false;
 				return false;
 			}
