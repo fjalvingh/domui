@@ -24,6 +24,8 @@
  */
 package to.etc.domui.dom.errors;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.html.*;
 
 /**
@@ -34,13 +36,13 @@ import to.etc.domui.dom.html.*;
  * Created on Sep 29, 2008
  */
 public interface IErrorFence {
-	public void addErrorListener(IErrorMessageListener eml);
+	public void addErrorListener(@Nonnull IErrorMessageListener eml);
 
-	public void removeErrorListener(IErrorMessageListener eml);
+	public void removeErrorListener(@Nonnull IErrorMessageListener eml);
 
-	public void addMessage(NodeBase source, UIMessage uim);
+	public void addMessage(@Nonnull NodeBase source, @Nonnull UIMessage uim);
 
-	public void removeMessage(NodeBase source, UIMessage uim);
+	public void removeMessage(@Nonnull NodeBase source, @Nonnull UIMessage uim);
 
-	public void clearGlobalMessages(NodeBase source, String code);
+	public void clearGlobalMessages(@Nonnull NodeBase source, @Nonnull String code);
 }
