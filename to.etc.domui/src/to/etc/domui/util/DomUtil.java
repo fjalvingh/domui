@@ -58,6 +58,23 @@ final public class DomUtil {
 		m_guidSeed = (int) val;
 	}
 
+	/**
+	 * This fine idiocy is needed to handle null checking because the pathetic loosers that make up
+	 * the Java JSR board are so incredible stupid it boggles the mind. Java == cobol. Thanks, morons.
+	 * If those idiots ever come to their senses and define a reasonable way for checking nulls- we could
+	 * remove this abomination.
+	 *
+	 * @param in
+	 * @return
+	 */
+	@Nonnull
+	static public <T> T nullChecked(@Nullable T in) {
+		if(null == in)
+			throw new IllegalStateException("Unexpected thingy is null: " + in);
+		return in;
+	}
+
+
 	static public final void ie8Capable(HttpServletResponse req) throws IOException {
 		if(!(req instanceof WrappedHttpServetResponse))
 			return;
@@ -293,7 +310,7 @@ final public class DomUtil {
 		return "#" + StringTool.intToStr(value, 16, 6);
 	}
 
-	static public IErrorFence getMessageFence(NodeBase in) {
+	static public IErrorFence getMessageFence(@Nonnull NodeBase in) {
 		NodeBase start = in;
 
 		//-- If we're delegated then test the delegate 1st
@@ -1698,7 +1715,8 @@ final public class DomUtil {
 	 * @param doReset if T attribute value is set to null after reading.
 	 * @return
 	 */
-	public static Object getSessionAttribute(String attribute, boolean doReset) {
+	@Nullable
+	public static Object getSessionAttribute(@Nonnull String attribute, boolean doReset) {
 		IRequestContext ctx = UIContext.getRequestContext();
 		AppSession ses = ctx.getSession();
 		Object val = ses.getAttribute(attribute);
@@ -1715,7 +1733,7 @@ final public class DomUtil {
 	 * @param attribute
 	 * @param value
 	 */
-	public static void setSessionAttribute(String attribute, Object value) {
+	public static void setSessionAttribute(@Nonnull String attribute, @Nullable Object value) {
 		IRequestContext ctx = UIContext.getRequestContext();
 		AppSession ses = ctx.getSession();
 		ses.setAttribute(attribute, value);

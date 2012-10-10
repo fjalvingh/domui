@@ -64,7 +64,7 @@ public class ColumnContainer<T> {
 	@Nonnull
 	public TD add(NodeBase columnContent) {
 		TD td = new TD();
-		m_tr.add(td);
+		getTR().add(td);
 		if(columnContent != null)
 			td.add(columnContent);
 		return td;
@@ -77,15 +77,16 @@ public class ColumnContainer<T> {
 
 	@Nonnull
 	public TR getTR() {
-		if(null == m_tr)
-			throw new IllegalStateException("Row not set.");
-		return m_tr;
+		if(null != m_tr)
+			return m_tr;
+		throw new IllegalStateException("Row not set.");
 	}
 
 	@Nonnull
 	public RowButtonContainer getRowButtonContainer() {
-		if(m_rowButtonContainer == null)
-			m_rowButtonContainer = new RowButtonContainer();
-		return m_rowButtonContainer;
+		RowButtonContainer c = m_rowButtonContainer;
+		if(c == null)
+			c = m_rowButtonContainer = new RowButtonContainer();
+		return c;
 	}
 }

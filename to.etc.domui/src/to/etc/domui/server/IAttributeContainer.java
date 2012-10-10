@@ -24,6 +24,8 @@
  */
 package to.etc.domui.server;
 
+import javax.annotation.*;
+
 /**
  * Define an attribute container.
  *
@@ -31,7 +33,8 @@ package to.etc.domui.server;
  * Created on May 19, 2009
  */
 public interface IAttributeContainer {
-	void setAttribute(String name, Object value);
+	void setAttribute(@Nonnull String name, @Nullable Object value);
 
-	Object getAttribute(String name);
+	@Nullable
+	Object getAttribute(@Nonnull String name);
 }

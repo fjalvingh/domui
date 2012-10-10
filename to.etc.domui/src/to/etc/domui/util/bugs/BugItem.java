@@ -45,7 +45,7 @@ final public class BugItem {
 	@Nullable
 	final private Throwable m_exception;
 
-	@Nonnull
+	@Nullable
 	private Exception m_location;
 
 	@Nullable
@@ -159,7 +159,9 @@ final public class BugItem {
 	 */
 	@Nonnull
 	public Exception getLocation() {
-		return m_location;
+		if(m_location != null)
+			return m_location;
+		throw new IllegalStateException("?? Location unset??");
 	}
 
 	/**

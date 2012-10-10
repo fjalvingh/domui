@@ -239,26 +239,39 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		m_outputClass = resultClass;
 		m_queryMetaModel = queryMetaModel != null ? queryMetaModel : MetaManager.findClassMeta(queryClass);
 		m_outputMetaModel = outputMetaModel != null ? outputMetaModel : MetaManager.findClassMeta(resultClass);
-		m_selButton = new SmallImgButton(Theme.BTN_POPUPLOOKUP);
-		m_selButton.setTestID("selButtonInputLookup");
-		m_selButton.setClicked(new IClicked<NodeBase>() {
+		SmallImgButton b = m_selButton = new SmallImgButton(Theme.BTN_POPUPLOOKUP);
+		b.setTestID("selButtonInputLookup");
+		b.setClicked(new IClicked<NodeBase>() {
 			@Override
 			public void clicked(NodeBase b) throws Exception {
 				toggleFloaterByClick();
 			}
 		});
 
-		m_clearButton = new SmallImgButton(Theme.BTN_CLEARLOOKUP, new IClicked<SmallImgButton>() {
+		b = m_clearButton = new SmallImgButton(Theme.BTN_CLEARLOOKUP, new IClicked<SmallImgButton>() {
 			@Override
 			@SuppressWarnings("synthetic-access")
 			public void clicked(SmallImgButton b) throws Exception {
 				handleSetValue(null);
 			}
 		});
-		m_clearButton.setTestID("clearButtonInputLookup");
-		m_clearButton.setDisplay(DisplayType.NONE);
-
+		b.setTestID("clearButtonInputLookup");
+		b.setDisplay(DisplayType.NONE);
 		setCssClass("ui-lui");
+	}
+
+	@Nonnull
+	private SmallImgButton getSelButton() {
+		if(null != m_selButton)
+			return m_selButton;
+		throw new IllegalStateException("Selection button is not there.");
+	}
+
+	@Nonnull
+	public SmallImgButton getClearButton() {
+		if(null != m_clearButton)
+			return m_clearButton;
+		throw new IllegalStateException("Clear button is not there.");
 	}
 
 	@Override
@@ -285,8 +298,9 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 			r.renderNodeContent(this, this, m_value, isReadOnly() || isDisabled() ? null : m_selButton);
 		}
 
+		SmallImgButton clearButton = getClearButton();
 		if(!isReadOnly() && !isDisabled()) {
-			if(!m_selButton.isAttached()) { // If the above did not add the button do it now.
+			if(!getSelButton().isAttached()) { // If the above did not add the button do it now.
 				/*
 				 * jal 20090925 Bugfix: when a renderer does not add the button (as it should) we need to add it manually, but
 				 * it must be in a valid table structure! So we need to ensure that a tbody, tr and td are present to add the
@@ -300,15 +314,15 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 					tr = (TR) tb.getChild(0);
 
 				TD cell = tr.addCell();
-				cell.add(m_selButton);
+				cell.add(getSelButton());
 			}
-			m_selButton.appendAfterMe(m_clearButton);
+			getSelButton().appendAfterMe(clearButton);
 			//This code is needed for proper control alignment.
 			//FIXME: vmijic, not suitable for larger button images, see is this can be resolved by introducing span container for buttons.
-			if(m_clearButton.getDisplay() == DisplayType.NONE) {
-				m_clearButton.getParent().setMinWidth("24px");
+			if(clearButton.getDisplay() == DisplayType.NONE) {
+				clearButton.getParent().setMinWidth("24px");
 			} else {
-				m_clearButton.getParent().setMinWidth("58px");
+				clearButton.getParent().setMinWidth("58px");
 			}
 		}
 		if(m_rebuildCause == RebuildCause.CLEAR) {
@@ -318,8 +332,8 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 			}
 		} else if(m_rebuildCause == RebuildCause.SELECT) {
 			//User did reselected value, so we can try to set focus to clear button if possible.
-			if(m_clearButton != null && m_clearButton.getDisplay() != DisplayType.NONE) {
-				m_clearButton.setFocus();
+			if(clearButton != null && clearButton.getDisplay() != DisplayType.NONE) {
+				clearButton.setFocus();
 			}
 		}
 		m_rebuildCause = null;
@@ -382,9 +396,9 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	}
 
 	private void addKeySearchField(NodeContainer parent) {
-		m_keySearch = new KeyWordSearchInput<OT>(m_keyWordSearchCssClass);
+		KeyWordSearchInput<OT> ks = m_keySearch = new KeyWordSearchInput<OT>(m_keyWordSearchCssClass);
 		m_keySearch.setWidth("100%");
-		m_keySearch.setPopupWidth(getKeyWordSearchPopupWidth());
+		ks.setPopupWidth(getKeyWordSearchPopupWidth());
 		KeyWordPopupRowRenderer<OT> rr = getDropdownRowRenderer();
 		rr.setRowClicked(new ICellClicked<OT>() {
 			@Override
@@ -392,9 +406,9 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 				handleSetValue(val);
 			}
 		});
-		m_keySearch.setResultsHintPopupRowRenderer(rr);
+		ks.setResultsHintPopupRowRenderer(rr);
 
-		m_keySearch.setOnLookupTyping(new IValueChanged<KeyWordSearchInput<OT>>() {
+		ks.setOnLookupTyping(new IValueChanged<KeyWordSearchInput<OT>>() {
 
 			@Override
 			public void onValueChanged(@Nonnull KeyWordSearchInput<OT> component) throws Exception {
@@ -419,7 +433,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 			}
 		});
 
-		m_keySearch.setOnShowResults(new IValueChanged<KeyWordSearchInput<OT>>() {
+		ks.setOnShowResults(new IValueChanged<KeyWordSearchInput<OT>>() {
 			@Override
 			public void onValueChanged(@Nonnull KeyWordSearchInput<OT> component) throws Exception {
 				ITableModel<OT> keySearchModel = searchKeyWord(component.getKeySearchValue());
@@ -440,11 +454,18 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 				}
 			}
 		});
-		parent.add(m_keySearch);
+		parent.add(ks);
 		if(m_keyWordSearchCssClass != null) {
 			addCssClass(m_keyWordSearchCssClass);
 		}
-		m_keySearch.setHint(Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_HINT, (m_keySearchHint != null) ? m_keySearchHint : getDefaultKeySearchHint()));
+		ks.setHint(Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_HINT, (m_keySearchHint != null) ? m_keySearchHint : getDefaultKeySearchHint()));
+	}
+
+	@Nonnull
+	private KeyWordSearchInput<OT> getKeySearch() {
+		if(null != m_keySearch)
+			return m_keySearch;
+		throw new IllegalStateException("keySearch is null");
 	}
 
 	/**
@@ -457,7 +478,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		if(null == m_dropdownRowRenderer) {
 			m_dropdownRowRenderer = new KeyWordPopupRowRenderer<OT>(getOutputMetaModel());
 		}
-		return m_dropdownRowRenderer;
+		return DomUtil.nullChecked(m_dropdownRowRenderer);
 	}
 
 	private String getDefaultKeySearchHint() {
@@ -515,7 +536,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 			}
 		} else {
 			//-- Has default meta?
-			List<SearchPropertyMetaModel> spml = m_keywordLookupPropertyList == null ? getQueryMetaModel().getKeyWordSearchProperties() : m_keywordLookupPropertyList;
+			List<SearchPropertyMetaModel> spml = m_keywordLookupPropertyList == null ? getQueryMetaModel().getKeyWordSearchProperties() : getKeywordLookupPropertyList();
 			searchQuery = (QCriteria<QT>) getQueryMetaModel().createCriteria();
 
 			QRestrictor<QT> r = searchQuery.or();
@@ -612,17 +633,18 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 			return;
 		}
 
-		m_floater = FloatingWindow.create(this, getFormTitle() == null ? getDefaultTitle() : getFormTitle());
-		m_floater.setWidth("740px");
-		m_floater.setHeight("90%");
-		m_floater.setIcon("THEME/btnFind.png");
-		m_floater.setTestID(getTestID() + "_floaterWindowLookupInput");
+		final FloatingWindow f = m_floater = FloatingWindow.create(this, getFormTitle() == null ? getDefaultTitle() : getFormTitle());
+		f.setWidth("740px");
+		f.setHeight("90%");
+		f.setIcon("THEME/btnFind.png");
+		f.setTestID(getTestID() + "_floaterWindowLookupInput");
 
 		//in case when external error message listener is set
-		if(m_customErrorMessageListener != null && m_customErrorMessageListener instanceof NodeBase) {
-			m_floater.setErrorFence();
-			m_floater.add((NodeBase) m_customErrorMessageListener);
-			DomUtil.getMessageFence(m_floater).addErrorListener(m_customErrorMessageListener);
+		IErrorMessageListener cerl = m_customErrorMessageListener;
+		if(cerl != null && cerl instanceof NodeBase) {
+			f.setErrorFence();
+			f.add((NodeBase) cerl);
+			DomUtil.getMessageFence(f).addErrorListener(cerl);
 		}
 		LookupForm<QT> lf = getLookupForm();
 		if(lf == null) {
@@ -637,11 +659,11 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		if(getLookupFormInitialization() != null) {
 			getLookupFormInitialization().initialize(lf);
 		}
-		m_floater.add(lf);
-		m_floater.setOnClose(new IWindowClosed() {
+		f.add(lf);
+		f.setOnClose(new IWindowClosed() {
 			@Override
 			public void closed(@Nonnull String closeReason) throws Exception {
-				m_floater.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
+				f.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 				m_floater = null;
 				m_result = null;
 			}
@@ -657,7 +679,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		lf.setOnCancel(new IClicked<LookupForm<QT>>() {
 			@Override
 			public void clicked(LookupForm<QT> b) throws Exception {
-				m_floater.closePressed();
+				f.closePressed();
 			}
 		});
 
@@ -683,25 +705,32 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		return Msgs.BUNDLE.getString(Msgs.UI_LUI_TTL);
 	}
 
+	@Nonnull
+	public FloatingWindow getFloater() {
+		if(null != m_floater)
+			return m_floater;
+		throw new IllegalStateException("Floating search window is not currently present");
+	}
+
 	private void search(LookupForm<QT> lf) throws Exception {
 		QCriteria<QT> c = lf.getEnteredCriteria();
-		if(c == null) // Some error has occured?
-			return; // Don't do anything (errors will have been registered)
+		if(c == null)						// Some error has occured?
+			return;							// Don't do anything (errors will have been registered)
 
 		IQueryManipulator<QT> qm = getQueryManipulator();
 		if(qm != null) {
-			c = qm.adjustQuery(c); // Adjust the query where needed,
+			c = qm.adjustQuery(c);			// Adjust the query where needed,
 			if(c == null) {
 				//in case of cancelled search by query manipulator return null
 				return;
 			}
 		}
-		m_floater.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
+		getFloater().clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 		if(!lf.hasUserDefinedCriteria() && !isAllowEmptyQuery()) {
-			m_floater.addGlobalMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_MISSING_SEARCH)); // Missing inputs
+			getFloater().addGlobalMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_MISSING_SEARCH)); // Missing inputs
 			return;
 		} else
-			m_floater.clearGlobalMessage();
+			getFloater().clearGlobalMessage();
 		setTableQuery(c);
 	}
 
@@ -711,25 +740,26 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	}
 
 	private void setResultModel(@Nonnull ITableModel<OT> model) throws Exception {
-		if(m_result == null) {
+		DataTable<OT> dt = m_result;
+		if(dt == null) {
 			//-- We do not yet have a result table -> create one.
-			m_result = new DataTable<OT>(model, getActualFormRowRenderer());
+			dt = m_result = new DataTable<OT>(model, getActualFormRowRenderer());
 
-			m_floater.add(m_result);
-			m_result.setPageSize(20);
-			m_result.setTableWidth("100%");
+			getFloater().add(dt);
+			dt.setPageSize(20);
+			dt.setTableWidth("100%");
 			initSelectionModel();
 			if(isUseStretchedLayout()) {
-				m_result.setStretchHeight(true);
+				dt.setStretchHeight(true);
 			}
 
 			//-- Add the pager,
 			DataPager pg = new DataPager(m_result);
-			m_floater.add(pg);
+			getFloater().add(pg);
+			dt.setTestID("resultTableLookupInput");
 		} else {
-			m_result.setModel(model); // Change the model
+			dt.setModel(model); // Change the model
 		}
-		m_result.setTestID("resultTableLookupInput");
 	}
 
 	protected void initSelectionModel() throws Exception {
@@ -743,18 +773,19 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	 */
 	@Nonnull
 	private IRowRenderer<OT> getActualFormRowRenderer() {
-		if(null == m_actualFormRowRenderer) {
+		IClickableRowRenderer<OT> actualFormRowRenderer = m_actualFormRowRenderer;
+		if(null == actualFormRowRenderer) {
 			//-- Is a form row renderer specified by the user - then use it, else create a default one.
-			m_actualFormRowRenderer = getFormRowRenderer();
-			if(null == m_actualFormRowRenderer) {
-				m_actualFormRowRenderer = new BasicRowRenderer<OT>(getOutputClass(), getOutputMetaModel());
+			actualFormRowRenderer = m_actualFormRowRenderer = getFormRowRenderer();
+			if(null == actualFormRowRenderer) {
+				actualFormRowRenderer = m_actualFormRowRenderer = new BasicRowRenderer<OT>(getOutputClass(), getOutputMetaModel());
 			}
 
 			//-- Always set a click handler on the row renderer, so we can accept the selected record.
-			m_actualFormRowRenderer.setRowClicked(new ICellClicked<OT>() {
+			actualFormRowRenderer.setRowClicked(new ICellClicked<OT>() {
 				@Override
 				public void cellClicked(NodeBase tr, OT val) throws Exception {
-					m_floater.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
+					getFloater().clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 					if(!getDataTable().isMultiSelectionVisible()) {
 						LookupInputBase.this.toggleFloater(null);
 					}
@@ -762,7 +793,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 				}
 			});
 		}
-		return m_actualFormRowRenderer;
+		return actualFormRowRenderer;
 	}
 
 	/**
@@ -879,15 +910,16 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	 */
 	@Override
 	public void setValue(@Nullable OT v) {
-		if(DomUtil.isEqual(m_value, v) && (m_keySearch == null || m_keySearch.getKeySearchValue() == null))
+		KeyWordSearchInput<OT> ks = m_keySearch;
+		if(DomUtil.isEqual(m_value, v) && (ks == null || ks.getKeySearchValue() == null))
 			return;
 		m_value = v;
 		if(m_value != null) {
-			m_clearButton.setDisplay(DisplayType.INLINE);
+			getClearButton().setDisplay(DisplayType.INLINE);
 			clearMessage();
 			setCssClass("ui-lui-selected");
 		} else {
-			m_clearButton.setDisplay(DisplayType.NONE);
+			getClearButton().setDisplay(DisplayType.NONE);
 			setCssClass("ui-lui");
 		}
 		updateRoStyle();
@@ -1059,7 +1091,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	public IBinder bind() {
 		if(m_binder == null)
 			m_binder = new SimpleBinder(this);
-		return m_binder;
+		return DomUtil.nullChecked(m_binder);
 	}
 
 	/**
@@ -1153,7 +1185,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 			si.setMinLength(minlen);
 		si.setPropertyName(name);
 		si.setIgnoreCase(true);
-		m_keywordLookupPropertyList.add(si);
+		DomUtil.nullChecked(m_keywordLookupPropertyList).add(si);
 	}
 
 	/**
@@ -1162,6 +1194,13 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	 */
 	public void setKeywordSearchProperties(@Nonnull List<SearchPropertyMetaModel> keywordLookupPropertyList) {
 		m_keywordLookupPropertyList = keywordLookupPropertyList;
+	}
+
+	@Nonnull
+	public List<SearchPropertyMetaModel> getKeywordLookupPropertyList() {
+		if(null != m_keywordLookupPropertyList)
+			return m_keywordLookupPropertyList;
+		throw new NullPointerException("No keyword properties set.");
 	}
 
 	/**

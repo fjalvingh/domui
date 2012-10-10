@@ -76,9 +76,11 @@ public class DisplayPropertyMetaModel {
 	@SuppressWarnings({"unchecked"})
 	public DisplayPropertyMetaModel(@Nonnull ClassMetaModel cmm, @Nonnull MetaDisplayProperty p) {
 		m_containedInClass = cmm;
-		m_propertyModel = cmm.findProperty(p.name()); // Creates either a PathPropertyModel or gets a normal one
-		if(null == m_propertyModel)
+
+		PropertyMetaModel< ? > pmm = cmm.findProperty(p.name());		// Creates either a PathPropertyModel or gets a normal one
+		if(null == pmm)
 			throw new IllegalStateException("Unknown property " + p.name() + " in " + cmm + " (bad @MetaDisplayProperty)");
+		m_propertyModel = pmm;
 
 		if(!Constants.NO_DEFAULT_LABEL.equals(p.defaultLabel()))
 			m_labelKey = p.defaultLabel();
@@ -96,22 +98,15 @@ public class DisplayPropertyMetaModel {
 //		setRenderHint(p.renderHint());	jal 20101220 Removed, unused and seems silly in table display
 	}
 
-	/**
-	 * Idiocy to prevent generics problem.
-	 * @param clz
-	 * @return
-	 */
-	@Nonnull
-	static private <T> IConverter<T> createconv(@Nonnull Class< ? > clz) {
-		return ConverterRegistry.getConverterInstance((Class< ? extends IConverter<T>>) clz);
-	}
-
 	@SuppressWarnings({"unchecked"})
 	public DisplayPropertyMetaModel(@Nonnull ClassMetaModel cmm, @Nonnull MetaComboProperty p) {
 		m_containedInClass = cmm;
-		m_propertyModel = cmm.findProperty(p.name()); // Creates either a PathPropertyModel or gets a normal one
-		if(null == m_propertyModel)
+
+		PropertyMetaModel< ? > pmm = cmm.findProperty(p.name());		// Creates either a PathPropertyModel or gets a normal one
+		if(null == pmm)
 			throw new IllegalStateException("Unknown property " + p.name() + " in " + cmm + " (bad @MetaComboProperty)");
+		m_propertyModel = pmm;
+
 		//		setConverter((p.converterClass() == DummyConverter.class ? null : ConverterRegistry.getConverterInstance(p.converterClass())));
 		// 20091123 This kludge below (Raw class cast) is needed because otherwise the JDK compiler pukes on this generics abomination.
 		IConverter< ? > c = null;
@@ -122,6 +117,17 @@ public class DisplayPropertyMetaModel {
 		setSortable(p.sortable());
 		m_join = p.join().equals(Constants.NO_JOIN) ? null : p.join();
 	}
+
+	/**
+	 * Idiocy to prevent generics problem.
+	 * @param clz
+	 * @return
+	 */
+	@Nonnull
+	static private <T> IConverter<T> createconv(@Nonnull Class< ? > clz) {
+		return ConverterRegistry.getConverterInstance((Class< ? extends IConverter<T>>) clz);
+	}
+
 
 	/**
 	 * Converts a list of MetaDisplayProperty annotations into their metamodel equivalents.

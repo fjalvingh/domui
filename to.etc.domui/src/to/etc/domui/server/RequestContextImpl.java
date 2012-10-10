@@ -361,12 +361,12 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 * @see to.etc.domui.server.IAttributeContainer#getAttribute(java.lang.String)
 	 */
 	@Override
-	public Object getAttribute(String name) {
+	public Object getAttribute(@Nonnull String name) {
 		return m_attributeMap.get(name);
 	}
 
 	@Override
-	public void setAttribute(String name, Object value) {
+	public void setAttribute(@Nonnull String name, @Nullable Object value) {
 		if(m_attributeMap == Collections.EMPTY_MAP)
 			m_attributeMap = new HashMap<String, Object>();
 		if(value == null)
