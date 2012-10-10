@@ -24,6 +24,8 @@
  */
 package to.etc.domui.login;
 
+import javax.annotation.*;
+
 /**
  * Represents a logged-in user. This base interface only knows data that must be known about
  * any logged-in user. Extras can be obtained if you know the implementation.
@@ -44,13 +46,7 @@ public interface IUser {
 	 */
 	String getDisplayName();
 
-	//	/**
-	//	 * The set of names representing the rights the user has.
-	//	 * @return
-	//	 */
-	//	Set<String>		getRightNames();
-
-	boolean hasRight(String r);
+	boolean hasRight(@Nonnull String r);
 
 	/**
 	 * EXPERIMENTAL INTERFACE, DO NOT USE Determines if right r is enabled for the specified data element. The implementation
@@ -63,5 +59,5 @@ public interface IUser {
 	 * @param dataElement
 	 * @return
 	 */
-	<T> boolean hasRight(String r, T dataElement);
+	<T> boolean hasRight(@Nonnull String r, @Nullable T dataElement);
 }

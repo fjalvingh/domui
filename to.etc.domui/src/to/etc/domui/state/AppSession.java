@@ -26,6 +26,7 @@ package to.etc.domui.state;
 
 import java.util.*;
 
+import javax.annotation.*;
 import javax.servlet.http.*;
 
 import org.slf4j.*;
@@ -361,12 +362,13 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	 * @see to.etc.domui.server.IAttributeContainer#getAttribute(java.lang.String)
 	 */
 	@Override
-	public Object getAttribute(String name) {
+	@Nullable
+	public Object getAttribute(@Nonnull String name) {
 		return m_attributeMap.get(name);
 	}
 
 	@Override
-	public void setAttribute(String name, Object value) {
+	public void setAttribute(@Nonnull String name, @Nullable Object value) {
 		if(m_attributeMap == Collections.EMPTY_MAP)
 			m_attributeMap = new HashMap<String, Object>();
 		if(value == null) {

@@ -1715,7 +1715,8 @@ final public class DomUtil {
 	 * @param doReset if T attribute value is set to null after reading.
 	 * @return
 	 */
-	public static Object getSessionAttribute(String attribute, boolean doReset) {
+	@Nullable
+	public static Object getSessionAttribute(@Nonnull String attribute, boolean doReset) {
 		IRequestContext ctx = UIContext.getRequestContext();
 		AppSession ses = ctx.getSession();
 		Object val = ses.getAttribute(attribute);
@@ -1732,7 +1733,7 @@ final public class DomUtil {
 	 * @param attribute
 	 * @param value
 	 */
-	public static void setSessionAttribute(String attribute, Object value) {
+	public static void setSessionAttribute(@Nonnull String attribute, @Nullable Object value) {
 		IRequestContext ctx = UIContext.getRequestContext();
 		AppSession ses = ctx.getSession();
 		ses.setAttribute(attribute, value);
