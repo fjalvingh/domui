@@ -120,9 +120,10 @@ abstract public class AbstractFormBuilder {
 
 	@Nonnull
 	final public ControlBuilder getControlBuilder() {
-		if(m_builder == null)
-			m_builder = DomApplication.get().getControlBuilder();
-		return m_builder;
+		ControlBuilder cb = m_builder;
+		if(cb == null)
+			cb = m_builder = DomApplication.get().getControlBuilder();
+		return cb;
 	}
 
 	/**

@@ -115,15 +115,16 @@ abstract public class TableFormBuilder extends AbstractFormBuilder {
 	 */
 	@Nonnull
 	protected Table table() {
-		if(m_parentTable == null) {
-			m_parentTable = new Table();
-			appendFormNode(m_parentTable);
+		Table pt = m_parentTable;
+		if(pt == null) {
+			pt = m_parentTable = new Table();
+			appendFormNode(pt);
 			internalClearLocation();
 			m_lastUsedRow = null;
 			//			m_lastUsedCell = null;
-			onTableAdded(m_parentTable);
+			onTableAdded(pt);
 		}
-		return m_parentTable;
+		return pt;
 	}
 
 	/**
@@ -133,14 +134,15 @@ abstract public class TableFormBuilder extends AbstractFormBuilder {
 	 */
 	@Nonnull
 	protected TBody tbody() {
-		if(m_tbody == null) {
-			m_tbody = table().getBody();
+		TBody b = m_tbody;
+		if(b == null) {
+			b = m_tbody = table().getBody();
 			m_lastUsedRow = null;
 			//			m_lastUsedCell = null;
 			internalClearLocation();
-			onBodyAdded(m_tbody);
+			onBodyAdded(b);
 		}
-		return m_tbody;
+		return b;
 	}
 
 	/**
@@ -151,13 +153,13 @@ abstract public class TableFormBuilder extends AbstractFormBuilder {
 	 */
 	@Nonnull
 	public TBody newBody() {
-		m_tbody = new TBody();
-		table().add(m_tbody);
+		TBody b = m_tbody = new TBody();
+		table().add(b);
 		m_lastUsedRow = null;
 		//		m_lastUsedCell = null;
 		internalClearLocation();
-		onBodyAdded(m_tbody);
-		return m_tbody;
+		onBodyAdded(b);
+		return b;
 	}
 
 	/*--------------------------------------------------------------*/
@@ -169,9 +171,9 @@ abstract public class TableFormBuilder extends AbstractFormBuilder {
 	 */
 	@Nonnull
 	public TR addRow() {
-		m_lastUsedRow = tbody().addRow();
-		onRowAdded(m_lastUsedRow);
-		return m_lastUsedRow;
+		TR lr = m_lastUsedRow = tbody().addRow();
+		onRowAdded(lr);
+		return lr;
 	}
 
 	/**
@@ -181,9 +183,10 @@ abstract public class TableFormBuilder extends AbstractFormBuilder {
 	 */
 	@Nonnull
 	public TR row() {
-		if(m_lastUsedRow == null)
-			addRow();
-		return m_lastUsedRow;
+		TR r = m_lastUsedRow;
+		if(r == null)
+			r = addRow();
+		return r;
 	}
 
 	/**

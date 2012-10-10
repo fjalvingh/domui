@@ -159,8 +159,10 @@ public class SimpleBinder implements IBinder {
 			((IBindingListener<NodeBase>) m_listener).moveControlToModel((NodeBase) m_control); // Stupid generics idiocy requires cast
 		else {
 			Object val = m_control.getValue();
-			Object base = m_instance == null ? m_model.getValue() : m_instance;
+			Object base = m_instance == null ? getModel().getValue() : m_instance;
 			IValueAccessor<Object> a = (IValueAccessor<Object>) m_propertyModel;
+			if(null == a)
+				throw new IllegalStateException("The propertyModel cannot be null");
 			a.setValue(base, val);
 		}
 	}
@@ -170,13 +172,20 @@ public class SimpleBinder implements IBinder {
 		if(m_listener != null)
 			((IBindingListener<NodeBase>) m_listener).moveModelToControl((NodeBase) m_control); // Stupid generics idiocy requires cast
 		else {
-			Object base = m_instance == null ? m_model.getValue() : m_instance;
+			Object base = m_instance == null ? getModel().getValue() : m_instance;
 			IValueAccessor< ? > vac = m_propertyModel;
 			if(vac == null)
 				throw new IllegalStateException("Null IValueAccessor<T> returned by PropertyMeta " + m_propertyModel);
 			Object pval = vac.getValue(base);
 			((IControl<Object>) m_control).setValue(pval);
 		}
+	}
+
+	@Nonnull
+	private IReadOnlyModel< ? > getModel() {
+		if(null != m_model)
+			return m_model;
+		throw new IllegalStateException("The model cannot be null");
 	}
 
 	@Override

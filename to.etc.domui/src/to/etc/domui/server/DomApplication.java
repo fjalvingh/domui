@@ -72,10 +72,10 @@ public abstract class DomApplication {
 	@Nonnull
 	private Set<IAppSessionListener> m_appSessionListeners = new HashSet<IAppSessionListener>();
 
-	@Nonnull
+	@Nullable
 	private File m_webFilePath;
 
-	@Nonnull
+	@Nullable
 	private String m_urlExtension;
 
 	@Nonnull
@@ -293,7 +293,9 @@ public abstract class DomApplication {
 	 */
 	@Nonnull
 	public String getUrlExtension() {
-		return m_urlExtension;
+		if(null != m_urlExtension)
+			return m_urlExtension;
+		throw new IllegalStateException("Application is not initialized");
 	}
 
 
@@ -835,7 +837,9 @@ public abstract class DomApplication {
 	 */
 	@Nonnull
 	public final File getWebAppFileRoot() {
-		return m_webFilePath;
+		if(null != m_webFilePath)
+			return m_webFilePath;
+		throw new IllegalStateException("Application is not initialized");
 	}
 
 	//	/** Cache for application resources containing all resources we have checked existence for */
