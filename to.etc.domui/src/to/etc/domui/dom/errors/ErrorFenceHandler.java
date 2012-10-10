@@ -116,7 +116,7 @@ public class ErrorFenceHandler implements IErrorFence {
 	}
 
 	@Override
-	public void removeMessage(@Nonnull NodeBase source, @Nonnull UIMessage uim) {
+	public void removeMessage(@Nullable NodeBase source, @Nonnull UIMessage uim) {
 		if(!m_messageList.remove(uim)) // Must be known to the page or something's wrong..
 			return;
 
@@ -124,7 +124,7 @@ public class ErrorFenceHandler implements IErrorFence {
 		List<IErrorMessageListener> list = m_errorListeners;
 		for(IErrorMessageListener eml : list) {
 			try {
-				eml.errorMessageRemoved(source.getPage(), uim);
+				eml.errorMessageRemoved(source == null ? null : source.getPage(), uim);
 			} catch(Exception x) {
 				x.printStackTrace();
 			}
@@ -132,7 +132,7 @@ public class ErrorFenceHandler implements IErrorFence {
 	}
 
 	@Override
-	public void clearGlobalMessages(@Nonnull NodeBase source, @Nonnull String code) {
+	public void clearGlobalMessages(@Nonnull NodeBase source, @Nullable String code) {
 		List<UIMessage> todo = new ArrayList<UIMessage>();
 		for(UIMessage m : m_messageList) {
 			if(m.getErrorNode() == null && (code == null || code.equals(m.getCode())))

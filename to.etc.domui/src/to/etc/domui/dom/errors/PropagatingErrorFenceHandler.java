@@ -55,7 +55,7 @@ public class PropagatingErrorFenceHandler extends ErrorFenceHandler {
 	}
 
 	@Override
-	public void removeMessage(@Nonnull NodeBase source, @Nonnull UIMessage uim) {
+	public void removeMessage(@Nullable NodeBase source, @Nonnull UIMessage uim) {
 		super.removeMessage(source, uim);
 		NodeContainer propagationContainer = (getContainer() != null && getContainer().hasParent()) ? getContainer().getParent() : null;
 		if(propagationContainer != null) {
