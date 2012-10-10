@@ -2669,7 +2669,27 @@ var WebUI = {
 	//Returns T if browser is IE of at least version 8 even if it runs in IE7 compatibility mode
 	isIE8orNewer: function() {
 		return ($.browser.msie && (parseInt($.browser.version) >= 8 || (parseInt($.browser.version) == 7 && document.documentMode >= 8)));
+	},
+
+	//FCK editor support
+	_fckEditorIDs: [],
+	
+	/**
+	 * Register fckeditor for extra handling, if needed.
+	 * 
+	 * @param id
+	 */
+	registerFckEditorId : function(id) {
+		WebUI._fckEditorIDs.push(id);
+	},
+
+	unregisterFckEditorId : function(id) {
+		var index = WebUI._fckEditorIDs.indexOf(id);
+		if (index > -1){
+			WebUI._fckEditorIDs.splice(index, 1);
+		}
 	}
+
 };
 
 WebUI._DEFAULT_DROPZONE_HANDLER = {
@@ -3130,6 +3150,30 @@ $(document).ajaxComplete( function() {
 	WebUI.handleCalendarChanges();
 	WebUI.doCustomUpdates();
 });
+
+//piece of support needed for FCK editor to properly fix heights in IE8+
+function FCKeditor_OnComplete(editorInstance){
+	if (WebUI.isIE8orNewer()){
+		for (var i = 0; i < WebUI._fckEditorIDs.length; i++) {
+		    var fckId = WebUI._fckEditorIDs[i];
+		    var fckIFrame = document.getElementById(fckId + '___Frame');
+			if (fckIFrame){
+				$(fckIFrame.contentWindow.window).bind('resize', function() 
+					{
+						FCKeditor_fixLayout(fckIFrame, fckId);
+					});
+				$(fckIFrame.contentWindow.window).trigger('resize');
+			};
+		};
+	};
+	WebUI.doCustomUpdates();
+};
+
+function FCKeditor_fixLayout(fckIFrame, fckId){
+	if (fckIFrame){
+		fckIFrame.contentWindow.Domui_fixLayout(fckId);
+	}
+};
 
 
 
