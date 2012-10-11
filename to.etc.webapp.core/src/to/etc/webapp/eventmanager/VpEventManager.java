@@ -399,6 +399,7 @@ public class VpEventManager implements Runnable {
 			ps = dbc.prepareStatement("delete from " + m_tableName + " where upid < ?");
 			ps.setLong(1, deleteupid);
 			ps.executeUpdate();
+			dbc.commit();
 		} finally {
 			try {
 				if(ps != null)
