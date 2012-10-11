@@ -103,7 +103,10 @@ public class PageParameters {
 	}
 
 	public void setReadOnly() {
-		m_readOnly = true;
+		// Temporary disabled again. Until InvoiceEditPage, CorrectionBookingEditPage and TranscriptEditPage are corrected
+		// 10-10-2012 Leo v.d. Ende
+		// TODO
+		//m_readOnly = true;
 	}
 
 	private void writeable() {
