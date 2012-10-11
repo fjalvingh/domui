@@ -580,9 +580,9 @@ public class PageParameters {
 					String[] par = ctx.getParameters(name);
 					if(par != null && par.length > 0) {
 						if(par.length == 1)
-							pp.m_map.put(name, par[0]); // Add as single string
+							pp.setParameter(name, par[0]); // Add as single string
 						else
-							pp.m_map.put(name, par); // Add as string[]0
+							pp.setParameter(name, par); // Add as string[]0
 					}
 				}
 			}
