@@ -60,7 +60,7 @@ public class PageMaker {
 		return cc.findPage(clz); // Is this page already current in this context?
 	}
 
-	static Page createPageWithContent(final IRequestContext ctx, final Constructor< ? extends UrlPage> con, final ConversationContext cc, final PageParameters pp) throws Exception {
+	static Page createPageWithContent(final IRequestContext ctx, final Constructor< ? extends UrlPage> con, final ConversationContext cc, final IPageParameters pp) throws Exception {
 		UrlPage nc = createPageContent(ctx, con, cc, pp);
 		Page pg = new Page(nc);
 		cc.internalRegisterPage(pg, pp);
@@ -76,7 +76,7 @@ public class PageMaker {
 	 * @return
 	 * @throws Exception
 	 */
-	static private UrlPage createPageContent(final IRequestContext ctx, final Constructor< ? extends UrlPage> con, final ConversationContext cc, final PageParameters pp) throws Exception {
+	static private UrlPage createPageContent(final IRequestContext ctx, final Constructor< ? extends UrlPage> con, final ConversationContext cc, final IPageParameters pp) throws Exception {
 		//-- Create the page.
 		Class< ? >[] par = con.getParameterTypes();
 		Object[] args = new Object[par.length];
