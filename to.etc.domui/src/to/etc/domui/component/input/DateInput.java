@@ -137,17 +137,19 @@ public class DateInput extends Text<Date> {
 	public void setReadOnly(boolean readOnly) {
 		super.setReadOnly(readOnly);
 		super.setDisabled(readOnly);
-		m_selCalButton.setDisplay(readOnly ? DisplayType.NONE : null);
-		if(null != m_todayButton)
-			m_todayButton.setDisplay(readOnly ? DisplayType.NONE : null);
+		updateCalendarButtons(readOnly ? DisplayType.NONE : DisplayType.INLINE);
 	}
 
 	@Override
 	public void setDisabled(boolean disabled) {
 		super.setDisabled(disabled);
-		m_selCalButton.setDisplay(disabled ? DisplayType.NONE : null);
+		updateCalendarButtons(disabled ? DisplayType.NONE : DisplayType.INLINE);
+	}
+
+	private void updateCalendarButtons(@Nonnull DisplayType displayType) {
+		m_selCalButton.setDisplay(displayType);
 		if(null != m_todayButton)
-			m_todayButton.setDisplay(disabled ? DisplayType.NONE : null);
+			m_todayButton.setDisplay(displayType);
 	}
 
 	public boolean isWithTime() {
