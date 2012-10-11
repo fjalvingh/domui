@@ -482,7 +482,7 @@ final public class WindowSession {
 		sb.append(to.getConversation().getFullId());
 
 		//-- If the parameter string is too big we need to keep them in memory.
-		PageParameters pp = to.getPageParameters();
+		PageParameters pp = to.getPageParameters().getUnlockedCopy();
 		if(pp.getDataLength() > 1024) {
 			//-- We need a large referral
 			to.getConversation().setAttribute("__ORIPP", pp);
@@ -490,9 +490,10 @@ final public class WindowSession {
 			//-- Create an unique hash for the page parameters
 			String hashString = pp.calculateHashString();				// The unique hash of a page with these parameters
 
-			pp = new PageParameters();							// Create a new page parameters,
+			pp = new PageParameters();									// Create a new page parameters,
 			pp.addParameter(Constants.PARAM_POST_CONVERSATION_KEY, hashString);
-		}
+		} else
+			pp.removeParameter(Constants.PARAM_POST_CONVERSATION_KEY);
 
 		//-- Add any parameters
 		if(pp != null) {

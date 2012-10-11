@@ -183,8 +183,9 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				LOG.debug("$cid: input windowid=" + cid + " not found - created wid=" + cm.getWindowID());
 
 			//-- EXPERIMENTAL 20121008 jal - if the code was sent through a POST - the data can be huge so we need a workaround for the get URL.
-			if("post".equalsIgnoreCase(ctx.getRequest().getMethod())) {
-				redirectForPost(ctx, cm);
+			PageParameters pp = PageParameters.createFrom(ctx);
+			if("post".equalsIgnoreCase(ctx.getRequest().getMethod()) && pp.getDataLength() > 768) {
+				redirectForPost(ctx, cm, pp);
 				return;
 			}
 			//-- END EXPERIMENTAL
@@ -385,14 +386,14 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 * EXPERIMENTAL - fix for huge POST requests being resent as a get.
 	 * @param ctx
 	 * @param cm
+	 * @param pp2
 	 */
-	private void redirectForPost(RequestContextImpl ctx, WindowSession cm) throws Exception {
+	private void redirectForPost(RequestContextImpl ctx, WindowSession cm, @Nonnull PageParameters pp) throws Exception {
 		//-- Create conversation
 		ConversationContext cc = cm.createConversation(ctx, ConversationContext.class);
 		cm.acceptNewConversation(cc);
 
 		//-- Now: store the original PageParameters inside this conversation.
-		PageParameters pp = PageParameters.createFrom(ctx);			// Create the page parameters
 		cc.setAttribute("__ORIPP", pp);
 
 		//-- Create an unique hash for the page parameters
