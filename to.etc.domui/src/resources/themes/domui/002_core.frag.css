@@ -30,6 +30,11 @@ input, textarea {
 	padding: 2px;
 }
 
+input[type=file] {
+	border: 0 !important;
+	padding: 0px !important;
+}
+
 input:hover, textarea:hover, select:hover {
 	border-color:#5794BF #D7E8F8 #D7E8F8 #5794BF;
 }
@@ -48,4 +53,8 @@ button img {
 
 button {
 	vertical-align: bottom;
+}
+
+.page-content {
+	margin: 0px 10px;
 }

@@ -24,6 +24,8 @@
  */
 package to.etc.domui.state;
 
+import java.io.*;
+import java.security.*;
 import java.util.*;
 
 import javax.annotation.*;
@@ -54,6 +56,9 @@ public class PageParameters {
 
 	/** When set no data can be changed */
 	private boolean m_readOnly = false;
+
+	/** The approximate length of this parameters instance when rendered on an URL. */
+	private int m_dataLength;
 
 	/**
 	 * Create an empty PageParameters.
@@ -98,7 +103,9 @@ public class PageParameters {
 	}
 
 	public void setReadOnly() {
-		//FIXME nmaksimovic 20110225 change back after Frits is back.
+		// Temporary disabled again. Until InvoiceEditPage, CorrectionBookingEditPage and TranscriptEditPage are corrected
+		// 10-10-2012 Leo v.d. Ende
+		// TODO
 		//m_readOnly = true;
 	}
 
@@ -113,7 +120,25 @@ public class PageParameters {
 	 * @param value
 	 */
 	private void setParameter(String name, String value) {
-		m_map.put(name, value);
+		increaseLength(value);
+		Object o = m_map.put(name, value);
+		decreaseLength(o);
+	}
+
+	private void decreaseLength(@Nullable Object o) {
+		if(o instanceof String) {
+			m_dataLength -= ((String) o).length() + 2;
+		} else if(o instanceof String[]) {
+			for(String s : (String[]) o) {
+				decreaseLength(s);
+			}
+		}
+	}
+
+	private void increaseLength(@Nullable String value) {
+		if(null == value)
+			return;
+		m_dataLength += (value.length() + 2);
 	}
 
 	/**
@@ -122,7 +147,12 @@ public class PageParameters {
 	 * @param values
 	 */
 	private void setParameter(String name, String[] values) {
-		m_map.put(name, values);
+		if(null != values) {
+			for(String s : values)
+				increaseLength(s);
+		}
+		Object o = m_map.put(name, values);
+		decreaseLength(o);
 	}
 
 	/**
@@ -260,9 +290,12 @@ public class PageParameters {
 			s = (String) value;
 		else if(value instanceof Number) {
 			s = value.toString();
-		} else if(value instanceof Boolean)
+		} else if(value instanceof Boolean) {
 			s = value.toString();
-		else
+		} else if(value instanceof String[]) {
+			setParameter(name, (String[]) value);
+			return;
+		} else
 			throw new IllegalStateException("Cannot convert a " + value.getClass() + " to an URL parameter yet - parameter converters not implemented yet");
 		setParameter(name, s);
 	}
@@ -273,7 +306,9 @@ public class PageParameters {
 	 * @param name, the name of the parameter to be removed.
 	 */
 	public void removeParameter(String name) {
-		m_map.remove(name);
+		writeable();
+		Object v = m_map.remove(name);
+		decreaseLength(v);
 	}
 
 	/**
@@ -458,7 +493,7 @@ public class PageParameters {
 
 	/**
 	 * Gets the value for the specified parametername as a String object.
-	 * When multiple value exists for the specified parameter, the first element of the array is returned.
+	 * When multiple value exists for the specified parameter, a MultipleParameterException is thrown.
 	 * When the parameter does not exist, a MissingParameterException is thrown.
 	 *
 	 * @param name, the name of the parameter who's value is to be retrieved.
@@ -471,7 +506,7 @@ public class PageParameters {
 
 	/**
 	 * Gets the value for the specified parametername as a String object.
-	 * When multiple value exists for the specified parameter, the first element of the array is returned.
+	 * When multiple value exists for the specified parameter, a MultipleParameterException is thrown.
 	 * When the parameter does not exist, the specified default value is returned.
 	 *
 	 * @param name, the name of the parameter who's value is to be retrieved.
@@ -494,7 +529,15 @@ public class PageParameters {
 	 * @return the value as a String
 	 */
 	@Nonnull
-	public String[] getStringArray(String name) {
+	public String[] getStringArray(@Nonnull String name) {
+		String[] arr = getStringArray(name, null);
+		if(null == arr)
+			throw new MissingParameterException(name);
+		return arr;
+	}
+
+	@Nullable
+	public String[] getStringArray(@Nonnull String name, @Nullable String[] deflt) {
 		Object var = m_map.get(name);
 		if(null != var) {
 			if(var instanceof String)
@@ -503,7 +546,7 @@ public class PageParameters {
 			if(ar.length > 0)
 				return ar;
 		}
-		throw new MissingParameterException(name);
+		return null;
 	}
 
 	/**
@@ -537,9 +580,9 @@ public class PageParameters {
 					String[] par = ctx.getParameters(name);
 					if(par != null && par.length > 0) {
 						if(par.length == 1)
-							pp.m_map.put(name, par[0]); // Add as single string
+							pp.setParameter(name, par[0]); // Add as single string
 						else
-							pp.m_map.put(name, par); // Add as string[]0
+							pp.setParameter(name, par); // Add as string[]0
 					}
 				}
 			}
@@ -688,5 +731,52 @@ public class PageParameters {
 			}
 			source.addParameter(name, changes.getObject(name));
 		}
+	}
+
+	/**
+	 * EXPENSIVE Hash all parameter values into an MD5 hash. This must be repeatable so same parameters get the same hash code.
+	 * @return
+	 */
+	@Nonnull
+	public String calculateHashString() {
+		MessageDigest md = null;
+		try {
+			md = MessageDigest.getInstance("MD5");
+		} catch(NoSuchAlgorithmException x) {
+			throw new RuntimeException("MISSING MANDATORY SECURITY DIGEST PROVIDER MD5: " + x.getMessage());
+		}
+
+		//-- Sort all names.
+		try {
+			List<String> names = new ArrayList<String>(m_map.keySet());		// Dup all keys
+			Collections.sort(names);										// Sort alphabetically
+			for(String name : names) {
+				Object val = m_map.get(name);
+				if(null != val) {
+					if(val instanceof String[]) {
+						String[] allv = (String[]) val;
+						Arrays.sort(allv);									// Sort all values alphabetically.
+						for(String s : allv) {
+							md.update(s.getBytes("utf-8"));
+							md.update((byte) 0xa);
+						}
+					} else {
+						md.update(val.toString().getBytes("utf-8"));
+						md.update((byte) 0xa);
+					}
+				}
+			}
+		} catch(UnsupportedEncodingException x) {
+			throw WrappedException.wrap(x);									// Cannot happen.
+		}
+		return StringTool.toHex(md.digest());
+	}
+
+	/**
+	 * Return the number of characters that this would take on an url.
+	 * @return
+	 */
+	public int getDataLength() {
+		return m_dataLength;
 	}
 }

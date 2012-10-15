@@ -115,11 +115,8 @@ public class FCKEditor extends TextArea {
 		appendConnectorConfig(sb, "ImageBrowser", "Image"); //FIXME: vmijic 20111010 I'm not sure why this stands -> we probably should remove that since it looks useless...
 
 		sb.append(m_vn).append(".ReplaceTextarea();");
-		//-- We must do custom layout fixes once editor is transformed by FCKEditor initialization javascript. On IE8 we need additonal hack on fckeditor internals, and we need to repeat then on each iframe resize.
-		sb.append("function FCKeditor_OnComplete(editorInstance){if (WebUI.isIE8orNewer()){var fckIFrame = document.getElementById('" + getActualID() + "___Frame');"
-			+ "if (fckIFrame){$(fckIFrame.contentWindow.window).bind('resize', function() {FCKeditor_fixLayout(fckIFrame, '" + getActualID()
-			+ "');});$(fckIFrame.contentWindow.window).trigger('resize');};};WebUI.doCustomUpdates();};"
-			+ "function FCKeditor_fixLayout(fckIFrame, fckId){if (fckIFrame){fckIFrame.contentWindow.Domui_fixLayout(fckId);}}");
+		//-- We must do custom layout fixes once editor is transformed by FCKEditor initialization javascript. On IE8+ we need additonal hack on fckeditor internals, and we need to repeat then on each iframe resize.
+		sb.append("WebUI.registerFckEditorId('" + getActualID() + "');");
 		appendCreateJS(sb);
 	}
 
@@ -313,5 +310,11 @@ public class FCKEditor extends TextArea {
 		return super.acceptRequestParameter(values);
 	}
 
+	@Override
+	@OverridingMethodsMustInvokeSuper
+	public void onRemoveFromPage(Page p) {
+		super.onRemoveFromPage(p);
+		appendJavascript("WebUI.unregisterFckEditorId('" + getActualID() + "');");
+	}
 
 }

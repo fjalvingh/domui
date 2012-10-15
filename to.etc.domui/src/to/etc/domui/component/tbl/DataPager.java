@@ -125,29 +125,6 @@ public class DataPager extends Div implements IDataTableChangeListener {
 			m_buttonDiv.add(sib);
 		}
 
-		//		if(m_showSelection) {
-		//			if(m_table instanceof ISelectableTableComponent< ? >) { // Fixme needs interface
-		//				final ISelectableTableComponent< ? > dt = (ISelectableTableComponent< ? >) m_table;
-		//				if(dt.getSelectionModel() != null && dt.getSelectionModel().isMultiSelect()) {
-		//					if(dt.isMultiSelectionVisible()) {
-		//						renderSelectionExtras();
-		//					} else {
-		//						m_showSelectionBtn = new SmallImgButton("THEME/dpr-select-on.png");
-		//						m_buttonDiv.add(m_showSelectionBtn);
-		//						m_showSelectionBtn.setClicked(new IClicked<NodeBase>() {
-		//							@Override
-		//							public void clicked(NodeBase clickednode) throws Exception {
-		//								dt.setShowSelection(true);
-		//								clickednode.remove();
-		//								m_showSelectionBtn = null;
-		//							}
-		//						});
-		//						m_showSelectionBtn.setTitle(Msgs.BUNDLE.getString("ui.dpr.selections"));
-		//					}
-		//				}
-		//			}
-		//		}
-
 		redraw();
 
 		//-- Click handlers for paging.
@@ -367,8 +344,9 @@ public class DataPager extends Div implements IDataTableChangeListener {
 				m_truncated = null;
 			}
 		}
-
-		redrawSelectionButtons();
+		if(isShowSelection()) {
+			redrawSelectionButtons();
+		}
 	}
 
 	private void redrawSelectionButtons() throws Exception {

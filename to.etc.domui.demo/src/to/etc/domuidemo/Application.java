@@ -2,12 +2,12 @@ package to.etc.domuidemo;
 
 import java.io.*;
 
+import javax.annotation.*;
 import javax.servlet.*;
 
 import to.etc.dbpool.*;
 import to.etc.domui.caches.images.*;
 import to.etc.domui.component.layout.*;
-import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
@@ -88,9 +88,12 @@ public class Application extends DomApplication {
 		 */
 		addNewPageInstantiatedListener(new INewPageInstantiated() {
 			@Override
-			public void newPageInstantiated(final UrlPage body) throws Exception {
+			public void newPageBuilt(@Nonnull UrlPage body) throws Exception {
 				onNewPage(body);
 			}
+
+			@Override
+			public void newPageCreated(@Nonnull UrlPage body) throws Exception {}
 		});
 	}
 
@@ -98,8 +101,6 @@ public class Application extends DomApplication {
 		if(p instanceof SourcePage)
 			return;
 
-		if(null != DomUtil.findComponentInTree(p, ShelveBreadCrumb.class))
-			return;
 		if(null != DomUtil.findComponentInTree(p, BreadCrumb.class))
 			return;
 

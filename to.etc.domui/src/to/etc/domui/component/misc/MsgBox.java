@@ -31,6 +31,7 @@ import to.etc.domui.component.layout.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.themes.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.bugs.*;
@@ -122,22 +123,22 @@ public class MsgBox extends Window {
 				throw new IllegalStateException(type + " ??");
 			case ERROR:
 				ttl = Msgs.BUNDLE.getString(Msgs.UI_MBX_ERROR);
-				icon = "mbx-error.png";
+				icon = Theme.ICON_MBX_ERROR;
 				break;
 			case WARNING:
 				ttl = Msgs.BUNDLE.getString(Msgs.UI_MBX_WARNING);
-				icon = "mbx-warning.png";
+				icon = Theme.ICON_MBX_WARNING;
 				break;
 			case INFO:
 				ttl = Msgs.BUNDLE.getString(Msgs.UI_MBX_INFO);
-				icon = "mbx-info.png";
+				icon = Theme.ICON_MBX_INFO;
 				break;
 			case DIALOG:
 				ttl = Msgs.BUNDLE.getString(Msgs.UI_MBX_DIALOG);
-				icon = "mbx-question.png";
+				icon = Theme.ICON_MBX_DIALOG;
 				break;
 		}
-		m_theImage.setSrc("THEME/" + icon);
+		m_theImage.setSrc(icon);
 		setWindowTitle(ttl);
 		setTestID("msgBox");
 	}

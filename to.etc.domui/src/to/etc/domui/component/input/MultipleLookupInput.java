@@ -13,6 +13,7 @@ import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.themes.*;
 import to.etc.domui.util.*;
 
 /**
@@ -26,8 +27,8 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>> {
 
 
 	/**
-	 * Specific implementation for use in {@link MultiLookupInput}. It sets inner {@link DataTable} of {@link LookupInput} 
-	 * to multi-select mode. 
+	 * Specific implementation for use in {@link MultiLookupInput}. It sets inner {@link DataTable} of {@link LookupInput}
+	 * to multi-select mode.
 	 *
 	 * @author <a href="mailto:nmaksimovic@execom.eu">Nemanja Maksimovic</a>
 	 * Created on Jun 5, 2012
@@ -192,7 +193,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>> {
 			}
 		});
 		m_renderColumns = renderColumns;
-		m_clearButton = new SmallImgButton("THEME/btnClearLookup.png", new IClicked<SmallImgButton>() {
+		m_clearButton = new SmallImgButton(Theme.BTN_CLEARLOOKUP, new IClicked<SmallImgButton>() {
 			@Override
 			@SuppressWarnings("synthetic-access")
 			public void clicked(SmallImgButton b) throws Exception {
@@ -406,10 +407,12 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>> {
 	 * @see to.etc.domui.component.input.IBindable#bind()
 	 */
 	@Override
-	public @Nonnull IBinder bind() {
-		if(m_binder == null)
-			m_binder = new SimpleBinder(this);
-		return m_binder;
+	@Nonnull
+	public IBinder bind() {
+		IBinder b = m_binder;
+		if(b == null)
+			b = m_binder = new SimpleBinder(this);
+		return b;
 	}
 
 	/**

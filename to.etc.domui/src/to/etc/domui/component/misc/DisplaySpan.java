@@ -29,7 +29,6 @@ import javax.annotation.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
-import to.etc.domui.dom.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
@@ -43,7 +42,7 @@ import to.etc.webapp.nls.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Feb 15, 2010
  */
-public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IBindable, IConvertable<T>, IRenderNBSPIfEmpty {
+public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IBindable, IConvertable<T> {
 	@Nonnull
 	private Class<T> m_valueClass;
 
@@ -212,9 +211,10 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IBindabl
 	@Override
 	@Nonnull
 	public IBinder bind() {
-		if(m_binder == null)
-			m_binder = new SimpleBinder(this);
-		return m_binder;
+		IBinder b = m_binder;
+		if(b == null)
+			b = m_binder = new SimpleBinder(this);
+		return b;
 	}
 
 	/**
@@ -272,7 +272,8 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IBindabl
 
 	@Override
 	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
-		throw new UnsupportedOperationException("Display control");
+		//FIXME 20120802 vmijic - currently we prevent exception throwing since it raises lot of issues in pages that are using this code, introduced by switching readonly instances of components by DisplayValue...
+		//throw new UnsupportedOperationException("Display control");
 	}
 
 	@Override

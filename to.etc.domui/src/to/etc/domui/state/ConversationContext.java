@@ -398,7 +398,14 @@ public class ConversationContext implements IQContextContainer {
 		return m_delayManager;
 	}
 
-	public DelayedActivityInfo scheduleDelayed(@Nonnull final AsyncContainer container, @Nonnull final IAsyncRunnable a) {
+	/**
+	 * Schedule an activity to be started later. This calls the {@link IAsyncListener#onActivityScheduled(IAsyncRunnable)} method of
+	 * all listeners, and stores their "keep object" for later use.
+	 * @param container
+	 * @param a
+	 * @return
+	 */
+	public DelayedActivityInfo scheduleDelayed(@Nonnull final AsyncContainer container, @Nonnull final IAsyncRunnable a) throws Exception {
 		return getDelayedActivitiesManager().schedule(a, container);
 	}
 

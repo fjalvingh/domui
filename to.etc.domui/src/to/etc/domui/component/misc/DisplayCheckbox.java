@@ -88,9 +88,10 @@ public class DisplayCheckbox extends Img implements IDisplayControl<Boolean>, IB
 	@Override
 	@Nonnull
 	public IBinder bind() {
-		if(m_binder == null)
-			m_binder = new SimpleBinder(this);
-		return m_binder;
+		IBinder b = m_binder;
+		if(b == null)
+			b = m_binder = new SimpleBinder(this);
+		return b;
 	}
 
 	/**

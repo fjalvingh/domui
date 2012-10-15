@@ -478,12 +478,6 @@ public class BulkMailer {
 				m.setHtmlBody("<h1>Hello, world</h1>\n");
 
 				getInstance().store(m);
-			} else if(true) {
-				Thread.sleep(600000);
-
-//				getInstance().scanMailRun();
-
-
 			}
 		} catch(Exception x) {
 			x.printStackTrace();

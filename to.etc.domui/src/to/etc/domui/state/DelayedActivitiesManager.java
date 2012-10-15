@@ -30,6 +30,7 @@ import javax.annotation.*;
 
 import to.etc.domui.component.delayed.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.util.*;
 
 /**
  * This helper class does all of the handling for delayed activities for
@@ -68,14 +69,20 @@ public class DelayedActivitiesManager implements Runnable {
 	 * @param a
 	 * @return
 	 */
-	public DelayedActivityInfo schedule(@Nonnull IAsyncRunnable a, @Nonnull AsyncContainer ac) {
+	public DelayedActivityInfo schedule(@Nonnull IAsyncRunnable a, @Nonnull AsyncContainer ac) throws Exception {
+		//-- Schedule.
 		synchronized(this) {
-			for(DelayedActivityInfo dai : m_pendingQueue) {
-				if(dai.getActivity() == a)
+			for(DelayedActivityInfo tdai : m_pendingQueue) {
+				if(tdai.getActivity() == a)
 					throw new IllegalStateException("The same activity instance is ALREADY scheduled!!");
 			}
+		}
+		DelayedActivityInfo dai = new DelayedActivityInfo(this, a, ac);
 
-			DelayedActivityInfo dai = new DelayedActivityInfo(this, a, ac);
+		//-- Call listeners.
+		dai.callScheduled();
+
+		synchronized(this) {
 			m_pendingQueue.add(dai);
 			return dai;
 		}
@@ -124,9 +131,10 @@ public class DelayedActivitiesManager implements Runnable {
 
 	private void wakeupListeners(int lingertime) {}
 
-	void completionStateChanged(DelayedActivityInfo dai, int pct) {
+	void completionStateChanged(DelayedActivityInfo dai, int pct, String statusMsg) {
 		synchronized(this) {
 			dai.setPercentageComplete(pct);
+			dai.setStatusMessage(statusMsg);
 		}
 	}
 
@@ -146,10 +154,11 @@ public class DelayedActivitiesManager implements Runnable {
 			//-- Do we need progress report(s)?
 			if(m_runningActivity != null) {
 				int pct = m_runningActivity.getPercentageComplete();
-				if(pct > 0) {
+				String statusMsg = m_runningActivity.getStatusMessage();
+				if(pct > 0 || !DomUtil.isBlank(statusMsg)) {
 					//					System.out.println("$$$$$ getState, pct="+pct);
 					pl = new ArrayList<DelayedActivityState.Progress>();
-					pl.add(new DelayedActivityState.Progress(m_runningActivity.getContainer(), pct, null));
+					pl.add(new DelayedActivityState.Progress(m_runningActivity.getContainer(), pct, statusMsg));
 				}
 			}
 
@@ -271,18 +280,18 @@ public class DelayedActivitiesManager implements Runnable {
 				//-- Are we attempting to die?
 				DelayedActivityInfo dai;
 				synchronized(this) {
-					if(m_terminated) // Manager is deadish?
-						return; // Just quit immediately (nothing is currently running)
+					if(m_terminated) 				// Manager is deadish?
+						return; 					// Just quit immediately (nothing is currently running)
 
 					//-- Anything to do?
-					if(m_pendingQueue.size() == 0) { // Something queued still?
+					if(m_pendingQueue.size() == 0) {	// Something queued still?
 						//-- Nope. We can stop properly.
 						return;
 					}
 
 					//-- Schedule for a new execute.
-					dai = m_pendingQueue.remove(0); // Get and remove from pending queue
-					m_runningActivity = dai; // Make this the running dude
+					dai = m_pendingQueue.remove(0); 	// Get and remove from pending queue
+					m_runningActivity = dai; 			// Make this the running dude
 				}
 				execute(dai);
 			}
@@ -312,10 +321,13 @@ public class DelayedActivitiesManager implements Runnable {
 
 		Exception errorx = null;
 		try {
+			dai.callBeforeListeners();
 			dai.getActivity().run(mon);
 		} catch(Exception x) {
 			if(!(x instanceof InterruptedException))
 				errorx = x;
+		} finally {
+			dai.callAfterListeners();
 		}
 
 		//-- The activity has stopped. Register it for callback on the next page poll, so that it's result handler can be called.

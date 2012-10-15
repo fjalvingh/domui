@@ -59,4 +59,6 @@ public class Constants {
 	static public final String ACMD_LOOKUP_TYPING_DONE = "lookupTypingDone";
 
 	static public final String ACMD_DEVTREE = "DEVTREE";
+
+	public static final String PARAM_POST_CONVERSATION_KEY = "xxxpck";
 }

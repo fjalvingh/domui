@@ -25,13 +25,20 @@
 package to.etc.domui.parts;
 
 import java.io.*;
+import java.sql.*;
+
+import javax.annotation.*;
+
+import javax.annotation.*;
 
 import javax.annotation.*;
 
 import to.etc.domui.server.*;
 import to.etc.domui.server.parts.*;
+import to.etc.domui.state.*;
 import to.etc.domui.trouble.*;
 import to.etc.util.*;
+import to.etc.webapp.query.*;
 
 /**
  * Safe reference to a server-side tempfile.
@@ -85,6 +92,22 @@ public class TempFilePart implements IUnbufferedPartFactory {
 		sb.append(TempFilePart.class.getName());
 		sb.append(".part?key=").append(key).append("&passkey=").append(pw);
 		return sb.toString();
+	}
+	
+	/**
+	 * Saves blob into temporary file, register temporary file in provided context, and returns generated download link.
+	 * @param ctx
+	 * @param blob
+	 * @param mime
+	 * @param type
+	 * @param filename
+	 * @return
+	 * @throws Exception
+	 */
+	public static String getDownloadLink(@Nonnull IRequestContext ctx, @Nonnull Blob blob, String mime, String type, String filename) throws Exception {
+		File temp = File.createTempFile("tmp", ".tmp");
+		FileTool.saveBlob(temp, blob);
+		return TempFilePart.registerTempFile(ctx, temp, mime, type, filename);
 	}
 
 	@Override

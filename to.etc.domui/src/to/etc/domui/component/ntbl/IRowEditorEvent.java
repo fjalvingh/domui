@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.ntbl;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.html.*;
@@ -47,5 +49,5 @@ public interface IRowEditorEvent<T, E extends NodeContainer> {
 	 * @return false to refuse the change.
 	 * @throws Exception
 	 */
-	boolean onRowChanged(TableModelTableBase<T> tablecomponent, E editor, T instance, boolean isNew) throws Exception;
+	boolean onRowChanged(@Nonnull TableModelTableBase<T> tablecomponent, @Nonnull E editor, @Nonnull T instance, boolean isNew) throws Exception;
 }

@@ -63,7 +63,7 @@ final public class WindowSession {
 	/**
 	 * The stack of shelved pages; pages that can be returned to easily.
 	 */
-	private final List<ShelvedEntry> m_shelvedPageStack = new ArrayList<ShelvedEntry>();
+	private final List<IShelvedEntry> m_shelvedPageStack = new ArrayList<IShelvedEntry>();
 
 	private int m_nextCid;
 
@@ -127,7 +127,8 @@ final public class WindowSession {
 	 * @param cid
 	 * @return
 	 */
-	ConversationContext findConversation(final String cid) throws Exception {
+	@Nullable
+	public ConversationContext findConversation(@Nonnull final String cid) throws Exception {
 		ConversationContext cc = m_conversationMap.get(cid);
 		if(null != cc)
 			internalAttachConversations();
@@ -201,8 +202,8 @@ final public class WindowSession {
 		}
 		System.out.println("  Page shelve");
 		for(int i = 0; i < m_shelvedPageStack.size(); i++) {
-			ShelvedEntry se = m_shelvedPageStack.get(i);
-			System.out.println("  " + i + ": " + se.getPage() + " in " + se.getPage().internalGetConversation() + ": " + se.getPage().internalGetConversation().getState());
+			IShelvedEntry se = m_shelvedPageStack.get(i);
+			System.out.println("  " + i + ": " + se);
 		}
 
 		//		System.out.println("  ---- Conversation dump end -----");
@@ -229,9 +230,12 @@ final public class WindowSession {
 
 		//-- Discard all pages used by this from the shelve stack
 		for(int i = m_shelvedPageStack.size(); --i >= 0;) {
-			ShelvedEntry she = m_shelvedPageStack.get(i);
-			if(she.getPage().getConversation() == cc) {
-				m_shelvedPageStack.remove(i);
+			IShelvedEntry she = m_shelvedPageStack.get(i);
+			if(she instanceof ShelvedDomUIPage) {
+				ShelvedDomUIPage sdp = (ShelvedDomUIPage) she;
+				if(sdp.getPage().getConversation() == cc) {
+					m_shelvedPageStack.remove(i);
+				}
 			}
 		}
 
@@ -271,14 +275,14 @@ final public class WindowSession {
 	 * Shelve the current page, then move to the new one.
 	 * @param shelved
 	 */
-	private void shelvePage(final Page shelved) {
+	private void shelvePage(@Nonnull final Page shelved) {
 		if(shelved == null)
 			throw new IllegalStateException("Missing current page??");
-		m_shelvedPageStack.add(new ShelvedEntry(shelved));
+		m_shelvedPageStack.add(new ShelvedDomUIPage(this, shelved));
 	}
 
-	public List<ShelvedEntry> getShelvedPageStack() {
-		return m_shelvedPageStack;
+	public List<IShelvedEntry> getShelvedPageStack() {
+		return new ArrayList<IShelvedEntry>(m_shelvedPageStack);
 	}
 
 	/**
@@ -365,7 +369,11 @@ final public class WindowSession {
 				 */
 				clearShelve(psix + 1);
 				internalAttachConversations();
-				Page currentPage = m_shelvedPageStack.get(psix).getPage();
+				IShelvedEntry xse = m_shelvedPageStack.get(psix);
+				if(!(xse instanceof ShelvedDomUIPage))
+					throw new IllegalStateException("Shelve entry is not a domui page but " + xse);
+
+				Page currentPage = ((ShelvedDomUIPage) xse).getPage();
 
 				/*
 				 * jal 20100224 The old page is destroyed and we're now running in the "new" page's context! Since
@@ -439,6 +447,8 @@ final public class WindowSession {
 		shelvePage(currentPage);
 
 		//-- Call all of the page's listeners.
+		callNewPageCreatedListeners(currentPage);
+
 		//		callNewPageListeners(m_currentPage); // jal 20091122 Bug# 605 Move this globally.
 		generateRedirect(ctx, currentPage, ajax);
 		return true;
@@ -460,7 +470,7 @@ final public class WindowSession {
 		return false;
 	}
 
-	private void generateRedirect(final RequestContextImpl ctx, final Page to, boolean ajax) throws Exception {
+	void generateRedirect(final RequestContextImpl ctx, final Page to, boolean ajax) throws Exception {
 		//-- Send a "redirect" to the new page;
 		StringBuilder sb = new StringBuilder();
 		sb.append(ctx.getRelativePath(to.getBody().getClass().getName()));
@@ -471,8 +481,21 @@ final public class WindowSession {
 		sb.append('=');
 		sb.append(to.getConversation().getFullId());
 
+		//-- If the parameter string is too big we need to keep them in memory.
+		PageParameters pp = to.getPageParameters().getUnlockedCopy();
+		if(pp.getDataLength() > 1024) {
+			//-- We need a large referral
+			to.getConversation().setAttribute("__ORIPP", pp);
+
+			//-- Create an unique hash for the page parameters
+			String hashString = pp.calculateHashString();				// The unique hash of a page with these parameters
+
+			pp = new PageParameters();									// Create a new page parameters,
+			pp.addParameter(Constants.PARAM_POST_CONVERSATION_KEY, hashString);
+		} else
+			pp.removeParameter(Constants.PARAM_POST_CONVERSATION_KEY);
+
 		//-- Add any parameters
-		PageParameters pp = to.getPageParameters();
 		if(pp != null) {
 			DomUtil.addUrlParameters(sb, pp, false);
 		}
@@ -487,8 +510,7 @@ final public class WindowSession {
 	}
 
 	/**
-	 * Moves one shelve entry back. If there's no shelve entry current moves back
-	 * to the application's index.
+	 * Moves one shelve entry back. If there's no shelve entry current moves back to the application's index.
 	 * @param currentpg
 	 */
 	private void handleMoveBack(@Nonnull final RequestContextImpl ctx, @Nonnull Page currentpg, boolean ajax) throws Exception {
@@ -510,17 +532,8 @@ final public class WindowSession {
 
 		//-- Unshelve and destroy the topmost thingy, then move back to the then-topmost.
 		clearShelve(ix + 1); // Destroy everything above;
-		ShelvedEntry se = m_shelvedPageStack.get(ix); // Get the thing to move to,
-		Page newpg = se.getPage();
-
-		/*
-		 * jal 20100224 The old page is destroyed and we're now running in the "new" page's context! Since
-		 * unshelve calls user code - which can access that context using PageContext.getXXX calls- we must
-		 * make sure it is correct even though the request was for another page and is almost dying.
-		 */
-		UIContext.internalSet(newpg);
-		newpg.internalUnshelve();
-		generateRedirect(ctx, newpg, ajax);
+		IShelvedEntry se = m_shelvedPageStack.get(ix);	// Get the thing to move to,
+		se.activate(ctx, ajax);									// Activate this page.
 	}
 
 	/*--------------------------------------------------------------*/
@@ -591,9 +604,9 @@ final public class WindowSession {
 		 * Discard top-level entries until we reach the specified level.
 		 */
 		while(m_shelvedPageStack.size() > ix) {
-			ShelvedEntry se = m_shelvedPageStack.remove(m_shelvedPageStack.size() - 1);
+			IShelvedEntry se = m_shelvedPageStack.remove(m_shelvedPageStack.size() - 1);
+			se.discard();
 			//			System.out.println("Trying to discard " + se.getPage() + " in conversation " + se.getPage().getConversation());
-			discardPage(se.getPage());
 		}
 	}
 
@@ -602,13 +615,16 @@ final public class WindowSession {
 	 * longer present on the shelf.
 	 * @param pg
 	 */
-	private void discardPage(final Page pg) {
+	void discardPage(final Page pg) {
 		boolean destroyc = true;
 		for(int i = m_shelvedPageStack.size(); --i >= 0;) {
-			ShelvedEntry se = m_shelvedPageStack.get(i);
-			if(se.getPage().internalGetConversation() == pg.internalGetConversation()) {
-				destroyc = false;
-				break;
+			IShelvedEntry se = m_shelvedPageStack.get(i);
+			if(se instanceof ShelvedDomUIPage) {
+				ShelvedDomUIPage sdp = (ShelvedDomUIPage) se;
+				if(sdp.getPage().internalGetConversation() == pg.internalGetConversation()) {
+					destroyc = false;
+					break;
+				}
 			}
 		}
 
@@ -621,7 +637,9 @@ final public class WindowSession {
 	}
 
 	/**
-	 * Get a valid Page, either from the shelve stack or some other location.
+	 * Get a valid Page, either from the shelve stack or some other location. If this is for a full page request
+	 * the 'papa' parameters are from the request and must be non-null. For an AJAX request the page parameters,
+	 * since they are <b>not repeated</b> in an AJAX request, is null.
 	 * @param rctx
 	 * @param clz
 	 * @param papa
@@ -642,12 +660,13 @@ final public class WindowSession {
 		if(cc != null) {
 			int psix = findInPageStack(cc, clz, papa);
 			if(psix != -1) {
-				/*
-				 * Entry accepted. Discard all stacked entries *above* the selected thing.
-				 */
+				//-- Entry accepted. Discard all stacked entries *above* the selected thing.
 				clearShelve(psix + 1);
 				internalAttachConversations();
-				Page pg = m_shelvedPageStack.get(psix).getPage();
+
+				//-- We know this is a DomUI page, no?
+				ShelvedDomUIPage sdp = (ShelvedDomUIPage) m_shelvedPageStack.get(psix);
+				Page pg = sdp.getPage();
 				if(pg.isShelved())
 					pg.internalUnshelve();
 				return pg;
@@ -678,12 +697,28 @@ final public class WindowSession {
 		internalAttachConversations(); // ORDERED 3
 
 		//-- Create the page && add to shelve,
-		Page newpg = PageMaker.createPageWithContent(rctx, bestpc, coco, PageParameters.createFrom(rctx));
+		if(null == papa)
+			throw new IllegalStateException("Internal: trying to create a page for an AJAX request??");
+		Page newpg = PageMaker.createPageWithContent(rctx, bestpc, coco, papa);
 		shelvePage(newpg); // Append the current page to the shelve,
 
 		//-- Call all of the page's listeners.
-		//		callNewPageListeners(m_currentPage); jal 20091122 Bug# 605 Move this globally.
+		callNewPageCreatedListeners(newpg);
 		return newpg;
+	}
+
+	/**
+	 * Call all "new page" listeners when a page is unbuilt or new at this time.
+	 *
+	 * @param pg
+	 * @throws Exception
+	 */
+	private void callNewPageCreatedListeners(final Page pg) throws Exception {
+		for(INewPageInstantiated npi : getApplication().getNewPageInstantiatedListeners())
+			npi.newPageCreated(pg.getBody());
+		//-- Make very sure none of the listeners built the page
+		if(pg.getBody().isBuilt())
+			throw new IllegalStateException("Error: a INewPageInstantiated#newPageCreated() call has forced the page to be built - this is not allowed");
 	}
 
 	// jal 20091122 Bug# 605 Move this globally.
@@ -698,24 +733,30 @@ final public class WindowSession {
 	 *
 	 * @param cc
 	 * @param clz
-	 * @param papa
+	 * @param papa	Nonnull for a "new page" request, null for an AJAX request to an existing page.
 	 * @return
 	 */
-	private int findInPageStack(final ConversationContext cc, final Class< ? extends UrlPage> clz, final PageParameters papa) throws Exception {
+	private int findInPageStack(final ConversationContext cc, final Class< ? extends UrlPage> clz, @Nullable final PageParameters papa) throws Exception {
 		//		if(cc == null) FIXME jal 20090824 Revisit: this is questionable; why can it be null? Has code path from UIGoto-> handleGoto.
 		//			throw new IllegalStateException("The conversation cannot be empty here.");
 		for(int ix = m_shelvedPageStack.size(); --ix >= 0;) {
-			ShelvedEntry se = m_shelvedPageStack.get(ix);
-			if(se.getPage().getBody().getClass() != clz) // Of the appropriate type?
-				continue; // No -> not acceptable
-			if(cc != null && cc != se.getPage().getConversation()) // Is in the conversation supplied?
-				continue; // No -> not acceptable
+			IShelvedEntry se = m_shelvedPageStack.get(ix);
+			if(se instanceof ShelvedDomUIPage) {
+				ShelvedDomUIPage sdp = (ShelvedDomUIPage) se;
 
-			//-- Page AND context are acceptable; check parameters;
-			if(PageMaker.pageAcceptsParameters(se.getPage(), papa)) // Got a page; must make sure the parameters, if present, are equal.
-				return ix;
+				if(sdp.getPage().getBody().getClass() != clz)	// Of the appropriate type?
+					continue; 									// No -> not acceptable
+				if(cc != null && cc != sdp.getPage().getConversation()) // Is in the conversation supplied?
+					continue;									// No -> not acceptable
+
+				//-- Page AND context are acceptable; check parameters;
+				if(papa == null)								// AJAX request -> page acceptable
+					return ix;
+				if(papa.equals(sdp.getPage().getPageParameters()))	// New page request -> acceptable if same parameters.
+					return ix;
+			}
 		}
-		return -1; // Nothing acceptable
+		return -1;												// Nothing acceptable
 	}
 
 	public boolean isPageOnStack(@Nonnull final Class< ? extends UrlPage> clz, @Nonnull final PageParameters papa) throws Exception {
@@ -790,5 +831,19 @@ final public class WindowSession {
 	 */
 	public Object getAttribute(final String name) {
 		return m_map.get(name);
+	}
+
+	/**
+	 * Add or insert a page to the shelve stack. Used to shelve non DomUI stack entries.
+	 * @param depth
+	 * @param entry
+	 */
+	public void addShelveEntry(int depth, @Nonnull IShelvedEntry entry) {
+		if(depth > 0)
+			throw new IllegalArgumentException("Depth must be <= 0");
+		int ix = m_shelvedPageStack.size() + depth;			// Depth moves index backwards because it is -ve
+		if(ix < 0)
+			throw new IllegalArgumentException("Depth of " + depth + " invalid: max is " + -m_shelvedPageStack.size());
+		m_shelvedPageStack.add(ix, entry);
 	}
 }

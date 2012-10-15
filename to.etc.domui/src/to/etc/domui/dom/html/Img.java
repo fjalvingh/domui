@@ -136,8 +136,8 @@ public class Img extends NodeBase {
 	 * @param src
 	 */
 	public void setSrc(String src) {
-		if(src.startsWith("/"))
-			src = src.substring(1);
+		//		if(src.startsWith("/"))							// jal 20120904 WTF?! This cannot be done, because host-relative URLs are invalid this way.
+		//			src = src.substring(1);
 		//		src = PageContext.getRequestContext().translateResourceName(src);
 		if(!DomUtil.isEqual(src, m_src))
 			changed();

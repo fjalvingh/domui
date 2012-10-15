@@ -37,6 +37,11 @@ input, textarea {
 	padding: 2px;
 }
 
+input[type=file] {
+	border: 0 !important;
+	padding: 0px !important;
+}
+
 input:hover, textarea:hover, select:hover {
 	border-color:#5794BF #D7E8F8 #D7E8F8 #5794BF;
 }
@@ -56,6 +61,11 @@ button img {
 button {
 	vertical-align: bottom;
 }
+
+.page-content {
+	margin: 0px 10px;
+}
+
 /*** 005_oddchars.frag.css ***/
 /*** Select special chars ***/
 .ui-oddchars {
@@ -275,6 +285,7 @@ td.ui-tr-selected {
 	border: 1px solid <%= readonly_border %>;
 	display:block;
 	padding:2px;
+	min-height:1em;
 }
 /*** 040_captionedheader.frag.css ***/
 /*** CaptionedHeader ***/
@@ -461,6 +472,18 @@ a.ui-lnkb {
 a:hover.ui-lnkb {
 	text-decoration: underline !important;
 }
+
+a.ui-lnkb-dis {
+	text-decoration: none !important;
+	font-style: italic;
+	cursor: default;
+	color: gray; 
+}
+
+a:hover.ui-lnkb-dis {
+	text-decoration: none !important;
+}
+
 /*** 070_alink.frag.css ***/
 /*** ALink component. ***/
 .ui-alnk {
@@ -554,11 +577,11 @@ a.ui-brc-l, a.ui-brc-l:hover a.ui-brc-l :VISITED, a.ui-brc-l:ACTIVE {
 .ui-bb-right {
 	padding: 0; margin: 0;
 	width: 29px;
-	height: 36px;
+/*	height: 36px;	jal 20121009 Do not add height: empty button bar must be empty. */
 }
 .ui-bb-middle {
 	padding: 0; margin: 0;
-	height: 36px;
+/*	height: 36px;	jal 20121009 Do not add height: empty button bar must be empty. */
 }
 /*** 095_monthpanel.frag.css ***/
 /*** MonthPanel ***/
@@ -832,6 +855,7 @@ tr.ui-keyword-popup-row {
 	text-align: right;
 	font-weight: bold;
 	vertical-align: top;
+	min-width: 150px;
 }
 
 .ui-f-in {
@@ -1982,9 +2006,11 @@ li.ui-tab-err {
 	background-color: blue;
 	margin-top: 2px;
 }
+
 /*** MessageLine ***/
 .ui-msgln {
 	clear: both;
+	padding: 4px 0px;
 }
 .ui-msgln img {
 	float: left;
@@ -1992,3 +2018,5 @@ li.ui-tab-err {
 .ui-msgln-txt {
 	padding-left: 4px;
 }
+
+

@@ -53,6 +53,7 @@ public class TBody extends NodeContainer implements IDropBody {
 	 * @param ix
 	 * @return
 	 */
+	@Nonnull
 	public TR getRow(int ix) {
 		return (TR) getChild(ix);
 	}
@@ -69,12 +70,14 @@ public class TBody extends NodeContainer implements IDropBody {
 	 * Add a new row to the table.
 	 * @return
 	 */
+	@Nonnull
 	public TR addRow() {
 		m_currentRow = new TR();
 		add(m_currentRow);
 		return m_currentRow;
 	}
 
+	@Nonnull
 	public TD addCell() {
 		m_currentCell = new TD();
 		if(m_currentRow == null)
@@ -83,25 +86,34 @@ public class TBody extends NodeContainer implements IDropBody {
 		return m_currentCell;
 	}
 
+	@Nonnull
 	public TD addCell(String css) {
 		addCell();
 		m_currentCell.setCssClass(css);
 		return m_currentCell;
 	}
 
+	@Nonnull
 	public TD addRowAndCell() {
 		addRow();
 		return addCell();
 	}
 
+	@Nonnull
 	public TD cell() {
-		return m_currentCell;
+		if(null != m_currentCell)
+			return m_currentCell;
+		return addCell();
 	}
 
+	@Nonnull
 	public TR row() {
-		return m_currentRow;
+		if(m_currentRow != null)
+			return m_currentRow;
+		return addRow();
 	}
 
+	@Nonnull
 	public TD nextRowCell() {
 		addRow();
 		return addCell();

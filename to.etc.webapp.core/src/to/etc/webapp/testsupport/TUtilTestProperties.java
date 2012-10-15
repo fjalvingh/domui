@@ -12,9 +12,14 @@ import javax.sql.*;
 import org.junit.*;
 
 import to.etc.dbpool.*;
+import to.etc.dbutil.*;
 import to.etc.util.*;
+import to.etc.webapp.eventmanager.*;
 
 public class TUtilTestProperties {
+	/** Will contain a description of the location for the test properties used, after {@link #getTestProperties()}. */
+	static private String m_propertiesLocation;
+
 	static private Properties m_properties;
 
 	static private boolean m_checkedProperties;
@@ -51,7 +56,7 @@ public class TUtilTestProperties {
 	}
 
 	@Nullable
-	static public Properties findTestProperties() {
+	static synchronized public Properties findTestProperties() {
 		if(m_checkedProperties)
 			return m_properties;
 		m_checkedProperties = true;
@@ -72,6 +77,7 @@ public class TUtilTestProperties {
 					throw new IllegalStateException(testFileName + ": this test.properties file, defined by the 'testProperties' java property does not exist as a resource below /resource/test/");
 				m_properties = new Properties();
 				m_properties.load(is);
+				m_propertiesLocation = "resource /resource/test/" + testFileName + " (through testProperties system property)";
 				return m_properties;
 			}
 
@@ -80,6 +86,7 @@ public class TUtilTestProperties {
 				File uhf = new File(new File(uh), ".test.properties");
 				if(uhf.exists()) {
 					m_properties = FileTool.loadProperties(uhf);
+					m_propertiesLocation = uhf + " (from user.home property)";
 					return m_properties;
 				}
 			}
@@ -87,6 +94,7 @@ public class TUtilTestProperties {
 			File src = new File("./test.properties");
 			if(src.exists()) {
 				m_properties = FileTool.loadProperties(src);
+				m_propertiesLocation = src.getAbsolutePath() + " (from current directory)";
 				return m_properties;
 			}
 
@@ -101,6 +109,7 @@ public class TUtilTestProperties {
 						is = TUtilTestProperties.class.getResourceAsStream(name + ".properties");
 						if(is != null) {
 							m_properties = new Properties();
+							m_propertiesLocation = "resource-by-hostname: " + name + ".properties";
 							m_properties.load(is);
 							return m_properties;
 						}
@@ -122,13 +131,18 @@ public class TUtilTestProperties {
 		}
 	}
 
-	private static Properties loadProperties(@Nonnull String sysProp, String propNamen) throws Exception {
+	private static synchronized Properties loadProperties(@Nonnull String sysProp, String propNamen) throws Exception {
 		File f = new File(sysProp);
 		if(f.exists()) {
 			m_properties = FileTool.loadProperties(f);
+			m_propertiesLocation = f + " (through environment variable " + propNamen + ")";
 			return m_properties;
 		} else
 			throw new IllegalStateException(propNamen + " System property has nonexisting file " + f);
+	}
+
+	public static synchronized String getPropertiesLocation() {
+		return m_propertiesLocation;
 	}
 
 
@@ -183,7 +197,7 @@ public class TUtilTestProperties {
 	 *
 	 * @return
 	 */
-	static public DbConnectionInfo getDbConn() {
+	static synchronized public DbConnectionInfo getDbConn() {
 		if(m_dbconn != null)
 			return m_dbconn;
 		String db = getDbString();
@@ -231,7 +245,7 @@ public class TUtilTestProperties {
 	 * userid is set to ANONYMOUS this will return NULL.
 	 * @return
 	 */
-	static public String getViewpointLoginName() {
+	static synchronized public String getViewpointLoginName() {
 		if(!m_gotLoginName) {
 			m_gotLoginName = true;
 			m_viewpointLoginName = getTestProperties().getProperty("loginid");
@@ -253,7 +267,7 @@ public class TUtilTestProperties {
 	 *
 	 * @return
 	 */
-	static public DataSource getRawDataSource() {
+	static synchronized public DataSource getRawDataSource() {
 		assumeDatabase();
 		if(m_rawDS == null) {
 			String url = "jdbc:oracle:thin:@" + getDbConn().hostname + ":" + getDbConn().port + ":" + getDbConn().sid;
@@ -264,6 +278,15 @@ public class TUtilTestProperties {
 			} catch(SQLException x) {
 				throw new RuntimeException("cannot init pool: " + x, x);
 			}
+
+			//-- Init common infrastructure
+			try {
+				VpEventManager.initialize(m_rawDS, "vp_sys_events");
+			} catch(Exception x) {
+				x.printStackTrace();
+			}
+			VpEventManager.getInstance().start();
+			DbLockKeeper.init(m_rawDS);
 		}
 		return m_rawDS;
 	}

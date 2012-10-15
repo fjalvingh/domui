@@ -141,6 +141,20 @@ public class JdbcDataContext implements QDataContext {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QDataContext#get(java.lang.Class, java.lang.Object)
+	 */
+	@Override
+	public @Nonnull
+	<T> T get(@Nonnull Class<T> clz, @Nonnull Object pk) throws Exception {
+		T res = find(clz, pk);
+		if(res == null) {
+			throw new QNotFoundException(clz, pk);
+		}
+		return res;
+	}
+
+	/**
 	 * Get an instance; this will return an instance by first trying to load it; if that fails
 	 * it will create one but only fill the PK. Use is questionable though.
 	 * @see to.etc.webapp.query.QDataContext#getInstance(java.lang.Class, java.lang.Object)
@@ -245,4 +259,5 @@ public class JdbcDataContext implements QDataContext {
 			m_commitHandlerList = new ArrayList<IRunnable>();
 		m_commitHandlerList.add(cx);
 	}
+
 }

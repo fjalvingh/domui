@@ -36,6 +36,7 @@ import org.slf4j.*;
 import to.etc.domui.access.*;
 import to.etc.domui.ajax.*;
 import to.etc.domui.component.controlfactory.*;
+import to.etc.domui.component.delayed.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.layout.title.*;
 import to.etc.domui.component.lookup.*;
@@ -71,10 +72,10 @@ public abstract class DomApplication {
 	@Nonnull
 	private Set<IAppSessionListener> m_appSessionListeners = new HashSet<IAppSessionListener>();
 
-	@Nonnull
+	@Nullable
 	private File m_webFilePath;
 
-	@Nonnull
+	@Nullable
 	private String m_urlExtension;
 
 	@Nonnull
@@ -187,6 +188,8 @@ public abstract class DomApplication {
 		}
 	};
 
+	@Nonnull
+	private List<IAsyncListener< ? >> m_asyncListenerList = Collections.emptyList();
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Initialization and session management.				*/
@@ -290,7 +293,9 @@ public abstract class DomApplication {
 	 */
 	@Nonnull
 	public String getUrlExtension() {
-		return m_urlExtension;
+		if(null != m_urlExtension)
+			return m_urlExtension;
+		throw new IllegalStateException("Application is not initialized");
 	}
 
 
@@ -833,7 +838,9 @@ public abstract class DomApplication {
 	 */
 	@Nonnull
 	public final File getWebAppFileRoot() {
-		return m_webFilePath;
+		if(null != m_webFilePath)
+			return m_webFilePath;
+		throw new IllegalStateException("Application is not initialized");
 	}
 
 	//	/** Cache for application resources containing all resources we have checked existence for */
@@ -1226,6 +1233,25 @@ public abstract class DomApplication {
 
 	public synchronized List<ILoginListener> getLoginListenerList() {
 		return m_loginListenerList;
+	}
+
+	/**
+	 * Add a new listener for asynchronous job events.
+	 * @param l
+	 */
+	public synchronized <T> void addAsyncListener(@Nonnull IAsyncListener<T> l) {
+		m_asyncListenerList = new ArrayList<IAsyncListener< ? >>(m_asyncListenerList);
+		m_asyncListenerList.add(l);
+	}
+
+	public synchronized <T> void removeAsyncListener(@Nonnull IAsyncListener<T> l) {
+		m_asyncListenerList = new ArrayList<IAsyncListener< ? >>(m_asyncListenerList);
+		m_asyncListenerList.remove(l);
+	}
+
+	@Nonnull
+	public synchronized List<IAsyncListener< ? >> getAsyncListenerList() {
+		return m_asyncListenerList;
 	}
 
 	/**

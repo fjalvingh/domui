@@ -372,6 +372,48 @@ public class FileTool {
 	}
 
 	/**
+	 * Read a file's contents as byte[].
+	 * @param f
+	 * @return
+	 * @throws IOException
+	 * @throws Exception
+	 */
+	public static byte[] readFileAsByteArray(@Nonnull File file) throws IOException {
+		FileInputStream in = null;
+		try {
+			in = new FileInputStream(file);
+			int intSize = FileTool.getIntSizeOfFile(file);
+			byte[] data = new byte[intSize];
+			in.read(data);
+			return data;
+		} finally {
+			FileTool.closeAll(in);
+		}
+	}
+
+	/**
+	 * Load a class resource as a byte array. If the resource is not found this returns null.
+	 * @param clz
+	 * @param name
+	 * @return
+	 * @throws IOException
+	 */
+	@Nullable
+	public static byte[] readResourceAsByteArray(@Nonnull Class< ? > clz, @Nonnull String name) throws IOException {
+		InputStream is = clz.getResourceAsStream(name);
+		if(null == is)
+			return null;
+		try {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			copyFile(baos, is);
+			baos.close();
+			return baos.toByteArray();
+		} finally {
+			closeAll(is);
+		}
+	}
+
+	/**
 	 *
 	 * @param o
 	 * @param f
@@ -1242,6 +1284,22 @@ public class FileTool {
 			os.write(b);
 	}
 
+	/**
+	 * Save the data in byte array to a file.
+	 * @param of
+	 * @param data
+	 * @throws IOException
+	 */
+	static public void save(final File of, final byte[] data) throws IOException {
+		OutputStream os = new FileOutputStream(of);
+		try {
+			os.write(data);
+		} finally {
+			try {
+				os.close();
+			} catch(Exception x) {}
+		}
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Data marshalling and unmarshalling					*/
@@ -1759,5 +1817,45 @@ public class FileTool {
 			}
 			sb.setLength(clen);
 		}
+	}
+
+	/**
+	 * Saves blob into specified file.
+	 * @param out
+	 * @param in
+	 * @throws Exception
+	 */
+	static public void saveBlob(@Nonnull File out, @Nonnull Blob in) throws Exception {
+		InputStream is = null;
+		OutputStream os = null;
+		try {
+			is = in.getBinaryStream();
+			os = new FileOutputStream(out);
+			copyFile(os, is);
+			os.close();
+		} finally {
+			try {
+				if(is != null)
+					is.close();
+			} catch(Exception x) {}
+			try {
+				if(os != null)
+					os.close();
+			} catch(Exception x) {}
+		}
+	}
+
+	/**
+	 * Returns size of a file as int type. In case of Integer range overflow {@link Integer#MAX_VALUE}, throws {@link IllegalStateException}.
+	 * This can be used on files with expected size less then 2GB.
+	 * @param file
+	 * @return
+	 */
+	public static int getIntSizeOfFile(File file) {
+		long size = file.length();
+		if (size > Integer.MAX_VALUE){
+			throw new IllegalStateException("We do not allow file sizes > " + StringTool.strSize(Integer.MAX_VALUE) + ", found file size:" + StringTool.strSize(size));
+		}
+		return (int) size;
 	}
 }

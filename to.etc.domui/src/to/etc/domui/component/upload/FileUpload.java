@@ -62,7 +62,7 @@ import to.etc.webapp.core.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 13, 2008
  */
-public class FileUpload extends Div implements IUploadAcceptingComponent {
+public class FileUpload extends Div implements IUploadAcceptingComponent /* implements IHasChangeListener */ {
 	private String m_allowedExtensions;
 
 	//	private int m_maxSize;
@@ -74,6 +74,8 @@ public class FileUpload extends Div implements IUploadAcceptingComponent {
 	List<UploadItem> m_files = new ArrayList<UploadItem>();
 
 	private FileInput m_input;
+
+	private IValueChanged< ? > m_onValueChanged;
 
 	private boolean m_disabled;
 
@@ -130,10 +132,12 @@ public class FileUpload extends Div implements IUploadAcceptingComponent {
 			td.setText(ufi.getRemoteFileName() + " (" + ufi.getContentType() + ")");
 			td = b.addCell();
 			if(!isDisabled()) {
-				td.add(new DefaultButton("delete", new IClicked<DefaultButton>() {
+				td.add(new DefaultButton(Msgs.BUNDLE.getString("upld.delete"), "THEME/btnDelete.png", new IClicked<DefaultButton>() {
 					@Override
 					public void clicked(DefaultButton bx) throws Exception {
 						removeUploadItem(ufi);
+						if(m_onValueChanged != null)
+							((IValueChanged<FileUpload>) m_onValueChanged).onValueChanged(FileUpload.this);
 					}
 				}));
 			}
@@ -158,6 +162,7 @@ public class FileUpload extends Div implements IUploadAcceptingComponent {
 	 * or to a BLOB in a database.
 	 * @return
 	 */
+	@Nonnull
 	public List<UploadItem> getFiles() {
 		return m_files;
 	}
@@ -179,6 +184,14 @@ public class FileUpload extends Div implements IUploadAcceptingComponent {
 		if(m_files.remove(ufi))
 			forceRebuild();
 	}
+
+	public void removeAllUploads() {
+		if(m_files.size() == 0)
+			return;
+		m_files.clear();
+		forceRebuild();
+	}
+
 
 	/**
 	 * Return the space separated list of allowed file extensions.
@@ -231,6 +244,14 @@ public class FileUpload extends Div implements IUploadAcceptingComponent {
 		m_maxFiles = maxFiles;
 	}
 
+	public IValueChanged< ? > getOnValueChanged() {
+		return m_onValueChanged;
+	}
+
+	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
+		m_onValueChanged = onValueChanged;
+	}
+
 	public boolean isDisabled() {
 		return m_disabled;
 	}
@@ -252,11 +273,12 @@ public class FileUpload extends Div implements IUploadAcceptingComponent {
 			}
 		}
 		forceRebuild();
+		if(m_onValueChanged != null)
+			((IValueChanged<FileUpload>) m_onValueChanged).onValueChanged(this);
 
 		//-- Render an optimal delta as the response,
 		ServerTools.generateNoCache(param.getResponse()); // Do not allow the browser to cache
 		ApplicationRequestHandler.renderOptimalDelta(param, getPage());
 	}
-
-
 }
+
