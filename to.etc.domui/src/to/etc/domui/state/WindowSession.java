@@ -761,13 +761,16 @@ final public class WindowSession {
 
 	public boolean isPageOnStack(@Nonnull final Class< ? extends UrlPage> clz, @Nonnull final PageParameters papa) throws Exception {
 		for(int ix = m_shelvedPageStack.size(); --ix >= 0;) {
-			ShelvedEntry se = m_shelvedPageStack.get(ix);
-			if(se.getPage().getBody().getClass() != clz) // Of the appropriate type?
-				continue; // No -> not acceptable
+			IShelvedEntry se = m_shelvedPageStack.get(ix);
+			if(se instanceof ShelvedDomUIPage) {
+				ShelvedDomUIPage sdp = (ShelvedDomUIPage) se;
+				if(sdp.getPage().getBody().getClass() != clz) // Of the appropriate type?
+					continue; // No -> not acceptable
 
-			//-- Page AND context are acceptable; check parameters;
-			if(PageMaker.pageAcceptsParameters(se.getPage(), papa)) // Got a page; must make sure the parameters, if present, are equal.
-				return true;
+				//-- Page AND context are acceptable; check parameters;
+				if(sdp.getPage().getPageParameters().equals(papa)) // Got a page; must make sure the parameters, if present, are equal.
+					return true;
+			}
 		}
 		return false;
 	}
