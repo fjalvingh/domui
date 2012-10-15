@@ -5,6 +5,9 @@ WebUI._T.sysSessionExpired = 'Uw sessie is verlopen. Het scherm wordt opnieuw op
 WebUI._T.sysSessionExpired2 = 'De server is opnieuw gestart of uw sessie is verlopen. Het scherm wordt opnieuw opgevraagd met originele gegevens.';
 WebUI._T.sysPopupBlocker = "Er is een popup blocker actief. Deze moet voor deze website worden uitgezet.";
 
+//-- Upload.
+WebUI._T.uploadType = "Het bestandsformaat {0} is niet toegestaan; gebruik {1}";
+
 //-- Bulk upload
 WebUI._T.buplPending='Wachten';
 WebUI._T.buplRunning='Wordt geupload';

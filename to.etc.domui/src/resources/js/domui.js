@@ -1637,7 +1637,7 @@ var WebUI = {
 				}
 			}
 			if (!ok) {
-				alert("File type not allowed: " + ext + ", allowed: " + val);
+				alert(WebUI.format(WebUI._T.uploadType, ext, val));
 				return;
 			}
 		}
@@ -1682,6 +1682,19 @@ var WebUI = {
 		// -- Target the iframe
 		form.target = "webuiif"; // Fake a new thingy,
 		form.submit(); // Force submit of the thingerydoo
+	},
+
+	/**
+	 * Format a NLS message containing {0} and {1} markers and the like into
+	 * a real message.
+	 * @param message
+	 * @returns
+	 */
+	format: function(message) {
+		for(var i = 1; i < arguments.length; i++) {
+			message = message.replace("{"+(i-1)+"}", arguments[i]);
+		}
+		return message;
 	},
 
 	/**
