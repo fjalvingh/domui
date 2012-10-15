@@ -29,6 +29,7 @@ import javax.annotation.*;
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.state.*;
+import to.etc.domui.themes.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 
@@ -113,7 +114,7 @@ public class AsyncContainer extends Div {
 		m_progress = new Div();
 		add(m_progress);
 		if(isAbortable()) {
-			DefaultButton db = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL), new IClicked<DefaultButton>() {
+			DefaultButton db = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL), Theme.BTN_CANCEL, new IClicked<DefaultButton>() {
 				@Override
 				public void clicked(DefaultButton b) throws Exception {
 					cancel();

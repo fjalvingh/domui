@@ -5,6 +5,9 @@ WebUI._T.sysSessionExpired = 'Your session has expired. The screen will be reloa
 WebUI._T.sysSessionExpired2 = 'The server has restarted or your session has expired. The screen will be reloaded with fresh data.';
 WebUI._T.sysPopupBlocker = "A popup blocker is active. You need to disable it for this website.";
 
+//-- Upload.
+WebUI._T.uploadType = "The file type {0} is not allowed; allowed are {1}";
+
 //-- Bulk upload
 WebUI._T.buplPending='Pending';
 WebUI._T.buplRunning='Uploading';
