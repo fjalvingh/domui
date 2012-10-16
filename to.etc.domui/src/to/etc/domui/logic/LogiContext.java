@@ -5,6 +5,7 @@ import java.util.*;
 
 import javax.annotation.*;
 
+import to.etc.domui.util.db.*;
 import to.etc.webapp.query.*;
 
 /**
@@ -19,6 +20,12 @@ final public class LogiContext {
 	private QDataContext m_dataContext;
 
 	private Map<Object, Object> m_storeMap = new HashMap<Object, Object>();
+
+	private Map<ObjectIdentifier< ? >, Object> m_copyMap = new HashMap<ObjectIdentifier< ? >, Object>();
+
+	private Map<ObjectIdentifier< ? >, Object> m_originalMap = new HashMap<ObjectIdentifier< ? >, Object>();
+
+	private boolean m_initializedCopies;
 
 	@Nonnull
 	public <T> T get(@Nonnull Class<T> clz, Object... params) throws Exception {
@@ -75,4 +82,60 @@ final public class LogiContext {
 		return vali;
 	}
 
+	<T> void createCopy(IModelCopier copier, IIdentifyable<T> source) throws Exception {
+		ObjectIdentifier<T> key = new ObjectIdentifier<T>(source.getClass(), source.getId());
+		if(m_originalMap.get(key) != null) {
+			return;
+		}
+		Object existingCopy = m_copyMap.get(key);
+		if(existingCopy == null) {
+			IIdentifyable<T> copy = copier.copyInstanceShallow(m_dataContext, source);
+			m_copyMap.put(key, copy);
+		}
+		m_originalMap.put(key, source);
+	}
+
+	public LogiEvent collectChanges() {
+		if(!m_initializedCopies) {
+			throw new IllegalStateException(this.getClass() + " didn't finish initialization of object copies!");
+		}
+
+		LogiEvent event = new LogiEvent();
+		List<ObjectIdentifier< ? >> handled = new ArrayList<ObjectIdentifier< ? >>();
+		for(ObjectIdentifier< ? > key : m_originalMap.keySet()) {
+			IIdentifyable< ? > current = (IIdentifyable< ? >) m_originalMap.get(key);
+			IIdentifyable< ? > copy = (IIdentifyable< ? >) m_copyMap.get(key);
+			if(copy == null) {
+				event.add(new InsertEvent(key));
+			} else {
+				List<String> changedProps = compareObjects(current, copy);
+				if(changedProps.size() > 0) {
+					event.add(new UpdateEvent(key, changedProps));
+				}
+			}
+			handled.add(key);
+		}
+
+		for(ObjectIdentifier< ? > key : m_copyMap.keySet()) {
+			if(!handled.contains(key)) {
+				event.add(new DeleteEvent(key));
+			}
+		}
+
+		return event;
+	}
+
+	public void initializedCopies() {
+		if(m_initializedCopies) {
+			throw new IllegalStateException(this.getClass() + " has already initialized object copies!");
+		}
+		m_initializedCopies = true;
+		m_copyMap = Collections.unmodifiableMap(m_copyMap);
+	}
+
+	private @Nonnull
+	List<String> compareObjects(IIdentifyable< ? > current, IIdentifyable< ? > copy) {
+		// TODO Auto-generated method stub
+		return Collections.EMPTY_LIST;
+	}
 }
