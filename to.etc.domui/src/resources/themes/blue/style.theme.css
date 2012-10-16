@@ -2314,6 +2314,7 @@ li.ui-stab-ibt:FIRST-CHILD {
 	padding: 0px;
 	margin-left: -4px;
 	outline: 0; 				/* btadic 20120712: Removing dotted border form focused button */
+	background-repeat: no-repeat;
 }
 
 .ui-dp-btns a.ui-dp-nav-f {

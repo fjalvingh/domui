@@ -7,21 +7,25 @@
 
 .ui-dp-btns a{
 	height: 18px;
-	width: 29px;
+	width: 32px;
 	display: inline-block;
 	padding: 0px;
-	margin-left: -4px;
+	margin-left: -3px;
 	outline: 0; 				/* btadic 20120712: Removing dotted border form focused button */
+	background-repeat: no-repeat;
 }
 
 .ui-dp-btns a.ui-dp-nav-f {
-	background-image : url("<%= nav_btn_first_s%>");
+	background-image: url("<%= nav_btn_first_s%>");
+	width: 21px;
 }
 .ui-dp-btns a.ui-dp-nav-f:HOVER {
-	background-image : url("<%= nav_btn_first_f%>");
+	background-image: url("<%= nav_btn_first_f%>");
+	width: 21px;
 }
 .ui-dp-btns a.ui-dp-nav-f-dis {
-	background-image : url("<%= nav_btn_first_d%>");
+	background-image: url("<%= nav_btn_first_d%>");
+	width: 21px;
 }
 
 .ui-dp-btns a.ui-dp-nav-p {

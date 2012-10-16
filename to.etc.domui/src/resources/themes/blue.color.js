@@ -64,7 +64,6 @@ header_bg_img=""; //-- Table header doesn't have background image
 //-- Caption
 caption_separator="hr-caption.png";
 
-
 //-- Error colors (error panel)
 error_bg="#a9c5f1";
 
