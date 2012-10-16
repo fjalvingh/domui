@@ -102,10 +102,7 @@ public class PageParameters implements IPageParameters {
 	}
 
 	public void setReadOnly() {
-		// Temporary disabled again. Until InvoiceEditPage, CorrectionBookingEditPage and TranscriptEditPage are corrected
-		// 10-10-2012 Leo v.d. Ende
-		// TODO
-		//m_readOnly = true;
+		m_readOnly = true;
 	}
 
 	private void writeable() {
