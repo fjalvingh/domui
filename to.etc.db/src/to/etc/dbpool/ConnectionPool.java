@@ -825,6 +825,7 @@ final public class ConnectionPool {
 	 * will discard the connection.
 	 */
 	void returnToPool(PoolEntry pe, final ConnectionProxy pc) throws SQLException {
+		m_manager.removeThreadConnection(pc);
 		//-- Before doing anything else reset the connection outside the lock,
 		boolean ok = false;
 		try {
@@ -1001,6 +1002,8 @@ final public class ConnectionPool {
 			if(x == null) {
 				ConnectionProxy dbc = pe.proxyMake(); // Yes-> make the proxy and be done.
 				dbgAlloc("getConnection", dbc);
+				if(!unpooled)
+					PoolManager.getInstance().addThreadConnection(dbc);
 				return dbc;
 			}
 
