@@ -57,7 +57,7 @@ public class SourceBreadCrumb extends Div {
 		}
 	}
 
-	private void addPageLink(int ct, Class< ? extends UrlPage> class1, PageParameters pageParameters, String ttl, boolean last) {
+	private void addPageLink(int ct, Class< ? extends UrlPage> class1, IPageParameters pageParameters, String ttl, boolean last) {
 		//-- Create a LINK or a SPAN
 		NodeContainer stgt;
 		if(last) {

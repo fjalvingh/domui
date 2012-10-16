@@ -65,7 +65,7 @@ public class UrlEntityInjector extends PropertyInjector {
 		return m_mandatory;
 	}
 
-	protected String getParameterValue(UrlPage page, PageParameters papa) throws Exception {
+	protected String getParameterValue(UrlPage page, IPageParameters papa) throws Exception {
 		//-- 1. Get the URL parameter's value.
 		String pv = papa.getString(m_name, null);
 		if(pv == null) {
@@ -96,7 +96,7 @@ public class UrlEntityInjector extends PropertyInjector {
 	 * @param value
 	 * @return
 	 */
-	protected boolean isNew(final UrlPage page, final RequestContextImpl ctx, final PageParameters papa, String value) throws Exception {
+	protected boolean isNew(final UrlPage page, final RequestContextImpl ctx, final IPageParameters papa, String value) throws Exception {
 		return "NEW".equals(value);
 	}
 
@@ -128,7 +128,7 @@ public class UrlEntityInjector extends PropertyInjector {
 	//	}
 
 	@Override
-	public void inject(final UrlPage page, final RequestContextImpl ctx, final PageParameters papa) throws Exception {
+	public void inject(final UrlPage page, final RequestContextImpl ctx, final IPageParameters papa) throws Exception {
 		//-- 1. Get the URL parameter's value.
 		String pv = getParameterValue(page, papa);
 		if(pv == null)

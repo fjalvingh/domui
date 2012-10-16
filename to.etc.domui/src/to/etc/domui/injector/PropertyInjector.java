@@ -53,5 +53,5 @@ public abstract class PropertyInjector {
 		}
 	}
 
-	public abstract void inject(UrlPage page, RequestContextImpl ctx, PageParameters pp) throws Exception;
+	public abstract void inject(UrlPage page, RequestContextImpl ctx, IPageParameters pp) throws Exception;
 }

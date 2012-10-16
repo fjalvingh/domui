@@ -412,11 +412,11 @@ final public class DomUtil {
 		}
 	}
 
-	static public void addUrlParameters(@Nonnull final StringBuilder sb, @Nonnull final PageParameters ctx, boolean first) {
+	static public void addUrlParameters(@Nonnull final StringBuilder sb, @Nonnull final IPageParameters ctx, boolean first) {
 		addUrlParameters(sb, ctx, first, Collections.EMPTY_SET);
 	}
 
-	static public void addUrlParameters(@Nonnull final StringBuilder sb, @Nonnull final PageParameters ctx, boolean first, @Nonnull Set<String> skipset) {
+	static public void addUrlParameters(@Nonnull final StringBuilder sb, @Nonnull final IPageParameters ctx, boolean first, @Nonnull Set<String> skipset) {
 		if(ctx == null)
 			return;
 		for(String name : ctx.getParameterNames()) {
@@ -471,7 +471,7 @@ final public class DomUtil {
 	 * @param pp
 	 * @return
 	 */
-	static public String createPageURL(Class< ? extends UrlPage> clz, PageParameters pp) {
+	static public String createPageURL(Class< ? extends UrlPage> clz, IPageParameters pp) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(UIContext.getRequestContext().getRelativePath(clz.getName()));
 		sb.append('.');
@@ -489,7 +489,7 @@ final public class DomUtil {
 	 * @return
 	 */
 	@Nonnull
-	static public String createPageRURL(@Nonnull Class< ? extends UrlPage> clz, @Nullable PageParameters pp) {
+	static public String createPageRURL(@Nonnull Class< ? extends UrlPage> clz, @Nullable IPageParameters pp) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(clz.getName());
 		sb.append('.');
@@ -508,7 +508,7 @@ final public class DomUtil {
 	 * @param pp
 	 * @return
 	 */
-	static public String createPageURL(String webAppUrl, Class< ? extends UrlPage> clz, PageParameters pp) {
+	static public String createPageURL(String webAppUrl, Class< ? extends UrlPage> clz, IPageParameters pp) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(webAppUrl);
 		sb.append(clz.getName());
@@ -526,7 +526,7 @@ final public class DomUtil {
 	 * @param pageParameters
 	 * @return
 	 */
-	public static String createPageURL(String rurl, PageParameters pageParameters) {
+	public static String createPageURL(String rurl, IPageParameters pageParameters) {
 		StringBuilder sb = new StringBuilder();
 		if(DomUtil.isRelativeURL(rurl)) {
 			RequestContextImpl ctx = (RequestContextImpl) UIContext.getRequestContext();
@@ -1260,7 +1260,7 @@ final public class DomUtil {
 	 * @return
 	 */
 	@Deprecated
-	static public Long getLongParameter(PageParameters pp, String name, Long def) {
+	static public Long getLongParameter(IPageParameters pp, String name, Long def) {
 		String s = pp.getString(name, null); // Parameter present?
 		if(s == null || s.trim().length() == 0)
 			return def;
@@ -1498,7 +1498,7 @@ final public class DomUtil {
 	 * @return
 	 */
 	@Nonnull
-	static public String createOpenWindowJS(@Nonnull Class< ? > targetClass, @Nullable PageParameters targetParameters, @Nullable WindowParameters newWindowParameters) {
+	static public String createOpenWindowJS(@Nonnull Class< ? > targetClass, @Nullable IPageParameters targetParameters, @Nullable WindowParameters newWindowParameters) {
 		//-- We need a NEW window session. Create it,
 		RequestContextImpl ctx = (RequestContextImpl) UIContext.getRequestContext();
 		WindowSession cm = ctx.getSession().createWindowSession();
