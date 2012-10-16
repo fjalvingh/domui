@@ -3,11 +3,11 @@
 .ui-chdr {
 	width: 100%;
 	margin-top: 10px;
-	border-bottom: 2px solid <%= header_bg %>;
+	border-bottom: 2px solid <%= caption_bg %>;
 }
 .ui-chdr-ttl {
 	color: <%= header_text_color %>;
-	background-color: <%= header_bg %>;
+	background-color: <%= caption_bg %>;
 	padding: 2px 10px 2px 10px;
 	white-space: nowrap;
 	-moz-border-radius: 2px 2px 0px 0px;

@@ -39,7 +39,7 @@ info_fg="blue";
 info_border="blue";
 
 // row odd/even
-even_row_bgcol="#eeeeee"; //greyish
+even_row_bgcol="#e8e8e8"; //greyish
 dt_rowhdr_bg="#98bbf3";
 dt_rowhdr_fg="#ffffff";
 
@@ -76,6 +76,9 @@ tab_pnl_hover_inactive_col = "#ffffff";
 tab_pnl_active_col = "#67267f";
 error_fg = "red";
 tab_pnl_sep_bg = "#7c7c7c";
+
+//-- Caption header
+caption_bg="#f0810a"; //Main orange
 
 //-- Bulk upload
 upl_runing=highlight_bg;

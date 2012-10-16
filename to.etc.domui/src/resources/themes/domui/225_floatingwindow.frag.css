@@ -5,7 +5,7 @@
 	margin: 0;
 	/*	border: 1px solid black; */
 	background: url(bg-body.png) repeat-x <%= bg_color %>;
-	border: 1px solid #cccccc;
+	background-position: 50px 0px;
 	border-top: none;
 	/*	overflow: hidden;	*/
 	top: 5%;
@@ -13,20 +13,14 @@
 }
 
 .ui-flw-ttl {
-/*	position: absolute;
-	top: 0px;
-	height: 20px;
-	left: 0px;
-	right: 0px; */
-	
-	height: 20px;
-	padding: 0;
-	padding: 2px;
+	height: 22px;
+	padding: 3px 2px 3px 2px;
 	background: url(<%= bg_ttl_gradient %>) repeat-y;
+	background-position-x: 120px;
 	background-color: <%= bg_ttl_end %>;
 	color: <%= bg_ttl_text %>;
 	border-bottom: 1px solid #eeeeee;
-	font-size: 15px;
+	font-size: 140%;
 	font-weight: bold;
 }
 
@@ -38,7 +32,7 @@
 }
 .ui-flw-tc {
 	width: 100%;
-	height: 5px;
+	height: 0px;
 }
 
 .ui-flw-bc {
@@ -49,15 +43,14 @@
 .ui-flw-hider {
 	height: 100%;
 	width: 100%;
-	opacity: 0.5;
 	position: fixed;
 	top: 0px;
 	left: 0px;
 	background-color: black;
-	filter:alpha(opacity=50);
+	opacity: 0.3;
+	filter:alpha(opacity=30);
 }
 
 .ui-flw-btn-close {
-	margin-top: -1px;
-	margin-right: -2px;
+	padding: 0px;
 }

@@ -307,26 +307,24 @@ td.ui-tr-selected {
 /*** CaptionedHeader ***/
 .ui-chdr {
 	width: 100%;
-/*	height: 20px; */
-	background-image: url(bg-chdr.png.svg);
-	background-position: 0px -2px;
 	margin-top: 10px;
+	border-bottom: 2px solid <%= caption_bg %>;
 }
 .ui-chdr-ttl {
 	color: <%= header_text_color %>;
-	background-color: <%= util.color(header_bg).lighter(0.4) %>;
+	background-color: <%= caption_bg %>;
 	padding: 2px 10px 2px 10px;
 	white-space: nowrap;
-	-moz-border-radius: 5px 5px 0px 0px;
-    -webkit-border-radius: 5px 5px 0px 0px;
-    -khtml-border-radius: 5px 5px 0px 0px;
-    border-radius: 5px 5px 0px 0px;
+	-moz-border-radius: 2px 2px 0px 0px;
+    -webkit-border-radius: 2px 2px 0px 0px;
+    -khtml-border-radius: 2px 2px 0px 0px;
+    border-radius: 2px 2px 0px 0px;
 }
 .ui-chdr-ttl img {
 	padding-right: 10px;
 }
 .ui-chdr-l {
-	width: 20px;
+	width: 10px;
 	padding: 0;
 	margin: 0;
 }
@@ -1173,7 +1171,7 @@ div.ui-dt table{
 }
 
 .ui-even {
-	background-color: <%= even_row_bgcol %>;
+	background: <%= even_row_bgcol %>;
 }
 
 tr.ui-rowsel {
@@ -1274,20 +1272,20 @@ div.ui-sortable {
 /*** CaptionedPanel ***/
 .ui-pnl-outer {
 	background-color: white;
-	padding: 1px;
-	border: 1px solid <%= header_bg %>;
 }
 
 .ui-pnl-caption {
-	border: 1px solid <%= header_bg %>;
 	padding: 2px 4px 2px 4px;
 	font-weight: bold;
-	background: url(bg-header.png.svg) repeat-x;
+	font-size: 120%;
+	color: <%= bg_ttl_text %>;
+	background: <%= header_bg %>;
 }
 
 .ui-pnl-cont {
 	position: relative;
 	padding: 5px;
+	border: 1px solid <%= header_bg %>;
 }
 /*** 160_errorpanel.frag.css ***/
 /*** ErrorPanel - a CaptionedPanel used to display errors in the page ***/
@@ -2013,7 +2011,7 @@ li.ui-stab-ibt:FIRST-CHILD {
 	margin: 0;
 	/*	border: 1px solid black; */
 	background: url(bg-body.png) repeat-x <%= bg_color %>;
-	border: 1px solid #cccccc;
+	background-position: 50px 0px;
 	border-top: none;
 	/*	overflow: hidden;	*/
 	top: 5%;
@@ -2021,18 +2019,14 @@ li.ui-stab-ibt:FIRST-CHILD {
 }
 
 .ui-flw-ttl {
-/*	position: absolute;
-	top: 0px;
-	height: 20px;
-	left: 0px;
-	right: 0px; */
-	
-	height: 20px;
-	padding: 0;
-	padding: 2px;
-	background: url(bg-float-ttl2.png) repeat-x;
+	height: 22px;
+	padding: 3px 2px 3px 2px;
+	background: url(<%= bg_ttl_gradient %>) repeat-y;
+	background-position-x: 120px;
+	background-color: <%= bg_ttl_end %>;
+	color: <%= bg_ttl_text %>;
 	border-bottom: 1px solid #eeeeee;
-	font-size: 15px;
+	font-size: 140%;
 	font-weight: bold;
 }
 
@@ -2044,7 +2038,7 @@ li.ui-stab-ibt:FIRST-CHILD {
 }
 .ui-flw-tc {
 	width: 100%;
-	height: 5px;
+	height: 0px;
 }
 
 .ui-flw-bc {
@@ -2055,17 +2049,16 @@ li.ui-stab-ibt:FIRST-CHILD {
 .ui-flw-hider {
 	height: 100%;
 	width: 100%;
-	opacity: 0.5;
 	position: fixed;
 	top: 0px;
 	left: 0px;
 	background-color: black;
-	filter:alpha(opacity=50);
+	opacity: 0.3;
+	filter:alpha(opacity=30);
 }
 
 .ui-flw-btn-close {
-	margin-top: -1px;
-	margin-right: -2px;
+	padding: 0px;
 }
 /*** 230_defaultbutton.frag.css ***/
 /*** New default button, uses sliding doors and a single bg image ***/
@@ -2204,17 +2197,16 @@ li.ui-stab-ibt:FIRST-CHILD {
 .ui-bupl-wrp {
 	width: 360px;
 	background-color: white;
-	padding: 1px;
 	border: 1px solid <%= header_bg %>;
 }
 .ui-bupl-ttl {
 /*	border: 1px solid <%= header_bg %>; */
 	padding: 2px 4px 2px 4px;
 	font-weight: bold;
-	background: url(bg-header.png.svg) repeat-x;
+	background: <%= header_bg %>;
 }
 .ui-bupl-legend {
-	color: black;
+	color: <%= bg_ttl_text %>; 
 }
 
 .ui-bupl .swfupload {
@@ -2245,12 +2237,12 @@ li.ui-stab-ibt:FIRST-CHILD {
 	background-color: #bbb;
 }
 .ui-bupl-running {
-	border: 1px solid #DDF0DD;
-	background-color: #EBFFEB;
+	border: 1px solid <%= util.color(upl_runing).lighter(0.6) %>;
+	background-color: <%= util.color(upl_runing).lighter(0.6) %>;
 }
 .ui-bupl-complete {
-	border: 1px solid #cde0cd;
-	background-color: #dbefdb;
+	border: 1px solid <%= upl_runing %>;
+	background-color: <%= upl_runing %>;
 }
 .ui-bupl-error {
 	border: 1px solid #ff4900;
@@ -2290,7 +2282,7 @@ li.ui-stab-ibt:FIRST-CHILD {
 	font-size: 0;
 	width: 0%;
 	height: 2px;
-	background-color: blue;
+	background-color: <%= util.color(upl_loading).lighter(0.2) %>;
 	margin-top: 2px;
 }
 /*** 250_smallhoverbutton.frag.css ***/

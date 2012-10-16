@@ -52,7 +52,7 @@ div.ui-dt table{
 }
 
 .ui-even {
-	background-color: <%= even_row_bgcol %>;
+	background: <%= even_row_bgcol %>;
 }
 
 tr.ui-rowsel {
