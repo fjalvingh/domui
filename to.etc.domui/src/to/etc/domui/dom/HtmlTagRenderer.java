@@ -558,7 +558,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 				}
 			}
 		}
-		
+
 		if(c.getTransform() != null) {
 			a.append("text-transform:");
 			a.append(c.getTransform().name().toLowerCase());

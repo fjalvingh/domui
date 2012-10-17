@@ -147,11 +147,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	private boolean m_stretchHeight;
 
 	/**
-	 * Indicates if tag must have end tag always rendered. Reasoning is that IE can not work with 'IFRAME' that does not have explicit tag closed by '/IFRAME'.
-	 */
-	private final boolean m_rendersOwnClose;
-
-	/**
 	 * This must visit the appropriate method in the node visitor. It should NOT recurse it's children.
 	 * @param v
 	 * @throws Exception
@@ -159,12 +154,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	abstract public void visit(INodeVisitor v) throws Exception;
 
 	protected NodeBase(@Nonnull final String tag) {
-		this(tag, false);
-	}
-
-	protected NodeBase(@Nonnull final String tag, boolean hasEndTag) {
 		m_tag = tag;
-		m_rendersOwnClose = hasEndTag;
 		if(m_logAllocations) {
 			m_allocationTracepoint = DomUtil.getTracepoint();
 		}
@@ -1430,6 +1420,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @return
 	 */
 	public boolean isRendersOwnClose() {
-		return m_rendersOwnClose;
+		return false;
 	}
 }

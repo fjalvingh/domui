@@ -51,7 +51,12 @@ public class IFrame extends NodeBase {
 	private String m_frameWidth;
 
 	public IFrame() {
-		super("iframe", true);
+		super("iframe");
+	}
+
+	@Override
+	public boolean isRendersOwnClose() {
+		return true;
 	}
 
 	@Override
