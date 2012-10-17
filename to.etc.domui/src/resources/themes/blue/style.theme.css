@@ -22,7 +22,7 @@
 }
 
 .ui-di-sib:hover {
-	background-color: <%= header_bg %> !important;
+	background-color: <%= data_tbl_header_bg %> !important;
 }
 /*** 002_core.frag.css ***/
 /*** Core style ***/
@@ -290,7 +290,7 @@ td.ui-tr-sel {
 	cursor: pointer;
 }
 td.ui-tr-selected {
-	background-color: <%= header_bg %>; !important;
+	background-color: <%= bg_ttl_end %>; !important;
 }
 
 .ui-tree {
@@ -311,7 +311,7 @@ td.ui-tr-selected {
 	border-bottom: 2px solid <%= caption_bg %>;
 }
 .ui-chdr-ttl {
-	color: <%= header_text_color %>;
+	color: <%= bg_ttl_text %>;
 	background-color: <%= caption_bg %>;
 	padding: 2px 10px 2px 10px;
 	white-space: nowrap;
@@ -989,6 +989,8 @@ div.ui-lf-mainContent{
 	font-size: <%= font_size %>;
 	vertical-align: top;
 	white-space: nowrap;
+	min-width: 150px;
+	width: 1%;
 }
 
 .ui-f-in {
@@ -1137,13 +1139,13 @@ div.ui-dt table{
 }
 
 .ui-dt th {
-	background: <%=	header_bg %>;
-	background-image: url(<%= header_bg_img %>);
+	background: <%=	data_tbl_header_bg %>;
+	background-image: url(<%= data_tbl_header_bg_img %>);
+	color: <%= data_tbl_header_text_color %>;
 	text-align: left;
 	font-weight: bold;
 	padding: 0px 3px;
 	vertical-align: top;
-	font-size: <%= font_size %>;
 }
 
 .ui-dt tbody td {
@@ -1171,7 +1173,7 @@ div.ui-dt table{
 }
 
 .ui-even {
-	background: <%= even_row_bgcol %>;
+	background: <%= data_tbl_even_row_bg %>;
 }
 
 tr.ui-rowsel {
@@ -1189,8 +1191,8 @@ td.ui-cellsel {
 
 td.ui-cellsel:hover {
 	text-decoration: underline;
-	background-color: <%= cellhighlight_bg %> !important;
-	color: <%= cellhighlightcolor_bg %>;
+	background-color: <%= data_tbl_cell_highlight_bg %> !important;
+	color: <%= data_tbl_cell_highlight_link_color_bg %>;
 }
 
 th.ui-sortable {
@@ -1212,7 +1214,7 @@ div.ui-sortable {
 }
 
 .ui-dt {
-	font-size: <%= font_size %>;
+	font-size: <%= data_tbl_font_size %>;
 }
 
 .ui-dt-separator {
@@ -2022,7 +2024,6 @@ li.ui-stab-ibt:FIRST-CHILD {
 	height: 22px;
 	padding: 3px 2px 3px 2px;
 	background: url(<%= bg_ttl_gradient %>) repeat-y;
-	background-position-x: 120px;
 	background-color: <%= bg_ttl_end %>;
 	color: <%= bg_ttl_text %>;
 	border-bottom: 1px solid #eeeeee;
@@ -2309,22 +2310,25 @@ li.ui-stab-ibt:FIRST-CHILD {
 
 .ui-dp-btns a{
 	height: 18px;
-	width: 29px;
+	width: 32px;
 	display: inline-block;
 	padding: 0px;
-	margin-left: -4px;
+	margin-left: -3px;
 	outline: 0; 				/* btadic 20120712: Removing dotted border form focused button */
 	background-repeat: no-repeat;
 }
 
 .ui-dp-btns a.ui-dp-nav-f {
-	background-image : url("<%= nav_btn_first_s%>");
+	background-image: url("<%= nav_btn_first_s%>");
+	width: 21px;
 }
 .ui-dp-btns a.ui-dp-nav-f:HOVER {
-	background-image : url("<%= nav_btn_first_f%>");
+	background-image: url("<%= nav_btn_first_f%>");
+	width: 21px;
 }
 .ui-dp-btns a.ui-dp-nav-f-dis {
-	background-image : url("<%= nav_btn_first_d%>");
+	background-image: url("<%= nav_btn_first_d%>");
+	width: 21px;
 }
 
 .ui-dp-btns a.ui-dp-nav-p {

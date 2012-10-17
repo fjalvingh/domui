@@ -13,23 +13,32 @@ div.ui-dt table{
 	overflow: auto;
 	position: relative;
 	border-spacing: 0px;
-	border-left: 1px solid #bababa; /* gray so it is theme invariant */
+	border-right: 1px solid #bababa;
 	border-bottom: 1px solid #bababa;
 }
 
 .ui-dt th {
-	background: <%=	header_bg %>;
-	background-image: url(<%= header_bg_img %>);
+	background: <%=	data_tbl_header_bg %>;
+	background-image: url(<%= data_tbl_header_bg_img %>);
+	color: <%= data_tbl_header_text_color %>;
+	border-bottom: 1px solid <%= data_tbl_header_btm_border %>;
 	text-align: left;
 	font-weight: bold;
 	padding: 0px 3px;
 	vertical-align: top;
-	font-size: <%= font_size %>;
+}
+
+.ui-dt th:FIRST-CHILD {
+	border-left: 1px solid <%= data_tbl_header_btm_border %>;
+}
+
+.ui-dt th:LAST-CHILD {
+	border-right: 1px solid <%= data_tbl_header_btm_border %>;
 }
 
 .ui-dt tbody td {
 	padding: 3px;
-	border-right: 1px solid #bababa;
+	border-left: 1px solid #bababa; /* gray so it is theme invariant */
 }
 
 .ui-dt tbody tr > td.ui-f-lbl:first-child {
@@ -52,7 +61,7 @@ div.ui-dt table{
 }
 
 .ui-even {
-	background: <%= even_row_bgcol %>;
+	background: <%= data_tbl_even_row_bg %>;
 }
 
 tr.ui-rowsel {
@@ -70,8 +79,8 @@ td.ui-cellsel {
 
 td.ui-cellsel:hover {
 	text-decoration: underline;
-	background-color: <%= cellhighlight_bg %> !important;
-	color: <%= cellhighlightcolor_bg %>;
+	background-color: <%= data_tbl_cell_highlight_bg %> !important;
+	color: <%= data_tbl_cell_highlight_link_color_bg %>;
 }
 
 th.ui-sortable {
@@ -93,7 +102,7 @@ div.ui-sortable {
 }
 
 .ui-dt {
-	font-size: <%= font_size %>;
+	font-size: <%= data_tbl_font_size %>;
 }
 
 .ui-dt-separator {

@@ -18,5 +18,5 @@
 }
 
 .ui-di-sib:hover {
-	background-color: <%= header_bg %> !important;
+	background-color: <%= data_tbl_header_bg %> !important;
 }

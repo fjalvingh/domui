@@ -20,7 +20,7 @@ td.ui-tr-sel {
 	cursor: pointer;
 }
 td.ui-tr-selected {
-	background-color: <%= header_bg %>; !important;
+	background-color: <%= bg_ttl_end %>; !important;
 }
 
 .ui-tree {
