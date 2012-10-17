@@ -183,4 +183,22 @@ public class SimpleBinder implements IBinder {
 	public void setControlsEnabled(boolean on) {
 		m_control.setDisabled(!on);
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		if(m_instance != null) {
+			sb.append("i=").append(m_instance);
+		} else if(m_listener != null) {
+			sb.append("l=").append(m_listener);
+		} else if(m_model != null) {
+			sb.append("m=").append(m_model);
+		} else {
+			sb.append("?");
+		}
+		if(m_propertyModel != null) {
+			sb.append("/").append(m_propertyModel.getName());
+		}
+		return sb.toString();
+	}
 }
