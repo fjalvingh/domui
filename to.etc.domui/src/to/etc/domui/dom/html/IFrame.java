@@ -51,7 +51,7 @@ public class IFrame extends NodeBase {
 	private String m_frameWidth;
 
 	public IFrame() {
-		super("iframe");
+		super("iframe", true);
 	}
 
 	@Override
