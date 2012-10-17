@@ -1210,7 +1210,6 @@ public class HtmlTagRenderer implements INodeVisitor {
 			o().attr("scrolling", n.getScrolling());
 
 		renderTagend(n, m_o);
-		renderEndTag(n);
 	}
 
 	//	protected void	renderDraggableCrud(NodeBase b) {
