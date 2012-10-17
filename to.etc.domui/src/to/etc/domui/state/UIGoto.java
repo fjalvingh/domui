@@ -53,7 +53,7 @@ final public class UIGoto {
 	static public void reload() {
 		Page pg = UIContext.getCurrentPage();
 		Class< ? extends UrlPage> clz = pg.getBody().getClass();
-		PageParameters pp = pg.getPageParameters();
+		IPageParameters pp = pg.getPageParameters();
 		context().internalSetNextPage(MoveMode.REPLACE, clz, null, null, pp);
 	}
 
@@ -73,7 +73,7 @@ final public class UIGoto {
 	 * @param clz
 	 * @param pp
 	 */
-	static public void moveSub(final Class< ? extends UrlPage> clz, final PageParameters pp) {
+	static public void moveSub(final Class< ? extends UrlPage> clz, final IPageParameters pp) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		context().internalSetNextPage(MoveMode.SUB, clz, null, null, pp);
@@ -104,7 +104,7 @@ final public class UIGoto {
 	 * @param cc
 	 * @param pp
 	 */
-	static public void moveSub(final Class< ? extends UrlPage> clz, final ConversationContext cc, final PageParameters pp) {
+	static public void moveSub(final Class< ? extends UrlPage> clz, final ConversationContext cc, final IPageParameters pp) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		if(cc == null)
@@ -118,7 +118,7 @@ final public class UIGoto {
 	 * @param clz
 	 * @param pp
 	 */
-	static public void moveNew(final Class< ? extends UrlPage> clz, final PageParameters pp) {
+	static public void moveNew(final Class< ? extends UrlPage> clz, final IPageParameters pp) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		context().internalSetNextPage(MoveMode.NEW, clz, null, null, pp);
@@ -166,7 +166,7 @@ final public class UIGoto {
 	 * @param clz
 	 * @param pp
 	 */
-	static public void replace(final Class< ? extends UrlPage> clz, final PageParameters pp) {
+	static public void replace(final Class< ? extends UrlPage> clz, final IPageParameters pp) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		context().internalSetNextPage(MoveMode.REPLACE, clz, null, null, pp);
@@ -180,7 +180,7 @@ final public class UIGoto {
 	 * @param pp
 	 * @param msg
 	 */
-	static public final void replace(Page pg, final Class< ? extends UrlPage> clz, final PageParameters pp, UIMessage msg) {
+	static public final void replace(Page pg, final Class< ? extends UrlPage> clz, final IPageParameters pp, UIMessage msg) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		List<UIMessage> msgl = new ArrayList<UIMessage>(1);
@@ -221,7 +221,7 @@ final public class UIGoto {
 	 * @param msg
 	 * @param pp
 	 */
-	static public final void clearPageAndReload(Page pg, String msg, PageParameters pp) {
+	static public final void clearPageAndReload(Page pg, String msg, IPageParameters pp) {
 		clearPageAndReload(pg, pg.getBody().getClass(), pp, msg);
 	}
 
@@ -234,7 +234,7 @@ final public class UIGoto {
 	 * @param pp
 	 * @param msg
 	 */
-	static public final void clearPageAndReload(Page pg, Class< ? extends UrlPage> target, PageParameters pp, String msg) {
+	static public final void clearPageAndReload(Page pg, Class< ? extends UrlPage> target, IPageParameters pp, String msg) {
 		clearPageAndReload(pg, UIMessage.info(Msgs.BUNDLE, Msgs.S_PAGE_CLEARED, msg), pp);
 	}
 
@@ -257,7 +257,7 @@ final public class UIGoto {
 	 * @param msg
 	 * @param pp
 	 */
-	static public final void clearPageAndReload(Page pg, UIMessage msg, PageParameters pp) {
+	static public final void clearPageAndReload(Page pg, UIMessage msg, IPageParameters pp) {
 		WindowSession ws = pg.getConversation().getWindowSession();
 		List<UIMessage> msgl = new ArrayList<UIMessage>(1);
 		msgl.add(msg);

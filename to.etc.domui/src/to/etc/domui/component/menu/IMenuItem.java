@@ -37,7 +37,7 @@ public interface IMenuItem {
 
 	Class< ? extends UrlPage> getPageClass();
 
-	PageParameters getPageParameters();
+	IPageParameters getPageParameters();
 
 	String getIconPath();
 

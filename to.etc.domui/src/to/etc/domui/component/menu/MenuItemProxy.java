@@ -79,7 +79,7 @@ public class MenuItemProxy implements IMenuItem {
 	}
 
 	@Override
-	public PageParameters getPageParameters() {
+	public IPageParameters getPageParameters() {
 		return m_actual.getPageParameters();
 	}
 

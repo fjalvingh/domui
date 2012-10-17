@@ -51,7 +51,7 @@ final class PageInjector {
 	 * @param pp
 	 * @throws Exception
 	 */
-	public void inject(final UrlPage page, final RequestContextImpl ctx, final PageParameters pp) throws Exception {
+	public void inject(final UrlPage page, final RequestContextImpl ctx, final IPageParameters pp) throws Exception {
 		for(PropertyInjector pi : m_propInjectorList)
 			pi.inject(page, ctx, pp);
 	}

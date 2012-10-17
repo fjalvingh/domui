@@ -73,7 +73,7 @@ final public class WindowSession {
 
 	private Class< ? extends UrlPage> m_targetPageClass;
 
-	private PageParameters m_targetPageParameters;
+	private IPageParameters m_targetPageParameters;
 
 	private ConversationContext m_targetConversation;
 
@@ -346,7 +346,7 @@ final public class WindowSession {
 		//			return false;							// Piss off then
 
 		ConversationContext cc = getTargetConversation();
-		PageParameters pp = getTargetPageParameters();
+		IPageParameters pp = getTargetPageParameters();
 		Constructor< ? extends UrlPage> bestpc = null;
 
 		if(getTargetMode() != MoveMode.REPLACE) {
@@ -482,7 +482,7 @@ final public class WindowSession {
 		sb.append(to.getConversation().getFullId());
 
 		//-- If the parameter string is too big we need to keep them in memory.
-		PageParameters pp = to.getPageParameters().getUnlockedCopy();
+		IPageParameters pp = to.getPageParameters();
 		if(pp.getDataLength() > 1024) {
 			//-- We need a large referral
 			to.getConversation().setAttribute("__ORIPP", pp);
@@ -490,10 +490,10 @@ final public class WindowSession {
 			//-- Create an unique hash for the page parameters
 			String hashString = pp.calculateHashString();				// The unique hash of a page with these parameters
 
-			pp = new PageParameters();									// Create a new page parameters,
-			pp.addParameter(Constants.PARAM_POST_CONVERSATION_KEY, hashString);
-		} else
-			pp.removeParameter(Constants.PARAM_POST_CONVERSATION_KEY);
+			PageParameters rpp = new PageParameters();
+			pp = rpp;
+			rpp.addParameter(Constants.PARAM_POST_CONVERSATION_KEY, hashString);
+		}
 
 		//-- Add any parameters
 		if(pp != null) {
@@ -550,7 +550,7 @@ final public class WindowSession {
 		m_targetMode = null;
 	}
 
-	public void internalSetNextPage(final MoveMode m, final Class< ? extends UrlPage> clz, final ConversationContext cc, final Class< ? extends ConversationContext> ccclz, final PageParameters pp) {
+	public void internalSetNextPage(final MoveMode m, final Class< ? extends UrlPage> clz, final ConversationContext cc, final Class< ? extends ConversationContext> ccclz, final IPageParameters pp) {
 		m_targetMode = m;
 		m_targetPageClass = clz;
 		m_targetConversationClass = ccclz;
@@ -567,7 +567,7 @@ final public class WindowSession {
 		return m_targetPageClass;
 	}
 
-	public PageParameters getTargetPageParameters() {
+	public IPageParameters getTargetPageParameters() {
 		return m_targetPageParameters;
 	}
 
@@ -738,7 +738,7 @@ final public class WindowSession {
 	 * @param papa	Nonnull for a "new page" request, null for an AJAX request to an existing page.
 	 * @return
 	 */
-	private int findInPageStack(final ConversationContext cc, final Class< ? extends UrlPage> clz, @Nullable final PageParameters papa) throws Exception {
+	private int findInPageStack(final ConversationContext cc, final Class< ? extends UrlPage> clz, @Nullable final IPageParameters papa) throws Exception {
 		//		if(cc == null) FIXME jal 20090824 Revisit: this is questionable; why can it be null? Has code path from UIGoto-> handleGoto.
 		//			throw new IllegalStateException("The conversation cannot be empty here.");
 		for(int ix = m_shelvedPageStack.size(); --ix >= 0;) {
