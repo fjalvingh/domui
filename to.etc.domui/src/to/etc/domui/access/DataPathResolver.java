@@ -31,7 +31,7 @@ public class DataPathResolver extends UiParamDataResolver {
 		return m_dataClassType;
 	}
 
-	public Object resolveDataPath(PageParameters pp) throws Exception {
+	public Object resolveDataPath(IPageParameters pp) throws Exception {
 		QDataContext dc = null;
 
 		try {

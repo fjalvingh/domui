@@ -56,7 +56,7 @@ public class UrlParameterInjector extends PropertyInjector {
 	 * @see to.etc.domui.state.PageMaker.PropertyInjector#inject(to.etc.domui.server.RequestContextImpl, to.etc.domui.state.PageParameters)
 	 */
 	@Override
-	public void inject(final UrlPage page, final RequestContextImpl ctx, final PageParameters papa) throws Exception {
+	public void inject(final UrlPage page, final RequestContextImpl ctx, final IPageParameters papa) throws Exception {
 		//-- 1. Get the URL parameter's value.
 		String pv = papa.getString(m_name, null);
 		if(pv == null) {

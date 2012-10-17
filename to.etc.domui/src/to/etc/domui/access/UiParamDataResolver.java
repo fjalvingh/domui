@@ -14,7 +14,7 @@ public abstract class UiParamDataResolver {
 		m_pageClass = pageClass;
 	}
 
-	protected Object getAccessData(final QDataContext dc, final PageParameters pp, final String param) throws Exception {
+	protected Object getAccessData(final QDataContext dc, final IPageParameters pp, final String param) throws Exception {
 		String pv = pp.getString(param);
 
 		if(pv == null || "NEW".equals(pv))

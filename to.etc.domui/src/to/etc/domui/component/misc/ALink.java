@@ -55,7 +55,7 @@ public class ALink extends ATag {
 	/** The target URL this page should move to. When set targetClass must be null. */
 	private String m_targetURL;
 
-	private PageParameters m_targetParameters;
+	private IPageParameters m_targetParameters;
 
 	private WindowParameters m_newWindowParameters;
 
@@ -82,19 +82,19 @@ public class ALink extends ATag {
 	 * @param targetClass
 	 * @param targetParameters
 	 */
-	public ALink(Class< ? extends UrlPage> targetClass, PageParameters targetParameters) {
+	public ALink(Class< ? extends UrlPage> targetClass, IPageParameters targetParameters) {
 		this(targetClass, targetParameters, null, null);
 	}
 
-	public ALink(Class< ? extends UrlPage> targetClass, PageParameters targetParameters, MoveMode mode) {
+	public ALink(Class< ? extends UrlPage> targetClass, IPageParameters targetParameters, MoveMode mode) {
 		this(targetClass, targetParameters, null, mode);
 	}
 
-	public ALink(Class< ? extends UrlPage> targetClass, PageParameters targetParameters, WindowParameters newWindowParameters) {
+	public ALink(Class< ? extends UrlPage> targetClass, IPageParameters targetParameters, WindowParameters newWindowParameters) {
 		this(targetClass, targetParameters, newWindowParameters, null);
 	}
 
-	private ALink(Class< ? extends UrlPage> targetClass, PageParameters targetParameters, WindowParameters newWindowParameters, MoveMode mode) {
+	private ALink(Class< ? extends UrlPage> targetClass, IPageParameters targetParameters, WindowParameters newWindowParameters, MoveMode mode) {
 		setCssClass("ui-alnk");
 		m_targetClass = targetClass;
 		m_targetParameters = targetParameters;
@@ -110,7 +110,7 @@ public class ALink extends ATag {
 	 * @param targetURL
 	 * @param targetParameters
 	 */
-	public ALink(String targetURL, PageParameters targetParameters, WindowParameters newWindowParameters) {
+	public ALink(String targetURL, IPageParameters targetParameters, WindowParameters newWindowParameters) {
 		setCssClass("ui-alnk");
 		m_targetURL = targetURL;
 		m_targetParameters = targetParameters;
@@ -133,7 +133,7 @@ public class ALink extends ATag {
 		updateLink();
 	}
 
-	public PageParameters getTargetParameters() {
+	public IPageParameters getTargetParameters() {
 		return m_targetParameters;
 	}
 

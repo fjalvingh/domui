@@ -61,7 +61,7 @@ final public class Page implements IQContextContainer {
 	/**
 	 * The set of parameters that was used at page creation time.
 	 */
-	private PageParameters m_pageParameters;
+	private IPageParameters m_pageParameters;
 
 	private ConversationContext m_cc;
 
@@ -175,15 +175,24 @@ final public class Page implements IQContextContainer {
 	 * @param pp
 	 * @param cc
 	 */
-	final public void internalInitialize(final PageParameters pp, final ConversationContext cc) {
+	final public void internalInitialize(@Nonnull IPageParameters pp, final ConversationContext cc) {
 		if(pp == null)
 			throw new IllegalStateException("Internal: Page parameters cannot be null here");
 		if(cc == null)
 			throw new IllegalStateException("Internal: ConversationContext cannot be null here");
 
 		m_cc = cc;
+		if(!pp.isReadOnly()) {
+			if(pp instanceof PageParameters) {
+				((PageParameters) pp).setReadOnly();
+			} else {
+				PageParameters rpp = pp.getUnlockedCopy();
+				rpp.setReadOnly();
+				pp = rpp;
+			}
+		}
+
 		m_pageParameters = pp;
-		pp.setReadOnly();
 	}
 
 	public void setTheCurrentNode(NodeBase b) {
@@ -226,8 +235,15 @@ final public class Page implements IQContextContainer {
 		return DomApplication.get();
 	}
 
-	public PageParameters getPageParameters() {
-		return m_pageParameters;
+	/**
+	 * Return the <b>readonly</b> copy of the parameters for this page.
+	 * @return
+	 */
+	@Nonnull
+	public IPageParameters getPageParameters() {
+		if(null != m_pageParameters)
+			return m_pageParameters;
+		throw new IllegalStateException("The page is not initialized??");
 	}
 
 	public int getRequestCounter() {
@@ -655,7 +671,7 @@ final public class Page implements IQContextContainer {
 	 * @param wp
 	 */
 	@Deprecated
-	public void openWindow(@Nonnull Class< ? extends UrlPage> clz, @Nullable PageParameters pp, @Nullable WindowParameters wp) {
+	public void openWindow(@Nonnull Class< ? extends UrlPage> clz, @Nullable IPageParameters pp, @Nullable WindowParameters wp) {
 		String js = DomUtil.createOpenWindowJS(clz, pp, wp);
 		appendJS(js);
 	}
