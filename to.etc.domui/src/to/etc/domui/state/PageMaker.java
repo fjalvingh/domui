@@ -130,7 +130,7 @@ public class PageMaker {
 						cnt++;
 						sc += 2;
 						nparam++;
-					} else if(PageParameters.class.isAssignableFrom(pc)) {
+					} else if(PageParameters.class.isAssignableFrom(pc) || IPageParameters.class.isAssignableFrom(pc)) {
 						if(hasparam)
 							sc++;
 						else
