@@ -207,8 +207,9 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		if(action != null && cida != null) {
 			if(cm.isConversationDestroyed(cida[1])) {					// This conversation was recently destroyed?
 				//-- Render a null response
+				if(LOG.isDebugEnabled())
+					LOG.debug("Session " + cid + " was destroyed earlier- assuming this is an out-of-order event and sending empty delta back");
 				generateEmptyDelta(ctx);
-
 			}
 		}
 
