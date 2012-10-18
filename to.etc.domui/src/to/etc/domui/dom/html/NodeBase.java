@@ -30,6 +30,7 @@ import javax.annotation.*;
 
 import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.input.*;
+import to.etc.domui.dom.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.server.*;
@@ -1412,5 +1413,13 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		String n = getClass().getName();
 		int pos = n.lastIndexOf('.');
 		return n.substring(pos + 1) + ":" + m_actualID + (m_title == null ? "" : "/" + m_title);
+	}
+
+	/**
+	 * Returns if node would have always rendered end tag in {@link HtmlTagRenderer} visitor for node.
+	 * @return
+	 */
+	public boolean isRendersOwnClose() {
+		return false;
 	}
 }

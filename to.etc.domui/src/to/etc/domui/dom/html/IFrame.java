@@ -55,6 +55,11 @@ public class IFrame extends NodeBase {
 	}
 
 	@Override
+	public boolean isRendersOwnClose() {
+		return true;
+	}
+
+	@Override
 	public void visit(INodeVisitor v) throws Exception {
 		v.visitIFrame(this);
 	}

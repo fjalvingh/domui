@@ -108,9 +108,11 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 			m_createJS.append(n.getCreateJS());
 		n.renderJavascriptState(m_stateJS); // Append Javascript state to state buffer
 		if(!(n instanceof TextNode)) {
-			if(m_xml)
-				getTagRenderer().renderEndTag(n);
-			else
+			if(m_xml) {
+				if(!n.isRendersOwnClose()) {
+					getTagRenderer().renderEndTag(n);
+				}
+			} else
 				m_o.dec(); // 20080626 img et al does not dec()...
 		}
 		n.internalClearDelta();
