@@ -210,6 +210,7 @@ public class StatisticsRequestListener implements ServletRequestListener {
 			rc.m_count++;
 			return;
 		}
+		PoolManager.getInstance().clearThreadConnections();
 
 		rc = new RecursionCounter();
 		rc.m_count = 1;
