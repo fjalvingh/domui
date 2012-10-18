@@ -83,9 +83,15 @@ public class PageMaker {
 
 		for(int i = 0; i < par.length; i++) {
 			Class< ? > pc = par[i];
-			if(PageParameters.class.isAssignableFrom(pc))
+			if(pc.isAssignableFrom(IPageParameters.class))
 				args[i] = pp;
-			else if(ConversationContext.class.isAssignableFrom(pc))
+			else if(pc.isAssignableFrom(PageParameters.class)) {
+				if(pp instanceof PageParameters)
+					args[i] = pp;
+				else {
+					args[i] = pp.getUnlockedCopy();
+				}
+			} else if(ConversationContext.class.isAssignableFrom(pc))
 				args[i] = cc;
 			else
 				throw new IllegalStateException("?? Cannot assign a value to constructor parameter [" + i + "]: " + pc + " of " + con);
