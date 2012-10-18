@@ -505,4 +505,10 @@ final public class PoolManager {
 			return Collections.EMPTY_LIST;
 		return new ArrayList<ConnectionProxy>(cs);
 	}
+
+	public void clearThreadConnections() {
+		if(!isCheckCloseConnections())
+			return;
+		m_threadConnections.set(null);
+	}
 }
