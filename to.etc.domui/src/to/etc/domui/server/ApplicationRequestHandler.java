@@ -344,10 +344,19 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			if(cm.handleGoto(ctx, page, false))
 				return;
 		} catch(Exception ex) {
-			//-- 20100504 jal Exception in page means it's content is invalid, so force a full rebuild
-			page.getBody().forceRebuild();
-
 			Exception x = WrappedException.unwrap(ex);
+
+			//-- 20100504 jal Exception in page means it's content is invalid, so force a full rebuild
+			try {
+				page.getBody().forceRebuild();
+			} catch(Exception xxx) {
+				System.err.println("Double exception in handling full page build exception");
+				System.err.println("Original exception: " + x);
+				System.err.println("Second one on forceRebuild: " + xxx);
+				x.printStackTrace();
+				xxx.printStackTrace();
+			}
+			page.getBody().forceRebuild();
 
 			if(x instanceof NotLoggedInException) { // Better than repeating code in separate exception handlers.
 				String url = m_application.handleNotLoggedInException(ctx, page, (NotLoggedInException) x);
