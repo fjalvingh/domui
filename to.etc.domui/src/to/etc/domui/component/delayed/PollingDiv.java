@@ -64,6 +64,6 @@ public class PollingDiv extends Div implements IPolledForUpdate {
 	 */
 	@Override
 	public void onRemoveFromPage(Page p) {
-		getPage().getConversation().unregisterPoller(this);
+		getPage().internalGetConversation().unregisterPoller(this);
 	}
 }
