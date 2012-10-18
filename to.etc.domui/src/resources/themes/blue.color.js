@@ -24,6 +24,7 @@ highlight2_bg="#ffca6f"; // secondary highlight: salmon
 data_tbl_header_bg="#7c7c7c";
 data_tbl_header_text_color="#ffffff";
 data_tbl_header_bg_img=""; //-- Table header doesn't have background image
+data_tbl_header_btm_border=undefined;
 
 //-- Selects and highlights ---
 data_tbl_selected_bg="#bed6f8";	// blue
@@ -85,25 +86,15 @@ caption_bg="#f0810a"; //Main orange
 
 //-- Bulk upload
 upl_runing=highlight_bg;
-upl_loading=data_tbl_cell_highlight_bg;/* Icon definition for DomUI icons */
+upl_loading=data_tbl_cell_highlight_bg;
+
+//loading bar
+io_blk_wait = "io-blk-wait.gif";/* Icon definition for DomUI icons */
 
 /*** Data Pager buttons ***/
-nav_btn_first_s = 'nav-first-s.png';
-nav_btn_prev_s = 'nav-prev-s.png';
-nav_btn_next_s = 'nav-next-s.png';
-nav_btn_last_s = 'nav-last-s.png';
-
-//focused(hovered) navigation button
-nav_btn_first_f = 'nav-first-f.png';
-nav_btn_prev_f = 'nav-prev-f.png';
-nav_btn_next_f = 'nav-next-f.png';
-nav_btn_last_f = 'nav-last-f.png';
-
-//disabled navigation button
-nav_btn_first_d = "nav-first-d.png";
-nav_btn_prev_d = "nav-prev-d.png";
-nav_btn_next_d = "nav-next-d.png"; 
-nav_btn_last_d = "nav-last-d.png";
+data_pager_icons= "data-pager-icons.png";
+dp_icon_size_x = 32;
+dp_icon_size_y = 19;
 
 //-- DefaultButton image
 button_img= "defaultButton.png";

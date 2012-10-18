@@ -6,54 +6,52 @@
 }
 
 .ui-dp-btns a{
-	height: 18px;
-	width: 32px;
+	height: <%= dp_icon_size_y %>px;
+	width: <%= dp_icon_size_x %>px;
 	display: inline-block;
 	padding: 0px;
 	margin-left: -3px;
 	outline: 0; 				/* btadic 20120712: Removing dotted border form focused button */
 	background-repeat: no-repeat;
+	background: url(<%= data_pager_icons %>);
 }
 
 .ui-dp-btns a.ui-dp-nav-f {
-	background-image: url("<%= nav_btn_first_s%>");
-	width: 21px;
+	background-position: 0px 0px;
 }
 .ui-dp-btns a.ui-dp-nav-f:HOVER {
-	background-image: url("<%= nav_btn_first_f%>");
-	width: 21px;
+	background-position: 0px <%= -dp_icon_size_y %>px;
 }
 .ui-dp-btns a.ui-dp-nav-f-dis {
-	background-image: url("<%= nav_btn_first_d%>");
-	width: 21px;
+	background-position: 0px <%= -2 * dp_icon_size_y %>px;
 }
 
 .ui-dp-btns a.ui-dp-nav-p {
-	background-image : url("<%= nav_btn_prev_s%>");
+	background-position: <%= -1 * dp_icon_size_x %>px <%= 0 * dp_icon_size_y %>px;
 }
 .ui-dp-btns a.ui-dp-nav-p:HOVER {
-	background-image : url("<%= nav_btn_prev_f%>");
+	background-position: <%= -1 * dp_icon_size_x %>px <%= -1 * dp_icon_size_y %>px;
 }
 .ui-dp-btns a.ui-dp-nav-p-dis {
-	background-image : url("<%= nav_btn_prev_d%>");
+	background-position: <%= -1 * dp_icon_size_x %>px <%= -2 * dp_icon_size_y %>px;
 }
 
 .ui-dp-btns a.ui-dp-nav-n {
-	background-image : url("<%= nav_btn_next_s%>");
+	background-position: <%= -2 * dp_icon_size_x %>px <%= 0 * dp_icon_size_y %>px;
 }
 .ui-dp-btns a.ui-dp-nav-n:HOVER {
-	background-image : url("<%= nav_btn_next_f%>");
+	background-position: <%= -2 * dp_icon_size_x %>px <%= -1 * dp_icon_size_y %>px;
 }
 .ui-dp-btns a.ui-dp-nav-n-dis {
-	background-image : url("<%= nav_btn_next_d%>");
+	background-position: <%= -2 * dp_icon_size_x %>px <%= -2 * dp_icon_size_y %>px;
 }
 
 .ui-dp-btns a.ui-dp-nav-l {
-	background-image : url("<%= nav_btn_last_s%>");
+	background-position: <%= -3 * dp_icon_size_x %>px <%= 0 * dp_icon_size_y %>px;
 }
 .ui-dp-btns a.ui-dp-nav-l:HOVER {
-	background-image : url("<%= nav_btn_last_f%>");
+	background-position: <%= -3 * dp_icon_size_x %>px <%= -1 * dp_icon_size_y %>px;
 }
 .ui-dp-btns a.ui-dp-nav-l-dis {
-	background-image : url("<%= nav_btn_last_d%>");
+	background-position: <%= -3 * dp_icon_size_x %>px <%= -2 * dp_icon_size_y %>px;
 }

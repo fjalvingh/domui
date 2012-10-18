@@ -732,7 +732,8 @@ div.ui-lui-selected {
 	border-color:#ABADB3 #BFCDD9 #BFCDD9;
 	border-style:solid;
 	border-width:1px;
-	-moz-border-radius: 2px;	
+	-moz-border-radius: 2px;
+	background-color: #ffffff;	
 }
 
 div.ui-lui-selected-ro {
@@ -1134,7 +1135,7 @@ div.ui-dt table{
 	overflow: auto;
 	position: relative;
 	border-spacing: 0px;
-	border-left: 1px solid #bababa; /* gray so it is theme invariant */
+	border-right: 1px solid #bababa;
 	border-bottom: 1px solid #bababa;
 }
 
@@ -1142,15 +1143,24 @@ div.ui-dt table{
 	background: <%=	data_tbl_header_bg %>;
 	background-image: url(<%= data_tbl_header_bg_img %>);
 	color: <%= data_tbl_header_text_color %>;
+	border-bottom: 1px solid <%= data_tbl_header_btm_border %>;
 	text-align: left;
 	font-weight: bold;
 	padding: 0px 3px;
 	vertical-align: top;
 }
 
+.ui-dt th:FIRST-CHILD {
+	border-left: 1px solid <%= data_tbl_header_btm_border %>;
+}
+
+.ui-dt th:LAST-CHILD {
+	border-right: 1px solid <%= data_tbl_header_btm_border %>;
+}
+
 .ui-dt tbody td {
 	padding: 3px;
-	border-right: 1px solid #bababa;
+	border-left: 1px solid #bababa; /* gray so it is theme invariant */
 }
 
 .ui-dt tbody tr > td.ui-f-lbl:first-child {
@@ -1538,7 +1548,7 @@ li.ui-stab-ibt:FIRST-CHILD {
 	position: fixed;
 	top: 0px;
 	left: 0px;
-	background: black url(io-blk-wait.gif) no-repeat center center; 
+	background: black url(<%= io_blk_wait %>) no-repeat center center; 
 	filter:alpha(opacity=50);
 	z-index: 1000;
 }
@@ -2309,56 +2319,54 @@ li.ui-stab-ibt:FIRST-CHILD {
 }
 
 .ui-dp-btns a{
-	height: 18px;
-	width: 32px;
+	height: <%= dp_icon_size_y %>px;
+	width: <%= dp_icon_size_x %>px;
 	display: inline-block;
 	padding: 0px;
 	margin-left: -3px;
 	outline: 0; 				/* btadic 20120712: Removing dotted border form focused button */
 	background-repeat: no-repeat;
+	background: url(<%= data_pager_icons %>);
 }
 
 .ui-dp-btns a.ui-dp-nav-f {
-	background-image: url("<%= nav_btn_first_s%>");
-	width: 21px;
+	background-position: 0px 0px;
 }
 .ui-dp-btns a.ui-dp-nav-f:HOVER {
-	background-image: url("<%= nav_btn_first_f%>");
-	width: 21px;
+	background-position: 0px <%= -dp_icon_size_y %>px;
 }
 .ui-dp-btns a.ui-dp-nav-f-dis {
-	background-image: url("<%= nav_btn_first_d%>");
-	width: 21px;
+	background-position: 0px <%= -2 * dp_icon_size_y %>px;
 }
 
 .ui-dp-btns a.ui-dp-nav-p {
-	background-image : url("<%= nav_btn_prev_s%>");
+	background-position: <%= -1 * dp_icon_size_x %>px <%= 0 * dp_icon_size_y %>px;
 }
 .ui-dp-btns a.ui-dp-nav-p:HOVER {
-	background-image : url("<%= nav_btn_prev_f%>");
+	background-position: <%= -1 * dp_icon_size_x %>px <%= -1 * dp_icon_size_y %>px;
 }
 .ui-dp-btns a.ui-dp-nav-p-dis {
-	background-image : url("<%= nav_btn_prev_d%>");
+	background-position: <%= -1 * dp_icon_size_x %>px <%= -2 * dp_icon_size_y %>px;
 }
 
 .ui-dp-btns a.ui-dp-nav-n {
-	background-image : url("<%= nav_btn_next_s%>");
+	background-position: <%= -2 * dp_icon_size_x %>px <%= 0 * dp_icon_size_y %>px;
 }
 .ui-dp-btns a.ui-dp-nav-n:HOVER {
-	background-image : url("<%= nav_btn_next_f%>");
+	background-position: <%= -2 * dp_icon_size_x %>px <%= -1 * dp_icon_size_y %>px;
 }
 .ui-dp-btns a.ui-dp-nav-n-dis {
-	background-image : url("<%= nav_btn_next_d%>");
+	background-position: <%= -2 * dp_icon_size_x %>px <%= -2 * dp_icon_size_y %>px;
 }
 
 .ui-dp-btns a.ui-dp-nav-l {
-	background-image : url("<%= nav_btn_last_s%>");
+	background-position: <%= -3 * dp_icon_size_x %>px <%= 0 * dp_icon_size_y %>px;
 }
 .ui-dp-btns a.ui-dp-nav-l:HOVER {
-	background-image : url("<%= nav_btn_last_f%>");
+	background-position: <%= -3 * dp_icon_size_x %>px <%= -1 * dp_icon_size_y %>px;
 }
 .ui-dp-btns a.ui-dp-nav-l-dis {
-	background-image : url("<%= nav_btn_last_d%>");
+	background-position: <%= -3 * dp_icon_size_x %>px <%= -2 * dp_icon_size_y %>px;
 }
 /*** MessageLine ***/
 .ui-msgln {
