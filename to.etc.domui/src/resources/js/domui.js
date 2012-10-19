@@ -174,6 +174,12 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 				if (commands[i].nodeType != 1)
 					continue; // commands are elements
 				var cmdNode = commands[i], cmd = cmdNode.tagName;
+				if(cmd == "parsererror") { // Chrome
+					alert("The server response could not be parsed: "+cmdNode.innerText);
+					window.location.href = window.location.href;
+					return;
+				}
+				
 				if(cmd == 'head' || cmd == 'body') {
 					//-- HTML response. Server state is gone due to restart or lost session.
 					alert(WebUI._T.sysSessionExpired2);
