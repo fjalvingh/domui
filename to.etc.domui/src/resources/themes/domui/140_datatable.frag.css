@@ -1,9 +1,5 @@
 /*** 140_datatable.frag.css ***/
 /*** DataTable default style ***/
-body > div.ui-dt {
-	margin: 0px 10px;	
-}
-
 div.ui-dt {
 	overflow: auto;
 	position: relative;

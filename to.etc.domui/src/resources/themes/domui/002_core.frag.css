@@ -50,3 +50,23 @@ button img {
 button {
 	vertical-align: bottom;
 }
+
+/*** Other elements as direct body children ***/
+body > div.ui-dt {
+	margin-left: 10px;
+	margin-right: 10px;	
+}
+
+body > div.ui-dt-nores {
+	margin-left: 10px;
+	margin-right: 10px;
+}
+
+body > div > div.ui-lf-mainContent{
+	margin: 10px 10px 0px 10px;
+}
+
+body > .ui-dp { 
+	margin-left: 14px;
+	margin-right: 10px;
+}

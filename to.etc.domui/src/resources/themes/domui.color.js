@@ -29,7 +29,7 @@ data_tbl_header_btm_border=undefined;
 
 //-- Selects and highlights ---
 data_tbl_selected_bg="#bed6f8";	// blue
-data_tbl_even_row_bg="#e8e8e8"; //greyish
+data_tbl_even_row_bg="#E5E5E5"; //greyish
 data_tbl_cell_highlight_bg="#67267f";	// cell select: purple
 data_tbl_cell_highlight_link_color_bg="#ffffff";	// link color of cell select: white
 data_tbl_font_size = "12px";
