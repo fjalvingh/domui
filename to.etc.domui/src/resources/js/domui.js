@@ -2726,13 +2726,20 @@ var WebUI = {
 	 * @param id
 	 */
 	registerFckEditorId : function(id) {
+		if (!WebUI._fckEditorIDs){
+			WebUI._fckEditorIDs = [];
+		}
 		WebUI._fckEditorIDs.push(id);
 	},
 
 	unregisterFckEditorId : function(id) {
-		var index = WebUI._fckEditorIDs.indexOf(id);
-		if (index > -1){
-			WebUI._fckEditorIDs.splice(index, 1);
+		try{
+			var index = WebUI._fckEditorIDs.indexOf(id);
+			if (index > -1){
+				WebUI._fckEditorIDs.splice(index, 1);
+			}
+		}catch(ex){
+			//nothing to do -> no _fckEditorIDs means nothing to unregister from
 		}
 	}
 

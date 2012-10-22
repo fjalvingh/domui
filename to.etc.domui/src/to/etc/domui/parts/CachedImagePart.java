@@ -244,7 +244,7 @@ public class CachedImagePart implements IUnbufferedPartFactory {
 		return UIContext.getRequestContext().getRelativePath(sb.toString());
 	}
 
-	static public String getRelativeURL(String providerkey, String instancekey, PageParameters pp) {
+	static public String getRelativeURL(String providerkey, String instancekey, IPageParameters pp) {
 		StringBuilder	sb	= new StringBuilder();
 		sb.append(CachedImagePart.class.getName());
 		sb.append(".part");

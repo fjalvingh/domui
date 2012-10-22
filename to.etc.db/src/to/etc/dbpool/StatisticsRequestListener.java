@@ -25,6 +25,7 @@
 package to.etc.dbpool;
 
 import java.io.*;
+import java.util.*;
 
 import javax.annotation.*;
 import javax.servlet.*;
@@ -65,6 +66,12 @@ public class StatisticsRequestListener implements ServletRequestListener {
 
 	static private GlobalPerformanceStore m_globalStore;
 
+	static public interface UnclosedListener {
+		void unclosed(HttpServletRequest r, List<ConnectionProxy> list);
+	}
+
+	static private UnclosedListener m_unclosedListener;
+
 	/**
 	 * Advanced horror mode: Internet Exploder, who else, does not send the charset it encoded
 	 * the parameters with in it's content type for input received. Because of this, when
@@ -98,6 +105,14 @@ public class StatisticsRequestListener implements ServletRequestListener {
 		return m_forceEncoding;
 	}
 
+	synchronized static public void setUnclosedListener(UnclosedListener ucl) {
+		m_unclosedListener = ucl;
+		PoolManager.getInstance().setCheckCloseConnections(true);
+	}
+
+	private static synchronized UnclosedListener getUnclosedListener() {
+		return m_unclosedListener;
+	}
 
 	public void requestDestroyed(ServletRequestEvent ev) {
 		RecursionCounter rc = m_ctr.get();
@@ -111,6 +126,14 @@ public class StatisticsRequestListener implements ServletRequestListener {
 		if(!(sr instanceof HttpServletRequest))
 			return;
 		HttpServletRequest r = (HttpServletRequest) sr;
+
+		//-- Handle unclosed connections, if needed
+		UnclosedListener ucl = getUnclosedListener();
+		if(null != ucl) {
+			List<ConnectionProxy> uncl = PoolManager.getInstance().getThreadConnections();
+			if(uncl.size() > 0)
+				ucl.unclosed(r, uncl);
+		}
 
 		InfoCollectorExpenseBased td = (InfoCollectorExpenseBased) PoolManager.getInstance().stopCollecting(getClass().getName());
 		if(null == td)
@@ -187,6 +210,7 @@ public class StatisticsRequestListener implements ServletRequestListener {
 			rc.m_count++;
 			return;
 		}
+		PoolManager.getInstance().clearThreadConnections();
 
 		rc = new RecursionCounter();
 		rc.m_count = 1;

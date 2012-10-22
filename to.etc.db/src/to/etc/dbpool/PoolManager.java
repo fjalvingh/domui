@@ -449,7 +449,6 @@ final public class PoolManager {
 	/**
 	 * Remove an event listener that was added before from the specified connection. The connection must be one that is allocated
 	 * through this pool manager or an exception is thrown.
-	 *
 	 * @param dbc
 	 * @param el
 	 */
@@ -457,5 +456,59 @@ final public class PoolManager {
 		if(!(dbc instanceof ConnectionProxy))
 			throw new IllegalArgumentException("The connection passed MUST have been allocated by this pool manager (it is a " + dbc + ")");
 		((ConnectionProxy) dbc).removeCommitListener(el);
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Thread connection info (test for unclosed conns).	*/
+	/*--------------------------------------------------------------*/
+
+	private boolean m_checkCloseConnections;
+
+	final private ThreadLocal<Set<ConnectionProxy>> m_threadConnections = new ThreadLocal<Set<ConnectionProxy>>();
+
+	public synchronized boolean isCheckCloseConnections() {
+		return m_checkCloseConnections;
+	}
+
+	public synchronized void setCheckCloseConnections(boolean checkCloseConnections) {
+		m_checkCloseConnections = checkCloseConnections;
+	}
+
+	/**
+	 * @param cx
+	 */
+	void addThreadConnection(ConnectionProxy cx) {
+		if(!isCheckCloseConnections())
+			return;
+		Set<ConnectionProxy> cs = m_threadConnections.get();
+		if(null == cs) {
+			cs = new HashSet<ConnectionProxy>();
+			m_threadConnections.set(cs);
+		}
+		cs.add(cx);
+	}
+
+	void removeThreadConnection(ConnectionProxy cx) {
+		if(!isCheckCloseConnections())
+			return;
+		Set<ConnectionProxy> cs = m_threadConnections.get();
+		if(null == cs)
+			return;
+		cs.remove(cx);
+	}
+
+	public List<ConnectionProxy> getThreadConnections() {
+		if(!isCheckCloseConnections())
+			return Collections.EMPTY_LIST;
+		Set<ConnectionProxy> cs = m_threadConnections.get();
+		if(null == cs)
+			return Collections.EMPTY_LIST;
+		return new ArrayList<ConnectionProxy>(cs);
+	}
+
+	public void clearThreadConnections() {
+		if(!isCheckCloseConnections())
+			return;
+		m_threadConnections.set(null);
 	}
 }

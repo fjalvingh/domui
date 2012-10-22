@@ -172,15 +172,25 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		}
 
 		if(cm == null) {
+			boolean nonReloadableExpiredDetected = false;
 			if(action != null) {
-				generateExpired(ctx, Msgs.BUNDLE.getString(Msgs.S_EXPIRED));
-				return;
+				if(INotReloadablePage.class.isAssignableFrom(clz)) {
+					nonReloadableExpiredDetected = true;
+				} else {
+					generateExpired(ctx, Msgs.BUNDLE.getString(Msgs.S_EXPIRED));
+					return;
+				}
 			}
 
 			//-- We explicitly need to create a new Window and need to send a redirect back
 			cm = ctx.getSession().createWindowSession();
 			if(LOG.isDebugEnabled())
 				LOG.debug("$cid: input windowid=" + cid + " not found - created wid=" + cm.getWindowID());
+
+			if(nonReloadableExpiredDetected) {
+				generateNonReloadableExpired(ctx, cm);
+				return;
+			}
 
 			//-- EXPERIMENTAL 20121008 jal - if the code was sent through a POST - the data can be huge so we need a workaround for the get URL.
 			PageParameters pp = PageParameters.createFrom(ctx);
@@ -192,23 +202,14 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 			StringBuilder sb = new StringBuilder(256);
 
-			if(INotReloadablePage.class.isAssignableFrom(clz)) {
-				sb.append(ExpiredSessionPage.class.getName()).append('.').append(DomApplication.get().getUrlExtension());
-				sb.append('?');
-				StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
-				sb.append('=');
-				sb.append(cm.getWindowID());
-				sb.append(".x"); // Dummy conversation ID
-			} else {
-				//			sb.append('/');
-				sb.append(ctx.getRelativePath(ctx.getInputPath()));
-				sb.append('?');
-				StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
-				sb.append('=');
-				sb.append(cm.getWindowID());
-				sb.append(".x"); // Dummy conversation ID
-				DomUtil.addUrlParameters(sb, ctx, false);
-			}
+			//			sb.append('/');
+			sb.append(ctx.getRelativePath(ctx.getInputPath()));
+			sb.append('?');
+			StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
+			sb.append('=');
+			sb.append(cm.getWindowID());
+			sb.append(".x"); // Dummy conversation ID
+			DomUtil.addUrlParameters(sb, ctx, false);
 			generateHttpRedirect(ctx, sb.toString(), "Your session has expired. Starting a new session.");
 			return;
 		}
@@ -343,10 +344,19 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			if(cm.handleGoto(ctx, page, false))
 				return;
 		} catch(Exception ex) {
-			//-- 20100504 jal Exception in page means it's content is invalid, so force a full rebuild
-			page.getBody().forceRebuild();
-
 			Exception x = WrappedException.unwrap(ex);
+
+			//-- 20100504 jal Exception in page means it's content is invalid, so force a full rebuild
+			try {
+				page.getBody().forceRebuild();
+			} catch(Exception xxx) {
+				System.err.println("Double exception in handling full page build exception");
+				System.err.println("Original exception: " + x);
+				System.err.println("Second one on forceRebuild: " + xxx);
+				x.printStackTrace();
+				xxx.printStackTrace();
+			}
+			page.getBody().forceRebuild();
 
 			if(x instanceof NotLoggedInException) { // Better than repeating code in separate exception handlers.
 				String url = m_application.handleNotLoggedInException(ctx, page, (NotLoggedInException) x);
@@ -380,6 +390,17 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 		//-- Start any delayed actions now.
 		page.getConversation().startDelayedExecution();
+	}
+
+	private void generateNonReloadableExpired(RequestContextImpl ctx, WindowSession cm) throws Exception {
+		StringBuilder sb = new StringBuilder();
+		sb.append(ExpiredSessionPage.class.getName()).append('.').append(DomApplication.get().getUrlExtension());
+		sb.append('?');
+		StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
+		sb.append('=');
+		sb.append(cm.getWindowID());
+		sb.append(".x"); // Dummy conversation ID
+		generateAjaxRedirect(ctx, sb.toString());
 	}
 
 	/**

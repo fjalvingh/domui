@@ -42,7 +42,7 @@ public class AccessChecker extends UiParamDataResolver {
 	 * @return
 	 * @throws Exception
 	 */
-	public UISpecialAccessResult checkAccess(@Nonnull final PageParameters pp) throws Exception {
+	public UISpecialAccessResult checkAccess(@Nonnull final IPageParameters pp) throws Exception {
 		if (m_checkAccessMethod != null) {
 			QDataContext dc = null;
 

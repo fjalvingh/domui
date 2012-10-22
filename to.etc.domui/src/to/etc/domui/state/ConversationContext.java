@@ -326,7 +326,7 @@ public class ConversationContext implements IQContextContainer {
 		return m_pageMap.get(clz.getName());
 	}
 
-	public void internalRegisterPage(final Page p, final PageParameters papa) {
+	public void internalRegisterPage(@Nonnull final Page p, @Nonnull final IPageParameters papa) {
 		m_pageMap.put(p.getBody().getClass().getName(), p);
 		p.internalInitialize(papa, this);
 	}
@@ -476,7 +476,7 @@ public class ConversationContext implements IQContextContainer {
 		StringBuilder sb = new StringBuilder(128);
 		for(Page pg : m_pageMap.values()) {
 			sb.setLength(0);
-			PageParameters pp = pg.getPageParameters();
+			IPageParameters pp = pg.getPageParameters();
 			sb.append("      Resident page: ");
 			sb.append(pg.getBody().getClass().getName());
 			sb.append(" [");

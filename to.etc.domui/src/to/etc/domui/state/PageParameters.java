@@ -48,7 +48,7 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 22, 2008
  */
-public class PageParameters {
+public class PageParameters implements IPageParameters {
 	/**
 	 * Contains either String or String[], maps parameter name to either one or an array of values of that parameter.
 	 */
@@ -90,10 +90,9 @@ public class PageParameters {
 	}
 
 	/**
-	 * Creates copy of current PageParameters.
-	 * Since modification of live page params is not allowed, in order to navigate to other page with similar set of params, use this method to get params template for new page navigation.
-	 * @return
+	 * @see to.etc.domui.state.IPageParameters#getUnlockedCopy()
 	 */
+	@Override
 	public PageParameters getUnlockedCopy() {
 		PageParameters clone = new PageParameters();
 		for(Map.Entry<String, Object> entry : m_map.entrySet()) {
@@ -103,10 +102,7 @@ public class PageParameters {
 	}
 
 	public void setReadOnly() {
-		// Temporary disabled again. Until InvoiceEditPage, CorrectionBookingEditPage and TranscriptEditPage are corrected
-		// 10-10-2012 Leo v.d. Ende
-		// TODO
-		//m_readOnly = true;
+		m_readOnly = true;
 	}
 
 	private void writeable() {
@@ -312,22 +308,17 @@ public class PageParameters {
 	}
 
 	/**
-	 * Indicates whether a given parameter name exists in this PageParameters object.
-	 *
-	 * @param name, the name of the parameter to be checked for.
-	 * @return true when the parameter exists, false otherwise.
+	 * @see to.etc.domui.state.IPageParameters#hasParameter(java.lang.String)
 	 */
+	@Override
 	public boolean hasParameter(String name) {
 		return m_map.containsKey(name);
 	}
 
 	/**
-	 * Gets the value for the specified parametername as an int (primitive).
-	 * If the parameter does not exists or the value cannot be converted to an int, a MissingParameterException is thrown.
-	 *
-	 * @param name, the name of the parameter who's value is to be retrieved.
-	 * @return the value as an int
+	 * @see to.etc.domui.state.IPageParameters#getInt(java.lang.String)
 	 */
+	@Override
 	public int getInt(String name) {
 		String v = getOneNotNull(name);
 		try {
@@ -338,14 +329,9 @@ public class PageParameters {
 	}
 
 	/**
-	 * Gets the value for the specified parametername as an int (primitive).
-	 * If the parameter does cannot be converted to an int, a MissingParameterException is thrown.
-	 * When the parameter does not exist, the specified default value is returned.
-	 *
-	 * @param name, the name of the parameter who's value is to be retrieved.
-	 * @param df, the default value to be returned, when the specified parameter does not exist.
-	 * @return the value as an int
+	 * @see to.etc.domui.state.IPageParameters#getInt(java.lang.String, int)
 	 */
+	@Override
 	public int getInt(String name, int df) {
 		String v = getOne(name);
 		if(null != v && (v = v.trim()).length() > 0) {
@@ -359,13 +345,9 @@ public class PageParameters {
 	}
 
 	/**
-	 * Gets the value for the specified parametername as a long (primitive).
-	 * When multiple value exists for the specified parameter, the first element of the array is returned.
-	 * If the parameter does not exists or the value cannot be converted to an long, a MissingParameterException is thrown.
-	 *
-	 * @param name, the name of the parameter who's value is to be retrieved.
-	 * @return the value as a long
+	 * @see to.etc.domui.state.IPageParameters#getLong(java.lang.String)
 	 */
+	@Override
 	public long getLong(String name) {
 		String v = getOneNotNull(name);
 		try {
@@ -376,15 +358,9 @@ public class PageParameters {
 	}
 
 	/**
-	 * Gets the value for the specified parametername as a long (primitive).
-	 * When multiple value exists for the specified parameter, the first element of the array is returned.
-	 * If the parameter does cannot be converted to an long, a MissingParameterException is thrown.
-	 * When the parameter does not exist, the specified default value is returned.
-	 *
-	 * @param name, the name of the parameter who's value is to be retrieved.
-	 * @param df, the default value to be returned, when the specified parameter does not exist.
-	 * @return the value as a long
+	 * @see to.etc.domui.state.IPageParameters#getLong(java.lang.String, long)
 	 */
+	@Override
 	public long getLong(String name, long df) {
 		String v = getOne(name);
 		if(null != v && (v = v.trim()).length() > 0) {
@@ -398,13 +374,9 @@ public class PageParameters {
 	}
 
 	/**
-	 * Gets the value for the specified parametername as a boolean (primitive).
-	 * When multiple value exists for the specified parameter, the first element of the array is returned.
-	 * If the parameter does not exists or the value cannot be converted to an boolean, a MissingParameterException is thrown.
-	 *
-	 * @param name, the name of the parameter who's value is to be retrieved.
-	 * @return the value as a long
+	 * @see to.etc.domui.state.IPageParameters#getBoolean(java.lang.String)
 	 */
+	@Override
 	public boolean getBoolean(String name) {
 		String v = getOneNotNull(name);
 		try {
@@ -414,15 +386,9 @@ public class PageParameters {
 	}
 
 	/**
-	 * Gets the value for the specified parametername as a boolean (primitive).
-	 * When multiple value exists for the specified parameter, the first element of the array is returned.
-	 * If the parameter does cannot be converted to an boolean, a MissingParameterException is thrown.
-	 * When the parameter does not exist, the specified default value is returned.
-	 *
-	 * @param name, the name of the parameter who's value is to be retrieved.
-	 * @param df, the default value to be returned, when the specified parameter does not exist.
-	 * @return the value as a boolean
+	 * @see to.etc.domui.state.IPageParameters#getBoolean(java.lang.String, boolean)
 	 */
+	@Override
 	public boolean getBoolean(String name, boolean df) {
 		String v = getOne(name);
 		if(null != v && (v = v.trim()).length() > 0) {
@@ -436,14 +402,9 @@ public class PageParameters {
 	}
 
 	/**
-	 * Gets the value for the specified parametername as a Long object.
-	 * When multiple value exists for the specified parameter, the first element of the array is returned.
-	 * If the parameter does not exists or the value cannot be converted to an int, a MissingParameterException is thrown.
-	 * This method uses decode() so hexadecimal and octal strings can be used as parameter values.
-	 *
-	 * @param name, the name of the parameter who's value is to be retrieved.
-	 * @return the value as a Long
+	 * @see to.etc.domui.state.IPageParameters#getLongW(java.lang.String)
 	 */
+	@Override
 	public Long getLongW(String name) {
 		String v = getOneNotNull(name);
 		try {
@@ -454,31 +415,17 @@ public class PageParameters {
 	}
 
 	/**
-	 * Gets the value for the specified parametername as a Long object.
-	 * When multiple value exists for the specified parameter, the first element of the array is returned.
-	 * If the parameter does cannot be converted to an int, a MissingParameterException is thrown.
-	 * When the parameter does not exist, the specified default value is returned.
-	 * This method uses decode() so hexadecimal and octal strings can be used as parameter values.
-	 *
-	 * @param name, the name of the parameter who's value is to be retrieved.
-	 * @param df, the default value to be returned, when the specified parameter does not exist.
-	 * @return the value as a Long
+	 * @see to.etc.domui.state.IPageParameters#getLongW(java.lang.String, long)
 	 */
+	@Override
 	public Long getLongW(String name, long df) {
 		return getLongW(name, Long.valueOf(df));
 	}
 
 	/**
-	 * Gets the value for the specified parametername as a Long object.
-	 * When multiple value exists for the specified parameter, the first element of the array is returned.
-	 * If the parameter does cannot be converted to an int, a MissingParameterException is thrown.
-	 * When the parameter does not exist, the specified default value is returned.
-	 * This method uses decode() so hexadecimal and octal strings can be used as parameter values.
-	 *
-	 * @param name, the name of the parameter who's value is to be retrieved.
-	 * @param df, the default value to be returned, when the specified parameter does not exist.
-	 * @return the value as a Long
+	 * @see to.etc.domui.state.IPageParameters#getLongW(java.lang.String, java.lang.Long)
 	 */
+	@Override
 	public Long getLongW(String name, Long df) {
 		String v = getOne(name);
 		if(null != v && (v = v.trim()).length() > 0) {
@@ -492,27 +439,18 @@ public class PageParameters {
 	}
 
 	/**
-	 * Gets the value for the specified parametername as a String object.
-	 * When multiple value exists for the specified parameter, a MultipleParameterException is thrown.
-	 * When the parameter does not exist, a MissingParameterException is thrown.
-	 *
-	 * @param name, the name of the parameter who's value is to be retrieved.
-	 * @return the value as a String
+	 * @see to.etc.domui.state.IPageParameters#getString(java.lang.String)
 	 */
+	@Override
 	@Nonnull
 	public String getString(String name) {
 		return getOneNotNull(name);
 	}
 
 	/**
-	 * Gets the value for the specified parametername as a String object.
-	 * When multiple value exists for the specified parameter, a MultipleParameterException is thrown.
-	 * When the parameter does not exist, the specified default value is returned.
-	 *
-	 * @param name, the name of the parameter who's value is to be retrieved.
-	 * @param df, the default value to be returned, when the specified parameter does not exist.
-	 * @return the value as a String
+	 * @see to.etc.domui.state.IPageParameters#getString(java.lang.String, java.lang.String)
 	 */
+	@Override
 	@Nullable
 	public String getString(String name, String df) {
 		String v = getOne(name);
@@ -520,14 +458,9 @@ public class PageParameters {
 	}
 
 	/**
-	 * Gets the value for the specified parametername as a String array.
-	 * When the parameter does not exist, a MissingParameterException is thrown.
-	 * This method is provided for legacy reasons only.
-	 * The domui framework discourages uses of parameter arrays.
-	 *
-	 * @param name, the name of the parameter who's value is to be retrieved.
-	 * @return the value as a String
+	 * @see to.etc.domui.state.IPageParameters#getStringArray(java.lang.String)
 	 */
+	@Override
 	@Nonnull
 	public String[] getStringArray(@Nonnull String name) {
 		String[] arr = getStringArray(name, null);
@@ -536,6 +469,10 @@ public class PageParameters {
 		return arr;
 	}
 
+	/**
+	 * @see to.etc.domui.state.IPageParameters#getStringArray(java.lang.String, java.lang.String[])
+	 */
+	@Override
 	@Nullable
 	public String[] getStringArray(@Nonnull String name, @Nullable String[] deflt) {
 		Object var = m_map.get(name);
@@ -649,23 +586,16 @@ public class PageParameters {
 	}
 
 	/**
-	 * Gets all the names of the parameters this object is holding
-	 * @return the parameter names in an array
+	 * @see to.etc.domui.state.IPageParameters#getParameterNames()
 	 */
+	@Override
 	@Nonnull
 	public String[] getParameterNames() {
 		return m_map.keySet().toArray(new String[m_map.size()]);
 	}
 
 	/**
-	 * Compare this with another instance. Used to see that a new request has different parameters
-	 * than an earlier request.
-	 * <h2>remark</h2>
-	 * <p>We check the size of the maps; if they are equal we ONLY have to check that each key-value
-	 * pair in SOURCE exists in TARGET AND is the same. We don't need to check for "thingies in SRC
-	 * that do not occur in TGT" because that cannot happen if the map sizes are equal.</p>
-	 *
-	 * @see java.lang.Object#equals(java.lang.Object)
+	 * @see to.etc.domui.state.IPageParameters#equals(java.lang.Object)
 	 */
 	@Override
 	public boolean equals(Object obj) {
@@ -710,6 +640,9 @@ public class PageParameters {
 		return true;
 	}
 
+	/**
+	 * @see to.etc.domui.state.IPageParameters#hashCode()
+	 */
 	@Override
 	public int hashCode() {
 		throw new IllegalStateException("missing");
@@ -734,9 +667,9 @@ public class PageParameters {
 	}
 
 	/**
-	 * EXPENSIVE Hash all parameter values into an MD5 hash. This must be repeatable so same parameters get the same hash code.
-	 * @return
+	 * @see to.etc.domui.state.IPageParameters#calculateHashString()
 	 */
+	@Override
 	@Nonnull
 	public String calculateHashString() {
 		MessageDigest md = null;
@@ -773,10 +706,15 @@ public class PageParameters {
 	}
 
 	/**
-	 * Return the number of characters that this would take on an url.
-	 * @return
+	 * @see to.etc.domui.state.IPageParameters#getDataLength()
 	 */
+	@Override
 	public int getDataLength() {
 		return m_dataLength;
+	}
+
+	@Override
+	public boolean isReadOnly() {
+		return m_readOnly;
 	}
 }
