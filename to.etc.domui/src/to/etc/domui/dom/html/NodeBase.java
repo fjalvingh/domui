@@ -951,6 +951,27 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		return m_errorLocation;
 	}
 
+	public String	getComponentInfo() {
+		StringBuilder sb = new StringBuilder();
+		String s = getClass().getName();
+		s = s.substring(s.lastIndexOf('.')+1);
+		sb.append(s);
+
+		String el = getErrorLocation();
+		if(null != el) {
+			sb.append(":").append(el);
+		}
+		if(this instanceof IBindable) {
+			IBindable b = (IBindable) this;
+			if(b.isBound()) {
+				IBinder bi = b.bind();
+				sb.append(" bind(").append(bi).append(")");
+			}
+		}
+
+		return sb.toString();
+	}
+
 	/**
 	 * This sets a message (an error, warning or info message) on this control. If the
 	 * control already has an error then we check if the severity of the new error is
