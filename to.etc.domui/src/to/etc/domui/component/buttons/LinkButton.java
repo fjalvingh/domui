@@ -142,6 +142,11 @@ public class LinkButton extends ATag implements IActionControl {
 		super.setText(txt);
 	}
 
+	@Override
+	public String getComponentInfo() {
+		return "LinkButton:" + m_text;
+	}
+
 	public IUIAction<Void> getAction() {
 		return m_action;
 	}
