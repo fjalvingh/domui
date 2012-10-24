@@ -88,6 +88,27 @@ button {
 	margin: 0px 10px;
 }
 
+
+/*** Other elements as direct body children ***/
+body > div.ui-dt {
+	margin-left: 10px;
+	margin-right: 10px;	
+}
+
+body > div.ui-dt-nores {
+	margin-left: 10px;
+	margin-right: 10px;
+}
+
+body > div > div.ui-lf-mainContent{
+	margin: 10px 10px 0px 10px;
+}
+
+body > .ui-dp { 
+	margin-left: 14px;
+	margin-right: 10px;
+}
+
 /*** 005_oddchars.frag.css ***/
 /*** Select special chars ***/
 .ui-oddchars {
@@ -520,7 +541,6 @@ a.ui-lnkb-dis {
 a:hover.ui-lnkb-dis {
 	text-decoration: none !important;
 }
-
 /*** 070_alink.frag.css ***/
 /*** ALink component. ***/
 .ui-alnk {
@@ -764,7 +784,10 @@ div.ui-lui-selected {
 	border-color:#ABADB3 #BFCDD9 #BFCDD9;
 	border-style:solid;
 	border-width:1px;
+	width:1px;
 	-moz-border-radius: 2px;
+	border-radius: 2px;
+	-webkit-border-radius: 2px;
 	background-color: #ffffff;	
 }
 
@@ -1009,10 +1032,6 @@ vp-ui-multi table tr > td.ui-f-lbl:first-child {
 	min-width: 150px;
 	width: 1%;
 }
-
-div.ui-lf-mainContent{
-	margin: 10px 10px 0px 10px;
-}
 /*** 120_forms.frag.css ***/
 /*** Form basic styles ***/
 /* these are for forms having the label BEFORE the field (horizontal). */
@@ -1142,24 +1161,25 @@ div:hover.ui-xdt-exp {
 }
 
 .ui-xdt-edt {
-	background-color: #dffbf7;
+	background-color: <%= data_tbl_expanding_row_bg %>;
 	/*width: 99%;  */
 	vertical-align: top;
-	-moz-border-radius: 5px;
-	border-radius: 5px;
-	-webkit-border-radius: 5px;
-	border: 1px dotted #333333;
+	border: 1px solid #bababa;
+	
+	-moz-box-shadow: 2px 2px 10px #AAA;
+	-webkit-box-shadow: 2px 2px 10px #AAA;
+	box-shadow: 2px 2px 10px #AAA;
+	border-bottom: 1px solid #BABABA;
+	border-right: 1px solid #BABABA;
+	filter: progid:DXImageTransform.Microsoft.Shadow(color='#BABABA', Direction=135, Strength=7);
 }
+
 .ui-xdt-nores {
 	padding: 10px 0px 10px 0px;
 	font-style: italic;
 }
 /*** 140_datatable.frag.css ***/
 /*** DataTable default style ***/
-body > div.ui-dt {
-	margin: 0px 10px;	
-}
-
 div.ui-dt {
 	overflow: auto;
 	position: relative;
@@ -2082,6 +2102,7 @@ li.ui-stab-ibt:FIRST-CHILD {
 	padding: 0;
 	margin: 0;
 	overflow: auto;
+	margin: 10px;
 }
 .ui-flw-tc {
 	width: 100%;
@@ -2338,7 +2359,6 @@ li.ui-stab-ibt:FIRST-CHILD {
 	background-color: <%= util.color(upl_loading).lighter(0.2) %>;
 	margin-top: 2px;
 }
-
 /*** 250_smallhoverbutton.frag.css ***/
 /*** Small Hover Button ***/
 .ui-smhb {
@@ -2357,7 +2377,8 @@ li.ui-stab-ibt:FIRST-CHILD {
 /*** 255_datapager.frag.css ***/
 /*** Result table pager ***/
 .ui-dp {
-	margin: 2px 10px 6px 14px;
+	margin-top: 2px;
+	margin-left: 4px;
 	padding: 0px;
 }
 
@@ -2411,7 +2432,6 @@ li.ui-stab-ibt:FIRST-CHILD {
 .ui-dp-btns a.ui-dp-nav-l-dis {
 	background-position: <%= -3 * dp_icon_size_x %>px <%= -2 * dp_icon_size_y %>px;
 }
-
 /*** MessageLine ***/
 .ui-msgln {
 	clear: both;
@@ -2423,5 +2443,3 @@ li.ui-stab-ibt:FIRST-CHILD {
 .ui-msgln-txt {
 	padding-left: 4px;
 }
-
-

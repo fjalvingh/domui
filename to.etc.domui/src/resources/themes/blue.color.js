@@ -1,3 +1,4 @@
+main_color="#f0810a"; //Main orange
 header_bg="#7c7c7c";
 
 bg_color="#ffffff";
@@ -18,7 +19,7 @@ link_font_size="12px";
 link_color="#2200cc";	// dark blue
 
 highlight_bg="#ffbb43";	// row select: hard orange
-highlight2_bg="#ffca6f"; // secondary highlight: salmon
+highlight2_bg = util.color(highlight_bg).lighter(0.5);
 
 //-- Header colors
 data_tbl_header_bg="#7c7c7c";
@@ -28,10 +29,11 @@ data_tbl_header_btm_border=undefined;
 
 //-- Selects and highlights ---
 data_tbl_selected_bg="#bed6f8";	// blue
-data_tbl_even_row_bg="#e8e8e8"; //greyish
+data_tbl_even_row_bg="#E5E5E5"; //greyish
 data_tbl_cell_highlight_bg="#67267f";	// cell select: purple
 data_tbl_cell_highlight_link_color_bg="#ffffff";	// link color of cell select: white
 data_tbl_font_size = "12px";
+data_tbl_expanding_row_bg = util.color(main_color).lighter(0.7);
 
 readonly_bg="transparent"; 
 readonly_border="#EEEEEF"; // bit darker grey
@@ -82,7 +84,7 @@ error_fg = "red";
 tab_pnl_sep_bg = "#7c7c7c";
 
 //-- Caption header
-caption_bg="#f0810a"; //Main orange
+caption_bg=main_color;
 
 //-- Bulk upload
 upl_runing=highlight_bg;

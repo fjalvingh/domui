@@ -86,10 +86,12 @@ public class SimpleThemeFactory implements IThemeFactory {
 		if(m_executor == null) {
 			m_executor = RhinoExecutorFactory.getInstance().createExecutor();
 			m_executor.eval(Object.class, "icon = new Object();", "internal");
+			m_executor.put("themeName", m_themeName);
+			m_executor.put("themePath", "$THEME/" + m_themeName + "/");
+			m_application.augmentThemeMap(m_executor);
 		}
 		return m_executor;
 	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Creating a theme store instance.					*/
