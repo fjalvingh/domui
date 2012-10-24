@@ -5,6 +5,7 @@
 	font-size: <%= font_size %>;
 	line-height: normal;
 	margin: 9px 0px 10px;
+	height: 32px;
 }
 
 .ui-stab-hdr li {
@@ -90,31 +91,52 @@ li.ui-stab-ibt:FIRST-CHILD {
 }
 
 .ui-stab-scrl-left {
-	background: url(tab-scrl-left1.png) no-repeat transparent center;
+	background: url(<%= tab_pnl_arrows %>) no-repeat transparent center;
+	background-position: 0px 0px;
+	background-color: <%= tab_pnl_sep_bg %>;
 	border:0 none;
 	margin:0;
-	visibility:hidden;
 	display:block;
 	width: 15px;
-	height: 24px;	
+	height: 31px;
 }
 
 .ui-stab-scrl-left:hover {
-	background: url(tab-scrl-left.png) no-repeat transparent center;
+	background-position: -15px 0px;
 	cursor: pointer;
 }
 
 .ui-stab-scrl-right {
-	background: url(tab-scrl-right1.png) no-repeat transparent center;
+	background: url(<%= tab_pnl_arrows %>) no-repeat transparent center;
+	background-position: 0px -31px;
+	background-color: <%= tab_pnl_sep_bg %>;
 	border:0 none;
 	margin:0;
-	visibility:hidden;	
 	display:block;
 	width: 15px;
-	height: 24px;	
+	height: 31px;
 }
 
 .ui-stab-scrl-right:hover {
-	background: url(tab-scrl-right.png) no-repeat transparent center;
+	background-position: -15px -31px;
 	cursor: pointer;
+}
+
+.ui-stab-dis {
+	background: <%= tab_pnl_sep_bg %>;
+	cursor: default !important;
+}
+
+div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
+	border-bottom: <%= tab_pnl_btm_border %> solid #727272;
+}
+
+.ui-stab-hdr li.ui-tab-sel {
+	background-position: left top;
+	border-bottom: 0px;
+}
+
+.ui-stab-hdr li.ui-tab-sel a{
+	background-position: right -50px;
+	color: <%= tab_pnl_active_col %>;
 }

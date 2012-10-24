@@ -80,8 +80,11 @@ selected_bg="#ff9436";
 tab_pnl_inactive_col = "#ffffff";
 tab_pnl_hover_inactive_col = "#ffffff";
 tab_pnl_active_col = "#67267f";
+tab_pnl_btm_border = "0px";
 error_fg = "red";
+
 tab_pnl_sep_bg = "#7c7c7c";
+tab_pnl_arrows = "tab-scrl-icon.png";
 
 //-- Caption header
 caption_bg=main_color;
@@ -97,6 +100,18 @@ io_blk_wait = "io-blk-wait.gif";/* Icon definition for DomUI icons */
 data_pager_icons= "data-pager-icons.png";
 dp_icon_size_x = 32;
 dp_icon_size_y = 19;
+
+//-- Tab panel image
+tab_pnl_img = "tab-all-domui.png";
+/* Icon definition for DomUI icons */
+
+/*** Data Pager buttons ***/
+data_pager_icons= "data-pager-icons.png";
+dp_icon_size_x = 32;
+dp_icon_size_y = 19;
+
+//-- DefaultButton image
+button_img= "defaultButton.orange.png";
 
 //-- Tab panel image
 tab_pnl_img = "tab-all-domui.png";

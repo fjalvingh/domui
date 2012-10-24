@@ -2181,7 +2181,7 @@ var WebUI = {
 	_ignoreScrollClick: 0,
 
 	scrollLeft : function(bLeft) {
-		if(this._ignoreScrollClick != 0)
+		if(this._ignoreScrollClick != 0 || $(bLeft).hasClass('ui-stab-dis'))
 			return;
 
 		var scrlNavig = $(bLeft.parentNode);
@@ -2195,16 +2195,16 @@ var WebUI = {
 		}
 		this._ignoreScrollClick++;
 		$('ul',scrlNavig).animate({marginLeft: '+=' + diff}, 400, 'swing', function() {
-			$('.ui-stab-scrl-right', scrlNavig).css('visibility','visible');
+			$('.ui-stab-scrl-right', scrlNavig).removeClass('ui-stab-dis');
 			if(disa){
-				$(bLeft).css('visibility','hidden');
+				$(bLeft).addClass('ui-stab-dis');
 			}
 			me._ignoreScrollClick--;
 		});
 	},
 
 	scrollRight : function(bRight) {
-		if(this._ignoreScrollClick != 0)
+		if(this._ignoreScrollClick != 0 || $(bRight).hasClass('ui-stab-dis'))
 			return;
 
 		var scrlNavig = $(bRight.parentNode);
@@ -2224,9 +2224,9 @@ var WebUI = {
 		this._ignoreScrollClick++;
 		var me = this;
 		$('ul', scrlNavig ).animate({marginLeft: '-=' + diff},400, 'swing', function() {
-			$('.ui-stab-scrl-left', scrlNavig).css('visibility','visible');
+			$('.ui-stab-scrl-left', scrlNavig).removeClass('ui-stab-dis');
 			if (disa){
-				$(bRight).css('visibility','hidden');
+				$(bRight).addClass('ui-stab-dis');
 			}
 			me._ignoreScrollClick--;
 		});
@@ -2243,14 +2243,14 @@ var WebUI = {
 			var leftM = parseInt($('ul',scrlNavig).css('marginLeft'));
 			//WebUI.debug('debug2', 50, 200, 'leftM:' + leftM);
 			if (tabsTotalWidth + leftM > tabsVisibleWidth){
-				$('.ui-stab-scrl-right',scrlNavig).css('visibility','visible');
+				$('.ui-stab-scrl-right',scrlNavig).removeClass('ui-stab-dis');
 			}else{
-				$('.ui-stab-scrl-right',scrlNavig).css('visibility','hidden');
+				$('.ui-stab-scrl-right',scrlNavig).addClass('ui-stab-dis');
 			}
 			if (leftM < 0){
-				$('.ui-stab-scrl-left',scrlNavig).css('visibility','visible');
+				$('.ui-stab-scrl-left',scrlNavig).removeClass('ui-stab-dis');
 			}else{
-				$('.ui-stab-scrl-left',scrlNavig).css('visibility','hidden');
+				$('.ui-stab-scrl-left',scrlNavig).addClass('ui-stab-dis');
 			}
 		}else{
 			$('.ui-stab-scrl-left',scrlNavig).css('visibility','hidden');

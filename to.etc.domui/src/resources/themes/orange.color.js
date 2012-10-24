@@ -80,8 +80,11 @@ selected_bg="#ff9436";
 tab_pnl_inactive_col = "#ffffff";
 tab_pnl_hover_inactive_col = "#ffffff";
 tab_pnl_active_col = "#67267f";
+tab_pnl_btm_border = "0px";
 error_fg = "red";
+
 tab_pnl_sep_bg = "#7c7c7c";
+tab_pnl_arrows = "tab-scrl-icon.png";
 
 //-- Caption header
 caption_bg=main_color;

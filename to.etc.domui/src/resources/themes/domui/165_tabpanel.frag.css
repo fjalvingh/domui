@@ -78,6 +78,14 @@ li.ui-tab-ibt {
 	margin: 0px;
 }
 
+div.ui-tab-hdr li, div.ui-tab-ibte {
+	border-bottom: <%= tab_pnl_btm_border %> solid #727272;
+}
+
+div.ui-tab-hdr li.ui-tab-sel {
+	border-bottom: 0px;
+}
+
 li.ui-tab-ibt:FIRST-CHILD {
 	width: 10px;
 }
