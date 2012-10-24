@@ -28,6 +28,7 @@ import javax.annotation.*;
 
 import to.etc.domui.component.menu.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.parts.*;
 import to.etc.domui.util.*;
 
 /**
@@ -123,7 +124,13 @@ public class DefaultButton extends Button implements IActionControl {
 		Span s = new Span();
 		add(s);
 		if(null != m_icon) {
-			Img img = new Img(m_icon);
+			String icon = m_icon;
+
+			if(isDisabled()) {
+				icon = GrayscalerPart.class.getName() + ".part?icon=" + icon;
+			}
+
+			Img img = new Img(icon);
 			s.add(img);
 			img.setImgBorder(0);
 		}
