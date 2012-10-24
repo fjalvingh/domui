@@ -152,48 +152,7 @@ public class SimpleThemeFactory implements IThemeFactory {
 					is.close();
 			} catch(Exception x) {}
 		}
-		//
-		//		//-- Ok: the binding now contains stuff to add/replace to the map
-		//		for(Map.Entry<String, Object> e : se.getBindings(ScriptContext.ENGINE_SCOPE).entrySet()) {
-		//			String name = e.getKey();
-		//			if("context".equals(name))
-		//				continue;
-		//			Object v = e.getValue();
-		//			if(v != null) {
-		//				String cn = v.getClass().getName();
-		//				if(cn.startsWith("sun."))
-		//					continue;
-		//				map.put(name, v);
-		//			}
-		//		}
 	}
-	//	@edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "OS_OPEN_STREAM", justification = "Stream is closed closing wrapped instance.")
-	//	public Map<String, Object> readProperties(@Nonnull DomApplication da, @Nonnull IResourceDependencyList rdl) throws Exception {
-	//		String rurl = "$themes/" + m_styleName + "/style.properties";
-	//		IResourceRef ires = findRef(da, rurl, rdl);
-	//		if(null == ires || !ires.exists())
-	//			return new HashMap<String, Object>();
-	//
-	//		//-- Read the thingy as a property file.
-	//		Properties p = new Properties();
-	//		InputStream is = ires.getInputStream();
-	//		try {
-	//			p.load(new InputStreamReader(is, "utf-8")); // wrapped "is" is closed, no need to close reader.
-	//		} finally {
-	//			try {
-	//				is.close();
-	//			} catch(Exception x) {}
-	//		}
-	//
-	//		//-- Make the output map
-	//		Map<String, Object> map = new HashMap<String, Object>();
-	//		for(Object key : p.keySet()) {
-	//			String k = (String) key;
-	//			String val = p.getProperty(k);
-	//			map.put(k, val);
-	//		}
-	//		return map;
-	//	}
 
 	static protected IResourceRef findRef(@Nonnull DomApplication da, @Nonnull String rurl, @Nonnull IResourceDependencyList rdl) throws Exception {
 		try {
