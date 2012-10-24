@@ -11,7 +11,7 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 5, 2010
  */
-public class LinkedText implements Appendable {
+public class LinkedText /* implements Appendable */{
 	private StringBuilder m_sb = new StringBuilder();
 
 	public LinkedText() {}
@@ -28,7 +28,6 @@ public class LinkedText implements Appendable {
 	 * @see java.lang.Appendable#append(char)
 	 */
 	@Nonnull
-	@Override
 	public LinkedText append(char c) {
 		if(c == '$')
 			m_sb.append("\\$");
@@ -38,14 +37,12 @@ public class LinkedText implements Appendable {
 	}
 
 	@Nonnull
-	@Override
 	public LinkedText append(@Nonnull CharSequence csq) {
 		m_sb.append(csq);
 		return this;
 	}
 
 	@Nonnull
-	@Override
 	public LinkedText append(@Nonnull CharSequence csq, int start, int end) {
 		m_sb.append(csq, start, end);
 		return this;
