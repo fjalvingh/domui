@@ -91,4 +91,12 @@ upl_runing=highlight_bg;
 upl_loading=data_tbl_cell_highlight_bg;
 
 //loading bar
-io_blk_wait = "io-blk-wait.gif";
+io_blk_wait = "io-blk-wait.gif";/* Icon definition for DomUI icons */
+
+/*** Data Pager buttons ***/
+data_pager_icons= "data-pager-icons.png";
+dp_icon_size_x = 32;
+dp_icon_size_y = 19;
+
+//-- Tab panel image
+tab_pnl_img = "tab-all-domui.png";
