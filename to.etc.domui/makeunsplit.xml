@@ -11,6 +11,8 @@
 			</sort>
 		</concat>
 		<echo>Copying icons</echo>
+		<delete dir="src/resources/themes/blue"/>
+		<mkdir dir="src/resources/themes/blue" />
 		<copy todir="src/resources/themes/blue">
 			<fileset dir="src/resources/themes/domui-icons">
 				<include name="**/*.png" />
