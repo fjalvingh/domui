@@ -1,4 +1,4 @@
-main_color="#54b4f8"; //Main blue
+main_color="#43b761"; //Main green
 header_bg="#7c7c7c";
 
 bg_color="#ffffff";
@@ -98,18 +98,6 @@ io_blk_wait = "io-blk-wait.gif";/* Icon definition for DomUI icons */
 data_pager_icons= "data-pager-icons.png";
 dp_icon_size_x = 32;
 dp_icon_size_y = 19;
-
-//-- Tab panel image
-tab_pnl_img = "tab-all-domui.png";
-/* Icon definition for DomUI icons */
-
-/*** Data Pager buttons ***/
-data_pager_icons= "data-pager-icons.png";
-dp_icon_size_x = 32;
-dp_icon_size_y = 19;
-
-//-- DefaultButton image
-button_img= "defaultButton.orange.png";
 
 //-- Tab panel image
 tab_pnl_img = "tab-all-domui.png";
