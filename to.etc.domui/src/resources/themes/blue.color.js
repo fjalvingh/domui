@@ -12,7 +12,7 @@ bg_ttl_text = '#ffffff';
 
 button_bg="#6ba1eb";
 button_fg="#ffffff";
-button_img= "defaultButton.png";
+button_img= "defaultButton.orange.png";
 button_height=24;
 
 link_font_size="12px";
@@ -97,9 +97,6 @@ io_blk_wait = "io-blk-wait.gif";/* Icon definition for DomUI icons */
 data_pager_icons= "data-pager-icons.png";
 dp_icon_size_x = 32;
 dp_icon_size_y = 19;
-
-//-- DefaultButton image
-button_img= "defaultButton.png";
 
 //-- Tab panel image
 tab_pnl_img = "tab-all-domui.png";
