@@ -17,7 +17,7 @@
 	background-repeat: no-repeat;
 	background-position: left;
 	padding-left: 18px;
-	font-size: 12px;
+	font-size: <%= font_size %>;
 	color: #1700ee;
 	text-decoration: underline !important;
 }
@@ -32,14 +32,19 @@ div:hover.ui-xdt-exp {
 }
 
 .ui-xdt-edt {
-	background-color: #dffbf7;
+	background-color: <%= data_tbl_expanding_row_bg %>;
 	/*width: 99%;  */
 	vertical-align: top;
-	-moz-border-radius: 5px;
-	border-radius: 5px;
-	-webkit-border-radius: 5px;
-	border: 1px dotted #333333;
+	border: 1px solid #bababa;
+	
+	-moz-box-shadow: 2px 2px 10px #AAA;
+	-webkit-box-shadow: 2px 2px 10px #AAA;
+	box-shadow: 2px 2px 10px #AAA;
+	border-bottom: 1px solid #BABABA;
+	border-right: 1px solid #BABABA;
+	filter: progid:DXImageTransform.Microsoft.Shadow(color='#BABABA', Direction=135, Strength=7);
 }
+
 .ui-xdt-nores {
 	padding: 10px 0px 10px 0px;
 	font-style: italic;

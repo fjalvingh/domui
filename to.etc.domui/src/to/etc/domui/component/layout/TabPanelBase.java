@@ -198,9 +198,12 @@ public class TabPanelBase extends Div {
 
 	protected void renderLabel(NodeContainer into, final int index, TabInstance ti) {
 		Li li = ti.getTab();
+		Li separator = new Li();
+		separator.setCssClass("ui-tab-ibt");
 		if(li == null) {
 			li = new Li();
-			into.add(index, li);
+			into.add(separator);
+			into.add(li);
 			ti.setTab(li); // Save for later use,
 			if(index == getCurrentTab()) {
 				li.addCssClass("ui-tab-sel");

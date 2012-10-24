@@ -59,4 +59,9 @@ public class WebappResourceRef implements IResourceRef, IModifyableResource {
 	public InputStream getInputStream() throws Exception {
 		return new FileInputStream(m_resource);
 	}
+
+	@Override
+	public String toString() {
+		return "WebAppResourceRef[" + m_resource + "]";
+	}
 }

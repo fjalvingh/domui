@@ -35,5 +35,15 @@ import to.etc.domui.server.*;
  * Created on Jan 11, 2011
  */
 public interface IThemeFactory {
-	ITheme loadTheme(@Nonnull DomApplication da) throws Exception;
+	/**
+	 * Create the theme data for the theme passed. The result is cached by the application, so
+	 * the factory should not do caching itself.
+	 *
+	 * @param da
+	 * @param themeName
+	 * @return
+	 * @throws Exception
+	 */
+	@Nonnull
+	ITheme getTheme(@Nonnull DomApplication da, @Nonnull String themeName) throws Exception;
 }

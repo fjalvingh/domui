@@ -414,6 +414,9 @@ public class UIContext {
 		return false;
 	}
 
+
+
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Handle cookies.										*/
 	/*--------------------------------------------------------------*/
@@ -446,6 +449,7 @@ public class UIContext {
 
 	/**
 	 * Set a new or overwrite an existing cookie.
+	 *
 	 * @param name
 	 * @param value
 	 * @param maxage	Max age, in seconds.
@@ -457,5 +461,67 @@ public class UIContext {
 		k.setPath(rci.getRequest().getContextPath());
 		k.setDomain(NetTools.getHostName(rci.getRequest()));
 		rci.getResponse().addCookie(k);
+	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Session attribute accessors.						*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Returns session value of expected type. Must be used within existing UIContext. In case that attribute is not stored in session, it would store defaultValue and return it.
+	 * See {@link UIContext#getSessionAttribute(Class, String)
+	 * See {@link UIContext#setSessionAttribute(String, Object)
+	 *
+	 * @param clz
+	 * @param attrName
+	 * @param defaultValue
+	 * @return
+	 */
+	public static <T> T getSessionAttribute(Class<T> clz, String attrName, T defaultValue) {
+		T val = getSessionAttribute(clz, attrName);
+		if(val != null) {
+			return val;
+		}
+		setSessionAttribute(attrName, defaultValue);
+		return defaultValue;
+	}
+
+	/**
+	 * Returns session value of expected type. Must be used within existing UIContext.
+	 * @param clz
+	 * @param attrName
+	 * @return  In case that value is not stored returns null. In case of expected type mismatch throws IllegalStateException.
+	 */
+	public static <T> T getSessionAttribute(Class<T> clz, String attrName) {
+		IRequestContext ctx = getRequestContext();
+		if(ctx instanceof RequestContextImpl) {
+			HttpSession hs = ((RequestContextImpl) ctx).getRequest().getSession();
+			Object val = hs.getAttribute(attrName);
+			if(val != null) {
+				if(clz.isAssignableFrom(val.getClass())) {
+					T res = (T) val;
+					return res;
+				} else {
+					throw new IllegalStateException("Session value of unexpected type: " + val.getClass().getCanonicalName() + ", expecting " + clz.getCanonicalName());
+				}
+			}
+			return null;
+		} else {
+			throw new IllegalStateException("Current request of unexpected type: " + ctx.getClass().getCanonicalName() + ", expecting " + RequestContextImpl.class.getCanonicalName());
+		}
+	}
+	/**
+	 * Sets session attribute value.
+	 * @param attrName
+	 * @param value
+	 */
+	public static void setSessionAttribute(String attrName, Object value) {
+		IRequestContext ctx = getRequestContext();
+		if(ctx instanceof RequestContextImpl) {
+			HttpSession hs = ((RequestContextImpl) ctx).getRequest().getSession();
+			hs.setAttribute(attrName, value);
+		} else {
+			throw new IllegalStateException("Current request of unexpected type: " + ctx.getClass().getCanonicalName() + ", expecting " + RequestContextImpl.class.getCanonicalName());
+		}
 	}
 }

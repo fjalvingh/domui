@@ -316,6 +316,14 @@ public class PageParameters implements IPageParameters {
 	}
 
 	/**
+	 * Return the number of parameter (names) in this instance.
+	 * @return
+	 */
+	public int size() {
+		return m_map.size();
+	}
+
+	/**
 	 * @see to.etc.domui.state.IPageParameters#getInt(java.lang.String)
 	 */
 	@Override
@@ -393,6 +401,12 @@ public class PageParameters implements IPageParameters {
 		String v = getOne(name);
 		if(null != v && (v = v.trim()).length() > 0) {
 			try {
+				v = v.toLowerCase();
+				if(v.startsWith("y"))
+					return true;
+				else if(v.startsWith("n"))
+					return false;
+
 				return Boolean.parseBoolean(v);
 			} catch(Exception x) {
 				throw new UnusableParameterException(name, "boolean", v);

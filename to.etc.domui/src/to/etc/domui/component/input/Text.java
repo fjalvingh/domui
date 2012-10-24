@@ -110,17 +110,6 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 			m_numberMode = NumberMode.FLOAT;
 		else if(DomUtil.isIntegerType(inputClass))
 			m_numberMode = NumberMode.DIGITS;
-
-		switch(m_numberMode){
-			default:
-				break;
-			case DIGITS:
-				setOnKeyPressJS("WebUI.isNumberKey(event)");
-				break;
-			case FLOAT:
-				setOnKeyPressJS("WebUI.isFloatKey(event)");
-				break;
-		}
 	}
 
 	/**
@@ -557,6 +546,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	/*--------------------------------------------------------------*/
 
 	/** When this is bound this contains the binder instance handling the binding. */
+	@Nullable
 	private SimpleBinder m_binder;
 
 	/**
@@ -564,7 +554,8 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 * @see to.etc.domui.component.input.IBindable#bind()
 	 */
 	@Override
-	public @Nonnull IBinder bind() {
+	@Nonnull
+	public IBinder bind() {
 		if(m_binder == null)
 			m_binder = new SimpleBinder(this);
 		return m_binder;
@@ -883,4 +874,27 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		}
 		return txt;
 	}
+
+	/**
+	 * Append appropriate JS based on current {@link NumberMode}
+	 */
+	private void renderMode() {
+		switch(m_numberMode){
+			default:
+				break;
+			case DIGITS:
+				setOnKeyPressJS("WebUI.isNumberKey(event)");
+				break;
+			case FLOAT:
+				setOnKeyPressJS("WebUI.isFloatKey(event)");
+				break;
+		}
+	}
+
+	@Override
+	public void createContent() throws Exception {
+		super.createContent();
+		renderMode();
+	};
+
 }

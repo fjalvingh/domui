@@ -26,7 +26,9 @@ package to.etc.domui.server;
 
 import java.io.*;
 import java.util.*;
+import java.util.regex.*;
 
+import javax.annotation.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
@@ -38,11 +40,62 @@ abstract public class AbstractContextMaker implements IContextMaker {
 	@Override
 	abstract public boolean handleRequest(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws Exception;
 
-	private boolean m_ie8header;
+	private static class Pair {
+		@Nonnull
+		final private Pattern m_pattern;
 
-	public AbstractContextMaker(ConfigParameters pp) {
-		if("true".equals(pp.getString("ie8header")))
-			m_ie8header = true;
+		@Nonnull
+		final private String m_version;
+
+		public Pair(@Nonnull Pattern pattern, @Nonnull String version) {
+			m_pattern = pattern;
+			m_version = version;
+		}
+
+		public boolean matches(@Nonnull String url) {
+			return m_pattern.matcher(url).matches();
+		}
+
+		@Nonnull
+		public String getVersion() {
+			return m_version;
+		}
+	}
+
+	/**
+	 * Maps URL patterns to a default IE emulation mode to send as a header.
+	 */
+	private List<Pair> m_ieEmulationList = new ArrayList<Pair>();
+
+	public AbstractContextMaker(ConfigParameters pp) throws UnavailableException {
+		decodeParameters(pp);
+	}
+
+	private void decodeParameters(ConfigParameters pp) throws UnavailableException {
+		String emu = pp.getString("ie-emulation");
+		if(emu != null) {
+			String[] patar = emu.split("\\s");				// pat:mode pat:mode
+			for(String patmode : patar) {
+				patmode = patmode.trim();
+				if(patmode.length() == 0)
+					continue;
+				int pos = patmode.lastIndexOf(':');
+				if(pos == -1)
+					throw new UnavailableException("Missing ':' in ie-emulation parameter in web.xml");
+				String pat = patmode.substring(0, pos);
+
+				Pattern par;
+				try {
+					par = Pattern.compile(pat);
+				} catch(Exception x) {
+					throw new IllegalArgumentException("Invalid pattern '" + pat + "' in web.xml ie-emulation: " + x);
+				}
+
+				String xv = patmode.substring(pos + 1).trim();
+				if(xv.length() != 0)
+					m_ieEmulationList.add(new Pair(par, xv));
+			}
+		}
 	}
 
 	public boolean execute(final RequestContextImpl ctx, FilterChain chain) throws Exception {
@@ -85,30 +138,30 @@ abstract public class AbstractContextMaker implements IContextMaker {
 	}
 
 	private void handleDoFilter(FilterChain chain, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		if(!m_ie8header) {
+		if(m_ieEmulationList.size() == 0) {
 			chain.doFilter(request, response);
 			return;
 		}
 
+		//-- Find whatever matches.
+		String xv = null;
 		String url = request.getRequestURI();
-		int pos = url.lastIndexOf('.');
-		String ext;
-		if(pos == -1)
-			ext = "";
-		else
-			ext = url.substring(pos + 1).toLowerCase();
-		if(!isIeHeaderable(ext)) {
+		for(Pair p : m_ieEmulationList) {
+			if(p.matches(url)) {
+				xv = p.getVersion();
+				break;
+			}
+		}
+
+		//-- No pattern available -> just use as-is, do not send any header.
+		if(xv == null) {
 			chain.doFilter(request, response);
 			return;
 		}
 
-		WrappedHttpServetResponse wsr = new WrappedHttpServetResponse(url, response);
+		WrappedHttpServetResponse wsr = new WrappedHttpServetResponse(url, response, xv);
 		chain.doFilter(request, wsr);
 		wsr.flushBuffer();
-	}
-
-	private boolean isIeHeaderable(String suf) {
-		return "jsp".equals(suf) || "html".equals(suf) || "htm".equals(suf) || "js".equals(suf);
 	}
 
 	private void callInterceptorsBegin(final List<IRequestInterceptor> il, final RequestContextImpl ctx) throws Exception {

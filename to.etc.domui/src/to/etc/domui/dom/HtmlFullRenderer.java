@@ -214,8 +214,15 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		}
 	}
 
-	public void renderThemeCSS() throws Exception {
-		String sheet = m_ctx.getApplication().getTheme(null).getStylesheet();
+	/**
+	 * Render the proper themed stylesheet. This will be "style.theme.css" within the current
+	 * "theme directory", which is defined by the "currentTheme" in DomApplication.
+	 * @throws Exception
+	 */
+	protected void renderThemeCSS() throws Exception {
+		String sheet = m_ctx.getApplication().getThemedResourceRURL("THEME/style.theme.css");
+		if(null == sheet)
+			throw new IllegalStateException("Unexpected null??");
 
 		//-- Render style fragments part.
 		o().writeRaw("<link rel=\"stylesheet\" type=\"text/css\" href=\"");
@@ -244,7 +251,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		o().tag("link");
 		o().attr("rel", "stylesheet");
 		o().attr("type", "text/css");
-		o().attr("href", ctx().getRelativePath(path));
+		o().attr("href", ctx().getThemedPath(path));
 		o().endtag();
 		o().closetag("link");
 	}
@@ -253,7 +260,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		//-- render an app-relative url
 		o().tag("script");
 		o().attr("language", "javascript");
-		o().attr("src", ctx().getRelativePath(path));
+		o().attr("src", ctx().getThemedPath(path));
 		o().endtag();
 		o().closetag("script");
 	}
@@ -283,7 +290,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 			o().writeRaw("<!--\n");
 
 		genVar("DomUIpageTag", Integer.toString(page.getPageTag()));
-		String pb = DomApplication.get().getThemedResourceRURL("ICON/progressbar.gif");
+		String pb = DomApplication.get().getThemedResourceRURL("THEME/progressbar.gif");
 		if(null == pb)
 			throw new IllegalStateException("Required resource missing");
 		genVar("DomUIProgressURL", StringTool.strToJavascriptString(ctx.getRelativePath(pb), true));

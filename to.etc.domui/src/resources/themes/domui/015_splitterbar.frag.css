@@ -6,8 +6,8 @@
 	height: 100%;
 	line-height: 0px;
 	font-size: 0px;
-	border-left: solid 1px <%= header_bg %>;
-	border-right: solid 1px <%= header_bg %>;
+	border-left: solid 1px white;
+	border-right: solid 1px white;
 	background: #cbe1fb url(panev.gif) 0% 50%;
 }
 
@@ -38,8 +38,8 @@
 	text-align: left;
 	line-height: 0px;
 	font-size: 0px;
-	border-top: solid 1px <%= header_bg %>;
-	border-bottom: solid 1px <%= header_bg %>;
+	border-top: solid 1px white;
+	border-bottom: solid 1px white;
 	background: #cbe1fb url(paneh.gif) 50% 0%;
 }
 
@@ -74,7 +74,7 @@
 .ui-splt-left {
 	float: left;
 	height: 100%;
-	border-top: solid 1px <%= header_bg %>;
+	border-top: solid 1px white;
 	overflow: auto;
 	position: relative;
 }

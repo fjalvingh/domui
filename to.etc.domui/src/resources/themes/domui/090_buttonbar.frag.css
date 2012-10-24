@@ -1,7 +1,7 @@
 /*** 090_buttonbar.frag.css ***/
 /*** ButtonBar component ***/
 .ui-buttonbar {
-	padding: 0; margin: 0;
+	margin: 10px;
 }
 .ui-bb-left {
 	padding: 0; margin: 0;
@@ -16,5 +16,4 @@
 }
 .ui-bb-middle {
 	padding: 0; margin: 0;
-/*	height: 36px;	jal 20121009 Do not add height: empty button bar must be empty. */
 }

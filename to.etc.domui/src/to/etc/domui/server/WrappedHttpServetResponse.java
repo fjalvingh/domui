@@ -26,12 +26,19 @@ package to.etc.domui.server;
 
 import java.io.*;
 
+import javax.annotation.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
 public class WrappedHttpServetResponse extends HttpServletResponseWrapper {
-	//	private String m_name;
-	private boolean m_ie8capable;
+	/**
+	 * The emulation mode that the page would want to have. When null the "default emulation mode" will
+	 * be used, which is the mode for all pages that did *not* register a certain mode. This is the
+	 * "default" content of the x-ua-compatible header. When null no such header will be sent.
+	 */
+	@Nullable
+	private String m_ieEmulation;
+
 	private boolean m_flushed;
 
 	/** The actual outputstream. */
@@ -50,18 +57,25 @@ public class WrappedHttpServetResponse extends HttpServletResponseWrapper {
 
 	private char[] m_chbuffer;
 
-	public WrappedHttpServetResponse(String name, HttpServletResponse resp) {
+	final private String m_url;
+
+	public WrappedHttpServetResponse(@Nonnull String url, @Nonnull HttpServletResponse resp, @Nonnull String defaultVersion) {
 		super(resp);
-		//		m_name = name;
+		m_url = url;
 		m_blen = 8192;
+		m_ieEmulation = defaultVersion;
 	}
 
-	public void		setIE8Capable() throws IOException {
+	/**
+	 * Set the mode you want. If you do not care set to {@link InternetExplorerVersion}.EDGE. If you do not want to send any header set to null.
+	 * @param iemode
+	 * @throws IOException
+	 */
+	public void setIeEmulationMode(@Nullable String compatible) throws IOException {
 		if(m_flushed)
-			throw new RuntimeException("IE8 filter: output already flushed - cannot remove IE8 emulation header anymore! Move this call to the BEGINNING of the page.");
-		m_ie8capable = true;
+			throw new RuntimeException("InternetExplorer filter: output already flushed - cannot remove IE emulation header anymore! Move this call to the BEGINNING of the page.");
+		m_ieEmulation = compatible;
 		internalFlush();
-//		flushBuffer();
 	}
 
 	/*--------------------------------------------------------------*/
@@ -139,17 +153,13 @@ public class WrappedHttpServetResponse extends HttpServletResponseWrapper {
 		if(m_flushed)
 			return;
 
-		//-- If no IE8 capable indication is received add the header...
-//		if(m_sos == null && m_wr != null) {
-//			System.out.println("??? NO OUTPUTBUFFER ALLOCATED: " + m_name);
-//		}
-		if(! m_ie8capable) {
-			//			System.out.println("IE8: Sending emulate-IE7 header: " + m_name);
-			addHeader("X-UA-Compatible", "IE=EmulateIE7");
-		} else {
-			addHeader("X-UA-Compatible", "IE=edge"); // 20110329 jal Force to highest supported mode.
-			//			System.out.println("IE8: Resource is IE8-capable, flushing: " + m_name);
+		//-- Only send a header if the emulation is set.
+		if(m_ieEmulation != null) {
+			addHeader("X-UA-Compatible", m_ieEmulation);
+			//			System.out.println(m_url + ": Sending " + m_ieEmulation);
 		}
+		//		else
+		//			System.out.println(m_url + ": Not sending x-ua-compatible");
 
 		//-- Writeout the buffert
 		if(m_bix > 0) {

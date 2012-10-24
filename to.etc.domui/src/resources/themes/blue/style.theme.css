@@ -5,13 +5,34 @@
 /*** 000_dateinput.frag.css ***/
 /*** Date input ***/
 @IMPORT url("calendar-blue2.css");
+
+.ui-di-sib {
+	vertical-align: top;
+	padding: 0px 1px 0px 1px;
+	margin: 0px;
+	border: 0px;
+	background: transparent;
+	cursor: pointer;
+}
+
+.ui-di-sib img {
+	padding: 0px;
+	margin: 0px;
+	border: 0px;
+}
+
+.ui-di-sib:hover {
+	background-color: <%= data_tbl_header_bg %> !important;
+}
 /*** 002_core.frag.css ***/
 /*** Core style ***/
 /* Body style */
 body,html {
-	background: url(bg-gradient.png.svg) repeat-x;
+<% if(typeof body_image != 'undefined') { %>
+	background: url(<%= body_image %>) repeat-x;
+<% } %>
 	background-color: <%= bg_color %>;
-/*	height: 100%; jal 20110221 Body height causes no end of problems with scrollbars. */
+	height: 100%; /* vmijic - changed to 100% (was 90%). Is here a reason for 90%? We have problem with splitter otherwise... */
 	margin: 0px;
 }
 
@@ -25,7 +46,7 @@ body,html {
 }
 
 input, textarea, select {
-	border-color:#ABADB3 #BFCDD9 #BFCDD9;
+	border-color:<%= bevel_up %> <%= bevel_down %> <%= bevel_down %>;
 	border-style:solid;
 	border-width:1px;
 	-moz-border-radius: 2px;	
@@ -43,7 +64,7 @@ input[type=file] {
 }
 
 input:hover, textarea:hover, select:hover {
-	border-color:#5794BF #D7E8F8 #D7E8F8 #5794BF;
+	border-color:<%= bevel_hover_up %> <%= bevel_hover_down %> <%= bevel_hover_down %> <%= bevel_hover_up %>;
 }
 
 select {
@@ -51,7 +72,8 @@ select {
 }
 
 pre {
-	font-family: Courier New, Courier, monospace;
+	font-family: <%= fixed_font_family %>;
+	font-size: <%= fixed_font_size %>;
 }
 
 button img {
@@ -97,27 +119,35 @@ button {
 }
 /*** 010_apptitle.frag.css ***/
 /*** App Title bar ***/
+.ui-atl {
+	height: 40px;
+	background: url(<%= bg_ttl_gradient %>) repeat-y;
+	background-color: <%= bg_ttl_end %>;
+}
+
 .ui-atl-bb {
 	white-space: nowrap;
-	background-image: url(bg-caption.png.svg);
-	background-repeat: no-repeat;
 	width: 90%;
 	text-align: right;
 }
 
 .ui-atl-i {
-	background-color: <%= header_bg %>;
-	padding-right: 10px;
-	padding-left: 5px;
+	padding: 0px;
+}
+
+.ui-atl-i img {
+	display: none;
 }
 
 .ui-atl-t {
-	background-color: <%= header_bg %>;
 	width: 10%;
+	height: 40px;
 	white-space: nowrap;
-	color: #123667;
+	color: <%= bg_ttl_text %>;
 	font-weight: bold;
 	font-size: <%= hdr_font_size %>;
+	padding-left: 9px;
+	vertical-align: middle;
 }
 /*** 015_splitterbar.frag.css ***/
 /*** SplitterPanel. These style names are required by jquery.splitter.js ***/
@@ -127,8 +157,8 @@ button {
 	height: 100%;
 	line-height: 0px;
 	font-size: 0px;
-	border-left: solid 1px <%= header_bg %>;
-	border-right: solid 1px <%= header_bg %>;
+	border-left: solid 1px white;
+	border-right: solid 1px white;
 	background: #cbe1fb url(panev.gif) 0% 50%;
 }
 
@@ -159,8 +189,8 @@ button {
 	text-align: left;
 	line-height: 0px;
 	font-size: 0px;
-	border-top: solid 1px <%= header_bg %>;
-	border-bottom: solid 1px <%= header_bg %>;
+	border-top: solid 1px white;
+	border-bottom: solid 1px white;
 	background: #cbe1fb url(paneh.gif) 50% 0%;
 }
 
@@ -195,7 +225,7 @@ button {
 .ui-splt-left {
 	float: left;
 	height: 100%;
-	border-top: solid 1px <%= header_bg %>;
+	border-top: solid 1px white;
 	overflow: auto;
 	position: relative;
 }
@@ -272,7 +302,7 @@ td.ui-tr-sel {
 	cursor: pointer;
 }
 td.ui-tr-selected {
-	background-color: <%= header_bg %>; !important;
+	background-color: <%= bg_ttl_end %>; !important;
 }
 
 .ui-tree {
@@ -281,34 +311,32 @@ td.ui-tr-selected {
 /*** 035_displayvalue.frag.css ***/
 /*** DisplayValue ***/
 .ui-dspv {
-	background:none repeat scroll 0 0 <%= readonly_bg %>;
-	border: 1px solid <%= readonly_border %>;
-	display:block;
-	padding:2px;
-	min-height:1em;
+	background: none repeat scroll 0 0 <%= readonly_bg %>;
+	display: block;
+	text-align: left;
 }
 /*** 040_captionedheader.frag.css ***/
 /*** CaptionedHeader ***/
 .ui-chdr {
 	width: 100%;
-/*	height: 20px; */
-	background-image: url(bg-chdr.png.svg);
-	background-position: 0px -2px;
 	margin-top: 10px;
+	border-bottom: 2px solid <%= caption_bg %>;
 }
 .ui-chdr-ttl {
-	background-color: <%= util.color(header_bg).lighter(0.4) %>;
-	-moz-border-radius: 5px;
-	border-radius: 5px;
-	-webkit-border-radius: 5px;
+	color: <%= bg_ttl_text %>;
+	background-color: <%= caption_bg %>;
 	padding: 2px 10px 2px 10px;
 	white-space: nowrap;
+	-moz-border-radius: 2px 2px 0px 0px;
+	-webkit-border-radius: 2px 2px 0px 0px;
+	-khtml-border-radius: 2px 2px 0px 0px;
+	border-radius: 2px 2px 0px 0px;
 }
 .ui-chdr-ttl img {
 	padding-right: 10px;
 }
 .ui-chdr-l {
-	width: 20px;
+	width: 10px;
 	padding: 0;
 	margin: 0;
 }
@@ -441,6 +469,11 @@ div.ui-ipa img {
 	background-color: #e5e5e5;
 }
 
+/** Sizeless item */
+.ui-szless {
+	padding: 0px;
+	margin: 0px;
+}
 /*** 060_msgbox.frag.css ***/
 /*** MsgBox ***/
 .ui-mbx-top {
@@ -454,6 +487,10 @@ div.ui-ipa img {
 .ui-mbx-mc {
 	font-size: 13px;
 }
+.ui-mbx-input {
+	padding-top: 20px;
+}
+
 /*** 065_linkbutton.frag.css ***/
 /*** LinkButton component. ***/
 .ui-lbtn {
@@ -566,7 +603,7 @@ a.ui-brc-l, a.ui-brc-l:hover a.ui-brc-l :VISITED, a.ui-brc-l:ACTIVE {
 /*** 090_buttonbar.frag.css ***/
 /*** ButtonBar component ***/
 .ui-buttonbar {
-	padding: 0; margin: 0;
+	margin: 10px;
 }
 .ui-bb-left {
 	padding: 0; margin: 0;
@@ -581,7 +618,6 @@ a.ui-brc-l, a.ui-brc-l:hover a.ui-brc-l :VISITED, a.ui-brc-l:ACTIVE {
 }
 .ui-bb-middle {
 	padding: 0; margin: 0;
-/*	height: 36px;	jal 20121009 Do not add height: empty button bar must be empty. */
 }
 /*** 095_monthpanel.frag.css ***/
 /*** MonthPanel ***/
@@ -729,8 +765,7 @@ div.ui-lui-selected {
 	border-style:solid;
 	border-width:1px;
 	-moz-border-radius: 2px;
-	border-radius: 2px;
-	-webkit-border-radius: 2px;
+	background-color: #ffffff;	
 }
 
 div.ui-lui-selected-ro {
@@ -843,10 +878,140 @@ tr.ui-keyword-popup-row {
 	zoom: 1; /* FIXME: bojan needs to specify why this is needed! */ 
 	*display:inline;
 }
-/*** 115_lookupform.frag.css ***/
+/*** 105_lookupinput.frag.css ***/
+/*** LookupInput thingerydoo ***/
+.ui-lui {
+	/* background: #ffffff; */
+	padding: 0px;
+	margin: 0px;
+}
+
+div.ui-lui-selected{
+	border-color:#ABADB3 #BFCDD9 #BFCDD9;
+	border-style:solid;
+	border-width:1px;
+	-moz-border-radius: 2px;
+	margin-bottom: 3px;
+}
+
+div.ui-lui-selected-ro {
+	border: <%= readonly_border %> solid 1px; /* same border color as one used for ui-dspv fields */
+}
+	
+div.ui-lui {
+	width: 12em; /*	this width match with date field picker icon on IE rendering */
+	display: inline-block;
+}
+
+table.ui-lui {
+	width: 12em; /*	this width match with date field picker icon on IE rendering */
+	white-space: nowrap;
+}
+
+div.ui-lui td{
+	vertical-align: top;
+}
+
+table.ui-lui-selected {
+	width: 100%;
+	white-space: nowrap;
+	padding: 1px;
+}
+
+.ui-lui-v { /* no selection is rendered transparent without border */
+	padding: 0px;
+	margin: 0px;
+	width: 100%;
+}
+
+.ui-lui-selected tbody { /*	selected value is rendered with white back and outline, on IE border is not rendred!? */
+	padding: 0px;
+	margin: 0px;
+	background-color: #ffffff;
+	width: 100%;
+}
+
+.ui-lui-selected-ro tbody {
+	background-color: <%= readonly_bg %>;
+}
+
+.ui-input-err * .ui-lui-v {
+	background-color: #ffe5e5 !important;
+}
+.ui-lui-vcell {
+	width: 99%;
+}
+input.ui-lui-keyword {
+	min-width: 98px;
+}
+
+img.ui-lui-waiting{
+	position:absolute;
+	top:2px;
+	right:2px;
+}
+.ui-lui-keyword-res{
+	color: black;
+}
+.ui-lui-keyword-no-res{
+	color: red;
+}
+.ui-lui-keyword-large{
+	color: red;
+}
+.ui-lui-keyword-popup{
+	position: absolute;
+	left: 0px;
+	top: 18px;
+	background-color: white;
+	border: 1px solid gray;
+	width: 402px;
+	overflow: hidden;
+}
+tr.ui-keyword-popop-rowsel {
+	cursor: pointer;
+	background-color: <%= highlight2_bg %> !important;
+}
+
+tr.ui-keyword-popop-rowsel:hover {
+	background-color: <%= highlight2_bg %> !important;
+}
+
+tr.ui-keyword-popup-row {
+	cursor: pointer;
+}
+
 /*** LookupForm ***/
 .ui-lf-coll {
-	border-bottom: 1px dotted #666666;
+	padding: 12px 10px;
+}
+
+/*** Button bar ***/
+div.ui-lf-ebb {
+	margin-top		: 9px;
+	padding-bottom	: 10px;
+}
+
+/*** Layout for table with input data in two, or more, rows ***/
+table.ui-lf-multi > tbody > tr > td {
+	padding-left			: 100px;
+	white-space				: nowrap;
+}
+
+table.ui-lf-multi > tbody > tr > td:first-child {
+	width					: 1%;
+	padding-left			: 0px;
+}
+
+/*** Standard table with inputs style - prompt and input cells table kind ***/
+table.ui-lf-st tr > td.ui-f-lbl:first-child,
+vp-ui-multi table tr > td.ui-f-lbl:first-child {
+	min-width: 150px;
+	width: 1%;
+}
+
+div.ui-lf-mainContent{
+	margin: 10px 10px 0px 10px;
 }
 /*** 120_forms.frag.css ***/
 /*** Form basic styles ***/
@@ -854,50 +1019,57 @@ tr.ui-keyword-popup-row {
 .ui-f-lbl {
 	text-align: right;
 	font-weight: bold;
+	font-size: <%= font_size %>;
 	vertical-align: top;
+	white-space: nowrap;
 	min-width: 150px;
+	width: 1%;
 }
 
 .ui-f-in {
+	font-size: <%= font_size %>;
 	vertical-align: top; /* jal 20090818 changed from top to middle to align DateInput buttons better */
-	padding: 0px;
+	padding-left: 4px;
 }
 .ui-f-do {
+	font-size: <%= font_size %>;
 	vertical-align: top; /* jal 20090818 changed from top to middle to align DateInput buttons better/20100708 jal: back to top because LookupInput causes misalignment of labels after it. */
-	padding: 0px;
+	padding-left: 4px;
 }
 
 /* for forms having the label ABOVE the field (vertical stacked) */
 .ui-fvs-lbl {
 	font-weight: bold;
+	font-size: <%= font_size %>;
 }
 
 .ui-fvs-in {
+	font-size: <%= font_size %>;
 	vertical-align: top;
 }
 
 .ui-fvs-do { /* displayonly field */
+	font-size: <%= font_size %>;
 	background-color: white;
 	padding: 2px;
 }
 
 /* Display-only field */
 .ui-f-display {
+	font-size: <%= font_size %>;
 	vertical-align: top;
 	background: #eff7ff;
 }
 
 /* for forms where the label is above the edit control (vertical). */
-.ui-ro {
+.ui-ro, .ui-ro:hover {
 	/*background: #eff7ff;*/
 	border:1px solid <%= readonly_border %>;
 	background-color: <%= readonly_bg %>;
 }
 
-.ui-ro:hover {
-	/*background: #eff7ff;*/
-	border:1px solid <%= readonly_border %>;
-	background-color: <%= readonly_bg %>;
+select.ui-ro, select.ui-ro:hover {
+	border-color: <%= bevel_up %>;
 }
 /*** 125_numeric.frag.css ***/
 /*** Typed presentation for fields containing numerics ***/
@@ -907,6 +1079,10 @@ tr.ui-keyword-popup-row {
 
 TD.ui-numeric {
 	padding-right: 3px;
+}
+
+.ui-dspv.ui-numeric {
+	text-align: left !important;
 }
 /*** 130_imagebutton.frag.css ***/
 /*** Image Button ***/
@@ -951,7 +1127,7 @@ td .ui-ib[class] {
 	background-repeat: no-repeat;
 	background-position: left;
 	padding-left: 18px;
-	font-size: 12px;
+	font-size: <%= font_size %>;
 	color: #1700ee;
 	text-decoration: underline !important;
 }
@@ -980,24 +1156,56 @@ div:hover.ui-xdt-exp {
 }
 /*** 140_datatable.frag.css ***/
 /*** DataTable default style ***/
+body > div.ui-dt {
+	margin: 0px 10px;	
+}
+
 div.ui-dt {
 	overflow: auto;
 	position: relative;
 }
 
+div.ui-dt table{
+	overflow: auto;
+	position: relative;
+	border-spacing: 0px;
+	border-right: 1px solid #bababa;
+	border-bottom: 1px solid #bababa;
+}
+
 .ui-dt th {
+	background: <%=	data_tbl_header_bg %>;
+	background-image: url(<%= data_tbl_header_bg_img %>);
+	color: <%= data_tbl_header_text_color %>;
+	border-bottom: 1px solid <%= data_tbl_header_btm_border %>;
 	text-align: left;
 	font-weight: bold;
 	padding: 0px 3px;
 	vertical-align: top;
 }
 
+.ui-dt th:FIRST-CHILD {
+	border-left: 1px solid <%= data_tbl_header_btm_border %>;
+}
+
+.ui-dt th:LAST-CHILD {
+	border-right: 1px solid <%= data_tbl_header_btm_border %>;
+}
+
 .ui-dt tbody td {
-	padding: 0px 3px;
+	padding: 3px;
+	border-left: 1px solid #bababa; /* gray so it is theme invariant */
+}
+
+.ui-dt tbody tr > td.ui-f-lbl:first-child {
+	min-width: 150px;
+	margin-left: 10px;
 }
 
 .ui-dt-hdr {
-	/* default domui table header style is still to be defined */
+	background: <%=	header_bg %>;
+	color: white;
+	text-align: left;
 }
 
 .ui-dt-nores {
@@ -1009,7 +1217,7 @@ div.ui-dt {
 }
 
 .ui-even {
-	background-color: <%= even_bg %>;
+	background: <%= data_tbl_even_row_bg %>;
 }
 
 tr.ui-rowsel {
@@ -1027,7 +1235,8 @@ td.ui-cellsel {
 
 td.ui-cellsel:hover {
 	text-decoration: underline;
-	background-color: <%= cellhighlight_bg %> !important;
+	background-color: <%= data_tbl_cell_highlight_bg %> !important;
+	color: <%= data_tbl_cell_highlight_link_color_bg %>;
 }
 
 th.ui-sortable {
@@ -1039,23 +1248,26 @@ div.ui-sortable {
 }
 
 .ui-sortable img {
-	top: 2px;
-	left: -2px;
+	top: -3px;
 	position: absolute;
 	border: 0px;
 }
 
 .ui-sortable span {
-	margin-left: 8px;
+	margin-left: 10px;
 }
 
-tbody td.ui-dt-separator {
+.ui-dt {
+	font-size: <%= data_tbl_font_size %>;
+}
+
+.ui-dt-separator {
 	background: url(bg-horiz-separator.png) repeat-x center;
 	padding: 1px;
 }
 
 .ui-dt .mselected {
-	background-color: #dedeff; /* 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
+	background-color: <%= highlight2_bg %>; /* 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
 }
 /*** 145_smallimgbutton.frag.css ***/
 /*** Small Image button ***/
@@ -1080,30 +1292,46 @@ tbody td.ui-dt-separator {
 /*** 150_caption.frag.css ***/
 /*** Caption ***/
 .ui-cptn {
-	border: 1px solid <%= header_bg %>;
-	padding: 2px 4px 2px 4px;
+	margin-top: 8px;
+	margin-bottom: 10px;
 	font-weight: bold;
-	background: url(bg-header.png.svg) repeat-x;
+	background: url(<%= caption_separator %>) no-repeat;
 /*	margin-top: 10px; jal 20120213 removed: header should not define it's upper location, because it cannot be used at the top of a screen! */
+}
+
+.ui-cptn div {
+	padding-top: 18px;
+	font-size: large;
+}
+
+.ui-cptn .ui-cptn-ttl {
+	width: 1%;
+}
+
+.ui-cptn .ui-cptn-btn {
+	text-align: left;
+	vertical-align: bottom;
+	padding-left: 5px;
+	padding-bottom: 2px;
 }
 /*** 155_captionedpanel.frag.css ***/
 /*** CaptionedPanel ***/
 .ui-pnl-outer {
 	background-color: white;
-	padding: 1px;
-	border: 1px solid <%= header_bg %>;
 }
 
 .ui-pnl-caption {
-	border: 1px solid <%= header_bg %>;
 	padding: 2px 4px 2px 4px;
 	font-weight: bold;
-	background: url(bg-header.png.svg) repeat-x;
+	font-size: 120%;
+	color: <%= bg_ttl_text %>;
+	background: <%= header_bg %>;
 }
 
 .ui-pnl-cont {
 	position: relative;
 	padding: 5px;
+	border: 1px solid <%= header_bg %>;
 }
 /*** 160_errorpanel.frag.css ***/
 /*** ErrorPanel - a CaptionedPanel used to display errors in the page ***/
@@ -1128,71 +1356,57 @@ tbody td.ui-dt-separator {
 /*** The tab control, using the "sliding doors" technique as in http://www.alistapart.com/articles/slidingdoors/ ***/
 .ui-tab-hdr {
 	float: left;
-	font-size: 12px;
+	font-size: <%= font_size %>;
 	line-height: normal;
-	border-bottom: 1px solid black;
 	width: 100%;
+	margin: 9px 0px 10px;
 }
 
-.ui-tab-hdr ul {
-	margin: 0;
-	padding: 8px 10px 0;
-	list-style: none;
-}
-
-.ui-tab-hdr  li {
-	float: left;
-	margin: 0;
-	padding: 0 0 0 8px;
-	background: url(tab-off-left.png) no-repeat left top;
-}
-
-li.ui-tab-err {
-	float: left;
-	margin: 0;
-	padding: 0 0 0 8px;
-	background: url(tab-off-err-left.png) no-repeat left top;
+.ui-tab-hdr li {
+    background: url("<%= tab_pnl_img %>") no-repeat scroll left -200px transparent;
+    float: left;
+    margin: 0;
+    padding: 0 0 0 8px;
+    cursor: pointer;
+    list-style: none;
 }
 
 .ui-tab-hdr a {
-	display: block;
-	background: url(tab-off-right.png) no-repeat right top;
-	padding: 5px 14px 4px 6px;
-	text-decoration: none;
-	font-weight: bold;
-	color: <%= tab_fg %>;
+	background: url("<%= tab_pnl_img %>") no-repeat scroll right -250px transparent;
+    display: block;
+    font-weight: bold;
+    padding: 9px 14px 0px 6px;
+    text-decoration: none;
+ 	min-height: 22px;
+ 	color: <%= tab_pnl_inactive_col %>;
 }
 
-.ui-tab-hdr ul a:hover {
-	color: <%= tab_link_color %>;
+.ui-tab-hdr li:hover {
+	background-position: left -300px;
 }
 
-.ui-tab-hdr .ui-tab-sel {
-	background-image: url(tab-norm-left-sel.png);
+.ui-tab-hdr li:hover a{
+	background-position: right -350px;
+	color: <%= tab_pnl_hover_inactive_col %>;
 }
 
-.ui-tab-hdr .ui-tab-err a {
-	background-image: url(tab-off-err-right.png);
+.ui-tab-hdr li.ui-tab-sel, 
+.ui-tab-hdr li.ui-tab-sel:hover {
+	background-position: left top;
 }
 
-.ui-tab-hdr .ui-tab-sel a {
-	background-image: url(tab-norm-right-sel.png);
+.ui-tab-hdr li.ui-tab-sel a, 
+.ui-tab-hdr li.ui-tab-sel:hover a {
+	background-position: right -50px;
+	color: <%= tab_pnl_active_col %>;
 }
 
-.ui-tab-err a {
-	color: <%= error_fg %>;
+li.ui-tab-err a {
+	color: <%= error_fg %> !important;
 }
 
 .ui-tab-icon {
 	padding-right: 5px;
-}
-
-.ui-tab {
-	position: relative; /* jal new 20070625 */
-	clear: both;
-	background-color: #ffffff;
-	border: 1px solid <%= header_bg %>;
-	padding: 0px;
 }
 
 .ui-tab-tabbar {
@@ -1203,54 +1417,121 @@ li.ui-tab-err {
 .ui-tab-pag {
 	border-top: 1px solid black;
 }
+
+.ui-tab-ibte {
+	height: 31px;
+	background: <%= tab_pnl_sep_bg %>;
+	overflow: hidden;
+}
+
+li.ui-tab-ibt {
+	background: <%= tab_pnl_sep_bg %>;
+	height: 31px;
+	width: 3px;
+	padding: 0px;
+	margin: 0px;
+}
+
+li.ui-tab-ibt:FIRST-CHILD {
+	width: 10px;
+}
+
+.ui-tab-pg {
+	padding: 0px 10px;
+}
+
+.ui-tab-pg .ui-buttonbar, .ui-tab-pg .ui-szless {
+	margin-left: 0px;
+}
 /*** 170_scrollabletabpanel.frag.css ***/
 /*** ScrollableTabPanel ***/
 .ui-stab-hdr {
 	float: left;
-	font-size: 12px;
+	font-size: <%= font_size %>;
 	line-height: normal;
+	margin: 9px 0px 10px;
 }
 
-.ui-stab-hdr ul {
-	margin: 0;
-	padding: 8px 0px 0;
-	list-style: none;
-}
-
-.ui-stab-hdr  li {
-	float: left;
-	margin: 0;
-	padding: 0 0 0 8px;
-	background: url(tab-off-left.png) no-repeat left top;
+.ui-stab-hdr li {
+    background: url("<%= tab_pnl_img %>") no-repeat scroll left -200px transparent;
+    float: left;
+    margin: 0;
+    padding: 0 0 0 8px;
+    cursor: pointer;
+    list-style: none;
 }
 
 .ui-stab-hdr a {
-	display: block;
-	background: url(tab-off-right.png) no-repeat right top;
-	padding: 5px 14px 4px 6px;
-	text-decoration: none;
-	font-weight: bold;
-	color: <%= tab_fg %>;
+	background: url("<%= tab_pnl_img %>") no-repeat scroll right -250px transparent;
+    display: block;
+    font-weight: bold;
+    padding: 9px 14px 0px 6px;
+    text-decoration: none;
+ 	min-height: 22px;
+ 	color: <%= tab_pnl_inactive_col %>;
 }
 
-.ui-stab-hdr ul a:hover {
-	color: <%= tab_link_color %>;
+.ui-stab-hdr li:hover {
+	background-position: left -300px;
 }
 
-.ui-stab-hdr .ui-tab-sel {
-	background-image: url(tab-norm-left-sel.png);
+.ui-stab-hdr li:hover a{
+	background-position: right -350px;
+	color: <%= tab_pnl_hover_inactive_col %>;
 }
 
-.ui-stab-hdr .ui-tab-err a {
-	background-image: url(tab-off-err-right.png);
+.ui-stab-hdr li.ui-stab-sel, 
+.ui-stab-hdr li.ui-stab-sel:hover {
+	background-position: left top;
 }
 
-.ui-stab-hdr .ui-tab-sel a {
-	background-image: url(tab-norm-right-sel.png);
+.ui-stab-hdr li.ui-stab-sel a, 
+.ui-stab-hdr li.ui-stab-sel:hover a {
+	background-position: right -50px;
+	color: <%= tab_pnl_active_col %>;
 }
 
-.ui-stab-scrl {
-	border-bottom: 1px solid black;
+li.ui-stab-err a {
+	color: <%= error_fg %> !important;
+}
+
+.ui-stab-icon {
+	padding-right: 5px;
+}
+
+.ui-stab-tabbar {
+	margin: 0px;
+	padding: 0px;
+}
+
+.ui-stab-pag {
+	border-top: 1px solid black;
+}
+
+.ui-stab-ibte {
+	height: 31px;
+	background: <%= tab_pnl_sep_bg %>;
+	overflow: hidden;
+}
+
+li.ui-tab-ibt {
+	background: <%= tab_pnl_sep_bg %>;
+	height: 31px;
+	width: 3px;
+	padding: 0px;
+	margin: 0px;
+}
+
+li.ui-stab-ibt:FIRST-CHILD {
+	width: 10px;
+}
+
+.ui-stab-pg {
+	padding: 0px 10px;
+}
+
+.ui-stab-pg .ui-buttonbar, .ui-stab-pg .ui-szless {
+	margin-left: 0px;
 }
 
 .ui-stab-scrl-left {
@@ -1301,7 +1582,7 @@ li.ui-tab-err {
 	position: fixed;
 	top: 0px;
 	left: 0px;
-	background: black url(io-blk-wait.gif) no-repeat center center; 
+	background: black url(<%= io_blk_wait %>) no-repeat center center; 
 	filter:alpha(opacity=50);
 	z-index: 1000;
 }
@@ -1356,10 +1637,6 @@ li.ui-tab-err {
 .no-wrap{
 	white-space: nowrap;
     overflow: hidden;
-}
-.ui-szless {
-	padding: 0px;
-	margin: 0px;
 }
 .ui-clickable {
 	cursor: pointer;
@@ -1590,6 +1867,17 @@ li.ui-tab-err {
 	left: 4px;
 	top: 4px;
 }
+
+/*** ColorPickerInput ***/
+.ui-cpin {
+}
+.ui-cpin-div {
+        display: inline-block;
+        margin-top: 5px;
+        border: 1px solid grey;
+        height: 11px;
+        width: 20px;
+}
 /*** 210_popupmenu.frag.css ***/
 /*** Popup menu ***/
 .ui-pmnu {
@@ -1770,8 +2058,8 @@ li.ui-tab-err {
 	padding: 0;
 	margin: 0;
 	/*	border: 1px solid black; */
-	background: url(bg-body.png) repeat-x white;
-	border: 1px solid #cccccc;
+	background: url(bg-body.png) repeat-x <%= bg_color %>;
+	background-position: 50px 0px;
 	border-top: none;
 	/*	overflow: hidden;	*/
 	top: 5%;
@@ -1779,18 +2067,13 @@ li.ui-tab-err {
 }
 
 .ui-flw-ttl {
-/*	position: absolute;
-	top: 0px;
-	height: 20px;
-	left: 0px;
-	right: 0px; */
-	
-	height: 20px;
-	padding: 0;
-	padding: 2px;
-	background: url(bg-float-ttl2.png) repeat-x;
+	height: 22px;
+	padding: 3px 2px 3px 2px;
+	background: url(<%= bg_ttl_gradient %>) repeat-y;
+	background-color: <%= bg_ttl_end %>;
+	color: <%= bg_ttl_text %>;
 	border-bottom: 1px solid #eeeeee;
-	font-size: 15px;
+	font-size: 140%;
 	font-weight: bold;
 }
 
@@ -1802,7 +2085,7 @@ li.ui-tab-err {
 }
 .ui-flw-tc {
 	width: 100%;
-	height: 5px;
+	height: 0px;
 }
 
 .ui-flw-bc {
@@ -1813,29 +2096,79 @@ li.ui-tab-err {
 .ui-flw-hider {
 	height: 100%;
 	width: 100%;
-	opacity: 0.5;
 	position: fixed;
 	top: 0px;
 	left: 0px;
 	background-color: black;
-	filter:alpha(opacity=50);
+	opacity: 0.3;
+	filter:alpha(opacity=30);
 }
 
 .ui-flw-btn-close {
-	margin-top: -1px;
-	margin-right: -2px;
+	padding: 0px;
 }
 /*** 230_defaultbutton.frag.css ***/
-/*** DefaultButton (replaces old version, this one uses hover effects) ***/
-.ui-dbtn {
-	margin: 2px;
-	background: none;
+/*** New default button, uses sliding doors and a single bg image ***/
+.ui-sdbtn {
+	height: <%= button_height %>px;
+	position: relative;
+	border: 0;
+	padding: 0 10px 0 0;
+	vertical-align: top;
+	cursor: pointer;
+	overflow: visible; /* remove extra padding in IE */
+	background: transparent url(<%= button_img %>) no-repeat right -50px;
+	margin-right: 5px;
+	outline: none;
 }
-.ui-dbtn:HOVER, .ui-dbtn:FOCUS {
-	background-position: 0px -<%= defaultbutton_height %>px;
+
+@-moz-document url-prefix() { /** btadic 20120711 Firefox is adding strange left padding to the buttons **/
+	.ui-sdbtn {
+		margin-left: -2px;
+	}
 }
-.ui-dbtn[disabled] {
-	background-position: 0px -<%= defaultbutton_height*2 %>px !important;
+
+.ui-sdbtn img {
+	padding-right: 3px;
+	vertical-align: middle;
+	height: 16px;
+}
+.ui-sdbtn::-moz-focus-inner {
+	border: none; /* overrides extra padding in ffox */
+}
+.ui-sdbtn span {
+	position: relative;
+	display: block;
+	min-width: 94px;
+	white-space: nowrap;
+	height: <%= button_height %>px;
+	padding: 3px 0 0 6px;
+	color: white;
+	font-weight: bold;
+	vertical-align: middle;
+	text-align: left;
+	background: transparent url(<%= button_img %>) no-repeat left top;
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+	/* Safari and Google Chrome only - fix margins */
+	.ui-sdbtn span {
+		margin-top: -1px;
+	}
+}
+.ui-sdbtn:hover, .ui-sdbtn:focus {
+	background-position: right -150px;
+}
+.ui-sdbtn:hover span, .ui-sdbtn:focus span {
+	background-position: left -100px;
+}
+
+/* support for disabled attribute */
+.ui-sdbtn[disabled], .ui-sdbtn[disabled]:hover, .ui-sdbtn[disabled]:focus {
+	background-position: right -250px;
+}
+.ui-sdbtn[disabled] span, .ui-sdbtn[disabled]:hover span, .ui-sdbtn[disabled]:focus span {
+	background-position: left -200px;
 }
 /*** 235_flare.frag.css ***/
 /*** Flare component. ***/
@@ -1917,17 +2250,16 @@ li.ui-tab-err {
 .ui-bupl-wrp {
 	width: 360px;
 	background-color: white;
-	padding: 1px;
 	border: 1px solid <%= header_bg %>;
 }
 .ui-bupl-ttl {
 /*	border: 1px solid <%= header_bg %>; */
 	padding: 2px 4px 2px 4px;
 	font-weight: bold;
-	background: url(bg-header.png.svg) repeat-x;
+	background: <%= header_bg %>;
 }
 .ui-bupl-legend {
-	color: black;
+	color: <%= bg_ttl_text %>; 
 }
 
 .ui-bupl .swfupload {
@@ -1958,12 +2290,12 @@ li.ui-tab-err {
 	background-color: #bbb;
 }
 .ui-bupl-running {
-	border: 1px solid #DDF0DD;
-	background-color: #EBFFEB;
+	border: 1px solid <%= util.color(upl_runing).lighter(0.6) %>;
+	background-color: <%= util.color(upl_runing).lighter(0.6) %>;
 }
 .ui-bupl-complete {
-	border: 1px solid #cde0cd;
-	background-color: #dbefdb;
+	border: 1px solid <%= upl_runing %>;
+	background-color: <%= upl_runing %>;
 }
 .ui-bupl-error {
 	border: 1px solid #ff4900;
@@ -2003,8 +2335,81 @@ li.ui-tab-err {
 	font-size: 0;
 	width: 0%;
 	height: 2px;
-	background-color: blue;
+	background-color: <%= util.color(upl_loading).lighter(0.2) %>;
 	margin-top: 2px;
+}
+
+/*** 250_smallhoverbutton.frag.css ***/
+/*** Small Hover Button ***/
+.ui-smhb {
+	width: 16px;
+	height: 16px;
+	border: none;
+	background-color: transparent;
+	cursor: pointer;
+	padding: 0;
+	margin: 3px;
+}
+
+.ui-smhb:hover {
+	background-position: 0px -16px;
+}
+/*** 255_datapager.frag.css ***/
+/*** Result table pager ***/
+.ui-dp {
+	margin: 2px 10px 6px 14px;
+	padding: 0px;
+}
+
+.ui-dp-btns a{
+	height: <%= dp_icon_size_y %>px;
+	width: <%= dp_icon_size_x %>px;
+	display: inline-block;
+	padding: 0px;
+	margin-left: -3px;
+	outline: 0; 				/* btadic 20120712: Removing dotted border form focused button */
+	background-repeat: no-repeat;
+	background: url(<%= data_pager_icons %>);
+}
+
+.ui-dp-btns a.ui-dp-nav-f {
+	background-position: 0px 0px;
+}
+.ui-dp-btns a.ui-dp-nav-f:HOVER {
+	background-position: 0px <%= -dp_icon_size_y %>px;
+}
+.ui-dp-btns a.ui-dp-nav-f-dis {
+	background-position: 0px <%= -2 * dp_icon_size_y %>px;
+}
+
+.ui-dp-btns a.ui-dp-nav-p {
+	background-position: <%= -1 * dp_icon_size_x %>px <%= 0 * dp_icon_size_y %>px;
+}
+.ui-dp-btns a.ui-dp-nav-p:HOVER {
+	background-position: <%= -1 * dp_icon_size_x %>px <%= -1 * dp_icon_size_y %>px;
+}
+.ui-dp-btns a.ui-dp-nav-p-dis {
+	background-position: <%= -1 * dp_icon_size_x %>px <%= -2 * dp_icon_size_y %>px;
+}
+
+.ui-dp-btns a.ui-dp-nav-n {
+	background-position: <%= -2 * dp_icon_size_x %>px <%= 0 * dp_icon_size_y %>px;
+}
+.ui-dp-btns a.ui-dp-nav-n:HOVER {
+	background-position: <%= -2 * dp_icon_size_x %>px <%= -1 * dp_icon_size_y %>px;
+}
+.ui-dp-btns a.ui-dp-nav-n-dis {
+	background-position: <%= -2 * dp_icon_size_x %>px <%= -2 * dp_icon_size_y %>px;
+}
+
+.ui-dp-btns a.ui-dp-nav-l {
+	background-position: <%= -3 * dp_icon_size_x %>px <%= 0 * dp_icon_size_y %>px;
+}
+.ui-dp-btns a.ui-dp-nav-l:HOVER {
+	background-position: <%= -3 * dp_icon_size_x %>px <%= -1 * dp_icon_size_y %>px;
+}
+.ui-dp-btns a.ui-dp-nav-l-dis {
+	background-position: <%= -3 * dp_icon_size_x %>px <%= -2 * dp_icon_size_y %>px;
 }
 
 /*** MessageLine ***/

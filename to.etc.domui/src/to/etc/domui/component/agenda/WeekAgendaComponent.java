@@ -133,8 +133,6 @@ public class WeekAgendaComponent<T extends ScheduleItem> extends Div implements 
 	/**
 	 * Initialize the renderer. This gets the model, decodes and gets the workhours
 	 * and saves the calculated stuff for later use.
-	 *
-	 * @see to.etc.webui.render.def.DefRenderer#initialize(to.etc.webui.server.WebUIContext)
 	 */
 	private void initModel() throws Exception {
 		//-- Get model data once.

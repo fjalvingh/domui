@@ -63,8 +63,6 @@ public class HtmlEditor extends TextArea {
 		appendJQuerySelector(sb);
 		sb.append(".wysiwyg({css:");
 		String css = getStyleSheet();
-		if(css == null)
-			css = DomApplication.get().getTheme(null).getThemePath("minieditor.css");
 		StringTool.strToJavascriptString(sb, css, false);
 
 		sb.append(", controls: {");
@@ -135,7 +133,7 @@ public class HtmlEditor extends TextArea {
 	public String getStyleSheet() throws Exception {
 		if(m_styleSheet == null)
 			return null;
-		return DomApplication.get().getTheme(null).getThemePath(m_styleSheet);
+		return DomApplication.get().getThemedResourceRURL(m_styleSheet);
 	}
 
 	public void setStyleSheet(String styleSheet) {

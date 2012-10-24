@@ -231,10 +231,12 @@ public class OptimalDeltaRenderer {
 	}
 
 	public void renderLoadCSS(String path) throws IOException {
+		path = ctx().getThemedPath(path);
 		o().writeRaw("WebUI.loadStylesheet(" + StringTool.strToJavascriptString(path, false) + ");\n");
 	}
 
 	public void renderLoadJavascript(String path) throws IOException {
+		path = ctx().getThemedPath(path);
 		o().writeRaw("WebUI.loadJavascript(" + StringTool.strToJavascriptString(path, false) + ");\n");
 	}
 

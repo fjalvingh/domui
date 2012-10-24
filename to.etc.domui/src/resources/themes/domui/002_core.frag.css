@@ -2,9 +2,11 @@
 /*** Core style ***/
 /* Body style */
 body,html {
-	background: url(bg-gradient.png.svg) repeat-x;
+<% if(typeof body_image != 'undefined') { %>
+	background: url(<%= body_image %>) repeat-x;
+<% } %>
 	background-color: <%= bg_color %>;
-/*	height: 100%; jal 20110221 Body height causes no end of problems with scrollbars. */
+	height: 100%; /* vmijic - changed to 100% (was 90%). Is here a reason for 90%? We have problem with splitter otherwise... */
 	margin: 0px;
 }
 
@@ -18,7 +20,7 @@ body,html {
 }
 
 input, textarea, select {
-	border-color:#ABADB3 #BFCDD9 #BFCDD9;
+	border-color:<%= bevel_up %> <%= bevel_down %> <%= bevel_down %>;
 	border-style:solid;
 	border-width:1px;
 	-moz-border-radius: 2px;	
@@ -36,7 +38,7 @@ input[type=file] {
 }
 
 input:hover, textarea:hover, select:hover {
-	border-color:#5794BF #D7E8F8 #D7E8F8 #5794BF;
+	border-color:<%= bevel_hover_up %> <%= bevel_hover_down %> <%= bevel_hover_down %> <%= bevel_hover_up %>;
 }
 
 select {
@@ -44,7 +46,8 @@ select {
 }
 
 pre {
-	font-family: Courier New, Courier, monospace;
+	font-family: <%= fixed_font_family %>;
+	font-size: <%= fixed_font_size %>;
 }
 
 button img {
@@ -58,3 +61,25 @@ button {
 .page-content {
 	margin: 0px 10px;
 }
+
+
+/*** Other elements as direct body children ***/
+body > div.ui-dt {
+	margin-left: 10px;
+	margin-right: 10px;	
+}
+
+body > div.ui-dt-nores {
+	margin-left: 10px;
+	margin-right: 10px;
+}
+
+body > div > div.ui-lf-mainContent{
+	margin: 10px 10px 0px 10px;
+}
+
+body > .ui-dp { 
+	margin-left: 14px;
+	margin-right: 10px;
+}
+

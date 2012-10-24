@@ -31,7 +31,6 @@ import javax.annotation.*;
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
 
@@ -49,13 +48,13 @@ import to.etc.webapp.nls.*;
  * Created on Jun 19, 2008
  */
 public class DataPager extends Div implements IDataTableChangeListener {
-	private SmallImgButton m_firstBtn;
+	private ATag m_firstBtn;
 
-	private SmallImgButton m_prevBtn;
+	private ATag m_prevBtn;
 
-	private SmallImgButton m_nextBtn;
+	private ATag m_nextBtn;
 
-	private SmallImgButton m_lastBtn;
+	private ATag m_lastBtn;
 
 	private SmallImgButton m_showSelectionBtn;
 
@@ -68,18 +67,6 @@ public class DataPager extends Div implements IDataTableChangeListener {
 	private TextNode m_txt;
 
 	private Div m_textDiv;
-
-	//	private Div m_buttonDiv;
-
-	private String m_nextImg, m_nextDisImg;
-
-	private String m_prevImg, m_prevDisImg;
-
-	private String m_firstImg, m_firstDisImg;
-
-	private String m_lastImg, m_lastDisImg;
-
-	private String m_overflowImg;
 
 	/** When set (default) this shows selection details when a table has a selectable model. */
 	private boolean m_showSelection = true;
@@ -98,7 +85,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 
 	@Override
 	public void createContent() throws Exception {
-		init();
+		setCssClass("ui-dp");
 
 		//-- The text part: message
 		Div d = new Div();
@@ -110,14 +97,14 @@ public class DataPager extends Div implements IDataTableChangeListener {
 
 		m_buttonDiv = new Div();
 		add(m_buttonDiv);
-		m_buttonDiv.setCssClass("ui-szless");
-		m_firstBtn = new SmallImgButton();
+		m_buttonDiv.setCssClass("ui-dp-btns");
+		m_firstBtn = new ATag();
 		m_buttonDiv.add(m_firstBtn);
-		m_prevBtn = new SmallImgButton();
+		m_prevBtn = new ATag();
 		m_buttonDiv.add(m_prevBtn);
-		m_nextBtn = new SmallImgButton();
+		m_nextBtn = new ATag();
 		m_buttonDiv.add(m_nextBtn);
-		m_lastBtn = new SmallImgButton();
+		m_lastBtn = new ATag();
 		m_buttonDiv.add(m_lastBtn);
 
 		m_buttonDiv.add("\u00a0\u00a0");
@@ -264,38 +251,10 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		//		}
 	}
 
-	private void init() throws Exception {
-		if(m_nextImg != null)
-			return;
-
-		Map<String, Object> map = DomApplication.get().getThemeMap(null);
-		m_nextImg = get(map, "dpr_next", "THEME/nav-next.png");
-		m_prevImg = get(map, "dpr_prev", "THEME/nav-prev.png");
-		m_firstImg = get(map, "dpr_first", "THEME/nav-first.png");
-		m_lastImg = get(map, "dpr_last", "THEME/nav-last.png");
-
-		m_nextDisImg = get(map, "dpr_dis_next", "THEME/nav-next-dis.png");
-		m_prevDisImg = get(map, "dpr_dis_prev", "THEME/nav-prev-dis.png");
-		m_firstDisImg = get(map, "dpr_dis_first", "THEME/nav-first-dis.png");
-		m_lastDisImg = get(map, "dpr_dis_last", "THEME/nav-last-dis.png");
-
-		m_overflowImg = get(map, "dpr_overflow", "THEME/nav-overflow.png");
-	}
-
 	private static String enc(String in) {
 		return in;
 
 		//		return in.replace("&", "&amp;");
-	}
-
-	private String get(Map<String, Object> map, String key, String def) {
-		Object v = map.get(key);
-		if(null == v)
-			return enc(def);
-		if(v instanceof String) {
-			return enc((String) v);
-		}
-		throw new IllegalArgumentException("Bad key value for " + key + " in style.properties: expected string, got " + v);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -316,25 +275,25 @@ public class DataPager extends Div implements IDataTableChangeListener {
 			m_txt.setText(Msgs.BUNDLE.formatMessage(Msgs.UI_PAGER_TEXT, Integer.valueOf(cp + 1), Integer.valueOf(np), Integer.valueOf(m_table.getModel().getRows())));
 
 		if(cp <= 0) {
-			m_firstBtn.setSrc(m_firstDisImg);
-			m_prevBtn.setSrc(m_prevDisImg);
+			m_firstBtn.setCssClass("ui-dp-nav-f-dis");
+			m_prevBtn.setCssClass("ui-dp-nav-p-dis");
 		} else {
-			m_firstBtn.setSrc(m_firstImg);
-			m_prevBtn.setSrc(m_prevImg);
+			m_firstBtn.setCssClass("ui-dp-nav-f");
+			m_prevBtn.setCssClass("ui-dp-nav-p");
 		}
 
 		if(cp + 1 >= np) {
-			m_lastBtn.setSrc(m_lastDisImg);
-			m_nextBtn.setSrc(m_nextDisImg);
+			m_lastBtn.setCssClass("ui-dp-nav-l-dis");
+			m_nextBtn.setCssClass("ui-dp-nav-n-dis");
 		} else {
-			m_lastBtn.setSrc(m_lastImg);
-			m_nextBtn.setSrc(m_nextImg); // "THEME/go-next-view.png.svg?w=16&h=16");
+			m_lastBtn.setCssClass("ui-dp-nav-l");
+			m_nextBtn.setCssClass("ui-dp-nav-n");
 		}
 		int tc = m_table.getTruncatedCount();
 		if(tc > 0) {
 			if(m_truncated == null) {
 				m_truncated = new Img();
-				m_truncated.setSrc(m_overflowImg);
+				m_truncated.setSrc("THEME/nav-overflow.png");
 				m_truncated.setTitle(Msgs.BUNDLE.formatMessage(Msgs.UI_PAGER_OVER, Integer.valueOf(tc)));
 				m_textDiv.add(m_truncated);
 			}

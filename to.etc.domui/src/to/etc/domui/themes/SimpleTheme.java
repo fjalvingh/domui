@@ -24,48 +24,63 @@
  */
 package to.etc.domui.themes;
 
-import java.util.*;
-
 import javax.annotation.*;
+import javax.annotation.concurrent.*;
 
+import to.etc.domui.server.*;
+import to.etc.domui.util.js.*;
 import to.etc.domui.util.resources.*;
 
-public class SimpleTheme implements ITheme {
-	private String m_styleName;
+/**
+ * The result of a "simple" theme. It only contains the properties map for colors
+ * and icons, and a directory for theme resources.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Apr 27, 2011
+ */
+@Immutable
+public final class SimpleTheme implements ITheme {
+	@Nonnull
+	final private DomApplication m_da;
 
-	private ResourceDependencies m_rd;
+	@Nonnull
+	final private String m_styleName;
 
-	private Map<String, Object> m_themeProperties;
+	@Nonnull
+	final private ResourceDependencies m_rd;
 
-	public SimpleTheme(String styleName, Map<String, Object> themeProperties, ResourceDependencies rd) {
+	@Nonnull
+	final private IScriptScope m_propertyScope;
+
+	public SimpleTheme(@Nonnull DomApplication da, @Nonnull String styleName, @Nonnull IScriptScope themeProperties, @Nonnull ResourceDependencies rd) {
+		m_da = da;
 		m_styleName = styleName;
-		m_themeProperties = themeProperties;
+		m_propertyScope = themeProperties;
+		//		m_themeProperties = Collections.unmodifiableMap(themeProperties);
 		m_rd = rd;
-	}
-
-	@Override
-	public String getStylesheet() {
-		return "$themes/" + m_styleName + "/style.theme.css";
-	}
-
-	@Override
-	public @Nonnull ResourceDependencies getDependencies() {
-		return m_rd;
-	}
-
-	@Override
-	public @Nonnull Map<String, Object> getThemeProperties() {
-		return m_themeProperties;
 	}
 
 	@Nonnull
 	@Override
-	public String getIconURL(@Nonnull String icon) {
-		return "$themes/" + m_styleName + "/" + icon;
+	public ResourceDependencies getDependencies() {
+		return m_rd;
 	}
 
 	@Override
-	public String getThemePath(String path) {
-		return "$themes/" + m_styleName + "/" + path;
+	@Nonnull
+	public IScriptScope getPropertyScope() {
+		return m_propertyScope;
+	}
+
+	@Nonnull
+	@Override
+	public IResourceRef getThemeResource(@Nonnull String name, @Nonnull IResourceDependencyList rdl) throws Exception {
+		return m_da.getResource("$themes/" + m_styleName + "/" + name, rdl);
+	}
+
+	@Override
+	@Nonnull
+	public String translateResourceName(@Nonnull String name) {
+		return name;
 	}
 }

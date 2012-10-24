@@ -92,6 +92,8 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 				throw new IllegalStateException("webapp url incorrect: lousy SUN spec");
 			}
 			m_urlin = m_urlin.substring(m_webapp.length());
+			while(m_urlin.startsWith("/"))
+				m_urlin = m_urlin.substring(1);
 		}
 
 		//		for(Enumeration<String> en = m_request.getHeaderNames(); en.hasMoreElements();) {
@@ -274,6 +276,14 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		sb.append(NetTools.getApplicationURL(getRequest()));
 		sb.append(rel);
 		return sb.toString();
+	}
+
+	@Override
+	public String getThemedPath(String in) {
+		String p = getApplication().getThemedResourceRURL(in);
+		if(p == null)
+			throw new NullPointerException("?");
+		return getRelativePath(p);
 	}
 
 	/**

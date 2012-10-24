@@ -435,6 +435,7 @@ public class LookupForm<T> extends Div {
 	public void createContent() throws Exception {
 		//-- If a page title is present render the search block in a CaptionedPanel, else present in it;s own div.
 		Div sroot = new Div();
+		sroot.setCssClass("ui-lf-mainContent");
 		if(getPageTitle() != null) {
 			CaptionedPanel cp = new CaptionedPanel(getPageTitle(), sroot);
 			add(cp);
@@ -451,6 +452,7 @@ public class LookupForm<T> extends Div {
 		NodeContainer searchContainer = sroot;
 		if(containsItemBreaks(m_itemList)) {
 			Table searchRootTable = new Table();
+			searchRootTable.setCssClass("ui-lf-multi");
 			sroot.add(searchRootTable);
 			TBody searchRootTableBody = new TBody();
 			searchRootTable.add(searchRootTableBody);
@@ -464,6 +466,7 @@ public class LookupForm<T> extends Div {
 
 		//-- Walk all search fields
 		m_table = new Table();
+		m_table.setCssClass("ui-lf-st");
 		searchContainer.add(m_table);
 		m_tbody = new TBody();
 		m_tbody.setTestID("tableBodyLookupForm");
@@ -477,6 +480,7 @@ public class LookupForm<T> extends Div {
 				searchContainer.appendAfterMe(anotherSearchRootCell);
 				searchContainer = anotherSearchRootCell;
 				m_table = new Table();
+				m_table.setCssClass("ui-lf-st");
 				searchContainer.add(m_table);
 				m_tbody = new TBody();
 				m_tbody.setTestID("tableBodyLookupForm");
@@ -489,6 +493,7 @@ public class LookupForm<T> extends Div {
 		//-- The button bar.
 		Div d = new Div();
 		d.setTestID("buttonBar");
+		d.setCssClass("ui-lf-ebb");
 		sroot.add(d);
 		m_buttonRow = d;
 
@@ -552,7 +557,7 @@ public class LookupForm<T> extends Div {
 			}
 		});
 		m_collapseButton.setTestID("hideButton");
-		addButtonItem(m_collapseButton, 500, ButtonMode.BOTH);
+		addButtonItem(m_collapseButton, 300, ButtonMode.BOTH);
 	}
 
 	private boolean containsItemBreaks(List<Item> itemList) {
@@ -580,6 +585,7 @@ public class LookupForm<T> extends Div {
 
 		//-- Collapse button thingy
 		m_collapseButton.setText(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_RESTORE));
+		m_collapseButton.setIcon("THEME/btnShowLookup.png");
 		m_collapseButton.setClicked(new IClicked<DefaultButton>() {
 			@Override
 			public void clicked(DefaultButton bx) throws Exception {
@@ -601,6 +607,7 @@ public class LookupForm<T> extends Div {
 		createButtonRow(m_buttonRow, false);
 
 		m_collapseButton.setText(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE));
+		m_collapseButton.setIcon("THEME/btnHideLookup.png");
 		m_collapseButton.setClicked(new IClicked<DefaultButton>() {
 			@Override
 			public void clicked(DefaultButton bx) throws Exception {
@@ -1090,7 +1097,7 @@ public class LookupForm<T> extends Div {
 						}
 					}
 				});
-				addButtonItem(m_newBtn, 300, ButtonMode.BOTH);
+				addButtonItem(m_newBtn, 500, ButtonMode.BOTH);
 			} else if(m_onNew == null && m_newBtn != null) {
 				for(ButtonRowItem bri : m_buttonItemList) {
 					if(bri.getThingy() == m_newBtn) {

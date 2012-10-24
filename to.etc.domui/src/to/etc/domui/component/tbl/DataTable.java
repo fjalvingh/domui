@@ -105,7 +105,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	public void createContent() throws Exception {
 		m_dataBody = null;
 		m_errorDiv = null;
-		setCssClass("ui-dt");
+		addCssClass("ui-dt");
 
 		//-- Do we need to render multiselect checkboxes?
 		ISelectionModel<T> sm = getSelectionModel();
@@ -370,8 +370,6 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		}
 
 		//-- Now toggle all instances, in batches, to prevent loading 1000+ records that cannot be gc'd.
-		index = sl;
-
 		for(int i = sl; i < el;) {
 			int ex = i + 50;
 			if(ex > el)

@@ -1,9 +1,25 @@
 /*** 150_caption.frag.css ***/
 /*** Caption ***/
 .ui-cptn {
-	border: 1px solid <%= header_bg %>;
-	padding: 2px 4px 2px 4px;
+	margin-top: 8px;
+	margin-bottom: 10px;
 	font-weight: bold;
-	background: url(bg-header.png.svg) repeat-x;
+	background: url(<%= caption_separator %>) no-repeat;
 /*	margin-top: 10px; jal 20120213 removed: header should not define it's upper location, because it cannot be used at the top of a screen! */
+}
+
+.ui-cptn div {
+	padding-top: 18px;
+	font-size: large;
+}
+
+.ui-cptn .ui-cptn-ttl {
+	width: 1%;
+}
+
+.ui-cptn .ui-cptn-btn {
+	text-align: left;
+	vertical-align: bottom;
+	padding-left: 5px;
+	padding-bottom: 2px;
 }

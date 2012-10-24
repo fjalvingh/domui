@@ -77,6 +77,11 @@ jQuery Browser Plugin
 		if (!z) {
 			$('html').addClass([$.os.name, $.browser.name, $.browser.className, $.layout.name, $.layout.className].join(' '));
 		}
+		try {
+			var v = $.browser.version.split(".");
+			$.browser.majorVersion = parseInt(v[0], 10);
+			$.browser.minorVersion = parseInt(v[1], 10);
+		} catch(x) {}
 	};
 
 	$.browserTest(navigator.userAgent);

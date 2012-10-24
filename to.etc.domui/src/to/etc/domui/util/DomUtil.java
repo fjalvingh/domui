@@ -63,10 +63,9 @@ final public class DomUtil {
 	}
 
 	/**
-	 * This fine idiocy is needed to handle null checking because the pathetic loosers that make up
-	 * the Java JSR board are so incredible stupid it boggles the mind. Java == cobol. Thanks, morons.
-	 * If those idiots ever come to their senses and define a reasonable way for checking nulls- we could
-	 * remove this abomination.
+	 * NULL CHECKING BELONGS IN THE LANGUAGE, NOT IN ANNOTATIONS, damnit! This fine idiocy is needed to
+	 * handle null checking because the pathetic losers that make up the Java JSR board are so incredible
+	 * stupid it boggles the mind. Java == cobol 8-(
 	 *
 	 * @param in
 	 * @return
@@ -78,13 +77,26 @@ final public class DomUtil {
 		return in;
 	}
 
-
-	static public final void ie8Capable(HttpServletResponse req) throws IOException {
+	/**
+	 * Define (or clear) the x-ua-compatible value sent for this page. When not called
+	 * this defaults to the value defined by the ms-emulation property in web.xml.
+	 * @param comp
+	 * @throws IOException
+	 */
+	static public final void setPageCompatibility(@Nonnull HttpServletResponse req, @Nullable String comp) throws IOException {
 		if(!(req instanceof WrappedHttpServetResponse))
 			return;
 		WrappedHttpServetResponse wsr = (WrappedHttpServetResponse) req;
-		wsr.setIE8Capable();
+		wsr.setIeEmulationMode(comp);
 	}
+
+	/**
+	 * FIXME REMOVE!??!
+	 * @param req
+	 * @throws IOException
+	 */
+	@Deprecated
+	static public final void ie8Capable(HttpServletResponse req) throws IOException {}
 
 	static public final boolean isEqualOLD(final Object a, final Object b) {
 		if(a == b)
