@@ -25,6 +25,7 @@
 package to.etc.domui.themes;
 
 import java.io.*;
+import java.util.*;
 
 import javax.annotation.*;
 
@@ -34,7 +35,20 @@ import to.etc.domui.util.js.*;
 import to.etc.domui.util.resources.*;
 
 /**
- * Very simple theme engine which uses a theme name defined as themedir/icon/color. The themedir
+ * Very simple theme engine which uses a theme name defined as themedir/icon/color.
+ * <ul>
+ *	<li>The stylesheet must be called style.theme.css, and must reside in themes/[stylename].</li>
+ *	<li>The completed properties for this are formed by reading the following property files in order:
+ *		<ul>
+ *			<li>themes/[color].color.js</li>
+ *			<li>themes/[icon].icon.js</li>
+ *			<li>themes/[style]/style.props.js</li>
+ *		</ul>
+ *		The resulting property file is then used as the base context for all other theme operations.</li>
+ * </ul>
+ *
+ *
+ * The themedir
  * must contain all resources; the icon and color names are used to read Javascript property files
  * containing properties for colors and icons to use within theme-related files.
  *
@@ -119,7 +133,13 @@ public class SimpleThemeFactory implements IThemeFactory {
 		loadProperties("$themes/" + m_colorName + ".color.js", rdl);
 		loadProperties("$themes/" + m_iconName + ".icons.js", rdl);
 		loadProperties("$themes/" + m_styleName + "/style.props.js", rdl);
-		return new SimpleTheme(m_application, m_styleName, executor(), rdl.createDependencies());
+
+		List<String> searchpath = new ArrayList<String>(3);
+		searchpath.add("$themes/" + m_iconName + "-icons");			// [iconname]-icons
+		searchpath.add("$themes/" + m_colorName + "-colors");		// [iconname]-icons
+		searchpath.add("$themes/" + m_styleName);					// [style]
+
+		return new SimpleTheme(m_application, m_styleName, executor(), rdl.createDependencies(), searchpath);
 	}
 
 	/**

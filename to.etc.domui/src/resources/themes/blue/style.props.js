@@ -16,6 +16,8 @@ special_font_size = "13px";
 
 button_font_family='Verdana, Geneva, "DejaVu Sans", sans-serif';
 button_font_size="11px";
+button_img= "defaultButton.png";
+button_height=24;
 
 defaultbutton_height=23;
 window_title_font_size='15px';

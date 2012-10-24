@@ -24,6 +24,9 @@
  */
 package to.etc.domui.themes;
 
+import java.io.*;
+import java.util.*;
+
 import javax.annotation.*;
 import javax.annotation.concurrent.*;
 
@@ -52,12 +55,15 @@ public final class SimpleTheme implements ITheme {
 	@Nonnull
 	final private IScriptScope m_propertyScope;
 
-	public SimpleTheme(@Nonnull DomApplication da, @Nonnull String styleName, @Nonnull IScriptScope themeProperties, @Nonnull ResourceDependencies rd) {
+	@Nonnull
+	final private List<String> m_searchpath;
+
+	public SimpleTheme(@Nonnull DomApplication da, @Nonnull String styleName, @Nonnull IScriptScope themeProperties, @Nonnull ResourceDependencies rd, @Nonnull List<String> searchpath) {
 		m_da = da;
 		m_styleName = styleName;
 		m_propertyScope = themeProperties;
-		//		m_themeProperties = Collections.unmodifiableMap(themeProperties);
 		m_rd = rd;
+		m_searchpath = searchpath;
 	}
 
 	@Nonnull
@@ -75,12 +81,41 @@ public final class SimpleTheme implements ITheme {
 	@Nonnull
 	@Override
 	public IResourceRef getThemeResource(@Nonnull String name, @Nonnull IResourceDependencyList rdl) throws Exception {
-		return m_da.getResource("$themes/" + m_styleName + "/" + name, rdl);
+		//-- "Normal" resource.
+		for(String sitem : m_searchpath) {
+			String real = sitem + "/" + name;
+			IResourceRef rr = m_da.getResource(real, rdl);
+			if(rr != null && rr.exists())
+				return rr;
+		}
+		return new IResourceRef() {
+			@Override
+			public InputStream getInputStream() throws Exception {
+				return null;
+			}
+
+			@Override
+			public boolean exists() {
+				return false;
+			}
+		};
+
+		//		return m_da.getResource("$themes/" + m_styleName + "/" + name, rdl);
 	}
 
 	@Override
 	@Nonnull
 	public String translateResourceName(@Nonnull String name) {
-		return name;
+		try {
+			IScriptScope ss = getPropertyScope().getValue(IScriptScope.class, "icon");
+			if(null == ss)
+				return name;
+
+			//-- Retrieve a value here,
+			String val = ss.getValue(String.class, name);		// Is this icon name mapped to something else?
+			return val == null ? name : val;
+		} catch(Exception x) {
+			throw new StyleException("The 'icon' mapping for '" + name + "' results in an exception: " + name);
+		}
 	}
 }
