@@ -23,6 +23,9 @@
 				<include name="**/*.png" />
 				<include name="**/*.gif" />
 				<include name="**/*.jpg" />
+				<include name="**/*.js" />
+				<exclude name="**.frag.css" />
+				<include name="**/*.css" />
 			</fileset>
 		</copy>
 		
