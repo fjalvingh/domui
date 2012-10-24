@@ -1,15 +1,17 @@
 /*** 150_caption.frag.css ***/
 /*** Caption ***/
 .ui-cptn {
-	margin-top: 8px;
-	margin-bottom: 10px;
+	margin-top: 10px;
 	font-weight: bold;
-	background: url(<%= caption_separator %>) no-repeat;
+	background: <%= header_bg %>;
+	color: <%= bg_ttl_text %>;
+	padding-left: 5px;
 /*	margin-top: 10px; jal 20120213 removed: header should not define it's upper location, because it cannot be used at the top of a screen! */
 }
 
 .ui-cptn div {
-	padding-top: 18px;
+	padding-top: 13px;
+	padding-bottom: 5px;
 	font-size: large;
 }
 
