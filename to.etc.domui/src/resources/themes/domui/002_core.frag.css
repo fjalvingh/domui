@@ -11,8 +11,8 @@ body,html {
 }
 
 /** jal: do not put this in the reset script! Using it here inherits the spec to all lower elements by default. */
-body {
-	font-family: <%= font_family %>;
+body *{
+	font-family: Verdana, Geneva, 'DejaVu Sans', sans-serif;
 	font-size: <%= font_size %>;
 }
 
