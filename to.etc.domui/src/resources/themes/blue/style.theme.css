@@ -66,7 +66,11 @@ body *{
 	font-size: <%= font_size %>;
 }
 
+
 input, textarea, select {
+	margin: 0px 2px 2px 0px;
+	padding: 0px;	
+	font-size: <%= font_size %>;
 	border-color:<%= bevel_up %> <%= bevel_down %> <%= bevel_down %>;
 	border-style:solid;
 	border-width:1px;
@@ -75,13 +79,13 @@ input, textarea, select {
 	-webkit-border-radius: 2px;	
 }
 
-input, textarea {
-	padding: 2px;
-}
-
 input[type=file] {
 	border: 0 !important;
 	padding: 0px !important;
+}
+
+input[type="text"], input[type="password"] {
+	height: 16px;
 }
 
 input:hover, textarea:hover, select:hover {
@@ -90,6 +94,7 @@ input:hover, textarea:hover, select:hover {
 
 select {
 	background-color:#FFFFFF;
+	height: 18px;
 }
 
 pre {
@@ -1071,10 +1076,9 @@ vp-ui-multi table tr > td.ui-f-lbl:first-child {
 	padding-left: 4px;
 }
 
-.ui-f-in input{
-	margin: 0px;	
-	font-size: <%= font_size %>;
-	height: 13px;
+.ui-f-in input, .ui-f-in select{
+	margin-bottom: 2px;
+	margin-right: 2px;
 }
 
 .ui-f-do {

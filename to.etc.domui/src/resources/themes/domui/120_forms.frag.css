@@ -17,10 +17,9 @@
 	padding-left: 4px;
 }
 
-.ui-f-in input{
-	margin: 0px;	
-	font-size: <%= font_size %>;
-	height: 13px;
+.ui-f-in input, .ui-f-in select{
+	margin-bottom: 2px;
+	margin-right: 2px;
 }
 
 .ui-f-do {
