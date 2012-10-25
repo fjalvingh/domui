@@ -247,6 +247,11 @@ final public class ConnectionProxy implements Connection {
 	 * @throws SQLException
 	 */
 	public void forceClosed() throws SQLException {
+		synchronized(this) {
+			if(m_state != ConnState.OPEN)			// 20121025 jal must check here to prevent double close from calling all listeners again.
+				return;
+		}
+
 // jal 20110314 Always close! Persisted connections can be reused in different threads (Decade).
 //		Thread ct = Thread.currentThread();
 //		if(getOwnerThread() != ct)

@@ -94,7 +94,7 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 		return m_session;
 	}
 
-	protected void checkValid() {
+	final protected void checkValid() {
 		if(m_conversationInvalid != null)
 			throw new IllegalStateException("You cannot use this QDataContext: " + m_conversationInvalid);
 	}
