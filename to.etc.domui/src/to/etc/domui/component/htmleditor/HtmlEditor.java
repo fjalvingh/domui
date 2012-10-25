@@ -131,9 +131,7 @@ public class HtmlEditor extends TextArea {
 	 * @return
 	 */
 	public String getStyleSheet() throws Exception {
-		if(m_styleSheet == null)
-			return null;
-		return DomApplication.get().getThemedResourceRURL(m_styleSheet);
+		return DomApplication.get().getThemedResourceRURL(m_styleSheet == null ? "minieditor.css" : m_styleSheet);
 	}
 
 	public void setStyleSheet(String styleSheet) {

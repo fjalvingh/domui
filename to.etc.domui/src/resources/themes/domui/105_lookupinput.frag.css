@@ -6,6 +6,12 @@
 	margin: 0px;
 }
 
+.ui-lui-btntd {
+	min-width: 24px;
+	text-align: right;
+	white-space: nowrap;
+}
+
 div.ui-lui-selected {
 	border-color:#ABADB3 #BFCDD9 #BFCDD9;
 	border-style:solid;

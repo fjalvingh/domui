@@ -318,12 +318,14 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 			}
 			getSelButton().appendAfterMe(clearButton);
 			//This code is needed for proper control alignment.
-			//FIXME: vmijic, not suitable for larger button images, see is this can be resolved by introducing span container for buttons.
-			if(clearButton.getDisplay() == DisplayType.NONE) {
-				clearButton.getParent().setMinWidth("24px");
-			} else {
-				clearButton.getParent().setMinWidth("58px");
-			}
+
+// jal 20121025 temp disabled
+//			//FIXME: vmijic, not suitable for larger button images, see is this can be resolved by introducing span container for buttons.
+//			if(clearButton.getDisplay() == DisplayType.NONE) {
+//				clearButton.getParent().setMinWidth("24px");
+//			} else {
+//				clearButton.getParent().setMinWidth("58px");
+//			}
 		}
 		if(m_rebuildCause == RebuildCause.CLEAR) {
 			//User clicked clear button, so we can try to set focus to input search if possible.
@@ -342,10 +344,8 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	private void appendParameters(@Nonnull TD cell, @Nonnull Object parameters) {
 		TD tdParameters = new TD();
 		cell.appendAfterMe(tdParameters);
+		tdParameters.setCssClass("ui-lui-btntd");
 		tdParameters.setValign(TableVAlign.TOP);
-		tdParameters.setMinWidth("24px");
-		tdParameters.setTextAlign(TextAlign.RIGHT);
-		tdParameters.addCssClass("ui-nowrap");
 		tdParameters.add((NodeBase) parameters); // Add the button,
 	}
 
@@ -386,7 +386,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		TD td = m_table.getBody().addRowAndCell();
 		td.setValign(TableVAlign.TOP);
 		td.setCssClass("ui-lui-v");
-		td.setWidth("100%");
+//		td.setWidth("100%"); jal 20121025 Width should not be set but style should be used?
 		addKeySearchField(td);
 
 		//-- parameters is either the button, or null if this is a readonly version.
@@ -397,7 +397,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 
 	private void addKeySearchField(NodeContainer parent) {
 		KeyWordSearchInput<OT> ks = m_keySearch = new KeyWordSearchInput<OT>(m_keyWordSearchCssClass);
-		m_keySearch.setWidth("100%");
+//		m_keySearch.setWidth("100%");		jal 20121025 temp removed
 		ks.setPopupWidth(getKeyWordSearchPopupWidth());
 		KeyWordPopupRowRenderer<OT> rr = getDropdownRowRenderer();
 		rr.setRowClicked(new ICellClicked<OT>() {

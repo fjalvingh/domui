@@ -41,7 +41,7 @@
 
 .ui-fvs-do { /* displayonly field */
 	font-size: <%= font_size %>;
-	background-color: white;
+/*	background-color: white; jal 20121025 why? This messes up any redefinition of any background... */
 	padding: 2px;
 }
 

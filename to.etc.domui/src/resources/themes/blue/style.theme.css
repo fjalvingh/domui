@@ -91,6 +91,10 @@ input:hover, textarea:hover, select:hover {
 	border-color:<%= bevel_hover_up %> <%= bevel_hover_down %> <%= bevel_hover_down %> <%= bevel_hover_up %>;
 }
 
+td {
+	vertical-align: top;
+}
+
 select {
 	background-color:#FFFFFF;
 	height: 18px;
@@ -1100,7 +1104,7 @@ vp-ui-multi table tr > td.ui-f-lbl:first-child {
 
 .ui-fvs-do { /* displayonly field */
 	font-size: <%= font_size %>;
-	background-color: white;
+/*	background-color: white; jal 20121025 why? This messes up any redefinition of any background... */
 	padding: 2px;
 }
 
