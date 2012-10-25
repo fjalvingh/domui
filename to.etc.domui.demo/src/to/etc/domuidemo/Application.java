@@ -43,7 +43,7 @@ public class Application extends DomApplication {
 			setCurrentTheme(newtheme);
 		} else {
 			setThemeFactory(FragmentedThemeFactory.getInstance());
-			String stylename = DeveloperOptions.getString("domuidemo.theme", "domui/domui/domui");		// Default to DomUI's native fragmented theme
+			String stylename = DeveloperOptions.getString("domuidemo.theme", "domui/domui/orange");		// Default to DomUI's native fragmented theme
 			setCurrentTheme(stylename);
 		}
 

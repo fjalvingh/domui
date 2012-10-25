@@ -1,6 +1,6 @@
 /*** 000_dateinput.frag.css ***/
 /*** Date input ***/
-@IMPORT url("calendar-blue2.css");
+@IMPORT url("calendar-theme.css");
 
 .ui-di-sib {
 	vertical-align: top;
