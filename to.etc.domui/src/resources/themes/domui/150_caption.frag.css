@@ -5,7 +5,7 @@
 	font-weight: bold;
 	background: <%= header_bg %>;
 	color: <%= bg_ttl_text %>;
-	padding-left: 5px;
+	height: 21px;
 /*	margin-top: 10px; jal 20120213 removed: header should not define it's upper location, because it cannot be used at the top of a screen! */
 }
 
@@ -17,6 +17,7 @@
 
 .ui-cptn .ui-cptn-ttl {
 	width: 1%;
+	padding-left: 5px;
 }
 
 .ui-cptn .ui-cptn-btn {

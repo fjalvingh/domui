@@ -7,8 +7,8 @@
 }
 
 .ui-dp-btns a{
-	height: <%= dp_icon_size_y %>px;
-	width: <%= dp_icon_size_x %>px;
+	height: <%= data_pager_icon_size_y %>px;
+	width: <%= data_pager_icon_size_x %>px;
 	display: inline-block;
 	padding: 0px;
 	margin-left: -3px;
@@ -21,38 +21,38 @@
 	background-position: 0px 0px;
 }
 .ui-dp-btns a.ui-dp-nav-f:HOVER {
-	background-position: 0px <%= -dp_icon_size_y %>px;
+	background-position: 0px <%= -data_pager_icon_size_y %>px;
 }
 .ui-dp-btns a.ui-dp-nav-f-dis {
-	background-position: 0px <%= -2 * dp_icon_size_y %>px;
+	background-position: 0px <%= -2 * data_pager_icon_size_y %>px;
 }
 
 .ui-dp-btns a.ui-dp-nav-p {
-	background-position: <%= -1 * dp_icon_size_x %>px <%= 0 * dp_icon_size_y %>px;
+	background-position: <%= -1 * data_pager_icon_size_x %>px <%= 0 * data_pager_icon_size_y %>px;
 }
 .ui-dp-btns a.ui-dp-nav-p:HOVER {
-	background-position: <%= -1 * dp_icon_size_x %>px <%= -1 * dp_icon_size_y %>px;
+	background-position: <%= -1 * data_pager_icon_size_x %>px <%= -1 * data_pager_icon_size_y %>px;
 }
 .ui-dp-btns a.ui-dp-nav-p-dis {
-	background-position: <%= -1 * dp_icon_size_x %>px <%= -2 * dp_icon_size_y %>px;
+	background-position: <%= -1 * data_pager_icon_size_x %>px <%= -2 * data_pager_icon_size_y %>px;
 }
 
 .ui-dp-btns a.ui-dp-nav-n {
-	background-position: <%= -2 * dp_icon_size_x %>px <%= 0 * dp_icon_size_y %>px;
+	background-position: <%= -2 * data_pager_icon_size_x %>px <%= 0 * data_pager_icon_size_y %>px;
 }
 .ui-dp-btns a.ui-dp-nav-n:HOVER {
-	background-position: <%= -2 * dp_icon_size_x %>px <%= -1 * dp_icon_size_y %>px;
+	background-position: <%= -2 * data_pager_icon_size_x %>px <%= -1 * data_pager_icon_size_y %>px;
 }
 .ui-dp-btns a.ui-dp-nav-n-dis {
-	background-position: <%= -2 * dp_icon_size_x %>px <%= -2 * dp_icon_size_y %>px;
+	background-position: <%= -2 * data_pager_icon_size_x %>px <%= -2 * data_pager_icon_size_y %>px;
 }
 
 .ui-dp-btns a.ui-dp-nav-l {
-	background-position: <%= -3 * dp_icon_size_x %>px <%= 0 * dp_icon_size_y %>px;
+	background-position: <%= -3 * data_pager_icon_size_x %>px <%= 0 * data_pager_icon_size_y %>px;
 }
 .ui-dp-btns a.ui-dp-nav-l:HOVER {
-	background-position: <%= -3 * dp_icon_size_x %>px <%= -1 * dp_icon_size_y %>px;
+	background-position: <%= -3 * data_pager_icon_size_x %>px <%= -1 * data_pager_icon_size_y %>px;
 }
 .ui-dp-btns a.ui-dp-nav-l-dis {
-	background-position: <%= -3 * dp_icon_size_x %>px <%= -2 * dp_icon_size_y %>px;
+	background-position: <%= -3 * data_pager_icon_size_x %>px <%= -2 * data_pager_icon_size_y %>px;
 }

@@ -5,12 +5,20 @@ div.ui-dt {
 	position: relative;
 }
 
+div.ui-dt table td{
+	border: 0;
+	margin: 0;
+	padding: 3px;
+	border-left: 1px solid #bababa; /* gray so it is theme invariant */
+	height: 12px;
+}
+
 div.ui-dt table{
 	overflow: auto;
 	position: relative;
-	border-spacing: 0px;
 	border-right: 1px solid #bababa;
 	border-bottom: 1px solid #bababa;
+	border-spacing: 2px;
 }
 
 .ui-dt th {
@@ -30,11 +38,6 @@ div.ui-dt table{
 
 .ui-dt th:LAST-CHILD {
 	border-right: 1px solid <%= data_tbl_header_btm_border %>;
-}
-
-.ui-dt tbody td {
-	padding: 3px;
-	border-left: 1px solid #bababa; /* gray so it is theme invariant */
 }
 
 .ui-dt tbody tr > td.ui-f-lbl:first-child {

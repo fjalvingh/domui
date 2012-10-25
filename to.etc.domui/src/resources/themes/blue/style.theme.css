@@ -44,14 +44,14 @@ q:before, q:after {
 	content: none;
 }
 table {
-	border-collapse: collapse;
 	border-spacing: 0;
+	border-collapse: collapse;
 }
 
 /*** 002_core.frag.css ***/
 /*** Core style ***/
 /* Body style */
-body,html {
+body, html {
 <% if(typeof body_image != 'undefined') { %>
 	background: url(<%= body_image %>) repeat-x;
 <% } %>
@@ -67,6 +67,9 @@ body {
 }
 
 input, textarea, select {
+	margin: 0px 2px 2px 0px;
+	padding: 0px;	
+	font-size: <%= font_size %>;
 	border-color:<%= bevel_up %> <%= bevel_down %> <%= bevel_down %>;
 	border-style:solid;
 	border-width:1px;
@@ -75,13 +78,13 @@ input, textarea, select {
 	-webkit-border-radius: 2px;	
 }
 
-input, textarea {
-	padding: 2px;
-}
-
 input[type=file] {
 	border: 0 !important;
 	padding: 0px !important;
+}
+
+input[type="text"], input[type="password"] {
+	height: 16px;
 }
 
 input:hover, textarea:hover, select:hover {
@@ -90,6 +93,7 @@ input:hover, textarea:hover, select:hover {
 
 select {
 	background-color:#FFFFFF;
+	height: 18px;
 }
 
 pre {
@@ -121,7 +125,7 @@ body > div.ui-dt-nores {
 	margin-right: 10px;
 }
 
-body > div > div.ui-lf-mainContent{
+body > div > div.ui-lf-mainContent, body > div.ui-pnl-outer{
 	margin: 10px 10px 0px 10px;
 }
 
@@ -170,6 +174,7 @@ body > .ui-dp {
 	white-space: nowrap;
 	width: 90%;
 	text-align: right;
+	vertical-align: middle;
 }
 
 .ui-atl-i {
@@ -311,7 +316,7 @@ body > .ui-dp {
 }
 .ui-bug-stk {
 	white-space: pre;
-	font-family: monospace;
+	font-family: <%= fixed_font_family %>;
 	font-size: 8px;
 }
 /*** 025_displaycheckbox.frag.css ***/
@@ -538,7 +543,7 @@ div.ui-ipa img {
 	background-repeat: no-repeat;
 	background-position: left;
 	padding-left: 18px;
-	font-size: <%= link_font_size %>;
+	font-size: <%= font_size %>;
 }
 .ui-lnkb {
 }
@@ -1070,6 +1075,12 @@ vp-ui-multi table tr > td.ui-f-lbl:first-child {
 	vertical-align: top; /* jal 20090818 changed from top to middle to align DateInput buttons better */
 	padding-left: 4px;
 }
+
+.ui-f-in input, .ui-f-in select{
+	margin-bottom: 2px;
+	margin-right: 2px;
+}
+
 .ui-f-do {
 	font-size: <%= font_size %>;
 	vertical-align: top; /* jal 20090818 changed from top to middle to align DateInput buttons better/20100708 jal: back to top because LookupInput causes misalignment of labels after it. */
@@ -1205,12 +1216,20 @@ div.ui-dt {
 	position: relative;
 }
 
+div.ui-dt table td{
+	border: 0;
+	margin: 0;
+	padding: 3px;
+	border-left: 1px solid #bababa; /* gray so it is theme invariant */
+	height: 12px;
+}
+
 div.ui-dt table{
 	overflow: auto;
 	position: relative;
-	border-spacing: 0px;
 	border-right: 1px solid #bababa;
 	border-bottom: 1px solid #bababa;
+	border-spacing: 2px;
 }
 
 .ui-dt th {
@@ -1230,11 +1249,6 @@ div.ui-dt table{
 
 .ui-dt th:LAST-CHILD {
 	border-right: 1px solid <%= data_tbl_header_btm_border %>;
-}
-
-.ui-dt tbody td {
-	padding: 3px;
-	border-left: 1px solid #bababa; /* gray so it is theme invariant */
 }
 
 .ui-dt tbody tr > td.ui-f-lbl:first-child {
@@ -1336,7 +1350,7 @@ div.ui-sortable {
 	font-weight: bold;
 	background: <%= header_bg %>;
 	color: <%= bg_ttl_text %>;
-	padding-left: 5px;
+	height: 21px;
 /*	margin-top: 10px; jal 20120213 removed: header should not define it's upper location, because it cannot be used at the top of a screen! */
 }
 
@@ -1348,6 +1362,7 @@ div.ui-sortable {
 
 .ui-cptn .ui-cptn-ttl {
 	width: 1%;
+	padding-left: 5px;
 }
 
 .ui-cptn .ui-cptn-btn {
@@ -1766,7 +1781,6 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	overflow: hidden;
 	position: absolute;
 	background: url(colorpicker_background.png);
-	font-family: Arial, Helvetica, sans-serif;
 	display: none;
 }
 .colorpicker_color {
@@ -1835,7 +1849,6 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	border: 1px solid transparent;
 	position: absolute;
 	font-size: 10px;
-	font-family: Arial, Helvetica, sans-serif;
 	color: #898989;
 	top: 4px;
 	right: 11px;
@@ -2187,11 +2200,11 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	position: relative;
 	border: 0;
 	padding: 0 10px 0 0;
+	margin: 0 4px 0 0;
 	vertical-align: top;
 	cursor: pointer;
 	overflow: visible; /* remove extra padding in IE */
 	background: transparent url(<%= button_img %>) no-repeat right -50px;
-	margin-right: 5px;
 	outline: none;
 }
 
@@ -2435,8 +2448,8 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 }
 
 .ui-dp-btns a{
-	height: <%= dp_icon_size_y %>px;
-	width: <%= dp_icon_size_x %>px;
+	height: <%= data_pager_icon_size_y %>px;
+	width: <%= data_pager_icon_size_x %>px;
 	display: inline-block;
 	padding: 0px;
 	margin-left: -3px;
@@ -2449,40 +2462,40 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	background-position: 0px 0px;
 }
 .ui-dp-btns a.ui-dp-nav-f:HOVER {
-	background-position: 0px <%= -dp_icon_size_y %>px;
+	background-position: 0px <%= -data_pager_icon_size_y %>px;
 }
 .ui-dp-btns a.ui-dp-nav-f-dis {
-	background-position: 0px <%= -2 * dp_icon_size_y %>px;
+	background-position: 0px <%= -2 * data_pager_icon_size_y %>px;
 }
 
 .ui-dp-btns a.ui-dp-nav-p {
-	background-position: <%= -1 * dp_icon_size_x %>px <%= 0 * dp_icon_size_y %>px;
+	background-position: <%= -1 * data_pager_icon_size_x %>px <%= 0 * data_pager_icon_size_y %>px;
 }
 .ui-dp-btns a.ui-dp-nav-p:HOVER {
-	background-position: <%= -1 * dp_icon_size_x %>px <%= -1 * dp_icon_size_y %>px;
+	background-position: <%= -1 * data_pager_icon_size_x %>px <%= -1 * data_pager_icon_size_y %>px;
 }
 .ui-dp-btns a.ui-dp-nav-p-dis {
-	background-position: <%= -1 * dp_icon_size_x %>px <%= -2 * dp_icon_size_y %>px;
+	background-position: <%= -1 * data_pager_icon_size_x %>px <%= -2 * data_pager_icon_size_y %>px;
 }
 
 .ui-dp-btns a.ui-dp-nav-n {
-	background-position: <%= -2 * dp_icon_size_x %>px <%= 0 * dp_icon_size_y %>px;
+	background-position: <%= -2 * data_pager_icon_size_x %>px <%= 0 * data_pager_icon_size_y %>px;
 }
 .ui-dp-btns a.ui-dp-nav-n:HOVER {
-	background-position: <%= -2 * dp_icon_size_x %>px <%= -1 * dp_icon_size_y %>px;
+	background-position: <%= -2 * data_pager_icon_size_x %>px <%= -1 * data_pager_icon_size_y %>px;
 }
 .ui-dp-btns a.ui-dp-nav-n-dis {
-	background-position: <%= -2 * dp_icon_size_x %>px <%= -2 * dp_icon_size_y %>px;
+	background-position: <%= -2 * data_pager_icon_size_x %>px <%= -2 * data_pager_icon_size_y %>px;
 }
 
 .ui-dp-btns a.ui-dp-nav-l {
-	background-position: <%= -3 * dp_icon_size_x %>px <%= 0 * dp_icon_size_y %>px;
+	background-position: <%= -3 * data_pager_icon_size_x %>px <%= 0 * data_pager_icon_size_y %>px;
 }
 .ui-dp-btns a.ui-dp-nav-l:HOVER {
-	background-position: <%= -3 * dp_icon_size_x %>px <%= -1 * dp_icon_size_y %>px;
+	background-position: <%= -3 * data_pager_icon_size_x %>px <%= -1 * data_pager_icon_size_y %>px;
 }
 .ui-dp-btns a.ui-dp-nav-l-dis {
-	background-position: <%= -3 * dp_icon_size_x %>px <%= -2 * dp_icon_size_y %>px;
+	background-position: <%= -3 * data_pager_icon_size_x %>px <%= -2 * data_pager_icon_size_y %>px;
 }
 /*** 340_dateinput.frag.css ***/
 /*** Date input ***/

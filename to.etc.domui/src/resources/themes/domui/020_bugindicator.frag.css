@@ -19,6 +19,6 @@
 }
 .ui-bug-stk {
 	white-space: pre;
-	font-family: monospace;
+	font-family: <%= fixed_font_family %>;
 	font-size: 8px;
 }
