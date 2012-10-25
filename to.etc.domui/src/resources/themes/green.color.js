@@ -13,7 +13,7 @@ bg_ttl_text = '#ffffff';
 button_bg="#6ba1eb";
 button_fg="#ffffff";
 
-link_font_size="12px";
+font_size="12px";
 link_color="#2200cc";	// dark blue
 
 highlight_bg="#ffbb43";	// row select: hard orange

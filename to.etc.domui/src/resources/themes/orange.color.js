@@ -207,7 +207,7 @@ info_fg="blue";
 info_border="blue";
 
 header_bg="#7c7c7c";
-link_font_size="12px";
+font_size="11px";
 link_color="#2200cc";	// dark blue
 
 readonly_border="#EEEEEF"; // bit darker grey

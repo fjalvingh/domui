@@ -44,7 +44,7 @@ select {
 
 pre {
 	font-family: <%= fixed_font_family %>;
-	font-size: <%= fixed_font_size %>;
+	font-size: <%= font_size %>;
 }
 
 button img {
@@ -71,7 +71,7 @@ body > div.ui-dt-nores {
 	margin-right: 10px;
 }
 
-body > div > div.ui-lf-mainContent{
+body > div > div.ui-lf-mainContent, body > div.ui-pnl-outer{
 	margin: 10px 10px 0px 10px;
 }
 

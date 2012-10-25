@@ -16,6 +16,13 @@
 	vertical-align: top; /* jal 20090818 changed from top to middle to align DateInput buttons better */
 	padding-left: 4px;
 }
+
+.ui-f-in input{
+	margin: 0px;	
+	font-size: <%= font_size %>;
+	height: 13px;
+}
+
 .ui-f-do {
 	font-size: <%= font_size %>;
 	vertical-align: top; /* jal 20090818 changed from top to middle to align DateInput buttons better/20100708 jal: back to top because LookupInput causes misalignment of labels after it. */
