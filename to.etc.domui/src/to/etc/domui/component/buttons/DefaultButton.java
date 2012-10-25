@@ -127,7 +127,7 @@ public class DefaultButton extends Button implements IActionControl {
 			String icon = m_icon;
 
 			if(isDisabled()) {
-				icon = GrayscalerPart.class.getName() + ".part?icon=" + icon;
+				icon = GrayscalerPart.getURL(icon);
 			}
 
 			Img img = new Img(icon);

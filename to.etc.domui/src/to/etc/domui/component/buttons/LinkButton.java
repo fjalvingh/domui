@@ -28,6 +28,7 @@ import javax.annotation.*;
 
 import to.etc.domui.component.menu.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.parts.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 
@@ -123,11 +124,14 @@ public class LinkButton extends ATag implements IActionControl {
 	}
 
 	private void updateStyle() {
-		if(m_imageUrl == null) {
+		String image = DomApplication.get().getThemedResourceRURL(m_imageUrl);
+		if(image == null) {
 			setBackgroundImage(null);
 			setCssClass("ui-lnkb");
 		} else {
-			setBackgroundImage(DomApplication.get().getThemedResourceRURL(m_imageUrl));
+			if(isDisabled())
+				image = GrayscalerPart.getURL(image);
+			setBackgroundImage(image);
 			setCssClass("ui-lnkb ui-lbtn");
 		}
 		if(isDisabled())
