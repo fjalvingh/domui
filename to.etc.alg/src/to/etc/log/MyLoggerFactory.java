@@ -672,6 +672,10 @@ public class MyLoggerFactory implements ILoggerFactory {
 		}
 	}
 
+	public static void clearLevel(@Nonnull String key) {
+		setLevel(key, m_rootConfig.getLevel());
+	}
+
 	/**
 	 * Returns copy of map that defines specific output files per logger name. Logger name is key, output file is value.
 	 * @return
@@ -680,6 +684,69 @@ public class MyLoggerFactory implements ILoggerFactory {
 	Map<String, String> getLoggerOutsDef() {
 		synchronized(OUTS) {
 			return new HashMap<String, String>(OUTS);
+		}
+	}
+
+	/**
+	 * Returns copy of set with disabled loggers keys.
+	 * @return
+	 */
+	public static Set<String> getDisabledDef() {
+		synchronized(DISABLED) {
+			return new HashSet<String>(DISABLED);
+		}
+	}
+
+	/**
+	 * Returns copy of map that defines specific log levels per logger name. Logger name is key, level is value.
+	 * @return
+	 */
+	public static Map<String, Level> getLoggerLevelsDef() {
+		synchronized(LEVELS) {
+			return new HashMap<String, Level>(LEVELS);
+		}
+	}
+
+	public static @Nonnull
+	Level getDefaultLevel() {
+		synchronized(m_rootConfig) {
+			return m_rootConfig.getLevel();
+		}
+	}
+
+	public static boolean isDisabled() {
+		synchronized(m_rootConfig) {
+			return m_rootConfig.isDisabled();
+		}
+	}
+
+	public static @Nonnull
+	String getRootDir() {
+		synchronized(m_rootConfig) {
+			return m_rootConfig.getRootDir().getAbsolutePath();
+		}
+	}
+
+	public static @Nonnull
+	String getLogDir() {
+		synchronized(m_rootConfig) {
+			return m_rootConfig.getLogDir().getAbsolutePath();
+		}
+	}
+
+	public static void setDefaultLevel(Level level) {
+		synchronized(m_rootConfig) {
+			if(!m_rootConfig.getLevel().equals(level)) {
+				m_rootConfig.setLevel(level);
+			}
+		}
+	}
+
+	public static void setDisabled(boolean disabled) {
+		synchronized(m_rootConfig) {
+			if(!m_rootConfig.isDisabled() != disabled) {
+				m_rootConfig.setDisabled(disabled);
+			}
 		}
 	}
 }

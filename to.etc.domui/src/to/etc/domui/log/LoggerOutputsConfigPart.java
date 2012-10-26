@@ -12,23 +12,12 @@ import to.etc.domui.log.data.*;
 import to.etc.domui.util.*;
 import to.etc.log.*;
 
-public class LoggerOutputsConfigPart extends LoggerConfigPartBase<LoggerOutputDef> {
+public class LoggerOutputsConfigPart extends LoggerConfigTabelarPartBase<LoggerOutputDef> {
 
 	private Map<String, String> m_storedData;
 
 	protected LoggerOutputsConfigPart() {
 		super(LoggerOutputDef.class);
-		setRowChangeListener(new IRowEditorEvent<LoggerOutputDef, LoggerRowEditor<LoggerOutputDef>>() {
-
-			@Override
-			public boolean onRowChanged(@Nonnull TableModelTableBase<LoggerOutputDef> model, @Nonnull LoggerRowEditor<LoggerOutputDef> editor, @Nonnull LoggerOutputDef instance, boolean isNew) throws Exception {
-				if(MetaManager.hasDuplicates(model.getModel().getItems(0, model.getModel().getRows()), instance, LoggerOutputDef.pKEY)) {
-					editor.setMessage(UIMessage.error(LoggerOutputDef.pKEY, Msgs.BUNDLE, Msgs.V_INVALID));
-					return false;
-				}
-				return true;
-			}
-		});
 	}
 
 	@Override
@@ -38,7 +27,7 @@ public class LoggerOutputsConfigPart extends LoggerConfigPartBase<LoggerOutputDe
 
 	private @Nonnull
 	List<LoggerOutputDef> convert(@Nonnull Map<String, String> loggerOutsDef) {
-		List<LoggerOutputDef> res = loggerOutsDef.isEmpty() ? Collections.EMPTY_LIST : new ArrayList<LoggerOutputDef>(loggerOutsDef.size());
+		List<LoggerOutputDef> res = new ArrayList<LoggerOutputDef>(loggerOutsDef.size());
 		for(String key : loggerOutsDef.keySet()) {
 			res.add(new LoggerOutputDef(key, loggerOutsDef.get(key)));
 		}
@@ -53,7 +42,7 @@ public class LoggerOutputsConfigPart extends LoggerConfigPartBase<LoggerOutputDe
 
 	@Override
 	protected String[] getDisplayCols() {
-		return new String[]{LoggerOutputDef.pKEY, LoggerOutputDef.pOUTPUT};
+		return new String[]{LoggerDefBase.pKEY, LoggerOutputDef.pOUTPUT};
 	}
 
 	@Override
@@ -87,5 +76,10 @@ public class LoggerOutputsConfigPart extends LoggerConfigPartBase<LoggerOutputDe
 			MyLoggerFactory.setOut(key, null);
 		}
 		return true;
+	}
+
+	@Override
+	public String getPartTitle() {
+		return "Output files";
 	}
 }

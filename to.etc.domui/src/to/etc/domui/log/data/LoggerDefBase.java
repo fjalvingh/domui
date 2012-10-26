@@ -2,7 +2,7 @@ package to.etc.domui.log.data;
 
 import to.etc.domui.component.meta.*;
 
-public abstract class LoggerDefBase {
+public class LoggerDefBase {
 	private String m_key;
 
 	public static final String pKEY = "key";

@@ -20,7 +20,7 @@ public class LoggerConfigPage extends UrlPage implements IUserInputModifiedFence
 
 	private DefaultButton m_cancelButton;
 
-	private LoggerConfigPartBase< ? >[] m_tabs;
+	private LoggerConfigPartBase[] m_tabs;
 
 	private TabPanel m_tabPnl;
 
@@ -36,11 +36,10 @@ public class LoggerConfigPage extends UrlPage implements IUserInputModifiedFence
 
 		m_tabPnl = new TabPanel();
 		add(m_tabPnl);
-		m_tabs = new LoggerConfigPartBase< ? >[5];
-		m_tabs[0] = new LoggerOutputsConfigPart();
-		m_tabPnl.add(m_tabs[0], "Outputs");
-		m_tabPnl.add(createDisabledLogPnl(), "Disabled/Enabled");
-		m_tabPnl.add(createLevelsPnl(), "Levels");
+		m_tabs = new LoggerConfigPartBase[]{new LoggerRootConfigPart(), new LoggerOutputsConfigPart(), new LoggerDisabledConfigPart(), new LoggerLevelsConfigPart()};
+		for(LoggerConfigPartBase tab : m_tabs) {
+			m_tabPnl.add(tab, tab.getPartTitle());
+		}
 		m_tabPnl.add(createMarkersPnl(), "Markers");
 		m_tabPnl.add(createSessionFilterPnl(), "Session");
 	}
@@ -136,16 +135,6 @@ public class LoggerConfigPage extends UrlPage implements IUserInputModifiedFence
 
 	protected void reloadPageData() throws Exception {
 		UIGoto.reload();
-	}
-
-	private NodeBase createDisabledLogPnl() {
-		Div pnl = new Div();
-		return pnl;
-	}
-
-	private NodeBase createLevelsPnl() {
-		Div pnl = new Div();
-		return pnl;
 	}
 
 	private NodeBase createMarkersPnl() {
