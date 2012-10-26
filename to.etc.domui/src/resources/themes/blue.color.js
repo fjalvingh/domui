@@ -35,13 +35,13 @@ data_tbl_expanding_row_bg = util.color(main_color).lighter(0.7);
 readonly_bg="transparent"; 
 readonly_border="#EEEEEF"; // bit darker grey
 
-error_bg="#ffaaaa";	// red/pink light
-error_border="#ff0000"; // red
-error_fg="#ff0000"; // red
-error_input_bg="#ffe5e5"; // error bg for input component
+errors_background="#ffaaaa";	// red/pink light
+errors_border="#ff0000"; // red
+errors_foreground="#ff0000"; // red
+errors_input_background="#ffe5e5"; // error bg for input component
 
-warning_bg="#fffeee"; // light yellow
-warning_border="yellow";
+warnings_background="#fffeee"; // light yellow
+warnings_foreground="yellow";
 warning_fg="black";
 
 info_bg="#a9c5f1";		// blueish light
@@ -68,7 +68,7 @@ button_text_color="#ffffff";
 caption_separator="hr-caption.png";
 
 //-- Error colors (error panel)
-error_bg="#a9c5f1";
+errors_background="#a9c5f1";
 
 //-- selected items background
 selected_bg="#ff9436";
@@ -78,7 +78,7 @@ tab_pnl_inactive_col = "#ffffff";
 tab_pnl_hover_inactive_col = "#ffffff";
 tab_pnl_active_col = "#67267f";
 tab_pnl_btm_border = "0px";
-error_fg = "red";
+errors_foreground = "red";
 
 tab_pnl_sep_bg = "#7c7c7c";
 tab_pnl_arrows = "tab-scrl-icon.png";

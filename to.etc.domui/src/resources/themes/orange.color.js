@@ -40,6 +40,19 @@ dataPagerOrange = {
 	icon_height: "19"
 };
 
+//--------------------------------- 
+//-- Colors for errors and warnings
+//---------------------------------
+errorsAndWarningsDomui = {
+		error_bg: "#e2eeff",
+		error_fg: "#ff0000", // red
+		error_border: "#ff0000", // red
+		error_input_bg: "#ffe5e5",
+		warning_bg: "#fffeee", // light yellow
+		warning_border: "yellow",
+		warning_fg: "black"
+};
+
 //-------------------------------- 
 //-- Primary background selections
 //-------------------------------- 
@@ -51,6 +64,7 @@ backgroundMap["Orange"] = {
 	tabPanel: tabPanelOrange,
 	dataTable: dataTableOrange,
 	dataPager: dataPagerOrange,
+	errorsAndWarnings: errorsAndWarningsDomui
 };
 
 // "theme_body_set" is set in VpThemeFactory from VisualTheme.getBodyColor().
@@ -108,6 +122,18 @@ currentDataPager = currentBackground.dataPager;
 data_pager_icons = currentDataPager.icons;
 data_pager_icon_size_x = currentDataPager.icon_width;
 data_pager_icon_size_y = currentDataPager.icon_height;
+
+//--------------------------------- 
+//-- Colors for errors and warnings
+//---------------------------------
+currentErrorsAndWarnings = currentBackground.errorsAndWarnings;
+errors_background = currentErrorsAndWarnings.error_bg;
+errors_border = currentErrorsAndWarnings.error_border;
+errors_foreground = currentErrorsAndWarnings.error_fg;
+errors_input_background = currentErrorsAndWarnings.error_input_bg;
+warnings_background = currentErrorsAndWarnings.warning_bg;
+warnings_border = currentErrorsAndWarnings.warning_border;
+warnings_foreground = currentErrorsAndWarnings.warning_fg;
 
 //-- Main page title gradient
 bg_ttl_gradient = "bg-ttl-domui.png";
@@ -196,11 +222,6 @@ selected_bg="#ff9436";
 caption_bg="#f0810a";
 readonly_bg="transparent";
 
-error_bg="#a9c5f1";	// red/pink light
-error_border="#ff0000"; // red
-error_fg="#ff0000"; // red
-error_input_bg="#ffe5e5"; // error bg for input component
-
 info_bg="#a9c5f1";		// blueish light
 info_fg="blue";
 info_border="blue";
@@ -209,10 +230,6 @@ header_bg="#7c7c7c";
 link_color="#2200cc";	// dark blue
 
 readonly_border="#EEEEEF"; // bit darker grey
-
-warning_bg="#fffeee"; // light yellow
-warning_border="yellow";
-warning_fg="black";
 
 //-- Bulk upload
 upl_runing=highlight_bg;

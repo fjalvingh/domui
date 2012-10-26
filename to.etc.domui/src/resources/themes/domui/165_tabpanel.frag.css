@@ -48,7 +48,7 @@
 }
 
 li.ui-tab-err a {
-	color: <%= error_fg %> !important;
+	color: <%= errors_foreground %> !important;
 }
 
 .ui-tab-icon {

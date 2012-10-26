@@ -48,7 +48,7 @@
 }
 
 li.ui-stab-err a {
-	color: <%= error_fg %> !important;
+	color: <%= errors_foreground %> !important;
 }
 
 .ui-stab-icon {
