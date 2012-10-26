@@ -18,7 +18,7 @@ body {
 
 input, textarea, select {
 	margin: 0px 2px 2px 0px;
-	padding: 0px;	
+	padding: 0px 2px 0px 2px;	
 	font-size: <%= font_size %>;
 	border-color:<%= bevel_up %> <%= bevel_down %> <%= bevel_down %>;
 	border-style:solid;
@@ -61,6 +61,10 @@ button {
 
 .page-content {
 	margin: 0px 10px;
+}
+
+td {
+	vertical-align: middle;
 }
 
 
