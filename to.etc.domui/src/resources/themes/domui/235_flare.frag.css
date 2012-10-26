@@ -14,16 +14,16 @@
 	padding: 15px;
 }
 .ui-flare-error {
-	background: <%= error_bg %>;
-	color: <%= error_fg %>
+	background: <%= errors_background %>;
+	color: <%= errors_foreground %>
 }
 .ui-flare-info {
 	background: <%= info_bg %>;
 	color: <%= info_fg %>
 }
 .ui-flare-warning {
-	background: <%= warning_bg %>;
-	color: <%= warning_fg %>
+	background: <%= warnings_background %>;
+	color: <%= warnings_foreground %>
 }
 .ui-flare-msg {
 	opacity: 0.9;

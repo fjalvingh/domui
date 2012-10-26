@@ -68,7 +68,7 @@ body {
 
 input, textarea, select {
 	margin: 0px 2px 2px 0px;
-	padding: 0px 0px 0px 2px;	
+	padding: 0px 2px 0px 2px;	
 	font-size: <%= font_size %>;
 	border-color:<%= bevel_up %> <%= bevel_down %> <%= bevel_down %>;
 	border-style:solid;
@@ -401,9 +401,9 @@ td.ui-tr-selected {
 /*** 045_errormessagediv.frag.css ***/
 /*** ErrorMessageDiv helper for components that handle their error display ***/
 .ui-emd {
-	background-color: <%= error_bg %>;
-	color: <%= error_fg %>;
-	border-color: 1px solid <%= error_border %>;
+	background-color: <%= errors_background %>;
+	color: <%= errors_foreground %>;
+	border-color: 1px solid <%= errors_border %>;
 }
 .ui-emd-msg {
 	background-repeat: no-repeat;
@@ -1403,19 +1403,19 @@ div.ui-sortable {
 .ui-err-outer { /*	background-color: #ffe5e5; */
 	background-color: white;
 	padding: 1px;
-	border: 1px solid <%= error_bg %>;
+	border: 1px solid <%= errors_background %>;
 	margin-bottom: 5px;
 }
 
 .ui-err-caption {
-	border: 1px solid <%= error_bg %>;
+	border: 1px solid <%= errors_background %>;
 	padding: 2px 4px 2px 4px;
 	font-weight: bold;
 	background: url(bg-errors.png) repeat-x bottom;
 }
 
 .ui-input-err {
-	background-color: <%= error_input_bg %> !important;
+	background-color: <%= errors_input_background %> !important;
 }
 /*** 165_tabpanel.frag.css ***/
 /*** The tab control, using the "sliding doors" technique as in http://www.alistapart.com/articles/slidingdoors/ ***/
@@ -1467,7 +1467,7 @@ div.ui-sortable {
 }
 
 li.ui-tab-err a {
-	color: <%= error_fg %> !important;
+	color: <%= errors_foreground %> !important;
 }
 
 .ui-tab-icon {
@@ -1566,7 +1566,7 @@ li.ui-tab-ibt:FIRST-CHILD {
 }
 
 li.ui-stab-err a {
-	color: <%= error_fg %> !important;
+	color: <%= errors_foreground %> !important;
 }
 
 .ui-stab-icon {
@@ -2280,16 +2280,16 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	padding: 15px;
 }
 .ui-flare-error {
-	background: <%= error_bg %>;
-	color: <%= error_fg %>
+	background: <%= errors_background %>;
+	color: <%= errors_foreground %>
 }
 .ui-flare-info {
 	background: <%= info_bg %>;
 	color: <%= info_fg %>
 }
 .ui-flare-warning {
-	background: <%= warning_bg %>;
-	color: <%= warning_fg %>
+	background: <%= warnings_background %>;
+	color: <%= warnings_foreground %>
 }
 .ui-flare-msg {
 	opacity: 0.9;
