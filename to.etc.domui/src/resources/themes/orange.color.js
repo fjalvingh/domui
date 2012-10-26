@@ -2,7 +2,7 @@
 //-- Tab panel colors for the primary body color schemes
 //------------------------------------------------------
 // tab panels color together with the primary bg color.
-tabPanelDomui = {
+tabPanelOrange = {
 	sep: "#7c7c7c",
 	inactive_col: '#ffffff',
 	active_col: '#67267f',
@@ -19,42 +19,42 @@ tabPanelDomui = {
 //---------------------------------------------------------
 //-- Data table's colors for the primary body color schemes
 //---------------------------------------------------------
-dataTableDomui = {
-		even_row_bg: "#E5E5E5", 
-		header_bg: "#7c7c7c",
-		header_bg_img: "",
-		header_text_color: "#ffffff",
-		header_btm_border: "undefined",
-		cell_highlight_bg: "#67267f",
-		cell_highlight_link_color_bg: "#ffffff",
-		font_size: "11px",
-		expanding_row_bg: "#efb87c"
+dataTableOrange = {
+	even_row_bg : "#E5E5E5",
+	header_bg : "#7c7c7c",
+	header_bg_img : "",
+	header_text_color : "#ffffff",
+	header_btm_border : "undefined",
+	cell_highlight_bg : "#67267f",
+	cell_highlight_link_color_bg : "#ffffff",
+	font_size : "11px",
+	expanding_row_bg : "#efb87c"
 };
 
 //-------------------------------- 
 //-- Data pager
 //--------------------------------
-dataPagerDomui = {
-		icons: "data-pager-icons.png",
-		icon_width: "32",
-		icon_height: "19"
+dataPagerOrange = {
+	icons: "data-pager-icons.png",
+	icon_width: "32",
+	icon_height: "19"
 };
 
 //-------------------------------- 
 //-- Primary background selections
 //-------------------------------- 
 backgroundMap = new Object();		// REQUIRED NAME - used in VisualThemeEditPage
-backgroundMap["domui"] = {
+backgroundMap["Orange"] = {
 	name: 'Lichtgrijze achtergrond met verloop',
 	image: 'bg-body-gray-dithered.png',
 	bgcolor: '#ffffff',
-	tabPanel: tabPanelDomui,
-	dataTable: dataTableDomui,
-	dataPager: dataPagerDomui
+	tabPanel: tabPanelOrange,
+	dataTable: dataTableOrange,
+	dataPager: dataPagerOrange,
 };
 
 // "theme_body_set" is set in VpThemeFactory from VisualTheme.getBodyColor().
-theme_body_set = 'domui';
+theme_body_set = 'Orange';
 currentBackground = backgroundMap[theme_body_set];
 bg_image = currentBackground.image;
 bg_body_color = currentBackground.bgcolor;
@@ -63,7 +63,7 @@ bg_body_color = currentBackground.bgcolor;
 //-- Button set selections
 //------------------------
 buttonMap = new Object();			// REQUIRED NAME - used in VisualThemeEditPage
-buttonMap["domui"] = {
+buttonMap["Orange"] = {
 	name: 'Blauwe knoppen',
 	img: "btn-blue-all.png"
 };
@@ -142,7 +142,7 @@ dataColorMap["fg-grey"] = "#ffffff";
 dataColorMap["mntbl-bgcol-blue"] = "#eeeeee";
 dataColorMap["mntbl-bgcol-grey"] = "#dddddd";
 
-bset = "domui";
+bset = "Orange";
 
 resourceNameMap = new Object();
 resourceNameMap["bg-body-blue"] = "bg-body.png";
