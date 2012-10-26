@@ -259,6 +259,8 @@ public class FragmentedThemeFactory implements IThemeFactory {
 			throw new StyleException(m_themeName + ": color set '" + colorName + "' is used before (cyclic loop in styles, or double inheritance)");
 		m_inheritanceStack.add(0, fullname);
 		loadScript("$" + fullname);
+
+		m_searchList.add(0, normalizeName("themes/" + colorName + "-colors"));
 	}
 
 
