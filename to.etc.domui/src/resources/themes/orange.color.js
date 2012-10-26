@@ -28,7 +28,7 @@ dataTableOrange = {
 	cell_highlight_bg : "#67267f",
 	cell_highlight_link_color_bg : "#ffffff",
 	font_size : "11px",
-	expanding_row_bg : "#efb87c"
+	expanding_row_bg : "#FBD9B6"
 };
 
 //-------------------------------- 
@@ -67,8 +67,9 @@ backgroundMap["Orange"] = {
 	errorsAndWarnings: errorsAndWarningsDomui
 };
 
-// "theme_body_set" is set in VpThemeFactory from VisualTheme.getBodyColor().
 theme_body_set = 'Orange';
+bset = "Orange";
+
 currentBackground = backgroundMap[theme_body_set];
 bg_image = currentBackground.image;
 bg_body_color = currentBackground.bgcolor;
@@ -144,17 +145,12 @@ bg_ttl_text = '#ffffff';
 
 link_color = "#2200cc";
 highlight_bg = "#ffbb43";
-highlight2_bg = util.color(highlight_bg).lighter(0.5);
+highlight2_bg = "#ffcc72";
 
 //-- Data table header: make it color "with" the button color set.
 dataColorMap = new Object();
 dataColorMap["blue"] = "#98bbf3";
 dataColorMap["fg-blue"] = "#ffffff";
-
-dataColorMap["fg-sec-ttl-blue"] = "#7FA6EB"; //used for titled section caption 
-
-dataColorMap["bg-hdr-ntbl-blue"] = "#6290E2"; //used for nested tables header and combo buttons menu
-dataColorMap["fg-sec-ttl-grey"] = "#7FA6EB"; //used for titled section caption 
 
 dataColorMap["red"] = "#fba9a2";
 dataColorMap["fg-red"] = "#000000";
@@ -165,11 +161,6 @@ dataColorMap["fg-bluemetal"] = "#ffffff";
 dataColorMap["grey"] = "#8c8d8f";
 dataColorMap["fg-grey"] = "#ffffff";
 
-dataColorMap["mntbl-bgcol-blue"] = "#eeeeee";
-dataColorMap["mntbl-bgcol-grey"] = "#dddddd";
-
-bset = "Orange";
-
 resourceNameMap = new Object();
 resourceNameMap["bg-body-blue"] = "bg-body.png";
 resourceNameMap["bg-body-grey"] = "bg-body-grey.png";
@@ -177,27 +168,9 @@ resourceNameMap["bg-body-grey"] = "bg-body-grey.png";
 resourceNameMap["button_img-blue"] = "btn-blue-all.png";
 resourceNameMap["button_img-grey"] = "btn-blue-all.png";
 
-resourceNameMap["sec-sep-img-blue"] = "hr-blue.png";
-resourceNameMap["sec-sep-img-grey"] = "hr-blue.png";
-
-resourceNameMap["bg-info-panel-blue"] = "bg-info-pnl.png";
-
-//popup menu table
-mntbl_bgcol = dataColorMap["mntbl-bgcol-" + bset];
-
 bg_info_panel = resourceNameMap["bg-info-panel-" + bset];
 
-fg_sec_ttl = dataColorMap["fg-sec-ttl-" + bset]; 
-sec_sep_img = resourceNameMap["sec-sep-img-" + bset];
-
 bg_hdr_ntbl = dataColorMap["bg-hdr-ntbl-" + bset];
-
-//tree menu icons
-icon_tree_folder = "btnTreeFold.png"; 
-icon_tree_open_folder = "btnTreeOpen.png"; 
-icon_tree_item = "btnTreeItem.gif"; 
-icon_tree_line_branch = "btnTreeLinelastnode.gif"; 
-icon_tree_line_vertical = "btnTreeLinevertical.gif";
 
 //loading bar. You can use http://ajaxload.info/ for generating them in different colors
 resourceNameMap["io-blk-wait-blue"] = "io-blk-wait-blue.gif"; 
