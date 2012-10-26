@@ -6,8 +6,7 @@ body, html {
 	background: url(<%= body_image %>) repeat-x;
 <% } %>
 	background-color: <%= bg_color %>;
-	height: 100%; /* vmijic - changed to 100% (was 90%). Is here a reason for 90%? We have problem with splitter otherwise... */
-	margin: 0px;
+/*	height: 100%; */ /* vmijic - changed to 100% (was 90%). Is here a reason for 90%? We have problem with splitter otherwise... */
 }
 
 /** jal: do not put this in the reset script! Using it here inherits the spec to all lower elements by default. */
@@ -65,8 +64,8 @@ td {
 	vertical-align: top;
 }
 
-.page-content {
-	margin: 0px 10px;
+.ui-content {
+	padding: 10px 10px;
 }
 
 /*** Other elements as direct body children ***/
