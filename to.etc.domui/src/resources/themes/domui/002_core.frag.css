@@ -65,7 +65,7 @@ td {
 }
 
 .ui-content {
-	padding: 10px 10px;
+	padding: <%= margins_main %> <%= margins_main %>;
 }
 
 /*** Other elements as direct body children ***/

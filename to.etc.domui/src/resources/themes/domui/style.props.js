@@ -21,3 +21,8 @@ button_height=24;
 
 defaultbutton_height=23;
 window_title_font_size='15px';
+
+margins_main = '10px';
+
+/** CSS style to neutralize the effect of content area padding */
+margins_neutralize = "margin: -"+margins_main+" -"+margins_main+" "+margins_main+" -"+margins_main+";";

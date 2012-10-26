@@ -4,6 +4,7 @@
 	height: 40px;
 	background: url(<%= bg_ttl_gradient %>) repeat-y;
 	background-color: <%= bg_ttl_end %>;
+	<%= margins_neutralize %>
 }
 
 .ui-atl-bb {
