@@ -69,7 +69,8 @@ public class LoggerConfigPage extends UrlPage implements IUserInputModifiedFence
 		});
 		m_saveButton.setTestID("saveButton");
 		//hide by default, it would become visible if modifications on page are detected
-		m_saveButton.setDisplay(DisplayType.NONE);
+		m_saveButton.setDisabled(true);
+		m_saveButton.setTitle("no changes to save");
 	}
 
 	protected void createCancelButton() {
@@ -80,7 +81,7 @@ public class LoggerConfigPage extends UrlPage implements IUserInputModifiedFence
 			}
 		});
 		//hide by default, it would become visible if modifications on page are detected
-		m_cancelButton.setDisplay(DisplayType.NONE);
+		m_cancelButton.setDisabled(true);
 	}
 
 	protected void onAfterSave() throws Exception {
@@ -138,12 +139,12 @@ public class LoggerConfigPage extends UrlPage implements IUserInputModifiedFence
 	}
 
 	private NodeBase createMarkersPnl() {
-		Div pnl = new Div();
+		Div pnl = new Div("not implemented!");
 		return pnl;
 	}
 
 	private NodeBase createSessionFilterPnl() {
-		Div pnl = new Div();
+		Div pnl = new Div("not implemented!");
 		return pnl;
 	}
 
@@ -165,10 +166,11 @@ public class LoggerConfigPage extends UrlPage implements IUserInputModifiedFence
 	@Override
 	public void onModifyFlagRaised() {
 		if(m_saveButton != null) {
-			m_saveButton.setDisplay(DisplayType.INLINE);
+			m_saveButton.setDisabled(false);
+			m_saveButton.setTitle(null);
 		}
 		if(m_cancelButton != null) {
-			m_cancelButton.setDisplay(DisplayType.INLINE);
+			m_cancelButton.setDisabled(false);
 		}
 		if(m_notSavedInfo == null) {
 			addNotSavedWarning();
