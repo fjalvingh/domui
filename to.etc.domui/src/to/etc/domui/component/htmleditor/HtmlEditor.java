@@ -153,6 +153,10 @@ public class HtmlEditor extends TextArea {
 	 */
 	@Override
 	public void setValue(@Nullable String v) {
+		if(null != v) {
+			v = DomUtil.htmlRemoveUnsafe(v);
+		}
+
 		if(isBuilt()) {
 			//-- Leave a marker to set the value through Javascript too.
 			m_updateValueJS = v;
@@ -186,6 +190,9 @@ public class HtmlEditor extends TextArea {
 			StringBuilder sb = new StringBuilder();
 			try {
 				StringTool.entitiesToUnicode(sb, s, true);
+				String tmp = sb.toString();
+				sb.setLength(0);
+				DomUtil.htmlRemoveUnsafe(sb, tmp);
 				values[i] = sb.toString();
 			} catch(Exception e) {
 				e.printStackTrace();

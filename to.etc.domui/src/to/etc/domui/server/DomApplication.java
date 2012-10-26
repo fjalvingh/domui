@@ -1410,7 +1410,7 @@ public abstract class DomApplication {
 	 * @param themeMap
 	 */
 	@OverridingMethodsMustInvokeSuper
-	public void augmentThemeMap(IScriptScope ss) throws Exception {
+	public void augmentThemeMap(@Nonnull IScriptScope ss) throws Exception {
 		ss.put("util", new ThemeCssUtils(ss));
 		ss.eval(Object.class, "function url(x) { return util.url(x);};", "internal");
 	}
@@ -1420,7 +1420,7 @@ public abstract class DomApplication {
 	 * which will use it to decide on the "real" theme to use.
 	 * @param currentTheme	The theme name, valid for the current theme engine. Cannot be null nor the empty string.
 	 */
-	public void setCurrentTheme(String currentTheme) {
+	public void setCurrentTheme(@Nonnull String currentTheme) {
 		m_themeManager.setCurrentTheme(currentTheme);
 	}
 
@@ -1429,6 +1429,7 @@ public abstract class DomApplication {
 	 * and is interpreted by the theme factory to resolve resources.
 	 * @return
 	 */
+	@Nonnull
 	public String getCurrentTheme() {
 		return m_themeManager.getCurrentTheme();
 	}
@@ -1437,6 +1438,7 @@ public abstract class DomApplication {
 	 * Get the current theme factory.
 	 * @return
 	 */
+	@Nonnull
 	public IThemeFactory getThemeFactory() {
 		return m_themeManager.getThemeFactory();
 	}
@@ -1445,7 +1447,7 @@ public abstract class DomApplication {
 	 * Set the factory for handling the theme.
 	 * @param themer
 	 */
-	public void setThemeFactory(IThemeFactory themer) {
+	public void setThemeFactory(@Nonnull IThemeFactory themer) {
 		m_themeManager.setThemeFactory(themer);
 	}
 
@@ -1457,7 +1459,7 @@ public abstract class DomApplication {
 	 * @return
 	 * @throws Exception
 	 */
-	public ITheme getTheme(String themeName, IResourceDependencyList rdl) throws Exception {
+	public ITheme getTheme(@Nonnull String themeName, @Nonnull IResourceDependencyList rdl) throws Exception {
 		return m_themeManager.getTheme(themeName, rdl);
 	}
 

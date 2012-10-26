@@ -16,9 +16,18 @@ body {
 	font-size: <%= font_size %>;
 }
 
+/*** Input related components ***/
+button img {
+	vertical-align: bottom;
+}
+
+button {
+	vertical-align: bottom;
+}
+
 input, textarea, select {
 	margin: 0px 2px 2px 0px;
-	padding: 0px;	
+	padding: 0px 2px 0px 2px;	
 	font-size: <%= font_size %>;
 	border-color:<%= bevel_up %> <%= bevel_down %> <%= bevel_down %>;
 	border-style:solid;
@@ -41,32 +50,24 @@ input:hover, textarea:hover, select:hover {
 	border-color:<%= bevel_hover_up %> <%= bevel_hover_down %> <%= bevel_hover_down %> <%= bevel_hover_up %>;
 }
 
-td {
-	vertical-align: top;
-}
-
 select {
 	background-color:#FFFFFF;
 	height: 18px;
 }
 
+/*** HTML entities ***/
 pre {
 	font-family: <%= fixed_font_family %>;
 	font-size: <%= fixed_font_size %>;
 }
 
-button img {
-	vertical-align: bottom;
-}
-
-button {
-	vertical-align: bottom;
+td {
+	vertical-align: top;
 }
 
 .page-content {
 	margin: 0px 10px;
 }
-
 
 /*** Other elements as direct body children ***/
 body > div.ui-dt {

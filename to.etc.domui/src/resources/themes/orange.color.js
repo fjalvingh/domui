@@ -5,7 +5,7 @@
 tabPanelDomui = {
 	sep: "#7c7c7c",
 	inactive_col: '#ffffff',
-	active_col: '#4272C8',
+	active_col: '#67267f',
 	hover_inactive_col: '#ffffff',
 	hover_active_col: '#4272C8',
 	border: undefined,						// jal wtf is this? Without this the tabs render bad... Vladimir?
@@ -105,7 +105,7 @@ data_tbl_expanding_row_bg = currentDataTable.expanding_row_bg;
 //-- The data pager icons.
 //----------------------------
 currentDataPager = currentBackground.dataPager;
-data_pager_icons = currentDataPager.img;
+data_pager_icons = currentDataPager.icons;
 data_pager_icon_size_x = currentDataPager.icon_width;
 data_pager_icon_size_y = currentDataPager.icon_height;
 
