@@ -8,7 +8,6 @@ import org.slf4j.*;
 import org.slf4j.spi.*;
 
 import to.etc.log.MyLogger.Level;
-import to.etc.log.data.*;
 
 public class MyLoggerFactory implements ILoggerFactory {
 
@@ -461,6 +460,12 @@ public class MyLoggerFactory implements ILoggerFactory {
 				OUTS.put(key, outLogFile);
 			}
 		}
+		synchronized(LOGGERS) {
+			MyLogger logger = LOGGERS.get(key);
+			if(logger != null) {
+				logger.setOut(outLogFile);
+			}
+		}
 	}
 
 	/**
@@ -668,17 +673,13 @@ public class MyLoggerFactory implements ILoggerFactory {
 	}
 
 	/**
-	 * Returns list of defined specific output files per logger name.
+	 * Returns copy of map that defines specific output files per logger name. Logger name is key, output file is value.
 	 * @return
 	 */
 	public static @Nonnull
-	List<LoggerOutputDef> getLoggerOutputDef() {
+	Map<String, String> getLoggerOutsDef() {
 		synchronized(OUTS) {
-			List<LoggerOutputDef> res = OUTS.isEmpty() ? Collections.EMPTY_LIST : new ArrayList<LoggerOutputDef>();
-			for(String key : OUTS.keySet()) {
-				res.add(new LoggerOutputDef(key, OUTS.get(key)));
-			}
-			return res;
+			return new HashMap<String, String>(OUTS);
 		}
 	}
 }

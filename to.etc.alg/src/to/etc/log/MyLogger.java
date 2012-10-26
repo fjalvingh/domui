@@ -28,7 +28,7 @@ public class MyLogger implements Logger {
 
 	private final String	m_key;
 
-	private final String	m_out;
+	private String							m_out;
 	
 	private static final DateFormat			m_tf				= new SimpleDateFormat("HH:mm:ss.SSS");
 
@@ -40,6 +40,8 @@ public class MyLogger implements Logger {
 
 	private final MyLoggerFactory.Config	m_rootConfig;
 	
+	private final Object					m_writeLock			= new Object();
+
 	private MyLogger(String key, String out, MyLoggerFactory.Config rootConfig) {
 		m_key = key;
 		m_out = out;
@@ -61,36 +63,38 @@ public class MyLogger implements Logger {
 		sb.append("[").append(m_key).append("]").append("\t");
 		sb.append(String.format(msg, args));
 		String line = sb.toString();
-		if (m_out == null){
-			System.out.println(line);
-		}else{
-			BufferedWriter w = null;
-			String fileName = null;
-			if(m_out.contains(":")) {
-				fileName = m_out;
+		synchronized(m_writeLock) {
+			if(m_out == null) {
+				System.out.println(line);
 			} else {
-				fileName = m_rootConfig.getLogDir() + File.separator + m_out;
-			}
+				BufferedWriter w = null;
+				String fileName = null;
+				if(m_out.contains(":")) {
+					fileName = m_out;
+				} else {
+					fileName = m_rootConfig.getLogDir() + File.separator + m_out;
+				}
 
-			fileName += "_" + m_df.format(new Date()) + ".log";
+				fileName += "_" + m_df.format(new Date()) + ".log";
 
-			File outFile = new File(fileName);
-			outFile.getParentFile().mkdirs();
-			try {
-				outFile.createNewFile();
-				w = new BufferedWriter(new FileWriter(outFile, true));
-			    w.write(line);
-			    w.newLine();
-			} catch(IOException e) {
-				e.printStackTrace();
-				throw new RuntimeException(e);
-			}finally{
-				if (w != null){
-					try {
-						w.close();
-					} catch(IOException e) {
-						e.printStackTrace();
-						throw new RuntimeException(e);
+				File outFile = new File(fileName);
+				outFile.getParentFile().mkdirs();
+				try {
+					outFile.createNewFile();
+					w = new BufferedWriter(new FileWriter(outFile, true));
+					w.write(line);
+					w.newLine();
+				} catch(IOException e) {
+					e.printStackTrace();
+					throw new RuntimeException(e);
+				} finally {
+					if(w != null) {
+						try {
+							w.close();
+						} catch(IOException e) {
+							e.printStackTrace();
+							throw new RuntimeException(e);
+						}
 					}
 				}
 			}
@@ -505,6 +509,12 @@ public class MyLogger implements Logger {
 
 	void setLevel(Level level) {
 		m_level = level;
+	}
+
+	void setOut(@Nullable String out) {
+		synchronized(m_writeLock) {
+			m_out = out;
+		}
 	}
 
 }
