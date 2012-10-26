@@ -34,6 +34,8 @@ import java.util.Date;
 import javax.annotation.*;
 import javax.servlet.http.*;
 
+import org.slf4j.*;
+
 import to.etc.domui.annotations.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.misc.*;

@@ -32,12 +32,12 @@ import javax.servlet.http.*;
 
 import org.slf4j.*;
 import org.slf4j.Logger;
-import org.slf4j.bridge.*;
+//import org.slf4j.bridge.*;
 
-import ch.qos.logback.classic.*;
+/*import ch.qos.logback.classic.*;
 import ch.qos.logback.classic.joran.*;
 import ch.qos.logback.core.util.*;
-
+*/
 import to.etc.domui.util.*;
 import to.etc.net.*;
 import to.etc.util.*;
@@ -172,15 +172,15 @@ public class AppFilter implements Filter {
 			}
 			InputStream logStream = findLogConfig(logconfig);
 			if(logStream != null) {
-				JoranConfigurator jc = new JoranConfigurator();
-				LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-				jc.setContext(lc);
-				lc.reset();
-				jc.doConfigure(logStream);
-				System.out.println("DomUI: logging configured.");
-				StatusPrinter.printInCaseOfErrorsOrWarnings(lc);
-				SLF4JBridgeHandler.install();
-
+				/*				JoranConfigurator jc = new JoranConfigurator();
+								LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+								jc.setContext(lc);
+								lc.reset();
+								jc.doConfigure(logStream);
+								System.out.println("DomUI: logging configured.");
+								StatusPrinter.printInCaseOfErrorsOrWarnings(lc);
+								SLF4JBridgeHandler.install();
+				*/
 			}
 		} catch(Exception x) {
 			x.printStackTrace();
