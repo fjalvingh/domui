@@ -5,12 +5,15 @@ import java.util.*;
 
 import javax.annotation.*;
 
-import to.etc.domui.util.db.*;
 import to.etc.webapp.query.*;
 
 /**
  * Root logic context class.
  *
+ * Vladimir: I removed your copy code because it cannot be done that way:
+ * - we cannot make copies in a "separate" Hibernate context because it would be very, very expensive to do that multiple times (because of all of the lookups).
+ * - you require a set PK in all entities, and that is clearly not the case in most models.
+ * I created the copy logic into LogiModel.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 15, 2012
@@ -21,11 +24,7 @@ final public class LogiContext {
 
 	private Map<Object, Object> m_storeMap = new HashMap<Object, Object>();
 
-	private Map<ObjectIdentifier< ? >, Object> m_copyMap = new HashMap<ObjectIdentifier< ? >, Object>();
-
-	private Map<ObjectIdentifier< ? >, Object> m_originalMap = new HashMap<ObjectIdentifier< ? >, Object>();
-
-	private boolean m_initializedCopies;
+	private LogiModel m_model = new LogiModel();
 
 	@Nonnull
 	public <T> T get(@Nonnull Class<T> clz, Object... params) throws Exception {
@@ -82,60 +81,13 @@ final public class LogiContext {
 		return vali;
 	}
 
-	<T> void createCopy(IModelCopier copier, IIdentifyable<T> source) throws Exception {
-		ObjectIdentifier<T> key = new ObjectIdentifier<T>(source.getClass(), source.getId());
-		if(m_originalMap.get(key) != null) {
-			return;
-		}
-		Object existingCopy = m_copyMap.get(key);
-		if(existingCopy == null) {
-			IIdentifyable<T> copy = copier.copyInstanceShallow(m_dataContext, source);
-			m_copyMap.put(key, copy);
-		}
-		m_originalMap.put(key, source);
+	public <T> void addRoot(T root) {
+		m_model.addRoot(root);
 	}
 
-	public LogiEvent collectChanges() {
-		if(!m_initializedCopies) {
-			throw new IllegalStateException(this.getClass() + " didn't finish initialization of object copies!");
-		}
-
-		LogiEvent event = new LogiEvent();
-		List<ObjectIdentifier< ? >> handled = new ArrayList<ObjectIdentifier< ? >>();
-		for(ObjectIdentifier< ? > key : m_originalMap.keySet()) {
-			IIdentifyable< ? > current = (IIdentifyable< ? >) m_originalMap.get(key);
-			IIdentifyable< ? > copy = (IIdentifyable< ? >) m_copyMap.get(key);
-			if(copy == null) {
-				event.add(new InsertEvent(key));
-			} else {
-				List<String> changedProps = compareObjects(current, copy);
-				if(changedProps.size() > 0) {
-					event.add(new UpdateEvent(key, changedProps));
-				}
-			}
-			handled.add(key);
-		}
-
-		for(ObjectIdentifier< ? > key : m_copyMap.keySet()) {
-			if(!handled.contains(key)) {
-				event.add(new DeleteEvent(key));
-			}
-		}
-
-		return event;
+	public void updateCopy() throws Exception {
+		m_model.updateCopy();
 	}
 
-	public void initializedCopies() {
-		if(m_initializedCopies) {
-			throw new IllegalStateException(this.getClass() + " has already initialized object copies!");
-		}
-		m_initializedCopies = true;
-		m_copyMap = Collections.unmodifiableMap(m_copyMap);
-	}
 
-	private @Nonnull
-	List<String> compareObjects(IIdentifyable< ? > current, IIdentifyable< ? > copy) {
-		// TODO Auto-generated method stub
-		return Collections.EMPTY_LIST;
-	}
 }
