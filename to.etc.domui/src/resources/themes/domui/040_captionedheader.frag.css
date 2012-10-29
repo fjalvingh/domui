@@ -2,6 +2,7 @@
 /*** CaptionedHeader ***/
 .ui-chdr {
 	width: 100%;
+	<%= margins_neutralize %>
 	margin-top: 10px;
 	border-bottom: 2px solid <%= caption_bg %>;
 }
