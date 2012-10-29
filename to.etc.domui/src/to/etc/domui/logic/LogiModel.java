@@ -33,8 +33,13 @@ public class LogiModel {
 	@Nonnull
 	private Map<Object, Object> m_originalToCopyMap = new HashMap<Object, Object>();
 
+	/** This maps a copy instance to it's original source. */
 	@Nonnull
 	private Map<Object, Object> m_copyToOriginalMap = new HashMap<Object, Object>();
+
+	/** This contains only the mappings for the root entries, as [source, copy]. Used to see what root entries have disappeared. */
+	@Nonnull
+	private Map<Object, Object> m_rootCopyMap = new HashMap<Object, Object>();
 
 	@Nullable
 	private IModelCopier m_copyHandler;
@@ -64,10 +69,12 @@ public class LogiModel {
 		Map<Object, Object> oldOrigMap = m_originalToCopyMap;	// Keep the original map
 		m_originalToCopyMap = new HashMap<Object, Object>();	// Create a clean one,
 		m_copyToOriginalMap.clear();							// And clean out this one
+		m_rootCopyMap.clear();
 
 		//-- Copy all roots.
 		for(Object root : m_modelRoots) {
-			createCopy(root, oldOrigMap);
+			Object copy = createCopy(root, oldOrigMap);
+			m_rootCopyMap.put(root, copy);
 		}
 		ts = System.nanoTime() - ts;
 		System.out.println("logi: copied " + m_originalToCopyMap.size() + " instances in " + StringTool.strNanoTime(ts));
@@ -154,5 +161,190 @@ public class LogiModel {
 			throw new IllegalStateException("Child collection type: " + sourcevalue.getClass() + " not implemented, in instance " + source + " property " + pmm);
 	}
 
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Compare to make a delta event.						*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Compare the copy with the current state of the original, and create the change event set.
+	 */
+	@Nonnull
+	public LogiEventSet compareCopy() throws Exception {
+		LogiEventSet les = new LogiEventSet();
+		Set<Object> doneset = new HashSet<Object>();
+
+		Map<Object, Object> rootsdone = new HashMap<Object, Object>(m_rootCopyMap);	// Copy the original roots and their copies.
+		int rix = 0;
+		for(Object root : m_modelRoots) {
+			les.enterRoot(rix);
+			Object copy = rootsdone.remove(root);					// Was there a previous root?
+			if(copy == null) {
+				les.addRootInstanceAdded(root);
+			} else {
+				compareInstances(les, doneset, root, copy);
+			}
+			les.exitRoot(rix);
+		}
+
+		//-- All that is left in rootsDone means root instances have been removed.
+		for(Map.Entry<Object, Object> me : rootsdone.entrySet()) {
+			les.addRootInstanceRemoved(me.getKey(), me.getValue());
+		}
+		return les;
+	}
+
+	/**
+	 * Compare two instances, and add their changes. Both instances must exist and be of the same type.
+	 * @param les
+	 * @param doneset
+	 * @param source
+	 * @param copy
+	 */
+	private <T> void compareInstances(@Nonnull LogiEventSet les, @Nonnull Set<Object> doneset, @Nonnull T source, @Nonnull T copy) throws Exception {
+		//-- Make very sure we pass every instance only once.
+		if(doneset.contains(source) || doneset.contains(copy))
+			return;
+		doneset.add(source);
+		doneset.add(copy);
+
+		//-- Compare all direct properties 1st.
+		Class<T> clz = (Class<T>) source.getClass();		// Java generics suck.
+		ClassMetaModel cmm = MetaManager.findClassMeta(clz);
+		List<PropertyMetaModel< ? >> pmml = cmm.getProperties();
+		List<PropertyMetaModel< ? >> laterl = null;
+		for(PropertyMetaModel< ? > pmm : pmml) {
+			switch(pmm.getRelationType()){
+				case NONE:
+					//-- Compare these thingies, by value, not reference.
+					compareValues(les, pmm, source, copy);
+					break;
+
+				case UP:
+					if(!compareUpValues(les, pmm, source, copy)) {
+						if(laterl == null)
+							laterl = new ArrayList<PropertyMetaModel< ? >>();
+						laterl.add(pmm);
+					}
+					break;
+
+				case DOWN:
+					if(laterl == null)
+						laterl = new ArrayList<PropertyMetaModel< ? >>();
+					laterl.add(pmm);
+					break;
+			}
+		}
+
+		if(null != laterl) {
+			for(PropertyMetaModel< ? > pmm : laterl) {
+				compareChildren(les, pmm, source, copy);
+			}
+		}
+	}
+
+	private <T, P> boolean compareChildren(@Nonnull LogiEventSet les, PropertyMetaModel<P> pmm, @Nonnull T source, @Nonnull T copy) throws Exception {
+		if(getCopyHandler().isUnloadedChildList(source, pmm)) {
+			//-- Source is (now) unloaded. Compare with copy: should be null.
+			P copyval = pmm.getValue(copy);
+			if(copyval == null)
+				return false;
+
+			//-- Child was set to empty list...
+			throw new IllegalStateException("ni: child set to unloaded while copy is discrete??");
+			//			return true;
+		}
+
+		//-- We have some collection here. Handle the supported cases (List only)
+		P sourceval = pmm.getValue(source);
+		P copyval = pmm.getValue(copy);
+		if(sourceval == null) {
+			if(copyval == null)
+				return false;
+
+			//-- A collection has been emptied. Send "clear" event for collection and delete events for all it's members.
+			les.addCollectionClear(pmm, source, copy, sourceval, copyval);
+			List< ? > clist = getChildValues(copyval);
+			for(int i = clist.size(); --i >= 0;) {
+				Object centry = clist.get(i);
+				if(centry != null) {
+					Object sentry = m_copyToOriginalMap.get(centry);
+					if(sentry == null)
+						throw new IllegalStateException("Cannot find original for copied entry: " + centry);
+
+					les.addCollectionDelete(pmm, source, copy, i, sentry);
+				}
+			}
+			return true;
+		}
+
+		//-- We have two collections - we need to diff the instances.
+
+
+		return false;
+	}
+
+	@Nonnull
+	private List< ? > getChildValues(@Nonnull Object source) {
+		if(List.class.isAssignableFrom(source.getClass())) {
+			List<Object> res = new ArrayList<Object>();
+			for(Object v : (List<Object>) source)
+				res.add(v);
+			return res;
+		} else
+			throw new IllegalStateException(source + ": only List child sets are supported.");
+	}
+
+
+	private <T, P> boolean compareValues(@Nonnull LogiEventSet les, PropertyMetaModel<P> pmm, @Nonnull T source, @Nonnull T copy) throws Exception {
+		P vals = pmm.getValue(source);
+		P valc = pmm.getValue(copy);
+		if(MetaManager.areObjectsEqual(vals, valc))
+			return false;
+		les.propertyChange(pmm, source, copy, vals, valc);
+		return true;
+	}
+
+	private <T, P> boolean compareUpValues(@Nonnull LogiEventSet les, PropertyMetaModel<P> pmm, @Nonnull T source, @Nonnull T copy) throws Exception {
+		if(getCopyHandler().isUnloadedParent(source, pmm)) {
+			//-- Source is now unloaded. Check copy;
+			P copyval = pmm.getValue(copy);
+			if(copyval == null)
+				return false;								// Unloaded parent and null in copy -> unchanged
+
+			//-- This parent has changed.
+			les.propertyChange(pmm, source, copy, null, copyval);
+			return true;
+		}
+
+		//-- The model has a loaded parent... Get it, and get it's copy.
+		P sourceval = pmm.getValue(source);
+		P copyval = pmm.getValue(copy);
+		if(null == sourceval) {
+			//-- Current value is null... If copy is null too we're equal
+			if(null == copyval)
+				return false;								// Unchanged
+
+			//-- This parent has changed.
+			les.propertyChange(pmm, source, copy, null, copyval);
+			return true;
+		}
+
+		//-- Source has a value. Is it mapped to a copy?
+		P ncopyval = (P) m_originalToCopyMap.get(sourceval);
+		if(ncopyval == null) {
+			//-- There is no copy of this source -> new assignment to parent property.
+			les.propertyChange(pmm, source, copy, sourceval, copyval);
+			return true;
+		}
+
+		if(ncopyval != copyval) {
+			//-- Different instances of copy -> changes
+			les.propertyChange(pmm, source, copy, sourceval, copyval);
+			return true;
+		}
+
+		//-- Same value.
+		return false;
+	}
 
 }
