@@ -45,6 +45,10 @@ div:hover.ui-xdt-exp {
 	filter: progid:DXImageTransform.Microsoft.Shadow(color='#BABABA', Direction=135, Strength=7);
 }
 
+.ui-xdt-edt td{
+	padding-left: 2px;
+}
+
 .ui-xdt-nores {
 	padding: 10px 0px 10px 0px;
 	font-style: italic;
