@@ -26,6 +26,10 @@ final public class LogiContext {
 
 	private LogiModel m_model = new LogiModel();
 
+	public LogiContext(@Nonnull QDataContext dataContext) {
+		m_dataContext = dataContext;
+	}
+
 	@Nonnull
 	public <T> T get(@Nonnull Class<T> clz, Object... params) throws Exception {
 		Constructor<T> realc = null;

@@ -108,6 +108,9 @@ public class LogiModel {
 	}
 
 	private <T, P> void copyPropertyValue(@Nonnull T source, @Nonnull T copy, @Nonnull PropertyMetaModel<P> pmm, @Nonnull Map<Object, Object> oldOrigMap) throws Exception {
+		if(pmm.getReadOnly() == YesNoType.YES)
+			return;
+
 		switch(pmm.getRelationType()){
 			case NONE:
 				P value = pmm.getValue(source);					// Get value in source
@@ -150,4 +153,6 @@ public class LogiModel {
 		} else
 			throw new IllegalStateException("Child collection type: " + sourcevalue.getClass() + " not implemented, in instance " + source + " property " + pmm);
 	}
+
+
 }
