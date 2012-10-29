@@ -13,6 +13,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 		$.browser.majorVersion = parseInt(v[0], 10);
 		$.browser.minorVersion = parseInt(v[1], 10);
 	} catch(x) {}
+	
 //	alert('bmaj='+$.browser.majorVersion+", mv="+$.browser.minorVersion);
 }
 
@@ -480,6 +481,42 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 		;
 	}
 	;
+
+	/**
+	 * Read or set a cookie.
+	 */
+	$.cookie = function(name, value, options) {
+		if(value !== undefined) {
+			if(value === null)
+				options.expires = -1;
+			if(typeof options.expires === 'number') {
+				var dt = new Date();
+				dt.setDate(dt.getDate() + options.expires);
+				options.expires = dt;
+			}
+			value= String(value);
+			var c = [
+				encodeURIComponent(name), '=', encodeURIComponent(value),
+		        options.expires ? '; expires=' + options.expires.toUTCString() : '',
+		        options.path    ? '; path=' + options.path : '',
+		        options.domain  ? '; domain=' + options.domain : '',
+		        options.secure  ? '; secure' : ''
+	        ].join('');
+			return (document.cookie = c);
+		}
+
+		var cookar= document.cookie.split("; ");
+		for(var i = cookar.length; --i >= 0;) {
+			var par = cookar[i].split('=');
+			if(par.length < 2)
+				continue;
+			var rname = decodeURIComponent(par.shift().replace(/\+/g, ' '));
+			if(rname === name) {
+				return decodeURIComponent(par.join('=').replace(/\+/g, ' '));
+			}
+		}
+		return null;
+	};
 
 	$.fn.executeDeltaXML = executeXML;
 })(jQuery);
@@ -2177,6 +2214,21 @@ var WebUI = {
 		node.style.cursor = "default";
 	},
 
+	checkBrowser: function() {
+		if(this._browserChecked)
+			return;
+		this._browserChecked = true;
+
+		//-- We do not support IE 7 and lower anymore.
+		if($.browser.msie && $.browser.majorVersion < 8) {
+			//-- Did we already report that warning this session?
+			if($.cookie("domuiie") == null) {
+				alert(WebUI.format(WebUI._T.sysUnsupported, $.browser.majorVersion));
+				$.cookie("domuiie", "true", {});
+			}
+		} 
+	},
+
 	/** ***************** ScrollableTabPanel stuff. **************** */
 	_ignoreScrollClick: 0,
 
@@ -3049,6 +3101,7 @@ WebUI.doCustomUpdates = function() {
 };
 
 WebUI.onDocumentReady = function() {
+	WebUI.checkBrowser();
 	WebUI.handleCalendarChanges();
 	if(DomUIDevel)
 		WebUI.handleDevelopmentMode();
@@ -3288,7 +3341,7 @@ $(document).keydown(function(e){
 			END			: 35,
 			PAGE_UP		: 33,
 			PAGE_DOWN	: 34
-	};	
+	};
 	if($('div.ui-szless').length > 0){
 		if (e.altKey && e.keyCode == KEY.HOME) { 
 	    		$("div.ui-szless > button.ui-sib:nth-child(1)").click();
