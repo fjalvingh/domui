@@ -266,7 +266,10 @@ final public class ThemeManager {
 			RhinoTemplateCompiler rtc = new RhinoTemplateCompiler();
 			rtc.execute(sb, r, rurl, ss);
 			ts = System.nanoTime() - ts;
-			System.out.println("theme-replace: " + rurl + " took " + StringTool.strNanoTime(ts));
+			if(bv != null)
+				System.out.println("theme-replace: " + rurl + " for " + bv.getBrowserName() + ":" + bv.getMajorVersion() + " took " + StringTool.strNanoTime(ts));
+			else
+				System.out.println("theme-replace: " + rurl + " for all browsers took " + StringTool.strNanoTime(ts));
 			return sb.toString();
 		} finally {
 			try {
