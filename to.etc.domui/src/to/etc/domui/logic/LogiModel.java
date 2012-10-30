@@ -261,7 +261,10 @@ public class LogiModel {
 			if(copyval == null)
 				return false;
 
-			//-- A collection has been emptied. Send "clear" event for collection and delete events for all it's members.
+			//-- A collection has been emptied. Send a property changed event for it
+			les.propertyChange(pmm, source, copy, sourceval, copyval);
+
+			//-- Send "clear" event for collection and delete events for all it's members.
 			les.addCollectionClear(pmm, source, copy, sourceval, copyval);
 			List< ? > clist = getChildValues(copyval);
 			for(int i = clist.size(); --i >= 0;) {
@@ -277,11 +280,117 @@ public class LogiModel {
 			return true;
 		}
 
-		//-- We have two collections - we need to diff the instances.
+		if(copyval == null) {
+			//-- We have a new list that was not present @ time of the copy. Send property change,
+			les.propertyChange(pmm, source, copy, sourceval, copyval);
 
+			//-- Send "add" event for all new members.
+			List<Object> sorigl = (List<Object>) getChildValues(sourceval);				// The current list from source
+			int i = 0;
+			for(Object cv : sorigl) {
+				les.addCollectionAdd(pmm, source, copy, i++, cv);
+			}
+			return true;
+		}
 
-		return false;
+		//-- We have two collections - we need to diff the instances... Get both "current collections"
+		List< ? > sorigl = getChildValues(sourceval);				// The current list from source
+		List<Object> scopyl = new ArrayList<Object>(sorigl.size());	// This will hold the "current copies" known for each source entry.
+		for(Object t : sorigl) {
+			Object tcopy = m_originalToCopyMap.get(t);				// Get (existing) copy; if no copy is found it means the entry changed anyway - store null for that
+			scopyl.add(tcopy);
+		}
+		List<Object> copyl = (List<Object>) getChildValues(copyval);// The list of copied values
+
+		return diffList(les, pmm, source, copy, scopyl, copyl);
 	}
+
+	private <T, P, I> boolean diffList(@Nonnull LogiEventSet les, PropertyMetaModel<P> pmm, @Nonnull T source, @Nonnull T copy, List<I> sourcel, List<I> copyl) throws Exception {
+		//-- First slice off common start and end;
+		int send = sourcel.size();
+		int cend = copyl.size();
+		int sbeg = 0;
+		int cbeg = 0;
+
+		//-- Slice common beginning
+		while(sbeg < send && cbeg < cend) {
+			I so = sourcel.get(sbeg);
+			I co = copyl.get(cbeg);
+			if(!MetaManager.areObjectsEqual(so, co)) {
+				break;
+			}
+			sbeg++;
+			cbeg++;
+		}
+
+		//-- Slice common end
+		while(send > sbeg && cend > cbeg) {
+			I so = sourcel.get(send - 1);
+			I co = copyl.get(cend - 1);
+			if(!MetaManager.areObjectsEqual(so, co)) {
+				break;
+			}
+			cend--;
+			send--;
+		}
+		if(sbeg >= send && cbeg >= cend) {
+			//-- Equal arrays- no changes.
+			return false;
+		}
+
+		//-- Ouf.. We need to do the hard bits. Find the lcs and then render the edit as the delta.
+		int	m = (send - sbeg)+1;
+		int n = (cend - cbeg) + 1;
+		int[][] car = new int[m][];
+		for(int i = 0; i < m; i++) {
+			car[i] = new int[n];
+			car[m][0] = 0;
+		}
+		for(int i = 0; i < n; i++) {
+			car[0][i] = 0;
+		}
+
+		for(int i = 1; i < m; i++) {
+			for(int j = 1; j < n; j++) {
+				I so = sourcel.get(sbeg + i - 1);
+				I co = copyl.get(cbeg + j - 1);
+				if(MetaManager.areObjectsEqual(so, co)) {
+					car[i][j] = car[i - 1][j - 1] + 1;				// Is length of previous subsequence + 1.
+				} else {
+					car[i][j] = Math.max(car[i][j - 1], car[i - 1][j]);	// Is length of the so-far longest subsequence
+				}
+			}
+		}
+
+		//-- Now: backtrack from the end to the start to render the delta. This creates the delta in the "reverse" order.
+		int i = m;
+		int j = n;
+		List<LogiEventListDelta<T, P, I>> res = new ArrayList<LogiEventListDelta<T, P, I>>();
+
+		List<String> tmp = new ArrayList<String>();
+		while(j > 0 || i > 0) {
+			if(i > 0 && j > 0 && MetaManager.areObjectsEqual(sourcel.get(sbeg + i - 1), copyl.get(cbeg + j - 1))) {
+				i--;
+				j--;
+
+				//-- part of lcs - no delta
+			} else if(j > 0 && (i == 0 || car[i][j - 1] >= car[i - 1][j])) {
+				//-- Addition
+				tmp.add("+ " + copyl.get(cbeg + j - 1));
+				j--;
+			} else if(i > 0 && (j == 0 || car[i][j - 1] < car[i - 1][j])) {
+				//-- Deletion
+				tmp.add("- " + sourcel.get(sbeg + i - 1));
+				i--;
+			}
+		}
+		Collections.reverse(tmp);
+		for(String s : tmp)
+			System.out.println(" " + s);
+
+		return true;
+	}
+
 
 	@Nonnull
 	private List< ? > getChildValues(@Nonnull Object source) {
@@ -346,5 +455,122 @@ public class LogiModel {
 		//-- Same value.
 		return false;
 	}
+
+	static private <I> boolean diffList(List<I> sourcel, List<I> copyl, Comparator<I> comparator) throws Exception {
+		//-- First slice off common start and end;
+		int send = sourcel.size();
+		int cend = copyl.size();
+		int sbeg = 0;
+		int cbeg = 0;
+
+		//-- Slice common beginning
+		while(sbeg < send && cbeg < cend) {
+			I so = sourcel.get(sbeg);
+			I co = copyl.get(cbeg);
+			if(0 != comparator.compare(so, co)) {
+				break;
+			}
+			sbeg++;
+			cbeg++;
+		}
+
+		//-- Slice common end
+		while(send > sbeg && cend > cbeg) {
+			I so = sourcel.get(send - 1);
+			I co = copyl.get(cend - 1);
+			if(0 != comparator.compare(so, co)) {
+				break;
+			}
+			cend--;
+			send--;
+		}
+		if(sbeg >= send && cbeg >= cend) {
+			//-- Equal arrays- no changes.
+			return false;
+		}
+
+		//-- Ouf.. We need to do the hard bits. Find the lcs and then render the edit as the delta.
+		int m = (send - sbeg) + 1;
+		int n = (cend - cbeg) + 1;
+		int[][] car = new int[m][];
+		for(int i = 0; i < m; i++) {
+			car[i] = new int[n];
+			car[i][0] = 0;
+		}
+		for(int i = 0; i < n; i++) {
+			car[0][i] = 0;
+		}
+
+		for(int i = 1; i < m; i++) {
+			for(int j = 1; j < n; j++) {
+				I so = sourcel.get(sbeg + i - 1);
+				I co = copyl.get(cbeg + j - 1);
+				if(0 == comparator.compare(so, co)) {
+					car[i][j] = car[i - 1][j - 1] + 1;				// Is length of previous subsequence + 1.
+				} else {
+					car[i][j] = Math.max(car[i][j - 1], car[i - 1][j]);	// Is length of the so-far longest subsequence
+				}
+			}
+		}
+
+		//-- Now: backtrack from the end to the start to render the delta. This creates the delta in the "reverse" order.
+
+		List<String> tmp = new ArrayList<String>();
+		for(int xxx = sourcel.size(); --xxx >= send;) {
+			tmp.add("  " + sourcel.get(xxx) + " @" + xxx + " (e)");
+		}
+
+		int i = m - 1;
+		int j = n - 1;
+		while(j > 0 || i > 0) {
+			if(i > 0 && j > 0 && 0 == comparator.compare(sourcel.get(sbeg + i - 1), copyl.get(cbeg + j - 1))) {
+				i--;
+				j--;
+
+				//-- part of lcs - no delta
+				tmp.add("  " + sourcel.get(sbeg + i - 1) + " @" + (sbeg + i - 1));
+			} else if(j > 0 && (i == 0 || car[i][j - 1] >= car[i - 1][j])) {
+				//-- Addition
+				tmp.add("+ " + copyl.get(cbeg + j - 1) + " @" + (sbeg + i - 1));
+				j--;
+			} else if(i > 0 && (j == 0 || car[i][j - 1] < car[i - 1][j])) {
+				//-- Deletion
+				tmp.add("- " + sourcel.get(sbeg + i - 1) + " @" + (sbeg + i - 1));
+				i--;
+			}
+		}
+
+		//-- Add all unhandled @ start,
+		for(i = sbeg; --i >= 0;) {
+			tmp.add("  " + sourcel.get(i) + " @" + i);
+		}
+
+		Collections.reverse(tmp);
+		for(String s : tmp)
+			System.out.println(" " + s);
+
+		return true;
+	}
+
+
+	public static void main(String[] args) throws Exception {
+		List<String> a = Arrays.asList("A", "B", "B", "A", "D", "E", "A", "D");
+		List<String> b = Arrays.asList("B", "A",      "A", "D", "E", "A", "D");
+		Comparator<String> cs = new Comparator<String>() {
+			@Override
+			public int compare(String o1, String o2) {
+				return o1.compareTo(o2);
+			}
+		};
+
+		// abbadead
+		// 01234567
+		// baadead
+
+		diffList(a, b, cs);
+
+
+	}
+
 
 }

@@ -66,6 +66,15 @@ public class LogiEventSet {
 		leave();
 	}
 
+	public <T, P> void addCollectionAdd(@Nonnull PropertyMetaModel<P> pmm, @Nonnull T source, @Nonnull T copy, int collectionIndex, @Nullable Object sourceCollectionInstanceEntry) {
+		enter();
+		appendPath("#" + pmm.getName());
+		//-- Log
+
+		leave();
+	}
+
+
 	public void enterRoot(int rix) {
 		enter();
 		appendPath("root[" + rix + "]");
