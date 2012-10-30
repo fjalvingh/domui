@@ -4,26 +4,31 @@ import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
 
-public class LogiEventPropertyChange<T> extends LogiEventBase {
-	private PropertyMetaModel<T> m_pmm;
+final public class LogiEventPropertyChange<T> extends LogiEventBase {
+	@Nonnull
+	final private PropertyMetaModel<T> m_pmm;
 
-	private T m_oldvalue, m_newvalue;
+	@Nullable
+	final private T m_oldvalue, m_newvalue;
 
-	public LogiEventPropertyChange(@Nonnull String path, PropertyMetaModel<T> pmm, T oldvalue, T newvalue) {
+	public LogiEventPropertyChange(@Nonnull String path, @Nonnull PropertyMetaModel<T> pmm, @Nullable T oldvalue, @Nullable T newvalue) {
 		super(path);
 		m_pmm = pmm;
 		m_oldvalue = oldvalue;
 		m_newvalue = newvalue;
 	}
 
+	@Nonnull
 	public PropertyMetaModel<T> getPmm() {
 		return m_pmm;
 	}
 
+	@Nullable
 	public T getOldvalue() {
 		return m_oldvalue;
 	}
 
+	@Nullable
 	public T getNewvalue() {
 		return m_newvalue;
 	}
