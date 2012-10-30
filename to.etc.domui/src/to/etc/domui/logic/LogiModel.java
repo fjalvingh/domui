@@ -520,15 +520,17 @@ public class LogiModel {
 			tmp.add("  " + sourcel.get(xxx) + " @" + xxx + " (e)");
 		}
 
+		int sindex = 0;
 		int i = m - 1;
 		int j = n - 1;
 		while(j > 0 || i > 0) {
 			if(i > 0 && j > 0 && 0 == comparator.compare(sourcel.get(sbeg + i - 1), copyl.get(cbeg + j - 1))) {
+				tmp.add("  " + sourcel.get(sbeg + i - 1) + " @" + (sbeg + i - 1));
+
 				i--;
 				j--;
 
 				//-- part of lcs - no delta
-				tmp.add("  " + sourcel.get(sbeg + i - 1) + " @" + (sbeg + i - 1));
 			} else if(j > 0 && (i == 0 || car[i][j - 1] >= car[i - 1][j])) {
 				//-- Addition
 				tmp.add("+ " + copyl.get(cbeg + j - 1) + " @" + (sbeg + i - 1));
@@ -563,9 +565,11 @@ public class LogiModel {
 			}
 		};
 
-		// abbadead
+		// abbadead: diff is -a @0 -b @1 +A @2
 		// 01234567
-		// baadead
+		//  bbadead (-a @0)
+		//   badead (-b @1)
+		//
 
 		diffList(a, b, cs);
 
