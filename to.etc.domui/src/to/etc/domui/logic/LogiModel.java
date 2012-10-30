@@ -306,87 +306,17 @@ public class LogiModel {
 	}
 
 	private <T, P, I> boolean diffList(@Nonnull LogiEventSet les, PropertyMetaModel<P> pmm, @Nonnull T source, @Nonnull T copy, List<I> sourcel, List<I> copyl) throws Exception {
-		//-- First slice off common start and end;
-		int send = sourcel.size();
-		int cend = copyl.size();
-		int sbeg = 0;
-		int cbeg = 0;
-
-		//-- Slice common beginning
-		while(sbeg < send && cbeg < cend) {
-			I so = sourcel.get(sbeg);
-			I co = copyl.get(cbeg);
-			if(!MetaManager.areObjectsEqual(so, co)) {
-				break;
+		List<Diff<I>> dl = Diff.diffList(sourcel, copyl, new Comparator<I>() {
+			@Override
+			public int compare(I a, I b) {
+				return MetaManager.areObjectsEqual(a, b) ? 0 : -1;
 			}
-			sbeg++;
-			cbeg++;
-		}
+		});
 
-		//-- Slice common end
-		while(send > sbeg && cend > cbeg) {
-			I so = sourcel.get(send - 1);
-			I co = copyl.get(cend - 1);
-			if(!MetaManager.areObjectsEqual(so, co)) {
-				break;
-			}
-			cend--;
-			send--;
-		}
-		if(sbeg >= send && cbeg >= cend) {
-			//-- Equal arrays- no changes.
+		if(dl.size() == 0)
 			return false;
-		}
 
-		//-- Ouf.. We need to do the hard bits. Find the lcs and then render the edit as the delta.
-		int	m = (send - sbeg)+1;
-		int n = (cend - cbeg) + 1;
-		int[][] car = new int[m][];
-		for(int i = 0; i < m; i++) {
-			car[i] = new int[n];
-			car[m][0] = 0;
-		}
-		for(int i = 0; i < n; i++) {
-			car[0][i] = 0;
-		}
-
-		for(int i = 1; i < m; i++) {
-			for(int j = 1; j < n; j++) {
-				I so = sourcel.get(sbeg + i - 1);
-				I co = copyl.get(cbeg + j - 1);
-				if(MetaManager.areObjectsEqual(so, co)) {
-					car[i][j] = car[i - 1][j - 1] + 1;				// Is length of previous subsequence + 1.
-				} else {
-					car[i][j] = Math.max(car[i][j - 1], car[i - 1][j]);	// Is length of the so-far longest subsequence
-				}
-			}
-		}
-
-		//-- Now: backtrack from the end to the start to render the delta. This creates the delta in the "reverse" order.
-		int i = m;
-		int j = n;
-		List<LogiEventListDelta<T, P, I>> res = new ArrayList<LogiEventListDelta<T, P, I>>();
-
-		List<String> tmp = new ArrayList<String>();
-		while(j > 0 || i > 0) {
-			if(i > 0 && j > 0 && MetaManager.areObjectsEqual(sourcel.get(sbeg + i - 1), copyl.get(cbeg + j - 1))) {
-				i--;
-				j--;
-
-				//-- part of lcs - no delta
-			} else if(j > 0 && (i == 0 || car[i][j - 1] >= car[i - 1][j])) {
-				//-- Addition
-				tmp.add("+ " + copyl.get(cbeg + j - 1));
-				j--;
-			} else if(i > 0 && (j == 0 || car[i][j - 1] < car[i - 1][j])) {
-				//-- Deletion
-				tmp.add("- " + sourcel.get(sbeg + i - 1));
-				i--;
-			}
-		}
-		Collections.reverse(tmp);
-		for(String s : tmp)
-			System.out.println(" " + s);
+		//-- Fire all events.
 
 		return true;
 	}
