@@ -31,7 +31,11 @@ public class LogFormatter {
 			sb.append("#").append(event.getMarker().getName()).append("#").append("\t");
 		}
 		sb.append("[").append(event.getLogger().getName()).append("]").append("\t");
-		sb.append(String.format(event.getMsg(), event.getArgs()));
+		if(event.getArgs() != null && event.getArgs().length > 0) {
+			sb.append(String.format(event.getMsg(), event.getArgs()));
+		} else {
+			sb.append(event.getMsg());
+		}
 		return sb.toString();
 	}
 }
