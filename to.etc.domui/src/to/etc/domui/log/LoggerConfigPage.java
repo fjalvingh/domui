@@ -7,6 +7,7 @@ import javax.xml.parsers.*;
 import org.w3c.dom.*;
 
 import to.etc.domui.component.buttons.*;
+import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.form.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.misc.*;
@@ -36,6 +37,10 @@ public class LoggerConfigPage extends UrlPage implements IUserInputModifiedFence
 	private final List<Handler> m_handlers = new ArrayList<Handler>();
 
 	private ConfigPart m_configPart;
+
+	private LoggerRootDef m_rootDef;
+
+	private ModelBindings m_rootDefBindings;
 
 	@Override
 	public void createContent() throws Exception {
@@ -115,10 +120,15 @@ public class LoggerConfigPage extends UrlPage implements IUserInputModifiedFence
 	}
 
 	private void addRootConfigPart() throws Exception {
-		LoggerRootDef rootDef = new LoggerRootDef(EtcLoggerFactory.getSingleton().getRootDir(), EtcLoggerFactory.getSingleton().getLogDir());
-		TabularFormBuilder tbl = new TabularFormBuilder(rootDef);
+		m_rootDef = new LoggerRootDef(EtcLoggerFactory.getSingleton().getRootDir(), EtcLoggerFactory.getSingleton().logDirOriginalAsConfigured(), EtcLoggerFactory.getSingleton().getLogDir());
+		TabularFormBuilder tbl = new TabularFormBuilder(m_rootDef);
 		tbl.addProps(LoggerRootDef.pROOTDIR, LoggerRootDef.pLOGDIR);
-		tbl.getBindings().moveModelToControl();
+		if(!m_rootDef.getLogDir().equals(m_rootDef.getLogDirAbsolute())) {
+			Label calculatedPath = new Label(m_rootDef.getLogDirAbsolute());
+			tbl.addLabelAndControl("log dir path", calculatedPath, false);
+		}
+		m_rootDefBindings = tbl.getBindings();
+		m_rootDefBindings.moveModelToControl();
 		add(tbl.finish());
 	}
 
@@ -158,6 +168,7 @@ public class LoggerConfigPage extends UrlPage implements IUserInputModifiedFence
 	}
 
 	private boolean validateData() throws Exception {
+		m_rootDefBindings.moveControlToModel();
 		return m_configPart.validateData();
 	}
 
@@ -173,6 +184,7 @@ public class LoggerConfigPage extends UrlPage implements IUserInputModifiedFence
 		Document doc = db.newDocument();
 		Element rootElement = doc.createElement("config");
 		doc.appendChild(rootElement);
+		rootElement.setAttribute("logLocation", m_rootDef.getLogDir());
 
 		for(Handler handler : m_handlers) {
 			Element handlerNode = doc.createElement("handler");

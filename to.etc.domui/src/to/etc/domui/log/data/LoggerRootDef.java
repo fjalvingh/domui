@@ -19,10 +19,18 @@ public class LoggerRootDef {
 
 	public static final String pLOGDIR = "logDir";
 
-	public LoggerRootDef(@Nonnull String rootDir, @Nonnull String logDir) {
+	/**
+	 * Root dir for all 'per logger' log files created.
+	 */
+	private String m_logDirAbsolute;
+
+	public static final String pLOGDIRABSOLUTE = "logDirAbsolute";
+
+	public LoggerRootDef(@Nonnull String rootDir, @Nonnull String logDir, @Nonnull String logDirAbsolute) {
 		super();
 		m_rootDir = rootDir;
 		m_logDir = logDir;
+		m_logDirAbsolute = logDirAbsolute;
 	}
 
 	@MetaProperty(length = 255, required = YesNoType.YES, readOnly = YesNoType.YES)
@@ -34,12 +42,21 @@ public class LoggerRootDef {
 		m_rootDir = rootDir;
 	}
 
-	@MetaProperty(length = 255, required = YesNoType.YES, readOnly = YesNoType.YES)
+	@MetaProperty(length = 255, required = YesNoType.YES)
 	public String getLogDir() {
 		return m_logDir;
 	}
 
 	public void setLogDir(String logDir) {
 		m_logDir = logDir;
+	}
+
+	@MetaProperty(length = 255, required = YesNoType.YES, readOnly = YesNoType.YES)
+	public String getLogDirAbsolute() {
+		return m_logDirAbsolute;
+	}
+
+	public void setLogDirAbsolute(String logDirAbsolute) {
+		m_logDirAbsolute = logDirAbsolute;
 	}
 }

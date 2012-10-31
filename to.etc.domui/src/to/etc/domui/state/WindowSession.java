@@ -699,8 +699,11 @@ final public class WindowSession {
 		internalAttachConversations(); // ORDERED 3
 
 		//-- Create the page && add to shelve,
-		if(null == papa)
-			throw new IllegalStateException("Internal: trying to create a page for an AJAX request??");
+		if(null == papa) {
+			IllegalStateException ex = new IllegalStateException("Internal: trying to create a page for an AJAX request??");
+			//LOG.error("Internal: trying to create a page for an AJAX request??", ex); --useful for developer controlled debugging
+			throw ex;
+		}
 		Page newpg = PageMaker.createPageWithContent(rctx, bestpc, coco, papa);
 		shelvePage(newpg); // Append the current page to the shelve,
 

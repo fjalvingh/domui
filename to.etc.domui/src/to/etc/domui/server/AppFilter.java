@@ -27,12 +27,14 @@ package to.etc.domui.server;
 import java.io.*;
 import java.util.*;
 
+import javax.annotation.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
 import org.slf4j.*;
 
 import to.etc.domui.util.*;
+import to.etc.log.*;
 import to.etc.net.*;
 import to.etc.util.*;
 
@@ -77,6 +79,7 @@ public class AppFilter implements Filter {
 			HttpServletRequest rq = (HttpServletRequest) req;
 			MDC.put(to.etc.log.EtcMDCAdapter.SESSION, rq.getSession().getId());
 			MDC.put(to.etc.log.EtcMDCAdapter.LOGINID, rq.getRemoteUser());
+			//LOG.info(MarkerFactory.getMarker("request-uri"), rq.getRequestURI()); -- useful for developer controlled debugging
 			rq.setCharacterEncoding("UTF-8"); // FIXME jal 20080804 Encoding of input was incorrect?
 			//			DomUtil.dumpRequest(rq);
 
@@ -127,29 +130,41 @@ public class AppFilter implements Filter {
 		return m_appContext;
 	}
 
-	private InputStream findLogConfig(String logconfig) {
-		if(logconfig != null) {
-			//-- Try to find this as a class-relative resource;
-			if(!logconfig.startsWith("/")) {
-				InputStream is = getClass().getResourceAsStream("/" + logconfig);
-				if(is != null) {
-					System.out.println("DomUI: using user-specified logback config file from classpath-resource " + logconfig);
-					return is;
-				}
-			}
-
+	private @Nullable
+	String readSpecificLoggerConfig(String logConfigLocation) {
+		if(logConfigLocation != null) {
 			try {
-				File f = new File(logconfig);
-				if(f.exists() && f.isFile()) {
-					System.out.println("DomUI: using logback logging configuration file " + f.getAbsolutePath());
-					return new FileInputStream(f);
+				File configFile = new File(logConfigLocation);
+				if(!(configFile.exists() && configFile.isFile())) {
+					//-- Try to find this as a class-relative resource;
+					if(!logConfigLocation.startsWith("/")) {
+						String res = FileTool.readResourceAsString(getClass(), "/" + logConfigLocation, "utf-8");
+						if(res != null) {
+							System.out.println("DomUI: using user-specified log config file from classpath-resource " + logConfigLocation);
+							return res;
+						}
+					}
+				} else {
+					String res = FileTool.readFileAsString(configFile, "utf-8");
+					if(res != null) {
+						System.out.println("DomUI: using logging configuration file " + configFile.getAbsolutePath());
+						return res;
+					}
 				}
-			} catch(Exception x) {}
+			} catch(Exception ex) {
+			}
 		}
-		InputStream is = AppFilter.class.getResourceAsStream("logback.xml");
-		if(is != null)
-			System.out.println("DomUI: using internal logback.xml");
-		return is;
+		return null;
+	}
+
+	private String readDefaultLoggerConfig() {
+		try {
+			String res = FileTool.readResourceAsString(getClass(), "etcLoggerConfig.xml", "utf-8");
+			if(res != null)
+				System.out.println("DomUI: using internal etcLoggerConfig.xml");
+			return res;
+		} catch(Exception ex) {}
+		return null;
 	}
 
 	/**
@@ -158,25 +173,39 @@ public class AppFilter implements Filter {
 	 */
 	@Override
 	public void init(final FilterConfig config) throws ServletException {
+		File approot = new File(config.getServletContext().getRealPath("/"));
 		try {
 			//-- Where to get log config from?
-			String logconfig = DeveloperOptions.getString("domui.logconfig");
-			if(logconfig == null) {
-				logconfig = System.getProperty("domui.logconfig");
-				if(null == logconfig)
-					logconfig = config.getInitParameter("logpath");
+			String specificLogConfigLocation = DeveloperOptions.getString("domui.logconfig");
+			if(specificLogConfigLocation == null) {
+				specificLogConfigLocation = System.getProperty("domui.logconfig");
+				if(null == specificLogConfigLocation)
+					specificLogConfigLocation = config.getInitParameter("logpath");
 			}
-			InputStream logStream = findLogConfig(logconfig);
-			if(logStream != null) {
-				/*				JoranConfigurator jc = new JoranConfigurator();
-								LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-								jc.setContext(lc);
-								lc.reset();
-								jc.doConfigure(logStream);
-								System.out.println("DomUI: logging configured.");
-								StatusPrinter.printInCaseOfErrorsOrWarnings(lc);
-								SLF4JBridgeHandler.install();
-				*/
+			String logConfigXml = null;
+			if(specificLogConfigLocation != null) {
+				logConfigXml = readSpecificLoggerConfig(specificLogConfigLocation);
+			}
+			boolean logInitialized = false;
+			if(logConfigXml != null) {
+				//if we have specified specific logger config we use this one
+				EtcLoggerFactory.getSingleton().initialize(new File(approot, "Private" + File.separator + "etcLog"), logConfigXml);
+				logInitialized = true;
+			} else {
+				//FIXME: this uses Viewpoint specific location (%approot%/Private) and needs to be fixed later.
+				File persistedConfigFile = new File(approot, "Private" + File.separator + "etcLog" + File.separator + EtcLoggerFactory.CONFIG_FILENAME);
+				if(!persistedConfigFile.exists() || !persistedConfigFile.isFile()) {
+					logConfigXml = readDefaultLoggerConfig();
+					if(logConfigXml != null) {
+						//if logger config is missing at expected location we use default DomUI logger config.
+						EtcLoggerFactory.getSingleton().initialize(new File(approot, "Private" + File.separator + "etcLog"), logConfigXml);
+						logInitialized = true;
+					}
+				}
+			}
+			if(!logInitialized) {
+				//do standard log initialization if previous conditions are not meet
+				EtcLoggerFactory.getSingleton().initialize(new File(approot, "Private" + File.separator + "etcLog"));
 			}
 		} catch(Exception x) {
 			x.printStackTrace();
@@ -189,7 +218,6 @@ public class AppFilter implements Filter {
 			m_logRequest = DeveloperOptions.getBool("domui.logurl", false);
 
 			//-- Get the root for all files in the webapp
-			File approot = new File(config.getServletContext().getRealPath("/"));
 			System.out.println("WebApp root=" + approot);
 			if(!approot.exists() || !approot.isDirectory())
 				throw new IllegalStateException("Internal: cannot get webapp root directory");

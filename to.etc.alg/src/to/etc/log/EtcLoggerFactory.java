@@ -13,6 +13,7 @@ import org.slf4j.*;
 import org.w3c.dom.*;
 
 import to.etc.log.handler.*;
+import to.etc.util.*;
 
 /**
  * Implements logger factory. Encapsulates definitions and configuration of loggers used.   
@@ -53,20 +54,25 @@ public class EtcLoggerFactory implements ILoggerFactory {
 	/** Root dir for logger configuration and root path for created log files. */
 	private File						m_rootDir;
 
+	/** Log dir where all logger are doing output. */
+	private File							m_logDir;
+
+	/** logLocation stored value inside config file. */
+	private String							m_logDirOriginalConfigured;
+
 	/** Contains loaded Logger instances. */
 	private final Map<String, EtcLogger>	LOGGERS			= new HashMap<String, EtcLogger>();
 
 	/** Contains handler instances - logger instances behavior definition. */
 	private final List<ILogHandler>		HANDLERS		= new ArrayList<ILogHandler>();
 
-	/** Default location of created log files. Relative to root dir. */
-	private static final String								DEFAULT_LOG_DIR			= "log";
-
 	/** Default general log level */
 	private static final Level					DEFAULT_LEVEL	= Level.WARN;
 
 	/** Name of logger factory configuration file */
-	private static final String					CONFIG_FILENAME	= "loggerConfig.xml";
+	public static final String				CONFIG_FILENAME	= "etcLoggerConfig.xml";
+
+	private boolean							m_initialized	= false;
 
 	/**
 	 * @see org.slf4j.ILoggerFactory#getLogger(java.lang.String)
@@ -79,6 +85,7 @@ public class EtcLoggerFactory implements ILoggerFactory {
 	private EtcLogger get(@Nonnull String key) {
 		EtcLogger logger = null;
 		synchronized(LOGGERS) {
+			checkInitialized();
 			logger = LOGGERS.get(key);
 			if(logger == null) {
 				logger = EtcLogger.create(key, calcLevel(key), HANDLERS);
@@ -86,6 +93,17 @@ public class EtcLoggerFactory implements ILoggerFactory {
 			}
 		}
 		return logger;
+	}
+
+	private void checkInitialized() {
+		if(!m_initialized) {
+			try {
+				initialize(new File(System.getProperty("user.home")));
+			} catch(Exception e) {
+				// This can not happen since we have stored class resource
+				e.printStackTrace();
+			}
+		}
 	}
 
 	private Level calcLevel(String key) {
@@ -100,26 +118,64 @@ public class EtcLoggerFactory implements ILoggerFactory {
 	}
 
 	/**
-	 * Call to initialize logger factory.
-	 * Loads logging configuration from specified rootLocation.
-	 * Configuration resides in {@link EtcLoggerFactory#CONFIG_FILENAME} file.
-	 * In case that configuration is missing default configuration is created. 
-	 * IMPORTANT: this needs to be executed early as possible.
+	 * Call to initialize logger factory with specified configXml.
+	 * Sets rootLocation, that is location where configFile updates are persisted.
+	 * Therefore rootLocation needs to have write permissions.
+	 * In case that provided configuration is incorrect default configuration (persisted or built-in) is used.
+	 * IMPORTANT: this needs to be executed earliest possible in application starting.
+	 * 
+	 * @param rootLocation
+	 * @param configFile
+	 * @throws Exception
+	 */
+	public synchronized void initialize(@Nonnull File rootLocation, @Nonnull String configXml) throws Exception {
+		m_rootDir = rootLocation;
+		rootLocation.mkdirs();
+		ByteArrayInputStream bais = null;
+		try {
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder db = dbf.newDocumentBuilder();
+			bais = new ByteArrayInputStream(configXml.getBytes());
+			Document doc = db.parse(bais);
+			loadConfig(doc);
+			File conf = new File(rootLocation, CONFIG_FILENAME);
+			if(!conf.exists()) {
+				FileTool.writeFileFromString(conf, configXml, "utf-8");
+			}
+		} catch(LoggerConfigException ex) {
+			System.err.println(ex);
+			System.out.println("Invalid EtcLoggerFactory configuration - reloading default configuration...");
+			initialize(rootLocation);
+		} finally {
+			if(bais != null) {
+				bais.close();
+			}
+		}
+	}
+
+	/**
+	 * Call to initialize logger factory with existing configuration.
+	 * Sets rootLocation, that is location where configFile updates are persisted.
+	 * Configuration always resides in {@link EtcLoggerFactory#CONFIG_FILENAME} file.
+	 * In case that configuration is missing built-in configuration is created. 
+	 * IMPORTANT: this needs to be executed earliest possible in application starting.
+	 * 
+	 * In case that logger factory has to be initialized with user specific configuration use {@link EtcLoggerFactory#initialize(File, String)}.   
 	 *  
 	 * @param rootLocation
 	 * @throws Exception
 	 */
-	public synchronized void loadConfig(@Nonnull File rootLocation) throws Exception {
+	public synchronized void initialize(@Nonnull File rootLocation) throws Exception {
 		m_rootDir = rootLocation;
 		rootLocation.mkdirs();
 		File conf = new File(rootLocation, CONFIG_FILENAME);
+		String configXml = null;
 		if(!conf.exists()) {
-			makeDefaultConfig(rootLocation);
+			configXml = FileTool.readResourceAsString(this.getClass(), CONFIG_FILENAME, "utf-8");
+		} else {
+			configXml = FileTool.readFileAsString(conf, "utf-8");
 		}
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		DocumentBuilder db = dbf.newDocumentBuilder();
-		Document doc = db.parse(conf);
-		loadConfig(doc);
+		initialize(rootLocation, configXml);
 	}
 
 	private ILogHandler loadHandler(Node handlerNode) throws LoggerConfigException {
@@ -128,14 +184,8 @@ public class EtcLoggerFactory implements ILoggerFactory {
 			throw new LoggerConfigException("Handler of undefined type found.");
 		} else {
 			String val = typeNode.getNodeValue();
-			return LogHandlerFactory.getSingleton().createHandler(val, new File(m_rootDir, DEFAULT_LOG_DIR), handlerNode);
+			return LogHandlerFactory.getSingleton().createHandler(val, m_logDir, handlerNode);
 		}
-	}
-
-	private void makeDefaultConfig(File root) throws Exception {
-		fixDefaultHandler();
-		saveConfig();
-		recalculateLoggers();
 	}
 
 	private void fixDefaultHandler() {
@@ -173,6 +223,7 @@ public class EtcLoggerFactory implements ILoggerFactory {
 		Document doc = db.newDocument();
 		Element rootElement = doc.createElement("config");
 		doc.appendChild(rootElement);
+		rootElement.setAttribute("logLocation", m_logDirOriginalConfigured);
 
 		for(ILogHandler handler : HANDLERS) {
 			if(includeNonPerstistable || !handler.isTemporary()) {
@@ -189,6 +240,7 @@ public class EtcLoggerFactory implements ILoggerFactory {
 			for(EtcLogger logger : LOGGERS.values()) {
 				logger.setLevel(calcLevel(logger.getName()));
 			}
+			m_initialized = true;
 		}
 	}
 
@@ -199,13 +251,47 @@ public class EtcLoggerFactory implements ILoggerFactory {
 
 	public @Nonnull
 	String getLogDir() {
-		return new File(m_rootDir, DEFAULT_LOG_DIR).getAbsolutePath();
+		return m_logDir.getAbsolutePath();
+	}
+
+	public @Nonnull
+	String logDirOriginalAsConfigured() {
+		return m_logDirOriginalConfigured;
 	}
 
 	public void loadConfig(Document doc) throws LoggerConfigException {
 		synchronized(HANDLERS) {
 			HANDLERS.clear();
 			doc.getDocumentElement().normalize();
+			NodeList configNodes = doc.getElementsByTagName("config");
+			if (configNodes.getLength() == 0){
+				throw new LoggerConfigException("Missing config root node.");
+			}else if (configNodes.getLength() > 1){
+				throw new LoggerConfigException("Multiple config element nodes found.");
+			}else{
+				Node val = configNodes.item(0).getAttributes().getNamedItem("logLocation");
+				if (val == null){
+					throw new LoggerConfigException("Missing [logLocation] attribute in config root node.");
+				}else{
+					String logLocation = val.getNodeValue();
+					m_logDirOriginalConfigured = logLocation;
+					boolean checkNext = true;
+					do {
+						checkNext = false;
+						int posStart = logLocation.indexOf("$");
+						if (posStart > -1){
+							int posEnd = logLocation.indexOf("$", posStart + 1);
+							if (posEnd > -1){
+								logLocation = logLocation.substring(0, posStart) + System.getProperty(logLocation.substring(posStart + 1, posEnd)) + logLocation.substring(posEnd + 1);
+								checkNext = true;
+							}
+						}
+					}while(checkNext);
+					logLocation = logLocation.replace("/", File.separator);
+					m_logDir = new File(logLocation);
+					m_logDir.mkdirs();
+				}
+			}
 			NodeList handlerNodes = doc.getElementsByTagName("handler");
 			for(int i = 0; i < handlerNodes.getLength(); i++) {
 				Node handlerNode = handlerNodes.item(i);

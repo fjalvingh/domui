@@ -15,7 +15,6 @@ public class TestLoggerPage extends UrlPage {
 
 			@Override
 			public void clicked(DefaultButton clickednode) throws Exception {
-				MDC.put("page", this.getClass().getSimpleName());
 				LOG.debug("debug log");
 				LOG.trace("trace log");
 				LOG.info("info log");
@@ -33,7 +32,16 @@ public class TestLoggerPage extends UrlPage {
 			@Override
 			public void clicked(DefaultButton clickednode) throws Exception {
 				MDC.put("page", "AAA");
-				add("Added MDC");
+				add("Added MDC AAA");
+				add(new BR());
+			}
+		}));
+		add(new DefaultButton("Click to set MDC page=BBB", new IClicked<DefaultButton>() {
+
+			@Override
+			public void clicked(DefaultButton clickednode) throws Exception {
+				MDC.put("page", "BBB");
+				add("Added MDC BBB");
 				add(new BR());
 			}
 		}));

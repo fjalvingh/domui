@@ -15,16 +15,17 @@ import to.etc.log.*;
 public class TestEtcLoggerFactory {
 	static private EtcLoggerFactory	m_testLoggerFactory;
 
+	static private String			m_testHome	= System.getProperty("user.home") + File.separatorChar + "testlog";
+
 	@BeforeClass
 	public static void setup() throws Exception {
-		String home = System.getProperty("user.home") + File.separatorChar + "testlog";
 		m_testLoggerFactory = new EtcLoggerFactory();
-		m_testLoggerFactory.loadConfig(new File(home));
+		m_testLoggerFactory.initialize(new File(m_testHome));
 	}
 
 	private static String getConfig(@Nonnull Level level) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<config>");
+		sb.append("<config logLocation=\"$user.home$/testlog/logs\">");
 		sb.append("<handler type=\"stdout\">");
 		sb.append("<log level=\"" + level.name() + "\" name=\"to.etc.log.test\"/>");
 		sb.append("</handler>");
