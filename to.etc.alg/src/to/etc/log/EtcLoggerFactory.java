@@ -175,9 +175,11 @@ public class EtcLoggerFactory implements ILoggerFactory {
 		doc.appendChild(rootElement);
 
 		for(ILogHandler handler : HANDLERS) {
-			Element handlerNode = doc.createElement("handler");
-			rootElement.appendChild(handlerNode);
-			handler.saveToXml(doc, handlerNode, includeNonPerstistable);
+			if(includeNonPerstistable || !handler.isTemporary()) {
+				Element handlerNode = doc.createElement("handler");
+				rootElement.appendChild(handlerNode);
+				handler.saveToXml(doc, handlerNode, includeNonPerstistable);
+			}
 		}
 		return doc;
 	}

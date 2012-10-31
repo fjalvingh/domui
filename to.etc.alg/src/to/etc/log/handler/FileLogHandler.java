@@ -82,7 +82,7 @@ class FileLogHandler implements ILogHandler {
 		}
 	}
 
-	private synchronized void log(@Nonnull LogEvent event) {
+	private void log(@Nonnull LogEvent event) {
 		String line = LogFormatter.format(event, getLogPartFromFilters());
 
 		synchronized(m_writeLock) {
@@ -242,6 +242,16 @@ class FileLogHandler implements ILogHandler {
 			}
 		}
 		return sb.toString();
+	}
+
+	@Override
+	public boolean isTemporary() {
+		for(LogFilter filter : m_filters) {
+			if(filter.getType() == LogFilterType.SESSION) {
+				return true;
+			}
+		}
+		return false;
 	};
 
 }

@@ -35,4 +35,10 @@ public interface ILogHandler {
 	 * @param event
 	 */
 	void saveToXml(Document doc, Element handlerNode, boolean includeNonPerstistable);
+
+	/**
+	 * Defines if it is on-the-fly handler - if it should not be saved into relodable configuration. Used when handling is session specific.
+	 * @param event
+	 */
+	boolean isTemporary();
 }
