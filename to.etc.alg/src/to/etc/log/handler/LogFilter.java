@@ -55,7 +55,7 @@ class LogFilter {
 		return new LogFilter(LogFilterType.SESSION, "session", value);
 	}
 
-	boolean accept(LogEvent event) {
+	boolean accept(EtcLogEvent event) {
 		switch(m_type){
 			case SESSION:
 			case MDC:

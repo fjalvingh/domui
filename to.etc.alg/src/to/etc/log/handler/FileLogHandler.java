@@ -64,7 +64,7 @@ class FileLogHandler implements ILogHandler {
 	}
 
 	@Override
-	public void handle(LogEvent event) {
+	public void handle(EtcLogEvent event) {
 		Boolean[] applicablePerLevels = m_loggers.get(event.getLogger());
 		if(null == applicablePerLevels) {
 			applicablePerLevels = new Boolean[Level.values().length];
@@ -82,8 +82,8 @@ class FileLogHandler implements ILogHandler {
 		}
 	}
 
-	private void log(@Nonnull LogEvent event) {
-		String line = LogFormatter.format(event, getLogPartFromFilters());
+	private void log(@Nonnull EtcLogEvent event) {
+		String line = EtcLogFormatter.format(event, getLogPartFromFilters());
 
 		synchronized(m_writeLock) {
 			if(m_out == null) {
@@ -135,7 +135,7 @@ class FileLogHandler implements ILogHandler {
 		return sb.toString();
 	}
 
-	private Boolean decideOnMatchers(LogEvent event) {
+	private Boolean decideOnMatchers(EtcLogEvent event) {
 		LogMatcher closest = null;
 		for(LogMatcher matcher : m_matchers) {
 			if(matcher.matches(event)) {
@@ -150,7 +150,7 @@ class FileLogHandler implements ILogHandler {
 		return Boolean.FALSE;
 	}
 
-	private boolean checkFilters(LogEvent event) {
+	private boolean checkFilters(EtcLogEvent event) {
 		for(LogFilter filter : m_filters) {
 			if(!filter.accept(event)) {
 				return false;

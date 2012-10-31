@@ -29,8 +29,8 @@ public class EtcLogger implements Logger {
 		return new EtcLogger(key, level, handlers);
 	}
 	
-	private void logEvent(@Nonnull Date date, @Nonnull Level level, @Nullable Marker marker, @Nonnull String msg, Object... args){
-		LogEvent event = new LogEvent(this, level, marker, msg, null, date, Thread.currentThread(), args);
+	private void logEvent(@Nonnull Date date, @Nonnull Level level, @Nullable Marker marker, @Nullable Throwable throwable, @Nonnull String msg, Object... args) {
+		EtcLogEvent event = new EtcLogEvent(this, level, marker, msg, throwable, date, Thread.currentThread(), args);
 		for (ILogHandler handler : m_handlers){
 			handler.handle(event);
 		}
@@ -47,61 +47,61 @@ public class EtcLogger implements Logger {
 
 	private void execute(Level level, String arg0) {
 		if(checkEnabled(level)) {
-			logEvent(new Date(), level, null, arg0);
+			logEvent(new Date(), level, null, null, arg0);
 		}
 	}
 
 	private void execute(Level level, String arg0, Object arg1) {
 		if(checkEnabled(level)) {
-			logEvent(new Date(), level, null, arg0, arg1);
+			logEvent(new Date(), level, null, null, arg0, arg1);
 		}
 	}
 
 	public void execute(Level level, String arg0, Object[] arg1) {
 		if(checkEnabled(level)) {
-			logEvent(new Date(), level, null, arg0, arg1);
+			logEvent(new Date(), level, null, null, arg0, arg1);
 		}
 	}
 
 	public void execute(Level level, String arg0, Throwable arg1) {
 		if(checkEnabled(level)) {
-			logEvent(new Date(), level, null, arg0, arg1);
+			logEvent(new Date(), level, null, arg1, arg0);
 		}
 	}
 
 	public void execute(Level level, String arg0, Object arg1, Object arg2) {
 		if(checkEnabled(level)) {
-			logEvent(new Date(), level, null, arg0, arg1, arg2);
+			logEvent(new Date(), level, null, null, arg0, arg1, arg2);
 		}
 	}
 
 	public void execute(Level level, Marker arg0, String arg1) {
 		if(checkEnabled(level, arg0)) {
-			logEvent(new Date(), level, arg0, arg1);
+			logEvent(new Date(), level, arg0, null, arg1);
 		}
 	}
 
 	public void execute(Level level, Marker arg0, String arg1, Object arg2) {
 		if(checkEnabled(level, arg0)) {
-			logEvent(new Date(), level, arg0, arg1, arg2);
+			logEvent(new Date(), level, arg0, null, arg1, arg2);
 		}
 	}
 
 	public void execute(Level level, Marker arg0, String arg1, Object[] arg2) {
 		if(checkEnabled(level, arg0)) {
-			logEvent(new Date(), level, arg0, arg1, arg2);
+			logEvent(new Date(), level, arg0, null, arg1, arg2);
 		}
 	}
 
 	public void execute(Level level, Marker arg0, String arg1, Throwable arg2) {
 		if(checkEnabled(level, arg0)) {
-			logEvent(new Date(), level, arg0, arg1, arg2);
+			logEvent(new Date(), level, arg0, arg2, arg1);
 		}
 	}
 
 	public void execute(Level level, Marker arg0, String arg1, Object arg2, Object arg3) {
 		if(checkEnabled(level, arg0)) {
-			logEvent(new Date(), level, arg0, arg1, arg2, arg3);
+			logEvent(new Date(), level, arg0, null, arg1, arg2, arg3);
 		}
 	}
 

@@ -41,7 +41,7 @@ class LogMatcher {
 		return m_level;
 	}
 
-	boolean matches(@Nonnull LogEvent event) {
+	boolean matches(@Nonnull EtcLogEvent event) {
 		return matchesName(event.getLogger().getName()) && m_level.includes(event.getLevel());
 	}
 

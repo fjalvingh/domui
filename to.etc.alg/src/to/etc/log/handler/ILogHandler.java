@@ -21,7 +21,7 @@ public interface ILogHandler {
 	 * Handles logging event.
 	 * @param event
 	 */
-	void handle(@Nonnull LogEvent event);
+	void handle(@Nonnull EtcLogEvent event);
 
 	/**
 	 * Returns minimum level at handler is interested into certain logger key (name). Returns null in case that logger is not of interest to handler.

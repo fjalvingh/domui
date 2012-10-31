@@ -15,7 +15,7 @@ import to.etc.log.*;
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on Oct 31, 2012
  */
-public class LogEvent {
+public class EtcLogEvent {
 	private final EtcLogger	m_logger;
 
 	private final Level		m_level;
@@ -36,7 +36,7 @@ public class LogEvent {
 		return m_logger;
 	}
 
-	public LogEvent(@Nonnull EtcLogger logger, @Nonnull Level level, @Nullable Marker marker, @Nullable String msg, @Nullable Throwable thrown, @Nonnull Date timestamp, @Nonnull Thread thread,
+	public EtcLogEvent(@Nonnull EtcLogger logger, @Nonnull Level level, @Nullable Marker marker, @Nullable String msg, @Nullable Throwable thrown, @Nonnull Date timestamp, @Nonnull Thread thread,
 		Object... args) {
 		super();
 		m_logger = logger;
