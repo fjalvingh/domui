@@ -1,14 +1,23 @@
 package to.etc.domui.log;
 
+import java.util.*;
+
+import javax.xml.parsers.*;
+
+import org.w3c.dom.*;
+
 import to.etc.domui.component.buttons.*;
+import to.etc.domui.component.form.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.log.data.*;
 import to.etc.domui.state.*;
 import to.etc.domui.util.*;
 import to.etc.log.*;
+import to.etc.log.handler.*;
 import to.etc.webapp.nls.*;
 
 public class LoggerConfigPage extends UrlPage implements IUserInputModifiedFence {
@@ -20,13 +29,13 @@ public class LoggerConfigPage extends UrlPage implements IUserInputModifiedFence
 
 	private DefaultButton m_cancelButton;
 
-	private LoggerConfigPartBase[] m_tabs;
-
-	private TabPanel m_tabPnl;
-
 	private boolean m_modified;
 
 	private Label m_notSavedInfo;
+
+	private final List<Handler> m_handlers = new ArrayList<Handler>();
+
+	private ConfigPart m_configPart;
 
 	@Override
 	public void createContent() throws Exception {
@@ -34,14 +43,6 @@ public class LoggerConfigPage extends UrlPage implements IUserInputModifiedFence
 		createButtonBar();
 		createButtons();
 
-		m_tabPnl = new TabPanel();
-		add(m_tabPnl);
-		m_tabs = new LoggerConfigPartBase[]{new LoggerRootConfigPart(), new LoggerOutputsConfigPart(), new LoggerDisabledConfigPart(), new LoggerLevelsConfigPart()};
-		for(LoggerConfigPartBase tab : m_tabs) {
-			m_tabPnl.add(tab, tab.getPartTitle());
-		}
-		m_tabPnl.add(createMarkersPnl(), "Markers");
-		m_tabPnl.add(createSessionFilterPnl(), "Session");
 	}
 
 	protected void createButtonBar() {
@@ -58,6 +59,67 @@ public class LoggerConfigPage extends UrlPage implements IUserInputModifiedFence
 	protected void createButtons() throws Exception {
 		createCommitButton();
 		createCancelButton();
+		createConfigPanel();
+	}
+
+	private void createConfigPanel() throws Exception {
+		addRootConfigPart();
+		org.w3c.dom.Document doc = EtcLoggerFactory.getSingleton().toXml(true);
+		loadXml(doc);
+		m_configPart = new ConfigPart(m_handlers);
+		add(m_configPart);
+	}
+
+	private void loadXml(Document doc) {
+		m_handlers.clear();
+		NodeList handlerNodes = doc.getElementsByTagName("handler");
+		for(int i = 0; i < handlerNodes.getLength(); i++) {
+			Node handlerNode = handlerNodes.item(i);
+			m_handlers.add(loadHandler(handlerNode));
+		}
+	}
+
+	private Handler loadHandler(Node handlerNode) {
+		HandlerType type = "file".equalsIgnoreCase(handlerNode.getAttributes().getNamedItem("type").getNodeValue()) ? HandlerType.FILE : HandlerType.STDOUT;
+		String file = null;
+		if(type == HandlerType.FILE) {
+			file = handlerNode.getAttributes().getNamedItem("file").getNodeValue();
+		}
+		Handler handler = new Handler(type, file);
+		NodeList nodes = handlerNode.getChildNodes();
+		for(int i = 0; i < nodes.getLength(); i++) {
+			Node node = nodes.item(i);
+			if("log".equals(node.getNodeName())) {
+				handler.addMatcher(loadMatcher(node));
+			} else if("filter".equals(node.getNodeName())) {
+				handler.addFilter(loadFilter(node));
+			}
+		}
+		return handler;
+	}
+
+	private Matcher loadMatcher(Node node) {
+		String name = node.getAttributes().getNamedItem("name").getNodeValue();
+		Level level = Level.valueOf(node.getAttributes().getNamedItem("level").getNodeValue());
+		return new Matcher(name, level);
+	}
+
+	private Filter loadFilter(Node node) {
+		LogFilterType type = "mdc".equalsIgnoreCase(node.getAttributes().getNamedItem("type").getNodeValue()) ? LogFilterType.MDC : LogFilterType.SESSION;
+		String key = "session";
+		if(type != LogFilterType.SESSION) {
+			key = node.getAttributes().getNamedItem("key").getNodeValue();
+		}
+		String value = node.getAttributes().getNamedItem("value").getNodeValue();
+		return new Filter(type, key, value);
+	}
+
+	private void addRootConfigPart() throws Exception {
+		LoggerRootDef rootDef = new LoggerRootDef(EtcLoggerFactory.getSingleton().getRootDir(), EtcLoggerFactory.getSingleton().getLogDir());
+		TabularFormBuilder tbl = new TabularFormBuilder(rootDef);
+		tbl.addProps(LoggerRootDef.pROOTDIR, LoggerRootDef.pLOGDIR);
+		tbl.getBindings().moveModelToControl();
+		add(tbl.finish());
 	}
 
 	protected void createCommitButton() {
@@ -67,7 +129,6 @@ public class LoggerConfigPage extends UrlPage implements IUserInputModifiedFence
 				save();
 			}
 		});
-		m_saveButton.setTestID("saveButton");
 		//hide by default, it would become visible if modifications on page are detected
 		m_saveButton.setDisabled(true);
 		m_saveButton.setTitle("no changes to save");
@@ -97,55 +158,32 @@ public class LoggerConfigPage extends UrlPage implements IUserInputModifiedFence
 	}
 
 	private boolean validateData() throws Exception {
-		int firstError = -1;
-		for(int i = 0; i < m_tabs.length; i++) {
-			if(m_tabs[i] != null) {
-				if(!m_tabs[i].validateChanges()) {
-					if(firstError == -1) {
-						firstError = i;
-					}
-				}
-			}
-		}
-		if(firstError > -1) {
-			m_tabPnl.setCurrentTab(firstError);
-			return false;
-		}
-		return true;
+		return m_configPart.validateData();
 	}
 
-	private boolean onSave() throws Exception {
-		int firstError = -1;
-		for(int i = 0; i < m_tabs.length; i++) {
-			if(m_tabs[i] != null) {
-				if(!m_tabs[i].saveChanges()) {
-					if(firstError == -1) {
-						firstError = i;
-					}
-				}
-			}
+	private void onSave() throws Exception {
+		org.w3c.dom.Document doc = toXml();
+		EtcLoggerFactory.getSingleton().loadConfig(doc);
+		EtcLoggerFactory.getSingleton().saveConfig();
+	}
+
+	private Document toXml() throws ParserConfigurationException {
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilder db = dbf.newDocumentBuilder();
+		Document doc = db.newDocument();
+		Element rootElement = doc.createElement("config");
+		doc.appendChild(rootElement);
+
+		for(Handler handler : m_handlers) {
+			Element handlerNode = doc.createElement("handler");
+			rootElement.appendChild(handlerNode);
+			handler.saveToXml(doc, handlerNode);
 		}
-		if(firstError > -1) {
-			m_tabPnl.setCurrentTab(firstError);
-			return false;
-		} else {
-			MyLoggerFactory.save();
-		}
-		return true;
+		return doc;
 	}
 
 	protected void reloadPageData() throws Exception {
 		UIGoto.reload();
-	}
-
-	private NodeBase createMarkersPnl() {
-		Div pnl = new Div("not implemented!");
-		return pnl;
-	}
-
-	private NodeBase createSessionFilterPnl() {
-		Div pnl = new Div("not implemented!");
-		return pnl;
 	}
 
 	@Override

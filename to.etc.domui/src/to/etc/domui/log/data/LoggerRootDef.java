@@ -1,8 +1,8 @@
 package to.etc.domui.log.data;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
-import to.etc.log.MyLogger.Level;
-import to.etc.log.MyLogger.*;
 
 public class LoggerRootDef {
 	/**
@@ -19,24 +19,8 @@ public class LoggerRootDef {
 
 	public static final String pLOGDIR = "logDir";
 
-	/**
-	 * Default logger level.
-	 */
-	private Level	m_level;
-
-	public static final String pLEVEL = "level";
-
-	/**
-	 * Questionable if needed? Disables all logging!?.
-	 */
-	private boolean	m_disabled	= false;
-
-	public static final String pDISABLED = "disabled";
-
-	public LoggerRootDef(Level level, boolean disabled, String rootDir, String logDir) {
+	public LoggerRootDef(@Nonnull String rootDir, @Nonnull String logDir) {
 		super();
-		m_level = level;
-		m_disabled = disabled;
 		m_rootDir = rootDir;
 		m_logDir = logDir;
 	}
@@ -58,23 +42,4 @@ public class LoggerRootDef {
 	public void setLogDir(String logDir) {
 		m_logDir = logDir;
 	}
-
-	@MetaProperty(required = YesNoType.YES)
-	public Level getLevel() {
-		return m_level;
-	}
-
-	public void setLevel(Level level) {
-		m_level = level;
-	}
-
-	@MetaProperty(required = YesNoType.YES)
-	public boolean isDisabled() {
-		return m_disabled;
-	}
-
-	public void setDisabled(boolean disabled) {
-		m_disabled = disabled;
-	}
-
 }

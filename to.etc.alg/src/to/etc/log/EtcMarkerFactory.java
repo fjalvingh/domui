@@ -4,7 +4,16 @@ import java.util.*;
 
 import org.slf4j.*;
 
-public class MyMarkerFactory implements IMarkerFactory {
+/**
+ * CODING - Markers are still not supported.
+ * Continue this in case that markers are needed.
+ * Current minimal implementation is need just to support slf4j interface, but use of Markers is ignored.  
+ * 
+ *
+ * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
+ * Created on Oct 31, 2012
+ */
+public class EtcMarkerFactory implements IMarkerFactory {
 	final Map<String, Marker>	markers		= new HashMap<String, Marker>();
 
 	final Map<String, Marker>	deatached	= new HashMap<String, Marker>();

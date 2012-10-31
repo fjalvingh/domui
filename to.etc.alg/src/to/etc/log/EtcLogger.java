@@ -1,176 +1,107 @@
 package to.etc.log;
 
-import java.io.*;
-import java.text.*;
 import java.util.*;
 
 import javax.annotation.*;
 
 import org.slf4j.*;
 
-public class MyLogger implements Logger {
-	
-	public enum Level {
-		DEBUG(0), INFO(1), TRACE(2), WARN(3), ERROR(4);
-		
-		final int m_code;
-		
-		Level(int code){
-			m_code = code;
-		}
-		
-		int getCode(){
-			return m_code;
-		}
-	}
-	
-	private Map<Marker, Level>		m_enabledMarkers	= new HashMap<Marker, Level>();
+import to.etc.log.event.*;
+import to.etc.log.handler.*;
 
+public class EtcLogger implements Logger {
+	
 	private final String	m_key;
-
-	private String							m_out;
-	
-	private static final DateFormat			m_tf				= new SimpleDateFormat("HH:mm:ss.SSS");
-
-	private static final DateFormat m_df = new SimpleDateFormat("yyMMdd");
-
-	private boolean m_disabled = false;
 
 	private Level							m_level				= null;
 
-	private final MyLoggerFactory.Config	m_rootConfig;
+	private final Object					m_levelLock			= new Object();
 	
-	private final Object					m_writeLock			= new Object();
+	private final List<ILogHandler> m_handlers; 
 
-	private MyLogger(String key, String out, MyLoggerFactory.Config rootConfig) {
+	private EtcLogger(@Nonnull String key, @Nullable Level level, @Nonnull List<ILogHandler> handlers) {
 		m_key = key;
-		m_out = out;
-		m_rootConfig = rootConfig;
+		m_level = level;
+		m_handlers = handlers;
 	}
 
-	static MyLogger create(String key, String out, MyLoggerFactory.Config rootConfig) {
-		return new MyLogger(key, out, rootConfig);
+	static EtcLogger create(@Nonnull String key, @Nullable Level level, @Nonnull List<ILogHandler> handlers) {
+		return new EtcLogger(key, level, handlers);
 	}
 	
-	private synchronized void logLine(Date date, Level level, Marker marker, String msg, Object... args) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(m_tf.format(date)).append("\t");
-		sb.append(level.name()).append("\t");
-		sb.append(Thread.currentThread().getName()).append("\t");
-		if (marker != null){
-			sb.append("#").append(marker.getName()).append("#").append("\t");
-		}
-		sb.append("[").append(m_key).append("]").append("\t");
-		sb.append(String.format(msg, args));
-		String line = sb.toString();
-		synchronized(m_writeLock) {
-			if(m_out == null) {
-				System.out.println(line);
-			} else {
-				BufferedWriter w = null;
-				String fileName = null;
-				if(m_out.contains(":")) {
-					fileName = m_out;
-				} else {
-					fileName = m_rootConfig.getLogDir() + File.separator + m_out;
-				}
-
-				fileName += "_" + m_df.format(new Date()) + ".log";
-
-				File outFile = new File(fileName);
-				outFile.getParentFile().mkdirs();
-				try {
-					outFile.createNewFile();
-					w = new BufferedWriter(new FileWriter(outFile, true));
-					w.write(line);
-					w.newLine();
-				} catch(IOException e) {
-					e.printStackTrace();
-					throw new RuntimeException(e);
-				} finally {
-					if(w != null) {
-						try {
-							w.close();
-						} catch(IOException e) {
-							e.printStackTrace();
-							throw new RuntimeException(e);
-						}
-					}
-				}
-			}
+	private void logEvent(@Nonnull Date date, @Nonnull Level level, @Nullable Marker marker, @Nonnull String msg, Object... args){
+		LogEvent event = new LogEvent(this, level, marker, msg, null, date, Thread.currentThread(), args);
+		for (ILogHandler handler : m_handlers){
+			handler.handle(event);
 		}
 	}
 
 	private boolean checkEnabled(@Nonnull Level level) {
-		return !m_disabled && getLevel().getCode() <= level.getCode();
+		return !isDisabled() && m_level.includes(level);
 	}
 
 	private boolean checkEnabled(@Nonnull Level level, @Nonnull Marker marker) {
-		if(checkEnabled(level))
-			return true;
-		synchronized(m_enabledMarkers) {
-			Level l = m_enabledMarkers.get(marker);
-			return l != null && l.getCode() <= level.getCode();
-		}
+		//FIXME: in case that we introduce markers support we need to connect it here.  
+		return checkEnabled(level);
 	}
 
 	private void execute(Level level, String arg0) {
 		if(checkEnabled(level)) {
-			logLine(new Date(), level, null, arg0);
+			logEvent(new Date(), level, null, arg0);
 		}
 	}
 
 	private void execute(Level level, String arg0, Object arg1) {
 		if(checkEnabled(level)) {
-			logLine(new Date(), level, null, arg0, arg1);
+			logEvent(new Date(), level, null, arg0, arg1);
 		}
 	}
 
 	public void execute(Level level, String arg0, Object[] arg1) {
 		if(checkEnabled(level)) {
-			logLine(new Date(), level, null, arg0, arg1);
+			logEvent(new Date(), level, null, arg0, arg1);
 		}
 	}
 
 	public void execute(Level level, String arg0, Throwable arg1) {
 		if(checkEnabled(level)) {
-			logLine(new Date(), level, null, arg0, arg1);
+			logEvent(new Date(), level, null, arg0, arg1);
 		}
 	}
 
 	public void execute(Level level, String arg0, Object arg1, Object arg2) {
 		if(checkEnabled(level)) {
-			logLine(new Date(), level, null, arg0, arg1, arg2);
+			logEvent(new Date(), level, null, arg0, arg1, arg2);
 		}
 	}
 
 	public void execute(Level level, Marker arg0, String arg1) {
 		if(checkEnabled(level, arg0)) {
-			logLine(new Date(), level, arg0, arg1);
+			logEvent(new Date(), level, arg0, arg1);
 		}
 	}
 
 	public void execute(Level level, Marker arg0, String arg1, Object arg2) {
 		if(checkEnabled(level, arg0)) {
-			logLine(new Date(), level, arg0, arg1, arg2);
+			logEvent(new Date(), level, arg0, arg1, arg2);
 		}
 	}
 
 	public void execute(Level level, Marker arg0, String arg1, Object[] arg2) {
 		if(checkEnabled(level, arg0)) {
-			logLine(new Date(), level, arg0, arg1, arg2);
+			logEvent(new Date(), level, arg0, arg1, arg2);
 		}
 	}
 
 	public void execute(Level level, Marker arg0, String arg1, Throwable arg2) {
 		if(checkEnabled(level, arg0)) {
-			logLine(new Date(), level, arg0, arg1, arg2);
+			logEvent(new Date(), level, arg0, arg1, arg2);
 		}
 	}
 
 	public void execute(Level level, Marker arg0, String arg1, Object arg2, Object arg3) {
 		if(checkEnabled(level, arg0)) {
-			logLine(new Date(), level, arg0, arg1, arg2, arg3);
+			logEvent(new Date(), level, arg0, arg1, arg2, arg3);
 		}
 	}
 
@@ -480,41 +411,11 @@ public class MyLogger implements Logger {
 		execute(Level.WARN, arg0, arg1, arg2, arg3);
 	}
 
-	void addMarker(Marker marker, Level level) {
-		synchronized(m_enabledMarkers) {
-			m_enabledMarkers.put(marker, level);
-		}
-	}
-
-	void removeMarker(Marker marker) {
-		synchronized(m_enabledMarkers) {
-			m_enabledMarkers.remove(marker);
-		}
-	}
-
 	boolean isDisabled() {
-		return m_disabled;
+		return m_level == null;
 	}
 
-	void setDisabled(boolean disabled) {
-		m_disabled = disabled;
-	}
-
-	private Level getLevel() {
-		if(m_level != null) {
-			return m_level;
-		}
-		return m_rootConfig.getLevel();
-	}
-
-	void setLevel(Level level) {
+	public void setLevel(Level level) {
 		m_level = level;
 	}
-
-	void setOut(@Nullable String out) {
-		synchronized(m_writeLock) {
-			m_out = out;
-		}
-	}
-
 }

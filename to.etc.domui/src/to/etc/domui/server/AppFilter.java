@@ -31,13 +31,7 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 
 import org.slf4j.*;
-import org.slf4j.Logger;
-//import org.slf4j.bridge.*;
 
-/*import ch.qos.logback.classic.*;
-import ch.qos.logback.classic.joran.*;
-import ch.qos.logback.core.util.*;
-*/
 import to.etc.domui.util.*;
 import to.etc.net.*;
 import to.etc.util.*;
@@ -81,6 +75,8 @@ public class AppFilter implements Filter {
 	public void doFilter(final ServletRequest req, final ServletResponse res, final FilterChain chain) throws IOException, ServletException {
 		try {
 			HttpServletRequest rq = (HttpServletRequest) req;
+			MDC.put(to.etc.log.EtcMDCAdapter.SESSION, rq.getSession().getId());
+			MDC.put(to.etc.log.EtcMDCAdapter.LOGINID, rq.getRemoteUser());
 			rq.setCharacterEncoding("UTF-8"); // FIXME jal 20080804 Encoding of input was incorrect?
 			//			DomUtil.dumpRequest(rq);
 

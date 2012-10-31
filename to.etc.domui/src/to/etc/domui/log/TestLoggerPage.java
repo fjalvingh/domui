@@ -4,7 +4,6 @@ import org.slf4j.*;
 
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.dom.html.*;
-import to.etc.domui.state.*;
 
 public class TestLoggerPage extends UrlPage {
 	private static Logger LOG = LoggerFactory.getLogger(TestLoggerPage.class);
@@ -16,6 +15,7 @@ public class TestLoggerPage extends UrlPage {
 
 			@Override
 			public void clicked(DefaultButton clickednode) throws Exception {
+				MDC.put("page", this.getClass().getSimpleName());
 				LOG.debug("debug log");
 				LOG.trace("trace log");
 				LOG.info("info log");

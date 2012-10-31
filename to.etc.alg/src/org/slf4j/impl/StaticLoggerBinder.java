@@ -1,12 +1,19 @@
 package org.slf4j.impl;
 
 
-import org.slf4j.ILoggerFactory;
-import org.slf4j.spi.LoggerFactoryBinder;
+import org.slf4j.*;
+import org.slf4j.spi.*;
 
-import to.etc.log.*;
+import to.etc.log.EtcLoggerFactory;
 
 
+/**
+ * Required implementation needed by slf4j to bound custom logger implementation.  
+ * 
+ *
+ * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
+ * Created on Oct 31, 2012
+ */
 public class StaticLoggerBinder implements LoggerFactoryBinder {
 
 	/** 
@@ -33,7 +40,7 @@ public class StaticLoggerBinder implements LoggerFactoryBinder {
 	// this field must *not* be final  
 	public static String			REQUESTED_API_VERSION	= "1.5.10";						// !final  
 
-	private static final String		loggerFactoryClassStr	= MyLoggerFactory.class.getName();
+	private static final String		loggerFactoryClassStr	= EtcLoggerFactory.class.getName();
 
 	/** 
 	 * The ILoggerFactory instance returned by the 
@@ -43,13 +50,15 @@ public class StaticLoggerBinder implements LoggerFactoryBinder {
 	private final ILoggerFactory	loggerFactory;
 
 	private StaticLoggerBinder() {
-		loggerFactory = new MyLoggerFactory();
+		loggerFactory = EtcLoggerFactory.getSingleton();
 	}
 
+	@Override
 	public ILoggerFactory getLoggerFactory() {
 		return loggerFactory;
 	}
 
+	@Override
 	public String getLoggerFactoryClassStr() {
 		return loggerFactoryClassStr;
 	}
