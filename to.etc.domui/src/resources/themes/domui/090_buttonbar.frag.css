@@ -1,7 +1,7 @@
 /*** 090_buttonbar.frag.css ***/
 /*** ButtonBar component ***/
 .ui-buttonbar {
-	margin: 10px;
+	margin-bottom: 10px;
 }
 .ui-bb-left {
 	padding: 0; margin: 0;
