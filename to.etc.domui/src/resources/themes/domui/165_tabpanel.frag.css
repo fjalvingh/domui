@@ -2,6 +2,7 @@
 /*** The tab control, using the "sliding doors" technique as in http://www.alistapart.com/articles/slidingdoors/ ***/
 .ui-tab-c {
 	<%= margins_neutralize %>
+	margin-top: 0px;
 }
 
 .ui-tab-hdr {
@@ -9,7 +10,7 @@
 	font-size: <%= font_size %>;
 	line-height: normal;
 	width: 100%;
-	margin: 9px 0px 10px;
+	margin: 10px 0px 10px;
 }
 
 .ui-tab-hdr li {

@@ -1,11 +1,17 @@
 /*** 150_caption.frag.css ***/
 /*** Caption ***/
 .ui-cptn {
-/*	margin-top: 10px; jal 20120213 removed: header should not define it's upper location, because it cannot be used at the top of a screen! */
 	font-weight: bold;
 	background: <%= header_bg %>;
 	color: <%= bg_ttl_text %>;
 	height: 21px;
+	margin-bottom: 10px;
+	margin-top: 10px;
+}
+
+/*	margin-top: 10px; jal 20120213 removed: header should not define it's upper location, because it cannot be used at the top of a screen! */
+.ui-cptn:FIRST-CHILD {
+	margin-top: 0px;		/* btadic 20121101 For headers used at the top of a screen */
 }
 
 .ui-cptn div {

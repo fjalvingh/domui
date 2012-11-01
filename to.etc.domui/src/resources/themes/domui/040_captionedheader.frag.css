@@ -1,9 +1,12 @@
 /*** 040_captionedheader.frag.css ***/
 /*** CaptionedHeader ***/
+body > .ui-chdr {
+	<%= margins_neutralize %>
+}
 .ui-chdr {
 	width: 100%;
-	<%= margins_neutralize %>
 	margin-top: 10px;
+	margin-bottom: 10px;
 	border-bottom: 2px solid <%= caption_bg %>;
 }
 .ui-chdr-ttl {
