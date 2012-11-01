@@ -250,10 +250,11 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			}
 		}
 
-		Page page = cm.makeOrGetPage(ctx, clz, papa);
-		page.internalIncrementRequestCounter();
-		cm.internalSetLastPage(page);
-		//		Page page = PageMaker.makeOrGetPage(ctx, clz, papa);
+		Page page = cm.tryToMakeOrGetPage(ctx, clz, papa, action);
+		if(page != null) {
+			page.internalIncrementRequestCounter();
+			cm.internalSetLastPage(page);
+		}
 
 		/*
 		 * If this is an AJAX request make sure the page is still the same instance (session lost trouble)
@@ -262,7 +263,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			String s = ctx.getParameter(Constants.PARAM_PAGE_TAG);
 			if(s != null) {
 				int pt = Integer.parseInt(s);
-				if(pt != page.getPageTag()) {
+				if(page == null || pt != page.getPageTag()) {
 					/*
 					 * The page tag differs-> session has expired.
 					 */
@@ -275,6 +276,11 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				}
 			}
 		}
+
+		if(page == null) {
+			throw new IllegalStateException("Page can not be null here. Null is already handler inside expired AJAX request handling.");
+		}
+
 		UIContext.internalSet(page);
 
 		//-- All commands EXCEPT ASYPOLL have all fields, so bind them to the current component data,
