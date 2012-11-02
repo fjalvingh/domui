@@ -38,6 +38,11 @@
 	height: 5px;
 }
 
+.ui-flw-bc .ui-bb-middle {
+	padding: 0px <%= margins_main %> <%= margins_main %> <%= margins_main %>;
+	
+}
+
 .ui-flw-hider {
 	height: 100%;
 	width: 100%;

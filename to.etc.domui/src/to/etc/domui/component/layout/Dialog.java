@@ -85,7 +85,7 @@ public class Dialog extends Window {
 		m_buttonBar = new ButtonBar();
 		Div area = onbottom ? getBottomContent() : getTopContent();
 		if(area.getHeight() == null)
-			area.setHeight("30px");
+			area.setHeight("34px");
 		area.add(m_buttonBar);
 	}
 
@@ -96,7 +96,7 @@ public class Dialog extends Window {
 	 */
 	public ButtonBar getButtonBar() {
 		if(m_buttonBar == null)
-			createButtonBar(false);
+			createButtonBar(true);
 		return m_buttonBar;
 	}
 
