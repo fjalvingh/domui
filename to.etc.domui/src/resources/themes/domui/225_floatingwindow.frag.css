@@ -24,11 +24,9 @@
 }
 
 .ui-flw-c {
-	width: 100%;
-	padding: 0;
+	padding: <%= margins_main %>;
 	margin: 0;
 	overflow: auto;
-	margin: 10px;
 }
 .ui-flw-tc {
 	width: 100%;
