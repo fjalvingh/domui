@@ -52,7 +52,7 @@ public class PageParameters implements IPageParameters {
 	/**
 	 * Contains either String or String[], maps parameter name to either one or an array of values of that parameter.
 	 */
-	private Map<String, Object> m_map = new HashMap<String, Object>();
+	private final Map<String, Object> m_map = new HashMap<String, Object>();
 
 	/** When set no data can be changed */
 	private boolean m_readOnly = false;
@@ -516,6 +516,8 @@ public class PageParameters implements IPageParameters {
 				if(c != '_' && c != '$' && !name.startsWith("webui")) {
 					String[] par = ctx.getParameters(name);
 					if(par != null && par.length > 0) {
+						//Happens that same parameter value is written multiple times into url parameters with same name. And in most cases it is actually empty. We need to normalize this into single value in this cases.  
+						par = removeDuplicates(par);
 						if(par.length == 1)
 							pp.setParameter(name, par[0]); // Add as single string
 						else
@@ -525,6 +527,25 @@ public class PageParameters implements IPageParameters {
 			}
 		}
 		return pp;
+	}
+
+	/**
+	 * Removes duplicates from string array.
+	 * @param par
+	 * @return
+	 */
+	private static @Nonnull String[] removeDuplicates(@Nonnull String[] par) {
+		if (par.length == 1){
+			return par;
+		}
+		List<String> nonDuplicates = new ArrayList<String>();
+		for (String val : par){
+			if (!nonDuplicates.contains(val)){
+				nonDuplicates.add(val);
+			}
+		}
+		String[] res = new String[nonDuplicates.size()];
+		return nonDuplicates.toArray(res);
 	}
 
 	/**
