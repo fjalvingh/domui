@@ -9,6 +9,9 @@ body > .ui-chdr {
 	margin-bottom: 10px;
 	border-bottom: 2px solid <%= caption_bg %>;
 }
+.ui-chdr td{
+	padding: 0;
+}
 .ui-chdr-ttl {
 	color: <%= bg_ttl_text %>;
 	background-color: <%= caption_bg %>;
@@ -24,7 +27,6 @@ body > .ui-chdr {
 }
 .ui-chdr-l {
 	width: 10px;
-	padding: 0;
 	margin: 0;
 }
 .ui-chdr-c {
