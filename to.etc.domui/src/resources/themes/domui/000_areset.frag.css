@@ -1,3 +1,9 @@
+/*** Imports ***/
+/* btadic 20121102 This file was imported from 000_dateinput.frag.css. Now, when it is renamed to 340_dateinput.frag.css, 
+file will not be imported properly. For now it's moved here because here is start of generated style.
+We can create one more fragment for imports which will be loaded before this fragment.  */
+@IMPORT url("calendar-theme.css");
+
 /*** 000_areset.frag.css - reset script ***/
 html, body, div, span, applet, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
@@ -43,4 +49,3 @@ table {
 	border-spacing: 0;
 	border-collapse: collapse;
 }
-
