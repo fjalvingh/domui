@@ -185,6 +185,15 @@ public class FileUpload extends Div implements IUploadAcceptingComponent /* impl
 		return m_files.get(0);
 	}
 
+	@Nullable
+	public UploadItem getValueSafe() {
+		if(m_maxFiles != 1)
+			throw new IllegalStateException("Can only be called for max files = 1");
+		if(m_files.size() == 0)
+			return null;
+		return m_files.get(0);
+	}
+
 	/**
 	 * Return T if the max. #of files has been reached.
 	 * @return
