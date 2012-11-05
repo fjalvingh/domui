@@ -72,7 +72,7 @@ public class MsgBox extends Window {
 	private INodeContentRenderer<String> m_dataRenderer;
 
 	protected MsgBox() {
-		super(true, false, WIDTH, HEIGHT, "");
+		super(true, false, WIDTH, -1, "");
 		setErrorFence(null); // Do not accept handling errors!!
 		m_theButtons.setCssClass("ui-mbx-bb");
 		setOnClose(new IWindowClosed() {
@@ -547,10 +547,10 @@ public class MsgBox extends Window {
 	@Override
 	public void setDimensions(int width, int height) {
 		super.setDimensions(width, height);
-		setTop("50%");
-		// center floating window horizontally on screen
-		setMarginLeft("-" + width / 2 + "px");
-		setMarginTop("-" + height / 2 + "px");
+		/*		setTop("50%");
+				// center floating window horizontally on screen
+				setMarginLeft("-" + width / 2 + "px");
+				setMarginTop("-" + height / 2 + "px"); */
 	}
 
 	void setSelectedChoice(Object selectedChoice) {

@@ -71,8 +71,7 @@ public class FloatingDiv extends Div implements IAddToBody {
 	public FloatingDiv(boolean modal, boolean resizable, int widthinpx, int heightinpx) {
 		m_modal = modal;
 		m_resizable = resizable;
-		if(widthinpx > 0 && heightinpx > 0)
-			setDimensions(widthinpx, heightinpx);
+		setDimensions(widthinpx, heightinpx);
 	}
 
 	/**
@@ -83,14 +82,16 @@ public class FloatingDiv extends Div implements IAddToBody {
 	 * @param height
 	 */
 	public void setDimensions(int width, int height) {
-		if(width < 250 || height < 200)
-			throw new IllegalArgumentException("The width=" + width + " or height=" + height + " is invalid: it cannot be smaller than 250x200.");
-
-
-		//		if(isBuilt())
-		//			throw new IllegalStateException("The initial size can only be changed before the component " + getClass() + " is built.");
-		setWidth(width + "px");
-		setHeight(height + "px");
+		if(width > 0) {
+			if(width < 250)
+				throw new IllegalArgumentException("The width=" + width + " is invalid: it cannot be smaller than 250.");
+			setWidth(width + "px");
+		}
+		if(height > 0) {
+			if(height < 200)
+				throw new IllegalArgumentException("The height=" + height + " is invalid: it cannot be smaller than 200.");
+			setHeight(height + "px");
+		}
 	}
 
 	/**
@@ -154,6 +155,7 @@ public class FloatingDiv extends Div implements IAddToBody {
 			if(widthPerc != -1) {
 				// center floating window horizontally on screen
 				setMarginLeft("-" + widthPerc / 2 + "%");
+				setLeft("50%");
 			}
 		} else {
 			//when relative size is in use we don't center window horizontaly, otherwise we need to center it
@@ -167,6 +169,9 @@ public class FloatingDiv extends Div implements IAddToBody {
 			} else {
 				// center floating window horizontally on screen
 				setMarginLeft("-" + width / 2 + "px");
+				setLeft("50%");
+				setTop("5%");
+
 			}
 		}
 

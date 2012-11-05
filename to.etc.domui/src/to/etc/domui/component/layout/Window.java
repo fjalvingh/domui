@@ -147,7 +147,7 @@ public class Window extends FloatingDiv {
 		setErrorFence();
 
 		//-- jal 20121105 If an explicit height is set then we stretch the content to max, else the content itself decides on the height of the window.
-		if(getWidth() != null) {
+		if(getHeight() != null) {
 			m_content.setStretchHeight(true);
 		}
 
@@ -159,7 +159,7 @@ public class Window extends FloatingDiv {
 	@Override
 	public void setDimensions(int width, int height) {
 		super.setDimensions(width, height);
-		if(null != m_content)
+		if(null != m_content && getHeight() != null)
 			m_content.setStretchHeight(true);
 	}
 
