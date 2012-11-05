@@ -115,17 +115,22 @@ public class StatisticsRequestListener implements ServletRequestListener {
 	}
 
 	public void requestDestroyed(ServletRequestEvent ev) {
+		ServletRequest sr = ev.getServletRequest();
+		if(!(sr instanceof HttpServletRequest))
+			return;
+		HttpServletRequest r = (HttpServletRequest) sr;
 		RecursionCounter rc = m_ctr.get();
+
+		if(DEBUG) {
+			System.out.println("SRL: " + Thread.currentThread().getName() + " depth=" + (rc == null ? "null" : rc.m_count) + " rq=" + r.getRequestURI());
+		}
+
 		if(rc == null)
 			return;
 		rc.m_count--;
 		if(rc.m_count != 0)
 			return;
 		m_ctr.set(null);
-		ServletRequest sr = ev.getServletRequest();
-		if(!(sr instanceof HttpServletRequest))
-			return;
-		HttpServletRequest r = (HttpServletRequest) sr;
 
 		//-- Handle unclosed connections, if needed
 		UnclosedListener ucl = getUnclosedListener();
@@ -188,6 +193,8 @@ public class StatisticsRequestListener implements ServletRequestListener {
 		td.reportSimple();
 	}
 
+	static final private boolean DEBUG = false;
+
 	/**
 	 *
 	 * @see javax.servlet.ServletRequestListener#requestInitialized(javax.servlet.ServletRequestEvent)
@@ -197,6 +204,11 @@ public class StatisticsRequestListener implements ServletRequestListener {
 		if(!(sr instanceof HttpServletRequest))
 			return;
 		HttpServletRequest r = (HttpServletRequest) sr;
+		RecursionCounter rc = m_ctr.get();
+		if(DEBUG) {
+			System.out.println("SRL: " + Thread.currentThread().getName() + " depth=" + (rc == null ? "null" : rc.m_count) + " rq=" + r.getRequestURI());
+		}
+
 //		String url = r.getRequestURI();
 //		if(!url.contains(".ui") && !url.contains(".jsp"))
 //			return;
@@ -205,7 +217,6 @@ public class StatisticsRequestListener implements ServletRequestListener {
 		/*
 		 * Recursion handling.
 		 */
-		RecursionCounter rc = m_ctr.get();
 		if(rc != null) {
 			rc.m_count++;
 			return;

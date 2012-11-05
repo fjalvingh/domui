@@ -162,21 +162,21 @@ public class IndentWriter extends Writer {
 
 	@Override
 	public void write(String str) throws IOException {
-		indent();
 		int ix = 0;
 		int len = str.length();
 		while(ix < len) {
 			int epos = str.indexOf('\n', ix); // Next newline
 			if(epos == -1) {
+				indent();
 				m_pw.write(str, ix, len - ix); // Write remaining
 				m_ind_x += len - ix;
 				return;
 			}
 			//-- Got new line- print everything before it, including the new line
 			epos++;
+			indent();
 			m_pw.write(str, ix, epos - ix);
 			m_ind_x = 0;
-			indent();
 			ix = epos;
 		}
 	}

@@ -55,7 +55,7 @@ import to.etc.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 21, 2008
  */
-public class DefaultButton extends Button {
+public class DefaultButton extends Button implements IActionControl {
 	/** If this is an action-based button this contains the action. */
 	private IUIAction< ? > m_action;
 
@@ -243,6 +243,11 @@ public class DefaultButton extends Button {
 				pos += 2;
 			}
 		}
+	}
+
+	@Override
+	public String getComponentInfo() {
+		return "Button:" + m_key.getText();
 	}
 
 	/*--------------------------------------------------------------*/

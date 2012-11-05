@@ -719,6 +719,61 @@ public class FileTool {
 		return StringTool.toHex(hashFile(is));
 	}
 
+	/**
+	 * Hashes all data from an input stream and returns an MD5 hash in hex. This hashes the file but replaces
+	 * all cr or crlf or lfcr with a single lf.
+	 *
+	 * @param f
+	 * @return
+	 * @throws IOException
+	 */
+	@Nonnull
+	static public String hashTextFile(@Nonnull final File f) throws IOException {
+		InputStream is = null;
+		try {
+			is = new FileInputStream(f);
+			return StringTool.toHex(hashTextFile(is));
+		} finally {
+			try {
+				if(is != null)
+					is.close();
+			} catch(Exception x) {}
+		}
+	}
+
+	/**
+	 * Hashes all data from an input stream and returns an MD5 hash. This hashes the file but replaces
+	 * all cr or crlf or lfcr with a single lf.
+	 * @param is	The stream to read and hash.
+	 * @return		A hash (16 bytes MD5)
+	 * @throws IOException
+	 */
+	@Nonnull
+	static public byte[] hashTextFile(@Nonnull final InputStream is) throws IOException {
+		MessageDigest md = null;
+		try {
+			md = MessageDigest.getInstance("MD5");
+		} catch(NoSuchAlgorithmException x) {
+			throw new RuntimeException("MISSING MANDATORY SECURITY DIGEST PROVIDER MD5: " + x.getMessage());
+		}
+
+		//-- Ok, read and calculate. Ignore all.
+		byte[] buf = new byte[8192];
+		int szrd;
+		while(0 <= (szrd = is.read(buf))) {
+			//-- Got a buffer. Scan for cr and remove;
+			int six = 0;
+			int oix = 0;
+			while(six < szrd) {
+				byte c = buf[six++];
+				if(c != (byte) 13) {
+					buf[oix++] = c;
+				}
+			}
+			md.update(buf, 0, oix);
+		}
+		return md.digest();
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Loading properties.									*/

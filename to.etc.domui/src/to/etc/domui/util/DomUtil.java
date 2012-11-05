@@ -51,6 +51,8 @@ import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
 
 final public class DomUtil {
+	static public final Logger USERLOG = LoggerFactory.getLogger("to.etc.domui.userAction");
+
 	static private int m_guidSeed;
 
 	private DomUtil() {}
@@ -1767,5 +1769,12 @@ final public class DomUtil {
 			}
 		}
 		return null;
+	}
+
+	@Nonnull
+	public static String getComponentDetails(NodeBase n) {
+		if(null == n)
+			return "null";
+		return n.getComponentInfo();
 	}
 }
