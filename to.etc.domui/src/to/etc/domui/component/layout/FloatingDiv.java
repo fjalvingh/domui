@@ -61,17 +61,18 @@ public class FloatingDiv extends Div implements IAddToBody {
 	private Div m_hider;
 
 	public FloatingDiv(boolean modal) {
-		this(modal, false, DEFWIDTH, DEFHEIGHT);
+		this(modal, false, -1, -1);
 	}
 
 	public FloatingDiv(boolean modal, boolean resizable) {
-		this(modal, resizable, DEFWIDTH, DEFHEIGHT);
+		this(modal, resizable, -1, -1);
 	}
 
 	public FloatingDiv(boolean modal, boolean resizable, int widthinpx, int heightinpx) {
 		m_modal = modal;
 		m_resizable = resizable;
-		setDimensions(widthinpx, heightinpx);
+		if(widthinpx > 0 && heightinpx > 0)
+			setDimensions(widthinpx, heightinpx);
 	}
 
 	/**
@@ -128,10 +129,12 @@ public class FloatingDiv extends Div implements IAddToBody {
 		super.beforeCreateContent();
 		setCssClass("ui-flw");
 
-		if(getWidth() == null) // Should not be possible.
-			setWidth("640px");
-		if(getHeight() == null) // Should not be possible
-			setHeight("400px");
+		// jal 20121105 Removed: interferes with auto-resizing floating window.
+		//		if(getWidth() == null) // Should not be possible.
+		//			setWidth("640px");
+		//		if(getHeight() == null) // Should not be possible
+		//			setHeight("400px");
+
 		if(getZIndex() <= 0) { // Should not be possible.
 			FloatingDiv parentFloatingDiv = findParent(FloatingDiv.class);
 			if(parentFloatingDiv != null) {
@@ -155,11 +158,16 @@ public class FloatingDiv extends Div implements IAddToBody {
 		} else {
 			//when relative size is in use we don't center window horizontaly, otherwise we need to center it
 			int width = DomUtil.pixelSize(getWidth());
-			if(-1 == width)
-			    throw new IllegalStateException("Bad width!");
-
-			// center floating window horizontally on screen
-			setMarginLeft("-" + width / 2 + "px");
+			if(-1 == width) {
+				StringBuilder sb = new StringBuilder();
+				appendJQuerySelector(sb);
+				sb.append(".center();");
+				appendCreateJS(sb.toString());
+				//			    throw new IllegalStateException("Bad width!");
+			} else {
+				// center floating window horizontally on screen
+				setMarginLeft("-" + width / 2 + "px");
+			}
 		}
 
 		//-- If this is resizable add the resizable() thing to the create javascript.

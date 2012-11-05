@@ -122,7 +122,7 @@ public class Window extends FloatingDiv {
 	private void init() {
 		m_content = new Div();
 		m_content.setCssClass("ui-flw-c ui-fixovfl");
-		m_content.setStretchHeight(true);
+		//		m_content.setStretchHeight(true);
 		m_topContent = new Div();
 		m_topContent.setCssClass("ui-flw-tc");
 		m_bottomContent = new Div();
@@ -146,9 +146,21 @@ public class Window extends FloatingDiv {
 		add(m_bottomContent);
 		setErrorFence();
 
+		//-- jal 20121105 If an explicit height is set then we stretch the content to max, else the content itself decides on the height of the window.
+		if(getWidth() != null) {
+			m_content.setStretchHeight(true);
+		}
+
 		//vmijic 20091125 - since z-index is dynamic value, correct value has to be used also in js.
 		appendCreateJS("$('#" + getActualID() + "').draggable({" + "ghosting: false, zIndex:" + getZIndex() + ", handle: '#" + m_titleBar.getActualID() + "'});");
 		delegateTo(m_content);
+	}
+
+	@Override
+	public void setDimensions(int width, int height) {
+		super.setDimensions(width, height);
+		if(null != m_content)
+			m_content.setStretchHeight(true);
 	}
 
 	/**

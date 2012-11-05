@@ -1774,8 +1774,8 @@ li.ui-tab-err {
 	border: 1px solid #cccccc;
 	border-top: none;
 	/*	overflow: hidden;	*/
-	top: 5%;
-	left: 50%;
+/*	top: 5%;
+	left: 50%; */
 }
 
 .ui-flw-ttl {
