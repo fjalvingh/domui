@@ -14,7 +14,7 @@
 
 .ui-flw-ttl {
 	height: 22px;
-	padding: 3px 2px 3px 2px;
+	padding: 3px 2px 3px 3px;
 	background: url(<%= bg_ttl_gradient %>) repeat-y;
 	background-color: <%= bg_ttl_end %>;
 	color: <%= bg_ttl_text %>;
@@ -40,7 +40,6 @@
 
 .ui-flw-bc .ui-bb-middle {
 	padding: 0px <%= margins_main %> <%= margins_main %> <%= margins_main %>;
-	
 }
 
 .ui-flw-hider {

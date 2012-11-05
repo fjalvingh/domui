@@ -15,7 +15,7 @@
 .ui-xdt-ix {
 	cursor: pointer;
 	background-repeat: no-repeat;
-	background-position: left;
+	background-position: 0px -4px;
 	padding-left: 18px;
 	font-size: <%= font_size %>;
 	color: #1700ee;

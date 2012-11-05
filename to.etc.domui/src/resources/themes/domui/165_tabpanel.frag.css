@@ -31,6 +31,10 @@
  	color: <%= tab_pnl_inactive_col %>;
 }
 
+.ui-tab-hdr img {
+	vertical-align: top;	
+}
+
 .ui-tab-hdr li:hover {
 	background-position: left -300px;
 }
