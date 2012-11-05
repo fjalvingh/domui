@@ -166,7 +166,7 @@ public class Dialog extends Window {
 	 * @throws Exception
 	 */
 	protected boolean onSaveBind() throws Exception {
-		return false;
+		return true;
 	}
 
 	/**
