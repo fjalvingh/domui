@@ -38,6 +38,8 @@ class FileLogHandler implements ILogHandler {
 
 	private static final DateFormat	m_df		= new SimpleDateFormat("yyMMdd");
 
+	private EtcLogFormat					m_format	= null;
+
 	public FileLogHandler(@Nonnull File logRoot, @Nullable String out) {
 		super();
 		m_logRoot = logRoot;
@@ -83,7 +85,7 @@ class FileLogHandler implements ILogHandler {
 	}
 
 	private void log(@Nonnull EtcLogEvent event) {
-		String line = EtcLogFormatter.format(event, getLogPartFromFilters());
+		String line = EtcLogFormatter.format(event, m_format != null ? m_format.getFormat() : EtcLogFormat.DEFAULT, getLogPartFromFilters());
 
 		synchronized(m_writeLock) {
 			if(m_out == null) {
@@ -195,7 +197,17 @@ class FileLogHandler implements ILogHandler {
 				addMatcher(LogMatcher.createFromXml(node));
 			} else if("filter".equals(node.getNodeName())) {
 				addFilter(LogFilter.createFromXml(node));
+			} else if("format".equals(node.getNodeName())) {
+				addFormat(EtcLogFormat.createFromXml(node));
 			}
+		}
+	}
+
+	private void addFormat(EtcLogFormat format) throws LoggerConfigException {
+		if(m_format != null) {
+			throw new EtcLoggerFactory.LoggerConfigException("Multiple format definitions found in log handler.");
+		} else {
+			m_format = format;
 		}
 	}
 
@@ -210,6 +222,11 @@ class FileLogHandler implements ILogHandler {
 		handlerNode.setAttribute("type", m_out == null ? "stdout" : "file");
 		if(m_out != null) {
 			handlerNode.setAttribute("file", m_out);
+		}
+		if(m_format != null) {
+			Element formatNode = doc.createElement("format");
+			handlerNode.appendChild(formatNode);
+			m_format.saveToXml(doc, formatNode);
 		}
 		for(LogMatcher matcher : m_matchers) {
 			Element logNode = doc.createElement("log");
@@ -253,5 +270,4 @@ class FileLogHandler implements ILogHandler {
 		}
 		return false;
 	};
-
 }

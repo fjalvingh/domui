@@ -7,6 +7,8 @@ import javax.annotation.*;
 import org.w3c.dom.*;
 
 import to.etc.domui.component.meta.*;
+import to.etc.domui.util.*;
+import to.etc.log.handler.*;
 
 public class Handler {
 	private HandlerType m_type;
@@ -16,6 +18,10 @@ public class Handler {
 	private String m_file;
 
 	public static final String pFILE = "file";
+
+	private String m_format;
+
+	public static final String pFORMAT = "format";
 
 	public List<Matcher> m_matchers = new ArrayList<Matcher>();
 
@@ -49,6 +55,15 @@ public class Handler {
 		m_type = type;
 	}
 
+	@MetaProperty(length = 150, required = YesNoType.NO, displaySize = 100)
+	public String getFormat() {
+		return m_format;
+	}
+
+	public void setFormat(String format) {
+		m_format = format;
+	}
+
 	public List<Matcher> getMatchers() {
 		return m_matchers;
 	}
@@ -77,6 +92,11 @@ public class Handler {
 		handlerNode.setAttribute("type", m_type == HandlerType.STDOUT ? "stdout" : "file");
 		if(m_type != HandlerType.STDOUT) {
 			handlerNode.setAttribute("file", m_file);
+		}
+		if(!DomUtil.isBlank(getFormat()) && !EtcLogFormat.DEFAULT.equalsIgnoreCase(getFormat())) {
+			Element formatNode = doc.createElement("format");
+			handlerNode.appendChild(formatNode);
+			formatNode.setAttribute("pattern", getFormat());
 		}
 		for(Matcher matcher : m_matchers) {
 			Element logNode = doc.createElement("log");

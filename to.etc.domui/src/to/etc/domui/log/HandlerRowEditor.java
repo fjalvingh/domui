@@ -5,6 +5,7 @@ import javax.annotation.*;
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.form.*;
+import to.etc.domui.component.input.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.ntbl.*;
@@ -36,6 +37,8 @@ public class HandlerRowEditor extends Div implements IEditor {
 	private ExpandingEditTable<Filter> m_tableFilters;
 
 	private SimpleListModel<Filter> m_modelFilters;
+
+	private String m_formatHelp = null;
 
 	@Override
 	public boolean validate(boolean isnew) throws Exception {
@@ -71,6 +74,11 @@ public class HandlerRowEditor extends Div implements IEditor {
 		m_builder = new HorizontalFormBuilder(m_instance);
 		final IControl<HandlerType> typeCtl = (IControl<HandlerType>) m_builder.addProp(Handler.pTYPE);
 		final IControl<String> nameCtl = (IControl<String>) m_builder.addProp(Handler.pFILE);
+		final TextStr formatCtl = new TextStr();
+		formatCtl.setMaxLength(150);
+		formatCtl.setSize(100);
+		formatCtl.setTitle(getFormatHelp());
+		m_builder.addProp(Handler.pFORMAT, formatCtl);
 		container.add(m_builder.finish());
 		m_bindings = m_builder.getBindings();
 		m_bindings.moveModelToControl();
@@ -84,6 +92,13 @@ public class HandlerRowEditor extends Div implements IEditor {
 		if(HandlerType.STDOUT == typeCtl.getValue()) {
 			updateNameByType(typeCtl, nameCtl, holder);
 		}
+	}
+
+	private String getFormatHelp() {
+		if(m_formatHelp == null) {
+			m_formatHelp = $("format.help");
+		}
+		return m_formatHelp;
 	}
 
 	private void updateNameByType(final IControl<HandlerType> typeCtl, final IControl<String> nameCtl, final TextNode holder) {

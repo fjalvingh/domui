@@ -278,9 +278,9 @@ public class EtcLoggerFactory implements ILoggerFactory {
 					boolean checkNext = true;
 					do {
 						checkNext = false;
-						int posStart = logLocation.indexOf("$");
+						int posStart = logLocation.indexOf("%");
 						if (posStart > -1){
-							int posEnd = logLocation.indexOf("$", posStart + 1);
+							int posEnd = logLocation.indexOf("%", posStart + 1);
 							if (posEnd > -1){
 								logLocation = logLocation.substring(0, posStart) + System.getProperty(logLocation.substring(posStart + 1, posEnd)) + logLocation.substring(posEnd + 1);
 								checkNext = true;
@@ -305,17 +305,4 @@ public class EtcLoggerFactory implements ILoggerFactory {
 	public Level getDefaultLevel() {
 		return DEFAULT_LEVEL;
 	}
-
-	/*
-	 * FIXME: see if it would be useful to do this automatic initialization of logger.
-	 * Currently we use alternative - loading inside application - that enables logger location per application.
-	 *  
-	  	static{
-			try {
-				getSingleton().loadConfig(new File(System.getProperty("user.home") + File.separatorChar + "logger"));
-			} catch(Exception e) {
-				e.printStackTrace();
-			}
-		}
-	*/
 }

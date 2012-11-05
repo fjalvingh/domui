@@ -1,9 +1,12 @@
 package to.etc.domui.log;
 
+import java.util.*;
+
 import org.slf4j.*;
 
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.dom.html.*;
+import to.etc.webapp.qsql.*;
 
 public class TestLoggerPage extends UrlPage {
 	private static Logger LOG = LoggerFactory.getLogger(TestLoggerPage.class);
@@ -20,9 +23,6 @@ public class TestLoggerPage extends UrlPage {
 				LOG.info("info log");
 				LOG.warn("warn log");
 				LOG.error("error log");
-				LOG.info("Info Log that uses format 1 part message, values: {}", "[value1]");
-				LOG.info("Info Log that uses format 2 parts message, values: {} {}", "[value1]", "[value2]");
-				LOG.info("Info Log that uses format 3 parts message, values: {} {} {}", new String[]{"[value1]", "[value2]", "[value3]"});
 				add("Added lines to log");
 				add(new BR());
 			}
@@ -52,7 +52,7 @@ public class TestLoggerPage extends UrlPage {
 				LOG.info("Info Log that uses format 1 part message, values: {}", "[value1]");
 				LOG.info("Info Log that uses format 2 parts message, values: {} {}", "[value1]", "[value2]");
 				LOG.info("Info Log that uses format 3 parts message, values: {} {} {}", new String[]{"[value1]", "[value2]", "[value3]"});
-				add("Added lines to log");
+				add("Added formatted lines to log");
 				add(new BR());
 			}
 		}));
@@ -64,8 +64,7 @@ public class TestLoggerPage extends UrlPage {
 				try {
 					Integer.parseInt("THIS IS NOT A INTEGER!");
 				} catch(Exception ex) {
-					LOG.error("Example of nested exception logging.", new IllegalStateException("bah", new IllegalStateException("ah ah", new IllegalStateException("uh uh", new IllegalStateException("oh oh",
-						new IllegalStateException("This is so unespected ;)", ex))))));
+					LOG.error("Example of simple exception logging.", ex);
 				}
 				add("Added simple exception to log");
 				add(new BR());
@@ -82,6 +81,19 @@ public class TestLoggerPage extends UrlPage {
 						new IllegalStateException("oh oh", new IllegalStateException("This is so unespected ;)", ex)))))));
 				}
 				add("Added nested exception to log");
+				add(new BR());
+			}
+		}));
+		add(new DefaultButton("Click to log SQL exception", new IClicked<DefaultButton>() {
+
+			@Override
+			public void clicked(DefaultButton clickednode) throws Exception {
+				try {
+					Integer res = JdbcUtil.oracleSpCall(getSharedContext().getConnection(), Integer.class, "TestStoredProcedure", new Date(), Integer.valueOf(5), "param3");
+				} catch(Exception ex) {
+					LOG.error("Example of SQL exception logging.", ex);
+				}
+				add("Added SQL exception to log");
 				add(new BR());
 			}
 		}));

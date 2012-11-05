@@ -11,6 +11,7 @@ import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.log.data.*;
 import to.etc.domui.util.*;
+import to.etc.log.handler.*;
 import to.etc.webapp.nls.*;
 
 public class ConfigPart extends Div {
@@ -24,7 +25,7 @@ public class ConfigPart extends Div {
 
 	private SimpleListModel<Handler> m_model;
 
-	private final String[] m_cols = new String[]{Handler.pTYPE, Handler.pFILE};
+	private final String[] m_cols = new String[]{Handler.pTYPE, Handler.pFILE, Handler.pFORMAT};
 
 	private ButtonBar m_buttonBar;
 
@@ -85,7 +86,9 @@ public class ConfigPart extends Div {
 
 	protected @Nonnull
 	Handler initializeNewInstance() {
-		return new Handler(HandlerType.FILE, "logger1");
+		Handler handler = new Handler(HandlerType.FILE, "logger1");
+		handler.setFormat(EtcLogFormat.DEFAULT);
+		return handler;
 	}
 
 	protected IRowEditorEvent<Handler, HandlerRowEditor> getRowChangeListener() {

@@ -98,9 +98,19 @@ public class LoggerConfigPage extends UrlPage implements IUserInputModifiedFence
 				handler.addMatcher(loadMatcher(node));
 			} else if("filter".equals(node.getNodeName())) {
 				handler.addFilter(loadFilter(node));
+			} else if("format".equals(node.getNodeName())) {
+				handler.setFormat(loadFormat(node));
 			}
 		}
+		if(handler.getFormat() == null) {
+			handler.setFormat(EtcLogFormat.DEFAULT);
+		}
 		return handler;
+	}
+
+	private String loadFormat(Node node) {
+		String format = node.getAttributes().getNamedItem("pattern").getNodeValue();
+		return format;
 	}
 
 	private Matcher loadMatcher(Node node) {
