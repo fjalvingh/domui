@@ -76,7 +76,7 @@ public class HandlerRowEditor extends Div implements IEditor {
 		final IControl<String> nameCtl = (IControl<String>) m_builder.addProp(Handler.pFILE);
 		final TextStr formatCtl = new TextStr();
 		formatCtl.setMaxLength(150);
-		formatCtl.setSize(100);
+		formatCtl.setSize(60);
 		formatCtl.setTitle(getFormatHelp());
 		m_builder.addProp(Handler.pFORMAT, formatCtl);
 		container.add(m_builder.finish());

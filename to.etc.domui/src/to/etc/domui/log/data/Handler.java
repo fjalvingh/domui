@@ -37,7 +37,7 @@ public class Handler {
 		m_file = file;
 	}
 
-	@MetaProperty(length = 30, required = YesNoType.YES)
+	@MetaProperty(length = 30, required = YesNoType.YES, displaySize = 20)
 	public String getFile() {
 		return m_file;
 	}
