@@ -101,7 +101,8 @@ public class VerticalFormBuilder extends TableFormBuilder {
 	@Override
 	protected void endBulkLayout() {
 		m_bulkMode = false;
-		m_nextNodeMode = m_nextMode;
+		if(m_nextMode != null)
+			m_nextNodeMode = m_nextMode;
 		m_nextMode = null;
 	}
 

@@ -18,6 +18,15 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 }
 
 ( function($) {
+	$.fn.center = function() {
+		if(this.css("position") != "fixed")
+			this.css("position","absolute");
+	    this.css("top", Math.max(0, (($(window).height() - this.outerHeight()) / 2) + $(window).scrollTop()) + "px");
+	    this.css("left", Math.max(0, (($(window).width() - this.outerWidth()) / 2) + $(window).scrollLeft()) + "px");
+	    return this;
+	};
+	
+	
 	$.webui = function(xml) {
 		processDoc(xml);
 	};

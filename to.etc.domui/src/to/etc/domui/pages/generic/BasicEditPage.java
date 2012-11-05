@@ -88,7 +88,7 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 		return true;
 	}
 
-	protected void onAfterCreateContent() {
+	protected void onAfterCreateContent() throws Exception {
 	}
 
 	private void createEditableBase() throws Exception {
