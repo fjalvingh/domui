@@ -80,3 +80,15 @@ div.ui-ipa img {
 	padding: 0px;
 	margin: 0px;
 }
+
+/**
+*DomUI components style options 
+**/
+
+/** Removing top or bottom margin */
+.dso-remove-bottom-margin {
+	margin-bottom: 0px !important;
+}
+.dso-add-bottom-margin {
+	margin-bottom: <%= margins_main %> !important;
+}
