@@ -2189,8 +2189,8 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	background-position: 50px 0px;
 	border-top: none;
 	/*	overflow: hidden;	*/
-	top: 5%;
-	left: 50%;
+/*	top: 5%;
+	left: 50%; */
 }
 
 .ui-flw-ttl {
@@ -2468,6 +2468,9 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	height: 2px;
 	background-color: <%= util.color(upl_loading).lighter(0.2) %>;
 	margin-top: 2px;
+}
+.ui-idlg-pnl {
+	margin: 15px 10px;
 }
 /*** 250_smallhoverbutton.frag.css ***/
 /*** Small Hover Button ***/

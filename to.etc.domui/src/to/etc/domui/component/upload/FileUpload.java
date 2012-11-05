@@ -29,10 +29,12 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.buttons.*;
+import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.parts.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
+import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.upload.*;
 import to.etc.webapp.core.*;
@@ -67,7 +69,7 @@ public class FileUpload extends Div implements IUploadAcceptingComponent /* impl
 
 	//	private int m_maxSize;
 
-	private boolean m_required;
+	private boolean m_mandatory;
 
 	private int m_maxFiles = 1;
 
@@ -167,6 +169,31 @@ public class FileUpload extends Div implements IUploadAcceptingComponent /* impl
 		return m_files;
 	}
 
+	@Nullable
+	public UploadItem getValue() {
+		if(m_maxFiles != 1)
+			throw new IllegalStateException("Can only be called for max files = 1");
+		if(m_files.size() == 0) {
+			if(isMandatory()) {
+				setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.MANDATORY));
+				throw new ValidationException(Msgs.BUNDLE, Msgs.MANDATORY);
+			}
+			clearMessage();
+			return null;
+		}
+		clearMessage();
+		return m_files.get(0);
+	}
+
+	@Nullable
+	public UploadItem getValueSafe() {
+		if(m_maxFiles != 1)
+			throw new IllegalStateException("Can only be called for max files = 1");
+		if(m_files.size() == 0)
+			return null;
+		return m_files.get(0);
+	}
+
 	/**
 	 * Return T if the max. #of files has been reached.
 	 * @return
@@ -222,18 +249,18 @@ public class FileUpload extends Div implements IUploadAcceptingComponent /* impl
 	//	}
 
 	/**
-	 * FIXME T if at least 1 file needs to be uploaded.
+	 * T if at least 1 file needs to be uploaded.
 	 */
-	public boolean isRequired() {
-		return m_required;
+	public boolean isMandatory() {
+		return m_mandatory;
 	}
 
 	/**
 	 * Set to T if at least one file needs to have been uploaded.
 	 * @param required
 	 */
-	public void setRequired(boolean required) {
-		m_required = required;
+	public void setMandatory(boolean required) {
+		m_mandatory = required;
 	}
 
 	public int getMaxFiles() {
