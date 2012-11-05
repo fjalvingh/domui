@@ -2,6 +2,12 @@
  * DomUI "blue" stylesheet.
  * File represents composition of fragments that are defining default style for each component.
  */
+/*** Imports ***/
+/* btadic 20121102 This file was imported from 000_dateinput.frag.css. Now, when it is renamed to 340_dateinput.frag.css, 
+file will not be imported properly. For now it's moved here because here is start of generated style.
+We can create one more fragment for imports which will be loaded before this fragment.  */
+@IMPORT url("calendar-theme.css");
+
 /*** 000_areset.frag.css - reset script ***/
 html, body, div, span, applet, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
@@ -47,7 +53,6 @@ table {
 	border-spacing: 0;
 	border-collapse: collapse;
 }
-
 /*** 002_core.frag.css ***/
 /*** Core style ***/
 /* Body style */
@@ -56,14 +61,22 @@ body, html {
 	background: url(<%= body_image %>) repeat-x;
 <% } %>
 	background-color: <%= bg_color %>;
-	height: 100%; /* vmijic - changed to 100% (was 90%). Is here a reason for 90%? We have problem with splitter otherwise... */
-	margin: 0px;
+/*	height: 100%; */ /* vmijic - changed to 100% (was 90%). Is here a reason for 90%? We have problem with splitter otherwise... */
 }
 
 /** jal: do not put this in the reset script! Using it here inherits the spec to all lower elements by default. */
 body {
 	font-family: <%= font_family %>;
 	font-size: <%= font_size %>;
+}
+
+/*** Input related components ***/
+button img {
+	vertical-align: bottom;
+}
+
+button {
+	vertical-align: bottom;
 }
 
 input, textarea, select {
@@ -91,55 +104,28 @@ input:hover, textarea:hover, select:hover {
 	border-color:<%= bevel_hover_up %> <%= bevel_hover_down %> <%= bevel_hover_down %> <%= bevel_hover_up %>;
 }
 
-td {
-	vertical-align: top;
-}
-
 select {
 	background-color:#FFFFFF;
 	height: 18px;
 }
 
+/*** HTML entities ***/
 pre {
 	font-family: <%= fixed_font_family %>;
 	font-size: <%= fixed_font_size %>;
 }
 
-button img {
-	vertical-align: bottom;
-}
-
-button {
-	vertical-align: bottom;
-}
-
-.page-content {
-	margin: 0px 10px;
-}
-
 td {
-	vertical-align: middle;
+	vertical-align: top;
+	padding: 1px;
 }
 
-
-/*** Other elements as direct body children ***/
-body > div.ui-dt {
-	margin-left: 10px;
-	margin-right: 10px;	
+div {
+	vertical-align: top;
 }
 
-body > div.ui-dt-nores {
-	margin-left: 10px;
-	margin-right: 10px;
-}
-
-body > div > div.ui-lf-mainContent, body > div.ui-pnl-outer{
-	margin: 10px 10px 0px 10px;
-}
-
-body > .ui-dp { 
-	margin-left: 14px;
-	margin-right: 10px;
+.ui-content {
+	padding: <%= margins_main %> <%= margins_main %>;
 }
 /*** 005_oddchars.frag.css ***/
 /*** Select special chars ***/
@@ -176,6 +162,7 @@ body > .ui-dp {
 	height: 40px;
 	background: url(<%= bg_ttl_gradient %>) repeat-y;
 	background-color: <%= bg_ttl_end %>;
+	<%= margins_neutralize %>
 }
 
 .ui-atl-bb {
@@ -371,10 +358,17 @@ td.ui-tr-selected {
 }
 /*** 040_captionedheader.frag.css ***/
 /*** CaptionedHeader ***/
+body > .ui-chdr {
+	<%= margins_neutralize %>
+}
 .ui-chdr {
 	width: 100%;
 	margin-top: 10px;
+	margin-bottom: 10px;
 	border-bottom: 2px solid <%= caption_bg %>;
+}
+.ui-chdr td{
+	padding: 0;
 }
 .ui-chdr-ttl {
 	color: <%= bg_ttl_text %>;
@@ -391,7 +385,6 @@ td.ui-tr-selected {
 }
 .ui-chdr-l {
 	width: 10px;
-	padding: 0;
 	margin: 0;
 }
 .ui-chdr-c {
@@ -528,6 +521,18 @@ div.ui-ipa img {
 	padding: 0px;
 	margin: 0px;
 }
+
+/**
+*DomUI components style options 
+**/
+
+/** Removing top or bottom margin */
+.dso-remove-bottom-margin {
+	margin-bottom: 0px !important;
+}
+.dso-add-bottom-margin {
+	margin-bottom: <%= margins_main %> !important;
+}
 /*** 060_msgbox.frag.css ***/
 /*** MsgBox ***/
 .ui-mbx-top {
@@ -656,7 +661,7 @@ a.ui-brc-l, a.ui-brc-l:hover a.ui-brc-l :VISITED, a.ui-brc-l:ACTIVE {
 /*** 090_buttonbar.frag.css ***/
 /*** ButtonBar component ***/
 .ui-buttonbar {
-	margin: 10px;
+	margin-bottom: 10px;
 }
 .ui-bb-left {
 	padding: 0; margin: 0;
@@ -813,6 +818,12 @@ table.ui-wa-bgtbl {
 	margin: 0px;
 }
 
+.ui-lui-btntd {
+	min-width: 18px;
+	text-align: left;
+	white-space: nowrap;
+}
+
 div.ui-lui-selected {
 	border-color:#ABADB3 #BFCDD9 #BFCDD9;
 	border-style:solid;
@@ -829,12 +840,14 @@ div.ui-lui-selected-ro {
 }
 	
 div.ui-lui {
-	width: 12em; /*	this width match with date field picker icon on IE rendering */
 	display: inline-block;
 }
 
+div.ui-lui > table {
+	width: 1%;
+}
+
 table.ui-lui {
-	width: 12em; /*	this width match with date field picker icon on IE rendering */
 	white-space: nowrap;
 }
 
@@ -847,7 +860,7 @@ table.ui-lui-selected {
 .ui-lui-v { /* no selection is rendered transparent without border */
 	padding: 0px;
 	margin: 0px;
-	width: 100%;
+	width: 1%;
 }
 
 .ui-lui-selected tbody { /*	selected value is rendered with white back and outline, on IE border is not rendred!? */
@@ -865,8 +878,15 @@ table.ui-lui-selected {
 	background-color: #ffe5e5 !important;
 }
 .ui-lui-vcell {
+	min-width: 100px;
 	width: 99%;
+	padding: 2px 5px 2px 2px;
 }
+.ui-lui-btncell {
+	min-width: 41px;
+	padding-top: 2px;
+}
+
 input.ui-lui-keyword {
 	min-width: 98px;
 }
@@ -1204,6 +1224,7 @@ div:hover.ui-xdt-exp {
 	/*width: 99%;  */
 	vertical-align: top;
 	border: 1px solid #bababa;
+	margin: 2px 5px 5px 2px;
 	
 	-moz-box-shadow: 2px 2px 10px #AAA;
 	-webkit-box-shadow: 2px 2px 10px #AAA;
@@ -1211,6 +1232,10 @@ div:hover.ui-xdt-exp {
 	border-bottom: 1px solid #BABABA;
 	border-right: 1px solid #BABABA;
 	filter: progid:DXImageTransform.Microsoft.Shadow(color='#BABABA', Direction=135, Strength=7);
+}
+
+.ui-xdt-edt td{
+	padding-left: 2px;
 }
 
 .ui-xdt-nores {
@@ -1354,12 +1379,17 @@ div.ui-sortable {
 /*** 150_caption.frag.css ***/
 /*** Caption ***/
 .ui-cptn {
-	margin-top: 10px;
 	font-weight: bold;
 	background: <%= header_bg %>;
 	color: <%= bg_ttl_text %>;
 	height: 21px;
+	margin-bottom: 10px;
+	margin-top: 10px;
+}
+
 /*	margin-top: 10px; jal 20120213 removed: header should not define it's upper location, because it cannot be used at the top of a screen! */
+.ui-cptn:FIRST-CHILD {
+	margin-top: 0px;		/* btadic 20121101 For headers used at the top of a screen */
 }
 
 .ui-cptn div {
@@ -1419,12 +1449,16 @@ div.ui-sortable {
 }
 /*** 165_tabpanel.frag.css ***/
 /*** The tab control, using the "sliding doors" technique as in http://www.alistapart.com/articles/slidingdoors/ ***/
+.ui-tab-c {
+	margin: 0px -<%= margins_main %> <%= margins_main %> -<%= margins_main %>;
+}
+
 .ui-tab-hdr {
 	float: left;
 	font-size: <%= font_size %>;
 	line-height: normal;
 	width: 100%;
-	margin: 9px 0px 10px;
+	margin: 0px 0px <%= margins_main %>;
 }
 
 .ui-tab-hdr li {
@@ -2171,11 +2205,9 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 }
 
 .ui-flw-c {
-	width: 100%;
-	padding: 0;
+	padding: <%= margins_main %>;
 	margin: 0;
 	overflow: auto;
-	margin: 10px;
 }
 .ui-flw-tc {
 	width: 100%;
@@ -2185,6 +2217,11 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 .ui-flw-bc {
 	width: 100%;
 	height: 5px;
+}
+
+.ui-flw-bc .ui-bb-middle {
+	padding: 0px <%= margins_main %> <%= margins_main %> <%= margins_main %>;
+	
 }
 
 .ui-flw-hider {
@@ -2507,8 +2544,6 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 }
 /*** 340_dateinput.frag.css ***/
 /*** Date input ***/
-@IMPORT url("calendar-theme.css");
-
 .ui-di-sib {
 	vertical-align: top;
 	padding: 0px 1px 0px 1px;
