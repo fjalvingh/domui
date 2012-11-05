@@ -7,6 +7,10 @@
 	<%= margins_neutralize %>
 }
 
+.ui-atl table{
+	width: 100%;
+}
+
 .ui-atl-bb {
 	white-space: nowrap;
 	width: 90%;

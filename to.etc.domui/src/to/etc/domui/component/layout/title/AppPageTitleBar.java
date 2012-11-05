@@ -64,6 +64,8 @@ public class AppPageTitleBar extends BasePageTitleBar {
 
 	private ErrorMessageDiv m_errorThingy = new ErrorMessageDiv();
 
+	private Table m_titleTable;
+
 	public AppPageTitleBar(boolean catchError) {
 		m_catchError = catchError;
 	}
@@ -99,12 +101,14 @@ public class AppPageTitleBar extends BasePageTitleBar {
 	@Override
 	public void createContent() throws Exception {
 		super.createContent();
+		m_titleTable = new Table();
+		add(m_titleTable);
 		TBody b = new TBody();
-		add(b);
 		setCssClass("ui-atl");
-		setCellPadding("0");
-		setCellSpacing("0");
-		setTableBorder(0);
+		m_titleTable.add(b);
+		m_titleTable.setCellPadding("0");
+		m_titleTable.setCellSpacing("0");
+		m_titleTable.setTableBorder(0);
 		TR tr = b.addRow();
 		b.add(tr);
 
@@ -133,8 +137,8 @@ public class AppPageTitleBar extends BasePageTitleBar {
 		addDefaultButtons(m_buttonpart);
 
 		if(isCatchError()) {
-			int cspan = calcColSpan(getBody());
-			TD c = getBody().addRowAndCell();
+			int cspan = calcColSpan(m_titleTable.getBody());
+			TD c = m_titleTable.getBody().addRowAndCell();
 			c.add(m_errorThingy);
 			c.setColspan(cspan);
 		}
