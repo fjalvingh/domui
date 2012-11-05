@@ -190,14 +190,17 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 			return;
 		if(n.getPage().getFocusComponent() != null)
 			return;
-		if(n instanceof IHasChangeListener) { // FIXME Why this 'if'?
-			if(n instanceof IControl< ? >) {
-				IControl< ? > in = (IControl< ? >) n;
-				if(!in.isDisabled() && !in.isReadOnly())
-					n.getPage().setFocusComponent(n);
-			} else
-				n.getPage().setFocusComponent(n);
-		}
+		if(n.isFocusable())
+			n.getPage().setFocusComponent(n);
+		//			
+		//		
+		//		if(n instanceof IHasChangeListener) { // FIXME Why this 'if'?
+		//			if(n instanceof IControl< ? >) {
+		//				IControl< ? > in = (IControl< ? >) n;
+		//				if(!in.isDisabled() && !in.isReadOnly())
+		//			} else
+		//				n.getPage().setFocusComponent(n);
+		//		}
 	}
 
 	protected void renderPageHeader() throws Exception {
@@ -272,6 +275,8 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 	public void render(IRequestContext ctx, Page page) throws Exception {
 		m_ctx = ctx;
 		m_page = page;
+
+		page.calculateDefaultFocus(null);							// Full page's do not use the default focus calculation from a start point.
 
 		if(page.isRenderAsXHTML()) {
 			setXml(true);

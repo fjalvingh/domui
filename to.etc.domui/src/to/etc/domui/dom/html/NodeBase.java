@@ -1409,6 +1409,19 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		onRefresh();
 	}
 
+	public boolean isFocusable() {
+		NodeBase n = this;
+		if(n instanceof IHasChangeListener) { // FIXME Why this 'if'?
+			if(n instanceof IControl< ? >) {
+				IControl< ? > in = (IControl< ? >) n;
+				if(!in.isDisabled() && !in.isReadOnly())
+					return true;
+			} else
+				return true;
+		}
+		return false;
+	}
+
 	/**
 	 * Appends the jQuery "selector" code for this node as:
 	 * {@code $('#_a01')}

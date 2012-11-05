@@ -692,29 +692,6 @@ final public class Page implements IQContextContainer {
 		m_focusComponent = focusComponent;
 	}
 
-	//	/**
-	//	 * Walks the component tree, and makes the first input component hold the focus.
-	//	 */
-	//	public void	focusFirstInput() {
-	//		focusFirstInput(getBody());
-	//	}
-	//	private boolean focusFirstInput(NodeBase b) {
-	//		System.out.println("FFN: "+b);
-	//		if(b instanceof IControl) {
-	//			b.setFocus();
-	//			return true;
-	//		}
-	//
-	//		if(b instanceof NodeContainer) {
-	//			NodeContainer nc = (NodeContainer) b;
-	//			for(NodeBase ch: nc) {
-	//				if(focusFirstInput(ch))
-	//					return true;
-	//			}
-	//		}
-	//		return false;
-	//	}
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Context handling code.								*/
 	/*--------------------------------------------------------------*/
@@ -747,6 +724,8 @@ final public class Page implements IQContextContainer {
 
 	/** Temp for checking shelve order. */
 	private boolean m_shelved;
+
+	private NodeBase m_defaultFocusSource;
 
 	/**
 	 * Call all onShelve() handlers on all attached components.
@@ -861,5 +840,14 @@ final public class Page implements IQContextContainer {
 
 	public void setRenderAsXHTML(boolean renderAsXHTML) {
 		m_renderAsXHTML = renderAsXHTML;
+	}
+
+	public void calculateDefaultFocus(NodeBase node) {
+		m_defaultFocusSource = node;
+	}
+
+	@Nullable
+	public NodeBase getDefaultFocusSource() {
+		return m_defaultFocusSource;
 	}
 }
