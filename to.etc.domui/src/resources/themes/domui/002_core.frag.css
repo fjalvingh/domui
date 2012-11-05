@@ -65,6 +65,10 @@ td {
 	padding: 1px;
 }
 
+div {
+	vertical-align: top;
+}
+
 .ui-content {
 	padding: <%= margins_main %> <%= margins_main %>;
 }

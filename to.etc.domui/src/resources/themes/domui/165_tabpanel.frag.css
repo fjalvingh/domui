@@ -1,8 +1,7 @@
 /*** 165_tabpanel.frag.css ***/
 /*** The tab control, using the "sliding doors" technique as in http://www.alistapart.com/articles/slidingdoors/ ***/
 .ui-tab-c {
-	<%= margins_neutralize %>
-	margin-top: 0px;
+	margin: 0px -<%= margins_main %> <%= margins_main %> -<%= margins_main %>;
 }
 
 .ui-tab-hdr {
@@ -10,7 +9,7 @@
 	font-size: <%= font_size %>;
 	line-height: normal;
 	width: 100%;
-	margin: 10px 0px 10px;
+	margin: 0px 0px <%= margins_main %>;
 }
 
 .ui-tab-hdr li {

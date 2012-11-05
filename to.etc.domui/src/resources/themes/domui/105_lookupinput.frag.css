@@ -66,6 +66,7 @@ table.ui-lui-selected {
 	background-color: #ffe5e5 !important;
 }
 .ui-lui-vcell {
+	min-width: 100px;
 	width: 99%;
 	padding: 2px 5px 2px 2px;
 }
