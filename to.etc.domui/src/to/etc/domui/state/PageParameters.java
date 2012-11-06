@@ -319,6 +319,7 @@ public class PageParameters implements IPageParameters {
 	 * Return the number of parameter (names) in this instance.
 	 * @return
 	 */
+	@Override
 	public int size() {
 		return m_map.size();
 	}
