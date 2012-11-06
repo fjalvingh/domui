@@ -100,8 +100,11 @@ public class AppPageTitleBar extends BasePageTitleBar {
 		m_hint = hint;
 	}
 
+	@Nonnull
 	public TBody getBody() {
-		return m_body;
+		if(null != m_body)
+			return m_body;
+		throw new IllegalStateException("Body null: call after createContent");
 	}
 
 	@Override
