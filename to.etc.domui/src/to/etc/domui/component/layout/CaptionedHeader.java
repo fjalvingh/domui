@@ -69,7 +69,7 @@ public class CaptionedHeader extends Table {
 
 	@Override
 	public void createContent() throws Exception {
-		setCssClass("ui-chdr");
+		addCssClass("ui-chdr");
 		setCellPadding("0");
 		setCellSpacing("0");
 		setTableWidth("100%");

@@ -537,6 +537,9 @@ div.ui-ipa img {
 .dso-add-bottom-margin {
 	margin-bottom: <%= margins_main %> !important;
 }
+.dso-remove-top-margin {
+	margin-top: 0px !important;
+}
 /*** 060_msgbox.frag.css ***/
 /*** MsgBox ***/
 .ui-mbx-top {

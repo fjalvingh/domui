@@ -92,3 +92,6 @@ div.ui-ipa img {
 .dso-add-bottom-margin {
 	margin-bottom: <%= margins_main %> !important;
 }
+.dso-remove-top-margin {
+	margin-top: 0px !important;
+}
