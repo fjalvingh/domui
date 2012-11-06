@@ -12,6 +12,11 @@ public class ConnectedToSelectInput extends TextStr {
 	private IConnectableToInput m_connectedControl;
 
 	/**
+	 * If T, drops down connected select when down arrow is pressed. T by default.
+	 */
+	private boolean m_doesDropDown = true;
+
+	/**
 	 * Force the javascript to load when this panel is used.
 	 * @see to.etc.domui.dom.html.NodeBase#onAddedToPage(to.etc.domui.dom.html.Page)
 	 */
@@ -27,7 +32,7 @@ public class ConnectedToSelectInput extends TextStr {
 		if(m_connectedControl.getSelectControl().internalGetID() == null) {
 			throw new IllegalStateException("Connected select is not built at " + this);
 		}
-		appendCreateJS("ConnectedToSelectInput.initialize('" + getActualID() + "','" + m_connectedControl.getSelectControl().getActualID() + "')");
+		appendCreateJS("ConnectedToSelectInput.initialize('" + getActualID() + "','" + m_connectedControl.getSelectControl().getActualID() + "', " + m_doesDropDown + ")");
 	}
 
 	public IConnectableToInput getConnectedControl() {
@@ -36,5 +41,21 @@ public class ConnectedToSelectInput extends TextStr {
 
 	public void setConnectedControl(IConnectableToInput connectedControl) {
 		m_connectedControl = connectedControl;
+	}
+
+	/**
+	 * Returns if drop down of connected select list is enabled using down arrow key inside input.
+	 * @return
+	 */
+	public boolean isDoesDropDown() {
+		return m_doesDropDown;
+	}
+
+	/**
+	 * Set to enable/disable showing and drop down of connected select via down key. 
+	 * @param doesDropDown
+	 */
+	public void setDoesDropDown(boolean doesDropDown) {
+		m_doesDropDown = doesDropDown;
 	}
 }

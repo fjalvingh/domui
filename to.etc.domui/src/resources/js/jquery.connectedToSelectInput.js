@@ -1,14 +1,14 @@
 // ConnectedToSelectInput javascript plugin based on jQuery.
 // connects input to usually hidden list select and provides autocomplete feature inside input. Down arrow does show and focus select list.
 var ConnectedToSelectInput = {		
-	initialize:function (inputId, selectId){
+	initialize:function (inputId, selectId, doesDropDown){
 		var input = document.getElementById(inputId);
 		$(input).keyup(function(event) {
-			ConnectedToSelectInput.matchFieldSelect(event, inputId, selectId); 
+			ConnectedToSelectInput.matchFieldSelect(event, inputId, selectId, doesDropDown); 
 		});
 	},
 
-	matchFieldSelect: function (event, inputId, selectId) {
+	matchFieldSelect: function (event, inputId, selectId, doesDropDown) {
 		var select = document.getElementById(selectId);
 		var cursorKeys = "8;46;37;38;39;40;33;34;35;36;45;";
 		if (cursorKeys.indexOf(event.keyCode + ";") == -1) {
@@ -48,7 +48,7 @@ var ConnectedToSelectInput = {
 					rNew.select();
 				}
 			}
-		}else if (event.keyCode == 40){
+		}else if (doesDropDown && event.keyCode == 40){
 			select.style.display = 'inline';
 			select.focus();
 		}
