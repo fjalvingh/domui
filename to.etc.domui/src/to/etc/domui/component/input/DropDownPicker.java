@@ -6,21 +6,22 @@ import javax.annotation.*;
 
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.dom.css.*;
+import to.etc.domui.dom.html.ConnectedToSelectInput.IConnectableToInput;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
-public class DropDownPicker<T> extends SmallImgButton {
+public class DropDownPicker<T> extends SmallImgButton implements IConnectableToInput {
 	public enum HAlign {LEFT, MIDDLE, RIGHT}; 
 
 	public interface IDropDownPickerAdjuster<T> {
 		void onBeforeShow(ComboLookup<T> m_picker) throws Exception;
 	}
 
-	private List<T> m_data;
+	private final List<T> m_data;
 
 	private IValueSelected<T> m_onValueSelected;
 
-	private ComboLookup<T> m_picker;
+	private final ComboLookup<T> m_picker;
 
 	private NodeBase m_zIndexBaseParent;
 
@@ -63,6 +64,7 @@ public class DropDownPicker<T> extends SmallImgButton {
 		m_data = data;
 		m_zIndexBaseParent = zIndexBaseParent;
 		m_size = size;
+		m_picker = new ComboLookup<T>(m_data);
 	}
 
 	@Override
@@ -71,7 +73,6 @@ public class DropDownPicker<T> extends SmallImgButton {
 		if(getSrc() == null) {
 			setSrc(Msgs.BTN_FIND);
 		}
-		m_picker = new ComboLookup<T>(m_data);
 		m_picker.setDisplay(DisplayType.NONE);
 		m_picker.setPosition(PositionType.ABSOLUTE);
 		if(m_zIndexBaseParent.getZIndex() > Integer.MIN_VALUE) {
@@ -80,64 +81,53 @@ public class DropDownPicker<T> extends SmallImgButton {
 			m_picker.setZIndex(10);
 		}
 		m_picker.setSize(m_size);
-		m_picker.setOnValueChanged(new IValueChanged<NodeBase>() {
+		m_picker.setClicked(new IClicked<NodeBase>() {
 
-			@SuppressWarnings("synthetic-access")
 			@Override
-			public void onValueChanged(@Nonnull NodeBase component) throws Exception {
-				m_picker.setDisplay(DisplayType.BLOCK);//we need to change twice since value is changed using javascript
-				m_picker.setDisplay(DisplayType.NONE);
-				if(getOnValueSelected() != null) {
-					m_selected = m_picker.getValue();
-					getOnValueSelected().valueSelected(m_selected);
-				}
+			public void clicked(NodeBase node) throws Exception {
+				handlePickerValueChanged();
 			}
 		});
+		m_picker.setReturnPressed(new IReturnPressed<Select>() {
+
+			@Override
+			public void returnPressed(Select node) throws Exception {
+				handlePickerValueChanged();
+			}
+		});
+
 		if(m_selected != null) {
 			m_picker.setValue(m_selected);
 		} else if(m_data.size() > 0 && isMandatory()) {
 			m_picker.setValue(m_data.get(0));
 		}
 		m_picker.setMandatory(isMandatory());
-		m_picker.setSpecialAttribute("onblur", "this.style.display='none';");
+		m_picker.setSpecialAttribute("onblur", "$(this).css('display','none');$(this).triggerHandler('click')");
 
 		if(getClicked() == null) {
 			setClicked(m_defaultClickHandler);
 		}
 
 		appendAfterMe(m_picker);
+		positionPicker();
 	}
 
-	private IClicked<SmallImgButton> m_defaultClickHandler = new IClicked<SmallImgButton>() {
+	void handlePickerValueChanged() throws Exception {
+		appendJavascript("$('#" + m_picker.getActualID() + "').css('display', 'none');");
+		if(getOnValueSelected() != null) {
+			m_selected = m_picker.getValue();
+			getOnValueSelected().valueSelected(m_selected);
+		}
+	}
+
+	private final IClicked<SmallImgButton> m_defaultClickHandler = new IClicked<SmallImgButton>() {
 		@SuppressWarnings("synthetic-access")
 		@Override
 		public void clicked(SmallImgButton clickednode) throws Exception {
 			if(getAdjuster() != null) {
 				getAdjuster().onBeforeShow(m_picker);
 			}
-			NodeBase alignBase = getAlignmentBase() != null ? getAlignmentBase() : DropDownPicker.this;  
-
-			appendJavascript("$('#" + m_picker.getActualID() + "').css('top', $('#" + alignBase.getActualID() + "').position().top + " + m_offsetY + " + $('#" + alignBase.getActualID() + "').outerHeight(true));");
-			switch (m_halign){
-				case LEFT :
-					appendJavascript("var myPickerLeftPos = $('#" + alignBase.getActualID() + "').position().left + " + m_offsetX + ";");
-					appendJavascript("var myPickerRightPos = $('#" + m_picker.getActualID() + "').outerWidth(true) + myPickerLeftPos;");
-					appendJavascript("if (myPickerRightPos > $(window).width()){ myPickerLeftPos = myPickerLeftPos - myPickerRightPos + $(window).width(); }");
-					appendJavascript("if (myPickerLeftPos < 1){ myPickerLeftPos = 1; }");
-					break;
-				case RIGHT :
-					appendJavascript("var myPickerLeftPos = $('#" + alignBase.getActualID() + "').position().left + " + m_offsetX + " - $('#" + m_picker.getActualID() + "').outerWidth(true) + $('#"
-						+ alignBase.getActualID() + "').outerWidth(true) - 3;");
-					appendJavascript("if (myPickerLeftPos < 1){ myPickerLeftPos = 1; }");
-					break;
-				case MIDDLE :
-					appendJavascript("var myPickerLeftPos = $('#" + alignBase.getActualID() + "').position().left + ($('#" + alignBase.getActualID() + "').outerWidth(true) / 2) - ($('#" + m_picker.getActualID() + "').outerWidth(true) / 2);");
-					appendJavascript("if (myPickerLeftPos < 1){ myPickerLeftPos = 1; }");
-					break;
-				default :
-					throw new IllegalStateException("Unknown horizontal alignment? Found : " + m_halign);
-			}
-			appendJavascript("$('#" + m_picker.getActualID() + "').css('left', myPickerLeftPos);");
+			positionPicker();
 			appendJavascript("$('#" + m_picker.getActualID() + "').css('display', 'inline');");
 			appendJavascript("$('#" + m_picker.getActualID() + "').focus();");
 			if(m_picker.getSelectedIndex() >= 0) {
@@ -145,6 +135,33 @@ public class DropDownPicker<T> extends SmallImgButton {
 			}
 		}
 	};
+
+	private void positionPicker() {
+		NodeBase alignBase = getAlignmentBase() != null ? getAlignmentBase() : DropDownPicker.this;
+
+		appendJavascript("$('#" + m_picker.getActualID() + "').css('top', $('#" + alignBase.getActualID() + "').position().top + " + m_offsetY + " + $('#" + alignBase.getActualID() + "').outerHeight(true));");
+		switch(m_halign){
+			case LEFT:
+				appendJavascript("var myPickerLeftPos = $('#" + alignBase.getActualID() + "').position().left + " + m_offsetX + ";");
+				appendJavascript("var myPickerRightPos = $('#" + m_picker.getActualID() + "').outerWidth(true) + myPickerLeftPos;");
+				appendJavascript("if (myPickerRightPos > $(window).width()){ myPickerLeftPos = myPickerLeftPos - myPickerRightPos + $(window).width(); }");
+				appendJavascript("if (myPickerLeftPos < 1){ myPickerLeftPos = 1; }");
+				break;
+			case RIGHT:
+				appendJavascript("var myPickerLeftPos = $('#" + alignBase.getActualID() + "').position().left + " + m_offsetX + " - $('#" + m_picker.getActualID() + "').outerWidth(true) + $('#" + alignBase.getActualID()
+					+ "').outerWidth(true) - 3;");
+				appendJavascript("if (myPickerLeftPos < 1){ myPickerLeftPos = 1; }");
+				break;
+			case MIDDLE:
+				appendJavascript("var myPickerLeftPos = $('#" + alignBase.getActualID() + "').position().left + ($('#" + alignBase.getActualID() + "').outerWidth(true) / 2) - ($('#" + m_picker.getActualID()
+					+ "').outerWidth(true) / 2);");
+				appendJavascript("if (myPickerLeftPos < 1){ myPickerLeftPos = 1; }");
+				break;
+			default:
+				throw new IllegalStateException("Unknown horizontal alignment? Found : " + m_halign);
+		}
+		appendJavascript("$('#" + m_picker.getActualID() + "').css('left', myPickerLeftPos);");
+	}
 
 	public IValueSelected<T> getOnValueSelected() {
 		return m_onValueSelected;
@@ -262,5 +279,10 @@ public class DropDownPicker<T> extends SmallImgButton {
 	 */
 	public void setAlignmentBase(NodeBase halignmentBase) {
 		m_alignmentBase = halignmentBase;
+	}
+
+	@Override
+	public Select getSelectControl() throws Exception {
+		return m_picker;
 	}
 }

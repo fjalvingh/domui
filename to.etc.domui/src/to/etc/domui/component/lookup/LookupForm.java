@@ -342,7 +342,7 @@ public class LookupForm<T> extends Div {
 	}
 
 	/** The primary list of defined lookup items. */
-	private List<Item> m_itemList = new ArrayList<Item>(20);
+	private final List<Item> m_itemList = new ArrayList<Item>(20);
 
 	static public enum ButtonMode {
 		/** Show this button only when the lookup form is expanded */
@@ -362,11 +362,11 @@ public class LookupForm<T> extends Div {
 	 * Created on Nov 3, 2009
 	 */
 	private static class ButtonRowItem {
-		private int m_order;
+		private final int m_order;
 
-		private ButtonMode m_mode;
+		private final ButtonMode m_mode;
 
-		private NodeBase m_thingy;
+		private final NodeBase m_thingy;
 
 		public ButtonRowItem(int order, ButtonMode mode, NodeBase thingy) {
 			m_order = order;
@@ -509,7 +509,7 @@ public class LookupForm<T> extends Div {
 		}
 
 		//-- Add a RETURN PRESSED handler to allow pressing RETURN on search fields.
-		setReturnPressed(new IReturnPressed() {
+		setReturnPressed(new IReturnPressed<Div>() {
 			@Override
 			public void returnPressed(final Div node) throws Exception {
 				if(m_clicker != null)

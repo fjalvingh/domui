@@ -44,7 +44,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 	/** Scratch stringbuffer. */
 	private StringBuilder m_sb;
 
-	private BrowserVersion m_browserVersion;
+	private final BrowserVersion m_browserVersion;
 
 	private final IBrowserOutput m_o;
 
@@ -1089,8 +1089,12 @@ public class HtmlTagRenderer implements INodeVisitor {
 		if(n.isMultiple())
 			o().attr("multiple", "multiple");
 		renderDisabled(n, n.isDisabled()); // WATCH OUT: The SELECT tag HAS no READONLY attribute!!!
-		if(n.getSize() > 0)
+		if(n.getSize() > 0) {
 			o().attr("size", n.getSize());
+		}
+		if(n.getReturnPressed() != null) {
+			o().attr("onkeypress", "return WebUI.returnKeyPress(event, this)");
+		}
 		renderTagend(n, o());
 	}
 
