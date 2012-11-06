@@ -25,6 +25,10 @@ public class ConnectedToSelectInput extends TextStr {
 		getPage().addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery.connectedToSelectInput.js"), 100);
 	}
 
+	/**
+	 * Initialize client side jquery plugin to support component on client side. Needs to be executed when both input and connected select have assigned actualIds.
+	 * @throws Exception
+	 */
 	public void initialize() throws Exception {
 		if(m_connectedControl == null || m_connectedControl.getSelectControl() == null) {
 			throw new IllegalStateException(IConnectableToInput.class.getName() + " not connected to " + ConnectedToSelectInput.class.getName());
