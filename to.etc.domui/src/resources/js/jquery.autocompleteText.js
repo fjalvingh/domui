@@ -1,14 +1,14 @@
-// ConnectedToSelectInput javascript plugin based on jQuery.
+// AutocompleteText javascript plugin.
 // connects input to usually hidden list select and provides autocomplete feature inside input. Down arrow does show and focus select list.
-var ConnectedToSelectInput = {		
-	initialize:function (inputId, selectId, doesDropDown){
+var AutocompleteText = {		
+	initialize:function (inputId, selectId){
 		var input = document.getElementById(inputId);
 		$(input).keyup(function(event) {
-			ConnectedToSelectInput.matchFieldSelect(event, inputId, selectId, doesDropDown); 
+			AutocompleteText.matchFieldSelect(event, inputId, selectId); 
 		});
 	},
 
-	matchFieldSelect: function (event, inputId, selectId, doesDropDown) {
+	matchFieldSelect: function (event, inputId, selectId) {
 		var select = document.getElementById(selectId);
 		var cursorKeys = "8;46;37;38;39;40;33;34;35;36;45;";
 		if (cursorKeys.indexOf(event.keyCode + ";") == -1) {
@@ -27,12 +27,14 @@ var ConnectedToSelectInput = {
 			var newValue = found ? select.options[foundAtIndex].text : oldValue;
 			if (newValue != oldValue) {
 				if (typeof input.selectionStart != "undefined") {
+					//normal browsers
 		            input.value = newValue;
 		            input.selectionStart = oldValue.length; 
 			        input.selectionEnd =  newValue.length;
 			        input.focus();
 			    } 
 				if (document.selection && document.selection.createRange) {
+					//IE9
 					input.value = newValue;
 		            input.focus();
 		            input.select();
@@ -42,13 +44,14 @@ var ConnectedToSelectInput = {
 		            range.moveEnd("character", newValue.length);
 		            range.select();
 		        }else if (input.createTextRange) {
+					//IE8-
 					input.value = newValue;
 					var rNew = input.createTextRange();
 					rNew.moveStart('character', oldValue.length);
 					rNew.select();
 				}
 			}
-		}else if (doesDropDown && event.keyCode == 40){
+		}else if (event.keyCode == 40){
 			select.style.display = 'inline';
 			select.focus();
 		}

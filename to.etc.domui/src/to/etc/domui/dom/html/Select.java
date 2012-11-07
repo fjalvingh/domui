@@ -29,7 +29,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.buttons.*;
-import to.etc.domui.dom.html.ConnectedToSelectInput.IConnectableToInput;
+import to.etc.domui.component.input.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 
@@ -41,7 +41,7 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 11, 2008
  */
-public class Select extends InputNodeContainer implements IHasModifiedIndication, IConnectableToInput {
+public class Select extends InputNodeContainer implements IHasModifiedIndication, ISelectProvider {
 	private boolean m_multiple;
 
 	private boolean m_disabled;
@@ -294,7 +294,8 @@ public class Select extends InputNodeContainer implements IHasModifiedIndication
 	}
 
 	@Override
-	public Select getSelectControl() throws Exception {
+	public @Nonnull
+	Select getSelectControl() throws Exception {
 		return this;
 	}
 }

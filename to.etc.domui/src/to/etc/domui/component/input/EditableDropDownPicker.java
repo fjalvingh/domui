@@ -13,7 +13,7 @@ import to.etc.domui.trouble.*;
 import to.etc.webapp.nls.*;
 
 /**
- * Encapsulates input and drop down picker into single component. Input behaves as autocomplete field that does search on select inside select within drop down picker.
+ * Encapsulates AutocompleteText and drop down picker into single component. Input behaves as autocomplete field that does search on select inside select within drop down picker.
  * Search is done at client side for faster user experience. 
  * It also allows entering of new data (not contained inside predefined list), that is why it works on-top of String based input.  
  * 
@@ -21,7 +21,7 @@ import to.etc.webapp.nls.*;
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on Nov 6, 2012
  */
-public class EditableDropDownPicker<T> extends ConnectedToSelectInput implements IObjectToStringConverter<T> {
+public class EditableDropDownPicker<T> extends AutocompleteText implements IObjectToStringConverter<T> {
 	private DropDownPicker<T> m_picker;
 
 	private final List<T> m_data;
@@ -32,6 +32,12 @@ public class EditableDropDownPicker<T> extends ConnectedToSelectInput implements
 
 	private final IObjectToStringConverter<T> m_toStringConverter;
 
+	/**
+	 * Constructor.
+	 * @param data
+	 * @param dropDownIcon
+	 * @param toStringConverter In case of T = String, toStringConverter can be left null, otherwise it needs to be specified.
+	 */
 	public EditableDropDownPicker(@Nonnull List<T> data, @Nonnull String dropDownIcon, @Nullable IObjectToStringConverter<T> toStringConverter) {
 		super();
 		m_data = data;
@@ -75,15 +81,10 @@ public class EditableDropDownPicker<T> extends ConnectedToSelectInput implements
 			}
 		});
 
-		setConnectedControl(m_picker);
+		setSelectProvider(m_picker);
 		appendAfterMe(m_picker);
 		m_picker.build();
-	}
-
-	@Override
-	protected void afterCreateContent() throws Exception {
-		super.afterCreateContent();
-		initialize();
+		initializeJS();
 	}
 
 	protected void adjustSelection(ComboLookup<T> combo, String text) throws Exception {

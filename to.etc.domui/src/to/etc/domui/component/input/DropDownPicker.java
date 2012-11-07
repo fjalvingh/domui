@@ -6,11 +6,10 @@ import javax.annotation.*;
 
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.html.ConnectedToSelectInput.IConnectableToInput;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
-public class DropDownPicker<T> extends SmallImgButton implements IConnectableToInput {
+public class DropDownPicker<T> extends SmallImgButton implements ISelectProvider {
 	public enum HAlign {LEFT, MIDDLE, RIGHT}; 
 
 	public interface IDropDownPickerAdjuster<T> {
@@ -282,7 +281,8 @@ public class DropDownPicker<T> extends SmallImgButton implements IConnectableToI
 	}
 
 	@Override
-	public Select getSelectControl() throws Exception {
+	public @Nonnull
+	Select getSelectControl() throws Exception {
 		return m_picker;
 	}
 }
