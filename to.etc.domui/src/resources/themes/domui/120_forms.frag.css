@@ -14,7 +14,7 @@
 .ui-f-in {
 	font-size: <%= font_size %>;
 	vertical-align: top; /* jal 20090818 changed from top to middle to align DateInput buttons better */
-	padding-left: 4px;
+	padding: 0px 0px 0px 4px;
 }
 
 .ui-f-in input, .ui-f-in select{
