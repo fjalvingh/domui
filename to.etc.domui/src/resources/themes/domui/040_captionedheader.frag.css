@@ -1,6 +1,6 @@
 /*** 040_captionedheader.frag.css ***/
 /*** CaptionedHeader ***/
-body > .ui-chdr {
+.ui-content > .ui-chdr {
 	<%= margins_neutralize %>
 }
 .ui-chdr {

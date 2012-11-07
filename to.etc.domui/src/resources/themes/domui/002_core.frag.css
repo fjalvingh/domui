@@ -61,9 +61,12 @@ pre {
 }
 
 td {
-	vertical-align: top;
 	padding: 1px;
 }
+
+td input, td select, td label {
+	vertical-align: top;
+} 
 
 div {
 	vertical-align: top;
