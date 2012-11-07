@@ -24,7 +24,7 @@ import to.etc.webapp.nls.*;
 public class EditableDropDownPicker<T> extends AutocompleteText implements IObjectToStringConverter<T> {
 	private DropDownPicker<T> m_picker;
 
-	private final List<T> m_data;
+	private List<T> m_data;
 
 	private final String m_dropDownIcon;
 
@@ -87,7 +87,7 @@ public class EditableDropDownPicker<T> extends AutocompleteText implements IObje
 		initializeJS();
 	}
 
-	protected void adjustSelection(ComboLookup<T> combo, String text) throws Exception {
+	void adjustSelection(ComboLookup<T> combo, String text) throws Exception {
 		boolean found = false;
 		for(int i = 0; i < combo.getData().size(); i++) {
 			T val = combo.getData().get(i);
@@ -113,6 +113,28 @@ public class EditableDropDownPicker<T> extends AutocompleteText implements IObje
 			return in.toString();
 		} else {
 			return m_toStringConverter.convertObjectToString(loc, in);
+		}
+	}
+
+	/**
+	 * Gets picker select options.
+	 * @param data
+	 */
+	public List<T> getData() {
+		return m_data;
+	}
+
+	/**
+	 * Sets data that is used for picker select options.
+	 * @param data
+	 */
+	public void setData(List<T> data) {
+		if(m_data != data) {
+			m_data = data;
+			if(null != m_picker) {
+				//if picker is already created then switch it's data, otherwise data would be used when picker is creating
+				m_picker.setData(data);
+			}
 		}
 	}
 }

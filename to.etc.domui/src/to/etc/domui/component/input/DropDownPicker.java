@@ -16,7 +16,7 @@ public class DropDownPicker<T> extends SmallImgButton implements ISelectProvider
 		void onBeforeShow(ComboLookup<T> m_picker) throws Exception;
 	}
 
-	private final List<T> m_data;
+	private List<T> m_data;
 
 	private IValueSelected<T> m_onValueSelected;
 
@@ -39,8 +39,8 @@ public class DropDownPicker<T> extends SmallImgButton implements ISelectProvider
 	private HAlign m_halign = HAlign.LEFT;
 
 	/**
-	 * Control that drop down picker would use as base for vertical and horizontal alignment. Picker is always shown below base control, while horizontal alignment can be defined (see {@link HAlign}.
-	 * If not set different, picker SmallImgButton is used as alignment base. 
+	 * Control that drop down picker would use as base for vertical and horizontal alignment. Picker is always shown below base control, while horizontal alignment can be defined (see {@link DropDownPicker#setHalign(HAlign)}).
+	 * If not set different, picker {@link SmallImgButton} is used as alignment base. 
 	 */
 	private NodeBase m_alignmentBase;
 	
@@ -191,7 +191,7 @@ public class DropDownPicker<T> extends SmallImgButton implements ISelectProvider
 	}
 
 	/**
-	 * Specify custom offset x relative to picker btn. By default, popup is rendered under picker button.
+	 * Specify custom offset x relative to picker btn. By default, popup is rendered under {@link DropDownPicker#getAlignmentBase()} control.
 	 * @param offsetX
 	 */
 	public void setOffsetX(int offsetX) {
@@ -204,7 +204,7 @@ public class DropDownPicker<T> extends SmallImgButton implements ISelectProvider
 	}
 
 	/**
-	 * Returns custom offset y relative to picker btn.
+	 * Returns custom offset y relative to {@link DropDownPicker#getAlignmentBase()} control. To set horizontal alignment rule see {@link DropDownPicker#setHalign(HAlign)}.
 	 * @return
 	 */
 	public int getOffsetY() {
@@ -260,8 +260,23 @@ public class DropDownPicker<T> extends SmallImgButton implements ISelectProvider
 		return m_halign;
 	}
 
+	/**
+	 * Sets picker select list horizontal alignment.
+	 * <UL>
+	 * <LI> {@link HAlign#LEFT} position list to be left aligned with {@link DropDownPicker#getAlignmentBase()} component.</LI>
+	 * <LI> {@link HAlign#MIDDLE} position list to be center aligned with {@link DropDownPicker#getAlignmentBase()} component.</LI>
+	 * <LI> {@link HAlign#RIGHT} position list to be right aligned with {@link DropDownPicker#getAlignmentBase()} component.</LI>
+	 * </UL>
+	 * 
+	 * If no other component is set to be {@link DropDownPicker#getAlignmentBase()}, this defaults to drop down button.
+	 * In order to affect offset to this aligment rules use {@link DropDownPicker#setOffsetY(int)} and {@link DropDownPicker#setOffsetX(int)}.  
+	 * @param halign
+	 */
 	public void setHalign(@Nonnull HAlign halign) {
 		m_halign = halign;
+		if(isBuilt()) {
+			positionPicker();
+		}
 	}
 
 	/**
@@ -284,5 +299,16 @@ public class DropDownPicker<T> extends SmallImgButton implements ISelectProvider
 	public @Nonnull
 	Select getSelectControl() throws Exception {
 		return m_picker;
+	}
+
+	public List<T> getData() {
+		return m_data;
+	}
+
+	public void setData(List<T> data) {
+		if(m_data != data) {
+			m_data = data;
+			m_picker.setData(data);
+		}
 	}
 }
