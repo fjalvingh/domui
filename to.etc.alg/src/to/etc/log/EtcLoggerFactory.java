@@ -1,6 +1,7 @@
 package to.etc.log;
 
 import java.io.*;
+import java.text.*;
 import java.util.*;
 
 import javax.annotation.*;
@@ -28,6 +29,8 @@ public class EtcLoggerFactory implements ILoggerFactory {
 	 * The unique instance of this class. 
 	 */
 	private static final EtcLoggerFactory	SINGLETON	= new EtcLoggerFactory();
+	
+	private final DateFormat	m_df		= new SimpleDateFormat("yyMMdd");
 
 	/** 
 	 * Return the singleton of this class. 
@@ -304,5 +307,21 @@ public class EtcLoggerFactory implements ILoggerFactory {
 
 	public Level getDefaultLevel() {
 		return DEFAULT_LEVEL;
+	}
+	
+	public String composeFullLogFileName(@Nonnull String logPath, @Nonnull String fileName) {
+		String res;
+		if(fileName.contains(":")) {
+			res = fileName;
+		} else {
+			res = logPath + File.separator + fileName;
+		}
+
+		res += "_" + m_df.format(new Date()) + ".log";
+		return res;
+	}
+	
+	public String composeFullLogFileName(@Nonnull String fileName) {
+		return composeFullLogFileName(m_logDir.getAbsolutePath(), fileName);
 	}
 }

@@ -10,7 +10,9 @@ import to.etc.domui.component.ntbl.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.log.data.*;
+import to.etc.domui.log.tailer.*;
 import to.etc.domui.util.*;
+import to.etc.log.*;
 import to.etc.log.handler.*;
 import to.etc.webapp.nls.*;
 
@@ -42,6 +44,20 @@ public class ConfigPart extends Div {
 		m_model = new SimpleListModel<Handler>(m_handlers);
 
 		BasicRowRenderer<Handler> rr = new BasicRowRenderer<Handler>(Handler.class, m_cols);
+		rr.addColumns("", "^follow", "%10", new INodeContentRenderer<Handler>(){
+
+			@Override
+			public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable final Handler handler, @Nullable Object parameters) throws Exception {
+				if (handler != null && handler.getType() == HandlerType.FILE){
+					node.add(new LinkButton("follow", new IClicked<LinkButton>(){
+						@Override
+						public void clicked(LinkButton clickednode) throws Exception {
+							ServerLogPage.moveSub(constructLogPath(handler.getFile()));
+						}
+					}));
+				}
+			}
+		});
 		m_table = new ExpandingEditTable<Handler>(Handler.class, m_model, rr);
 		m_table.setNewAtStart(true);
 		m_table.setEnableDeleteButton(true);
@@ -57,6 +73,10 @@ public class ConfigPart extends Div {
 		});
 
 		add(m_table);
+	}
+
+	protected String constructLogPath(@Nonnull String fileName) {
+		return EtcLoggerFactory.getSingleton().composeFullLogFileName(fileName);
 	}
 
 	protected void createButtonBar() {

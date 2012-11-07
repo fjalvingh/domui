@@ -36,8 +36,6 @@ class FileLogHandler implements ILogHandler {
 
 	private final Object					m_writeLock	= new Object();
 
-	private static final DateFormat	m_df		= new SimpleDateFormat("yyMMdd");
-
 	private EtcLogFormat					m_format	= null;
 
 	public FileLogHandler(@Nonnull File logRoot, @Nullable String out) {
@@ -93,13 +91,7 @@ class FileLogHandler implements ILogHandler {
 			} else {
 				BufferedWriter w = null;
 				String fileName = null;
-				if(m_out.contains(":")) {
-					fileName = m_out;
-				} else {
-					fileName = m_logRoot + File.separator + m_out;
-				}
-
-				fileName += "_" + m_df.format(new Date()) + ".log";
+				fileName = EtcLoggerFactory.getSingleton().composeFullLogFileName(m_logRoot.getAbsolutePath(), m_out);
 
 				File outFile = new File(fileName);
 				outFile.getParentFile().mkdirs();
@@ -124,7 +116,7 @@ class FileLogHandler implements ILogHandler {
 			}
 		}
 	}
-		
+
 	private @Nullable
 	String getLogPartFromFilters() {
 		if(m_filters.isEmpty()) {
