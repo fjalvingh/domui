@@ -45,7 +45,7 @@ public class LogTailerFragment extends PollingDiv {
 
 	private ComboFixed<Integer> m_linesCombo;
 
-//	private Div m_debugDiv;
+	//	private Div m_debugDiv;
 
 
 	public LogTailerFragment(String logpath) {
@@ -65,8 +65,8 @@ public class LogTailerFragment extends PollingDiv {
 		createTask();
 		createHeader();
 		add(m_lineDiv);
-//		m_debugDiv = new Div();
-//		add(m_debugDiv);
+		//		m_debugDiv = new Div();
+		//		add(m_debugDiv);
 
 		updateSizes();
 		updateLines(0);
@@ -84,10 +84,10 @@ public class LogTailerFragment extends PollingDiv {
 		ttl.setCssClass("ui-tlf-hdr");
 
 		//-- 1. Buttons.
-		Div	btn = new Div();
+		Div btn = new Div();
 		ttl.add(btn);
 		btn.setCssClass("ui-tlf-btn");
-		SmallImgButton	ib = new SmallImgButton("img/btnFirst.png", new IClicked<SmallImgButton>() {
+		SmallImgButton ib = new SmallImgButton("img/btnFirst.png", new IClicked<SmallImgButton>() {
 			@Override
 			public void clicked(SmallImgButton clickednode) throws Exception {
 				gotoLine(0);
@@ -215,6 +215,7 @@ public class LogTailerFragment extends PollingDiv {
 
 	@Override
 	public void checkForChanges() throws Exception {
+		m_task.readFileDelta();
 		long sz = m_task.getSize();
 		int ln = m_task.getLastLine();
 
@@ -271,7 +272,7 @@ public class LogTailerFragment extends PollingDiv {
 		if(xeline > maxlines)
 			xeline = maxlines;
 
-//		m_debugDiv.setText(">>> want start at line " + newstart + ", end=" + (newstart + getLinesPerPage()) + ", lineset=" + newstart + ":" + xeline);
+		//		m_debugDiv.setText(">>> want start at line " + newstart + ", end=" + (newstart + getLinesPerPage()) + ", lineset=" + newstart + ":" + xeline);
 
 		//-- Get the lineset to show.
 		List<String> lines = m_task.getLines(newstart, xeline);

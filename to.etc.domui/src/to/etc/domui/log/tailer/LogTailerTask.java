@@ -6,6 +6,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.state.*;
+import to.etc.util.*;
 
 /**
  * This will run a "tail -f xxxx" operation through an ssh session to a remote system. The ssh session
@@ -19,64 +20,80 @@ import to.etc.domui.state.*;
  * Created on Sep 2, 2012
  */
 public class LogTailerTask implements IConversationStateListener {
-	/** The path of the tailed file on that server. */
+	/** The path of the tailed file on server. */
 	@Nonnull
 	final private String m_logpath;
 
 	/** Writer: offsets of every 100th line (0, 100, 200, etc) */
 	private List<Long> m_offsetList = new ArrayList<Long>();
 
-	/** The last output offset */
-	private long m_currentWriteOffset;
+	/** The current file size, gets updated via readFileDelta method */
+	private long m_currentFileSize;
 
-	/** The last offset since we flushed the output */
-	private long m_lastFlushOffset;
+	/** The current file total number of lines, gets updated via readFileDelta method */
+	private int m_currentLinesCount;
 
-	/** The last line# we have seen. */
-	private int m_lastLine;
+	/** File reader used to get specified lines of file */
+	private RandomAccessFile m_fileContentReader;
 
-	private RandomAccessFile m_input;
+	/** File reader used to monitor for file updates */
+	private FileReader m_fileDeltaReader;
 
 	public LogTailerTask(@Nonnull String logpath) {
 		m_logpath = logpath;
 	}
 
 	public void start() throws Exception {
-		m_input = new RandomAccessFile(m_logpath, "rw");
-		m_currentWriteOffset = m_input.length();
-		m_lastLine = getNumberOfLinesInFile(new File(m_logpath), m_currentWriteOffset);
+		m_fileContentReader = new RandomAccessFile(m_logpath, "r");
+		m_fileDeltaReader = new FileReader(m_logpath);
+		m_currentFileSize = 0;
+		m_currentLinesCount = 0;
 		m_offsetList.clear();
 		m_offsetList.add(Long.valueOf(0));					// Line 0..99 at offset 0
-	}
-
-	public int getNumberOfLinesInFile(File file, long size) throws IOException {
-		LineNumberReader lr = null;
-		try {
-			lr = new LineNumberReader(new FileReader(file));
-			lr.skip(size);
-			return lr.getLineNumber();
-		} finally {
-			if(lr != null) {
-				lr.close();
-			}
-		}
+		readFileDelta();
 	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Reading data.										*/
 	/*--------------------------------------------------------------*/
-	
+
 	/**
-	 * Return the last 0-based line # that was completely written. -1 means no data is present at all. This does NOT include the last
-	 * line number *itself* because it can be seen partially.
+	 * Return the file total lines count.
 	 * @return
 	 */
 	public synchronized int getLastLine() {
-		return m_lastLine;
+		return m_currentLinesCount;
 	}
 
+	/**
+	 * Return the file size.
+	 * @return
+	 */
 	public synchronized long getSize() {
-		return m_currentWriteOffset;
+		return m_currentFileSize;
+	}
+
+	/**
+	 * Read file for delta changes.
+	 * @throws IOException
+	 */
+	public synchronized void readFileDelta() throws IOException {
+		int ix = 0;
+		int item;
+		do {
+			item = m_fileDeltaReader.read();
+			if(item > -1) {
+				ix++;
+				if(item == 0x0a) {
+					m_currentLinesCount++;
+					if(m_currentLinesCount % 100 == 0) {
+						long toff = m_currentFileSize + ix;
+						m_offsetList.add(Long.valueOf(toff));			// Add this line
+					}
+				}
+			}
+		} while(item > -1);
+		m_currentFileSize += ix;
 	}
 
 	/**
@@ -106,7 +123,7 @@ public class LogTailerTask implements IConversationStateListener {
 			int eix = (last / 100) + 1;			// Get block INCLUDING the last line
 
 			boffset = m_offsetList.get(six).longValue();
-			long eoffset = eix >= m_offsetList.size() ? m_currentWriteOffset : m_offsetList.get(eix).longValue();
+			long eoffset = eix >= m_offsetList.size() ? m_currentFileSize : m_offsetList.get(eix).longValue();
 			long l = eoffset - boffset;
 			if(l > 1024 * 1024) {
 				List<String> res = new ArrayList<String>(1);
@@ -118,8 +135,8 @@ public class LogTailerTask implements IConversationStateListener {
 
 		//-- Load all data.
 		byte[] data = new byte[blength];			// Load this many bytes; this will contain all the lines we're interested in.
-		m_input.seek(boffset);
-		int sz = m_input.read(data);
+		m_fileContentReader.seek(boffset);
+		int sz = m_fileContentReader.read(data);
 
 		//-- Find the start and the end of the line we need.
 		int sline = (first / 100) * 100;					// Block starts with this line
@@ -169,10 +186,7 @@ public class LogTailerTask implements IConversationStateListener {
 	@Override
 	public void conversationDestroyed(ConversationContext cc) throws Exception {
 		synchronized(this) {
-			try {
-				if(null != m_input)
-					m_input.close();
-			} catch(Exception x) {}
+			FileTool.closeAll(m_fileContentReader, m_fileDeltaReader);
 		}
 	}
 }
