@@ -13,6 +13,7 @@ import javax.xml.transform.stream.*;
 import org.slf4j.*;
 import org.w3c.dom.*;
 
+import to.etc.log.event.*;
 import to.etc.log.handler.*;
 import to.etc.util.*;
 
@@ -29,8 +30,13 @@ public class EtcLoggerFactory implements ILoggerFactory {
 	 * The unique instance of this class. 
 	 */
 	private static final EtcLoggerFactory	SINGLETON	= new EtcLoggerFactory();
-	
-	private final DateFormat	m_df		= new SimpleDateFormat("yyMMdd");
+
+	private static final ThreadLocal<SimpleDateFormat>	DATEFORMATTER	= new ThreadLocal<SimpleDateFormat>() {
+																			@Override
+																			protected SimpleDateFormat initialValue() {
+																				return new SimpleDateFormat("yyMMdd");
+																			}
+																		};
 
 	/** 
 	 * Return the singleton of this class. 
@@ -55,7 +61,7 @@ public class EtcLoggerFactory implements ILoggerFactory {
 	}
 
 	/** Root dir for logger configuration and root path for created log files. */
-	private File						m_rootDir;
+	private File							m_rootDir;
 
 	/** Log dir where all logger are doing output. */
 	private File							m_logDir;
@@ -67,10 +73,12 @@ public class EtcLoggerFactory implements ILoggerFactory {
 	private final Map<String, EtcLogger>	LOGGERS			= new HashMap<String, EtcLogger>();
 
 	/** Contains handler instances - logger instances behavior definition. */
-	private final List<ILogHandler>		HANDLERS		= new ArrayList<ILogHandler>();
+	private List<ILogHandler>			m_handlers		= new ArrayList<ILogHandler>();
+	
+	private Object m_handlersLock = new Object();
 
 	/** Default general log level */
-	private static final Level					DEFAULT_LEVEL	= Level.WARN;
+	private static final Level				DEFAULT_LEVEL	= Level.WARN;
 
 	/** Name of logger factory configuration file */
 	public static final String				CONFIG_FILENAME	= "etcLoggerConfig.xml";
@@ -91,7 +99,7 @@ public class EtcLoggerFactory implements ILoggerFactory {
 			checkInitialized();
 			logger = LOGGERS.get(key);
 			if(logger == null) {
-				logger = EtcLogger.create(key, calcLevel(key), HANDLERS);
+				logger = EtcLogger.create(key, calcLevel(key));
 				LOGGERS.put(key, logger);
 			}
 		}
@@ -111,7 +119,7 @@ public class EtcLoggerFactory implements ILoggerFactory {
 
 	private Level calcLevel(String key) {
 		Level current = null;
-		for(ILogHandler handler : HANDLERS) {
+		for(ILogHandler handler : getHandlers()) {
 			Level level = handler.listenAt(key);
 			if(current == null || (level != null && !current.includes(level))) {
 				current = level;
@@ -191,22 +199,13 @@ public class EtcLoggerFactory implements ILoggerFactory {
 		}
 	}
 
-	private void fixDefaultHandler() {
-		if(HANDLERS.isEmpty()) {
-			ILogHandler handler = LogHandlerFactory.getSingleton().createDefaultHandler(m_rootDir, DEFAULT_LEVEL);
-			HANDLERS.add(handler);
-		}
-	}
-
 	/**
 	 * Saves configuration of logger factory. Uses same root location as specified during {@link EtcLoggerFactory#loadConfig(File)}.  
 	 * @throws Exception
 	 */
 	public void saveConfig() throws Exception {
 		Document doc = null;
-		synchronized(HANDLERS) {
-			doc = toXml(false);
-		}
+		doc = toXml(false);
 
 		// write the content into xml file
 		TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -228,7 +227,7 @@ public class EtcLoggerFactory implements ILoggerFactory {
 		doc.appendChild(rootElement);
 		rootElement.setAttribute("logLocation", m_logDirOriginalConfigured);
 
-		for(ILogHandler handler : HANDLERS) {
+		for(ILogHandler handler : getHandlers()) {
 			if(includeNonPerstistable || !handler.isTemporary()) {
 				Element handlerNode = doc.createElement("handler");
 				rootElement.appendChild(handlerNode);
@@ -263,44 +262,48 @@ public class EtcLoggerFactory implements ILoggerFactory {
 	}
 
 	public void loadConfig(Document doc) throws LoggerConfigException {
-		synchronized(HANDLERS) {
-			HANDLERS.clear();
-			doc.getDocumentElement().normalize();
-			NodeList configNodes = doc.getElementsByTagName("config");
-			if (configNodes.getLength() == 0){
-				throw new LoggerConfigException("Missing config root node.");
-			}else if (configNodes.getLength() > 1){
-				throw new LoggerConfigException("Multiple config element nodes found.");
-			}else{
-				Node val = configNodes.item(0).getAttributes().getNamedItem("logLocation");
-				if (val == null){
-					throw new LoggerConfigException("Missing [logLocation] attribute in config root node.");
-				}else{
-					String logLocation = val.getNodeValue();
-					m_logDirOriginalConfigured = logLocation;
-					boolean checkNext = true;
-					do {
-						checkNext = false;
-						int posStart = logLocation.indexOf("%");
-						if (posStart > -1){
-							int posEnd = logLocation.indexOf("%", posStart + 1);
-							if (posEnd > -1){
-								logLocation = logLocation.substring(0, posStart) + System.getProperty(logLocation.substring(posStart + 1, posEnd)) + logLocation.substring(posEnd + 1);
-								checkNext = true;
-							}
+		List<ILogHandler> loadedHandlers = new ArrayList<ILogHandler>();
+		doc.getDocumentElement().normalize();
+		NodeList configNodes = doc.getElementsByTagName("config");
+		if(configNodes.getLength() == 0) {
+			throw new LoggerConfigException("Missing config root node.");
+		} else if(configNodes.getLength() > 1) {
+			throw new LoggerConfigException("Multiple config element nodes found.");
+		} else {
+			Node val = configNodes.item(0).getAttributes().getNamedItem("logLocation");
+			if(val == null) {
+				throw new LoggerConfigException("Missing [logLocation] attribute in config root node.");
+			} else {
+				String logLocation = val.getNodeValue();
+				m_logDirOriginalConfigured = logLocation;
+				boolean checkNext = true;
+				do {
+					checkNext = false;
+					int posStart = logLocation.indexOf("%");
+					if(posStart > -1) {
+						int posEnd = logLocation.indexOf("%", posStart + 1);
+						if(posEnd > -1) {
+							logLocation = logLocation.substring(0, posStart) + System.getProperty(logLocation.substring(posStart + 1, posEnd)) + logLocation.substring(posEnd + 1);
+							checkNext = true;
 						}
-					}while(checkNext);
-					logLocation = logLocation.replace("/", File.separator);
-					m_logDir = new File(logLocation);
-					m_logDir.mkdirs();
-				}
+					}
+				} while(checkNext);
+				logLocation = logLocation.replace("/", File.separator);
+				m_logDir = new File(logLocation);
+				m_logDir.mkdirs();
 			}
-			NodeList handlerNodes = doc.getElementsByTagName("handler");
-			for(int i = 0; i < handlerNodes.getLength(); i++) {
-				Node handlerNode = handlerNodes.item(i);
-				HANDLERS.add(loadHandler(handlerNode));
-			}
-			fixDefaultHandler();
+		}
+		NodeList handlerNodes = doc.getElementsByTagName("handler");
+		for(int i = 0; i < handlerNodes.getLength(); i++) {
+			Node handlerNode = handlerNodes.item(i);
+			loadedHandlers.add(loadHandler(handlerNode));
+		}
+		if(loadedHandlers.isEmpty()) {
+			ILogHandler handler = LogHandlerFactory.getSingleton().createDefaultHandler(m_rootDir, DEFAULT_LEVEL);
+			loadedHandlers.add(handler);
+		}
+		synchronized(m_handlersLock){
+			m_handlers = loadedHandlers;
 		}
 		recalculateLoggers();
 	}
@@ -308,7 +311,7 @@ public class EtcLoggerFactory implements ILoggerFactory {
 	public Level getDefaultLevel() {
 		return DEFAULT_LEVEL;
 	}
-	
+
 	public String composeFullLogFileName(@Nonnull String logPath, @Nonnull String fileName) {
 		String res;
 		if(fileName.contains(":")) {
@@ -317,11 +320,23 @@ public class EtcLoggerFactory implements ILoggerFactory {
 			res = logPath + File.separator + fileName;
 		}
 
-		res += "_" + m_df.format(new Date()) + ".log";
+		res += "_" + DATEFORMATTER.get().format(new Date()) + ".log";
 		return res;
 	}
-	
+
 	public String composeFullLogFileName(@Nonnull String fileName) {
 		return composeFullLogFileName(m_logDir.getAbsolutePath(), fileName);
+	}
+
+	void notifyHandlers(EtcLogEvent event) {
+		for(ILogHandler handler : getHandlers()) {
+			handler.handle(event);
+		}
+	}
+	
+	private List<ILogHandler> getHandlers() {
+		synchronized(m_handlersLock){ 
+			return m_handlers;
+		}
 	}
 }

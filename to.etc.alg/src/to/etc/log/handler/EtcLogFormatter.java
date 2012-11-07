@@ -1,5 +1,6 @@
 package to.etc.log.handler;
 
+import java.sql.*;
 import java.text.*;
 
 import javax.annotation.*;
@@ -18,7 +19,12 @@ import to.etc.log.event.*;
  * Created on Oct 31, 2012
  */
 public class EtcLogFormatter {
-	private static final DateFormat	m_tf	= new SimpleDateFormat(EtcLogFormat.TIMESTAMP);
+	private static final ThreadLocal<SimpleDateFormat>	TIMEFORMATTER	= new ThreadLocal<SimpleDateFormat>() {
+																			@Override
+																			protected SimpleDateFormat initialValue() {
+																				return new SimpleDateFormat(EtcLogFormat.TIMESTAMP);
+																			}
+																		};
 
 	static String format(@Nonnull EtcLogEvent event, @Nonnull String format, @Nullable String filterData) {
 		StringBuilder sb = new StringBuilder();
@@ -37,9 +43,7 @@ public class EtcLogFormatter {
 					switch(nextChar){
 						case 'd':
 						case 'D': //%d (timestamp) 
-							synchronized(m_tf) {
-								sb.append(m_tf.format(event.getTimestamp()));
-							}
+							sb.append(TIMEFORMATTER.get().format(event.getTimestamp()));
 							break;
 						case 'l':
 						case 'L': //%l (logger name)
@@ -84,15 +88,13 @@ public class EtcLogFormatter {
 		if(event.getThrown() != null) {
 			Throwable t = event.getThrown();
 			sb.append("\n").append("---------- THROWN ---------- " + t.getClass()).append("\n");
-			logThrowable(sb, 0, t);
+			logThrowable(sb, 0, t, true);
 			int loggedCauses = 0;
-			while(t.getCause() != null && t != t.getCause() && loggedCauses++ < 5) {
+			while(t.getCause() != null && t != t.getCause()) {
 				t = t.getCause();
+				loggedCauses++;
 				sb.append("---------- NESTED CAUSE (" + loggedCauses + ") ---------- " + t.getClass()).append("\n");
-				logThrowable(sb, loggedCauses, t);
-			}
-			if(loggedCauses >= 5 && t.getCause() != null && t != t.getCause()) {
-				sb.append("---------- TRUNCATED OTHER CAUSES ---------- ").append("\n");
+				logThrowable(sb, loggedCauses, t, true);
 			}
 		}
 		return sb.toString();
@@ -130,14 +132,23 @@ public class EtcLogFormatter {
 		}
 	}
 
-	private static void logThrowable(StringBuilder sb, int nestedLevel, Throwable t) {
+	private static void logThrowable(StringBuilder sb, int causeIndex, Throwable t, boolean checkNextExceptions) {
 		if(t.getMessage() != null) {
 			sb.append("- message: ").append(t.getMessage()).append("\n");
 		}
 		StackTraceElement[] stacktrace = t.getStackTrace();
 		for(StackTraceElement stack : stacktrace) {
 			sb.append("   ").append(stack.toString()).append("\n");
-			//sb.append("- at ").append(stack.getClassName()).append(" (").append(stack.getMethodName()).append(":").append(stack.getLineNumber()).append(")\n");
+		}
+		if(t instanceof SQLException) {
+			SQLException sx = (SQLException) t;
+			int loggedNextExcptions = 0;
+			while(sx.getNextException() != null && sx != sx.getNextException()) {
+				sx = sx.getNextException();
+				loggedNextExcptions++;
+				sb.append("---------- NEXT EXCEPTION (" + loggedNextExcptions + ") ---------- " + t.getClass()).append("\n");
+				logThrowable(sb, loggedNextExcptions, t, false);
+			}
 		}
 	}
 }

@@ -7,36 +7,28 @@ import javax.annotation.*;
 import org.slf4j.*;
 
 import to.etc.log.event.*;
-import to.etc.log.handler.*;
 
 public class EtcLogger implements Logger {
 	
 	private final String	m_key;
 
-	private Level							m_level				= null;
+	private Level			m_level	= null;
 
-	private final Object					m_levelLock			= new Object();
-	
-	private final List<ILogHandler> m_handlers; 
-
-	private EtcLogger(@Nonnull String key, @Nullable Level level, @Nonnull List<ILogHandler> handlers) {
+	private EtcLogger(@Nonnull String key, @Nullable Level level) {
 		m_key = key;
 		m_level = level;
-		m_handlers = handlers;
 	}
 
-	static EtcLogger create(@Nonnull String key, @Nullable Level level, @Nonnull List<ILogHandler> handlers) {
-		return new EtcLogger(key, level, handlers);
+	static EtcLogger create(@Nonnull String key, @Nullable Level level) {
+		return new EtcLogger(key, level);
 	}
 	
 	private void logEvent(@Nonnull Date date, @Nonnull Level level, @Nullable Marker marker, @Nullable Throwable throwable, @Nonnull String msg, Object... args) {
 		EtcLogEvent event = new EtcLogEvent(this, level, marker, msg, throwable, date, Thread.currentThread(), args);
-		for (ILogHandler handler : m_handlers){
-			handler.handle(event);
-		}
+		EtcLoggerFactory.getSingleton().notifyHandlers(event);
 	}
 
-	private boolean checkEnabled(@Nonnull Level level) {
+	private synchronized boolean checkEnabled(@Nonnull Level level) {
 		return !isDisabled() && m_level.includes(level);
 	}
 
@@ -411,11 +403,11 @@ public class EtcLogger implements Logger {
 		execute(Level.WARN, arg0, arg1, arg2, arg3);
 	}
 
-	boolean isDisabled() {
+	synchronized boolean isDisabled() {
 		return m_level == null;
 	}
 
-	public void setLevel(Level level) {
+	public synchronized void setLevel(Level level) {
 		m_level = level;
 	}
 }
