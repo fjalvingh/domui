@@ -252,7 +252,7 @@ public class FragmentedThemeFactory implements IThemeFactory {
 	 * @param colorName
 	 */
 	public void internalInheritColor(String colorName) throws Exception {
-		String fullname = normalizeName("themes/" + colorName + ".color.js");
+		String fullname = normalizeName("themes/" + colorName + ".color.js").replace("domui.", "orange."); //jsavic 20121107: reported workaround - temporary
 
 		//-- If already loaded- abort;
 		if(m_inheritanceStack.contains(fullname))
