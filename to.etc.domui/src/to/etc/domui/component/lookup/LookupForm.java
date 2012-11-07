@@ -511,7 +511,7 @@ public class LookupForm<T> extends Div {
 		//-- Add a RETURN PRESSED handler to allow pressing RETURN on search fields.
 		setReturnPressed(new IReturnPressed<Div>() {
 			@Override
-			public void returnPressed(final Div node) throws Exception {
+			public void returnPressed(final @Nonnull Div node) throws Exception {
 				if(m_clicker != null)
 					m_clicker.clicked(LookupForm.this);
 			}

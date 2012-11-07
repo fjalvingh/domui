@@ -90,7 +90,7 @@ public class DropDownPicker<T> extends SmallImgButton implements ISelectProvider
 		m_picker.setReturnPressed(new IReturnPressed<Select>() {
 
 			@Override
-			public void returnPressed(Select node) throws Exception {
+			public void returnPressed(@Nonnull Select node) throws Exception {
 				handlePickerValueChanged();
 			}
 		});
