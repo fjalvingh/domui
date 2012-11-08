@@ -7,18 +7,18 @@ import javax.annotation.*;
 
 import org.w3c.dom.*;
 
-import to.etc.log.EtcLoggerFactory.LoggerConfigException;
 import to.etc.log.*;
+import to.etc.log.EtcLoggerFactory.LoggerConfigException;
 
 /**
  * Factory for different log handler types. Contains registry of {@link ILogHandlerFactory}.
- * Priovides factory {@link LogHandlerBuilder#createHandler(String, File, Node)} that creates {@link ILogHandler} instance based on provided String type.
+ * Provides factory {@link LogHandlerRegistry#createHandler(String, File, Node)} that creates {@link ILogHandler} instance based on provided String type.
  *
  *
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on Oct 31, 2012
  */
-public class LogHandlerBuilder {
+public class LogHandlerRegistry {
 
 	/**
 	 * Factory for {@link ILogHandler} instance.
@@ -29,7 +29,7 @@ public class LogHandlerBuilder {
 	 */
 	public interface ILogHandlerFactory {
 		/**
-		 * Creates {@link ILogHandler} from specified xml definition. Uses logDir as prefered location for created log outputs, if such are created by handler.
+		 * Creates {@link ILogHandler} from specified xml definition. Uses logDir as preferred location for created log outputs, if such are created by handler.
 		 * @param logDir
 		 * @param handlerNode
 		 * @return
@@ -44,14 +44,14 @@ public class LogHandlerBuilder {
 	/**
 	 * The unique instance of this class.
 	 */
-	private static final LogHandlerBuilder		SINGLETON		= new LogHandlerBuilder();
+	private static final LogHandlerRegistry		SINGLETON		= new LogHandlerRegistry();
 
 	/**
 	 * Return the singleton of this class.
 	 *
 	 * @return the LogHandlerFactory singleton
 	 */
-	public static final LogHandlerBuilder getSingleton() {
+	public static final LogHandlerRegistry getSingleton() {
 		return SINGLETON;
 	}
 
@@ -81,6 +81,7 @@ public class LogHandlerBuilder {
 
 	/**
 	 * Creates {@link ILogHandler} instance based on registered factory for specified type.
+	 * NOTE: this should not be used directly - meant to be used only internally by {@link EtcLoggerFactory}. But left public since logger factory is not in same package.
 	 * @param type
 	 * @param logDir
 	 * @param handlerNode
@@ -98,7 +99,9 @@ public class LogHandlerBuilder {
 	}
 
 	/**
-	 * Creates dafault hanlder.
+	 * Creates default handler.
+	 * NOTE: this should not be used directly - meant to be used only internally by {@link EtcLoggerFactory}. But left public since logger factory is not in same package.
+	 *
 	 * @param rootDir
 	 * @param level
 	 * @return

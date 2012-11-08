@@ -113,7 +113,7 @@ public class EtcLoggerFactory implements ILoggerFactory {
 	}
 
 	/**
-	 * This creates built-in log configuration that would log to stdout until application specific configuration is initialized.
+	 * This creates built-in log configuration that would log to stout until application specific configuration is initialized.
 	 */
 	private synchronized void initializeBuiltInLoggerConfig() {
 		String configXml;
@@ -129,7 +129,7 @@ public class EtcLoggerFactory implements ILoggerFactory {
 	}
 
 	/**
-	 * Call to initialize logger factory from persited configuration.
+	 * Call to initialize logger factory from persisted configuration.
 	 * Sets rootLocation, that is location where configFile is persisted.
 	 * Configuration always resides in {@link EtcLoggerFactory#CONFIG_FILENAME} file.
 	 * In case that configuration is missing or fails to load, new configuration is created as built-in configuration.
@@ -157,7 +157,7 @@ public class EtcLoggerFactory implements ILoggerFactory {
 	/**
 	 * Call to initialize logger factory from specified configXml.
 	 * Sets rootLocation, that is location where changes in logger configuration would be persisted.
-	 * Persited configuration always resides in {@link EtcLoggerFactory#CONFIG_FILENAME} file.
+	 * Persisted configuration always resides in {@link EtcLoggerFactory#CONFIG_FILENAME} file.
 	 * Returns false in case that configuration fails to load, it does not try any other logger configuration.
 	 * This method should be used only as special case when persisted configuration should be by passed temporary.
 	 * IMPORTANT: this needs to be executed earliest possible in application starting.
@@ -183,9 +183,9 @@ public class EtcLoggerFactory implements ILoggerFactory {
 	/**
 	 * Call to initialize logger factory.
 	 * Sets rootLocation, that is location where configFile updates are persisted.
-	 * Firts it tries to load persited logger config, if such exists in specified location.
+	 * First it tries to load persisted logger config, if such exists in specified location.
 	 * If that fails, it tries to load specified defaultConfig
-	 * If that also fails, it loads default built-in connfig.
+	 * If that also fails, it loads default built-in config.
 	 * Since later changes in logger config would be persisted inside configLocation, it should exists with write permissions.
 	 * IMPORTANT: logger config needs to be executed earliest possible in application starting.
 	 *
@@ -200,7 +200,7 @@ public class EtcLoggerFactory implements ILoggerFactory {
 		File conf = new File(configLocation, CONFIG_FILENAME);
 		String configXml = null;
 		if(conf.exists()) {
-			//try 1 : try persited config
+			//try 1 : try persisted config
 			configXml = FileTool.readFileAsString(conf, "utf-8");
 			if(tryLoadConfigFromXml(configLocation, configXml)) {
 				System.out.println(this.getClass().getName() + " is initialized by loading persisted logger configuration.");
@@ -236,7 +236,7 @@ public class EtcLoggerFactory implements ILoggerFactory {
 			throw new LoggerConfigException("Missing [type] attribute on <handler> element!");
 		} else {
 			String val = typeNode.getNodeValue();
-			return LogHandlerBuilder.getSingleton().createHandler(val, m_logDir, handlerNode);
+			return LogHandlerRegistry.getSingleton().createHandler(val, m_logDir, handlerNode);
 		}
 	}
 
@@ -340,7 +340,7 @@ public class EtcLoggerFactory implements ILoggerFactory {
 			loadedHandlers.add(loadHandler(handlerNode));
 		}
 		if(loadedHandlers.isEmpty()) {
-			ILogHandler handler = LogHandlerBuilder.getSingleton().createDefaultHandler(m_configDir, DEFAULT_LEVEL);
+			ILogHandler handler = LogHandlerRegistry.getSingleton().createDefaultHandler(m_configDir, DEFAULT_LEVEL);
 			loadedHandlers.add(handler);
 		}
 		synchronized(m_handlersLock){

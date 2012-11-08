@@ -8,6 +8,12 @@ import org.slf4j.*;
 
 import to.etc.log.event.*;
 
+/**
+ * {@link Logger} implementation. See {@link EtcLoggerFactory} for more details.
+ *
+ * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
+ * Created on Nov 9, 2012
+ */
 public class EtcLogger implements Logger {
 
 	private final String	m_key;
