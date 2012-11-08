@@ -10,8 +10,8 @@ import to.etc.log.event.*;
 /**
  * Log handler proxy.
  * Beside built-in handlers enables implementing custom handlers.
- * New implementation of handler needs to be registered via {@link LogHandlerFactory#register(String, to.etc.log.handler.LogHandlerFactory.ILogHandlerMaker)}.   
- * 
+ * New implementation of handler needs to be registered via {@link LogHandlerBuilder#register(String, to.etc.log.handler.LogHandlerBuilder.ILogHandlerMaker)}.
+ *
  *
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on Oct 31, 2012
@@ -32,9 +32,11 @@ public interface ILogHandler {
 
 	/**
 	 * Saving handler into xml configuration.
-	 * @param event
+	 * @param doc
+	 * @param handlerNode
+	 * @param includeNonPersistable If T, also saves data that is not meant to be saved as part of peristent config. Used to send logger configuration to other interested parties.
 	 */
-	void saveToXml(Document doc, Element handlerNode, boolean includeNonPerstistable);
+	void saveToXml(@Nonnull Document doc, @Nonnull Element handlerNode, boolean includeNonPersistable);
 
 	/**
 	 * Defines if it is on-the-fly handler - if it should not be saved into relodable configuration. Used when handling is session specific.

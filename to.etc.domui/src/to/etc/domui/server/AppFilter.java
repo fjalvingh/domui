@@ -175,7 +175,8 @@ public class AppFilter implements Filter {
 	public void init(final FilterConfig config) throws ServletException {
 		File approot = new File(config.getServletContext().getRealPath("/"));
 		try {
-			//-- Where to get log config from?
+			//Initialize logger
+			// -- Where to get log config from?
 			String specificLogConfigLocation = DeveloperOptions.getString("domui.logconfig");
 			if(specificLogConfigLocation == null) {
 				specificLogConfigLocation = System.getProperty("domui.logconfig");
@@ -187,25 +188,20 @@ public class AppFilter implements Filter {
 				logConfigXml = readSpecificLoggerConfig(specificLogConfigLocation);
 			}
 			boolean logInitialized = false;
-			if(logConfigXml != null) {
-				//if we have specified specific logger config we use this one
-				EtcLoggerFactory.getSingleton().initialize(new File(approot, "Private" + File.separator + "etcLog"), logConfigXml);
+			//FIXME: this uses Viewpoint specific location (%approot%/Private) and needs to be fixed later.
+			File logConfigLocation = new File(approot, "Private" + File.separator + "etcLog");
+			File configFile = new File(logConfigLocation, EtcLoggerFactory.CONFIG_FILENAME);
+			//-- logger config location should always exist (FIXME: check if under LINUX it needs to be created in some special way to have write rights for tomcat user)
+			logConfigLocation.mkdirs();
+			if(logConfigXml != null && EtcLoggerFactory.getSingleton().tryLoadConfigFromXml(logConfigLocation, logConfigXml)) {
+				LOG.info(EtcLoggerFactory.getSingleton().getClass().getName() + " is initialized by loading specific logger configuration from xml:\n" + logConfigXml);
+				//-- If we have specified 'special' logger config we try to use this one
 				logInitialized = true;
 			} else {
-				//FIXME: this uses Viewpoint specific location (%approot%/Private) and needs to be fixed later.
-				File persistedConfigFile = new File(approot, "Private" + File.separator + "etcLog" + File.separator + EtcLoggerFactory.CONFIG_FILENAME);
-				if(!persistedConfigFile.exists() || !persistedConfigFile.isFile()) {
-					logConfigXml = readDefaultLoggerConfig();
-					if(logConfigXml != null) {
-						//if logger config is missing at expected location we use default DomUI logger config.
-						EtcLoggerFactory.getSingleton().initialize(new File(approot, "Private" + File.separator + "etcLog"), logConfigXml);
-						logInitialized = true;
-					}
-				}
-			}
-			if(!logInitialized) {
-				//do standard log initialization if previous conditions are not meet
-				EtcLoggerFactory.getSingleton().initialize(new File(approot, "Private" + File.separator + "etcLog"));
+				//-- If 'special' logger config does not exists or fails to load, we try to use standard way of initializing logger
+				String defaultConfigXml = readDefaultLoggerConfig();
+				EtcLoggerFactory.getSingleton().initialize(logConfigLocation, defaultConfigXml);
+				logInitialized = true;
 			}
 		} catch(Exception x) {
 			x.printStackTrace();

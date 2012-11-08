@@ -9,21 +9,21 @@ import to.etc.log.EtcLoggerFactory.LoggerConfigException;
 import to.etc.log.event.*;
 
 /**
- * Defines what logger level is listened on defined logger name pattern. 
- * 
+ * Defines what logger level is listened on defined logger name pattern.
+ *
  *
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on Oct 31, 2012
  */
 class LogMatcher {
 	/**
-	 * Defines logger name pattern on which handler applies.  
+	 * Defines logger name pattern on which handler applies.
 	 */
 	private final @Nonnull
 	String	m_name;
 
 	/**
-	 * Defines log level on which handler applies.  
+	 * Defines log level on which handler applies.
 	 */
 	private final @Nonnull
 	Level	m_level;
@@ -48,7 +48,7 @@ class LogMatcher {
 	/**
 	 * Returns if current matcher is subset of other matcher.
 	 */
-	boolean isSubmatcherOf(LogMatcher other) {
+	boolean isSubmatcherOf(@Nonnull LogMatcher other) {
 		if(m_name.length() == 0) {
 			return false;
 		} else if(other.getName().length() == 0) {
@@ -62,7 +62,7 @@ class LogMatcher {
 		return (m_name.length() == 0 || key.startsWith(m_name + ".") || key.equals(m_name));
 	}
 
-	static LogMatcher createFromXml(Node node) throws LoggerConfigException {
+	static LogMatcher createFromXml(@Nonnull Node node) throws LoggerConfigException {
 		Node nameNode = node.getAttributes().getNamedItem("name");
 		String name = nameNode == null ? "" : nameNode.getNodeValue();
 		Node levelNode = node.getAttributes().getNamedItem("level");
@@ -73,7 +73,7 @@ class LogMatcher {
 		return new LogMatcher(name, level);
 	}
 
-	public void saveToXml(Document doc, Element logNode) {
+	public void saveToXml(@Nonnull Document doc, @Nonnull Element logNode) {
 		logNode.setAttribute("name", m_name);
 		logNode.setAttribute("level", m_level.name());
 	}

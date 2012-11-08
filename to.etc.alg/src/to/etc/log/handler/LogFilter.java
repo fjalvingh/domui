@@ -7,13 +7,12 @@ import org.w3c.dom.*;
 
 import to.etc.log.*;
 import to.etc.log.EtcLoggerFactory.LoggerConfigException;
-import to.etc.log.EtcLoggerFactory;
 import to.etc.log.event.*;
 
 /**
  * Filter that is applied during log handler processing.
- * Enables listening only on log events decorated by certain characteristics (like session id or login id). 
- * 
+ * Enables listening only on log events decorated by certain characteristics (like session id or login id).
+ *
  *
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on Oct 31, 2012
@@ -29,33 +28,37 @@ class LogFilter {
 	String			m_value;
 
 	private LogFilter(@Nonnull LogFilterType type, @Nonnull String key, @Nonnull String value) {
-		super();
 		m_type = type;
 		m_key = key;
 		m_value = value;
 	}
 
+	@Nonnull
 	LogFilterType getType() {
 		return m_type;
 	}
 
+	@Nullable
 	String getKey() {
 		return m_key;
 	}
 
+	@Nullable
 	String getValue() {
 		return m_value;
 	}
 
-	static LogFilter mdcFilter(String key, String value) {
+	static @Nonnull
+	LogFilter mdcFilter(@Nonnull String key, @Nonnull String value) {
 		return new LogFilter(LogFilterType.MDC, key, value);
 	}
 
-	static LogFilter sessionFilter(String value) {
+	static @Nonnull
+	LogFilter sessionFilter(@Nonnull String value) {
 		return new LogFilter(LogFilterType.SESSION, "session", value);
 	}
 
-	boolean accept(EtcLogEvent event) {
+	boolean accept(@Nonnull EtcLogEvent event) {
 		switch(m_type){
 			case SESSION:
 			case MDC:
@@ -66,7 +69,8 @@ class LogFilter {
 		}
 	}
 
-	static LogFilter createFromXml(Node node) throws LoggerConfigException {
+	static @Nonnull
+	LogFilter createFromXml(@Nonnull Node node) throws LoggerConfigException {
 		Node typeNode = node.getAttributes().getNamedItem("type");
 		if(typeNode == null) {
 			throw new EtcLoggerFactory.LoggerConfigException("Missing [type] at filter node.");
@@ -94,14 +98,14 @@ class LogFilter {
 		return new LogFilter(type, key, value);
 	}
 
-	void saveToXml(Document doc, Element filterNode) {
+	void saveToXml(@Nonnull Document doc, @Nonnull Element filterNode) {
 		filterNode.setAttribute("type", m_type.name());
 		filterNode.setAttribute("key", m_key);
 		filterNode.setAttribute("value", m_value);
 	}
-	
+
 	@Override
 	public String toString() {
-		return "filter " + m_type + " [" + m_key + "=" + m_value + "]"; 
+		return "filter " + m_type + " [" + m_key + "=" + m_value + "]";
 	}
 }

@@ -12,24 +12,25 @@ import javax.xml.transform.stream.*;
 
 import org.slf4j.*;
 import org.w3c.dom.*;
+import org.xml.sax.*;
 
 import to.etc.log.event.*;
 import to.etc.log.handler.*;
 import to.etc.util.*;
 
 /**
- * Implements logger factory. Encapsulates definitions and configuration of loggers used.   
- * 
+ * Implements logger factory. Encapsulates definitions and configuration of loggers used.
+ *
  *
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on Oct 30, 2012
  */
 public class EtcLoggerFactory implements ILoggerFactory {
 
-	/** 
-	 * The unique instance of this class. 
+	/**
+	 * The unique instance of this class.
 	 */
-	private static final EtcLoggerFactory	SINGLETON	= new EtcLoggerFactory();
+	private static final EtcLoggerFactory				SINGLETON;
 
 	private static final ThreadLocal<SimpleDateFormat>	DATEFORMATTER	= new ThreadLocal<SimpleDateFormat>() {
 																			@Override
@@ -38,18 +39,19 @@ public class EtcLoggerFactory implements ILoggerFactory {
 																			}
 																		};
 
-	/** 
-	 * Return the singleton of this class. 
-	 * 
-	 * @return the MyLoggerFactory singleton 
+	/**
+	 * Return the singleton of this class.
+	 *
+	 * @return the MyLoggerFactory singleton
 	 */
-	public static final EtcLoggerFactory getSingleton() {
+	public @Nonnull
+	static final EtcLoggerFactory getSingleton() {
 		return SINGLETON;
 	}
 
 	/**
 	 * Exception type used to notify errors during loading of logger configuration.
-	 * 
+	 *
 	 *
 	 * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
 	 * Created on Oct 30, 2012
@@ -60,8 +62,8 @@ public class EtcLoggerFactory implements ILoggerFactory {
 		}
 	}
 
-	/** Root dir for logger configuration and root path for created log files. */
-	private File							m_rootDir;
+	/** Root dir for logger configuration. */
+	private File							m_configDir;
 
 	/** Log dir where all logger are doing output. */
 	private File							m_logDir;
@@ -74,29 +76,22 @@ public class EtcLoggerFactory implements ILoggerFactory {
 
 	/** Contains handler instances - logger instances behavior definition. */
 	private List<ILogHandler>			m_handlers		= new ArrayList<ILogHandler>();
-	
+
 	private Object m_handlersLock = new Object();
 
 	/** Default general log level */
-	private static final Level				DEFAULT_LEVEL	= Level.WARN;
+	private static final Level				DEFAULT_LEVEL	= Level.ERROR;
 
 	/** Name of logger factory configuration file */
 	public static final String				CONFIG_FILENAME	= "etcLoggerConfig.xml";
-
-	private boolean							m_initialized	= false;
 
 	/**
 	 * @see org.slf4j.ILoggerFactory#getLogger(java.lang.String)
 	 */
 	@Override
 	public EtcLogger getLogger(@Nonnull String key) {
-		return get(key);
-	}
-
-	private EtcLogger get(@Nonnull String key) {
 		EtcLogger logger = null;
 		synchronized(LOGGERS) {
-			checkInitialized();
 			logger = LOGGERS.get(key);
 			if(logger == null) {
 				logger = EtcLogger.create(key, calcLevel(key));
@@ -106,18 +101,7 @@ public class EtcLoggerFactory implements ILoggerFactory {
 		return logger;
 	}
 
-	private void checkInitialized() {
-		if(!m_initialized) {
-			try {
-				initialize(new File(System.getProperty("user.home")));
-			} catch(Exception e) {
-				// This can not happen since we have stored class resource
-				e.printStackTrace();
-			}
-		}
-	}
-
-	private Level calcLevel(String key) {
+	private Level calcLevel(@Nonnull String key) {
 		Level current = null;
 		for(ILogHandler handler : getHandlers()) {
 			Level level = handler.listenAt(key);
@@ -129,78 +113,135 @@ public class EtcLoggerFactory implements ILoggerFactory {
 	}
 
 	/**
-	 * Call to initialize logger factory with specified configXml.
-	 * Sets rootLocation, that is location where configFile updates are persisted.
-	 * Therefore rootLocation needs to have write permissions.
-	 * In case that provided configuration is incorrect default configuration (persisted or built-in) is used.
+	 * This creates built-in log configuration that would log to stdout until application specific configuration is initialized.
+	 */
+	private synchronized void initializeBuiltInLoggerConfig() {
+		String configXml;
+		try {
+			configXml = FileTool.readResourceAsString(this.getClass(), CONFIG_FILENAME, "utf-8");
+			loadConfigFromXml(configXml);
+			System.out.println(this.getClass().getName() + " is initialized by loading built-in logger configuration as " + this.getClass().getName() + " resource " + CONFIG_FILENAME);
+		} catch(Exception e) {
+			//this should not happen -> we load design time created resource - it must be valid
+			System.err.println("Built-in logger config is invalid! Check class " + this.getClass().getName() + " resource " + CONFIG_FILENAME);
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Call to initialize logger factory from persited configuration.
+	 * Sets rootLocation, that is location where configFile is persisted.
+	 * Configuration always resides in {@link EtcLoggerFactory#CONFIG_FILENAME} file.
+	 * In case that configuration is missing or fails to load, new configuration is created as built-in configuration.
 	 * IMPORTANT: this needs to be executed earliest possible in application starting.
-	 * 
-	 * @param rootLocation
-	 * @param configFile
+	 *
+	 * In case that logger factory has to be initialized with predefined application specific configuration use {@link EtcLoggerFactory#initialize(File, String)}.
+	 *
+	 * @param configLocation
 	 * @throws Exception
 	 */
-	public synchronized void initialize(@Nonnull File rootLocation, @Nonnull String configXml) throws Exception {
-		m_rootDir = rootLocation;
-		rootLocation.mkdirs();
-		ByteArrayInputStream bais = null;
+	public synchronized void initialize(@Nonnull File configLocation) throws Exception {
+		m_configDir = configLocation;
+		File conf = new File(configLocation, CONFIG_FILENAME);
+		String configXml = null;
+		if(conf.exists()) {
+			configXml = FileTool.readFileAsString(conf, "utf-8");
+			if(tryLoadConfigFromXml(configLocation, configXml)) {
+				return;
+			}
+		}
+		//if existing config does not exists or fails to load, use one from resource
+		initializeBuiltInLoggerConfig();
+	}
+
+	/**
+	 * Call to initialize logger factory from specified configXml.
+	 * Sets rootLocation, that is location where changes in logger configuration would be persisted.
+	 * Persited configuration always resides in {@link EtcLoggerFactory#CONFIG_FILENAME} file.
+	 * Returns false in case that configuration fails to load, it does not try any other logger configuration.
+	 * This method should be used only as special case when persisted configuration should be by passed temporary.
+	 * IMPORTANT: this needs to be executed earliest possible in application starting.
+	 *
+	 * Usual way to initialize logger is to use {@link EtcLoggerFactory#initialize(File, String)}.
+	 *
+	 * @param configLocation
+	 * @param configXml
+	 * @return
+	 */
+	public synchronized boolean tryLoadConfigFromXml(@Nonnull File configLocation, @Nonnull String configXml) {
+		m_configDir = configLocation;
+		try {
+			loadConfigFromXml(configXml);
+			return true;
+		} catch(Exception ex) {
+			System.err.println("Failed logger config load from xml:" + configXml);
+			ex.printStackTrace();
+		}
+		return false;
+	}
+
+	/**
+	 * Call to initialize logger factory.
+	 * Sets rootLocation, that is location where configFile updates are persisted.
+	 * Firts it tries to load persited logger config, if such exists in specified location.
+	 * If that fails, it tries to load specified defaultConfig
+	 * If that also fails, it loads default built-in connfig.
+	 * Since later changes in logger config would be persisted inside configLocation, it should exists with write permissions.
+	 * IMPORTANT: logger config needs to be executed earliest possible in application starting.
+	 *
+	 * @param configLocation
+	 * @param defaultConfig
+	 * @return
+	 * @throws Exception
+	 */
+	public synchronized void initialize(@Nonnull File configLocation, @Nonnull String defaultConfig) throws Exception {
+		m_configDir = configLocation;
+		System.out.println(this.getClass().getName() + " logger configuration location set to " + configLocation.getAbsolutePath());
+		File conf = new File(configLocation, CONFIG_FILENAME);
+		String configXml = null;
+		if(conf.exists()) {
+			//try 1 : try persited config
+			configXml = FileTool.readFileAsString(conf, "utf-8");
+			if(tryLoadConfigFromXml(configLocation, configXml)) {
+				System.out.println(this.getClass().getName() + " is initialized by loading persisted logger configuration.");
+				return;
+			}
+		}
+		//try 2 : try defaultConfig
+		if(tryLoadConfigFromXml(configLocation, defaultConfig)) {
+			System.out.println(this.getClass().getName() + " is initialized by loading application specific default configuration.");
+			return;
+		}
+		//try 3 : try built-in config
+		initializeBuiltInLoggerConfig();
+	}
+
+	private synchronized void loadConfigFromXml(String configXml) throws Exception {
+		StringReader sr = null;
 		try {
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder db = dbf.newDocumentBuilder();
-			bais = new ByteArrayInputStream(configXml.getBytes());
-			Document doc = db.parse(bais);
+			sr = new StringReader(configXml);
+			Document doc = db.parse(new InputSource(sr));
 			loadConfig(doc);
-			File conf = new File(rootLocation, CONFIG_FILENAME);
-			if(!conf.exists()) {
-				FileTool.writeFileFromString(conf, configXml, "utf-8");
-			}
-		} catch(LoggerConfigException ex) {
-			System.err.println(ex);
-			System.out.println("Invalid EtcLoggerFactory configuration - reloading default configuration...");
-			initialize(rootLocation);
 		} finally {
-			if(bais != null) {
-				bais.close();
-			}
+			FileTool.closeAll(sr);
 		}
 	}
 
-	/**
-	 * Call to initialize logger factory with existing configuration.
-	 * Sets rootLocation, that is location where configFile updates are persisted.
-	 * Configuration always resides in {@link EtcLoggerFactory#CONFIG_FILENAME} file.
-	 * In case that configuration is missing built-in configuration is created. 
-	 * IMPORTANT: this needs to be executed earliest possible in application starting.
-	 * 
-	 * In case that logger factory has to be initialized with user specific configuration use {@link EtcLoggerFactory#initialize(File, String)}.   
-	 *  
-	 * @param rootLocation
-	 * @throws Exception
-	 */
-	public synchronized void initialize(@Nonnull File rootLocation) throws Exception {
-		m_rootDir = rootLocation;
-		rootLocation.mkdirs();
-		File conf = new File(rootLocation, CONFIG_FILENAME);
-		String configXml = null;
-		if(!conf.exists()) {
-			configXml = FileTool.readResourceAsString(this.getClass(), CONFIG_FILENAME, "utf-8");
-		} else {
-			configXml = FileTool.readFileAsString(conf, "utf-8");
-		}
-		initialize(rootLocation, configXml);
-	}
-
-	private ILogHandler loadHandler(Node handlerNode) throws LoggerConfigException {
+	private @Nonnull
+	ILogHandler loadHandler(@Nonnull Node handlerNode) throws LoggerConfigException {
 		Node typeNode = handlerNode.getAttributes().getNamedItem("type");
 		if(typeNode == null) {
-			throw new LoggerConfigException("Handler of undefined type found.");
+			throw new LoggerConfigException("Missing [type] attribute on <handler> element!");
 		} else {
 			String val = typeNode.getNodeValue();
-			return LogHandlerFactory.getSingleton().createHandler(val, m_logDir, handlerNode);
+			return LogHandlerBuilder.getSingleton().createHandler(val, m_logDir, handlerNode);
 		}
 	}
 
 	/**
-	 * Saves configuration of logger factory. Uses same root location as specified during {@link EtcLoggerFactory#loadConfig(File)}.  
+	 * Saves configuration of logger factory. Uses same root location as specified during {@link EtcLoggerFactory#loadConfig(File)}.
 	 * @throws Exception
 	 */
 	public void saveConfig() throws Exception {
@@ -211,7 +252,7 @@ public class EtcLoggerFactory implements ILoggerFactory {
 		TransformerFactory transformerFactory = TransformerFactory.newInstance();
 		Transformer transformer = transformerFactory.newTransformer();
 		DOMSource source = new DOMSource(doc);
-		StreamResult result = new StreamResult(new File(m_rootDir, CONFIG_FILENAME));
+		StreamResult result = new StreamResult(new File(m_configDir, CONFIG_FILENAME));
 
 		// Output to console for testing
 		// StreamResult result = new StreamResult(System.out);
@@ -219,7 +260,8 @@ public class EtcLoggerFactory implements ILoggerFactory {
 		transformer.transform(source, result);
 	}
 
-	public Document toXml(boolean includeNonPerstistable) throws ParserConfigurationException {
+	public @Nonnull
+	Document toXml(boolean includeNonPerstistable) throws ParserConfigurationException {
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = dbf.newDocumentBuilder();
 		Document doc = db.newDocument();
@@ -242,13 +284,12 @@ public class EtcLoggerFactory implements ILoggerFactory {
 			for(EtcLogger logger : LOGGERS.values()) {
 				logger.setLevel(calcLevel(logger.getName()));
 			}
-			m_initialized = true;
 		}
 	}
 
 	public @Nonnull
 	String getRootDir() {
-		return new File(m_rootDir, CONFIG_FILENAME).getAbsolutePath();
+		return new File(m_configDir, CONFIG_FILENAME).getAbsolutePath();
 	}
 
 	public @Nonnull
@@ -261,7 +302,7 @@ public class EtcLoggerFactory implements ILoggerFactory {
 		return m_logDirOriginalConfigured;
 	}
 
-	public void loadConfig(Document doc) throws LoggerConfigException {
+	public void loadConfig(@Nonnull Document doc) throws LoggerConfigException {
 		List<ILogHandler> loadedHandlers = new ArrayList<ILogHandler>();
 		doc.getDocumentElement().normalize();
 		NodeList configNodes = doc.getElementsByTagName("config");
@@ -299,7 +340,7 @@ public class EtcLoggerFactory implements ILoggerFactory {
 			loadedHandlers.add(loadHandler(handlerNode));
 		}
 		if(loadedHandlers.isEmpty()) {
-			ILogHandler handler = LogHandlerFactory.getSingleton().createDefaultHandler(m_rootDir, DEFAULT_LEVEL);
+			ILogHandler handler = LogHandlerBuilder.getSingleton().createDefaultHandler(m_configDir, DEFAULT_LEVEL);
 			loadedHandlers.add(handler);
 		}
 		synchronized(m_handlersLock){
@@ -308,11 +349,13 @@ public class EtcLoggerFactory implements ILoggerFactory {
 		recalculateLoggers();
 	}
 
-	public Level getDefaultLevel() {
+	public @Nonnull
+	Level getDefaultLevel() {
 		return DEFAULT_LEVEL;
 	}
 
-	public String composeFullLogFileName(@Nonnull String logPath, @Nonnull String fileName) {
+	public @Nonnull
+	String composeFullLogFileName(@Nonnull String logPath, @Nonnull String fileName) {
 		String res;
 		if(fileName.contains(":")) {
 			res = fileName;
@@ -324,19 +367,26 @@ public class EtcLoggerFactory implements ILoggerFactory {
 		return res;
 	}
 
-	public String composeFullLogFileName(@Nonnull String fileName) {
+	public @Nonnull
+	String composeFullLogFileName(@Nonnull String fileName) {
 		return composeFullLogFileName(m_logDir.getAbsolutePath(), fileName);
 	}
 
-	void notifyHandlers(EtcLogEvent event) {
+	void notifyHandlers(@Nonnull EtcLogEvent event) {
 		for(ILogHandler handler : getHandlers()) {
 			handler.handle(event);
 		}
 	}
-	
-	private List<ILogHandler> getHandlers() {
-		synchronized(m_handlersLock){ 
+
+	private @Nonnull
+	List<ILogHandler> getHandlers() {
+		synchronized(m_handlersLock){
 			return m_handlers;
 		}
+	}
+
+	static {
+		SINGLETON = new EtcLoggerFactory();
+		SINGLETON.initializeBuiltInLoggerConfig();
 	}
 }
