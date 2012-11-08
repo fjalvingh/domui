@@ -4,16 +4,12 @@
 	font-weight: bold;
 	background: <%= header_bg %>;
 	color: <%= bg_ttl_text %>;
-	margin-bottom: 10px;
+	<%= margins_neutralize %>
+	margin-top: 0px;
 }
 
 .ui-cptn table {
 	height: 21px;
-}
-
-.ui-content > .ui-cptn {
-	<%= margins_neutralize %>
-	margin-top: 0px;
 }
 
 .ui-cptn div {

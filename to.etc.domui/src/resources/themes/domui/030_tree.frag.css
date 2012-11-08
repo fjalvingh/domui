@@ -12,6 +12,10 @@ TD .ui-tree .selected:hover {
 }
 .ui-tr-val {
 	white-space: nowrap;
+	vertical-align: middle;
+}
+.ui-tr-val img {
+	vertical-align: middle;
 }
 td.ui-tr-sel:hover {
 	background-color: <%= highlight_bg %> !important;
