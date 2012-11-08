@@ -1,7 +1,6 @@
 /*** 010_apptitle.frag.css ***/
 /*** App Title bar ***/
 .ui-atl {
-	height: 40px;
 	background: url(<%= bg_ttl_gradient %>) repeat-y;
 	background-color: <%= bg_ttl_end %>;
 	<%= margins_neutralize %>

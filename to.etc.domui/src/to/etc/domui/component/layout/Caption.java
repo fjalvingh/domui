@@ -30,12 +30,14 @@ import to.etc.domui.component.buttons.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
-public class Caption extends Table {
+public class Caption extends Div {
 	private String m_caption;
 
 	private TD m_buttonpart;
 
 	private List<SmallImgButton> m_btns = Collections.EMPTY_LIST;
+
+	private Table m_table;
 
 	public Caption() {}
 
@@ -57,10 +59,13 @@ public class Caption extends Table {
 	@Override
 	public void createContent() throws Exception {
 		setCssClass("ui-cptn");
-		setCellPadding("0");
-		setCellSpacing("0");
-		setTableWidth("100%");
-		TBody b = addBody();
+		m_table = new Table();
+		add(m_table);
+		m_table.setCellPadding("0");
+		m_table.setCellSpacing("0");
+		m_table.setTableWidth("100%");
+		TBody b = new TBody();
+		m_table.add(b);
 		TD ttltd = b.addRowAndCell();
 		ttltd.setCssClass("ui-cptn-ttl");
 		ttltd.setNowrap(true);
