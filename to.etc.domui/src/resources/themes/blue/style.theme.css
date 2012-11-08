@@ -116,9 +116,12 @@ pre {
 }
 
 td {
-	vertical-align: top;
 	padding: 1px;
 }
+
+td input, td select, td label {
+	vertical-align: top;
+} 
 
 div {
 	vertical-align: top;
@@ -159,7 +162,6 @@ div {
 /*** 010_apptitle.frag.css ***/
 /*** App Title bar ***/
 .ui-atl {
-	height: 40px;
 	background: url(<%= bg_ttl_gradient %>) repeat-y;
 	background-color: <%= bg_ttl_end %>;
 	<%= margins_neutralize %>
@@ -194,6 +196,7 @@ div {
 	padding-left: 9px;
 	vertical-align: middle;
 }
+
 /*** 015_splitterbar.frag.css ***/
 /*** SplitterPanel. These style names are required by jquery.splitter.js ***/
 .splitbarV {
@@ -339,6 +342,10 @@ TD .ui-tree .selected:hover {
 }
 .ui-tr-val {
 	white-space: nowrap;
+	vertical-align: middle;
+}
+.ui-tr-val img {
+	vertical-align: middle;
 }
 td.ui-tr-sel:hover {
 	background-color: <%= highlight_bg %> !important;
@@ -362,7 +369,7 @@ td.ui-tr-selected {
 }
 /*** 040_captionedheader.frag.css ***/
 /*** CaptionedHeader ***/
-body > .ui-chdr {
+.ui-content > .ui-chdr {
 	<%= margins_neutralize %>
 }
 .ui-chdr {
@@ -524,6 +531,35 @@ div.ui-ipa img {
 .ui-szless {
 	padding: 0px;
 	margin: 0px;
+}
+
+/*** Display data table ***/
+.ui-dd-table {
+	font-size: <%= data_tbl_font_size %>;
+	margin-bottom: <%= margins_main %>;
+	border: 1px solid #aaaaaa;
+	border-left: 0px;
+}
+.ui-dd-table TD {
+	padding: 1px 2px;
+	vertical-align: top;
+	border-left: 1px solid #aaaaaa;
+}
+<% if(browser.IE && browser.majorVersion < 9) { %>
+.ui-dd-table TR {
+	border-bottom: 1px solid #aaaaaa;
+}
+<% } else { %>
+.ui-dd-table TR:nth-child(even) {
+	background-color: rgba(255, 255, 255, 0.1);
+}
+<% } %>
+.ui-dd-table THEAD TH {
+	font-weight: bold;
+	padding: 3px;
+	border-left: 1px solid #7c7c7c;
+	background: <%= data_tbl_header_bg %>;
+	color: white;
 }
 
 /**
@@ -1108,7 +1144,7 @@ vp-ui-multi table tr > td.ui-f-lbl:first-child {
 .ui-f-in {
 	font-size: <%= font_size %>;
 	vertical-align: top; /* jal 20090818 changed from top to middle to align DateInput buttons better */
-	padding-left: 4px;
+	padding: 0px 0px 0px 4px;
 }
 
 .ui-f-in input, .ui-f-in select{
@@ -1126,6 +1162,7 @@ vp-ui-multi table tr > td.ui-f-lbl:first-child {
 .ui-fvs-lbl {
 	font-weight: bold;
 	font-size: <%= font_size %>;
+	padding: 2px 4px 2px 2px;
 }
 
 .ui-fvs-in {
@@ -1136,7 +1173,7 @@ vp-ui-multi table tr > td.ui-f-lbl:first-child {
 .ui-fvs-do { /* displayonly field */
 	font-size: <%= font_size %>;
 /*	background-color: white; jal 20121025 why? This messes up any redefinition of any background... */
-	padding: 2px;
+	padding: 2px 4px 2px 2px;
 }
 
 /* Display-only field */
@@ -1259,7 +1296,6 @@ div.ui-dt {
 div.ui-dt table td{
 	border: 0;
 	margin: 0;
-	padding: 3px;
 	border-left: 1px solid #bababa; /* gray so it is theme invariant */
 	height: 12px;
 }
@@ -1389,14 +1425,12 @@ div.ui-sortable {
 	font-weight: bold;
 	background: <%= header_bg %>;
 	color: <%= bg_ttl_text %>;
-	height: 21px;
-	margin-bottom: 10px;
-	margin-top: 10px;
+	<%= margins_neutralize %>
+	margin-top: 0px;
 }
 
-/*	margin-top: 10px; jal 20120213 removed: header should not define it's upper location, because it cannot be used at the top of a screen! */
-.ui-cptn:FIRST-CHILD {
-	margin-top: 0px;		/* btadic 20121101 For headers used at the top of a screen */
+.ui-cptn table {
+	height: 21px;
 }
 
 .ui-cptn div {
@@ -2482,21 +2516,6 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 .ui-idlg-pnl {
 	margin: 15px 10px;
 }
-/*** 250_smallhoverbutton.frag.css ***/
-/*** Small Hover Button ***/
-.ui-smhb {
-	width: 16px;
-	height: 16px;
-	border: none;
-	background-color: transparent;
-	cursor: pointer;
-	padding: 0;
-	margin: 3px;
-}
-
-.ui-smhb:hover {
-	background-position: 0px -16px;
-}
 /*** 255_datapager.frag.css ***/
 /*** Result table pager ***/
 .ui-dp {
@@ -2554,6 +2573,21 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 }
 .ui-dp-btns a.ui-dp-nav-l-dis {
 	background-position: <%= -3 * data_pager_icon_size_x %>px <%= -2 * data_pager_icon_size_y %>px;
+}
+/*** 250_smallhoverbutton.frag.css ***/
+/*** Small Hover Button ***/
+.ui-smhb {
+	width: 16px;
+	height: 16px;
+	border: none;
+	background-color: transparent;
+	cursor: pointer;
+	padding: 0;
+	margin: 3px;
+}
+
+.ui-smhb:hover {
+	background-position: 0px -16px;
 }
 /*** 340_dateinput.frag.css ***/
 /*** Date input ***/
