@@ -27,6 +27,7 @@ package to.etc.domui.component.delayed;
 import javax.annotation.*;
 
 import to.etc.domui.component.buttons.*;
+import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.state.*;
 import to.etc.domui.themes.*;
@@ -77,9 +78,15 @@ public class AsyncContainer extends Div {
 			public void onCompleted(boolean cancelled, @Nullable Exception errorException) throws Exception {
 				//-- If we've got an exception replace the contents with the exception message.
 				if(errorException != null) {
+					errorException.printStackTrace();
 					StringBuilder sb = new StringBuilder(8192);
 					StringTool.strStacktrace(sb, errorException);
-					setText(sb.toString()); 						// Just fill myself with the error stack trace.
+					String s = sb.toString();
+					s = s.replace("\n", "<br/>\n");
+
+					MsgBox.error(AsyncContainer.this.getParent(), "Exception while creating result for asynchronous task:<br/>" + s);
+					//
+					//					setText(sb.toString()); 						// Just fill myself with the error stack trace.
 					return;
 				}
 

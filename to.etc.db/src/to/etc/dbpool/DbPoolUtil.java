@@ -34,9 +34,9 @@ import java.util.Date;
 public class DbPoolUtil {
 	private DbPoolUtil() {}
 
-	static private final String[] PRESET = {"to.etc.dbpool.", "oracle.", "nl.itris.viewpoint.db.hibernate."};
+	static private final String[] PRESET = {"xxxto.etc.dbpool.", "oracle.", "nl.itris.viewpoint.db.hibernate."};
 
-	static private final String[] ENDSET = {"to.etc.domui.server.", "org.apache.tomcat"};
+	static private final String[] ENDSET = {"xxxto.etc.domui.server.", "org.apache.tomcat"};
 
 	static private boolean inSkipSet(final String[] set, final String name) {
 		for(String s : set) {
