@@ -287,15 +287,14 @@ public class DefaultButton extends Button implements IActionControl {
 			return;
 		String dt = action.getDisableReason(m_actionInstance);
 		if(null == dt) {
-			setTitle(action.getTitle(m_actionInstance)); // The default tooltip or remove it if not present
+			dt = action.getTitle(m_actionInstance);		// The default tooltip or remove it if not present
 			setDisabled(false);
 		} else {
-			setTitle(dt);						// Shot reason for being disabled
 			setDisabled(true);
 		}
+		setTitle(dt);
 		setText(action.getName(m_actionInstance));
 		setIcon(action.getIcon(m_actionInstance));
-		setTitle(dt);
 		setClicked(new IClicked<DefaultButton>() {
 			@Override
 			public void clicked(DefaultButton clickednode) throws Exception {
