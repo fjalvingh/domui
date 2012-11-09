@@ -15,9 +15,10 @@ import to.etc.log.event.*;
  * Created on Nov 9, 2012
  */
 public class EtcLogger implements Logger {
-
+	@Nonnull
 	private final String	m_key;
 
+	@Nullable
 	private Level			m_level;
 
 	private EtcLogger(@Nonnull String key, @Nullable Level level) {
@@ -25,6 +26,7 @@ public class EtcLogger implements Logger {
 		m_level = level;
 	}
 
+	@Nonnull
 	static EtcLogger create(@Nonnull String key, @Nullable Level level) {
 		return new EtcLogger(key, level);
 	}
@@ -413,7 +415,7 @@ public class EtcLogger implements Logger {
 		return m_level == null;
 	}
 
-	public synchronized void setLevel(Level level) {
+	public synchronized void setLevel(@Nullable Level level) {
 		m_level = level;
 	}
 }

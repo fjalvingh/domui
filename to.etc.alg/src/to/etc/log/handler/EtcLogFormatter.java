@@ -14,11 +14,12 @@ import to.etc.log.event.*;
  * Does logging according to provided configurable {@link EtcLogFormat} formatting pattern.
  * It also does detailed logging of {@link Throwable} log argument if such is logged.
  * It logs up to 5 nested cause levels.
- * 
+ *
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on Oct 31, 2012
  */
 public class EtcLogFormatter {
+	@Nonnull
 	private static final ThreadLocal<SimpleDateFormat>	TIMEFORMATTER	= new ThreadLocal<SimpleDateFormat>() {
 																			@Override
 																			protected SimpleDateFormat initialValue() {
@@ -26,6 +27,7 @@ public class EtcLogFormatter {
 																			}
 																		};
 
+	@Nonnull
 	static String format(@Nonnull EtcLogEvent event, @Nonnull String format, @Nullable String filterData) {
 		StringBuilder sb = new StringBuilder();
 
@@ -42,7 +44,7 @@ public class EtcLogFormatter {
 					boolean notReplaced = false;
 					switch(nextChar){
 						case 'd':
-						case 'D': //%d (timestamp) 
+						case 'D': //%d (timestamp)
 							sb.append(TIMEFORMATTER.get().format(event.getTimestamp()));
 							break;
 						case 'l':
@@ -50,19 +52,19 @@ public class EtcLogFormatter {
 							sb.append(event.getLogger().getName());
 							break;
 						case 'n':
-						case 'N': //%n (new line)	
+						case 'N': //%n (new line)
 							sb.append("\n");
 							break;
 						case 'p':
-						case 'P': //%p (level)	
+						case 'P': //%p (level)
 							sb.append(event.getLevel());
 							break;
 						case 't':
-						case 'T': //%t (thread)	
+						case 'T': //%t (thread)
 							sb.append(event.getThread().getName());
 							break;
 						case 'm':
-						case 'M': //multiple choices	
+						case 'M': //multiple choices
 							if((len >= ix + 2) && "msg".equalsIgnoreCase(format.substring(ix - 1, ix + 2))) {
 								ix += 2;
 								handleMsg(event, sb);
@@ -100,7 +102,7 @@ public class EtcLogFormatter {
 		return sb.toString();
 	}
 
-	private static void handleMsg(EtcLogEvent event, StringBuilder sb) {
+	private static void handleMsg(@Nonnull EtcLogEvent event, @Nonnull StringBuilder sb) {
 		if(event.getArgs() != null && event.getArgs().length > 0) {
 			if(event.getArgs().length == 1) {
 				sb.append(org.slf4j.helpers.MessageFormatter.format(event.getMsg(), event.getArgs()));
@@ -114,7 +116,7 @@ public class EtcLogFormatter {
 		}
 	}
 
-	private static int handleMdc(String format, int ix, StringBuilder sb) {
+	private static int handleMdc(@Nonnull String format, int ix, @Nonnull StringBuilder sb) {
 		if(format.charAt(ix) != '{') {
 			return ix;
 		} else {
@@ -132,7 +134,7 @@ public class EtcLogFormatter {
 		}
 	}
 
-	private static void logThrowable(StringBuilder sb, int causeIndex, Throwable t, boolean checkNextExceptions) {
+	private static void logThrowable(@Nonnull StringBuilder sb, int causeIndex, @Nonnull Throwable t, boolean checkNextExceptions) {
 		if(t.getMessage() != null) {
 			sb.append("- message: ").append(t.getMessage()).append("\n");
 		}

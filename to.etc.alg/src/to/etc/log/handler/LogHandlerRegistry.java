@@ -39,11 +39,13 @@ public class LogHandlerRegistry {
 		ILogHandler createInstance(@Nonnull File logDir, @Nonnull Node handlerNode) throws LoggerConfigException;
 	}
 
+	@Nonnull
 	private final Map<String, ILogHandlerFactory>	m_makerRegistry	= new HashMap<String, ILogHandlerFactory>();
 
 	/**
 	 * The unique instance of this class.
 	 */
+	@Nonnull
 	private static final LogHandlerRegistry		SINGLETON		= new LogHandlerRegistry();
 
 	/**
@@ -51,6 +53,7 @@ public class LogHandlerRegistry {
 	 *
 	 * @return the LogHandlerFactory singleton
 	 */
+	@Nonnull
 	public static final LogHandlerRegistry getSingleton() {
 		return SINGLETON;
 	}
@@ -88,8 +91,8 @@ public class LogHandlerRegistry {
 	 * @return
 	 * @throws LoggerConfigException
 	 */
-	public synchronized @Nonnull
-	ILogHandler createHandler(@Nonnull String type, @Nonnull File logDir, @Nonnull Node handlerNode) throws LoggerConfigException {
+	@Nonnull
+	public synchronized ILogHandler createHandler(@Nonnull String type, @Nonnull File logDir, @Nonnull Node handlerNode) throws LoggerConfigException {
 		ILogHandlerFactory maker = m_makerRegistry.get(type);
 		if(maker != null) {
 			return maker.createInstance(logDir, handlerNode);
@@ -106,10 +109,8 @@ public class LogHandlerRegistry {
 	 * @param level
 	 * @return
 	 */
-	public @Nonnull
-	ILogHandler createDefaultHandler(@Nonnull File rootDir, @Nonnull Level level) {
+	@Nonnull
+	public ILogHandler createDefaultHandler(@Nonnull File rootDir, @Nonnull Level level) {
 		return FileLogHandler.createDefaultHandler(rootDir, level);
 	}
-
-
 }

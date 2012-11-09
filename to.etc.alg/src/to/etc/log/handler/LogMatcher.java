@@ -19,24 +19,26 @@ class LogMatcher {
 	/**
 	 * Defines logger name pattern on which handler applies.
 	 */
-	private final @Nonnull
-	String	m_name;
+	@Nonnull
+	private final String	m_name;
 
 	/**
 	 * Defines log level on which handler applies.
 	 */
-	private final @Nonnull
-	Level	m_level;
+	@Nonnull
+	private final Level		m_level;
 
 	LogMatcher(@Nonnull String name, @Nonnull Level level) {
 		m_name = name;
 		m_level = level;
 	}
 
+	@Nonnull
 	String getName() {
 		return m_name;
 	}
 
+	@Nonnull
 	Level getLevel() {
 		return m_level;
 	}
@@ -62,6 +64,7 @@ class LogMatcher {
 		return (m_name.length() == 0 || key.startsWith(m_name + ".") || key.equals(m_name));
 	}
 
+	@Nonnull
 	static LogMatcher createFromXml(@Nonnull Node node) throws LoggerConfigException {
 		Node nameNode = node.getAttributes().getNamedItem("name");
 		String name = nameNode == null ? "" : nameNode.getNodeValue();
@@ -81,5 +84,5 @@ class LogMatcher {
 	@Override
 	public String toString() {
 		return "matcher " + m_name + " " + m_level;
-	};
+	}
 }

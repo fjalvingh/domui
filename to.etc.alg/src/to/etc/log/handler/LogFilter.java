@@ -18,14 +18,14 @@ import to.etc.log.event.*;
  * Created on Oct 31, 2012
  */
 class LogFilter {
-	private final @Nonnull
-	LogFilterType	m_type;
+	@Nonnull
+	private final LogFilterType	m_type;
 
-	private final @Nonnull
-	String			m_key;
+	@Nonnull
+	private final String		m_key;
 
-	private final @Nonnull
-	String			m_value;
+	@Nonnull
+	private final String		m_value;
 
 	private LogFilter(@Nonnull LogFilterType type, @Nonnull String key, @Nonnull String value) {
 		m_type = type;
@@ -48,13 +48,13 @@ class LogFilter {
 		return m_value;
 	}
 
-	static @Nonnull
-	LogFilter mdcFilter(@Nonnull String key, @Nonnull String value) {
+	@Nonnull
+	static LogFilter mdcFilter(@Nonnull String key, @Nonnull String value) {
 		return new LogFilter(LogFilterType.MDC, key, value);
 	}
 
-	static @Nonnull
-	LogFilter sessionFilter(@Nonnull String value) {
+	@Nonnull
+	static LogFilter sessionFilter(@Nonnull String value) {
 		return new LogFilter(LogFilterType.SESSION, "session", value);
 	}
 
@@ -69,8 +69,8 @@ class LogFilter {
 		}
 	}
 
-	static @Nonnull
-	LogFilter createFromXml(@Nonnull Node node) throws LoggerConfigException {
+	@Nonnull
+	static LogFilter createFromXml(@Nonnull Node node) throws LoggerConfigException {
 		Node typeNode = node.getAttributes().getNamedItem("type");
 		if(typeNode == null) {
 			throw new EtcLoggerFactory.LoggerConfigException("Missing [type] at filter node.");

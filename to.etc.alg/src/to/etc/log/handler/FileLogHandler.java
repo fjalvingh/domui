@@ -1,7 +1,6 @@
 package to.etc.log.handler;
 
 import java.io.*;
-import java.text.*;
 import java.util.*;
 
 import javax.annotation.*;
@@ -14,36 +13,44 @@ import to.etc.log.event.*;
 
 class FileLogHandler implements ILogHandler {
 	/**
-	 * Defines where to write log output.  
+	 * Defines where to write log output.
 	 */
-	private final String			m_out;
+	@Nullable
+	private final String					m_out;
 
-	private final File				m_logRoot;
-	/**
-	 * Defines matchers to calculate on which logger handler applies. To apply on logger, matcher closest to logger name must match with logEvent.  
-	 */
-	private final List<LogMatcher>		m_matchers	= new ArrayList<LogMatcher>();
+	@Nullable
+	private final File						m_logRoot;
 
 	/**
-	 * Defines filters on which handler applies. To apply on logger, all filters must be matched.  
+	 * Defines matchers to calculate on which logger handler applies. To apply on logger, matcher closest to logger name must match with logEvent.
 	 */
-	private List<LogFilter>			m_filters	= Collections.EMPTY_LIST;
+	@Nonnull
+	private final List<LogMatcher>			m_matchers	= new ArrayList<LogMatcher>();
 
 	/**
-	 * Keeps list of loggers that are marked as handled by handler. 
+	 * Defines filters on which handler applies. To apply on logger, all filters must be matched.
 	 */
+	@Nonnull
+	private List<LogFilter>					m_filters	= Collections.EMPTY_LIST;
+
+	/**
+	 * Keeps list of loggers that are marked as handled by handler.
+	 */
+	@Nonnull
 	private final Map<EtcLogger, Boolean[]>	m_loggers	= new HashMap<EtcLogger, Boolean[]>();
 
+	@Nonnull
 	private final Object					m_writeLock	= new Object();
 
+	@Nullable
 	private EtcLogFormat					m_format	= null;
 
 	public FileLogHandler(@Nonnull File logRoot, @Nullable String out) {
-		super();
 		m_logRoot = logRoot;
 		m_out = out;
 	}
 
+	@Nonnull
 	public static FileLogHandler createDefaultHandler(@Nonnull File logRoot, @Nonnull Level level) {
 		FileLogHandler handler = new FileLogHandler(logRoot, null);
 		LogMatcher matcher = new LogMatcher("", level);
@@ -51,12 +58,12 @@ class FileLogHandler implements ILogHandler {
 		return handler;
 	}
 
-	public void addMatcher(LogMatcher matcher) {
+	public void addMatcher(@Nonnull LogMatcher matcher) {
 		m_matchers.add(matcher);
 		m_loggers.clear();
 	}
 
-	public void addFilter(LogFilter filter) {
+	public void addFilter(@Nonnull LogFilter filter) {
 		if(m_filters == Collections.EMPTY_LIST) {
 			m_filters = new ArrayList<LogFilter>();
 		}
@@ -64,7 +71,7 @@ class FileLogHandler implements ILogHandler {
 	}
 
 	@Override
-	public void handle(EtcLogEvent event) {
+	public void handle(@Nonnull EtcLogEvent event) {
 		Boolean[] applicablePerLevels = m_loggers.get(event.getLogger());
 		if(null == applicablePerLevels) {
 			applicablePerLevels = new Boolean[Level.values().length];
@@ -117,8 +124,8 @@ class FileLogHandler implements ILogHandler {
 		}
 	}
 
-	private @Nullable
-	String getLogPartFromFilters() {
+	@Nullable
+	private String getLogPartFromFilters() {
 		if(m_filters.isEmpty()) {
 			return null;
 		}
@@ -129,7 +136,8 @@ class FileLogHandler implements ILogHandler {
 		return sb.toString();
 	}
 
-	private Boolean decideOnMatchers(EtcLogEvent event) {
+	@Nonnull
+	private Boolean decideOnMatchers(@Nonnull EtcLogEvent event) {
 		LogMatcher closest = null;
 		for(LogMatcher matcher : m_matchers) {
 			if(matcher.matches(event)) {
@@ -144,7 +152,7 @@ class FileLogHandler implements ILogHandler {
 		return Boolean.FALSE;
 	}
 
-	private boolean checkFilters(EtcLogEvent event) {
+	private boolean checkFilters(@Nonnull EtcLogEvent event) {
 		for(LogFilter filter : m_filters) {
 			if(!filter.accept(event)) {
 				return false;
@@ -153,6 +161,7 @@ class FileLogHandler implements ILogHandler {
 		return true;
 	}
 
+	@Nullable
 	public File getLogRoot() {
 		return m_logRoot;
 	}
@@ -171,6 +180,7 @@ class FileLogHandler implements ILogHandler {
 		return closest != null ? closest.getLevel() : null;
 	}
 
+	@Nonnull
 	public static FileLogHandler createFromFileTypeConfig(@Nonnull File logRoot, @Nonnull Node handlerNode) throws LoggerConfigException {
 		Node file = handlerNode.getAttributes().getNamedItem("file");
 		if(file == null) {
@@ -181,7 +191,7 @@ class FileLogHandler implements ILogHandler {
 		return res;
 	}
 
-	void load(Node handlerNode) throws LoggerConfigException {
+	void load(@Nonnull Node handlerNode) throws LoggerConfigException {
 		NodeList nodes = handlerNode.getChildNodes();
 		for(int i = 0; i < nodes.getLength(); i++) {
 			Node node = nodes.item(i);
@@ -195,7 +205,7 @@ class FileLogHandler implements ILogHandler {
 		}
 	}
 
-	private void addFormat(EtcLogFormat format) throws LoggerConfigException {
+	private void addFormat(@Nonnull EtcLogFormat format) throws LoggerConfigException {
 		if(m_format != null) {
 			throw new EtcLoggerFactory.LoggerConfigException("Multiple format definitions found in log handler.");
 		} else {
@@ -203,6 +213,7 @@ class FileLogHandler implements ILogHandler {
 		}
 	}
 
+	@Nonnull
 	public static FileLogHandler createFromStdoutTypeConfig(@Nonnull File logRoot, @Nonnull Node handlerNode) throws LoggerConfigException {
 		FileLogHandler res = new FileLogHandler(logRoot, null);
 		res.load(handlerNode);
@@ -210,7 +221,7 @@ class FileLogHandler implements ILogHandler {
 	}
 
 	@Override
-	public void saveToXml(Document doc, Element handlerNode, boolean includeNonPerstistable) {
+	public void saveToXml(@Nonnull Document doc, @Nonnull Element handlerNode, boolean includeNonPerstistable) {
 		handlerNode.setAttribute("type", m_out == null ? "stdout" : "file");
 		if(m_out != null) {
 			handlerNode.setAttribute("file", m_out);
@@ -261,5 +272,5 @@ class FileLogHandler implements ILogHandler {
 			}
 		}
 		return false;
-	};
+	}
 }
