@@ -3,29 +3,23 @@ package to.etc.log.test;
 import java.io.*;
 
 import javax.annotation.*;
-import javax.xml.parsers.*;
 
 import org.junit.*;
 import org.slf4j.*;
-import org.w3c.dom.*;
-import org.xml.sax.*;
 
 import to.etc.log.*;
 
 public class TestEtcLoggerFactory {
-	static private EtcLoggerFactory	m_testLoggerFactory;
-
 	static private String			m_testHome	= System.getProperty("user.home") + File.separatorChar + "testlog";
 
 	@BeforeClass
 	public static void setup() throws Exception {
-		m_testLoggerFactory = new EtcLoggerFactory();
-		m_testLoggerFactory.initialize(new File(m_testHome));
+		EtcLoggerFactory.getSingleton().initialize(new File(m_testHome), getConfig(Level.ERROR));
 	}
 
 	private static String getConfig(@Nonnull Level level) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<config logLocation=\"$user.home$/testlog/logs\">");
+		sb.append("<config logLocation=\"%user.home%/testlog/logs\">");
 		sb.append("<handler type=\"stdout\">");
 		sb.append("<log level=\"" + level.name() + "\" name=\"to.etc.log.test\"/>");
 		sb.append("</handler>");
@@ -44,7 +38,7 @@ public class TestEtcLoggerFactory {
 			//redirect console output for test results inspection
 			System.setOut(new PrintStream(baos));
 
-			Logger log = m_testLoggerFactory.getLogger(this.getClass().getName());
+			Logger log = LoggerFactory.getLogger(this.getClass().getName());
 			log.trace("trace");
 			log.debug("debug");
 			log.info("info");
@@ -70,10 +64,7 @@ public class TestEtcLoggerFactory {
 	}
 
 	private void initTestLoggerFactory(Level level) throws Exception {
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		DocumentBuilder db = dbf.newDocumentBuilder();
-		Document doc = db.parse(new InputSource(new StringReader(getConfig(level))));
-		m_testLoggerFactory.loadConfig(doc);
+		EtcLoggerFactory.getSingleton().tryLoadConfigFromXml(new File(m_testHome), getConfig(level));
 	}
 
 }
