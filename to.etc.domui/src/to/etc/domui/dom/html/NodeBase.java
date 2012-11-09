@@ -210,7 +210,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * Internal, do the proper run sequence for a clicked event.
 	 * @throws Exception
 	 */
-	public void internalOnClicked(ClickInfo cli) throws Exception {
+	public void internalOnClicked(@Nonnull ClickInfo cli) throws Exception {
 		IClickBase<NodeBase> c = (IClickBase<NodeBase>) getClicked();
 		if(c instanceof IClicked< ? >) {
 			((IClicked<NodeBase>) c).clicked(this);

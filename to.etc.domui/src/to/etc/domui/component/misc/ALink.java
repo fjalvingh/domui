@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.misc;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
@@ -244,7 +246,7 @@ public class ALink extends ATag {
 	 * @see to.etc.domui.dom.html.NodeBase#internalOnClicked()
 	 */
 	@Override
-	public void internalOnClicked(ClickInfo cli) throws Exception {
+	public void internalOnClicked(@Nonnull ClickInfo cli) throws Exception {
 		if(getClicked() != null) {
 			super.internalOnClicked(cli);
 			return;

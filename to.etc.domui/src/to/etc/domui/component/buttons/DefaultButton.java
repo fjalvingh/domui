@@ -61,7 +61,7 @@ public class DefaultButton extends Button implements IActionControl {
 
 	private Object m_actionInstance;
 
-	private ButtonPartKey m_key = new ButtonPartKey();
+	private final ButtonPartKey m_key = new ButtonPartKey();
 
 	/**
 	 * Create an empty button.
@@ -287,7 +287,7 @@ public class DefaultButton extends Button implements IActionControl {
 			return;
 		String dt = action.getDisableReason(m_actionInstance);
 		if(null == dt) {
-			setTitle(null);						// Remove any title.
+			setTitle(action.getTitle(m_actionInstance)); // The default tooltip or remove it if not present
 			setDisabled(false);
 		} else {
 			setTitle(dt);						// Shot reason for being disabled
@@ -295,7 +295,7 @@ public class DefaultButton extends Button implements IActionControl {
 		}
 		setText(action.getName(m_actionInstance));
 		setIcon(action.getIcon(m_actionInstance));
-		setTitle(action.getDisableReason(m_actionInstance));
+		setTitle(dt);
 		setClicked(new IClicked<DefaultButton>() {
 			@Override
 			public void clicked(DefaultButton clickednode) throws Exception {

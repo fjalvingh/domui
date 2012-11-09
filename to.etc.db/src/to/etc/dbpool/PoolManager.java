@@ -474,6 +474,8 @@ final public class PoolManager {
 		m_checkCloseConnections = checkCloseConnections;
 	}
 
+	static private final boolean DEBUG = false;
+
 	/**
 	 * @param cx
 	 */
@@ -486,12 +488,16 @@ final public class PoolManager {
 			m_threadConnections.set(cs);
 		}
 		cs.add(cx);
+		if(DEBUG)
+			System.out.println("PM: " + Thread.currentThread().getName() + " add proxy " + cx);
 	}
 
 	void removeThreadConnection(ConnectionProxy cx) {
 		if(!isCheckCloseConnections())
 			return;
 		Set<ConnectionProxy> cs = m_threadConnections.get();
+		if(DEBUG)
+			System.out.println("PM: " + Thread.currentThread().getName() + " remove proxy " + cx + (cs == null ? "FAILED - NO SET" : ""));
 		if(null == cs)
 			return;
 		cs.remove(cx);
