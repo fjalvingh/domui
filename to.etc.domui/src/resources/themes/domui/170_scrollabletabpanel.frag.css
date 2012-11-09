@@ -1,5 +1,9 @@
 /*** 170_scrollabletabpanel.frag.css ***/
 /*** ScrollableTabPanel ***/
+.ui-stab-c {
+	margin: 0px -<%= margins_main %> <%= margins_main %> -<%= margins_main %>;
+}
+
 .ui-stab-hdr {
 	float: left;
 	font-size: <%= font_size %>;
@@ -99,6 +103,7 @@ li.ui-stab-ibt:FIRST-CHILD {
 	display:block;
 	width: 15px;
 	height: 31px;
+	margin: 0px 0px <%= margins_main %>;
 }
 
 .ui-stab-scrl-left:hover {
