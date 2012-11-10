@@ -6,15 +6,15 @@
 .ui-chdr {
 	width: 100%;
 	margin-top: 10px;
-	margin-bottom: 10px;
-	border-bottom: 2px solid <%= caption_bg %>;
+/*	margin-bottom: 10px; */
+	border-bottom: 2px solid <%= bg_ttl_end %>;
 }
 .ui-chdr td{
 	padding: 0;
 }
 .ui-chdr-ttl {
 	color: <%= bg_ttl_text %>;
-	background-color: <%= caption_bg %>;
+	background-color: <%= bg_ttl_end %>;
 	padding: 2px 10px 2px 10px;
 	white-space: nowrap;
 	-moz-border-radius: 2px 2px 0px 0px;
