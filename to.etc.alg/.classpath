@@ -10,5 +10,6 @@
 			<attribute name="owner.project.facets" value="java"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="src" path="/bin-slf4j"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
