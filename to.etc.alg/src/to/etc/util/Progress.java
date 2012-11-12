@@ -149,6 +149,8 @@ public class Progress {
 					if(sb.length() != 0)
 						sb.append(">");
 					sb.append(p.m_name);
+					if(p.m_extra != null)
+						sb.append(p.m_extra);
 					levels--;
 				}
 				p = p.m_subProgress;
