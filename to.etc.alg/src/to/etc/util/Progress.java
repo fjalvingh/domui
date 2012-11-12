@@ -26,6 +26,8 @@ package to.etc.util;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 /**
  * A progress reporter utility. A single instance defines progress in user-specified
  * numeric terms (for instance record 12 of 1012312), and gets translated to a
@@ -62,19 +64,24 @@ public class Progress {
 	private boolean m_cancelled;
 
 	/** A short-as-possible name for the current activity */
+	@Nullable
 	private String m_name;
 
+	@Nullable
+	private String					m_extra;
+
+	@Nonnull
 	private List<IProgressListener>	m_listeners	= Collections.emptyList();
 
 	/**
 	 * Top-level progress indicator for a given task.
 	 */
-	public Progress(String name) {
+	public Progress(@Nullable String name) {
 		m_root = this;
 		m_name = name;
 	}
 
-	private Progress(Progress parent, String name) {
+	private Progress(@Nonnull Progress parent, @Nullable String name) {
 		m_parent = parent;
 		m_root = parent.m_root;
 		m_name = name;
@@ -84,17 +91,22 @@ public class Progress {
 	 * Return the root progress handler; this NEVER returns null - it returns itself if it is the root.
 	 * @return
 	 */
+	@Nonnull
 	public Progress getRoot() {
 		return m_root;
 	}
 
+	@Nullable
 	public Progress getParent() {
 		return m_parent;
 	}
 
+	@Nullable
 	public String getName() {
 		synchronized(m_root) {
-			return m_name;
+			if(m_extra == null)
+				return m_name;
+			return m_name + m_extra;
 		}
 	}
 
@@ -171,10 +183,20 @@ public class Progress {
 	 * @param name
 	 */
 	public void setTotalWork(double work) {
+		setTotalWork(work, null);
+	}
+
+	/**
+	 * Set the current amount of work.
+	 * @param work
+	 * @param extra
+	 */
+	public void setTotalWork(double work, @Nullable String extra) {
 		synchronized(m_root) {
 			if(m_totalWork != 0)
 				throw new IllegalStateException("You cannot change the work-to-do after it has been set");
 			m_totalWork = work;
+			m_extra = extra;
 			updateTree();
 		}
 	}
@@ -185,8 +207,18 @@ public class Progress {
 	 * @param now
 	 */
 	public void setCompleted(double now) {
+		setCompleted(now, null);
+	}
+
+	/**
+	 * Set the amount of work completed. It can only be set to a valid value, and it can
+	 * only advance, not go back.
+	 * @param now
+	 */
+	public void setCompleted(double now, @Nullable String extra) {
 		synchronized(m_root) {
 			clearSubProgress();
+			m_extra = extra;
 			if(now <= m_currentWork)
 				return;
 			if(now >= m_totalWork)
@@ -300,16 +332,17 @@ public class Progress {
 		}
 	}
 
-	public synchronized void addListener(IProgressListener l) {
+	public synchronized void addListener(@Nonnull IProgressListener l) {
 		m_listeners = new ArrayList<IProgressListener>(m_listeners);
 		m_listeners.add(l);
 	}
 
-	public synchronized void removeListener(IProgressListener l) {
+	public synchronized void removeListener(@Nonnull IProgressListener l) {
 		m_listeners = new ArrayList<IProgressListener>(m_listeners);
 		m_listeners.remove(l);
 	}
 
+	@Nonnull
 	synchronized private List<IProgressListener> getListeners() {
 		return m_listeners;
 	}
