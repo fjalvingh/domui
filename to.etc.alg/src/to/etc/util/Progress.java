@@ -196,8 +196,9 @@ public class Progress {
 	public void setTotalWork(double work, @Nullable String extra) {
 		synchronized(m_root) {
 			checkCancelled();
-			if(m_totalWork != 0)
-				throw new IllegalStateException("You cannot change the work-to-do after it has been set");
+			if(m_totalWork != 0) {
+				m_currentWork = 0;
+			}
 			m_totalWork = work;
 			m_extra = extra;
 			updateTree();
