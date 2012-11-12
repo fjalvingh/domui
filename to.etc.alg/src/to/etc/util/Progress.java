@@ -175,7 +175,7 @@ public class Progress {
 
 	public boolean isCancelled() {
 		synchronized(m_root) {
-			return m_root.isCancelled();
+			return m_root.m_cancelled;		// Do not use getter, please 8-(
 		}
 	}
 
@@ -195,11 +195,19 @@ public class Progress {
 	 */
 	public void setTotalWork(double work, @Nullable String extra) {
 		synchronized(m_root) {
+			checkCancelled();
 			if(m_totalWork != 0)
 				throw new IllegalStateException("You cannot change the work-to-do after it has been set");
 			m_totalWork = work;
 			m_extra = extra;
 			updateTree();
+		}
+	}
+
+	private void checkCancelled() {
+		synchronized(m_root) {
+			if(m_root.m_cancelled)
+				throw new CancelledException();
 		}
 	}
 
@@ -209,6 +217,7 @@ public class Progress {
 	 * @param now
 	 */
 	public void setCompleted(double now) {
+		checkCancelled();
 		setCompleted(now, null);
 	}
 
@@ -219,6 +228,7 @@ public class Progress {
 	 */
 	public void setCompleted(double now, @Nullable String extra) {
 		synchronized(m_root) {
+			checkCancelled();
 			clearSubProgress();
 			m_extra = extra;
 			if(now <= m_currentWork)
@@ -245,6 +255,7 @@ public class Progress {
 	}
 
 	public void increment(double inc) {
+		checkCancelled();
 		if(inc <= 0.0d)
 			return;
 		synchronized(m_root) {
@@ -259,6 +270,7 @@ public class Progress {
 	 */
 	private void clearSubProgress() {
 		synchronized(m_root) {
+			checkCancelled();
 			if(m_subProgress == null || m_subProgress.m_parent == null) // Nothing active?
 				return;
 			m_currentWork = m_subStartWork + m_subTotalWork; // Finish off the sub.
@@ -275,6 +287,7 @@ public class Progress {
 	public Progress createSubProgress(String name, double work) {
 		synchronized(m_root) {
 			clearSubProgress();
+			checkCancelled();
 			if(m_currentWork + work > m_totalWork) { // Truncate if amount == too big
 				work = m_totalWork - m_currentWork; // How much is possible?
 				if(work < 0) // If we think we're already done- just ignore..
