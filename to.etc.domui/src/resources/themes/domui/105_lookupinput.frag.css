@@ -12,17 +12,6 @@
 	white-space: nowrap;
 }
 
-div.ui-lui-selected {
-	border-color:#ABADB3 #BFCDD9 #BFCDD9;
-	border-style:solid;
-	border-width:1px;
-	width:1px;
-	-moz-border-radius: 2px;
-	border-radius: 2px;
-	-webkit-border-radius: 2px;
-	background-color: #ffffff;	
-}
-
 div.ui-lui-selected-ro {
 	border: <%= readonly_border %> solid 1px; /* same border color as one used for ui-dspv fields */
 }
@@ -69,6 +58,7 @@ table.ui-lui-selected {
 	min-width: 100px;
 	width: 99%;
 	padding: 2px 5px 2px 2px;
+	vertical-align: top;
 }
 .ui-lui-btncell {
 	min-width: 41px;
