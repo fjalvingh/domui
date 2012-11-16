@@ -2318,8 +2318,12 @@ var WebUI = {
 				$('.ui-stab-scrl-left',scrlNavig).addClass('ui-stab-dis');
 			}
 		}else{
-			$('.ui-stab-scrl-left',scrlNavig).css('visibility','hidden');
-			$('.ui-stab-scrl-right',scrlNavig).css('visibility','hidden');
+			
+			// 20121115 btadic: we just want to render scroll buttons without arrows and actions. We don't want empty spaces. 
+			//$('.ui-stab-scrl-left',scrlNavig).css('visibility','hidden');		
+			//$('.ui-stab-scrl-right',scrlNavig).css('visibility','hidden');
+			$('.ui-stab-scrl-left',scrlNavig).css('display','none');		
+			$('.ui-stab-scrl-right',scrlNavig).css('display','none');
 			$('ul', scrlNavig).animate({marginLeft: 0}, 400, 'swing');
 		}
 	},

@@ -15,10 +15,13 @@
 	-webkit-border-radius: 5px;
 	border: 1px solid #d0d0d0;
 	font-style: italic;
+	vertical-align: top;
 }
 
 div.ui-ipa img {
 	padding-right: 4px;
+	float: none;
+	vertical-align: top;
 }
 
 /* Explanation box */
