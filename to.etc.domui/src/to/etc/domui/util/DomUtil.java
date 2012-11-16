@@ -314,6 +314,7 @@ final public class DomUtil {
 		return "#" + StringTool.intToStr(value, 16, 6);
 	}
 
+	@Nonnull
 	static public IErrorFence getMessageFence(@Nonnull NodeBase in) {
 		NodeBase start = in;
 
@@ -346,8 +347,9 @@ final public class DomUtil {
 			}
 			if(start instanceof NodeContainer) {
 				NodeContainer nc = (NodeContainer) start;
-				if(nc.getErrorFence() != null)
-					return nc.getErrorFence();
+				IErrorFence errorFence = nc.getErrorFence();
+				if(errorFence != null)
+					return errorFence;
 			}
 			//			if(start.getParent() == null) {
 			//				return start.getPage().getErrorFence();	// Use the generic page's fence.
