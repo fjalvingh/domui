@@ -138,6 +138,10 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		String cid = ctx.getParameter(Constants.PARAM_CONVERSATION_ID);
 		String[] cida = DomUtil.decodeCID(cid);
 
+		if(DomUtil.USERLOG.isDebugEnabled()) {
+			DomUtil.USERLOG.debug("\n\n\n========= DomUI request =================\nCID=" + cid + "\nAction=" + action + "\n");
+		}
+
 		//-- If this is an OBITUARY just mark the window as possibly gone, then exit;
 		if(Constants.ACMD_OBITUARY.equals(action)) {
 			/*
@@ -191,8 +195,24 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			sb.append(".x"); // Dummy conversation ID
 			DomUtil.addUrlParameters(sb, ctx, false);
 			generateHttpRedirect(ctx, sb.toString(), "Your session has expired. Starting a new session.");
+			if(DomUtil.USERLOG.isDebugEnabled())
+				DomUtil.USERLOG.debug("Session " + cid + " has expired - starting a new session by redirecting to " + sb.toString());
 			return;
 		}
+
+		/*
+		 * Attempt to fix etc.to bugzilla bug# 3183: IE7 sends events out of order. If an action arrives for an earlier-destroyed
+		 * conversation just ignore it, and send an empty response to ie, hopefully causing it to die soon.
+		 */
+		if(action != null && cida != null) {
+			if(cm.isConversationDestroyed(cida[1])) {					// This conversation was recently destroyed?
+				//-- Render a null response
+				if(LOG.isDebugEnabled())
+					LOG.debug("Session " + cid + " was destroyed earlier- assuming this is an out-of-order event and sending empty delta back");
+				generateEmptyDelta(ctx);
+			}
+		}
+
 		ctx.internalSetWindowSession(cm);
 		cm.clearGoto();
 
@@ -218,6 +238,10 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		Page page = cm.makeOrGetPage(ctx, clz, papa);
 		page.internalIncrementRequestCounter();
 		cm.internalSetLastPage(page);
+		if(DomUtil.USERLOG.isDebugEnabled()) {
+			DomUtil.USERLOG.debug("Request for page " + page + " in conversation " + cid);
+		}
+
 		//		Page page = PageMaker.makeOrGetPage(ctx, clz, papa);
 
 		/*
@@ -234,6 +258,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 					if(Constants.ACMD_ASYPOLL.equals(action)) {
 						generateExpiredPollasy(ctx);
 					} else {
+						if(DomUtil.USERLOG.isDebugEnabled())
+							DomUtil.USERLOG.debug("Session " + cid + " expired, page will be reloaded (page tag difference) on action=" + action);
 						generateExpired(ctx, Msgs.BUNDLE.getString(Msgs.S_EXPIRED));
 					}
 					return;
@@ -263,9 +289,14 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		 */
 		long ts = System.nanoTime();
 		try {
+			if(DomUtil.USERLOG.isDebugEnabled())
+				DomUtil.USERLOG.debug(cid + ": Full render of page " + page);
+
 			if(page.getBody() instanceof IRebuildOnRefresh) { // Must fully refresh?
 				page.getBody().forceRebuild(); // Cleanout state
 				QContextManager.closeSharedContext(page.getConversation());
+				if(DomUtil.USERLOG.isDebugEnabled())
+					DomUtil.USERLOG.debug(cid + ": IForceRefresh, cleared page data for " + page);
 			}
 			ctx.getApplication().getInjector().injectPageValues(page.getBody(), ctx, papa);
 			m_application.internalCallPageFullRender(ctx, page);
@@ -284,8 +315,11 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			if(ml != null) {
 				if(ml.size() > 0) {
 					page.getBody().build();
-					for(UIMessage m : ml)
+					for(UIMessage m : ml) {
+						if(DomUtil.USERLOG.isDebugEnabled())
+							DomUtil.USERLOG.debug(cid + ": page reload message = " + m.getMessage());
 						page.getBody().addGlobalMessage(m);
+					}
 				}
 				cm.setAttribute(UIGoto.SINGLESHOT_MESSAGE, null);
 			}
@@ -582,6 +616,16 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		out.closetag("expired");
 	}
 
+	private void generateEmptyDelta(final RequestContextImpl ctx) throws Exception {
+		//-- We stay on the same page. Render tree delta as response
+		ctx.getResponse().setContentType("text/xml; charset=UTF-8");
+		ctx.getResponse().setCharacterEncoding("UTF-8");
+		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
+		out.tag("delta");
+		out.endtag();
+		out.closetag("delta");
+	}
+
 	/**
 	 * Generates an 'expiredOnPollasy' message when server receives pollasy call from expired page.
 	 * Since pollasy calls are frequent, expired here means that user has navigated to some other page in meanwhile, and that response should be ignored by browser.
@@ -669,8 +713,13 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			}
 
 			//-- Call all "changed" handlers.
-			for(NodeBase n : pendingChangeList)
+			for(NodeBase n : pendingChangeList) {
+				if(DomUtil.USERLOG.isDebugEnabled()) {
+					DomUtil.USERLOG.debug("valueChanged on " + DomUtil.getComponentDetails(n));
+				}
+
 				n.internalOnValueChanged();
+			}
 
 			// FIXME 20100331 jal Odd wcomp==null logic. Generalize.
 			if(Constants.ACMD_CLICKED.equals(action)) {
@@ -834,6 +883,10 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			return;
 			//			throw new IllegalStateException("Clicked must have a node!!");
 		}
+		if(DomUtil.USERLOG.isDebugEnabled()) {
+			DomUtil.USERLOG.debug("Clicked on " + b.getComponentInfo());
+		}
+
 		ClickInfo cli = new ClickInfo(ctx);
 		b.internalOnClicked(cli);
 	}

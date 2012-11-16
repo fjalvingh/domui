@@ -191,9 +191,7 @@ final public class ImageMagicImageHandler implements ImageHandler {
 			sb.setLength(0);
 			int xc = ProcessTools.runProcess(pb, sb);
 			if(xc != 0) {
-				//-- Identify has failed... Assume the format is incorrect - should we fix this later?
-				return new ImageInfo(null, typeDescription, false, null);
-				//				throw new Exception("External command exception: " + m_identify + " returned error code " + xc + "\n" + sb.toString());
+				handleIdentifyError(input, xc, sb);
 			}
 
 			//			System.out.println("identify: result=" + sb.toString());
@@ -220,11 +218,26 @@ final public class ImageMagicImageHandler implements ImageHandler {
 					}
 				}
 			}
+			if(list.isEmpty()) {
+				handleIdentifyError(input, xc, sb);
+			}
 			ImageInfo oid = new ImageInfo(mime, typeDescription, true, list);
 			return oid;
 		} finally {
 			//			done();
 		}
+	}
+
+	private void handleIdentifyError(File imageFile, int xc, StringBuilder output) {
+		final StringBuilder errorMessage = new StringBuilder();
+		errorMessage.append("Identify failed for file: ");
+		errorMessage.append(imageFile.toString());
+		errorMessage.append('\n');
+		errorMessage.append("Identify exited with code ");
+		errorMessage.append(xc);
+		errorMessage.append('\n');
+		errorMessage.append(output.length() == 0 ? "Identify returned 0 lines." : output.toString());
+		throw new IllegalStateException(errorMessage.toString());
 	}
 
 	static private OriginalImagePage decodePage(String file, String type, String size) {

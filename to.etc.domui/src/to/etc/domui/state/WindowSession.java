@@ -61,6 +61,11 @@ final public class WindowSession {
 	final private Map<String, ConversationContext> m_conversationMap = new HashMap<String, ConversationContext>();
 
 	/**
+	 * Recently removed conversations.
+	 */
+	final private Map<String, Long> m_destroyedConversationMap = new HashMap<String, Long>();
+
+	/**
 	 * The stack of shelved pages; pages that can be returned to easily.
 	 */
 	private final List<ShelvedEntry> m_shelvedPageStack = new ArrayList<ShelvedEntry>();
@@ -246,6 +251,30 @@ final public class WindowSession {
 		} catch(Exception x) {
 			LOG.error("Exception in onDestroy() of destroyed conversation", x);
 		}
+
+		//-- Add to destroyed conversation map.
+		m_destroyedConversationMap.put(cc.getId(), Long.valueOf(System.currentTimeMillis()));
+	}
+
+	/**
+	 * Quickly check if a conversation is (recently) destroyed, this should prevent "event reordering problems" like in etc.to bugzilla bug#3138.
+	 * @param ccid
+	 * @return
+	 */
+	public boolean isConversationDestroyed(String ccid) {
+		boolean isdestroyed = m_destroyedConversationMap.containsKey(ccid);
+
+		//-- Remove entries if it grows too big.
+		if(m_destroyedConversationMap.size() > 20) {
+			long cts = System.currentTimeMillis() - 5 * 1000;
+			for(Iterator<Map.Entry<String, Long>> it = m_destroyedConversationMap.entrySet().iterator(); it.hasNext();) {
+				Map.Entry<String, Long> me = it.next();
+				if(me.getValue().longValue() < cts)
+					it.remove();
+			}
+		}
+
+		return isdestroyed;
 	}
 
 	public ConversationContext createConversation(final IRequestContext ctx, final Class< ? extends ConversationContext> clz) throws Exception {

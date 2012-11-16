@@ -103,4 +103,9 @@ public class SmallImgButton extends Button {
 	public String getSrc() {
 		return m_image.getSrc();
 	}
+
+	@Override
+	public String getComponentInfo() {
+		return "ImgButton:" + m_image.getSrc();
+	}
 }
