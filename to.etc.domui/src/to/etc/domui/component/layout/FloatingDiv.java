@@ -169,6 +169,7 @@ public class FloatingDiv extends Div implements IAddToBody {
 			} else {
 				// center floating window horizontally on screen
 				setMarginLeft("-" + width / 2 + "px");
+				setMarginTop("0px");
 				setLeft("50%");
 				setTop("5%");
 
