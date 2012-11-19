@@ -45,6 +45,7 @@ table.ui-lui-selected {
 	margin: 0px;
 	background-color: #ffffff;
 	width: 100%;
+	white-space: nowrap;
 }
 
 .ui-lui-selected-ro tbody {

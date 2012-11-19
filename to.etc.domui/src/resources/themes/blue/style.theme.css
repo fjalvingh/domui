@@ -375,15 +375,15 @@ td.ui-tr-selected {
 .ui-chdr {
 	width: 100%;
 	margin-top: 10px;
-	margin-bottom: 10px;
-	border-bottom: 2px solid <%= caption_bg %>;
+/*	margin-bottom: 10px; */
+	border-bottom: 2px solid <%= bg_ttl_end %>;
 }
 .ui-chdr td{
 	padding: 0;
 }
 .ui-chdr-ttl {
 	color: <%= bg_ttl_text %>;
-	background-color: <%= caption_bg %>;
+	background-color: <%= bg_ttl_end %>;
 	padding: 2px 10px 2px 10px;
 	white-space: nowrap;
 	-moz-border-radius: 2px 2px 0px 0px;
@@ -467,10 +467,13 @@ div.ui-popin {
 	-webkit-border-radius: 5px;
 	border: 1px solid #d0d0d0;
 	font-style: italic;
+	vertical-align: top;
 }
 
 div.ui-ipa img {
 	padding-right: 4px;
+	float: none;
+	vertical-align: top;
 }
 
 /* Explanation box */
@@ -867,17 +870,6 @@ table.ui-wa-bgtbl {
 	white-space: nowrap;
 }
 
-div.ui-lui-selected {
-	border-color:#ABADB3 #BFCDD9 #BFCDD9;
-	border-style:solid;
-	border-width:1px;
-	width:1px;
-	-moz-border-radius: 2px;
-	border-radius: 2px;
-	-webkit-border-radius: 2px;
-	background-color: #ffffff;	
-}
-
 div.ui-lui-selected-ro {
 	border: <%= readonly_border %> solid 1px; /* same border color as one used for ui-dspv fields */
 }
@@ -911,6 +903,7 @@ table.ui-lui-selected {
 	margin: 0px;
 	background-color: #ffffff;
 	width: 100%;
+	white-space: nowrap;
 }
 
 .ui-lui-selected-ro tbody {
@@ -924,6 +917,7 @@ table.ui-lui-selected {
 	min-width: 100px;
 	width: 99%;
 	padding: 2px 5px 2px 2px;
+	vertical-align: top;
 }
 .ui-lui-btncell {
 	min-width: 41px;
@@ -1007,6 +1001,7 @@ tr.ui-keyword-popup-row {
 
 div.ui-lui-selected{
 	border-color:#ABADB3 #BFCDD9 #BFCDD9;
+	display: inline-block;
 	border-style:solid;
 	border-width:1px;
 	-moz-border-radius: 2px;
@@ -1048,6 +1043,7 @@ table.ui-lui-selected {
 	margin: 0px;
 	background-color: #ffffff;
 	width: 100%;
+	white-space: nowrap;
 }
 
 .ui-lui-selected-ro tbody {
@@ -1102,7 +1098,7 @@ tr.ui-keyword-popup-row {
 
 /*** LookupForm ***/
 .ui-lf-coll {
-	padding: 12px 10px;
+	padding-bottom: 10px;
 }
 
 /*** Button bar ***/
@@ -1296,8 +1292,10 @@ div.ui-dt {
 div.ui-dt table td{
 	border: 0;
 	margin: 0;
+	padding: 0px 3px;
 	border-left: 1px solid #bababa; /* gray so it is theme invariant */
-	height: 12px;
+	height: 18px;
+	vertical-align: middle;
 }
 
 div.ui-dt table{
@@ -1315,8 +1313,8 @@ div.ui-dt table{
 	border-bottom: 1px solid <%= data_tbl_header_btm_border %>;
 	text-align: left;
 	font-weight: bold;
-	padding: 0px 3px;
-	vertical-align: top;
+	height: 18px;
+	vertical-align: middle;
 }
 
 .ui-dt th:FIRST-CHILD {
@@ -1597,6 +1595,10 @@ li.ui-tab-ibt:FIRST-CHILD {
 }
 /*** 170_scrollabletabpanel.frag.css ***/
 /*** ScrollableTabPanel ***/
+.ui-stab-c {
+	margin: 0px -<%= margins_main %> <%= margins_main %> -<%= margins_main %>;
+}
+
 .ui-stab-hdr {
 	float: left;
 	font-size: <%= font_size %>;
@@ -1696,6 +1698,7 @@ li.ui-stab-ibt:FIRST-CHILD {
 	display:block;
 	width: 15px;
 	height: 31px;
+	margin: 0px 0px <%= margins_main %>;
 }
 
 .ui-stab-scrl-left:hover {
@@ -2523,6 +2526,9 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	margin-left: 4px;
 	padding: 0px;
 }
+.ui-dp-btns {
+	margin-left: -9px;	
+}
 
 .ui-dp-btns a{
 	height: <%= data_pager_icon_size_y %>px;
@@ -2620,7 +2626,6 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 .ui-msgln-txt {
 	padding-left: 4px;
 }
-
 /*** 350_logtailer.frag.css ***/
 /*** Log tailer fragment ***/
 .ui-tlf-line {
@@ -2657,4 +2662,3 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 .ui-tlf-sz span {
 	font-weight: bold;
 }
-
