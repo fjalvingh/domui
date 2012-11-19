@@ -10,7 +10,7 @@ import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
-public class DropDownPicker<T> extends SmallImgButton implements ISelectProvider {
+public class DropDownPicker<T> extends SmallImgButton {
 	public enum HAlign {LEFT, MIDDLE, RIGHT}; 
 
 	public interface IDropDownPickerAdjuster<T> {
@@ -325,7 +325,6 @@ public class DropDownPicker<T> extends SmallImgButton implements ISelectProvider
 		m_alignmentBase = halignmentBase;
 	}
 
-	@Override
 	public @Nonnull
 	Select getSelectControl() throws Exception {
 		return m_picker;

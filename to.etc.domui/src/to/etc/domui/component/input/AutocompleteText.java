@@ -2,6 +2,8 @@ package to.etc.domui.component.input;
 
 import javax.annotation.*;
 
+import to.etc.domui.dom.html.*;
+
 
 /**
  * String input that is connected to select control. Connected select control provides source strings for autocomplete functionality.
@@ -13,29 +15,29 @@ import javax.annotation.*;
 class AutocompleteText extends TextStr {
 
 	@Nullable
-	private ISelectProvider m_selectProvider;
+	private Select m_select;
 
 	/**
 	 * Initialize client side javascript plugin to support component on client side. Needs to be executed when both input and connected select have assigned actualIds.
 	 * @throws Exception
 	 */
 	void initializeJS() throws Exception {
-		if(m_selectProvider == null || m_selectProvider.getSelectControl() == null) {
-			throw new IllegalStateException(ISelectProvider.class.getName() + " not connected to " + AutocompleteText.class.getName());
+		if(m_select == null) {
+			throw new IllegalStateException(Select.class.getName() + " not connected to " + AutocompleteText.class.getName());
 		}
-		appendCreateJS("WebUI.initAutocomplete('" + getActualID() + "','" + m_selectProvider.getSelectControl().getActualID() + "')");
+		appendCreateJS("WebUI.initAutocomplete('" + getActualID() + "','" + m_select.getActualID() + "')");
 	}
 
 	@Nonnull
-	ISelectProvider getSelectProvider() {
-		return m_selectProvider;
+	protected Select getSelect() {
+		return m_select;
 	}
 
-	public void setSelectProvider(@Nonnull ISelectProvider selectProvider) {
-		m_selectProvider = selectProvider;
+	protected void setSelect(@Nonnull Select select) {
+		m_select = select;
 	}
 
-	boolean hasSelectProvider() {
-		return m_selectProvider != null;
+	protected boolean hasSelect() {
+		return m_select != null;
 	}
 }

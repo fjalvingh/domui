@@ -102,7 +102,7 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 			}
 		});
 
-		setSelectProvider(m_picker);
+		setSelect(m_picker.getSelectControl());
 		appendAfterMe(m_picker);
 		m_picker.build();
 		initializeJS();
