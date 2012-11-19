@@ -6,10 +6,8 @@ import javax.annotation.*;
 
 import to.etc.domui.component.input.DropDownPicker.HAlign;
 import to.etc.domui.component.input.DropDownPicker.IDropDownPickerAdjuster;
-import to.etc.domui.component.layout.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.html.*;
-import to.etc.domui.trouble.*;
 import to.etc.webapp.nls.*;
 
 /**
@@ -21,25 +19,50 @@ import to.etc.webapp.nls.*;
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on Nov 6, 2012
  */
-public class EditableDropDownPicker<T> extends AutocompleteText implements IObjectToStringConverter<T> {
+public class EditableDropDownPicker<T> extends AutocompleteText {
+	@Nullable
 	private DropDownPicker<T> m_picker;
 
-	private List<T> m_data;
+	@Nonnull
+	private List<T> m_data = Collections.EMPTY_LIST;
 
-	private final String m_dropDownIcon;
+	@Nullable
+	private String m_dropDownIcon;
 
-	private final HAlign m_halign = DropDownPicker.HAlign.LEFT;
+	@Nonnull
+	private HAlign m_halign = DropDownPicker.HAlign.LEFT;
 
-	private final IObjectToStringConverter<T> m_toStringConverter;
+	@Nullable
+	private IObjectToStringConverter<T> m_toStringConverter;
+
+	@Nonnull
+	private final Class<T> m_type;
 
 	/**
-	 * Constructor.
+	 * Empty constructor.
+	 * Before use, make sure to setup component using:
+	 * <UL>
+	 * <LI> {@link EditableDropDownPicker#setData(List)} </LI>
+	 * <LI> {@link EditableDropDownPicker#setDropDownIcon(String)} </LI>
+	 * <LI> {@link EditableDropDownPicker#setToStringConverter(IObjectToStringConverter)} in case of 'type' is not assignable from String.class</LI>
+	 * </UL> 
+	 *
+	 * @param type
+	 */
+	public EditableDropDownPicker(@Nonnull Class<T> type) {
+		super();
+		m_type = type;
+	}
+
+	/**
+	 * Factory constructor.
+	 * @param type
 	 * @param data
 	 * @param dropDownIcon
 	 * @param toStringConverter In case of T = String, toStringConverter can be left null, otherwise it needs to be specified.
 	 */
-	public EditableDropDownPicker(@Nonnull List<T> data, @Nonnull String dropDownIcon, @Nullable IObjectToStringConverter<T> toStringConverter) {
-		super();
+	public EditableDropDownPicker(@Nonnull Class<T> type, @Nonnull List<T> data, @Nonnull String dropDownIcon, @Nullable IObjectToStringConverter<T> toStringConverter) {
+		this(type);
 		m_data = data;
 		m_dropDownIcon = dropDownIcon;
 		m_toStringConverter = toStringConverter;
@@ -48,10 +71,8 @@ public class EditableDropDownPicker<T> extends AutocompleteText implements IObje
 	@Override
 	public void createContent() throws Exception {
 		super.createContent();
-		NodeBase parentWindow = getParentOfTypes(Window.class, UrlPage.class);
-		NodeBase zIndexNode = parentWindow != null ? parentWindow : this; //we use this to calculate correct zIndex in drop down picker later
 
-		m_picker = new DropDownPicker<T>(zIndexNode, m_data);
+		m_picker = new DropDownPicker<T>(m_data);
 		if(m_dropDownIcon != null) {
 			m_picker.setSrc(m_dropDownIcon);
 		}
@@ -87,7 +108,15 @@ public class EditableDropDownPicker<T> extends AutocompleteText implements IObje
 		initializeJS();
 	}
 
-	void adjustSelection(ComboLookup<T> combo, String text) throws Exception {
+	protected String convertObjectToString(Locale currencyLocale, T val) {
+		if(m_toStringConverter != null) {
+			return m_toStringConverter.convertObjectToString(NlsContext.getCurrencyLocale(), val);
+		} else {
+			return ConverterRegistry.getConverter(m_type, null).convertObjectToString(NlsContext.getCurrencyLocale(), val);
+		}
+	}
+
+	private void adjustSelection(ComboLookup<T> combo, String text) throws Exception {
 		boolean found = false;
 		for(int i = 0; i < combo.getData().size(); i++) {
 			T val = combo.getData().get(i);
@@ -107,20 +136,12 @@ public class EditableDropDownPicker<T> extends AutocompleteText implements IObje
 		}
 	}
 
-	@Override
-	public String convertObjectToString(Locale loc, T in) throws UIException {
-		if(m_toStringConverter == null) {
-			return in.toString();
-		} else {
-			return m_toStringConverter.convertObjectToString(loc, in);
-		}
-	}
-
 	/**
 	 * Gets picker select options.
 	 * @param data
 	 */
-	public List<T> getData() {
+	public @Nonnull
+	List<T> getData() {
 		return m_data;
 	}
 
@@ -128,7 +149,7 @@ public class EditableDropDownPicker<T> extends AutocompleteText implements IObje
 	 * Sets data that is used for picker select options.
 	 * @param data
 	 */
-	public void setData(List<T> data) {
+	public void setData(@Nonnull List<T> data) {
 		if(m_data != data) {
 			m_data = data;
 			if(null != m_picker) {
@@ -136,5 +157,38 @@ public class EditableDropDownPicker<T> extends AutocompleteText implements IObje
 				m_picker.setData(data);
 			}
 		}
+	}
+
+	public @Nullable
+	String getDropDownIcon() {
+		return m_dropDownIcon;
+	}
+
+	public void setDropDownIcon(@Nullable String dropDownIcon) {
+		m_dropDownIcon = dropDownIcon;
+		if(m_picker != null) {
+			m_picker.setSrc(dropDownIcon);
+		}
+	}
+
+	public @Nonnull
+	HAlign getHalign() {
+		return m_halign;
+	}
+
+	public void setHalign(@Nonnull HAlign halign) {
+		m_halign = halign;
+		if(m_picker != null) {
+			m_picker.setHalign(halign);
+		}
+	}
+
+	public @Nullable
+	IObjectToStringConverter<T> getToStringConverter() {
+		return m_toStringConverter;
+	}
+
+	public void setToStringConverter(@Nullable IObjectToStringConverter<T> toStringConverter) {
+		m_toStringConverter = toStringConverter;
 	}
 }

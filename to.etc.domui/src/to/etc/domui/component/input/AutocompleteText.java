@@ -1,7 +1,7 @@
 package to.etc.domui.component.input;
 
-import to.etc.domui.dom.header.*;
-import to.etc.domui.dom.html.*;
+import javax.annotation.*;
+
 
 /**
  * String input that is connected to select control. Connected select control provides source strings for autocomplete functionality.
@@ -12,16 +12,8 @@ import to.etc.domui.dom.html.*;
  */
 class AutocompleteText extends TextStr {
 
+	@Nullable
 	private ISelectProvider m_selectProvider;
-
-	/**
-	 * Force the javascript to load when this component is used.
-	 * @see to.etc.domui.dom.html.NodeBase#onAddedToPage(to.etc.domui.dom.html.Page)
-	 */
-	@Override
-	public void onAddedToPage(Page p) {
-		getPage().addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery.autocompleteText.js"), 100);
-	}
 
 	/**
 	 * Initialize client side javascript plugin to support component on client side. Needs to be executed when both input and connected select have assigned actualIds.
@@ -31,14 +23,19 @@ class AutocompleteText extends TextStr {
 		if(m_selectProvider == null || m_selectProvider.getSelectControl() == null) {
 			throw new IllegalStateException(ISelectProvider.class.getName() + " not connected to " + AutocompleteText.class.getName());
 		}
-		appendCreateJS("AutocompleteText.initialize('" + getActualID() + "','" + m_selectProvider.getSelectControl().getActualID() + "')");
+		appendCreateJS("WebUI.initAutocomplete('" + getActualID() + "','" + m_selectProvider.getSelectControl().getActualID() + "')");
 	}
 
+	@Nonnull
 	ISelectProvider getSelectProvider() {
 		return m_selectProvider;
 	}
 
-	public void setSelectProvider(ISelectProvider selectProvider) {
+	public void setSelectProvider(@Nonnull ISelectProvider selectProvider) {
 		m_selectProvider = selectProvider;
+	}
+
+	boolean hasSelectProvider() {
+		return m_selectProvider != null;
 	}
 }

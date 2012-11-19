@@ -5,6 +5,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.buttons.*;
+import to.etc.domui.component.layout.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
@@ -16,24 +17,27 @@ public class DropDownPicker<T> extends SmallImgButton implements ISelectProvider
 		void onBeforeShow(ComboLookup<T> m_picker) throws Exception;
 	}
 
+	@Nullable
 	private List<T> m_data;
 
+	@Nullable
 	private IValueSelected<T> m_onValueSelected;
 
+	@Nonnull
 	private final ComboLookup<T> m_picker;
 
-	private NodeBase m_zIndexBaseParent;
-
-	private final int m_size;
+	private int m_size = 8;
 
 	private int m_offsetX = 0;
 
 	private int m_offsetY = 0;
 
+	@Nullable
 	private T m_selected;
 
 	private boolean m_mandatory = true;
 	
+	@Nullable
 	private IDropDownPickerAdjuster<T> m_adjuster;
 	
 	private HAlign m_halign = HAlign.LEFT;
@@ -42,26 +46,31 @@ public class DropDownPicker<T> extends SmallImgButton implements ISelectProvider
 	 * Control that drop down picker would use as base for vertical and horizontal alignment. Picker is always shown below base control, while horizontal alignment can be defined (see {@link DropDownPicker#setHalign(HAlign)}).
 	 * If not set different, picker {@link SmallImgButton} is used as alignment base. 
 	 */
+	@Nullable
 	private NodeBase m_alignmentBase;
 	
 	/**
 	 * DropDownPicker constructor. By default size of drop down list is 8.
-	 * @param zIndexBaseParent pass node that has zIndex that would be used as base for showing popup (z index of popup is increased for 10)
+	 */
+	public DropDownPicker() {
+		m_picker = new ComboLookup<T>();
+	}
+
+	/**
+	 * DropDownPicker constructor. By default size of drop down list is 8.
 	 * @param data data for picker popup
 	 */
-	public DropDownPicker(@Nonnull NodeBase zIndexBaseParent, @Nonnull List<T> data) {
-		this(zIndexBaseParent, data, 8);
+	public DropDownPicker(@Nonnull List<T> data) {
+		this(data, 8);
 	}
 
 	/**
 	 * DropDownPicker constructor.
-	 * @param zIndexBaseParent pass node that has zIndex that would be used as base for showing popup (z index of popup is increased for 10)
 	 * @param data data for picker popup
 	 * @param size size of drop down list
 	 */
-	public DropDownPicker(@Nonnull NodeBase zIndexBaseParent, @Nonnull List<T> data, int size) {
+	public DropDownPicker(@Nonnull List<T> data, int size) {
 		m_data = data;
-		m_zIndexBaseParent = zIndexBaseParent;
 		m_size = size;
 		m_picker = new ComboLookup<T>(m_data);
 	}
@@ -74,8 +83,16 @@ public class DropDownPicker<T> extends SmallImgButton implements ISelectProvider
 		}
 		m_picker.setDisplay(DisplayType.NONE);
 		m_picker.setPosition(PositionType.ABSOLUTE);
-		if(m_zIndexBaseParent.getZIndex() > Integer.MIN_VALUE) {
-			m_picker.setZIndex(m_zIndexBaseParent.getZIndex() + 10);
+
+		//we use this to calculate correct zIndex in drop down picker later
+		NodeBase zIndexNode = getParentOfTypes(Window.class, UrlPage.class);
+
+		if(zIndexNode == null) {
+			zIndexNode = getParent();
+		}
+
+		if(zIndexNode.getZIndex() > Integer.MIN_VALUE) {
+			m_picker.setZIndex(zIndexNode.getZIndex() + 10);
 		} else {
 			m_picker.setZIndex(10);
 		}
@@ -113,18 +130,21 @@ public class DropDownPicker<T> extends SmallImgButton implements ISelectProvider
 
 	void handlePickerValueChanged() throws Exception {
 		appendJavascript("$('#" + m_picker.getActualID() + "').css('display', 'none');");
-		if(getOnValueSelected() != null) {
-			m_selected = m_picker.getValue();
-			getOnValueSelected().valueSelected(m_selected);
+		m_selected = m_picker.getValue();
+		IValueSelected<T> onValueSelected = getOnValueSelected();
+		if(onValueSelected != null) {
+			onValueSelected.valueSelected(m_selected);
 		}
 	}
 
-	private final IClicked<SmallImgButton> m_defaultClickHandler = new IClicked<SmallImgButton>() {
+	private final @Nonnull
+	IClicked<SmallImgButton> m_defaultClickHandler = new IClicked<SmallImgButton>() {
 		@SuppressWarnings("synthetic-access")
 		@Override
 		public void clicked(SmallImgButton clickednode) throws Exception {
-			if(getAdjuster() != null) {
-				getAdjuster().onBeforeShow(m_picker);
+			IDropDownPickerAdjuster<T> adjuster = getAdjuster();
+			if(adjuster != null) {
+				adjuster.onBeforeShow(m_picker);
 			}
 			positionPicker();
 			appendJavascript("$('#" + m_picker.getActualID() + "').css('display', 'inline');");
@@ -136,33 +156,29 @@ public class DropDownPicker<T> extends SmallImgButton implements ISelectProvider
 	};
 
 	private void positionPicker() {
-		NodeBase alignBase = getAlignmentBase() != null ? getAlignmentBase() : DropDownPicker.this;
+		NodeBase alignBase = getAlignmentBase();
+		if(alignBase == null) {
+			alignBase = DropDownPicker.this;
+		}
 
-		appendJavascript("$('#" + m_picker.getActualID() + "').css('top', $('#" + alignBase.getActualID() + "').position().top + " + m_offsetY + " + $('#" + alignBase.getActualID() + "').outerHeight(true));");
+		appendJavascript("WebUI.alignToTop('" + m_picker.getActualID() + "', '" + alignBase.getActualID() + "', " + m_offsetY + ");");
 		switch(m_halign){
 			case LEFT:
-				appendJavascript("var myPickerLeftPos = $('#" + alignBase.getActualID() + "').position().left + " + m_offsetX + ";");
-				appendJavascript("var myPickerRightPos = $('#" + m_picker.getActualID() + "').outerWidth(true) + myPickerLeftPos;");
-				appendJavascript("if (myPickerRightPos > $(window).width()){ myPickerLeftPos = myPickerLeftPos - myPickerRightPos + $(window).width(); }");
-				appendJavascript("if (myPickerLeftPos < 1){ myPickerLeftPos = 1; }");
+				appendJavascript("WebUI.alignToLeft('" + m_picker.getActualID() + "', '" + alignBase.getActualID() + "', " + m_offsetX + ");");
 				break;
 			case RIGHT:
-				appendJavascript("var myPickerLeftPos = $('#" + alignBase.getActualID() + "').position().left + " + m_offsetX + " - $('#" + m_picker.getActualID() + "').outerWidth(true) + $('#" + alignBase.getActualID()
-					+ "').outerWidth(true) - 3;");
-				appendJavascript("if (myPickerLeftPos < 1){ myPickerLeftPos = 1; }");
+				appendJavascript("WebUI.alignToRight('" + m_picker.getActualID() + "', '" + alignBase.getActualID() + "', " + m_offsetX + ");");
 				break;
 			case MIDDLE:
-				appendJavascript("var myPickerLeftPos = $('#" + alignBase.getActualID() + "').position().left + ($('#" + alignBase.getActualID() + "').outerWidth(true) / 2) - ($('#" + m_picker.getActualID()
-					+ "').outerWidth(true) / 2);");
-				appendJavascript("if (myPickerLeftPos < 1){ myPickerLeftPos = 1; }");
+				appendJavascript("WebUI.alignToMiddle('" + m_picker.getActualID() + "', '" + alignBase.getActualID() + "', " + m_offsetX + ");");
 				break;
 			default:
 				throw new IllegalStateException("Unknown horizontal alignment? Found : " + m_halign);
 		}
-		appendJavascript("$('#" + m_picker.getActualID() + "').css('left', myPickerLeftPos);");
 	}
 
-	public IValueSelected<T> getOnValueSelected() {
+	public @Nullable
+	IValueSelected<T> getOnValueSelected() {
 		return m_onValueSelected;
 	}
 
@@ -170,7 +186,7 @@ public class DropDownPicker<T> extends SmallImgButton implements ISelectProvider
 	 * Register listener for on value selected event.
 	 * @param onValueSelected
 	 */
-	public void setOnValueSelected(IValueSelected<T> onValueSelected) {
+	public void setOnValueSelected(@Nullable IValueSelected<T> onValueSelected) {
 		m_onValueSelected = onValueSelected;
 	}
 
@@ -180,6 +196,13 @@ public class DropDownPicker<T> extends SmallImgButton implements ISelectProvider
 	 */
 	public int getSize() {
 		return m_size;
+	}
+
+	public void setSize(int size) {
+		m_size = size;
+		if(m_picker != null) {
+			m_picker.setSize(m_size);
+		}
 	}
 
 	/**
@@ -224,18 +247,24 @@ public class DropDownPicker<T> extends SmallImgButton implements ISelectProvider
 		}
 	}
 
-	public void setSelectedValue(T value) {
+	public void setSelectedValue(@Nullable T value) {
 		m_selected = value;
 		if(m_picker != null) {
 			m_picker.setValue(value);
 		}
 	}
 
-	public IDropDownPickerAdjuster<T> getAdjuster() {
+	public @Nullable
+	T getSelectedValue() {
+		return m_selected;
+	}
+
+	public @Nullable
+	IDropDownPickerAdjuster<T> getAdjuster() {
 		return m_adjuster;
 	}
 
-	public void setAdjuster(IDropDownPickerAdjuster<T> adjuster) {
+	public void setAdjuster(@Nullable IDropDownPickerAdjuster<T> adjuster) {
 		m_adjuster = adjuster;
 	}
 
@@ -283,7 +312,8 @@ public class DropDownPicker<T> extends SmallImgButton implements ISelectProvider
 	 * see {@link DropDownPicker#m_alignmentBase}
 	 * @param halignmentBase
 	 */
-	public NodeBase getAlignmentBase() {
+	public @Nullable
+	NodeBase getAlignmentBase() {
 		return m_alignmentBase;
 	}
 
@@ -291,7 +321,7 @@ public class DropDownPicker<T> extends SmallImgButton implements ISelectProvider
 	 * see {@link DropDownPicker#m_alignmentBase}
 	 * @param halignmentBase
 	 */
-	public void setAlignmentBase(NodeBase halignmentBase) {
+	public void setAlignmentBase(@Nullable NodeBase halignmentBase) {
 		m_alignmentBase = halignmentBase;
 	}
 
@@ -301,14 +331,23 @@ public class DropDownPicker<T> extends SmallImgButton implements ISelectProvider
 		return m_picker;
 	}
 
-	public List<T> getData() {
+	public @Nonnull
+	List<T> getData() {
 		return m_data;
 	}
 
-	public void setData(List<T> data) {
+	public boolean hasData() {
+		return m_data != null;
+	}
+
+	public void setData(@Nonnull List<T> data) {
 		if(m_data != data) {
 			m_data = data;
 			m_picker.setData(data);
+			if(m_selected != null && !data.contains(m_selected)) {
+				m_selected = null;
+				m_picker.setValue(null);
+			}
 		}
 	}
 }
