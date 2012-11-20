@@ -338,8 +338,12 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			ps = dbc.prepareStatement("select " + PendingOperation.FIELDS + " from sys_pending_operations" + " where ops_order_groupname=?" + " order by ops_order_timestamp, ops_order_sub"
+			ps = dbc.prepareStatement("select " + PendingOperation.FIELDS + " from sys_pending_operations" + " where spo_order_groupname=?" // defines group
+				+ " and spo_state in ('RTRY','EXEC','FATL','BOOT') " // 
+				+ " order by spo_order_timestamp, spo_order_sub" // defines order
 				+ " for update");
+
+			ps.setString(1, inpo.getOrderGroup());
 			rs = ps.executeQuery();
 			List<PendingOperation> res = new ArrayList<PendingOperation>();
 			while(rs.next()) {
@@ -352,7 +356,7 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 			if(res.size() == 0)
 				return null;
 			PendingOperation op = res.get(0);
-			if(op.getState() != PendingOperationState.RTRY)
+			if(op.getState() == PendingOperationState.BOOT || op.getState() == PendingOperationState.FATL || op.getState() == PendingOperationState.EXEC)
 				return null;
 			if(op.getMustExecuteOnServerID() != null && !op.getMustExecuteOnServerID().equals(m_serverID))
 				return null;
