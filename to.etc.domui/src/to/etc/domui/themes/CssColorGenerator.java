@@ -9,7 +9,7 @@ package to.etc.domui.themes;
 public class CssColorGenerator {
 	private int m_index;
 
-	static private final int COL_1 = 10;
+	static private final int COL_1 = 16;
 
 	static private final int LUMD = 3;
 

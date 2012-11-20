@@ -116,8 +116,9 @@ public class ErrorMessageDiv extends Div implements IErrorMessageListener {
 		d.setCssClass("ui-emd-msg ui-emd-" + m.getType().name().toLowerCase());
 		d.setUserObject(m);
 		DomUtil.renderErrorMessage(d, m);
-		if(m.getErrorNode() != null) {
-			m.getErrorNode().addCssClass("ui-input-err");
+		NodeBase errorNode = m.getErrorNode();
+		if(errorNode != null) {
+			errorNode.addCssClass("ui-input-err");
 		}
 		return d;
 	}
@@ -131,8 +132,9 @@ public class ErrorMessageDiv extends Div implements IErrorMessageListener {
 			if(b.getUserObject() == m) {
 				//-- Remove this object!
 				b.remove();
-				if(m.getErrorNode() != null)
-					m.getErrorNode().removeCssClass("ui-input-err");
+				NodeBase errorNode = m.getErrorNode();
+				if(errorNode != null)
+					errorNode.removeCssClass("ui-input-err");
 				break;
 			}
 		}

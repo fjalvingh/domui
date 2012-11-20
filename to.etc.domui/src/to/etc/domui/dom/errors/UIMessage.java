@@ -26,6 +26,8 @@ package to.etc.domui.dom.errors;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.html.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
@@ -61,6 +63,9 @@ public class UIMessage {
 	 */
 	private NodeBase m_errorNode;
 
+	/** The group links messages together, so a bunch of them can be deleted at the same time. */
+	private String m_group;
+
 	/**
 	 * This deprecated constructor uses a code from a global message bundle (which is deprecated).
 	 *
@@ -91,7 +96,12 @@ public class UIMessage {
 	 * @param code				The code for the message.
 	 * @param parameters		If needed a set of parameters to render into the message.
 	 */
-	protected UIMessage(NodeBase errorNode, String errorLocation, MsgType type, BundleRef br, String code, Object[] parameters) {
+	protected UIMessage(@Nullable NodeBase errorNode, @Nullable String errorLocation, @Nonnull MsgType type, @Nullable BundleRef br, @Nonnull String code, @Nullable Object[] parameters) {
+		this(errorNode, errorLocation, type, br, code, parameters, null);
+	}
+
+	protected UIMessage(@Nullable NodeBase errorNode, @Nullable String errorLocation, @Nonnull MsgType type, @Nullable BundleRef br, @Nonnull String code, @Nullable Object[] parameters,
+		@Nullable String group) {
 		if(code == null)
 			throw new NullPointerException("Message code cannot be null");
 		if(type == null)
@@ -102,6 +112,18 @@ public class UIMessage {
 		m_parameters = parameters;
 		m_type = type;
 		m_errorLocation = errorLocation;
+		m_group = group;
+	}
+
+	@Nonnull
+	public UIMessage group(@Nonnull String name) {
+		m_group = name;
+		return this;
+	}
+
+	@Nullable
+	public String getGroup() {
+		return m_group;
 	}
 
 	public String getCode() {
@@ -112,14 +134,17 @@ public class UIMessage {
 	 * Returns the message bundle the code is in, or null if the code is a global message code (deprecated).
 	 * @return
 	 */
+	@Nullable
 	public BundleRef getBundle() {
 		return m_bundle;
 	}
 
+	@Nullable
 	public Object[] getParameters() {
 		return m_parameters;
 	}
 
+	@Nullable
 	public NodeBase getErrorNode() {
 		return m_errorNode;
 	}
@@ -128,6 +153,7 @@ public class UIMessage {
 		m_errorNode = errorNode;
 	}
 
+	@Nonnull
 	public MsgType getType() {
 		return m_type;
 	}
@@ -137,6 +163,7 @@ public class UIMessage {
 	 * error. It usually contains the value for the "label" of the control.
 	 * @return
 	 */
+	@Nullable
 	public String getErrorLocation() {
 		return m_errorLocation;
 	}
@@ -149,6 +176,7 @@ public class UIMessage {
 	 * Returns the message part of the error message, properly localized for the request's locale.
 	 * @return
 	 */
+	@Nonnull
 	public String getMessage() {
 		if(m_bundle != null)
 			return m_bundle.formatMessage(m_code, m_parameters);
@@ -156,38 +184,47 @@ public class UIMessage {
 		return Msgs.BUNDLE.formatMessage(m_code, m_parameters);
 	}
 
+	@Nonnull
 	static public UIMessage error(UIException x) {
 		return new UIMessage(null, null, MsgType.ERROR, x.getBundle(), x.getCode(), x.getParameters());
 	}
 
+	@Nonnull
 	static public UIMessage error(NodeBase node, String errorLocation, BundleRef ref, String code, Object... param) {
 		return new UIMessage(node, errorLocation, MsgType.ERROR, ref, code, param);
 	}
 
+	@Nonnull
 	static public UIMessage error(String errorLocation, BundleRef ref, String code, Object... param) {
 		return new UIMessage(null, errorLocation, MsgType.ERROR, ref, code, param);
 	}
 
+	@Nonnull
 	static public UIMessage error(NodeBase node, BundleRef ref, String code, Object... param) {
 		return new UIMessage(node, node.getErrorLocation(), MsgType.ERROR, ref, code, param);
 	}
 
+	@Nonnull
 	static public UIMessage error(BundleRef ref, String code, Object... param) {
 		return new UIMessage(null, null, MsgType.ERROR, ref, code, param);
 	}
 
+	@Nonnull
 	static public UIMessage warning(NodeBase node, String errorLocation, BundleRef ref, String code, Object... param) {
 		return new UIMessage(node, errorLocation, MsgType.WARNING, ref, code, param);
 	}
 
+	@Nonnull
 	static public UIMessage warning(NodeBase node, BundleRef ref, String code, Object... param) {
 		return new UIMessage(node, null, MsgType.WARNING, ref, code, param);
 	}
 
+	@Nonnull
 	static public UIMessage warning(BundleRef ref, String code, Object... param) {
 		return new UIMessage(null, null, MsgType.WARNING, ref, code, param);
 	}
 
+	@Nonnull
 	static public UIMessage info(BundleRef ref, String code, Object... param) {
 		return new UIMessage(null, null, MsgType.INFO, ref, code, param);
 	}

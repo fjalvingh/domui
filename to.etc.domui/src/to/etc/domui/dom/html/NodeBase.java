@@ -1082,6 +1082,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		fence.removeMessage(null, m);
 	}
 
+	/**
+	 * Delete all messages with the specified code (deprecated) or group name (see {@link UIMessage#getGroup()}).
+	 * @param code
+	 */
 	public void clearGlobalMessage(final String code) {
 		IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
 		fence.clearGlobalMessages(this, code);

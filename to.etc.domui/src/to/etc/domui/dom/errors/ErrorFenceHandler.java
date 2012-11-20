@@ -135,7 +135,9 @@ public class ErrorFenceHandler implements IErrorFence {
 	public void clearGlobalMessages(@Nonnull NodeBase source, @Nullable String code) {
 		List<UIMessage> todo = new ArrayList<UIMessage>();
 		for(UIMessage m : m_messageList) {
-			if(m.getErrorNode() == null && (code == null || code.equals(m.getCode())))
+			if(code != null && code.equals(m.getGroup()))
+				todo.add(m);
+			else if(m.getErrorNode() == null && (code == null || code.equals(m.getCode())))
 				todo.add(m);
 		}
 
@@ -143,15 +145,4 @@ public class ErrorFenceHandler implements IErrorFence {
 		for(UIMessage m : todo)
 			removeMessage(source, m);
 	}
-
-	//	public void	clearError(NodeBase component, String code) {
-	//		List<UIMessage>	todo = new ArrayList<UIMessage>();
-	//		for(UIMessage m: m_messageList) {
-	//			if(m.getErrorNode() == component && (code != null && m.getCode().equals(code)))
-	//				todo.add(m);
-	//		}
-	//		for(UIMessage m: todo) {
-	//			internalRemoveMessage(m);
-	//		}
-	//	}
 }
