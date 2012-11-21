@@ -704,6 +704,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 					last = Restrictions.isNull(name);
 					break;
 				}
+
 				last = Restrictions.eq(name, lit.getValue());
 				break;
 			case NE:
@@ -802,7 +803,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 				throw new IllegalStateException("Unexpected operation: " + n.getOperation());
 
 			case EQ:
-				last = Subqueries.propertyEq(name, (DetachedCriteria) m_lastSubqueryCriteria);
+				last = Subqueries.propertyIn(name, (DetachedCriteria) m_lastSubqueryCriteria);
 				break;
 			case NE:
 				last = Subqueries.propertyNe(name, (DetachedCriteria) m_lastSubqueryCriteria);
