@@ -91,7 +91,7 @@ div.ui-ipa img {
 	border: 1px solid #aaaaaa;
 	border-left: 0px;
 }
-.ui-dd-table TD {
+.ui-dd-table > TBODY > TR > TD {
 	padding: 1px 2px;
 	vertical-align: top;
 	border-left: 1px solid #aaaaaa;
