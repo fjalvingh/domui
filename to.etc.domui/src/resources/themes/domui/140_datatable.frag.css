@@ -10,7 +10,7 @@ div.ui-dt table td{
 	margin: 0;
 	padding: 0px 3px;
 	border-left: 1px solid #bababa; /* gray so it is theme invariant */
-	height: 18px;
+	height: 19px;
 	vertical-align: middle;
 }
 
@@ -22,7 +22,8 @@ div.ui-dt table{
 	border-spacing: 2px;
 }
 
-.ui-dt th {
+.ui-dt th, .ui-dt-hdr {
+	padding: 0px 3px;
 	background: <%=	data_tbl_header_bg %>;
 	background-image: url(<%= data_tbl_header_bg_img %>);
 	color: <%= data_tbl_header_text_color %>;
@@ -33,23 +34,17 @@ div.ui-dt table{
 	vertical-align: middle;
 }
 
-.ui-dt th:FIRST-CHILD {
+.ui-dt th:FIRST-CHILD, .ui-dt-hdr:FIRST-CHILD {
 	border-left: 1px solid <%= data_tbl_header_btm_border %>;
 }
 
-.ui-dt th:LAST-CHILD {
+.ui-dt th:LAST-CHILD, .ui-dt-hdr:LAST-CHILD {
 	border-right: 1px solid <%= data_tbl_header_btm_border %>;
 }
 
 .ui-dt tbody tr > td.ui-f-lbl:first-child {
 	min-width: 150px;
 	margin-left: 10px;
-}
-
-.ui-dt-hdr {
-	background: <%=	header_bg %>;
-	color: white;
-	text-align: left;
 }
 
 .ui-dt-nores {

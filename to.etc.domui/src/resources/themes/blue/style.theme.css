@@ -546,7 +546,7 @@ div.ui-ipa img {
 	border: 1px solid #aaaaaa;
 	border-left: 0px;
 }
-.ui-dd-table TD {
+.ui-dd-table > TBODY > TR > TD {
 	padding: 1px 2px;
 	vertical-align: top;
 	border-left: 1px solid #aaaaaa;
@@ -1106,7 +1106,7 @@ tr.ui-keyword-popup-row {
 
 /*** Button bar ***/
 div.ui-lf-ebb {
-	margin-top		: 9px;
+	margin-top		: 8px;
 	padding-bottom	: 10px;
 }
 
@@ -1123,7 +1123,7 @@ table.ui-lf-multi > tbody > tr > td:first-child {
 
 /*** Standard table with inputs style - prompt and input cells table kind ***/
 table.ui-lf-st tr > td.ui-f-lbl:first-child,
-vp-ui-multi table tr > td.ui-f-lbl:first-child {
+.ui-lf-multi table tr > td.ui-f-lbl:first-child {
 	min-width: 150px;
 	width: 1%;
 }
@@ -1297,7 +1297,7 @@ div.ui-dt table td{
 	margin: 0;
 	padding: 0px 3px;
 	border-left: 1px solid #bababa; /* gray so it is theme invariant */
-	height: 18px;
+	height: 19px;
 	vertical-align: middle;
 }
 
@@ -1309,7 +1309,8 @@ div.ui-dt table{
 	border-spacing: 2px;
 }
 
-.ui-dt th {
+.ui-dt th, .ui-dt-hdr {
+	padding: 0px 3px;
 	background: <%=	data_tbl_header_bg %>;
 	background-image: url(<%= data_tbl_header_bg_img %>);
 	color: <%= data_tbl_header_text_color %>;
@@ -1320,23 +1321,17 @@ div.ui-dt table{
 	vertical-align: middle;
 }
 
-.ui-dt th:FIRST-CHILD {
+.ui-dt th:FIRST-CHILD, .ui-dt-hdr:FIRST-CHILD {
 	border-left: 1px solid <%= data_tbl_header_btm_border %>;
 }
 
-.ui-dt th:LAST-CHILD {
+.ui-dt th:LAST-CHILD, .ui-dt-hdr:LAST-CHILD {
 	border-right: 1px solid <%= data_tbl_header_btm_border %>;
 }
 
 .ui-dt tbody tr > td.ui-f-lbl:first-child {
 	min-width: 150px;
 	margin-left: 10px;
-}
-
-.ui-dt-hdr {
-	background: <%=	header_bg %>;
-	color: white;
-	text-align: left;
 }
 
 .ui-dt-nores {
