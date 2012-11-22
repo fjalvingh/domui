@@ -518,7 +518,7 @@ public class MailHelper {
 	 * @throws Exception
 	 */
 	public void send() throws Exception {
-		send((QDataContext) null);
+		sendInternal(null);
 	}
 
 	/**

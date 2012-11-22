@@ -152,7 +152,7 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 	}
 
 	protected void createDeleteButton() {
-		getButtonBar().addButton("!Delete", "THEME/btnDelete.png", new IClicked<DefaultButton>() {
+		getButtonBar().addConfirmedButton("!Delete", "THEME/btnDelete.png", "Delete: are you sure?", new IClicked<DefaultButton>() {
 			@Override
 			public void clicked(DefaultButton b) throws Exception {
 				delete();
