@@ -196,8 +196,8 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 	}
 
 	protected void delete() throws Exception {
-		onDelete(getInstance());
-		UIGoto.back();
+		if(onDelete(getInstance()))
+			UIGoto.back();
 	}
 
 	public boolean isDisplayonly() {
@@ -227,14 +227,16 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 		dc.save(object);
 	}
 
-	protected void onDelete(T object) throws Exception {
+	protected boolean onDelete(T object) throws Exception {
 		QDataContext dc = QContextManager.getContext(getPage());
 		dc.startTransaction();
-		deleteObject(dc, object);
+		boolean res = deleteObject(dc, object);
 		dc.commit();
+		return res;
 	}
 
-	protected void deleteObject(QDataContext dc, T object) throws Exception {
+	protected boolean deleteObject(QDataContext dc, T object) throws Exception {
 		dc.delete(object);
+		return true;
 	}
 }
