@@ -22,14 +22,14 @@ class AutocompleteText extends TextStr {
 	 * @throws Exception
 	 */
 	void initializeJS() throws Exception {
-		if(m_select == null) {
-			throw new IllegalStateException(Select.class.getName() + " not connected to " + AutocompleteText.class.getName());
-		}
-		appendCreateJS("WebUI.initAutocomplete('" + getActualID() + "','" + m_select.getActualID() + "')");
+		appendCreateJS("WebUI.initAutocomplete('" + getActualID() + "','" + getSelect().getActualID() + "')");
 	}
 
 	@Nonnull
 	protected Select getSelect() {
+		if(m_select == null) {
+			throw new IllegalStateException(Select.class.getName() + " not connected to " + AutocompleteText.class.getName());
+		}
 		return m_select;
 	}
 

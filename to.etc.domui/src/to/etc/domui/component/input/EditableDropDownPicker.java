@@ -4,8 +4,8 @@ import java.util.*;
 
 import javax.annotation.*;
 
+import to.etc.domui.component.event.*;
 import to.etc.domui.component.input.DropDownPicker.HAlign;
-import to.etc.domui.component.input.DropDownPicker.IDropDownPickerAdjuster;
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.html.*;
 import to.etc.webapp.nls.*;
@@ -78,22 +78,23 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 		}
 
 		m_picker.setMandatory(isMandatory());
-		m_picker.setSelectedValue(null);
+		m_picker.setValue(null);
 		m_picker.setHalign(m_halign);
 		m_picker.setAlignmentBase(this);
-		m_picker.setAdjuster(new IDropDownPickerAdjuster<T>() {
+		m_picker.setOnBeforeShow(new INotifyEvent<DropDownPicker<T>, ComboLookup<T>>() {
 			@Override
-			public void onBeforeShow(ComboLookup<T> combo) throws Exception {
+			public void onNotify(@Nonnull DropDownPicker<T> sender, @Nullable ComboLookup<T> combo) throws Exception {
 				String text = getValueSafe();
 				clearMessage();
 				adjustSelection(combo, text);
 			}
 		});
 
-		m_picker.setOnValueSelected(new IValueSelected<T>() {
+		m_picker.setOnValueChanged(new IValueChanged<DropDownPicker<T>>() {
 
 			@Override
-			public void valueSelected(@Nullable T value) throws Exception {
+			public void onValueChanged(@Nonnull DropDownPicker<T> component) throws Exception {
+				T value = component.getValueSafe();
 				setValue(convertObjectToString(NlsContext.getCurrencyLocale(), value));
 				IValueChanged<EditableDropDownPicker<T>> onValueChanged = (IValueChanged<EditableDropDownPicker<T>>) EditableDropDownPicker.this.getOnValueChanged();
 				if(onValueChanged != null) {
@@ -123,7 +124,7 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 			String optionText = convertObjectToString(NlsContext.getCurrencyLocale(), val);
 			if(text != null && text.equals(optionText)) {
 				combo.setValue(val);
-				m_picker.setValue(text);
+				m_picker.setButtonValue(text);
 				found = true;
 				break;
 			}
@@ -132,7 +133,7 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 			combo.setSize(found ? combo.getData().size() : combo.getData().size() + 1);
 		}
 		if(!found) {
-			m_picker.setValue(null);
+			m_picker.setButtonValue(null);
 		}
 	}
 

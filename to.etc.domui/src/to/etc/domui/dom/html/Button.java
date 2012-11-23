@@ -38,7 +38,7 @@ public class Button extends NodeContainer {
 
 	private ButtonType m_type = ButtonType.BUTTON;
 
-	private String m_value;
+	private String m_buttonValue;
 
 	private char m_accessKey;
 
@@ -71,14 +71,14 @@ public class Button extends NodeContainer {
 		m_type = type;
 	}
 
-	public String getValue() {
-		return m_value;
+	public String getButtonValue() {
+		return m_buttonValue;
 	}
 
-	public void setValue(String value) {
-		if(!DomUtil.isEqual(value, m_value))
+	public void setButtonValue(String value) {
+		if(!DomUtil.isEqual(value, m_buttonValue))
 			changed();
-		m_value = value;
+		m_buttonValue = value;
 	}
 
 	public char getAccessKey() {

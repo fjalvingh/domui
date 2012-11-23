@@ -1,4 +1,4 @@
-package to.etc.domui.component.input;
+package to.etc.domui.component.event;
 
 import javax.annotation.*;
 
@@ -9,15 +9,14 @@ import javax.annotation.*;
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on 27 Oct 2011
  */
-public interface INotifyEvent<T, E> {
+public interface INotifyEvent<T, D> {
 
 	/**
 	 * Notify listener with event and optional parameters.
 	 * @param sender
 	 * @param event
-	 * @param params
 	 * @throws Exception
 	 */
-	void onNotify(@Nonnull T sender, @Nullable E event, @Nullable Object... params) throws Exception;
+	void onNotify(@Nonnull T sender, @Nonnull D data) throws Exception;
 
 }

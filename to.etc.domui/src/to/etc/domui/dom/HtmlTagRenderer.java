@@ -1062,8 +1062,8 @@ public class HtmlTagRenderer implements INodeVisitor {
 		renderDisabled(n, n.isDisabled());
 		if(n.getType() != null && !isAttrRender())
 			o().attr("type", n.getType().getCode());
-		if(n.getValue() != null)
-			o().attr("value", n.getValue());
+		if(n.getButtonValue() != null)
+			o().attr("value", n.getButtonValue());
 		if(n.getAccessKey() != 0)
 			o().attr("accesskey", "" + n.getAccessKey());
 		renderTagend(n, o());

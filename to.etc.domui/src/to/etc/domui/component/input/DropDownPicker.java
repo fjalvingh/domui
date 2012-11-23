@@ -5,23 +5,19 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.buttons.*;
+import to.etc.domui.component.event.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
-public class DropDownPicker<T> extends SmallImgButton {
+public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 	public enum HAlign {LEFT, MIDDLE, RIGHT}; 
 
-	public interface IDropDownPickerAdjuster<T> {
-		void onBeforeShow(ComboLookup<T> m_picker) throws Exception;
-	}
+	private IValueChanged<DropDownPicker<T>> m_onValueChanged;
 
 	@Nullable
 	private List<T> m_data;
-
-	@Nullable
-	private IValueSelected<T> m_onValueSelected;
 
 	@Nonnull
 	private final ComboLookup<T> m_picker;
@@ -36,9 +32,9 @@ public class DropDownPicker<T> extends SmallImgButton {
 	private T m_selected;
 
 	private boolean m_mandatory = true;
-	
+
 	@Nullable
-	private IDropDownPickerAdjuster<T> m_adjuster;
+	private INotifyEvent<DropDownPicker<T>, ComboLookup<T>> m_onBeforeShow;
 	
 	private HAlign m_halign = HAlign.LEFT;
 
@@ -117,7 +113,9 @@ public class DropDownPicker<T> extends SmallImgButton {
 		} else if(m_data.size() > 0 && isMandatory()) {
 			m_picker.setValue(m_data.get(0));
 		}
+
 		m_picker.setMandatory(isMandatory());
+
 		m_picker.setSpecialAttribute("onblur", "$(this).css('display','none');$(this).triggerHandler('click')");
 
 		if(getClicked() == null) {
@@ -131,9 +129,9 @@ public class DropDownPicker<T> extends SmallImgButton {
 	void handlePickerValueChanged() throws Exception {
 		appendJavascript("$('#" + m_picker.getActualID() + "').css('display', 'none');");
 		m_selected = m_picker.getValue();
-		IValueSelected<T> onValueSelected = getOnValueSelected();
-		if(onValueSelected != null) {
-			onValueSelected.valueSelected(m_selected);
+		IValueChanged<DropDownPicker<T>> onValueChanged = (IValueChanged<DropDownPicker<T>>) getOnValueChanged();
+		if(onValueChanged != null) {
+			onValueChanged.onValueChanged(this);
 		}
 	}
 
@@ -142,9 +140,9 @@ public class DropDownPicker<T> extends SmallImgButton {
 		@SuppressWarnings("synthetic-access")
 		@Override
 		public void clicked(SmallImgButton clickednode) throws Exception {
-			IDropDownPickerAdjuster<T> adjuster = getAdjuster();
-			if(adjuster != null) {
-				adjuster.onBeforeShow(m_picker);
+			INotifyEvent<DropDownPicker<T>, ComboLookup<T>> onBeforeShow = getOnBeforeShow();
+			if(onBeforeShow != null) {
+				onBeforeShow.onNotify(DropDownPicker.this, m_picker);
 			}
 			positionPicker();
 			appendJavascript("$('#" + m_picker.getActualID() + "').css('display', 'inline');");
@@ -175,19 +173,6 @@ public class DropDownPicker<T> extends SmallImgButton {
 			default:
 				throw new IllegalStateException("Unknown horizontal alignment? Found : " + m_halign);
 		}
-	}
-
-	public @Nullable
-	IValueSelected<T> getOnValueSelected() {
-		return m_onValueSelected;
-	}
-
-	/**
-	 * Register listener for on value selected event.
-	 * @param onValueSelected
-	 */
-	public void setOnValueSelected(@Nullable IValueSelected<T> onValueSelected) {
-		m_onValueSelected = onValueSelected;
 	}
 
 	/**
@@ -247,36 +232,40 @@ public class DropDownPicker<T> extends SmallImgButton {
 		}
 	}
 
-	public void setSelectedValue(@Nullable T value) {
+	@Override
+	public void setValue(@Nullable T value) {
 		m_selected = value;
 		if(m_picker != null) {
 			m_picker.setValue(value);
 		}
 	}
 
+	@Override
 	public @Nullable
-	T getSelectedValue() {
+	T getValue() {
 		return m_selected;
 	}
 
 	public @Nullable
-	IDropDownPickerAdjuster<T> getAdjuster() {
-		return m_adjuster;
+	INotifyEvent<DropDownPicker<T>, ComboLookup<T>> getOnBeforeShow() {
+		return m_onBeforeShow;
 	}
 
-	public void setAdjuster(@Nullable IDropDownPickerAdjuster<T> adjuster) {
-		m_adjuster = adjuster;
+	public void setOnBeforeShow(@Nullable INotifyEvent<DropDownPicker<T>, ComboLookup<T>> onBeforeShow) {
+		m_onBeforeShow = onBeforeShow;
 	}
 
+	@Override
 	public boolean isMandatory() {
 		return m_mandatory;
 	}
 
+	@Override
 	public void setMandatory(boolean mandatory) {
 		if(m_mandatory == mandatory)
 			return;
 		m_mandatory = mandatory;
-		if (isBuilt()){
+		if(isBuilt()) {
 			forceRebuild();
 		}
 	}
@@ -348,5 +337,41 @@ public class DropDownPicker<T> extends SmallImgButton {
 				m_picker.setValue(null);
 			}
 		}
+	}
+
+	@Override
+	public IValueChanged<DropDownPicker<T>> getOnValueChanged() {
+		return m_onValueChanged;
+	}
+
+	@Override
+	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
+		m_onValueChanged = (IValueChanged<DropDownPicker<T>>) onValueChanged;
+	}
+
+	@Override
+	@Nonnull
+	public IBinder bind() {
+		throw new UnsupportedOperationException("bind() not supported in " + getClass().getName());
+	}
+
+	@Override
+	public boolean isBound() {
+		return false;
+	}
+
+	@Override
+	public T getValueSafe() {
+		return DomUtil.getValueSafe(this);
+	}
+
+	@Override
+	public boolean isReadOnly() {
+		return false;
+	}
+
+	@Override
+	public void setReadOnly(boolean ro) {
+		throw new UnsupportedOperationException("setReadOnly() not supported in " + getClass().getName());
 	}
 }
