@@ -161,13 +161,10 @@ dataColorMap["fg-bluemetal"] = "#ffffff";
 dataColorMap["grey"] = "#8c8d8f";
 dataColorMap["fg-grey"] = "#ffffff";
 
+button_img= "defaultButton.png";
+
+
 resourceNameMap = new Object();
-resourceNameMap["bg-body-blue"] = "bg-body.png";
-resourceNameMap["bg-body-grey"] = "bg-body-grey.png";
-
-resourceNameMap["button_img-blue"] = "btn-blue-all.png";
-resourceNameMap["button_img-grey"] = "btn-blue-all.png";
-
 bg_info_panel = resourceNameMap["bg-info-panel-" + bset];
 
 bg_hdr_ntbl = dataColorMap["bg-hdr-ntbl-" + bset];
