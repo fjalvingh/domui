@@ -7,8 +7,11 @@
 	font-size: <%= font_size %>;
 	vertical-align: top;
 	white-space: nowrap;
-	min-width: 150px;
 	width: 1%;
+}
+
+.ui-f-lbl:FIRST-CHILD {
+	min-width: 150px;
 }
 
 .ui-f-in {

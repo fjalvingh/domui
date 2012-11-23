@@ -68,6 +68,7 @@ table.ui-lui-selected {
 
 input.ui-lui-keyword {
 	min-width: 98px;
+	width: 1%;
 }
 
 img.ui-lui-waiting{
