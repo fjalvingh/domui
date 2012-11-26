@@ -367,8 +367,9 @@ public class DataPager extends Div implements IDataTableChangeListener {
 				m_truncated = null;
 			}
 		}
-
-		redrawSelectionButtons();
+		if(isShowSelection()) {
+			redrawSelectionButtons();
+		}
 	}
 
 	private void redrawSelectionButtons() throws Exception {
