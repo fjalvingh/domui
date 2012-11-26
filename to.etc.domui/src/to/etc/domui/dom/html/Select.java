@@ -29,6 +29,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.buttons.*;
+import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 
 /**
@@ -47,6 +48,8 @@ public class Select extends InputNodeContainer implements IHasModifiedIndication
 	private int m_size;
 
 	private int m_selectedIndex;
+
+	private IReturnPressed<Select> m_returnPressed;
 
 	/** Indication if the contents of this thing has been altered by the user. This merely compares any incoming value with the present value and goes "true" when those are not equal. */
 	private boolean m_modifiedByUser;
@@ -259,4 +262,33 @@ public class Select extends InputNodeContainer implements IHasModifiedIndication
 		m_modifiedByUser = as;
 	}
 
+	/**
+	 * Set or clear return press handler. Dropdown list that has size > 1 behaves different then ordinary drop down list, since value changed event gets triggered while list is browsed.
+	 * In order to prevent server roundtrip for each selection change while moving trought list wth arrow keys, implement setClicked and setReturnPressed events instead. 
+	 * @return
+	 */
+	public IReturnPressed<Select> getReturnPressed() {
+		return m_returnPressed;
+	}
+
+	public void setReturnPressed(IReturnPressed<Select> returnPressed) {
+		m_returnPressed = returnPressed;
+	}
+
+	/**
+	 * Handle the action sent by the return pressed Javascript thingerydoo.
+	 *
+	 * @see to.etc.domui.dom.html.NodeBase#componentHandleWebAction(to.etc.domui.server.RequestContextImpl, java.lang.String)
+	 */
+	@Override
+	public void componentHandleWebAction(@Nonnull RequestContextImpl ctx, @Nonnull String action) throws Exception {
+		if(!"returnpressed".equals(action)) {
+			super.componentHandleWebAction(ctx, action);
+			return;
+		}
+
+		//-- Return is pressed- call it's handler.
+		if(m_returnPressed != null)
+			m_returnPressed.returnPressed(this);
+	}
 }
