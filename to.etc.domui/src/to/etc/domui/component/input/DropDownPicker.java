@@ -11,9 +11,17 @@ import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
+/**
+ * Control that behaves as {@link SmallImgButton} that has built in click handler that popups select list with predefined data to choose from. 
+ * 
+ *
+ * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
+ * Created on Nov 26, 2012
+ */
 public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 	public enum HAlign {LEFT, MIDDLE, RIGHT}; 
 
+	@Nullable
 	private IValueChanged<DropDownPicker<T>> m_onValueChanged;
 
 	@Nullable
@@ -36,6 +44,7 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 	@Nullable
 	private INotifyEvent<DropDownPicker<T>, ComboLookup<T>> m_onBeforeShow;
 	
+	@Nonnull
 	private HAlign m_halign = HAlign.LEFT;
 
 	/**
@@ -274,6 +283,7 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 	 * Horizontal alignment of dropdown popup. By default set to {@link HAlign#Left}.
 	 * @return
 	 */
+	@Nonnull
 	public HAlign getHalign() {
 		return m_halign;
 	}
@@ -340,12 +350,13 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 	}
 
 	@Override
+	@Nullable
 	public IValueChanged<DropDownPicker<T>> getOnValueChanged() {
 		return m_onValueChanged;
 	}
 
 	@Override
-	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
+	public void setOnValueChanged(@Nullable IValueChanged< ? > onValueChanged) {
 		m_onValueChanged = (IValueChanged<DropDownPicker<T>>) onValueChanged;
 	}
 
