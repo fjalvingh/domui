@@ -1298,6 +1298,20 @@ final public class ConnectionPool {
 		System.out.println(sb.toString());
 	}
 
+	void logAction(ConnectionProxy cp, String action) {
+		if(!c().isLogStatements())
+			return;
+
+		StringBuilder sb = new StringBuilder();
+		sb.append("   ");
+		sb.append(DbPoolUtil.strTimeOnly(new Date()));
+		sb.append(' ');
+		sb.append(action);
+		sb.append(", connection=");
+		sb.append(cp.toString());
+		System.out.println(sb.toString());
+	}
+
 	void logBatch() {
 		if(!c().isLogStatements())
 			return;

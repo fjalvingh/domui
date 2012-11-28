@@ -76,6 +76,11 @@ final public class DataSourceImpl implements DataSource {
 	}
 
 	public <T> T unwrap(Class<T> iface) throws SQLException {
+		if(DataSourceImpl.class == iface)
+			return (T) this;
+		if(DataSource.class == iface)
+			return (T) this;
+
 		throw new IllegalStateException("Cannot unwrap to " + iface);
 	}
 

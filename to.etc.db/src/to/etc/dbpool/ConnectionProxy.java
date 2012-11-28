@@ -248,6 +248,7 @@ final public class ConnectionProxy implements Connection {
 	 * @throws SQLException
 	 */
 	public void forceClosed() throws SQLException {
+		m_pe.getPool().logAction(this, "close()");
 		synchronized(this) {
 			if(m_state != ConnState.OPEN)			// 20121025 jal must check here to prevent double close from calling all listeners again.
 				return;
@@ -313,6 +314,7 @@ final public class ConnectionProxy implements Connection {
 		 * is fully invalidated. Now release the poolentry outside locks.
 		 */
 		m_pe.invalidate(this);
+		m_pe.getPool().logAction(this, "invalidate()");
 	}
 
 	/**
@@ -324,6 +326,8 @@ final public class ConnectionProxy implements Connection {
 	 */
 	@Override
 	public void commit() throws java.sql.SQLException {
+		m_pe.getPool().logAction(this, "commit()");
+
 		if(!getPool().isCommitDisabled())
 			check().commit();
 		getPool().writeSpecial(this, StatementProxy.ST_COMMIT);
@@ -699,8 +703,9 @@ final public class ConnectionProxy implements Connection {
 	}
 
 	public void rollback() throws java.sql.SQLException {
-		check().rollback();
+		m_pe.getPool().logAction(this, "rollback()");
 
+		check().rollback();
 		for(IDatabaseEventListener icl : m_commitListenerList) {
 			try {
 				icl.onAfterRollback(this);
