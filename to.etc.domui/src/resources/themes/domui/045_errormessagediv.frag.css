@@ -15,13 +15,11 @@
 	background-color: <%= info_bg %>; /* some nice light blue */
 	color: <%= info_fg %>;
 	border-color: 1px solid <%= info_border %>;
-	height: 16px;
 }
 .ui-emd-error {
 	background-image: url(mini-error.png);
-	height: 16px;
+	/*	height: 16px; We have to remove this because there are big error messages */
 }
 .ui-emd-warning {
 	background-image: url(mini-warning.png);
-	height: 16px;
 }
