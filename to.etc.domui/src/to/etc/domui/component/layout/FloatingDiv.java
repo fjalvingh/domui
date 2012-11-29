@@ -48,9 +48,9 @@ public class FloatingDiv extends Div implements IAddToBody {
 
 	static protected final int MINHEIGHT = 200;
 
-	final private boolean m_modal;
+	private boolean m_modal;
 
-	final private boolean m_resizable;
+	private boolean m_resizable;
 
 	/** A handler to call when the floating (window) is closed. This is only called if the window is closed by a user action, not when the window is closed by code (by calling {@link #close()}). */
 	@Nullable
@@ -59,6 +59,8 @@ public class FloatingDiv extends Div implements IAddToBody {
 	/** If this is a modal window it will have a "hider" div to make it modal, and that div will be placed in here by the Page when the div is shown. */
 	@Nullable
 	private Div m_hider;
+
+	public FloatingDiv() {}
 
 	public FloatingDiv(boolean modal) {
 		this(modal, false, -1, -1);
@@ -72,6 +74,29 @@ public class FloatingDiv extends Div implements IAddToBody {
 		m_modal = modal;
 		m_resizable = resizable;
 		setDimensions(widthinpx, heightinpx);
+	}
+
+	@Nonnull
+	public FloatingDiv size(int width, int height) {
+		setDimensions(width, height);
+		return this;
+	}
+
+	@Nonnull
+	public FloatingDiv resizable() {
+		m_resizable = true;
+		return this;
+	}
+
+	@Nonnull
+	public FloatingDiv modal(boolean yes) {
+		m_modal = yes;
+		return this;
+	}
+
+	@Nonnull
+	public FloatingDiv modal() {
+		return modal(true);
 	}
 
 	/**

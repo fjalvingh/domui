@@ -64,6 +64,9 @@ public class Window extends FloatingDiv {
 	/** The optional area just below the content area which remains fixed when the content area scrolls. */
 	private Div m_bottomContent;
 
+
+	public Window() {}
+
 	/**
 	 * Full constructor: create a window and be able to set all options at once.
 	 * @param modal			T for a modal window.
@@ -118,6 +121,45 @@ public class Window extends FloatingDiv {
 	public Window(int width, int height, String title) {
 		this(true, true, width, height, title);
 	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Builder modifiers.									*/
+	/*--------------------------------------------------------------*/
+
+	@Override
+	@Nonnull
+	public Window size(int width, int height) {
+		super.size(width, height);
+		return this;
+	}
+
+	@Nonnull
+	@Override
+	public Window resizable() {
+		super.resizable();
+		return this;
+	}
+
+	@Nonnull
+	@Override
+	public Window modal(boolean yes) {
+		super.modal(yes);
+		return this;
+	}
+
+	@Nonnull
+	@Override
+	public Window modal() {
+		super.modal();
+		return this;
+	}
+
+	@Nonnull
+	public Window title(@Nonnull String set) {
+		setTitle(set);
+		return this;
+	}
+
 
 	private void init() {
 		m_content = new Div();

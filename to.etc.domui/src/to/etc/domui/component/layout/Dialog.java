@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.layout;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
@@ -40,6 +42,8 @@ public class Dialog extends Window {
 
 	/** The button bar for the dialog. */
 	private ButtonBar m_buttonBar;
+
+	public Dialog() {}
 
 	public Dialog(boolean modal, boolean resizable, int width, int height, String title) {
 		super(modal, resizable, width, height, title);
@@ -59,6 +63,41 @@ public class Dialog extends Window {
 
 	public Dialog(int width, int height, String title) {
 		super(width, height, title);
+	}
+
+	@Nonnull
+	@Override
+	public Dialog size(int width, int height) {
+		super.size(width, height);
+		return this;
+	}
+
+	@Nonnull
+	@Override
+	public Dialog resizable() {
+		super.resizable();
+		return this;
+	}
+
+	@Nonnull
+	@Override
+	public Dialog modal(boolean yes) {
+		super.modal(yes);
+		return this;
+	}
+
+	@Nonnull
+	@Override
+	public Dialog modal() {
+		super.modal();
+		return this;
+	}
+
+	@Nonnull
+	@Override
+	public Dialog title(@Nonnull String set) {
+		super.title(set);
+		return this;
 	}
 
 	/*--------------------------------------------------------------*/
