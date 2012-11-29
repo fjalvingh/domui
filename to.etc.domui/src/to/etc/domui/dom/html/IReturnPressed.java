@@ -24,6 +24,8 @@
  */
 package to.etc.domui.dom.html;
 
-public interface IReturnPressed {
-	public void returnPressed(Div node) throws Exception;
+import javax.annotation.*;
+
+public interface IReturnPressed<T extends NodeBase> {
+	public void returnPressed(@Nonnull T node) throws Exception;
 }

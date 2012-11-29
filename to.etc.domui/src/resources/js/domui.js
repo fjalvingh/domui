@@ -2838,8 +2838,122 @@ var WebUI = {
 		}catch(ex){
 			//nothing to do -> no _fckEditorIDs means nothing to unregister from
 		}
-	}
+	},
 
+	// connects input to usually hidden list select and provides autocomplete feature inside input. Down arrow does show and focus select list.
+	initAutocomplete : function (inputId, selectId){
+		var input = document.getElementById(inputId);
+		var select = document.getElementById(selectId);
+		$(input).keyup(function(event) {
+			WebUI.autocomplete(event, inputId, selectId); 
+		});
+		$(select).keypress(function(event) {
+			//esc hides select and prevents fireing of click and blur handlers that are temporary disconnected while focus moves back to input 
+			var keyCode = WebUI.normalizeKey(event);			
+			if (keyCode == 27 || keyCode == 27000) {
+				var oldVal = input.value;
+				var selectOnClick = select.click; 
+				var selectOnBlur = select.blur;
+				select.click = null; 
+				select.blur = null;
+				select.style.display = 'none';
+				input.focus();
+				input.value = oldVal;
+				select.click = selectOnClick; 
+				select.blur = selectOnBlur;
+			}
+		});
+	},
+	
+	// does autocomplete part of logic
+	autocomplete : function (event, inputId, selectId) {
+		var select = document.getElementById(selectId);
+		var cursorKeys = "8;46;37;38;39;40;33;34;35;36;45;";
+		if (cursorKeys.indexOf(event.keyCode + ";") == -1) {
+			var input = document.getElementById(inputId);
+		    var found = false;
+		    var foundAtIndex = -1;
+			for (var i = 0; i < select.options.length; i++){
+				if ((found = select.options[i].text.toUpperCase().indexOf(input.value.toUpperCase()) == 0)){
+					foundAtIndex = i;
+					break;
+				}
+			}
+		   	select.selectedIndex = foundAtIndex;
+
+		   	var oldValue = input.value;
+			var newValue = found ? select.options[foundAtIndex].text : oldValue;
+			if (newValue != oldValue) {
+				if (typeof input.selectionStart != "undefined") {
+					//normal browsers
+		            input.value = newValue;
+		            input.selectionStart = oldValue.length; 
+			        input.selectionEnd =  newValue.length;
+			        input.focus();
+			    } 
+				if (document.selection && document.selection.createRange) {
+					//IE9
+					input.value = newValue;
+		            input.focus();
+		            input.select();
+		            var range = document.selection.createRange();
+		            range.collapse(true);
+		            range.moveStart("character", oldValue.length);
+		            range.moveEnd("character", newValue.length);
+		            range.select();
+		        }else if (input.createTextRange) {
+					//IE8-
+					input.value = newValue;
+					var rNew = input.createTextRange();
+					rNew.moveStart('character', oldValue.length);
+					rNew.select();
+				}
+			}
+		}else if (event.keyCode == 40){
+			select.style.display = 'inline';
+			select.focus();
+		}
+	},
+	
+	//alignment methods
+	alignToTop : function (nodeId, alignToId, offsetY){
+		var alignNode = $('#' + alignToId); 
+		$('#' + nodeId).css('top', $(alignNode).position().top + offsetY + $(alignNode).outerHeight(true));
+	},
+
+	alignToLeft : function (nodeId, alignToId, offsetX){
+		var node = $('#' + nodeId); 
+		var alignNode = $('#' + alignToId); 
+		var myLeftPos = $(alignNode).position().left + offsetX;
+		var myRightPos = $(node).outerWidth(true) + myLeftPos;
+		if (myRightPos > $(window).width()){
+			myLeftPos = myLeftPos - myRightPos + $(window).width();
+			if (myLeftPos < 1){
+				myLeftPos = 1;
+			}
+		}
+		$(node).css('left', myLeftPos);
+	},
+	
+	alignToRight : function (nodeId, alignToId, offsetX){
+		var node = $('#' + nodeId); 
+		var alignNode = $('#' + alignToId); 
+		var myLeftPos = $(alignNode).position().left + offsetX - $(node).outerWidth(true) + $(alignNode).outerWidth(true) - 3;
+		if (myLeftPos < 1){
+			myLeftPos = 1; 
+		}
+		$(node).css('left', myLeftPos);
+	},
+	
+	alignToMiddle : function (nodeId, alignToId, offsetX){
+		var node = $('#' + nodeId); 
+		var alignNode = $('#' + alignToId); 
+		var myLeftPos = $(alignNode).position().left + ($(alignNode).outerWidth(true) / 2) - ($(node).outerWidth(true) / 2);
+		if (myLeftPos < 1){
+			myLeftPos = 1; 
+		}
+		$(node).css('left', myLeftPos);
+	}
 };
 
 WebUI._DEFAULT_DROPZONE_HANDLER = {
