@@ -139,6 +139,15 @@ public class DefaultButton extends Button implements IActionControl {
 	}
 
 	/**
+	 * Define this as a "mini" button, usable to be added inside a table row.
+	 * @return
+	 */
+	public DefaultButton	mini() {
+		setCssClass("ui-sdbtn-mini");
+		return this;
+	}
+
+	/**
 	 * Uses a resource as the base for the image.
 	 * @param resourceBase		The base location for the specified name. Name is resolved with this class as the base.
 	 * @param name				The resource's name relative to the class.
