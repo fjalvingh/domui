@@ -65,7 +65,9 @@ public class Window extends FloatingDiv {
 	private Div m_bottomContent;
 
 
-	public Window() {}
+	public Window() {
+		init();
+	}
 
 	/**
 	 * Full constructor: create a window and be able to set all options at once.
@@ -156,10 +158,16 @@ public class Window extends FloatingDiv {
 
 	@Nonnull
 	public Window title(@Nonnull String set) {
-		setTitle(set);
+		setWindowTitle(set);
 		return this;
 	}
 
+	@Override
+	@Nonnull
+	public Window width(int pxsl) {
+		super.width(pxsl);
+		return this;
+	}
 
 	private void init() {
 		m_content = new Div();

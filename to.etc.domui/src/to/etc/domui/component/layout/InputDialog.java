@@ -113,6 +113,7 @@ public class InputDialog<T, C extends NodeBase & IControl<T>> extends Dialog {
 	 *
 	 * @throws Exception
 	 */
+	@Override
 	protected void createButtons() throws Exception {
 		setButtonsOnBottom(true);
 		createSaveButton();

@@ -129,6 +129,19 @@ public class Dialog extends Window {
 	}
 
 	/**
+	 * Can be overridden to add extra buttons to the button bar where needed - this default
+	 * implementation adds the save and cancel buttons. If you override you should decide on
+	 * their fate yourself!
+	 *
+	 * @throws Exception
+	 */
+	protected void createButtons() throws Exception {
+		createSaveButton();
+		createCancelButton();
+	}
+
+
+	/**
 	 * Get the control's button bar. If it does not already exists it will be created and
 	 * added to the top content area.
 	 * @return
