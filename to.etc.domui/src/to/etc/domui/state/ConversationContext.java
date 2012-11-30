@@ -297,7 +297,7 @@ public class ConversationContext implements IQContextContainer {
 			onDestroy();
 		} finally {
 			m_state = ConversationState.DESTROYED;
-			discardUploadFiles();
+			discardTempFiles();
 		}
 	}
 
@@ -446,13 +446,13 @@ public class ConversationContext implements IQContextContainer {
 	 * Register a file that was uploaded and that needs to be deleted at end of conversation time.
 	 * @param f
 	 */
-	public void registerUploadTempFile(final File f) {
+	public void registerTempFile(@Nonnull final File f) {
 		if(m_uploadList == Collections.EMPTY_LIST)
 			m_uploadList = new ArrayList<File>();
 		m_uploadList.add(f);
 	}
 
-	protected void discardUploadFiles() {
+	protected void discardTempFiles() {
 		for(File f : m_uploadList) {
 			try {
 				f.delete();

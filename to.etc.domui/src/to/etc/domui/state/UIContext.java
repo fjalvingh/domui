@@ -24,6 +24,7 @@
  */
 package to.etc.domui.state;
 
+import java.io.*;
 import java.util.*;
 
 import javax.annotation.*;
@@ -110,6 +111,7 @@ public class UIContext {
 		m_page.set(pg);
 	}
 
+	@Nonnull
 	static public Page getCurrentPage() {
 		Page pg = m_page.get();
 		if(pg == null)
@@ -117,6 +119,7 @@ public class UIContext {
 		return pg;
 	}
 
+	@Nonnull
 	static public ConversationContext getCurrentConversation() {
 		return getCurrentPage().getConversation();
 	}
@@ -142,6 +145,15 @@ public class UIContext {
 		if(u == null)
 			throw NotLoggedInException.create(getRequestContext(), getCurrentPage());
 		return u;
+	}
+
+	/**
+	 * Register a file as a file/directory to be deleted when the conversation terminates.
+	 * @param tmpf
+	 */
+	static public void registerTempFile(@Nonnull File tmpf) {
+		ConversationContext cc = getCurrentConversation();
+		cc.registerTempFile(tmpf);
 	}
 
 	/*--------------------------------------------------------------*/

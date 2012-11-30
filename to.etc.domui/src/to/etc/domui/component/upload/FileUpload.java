@@ -296,7 +296,7 @@ public class FileUpload extends Div implements IUploadAcceptingComponent /* impl
 		if(uiar != null) {
 			for(UploadItem ui : uiar) {
 				getFiles().add(ui);
-				conversation.registerUploadTempFile(ui.getFile());
+				conversation.registerTempFile(ui.getFile());
 			}
 		}
 		forceRebuild();
