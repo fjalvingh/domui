@@ -52,7 +52,7 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 	public LabelSelector(@Nonnull Class<T> clz, @Nonnull ISearch<T> search) {
 		m_actualClass = clz;
 		m_search = search;
-		setCssClass("ui-lsel-sel");
+		setCssClass("ui-lsel");
 	}
 
 	//	/**
@@ -158,17 +158,21 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 	private Span createLabel(final T lbl) throws Exception {
 		final Span d = new Span();
 		m_divMap.put(lbl, d);
-		d.setCssClass("ui-lsel");
+		d.setCssClass("ui-lsel-item");
 
 		if(m_contentRenderer == null)
 			d.add(lbl.toString());
 		else
 			m_contentRenderer.renderNodeContent(this, d, lbl, null);
-		Img i = new Img("THEME/btnDelete.png");
-		d.add(i);
-		i.setClicked(new IClicked<Img>() {
+		Div btn = new Div();
+		btn.setCssClass("ui-lsel-btn");
+		d.add(btn);
+//
+//		Img i = new Img("THEME/lsel-delete.png");
+//		d.add(i);
+		btn.setClicked(new IClicked<Div>() {
 			@Override
-			public void clicked(Img clickednode) throws Exception {
+			public void clicked(Div clickednode) throws Exception {
 				d.remove();
 				m_labelList.remove(lbl);
 				m_divMap.remove(lbl);
