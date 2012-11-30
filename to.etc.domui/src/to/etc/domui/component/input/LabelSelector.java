@@ -23,10 +23,13 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 	@Nonnull
 	private List<T> m_labelList = new ArrayList<T>();
 
-	private Map<T, Span> m_divMap = new HashMap<T, Span>();
+	@Nonnull
+	final private Map<T, Span> m_divMap = new HashMap<T, Span>();
 
+	@Nullable
 	private SearchInput<T> m_input;
 
+	@Nullable
 	private INodeContentRenderer<T> m_contentRenderer;
 
 	public interface ISearch<T> {
@@ -40,31 +43,29 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 		T create(String name) throws Exception;
 	}
 
+	public interface IAllow<T> {
+		boolean allowSelection(@Nonnull T instance) throws Exception;
+	}
+
 	@Nonnull
 	final private ISearch<T> m_search;
 
 	@Nullable
+	private IAllow<T> m_allowCheck;
+
+	@Nullable
 	private INew<T> m_instanceFactory;
 
-	//	/** Set to allow new things to be created. */
-	//	private IFactory<T> m_instanceFactory;
+	@Nullable
+	private IValueChanged< ? > m_onValueChanged;
+
+	private boolean m_disabled;
 
 	public LabelSelector(@Nonnull Class<T> clz, @Nonnull ISearch<T> search) {
 		m_actualClass = clz;
 		m_search = search;
 		setCssClass("ui-lsel");
 	}
-
-	//	/**
-	//	 * Constructor to use DB.
-	//	 * @param clz
-	//	 * @param propertyName
-	//	 */
-	//	public LabelSelector(@Nonnull Class<T> clz, @Nonnull String propertyName) {
-	//		m_actualClass = clz;
-	//		setCssClass("ui-lsel-sel");
-	//	}
-
 
 	/**
 	 * We create something which looks like an iput box, but it has label spans followed by a single input box.
@@ -76,25 +77,29 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 		for(T lbl : m_labelList) {
 			add(createLabel(lbl));
 		}
-		m_input = new SearchInput<T>(m_actualClass);
-		add(m_input);
-		m_input.setHandler(new SearchInput.IQuery<T>() {
-			@Override
-			public List<T> queryFromString(String input, int max) throws Exception {
-				return queryLabels(input, max);
-			}
 
-			@Override
-			public void onSelect(T instance) throws Exception {
-				addLabel(instance);
-			}
+		if(! m_disabled) {
+			m_input = new SearchInput<T>(m_actualClass);
+			add(m_input);
+			m_input.setHandler(new SearchInput.IQuery<T>() {
+				@Override
+				public List<T> queryFromString(String input, int max) throws Exception {
+					return queryLabels(input, max);
+				}
 
-			@Override
-			public void onEnter(String value) throws Exception {
-				insertLabel(value);
-			}
-		});
+				@Override
+				public void onSelect(T instance) throws Exception {
+					addLabelOnInput(instance);
+				}
+
+				@Override
+				public void onEnter(String value) throws Exception {
+					insertLabel(value);
+				}
+			});
+		}
 	}
+
 
 	/**
 	 * This queries for labels with the specified name. It does so by querying the db, and removes
@@ -133,7 +138,7 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 				if(MetaManager.areObjectsEqual(value, il))
 					return;
 			}
-			addLabel(sel);				// Just add the thingy.
+			addLabelOnInput(sel);				// Just add the thingy.
 			return;
 		}
 
@@ -144,16 +149,54 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 		sel = ifa.create(value);
 		if(null == sel)
 			return;
-		addLabel(sel);					// Just add the thingy.
+		addLabelOnInput(sel);					// Just add the thingy.
 	}
 
-	private void addLabel(@Nonnull T instance) throws Exception {
+	private void addLabelOnInput(@Nonnull T instance) throws Exception {
+		if(m_divMap.containsKey(instance))
+			return;
+
+		//-- Is adding this value allowed?
+		if(null != m_allowCheck) {
+			boolean ok = m_allowCheck.allowSelection(instance);
+			if(!ok)
+				return;
+		}
+
+		addItem(instance);
+	}
+
+	/**
+	 * Call to add a selected item to the control.
+	 * @param instance
+	 * @throws Exception
+	 */
+	public void addItem(@Nonnull T instance) throws Exception {
 		if(m_divMap.containsKey(instance))
 			return;
 		m_labelList.add(instance);
 		Span s = createLabel(instance);
-		m_input.appendBeforeMe(s);
+		if(m_input != null)
+			m_input.appendBeforeMe(s);
+		else
+			add(s);
+		callValueChanged();
 	}
+
+	/**
+	 * Call to remove an item from the control.
+	 * @param instance
+	 * @throws Exception
+	 */
+	public void removeItem(@Nonnull T instance) throws Exception {
+		Span span = m_divMap.get(instance);
+		if(span == null)
+			return;
+		span.remove();
+		m_labelList.remove(instance);
+		m_divMap.remove(instance);
+	}
+
 
 	private Span createLabel(final T lbl) throws Exception {
 		final Span d = new Span();
@@ -164,22 +207,28 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 			d.add(lbl.toString());
 		else
 			m_contentRenderer.renderNodeContent(this, d, lbl, null);
-		Div btn = new Div();
-		btn.setCssClass("ui-lsel-btn");
-		d.add(btn);
-//
-//		Img i = new Img("THEME/lsel-delete.png");
-//		d.add(i);
-		btn.setClicked(new IClicked<Div>() {
-			@Override
-			public void clicked(Div clickednode) throws Exception {
-				d.remove();
-				m_labelList.remove(lbl);
-				m_divMap.remove(lbl);
-			}
-		});
+
+		if(!m_disabled) {
+			Div btn = new Div();
+			btn.setCssClass("ui-lsel-btn");
+			d.add(btn);
+			btn.setClicked(new IClicked<Div>() {
+				@Override
+				public void clicked(Div clickednode) throws Exception {
+					d.remove();
+					m_labelList.remove(lbl);
+					m_divMap.remove(lbl);
+					callValueChanged();
+				}
+			});
+		}
 
 		return d;
+	}
+
+	private void callValueChanged() throws Exception {
+		if(null != m_onValueChanged)
+			((IValueChanged<LabelSelector<T>>) m_onValueChanged).onValueChanged(this);
 	}
 
 	public boolean isEnableAdding() {
@@ -191,11 +240,12 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 	/*	CODING:	IControl interface.									*/
 	/*--------------------------------------------------------------*/
 
+	@Nullable
 	public INodeContentRenderer<T> getContentRenderer() {
 		return m_contentRenderer;
 	}
 
-	public void setContentRenderer(INodeContentRenderer<T> contentRenderer) {
+	public void setContentRenderer(@Nullable INodeContentRenderer<T> contentRenderer) {
 		m_contentRenderer = contentRenderer;
 	}
 
@@ -206,41 +256,50 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 		forceRebuild();
 	}
 
+	@Nonnull
 	@Override
 	public List<T> getValue() {
 		return new ArrayList<T>(m_labelList);
 	}
 
+	@Nonnull
 	@Override
 	public List<T> getValueSafe() {
 		return getValue();
 	}
 
-	@Override
-	public void setDisabled(boolean d) {
-	}
-
+	@Nullable
 	@Override
 	public IValueChanged< ? > getOnValueChanged() {
 		return null;
 	}
 
 	@Override
-	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
+	public void setOnValueChanged(@Nullable IValueChanged< ? > onValueChanged) {
+		m_onValueChanged = onValueChanged;
 	}
 
 	@Override
 	public boolean isReadOnly() {
-		return false;
+		return isDisabled();
 	}
 
 	@Override
 	public void setReadOnly(boolean ro) {
+		setDisabled(ro);
 	}
 
 	@Override
 	public boolean isDisabled() {
-		return false;
+		return m_disabled;
+	}
+
+	@Override
+	public void setDisabled(boolean d) {
+		if(m_disabled == d)
+			return;
+		m_disabled = d;
+		forceRebuild();
 	}
 
 	@Override
@@ -252,9 +311,19 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 	public void setMandatory(boolean ro) {
 	}
 
+	@Nullable
+	public IAllow<T> getAllowCheck() {
+		return m_allowCheck;
+	}
+
+	public void setAllowCheck(@Nullable IAllow<T> allowCheck) {
+		m_allowCheck = allowCheck;
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IBindable interface (EXPERIMENTAL)					*/
 	/*--------------------------------------------------------------*/
+
 
 	/** When this is bound this contains the binder instance handling the binding. */
 	private SimpleBinder m_binder;
