@@ -159,7 +159,7 @@ public class UIContext {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Login page logic. Temporary location.				*/
 	/*--------------------------------------------------------------*/
-	static private final String LOGIN_KEY = IUser.class.getName();
+	static public final String LOGIN_KEY = IUser.class.getName();
 
 	/**
 	 * UNSTABLE INTERFACE. This tries to retrieve an IUser context for the user. It tries to
