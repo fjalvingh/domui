@@ -63,6 +63,7 @@ bevel_hover_down="#D7E8F8";
 //-- button color
 button_bg="#6290E1";
 button_text_color="#ffffff";   
+button_img= "defaultButton.png";
 
 //-- Caption
 caption_separator="hr-caption.png";
