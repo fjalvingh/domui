@@ -210,6 +210,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				if(LOG.isDebugEnabled())
 					LOG.debug("Session " + cid + " was destroyed earlier- assuming this is an out-of-order event and sending empty delta back");
 				generateEmptyDelta(ctx);
+				return;											// jal 20121122 Must return after sending that delta or the document is invalid!!
 			}
 		}
 
