@@ -32,6 +32,8 @@ import java.util.regex.*;
 
 import javax.annotation.*;
 
+import javax.annotation.*;
+
 /**
  * This static utility class contains a load of string functions. And some other
  * stuff I could not quickly find a place for ;-)
@@ -2518,5 +2520,28 @@ public class StringTool {
 		getJreVersion();
 		long val = System.currentTimeMillis() / 1000 / 60;
 		m_guidSeed = (int) val;
+	}
+
+	/**
+	 * SCHEDULED FOR REMOVAL - please use {@link FileTool#readStreamAsString(InputStream, String)} instead. It can be parametrized by "UTF-8" we use here.
+	 * @param is
+	 * @return
+	 * @throws Exception
+	 */
+	@Deprecated
+	@Nonnull
+	public static String getString(@Nonnull InputStream is) throws Exception {
+
+		final char[] buffer = new char[0x10000];
+		StringBuilder out = new StringBuilder();
+		Reader in = new InputStreamReader(is, "UTF-8");
+		int read;
+		do {
+			read = in.read(buffer, 0, buffer.length);
+			if(read > 0) {
+				out.append(buffer, 0, read);
+			}
+		} while(read >= 0);
+		return out.toString();
 	}
 }
