@@ -248,6 +248,12 @@ public class DefaultButton extends Button implements IActionControl {
 		return "Button:" + m_text;
 	}
 
+	@Override
+	public void setDisabled(boolean disabled) {
+		super.setDisabled(disabled);
+		forceRebuild();
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	EXPERIMENTAL - UNSTABLE INTERFACE					*/
 	/*--------------------------------------------------------------*/
