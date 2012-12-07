@@ -66,14 +66,18 @@
 .ui-sdbtn-mini {
 	height: 16px;
 	position: relative;
+	top:1px;
 	border: 0;
-	padding: 0 10px 0 0;
+	padding: 0 8px 0 0;
 	margin: 0 4px 0 0;
 	vertical-align: top;
 	cursor: pointer;
 	overflow: visible; /* remove extra padding in IE */
-	background: transparent url(mini-button.png) no-repeat right -50px;
+	background: transparent url(<%= button_img %>) no-repeat -7px -4px;
 	outline: none;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
+	-webkit-border-radius: 2px;
 }
 
 @-moz-document url-prefix() { /** btadic 20120711 Firefox is adding strange left padding to the buttons **/
@@ -94,13 +98,12 @@
 	position: relative;
 	display: block;
 	white-space: nowrap;
-	height: <%= button_height %>px;
-	padding: 3px 0 0 6px;
+	height: 16px;
+	padding: 0 0 0 6px;
 	color: white;
 	font-weight: bold;
 	vertical-align: middle;
 	text-align: left;
-	background: transparent url(<%= button_img %>) no-repeat left top;
 }
 
 @media screen and (-webkit-min-device-pixel-ratio:0) {
@@ -110,16 +113,10 @@
 	}
 }
 .ui-sdbtn-mini:hover, .ui-sdbtn:focus {
-	background-position: right -150px;
-}
-.ui-sdbtn-mini:hover span, .ui-sdbtn:focus span {
-	background-position: left -100px;
+	background-position: -7px -104px;
 }
 
 /* support for disabled attribute */
 .ui-sdbtn-mini[disabled], .ui-sdbtn-mini[disabled]:hover, .ui-sdbtn-mini[disabled]:focus {
-	background-position: right -250px;
-}
-.ui-sdbtn-mini[disabled] span, .ui-sdbtn-mini[disabled]:hover span, .ui-sdbtn-mini[disabled]:focus span {
-	background-position: left -200px;
+	background-position: -7px -204px;
 }
