@@ -53,6 +53,9 @@ public class JdbcDataContext implements QDataContext {
 	private boolean m_ignoreClose;
 
 	@Nonnull
+	private List<IQDataContextListener> m_instanceChangeListeners = new ArrayList<IQDataContextListener>();
+
+	@Nonnull
 	private List<IRunnable> m_commitHandlerList = Collections.EMPTY_LIST;
 
 	public JdbcDataContext(QDataContextFactory factory, Connection dbc) {
@@ -244,5 +247,10 @@ public class JdbcDataContext implements QDataContext {
 		if(m_commitHandlerList == Collections.EMPTY_LIST)
 			m_commitHandlerList = new ArrayList<IRunnable>();
 		m_commitHandlerList.add(cx);
+	}
+
+	@Override
+	public void addListener(@Nonnull IQDataContextListener instanceChangeListener) {
+		m_instanceChangeListeners.add(instanceChangeListener);
 	}
 }

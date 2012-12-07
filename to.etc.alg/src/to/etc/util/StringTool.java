@@ -2452,6 +2452,26 @@ public class StringTool {
 		return sb.toString();
 	}
 
+	/**
+	 * This returns true when the String s:
+	 * <ul>
+	 * <li>is null</li>
+	 * <li>contains an empty string</li>
+	 * <li>contains only spaces</li>
+	 * </ul>
+	 * @param s
+	 * @return
+	 */
+	public static boolean isNotBlank(@Nullable final String s) {
+		if(s == null) {
+			return false;
+		}
+		if("".equals(s) || "".equals(s.trim())) {
+			return false;
+		}
+		return true;
+	}
+
 	static public void createInsertStatement(final StringBuilder sb, final String table, final String pkname, final String pkexpr, final String[] fields) {
 		sb.append("insert into ");
 		sb.append(table);
@@ -2502,26 +2522,4 @@ public class StringTool {
 		m_guidSeed = (int) val;
 	}
 
-	/**
-	 * SCHEDULED FOR REMOVAL - please use {@link FileTool#readStreamAsString(InputStream, String)} instead. It can be parametrized by "UTF-8" we use here.
-	 * @param is
-	 * @return
-	 * @throws Exception
-	 */
-	@Deprecated
-	@Nonnull
-	public static String getString(@Nonnull InputStream is) throws Exception {
-
-		final char[] buffer = new char[0x10000];
-		StringBuilder out = new StringBuilder();
-		Reader in = new InputStreamReader(is, "UTF-8");
-		int read;
-		do {
-			read = in.read(buffer, 0, buffer.length);
-			if(read > 0) {
-				out.append(buffer, 0, read);
-			}
-		} while(read >= 0);
-		return out.toString();
-	}
 }

@@ -26,6 +26,8 @@ package to.etc.webapp.query;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 /**
  * A QDataContext proxy which allows queries to be sent to multiple rendering/selecting implementations. It delegates
  * all query handling to the appropriate query handler.
@@ -34,6 +36,10 @@ import java.util.*;
  * Created on Apr 29, 2010
  */
 abstract public class QAbstractDataContext implements QDataContext {
+
+	@Nonnull
+	private List<IQDataContextListener> m_instanceChangeListeners = new ArrayList<IQDataContextListener>();
+
 	private QDataContextFactory m_contextFactory;
 
 	protected QAbstractDataContext(QDataContextFactory contextFactory) {
@@ -166,6 +172,13 @@ abstract public class QAbstractDataContext implements QDataContext {
 	@Override
 	public void save(final Object o) throws Exception {
 		getHandlerFactory().getHandler(this, o).save(this, o);
+		notifyListeners(o);
+	}
+
+	private void notifyListeners(Object o) throws Exception {
+		for(IQDataContextListener icl : m_instanceChangeListeners) {
+			icl.instanceSaved(o);
+		}
 	}
 
 	/**
@@ -175,5 +188,10 @@ abstract public class QAbstractDataContext implements QDataContext {
 	@Override
 	public void refresh(final Object o) throws Exception {
 		getHandlerFactory().getHandler(this, o).refresh(this, o);
+	}
+
+	@Override
+	public void addListener(@Nonnull IQDataContextListener instanceChangeListener) {
+		m_instanceChangeListeners.add(instanceChangeListener);
 	}
 }

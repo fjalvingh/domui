@@ -27,11 +27,16 @@ package to.etc.iocular.test.mocks;
 import java.sql.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.webapp.core.*;
 import to.etc.webapp.query.*;
 
 public class DataContextMock implements QDataContext {
 	private int m_alloc = 1;
+
+	@Nonnull
+	private List<IQDataContextListener> m_instanceChangeListeners = new ArrayList<IQDataContextListener>();
 
 	@Override
 	public void attach(final Object o) throws Exception {}
@@ -135,4 +140,9 @@ public class DataContextMock implements QDataContext {
 
 	@Override
 	public void addCommitAction(IRunnable cx) {}
+
+	@Override
+	public void addListener(@Nonnull IQDataContextListener instanceChangeListener) {
+		m_instanceChangeListeners.add(instanceChangeListener);
+	}
 }
