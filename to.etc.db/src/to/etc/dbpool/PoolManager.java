@@ -480,7 +480,19 @@ final public class PoolManager {
 		Set<ConnectionProxy> cs = m_threadConnections.get();
 		if(null == cs)
 			return Collections.EMPTY_LIST;
-		return new ArrayList<ConnectionProxy>(cs);
+
+		/*
+		 * When a connection is closed by another thread (which is a bug, but which happens in special circumstances,
+		 * like when logging out with another thread still running using a connection). This prevents "false alarms"
+		 * when a connection is still in a thread's unclosed list but closed by another thread.
+		 */
+		List<ConnectionProxy> res = new ArrayList<ConnectionProxy>(cs.size());
+		for(ConnectionProxy cp : cs) {
+			if(cp.getState() == ConnState.OPEN)
+				res.add(cp);
+		}
+
+		return res;
 	}
 
 	public void clearThreadConnections() {
