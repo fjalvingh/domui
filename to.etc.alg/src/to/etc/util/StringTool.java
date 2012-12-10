@@ -42,6 +42,9 @@ import javax.annotation.*;
  * @version 1.0
  */
 public class StringTool {
+
+	public static final int	MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2	= 4000;
+
 	static public boolean isValidJavaIdentifier(final String s) {
 		int len = s.length();
 		if(len == 0)
@@ -2543,5 +2546,51 @@ public class StringTool {
 			}
 		} while(read >= 0);
 		return out.toString();
+	}
+
+	/**
+	 * <pre>
+	 * This method removes the leading characters from the string, if it exceeds the column size
+	 * or needs more then 4000 bytes to store in the database.
+
+	 * There's a limit on the size in bytes for an Oracle varchar2. This limit is
+	 * 4000 bytes (MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2). So if you declare a varchar2(4000 char),
+	 * it's possible that for example 3970 characters won't fit, because there are charaters in the string
+	 * that needs more then one byte in UTF8.
+	 *
+	 * @param text
+	 * @return
+	 * </pre>
+	 */
+	@Nullable
+	public static String truncLeadingOracleColumn(@Nullable String text, int columnSize) {
+
+		if(text == null)
+			return null;
+
+		if(text.length() > columnSize)
+			text = text.substring(text.length() - columnSize);
+
+		int lengthInBytes = getUtf8LengthInBytes(text);
+
+		if(lengthInBytes <= MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2) {
+			return text;
+		}
+
+		while((lengthInBytes = getUtf8LengthInBytes(text)) > MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2) {
+			int tooMuchBytes = lengthInBytes - MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2;
+			int startPosition = tooMuchBytes / 2 + 1;
+			text = text.substring(startPosition);
+		}
+		return text;
+	}
+
+	private static int getUtf8LengthInBytes(@Nonnull String text) {
+
+		try {
+			return text.getBytes("utf8").length;
+		} catch(UnsupportedEncodingException e) {
+			throw new WrappedException(e);
+		}
 	}
 }
