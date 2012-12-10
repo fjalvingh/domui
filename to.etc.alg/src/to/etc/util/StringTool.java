@@ -28,8 +28,6 @@ import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
 
-import javax.annotation.*;
-
 /**
  * This static utility class contains a load of string functions. And some other
  * stuff I could not quickly find a place for ;-)
@@ -2453,23 +2451,12 @@ public class StringTool {
 	}
 
 	/**
-	 * This returns true when the String s:
-	 * <ul>
-	 * <li>is null</li>
-	 * <li>contains an empty string</li>
-	 * <li>contains only spaces</li>
-	 * </ul>
-	 * @param s
-	 * @return
+	 * Checks if string is blank.
+	 * @param s String to be validated.
+	 * @return true if the string is null, empty or only spaces; false otherwise.
 	 */
-	public static boolean isNotBlank(@Nullable final String s) {
-		if(s == null) {
-			return false;
-		}
-		if("".equals(s) || "".equals(s.trim())) {
-			return false;
-		}
-		return true;
+	static public boolean isBlank(String s) {
+		return s == null || s.trim().length() == 0;
 	}
 
 	static public void createInsertStatement(final StringBuilder sb, final String table, final String pkname, final String pkexpr, final String[] fields) {

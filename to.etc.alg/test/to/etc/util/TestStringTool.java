@@ -11,15 +11,15 @@ import org.junit.*;
 public class TestStringTool {
 
 	/**
-	 * Test method for {@link to.etc.util.StringTool#isNotBlank(java.lang.String)}.
+	 * Test method for {@link to.etc.util.StringTool#isBlank(java.lang.String)}.
 	 */
 	@Test
-	public void testIsNotBlank() {
-		Assert.assertTrue(StringTool.isNotBlank(null) == false);
-		Assert.assertTrue(StringTool.isNotBlank("") == false);
-		Assert.assertTrue(StringTool.isNotBlank(" ") == false);
-		Assert.assertTrue(StringTool.isNotBlank("bob") == true);
-		Assert.assertTrue(StringTool.isNotBlank("  bob  ") == true);
+	public void testIsBlank() {
+		Assert.assertTrue(StringTool.isBlank(null));
+		Assert.assertTrue(StringTool.isBlank(""));
+		Assert.assertTrue(StringTool.isBlank(" "));
+		Assert.assertFalse(StringTool.isBlank("bob"));
+		Assert.assertFalse(StringTool.isBlank("  bob  "));
 	}
 
 }

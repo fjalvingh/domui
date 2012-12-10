@@ -1424,12 +1424,17 @@ final public class DomUtil {
 	}
 
 	/**
+	 * Use StringTool.isBlank(String s) instead.
+	 * <pre>
 	 * Checks if string is blank.
+	 * </pre>
 	 * @param s String to be validated.
 	 * @return true if it is blank, false otherwise.
+	 *
 	 */
+	@Deprecated
 	static public boolean isBlank(String s) {
-		return s == null || s.trim().length() == 0;
+		return StringTool.isBlank(s);
 	}
 
 	static public boolean isRelativeURL(String in) {
