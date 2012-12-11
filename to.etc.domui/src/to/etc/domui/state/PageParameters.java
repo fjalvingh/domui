@@ -92,6 +92,7 @@ public class PageParameters implements IPageParameters {
 	/**
 	 * @see to.etc.domui.state.IPageParameters#getUnlockedCopy()
 	 */
+	@Nonnull
 	@Override
 	public PageParameters getUnlockedCopy() {
 		PageParameters clone = new PageParameters();

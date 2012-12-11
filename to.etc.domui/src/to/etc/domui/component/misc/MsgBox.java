@@ -451,6 +451,7 @@ public class MsgBox extends Window {
 	 * @param ch		The delegate to call when the user is sure.
 	 * @return
 	 */
+	@Nonnull
 	public static DefaultButton areYouSureButton(String text, String icon, final String message, final IClicked<DefaultButton> ch) {
 		final DefaultButton btn = new DefaultButton(text, icon);
 		IClicked<DefaultButton> bch = new IClicked<DefaultButton>() {
@@ -477,6 +478,7 @@ public class MsgBox extends Window {
 	 * @param ch		The delegate to call when the user is sure.
 	 * @return
 	 */
+	@Nonnull
 	public static DefaultButton areYouSureButton(String text, final String message, final IClicked<DefaultButton> ch) {
 		return areYouSureButton(text, null, message, ch);
 	}
@@ -490,6 +492,7 @@ public class MsgBox extends Window {
 	 * @param ch		The delegate to call when the user is sure.
 	 * @return
 	 */
+	@Nonnull
 	public static LinkButton areYouSureLinkButton(String text, String icon, final String message, final IClicked<LinkButton> ch) {
 		final LinkButton btn = new LinkButton(text, icon);
 		IClicked<LinkButton> bch = new IClicked<LinkButton>() {
@@ -516,6 +519,7 @@ public class MsgBox extends Window {
 	 * @param ch		The delegate to call when the user is sure.
 	 * @return
 	 */
+	@Nonnull
 	public static LinkButton areYouSureLinkButton(String text, final String message, final IClicked<LinkButton> ch) {
 		return areYouSureLinkButton(text, null, message, ch);
 	}

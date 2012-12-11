@@ -24,6 +24,8 @@
  */
 package to.etc.domui.pages.generic;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.form.*;
@@ -215,7 +217,7 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 		return m_bindings;
 	}
 
-	protected void onSave(T object) throws Exception {
+	protected void onSave(@Nonnull T object) throws Exception {
 		//-- Do a commit, then exit;
 		QDataContext dc = QContextManager.getContext(getPage());
 		dc.startTransaction();
@@ -223,11 +225,11 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 		dc.commit();
 	}
 
-	protected void saveObject(QDataContext dc, T object) throws Exception {
+	protected void saveObject(@Nonnull QDataContext dc, @Nonnull T object) throws Exception {
 		dc.save(object);
 	}
 
-	protected boolean onDelete(T object) throws Exception {
+	protected boolean onDelete(@Nonnull T object) throws Exception {
 		QDataContext dc = QContextManager.getContext(getPage());
 		dc.startTransaction();
 		boolean res = deleteObject(dc, object);
@@ -235,7 +237,7 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 		return res;
 	}
 
-	protected boolean deleteObject(QDataContext dc, T object) throws Exception {
+	protected boolean deleteObject(@Nonnull QDataContext dc, @Nonnull T object) throws Exception {
 		dc.delete(object);
 		return true;
 	}

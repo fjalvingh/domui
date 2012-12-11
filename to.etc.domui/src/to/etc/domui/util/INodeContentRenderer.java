@@ -39,5 +39,5 @@ public interface INodeContentRenderer<T> {
 	 * @param parameters
 	 * @throws Exception
 	 */
-	void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable T object, @Nullable Object parameters) throws Exception;
+	void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nonnull T object, @Nullable Object parameters) throws Exception;
 }
