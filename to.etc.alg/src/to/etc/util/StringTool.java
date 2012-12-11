@@ -28,6 +28,8 @@ import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 /**
  * This static utility class contains a load of string functions. And some other
  * stuff I could not quickly find a place for ;-)
@@ -49,6 +51,27 @@ public class StringTool {
 		return true;
 	}
 
+	private static String	m_charString	= "bcdfghjklmnpqrstvwxyz";
+
+	private static char[]	m_characters	= m_charString.toCharArray();
+
+	@Nonnull
+	public static String getRandomStringWithPrefix(int length, @Nonnull String prefix) {
+
+		if(length <= prefix.length())
+			throw new IllegalArgumentException("Prefix is too long");
+
+		Random rand = new Random();
+
+		StringBuffer randomString = new StringBuffer(length);
+		randomString.append(prefix);
+
+		for(int i = prefix.length(); i < length; i++) {
+			int random = rand.nextInt(m_charString.length());
+			randomString.append(m_characters[random]);
+		}
+		return randomString.toString();
+	}
 
 	/**
 	 * Checks if the name is a valid domain name. These can contain only

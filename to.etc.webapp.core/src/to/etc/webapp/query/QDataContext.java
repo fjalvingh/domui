@@ -195,5 +195,5 @@ public interface QDataContext {
 	 *
 	 * @param testDataListener
 	 */
-	void addListener(@Nonnull IQDataContextListener instanceChangeListener);
+	void addListener(@Nonnull IQDataContextListener qDataContextListener);
 }
