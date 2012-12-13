@@ -171,9 +171,12 @@ abstract public class QAbstractDataContext implements QDataContext {
 	 */
 	@Override
 	public void save(final Object o) throws Exception {
+		boolean isInsert = (o instanceof IIdentifyable && ((IIdentifyable< ? >) o).getId() == null);
 		getHandlerFactory().getHandler(this, o).save(this, o);
-		for(IQDataContextListener icl : m_qDataContextListeners) {
-			icl.instanceSaved(o);
+		if(isInsert) {
+			for(IQDataContextListener icl : m_qDataContextListeners) {
+				icl.instanceSaved((IIdentifyable< ? >) o);
+			}
 		}
 	}
 

@@ -4,5 +4,5 @@ import javax.annotation.*;
 
 public interface IQDataContextListener {
 
-	<T> void instanceSaved(@Nonnull T testDataObject) throws Exception;
+	<T> void instanceSaved(@Nonnull IIdentifyable<T> testDataObject) throws Exception;
 }
