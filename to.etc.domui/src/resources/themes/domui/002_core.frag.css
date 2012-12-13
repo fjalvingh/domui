@@ -75,3 +75,41 @@ div {
 .ui-content {
 	padding: <%= margins_main %> <%= margins_main %>;
 }
+
+/*** HTML formatting ***/
+p {
+	margin: 5px 0px;
+}
+h1, h2, h3, h4, h5 {
+	margin: 10px 0px 5px 0px;
+}
+h1 {
+	font-size: 150%;
+	font-weight: bold;
+	border-bottom: 1px solid #777;
+}
+h2 {
+	font-size: 130%;
+	font-weight: bold;
+}
+h3 {
+	font-size: 110%;
+	font-weight: bold;
+}
+h4 {
+	font-style: italic;
+}
+ul {
+	list-style-type: disc;
+	list-style-position: outside;
+	padding: 0px 20px;
+}
+ol {
+	list-style-type: decimal;
+	list-style-position: outside;
+	padding: 0px 20px;
+}
+li {
+	margin: 4px 4px;
+	padding: 3px 0px;
+}
