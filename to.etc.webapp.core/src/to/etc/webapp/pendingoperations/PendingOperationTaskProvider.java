@@ -29,6 +29,7 @@ import java.sql.*;
 import java.util.*;
 import java.util.Date;
 
+import javax.annotation.*;
 import javax.sql.*;
 
 import to.etc.util.*;
@@ -110,10 +111,28 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 		Connection dbc = m_ds.getConnection();
 		PreparedStatement ps = null;
 		try {
+			//-- All jobs executing on me while I died need a reschedule.
 			ps = dbc
 				.prepareStatement("update sys_pending_operations set spo_executing_server=null,spo_state='RTRY',spo_retries=spo_retries+1,spo_lasterror='Server has died' where sys_executing_server=?");
+			ps.setString(1, m_serverID);
 			ps.executeUpdate();
+			ps.close();
 			dbc.commit();
+
+			//-- We just rebooted, so reallow BOOT type.
+			ps = dbc.prepareStatement("update sys_pending_operations set spo_executing_server=null,spo_state='RTRY',spo_retries=spo_retries+1 where spo_state='BOOT'");
+			ps.executeUpdate();
+			ps.close();
+			dbc.commit();
+
+			//-- Make sure no RTRY instances have spo_executing_server set to anything.
+			ps = dbc.prepareStatement("update sys_pending_operations set spo_executing_server=null where spo_state='RTRY'");
+			int rc = ps.executeUpdate();
+			if(rc != 0)
+				System.out.println("pwq: ERROR: found " + rc + " pending operations in RTRY state with executing_server set to non-null!???");
+			ps.close();
+			dbc.commit();
+
 		} finally {
 			try {
 				if(ps != null)
@@ -252,6 +271,7 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 					synchronized(this) {
 						m_tsNextCheck = System.currentTimeMillis() + 1 * 60 * 1000; // Every 5 minutes if queue is empty
 					}
+					dbc.commit();
 					return null;
 				}
 				m_lastSelectedIndex++;
@@ -334,12 +354,13 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 	 * @return The list, of which the 1st member is valid, or null if the group cannot run.
 	 * @throws SQLException
 	 */
+	@Nullable
 	private List<PendingOperation> loadGroup(final Connection dbc, final PendingOperation inpo) throws SQLException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			ps = dbc.prepareStatement("select " + PendingOperation.FIELDS + " from sys_pending_operations" + " where spo_order_groupname=?" // defines group
-				+ " and spo_state in ('RTRY','EXEC','FATL','BOOT') " // 
+				+ " and spo_state in ('RTRY','EXEC','FATL','BOOT') " //
 				+ " order by spo_order_timestamp, spo_order_sub" // defines order
 				+ " for update");
 
@@ -352,20 +373,44 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 				res.add(po);
 			}
 
+			/*
+			 * Loop through all members, and
+			 */
 			//-- The first member in this list must be executable at this time, or the group is invalid.
-			if(res.size() == 0)
-				return null;
-			PendingOperation op = res.get(0);
-			if(op.getState() == PendingOperationState.BOOT || op.getState() == PendingOperationState.FATL || op.getState() == PendingOperationState.EXEC)
-				return null;
-			if(op.getMustExecuteOnServerID() != null && !op.getMustExecuteOnServerID().equals(m_serverID))
-				return null;
-			if(op.getExecutesOnServerID() != null)
-				return null;
-			if(op.getNextTryTime() != null && op.getNextTryTime().getTime() < new Date().getTime())
-				return null;
+			for(;;) {
+				if(res.size() == 0)
+					return null;
+				PendingOperation op = res.get(0);
+				if(op.getState() == PendingOperationState.EXEC)				// If already executing somewhere else-> exit.
+					return null;
 
-			return res;
+				if(op.getState() == PendingOperationState.BOOT || op.getState() == PendingOperationState.FATL) {
+					/*
+					 * These types can hold up the whole group, so make sure that this is what's needed by asking the provider...
+					 */
+					IPendingOperationExecutor pox = findExecutor(op);
+					if(null == pox)											// We should find one, but do not abort at this level
+						return null;
+					if(!(pox instanceof IPendingOperationExecutor2))		// No way to know if skipping the failed one is allowed?
+						return null;
+					IPendingOperationExecutor2 px2 = (IPendingOperationExecutor2) pox;
+					if(!px2.isSkipFailedAllowed(op))						// We're not allowed to run this group -> skip it.
+						return null;
+
+					//-- We may skip this member and continue. To prevent reloading this same member over and over again delete it now.
+					deleteOperation(dbc, op);								// Delete this (will be committed by mainloop)
+					res.remove(0);											// Remove it from the list and retry all of this with the next member in the group
+					continue;
+				}
+				if(op.getMustExecuteOnServerID() != null && !op.getMustExecuteOnServerID().equals(m_serverID))
+					return null;
+				if(op.getExecutesOnServerID() != null)
+					return null;
+				if(op.getNextTryTime() != null && op.getNextTryTime().getTime() < new Date().getTime())
+					return null;
+
+				return res;
+			}
 		} finally {
 			try {
 				if(rs != null)
@@ -378,6 +423,20 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 		}
 	}
 
+
+	private void deleteOperation(@Nonnull Connection dbc, @Nonnull PendingOperation op) throws SQLException {
+		PreparedStatement ps = null;
+		try {
+			ps = dbc.prepareStatement("delete from sys_pending_operations where spoid=?");
+			ps.setLong(1, op.getId());
+			ps.executeUpdate();
+		} finally {
+			try {
+				if(ps != null)
+					ps.close();
+			} catch(Exception x) {}
+		}
+	}
 
 	Connection allocateConnection() throws SQLException {
 		Connection dbc = m_ds.getConnection();
