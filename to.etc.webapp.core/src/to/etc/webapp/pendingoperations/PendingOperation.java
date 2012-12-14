@@ -29,6 +29,7 @@ import java.sql.*;
 import java.util.*;
 import java.util.Date;
 
+import javax.annotation.*;
 import javax.sql.*;
 
 import to.etc.util.*;
@@ -431,6 +432,21 @@ public class PendingOperation {
 		m_userID = rs.getString(f++);
 		m_description = rs.getString(f++);
 		m_submitsource = rs.getString(f++);
+	}
+
+	public void delete(@Nonnull Connection dbc) throws SQLException {
+		PreparedStatement ps = null;
+		try {
+			ps = dbc.prepareStatement("delete from sys_pending_operations where spoid=?");
+			ps.setLong(1, getId());
+			ps.executeUpdate();
+			setId(-1);
+		} finally {
+			try {
+				if(ps != null)
+					ps.close();
+			} catch(Exception x) {}
+		}
 	}
 
 	/**

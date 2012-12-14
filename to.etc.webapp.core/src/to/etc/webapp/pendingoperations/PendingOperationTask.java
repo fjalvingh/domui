@@ -84,6 +84,7 @@ final public class PendingOperationTask implements Runnable, ILogSink {
 					op.setErrorLog(m_logWriter.getBuffer().toString());
 
 				//-- If the last operation failed we cannot continue with the rest of the group either, unless it is specifically allowed by the provider...
+				PendingOperation deleteme = null;
 				if(op.getState() != PendingOperationState.DONE) {				// Op failed?
 					boolean fail = true;
 
@@ -93,8 +94,10 @@ final public class PendingOperationTask implements Runnable, ILogSink {
 						if(null != pox) {										// We should find one, but do not abort at this level
 							if(pox instanceof IPendingOperationExecutor2) {		// No way to know if skipping the failed one is allowed?
 								IPendingOperationExecutor2 px2 = (IPendingOperationExecutor2) pox;
-								if(px2.isSkipFailedAllowed(op))					// We're not allowed to run this group -> skip it.
+								if(px2.isSkipFailedAllowed(op)) {				// We're not allowed to run this group -> skip it.
 									fail = false;
+									deleteme = op;
+								}
 							}
 						}
 					} catch(Exception x) {
@@ -112,7 +115,7 @@ final public class PendingOperationTask implements Runnable, ILogSink {
 						}
 
 						//-- Update the DB
-						handleDatabaseUpdate(upset);							// Update everything
+						handleDatabaseUpdate(upset, null);						// Update everything
 						return;
 					}
 				}
@@ -132,7 +135,7 @@ final public class PendingOperationTask implements Runnable, ILogSink {
 					upset.add(nextop);
 				}
 
-				handleDatabaseUpdate(upset); // Handle database chores,
+				handleDatabaseUpdate(upset, deleteme); 							// Handle database chores,
 			}
 		} catch(Exception x) {
 			x.printStackTrace(); // UNEXPECTED EXCEPTION!?
@@ -146,7 +149,7 @@ final public class PendingOperationTask implements Runnable, ILogSink {
 	 * @param nextop
 	 * @throws Exception
 	 */
-	private void handleDatabaseUpdate(@Nonnull Set<PendingOperation> updateset) throws Exception {
+	private void handleDatabaseUpdate(@Nonnull Set<PendingOperation> updateset, @Nullable PendingOperation deleteme) throws Exception {
 		if(updateset.size() == 0)
 			return;
 
@@ -167,6 +170,10 @@ final public class PendingOperationTask implements Runnable, ILogSink {
 			ps = dbc.prepareStatement(sb.toString());
 			rs = ps.executeQuery();
 			rs.close();
+			if(deleteme != null) {
+				deleteme.delete(dbc);
+			}
+			updateset.remove(deleteme);
 
 			for(PendingOperation po : updateset) {
 				po.save(dbc);

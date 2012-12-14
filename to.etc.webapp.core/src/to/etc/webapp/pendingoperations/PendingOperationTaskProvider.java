@@ -396,7 +396,7 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 						return null;
 
 					//-- We may skip this member and continue. To prevent reloading this same member over and over again delete it now.
-					deleteOperation(dbc, op);								// Delete this (will be committed by mainloop)
+					op.delete(dbc);											// Delete this (will be committed by mainloop)
 					res.remove(0);											// Remove it from the list and retry all of this with the next member in the group
 					continue;
 				}
@@ -414,21 +414,6 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 				if(rs != null)
 					rs.close();
 			} catch(Exception x) {}
-			try {
-				if(ps != null)
-					ps.close();
-			} catch(Exception x) {}
-		}
-	}
-
-
-	private void deleteOperation(@Nonnull Connection dbc, @Nonnull PendingOperation op) throws SQLException {
-		PreparedStatement ps = null;
-		try {
-			ps = dbc.prepareStatement("delete from sys_pending_operations where spoid=?");
-			ps.setLong(1, op.getId());
-			ps.executeUpdate();
-		} finally {
 			try {
 				if(ps != null)
 					ps.close();
