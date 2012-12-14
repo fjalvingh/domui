@@ -447,6 +447,10 @@ public class PendingOperation {
 			} else
 				ps = dbc.prepareStatement(m_updateSQL);
 
+			//-- For any state other than EXEC make sure "executing_on" is empty !IMPORTANT
+			if(m_state != PendingOperationState.EXEC)
+				m_executesOnServerID = null;
+
 			//-- Set all fields, in order,
 			int f = 1;
 			ps.setString(f++, m_xid);
