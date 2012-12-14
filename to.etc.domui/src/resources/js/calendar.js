@@ -1600,7 +1600,7 @@ Date.DAY    = 24 * Date.HOUR;
 Date.WEEK   =  7 * Date.DAY;
 
 Date.parseDate = function(str, fmt) {
-	if(str.trim().length == 0)
+	if($.trim(str).length == 0)
 		return null;
 
 	var today = new Date();
