@@ -54,9 +54,10 @@ public class StringTool {
 		return true;
 	}
 
-	private static String	m_charString	= "bcdfghjklmnpqrstvwxyz";
+	private final static String	m_charString	= "bcdfghjklmnpqrstvwxyz";
 
-	private static char[]	m_characters	= m_charString.toCharArray();
+	private final static char[]	m_characters	= m_charString.toCharArray();
+
 
 	@Nonnull
 	public static String getRandomStringWithPrefix(int length, @Nonnull String prefix) {
@@ -64,14 +65,13 @@ public class StringTool {
 		if(length <= prefix.length())
 			throw new IllegalArgumentException("Prefix is too long");
 
-		Random rand = new Random();
-
-		StringBuffer randomString = new StringBuffer(length);
+		StringBuilder randomString = new StringBuilder(length);
 		randomString.append(prefix);
 
+		Random random = new Random();
 		for(int i = prefix.length(); i < length; i++) {
-			int random = rand.nextInt(m_charString.length());
-			randomString.append(m_characters[random]);
+			int position = random.nextInt(m_charString.length());
+			randomString.append(m_characters[position]);
 		}
 		return randomString.toString();
 	}

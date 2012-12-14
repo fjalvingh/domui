@@ -1,5 +1,7 @@
 package to.etc.util;
 
+import javax.annotation.*;
+
 import org.junit.*;
 
 /**
@@ -9,6 +11,33 @@ import org.junit.*;
  * @since Dec 5, 2012
  */
 public class TestStringTool {
+
+	private final static String	PREFIX	= "PREFIX_";
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testRandomStringWithPrefixLongerThanLength() {
+		StringTool.getRandomStringWithPrefix(2, PREFIX);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testRandomStringWithPrefixSameThanLength() {
+		StringTool.getRandomStringWithPrefix(7, PREFIX);
+	}
+
+	@Test
+	public void testRandomStrings() {
+
+		for(int i = 8; i < 1000; i++) {
+			String result = StringTool.getRandomStringWithPrefix(i, PREFIX);
+			checkRandomString(i, result);
+		}
+	}
+
+	private void checkRandomString(int length, @Nonnull String result) {
+		Assert.assertEquals("The string must be smaller than " + length + " : " + result, length, result.length());
+		Assert.assertTrue("THe string must start with tne prefix 'PREFIX_' : " + result, result.startsWith(PREFIX));
+	}
+
 
 	/**
 	 * Test method for {@link to.etc.util.StringTool#isBlank(java.lang.String)}.
@@ -21,5 +50,6 @@ public class TestStringTool {
 		Assert.assertFalse(StringTool.isBlank("bob"));
 		Assert.assertFalse(StringTool.isBlank("  bob  "));
 	}
+
 
 }
