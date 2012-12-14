@@ -63,7 +63,7 @@ public class TestDateUtil {
 	public final void testAddYears() {
 		Date date = DateUtil.dateFor(2012, Calendar.JULY, 15, 11, 15, 30, 500);
 		Date adjustedDate = DateUtil.addYears(date, 50);
-		Assert.assertEquals(DateUtil.dateFor(2062, Calendar.SEPTEMBER, 3, 11, 15, 30, 500), adjustedDate);
+		Assert.assertEquals(DateUtil.dateFor(2062, Calendar.JULY, 15, 11, 15, 30, 500), adjustedDate);
 
 		Date dateJustBeforeMidnight = DateUtil.dateFor(2012, Calendar.FEBRUARY, 29, 23, 57, 0, 0);
 		adjustedDate = DateUtil.addYears(dateJustBeforeMidnight, 4);
