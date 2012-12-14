@@ -3,6 +3,15 @@
 .ui-tab-c {
 	margin: 0px -<%= margins_main %> <%= margins_main %> -<%= margins_main %>;
 }
+.ui-tab-c ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+.ui-tab-c li {
+	margin: 0;
+	padding: 0;
+}
 
 .ui-tab-hdr {
 	float: left;

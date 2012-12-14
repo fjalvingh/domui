@@ -73,7 +73,7 @@ div {
 }
 
 .ui-content {
-	padding: <%= margins_main %> <%= margins_main %>;
+	padding: <%= margins_main %> <%= margins_main %> 0px <%= margins_main %>;	/* Jal 20121214 bottom margin causes scrollbars with auto-height calculations. */
 }
 
 /*** HTML formatting ***/

@@ -117,6 +117,8 @@ public class Table extends NodeContainer {
 	 */
 	@Override
 	protected void canContain(@Nonnull NodeBase node) {
+		if(node instanceof XmlTextNode)
+			return;
 		if(node instanceof TextNode)
 			throw new IllegalStateException("Dont be silly- cannot add text to a table");
 		if(node instanceof TR)
