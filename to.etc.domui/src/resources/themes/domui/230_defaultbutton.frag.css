@@ -112,7 +112,7 @@
 		margin-top: -1px;
 	}
 }
-.ui-sdbtn-mini:hover, .ui-sdbtn:focus {
+.ui-sdbtn-mini:hover, .ui-sdbtn-mini:focus {
 	background-position: -7px -104px;
 }
 
