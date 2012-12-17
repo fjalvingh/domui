@@ -246,6 +246,10 @@ public class JdbcDataContext implements QDataContext {
 		m_commitHandlerList.add(cx);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QDataContext#addListener(to.etc.webapp.query.IQDataContextListener)
+	 */
 	@Override
 	public void addListener(@Nonnull IQDataContextListener qDataContextListener) {}
 }
