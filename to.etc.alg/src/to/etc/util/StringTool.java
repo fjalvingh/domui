@@ -58,7 +58,14 @@ public class StringTool {
 
 	private final static char[]	m_characters	= m_charString.toCharArray();
 
-
+	/**
+	 * This methods creates a random String with the specified prefix and length given.
+	 *
+	 * The generated string does not contain vowels (a, e, i, o, u)
+	 * @param length
+	 * @param prefix
+	 * @return
+	 */
 	@Nonnull
 	public static String getRandomStringWithPrefix(int length, @Nonnull String prefix) {
 
