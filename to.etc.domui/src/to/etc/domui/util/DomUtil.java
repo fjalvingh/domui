@@ -1434,7 +1434,7 @@ final public class DomUtil {
 	 */
 	@Deprecated
 	static public boolean isBlank(String s) {
-		return StringTool.isBlank(s);
+		return s == null || s.trim().length() == 0;
 	}
 
 	static public boolean isRelativeURL(String in) {
