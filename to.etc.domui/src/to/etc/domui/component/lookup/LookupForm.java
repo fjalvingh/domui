@@ -1028,6 +1028,7 @@ public class LookupForm<T> extends Div {
 	 *
 	 * @return
 	 */
+	@Nullable
 	public QCriteria<T> getEnteredCriteria() throws Exception {
 		m_hasUserDefinedCriteria = false;
 		QCriteria<T> root;
