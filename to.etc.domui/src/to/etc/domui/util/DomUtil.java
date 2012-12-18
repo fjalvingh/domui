@@ -826,12 +826,6 @@ final public class DomUtil {
 			throw new IllegalStateException("??");
 		return Constants.RESOURCE_PREFIX + rb.substring(0, pos + 1).replace('.', '/') + name;
 	}
-
-	public static void main(final String[] args) {
-		for(int i = 0; i < 10; i++)
-			System.out.println(generateGUID());
-	}
-
 	/**
 	 * Returns T if the specified resource exists.
 	 * @param clz
@@ -1792,4 +1786,14 @@ final public class DomUtil {
 			return "null";
 		return n.getComponentInfo();
 	}
+
+
+	public static void main(final String[] args) {
+		String html = "<p>This is <i>just</i> some html with<br>a new line <b>and a bold tag</b>";
+		String uns = htmlRemoveUnsafe(html);
+		System.out.println("uns=" + uns);
+
+
+	}
+
 }
