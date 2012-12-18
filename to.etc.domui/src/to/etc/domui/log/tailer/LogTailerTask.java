@@ -175,16 +175,16 @@ public class LogTailerTask implements IConversationStateListener {
 	/*--------------------------------------------------------------*/
 
 	@Override
-	public void conversationNew(ConversationContext cc) throws Exception {}
+	public void conversationNew(@Nonnull ConversationContext cc) throws Exception {}
 
 	@Override
-	public void conversationAttached(ConversationContext cc) throws Exception {}
+	public void conversationAttached(@Nonnull ConversationContext cc) throws Exception {}
 
 	@Override
-	public void conversationDetached(ConversationContext cc) throws Exception {}
+	public void conversationDetached(@Nonnull ConversationContext cc) throws Exception {}
 
 	@Override
-	public void conversationDestroyed(ConversationContext cc) throws Exception {
+	public void conversationDestroyed(@Nonnull ConversationContext cc) throws Exception {
 		synchronized(this) {
 			FileTool.closeAll(m_fileContentReader, m_fileDeltaReader);
 		}

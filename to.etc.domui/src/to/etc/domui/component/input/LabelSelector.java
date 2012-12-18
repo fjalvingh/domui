@@ -214,7 +214,7 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 			d.add(btn);
 			btn.setClicked(new IClicked<Div>() {
 				@Override
-				public void clicked(Div clickednode) throws Exception {
+				public void clicked(@Nonnull Div clickednode) throws Exception {
 					d.remove();
 					m_labelList.remove(lbl);
 					m_divMap.remove(lbl);

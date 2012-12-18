@@ -276,7 +276,7 @@ public class AppPageTitleBar extends BasePageTitleBar {
 		ib.setTitle("Toon lijst van bijzondere tekens");
 		ib.setClicked(new IClicked<NodeBase>() {
 			@Override
-			public void clicked(final NodeBase b) throws Exception {
+			public void clicked(final @Nonnull NodeBase b) throws Exception {
 				OddCharacters oc = new OddCharacters();
 				getPage().getBody().add(oc);
 			}

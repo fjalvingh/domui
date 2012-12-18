@@ -138,7 +138,7 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 	protected void createCommitButton() {
 		getButtonBar().addButton("C!ommit", "THEME/btnSave.png", new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(DefaultButton b) throws Exception {
+			public void clicked(@Nonnull DefaultButton b) throws Exception {
 				save();
 			}
 		});
@@ -147,7 +147,7 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 	protected void createCancelButton() {
 		getButtonBar().addButton("!Cancel", Theme.BTN_CANCEL, new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(DefaultButton b) throws Exception {
+			public void clicked(@Nonnull DefaultButton b) throws Exception {
 				cancel();
 			}
 		});
@@ -156,7 +156,7 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 	protected void createDeleteButton() {
 		getButtonBar().addConfirmedButton("!Delete", "THEME/btnDelete.png", "Delete: are you sure?", new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(DefaultButton b) throws Exception {
+			public void clicked(@Nonnull DefaultButton b) throws Exception {
 				delete();
 			}
 		});

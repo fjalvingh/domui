@@ -3,6 +3,8 @@ package to.etc.domui.pages.generic;
 import java.text.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.layout.title.*;
@@ -53,7 +55,7 @@ public class CurrentlyLoggedInUsersPage extends UrlPage {
 			tr.addCell().setText(df.format(new Date(cl.getTsLastRequest())) + " (" + StringTool.strDurationMillis(cts - cl.getTsLastRequest()) + " ago)");
 			final LinkButton lb = new LinkButton("Last Used pages", new IClicked<LinkButton>() {
 				@Override
-				public void clicked(LinkButton clickednode) throws Exception {
+				public void clicked(@Nonnull LinkButton clickednode) throws Exception {
 					TR ntr = new TR();
 					tr.appendAfterMe(ntr);
 					ntr.addCell();

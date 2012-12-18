@@ -156,7 +156,7 @@ public class Dialog extends Window {
 		DefaultButton b;
 		b = getButtonBar().addButton(Msgs.BUNDLE.getString(Msgs.EDLG_CANCEL), Msgs.BTN_CANCEL, new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(DefaultButton clickednode) throws Exception {
+			public void clicked(@Nonnull DefaultButton clickednode) throws Exception {
 				buttonCancel();
 			}
 		});
@@ -166,7 +166,7 @@ public class Dialog extends Window {
 	protected void createSaveButton() {
 		DefaultButton b = getButtonBar().addButton(Msgs.BUNDLE.getString(Msgs.EDLG_OKAY), Msgs.BTN_SAVE, new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(DefaultButton clickednode) throws Exception {
+			public void clicked(@Nonnull DefaultButton clickednode) throws Exception {
 				buttonSave();
 			}
 		});

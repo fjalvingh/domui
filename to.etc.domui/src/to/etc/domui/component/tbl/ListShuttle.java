@@ -80,7 +80,7 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 
 	static private IClicked<TD> C_CLICK = new IClicked<TD>() {
 		@Override
-		public void clicked(final TD b) throws Exception {
+		public void clicked(final @Nonnull TD b) throws Exception {
 			if(b.hasCssClass("selected"))
 				b.removeCssClass("selected");
 			else
@@ -138,7 +138,7 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 
 		SmallImgButton ib = new SmallImgButton("THEME/sh-up.png", new IClicked<SmallImgButton>() {
 			@Override
-			public void clicked(final SmallImgButton xb) throws Exception {
+			public void clicked(final @Nonnull SmallImgButton xb) throws Exception {
 				moveUp();
 			}
 		});
@@ -146,7 +146,7 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 
 		ib = new SmallImgButton("THEME/sh-down.png", new IClicked<SmallImgButton>() {
 			@Override
-			public void clicked(final SmallImgButton xb) throws Exception {
+			public void clicked(final @Nonnull SmallImgButton xb) throws Exception {
 				moveDown();
 			}
 		});
@@ -166,7 +166,7 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 
 		SmallImgButton ib = new SmallImgButton("THEME/sh-1ar-right.png", new IClicked<SmallImgButton>() {
 			@Override
-			public void clicked(final SmallImgButton xb) throws Exception {
+			public void clicked(final @Nonnull SmallImgButton xb) throws Exception {
 				moveRight();
 			}
 		});
@@ -174,7 +174,7 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 
 		ib = new SmallImgButton("THEME/sh-1ar-left.png", new IClicked<SmallImgButton>() {
 			@Override
-			public void clicked(final SmallImgButton xb) throws Exception {
+			public void clicked(final @Nonnull SmallImgButton xb) throws Exception {
 				moveLeft();
 			}
 		});

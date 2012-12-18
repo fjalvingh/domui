@@ -151,7 +151,7 @@ public class ButtonBar extends Table {
 	public DefaultButton addBackButton(final String txt, final String icon) {
 		DefaultButton b = new DefaultButton(txt, icon, new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(final DefaultButton bxx) throws Exception {
+			public void clicked(final @Nonnull DefaultButton bxx) throws Exception {
 				UIGoto.back();
 			}
 		});
@@ -176,7 +176,7 @@ public class ButtonBar extends Table {
 	public DefaultButton addCloseButton(@Nonnull String txt, @Nonnull String icon) {
 		DefaultButton b = new DefaultButton(txt, icon, new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(DefaultButton clickednode) throws Exception {
+			public void clicked(@Nonnull DefaultButton clickednode) throws Exception {
 				getPage().getBody().closeWindow();
 			}
 		});

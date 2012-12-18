@@ -136,7 +136,7 @@ public class FileUpload extends Div implements IUploadAcceptingComponent /* impl
 			if(!isDisabled()) {
 				td.add(new DefaultButton(Msgs.BUNDLE.getString("upld.delete"), "THEME/btnDelete.png", new IClicked<DefaultButton>() {
 					@Override
-					public void clicked(DefaultButton bx) throws Exception {
+					public void clicked(@Nonnull DefaultButton bx) throws Exception {
 						removeUploadItem(ufi);
 						if(m_onValueChanged != null)
 							((IValueChanged<FileUpload>) m_onValueChanged).onValueChanged(FileUpload.this);

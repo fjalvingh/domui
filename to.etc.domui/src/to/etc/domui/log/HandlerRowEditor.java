@@ -116,7 +116,7 @@ public class HandlerRowEditor extends Div implements IEditor {
 		container.add(new LinkButton($("add.matcher"), new IClicked<LinkButton>() {
 
 			@Override
-			public void clicked(LinkButton clickednode) throws Exception {
+			public void clicked(@Nonnull LinkButton clickednode) throws Exception {
 				m_tableMatchers.addNew(new Matcher("", EtcLoggerFactory.getSingleton().getDefaultLevel()));
 			}
 		}));
@@ -155,7 +155,7 @@ public class HandlerRowEditor extends Div implements IEditor {
 		container.add(new LinkButton($("add.filter"), new IClicked<LinkButton>() {
 
 			@Override
-			public void clicked(LinkButton clickednode) throws Exception {
+			public void clicked(@Nonnull LinkButton clickednode) throws Exception {
 				m_tableFilters.addNew(new Filter(LogFilterType.MDC, EtcMDCAdapter.LOGINID, "USER1"));
 			}
 		}));

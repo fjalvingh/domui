@@ -117,13 +117,13 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		//-- Click handlers for paging.
 		m_firstBtn.setClicked(new IClicked<NodeBase>() {
 			@Override
-			public void clicked(final NodeBase b) throws Exception {
+			public void clicked(final @Nonnull NodeBase b) throws Exception {
 				m_table.setCurrentPage(0);
 			}
 		});
 		m_lastBtn.setClicked(new IClicked<NodeBase>() {
 			@Override
-			public void clicked(final NodeBase b) throws Exception {
+			public void clicked(final @Nonnull NodeBase b) throws Exception {
 				int pg = m_table.getPageCount();
 				if(pg == 0)
 					return;
@@ -132,7 +132,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		});
 		m_prevBtn.setClicked(new IClicked<NodeBase>() {
 			@Override
-			public void clicked(final NodeBase b) throws Exception {
+			public void clicked(final @Nonnull NodeBase b) throws Exception {
 				int cp = m_table.getCurrentPage();
 				if(cp <= 0)
 					return;
@@ -141,7 +141,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		});
 		m_nextBtn.setClicked(new IClicked<NodeBase>() {
 			@Override
-			public void clicked(final NodeBase b) throws Exception {
+			public void clicked(final @Nonnull NodeBase b) throws Exception {
 				int cp = m_table.getCurrentPage();
 				int mx = m_table.getPageCount();
 				cp++;
@@ -320,7 +320,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 				m_buttonDiv.add(4, m_showSelectionBtn); // Always after last navigation button
 				m_showSelectionBtn.setClicked(new IClicked<NodeBase>() {
 					@Override
-					public void clicked(NodeBase clickednode) throws Exception {
+					public void clicked(@Nonnull NodeBase clickednode) throws Exception {
 						dt.setShowSelection(true);
 						clickednode.remove();
 						m_showSelectionBtn = null;
@@ -350,7 +350,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 			m_selectAllBtn.setTitle(Msgs.BUNDLE.getString("ui.dpr.all"));
 			m_selectAllBtn.setClicked(new IClicked<SmallImgButton>() {
 				@Override
-				public void clicked(SmallImgButton clickednode) throws Exception {
+				public void clicked(@Nonnull SmallImgButton clickednode) throws Exception {
 					ISelectionAllHandler ah = dt.getSelectionAllHandler();
 					if(null == ah)
 						throw new IllegalStateException("selectionAllHandler is null");
@@ -368,7 +368,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 			m_selectNoneBtn.setTitle(Msgs.BUNDLE.getString("ui.dpr.none"));
 			m_selectNoneBtn.setClicked(new IClicked<SmallImgButton>() {
 				@Override
-				public void clicked(SmallImgButton clickednode) throws Exception {
+				public void clicked(@Nonnull SmallImgButton clickednode) throws Exception {
 					ISelectionModel<?> sm = getSelectionModel();
 					if(null != sm)
 						sm.clearSelection();
@@ -387,7 +387,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 	public void addButton(final String image, final IClicked<DataPager> click, final BundleRef bundle, final String ttlkey) {
 		SmallImgButton i = new SmallImgButton(image, new IClicked<SmallImgButton>() {
 			@Override
-			public void clicked(final SmallImgButton b) throws Exception {
+			public void clicked(final @Nonnull SmallImgButton b) throws Exception {
 				click.clicked(DataPager.this);
 			}
 		});

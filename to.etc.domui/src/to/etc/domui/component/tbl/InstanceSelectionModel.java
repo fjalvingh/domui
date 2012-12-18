@@ -20,8 +20,19 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 
 	final IAcceptable<T> m_acceptable;
 
+	/**
+	 * When defined in {@link InstanceSelectionModel}, this can accept or refuse items that are selected.
+	 *
+	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+	 * Created on Dec 18, 2012
+	 */
 	public interface IAcceptable<T> {
-		boolean acceptable(T value);
+		/**
+		 * Return T to allow an instance to become selected.
+		 * @param value
+		 * @return
+		 */
+		boolean acceptable(@Nonnull T value);
 	}
 
 	public InstanceSelectionModel(boolean multiSelect) {

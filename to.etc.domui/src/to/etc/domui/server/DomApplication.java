@@ -197,7 +197,7 @@ public abstract class DomApplication {
 		addRenderFactory(new MsCrapwareRenderFactory()); // Add html renderers for IE <= 8
 		addExceptionListener(QNotFoundException.class, new IExceptionListener() {
 			@Override
-			public boolean handleException(final IRequestContext ctx, final Page page, final NodeBase source, final Throwable x) throws Exception {
+			public boolean handleException(final @Nonnull IRequestContext ctx, final @Nonnull Page page, final @Nullable NodeBase source, final @Nonnull Throwable x) throws Exception {
 				if(!(x instanceof QNotFoundException))
 					throw new IllegalStateException("??");
 
@@ -209,7 +209,7 @@ public abstract class DomApplication {
 		});
 		addExceptionListener(DataAccessViolationException.class, new IExceptionListener() {
 			@Override
-			public boolean handleException(final IRequestContext ctx, final Page page, final NodeBase source, final Throwable x) throws Exception {
+			public boolean handleException(final @Nonnull IRequestContext ctx, final @Nonnull Page page, final @Nullable NodeBase source, final @Nonnull Throwable x) throws Exception {
 				if(!(x instanceof DataAccessViolationException))
 					throw new IllegalStateException("??");
 

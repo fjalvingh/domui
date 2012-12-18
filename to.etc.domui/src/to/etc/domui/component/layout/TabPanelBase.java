@@ -227,7 +227,7 @@ public class TabPanelBase extends Div {
 		a.add(ti.getLabel()); // Append the label.
 		a.setClicked(new IClicked<ATag>() {
 			@Override
-			public void clicked(ATag b) throws Exception {
+			public void clicked(@Nonnull ATag b) throws Exception {
 				setCurrentTab(index);
 			}
 		});

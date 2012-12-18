@@ -529,7 +529,7 @@ public class LookupForm<T> extends Div {
 		b.setTestID("searchButton");
 		b.setClicked(new IClicked<NodeBase>() {
 			@Override
-			public void clicked(final NodeBase bx) throws Exception {
+			public void clicked(final @Nonnull NodeBase bx) throws Exception {
 				if(m_clicker != null)
 					m_clicker.clicked(LookupForm.this);
 			}
@@ -541,7 +541,7 @@ public class LookupForm<T> extends Div {
 		b.setTestID("clearButton");
 		b.setClicked(new IClicked<NodeBase>() {
 			@Override
-			public void clicked(final NodeBase xb) throws Exception {
+			public void clicked(final @Nonnull NodeBase xb) throws Exception {
 				clearInput();
 				if(getOnClear() != null)
 					((IClicked<LookupForm<T>>) getOnClear()).clicked(LookupForm.this); // FIXME Another generics snafu, fix.
@@ -552,7 +552,7 @@ public class LookupForm<T> extends Div {
 		//-- Collapse button thingy
 		m_collapseButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE), "THEME/btnHideLookup.png", new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(DefaultButton bx) throws Exception {
+			public void clicked(@Nonnull DefaultButton bx) throws Exception {
 				collapse();
 			}
 		});
@@ -588,7 +588,7 @@ public class LookupForm<T> extends Div {
 		m_collapseButton.setIcon("THEME/btnShowLookup.png");
 		m_collapseButton.setClicked(new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(DefaultButton bx) throws Exception {
+			public void clicked(@Nonnull DefaultButton bx) throws Exception {
 				restore();
 			}
 		});
@@ -610,7 +610,7 @@ public class LookupForm<T> extends Div {
 		m_collapseButton.setIcon("THEME/btnHideLookup.png");
 		m_collapseButton.setClicked(new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(DefaultButton bx) throws Exception {
+			public void clicked(@Nonnull DefaultButton bx) throws Exception {
 				collapse();
 			}
 		});
@@ -830,7 +830,7 @@ public class LookupForm<T> extends Div {
 
 		AbstractLookupControlImpl thingy = new AbstractLookupControlImpl(lookupInstance.getInputControls()) {
 			@Override
-			public AppendCriteriaResult appendCriteria(QCriteria< ? > crit) throws Exception {
+			public @Nonnull AppendCriteriaResult appendCriteria(@Nonnull QCriteria< ? > crit) throws Exception {
 
 				QCriteria< ? > r = QCriteria.create(childPmm.getClassModel().getActualClass());
 				AppendCriteriaResult subRes = lookupInstance.appendCriteria(r);
@@ -1091,7 +1091,7 @@ public class LookupForm<T> extends Div {
 				m_newBtn.setTestID("newButton");
 				m_newBtn.setClicked(new IClicked<NodeBase>() {
 					@Override
-					public void clicked(final NodeBase xb) throws Exception {
+					public void clicked(final @Nonnull NodeBase xb) throws Exception {
 						if(getOnNew() != null) {
 							getOnNew().clicked(LookupForm.this);
 						}
@@ -1165,7 +1165,7 @@ public class LookupForm<T> extends Div {
 				m_cancelBtn.setTestID("cancelButton");
 				m_cancelBtn.setClicked(new IClicked<NodeBase>() {
 					@Override
-					public void clicked(final NodeBase xb) throws Exception {
+					public void clicked(final @Nonnull NodeBase xb) throws Exception {
 
 						if(getOnCancel() != null) {
 							getOnCancel().clicked(LookupForm.this);

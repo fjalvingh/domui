@@ -102,7 +102,7 @@ public class DateInput extends Text<Date> {
 			if(m_todayButton == null) {
 				m_todayButton = new SmallImgButton("THEME/btnToday.png", new IClicked<SmallImgButton>() {
 					@Override
-					public void clicked(SmallImgButton b) throws Exception {
+					public void clicked(@Nonnull SmallImgButton b) throws Exception {
 						Date currentDate = new Date();
 						if(!m_withTime) {
 							currentDate = DateUtil.truncateDate(currentDate);

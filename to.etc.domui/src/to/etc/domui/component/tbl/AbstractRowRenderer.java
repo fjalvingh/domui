@@ -298,7 +298,7 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 				final SimpleColumnDef scd = cd;
 				th.setClicked(new IClicked<TH>() {
 					@Override
-					public void clicked(final TH b) throws Exception {
+					public void clicked(final @Nonnull TH b) throws Exception {
 						handleSortClick(b, scd);
 					}
 				});
@@ -472,7 +472,7 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 			 */
 			cell.setClicked(new IClicked<TD>() {
 				@Override
-				public void clicked(final TD b) throws Exception {
+				public void clicked(final @Nonnull TD b) throws Exception {
 					((ICellClicked<Object>) cd.getCellClicked()).cellClicked(b, instance);
 				}
 			});

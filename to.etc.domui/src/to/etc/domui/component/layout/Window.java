@@ -236,7 +236,7 @@ public class Window extends FloatingDiv {
 			m_titleBar.add(m_closeButton);
 			m_closeButton.setClicked(new IClicked<NodeBase>() {
 				@Override
-				public void clicked(NodeBase b) throws Exception {
+				public void clicked(@Nonnull NodeBase b) throws Exception {
 					closePressed();
 				}
 			});

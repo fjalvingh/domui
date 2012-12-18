@@ -89,7 +89,7 @@ public class LogTailerFragment extends PollingDiv {
 		btn.setCssClass("ui-tlf-btn");
 		SmallImgButton ib = new SmallImgButton("img/btnFirst.png", new IClicked<SmallImgButton>() {
 			@Override
-			public void clicked(SmallImgButton clickednode) throws Exception {
+			public void clicked(@Nonnull SmallImgButton clickednode) throws Exception {
 				gotoLine(0);
 			}
 		});
@@ -97,7 +97,7 @@ public class LogTailerFragment extends PollingDiv {
 
 		ib = new SmallImgButton("img/btnPrev.png", new IClicked<SmallImgButton>() {
 			@Override
-			public void clicked(SmallImgButton clickednode) throws Exception {
+			public void clicked(@Nonnull SmallImgButton clickednode) throws Exception {
 				int lnr = m_startLine - getLinesPerPage();
 				if(lnr < 0)
 					lnr = 0;
@@ -108,7 +108,7 @@ public class LogTailerFragment extends PollingDiv {
 
 		ib = new SmallImgButton("img/btnNext.png", new IClicked<SmallImgButton>() {
 			@Override
-			public void clicked(SmallImgButton clickednode) throws Exception {
+			public void clicked(@Nonnull SmallImgButton clickednode) throws Exception {
 				int last = m_task.getLastLine();
 				int lnr = m_startLine + getLinesPerPage();
 				if(lnr > last)
@@ -120,7 +120,7 @@ public class LogTailerFragment extends PollingDiv {
 
 		ib = new SmallImgButton("img/btnLast.png", new IClicked<SmallImgButton>() {
 			@Override
-			public void clicked(SmallImgButton clickednode) throws Exception {
+			public void clicked(@Nonnull SmallImgButton clickednode) throws Exception {
 				gotoLine(m_task.getLastLine() - getLinesPerPage());
 			}
 		});
