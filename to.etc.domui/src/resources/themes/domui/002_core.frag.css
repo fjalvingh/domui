@@ -113,3 +113,7 @@ li {
 	margin: 4px 4px;
 	padding: 3px 0px;
 }
+code {
+	white-space: pre;
+	font-family: <%= fixed_font_family %>;
+}
