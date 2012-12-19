@@ -472,7 +472,6 @@
 				visible: true,
 				tooltip: "Undo"
 			},
-
 			code: {
 				visible : true,
 				groupIndex: 6,
@@ -490,6 +489,7 @@
 					}
 				}
 			},
+			
 			
 			cssWrap: {
 				visible : false,
@@ -522,7 +522,7 @@ html: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.o
 			},
 			toolbarHtml: '<ul role="menu" class="toolbar"></ul>',
 			removeHeadings: false,
-			replaceDivWithP: false,
+			replaceDivWithP: true,
 			resizeOptions: false,
 			rmUnusedControls: false,	// https://github.com/akzhan/jwysiwyg/issues/52
 			rmUnwantedBr: true,			// http://code.google.com/p/jwysiwyg/issues/detail?id=11

@@ -146,7 +146,7 @@ public class ServerClientRegistry {
 					//-- New client!!! Register && attach to session-pisse handler.
 					c = new Client(req.getRemoteAddr(), req.getRemoteHost(), remoteUser, ts);
 					list.add(c);
-					ses.setAttribute("vp.whoson", c);
+					ses.setAttribute(getClass().getName(), c);
 				}
 
 				//-- Register this request's data
