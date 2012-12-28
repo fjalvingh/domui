@@ -51,11 +51,11 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 	private Set<IReloadedClassesListener> m_listenerSet = new HashSet<IReloadedClassesListener>();
 
 
-	public ReloadingContextMaker(String applicationClassName, ConfigParameters pp, String patterns) throws Exception {
+	public ReloadingContextMaker(String applicationClassName, ConfigParameters pp, String patterns, String patternsWatchOnly) throws Exception {
 		super(pp);
 		m_applicationClassName = applicationClassName;
 		m_config = pp;
-		m_reloader = new Reloader(patterns);
+		m_reloader = new Reloader(patterns, patternsWatchOnly);
 		System.out.println("DomUI: We are running in DEVELOPMENT mode. This will be VERY slow when used in a production environment.");
 
 		checkReload(); // Initial: force load and init of Application object.

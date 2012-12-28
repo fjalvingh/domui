@@ -93,6 +93,9 @@ final public class Reloader {
 	/** The spec for classes to load thru the reloader. */
 	private List<LoadSpec> m_loadSpecList = new ArrayList<LoadSpec>();
 
+	/** The spec for classes to watch only thru the reloader. */
+	private List<LoadSpec> m_watchSpecList = new ArrayList<LoadSpec>();
+
 	/** The current classloader, */
 	private ReloadingClassLoader m_currentLoader;
 
@@ -106,8 +109,9 @@ final public class Reloader {
 	/**
 	 * Create a reloader which handles the specified classes.
 	 * @param paths
+	 * @param patternsWatchOnly
 	 */
-	public Reloader(String paths) {
+	public Reloader(String paths, String pathsWatchOnly) {
 		//		m_loadSpecList.add(new LoadSpec(Pattern.compile("to.etc.domui.*"), false)); // Never accept internal classes!! jal 20090817 Removed, handled in ReloadingClassloader instead.
 
 		StringTokenizer st = new StringTokenizer(paths, " \t;,");
@@ -128,6 +132,26 @@ final public class Reloader {
 		}
 		if(m_loadSpecList.size() == 0)
 			throw new IllegalStateException("No load specifiers added.");
+
+
+		st = new StringTokenizer(pathsWatchOnly, " \t;,");
+		while(st.hasMoreTokens()) {
+			String path = st.nextToken().trim();
+			if(path.length() > 0) {
+				boolean on = true;
+				if(path.startsWith("-")) {
+					on = false;
+					path = path.substring(1).trim();
+				} else if(path.startsWith("+")) {
+					on = false;
+					path = path.substring(1).trim();
+				}
+				Pattern p = Pattern.compile(path);
+				m_watchSpecList.add(new LoadSpec(p, on));
+			}
+		}
+
+
 		m_urls = ClassUtil.findUrlsFor(getClass().getClassLoader());
 
 		//-- ORDERED: must be below findUrlFor's
@@ -183,6 +207,20 @@ final public class Reloader {
 	 */
 	boolean watchClass(String name) {
 		for(LoadSpec ls : m_loadSpecList) {
+			if(ls.matches(name))
+				return ls.isAccept();
+		}
+		return false;
+	}
+
+	/**
+	 * Returns T if this class is to be watched, false otherwise.
+	 *
+	 * @param name
+	 * @return
+	 */
+	boolean watchOnlyClass(String name) {
+		for(LoadSpec ls : m_watchSpecList) {
 			if(ls.matches(name))
 				return ls.isAccept();
 		}

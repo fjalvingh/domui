@@ -209,8 +209,10 @@ public class AppFilter implements Filter {
 			String autoload = m_config.getString("auto-reload");
 			autoload = DeveloperOptions.getString("domui.reload", autoload); // Allow override of web.xml values.
 
+			String autoloadWatchOnly = m_config.getString("auto-reload-watch-only");
+
 			if(DeveloperOptions.isDeveloperWorkstation() && DeveloperOptions.getBool("domui.developer", true) && autoload != null && autoload.trim().length() > 0)
-				m_contextMaker = new ReloadingContextMaker(m_applicationClassName, m_config, autoload);
+				m_contextMaker = new ReloadingContextMaker(m_applicationClassName, m_config, autoload, autoloadWatchOnly);
 			else
 				m_contextMaker = new NormalContextMaker(m_applicationClassName, m_config);
 		} catch(RuntimeException x) {
