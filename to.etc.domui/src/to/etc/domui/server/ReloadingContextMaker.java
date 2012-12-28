@@ -31,6 +31,7 @@ import javax.servlet.http.*;
 
 import org.slf4j.*;
 
+import to.etc.domui.component.meta.*;
 import to.etc.domui.server.reloader.*;
 import to.etc.domui.state.*;
 
@@ -133,6 +134,7 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 			throw new IllegalStateException("The main application class '" + m_applicationClassName + "' cannot be found: " + x, x);
 		}
 		if(m_application != null) {
+			MetaManager.clear();
 			Class< ? > oclz = m_application.getClass();
 			System.out.println("OLD app = " + oclz + ", loaded by " + oclz.getClassLoader());
 			System.out.println("NEW app = " + clz + ", loaded by " + clz.getClassLoader());

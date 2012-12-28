@@ -97,6 +97,10 @@ final public class MetaManager {
 		return findAndInitialize(mc);
 	}
 
+	public static void clear() {
+		m_classMap.clear();
+	}
+
 	@Nonnull
 	private static ClassMetaModel findAndInitialize(@Nonnull Object mc) {
 		//-- We need some factory to create it.
