@@ -134,21 +134,24 @@ final public class Reloader {
 			throw new IllegalStateException("No load specifiers added.");
 
 
-		st = new StringTokenizer(pathsWatchOnly, " \t;,");
-		while(st.hasMoreTokens()) {
-			String path = st.nextToken().trim();
-			if(path.length() > 0) {
-				boolean on = true;
-				if(path.startsWith("-")) {
-					on = false;
-					path = path.substring(1).trim();
-				} else if(path.startsWith("+")) {
-					on = false;
-					path = path.substring(1).trim();
+		if(pathsWatchOnly != null) {
+			st = new StringTokenizer(pathsWatchOnly, " \t;,");
+			while(st.hasMoreTokens()) {
+				String path = st.nextToken().trim();
+				if(path.length() > 0) {
+					boolean on = true;
+					if(path.startsWith("-")) {
+						on = false;
+						path = path.substring(1).trim();
+					} else if(path.startsWith("+")) {
+						on = false;
+						path = path.substring(1).trim();
+					}
+					Pattern p = Pattern.compile(path);
+					m_watchSpecList.add(new LoadSpec(p, on));
 				}
-				Pattern p = Pattern.compile(path);
-				m_watchSpecList.add(new LoadSpec(p, on));
 			}
+
 		}
 
 
