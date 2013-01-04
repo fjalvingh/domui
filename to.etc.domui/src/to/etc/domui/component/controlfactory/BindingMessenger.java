@@ -24,6 +24,9 @@
  */
 package to.etc.domui.component.controlfactory;
 
+import javax.annotation.*;
+
+import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.webapp.*;
@@ -46,6 +49,16 @@ public final class BindingMessenger {
 	public BindingMessenger(ModelBindings bindings, BundleRef bundleRef) {
 		m_bindings = bindings;
 		m_bundleRef = bundleRef;
+	}
+
+	/**
+	 * Resolves the classbundle for the Urlpage
+	 * @param object
+	 * @param bindings
+	 * @param urlClass
+	 */
+	public BindingMessenger(Object object, ModelBindings bindings, @Nonnull Class< ? extends UrlPage> urlClass) {
+		this(object, bindings, MetaManager.findClassMeta(urlClass).getClassBundle());
 	}
 
 	public BindingMessenger(Object object, ModelBindings bindings, BundleRef bundleRef) {
