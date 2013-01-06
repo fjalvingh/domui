@@ -97,7 +97,10 @@ final public class MetaManager {
 		return findAndInitialize(mc);
 	}
 
-	public static void clear() {
+	/**
+	 * Clears the cache. In use by reloading class mechanism, hence only ever called while developing never in production. Dont use otherwise.
+	 */
+	public synchronized static void clear() {
 		m_classMap.clear();
 	}
 

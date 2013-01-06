@@ -198,6 +198,7 @@ final public class BundleRef extends BundleBase implements IBundle {
 			PropertyResourceBundle prb = new PropertyResourceBundle(is);
 
 			//-- Add to map, then add to result
+			//	prb.getString("iban.label")
 			m_map.put(key, prb);
 			res.add(prb);
 		} catch(IOException x) {
@@ -229,5 +230,9 @@ final public class BundleRef extends BundleBase implements IBundle {
 			sb.append(variant);
 		}
 		return sb.toString();
+	}
+
+	public static synchronized void clear() {
+		m_cachedMap.clear();
 	}
 }

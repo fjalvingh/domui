@@ -93,7 +93,7 @@ final public class Reloader {
 	/** The spec for classes to load thru the reloader. */
 	private List<LoadSpec> m_loadSpecList = new ArrayList<LoadSpec>();
 
-	/** The spec for classes to watch only thru the reloader. */
+	/** The spec for classes to watch only thru the reloader, found bundles in de same package en Metadata will be reloaded only	. */
 	private List<LoadSpec> m_watchSpecList = new ArrayList<LoadSpec>();
 
 	/** The current classloader, */
@@ -109,7 +109,7 @@ final public class Reloader {
 	/**
 	 * Create a reloader which handles the specified classes.
 	 * @param paths
-	 * @param patternsWatchOnly
+	 * @param patternsWatchOnly, these patterns will be only watched not really reloaded. It makes sure the reloader kicks in. Bundles and MetaData will be reloaded.
 	 */
 	public Reloader(String paths, String pathsWatchOnly) {
 		//		m_loadSpecList.add(new LoadSpec(Pattern.compile("to.etc.domui.*"), false)); // Never accept internal classes!! jal 20090817 Removed, handled in ReloadingClassloader instead.

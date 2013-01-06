@@ -34,6 +34,7 @@ import org.slf4j.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.server.reloader.*;
 import to.etc.domui.state.*;
+import to.etc.webapp.nls.*;
 
 public class ReloadingContextMaker extends AbstractContextMaker {
 	static private final Logger LOG = LoggerFactory.getLogger(ReloadingContextMaker.class);
@@ -135,6 +136,8 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 		}
 		if(m_application != null) {
 			MetaManager.clear();
+			BundleRef.clear();
+
 			Class< ? > oclz = m_application.getClass();
 			System.out.println("OLD app = " + oclz + ", loaded by " + oclz.getClassLoader());
 			System.out.println("NEW app = " + clz + ", loaded by " + clz.getClassLoader());
