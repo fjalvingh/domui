@@ -198,7 +198,6 @@ final public class BundleRef extends BundleBase implements IBundle {
 			PropertyResourceBundle prb = new PropertyResourceBundle(is);
 
 			//-- Add to map, then add to result
-			//	prb.getString("iban.label")
 			m_map.put(key, prb);
 			res.add(prb);
 		} catch(IOException x) {
@@ -232,6 +231,9 @@ final public class BundleRef extends BundleBase implements IBundle {
 		return sb.toString();
 	}
 
+	/**
+	 * Clears the cache. In use by reloading class mechanism, hence only ever called while developing never in production. Dont use otherwise.
+	 */
 	public static synchronized void clear() {
 		m_cachedMap.clear();
 	}
