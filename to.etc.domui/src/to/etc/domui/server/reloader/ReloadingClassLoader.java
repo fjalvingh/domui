@@ -83,9 +83,12 @@ public class ReloadingClassLoader extends URLClassLoader {
 	 * @see java.lang.ClassLoader#getResource(java.lang.String)
 	 */
 	@Override
-	public URL getResource(String name) {
+	public @Nullable
+	URL getResource(@Nullable String name) {
 		URL resource = super.getResource(name);
-		addResourceWatch(resource);
+		if(resource != null) {
+			addResourceWatch(resource);
+		}
 		return resource;
 	}
 
