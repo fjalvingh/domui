@@ -128,7 +128,49 @@ div {
 }
 
 .ui-content {
-	padding: <%= margins_main %> <%= margins_main %>;
+	padding: <%= margins_main %> <%= margins_main %> 0px <%= margins_main %>;	/* Jal 20121214 bottom margin causes scrollbars with auto-height calculations. */
+}
+
+/*** HTML formatting ***/
+p {
+	margin: 5px 0px;
+}
+h1, h2, h3, h4, h5 {
+	margin: 10px 0px 5px 0px;
+}
+h1 {
+	font-size: 150%;
+	font-weight: bold;
+	border-bottom: 1px solid #777;
+}
+h2 {
+	font-size: 130%;
+	font-weight: bold;
+}
+h3 {
+	font-size: 110%;
+	font-weight: bold;
+}
+h4 {
+	font-style: italic;
+}
+ul {
+	list-style-type: disc;
+	list-style-position: outside;
+	padding: 0px 20px;
+}
+ol {
+	list-style-type: decimal;
+	list-style-position: outside;
+	padding: 0px 20px;
+}
+li {
+	margin: 4px 4px;
+	padding: 3px 0px;
+}
+code {
+	white-space: pre;
+	font-family: <%= fixed_font_family %>;
 }
 /*** 005_oddchars.frag.css ***/
 /*** Select special chars ***/
@@ -337,6 +379,12 @@ TD .ui-tree .selected:hover {
 	background: <%= selected_bg %> !important;
 }
 
+.ui-tree TD {
+	padding: 0px;
+	margin: 0px;
+	border: 0px;
+}
+
 .ui-tr-act {
 	cursor: pointer;
 }
@@ -419,15 +467,13 @@ td.ui-tr-selected {
 	background-color: <%= info_bg %>; /* some nice light blue */
 	color: <%= info_fg %>;
 	border-color: 1px solid <%= info_border %>;
-	height: 16px;
 }
 .ui-emd-error {
 	background-image: url(mini-error.png);
-	height: 16px;
+	/*	height: 16px; We have to remove this because there are big error messages */
 }
 .ui-emd-warning {
 	background-image: url(mini-warning.png);
-	height: 16px;
 }
 /*** 050_popinpanel.frag ***/
 /*** Pop-in panel ***/
@@ -602,10 +648,12 @@ div.ui-ipa img {
 /*** 065_linkbutton.frag.css ***/
 /*** LinkButton component. ***/
 .ui-lbtn {
+	display: inline-block;
 	background-repeat: no-repeat;
 	background-position: left;
 	padding-left: 18px;
 	font-size: <%= font_size %>;
+	height: 16px;
 }
 .ui-lnkb {
 }
@@ -929,6 +977,7 @@ table.ui-lui-selected {
 
 input.ui-lui-keyword {
 	min-width: 98px;
+	width: 1%;
 }
 
 img.ui-lui-waiting{
@@ -1136,8 +1185,11 @@ table.ui-lf-st tr > td.ui-f-lbl:first-child,
 	font-size: <%= font_size %>;
 	vertical-align: top;
 	white-space: nowrap;
-	min-width: 150px;
 	width: 1%;
+}
+
+.ui-f-lbl:FIRST-CHILD {
+	min-width: 150px;
 }
 
 .ui-f-in {
@@ -1488,6 +1540,15 @@ div.ui-sortable {
 /*** The tab control, using the "sliding doors" technique as in http://www.alistapart.com/articles/slidingdoors/ ***/
 .ui-tab-c {
 	margin: 0px -<%= margins_main %> <%= margins_main %> -<%= margins_main %>;
+}
+.ui-tab-c ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+.ui-tab-c li {
+	margin: 0;
+	padding: 0;
 }
 
 .ui-tab-hdr {
@@ -2231,7 +2292,7 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	padding: 0;
 	margin: 0;
 	/*	border: 1px solid black; */
-	background: url(bg-body.png) repeat-x <%= bg_color %>;
+	background: url(<%= body_image %>) repeat-x <%= bg_color %>;
 	background-position: 50px 0px;
 	border-top: none;
 	/*	overflow: hidden;	*/
@@ -2346,6 +2407,65 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 .ui-sdbtn[disabled] span, .ui-sdbtn[disabled]:hover span, .ui-sdbtn[disabled]:focus span {
 	background-position: left -200px;
 }
+
+/*** DefaultButton in 'mini' mode ***/
+.ui-sdbtn-mini {
+	height: 16px;
+	position: relative;
+	top:1px;
+	border: 0;
+	padding: 0 8px 0 0;
+	margin: 0 4px 0 0;
+	vertical-align: top;
+	cursor: pointer;
+	overflow: visible; /* remove extra padding in IE */
+	background: transparent url(<%= button_img %>) no-repeat -7px -4px;
+	outline: none;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
+	-webkit-border-radius: 2px;
+}
+
+@-moz-document url-prefix() { /** btadic 20120711 Firefox is adding strange left padding to the buttons **/
+	.ui-sdbtn-mini {
+		margin-left: -2px;
+	}
+}
+
+.ui-sdbtn-mini img {
+	padding-right: 3px;
+	vertical-align: middle;
+	height: 16px;
+}
+.ui-sdbtn-mini::-moz-focus-inner {
+	border: none; /* overrides extra padding in ffox */
+}
+.ui-sdbtn-mini span {
+	position: relative;
+	display: block;
+	white-space: nowrap;
+	height: 16px;
+	padding: 0 0 0 6px;
+	color: white;
+	font-weight: bold;
+	vertical-align: middle;
+	text-align: left;
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+	/* Safari and Google Chrome only - fix margins */
+	.ui-sdbtn-mini span {
+		margin-top: -1px;
+	}
+}
+.ui-sdbtn-mini:hover, .ui-sdbtn-mini:focus {
+	background-position: -7px -104px;
+}
+
+/* support for disabled attribute */
+.ui-sdbtn-mini[disabled], .ui-sdbtn-mini[disabled]:hover, .ui-sdbtn-mini[disabled]:focus {
+	background-position: -7px -204px;
+}
 /*** 235_flare.frag.css ***/
 /*** Flare component. ***/
 .ui-flare {
@@ -2391,7 +2511,8 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 }
 /*** 240_labelselector.frag.css ***/
 /*** LabelSelector component ***/
-.ui-lsel-sel {
+.ui-lsel {
+	display: inline-block;
 	border-color:#ABADB3 #BFCDD9 #BFCDD9;
 	border-style:solid;
 	border-width:1px;
@@ -2400,21 +2521,32 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	-webkit-border-radius: 5px;
 	padding: 4px;
 }
-.ui-lsel {
+.ui-lsel-item {
+	display: inline-block;
 	-moz-border-radius: 4px;
 	border-radius: 4px;
 	-webkit-border-radius: 4px;
 	border: 1px dotted #999;
-	margin: 2px;
+	margin: 0 2px;
 	padding: 2px;
 	background-color: cyan;
 }
+.ui-lsel-btn {
+	display: inline-block;
+	margin-left: 5px;
+	width: 14px;
+	height: 14px;
+	background-image: url(lsel-delete.png);
+	background-position: 14px 0;
+}
+.ui-lsel-btn:hover {
+	background-position: 0px 0px;
+	}
+
 .ui-lsel img {
-/*	margin: 5px; */
 	padding-left: 5px;
 	padding-bottom: 2px;
-	vertical-align: bottom;
-	background-color: cyan;
+	vertical-align: middle;
 }
 .ui-lsel-sel input {
 	border: none;
