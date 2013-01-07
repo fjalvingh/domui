@@ -407,7 +407,7 @@ public class ConversationContext implements IQContextContainer {
 		m_delayManager.processDelayedResults(pg);
 	}
 
-	public boolean hasDelayedActions() {
+	public boolean isPollCallbackRequired() {
 		return m_delayManager == null ? false : m_delayManager.callbackRequired();
 	}
 
@@ -424,6 +424,13 @@ public class ConversationContext implements IQContextContainer {
 
 	public <T extends NodeContainer & IPolledForUpdate> void unregisterPoller(T nc) {
 		getDelayedActivitiesManager().unregisterPoller(nc);
+	}
+
+	/**
+	 * Forces the activity manager to enable continuous polling by the client system.
+	 */
+	public void internalSetContinuousPolling() {
+		getDelayedActivitiesManager().setContinuousPolling();
 	}
 
 	/*--------------------------------------------------------------*/

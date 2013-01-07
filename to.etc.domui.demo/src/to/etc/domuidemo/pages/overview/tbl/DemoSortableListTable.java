@@ -3,7 +3,9 @@ package to.etc.domuidemo.pages.overview.tbl;
 import java.util.*;
 
 import to.etc.domui.component.meta.*;
+import to.etc.domui.component.misc.*;
 import to.etc.domui.component.tbl.*;
+import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domuidemo.db.*;
 import to.etc.webapp.query.*;
@@ -13,6 +15,12 @@ public class DemoSortableListTable extends UrlPage {
 
 	@Override
 	public void createContent() throws Exception {
+		Explanation explanation = new Explanation("This shows how you can use a SortableListModel to manipulate any kind of Java List<T> into a data table.");
+		add(explanation);
+		Div d = new Div();
+		add(d);
+		d.setClear(ClearType.BOTH);
+
 		//-- 1. Prepare a list to use as the basis of the model. Although this comes from the database any list will do of course.
 		m_list = getSharedContext().query(QCriteria.create(Invoice.class));
 

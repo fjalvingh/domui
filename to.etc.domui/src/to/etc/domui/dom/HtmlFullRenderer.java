@@ -343,7 +343,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		}
 
 		//-- If asynchronous actions are pending call WebUI.startPolling();
-		if(page.getConversation().hasDelayedActions())
+		if(page.getConversation().isPollCallbackRequired())
 			o().writeRaw("WebUI.startPolling();");
 
 		int kit = ctx().getApplication().getKeepAliveInterval();
