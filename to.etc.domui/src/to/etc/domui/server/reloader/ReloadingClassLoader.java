@@ -28,6 +28,8 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import org.slf4j.*;
 
 import to.etc.domui.util.resources.*;
@@ -171,11 +173,14 @@ public class ReloadingClassLoader extends URLClassLoader {
 	 * @param loadClass
 	 * @throws Exception
 	 */
-	private Set<String> m_scannedPackages = new HashSet<String>();
+	@Nonnull
+	private final Set<String> m_scannedPackages = new HashSet<String>();
 
-	private void scanForForResourceWatches(Class< ? > loadClass) throws Exception {
-		if(m_scannedPackages.contains(loadClass.getPackage().getName())) {
-			return;
+	private void scanForForResourceWatches(@Nonnull Class< ? > loadClass) throws Exception {
+		synchronized(m_scannedPackages) {
+			if(m_scannedPackages.contains(loadClass.getPackage().getName())) {
+				return;
+			}
 		}
 		URL resource = getResource(loadClass.getPackage().getName().replace('.', '/'));
 		if(resource != null) {
@@ -187,17 +192,19 @@ public class ReloadingClassLoader extends URLClassLoader {
 				}
 			}
 		}
-		m_scannedPackages.add(loadClass.getPackage().getName());
+		synchronized(m_scannedPackages) {
+			m_scannedPackages.add(loadClass.getPackage().getName());
+		}
 	}
 
-	public void addResourceWatch(URL resource) {
+	public void addResourceWatch(@Nonnull URL resource) {
 		if(resource != null && resource.getFile() != null) {
 			addResourceWatch(new File(resource.getFile()));
 		}
 
 	}
 
-	public void addResourceWatch(final File file) {
+	public void addResourceWatch(@Nonnull final File file) {
 		if(file.getName().endsWith(".properties")) {
 			synchronized(m_reloader) {
 				m_dependList.add(new ResourceTimestamp(new IModifyableResource() {

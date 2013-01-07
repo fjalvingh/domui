@@ -100,7 +100,7 @@ final public class MetaManager {
 	/**
 	 * Clears the cache. In use by reloading class mechanism, hence only ever called while developing never in production. Dont use otherwise.
 	 */
-	public synchronized static void clear() {
+	public synchronized static void internalClear() {
 		m_classMap.clear();
 	}
 

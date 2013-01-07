@@ -176,8 +176,10 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 				var cmdNode = commands[i], cmd = cmdNode.tagName;
 				if(cmd == 'head' || cmd == 'body') {
 					//-- HTML response. Server state is gone due to restart or lost session.
-					alert(WebUI._T.sysSessionExpired2);
-					window.location.href = window.location.href;
+					if(!WebUI._hideExpiredMessage){
+						alert(WebUI._T.sysSessionExpired2);
+					}
+ 					window.location.href = window.location.href;
 					return;
 				}
 
@@ -1520,7 +1522,7 @@ var WebUI = {
 		if (WebUI._pollActive)
 			return;
 		WebUI._pollActive = true;
-		WebUI._pollTimer = setTimeout("WebUI.poll()", 2500);
+		WebUI._pollTimer = setTimeout("WebUI.poll()", WebUI._delayedActivitiesInterval);
 	},
 	cancelPolling : function() {
 		if (!WebUI._pollActive)
@@ -3309,6 +3311,11 @@ function FCKeditor_fixLayout(fckIFrame, fckId){
 	}
 };
 
+//can be set to true from server code with appendJavaScript so that the expired messages will not show and
+//block effortless refresh on class reload. Configurable in .developer.properties domui.hide-expired-alert 
+WebUI._hideExpiredMessage = false;
 
-
+//can be set to any value in milliseconds from server code with appendJavaScript so that effortless refresh on class reload
+//will run tighter. Configurable in .developer.properties domui.delayed-activities-interval
+WebUI._delayedActivitiesInterval = 2500;
 

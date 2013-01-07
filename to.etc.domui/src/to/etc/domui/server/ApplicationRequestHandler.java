@@ -181,7 +181,11 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				if(INotReloadablePage.class.isAssignableFrom(clz)) {
 					nonReloadableExpiredDetected = true;
 				} else {
-					generateExpired(ctx, Msgs.BUNDLE.getString(Msgs.S_EXPIRED));
+					//can be set to true so that the expired messages will not show and
+					//block effortless refresh on class reload. Configurable in .developer.properties domui.hide-expired-alert
+					if(!DeveloperOptions.isDeveloperWorkstation() || !DeveloperOptions.getBool("domui.hide-expired-alert", false)) {
+						generateExpired(ctx, Msgs.BUNDLE.getString(Msgs.S_EXPIRED));
+					}
 					return;
 				}
 			}
@@ -295,7 +299,11 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 					} else {
 						if(DomUtil.USERLOG.isDebugEnabled())
 							DomUtil.USERLOG.debug("Session " + cid + " expired, page will be reloaded (page tag difference) on action=" + action);
-						generateExpired(ctx, Msgs.BUNDLE.getString(Msgs.S_EXPIRED));
+						//can be set to true so that the expired messages will not show and
+						//block effortless refresh on class reload. Configurable in .developer.properties domui.hide-expired-alert
+						if(!DeveloperOptions.isDeveloperWorkstation() || !DeveloperOptions.getBool("domui.hide-expired-alert", false)) {
+							generateExpired(ctx, Msgs.BUNDLE.getString(Msgs.S_EXPIRED));
+						}
 					}
 					return;
 				}
