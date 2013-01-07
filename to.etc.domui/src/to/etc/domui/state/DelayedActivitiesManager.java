@@ -53,6 +53,8 @@ public class DelayedActivitiesManager implements Runnable {
 	/** When set this forces termination of any handling thread for the asynchronous actions. */
 	private boolean m_terminated;
 
+	private boolean m_continuousPolling;
+
 	/**
 	 * The set of nodes that need a callback for changes to the UI every polltime seconds.
 	 */
@@ -205,7 +207,7 @@ public class DelayedActivitiesManager implements Runnable {
 	 */
 	public boolean callbackRequired() {
 		synchronized(this) {
-			return m_pendingQueue.size() > 0 || m_completionQueue.size() > 0 || m_runningActivity != null || m_pollSet.size() > 0;
+			return m_continuousPolling || m_pendingQueue.size() > 0 || m_completionQueue.size() > 0 || m_runningActivity != null || m_pollSet.size() > 0 || m_continuousPolling;
 		}
 	}
 
@@ -400,4 +402,7 @@ public class DelayedActivitiesManager implements Runnable {
 		m_pollSet.remove(nc);
 	}
 
+	public void setContinuousPolling() {
+		m_continuousPolling = true;
+	}
 }

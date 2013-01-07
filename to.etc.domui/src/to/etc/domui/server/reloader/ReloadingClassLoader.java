@@ -24,8 +24,11 @@
  */
 package to.etc.domui.server.reloader;
 
+import java.io.*;
 import java.net.*;
 import java.util.*;
+
+import javax.annotation.*;
 
 import org.slf4j.*;
 
@@ -75,7 +78,22 @@ public class ReloadingClassLoader extends URLClassLoader {
 		return "reloader[" + m_id + "]";
 	}
 
+	/**
+	 * Adds a watch for every properties file loaded by this reloading loader.
+	 * @see java.lang.ClassLoader#getResource(java.lang.String)
+	 */
+	@Override
+	public @Nullable
+	URL getResource(@Nullable String name) {
+		URL resource = super.getResource(name);
+		if(resource != null) {
+			addResourceWatch(resource);
+		}
+		return resource;
+	}
+
 	private void addWatchFor(Class< ? > clz) {
+
 		IModifyableResource rt = ClasspathInventory.getInstance().findClassSource(clz);
 		if(rt == null) {
 			LOG.info("Cannot find source file for class=" + clz + "; changes to this class are not tracked");
@@ -101,17 +119,29 @@ public class ReloadingClassLoader extends URLClassLoader {
 	 */
 	@Override
 	synchronized public Class< ? > loadClass(String name, boolean resolve) throws ClassNotFoundException {
-		//		System.out.println("reloadingLoader: input=" + name);
-		if(name.startsWith("java.") || name.startsWith("javax.") || (name.startsWith("to.etc.domui.") /* && !name.startsWith("to.etc.domui.component.") */)) {
+		//System.out.println("reloadingLoader: input=" + name);
+		if((name.startsWith("java.") || name.startsWith("javax.") || (name.startsWith("to.etc.domui.") /* && !name.startsWith("to.etc.domui.component.") */))) {
 			return m_rootLoader.loadClass(name); // Delegate to the rootLoader.
 		}
-		if(!m_reloader.watchClass(name)) {
+		Class< ? > loadClass = m_rootLoader.loadClass(name);
+		if(!m_reloader.watchClass(name) && (loadClass.getSuperclass() == null || !loadClass.getSuperclass().getName().equals(ResourceBundle.class.getName()))) {
 			if(LOG.isDebugEnabled())
 				LOG.debug("Class " + name + " not matching watch pattern delegated to root loader");
-			return m_rootLoader.loadClass(name); // Delegate to the rootLoader.
-		}
-		//		System.out.println("reloadingClassLoader: watching " + name);
 
+			//Meta data changes and found bundles for this class will be watched and reloaded.
+			if(m_reloader.watchOnlyClass(name)) {
+				addWatchFor(loadClass);
+				try {
+					scanForForResourceWatches(loadClass);
+				} catch(Exception e) {
+					e.printStackTrace();
+					LOG.warn("Class " + name + " cannot watch resources");
+				}
+			}
+			return loadClass; // Delegate to the rootLoader.
+		}
+
+		//		System.out.println("reloadingClassLoader: watching " + name);
 
 		//-- We need to watch this class..
 		Class< ? > clz = findLoadedClass(name);
@@ -139,5 +169,54 @@ public class ReloadingClassLoader extends URLClassLoader {
 			resolveClass(clz);
 		//		System.out.println("rcl: loaded "+clz+" using "+clz.getClassLoader());
 		return clz;
+	}
+
+	/**
+	 * This adds watches for resources in the same directory as the onlywatch class. Those will not be loaded by this classloader.
+	 * @param loadClass
+	 * @throws Exception
+	 */
+	@Nonnull
+	private final Set<String> m_scannedPackages = new HashSet<String>();
+
+	private void scanForForResourceWatches(@Nonnull Class< ? > loadClass) throws Exception {
+		synchronized(m_scannedPackages) {
+			if(m_scannedPackages.contains(loadClass.getPackage().getName())) {
+				return;
+			}
+		}
+		URL resource = getResource(loadClass.getPackage().getName().replace('.', '/'));
+		if(resource != null) {
+			final File file = new File(resource.getFile());
+			File[] listFiles = file.listFiles();
+			if(listFiles != null) {
+				for(int i = 0; i < listFiles.length; i++) {
+					addResourceWatch(listFiles[i]);
+				}
+			}
+		}
+		synchronized(m_scannedPackages) {
+			m_scannedPackages.add(loadClass.getPackage().getName());
+		}
+	}
+
+	public void addResourceWatch(@Nonnull URL resource) {
+		if(resource != null && resource.getFile() != null) {
+			addResourceWatch(new File(resource.getFile()));
+		}
+
+	}
+
+	public void addResourceWatch(@Nonnull final File file) {
+		if(file.getName().endsWith(".properties")) {
+			synchronized(m_reloader) {
+				m_dependList.add(new ResourceTimestamp(new IModifyableResource() {
+					@Override
+					public long getLastModified() {
+						return file.lastModified();
+					}
+				}, file.lastModified()));
+			}
+		}
 	}
 }

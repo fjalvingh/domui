@@ -97,6 +97,13 @@ final public class MetaManager {
 		return findAndInitialize(mc);
 	}
 
+	/**
+	 * Clears the cache. In use by reloading class mechanism, hence only ever called while developing never in production. Dont use otherwise.
+	 */
+	public synchronized static void internalClear() {
+		m_classMap.clear();
+	}
+
 	@Nonnull
 	private static ClassMetaModel findAndInitialize(@Nonnull Object mc) {
 		//-- We need some factory to create it.

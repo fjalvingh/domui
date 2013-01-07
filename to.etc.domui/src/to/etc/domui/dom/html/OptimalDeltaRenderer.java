@@ -227,7 +227,7 @@ public class OptimalDeltaRenderer {
 		}
 
 		//-- Handle delayed stuff...
-		if(m_page.getConversation().hasDelayedActions())
+		if(m_page.getConversation().isPollCallbackRequired())
 			o().writeRaw("WebUI.startPolling();");
 		else
 			o().writeRaw("WebUI.cancelPolling();");

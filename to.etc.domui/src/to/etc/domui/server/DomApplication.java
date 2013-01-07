@@ -83,6 +83,13 @@ public abstract class DomApplication {
 
 	private boolean m_developmentMode;
 
+	/** When set, a page is reloaded immediately and automatically when it is changed. This has effect in development mode only. */
+	private boolean m_autoRefreshPage;
+
+	private int m_autoRefreshPollInterval;
+
+	//	static private final ThreadLocal<DomApplication> m_current = new ThreadLocal<DomApplication>();
+
 	static private DomApplication m_application;
 
 	static private int m_nextPageTag = (int) (System.nanoTime() & 0x7fffffff);
@@ -422,6 +429,36 @@ public abstract class DomApplication {
 		m_developmentMode = development;
 		if(m_developmentMode && DeveloperOptions.getBool("domui.traceallocations", true))
 			NodeBase.internalSetLogAllocations(true);
+
+		/*
+		 * If we're running in development mode then we auto-reload changed pages when the developer changes
+		 * them. It can be reset by using a developer.properties option.
+		 */
+		if(development) {
+			if(DeveloperOptions.getBool("domui.autorefresh", true)) {
+				System.out.println("domui: changed pages will be refreshed automatically.");
+				m_autoRefreshPage = true;
+
+				//-- Update interval?
+				m_autoRefreshPollInterval = DeveloperOptions.getInt("domui.refreshinterval", 0);
+				if(m_autoRefreshPollInterval < 250 || m_autoRefreshPollInterval > 30000)		// Make it reasonable
+					m_autoRefreshPollInterval = 0;
+
+				//-- To handle this, we need to do some work for every page created.
+				addNewPageInstantiatedListener(new INewPageInstantiated() {
+					@Override
+					public void newPageCreated(@Nonnull UrlPage body) throws Exception {
+						//-- No need for changes.
+					}
+
+					@Override
+					public void newPageBuilt(@Nonnull UrlPage body) throws Exception {
+						body.getPage().getConversation().internalSetContinuousPolling();	// Force continuous polling
+						body.appendCreateJS("WebUI.setAutoRefresh(" + getAutoRefreshInterval() + ");");
+					}
+				});
+			}
+		}
 	}
 
 	static public synchronized final int internalNextPageTag() {
@@ -567,8 +604,36 @@ public abstract class DomApplication {
 	 * reloadable classes.
 	 * @return
 	 */
-	public boolean inDevelopmentMode() {
+	public synchronized boolean inDevelopmentMode() {
 		return m_developmentMode;
+	}
+
+	/**
+	 * When T, we're running in development mode AND the user has not DISABLED automatic page reload
+	 * using the "domui.autorefresh=false" line in developer.properties. When T, the server will force
+	 * a regular poll callback for all pages, and will refresh them automatically if that fails (indicating
+	 * they changed).
+	 * The effect of this being true are:
+	 * <ul>
+	 *	<li>Every page will immediately enable an {@link DelayedActivitiesManager} and set it to poll-always.</li>
+	 *	<li>The "session expired" and "page lost" types of workstation errors are disabled, causing the workstation to refresh without any message.</li>
+	 * </ul>
+	 *
+	 * @return
+	 */
+	public synchronized boolean isAutoRefreshPage() {
+		return m_autoRefreshPage;
+	}
+
+	/**
+	 * When {@link #isAutoRefreshPage()} is enabled (T), this defines the poll interval that a client uses
+	 * to check for server-side changes. It defaults to 2.5 seconds (in domui.js), and can be set to a faster update value
+	 * to have the update check faster for development. If the interval is not set this contains 0, else it contains the
+	 * refresh time in milliseconds.
+	 * @return
+	 */
+	public synchronized int getAutoRefreshInterval() {
+		return m_autoRefreshPollInterval;
 	}
 
 	/**

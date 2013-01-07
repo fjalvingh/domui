@@ -31,8 +31,10 @@ import javax.servlet.http.*;
 
 import org.slf4j.*;
 
+import to.etc.domui.component.meta.*;
 import to.etc.domui.server.reloader.*;
 import to.etc.domui.state.*;
+import to.etc.webapp.nls.*;
 
 public class ReloadingContextMaker extends AbstractContextMaker {
 	static private final Logger LOG = LoggerFactory.getLogger(ReloadingContextMaker.class);
@@ -50,11 +52,11 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 	private Set<IReloadedClassesListener> m_listenerSet = new HashSet<IReloadedClassesListener>();
 
 
-	public ReloadingContextMaker(String applicationClassName, ConfigParameters pp, String patterns) throws Exception {
+	public ReloadingContextMaker(String applicationClassName, ConfigParameters pp, String patterns, String patternsWatchOnly) throws Exception {
 		super(pp);
 		m_applicationClassName = applicationClassName;
 		m_config = pp;
-		m_reloader = new Reloader(patterns);
+		m_reloader = new Reloader(patterns, patternsWatchOnly);
 		System.out.println("DomUI: We are running in DEVELOPMENT mode. This will be VERY slow when used in a production environment.");
 
 		checkReload(); // Initial: force load and init of Application object.
@@ -133,6 +135,9 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 			throw new IllegalStateException("The main application class '" + m_applicationClassName + "' cannot be found: " + x, x);
 		}
 		if(m_application != null) {
+			MetaManager.internalClear();
+			BundleRef.internalClear();
+
 			Class< ? > oclz = m_application.getClass();
 			System.out.println("OLD app = " + oclz + ", loaded by " + oclz.getClassLoader());
 			System.out.println("NEW app = " + clz + ", loaded by " + clz.getClassLoader());
