@@ -283,7 +283,8 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 			o().writeRaw("<!--\n");
 
 		genVar("DomUIpageTag", Integer.toString(page.getPageTag()));
-		String pb = DomApplication.get().getThemedResourceRURL("ICON/progressbar.gif");
+		DomApplication application = DomApplication.get();
+		String pb = application.getThemedResourceRURL("ICON/progressbar.gif");
 		if(null == pb)
 			throw new IllegalStateException("Required resource missing");
 		genVar("DomUIProgressURL", StringTool.strToJavascriptString(ctx.getRelativePath(pb), true));
@@ -342,14 +343,33 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 			//				o().text(sq.toString());
 		}
 
-		//-- If asynchronous actions are pending call WebUI.startPolling();
-		if(page.getConversation().isPollCallbackRequired())
-			o().writeRaw("WebUI.startPolling();");
-
-		int kit = ctx().getApplication().getKeepAliveInterval();
-		if(kit > 0) {
-			o().writeRaw("WebUI.startPingServer(" + kit + ");");
+		/*
+		 * We need polling if we have any of the keep alive options on, or when there is an async request.
+		 */
+		int pollinterval = Integer.MAX_VALUE;
+		int keepalive = application.getDefaultExpiryTime();
+		if(keepalive > 0)
+			pollinterval = keepalive;
+		int autorefresh = application.getAutoRefreshInterval();
+		if(autorefresh > 0) {
+			if(autorefresh < pollinterval)
+				pollinterval = autorefresh;
+			o().writeRaw("WebUI.setHideExpired();");
 		}
+
+		if(page.getConversation().isPollCallbackRequired()) {
+			int defaultpi = application.getDefaultPollInterval();
+			if(pollinterval > defaultpi)
+				pollinterval = defaultpi;
+		}
+		if(pollinterval != Integer.MAX_VALUE) {
+			o().writeRaw("WebUI.startPolling(" + pollinterval + ");");
+		}
+
+		//		int kit = ctx().getApplication().getKeepAliveInterval();
+		//		if(kit > 0) {
+		//			o().writeRaw("WebUI.startPingServer(" + kit + ");");
+		//		}
 
 		o().text("});");
 		o().closetag("script");
