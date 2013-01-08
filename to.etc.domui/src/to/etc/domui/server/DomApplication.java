@@ -83,12 +83,14 @@ public abstract class DomApplication {
 
 	private boolean m_developmentMode;
 
-	/** When set, a page is reloaded immediately and automatically when it is changed. This has effect in development mode only. */
-	private boolean m_autoRefreshPage;
-
+	/** When > 0, this defines that pages are automatically reloaded when changed */
 	private int m_autoRefreshPollInterval;
 
-	//	static private final ThreadLocal<DomApplication> m_current = new ThreadLocal<DomApplication>();
+	/** When > 0, this defines the #of milliseconds for doing page keepalive. */
+	private int m_keepAliveInterval;
+
+	/** The default poll interval time for pages containing Async objects (see {@link DelayedActivitiesManager}). */
+	private int m_defaultPollInterval = 2500;
 
 	static private DomApplication m_application;
 
@@ -147,8 +149,6 @@ public abstract class DomApplication {
 
 	@Nonnull
 	private List<IResourceFactory> m_resourceFactoryList = Collections.EMPTY_LIST;
-
-	private int m_keepAliveInterval;
 
 	@Nonnull
 	private List<FilterRef> m_requestHandlerList = Collections.emptyList();
@@ -434,30 +434,13 @@ public abstract class DomApplication {
 		 * If we're running in development mode then we auto-reload changed pages when the developer changes
 		 * them. It can be reset by using a developer.properties option.
 		 */
+		int refreshinterval = 0;
 		if(development) {
 			if(DeveloperOptions.getBool("domui.autorefresh", true)) {
-				System.out.println("domui: changed pages will be refreshed automatically.");
-				m_autoRefreshPage = true;
-
-				//-- Update interval?
-				m_autoRefreshPollInterval = DeveloperOptions.getInt("domui.refreshinterval", 0);
-				if(m_autoRefreshPollInterval < 250 || m_autoRefreshPollInterval > 30000)		// Make it reasonable
-					m_autoRefreshPollInterval = 0;
-
-				//-- To handle this, we need to do some work for every page created.
-				addNewPageInstantiatedListener(new INewPageInstantiated() {
-					@Override
-					public void newPageCreated(@Nonnull UrlPage body) throws Exception {
-						//-- No need for changes.
-					}
-
-					@Override
-					public void newPageBuilt(@Nonnull UrlPage body) throws Exception {
-						body.getPage().getConversation().internalSetContinuousPolling();	// Force continuous polling
-						body.appendCreateJS("WebUI.setAutoRefresh(" + getAutoRefreshInterval() + ");");
-					}
-				});
+				//-- Auto-refresh pages is on.... Get the poll interval for it,
+				refreshinterval = DeveloperOptions.getInt("domui.refreshinterval", 2500);		// Initialize "auto refresh" interval to 2 seconds
 			}
+			setAutoRefreshPollInterval(refreshinterval);
 		}
 	}
 
@@ -609,20 +592,24 @@ public abstract class DomApplication {
 	}
 
 	/**
-	 * When T, we're running in development mode AND the user has not DISABLED automatic page reload
+	 * When &gt; 0, we're running in development mode AND the user has not DISABLED automatic page reload
 	 * using the "domui.autorefresh=false" line in developer.properties. When T, the server will force
 	 * a regular poll callback for all pages, and will refresh them automatically if that fails (indicating
 	 * they changed).
 	 * The effect of this being true are:
 	 * <ul>
-	 *	<li>Every page will immediately enable an {@link DelayedActivitiesManager} and set it to poll-always.</li>
+	 *	<li>Every page will immediately enable polling.</li>
 	 *	<li>The "session expired" and "page lost" types of workstation errors are disabled, causing the workstation to refresh without any message.</li>
 	 * </ul>
 	 *
 	 * @return
 	 */
-	public synchronized boolean isAutoRefreshPage() {
-		return m_autoRefreshPage;
+	public int getAutoRefreshPollInterval() {
+		return m_autoRefreshPollInterval;
+	}
+
+	public void setAutoRefreshPollInterval(int autoRefreshPollInterval) {
+		m_autoRefreshPollInterval = autoRefreshPollInterval;
 	}
 
 	/**
@@ -634,6 +621,18 @@ public abstract class DomApplication {
 	 */
 	public synchronized int getAutoRefreshInterval() {
 		return m_autoRefreshPollInterval;
+	}
+
+	/**
+	 * The default poll interval time for pages containing Async objects (see {@link DelayedActivitiesManager}), defaulting
+	 * to 2500 (2.5 seconds).
+	 */
+	synchronized public int getDefaultPollInterval() {
+		return m_defaultPollInterval;
+	}
+
+	synchronized public void setDefaultPollInterval(int defaultPollInterval) {
+		m_defaultPollInterval = defaultPollInterval;
 	}
 
 	/**

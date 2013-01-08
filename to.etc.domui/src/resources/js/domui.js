@@ -608,19 +608,17 @@ var WebUI = {
 	 */
 	_hideExpiredMessage: false,
 
-	/**	 * can be set to any value in milliseconds from server code with appendJavaScript so that effortless refresh on class reload
-	 * will run tighter. Configurable in .developer.properties domui.delayed-activities-interval
+	/**
+	 * Will be set by startPolling to define the poll interval.
 	 */
 	_pollInterval: 2500,
 
 	/**
-	 * Called when auto screen refresh is set for development, this changes the poll interval (if needed) and disables the
-	 * "session expired" messages.
-	 * @param pollinterval
+	 * When this is > 0, this keeps any page "alive" by sending an async  
 	 */
-	setAutoRefresh: function(pollinterval) {
-		if(pollinterval >= 250)
-			WebUI._pollInterval = pollinterval;
+	_keepAliveInterval: 0,
+	
+	setHideExpired: function() {
 		WebUI._hideExpiredMessage = true;
 	},
 
@@ -1226,7 +1224,7 @@ var WebUI = {
 	handleErrorAsy : function(request, status, exc) {
 		if(WebUI._asyalerted) {
 			//-- We're still in error.. Silently redo the poll.
-			WebUI.startPolling();
+			WebUI.startPolling(WebUI._pollInterval);
 			return;
 		}
 		WebUI._asyalerted = true;
@@ -1266,7 +1264,7 @@ var WebUI = {
 		d.appendChild(img);
 		img.className = "ui-ioe-img";
 		d.appendChild(document.createTextNode(WebUI._T.sysPollFailCont));	// Waiting for the server to return.
-		WebUI.startPolling();
+		WebUI.startPolling(WebUI._pollInterval);
 	},
 	
 	clearErrorAsy: function() {
@@ -1665,7 +1663,8 @@ var WebUI = {
 	},
 
 	/** *************** Polling code ************* */
-	startPolling : function() {
+	startPolling : function(interval) {
+		WebUI._pollInterval = interval;
 		if (WebUI._pollActive)
 			return;
 		WebUI._pollActive = true;

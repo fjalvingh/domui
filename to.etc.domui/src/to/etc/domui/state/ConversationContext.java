@@ -420,6 +420,10 @@ public class ConversationContext implements IQContextContainer {
 		m_delayManager.processDelayedResults(pg);
 	}
 
+	/**
+	 * If the page has asynchronous stuff, this returns true.
+	 * @return
+	 */
 	public boolean isPollCallbackRequired() {
 		return m_delayManager == null ? false : m_delayManager.callbackRequired();
 	}
@@ -439,12 +443,12 @@ public class ConversationContext implements IQContextContainer {
 		getDelayedActivitiesManager().unregisterPoller(nc);
 	}
 
-	/**
-	 * Forces the activity manager to enable continuous polling by the client system.
-	 */
-	public void internalSetContinuousPolling() {
-		getDelayedActivitiesManager().setContinuousPolling();
-	}
+	//	/**
+	//	 * Forces the activity manager to enable continuous polling by the client system, at least every interval millis.
+	//	 */
+	//	public void internalSetContinuousPolling(int interval) {
+	//		getDelayedActivitiesManager().setContinuousPolling(interval);
+	//	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Upload code.										*/
