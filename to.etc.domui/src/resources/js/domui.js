@@ -1664,6 +1664,10 @@ var WebUI = {
 
 	/** *************** Polling code ************* */
 	startPolling : function(interval) {
+		if(interval < 100 || interval == undefined || interval == null) {
+			alert("Bad interval: "+interval);
+			return;
+		}
 		WebUI._pollInterval = interval;
 		if (WebUI._pollActive)
 			return;
