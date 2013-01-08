@@ -346,25 +346,15 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		/*
 		 * We need polling if we have any of the keep alive options on, or when there is an async request.
 		 */
-		int pollinterval = Integer.MAX_VALUE;
-		int keepalive = application.getDefaultExpiryTime();
-		if(keepalive > 0)
-			pollinterval = keepalive;
+		int pollinterval = application.calculatePollInterval(page.getConversation().isPollCallbackRequired());
+		if(pollinterval > 0) {
+			o().writeRaw("WebUI.startPolling(" + pollinterval + ");");
+		}
 		int autorefresh = application.getAutoRefreshInterval();
 		if(autorefresh > 0) {
-			if(autorefresh < pollinterval)
-				pollinterval = autorefresh;
 			o().writeRaw("WebUI.setHideExpired();");
 		}
 
-		if(page.getConversation().isPollCallbackRequired()) {
-			int defaultpi = application.getDefaultPollInterval();
-			if(pollinterval > defaultpi)
-				pollinterval = defaultpi;
-		}
-		if(pollinterval != Integer.MAX_VALUE) {
-			o().writeRaw("WebUI.startPolling(" + pollinterval + ");");
-		}
 
 		//		int kit = ctx().getApplication().getKeepAliveInterval();
 		//		if(kit > 0) {
