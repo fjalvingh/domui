@@ -184,7 +184,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 					// In auto refresh: do not send the "expired" message, but let the refresh handle this.
 					if(m_application.getAutoRefreshPollInterval() <= 0) {
 						generateExpired(ctx, Msgs.BUNDLE.getString(Msgs.S_EXPIRED));
-					}
+					} else
+						System.out.println("DEBUG: Not sending expired message because autorefresh is ON for " + cid);
 					return;
 				}
 			}
@@ -234,6 +235,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				//-- Render a null response
 				if(LOG.isDebugEnabled())
 					LOG.debug("Session " + cid + " was destroyed earlier- assuming this is an out-of-order event and sending empty delta back");
+				System.out.println("Session " + cid + " was destroyed earlier- assuming this is an out-of-order event and sending empty delta back");
 				generateEmptyDelta(ctx);
 				return;											// jal 20121122 Must return after sending that delta or the document is invalid!!
 			}
@@ -302,7 +304,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 						// In auto refresh: do not send the "expired" message, but let the refresh handle this.
 						if(m_application.getAutoRefreshPollInterval() <= 0) {
 							generateExpired(ctx, Msgs.BUNDLE.getString(Msgs.S_EXPIRED));
-						}
+						} else
+							System.out.println("DEBUG: Not sending expired message because autorefresh is ON for " + cid);
 					}
 					return;
 				}
