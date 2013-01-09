@@ -15,7 +15,8 @@ public class DebugWindow extends Window {
 	public void createContent() throws Exception {
 		Div cont = new Div();
 		add(cont);
-		cont.setWidth("512px");
+		cont.setMinWidth("512px");
+		cont.setWidth("auto");
 		cont.setHeight("250px");
 		cont.setOverflow(Overflow.AUTO);
 		m_log = new Div();

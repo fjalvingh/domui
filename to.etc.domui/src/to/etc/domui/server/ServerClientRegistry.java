@@ -5,6 +5,8 @@ import java.util.*;
 import javax.annotation.*;
 import javax.servlet.http.*;
 
+import to.etc.domui.util.*;
+
 public class ServerClientRegistry {
 	@Nonnull
 	static final private ServerClientRegistry m_instance = new ServerClientRegistry();
@@ -131,6 +133,9 @@ public class ServerClientRegistry {
 				throw new IllegalStateException("??");
 			HttpSession ses = req.getSession(false);			// Has session?
 			if(ses == null)
+				return;
+			String rt = req.getParameter("webuia");
+			if(Constants.ACMD_ASYPOLL.equals(rt))
 				return;
 
 			//-- Accept this: active user
