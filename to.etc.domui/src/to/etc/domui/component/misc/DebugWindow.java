@@ -15,14 +15,14 @@ public class DebugWindow extends Window {
 	public void createContent() throws Exception {
 		Div cont = new Div();
 		add(cont);
-		cont.setWidth("1024");
-		cont.setHeight("500");
+		cont.setWidth("512px");
+		cont.setHeight("250px");
 		cont.setOverflow(Overflow.AUTO);
 		m_log = new Div();
 		cont.add(m_log);
 	}
 
-	public void logLine(String line) {
+	private void logLine(String line) {
 		Div l = new Div();
 		l.setText(line);
 		m_log.add(l);
@@ -36,6 +36,11 @@ public class DebugWindow extends Window {
 			w = new DebugWindow();
 			pageNode.getPage().getBody().add(0, w);
 			pageNode.getPage().getConversation().setAttribute("DebugWindow", w);
+			try {
+				w.build();
+			} catch(Exception xx) {
+				xx.printStackTrace();
+			}
 		}
 
 		w.logLine(text);
