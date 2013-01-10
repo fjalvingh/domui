@@ -28,6 +28,12 @@ public class ModelCopier {
 	@Nonnull
 	final Map<Class< ? >, EntityDef< ? >> m_defMap = new HashMap<>();
 
+	private StringBuilder m_pathSb = new StringBuilder();
+
+	private String m_currentPath;
+
+	private Set<String> m_ignorePathSet = new HashSet<String>();
+
 	public ModelCopier(@Nullable ILogSink sink, @Nonnull QDataContext sds, @Nonnull QDataContext dds) throws Exception {
 		m_sink = sink;
 //		m_sds = sds;
@@ -38,6 +44,12 @@ public class ModelCopier {
 	private void log(String s) {
 		if(null != m_sink)
 			m_sink.log(s);
+	}
+
+	@Nonnull
+	public ModelCopier ignorePath(String path) {
+		m_ignorePathSet.add(path);
+		return this;
 	}
 
 	/*--------------------------------------------------------------*/
@@ -155,17 +167,17 @@ public class ModelCopier {
 
 		//-- We need to actually create this instance.
 		EntityDef<T> ed = key.getEntity();
-		if(!ed.isCreatable())
-			throw new IllegalStateException(key + ": not allowed to create instances of " + ed);
 		if(!ed.isCopy())
 			return null;
+		if(!ed.isCreatable())
+			throw new IllegalStateException(key + ": not allowed to create instances of " + ed);
 
 		T src = key.getSourceInstance();
 		if(src == null)
 			throw new IllegalStateException(key + ": source instance is null??");
 
 		m_currentFindSet.add(key);
-		System.out.println("mc: creating " + key);
+		System.out.println("mc: creating " + key + " (" + m_currentPath + ")");
 		di = ed.createInstance();					// Create a new, empty instance
 		m_destInstanceMap.put(key, di);				// Store created one
 		copyProperties(ed, di, src, key);
@@ -237,6 +249,13 @@ public class ModelCopier {
 	}
 
 	private <T, I, X extends List<I>> void copyChildren(@Nonnull EntityDef<T> ed, @Nonnull T di, @Nonnull T si, @Nonnull PropertyMetaModel<X> pmm) throws Exception {
+		int sbl = m_pathSb.length();
+		adjustPath(sbl, pmm.getName());
+		if(isIgnoredPath()) {
+			resetPath(sbl);
+			return;
+		}
+
 		X sval = pmm.getValue(si);					// Get value of parent in instance
 		X dval = pmm.getValue(di);
 
@@ -260,10 +279,18 @@ public class ModelCopier {
 		} else {
 			dval = null;
 		}
+		resetPath(sbl);
 		pmm.setValue(di, dval);
 	}
 
 	private <T, X> void copyParent(@Nonnull EntityDef<T> ed, @Nonnull T di, @Nonnull T si, @Nonnull PropertyMetaModel<X> pmm) throws Exception {
+		int sbl = m_pathSb.length();
+		adjustPath(sbl, pmm.getName());
+		if(isIgnoredPath()) {
+			resetPath(sbl);
+			return;
+		}
+
 		X val = pmm.getValue(si);					// Get value of parent in instance
 		if(val != null) {
 			//-- Find the entity definition for this
@@ -272,7 +299,8 @@ public class ModelCopier {
 			val = destCreate(vk);
 		}
 		pmm.setValue(di, val);
-		System.out.println("P: " + pmm + " = " + MetaManager.identify(val));
+		resetPath(sbl);
+//		System.out.println("P: " + pmm + " = " + MetaManager.identify(val));
 	}
 
 	private <T, X> void copyValue(@Nonnull EntityDef<T> ed, @Nonnull T di, @Nonnull T si, @Nonnull PropertyMetaModel<X> pmm) throws Exception {
@@ -287,7 +315,7 @@ public class ModelCopier {
 
 		X val = pmm.getValue(si);
 		pmm.setValue(di, val);
-		System.out.println("V: " + pmm + "=" + val);
+//		System.out.println("V: " + pmm + "=" + val);
 	}
 
 	/**
@@ -301,13 +329,17 @@ public class ModelCopier {
 	public <T> T dbfind(InstanceKey<T> key) throws Exception {
 		QCriteria<T> q = QCriteria.create(key.getEntity().getEntityClass());
 		int ix = 0;
+		int sbl = m_pathSb.length();
 		for(String name : key.getEntity().getSearchKey()) {
+			adjustPath(sbl, name);
+
 			Object kv = key.getValue(ix);
 
 			if(kv instanceof InstanceKey) {
 				InstanceKey< ? > altk = (InstanceKey< ? >) kv;
-				kv = destLocate(altk);
+				kv = destCreate(altk);
 				if(null == kv) {
+					throw new IllegalStateException("Cannot locate key entity for field '" + name + "': " + altk);
 				}
 			}
 			if(kv == null)
@@ -315,6 +347,7 @@ public class ModelCopier {
 			q.eq(name, kv);
 			ix++;
 		}
+		resetPath(sbl);
 
 		log("FIND: " + key + " using " + q);
 		T di = m_dds.queryOne(q);
@@ -325,7 +358,22 @@ public class ModelCopier {
 		return di;
 	}
 
+	private void adjustPath(int sbl, String name) {
+		m_pathSb.setLength(sbl);
+		if(m_pathSb.length() > 0)
+			m_pathSb.append('.');
+		m_pathSb.append(name);
+		m_currentPath = m_pathSb.toString();
+	}
 
+	private void resetPath(int sbl) {
+		m_pathSb.setLength(sbl);
+		m_currentPath = m_pathSb.toString();
+	}
+
+	public boolean isIgnoredPath() {
+		return m_ignorePathSet.contains(m_currentPath);
+	}
 
 	private static boolean isExcepted(@Nonnull Set<Object> exceptSet, @Nonnull PropertyMetaModel< ? > frpmm) {
 		if(exceptSet.contains(frpmm.getName()))

@@ -16,7 +16,7 @@ import to.etc.util.*;
 public class CurrentlyLoggedInUsersPage extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
-		add(new AppPageTitleBar("Users currently using this system", true));
+		createHeader();
 		List<Client> activeClients = ServerClientRegistry.getInstance().getActiveClients();
 		Collections.sort(activeClients, new Comparator<Client>() {
 			@Override
@@ -78,5 +78,9 @@ public class CurrentlyLoggedInUsersPage extends UrlPage {
 			});
 			tr.addCell().add(lb);
 		}
+	}
+
+	protected void createHeader() {
+		add(new AppPageTitleBar("Users currently using this system", true));
 	}
 }
