@@ -113,7 +113,7 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 		try {
 			//-- All jobs executing on me while I died need a reschedule.
 			ps = dbc
-				.prepareStatement("update sys_pending_operations set spo_executing_server=null,spo_state='RTRY',spo_retries=spo_retries+1,spo_lasterror='Server has died' where sys_executing_server=?");
+				.prepareStatement("update sys_pending_operations set spo_executing_server=null,spo_state='RTRY',spo_retries=spo_retries+1,spo_lasterror='Server has died' where spo_executing_server=?");
 			ps.setString(1, m_serverID);
 			ps.executeUpdate();
 			ps.close();
@@ -126,7 +126,7 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 			dbc.commit();
 
 			//-- Make sure no RTRY instances have spo_executing_server set to anything.
-			ps = dbc.prepareStatement("update sys_pending_operations set spo_executing_server=null where spo_state='RTRY'");
+			ps = dbc.prepareStatement("update sys_pending_operations set spo_executing_server=null where spo_executing_server is not null and spo_state='RTRY'");
 			int rc = ps.executeUpdate();
 			if(rc != 0)
 				System.out.println("pwq: ERROR: found " + rc + " pending operations in RTRY state with executing_server set to non-null!???");
