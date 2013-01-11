@@ -45,7 +45,7 @@ import to.etc.webapp.query.*;
  */
 public class JdbcDataContext implements QDataContext {
 	/** The originating factory. */
-	private QDataContextFactory m_factory;
+	private final QDataContextFactory m_factory;
 
 	/** The underlying connection. */
 	private Connection m_dbc;
@@ -260,4 +260,10 @@ public class JdbcDataContext implements QDataContext {
 		m_commitHandlerList.add(cx);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QDataContext#addListener(to.etc.webapp.query.IQDataContextListener)
+	 */
+	@Override
+	public void addListener(@Nonnull IQDataContextListener qDataContextListener) {}
 }
