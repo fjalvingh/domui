@@ -111,6 +111,13 @@ public class PollingWorkerQueue {
 				throw new IllegalStateException("Duplicate registration of provider=" + provider);
 			m_providerList.add(provider);
 			notifyAll();
+
+			try {
+				provider.initializeOnRegistration(this);
+			} catch(Exception x) {
+				System.out.println("pwq: initialization of " + provider + " failed with " + x);
+				x.printStackTrace();
+			}
 		}
 	}
 
