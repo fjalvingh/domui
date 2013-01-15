@@ -63,6 +63,9 @@ public class Progress {
 	/** T if a cancel request is received. */
 	private boolean m_cancelled;
 
+	/** If F, then this cannot be cancelled, and any attempt to do that is ignored. */
+	private boolean					m_cancelable	= true;
+
 	/** A short-as-possible name for the current activity */
 	@Nullable
 	private String m_name;
@@ -164,12 +167,18 @@ public class Progress {
 	 */
 	public void	cancel() {
 		synchronized(m_root) {
-			if(! m_cancelled) {
+			if(!m_cancelled && m_root.m_cancelable) {
 				m_cancelled = true;
 				if(m_parent != null)
 					m_parent.cancel();		// Pass upwards.
 				updateTree();
 			}
+		}
+	}
+
+	public void setCancelable(boolean yes) {
+		synchronized(m_root) {
+			m_root.m_cancelable = yes;
 		}
 	}
 
@@ -207,7 +216,7 @@ public class Progress {
 
 	private void checkCancelled() {
 		synchronized(m_root) {
-			if(m_root.m_cancelled)
+			if(m_root.m_cancelled && m_root.m_cancelable)
 				throw new CancelledException();
 		}
 	}
