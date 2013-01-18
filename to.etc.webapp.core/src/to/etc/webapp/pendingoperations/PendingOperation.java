@@ -29,6 +29,7 @@ import java.sql.*;
 import java.util.*;
 import java.util.Date;
 
+import javax.annotation.*;
 import javax.sql.*;
 
 import to.etc.util.*;
@@ -433,6 +434,21 @@ public class PendingOperation {
 		m_submitsource = rs.getString(f++);
 	}
 
+	public void delete(@Nonnull Connection dbc) throws SQLException {
+		PreparedStatement ps = null;
+		try {
+			ps = dbc.prepareStatement("delete from sys_pending_operations where spoid=?");
+			ps.setLong(1, getId());
+			ps.executeUpdate();
+			setId(-1);
+		} finally {
+			try {
+				if(ps != null)
+					ps.close();
+			} catch(Exception x) {}
+		}
+	}
+
 	/**
 	 * Saves the content of the record. Does not save the serialized LOB.
 	 * @param dbc
@@ -446,6 +462,10 @@ public class PendingOperation {
 				ps = cs;
 			} else
 				ps = dbc.prepareStatement(m_updateSQL);
+
+			//-- For any state other than EXEC make sure "executing_on" is empty !IMPORTANT
+			if(m_state != PendingOperationState.EXEC)
+				m_executesOnServerID = null;
 
 			//-- Set all fields, in order,
 			int f = 1;

@@ -393,10 +393,6 @@ public class DateUtil {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(in);
 		cal.add(Calendar.DAY_OF_YEAR, days);
-		cal.set(Calendar.HOUR_OF_DAY, 0);
-		cal.set(Calendar.MINUTE, 0);
-		cal.set(Calendar.SECOND, 0);
-		cal.set(Calendar.MILLISECOND, 0);
 		return new Date(cal.getTimeInMillis());
 	}
 
@@ -404,10 +400,6 @@ public class DateUtil {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(in);
 		cal.add(Calendar.YEAR, years);
-		cal.set(Calendar.HOUR_OF_DAY, 0);
-		cal.set(Calendar.MINUTE, 0);
-		cal.set(Calendar.SECOND, 0);
-		cal.set(Calendar.MILLISECOND, 0);
 		return new Date(cal.getTimeInMillis());
 	}
 

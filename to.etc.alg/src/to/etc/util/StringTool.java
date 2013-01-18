@@ -58,6 +58,34 @@ public class StringTool {
 		return true;
 	}
 
+	private final static String	m_charString	= "bcdfghjklmnpqrstvwxyz";
+
+	private final static char[]	m_characters	= m_charString.toCharArray();
+
+	/**
+	 * This methods creates a random String with the specified prefix and length given.
+	 *
+	 * The generated string does not contain vowels (a, e, i, o, u)
+	 * @param length
+	 * @param prefix
+	 * @return
+	 */
+	@Nonnull
+	public static String getRandomStringWithPrefix(int length, @Nonnull String prefix) {
+
+		if(length <= prefix.length())
+			throw new IllegalArgumentException("Prefix is too long");
+
+		StringBuilder randomString = new StringBuilder(length);
+		randomString.append(prefix);
+
+		Random random = new Random();
+		for(int i = prefix.length(); i < length; i++) {
+			int position = random.nextInt(m_charString.length());
+			randomString.append(m_characters[position]);
+		}
+		return randomString.toString();
+	}
 
 	/**
 	 * Checks if the name is a valid domain name. These can contain only
@@ -2457,6 +2485,15 @@ public class StringTool {
 				sb.append(GUIDBASE64MAP[(bin[sidx] << 4) & 077]);
 		}
 		return sb.toString();
+	}
+
+	/**
+	 * Checks if string is blank.
+	 * @param s String to be validated.
+	 * @return true if the string is null, empty or only spaces; false otherwise.
+	 */
+	static public boolean isBlank(String s) {
+		return s == null || s.trim().length() == 0;
 	}
 
 	static public void createInsertStatement(final StringBuilder sb, final String table, final String pkname, final String pkexpr, final String[] fields) {

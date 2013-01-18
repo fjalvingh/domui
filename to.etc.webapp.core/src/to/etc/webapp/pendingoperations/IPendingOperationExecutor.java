@@ -24,6 +24,8 @@
  */
 package to.etc.webapp.pendingoperations;
 
+import javax.annotation.*;
+
 import to.etc.util.*;
 
 /**
@@ -34,5 +36,5 @@ import to.etc.util.*;
  * Created on Mar 6, 2009
  */
 public interface IPendingOperationExecutor {
-	void executePendingOperation(final PendingOperation po, final ILogSink ls) throws Exception;
+	void executePendingOperation(@Nonnull final PendingOperation po, @Nonnull final ILogSink ls) throws Exception;
 }
