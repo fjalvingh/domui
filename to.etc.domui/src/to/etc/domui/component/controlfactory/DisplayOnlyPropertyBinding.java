@@ -39,9 +39,21 @@ import to.etc.domui.util.*;
 public class DisplayOnlyPropertyBinding<T> implements IModelBinding {
 	final IDisplayControl<T> m_control;
 
+	public IDisplayControl<T> getControl() {
+		return m_control;
+	}
+
 	private PropertyMetaModel<T> m_propertyMeta;
 
+	public PropertyMetaModel<T> getPropertyMeta() {
+		return m_propertyMeta;
+	}
+
 	private IReadOnlyModel< ? > m_model;
+
+	public IReadOnlyModel< ? > getModel() {
+		return m_model;
+	}
 
 	public DisplayOnlyPropertyBinding(IReadOnlyModel< ? > model, PropertyMetaModel<T> propertyMeta, IDisplayControl<T> control) {
 		m_model = model;
