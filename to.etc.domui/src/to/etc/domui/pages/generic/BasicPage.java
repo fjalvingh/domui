@@ -25,10 +25,12 @@
 package to.etc.domui.pages.generic;
 
 import to.etc.domui.component.layout.title.*;
+import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
+import to.etc.webapp.nls.*;
 
 public class BasicPage<T> extends UrlPage {
 	private Class<T> m_baseClass;
@@ -85,4 +87,17 @@ public class BasicPage<T> extends UrlPage {
 	public BasePageTitleBar getTitleBar() {
 		return m_titleBar;
 	}
+
+	protected BundleRef getClassBundle(Class< ? > c) {
+		return MetaManager.findClassMeta(c).getClassBundle();
+	}
+
+	protected PropertyMetaModel< ? > getPropertyModel(String p) {
+		return MetaManager.findPropertyMeta(getBaseClass(), p);
+	}
+
+	protected BundleRef getBaseClassBundle() {
+		return MetaManager.findClassMeta(getBaseClass()).getClassBundle();
+	}
+
 }
