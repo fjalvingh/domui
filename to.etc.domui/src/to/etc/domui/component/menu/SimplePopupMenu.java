@@ -24,7 +24,7 @@ public class SimplePopupMenu extends PopupMenuBase {
 	}
 
 	SimplePopupMenu(NodeBase b, PopupMenu pm, List<Item> actionList, Object target) {
-		super(b, actionList, target);
+		super(null, b, actionList, target);
 		m_source = pm;
 	}
 

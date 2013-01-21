@@ -19,14 +19,18 @@ class PopupMenuBase extends Div {
 
 	private Div m_itemdiv;
 
+	final private SimplePopupMenu m_rootMenu;
+
 	PopupMenuBase() {
 		m_actionList = new ArrayList<Item>();
+		m_rootMenu = null;
 	}
 
-	PopupMenuBase(NodeBase b, List<Item> actionList, Object target) {
+	PopupMenuBase(SimplePopupMenu root, NodeBase b, List<Item> actionList, Object target) {
 		m_relativeTo = b;
 		m_actionList = Collections.unmodifiableList(actionList);
 		m_targetObject = target;
+		m_rootMenu = root;
 	}
 
 	protected List<Item> getActionList() {
@@ -38,7 +42,6 @@ class PopupMenuBase extends Div {
 		add(m_itemdiv);
 		m_itemdiv.setCssClass("ui-pmnu-items");
 	}
-
 
 	protected void renderSubmenu(final Submenu a) {
 		final Div d = renderItem(a.getTitle(), a.getHint(), a.getIcon(), false);
@@ -62,7 +65,7 @@ class PopupMenuBase extends Div {
 		}
 
 		parentd.addCssClass("ui-pmnu-subsel");
-		PopupSubmenu psu = new PopupSubmenu(this, parentd, a);
+		PopupSubmenu psu = new PopupSubmenu(m_rootMenu, this, parentd, a);
 		getPage().getBody().add(psu);
 		m_currentSub = psu;
 	}

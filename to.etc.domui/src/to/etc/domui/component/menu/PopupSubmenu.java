@@ -9,8 +9,8 @@ public class PopupSubmenu extends PopupMenuBase {
 
 	private Submenu m_menu;
 
-	public PopupSubmenu(PopupMenuBase popupMenuBase, Div parentd, Submenu a) {
-		super(parentd, a.getItemList(), a.getTarget());
+	public PopupSubmenu(SimplePopupMenu root, PopupMenuBase popupMenuBase, Div parentd, Submenu a) {
+		super(root, parentd, a.getItemList(), a.getTarget());
 		m_menuBase = popupMenuBase;
 		m_menu = a;
 	}
