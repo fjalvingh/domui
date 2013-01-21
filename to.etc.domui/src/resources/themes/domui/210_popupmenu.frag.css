@@ -2,12 +2,15 @@
 /*** Popup menu ***/
 .ui-pmnu {
 	display: none;
-	width: 200px;
+	width: auto;
 	background-color: #444;
 	border: 1px dotted black;
 	-moz-border-radius: 5px;
 	border-radius: 5px;
 	-webkit-border-radius: 5px;
+}
+.ui-pmnu-items {
+	padding: 4px 0px;
 }
 .ui-pmnu-disabled {
 	color: #999;
@@ -32,3 +35,18 @@
 .ui-pmnu-action:hover {
 	background-color: #ff9436;
 }
+.ui-pmnu-subsel {
+	background-color: #ff9436;
+}
+
+/*** Submenu's ***/
+.ui-pmnu-sm {
+	width: 200px;
+	background-color: #444;
+	border: 1px dotted black;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	z-index: 100;
+}
+

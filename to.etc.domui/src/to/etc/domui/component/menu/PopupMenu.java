@@ -2,6 +2,8 @@ package to.etc.domui.component.menu;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.html.*;
 
 /**
@@ -20,11 +22,11 @@ public class PopupMenu {
 
 		private boolean m_disabled;
 
-		private IClicked<SimplePopupMenu> m_clicked;
+		private IClicked<NodeBase> m_clicked;
 
 		private IUIAction< ? > m_action;
 
-		public Item(String icon, String title, String hint, boolean disabled, IClicked<SimplePopupMenu> clicked) {
+		public Item(String icon, @Nonnull String title, String hint, boolean disabled, IClicked<NodeBase> clicked) {
 			m_icon = icon;
 			m_title = title;
 			m_hint = hint;
@@ -52,7 +54,7 @@ public class PopupMenu {
 			return m_disabled;
 		}
 
-		public IClicked<SimplePopupMenu> getClicked() {
+		public IClicked<NodeBase> getClicked() {
 			return m_clicked;
 		}
 
@@ -61,28 +63,72 @@ public class PopupMenu {
 		}
 	}
 
+	public final class Submenu extends Item {
+		@Nonnull
+		final private List<Item> m_itemList = new ArrayList<Item>();
+
+		@Nullable
+		final private Object m_target;
+
+		public Submenu(String icon, @Nonnull String title, String hint, boolean disabled, Object target) {
+			super(icon, title, hint, disabled, null);
+			m_target = target;
+		}
+
+		public void addAction(@Nonnull IUIAction< ? > action) {
+			m_itemList.add(new Item(action));
+		}
+
+		public void addItem(@Nonnull String caption, String icon, String hint, boolean disabled, IClicked<NodeBase> clk) {
+			m_itemList.add(new Item(icon, caption, hint, disabled, clk));
+		}
+
+		public void addItem(@Nonnull String caption, String icon, IClicked<NodeBase> clk) {
+			m_itemList.add(new Item(icon, caption, null, false, clk));
+		}
+
+		public void addMenu(@Nonnull String caption, String icon, String hint, boolean disabled, Object target) {
+			m_itemList.add(new Submenu(icon, caption, hint, disabled, target));
+		}
+
+		@Nonnull
+		public List<Item> getItemList() {
+			return m_itemList;
+		}
+
+		@Nullable
+		public Object getTarget() {
+			return m_target;
+		}
+	}
+
 	private List<Item> m_actionList = new ArrayList<Item>();
 
-	public void addAction(IUIAction< ? > action) {
+	public void addAction(@Nonnull IUIAction< ? > action) {
 		m_actionList.add(new Item(action));
 	}
 
-	public void addItem(String caption, String icon, String hint, boolean disabled, IClicked<SimplePopupMenu> clk) {
+	public void addItem(@Nonnull String caption, String icon, String hint, boolean disabled, IClicked<NodeBase> clk) {
 		m_actionList.add(new Item(icon, caption, hint, disabled, clk));
 	}
 
-	public void addItem(String caption, String icon, IClicked<SimplePopupMenu> clk) {
+	public void addItem(@Nonnull String caption, String icon, IClicked<NodeBase> clk) {
 		m_actionList.add(new Item(icon, caption, null, false, clk));
 	}
 
-
+	@Nonnull
+	public Submenu addMenu(@Nonnull String caption, String icon, String hint, boolean disabled, Object target) {
+		Submenu submenu = new Submenu(icon, caption, hint, disabled, target);
+		m_actionList.add(submenu);
+		return submenu;
+	}
 
 	/**
 	 *
 	 * @param ref
 	 * @param target
 	 */
-	public void show(NodeContainer ref, Object target) {
+	public <T> void show(NodeContainer ref, T target) {
 		NodeContainer nc = ref.getPage().getPopIn();
 		if(nc instanceof SimplePopupMenu) {
 			SimplePopupMenu sp = (SimplePopupMenu) nc;

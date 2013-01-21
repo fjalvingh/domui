@@ -2746,10 +2746,13 @@ var WebUI = {
 			left: left+"px", 
 			top: top+"px"
 		});
-		
+
 		$(menu).hide().fadeIn();
 	},
-
+	
+	popupSubmenuShow: function(parentId, submenu) {
+		$(submenu).position({my: 'left top', at: 'center top', of: parentId});
+	},
 	
 	/**
 	 * Register the popup. If the mouse leaves the popup window the popup needs to send a POPINCLOSE? command; this
