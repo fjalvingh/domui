@@ -213,7 +213,7 @@ public class SimplePopupMenu extends Div {
 			@Override
 			public void clicked(@Nonnull NodeBase clickednode) throws Exception {
 				closeMenu();
-				action.execute(SimplePopupMenu.this, val);
+				action.execute(getRelativeTo(), val);
 			}
 		});
 	}

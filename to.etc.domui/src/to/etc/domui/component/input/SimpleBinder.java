@@ -158,6 +158,8 @@ public class SimpleBinder implements IBinder {
 		if(m_listener != null)
 			((IBindingListener<NodeBase>) m_listener).moveControlToModel((NodeBase) m_control); // Stupid generics idiocy requires cast
 		else {
+			if(m_propertyModel.getReadOnly() == YesNoType.YES)
+				return;
 			Object val = m_control.getValue();
 			Object base = m_instance == null ? getModel().getValue() : m_instance;
 			IValueAccessor<Object> a = (IValueAccessor<Object>) m_propertyModel;
