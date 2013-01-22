@@ -28,6 +28,8 @@ import java.io.*;
 import java.sql.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.util.*;
 
 /**
@@ -60,39 +62,80 @@ final public class PendingOperationTask implements Runnable, ILogSink {
 		int lsz = m_list.size() + 1;
 		try {
 			while(m_list.size() > 0) {
+				Set<PendingOperation> upset = new HashSet<PendingOperation>();
+
 				if(lsz == m_list.size())
 					throw new IllegalStateException("LOOP DETECT");
 				lsz = m_list.size();
-				PendingOperation op = m_list.get(0);
-				runOperation(op); // Run this thing and mark it's state after execution.
+				PendingOperation op = m_list.remove(0);			// Get the 1st thing to do, and remove it from the worklist.
+				upset.add(op);
+				runOperation(op); 								// Run this thing and mark it's state after execution.
 
-				//-- Check some things.
+				//-- Check some things and update the finished operation
 				if(op.getState() == PendingOperationState.EXEC)
 					throw new IllegalStateException("Still in state EXEC after run");
 				if(op.getLastExecutionEnd() == null)
 					op.setLastExecutionEnd(new java.util.Date());
+				op.setExecutesOnServerID(null);					// Finished execution
 
-				/*
-				 * We need to update the finished thing, and claim the next thing if there is one in one atomic database op.
-				 */
-				//-- Move to the NEXT operation,
-				m_list.remove(0); // Discard the operation we've just completed, in op.
-				PendingOperation nextop;
-				if(m_list.size() == 0 || op.getState() != PendingOperationState.DONE)
-					nextop = null;
-				else {
+				if(op.getErrorLog() != null) {
+					op.setErrorLog(op.getErrorLog() + "\n" + m_logWriter.getBuffer().toString());
+				} else
+					op.setErrorLog(m_logWriter.getBuffer().toString());
+
+				//-- If the last operation failed we cannot continue with the rest of the group either, unless it is specifically allowed by the provider...
+				PendingOperation deleteme = null;
+				if(op.getState() != PendingOperationState.DONE) {				// Op failed?
+					boolean fail = true;
+
+					//-- Ask the provider if we may continue regardless of this.
+					try {
+						IPendingOperationExecutor pox = m_provider.findExecutor(op);
+						if(null != pox) {										// We should find one, but do not abort at this level
+							if(pox instanceof IPendingOperationExecutor2) {		// No way to know if skipping the failed one is allowed?
+								IPendingOperationExecutor2 px2 = (IPendingOperationExecutor2) pox;
+								if(px2.isSkipFailedAllowed(op)) {				// We're not allowed to run this group -> skip it.
+									fail = false;
+									deleteme = op;
+								}
+							}
+						}
+					} catch(Exception x) {
+						//-- Ignore: treat any exception here as fail.
+						x.printStackTrace();
+					}
+
+					if(fail) {
+						//-- We need to FAIL the group, preventing execution. Unmark all other group operations, and set them to the same status and time as the failed one
+						for(PendingOperation opo : m_list) {
+							opo.setState(op.getState());
+							opo.setNextTryTime(op.getNextTryTime());
+							opo.setExecutesOnServerID(null);
+							upset.add(opo);
+						}
+
+						//-- Update the DB
+						handleDatabaseUpdate(upset, null);						// Update everything
+						return;
+					}
+				}
+
+				//-- We can continue, provided there's something to do ;-) We need to update the finished thing, and claim the next thing if there is one in one atomic database op.
+				PendingOperation nextop = null;
+				if(m_list.size() > 0) {
 					nextop = m_list.get(0);
 
 					//-- Mark the next operation as executing.
-					nextop.setLastExecutionStart(new java.util.Date()); // Will start now,
-					nextop.setLastExecutionEnd(null); // Has not terminated yet
-					nextop.setState(PendingOperationState.EXEC); // Is executing
-					nextop.setLastError(null); // No error message when re-executing
+					nextop.setLastExecutionStart(new java.util.Date());			// Will start now,
+					nextop.setLastExecutionEnd(null);							// Has not terminated yet
+					nextop.setState(PendingOperationState.EXEC);				// Is executing
+					nextop.setLastError(null);									// No error message when re-executing
 					if(!m_provider.getServerID().equals(nextop.getExecutesOnServerID()))
 						throw new IllegalStateException("Next pendingOp not allocated to run on THIS server!?");
+					upset.add(nextop);
 				}
 
-				handleDatabaseUpdate(op, nextop); // Handle database chores,
+				handleDatabaseUpdate(upset, deleteme); 							// Handle database chores,
 			}
 		} catch(Exception x) {
 			x.printStackTrace(); // UNEXPECTED EXCEPTION!?
@@ -106,7 +149,10 @@ final public class PendingOperationTask implements Runnable, ILogSink {
 	 * @param nextop
 	 * @throws Exception
 	 */
-	private void handleDatabaseUpdate(final PendingOperation finishedop, final PendingOperation nextop) throws Exception {
+	private void handleDatabaseUpdate(@Nonnull Set<PendingOperation> updateset, @Nullable PendingOperation deleteme) throws Exception {
+		if(updateset.size() == 0)
+			return;
+
 		Connection dbc = m_provider.allocateConnection();
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -114,33 +160,24 @@ final public class PendingOperationTask implements Runnable, ILogSink {
 			//-- Lock records to change
 			StringBuilder sb = new StringBuilder(128);
 			sb.append("select * from sys_pending_operations where spo_id in (");
-			sb.append(finishedop.getId());
-			if(nextop != null) {
-				sb.append(",");
-				sb.append(nextop.getId());
+			int ct = 0;
+			for(PendingOperation po : updateset) {
+				if(ct++ > 0)
+					sb.append(",");
+				sb.append(po.getId());
 			}
 			sb.append(") for update");
 			ps = dbc.prepareStatement(sb.toString());
 			rs = ps.executeQuery();
 			rs.close();
-
-			if(finishedop.getErrorLog() != null) {
-				finishedop.setErrorLog(finishedop.getErrorLog() + "\n" + m_logWriter.getBuffer().toString());
-			} else
-				finishedop.setErrorLog(m_logWriter.getBuffer().toString());
-
-			//-- If there's no NEXTOP we either completed OR we are in error. In that case we MUST release everything..
-			if(nextop != null) {
-				nextop.save(dbc); // Update state changes to database
-				//				nextop.loadSerialized(dbc);						// Load serialized object before it's used.
-			} else {
-				for(PendingOperation po : m_list) {
-					po.setExecutesOnServerID(null); // Release lock on this record,
-					po.save(dbc);
-				}
+			if(deleteme != null) {
+				deleteme.delete(dbc);
 			}
-			finishedop.setExecutesOnServerID(null);
-			finishedop.save(dbc);
+			updateset.remove(deleteme);
+
+			for(PendingOperation po : updateset) {
+				po.save(dbc);
+			}
 			dbc.commit();
 		} finally {
 			try {
@@ -200,7 +237,7 @@ final public class PendingOperationTask implements Runnable, ILogSink {
 				String msg = "Internal error: cannot find an executor for operation=" + po.getId() + ", type=" + po.getType() + ", arg1=" + po.getArg1();
 				m_errorWriter.println(msg);
 				po.setLastError(StringTool.strTrunc(msg, 250));
-				po.setState(PendingOperationState.BOOT); // Missing factory only retryable after system restart
+				po.setState(PendingOperationState.BOOT); 		// Missing factory only retryable after system restart
 				po.setExecutesOnServerID(null);
 				return;
 			}
@@ -230,7 +267,7 @@ final public class PendingOperationTask implements Runnable, ILogSink {
 			errx = x;
 
 			//-- All exceptions here are unexpected..
-			if(po.getState() == PendingOperationState.EXEC) // By default exceptions are fatal, unless the task itself set an alternative.
+			if(po.getState() == PendingOperationState.EXEC) 		// By default exceptions are fatal, unless the task itself set an alternative.
 				po.setState(PendingOperationState.FATL);
 			if(po.getState() == PendingOperationState.RTRY)
 				po.setNextTryTime(new java.util.Date(System.currentTimeMillis() + waitTimeFor(po.getRetries())));

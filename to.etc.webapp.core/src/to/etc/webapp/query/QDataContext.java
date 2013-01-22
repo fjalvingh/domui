@@ -203,4 +203,11 @@ public interface QDataContext {
 	 * @param cx
 	 */
 	void addCommitAction(@Nonnull IRunnable cx);
+
+	/**
+	 * Add a listener to keep track of the events on an instance.
+	 *
+	 * @param testDataListener
+	 */
+	void addListener(@Nonnull IQDataContextListener qDataContextListener);
 }
