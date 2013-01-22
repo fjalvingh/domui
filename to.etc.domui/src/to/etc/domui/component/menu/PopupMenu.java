@@ -26,12 +26,15 @@ public class PopupMenu {
 
 		private IUIAction< ? > m_action;
 
-		public Item(String icon, @Nonnull String title, String hint, boolean disabled, IClicked<NodeBase> clicked) {
+		private Submenu m_parent;
+
+		public Item(String icon, @Nonnull String title, String hint, boolean disabled, IClicked<NodeBase> clicked, Submenu parent) {
 			m_icon = icon;
 			m_title = title;
 			m_hint = hint;
 			m_disabled = disabled;
 			m_clicked = clicked;
+			m_parent = parent;
 		}
 
 		public Item(IUIAction< ? > action) {
@@ -61,6 +64,11 @@ public class PopupMenu {
 		public IUIAction< ? > getAction() {
 			return m_action;
 		}
+
+		@Nullable
+		public Submenu getParent() {
+			return m_parent;
+		}
 	}
 
 	public final class Submenu extends Item {
@@ -70,8 +78,8 @@ public class PopupMenu {
 		@Nullable
 		final private Object m_target;
 
-		public Submenu(String icon, @Nonnull String title, String hint, boolean disabled, Object target) {
-			super(icon, title, hint, disabled, null);
+		public Submenu(String icon, @Nonnull String title, String hint, boolean disabled, Object target, Submenu parent) {
+			super(icon, title, hint, disabled, null, parent);
 			m_target = target;
 		}
 
@@ -80,15 +88,15 @@ public class PopupMenu {
 		}
 
 		public void addItem(@Nonnull String caption, String icon, String hint, boolean disabled, IClicked<NodeBase> clk) {
-			m_itemList.add(new Item(icon, caption, hint, disabled, clk));
+			m_itemList.add(new Item(icon, caption, hint, disabled, clk, this));
 		}
 
 		public void addItem(@Nonnull String caption, String icon, IClicked<NodeBase> clk) {
-			m_itemList.add(new Item(icon, caption, null, false, clk));
+			m_itemList.add(new Item(icon, caption, null, false, clk, this));
 		}
 
 		public void addMenu(@Nonnull String caption, String icon, String hint, boolean disabled, Object target) {
-			m_itemList.add(new Submenu(icon, caption, hint, disabled, target));
+			m_itemList.add(new Submenu(icon, caption, hint, disabled, target, this));
 		}
 
 		@Nonnull
@@ -109,16 +117,16 @@ public class PopupMenu {
 	}
 
 	public void addItem(@Nonnull String caption, String icon, String hint, boolean disabled, IClicked<NodeBase> clk) {
-		m_actionList.add(new Item(icon, caption, hint, disabled, clk));
+		m_actionList.add(new Item(icon, caption, hint, disabled, clk, null));
 	}
 
 	public void addItem(@Nonnull String caption, String icon, IClicked<NodeBase> clk) {
-		m_actionList.add(new Item(icon, caption, null, false, clk));
+		m_actionList.add(new Item(icon, caption, null, false, clk, null));
 	}
 
 	@Nonnull
 	public Submenu addMenu(@Nonnull String caption, String icon, String hint, boolean disabled, Object target) {
-		Submenu submenu = new Submenu(icon, caption, hint, disabled, target);
+		Submenu submenu = new Submenu(icon, caption, hint, disabled, target, null);
 		m_actionList.add(submenu);
 		return submenu;
 	}

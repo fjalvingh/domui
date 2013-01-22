@@ -2767,7 +2767,22 @@ var WebUI = {
 		if(WebUI._popinCloseList.length != 1)
 			return;
 		$(document.body).bind("keydown", WebUI.popinKeyClose);
-		$(document.body).bind("beforeclick", WebUI.popinBeforeClick);	// Called when a click is done somewhere.
+//		$(document.body).bind("beforeclick", WebUI.popinBeforeClick);	// Called when a click is done somewhere - not needed anymore, handled from java
+	},
+	
+	popinClosed: function(id) {
+		for(var i = 0; i < WebUI._popinCloseList.length; i++) {
+			if(id === WebUI._popinCloseList[i]) {
+				//-- This one is done -> remove mouse handler.
+				$(id).unbind("mousedown", WebUI.popinMouseClose);
+				WebUI._popinCloseList.splice(i, 1);
+				if(WebUI._popinCloseList.length == 0) {
+					$(document.body).unbind("keydown", WebUI.popinKeyClose);
+					$(document.body).unbind("beforeclick", WebUI.popinBeforeClick);
+				}
+				return;
+			}
+		}
 	},
 
 	popinBeforeClick: function(ee1, obj, clickevt) {
