@@ -785,7 +785,7 @@ final public class WindowSession {
 			if(se instanceof ShelvedDomUIPage) {
 				ShelvedDomUIPage sdp = (ShelvedDomUIPage) se;
 
-				if(sdp.getPage().getBody().getClass() != clz)	// Of the appropriate type?
+				if(!sdp.getPage().getBody().getClass().getName().equals(clz.getName()))	// Of the appropriate type?
 					continue; 									// No -> not acceptable
 				if(cc != null && cc != sdp.getPage().getConversation()) // Is in the conversation supplied?
 					continue;									// No -> not acceptable
@@ -805,7 +805,7 @@ final public class WindowSession {
 			IShelvedEntry se = m_shelvedPageStack.get(ix);
 			if(se instanceof ShelvedDomUIPage) {
 				ShelvedDomUIPage sdp = (ShelvedDomUIPage) se;
-				if(sdp.getPage().getBody().getClass() != clz) // Of the appropriate type?
+				if(!sdp.getPage().getBody().getClass().getName().equals(clz.getName())) // Of the appropriate type?
 					continue; // No -> not acceptable
 
 				//-- Page AND context are acceptable; check parameters;
