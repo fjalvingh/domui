@@ -27,6 +27,8 @@ package to.etc.iocular.test.mocks;
 import java.sql.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.webapp.core.*;
 import to.etc.webapp.query.*;
 
@@ -135,4 +137,11 @@ public class DataContextMock implements QDataContext {
 
 	@Override
 	public void addCommitAction(IRunnable cx) {}
+
+	/**
+	 *
+	 * @see to.etc.webapp.query.QDataContext#addListener(to.etc.webapp.query.IQDataContextListener)
+	 */
+	@Override
+	public void addListener(@Nonnull IQDataContextListener qDataContextListener) {}
 }

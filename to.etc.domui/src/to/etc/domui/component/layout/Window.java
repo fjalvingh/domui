@@ -138,6 +138,7 @@ public class Window extends FloatingDiv {
 	 */
 	@Override
 	protected void createFrame() throws Exception {
+		getPage().calculateDefaultFocus(this);
 		m_titleBar = new Div();
 		add(m_titleBar);
 		createTitleBar();
