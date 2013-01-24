@@ -327,19 +327,6 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		}
 
 		/*
-		 * This is a (new) page request. We need to check rights on the page before
-		 * it is presented. The rights check is moved here (since 2013/01/24) because
-		 * any analysis of data-related or interface-related rights require the class
-		 * to be instantiated.
-		 *
-		 * 20090415 jal Authentication checks: if the page has a "UIRights" annotation we need a logged-in
-		 * user to check it's rights against the page's required rights.
-		 * FIXME This is fugly. Should this use the registerExceptionHandler code? If so we need to extend it's meaning to include pre-page exception handling.
-		 */
-		if(!checkAccess(cm, ctx, page))
-			return;
-
-		/*
 		 * We are doing a full refresh/rebuild of a page.
 		 */
 		long ts = System.nanoTime();
@@ -354,6 +341,20 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 					DomUtil.USERLOG.debug(cid + ": IForceRefresh, cleared page data for " + page);
 			}
 			ctx.getApplication().getInjector().injectPageValues(page.getBody(), ctx, papa);
+
+			/*
+			 * This is a (new) page request. We need to check rights on the page before
+			 * it is presented. The rights check is moved here (since 2013/01/24) because
+			 * any analysis of data-related or interface-related rights require the class
+			 * to be instantiated.
+			 *
+			 * 20090415 jal Authentication checks: if the page has a "UIRights" annotation we need a logged-in
+			 * user to check it's rights against the page's required rights.
+			 * FIXME This is fugly. Should this use the registerExceptionHandler code? If so we need to extend it's meaning to include pre-page exception handling.
+			 */
+			if(!checkAccess(cm, ctx, page))
+				return;
+
 			m_application.internalCallPageFullRender(ctx, page);
 
 			page.getBody().onReload();
