@@ -33,7 +33,6 @@ import javax.servlet.http.*;
 
 import org.slf4j.*;
 
-import to.etc.domui.access.*;
 import to.etc.domui.ajax.*;
 import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.delayed.*;
@@ -125,12 +124,6 @@ public abstract class DomApplication {
 
 	@Nonnull
 	private IPageInjector m_injector = new DefaultPageInjector();
-
-	@Nonnull
-	private ISpecialAccessChecker m_accessChecker = new DefaultSpecialAccessChecker();
-
-	@Nonnull
-	private IDataPathResolver m_dataPathResolver = new DefaultDataPathResolver();
 
 	/**
 	 * Must return the "root" class of the application; the class rendered when the application's
@@ -1362,30 +1355,6 @@ public abstract class DomApplication {
 
 	public synchronized void setInjector(IPageInjector injector) {
 		m_injector = injector;
-	}
-
-	/**
-	 * Get the page special access checker.
-	 * @return
-	 */
-	public synchronized ISpecialAccessChecker getSpecialAccessChecker() {
-		return m_accessChecker;
-	}
-
-	public synchronized void setDataPathResolver(IDataPathResolver dataPathResolver) {
-		m_dataPathResolver = dataPathResolver;
-	}
-
-	/**
-	 * Get the UI param data path resolver.
-	 * @return
-	 */
-	public synchronized IDataPathResolver getDataPathResolver() {
-		return m_dataPathResolver;
-	}
-
-	public synchronized void setSpecialAccessChecker(ISpecialAccessChecker accessChecker) {
-		m_accessChecker = accessChecker;
 	}
 
 	/*--------------------------------------------------------------*/

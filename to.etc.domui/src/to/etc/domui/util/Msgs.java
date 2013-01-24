@@ -211,6 +211,8 @@ public interface Msgs {
 
 	public static final String LOGIN_TO_INDEX = "login.toindex";
 
+	public static final String RIGHTS_NOT_ALLOWED = "rights.disallowed";
+
 	//# Data not found code
 	public static final String DATA_EXPIRED_TITLE = "expired.data.title";
 
