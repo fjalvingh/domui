@@ -192,15 +192,6 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 			return;
 		if(n.isFocusable())
 			n.getPage().setFocusComponent(n);
-		//			
-		//		
-		//		if(n instanceof IHasChangeListener) { // FIXME Why this 'if'?
-		//			if(n instanceof IControl< ? >) {
-		//				IControl< ? > in = (IControl< ? >) n;
-		//				if(!in.isDisabled() && !in.isReadOnly())
-		//			} else
-		//				n.getPage().setFocusComponent(n);
-		//		}
 	}
 
 	protected void renderPageHeader() throws Exception {
