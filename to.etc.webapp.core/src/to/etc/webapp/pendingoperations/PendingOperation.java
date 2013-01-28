@@ -437,7 +437,7 @@ public class PendingOperation {
 	public void delete(@Nonnull Connection dbc) throws SQLException {
 		PreparedStatement ps = null;
 		try {
-			ps = dbc.prepareStatement("delete from sys_pending_operations where spoid=?");
+			ps = dbc.prepareStatement("delete from sys_pending_operations where spo_id=?");
 			ps.setLong(1, getId());
 			ps.executeUpdate();
 			setId(-1);

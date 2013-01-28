@@ -214,6 +214,12 @@ public class OptimalDeltaRenderer {
 		if(sq != null)
 			o().text(sq.toString());
 
+		//-- If we have a special calculate focus request (Window created) - calculate it
+		if(m_page.getDefaultFocusSource() != null && m_page.getFocusComponent() == null) {
+			recurseCheckFocus(m_page.getDefaultFocusSource());
+		}
+		m_page.calculateDefaultFocus(null);
+
 		//-- If a component has requested focus - do it.
 		if(m_page.getFocusComponent() != null) {
 			o().text("WebUI.focus('" + m_page.getFocusComponent().getActualID() + "');");
@@ -230,6 +236,20 @@ public class OptimalDeltaRenderer {
 
 		o().closetag("eval");
 		o().closetag("delta");
+	}
+
+	private boolean recurseCheckFocus(NodeBase nb) {
+		if(nb.isFocusable()) {
+			m_page.setFocusComponent(nb);
+			return true;
+		}
+		if(!(nb instanceof NodeContainer))
+			return false;
+		for(NodeBase n : (NodeContainer) nb) {
+			if(recurseCheckFocus(n))
+				return true;
+		}
+		return false;
 	}
 
 	public void renderLoadCSS(String path) throws IOException {

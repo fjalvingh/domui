@@ -1427,4 +1427,8 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		return m_floater != null;
 	}
 
+	@Override
+	public boolean isFocusable() {
+		return false;
+	}
 }
