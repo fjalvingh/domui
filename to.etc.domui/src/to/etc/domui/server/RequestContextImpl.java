@@ -251,7 +251,32 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 				System.out.println(res);
 				System.out.println("---- end");
 			}
-			getResponse().getWriter().append(m_sw.getBuffer());
+
+			//-- debug: flush in small parts and delay.
+			if(false) {
+				int fnr = 0;
+				StringBuffer buffer = m_sw.getBuffer();
+				int len = buffer.length();
+				int six = 0;
+				int xf = (len + 65535) / 65536;
+				while(six < len) {
+					if(six > 0) {
+						System.out.println(" ..... wrote fragment " + fnr + " of " + xf);
+						Thread.sleep(250);
+					}
+
+					int eix = six + 65536;
+					if(eix > len)
+						eix = len;
+					String frag = buffer.substring(six, eix);
+					getResponse().getWriter().append(frag);
+					six = eix;
+					fnr++;
+				}
+				System.out.println("              .... all done");
+			} else {
+				getResponse().getWriter().append(m_sw.getBuffer());
+			}
 			m_sw = null;
 		}
 

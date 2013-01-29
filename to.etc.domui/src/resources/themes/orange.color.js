@@ -172,7 +172,9 @@ bg_hdr_ntbl = dataColorMap["bg-hdr-ntbl-" + bset];
 //loading bar. You can use http://ajaxload.info/ for generating them in different colors
 resourceNameMap["io-blk-wait-blue"] = "io-blk-wait-blue.gif"; 
 resourceNameMap["io-blk-wait-grey"] = "io-blk-wait.gif"; 
+resourceNameMap["io-blk-wait-orange"] = "io-blk-wait.gif"; 
 io_blk_wait = resourceNameMap["io-blk-wait-" + bset];
+io_blk_wait = "io-blk-wait.gif";
 
 //vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv Missing in icon.props.js file
 body_image='bg-body-domui.png';
