@@ -29,6 +29,8 @@ public class EntityDef<T> {
 
 	private boolean m_createAlways;
 
+	private boolean m_updateExisting = false;
+
 	public EntityDef(@Nonnull ModelCopier model, @Nonnull Class<T> entityClass) {
 		m_model = model;
 		m_entityClass = entityClass;
@@ -140,9 +142,18 @@ public class EntityDef<T> {
 		return this;
 	}
 
+	public boolean isUpdateExisting() {
+		return m_updateExisting || m_model.isUpdateExisting();
+	}
+
 	@Override
 	public String toString() {
 		return getEntityClass().getName();
+	}
+
+	public EntityDef<T> update() {
+		m_updateExisting = true;
+		return this;
 	}
 
 }
