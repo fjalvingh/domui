@@ -156,6 +156,7 @@ $(window).bind('beforeunload', function() {
 			// causing an ugly white screen while loading - but the loading now always works..
 			document.write('<html></html>');
 			document.close();
+			window.location.href = to;
 			return true;
 		} else if (rname == 'expiredOnPollasy') {
 			return true; // do nothing actually, page is in process of
