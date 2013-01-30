@@ -54,6 +54,9 @@ final public class PoolManager {
 
 	private boolean m_collectStatistics;
 
+	/** manipulates queries FOR TEST PURPOSES ONLY !!! */
+	private IReplacer m_replacer;
+
 	/** Threadlocal containing the per-thread collected statistics, per request. */
 	private final ThreadLocal<IInfoHandler> m_infoHandler = new ThreadLocal<IInfoHandler>();
 
@@ -529,4 +532,17 @@ final public class PoolManager {
 			return;
 		m_threadConnections.set(null);
 	}
+
+	public static synchronized void setReplacer(IReplacer replacer) {
+		getInstance().m_replacer = replacer;
+	}
+
+	public static synchronized IReplacer getReplacer() {
+		IReplacer replacer = getInstance().m_replacer;
+		if(replacer != null) {
+			setReplacer(null);
+		}
+		return replacer;
+	}
+
 }
