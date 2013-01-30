@@ -39,7 +39,7 @@ import to.etc.domui.component.meta.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 8, 2008
  */
-public interface ControlFactory {xx
+public interface ControlFactory {
 	/**
 	 * This must return a +ve value when this factory accepts the specified property; the returned value
 	 * is an eagerness score. The factory returning the highest eagerness wins.
