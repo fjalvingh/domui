@@ -104,7 +104,15 @@ public class BetterSQLException extends SQLException {
 		return sb.toString();
 	}
 
-
+	/**
+	 * This method is meant to have a better view on parameter values, see @link(BetterSQLException) for what it should do.
+	 * Because it is somewhat more complex then the way it used to be it will fall back on the old method regardless of what is going on.
+	 * @param sql
+	 * @param rootcause
+	 * @param par
+	 * @param ct
+	 * @return
+	 */
 	static private String format(String sql, SQLException rootcause, Object[] par, int ct) {
 		try {
 			StringBuilder sb = new StringBuilder(128);

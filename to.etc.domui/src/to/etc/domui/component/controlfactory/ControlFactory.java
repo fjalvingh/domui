@@ -27,7 +27,6 @@ package to.etc.domui.component.controlfactory;
 import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
-import to.etc.domui.util.*;
 
 /**
  * A factory which creates the correct EDITING control to edit a property, specified by the property's
@@ -40,7 +39,7 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 8, 2008
  */
-public interface ControlFactory {
+public interface ControlFactory {xx
 	/**
 	 * This must return a +ve value when this factory accepts the specified property; the returned value
 	 * is an eagerness score. The factory returning the highest eagerness wins.

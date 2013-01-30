@@ -29,8 +29,6 @@ import java.util.*;
 
 import javax.annotation.*;
 
-import to.etc.dbpool.*;
-
 /**
  * This "implements" Connection, and is a proxy to the actual
  * connection maintained in ConnectionPoolEntry. An instance
@@ -104,7 +102,7 @@ final public class ConnectionProxy implements Connection {
 	/**
 	 *	Creates new connection. This is the only way to attach one to the PoolEntry.
 	 */
-	protected ConnectionProxy(final PoolEntry pe, final int id, final Thread ownerThread, boolean tracepoints, boolean isunpooled) {
+	ConnectionProxy(final PoolEntry pe, final int id, final Thread ownerThread, boolean tracepoints, boolean isunpooled) {
 		m_pe = pe;
 		m_autocommit = true;
 		m_id = id;
@@ -633,6 +631,9 @@ final public class ConnectionProxy implements Connection {
 	/*	CODING:	resource allocating proxies.						*/
 	/*--------------------------------------------------------------*/
 	public java.sql.PreparedStatement prepareStatement(java.lang.String p1) throws java.sql.SQLException {
+		//it is taken for a fact that this is not the right place, will have to discuss about this.
+		//only in testcase this should be possible, prefered is a factory or something like that
+		//to inject the proxy impl from outside.
 		if(getPoolID() != null && getPoolID().equals("test")) {
 			IReplacer replacer = PoolManager.getReplacer();
 			if(replacer != null) {
