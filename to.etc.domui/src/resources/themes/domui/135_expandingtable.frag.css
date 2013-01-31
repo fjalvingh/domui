@@ -27,9 +27,6 @@ div:hover.ui-xdt-clp {
 div:hover.ui-xdt-exp {
 	background-image: url(xdt-expanded.png);
 }
-.ui-xdt-new {
-	background-image: url(btnConfirm.png);
-}
 
 .ui-xdt-edt {
 	background-color: <%= data_tbl_expanding_row_bg %>;
