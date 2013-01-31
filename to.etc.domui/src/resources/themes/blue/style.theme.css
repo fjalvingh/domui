@@ -1310,9 +1310,6 @@ div:hover.ui-xdt-clp {
 div:hover.ui-xdt-exp {
 	background-image: url(xdt-expanded.png);
 }
-.ui-xdt-new {
-	background-image: url(btnConfirm.png);
-}
 
 .ui-xdt-edt {
 	background-color: <%= data_tbl_expanding_row_bg %>;
@@ -2116,12 +2113,16 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 /*** Popup menu ***/
 .ui-pmnu {
 	display: none;
-	width: 200px;
+	width: auto;
 	background-color: #444;
 	border: 1px dotted black;
 	-moz-border-radius: 5px;
 	border-radius: 5px;
 	-webkit-border-radius: 5px;
+	overflow: hidden;
+}
+.ui-pmnu-items {
+	padding: 4px 0px;
 }
 .ui-pmnu-disabled {
 	color: #999;
@@ -2143,9 +2144,34 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	background-repeat: no-repeat;
 	background-position: 2px 4px;
 }
+.ui-pmnu-action img {
+	padding-left: 5px;
+}
+
 .ui-pmnu-action:hover {
 	background-color: #ff9436;
 }
+.ui-pmnu-subsel {
+	background-color: #ff9436;
+}
+
+/*** Submenu's ***/
+.ui-pmnu-sm {
+	float: left;
+	width: auto;
+	padding-bottom: 100%;
+	margin-bottom: -100%;
+}
+.ui-pmnu-sm1 {
+	background-color: #666;
+}
+.ui-pmnu-sm2 {
+	background-color: #888;
+}
+.ui-pmnu-sm3 {
+	background-color: #aaa;
+}
+
 /*** 215_layout.frag.css ***/
 /*** Layout styles ***/
 /* jquery-layout css. */
@@ -2749,6 +2775,7 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 .ui-msgln {
 	clear: both;
 	padding: 4px 0px;
+	display: inline-block;
 }
 .ui-msgln img {
 	float: left;
