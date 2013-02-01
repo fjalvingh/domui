@@ -72,7 +72,10 @@ public class StatementProxy implements Statement {
 	/*--------------------------------------------------------------*/
 
 	StatementProxy(final ConnectionProxy c, final String sql) {
-
+		//should use new logging stuff!!!
+//		if(!sql.equals("select upid,evname,utime,server,obj from vp_sys_events where upid > ? order by upid")) {
+//			System.err.println(sql);
+//		}
 		m_sql_str = sql;
 		m_c = c;
 
