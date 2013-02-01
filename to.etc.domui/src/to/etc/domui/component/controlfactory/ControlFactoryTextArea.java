@@ -48,7 +48,7 @@ public class ControlFactoryTextArea implements ControlFactory {
 
 	@Override
 	public @Nonnull <T> ControlFactoryResult createControl(@Nonnull PropertyMetaModel<T> pmm, boolean editable, @Nullable Class< ? > controlClass) {
-		TextArea ta = new TextArea();
+		TextArea ta = editable ? new TextArea() : new TextDisplayArea();
 		if(!editable)
 			ta.setReadOnly(true);
 		String cth = pmm.getComponentTypeHint();
