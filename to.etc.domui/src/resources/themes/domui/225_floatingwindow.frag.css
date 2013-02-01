@@ -56,3 +56,7 @@
 .ui-flw-btn-close {
 	padding: 0px;
 }
+
+.ui-flw .ui-emd {
+	<%= margins_neutralize %>
+}
