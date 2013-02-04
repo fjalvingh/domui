@@ -1370,6 +1370,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		return getParent().getSharedContext();								// Delegate getting the "default context" to the parent node.
 	}
 
+	@Nonnull
+	public QDataContextFactory getSharedContextFactory() {
+		return getParent().getSharedContextFactory();
+	}
+
 	/**
 	 * Claim the focus for this component. Only reasonable for input type and action
 	 * components (links, buttons). For now this can only be called for components that

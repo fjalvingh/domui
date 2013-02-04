@@ -105,4 +105,15 @@ public class UrlPage extends Div {
 	public QDataContext getSharedContext(@Nonnull String key) throws Exception {
 		return QContextManager.getContext(key, getPage().getContextContainer(key));
 	}
+
+	@Override
+	@Nonnull
+	public QDataContextFactory getSharedContextFactory() {
+		return getSharedContextFactory(QContextManager.DEFAULT);
+	}
+
+	@Nonnull
+	public QDataContextFactory getSharedContextFactory(@Nonnull String key) {
+		return QContextManager.getDataContextFactory(key);
+	}
 }

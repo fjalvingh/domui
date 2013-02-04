@@ -86,7 +86,7 @@ final public class QContextManager {
 	}
 
 	/**
-	 * Return the default QDataContextFactory. This is the root of *all* default connections
+	 * Return the named QDataContextFactory. This is the root of *all* default connections
 	 * allocated through DomUI. This either returns the single factory, or it asks the delegate
 	 * to get a factory, allowing the delegate to return a user-specific factory.
 	 *
@@ -98,7 +98,19 @@ final public class QContextManager {
 	}
 
 	/**
-	 * Create an unmanaged (manually closed) context factory.
+	 * Return the DEFAULT QDataContextFactory. This is the root of *all* default connections
+	 * allocated through DomUI. This either returns the single factory, or it asks the delegate
+	 * to get a factory, allowing the delegate to return a user-specific factory.
+	 *
+	 * @return
+	 */
+	@Nonnull
+	static synchronized public QDataContextFactory getDataContextFactory() {
+		return instance(DEFAULT).getDataContextFactory();
+	}
+
+	/**
+	 * Return the unmanaged (manually closed) context factory.
 	 * @return
 	 * @throws Exception
 	 */
@@ -107,6 +119,16 @@ final public class QContextManager {
 		return instance(key).createUnmanagedContext();
 	}
 
+	/**
+	 * Return the DEFAULT unmanaged (manually closed) context factory.
+	 * @param key
+	 * @return
+	 * @throws Exception
+	 */
+	@Nonnull
+	static public QDataContext createUnmanagedContext() throws Exception {
+		return instance(DEFAULT).createUnmanagedContext();
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Shared DataContext and DataContextFactories.		*/

@@ -2,7 +2,7 @@ package to.etc.webapp.query;
 
 import javax.annotation.*;
 
-final public class QContextContainer {
+public class QContextContainer {
 	private QDataContext m_context;
 
 	private QDataContextFactory m_factory;
