@@ -177,7 +177,7 @@ public class Application extends DomApplication {
 		DbUtil.initialize(p.getPooledDataSource());
 
 		//-- Tell the generic layer how to create default DataContext's.
-		QContextManager.initialize(DbUtil.getContextSource()); // Prime factory with connection source
+		QContextManager.setImplementation(QContextManager.DEFAULT, DbUtil.getContextSource()); // Prime factory with connection source
 	}
 
 	synchronized void waitForInit() throws Exception {
