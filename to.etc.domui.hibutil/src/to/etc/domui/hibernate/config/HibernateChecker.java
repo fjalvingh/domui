@@ -17,7 +17,6 @@ import org.hibernate.property.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.hibernate.types.*;
 import to.etc.util.*;
-import to.etc.webapp.testsupport.*;
 
 /**
  * This class attempts to check/correct common hibernate errors that it itself is too stupid to check for.
@@ -93,45 +92,37 @@ final public class HibernateChecker {
 		for(Iterator< ? > iter = m_config.getClassMappings(); iter.hasNext();) {
 			PersistentClass pc = (PersistentClass) iter.next();
 			m_currentClass = pc.getMappedClass();
+			m_currentProperty = null;
 
-			String skipThis = null;
-			try {
-				skipThis = TUtilTestProperties.getTestProperties().getProperty("vptest.skip-hibernate-checks");
-			} catch(Exception e) {}
-			if(skipThis == null || !skipThis.equals("true")) {
-				m_currentProperty = null;
-
-				String tn = pc.getTable().getName();
-				Class< ? > xcl = exmaps.get(tn.toLowerCase());
-				if(xcl != null) {
-					m_dupTables++;
-					problem(Severity.ERROR, "DUPLICATE TABLE IN HIBERNATE MAPPING: " + tn + " in " + xcl + " and " + pc.getMappedClass());
-				}
-				exmaps.put(tn.toLowerCase(), pc.getMappedClass());
-
-				//-- Handle nasty types.
-				Entity ent = (Entity) pc.getMappedClass().getAnnotation(Entity.class);
-				if(null == ent) {
-					problem(Severity.ERROR, "Class " + pc.getClassName() + " added without @Entity annotation - is this a real table class??");
-					m_missingEntity++;
-				}
-
-				//-- Check property annotations.
-				List<PropertyInfo> pilist = ClassUtil.calculateProperties(pc.getMappedClass());
-				for(PropertyInfo pi : pilist) {
-					m_currentProperty = pi;
-					Method g = pi.getGetter();
-					if(g != null) {
-						checkOneToMany(g);
-						checkEnumMapping(g);
-						checkDateMapping(g);
-						checkBooleanMapping(g);
-					}
-				}
-
-				checkDomuiMetadata();
-
+			String tn = pc.getTable().getName();
+			Class< ? > xcl = exmaps.get(tn.toLowerCase());
+			if(xcl != null) {
+				m_dupTables++;
+				problem(Severity.ERROR, "DUPLICATE TABLE IN HIBERNATE MAPPING: " + tn + " in " + xcl + " and " + pc.getMappedClass());
 			}
+			exmaps.put(tn.toLowerCase(), pc.getMappedClass());
+
+			//-- Handle nasty types.
+			Entity ent = (Entity) pc.getMappedClass().getAnnotation(Entity.class);
+			if(null == ent) {
+				problem(Severity.ERROR, "Class " + pc.getClassName() + " added without @Entity annotation - is this a real table class??");
+				m_missingEntity++;
+			}
+
+			//-- Check property annotations.
+			List<PropertyInfo> pilist = ClassUtil.calculateProperties(pc.getMappedClass());
+			for(PropertyInfo pi : pilist) {
+				m_currentProperty = pi;
+				Method g = pi.getGetter();
+				if(g != null) {
+					checkOneToMany(g);
+					checkEnumMapping(g);
+					checkDateMapping(g);
+					checkBooleanMapping(g);
+				}
+			}
+
+			checkDomuiMetadata();
 
 			for(Iterator< ? > iter2 = pc.getPropertyIterator(); iter2.hasNext();) {
 				Property property = (Property) iter2.next();
