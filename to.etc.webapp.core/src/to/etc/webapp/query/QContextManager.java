@@ -24,6 +24,8 @@
  */
 package to.etc.webapp.query;
 
+import java.util.*;
+
 import javax.annotation.*;
 
 /**
@@ -33,8 +35,10 @@ import javax.annotation.*;
  * Created on Jul 15, 2009
  */
 final public class QContextManager {
+	static public final String DEFAULT = "default-context";
+
 	/** The actual implementation handling all manager chores. */
-	static private IQContextManager m_instance;
+	final static private Map<String, IQContextFactorySquared> m_instanceMap = new HashMap<String, IQContextFactorySquared>();
 
 	private QContextManager() {}
 
@@ -43,10 +47,21 @@ final public class QContextManager {
 	 * called before QContextManager is ever used.
 	 * @param cm
 	 */
-	static synchronized public void setImplementation(@Nonnull IQContextManager cm) {
-		if(m_instance != null)
-			throw new IllegalStateException("The QContextManager has already been used, setting a different implementation is no longer possible");
-		m_instance = cm;
+	static synchronized public void setImplementation(@Nonnull String key, @Nonnull IQContextFactorySquared cm) {
+		IQContextFactorySquared m = m_instanceMap.get(key);
+		if(m != null)
+			throw new IllegalStateException("Context factory for [" + key + "] has already been used, setting a different implementation is no longer possible");
+		m_instanceMap.put(key, cm);
+	}
+
+	static public void setImplementation(@Nonnull String key, @Nonnull final QDataContextFactory factory) {
+		setImplementation(key, new IQContextFactorySquared() {
+			@Override
+			@Nonnull
+			public QDataContextFactory getDataContextFactory() {
+				return factory;
+			}
+		});
 	}
 
 	/**
@@ -55,22 +70,27 @@ final public class QContextManager {
 	 * @return
 	 */
 	@Nonnull
-	static private synchronized IQContextManager instance() {
-		if(m_instance == null)
-			m_instance = new QDefaultContextManager();
-		return m_instance;
+	static public synchronized IQContextFactorySquared instance(@Nonnull String key) {
+		IQContextFactorySquared m = m_instanceMap.get(key);
+		if(m != null)
+			return m;
+		throw new IllegalStateException("No context factory-factory found for key=" + key + " - call setImplementation() for that key before using me.");
 	}
 
 	/**
-	 * Initialize the QContextManager with a literal QDataContextFactory.
-	 * @param f
+	 * Return the named QDataContextFactory. This is the root of *all* default connections
+	 * allocated through DomUI. This either returns the single factory, or it asks the delegate
+	 * to get a factory, allowing the delegate to return a user-specific factory.
+	 *
+	 * @return
 	 */
-	static public void initialize(@Nonnull final QDataContextFactory f) {
-		instance().setContextFactory(f);
+	@Nonnull
+	static synchronized public QDataContextFactory getDataContextFactory(@Nonnull String key) {
+		return instance(key).getDataContextFactory();
 	}
 
 	/**
-	 * Return the default QDataContextFactory. This is the root of *all* default connections
+	 * Return the DEFAULT QDataContextFactory. This is the root of *all* default connections
 	 * allocated through DomUI. This either returns the single factory, or it asks the delegate
 	 * to get a factory, allowing the delegate to return a user-specific factory.
 	 *
@@ -78,19 +98,29 @@ final public class QContextManager {
 	 */
 	@Nonnull
 	static synchronized public QDataContextFactory getDataContextFactory() {
-		return instance().getDataContextFactory();
+		return instance(DEFAULT).getDataContextFactory();
 	}
 
 	/**
-	 * Create an unmanaged (manually closed) context factory.
+	 * Return the unmanaged (manually closed) context factory.
+	 * @return
+	 * @throws Exception
+	 */
+	@Nonnull
+	static public QDataContext createUnmanagedContext(@Nonnull String key) throws Exception {
+		return instance(key).getDataContextFactory().getDataContext();
+	}
+
+	/**
+	 * Return the DEFAULT unmanaged (manually closed) context factory.
+	 * @param key
 	 * @return
 	 * @throws Exception
 	 */
 	@Nonnull
 	static public QDataContext createUnmanagedContext() throws Exception {
-		return instance().createUnmanagedContext();
+		return createUnmanagedContext(DEFAULT);
 	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Shared DataContext and DataContextFactories.		*/
@@ -106,8 +136,15 @@ final public class QContextManager {
 	 * @return
 	 */
 	@Nonnull
-	static public QDataContextFactory getDataContextFactory(final IQContextContainer cc) {
-		return instance().getSharedContextFactory(cc);
+	static public QDataContextFactory getDataContextFactory(@Nonnull String key, @Nonnull final QContextContainer cc) {
+		QDataContextFactory src = cc.internalGetDataContextFactory(); 			// Already has a factory here?
+		if(src != null)
+			return src;
+
+		//-- Create a new shared context factory & store in the container.
+		src = new UnclosableContextFactory(cc, getDataContextFactory());
+		cc.internalSetDataContextFactory(src);
+		return src;
 	}
 
 	/**
@@ -117,15 +154,99 @@ final public class QContextManager {
 	 * ignored.
 	 */
 	@Nonnull
-	static public QDataContext getContext(@Nonnull final IQContextContainer cc) throws Exception {
-		return instance().getSharedContext(cc);
+	static public QDataContext getContext(@Nonnull String key, @Nonnull final QContextContainer cc) throws Exception {
+		QDataContext dc = cc.internalGetSharedContext();
+		if(dc == null) {
+			//			System.out.println(".... allocate new shared dataContext");
+			dc = getDataContextFactory(key, cc).getDataContext();
+			dc.setIgnoreClose(true);
+			cc.internalSetSharedContext(dc);
+		}
+		return dc;
+	}
+
+	@Nonnull
+	static public QDataContext getContext(@Nonnull String key, @Nonnull final IQContextContainer cc) throws Exception {
+		return getContext(key, cc.getContextContainer(key));
 	}
 
 	/**
 	 * If the specified container contains a shared context close it.
 	 * @param cc
 	 */
-	static public void closeSharedContext(@Nonnull final IQContextContainer cc) {
-		instance().closeSharedContext(cc);
+	static public void closeSharedContext(@Nonnull String key, @Nonnull final QContextContainer cc) {
+		QDataContext dc = cc.internalGetSharedContext();
+		if(dc == null)
+			return;
+		cc.internalSetSharedContext(null);
+		dc.setIgnoreClose(false); 								// Make sure close gets heeded.
+		dc.close();
+	}
+
+	static public void closeSharedContexts(@Nonnull final IQContextContainer cc) {
+		for(QContextContainer cm : cc.getAllContextContainers()) {
+			QDataContext dc = cm.internalGetSharedContext();
+			if(null != dc) {
+				dc.setIgnoreClose(false);
+				dc.close();
+				cm.internalSetSharedContext(null);
+			}
+		}
+	}
+
+	@Nonnull
+	public static QDataContextFactory getDataContextFactory(@Nonnull String key, @Nonnull IQContextContainer container) {
+		return getDataContextFactory(key, container.getContextContainer(key));
+	}
+
+	/**
+	 * This is a QDataContext factory which attaches itself to some IQContextContainer and
+	 * caches connections in there. It reuses any existing connection in the container, and
+	 * will inhibit the closing of it's QDataSources.
+	 *
+	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+	 * Created on Jul 15, 2009
+	 */
+	static private class UnclosableContextFactory implements QDataContextFactory {
+		private QContextContainer m_contextContainer;
+
+		private QDataContextFactory m_orig;
+
+		/**
+		 * Constructor.
+		 * @param cc
+		 * @param orig
+		 */
+		public UnclosableContextFactory(QContextContainer cc, QDataContextFactory orig) {
+			if(cc == null)
+				throw new NullPointerException("Container cannot be null");
+			if(orig == null)
+				throw new NullPointerException("Root factory cannot be null");
+
+			m_orig = orig;
+			m_contextContainer = cc;
+		}
+
+		@Override
+		public QDataContext getDataContext() throws Exception {
+			//-- First check the container for something usable
+			QDataContext dc = m_contextContainer.internalGetSharedContext();
+			if(dc != null)
+				return dc;
+			dc = m_orig.getDataContext();
+			dc.setIgnoreClose(true);
+			m_contextContainer.internalSetSharedContext(dc); // Store allocated thingy
+			return dc;
+		}
+
+		@Override
+		public QEventListenerSet getEventListeners() {
+			return m_orig.getEventListeners();
+		}
+
+		@Override
+		public QQueryExecutorRegistry getQueryHandlerList() {
+			return m_orig.getQueryHandlerList();
+		}
 	}
 }

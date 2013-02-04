@@ -213,7 +213,7 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 
 	protected void onSave(T object) throws Exception {
 		//-- Do a commit, then exit;
-		QDataContext dc = QContextManager.getContext(getPage());
+		QDataContext dc = getSharedContext();
 		dc.startTransaction();
 		saveObject(dc, object);
 		dc.commit();
@@ -224,7 +224,7 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 	}
 
 	protected void onDelete(T object) throws Exception {
-		QDataContext dc = QContextManager.getContext(getPage());
+		QDataContext dc = getSharedContext();
 		dc.startTransaction();
 		deleteObject(dc, object);
 		dc.commit();

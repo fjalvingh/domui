@@ -24,30 +24,29 @@
  */
 package to.etc.iocular.test.mocks;
 
+import java.util.*;
+
+import javax.annotation.*;
+
 import to.etc.webapp.query.*;
 
 public class PageMock implements IQContextContainer {
-	private QDataContext m_dc;
-
-	private QDataContextFactory m_src;
+	private Map<String, QContextContainer> m_contextContainerMap = new HashMap<String, QContextContainer>();
 
 	@Override
-	public QDataContextFactory internalGetDataContextFactory() {
-		return m_src;
+	@Nonnull
+	public QContextContainer getContextContainer(@Nonnull String key) {
+		QContextContainer cc = m_contextContainerMap.get(key);
+		if(null == cc) {
+			cc = new QContextContainer();
+			m_contextContainerMap.put(key, cc);
+		}
+		return cc;
 	}
 
 	@Override
-	public QDataContext internalGetSharedContext() {
-		return m_dc;
-	}
-
-	@Override
-	public void internalSetDataContextFactory(final QDataContextFactory s) {
-		m_src = s;
-	}
-
-	@Override
-	public void internalSetSharedContext(final QDataContext c) {
-		m_dc = c;
+	@Nonnull
+	public List<QContextContainer> getAllContextContainers() {
+		return new ArrayList<QContextContainer>(m_contextContainerMap.values());
 	}
 }

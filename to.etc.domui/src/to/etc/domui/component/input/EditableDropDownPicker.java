@@ -8,13 +8,14 @@ import to.etc.domui.component.event.*;
 import to.etc.domui.component.input.DropDownPicker.HAlign;
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
 
 /**
  * Encapsulates AutocompleteText and drop down picker into single component. Input behaves as autocomplete field that does search on select inside select within drop down picker.
- * Search is done at client side for faster user experience. 
- * It also allows entering of new data (not contained inside predefined list), that is why it works on-top of String based input.  
- * 
+ * Search is done at client side for faster user experience.
+ * It also allows entering of new data (not contained inside predefined list), that is why it works on-top of String based input.
+ *
  *
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on Nov 6, 2012
@@ -45,7 +46,7 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 	 * <LI> {@link EditableDropDownPicker#setData(List)} </LI>
 	 * <LI> {@link EditableDropDownPicker#setDropDownIcon(String)} </LI>
 	 * <LI> {@link EditableDropDownPicker#setToStringConverter(IObjectToStringConverter)} in case of 'type' is not assignable from String.class</LI>
-	 * </UL> 
+	 * </UL>
 	 *
 	 * @param type
 	 */
@@ -73,15 +74,16 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 		super.createContent();
 
 		m_picker = new DropDownPicker<T>(m_data);
+		DropDownPicker<T> picker = m_picker;
 		if(m_dropDownIcon != null) {
-			m_picker.setSrc(m_dropDownIcon);
+			picker.setSrc(m_dropDownIcon);
 		}
 
-		m_picker.setMandatory(isMandatory());
-		m_picker.setValue(null);
-		m_picker.setHalign(m_halign);
-		m_picker.setAlignmentBase(this);
-		m_picker.setOnBeforeShow(new INotifyEvent<DropDownPicker<T>, ComboLookup<T>>() {
+		picker.setMandatory(isMandatory());
+		picker.setValue(null);
+		picker.setHalign(m_halign);
+		picker.setAlignmentBase(this);
+		picker.setOnBeforeShow(new INotifyEvent<DropDownPicker<T>, ComboLookup<T>>() {
 			@Override
 			public void onNotify(@Nonnull DropDownPicker<T> sender, @Nullable ComboLookup<T> combo) throws Exception {
 				String text = getValueSafe();
@@ -90,7 +92,7 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 			}
 		});
 
-		m_picker.setOnValueChanged(new IValueChanged<DropDownPicker<T>>() {
+		picker.setOnValueChanged(new IValueChanged<DropDownPicker<T>>() {
 
 			@Override
 			public void onValueChanged(@Nonnull DropDownPicker<T> component) throws Exception {
@@ -103,9 +105,9 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 			}
 		});
 
-		setSelect(m_picker.getSelectControl());
-		appendAfterMe(m_picker);
-		m_picker.build();
+		setSelect(picker.getSelectControl());
+		appendAfterMe(picker);
+		picker.build();
 		initializeJS();
 	}
 
@@ -119,12 +121,13 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 
 	private void adjustSelection(ComboLookup<T> combo, String text) throws Exception {
 		boolean found = false;
+		DropDownPicker<T> picker = DomUtil.nullChecked(m_picker);
 		for(int i = 0; i < combo.getData().size(); i++) {
 			T val = combo.getData().get(i);
 			String optionText = convertObjectToString(NlsContext.getCurrencyLocale(), val);
 			if(text != null && text.equals(optionText)) {
 				combo.setValue(val);
-				m_picker.setButtonValue(text);
+				picker.setButtonValue(text);
 				found = true;
 				break;
 			}
@@ -133,7 +136,7 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 			combo.setSize(found ? combo.getData().size() : combo.getData().size() + 1);
 		}
 		if(!found) {
-			m_picker.setButtonValue(null);
+			picker.setButtonValue(null);
 		}
 	}
 

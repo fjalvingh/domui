@@ -1361,13 +1361,18 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	/*	CODING:	Miscellaneous.										*/
 	/*--------------------------------------------------------------*/
 	/**
-	 *
+	 * This returns the default "shared context" for database access.
 	 * @return
 	 * @throws Exception
 	 */
 	@Nonnull
 	public QDataContext getSharedContext() throws Exception {
-		return QContextManager.getContext(getPage());
+		return getParent().getSharedContext();								// Delegate getting the "default context" to the parent node.
+	}
+
+	@Nonnull
+	public QDataContextFactory getSharedContextFactory() {
+		return getParent().getSharedContextFactory();
 	}
 
 	/**

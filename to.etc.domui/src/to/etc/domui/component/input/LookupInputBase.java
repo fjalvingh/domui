@@ -397,7 +397,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 
 	private void addKeySearchField(NodeContainer parent) {
 		KeyWordSearchInput<OT> ks = m_keySearch = new KeyWordSearchInput<OT>(m_keyWordSearchCssClass);
-		m_keySearch.setWidth("100%");
+		ks.setWidth("100%");
 		ks.setPopupWidth(getKeyWordSearchPopupWidth());
 		KeyWordPopupRowRenderer<OT> rr = getDropdownRowRenderer();
 		rr.setRowClicked(new ICellClicked<OT>() {
