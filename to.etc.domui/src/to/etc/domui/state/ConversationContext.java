@@ -498,37 +498,27 @@ public class ConversationContext implements IQContextContainer {
 		return m_state == ConversationState.ATTACHED;
 	}
 
-	static private final String KEY = QContextManager.class.getName();
-
-	static private final String SRCKEY = QDataContextFactory.class.getName();
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IQContextContainer implementation.					*/
 	/*--------------------------------------------------------------*/
-	/**
-	 *
-	 */
-	@Override
-	public QDataContext internalGetSharedContext() {
-		return (QDataContext) getAttribute(KEY);
-	}
-
-	/**
-	 *
-	 * @see to.etc.webapp.query.IQContextContainer#internalSetSharedContext(to.etc.webapp.query.QDataContext)
-	 */
-	@Override
-	public void internalSetSharedContext(final QDataContext c) {
-		setAttribute(KEY, c);
-	}
+	@Nonnull
+	final private Map<String, QContextContainer> m_contextContainerMap = new HashMap<String, QContextContainer>();
 
 	@Override
-	public QDataContextFactory internalGetDataContextFactory() {
-		return (QDataContextFactory) getAttribute(SRCKEY);
+	@Nonnull
+	public QContextContainer getContextContainer(@Nonnull String key) {
+		key = "cc-" + key;
+		QContextContainer cc = m_contextContainerMap.get(key);
+		if(null == cc) {
+			cc = new QContextContainer();
+			m_contextContainerMap.put(key, cc);
+		}
+		return cc;
 	}
 
 	@Override
-	public void internalSetDataContextFactory(final QDataContextFactory s) {
-		setAttribute(SRCKEY, s);
+	@Nonnull
+	public List<QContextContainer> getAllContextContainers() {
+		return new ArrayList<QContextContainer>(m_contextContainerMap.values());
 	}
 }

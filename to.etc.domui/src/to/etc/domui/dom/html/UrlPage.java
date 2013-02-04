@@ -98,6 +98,11 @@ public class UrlPage extends Div {
 	@Override
 	@Nonnull
 	public QDataContext getSharedContext() throws Exception {
-		return QContextManager.getContext(getPage());
+		return getSharedContext(QContextManager.DEFAULT);
+	}
+
+	@Nonnull
+	public QDataContext getSharedContext(@Nonnull String key) throws Exception {
+		return QContextManager.getContext(key, getPage().getContextContainer(key));
 	}
 }

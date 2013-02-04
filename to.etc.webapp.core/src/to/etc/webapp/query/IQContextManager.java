@@ -68,7 +68,7 @@ public interface IQContextManager {
 	 * @return
 	 */
 	@Nonnull
-	QDataContextFactory getSharedContextFactory(@Nonnull IQContextContainer cc);
+	QDataContextFactory getSharedContextFactory(@Nonnull QContextContainer cc);
 
 	/**
 	 * Gets a shared QDataContext from the container. If it is not already present it
@@ -77,11 +77,11 @@ public interface IQContextManager {
 	 * ignored.
 	 */
 	@Nonnull
-	QDataContext getSharedContext(@Nonnull IQContextContainer cc) throws Exception;
+	QDataContext getSharedContext(@Nonnull QContextContainer cc) throws Exception;
 
 	/**
 	 * If the specified container contains a shared context close it.
 	 * @param cc
 	 */
-	void closeSharedContext(@Nonnull IQContextContainer cc);
+	void closeSharedContext(@Nonnull QContextContainer cc);
 }

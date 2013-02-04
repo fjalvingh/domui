@@ -139,7 +139,7 @@ public class UrlEntityInjector extends PropertyInjector {
 		if(isNew(page, ctx, papa, pv)) {
 			value = createNew(page, ctx);
 		} else {
-			QDataContext dc = QContextManager.getContext(page.getPage());
+			QDataContext dc = page.getSharedContext();
 			Object pk = getKeyInstance(dc, page, pv);
 			if(pk == null) {
 				if(m_mandatory) {

@@ -28,6 +28,14 @@ import to.etc.domui.component.meta.*;
 import to.etc.domui.state.*;
 import to.etc.webapp.query.*;
 
+/**
+ * DO NOT USE - QUESTIONABLE.
+ *
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Feb 4, 2013
+ */
+@Deprecated
 public class InstanceRefresher {
 	static public void refresh(Object val) throws Exception {
 		if(val == null)
@@ -35,7 +43,7 @@ public class InstanceRefresher {
 		ClassMetaModel cmm = MetaManager.findClassMeta(val.getClass());
 		if(!cmm.isPersistentClass())
 			return;
-		QDataContext dc = QContextManager.getContext(UIContext.getCurrentConversation());
+		QDataContext dc = QContextManager.getContext(QContextManager.DEFAULT, UIContext.getCurrentConversation().getContextContainer(QContextManager.DEFAULT));
 		dc.attach(val);
 	}
 }
