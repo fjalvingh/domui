@@ -60,7 +60,7 @@ final public class QContextManager {
 	 * @return
 	 */
 	@Nonnull
-	static private synchronized IQContextManager instance(@Nonnull String key) {
+	static public synchronized IQContextManager instance(@Nonnull String key) {
 		IQContextManager m = m_instanceMap.get(key);
 		if(m == null) {
 			m = new QDefaultContextManager();
