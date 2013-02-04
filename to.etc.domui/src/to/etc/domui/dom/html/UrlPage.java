@@ -24,8 +24,11 @@
  */
 package to.etc.domui.dom.html;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.layout.title.*;
+import to.etc.webapp.query.*;
 
 
 /**
@@ -85,5 +88,16 @@ public class UrlPage extends Div {
 		//Since html and body are not by default 100% anymore we need to make it like this here in order to enable stretch to work.
 		//We really need this layout support in domui!).
 		appendCreateJS("$(document).ready(function() {document.body.parentNode.style.height = '100%'; document.body.style.height = '100%'; " + getCustomUpdatesCallJS() + "});");
+	}
+
+	/**
+	 * This is the root implementation to get the "shared context" for database access. Override this to get
+	 * a different "default".
+	 * @see to.etc.domui.dom.html.NodeBase#getSharedContext()
+	 */
+	@Override
+	@Nonnull
+	public QDataContext getSharedContext() throws Exception {
+		return QContextManager.getContext(getPage());
 	}
 }
