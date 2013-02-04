@@ -40,7 +40,7 @@ import to.etc.webapp.annotations.*;
  * Created on Jun 24, 2008
  */
 public class QCriteria<T> extends QCriteriaQueryBase<T> {
-	private QCriteria(@Nonnull final Class<T> b) {
+	protected QCriteria(@Nonnull final Class<T> b) {
 		super(b);
 	}
 
@@ -173,6 +173,36 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	@Override
 	@Nonnull
 	public QCriteria<T> eq(@Nonnull @GProperty final String property, @Nonnull final Object value) {
+		return (QCriteria<T>) super.eq(property, value);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QCriteriaQueryBase#eq(java.lang.String, java.lang.Object)
+	 */
+	@Override
+	@Nonnull
+	public <V, R extends QField<R, T>> QCriteria<T> eq(@Nonnull final QField<R, V> property, @Nonnull final V value) {
+		return (QCriteria<T>) super.eq(property, value);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QCriteriaQueryBase#eq(java.lang.String, java.lang.Object)
+	 */
+	@Override
+	@Nonnull
+	public <V, R extends QField<R, T>> QCriteria<T> ne(@Nonnull final QField<R, V> property, @Nonnull final V value) {
+		return (QCriteria<T>) super.ne(property, value);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QCriteriaQueryBase#eq(java.lang.String, java.lang.Object)
+	 */
+	@Override
+	@Nonnull
+	public <R extends QField<R, T>> QCriteria<T> eq(@Nonnull final QFieldDouble<R> property, @Nonnull final double value) {
 		return (QCriteria<T>) super.eq(property, value);
 	}
 
