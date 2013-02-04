@@ -1784,4 +1784,21 @@ final public class DomUtil {
 			return "null";
 		return n.getComponentInfo();
 	}
+
+	public static @Nonnull
+	List<UIMessage> addSingleShotMessage(@Nonnull NodeBase node, @Nonnull UIMessage message) {
+		WindowSession ws = node.getPage().getConversation().getWindowSession();
+		List<UIMessage> msgl = null;
+		Object stored = ws.getAttribute(UIGoto.SINGLESHOT_MESSAGE);
+		if(stored != null && stored instanceof List< ? >) {
+			msgl = (List<UIMessage>) stored;
+		} else {
+			msgl = new ArrayList<UIMessage>(1);
+		}
+
+		msgl.add(message);
+		ws.setAttribute(UIGoto.SINGLESHOT_MESSAGE, msgl);
+		return msgl;
+	}
+
 }

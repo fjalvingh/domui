@@ -1431,7 +1431,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * <LI>NOTE: In order to stretchHeight can work, parent container needs to have height defined in some way (works out of box for all FloatingWindow based containers).</LI>
 	 * <LI>In case that stretched node needs to be added directly in (non floating) page, to define page height as 100%, use following snippet inline in page code:
 	 * <BR/><CODE>appendCreateJS("$(document).ready(function() {document.body.parentNode.style.height = '100%'; document.body.style.height = '100%';WebUI.doCustomUpdates();});");</CODE>
-	 * <BR/>Note that triggering of stratch code evaluation needs also to be added inline.
+	 * <BR/>Note that triggering of stretch code evaluation needs also to be added inline.
 	 * </LI>
 	 */
 	public void setStretchHeight(boolean value) {
