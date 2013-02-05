@@ -10,11 +10,21 @@ import javax.annotation.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Feb 5, 2013
  */
-public class PropertyPathIndex implements IPropertyPathElement {
+public class PropertyPathIndex<T> implements IPropertyPathElement<T> {
 	final private int m_index;
 
-	public PropertyPathIndex(int index) {
+	@Nonnull
+	final private T m_instance;
+
+	public PropertyPathIndex(int index, @Nonnull T instance) {
 		m_index = index;
+		m_instance = instance;
+	}
+
+	@Override
+	@Nonnull
+	public T getInstance() {
+		return m_instance;
 	}
 
 	@Override

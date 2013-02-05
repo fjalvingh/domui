@@ -13,14 +13,14 @@ import javax.annotation.*;
  */
 public class LogiErrorStack {
 	@Nonnull
-	private List<IPropertyPathElement> m_currentPath = new ArrayList<IPropertyPathElement>();
+	private List<IPropertyPathElement< ? >> m_currentPath = new ArrayList<IPropertyPathElement< ? >>();
 
-	public void push(@Nonnull String propertyPath) {
-		m_currentPath.add(new PropertyPathProperty(propertyPath));
+	public <T> void push(@Nonnull String propertyPath, @Nonnull T instance) {
+		m_currentPath.add(new PropertyPathProperty<T>(instance, propertyPath));
 	}
 
-	public void push(int index) {
-		m_currentPath.add(new PropertyPathIndex(index));
+	public <T> void push(int index, @Nonnull T instance) {
+		m_currentPath.add(new PropertyPathIndex<T>(index, instance));
 	}
 
 	public void pop() {

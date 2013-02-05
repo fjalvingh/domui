@@ -8,12 +8,22 @@ import javax.annotation.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Feb 5, 2013
  */
-public class PropertyPathProperty implements IPropertyPathElement {
+public class PropertyPathProperty<T> implements IPropertyPathElement<T> {
+	@Nonnull
+	final private T m_instance;
+
 	@Nonnull
 	final private String m_property;
 
-	public PropertyPathProperty(@Nonnull String property) {
+	public PropertyPathProperty(@Nonnull T instance, @Nonnull String property) {
 		m_property = property;
+		m_instance = instance;
+	}
+
+	@Override
+	@Nonnull
+	public T getInstance() {
+		return m_instance;
 	}
 
 	@Nonnull

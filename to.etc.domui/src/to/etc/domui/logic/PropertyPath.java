@@ -12,17 +12,17 @@ import javax.annotation.concurrent.*;
  * Created on Feb 5, 2013
  */
 @Immutable
-final public class PropertyPath implements Iterable<IPropertyPathElement> {
+final public class PropertyPath implements Iterable<IPropertyPathElement< ? >> {
 	@Nonnull
-	final private List<IPropertyPathElement> m_path;
+	final private List<IPropertyPathElement< ? >> m_path;
 
-	public PropertyPath(@Nonnull List<IPropertyPathElement> path) {
-		m_path = Collections.unmodifiableList(new ArrayList<IPropertyPathElement>(path));
+	public PropertyPath(@Nonnull List<IPropertyPathElement< ? >> path) {
+		m_path = Collections.unmodifiableList(new ArrayList<IPropertyPathElement< ? >>(path));
 	}
 
 	@Override
 	@Nonnull
-	public Iterator<IPropertyPathElement> iterator() {
+	public Iterator<IPropertyPathElement< ? >> iterator() {
 		return m_path.iterator();
 	}
 
@@ -30,7 +30,7 @@ final public class PropertyPath implements Iterable<IPropertyPathElement> {
 	@Nonnull
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		for(IPropertyPathElement ppe : this) {
+		for(IPropertyPathElement< ? > ppe : this) {
 			ppe.appendPath(sb);
 		}
 		return sb.toString();
