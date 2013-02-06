@@ -16,6 +16,7 @@
 	border: 1px solid #d0d0d0;
 	font-style: italic;
 	vertical-align: top;
+	min-height: 48px;
 }
 
 div.ui-ipa img {
@@ -38,6 +39,14 @@ div.ui-ipa img {
 /* AsyncContainer */
 .ui-asc {
 	text-align: center;
+}
+
+div.ui-asc img {
+	margin-bottom:5px;	
+}
+
+div.ui-asc div {
+	margin-bottom:5px;
 }
 
 /* SplitPanel (simple version) layout thingy */
