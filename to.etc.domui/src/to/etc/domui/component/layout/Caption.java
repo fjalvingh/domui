@@ -39,6 +39,12 @@ public class Caption extends Div {
 
 	private Table m_table;
 
+	private TD m_ttltd;
+
+	private Img m_icon;
+
+	private Div m_ttldiv;
+
 	public Caption() {}
 
 	public Caption(String ttl) {
@@ -66,20 +72,35 @@ public class Caption extends Div {
 		m_table.setTableWidth("100%");
 		TBody b = new TBody();
 		m_table.add(b);
-		TD ttltd = b.addRowAndCell();
-		ttltd.setCssClass("ui-cptn-ttl");
-		ttltd.setNowrap(true);
-		Div ttl = new Div();
-		ttltd.add(ttl);
+		m_ttltd = b.addRowAndCell();
+		m_ttltd.setCssClass("ui-cptn-ttl");
+		m_ttltd.setNowrap(true);
+		m_ttldiv = new Div();
+		m_ttltd.add(m_ttldiv);
+
 		//		ttl.setCssClass("ui-cptn-ttl");
-		ttl.setText(m_caption);
+		m_ttldiv.add(m_caption);
 		TD right = b.addCell();
 		right.setCssClass("ui-cptn-btn");
 		m_buttonpart = right;
 		right.setAlign(TDAlignType.RIGHT);
+
+		if(m_icon != null)
+			m_buttonpart.add(m_icon);
+
 		for(SmallImgButton btn : m_btns) {
 			m_buttonpart.add(btn);
 		}
+	}
+
+	public void addIcon(String src) {
+		if(m_icon == null) {
+			m_icon = new Img(src);
+			if(isBuilt())
+				m_buttonpart.add(0, m_icon);
+		} else
+			m_icon.setSrc(src);
+		m_icon.setAlign(ImgAlign.RIGHT);
 	}
 
 	public void addButton(String image, String hint, IClicked<NodeBase> handler) {
