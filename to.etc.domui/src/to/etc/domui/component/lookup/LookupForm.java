@@ -447,7 +447,7 @@ public class LookupForm<T> extends Div {
 
 		//-- Ok, we need the items we're going to show now.
 		if(m_itemList.size() == 0) // If we don't have an item set yet....
-			setItems(); // ..define it from metadata, and abort if there is nothing there
+			setDefaultItems(); // ..define it from metadata, and abort if there is nothing there
 
 		NodeContainer searchContainer = sroot;
 		if(containsItemBreaks(m_itemList)) {
@@ -631,7 +631,7 @@ public class LookupForm<T> extends Div {
 	 * This adds all properties that are defined as "search" properties in either this control or the metadata
 	 * to the item list. The list is cleared before that!
 	 */
-	private void setItems() {
+	public void setDefaultItems() {
 		m_itemList.clear();
 		List<SearchPropertyMetaModel> list = getMetaModel().getSearchProperties();
 		if(list == null || list.size() == 0) {

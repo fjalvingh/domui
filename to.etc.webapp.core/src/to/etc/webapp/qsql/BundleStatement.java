@@ -124,7 +124,7 @@ final public class BundleStatement {
 	 * @param parameters
 	 * @throws SQLException
 	 */
-	public void assignParameters(PreparedStatement ps, @Nonnull Object[] parameters) throws SQLException {
+	public void assignParameters(PreparedStatement ps, @Nonnull Object... parameters) throws SQLException {
 		if(parameters.length < m_parameterar.length)
 			throw new SQLException("Incorrect parameter count: you provided " + parameters.length + " but the statement needs " + m_parameterar.length);
 		for(int i = 0; i < m_parameterar.length; i++) {
