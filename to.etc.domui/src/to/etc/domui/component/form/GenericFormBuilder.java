@@ -30,6 +30,7 @@ import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
+import to.etc.webapp.query.*;
 
 /**
  * Encapsulates basic actions that can be done with all form builder implementations,
@@ -108,6 +109,14 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 */
 	public IControl< ? > addProp(final String name) {
 		return addProp(name, (String) null);
+	}
+
+	/**
+	 * @param field
+	 * @return
+	 */
+	public <T> IControl<T> addProp(final QField< ? , T> field) {
+		return (IControl<T>) addProp(field.toString());
 	}
 
 	/**

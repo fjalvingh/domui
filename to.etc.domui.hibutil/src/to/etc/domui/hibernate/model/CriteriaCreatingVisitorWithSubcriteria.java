@@ -793,13 +793,13 @@ public class CriteriaCreatingVisitorWithSubcriteria extends QNodeVisitorBase {
 	@Override
 	public void visitExistsSubquery(QExistsSubquery< ? > q) throws Exception {
 		//-- Sigh. Find the property.
-		PropertyInfo pi = ClassUtil.findPropertyInfo(q.getParentQuery().getBaseClass(), q.getParentProperty());
+		PropertyInfo pi = ClassUtil.findPropertyInfo(q.getParentBaseClass(), q.getParentProperty());
 		if(pi == null)
-			throw new ProgrammerErrorException("The property '" + q.getParentProperty() + "' is not found in class " + q.getParentQuery().getBaseClass());
+			throw new ProgrammerErrorException("The property '" + q.getParentProperty() + "' is not found in class " + q.getParentBaseClass());
 
 		//-- Should be List type
 		if(!List.class.isAssignableFrom(pi.getActualType()))
-			throw new ProgrammerErrorException("The property '" + q.getParentQuery().getBaseClass() + "." + q.getParentProperty() + "' should be a list (it is a " + pi.getActualType() + ")");
+			throw new ProgrammerErrorException("The property '" + q.getParentBaseClass() + "." + q.getParentProperty() + "' should be a list (it is a " + pi.getActualType() + ")");
 
 		//-- Make sure there is a where condition to restrict
 		QOperatorNode where = q.getRestrictions();
@@ -809,7 +809,7 @@ public class CriteriaCreatingVisitorWithSubcriteria extends QNodeVisitorBase {
 		//-- Get the list's generic compound type because we're unable to get it from Hibernate easily. Idiots.
 		Class< ? > coltype = pi.getCollectionValueType();
 		if(coltype == null)
-			throw new ProgrammerErrorException("The property '" + q.getParentQuery().getBaseClass() + "." + q.getParentProperty() + "' has an undeterminable child type");
+			throw new ProgrammerErrorException("The property '" + q.getParentBaseClass() + "." + q.getParentProperty() + "' has an undeterminable child type");
 
 		//-- 2. Create an exists subquery; create a sub-statement
 		DetachedCriteria dc = DetachedCriteria.forClass(coltype, nextAlias());
@@ -820,7 +820,7 @@ public class CriteriaCreatingVisitorWithSubcriteria extends QNodeVisitorBase {
 		ClassMetadata childmd = m_session.getSessionFactory().getClassMetadata(coltype);
 
 		//-- Entering the crofty hellhole that is Hibernate meta"data": never seen more horrible cruddy garbage
-		ClassMetadata parentmd = m_session.getSessionFactory().getClassMetadata(q.getParentQuery().getBaseClass());
+		ClassMetadata parentmd = m_session.getSessionFactory().getClassMetadata(q.getParentBaseClass());
 		int index = findMoronicPropertyIndexBecauseHibernateIsTooStupidToHaveAPropertyMetaDamnit(parentmd, q.getParentProperty());
 		if(index == -1)
 			throw new IllegalStateException("Hibernate does not know property");

@@ -158,8 +158,8 @@ abstract public class QRestrictor<T> {
 		add(not);
 		return new QRestrictorImpl<T>(this, and);
 	}
-	
-	
+
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Adding selection restrictions (where clause)		*/
 	/*--------------------------------------------------------------*/
@@ -177,8 +177,29 @@ abstract public class QRestrictor<T> {
 	 */
 	@Nonnull
 	public QRestrictor<T> eq(@Nonnull @GProperty final String property, @Nonnull Object value) {
-		add(QRestriction.eq(property, value));
-		return this;
+		return add(QRestriction.eq(property, value));
+	}
+
+	/**
+	 * Compare a property with some value.
+	 * @param property
+	 * @param value
+	 * @return
+	 */
+	@Nonnull
+	public <V, R extends QField<R, T>> QRestrictor<T> eq(@Nonnull final QField<R, V> property, @Nonnull V value) {
+		return eq(property.getPath(), value);
+	}
+
+	/**
+	 * Compare a property with some value.
+	 * @param property
+	 * @param value
+	 * @return
+	 */
+	@Nonnull
+	public <V, R extends QField<R, T>> QRestrictor<T> ne(@Nonnull final QField<R, V> property, @Nonnull V value) {
+		return ne(property.getPath(), value);
 	}
 
 	/**
@@ -501,7 +522,7 @@ abstract public class QRestrictor<T> {
 	 */
 	@Nonnull
 	public <U> QRestrictor<U> exists(@Nonnull Class<U> childclass, @Nonnull @GProperty(parameter = 1) String childproperty) {
-		final QExistsSubquery<U> sq = new QExistsSubquery<U>(this, childclass, childproperty);
+		final QExistsSubquery<U> sq = new QExistsSubquery<U>(this.getBaseClass(), childclass, childproperty);
 		QRestrictor<U> builder = new QRestrictor<U>(childclass, QOperation.AND) {
 			@Override
 			public QOperatorNode getRestrictions() {
@@ -515,5 +536,14 @@ abstract public class QRestrictor<T> {
 		};
 		add(sq);
 		return builder;
+	}
+
+	@Nonnull
+	public <R extends QField<R, U>, U> QRestrictor<U> exists(@Nonnull QList<R> listProperty) throws Exception {
+		return (QRestrictor<U>) exists(listProperty.getRootClass(), listProperty.m_listName);
+	}
+
+	public <R extends QField<R, T>> QRestrictor<T> eq(@Nonnull QFieldDouble<R> property, double value) {
+		return eq(property.getPath(), value);
 	}
 }
