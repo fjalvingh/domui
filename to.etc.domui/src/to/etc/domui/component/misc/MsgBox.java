@@ -148,7 +148,7 @@ public class MsgBox extends Window {
 				break;
 			case INPUT:
 				ttl = Msgs.BUNDLE.getString(Msgs.UI_MBX_INPUT);
-				icon = "mbx-question.png";
+				icon = Theme.ICON_MBX_DIALOG;
 				break;
 		}
 		m_theImage.setSrc(icon);
