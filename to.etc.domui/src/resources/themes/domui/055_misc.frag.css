@@ -41,12 +41,8 @@ div.ui-ipa img {
 	text-align: center;
 }
 
-div.ui-asc img {
-	margin-bottom:5px;	
-}
-
 div.ui-asc div {
-	margin-bottom:5px;
+	height:15px;
 }
 
 /* SplitPanel (simple version) layout thingy */
