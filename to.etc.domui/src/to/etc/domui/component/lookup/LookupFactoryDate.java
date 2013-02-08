@@ -56,7 +56,8 @@ final class LookupFactoryDate implements ILookupControlFactory {
 
 		final DateInput dateFrom = new DateInput();
 		dateFrom.setWithTime(withTime);
-		TextNode tn = new TextNode(Msgs.BUNDLE.getString(Msgs.UI_LOOKUP_DATE_TILL) + " ");
+		Span sp = new Span(Msgs.BUNDLE.getString(Msgs.UI_LOOKUP_DATE_TILL) + " ");
+		sp.setFontWeight("BOLD");
 		final DateInput dateTo = new DateInput();
 		dateTo.setWithTime(withTime);
 
@@ -65,7 +66,7 @@ final class LookupFactoryDate implements ILookupControlFactory {
 			dateFrom.setTitle(hint);
 			dateTo.setTitle(hint);
 		}
-		return new AbstractLookupControlImpl(dateFrom, tn, dateTo) {
+		return new AbstractLookupControlImpl(dateFrom, sp, dateTo) {
 			@Override
 			public @Nonnull AppendCriteriaResult appendCriteria(@Nonnull QCriteria< ? > crit) throws Exception {
 				if(spm == null)
