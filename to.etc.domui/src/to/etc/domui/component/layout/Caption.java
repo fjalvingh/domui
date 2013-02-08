@@ -64,7 +64,7 @@ public class Caption extends Div {
 
 	@Override
 	public void createContent() throws Exception {
-		setCssClass("ui-cptn");
+		addCssClass("ui-cptn");
 		m_table = new Table();
 		add(m_table);
 		m_table.setCellPadding("0");
