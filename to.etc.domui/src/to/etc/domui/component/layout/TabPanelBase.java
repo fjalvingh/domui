@@ -200,7 +200,7 @@ public class TabPanelBase extends Div {
 		Li li = ti.getTab();
 		Li separator = new Li();
 		separator.setCssClass("ui-tab-ibt");
-		if(li == null) {
+		if(li == null || !li.isAttached()) {
 			li = new Li();
 			into.add(separator);
 			into.add(li);
@@ -267,6 +267,7 @@ public class TabPanelBase extends Div {
 			return;
 
 		//-- Render the new thingies.
+		forceRebuild();
 	}
 
 	public void add(NodeBase content, NodeBase tablabel, String icon) {
@@ -280,6 +281,7 @@ public class TabPanelBase extends Div {
 			return;
 
 		//-- Render the new thingies.
+		forceRebuild();
 	}
 
 	private Img createIcon(String icon) {
