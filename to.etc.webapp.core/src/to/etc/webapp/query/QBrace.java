@@ -78,7 +78,7 @@ public class QBrace {
 	 * If there are no operations found then there is only one {@link QOperatorNode} which will be returned.
 	 * @return
 	 */
-	public @Nonnull
+	@Nonnull
 	QOperatorNode toQOperatorNode() {
 		QMultiNode m = null;
 		Object lastObject = null;

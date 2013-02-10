@@ -205,12 +205,9 @@ public class QField<R extends QField<R, ? >, T> {
 			}
 		}
 
-		addNode(node);
+		qbrace().add(node);
 	}
 
-	void addNode(@Nonnull QOperatorNode newNode) {
-		qbrace().add(newNode);
-	}
 
 	/**
 	 * Brace open, can be places anywhere natural. Can also be placed unnatural, that will give error's where possible or strange results.
