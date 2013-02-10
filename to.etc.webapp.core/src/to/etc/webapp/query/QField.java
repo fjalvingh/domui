@@ -1,6 +1,5 @@
 package to.etc.webapp.query;
 
-import static to.etc.webapp.query.QOperation.AND;
 import static to.etc.webapp.query.QOperation.OR;
 
 import java.lang.reflect.*;
@@ -56,7 +55,8 @@ public class QField<R extends QField<R, ? >, T> {
 		if(root == null) {
 			Class<T> cls = (Class<T>) ((ParameterizedType) getClass().getSuperclass().getGenericSuperclass()).getActualTypeArguments()[1];
 			m_criteria = QCriteria.create(cls);
-			m_stack = new Stack<QMultiNode>();
+			m_qBrace = new QBrace(null);
+
 		}
 		m_root = (R) (root == null ? this : root);
 		m_propertyNameInParent = propertyNameInParent;
@@ -154,20 +154,7 @@ public class QField<R extends QField<R, ? >, T> {
 	 */
 	public final @Nonnull
 	R or() {
-		QOperatorNode node = node();
-		if(node != null) {
-			if(!(node instanceof QMultiNode && node.getOperation() == OR)) {
-				QMultiNode or = new QMultiNode(OR);
-				or.add(node);
-				if(!(node instanceof QMultiNode)) {
-					criteria().setRestrictions(or);
-					node(or);
-				}
-				setOr(or);
-			}
-		} else {
-			throw new ProgrammerErrorException("Nothing to or yet");
-		}
+		qbrace().add(OR);
 		return m_root;
 	}
 
@@ -219,38 +206,10 @@ public class QField<R extends QField<R, ? >, T> {
 		}
 
 		addNode(node);
-		releaseOr();
 	}
 
 	void addNode(@Nonnull QOperatorNode newNode) {
-		QOperatorNode node = node();
-		if(node == null) {
-			node(newNode);
-			if(criteria().getRestrictions() == null) {
-				criteria().setRestrictions(newNode);
-			}
-		} else if(node instanceof QMultiNode) {
-			QMultiNode multiNode = (QMultiNode) node;
-			if(!isOr() && multiNode.getOperation() == OR) {
-				QOperatorNode pop = pop(multiNode);
-				QMultiNode and = new QMultiNode(AND);
-				and.add(pop);
-				and.add(newNode);
-				multiNode.add(and);
-			} else {
-				if(newNode instanceof QMultiNode && newNode.getOperation() == OR) {
-					multiNode.getChildren().addAll(((QMultiNode) newNode).getChildren());
-				} else {
-					multiNode.add(newNode);
-				}
-			}
-		} else {
-			QMultiNode multiNode = new QMultiNode(AND);
-			multiNode.add(node);
-			multiNode.add(newNode);
-			node(multiNode);
-			criteria().setRestrictions(multiNode);
-		}
+		qbrace().add(newNode);
 	}
 
 	/**
@@ -260,12 +219,9 @@ public class QField<R extends QField<R, ? >, T> {
 	 */
 	public final @Nonnull
 	R $_() {
-		brace(1);
-		QOperatorNode node = node();
-		if(node != null && node instanceof QMultiNode) {
-			stack().push((QMultiNode) node);
-			node(new QMultiNode(AND));
-		}
+		QBrace child = new QBrace(qbrace());
+		qbrace().add(child);
+		qbrace(child);
 		return m_root;
 	}
 
@@ -273,107 +229,33 @@ public class QField<R extends QField<R, ? >, T> {
 	 * Brace close, can be places anywhere natural. Can also be placed unnatural, that will give error's where possible or strange results.
 	 * So use with care. Place them as if you are writing an sql statement or any other conditional structure.
 	 * @return
+	 * @throws Exception
 	 */
 	public final @Nonnull
-	R _$() {
-		brace(-1);
-		if(stack().size() > 0) {
-			QOperatorNode pop = stack().pop();
-			node(pop);
-		} else {
-			QOperatorNode node = node();
-			if(!(node instanceof QMultiNode)) {
-				throw new ProgrammerErrorException("Useless bracing at level " + stack().size() + " : " + getPath());
-			} else {
-				QMultiNode multiNode = (QMultiNode) node;
-				QMultiNode next = new QMultiNode(AND);
-				next.add(multiNode);
-				node(next);
-				criteria().setRestrictions(next);
-			}
+	R _$() throws Exception {
+		QBrace parent = qbrace().getParent();
+		if(parent == null) {
+			throw new Exception("Trying to close a brace that is not opened.");
 		}
+		qbrace(parent);
 		return m_root;
 	}
 
-	private final @Nullable
-	QOperatorNode pop(@Nonnull QMultiNode multiNode) {
-		if(multiNode.getChildren().size() == 0) {
-			return null;
-		}
-		return multiNode.getChildren().remove(multiNode.getChildren().size() - 1);
-	}
-
-
 	protected @Nonnull
-	QRestrictor<T> m_criteria;
+	QCriteria<T> m_criteria;
 
-
+	protected QBrace m_qBrace;
 
 	final @Nonnull
-	QRestrictor< ? > criteria() {
-		return m_root.m_criteria;
+	QBrace qbrace() {
+		return m_root.m_qBrace;
 	}
 
-	protected @Nonnull
-	QOperatorNode m_node;
-
-	private final @Nonnull
-	QOperatorNode node() {
-		return m_root.m_node;
+	final @Nonnull
+	void qbrace(@Nonnull QBrace brace) {
+		m_root.m_qBrace = brace;
 	}
 
-	final void node(QOperatorNode node) {
-		m_root.m_node = node;
-	}
-
-	protected @Nonnull
-	QOperatorNode m_or;
-
-	protected int m_brace = 0;
-
-	private final void brace(int brace) {
-		m_root.m_brace += brace;
-		if(m_root.m_brace < 0) {
-			if(brace() != 0) {
-				throw new ProgrammerErrorException("No matching open brace found  : " + getPath());
-			}
-		}
-	}
-
-	private final int brace() {
-		return m_root.m_brace;
-	}
-
-
-	private final @Nonnull
-	QOperatorNode getOr() {
-		return m_root.m_or;
-	}
-
-	private final boolean isOr() {
-		return m_root.m_or != null;
-	}
-
-	private final void setOr(@Nonnull QMultiNode or) {
-		m_root.m_or = m_root.m_node;
-		m_root.m_node = or;
-	}
-
-	private final void releaseOr() {
-		if(m_root.m_or != null) {
-			m_root.m_node = m_root.m_or;
-			m_root.m_or = null;
-		}
-	}
-
-
-	protected @Nonnull
-	Stack<QMultiNode> m_stack;
-
-	private final @Nonnull
-	Stack<QMultiNode> stack() {
-		return m_root.m_stack;
-	}
 
 	/**
 	 * Call this on the root query, any other attempt will give a runtime exception.
@@ -384,7 +266,7 @@ public class QField<R extends QField<R, ? >, T> {
 	public final @Nonnull
 	List<T> query(@Nonnull QDataContext dc) throws Exception {
 		validateGetCriteria();
-		return dc.query((QCriteria<T>) m_criteria);
+		return dc.query(m_criteria);
 	}
 
 	/**
@@ -396,7 +278,7 @@ public class QField<R extends QField<R, ? >, T> {
 	public final @Nullable
 	T queryOne(@Nonnull QDataContext dc) throws Exception {
 		validateGetCriteria();
-		return dc.queryOne((QCriteria<T>) m_criteria);
+		return dc.queryOne(m_criteria);
 	}
 
 	protected final void validateGetCriteria() {
@@ -409,11 +291,13 @@ public class QField<R extends QField<R, ? >, T> {
 		if(m_isSub) {
 			throw new ProgrammerErrorException("Cannot get criteria from subselect.");
 		}
-		if(stack().size() != 0) {
-			throw new ProgrammerErrorException("Missing close brace at level " + stack().size() + " : " + getPath());
+		if(m_criteria.getRestrictions() == null) {
+			m_criteria.setRestrictions(qbrace().toQOperatorNode());
 		}
-		if(brace() != 0) {
-			throw new ProgrammerErrorException("Number of open braces does not match number of closing braces (" + brace() + ") : " + getPath());
-		}
+	}
+
+	final @Nonnull
+	QCriteria< ? > criteria() {
+		return m_root.m_criteria;
 	}
 }
