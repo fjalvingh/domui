@@ -1,6 +1,7 @@
 package to.etc.test.webapp.query.qfield;
-import to.etc.webapp.query.*;
 import javax.annotation.*;
+
+import to.etc.webapp.query.*;
 /**
  * @author <a href="mailto:dennis.bekkering@itris.nl">Dennis Bekkering</a>
  */
@@ -12,8 +13,8 @@ public final class QTestBankAccountRoot extends QTestBankAccount<QTestBankAccoun
 	}
 
 	public @Nonnull
-	QCriteria<to.etc.test.webapp.query.qfield.TestBankAccount> getCriteria() {
+	QCriteria<to.etc.test.webapp.query.qfield.TestBankAccount> getCriteria() throws Exception {
 		validateGetCriteria();
-		return (QCriteria<to.etc.test.webapp.query.qfield.TestBankAccount>) m_criteria;
+		return m_criteria;
 	}
 }

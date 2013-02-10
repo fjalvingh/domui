@@ -321,8 +321,61 @@ public class QFieldRunTest {
 
 	}
 
+	@Test
+	public void test14() throws Exception {
+		//((x=a or x=b or y=b) and (x=c or y=d)) or x=f
+		QTestRelationRoot relation = QTestRelation.get();
+		relation//
+			.$_()//
+			.$_().anum(121, 122).or().logModule("dd")._$().$_().preferredAccount().bban("23").or().anum(123)._$()//
+			._$()//
+			.or().anum(1024)//
+		;
+
+		QCriteria<TestRelation> q = QCriteria.create(TestRelation.class);
+		QRestrictor<TestRelation> or = q.or();
+		QRestrictor<TestRelation> and = or.and();
+		and.or().eq(relation.anum(), 121).eq(relation.anum(), 122).eq(relation.logModule(), "dd");
+		and.or().eq(relation.preferredAccount().bban(), "23").eq(relation.anum(), 123);
+		or.eq(relation.anum(), 1024);
+
+
+		System.out.println("14-OLD : " + q.toString());
+		QCriteria<TestRelation> q2 = relation.getCriteria();
+		System.out.println("14-NEW : " + q2.toString());
+
+		assertEquals(q.toString(), q2.toString());
+
+	}
+
+	@Test
+	public void test15() throws Exception {
+		//((y=b or x=a or x=b ) and (x=c or y=d)) or x=f
+		QTestRelationRoot relation = QTestRelation.get();
+		relation//
+			.$_()//
+			.$_().logModule("dd").or().anum(121, 122)._$().$_().preferredAccount().bban("23").or().anum(123)._$()//
+			._$()//
+			.or().anum(1024)//
+		;
+
+		QCriteria<TestRelation> q = QCriteria.create(TestRelation.class);
+		QRestrictor<TestRelation> or = q.or();
+		QRestrictor<TestRelation> and = or.and();
+		and.or().eq(relation.logModule(), "dd").eq(relation.anum(), 121).eq(relation.anum(), 122);
+		and.or().eq(relation.preferredAccount().bban(), "23").eq(relation.anum(), 123);
+		or.eq(relation.anum(), 1024);
+
+
+		System.out.println("15-OLD : " + q.toString());
+		QCriteria<TestRelation> q2 = relation.getCriteria();
+		System.out.println("15-NEW : " + q2.toString());
+
+		assertEquals(q.toString(), q2.toString());
+
+	}
 	public static void main(String[] args) throws Exception {
-		new QFieldRunTest().test6();
+		new QFieldRunTest().test15();
 		//TUtilTestRunner.run(QFieldRunTest.class, QTestRelationRoot.class, QField.class);
 		//	System.err.println(false & true | false & true);
 	}

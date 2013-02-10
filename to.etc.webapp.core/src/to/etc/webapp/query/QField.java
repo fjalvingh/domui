@@ -188,24 +188,26 @@ public class QField<R extends QField<R, ? >, T> {
 			} else {
 				node = irestrictor.restrict(v[0]);
 			}
+			qbrace().add(node);
 
 		} else {
-			QMultiNode or = new QMultiNode(OR);
-			node = or;
 			for(int i = 0; i < length; i++) {
+				QOperatorNode restrict;
 				if(v[0] instanceof double[]) {
-					or.add(irestrictor.restrict((T) new double[]{((double[]) v[0])[i]}));
+					restrict = irestrictor.restrict((T) new double[]{((double[]) v[0])[i]});
 				} else if(v[0] instanceof long[]) {
-					or.add(irestrictor.restrict((T) new long[]{((long[]) v[0])[i]}));
+					restrict = irestrictor.restrict((T) new long[]{((long[]) v[0])[i]});
 				} else if(v[0] instanceof boolean[]) {
-					or.add(irestrictor.restrict((T) new boolean[]{((boolean[]) v[0])[i]}));
+					restrict = irestrictor.restrict((T) new boolean[]{((boolean[]) v[0])[i]});
 				} else {
-					or.add(irestrictor.restrict(v[i]));
+					restrict = irestrictor.restrict(v[i]);
+				}
+				qbrace().add(restrict);
+				if(i < length - 1) {
+					qbrace().add(OR);
 				}
 			}
 		}
-
-		qbrace().add(node);
 	}
 
 
@@ -278,7 +280,7 @@ public class QField<R extends QField<R, ? >, T> {
 		return dc.queryOne(m_criteria);
 	}
 
-	protected final void validateGetCriteria() {
+	protected final void validateGetCriteria() throws Exception {
 		if(m_criteria == null) {
 			throw new ProgrammerErrorException("Can only call this on the root field.");
 		}

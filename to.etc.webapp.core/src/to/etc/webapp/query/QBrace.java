@@ -83,9 +83,10 @@ public class QBrace {
 	 * will be returned.
 	 * If there are no operations found then there is only one {@link QOperatorNode} which will be returned.
 	 * @return
+	 * @throws Exception
 	 */
 	@Nonnull
-	QOperatorNode toQOperatorNode() {
+	QOperatorNode toQOperatorNode() throws Exception {
 		QMultiNode m = null;
 		Object lastObject = null;
 		QOperatorNode node = null;
@@ -121,6 +122,10 @@ public class QBrace {
 					object = node;
 				} else if(object instanceof QOperatorNode) {
 					node = (QOperatorNode) object;
+				} else if(object == OR && i == objects.size() - 1) {
+					throw new Exception("No restriction found after last OR : " + this);
+				} else if(object == OR && i == 0) {
+					throw new Exception("No restriction found before first OR : " + this);
 				}
 				if(lastObject != null && lastObject instanceof QOperatorNode && object instanceof QOperatorNode) {
 					if(lastnode instanceof QMultiNode && ((QMultiNode) lastnode).getOperation() == AND) {
@@ -177,7 +182,7 @@ public class QBrace {
 		return m;
 	}
 
-	private QExistsSubquery< ? > fixSub(@Nonnull QList< ? , ? > qList) {
+	private QExistsSubquery< ? > fixSub(@Nonnull QList< ? , ? > qList) throws Exception {
 		QExistsSubquery< ? > subquery = qList.getSubquery();
 		subquery.setRestrictions(qList.getRoot().qbrace().toQOperatorNode());
 		return subquery;
