@@ -51,8 +51,14 @@ public class QBrace {
 						sb.append(getClass().getName() + ": exception " + x + "]");
 					}
 				} else if(object instanceof QList) {
-					sb.append("exist ");
-					sb.append(((QList< ? >) object).getRoot().qbrace());
+					QList< ? , ? > qList = (QList< ? , ? >) object;
+					sb.append("exist in ");
+					sb.append(qList.m_parent.toString());
+					sb.append(".");
+					sb.append(qList.m_listName);
+					sb.append(" : (");
+					sb.append(qList.getRoot().qbrace());
+					sb.append(")");
 				} else {
 					sb.append(object);
 				}
@@ -88,7 +94,7 @@ public class QBrace {
 			return (QOperatorNode) m_objects.get(0);
 		}
 		if(m_objects.size() == 1 && m_objects.get(0) instanceof QList) {
-			QExistsSubquery< ? > subquery = fixSub((QList< ? >) m_objects.get(0));
+			QExistsSubquery< ? > subquery = fixSub((QList< ? , ? >) m_objects.get(0));
 			return subquery;
 		}
 		if(m_objects.size() == 1 && m_objects.get(0) instanceof QBrace) {
@@ -110,7 +116,7 @@ public class QBrace {
 					object = node;
 					toNode.put(brace, node);
 				} else if(object instanceof QList) {
-					node = fixSub((QList< ? >) object);
+					node = fixSub((QList< ? , ? >) object);
 					toNode.put(object, node);
 					object = node;
 				} else if(object instanceof QOperatorNode) {
@@ -171,7 +177,7 @@ public class QBrace {
 		return m;
 	}
 
-	private QExistsSubquery< ? > fixSub(@Nonnull QList< ? > qList) {
+	private QExistsSubquery< ? > fixSub(@Nonnull QList< ? , ? > qList) {
 		QExistsSubquery< ? > subquery = qList.getSubquery();
 		subquery.setRestrictions(qList.getRoot().qbrace().toQOperatorNode());
 		return subquery;

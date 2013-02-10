@@ -10,12 +10,13 @@ import javax.annotation.*;
  * @author <a href="mailto:dennis.bekkering@itris.nl">Dennis Bekkering</a>
  * Created on Feb 3, 2013
  */
-public class QList<R extends QField<R, ? >> {
+public class QList<P extends QField<P, ? >, R extends QField<R, ? >> {
 
 
 	private @Nonnull R m_root;
 
-	private @Nonnull QField< ? , ? > m_parent;
+	@Nonnull
+	QField<P, ? > m_parent;
 
 	private @Nonnull
 	QExistsSubquery< ? > m_subquery;
@@ -23,11 +24,11 @@ public class QList<R extends QField<R, ? >> {
 	@Nonnull
 	String m_listName;
 
-	public QList(@Nonnull R root, @Nonnull QField< ? , ? > parent, String listName) throws Exception {
+	public QList(@Nonnull R root, @Nonnull QField<P, ? > parent, String listName) throws Exception {
 		m_root = root;
 		m_root.m_isSub = true;
 		m_parent = parent;
-		m_listName = listName;
+		m_listName = parent.toString().equals("") ? listName : parent.toString() + "." + listName;
 	}
 
 	public @Nonnull

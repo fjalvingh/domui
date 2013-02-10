@@ -289,6 +289,7 @@ public class QField<R extends QField<R, ? >, T> {
 			throw new ProgrammerErrorException("Cannot get criteria from subselect.");
 		}
 		if(m_criteria.getRestrictions() == null) {
+			//System.out.println("qbrace:" + qbrace().toString());
 			m_criteria.setRestrictions(qbrace().toQOperatorNode());
 		}
 	}

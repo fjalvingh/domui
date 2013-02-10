@@ -50,8 +50,9 @@ public class QFieldCompileTest {
 		q.eq(r.anum(), 123.0);
 		//q.eq(r.banks(), 123.0);cannot use list as eq field or get properties from it
 		QRestrictor<TestBank> exists = q.exists(r.banks());
+		//q.exists(QTestBankAccount.get().relation().banks());//cannot get exists from different root
 		//exists.eq(r.preferredAccount().bank().bankname(), "123456");//cannot do this by mistake, will not compile
-		exists.eq(QTestBank.get().bankname(), "123456");//have to use another root on exists
+		exists.eq(QTestBank.get().bankname(), "123456");//have to use root on exists
 
 		//is same
 		QTestBankRoot b = QTestBank.get();

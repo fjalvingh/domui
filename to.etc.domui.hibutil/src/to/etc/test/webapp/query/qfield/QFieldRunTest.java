@@ -126,6 +126,7 @@ public class QFieldRunTest {
 		System.out.println("6-NEW : " + relation.getCriteria().toString());
 		assertEquals(q.toString(), relation.getCriteria().toString());
 
+		//b
 		relation = QTestRelation.get();
 		relation.anum(12).banks().exists().bankname("23");
 
@@ -137,6 +138,18 @@ public class QFieldRunTest {
 		System.out.println("6b-OLD : " + q.toString());
 		System.out.println("6b-NEW : " + relation.getCriteria().toString());
 		assertEquals(q.toString(), relation.getCriteria().toString());
+
+		//c
+		QTestBankAccountRoot bankAccount = QTestBankAccount.get();
+		bankAccount.relation().banks().exists().bankname("23");
+
+		QCriteria<TestBankAccount> q2 = QCriteria.create(TestBankAccount.class);
+
+		q2.exists(bankAccount.relation().banks()).eq(bank.bankname(), "23");
+
+		System.out.println("6c-OLD : " + q2.toString());
+		System.out.println("6c-NEW : " + bankAccount.getCriteria().toString());
+		assertEquals(q2.toString(), bankAccount.getCriteria().toString());
 
 	}
 
@@ -309,7 +322,7 @@ public class QFieldRunTest {
 	}
 
 	public static void main(String[] args) throws Exception {
-		new QFieldRunTest().test12();
+		new QFieldRunTest().test6();
 		//TUtilTestRunner.run(QFieldRunTest.class, QTestRelationRoot.class, QField.class);
 		//	System.err.println(false & true | false & true);
 	}

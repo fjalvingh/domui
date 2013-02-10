@@ -539,7 +539,7 @@ abstract public class QRestrictor<T> {
 	}
 
 	@Nonnull
-	public <R extends QField<R, U>, U> QRestrictor<U> exists(@Nonnull QList<R> listProperty) throws Exception {
+	public <P extends QField<P, T>, R extends QField<R, U>, U> QRestrictor<U> exists(@Nonnull QList<P, R> listProperty) throws Exception {
 		return (QRestrictor<U>) exists(listProperty.getRootClass(), listProperty.m_listName);
 	}
 

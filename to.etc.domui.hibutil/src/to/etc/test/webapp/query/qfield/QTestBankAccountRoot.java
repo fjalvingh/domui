@@ -5,9 +5,9 @@ import javax.annotation.*;
  * @author <a href="mailto:dennis.bekkering@itris.nl">Dennis Bekkering</a>
  */
 @Generated(value = { "This is a generated file. It will be overwritten during compilation. It is therefore useless to make any modifications" })
-public final class QTestBankAccountEntityRoot extends QTestBankAccount<QTestBankAccountEntityRoot> {
+public final class QTestBankAccountRoot extends QTestBankAccount<QTestBankAccountRoot> {
 
-	QTestBankAccountEntityRoot() {
+	QTestBankAccountRoot() {
 		super(null, null, null);
 	}
 
