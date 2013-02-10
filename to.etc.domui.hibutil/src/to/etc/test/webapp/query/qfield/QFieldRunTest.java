@@ -184,14 +184,13 @@ public class QFieldRunTest {
 
 	@Test
 	public void test9() throws Exception {
-		//((x=a or y=b) and (x=c or y=d)) and x=f
+		//(x=a or y=b) and (x=c or y=d) and x=f
 		QTestRelationRoot relation = QTestRelation.get();
 		relation//
-			.$_()//
 			.$_().anum(121).or().logModule("dd")._$()//
 			.$_().preferredAccount().bban("23").or().anum(123)._$()//
 			.anum(1024)//
-			._$();
+		;
 
 		QCriteria<TestRelation> q = QCriteria.create(TestRelation.class);
 		q.or().eq(relation.preferredAccount().bban(), "23").eq(relation.anum(), 123);
@@ -207,14 +206,13 @@ public class QFieldRunTest {
 
 	@Test
 	public void test10() throws Exception {
-		// ((x=a or y=b) and (x=c or y=d)) or x=f
+		//(x=a or y=b) and (x=c or y=d) or x=f
 		QTestRelationRoot relation = QTestRelation.get();
 		relation//
-			.$_()//
 			.$_().anum(121).or().logModule("dd")._$()//
 			.$_().preferredAccount().bban("23").or().anum(123)._$()//
 			.or().anum(1024)//
-			._$();
+		;
 
 		QCriteria<TestRelation> q = QCriteria.create(TestRelation.class);
 		QRestrictor<TestRelation> or = q.or();
@@ -259,7 +257,7 @@ public class QFieldRunTest {
 
 	@Test
 	public void test12() throws Exception {
-		// ((x=a and y=b) or (x=c and y=d)) and x=f
+		// (x=a and y=b) and x=f or (x=c and y=d)
 		QTestRelationRoot relation = QTestRelation.get();
 		relation//
 			.$_().preferredAccount().bban("23").anum(123)._$()//
@@ -282,6 +280,34 @@ public class QFieldRunTest {
 		assertEquals(q.toString(), q2.toString());
 
 	}
+
+	@Test
+	public void test13() throws Exception {
+		//((x=a or y=b) and (x=c or y=d)) or x=f
+		QTestRelationRoot relation = QTestRelation.get();
+		relation//
+			.$_()//
+			.$_().anum(121).or().logModule("dd")._$().$_().preferredAccount().bban("23").or().anum(123)._$()//
+			._$()//
+			.or().anum(1024)//
+		;
+
+		QCriteria<TestRelation> q = QCriteria.create(TestRelation.class);
+		QRestrictor<TestRelation> or = q.or();
+		QRestrictor<TestRelation> and = or.and();
+		and.or().eq(relation.anum(), 121).eq(relation.logModule(), "dd");
+		and.or().eq(relation.preferredAccount().bban(), "23").eq(relation.anum(), 123);
+		or.eq(relation.anum(), 1024);
+
+
+		System.out.println("13-OLD : " + q.toString());
+		QCriteria<TestRelation> q2 = relation.getCriteria();
+		System.out.println("13-NEW : " + q2.toString());
+
+		assertEquals(q.toString(), q2.toString());
+
+	}
+
 	public static void main(String[] args) throws Exception {
 		new QFieldRunTest().test12();
 		//TUtilTestRunner.run(QFieldRunTest.class, QTestRelationRoot.class, QField.class);
