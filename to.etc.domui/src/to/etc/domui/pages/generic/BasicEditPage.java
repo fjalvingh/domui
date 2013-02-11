@@ -43,7 +43,7 @@ import to.etc.webapp.query.*;
  * Created on Oct 22, 2008
  */
 public abstract class BasicEditPage<T> extends BasicPage<T> {
-	private ButtonBar m_buttonBar;
+	private IButtonBar m_buttonBar;
 
 	private boolean m_deleteable;
 
@@ -113,10 +113,10 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 	}
 
 	protected void createButtonBar() {
-		add(getButtonBar());
+		add((ButtonBar) getButtonBar());
 	}
 
-	public ButtonBar getButtonBar() {
+	public IButtonBar getButtonBar() {
 		if(m_buttonBar == null)
 			m_buttonBar = new ButtonBar();
 		return m_buttonBar;

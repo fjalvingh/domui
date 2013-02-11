@@ -72,7 +72,7 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 14, 2008
  */
-public class LookupForm<T> extends Div {
+public class LookupForm<T> extends Div implements IButtonContainer {
 	/** The data class we're looking for */
 	@Nonnull
 	private Class<T> m_lookupClass;
@@ -108,6 +108,8 @@ public class LookupForm<T> extends Div {
 	private NodeContainer m_buttonRow;
 
 	private ControlBuilder m_builder;
+
+	private ButtonFactory m_buttonFactory = new ButtonFactory(this);
 
 	/**
 	 * T in case that control is rendered as collapsed (meaning that search panel is hidden).
@@ -1345,5 +1347,26 @@ public class LookupForm<T> extends Div {
 	public void setQueryFactory(IQueryFactory<T> queryFactory) {
 		m_queryFactory = queryFactory;
 	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Button container handling.							*/
+	/*--------------------------------------------------------------*/
+	/**
+	 *
+	 * @see to.etc.domui.component.layout.IButtonContainer#addButton(to.etc.domui.dom.html.NodeBase, int)
+	 */
+	@Override
+	public void addButton(@Nonnull NodeBase thing, int order) {
+		if(order < 0)
+			addButtonItem(thing);
+		else
+			addButtonItem(thing, order);
+	}
+
+	@Nonnull
+	public ButtonFactory getButtonFactory() {
+		return m_buttonFactory;
+	}
+
 
 }

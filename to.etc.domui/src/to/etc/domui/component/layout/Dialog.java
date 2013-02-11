@@ -146,7 +146,7 @@ public class Dialog extends Window {
 	 * added to the top content area.
 	 * @return
 	 */
-	public ButtonBar getButtonBar() {
+	public IButtonBar getButtonBar() {
 		if(m_buttonBar == null)
 			createButtonBar(true);
 		return m_buttonBar;

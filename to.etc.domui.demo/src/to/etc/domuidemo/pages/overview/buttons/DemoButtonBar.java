@@ -15,6 +15,7 @@ public class DemoButtonBar extends UrlPage {
 		ButtonBar bb = new ButtonBar();
 		d.add(bb);
 		bb.addButton(new TextNode("Buttonbar (the back button is special):"));
+
 		bb.addButton("Complaint", "img/btnComplaint.gif", new IClicked<DefaultButton>() {
 			public void clicked(final DefaultButton b) throws Exception {
 				MsgBox.message(d, MsgBox.Type.INFO, "Button pressed: Failed");
