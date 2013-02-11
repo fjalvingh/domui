@@ -33,11 +33,13 @@ public interface INodeContentRenderer<T> {
 	 * Render the content for a node. You should add whatever is needed to render the value of "object" to the "node" parameter, as either text
 	 * or other DomUI nodes.
 	 *
+	 * jal 20130211 object MUST be @Nullable, because lots of code depends on needing to render an empty value structure (for instance LookupInputBase).
+	 *
 	 * @param component
 	 * @param node
-	 * @param object
+	 * @param object				The nullable item we're rendering.
 	 * @param parameters
 	 * @throws Exception
 	 */
-	void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nonnull T object, @Nullable Object parameters) throws Exception;
+	void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable T object, @Nullable Object parameters) throws Exception;
 }

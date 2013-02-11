@@ -158,14 +158,14 @@ public class SimpleBinder implements IBinder {
 		if(m_listener != null)
 			((IBindingListener<NodeBase>) m_listener).moveControlToModel((NodeBase) m_control); // Stupid generics idiocy requires cast
 		else {
-			if(m_propertyModel.getReadOnly() == YesNoType.YES)
+			PropertyMetaModel<Object> propertyModel = (PropertyMetaModel<Object>) m_propertyModel;
+			if(null == propertyModel)
+				throw new IllegalStateException("Binding for a model item without a propertyModel");
+			if(propertyModel.getReadOnly() == YesNoType.YES)
 				return;
 			Object val = m_control.getValue();
 			Object base = m_instance == null ? getModel().getValue() : m_instance;
-			IValueAccessor<Object> a = (IValueAccessor<Object>) m_propertyModel;
-			if(null == a)
-				throw new IllegalStateException("The propertyModel cannot be null");
-			a.setValue(base, val);
+			propertyModel.setValue(base, val);
 		}
 	}
 
