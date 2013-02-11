@@ -161,6 +161,7 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 	 * @param propertyName
 	 * @return
 	 */
+	@Nonnull
 	public SimpleColumnDef< ? > getColumnByName(String propertyName) {
 		for(SimpleColumnDef< ? > scd : m_columnList) {
 			if(propertyName.equals(scd.getPropertyName()))

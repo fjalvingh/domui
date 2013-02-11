@@ -10,6 +10,7 @@ import to.etc.domui.converter.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
+import to.etc.webapp.annotations.*;
 
 /**
  * A list of {@link SimpleColumnDef} columns used to define characteristics of columns in any
@@ -51,6 +52,11 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	}
 
 	@Nonnull
+	private ClassMetaModel model() {
+		return m_metaModel;
+	}
+
+	@Nonnull
 	public SimpleColumnDef< ? > get(int ix) {
 		if(ix < 0 || ix >= m_columnList.size())
 			throw new IndexOutOfBoundsException("Column " + ix + " does not exist");
@@ -85,6 +91,8 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	}
 
 	/**
+	 * STOP USING; Use {@link RowRenderer} instead or use the different "column(xx)" methods in this class.
+	 *
 	 * Add the specified list of property names and presentation options to the column definitions. The items passed in the
 	 * columns object can be multiple property definitions followed by specifications. A property name is a string starting
 	 * with a letter always. All other Strings and objects are treated as specifications for display. The possible specifications
@@ -104,6 +112,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	 * @param cols
 	 * <X, C extends IConverter<X>, R extends INodeContentRenderer<X>>
 	 */
+	@Deprecated
 	@SuppressWarnings("fallthrough")
 	public <R> void addColumns(@Nonnull final Object... cols) {
 		if(cols == null || cols.length == 0)
@@ -248,7 +257,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 		 */
 		if(property.length() == 0) {
 			//-- We have the full class as the type of the model.
-			SimpleColumnDef<T> cd = new SimpleColumnDef<T>(m_rootClass);			// We are the root class.
+			SimpleColumnDef<T> cd = new SimpleColumnDef<T>(this, m_rootClass);			// We are the root class.
 			add(cd);
 			cd.setWidth(width);
 			cd.setCssClass(cssclass);
@@ -301,7 +310,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 			throw new IllegalStateException("All columns MUST have some name");
 
 		//-- Create a column def from the metadata
-		final SimpleColumnDef<V> scd = new SimpleColumnDef<V>(xdp);
+		final SimpleColumnDef<V> scd = new SimpleColumnDef<V>(this, xdp);
 		add(scd);
 		scd.setDisplayLength(xdp.getDisplayLength());
 		if(width != null)
@@ -348,7 +357,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	private <V, R> void defineRendererProperty(final String property, final String width, final IConverter<R> conv, final Class<R> convclz, final String caption, final String cssclass,
 		final INodeContentRenderer< ? > nodeRenderer, final Class< ? > nrclass, final boolean nowrap, SortableType sort, ICellClicked< ? > clickHandler, boolean defaultsort, ISortHelper sortHelper,
 		final PropertyMetaModel<V> pmm) {
-		final SimpleColumnDef<V> cd = new SimpleColumnDef<V>(pmm);
+		final SimpleColumnDef<V> cd = new SimpleColumnDef<V>(this, pmm);
 		add(cd);
 		cd.setValueTransformer(pmm);
 		cd.setColumnLabel(caption == null ? pmm.getDefaultLabel() : caption);
@@ -410,14 +419,16 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 		}
 	}
 
-	private <V> void addExpandedDisplayProp(@Nonnull ExpandedDisplayProperty<V> xdp) {
-		SimpleColumnDef<V> scd = new SimpleColumnDef<V>(xdp);
+	@Nonnull
+	private <V> SimpleColumnDef<V> addExpandedDisplayProp(@Nonnull ExpandedDisplayProperty<V> xdp) {
+		SimpleColumnDef<V> scd = new SimpleColumnDef<V>(this, xdp);
 		if(scd.getNumericPresentation() != null && scd.getNumericPresentation() != NumericPresentation.UNKNOWN) {
 			scd.setCssClass("ui-numeric");
 			scd.setHeaderCssClass("ui-numeric");
 		}
 
 		m_columnList.add(scd);
+		return scd;
 	}
 
 	/**
@@ -505,4 +516,84 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	public void setSortDescending(boolean desc) {
 		m_sortDescending = desc;
 	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Typeful column definition code.						*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Add and return the column definition for a column on the specified property. Because Java still has no
+	 * first-class properties (sigh) you need to pass in the property's type to get a typeful column. If you
+	 * do not need a typeful column use {@link #column(String)}.
+	 * @param type
+	 * @param property
+	 * @return
+	 */
+	@Nonnull
+	public <V> SimpleColumnDef<V> column(@Nonnull Class<V> type, @Nonnull @GProperty String property) {
+		PropertyMetaModel<V> pmm = (PropertyMetaModel<V>) model().getProperty(property);
+		return createColumnDef(pmm);
+	}
+
+	@Nonnull
+	private <V> SimpleColumnDef<V> createColumnDef(@Nonnull PropertyMetaModel<V> pmm) {
+		//-- Try to see what the column expands to
+		final ExpandedDisplayProperty< ? > xdpt = ExpandedDisplayProperty.expandProperty(pmm);
+		final List<ExpandedDisplayProperty< ? >> flat = new ArrayList<ExpandedDisplayProperty< ? >>();
+		ExpandedDisplayProperty.flatten(flat, xdpt); 									// Expand any compounds;
+		if(flat.size() == 0)
+			throw new IllegalStateException("Expansion for property " + pmm + " resulted in 0 columns!?");
+
+		//-- If we still have a single thing, and it refers to the same property we can just create a direct reference to the new thing and default it to it's metadata
+		if(flat.size() == 1) {
+			ExpandedDisplayProperty< ? > xdp = flat.get(1);
+			if(xdp.getActualType() == pmm.getActualType()) {
+				//-- Still refers to the same type -> it's just a display property wrapper.
+				SimpleColumnDef<V> scd = new SimpleColumnDef<V>(this, (ExpandedDisplayProperty<V>) xdp);
+				scd.setNowrap(true);
+				add(scd);
+				return scd;
+			}
+		}
+
+		/*
+		 * We have an expanded property, either one that exploded into > 1 columns or an expansion that changed the type
+		 * of the column (which happens when the column is converted using a join string conversion). We will create a
+		 * synthetic column which will "contain" all of the real generated columns. Lots of operations are not valid
+		 * on synthetic column definitions because they cannot be "spread" over the individual columns.
+		 */
+		SimpleColumnDef<V> scd = new SimpleColumnDef<V>(this, pmm);						// Create the synthetic-thing-to-be; we'll add all real columns to it
+		for(final ExpandedDisplayProperty< ? > xdp : flat) {
+			if(xdp.getName() == null)
+				throw new IllegalStateException("All columns MUST have some name");
+			SimpleColumnDef< ? > ccd = addExpandedDisplayProp(xdp);
+			scd.addExpanded(ccd);
+		}
+		return scd;
+	}
+
+	/**
+	 * This adds a column on the specified property, but has no idea about the real type. It can be used as long
+	 * as that type is not needed.
+	 * @param property
+	 * @return
+	 */
+	@Nonnull
+	public SimpleColumnDef< ? > column(@Nonnull @GProperty String property) {
+		PropertyMetaModel< ? > pmm = model().getProperty(property);			// Get the appropriate model
+		return createColumnDef(pmm);
+	}
+
+	/**
+	 * Add a column which gets referred the row element instead of a column element. This is normally used together with
+	 * @return
+	 */
+	@Nonnull
+	public SimpleColumnDef<T> column() {
+		SimpleColumnDef<T> scd = new SimpleColumnDef<T>(this, m_rootClass);
+		add(scd);
+		scd.setNowrap(true);
+		return scd;
+	}
+
+
 }

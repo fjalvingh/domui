@@ -143,8 +143,9 @@ public class SimpleRowRenderer<T> extends AbstractRowRenderer<T> implements ICli
 		}
 	}
 
-	static private <V> SimpleColumnDef<V> createDef(@Nonnull ExpandedDisplayProperty<V> v) {
-		return new SimpleColumnDef<V>(v);
+	@Nonnull
+	private <V> SimpleColumnDef<V> createDef(@Nonnull ExpandedDisplayProperty<V> v) {
+		return new SimpleColumnDef<V>(getColumnList(), v);
 	}
 
 	/**

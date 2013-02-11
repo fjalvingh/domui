@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.tbl;
 
+import java.util.*;
+
 import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
@@ -31,6 +33,7 @@ import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.util.*;
+import to.etc.webapp.*;
 
 /**
  * Contains data for rendering a column in a data table.
@@ -46,6 +49,12 @@ final public class SimpleColumnDef<T> {
 	/** The label text, if needed, to use as the column heading */
 	@Nullable
 	private String m_columnLabel;
+
+	@Nonnull
+	final private ColumnDefList< ? > m_defList;
+
+	@Nonnull
+	private List<SimpleColumnDef< ? >> m_childColumns = Collections.EMPTY_LIST;
 
 	@Nonnull
 	final private Class<T> m_columnType;
@@ -68,6 +77,7 @@ final public class SimpleColumnDef<T> {
 	@Nullable
 	private String m_headerCssClass;
 
+	@Deprecated
 	private int m_displayLength;
 
 	private boolean m_nowrap;
@@ -94,15 +104,17 @@ final public class SimpleColumnDef<T> {
 	@Nullable
 	private String m_renderHint;
 
-	public SimpleColumnDef(Class<T> valueClass) {
+	public <X> SimpleColumnDef(@Nonnull ColumnDefList< ? > cdl, @Nonnull Class<T> valueClass) {
 		m_columnType = valueClass;
+		m_defList = cdl;
 	}
 
 	/**
 	 * Create a column definition using metadata for the column.
 	 * @param m
 	 */
-	public SimpleColumnDef(@Nonnull PropertyMetaModel<T> m) {
+	public SimpleColumnDef(@Nonnull ColumnDefList< ? > cdl, @Nonnull PropertyMetaModel<T> m) {
+		m_defList = cdl;
 		m_columnType = m.getActualType();
 		setColumnLabel(m.getDefaultLabel());
 		setValueTransformer(m); // Thing which can obtain the value from the property
@@ -114,7 +126,8 @@ final public class SimpleColumnDef<T> {
 			setNowrap(true);
 	}
 
-	public SimpleColumnDef(@Nonnull ExpandedDisplayProperty<T> m) {
+	public SimpleColumnDef(@Nonnull ColumnDefList< ? > cdl, @Nonnull ExpandedDisplayProperty<T> m) {
+		m_defList = cdl;
 		m_columnType = m.getActualType();
 		setColumnLabel(m.getDefaultLabel());
 		setValueTransformer(m); // Thing which can obtain the value from the property
@@ -137,31 +150,73 @@ final public class SimpleColumnDef<T> {
 		return m_columnLabel;
 	}
 
-	public void setColumnLabel(@Nullable String columnLabel) {
-		m_columnLabel = columnLabel;
+	/**
+	 * Returns T if this column is a synthetic, expanded column.
+	 * @return
+	 */
+	public boolean isExpanded() {
+		return m_childColumns.size() > 0;
+	}
+
+	/**
+	 * Return T if this column is expanded but only to one other column.
+	 * @return
+	 */
+	public boolean isSimple() {
+		return m_childColumns.size() == 1;
 	}
 
 	@Nonnull
-	public Class< ? > getColumnType() {
+	public SimpleColumnDef< ? > simple() {
+		if(m_childColumns.size() != 1)
+			throw new IllegalStateException("Cannot call this with non-simple expanded column");
+		return m_childColumns.get(0);
+	}
+
+	/**
+	 * Abort if this is an expanded property.
+	 * @param what
+	 */
+	private void unexpanded(String what) {
+		if(isExpanded())
+			throw new ProgrammerErrorException("You cannot use/call/set " + what + " on expanded property " + m_propertyName);
+	}
+
+	public void setColumnLabel(@Nullable String columnLabel) {
+		label(columnLabel);
+	}
+
+	@Nonnull
+	public Class<T> getColumnType() {
 		return m_columnType;
 	}
 
 	@Nonnull
 	public SortableType getSortable() {
+		if(isSimple())
+			return simple().getSortable();
 		return m_sortable;
 	}
 
 	public void setSortable(@Nonnull SortableType sortable) {
-		m_sortable = sortable == null ? SortableType.UNKNOWN : sortable;
+		if(isSimple())
+			simple().setSortable(sortable);
+		else {
+			unexpanded("sort order");
+			m_sortable = sortable == null ? SortableType.UNKNOWN : sortable;
+		}
 	}
 
 	@Nullable
 	public String getWidth() {
+		if(isSimple())
+			return simple().getWidth();
+		unexpanded("width");
 		return m_width;
 	}
 
 	public void setWidth(@Nullable String width) {
-		m_width = width;
+		width(width);
 	}
 
 	@Nullable
@@ -179,10 +234,12 @@ final public class SimpleColumnDef<T> {
 	 */
 	@Nullable
 	public IObjectToStringConverter<T> getPresentationConverter() {
+		unexpanded("presentationConverter");
 		return m_presentationConverter;
 	}
 
 	public void setPresentationConverter(@Nullable IConverter<T> valueConverter) {
+		unexpanded("presentationConverter");
 		m_presentationConverter = valueConverter;
 	}
 
@@ -197,6 +254,10 @@ final public class SimpleColumnDef<T> {
 
 	@Nullable
 	public INodeContentRenderer< ? > getContentRenderer() {
+		if(isSimple())
+			return simple().getContentRenderer();
+		if(isExpanded())
+			return null;
 		return m_contentRenderer;
 	}
 
@@ -241,10 +302,21 @@ final public class SimpleColumnDef<T> {
 		m_headerCssClass = headerCssClass;
 	}
 
+	/**
+	 * Seems nonsense, use width instead.
+	 * @return
+	 */
+	@Deprecated
 	public int getDisplayLength() {
 		return m_displayLength;
 	}
 
+	/**
+	 * Seems nonsense, use width instead.
+	 * @param displayLength
+	 * @return
+	 */
+	@Deprecated
 	public void setDisplayLength(int displayLength) {
 		m_displayLength = displayLength;
 	}
@@ -306,5 +378,213 @@ final public class SimpleColumnDef<T> {
 	@Override
 	public String toString() {
 		return "SimpleColumnDef[" + getPropertyName() + ", type=" + getColumnType() + ", lbl=" + getColumnLabel() + "]";
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Chainable setters.									*/
+	/*--------------------------------------------------------------*/
+
+	/**
+	 * Set the column header's label.
+	 * @param columnLabel
+	 * @return
+	 */
+	@Nonnull
+	public SimpleColumnDef<T> label(@Nullable String columnLabel) {
+		m_columnLabel = columnLabel;
+		if(isSimple())
+			simple().setColumnLabel(columnLabel);
+		else
+			unexpanded("title");
+		return this;
+	}
+
+	/**
+	 * Set the text align for this column. Defaults depend on the numeric type of the column, if known.
+	 * @param align
+	 * @return
+	 */
+	@Nonnull
+	public SimpleColumnDef<T> align(@Nonnull TextAlign align) {
+		m_align = align;
+		return this;
+	}
+
+	/**
+	 * Set the cell click handler.
+	 * @param ck
+	 * @return
+	 */
+	@Nonnull
+	public SimpleColumnDef<T> cellClicked(@Nonnull ICellClicked<T> ck) {
+		m_cellClicked = ck;
+		return this;
+	}
+
+	/**
+	 * Set the node content renderer.
+	 * @param cr
+	 * @return
+	 */
+	@Nonnull
+	public SimpleColumnDef<T> renderer(@Nonnull INodeContentRenderer<T> cr) {
+		m_contentRenderer = cr;
+		return this;
+	}
+
+	/**
+	 * Set the css class of this column's values.
+	 * @param css
+	 * @return
+	 */
+	@Nonnull
+	public SimpleColumnDef<T> css(@Nonnull String css) {
+		m_cssClass = css;
+		return this;
+	}
+
+	/**
+	 * Set the css class of this column's header.
+	 * @param css
+	 * @return
+	 */
+	@Nonnull
+	public SimpleColumnDef<T> cssHeader(@Nonnull String css) {
+		m_headerCssClass = css;
+		return this;
+	}
+
+	/**
+	 * Make sure this column's contents are wrapped (by default columns added by {@link RowRenderer} are marked as not wrappable.
+	 * @return
+	 */
+	@Nonnull
+	public SimpleColumnDef<T> wrap() {
+		m_nowrap = false;
+		return this;
+	}
+
+	/**
+	 * Set the column to nowrap.
+	 * @return
+	 */
+	@Nonnull
+	public SimpleColumnDef<T> nowrap() {
+		m_nowrap = true;
+		return this;
+	}
+
+	/**
+	 * Set the numeric presentation for this column.
+	 * @param np
+	 * @return
+	 */
+	@Nonnull
+	public SimpleColumnDef<T> numeric(@Nonnull NumericPresentation np) {
+		m_numericPresentation = np;
+		return this;
+	}
+
+	/**
+	 * Set a column value-to-string converter to be used.
+	 * @param c
+	 * @return
+	 */
+	@Nonnull
+	public SimpleColumnDef<T> converter(@Nonnull IObjectToStringConverter<T> c) {
+		m_presentationConverter = c;
+		return this;
+	}
+
+	/**
+	 * Set the hint for a column.
+	 * @param hint
+	 * @return
+	 */
+	@Nonnull
+	public SimpleColumnDef<T>	hint(@Nonnull String hint) {
+		m_renderHint = hint;
+		return this;
+	}
+
+	/**
+	 * Set the default sort order to ascending first.
+	 * @return
+	 */
+	@Nonnull
+	public SimpleColumnDef<T>	ascending() {
+		setSortable(SortableType.SORTABLE_ASC);
+		return this;
+	}
+
+	/**
+	 * Set the default sort order to descending first.
+	 * @return
+	 */
+	@Nonnull
+	public SimpleColumnDef<T>	descending() {
+		setSortable(SortableType.SORTABLE_DESC);
+		return this;
+	}
+
+	/**
+	 * Set this column as the default column to sort on.
+	 * @return
+	 */
+	@Nonnull
+	public SimpleColumnDef<T>	sortdefault() {
+		if(isSimple())
+			m_defList.setSortColumn(simple());
+		else {
+			unexpanded("sortdefault");
+			m_defList.setSortColumn(this);
+		}
+		return this;
+	}
+
+	/**
+	 * Set a sort helper to be used for this column.
+	 * @param sh
+	 * @return
+	 */
+	@Nonnull
+	public SimpleColumnDef<T>	sort(@Nonnull ISortHelper sh) {
+		m_sortHelper = sh;
+		if(m_sortable == SortableType.UNKNOWN)
+			m_sortable = SortableType.SORTABLE_ASC;
+		return this;
+	}
+
+	/**
+	 * Set a value transformer to convert this column value into something else.
+	 * @param vt
+	 * @return
+	 */
+	@Nonnull
+	public SimpleColumnDef<T>	transform(@Nonnull IValueTransformer<T> vt) {
+		m_valueTransformer = vt;
+		return this;
+	}
+
+	@Nonnull
+	public SimpleColumnDef<T> width(@Nullable String w) {
+		if(isSimple())
+			simple().width(w);
+		else {
+			unexpanded("width");
+			m_width = w;
+		}
+		return this;
+	}
+
+	/**
+	 * When this def actually represents a set of columns, expanded because of the source property being
+	 * an expanded property, then this adds all of the source columns.
+	 * @param ccd
+	 */
+	protected void addExpanded(@Nonnull SimpleColumnDef< ? > ccd) {
+		if(m_childColumns.size() == 0)
+			m_childColumns = new ArrayList<SimpleColumnDef< ? >>();
+		m_childColumns.add(ccd);
 	}
 }
