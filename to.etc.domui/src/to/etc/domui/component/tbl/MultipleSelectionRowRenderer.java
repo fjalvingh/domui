@@ -69,7 +69,7 @@ public abstract class MultipleSelectionRowRenderer<T> extends SimpleRowRenderer<
 		addColumns(xdpl, widths);
 		ix = 0;
 		int remainingWidthInPixels = getRowWidth() - getSelectionColWidth();
-		for(final SimpleColumnDef scd : getColumnList()) {
+		for(final SimpleColumnDef< ? > scd : getColumnList()) {
 			/*
 			 * Calculation:
 			 *

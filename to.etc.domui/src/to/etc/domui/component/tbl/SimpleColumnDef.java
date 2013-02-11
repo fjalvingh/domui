@@ -38,7 +38,7 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 18, 2008
  */
-final public class SimpleColumnDef {
+final public class SimpleColumnDef<T> {
 	static public final String NOWRAP = "-NOWRAP";
 
 	static public final String DEFAULTSORT = "-DSORT";
@@ -47,8 +47,8 @@ final public class SimpleColumnDef {
 	@Nullable
 	private String m_columnLabel;
 
-	@Nullable
-	private Class< ? > m_columnType;
+	@Nonnull
+	final private Class<T> m_columnType;
 
 	@Nonnull
 	private SortableType m_sortable = SortableType.UNKNOWN;
@@ -74,10 +74,10 @@ final public class SimpleColumnDef {
 
 	/** The thingy which obtains the column's value (as an object) */
 	@Nullable
-	private IValueTransformer< ? > m_valueTransformer;
+	private IValueTransformer<T> m_valueTransformer;
 
 	@Nullable
-	private IObjectToStringConverter< ? > m_presentationConverter;
+	private IObjectToStringConverter<T> m_presentationConverter;
 
 	@Nonnull
 	private NumericPresentation m_numericPresentation = NumericPresentation.UNKNOWN;
@@ -86,23 +86,25 @@ final public class SimpleColumnDef {
 	private TextAlign m_align;
 
 	@Nullable
-	private INodeContentRenderer< ? > m_contentRenderer;
+	private INodeContentRenderer<T> m_contentRenderer;
 
 	@Nullable
-	private ICellClicked< ? > m_cellClicked;
+	private ICellClicked<T> m_cellClicked;
 
 	@Nullable
 	private String m_renderHint;
 
-	public SimpleColumnDef() {}
+	public SimpleColumnDef(Class<T> valueClass) {
+		m_columnType = valueClass;
+	}
 
 	/**
 	 * Create a column definition using metadata for the column.
 	 * @param m
 	 */
-	public SimpleColumnDef(@Nonnull PropertyMetaModel< ? > m) {
+	public SimpleColumnDef(@Nonnull PropertyMetaModel<T> m) {
+		m_columnType = m.getActualType();
 		setColumnLabel(m.getDefaultLabel());
-		setColumnType(m.getActualType());
 		setValueTransformer(m); // Thing which can obtain the value from the property
 		setPresentationConverter(ConverterRegistry.findBestConverter(m));
 		setSortable(m.getSortable());
@@ -112,9 +114,9 @@ final public class SimpleColumnDef {
 			setNowrap(true);
 	}
 
-	public SimpleColumnDef(@Nonnull ExpandedDisplayProperty< ? > m) {
+	public SimpleColumnDef(@Nonnull ExpandedDisplayProperty<T> m) {
+		m_columnType = m.getActualType();
 		setColumnLabel(m.getDefaultLabel());
-		setColumnType(m.getActualType());
 		setValueTransformer(m); // Thing which can obtain the value from the property
 		setPresentationConverter(m.getBestConverter());
 		setSortable(SortableType.UNSORTABLE); // FIXME From meta pls
@@ -139,13 +141,9 @@ final public class SimpleColumnDef {
 		m_columnLabel = columnLabel;
 	}
 
-	@Nullable
+	@Nonnull
 	public Class< ? > getColumnType() {
 		return m_columnType;
-	}
-
-	public void setColumnType(@Nullable Class< ? > columnType) {
-		m_columnType = columnType;
 	}
 
 	@Nonnull
@@ -167,11 +165,11 @@ final public class SimpleColumnDef {
 	}
 
 	@Nullable
-	public IValueTransformer< ? > getValueTransformer() {
+	public IValueTransformer<T> getValueTransformer() {
 		return m_valueTransformer;
 	}
 
-	public void setValueTransformer(@Nullable IValueTransformer< ? > valueTransformer) {
+	public void setValueTransformer(@Nullable IValueTransformer<T> valueTransformer) {
 		m_valueTransformer = valueTransformer;
 	}
 
@@ -180,11 +178,11 @@ final public class SimpleColumnDef {
 	 * @return
 	 */
 	@Nullable
-	public IObjectToStringConverter< ? > getPresentationConverter() {
+	public IObjectToStringConverter<T> getPresentationConverter() {
 		return m_presentationConverter;
 	}
 
-	public void setPresentationConverter(@Nullable IConverter< ? > valueConverter) {
+	public void setPresentationConverter(@Nullable IConverter<T> valueConverter) {
 		m_presentationConverter = valueConverter;
 	}
 
@@ -202,7 +200,7 @@ final public class SimpleColumnDef {
 		return m_contentRenderer;
 	}
 
-	public void setContentRenderer(@Nullable INodeContentRenderer< ? > contentRenderer) {
+	public void setContentRenderer(@Nullable INodeContentRenderer<T> contentRenderer) {
 		m_contentRenderer = contentRenderer;
 	}
 
@@ -260,11 +258,11 @@ final public class SimpleColumnDef {
 	}
 
 	@Nullable
-	public ICellClicked< ? > getCellClicked() {
+	public ICellClicked<T> getCellClicked() {
 		return m_cellClicked;
 	}
 
-	public void setCellClicked(@Nullable ICellClicked< ? > cellClicked) {
+	public void setCellClicked(@Nullable ICellClicked<T> cellClicked) {
 		m_cellClicked = cellClicked;
 	}
 
