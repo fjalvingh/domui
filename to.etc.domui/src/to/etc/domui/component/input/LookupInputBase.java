@@ -906,6 +906,16 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	}
 
 	/**
+	 * The value without any consequences
+	 * @return
+	 */
+	public OT getWorkValue() {
+		OT valueSafe = getValueSafe();
+		clearMessage();
+		return valueSafe;
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override

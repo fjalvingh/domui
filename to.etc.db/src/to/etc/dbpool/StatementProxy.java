@@ -72,8 +72,8 @@ public class StatementProxy implements Statement {
 	/*--------------------------------------------------------------*/
 
 	StatementProxy(final ConnectionProxy c, final String sql) {
-		m_c = c;
 		m_sql_str = sql;
+		m_c = c;
 		if(c.getPool().c().isLogResultSetLocations()) {
 			m_allocationLocation = Tracepoint.create(null);
 		}

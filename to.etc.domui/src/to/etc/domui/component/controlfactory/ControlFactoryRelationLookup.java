@@ -66,7 +66,7 @@ public class ControlFactoryRelationLookup implements ControlFactory {
 	@Override
 	public @Nonnull <T> ControlFactoryResult createControl(final @Nonnull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass) {
 		//-- We'll do a lookup thingy for sure.
-		LookupInput<T> li = new LookupInput<T>(pmm.getActualType(), pmm.getValueModel());
+		LookupInput<T> li = editable ? new LookupInput<T>(pmm.getActualType(), pmm.getValueModel()) : new RelationLookupDisplayInput<T>(pmm.getActualType(), pmm.getValueModel());
 		li.setReadOnly(!editable);
 
 		//-- 1. Define search fields from property, then class.lookup, then generic

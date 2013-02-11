@@ -103,7 +103,7 @@ public class SimpleRowRenderer<T> extends AbstractRowRenderer<T> implements ICli
 		int ix = 0;
 		addColumns(xdpl, widths);
 		ix = 0;
-		for(final SimpleColumnDef scd : getColumnList()) {
+		for(final SimpleColumnDef< ? > scd : getColumnList()) {
 			final int pct = (100 * widths[ix++]) / m_totwidth;
 			scd.setWidth(pct + "%");
 		}
@@ -124,7 +124,7 @@ public class SimpleRowRenderer<T> extends AbstractRowRenderer<T> implements ICli
 			}
 
 			//-- Create a column def from the metadata
-			final SimpleColumnDef scd = new SimpleColumnDef(xdp);
+			final SimpleColumnDef< ? > scd = createDef(xdp);
 			int dl = xdp.getDisplayLength();
 			if(dl <= 5)
 				dl = 5;
@@ -141,6 +141,11 @@ public class SimpleRowRenderer<T> extends AbstractRowRenderer<T> implements ICli
 				scd.setHeaderCssClass("ui-numeric");
 			}
 		}
+	}
+
+	@Nonnull
+	private <V> SimpleColumnDef<V> createDef(@Nonnull ExpandedDisplayProperty<V> v) {
+		return new SimpleColumnDef<V>(getColumnList(), v);
 	}
 
 	/**

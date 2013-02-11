@@ -24,12 +24,14 @@
  */
 package to.etc.webapp.query;
 
+import java.util.*;
+
+import javax.annotation.*;
+
 public interface IQContextContainer {
-	QDataContext internalGetSharedContext();
+	@Nonnull
+	public QContextContainer getContextContainer(@Nonnull String key);
 
-	void internalSetSharedContext(QDataContext c);
-
-	QDataContextFactory internalGetDataContextFactory();
-
-	void internalSetDataContextFactory(QDataContextFactory s);
+	@Nonnull
+	public List<QContextContainer> getAllContextContainers();
 }

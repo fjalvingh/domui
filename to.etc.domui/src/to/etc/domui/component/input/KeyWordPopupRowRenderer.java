@@ -48,7 +48,7 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 	private boolean m_completed;
 
 	@Nonnull
-	private final ColumnDefList m_columnList;
+	private final ColumnDefList<T> m_columnList;
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Simple renderer initialization && parameterisation	*/
@@ -59,7 +59,7 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 	 * @param cols
 	 */
 	KeyWordPopupRowRenderer(@Nonnull final ClassMetaModel cmm) {
-		m_columnList = new ColumnDefList(cmm);
+		m_columnList = new ColumnDefList<T>((Class<T>) cmm.getActualClass(), cmm);
 	}
 
 	/**
@@ -135,7 +135,7 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 			((Table) tblBase).setOverflow(Overflow.HIDDEN);
 		}
 
-		for(final SimpleColumnDef cd : m_columnList) {
+		for(final SimpleColumnDef< ? > cd : m_columnList) {
 			renderColumn(tbl, cc, index, instance, cd);
 		}
 	}
@@ -149,7 +149,7 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 	 * @param cd
 	 * @throws Exception
 	 */
-	private <X> void renderColumn(final TableModelTableBase<T> tbl, final ColumnContainer<T> cc, final int index, final T instance, final SimpleColumnDef cd) throws Exception {
+	private <X> void renderColumn(final TableModelTableBase<T> tbl, final ColumnContainer<T> cc, final int index, final T instance, final SimpleColumnDef<X> cd) throws Exception {
 		//-- If a value transformer is known get the column value, else just use the instance itself (case when Renderer is used)
 		X colval;
 		IValueTransformer< ? > vtr = cd.getValueTransformer();
@@ -192,7 +192,7 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 		}
 	}
 
-	public void add(SimpleColumnDef cd) {
+	public void add(SimpleColumnDef< ? > cd) {
 		check();
 		m_columnList.add(cd);
 	}

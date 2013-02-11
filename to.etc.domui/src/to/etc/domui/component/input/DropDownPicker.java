@@ -118,10 +118,11 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 			}
 		});
 
+		List<T> data = m_data;
 		if(m_selected != null) {
 			m_picker.setValue(m_selected);
-		} else if(m_data.size() > 0 && isMandatory()) {
-			m_picker.setValue(m_data.get(0));
+		} else if(data != null && data.size() > 0 && isMandatory()) {
+			m_picker.setValue(data.get(0));
 		}
 
 		m_picker.setMandatory(isMandatory());
@@ -332,7 +333,9 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 
 	public @Nonnull
 	List<T> getData() {
-		return m_data;
+		if(null != m_data)
+			return m_data;
+		throw new IllegalStateException("The 'data' property is not set");
 	}
 
 	public boolean hasData() {

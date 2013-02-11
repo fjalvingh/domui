@@ -334,9 +334,9 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			if(DomUtil.USERLOG.isDebugEnabled())
 				DomUtil.USERLOG.debug(cid + ": Full render of page " + page);
 
-			if(page.getBody() instanceof IRebuildOnRefresh) { // Must fully refresh?
-				page.getBody().forceRebuild(); // Cleanout state
-				QContextManager.closeSharedContext(page.getConversation());
+			if(page.getBody() instanceof IRebuildOnRefresh) { 				// Must fully refresh?
+				page.getBody().forceRebuild(); 								// Cleanout state
+				QContextManager.closeSharedContexts(page.getConversation());
 				if(DomUtil.USERLOG.isDebugEnabled())
 					DomUtil.USERLOG.debug(cid + ": IForceRefresh, cleared page data for " + page);
 			}
@@ -374,7 +374,9 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 					for(UIMessage m : ml) {
 						if(DomUtil.USERLOG.isDebugEnabled())
 							DomUtil.USERLOG.debug(cid + ": page reload message = " + m.getMessage());
-						page.getBody().addGlobalMessage(m);
+
+						//page.getBody().addGlobalMessage(m);
+						MessageFlare.display(page.getBody(), m);
 					}
 				}
 				cm.setAttribute(UIGoto.SINGLESHOT_MESSAGE, null);

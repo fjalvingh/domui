@@ -24,10 +24,13 @@
  */
 package to.etc.domui.component.form;
 
+import javax.annotation.*;
+
 import org.slf4j.*;
 
 import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.meta.*;
+import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 
@@ -201,6 +204,34 @@ public class FormBuilderBase {
 
 	public void setControlLabelFactory(final IControlLabelFactory controlLabelFactory) {
 		m_controlLabelFactory = controlLabelFactory;
+	}
+
+	/**
+	 * Convenience method for updating read only values based upon another value in the from that changes. Eg combo or LookUp
+	 * that gets another value. Use with care, the display values should not be set by dotted path. Use the setInstance method
+	 * of the formbuilder before you add the displayvalues to the form. This way the old and new value can be found and set.
+	 * @param b
+	 * @param initialValue
+	 * @param newObj
+	 * @throws Exception
+	 */
+	public void updateReadOnly(@Nullable Object initialValue, @Nullable Object newObj) throws Exception {
+		updateReadOnly(initialValue, newObj, getBindings());
+	}
+
+	private <V> void updateReadOnly(@Nullable Object initialValue, @Nullable Object newObj, @Nonnull ModelBindings modelBindings) throws Exception {
+		for(IModelBinding mb : getBindings()) {
+			if(mb instanceof DisplayOnlyPropertyBinding) {
+				DisplayOnlyPropertyBinding< ? > b = (DisplayOnlyPropertyBinding< ? >) mb;
+				if(b.getModel().getValue().equals(initialValue)) {
+					PropertyMetaModel<V> propertyMeta = (PropertyMetaModel<V>) b.getPropertyMeta();
+					IControl<V> control = (IControl<V>) b.getControl();
+					control.setValue(newObj == null ? null : propertyMeta.getValue(newObj));
+				}
+			} else if(mb instanceof ModelBindings) {
+				updateReadOnly(initialValue, newObj, (ModelBindings) mb);
+			}
+		}
 	}
 
 }

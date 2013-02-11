@@ -338,3 +338,4 @@ final public class HibernateChecker {
 		return m_badJoinColumn;
 	}
 }
+

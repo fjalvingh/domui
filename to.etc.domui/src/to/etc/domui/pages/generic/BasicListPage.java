@@ -141,7 +141,7 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 		adjustCriteria(qc);
 		ITableModel<T> model;
 		if(m_queryHandler == null) {
-			QDataContextFactory src = QContextManager.getDataContextFactory(getPage());
+			QDataContextFactory src = QContextManager.getDataContextFactory(QContextManager.DEFAULT, getPage());
 			model = new SimpleSearchModel<T>(src, qc);
 		} else {
 			model = new SimpleSearchModel<T>(m_queryHandler, qc);
@@ -169,7 +169,7 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 
 	@Override
 	protected void onShelve() throws Exception {
-		QContextManager.closeSharedContext(getPage().getConversation());
+		QContextManager.closeSharedContexts(getPage().getConversation());
 	}
 
 	/**

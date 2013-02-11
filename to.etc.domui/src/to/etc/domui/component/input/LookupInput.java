@@ -82,7 +82,7 @@ public class LookupInput<T> extends LookupInputBase<T, T> {
 	protected ITableModel<T> createTableModel(@Nonnull QCriteria<T> query) throws Exception {
 		IQueryHandler<T> queryHandler = getQueryHandler();
 		if(queryHandler == null) {
-			QDataContextFactory src = QContextManager.getDataContextFactory(getPage().getConversation());
+			QDataContextFactory src = QContextManager.getDataContextFactory(QContextManager.DEFAULT, getPage().getConversation());	// FIXME Urgent bad data context handling.
 			return new SimpleSearchModel<T>(src, query);
 		} else {
 			return new SimpleSearchModel<T>(queryHandler, query);

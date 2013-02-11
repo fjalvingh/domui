@@ -1793,13 +1793,26 @@ final public class DomUtil {
 		return n.getComponentInfo();
 	}
 
-
 	public static void main(final String[] args) {
 		String html = "<p>This is <i>just</i> some html with<br>a new line <b>and a bold tag</b>";
 		String uns = htmlRemoveUnsafe(html);
 		System.out.println("uns=" + uns);
+	}
 
+	public static @Nonnull
+	List<UIMessage> addSingleShotMessage(@Nonnull NodeBase node, @Nonnull UIMessage message) {
+		WindowSession ws = node.getPage().getConversation().getWindowSession();
+		List<UIMessage> msgl = null;
+		Object stored = ws.getAttribute(UIGoto.SINGLESHOT_MESSAGE);
+		if(stored != null && stored instanceof List< ? >) {
+			msgl = (List<UIMessage>) stored;
+		} else {
+			msgl = new ArrayList<UIMessage>(1);
+		}
 
+		msgl.add(message);
+		ws.setAttribute(UIGoto.SINGLESHOT_MESSAGE, msgl);
+		return msgl;
 	}
 
 }

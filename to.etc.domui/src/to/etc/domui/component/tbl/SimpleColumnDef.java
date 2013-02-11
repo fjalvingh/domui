@@ -38,7 +38,7 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 18, 2008
  */
-final public class SimpleColumnDef {
+final public class SimpleColumnDef<T> {
 	static public final String NOWRAP = "-NOWRAP";
 
 	static public final String DEFAULTSORT = "-DSORT";
@@ -47,8 +47,11 @@ final public class SimpleColumnDef {
 	@Nullable
 	private String m_columnLabel;
 
-	@Nullable
-	private Class< ? > m_columnType;
+	@Nonnull
+	final private ColumnDefList< ? > m_defList;
+
+	@Nonnull
+	final private Class<T> m_columnType;
 
 	@Nonnull
 	private SortableType m_sortable = SortableType.UNKNOWN;
@@ -68,16 +71,17 @@ final public class SimpleColumnDef {
 	@Nullable
 	private String m_headerCssClass;
 
+	@Deprecated
 	private int m_displayLength;
 
 	private boolean m_nowrap;
 
 	/** The thingy which obtains the column's value (as an object) */
 	@Nullable
-	private IValueTransformer< ? > m_valueTransformer;
+	private IValueTransformer<T> m_valueTransformer;
 
 	@Nullable
-	private IObjectToStringConverter< ? > m_presentationConverter;
+	private IObjectToStringConverter<T> m_presentationConverter;
 
 	@Nonnull
 	private NumericPresentation m_numericPresentation = NumericPresentation.UNKNOWN;
@@ -86,23 +90,27 @@ final public class SimpleColumnDef {
 	private TextAlign m_align;
 
 	@Nullable
-	private INodeContentRenderer< ? > m_contentRenderer;
+	private INodeContentRenderer<T> m_contentRenderer;
 
 	@Nullable
-	private ICellClicked< ? > m_cellClicked;
+	private ICellClicked<T> m_cellClicked;
 
 	@Nullable
 	private String m_renderHint;
 
-	public SimpleColumnDef() {}
+	public <X> SimpleColumnDef(@Nonnull ColumnDefList< ? > cdl, @Nonnull Class<T> valueClass) {
+		m_columnType = valueClass;
+		m_defList = cdl;
+	}
 
 	/**
 	 * Create a column definition using metadata for the column.
 	 * @param m
 	 */
-	public SimpleColumnDef(@Nonnull PropertyMetaModel< ? > m) {
+	public SimpleColumnDef(@Nonnull ColumnDefList< ? > cdl, @Nonnull PropertyMetaModel<T> m) {
+		m_defList = cdl;
+		m_columnType = m.getActualType();
 		setColumnLabel(m.getDefaultLabel());
-		setColumnType(m.getActualType());
 		setValueTransformer(m); // Thing which can obtain the value from the property
 		setPresentationConverter(ConverterRegistry.findBestConverter(m));
 		setSortable(m.getSortable());
@@ -112,9 +120,10 @@ final public class SimpleColumnDef {
 			setNowrap(true);
 	}
 
-	public SimpleColumnDef(@Nonnull ExpandedDisplayProperty< ? > m) {
+	public SimpleColumnDef(@Nonnull ColumnDefList< ? > cdl, @Nonnull ExpandedDisplayProperty<T> m) {
+		m_defList = cdl;
+		m_columnType = m.getActualType();
 		setColumnLabel(m.getDefaultLabel());
-		setColumnType(m.getActualType());
 		setValueTransformer(m); // Thing which can obtain the value from the property
 		setPresentationConverter(m.getBestConverter());
 		setSortable(SortableType.UNSORTABLE); // FIXME From meta pls
@@ -136,16 +145,12 @@ final public class SimpleColumnDef {
 	}
 
 	public void setColumnLabel(@Nullable String columnLabel) {
-		m_columnLabel = columnLabel;
+		label(columnLabel);
 	}
 
-	@Nullable
-	public Class< ? > getColumnType() {
+	@Nonnull
+	public Class<T> getColumnType() {
 		return m_columnType;
-	}
-
-	public void setColumnType(@Nullable Class< ? > columnType) {
-		m_columnType = columnType;
 	}
 
 	@Nonnull
@@ -163,15 +168,15 @@ final public class SimpleColumnDef {
 	}
 
 	public void setWidth(@Nullable String width) {
-		m_width = width;
+		width(width);
 	}
 
 	@Nullable
-	public IValueTransformer< ? > getValueTransformer() {
+	public IValueTransformer<T> getValueTransformer() {
 		return m_valueTransformer;
 	}
 
-	public void setValueTransformer(@Nullable IValueTransformer< ? > valueTransformer) {
+	public void setValueTransformer(@Nullable IValueTransformer<T> valueTransformer) {
 		m_valueTransformer = valueTransformer;
 	}
 
@@ -180,11 +185,11 @@ final public class SimpleColumnDef {
 	 * @return
 	 */
 	@Nullable
-	public IObjectToStringConverter< ? > getPresentationConverter() {
+	public IObjectToStringConverter<T> getPresentationConverter() {
 		return m_presentationConverter;
 	}
 
-	public void setPresentationConverter(@Nullable IConverter< ? > valueConverter) {
+	public void setPresentationConverter(@Nullable IConverter<T> valueConverter) {
 		m_presentationConverter = valueConverter;
 	}
 
@@ -202,7 +207,7 @@ final public class SimpleColumnDef {
 		return m_contentRenderer;
 	}
 
-	public void setContentRenderer(@Nullable INodeContentRenderer< ? > contentRenderer) {
+	public void setContentRenderer(@Nullable INodeContentRenderer<T> contentRenderer) {
 		m_contentRenderer = contentRenderer;
 	}
 
@@ -243,10 +248,21 @@ final public class SimpleColumnDef {
 		m_headerCssClass = headerCssClass;
 	}
 
+	/**
+	 * Seems nonsense, use width instead.
+	 * @return
+	 */
+	@Deprecated
 	public int getDisplayLength() {
 		return m_displayLength;
 	}
 
+	/**
+	 * Seems nonsense, use width instead.
+	 * @param displayLength
+	 * @return
+	 */
+	@Deprecated
 	public void setDisplayLength(int displayLength) {
 		m_displayLength = displayLength;
 	}
@@ -260,11 +276,11 @@ final public class SimpleColumnDef {
 	}
 
 	@Nullable
-	public ICellClicked< ? > getCellClicked() {
+	public ICellClicked<T> getCellClicked() {
 		return m_cellClicked;
 	}
 
-	public void setCellClicked(@Nullable ICellClicked< ? > cellClicked) {
+	public void setCellClicked(@Nullable ICellClicked<T> cellClicked) {
 		m_cellClicked = cellClicked;
 	}
 
@@ -308,5 +324,188 @@ final public class SimpleColumnDef {
 	@Override
 	public String toString() {
 		return "SimpleColumnDef[" + getPropertyName() + ", type=" + getColumnType() + ", lbl=" + getColumnLabel() + "]";
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Chainable setters.									*/
+	/*--------------------------------------------------------------*/
+
+	/**
+	 * Set the column header's label.
+	 * @param columnLabel
+	 * @return
+	 */
+	@Nonnull
+	public SimpleColumnDef<T> label(@Nullable String columnLabel) {
+		m_columnLabel = columnLabel;
+		return this;
+	}
+
+	/**
+	 * Set the text align for this column. Defaults depend on the numeric type of the column, if known.
+	 * @param align
+	 * @return
+	 */
+	@Nonnull
+	public SimpleColumnDef<T> align(@Nonnull TextAlign align) {
+		m_align = align;
+		return this;
+	}
+
+	/**
+	 * Set the cell click handler.
+	 * @param ck
+	 * @return
+	 */
+	@Nonnull
+	public SimpleColumnDef<T> cellClicked(@Nonnull ICellClicked<T> ck) {
+		m_cellClicked = ck;
+		return this;
+	}
+
+	/**
+	 * Set the node content renderer.
+	 * @param cr
+	 * @return
+	 */
+	@Nonnull
+	public SimpleColumnDef<T> renderer(@Nonnull INodeContentRenderer<T> cr) {
+		m_contentRenderer = cr;
+		return this;
+	}
+
+	/**
+	 * Set the css class of this column's values.
+	 * @param css
+	 * @return
+	 */
+	@Nonnull
+	public SimpleColumnDef<T> css(@Nonnull String css) {
+		m_cssClass = css;
+		return this;
+	}
+
+	/**
+	 * Set the css class of this column's header.
+	 * @param css
+	 * @return
+	 */
+	@Nonnull
+	public SimpleColumnDef<T> cssHeader(@Nonnull String css) {
+		m_headerCssClass = css;
+		return this;
+	}
+
+	/**
+	 * Make sure this column's contents are wrapped (by default columns added by {@link RowRenderer} are marked as not wrappable.
+	 * @return
+	 */
+	@Nonnull
+	public SimpleColumnDef<T> wrap() {
+		m_nowrap = false;
+		return this;
+	}
+
+	/**
+	 * Set the column to nowrap.
+	 * @return
+	 */
+	@Nonnull
+	public SimpleColumnDef<T> nowrap() {
+		m_nowrap = true;
+		return this;
+	}
+
+	/**
+	 * Set the numeric presentation for this column.
+	 * @param np
+	 * @return
+	 */
+	@Nonnull
+	public SimpleColumnDef<T> numeric(@Nonnull NumericPresentation np) {
+		m_numericPresentation = np;
+		return this;
+	}
+
+	/**
+	 * Set a column value-to-string converter to be used.
+	 * @param c
+	 * @return
+	 */
+	@Nonnull
+	public SimpleColumnDef<T> converter(@Nonnull IObjectToStringConverter<T> c) {
+		m_presentationConverter = c;
+		return this;
+	}
+
+	/**
+	 * Set the hint for a column.
+	 * @param hint
+	 * @return
+	 */
+	@Nonnull
+	public SimpleColumnDef<T>	hint(@Nonnull String hint) {
+		m_renderHint = hint;
+		return this;
+	}
+
+	/**
+	 * Set the default sort order to ascending first.
+	 * @return
+	 */
+	@Nonnull
+	public SimpleColumnDef<T>	ascending() {
+		setSortable(SortableType.SORTABLE_ASC);
+		return this;
+	}
+
+	/**
+	 * Set the default sort order to descending first.
+	 * @return
+	 */
+	@Nonnull
+	public SimpleColumnDef<T>	descending() {
+		setSortable(SortableType.SORTABLE_DESC);
+		return this;
+	}
+
+	/**
+	 * Set this column as the default column to sort on.
+	 * @return
+	 */
+	@Nonnull
+	public SimpleColumnDef<T>	sortdefault() {
+		m_defList.setSortColumn(this);
+		return this;
+	}
+
+	/**
+	 * Set a sort helper to be used for this column.
+	 * @param sh
+	 * @return
+	 */
+	@Nonnull
+	public SimpleColumnDef<T>	sort(@Nonnull ISortHelper sh) {
+		m_sortHelper = sh;
+		if(m_sortable == SortableType.UNKNOWN)
+			m_sortable = SortableType.SORTABLE_ASC;
+		return this;
+	}
+
+	/**
+	 * Set a value transformer to convert this column value into something else.
+	 * @param vt
+	 * @return
+	 */
+	@Nonnull
+	public SimpleColumnDef<T>	transform(@Nonnull IValueTransformer<T> vt) {
+		m_valueTransformer = vt;
+		return this;
+	}
+
+	@Nonnull
+	public SimpleColumnDef<T> width(@Nullable String w) {
+		m_width = w;
+		return this;
 	}
 }
