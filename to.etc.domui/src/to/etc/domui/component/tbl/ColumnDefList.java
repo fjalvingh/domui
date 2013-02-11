@@ -536,38 +536,9 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 
 	@Nonnull
 	private <V> SimpleColumnDef<V> createColumnDef(@Nonnull PropertyMetaModel<V> pmm) {
-		//-- Try to see what the column expands to
-		final ExpandedDisplayProperty< ? > xdpt = ExpandedDisplayProperty.expandProperty(pmm);
-		final List<ExpandedDisplayProperty< ? >> flat = new ArrayList<ExpandedDisplayProperty< ? >>();
-		ExpandedDisplayProperty.flatten(flat, xdpt); 									// Expand any compounds;
-		if(flat.size() == 0)
-			throw new IllegalStateException("Expansion for property " + pmm + " resulted in 0 columns!?");
-
-		//-- If we still have a single thing, and it refers to the same property we can just create a direct reference to the new thing and default it to it's metadata
-		if(flat.size() == 1) {
-			ExpandedDisplayProperty< ? > xdp = flat.get(1);
-			if(xdp.getActualType() == pmm.getActualType()) {
-				//-- Still refers to the same type -> it's just a display property wrapper.
-				SimpleColumnDef<V> scd = new SimpleColumnDef<V>(this, (ExpandedDisplayProperty<V>) xdp);
-				scd.setNowrap(true);
-				add(scd);
-				return scd;
-			}
-		}
-
-		/*
-		 * We have an expanded property, either one that exploded into > 1 columns or an expansion that changed the type
-		 * of the column (which happens when the column is converted using a join string conversion). We will create a
-		 * synthetic column which will "contain" all of the real generated columns. Lots of operations are not valid
-		 * on synthetic column definitions because they cannot be "spread" over the individual columns.
-		 */
-		SimpleColumnDef<V> scd = new SimpleColumnDef<V>(this, pmm);						// Create the synthetic-thing-to-be; we'll add all real columns to it
-		for(final ExpandedDisplayProperty< ? > xdp : flat) {
-			if(xdp.getName() == null)
-				throw new IllegalStateException("All columns MUST have some name");
-			SimpleColumnDef< ? > ccd = addExpandedDisplayProp(xdp);
-			scd.addExpanded(ccd);
-		}
+		SimpleColumnDef<V> scd = new SimpleColumnDef<V>(this, pmm);
+		scd.setNowrap(true);
+		add(scd);
 		return scd;
 	}
 
@@ -595,5 +566,57 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 		return scd;
 	}
 
+	/**
+	 *
+	 * @param clz
+	 * @param property
+	 * @return
+	 */
+	@Nonnull
+	public <V> ExpandedColumnDef<V> expand(@Nonnull Class<V> clz, @Nonnull @GProperty String property) {
+		PropertyMetaModel<V> pmm = (PropertyMetaModel<V>) model().getProperty(property);
+		return createExpandedColumnDef(pmm);
+	}
 
+	/**
+	 * This adds an expanded column on the specified property, but has no idea about the real type. It can be used as long
+	 * as that type is not needed.
+	 * @param property
+	 * @return
+	 */
+	@Nonnull
+	public ExpandedColumnDef< ? > expand(@Nonnull @GProperty String property) {
+		PropertyMetaModel< ? > pmm = model().getProperty(property);			// Get the appropriate model
+		return createExpandedColumnDef(pmm);
+	}
+
+	/**
+	 * This gets called when the property is to be expanded.
+	 * @param pmm
+	 * @return
+	 */
+	@Nonnull
+	private <V> ExpandedColumnDef<V> createExpandedColumnDef(@Nonnull PropertyMetaModel<V> pmm) {
+		//-- Try to see what the column expands to
+		final ExpandedDisplayProperty< ? > xdpt = ExpandedDisplayProperty.expandProperty(pmm);
+		final List<ExpandedDisplayProperty< ? >> flat = new ArrayList<ExpandedDisplayProperty< ? >>();
+		ExpandedDisplayProperty.flatten(flat, xdpt); 									// Expand any compounds;
+		if(flat.size() == 0)
+			throw new IllegalStateException("Expansion for property " + pmm + " resulted in 0 columns!?");
+
+		/*
+		 * We have an expanded property, either one that exploded into > 1 columns or an expansion that changed the type
+		 * of the column (which happens when the column is converted using a join string conversion). We will create a
+		 * synthetic column which will "contain" all of the real generated columns. Lots of operations are not valid
+		 * on synthetic column definitions because they cannot be "spread" over the individual columns.
+		 */
+		ExpandedColumnDef<V> xcd = new ExpandedColumnDef<V>(this, pmm.getActualType(), pmm.getName());
+		for(final ExpandedDisplayProperty< ? > xdp : flat) {
+			if(xdp.getName() == null)
+				throw new IllegalStateException("All columns MUST have some name");
+			SimpleColumnDef< ? > ccd = addExpandedDisplayProp(xdp);
+			xcd.addExpanded(ccd);
+		}
+		return xcd;
+	}
 }

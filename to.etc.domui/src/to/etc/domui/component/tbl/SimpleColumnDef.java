@@ -24,8 +24,6 @@
  */
 package to.etc.domui.component.tbl;
 
-import java.util.*;
-
 import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
@@ -33,7 +31,6 @@ import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.util.*;
-import to.etc.webapp.*;
 
 /**
  * Contains data for rendering a column in a data table.
@@ -52,9 +49,6 @@ final public class SimpleColumnDef<T> {
 
 	@Nonnull
 	final private ColumnDefList< ? > m_defList;
-
-	@Nonnull
-	private List<SimpleColumnDef< ? >> m_childColumns = Collections.EMPTY_LIST;
 
 	@Nonnull
 	final private Class<T> m_columnType;
@@ -150,38 +144,6 @@ final public class SimpleColumnDef<T> {
 		return m_columnLabel;
 	}
 
-	/**
-	 * Returns T if this column is a synthetic, expanded column.
-	 * @return
-	 */
-	public boolean isExpanded() {
-		return m_childColumns.size() > 0;
-	}
-
-	/**
-	 * Return T if this column is expanded but only to one other column.
-	 * @return
-	 */
-	public boolean isSimple() {
-		return m_childColumns.size() == 1;
-	}
-
-	@Nonnull
-	public SimpleColumnDef< ? > simple() {
-		if(m_childColumns.size() != 1)
-			throw new IllegalStateException("Cannot call this with non-simple expanded column");
-		return m_childColumns.get(0);
-	}
-
-	/**
-	 * Abort if this is an expanded property.
-	 * @param what
-	 */
-	private void unexpanded(String what) {
-		if(isExpanded())
-			throw new ProgrammerErrorException("You cannot use/call/set " + what + " on expanded property " + m_propertyName);
-	}
-
 	public void setColumnLabel(@Nullable String columnLabel) {
 		label(columnLabel);
 	}
@@ -193,25 +155,15 @@ final public class SimpleColumnDef<T> {
 
 	@Nonnull
 	public SortableType getSortable() {
-		if(isSimple())
-			return simple().getSortable();
 		return m_sortable;
 	}
 
 	public void setSortable(@Nonnull SortableType sortable) {
-		if(isSimple())
-			simple().setSortable(sortable);
-		else {
-			unexpanded("sort order");
-			m_sortable = sortable == null ? SortableType.UNKNOWN : sortable;
-		}
+		m_sortable = sortable == null ? SortableType.UNKNOWN : sortable;
 	}
 
 	@Nullable
 	public String getWidth() {
-		if(isSimple())
-			return simple().getWidth();
-		unexpanded("width");
 		return m_width;
 	}
 
@@ -234,12 +186,10 @@ final public class SimpleColumnDef<T> {
 	 */
 	@Nullable
 	public IObjectToStringConverter<T> getPresentationConverter() {
-		unexpanded("presentationConverter");
 		return m_presentationConverter;
 	}
 
 	public void setPresentationConverter(@Nullable IConverter<T> valueConverter) {
-		unexpanded("presentationConverter");
 		m_presentationConverter = valueConverter;
 	}
 
@@ -254,10 +204,6 @@ final public class SimpleColumnDef<T> {
 
 	@Nullable
 	public INodeContentRenderer< ? > getContentRenderer() {
-		if(isSimple())
-			return simple().getContentRenderer();
-		if(isExpanded())
-			return null;
 		return m_contentRenderer;
 	}
 
@@ -392,10 +338,6 @@ final public class SimpleColumnDef<T> {
 	@Nonnull
 	public SimpleColumnDef<T> label(@Nullable String columnLabel) {
 		m_columnLabel = columnLabel;
-		if(isSimple())
-			simple().setColumnLabel(columnLabel);
-		else
-			unexpanded("title");
 		return this;
 	}
 
@@ -533,12 +475,7 @@ final public class SimpleColumnDef<T> {
 	 */
 	@Nonnull
 	public SimpleColumnDef<T>	sortdefault() {
-		if(isSimple())
-			m_defList.setSortColumn(simple());
-		else {
-			unexpanded("sortdefault");
-			m_defList.setSortColumn(this);
-		}
+		m_defList.setSortColumn(this);
 		return this;
 	}
 
@@ -568,23 +505,7 @@ final public class SimpleColumnDef<T> {
 
 	@Nonnull
 	public SimpleColumnDef<T> width(@Nullable String w) {
-		if(isSimple())
-			simple().width(w);
-		else {
-			unexpanded("width");
-			m_width = w;
-		}
+		m_width = w;
 		return this;
-	}
-
-	/**
-	 * When this def actually represents a set of columns, expanded because of the source property being
-	 * an expanded property, then this adds all of the source columns.
-	 * @param ccd
-	 */
-	protected void addExpanded(@Nonnull SimpleColumnDef< ? > ccd) {
-		if(m_childColumns.size() == 0)
-			m_childColumns = new ArrayList<SimpleColumnDef< ? >>();
-		m_childColumns.add(ccd);
 	}
 }
