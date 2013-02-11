@@ -556,9 +556,10 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	@Override
 	@Nonnull
 	public IBinder bind() {
-		if(m_binder == null)
-			m_binder = new SimpleBinder(this);
-		return m_binder;
+		SimpleBinder binder = m_binder;
+		if(binder == null)
+			binder = m_binder = new SimpleBinder(this);
+		return binder;
 	}
 
 	/**
