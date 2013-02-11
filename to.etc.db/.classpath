@@ -8,7 +8,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/bin-j2ee-1.4"/>
-	<classpathentry kind="src" path="/to.etc.alg"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/bin-slf4j"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/bin-junit-4.8.2"/>
 	<classpathentry kind="output" path="bin"/>
