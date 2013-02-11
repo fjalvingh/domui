@@ -545,28 +545,28 @@ public class ConversationContext implements IQContextContainer {
 
 	static private final class DomUIContextContainer extends QContextContainer implements IConversationStateListener {
 		@Override
-		public void conversationNew(ConversationContext cc) throws Exception {
+		public void conversationNew(@Nonnull ConversationContext cc) throws Exception {
 			QDataContext c = internalGetSharedContext();
 			if(c instanceof IConversationStateListener)
 				((IConversationStateListener) c).conversationNew(cc);
 		}
 
 		@Override
-		public void conversationAttached(ConversationContext cc) throws Exception {
+		public void conversationAttached(@Nonnull ConversationContext cc) throws Exception {
 			QDataContext c = internalGetSharedContext();
 			if(c instanceof IConversationStateListener)
 				((IConversationStateListener) c).conversationAttached(cc);
 		}
 
 		@Override
-		public void conversationDetached(ConversationContext cc) throws Exception {
+		public void conversationDetached(@Nonnull ConversationContext cc) throws Exception {
 			QDataContext c = internalGetSharedContext();
 			if(c instanceof IConversationStateListener)
 				((IConversationStateListener) c).conversationDetached(cc);
 		}
 
 		@Override
-		public void conversationDestroyed(ConversationContext cc) throws Exception {
+		public void conversationDestroyed(@Nonnull ConversationContext cc) throws Exception {
 			QDataContext c = internalGetSharedContext();
 			if(c instanceof IConversationStateListener)
 				((IConversationStateListener) c).conversationDestroyed(cc);
