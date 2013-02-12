@@ -145,7 +145,14 @@ final public class Page implements IQContextContainer {
 	 * Nodes that are added to a render and that are removed by the Javascript framework are added here; this
 	 * will force them to be removed from the tree after any render without causing a delta.
 	 */
+	@Nonnull
 	private List<NodeBase> m_removeAfterRenderList = Collections.EMPTY_LIST;
+
+	@Nonnull
+	private List<IExecute> m_afterRequestListenerList = Collections.EMPTY_LIST;
+
+	@Nonnull
+	private List<IExecute> m_beforeRequestListenerList = Collections.EMPTY_LIST;
 
 	public Page(final UrlPage pageContent) throws Exception {
 		m_pageTag = DomApplication.internalNextPageTag(); // Unique page ID.
@@ -836,5 +843,29 @@ final public class Page implements IQContextContainer {
 	@Nullable
 	public NodeBase getDefaultFocusSource() {
 		return m_defaultFocusSource;
+	}
+
+	public void addAfterRequestListener(@Nonnull IExecute x) {
+		if(m_afterRequestListenerList.size() == 0)
+			m_afterRequestListenerList = new ArrayList<IExecute>();
+		m_afterRequestListenerList.add(x);
+	}
+
+	public void addBeforeRequestListener(@Nonnull IExecute x) {
+		if(m_beforeRequestListenerList.size() == 0)
+			m_beforeRequestListenerList = new ArrayList<IExecute>();
+		m_beforeRequestListenerList.add(x);
+	}
+
+	public void callRequestFinished() throws Exception {
+		for(IExecute x: m_afterRequestListenerList) {
+			x.execute();
+		}
+	}
+
+	public void callRequestStarted() throws Exception {
+		for(IExecute x : m_beforeRequestListenerList) {
+			x.execute();
+		}
 	}
 }

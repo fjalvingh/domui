@@ -5,6 +5,7 @@ import java.util.*;
 
 import javax.annotation.*;
 
+import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.webapp.*;
 import to.etc.webapp.query.*;
@@ -28,9 +29,13 @@ final public class LogiContext {
 	@Nonnull
 	final private Map<Class< ? >, Map<Object, ILogic>> m_instanceMap = new HashMap<Class< ? >, Map<Object, ILogic>>();
 
-	private Map<Object, Object> m_storeMap = new HashMap<Object, Object>();
-
 	private LogiModel m_model = new LogiModel();
+
+	@Nonnull
+	final private List<UIMessage> m_actionMessageList = new ArrayList<UIMessage>();
+
+	@Nonnull
+	final private List<IMessageListener> m_actionMsgListenerList = new ArrayList<IMessageListener>();
 
 	public LogiContext(@Nonnull QDataContext dataContext) {
 		m_dataContextMap.put(QContextManager.DEFAULT, dataContext);
@@ -78,7 +83,6 @@ final public class LogiContext {
 			return (L) logic;
 
 		//-- Nothing there. We need to create an instance.
-		Object[] callv = new Object[10];
 		for(Constructor< ? > c : clz.getConstructors()) {
 			Class< ? >[] formalar = c.getParameterTypes();						// We only accept constructor(LogiContext, T)
 			if(formalar.length != 2)
@@ -108,13 +112,39 @@ final public class LogiContext {
 		m_model.updateCopy();
 	}
 
-
-	/**
-	 * @param m
-	 */
-	public void addMessage(@Nonnull UIMessage m) {
-
+	public void startPhase() {
+		m_actionMessageList.clear();
 	}
 
+	/**
+	 * Should be called @ user interaction end time.
+	 */
+	public void	endPhase() {
+		for(IMessageListener l : m_actionMsgListenerList) {
+			l.actionMessages(m_actionMessageList);
+		}
+		m_actionMessageList.clear();
+	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Error and action error events.						*/
+	/*--------------------------------------------------------------*/
+
+	/**
+	 *
+	 * @param l
+	 */
+	public void addActionMessageListener(@Nonnull IMessageListener l) {
+		m_actionMsgListenerList.add(l);
+	}
+
+	/**
+	 * Add a message to be displayed as the result of an "action". This message type is different from a "state" message: it is caused by an action
+	 * that needs to send some message, which is related to the action only and transient. This differs from messages that represent an error in the
+	 * current state of the model. Messages like these are usually displayed as a {@link MsgBox}.
+	 * @param m
+	 */
+	public void addActionMessage(@Nonnull UIMessage m) {
+		m_actionMessageList.add(m);
+	}
 }
