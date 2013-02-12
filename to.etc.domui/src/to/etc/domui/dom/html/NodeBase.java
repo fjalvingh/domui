@@ -33,6 +33,7 @@ import to.etc.domui.component.input.*;
 import to.etc.domui.dom.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
+import to.etc.domui.logic.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
@@ -1384,6 +1385,16 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	@Nonnull
 	public QDataContextFactory getSharedContextFactory() {
 		return getParent().getSharedContextFactory();
+	}
+
+
+	/**
+	 * Get the context.
+	 * @return
+	 */
+	@Nonnull
+	public LogiContext lc() throws Exception {
+		return getPage().getBody().lc();
 	}
 
 	/**
