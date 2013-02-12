@@ -120,10 +120,12 @@ final public class LogiContext {
 	 * Should be called @ user interaction end time.
 	 */
 	public void	endPhase() {
-		for(IMessageListener l : m_actionMsgListenerList) {
-			l.actionMessages(m_actionMessageList);
+		if(m_actionMessageList.size() > 0) {
+			for(IMessageListener l : m_actionMsgListenerList) {
+				l.actionMessages(m_actionMessageList);
+			}
+			m_actionMessageList.clear();
 		}
-		m_actionMessageList.clear();
 	}
 
 	/*--------------------------------------------------------------*/
