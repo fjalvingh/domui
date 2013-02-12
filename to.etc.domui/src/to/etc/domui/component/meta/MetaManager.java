@@ -37,6 +37,7 @@ import to.etc.domui.util.*;
 import to.etc.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.nls.*;
+import to.etc.webapp.qsql.*;
 import to.etc.webapp.query.*;
 
 /**
@@ -949,6 +950,63 @@ final public class MetaManager {
 				}
 			}
 		}
+	}
+
+	/**
+	 * EXPENSIVE - Use with care - try to find a ClassMetaModel that represents the specified table name.
+	 * @param tableName
+	 * @return
+	 */
+	@Nullable
+	static synchronized public ClassMetaModel findClassByTable(@Nonnull String tableName) {
+		for(ClassMetaModel cmm : m_classMap.values()) {
+			if(tableName.equalsIgnoreCase(cmm.getTableName()))
+				return cmm;
+		}
+		return null;
+	}
+
+	/**
+	 * If the persistent class specified has dependent child records this returns the first table name or table entity name (if found) for which
+	 * children are found. It returns null if no children are found, in which case it should be safe to delete the record.
+	 *
+	 * @param dc
+	 * @param schemaName
+	 * @param instance
+	 * @return
+	 * @throws Exception
+	 */
+	@Nullable
+	static public <K, T extends IIdentifyable<K>> String hasChildRecords(QDataContext dc, @Nonnull String schemaName, @Nonnull T instance) throws Exception {
+		//-- The thing must be a persistent class.
+		ClassMetaModel cmm = findClassMeta(instance.getClass());
+		if(!cmm.isPersistentClass())
+			throw new IllegalArgumentException("The instance class " + cmm + " is not a persistent class");
+
+		//-- The thing must have some PK, or it's not saved at all.
+		K pk = instance.getId();
+		if(null == pk)
+			return null;
+
+		//-- We must know a table name too
+		String tableName = cmm.getTableName();
+		if(null == tableName)
+			throw new IllegalArgumentException("The instance class " + cmm + " does not know it's database table name");
+
+		//-- Right... Use JDBC to determine child relations et al, to prevent blowing up the Session cache.
+		String childTbl = JdbcUtil.hasChildRecords(dc.getConnection(), schemaName, tableName, pk.toString());
+		if(null == childTbl)
+			return null;											// No dependencies found.
+
+		//-- Try to translate the table name to a class, if possible
+		ClassMetaModel chmm = findClassByTable(childTbl);
+		if(chmm == null)
+			return childTbl;
+		String s = chmm.getUserEntityName();
+		if(null != s)
+			return s;
+
+		return childTbl;
 	}
 
 

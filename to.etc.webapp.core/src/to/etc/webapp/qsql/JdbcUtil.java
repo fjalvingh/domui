@@ -28,6 +28,8 @@ import java.math.*;
 import java.sql.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import org.slf4j.*;
 
 import to.etc.util.*;
@@ -527,6 +529,76 @@ public class JdbcUtil {
 			return (T) ps.getBigDecimal(index);
 		} else {
 			throw new IllegalStateException("Call error: cannot get out parameter for result java type=" + rtype);
+		}
+	}
+
+	/**
+	 * Check if the specified table's record (identified by schemaName, tableName and it's primary key) has child records. If so, return the
+	 * name of the first table that contains those child records. If no child records are found (meaning it should be safe to delete this
+	 * record) then this method returns null.
+	 *
+	 * <p>This method is only suitable for relations without compound keys, and the key's value must be representable and convertible by
+	 * JDBC to and from String. The method takes care of cascading, allowing a delete if child records are present with delete-cascade
+	 * rule, and it checks if those delete-cascaded records are deleteable themselves recursively.</p>
+	 *
+	 * @param dbc
+	 * @param schemaName
+	 * @param tableName
+	 * @param primaryKey
+	 * @return
+	 * @throws Exception
+	 */
+	@Nullable
+	static public String hasChildRecords(@Nonnull Connection dbc, @Nonnull String schemaName, @Nonnull String tableName, @Nonnull String primaryKey) throws Exception {
+		DatabaseMetaData dmd = dbc.getMetaData();
+		ResultSet rs = null;
+		ResultSet rs2 = null;
+		PreparedStatement ps = null;
+		try {
+			//-- Find all of my child relations.
+			rs = dmd.getExportedKeys(null, schemaName.toUpperCase(), tableName.toUpperCase());
+			while(rs.next()) {
+				String pkColumn = rs.getString("PKCOLUMN_NAME");
+				String fkTable = rs.getString("FKTABLE_NAME");
+				String fkColumn = rs.getString("FKCOLUMN_NAME");
+				int cascade = rs.getInt("DELETE_RULE");
+				int keyseq = rs.getInt("KEY_SEQ");
+				if(keyseq > 1)
+					throw new IllegalStateException("This method cannot be used for compound-key relations: relation " + tableName + " --< " + fkTable);
+
+				if(DatabaseMetaData.importedKeyCascade == cascade) {
+					//-- This cascades the children. Check if any of the children have undeleteable items, recursively. First collect all childs.
+					List<String>	fklist = new ArrayList<String>();
+					ps = dbc.prepareStatement("select "+pkColumn+" from "+fkTable+" where "+fkColumn+"=?");
+					ps.setString(1, primaryKey);
+					rs2 = ps.executeQuery();
+					while(rs2.next()) {
+						fklist.add(rs2.getString(1));
+					}
+					rs2.close();
+					ps.close();
+
+					//-- Now check all children.
+					for(String apk : fklist) {
+						String tbl = hasChildRecords(dbc, schemaName, fkTable, apk);
+						if(null != tbl)
+							return tbl;
+					}
+				} else {
+					//-- Not cascading. Does this relation have child records?
+					ps = dbc.prepareStatement("select 1 from " + fkTable + " where " + fkColumn + "=?");
+					ps.setString(1, primaryKey);
+					rs2 = ps.executeQuery();
+					if(rs2.next()) {
+						return fkTable;									// Has dependent record in this table -> exit.
+					}
+					rs2.close();
+					ps.close();
+				}
+			}
+			return null;
+		} finally {
+			FileTool.closeAll(rs2, rs, ps);
 		}
 	}
 }
