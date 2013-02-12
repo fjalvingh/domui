@@ -858,6 +858,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			 */
 			if(LOG.isDebugEnabled())
 				LOG.debug("rq: ignoring validation exception " + x);
+		} catch(MsgException msg) {
+			MsgBox.error(page.getBody(), msg.getMessage());
 		} catch(Exception ex) {
 			Exception x = WrappedException.unwrap(ex);
 			if(x instanceof NotLoggedInException) { // FIXME Fugly. Generalize this kind of exception handling somewhere.
