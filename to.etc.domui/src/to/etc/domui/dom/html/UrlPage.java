@@ -172,13 +172,22 @@ public class UrlPage extends Div {
 			}
 		});
 
-		//-- Add a request finished listener.
+		//-- Add phase listeners
 		getPage().addAfterRequestListener(new IExecute() {
 			@Override
 			public void execute() throws Exception {
 				lc.endPhase();
 			}
 		});
+
+		getPage().addBeforeRequestListener(new IExecute() {
+			@Override
+			public void execute() throws Exception {
+				lc.startPhase();
+			}
+		});
+
+
 	}
 
 

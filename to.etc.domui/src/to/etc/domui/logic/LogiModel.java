@@ -5,6 +5,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
+import to.etc.domui.logic.events.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.db.*;
 import to.etc.util.*;
@@ -109,9 +110,7 @@ public class LogiModel {
 		for(PropertyMetaModel< ? > pmm : pmml) {
 			copyPropertyValue(source, copy, pmm, oldOrigMap);
 		}
-
-		// TODO Auto-generated method stub
-		return null;
+		return copy;
 	}
 
 	private <T, P> void copyPropertyValue(@Nonnull T source, @Nonnull T copy, @Nonnull PropertyMetaModel<P> pmm, @Nonnull Map<Object, Object> oldOrigMap) throws Exception {
@@ -220,11 +219,13 @@ public class LogiModel {
 					break;
 
 				case UP:
-					if(!compareUpValues(les, pmm, source, copy)) {
-						if(laterl == null)
-							laterl = new ArrayList<PropertyMetaModel< ? >>();
-						laterl.add(pmm);
-					}
+					compareUpValues(les, pmm, source, copy);
+
+//					if(!compareUpValues(les, pmm, source, copy)) {
+//						if(laterl == null)
+//							laterl = new ArrayList<PropertyMetaModel< ? >>();
+//						laterl.add(pmm);
+//					}
 					break;
 
 				case DOWN:
@@ -330,7 +331,7 @@ public class LogiModel {
 				res.add(v);
 			return res;
 		} else
-			throw new IllegalStateException(source + ": only List child sets are supported.");
+			throw new IllegalStateException(source + ": only List child sets are supported, got " + source.getClass());
 	}
 
 

@@ -24,6 +24,8 @@
  */
 package to.etc.domui.util.db;
 
+import javax.annotation.*;
+
 import to.etc.webapp.query.*;
 
 /**
@@ -34,18 +36,22 @@ import to.etc.webapp.query.*;
  * Created on Jan 8, 2010
  */
 public class QCopy {
+	@Nullable
 	static private IModelCopier m_copier;
 
-	static public synchronized void setImplementation(IModelCopier m) {
+	static public synchronized void setImplementation(@Nonnull IModelCopier m) {
 		m_copier = m;
 	}
 
-	static private IModelCopier c() {
-		return m_copier;
+	@Nonnull
+	static synchronized private IModelCopier c() {
+		if(null != m_copier)
+			return m_copier;
+		throw new IllegalStateException("QCopy.setImplementation() initialization method must be called before use.");
 	}
 
 	static synchronized public final IModelCopier getInstance() {
-		return m_copier;
+		return c();
 	}
 
 	static public <T> T copyInstanceShallow(QDataContext dc, T source) throws Exception {

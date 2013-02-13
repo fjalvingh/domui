@@ -1,8 +1,10 @@
-package to.etc.domui.logic;
+package to.etc.domui.logic.events;
 
 import java.util.*;
 
 import javax.annotation.*;
+
+import to.etc.domui.component.meta.*;
 
 final public class LogiEventInstanceChange extends LogiEventBase {
 	@Nonnull
@@ -23,5 +25,11 @@ final public class LogiEventInstanceChange extends LogiEventBase {
 	@Nonnull
 	public Object getInstance() {
 		return m_instance;
+	}
+
+	@Override
+	void dump(@Nonnull Appendable a) throws Exception {
+		a.append(getPath());
+		a.append(" [instance ").append(MetaManager.identify(m_instance)).append(" changed: ").append(Integer.toString(m_propertyChangeMap.size())).append(" properties]\n");
 	}
 }

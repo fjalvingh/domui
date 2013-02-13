@@ -7,6 +7,7 @@ import javax.annotation.*;
 
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.errors.*;
+import to.etc.domui.logic.events.*;
 import to.etc.webapp.*;
 import to.etc.webapp.query.*;
 
@@ -29,7 +30,8 @@ final public class LogiContext {
 	@Nonnull
 	final private Map<Class< ? >, Map<Object, ILogic>> m_instanceMap = new HashMap<Class< ? >, Map<Object, ILogic>>();
 
-	private LogiModel m_model = new LogiModel();
+	@Nonnull
+	final private LogiModel m_model = new LogiModel();
 
 	@Nonnull
 	final private List<UIMessage> m_actionMessageList = new ArrayList<UIMessage>();
@@ -37,6 +39,10 @@ final public class LogiContext {
 	@Nonnull
 	final private List<IMessageListener> m_actionMsgListenerList = new ArrayList<IMessageListener>();
 
+	/**
+	 * Create and set the default data context to use.
+	 * @param dataContext
+	 */
 	public LogiContext(@Nonnull QDataContext dataContext) {
 		m_dataContextMap.put(QContextManager.DEFAULT, dataContext);
 		m_dc = dataContext;
@@ -112,14 +118,25 @@ final public class LogiContext {
 		m_model.updateCopy();
 	}
 
-	public void startPhase() {
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Phase handling.										*/
+	/*--------------------------------------------------------------*/
+	/**
+	 *
+	 */
+	public void startPhase() throws Exception {
 		m_actionMessageList.clear();
+		m_model.updateCopy();
 	}
 
 	/**
 	 * Should be called @ user interaction end time.
 	 */
-	public void	endPhase() {
+	public void endPhase() throws Exception {
+		LogiEventSet eventSet = m_model.compareCopy();
+		System.out.println("model: eventSet=" + eventSet);
+
 		if(m_actionMessageList.size() > 0) {
 			for(IMessageListener l : m_actionMsgListenerList) {
 				l.actionMessages(m_actionMessageList);
@@ -133,7 +150,8 @@ final public class LogiContext {
 	/*--------------------------------------------------------------*/
 
 	/**
-	 *
+	 * Add a listener for Action messages. The listener will be called at the end of a "phase" if
+	 * message(s) were posted during it.
 	 * @param l
 	 */
 	public void addActionMessageListener(@Nonnull IMessageListener l) {
