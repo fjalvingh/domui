@@ -182,12 +182,11 @@ final public class Diff<T> {
 
 		int i = m - 1;
 		int j = n - 1;
-		int sindex = i;
 		while(j > 0 || i > 0) {
 			if(i > 0 && j > 0 && 0 == comparator.compare(oldl.get(obeg + i - 1), newl.get(nbeg + j - 1))) {
-				tmp.add("  " + oldl.get(obeg + i - 1) + " @" + (sindex));
-				res.add(new Item<I>(Type.SAME, oldl.get(obeg + i - 1)));
-				sindex--;
+				int sindex = (obeg + i - 1);
+				tmp.add("  " + oldl.get(sindex) + " @" + sindex);
+				res.add(new Item<I>(Type.SAME, oldl.get(sindex)));
 				i--;
 				j--;
 
@@ -212,7 +211,7 @@ final public class Diff<T> {
 
 		//-- Add all unhandled @ start,
 		for(i = obeg; --i >= 0;) {
-			tmp.add("  " + oldl.get(i) + " @" + i);
+			tmp.add("  " + oldl.get(i) + " @" + i + " (s)");
 			res.add(new Item<I>(Type.SAME, oldl.get(i)));
 		}
 		Collections.reverse(tmp);
@@ -220,37 +219,37 @@ final public class Diff<T> {
 
 		//-- Calculate line #s.
 		List<Diff<I>> dres = new ArrayList<Diff<I>>();
-		sindex = 0;
-		int dindex = 0;
-		int lastsindex = 0;
-		int lastdindex = 0;
+		int oindex = 0;
+		int nindex = 0;
+		int lastoindex = 0;
+		int lastnindex = 0;
 		Type currchange = Type.SAME;
 
 		for(Item<I> item : res) {
-			item.setIndex(sindex);
+			item.setIndex(oindex);
 
 			//-- Is our type changing?
 			if(currchange != item.getType()) {
-				addDiffItem(oldl, newl, sindex, dres, dindex, lastsindex, lastdindex, currchange);
+				addDiffItem(oldl, newl, oindex, dres, nindex, lastoindex, lastnindex, currchange);
 				currchange = item.getType();
-				lastsindex = sindex;
-				lastdindex = dindex;
+				lastoindex = oindex;
+				lastnindex = nindex;
 			}
 
 			switch(item.getType()){
 				case ADD:
-					dindex++;
+					nindex++;
 					break;
 				case DELETE:
-					sindex++;
+					oindex++;
 					break;
 				case SAME:
-					sindex++;
-					dindex++;
+					oindex++;
+					nindex++;
 					break;
 			}
 		}
-		addDiffItem(oldl, newl, sindex, dres, dindex, lastsindex, lastdindex, currchange);
+		addDiffItem(oldl, newl, oindex, dres, nindex, lastoindex, lastnindex, currchange);
 		for(Item<I> s : res) {
 			System.out.println(" " + s);
 		}
@@ -267,17 +266,17 @@ final public class Diff<T> {
 	}
 
 
-	private static <I> void addDiffItem(List<I> sourcel, List<I> copyl, int sindex, List<Diff<I>> dres, int dindex, int lastsindex, int lastdindex, Type type) {
-		if(lastsindex != sindex || lastdindex != dindex) {
+	private static <I> void addDiffItem(List<I> oldl, List<I> newl, int oindex, List<Diff<I>> dres, int nindex, int lastoindex, int lastnindex, Type type) {
+		if(lastoindex != oindex || lastnindex != nindex) {
 			switch(type){
 				case ADD:
-					dres.add(new Diff<I>(lastsindex, sindex, copyl.subList(lastdindex, dindex), Type.ADD));
+					dres.add(new Diff<I>(lastnindex, nindex, newl.subList(lastnindex, nindex), Type.ADD));
 					break;
 				case DELETE:
-					dres.add(new Diff<I>(lastsindex, sindex, sourcel.subList(lastsindex, sindex), Type.DELETE));
+					dres.add(new Diff<I>(lastoindex, oindex, oldl.subList(lastoindex, oindex), Type.DELETE));
 					break;
 				case SAME:
-					dres.add(new Diff<I>(lastsindex, sindex, sourcel.subList(lastsindex, sindex), Type.SAME));
+					dres.add(new Diff<I>(lastoindex, oindex, oldl.subList(lastoindex, oindex), Type.SAME));
 					break;
 			}
 		}

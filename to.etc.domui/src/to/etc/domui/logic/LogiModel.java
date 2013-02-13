@@ -325,13 +325,13 @@ public class LogiModel {
 				default:
 					throw new IllegalStateException(delta.getType() + ": unknown??");
 				case ADD:
-					for(int ix = delta.getStartIndex(); ix <= delta.getEndIndex(); ix++) {
+					for(int ix = delta.getStartIndex(); ix < delta.getEndIndex(); ix++) {
 						les.addCollectionAdd(pmm, source, copy, ix, sourcel.get(ix));
 					}
 					break;
 
 				case DELETE:
-					for(int ix = delta.getStartIndex(); ix <= delta.getEndIndex(); ix++) {
+					for(int ix = delta.getStartIndex(); ix < delta.getEndIndex(); ix++) {
 						les.addCollectionDelete(pmm, source, copy, ix, copyl.get(ix));
 					}
 					break;
