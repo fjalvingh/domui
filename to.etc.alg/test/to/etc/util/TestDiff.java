@@ -44,8 +44,14 @@ public class TestDiff {
 	public void test4() throws Exception {
 		//-- Multiple ranges added in the set.
 		diff("abcdef", "123abc456def", "+@0:123", "+@3:456");
-
+		diff("abcdef", "ab123cde456fghij", "+@2:123", "+@5:456", "+@6:ghij");
 	}
+
+	@Test
+	public void test5() throws Exception {
+		diff("abcdefghijklm", "123defghijklm", "-@0:abc", "+@3:123");					// replace abc with 123
+	}
+
 
 	/**
 	 * Use the diff engine to create a comparison between letter strings.
