@@ -7,6 +7,8 @@ import javax.annotation.*;
 final public class Diff<T> {
 	static public boolean	DEBUG	= false;
 
+	static public boolean	DEBUG2	= false;
+
 	public enum Type {
 		ADD, DELETE, SAME
 	}
@@ -207,7 +209,7 @@ final public class Diff<T> {
 			Item<I> e = new Item<I>(Type.SAME, oldl.get(xxx));
 			res.add(e);
 			e.setIndex(xxx);
-			if(DEBUG)
+			if(DEBUG2)
 				tmp.add("  " + oldl.get(xxx) + " @" + xxx + " (e)");
 		}
 
@@ -216,7 +218,7 @@ final public class Diff<T> {
 		while(j > 0 || i > 0) {
 			if(i > 0 && j > 0 && 0 == comparator.compare(oldl.get(obeg + i - 1), newl.get(nbeg + j - 1))) {
 				int sindex = (obeg + i - 1);
-				if(DEBUG)
+				if(DEBUG2)
 					tmp.add("  " + oldl.get(sindex) + " @" + sindex);
 				res.add(new Item<I>(Type.SAME, oldl.get(sindex)));
 				i--;
@@ -228,7 +230,7 @@ final public class Diff<T> {
 				int nindex = nbeg + j - 1;
 				I nitem = newl.get(nindex);
 
-				if(DEBUG)
+				if(DEBUG2)
 					tmp.add("+ " + nitem + " @" + nindex);
 				res.add(new Item<I>(Type.ADD, nitem));
 				j--;
@@ -236,7 +238,7 @@ final public class Diff<T> {
 				//-- Deletion
 				int oindex = obeg + i - 1;
 				I oitem = oldl.get(oindex);
-				if(DEBUG)
+				if(DEBUG2)
 					tmp.add("- " + oitem + " @" + (oindex));
 				res.add(new Item<I>(Type.DELETE, oitem));
 				i--;
@@ -245,7 +247,7 @@ final public class Diff<T> {
 
 		//-- Add all unhandled @ start,
 		for(i = obeg; --i >= 0;) {
-			if(DEBUG)
+			if(DEBUG2)
 				tmp.add("  " + oldl.get(i) + " @" + i + " (s)");
 			res.add(new Item<I>(Type.SAME, oldl.get(i)));
 		}
@@ -288,7 +290,7 @@ final public class Diff<T> {
 
 		if(currchange != Type.SAME || !skipsame)
 			addDiffItem(oldl, newl, oindex, dres, nindex, lastoindex, lastnindex, currchange);
-		if(DEBUG && false) {
+		if(DEBUG) {
 			for(Item<I> s : res) {
 				System.out.println(" " + s);
 			}
@@ -300,9 +302,11 @@ final public class Diff<T> {
 				System.out.print(d);
 			}
 		}
-		//		System.out.println("Debug list:");
-		//		for(String s : tmp)
-		//			System.out.println(" " + s);
+		if(DEBUG2) {
+			System.out.println("Debug list:");
+			for(String s : tmp)
+				System.out.println(" " + s);
+		}
 
 		return dres;
 	}
@@ -312,7 +316,7 @@ final public class Diff<T> {
 		if(lastoindex != oindex || lastnindex != nindex) {
 			switch(type){
 				case ADD:
-					dres.add(new Diff<I>(lastnindex, nindex, newl.subList(lastnindex, nindex), Type.ADD));
+					dres.add(new Diff<I>(lastoindex, oindex, newl.subList(lastnindex, nindex), Type.ADD));
 					break;
 				case DELETE:
 					dres.add(new Diff<I>(lastoindex, oindex, oldl.subList(lastoindex, oindex), Type.DELETE));

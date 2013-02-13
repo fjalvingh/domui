@@ -9,9 +9,9 @@ import org.junit.*;
 public class TestDiff {
 	@BeforeClass
 	static public void before() {
-		Diff.DEBUG = true;
+		//		Diff.DEBUG = true;
+		//		Diff.DEBUG2 = true;
 	}
-
 
 	@Test
 	public void test1() throws Exception {
@@ -22,17 +22,26 @@ public class TestDiff {
 
 		diff("abcdef", "abcdefghij", "+@6:ghij");			// Added @ end
 		diff("abcdef", "ghijabcdef", "+@0:ghij");			// Added @ start
+	}
 
+	@Test
+	public void test2() throws Exception {
 		//-- Deleting stuff: single ranges
 		diff("abcdefghij", "abcdghij", "-@4:ef");
 		diff("abcdefghij", "defghij", "-@0:abc");			// @start
 		diff("abcdefghij", "abcdef", "-@6:ghij");
+	}
 
+	@Test
+	public void test3() throws Exception {
 		//-- Multiple ranges deleted in the set
 		diff("abcdefuvwxyz", "abefuvyz", "-@2:cd", "-@8:wx");	// Remove cd and wx, and make sure report is correct from old string indices.
 		diff("abcdefuvwxyz", "defuvw", "-@0:abc", "-@9:xyz");	// Front and back removed.
 		diff("abcdefghijklmnopqrstuvwxyz", "bcdefghijlnopqrstuvw", "-@0:a", "-@10:k", "-@12:m", "-@23:xyz");
+	}
 
+	@Test
+	public void test4() throws Exception {
 		//-- Multiple ranges added in the set.
 		diff("abcdef", "123abc456def", "+@0:123", "+@3:456");
 
