@@ -239,7 +239,7 @@ final public class DomUtil {
 	 * @param name
 	 * @return
 	 */
-	static public final Object getClassValue(@Nonnull final Object inst, @Nonnull final String name) throws Exception {
+	static public final Object getClassValue(final @Nonnull Object inst, @Nonnull final String name) throws Exception {
 		if(inst == null)
 			throw new IllegalStateException("The input object is null");
 		Class< ? > clz = inst.getClass();
