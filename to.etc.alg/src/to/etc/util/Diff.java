@@ -5,6 +5,8 @@ import java.util.*;
 import javax.annotation.*;
 
 final public class Diff<T> {
+	static public boolean	DEBUG	= false;
+
 	public enum Type {
 		ADD, DELETE, SAME
 	}
@@ -36,6 +38,11 @@ final public class Diff<T> {
 
 	public int getStartIndex() {
 		return m_startIndex;
+	}
+
+	@Nonnull
+	public List<T> getList() {
+		return m_list;
 	}
 
 	@Override
@@ -113,7 +120,30 @@ final public class Diff<T> {
 		}
 	}
 
-	static public <I> List<Diff<I>> diffList(List<I> oldl, List<I> newl, Comparator<I> comparator) throws Exception {
+	static public <I> List<Diff<I>> diffList(@Nonnull List<I> oldl, @Nonnull List<I> newl, @Nullable Comparator<I> comparator) {
+		return diffList(oldl, newl, comparator, true);
+	}
+
+	static public <I> List<Diff<I>> diffList(@Nonnull List<I> oldl, @Nonnull List<I> newl, @Nullable Comparator<I> comparator, boolean skipsame) {
+		if(null == comparator) {
+			comparator = new Comparator<I>() {
+				@Override
+				public int compare(I o, I n) {
+					if(o == n)
+						return 0;
+					if(o == null)
+						return 1;
+					if(n == null)
+						return -1;
+					if(o instanceof Comparable) {
+						Comparable<I> c = (Comparable<I>) o;
+						return c.compareTo(n);
+					}
+					return o.toString().compareTo(n.toString());
+				}
+			};
+		}
+
 		//-- First slice off common start and end;
 		int oend = oldl.size();
 		int nend = newl.size();
@@ -177,7 +207,8 @@ final public class Diff<T> {
 			Item<I> e = new Item<I>(Type.SAME, oldl.get(xxx));
 			res.add(e);
 			e.setIndex(xxx);
-			tmp.add("  " + oldl.get(xxx) + " @" + xxx + " (e)");
+			if(DEBUG)
+				tmp.add("  " + oldl.get(xxx) + " @" + xxx + " (e)");
 		}
 
 		int i = m - 1;
@@ -185,7 +216,8 @@ final public class Diff<T> {
 		while(j > 0 || i > 0) {
 			if(i > 0 && j > 0 && 0 == comparator.compare(oldl.get(obeg + i - 1), newl.get(nbeg + j - 1))) {
 				int sindex = (obeg + i - 1);
-				tmp.add("  " + oldl.get(sindex) + " @" + sindex);
+				if(DEBUG)
+					tmp.add("  " + oldl.get(sindex) + " @" + sindex);
 				res.add(new Item<I>(Type.SAME, oldl.get(sindex)));
 				i--;
 				j--;
@@ -196,14 +228,16 @@ final public class Diff<T> {
 				int nindex = nbeg + j - 1;
 				I nitem = newl.get(nindex);
 
-				tmp.add("+ " + nitem + " @" + nindex);
+				if(DEBUG)
+					tmp.add("+ " + nitem + " @" + nindex);
 				res.add(new Item<I>(Type.ADD, nitem));
 				j--;
 			} else if(i > 0 && (j == 0 || car[i][j - 1] < car[i - 1][j])) {
 				//-- Deletion
 				int oindex = obeg + i - 1;
 				I oitem = oldl.get(oindex);
-				tmp.add("- " + oitem + " @" + (oindex));
+				if(DEBUG)
+					tmp.add("- " + oitem + " @" + (oindex));
 				res.add(new Item<I>(Type.DELETE, oitem));
 				i--;
 			}
@@ -211,7 +245,8 @@ final public class Diff<T> {
 
 		//-- Add all unhandled @ start,
 		for(i = obeg; --i >= 0;) {
-			tmp.add("  " + oldl.get(i) + " @" + i + " (s)");
+			if(DEBUG)
+				tmp.add("  " + oldl.get(i) + " @" + i + " (s)");
 			res.add(new Item<I>(Type.SAME, oldl.get(i)));
 		}
 		Collections.reverse(tmp);
@@ -230,7 +265,8 @@ final public class Diff<T> {
 
 			//-- Is our type changing?
 			if(currchange != item.getType()) {
-				addDiffItem(oldl, newl, oindex, dres, nindex, lastoindex, lastnindex, currchange);
+				if(currchange != Type.SAME || !skipsame)
+					addDiffItem(oldl, newl, oindex, dres, nindex, lastoindex, lastnindex, currchange);
 				currchange = item.getType();
 				lastoindex = oindex;
 				lastnindex = nindex;
@@ -249,18 +285,24 @@ final public class Diff<T> {
 					break;
 			}
 		}
-		addDiffItem(oldl, newl, oindex, dres, nindex, lastoindex, lastnindex, currchange);
-		for(Item<I> s : res) {
-			System.out.println(" " + s);
+
+		if(currchange != Type.SAME || !skipsame)
+			addDiffItem(oldl, newl, oindex, dres, nindex, lastoindex, lastnindex, currchange);
+		if(DEBUG && false) {
+			for(Item<I> s : res) {
+				System.out.println(" " + s);
+			}
 		}
 
-		System.out.println("Diff: delta:");
-		for(Diff<I> d : dres) {
-			System.out.print(d);
+		if(DEBUG) {
+			System.out.println("Diff: delta:");
+			for(Diff<I> d : dres) {
+				System.out.print(d);
+			}
 		}
-		System.out.println("Debug list:");
-		for(String s : tmp)
-			System.out.println(" " + s);
+		//		System.out.println("Debug list:");
+		//		for(String s : tmp)
+		//			System.out.println(" " + s);
 
 		return dres;
 	}
