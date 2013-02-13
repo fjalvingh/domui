@@ -2,8 +2,10 @@ package to.etc.util;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 final public class Diff<T> {
-	private enum Type {
+	public enum Type {
 		ADD, DELETE, SAME
 	}
 
@@ -11,11 +13,13 @@ final public class Diff<T> {
 
 	final private int		m_endIndex;
 
+	@Nonnull
 	final private List<T>	m_list;
 
+	@Nonnull
 	final private Type		m_type;
 
-	private Diff(int startIndex, int endIndex, List<T> list, Type type) {
+	private Diff(int startIndex, int endIndex, @Nonnull List<T> list, @Nonnull Type type) {
 		m_startIndex = startIndex;
 		m_endIndex = endIndex;
 		m_list = list;
@@ -109,42 +113,42 @@ final public class Diff<T> {
 		}
 	}
 
-	static public <I> List<Diff<I>> diffList(List<I> sourcel, List<I> copyl, Comparator<I> comparator) throws Exception {
+	static public <I> List<Diff<I>> diffList(List<I> oldl, List<I> newl, Comparator<I> comparator) throws Exception {
 		//-- First slice off common start and end;
-		int send = sourcel.size();
-		int cend = copyl.size();
-		int sbeg = 0;
-		int cbeg = 0;
+		int oend = oldl.size();
+		int nend = newl.size();
+		int obeg = 0;
+		int nbeg = 0;
 
 		//-- Slice common beginning
-		while(sbeg < send && cbeg < cend) {
-			I so = sourcel.get(sbeg);
-			I co = copyl.get(cbeg);
+		while(obeg < oend && nbeg < nend) {
+			I so = oldl.get(obeg);
+			I co = newl.get(nbeg);
 			if(0 != comparator.compare(so, co)) {
 				break;
 			}
-			sbeg++;
-			cbeg++;
+			obeg++;
+			nbeg++;
 		}
 
 		//-- Slice common end
-		while(send > sbeg && cend > cbeg) {
-			I so = sourcel.get(send - 1);
-			I co = copyl.get(cend - 1);
+		while(oend > obeg && nend > nbeg) {
+			I so = oldl.get(oend - 1);
+			I co = newl.get(nend - 1);
 			if(0 != comparator.compare(so, co)) {
 				break;
 			}
-			cend--;
-			send--;
+			nend--;
+			oend--;
 		}
-		if(sbeg >= send && cbeg >= cend) {
+		if(obeg >= oend && nbeg >= nend) {
 			//-- Equal arrays- no changes.
 			return Collections.EMPTY_LIST;
 		}
 
 		//-- Ouf.. We need to do the hard bits. Find the lcs and then render the edit as the delta.
-		int m = (send - sbeg) + 1;
-		int n = (cend - cbeg) + 1;
+		int m = (oend - obeg) + 1;
+		int n = (nend - nbeg) + 1;
 		int[][] car = new int[m][];
 		for(int i = 0; i < m; i++) {
 			car[i] = new int[n];
@@ -156,8 +160,8 @@ final public class Diff<T> {
 
 		for(int i = 1; i < m; i++) {
 			for(int j = 1; j < n; j++) {
-				I so = sourcel.get(sbeg + i - 1);
-				I co = copyl.get(cbeg + j - 1);
+				I so = oldl.get(obeg + i - 1);
+				I co = newl.get(nbeg + j - 1);
 				if(0 == comparator.compare(so, co)) {
 					car[i][j] = car[i - 1][j - 1] + 1;					// Is length of previous subsequence + 1.
 				} else {
@@ -169,20 +173,20 @@ final public class Diff<T> {
 		//-- Now: backtrack from the end to the start to render the delta. This creates the delta in the "reverse" order.
 		List<Item<I>> res = new ArrayList<Item<I>>();
 		List<String> tmp = new ArrayList<String>();
-		for(int xxx = sourcel.size(); --xxx >= send;) {
-			Item<I> e = new Item<I>(Type.SAME, sourcel.get(xxx));
+		for(int xxx = oldl.size(); --xxx >= oend;) {
+			Item<I> e = new Item<I>(Type.SAME, oldl.get(xxx));
 			res.add(e);
 			e.setIndex(xxx);
-			tmp.add("  " + sourcel.get(xxx) + " @" + xxx + " (e)");
+			tmp.add("  " + oldl.get(xxx) + " @" + xxx + " (e)");
 		}
 
 		int i = m - 1;
 		int j = n - 1;
 		int sindex = i;
 		while(j > 0 || i > 0) {
-			if(i > 0 && j > 0 && 0 == comparator.compare(sourcel.get(sbeg + i - 1), copyl.get(cbeg + j - 1))) {
-				tmp.add("  " + sourcel.get(sbeg + i - 1) + " @" + (sindex));
-				res.add(new Item<I>(Type.SAME, sourcel.get(sbeg + i - 1)));
+			if(i > 0 && j > 0 && 0 == comparator.compare(oldl.get(obeg + i - 1), newl.get(nbeg + j - 1))) {
+				tmp.add("  " + oldl.get(obeg + i - 1) + " @" + (sindex));
+				res.add(new Item<I>(Type.SAME, oldl.get(obeg + i - 1)));
 				sindex--;
 				i--;
 				j--;
@@ -190,21 +194,26 @@ final public class Diff<T> {
 				//-- part of lcs - no delta
 			} else if(j > 0 && (i == 0 || car[i][j - 1] >= car[i - 1][j])) {
 				//-- Addition
-				tmp.add("+ " + copyl.get(cbeg + j - 1) + " @" + sindex);
-				res.add(new Item<I>(Type.ADD, copyl.get(cbeg + j - 1)));
+				int nindex = nbeg + j - 1;
+				I nitem = newl.get(nindex);
+
+				tmp.add("+ " + nitem + " @" + nindex);
+				res.add(new Item<I>(Type.ADD, nitem));
 				j--;
 			} else if(i > 0 && (j == 0 || car[i][j - 1] < car[i - 1][j])) {
 				//-- Deletion
-				tmp.add("- " + sourcel.get(sbeg + i - 1) + " @" + sindex);
-				res.add(new Item<I>(Type.DELETE, sourcel.get(sbeg + i - 1)));
+				int oindex = obeg + i - 1;
+				I oitem = oldl.get(oindex);
+				tmp.add("- " + oitem + " @" + (oindex));
+				res.add(new Item<I>(Type.DELETE, oitem));
 				i--;
 			}
 		}
 
 		//-- Add all unhandled @ start,
-		for(i = sbeg; --i >= 0;) {
-			tmp.add("  " + sourcel.get(i) + " @" + i);
-			res.add(new Item<I>(Type.SAME, sourcel.get(i)));
+		for(i = obeg; --i >= 0;) {
+			tmp.add("  " + oldl.get(i) + " @" + i);
+			res.add(new Item<I>(Type.SAME, oldl.get(i)));
 		}
 		Collections.reverse(tmp);
 		Collections.reverse(res);
@@ -222,7 +231,7 @@ final public class Diff<T> {
 
 			//-- Is our type changing?
 			if(currchange != item.getType()) {
-				addDiffItem(sourcel, copyl, sindex, dres, dindex, lastsindex, lastdindex, currchange);
+				addDiffItem(oldl, newl, sindex, dres, dindex, lastsindex, lastdindex, currchange);
 				currchange = item.getType();
 				lastsindex = sindex;
 				lastdindex = dindex;
@@ -241,21 +250,20 @@ final public class Diff<T> {
 					break;
 			}
 		}
-		addDiffItem(sourcel, copyl, sindex, dres, dindex, lastsindex, lastdindex, currchange);
+		addDiffItem(oldl, newl, sindex, dres, dindex, lastsindex, lastdindex, currchange);
 		for(Item<I> s : res) {
 			System.out.println(" " + s);
 		}
 
-		System.out.println("Difftree:");
+		System.out.println("Diff: delta:");
 		for(Diff<I> d : dres) {
 			System.out.print(d);
 		}
+		System.out.println("Debug list:");
+		for(String s : tmp)
+			System.out.println(" " + s);
 
-
-		//		for(String s : tmp)
-		//			System.out.println(" " + s);
-
-		return Collections.EMPTY_LIST;
+		return dres;
 	}
 
 

@@ -54,6 +54,6 @@ final public class LogiEventListDelta<T, P, I> extends LogiEventBase {
 
 	@Override
 	void dump(@Nonnull Appendable a) throws Exception {
-		a.append(getPath()).append(" change @index " + m_index + " value=").append(toString(m_value)).append("\n");
+		a.append(getPath()).append(" List:").append(m_type.toString()).append(" @index " + m_index + " value=").append(toString(m_value)).append("\n");
 	}
 }
