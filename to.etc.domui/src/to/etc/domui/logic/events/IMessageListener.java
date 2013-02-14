@@ -1,4 +1,4 @@
-package to.etc.domui.logic;
+package to.etc.domui.logic.events;
 
 import java.util.*;
 

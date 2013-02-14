@@ -39,6 +39,9 @@ final public class LogiContext {
 	@Nonnull
 	final private List<IMessageListener> m_actionMsgListenerList = new ArrayList<IMessageListener>();
 
+	@Nonnull
+	final private List<ILogiEventListener> m_eventListenerList = new ArrayList<ILogiEventListener>();
+
 	/**
 	 * Create and set the default data context to use.
 	 * @param dataContext
@@ -137,6 +140,9 @@ final public class LogiContext {
 		LogiEventSet eventSet = m_model.compareCopy();
 		System.out.println("model: eventSet=" + eventSet);
 
+		LogiEvent le = eventSet.createEvent();
+		sendEvent(le);
+
 		if(m_actionMessageList.size() > 0) {
 			for(IMessageListener l : m_actionMsgListenerList) {
 				l.actionMessages(m_actionMessageList);
@@ -167,4 +173,18 @@ final public class LogiContext {
 	public void addActionMessage(@Nonnull UIMessage m) {
 		m_actionMessageList.add(m);
 	}
+
+	public void addEventListener(@Nonnull ILogiEventListener listener) {
+		m_eventListenerList.add(listener);
+	}
+
+	public void removeEventListener(@Nonnull ILogiEventListener listener) {
+		m_eventListenerList.remove(listener);
+	}
+
+	private void sendEvent(@Nonnull LogiEvent event) throws Exception {
+		for(ILogiEventListener lel : m_eventListenerList)
+			lel.logicEvent(event);
+	}
+
 }

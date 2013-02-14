@@ -33,6 +33,7 @@ import to.etc.domui.component.layout.title.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.logic.*;
+import to.etc.domui.logic.events.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.query.*;
 
@@ -46,7 +47,7 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Sep 1, 2008
  */
-public class UrlPage extends Div {
+public class UrlPage extends Div implements ILogiEventListener {
 	/** The title for the page in the head's TITLE tag. */
 	private String m_pageTitle;
 
@@ -171,6 +172,7 @@ public class UrlPage extends Div {
 				MsgBox.message(UrlPage.this, t, sb.toString());
 			}
 		});
+		lc.addEventListener(this);									// Pass all logi events to the entire page tree.
 
 		//-- Add phase listeners
 		getPage().addAfterRequestListener(new IExecute() {

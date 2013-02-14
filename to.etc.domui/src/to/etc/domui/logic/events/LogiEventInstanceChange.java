@@ -27,6 +27,24 @@ final public class LogiEventInstanceChange extends LogiEventBase {
 		return m_instance;
 	}
 
+	public boolean isPropertyChanged(@Nonnull String propertyName) {
+		return m_propertyChangeMap.containsKey(propertyName);
+	}
+
+	public <T> boolean isPropertyChanged(@Nonnull PropertyMetaModel<T> pmm) {
+		return m_propertyChangeMap.containsKey(pmm.getName());
+	}
+
+	@Nullable
+	public LogiEventPropertyChange< ? > findPropertyChange(String propertyName) {
+		return m_propertyChangeMap.get(propertyName);
+	}
+
+	@Nullable
+	public <T> LogiEventPropertyChange<T> findPropertyChange(@Nonnull PropertyMetaModel<T> pmm) {
+		return (LogiEventPropertyChange<T>) m_propertyChangeMap.get(pmm.getName());
+	}
+
 	@Override
 	void dump(@Nonnull Appendable a) throws Exception {
 		a.append(getPath());

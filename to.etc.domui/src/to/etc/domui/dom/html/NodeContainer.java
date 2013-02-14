@@ -30,6 +30,7 @@ import javax.annotation.*;
 
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.errors.*;
+import to.etc.domui.logic.events.*;
 import to.etc.webapp.*;
 
 /**
@@ -704,7 +705,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 */
 	@Override
 	final public void moveControlToModel() throws Exception {
-		super.moveControlToModel(); // FIXME Is this useful?
+		super.moveControlToModel();
 		Exception x = null;
 		for(NodeBase b : new ArrayList<NodeBase>(m_children)) {
 			try {
@@ -729,8 +730,8 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 */
 	@Override
 	final public void moveModelToControl() throws Exception {
-		super.moveModelToControl(); // Move the value to *this* node if it is bindable
-		build(); // And only build it AFTER a value can have been set.
+		super.moveModelToControl(); 					// Move the value to *this* node if it is bindable
+		build(); 										// And only build it AFTER a value can have been set.
 		for(NodeBase b : new ArrayList<NodeBase>(m_children))
 			b.moveModelToControl();
 	}
@@ -744,6 +745,18 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	final public void setControlsEnabled(boolean on) {
 		for(NodeBase b : new ArrayList<NodeBase>(m_children))
 			b.setControlsEnabled(on);
+	}
+
+	/**
+	 * EXPERIMENTAL Pass the event to all my children, but before that pass it to myself if I'm bound.
+	 * @see to.etc.domui.dom.html.NodeBase#logicEvent(to.etc.domui.logic.events.LogiEvent)
+	 */
+	@Override
+	public void logicEvent(@Nonnull LogiEvent logiEvent) throws Exception {
+		super.logicEvent(logiEvent);					// Handle binding to myself;
+		build(); 										// And only build it AFTER a value can have been set.
+		for(NodeBase b : new ArrayList<NodeBase>(m_children))
+			b.logicEvent(logiEvent);
 	}
 
 	/*--------------------------------------------------------------*/

@@ -845,6 +845,14 @@ final public class Page implements IQContextContainer {
 		return m_defaultFocusSource;
 	}
 
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Page action events.									*/
+	/*--------------------------------------------------------------*/
+	/**
+	 *
+	 * @param x
+	 */
 	public void addAfterRequestListener(@Nonnull IExecute x) {
 		if(m_afterRequestListenerList.size() == 0)
 			m_afterRequestListenerList = new ArrayList<IExecute>();

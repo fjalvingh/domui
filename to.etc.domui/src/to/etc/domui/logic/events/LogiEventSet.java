@@ -7,8 +7,8 @@ import javax.annotation.*;
 import to.etc.domui.component.meta.*;
 
 /**
- * A single event structure which contains all of the changes made between source and copy
- * instances.
+ * A builder class which is used to create the logic events set. It builds a single event structure which
+ * contains all of the changes made between source and copy instances.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 29, 2012
@@ -60,7 +60,6 @@ public class LogiEventSet {
 		m_allEvents.add(pc);
 		leave();
 	}
-
 
 	public <T, P> void addCollectionClear(@Nonnull PropertyMetaModel<P> pmm, @Nonnull T source, @Nonnull T copy, @Nullable P sourceval, @Nullable P copyval) {
 		enter();
@@ -137,5 +136,13 @@ public class LogiEventSet {
 		} catch(Exception x) {
 			return x.toString();
 		}
+	}
+
+	/**
+	 * Create the real event from this builder.
+	 * @return
+	 */
+	public LogiEvent createEvent() {
+		return new LogiEvent(m_allEvents, m_instanceEventMap);
 	}
 }
