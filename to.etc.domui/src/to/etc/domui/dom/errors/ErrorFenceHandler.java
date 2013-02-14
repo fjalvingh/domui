@@ -108,7 +108,7 @@ public class ErrorFenceHandler implements IErrorFence {
 		}
 		for(IErrorMessageListener eml : m_errorListeners) {
 			try {
-				eml.errorMessageAdded(source.getPage(), uim);
+				eml.errorMessageAdded(uim);
 			} catch(Exception x) {
 				x.printStackTrace();
 			}
@@ -124,7 +124,7 @@ public class ErrorFenceHandler implements IErrorFence {
 		List<IErrorMessageListener> list = m_errorListeners;
 		for(IErrorMessageListener eml : list) {
 			try {
-				eml.errorMessageRemoved(source == null ? null : source.getPage(), uim);
+				eml.errorMessageRemoved(uim);
 			} catch(Exception x) {
 				x.printStackTrace();
 			}

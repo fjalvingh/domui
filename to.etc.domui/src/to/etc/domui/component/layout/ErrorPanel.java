@@ -81,10 +81,10 @@ public class ErrorPanel extends CaptionedPanel implements IErrorMessageListener 
 
 	/**
 	 * Adds the new error message to this panel, making it visible.
-	 * @see to.etc.domui.dom.errors.IErrorMessageListener#errorMessageAdded(to.etc.domui.dom.html.Page, to.etc.domui.dom.errors.UIMessage)
+	 * @see to.etc.domui.dom.errors.IErrorMessageListener#errorMessageAdded(to.etc.domui.dom.errors.UIMessage)
 	 */
 	@Override
-	public void errorMessageAdded(Page pg, UIMessage m) {
+	public void errorMessageAdded(UIMessage m) {
 		Div d = new Div();
 		d.setUserObject(m);
 		//		String text = m.getErrorLocation() != null ? m.getErrorLocation() + ": " + m.getMessage() : m.getMessage();
@@ -125,10 +125,10 @@ public class ErrorPanel extends CaptionedPanel implements IErrorMessageListener 
 
 	/**
 	 * Removes the error message from this panel, rendering it invisible.
-	 * @see to.etc.domui.dom.errors.IErrorMessageListener#errorMessageRemoved(to.etc.domui.dom.html.Page, to.etc.domui.dom.errors.UIMessage)
+	 * @see to.etc.domui.dom.errors.IErrorMessageListener#errorMessageRemoved(to.etc.domui.dom.errors.UIMessage)
 	 */
 	@Override
-	public void errorMessageRemoved(Page pg, UIMessage m) {
+	public void errorMessageRemoved(UIMessage m) {
 		MsgType highest = null;
 		for(NodeBase b : getContent()) {
 			if(b.getUserObject() == m) {
