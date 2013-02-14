@@ -204,7 +204,7 @@ public class SimplePopupMenu extends Div {
 	protected <T> void renderAction(@Nonnull NodeContainer into, final IUIAction<T> action, final T val) throws Exception {
 		String disa = action.getDisableReason(val);
 		if(null != disa) {
-			Div d = renderItem(into, action.getName(val), disa, action.getIcon(val), true);
+			renderItem(into, action.getName(val), disa, action.getIcon(val), true);
 			return;
 		}
 

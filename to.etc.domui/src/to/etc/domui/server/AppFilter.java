@@ -196,21 +196,17 @@ public class AppFilter implements Filter {
 			if(specificLogConfigLocation != null) {
 				logConfigXml = readSpecificLoggerConfig(specificLogConfigLocation);
 			}
-			boolean logInitialized = false;
 			//FIXME: this uses Viewpoint specific location (%approot%/Private) and needs to be fixed later.
 			File logConfigLocation = new File(approot, "Private" + File.separator + "etcLog");
-			File configFile = new File(logConfigLocation, EtcLoggerFactory.CONFIG_FILENAME);
+			new File(logConfigLocation, EtcLoggerFactory.CONFIG_FILENAME);
 			//-- logger config location should always exist (FIXME: check if under LINUX it needs to be created in some special way to have write rights for tomcat user)
 			logConfigLocation.mkdirs();
 			if(logConfigXml != null && EtcLoggerFactory.getSingleton().tryLoadConfigFromXml(logConfigLocation, logConfigXml)) {
 				LOG.info(EtcLoggerFactory.getSingleton().getClass().getName() + " is initialized by loading specific logger configuration from xml:\n" + logConfigXml);
-				//-- If we have specified 'special' logger config we try to use this one
-				logInitialized = true;
 			} else {
 				//-- If 'special' logger config does not exists or fails to load, we try to use standard way of initializing logger
 				String defaultConfigXml = readDefaultLoggerConfig();
 				EtcLoggerFactory.getSingleton().initialize(logConfigLocation, defaultConfigXml);
-				logInitialized = true;
 			}
 		} catch(Exception x) {
 			x.printStackTrace();

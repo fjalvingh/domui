@@ -91,7 +91,7 @@ public class TestLoggerPage extends UrlPage {
 			@Override
 			public void clicked(@Nonnull DefaultButton clickednode) throws Exception {
 				try {
-					Integer res = JdbcUtil.oracleSpCall(getSharedContext().getConnection(), Integer.class, "TestStoredProcedure", new Date(), Integer.valueOf(5), "param3");
+					JdbcUtil.oracleSpCall(getSharedContext().getConnection(), Integer.class, "TestStoredProcedure", new Date(), Integer.valueOf(5), "param3");
 				} catch(Exception ex) {
 					LOG.error("Example of SQL exception logging.", ex);
 				}

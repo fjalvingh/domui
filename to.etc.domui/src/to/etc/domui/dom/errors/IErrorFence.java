@@ -26,8 +26,6 @@ package to.etc.domui.dom.errors;
 
 import javax.annotation.*;
 
-import to.etc.domui.dom.html.*;
-
 /**
  * The fence over which errors cannot pass. An error fence maintains the
  * list of listerers that are interested in an error.

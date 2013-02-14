@@ -188,7 +188,7 @@ public class MarkerImagePart implements IBufferedPartFactory {
 	 * @return
 	 */
 	private BufferedImage drawImage(@Nonnull BufferedImage icon, MarkerImagePartKey key) {
-		BufferedImage bufferedImage = new BufferedImage(200, 20, BufferedImage.TRANSLUCENT);
+		BufferedImage bufferedImage = new BufferedImage(200, 20, Transparency.TRANSLUCENT);
 
 		Graphics2D g = bufferedImage.createGraphics();
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);

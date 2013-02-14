@@ -322,7 +322,7 @@ public class ModelCopier {
 			//-- Find the contained entity and it's definition
 			Type	ct = pmm.getGenericActualType();		// Get contained type (I)
 			Class<I> itemtype = (Class<I>) MetaManager.findCollectionType(ct);
-			EntityDef<I> itemdef = getDefinition(itemtype);
+			getDefinition(itemtype);
 
 			//-- Party time....
 			for(I srci: sval) {

@@ -63,8 +63,7 @@ public class TestMinutesConverter {
 		for(int i = 0; i < BAD_VALUES.length; i++) {
 			String mins = BAD_VALUES[i];
 			try {
-				@SuppressWarnings("unused")
-				Integer minsFromString = mc.convertStringToObject(NlsContext.getLocale(), mins);
+				mc.convertStringToObject(NlsContext.getLocale(), mins);
 				Assert.fail("It's a good time ??? " + mins);
 			} catch(Exception x) {
 				//-- is the expected situation
