@@ -258,7 +258,7 @@ public class OldHorizontalFormBuilder extends GenericTableFormBuilder {
 		}
 
 		getBindings().add(new SimpleComponentPropertyBinding<C>(getModel(), pmm, (IControl<C>) r.getFormControl()));
-		return r.getFormControl();
+		return (IControl<?>) r.getFormControl();
 	}
 
 	/**
