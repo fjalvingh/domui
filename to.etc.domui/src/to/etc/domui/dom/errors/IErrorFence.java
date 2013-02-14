@@ -40,9 +40,9 @@ public interface IErrorFence {
 
 	public void removeErrorListener(@Nonnull IErrorMessageListener eml);
 
-	public void addMessage(@Nonnull NodeBase source, @Nonnull UIMessage uim);
+	public void addMessage(@Nonnull UIMessage uim);
 
-	public void removeMessage(@Nullable NodeBase source, @Nonnull UIMessage uim);
+	public void removeMessage(@Nonnull UIMessage uim);
 
-	public void clearGlobalMessages(@Nonnull NodeBase source, @Nullable String code);
+	public void clearGlobalMessages(@Nullable String code);
 }

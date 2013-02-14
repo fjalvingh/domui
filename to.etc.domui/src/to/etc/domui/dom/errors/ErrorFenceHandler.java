@@ -96,7 +96,7 @@ public class ErrorFenceHandler implements IErrorFence {
 	}
 
 	@Override
-	public void addMessage(@Nonnull NodeBase source, @Nonnull UIMessage uim) {
+	public void addMessage(@Nonnull UIMessage uim) {
 		if(m_messageList == Collections.EMPTY_LIST)
 			m_messageList = new ArrayList<UIMessage>(15);
 		m_messageList.add(uim);
@@ -116,7 +116,7 @@ public class ErrorFenceHandler implements IErrorFence {
 	}
 
 	@Override
-	public void removeMessage(@Nullable NodeBase source, @Nonnull UIMessage uim) {
+	public void removeMessage(@Nonnull UIMessage uim) {
 		if(!m_messageList.remove(uim)) // Must be known to the page or something's wrong..
 			return;
 
@@ -132,7 +132,7 @@ public class ErrorFenceHandler implements IErrorFence {
 	}
 
 	@Override
-	public void clearGlobalMessages(@Nonnull NodeBase source, @Nullable String code) {
+	public void clearGlobalMessages(@Nullable String code) {
 		List<UIMessage> todo = new ArrayList<UIMessage>();
 		for(UIMessage m : m_messageList) {
 			if(code != null && code.equals(m.getGroup()))
@@ -143,6 +143,6 @@ public class ErrorFenceHandler implements IErrorFence {
 
 		//-- Remove all messages from the list,
 		for(UIMessage m : todo)
-			removeMessage(source, m);
+			removeMessage(m);
 	}
 }
