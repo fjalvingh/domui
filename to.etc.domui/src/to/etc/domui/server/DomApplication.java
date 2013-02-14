@@ -1588,7 +1588,7 @@ public abstract class DomApplication {
 	}
 
 	public synchronized void setKeepAliveInterval(int keepAliveInterval) {
-		if(!DeveloperOptions.getBool("domui.autorefresh", true))				// If "autorefresh" has been disabled do not use keepalive either.
+		if(DeveloperOptions.getBool("domui.autorefresh", true))				// If "autorefresh" has been disabled do not use keepalive either.
 			m_keepAliveInterval = keepAliveInterval;
 	}
 
