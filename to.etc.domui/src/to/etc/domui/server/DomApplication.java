@@ -1588,7 +1588,8 @@ public abstract class DomApplication {
 	}
 
 	public synchronized void setKeepAliveInterval(int keepAliveInterval) {
-		m_keepAliveInterval = keepAliveInterval;
+		if(!DeveloperOptions.getBool("domui.autorefresh", true))				// If "autorefresh" has been disabled do not use keepalive either.
+			m_keepAliveInterval = keepAliveInterval;
 	}
 
 	private List<IDomUIStateListener> m_uiStateListeners = Collections.EMPTY_LIST;
