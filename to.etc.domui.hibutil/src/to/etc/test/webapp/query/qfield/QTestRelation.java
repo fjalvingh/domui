@@ -1,6 +1,7 @@
 package to.etc.test.webapp.query.qfield;
-import to.etc.webapp.query.*;
 import javax.annotation.*;
+
+import to.etc.webapp.query.*;
 /**
  * @author <a href="mailto:dennis.bekkering@itris.nl">Dennis Bekkering</a>
  */
@@ -27,8 +28,8 @@ public class QTestRelation<R extends QField<R, ? >> extends QField<R,to.etc.test
 	}
 
 	public final @Nonnull
-	QList<QTestBankRoot> banks() throws Exception {
-		return new QList<QTestBankRoot>(new QTestBankRoot(), this,"banks");
+	QList<R, QTestBankRoot> banks() throws Exception {
+		return new QList<R, QTestBankRoot>(new QTestBankRoot(), this, "banks");
 	}
 
 	public final @Nonnull
