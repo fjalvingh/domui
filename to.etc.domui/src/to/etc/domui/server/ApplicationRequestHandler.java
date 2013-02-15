@@ -340,7 +340,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				if(DomUtil.USERLOG.isDebugEnabled())
 					DomUtil.USERLOG.debug(cid + ": IForceRefresh, cleared page data for " + page);
 			}
-			ctx.getApplication().getInjector().injectPageValues(page.getBody(), ctx, papa);
+			ctx.getApplication().getInjector().injectPageValues(page.getBody(), papa);
 
 			/*
 			 * This is a (new) page request. We need to check rights on the page before

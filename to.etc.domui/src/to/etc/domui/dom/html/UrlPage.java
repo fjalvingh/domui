@@ -34,6 +34,7 @@ import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.logic.*;
 import to.etc.domui.logic.events.*;
+import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.query.*;
 
@@ -143,6 +144,13 @@ public class UrlPage extends Div implements ILogiEventListener {
 
 		}
 		return lc;
+	}
+
+	public void forceReloadData() throws Exception {
+		getPage().getConversation().setAttribute(LogiContext.class.getName(), null);			// Destroy any context
+		QContextManager.closeSharedContexts(getPage().getConversation());			// Drop all connections
+		DomApplication.get().getInjector().injectPageValues(this, getPage().getPageParameters());	// Force reload of all parameters
+		forceRebuild();
 	}
 
 	protected void registerLogicListeners(@Nonnull final LogiContext lc) {

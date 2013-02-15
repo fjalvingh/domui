@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.layout;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
@@ -84,7 +86,7 @@ public class ErrorPanel extends CaptionedPanel implements IErrorMessageListener 
 	 * @see to.etc.domui.dom.errors.IErrorMessageListener#errorMessageAdded(to.etc.domui.dom.errors.UIMessage)
 	 */
 	@Override
-	public void errorMessageAdded(UIMessage m) {
+	public void errorMessageAdded(@Nonnull UIMessage m) {
 		Div d = new Div();
 		d.setUserObject(m);
 		//		String text = m.getErrorLocation() != null ? m.getErrorLocation() + ": " + m.getMessage() : m.getMessage();
@@ -128,7 +130,7 @@ public class ErrorPanel extends CaptionedPanel implements IErrorMessageListener 
 	 * @see to.etc.domui.dom.errors.IErrorMessageListener#errorMessageRemoved(to.etc.domui.dom.errors.UIMessage)
 	 */
 	@Override
-	public void errorMessageRemoved(UIMessage m) {
+	public void errorMessageRemoved(@Nonnull UIMessage m) {
 		MsgType highest = null;
 		for(NodeBase b : getContent()) {
 			if(b.getUserObject() == m) {

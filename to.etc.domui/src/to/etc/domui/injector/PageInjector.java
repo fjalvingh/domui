@@ -47,12 +47,11 @@ final class PageInjector {
 	/**
 	 * Inject into all page properties.
 	 * @param page
-	 * @param ctx
 	 * @param pp
 	 * @throws Exception
 	 */
-	public void inject(final UrlPage page, final RequestContextImpl ctx, final IPageParameters pp) throws Exception {
+	public void inject(final UrlPage page, final IPageParameters pp) throws Exception {
 		for(PropertyInjector pi : m_propInjectorList)
-			pi.inject(page, ctx, pp);
+			pi.inject(page, pp);
 	}
 }
