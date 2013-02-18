@@ -104,6 +104,10 @@ public class Progress {
 		return m_parent;
 	}
 
+	public boolean isCancelable() {
+		return getRoot().m_cancelable;
+	}
+
 	@Nullable
 	public String getName() {
 		synchronized(m_root) {
