@@ -78,7 +78,7 @@ public class LogiModel {
 			m_rootCopyMap.put(root, copy);
 		}
 		ts = System.nanoTime() - ts;
-		System.out.println("logi: copied " + m_originalToCopyMap.size() + " instances in " + StringTool.strNanoTime(ts));
+//		System.out.println("logi: copied " + m_originalToCopyMap.size() + " instances in " + StringTool.strNanoTime(ts));
 	}
 
 	@Nullable

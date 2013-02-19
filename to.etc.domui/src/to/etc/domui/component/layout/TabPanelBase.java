@@ -188,10 +188,18 @@ public class TabPanelBase extends Div {
 			renderLabel(labelcontainer, index, ti);
 
 			//-- Add the body to the tab's main div.
-			contentcontainer.add(ti.getContent());
-			ti.getContent().setClear(ClearType.BOTH);
-			ti.getContent().setDisplay(getCurrentTab() == index ? DisplayType.BLOCK : DisplayType.NONE);
-			ti.getContent().addCssClass("ui-tab-pg");
+			NodeBase content = ti.getContent();
+			contentcontainer.add(content);
+			content.setClear(ClearType.BOTH);
+			if(getCurrentTab() == index) {
+				content.setDisplay(DisplayType.BLOCK);
+				if(content instanceof IDisplayedListener) {
+					((IDisplayedListener) content).onDisplayStateChanged(false);
+				}
+			} else {
+				content.setDisplay(DisplayType.NONE);
+			}
+			content.addCssClass("ui-tab-pg");
 			index++;
 		}
 	}
@@ -302,22 +310,31 @@ public class TabPanelBase extends Div {
 
 	public void setCurrentTab(int index) throws Exception {
 		//		System.out.println("Switching to tab " + index);
-		if(index == getCurrentTab() || index < 0 || index >= m_tablist.size()) // Silly index
+		if(index == getCurrentTab() || index < 0 || index >= m_tablist.size())			// Silly index
 			return;
 		if(isBuilt()) {
 			//-- We must switch the styles on the current "active" panel and the current "old" panel
 			int oldIndex = getCurrentTab();
-			TabInstance oldti = m_tablist.get(getCurrentTab()); // Get the currently active instance,
+			TabInstance oldti = m_tablist.get(getCurrentTab());		// Get the currently active instance,
 			TabInstance newti = m_tablist.get(index);
-			oldti.getContent().setDisplay(DisplayType.NONE); // Switch displays on content
-			newti.getContent().setDisplay(DisplayType.BLOCK);
-			oldti.getTab().removeCssClass("ui-tab-sel"); // Remove selected indicator
+			NodeBase oldc = oldti.getContent();
+			oldc.setDisplay(DisplayType.NONE);		// Switch displays on content
+			NodeBase newc = newti.getContent();
+			newc.setDisplay(DisplayType.BLOCK);
+			oldti.getTab().removeCssClass("ui-tab-sel"); 			// Remove selected indicator
 			newti.getTab().addCssClass("ui-tab-sel");
 			if(m_onTabSelected != null) {
 				m_onTabSelected.onTabSelected(this, oldIndex, index);
 			}
+
+			if(oldti instanceof IDisplayedListener) {
+				((IDisplayedListener) oldti).onDisplayStateChanged(false);
+			}
+			if(newti instanceof IDisplayedListener) {
+				((IDisplayedListener) oldti).onDisplayStateChanged(true);
+			}
 		}
-		m_currentTab = index; // ORDERED!!! Must be below the above!!!
+		m_currentTab = index;										// ORDERED!!! Must be below the above!!!
 	}
 
 	public int getTabCount() {

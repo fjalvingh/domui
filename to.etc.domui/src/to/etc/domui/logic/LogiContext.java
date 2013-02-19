@@ -138,7 +138,7 @@ final public class LogiContext {
 	 */
 	public void endPhase() throws Exception {
 		LogiEventSet eventSet = m_model.compareCopy();
-		System.out.println("model: eventSet=" + eventSet);
+//		System.out.println("model: eventSet=" + eventSet);
 
 		LogiEvent le = eventSet.createEvent();
 		sendEvent(le);
