@@ -47,6 +47,10 @@ public class TabPanelBase extends Div {
 
 		private Li m_tab;
 
+		private boolean m_lazy;
+
+		private boolean m_added;
+
 		private List<UIMessage> m_msgList = new ArrayList<UIMessage>();
 
 		public TabInstance(NodeBase label, NodeBase content, Img img) {
@@ -81,6 +85,22 @@ public class TabPanelBase extends Div {
 
 		public void setImg(Img img) {
 			m_img = img;
+		}
+
+		public boolean isLazy() {
+			return m_lazy;
+		}
+
+		public void setLazy(boolean lazy) {
+			m_lazy = lazy;
+		}
+
+		public boolean isAdded() {
+			return m_added;
+		}
+
+		public void setAdded(boolean added) {
+			m_added = added;
 		}
 
 		@Override
@@ -175,6 +195,8 @@ public class TabPanelBase extends Div {
 
 	private ITabSelected m_onTabSelected;
 
+	private NodeContainer m_contentContainer;
+
 
 	protected TabPanelBase(boolean markErrorTabs) {
 		m_markErrorTabs = markErrorTabs;
@@ -183,15 +205,20 @@ public class TabPanelBase extends Div {
 	}
 
 	protected void renderTabPanels(NodeContainer labelcontainer, NodeContainer contentcontainer) {
+		m_contentContainer = contentcontainer;
 		int index = 0;
 		for(TabInstance ti : m_tablist) {
 			renderLabel(labelcontainer, index, ti);
+			boolean isselected = getCurrentTab() == index;
+			//-- Add the body to the tab's main div, except if it is lazy.
+			if(ti.isLazy() && !isselected)
+				continue;
 
-			//-- Add the body to the tab's main div.
+			ti.setAdded(true);
 			NodeBase content = ti.getContent();
 			contentcontainer.add(content);
 			content.setClear(ClearType.BOTH);
-			if(getCurrentTab() == index) {
+			if(isselected) {
 				content.setDisplay(DisplayType.BLOCK);
 				if(content instanceof IDisplayedListener) {
 					((IDisplayedListener) content).onDisplayStateChanged(false);
@@ -251,11 +278,19 @@ public class TabPanelBase extends Div {
 	 * @param label
 	 */
 	public void add(NodeBase content, String label) {
+		add(content, label, false);
+	}
+
+	public void add(NodeBase content, String label, boolean lazy) {
 		TextNode tn = new TextNode(label);
-		add(content, tn);
+		add(content, tn, lazy);
 	}
 
 	public void add(NodeBase content, String label, String icon) {
+		add(content, label, icon, false);
+	}
+
+	public void add(NodeBase content, String label, String icon, boolean lazy) {
 		TextNode tn = new TextNode(label);
 		add(content, tn, icon);
 	}
@@ -266,7 +301,17 @@ public class TabPanelBase extends Div {
 	 * @param tablabel
 	 */
 	public void add(NodeBase content, NodeBase tablabel) {
+		add(content, tablabel);
+	}
+
+	/**
+	 * Add a tab page with a complex label part.
+	 * @param content
+	 * @param tablabel
+	 */
+	public void add(NodeBase content, NodeBase tablabel, boolean lazy) {
 		TabInstance tabInstance = new TabInstance(tablabel, content, null);
+		tabInstance.setLazy(lazy);
 		if(m_markErrorTabs) {
 			DomUtil.getMessageFence(this).addErrorListener(tabInstance);
 		}
@@ -279,7 +324,12 @@ public class TabPanelBase extends Div {
 	}
 
 	public void add(NodeBase content, NodeBase tablabel, String icon) {
+		add(content, tablabel, icon, false);
+	}
+
+	public void add(NodeBase content, NodeBase tablabel, String icon, boolean lazy) {
 		TabInstance tabInstance = new TabInstance(tablabel, content, createIcon(icon));
+		tabInstance.setLazy(lazy);
 		if(m_markErrorTabs) {
 			DomUtil.getMessageFence(this).addErrorListener(tabInstance);
 		}
@@ -290,6 +340,19 @@ public class TabPanelBase extends Div {
 
 		//-- Render the new thingies.
 		forceRebuild();
+	}
+
+	@Override
+	protected void onForceRebuild() {
+		super.onForceRebuild();
+
+		if(m_tablist != null) {
+			for(TabInstance ti : m_tablist) {
+				if(ti.isLazy()) {
+					ti.setAdded(false);
+				}
+			}
+		}
 	}
 
 	private Img createIcon(String icon) {
@@ -320,6 +383,13 @@ public class TabPanelBase extends Div {
 			NodeBase oldc = oldti.getContent();
 			oldc.setDisplay(DisplayType.NONE);		// Switch displays on content
 			NodeBase newc = newti.getContent();
+
+			//-- Add the new thing if it was lazy.
+			if(newti.isLazy() && !newti.isAdded()) {
+				m_contentContainer.add(newc);
+				newti.setAdded(true);
+			}
+
 			newc.setDisplay(DisplayType.BLOCK);
 			oldti.getTab().removeCssClass("ui-tab-sel"); 			// Remove selected indicator
 			newti.getTab().addCssClass("ui-tab-sel");
