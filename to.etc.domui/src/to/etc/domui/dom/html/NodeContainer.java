@@ -617,6 +617,8 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 */
 	public TBody addTable(String... headers) {
 		Table t = new Table();
+		t.setCellPadding("0");
+		t.setCellSpacing("0");
 		add(t);
 		if(headers != null && headers.length > 0)
 			t.getHead().setHeaders(headers);

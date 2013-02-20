@@ -127,6 +127,11 @@ $(window).bind('beforeunload', function() {
 	;
 
 	function go(xml) {
+		if(xml === "") {
+			window.location.href = window.location.href;
+			return;
+		}
+
 		var trimHash = {
 			wrap : 1
 		};
