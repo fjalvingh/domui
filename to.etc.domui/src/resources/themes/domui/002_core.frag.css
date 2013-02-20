@@ -75,6 +75,10 @@ div {
 .ui-content {
 	padding: <%= margins_main %> <%= margins_main %> 0px <%= margins_main %>;	/* Jal 20121214 bottom margin causes scrollbars with auto-height calculations. */
 }
+.ui-clickable {
+	cursor: pointer;
+}
+
 
 /*** HTML formatting ***/
 p {
@@ -117,3 +121,4 @@ code {
 	white-space: pre;
 	font-family: <%= fixed_font_family %>;
 }
+
