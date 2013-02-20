@@ -24,6 +24,7 @@ div.ui-dt table{
 
 .ui-dt th, .ui-dt-hdr {
 	padding: 0px 3px;
+	border-left: none !important;
 	background: <%=	data_tbl_header_bg %>;
 	background-image: url(<%= data_tbl_header_bg_img %>);
 	color: <%= data_tbl_header_text_color %>;
@@ -35,7 +36,7 @@ div.ui-dt table{
 }
 
 .ui-dt th:FIRST-CHILD, .ui-dt-hdr:FIRST-CHILD {
-	border-left: 1px solid <%= data_tbl_header_btm_border %>;
+	border-left: 1px solid <%= data_tbl_header_btm_border %> !important;
 }
 
 .ui-dt th:LAST-CHILD, .ui-dt-hdr:LAST-CHILD {
