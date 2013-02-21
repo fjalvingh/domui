@@ -198,7 +198,7 @@ public class TabPanelBase extends Div {
 
 	protected void renderLabel(NodeContainer into, final int index, TabInstance ti) {
 		Li li = ti.getTab();
-		if(li == null) {
+		if(li == null || !li.isAttached()) {
 			li = new Li();
 			into.add(index, li);
 			ti.setTab(li); // Save for later use,
@@ -264,6 +264,7 @@ public class TabPanelBase extends Div {
 			return;
 
 		//-- Render the new thingies.
+		forceRebuild();
 	}
 
 	public void add(NodeBase content, NodeBase tablabel, String icon) {
@@ -277,6 +278,7 @@ public class TabPanelBase extends Div {
 			return;
 
 		//-- Render the new thingies.
+		forceRebuild();
 	}
 
 	private Img createIcon(String icon) {

@@ -888,10 +888,11 @@ final public class DomUtil {
 	}
 
 	/**
-	 * Lookup a page Title bar text..
+	 * Lookup a page Title bar text.. FIXME Bad logic, bad name; should have a version passing in class instance.
 	 * @param clz
 	 * @return
 	 */
+	@Nonnull
 	static public String calcPageTitle(final Class< ? > clz) {
 		UIMenu ma = clz.getAnnotation(UIMenu.class); // Is annotated with UIMenu?
 		Locale loc = NlsContext.getLocale();

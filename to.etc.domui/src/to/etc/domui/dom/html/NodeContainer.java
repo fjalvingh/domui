@@ -792,7 +792,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 *
 	 * @param c
 	 */
-	final protected void delegateTo(@Nullable NodeContainer c) {
+	final public void delegateTo(@Nullable NodeContainer c) {
 		if(c == this)
 			throw new IllegalStateException("Cannot delegate to self: this would nicely loop..");
 
