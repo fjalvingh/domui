@@ -237,4 +237,10 @@ public class UIMessage {
 			return false;
 		return true;
 	}
+
+	@Nonnull
+	@Override
+	public String toString() {
+		return getMessage();
+	}
 }
