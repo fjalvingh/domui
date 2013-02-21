@@ -590,9 +590,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 */
 	final public void appendAfterMe(@Nonnull final NodeBase item) {
 		int ix = getParent().findChildIndex(this);
-		if(ix == -1)
+		if(ix == -1) {
 			throw new IllegalStateException("!@?! Cannot find myself!?");
-		getParent().add(ix + 1, item);
+		}
+		getParent().undelegatedAdd(ix + 1, item);
 	}
 
 	/**
@@ -603,7 +604,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		int ix = getParent().findChildIndex(this);
 		if(ix == -1)
 			throw new IllegalStateException("!@?! Cannot find myself!?");
-		getParent().add(ix, item);
+		getParent().undelegatedAdd(ix, item);
 	}
 
 

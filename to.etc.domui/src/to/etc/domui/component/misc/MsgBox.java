@@ -95,7 +95,7 @@ public class MsgBox extends Window {
 		//			w.setZIndex(parentFloatingWindow.getZIndex() + 100);
 		//		}
 		UrlPage body = parent.getPage().getBody();
-		body.add(w);
+		body.undelegatedAdd(0, w);
 		return w;
 	}
 

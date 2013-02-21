@@ -30,18 +30,17 @@ import javax.annotation.*;
 
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.menu.*;
-import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.html.*;
-import to.etc.domui.state.*;
-import to.etc.domui.themes.*;
-import to.etc.domui.util.*;
 
-public class ButtonBar extends Table {
+public class ButtonBar extends Table implements IButtonBar, IButtonContainer {
 	private boolean m_vertical;
 
 	private TD m_center;
 
 	private TBody m_body;
+
+	@Nonnull
+	final private ButtonFactory m_factory = new ButtonFactory(this);
 
 	private List<NodeBase> m_list = new ArrayList<NodeBase>();
 
@@ -68,7 +67,6 @@ public class ButtonBar extends Table {
 		for(NodeBase b : m_list)
 			appendObject(b);
 	}
-
 
 	private void appendObject(NodeBase b) {
 		if(m_vertical)
@@ -107,7 +105,11 @@ public class ButtonBar extends Table {
 		//		td.setCssClass("ui-bb-right");
 	}
 
-	public void addButton(NodeBase b) {
+	/**
+	 * @see to.etc.domui.component.layout.IButtonBar#addButton(to.etc.domui.dom.html.NodeBase)
+	 */
+	@Override
+	public void addButton(@Nonnull NodeBase b, int order) {
 		m_list.add(b);
 		if(isBuilt())
 			appendObject(b);
@@ -122,107 +124,140 @@ public class ButtonBar extends Table {
 		forceRebuild();
 	}
 
-
-	/**
-	 * Add a normal button.
-	 * @param txt
-	 * @param icon
-	 * @param click
-	 * @return
-	 */
-	public DefaultButton addButton(final String txt, final String icon, final IClicked<DefaultButton> click) {
-		DefaultButton b = new DefaultButton(txt, icon, click);
-		addButton(b);
-		return b;
+	@Override
+	public @Nonnull DefaultButton addButton(String txt, String icon, IClicked<DefaultButton> click, int order) {
+		return m_factory.addButton(txt, icon, click, order);
 	}
 
-	public DefaultButton addButton(@Nonnull IUIAction<Void> action) throws Exception {
-		DefaultButton b = new DefaultButton(action);
-		addButton(b);
-		return b;
+	@Override
+	public @Nonnull DefaultButton addButton(String txt, String icon, IClicked<DefaultButton> click) {
+		return m_factory.addButton(txt, icon, click);
 	}
 
-	public DefaultButton addButton(final String txt, final IClicked<DefaultButton> click) {
-		DefaultButton b = new DefaultButton(txt, click);
-		addButton(b);
-		return b;
+	@Override
+	public @Nonnull DefaultButton addButton(@Nonnull IUIAction<Void> action, int order) throws Exception {
+		return m_factory.addButton(action, order);
 	}
 
-	public DefaultButton addBackButton(final String txt, final String icon) {
-		DefaultButton b = new DefaultButton(txt, icon, new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(final @Nonnull DefaultButton bxx) throws Exception {
-				UIGoto.back();
-			}
-		});
-		addButton(b);
-		return b;
+	@Override
+	public @Nonnull DefaultButton addButton(@Nonnull IUIAction<Void> action) throws Exception {
+		return m_factory.addButton(action);
 	}
 
-	public DefaultButton addBackButton() {
-		List<IShelvedEntry> ps = getPage().getConversation().getWindowSession().getShelvedPageStack();
-		if(ps.size() > 1) {									// Nothing to go back to (only myself is on page) -> exit
-			IShelvedEntry se = ps.get(ps.size() - 2);		// Get the page before me
-			if(se.isClose()) {
-				return addCloseButton();
-			}
-		}
-
-		//-- Nothing worked: just add a default back button that will go back to application home if the stack is empty
-		return addBackButton(Msgs.BUNDLE.getString("ui.buttonbar.back"), Theme.BTN_CANCEL);
+	@Override
+	public @Nonnull DefaultButton addButton(String txt, IClicked<DefaultButton> click, int order) {
+		return m_factory.addButton(txt, click, order);
 	}
 
-	@Nonnull
-	public DefaultButton addCloseButton(@Nonnull String txt, @Nonnull String icon) {
-		DefaultButton b = new DefaultButton(txt, icon, new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(@Nonnull DefaultButton clickednode) throws Exception {
-				getPage().getBody().closeWindow();
-			}
-		});
-		addButton(b);
-		return b;
+	@Override
+	public @Nonnull DefaultButton addButton(String txt, IClicked<DefaultButton> click) {
+		return m_factory.addButton(txt, click);
 	}
 
-	@Nonnull
-	public DefaultButton addCloseButton() {
-		return addCloseButton(Msgs.BUNDLE.getString("ui.buttonbar.close"), Theme.BTN_CLOSE);
+	@Override
+	public @Nonnull DefaultButton addBackButton(String txt, String icon, int order) {
+		return m_factory.addBackButton(txt, icon, order);
 	}
 
-	@Nullable
+	@Override
+	public @Nonnull DefaultButton addBackButton(String txt, String icon) {
+		return m_factory.addBackButton(txt, icon);
+	}
+
+	@Override
+	public @Nonnull DefaultButton addBackButton(int order) {
+		return m_factory.addBackButton(order);
+	}
+
+	@Override
+	public @Nonnull DefaultButton addBackButton() {
+		return m_factory.addBackButton();
+	}
+
+	@Override
+	public @Nonnull DefaultButton addCloseButton(@Nonnull String txt, @Nonnull String icon, int order) {
+		return m_factory.addCloseButton(txt, icon, order);
+	}
+
+	@Override
+	public @Nonnull DefaultButton addCloseButton(@Nonnull String txt, @Nonnull String icon) {
+		return m_factory.addCloseButton(txt, icon);
+	}
+
+	@Override
+	public @Nonnull DefaultButton addCloseButton(int order) {
+		return m_factory.addCloseButton(order);
+	}
+
+	@Override
+	public @Nonnull DefaultButton addCloseButton() {
+		return m_factory.addCloseButton();
+	}
+
+	@Override
+	public DefaultButton addBackButtonConditional(int order) {
+		return m_factory.addBackButtonConditional(order);
+	}
+
+	@Override
 	public DefaultButton addBackButtonConditional() {
-		List<IShelvedEntry> ps = getPage().getConversation().getWindowSession().getShelvedPageStack();
-		if(ps.size() <= 1)									// Nothing to go back to (only myself is on page) -> exit
-			return null;
-
-		IShelvedEntry se = ps.get(ps.size() - 2);			// Get the page before me
-		if(se.isClose()) {
-			return addCloseButton();
-		}
-		return addBackButton();
+		return m_factory.addBackButtonConditional();
 	}
 
-	public DefaultButton addConfirmedButton(final String txt, final String msg, final IClicked<DefaultButton> click) {
-		DefaultButton b = MsgBox.areYouSureButton(txt, msg, click);
-		addButton(b);
-		return b;
+	@Override
+	public @Nonnull DefaultButton addConfirmedButton(String txt, String msg, IClicked<DefaultButton> click, int order) {
+		return m_factory.addConfirmedButton(txt, msg, click, order);
 	}
 
-	public DefaultButton addConfirmedButton(final String txt, final String icon, final String msg, final IClicked<DefaultButton> click) {
-		DefaultButton b = MsgBox.areYouSureButton(txt, icon, msg, click);
-		addButton(b);
-		return b;
+	@Override
+	public @Nonnull DefaultButton addConfirmedButton(String txt, String msg, IClicked<DefaultButton> click) {
+		return m_factory.addConfirmedButton(txt, msg, click);
 	}
 
-	public LinkButton addLinkButton(final String txt, final String img, final IClicked<LinkButton> click) {
-		LinkButton b = new LinkButton(txt, img, click);
-		addButton(b);
-		return b;
+	@Override
+	public DefaultButton addConfirmedButton(String txt, String icon, String msg, IClicked<DefaultButton> click, int order) {
+		return m_factory.addConfirmedButton(txt, icon, msg, click, order);
 	}
 
-	public LinkButton addConfirmedLinkButton(final String txt, final String img, String msg, final IClicked<LinkButton> click) {
-		LinkButton b = MsgBox.areYouSureLinkButton(txt, img, msg, click);
-		addButton(b);
-		return b;
+	@Override
+	public @Nonnull DefaultButton addConfirmedButton(String txt, String icon, String msg, IClicked<DefaultButton> click) {
+		return m_factory.addConfirmedButton(txt, icon, msg, click);
+	}
+
+	@Override
+	public @Nonnull LinkButton addLinkButton(String txt, String img, IClicked<LinkButton> click, int order) {
+		return m_factory.addLinkButton(txt, img, click, order);
+	}
+
+	@Override
+	public @Nonnull LinkButton addLinkButton(String txt, String img, IClicked<LinkButton> click) {
+		return m_factory.addLinkButton(txt, img, click);
+	}
+
+	public LinkButton addConfirmedLinkButton(String txt, String img, String msg, IClicked<LinkButton> click, int order) {
+		return m_factory.addConfirmedLinkButton(txt, img, msg, click, order);
+	}
+
+	public LinkButton addConfirmedLinkButton(String txt, String img, String msg, IClicked<LinkButton> click) {
+		return m_factory.addConfirmedLinkButton(txt, img, msg, click);
+	}
+
+	@Override
+	public @Nonnull <T> DefaultButton addAction(T instance, IUIAction<T> action, int order) throws Exception {
+		return m_factory.addAction(instance, action, order);
+	}
+
+	@Override
+	public @Nonnull <T> DefaultButton addAction(T instance, IUIAction<T> action) throws Exception {
+		return m_factory.addAction(instance, action);
+	}
+
+	public void addButton(@Nonnull NodeBase b) {
+		addButton(b, -1);
+	}
+
+	@Nonnull
+	public ButtonFactory getButtonFactory() {
+		return m_factory;
 	}
 }

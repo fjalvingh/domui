@@ -211,7 +211,7 @@ public class MiniTableBuilder {
 	 * Adds a ButtonBar().
 	 * @return
 	 */
-	public ButtonBar bb() {
+	public IButtonBar bb() {
 		if(m_bb == null) {
 			m_bb = new ButtonBar();
 			if(row() == null || row().getChildCount() > 0)
