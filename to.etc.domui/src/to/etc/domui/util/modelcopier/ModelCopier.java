@@ -34,6 +34,8 @@ public class ModelCopier {
 
 	private Set<String> m_ignorePathSet = new HashSet<String>();
 
+	private boolean m_updateExisting;
+
 	public ModelCopier(@Nullable ILogSink sink, @Nonnull QDataContext sds, @Nonnull QDataContext dds) throws Exception {
 		m_sink = sink;
 //		m_sds = sds;
@@ -50,6 +52,15 @@ public class ModelCopier {
 	public ModelCopier ignorePath(String path) {
 		m_ignorePathSet.add(path);
 		return this;
+	}
+
+	public ModelCopier updateExisting() {
+		m_updateExisting = true;
+		return this;
+	}
+
+	public boolean isUpdateExisting() {
+		return m_updateExisting;
 	}
 
 	/*--------------------------------------------------------------*/
@@ -139,7 +150,49 @@ public class ModelCopier {
 		if(key.getEntity().isCreateAlways())
 			return null;
 
-		return dbfind(key);
+		dv = dbfind(key);
+		if(null == dv)
+			return null;
+
+		if(key.getEntity().isUpdateExisting()) {
+			updateProperties(key, dv);
+		}
+
+		return dv;
+	}
+
+	private <T> void updateProperties(InstanceKey<T> key, T di) throws Exception {
+		EntityDef<T> ed = key.getEntity();
+		List<PropertyMetaModel< ? >> pl = ed.getMetaModel().getProperties();
+		List<PropertyMetaModel< ? >> childList = new ArrayList<>();
+		T si = key.getSourceInstance();
+		if(null == si)
+			throw new IllegalStateException("No source instance for key " + key);
+
+		for(PropertyMetaModel< ? > pmm : pl) {
+			switch(pmm.getRelationType()){
+				default:
+					break;
+
+				case DOWN:
+					childList.add(pmm);
+					break;
+
+				case NONE:
+					//-- Just copy the value.
+					copyValue(ed, di, si, pmm);
+					break;
+
+//				case UP:
+//					copyParent(ed, di, si, pmm);
+//					break;
+			}
+		}
+
+		for(PropertyMetaModel< ? > pmm : childList) {
+
+		}
+
 	}
 
 	/**

@@ -1,3 +1,4 @@
+io_blk_wait = "io-blk-wait.gif";
 bg_color="#ffffff";
 
 button_bg="#ff9436";
