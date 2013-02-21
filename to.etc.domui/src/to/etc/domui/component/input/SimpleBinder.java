@@ -28,7 +28,6 @@ import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
-import to.etc.domui.logic.*;
 import to.etc.domui.logic.events.*;
 import to.etc.domui.util.*;
 

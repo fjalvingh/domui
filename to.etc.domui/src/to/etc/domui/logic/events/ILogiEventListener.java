@@ -2,8 +2,6 @@ package to.etc.domui.logic.events;
 
 import javax.annotation.*;
 
-import to.etc.domui.logic.events.*;
-
 /**
  * A listener for {@link LogiEvent} events as created by business logic.
  *
