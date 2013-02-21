@@ -2,6 +2,7 @@ package to.etc.domui.log;
 
 import java.util.*;
 
+import javax.annotation.*;
 import javax.xml.parsers.*;
 
 import org.w3c.dom.*;
@@ -145,7 +146,7 @@ public class LoggerConfigPage extends UrlPage implements IUserInputModifiedFence
 	protected void createCommitButton() {
 		m_saveButton = getButtonBar().addButton(BUNDLE.getString(Msgs.EDLG_OKAY), Msgs.BTN_SAVE, new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(DefaultButton b) throws Exception {
+			public void clicked(@Nonnull DefaultButton b) throws Exception {
 				save();
 			}
 		});
@@ -157,7 +158,7 @@ public class LoggerConfigPage extends UrlPage implements IUserInputModifiedFence
 	protected void createCancelButton() {
 		m_cancelButton = getButtonBar().addButton(BUNDLE.getString(Msgs.EDLG_CANCEL), Msgs.BTN_CANCEL, new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(DefaultButton b) throws Exception {
+			public void clicked(@Nonnull DefaultButton b) throws Exception {
 				reloadPageData();
 			}
 		});

@@ -105,7 +105,7 @@ public class LinkButton extends ATag implements IActionControl {
 		setImage(action.getIcon(null));
 		setClicked(new IClicked<LinkButton>() {
 			@Override
-			public void clicked(LinkButton clickednode) throws Exception {
+			public void clicked(@Nonnull LinkButton clickednode) throws Exception {
 				action.execute(LinkButton.this, null);
 			}
 		});

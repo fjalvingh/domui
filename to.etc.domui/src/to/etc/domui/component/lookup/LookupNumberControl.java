@@ -147,7 +147,7 @@ public class LookupNumberControl<T extends Number> extends AbstractLookupControl
 	}
 
 	@Override
-	public AppendCriteriaResult appendCriteria(QCriteria< ? > crit) throws Exception {
+	public @Nonnull AppendCriteriaResult appendCriteria(@Nonnull QCriteria< ? > crit) throws Exception {
 		try {
 			m_input.clearMessage(); // Remove any earlier validation failure.
 

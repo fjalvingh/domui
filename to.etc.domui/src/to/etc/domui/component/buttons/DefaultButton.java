@@ -283,7 +283,7 @@ public class DefaultButton extends Button implements IActionControl {
 		setIcon(action.getIcon(null));
 		setClicked(new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(DefaultButton clickednode) throws Exception {
+			public void clicked(@Nonnull DefaultButton clickednode) throws Exception {
 				action.execute(DefaultButton.this, null);
 			}
 		});

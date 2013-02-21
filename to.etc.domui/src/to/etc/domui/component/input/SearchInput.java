@@ -142,7 +142,7 @@ public class SearchInput<T> extends Div {
 
 		m_input.setOnLookupTyping(new ILookupTypingListener<NodeBase>() {
 			@Override
-			public void onLookupTyping(NodeBase component, boolean done) throws Exception {
+			public void onLookupTyping(@Nonnull NodeBase component, boolean done) throws Exception {
 				handleLookupTyping(done);
 			}
 		});
@@ -235,7 +235,7 @@ public class SearchInput<T> extends Div {
 			rr.addColumns(m_columns);
 		rr.setRowClicked(new ICellClicked<T>() {
 			@Override
-			public void cellClicked(NodeBase tr, T val) throws Exception {
+			public void cellClicked(@Nonnull NodeBase tr, @Nonnull T val) throws Exception {
 				handleSelectValueFromPopup(val);
 			}
 		});

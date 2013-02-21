@@ -210,7 +210,7 @@ public class Select extends InputNodeContainer implements IHasModifiedIndication
 		if(click != null) {
 			si.setClicked(new IClicked<SmallImgButton>() {
 				@Override
-				public void clicked(SmallImgButton b) throws Exception {
+				public void clicked(@Nonnull SmallImgButton b) throws Exception {
 					click.clicked(Select.this);
 				}
 			});

@@ -42,6 +42,7 @@ public interface IDropHandler {
 	 * least one string; if not an exception occurs as soon as this gets used.
 	 * @return	a non-null minimal length=1 String array containing the types that are acceptable for this drop zone.
 	 */
+	@Nonnull
 	public String[] getAcceptableTypes();
 
 	/**
@@ -52,12 +53,12 @@ public interface IDropHandler {
 	 * @param context
 	 * @throws Exception
 	 */
-	public void onDropped(DropEvent context) throws Exception;
+	public void onDropped(@Nonnull DropEvent context) throws Exception;
 
 	/**
 	 * Returns drag&drop mode that is supported by drop handler.
 	 */
-	@Nullable
+	@Nonnull
 	public DropMode getDragMode();
 
 }

@@ -1,5 +1,7 @@
 package to.etc.domui.log.tailer;
 
+import javax.annotation.*;
+
 import to.etc.domui.annotations.*;
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.layout.title.*;
@@ -40,7 +42,7 @@ public class ServerLogPage extends UrlPage {
 
 		add(new DefaultButton("Back", new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(DefaultButton clickednode) throws Exception {
+			public void clicked(@Nonnull DefaultButton clickednode) throws Exception {
 				UIGoto.back();
 			}
 		}));

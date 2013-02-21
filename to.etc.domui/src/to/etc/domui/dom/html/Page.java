@@ -498,7 +498,7 @@ final public class Page implements IQContextContainer {
 			//-- Add a click handler which will close the floater when the hider div is clicked.
 			hider.setClicked(new IClicked<NodeBase>() {
 				@Override
-				public void clicked(NodeBase clickednode) throws Exception {
+				public void clicked(@Nonnull NodeBase clickednode) throws Exception {
 					window.closePressed();
 				}
 			});

@@ -381,10 +381,10 @@ public class MsgBox extends Window {
 		final DefaultButton btn = new DefaultButton(text, icon);
 		IClicked<DefaultButton> bch = new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(DefaultButton b) throws Exception {
+			public void clicked(@Nonnull DefaultButton b) throws Exception {
 				yesNo(b, message, new IClicked<MsgBox>() {
 					@Override
-					public void clicked(MsgBox bx) throws Exception {
+					public void clicked(@Nonnull MsgBox bx) throws Exception {
 						ch.clicked(btn);
 					}
 				});
@@ -420,10 +420,10 @@ public class MsgBox extends Window {
 		final LinkButton btn = new LinkButton(text, icon);
 		IClicked<LinkButton> bch = new IClicked<LinkButton>() {
 			@Override
-			public void clicked(LinkButton b) throws Exception {
+			public void clicked(@Nonnull LinkButton b) throws Exception {
 				yesNo(b, message, new IClicked<MsgBox>() {
 					@Override
-					public void clicked(MsgBox bx) throws Exception {
+					public void clicked(@Nonnull MsgBox bx) throws Exception {
 						ch.clicked(btn);
 					}
 				});
@@ -534,7 +534,7 @@ public class MsgBox extends Window {
 			lbl = mbb.name();
 		DefaultButton btn = new DefaultButton(lbl, new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(DefaultButton b) throws Exception {
+			public void clicked(@Nonnull DefaultButton b) throws Exception {
 				answer(mbb);
 			}
 		});
@@ -545,7 +545,7 @@ public class MsgBox extends Window {
 	protected void addButton(final String lbl, final Object selval) {
 		m_theButtons.add(new DefaultButton(lbl, new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(DefaultButton b) throws Exception {
+			public void clicked(@Nonnull DefaultButton b) throws Exception {
 				answer(selval);
 			}
 		}));

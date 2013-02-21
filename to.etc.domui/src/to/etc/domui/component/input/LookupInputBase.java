@@ -243,7 +243,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		b.setTestID("selButtonInputLookup");
 		b.setClicked(new IClicked<NodeBase>() {
 			@Override
-			public void clicked(NodeBase b) throws Exception {
+			public void clicked(@Nonnull NodeBase b) throws Exception {
 				toggleFloaterByClick();
 			}
 		});
@@ -251,7 +251,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		b = m_clearButton = new SmallImgButton(Theme.BTN_CLEARLOOKUP, new IClicked<SmallImgButton>() {
 			@Override
 			@SuppressWarnings("synthetic-access")
-			public void clicked(SmallImgButton b) throws Exception {
+			public void clicked(@Nonnull SmallImgButton b) throws Exception {
 				handleSetValue(null);
 			}
 		});
@@ -402,7 +402,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		KeyWordPopupRowRenderer<OT> rr = getDropdownRowRenderer();
 		rr.setRowClicked(new ICellClicked<OT>() {
 			@Override
-			public void cellClicked(NodeBase tr, OT val) throws Exception {
+			public void cellClicked(@Nonnull NodeBase tr, @Nonnull OT val) throws Exception {
 				handleSetValue(val);
 			}
 		});
@@ -671,14 +671,14 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 
 		lf.setClicked(new IClicked<LookupForm<QT>>() {
 			@Override
-			public void clicked(LookupForm<QT> b) throws Exception {
+			public void clicked(@Nonnull LookupForm<QT> b) throws Exception {
 				search(b);
 			}
 		});
 
 		lf.setOnCancel(new IClicked<LookupForm<QT>>() {
 			@Override
-			public void clicked(LookupForm<QT> b) throws Exception {
+			public void clicked(@Nonnull LookupForm<QT> b) throws Exception {
 				f.closePressed();
 			}
 		});
@@ -784,7 +784,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 			//-- Always set a click handler on the row renderer, so we can accept the selected record.
 			actualFormRowRenderer.setRowClicked(new ICellClicked<OT>() {
 				@Override
-				public void cellClicked(NodeBase tr, OT val) throws Exception {
+				public void cellClicked(@Nonnull NodeBase tr, @Nonnull OT val) throws Exception {
 					getFloater().clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 					if(!getDataTable().isMultiSelectionVisible()) {
 						LookupInputBase.this.toggleFloater(null);

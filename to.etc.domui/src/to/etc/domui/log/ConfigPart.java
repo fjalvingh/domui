@@ -51,7 +51,7 @@ public class ConfigPart extends Div {
 				if (handler != null && handler.getType() == HandlerType.FILE){
 					node.add(new LinkButton("follow", new IClicked<LinkButton>(){
 						@Override
-						public void clicked(LinkButton clickednode) throws Exception {
+						public void clicked(@Nonnull LinkButton clickednode) throws Exception {
 							ServerLogPage.moveSub(constructLogPath(handler.getFile()));
 						}
 					}));
@@ -98,7 +98,7 @@ public class ConfigPart extends Div {
 	private void createAddButton() {
 		getButtonBar().addButton(BUNDLE.getString(Msgs.LOOKUP_FORM_NEW), "THEME/btnNew.png", new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(DefaultButton b) throws Exception {
+			public void clicked(@Nonnull DefaultButton b) throws Exception {
 				m_table.addNew(initializeNewInstance());
 			}
 		});

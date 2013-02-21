@@ -291,7 +291,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 			//-- Render a default "delete" button.
 			bc.addConfirmedLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_DELETE), "THEME/btnDelete.png", Msgs.BUNDLE.getString(Msgs.UI_XDT_DELSURE), new IClicked<LinkButton>() {
 				@Override
-				public void clicked(LinkButton clickednode) throws Exception {
+				public void clicked(@Nonnull LinkButton clickednode) throws Exception {
 					((IModifyableTableModel<T>) getModel()).delete(value);
 					DomUtil.setModifiedFlag(ExpandingEditTable.this);
 				}
@@ -307,7 +307,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 
 			td.setClicked(new IClicked<TD>() {
 				@Override
-				public void clicked(TD clickednode) throws Exception {
+				public void clicked(@Nonnull TD clickednode) throws Exception {
 					toggleExpanded(index);
 				}
 			});
@@ -496,7 +496,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 
 			td.setClicked(new IClicked<TD>() {
 				@Override
-				public void clicked(TD clickednode) throws Exception {
+				public void clicked(@Nonnull TD clickednode) throws Exception {
 					commitNewRow();
 				}
 			});
@@ -516,14 +516,14 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		//-- Now add commit/cancel button in action column
 		bc.addLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_ADD), "THEME/btnConfirm.png", new IClicked<LinkButton>() {
 			@Override
-			public void clicked(LinkButton clickednode) throws Exception {
+			public void clicked(@Nonnull LinkButton clickednode) throws Exception {
 				commitNewRow();
 			}
 		});
 
 		bc.addLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_CANCEL), "THEME/btnDelete.png", new IClicked<LinkButton>() {
 			@Override
-			public void clicked(LinkButton clickednode) throws Exception {
+			public void clicked(@Nonnull LinkButton clickednode) throws Exception {
 				cancelNew();
 			}
 		});
@@ -535,7 +535,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		if(DomUtil.isModified(m_newEditor)) {
 			MsgBox.continueCancel(this, Msgs.BUNDLE.getString(Msgs.UI_XDT_SURE), new IClicked<MsgBox>() {
 				@Override
-				public void clicked(MsgBox clickednode) throws Exception {
+				public void clicked(@Nonnull MsgBox clickednode) throws Exception {
 					cancelNewReally();
 				}
 			});

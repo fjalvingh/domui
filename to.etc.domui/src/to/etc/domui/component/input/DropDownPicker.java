@@ -105,7 +105,7 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 		m_picker.setClicked(new IClicked<NodeBase>() {
 
 			@Override
-			public void clicked(NodeBase node) throws Exception {
+			public void clicked(@Nonnull NodeBase node) throws Exception {
 				handlePickerValueChanged();
 			}
 		});
@@ -149,7 +149,7 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 	IClicked<SmallImgButton> m_defaultClickHandler = new IClicked<SmallImgButton>() {
 		@SuppressWarnings("synthetic-access")
 		@Override
-		public void clicked(SmallImgButton clickednode) throws Exception {
+		public void clicked(@Nonnull SmallImgButton clickednode) throws Exception {
 			INotifyEvent<DropDownPicker<T>, ComboLookup<T>> onBeforeShow = getOnBeforeShow();
 			if(onBeforeShow != null) {
 				onBeforeShow.onNotify(DropDownPicker.this, m_picker);

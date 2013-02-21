@@ -121,7 +121,7 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 			cc.getTR().setClicked(new IClicked<TR>() {
 				@Override
 				@SuppressWarnings("unchecked")
-				public void clicked(final TR b) throws Exception {
+				public void clicked(final @Nonnull TR b) throws Exception {
 					((ICellClicked<T>) getRowClicked()).cellClicked(b, instance);
 				}
 			});
