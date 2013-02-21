@@ -28,6 +28,8 @@ import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.logic.*;
+import to.etc.domui.logic.events.*;
 import to.etc.domui.util.*;
 
 /**
@@ -38,7 +40,7 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 13, 2009
  */
-public class SimpleBinder implements IBinder {
+public class SimpleBinder implements IBinder, ILogiEventListener {
 	@Nonnull
 	private IControl< ? > m_control;
 
@@ -144,7 +146,6 @@ public class SimpleBinder implements IBinder {
 		m_instance = instance;
 	}
 
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IModelBinding interface implementation.				*/
 	/*--------------------------------------------------------------*/
@@ -205,6 +206,31 @@ public class SimpleBinder implements IBinder {
 	@Override
 	public void setControlsEnabled(boolean on) {
 		m_control.setDisabled(!on);
+	}
+
+	/**
+	 * Handle a logic event: if the event contains a change to something we're bound to then
+	 * update that thing we're bound to.
+	 * @see to.etc.domui.logic.events.ILogiEventListener#logicEvent(to.etc.domui.logic.events.LogiEvent)
+	 */
+	@Override
+	public void logicEvent(@Nonnull LogiEvent event) throws Exception {
+		//-- If I just have a listener pass on the event to the listener.
+		IBindingListener< ? > listener = m_listener;
+		if(null != listener) {
+			if(listener instanceof ILogiEventListener) {
+				((ILogiEventListener) listener).logicEvent(event);
+			}
+			return;
+		}
+
+		//-- Get my binding as instance:property.
+		Object base = getBase();
+		if(!event.propertyChanged(base, pmm().getName()))
+			return;
+
+		//-- The thing we're bound to has changed value. For now just set the new value.
+		moveModelToControl();
 	}
 
 	@Override

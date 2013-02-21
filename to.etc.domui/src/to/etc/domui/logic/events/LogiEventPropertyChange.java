@@ -1,4 +1,4 @@
-package to.etc.domui.logic;
+package to.etc.domui.logic.events;
 
 import javax.annotation.*;
 
@@ -31,5 +31,10 @@ final public class LogiEventPropertyChange<T> extends LogiEventBase {
 	@Nullable
 	public T getNewvalue() {
 		return m_newvalue;
+	}
+
+	@Override
+	void dump(@Nonnull Appendable a) throws Exception {
+		a.append(getPath()).append(" [property ").append(m_pmm.toString()).append(" changed from ").append(toString(m_oldvalue)).append(" to ").append(toString(m_newvalue)).append("\n");
 	}
 }

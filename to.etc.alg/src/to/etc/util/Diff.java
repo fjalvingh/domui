@@ -2,8 +2,14 @@ package to.etc.util;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 final public class Diff<T> {
-	private enum Type {
+	static public boolean	DEBUG	= false;
+
+	static public boolean	DEBUG2	= false;
+
+	public enum Type {
 		ADD, DELETE, SAME
 	}
 
@@ -11,11 +17,13 @@ final public class Diff<T> {
 
 	final private int		m_endIndex;
 
+	@Nonnull
 	final private List<T>	m_list;
 
+	@Nonnull
 	final private Type		m_type;
 
-	private Diff(int startIndex, int endIndex, List<T> list, Type type) {
+	private Diff(int startIndex, int endIndex, @Nonnull List<T> list, @Nonnull Type type) {
 		m_startIndex = startIndex;
 		m_endIndex = endIndex;
 		m_list = list;
@@ -32,6 +40,11 @@ final public class Diff<T> {
 
 	public int getStartIndex() {
 		return m_startIndex;
+	}
+
+	@Nonnull
+	public List<T> getList() {
+		return m_list;
 	}
 
 	@Override
@@ -109,42 +122,65 @@ final public class Diff<T> {
 		}
 	}
 
-	static public <I> List<Diff<I>> diffList(List<I> sourcel, List<I> copyl, Comparator<I> comparator) throws Exception {
+	static public <I> List<Diff<I>> diffList(@Nonnull List<I> oldl, @Nonnull List<I> newl, @Nullable Comparator<I> comparator) {
+		return diffList(oldl, newl, comparator, true);
+	}
+
+	static public <I> List<Diff<I>> diffList(@Nonnull List<I> oldl, @Nonnull List<I> newl, @Nullable Comparator<I> comparator, boolean skipsame) {
+		if(null == comparator) {
+			comparator = new Comparator<I>() {
+				@Override
+				public int compare(I o, I n) {
+					if(o == n)
+						return 0;
+					if(o == null)
+						return 1;
+					if(n == null)
+						return -1;
+					if(o instanceof Comparable) {
+						Comparable<I> c = (Comparable<I>) o;
+						return c.compareTo(n);
+					}
+					return o.toString().compareTo(n.toString());
+				}
+			};
+		}
+
 		//-- First slice off common start and end;
-		int send = sourcel.size();
-		int cend = copyl.size();
-		int sbeg = 0;
-		int cbeg = 0;
+		int oend = oldl.size();
+		int nend = newl.size();
+		int obeg = 0;
+		int nbeg = 0;
 
 		//-- Slice common beginning
-		while(sbeg < send && cbeg < cend) {
-			I so = sourcel.get(sbeg);
-			I co = copyl.get(cbeg);
+		while(obeg < oend && nbeg < nend) {
+			I so = oldl.get(obeg);
+			I co = newl.get(nbeg);
 			if(0 != comparator.compare(so, co)) {
 				break;
 			}
-			sbeg++;
-			cbeg++;
+			obeg++;
+			nbeg++;
 		}
 
 		//-- Slice common end
-		while(send > sbeg && cend > cbeg) {
-			I so = sourcel.get(send - 1);
-			I co = copyl.get(cend - 1);
+		while(oend > obeg && nend > nbeg) {
+			I so = oldl.get(oend - 1);
+			I co = newl.get(nend - 1);
 			if(0 != comparator.compare(so, co)) {
 				break;
 			}
-			cend--;
-			send--;
+			nend--;
+			oend--;
 		}
-		if(sbeg >= send && cbeg >= cend) {
+		if(obeg >= oend && nbeg >= nend) {
 			//-- Equal arrays- no changes.
 			return Collections.EMPTY_LIST;
 		}
 
 		//-- Ouf.. We need to do the hard bits. Find the lcs and then render the edit as the delta.
-		int m = (send - sbeg) + 1;
-		int n = (cend - cbeg) + 1;
+		int m = (oend - obeg) + 1;
+		int n = (nend - nbeg) + 1;
 		int[][] car = new int[m][];
 		for(int i = 0; i < m; i++) {
 			car[i] = new int[n];
@@ -156,8 +192,8 @@ final public class Diff<T> {
 
 		for(int i = 1; i < m; i++) {
 			for(int j = 1; j < n; j++) {
-				I so = sourcel.get(sbeg + i - 1);
-				I co = copyl.get(cbeg + j - 1);
+				I so = oldl.get(obeg + i - 1);
+				I co = newl.get(nbeg + j - 1);
 				if(0 == comparator.compare(so, co)) {
 					car[i][j] = car[i - 1][j - 1] + 1;					// Is length of previous subsequence + 1.
 				} else {
@@ -169,107 +205,124 @@ final public class Diff<T> {
 		//-- Now: backtrack from the end to the start to render the delta. This creates the delta in the "reverse" order.
 		List<Item<I>> res = new ArrayList<Item<I>>();
 		List<String> tmp = new ArrayList<String>();
-		for(int xxx = sourcel.size(); --xxx >= send;) {
-			Item<I> e = new Item<I>(Type.SAME, sourcel.get(xxx));
+		for(int xxx = oldl.size(); --xxx >= oend;) {
+			Item<I> e = new Item<I>(Type.SAME, oldl.get(xxx));
 			res.add(e);
 			e.setIndex(xxx);
-			tmp.add("  " + sourcel.get(xxx) + " @" + xxx + " (e)");
+			if(DEBUG2)
+				tmp.add("  " + oldl.get(xxx) + " @" + xxx + " (e)");
 		}
 
 		int i = m - 1;
 		int j = n - 1;
-		int sindex = i;
 		while(j > 0 || i > 0) {
-			if(i > 0 && j > 0 && 0 == comparator.compare(sourcel.get(sbeg + i - 1), copyl.get(cbeg + j - 1))) {
-				tmp.add("  " + sourcel.get(sbeg + i - 1) + " @" + (sindex));
-				res.add(new Item<I>(Type.SAME, sourcel.get(sbeg + i - 1)));
-				sindex--;
+			if(i > 0 && j > 0 && 0 == comparator.compare(oldl.get(obeg + i - 1), newl.get(nbeg + j - 1))) {
+				int sindex = (obeg + i - 1);
+				if(DEBUG2)
+					tmp.add("  " + oldl.get(sindex) + " @" + sindex);
+				res.add(new Item<I>(Type.SAME, oldl.get(sindex)));
 				i--;
 				j--;
 
 				//-- part of lcs - no delta
 			} else if(j > 0 && (i == 0 || car[i][j - 1] >= car[i - 1][j])) {
 				//-- Addition
-				tmp.add("+ " + copyl.get(cbeg + j - 1) + " @" + sindex);
-				res.add(new Item<I>(Type.ADD, copyl.get(cbeg + j - 1)));
+				int nindex = nbeg + j - 1;
+				I nitem = newl.get(nindex);
+
+				if(DEBUG2)
+					tmp.add("+ " + nitem + " @" + nindex);
+				res.add(new Item<I>(Type.ADD, nitem));
 				j--;
 			} else if(i > 0 && (j == 0 || car[i][j - 1] < car[i - 1][j])) {
 				//-- Deletion
-				tmp.add("- " + sourcel.get(sbeg + i - 1) + " @" + sindex);
-				res.add(new Item<I>(Type.DELETE, sourcel.get(sbeg + i - 1)));
+				int oindex = obeg + i - 1;
+				I oitem = oldl.get(oindex);
+				if(DEBUG2)
+					tmp.add("- " + oitem + " @" + (oindex));
+				res.add(new Item<I>(Type.DELETE, oitem));
 				i--;
 			}
 		}
 
 		//-- Add all unhandled @ start,
-		for(i = sbeg; --i >= 0;) {
-			tmp.add("  " + sourcel.get(i) + " @" + i);
-			res.add(new Item<I>(Type.SAME, sourcel.get(i)));
+		for(i = obeg; --i >= 0;) {
+			if(DEBUG2)
+				tmp.add("  " + oldl.get(i) + " @" + i + " (s)");
+			res.add(new Item<I>(Type.SAME, oldl.get(i)));
 		}
 		Collections.reverse(tmp);
 		Collections.reverse(res);
 
 		//-- Calculate line #s.
 		List<Diff<I>> dres = new ArrayList<Diff<I>>();
-		sindex = 0;
-		int dindex = 0;
-		int lastsindex = 0;
-		int lastdindex = 0;
+		int oindex = 0;
+		int nindex = 0;
+		int lastoindex = 0;
+		int lastnindex = 0;
 		Type currchange = Type.SAME;
 
 		for(Item<I> item : res) {
-			item.setIndex(sindex);
+			item.setIndex(oindex);
 
 			//-- Is our type changing?
 			if(currchange != item.getType()) {
-				addDiffItem(sourcel, copyl, sindex, dres, dindex, lastsindex, lastdindex, currchange);
+				if(currchange != Type.SAME || !skipsame)
+					addDiffItem(oldl, newl, oindex, dres, nindex, lastoindex, lastnindex, currchange);
 				currchange = item.getType();
-				lastsindex = sindex;
-				lastdindex = dindex;
+				lastoindex = oindex;
+				lastnindex = nindex;
 			}
 
 			switch(item.getType()){
 				case ADD:
-					dindex++;
+					nindex++;
 					break;
 				case DELETE:
-					sindex++;
+					oindex++;
 					break;
 				case SAME:
-					sindex++;
-					dindex++;
+					oindex++;
+					nindex++;
 					break;
 			}
 		}
-		addDiffItem(sourcel, copyl, sindex, dres, dindex, lastsindex, lastdindex, currchange);
-		for(Item<I> s : res) {
-			System.out.println(" " + s);
+
+		if(currchange != Type.SAME || !skipsame)
+			addDiffItem(oldl, newl, oindex, dres, nindex, lastoindex, lastnindex, currchange);
+		if(DEBUG) {
+			for(Item<I> s : res) {
+				System.out.println(" " + s);
+			}
 		}
 
-		System.out.println("Difftree:");
-		for(Diff<I> d : dres) {
-			System.out.print(d);
+		if(DEBUG) {
+			System.out.println("Diff: delta:");
+			for(Diff<I> d : dres) {
+				System.out.print(d);
+			}
+		}
+		if(DEBUG2) {
+			System.out.println("Debug list:");
+			for(String s : tmp)
+				System.out.println(" " + s);
 		}
 
-
-		//		for(String s : tmp)
-		//			System.out.println(" " + s);
-
-		return Collections.EMPTY_LIST;
+		return dres;
 	}
 
 
-	private static <I> void addDiffItem(List<I> sourcel, List<I> copyl, int sindex, List<Diff<I>> dres, int dindex, int lastsindex, int lastdindex, Type type) {
-		if(lastsindex != sindex || lastdindex != dindex) {
+	private static <I> void addDiffItem(List<I> oldl, List<I> newl, int oindex, List<Diff<I>> dres, int nindex, int lastoindex, int lastnindex, Type type) {
+		if(lastoindex != oindex || lastnindex != nindex) {
 			switch(type){
 				case ADD:
-					dres.add(new Diff<I>(lastsindex, sindex, copyl.subList(lastdindex, dindex), Type.ADD));
+					dres.add(new Diff<I>(lastoindex, oindex, newl.subList(lastnindex, nindex), Type.ADD));
 					break;
 				case DELETE:
-					dres.add(new Diff<I>(lastsindex, sindex, sourcel.subList(lastsindex, sindex), Type.DELETE));
+					dres.add(new Diff<I>(lastoindex, oindex, oldl.subList(lastoindex, oindex), Type.DELETE));
 					break;
 				case SAME:
-					dres.add(new Diff<I>(lastsindex, sindex, sourcel.subList(lastsindex, sindex), Type.SAME));
+					dres.add(new Diff<I>(lastoindex, oindex, oldl.subList(lastoindex, oindex), Type.SAME));
 					break;
 			}
 		}

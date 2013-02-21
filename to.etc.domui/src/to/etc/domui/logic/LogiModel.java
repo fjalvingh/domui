@@ -5,6 +5,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
+import to.etc.domui.logic.events.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.db.*;
 import to.etc.util.*;
@@ -109,9 +110,7 @@ public class LogiModel {
 		for(PropertyMetaModel< ? > pmm : pmml) {
 			copyPropertyValue(source, copy, pmm, oldOrigMap);
 		}
-
-		// TODO Auto-generated method stub
-		return null;
+		return copy;
 	}
 
 	private <T, P> void copyPropertyValue(@Nonnull T source, @Nonnull T copy, @Nonnull PropertyMetaModel<P> pmm, @Nonnull Map<Object, Object> oldOrigMap) throws Exception {
@@ -220,11 +219,13 @@ public class LogiModel {
 					break;
 
 				case UP:
-					if(!compareUpValues(les, pmm, source, copy)) {
-						if(laterl == null)
-							laterl = new ArrayList<PropertyMetaModel< ? >>();
-						laterl.add(pmm);
-					}
+					compareUpValues(les, pmm, source, copy);
+
+//					if(!compareUpValues(les, pmm, source, copy)) {
+//						if(laterl == null)
+//							laterl = new ArrayList<PropertyMetaModel< ? >>();
+//						laterl.add(pmm);
+//					}
 					break;
 
 				case DOWN:
@@ -297,7 +298,9 @@ public class LogiModel {
 		List< ? > sorigl = getChildValues(sourceval);				// The current list from source
 		List<Object> scopyl = new ArrayList<Object>(sorigl.size());	// This will hold the "current copies" known for each source entry.
 		for(Object t : sorigl) {
-			Object tcopy = m_originalToCopyMap.get(t);				// Get (existing) copy; if no copy is found it means the entry changed anyway - store null for that
+			Object tcopy = m_originalToCopyMap.get(t);				// Get (existing) copy; if no copy is found it means the entry changed anyway - store the original there,
+			if(null == tcopy)
+				tcopy = t;
 			scopyl.add(tcopy);
 		}
 		List<Object> copyl = (List<Object>) getChildValues(copyval);// The list of copied values
@@ -306,7 +309,7 @@ public class LogiModel {
 	}
 
 	private <T, P, I> boolean diffList(@Nonnull LogiEventSet les, PropertyMetaModel<P> pmm, @Nonnull T source, @Nonnull T copy, List<I> sourcel, List<I> copyl) throws Exception {
-		List<Diff<I>> dl = Diff.diffList(sourcel, copyl, new Comparator<I>() {
+		List<Diff<I>> dl = Diff.diffList(copyl, sourcel, new Comparator<I>() {			// What happened from COPY (old) to SOURCE (new)
 			@Override
 			public int compare(I a, I b) {
 				return MetaManager.areObjectsEqual(a, b) ? 0 : -1;
@@ -317,6 +320,26 @@ public class LogiModel {
 			return false;
 
 		//-- Fire all events.
+		for(Diff<I> delta: dl) {
+			switch(delta.getType()){
+				default:
+					throw new IllegalStateException(delta.getType() + ": unknown??");
+				case ADD:
+					for(int ix = delta.getStartIndex(); ix < delta.getEndIndex(); ix++) {
+						les.addCollectionAdd(pmm, source, copy, ix, sourcel.get(ix));
+					}
+					break;
+
+				case DELETE:
+					for(int ix = delta.getStartIndex(); ix < delta.getEndIndex(); ix++) {
+						les.addCollectionDelete(pmm, source, copy, ix, copyl.get(ix));
+					}
+					break;
+
+				case SAME:
+					break;
+			}
+		}
 
 		return true;
 	}
@@ -330,7 +353,7 @@ public class LogiModel {
 				res.add(v);
 			return res;
 		} else
-			throw new IllegalStateException(source + ": only List child sets are supported.");
+			throw new IllegalStateException(source + ": only List child sets are supported, got " + source.getClass());
 	}
 
 

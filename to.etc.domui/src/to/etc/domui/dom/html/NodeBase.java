@@ -33,6 +33,8 @@ import to.etc.domui.component.input.*;
 import to.etc.domui.dom.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
+import to.etc.domui.logic.*;
+import to.etc.domui.logic.events.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
@@ -1357,6 +1359,26 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		}
 	}
 
+	/**
+	 * EXPERIMENTAL Some logic event has occurred; this can see if it wants to do something with it. By default
+	 * this passes the event to any binding.
+	 * @param logiEvent
+	 * @return
+	 */
+	public void logicEvent(@Nonnull LogiEvent logiEvent) throws Exception {
+		Object v = this; 							// Silly: Eclipse compiler has bug - it does not allow this in instanceof because it incorrecly assumes 'this' is ALWAYS of type NodeBase - and it it not.
+		if(v instanceof IBindable) {
+			IBindable b = (IBindable) v;
+			if(b.isBound()) {
+				IBinder bind = b.bind();
+
+				if(bind instanceof ILogiEventListener) {
+					((ILogiEventListener) bind).logicEvent(logiEvent);
+				}
+			}
+		}
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Miscellaneous.										*/
@@ -1374,6 +1396,16 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	@Nonnull
 	public QDataContextFactory getSharedContextFactory() {
 		return getParent().getSharedContextFactory();
+	}
+
+
+	/**
+	 * Get the context.
+	 * @return
+	 */
+	@Nonnull
+	public LogiContext lc() throws Exception {
+		return getPage().getBody().lc();
 	}
 
 	/**
