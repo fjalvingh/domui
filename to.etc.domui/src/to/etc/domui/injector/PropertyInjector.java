@@ -26,8 +26,9 @@ package to.etc.domui.injector;
 
 import java.lang.reflect.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
 import to.etc.domui.state.*;
 import to.etc.util.*;
 
@@ -35,17 +36,19 @@ import to.etc.util.*;
  * Base for injecting something into a property.
  */
 public abstract class PropertyInjector {
+	@Nonnull
 	final private Method m_propertySetter;
 
-	public PropertyInjector(final Method propertySetter) {
+	public PropertyInjector(@Nonnull final Method propertySetter) {
 		m_propertySetter = propertySetter;
 	}
 
+	@Nonnull
 	protected Method getPropertySetter() {
 		return m_propertySetter;
 	}
 
-	protected void setValue(Object instance, Object value) {
+	protected void setValue(@Nonnull Object instance, @Nullable Object value) {
 		try {
 			getPropertySetter().invoke(instance, value);
 		} catch(Exception x) {
@@ -53,5 +56,5 @@ public abstract class PropertyInjector {
 		}
 	}
 
-	public abstract void inject(UrlPage page, RequestContextImpl ctx, IPageParameters pp) throws Exception;
+	public abstract void inject(@Nonnull UrlPage page, @Nonnull IPageParameters pp) throws Exception;
 }

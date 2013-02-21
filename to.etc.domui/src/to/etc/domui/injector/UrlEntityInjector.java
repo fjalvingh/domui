@@ -26,10 +26,11 @@ package to.etc.domui.injector;
 
 import java.lang.reflect.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
 import to.etc.domui.state.*;
 import to.etc.webapp.query.*;
 
@@ -80,7 +81,7 @@ public class UrlEntityInjector extends PropertyInjector {
 	 * Create a new instance.
 	 * @return
 	 */
-	protected Object createNew(final UrlPage page, final RequestContextImpl ctx) {
+	protected Object createNew(final UrlPage page) {
 		try {
 			return m_entityClass.newInstance();
 		} catch(Exception x) {
@@ -91,12 +92,11 @@ public class UrlEntityInjector extends PropertyInjector {
 	/**
 	 * Returns T if the request is to create a new instance.
 	 * @param page
-	 * @param ctx
 	 * @param papa
 	 * @param value
 	 * @return
 	 */
-	protected boolean isNew(final UrlPage page, final RequestContextImpl ctx, final IPageParameters papa, String value) throws Exception {
+	protected boolean isNew(final UrlPage page, final IPageParameters papa, String value) throws Exception {
 		return "NEW".equals(value);
 	}
 
@@ -128,7 +128,7 @@ public class UrlEntityInjector extends PropertyInjector {
 	//	}
 
 	@Override
-	public void inject(final UrlPage page, final RequestContextImpl ctx, final IPageParameters papa) throws Exception {
+	public void inject(@Nonnull final UrlPage page, @Nonnull final IPageParameters papa) throws Exception {
 		//-- 1. Get the URL parameter's value.
 		String pv = getParameterValue(page, papa);
 		if(pv == null)
@@ -136,8 +136,8 @@ public class UrlEntityInjector extends PropertyInjector {
 
 		//-- 2. Handle the constant 'NEW'.
 		Object value;
-		if(isNew(page, ctx, papa, pv)) {
-			value = createNew(page, ctx);
+		if(isNew(page, papa, pv)) {
+			value = createNew(page);
 		} else {
 			QDataContext dc = page.getSharedContext();
 			Object pk = getKeyInstance(dc, page, pv);
