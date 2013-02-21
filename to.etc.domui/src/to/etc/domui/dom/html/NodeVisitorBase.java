@@ -193,8 +193,10 @@ public class NodeVisitorBase implements INodeVisitor {
 	}
 
 	public void visitChildren(NodeContainer c) throws Exception {
-		for(NodeBase b : new ArrayList<>(c.internalGetChildren()))
-			b.visit(this);
+		List<NodeBase> ic = c.internalGetChildren();
+		for(int i = 0, len = ic.size(); i < len; i++) {
+			ic.get(i).visit(this);
+		}
 	}
 
 	@Override
