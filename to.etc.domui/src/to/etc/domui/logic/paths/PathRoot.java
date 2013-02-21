@@ -3,8 +3,12 @@ package to.etc.domui.logic.paths;
 import javax.annotation.*;
 
 public class PathRoot<T> implements IPropertyPathElement<T> {
-	@Nullable
+	@Nonnull
 	private T m_instance;
+
+	public PathRoot(@Nonnull T instance) {
+		m_instance = instance;
+	}
 
 	@Override
 	@Nonnull
