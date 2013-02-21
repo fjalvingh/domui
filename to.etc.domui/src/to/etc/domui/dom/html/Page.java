@@ -325,7 +325,7 @@ final public class Page implements IQContextContainer {
 		//-- Experimental fix for bug# 787: cannot locate error fence. Allow errors to be posted on disconnected nodes.
 		if(n.getMessage() != null) {
 			IErrorFence fence = DomUtil.getMessageFence(n); // Get the fence that'll handle the message by looking UPWARDS in the tree
-			fence.addMessage(n, n.getMessage());
+			fence.addMessage(n.getMessage());
 		}
 	}
 

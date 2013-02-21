@@ -701,7 +701,6 @@ final public class DomUtil {
 
 		//-- Phase 1: start marking extends in the matrix.
 		int rowindex = 0;
-		int maxcols = 0;
 		for(NodeBase l0 : t) { // Expecting THead and TBodies here.
 			if(l0 instanceof THead || l0 instanceof TBody) {
 				//-- Walk all rows.
@@ -711,9 +710,7 @@ final public class DomUtil {
 					TR tr = (TR) trb;
 					int minrowspan = 1;
 
-					//-- Start traversing the TD's.
-					List<TD> baserowlist = getTdList(matrix, rowindex);
-					int colindex = 0;
+					getTdList(matrix, rowindex);
 					for(NodeBase tdb : tr) {
 						if(!(tdb instanceof TD))
 							throw new IllegalStateException("Unexpected child of type " + tr + " in TBody/THead node (expecting TD)");

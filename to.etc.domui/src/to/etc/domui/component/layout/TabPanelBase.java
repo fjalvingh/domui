@@ -84,7 +84,7 @@ public class TabPanelBase extends Div {
 		}
 
 		@Override
-		public void errorMessageAdded(Page pg, UIMessage m) {
+		public void errorMessageAdded(@Nonnull UIMessage m) {
 			if(isPartOfContent(m.getErrorNode())) {
 				if(m_msgList.contains(m))
 					return;
@@ -94,7 +94,7 @@ public class TabPanelBase extends Div {
 		}
 
 		@Override
-		public void errorMessageRemoved(Page pg, UIMessage m) {
+		public void errorMessageRemoved(@Nonnull UIMessage m) {
 			if(isPartOfContent(m.getErrorNode())) {
 				if(!m_msgList.remove(m))
 					return;

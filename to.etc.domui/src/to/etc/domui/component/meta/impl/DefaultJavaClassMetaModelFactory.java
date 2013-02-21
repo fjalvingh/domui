@@ -168,7 +168,7 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 			if(mp.required() != YesNoType.UNKNOWN)
 				pmm.setRequired(mp.required() == YesNoType.YES);
 			if(mp.converterClass() != DummyConverter.class)
-				pmm.setConverter((IConverter<T>) ConverterRegistry.getConverterInstance((Class< ? extends IConverter<T>>) mp.converterClass()));
+				pmm.setConverter(ConverterRegistry.getConverterInstance((Class< ? extends IConverter<T>>) mp.converterClass()));
 			if(mp.temporal() != TemporalPresentationType.UNKNOWN && pmm.getTemporal() == TemporalPresentationType.UNKNOWN)
 				pmm.setTemporal(mp.temporal());
 			if(mp.numericPresentation() != NumericPresentation.UNKNOWN)

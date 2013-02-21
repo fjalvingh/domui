@@ -1013,7 +1013,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		//-- Experimental fix for bug# 787: cannot locate error fence. Allow errors to be posted on disconnected nodes.
 		if(m_page != null) {
 			IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
-			fence.addMessage(this, m_message);
+			fence.addMessage(m_message);
 		}
 		return m_message;
 	}
@@ -1033,7 +1033,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		if(m_page != null) {
 			IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
 			UIMessage msg = m_message;
-			fence.removeMessage(this, msg);
+			fence.removeMessage(msg);
 		}
 		m_message = null;
 	}
@@ -1071,23 +1071,23 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 */
 	public UIMessage addGlobalMessage(UIMessage m) {
 		IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
-		fence.addMessage(this, m);
+		fence.addMessage(m);
 		return m;
 	}
 
 	public void clearGlobalMessage() {
 		IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
-		fence.clearGlobalMessages(this, null);
+		fence.clearGlobalMessages(null);
 	}
 
 	public void clearGlobalMessage(UIMessage m) {
 		IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
-		fence.removeMessage(null, m);
+		fence.removeMessage(m);
 	}
 
 	public void clearGlobalMessage(final String code) {
 		IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
-		fence.clearGlobalMessages(this, code);
+		fence.clearGlobalMessages(code);
 	}
 
 

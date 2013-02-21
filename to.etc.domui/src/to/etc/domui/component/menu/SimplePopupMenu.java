@@ -96,7 +96,7 @@ public class SimplePopupMenu extends Div {
 		final T val = (T) m_targetObject;
 		String disa = action.getDisableReason(val);
 		if(null != disa) {
-			Div d = renderItem(action.getName(val), disa, action.getIcon(val), true);
+			renderItem(action.getName(val), disa, action.getIcon(val), true);
 			return;
 		}
 

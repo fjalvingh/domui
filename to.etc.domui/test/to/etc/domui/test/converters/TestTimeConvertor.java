@@ -60,11 +60,10 @@ public class TestTimeConvertor {
 	@Test
 	public void checkBadTimes() {
 		TimeToSecondsConverter tc = new TimeToSecondsConverter();
-		Integer timeFromString = null;
 		for (int j = 0; j < BAD_TIMES.length; j++) {
 			String time = BAD_TIMES[j];
 			try {
-				timeFromString = tc.convertStringToObject(NlsContext.getLocale(), time);
+				tc.convertStringToObject(NlsContext.getLocale(), time);
 				Assert.fail("It's a good time ??? " + time);
 			} catch(Exception x) {
 				//-- is the expected situation

@@ -265,7 +265,6 @@ public class LogTailerFragment extends PollingDiv {
 		if(newstart < 0)
 			newstart = 0;
 		int vlines = m_lineDiv.getChildCount();
-		int veline = m_startLine + m_lineDiv.getChildCount();				// End line of currently visible part
 		int linesPerPage = getLinesPerPage();
 		int xeline = newstart + linesPerPage;									// Expected end line in new visible part
 		int maxlines = m_task.getLastLine();

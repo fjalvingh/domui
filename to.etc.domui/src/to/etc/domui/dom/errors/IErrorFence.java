@@ -26,8 +26,6 @@ package to.etc.domui.dom.errors;
 
 import javax.annotation.*;
 
-import to.etc.domui.dom.html.*;
-
 /**
  * The fence over which errors cannot pass. An error fence maintains the
  * list of listerers that are interested in an error.
@@ -40,9 +38,9 @@ public interface IErrorFence {
 
 	public void removeErrorListener(@Nonnull IErrorMessageListener eml);
 
-	public void addMessage(@Nonnull NodeBase source, @Nonnull UIMessage uim);
+	public void addMessage(@Nonnull UIMessage uim);
 
-	public void removeMessage(@Nullable NodeBase source, @Nonnull UIMessage uim);
+	public void removeMessage(@Nonnull UIMessage uim);
 
-	public void clearGlobalMessages(@Nonnull NodeBase source, @Nullable String code);
+	public void clearGlobalMessages(@Nullable String code);
 }
