@@ -164,7 +164,7 @@ public class ModelCopier {
 	private <T> void updateProperties(InstanceKey<T> key, T di) throws Exception {
 		EntityDef<T> ed = key.getEntity();
 		List<PropertyMetaModel< ? >> pl = ed.getMetaModel().getProperties();
-		List<PropertyMetaModel< ? >> childList = new ArrayList<>();
+		List<PropertyMetaModel< ? >> childList = new ArrayList<PropertyMetaModel< ? >>();
 		T si = key.getSourceInstance();
 		if(null == si)
 			throw new IllegalStateException("No source instance for key " + key);
