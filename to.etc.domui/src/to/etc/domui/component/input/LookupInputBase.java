@@ -333,10 +333,19 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		} else if(m_rebuildCause == RebuildCause.SELECT) {
 			//User did reselected value, so we can try to set focus to clear button if possible.
 			if(clearButton != null && clearButton.getDisplay() != DisplayType.NONE) {
-				clearButton.setFocus();
+				if(getPage().getFocusComponent() == null)
+					clearButton.setFocus();
 			}
 		}
 		m_rebuildCause = null;
+
+		if(m_doFocus) {
+			m_doFocus = false;
+			if(m_keySearch != null)
+				m_keySearch.setFocus();
+			else if(m_clearButton != null)
+				m_clearButton.setFocus();
+		}
 	}
 
 	private void appendParameters(@Nonnull TD cell, @Nonnull Object parameters) {
@@ -1092,6 +1101,8 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	@Nullable
 	private SimpleBinder m_binder;
 
+	private boolean m_doFocus;
+
 	/**
 	 * Return the binder for this control.
 	 * @see to.etc.domui.component.input.IBindable#bind()
@@ -1430,5 +1441,13 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	@Override
 	public boolean isFocusable() {
 		return false;
+	}
+
+	@Override
+	public void setFocus() {
+		if(null != m_keySearch)
+			m_keySearch.setFocus();
+		else if(!isBuilt())
+			m_doFocus = true;
 	}
 }
