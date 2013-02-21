@@ -849,7 +849,9 @@ final public class ConnectionProxy implements Connection {
 	}
 
 	public boolean isWrapperFor(Class< ? > iface) throws SQLException {
-		return iface.isAssignableFrom(getClass());
+		if(iface.isAssignableFrom(getClass()))
+			return true;
+		return m_pe.getConnection().isWrapperFor(iface);
 	}
 
 	public void setClientInfo(Properties arg0) throws SQLClientInfoException {
@@ -862,6 +864,8 @@ final public class ConnectionProxy implements Connection {
 
 	public <T> T unwrap(Class<T> iface) throws SQLException {
 		check();
+		if(iface.isAssignableFrom(getClass()))
+			return (T) this;
 		return m_pe.getConnection().unwrap(iface);
 	}
 }
