@@ -601,8 +601,9 @@ final public class Page implements IQContextContainer {
 		if(!(nd instanceof NodeContainer))
 			return;
 		NodeContainer nc = (NodeContainer) nd;
-		for(int i = 0, len = nc.getChildCount(); i < len; i++) {
-			buildSubTree(nc.getChild(i));
+		List<NodeBase> ichl = nc.internalGetChildren();
+		for(int i = 0, len = ichl.size(); i < len; i++) {
+			buildSubTree(ichl.get(i));
 		}
 	}
 
@@ -616,8 +617,10 @@ final public class Page implements IQContextContainer {
 		NodeContainer nc = (NodeContainer) nd;
 		if(nc.childHasUpdates() && nc.internalGetOldChildren() == null) {
 			nc.build();
-			for(int i = 0, len = nc.getChildCount(); i < len; i++) {
-				buildChangedTree(nc.getChild(i));
+
+			List<NodeBase> ichl = nc.internalGetChildren();
+			for(int i = 0, len = ichl.size(); i < len; i++) {
+				buildChangedTree(ichl.get(i));
 			}
 		}
 		if(nc.internalGetOldChildren() != null || nc.childHasUpdates() || nc.mustRenderChildrenFully()) {
