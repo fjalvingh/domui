@@ -24,6 +24,8 @@
  */
 package to.etc.domui.dom.html;
 
+import java.util.*;
+
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.misc.*;
 
@@ -191,8 +193,10 @@ public class NodeVisitorBase implements INodeVisitor {
 	}
 
 	public void visitChildren(NodeContainer c) throws Exception {
-		for(NodeBase b : c.internalGetChildren())
-			b.visit(this);
+		List<NodeBase> ic = c.internalGetChildren();
+		for(int i = 0, len = ic.size(); i < len; i++) {
+			ic.get(i).visit(this);
+		}
 	}
 
 	@Override

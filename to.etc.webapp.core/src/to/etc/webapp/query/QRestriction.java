@@ -157,7 +157,7 @@ public class QRestriction {
 	 * @param value
 	 * @return
 	 */
-	static private QOperatorNode createValueNode(Object value) {
+	static public QOperatorNode createValueNode(Object value) {
 		if(value instanceof QOperatorNode)
 			return (QOperatorNode) value;
 		else if(value instanceof QSelection< ? >)

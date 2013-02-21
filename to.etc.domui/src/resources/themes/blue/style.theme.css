@@ -63,6 +63,12 @@ button {
 .page-content {
 	margin: 0px 10px;
 }
+
+.ui-clickable {
+	cursor: pointer;
+}
+
+
 /*** 005_oddchars.frag.css ***/
 /*** Select special chars ***/
 .ui-oddchars {
@@ -1983,6 +1989,7 @@ li.ui-tab-err {
 /*** MessageLine ***/
 .ui-msgln {
 	padding: 4px 0px;
+/*	display: inline-block;		jal 20130215 This shows messages behind one another.... That should not happen.. */
 }
 .ui-msgln img {
 	float: left;
