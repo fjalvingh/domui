@@ -1861,4 +1861,11 @@ public class FileTool {
 		}
 		return (int) size;
 	}
+
+	@Nonnull
+	public static File createTmpDir() throws IOException {
+		File f = File.createTempFile("work", ".dir");
+		f.delete();
+		return f;
+	}
 }
