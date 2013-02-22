@@ -32,7 +32,7 @@ class QRestrictorImpl<T> extends QRestrictor<T> {
 	private QOperatorNode m_combinatorNode;
 
 	QRestrictorImpl(@Nonnull QRestrictor<T> parent, @Nonnull QMultiNode combinatorNode) {
-		super(parent.getBaseClass(), combinatorNode.getOperation());
+		super(parent, combinatorNode.getOperation());
 		m_combinatorNode = combinatorNode;
 	}
 

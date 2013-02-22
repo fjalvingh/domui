@@ -272,7 +272,6 @@ public class MailHelper {
 	 * Append the text without scanning for any kind of embedded links.
 	 * @param s
 	 */
-	@Nonnull
 	public void appendVerbatim(@Nonnull String s) {
 		init();
 		m_text_sb.append(s);
@@ -693,7 +692,7 @@ public class MailHelper {
 	 */
 	protected void addTrailer() throws Exception {}
 
-	@Nullable
+	@Nonnull
 	protected InputStream getApplicationResource(String name) throws Exception {
 		throw new OperationNotSupportedException("Override getApplicationResource(String)");
 

@@ -202,7 +202,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	 */
 	@Override
 	@Nonnull
-	public <R extends QField<R, T>> QCriteria<T> eq(@Nonnull final QFieldDouble<R> property, @Nonnull final double value) {
+	public <R extends QField<R, T>> QCriteria<T> eq(@Nonnull final QFieldDouble<R> property, final double value) {
 		return (QCriteria<T>) super.eq(property, value);
 	}
 
@@ -261,7 +261,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	 * @see to.etc.webapp.query.QCriteriaQueryBase#gt(java.lang.String, java.lang.Object)
 	 */
 	@Override
-	public QCriteria<T> gt(@Nonnull @GProperty final String property, @Nonnull final Object value) {
+	public @Nonnull QCriteria<T> gt(@Nonnull @GProperty final String property, @Nonnull final Object value) {
 		return (QCriteria<T>) super.gt(property, value);
 	}
 
@@ -270,7 +270,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	 * @see to.etc.webapp.query.QCriteriaQueryBase#ilike(java.lang.String, java.lang.Object)
 	 */
 	@Override
-	public QCriteria<T> ilike(@Nonnull @GProperty final String property, @Nonnull final Object value) {
+	public @Nonnull QCriteria<T> ilike(@Nonnull @GProperty final String property, @Nonnull final Object value) {
 		return (QCriteria<T>) super.ilike(property, value);
 	}
 

@@ -91,15 +91,20 @@ public class QBrace {
 		Object lastObject = null;
 		QOperatorNode node = null;
 		QOperatorNode lastnode = null;
-		if(m_objects.size() == 1 && m_objects.get(0) instanceof QOperatorNode) {
-			return (QOperatorNode) m_objects.get(0);
+
+		if(m_objects.size() == 0)
+			throw new IllegalStateException("Empty brace contents?");
+
+		Object obj0 = m_objects.get(0);
+		if(m_objects.size() == 1 && obj0 instanceof QOperatorNode) {
+			return (QOperatorNode) obj0;
 		}
-		if(m_objects.size() == 1 && m_objects.get(0) instanceof QList) {
-			QExistsSubquery< ? > subquery = fixSub((QList< ? , ? >) m_objects.get(0));
+		if(m_objects.size() == 1 && obj0 instanceof QList) {
+			QExistsSubquery< ? > subquery = fixSub((QList< ? , ? >) obj0);
 			return subquery;
 		}
-		if(m_objects.size() == 1 && m_objects.get(0) instanceof QBrace) {
-			QBrace brace = (QBrace) m_objects.get(0);
+		if(m_objects.size() == 1 && obj0 instanceof QBrace) {
+			QBrace brace = (QBrace) obj0;
 			return brace.toQOperatorNode();
 		}
 		List<Object> objects = m_objects;
@@ -179,7 +184,9 @@ public class QBrace {
 			replace.clear();
 			remove.clear();
 		}
-		return m;
+		if(null == m)
+			throw new IllegalStateException("Unexpected: cannot create braced operation");
+		return m;					// Jal->Dennis: why is this code dead here? m can only be null?
 	}
 
 	private QExistsSubquery< ? > fixSub(@Nonnull QList< ? , ? > qList) throws Exception {

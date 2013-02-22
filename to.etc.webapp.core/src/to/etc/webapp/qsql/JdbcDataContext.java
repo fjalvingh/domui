@@ -83,7 +83,7 @@ public class JdbcDataContext implements QDataContext {
 	 * @see to.etc.webapp.query.QDataContext#attach(java.lang.Object)
 	 */
 	@Override
-	public void attach(Object o) throws Exception {
+	public void attach(@Nonnull Object o) throws Exception {
 	}
 
 	@Override
@@ -126,7 +126,7 @@ public class JdbcDataContext implements QDataContext {
 	 * @see to.etc.webapp.query.QDataContext#delete(java.lang.Object)
 	 */
 	@Override
-	public void delete(Object o) throws Exception {
+	public void delete(@Nonnull Object o) throws Exception {
 		unsupported();
 	}
 
@@ -135,7 +135,7 @@ public class JdbcDataContext implements QDataContext {
 	 * @see to.etc.webapp.query.QDataContext#find(java.lang.Class, java.lang.Object)
 	 */
 	@Override
-	public <T> T find(Class<T> clz, Object pk) throws Exception {
+	public <T> T find(@Nonnull Class<T> clz, @Nonnull Object pk) throws Exception {
 		unclosed();
 		return JdbcQuery.find(this, clz, pk);
 	}
@@ -160,7 +160,7 @@ public class JdbcDataContext implements QDataContext {
 	 * @see to.etc.webapp.query.QDataContext#getInstance(java.lang.Class, java.lang.Object)
 	 */
 	@Override
-	public <T> T getInstance(Class<T> clz, Object pk) throws Exception {
+	public @Nonnull <T> T getInstance(@Nonnull Class<T> clz, @Nonnull Object pk) throws Exception {
 		unclosed();
 		return JdbcQuery.getInstance(this, clz, pk);
 	}
@@ -170,13 +170,13 @@ public class JdbcDataContext implements QDataContext {
 	 * @see to.etc.webapp.query.QDataContext#getConnection()
 	 */
 	@Override
-	public Connection getConnection() throws Exception {
+	public @Nonnull Connection getConnection() throws Exception {
 		unclosed();
 		return internalGetConnection();
 	}
 
 	@Override
-	public QDataContextFactory getFactory() {
+	public @Nonnull QDataContextFactory getFactory() {
 		return m_factory;
 	}
 
@@ -186,36 +186,36 @@ public class JdbcDataContext implements QDataContext {
 	}
 
 	@Override
-	public <T> List<T> query(QCriteria<T> q) throws Exception {
+	public @Nonnull <T> List<T> query(@Nonnull QCriteria<T> q) throws Exception {
 		unclosed();
 		return JdbcQuery.query(this, q);
 	}
 
 	@Override
-	public List<Object[]> query(QSelection< ? > sel) throws Exception {
+	public @Nonnull List<Object[]> query(@Nonnull QSelection< ? > sel) throws Exception {
 		unclosed();
 		return JdbcQuery.query(this, sel);
 	}
 
 	@Override
-	public <T> T queryOne(QCriteria<T> q) throws Exception {
+	public <T> T queryOne(@Nonnull QCriteria<T> q) throws Exception {
 		unclosed();
 		return JdbcQuery.queryOne(this, q);
 	}
 
 	@Override
-	public Object[] queryOne(QSelection< ? > q) throws Exception {
+	public Object[] queryOne(@Nonnull QSelection< ? > q) throws Exception {
 		unclosed();
 		return JdbcQuery.queryOne(this, q);
 	}
 
 	@Override
-	public <T> T find(ICriteriaTableDef<T> metatable, Object pk) throws Exception {
+	public <T> T find(@Nonnull ICriteriaTableDef<T> metatable, @Nonnull Object pk) throws Exception {
 		throw new IllegalStateException("Inapplicable call for JdbcDataContext");
 	}
 
 	@Override
-	public <T> T getInstance(ICriteriaTableDef<T> clz, Object pk) throws Exception {
+	public @Nonnull <T> T getInstance(@Nonnull ICriteriaTableDef<T> clz, @Nonnull Object pk) throws Exception {
 		throw new IllegalStateException("Inapplicable call for JdbcDataContext");
 	}
 
@@ -224,7 +224,7 @@ public class JdbcDataContext implements QDataContext {
 	 * @see to.etc.webapp.query.QDataContext#refresh(java.lang.Object)
 	 */
 	@Override
-	public void refresh(Object o) throws Exception {
+	public void refresh(@Nonnull Object o) throws Exception {
 		unsupported();
 	}
 
@@ -239,7 +239,7 @@ public class JdbcDataContext implements QDataContext {
 	 * @see to.etc.webapp.query.QDataContext#save(java.lang.Object)
 	 */
 	@Override
-	public void save(Object o) throws Exception {
+	public void save(@Nonnull Object o) throws Exception {
 		unsupported();
 	}
 
@@ -254,7 +254,7 @@ public class JdbcDataContext implements QDataContext {
 	}
 
 	@Override
-	public void addCommitAction(IRunnable cx) {
+	public void addCommitAction(@Nonnull IRunnable cx) {
 		if(m_commitHandlerList == Collections.EMPTY_LIST)
 			m_commitHandlerList = new ArrayList<IRunnable>();
 		m_commitHandlerList.add(cx);

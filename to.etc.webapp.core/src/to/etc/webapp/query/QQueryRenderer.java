@@ -56,14 +56,18 @@ public class QQueryRenderer extends QNodeVisitorBase {
 	@Override
 	public void visitCriteria(QCriteria< ? > qc) throws Exception {
 		append("FROM ");
-		if(qc.getBaseClass() != null)
-			append(qc.getBaseClass().getName());
-		else if(qc.getMetaTable() != null) {
-			append("[META:");
-			append(qc.getMetaTable().toString());
-			append("]");
-		} else
-			append("[unknown-table]");
+		Class< ? > baseClass = qc.getBaseClass();
+		if(baseClass != null)
+			append(baseClass.getName());
+		else {
+			ICriteriaTableDef< ? > metaTable = qc.getMetaTable();
+			if(metaTable != null) {
+				append("[META:");
+				append(metaTable.toString());
+				append("]");
+			} else
+				append("[unknown-table]");
+		}
 		if(qc.getRestrictions() != null)
 			append(" WHERE ");
 		super.visitCriteria(qc);
@@ -72,7 +76,19 @@ public class QQueryRenderer extends QNodeVisitorBase {
 	@Override
 	public void visitSelection(QSelection< ? > s) throws Exception {
 		append("FROM ");
-		append(s.getBaseClass().getName());
+
+		Class< ? > baseClass = s.getBaseClass();
+		if(baseClass != null)
+			append(baseClass.getName());
+		else {
+			ICriteriaTableDef< ? > metaTable = s.getMetaTable();
+			if(metaTable != null) {
+				append("[META:");
+				append(metaTable.toString());
+				append("]");
+			} else
+				append("[unknown-table]");
+		}
 
 		if(s.getColumnList().size() != 0) {
 			//-- Restriction query: return the base class
@@ -266,7 +282,7 @@ public class QQueryRenderer extends QNodeVisitorBase {
 				return 20;
 			case NOT:
 				return 25;
-			/*case IN: */ 
+			/*case IN: */
 			case BETWEEN: case LIKE: case ILIKE:
 				return 30;
 

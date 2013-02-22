@@ -22,7 +22,7 @@ public class QFieldBoolean<R extends QField<R, ? >> {
 	R gt(@Nonnull boolean... t) {
 		m_field.eqOrOr(new IRestrictor<boolean[]>() {
 			@Override
-			public QOperatorNode restrict(@Nonnull boolean[] value) {
+			public @Nonnull QOperatorNode restrict(@Nonnull boolean[] value) {
 				return QRestriction.gt(m_field.getPath(), Boolean.valueOf(value[0]));
 			}
 		}, t);
@@ -33,7 +33,7 @@ public class QFieldBoolean<R extends QField<R, ? >> {
 	R eq(@Nonnull boolean... t) {
 		m_field.eqOrOr(new IRestrictor<boolean[]>() {
 			@Override
-			public QOperatorNode restrict(@Nonnull boolean[] value) {
+			public @Nonnull QOperatorNode restrict(@Nonnull boolean[] value) {
 				return QRestriction.eq(m_field.getPath(), Boolean.valueOf(value[0]));
 			}
 		}, t);
@@ -44,7 +44,7 @@ public class QFieldBoolean<R extends QField<R, ? >> {
 	R ne(@Nonnull boolean... t) {
 		m_field.eqOrOr(new IRestrictor<boolean[]>() {
 			@Override
-			public QOperatorNode restrict(@Nonnull boolean[] value) {
+			public @Nonnull QOperatorNode restrict(@Nonnull boolean[] value) {
 				return QRestriction.ne(m_field.getPath(), Boolean.valueOf(value[0]));
 			}
 		}, t);

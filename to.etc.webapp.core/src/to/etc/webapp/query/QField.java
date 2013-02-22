@@ -62,8 +62,8 @@ public class QField<R extends QField<R, ? >, T> {
 		m_propertyNameInParent = propertyNameInParent;
 	}
 
-	final @Nullable
-	String getPath() {
+	@Nonnull
+	final String getPath() {
 		List<QField<R, ? >> fields = new ArrayList<QField<R, ? >>();
 		QField<R, ? > parent = this;
 		while(parent.m_parent != null) {
@@ -107,7 +107,7 @@ public class QField<R extends QField<R, ? >, T> {
 	R gt(@Nonnull T... t) {
 		eqOrOr(new IRestrictor<T>() {
 			@Override
-			public QOperatorNode restrict(@Nonnull T value) {
+			public @Nonnull QOperatorNode restrict(@Nonnull T value) {
 				return QRestriction.gt(getPath(), value);
 			}
 		}, t);
@@ -123,7 +123,7 @@ public class QField<R extends QField<R, ? >, T> {
 	R eq(@Nonnull T... t) {
 		eqOrOr(new IRestrictor<T>() {
 			@Override
-			public QOperatorNode restrict(@Nonnull T value) {
+			public @Nonnull QOperatorNode restrict(@Nonnull T value) {
 				return QRestriction.eq(getPath(), value);
 			}
 		}, t);
@@ -139,7 +139,7 @@ public class QField<R extends QField<R, ? >, T> {
 	R ne(@Nonnull T... t) {
 		eqOrOr(new IRestrictor<T>() {
 			@Override
-			public QOperatorNode restrict(@Nonnull T value) {
+			public @Nonnull QOperatorNode restrict(@Nonnull T value) {
 				return QRestriction.ne(getPath(), value);
 			}
 		}, t);
@@ -245,13 +245,12 @@ public class QField<R extends QField<R, ? >, T> {
 
 	protected QBrace m_qBrace;
 
-	final @Nonnull
-	QBrace qbrace() {
+	@Nonnull
+	final QBrace qbrace() {
 		return m_root.m_qBrace;
 	}
 
-	final @Nonnull
-	void qbrace(@Nonnull QBrace brace) {
+	final void qbrace(@Nonnull QBrace brace) {
 		m_root.m_qBrace = brace;
 	}
 

@@ -24,6 +24,8 @@
  */
 package to.etc.webapp.query;
 
+import javax.annotation.*;
+
 public class QSelectionSubquery extends QOperatorNode {
 	private QSelection< ? > m_parentQuery;
 
@@ -37,7 +39,7 @@ public class QSelectionSubquery extends QOperatorNode {
 	}
 
 	@Override
-	public void visit(QNodeVisitor v) throws Exception {
+	public void visit(@Nonnull QNodeVisitor v) throws Exception {
 		v.visitSelectionSubquery(this);
 	}
 }

@@ -38,16 +38,16 @@ public class TestBasicConfigs {
 	static public void init() {
 		final QDataContextFactory cf = new QDataContextFactory() {
 			@Override
-			public QDataContext getDataContext() throws Exception {
+			public @Nonnull QDataContext getDataContext() throws Exception {
 				return new DataContextMock();
 			}
 			@Override
-			public QEventListenerSet getEventListeners() {
+			public @Nonnull QEventListenerSet getEventListeners() {
 				return QEventListenerSet.EMPTY_SET;
 			}
 
 			@Override
-			public QQueryExecutorRegistry getQueryHandlerList() {
+			public @Nonnull QQueryExecutorRegistry getQueryHandlerList() {
 				return QQueryExecutorRegistry.getInstance();
 			}
 		};
