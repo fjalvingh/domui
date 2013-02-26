@@ -92,7 +92,7 @@ public class HtmlTextScanner extends TextScanner {
 	}
 
 	/**
-	 * Scan HTML and remove unsafe tags and attributes. The result is garantueed to be safe and well-formed.
+	 * Scan HTML and remove unsafe tags and attributes. The result is guaranteed to be safe and well-formed.
 	 * @param sb
 	 * @param html
 	 */
