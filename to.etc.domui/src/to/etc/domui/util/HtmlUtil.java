@@ -25,7 +25,7 @@ final public class HtmlUtil {
 	private static final Object VALID_MARKER = new Object();
 
 	static public String removeUnsafe(String htmlIn) {
-		System.out.println("Sanitize: input=" + htmlIn);
+//		System.out.println("Sanitize: input=" + htmlIn);
 		String s = sanitise(htmlIn, false, true);
 		StringBuilder sb = new StringBuilder();
 		try {
@@ -35,7 +35,7 @@ final public class HtmlUtil {
 		}
 		s = sb.toString();
 
-		System.out.println("Output: " + s);
+//		System.out.println("Output: " + s);
 		return s;
 	}
 

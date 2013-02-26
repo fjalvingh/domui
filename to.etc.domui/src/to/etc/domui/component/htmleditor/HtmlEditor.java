@@ -153,7 +153,7 @@ public class HtmlEditor extends TextArea {
 	 */
 	@Override
 	public void setValue(@Nullable String v) {
-		System.out.println("setValue: " + v);
+//		System.out.println("setValue: " + v);
 		if(null != v) {
 			v = HtmlUtil.removeUnsafe(v);
 		}
@@ -201,7 +201,7 @@ public class HtmlEditor extends TextArea {
 //
 //				DomUtil.htmlRemoveUnsafe(sb, tmp);
 //				values[i] = sb.toString();
-				System.out.println("post-value[" + i + "]=" + values[i]);
+//				System.out.println("post-value[" + i + "]=" + values[i]);
 			} catch(Exception e) {
 				e.printStackTrace();
 				values[i] = e.toString();
