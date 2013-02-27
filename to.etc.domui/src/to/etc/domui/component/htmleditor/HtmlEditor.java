@@ -190,6 +190,7 @@ public class HtmlEditor extends TextArea {
 			String s = values[i];
 			StringBuilder sb = new StringBuilder();
 			try {
+				System.out.println("pre-value[" + i + "]=" + s);
 				values[i] = HtmlUtil.removeUnsafe(s);
 //
 //
@@ -201,7 +202,7 @@ public class HtmlEditor extends TextArea {
 //
 //				DomUtil.htmlRemoveUnsafe(sb, tmp);
 //				values[i] = sb.toString();
-//				System.out.println("post-value[" + i + "]=" + values[i]);
+				System.out.println("post-value[" + i + "]=" + values[i]);
 			} catch(Exception e) {
 				e.printStackTrace();
 				values[i] = e.toString();

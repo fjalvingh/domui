@@ -124,6 +124,8 @@ code {
 	font-size: 11px;
 	background-color: #ddd;
 	display: block;
+	border: 1px dotted #000;
+	padding: 4px;
 }
 b, strong {
 	font-weight: bold;

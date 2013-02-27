@@ -472,6 +472,7 @@
 				visible: true,
 				tooltip: "Undo"
 			},
+			
 			code: {
 				visible : true,
 				groupIndex: 6,
