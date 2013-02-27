@@ -128,7 +128,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 * @param clz
 	 * @throws Exception
 	 */
-	private void runClass(final RequestContextImpl ctx, final Class< ? extends UrlPage> clz) throws Exception {
+	private void runClass(@Nonnull final RequestContextImpl ctx, @Nonnull final Class< ? extends UrlPage> clz) throws Exception {
 		//		if(! UrlPage.class.isAssignableFrom(clz))
 		//			throw new IllegalStateException("Class "+clz+" is not a valid page class (does not extend "+UrlPage.class.getName()+")");
 		//		System.out.println("runClass="+clz);
@@ -469,7 +469,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 */
 	private void redirectForPost(RequestContextImpl ctx, WindowSession cm, @Nonnull PageParameters pp) throws Exception {
 		//-- Create conversation
-		ConversationContext cc = cm.createConversation(ctx, ConversationContext.class);
+		ConversationContext cc = cm.createConversation(ConversationContext.class);
 		cm.acceptNewConversation(cc);
 
 		//-- Now: store the original PageParameters inside this conversation.
@@ -877,7 +877,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				throw x; // Move on, nothing to see here,
 			if(wcomp != null && !wcomp.isAttached()) {
 				wcomp = page.getTheCurrentControl();
-				System.out.println("DEBUG: Report exception on a " + wcomp.getClass());
+				System.out.println("DEBUG: Report exception on a " + (wcomp == null ? "unknown control/node" : wcomp.getClass()));
 			}
 			if(wcomp == null || !wcomp.isAttached())
 				throw new IllegalStateException("INTERNAL: Cannot determine node to report exception /on/", x);
