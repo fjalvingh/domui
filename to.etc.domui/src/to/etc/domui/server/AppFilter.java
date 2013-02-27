@@ -241,7 +241,7 @@ public class AppFilter implements Filter {
 
 			//-- Are we running in development mode?
 			String autoload = m_config.getString("auto-reload");
-			autoload = DeveloperOptions.getString("domui.reload", autoload); // Allow override of web.xml values.
+			autoload = DeveloperOptions.getString("domui.reload", autoload); 			// Allow override of web.xml values.
 
 			//these patterns will be only watched not really reloaded. It makes sure the reloader kicks in. Found bundles and MetaData will be reloaded only.
 			String autoloadWatchOnly = m_config.getString("auto-reload-watch-only");

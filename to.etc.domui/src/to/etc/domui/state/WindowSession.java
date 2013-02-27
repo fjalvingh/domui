@@ -507,7 +507,7 @@ final public class WindowSession {
 		if(ac == null)
 			return false;
 
-		if(clz.getName().equals(m_appSession.getApplication().getRootPage().getName()))
+		if(clz.getName().equals(ac.getName()))
 			return true;
 		return false;
 	}
@@ -704,8 +704,8 @@ final public class WindowSession {
 		ConversationContext cc = null;
 		String cid = rctx.getParameter(Constants.PARAM_CONVERSATION_ID);
 		if(cid != null) {
-			String[] cida = DomUtil.decodeCID(cid);
-			cid = cida[1];
+			CidPair cida = CidPair.decode(cid);
+			cid = cida.getConversationId();
 			cc = findConversation(cid);
 		}
 
@@ -925,13 +925,24 @@ final public class WindowSession {
 	 * @param parameters
 	 */
 	public boolean insertShelveEntry(int depth, @Nonnull Class< ? extends UrlPage> clz, @Nonnull IPageParameters parameters) throws Exception {
-		if(isPageOnStack(clz, parameters))
-			return false;
+		return null != insertShelveEntryMain(depth, clz, parameters);
+	}
 
+	/**
+	 * This inserts a (possibly new) entry in the page stack. If the same page is already there
+	 * nothing happens and this returns false (stack not modified).
+	 * @param depth
+	 * @param clz
+	 * @param parameters
+	 */
+	@Nullable
+	private Page insertShelveEntryMain(int depth, @Nonnull Class< ? extends UrlPage> clz, @Nonnull IPageParameters parameters) throws Exception {
+		if(isPageOnStack(clz, parameters))
+			return null;
 
 		//-- We need to create a page.
 		Constructor< ? extends UrlPage> bestpc = PageMaker.getBestPageConstructor(clz, true);
-		Class< ? extends ConversationContext> ccclz = PageMaker.getConversationType(bestpc); // Get the conversation class to use,
+		Class< ? extends ConversationContext> ccclz = PageMaker.getConversationType(bestpc); 	// Get the conversation class to use,
 		ConversationContext coco = createConversation(ccclz);
 		registerConversation(coco, null); 						// ORDERED 2
 		ConversationContext.LOG.debug("Created conversation=" + coco + " for new page=" + clz);
@@ -952,6 +963,51 @@ final public class WindowSession {
 		//-- Call all of the page's listeners.
 		callNewPageCreatedListeners(newpg);
 		newpg.internalShelve();
-		return true;
+		return newpg;
+	}
+
+
+	/**
+	 * Get all of the pages from the shelve stack, and return them as a string based structure for later reload.
+	 * @return
+	 */
+	@Nonnull
+	List<SavedPage> getSavedPageList() {
+		List<SavedPage> res = new ArrayList<>(m_shelvedPageStack.size());
+		for(IShelvedEntry se : m_shelvedPageStack) {
+			if(se instanceof ShelvedDomUIPage) {
+				ShelvedDomUIPage dp = (ShelvedDomUIPage) se;
+				res.add(new SavedPage(dp.getPage().getBody().getClass().getName(), dp.getPage().getPageParameters()));
+			}
+		}
+		return res;
+	}
+
+	/**
+	 * This will try to resurrect a set of windows from a previously stored stack.
+	 * @param sw
+	 * @param pageParameters
+	 * @param clz2
+	 */
+	@Nullable
+	public String internalAttemptReload(@Nonnull SavedWindow sw, @Nonnull Class< ? extends UrlPage> clz2, @Nonnull PageParameters pageParameters) {
+		String conversationId = null;
+		for(SavedPage sp : sw.getPageList()) {
+			try {
+				//-- 1. Load the class by name.
+				Class<? extends UrlPage> clz = m_appSession.getApplication().loadPageClass(sp.getClassName());
+
+				//-- 2. Insert @ location [0]
+				Page pg = insertShelveEntryMain(0, clz, sp.getParameters());
+				if(null != pg && clz2.getName().equals(sp.getClassName()) && sp.getParameters().equals(pageParameters)) {
+					ConversationContext cc = pg.internalGetConversation();
+					if(null != cc)
+						conversationId = cc.getId();
+				}
+			} catch(Exception x) {
+				LOG.info("Cannot reload " + sp.getClassName() + ": " + x);
+			}
+		}
+		return conversationId;
 	}
 }

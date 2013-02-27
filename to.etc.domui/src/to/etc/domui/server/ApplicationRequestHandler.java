@@ -27,6 +27,7 @@ package to.etc.domui.server;
 import java.util.*;
 
 import javax.annotation.*;
+import javax.servlet.http.*;
 
 import org.slf4j.*;
 
@@ -41,6 +42,7 @@ import to.etc.domui.state.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
+import to.etc.webapp.*;
 import to.etc.webapp.core.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
@@ -55,11 +57,12 @@ import to.etc.webapp.query.*;
 public class ApplicationRequestHandler implements IFilterRequestHandler {
 	static Logger LOG = LoggerFactory.getLogger(ApplicationRequestHandler.class);
 
+	@Nonnull
 	private final DomApplication m_application;
 
 	private static boolean m_logPerf = DeveloperOptions.getBool("domui.logtime", false);
 
-	public ApplicationRequestHandler(final DomApplication application) {
+	public ApplicationRequestHandler(@Nonnull final DomApplication application) {
 		m_application = application;
 	}
 
@@ -79,7 +82,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		ctx.getSession().dump();
 	}
 
-	private void handleMain(final RequestContextImpl ctx) throws Exception {
+	private void handleMain(@Nonnull final RequestContextImpl ctx) throws Exception {
 		Class< ? extends UrlPage> runclass = decodeRunClass(ctx);
 		runClass(ctx, runclass);
 	}
@@ -89,16 +92,19 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 * @param ctx
 	 * @return
 	 */
-	private Class< ? extends UrlPage> decodeRunClass(final IRequestContext ctx) {
+	@Nonnull
+	private Class< ? extends UrlPage> decodeRunClass(@Nonnull final IRequestContext ctx) {
 		if(ctx.getInputPath().length() == 0) {
 			/*
 			 * We need to EXECUTE the application's main class. We cannot use the .class directly
 			 * because the reloader must be able to substitute a new version of the class when
 			 * needed.
 			 */
-			String txt = m_application.getRootPage().getCanonicalName();
+			Class< ? extends UrlPage> rootPage = m_application.getRootPage();
+			if(null == rootPage)
+				throw new ProgrammerErrorException("The DomApplication's 'getRootPage()' method returns null, and there is a request for the root of the web app... Override that method or make sure the root is handled differently.");
+			String txt = rootPage.getCanonicalName();
 			return m_application.loadPageClass(txt);
-			//			return m_application.getRootPage();
 		}
 
 		//-- Try to resolve as a class name,
@@ -136,9 +142,9 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		/*
 		 * If this is a full render request the URL must contain a $CID... If not send a redirect after allocating a window.
 		 */
-		String action = ctx.getRequest().getParameter("webuia"); // AJAX action request?
+		String action = ctx.getRequest().getParameter("webuia"); 				// AJAX action request?
 		String cid = ctx.getParameter(Constants.PARAM_CONVERSATION_ID);
-		String[] cida = DomUtil.decodeCID(cid);
+		CidPair cida = cid == null ? null : CidPair.decode(cid);
 
 		if(DomUtil.USERLOG.isDebugEnabled()) {
 			DomUtil.USERLOG.debug("\n\n\n========= DomUI request =================\nCID=" + cid + "\nAction=" + action + "\n");
@@ -161,7 +167,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 			if(LOG.isDebugEnabled())
 				LOG.debug("OBITUARY received for " + cid + ": pageTag=" + pageTag);
-			ctx.getSession().internalObituaryReceived(cida[0], pageTag);
+			ctx.getSession().internalObituaryReceived(cida.getWindowId(), pageTag);
 
 			//-- Send a silly response.
 			ctx.getResponse().setContentType("text/html");
@@ -173,7 +179,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		// ORDERED!!! Must be kept BELOW the OBITUARY check
 		WindowSession cm = null;
 		if(cida != null) {
-			cm = ctx.getSession().findWindowSession(cida[0]);
+			cm = ctx.getSession().findWindowSession(cida.getWindowId());
 		}
 
 		if(cm == null) {
@@ -196,6 +202,26 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			if(LOG.isDebugEnabled())
 				LOG.debug("$cid: input windowid=" + cid + " not found - created wid=" + cm.getWindowID());
 
+			String conversationId = "x";							// If not reloading a saved set- use x as the default conversation id
+			if(m_application.inDevelopmentMode() && cida != null) {
+				/*
+				 * 20130227 jal The WindowSession we did not find could have been destroyed due to a
+				 * reloader event. In that case it's page shelve will be stored in the HttpSession. Try
+				 * to resurrect that page shelve as to not lose the navigation history.
+				 */
+				HttpSession hs = ctx.getRequest().getSession();
+				if(null != hs) {
+					SavedWindow sw = (SavedWindow) hs.getAttribute(cida.getWindowId());
+					System.out.println("arh: reload " + cida.getWindowId() + " using " + sw);
+					if(null != sw) {
+						String newid = cm.internalAttemptReload(sw, clz, PageParameters.createFrom(ctx));
+						if(newid != null)
+							conversationId = newid;
+					}
+					hs.removeAttribute(cida.getWindowId());
+				}
+			}
+
 			if(nonReloadableExpiredDetected) {
 				generateNonReloadableExpired(ctx, cm);
 				return;
@@ -217,7 +243,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
 			sb.append('=');
 			sb.append(cm.getWindowID());
-			sb.append(".x"); // Dummy conversation ID
+			sb.append(".").append(conversationId);
 			DomUtil.addUrlParameters(sb, ctx, false);
 			generateHttpRedirect(ctx, sb.toString(), "Your session has expired. Starting a new session.");
 			if(DomUtil.USERLOG.isDebugEnabled())
@@ -232,7 +258,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		 * conversation just ignore it, and send an empty response to ie, hopefully causing it to die soon.
 		 */
 		if(action != null) {
-			if(cm.isConversationDestroyed(cida[1])) {					// This conversation was recently destroyed?
+			if(cm.isConversationDestroyed(cida.getConversationId())) {		// This conversation was recently destroyed?
 				//-- Render a null response
 				if(LOG.isDebugEnabled())
 					LOG.debug("Session " + cid + " was destroyed earlier- assuming this is an out-of-order event and sending empty delta back");
@@ -257,9 +283,9 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			//-- If this request is a huge post request - get the huge post parameters.
 			String hpq = papa.getString(Constants.PARAM_POST_CONVERSATION_KEY, null);
 			if(null != hpq) {
-				ConversationContext	coco = cm.findConversation(cida[1]);
+				ConversationContext coco = cm.findConversation(cida.getConversationId());
 				if(null == coco)
-					throw new IllegalStateException("The conversation "+cida[1]+" containing POST data is missing in windowSession "+cm);
+					throw new IllegalStateException("The conversation " + cida.getConversationId() + " containing POST data is missing in windowSession " + cm);
 
 				papa = (PageParameters) coco.getAttribute("__ORIPP");
 				if(null == papa)
@@ -760,21 +786,23 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 * @param page
 	 * @throws Exception
 	 */
-	private List<NodeBase> handleComponentInput(final IRequestContext ctx, final Page page) throws Exception {
+	private List<NodeBase> handleComponentInput(@Nonnull final IRequestContext ctx, @Nonnull final Page page) throws Exception {
 		//-- Just walk all parameters in the input request.
 		List<NodeBase> changed = new ArrayList<NodeBase>();
 		for(String name : ctx.getParameterNames()) {
-			String[] values = ctx.getParameters(name); // Get the value;
+			String[] values = ctx.getParameters(name); 				// Get the value;
+			if(null == values)
+				continue;
 			//			System.out.println("input: "+name+", value="+values[0]);
 
 			//-- Locate the component that the parameter is for;
 			if(name.startsWith("_")) {
-				NodeBase nb = page.findNodeByID(name); // Can we find this literally?
+				NodeBase nb = page.findNodeByID(name); 				// Can we find this literally?
 				if(nb != null) {
 					//-- Try to bind this value to the component.
-					if(nb.acceptRequestParameter(values)) { // Make the thingy accept the parameter(s)
+					if(nb.acceptRequestParameter(values)) { 		// Make the thingy accept the parameter(s)
 						//-- This thing has changed.
-						if(nb instanceof IControl< ? >) { // Can have a value changed thingy?
+						if(nb instanceof IControl< ? >) { 			// Can have a value changed thingy?
 							IControl< ? > ch = (IControl< ? >) nb;
 							if(ch.getOnValueChanged() != null) {
 								changed.add(nb);

@@ -51,11 +51,11 @@ public class PageMaker {
 	static public Page findPageInConversation(@Nonnull final IRequestContext rctx, @Nonnull final Class< ? extends UrlPage> clz, @Nonnull final String cid) throws Exception {
 		if(cid == null)
 			return null;
-		String[] cida = DomUtil.decodeCID(cid);
-		WindowSession cm = rctx.getSession().findWindowSession(cida[0]);
+		CidPair cida = CidPair.decode(cid);
+		WindowSession cm = rctx.getSession().findWindowSession(cida.getWindowId());
 		if(cm == null)
-			throw new IllegalStateException("The WindowSession with wid=" + cida[0] + " has expired.");
-		ConversationContext cc = cm.findConversation(DomUtil.nullChecked(cida[1]));
+			throw new IllegalStateException("The WindowSession with wid=" + cida.getWindowId() + " has expired.");
+		ConversationContext cc = cm.findConversation(cida.getConversationId());
 		if(cc == null)
 			return null;
 

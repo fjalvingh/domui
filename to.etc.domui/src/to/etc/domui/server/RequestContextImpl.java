@@ -152,8 +152,8 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		//-- Conversation manager needed.. Can we find one?
 		String cid = getParameter(Constants.PARAM_CONVERSATION_ID);
 		if(cid != null) {
-			String[] cida = DomUtil.decodeCID(cid);
-			m_windowSession = getSession().findWindowSession(cida[0]);
+			CidPair cida = CidPair.decode(cid);
+			m_windowSession = getSession().findWindowSession(cida.getWindowId());
 			if(m_windowSession != null)
 				return m_windowSession;
 
@@ -345,7 +345,8 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 * @see to.etc.domui.server.IRequestContext#getParameter(java.lang.String)
 	 */
 	@Override
-	public String getParameter(String name) {
+	@Nullable
+	public String getParameter(@Nonnull String name) {
 		return getRequest().getParameter(name);
 	}
 
@@ -353,7 +354,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 * @see to.etc.domui.server.IRequestContext#getParameters(java.lang.String)
 	 */
 	@Override
-	public String[] getParameters(String name) {
+	public String[] getParameters(@Nonnull String name) {
 		return getRequest().getParameterValues(name);
 	}
 
@@ -361,6 +362,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 * @see to.etc.domui.server.IRequestContext#getParameterNames()
 	 */
 	@Override
+	@Nonnull
 	public String[] getParameterNames() {
 		return (String[]) getRequest().getParameterMap().keySet().toArray(new String[getRequest().getParameterMap().size()]);
 	}

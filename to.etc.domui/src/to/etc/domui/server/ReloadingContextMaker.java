@@ -58,7 +58,7 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 	static public List<IReloadListener> m_reloadListener = new ArrayList<>();
 
 
-	public ReloadingContextMaker(String applicationClassName, ConfigParameters pp, String patterns, String patternsWatchOnly) throws Exception {
+	public ReloadingContextMaker(@Nonnull String applicationClassName, @Nonnull ConfigParameters pp, @Nullable String patterns, @Nullable String patternsWatchOnly) throws Exception {
 		super(pp);
 		m_instance = this;
 		m_applicationClassName = applicationClassName;
@@ -66,7 +66,7 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 		m_reloader = new Reloader(patterns, patternsWatchOnly);
 		System.out.println("DomUI: We are running in DEVELOPMENT mode. This will be VERY slow when used in a production environment.");
 
-		checkReload(); // Initial: force load and init of Application object.
+		checkReload(); 										// Initial: force load and init of Application object.
 	}
 
 	static public synchronized void addReloadListener(IReloadListener l) {
@@ -90,7 +90,7 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 	}
 
 	@Override
-	public boolean handleRequest(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws Exception {
+	public boolean handleRequest(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull FilterChain chain) throws Exception {
 		synchronized(this) {
 			if(m_nestCount == 0)
 				checkReload();
@@ -105,14 +105,13 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 			synchronized(sess) {
 				link = (HttpSessionLink) sess.getAttribute(AppSession.class.getName());
 				if(link == null) {
-					link = new HttpSessionLink(this);
+					link = new HttpSessionLink(sess, this);
 					sess.setAttribute(AppSession.class.getName(), link);
 					addListener(link);
 				}
 			}
 
 			//-- Ok: does the sessionlink have a session?
-			//			DomApplication.internalSetCurrent(m_application);
 			AppSession ass = link.getAppSession(m_application);
 			RequestContextImpl ctx = new RequestContextImpl(m_application, ass, request, response);
 			return execute(ctx, chain);

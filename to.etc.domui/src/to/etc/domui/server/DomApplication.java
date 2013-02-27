@@ -130,6 +130,7 @@ public abstract class DomApplication {
 	 * root URL is entered without a class name.
 	 * @return
 	 */
+	@Nullable
 	abstract public Class< ? extends UrlPage> getRootPage();
 
 	/**
@@ -350,19 +351,10 @@ public abstract class DomApplication {
 	}
 
 	/**
-	 * Can be overridden to create your own instance of a session.
-	 * @return
-	 */
-	protected AppSession createSession() {
-		AppSession aps = new AppSession(this);
-		return aps;
-	}
-
-	/**
 	 * Called when the session is bound to the HTTPSession. This calls all session listeners.
 	 * @param sess
 	 */
-	void registerSession(final AppSession aps) {
+	void registerSession(@Nonnull final AppSession aps) {
 		for(IAppSessionListener l : getAppSessionListeners()) {
 			try {
 				l.sessionCreated(this, aps);
@@ -372,7 +364,7 @@ public abstract class DomApplication {
 		}
 	}
 
-	void unregisterSession(final AppSession aps) {
+	void unregisterSession(@Nonnull final AppSession aps) {
 
 	}
 
@@ -445,7 +437,8 @@ public abstract class DomApplication {
 		return id;
 	}
 
-	final Class< ? > loadApplicationClass(final String name) throws ClassNotFoundException {
+	@Nonnull
+	final Class< ? > loadApplicationClass(@Nonnull final String name) throws ClassNotFoundException {
 		/*
 		 * jal 20081030 Code below is very wrong. When the application is not reloaded due to a
 		 * change the classloader passed at init time does not change. But a new classloader will
@@ -456,7 +449,8 @@ public abstract class DomApplication {
 		return getClass().getClassLoader().loadClass(name);
 	}
 
-	public Class< ? extends UrlPage> loadPageClass(final String name) {
+	@Nonnull
+	public Class< ? extends UrlPage> loadPageClass(@Nonnull final String name) {
 		//-- This should be a classname now
 		Class< ? > clz = null;
 		try {
