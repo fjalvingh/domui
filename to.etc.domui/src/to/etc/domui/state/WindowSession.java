@@ -370,6 +370,8 @@ final public class WindowSession {
 		}
 		if(getTargetMode() == MoveMode.REDIRECT) {
 			String tu = m_targetURL;
+			if(null == tu)
+				throw new IllegalStateException("No URL in redirect?");
 			if(tu.startsWith("/"))
 				tu = tu.substring(1);
 			if(tu.indexOf(':') == -1) {

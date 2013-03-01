@@ -240,11 +240,12 @@ final public class Page implements IQContextContainer {
 
 	@Nonnull
 	private StringBuilder sb() {
-		if(m_sb == null)
-			m_sb = new StringBuilder(64);
+		StringBuilder sb = m_sb;
+		if(sb == null)
+			sb = m_sb = new StringBuilder(64);
 		else
-			m_sb.setLength(0);
-		return m_sb;
+			sb.setLength(0);
+		return sb;
 	}
 
 	@Nonnull
