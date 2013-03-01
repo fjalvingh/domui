@@ -111,7 +111,7 @@ public class PendingJobExecutor implements Runnable {
 			}
 
 			@Override
-			public void progressed(Progress level) throws Exception {
+			public void progressed(@Nonnull Progress level) throws Exception {
 				if(doUpdate(level)) {
 					getPendingOperation().setProgressPath(level.getActionPath(3));
 					getPendingOperation().setProgressPercentage(level.getPercentage());

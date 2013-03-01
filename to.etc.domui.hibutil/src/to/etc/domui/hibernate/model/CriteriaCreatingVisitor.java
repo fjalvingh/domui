@@ -263,6 +263,36 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		}
 		if(qc.getTimeout() > 0)
 			m_rootCriteria.setTimeout(qc.getTimeout());
+
+		//-- 3. Handle fetch.
+		handleFetch(qc);
+	}
+
+	/**
+	 * Handle fetch selections.
+	 * @param qc
+	 */
+	private void handleFetch(QCriteriaQueryBase< ? > qc) {
+		for(Map.Entry<String, QFetchStrategy> ms : qc.getFetchStrategies().entrySet()) {
+			PropertyMetaModel< ? > pmm = MetaManager.findPropertyMeta(m_rootClass, ms.getKey());
+			if(null == pmm)
+				throw new QQuerySyntaxException("The 'fetch' path '" + ms.getKey() + " does not resolve on class " + m_rootClass);
+			if(ms.getValue() == QFetchStrategy.LAZY)
+				continue;
+
+			switch(pmm.getRelationType()){
+				case DOWN:
+					throw new QQuerySyntaxException("The 'fetch' path '" + ms.getKey()
+						+ " is a child relation (list-of-children). Fetch is not yet supported for that because Hibernate will duplicate the master.");
+
+				case UP:
+					m_rootCriteria.setFetchMode(ms.getKey(), FetchMode.SELECT);
+					break;
+
+				case NONE:
+					throw new QQuerySyntaxException("The 'fetch' path '" + ms.getKey() + " is not recognized as a relation property");
+			}
+		}
 	}
 
 	/*--------------------------------------------------------------*/
@@ -1123,6 +1153,10 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 			throw new IllegalStateException("Unsupported current: " + m_currentCriteria);
 		visitRestrictionsBase(s);
 		visitOrderList(s.getOrder());
+
+		//-- 3. Handle fetch.
+		handleFetch(s);
+
 	}
 
 	@Override

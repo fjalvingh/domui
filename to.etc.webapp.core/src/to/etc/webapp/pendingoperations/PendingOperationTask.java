@@ -201,7 +201,7 @@ final public class PendingOperationTask implements Runnable, ILogSink {
 	private PrintWriter m_errorWriter;
 
 	@Override
-	public void exception(final Throwable t, final String msg) {
+	public void exception(final @Nonnull Throwable t, final @Nonnull String msg) {
 		m_errorWriter.println("[exception] " + msg);
 		t.printStackTrace(m_errorWriter);
 		System.err.println("[pending task exception] " + msg);
@@ -209,7 +209,7 @@ final public class PendingOperationTask implements Runnable, ILogSink {
 	}
 
 	@Override
-	public void log(final String msg) {
+	public void log(final @Nonnull String msg) {
 		m_errorWriter.println("[log] " + msg);
 	}
 

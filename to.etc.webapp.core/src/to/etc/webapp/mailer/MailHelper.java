@@ -693,7 +693,7 @@ public class MailHelper {
 	protected void addTrailer() throws Exception {}
 
 	@Nonnull
-	protected InputStream getApplicationResource(String name) throws Exception {
+	protected InputStream getApplicationResource(@Nonnull String name) throws Exception {
 		throw new OperationNotSupportedException("Override getApplicationResource(String)");
 
 //		//-- Get the appfile represented by that RURL.

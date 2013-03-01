@@ -437,6 +437,19 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 
 	@Override
 	@Nonnull
+	public QCriteria<T> fetch(@Nonnull @GProperty String property, @Nonnull QFetchStrategy strategy) {
+		super.fetch(property, strategy);
+		return this;
+	}
+
+	@Nonnull
+	public QCriteria<T> fetch(@Nonnull @GProperty String property) {
+		super.fetch(property, QFetchStrategy.EAGER);
+		return this;
+	}
+
+	@Override
+	@Nonnull
 	public String toString() {
 		QQueryRenderer	r	= new QQueryRenderer();
 		try {

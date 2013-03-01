@@ -78,8 +78,15 @@ final public class HttpSessionLink implements IReloadedClassesListener, HttpSess
 	 */
 	@Override
 	public void valueUnbound(HttpSessionBindingEvent arg0) {
-		classesReloaded();
-		m_reloader.removeListener(this); // Drop me from the class reloader list
+		AppSession old;
+		synchronized(this) {
+			old = m_appSession;
+			m_appSession = null;
+		}
+		if(old != null) {
+			old.internalDestroy();
+		}
+		m_reloader.removeListener(this); 							// Drop me from the class reloader list
 	}
 
 	@Nonnull

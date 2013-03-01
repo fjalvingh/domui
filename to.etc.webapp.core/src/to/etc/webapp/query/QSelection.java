@@ -478,6 +478,19 @@ public class QSelection<T> extends QCriteriaQueryBase<T> {
 		return (QSelection<T>) super.sqlCondition(sql);
 	}
 
+	@Override
+	@Nonnull
+	public QSelection<T> fetch(@Nonnull @GProperty String property, @Nonnull QFetchStrategy strategy) {
+		super.fetch(property, strategy);
+		return this;
+	}
+
+	@Nonnull
+	public QSelection<T> fetch(@Nonnull @GProperty String property) {
+		super.fetch(property, QFetchStrategy.EAGER);
+		return this;
+	}
+
 	@Nonnull
 	@Override
 	public String toString() {
