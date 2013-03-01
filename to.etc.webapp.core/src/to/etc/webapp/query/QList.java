@@ -18,8 +18,8 @@ public class QList<P extends QField<P, ? >, R extends QField<R, ? >> {
 	@Nonnull
 	QField<P, ? > m_parent;
 
-	private @Nonnull
-	QExistsSubquery< ? > m_subquery;
+	@Nullable
+	private QExistsSubquery< ? > m_subquery;
 
 	@Nonnull
 	String m_listName;
@@ -48,7 +48,10 @@ public class QList<P extends QField<P, ? >, R extends QField<R, ? >> {
 
 	@Nonnull
 	QExistsSubquery< ? > getSubquery() {
-		return m_subquery;
+		QExistsSubquery< ? > subquery = m_subquery;
+		if(null == subquery)
+			throw new IllegalStateException("Subquery is not defined");
+		return subquery;
 	}
 
 	@Nonnull

@@ -39,16 +39,21 @@ import to.etc.webapp.*;
  */
 public class QField<R extends QField<R, ? >, T> {
 
-	private @Nullable
-	QField<R, ? > m_parent;
+	@Nullable
+	private QField<R, ? > m_parent;
 
-	protected @Nonnull
-	R m_root;
+	@Nonnull
+	protected R m_root;
 
-	private @Nullable
-	String m_propertyNameInParent;
+	@Nullable
+	private String m_propertyNameInParent;
 
 	boolean m_isSub = false;
+
+	@Nullable
+	protected QCriteria<T> m_criteria;
+
+	protected QBrace m_qBrace;
 
 	public QField(@Nullable R root, @Nullable QField<R, ? > parent, @Nullable String propertyNameInParent) {
 		m_parent = parent;
@@ -66,9 +71,10 @@ public class QField<R extends QField<R, ? >, T> {
 	final String getPath() {
 		List<QField<R, ? >> fields = new ArrayList<QField<R, ? >>();
 		QField<R, ? > parent = this;
-		while(parent.m_parent != null) {
+		QField<R, ? > f;
+		while((f = parent.m_parent) != null) {
 			fields.add(parent);
-			parent = parent.m_parent;
+			parent = f;
 		}
 		Collections.reverse(fields);
 		StringBuilder sb = new StringBuilder();
@@ -240,11 +246,6 @@ public class QField<R extends QField<R, ? >, T> {
 		return m_root;
 	}
 
-	protected @Nonnull
-	QCriteria<T> m_criteria;
-
-	protected QBrace m_qBrace;
-
 	@Nonnull
 	final QBrace qbrace() {
 		return m_root.m_qBrace;
@@ -264,7 +265,11 @@ public class QField<R extends QField<R, ? >, T> {
 	public final @Nonnull
 	List<T> query(@Nonnull QDataContext dc) throws Exception {
 		validateGetCriteria();
-		return dc.query(m_criteria);
+		QCriteria<T> criteria = m_criteria;
+		if(criteria == null) {
+			throw new ProgrammerErrorException("Can only call this on the root field.");
+		}
+		return dc.query(criteria);
 	}
 
 	/**
@@ -273,30 +278,39 @@ public class QField<R extends QField<R, ? >, T> {
 	 * @return
 	 * @throws Exception
 	 */
-	public final @Nullable
-	T queryOne(@Nonnull QDataContext dc) throws Exception {
+	@Nullable
+	public final T queryOne(@Nonnull QDataContext dc) throws Exception {
 		validateGetCriteria();
-		return dc.queryOne(m_criteria);
+		QCriteria<T> criteria = m_criteria;
+		if(criteria == null) {
+			throw new ProgrammerErrorException("Can only call this on the root field.");
+		}
+		return dc.queryOne(criteria);
 	}
 
 	protected final void validateGetCriteria() throws Exception {
-		if(m_criteria == null) {
+		QCriteria<T> criteria = m_criteria;
+		if(criteria == null) {
 			throw new ProgrammerErrorException("Can only call this on the root field.");
 		}
-		if(!(m_criteria instanceof QCriteria)) {
+		if(!(criteria instanceof QCriteria)) {
 			throw new ProgrammerErrorException("Can only call this on the root field.");
 		}
 		if(m_isSub) {
 			throw new ProgrammerErrorException("Cannot get criteria from subselect.");
 		}
-		if(m_criteria.getRestrictions() == null) {
+		if(criteria.getRestrictions() == null) {
 			//System.out.println("qbrace:" + qbrace().toString());
-			m_criteria.setRestrictions(qbrace().toQOperatorNode());
+			criteria.setRestrictions(qbrace().toQOperatorNode());
 		}
 	}
 
-	final @Nonnull
-	QCriteria< ? > criteria() {
-		return m_root.m_criteria;
+	@Nonnull
+	final QCriteria< ? > criteria() {
+		QCriteria< ? > criteria = m_root.m_criteria;
+		if(criteria == null) {
+			throw new ProgrammerErrorException("Null criteria in root");
+		}
+		return criteria;
 	}
 }

@@ -133,9 +133,10 @@ public class MailHelper {
 
 	@Nonnull
 	private ITextLinkRenderer getLinkRenderer() {
-		if(null == m_linkRenderer) {
+		ITextLinkRenderer linkRenderer = m_linkRenderer;
+		if(null == linkRenderer) {
 			//-- Create a default link renderer.
-			m_linkRenderer = new ITextLinkRenderer() {
+			linkRenderer = m_linkRenderer = new ITextLinkRenderer() {
 				@Override
 				public void appendText(@Nonnull String text) {
 					appendVerbatim(text);
@@ -150,7 +151,7 @@ public class MailHelper {
 				}
 			};
 		}
-		return m_linkRenderer;
+		return linkRenderer;
 	}
 
 
@@ -455,8 +456,8 @@ public class MailHelper {
 		} finally {
 			FileTool.closeAll(is);
 		}
-		m_lastImgKey = name + "-" + (m_attindex++);
-		image(new Attachment(mime, m_lastImgKey, buf), name);
+		String s = m_lastImgKey = name + "-" + (m_attindex++);
+		image(new Attachment(mime, s, buf), name);
 		return this;
 	}
 
@@ -485,7 +486,10 @@ public class MailHelper {
 	@Nonnull
 	public String addImage(@Nonnull String name, @Nonnull String rurl) throws Exception {
 		image(name, rurl);
-		return m_lastImgKey;
+		String s = m_lastImgKey;
+		if(s == null)
+			throw new IllegalStateException("Last image not set");
+		return s;
 	}
 
 	/**
