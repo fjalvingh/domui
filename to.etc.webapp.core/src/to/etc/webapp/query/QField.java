@@ -306,7 +306,7 @@ public class QField<R extends QField<R, ? >, T> {
 	}
 
 	@Nonnull
-	final QCriteria< ? > criteria() {
+	final public QCriteria< ? > criteria() {
 		QCriteria< ? > criteria = m_root.m_criteria;
 		if(criteria == null) {
 			throw new ProgrammerErrorException("Null criteria in root");
