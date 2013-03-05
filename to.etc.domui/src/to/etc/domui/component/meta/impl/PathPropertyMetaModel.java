@@ -99,7 +99,7 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 
 			cv = pmm.getValue(cv);
 			if(cv == null)
-				throw new IllegalStateException("The property '" + pmm.getName() + " in classModel=" + pmm.getClassModel() + " is null - cannot set a value!!");
+				throw new IllegalStateException("In path '" + m_dottedName + "', property '" + pmm.getName() + "' in classModel=" + pmm.getClassModel() + " is null - cannot set a value!!");
 		}
 	}
 
