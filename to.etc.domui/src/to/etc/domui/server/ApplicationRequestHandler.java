@@ -206,19 +206,14 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			if(m_application.inDevelopmentMode() && cida != null) {
 				/*
 				 * 20130227 jal The WindowSession we did not find could have been destroyed due to a
-				 * reloader event. In that case it's page shelve will be stored in the HttpSession. Try
-				 * to resurrect that page shelve as to not lose the navigation history.
+				 * reloader event. In that case it's page shelve will be stored in the HttpSession or
+				 * perhaps in a state file. Try to resurrect that page shelve as to not lose the navigation history.
 				 */
 				HttpSession hs = ctx.getRequest().getSession();
 				if(null != hs) {
-					SavedWindow sw = (SavedWindow) hs.getAttribute(cida.getWindowId());
-					System.out.println("arh: reload " + cida.getWindowId() + " using " + sw);
-					if(null != sw) {
-						String newid = cm.internalAttemptReload(sw, clz, PageParameters.createFrom(ctx));
-						if(newid != null)
-							conversationId = newid;
-					}
-					hs.removeAttribute(cida.getWindowId());
+					String newid = cm.internalAttemptReload(hs, clz, PageParameters.createFrom(ctx), cida.getWindowId());
+					if(newid != null)
+						conversationId = newid;
 				}
 			}
 

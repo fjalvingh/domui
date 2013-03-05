@@ -29,6 +29,7 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import javax.annotation.*;
+import javax.servlet.http.*;
 
 import org.slf4j.*;
 
@@ -53,6 +54,8 @@ final public class WindowSession {
 
 	@Nonnull
 	final private String m_windowID;
+
+	final private boolean m_developerMode;
 
 	final private int m_id;
 
@@ -111,6 +114,7 @@ final public class WindowSession {
 		m_appSession = session;
 		m_windowID = DomUtil.generateGUID();
 		m_id = nextID();
+		m_developerMode = session.getApplication().inDevelopmentMode();
 	}
 
 	static private synchronized int nextID() {
@@ -1008,14 +1012,40 @@ final public class WindowSession {
 
 	/**
 	 * This will try to resurrect a set of windows from a previously stored stack.
+	 * @param string
 	 * @param sw
 	 * @param pageParameters
 	 * @param clz2
 	 */
 	@Nullable
-	public String internalAttemptReload(@Nonnull SavedWindow sw, @Nonnull Class< ? extends UrlPage> clz2, @Nonnull PageParameters pageParameters) {
+	public String internalAttemptReload(@Nonnull HttpSession hs, @Nonnull Class< ? extends UrlPage> clz2, @Nonnull PageParameters pageParameters, @Nonnull String oldWindowId) {
+		SavedWindow sw = (SavedWindow) hs.getAttribute(oldWindowId);
+		List<SavedPage> list;
+		if(null != sw) {
+			hs.removeAttribute(oldWindowId);								// Remove this after restore
+			list = sw.getPageList();
+			System.out.println("arh: reload " + oldWindowId + " using session state " + sw);
+		} else {
+			//-- Can we get it from the state file?
+			if(!m_developerMode)
+				return null;
+			File f = getStateFile(oldWindowId);
+			if(!f.exists())
+				return null;
+			try {
+				list = (List<SavedPage>) FileTool.loadSerialized(f);
+				if(null == list)
+					return null;
+			} catch(Exception x) {
+				return null;
+			} finally {
+				FileTool.closeAll(f);										// Always remove the file
+			}
+			System.out.println("arh: reload " + oldWindowId + " using file " + f + ", " + list);
+		}
+
 		String conversationId = null;
-		for(SavedPage sp : sw.getPageList()) {
+		for(SavedPage sp : list) {
 			try {
 				//-- 1. Load the class by name.
 				Class<? extends UrlPage> clz = m_appSession.getApplication().loadPageClass(sp.getClassName());
@@ -1051,7 +1081,7 @@ final public class WindowSession {
 	 * window state can be restored after server start/stop.
 	 */
 	private void saveWindowState() {
-		if(!getApplication().inDevelopmentMode())
+		if(!m_developerMode)
 			return;
 		try {
 			FileTool.saveSerialized(getStateFile(getWindowID()), (Serializable) getSavedPageList());
@@ -1061,12 +1091,13 @@ final public class WindowSession {
 	}
 
 	private void destroyDevelopmentStateFile() {
-		if(!getApplication().inDevelopmentMode())
+		if(!m_developerMode)
 			return;
 		File sf = getStateFile(getWindowID());
 		if(sf.exists())
 			sf.delete();
 	}
+
 
 
 }
