@@ -24,6 +24,7 @@
  */
 package to.etc.domui.state;
 
+import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
 
@@ -47,8 +48,10 @@ import to.etc.util.*;
 final public class WindowSession {
 	static final Logger LOG = LoggerFactory.getLogger(WindowSession.class);
 
-	final AppSession m_appSession;
+	@Nonnull
+	final private AppSession m_appSession;
 
+	@Nonnull
 	final private String m_windowID;
 
 	final private int m_id;
@@ -119,6 +122,7 @@ final public class WindowSession {
 		return m_appSession.getApplication();
 	}
 
+	@Nonnull
 	final public String getWindowID() {
 		return m_windowID;
 	}
@@ -221,6 +225,12 @@ final public class WindowSession {
 
 //		System.out.println("  ---- Conversation dump end -----");
 	}
+
+	void destroyWindow() {
+		destroyConversations();
+		destroyDevelopmentStateFile();
+	}
+
 
 	/**
 	 * Closes all conversations. This discards all screen data and resources.
@@ -375,7 +385,7 @@ final public class WindowSession {
 			if(tu.startsWith("/"))
 				tu = tu.substring(1);
 			if(tu.indexOf(':') == -1) {
-				tu = ctx.getRelativePath(tu); // Make absolute.
+				tu = ctx.getRelativePath(tu); 				// Make absolute.
 			}
 			generateRedirect(ctx, tu, ajax);
 			return true;
@@ -427,6 +437,7 @@ final public class WindowSession {
 				UIContext.internalSet(currentPage);
 				currentPage.internalUnshelve();
 				generateRedirect(ctx, currentPage, ajax);
+				saveWindowState();
 				return true;
 			}
 		}
@@ -439,7 +450,7 @@ final public class WindowSession {
 			 * The "current" page on top of the shelve stack is destroyed; the new page replaces it on top
 			 * of the stack.
 			 */
-			int psix = m_shelvedPageStack.size() - 1; // We need to DESTROY the last page stack element,
+			int psix = m_shelvedPageStack.size() - 1; 			// We need to DESTROY the last page stack element,
 			if(psix < 0) // If there is no topmost page
 				psix = 0; // Just clear.
 			clearShelve(psix);
@@ -487,14 +498,15 @@ final public class WindowSession {
 		if(pp == null)
 			pp = new PageParameters();
 		Page currentPage = PageMaker.createPageWithContent(bestpc, cc, pp);
-		UIContext.internalSet(currentPage); // jal 20100224 Code can run in new page on shelve.
+		UIContext.internalSet(currentPage); 					// jal 20100224 Code can run in new page on shelve.
 		shelvePage(currentPage);
 
 		//-- Call all of the page's listeners.
 		callNewPageCreatedListeners(currentPage);
 
-		//		callNewPageListeners(m_currentPage); // jal 20091122 Bug# 605 Move this globally.
+		//		callNewPageListeners(m_currentPage); 			// jal 20091122 Bug# 605 Move this globally.
 		generateRedirect(ctx, currentPage, ajax);
+		saveWindowState();
 		return true;
 	}
 
@@ -560,7 +572,7 @@ final public class WindowSession {
 	private void handleMoveBack(@Nonnull final RequestContextImpl ctx, @Nonnull Page currentpg, boolean ajax) throws Exception {
 		int ix = m_shelvedPageStack.size() - 2;
 		if(ix < 0) {
-			clearShelve(0); // Discard EVERYTHING
+			clearShelve(0);									// Discard EVERYTHING
 
 			//-- If we have a root page go there, else
 			Class< ? extends UrlPage> clz = getApplication().getRootPage();
@@ -571,13 +583,15 @@ final public class WindowSession {
 				//-- Last resort: move to root of the webapp by redirecting to some URL
 				generateRedirect(ctx, ctx.getRelativePath(""), ajax);
 			}
+			saveWindowState();
 			return;
 		}
 
 		//-- Unshelve and destroy the topmost thingy, then move back to the then-topmost.
 		clearShelve(ix + 1); // Destroy everything above;
-		IShelvedEntry se = m_shelvedPageStack.get(ix);	// Get the thing to move to,
-		se.activate(ctx, ajax);									// Activate this page.
+		IShelvedEntry se = m_shelvedPageStack.get(ix);		// Get the thing to move to,
+		se.activate(ctx, ajax);								// Activate this page.
+		saveWindowState();
 	}
 
 	/*--------------------------------------------------------------*/
@@ -724,6 +738,7 @@ final public class WindowSession {
 				Page pg = sdp.getPage();
 				if(pg.isShelved())
 					pg.internalUnshelve();
+				saveWindowState();
 				return pg;
 			}
 		}
@@ -769,6 +784,7 @@ final public class WindowSession {
 
 		//-- Call all of the page's listeners.
 		callNewPageCreatedListeners(newpg);
+		saveWindowState();
 		return newpg;
 	}
 
@@ -927,7 +943,9 @@ final public class WindowSession {
 	 * @param parameters
 	 */
 	public boolean insertShelveEntry(int depth, @Nonnull Class< ? extends UrlPage> clz, @Nonnull IPageParameters parameters) throws Exception {
-		return null != insertShelveEntryMain(depth, clz, parameters);
+		boolean res = null != insertShelveEntryMain(depth, clz, parameters);
+		saveWindowState();
+		return res;
 	}
 
 	/**
@@ -969,6 +987,9 @@ final public class WindowSession {
 	}
 
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Developer mode save/restore state during reloads.	*/
+	/*--------------------------------------------------------------*/
 	/**
 	 * Get all of the pages from the shelve stack, and return them as a string based structure for later reload.
 	 * @return
@@ -1010,6 +1031,42 @@ final public class WindowSession {
 				LOG.info("Cannot reload " + sp.getClassName() + ": " + x);
 			}
 		}
+		saveWindowState();								// Save new window's state
 		return conversationId;
 	}
+
+	/**
+	 * Get the name for the window state file of a given session ID.
+	 * @param sessionID
+	 * @return
+	 */
+	@Nonnull
+	static private File getStateFile(@Nonnull String sessionID) {
+		File tmpdir = FileTool.getTmpDir();
+		return new File(tmpdir, "domui-session-" + sessionID);
+	}
+
+	/**
+	 * Saves the current shelve to a tempfile if we're running in development mode, so that the
+	 * window state can be restored after server start/stop.
+	 */
+	private void saveWindowState() {
+		if(!getApplication().inDevelopmentMode())
+			return;
+		try {
+			FileTool.saveSerialized(getStateFile(getWindowID()), (Serializable) getSavedPageList());
+		} catch(Exception x) {
+			LOG.error("Failed to save developer mode window state: " + x, x);
+		}
+	}
+
+	private void destroyDevelopmentStateFile() {
+		if(!getApplication().inDevelopmentMode())
+			return;
+		File sf = getStateFile(getWindowID());
+		if(sf.exists())
+			sf.delete();
+	}
+
+
 }

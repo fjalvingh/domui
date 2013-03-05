@@ -1,5 +1,7 @@
 package to.etc.domui.state;
 
+import java.io.*;
+
 import javax.annotation.*;
 import javax.annotation.concurrent.*;
 
@@ -11,7 +13,7 @@ import javax.annotation.concurrent.*;
  * Created on Feb 27, 2013
  */
 @Immutable
-final public class SavedPage {
+final public class SavedPage implements Serializable {
 	@Nonnull
 	final private String m_className;
 

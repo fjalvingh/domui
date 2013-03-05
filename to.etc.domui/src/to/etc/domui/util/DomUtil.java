@@ -381,6 +381,7 @@ final public class DomUtil {
 	 * does not use the known GUID format but shortens the string by encoding into base64-like encoding.
 	 * @return
 	 */
+	@Nonnull
 	static public String generateGUID() {
 		byte[] bin = new byte[18];
 		ByteArrayUtil.setInt(bin, 0, m_guidSeed); // Start with the seed
