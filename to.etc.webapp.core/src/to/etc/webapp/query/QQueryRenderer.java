@@ -26,6 +26,8 @@ package to.etc.webapp.query;
 
 import java.math.*;
 
+import javax.annotation.*;
+
 import to.etc.util.*;
 
 /**
@@ -54,7 +56,7 @@ public class QQueryRenderer extends QNodeVisitorBase {
 	}
 
 	@Override
-	public void visitCriteria(QCriteria< ? > qc) throws Exception {
+	public void visitCriteria(@Nonnull QCriteria< ? > qc) throws Exception {
 		append("FROM ");
 		Class< ? > baseClass = qc.getBaseClass();
 		if(baseClass != null)
@@ -74,7 +76,7 @@ public class QQueryRenderer extends QNodeVisitorBase {
 	}
 
 	@Override
-	public void visitSelection(QSelection< ? > s) throws Exception {
+	public void visitSelection(@Nonnull QSelection< ? > s) throws Exception {
 		append("FROM ");
 
 		Class< ? > baseClass = s.getBaseClass();
@@ -102,7 +104,7 @@ public class QQueryRenderer extends QNodeVisitorBase {
 	 * @see to.etc.webapp.query.QNodeVisitorBase#visitMulti(to.etc.webapp.query.QMultiNode)
 	 */
 	@Override
-	public void visitMulti(QMultiNode n) throws Exception {
+	public void visitMulti(@Nonnull QMultiNode n) throws Exception {
 		if(n.getChildren().size() == 0)
 			return;
 		if(n.getChildren().size() == 1) {				// Should not really happen
@@ -127,7 +129,7 @@ public class QQueryRenderer extends QNodeVisitorBase {
 	}
 
 	@Override
-	public void visitPropertyComparison(QPropertyComparison n) throws Exception {
+	public void visitPropertyComparison(@Nonnull QPropertyComparison n) throws Exception {
 		int oldprec = m_curPrec;
 		m_curPrec = getOperationPrecedence(n.getOperation());
 		if(oldprec > m_curPrec)
@@ -143,7 +145,7 @@ public class QQueryRenderer extends QNodeVisitorBase {
 	}
 
 	@Override
-	public void visitUnaryProperty(QUnaryProperty n) throws Exception {
+	public void visitUnaryProperty(@Nonnull QUnaryProperty n) throws Exception {
 		int oldprec = m_curPrec;
 		m_curPrec = getOperationPrecedence(n.getOperation());
 		if(oldprec > m_curPrec)
@@ -160,7 +162,7 @@ public class QQueryRenderer extends QNodeVisitorBase {
 	}
 
 	@Override
-	public void visitBetween(QBetweenNode n) throws Exception {
+	public void visitBetween(@Nonnull QBetweenNode n) throws Exception {
 		int oldprec = m_curPrec;
 		m_curPrec = getOperationPrecedence(n.getOperation());
 		if(oldprec > m_curPrec)
@@ -178,7 +180,7 @@ public class QQueryRenderer extends QNodeVisitorBase {
 	}
 
 	@Override
-	public void visitOrder(QOrder o) throws Exception {
+	public void visitOrder(@Nonnull QOrder o) throws Exception {
 		if(m_orderIndx++ == 0) {
 			append(" order by ");
 		} else {
@@ -190,7 +192,7 @@ public class QQueryRenderer extends QNodeVisitorBase {
 	}
 
 	@Override
-	public void visitLiteral(QLiteral n) throws Exception {
+	public void visitLiteral(@Nonnull QLiteral n) throws Exception {
 		int oldprec = m_curPrec;
 		m_curPrec = getOperationPrecedence(n.getOperation());
 		if(oldprec > m_curPrec)
@@ -306,7 +308,7 @@ public class QQueryRenderer extends QNodeVisitorBase {
 	}
 
 	@Override
-	public void visitExistsSubquery(QExistsSubquery< ? > q) throws Exception {
+	public void visitExistsSubquery(@Nonnull QExistsSubquery< ? > q) throws Exception {
 		append("exists (select 1 from $[parent." + q.getParentProperty() + "] where ");
 		if(q.getRestrictions() == null)
 			append("MISSING WHERE - invalid exists subquery)");
@@ -317,14 +319,14 @@ public class QQueryRenderer extends QNodeVisitorBase {
 	}
 
 	@Override
-	public void visitSelectionSubquery(QSelectionSubquery n) throws Exception {
+	public void visitSelectionSubquery(@Nonnull QSelectionSubquery n) throws Exception {
 		append("(");
 		n.getSelectionQuery().visit(this);
 		append(")");
 	}
 
 	@Override
-	public void visitUnaryNode(QUnaryNode n) throws Exception {
+	public void visitUnaryNode(@Nonnull QUnaryNode n) throws Exception {
 		appendOperation(n.getOperation());
 
 		int oldprec = m_curPrec;

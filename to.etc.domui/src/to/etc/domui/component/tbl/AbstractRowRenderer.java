@@ -63,6 +63,13 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 
 	private String m_unknownColumnCaption;
 
+	@Nullable
+	private IRowRendered<T> m_onRowRendered;
+
+	public static interface IRowRendered<T> {
+		public void rowRendered(@Nonnull TR row, @Nonnull T instance);
+	}
+
 	public AbstractRowRenderer(@Nonnull Class<T> data) {
 		this(data, MetaManager.findClassMeta(data));
 	}
@@ -416,6 +423,11 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 			cc.getTR().removeCssClass("ui-even");
 			cc.getTR().addCssClass("ui-odd");
 		}
+
+		IRowRendered<T> rr = getOnRowRendered();
+		if(null != rr) {
+			rr.rowRendered(cc.getTR(), instance);
+		}
 	}
 
 	/**
@@ -511,5 +523,19 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 	public String getUnknownColumnCaption() {
 		return m_unknownColumnCaption == null ? "" : m_unknownColumnCaption;
 	}
+
+	/**
+	 * Sets a handler that gets called every time a row is rendered.
+	 * @return
+	 */
+	@Nullable
+	public IRowRendered<T> getOnRowRendered() {
+		return m_onRowRendered;
+	}
+
+	public void setOnRowRendered(@Nullable IRowRendered<T> onRowRendered) {
+		m_onRowRendered = onRowRendered;
+	}
+
 
 }

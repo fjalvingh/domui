@@ -26,6 +26,8 @@ package to.etc.webapp.qsql;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.webapp.query.*;
 
 /**
@@ -68,7 +70,7 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 	private String m_sql;
 
 	@Override
-	public void visitCriteria(QCriteria< ? > qc) throws Exception {
+	public void visitCriteria(@Nonnull QCriteria< ? > qc) throws Exception {
 		m_root = new PClassRef(qc.getBaseClass(), "this_");
 		m_tblMap.put(m_root.getAlias(), m_root);
 		m_rootMeta = JdbcMetaManager.getMeta(qc.getBaseClass());
@@ -122,7 +124,7 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 	}
 
 	@Override
-	public void visitSelection(QSelection< ? > s) throws Exception {
+	public void visitSelection(@Nonnull QSelection< ? > s) throws Exception {
 		throw new IllegalStateException("Not implemented yet");
 	}
 
@@ -175,7 +177,7 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 	}
 
 	@Override
-	public void visitOrder(QOrder o) throws Exception {
+	public void visitOrder(@Nonnull QOrder o) throws Exception {
 		if(m_order == null)
 			m_order = new StringBuilder();
 		JdbcPropertyMeta pm = resolveProperty(o.getProperty());
@@ -208,7 +210,7 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 	 * @see to.etc.webapp.query.QNodeVisitorBase#visitMulti(to.etc.webapp.query.QMultiNode)
 	 */
 	@Override
-	public void visitMulti(QMultiNode n) throws Exception {
+	public void visitMulti(@Nonnull QMultiNode n) throws Exception {
 		if(n.getChildren().size() == 0)
 			return;
 		if(n.getChildren().size() == 1) { // Should not really happen
@@ -233,7 +235,7 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 	}
 
 	@Override
-	public void visitPropertyComparison(QPropertyComparison n) throws Exception {
+	public void visitPropertyComparison(@Nonnull QPropertyComparison n) throws Exception {
 		//-- Lookup the property name. For now it cannot be dotted
 		JdbcPropertyMeta pm = resolveProperty(n.getProperty());
 		if(pm.isCompound()) {
@@ -376,7 +378,7 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 	}
 
 	@Override
-	public void visitUnaryProperty(QUnaryProperty n) throws Exception {
+	public void visitUnaryProperty(@Nonnull QUnaryProperty n) throws Exception {
 		int oldprec = m_curPrec;
 		m_curPrec = getOperationPrecedence(n.getOperation());
 		if(oldprec > m_curPrec)
@@ -400,7 +402,7 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 	}
 
 	@Override
-	public void visitBetween(QBetweenNode n) throws Exception {
+	public void visitBetween(@Nonnull QBetweenNode n) throws Exception {
 		int oldprec = m_curPrec;
 		m_curPrec = getOperationPrecedence(n.getOperation());
 		if(oldprec > m_curPrec)
@@ -428,7 +430,7 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 	}
 
 	@Override
-	public void visitLiteral(QLiteral n) throws Exception {
+	public void visitLiteral(@Nonnull QLiteral n) throws Exception {
 		throw new IllegalStateException("!!! Trying to generate a naked literal!");
 	}
 
@@ -531,7 +533,7 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 	}
 
 	@Override
-	public void visitUnaryNode(final QUnaryNode n) throws Exception {
+	public void visitUnaryNode(final @Nonnull QUnaryNode n) throws Exception {
 		switch(n.getOperation()){
 			default:
 				throw new IllegalStateException("Unsupported UNARY operation: " + n.getOperation());

@@ -256,7 +256,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 			cb.setClicked(new IClicked2<Checkbox>() {
 				@Override
 				public void clicked(@Nonnull Checkbox clickednode, @Nonnull ClickInfo info) throws Exception {
-					selectionCheckboxClicked(value, clickednode.isChecked(), info);
+					selectionCheckboxClicked(value, clickednode.isChecked(), info, clickednode);
 				}
 			});
 
@@ -312,10 +312,16 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 * @param instance
 	 * @param checked
 	 * @param info
+	 * @param clickednode
 	 * @throws Exception
 	 */
-	private void selectionCheckboxClicked(T instance, boolean checked, ClickInfo info) throws Exception {
+	private void selectionCheckboxClicked(T instance, boolean checked, ClickInfo info, @Nonnull Checkbox checkbox) throws Exception {
 		handleSelectClicky(instance, info, Boolean.valueOf(checked));
+		ISelectionModel<T> sm = m_selectionModel;
+		if(null != sm) {
+			checkbox.setChecked(sm.isSelected(instance));
+		}
+
 	}
 
 	/**
@@ -464,7 +470,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 			cb.setClicked(new IClicked2<Checkbox>() {
 				@Override
 				public void clicked(@Nonnull Checkbox clickednode, @Nonnull ClickInfo clinfo) throws Exception {
-					selectionCheckboxClicked(instance, clickednode.isChecked(), clinfo);
+					selectionCheckboxClicked(instance, clickednode.isChecked(), clinfo, clickednode);
 				}
 			});
 			cb.setChecked(false);
