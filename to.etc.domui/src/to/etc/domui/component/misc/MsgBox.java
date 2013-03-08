@@ -80,6 +80,8 @@ public class MsgBox extends Window {
 	 */
 	private INodeContentRenderer<String> m_dataRenderer;
 
+	private NodeContainer m_content;
+
 	protected MsgBox() {
 		super(true, false, WIDTH, -1, "");
 		setErrorFence(null); // Do not accept handling errors!!
@@ -180,6 +182,22 @@ public class MsgBox extends Window {
 		box.construct();
 	}
 
+	public static void message(NodeBase dad, Type mt, NodeContainer content) {
+		if(mt == Type.DIALOG) {
+			throw new IllegalArgumentException("Please use one of the predefined button calls for MsgType.DIALOG type MsgBox!");
+		}
+		MsgBox box = create(dad);
+		box.setType(mt);
+		box.setContent(content);
+		box.addButton(MsgBoxButton.CONTINUE);
+		box.setCloseButton(MsgBoxButton.CONTINUE);
+		box.construct();
+	}
+
+	private void setContent(@Nonnull NodeContainer content) {
+		m_content = content;
+	}
+
 	/**
 	 * Provides interface to create INFO type messages with custom icon.
 	 * @param dad
@@ -240,6 +258,19 @@ public class MsgBox extends Window {
 	public static void error(NodeBase dad, String string) {
 		message(dad, Type.ERROR, string);
 	}
+
+	public static void info(NodeBase dad, NodeContainer string) {
+		message(dad, Type.INFO, string);
+	}
+
+	public static void warning(NodeBase dad, NodeContainer string) {
+		message(dad, Type.WARNING, string);
+	}
+
+	public static void error(NodeBase dad, NodeContainer string) {
+		message(dad, Type.ERROR, string);
+	}
+
 
 	public static void message(NodeBase dad, Type mt, String string, IAnswer onAnswer) {
 		if(mt == Type.DIALOG) {
@@ -552,12 +583,15 @@ public class MsgBox extends Window {
 		td.setWidth("50px");
 
 		td = row.addCell("ui-mbx-mc");
+		NodeContainer content = m_content;
 		if(getDataRenderer() != null) {
 			try {
 				getDataRenderer().renderNodeContent(this, td, m_theText, null);
 			} catch(Exception ex) {
 				Bug.bug(ex);
 			}
+		} else if(content != null) {
+			td.add(content);
 		} else {
 			DomUtil.renderHtmlString(td, m_theText); // 20091206 Allow simple markup in message
 		}
