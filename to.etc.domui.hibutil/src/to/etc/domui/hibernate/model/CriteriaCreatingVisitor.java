@@ -282,8 +282,10 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 
 			switch(pmm.getRelationType()){
 				case DOWN:
-					throw new QQuerySyntaxException("The 'fetch' path '" + ms.getKey()
-						+ " is a child relation (list-of-children). Fetch is not yet supported for that because Hibernate will duplicate the master.");
+					m_rootCriteria.setFetchMode(ms.getKey(), FetchMode.SELECT);
+					break;
+//					throw new QQuerySyntaxException("The 'fetch' path '" + ms.getKey()
+//						+ " is a child relation (list-of-children). Fetch is not yet supported for that because Hibernate will duplicate the master.");
 
 				case UP:
 					m_rootCriteria.setFetchMode(ms.getKey(), FetchMode.SELECT);
