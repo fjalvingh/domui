@@ -31,6 +31,7 @@ import java.util.*;
 import java.util.Date;
 import java.util.logging.*;
 
+import javax.annotation.*;
 import javax.annotation.concurrent.*;
 import javax.sql.*;
 
@@ -286,6 +287,24 @@ final public class ConnectionPool {
 	/** The sequence generator for entries. */
 	private int m_entryidgen;
 
+	/**
+	 * Pool event, add listeners using
+	 *
+	 *
+	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+	 * Created on Mar 11, 2013
+	 */
+	public interface IPoolEvent {
+		public void connectionAllocated(@Nonnull Connection dbc) throws Exception;
+
+		public void connectionReleased(@Nonnull Connection dbc) throws Exception;
+	}
+
+	@Nonnull
+	private List<IPoolEvent> m_poolListeners = Collections.EMPTY_LIST;
+
+	private boolean m_hasPlSqlHandler;
+
 	public ConnectionPool(PoolManager pm, String id, PoolConfig config) throws SQLException {
 		m_manager = pm;
 		m_id = id;
@@ -298,6 +317,57 @@ final public class ConnectionPool {
 	 */
 	public PoolConfig c() {
 		return m_config;
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Pool events and listeners							*/
+	/*--------------------------------------------------------------*/
+
+	/**
+	 * Add a listener for pool related events.
+	 * @param l
+	 */
+	public synchronized void addListener(@Nonnull IPoolEvent l) {
+		m_poolListeners = new ArrayList<IPoolEvent>(m_poolListeners);
+		m_poolListeners.add(l);
+	}
+
+	/**
+	 * Remove the specified listener.
+	 * @param l
+	 */
+	public synchronized void removeListener(@Nonnull IPoolEvent l) {
+		m_poolListeners = new ArrayList<IPoolEvent>(m_poolListeners);
+		m_poolListeners.remove(l);
+	}
+
+	@Nonnull
+	private synchronized List<IPoolEvent> getPoolListeners() {
+		return m_poolListeners;
+	}
+
+	private void callAllocatedListeners(@Nonnull Connection dbc) {
+		List<IPoolEvent> poolListeners = getPoolListeners();
+		for(int i = poolListeners.size(); --i >= 0;) {
+			try {
+				poolListeners.get(i).connectionAllocated(dbc);
+			} catch(Exception x) {
+				System.out.println("Ignored exception in pool event listener " + poolListeners.get(i) + ": " + x);
+				x.printStackTrace();
+			}
+		}
+	}
+
+	void callReleasedListeners(@Nonnull Connection dbc) {
+		List<IPoolEvent> poolListeners = getPoolListeners();
+		for(int i = poolListeners.size(); --i >= 0;) {
+			try {
+				poolListeners.get(i).connectionReleased(dbc);
+			} catch(Exception x) {
+				System.out.println("Ignored exception in pool event listener " + poolListeners.get(i) + ": " + x);
+				x.printStackTrace();
+			}
+		}
 	}
 
 	/*--------------------------------------------------------------*/
@@ -327,6 +397,10 @@ final public class ConnectionPool {
 
 		if(c().getBinaryLogFile() != null)
 			setFileLogging(c().getBinaryLogFile());
+
+		String plsqldebug = DbPoolUtil.getPlSqlDebug(getID());
+		if(null == plsqldebug)
+			addPlSqlDebugHandler(plsqldebug);
 
 		//-- Now initialize the rest of the parameters and try to allocate a connection for testing pps.
 		Connection dbc = null;
@@ -381,6 +455,49 @@ final public class ConnectionPool {
 					dbc.close();
 			} catch(Exception x) {}
 		}
+	}
+
+	public void addPlSqlDebugHandler(@Nonnull String plsqldebug) throws SQLException {
+		//-- Must be address:port format
+		int pos = plsqldebug.indexOf(':');
+		if(pos != -1) {
+			String host = plsqldebug.substring(0, pos);
+			int port;
+			try {
+				port = Integer.parseInt(plsqldebug.substring(pos + 1).trim());
+			} catch(Exception x) {
+				port = -1;
+			}
+			if(port != -1) {
+				synchronized(this) {
+					if(m_hasPlSqlHandler)
+						return;
+					m_hasPlSqlHandler = true;
+				}
+
+				final String cmd = "begin dbms_debug_jdwp.connect_tcp('" + host.trim() + "'," + port + ");end;";
+				addListener(new IPoolEvent() {
+					@Override
+					public void connectionReleased(@Nonnull Connection dbc) throws Exception {}
+
+					@Override
+					public void connectionAllocated(@Nonnull Connection dbc) throws Exception {
+						Statement st = dbc.createStatement();
+						try {
+							st.execute(cmd);
+						} catch(Exception x) {
+							//-- Ignore any error.
+						} finally {
+							try {
+								st.close();
+							} catch(Exception x) {}
+						}
+					}
+				});
+				return;
+			}
+		}
+		throw new SQLException("PL/SQL Debug handler: parameter format must be 'hostname:portnumber', it was '" + plsqldebug + "'. Hostname can be an ip address and is usually 127.0.0.1.");
 	}
 
 	/*--------------------------------------------------------------*/
@@ -461,9 +578,11 @@ final public class ConnectionPool {
 
 			//-- If the connection was gotten OK then check it....
 			if(dbc != null) {
-				lastx = checkConnection(dbc); // Can we use the connection?
-				if(lastx == null)
-					return dbc; // YES-> use this!
+				lastx = checkConnection(dbc); 				// Can we use the connection?
+				if(lastx == null) {
+					callAllocatedListeners(dbc);			// Tell the world we have a new'un
+					return dbc; 							// YES-> use this!
+				}
 
 				try {
 					dbc.close();
