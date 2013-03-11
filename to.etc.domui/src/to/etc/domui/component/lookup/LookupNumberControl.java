@@ -166,9 +166,12 @@ public class LookupNumberControl<T extends Number> extends AbstractLookupControl
 				return appendCriteria(crit, QOperation.ISNOTNULL, null);
 			}
 
+			if(m_allowLike) {
+				in = in.replace("*", "%");
+			}
 			//-- We need to separate into [operator, value] pairs; there can be max. 2.
 			m_s = new MiniScanner();
-			m_s.init(m_input.getValue());
+			m_s.init(in);
 			m_s.skipWs();
 
 			if(Character.isDigit(m_s.LA()) || m_s.LA() == '-' || m_s.LA() == '%') {

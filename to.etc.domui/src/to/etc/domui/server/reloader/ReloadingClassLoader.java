@@ -108,10 +108,13 @@ public class ReloadingClassLoader extends URLClassLoader {
 		if(!m_reloader.watchClass(name)) {
 			if(LOG.isDebugEnabled())
 				LOG.debug("Class " + name + " not matching watch pattern delegated to root loader");
-			return m_rootLoader.loadClass(name); // Delegate to the rootLoader.
+			Class< ? > loadClass = m_rootLoader.loadClass(name);
+			if(m_reloader.watchOnlyClass(name)) {
+				addWatchFor(loadClass);
+			}
+			return loadClass; // Delegate to the rootLoader.
 		}
 		//		System.out.println("reloadingClassLoader: watching " + name);
-
 
 		//-- We need to watch this class..
 		Class< ? > clz = findLoadedClass(name);
@@ -141,3 +144,4 @@ public class ReloadingClassLoader extends URLClassLoader {
 		return clz;
 	}
 }
+
