@@ -503,6 +503,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 		if(searchString == null || searchString.trim().length() == 0) {
 			return null;
 		}
+		searchString = searchString.replace("*", "%");
 		QCriteria<QT> searchQuery;
 
 		if(getKeyWordSearchHandler() != null) {
@@ -1048,7 +1049,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	@Nullable
 	private SimpleBinder m_binder;
 
-	/**  
+	/**
 	 * Return the binder for this control.
 	 * @see to.etc.domui.component.input.IBindable#bind()
 	 */
