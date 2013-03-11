@@ -93,6 +93,9 @@ final public class Reloader {
 	/** The spec for classes to load thru the reloader. */
 	private List<LoadSpec> m_loadSpecList = new ArrayList<LoadSpec>();
 
+	/** The spec for classes to watch only thru the reloader, found bundles in de same package en Metadata will be reloaded only	. */
+	private List<LoadSpec> m_watchSpecList = new ArrayList<LoadSpec>();
+
 	/** The current classloader, */
 	private ReloadingClassLoader m_currentLoader;
 
@@ -106,10 +109,29 @@ final public class Reloader {
 	/**
 	 * Create a reloader which handles the specified classes.
 	 * @param paths
+	 * @param pathsWatchOnly, these patterns will be only watched not really reloaded. It makes sure the reloader kicks in. Bundles and MetaData will be reloaded.
 	 */
-	public Reloader(String paths) {
+	public Reloader(String paths, String pathsWatchOnly) {
 		//		m_loadSpecList.add(new LoadSpec(Pattern.compile("to.etc.domui.*"), false)); // Never accept internal classes!! jal 20090817 Removed, handled in ReloadingClassloader instead.
 
+		createAndAddSpec(paths, m_loadSpecList);
+		if(m_loadSpecList.size() == 0)
+			throw new IllegalStateException("No load specifiers added.");
+
+
+		if(pathsWatchOnly != null) {
+			createAndAddSpec(pathsWatchOnly, m_watchSpecList);
+		}
+
+
+		m_urls = ClassUtil.findUrlsFor(getClass().getClassLoader());
+
+		//-- ORDERED: must be below findUrlFor's
+		m_currentLoader = new ReloadingClassLoader(getClass().getClassLoader(), this);
+		//		m_instance = this;
+	}
+
+	private void createAndAddSpec(String paths, List<LoadSpec> specList) {
 		StringTokenizer st = new StringTokenizer(paths, " \t;,");
 		while(st.hasMoreTokens()) {
 			String path = st.nextToken().trim();
@@ -123,16 +145,9 @@ final public class Reloader {
 					path = path.substring(1).trim();
 				}
 				Pattern p = Pattern.compile(path);
-				m_loadSpecList.add(new LoadSpec(p, on));
+				specList.add(new LoadSpec(p, on));
 			}
 		}
-		if(m_loadSpecList.size() == 0)
-			throw new IllegalStateException("No load specifiers added.");
-		m_urls = ClassUtil.findUrlsFor(getClass().getClassLoader());
-
-		//-- ORDERED: must be below findUrlFor's
-		m_currentLoader = new ReloadingClassLoader(getClass().getClassLoader(), this);
-		//		m_instance = this;
 	}
 
 	public URL[] getUrls() {
@@ -183,6 +198,20 @@ final public class Reloader {
 	 */
 	boolean watchClass(String name) {
 		for(LoadSpec ls : m_loadSpecList) {
+			if(ls.matches(name))
+				return ls.isAccept();
+		}
+		return false;
+	}
+
+	/**
+	 * Returns T if this class is to be watched, false otherwise.
+	 *
+	 * @param name
+	 * @return
+	 */
+	boolean watchOnlyClass(String name) {
+		for(LoadSpec ls : m_watchSpecList) {
 			if(ls.matches(name))
 				return ls.isAccept();
 		}
