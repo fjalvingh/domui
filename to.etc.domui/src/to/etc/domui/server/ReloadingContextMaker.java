@@ -56,7 +56,7 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 		super(pp);
 		m_applicationClassName = applicationClassName;
 		m_config = pp;
-		m_reloader = new Reloader(patterns, patternsWatchOnly);
+		m_reloader = new Reloader(patterns,null);
 		System.out.println("DomUI: We are running in DEVELOPMENT mode. This will be VERY slow when used in a production environment.");
 
 		checkReload(); // Initial: force load and init of Application object.

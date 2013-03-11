@@ -179,6 +179,46 @@ public class TestStringTool {
 		Assert.assertEquals("Length of m_text in characters should be 2667", 2667, textOut.length());
 	}
 
+	/**
+	 * <pre>
+	 * Test the method StringTool.strToJavascriptString(final String cs, final boolean dblquote) 
+	 * if single quotes are escaped as expected.
+	 *
+	 * </pre>
+	 */
+	@Test
+	public void testStrToJavascriptStringSingleQuotes() {
+
+		String textIn = "'test string'";
+		String testOut = StringTool.strToJavascriptString(textIn, false);
+
+		Assert.assertTrue(testOut.contains("\\'test string\\'"));
+	}
+
+	/**
+	 * <pre>
+	 * Test the method StringTool.strToJavascriptString(final String cs, final boolean dblquote) 
+	 * if double quotes are escaped as expected.
+	 *
+	 * @throws Exception
+	 * </pre>
+	 */
+	@Test
+	public void testStrToJavascriptStringDoubleQuotes() {
+
+		String textIn = "\"test string\"";
+		String testOut = StringTool.strToJavascriptString(textIn, true);
+		
+		StringBuilder sb = new StringBuilder();
+		sb.append("\\\"");
+		sb.append("test string");
+		sb.append("\\\"");
+		String expectedStringSequence = sb.toString();
+
+		Assert.assertTrue(testOut.contains(expectedStringSequence));
+
+	}
+
 	private String makeText(int textLength, String text) {
 
 		m_text.setLength(0);
