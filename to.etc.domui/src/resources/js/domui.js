@@ -176,8 +176,10 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 				var cmdNode = commands[i], cmd = cmdNode.tagName;
 				if(cmd == 'head' || cmd == 'body') {
 					//-- HTML response. Server state is gone due to restart or lost session.
-					alert('The server has restarted, or the session has timed out.. Reloading the page with fresh data');
-					window.location.href = window.location.href;
+					if(!WebUI._hideExpiredMessage){
+						alert('The server has restarted, or the session has timed out.. Reloading the page with fresh data');
+					}
+ 					window.location.href = window.location.href;
 					return;
 				}
 
@@ -539,6 +541,28 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 
 /** WebUI helper namespace */
 var WebUI = {
+	/**
+	 * can be set to true from server code with appendJavaScript so that the expired messages will not show and
+	 * block effortless refresh on class reload. Configurable in .developer.properties domui.hide-expired-alert.
+	 */
+	_hideExpiredMessage: false,
+
+	/**	 * can be set to any value in milliseconds from server code with appendJavaScript so that effortless refresh on class reload
+	 * will run tighter. Configurable in .developer.properties domui.delayed-activities-interval
+	 */
+	_pollInterval: 2500,
+
+	/**
+	 * Called when auto screen refresh is set for development, this changes the poll interval (if needed) and disables the
+	 * "session expired" messages.
+	 * @param pollinterval
+	 */
+	setAutoRefresh: function(pollinterval) {
+		if(pollinterval >= 250)
+			WebUI._pollInterval = pollinterval;
+		WebUI._hideExpiredMessage = true;
+	},
+
 	log: function() {
 		if (!window.console || !window.console.debug)
 			return;
@@ -1524,7 +1548,7 @@ var WebUI = {
 		if (WebUI._pollActive)
 			return;
 		WebUI._pollActive = true;
-		WebUI._pollTimer = setTimeout("WebUI.poll()", 2500);
+		WebUI._pollTimer = setTimeout("WebUI.poll()", WebUI._pollInterval);
 	},
 	cancelPolling : function() {
 		if (!WebUI._pollActive)

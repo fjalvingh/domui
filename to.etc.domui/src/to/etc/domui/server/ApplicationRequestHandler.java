@@ -176,8 +176,10 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 		if(cm == null) {
 			if(action != null) {
-				generateExpired(ctx, Msgs.BUNDLE.getString(Msgs.S_EXPIRED));
-				return;
+				// In auto refresh: do not send the "expired" message, but let the refresh handle this.
+				if(!m_application.isAutoRefreshPage()) {
+					generateExpired(ctx, Msgs.BUNDLE.getString(Msgs.S_EXPIRED));
+				}
 			}
 
 			//-- We explicitly need to create a new Window and need to send a redirect back
@@ -261,7 +263,11 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 					} else {
 						if(DomUtil.USERLOG.isDebugEnabled())
 							DomUtil.USERLOG.debug("Session " + cid + " expired, page will be reloaded (page tag difference) on action=" + action);
-						generateExpired(ctx, Msgs.BUNDLE.getString(Msgs.S_EXPIRED));
+
+						// In auto refresh: do not send the "expired" message, but let the refresh handle this.
+						if(!m_application.isAutoRefreshPage()) {
+							generateExpired(ctx, Msgs.BUNDLE.getString(Msgs.S_EXPIRED));
+						}
 					}
 					return;
 				}
