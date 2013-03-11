@@ -399,7 +399,7 @@ final public class ConnectionPool {
 			setFileLogging(c().getBinaryLogFile());
 
 		String plsqldebug = DbPoolUtil.getPlSqlDebug(getID());
-		if(null == plsqldebug)
+		if(null != plsqldebug)
 			addPlSqlDebugHandler(plsqldebug);
 
 		//-- Now initialize the rest of the parameters and try to allocate a connection for testing pps.
