@@ -482,10 +482,11 @@ final public class ConnectionPool {
 
 					@Override
 					public void connectionAllocated(@Nonnull Connection dbc) throws Exception {
-						Statement st = dbc.createStatement();
+						PreparedStatement st = dbc.prepareStatement(cmd);
 						try {
-							st.execute(cmd);
+							st.execute();
 						} catch(Exception x) {
+							x.printStackTrace();
 							//-- Ignore any error.
 						} finally {
 							try {
