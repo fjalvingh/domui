@@ -5,6 +5,10 @@ function _unblock() {
 	WebUI.unblockUI();
 }
 $(document).ajaxStart(_block).ajaxStop(_unblock);
+$(window).bind('beforeunload', function() {
+	WebUI.beforeUnload();
+	return undefined;
+});
 
 //-- calculate browser major and minor versions
 {
@@ -557,6 +561,8 @@ var WebUI = {
 	 */
 	_keepAliveInterval: 0,
 	
+	_ignoreErrors: false,
+
 	setHideExpired: function() {
 		WebUI._hideExpiredMessage = true;
 	},
@@ -1166,6 +1172,9 @@ var WebUI = {
 			WebUI.startPolling(WebUI._pollInterval);
 			return;
 		}
+		if(status === "abort")
+			return;
+
 		WebUI._asyalerted = true;
 		
 		var txt = request.responseText || "No response - status="+status;
@@ -1174,44 +1183,60 @@ var WebUI = {
 		if(txt.length == 0)
 			txt = "De server is niet bereikbaar, status="+status;
 		
-		//-- Show an alert error on top of the screen
-		document.body.style.cursor = 'default';
-		var hdr = document.createElement('div');
-		document.body.appendChild(hdr);
-		hdr.className = 'ui-io-blk2';
-		WebUI._asyDialog = hdr;
+		/*
+		 * As usual there is a problem with error reporting: if the request is aborted because the browser reloads the page
+		 * any pending request is cancelled and comes in here- but with the wrong error code of course. So to prevent us from
+		 * showing an error message: set a timer to show that message 250 milli's later, and hope the stupid browser disables
+		 * that timer. 
+		 */
+		setTimeout(function() {
+			if(WebUI._ignoreErrors)
+				return;
 
-		var ald = document.createElement('div');
-		document.body.appendChild(ald);
-		ald.className = 'ui-ioe-asy';
+			//-- Show an alert error on top of the screen
+			document.body.style.cursor = 'default';
+			var hdr = document.createElement('div');
+			document.body.appendChild(hdr);
+			hdr.className = 'ui-io-blk2';
+			WebUI._asyHider = hdr;
 
-		var d = document.createElement('div');			// Title bar
-		ald.appendChild(d);
-		d.className = "ui-ioe-ttl";
-		d.appendChild(document.createTextNode("Server unreachable"));	// Server unreachable
-		
-		d = document.createElement('div');				// Message content
-		ald.appendChild(d);
-		d.className = "ui-ioe-msg";
-		d.appendChild(document.createTextNode(txt));	// Server unreachable
-		
-		d = document.createElement('div');				// Message content
-		ald.appendChild(d);
-		d.className = "ui-ioe-msg2";
+			var ald = document.createElement('div');
+			document.body.appendChild(ald);
+			ald.className = 'ui-ioe-asy';
+			WebUI._asyDialog = ald;
 
-		var img = document.createElement('div');
-		d.appendChild(img);
-		img.className = "ui-ioe-img";
-		d.appendChild(document.createTextNode("Waiting for the server to return...."));	// Waiting for the server to return.
-		WebUI.startPolling(WebUI._pollInterval);
+			var d = document.createElement('div');			// Title bar
+			ald.appendChild(d);
+			d.className = "ui-ioe-ttl";
+			d.appendChild(document.createTextNode("Server unreachable"));	// Server unreachable
+			
+			d = document.createElement('div');				// Message content
+			ald.appendChild(d);
+			d.className = "ui-ioe-msg";
+			d.appendChild(document.createTextNode(txt));	// Server unreachable
+			
+			d = document.createElement('div');				// Message content
+			ald.appendChild(d);
+			d.className = "ui-ioe-msg2";
+	
+			var img = document.createElement('div');
+			d.appendChild(img);
+			img.className = "ui-ioe-img";
+			d.appendChild(document.createTextNode("Waiting for the server to return...."));	// Waiting for the server to return.
+			WebUI.startPolling(WebUI._pollInterval);
+		}, 250);
 	},
 	
 	clearErrorAsy: function() {
 		if(WebUI._asyDialog) {
 			WebUI._asyDialog.remove();
-			WebUI._asyDialog = null;
-			WebUI._asyalerted = false;
 		}
+		if(WebUI._asyHider) {
+			WebUI._asyHider.remove();
+		}
+		WebUI._asyDialog = null;
+		WebUI._asyHider = null;
+		WebUI._asyalerted = false;
 	},
 	
 	/*
@@ -1584,6 +1609,10 @@ var WebUI = {
 
 	/** *************** Polling code ************* */
 	startPolling : function(interval) {
+		if(interval < 100 || interval == undefined || interval == null) {
+			alert("Bad interval: "+interval);
+			return;
+		}
 		WebUI._pollInterval = interval;
 		if (WebUI._pollActive)
 			return;
@@ -1790,7 +1819,13 @@ var WebUI = {
 	},
 
 	unloaded : function() {
+		WebUI._ignoreErrors = true;
 		WebUI.sendobituary();
+	},
+	
+	beforeUnload: function() {
+		//-- Make sure no "ajax" errors are reported.
+		WebUI._ignoreErrors = true;
 	},
 
 	/**

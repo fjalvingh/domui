@@ -635,6 +635,23 @@ public abstract class DomApplication {
 		m_defaultPollInterval = defaultPollInterval;
 	}
 
+	public synchronized int calculatePollInterval(boolean pollCallbackRequired) {
+		int pollinterval = Integer.MAX_VALUE;
+		if(m_keepAliveInterval > 0)
+			pollinterval = m_keepAliveInterval;
+		if(m_autoRefreshPollInterval > 0) {
+			if(m_autoRefreshPollInterval < pollinterval)
+				pollinterval = m_autoRefreshPollInterval;
+		}
+		if(pollCallbackRequired) {
+			if(m_defaultPollInterval < pollinterval)
+				pollinterval = m_defaultPollInterval;
+		}
+		if(pollinterval == Integer.MAX_VALUE)
+			return 0;
+		return pollinterval;
+	}
+
 	/**
 	 * The #of minutes that a WindowSession remains valid; defaults to 15 minutes.
 	 *
