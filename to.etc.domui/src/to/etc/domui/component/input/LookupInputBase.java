@@ -525,11 +525,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		if(searchString == null || searchString.trim().length() == 0) {
 			return null;
 		}
-		searchString = searchString.replace("*", "%");
-		if(searchString == null) {
-			//strange that this is needed, otherwise Eclipse raise potential NPA later in code...
-			return null;
-		}
+		searchString = DomUtil.nullChecked(searchString.replace("*", "%"));
 
 		QCriteria<QT> searchQuery;
 
