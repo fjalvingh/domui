@@ -560,6 +560,8 @@ public class DbPoolUtil {
 	@Nullable
 	static public String getPlSqlDebug(String poolName) {
 		Properties p = getDeveloperProperties();
+		if(null == p)
+			return null;
 
 		//-- Generic enabled?
 		String val = p.getProperty("pool.plsql.debug");
