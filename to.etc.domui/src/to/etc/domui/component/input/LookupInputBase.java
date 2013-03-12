@@ -526,6 +526,11 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 			return null;
 		}
 		searchString = searchString.replace("*", "%");
+		if(searchString == null) {
+			//strange that this is needed, otherwise Eclipse raise potential NPA later in code...
+			return null;
+		}
+
 		QCriteria<QT> searchQuery;
 
 		IKeyWordSearchQueryFactory<QT> ksh = getKeyWordSearchHandler();
