@@ -298,6 +298,7 @@ final class PoolEntry {
 		} catch(Exception x) {}
 
 		try {
+			m_pool.callReleasedListeners(m_cx);
 			m_cx.close();
 		} catch(Exception x) {}
 	}

@@ -31,6 +31,8 @@ import java.text.*;
 import java.util.*;
 import java.util.Date;
 
+import javax.annotation.*;
+
 public class DbPoolUtil {
 	private DbPoolUtil() {}
 
@@ -521,4 +523,51 @@ public class DbPoolUtil {
 	}
 
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	.developer.properties interface.					*/
+	/*--------------------------------------------------------------*/
+
+	@Nullable
+	static private Properties getDeveloperProperties() {
+		String s = System.getProperty("user.home");
+		if(s == null)
+			return null;
+		File f = new File(new File(s), ".developer.properties");
+		if(!f.exists())
+			return null;
+		InputStream is = null;
+		try {
+			is = new FileInputStream(f);
+			Properties p = new Properties();
+			p.load(is);
+			return p;
+		} catch(Exception x) {
+			System.out.println("PoolManager: exception while reading " + f + ": " + x);
+			return null;
+		} finally {
+			try {
+				if(is != null)
+					is.close();
+			} catch(Exception x) {}
+		}
+	}
+
+	/**
+	 * Return the connect string if PL/SQL debugging is enabled for the specified pool.
+	 * @param poolName
+	 * @return
+	 */
+	@Nullable
+	static public String getPlSqlDebug(String poolName) {
+		Properties p = getDeveloperProperties();
+		if(null == p)
+			return null;
+
+		//-- Generic enabled?
+		String val = p.getProperty("pool.plsql.debug");
+		if(val != null)
+			return val;
+		val = p.getProperty("pool." + poolName.toLowerCase() + ".plsql.debug");
+		return val;
+	}
 }
