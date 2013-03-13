@@ -317,7 +317,7 @@ public class MoneyUtil {
 		return (roundValue(value1) == roundValue(value2));
 	}
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
+	@SuppressWarnings({"unchecked"})
 	static public void assignMonetaryConverter(final PropertyMetaModel pmm, boolean editable, final IConvertable< ? > node) {
 		if(pmm.getConverter() != null)
 			node.setConverter(pmm.getConverter());

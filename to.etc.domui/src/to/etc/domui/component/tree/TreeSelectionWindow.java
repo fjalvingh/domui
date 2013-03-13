@@ -99,7 +99,6 @@ public class TreeSelectionWindow<T> extends FloatingWindow implements ICellClick
 		m_tree.setCellClicked(this);
 	}
 
-	@SuppressWarnings("rawtypes")
 	protected void cancel() throws Exception {
 		close();
 		m_selected = null;
@@ -114,7 +113,6 @@ public class TreeSelectionWindow<T> extends FloatingWindow implements ICellClick
 		}
 	}
 
-	@SuppressWarnings("rawtypes")
 	protected void select() throws Exception {
 		if(m_selected == null)
 			return;

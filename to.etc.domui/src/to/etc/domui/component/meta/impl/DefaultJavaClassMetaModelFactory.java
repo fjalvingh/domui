@@ -151,7 +151,7 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 		}
 	}
 
-	@SuppressWarnings({"cast", "unchecked", "rawtypes"})
+	@SuppressWarnings({"cast", "unchecked"})
 	protected void decodePropertyAnnotation(final DefaultJavaClassInfo colli, final DefaultPropertyMetaModel pmm, Annotation an) {
 		final DefaultClassMetaModel cmm = colli.getModel();
 		if(an instanceof MetaProperty) {

@@ -27,7 +27,6 @@ package to.etc.domui.component.htmleditor;
 import java.io.*;
 import java.util.*;
 
-import to.etc.domui.util.*;
 import to.etc.util.*;
 
 public class FileBasedEditorFileSystem implements IEditorFileSystem {
