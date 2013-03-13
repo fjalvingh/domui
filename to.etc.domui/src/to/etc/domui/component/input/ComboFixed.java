@@ -93,7 +93,7 @@ public class ComboFixed<T> extends ComboComponentBase<ValueLabelPair<T>, T> {
 		return in.getValue();
 	}
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
+	@SuppressWarnings({"unchecked"})
 	private void initRenderer() {
 		setContentRenderer((INodeContentRenderer) STATICRENDERER); // Another generics fuckup again: you cannot cast this proper, appearently.
 	}
