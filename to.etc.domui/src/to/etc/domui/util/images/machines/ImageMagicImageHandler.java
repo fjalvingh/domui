@@ -27,6 +27,7 @@ package to.etc.domui.util.images.machines;
 import java.io.*;
 import java.util.*;
 
+import to.etc.domui.util.*;
 import to.etc.domui.util.images.converters.*;
 import to.etc.util.*;
 
