@@ -62,6 +62,13 @@ final public class DomUtil {
 		m_guidSeed = (int) val;
 	}
 
+	@Nonnull
+	static public <T> T nullChecked(@Nullable T in) {
+		if(null == in)
+			throw new IllegalStateException("Unexpected thingy is null: " + in);
+		return in;
+	}
+
 	static public final void ie8Capable(HttpServletResponse req) throws IOException {
 		if(!(req instanceof WrappedHttpServetResponse))
 			return;
