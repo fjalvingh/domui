@@ -603,6 +603,7 @@ public class OracleDB extends BaseDB {
 
 			ps = dbc.prepareStatement("select o.object_name from dba_objects o" //
 				+ " where o.owner = '" + owner + "'" //
+				+ " and o.object_type <> 'TYPE'" //
 				+ (objectNamesFilter != null ? objectNamesFilter : "") //
 				+ " and not exists  (" //
 				+ " select 1 from dba_synonyms s" //
