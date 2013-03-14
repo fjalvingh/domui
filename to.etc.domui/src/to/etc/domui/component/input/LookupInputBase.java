@@ -503,7 +503,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 		if(searchString == null || searchString.trim().length() == 0) {
 			return null;
 		}
-		searchString = searchString.replace("*", "%");
+		searchString = DomUtil.nullChecked(searchString.replace("*", "%"));
 		QCriteria<QT> searchQuery;
 
 		if(getKeyWordSearchHandler() != null) {
