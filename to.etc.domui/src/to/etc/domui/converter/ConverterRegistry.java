@@ -444,16 +444,35 @@ public class ConverterRegistry {
 	}
 
 	static public Comparator< ? > getComparator(@Nonnull ClassMetaModel cmm, @Nonnull String property, boolean descending) {
-		PropertyMetaModel<Object> pmm = (PropertyMetaModel<Object>) cmm.findProperty(property);
-		if(null == pmm)
-			throw new ProgrammerErrorException("The property '" + cmm + "." + property + "' is not known.");
+		String[] ar = property.split(";");
+		List<Comparator<Object>> all = new ArrayList<Comparator<Object>>();
+		for(String pn : ar) {
+			pn = pn.trim();
+			boolean desc = descending;
+			int pos = pn.indexOf(':');
+			if(pos > 0) {
+				String s = pn.substring(pos + 1);
+				pn = pn.substring(0, pos);
+				if("a".equalsIgnoreCase(s))
+					desc = false;
+				else if("d".equalsIgnoreCase(s))
+					desc = true;
+			}
 
-		//-- Get the actual data type, and get a comparator for that data type;
-		Comparator<Object> comp = (Comparator<Object>) findComparatorForType(pmm.getActualType());
-		if(null == comp) {
-			comp = DEFAULT_COMPARATOR;
+			PropertyMetaModel<Object> pmm = (PropertyMetaModel<Object>) cmm.findProperty(pn);
+			if(null == pmm)
+				throw new ProgrammerErrorException("The property '" + cmm + "." + property + "' is not known.");
+
+			//-- Get the actual data type, and get a comparator for that data type;
+			Comparator<Object> comp = (Comparator<Object>) findComparatorForType(pmm.getActualType());
+			if(null == comp) {
+				comp = DEFAULT_COMPARATOR;
+			}
+			all.add(new PropertyComparator<Object>(pmm, comp, descending));
 		}
-		return new PropertyComparator<Object>(pmm, comp, descending);
+		if(all.size() == 1)
+			return all.get(0);
+		return new CompoundComparator<Object>(all, false);
 	}
 
 	/**
