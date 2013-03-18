@@ -526,7 +526,6 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 			return null;
 		}
 		searchString = DomUtil.nullChecked(searchString.replace("*", "%"));
-
 		QCriteria<QT> searchQuery;
 
 		IKeyWordSearchQueryFactory<QT> ksh = getKeyWordSearchHandler();
