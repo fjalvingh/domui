@@ -1118,6 +1118,28 @@ public class FileTool {
 		}
 	}
 
+	@Nonnull
+	static public List<String> getZipDirectory(@Nonnull File in) throws Exception {
+		ZipInputStream zis = null;
+		byte[] buf = new byte[8192];
+		List<String> res = new ArrayList<>();
+		try {
+			zis = new ZipInputStream(new FileInputStream(in));
+			ZipEntry ze;
+			while(null != (ze = zis.getNextEntry())) {
+				res.add(ze.getName());
+				zis.closeEntry();
+			}
+			return res;
+		} finally {
+			try {
+				if(zis != null)
+					zis.close();
+			} catch(Exception x) {}
+		}
+	}
+
+
 	@Nullable
 	static public InputStream getZipContent(final File src, final String name) throws IOException {
 		InputStream is = new FileInputStream(src);
