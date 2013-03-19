@@ -61,7 +61,7 @@ final public class ClassUtil {
 	}
 
 	@Nullable
-	static public Method findMethod(@Nonnull final Class< ? > clz, @Nonnull final String name, @Nonnull final Class< ? >[] param) {
+	static public Method findMethod(@Nonnull final Class< ? > clz, @Nonnull final String name, @Nonnull final Class< ? >... param) {
 		try {
 			return clz.getMethod(name, param);
 		} catch(Exception x) {

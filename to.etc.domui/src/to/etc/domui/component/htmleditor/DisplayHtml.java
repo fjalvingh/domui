@@ -48,6 +48,12 @@ public class DisplayHtml extends Div implements IDisplayControl<String>, IBindab
 
 	private Mode m_mode = Mode.BLOCK;
 
+	public DisplayHtml() {}
+
+	public DisplayHtml(@Nullable String value) {
+		setValue(value);
+	}
+
 	@Override
 	public void createContent() throws Exception {
 		switch(m_mode){

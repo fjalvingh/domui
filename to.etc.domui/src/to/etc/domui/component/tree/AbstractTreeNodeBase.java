@@ -37,6 +37,10 @@ public abstract class AbstractTreeNodeBase<T extends ITreeNode<T>> implements IT
 		m_parent = dad;
 	}
 
+	public void setParent(T parent) {
+		m_parent = parent;
+	}
+
 	public AbstractTreeNodeBase(T dad, List<T> children) {
 		m_parent = dad;
 		m_childList = children;
