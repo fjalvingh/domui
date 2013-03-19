@@ -376,7 +376,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 							DomUtil.USERLOG.debug(cid + ": page reload message = " + m.getMessage());
 
 						//page.getBody().addGlobalMessage(m);
-						MessageFlare.display(page.getBody(), m);
+						MessageFlare mf = MessageFlare.display(page.getBody(), m);
+						mf.setTestID("SingleShotMsg");
 					}
 				}
 				cm.setAttribute(UIGoto.SINGLESHOT_MESSAGE, null);
