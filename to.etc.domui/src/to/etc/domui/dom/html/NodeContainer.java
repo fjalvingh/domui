@@ -654,6 +654,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @param ofClass
 	 * @return
 	 */
+	@Nonnull
 	final public <T> List<T> getDeepChildren(@Nonnull Class<T> ofClass) {
 		if(m_delegate != null)
 			return m_delegate.getDeepChildren(ofClass);
