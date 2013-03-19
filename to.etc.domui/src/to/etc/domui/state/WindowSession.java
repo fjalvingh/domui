@@ -984,6 +984,8 @@ final public class WindowSession {
 			throw new IllegalArgumentException("Depth of " + depth + " invalid: max is " + -m_shelvedPageStack.size());
 		m_shelvedPageStack.add(ix, new ShelvedDomUIPage(this, newpg));
 
+		getApplication().getInjector().injectPageValues(newpg.getBody(), parameters);
+
 		//-- Call all of the page's listeners.
 		callNewPageCreatedListeners(newpg);
 		newpg.internalShelve();
@@ -1049,6 +1051,7 @@ final public class WindowSession {
 			try {
 				//-- 1. Load the class by name.
 				Class<? extends UrlPage> clz = m_appSession.getApplication().loadPageClass(sp.getClassName());
+
 
 				//-- 2. Insert @ location [0]
 				Page pg = insertShelveEntryMain(0, clz, sp.getParameters());
