@@ -84,7 +84,6 @@ final public class ClassUtil {
 		}
 	}
 
-
 	@Nullable
 	static public Method findMethod(@Nonnull final Class< ? > clz, @Nonnull final String name, @Nonnull final Class< ? >... param) {
 		try {
@@ -459,5 +458,19 @@ final public class ClassUtil {
 		findUrlsFor(result, loader.getParent());
 	}
 
+	@Nullable
+	public static <T> Constructor<T> findConstructor(@Nonnull Class<T> clz, @Nonnull Class< ? >... formals) {
+		try {
+			return clz.getConstructor(formals);
+		} catch(Exception x) {
+			return null;
+		}
+	}
 
+	public static <T> T callConstructor(Class<T> clz, Class< ? >[] formals, Object... args) throws Exception {
+		Constructor<T> c = findConstructor(clz, formals);
+		if(c == null)
+			throw new IllegalStateException("Cannot find constructor in " + clz + " with args " + Arrays.toString(formals));
+		return c.newInstance(args);
+	}
 }
