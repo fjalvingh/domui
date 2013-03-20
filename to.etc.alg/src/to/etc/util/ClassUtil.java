@@ -60,6 +60,31 @@ final public class ClassUtil {
 		}
 	}
 
+	/**
+	 * Calls the given method with the given parameters in a given class instance. Used to access
+	 * classes whose definition are not to be linked to the code.
+	 *
+	 * @param on
+	 * @param name
+	 * @param objects
+	 * @return
+	 * @throws NoSuchMethodException if no suitable method can be found in the object.
+	 */
+	@Nullable
+	static public Object callMethod(@Nonnull final Object on, @Nonnull final String name, @Nonnull Class[] formals, @Nonnull final Object... instances) throws Exception {
+		Method m = findMethod(on.getClass(), name, formals);
+		if(m == null)
+			throw new NoSuchMethodException("A suitable method " + name + " cannot be found");
+		try {
+			return m.invoke(on, instances);
+		} catch(InvocationTargetException itx) {
+			if(itx.getCause() instanceof Exception)
+				throw (Exception) itx.getCause();
+			throw itx;
+		}
+	}
+
+
 	@Nullable
 	static public Method findMethod(@Nonnull final Class< ? > clz, @Nonnull final String name, @Nonnull final Class< ? >... param) {
 		try {
