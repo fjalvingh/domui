@@ -43,7 +43,7 @@ final class LookupFactoryRelationCombo implements ILookupControlFactory {
 	}
 
 	@Override
-	@SuppressWarnings({"unchecked", "rawtypes"})
+	@SuppressWarnings({"unchecked"})
 	public <X extends IInputNode< ? >> ILookupControlInstance createControl(final SearchPropertyMetaModel spm, final X control) {
 		IInputNode< ? > input = control;
 		if(input == null) {
