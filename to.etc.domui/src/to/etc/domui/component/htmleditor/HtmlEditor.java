@@ -115,13 +115,12 @@ public class HtmlEditor extends TextArea {
 
 		if(isFocusRequested()) {
 			sb.append("setTimeout(function() {");
-			sb.append("xxxFocus('#").append(getActualID()).append("');");
-//			appendJQuerySelector(sb);
-//			sb.append(".focus();");
+//			sb.append("xxxFocus('#").append(getActualID()).append("');");
+			appendJQuerySelector(sb);
+			sb.append(".focus();");
 //			sb.append("alert('focused');");
 			sb.append("}, 500);");
 		}
-
 
 		appendCreateJS(sb);
 		//		appendCreateJS("$(\"#" + getActualID() + "\").wysiwyg({css:'/ui/$themes/blue/style.theme.css'});");

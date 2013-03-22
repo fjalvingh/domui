@@ -22,11 +22,6 @@ $(window).bind('beforeunload', function() {
 	// alert('bmaj='+$.browser.majorVersion+", mv="+$.browser.minorVersion);
 }
 
-function xxxFocus(id) {
-	var item = $(id);
-	item.focus();
-}
-
 (function($) {
 	$.fn.center = function() {
 		if(this.css("position") != "fixed")
