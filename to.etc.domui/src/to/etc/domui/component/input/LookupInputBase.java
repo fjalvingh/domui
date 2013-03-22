@@ -955,8 +955,9 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 			DomUtil.setModifiedFlag(this);
 			setValue(value);
 			//-- Handle onValueChanged
-			if(getOnValueChanged() != null) {
-				((IValueChanged<NodeBase>) getOnValueChanged()).onValueChanged(this);
+			IValueChanged< ? > onValueChanged = getOnValueChanged();
+			if(onValueChanged != null) {
+				((IValueChanged<NodeBase>) onValueChanged).onValueChanged(this);
 			}
 		}
 		m_rebuildCause = value == null ? RebuildCause.CLEAR : RebuildCause.SELECT;

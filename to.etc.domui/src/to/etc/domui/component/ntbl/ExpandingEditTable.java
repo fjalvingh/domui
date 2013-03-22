@@ -452,8 +452,9 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 				return;
 		}
 
-		if(getOnRowChangeCompleted() != null) {
-			if(!((IRowEditorEvent<T, NodeContainer>) getOnRowChangeCompleted()).onRowChanged(this, editor, item, false))
+		IRowEditorEvent<T, ? > completed = getOnRowChangeCompleted();
+		if(completed != null) {
+			if(!((IRowEditorEvent<T, NodeContainer>) completed).onRowChanged(this, editor, item, false))
 				return;
 		}
 
@@ -576,8 +577,9 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		T newInstance = m_newInstance;
 		if(null == newInstance)
 			throw new IllegalStateException("The 'new' instance being edited is null?");
-		if(getOnRowChangeCompleted() != null) {
-			if(!((IRowEditorEvent<T, NodeContainer>) getOnRowChangeCompleted()).onRowChanged(this, newEditor, newInstance, true)) {
+		IRowEditorEvent<T, ? > completed = getOnRowChangeCompleted();
+		if(completed != null) {
+			if(!((IRowEditorEvent<T, NodeContainer>) completed).onRowChanged(this, newEditor, newInstance, true)) {
 				return;
 			}
 		}
