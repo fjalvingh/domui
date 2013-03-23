@@ -236,12 +236,12 @@ public abstract class DomApplication {
 	}
 
 	protected void registerControlFactories() {
-		registerControlFactory(ControlFactory.STRING_CF);
-		registerControlFactory(ControlFactory.TEXTAREA_CF);
-		registerControlFactory(ControlFactory.BOOLEAN_AND_ENUM_CF);
-		registerControlFactory(ControlFactory.DATE_CF);
-		registerControlFactory(ControlFactory.RELATION_COMBOBOX_CF);
-		registerControlFactory(ControlFactory.RELATION_LOOKUP_CF);
+		registerControlFactory(PropertyControlFactory.STRING_CF);
+		registerControlFactory(PropertyControlFactory.TEXTAREA_CF);
+		registerControlFactory(PropertyControlFactory.BOOLEAN_AND_ENUM_CF);
+		registerControlFactory(PropertyControlFactory.DATE_CF);
+		registerControlFactory(PropertyControlFactory.RELATION_COMBOBOX_CF);
+		registerControlFactory(PropertyControlFactory.RELATION_LOOKUP_CF);
 		registerControlFactory(new ControlFactoryMoney());
 	}
 
@@ -792,7 +792,7 @@ public abstract class DomApplication {
 	 * Add a new control factory to the registry.
 	 * @param cf		The new factory
 	 */
-	final public void registerControlFactory(final ControlFactory cf) {
+	final public void registerControlFactory(final PropertyControlFactory cf) {
 		getControlBuilder().registerControlFactory(cf);
 	}
 

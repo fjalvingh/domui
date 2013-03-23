@@ -439,7 +439,8 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 	 * @param cd
 	 * @throws Exception
 	 */
-	protected <X> void renderColumn(@Nonnull final TableModelTableBase<T> tbl, @Nonnull final ColumnContainer<T> cc, final int index, @Nonnull final T instance, @Nonnull final SimpleColumnDef< ? > cd) throws Exception {
+	protected <X> void renderColumn(@Nonnull final TableModelTableBase<T> tbl, @Nonnull final ColumnContainer<T> cc, final int index, @Nonnull final T instance, @Nonnull final SimpleColumnDef<X> cd)
+		throws Exception {
 		//-- If a value transformer is known get the column value, else just use the instance itself (case when Renderer is used)
 		X colval;
 		IValueTransformer< ? > valueTransformer = cd.getValueTransformer();
@@ -451,8 +452,15 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 		//-- Is a node renderer used?
 		TD cell;
 		String cssClass = cd.getCssClass();
-		INodeContentRenderer< ? > contentRenderer = cd.getContentRenderer();
-		if(null != contentRenderer) {
+		INodeContentRenderer<X> contentRenderer = cd.getContentRenderer();
+		IControlFactory<X> ic = cd.getControl();
+		if(null != ic) {
+			IControl<X> control = ic.createControl();
+			cell = cc.add((NodeBase) control);
+			PropertyMetaModel<X> pmm = (PropertyMetaModel<X>) MetaManager.getPropertyMeta(m_dataClass, cd.getPropertyName());
+			control.bind().to(instance, pmm);
+			((NodeBase) control).moveModelToControl();
+		} else if(null != contentRenderer) {
 			cell = cc.add((NodeBase) null); // Add the new row
 			if(cssClass != null)
 				cell.addCssClass(cssClass);

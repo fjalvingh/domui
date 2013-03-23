@@ -286,7 +286,7 @@ final public class MetaManager {
 			public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable Object object, @Nullable Object parameters) {
 				String text = lr.getLabelFor(object);
 				if(text != null)
-					node.setText(text);
+					node.add(text);
 			}
 		};
 	}
@@ -299,7 +299,7 @@ final public class MetaManager {
 		@Override
 		public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable Object object, @Nullable Object parameters) {
 			if(object != null)
-				node.setText(object.toString());
+				node.add(object.toString());
 		}
 	};
 
