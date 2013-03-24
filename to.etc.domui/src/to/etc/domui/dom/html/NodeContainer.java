@@ -36,9 +36,6 @@ import to.etc.webapp.*;
 /**
  * Base node for tags that can contain other nodes.
  *
- * A description on the deltaing mechanism used can be found in the header for {@link NodeBase}
- * @see NodeBase
- *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 17, 2007
  */

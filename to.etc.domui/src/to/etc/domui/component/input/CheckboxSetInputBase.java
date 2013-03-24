@@ -72,6 +72,8 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 		Collection<V> value = getValue();
 		if(value != null && value.contains(lv))
 			cb.setChecked(true);
+		boolean disa = isDisabled() || isReadOnly();
+		cb.setReadOnly(disa);
 
 		add(cb);
 		INodeContentRenderer<T> cr = m_actualContentRenderer;
@@ -111,5 +113,18 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 				value.remove(me.getKey());
 			}
 		}
+	}
+
+	@Override
+	protected void disabledChanged() {
+		boolean disa = isDisabled() || isReadOnly();
+		for(Checkbox cb : m_checkMap.values()) {
+			cb.setReadOnly(disa);
+		}
+	}
+
+	@Override
+	protected void readOnlyChanged() {
+		disabledChanged();
 	}
 }
