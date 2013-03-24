@@ -57,6 +57,8 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 	@Nonnull
 	static public List<IReloadListener> m_reloadListener = new ArrayList<>();
 
+	static private long m_lastReloadTime;
+
 
 	public ReloadingContextMaker(@Nonnull String applicationClassName, @Nonnull ConfigParameters pp, @Nullable String patterns, @Nullable String patternsWatchOnly) throws Exception {
 		super(pp);
@@ -87,6 +89,14 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 
 	public Reloader getReloader() {
 		return m_reloader;
+	}
+
+	static private synchronized void reloaded() {
+		m_lastReloadTime = System.currentTimeMillis();
+	}
+
+	static public synchronized long getLastReload() {
+		return m_lastReloadTime;
 	}
 
 	@Override
@@ -133,6 +143,7 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 		if(m_application == null) {
 			//-- Just load && be done
 			m_application = createApplication();
+			reloaded();
 			return;
 		}
 		if(!m_reloader.isChanged())
@@ -150,6 +161,7 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 		m_reloader.clear();
 
 		//-- Check to see if the application has changed
+		reloaded();
 		Class< ? > clz;
 		try {
 			clz = m_reloader.loadApplication(m_applicationClassName);

@@ -31,6 +31,7 @@ import javax.annotation.*;
 import javax.servlet.http.*;
 
 import to.etc.domui.state.*;
+import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.upload.*;
 import to.etc.net.*;
@@ -239,47 +240,50 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	}
 
 	protected void flush() throws Exception {
-		if(m_sw != null) {
-			if(getApplication().logOutput()) {
-				String res = m_sw.getBuffer().toString();
-				File tgt = new File("/tmp/last-domui-output.xml");
-				try {
-					FileTool.writeFileFromString(tgt, res, "utf-8");
-				} catch(Exception x) {}
+		try {
+			if(m_sw != null) {
+				if(getApplication().logOutput()) {
+					String res = m_sw.getBuffer().toString();
+					File tgt = new File("/tmp/last-domui-output.xml");
+					try {
+						FileTool.writeFileFromString(tgt, res, "utf-8");
+					} catch(Exception x) {}
 
-				System.out.println("---- rendered output:");
-				System.out.println(res);
-				System.out.println("---- end");
-			}
-
-			//-- debug: flush in small parts and delay.
-			if(false) {
-				int fnr = 0;
-				StringBuffer buffer = m_sw.getBuffer();
-				int len = buffer.length();
-				int six = 0;
-				int xf = (len + 65535) / 65536;
-				while(six < len) {
-					if(six > 0) {
-						System.out.println(" ..... wrote fragment " + fnr + " of " + xf);
-						Thread.sleep(250);
-					}
-
-					int eix = six + 65536;
-					if(eix > len)
-						eix = len;
-					String frag = buffer.substring(six, eix);
-					getResponse().getWriter().append(frag);
-					six = eix;
-					fnr++;
+					System.out.println("---- rendered output:");
+					System.out.println(res);
+					System.out.println("---- end");
 				}
-				System.out.println("              .... all done");
-			} else {
-				getResponse().getWriter().append(m_sw.getBuffer());
-			}
-			m_sw = null;
-		}
 
+				//-- debug: flush in small parts and delay.
+				if(false) {
+					int fnr = 0;
+					StringBuffer buffer = m_sw.getBuffer();
+					int len = buffer.length();
+					int six = 0;
+					int xf = (len + 65535) / 65536;
+					while(six < len) {
+						if(six > 0) {
+							System.out.println(" ..... wrote fragment " + fnr + " of " + xf);
+							Thread.sleep(250);
+						}
+
+						int eix = six + 65536;
+						if(eix > len)
+							eix = len;
+						String frag = buffer.substring(six, eix);
+						getResponse().getWriter().append(frag);
+						six = eix;
+						fnr++;
+					}
+					System.out.println("              .... all done");
+				} else {
+					getResponse().getWriter().append(m_sw.getBuffer());
+				}
+				m_sw = null;
+			}
+		} catch(IOException ioe) {
+			throw new ClientDisconnectedException(ioe);
+		}
 	}
 
 	protected void discard() throws IOException {

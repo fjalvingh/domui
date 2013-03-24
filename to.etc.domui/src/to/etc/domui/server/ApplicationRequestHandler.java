@@ -24,6 +24,8 @@
  */
 package to.etc.domui.server;
 
+import java.io.*;
+import java.sql.*;
 import java.util.*;
 
 import javax.annotation.*;
@@ -41,6 +43,7 @@ import to.etc.domui.login.*;
 import to.etc.domui.state.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
+import to.etc.template.*;
 import to.etc.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.core.*;
@@ -77,14 +80,48 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 	@Override
 	public void handleRequest(@Nonnull final RequestContextImpl ctx) throws Exception {
-		ServerTools.generateNoCache(ctx.getResponse()); // All replies may not be cached at all!!
+		ServerTools.generateNoCache(ctx.getResponse()); 				// All replies may not be cached at all!!
 		handleMain(ctx);
 		ctx.getSession().dump();
 	}
 
 	private void handleMain(@Nonnull final RequestContextImpl ctx) throws Exception {
 		Class< ? extends UrlPage> runclass = decodeRunClass(ctx);
-		runClass(ctx, runclass);
+		try {
+			runClass(ctx, runclass);
+		} catch(ThingyNotFoundException xxxx) {
+			throw xxxx;
+		} catch(ClientDisconnectedException xxxx) {
+			throw xxxx;
+		} catch(Exception x) {
+			if(!m_application.inDevelopmentMode())
+				throw x;
+
+			tryRenderOopsFrame(ctx, x);
+		} catch(Error x) {
+			if(!m_application.inDevelopmentMode())
+				throw x;
+
+			String s = x.getMessage();
+			if(s != null && s.contains("compilation problems")) {
+				tryRenderOopsFrame(ctx, x);
+			} else
+				throw x;
+		}
+	}
+
+	private void tryRenderOopsFrame(@Nonnull final RequestContextImpl ctx, @Nonnull Throwable x) throws Exception {
+		try {
+			renderOopsFrame(ctx, x);
+		} catch(Exception oopx) {
+			System.out.println("Exception while rendering exception page!!?? " + oopx);
+			oopx.printStackTrace();
+			if(x instanceof Error) {
+				throw (Error) x;
+			} else {
+				throw (Exception) x;
+			}
+		}
 	}
 
 	/**
@@ -446,13 +483,11 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			}
 
 			//-- 20100712 jal EXPERIMENTAL Pass exceptions in initial rendering mode to code too.
-			//			if(x instanceof QNotFoundException) {
 			IExceptionListener xl = ctx.getApplication().findExceptionListenerFor(x);
 			if(xl != null && xl.handleException(ctx, page, null, x)) {
 				if(cm.handleExceptionGoto(ctx, page, false))
 					return;
 			}
-			//			}
 
 			checkFullExceptionCount(page, x); // Rethrow, but clear state if page throws up too much.
 		} finally {
@@ -1022,4 +1057,146 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		ClickInfo cli = new ClickInfo(ctx);
 		b.internalOnClicked(cli);
 	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	If a page failed, show a neater response.			*/
+	/*--------------------------------------------------------------*/
+
+	@Nullable
+	private JSTemplate m_exceptionTemplate;
+
+
+	/**
+	 *
+	 * @param ctx
+	 * @param x
+	 */
+	private void renderOopsFrame(@Nonnull RequestContextImpl ctx, @Nonnull Throwable x) throws Exception {
+		HttpServletResponse resp = ctx.getResponse();
+		resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);				// Fail with proper response code.
+		Map<String, Object> dataMap = new HashMap<>();
+		dataMap.put("x", x);
+		dataMap.put("ctx", ctx);
+		dataMap.put("app", ctx.getRelativePath(""));
+		String sheet = ctx.getApplication().getThemedResourceRURL("THEME/style.theme.css");
+		if(null == sheet)
+			throw new IllegalStateException("Unexpected null??");
+		dataMap.put("stylesheet", sheet);
+
+		String theme = ctx.getApplication().getThemedResourceRURL("THEME/");
+		dataMap.put("theme", theme);
+
+		StringBuilder sb = new StringBuilder();
+		dumpException(sb, x);
+		dataMap.put("stacktrace", sb.toString());
+		dataMap.put("message", StringTool.htmlStringize(x.toString()));
+
+
+		Writer w = resp.getWriter();
+		JSTemplate xt = getExceptionTemplate();
+		xt.execute(w, dataMap);
+		w.flush();
+		w.close();
+	}
+
+	@Nonnull
+	public JSTemplate getExceptionTemplate() throws Exception {
+		JSTemplate xt = m_exceptionTemplate;
+		if(xt == null) {
+			JSTemplateCompiler jtc = new JSTemplateCompiler();
+			if(true) {
+				File src = new File("/home/jal/bzr/puzzler-lf/domui/to.etc.domui/src/to/etc/domui/server/exceptionTemplate.html");
+				Reader r = new FileReader(src);
+				try {
+					xt = jtc.compile(r, src.getAbsolutePath());
+				} finally {
+					FileTool.closeAll(r);
+				}
+			} else {
+				xt = jtc.compile(ApplicationRequestHandler.class, "exceptionTemplate.html", "utf-8");
+			}
+		}
+		return xt;
+	}
+
+	static private void dumpException(@Nonnull StringBuilder a, @Nonnull Throwable x) {
+		Set<String> allset = new HashSet<>();
+		StackTraceElement[] ssear = x.getStackTrace();
+		for(StackTraceElement sse : ssear) {
+			allset.add(sse.toString());
+		}
+
+		dumpSingle(a, x, Collections.EMPTY_SET);
+
+		Throwable curr = x;
+		for(;;) {
+			Throwable cause = curr.getCause();
+			if(cause == null || cause == curr)
+				break;
+
+			a.append("\n\n     Caused by ").append(cause.toString()).append("\n");
+			dumpSingle(a, cause, allset);
+		}
+	}
+
+	static private void dumpSingle(@Nonnull StringBuilder sb, @Nonnull Throwable x, @Nonnull Set<String> initset) {
+		//-- Try to render openable stack trace elements as links.
+		List<StackTraceElement> list = Arrays.asList(x.getStackTrace());
+
+		//-- Remove from the end the server stuff
+		int ix = findName(list, AppFilter.class.getName());
+		if(ix != -1) {
+			list = stripFrames(list, ix + 1);
+		}
+
+		//-- Remove from the end all names in initset.
+		for(int i = list.size(); --i >= 0;) {
+			String str = list.get(i).toString();
+			if(!initset.contains(str))
+				break;
+			list.remove(i);
+		}
+
+		for(StackTraceElement ste : list) {
+			appendTraceLink(sb, ste);
+		}
+		if(x instanceof SQLException) {
+			SQLException sx = (SQLException) x;
+			while(sx.getNextException() != null) {
+				sx = sx.getNextException();
+				sb.append("SQL NextException: ");
+				sb.append(sx.toString());
+				sb.append("<br>");
+			}
+		}
+	}
+
+
+	private static int findName(@Nonnull List<StackTraceElement> list, String name) {
+		for(int i = list.size(); --i >= 0;) {
+			String cn = list.get(i).getClassName();
+			if(name.equals(cn))
+				return i;
+		}
+		return -1;
+	}
+
+	private static List<StackTraceElement> stripFrames(@Nonnull List<StackTraceElement> list, int from) {
+		return list.subList(0, from - 1);
+	}
+
+	private static void appendTraceLink(@Nonnull StringBuilder sb, @Nonnull StackTraceElement ste) {
+		sb.append("        <a class='exc-stk-l' href=\"#\" onclick=\"linkClicked('");
+		//-- Get name for the thingy,
+		String name;
+		if(ste.getLineNumber() <= 0)
+			name = ste.getClassName().replace('.', '/') + ".java@" + ste.getMethodName();
+		else
+			name = ste.getClassName().replace('.', '/') + ".java#" + ste.getLineNumber();
+		sb.append(name);
+		sb.append("')\">");
+		sb.append(ste.toString()).append("</a><br>");
+	}
+
 }

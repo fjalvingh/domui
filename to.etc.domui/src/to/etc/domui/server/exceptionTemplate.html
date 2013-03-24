@@ -1,0 +1,136 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<link rel="stylesheet" type="text/css" href="<%= stylesheet %>"></link>
+	<script type="text/javascript" src="$js/jquery.js"></script>
+<style type="text/css"><!--
+
+.exc-title {
+	font-size: 14px;
+	font-weight: bold;
+}
+
+.exc-tbl-lbl {
+	min-width: 120px;
+	font-weight: bolder;
+}
+
+.exc-subtitle {
+	font-size: 12px;
+	font-weight: bold;
+	font-style: italic;
+}
+.exc-stacktrace {
+	border: 1px dotted gray;
+	max-height: 400px;
+	overflow: auto;
+}
+
+--></style>
+<script type="text/javascript"><!--
+function linkClicked(trace) {
+	$.getJSON("to.etc.domui.parts.OpenStacktracePart.part", {element: trace}, function(resp, status, req) {
+		if(status == "error") {
+			alert("Failed to reach the server");
+			$(this).html("Failed to reach the server.");			
+		} else {
+			var msg = resp.message;
+			if(message != undefined && message != "") {
+				alert(message);
+			} else {
+				
+			}
+		}
+	});
+}
+
+function startTrying() {
+	setTimeout(function() {
+		tryReload();
+	}, 1000);
+}
+pingpong = false;
+lastTry = 0;
+
+function tryReload() {
+	try {
+		$.ajax({
+			type: "GET",
+			url:"to.etc.domui.parts.OpenStacktracePart.part",
+			data: {
+				check: "one"
+			},
+			dataType: "json",
+			success: function(resp) {
+				try {
+					pingpong = ! pingpong;
+					var last = resp.reload;
+					var ping = $("#ping");
+					$("#ping").html("<p>" + (pingpong ? "ping " : "pong ") + last+"</p>");
+					
+					if(lastTry == 0) {
+						lastTry = last;
+					} else if(last > lastTry) {
+						window.location.href = window.location.href;
+					}
+					
+					
+				} finally {
+					startTrying();
+				}
+			} 
+		});
+	} catch(x) {
+		alert(x);		
+	} finally {
+	}
+}
+
+startTrying();
+
+--></script>
+</head>
+<body>
+	<div style="float: right; width: 180px; height:90%">
+		<img src="<%= theme %>/logo-small.png">
+		<img src="<%= theme %>/exception-img-1.png">
+		<div id="ping">Poing</div>
+	</div>
+	<div>
+		<div class="exc-title">Whoops: an exception occurred...</div>
+		
+		<div class="exc-subtitle">Page and exception info</div>
+		<table cellspacing="1" cellpadding="1" border="0">
+			<tr>
+				<td class="exc-tbl-lbl">URL</td>
+				<td class="exc-tbl-v"><%= ctx.getRequest().getRequestURI() %>
+				</td>
+			</tr>
+			<tr>
+				<td class="exc-tbl-lbl">Exception type</td>
+				<td class="exc-tbl-v"><%= x.getClass().getName() %></td>
+			</tr>
+			<tr>
+				<td class="exc-tbl-lbl">Message</td>
+				<td class="exc-tbl-v"><pre><%= x.getMessage() %>
+</pre></td>
+			</tr>
+			<tr>
+				<td class="exc-tbl-lbl"></td>
+				<td class="exc-tbl-v">
+				</td>
+			</tr>
+		</table>
+		
+		
+		<div class="exc-subtitle">Exception stack trace:</div>
+		<div class="exc-stacktrace"><pre><%= stacktrace %>
+</pre></div>
+		<div>If you have the DomUI plugin installed, clicking a stack trace entry should open the class in Eclipse.</div>
+		<div class="exc-error" id="linkerror"></div>
+	</div>
+</body>
+</html>
+
+

@@ -105,7 +105,7 @@ public class TempFilePart implements IUnbufferedPartFactory {
 	}
 
 	@Override
-	public void generate(DomApplication app, String rurl, RequestContextImpl param) throws Exception {
+	public void generate(@Nonnull DomApplication app, @Nonnull String rurl, @Nonnull RequestContextImpl param) throws Exception {
 		String fkey = param.getParameter("key");
 		String fpw = param.getParameter("passkey");
 		if(fkey == null || fpw == null)
