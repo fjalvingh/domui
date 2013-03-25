@@ -31,11 +31,11 @@ public class OpenStacktracePart implements IUnbufferedPartFactory {
 
 			boolean ok = InternalParentTree.openEclipseSource(stk);
 
-			w.print("{\"message\":'");
+			w.print("{\"message\":\"");
 			if(true || !ok) {
 				w.print("Failed to connect to Eclipse. You need to have the Eclipse DomUI plugin running.");
 			}
-			w.print("'}");
+			w.print("\"}");
 		}
 	}
 

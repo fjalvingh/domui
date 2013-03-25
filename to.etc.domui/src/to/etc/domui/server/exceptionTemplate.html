@@ -6,21 +6,60 @@
 	<script type="text/javascript" src="$js/jquery.js"></script>
 <style type="text/css"><!--
 body, html {
-	background: #ffc2a3;
 }
 body {
 }
+.exc-top {
+	position: absolute;
+	top: 0px;
+	height: 55px;
+	left: 0px;
+	right: 0px;
+	background: url(<%= theme %>exc-bugs-ttl.png) repeat-x;
+	padding: 15px;
+}
+.exc-left {
+	position: absolute;
+	right: 0px;
+	left: 0px;
+	top: 55px;
+	bottom: 50px;
+	background: white;
+	overflow: auto;
+	padding: 5px;
+}
+.exc-bottom {
+	position: absolute;
+	left: 0px;
+	right: 0px;
+	bottom: 0px;
+	height: 50px;
+}
+#ping {
+	position: absolute;
+	right: 0px;
+	top: 10px;
+	width: auto;
+	bottom:10px;
+}
+
 .exc-title {
-	font-size: 18px;
+	display: inline;
+	font-size: 20px;
 	font-weight: bold;
-	padding: 10px 0px;
+	color: black;
+	padding: 5px 10px;
+	background-color: #ff9e95;
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	border-radius: 10px;
+	border: 1px dotted red;
 }
 
 .exc-tbl-lbl {
 	min-width: 120px;
 	font-weight: bolder;
 }
-
 .exc-subtitle {
 	font-size: 12px;
 	font-weight: bold;
@@ -33,18 +72,13 @@ body {
 
 --></style>
 <script type="text/javascript"><!--
+var theme = "<%= theme %>";
+
 function linkClicked(trace) {
-	$.getJSON("to.etc.domui.parts.OpenStacktracePart.part", {element: trace}, function(resp, status, req) {
-		if(status == "error") {
-			alert("Failed to reach the server");
-			$(this).html("Failed to reach the server.");			
-		} else {
-			var msg = resp.message;
-			if(message != undefined && message != "") {
-				alert(message);
-			} else {
-				
-			}
+	jsonCall({element:trace}, function(resp) {
+		var message = resp.message;
+		if(message != undefined && message != "") {
+			alert(message);
 		}
 	});
 }
@@ -52,42 +86,53 @@ function linkClicked(trace) {
 function startTrying() {
 	setTimeout(function() {
 		tryReload();
-	}, 1000);
+	}, 500);
 }
 pingpong = false;
 lastTry = 0;
 
 function tryReload() {
 	try {
-		$.ajax({
-			type: "GET",
-			url:"to.etc.domui.parts.OpenStacktracePart.part",
-			data: {
-				check: "one"
-			},
-			dataType: "json",
-			success: function(resp) {
-				try {
-					pingpong = ! pingpong;
-					var last = resp.reload;
-					var ping = $("#ping");
-					$("#ping").html("<p>" + (pingpong ? "ping " : "pong ") + last+"</p>");
-					
-					if(lastTry == 0) {
-						lastTry = last;
-					} else if(last > lastTry) {
-						window.location.href = window.location.href;
-					}
-					
-					
-				} finally {
-					startTrying();
+		jsonCall({check: "one"}, function(resp) {
+			try {
+				pingpong = ! pingpong;
+				var last = resp.reload;
+				var ping = $("#ping");
+				
+				var im = theme + (pingpong ? "exc-connect-1.png" : "exc-connect-2.png");
+				$("#pingi").attr("src", im);
+				$("#pingt").html(""+last);
+				
+				if(lastTry == 0) {
+					lastTry = last;
+				} else if(last > lastTry) {
+					window.location.href = window.location.href;
 				}
-			} 
+				
+				
+			} finally {
+				startTrying();
+			}
 		});
 	} catch(x) {
 		alert(x);		
-	} finally {
+	}
+}
+
+function jsonCall(fields, sfn) {
+	try {
+		$.ajax({
+			type: "GET",
+			url:"to.etc.domui.parts.OpenStacktracePart.part",
+			data: fields,
+			dataType: "json",
+			success: sfn,
+			error: function(text, status, xdr) {
+				alert('error: '+text+", "+status+", "+xdr);
+			}
+		});
+	} catch(x) {
+		alert(x);		
 	}
 }
 
@@ -96,14 +141,11 @@ startTrying();
 --></script>
 </head>
 <body>
-	<div style="float: right; width: 180px; height:90%">
-		<img src="<%= theme %>/logo-small.png">
-		<img src="<%= theme %>/exception-img-1.png">
-		<div id="ping">Poing</div>
-	</div>
-	<div>
+	<div class="exc-top">
 		<div class="exc-title">Whoops: an exception occurred...</div>
-		
+		<div id="ping"></div>
+	</div>
+	<div class="exc-left">
 		<div class="exc-subtitle">Page and exception info</div>
 		<table cellspacing="1" cellpadding="1" border="0">
 			<tr>
@@ -131,9 +173,16 @@ startTrying();
 		<div class="exc-subtitle">Exception stack trace:</div>
 		<div class="exc-stacktrace"><pre><%= stacktrace %>
 </pre></div>
-		<div>If you have the DomUI plugin installed, clicking a stack trace entry should open the class in Eclipse.</div>
+		<div>If you have the <a href="http://domui.org/wiki/bin/view/Documentation/EclipsePlugin" target="_blank">DomUI Eclipse plugin</a> installed, clicking a stack trace entry should open the class in Eclipse.</div>
 		<div class="exc-error" id="linkerror"></div>
 	</div>
+	<div class="exc-bottom">
+		<img align="right" src="<%= theme %>/logo-small.png">
+		<div title="Pinging for updates in the code, so that the page can be reloaded after the problem is fixed">
+			<img id="pingi" src="" ><span>Pinging, last reload: </span><span id="pingt">?</span>
+		</div>
+	</div>
+	
 </body>
 </html>
 
