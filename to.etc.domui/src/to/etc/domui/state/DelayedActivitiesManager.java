@@ -50,6 +50,9 @@ public class DelayedActivitiesManager implements Runnable {
 	/** When set this forces termination of any handling thread for the asynchronous actions. */
 	private boolean m_terminated;
 
+	//	/** When > 0, this defines that we need to poll continuously at at *least* this frequency (#of millis between polls) */
+	//	private int m_continuousPollingInterval;
+
 	/**
 	 * The set of nodes that need a callback for changes to the UI every polltime seconds.
 	 */
@@ -188,6 +191,23 @@ public class DelayedActivitiesManager implements Runnable {
 		return true;
 	}
 
+	//	/**
+	//	 * Returns whether the client needs to use it's polltimer again and poll for changes. It returns 0 if there is no need to poll.
+	//	 * @return
+	//	 */
+	//	public int getPollInterval() {
+	//		synchronized(this) {
+	//			//-- Determine the minimal poll interval.
+	//			int pinterval = m_continuousPollingInterval;
+	//			if(m_pendingQueue.size() > 0 || m_completionQueue.size() > 0 || m_runningActivity != null || m_pollSet.size() > 0) {
+	//				int di = DomApplication.get().getDefaultPollInterval();
+	//				if(pinterval == 0 || pinterval > di)
+	//					pinterval = di;
+	//			}
+	//			return pinterval;
+	//		}
+	//	}
+
 	/**
 	 * Returns whether the client needs to use it's polltimer again and poll for changes.
 	 * @return
@@ -197,6 +217,7 @@ public class DelayedActivitiesManager implements Runnable {
 			return m_pendingQueue.size() > 0 || m_completionQueue.size() > 0 || m_runningActivity != null || m_pollSet.size() > 0;
 		}
 	}
+
 
 	public boolean isTerminated() {
 		synchronized(this) {
@@ -391,4 +412,11 @@ public class DelayedActivitiesManager implements Runnable {
 		m_pollSet.remove(nc);
 	}
 
+	//	/**
+	//	 * Set (or reset) continuous polling at least [interval] times apart, in milliseconds.
+	//	 * @param interval
+	//	 */
+	//	public void setContinuousPolling(int interval) {
+	//		m_continuousPollingInterval = interval;
+	//	}
 }
