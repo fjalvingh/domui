@@ -1621,8 +1621,13 @@ public abstract class DomApplication {
 		return m_keepAliveInterval;
 	}
 
+	/**
+	 * Set the keep-alive interval for DomUI screens, in milliseconds.
+	 * @param keepAliveInterval
+	 */
 	public synchronized void setKeepAliveInterval(int keepAliveInterval) {
-		m_keepAliveInterval = keepAliveInterval;
+		if(DeveloperOptions.getBool("domui.autorefresh", true) || DeveloperOptions.getBool("domui.keepalive", false))				// If "autorefresh" has been disabled do not use keepalive either.
+			m_keepAliveInterval = keepAliveInterval;
 	}
 
 	private List<IDomUIStateListener> m_uiStateListeners = Collections.EMPTY_LIST;
