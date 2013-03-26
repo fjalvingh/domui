@@ -2,7 +2,6 @@ package to.etc.domui.server;
 
 import javax.annotation.*;
 
-import to.etc.domui.server.*;
 import to.etc.domui.server.parts.*;
 
 /**
