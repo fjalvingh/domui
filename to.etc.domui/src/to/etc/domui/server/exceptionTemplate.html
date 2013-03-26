@@ -92,13 +92,18 @@ pingpong = false;
 lastTry = 0;
 
 function tryReload() {
-	try {
-		jsonCall({check: "one"}, function(resp) {
+	$.ajax({
+		type: "GET",
+		url:"to.etc.domui.parts.OpenStacktracePart.part",
+		data: {check: "one"},
+		dataType: "json",
+		success: function(resp) {
+			var restart = true;
 			try {
 				pingpong = ! pingpong;
 				var last = resp.reload;
 				var ping = $("#ping");
-				
+
 				var im = theme + (pingpong ? "exc-connect-1.png" : "exc-connect-2.png");
 				$("#pingi").attr("src", im);
 				$("#pingt").html(""+last);
@@ -106,17 +111,19 @@ function tryReload() {
 				if(lastTry == 0) {
 					lastTry = last;
 				} else if(last > lastTry) {
+					lastTry = last;
 					window.location.href = window.location.href;
+					restart = false;
 				}
-				
-				
 			} finally {
-				startTrying();
+				if(restart)
+					startTrying();
 			}
-		});
-	} catch(x) {
-		alert(x);		
-	}
+		},
+		error: function(text, status, xdr) {
+			startTrying();
+		}
+	});
 }
 
 function jsonCall(fields, sfn) {
@@ -128,11 +135,11 @@ function jsonCall(fields, sfn) {
 			dataType: "json",
 			success: sfn,
 			error: function(text, status, xdr) {
-				alert('error: '+text+", "+status+", "+xdr);
+				alert("Cannot connect to server");
 			}
 		});
 	} catch(x) {
-		alert(x);		
+		$("#exc-error").html("Error: "+status);
 	}
 }
 

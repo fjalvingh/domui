@@ -1105,7 +1105,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		JSTemplate xt = m_exceptionTemplate;
 		if(xt == null) {
 			JSTemplateCompiler jtc = new JSTemplateCompiler();
-			if(true) {
+			if(false) {
 				File src = new File("/home/jal/bzr/puzzler-lf/domui/to.etc.domui/src/to/etc/domui/server/exceptionTemplate.html");
 				Reader r = new FileReader(src);
 				try {
