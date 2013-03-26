@@ -124,4 +124,22 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 	public Set<T> getSelectedSet() {
 		return new HashSet<T>(m_selectedSet);
 	}
+
+	public void setSelectedSet(@Nonnull Collection<T> in) throws Exception {
+		if(null == in) {
+			clearSelection();
+			return;
+		}
+
+		Set<T> old = new HashSet<T>(m_selectedSet);
+		for(T data : in) {
+			if(old.remove(data)) {
+				//-- Already selected
+			} else {
+				setInstanceSelected(data, true);
+			}
+		}
+		for(T s : old)
+			setInstanceSelected(s, false);
+	}
 }
