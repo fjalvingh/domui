@@ -103,7 +103,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				throw x;
 
 			String s = x.getMessage();
-			if(s != null && s.contains("compilation problems")) {
+			if(s != null && s.contains("compilation") && s.contains("problem")) {
 				tryRenderOopsFrame(ctx, x);
 			} else
 				throw x;
