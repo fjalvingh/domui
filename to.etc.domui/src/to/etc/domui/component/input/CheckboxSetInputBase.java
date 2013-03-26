@@ -52,6 +52,7 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 
 	@Override
 	public void createContent() throws Exception {
+		setCssClass("ui-cbis");
 		m_checkMap.clear();
 		List<T> data = getData();
 		int count = 0;
