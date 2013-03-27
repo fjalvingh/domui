@@ -135,6 +135,8 @@ public class FragmentedThemeFactory implements IThemeFactory {
 	protected ITheme createTheme() throws Exception {
 		loadStyleInfo();
 		ResourceDependencies rd = m_rdl.createDependencies();
+
+		m_searchList.add("$themes/all");						// 20130327 jal the "all" theme dir contains stuff shared over all themes.
 		return new FragmentedThemeStore(m_application, m_stylesheet.getBytes("utf-8"), executor(), m_searchList, rd);
 	}
 
