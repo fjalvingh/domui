@@ -33,6 +33,9 @@ import to.etc.util.*;
 /**
  * Write MIME messages. Allows embedding MIME bodies.
  *
+ * Please check what comes out of this before changing anything!! Use
+ * http://tools.ietf.org/tools/msglint/ for instance.
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 24, 2010
  */
@@ -56,19 +59,30 @@ public class MimeWriter {
 
 	private MimeWriter			m_currentSub;
 
-	protected MimeWriter(OutputStream os) {
+	private int					m_boundaryCount;
+
+	final static private long	m_sysStartTime		= System.currentTimeMillis() / 1000;
+
+	static private long			m_lastOutTime;
+
+	protected MimeWriter(@Nonnull OutputStream os) {
 		m_os = os;
 		m_dad = null;
 	}
 
-	protected MimeWriter(MimeWriter dad, OutputStream os) {
+	protected MimeWriter(@Nonnull MimeWriter dad, @Nonnull OutputStream os) {
 		m_os = os;
 		m_dad = dad;
 	}
 
 	protected byte[] getBoundary() {
 		if(m_boundary == null) {
-			m_boundaryString = "----bou-n-dar-y-=_" + StringTool.generateGUID();
+			MimeWriter root = this;
+			while(root.m_dad != null)
+				root = root.m_dad;
+
+			m_boundaryString = "----bou-n-dar-y-=_" + StringTool.generateGUID() + "nr" + (root.m_boundaryCount++);
+			m_boundaryString = m_boundaryString.replace('$', 'X');		// $ not allowed in boundary string
 			try {
 				m_boundary = m_boundaryString.getBytes("iso-8859-1");
 			} catch(Exception x) {}
@@ -154,20 +168,82 @@ public class MimeWriter {
 		}
 	}
 
-	public void writeVersion() throws IOException {
+	private void writeVersion() throws IOException {
 		rawHeader("Mime-Version", "1.0");
 	}
 
-	public void writeBody(String contenttype, String trailer) throws IOException {
-		rawHeader("Content-Type", contenttype + "; boundary=\"" + getBoundaryString() + "\";" + trailer);
+	/**
+	 * BAD CODE - this writes a boundary header where there should not be one.
+	 * @param contenttype
+	 * @param trailer
+	 * @throws IOException
+	 */
+	//	@Deprecated
+	//	public void writeBody(String contenttype, String trailer) throws IOException {
+	//		rawHeader("Content-Type", contenttype + "; boundary=\"" + getBoundaryString() + "\";" + trailer);
+	//	}
+
+	public void writeHeader(@Nonnull String name, @Nonnull String primevalue, String... subheaders) throws IOException {
+		writeHeader(false, name, primevalue, subheaders);
 	}
 
-	static public MimeWriter createMimeWriter(OutputStream os, String contentType, String rest) throws IOException {
+	public void writeHeader(boolean includeboundary, @Nonnull String name, @Nonnull String primevalue, String... subheaders) throws IOException {
+		StringBuilder sb = new StringBuilder();
+		sb.append(primevalue);
+		if(includeboundary) {
+			sb.append(";boundary=");
+			sb.append(headerquote(getBoundaryString()));
+		}
+
+		for(int i = 0; i < subheaders.length; i += 2) {
+			String sname = subheaders[i];
+			String sval = subheaders[i + 1];
+			sb.append(";");
+			sb.append(sname);
+			sb.append('=');
+			sb.append(headerquote(sval));
+		}
+
+		rawHeader(name, sb.toString());
+	}
+
+	@Nonnull
+	private String headerquote(@Nonnull String in) {
+		return "\"" + in + "\"";
+	}
+
+	/**
+	 * Return a valid content ID for a MIME part.
+	 * @return
+	 */
+	@Nonnull
+	static synchronized public String generateContentID() {
+		long cts = System.currentTimeMillis();
+		if(m_lastOutTime != 0) {
+			if(cts == m_lastOutTime) {
+				cts++;
+			}
+		}
+		m_lastOutTime = cts;
+		return m_sysStartTime + "." + cts + "@example.com";
+	}
+
+	/**
+	 * This creates the root mime writer to some stream.
+	 * @param os
+	 * @param contentType
+	 * @param rest
+	 * @return
+	 * @throws IOException
+	 */
+	@Nonnull
+	static public MimeWriter createMimeWriter(@Nonnull OutputStream os, @Nonnull String contentType, String... subpairs) throws IOException {
 		if(!contentType.startsWith("multipart/"))
 			throw new IllegalStateException("Expecting a 'multipart/' type");
 		MimeWriter w = new MimeWriter(os);
 		w.writeVersion();
-		w.writeBody(contentType, rest);
+		w.writeHeader(true, "Content-Type", contentType, subpairs);
+		w.writeHeader("Content-Transfer-Encoding", "8bit");
 		return w;
 	}
 
@@ -184,11 +260,11 @@ public class MimeWriter {
 
 	private boolean			m_part_base64;
 
-	public void partStart(boolean base64, String contenttype, String rest) throws IOException {
-		flush(); // Close anything partially open
+	public void partStart(boolean base64, String contenttype, String... subpairs) throws IOException {
+		flush(); 									// Close anything partially open
 
 		writeOpenBoundary();
-		writeBody(contenttype, rest); // Root document
+		writeHeader("Content-Type", contenttype, subpairs);
 		rawHeader("Content-Transfer-Encoding", base64 ? "base64" : "8bit");
 		m_part_base64 = base64;
 		m_inpart = true;
@@ -254,13 +330,13 @@ public class MimeWriter {
 	 * boundary header and the initial MIME headers.
 	 * @return
 	 */
-	public MimeWriter createSubMime(String contenttype, String rest) throws IOException {
+	public MimeWriter createSubMime(String contenttype, String... rest) throws IOException {
 		flush(); // Close all other open subtypes
 		writeOpenBoundary();
 
 		MimeWriter sub = new MimeWriter(this, m_os);
-		sub.writeVersion(); // Mime header
-		sub.writeBody(contenttype, rest); // Root document
+		sub.writeHeader(true, "Content-Type", contenttype, rest);
+		sub.writeHeader("Content-Transfer-Encoding", "8bit");
 		m_currentSub = sub;
 		return sub;
 	}

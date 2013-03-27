@@ -109,6 +109,10 @@ public class MailHelper {
 	public MailHelper() {
 }
 
+	public void setRoot(File root) {
+		m_root = root;
+	}
+
 	private void init() {
 		if(m_init)
 			return;
@@ -439,6 +443,9 @@ public class MailHelper {
 		}
 	}
 
+	private File m_root;
+
+
 	/**
 	 * Add a web resource as an image. For this to work you must override {@link #getApplicationResource(String)}.
 	 * @param name
@@ -449,14 +456,21 @@ public class MailHelper {
 	 */
 	@Nonnull
 	public MailHelper image(@Nonnull String name, @Nonnull String mime, @Nonnull String rurl) throws Exception {
-		InputStream is = getApplicationResource(rurl);
+		InputStream is;
+		if(m_root != null) {
+			is = new FileInputStream(new File(m_root, rurl));
+		} else {
+			is = getApplicationResource(rurl);
+		}
+
 		byte[][] buf;
 		try {
 			buf = FileTool.loadByteBuffers(is);
 		} finally {
 			FileTool.closeAll(is);
 		}
-		String s = m_lastImgKey = name + "-" + (m_attindex++);
+		String s = MimeWriter.generateContentID();
+//		String s = m_lastImgKey = name + "-" + (m_attindex++);
 		image(new Attachment(mime, s, buf), name);
 		return this;
 	}
