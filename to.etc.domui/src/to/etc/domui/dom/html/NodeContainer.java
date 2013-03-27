@@ -704,7 +704,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @see to.etc.domui.dom.html.NodeBase#moveControlToModel()
 	 */
 	@Override
-	final public void moveControlToModel() throws Exception {
+	public void moveControlToModel() throws Exception {
 		super.moveControlToModel();
 		Exception x = null;
 		for(NodeBase b : new ArrayList<NodeBase>(m_children)) {
@@ -729,7 +729,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @see to.etc.domui.dom.html.NodeBase#moveModelToControl()
 	 */
 	@Override
-	final public void moveModelToControl() throws Exception {
+	public void moveModelToControl() throws Exception {
 		super.moveModelToControl(); 					// Move the value to *this* node if it is bindable
 		build(); 										// And only build it AFTER a value can have been set.
 		for(NodeBase b : new ArrayList<NodeBase>(m_children))
