@@ -1137,6 +1137,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 			a.append("\n\n     Caused by ").append(cause.toString()).append("\n");
 			dumpSingle(a, cause, allset);
+			curr = cause;
 		}
 	}
 
@@ -1147,7 +1148,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		//-- Remove from the end the server stuff
 		int ix = findName(list, AppFilter.class.getName());
 		if(ix != -1) {
-			list = stripFrames(list, ix + 1);
+			list = new ArrayList<>(stripFrames(list, ix + 1));
 		}
 
 		//-- Remove from the end all names in initset.
