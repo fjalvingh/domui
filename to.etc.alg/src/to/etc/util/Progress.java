@@ -298,6 +298,7 @@ public class Progress {
 	 * Create a sub-progress indicator for the specified portion of work.
 	 * @return
 	 */
+	@Nonnull
 	public Progress createSubProgress(String name, double work) {
 		synchronized(m_root) {
 			clearSubProgress();
