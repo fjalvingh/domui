@@ -28,7 +28,9 @@ import java.io.*;
 import java.text.*;
 import java.util.*;
 
+import javax.annotation.*;
 import javax.xml.parsers.*;
+import javax.xml.stream.*;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.*;
 import javax.xml.transform.stream.*;
@@ -983,4 +985,24 @@ public class DomTools {
 		}
 		return returnNode;
 	}
+
+	/**
+	 * Get a stream reader that does not ^&*^(^$ connect to the Internet while fscking reading xml 8-(
+	 * @return
+	 */
+	@Nonnull
+	static public XMLInputFactory getStreamFactory() {
+		XMLInputFactory xmlif = XMLInputFactory.newInstance();
+		//		xmlif.setProperty("http://apache.org/xml/features/nonvalidating/load-external-dtd", Boolean.FALSE);
+		xmlif.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
+		xmlif.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
+		xmlif.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
+		//		xmlif.setProperty(XMLInputFactory., Boolean.FALSE);
+		//		xmlif.setProperty(XMLInputFactory., Boolean.FALSE);
+		//		xmlif.setProperty(XMLInputFactory., Boolean.FALSE);
+		//		xmlif.setProperty(XMLInputFactory., Boolean.FALSE);
+		return xmlif;
+	}
+
+
 }
