@@ -219,4 +219,100 @@ public class TestQCriteria {
 //		Assert.assertEquals(20, res.size());
 //	}
 
+
+	/**
+	 * Test to prove that the subquery path does not work in some cases
+	 * @throws Exception
+	 */
+	@Test
+	public void subQueryPathSqlOutcome() throws Exception {
+
+		//it is not relevant for this test that it is a nonsense query
+		QCriteria<Invoice> outerq = QCriteria.create(Invoice.class);
+		QSelection<InvoiceLine> subq = QSelection.create(InvoiceLine.class);
+
+		//expect join invoice customer in parent query
+		outerq.eq("customer.firstName", "x");
+		outerq.eq("total", new QSelectionSubquery(subq));
+
+		//expect join invoice customer in sub query
+		subq.selectProperty("unitPrice");
+		subq.eq("invoice.customer.firstName", "x");
+
+		//the sql is as expected in this query
+//	    select * from
+//        Invoice this_
+//    inner join
+//        Customer a_1x1_
+//            on this_.CustomerId=a_1x1_.CustomerId
+//    where
+//        a_1x1_.FirstName=?
+//        and this_.Total = (
+//            select
+//                a_2_.UnitPrice as y0_
+//            from
+//                InvoiceLine a_2_
+//            inner join
+//                Invoice a_3x1_
+//                    on a_2_.InvoiceId=a_3x1_.InvoiceId
+//            inner join
+//                Customer a_4x2_
+//                    on a_3x1_.CustomerId=a_4x2_.CustomerId
+//            where
+//                a_4x2_.FirstName=?
+//        )
+		dc().query(outerq);
+
+		//the following that is basically the same but one level higher on invoice instead of line does not join customer in the subquery
+		QCriteria<Invoice> qmain2 = QCriteria.create(Invoice.class);
+		QSelection<Invoice> qsub2 = QSelection.create(Invoice.class);
+
+		//expect join invoice customer in parent query
+		qmain2.eq("customer.firstName", "x");
+		qmain2.eq("total", new QSelectionSubquery(qsub2));
+
+		//expect join invoice customer in sub query
+		qsub2.selectProperty("total");
+		qsub2.eq("customer.firstName", "x");
+
+		dc().query(qmain2);
+
+		//no expected result but sql is
+//	    select * from
+//        Invoice this_
+//    inner join
+//        Customer a_1x1_
+//            on this_.CustomerId=a_1x1_.CustomerId
+//    where
+//        a_1x1_.FirstName=?
+//        and this_.Total = (
+//            select
+//                a_2_.Total as y0_
+//            from
+//                Invoice a_2_
+//            where
+//                a_1x1_.FirstName=?
+//        )
+
+		//while expect this
+//    select * from
+//        Invoice this_
+//    inner join
+//        Customer a_1x1_
+//            on this_.CustomerId=a_1x1_.CustomerId
+//    where
+//        a_1x1_.FirstName=?
+//        and this_.Total = (
+//            select
+//                a_2_.Total as y0_
+//            from
+//                Invoice a_2_
+//            inner join
+//                Customer a_4x2_
+//                     on a_2_.CustomerId=a_4x2_.CustomerId
+//            where
+//                a_1x1_.FirstName=?
+//        )
+
+	}
 }

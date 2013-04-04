@@ -110,7 +110,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	/**
 	 * Maps parent relation dotted paths to the alias created for that path.
 	 */
-	final private Map<String, String> m_aliasMap = new HashMap<String, String>();
+	private Map<String, String> m_aliasMap = new HashMap<String, String>();
 
 	public CriteriaCreatingVisitor(Session ses, final Criteria crit) {
 		m_session = ses;
@@ -1179,8 +1179,13 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		m_proli = null;
 		Projection oldlastproj = m_lastProj;
 		m_lastProj = null;
-		Object old = m_currentCriteria;
+		Object oldCriteria = m_currentCriteria;
 		Class< ? > oldroot = m_rootClass;
+		Map<String, String> oldAliases = m_aliasMap;
+		m_aliasMap = new HashMap<String, String>();
+
+		//-- Set new clean state for the subselect.
+
 		m_rootClass = n.getSelectionQuery().getBaseClass();
 		checkHibernateClass(m_rootClass);
 		m_currentCriteria = dc;
@@ -1189,10 +1194,11 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 			dc.add(m_last);
 			m_last = null;
 		}
-		m_currentCriteria = old; // Restore root query
+		m_currentCriteria = oldCriteria; // Restore root query
 		m_rootClass = oldroot;
 		m_proli = oldpro;
 		m_lastProj = oldlastproj;
 		m_lastSubqueryCriteria = dc;
+		m_aliasMap = oldAliases;
 	}
 }
