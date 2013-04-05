@@ -93,7 +93,7 @@ final public class HtmlUtil {
 			} else if(HTMLElementName.CODE == elementName) {
 				//-- If this is </code><code> (we're at the start element) remove both.
 				Tag prev = tag.getPreviousTag();
-				if(prev.getTagType() == EndTagType.NORMAL && prev.getName() == HTMLElementName.CODE) {
+				if(prev != null && prev.getTagType() == EndTagType.NORMAL && prev.getName() == HTMLElementName.CODE) {
 					outputDocument.remove(prev);
 //					outputDocument.remove(tag);
 					outputDocument.replace(tag, "\n");
