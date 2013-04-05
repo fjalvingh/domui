@@ -25,6 +25,7 @@
 package to.etc.domui.hibernate.model;
 
 import java.util.*;
+import java.util.concurrent.*;
 
 import javax.annotation.*;
 
@@ -41,7 +42,6 @@ import to.etc.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.qsql.*;
 import to.etc.webapp.query.*;
-
 /**
  * Thingy which creates a Hibernate Criteria thingy from a generic query. This is harder than
  * it looks because the Criteria and DetachedCriteria kludge and Hibernate's metadata dungheap
@@ -987,12 +987,15 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 			throw new IllegalStateException("Cannot find child's parent property in crufty Hibernate metadata: " + Arrays.toString(keyCols));
 
 		//-- Well, that was it. What a sheitfest. Add the join condition to the parent
-		String parentAlias = getParentAlias();
+		String parentAlias = getCurrentAlias();
 		dc.add(Restrictions.eqProperty(childupprop + "." + childmd.getIdentifierPropertyName(), parentAlias + "." + parentmd.getIdentifierPropertyName()));
 
 		//-- Sigh; Recursively apply all parts to the detached thingerydoo
 		Object old = m_currentCriteria;
 		Class< ? > oldroot = m_rootClass;
+		Map<String, String> oldAliases = m_aliasMap;
+		m_aliasMap = new HashMap<String, String>();
+
 		m_rootClass = q.getBaseClass();
 		checkHibernateClass(m_rootClass);
 		m_currentCriteria = dc;
@@ -1002,12 +1005,13 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 			dc.add(m_last);
 			m_last = null;
 		}
+		m_aliasMap = oldAliases;
 		m_currentCriteria = old;
 		m_rootClass = oldroot;
 		m_last = exists;
 	}
 
-	private String getParentAlias() {
+	private String getCurrentAlias() {
 		if(m_currentCriteria instanceof Criteria)
 			return ((Criteria) m_currentCriteria).getAlias();
 		else if(m_currentCriteria instanceof DetachedCriteria)
@@ -1097,6 +1101,8 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 
 	private Projection m_lastProj;
 
+	private String m_parentAlias;
+
 	@Override
 	public void visitMultiSelection(QMultiSelection n) throws Exception {
 		throw new ProgrammerErrorException("multi-operation selections not supported by Hibernate");
@@ -1170,10 +1176,55 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		}
 	}
 
-	@Override
-	public void visitSelectionSubquery(QSelectionSubquery n) throws Exception {
-		DetachedCriteria dc = DetachedCriteria.forClass(n.getSelectionQuery().getBaseClass(), nextAlias());
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Subqueries (correlated/uncorrelated).				*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * This handles rendering of a correlated subquery.
+	 *
+	 * @see to.etc.webapp.query.QNodeVisitor#visitSubquery(to.etc.webapp.query.QSubQuery)
+	 */
+	@Override
+	public void visitSubquery(@Nonnull final QSubQuery< ? , ? > n) throws Exception {
+		visitSelection(n);
+//
+//
+//		DetachedCriteria dc = DetachedCriteria.forClass(n.getBaseClass(), nextAlias());
+//		recurseSubquery(dc, n, new Callable<Void>() {
+//			@Override
+//			public Void call() throws Exception {
+//				visitSelection(n);
+//
+//				return null;
+//			}
+//		});
+	}
+
+	/**
+	 * Render a non-correlated subquery (the subquery has no references to the parent). This is legacy as
+	 * it should be the same as correlated.
+	 * @see to.etc.webapp.query.QNodeVisitor#visitSelectionSubquery(to.etc.webapp.query.QSelectionSubquery)
+	 */
+	@Override
+	public void visitSelectionSubquery(@Nonnull final QSelectionSubquery n) throws Exception {
+		DetachedCriteria dc = DetachedCriteria.forClass(n.getSelectionQuery().getBaseClass(), nextAlias());
+		recurseSubquery(dc, n.getSelectionQuery(), new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				n.getSelectionQuery().visit(CriteriaCreatingVisitor.this);
+				return null;
+			}
+		});
+	}
+
+	/**
+	 * Save the whole current state, then recurse a subquery.
+	 * @param dc
+	 * @param n
+	 * @throws Exception
+	 */
+	private void recurseSubquery(@Nonnull DetachedCriteria dc, @Nonnull QSelection< ? > n, Callable<Void> callable) throws Exception {
 		//-- Recursively apply all parts to the detached thingerydoo
 		ProjectionList oldpro = m_proli;
 		m_proli = null;
@@ -1183,13 +1234,14 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		Class< ? > oldroot = m_rootClass;
 		Map<String, String> oldAliases = m_aliasMap;
 		m_aliasMap = new HashMap<String, String>();
+		String oldParentAlias = m_parentAlias;
 
 		//-- Set new clean state for the subselect.
-
-		m_rootClass = n.getSelectionQuery().getBaseClass();
+		m_parentAlias = getCurrentAlias();
+		m_rootClass = n.getBaseClass();
 		checkHibernateClass(m_rootClass);
 		m_currentCriteria = dc;
-		n.getSelectionQuery().visit(this);
+		callable.call();
 		if(m_last != null) {
 			dc.add(m_last);
 			m_last = null;
@@ -1200,5 +1252,40 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		m_lastProj = oldlastproj;
 		m_lastSubqueryCriteria = dc;
 		m_aliasMap = oldAliases;
+		m_parentAlias = oldParentAlias;
 	}
+
+	@Override
+	public void visitPropertyJoinComparison(@Nonnull QPropertyJoinComparison comparison) throws Exception {
+		String alias = m_parentAlias + "." + parseSubcriteria(comparison.getParentProperty());
+		switch(comparison.getOperation()) {
+			default:
+				throw new QQuerySyntaxException("Unsupported parent-join operation: "+comparison.getOperation());
+
+			case EQ:
+				m_last = Restrictions.eqProperty(alias, comparison.getSubProperty());
+				break;
+
+			case NE:
+				m_last = Restrictions.neProperty(alias, comparison.getSubProperty());
+				break;
+
+			case LT:
+				m_last = Restrictions.ltProperty(alias, comparison.getSubProperty());
+				break;
+
+			case LE:
+				m_last = Restrictions.leProperty(alias, comparison.getSubProperty());
+				break;
+
+			case GT:
+				m_last = Restrictions.gtProperty(alias, comparison.getSubProperty());
+				break;
+
+			case GE:
+				m_last = Restrictions.geProperty(alias, comparison.getSubProperty());
+				break;
+		}
+	}
+
 }

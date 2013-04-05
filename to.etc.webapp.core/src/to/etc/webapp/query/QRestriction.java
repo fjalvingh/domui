@@ -153,15 +153,17 @@ public class QRestriction {
 	}
 
 	/**
-	 * This will recognise values or subcriteria
+	 * This will recognize values or subcriteria
 	 * @param value
 	 * @return
 	 */
+	@SuppressWarnings("deprecation")
 	static private QOperatorNode createValueNode(Object value) {
-		if(value instanceof QOperatorNode)
+		if(value instanceof QOperatorNode) {
 			return (QOperatorNode) value;
-		else if(value instanceof QSelection< ? >)
+		} else if(value instanceof QSelection< ? >) {
 			return new QSelectionSubquery((QSelection< ? >) value);
+		}
 		return new QLiteral(value);
 	}
 

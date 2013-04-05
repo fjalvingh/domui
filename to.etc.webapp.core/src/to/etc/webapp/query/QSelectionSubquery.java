@@ -24,20 +24,30 @@
  */
 package to.etc.webapp.query;
 
-public class QSelectionSubquery extends QOperatorNode {
-	private QSelection< ? > m_parentQuery;
+import javax.annotation.*;
 
-	public QSelectionSubquery(QSelection< ? > parent) {
+/**
+ * Represents a subquery.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Apr 5, 2013
+ */
+public class QSelectionSubquery extends QOperatorNode {
+	@Nonnull
+	final private QSelection< ? > m_parentQuery;
+
+	public QSelectionSubquery(@Nonnull QSelection< ? > parent) {
 		super(QOperation.SELECTION_SUBQUERY);
 		m_parentQuery = parent;
 	}
 
+	@Nonnull
 	public QSelection< ? > getSelectionQuery() {
 		return m_parentQuery;
 	}
 
 	@Override
-	public void visit(QNodeVisitor v) throws Exception {
+	public void visit(@Nonnull QNodeVisitor v) throws Exception {
 		v.visitSelectionSubquery(this);
 	}
 }

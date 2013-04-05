@@ -24,27 +24,39 @@
  */
 package to.etc.webapp.query;
 
-public class QPropertyComparison extends QOperatorNode {
-	private String m_property;
+import javax.annotation.*;
 
-	private QOperatorNode m_expr;
+/**
+ * Describes a join between a query and one of it's subqueries. The join is defined in {@link QSubQuery}.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Apr 5, 2013
+ */
+public class QPropertyJoinComparison extends QOperatorNode {
+	@Nonnull
+	final private String m_parentProperty;
 
-	public QPropertyComparison(QOperation operation, String property, QOperatorNode expr) {
+	@Nonnull
+	final private String m_subProperty;
+
+	public QPropertyJoinComparison(@Nonnull QOperation operation, @Nonnull String parentProperty, @Nonnull String subProperty) {
 		super(operation);
-		m_property = property;
-		m_expr = expr;
+		m_parentProperty = parentProperty;
+		m_subProperty = subProperty;
+	}
+
+	@Nonnull
+	public String getParentProperty() {
+		return m_parentProperty;
+	}
+
+	@Nonnull
+	public String getSubProperty() {
+		return m_subProperty;
 	}
 
 	@Override
-	public void visit(QNodeVisitor v) throws Exception {
-		v.visitPropertyComparison(this);
-	}
-
-	public QOperatorNode getExpr() {
-		return m_expr;
-	}
-
-	public String getProperty() {
-		return m_property;
+	public void visit(@Nonnull QNodeVisitor v) throws Exception {
+		v.visitPropertyJoinComparison(this);
 	}
 }

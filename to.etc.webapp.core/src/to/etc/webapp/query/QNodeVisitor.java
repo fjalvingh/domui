@@ -26,39 +26,45 @@ package to.etc.webapp.query;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 public interface QNodeVisitor {
-	public void visitCriteria(QCriteria< ? > qc) throws Exception;
+	public void visitCriteria(@Nonnull QCriteria< ? > qc) throws Exception;
 
-	public void	visitSelection(QSelection<?> s) throws Exception;
+	public void visitSelection(@Nonnull QSelection< ? > s) throws Exception;
 
-	public void visitUnaryNode(QUnaryNode n) throws Exception;
+	public void visitUnaryNode(@Nonnull QUnaryNode n) throws Exception;
 
-	public void visitLiteral(QLiteral n) throws Exception;
+	public void visitLiteral(@Nonnull QLiteral n) throws Exception;
 
-	public void visitMulti(QMultiNode n) throws Exception;
+	public void visitMulti(@Nonnull QMultiNode n) throws Exception;
 
-	public void visitOrder(QOrder o) throws Exception;
+	public void visitOrder(@Nonnull QOrder o) throws Exception;
 
-	public void visitBetween(QBetweenNode n) throws Exception;
+	public void visitBetween(@Nonnull QBetweenNode n) throws Exception;
 
-	public void visitPropertyComparison(QPropertyComparison qPropertyComparison) throws Exception;
+	public void visitPropertyComparison(@Nonnull QPropertyComparison qPropertyComparison) throws Exception;
 
-	public void visitUnaryProperty(QUnaryProperty n) throws Exception;
+	public void visitUnaryProperty(@Nonnull QUnaryProperty n) throws Exception;
 
-	public void visitRestrictionsBase(QCriteriaQueryBase<?> n) throws Exception;
+	public void visitRestrictionsBase(@Nonnull QCriteriaQueryBase< ? > n) throws Exception;
 
-	public void visitOrderList(List<QOrder> orderlist) throws Exception;
+	public void visitOrderList(@Nonnull List<QOrder> orderlist) throws Exception;
 
-	public void visitSelectionItem(QSelectionItem n) throws Exception;
+	public void visitSelectionItem(@Nonnull QSelectionItem n) throws Exception;
 
-	public void visitSelectionColumn(QSelectionColumn qSelectionColumn) throws Exception;
+	public void visitSelectionColumn(@Nonnull QSelectionColumn qSelectionColumn) throws Exception;
 
-	public void visitPropertySelection(QPropertySelection qPropertySelection) throws Exception;
+	public void visitPropertySelection(@Nonnull QPropertySelection qPropertySelection) throws Exception;
 
-	public void visitMultiSelection(QMultiSelection n) throws Exception;
+	public void visitMultiSelection(@Nonnull QMultiSelection n) throws Exception;
 
-	void visitExistsSubquery(QExistsSubquery< ? > q) throws Exception;
+	void visitExistsSubquery(@Nonnull QExistsSubquery< ? > q) throws Exception;
 
-	void visitSelectionSubquery(QSelectionSubquery n) throws Exception;
+	void visitSubquery(@Nonnull QSubQuery< ? , ? > n) throws Exception;
 
+	public void visitPropertyJoinComparison(@Nonnull QPropertyJoinComparison qPropertyJoinComparison) throws Exception;
+
+	@Deprecated
+	public void visitSelectionSubquery(QSelectionSubquery qSelectionSubquery) throws Exception;
 }

@@ -1,5 +1,6 @@
 package to.etc.domui.test.db;
 
+import java.math.*;
 import java.util.*;
 
 import org.junit.*;
@@ -206,6 +207,48 @@ public class TestQCriteria {
 //		for(InvoiceLine l : res)
 //			System.out.println(">>> " + l.getTrack().getName());
 		Assert.assertEquals(49, res.size());
+	}
+
+	/**
+	 * Test join and property/property restriction on subqueries
+	 * @throws Exception
+	 */
+	@Test
+	public void testSubCriteriaJoin() throws Exception {
+		//first calculate expected outcome
+		QCriteria<InvoiceLine> iq = QCriteria.create(InvoiceLine.class);
+		List<InvoiceLine> l = dc().query(iq);
+		int resc = 0;
+
+		for(InvoiceLine il : l) {
+			BigDecimal maxUnitPrice = null;
+			for(InvoiceLine invoiceLine : il.getInvoice().getInvoiceLines()) {
+				if(invoiceLine == il) {
+					continue;
+				}
+				if(maxUnitPrice == null || invoiceLine.getUnitPrice().doubleValue() > maxUnitPrice.doubleValue()) {
+					maxUnitPrice = invoiceLine.getUnitPrice();
+				}
+			}
+			if(maxUnitPrice != null && il.getUnitPrice().doubleValue() == maxUnitPrice.doubleValue()) {
+				resc++;
+			}
+		}
+
+		//perform as subquery
+		QCriteria<InvoiceLine> rootq = QCriteria.create(InvoiceLine.class);
+		QSubQuery<InvoiceLine, InvoiceLine> subq = rootq.subquery(InvoiceLine.class);
+		subq.max("unitPrice");
+		subq.join("invoice");
+		subq.ne("id", "id");
+
+		rootq.eq("unitPrice", subq);
+
+		System.out.println("q = " + rootq);
+
+		List<InvoiceLine> res = dc().query(rootq);
+		Assert.assertEquals(resc, res.size());
+
 	}
 
 
