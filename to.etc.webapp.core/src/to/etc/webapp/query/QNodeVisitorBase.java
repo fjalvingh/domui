@@ -26,6 +26,8 @@ package to.etc.webapp.query;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 /**
  * Base class for visiting a node tree. The methods in this base class cause all
  * children of a the tree to be visited in order.
@@ -122,6 +124,16 @@ abstract public class QNodeVisitorBase implements QNodeVisitor {
 
 	@Override
 	public void visitSubquery(QSubQuery< ? , ? > n) throws Exception {
+		throw new UnsupportedOperationException("Subqueries are not supported");
+	}
+
+	@Override
+	public void visitSelectionSubquery(QSelectionSubquery qSelectionSubquery) throws Exception {
+		throw new UnsupportedOperationException("Subqueries are not supported");
+	}
+
+	@Override
+	public void visitPropertyJoinComparison(@Nonnull QPropertyJoinComparison qPropertyJoinComparison) throws Exception {
 		throw new UnsupportedOperationException("Subqueries are not supported");
 	}
 

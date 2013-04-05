@@ -97,6 +97,17 @@ public interface QDataContext {
 	List<Object[]> query(@Nonnull QSelection< ? > sel) throws Exception;
 
 	/**
+	 * Query a selection, and return the result in the specified proxied interface. Members in the interface must
+	 * be annotated with {@link QFld} annotations to define the order in the result set.
+	 * @param resultInterface
+	 * @param sel
+	 * @return
+	 * @throws Exception
+	 */
+	@Nonnull
+	public <R> List<R> query(@Nonnull Class<R> resultInterface, @Nonnull QSelection< ? > sel) throws Exception;
+
+	/**
 	 * Execute the selection query specified by q, and expect and return at most 1 result. If the query has no
 	 * result this will return null. If more than one result is obtained this will throw an IllegalStateException.
 	 * @param <T>
@@ -106,6 +117,18 @@ public interface QDataContext {
 	 */
 	@Nullable
 	Object[] queryOne(@Nonnull QSelection< ? > q) throws Exception;
+
+	/**
+	 * Query a selection, and return the result in the specified proxied interface. Members in the interface must
+	 * be annotated with {@link QFld} annotations to define the order in the result set.
+	 *
+	 * @param resultInterface
+	 * @param sel
+	 * @return
+	 * @throws Exception
+	 */
+	@Nullable
+	public <R> R queryOne(@Nonnull Class<R> resultInterface, @Nonnull QSelection< ? > sel) throws Exception;
 
 	/**
 	 * Load the persistent object with the specified type and primary key from the database. This will

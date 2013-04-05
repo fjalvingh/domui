@@ -65,6 +65,5 @@ public interface QNodeVisitor {
 
 	public void visitPropertyJoinComparison(@Nonnull QPropertyJoinComparison qPropertyJoinComparison) throws Exception;
 
-	@Deprecated
 	public void visitSelectionSubquery(QSelectionSubquery qSelectionSubquery) throws Exception;
 }
