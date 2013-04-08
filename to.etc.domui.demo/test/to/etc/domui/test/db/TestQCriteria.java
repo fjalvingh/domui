@@ -377,12 +377,6 @@ public class TestQCriteria {
 		QSelection<Invoice> q = QSelection.create(Invoice.class);
 		q.sum("total");
 		q.selectProperty("customer");
-//		List<Object[]> res = dc().query(q);
-//		for(Object[] o : res) {
-//			for(int i = 0; i < o.length; i++) {
-//				System.out.println("#" + i + " " + o[i]);
-//			}
-//		}
 
 		List<MyData> ires = dc().query(MyData.class, q);
 		for(MyData md : ires) {
