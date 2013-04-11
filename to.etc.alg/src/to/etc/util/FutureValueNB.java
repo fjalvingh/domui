@@ -5,12 +5,12 @@ import java.util.concurrent.*;
 import javax.annotation.*;
 
 /**
- * Basic Implementation of {@code Future<T>} which is nicely missing from the JDK, sigh.
+ * Basic non-blocking Implementation of {@code Future<T>} which immediately aborts on get() if no value is provided.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Mar 14, 2013
  */
-public class FutureImpl<T> implements Future<T> {
+public class FutureValueNB<T> implements Future<T> {
 	final private String	m_description;
 
 	private boolean m_cancelled;
@@ -21,11 +21,11 @@ public class FutureImpl<T> implements Future<T> {
 
 	private Exception m_exception;
 
-	public FutureImpl() {
+	public FutureValueNB() {
 		m_description = null;
 	}
 
-	public FutureImpl(@Nullable String description) {
+	public FutureValueNB(@Nullable String description) {
 		m_description = description;
 	}
 
@@ -33,13 +33,13 @@ public class FutureImpl<T> implements Future<T> {
 	 * Create a future that's already done, with the specified result.
 	 * @param result
 	 */
-	public FutureImpl(@Nullable T result) {
+	public FutureValueNB(@Nullable T result) {
 		m_done = true;
 		m_result = result;
 		m_description = null;
 	}
 
-	public FutureImpl(@Nullable String description, @Nullable T result) {
+	public FutureValueNB(@Nullable String description, @Nullable T result) {
 		m_done = true;
 		m_result = result;
 		m_description = description;
@@ -50,7 +50,7 @@ public class FutureImpl<T> implements Future<T> {
 	 * Create a future that's already done, with the specified error.
 	 * @param error
 	 */
-	public FutureImpl(@Nonnull Exception error) {
+	public FutureValueNB(@Nonnull Exception error) {
 		m_exception = error;
 		m_done = true;
 		m_description = null;
@@ -78,30 +78,17 @@ public class FutureImpl<T> implements Future<T> {
 	 */
 	@Override
 	synchronized public T get() throws InterruptedException, ExecutionException {
-		for(;;) {
-			if(m_done) {									// Marked as ready?
-				if(m_exception != null)
-					throw new ExecutionException(m_exception);	// They are complete idiots, those java people.
-				return m_result;							// Then return the result.
-			}
-			wait();											// Sleep until notify
-		}
+		if(!m_done)
+			throw new IllegalStateException(this + ": value has not yet been set");
+
+		if(m_exception != null)
+			throw new ExecutionException(m_exception);	// They are complete idiots, those java people.
+		return m_result;							// Then return the result.
 	}
 
 	@Override
 	public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-		long ets = System.currentTimeMillis() + unit.toMillis(timeout);
-		for(;;) {
-			if(m_done) {									// Marked as ready?
-				if(m_exception != null)
-					throw new ExecutionException(m_exception);	// Sigh
-				return m_result;							// Then return the result.
-			}
-			long rest = ets - System.currentTimeMillis();	// How much longer to wait?
-			if(rest <= 0)
-				throw new TimeoutException();
-			wait(rest);										// Sleep until notify
-		}
+		return get();
 	}
 
 	/**
@@ -111,7 +98,6 @@ public class FutureImpl<T> implements Future<T> {
 	public synchronized void	set(@Nullable T value) {
 		m_done = true;
 		m_result = value;
-		notifyAll();
 	}
 
 	/**
@@ -121,7 +107,6 @@ public class FutureImpl<T> implements Future<T> {
 	public synchronized void set(@Nonnull Exception reason) {
 		m_exception = reason;
 		m_done = true;
-		notifyAll();
 	}
 
 	@Override

@@ -299,7 +299,7 @@ public class Progress {
 	 * @return
 	 */
 	@Nonnull
-	public Progress createSubProgress(String name, double work) {
+	public Progress createSubProgress(@Nullable String name, double work) {
 		synchronized(m_root) {
 			clearSubProgress();
 			checkCancelled();
