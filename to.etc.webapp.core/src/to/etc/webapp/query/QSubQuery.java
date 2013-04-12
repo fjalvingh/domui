@@ -27,6 +27,7 @@ package to.etc.webapp.query;
 import javax.annotation.*;
 
 import to.etc.webapp.annotations.*;
+import to.etc.webapp.qsql.*;
 
 /**
  * A subquery linked inside a master query, that can be joined to the master query.
@@ -48,6 +49,23 @@ public class QSubQuery<T, P> extends QSelection<T> {
 		v.visitSubquery(this);
 	}
 
+	public <A> QJoiner<A, P, T> join(@Nonnull QRestrictor<A> parent) {
+		//-- Make sure parent is in my hierarchy
+		QSubQuery<?, ?> r = this;
+		for(;;) {
+			if(r.m_parent == parent)
+				break;
+
+			if(r.m_parent instanceof QSubQuery)
+				r = (QSubQuery<?, ?>) r.m_parent;
+			else
+				throw new QQuerySyntaxException("Parent passed is not a parent of this subquery: "+parent);
+		}
+
+		//-- Return the joiner.
+		return new QJoiner<A, P, T>(parent, this);
+	}
+
 	/**
 	 * Joins the parent to this subquery on the specified property, provided that the property exists in both entities
 	 * @param parentProperty
@@ -55,68 +73,6 @@ public class QSubQuery<T, P> extends QSelection<T> {
 	 */
 	public QSubQuery<T, P> join(@Nonnull @GProperty String property) {
 		add(new QPropertyJoinComparison(QOperation.EQ, property, property));
-		return this;
-	}
-
-	/**
-	 * Adds an eq restriction on the parent to this subquery on the specified properties,
-	 * provided that the propertnames are not equal but their type is
-	 * Use join if property names are the same.
-	 * @param parentProperty
-	 * @param property
-	 */
-	public QSubQuery<T, P> eq(@Nonnull @GProperty("T") String parentProperty, @Nonnull @GProperty("U") String property) {
-		add(new QPropertyJoinComparison(QOperation.EQ, parentProperty, property));
-		return this;
-	}
-
-	/**
-	 * Adds an ne restriction on the parent to this subquery on the specified properties,
-	 * @param parentProperty
-	 * @param property
-	 */
-	public QSubQuery<T, P> ne(@Nonnull @GProperty("T") String parentProperty, @Nonnull @GProperty("U") String property) {
-		add(new QPropertyJoinComparison(QOperation.NE, parentProperty, property));
-		return this;
-	}
-
-	/**
-	 * Adds an lt restriction on the parent to this subquery on the specified properties,
-	 * @param parentProperty
-	 * @param property
-	 */
-	public QSubQuery<T, P> lt(@Nonnull @GProperty("T") String parentProperty, @Nonnull @GProperty("U") String property) {
-		add(new QPropertyJoinComparison(QOperation.LT, parentProperty, property));
-		return this;
-	}
-
-	/**
-	 * Adds an le restriction on the parent to this subquery on the specified properties,
-	 * @param parentProperty
-	 * @param property
-	 */
-	public QSubQuery<T, P> le(@Nonnull @GProperty("T") String parentProperty, @Nonnull @GProperty("U") String property) {
-		add(new QPropertyJoinComparison(QOperation.LE, parentProperty, property));
-		return this;
-	}
-
-	/**
-	 * Adds an lt restriction on the parent to this subquery on the specified properties,
-	 * @param parentProperty
-	 * @param property
-	 */
-	public QSubQuery<T, P> gt(@Nonnull @GProperty("T") String parentProperty, @Nonnull @GProperty("U") String property) {
-		add(new QPropertyJoinComparison(QOperation.GT, parentProperty, property));
-		return this;
-	}
-
-	/**
-	 * Adds an ge restriction on the parent to this subquery on the specified properties,
-	 * @param parentProperty
-	 * @param property
-	 */
-	public QSubQuery<T, P> ge(@Nonnull @GProperty("T") String parentProperty, @Nonnull @GProperty("U") String property) {
-		add(new QPropertyJoinComparison(QOperation.GE, parentProperty, property));
 		return this;
 	}
 }

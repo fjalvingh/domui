@@ -240,7 +240,7 @@ public class TestQCriteria {
 		QSubQuery<InvoiceLine, InvoiceLine> subq = rootq.subquery(InvoiceLine.class);
 		subq.max("unitPrice");
 		subq.join("invoice");
-		subq.ne("id", "id");
+		subq.join(rootq).ne("id", "id");
 
 		rootq.eq("unitPrice", subq);
 
@@ -364,7 +364,7 @@ public class TestQCriteria {
 	/*	CODING:	Interface-based query results.						*/
 	/*--------------------------------------------------------------*/
 
-	interface MyData {
+	private interface MyData {
 		@QFld(0)
 		double sum();
 
