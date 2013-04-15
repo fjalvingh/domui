@@ -26,6 +26,8 @@ package to.etc.domui.dom;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
@@ -250,11 +252,13 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		o().closetag("link");
 	}
 
-	public void renderLoadJavascript(String path) throws Exception {
+	public void renderLoadJavascript(@Nonnull String path) throws Exception {
 		//-- render an app-relative url
 		o().tag("script");
 		o().attr("language", "javascript");
-		o().attr("src", ctx().getThemedPath(path));
+		if(!path.startsWith("http"))
+			path = ctx().getThemedPath(path);
+		o().attr("src", path);
 		o().endtag();
 		o().closetag("script");
 	}
