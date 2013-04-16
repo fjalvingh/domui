@@ -303,7 +303,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 				m_truncated = null;
 			}
 		}
-		if(isShowSelection()) {
+		if(isShowSelection() && getSelectableTable() != null) {
 			redrawSelectionButtons();
 		}
 	}

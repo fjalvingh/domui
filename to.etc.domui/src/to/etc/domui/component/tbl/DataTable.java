@@ -38,7 +38,7 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 1, 2008
  */
-public class DataTable<T> extends TabularComponentBase<T> implements ISelectionListener<T>, ISelectableTableComponent<T> {
+public class DataTable<T> extends SelectableTabularComponent<T> implements ISelectionListener<T>, ISelectableTableComponent<T> {
 	private Table m_table = new Table();
 
 	private IRowRenderer<T> m_rowRenderer;
@@ -63,8 +63,6 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 
 	/** When selecting, this is the last index that was used in a select click.. */
 	private int m_lastSelectionLocation = -1;
-
-	private boolean m_disableClipboardSelection;
 
 	public DataTable(@Nonnull ITableModel<T> m, @Nonnull IRowRenderer<T> r) {
 		super(m);
@@ -318,7 +316,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 */
 	private void selectionCheckboxClicked(T instance, boolean checked, ClickInfo info, @Nonnull Checkbox checkbox) throws Exception {
 		handleSelectClicky(instance, info, Boolean.valueOf(checked));
-		ISelectionModel<T> sm = m_selectionModel;
+		ISelectionModel<T> sm = getSelectionModel();
 		if(null != sm) {
 			checkbox.setChecked(sm.isSelected(instance));
 		}
@@ -480,43 +478,19 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		fireSelectionUIChanged();
 	}
 
-	/**
-	 * When T and a selection model in multiselect mode is present, this causes the
-	 * checkboxes to be rendered initially even when no selection is made.
-	 * @return
-	 */
-	public boolean isShowSelectionAlways() {
-		return m_showSelectionAlways;
-	}
-
 	@Override
-	public boolean isMultiSelectionVisible() {
-		return m_multiSelectMode;
-	}
-
-	/**
-	 * When T and a selection model in multiselect mode is present, this causes the
-	 * checkboxes to be rendered initially even when no selection is made.
-	 * @param showSelectionAlways
-	 * @throws Exception
-	 */
-	@Override
-	public void setShowSelection(boolean showSelectionAlways) throws Exception {
-		if(m_showSelectionAlways == showSelectionAlways || getModel() == null || getModel().getRows() == 0)
-			return;
-		m_showSelectionAlways = showSelectionAlways;
-		ISelectionModel<T> sm = getSelectionModel();
-		if(sm == null)
-			throw new IllegalStateException("Selection model is empty?");
-		if(!isBuilt() || m_multiSelectMode || getSelectionModel() == null || !sm.isMultiSelect())
-			return;
-
+	protected void createSelectionUI() throws Exception {
 		THead head = m_table.getHead();
 		if(null == head)
 			throw new IllegalStateException("I've lost my head!?");
 
 		TR headerrow = (TR) head.getChild(0);
 		createMultiselectUI(headerrow);
+	}
+
+	@Override
+	public boolean isMultiSelectionVisible() {
+		return m_multiSelectMode;
 	}
 
 	/*--------------------------------------------------------------*/
@@ -726,56 +700,6 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Handling selections.								*/
 	/*--------------------------------------------------------------*/
-	/** If this table allows selection of rows, this model maintains the selections. */
-	@Nullable
-	private ISelectionModel<T> m_selectionModel;
-
-	@Nullable
-	private ISelectionAllHandler m_selectionAllHandler;
-
-	@Override
-	@Nullable
-	public ISelectionAllHandler getSelectionAllHandler() {
-		return m_selectionAllHandler;
-	}
-
-	public void setSelectionAllHandler(@Nullable ISelectionAllHandler selectionAllHandler) {
-		if(m_selectionAllHandler == selectionAllHandler)
-			return;
-		m_selectionAllHandler = selectionAllHandler;
-		fireSelectionUIChanged();
-	}
-
-	/**
-	 * Return the model used for table selections, if applicable.
-	 * @return
-	 */
-	@Override
-	@Nullable
-	public ISelectionModel<T> getSelectionModel() {
-		return m_selectionModel;
-	}
-
-	/**
-	 * Set the model to maintain selections, if this table allows selections.
-	 *
-	 * @param selectionModel
-	 */
-	public void setSelectionModel(@Nullable ISelectionModel<T> selectionModel) {
-		if(DomUtil.isEqual(m_selectionModel, selectionModel))
-			return;
-		if(m_selectionModel != null) {
-			m_selectionModel.removeListener(this);
-		}
-		m_selectionModel = selectionModel;
-		if(null != selectionModel) {
-			setDisableClipboardSelection(true);
-			selectionModel.addListener(this);
-		}
-		m_lastSelectionLocation = -1;
-		forceRebuild();
-	}
-
 	/**
 	 * Called when a selection cleared event fires. The underlying model has already been changed. It
 	 * tries to see if the row is currently paged in, and if so asks the row renderer to update
@@ -792,19 +716,6 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		for(int i = 0; i < m_visibleItemList.size(); i++) {
 			T item = m_visibleItemList.get(i);
 			updateSelectionChanged(item, i, sm.isSelected(item));
-		}
-	}
-
-	public boolean isDisableClipboardSelection() {
-		return m_disableClipboardSelection;
-	}
-
-	public void setDisableClipboardSelection(boolean disableClipboardSelection) {
-		if(m_disableClipboardSelection == disableClipboardSelection)
-			return;
-		m_disableClipboardSelection = disableClipboardSelection;
-		if(isBuilt() && disableClipboardSelection) {
-			appendJavascript(JavascriptUtil.disableSelection(this)); // Needed to prevent ctrl+click in IE doing clipboard-select, because preventDefault does not work there of course.
 		}
 	}
 }

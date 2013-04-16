@@ -636,6 +636,7 @@ public class FileTool {
 	/**
 	 * Create an MD5 hash for a file's contents.
 	 */
+	@Nonnull
 	static public byte[] hashFile(final File f) throws IOException {
 		InputStream is = null;
 		try {
@@ -654,6 +655,7 @@ public class FileTool {
 	 * @param data
 	 * @return
 	 */
+	@Nonnull
 	static public byte[] hashBuffers(final byte[][] data) {
 		MessageDigest md = null;
 		try {
@@ -673,6 +675,7 @@ public class FileTool {
 	 * @param data
 	 * @return
 	 */
+	@Nonnull
 	static public String hashBuffersHex(final byte[][] data) {
 		return StringTool.toHex(hashBuffers(data));
 	}
@@ -683,6 +686,7 @@ public class FileTool {
 	 * @return		A hash (16 bytes MD5)
 	 * @throws IOException
 	 */
+	@Nonnull
 	static public byte[] hashFile(final InputStream is) throws IOException {
 		MessageDigest md = null;
 		try {
@@ -705,6 +709,7 @@ public class FileTool {
 	 * @return
 	 * @throws IOException
 	 */
+	@Nonnull
 	static public String hashFileHex(final File f) throws IOException {
 		return StringTool.toHex(hashFile(f));
 	}
@@ -715,6 +720,7 @@ public class FileTool {
 	 * @return
 	 * @throws IOException
 	 */
+	@Nonnull
 	static public String hashFileHex(final InputStream is) throws IOException {
 		return StringTool.toHex(hashFile(is));
 	}

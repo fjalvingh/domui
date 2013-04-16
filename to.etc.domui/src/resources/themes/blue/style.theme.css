@@ -2887,3 +2887,19 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 .ui-cbis {
 	display: inline;
 }
+/*** 400_datacelltable.frag.css ***/
+.ui-dct {
+}
+
+.ui-dct-item {
+	padding: 3px;
+	border: 1px solid transparent;
+}
+
+.ui-dct-selected {
+	background-color: cyan;
+	border: 1px solid black;
+}
+.ui-dct td {
+	vertical-align: top;
+}

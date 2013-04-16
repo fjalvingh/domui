@@ -322,13 +322,14 @@ public class ImageSubsampler {
 	 */
 	static private BufferedImage resampleRowGeneric(BufferedImage srci, ContribList[] contrib, int sw, int sh, int ow, int oh) {
 		//-- Create intermediate image to hold horizontal zoom,
-		BufferedImage worki = new BufferedImage(ow, sh, BufferedImage.TYPE_INT_RGB);
+		BufferedImage worki = new BufferedImage(ow, sh, BufferedImage.TYPE_INT_ARGB);
 
 		//-- Now: apply filter to sample horizontally from SRC to WORK
 		for(int k = 0; k < sh; k++) // SOURCE height (!)
 		{
 			for(int i = 0; i < ow; i++) // DEST width,
 			{
+				float a = 0.0f;
 				float r = 0.0f;
 				float g = 0.0f;
 				float b = 0.0f;
@@ -342,11 +343,19 @@ public class ImageSubsampler {
 						r += weight * ((argb >> 16) & 0xff);
 						g += weight * ((argb >> 8) & 0xff);
 						b += weight * (argb & 0xff);
+						a += weight * ((argb >> 24) & 0xff);
 					}
 				}
 
 				//-- Make a proper RGB pair,
-				int br, bg, bb;
+				int br, bg, bb, ba;
+
+				if(a > 255f)
+					ba = 255;
+				else if(a < 0f)
+					ba = 0;
+				else
+					ba = (int) a;
 
 				if(r > 255f)
 					br = 255;
@@ -372,7 +381,7 @@ public class ImageSubsampler {
 				//-- Now set a new pixel in working image,
 				//				if(k >= 100)
 				//					System.out.println("At line 100!");
-				worki.setRGB(i, k, (br << 16) | (bg << 8) | bb);
+				worki.setRGB(i, k, (ba << 24) | (br << 16) | (bg << 8) | bb);
 			}
 			//			System.out.println("Line "+k);
 		}

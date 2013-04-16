@@ -1073,6 +1073,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 * @param x
 	 */
 	private void renderOopsFrame(@Nonnull RequestContextImpl ctx, @Nonnull Throwable x) throws Exception {
+		x.printStackTrace();
 		HttpServletResponse resp = ctx.getResponse();
 		resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);				// Fail with proper response code.
 		Map<String, Object> dataMap = new HashMap<>();

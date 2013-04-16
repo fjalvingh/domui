@@ -125,6 +125,19 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 		return new HashSet<T>(m_selectedSet);
 	}
 
+	/**
+	 * Only usable for a non-multiselect, this returns the selected item or null.
+	 * @return
+	 */
+	@Nullable
+	public T getSelected() {
+		if(isMultiSelect())
+			throw new IllegalStateException("This call is invalid for multi-select");
+		if(m_selectedSet.size() == 0)
+			return null;
+		return getSelectedSet().iterator().next();
+	}
+
 	public void setSelectedSet(@Nonnull Collection<T> in) throws Exception {
 		if(null == in) {
 			clearSelection();
