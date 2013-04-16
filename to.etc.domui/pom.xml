@@ -7,5 +7,5 @@
   <modules>
     <module>.maven/jCharts</module>
     <module>.maven/source</module>
-    </modules>
-  </project>
+  </modules>
+</project>

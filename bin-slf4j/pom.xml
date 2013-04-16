@@ -12,5 +12,5 @@
     <module>.maven/logback-classic</module>
     <module>.maven/logback-core</module>
     <module>.maven/slf4j-api</module>
-    </modules>
-  </project>
+  </modules>
+</project>
