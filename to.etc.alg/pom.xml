@@ -6,5 +6,5 @@
   <packaging>pom</packaging>
   <modules>
     <module>.maven/source</module>
-    </modules>
-  </project>
+  </modules>
+</project>

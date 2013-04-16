@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsl="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0"><modelVersion>4.0.0</modelVersion>
   <groupId>to.etc</groupId>
-  <artifactId>to.etc.domui.hibutil.source</artifactId>
-  <name>to.etc.domui.hibutil source</name>
+  <artifactId>to.etc.domui.demo.source</artifactId>
+  <name>to.etc.domui.demo source</name>
   <version>trunk-SNAPSHOT</version>
   <packaging>jar</packaging>
   <properties>
@@ -13,9 +13,16 @@
   </properties>
   <build>
     <sourceDirectory>../../src</sourceDirectory>
+    <testSourceDirectory>../../test</testSourceDirectory>
     <resources>
       <resource>
         <directory>../../src</directory>
+        <excludes>
+          <exclude>**/*.java</exclude>
+        </excludes>
+      </resource>
+      <resource>
+        <directory>../../test</directory>
         <excludes>
           <exclude>**/*.java</exclude>
         </excludes>
@@ -48,40 +55,31 @@
           <timeout>60000000</timeout>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.12.4</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.maven.surefire</groupId>
+            <artifactId>surefire-junit47</artifactId>
+            <version>2.12.4</version>
+          </dependency>
+        </dependencies>
+      </plugin>
     </plugins>
   </build>
   <dependencies>
     <dependency>
-      <groupId>nl.itris.external</groupId>
-      <artifactId>j2ee.j2ee</artifactId>
-      <version>trunk-SNAPSHOT</version>
-      <type>jar</type>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>nl.itris</groupId>
-      <artifactId>jsr305.source</artifactId>
-      <version>trunk-SNAPSHOT</version>
-      <type>jar</type>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>nl.itris.external</groupId>
-      <artifactId>junit.junit</artifactId>
+      <groupId>to.etc</groupId>
+      <artifactId>to.etc.domui.demo.gnu-regexp</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>to.etc</groupId>
-      <artifactId>to.etc.alg.source</artifactId>
-      <version>trunk-SNAPSHOT</version>
-      <type>jar</type>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>to.etc</groupId>
-      <artifactId>to.etc.db.source</artifactId>
+      <artifactId>to.etc.domui.demo.derby</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
@@ -131,6 +129,139 @@
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>slf4j.slf4j-api</artifactId>
+      <version>trunk-SNAPSHOT</version>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>nl.itris.external</groupId>
+      <artifactId>asm.asm</artifactId>
+      <version>trunk-SNAPSHOT</version>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>nl.itris.external</groupId>
+      <artifactId>hibernate.cglib</artifactId>
+      <version>trunk-SNAPSHOT</version>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>nl.itris.external</groupId>
+      <artifactId>hibernate.antlr</artifactId>
+      <version>trunk-SNAPSHOT</version>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>nl.itris.external</groupId>
+      <artifactId>hibernate.commons-collections</artifactId>
+      <version>trunk-SNAPSHOT</version>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>nl.itris.external</groupId>
+      <artifactId>hibernate.dom4j</artifactId>
+      <version>trunk-SNAPSHOT</version>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>nl.itris.external</groupId>
+      <artifactId>hibernate.javassist-3.9.0.GA</artifactId>
+      <version>trunk-SNAPSHOT</version>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>nl.itris.external</groupId>
+      <artifactId>hibernate.jta</artifactId>
+      <version>trunk-SNAPSHOT</version>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>nl.itris.external</groupId>
+      <artifactId>hibernate.ant</artifactId>
+      <version>trunk-SNAPSHOT</version>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>nl.itris.external</groupId>
+      <artifactId>hibernate.jacc-1_0-fr</artifactId>
+      <version>trunk-SNAPSHOT</version>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>nl.itris.external</groupId>
+      <artifactId>hibernate.asm-all</artifactId>
+      <version>trunk-SNAPSHOT</version>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>nl.itris.external</groupId>
+      <artifactId>hibernate.ejb3-persistence</artifactId>
+      <version>trunk-SNAPSHOT</version>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>nl.itris.external</groupId>
+      <artifactId>hibernate.hibernate-annotations</artifactId>
+      <version>trunk-SNAPSHOT</version>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>nl.itris.external</groupId>
+      <artifactId>hibernate.hibernate-commons-annotations</artifactId>
+      <version>trunk-SNAPSHOT</version>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>nl.itris.external</groupId>
+      <artifactId>hibernate.source</artifactId>
+      <version>trunk-SNAPSHOT</version>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>nl.itris.external</groupId>
+      <artifactId>j2ee.j2ee</artifactId>
+      <version>trunk-SNAPSHOT</version>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>nl.itris</groupId>
+      <artifactId>jsr305.source</artifactId>
+      <version>trunk-SNAPSHOT</version>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>nl.itris.external</groupId>
+      <artifactId>junit.junit</artifactId>
+      <version>trunk-SNAPSHOT</version>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>to.etc</groupId>
+      <artifactId>to.etc.alg.source</artifactId>
+      <version>trunk-SNAPSHOT</version>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>to.etc</groupId>
+      <artifactId>to.etc.db.source</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
@@ -353,99 +484,8 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>nl.itris.external</groupId>
-      <artifactId>asm.asm</artifactId>
-      <version>trunk-SNAPSHOT</version>
-      <type>jar</type>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>nl.itris.external</groupId>
-      <artifactId>hibernate.cglib</artifactId>
-      <version>trunk-SNAPSHOT</version>
-      <type>jar</type>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>nl.itris.external</groupId>
-      <artifactId>hibernate.antlr</artifactId>
-      <version>trunk-SNAPSHOT</version>
-      <type>jar</type>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>nl.itris.external</groupId>
-      <artifactId>hibernate.commons-collections</artifactId>
-      <version>trunk-SNAPSHOT</version>
-      <type>jar</type>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>nl.itris.external</groupId>
-      <artifactId>hibernate.dom4j</artifactId>
-      <version>trunk-SNAPSHOT</version>
-      <type>jar</type>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>nl.itris.external</groupId>
-      <artifactId>hibernate.javassist-3.9.0.GA</artifactId>
-      <version>trunk-SNAPSHOT</version>
-      <type>jar</type>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>nl.itris.external</groupId>
-      <artifactId>hibernate.jta</artifactId>
-      <version>trunk-SNAPSHOT</version>
-      <type>jar</type>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>nl.itris.external</groupId>
-      <artifactId>hibernate.ant</artifactId>
-      <version>trunk-SNAPSHOT</version>
-      <type>jar</type>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>nl.itris.external</groupId>
-      <artifactId>hibernate.jacc-1_0-fr</artifactId>
-      <version>trunk-SNAPSHOT</version>
-      <type>jar</type>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>nl.itris.external</groupId>
-      <artifactId>hibernate.asm-all</artifactId>
-      <version>trunk-SNAPSHOT</version>
-      <type>jar</type>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>nl.itris.external</groupId>
-      <artifactId>hibernate.ejb3-persistence</artifactId>
-      <version>trunk-SNAPSHOT</version>
-      <type>jar</type>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>nl.itris.external</groupId>
-      <artifactId>hibernate.hibernate-annotations</artifactId>
-      <version>trunk-SNAPSHOT</version>
-      <type>jar</type>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>nl.itris.external</groupId>
-      <artifactId>hibernate.hibernate-commons-annotations</artifactId>
-      <version>trunk-SNAPSHOT</version>
-      <type>jar</type>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>nl.itris.external</groupId>
-      <artifactId>hibernate.source</artifactId>
+      <groupId>to.etc</groupId>
+      <artifactId>to.etc.domui.hibutil.source</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>

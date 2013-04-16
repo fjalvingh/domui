@@ -1,10 +1,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsl="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0"><modelVersion>4.0.0</modelVersion>
-  <groupId>nl.itris.external</groupId>
-  <artifactId>j2ee.BasePOM</artifactId>
-  <name>bin-j2ee-1.4</name>
+  <groupId>to.etc</groupId>
+  <artifactId>to.etc.domui.demo.BasePOM</artifactId>
+  <name>to.etc.domui.demo</name>
   <version>trunk-SNAPSHOT</version>
   <packaging>pom</packaging>
   <modules>
-    <module>.maven/j2ee</module>
+    <module>.maven/gnu-regexp</module>
+    <module>.maven/derby</module>
+    <module>.maven/source</module>
   </modules>
 </project>

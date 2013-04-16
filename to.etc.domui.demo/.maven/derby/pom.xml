@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsl="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0"><modelVersion>4.0.0</modelVersion>
-  <groupId>nl.itris.external</groupId>
-  <artifactId>batik.batik-rasterizer</artifactId>
-  <name>lib/batik-rasterizer.jar</name>
+  <groupId>to.etc</groupId>
+  <artifactId>to.etc.domui.demo.derby</artifactId>
+  <name>lib/derby.jar</name>
   <version>trunk-SNAPSHOT</version>
   <packaging>jar</packaging>
   <build>
@@ -17,7 +17,7 @@
             </goals>
             <configuration>
               <tasks>
-                <copy overwrite="true" file="../../lib/batik-rasterizer.jar" tofile="${project.build.directory}/${project.artifactId}-${project.version}.jar">
+                <copy overwrite="true" file="../../lib/derby.jar" tofile="${project.build.directory}/${project.artifactId}-${project.version}.jar">
                 </copy>
               </tasks>
             </configuration>

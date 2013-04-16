@@ -1,0 +1,22 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsl="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0"><modelVersion>4.0.0</modelVersion>
+  <groupId>nl.itris.viewpoint</groupId>
+  <artifactId>viewpointModuleSet</artifactId>
+  <name>viewpointModuleSet</name>
+  <version>trunk-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <modules>
+    <module>bin-slf4j</module>
+    <module>bin-asm-3.3</module>
+    <module>lib-hibernate</module>
+    <module>bin-j2ee-1.4</module>
+    <module>jsr305</module>
+    <module>bin-junit-4.8.2</module>
+    <module>to.etc.alg</module>
+    <module>to.etc.db</module>
+    <module>to.etc.webapp.core</module>
+    <module>bin-batik-1.7</module>
+    <module>to.etc.domui</module>
+    <module>to.etc.domui.hibutil</module>
+    <module>to.etc.domui.demo</module>
+  </modules>
+</project>
