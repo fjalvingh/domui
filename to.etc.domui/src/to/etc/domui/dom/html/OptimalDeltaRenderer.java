@@ -227,10 +227,12 @@ public class OptimalDeltaRenderer {
 		}
 
 		//-- Handle delayed stuff...
-		if(m_page.getConversation().hasDelayedActions())
-			o().writeRaw("WebUI.startPolling();");
-		else
+		int pollinterval = DomApplication.get().calculatePollInterval(m_page.getConversation().isPollCallbackRequired());
+		if(pollinterval > 0) {
+			o().writeRaw("WebUI.startPolling(" + pollinterval + ");");
+		} else {
 			o().writeRaw("WebUI.cancelPolling();");
+		}
 
 		o().closetag("eval");
 		o().closetag("delta");

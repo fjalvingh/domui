@@ -60,6 +60,12 @@ public class DataContextMock implements QDataContext {
 	}
 
 	@Override
+	public @Nonnull
+	<T> T get(@Nonnull Class<T> clz, @Nonnull Object pk) throws Exception {
+		return clz.newInstance();
+	}
+
+	@Override
 	public <T> T getInstance(Class<T> clz, Object pk) throws Exception {
 		return null;
 	}

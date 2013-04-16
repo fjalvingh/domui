@@ -1,7 +1,7 @@
 package to.etc.domuidemo.pages.formbuilder;
 
 import to.etc.domui.annotations.*;
-import to.etc.domui.component.form.*;
+import to.etc.domui.component.form2.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domuidemo.db.*;
 
@@ -24,9 +24,9 @@ public class SimpleForm1 extends UrlPage {
 
 	@Override
 	public void createContent() throws Exception {
-		TabularFormBuilder fb = new TabularFormBuilder(this);
+		VerticalFormBuilder fb = new VerticalFormBuilder(this);
 //		fb.data(getCustomer()).addProp("firstName", "lastName", "email");
-		fb.addProps("firstName", "lastName", "email");
+		fb.data(getCustomer()).addProps("firstName", "lastName", "email");
 		fb.finish();
 		moveModelToControl();
 	}

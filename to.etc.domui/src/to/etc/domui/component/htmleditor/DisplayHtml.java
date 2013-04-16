@@ -37,7 +37,8 @@ import to.etc.domui.util.*;
  * Created on Mar 16, 2010
  */
 public class DisplayHtml extends Div implements IDisplayControl<String>, IBindable {
-	private XmlTextNode m_xtn = new XmlTextNode();
+	@Nonnull
+	final private XmlTextNode m_xtn = new XmlTextNode();
 
 	private boolean m_unchecked;
 
@@ -71,7 +72,7 @@ public class DisplayHtml extends Div implements IDisplayControl<String>, IBindab
 	}
 
 	@Override
-	public void setValue(String v) {
+	public void setValue(@Nullable String v) {
 		if(!m_unchecked)
 			v = DomUtil.htmlRemoveUnsafe(v);
 		m_xtn.setText(v);
@@ -82,7 +83,7 @@ public class DisplayHtml extends Div implements IDisplayControl<String>, IBindab
 	/*--------------------------------------------------------------*/
 	/** When this is bound this contains the binder instance handling the binding. */
 	@Nullable
-	private DisplayOnlyBinder m_binder;
+	private SimpleBinder m_binder;
 
 	/**
 	 * Return the binder for this control.
@@ -91,9 +92,10 @@ public class DisplayHtml extends Div implements IDisplayControl<String>, IBindab
 	@Override
 	@Nonnull
 	public IBinder bind() {
-		if(m_binder == null)
-			m_binder = new DisplayOnlyBinder(this);
-		return m_binder;
+		IBinder b = m_binder;
+		if(b == null)
+			b = m_binder = new SimpleBinder(this);
+		return b;
 	}
 
 	/**
@@ -122,5 +124,54 @@ public class DisplayHtml extends Div implements IDisplayControl<String>, IBindab
 			return;
 		m_mode = mode;
 		forceRebuild();
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IControl implementation.							*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.domui.dom.html.IHasChangeListener#getOnValueChanged()
+	 */
+	@Override
+	public IValueChanged< ? > getOnValueChanged() {
+		return null;
+	}
+
+	@Override
+	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
+		throw new UnsupportedOperationException("Display control");
+	}
+
+	@Override
+	public String getValueSafe() {
+		return getValue();
+	}
+
+	@Override
+	public boolean isReadOnly() {
+		return true;
+	}
+
+	@Override
+	public void setReadOnly(boolean ro) {
+	}
+
+	@Override
+	public boolean isDisabled() {
+		return false;
+	}
+
+	@Override
+	public boolean isMandatory() {
+		return false;
+	}
+
+	@Override
+	public void setMandatory(boolean ro) {
+	}
+
+	@Override
+	public void setDisabled(boolean d) {
 	}
 }

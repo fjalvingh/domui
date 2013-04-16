@@ -35,4 +35,6 @@ public interface ImageHandler {
 	public ImageSpec scale(ImageConverterHelper h, ImageSpec source, int page, int width, int height, String targetMime) throws Exception;
 
 	public ImageSpec thumbnail(ImageConverterHelper h, ImageSpec source, int page, int width, int height, String targetMime) throws Exception;
+
+	public ImageSpec convert(ImageConverterHelper h, ImageSpec source, int page, String targetMime) throws Exception;
 }

@@ -5,6 +5,10 @@ function _unblock() {
 	WebUI.unblockUI();
 }
 $(document).ajaxStart(_block).ajaxStop(_unblock);
+$(window).bind('beforeunload', function() {
+	WebUI.beforeUnload();
+	return undefined;
+});
 
 //-- calculate browser major and minor versions
 {
@@ -133,7 +137,7 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 		} else if (rname == 'expiredOnPollasy'){
 			return true; // do nothing actually, page is in process of redirecting to some other page and we need to ignore responses on obsolete pollasy calls...
 		} else if (rname == 'expired') {
-			var msg = 'Uw sessie is verlopen. Het scherm wordt opnieuw opgevraagd met originele gegevens.';
+			var msg = WebUI._T.sysSessionExpired;
 			var hr = window.location.href;
 			for ( var i = xml.documentElement.childNodes.length; --i >= 0;) {
 				var cn = xml.documentElement.childNodes[i];
@@ -176,8 +180,10 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 				var cmdNode = commands[i], cmd = cmdNode.tagName;
 				if(cmd == 'head' || cmd == 'body') {
 					//-- HTML response. Server state is gone due to restart or lost session.
-					alert('The server has restarted, or the session has timed out.. Reloading the page with fresh data');
-					window.location.href = window.location.href;
+					if(!WebUI._hideExpiredMessage){
+						alert(WebUI._T.sysSessionExpired2);
+					}
+ 					window.location.href = window.location.href;
 					return;
 				}
 
@@ -539,6 +545,28 @@ $(document).ajaxStart(_block).ajaxStop(_unblock);
 
 /** WebUI helper namespace */
 var WebUI = {
+	/**
+	 * can be set to true from server code with appendJavaScript so that the expired messages will not show and
+	 * block effortless refresh on class reload. Configurable in .developer.properties domui.hide-expired-alert.
+	 */
+	_hideExpiredMessage: false,
+
+	/**
+	 * Will be set by startPolling to define the poll interval.
+	 */
+	_pollInterval: 2500,
+
+	/**
+	 * When this is > 0, this keeps any page "alive" by sending an async  
+	 */
+	_keepAliveInterval: 0,
+	
+	_ignoreErrors: false,
+
+	setHideExpired: function() {
+		WebUI._hideExpiredMessage = true;
+	},
+
 	log: function() {
 		if (!window.console || !window.console.debug)
 			return;
@@ -1134,21 +1162,81 @@ var WebUI = {
 		window.setTimeout('document.body.style.cursor="default"', 1000);
 		return true;
 	},
+	
 	_asyalerted: false,
-	handleErrorAsy : function(request, status, exc) {
-		if(WebUI._asyalerted)
-			return;
-		WebUI._asyalerted = true;
+	_asyDialog: null,
 
-		var txt = request.responseText;
-		if (document.body)
-			document.body.style.cursor = 'default';
-		// alert('Server error: '+status+", len="+txt.length+", val="+txt);
-		if (txt.length == 0)
+	handleErrorAsy : function(request, status, exc) {
+		if(WebUI._asyalerted) {
+			//-- We're still in error.. Silently redo the poll.
+			WebUI.startPolling(WebUI._pollInterval);
+			return;
+		}
+		if(status === "abort")
+			return;
+
+		WebUI._asyalerted = true;
+		
+		var txt = request.responseText || "No response - status="+status;
+		if(txt.length > 512)
+			txt = txt.substring(0, 512)+"...";
+		if(txt.length == 0)
 			txt = "De server is niet bereikbaar, status="+status;
-		else if(txt.length > 200)
-			txt = txt.substring(0, 200);
-		alert("Automatische server update mislukt: "+txt);
+		
+		/*
+		 * As usual there is a problem with error reporting: if the request is aborted because the browser reloads the page
+		 * any pending request is cancelled and comes in here- but with the wrong error code of course. So to prevent us from
+		 * showing an error message: set a timer to show that message 250 milli's later, and hope the stupid browser disables
+		 * that timer. 
+		 */
+		setTimeout(function() {
+			if(WebUI._ignoreErrors)
+				return;
+
+			//-- Show an alert error on top of the screen
+			document.body.style.cursor = 'default';
+			var hdr = document.createElement('div');
+			document.body.appendChild(hdr);
+			hdr.className = 'ui-io-blk2';
+			WebUI._asyHider = hdr;
+
+			var ald = document.createElement('div');
+			document.body.appendChild(ald);
+			ald.className = 'ui-ioe-asy';
+			WebUI._asyDialog = ald;
+
+			var d = document.createElement('div');			// Title bar
+			ald.appendChild(d);
+			d.className = "ui-ioe-ttl";
+			d.appendChild(document.createTextNode("Server unreachable"));	// Server unreachable
+			
+			d = document.createElement('div');				// Message content
+			ald.appendChild(d);
+			d.className = "ui-ioe-msg";
+			d.appendChild(document.createTextNode(txt));	// Server unreachable
+			
+			d = document.createElement('div');				// Message content
+			ald.appendChild(d);
+			d.className = "ui-ioe-msg2";
+	
+			var img = document.createElement('div');
+			d.appendChild(img);
+			img.className = "ui-ioe-img";
+			d.appendChild(document.createTextNode("Waiting for the server to return...."));	// Waiting for the server to return.
+			WebUI.startPolling(WebUI._pollInterval);
+		}, 250);
+	},
+	
+	clearErrorAsy: function() {
+		if(WebUI._asyDialog) {
+			WebUI._asyDialog.remove();
+		}
+		if(WebUI._asyHider) {
+			WebUI._asyHider.remove();
+		}
+		WebUI._asyDialog = null;
+		WebUI._asyHider = null;
+		WebUI._asyalerted = false;
 	},
 	
 	/*
@@ -1520,11 +1608,16 @@ var WebUI = {
 	},
 
 	/** *************** Polling code ************* */
-	startPolling : function() {
+	startPolling : function(interval) {
+		if(interval < 100 || interval == undefined || interval == null) {
+			alert("Bad interval: "+interval);
+			return;
+		}
+		WebUI._pollInterval = interval;
 		if (WebUI._pollActive)
 			return;
 		WebUI._pollActive = true;
-		WebUI._pollTimer = setTimeout("WebUI.poll()", 2500);
+		WebUI._pollTimer = setTimeout("WebUI.poll()", WebUI._pollInterval);
 	},
 	cancelPolling : function() {
 		if (!WebUI._pollActive)
@@ -1641,7 +1734,7 @@ var WebUI = {
 				}
 			}
 			if (!ok) {
-				alert("File type not allowed: " + ext + ", allowed: " + val);
+				alert(WebUI.format(WebUI._T.uploadType, ext, val));
 				return;
 			}
 		}
@@ -1653,7 +1746,12 @@ var WebUI = {
 			iframe = undefined;
 		}
 		if (!iframe) {
-			if (!jQuery.browser.msie || parseInt(jQuery.browser.version) > 7) {
+			if(jQuery.browser.msie && ! WebUI.isNormalIE9plus()) {			// MicroMorons report ie9 for ie7 emulation of course
+				// -- IE's below 8 of course have trouble. What else.
+				iframe = document
+						.createElement('<iframe name="webuiif" id="webuiif" src="#" style="display:none; width:0; height:0; border:none" onload="WebUI.ieUpdateUpload(event)">');
+				document.body.appendChild(iframe);
+			} else {
 				iframe = document.createElement('iframe');
 				iframe.id = 'webuiif';
 				iframe.name = "webuiif";
@@ -1665,13 +1763,6 @@ var WebUI = {
 				iframe.onload = function() {
 					WebUI.updateUpload(iframe.contentDocument);
 				};
-				document.body.appendChild(iframe);
-			} else {
-				// -- IE's below 8 of course have trouble. What else.
-				// alert('Using Microsoft\'s flagship piece of CRAP IE -
-				// circumventing the umphtiest bug.');
-				iframe = document
-						.createElement('<iframe name="webuiif" id="webuiif" src="#" style="display:none; width:0; height:0; border:none" onload="WebUI.ieUpdateUpload(event)">');
 				document.body.appendChild(iframe);
 			}
 		}
@@ -1688,14 +1779,98 @@ var WebUI = {
 		// -- Target the iframe
 		form.target = "webuiif"; // Fake a new thingy,
 		form.submit(); // Force submit of the thingerydoo
-
-		// alert('Upload change');
 	},
 
+	/**
+	 * Format a NLS message containing {0} and {1} markers and the like into
+	 * a real message.
+	 * @param message
+	 * @returns
+	 */
+	format: function(message) {
+		for(var i = 1; i < arguments.length; i++) {
+			message = message.replace("{"+(i-1)+"}", arguments[i]);
+		}
+		return message;
+	},
+
+	/**
+	 * Called for ie upload garbage only, this tries to decode the utter devastating mess that
+	 * ie makes from xml uploads into an iframe in ie8+. Sigh. The main problem with IE is that
+	 * the idiots that built it mess up XML documents sent to it: when the iframe we use receives
+	 * an xml document the idiot translates it into an html document- with formatted tags and minus
+	 * signs before it to collapse them. Instead of just /rendering/ that they actually /generate/
+	 * that as the content document of the iframe- so getting that means you get no XML at all.
+	 * This abomination was more or less fixed in ie9 - but of course they fucked up compatibility mode
+	 * badly.
+	 * 
+	 * Everything below ie9
+	 * ====================
+	 * Everything below ie9 has a special property "XMLDocument" attached to the "document" property of
+	 * the window. This property contains the original XML that was used as an XML tree. So for these
+	 * browsers we just get that and move on.
+	 * 
+	 * IE9 in native mode
+	 * ==================
+	 * IE9 in native mode does not mess up the iframe content document, so this mode takes the path of
+	 * all browsers worth the name. Since the original problem was solved the XMLDocument property no
+	 * longer exists.
+	 * 
+	 * IE9 in compatibility mode (IE7)
+	 * ===============================
+	 * This gets funny. In this mode the browser /still/ messes up the iframe's content model like the
+	 * old IE's it emulates. But of course the XMLDocument property is helpfully removed - EVEN IN THIS
+	 * MODE.
+	 * Remember: this mode is also entered if you are part of a frameset or iframe that is part of an
+	 * mode: the topmost frameset/page determines the mode for the entire set of pages - they are that
+	 * stupid.
+	 * 
+	 * I know no other "workaround" than the horrible concoction below; please turn away if you have
+	 * a weak stomach....
+	 * 
+	 * In this case we get the "innerText" content of the iframe. This differers from innerHTML in that
+	 * all html tags that IE added are removed, and only the text is retained. Since the html was generated
+	 * by IE in such a way that the xml was presented to the user - this is actually most of our XML...
+	 * But it contains some problems:
+	 * - there is extra whitespace around it's edges, so we need to remove that..
+	 * - All tags start on a new line with a '-' sign before them... Remove all that...
+	 * - The result will have the &amp; entity replaced by & because they are really stupid, again. So replace
+	 *   that too.
+	 * The resulting thing can sometimes be parsed as XML and then processing continues. But it is far
+	 * from perfect. The biggest problem is that the resulting xml has not properly reserved the original
+	 * whitespace; this may lead to rendering problems.
+	 * 
+	 * But as far as I know no other solution to this stupifying bug is possible. Please prove me wrong. 
+	 * 
+	 * @param e
+	 */
 	ieUpdateUpload : function(e) { // Piece of crap
 		var iframe = document.getElementById('webuiif');
-		var xml = iframe.contentWindow.document.XMLDocument; // IMPORTANT Fucking MS Crap!!!! See
-															// http://p2p.wrox.com/topic.asp?whichpage=1&TOPIC_ID=62981&#153594
+		var xml;
+		if(iframe.contentWindow && iframe.contentWindow.document.XMLDocument) {
+			xml = iframe.contentWindow.document.XMLDocument; // IMPORTANT Fucking MS Crap!!!! See http://p2p.wrox.com/topic.asp?whichpage=1&TOPIC_ID=62981&#153594
+		} else if(iframe.contentDocument) {
+			var crap = iframe.contentDocument.body.innerText;
+			crap = crap.replace(/^\s+|\s+$/g, ''); // trim
+			crap = crap.replace(/(\n|\r)-*/g, ''); // remove '\r\n-'. The dash is optional.
+			crap = crap.replace(/&/g, '&amp;');		// Replace & with entity
+//			alert('crap='+crap);
+			if(window.DOMParser) {
+				var parser = new DOMParser();
+				xml = parser.parseFromString(crap);
+			} else if(window.ActiveXObject) {
+				xml = new ActiveXObject("Microsoft.XMLDOM");
+				if(! xml.loadXML(crap)) {
+					alert('ie9 in emulation mode unfixable bug: cannot parse xml');
+					window.location.href = window.location.href;
+					return;
+				}
+			} else {
+				alert('No idea how to parse xml today.');
+			}
+		} else
+			alert('IE error: something again changed in xml source structure of the iframe, sigh');
+
 		WebUI.updateUpload(xml, iframe);
 	},
 	updateUpload : function(doc, ifr) {
@@ -1721,12 +1896,18 @@ var WebUI = {
 			alert("Got popup exception: "+x);
 		}
 		if (!h)
-			alert("Er is een popup blocker actief. Deze moet voor deze website worden uitgezet.");
+			alert(WebUI._T.sysPopupBlocker);
 		return false;
 	},
 
 	unloaded : function() {
+		WebUI._ignoreErrors = true;
 		WebUI.sendobituary();
+	},
+	
+	beforeUnload: function() {
+		//-- Make sure no "ajax" errors are reported.
+		WebUI._ignoreErrors = true;
 	},
 
 	/**
@@ -2160,11 +2341,11 @@ var WebUI = {
 				//In IE7 hidden nodes needs to be additionaly excluded from count...
 				if (!($(node).css('visibility') == 'hidden' || $(node).css('display') == 'none')){
 					//totHeight += node.offsetHeight;
-					totHeight += $(node).outerHeight();
+					totHeight += $(node).outerHeight(true);
 				}
 			}
 		});
-		var elemDeltaHeight = $(elem).outerHeight() - $(elem).height(); //we need to also take into account elem paddings, borders... So we take its delta between outter and inner height.
+		var elemDeltaHeight = $(elem).outerHeight(true) - $(elem).height(); //we need to also take into account elem paddings, borders... So we take its delta between outter and inner height.
 		if (WebUI.isIE8orIE8c()){
 			//from some reason we need +1 only for IE8!
 			elemDeltaHeight = elemDeltaHeight + 1;
@@ -2604,6 +2785,147 @@ var WebUI = {
 	//Returns T if browser is IE of at least version 8 even if it runs in IE7 compatibility mode
 	isIE8orNewer: function() {
 		return ($.browser.msie && (parseInt($.browser.version) >= 8 || (parseInt($.browser.version) == 7 && document.documentMode >= 8)));
+	},
+
+	//FCK editor support
+	_fckEditorIDs: [],
+	
+	/**
+	 * Register fckeditor for extra handling, if needed.
+	 * 
+	 * @param id
+	 */
+	registerFckEditorId : function(id) {
+		if (!WebUI._fckEditorIDs){
+			WebUI._fckEditorIDs = [];
+		}
+		WebUI._fckEditorIDs.push(id);
+	},
+
+	unregisterFckEditorId : function(id) {
+		try{
+			var index = WebUI._fckEditorIDs.indexOf(id);
+			if (index > -1){
+				WebUI._fckEditorIDs.splice(index, 1);
+			}
+		}catch(ex){
+			//nothing to do -> no _fckEditorIDs means nothing to unregister from
+		}
+	},
+
+	// connects input to usually hidden list select and provides autocomplete feature inside input. Down arrow does show and focus select list.
+	initAutocomplete : function (inputId, selectId){
+		var input = document.getElementById(inputId);
+		var select = document.getElementById(selectId);
+		$(input).keyup(function(event) {
+			WebUI.autocomplete(event, inputId, selectId); 
+		});
+		$(select).keypress(function(event) {
+			//esc hides select and prevents fireing of click and blur handlers that are temporary disconnected while focus moves back to input 
+			var keyCode = WebUI.normalizeKey(event);			
+			if (keyCode == 27 || keyCode == 27000) {
+				var oldVal = input.value;
+				var selectOnClick = select.click; 
+				var selectOnBlur = select.blur;
+				select.click = null; 
+				select.blur = null;
+				select.style.display = 'none';
+				input.focus();
+				input.value = oldVal;
+				select.click = selectOnClick; 
+				select.blur = selectOnBlur;
+			}
+		});
+	},
+	
+	// does autocomplete part of logic
+	autocomplete : function (event, inputId, selectId) {
+		var select = document.getElementById(selectId);
+		var cursorKeys = "8;46;37;38;39;40;33;34;35;36;45;";
+		if (cursorKeys.indexOf(event.keyCode + ";") == -1) {
+			var input = document.getElementById(inputId);
+		    var found = false;
+		    var foundAtIndex = -1;
+			for (var i = 0; i < select.options.length; i++){
+				if ((found = select.options[i].text.toUpperCase().indexOf(input.value.toUpperCase()) == 0)){
+					foundAtIndex = i;
+					break;
+				}
+			}
+		   	select.selectedIndex = foundAtIndex;
+
+		   	var oldValue = input.value;
+			var newValue = found ? select.options[foundAtIndex].text : oldValue;
+			if (newValue != oldValue) {
+				if (typeof input.selectionStart != "undefined") {
+					//normal browsers
+		            input.value = newValue;
+		            input.selectionStart = oldValue.length; 
+			        input.selectionEnd =  newValue.length;
+			        input.focus();
+			    } 
+				if (document.selection && document.selection.createRange) {
+					//IE9
+					input.value = newValue;
+		            input.focus();
+		            input.select();
+		            var range = document.selection.createRange();
+		            range.collapse(true);
+		            range.moveStart("character", oldValue.length);
+		            range.moveEnd("character", newValue.length);
+		            range.select();
+		        }else if (input.createTextRange) {
+					//IE8-
+					input.value = newValue;
+					var rNew = input.createTextRange();
+					rNew.moveStart('character', oldValue.length);
+					rNew.select();
+				}
+			}
+		}else if (event.keyCode == 40){
+			select.style.display = 'inline';
+			select.focus();
+		}
+	},
+	
+	//alignment methods
+	alignToTop : function (nodeId, alignToId, offsetY){
+		var alignNode = $('#' + alignToId); 
+		$('#' + nodeId).css('top', $(alignNode).position().top + offsetY + $(alignNode).outerHeight(true));
+	},
+
+	alignToLeft : function (nodeId, alignToId, offsetX){
+		var node = $('#' + nodeId); 
+		var alignNode = $('#' + alignToId); 
+		var myLeftPos = $(alignNode).position().left + offsetX;
+		var myRightPos = $(node).outerWidth(true) + myLeftPos;
+		if (myRightPos > $(window).width()){
+			myLeftPos = myLeftPos - myRightPos + $(window).width();
+			if (myLeftPos < 1){
+				myLeftPos = 1;
+			}
+		}
+		$(node).css('left', myLeftPos);
+	},
+	
+	alignToRight : function (nodeId, alignToId, offsetX){
+		var node = $('#' + nodeId); 
+		var alignNode = $('#' + alignToId); 
+		var myLeftPos = $(alignNode).position().left + offsetX - $(node).outerWidth(true) + $(alignNode).outerWidth(true) - 3;
+		if (myLeftPos < 1){
+			myLeftPos = 1; 
+		}
+		$(node).css('left', myLeftPos);
+	},
+	
+	alignToMiddle : function (nodeId, alignToId, offsetX){
+		var node = $('#' + nodeId); 
+		var alignNode = $('#' + alignToId); 
+		var myLeftPos = $(alignNode).position().left + ($(alignNode).outerWidth(true) / 2) - ($(node).outerWidth(true) / 2);
+		if (myLeftPos < 1){
+			myLeftPos = 1; 
+		}
+		$(node).css('left', myLeftPos);
 	}
 };
 
@@ -2773,7 +3095,7 @@ WebUI._ROW_DROPZONE_HANDLER = {
 	appendPlaceHolderCell : function(tr, appendPlaceholder) {
 		var td = document.createElement('td');
 		if(appendPlaceholder){
-			td.appendChild(document.createTextNode('Insert here'));
+			td.appendChild(document.createTextNode(WebUI._T.dndInsertHere));
 			td.className = 'ui-drp-ins';
 		}
 		tr.appendChild(td);
@@ -2891,6 +3213,173 @@ WebUI.flareStay = function(id) {
 	});
 };
 
+/** Bulk upload code using swfupload */
+WebUI.bulkUpload = function(id, buttonId, url) {
+	var ctl = $('#'+id);
+	ctl.swfupload({
+		upload_url: url,
+		flash_url: DomUIappURL+"$js/swfupload.swf",
+		file_types: '*.*',
+		file_upload_limit: 1000,
+		file_queue_limit: 0,
+		file_size_limit: "100 MB",
+		button_width: 120,
+		button_height: 22,
+		button_placeholder_id: buttonId,
+		button_window_mode: SWFUpload.WINDOW_MODE.TRANSPARENT,
+		button_cursor: SWFUpload.CURSOR.HAND
+	});
+	var target = $("#"+id+" .ui-bupl-queue");
+
+	ctl.bind('fileQueued', function(event, file) {
+		var uf = new WebUI.UploadFile(file, target, function() {
+			$.swfupload.getInstance(ctl).cancelUpload(file.id);
+		});
+	});
+	ctl.bind('uploadStart', function(event, file) {
+		var uf = new WebUI.UploadFile(file, target);
+		uf.uploadStarted();
+	});
+	ctl.bind('uploadProgress', function(event, file, bytesdone, bytestotal) {
+		var uf = new WebUI.UploadFile(file, target);
+		var pct = bytesdone * 100 / bytestotal;
+		uf.setProgress(pct);
+	});
+	ctl.bind('uploadError', function(event, file, code, msg) {
+		var uf = new WebUI.UploadFile(file, target);
+		uf.uploadError(msg);
+	});
+	ctl.bind('uploadSuccess', function(event, file, code, msg) {
+		var uf = new WebUI.UploadFile(file, target);
+		uf.uploadComplete();
+
+		//-- Send a DomUI command so the UI can handle updates.
+		WebUI.scall(id, "uploadDone", {});
+	});
+	ctl.bind('queueComplete', function(event, numUploaded) {
+		//-- Send a DomUI command for queue complete.
+		WebUI.scall(id, "queueComplete", {});
+	});
+//	ctl.bind('uploadComplete', function(event, file) {
+//		var uf = new WebUI.UploadFile(file, target);
+//	});
+	ctl.bind('fileDialogComplete', function() {
+		//-- Autostart upload on dialog completion.
+		ctl.swfupload('startUpload');
+
+		//-- Send a DomUI command for queue start.
+		WebUI.scall(id, "queueStart", {});
+	});
+	ctl.bind('fileQueueError', function(event, file, errorCode, message) {
+		try {
+			if(errorCode === SWFUpload.QUEUE_ERROR.QUEUE_LIMIT_EXCEEDED) {
+				alert(WebUI._T.buplTooMany);
+//				alert("You have attempted to queue too many files.\n" + (message === 0 ? "You have reached the upload limit." : "You may select " + (message > 1 ? "up to " + message + " files." : "one file.")));
+				return;
+			}
+			var uf = new WebUI.UploadFile(file, target);
+			switch (errorCode) {
+				case SWFUpload.QUEUE_ERROR.FILE_EXCEEDS_SIZE_LIMIT:
+					uf.uploadError(WebUI._T.buplTooBig);
+					break;
+				case SWFUpload.QUEUE_ERROR.ZERO_BYTE_FILE:
+					uf.uploadError(WebUI._T.buplEmptyFile);
+					break;
+				case SWFUpload.QUEUE_ERROR.INVALID_FILETYPE:
+					uf.uploadError(WebUI._T.buplInvalidType);
+					break;
+				default:
+					if(file !== null) {
+						uf.uploadError(WebUI._T.buplUnknownError);
+					}
+					break;
+			}
+		} catch (ex) {
+			alert(ex);
+	    }
+	});
+
+//	//-- TEST
+//	var file = {
+//			id: 'jal',
+//			name: 'upload.jpg'
+//	};
+//	var uf = new WebUI.UploadFile(file, target, function() {
+//		$.swfupload.getInstance(ctl).cancelUpload(file.id);
+//	});
+//
+//	setTimeout(function() {
+//		uf.uploadStarted();
+//		
+//	}, 2000);
+//
+//	setTimeout(function() {
+//		uf.setProgress(10);
+//		
+//	}, 3000);
+//	
+//	setTimeout(function() {
+//		uf.setProgress(20);
+//		
+//	}, 4000);
+//
+////	setTimeout(function() {
+////		uf.uploadError("Server IO error");
+////		
+////	}, 6000);
+//
+//	setTimeout(function() {
+//		uf.uploadComplete();
+//	}, 6000);
+};
+
+/**
+ * The uploadFile object handles all progress handling for a swf file.
+ */
+WebUI.UploadFile = function(file, target, cancelFn) {
+	this._id = file.id;
+	
+	//-- connect to pre-existing UI
+	this._ui = $('#'+file.id);
+	if(this._ui.length == 0) {
+		//-- Create the UI.
+		target.append("<div id='"+this._id+"' class='ui-bupl-file'><div class='ui-bupl-inner ui-bupl-pending'><a href='#' class='ui-bupl-cancl'> </a><div class='ui-bupl-name'>"+file.name+"</div><div class='ui-bupl-stat'>"+DomUI._T.buplPending+"</div><div class='ui-bupl-perc'></div></div></div>");
+		this._ui = $('#'+file.id);
+		if(cancelFn) {
+			var me = this;
+			$(".ui-bupl-cancl", this._ui).bind("click", function() {
+				$(".ui-bupl-stat", this._ui).html(WebUI._T.buplCancelled);
+				me.suicide();
+				cancelFn();
+			});
+		}
+	}
+};
+WebUI.UploadFile.prototype.uploadStarted = function() {
+	$(".ui-bupl-stat", this._ui).html(WebUI._T.buplRunning);
+	$(".ui-bupl-inner", this._ui).removeClass("ui-bupl-pending").addClass("ui-bupl-running");
+};
+WebUI.UploadFile.prototype.setProgress = function(pct) {
+	$(".ui-bupl-perc", this._ui).width(pct+"%");
+};
+WebUI.UploadFile.prototype.uploadError = function(message) {
+	$(".ui-bupl-stat", this._ui).html(WebUI._T.buplError+": "+message);
+	$(".ui-bupl-inner", this._ui).removeClass("ui-bupl-pending").removeClass("ui-bupl-running").addClass("ui-bupl-error");
+	$(".ui-bupl-cancl", this._ui).remove();
+	this.setProgress(0);
+	this.suicide();
+};
+WebUI.UploadFile.prototype.uploadComplete = function() {
+	$(".ui-bupl-stat", this._ui).html(WebUI._T.buplComplete);
+	$(".ui-bupl-inner", this._ui).removeClass("ui-bupl-pending").removeClass("ui-bupl-running").removeClass("ui-bupl-error").addClass("ui-bupl-complete");
+	this.setProgress(100);
+	$(".ui-bupl-cancl", this._ui).remove();
+	this.suicide();
+};
+WebUI.UploadFile.prototype.suicide = function() {
+	this._ui.delay(8000).fadeOut(500);
+};
+
 
 $(document).ready(WebUI.onDocumentReady);
 $(window).resize(WebUI.onWindowResize);
@@ -2898,6 +3387,30 @@ $(document).ajaxComplete( function() {
 	WebUI.handleCalendarChanges();
 	WebUI.doCustomUpdates();
 });
+
+//piece of support needed for FCK editor to properly fix heights in IE8+
+function FCKeditor_OnComplete(editorInstance){
+	if (WebUI.isIE8orNewer()){
+		for (var i = 0; i < WebUI._fckEditorIDs.length; i++) {
+		    var fckId = WebUI._fckEditorIDs[i];
+		    var fckIFrame = document.getElementById(fckId + '___Frame');
+			if (fckIFrame){
+				$(fckIFrame.contentWindow.window).bind('resize', function() 
+					{
+						FCKeditor_fixLayout(fckIFrame, fckId);
+					});
+				$(fckIFrame.contentWindow.window).trigger('resize');
+			};
+		};
+	};
+	WebUI.doCustomUpdates();
+};
+
+function FCKeditor_fixLayout(fckIFrame, fckId){
+	if (fckIFrame){
+		fckIFrame.contentWindow.Domui_fixLayout(fckId);
+	}
+};
 
 
 

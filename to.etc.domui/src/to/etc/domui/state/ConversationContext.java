@@ -27,6 +27,8 @@ package to.etc.domui.state;
 import java.io.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import org.slf4j.*;
 
 import to.etc.domui.component.delayed.*;
@@ -311,7 +313,7 @@ public class ConversationContext implements IQContextContainer {
 		return m_pageMap.get(clz.getName());
 	}
 
-	public void internalRegisterPage(final Page p, final PageParameters papa) {
+	public void internalRegisterPage(@Nonnull final Page p, @Nonnull final IPageParameters papa) {
 		m_pageMap.put(p.getBody().getClass().getName(), p);
 		p.internalInitialize(papa, this);
 	}
@@ -365,6 +367,7 @@ public class ConversationContext implements IQContextContainer {
 	 * @param name
 	 * @return
 	 */
+	@Nullable
 	public Object getAttribute(final String name) {
 		return m_map.get(name);
 	}
@@ -382,7 +385,14 @@ public class ConversationContext implements IQContextContainer {
 		return m_delayManager;
 	}
 
-	public DelayedActivityInfo scheduleDelayed(final AsyncContainer container, final IActivity a) {
+	/**
+	 * Schedule an activity to be started later. This calls the {@link IAsyncListener#onActivityScheduled(IAsyncRunnable)} method of
+	 * all listeners, and stores their "keep object" for later use.
+	 * @param container
+	 * @param a
+	 * @return
+	 */
+	public DelayedActivityInfo scheduleDelayed(@Nonnull final AsyncContainer container, @Nonnull final IAsyncRunnable a) throws Exception {
 		return getDelayedActivitiesManager().schedule(a, container);
 	}
 
@@ -397,7 +407,11 @@ public class ConversationContext implements IQContextContainer {
 		m_delayManager.processDelayedResults(pg);
 	}
 
-	public boolean hasDelayedActions() {
+	/**
+	 * If the page has asynchronous stuff, this returns true.
+	 * @return
+	 */
+	public boolean isPollCallbackRequired() {
 		return m_delayManager == null ? false : m_delayManager.callbackRequired();
 	}
 
@@ -415,6 +429,13 @@ public class ConversationContext implements IQContextContainer {
 	public <T extends NodeContainer & IPolledForUpdate> void unregisterPoller(T nc) {
 		getDelayedActivitiesManager().unregisterPoller(nc);
 	}
+
+	//	/**
+	//	 * Forces the activity manager to enable continuous polling by the client system, at least every interval millis.
+	//	 */
+	//	public void internalSetContinuousPolling(int interval) {
+	//		getDelayedActivitiesManager().setContinuousPolling(interval);
+	//	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Upload code.										*/
@@ -453,7 +474,7 @@ public class ConversationContext implements IQContextContainer {
 		StringBuilder sb = new StringBuilder(128);
 		for(Page pg : m_pageMap.values()) {
 			sb.setLength(0);
-			PageParameters pp = pg.getPageParameters();
+			IPageParameters pp = pg.getPageParameters();
 			sb.append("      Resident page: ");
 			sb.append(pg.getBody().getClass().getName());
 			sb.append(" [");

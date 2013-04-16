@@ -13,6 +13,7 @@ import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.themes.*;
 import to.etc.domui.util.*;
 
 /**
@@ -22,12 +23,12 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on 13 Oct 2011
  */
-public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
+public class MultipleLookupInput<T> extends Div implements IControl<List<T>> {
 
 
 	/**
-	 * Specific implementation for use in {@link MultiLookupInput}. It sets inner {@link DataTable} of {@link LookupInput} 
-	 * to multi-select mode. 
+	 * Specific implementation for use in {@link MultiLookupInput}. It sets inner {@link DataTable} of {@link LookupInput}
+	 * to multi-select mode.
 	 *
 	 * @author <a href="mailto:nmaksimovic@execom.eu">Nemanja Maksimovic</a>
 	 * Created on Jun 5, 2012
@@ -49,7 +50,7 @@ public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
 			m_isSelectionModel.addListener(new ISelectionListener<T>() {
 
 				@Override
-				public void selectionChanged(T row, boolean on) throws Exception {
+				public void selectionChanged(@Nonnull T row, boolean on) throws Exception {
 					showSelectedCount();
 				}
 
@@ -64,14 +65,23 @@ public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
 			return m_isSelectionModel != null ? m_isSelectionModel.getSelectedSet() : Collections.EMPTY_SET;
 		}
 
-		public void showSelectedCount() {
+		public void showSelectedCount() throws IllegalStateException {
 			final int selectionCount = m_isSelectionModel.getSelectionCount();
-			final Window window = (Window) getLookupForm().getParentOfTypes(Window.class);
+			final Window window = getLookupWindow();
 			window.setWindowTitle(Msgs.BUNDLE.formatMessage(Msgs.UI_LUI_TTL_MULTI, Integer.valueOf(selectionCount)));
 		}
 
+		@Nonnull
+		private Window getLookupWindow() throws IllegalStateException {
+			LookupForm<T> lookupForm = getLookupForm();
+			if(lookupForm != null) {
+				return lookupForm.getParent(Window.class);
+			}
+			throw new IllegalStateException("Lookup form not found where expected");
+		}
+
 		@Override
-		void handleSetValue(T value) throws Exception {
+		void handleSetValue(@Nullable T value) throws Exception {
 			if(!isPopupShown()) {
 				/*
 				 * if set from lookup input - business as usual...
@@ -82,7 +92,9 @@ public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
 				 * if set from lookup form, select that value in model, instead od setting value and closing.
 				 * Effectively click on row is same as click on check box.
 				 */
-				m_isSelectionModel.setInstanceSelected(value, !m_isSelectionModel.isSelected(value));
+				if(value != null) {
+					m_isSelectionModel.setInstanceSelected(value, !m_isSelectionModel.isSelected(value));
+				}
 				showSelectedCount();
 			}
 		}
@@ -112,7 +124,7 @@ public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
 	 */
 	final private INodeContentRenderer<T> DEFAULT_RENDERER = new INodeContentRenderer<T>() {
 		@Override
-		public void renderNodeContent(NodeBase component, NodeContainer node, T object, Object parameters) throws Exception {
+		public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable T object, @Nullable Object parameters) throws Exception {
 			if(node == null || !(node instanceof Label)) {
 				throw new IllegalArgumentException("Expected Label but found: " + node);
 			}
@@ -162,7 +174,7 @@ public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
 		m_lookupInput.setLookupFormInitialization(new ILookupFormModifier<T>() {
 			private boolean initialized = false;
 			@Override
-			public void initialize(LookupForm<T> lf) throws Exception {
+			public void initialize(@Nonnull LookupForm<T> lf) throws Exception {
 				if(!initialized) {
 					DefaultButton confirm = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CONFIRM));
 					confirm.setIcon("THEME/btnConfirm.png");
@@ -181,7 +193,7 @@ public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
 			}
 		});
 		m_renderColumns = renderColumns;
-		m_clearButton = new SmallImgButton("THEME/btnClearLookup.png", new IClicked<SmallImgButton>() {
+		m_clearButton = new SmallImgButton(Theme.BTN_CLEARLOOKUP, new IClicked<SmallImgButton>() {
 			@Override
 			@SuppressWarnings("synthetic-access")
 			public void clicked(SmallImgButton b) throws Exception {
@@ -198,8 +210,9 @@ public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
 		m_itemNodes.clear();
 		m_selectionContainer.removeAllChildren();
 		updateClearButtonState();
-		if(getOnValueChanged() != null) {
-			getOnValueChanged().onValueChanged(null);
+		IValueChanged<MultipleLookupInput< ? >> ovc = (IValueChanged<MultipleLookupInput< ? >>) getOnValueChanged();
+		if(ovc != null) {
+			ovc.onValueChanged(this);
 		}
 	}
 
@@ -232,8 +245,9 @@ public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
 					addSelection(item);
 					component.setValue(null);
 					addClearButton();
-					if(getOnValueChanged() != null) {
-						getOnValueChanged().onValueChanged(null);
+					IValueChanged<MultipleLookupInput< ? >> ovc = (IValueChanged<MultipleLookupInput< ? >>) getOnValueChanged();
+					if(ovc != null) {
+						ovc.onValueChanged(MultipleLookupInput.this);
 					}
 				}
 			}
@@ -302,6 +316,7 @@ public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
 		return itemNode;
 	}
 
+	@Nonnull
 	public LookupInput<T> getMultipleLookupInput() {
 		return m_lookupInput;
 	}
@@ -355,7 +370,7 @@ public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
 	}
 
 	@Override
-	public void setValue(List<T> v) {
+	public void setValue(@Nullable List<T> v) {
 		if (m_selectionList != v) {
 			m_selectionList = v;
 			if (isBuilt()) {
@@ -379,16 +394,35 @@ public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
 		m_onValueChanged = onValueChanged;
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IBindable interface (EXPERIMENTAL)					*/
+	/*--------------------------------------------------------------*/
+
+	/** When this is bound this contains the binder instance handling the binding. */
+	@Nullable
+	private SimpleBinder m_binder;
+
+	/**
+	 * Return the binder for this control.
+	 * @see to.etc.domui.component.input.IBindable#bind()
+	 */
 	@Override
+	@Nonnull
 	public IBinder bind() {
-		// TODO Auto-generated method stub
-		return null;
+		IBinder b = m_binder;
+		if(b == null)
+			b = m_binder = new SimpleBinder(this);
+		return b;
 	}
 
+	/**
+	 * Returns T if this control is bound to some data value.
+	 *
+	 * @see to.etc.domui.component.input.IBindable#isBound()
+	 */
 	@Override
 	public boolean isBound() {
-		// TODO Auto-generated method stub
-		return false;
+		return m_binder != null && m_binder.isBound();
 	}
 
 	public INodeContentRenderer<T> getSelectedItemContentRenderer() {
@@ -450,7 +484,7 @@ public class MultipleLookupInput<T> extends Div implements IInputNode<List<T>> {
 		if(getOnValueChanged() != null) {
 			//FIXME: from some reason we can't pass items here -> some buggy generics issue is shown if we specifiy item as argumen!?
 			//getOnValueChanged().onValueChanged(item);
-			((IValueChanged<MultipleLookupInput>) getOnValueChanged()).onValueChanged(MultipleLookupInput.this);
+			((IValueChanged<MultipleLookupInput<T>>) getOnValueChanged()).onValueChanged(MultipleLookupInput.this);
 		}
 		updateClearButtonState();
 	}

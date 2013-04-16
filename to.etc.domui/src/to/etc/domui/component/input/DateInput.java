@@ -26,6 +26,8 @@ package to.etc.domui.component.input;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
@@ -135,17 +137,19 @@ public class DateInput extends Text<Date> {
 	public void setReadOnly(boolean readOnly) {
 		super.setReadOnly(readOnly);
 		super.setDisabled(readOnly);
-		m_selCalButton.setDisplay(readOnly ? DisplayType.NONE : null);
-		if(null != m_todayButton)
-			m_todayButton.setDisplay(readOnly ? DisplayType.NONE : null);
+		updateCalendarButtons(readOnly ? DisplayType.NONE : DisplayType.INLINE);
 	}
 
 	@Override
 	public void setDisabled(boolean disabled) {
 		super.setDisabled(disabled);
-		m_selCalButton.setDisplay(disabled ? DisplayType.NONE : null);
+		updateCalendarButtons(disabled ? DisplayType.NONE : DisplayType.INLINE);
+	}
+
+	private void updateCalendarButtons(@Nonnull DisplayType displayType) {
+		m_selCalButton.setDisplay(displayType);
 		if(null != m_todayButton)
-			m_todayButton.setDisplay(disabled ? DisplayType.NONE : null);
+			m_todayButton.setDisplay(displayType);
 	}
 
 	public boolean isWithTime() {
@@ -183,6 +187,7 @@ public class DateInput extends Text<Date> {
 		m_hideTodayButton = hideTodayButton;
 	}
 
+	@Nonnull
 	public static DateInput createDateInput(Class< ? > clz, String property, boolean editable) {
 		PropertyMetaModel< ? > pmm = MetaManager.getPropertyMeta(clz, property);
 		Class< ? > aclz = pmm.getActualType();
@@ -191,10 +196,12 @@ public class DateInput extends Text<Date> {
 		return DateInput.createDateInput((PropertyMetaModel<Date>) pmm, editable);
 	}
 
+	@Nonnull
 	public static DateInput createDateInput(PropertyMetaModel<Date> pmm, boolean editable) {
 		return createDateInput(pmm, editable, false);
 	}
 
+	@Nonnull
 	public static DateInput createDateInput(PropertyMetaModel<Date> pmm, boolean editable, boolean setDefaultErrorLocation) {
 		DateInput di = new DateInput();
 		if(pmm.isRequired())

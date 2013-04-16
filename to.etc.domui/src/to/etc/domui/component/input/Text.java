@@ -49,7 +49,7 @@ import to.etc.webapp.nls.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 11, 2008
  */
-public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndication, IConvertable<T> {
+public class Text<T> extends Input implements IControl<T>, IHasModifiedIndication, IConvertable<T> {
 	/** The type of class that is expected. This is the return type of the getValue() call for a validated item */
 	private Class<T> m_inputClass;
 
@@ -184,7 +184,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 				if(getRegexpUserString() != null)
 					setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_NO_RE_MATCH, getRegexpUserString()));// Input format must be {0}
 				else
-					setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_INVALID));
+					setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_INVALID, raw));
 				m_wasvalid = false;
 				return false;
 			}
@@ -265,7 +265,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	}
 
 	/**
-	 * @see to.etc.domui.dom.html.IInputNode#getValue()
+	 * @see to.etc.domui.dom.html.IControl#getValue()
 	 */
 	@Override
 	public T getValue() {
@@ -285,7 +285,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	}
 
 	/**
-	 * @see to.etc.domui.dom.html.IInputNode#getValueSafe()
+	 * @see to.etc.domui.dom.html.IControl#getValueSafe()
 	 */
 	@Override
 	public T getValueSafe() {
@@ -293,7 +293,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	}
 
 	/**
-	 * @see to.etc.domui.dom.html.IInputNode#hasError()
+	 * @see to.etc.domui.dom.html.IControl#hasError()
 	 */
 	@Override
 	public boolean hasError() {
@@ -306,10 +306,10 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	 * any converter set or by one of the default converters. This string value will then be shown
 	 * to the users.
 	 *
-	 * @see to.etc.domui.dom.html.IInputNode#setValue(java.lang.Object)
+	 * @see to.etc.domui.dom.html.IControl#setValue(java.lang.Object)
 	 */
 	@Override
-	public void setValue(T value) {
+	public void setValue(@Nullable T value) {
 		// jal 20080930 Onderstaande code aangepast. Dit levert als bug op dat "wissen" van een niet-gevalideerde waarde niet werkt. Dat
 		// wordt veroorzaakt als volgt: als de control een niet-gevalideerde tekst bevat dan is m_rawValue de string maar m_value staat nog
 		// op null. Onderstaande code returnt dan onmiddelijk waardoor de rawvalue blijft bestaan.
@@ -355,7 +355,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 
 	/**
 	 * Returns T if this control is mandatory.
-	 * @see to.etc.domui.dom.html.IInputNode#isMandatory()
+	 * @see to.etc.domui.dom.html.IControl#isMandatory()
 	 */
 	@Override
 	public boolean isMandatory() {
@@ -365,7 +365,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	/**
 	 * Set the control as mandatory. A mandatory control expects the value filled in to be non-whitespace.
 	 *
-	 * @see to.etc.domui.dom.html.IInputNode#setMandatory(boolean)
+	 * @see to.etc.domui.dom.html.IControl#setMandatory(boolean)
 	 */
 	@Override
 	public void setMandatory(boolean mandatory) {
@@ -564,7 +564,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	 * @see to.etc.domui.component.input.IBindable#bind()
 	 */
 	@Override
-	public IBinder bind() {
+	public @Nonnull IBinder bind() {
 		if(m_binder == null)
 			m_binder = new SimpleBinder(this);
 		return m_binder;
@@ -622,14 +622,16 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	 */
 	@Nonnull
 	static public Text<Double> createDoubleMoneyInput(@Nonnull Class< ? > clz, @Nonnull String property, boolean editable) {
-		return Text.createDoubleMoneyInput(MetaManager.getPropertyMeta(clz, property), editable);
+		return Text.createDoubleMoneyInput((PropertyMetaModel<Double>) MetaManager.getPropertyMeta(clz, property), editable);
 	}
 
+	@Nonnull
 	static public Text<BigDecimal> createBDMoneyInput(Class< ? > clz, String property, boolean editable) {
-		return Text.createBDMoneyInput(MetaManager.findPropertyMeta(clz, property), editable);
+		return Text.createBDMoneyInput((PropertyMetaModel<BigDecimal>) MetaManager.findPropertyMeta(clz, property), editable);
 	}
 
-	static public Text<BigDecimal> createBDMoneyInput(PropertyMetaModel< ? > pmm, boolean editable) {
+	@Nonnull
+	static public Text<BigDecimal> createBDMoneyInput(PropertyMetaModel<BigDecimal> pmm, boolean editable) {
 		if(pmm == null)
 			throw new NullPointerException("Null property model not allowed");
 		Text<BigDecimal> txt = new Text<BigDecimal>(BigDecimal.class);
@@ -639,7 +641,7 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	}
 
 	@Nonnull
-	static public Text<Double> createDoubleMoneyInput(@Nonnull PropertyMetaModel< ? > pmm, boolean editable) {
+	static public Text<Double> createDoubleMoneyInput(@Nonnull PropertyMetaModel<Double> pmm, boolean editable) {
 		if(pmm == null)
 			throw new NullPointerException("Null property model not allowed");
 		Text<Double> txt = new Text<Double>(Double.class);
@@ -702,10 +704,12 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 	 * @param editable
 	 * @return
 	 */
+	@Nonnull
 	static public Text<Integer> createIntInput(Class< ? > clz, String property, boolean editable) {
 		return Text.createIntInput((PropertyMetaModel<Integer>) MetaManager.findPropertyMeta(clz, property), editable);
 	}
 
+	@Nonnull
 	static public Text<Integer> createIntInput(PropertyMetaModel<Integer> pmm, boolean editable) {
 		if(pmm == null)
 			throw new NullPointerException("Null property model not allowed");
@@ -715,10 +719,12 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 		return txt;
 	}
 
+	@Nonnull
 	static public Text<Long> createLongInput(Class< ? > clz, String property, boolean editable) {
 		return Text.createLongInput((PropertyMetaModel<Long>) MetaManager.findPropertyMeta(clz, property), editable);
 	}
 
+	@Nonnull
 	static public Text<Long> createLongInput(PropertyMetaModel<Long> pmm, boolean editable) {
 		if(pmm == null)
 			throw new NullPointerException("Null property model not allowed");
@@ -728,10 +734,12 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 		return txt;
 	}
 
+	@Nonnull
 	static public Text<Double> createDoubleInput(Class< ? > clz, String property, boolean editable) {
 		return Text.createDoubleInput((PropertyMetaModel<Double>) MetaManager.findPropertyMeta(clz, property), editable);
 	}
 
+	@Nonnull
 	static public Text<Double> createDoubleInput(PropertyMetaModel<Double> pmm, boolean editable) {
 		if(pmm == null)
 			throw new NullPointerException("Null property model not allowed");
@@ -741,10 +749,12 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 		return txt;
 	}
 
+	@Nonnull
 	static public Text<BigDecimal> createBigDecimalInput(Class< ? > clz, String property, boolean editable) {
 		return Text.createBigDecimalInput((PropertyMetaModel<BigDecimal>) MetaManager.findPropertyMeta(clz, property), editable);
 	}
 
+	@Nonnull
 	static public Text<BigDecimal> createBigDecimalInput(PropertyMetaModel<BigDecimal> pmm, boolean editable) {
 		if(pmm == null)
 			throw new NullPointerException("Null property model not allowed");
@@ -754,15 +764,18 @@ public class Text<T> extends Input implements IInputNode<T>, IHasModifiedIndicat
 		return txt;
 	}
 
+	@Nonnull
 	static public <T> Text< ? > createText(Class< ? > clz, String property, boolean editable) {
 		PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) MetaManager.getPropertyMeta(clz, property);
 		return Text.createText(pmm.getActualType(), pmm, editable);
 	}
 
+	@Nonnull
 	static public <T> Text<T> createText(Class<T> iclz, PropertyMetaModel<T> pmm, boolean editable) {
 		return createText(iclz, pmm, editable, false);
 	}
 
+	@Nonnull
 	static public <T> Text<T> createText(Class<T> iclz, PropertyMetaModel<T> pmm, boolean editable, boolean setDefaultErrorLocation) {
 		Class< ? > aclz = pmm.getActualType();
 		if(!iclz.isAssignableFrom(aclz))

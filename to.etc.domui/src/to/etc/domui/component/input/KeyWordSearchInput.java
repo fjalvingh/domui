@@ -224,11 +224,12 @@ public class KeyWordSearchInput<T> extends Div {
 				m_pnlSearchPopup.removeAllChildren();
 			}
 
-			if(m_resultsHintPopupRowRenderer == null) {
+			IRowRenderer<T> rhpr = m_resultsHintPopupRowRenderer;
+			if(rhpr == null) {
 				throw new IllegalStateException("Undefined m_resultsHintPopupRowRenderer!");
 			}
 
-			DataTable<T> tbl = new DataTable<T>(popupResults, m_resultsHintPopupRowRenderer);
+			DataTable<T> tbl = new DataTable<T>(popupResults, rhpr);
 			m_pnlSearchPopup.add(tbl);
 			tbl.setWidth("100%");
 			tbl.setOverflow(Overflow.HIDDEN);

@@ -59,15 +59,15 @@ public class AreaCharter implements ICharterHelper {
 	private LegendProperties m_legendProperties = new LegendProperties();
 
 	// FIXME Cannot create ANY construct here that does NOT cause generic warnings. Good job, Sun.
-	@SuppressWarnings({"unchecked", "rawtypes"})
+	@SuppressWarnings({"unchecked"})
 	static public class BucketData {
 		private String m_bucketName;
 
-		private Comparable m_bucketValue;
+		private Object m_bucketValue;
 
 		private List<Double> m_values = new ArrayList<Double>();
 
-		protected BucketData(String bucketName, Comparable< ? > bucketValue) {
+		protected BucketData(String bucketName, Object bucketValue) {
 			m_bucketName = bucketName;
 			m_bucketValue = bucketValue;
 		}
@@ -82,7 +82,7 @@ public class AreaCharter implements ICharterHelper {
 			return m_bucketName;
 		}
 
-		public Comparable getBucketValue() {
+		public Object getBucketValue() {
 			return m_bucketValue;
 		}
 
@@ -106,7 +106,7 @@ public class AreaCharter implements ICharterHelper {
 			m_index = index;
 		}
 
-		public void add(String bucketlabel, Comparable< ? > sortvalue, double value) {
+		public <T extends Comparable<T>> void add(String bucketlabel, T sortvalue, double value) {
 			_add(m_index, bucketlabel, sortvalue, value);
 		}
 
@@ -139,12 +139,12 @@ public class AreaCharter implements ICharterHelper {
 		return ds;
 	}
 
-	void _add(int index, String bucketlabel, Comparable< ? > sortvalue, double value) {
+	<T extends Comparable<T>> void _add(int index, String bucketlabel, T sortvalue, double value) {
 		BucketData bd = addBucket(bucketlabel, sortvalue); // Add/get bucket.
 		bd.setValue(index, value);
 	}
 
-	public BucketData addBucket(String bucketlabel, Comparable< ? > sortvalue) {
+	public BucketData addBucket(String bucketlabel, Object sortvalue) {
 		BucketData d = m_bucketSet.get(sortvalue);
 		if(d == null) {
 			d = new BucketData(bucketlabel, sortvalue);
@@ -154,11 +154,14 @@ public class AreaCharter implements ICharterHelper {
 	}
 
 	public List<BucketData> getOrderedBuckets() {
-		List<BucketData> res = new ArrayList<BucketData>(m_bucketSet.values());
+		Collection<?> values = m_bucketSet.values();
+		List<BucketData> res = new ArrayList<BucketData>((Collection<BucketData>) values);
 		Collections.sort(res, new Comparator<BucketData>() {
 			@Override
 			public int compare(BucketData o1, BucketData o2) {
-				return o1.getBucketValue().compareTo(o2.getBucketValue());
+				Comparable<Object> a = (Comparable<Object>) o1.getBucketValue();
+				Comparable<Object> b = (Comparable<Object>) o2.getBucketValue();
+				return a.compareTo(b);
 			}
 		});
 		return res;

@@ -41,6 +41,7 @@ import to.etc.domui.state.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
+import to.etc.webapp.core.*;
 import to.etc.webapp.query.*;
 
 /**
@@ -175,15 +176,38 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		}
 
 		if(cm == null) {
+			boolean nonReloadableExpiredDetected = false;
 			if(action != null) {
-				generateExpired(ctx, Msgs.BUNDLE.getString(Msgs.S_EXPIRED));
-				return;
+				if(INotReloadablePage.class.isAssignableFrom(clz)) {
+					nonReloadableExpiredDetected = true;
+				} else {
+					// In auto refresh: do not send the "expired" message, but let the refresh handle this.
+					if(m_application.getAutoRefreshPollInterval() <= 0) {
+						generateExpired(ctx, Msgs.BUNDLE.getString(Msgs.S_EXPIRED));
+					} else
+						LOG.info("Not sending expired message because autorefresh is ON for " + cid);
+					return;
+				}
 			}
 
 			//-- We explicitly need to create a new Window and need to send a redirect back
 			cm = ctx.getSession().createWindowSession();
 			if(LOG.isDebugEnabled())
 				LOG.debug("$cid: input windowid=" + cid + " not found - created wid=" + cm.getWindowID());
+
+			if(nonReloadableExpiredDetected) {
+				generateNonReloadableExpired(ctx, cm);
+				return;
+			}
+
+			//-- EXPERIMENTAL 20121008 jal - if the code was sent through a POST - the data can be huge so we need a workaround for the get URL.
+			PageParameters pp = PageParameters.createFrom(ctx);
+			if("post".equalsIgnoreCase(ctx.getRequest().getMethod()) && pp.getDataLength() > 768) {
+				redirectForPost(ctx, cm, pp);
+				return;
+			}
+			//-- END EXPERIMENTAL
+
 			StringBuilder sb = new StringBuilder(256);
 
 			//			sb.append('/');
@@ -199,16 +223,19 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				DomUtil.USERLOG.debug("Session " + cid + " has expired - starting a new session by redirecting to " + sb.toString());
 			return;
 		}
+		if(cida == null)
+			throw new IllegalStateException("Cannot happen: cida is null??");
 
 		/*
 		 * Attempt to fix etc.to bugzilla bug# 3183: IE7 sends events out of order. If an action arrives for an earlier-destroyed
 		 * conversation just ignore it, and send an empty response to ie, hopefully causing it to die soon.
 		 */
-		if(action != null && cida != null) {
+		if(action != null) {
 			if(cm.isConversationDestroyed(cida[1])) {					// This conversation was recently destroyed?
 				//-- Render a null response
 				if(LOG.isDebugEnabled())
 					LOG.debug("Session " + cid + " was destroyed earlier- assuming this is an out-of-order event and sending empty delta back");
+				System.out.println("Session " + cid + " was destroyed earlier- assuming this is an out-of-order event and sending empty delta back");
 				generateEmptyDelta(ctx);
 				return;											// jal 20121122 Must return after sending that delta or the document is invalid!!
 			}
@@ -231,19 +258,31 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		 * request we'll always respond with a full page re-render, but we must check to see if
 		 * the page has been requested with different parameters this time.
 		 */
-		PageParameters papa = null;
+		PageParameters papa = null;							// Null means: ajax request, not a full page.
 		if(action == null) {
-			papa = PageParameters.createFrom(ctx); // Create page parameters from the request,
+			papa = PageParameters.createFrom(ctx);
+
+			//-- If this request is a huge post request - get the huge post parameters.
+			String hpq = papa.getString(Constants.PARAM_POST_CONVERSATION_KEY, null);
+			if(null != hpq) {
+				ConversationContext	coco = cm.findConversation(cida[1]);
+				if(null == coco)
+					throw new IllegalStateException("The conversation "+cida[1]+" containing POST data is missing in windowSession "+cm);
+
+				papa = (PageParameters) coco.getAttribute("__ORIPP");
+				if(null == papa)
+					throw new IllegalStateException("The conversation " + cid + " no (longer) has the post data??");
+			}
 		}
 
-		Page page = cm.makeOrGetPage(ctx, clz, papa);
-		page.internalIncrementRequestCounter();
-		cm.internalSetLastPage(page);
-		if(DomUtil.USERLOG.isDebugEnabled()) {
-			DomUtil.USERLOG.debug("Request for page " + page + " in conversation " + cid);
+		Page page = cm.tryToMakeOrGetPage(ctx, clz, papa, action);
+		if(page != null) {
+			page.internalIncrementRequestCounter();
+			cm.internalSetLastPage(page);
+			if(DomUtil.USERLOG.isDebugEnabled()) {
+				DomUtil.USERLOG.debug("Request for page " + page + " in conversation " + cid);
+			}
 		}
-
-		//		Page page = PageMaker.makeOrGetPage(ctx, clz, papa);
 
 		/*
 		 * If this is an AJAX request make sure the page is still the same instance (session lost trouble)
@@ -252,7 +291,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			String s = ctx.getParameter(Constants.PARAM_PAGE_TAG);
 			if(s != null) {
 				int pt = Integer.parseInt(s);
-				if(pt != page.getPageTag()) {
+				if(page == null || pt != page.getPageTag()) {
 					/*
 					 * The page tag differs-> session has expired.
 					 */
@@ -261,12 +300,22 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 					} else {
 						if(DomUtil.USERLOG.isDebugEnabled())
 							DomUtil.USERLOG.debug("Session " + cid + " expired, page will be reloaded (page tag difference) on action=" + action);
-						generateExpired(ctx, Msgs.BUNDLE.getString(Msgs.S_EXPIRED));
+
+						// In auto refresh: do not send the "expired" message, but let the refresh handle this.
+						if(m_application.getAutoRefreshPollInterval() <= 0) {
+							generateExpired(ctx, Msgs.BUNDLE.getString(Msgs.S_EXPIRED));
+						} else
+							LOG.info("Not sending expired message because autorefresh is ON for " + cid);
 					}
 					return;
 				}
 			}
 		}
+
+		if(page == null) {
+			throw new IllegalStateException("Page can not be null here. Null is already handler inside expired AJAX request handling.");
+		}
+
 		UIContext.internalSet(page);
 
 		//-- All commands EXCEPT ASYPOLL have all fields, so bind them to the current component data,
@@ -308,8 +357,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			page.getConversation().processDelayedResults(page);
 
 			//-- Call the 'new page added' listeners for this page, if it is still unbuilt. Fixes bug# 605
-			callNewPageListeners(page);
-			page.internalFullBuild(); // Cause full build
+			callNewPageBuiltListeners(page);
+			page.internalFullBuild(); 							// Cause full build
 
 			//-- EXPERIMENTAL Handle stored messages in session
 			List<UIMessage> ml = (List<UIMessage>) cm.getAttribute(UIGoto.SINGLESHOT_MESSAGE);
@@ -344,10 +393,19 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			if(cm.handleGoto(ctx, page, false))
 				return;
 		} catch(Exception ex) {
-			//-- 20100504 jal Exception in page means it's content is invalid, so force a full rebuild
-			page.getBody().forceRebuild();
-
 			Exception x = WrappedException.unwrap(ex);
+
+			//-- 20100504 jal Exception in page means it's content is invalid, so force a full rebuild
+			try {
+				page.getBody().forceRebuild();
+			} catch(Exception xxx) {
+				System.err.println("Double exception in handling full page build exception");
+				System.err.println("Original exception: " + x);
+				System.err.println("Second one on forceRebuild: " + xxx);
+				x.printStackTrace();
+				xxx.printStackTrace();
+			}
+			page.getBody().forceRebuild();
 
 			if(x instanceof NotLoggedInException) { // Better than repeating code in separate exception handlers.
 				String url = m_application.handleNotLoggedInException(ctx, page, (NotLoggedInException) x);
@@ -381,6 +439,50 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 		//-- Start any delayed actions now.
 		page.getConversation().startDelayedExecution();
+	}
+
+	private void generateNonReloadableExpired(RequestContextImpl ctx, WindowSession cm) throws Exception {
+		StringBuilder sb = new StringBuilder();
+		sb.append(ExpiredSessionPage.class.getName()).append('.').append(DomApplication.get().getUrlExtension());
+		sb.append('?');
+		StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
+		sb.append('=');
+		sb.append(cm.getWindowID());
+		sb.append(".x"); // Dummy conversation ID
+		generateAjaxRedirect(ctx, sb.toString());
+	}
+
+	/**
+	 * EXPERIMENTAL - fix for huge POST requests being resent as a get.
+	 * @param ctx
+	 * @param cm
+	 * @param pp2
+	 */
+	private void redirectForPost(RequestContextImpl ctx, WindowSession cm, @Nonnull PageParameters pp) throws Exception {
+		//-- Create conversation
+		ConversationContext cc = cm.createConversation(ctx, ConversationContext.class);
+		cm.acceptNewConversation(cc);
+
+		//-- Now: store the original PageParameters inside this conversation.
+		cc.setAttribute("__ORIPP", pp);
+
+		//-- Create an unique hash for the page parameters
+		String hashString = pp.calculateHashString();				// The unique hash of a page with these parameters
+		pp.addParameter(Constants.PARAM_POST_CONVERSATION_KEY, hashString);
+
+		StringBuilder sb = new StringBuilder(256);
+
+		//			sb.append('/');
+		sb.append(ctx.getRelativePath(ctx.getInputPath()));
+		sb.append('?');
+		StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
+		sb.append('=');
+		sb.append(cm.getWindowID());
+		sb.append(".");
+		sb.append(cc.getId());
+		sb.append("&");
+		sb.append(Constants.PARAM_POST_CONVERSATION_KEY).append("=").append(hashString);
+		generateHttpRedirect(ctx, sb.toString(), "Your session has expired. Starting a new session.");
 	}
 
 	/**
@@ -669,8 +771,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 					//-- Try to bind this value to the component.
 					if(nb.acceptRequestParameter(values)) { // Make the thingy accept the parameter(s)
 						//-- This thing has changed.
-						if(nb instanceof IInputNode< ? >) { // Can have a value changed thingy?
-							IInputNode< ? > ch = (IInputNode< ? >) nb;
+						if(nb instanceof IControl< ? >) { // Can have a value changed thingy?
+							IControl< ? > ch = (IControl< ? >) nb;
 							if(ch.getOnValueChanged() != null) {
 								changed.add(nb);
 							}
@@ -790,7 +892,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			return;
 
 		//-- Call the 'new page added' listeners for this page, if it is now unbuilt due to some action calling forceRebuild() on it. Fixes bug# 605
-		callNewPageListeners(page);
+		callNewPageBuiltListeners(page);
 
 		//-- We stay on the same page. Render tree delta as response
 		try {
@@ -859,14 +961,12 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 * @param pg
 	 * @throws Exception
 	 */
-	private void callNewPageListeners(final Page pg) throws Exception {
+	private void callNewPageBuiltListeners(final Page pg) throws Exception {
 		if(pg.getBody().isBuilt())
 			return;
-		//		PageContext.internalSet(pg); // Jal 20081103 Set state before calling add listeners.
 		pg.internalFullBuild();
-		//		pg.build();
 		for(INewPageInstantiated npi : m_application.getNewPageInstantiatedListeners())
-			npi.newPageInstantiated(pg.getBody());
+			npi.newPageBuilt(pg.getBody());
 	}
 
 	/**

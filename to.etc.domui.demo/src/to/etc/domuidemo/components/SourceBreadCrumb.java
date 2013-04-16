@@ -17,16 +17,18 @@ public class SourceBreadCrumb extends Div {
 
 		//-- Get the application's main page as the base;
 		int ct = 0;
-		List<ShelvedEntry> stack = cm.getShelvedPageStack();
+		List<IShelvedEntry> stack = cm.getShelvedPageStack();
 		if(stack.size() == 0) {
 			setDisplay(DisplayType.NONE);
 			return;
 		} else {
-			ShelvedEntry se = stack.get(0);
-			if(se.getPage().getBody().getClass() != DomApplication.get().getRootPage()) {
-				if(DomApplication.get().getRootPage() != null) {
-					addPageLink(0, DomApplication.get().getRootPage(), null, "Demo Index", false);
-					ct++;
+			IShelvedEntry se = stack.get(0);
+			if(se instanceof ShelvedDomUIPage) {
+				if(((ShelvedDomUIPage) se).getPage().getBody().getClass() != DomApplication.get().getRootPage()) {
+					if(DomApplication.get().getRootPage() != null) {
+						addPageLink(0, DomApplication.get().getRootPage(), null, "Demo Index", false);
+						ct++;
+					}
 				}
 			}
 		}
@@ -47,37 +49,34 @@ public class SourceBreadCrumb extends Div {
 
 		for(int i = 0; i < stack.size(); i++) {
 			boolean last = i + 1 >= stack.size();
-			Page p = stack.get(i).getPage();
-			String ttl = p.getBody().getTitle();
-			if(ttl == null || ttl.length() == 0) {
-				ttl = p.getBody().getClass().getName();
-				ttl = ttl.substring(ttl.lastIndexOf('.') + 1);
-			}
-			addPageLink(ct, p.getBody().getClass(), p.getPageParameters(), ttl, last);
+			ShelvedDomUIPage p = (ShelvedDomUIPage) stack.get(i);
+
+			String ttl = p.getName();
+			addPageLink(ct, p.getPage().getBody().getClass(), p.getPage().getPageParameters(), ttl, last);
 			ct++;
 		}
 	}
 
-	private void addPageLink(int ct, Class< ? extends UrlPage> class1, PageParameters pageParameters, String ttl, boolean last) {
+	private void addPageLink(int ct, Class< ? extends UrlPage> class1, IPageParameters pageParameters, String ttl, boolean last) {
+		//-- Create a LINK or a SPAN
+		NodeContainer stgt;
+		if(last) {
+			stgt = new Span();
+			stgt.setCssClass("d-sbc-c");
+		} else {
+			stgt = new ALink(class1, pageParameters);
+			stgt.setCssClass("d-sbc-l");
+		}
 		if(ct > 0) {
 			//-- Append the marker,
-			Span s = new Span();
-			add(s);
-			s.setCssClass("d-sbc-m");
-			s.add(new TextNode(" \u00bb "));
+			Span sep = new Span();
+			add(sep);
+			sep.setCssClass("d-sbc-m");
+			sep.add(new TextNode(" \u00bb "));
 		}
 
-		//-- Create a LINK or a SPAN
-		NodeContainer s;
-		if(last) {
-			s = new Span();
-			s.setCssClass("d-sbc-c");
-		} else {
-			s = new ALink(class1, pageParameters);
-			s.setCssClass("d-sbc-l");
-		}
-		add(s);
-		s.setText(ttl);
+		add(stgt);
+		stgt.setText(ttl);
 
 		ALink l = new ALink(SourcePage.class, new PageParameters("name", class1.getName().replace('.', '/') + ".java"));
 		add(l);

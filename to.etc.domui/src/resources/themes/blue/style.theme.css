@@ -2,11 +2,9 @@
  * DomUI "blue" stylesheet.
  * File represents composition of fragments that are defining default style for each component.
  */
-
 /*** 000_dateinput.frag.css ***/
 /*** Date input ***/
 @IMPORT url("calendar-blue2.css");
-
 /*** 002_core.frag.css ***/
 /*** Core style ***/
 /* Body style */
@@ -37,6 +35,11 @@ input, textarea {
 	padding: 2px;
 }
 
+input[type=file] {
+	border: 0 !important;
+	padding: 0px !important;
+}
+
 input:hover, textarea:hover, select:hover {
 	border-color:#5794BF #D7E8F8 #D7E8F8 #5794BF;
 }
@@ -57,6 +60,9 @@ button {
 	vertical-align: bottom;
 }
 
+.page-content {
+	margin: 0px 10px;
+}
 /*** 005_oddchars.frag.css ***/
 /*** Select special chars ***/
 .ui-oddchars {
@@ -86,7 +92,6 @@ button {
 .ui-oddchars-dt:hover {
 	background-color: #ffe1bf;
 }
-
 /*** 010_apptitle.frag.css ***/
 /*** App Title bar ***/
 .ui-atl-bb {
@@ -111,7 +116,6 @@ button {
 	font-weight: bold;
 	font-size: <%= hdr_font_size %>;
 }
-
 /*** 015_splitterbar.frag.css ***/
 /*** SplitterPanel. These style names are required by jquery.splitter.js ***/
 .splitbarV {
@@ -212,7 +216,6 @@ button {
 	height: 100%;
 	position: relative;
 }
-
 /*** 020_bugindicator.frag.css ***/
 /*** Bug indicator UI ***/
 .ui-bug-ind {
@@ -237,7 +240,6 @@ button {
 	font-family: monospace;
 	font-size: 8px;
 }
-
 /*** 025_displaycheckbox.frag.css ***/
 /*** DisplayCheckbox ***/
 .ui-dspcb {
@@ -245,7 +247,6 @@ button {
 	width: 18px;
 	height: 18px;
 }
-
 /*** 030_tree.frag.css ***/
 /*** Tree component ***/
 .ui-tree .selected {
@@ -274,7 +275,6 @@ td.ui-tr-selected {
 .ui-tree {
 /*	height: 100%;		jal 20111025 - setting this causes trouble if tree is not alone in div.. Fixed for OldHelp browser */
 }
-
 /*** 035_displayvalue.frag.css ***/
 /*** DisplayValue ***/
 .ui-dspv {
@@ -282,8 +282,8 @@ td.ui-tr-selected {
 	border: 1px solid <%= readonly_border %>;
 	display:block;
 	padding:2px;
+	min-height:1em;
 }
-
 /*** 040_captionedheader.frag.css ***/
 /*** CaptionedHeader ***/
 .ui-chdr {
@@ -311,7 +311,6 @@ td.ui-tr-selected {
 	width: 1%;
 	overflow: visible;
 }
-
 /*** 045_errormessagediv.frag.css ***/
 /*** ErrorMessageDiv helper for components that handle their error display ***/
 .ui-emd {
@@ -336,7 +335,6 @@ td.ui-tr-selected {
 .ui-emd-warning {
 	background-image: url(mini-warning.png);
 }
-
 /*** 050_popinpanel.frag ***/
 /*** Pop-in panel ***/
 div.ui-popin {
@@ -357,7 +355,6 @@ div.ui-popin {
 	padding: 3px;
 	font-weight: bold;
 }
-
 /*** 055_misc.frag.css ***/
 /*** Miscellaneous components styles ***/
 /* AccessDeniedPage */
@@ -431,7 +428,6 @@ div.ui-ipa img {
 	background-color: #e5e5e5;
 }
 
-
 /*** 060_msgbox.frag.css ***/
 /*** MsgBox ***/
 .ui-mbx-top {
@@ -445,7 +441,6 @@ div.ui-ipa img {
 .ui-mbx-mc {
 	font-size: 13px;
 }
-
 /*** 065_linkbutton.frag.css ***/
 /*** LinkButton component. ***/
 .ui-lbtn {
@@ -465,6 +460,16 @@ a:hover.ui-lnkb {
 	text-decoration: underline !important;
 }
 
+a.ui-lnkb-dis {
+	text-decoration: none !important;
+	font-style: italic;
+	cursor: default;
+	color: gray; 
+}
+
+a:hover.ui-lnkb-dis {
+	text-decoration: none !important;
+}
 /*** 070_alink.frag.css ***/
 /*** ALink component. ***/
 .ui-alnk {
@@ -475,7 +480,6 @@ a:hover.ui-lnkb {
 	background-position: left;
 	padding-left: 18px;
 }
-
 /*** 075_draganddrop.frag.css ***/
 /*** Drag and drop ***/
 .ui-drgbl {
@@ -491,7 +495,6 @@ a:hover.ui-lnkb {
 	background: url(dnd-separator.png) repeat-x center;
 	text-align: center;
 }
-
 /*** 080_listshuttle.frag.css ***/
 /*** List Shuttle ***/
 .ui-sh {
@@ -515,7 +518,6 @@ table .ui-sh {
 .ui-sh-sc .selected, .ui-sh-tc .selected {
 	background-color: <%= selected_bg %>;
 }
-
 /*** 085_breadcrumb.frag.css ***/
 /*** BreadCrumb ***/
 .ui-brc {
@@ -547,7 +549,6 @@ a.ui-brc-l, a.ui-brc-l:hover a.ui-brc-l :VISITED, a.ui-brc-l:ACTIVE {
 	color: white;
 	font-weight: bolder;
 }
-
 /*** 090_buttonbar.frag.css ***/
 /*** ButtonBar component ***/
 .ui-buttonbar {
@@ -562,13 +563,12 @@ a.ui-brc-l, a.ui-brc-l:hover a.ui-brc-l :VISITED, a.ui-brc-l:ACTIVE {
 .ui-bb-right {
 	padding: 0; margin: 0;
 	width: 29px;
-	height: 36px;
+/*	height: 36px;	jal 20121009 Do not add height: empty button bar must be empty. */
 }
 .ui-bb-middle {
 	padding: 0; margin: 0;
-	height: 36px;
+/*	height: 36px;	jal 20121009 Do not add height: empty button bar must be empty. */
 }
-
 /*** 095_monthpanel.frag.css ***/
 /*** MonthPanel ***/
 .ui-mp {
@@ -608,7 +608,6 @@ TD.ui-mp-ch:hover {
 .ui-mp-mrk {
 	background-color: yellow;
 }
-
 /*** 100_calendar.frag.css ***/
 /*** Calendar schedule ***/
 .ui-wa {
@@ -703,7 +702,6 @@ table.ui-wa-bgtbl {
 .ui-wa-nt {
 	background-color: #ff4d00;
 }
-
 /*** 105_lookupinput.frag.css ***/
 /*** LookupInput thingerydoo ***/
 .ui-lui {
@@ -801,7 +799,6 @@ tr.ui-keyword-popop-rowsel:hover {
 tr.ui-keyword-popup-row {
 	cursor: pointer;
 }
-
 /*** 110_multiplelookupinput.frag.css ***/
 /*** MultipleLookupInput thingerydoo ***/
 .ui-mli-cnt { /* selection container */
@@ -830,13 +827,11 @@ tr.ui-keyword-popup-row {
 	zoom: 1; /* FIXME: bojan needs to specify why this is needed! */ 
 	*display:inline;
 }
-
 /*** 115_lookupform.frag.css ***/
 /*** LookupForm ***/
 .ui-lf-coll {
 	border-bottom: 1px dotted #666666;
 }
-
 /*** 120_forms.frag.css ***/
 /*** Form basic styles ***/
 /* these are for forms having the label BEFORE the field (horizontal). */
@@ -844,6 +839,7 @@ tr.ui-keyword-popup-row {
 	text-align: right;
 	font-weight: bold;
 	vertical-align: top;
+	min-width: 150px;
 }
 
 .ui-f-in {
@@ -887,7 +883,6 @@ tr.ui-keyword-popup-row {
 	border:1px solid <%= readonly_border %>;
 	background-color: <%= readonly_bg %>;
 }
-
 /*** 125_numeric.frag.css ***/
 /*** Typed presentation for fields containing numerics ***/
 .ui-numeric {
@@ -897,7 +892,6 @@ tr.ui-keyword-popup-row {
 TD.ui-numeric {
 	padding-right: 3px;
 }
-
 /*** 130_imagebutton.frag.css ***/
 /*** Image Button ***/
 .ui-ib {
@@ -922,7 +916,6 @@ td .ui-ib[class] {
 .ui-ib:hover {
 	background: #cccccc;
 }
-
 /*** 135_expandingtable.frag.css ***/
 /*** ExpandingTable ***/
 .ui-xdt {
@@ -967,7 +960,6 @@ div:hover.ui-xdt-exp {
 	padding: 10px 0px 10px 0px;
 	font-style: italic;
 }
-
 /*** 140_datatable.frag.css ***/
 /*** DataTable default style ***/
 div.ui-dt {
@@ -1047,7 +1039,6 @@ tbody td.ui-dt-separator {
 .ui-dt .mselected {
 	background-color: #dedeff; /* 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
 }
-
 /*** 145_smallimgbutton.frag.css ***/
 /*** Small Image button ***/
 .ui-sib {
@@ -1068,7 +1059,6 @@ tbody td.ui-dt-separator {
 .ui-sib:hover {
 	background-color: <%= header_bg %> !important;
 }
-
 /*** 150_caption.frag.css ***/
 /*** Caption ***/
 .ui-cptn {
@@ -1078,7 +1068,6 @@ tbody td.ui-dt-separator {
 	background: url(bg-header.png.svg) repeat-x;
 /*	margin-top: 10px; jal 20120213 removed: header should not define it's upper location, because it cannot be used at the top of a screen! */
 }
-
 /*** 155_captionedpanel.frag.css ***/
 /*** CaptionedPanel ***/
 .ui-pnl-outer {
@@ -1098,7 +1087,6 @@ tbody td.ui-dt-separator {
 	position: relative;
 	padding: 5px;
 }
-
 /*** 160_errorpanel.frag.css ***/
 /*** ErrorPanel - a CaptionedPanel used to display errors in the page ***/
 .ui-err-outer { /*	background-color: #ffe5e5; */
@@ -1118,7 +1106,6 @@ tbody td.ui-dt-separator {
 .ui-input-err {
 	background-color: <%= error_input_bg %> !important;
 }
-
 /*** 165_tabpanel.frag.css ***/
 /*** The tab control, using the "sliding doors" technique as in http://www.alistapart.com/articles/slidingdoors/ ***/
 .ui-tab-hdr {
@@ -1198,7 +1185,6 @@ li.ui-tab-err {
 .ui-tab-pag {
 	border-top: 1px solid black;
 }
-
 /*** 170_scrollabletabpanel.frag.css ***/
 /*** ScrollableTabPanel ***/
 .ui-stab-hdr {
@@ -1278,7 +1264,6 @@ li.ui-tab-err {
 	background: url(tab-scrl-right.png) no-repeat transparent center;
 	cursor: pointer;
 }
-
 /*** 175_iohideroverlay.frag.css ***/
 /*** IO hider overlay ***/
 .ui-io-blk {
@@ -1302,7 +1287,6 @@ li.ui-tab-err {
 	filter:alpha(opacity=50);
 	z-index: 1000;
 }
-
 /*** 180_percentageprogress.frag.css ***/
 /*** Percentage progress bar ***/
 .ui-pct-rlr {
@@ -1322,7 +1306,6 @@ li.ui-tab-err {
 <% if(browser.isFirefox()) { %>
 /** FIREFOX BROWSERT */
 <% } %>
-
 /*** 185_displayhtml.frag.css ***/
 /*** DisplayHtml ***/
 .ui-dhtml-blk {
@@ -1339,7 +1322,6 @@ li.ui-tab-err {
 	display: inline;
 }
 <% } %>
-
 /*** 190_searchinput.frag.css ***/
 /*** Search Input ***/
 .ui-qsi {
@@ -1351,7 +1333,6 @@ li.ui-tab-err {
 	display: inline;
 }
 <% } %>
-
 /*** 195_helperclasses.frag.css ***/
 /*** Helper classes ***/
 .no-wrap{
@@ -1379,7 +1360,6 @@ li.ui-tab-err {
 .ui-nowrap {
 	white-space: nowrap;
 }
-
 /*** 200_devmode.frag.css ***/
 /*** Development mode popup ***/
 .ui-ipt {
@@ -1411,7 +1391,6 @@ li.ui-tab-err {
 .ui-ipt-btn {
 	cursor: crosshair;
 }
-
 /*** 205_colorpicker.frag.css ***/
 /*** Color picker ***/
 .colorpicker {
@@ -1593,7 +1572,6 @@ li.ui-tab-err {
 	left: 4px;
 	top: 4px;
 }
-
 /*** 210_popupmenu.frag.css ***/
 /*** Popup menu ***/
 .ui-pmnu {
@@ -1731,7 +1709,6 @@ li.ui-tab-err {
 	width:			100%;
 	padding-bottom:	0.35ex; /* to 'vertically center' text inside text-span */
 }
-
 /*** 220_resizable.frag.css ***/
 /*** jquery.ui resizable and floatingDiv styles. ***/
 .ui-resizable-se {
@@ -1767,7 +1744,6 @@ li.ui-tab-err {
 	height: 16px;
 	background: url(resize.png) no-repeat;
 }
-
 /*** 225_floatingwindow.frag.css ***/
 /*** Window and FloatingDiv styles. ***/
 .ui-flw {
@@ -1829,7 +1805,6 @@ li.ui-tab-err {
 	margin-top: -1px;
 	margin-right: -2px;
 }
-
 /*** 230_defaultbutton.frag.css ***/
 /*** DefaultButton (replaces old version, this one uses hover effects) ***/
 .ui-dbtn {
@@ -1842,7 +1817,6 @@ li.ui-tab-err {
 .ui-dbtn[disabled] {
 	background-position: 0px -<%= defaultbutton_height*2 %>px !important;
 }
-
 /*** 235_flare.frag.css ***/
 /*** Flare component. ***/
 .ui-flare {
@@ -1884,7 +1858,6 @@ li.ui-tab-err {
 .ui-flare-msg div div {
 	font-size: large;
 }
-
 /*** 240_labelselector.frag.css ***/
 /*** LabelSelector component ***/
 .ui-lsel-sel {
@@ -1911,5 +1884,143 @@ li.ui-tab-err {
 .ui-lsel-sel input {
         border: none;
 }
+/*** 245_bulkupload.frag.css ***/
+/*** BulkUpload component ***/
+.ui-bupl {
+}
+.ui-bupl-wrp {
+	width: 360px;
+	background-color: white;
+	padding: 1px;
+	border: 1px solid <%= header_bg %>;
+}
+.ui-bupl-ttl {
+/*	border: 1px solid <%= header_bg %>; */
+	padding: 2px 4px 2px 4px;
+	font-weight: bold;
+	background: url(bg-header.png.svg) repeat-x;
+}
+.ui-bupl-legend {
+	color: black;
+}
 
+.ui-bupl .swfupload {
+	position: absolute;
+	z-index: 1;
+	vertical-align: top;
+}
+<% var buplround = 5; %>
+.ui-bupl-queue {
+	width: 354px;
+	min-height: 40px;
+	height: auto;
+	max-height: 400px;
+	overflow: auto;
+}
+/* BulkUpload: single queued file progress indicator. */
+.ui-bupl-file {
+	width: 350px;
+	overflow: hidden;
+}
+.ui-bupl-inner {
+	margin: 5px;
+	padding: 4px;
+	overflow: hidden;
+}
+.ui-bupl-pending {
+	border: 1px solid #888;
+	background-color: #bbb;
+}
+.ui-bupl-running {
+	border: 1px solid #DDF0DD;
+	background-color: #EBFFEB;
+}
+.ui-bupl-complete {
+	border: 1px solid #cde0cd;
+	background-color: #dbefdb;
+}
+.ui-bupl-error {
+	border: 1px solid #ff4900;
+	background-color: #ffebeb;	
+}
+.ui-bupl-name {
+	font-size: 12px;
+	color: #000;
+	width: 300px;
+	height: 14px;
+	text-align: left;
+	white-space: nowrap;
+	overflow: hidden;
+}
+.ui-bupl-cancl {
+	font-size: 0;
+	display: block;
+	height: 14px;
+	width: 14px;
+	background-image: url(bupl-cancel.png);
+	background-repeat: no-repeat;
+	background-position: -14px 0px;
+	float: right;
+}
+.ui-bupl-cancl:hover {
+	background-position: 0px 0px;
+}
+.ui-bupl-stat {
+	margin-top: 2px;
+	width: 300px;
+	font-size: 10px;
+	text-align: left;
+	white-space: nowrap;
+}
 
+.ui-bupl-perc {
+	font-size: 0;
+	width: 0%;
+	height: 2px;
+	background-color: blue;
+	margin-top: 2px;
+}
+/*** MessageLine ***/
+.ui-msgln {
+	padding: 4px 0px;
+}
+.ui-msgln img {
+	float: left;
+}
+.ui-msgln-txt {
+	padding-left: 4px;
+}
+/*** Asy IO failure dialog ***/
+.ui-ioe-asy {
+	position: absolute;
+	top: 100px;
+	left: 300px;
+	width: 400px;
+	height: auto;
+	border: 1px solid red;
+	background-color: #ffaaaa;
+	z-index: 2000;
+
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+}
+.ui-ioe-ttl {
+	padding: 5px;
+	background-color: red;
+	font-weight: bold;
+}
+.ui-ioe-msg {
+	padding: 5px;
+}
+.ui-ioe-msg2 {
+	padding: 5px;
+	font-size: larger;
+	font-weight: bold;
+}
+.ui-ioe-img {
+	display: inline-block;
+	width: 32px;
+	height: 32px;
+	background-image: url(data:image/gif;base64,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);
+}

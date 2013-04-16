@@ -28,8 +28,9 @@ import java.util.*;
 
 import javax.annotation.*;
 
-import to.etc.domui.component.form.*;
+import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.input.*;
+import to.etc.domui.dom.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.server.*;
@@ -267,9 +268,9 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 */
 	@Nonnull
 	final public String getActualID() {
-		if(null == m_actualID)
-			throw new IllegalStateException("Missing ID on " + this);
-		return m_actualID;
+		if(null != m_actualID)
+			return m_actualID;
+		throw new IllegalStateException("Missing ID on " + this);
 	}
 
 	@Nullable
@@ -308,9 +309,9 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 */
 	@Nonnull
 	final public Page getPage() {
-		if(null == m_page)
-			throw new IllegalStateException("Not attached to a page yet. Use isAttached() to check if a node is attached or not.");
-		return m_page;
+		if(null != m_page)
+			return m_page;
+		throw new IllegalStateException("Not attached to a page yet. Use isAttached() to check if a node is attached or not.");
 	}
 
 	/**
@@ -467,12 +468,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 */
 	@Nonnull
 	final public NodeContainer getParent() {
-		if(m_parent == null) {
-			if(m_page != null && m_page.getBody() == this)
-				throw new IllegalStateException("Calling getParent() on the body tag is an indication of a problem...");
-			throw new IllegalStateException("The node is not attached to a page, call isAttached() to test for attachment");
-		}
-		return m_parent;
+		if(null != m_parent)
+			return m_parent;
+		if(m_page != null && m_page.getBody() == this)
+			throw new IllegalStateException("Calling getParent() on the body tag is an indication of a problem...");
+		throw new IllegalStateException("The node is not attached to a page, call isAttached() to test for attachment");
 	}
 
 	@Nullable
@@ -797,10 +797,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		if(isAttached())
 			getPage().appendJS(js);
 		else {
-			if(m_appendJS == null)
-				m_appendJS = new StringBuilder(js.length() + 100);
-			m_appendJS.append(';');
-			m_appendJS.append(js);
+			StringBuilder sb = m_appendJS;
+			if(sb == null)
+				sb = m_appendJS = new StringBuilder(js.length() + 100);
+			sb.append(';');
+			sb.append(js);
 		}
 	}
 
@@ -817,10 +818,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @param js
 	 */
 	public void appendCreateJS(final CharSequence js) {
-		if(m_createJS == null)
-			m_createJS = new StringBuilder();
-		m_createJS.append(js);
-		m_createJS.append(';');
+		StringBuilder sb = m_createJS;
+		if(sb == null)
+			sb = m_createJS = new StringBuilder();
+		sb.append(js);
+		sb.append(';');
 	}
 
 	public StringBuilder getCreateJS() {
@@ -840,24 +842,25 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @param value
 	 */
 	public void setSpecialAttribute(@Nonnull final String name, @Nullable final String value) {
-		if(m_specialAttributes == null) {
-			m_specialAttributes = new ArrayList<String>(5);
+		List<String> sa = m_specialAttributes;
+		if(sa == null) {
+			sa = m_specialAttributes = new ArrayList<String>(5);
 		} else {
-			for(int i = 0; i < m_specialAttributes.size(); i += 2) {
-				if(m_specialAttributes.get(i).equals(name)) {
+			for(int i = 0; i < sa.size(); i += 2) {
+				if(sa.get(i).equals(name)) {
 					if(value == null) {
-						m_specialAttributes.remove(i);
-						m_specialAttributes.remove(i);
+						sa.remove(i);
+						sa.remove(i);
 						return;
 					}
-					m_specialAttributes.set(i + 1, value);
+					sa.set(i + 1, value);
 					changed();
 					return;
 				}
 			}
 		}
-		m_specialAttributes.add(name);
-		m_specialAttributes.add(value);
+		sa.add(name);
+		sa.add(value);
 		changed();
 	}
 
@@ -934,7 +937,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * the "label" associated with the control, and is set automatically by form builders if possible.
 	 * @param errorLocation
 	 */
-	public void setErrorLocation(String errorLocation) {
+	public void setErrorLocation(@Nullable String errorLocation) {
 		m_errorLocation = errorLocation;
 	}
 
@@ -943,6 +946,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * the "label" associated with the control, and is set automatically by form builders if possible.
 	 * @return
 	 */
+	@Nullable
 	public String getErrorLocation() {
 		return m_errorLocation;
 	}
@@ -1148,7 +1152,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @param param
 	 * @return
 	 */
-	public String $(String key, Object... param) {
+	@Nonnull
+	public String $(@Nonnull String key, Object... param) {
 		IBundle br = getComponentBundle();
 		if(key.startsWith("~")) // Prevent silly bugs.
 			key = key.substring(1);
@@ -1300,7 +1305,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	/**
 	 * EXPERIMENTAL - DO NOT USE.
 	 * For non-input non-container nodes this does exactly nothing.
-	 * @see to.etc.domui.component.form.IModelBinding#moveControlToModel()
+	 * @see to.etc.domui.component.controlfactory.IModelBinding#moveControlToModel()
 	 */
 	@Override
 	public void moveControlToModel() throws Exception {
@@ -1316,7 +1321,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	/**
 	 * EXPERIMENTAL - DO NOT USE.
 	 * For non-input non-container nodes this does exactly nothing.
-	 * @see to.etc.domui.component.form.IModelBinding#moveModelToControl()
+	 * @see to.etc.domui.component.controlfactory.IModelBinding#moveModelToControl()
 	 */
 	@Override
 	public void moveModelToControl() throws Exception {
@@ -1325,7 +1330,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		if(v instanceof IBindable) {
 			IBindable b = (IBindable) v;
 			if(b.isBound()) {
-				System.out.println("bind: moveModelToControl called on " + this);
 				b.bind().moveModelToControl();
 			}
 		}
@@ -1335,7 +1339,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * EXPERIMENTAL - DO NOT USE.
 	 * For non-input non-container nodes this does exactly nothing.
 	 *
-	 * @see to.etc.domui.component.form.IModelBinding#setControlsEnabled(boolean)
+	 * @see to.etc.domui.component.controlfactory.IModelBinding#setControlsEnabled(boolean)
 	 */
 	@Override
 	public void setControlsEnabled(boolean on) {
@@ -1361,6 +1365,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @return
 	 * @throws Exception
 	 */
+	@Nonnull
 	public QDataContext getSharedContext() throws Exception {
 		return QContextManager.getContext(getPage());
 	}
@@ -1442,5 +1447,13 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		String n = getClass().getName();
 		int pos = n.lastIndexOf('.');
 		return n.substring(pos + 1) + ":" + m_actualID + (m_title == null ? "" : "/" + m_title);
+	}
+
+	/**
+	 * Returns if node would have always rendered end tag in {@link HtmlTagRenderer} visitor for node.
+	 * @return
+	 */
+	public boolean isRendersOwnClose() {
+		return false;
 	}
 }

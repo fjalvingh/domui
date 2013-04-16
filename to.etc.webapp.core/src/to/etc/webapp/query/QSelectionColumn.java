@@ -24,6 +24,8 @@
  */
 package to.etc.webapp.query;
 
+import javax.annotation.*;
+
 /**
  * Represents a single selected column.
  *
@@ -32,14 +34,18 @@ package to.etc.webapp.query;
  */
 final public class QSelectionColumn extends QNodeBase {
 	/** When used in a restriction or order an alias is needed for complex query parts. */
-	private String				m_alias;
+	@Nullable
+	final private String m_alias;
 
-	private QSelectionItem		m_item;
+	@Nonnull
+	final private QSelectionItem m_item;
 
-	protected QSelectionColumn(QSelectionItem item) {
+	protected QSelectionColumn(@Nonnull QSelectionItem item) {
 		m_item = item;
+		m_alias = null;
 	}
-	protected QSelectionColumn(QSelectionItem item, String alias) {
+
+	protected QSelectionColumn(@Nonnull QSelectionItem item, @Nullable String alias) {
 		m_item = item;
 		m_alias = alias;
 	}
@@ -48,14 +54,18 @@ final public class QSelectionColumn extends QNodeBase {
 	 * Return the alias applied to this selection column.
 	 * @return
 	 */
+	@Nullable
 	public String getAlias() {
 		return m_alias;
 	}
+
+	@Nonnull
 	public QSelectionItem getItem() {
 		return m_item;
 	}
+
 	@Override
-	public void visit(QNodeVisitor v) throws Exception {
+	public void visit(@Nonnull QNodeVisitor v) throws Exception {
 		v.visitSelectionColumn(this);
 	}
 }

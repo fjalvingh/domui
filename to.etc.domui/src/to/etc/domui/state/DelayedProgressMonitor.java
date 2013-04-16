@@ -25,6 +25,7 @@
 package to.etc.domui.state;
 
 import to.etc.domui.component.delayed.*;
+import to.etc.domui.util.*;
 
 public class DelayedProgressMonitor implements IProgress {
 	private DelayedActivitiesManager m_manager;
@@ -37,6 +38,8 @@ public class DelayedProgressMonitor implements IProgress {
 
 	private boolean m_canceled;
 
+	private String m_statusMessage;
+	
 	protected DelayedProgressMonitor(DelayedActivitiesManager manager, DelayedActivityInfo activity) {
 		m_manager = manager;
 		m_activity = activity;
@@ -64,7 +67,7 @@ public class DelayedProgressMonitor implements IProgress {
 			if(work > m_maxWork)
 				work = m_maxWork;
 			m_currentWork = work;
-			m_manager.completionStateChanged(m_activity, getPercentComplete());
+			m_manager.completionStateChanged(m_activity, getPercentComplete(), m_statusMessage);
 		}
 	}
 
@@ -73,11 +76,11 @@ public class DelayedProgressMonitor implements IProgress {
 		if(isCancelled())
 			throw new DelayedActivityCanceledException();
 		m_maxWork = work;
-		m_manager.completionStateChanged(m_activity, 0);
+		m_manager.completionStateChanged(m_activity, 0, m_statusMessage);
 	}
 
 	public boolean isReporting() {
-		return m_maxWork > 0;
+		return m_maxWork > 0 || !DomUtil.isBlank(m_statusMessage);
 	}
 
 	int getPercentComplete() {
@@ -86,5 +89,13 @@ public class DelayedProgressMonitor implements IProgress {
 		int pct = 100 * (m_currentWork) / m_maxWork;
 		//		System.out.println("%%%% work="+m_currentWork+", max="+m_maxWork+", pct="+pct);
 		return pct;
+	}
+
+	@Override
+	public void setStatusMessage(String msg) {
+		m_statusMessage = msg;
+		if(isCancelled())
+			throw new DelayedActivityCanceledException();
+		m_manager.completionStateChanged(m_activity, getPercentComplete(), m_statusMessage);
 	}
 }

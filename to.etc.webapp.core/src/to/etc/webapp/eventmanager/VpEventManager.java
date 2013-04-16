@@ -248,7 +248,6 @@ public class VpEventManager implements Runnable {
 	}
 
 	public void stop() {
-		System.out.println("KILLING EVENTMANAGER THREAD");
 		Thread ht;
 		synchronized(this) {
 			ht = m_handlerThread;
@@ -344,8 +343,9 @@ public class VpEventManager implements Runnable {
 			if(!rs.next())
 				throw new IllegalStateException("?? Cannot get max update number");
 			m_upid = rs.getLong(1);
-			m_delete_upid = m_upid;
+			m_delete_upid = 0;
 			m_ts_nextdelete = System.currentTimeMillis() + DELETEINTERVAL;
+			checkPendingDeletes(dbc);
 		} finally {
 			try {
 				if(rs != null)
@@ -383,7 +383,7 @@ public class VpEventManager implements Runnable {
 	private void checkPendingDeletes(final Connection dbc) throws Exception {
 		long deleteupid = 0;
 		synchronized(this) {
-			if(m_delete_upid + 100 > m_upid) // Table smaller than 100 elements -> don't bother
+			if(m_delete_upid >= m_upid)			// Do nothing if nothing happened.
 				return;
 			long ts = System.currentTimeMillis();
 			if(ts < m_ts_nextdelete) // Timeout not expired
@@ -396,9 +396,11 @@ public class VpEventManager implements Runnable {
 		//-- We must delete...
 		PreparedStatement ps = null;
 		try {
-			ps = dbc.prepareStatement("delete from " + m_tableName + " where upid < ?");
+			ps = dbc.prepareStatement("delete from " + m_tableName + " where upid < ? or utime < ?");
 			ps.setLong(1, deleteupid);
+			ps.setDate(2, new java.sql.Date(System.currentTimeMillis() - 10 * 60 * 1000));			// Everything older than this
 			ps.executeUpdate();
+			dbc.commit();
 		} finally {
 			try {
 				if(ps != null)
@@ -426,17 +428,25 @@ public class VpEventManager implements Runnable {
 			while(rs.next()) {
 				readEventObject(rs, al);
 			}
+			if(al.size() > 0) {
+//				StringBuilder sb = new StringBuilder();
+//				sb.append("EV: read ");
+//				for(AppEventBase ae : al) {
+//					sb.append(ae.getUpid()).append("/");
+//				}
+//				System.out.println(sb.toString());
 
-			//-- Remove all saved "locally generated" events up to the event we've just read,
-			synchronized(this) {
-				Iterator<Long> it = m_localEvents.iterator();
-				while(it.hasNext()) {
-					Long v = it.next();
-					if(v.longValue() <= upid) {
-						it.remove();
-						localeventset.add(v);
-					} else
-						break;
+				//-- Remove all saved "locally generated" events up to the event we've just read,
+				synchronized(this) {
+					Iterator<Long> it = m_localEvents.iterator();
+					while(it.hasNext()) {
+						Long v = it.next();
+						if(v.longValue() <= upid) {
+							it.remove();
+							localeventset.add(v);
+						} else
+							break;
+					}
 				}
 			}
 
@@ -510,6 +520,7 @@ public class VpEventManager implements Runnable {
 	private void handleEvents(final List<AppEventBase> list, final Set<Long> localeventset) {
 		for(int i = 0; i < list.size(); i++) {
 			AppEventBase ae = list.get(i);
+//			System.out.println("EV: Handle event " + ae.getUpid() + ", " + ae.getClass().getName());
 			callListeners(ae, false, localeventset.contains(Long.valueOf(ae.getUpid()))); // Call all handlers that need delayed notification
 		}
 	}
@@ -813,15 +824,15 @@ public class VpEventManager implements Runnable {
 	/*	CODING:	Public interface.                                	*/
 	/*--------------------------------------------------------------*/
 
-	public void addListener(final Class< ? > cl, final ListenerType lt, final AppEventListener< ? > listener) {
+	public <T extends AppEventBase> void addListener(final Class<T> cl, final ListenerType lt, final AppEventListener<T> listener) {
 		addListener(cl, lt, listener, false);
 	}
 
-	public void addWeakListener(final Class< ? > cl, final ListenerType lt, final AppEventListener< ? > listener) {
+	public <T extends AppEventBase> void addWeakListener(final Class<T> cl, final ListenerType lt, final AppEventListener<T> listener) {
 		addListener(cl, lt, listener, true);
 	}
 
-	public synchronized void removeWeakListener(final Class< ? > cl, final AppEventListener< ? > listener) {
+	public <T extends AppEventBase> void removeWeakListener(final Class<T> cl, final AppEventListener<T> listener) {
 		removeListener(cl, listener);
 	}
 
@@ -844,16 +855,25 @@ public class VpEventManager implements Runnable {
 	 * Post an event asynchronously. The event gets added to the database but not commited, and no local listeners
 	 * get called at this time. When the event gets commited the scanner will see it and call the local handlers. This
 	 * call is typically done when an event needs to be commited lazily.
+	 *
 	 * @param dbc
 	 * @param ae
 	 * @throws Exception
 	 */
 	public void postDelayedEvent(final Connection dbc, final AppEventBase ae) throws Exception {
 		sendEventMain(dbc, ae, false, false); // First save the thingy everywhere, ORDER IMPORTANT!!
+
+		/*
+		 * jal 20120911 Just sending the event to the db is not enough. The idea is to delay the events until the time that
+		 * the underlying transaction is commited. But at that time "local" events will not be called in time (if at all):
+		 * - if the underlying transaction takes time, then we might "skip" events (fixed elsewhere)
+		 * - actually the local code might expect that all side effects of the commit take place after that commit. So
+		 *   local events should fire at that time.
+		 */
 	}
 
 	/**
-	 * Post a list of events asynchronously. The event gets added to the database but not commited, and no local listeners
+	 * Post a list of events asynchronously. The event gets added to the database but not committed, and no local listeners
 	 * get called at this time. When the event gets commited the scanner will see it and call the local handlers. This
 	 * call is typically done when an event needs to be commited lazily.
 	 * @param dbc

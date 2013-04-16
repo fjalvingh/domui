@@ -1,0 +1,10 @@
+/*** MessageLine ***/
+.ui-msgln {
+	padding: 4px 0px;
+}
+.ui-msgln img {
+	float: left;
+}
+.ui-msgln-txt {
+	padding-left: 4px;
+}

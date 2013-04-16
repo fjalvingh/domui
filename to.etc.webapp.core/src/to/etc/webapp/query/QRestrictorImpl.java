@@ -24,27 +24,26 @@
  */
 package to.etc.webapp.query;
 
+import javax.annotation.*;
+
 class QRestrictorImpl<T> extends QRestrictor<T> {
-	/** The OR node we're constructing thingerydoos for. */
-	private QOperatorNode m_orNode;
+	/** The OR or AND node we're constructing thingerydoos for. */
+	@Nullable
+	private QOperatorNode m_combinatorNode;
 
-	QRestrictorImpl(QRestrictor<T> parent, QMultiNode ornode) {
-		super(parent.getBaseClass(), ornode.getOperation());
-		m_orNode = ornode;
+	QRestrictorImpl(@Nonnull QRestrictor<T> parent, @Nonnull QMultiNode combinatorNode) {
+		super(parent.getBaseClass(), combinatorNode.getOperation());
+		m_combinatorNode = combinatorNode;
 	}
 
-	//	QRestrictorImpl(Class<T> clz, QOperatorNode ornode) {
-	//		super(clz, ornode.getOperation());
-	//		m_orNode = ornode;
-	//	}
-
 	@Override
+	@Nullable
 	public QOperatorNode getRestrictions() {
-		return m_orNode;
+		return m_combinatorNode;
 	}
 
 	@Override
-	public void setRestrictions(QOperatorNode n) {
-		m_orNode = n;
+	public void setRestrictions(@Nullable QOperatorNode n) {
+		m_combinatorNode = n;
 	}
 }

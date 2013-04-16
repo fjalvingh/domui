@@ -31,7 +31,7 @@ import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 
 public class Div extends NodeContainer implements IDropTargetable, IDraggable, IDropBody {
-	private IReturnPressed m_returnPressed;
+	private IReturnPressed<Div> m_returnPressed;
 
 	private MiniTableBuilder m_miniTableBuilder;
 
@@ -59,11 +59,11 @@ public class Div extends NodeContainer implements IDropTargetable, IDraggable, I
 		v.visitDiv(this);
 	}
 
-	public IReturnPressed getReturnPressed() {
+	public IReturnPressed<Div> getReturnPressed() {
 		return m_returnPressed;
 	}
 
-	public void setReturnPressed(IReturnPressed returnPressed) {
+	public void setReturnPressed(IReturnPressed<Div> returnPressed) {
 		m_returnPressed = returnPressed;
 	}
 

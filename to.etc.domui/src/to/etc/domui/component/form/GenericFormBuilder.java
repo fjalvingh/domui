@@ -24,6 +24,9 @@
  */
 package to.etc.domui.component.form;
 
+import javax.annotation.*;
+
+import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
@@ -138,15 +141,13 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * @param editable When false this adds a display-only field, when true a fully editable control.
 	 * @param mandatory Specify if field is mandatory. This <b>always</b> overrides the mandatoryness of the metadata which is questionable.
 	 */
-	public IControl< ? > addProp(final String name, String label, final boolean editable, final boolean mandatory) {
-		PropertyMetaModel< ? > pmm = resolveProperty(name);
+	@Nonnull
+	public <C> IControl<C> addProp(final String name, String label, final boolean editable, final boolean mandatory) {
+		PropertyMetaModel<C> pmm = (PropertyMetaModel<C>) resolveProperty(name);
 
 		//-- Check control permissions: does it have view permissions?
-		if(!rights().calculate(pmm))
-			return null;
-		boolean reallyeditable = editable && rights().isEditable();
-		final ControlFactoryResult r = createControlFor(getModel(), pmm, reallyeditable); // Add the proper input control for that type
-		addControl(label, r.getLabelNode(), r.getNodeList(), mandatory, reallyeditable, pmm);
+		final ControlFactoryResult r = createControlFor(getModel(), pmm, editable); // Add the proper input control for that type
+		addControl(label, r.getLabelNode(), r.getNodeList(), mandatory, editable, pmm);
 		r.getFormControl().setMandatory(mandatory);
 
 		//-- jal 20090924 Bug 624 Assign the control label to all it's node so it can specify it in error messages
@@ -154,12 +155,14 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 			for(NodeBase b : r.getNodeList())
 				b.setErrorLocation(label);
 		}
+		getBindings().add(new SimpleComponentPropertyBinding<C>(getModel(), pmm, (IControl<C>) r.getFormControl()));
 
-		if(r.getBinding() != null)
-			getBindings().add(r.getBinding());
-		else
-			throw new IllegalStateException("No binding for a " + r);
-		return r.getFormControl();
+		//		IModelBinding binding = r.getBinding();
+		//		if(binding != null)
+		//			getBindings().add(binding);
+		//		else
+		//			throw new IllegalStateException("No binding for a " + r);
+		return (IControl<C>) r.getFormControl();
 	}
 
 	/**
@@ -240,7 +243,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * @param propertyname
 	 * @param ctl
 	 */
-	public <V, T extends NodeBase & IInputNode<V>> IControl<V> addProp(final String propertyname, final T ctl) {
+	public <V, T extends NodeBase & IControl<V>> IControl<V> addProp(final String propertyname, final T ctl) {
 		PropertyMetaModel<V> pmm = (PropertyMetaModel<V>) resolveProperty(propertyname);
 		String label = pmm.getDefaultLabel();
 		addControl(label, ctl, new NodeBase[]{ctl}, ctl.isMandatory(), true, pmm); // Since this is a full control it is editable
@@ -248,7 +251,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 			ctl.setErrorLocation(label);
 		SimpleComponentPropertyBinding<V> b = new SimpleComponentPropertyBinding<V>(getModel(), pmm, ctl);
 		getBindings().add(b);
-		return b;
+		return ctl;
 	}
 
 	public <V, T extends NodeBase & IDisplayControl<V>> IControl<V> addDisplayProp(final String propertyname, final T ctl) {
@@ -259,7 +262,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 			ctl.setErrorLocation(label);
 		DisplayOnlyPropertyBinding<V> b = new DisplayOnlyPropertyBinding<V>(getModel(), pmm, ctl);
 		getBindings().add(b);
-		return b;
+		return ctl;
 	}
 
 
@@ -274,14 +277,14 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * @param label		The label text to use. Use the empty string to prevent a label from being generated. This still adds an empty cell for the label though.
 	 * @param ctl
 	 */
-	public <V, T extends NodeBase & IInputNode<V>> IControl<V> addProp(final String name, String label, final T ctl) {
+	public <V, T extends NodeBase & IControl<V>> IControl<V> addProp(final String name, String label, final T ctl) {
 		PropertyMetaModel<V> pmm = (PropertyMetaModel<V>) resolveProperty(name);
 		addControl(label, ctl, new NodeBase[]{ctl}, ctl.isMandatory(), true, pmm); // Since this is a full control it is editable
 		if(label != null)
 			ctl.setErrorLocation(label);
 		SimpleComponentPropertyBinding<V> b = new SimpleComponentPropertyBinding<V>(getModel(), pmm, ctl);
 		getBindings().add(b);
-		return b;
+		return ctl;
 	}
 
 
@@ -330,26 +333,18 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * @return	If the property was created and is controllable this will return an IFormControl instance. This will explicitly <i>not</i> be
 	 * 			created if the control is display-only, not allowed by permissions or simply uncontrollable (the last one is uncommon).
 	 */
-	protected IControl< ? > addPropertyControl(final String name, final String label, final PropertyMetaModel< ? > pmm, final boolean editable) {
+	protected <C> IControl<C> addPropertyControl(final String name, final String label, final PropertyMetaModel<C> pmm, final boolean editable) {
 		//-- Check control permissions: does it have view permissions?
-		if(!rights().calculate(pmm))
-			return null;
-		boolean reallyeditable = editable && rights().isEditable();
-
-		final ControlFactoryResult r = createControlFor(getModel(), pmm, reallyeditable); // Add the proper input control for that type
-		addControl(label, r.getLabelNode(), r.getNodeList(), pmm.isRequired(), reallyeditable, pmm);
+		final ControlFactoryResult r = createControlFor(getModel(), pmm, editable); // Add the proper input control for that type
+		addControl(label, r.getLabelNode(), r.getNodeList(), pmm.isRequired(), editable, pmm);
 
 		//-- jal 20090924 Bug 624 Assign the control label to all it's node so it can specify it in error messages
 		if(label != null) {
 			for(NodeBase b : r.getNodeList())
 				b.setErrorLocation(label);
 		}
-
-		if(r.getBinding() != null)
-			getBindings().add(r.getBinding());
-		else
-			throw new IllegalStateException("No binding for a " + r);
-		return r.getFormControl();
+		getBindings().add(new SimpleComponentPropertyBinding<C>(getModel(), pmm, (IControl<C>) r.getFormControl()));
+		return (IControl<C>) r.getFormControl();
 	}
 
 

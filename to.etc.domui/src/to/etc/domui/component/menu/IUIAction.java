@@ -19,6 +19,9 @@ public interface IUIAction<T> {
 	String getName(@Nullable T instance) throws Exception;
 
 	@Nullable
+	String getTitle(@Nullable T instance) throws Exception;
+
+	@Nullable
 	String getIcon(@Nullable T instance) throws Exception;
 
 	void execute(NodeBase component, @Nullable T instance) throws Exception;

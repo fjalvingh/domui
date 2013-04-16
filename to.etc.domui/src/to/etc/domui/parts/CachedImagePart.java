@@ -36,6 +36,7 @@ import to.etc.domui.util.*;
 import to.etc.domui.util.images.*;
 import to.etc.domui.util.images.converters.*;
 import to.etc.util.*;
+import to.etc.webapp.core.*;
 
 public class CachedImagePart implements IUnbufferedPartFactory {
 
@@ -243,7 +244,7 @@ public class CachedImagePart implements IUnbufferedPartFactory {
 		return UIContext.getRequestContext().getRelativePath(sb.toString());
 	}
 
-	static public String getRelativeURL(String providerkey, String instancekey, PageParameters pp) {
+	static public String getRelativeURL(String providerkey, String instancekey, IPageParameters pp) {
 		StringBuilder	sb	= new StringBuilder();
 		sb.append(CachedImagePart.class.getName());
 		sb.append(".part");

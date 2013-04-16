@@ -62,12 +62,22 @@ final public class DomUtil {
 		m_guidSeed = (int) val;
 	}
 
+	/**
+	 * This fine idiocy is needed to handle null checking because the pathetic loosers that make up
+	 * the Java JSR board are so incredible stupid it boggles the mind. Java == cobol. Thanks, morons.
+	 * If those idiots ever come to their senses and define a reasonable way for checking nulls- we could
+	 * remove this abomination.
+	 *
+	 * @param in
+	 * @return
+	 */
 	@Nonnull
 	static public <T> T nullChecked(@Nullable T in) {
 		if(null == in)
 			throw new IllegalStateException("Unexpected thingy is null: " + in);
 		return in;
 	}
+
 
 	static public final void ie8Capable(HttpServletResponse req) throws IOException {
 		if(!(req instanceof WrappedHttpServetResponse))
@@ -116,7 +126,7 @@ final public class DomUtil {
 		return true;
 	}
 
-	static public <T> T getValueSafe(IInputNode<T> node) {
+	static public <T> T getValueSafe(IControl<T> node) {
 		try {
 			return node.getValue();
 		} catch(ValidationException x) {
@@ -304,7 +314,8 @@ final public class DomUtil {
 		return "#" + StringTool.intToStr(value, 16, 6);
 	}
 
-	static public IErrorFence getMessageFence(NodeBase in) {
+	@Nonnull
+	static public IErrorFence getMessageFence(@Nonnull NodeBase in) {
 		NodeBase start = in;
 
 		//-- If we're delegated then test the delegate 1st
@@ -336,8 +347,9 @@ final public class DomUtil {
 			}
 			if(start instanceof NodeContainer) {
 				NodeContainer nc = (NodeContainer) start;
-				if(nc.getErrorFence() != null)
-					return nc.getErrorFence();
+				IErrorFence errorFence = nc.getErrorFence();
+				if(errorFence != null)
+					return errorFence;
 			}
 			//			if(start.getParent() == null) {
 			//				return start.getPage().getErrorFence();	// Use the generic page's fence.
@@ -406,7 +418,11 @@ final public class DomUtil {
 		}
 	}
 
-	static public void addUrlParameters(final StringBuilder sb, final PageParameters ctx, boolean first) {
+	static public void addUrlParameters(@Nonnull final StringBuilder sb, @Nonnull final IPageParameters ctx, boolean first) {
+		addUrlParameters(sb, ctx, first, Collections.EMPTY_SET);
+	}
+
+	static public void addUrlParameters(@Nonnull final StringBuilder sb, @Nonnull final IPageParameters ctx, boolean first, @Nonnull Set<String> skipset) {
 		if(ctx == null)
 			return;
 		for(String name : ctx.getParameterNames()) {
@@ -461,9 +477,27 @@ final public class DomUtil {
 	 * @param pp
 	 * @return
 	 */
-	static public String createPageURL(Class< ? extends UrlPage> clz, PageParameters pp) {
+	static public String createPageURL(Class< ? extends UrlPage> clz, IPageParameters pp) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(UIContext.getRequestContext().getRelativePath(clz.getName()));
+		sb.append('.');
+		sb.append(DomApplication.get().getUrlExtension());
+		if(pp != null)
+			addUrlParameters(sb, pp, true);
+		return sb.toString();
+	}
+
+	/**
+	 * Create a relative URL for the specified page (an URL that is relative to the application's context, i.e. without
+	 * hostname nor webapp context).
+	 * @param clz
+	 * @param pp
+	 * @return
+	 */
+	@Nonnull
+	static public String createPageRURL(@Nonnull Class< ? extends UrlPage> clz, @Nullable IPageParameters pp) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(clz.getName());
 		sb.append('.');
 		sb.append(DomApplication.get().getUrlExtension());
 		if(pp != null)
@@ -480,7 +514,7 @@ final public class DomUtil {
 	 * @param pp
 	 * @return
 	 */
-	static public String createPageURL(String webAppUrl, Class< ? extends UrlPage> clz, PageParameters pp) {
+	static public String createPageURL(String webAppUrl, Class< ? extends UrlPage> clz, IPageParameters pp) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(webAppUrl);
 		sb.append(clz.getName());
@@ -498,7 +532,7 @@ final public class DomUtil {
 	 * @param pageParameters
 	 * @return
 	 */
-	public static String createPageURL(String rurl, PageParameters pageParameters) {
+	public static String createPageURL(String rurl, IPageParameters pageParameters) {
 		StringBuilder sb = new StringBuilder();
 		if(DomUtil.isRelativeURL(rurl)) {
 			RequestContextImpl ctx = (RequestContextImpl) UIContext.getRequestContext();
@@ -1232,7 +1266,7 @@ final public class DomUtil {
 	 * @return
 	 */
 	@Deprecated
-	static public Long getLongParameter(PageParameters pp, String name, Long def) {
+	static public Long getLongParameter(IPageParameters pp, String name, Long def) {
 		String s = pp.getString(name, null); // Parameter present?
 		if(s == null || s.trim().length() == 0)
 			return def;
@@ -1475,7 +1509,7 @@ final public class DomUtil {
 	 * @return
 	 */
 	@Nonnull
-	static public String createOpenWindowJS(@Nonnull Class< ? > targetClass, @Nullable PageParameters targetParameters, @Nullable WindowParameters newWindowParameters) {
+	static public String createOpenWindowJS(@Nonnull Class< ? > targetClass, @Nullable IPageParameters targetParameters, @Nullable WindowParameters newWindowParameters) {
 		//-- We need a NEW window session. Create it,
 		RequestContextImpl ctx = (RequestContextImpl) UIContext.getRequestContext();
 		WindowSession cm = ctx.getSession().createWindowSession();
@@ -1692,7 +1726,8 @@ final public class DomUtil {
 	 * @param doReset if T attribute value is set to null after reading.
 	 * @return
 	 */
-	public static Object getSessionAttribute(String attribute, boolean doReset) {
+	@Nullable
+	public static Object getSessionAttribute(@Nonnull String attribute, boolean doReset) {
 		IRequestContext ctx = UIContext.getRequestContext();
 		AppSession ses = ctx.getSession();
 		Object val = ses.getAttribute(attribute);
@@ -1709,7 +1744,7 @@ final public class DomUtil {
 	 * @param attribute
 	 * @param value
 	 */
-	public static void setSessionAttribute(String attribute, Object value) {
+	public static void setSessionAttribute(@Nonnull String attribute, @Nullable Object value) {
 		IRequestContext ctx = UIContext.getRequestContext();
 		AppSession ses = ctx.getSession();
 		ses.setAttribute(attribute, value);

@@ -32,7 +32,7 @@ import to.etc.domui.util.*;
 
 /**
  * EXPERIMENTAL - DO NOT USE.
- * This is a simple binder implementation for base IInputNode<T> implementing controls. It handles all
+ * This is a simple binder implementation for base IControl<T> implementing controls. It handles all
  * binding chores.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -40,7 +40,7 @@ import to.etc.domui.util.*;
  */
 public class SimpleBinder implements IBinder {
 	@Nonnull
-	private IInputNode< ? > m_control;
+	private IControl< ? > m_control;
 
 	/** If this contains whatever property-related binding this contains the property's meta model, needed to use it's value accessor. */
 	@Nullable
@@ -58,7 +58,7 @@ public class SimpleBinder implements IBinder {
 	@Nullable
 	private IBindingListener< ? > m_listener;
 
-	public SimpleBinder(IInputNode< ? > control) {
+	public SimpleBinder(@Nonnull IControl< ? > control) {
 		if(control == null)
 			throw new IllegalArgumentException("The control cannot be null.");
 		m_control = control;
@@ -151,7 +151,7 @@ public class SimpleBinder implements IBinder {
 	/**
 	 * Move the control value to wherever it's needed. If this is a listener binding it calls the listener,
 	 * else it moves the value either to the model's value or the instance's value.
-	 * @see to.etc.domui.component.form.IModelBinding#moveControlToModel()
+	 * @see to.etc.domui.component.controlfactory.IModelBinding#moveControlToModel()
 	 */
 	@Override
 	public void moveControlToModel() throws Exception {
@@ -159,8 +159,10 @@ public class SimpleBinder implements IBinder {
 			((IBindingListener<NodeBase>) m_listener).moveControlToModel((NodeBase) m_control); // Stupid generics idiocy requires cast
 		else {
 			Object val = m_control.getValue();
-			Object base = m_instance == null ? m_model.getValue() : m_instance;
+			Object base = m_instance == null ? getModel().getValue() : m_instance;
 			IValueAccessor<Object> a = (IValueAccessor<Object>) m_propertyModel;
+			if(null == a)
+				throw new IllegalStateException("The propertyModel cannot be null");
 			a.setValue(base, val);
 		}
 	}
@@ -170,13 +172,20 @@ public class SimpleBinder implements IBinder {
 		if(m_listener != null)
 			((IBindingListener<NodeBase>) m_listener).moveModelToControl((NodeBase) m_control); // Stupid generics idiocy requires cast
 		else {
-			Object base = m_instance == null ? m_model.getValue() : m_instance;
+			Object base = m_instance == null ? getModel().getValue() : m_instance;
 			IValueAccessor< ? > vac = m_propertyModel;
 			if(vac == null)
 				throw new IllegalStateException("Null IValueAccessor<T> returned by PropertyMeta " + m_propertyModel);
 			Object pval = vac.getValue(base);
-			((IInputNode<Object>) m_control).setValue(pval);
+			((IControl<Object>) m_control).setValue(pval);
 		}
+	}
+
+	@Nonnull
+	private IReadOnlyModel< ? > getModel() {
+		if(null != m_model)
+			return m_model;
+		throw new IllegalStateException("The model cannot be null");
 	}
 
 	@Override

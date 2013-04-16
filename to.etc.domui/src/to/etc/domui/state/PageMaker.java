@@ -60,29 +60,7 @@ public class PageMaker {
 		return cc.findPage(clz); // Is this page already current in this context?
 	}
 
-	/**
-	 * FIXME Move to WindowSession?
-	 * @param pg
-	 * @param papa
-	 * @return
-	 * @throws Exception
-	 */
-	static public boolean pageAcceptsParameters(final Page pg, final PageParameters papa) throws Exception {
-		if(papa == null)
-			return true;
-		if(papa.equals(pg.getPageParameters()))
-			return true;
-		UrlPage nc = pg.getBody();
-		if(nc instanceof IParameterChangeListener) {
-			IParameterChangeListener pcl = (IParameterChangeListener) nc;
-			pg.internalInitialize(papa, pg.getConversation()); // Update parameters
-			pcl.pageParametersChanged(papa); // Send the event to the page
-			return true;
-		}
-		return false;
-	}
-
-	static Page createPageWithContent(final IRequestContext ctx, final Constructor< ? extends UrlPage> con, final ConversationContext cc, final PageParameters pp) throws Exception {
+	static Page createPageWithContent(final IRequestContext ctx, final Constructor< ? extends UrlPage> con, final ConversationContext cc, final IPageParameters pp) throws Exception {
 		UrlPage nc = createPageContent(ctx, con, cc, pp);
 		Page pg = new Page(nc);
 		cc.internalRegisterPage(pg, pp);
@@ -98,16 +76,22 @@ public class PageMaker {
 	 * @return
 	 * @throws Exception
 	 */
-	static private UrlPage createPageContent(final IRequestContext ctx, final Constructor< ? extends UrlPage> con, final ConversationContext cc, final PageParameters pp) throws Exception {
+	static private UrlPage createPageContent(final IRequestContext ctx, final Constructor< ? extends UrlPage> con, final ConversationContext cc, final IPageParameters pp) throws Exception {
 		//-- Create the page.
 		Class< ? >[] par = con.getParameterTypes();
 		Object[] args = new Object[par.length];
 
 		for(int i = 0; i < par.length; i++) {
 			Class< ? > pc = par[i];
-			if(PageParameters.class.isAssignableFrom(pc))
+			if(pc.isAssignableFrom(IPageParameters.class))
 				args[i] = pp;
-			else if(ConversationContext.class.isAssignableFrom(pc))
+			else if(pc.isAssignableFrom(PageParameters.class)) {
+				if(pp instanceof PageParameters)
+					args[i] = pp;
+				else {
+					args[i] = pp.getUnlockedCopy();
+				}
+			} else if(ConversationContext.class.isAssignableFrom(pc))
 				args[i] = cc;
 			else
 				throw new IllegalStateException("?? Cannot assign a value to constructor parameter [" + i + "]: " + pc + " of " + con);
@@ -152,7 +136,7 @@ public class PageMaker {
 						cnt++;
 						sc += 2;
 						nparam++;
-					} else if(PageParameters.class.isAssignableFrom(pc)) {
+					} else if(PageParameters.class.isAssignableFrom(pc) || IPageParameters.class.isAssignableFrom(pc)) {
 						if(hasparam)
 							sc++;
 						else

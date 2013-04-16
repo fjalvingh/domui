@@ -7,8 +7,6 @@ class LikeSetter implements IQValueSetter {
 
 	private String m_value;
 
-	private IJdbcType m_converter;
-
 	private JdbcPropertyMeta m_property;
 
 	public LikeSetter(int index, String like, JdbcPropertyMeta pm) {

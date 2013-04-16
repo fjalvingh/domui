@@ -26,6 +26,8 @@ package to.etc.webapp.nls;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 /**
  * Base interface for all resource bundle constructs.
  *
@@ -60,5 +62,6 @@ public interface IBundle extends NlsMessageProvider {
 	 * @param param
 	 * @return
 	 */
+	@Nonnull
 	String formatMessage(final String key, final Object... param);
 }

@@ -95,7 +95,7 @@ public class LookupInputPropertyRenderer<T> implements INodeContentRenderer<T> {
 	}
 
 	@Override
-	public void renderNodeContent(NodeBase component, NodeContainer node, T object, Object parameters) throws Exception {
+	public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable T object, @Nullable Object parameters) throws Exception {
 		String txt;
 		TBody tbl = ((LookupInput< ? >) node).getBody();
 		if(getBeforeRenderer() != null) {
@@ -127,7 +127,11 @@ public class LookupInputPropertyRenderer<T> implements INodeContentRenderer<T> {
 			tbl.setCssClass("ui-lui-v");
 			int c = 0;
 			int mw = 0;
-			for(ExpandedDisplayProperty< ? > xp : m_xpl) {
+
+			List<ExpandedDisplayProperty< ? >> xpl = m_xpl;
+			if(null == xpl)
+				throw new IllegalStateException("initRenderingModel was not yet called?");
+			for(ExpandedDisplayProperty< ? > xp : xpl) {
 				String val = xp.getPresentationString(object);
 				if(val == null || val.length() == 0)
 					continue;

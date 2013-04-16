@@ -257,6 +257,7 @@ final class PoolEntry {
 				m_pool.removeEntryFromPool(this); // Remove all references to this entry
 			}
 		}
+		m_pool.getManager().removeThreadConnection(pc);
 
 		/*
 		 * At this point no locks are open, this entry is invalid and the pool knows nothing of

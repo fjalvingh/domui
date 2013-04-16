@@ -59,7 +59,7 @@ public class DefaultButton extends Button implements IActionControl {
 	/** If this is an action-based button this contains the action. */
 	private IUIAction< ? > m_action;
 
-	private ButtonPartKey m_key = new ButtonPartKey();
+	private final ButtonPartKey m_key = new ButtonPartKey();
 
 	/**
 	 * Create an empty button.
@@ -273,7 +273,7 @@ public class DefaultButton extends Button implements IActionControl {
 			return;
 		String dt = action.getDisableReason(null);
 		if(null == dt) {
-			setTitle(null);						// Remove any title.
+			setTitle(action.getTitle(null)); // The default tooltip or remove it if not present
 			setDisabled(false);
 		} else {
 			setTitle(dt);						// Shot reason for being disabled

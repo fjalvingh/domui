@@ -74,6 +74,20 @@ abstract public class QAbstractDataContext implements QDataContext {
 		return getHandlerFactory().getHandler(this, clz).find(this, clz, pk);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QDataContext#get(java.lang.Class, java.lang.Object)
+	 */
+	@Override
+	public @Nonnull
+	<T> T get(@Nonnull Class<T> clz, @Nonnull Object pk) throws Exception {
+		T res = find(clz, pk);
+		if(res == null) {
+			throw new QNotFoundException(clz, pk);
+		}
+		return res;
+	}
+
 	@Override
 	public <T> T find(ICriteriaTableDef<T> metatable, Object pk) throws Exception {
 		return getHandlerFactory().getHandler(this, metatable).find(this, metatable, pk);

@@ -94,7 +94,7 @@ public class LinkButton extends ATag implements IActionControl {
 			return;
 		String dt = action.getDisableReason(null);
 		if(null == dt) {
-			setTitle(null);						// Remove any title.
+			setTitle(action.getTitle(null)); // The default tooltip or remove it if not present
 			setDisabled(false);
 		} else {
 			setTitle(dt);						// Shot reason for being disabled

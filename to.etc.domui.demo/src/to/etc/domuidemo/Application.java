@@ -2,6 +2,7 @@ package to.etc.domuidemo;
 
 import java.io.*;
 
+import javax.annotation.*;
 import javax.servlet.*;
 
 import to.etc.dbpool.*;
@@ -87,9 +88,12 @@ public class Application extends DomApplication {
 		 */
 		addNewPageInstantiatedListener(new INewPageInstantiated() {
 			@Override
-			public void newPageInstantiated(final UrlPage body) throws Exception {
+			public void newPageBuilt(@Nonnull UrlPage body) throws Exception {
 				onNewPage(body);
 			}
+
+			@Override
+			public void newPageCreated(@Nonnull UrlPage body) throws Exception {}
 		});
 	}
 

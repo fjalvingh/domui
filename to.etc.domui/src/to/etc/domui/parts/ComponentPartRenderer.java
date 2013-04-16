@@ -48,6 +48,12 @@ public class ComponentPartRenderer {
 	private NodeBase m_component;
 
 	public void initialize(DomApplication app, RequestContextImpl param, String rurl) throws Exception {
+		//-- Bugfix: Tomcat 7 does not properly remove ;jsessionid from the URL. So let's do it here. It's wrong ofc because we're not supposed to know that is the way sessions are passed.
+		int jsid = rurl.toLowerCase().indexOf(";jsessionid=");
+		if(jsid != -1) {
+			rurl = rurl.substring(0, jsid);									// Remove ;jsessionid and all after.
+		}
+
 		//-- Unstring the pathname, in the format: cid/class/componentid/type
 		m_args = rurl.split("/");
 		if(m_args.length < 3)
@@ -107,5 +113,10 @@ public class ComponentPartRenderer {
 		sb.append(b.getPage().getBody().getClass().getName());
 		sb.append("/");
 		sb.append(b.getActualID());
+		if(ctx instanceof RequestContextImpl) {
+			RequestContextImpl ci = (RequestContextImpl) ctx;
+			String sessid = ci.getRequest().getSession(true).getId();
+			sb.append(";jsessionid=").append(sessid);
+		}
 	}
 }

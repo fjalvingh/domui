@@ -53,7 +53,7 @@ public class UploadHttpRequestWrapper extends HttpServletRequestWrapper {
 		if(!UploadParser.isMultipartContent(req))
 			throw new IllegalStateException("Cannot wrap a non-multipart request!");
 		UploadParser dfu = new UploadParser();
-		dfu.setSizeMax(20 * 1024 * 1024); // Max upload size
+		dfu.setSizeMax(100 * 1024 * 1024); // Max upload size
 
 		List<UploadItem> l;
 		try {

@@ -433,4 +433,100 @@ final public class PoolManager {
 	public synchronized boolean isCollectStatistics() {
 		return m_collectStatistics;
 	}
+
+	/**
+	 * Add an event listener to the specified connection. The connection must be one that is allocated
+	 * through this pool manager or an exception is thrown.
+	 * @param dbc
+	 * @param el
+	 */
+	static public void addListener(@Nonnull Connection dbc, @Nonnull IDatabaseEventListener el) {
+		if(!(dbc instanceof ConnectionProxy))
+			throw new IllegalArgumentException("The connection passed MUST have been allocated by this pool manager (it is a " + dbc + ")");
+		((ConnectionProxy) dbc).addCommitListener(el);
+	}
+
+	/**
+	 * Remove an event listener that was added before from the specified connection. The connection must be one that is allocated
+	 * through this pool manager or an exception is thrown.
+	 * @param dbc
+	 * @param el
+	 */
+	static public void removeListener(@Nonnull Connection dbc, @Nonnull IDatabaseEventListener el) {
+		if(!(dbc instanceof ConnectionProxy))
+			throw new IllegalArgumentException("The connection passed MUST have been allocated by this pool manager (it is a " + dbc + ")");
+		((ConnectionProxy) dbc).removeCommitListener(el);
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Thread connection info (test for unclosed conns).	*/
+	/*--------------------------------------------------------------*/
+
+	private boolean m_checkCloseConnections;
+
+	final private ThreadLocal<Set<ConnectionProxy>> m_threadConnections = new ThreadLocal<Set<ConnectionProxy>>();
+
+	public synchronized boolean isCheckCloseConnections() {
+		return m_checkCloseConnections;
+	}
+
+	public synchronized void setCheckCloseConnections(boolean checkCloseConnections) {
+		m_checkCloseConnections = checkCloseConnections;
+	}
+
+	static private final boolean DEBUG = false;
+
+	/**
+	 * @param cx
+	 */
+	void addThreadConnection(ConnectionProxy cx) {
+		if(!isCheckCloseConnections())
+			return;
+		Set<ConnectionProxy> cs = m_threadConnections.get();
+		if(null == cs) {
+			cs = new HashSet<ConnectionProxy>();
+			m_threadConnections.set(cs);
+		}
+		cs.add(cx);
+		if(DEBUG)
+			System.out.println("PM: " + Thread.currentThread().getName() + " add proxy " + cx);
+	}
+
+	void removeThreadConnection(ConnectionProxy cx) {
+		if(!isCheckCloseConnections())
+			return;
+		Set<ConnectionProxy> cs = m_threadConnections.get();
+		if(DEBUG)
+			System.out.println("PM: " + Thread.currentThread().getName() + " remove proxy " + cx + (cs == null ? "FAILED - NO SET" : ""));
+		if(null == cs)
+			return;
+		cs.remove(cx);
+	}
+
+	public List<ConnectionProxy> getThreadConnections() {
+		if(!isCheckCloseConnections())
+			return Collections.EMPTY_LIST;
+		Set<ConnectionProxy> cs = m_threadConnections.get();
+		if(null == cs)
+			return Collections.EMPTY_LIST;
+
+		/*
+		 * When a connection is closed by another thread (which is a bug, but which happens in special circumstances,
+		 * like when logging out with another thread still running using a connection). This prevents "false alarms"
+		 * when a connection is still in a thread's unclosed list but closed by another thread.
+		 */
+		List<ConnectionProxy> res = new ArrayList<ConnectionProxy>(cs.size());
+		for(ConnectionProxy cp : cs) {
+			if(cp.getState() == ConnState.OPEN)
+				res.add(cp);
+		}
+
+		return res;
+	}
+
+	public void clearThreadConnections() {
+		if(!isCheckCloseConnections())
+			return;
+		m_threadConnections.set(null);
+	}
 }

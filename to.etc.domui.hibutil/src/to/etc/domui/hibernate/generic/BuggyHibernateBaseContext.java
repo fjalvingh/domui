@@ -94,7 +94,7 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 		return m_session;
 	}
 
-	protected void checkValid() {
+	final protected void checkValid() {
 		if(m_conversationInvalid != null)
 			throw new IllegalStateException("You cannot use this QDataContext: " + m_conversationInvalid);
 	}
@@ -229,6 +229,7 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 	 */
 	@SuppressWarnings("deprecation")
 	public Connection getConnection() throws Exception {
+		startTransaction();
 		return getSession().connection();
 	}
 

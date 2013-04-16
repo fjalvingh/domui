@@ -41,7 +41,7 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 	}
 
 	@Nonnull
-	private ISearch<T> m_search;
+	final private ISearch<T> m_search;
 
 	@Nullable
 	private INew<T> m_instanceFactory;
@@ -138,15 +138,16 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 		}
 
 		//-- Name does not exist -> create..
-		if(m_instanceFactory == null)
+		INew<T> ifa = m_instanceFactory;
+		if(ifa == null)
 			return;
-		sel = m_instanceFactory.create(value);
+		sel = ifa.create(value);
 		if(null == sel)
 			return;
 		addLabel(sel);					// Just add the thingy.
 	}
 
-	private void addLabel(T instance) throws Exception {
+	private void addLabel(@Nonnull T instance) throws Exception {
 		if(m_divMap.containsKey(instance))
 			return;
 		m_labelList.add(instance);
@@ -195,8 +196,8 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 	}
 
 	@Override
-	public void setValue(List<T> newlist) {
-		m_labelList = newlist;
+	public void setValue(@Nullable List<T> newlist) {
+		m_labelList = newlist == null ? new ArrayList<T>() : newlist;
 		m_divMap.clear();
 		forceRebuild();
 	}
@@ -246,4 +247,36 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 	@Override
 	public void setMandatory(boolean ro) {
 	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IBindable interface (EXPERIMENTAL)					*/
+	/*--------------------------------------------------------------*/
+
+	/** When this is bound this contains the binder instance handling the binding. */
+	private SimpleBinder m_binder;
+
+	/**
+	 * Return the binder for this control.
+	 * @see to.etc.domui.component.input.IBindable#bind()
+	 */
+	@Override
+	@Nonnull
+	public IBinder bind() {
+		if(m_binder == null)
+			m_binder = new SimpleBinder(this);
+		return m_binder;
+	}
+
+	/**
+	 * Returns T if this control is bound to some data value.
+	 *
+	 * @see to.etc.domui.component.input.IBindable#isBound()
+	 */
+	@Override
+	public boolean isBound() {
+		return m_binder != null && m_binder.isBound();
+	}
+
+
+
 }

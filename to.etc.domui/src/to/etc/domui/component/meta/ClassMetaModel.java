@@ -60,7 +60,7 @@ public interface ClassMetaModel {
 	 * @return
 	 */
 	@Nullable
-	PropertyMetaModel< ? > findSimpleProperty(String name);
+	PropertyMetaModel< ? > findSimpleProperty(@Nonnull String name);
 
 	/**
 	 * Returns a property reference to the specified property by following the dotted path
@@ -72,7 +72,17 @@ public interface ClassMetaModel {
 	 * @return
 	 */
 	@Nullable
-	PropertyMetaModel< ? > findProperty(String name);
+	PropertyMetaModel< ? > findProperty(@Nonnull String name);
+
+	/**
+	 * Same as {@link #findProperty(String)}, but throws an exception if the property (or path) is not found, so
+	 * it never returns null.
+	 * @param name
+	 * @return
+	 */
+	@Nonnull
+	PropertyMetaModel< ? > getProperty(@Nonnull String name);
+
 
 	boolean isPersistentClass();
 

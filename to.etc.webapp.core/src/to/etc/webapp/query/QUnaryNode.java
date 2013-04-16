@@ -27,9 +27,9 @@ package to.etc.webapp.query;
 public class QUnaryNode extends QOperatorNode {
 	private QOperatorNode m_node;
 
-	public QUnaryNode(QOperation operation, QOperatorNode lhs) {
+	public QUnaryNode(QOperation operation, QOperatorNode node) {
 		super(operation);
-		m_node = lhs;
+		m_node = node;
 	}
 
 	public QOperatorNode getNode() {

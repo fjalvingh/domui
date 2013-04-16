@@ -97,7 +97,7 @@ final public class ConnectionProxy implements Connection {
 	private List<Object> m_infoObjects = Collections.EMPTY_LIST;
 
 	/** All commit event listeners. */
-	private List<ICommitListener> m_commitListenerList = Collections.EMPTY_LIST;
+	private List<IDatabaseEventListener> m_commitListenerList = Collections.EMPTY_LIST;
 
 	/**
 	 *	Creates new connection. This is the only way to attach one to the PoolEntry.
@@ -247,10 +247,25 @@ final public class ConnectionProxy implements Connection {
 	 * @throws SQLException
 	 */
 	public void forceClosed() throws SQLException {
+		synchronized(this) {
+			if(m_state != ConnState.OPEN)			// 20121025 jal must check here to prevent double close from calling all listeners again.
+				return;
+		}
+
 // jal 20110314 Always close! Persisted connections can be reused in different threads (Decade).
 //		Thread ct = Thread.currentThread();
 //		if(getOwnerThread() != ct)
 //			throw new IllegalStateException("Connection (proxy) closed by thread that's not owning it!");
+
+		//-- Call any listeners.
+		for(IDatabaseEventListener icl : m_commitListenerList) {
+			try {
+				icl.onBeforeRelease(this);
+			} catch(Exception x) {
+				PoolManager.getInstance().logUnexpected(x, "Ignoring Exception in onBeforeRelease");
+			}
+		}
+		m_commitListenerList = Collections.EMPTY_LIST;
 
 		getPool().writeSpecial(this, StatementProxy.ST_CLOSE);
 
@@ -302,10 +317,11 @@ final public class ConnectionProxy implements Connection {
 	/**
 	 * Commit proxies to the real connection, but also handles the "disable commits" per-thread option
 	 * that can be set by {@link ConnectionPool#setCommitDisabled(boolean)} and the commit-time listeners
-	 * that can be added by {@link #addCommitListener(ICommitListener)}.
+	 * that can be added by {@link #addCommitListener(IDatabaseEventListener)}.
 	 *
 	 * @throws java.sql.SQLException
 	 */
+	@Override
 	public void commit() throws java.sql.SQLException {
 		if(!getPool().isCommitDisabled())
 			check().commit();
@@ -315,12 +331,14 @@ final public class ConnectionProxy implements Connection {
 		if(m_commitListenerList.size() == 0) // Fast exit if nothing is registered
 			return;
 
-		try {
-			for(ICommitListener icl : m_commitListenerList)
+		for(IDatabaseEventListener icl : m_commitListenerList) {
+			try {
 				icl.onAfterCommit(this);
-		} finally {
-			m_commitListenerList = Collections.EMPTY_LIST;
+			} catch(Exception x) {
+				PoolManager.getInstance().logUnexpected(x, "Ignoring Exception in onAfterCommit");
+			}
 		}
+		m_commitListenerList = Collections.EMPTY_LIST;
 	}
 
 	/*--------------------------------------------------------------*/
@@ -565,9 +583,9 @@ final public class ConnectionProxy implements Connection {
 	 * @since 2011/08/12
 	 * @param c
 	 */
-	public void addCommitListener(ICommitListener c) {
+	public void addCommitListener(@Nonnull IDatabaseEventListener c) {
 		if(m_commitListenerList == Collections.EMPTY_LIST)
-			m_commitListenerList = new ArrayList<ICommitListener>();
+			m_commitListenerList = new ArrayList<IDatabaseEventListener>();
 		m_commitListenerList.add(c);
 	}
 
@@ -576,7 +594,7 @@ final public class ConnectionProxy implements Connection {
 	 * @since 2011/08/12
 	 * @param c
 	 */
-	public void removeCommitListener(ICommitListener c) {
+	public void removeCommitListener(@Nonnull IDatabaseEventListener c) {
 		if(m_commitListenerList.size() == 0)
 			return;
 		m_commitListenerList.remove(c);
@@ -681,6 +699,16 @@ final public class ConnectionProxy implements Connection {
 
 	public void rollback() throws java.sql.SQLException {
 		check().rollback();
+
+		for(IDatabaseEventListener icl : m_commitListenerList) {
+			try {
+				icl.onAfterRollback(this);
+			} catch(Exception x) {
+				PoolManager.getInstance().logUnexpected(x, "Ignoring Exception in onAfterRollback");
+			}
+		}
+		m_commitListenerList = Collections.EMPTY_LIST;
+
 		getPool().writeSpecial(this, StatementProxy.ST_ROLLBACK);
 	}
 

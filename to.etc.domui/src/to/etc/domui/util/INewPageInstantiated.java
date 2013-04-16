@@ -24,8 +24,22 @@
  */
 package to.etc.domui.util;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.html.*;
 
 public interface INewPageInstantiated {
-	void newPageInstantiated(UrlPage body) throws Exception;
+	/**
+	 * Called when the page is still "unbuilt", just after creation of it.
+	 * @param body
+	 * @throws Exception
+	 */
+	void newPageCreated(@Nonnull UrlPage body) throws Exception;
+
+	/**
+	 * Called whenever a page is "built", also when it is built *again* due to a forceRebuild.
+	 * @param body
+	 * @throws Exception
+	 */
+	void newPageBuilt(@Nonnull UrlPage body) throws Exception;
 }

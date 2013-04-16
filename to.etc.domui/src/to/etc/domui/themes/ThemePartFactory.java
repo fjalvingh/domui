@@ -30,9 +30,9 @@ import javax.annotation.*;
 
 import to.etc.domui.server.*;
 import to.etc.domui.server.parts.*;
-import to.etc.domui.util.*;
 import to.etc.domui.util.resources.*;
 import to.etc.util.*;
+import to.etc.webapp.core.*;
 
 /**
  * This accepts all urls in the format *.theme.xxx. It generates string resources that
@@ -117,7 +117,7 @@ public class ThemePartFactory implements IBufferedPartFactory, IUrlPart {
 	}
 
 	@Override
-	public Object decodeKey(@Nonnull String rurl, @Nonnull IExtendedParameterInfo param) throws Exception {
+	public @Nonnull Object decodeKey(@Nonnull String rurl, @Nonnull IExtendedParameterInfo param) throws Exception {
 		return new Key(param.getBrowserVersion(), rurl);
 	}
 

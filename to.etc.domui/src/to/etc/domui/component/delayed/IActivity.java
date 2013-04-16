@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.delayed;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.html.*;
 
 /**
@@ -34,5 +36,5 @@ import to.etc.domui.dom.html.*;
  * Created on Oct 7, 2008
  */
 public interface IActivity {
-	public Div run(IProgress p) throws Exception;
+	Div run(@Nonnull IProgress p) throws Exception;
 }

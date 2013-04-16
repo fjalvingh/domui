@@ -12,9 +12,9 @@
 .ui-bb-right {
 	padding: 0; margin: 0;
 	width: 29px;
-	height: 36px;
+/*	height: 36px;	jal 20121009 Do not add height: empty button bar must be empty. */
 }
 .ui-bb-middle {
 	padding: 0; margin: 0;
-	height: 36px;
+/*	height: 36px;	jal 20121009 Do not add height: empty button bar must be empty. */
 }

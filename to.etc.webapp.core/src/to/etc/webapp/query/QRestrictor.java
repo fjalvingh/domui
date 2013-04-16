@@ -37,9 +37,11 @@ import to.etc.webapp.annotations.*;
  */
 abstract public class QRestrictor<T> {
 	/** The base class being queried in this selector. */
+	@Nullable
 	private final Class<T> m_baseClass;
 
 	/** The return data type; baseclass for class-based queries and metaTable.getDataClass() for metatable queries. */
+	@Nullable
 	private final Class<T> m_returnClass;
 
 	/** If this is a selector on some metathing this represents the metathing. */
@@ -47,20 +49,22 @@ abstract public class QRestrictor<T> {
 	private final ICriteriaTableDef<T> m_metaTable;
 
 	/** Is either OR or AND, indicating how added items are to be combined. */
+	@Nonnull
 	private QOperation m_combinator;
 
+	@Nullable
 	abstract public QOperatorNode getRestrictions();
 
-	abstract public void setRestrictions(QOperatorNode n);
+	abstract public void setRestrictions(@Nullable QOperatorNode n);
 
-	protected QRestrictor(Class<T> baseClass, QOperation combinator) {
+	protected QRestrictor(@Nonnull Class<T> baseClass, @Nonnull QOperation combinator) {
 		m_baseClass = baseClass;
 		m_returnClass = baseClass;
 		m_combinator = combinator;
 		m_metaTable = null;
 	}
 
-	protected QRestrictor(ICriteriaTableDef<T> meta, QOperation combinator) {
+	protected QRestrictor(@Nonnull ICriteriaTableDef<T> meta, @Nonnull QOperation combinator) {
 		m_metaTable = meta;
 		m_returnClass = meta.getDataClass();
 		m_combinator = combinator;
@@ -89,6 +93,7 @@ abstract public class QRestrictor<T> {
 	 * Return the datatype returned by a principal query using this criteria.
 	 * @return
 	 */
+	@Nonnull
 	public Class<T> getReturnClass() {
 		return m_returnClass;
 	}
@@ -104,16 +109,15 @@ abstract public class QRestrictor<T> {
 	 * Add a new restriction to the list of restrictions on the data. This will do "and" collapsion: when the node added is an "and"
 	 * it's nodes will be added directly to the list (because that already represents an and combinatory).
 	 * @param r
-	 * @return
 	 */
-	protected void internalAdd(QOperatorNode r) {
+	protected void internalAdd(@Nonnull QOperatorNode r) {
 		if(getRestrictions() == null) {
 			setRestrictions(r); // Just set the single operation,
 		} else if(getRestrictions().getOperation() == m_combinator) {
 			//-- Already the proper combinator - add the node to it.
 			((QMultiNode) getRestrictions()).add(r);
 		} else {
-			//-- We need to replace the current restriction with a higher combinatory node and add the items there.
+			//-- We need to replace the current restriction with a higher combinator node and add the items there.
 			QMultiNode comb = new QMultiNode(m_combinator);
 			comb.add(getRestrictions());
 			comb.add(r);
@@ -125,6 +129,7 @@ abstract public class QRestrictor<T> {
 	 * Return a thingy that constructs nodes combined with "or".
 	 * @return
 	 */
+	@Nonnull
 	public QRestrictor<T> or() {
 		if(m_combinator == QOperation.OR) // If I myself am combining with OR return myself
 			return this;
@@ -133,18 +138,33 @@ abstract public class QRestrictor<T> {
 		return new QRestrictorImpl<T>(this, or);
 	}
 
+	@Nonnull
 	public QRestrictor<T> and() {
-		if(m_combinator == QOperation.AND) // If I myself am combining with OR return myself
+		if(m_combinator == QOperation.AND) // If I myself am combining with AND return myself
 			return this;
 		QMultiNode and = new QMultiNode(QOperation.AND);
 		add(and);
 		return new QRestrictorImpl<T>(this, and);
 	}
 
+	/**
+	 * Add NOT restriction.
+	 * @return
+	 */
+	@Nonnull
+	public QRestrictor<T> not() {
+		QMultiNode and = new QMultiNode(QOperation.AND);
+		QUnaryNode not = new QUnaryNode(QOperation.NOT, and);
+		add(not);
+		return new QRestrictorImpl<T>(this, and);
+	}
+	
+	
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Adding selection restrictions (where clause)		*/
 	/*--------------------------------------------------------------*/
-	public QRestrictor<T> add(QOperatorNode n) {
+	@Nonnull
+	public QRestrictor<T> add(@Nonnull QOperatorNode n) {
 		internalAdd(n);
 		return this;
 	}
@@ -155,7 +175,8 @@ abstract public class QRestrictor<T> {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictor<T> eq(@GProperty final String property, Object value) {
+	@Nonnull
+	public QRestrictor<T> eq(@Nonnull @GProperty final String property, @Nonnull Object value) {
 		add(QRestriction.eq(property, value));
 		return this;
 	}
@@ -166,7 +187,8 @@ abstract public class QRestrictor<T> {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictor<T> eq(@GProperty final String property, long value) {
+	@Nonnull
+	public QRestrictor<T> eq(@Nonnull @GProperty final String property, long value) {
 		add(QRestriction.eq(property, value));
 		return this;
 	}
@@ -177,7 +199,8 @@ abstract public class QRestrictor<T> {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictor<T> eq(@GProperty final String property, double value) {
+	@Nonnull
+	public QRestrictor<T> eq(@Nonnull @GProperty final String property, double value) {
 		add(QRestriction.eq(property, value));
 		return this;
 	}
@@ -189,7 +212,8 @@ abstract public class QRestrictor<T> {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictor<T> ne(@GProperty final String property, Object value) {
+	@Nonnull
+	public QRestrictor<T> ne(@Nonnull @GProperty final String property, @Nonnull Object value) {
 		add(QRestriction.ne(property, value));
 		return this;
 	}
@@ -201,7 +225,8 @@ abstract public class QRestrictor<T> {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictor<T> ne(@GProperty final String property, long value) {
+	@Nonnull
+	public QRestrictor<T> ne(@Nonnull @GProperty final String property, long value) {
 		add(QRestriction.ne(property, value));
 		return this;
 	}
@@ -213,7 +238,8 @@ abstract public class QRestrictor<T> {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictor<T> ne(@GProperty final String property, double value) {
+	@Nonnull
+	public QRestrictor<T> ne(@Nonnull @GProperty final String property, double value) {
 		add(QRestriction.ne(property, value));
 		return this;
 	}
@@ -225,7 +251,8 @@ abstract public class QRestrictor<T> {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictor<T> gt(@GProperty final String property, Object value) {
+	@Nonnull
+	public QRestrictor<T> gt(@Nonnull @GProperty final String property, @Nonnull Object value) {
 		add(QRestriction.gt(property, value));
 		return this;
 	}
@@ -237,7 +264,8 @@ abstract public class QRestrictor<T> {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictor<T> gt(@GProperty final String property, long value) {
+	@Nonnull
+	public QRestrictor<T> gt(@Nonnull @GProperty final String property, long value) {
 		add(QRestriction.gt(property, value));
 		return this;
 	}
@@ -249,7 +277,8 @@ abstract public class QRestrictor<T> {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictor<T> gt(@GProperty final String property, double value) {
+	@Nonnull
+	public QRestrictor<T> gt(@Nonnull @GProperty final String property, double value) {
 		add(QRestriction.gt(property, value));
 		return this;
 	}
@@ -261,7 +290,8 @@ abstract public class QRestrictor<T> {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictor<T> lt(@GProperty final String property, Object value) {
+	@Nonnull
+	public QRestrictor<T> lt(@Nonnull @GProperty final String property, @Nonnull Object value) {
 		add(QRestriction.lt(property, value));
 		return this;
 	}
@@ -273,7 +303,8 @@ abstract public class QRestrictor<T> {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictor<T> lt(@GProperty final String property, long value) {
+	@Nonnull
+	public QRestrictor<T> lt(@Nonnull @GProperty final String property, long value) {
 		add(QRestriction.lt(property, value));
 		return this;
 	}
@@ -285,7 +316,8 @@ abstract public class QRestrictor<T> {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictor<T> lt(@GProperty final String property, double value) {
+	@Nonnull
+	public QRestrictor<T> lt(@Nonnull @GProperty final String property, double value) {
 		add(QRestriction.lt(property, value));
 		return this;
 	}
@@ -297,7 +329,8 @@ abstract public class QRestrictor<T> {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictor<T> ge(@GProperty final String property, Object value) {
+	@Nonnull
+	public QRestrictor<T> ge(@Nonnull @GProperty final String property, @Nonnull Object value) {
 		add(QRestriction.ge(property, value));
 		return this;
 	}
@@ -309,7 +342,8 @@ abstract public class QRestrictor<T> {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictor<T> ge(@GProperty final String property, long value) {
+	@Nonnull
+	public QRestrictor<T> ge(@Nonnull @GProperty final String property, long value) {
 		add(QRestriction.ge(property, value));
 		return this;
 	}
@@ -321,7 +355,8 @@ abstract public class QRestrictor<T> {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictor<T> ge(@GProperty final String property, double value) {
+	@Nonnull
+	public QRestrictor<T> ge(@Nonnull @GProperty final String property, double value) {
 		add(QRestriction.ge(property, value));
 		return this;
 	}
@@ -333,7 +368,8 @@ abstract public class QRestrictor<T> {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictor<T> le(@GProperty final String property, Object value) {
+	@Nonnull
+	public QRestrictor<T> le(@Nonnull @GProperty final String property, @Nonnull Object value) {
 		add(QRestriction.le(property, value));
 		return this;
 	}
@@ -345,7 +381,8 @@ abstract public class QRestrictor<T> {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictor<T> le(@GProperty final String property, long value) {
+	@Nonnull
+	public QRestrictor<T> le(@Nonnull @GProperty final String property, long value) {
 		add(QRestriction.le(property, value));
 		return this;
 	}
@@ -357,7 +394,8 @@ abstract public class QRestrictor<T> {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictor<T> le(@GProperty final String property, double value) {
+	@Nonnull
+	public QRestrictor<T> le(@Nonnull @GProperty final String property, double value) {
 		add(QRestriction.le(property, value));
 		return this;
 	}
@@ -369,7 +407,8 @@ abstract public class QRestrictor<T> {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictor<T> like(@GProperty final String property, Object value) {
+	@Nonnull
+	public QRestrictor<T> like(@Nonnull @GProperty final String property, @Nonnull Object value) {
 		add(QRestriction.like(property, value));
 		return this;
 	}
@@ -381,7 +420,8 @@ abstract public class QRestrictor<T> {
 	 * @param b
 	 * @return
 	 */
-	public QRestrictor<T> between(@GProperty final String property, Object a, Object b) {
+	@Nonnull
+	public QRestrictor<T> between(@Nonnull @GProperty final String property, @Nonnull Object a, @Nonnull Object b) {
 		add(QRestriction.between(property, a, b));
 		return this;
 	}
@@ -393,7 +433,8 @@ abstract public class QRestrictor<T> {
 	 * @param value
 	 * @return
 	 */
-	public QRestrictor<T> ilike(@GProperty final String property, Object value) {
+	@Nonnull
+	public QRestrictor<T> ilike(@Nonnull @GProperty final String property, @Nonnull Object value) {
 		add(QRestriction.ilike(property, value));
 		return this;
 	}
@@ -404,7 +445,8 @@ abstract public class QRestrictor<T> {
 	 * @return
 	 */
 	@Deprecated
-	public QRestrictor<T> or(QOperatorNode a1, QOperatorNode a2, QOperatorNode... rest) {
+	@Nonnull
+	public QRestrictor<T> or(@Nonnull QOperatorNode a1, @Nonnull QOperatorNode a2, @Nonnull QOperatorNode... rest) {
 		QOperatorNode[] ar = new QOperatorNode[rest.length + 2];
 		ar[0] = a1;
 		ar[1] = a2;
@@ -418,7 +460,8 @@ abstract public class QRestrictor<T> {
 	 * @param property
 	 * @return
 	 */
-	public QRestrictor<T> isnull(@GProperty final String property) {
+	@Nonnull
+	public QRestrictor<T> isnull(@Nonnull @GProperty final String property) {
 		add(QRestriction.isnull(property));
 		return this;
 	}
@@ -429,7 +472,8 @@ abstract public class QRestrictor<T> {
 	 * @param property
 	 * @return
 	 */
-	public QRestrictor<T> isnotnull(@GProperty final String property) {
+	@Nonnull
+	public QRestrictor<T> isnotnull(@Nonnull @GProperty final String property) {
 		add(QRestriction.isnotnull(property));
 		return this;
 	}
@@ -439,7 +483,8 @@ abstract public class QRestrictor<T> {
 	 * @param sql
 	 * @return
 	 */
-	public QRestrictor<T> sqlCondition(String sql) {
+	@Nonnull
+	public QRestrictor<T> sqlCondition(@Nonnull String sql) {
 		add(QRestriction.sqlCondition(sql));
 		return this;
 	}
@@ -454,7 +499,8 @@ abstract public class QRestrictor<T> {
 	 * @param childproperty	The name of the property <i>in</i> the parent class <T> that represents the List<U> of child records.
 	 * @return
 	 */
-	public <U> QRestrictor<U> exists(Class<U> childclass, @GProperty(parameter = 1) String childproperty) {
+	@Nonnull
+	public <U> QRestrictor<U> exists(@Nonnull Class<U> childclass, @Nonnull @GProperty(parameter = 1) String childproperty) {
 		final QExistsSubquery<U> sq = new QExistsSubquery<U>(this, childclass, childproperty);
 		QRestrictor<U> builder = new QRestrictor<U>(childclass, QOperation.AND) {
 			@Override

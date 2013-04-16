@@ -227,7 +227,7 @@ public class CheckBoxDataTable<T> extends DataTable<T> {
 	 * @see to.etc.domui.component.tbl.DataTable#renderRow(to.etc.domui.dom.html.TR, to.etc.domui.component.tbl.ColumnContainer, int, java.lang.Object)
 	 */
 	@Override
-	void internalRenderRow(@Nonnull TR tr, @Nonnull ColumnContainer<T> cc, int index, @Nullable T value) throws Exception {
+	void internalRenderRow(@Nonnull TR tr, @Nonnull ColumnContainer<T> cc, int index, @Nonnull T value) throws Exception {
 		TD selectionCell = new TD();
 
 		boolean isDisabled = getDisabledIndexOf(value) > -1;

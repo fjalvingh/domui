@@ -40,7 +40,7 @@ public class DisplayValue<T> extends DisplaySpan<T> {
 		setCssClass("ui-dspv");
 	}
 
-	public DisplayValue(T literal) {
+	public DisplayValue(@Nonnull T literal) {
 		super(literal);
 		setCssClass("ui-dspv");
 	}

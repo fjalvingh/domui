@@ -29,7 +29,7 @@ import java.util.*;
 
 import javax.annotation.*;
 
-import to.etc.domui.component.form.*;
+import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
@@ -121,7 +121,7 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	 * @see to.etc.domui.component.meta.PropertyMetaModel#getDefaultLabel()
 	 */
 	@Override
-	public String getDefaultLabel() {
+	public @Nonnull String getDefaultLabel() {
 		//		System.out.println("LOCATE label for " + getName());
 		return locateProperty("label");
 	}
@@ -213,7 +213,7 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	/*	CODING:	Silly proxies.										*/
 	/*--------------------------------------------------------------*/
 	@Override
-	public Class<T> getActualType() {
+	public @Nonnull Class<T> getActualType() {
 		return m_original.getActualType();
 	}
 
@@ -228,7 +228,7 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	}
 
 	@Override
-	public ClassMetaModel getClassModel() {
+	public @Nonnull ClassMetaModel getClassModel() {
 		return m_original.getClassModel();
 	}
 
@@ -238,7 +238,7 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	}
 
 	@Override
-	public List<DisplayPropertyMetaModel> getComboDisplayProperties() {
+	public @Nonnull List<DisplayPropertyMetaModel> getComboDisplayProperties() {
 		return m_original.getComboDisplayProperties();
 	}
 
@@ -278,17 +278,12 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	}
 
 	@Override
-	public String[][] getEditRoles() {
-		return m_original.getEditRoles();
-	}
-
-	@Override
 	public int getLength() {
 		return m_original.getLength();
 	}
 
 	@Override
-	public List<DisplayPropertyMetaModel> getLookupSelectedProperties() {
+	public @Nonnull List<DisplayPropertyMetaModel> getLookupSelectedProperties() {
 		return m_original.getLookupSelectedProperties();
 	}
 
@@ -298,22 +293,22 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	}
 
 	@Override
-	public List<SearchPropertyMetaModel> getLookupFieldSearchProperties() {
+	public @Nonnull List<SearchPropertyMetaModel> getLookupFieldSearchProperties() {
 		return m_original.getLookupFieldSearchProperties();
 	}
 
 	@Override
-	public List<SearchPropertyMetaModel> getLookupFieldKeySearchProperties() {
+	public @Nonnull List<SearchPropertyMetaModel> getLookupFieldKeySearchProperties() {
 		return m_original.getLookupFieldKeySearchProperties();
 	}
 
 	@Override
-	public List<DisplayPropertyMetaModel> getLookupTableProperties() {
+	public @Nonnull List<DisplayPropertyMetaModel> getLookupTableProperties() {
 		return m_original.getLookupTableProperties();
 	}
 
 	@Override
-	public String getName() {
+	public @Nonnull String getName() {
 		return m_dottedName;
 	}
 
@@ -323,12 +318,12 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	}
 
 	@Override
-	public YesNoType getReadOnly() {
+	public @Nonnull YesNoType getReadOnly() {
 		return m_original.getReadOnly();
 	}
 
 	@Override
-	public PropertyRelationType getRelationType() {
+	public @Nonnull PropertyRelationType getRelationType() {
 		return m_original.getRelationType();
 	}
 
@@ -344,17 +339,17 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	}
 
 	@Override
-	public SortableType getSortable() {
+	public @Nonnull SortableType getSortable() {
 		return m_original.getSortable();
 	}
 
 	@Override
-	public TemporalPresentationType getTemporal() {
+	public @Nonnull TemporalPresentationType getTemporal() {
 		return m_original.getTemporal();
 	}
 
 	@Override
-	public NumericPresentation getNumericPresentation() {
+	public @Nonnull NumericPresentation getNumericPresentation() {
 		return m_original.getNumericPresentation();
 	}
 
@@ -362,11 +357,6 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	@Override
 	public PropertyMetaValidator[] getValidators() {
 		return m_original.getValidators();
-	}
-
-	@Override
-	public String[][] getViewRoles() {
-		return m_original.getViewRoles();
 	}
 
 	@Override
@@ -405,7 +395,7 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	}
 
 	@Override
-	public List<Object> getAnnotations() {
+	public @Nonnull List<Object> getAnnotations() {
 		return m_original.getAnnotations();
 	}
 

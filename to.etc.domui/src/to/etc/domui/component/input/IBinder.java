@@ -26,7 +26,7 @@ package to.etc.domui.component.input;
 
 import javax.annotation.*;
 
-import to.etc.domui.component.form.*;
+import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.util.*;
 
@@ -84,5 +84,4 @@ public interface IBinder extends IModelBinding {
 	 * @return
 	 */
 	boolean isBound();
-
 }

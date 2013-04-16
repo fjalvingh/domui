@@ -48,8 +48,9 @@ import to.etc.webapp.nls.*;
 public class ComboFixed<T> extends ComboComponentBase<ValueLabelPair<T>, T> {
 	static private final INodeContentRenderer<ValueLabelPair<Object>> STATICRENDERER = new INodeContentRenderer<ValueLabelPair<Object>>() {
 		@Override
-		public void renderNodeContent(NodeBase component, NodeContainer node, ValueLabelPair<Object> object, Object parameters) throws Exception {
-			node.setText(object.getLabel());
+		public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable ValueLabelPair<Object> object, @Nullable Object parameters) throws Exception {
+			if(object != null)
+				node.setText(object.getLabel());
 		}
 	};
 
@@ -95,7 +96,8 @@ public class ComboFixed<T> extends ComboComponentBase<ValueLabelPair<T>, T> {
 
 	@SuppressWarnings({"unchecked"})
 	private void initRenderer() {
-		setContentRenderer((INodeContentRenderer) STATICRENDERER); // Another generics fuckup again: you cannot cast this proper, appearently.
+		INodeContentRenderer< ? > r = STATICRENDERER;
+		setContentRenderer((INodeContentRenderer<ValueLabelPair<T>>) r);
 	}
 	// 20100502 jal Horrible bug! This prevents setting customized option rendering from working!!
 	//	@Override
@@ -213,6 +215,7 @@ public class ComboFixed<T> extends ComboComponentBase<ValueLabelPair<T>, T> {
 	/**
 	 * Default tostring converter.
 	 */
+	@Nonnull
 	static private final IObjectToStringConverter<Object> TOSTRING_CV = new IObjectToStringConverter<Object>() {
 		@Override
 		public String convertObjectToString(Locale loc, Object in) throws UIException {
@@ -229,9 +232,8 @@ public class ComboFixed<T> extends ComboComponentBase<ValueLabelPair<T>, T> {
 	 * @param items
 	 * @return
 	 */
-	@SuppressWarnings("rawtypes")
 	static public <T> ComboFixed<T>	createCombo(T... items) {
-		return createCombo((IObjectToStringConverter) TOSTRING_CV, items);
+		return createCombo((IObjectToStringConverter<T>) TOSTRING_CV, items);
 	}
 
 	/**

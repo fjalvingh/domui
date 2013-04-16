@@ -125,29 +125,6 @@ public class DataPager extends Div implements IDataTableChangeListener {
 			m_buttonDiv.add(sib);
 		}
 
-		//		if(m_showSelection) {
-		//			if(m_table instanceof ISelectableTableComponent< ? >) { // Fixme needs interface
-		//				final ISelectableTableComponent< ? > dt = (ISelectableTableComponent< ? >) m_table;
-		//				if(dt.getSelectionModel() != null && dt.getSelectionModel().isMultiSelect()) {
-		//					if(dt.isMultiSelectionVisible()) {
-		//						renderSelectionExtras();
-		//					} else {
-		//						m_showSelectionBtn = new SmallImgButton("THEME/dpr-select-on.png");
-		//						m_buttonDiv.add(m_showSelectionBtn);
-		//						m_showSelectionBtn.setClicked(new IClicked<NodeBase>() {
-		//							@Override
-		//							public void clicked(NodeBase clickednode) throws Exception {
-		//								dt.setShowSelection(true);
-		//								clickednode.remove();
-		//								m_showSelectionBtn = null;
-		//							}
-		//						});
-		//						m_showSelectionBtn.setTitle(Msgs.BUNDLE.getString("ui.dpr.selections"));
-		//					}
-		//				}
-		//			}
-		//		}
-
 		redraw();
 
 		//-- Click handlers for paging.
@@ -273,7 +250,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 	}
 
 	@Override
-	public void selectionUIChanged(TabularComponentBase< ? > tbl) throws Exception {
+	public void selectionUIChanged(@Nonnull TabularComponentBase< ? > tbl) throws Exception {
 		redraw();
 		//		if(tbl instanceof DataTable) {
 		//			DataTable< ? > dt = (DataTable< ? >) tbl;
@@ -374,7 +351,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 
 	private void redrawSelectionButtons() throws Exception {
 		//-- Show/hide the "show selection" button
-		final ISelectableTableComponent dt = getSelectableTable();
+		final ISelectableTableComponent<Object> dt = (ISelectableTableComponent<Object>) getSelectableTable();
 		if(null == dt)
 			throw new IllegalStateException("Null selectable table?");
 
@@ -466,12 +443,12 @@ public class DataPager extends Div implements IDataTableChangeListener {
 	/*	CODING:	DataTableChangeListener implementation.				*/
 	/*--------------------------------------------------------------*/
 	@Override
-	public void modelChanged(final TabularComponentBase< ? > tbl, final ITableModel< ? > old, final ITableModel< ? > nw) throws Exception {
+	public void modelChanged(final @Nonnull TabularComponentBase< ? > tbl, final @Nullable ITableModel< ? > old, final @Nullable ITableModel< ? > nw) throws Exception {
 		redraw();
 	}
 
 	@Override
-	public void pageChanged(final TabularComponentBase< ? > tbl) throws Exception {
+	public void pageChanged(final @Nonnull TabularComponentBase< ? > tbl) throws Exception {
 		redraw();
 	}
 

@@ -110,8 +110,9 @@ public class AppPageTitleBar extends BasePageTitleBar {
 
 		//-- Image...
 		setIconURL();
-		if(m_img.getSrc() == null)
+		if(DomUtil.isBlank(m_img.getSrc())) {
 			m_img.setDisplay(DisplayType.NONE);
+		}
 		m_img.setAlign(ImgAlign.LEFT);
 		TD td = b.addCell();
 		td.add(m_img);

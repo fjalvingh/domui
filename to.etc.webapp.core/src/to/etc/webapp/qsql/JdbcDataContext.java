@@ -45,7 +45,7 @@ import to.etc.webapp.query.*;
  */
 public class JdbcDataContext implements QDataContext {
 	/** The originating factory. */
-	private QDataContextFactory m_factory;
+	private final QDataContextFactory m_factory;
 
 	/** The underlying connection. */
 	private Connection m_dbc;
@@ -138,6 +138,20 @@ public class JdbcDataContext implements QDataContext {
 	public <T> T find(Class<T> clz, Object pk) throws Exception {
 		unclosed();
 		return JdbcQuery.find(this, clz, pk);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QDataContext#get(java.lang.Class, java.lang.Object)
+	 */
+	@Override
+	public @Nonnull
+	<T> T get(@Nonnull Class<T> clz, @Nonnull Object pk) throws Exception {
+		T res = find(clz, pk);
+		if(res == null) {
+			throw new QNotFoundException(clz, pk);
+		}
+		return res;
 	}
 
 	/**

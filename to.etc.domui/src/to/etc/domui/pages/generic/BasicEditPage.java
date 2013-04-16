@@ -25,11 +25,13 @@
 package to.etc.domui.pages.generic;
 
 import to.etc.domui.component.buttons.*;
+import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.form.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.state.*;
+import to.etc.domui.themes.*;
 import to.etc.webapp.query.*;
 
 /**
@@ -137,7 +139,7 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 	}
 
 	protected void createCancelButton() {
-		getButtonBar().addButton("!Cancel", "THEME/btnCancel.png", new IClicked<DefaultButton>() {
+		getButtonBar().addButton("!Cancel", Theme.BTN_CANCEL, new IClicked<DefaultButton>() {
 			@Override
 			public void clicked(DefaultButton b) throws Exception {
 				cancel();

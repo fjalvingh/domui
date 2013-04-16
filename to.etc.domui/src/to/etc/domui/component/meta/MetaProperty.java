@@ -97,15 +97,6 @@ public @interface MetaProperty {
 	//	public DateType				dateType() default DateType.UNKNOWN;
 
 	/**
-	 * A set of strings that indicate the roles a user must
-	 * have to view this field. The permissions
-	 * @return
-	 */
-	public String[] viewpermissions() default {};
-
-	public String[] editpermissions() default {};
-
-	/**
 	 * This is a hint string which can help a component factory decide how to render a component. The content
 	 * is fully free, and individual factories decide which hints they listen to.
 	 * @return

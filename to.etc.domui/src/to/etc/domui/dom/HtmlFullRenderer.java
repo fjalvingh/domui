@@ -108,9 +108,11 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 			m_createJS.append(n.getCreateJS());
 		n.renderJavascriptState(m_stateJS); // Append Javascript state to state buffer
 		if(!(n instanceof TextNode)) {
-			if(m_xml)
-				getTagRenderer().renderEndTag(n);
-			else
+			if(m_xml) {
+				if(!n.isRendersOwnClose()) {
+					getTagRenderer().renderEndTag(n);
+				}
+			} else
 				m_o.dec(); // 20080626 img et al does not dec()...
 		}
 		n.internalClearDelta();
@@ -280,6 +282,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		String pb = DomApplication.get().getThemedResourceRURL("ICON/progressbar.gif");
 		if(null == pb)
 			throw new IllegalStateException("Required resource missing");
+		DomApplication application = DomApplication.get();
 		genVar("DomUIProgressURL", StringTool.strToJavascriptString(ctx.getRelativePath(pb), true));
 		genVar("DomUICID", StringTool.strToJavascriptString(page.getConversation().getFullId(), true));
 		genVar("DomUIDevel", ctx.getApplication().inDevelopmentMode() ? "true" : "false");
@@ -336,14 +339,23 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 			//				o().text(sq.toString());
 		}
 
-		//-- If asynchronous actions are pending call WebUI.startPolling();
-		if(page.getConversation().hasDelayedActions())
-			o().writeRaw("WebUI.startPolling();");
-
-		int kit = ctx().getApplication().getKeepAliveInterval();
-		if(kit > 0) {
-			o().writeRaw("WebUI.startPingServer(" + kit + ");");
+		/*
+		 * We need polling if we have any of the keep alive options on, or when there is an async request.
+		 */
+		int pollinterval = application.calculatePollInterval(page.getConversation().isPollCallbackRequired());
+		if(pollinterval > 0) {
+			o().writeRaw("WebUI.startPolling(" + pollinterval + ");");
 		}
+		int autorefresh = application.getAutoRefreshInterval();
+		if(autorefresh > 0) {
+			o().writeRaw("WebUI.setHideExpired();");
+		}
+
+
+		//		int kit = ctx().getApplication().getKeepAliveInterval();
+		//		if(kit > 0) {
+		//			o().writeRaw("WebUI.startPingServer(" + kit + ");");
+		//		}
 
 		o().text("});");
 		o().closetag("script");

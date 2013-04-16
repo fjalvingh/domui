@@ -44,7 +44,7 @@ public interface ITableModelListener<T> {
 	 * @param value
 	 * @throws Exception
 	 */
-	public void rowAdded(@Nonnull ITableModel<T> model, int index, T value) throws Exception;
+	void rowAdded(@Nonnull ITableModel<T> model, int index, @Nonnull T value) throws Exception;
 
 	/**
 	 * Called after a row has been deleted.
@@ -54,7 +54,7 @@ public interface ITableModelListener<T> {
 	 * @param value	The <b>deleted</b> value.
 	 * @throws Exception
 	 */
-	public void rowDeleted(@Nonnull ITableModel<T> model, int index, T value) throws Exception;
+	void rowDeleted(@Nonnull ITableModel<T> model, int index, @Nonnull T value) throws Exception;
 
 	/**
 	 * Called after a row has been changed.
@@ -63,12 +63,12 @@ public interface ITableModelListener<T> {
 	 * @param value
 	 * @throws Exception
 	 */
-	public void rowModified(@Nonnull ITableModel<T> model, int index, T value) throws Exception;
+	void rowModified(@Nonnull ITableModel<T> model, int index, @Nonnull T value) throws Exception;
 
 	/**
 	 * Called when the entire content of the model changed. This should indicate a complete content
 	 * redraw usually.
 	 * @param model
 	 */
-	public void modelChanged(@Nonnull ITableModel<T> model);
+	void modelChanged(@Nullable ITableModel<T> model);
 }

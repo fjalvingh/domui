@@ -152,7 +152,7 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 	}
 
 	@SuppressWarnings({"cast", "unchecked"})
-	protected void decodePropertyAnnotation(final DefaultJavaClassInfo colli, final DefaultPropertyMetaModel pmm, Annotation an) {
+	protected <T> void decodePropertyAnnotation(final DefaultJavaClassInfo colli, final DefaultPropertyMetaModel<T> pmm, Annotation an) {
 		final DefaultClassMetaModel cmm = colli.getModel();
 		if(an instanceof MetaProperty) {
 			//-- Handle meta-assignments.
@@ -168,11 +168,7 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 			if(mp.required() != YesNoType.UNKNOWN)
 				pmm.setRequired(mp.required() == YesNoType.YES);
 			if(mp.converterClass() != DummyConverter.class)
-				pmm.setConverter((IConverter) ConverterRegistry.getConverterInstance((Class) mp.converterClass()));
-			if(mp.editpermissions().length != 0)
-				pmm.setEditRoles(makeRoleSet(mp.editpermissions()));
-			if(mp.viewpermissions().length != 0)
-				pmm.setViewRoles(makeRoleSet(mp.viewpermissions()));
+				pmm.setConverter((IConverter<T>) ConverterRegistry.getConverterInstance((Class< ? extends IConverter<T>>) mp.converterClass()));
 			if(mp.temporal() != TemporalPresentationType.UNKNOWN && pmm.getTemporal() == TemporalPresentationType.UNKNOWN)
 				pmm.setTemporal(mp.temporal());
 			if(mp.numericPresentation() != NumericPresentation.UNKNOWN)
@@ -383,28 +379,6 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 		} catch(Exception x) {
 			throw new WrappedException(x);
 		}
-	}
-
-	/**
-	 * Decode stringset containing xxx+xxx to duparray.
-	 * @param s
-	 * @return
-	 */
-	static private String[][] makeRoleSet(final String[] sar) {
-		if(sar.length == 0)
-			return null;
-		String[][] mapset = new String[sar.length][];
-		ArrayList<String> al = new ArrayList<String>(10);
-		int ix = 0;
-		for(String s : sar) {
-			StringTokenizer st = new StringTokenizer(s, ";+ \t,");
-			al.clear();
-			while(st.hasMoreElements()) {
-				al.add(st.nextToken());
-			}
-			mapset[ix] = al.toArray(new String[al.size()]);
-		}
-		return mapset;
 	}
 
 	/**
