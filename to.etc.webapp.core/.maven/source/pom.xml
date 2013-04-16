@@ -10,7 +10,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compile.encoding>UTF-8</maven.compile.encoding>
     <maven.compile.fork>true</maven.compile.fork>
-    </properties>
+  </properties>
   <build>
     <sourceDirectory>../../src</sourceDirectory>
     <testSourceDirectory>../../test</testSourceDirectory>
@@ -19,56 +19,56 @@
         <directory>../../src</directory>
         <excludes>
           <exclude>**/*.java</exclude>
-          </excludes>
-        </resource>
+        </excludes>
+      </resource>
       <resource>
         <directory>../../test</directory>
         <excludes>
           <exclude>**/*.java</exclude>
-          </excludes>
-        </resource>
-      </resources>
+        </excludes>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.3</version>
+        <version>2.5.1</version>
         <configuration>
           <compilerId>eclipse</compilerId>
           <source>1.6</source>
           <target>1.6</target>
           <encoding>UTF-8</encoding>
-          </configuration>
+        </configuration>
         <dependencies>
           <dependency>
             <groupId>org.codehaus.plexus</groupId>
             <artifactId>plexus-compiler-eclipse</artifactId>
-            <version>1.7</version>
-            </dependency>
-          </dependencies>
-        </plugin>
+            <version>1.9.1</version>
+          </dependency>
+        </dependencies>
+      </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>findbugs-maven-plugin</artifactId>
         <version>2.3.1</version>
         <configuration>
           <timeout>60000000</timeout>
-          </configuration>
-        </plugin>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.8.1</version>
+        <version>2.12.4</version>
         <dependencies>
           <dependency>
             <groupId>org.apache.maven.surefire</groupId>
             <artifactId>surefire-junit47</artifactId>
-            <version>2.8.1</version>
-            </dependency>
-          </dependencies>
-        </plugin>
-      </plugins>
-    </build>
+            <version>2.12.4</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+    </plugins>
+  </build>
   <dependencies>
     <dependency>
       <groupId>nl.itris.external</groupId>
@@ -76,83 +76,83 @@
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris</groupId>
       <artifactId>jsr305.source</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>junit.junit</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>to.etc</groupId>
       <artifactId>to.etc.alg.source</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>to.etc</groupId>
       <artifactId>to.etc.db.source</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>slf4j.jcl-over-slf4j</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>slf4j.jul-to-slf4j</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>slf4j.log4j-over-slf4j</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>slf4j.logback-access</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>slf4j.logback-classic</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>slf4j.logback-core</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>slf4j.slf4j-api</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
-    </dependencies>
-  </project>
+    </dependency>
+  </dependencies>
+</project>

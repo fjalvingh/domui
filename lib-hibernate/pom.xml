@@ -1,0 +1,22 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsl="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0"><modelVersion>4.0.0</modelVersion>
+  <groupId>nl.itris.external</groupId>
+  <artifactId>hibernate.BasePOM</artifactId>
+  <name>lib-hibernate</name>
+  <version>trunk-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <modules>
+    <module>.maven/cglib</module>
+    <module>.maven/antlr</module>
+    <module>.maven/commons-collections</module>
+    <module>.maven/dom4j</module>
+    <module>.maven/javassist-3.9.0.GA</module>
+    <module>.maven/jta</module>
+    <module>.maven/ant</module>
+    <module>.maven/jacc-1_0-fr</module>
+    <module>.maven/asm-all</module>
+    <module>.maven/ejb3-persistence</module>
+    <module>.maven/hibernate-annotations</module>
+    <module>.maven/hibernate-commons-annotations</module>
+    <module>.maven/source</module>
+  </modules>
+</project>
