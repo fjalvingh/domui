@@ -230,4 +230,11 @@ final public class BundleRef extends BundleBase implements IBundle {
 		}
 		return sb.toString();
 	}
+
+	/**
+	 * Clears the cache. In use by reloading class mechanism, hence only ever called while developing never in production. Dont use otherwise.
+	 */
+	public static synchronized void internalClear() {
+		m_cachedMap.clear();
+	}
 }

@@ -89,7 +89,14 @@ public abstract class DomApplication {
 
 	private boolean m_developmentMode;
 
-	//	static private final ThreadLocal<DomApplication> m_current = new ThreadLocal<DomApplication>();
+	/** When > 0, this defines that pages are automatically reloaded when changed */
+	private int m_autoRefreshPollInterval;
+
+	/** When > 0, this defines the #of milliseconds for doing page keepalive. */
+	private int m_keepAliveInterval;
+
+	/** The default poll interval time for pages containing Async objects (see {@link DelayedActivitiesManager}). */
+	private int m_defaultPollInterval = 2500;
 
 	static private DomApplication m_application;
 
@@ -148,8 +155,6 @@ public abstract class DomApplication {
 
 	@Nonnull
 	private List<IResourceFactory> m_resourceFactoryList = Collections.EMPTY_LIST;
-
-	private int m_keepAliveInterval;
 
 	@Nonnull
 	private List<FilterRef> m_requestHandlerList = Collections.emptyList();
@@ -429,6 +434,19 @@ public abstract class DomApplication {
 		m_developmentMode = development;
 		if(m_developmentMode && DeveloperOptions.getBool("domui.traceallocations", true))
 			NodeBase.internalSetLogAllocations(true);
+
+		/*
+		 * If we're running in development mode then we auto-reload changed pages when the developer changes
+		 * them. It can be reset by using a developer.properties option.
+		 */
+		int refreshinterval = 0;
+		if(development) {
+			if(DeveloperOptions.getBool("domui.autorefresh", true)) {
+				//-- Auto-refresh pages is on.... Get the poll interval for it,
+				refreshinterval = DeveloperOptions.getInt("domui.refreshinterval", 2500);		// Initialize "auto refresh" interval to 2 seconds
+			}
+			setAutoRefreshPollInterval(refreshinterval);
+		}
 	}
 
 	static public synchronized final int internalNextPageTag() {
@@ -574,8 +592,69 @@ public abstract class DomApplication {
 	 * reloadable classes.
 	 * @return
 	 */
-	public boolean inDevelopmentMode() {
+	public synchronized boolean inDevelopmentMode() {
 		return m_developmentMode;
+	}
+
+	/**
+	 * When &gt; 0, we're running in development mode AND the user has not DISABLED automatic page reload
+	 * using the "domui.autorefresh=false" line in developer.properties. When T, the server will force
+	 * a regular poll callback for all pages, and will refresh them automatically if that fails (indicating
+	 * they changed).
+	 * The effect of this being true are:
+	 * <ul>
+	 *	<li>Every page will immediately enable polling.</li>
+	 *	<li>The "session expired" and "page lost" types of workstation errors are disabled, causing the workstation to refresh without any message.</li>
+	 * </ul>
+	 *
+	 * @return
+	 */
+	public int getAutoRefreshPollInterval() {
+		return m_autoRefreshPollInterval;
+	}
+
+	public void setAutoRefreshPollInterval(int autoRefreshPollInterval) {
+		m_autoRefreshPollInterval = autoRefreshPollInterval;
+	}
+
+	/**
+	 * When {@link #isAutoRefreshPage()} is enabled (T), this defines the poll interval that a client uses
+	 * to check for server-side changes. It defaults to 2.5 seconds (in domui.js), and can be set to a faster update value
+	 * to have the update check faster for development. If the interval is not set this contains 0, else it contains the
+	 * refresh time in milliseconds.
+	 * @return
+	 */
+	public synchronized int getAutoRefreshInterval() {
+		return m_autoRefreshPollInterval;
+	}
+
+	/**
+	 * The default poll interval time for pages containing Async objects (see {@link DelayedActivitiesManager}), defaulting
+	 * to 2500 (2.5 seconds).
+	 */
+	synchronized public int getDefaultPollInterval() {
+		return m_defaultPollInterval;
+	}
+
+	synchronized public void setDefaultPollInterval(int defaultPollInterval) {
+		m_defaultPollInterval = defaultPollInterval;
+	}
+
+	public synchronized int calculatePollInterval(boolean pollCallbackRequired) {
+		int pollinterval = Integer.MAX_VALUE;
+		if(m_keepAliveInterval > 0)
+			pollinterval = m_keepAliveInterval;
+		if(m_autoRefreshPollInterval > 0) {
+			if(m_autoRefreshPollInterval < pollinterval)
+				pollinterval = m_autoRefreshPollInterval;
+		}
+		if(pollCallbackRequired) {
+			if(m_defaultPollInterval < pollinterval)
+				pollinterval = m_defaultPollInterval;
+		}
+		if(pollinterval == Integer.MAX_VALUE)
+			return 0;
+		return pollinterval;
 	}
 
 	/**
@@ -1573,8 +1652,13 @@ public abstract class DomApplication {
 		return m_keepAliveInterval;
 	}
 
+	/**
+	 * Set the keep-alive interval for DomUI screens, in milliseconds.
+	 * @param keepAliveInterval
+	 */
 	public synchronized void setKeepAliveInterval(int keepAliveInterval) {
-		m_keepAliveInterval = keepAliveInterval;
+		if(DeveloperOptions.getBool("domui.autorefresh", true) || DeveloperOptions.getBool("domui.keepalive", false))				// If "autorefresh" has been disabled do not use keepalive either.
+			m_keepAliveInterval = keepAliveInterval;
 	}
 
 	private List<IDomUIStateListener> m_uiStateListeners = Collections.EMPTY_LIST;
