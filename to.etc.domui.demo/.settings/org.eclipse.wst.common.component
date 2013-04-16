@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
+    <wb-module deploy-name="to.etc.domui.demo">
+        <wb-resource deploy-path="/" source-path="/WebContent"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/test"/>
+        <dependent-module archiveName="to.etc.webapp.core.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/to.etc.webapp.core/to.etc.webapp.core">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="to.etc.db.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/to.etc.db/to.etc.db">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="to.etc.domui.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/to.etc.domui/to.etc.domui">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="to.etc.domui.hibutil.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/to.etc.domui.hibutil/to.etc.domui.hibutil">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="to.etc.alg.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/to.etc.alg/to.etc.alg">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/bin-slf4j/lib/logback-access-0.9.18.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/bin-slf4j/lib/logback-classic-0.9.18.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/bin-slf4j/lib/logback-core-0.9.18.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/bin-slf4j/lib/jcl-over-slf4j-1.5.10.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/bin-slf4j/lib/jul-to-slf4j-1.5.10.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/bin-slf4j/lib/log4j-over-slf4j-1.5.10.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/bin-slf4j/lib/slf4j-api-1.5.10.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="lib-hibernate.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/lib-hibernate/lib-hibernate">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="bin-batik-1.7.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/bin-batik-1.7/bin-batik-1.7">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <property name="context-root" value="demo"/>
+        <property name="java-output-path"/>
+    </wb-module>
+</project-modules>
