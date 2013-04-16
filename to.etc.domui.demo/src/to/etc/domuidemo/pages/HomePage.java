@@ -96,6 +96,7 @@ public class HomePage extends UrlPage {
 		addLink(DemoRowRenderer2.class, "Using the BasicRowRenderer with an INodeContentRenderer");
 		addLink(DemoDataTable2.class, "DataTable: making rows clickable");
 		addLink(DemoTableSelect.class, "DataTable: adding select row(s) functionality with ISelectionModel");
+		addLink(DemoSortableListTable.class, "DataTable: using a List<> with sorting");
 
 		addCaption("Trees");
 		addLink(DemoTree.class, "The tree component - file system tree, lazily loaded, and file type icons");

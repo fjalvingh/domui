@@ -27,7 +27,6 @@ package to.etc.domui.component.controlfactory;
 import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
-import to.etc.domui.util.*;
 
 /**
  * A factory which creates the correct EDITING control to edit a property, specified by the property's

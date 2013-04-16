@@ -210,7 +210,7 @@ final public class UIGoto {
 	 * @param msg
 	 */
 	static public final void clearPageAndReload(Page pg, String msg) {
-		clearPageAndReload(pg, pg.getBody().getClass(), pg.getPageParameters(), msg);
+		clearPageAndReload(pg, msg, pg.getPageParameters());
 	}
 
 	/**
@@ -222,19 +222,6 @@ final public class UIGoto {
 	 * @param pp
 	 */
 	static public final void clearPageAndReload(Page pg, String msg, IPageParameters pp) {
-		clearPageAndReload(pg, pg.getBody().getClass(), pp, msg);
-	}
-
-	/**
-	 * Destroy the current page and replace it with the new page specified. On the new page show the specified
-	 * message as an ERROR message.
-	 *
-	 * @param pg
-	 * @param target
-	 * @param pp
-	 * @param msg
-	 */
-	static public final void clearPageAndReload(Page pg, Class< ? extends UrlPage> target, IPageParameters pp, String msg) {
 		clearPageAndReload(pg, UIMessage.info(Msgs.BUNDLE, Msgs.S_PAGE_CLEARED, msg), pp);
 	}
 
@@ -267,6 +254,6 @@ final public class UIGoto {
 		 * jal 20120604 Do NOT add "destroyConversation" here- replacing the page will properly destroy the context. Destroying
 		 * it twice will cause the history stack to become corrupt as two pages will be deleted.
 		 */
-		replace(pg.getBody().getClass(), pp);						// Destroy the current page, and replace with a new one. This will also destroy
+		replace(pg.getBody().getClass(), pp); // Destroy the current page, and replace with a new one. This will also destroy
 	}
 }

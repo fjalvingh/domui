@@ -123,12 +123,20 @@ public class ReloadingClassLoader extends URLClassLoader {
 		if((name.startsWith("java.") || name.startsWith("javax.") || (name.startsWith("to.etc.domui.") /* && !name.startsWith("to.etc.domui.component.") */))) {
 			return m_rootLoader.loadClass(name); // Delegate to the rootLoader.
 		}
-		if(!m_reloader.watchClass(name)) {
+		Class< ? > loadClass = m_rootLoader.loadClass(name);
+		if(!m_reloader.watchClass(name) && (loadClass.getSuperclass() == null || !loadClass.getSuperclass().getName().equals(ResourceBundle.class.getName()))) {
 			if(LOG.isDebugEnabled())
 				LOG.debug("Class " + name + " not matching watch pattern delegated to root loader");
-			Class< ? > loadClass = m_rootLoader.loadClass(name);
+
+			//Meta data changes and found bundles for this class will be watched and reloaded.
 			if(m_reloader.watchOnlyClass(name)) {
 				addWatchFor(loadClass);
+				try {
+					scanForForResourceWatches(loadClass);
+				} catch(Exception e) {
+					e.printStackTrace();
+					LOG.warn("Class " + name + " cannot watch resources");
+				}
 			}
 			return loadClass; // Delegate to the rootLoader.
 		}
@@ -212,4 +220,3 @@ public class ReloadingClassLoader extends URLClassLoader {
 		}
 	}
 }
-

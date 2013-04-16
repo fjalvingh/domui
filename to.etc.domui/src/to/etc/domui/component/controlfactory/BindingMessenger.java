@@ -24,6 +24,9 @@
  */
 package to.etc.domui.component.controlfactory;
 
+import javax.annotation.*;
+
+import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.webapp.*;
@@ -37,39 +40,52 @@ import to.etc.webapp.nls.*;
  * Created on Aug 2, 2011
  */
 public final class BindingMessenger {
+	@Nonnull
 	private ModelBindings m_bindings;
 
+	@Nullable
 	private BundleRef m_bundleRef;
 
+	@Nonnull
 	private Object m_object;
 
-	public BindingMessenger(ModelBindings bindings, BundleRef bundleRef) {
+	public BindingMessenger(@Nonnull ModelBindings bindings, @Nonnull BundleRef bundleRef) {
 		m_bindings = bindings;
 		m_bundleRef = bundleRef;
 	}
 
-	public BindingMessenger(Object object, ModelBindings bindings, BundleRef bundleRef) {
+	/**
+	 * Resolves the classbundle for the Urlpage
+	 * @param object
+	 * @param bindings
+	 * @param urlClass
+	 */
+	public BindingMessenger(@Nonnull Object object, @Nonnull ModelBindings bindings, @Nonnull Class< ? extends UrlPage> urlClass) {
+		this(object, bindings, MetaManager.findClassMeta(urlClass).getClassBundle());
+	}
+
+	public BindingMessenger(@Nonnull Object object, @Nonnull ModelBindings bindings, @Nonnull BundleRef bundleRef) {
 		m_bindings = bindings;
 		m_bundleRef = bundleRef;
 		m_object = object;
 	}
 
-	public BindingMessenger(ModelBindings bindings) {
+	public BindingMessenger(@Nonnull ModelBindings bindings) {
 		super();
 		m_bindings = bindings;
 	}
 
-	public BindingMessenger(Object object, ModelBindings bindings) {
+	public BindingMessenger(@Nonnull Object object, @Nonnull ModelBindings bindings) {
 		super();
 		m_bindings = bindings;
 		m_object = object;
 	}
 
-	public void error(Object object, String property, String message, Object... param) throws Exception {
+	public void error(@Nonnull Object object, @Nonnull String property, @Nullable String message, Object... param) throws Exception {
 		error(object, property, UIMessage.error(m_bundleRef, message, param));
 	}
 
-	public void error(String property, String message, Object... param) throws Exception {
+	public void error(@Nonnull String property, @Nonnull String message, @Nullable Object... param) throws Exception {
 		error(m_object, property, UIMessage.error(m_bundleRef, message, param));
 	}
 
@@ -80,7 +96,7 @@ public final class BindingMessenger {
 	 * @param message
 	 * @throws Exception
 	 */
-	public void error(Object object, String property, UIMessage m) throws Exception {
+	public void error(@Nonnull Object object, @Nonnull String property, @Nonnull UIMessage m) throws Exception {
 		IControl< ? >[] h = new IControl[1];
 		find(m_bindings, h, object, property);
 		if(h[0] == null) {
@@ -89,7 +105,7 @@ public final class BindingMessenger {
 		h[0].setMessage(m);
 	}
 
-	private void find(ModelBindings bindings, IControl< ? >[] h, Object object, String property) throws Exception {
+	private void find(@Nonnull ModelBindings bindings, @Nonnull IControl< ? >[] h, @Nonnull Object object, @Nonnull String property) throws Exception {
 		for(IModelBinding mb : bindings) {
 			if(mb instanceof SimpleComponentPropertyBinding) {
 				SimpleComponentPropertyBinding< ? > b = (SimpleComponentPropertyBinding< ? >) mb;
@@ -110,11 +126,11 @@ public final class BindingMessenger {
 	 * @param property
 	 * @throws Exception
 	 */
-	public <T> IControl<T> findControl(String property) throws Exception {
+	public <T> IControl<T> findControl(@Nonnull String property) throws Exception {
 		return findControl(m_object, property);
 	}
 
-	public <T> IControl<T> findControl(Object object, String property) throws Exception {
+	public <T> IControl<T> findControl(@Nonnull Object object, @Nonnull String property) throws Exception {
 		IControl< ? >[] h = new IControl[1];
 		find(m_bindings, h, object, property);
 		if(h[0] == null) {

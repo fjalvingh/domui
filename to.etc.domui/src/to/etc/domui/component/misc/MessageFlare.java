@@ -137,10 +137,12 @@ public class MessageFlare extends Flare {
 	 * Display flare message.
 	 * @param parent
 	 * @param message
+	 * @return created {@link MessageFlare} instance.
 	 */
-	public static void display(NodeContainer parent, String message) {
+	public static MessageFlare display(NodeContainer parent, String message) {
 		MessageFlare mf = get(parent, MessageFlare.class);
 		mf.addMessage(message);
+		return mf;
 	}
 
 	/**
@@ -148,19 +150,22 @@ public class MessageFlare extends Flare {
 	 * @param parent
 	 * @param type @see {@link MessageFlare#setType(MsgType)}
 	 * @param message
+	 * @return created {@link MessageFlare} instance.
 	 */
-	public static void display(NodeContainer parent, MsgType type, String message) {
+	public static MessageFlare display(NodeContainer parent, MsgType type, String message) {
 		MessageFlare mf = get(parent, MessageFlare.class);
 		mf.setType(type);
 		mf.addMessage(message);
+		return mf;
 	}
 
 	/**
 	 * Display flare message. Add localized message string and type from specified {@link UIMessage}.
 	 * @param parent
 	 * @param message
+	 * @return created {@link MessageFlare} instance.
 	 */
-	public static void display(NodeContainer parent, UIMessage message) {
-		display(parent, message.getType(), message.getMessage());
+	public static MessageFlare display(NodeContainer parent, UIMessage message) {
+		return display(parent, message.getType(), message.getMessage());
 	}
 }

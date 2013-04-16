@@ -126,7 +126,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 		boolean editable = true;
 		if(pmm.getReadOnly() == YesNoType.YES)
 			editable = false;
-		return addPropertyControl(name, label, pmm, editable);
+		return addPropertyControl(name, label, pmm, editable, false);
 	}
 
 	/**
@@ -229,7 +229,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 		PropertyMetaModel< ? > pmm = resolveProperty(name);
 		if(label == null)
 			label = pmm.getDefaultLabel();
-		return addPropertyControl(name, label, pmm, false);
+		return addPropertyControl(name, label, pmm, false, true);
 	}
 
 	/**
@@ -330,10 +330,10 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * @param label
 	 * @param pmm
 	 * @param editable  when false, the rendered control will be display-only.
-	 * @return	If the property was created and is controllable this will return an IFormControl instance. This will explicitly <i>not</i> be
+	 * @return	If the property was created and is controllable this will return an IControl instance. This will explicitly <i>not</i> be
 	 * 			created if the control is display-only, not allowed by permissions or simply uncontrollable (the last one is uncommon).
 	 */
-	protected <C> IControl<C> addPropertyControl(final String name, final String label, final PropertyMetaModel<C> pmm, final boolean editable) {
+	protected <C> IControl<C> addPropertyControl(final String name, final String label, final PropertyMetaModel<C> pmm, final boolean editable, final boolean editableFixed) {
 		//-- Check control permissions: does it have view permissions?
 		final ControlFactoryResult r = createControlFor(getModel(), pmm, editable); // Add the proper input control for that type
 		addControl(label, r.getLabelNode(), r.getNodeList(), pmm.isRequired(), editable, pmm);
@@ -343,7 +343,14 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 			for(NodeBase b : r.getNodeList())
 				b.setErrorLocation(label);
 		}
-		getBindings().add(new SimpleComponentPropertyBinding<C>(getModel(), pmm, (IControl<C>) r.getFormControl()));
+		IModelBinding b;
+		if(editableFixed && !editable) {
+			b = new DisplayOnlyPropertyBinding<C>(getModel(), pmm, (IDisplayControl<C>) r.getFormControl());
+		} else {
+			b = new SimpleComponentPropertyBinding<C>(getModel(), pmm, (IControl<C>) r.getFormControl());
+		}
+
+		getBindings().add(b);
 		return (IControl<C>) r.getFormControl();
 	}
 

@@ -109,29 +109,11 @@ final public class Reloader {
 	/**
 	 * Create a reloader which handles the specified classes.
 	 * @param paths
-	 * @param pathsWatchOnly, these patterns will be only watched not really reloaded. It makes sure the reloader kicks in. Bundles and MetaData will be reloaded.
+	 * @param patternsWatchOnly, these patterns will be only watched not really reloaded. It makes sure the reloader kicks in. Bundles and MetaData will be reloaded.
 	 */
 	public Reloader(String paths, String pathsWatchOnly) {
 		//		m_loadSpecList.add(new LoadSpec(Pattern.compile("to.etc.domui.*"), false)); // Never accept internal classes!! jal 20090817 Removed, handled in ReloadingClassloader instead.
 
-		createAndAddSpec(paths, m_loadSpecList);
-		if(m_loadSpecList.size() == 0)
-			throw new IllegalStateException("No load specifiers added.");
-
-
-		if(pathsWatchOnly != null) {
-			createAndAddSpec(pathsWatchOnly, m_watchSpecList);
-		}
-
-
-		m_urls = ClassUtil.findUrlsFor(getClass().getClassLoader());
-
-		//-- ORDERED: must be below findUrlFor's
-		m_currentLoader = new ReloadingClassLoader(getClass().getClassLoader(), this);
-		//		m_instance = this;
-	}
-
-	private void createAndAddSpec(String paths, List<LoadSpec> specList) {
 		StringTokenizer st = new StringTokenizer(paths, " \t;,");
 		while(st.hasMoreTokens()) {
 			String path = st.nextToken().trim();
@@ -145,9 +127,39 @@ final public class Reloader {
 					path = path.substring(1).trim();
 				}
 				Pattern p = Pattern.compile(path);
-				specList.add(new LoadSpec(p, on));
+				m_loadSpecList.add(new LoadSpec(p, on));
 			}
 		}
+		if(m_loadSpecList.size() == 0)
+			throw new IllegalStateException("No load specifiers added.");
+
+
+		if(pathsWatchOnly != null) {
+			st = new StringTokenizer(pathsWatchOnly, " \t;,");
+			while(st.hasMoreTokens()) {
+				String path = st.nextToken().trim();
+				if(path.length() > 0) {
+					boolean on = true;
+					if(path.startsWith("-")) {
+						on = false;
+						path = path.substring(1).trim();
+					} else if(path.startsWith("+")) {
+						on = false;
+						path = path.substring(1).trim();
+					}
+					Pattern p = Pattern.compile(path);
+					m_watchSpecList.add(new LoadSpec(p, on));
+				}
+			}
+
+		}
+
+
+		m_urls = ClassUtil.findUrlsFor(getClass().getClassLoader());
+
+		//-- ORDERED: must be below findUrlFor's
+		m_currentLoader = new ReloadingClassLoader(getClass().getClassLoader(), this);
+		//		m_instance = this;
 	}
 
 	public URL[] getUrls() {

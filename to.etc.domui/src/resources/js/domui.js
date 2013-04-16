@@ -1181,8 +1181,8 @@ var WebUI = {
 		if(txt.length > 512)
 			txt = txt.substring(0, 512)+"...";
 		if(txt.length == 0)
-			txt = "De server is niet bereikbaar, status="+status;
-		
+			txt = WebUI._T.sysPollFailMsg+status;
+
 		/*
 		 * As usual there is a problem with error reporting: if the request is aborted because the browser reloads the page
 		 * any pending request is cancelled and comes in here- but with the wrong error code of course. So to prevent us from
@@ -1208,7 +1208,7 @@ var WebUI = {
 			var d = document.createElement('div');			// Title bar
 			ald.appendChild(d);
 			d.className = "ui-ioe-ttl";
-			d.appendChild(document.createTextNode("Server unreachable"));	// Server unreachable
+			d.appendChild(document.createTextNode(WebUI._T.sysPollFailTitle));	// Server unreachable
 			
 			d = document.createElement('div');				// Message content
 			ald.appendChild(d);
@@ -1222,7 +1222,7 @@ var WebUI = {
 			var img = document.createElement('div');
 			d.appendChild(img);
 			img.className = "ui-ioe-img";
-			d.appendChild(document.createTextNode("Waiting for the server to return...."));	// Waiting for the server to return.
+			d.appendChild(document.createTextNode(WebUI._T.sysPollFailCont));	// Waiting for the server to return.
 			WebUI.startPolling(WebUI._pollInterval);
 		}, 250);
 	},
@@ -3411,7 +3411,4 @@ function FCKeditor_fixLayout(fckIFrame, fckId){
 		fckIFrame.contentWindow.Domui_fixLayout(fckId);
 	}
 };
-
-
-
 

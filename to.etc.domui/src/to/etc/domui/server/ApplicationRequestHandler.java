@@ -31,7 +31,7 @@ import javax.annotation.*;
 import org.slf4j.*;
 
 import to.etc.domui.annotations.*;
-import to.etc.domui.annotations.UISpecialAccessResult.Status;
+import to.etc.domui.component.meta.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.*;
 import to.etc.domui.dom.errors.*;
@@ -42,6 +42,7 @@ import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 import to.etc.webapp.core.*;
+import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
 
 /**
@@ -245,15 +246,6 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		cm.clearGoto();
 
 		/*
-		 * 20090415 jal Authentication checks: if the page has a "UIRights" annotation we need a logged-in
-		 * user to check it's rights against the page's required rights.
-		 * FIXME This is fugly. Should this use the registerExceptionHandler code? If so we need to extend it's meaning to include pre-page exception handling.
-		 *
-		 */
-		if(!checkAccess(cm, ctx, clz))
-			return;
-
-		/*
 		 * Determine if this is an AJAX request or a normal "URL" request. If it is a non-AJAX
 		 * request we'll always respond with a full page re-render, but we must check to see if
 		 * the page has been requested with different parameters this time.
@@ -349,6 +341,20 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 					DomUtil.USERLOG.debug(cid + ": IForceRefresh, cleared page data for " + page);
 			}
 			ctx.getApplication().getInjector().injectPageValues(page.getBody(), ctx, papa);
+
+			/*
+			 * This is a (new) page request. We need to check rights on the page before
+			 * it is presented. The rights check is moved here (since 2013/01/24) because
+			 * any analysis of data-related or interface-related rights require the class
+			 * to be instantiated.
+			 *
+			 * 20090415 jal Authentication checks: if the page has a "UIRights" annotation we need a logged-in
+			 * user to check it's rights against the page's required rights.
+			 * FIXME This is fugly. Should this use the registerExceptionHandler code? If so we need to extend it's meaning to include pre-page exception handling.
+			 */
+			if(!checkAccess(cm, ctx, page))
+				return;
+
 			m_application.internalCallPageFullRender(ctx, page);
 
 			page.getBody().onReload();
@@ -368,7 +374,10 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 					for(UIMessage m : ml) {
 						if(DomUtil.USERLOG.isDebugEnabled())
 							DomUtil.USERLOG.debug(cid + ": page reload message = " + m.getMessage());
-						page.getBody().addGlobalMessage(m);
+
+						//page.getBody().addGlobalMessage(m);
+						MessageFlare mf = MessageFlare.display(page.getBody(), m);
+						mf.setTestID("SingleShotMsg");
 					}
 				}
 				cm.setAttribute(UIGoto.SINGLESHOT_MESSAGE, null);
@@ -514,81 +523,57 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	/*	CODING:	Handle existing page events.						*/
 	/*--------------------------------------------------------------*/
 	/**
+	 *
+	 *
 	 * Authentication checks: if the page has a "UIRights" annotation we need a logged-in
 	 * user to check it's rights against the page's required rights.
-	 * FIXME This is fugly. Should this use the registerExceptionHandler code? If so we need to extend it's meaning to include pre-page exception handling.
 	 *
 	 * @param cm
 	 * @param ctx
 	 * @param clz
 	 * @throws Exception
 	 */
-	private boolean checkAccess(final WindowSession cm, final RequestContextImpl ctx, final Class< ? extends UrlPage> clz) throws Exception {
-		boolean isAjax = ctx.getRequest().getParameter("webuia") != null;
+	private boolean checkAccess(final WindowSession cm, final RequestContextImpl ctx, final Page page) throws Exception {
+		if(ctx.getRequest().getParameter("webuia") != null)
+			throw new IllegalStateException("Cannot be called for an AJAX request");
+		UrlPage body = page.getBody();										// The actual, instantiated and injected class - which is unbuilt, though
+		UIRights rann = body.getClass().getAnnotation(UIRights.class);		// Get class annotation
+		IRightsCheckedManually rcm = body instanceof IRightsCheckedManually ? (IRightsCheckedManually) body : null;
 
-		if(isAjax) {
-			//access check is ignored for AJAX calls (we are already using that page, so access is already checked)
-			return true;
-		}
-
-		boolean hasSpecialAccess = ctx.getApplication().getSpecialAccessChecker().hasSpecialAccess(clz);
-
-		UIRights rann = clz.getAnnotation(UIRights.class);
-
-		if(rann == null && !hasSpecialAccess) {
-			//no check, we pass
-			return true;
+		if(rann == null && rcm == null) {									// Any kind of rights checking is required?
+			return true;													// No -> allow access.
 		}
 
 		//-- Get user's IUser; if not present we need to log in.
-		IUser user = UIContext.getCurrentUser(); // Currently logged in?
+		IUser user = UIContext.getCurrentUser(); 							// Currently logged in?
 		if(user == null) {
-			//-- Create the after-login target URL.
-			StringBuilder sb = new StringBuilder(256);
-			//				sb.append('/');
-			sb.append(ctx.getRelativePath(ctx.getInputPath()));
-			sb.append('?');
-			StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
-			sb.append('=');
-			sb.append(cm.getWindowID());
-			sb.append(".x"); // Dummy conversation ID
-			DomUtil.addUrlParameters(sb, ctx, false);
-
-			//-- Obtain the URL to redirect to from a thingy factory (should this happen here?)
-			ILoginDialogFactory ldf = m_application.getLoginDialogFactory();
-			if(ldf == null)
-				throw new NotLoggedInException(sb.toString()); // Force login exception.
-			String target = ldf.getLoginRURL(sb.toString()); // Create a RURL to move to.
-			if(target == null)
-				throw new IllegalStateException("The Login Dialog Handler=" + ldf + " returned an invalid URL for the login dialog.");
-
-			//-- Make this an absolute URL by appending the webapp path
-			target = ctx.getRelativePath(target);
-			generateHttpRedirect(ctx, target, "You need to login before accessing this function");
+			redirectToLoginPage(cm, ctx);
 			return false;
 		}
 
-		//-- Issue access checks
-		UISpecialAccessResult specialAccessResult = hasSpecialAccess ? ctx.getApplication().getSpecialAccessChecker().doSpecialAccessCheck(clz, ctx) : null;
-
-		if(specialAccessResult == null) {
-			if(checkUIRigts(ctx, clz, rann, user)) {
-				return true;
-			}
-		} else {
-			switch(specialAccessResult.getStatus()){
-				case ACCEPT:
+		//-- Start access checks, in order. First call the interface, if applicable
+		String failureReason = null;
+		try {
+			if(null != rcm) {
+				boolean allowed = rcm.isAccessAllowedBy(user);				// Call interface: it explicitly allows
+				if(allowed)
 					return true;
-				case NONE:
-					if(checkUIRigts(ctx, clz, rann, user)) {
-						return true;
-					}
-					break;
-				case REFUSE:
-				default:
-					//drop to access denied redirect
-					break;
+
+				//-- False indicates "I do not give access, but I do not deny it either". So move on to the next check.
 			}
+
+			if(null != rann) {
+				if(checkRightsAnnotation(ctx, body, rann, user)) {			// Check annotation rights
+					return true;
+				}
+
+				//-- Just exit with a null failureReason - this indicates that a list of rights will be rendered.
+			} else
+				throw new CodeException(Msgs.BUNDLE, Msgs.RIGHTS_NOT_ALLOWED);	// Insufficient rights - details unknown.
+		} catch(CodeException cx) {
+			failureReason = cx.getMessage();
+		} catch(Exception x) {
+			failureReason = x.toString();
 		}
 
 		/*
@@ -603,12 +588,15 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		//-- Add info about the failed thingy.
 		StringBuilder sb = new StringBuilder(128);
 		sb.append(rurl);
-		DomUtil.addUrlParameters(sb, new PageParameters(AccessDeniedPage.PARAM_TARGET_PAGE, clz.getName()), true);
+		DomUtil.addUrlParameters(sb, new PageParameters(AccessDeniedPage.PARAM_TARGET_PAGE, body.getClass().getName()), true);
 
-		if(specialAccessResult != null && specialAccessResult.getStatus() == Status.REFUSE) {
-			sb.append("&" + AccessDeniedPage.PARAM_REFUSAL_MSG + "=");
-			StringTool.encodeURLEncoded(sb, specialAccessResult.getRefuseReason());
-		} else if(rann != null) {
+		//-- If we have a message use it
+		if(null != failureReason || rann == null) {
+			if(failureReason == null)
+				failureReason = "Empty reason - this should not happen!";
+			sb.append("&").append(AccessDeniedPage.PARAM_REFUSAL_MSG).append("=");
+			StringTool.encodeURLEncoded(sb, failureReason);
+		} else {
 			//-- All required rights
 			int ix = 0;
 			for(String r : rann.value()) {
@@ -621,39 +609,54 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		return false;
 	}
 
-	private boolean checkUIRigts(@Nonnull final RequestContextImpl ctx, @Nonnull final Class< ? extends UrlPage> clz, @Nullable UIRights rann, IUser user) {
-		//UIRights check exists, we need to check them. otherwise pass
-		if(rann == null) {
-			return true;
-		}
+	private void redirectToLoginPage(final WindowSession cm, final RequestContextImpl ctx) throws Exception {
+		//-- Create the after-login target URL.
+		StringBuilder sb = new StringBuilder(256);
+		sb.append(ctx.getRelativePath(ctx.getInputPath()));
+		sb.append('?');
+		StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
+		sb.append('=');
+		sb.append(cm.getWindowID());
+		sb.append(".x"); 												// Dummy conversation ID
+		DomUtil.addUrlParameters(sb, ctx, false);
 
-		if(DomUtil.isBlank(rann.dataPath())) {
-			//no special data context -> we just check plain general rights
+		//-- Obtain the URL to redirect to from a thingy factory (should this happen here?)
+		ILoginDialogFactory ldf = m_application.getLoginDialogFactory();
+		if(ldf == null)
+			throw new NotLoggedInException(sb.toString()); // Force login exception.
+		String target = ldf.getLoginRURL(sb.toString()); // Create a RURL to move to.
+		if(target == null)
+			throw new IllegalStateException("The Login Dialog Handler=" + ldf + " returned an invalid URL for the login dialog.");
+
+		//-- Make this an absolute URL by appending the webapp path
+		target = ctx.getRelativePath(target);
+		generateHttpRedirect(ctx, target, "You need to login before accessing this function");
+	}
+
+	/**
+	 *
+	 * @param ctx
+	 * @param body
+	 * @param rann
+	 * @param user
+	 * @return
+	 */
+	private boolean checkRightsAnnotation(@Nonnull RequestContextImpl ctx, @Nonnull UrlPage body, @Nonnull UIRights rann, @Nonnull IUser user) throws Exception {
+		if(StringTool.isBlank(rann.dataPath())) {
+			//-- No special data context - we just check plain general rights
 			for(String right : rann.value()) {
 				if(!user.hasRight(right)) {
 					return false;
 				}
 			}
-		} else {
-			//-- Data path related access check
-			try {
-				String target = rann.dataPath().trim();
-				String dataPath = null;
-				int pathPos = target.indexOf(".");
-				if(pathPos > 0) {
-					dataPath = target.substring(pathPos + 1);
-					target = target.substring(0, pathPos);
-				}
+			return true;										// All worked, so we have access.
+		}
 
-				Object dataAtPath = ctx.getApplication().getDataPathResolver().resolveDataPath(clz, ctx, target, dataPath);
-				for(String right : rann.value()) {
-					if(!user.hasRight(right, dataAtPath)) {
-						return false;
-					}
-				}
-			} catch(Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+		//-- We need the object specified in DataPath.
+		PropertyMetaModel< ? > pmm = MetaManager.getPropertyMeta(body.getClass(), rann.dataPath());
+		Object dataItem = pmm.getValue(body);					// Get the page property.
+		for(String right : rann.value()) {
+			if(!user.hasRight(right, dataItem)) {
 				return false;
 			}
 		}
