@@ -73,7 +73,7 @@ public class DisplayPropertyMetaModel {
 			throw new IllegalArgumentException("Cannot be null");
 	}
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
+	@SuppressWarnings({"unchecked"})
 	public DisplayPropertyMetaModel(@Nonnull ClassMetaModel cmm, @Nonnull MetaDisplayProperty p) {
 		m_containedInClass = cmm;
 		m_propertyModel = cmm.findProperty(p.name()); // Creates either a PathPropertyModel or gets a normal one
@@ -96,7 +96,7 @@ public class DisplayPropertyMetaModel {
 //		setRenderHint(p.renderHint());	jal 20101220 Removed, unused and seems silly in table display
 	}
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
+	@SuppressWarnings({"unchecked"})
 	public DisplayPropertyMetaModel(@Nonnull ClassMetaModel cmm, @Nonnull MetaComboProperty p) {
 		m_containedInClass = cmm;
 		m_propertyModel = cmm.findProperty(p.name()); // Creates either a PathPropertyModel or gets a normal one
