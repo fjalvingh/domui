@@ -166,7 +166,8 @@ public class DomTools {
 	 * associated with the thing. If errors occur they are logged into an error
 	 * message string; these are thrown as an exception when complete.
 	 */
-	static public Document getDocument(final File inf, final boolean nsaware) throws Exception {
+	@Nonnull
+	static public Document getDocument(@Nonnull final File inf, final boolean nsaware) throws Exception {
 		DefaultErrorHandler deh = new DefaultErrorHandler();
 		Document doc = getDocument(inf, deh, nsaware);
 		if(deh.hasErrors())
