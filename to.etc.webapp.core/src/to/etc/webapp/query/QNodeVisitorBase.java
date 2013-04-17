@@ -134,9 +134,5 @@ abstract public class QNodeVisitorBase implements QNodeVisitor {
 
 	@Override
 	public void visitPropertyJoinComparison(@Nonnull QPropertyJoinComparison qPropertyJoinComparison) throws Exception {
-		throw new UnsupportedOperationException("Subqueries are not supported");
 	}
-
-//	@Override
-//	public void visitPropertyJoinComparison(@Nonnull QPropertyJoinComparison qPropertyJoinComparison) {}
 }
