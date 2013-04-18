@@ -201,15 +201,17 @@ abstract public class QBasicModelCopier implements IModelCopier {
 
 		//-- Property value copy. We copy all properties including "up" relations but excluding "child" lists.
 		for(PropertyMetaModel< ? > pmm : cmm.getProperties()) {
-			switch(pmm.getRelationType()){
-				default:
-					break;
-				case NONE:
-				case UP:
-					//-- We must copy.
-					Object v = pmm.getValue(source);
-					((IValueAccessor<Object>) pmm).setValue(copy, v);
-					break;
+			if(!pmm.isTransient()) {
+				switch(pmm.getRelationType()){
+					default:
+						break;
+					case NONE:
+					case UP:
+						//-- We must copy.
+						Object v = pmm.getValue(source);
+						((IValueAccessor<Object>) pmm).setValue(copy, v);
+						break;
+				}
 			}
 		}
 		return copy;

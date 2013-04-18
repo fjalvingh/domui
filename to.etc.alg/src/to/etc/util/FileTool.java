@@ -1851,11 +1851,31 @@ public class FileTool {
 	 * @param file
 	 * @return
 	 */
-	public static int getIntSizeOfFile(File file) {
+	public static int getIntSizeOfFile(@Nonnull File file) {
 		long size = file.length();
 		if (size > Integer.MAX_VALUE){
 			throw new IllegalStateException("We do not allow file sizes > " + StringTool.strSize(Integer.MAX_VALUE) + ", found file size:" + StringTool.strSize(size));
 		}
 		return (int) size;
+	}
+
+	/**
+	 * Returns number of lines in a specified file.
+	 *
+	 * @param file
+	 * @return
+	 * @throws IOException
+	 */
+	public static int getNumberOfLines(@Nonnull File file) throws IOException {
+		BufferedReader reader = null;
+		try {
+			reader = new BufferedReader(new FileReader(file));
+			int lines = 0;
+			while(reader.readLine() != null)
+				lines++;
+			return lines;
+		} finally {
+			FileTool.closeAll(reader);
+		}
 	}
 }
