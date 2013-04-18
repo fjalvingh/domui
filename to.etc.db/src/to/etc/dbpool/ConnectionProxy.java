@@ -99,6 +99,9 @@ final public class ConnectionProxy implements Connection {
 	/** All commit event listeners. */
 	private List<ICommitListener> m_commitListenerList = Collections.EMPTY_LIST;
 
+	/** If set this connection is marked long living and will be excluded from hanging connection checks. */
+	private boolean m_longliving;
+
 	/**
 	 *	Creates new connection. This is the only way to attach one to the PoolEntry.
 	 */
@@ -112,6 +115,7 @@ final public class ConnectionProxy implements Connection {
 		m_lastUsedTS = m_allocationTS;
 		m_allocationPoint = Tracepoint.create(null);
 		m_unpooled = isunpooled;
+		m_longliving = false;
 	}
 
 	/**
@@ -153,6 +157,20 @@ final public class ConnectionProxy implements Connection {
 	 */
 	public final boolean isUnpooled() {
 		return m_unpooled;
+	}
+
+	/**
+	 * Only unpooled connection can be set long living
+	 * @return
+	 */
+	public void setLongliving(final boolean longliving) {
+		if(isUnpooled()) {
+			m_longliving = longliving;
+		}
+	}
+
+	public final boolean isLongliving() {
+		return m_longliving;
 	}
 
 	@Override
@@ -417,6 +435,9 @@ final public class ConnectionProxy implements Connection {
 	 * <h2>Determining hang state</h2>
 	 * <p>Unpooled connections have their hang state checked using a staggered time interval. They
 	 * are never cleared unless we are in "urgent" mode.
+	 * 
+	 * <p>Unpooled longliving connections are not checked using staggered time interval. They
+	 * are never cleared unless we are in "urgent" mode.
 	 *
 	 * @param hs
 	 */
@@ -426,6 +447,10 @@ final public class ConnectionProxy implements Connection {
 		synchronized(this) {
 			if(m_state != ConnState.OPEN) // Already closed or invalidated?
 				return;
+			
+			if(isUnpooled() && isLongliving()) {
+				return; //if it is unpooled and longliving omit the hanging connection check 
+			}
 
 			if(isUnpooled()) {
 				//-- Count this as a hanging unpooled if it's last-used time exceeds 10 minutes. Unpooled connections are never released

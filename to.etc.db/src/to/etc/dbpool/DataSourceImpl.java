@@ -49,7 +49,7 @@ final public class DataSourceImpl implements DataSource {
 	}
 
 	public Connection getConnection() throws SQLException {
-		return m_pool.getConnection(false);
+		return m_pool.getConnection(false, false);
 	}
 
 	public Connection getConnection(String username, String password) throws SQLException {

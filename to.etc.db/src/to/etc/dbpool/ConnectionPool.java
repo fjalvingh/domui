@@ -278,6 +278,9 @@ final public class ConnectionPool {
 	/** The unpooled datasource instance. */
 	private final UnpooledDataSourceImpl m_unpooled_ds = new UnpooledDataSourceImpl(this);
 
+	/** The unpooled longliving datasource instance. */
+	private final UnpooledLonglivingDataSourceImpl m_unpooled_longliving_ds = new UnpooledLonglivingDataSourceImpl(this);
+
 	/** #secs for connection time warning if this pool has connection usage time calculated. */
 	private final int m_conntime_warning_ms = 8000;
 
@@ -1111,7 +1114,7 @@ final public class ConnectionPool {
 	 * @return
 	 * @throws SQLException
 	 */
-	ConnectionProxy getConnection(final boolean unpooled) throws SQLException {
+	ConnectionProxy getConnection(final boolean unpooled, @Nonnull final boolean longliving) throws SQLException {
 		IInfoHandler d = m_manager.getInfoHandler();
 		d.connectionAllocated();
 		for(;;) {
@@ -1119,6 +1122,7 @@ final public class ConnectionPool {
 			Exception x = checkConnection(pe.getConnection()); // Is the connection still valid?
 			if(x == null) {
 				ConnectionProxy dbc = pe.proxyMake(); // Yes-> make the proxy and be done.
+				dbc.setLongliving(longliving);
 				dbgAlloc("getConnection", dbc);
 				return dbc;
 			}
@@ -1135,7 +1139,7 @@ final public class ConnectionPool {
 	 * @param password
 	 * @return
 	 */
-	public Connection getUnpooledConnection(String username, String password) throws SQLException {
+	public Connection getUnpooledConnection(String username, String password, @Nonnull boolean longliving) throws SQLException {
 		IInfoHandler d = m_manager.getInfoHandler();
 		d.connectionAllocated();
 		int newid;
@@ -1153,6 +1157,7 @@ final public class ConnectionPool {
 			pe.setUnpooled(true);
 
 			ConnectionProxy dbc = pe.proxyMake(); // Yes-> make the proxy and be done.
+			dbc.setLongliving(longliving);
 			dbgAlloc("getUnpooledConnection", dbc);
 			return dbc;
 		} finally {
@@ -1689,6 +1694,10 @@ final public class ConnectionPool {
 
 	public DataSource getPooledDataSource() {
 		return m_pooled_ds;
+	}
+
+	public DataSource getUnpooledLonglivingDataSource() {
+		return m_unpooled_longliving_ds;
 	}
 
 	/**

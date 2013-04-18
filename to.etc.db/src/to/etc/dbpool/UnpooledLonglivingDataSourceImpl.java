@@ -29,19 +29,19 @@ import java.sql.*;
 
 import javax.sql.*;
 
-public class UnpooledDataSourceImpl implements DataSource {
+public class UnpooledLonglivingDataSourceImpl implements DataSource {
 	final private ConnectionPool m_pool;
 
-	UnpooledDataSourceImpl(ConnectionPool p) {
+	UnpooledLonglivingDataSourceImpl(ConnectionPool p) {
 		m_pool = p;
 	}
 
 	public Connection getConnection() throws SQLException {
-		return m_pool.getConnection(true, false);
+		return m_pool.getConnection(true, true);
 	}
 
 	public Connection getConnection(String username, String password) throws SQLException {
-		return m_pool.getUnpooledConnection(username, password, false);
+		return m_pool.getUnpooledConnection(username, password, true);
 	}
 
 	public PrintWriter getLogWriter() throws SQLException {
