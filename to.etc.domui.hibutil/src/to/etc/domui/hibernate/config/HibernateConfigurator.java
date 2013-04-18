@@ -269,7 +269,7 @@ final public class HibernateConfigurator {
 			config.setProperty("hibernate.show_sql", "true");
 		}
 
-		if(DeveloperOptions.getBool("hibernate.format_sql", false)) {
+		if(DeveloperOptions.getBool("hibernate.format_sql", true)) {
 			config.setProperty("hibernate.format_sql", "true");
 		}
 
