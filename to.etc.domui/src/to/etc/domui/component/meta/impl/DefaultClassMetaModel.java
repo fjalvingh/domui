@@ -209,7 +209,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 */
 	@Override
 	@Nullable
-	public synchronized PropertyMetaModel< ? > findProperty(final String name) {
+	public synchronized PropertyMetaModel< ? > findProperty(@Nonnull final String name) {
 		PropertyMetaModel< ? > pmm = m_propertyMap.get(name);
 		if(pmm != null)
 			return pmm;
@@ -220,8 +220,17 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	}
 
 	@Override
+	@Nonnull
+	public PropertyMetaModel< ? > getProperty(@Nonnull String name) {
+		PropertyMetaModel< ? > pmm = findProperty(name);
+		if(null == pmm)
+			throw new IllegalStateException("The property '" + name + "' is not known in the meta model for " + this);
+		return pmm;
+	}
+
+	@Override
 	@Nullable
-	public synchronized PropertyMetaModel< ? > findSimpleProperty(final String name) {
+	public synchronized PropertyMetaModel< ? > findSimpleProperty(@Nonnull final String name) {
 		return m_propertyMap.get(name);
 	}
 

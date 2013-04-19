@@ -99,8 +99,6 @@ public class BitmapConverter implements IImageConverter, IImageIdentifier {
 
 		//-- Calculate the proper width and height, respecting the aspect ratio of the source
 		OriginalImagePage ip = helper.getSource().getInfo().getPage(sourcePage);
-		if(null == ip)
-			throw new IllegalStateException("Original image page null");
 		Dimension d = ImaTool.resizeWithAspect(resize.getWidth(), resize.getHeight(), ip.getWidth(), ip.getHeight());
 
 		if(targetMime == null) {

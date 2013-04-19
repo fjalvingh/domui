@@ -39,7 +39,7 @@ public interface ITreeModel<T> {
 	 * @param item
 	 * @return
 	 */
-	int getChildCount(@Nonnull T item) throws Exception;
+	int getChildCount(@Nullable T item) throws Exception;
 
 	/**
 	 * If possible this should quickly decide if a tree node has children or not. This is
@@ -52,13 +52,13 @@ public interface ITreeModel<T> {
 	 * @param item
 	 * @return
 	 */
-	boolean hasChildren(@Nonnull T item) throws Exception;
+	boolean hasChildren(@Nullable T item) throws Exception;
 
 	/**
 	 * Get the root object of the tree.
 	 * @return
 	 */
-	@Nonnull
+	@Nullable
 	T getRoot() throws Exception;
 
 	/**
@@ -71,7 +71,7 @@ public interface ITreeModel<T> {
 	 * @throws Exception
 	 */
 	@Nonnull
-	T getChild(@Nonnull T parent, int index) throws Exception;
+	T getChild(@Nullable T parent, int index) throws Exception;
 
 	/**
 	 * Get the parent node of a child in the tree. This may only return null for the root node.
@@ -80,7 +80,8 @@ public interface ITreeModel<T> {
 	 * @return
 	 * @throws Exception
 	 */
-	T getParent(@Nonnull T child) throws Exception;
+	@Nullable
+	T getParent(@Nullable T child) throws Exception;
 
 	/**
 	 * Add a listener to be called when nodes on the tree change.
@@ -102,7 +103,7 @@ public interface ITreeModel<T> {
 	 * @param item
 	 * @throws Exception
 	 */
-	void expandChildren(@Nonnull T item) throws Exception;
+	void expandChildren(@Nullable T item) throws Exception;
 
 	/**
 	 * Called when this node's children are to be collapsed. This call is executed for every node that
@@ -111,5 +112,5 @@ public interface ITreeModel<T> {
 	 * @param item
 	 * @throws Exception
 	 */
-	void collapseChildren(@Nonnull T item) throws Exception;
+	void collapseChildren(@Nullable T item) throws Exception;
 }
