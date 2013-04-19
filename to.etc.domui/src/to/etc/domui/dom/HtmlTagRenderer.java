@@ -1140,6 +1140,9 @@ public class HtmlTagRenderer implements INodeVisitor {
 		if(n.getSrc() != null)
 			o().attr("src", n.getSrc());
 		renderTagend(n, m_o);
+
+		renderEndTag(n);
+
 	}
 
 	//	protected void	renderDraggableCrud(NodeBase b) {
