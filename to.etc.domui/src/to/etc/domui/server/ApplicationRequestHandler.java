@@ -325,6 +325,17 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				cm.setAttribute(UIGoto.SINGLESHOT_MESSAGE, null);
 			}
 
+			List<IGotoAction> al = (List<IGotoAction>) cm.getAttribute(UIGoto.PAGE_ACTION);
+			if(al != null && al.size() > 0) {
+				page.getBody().build();
+				for(IGotoAction ga : al) {
+					if(DomUtil.USERLOG.isDebugEnabled())
+						DomUtil.USERLOG.debug(cid + ": page reload action = " + ga);
+					ga.executeAction(page.getBody());
+				}
+				cm.setAttribute(UIGoto.PAGE_ACTION, null);
+			}
+
 			m_application.internalCallPageComplete(ctx, page);
 			page.internalDeltaBuild(); // If listeners changed the page-> rebuild those parts
 			// END ORDERED

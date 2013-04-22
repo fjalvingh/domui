@@ -1242,6 +1242,23 @@ public class FileTool {
 			os.write(b);
 	}
 
+	@Nonnull
+	static public byte[] loadArray(@Nonnull File src) throws IOException {
+		long sz = src.length();
+		if(sz > Integer.MAX_VALUE)
+			throw new IOException("File too large (> 2GB)");
+		byte[] data = new byte[(int) sz];
+		InputStream is = new FileInputStream(src);
+		try {
+			int len = is.read(data);
+			if(len != data.length)
+				throw new IOException("Unexpected end of file after reading " + len + " of " + data.length + " bytes");
+			return data;
+		} finally {
+			closeAll(is);
+		}
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Data marshalling and unmarshalling					*/
