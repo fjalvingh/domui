@@ -30,6 +30,7 @@ import javax.annotation.*;
 
 import to.etc.domui.component.form.*;
 import to.etc.domui.component.input.*;
+import to.etc.domui.dom.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.server.*;
@@ -1154,6 +1155,39 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 			key = key.substring(1);
 		return br.formatMessage(key, param);
 	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	User event stuff.									*/
+	/*--------------------------------------------------------------*/
+
+	private Map<Class< ? >, List<INodeEvent< ? >>> m_eventMap;
+
+	public <T> void sendEvent(@Nonnull T event) throws Exception {
+		Map<Class< ? >, List<INodeEvent< ? >>> eventMap = m_eventMap;
+		if(null == eventMap)
+			return;
+		List<INodeEvent<T>> list = (List) eventMap.get(event.getClass());
+		if(list == null)
+			return;
+		for(INodeEvent<T> ev : list) {
+			ev.handle(event);
+		}
+	}
+
+	final public <T> void addEventHandler(@Nonnull Class<T> sigh, @Nonnull INodeEvent<T> handler) {
+		Map<Class< ? >, List<INodeEvent< ? >>> eventMap = m_eventMap;
+		if(null == eventMap) {
+			eventMap = m_eventMap = new HashMap<Class< ? >, List<INodeEvent< ? >>>();
+		}
+		List<INodeEvent< ? >> list = eventMap.get(sigh);
+		if(list == null) {
+			list = new ArrayList<INodeEvent< ? >>();
+			eventMap.put(sigh, list);
+		}
+		list.add(handler);
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Overridable event methods.							*/

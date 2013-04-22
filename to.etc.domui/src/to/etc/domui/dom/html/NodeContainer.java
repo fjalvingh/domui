@@ -783,6 +783,21 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	}
 
 	/*--------------------------------------------------------------*/
+	/*	CODING:	User event stuff.									*/
+	/*--------------------------------------------------------------*/
+
+	@Override
+	final public <T> void sendEvent(@Nonnull T event) throws Exception {
+		if(m_delegate != null)
+			m_delegate.sendEvent(event);
+		else {
+			super.sendEvent(event);
+			for(NodeBase ch : m_children)
+				ch.sendEvent(event);
+		}
+	}
+
+	/*--------------------------------------------------------------*/
 	/*	CODING:	Content delegation and framed nodes handling.		*/
 	/*--------------------------------------------------------------*/
 	/**

@@ -64,6 +64,21 @@ final public class UIGoto {
 	}
 
 	/**
+	 * Destroy the current page, and reload a fresh copy with fresh new parameters.
+	 * @param pp
+	 */
+	static public void reload(@Nonnull PageParameters pp) {
+		Page pg = UIContext.getCurrentPage();
+		Class< ? extends UrlPage> clz = pg.getBody().getClass();
+		context().internalSetNextPage(MoveMode.REPLACE, clz, null, null, pp);
+	}
+
+	static public void reload(@Nonnull Object... parameters) {
+		PageParameters pp = new PageParameters(parameters);
+		reload(pp);
+	}
+
+	/**
 	 * Add a "goto action" to be executed on the page we will go-to.
 	 * @param action
 	 */
