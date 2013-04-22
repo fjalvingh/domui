@@ -1443,4 +1443,12 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		int pos = n.lastIndexOf('.');
 		return n.substring(pos + 1) + ":" + m_actualID + (m_title == null ? "" : "/" + m_title);
 	}
+
+	/**
+	 * Returns if node would have always rendered end tag in {@link HtmlTagRenderer} visitor for node.
+	 * @return
+	 */
+	public boolean isRendersOwnClose() {
+		return false;
+	}
 }

@@ -800,6 +800,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 	public void visitXmlNode(XmlTextNode n) throws Exception {
 		String lit = n.getText(); // Get tilde-replaced text
 		if(lit != null && lit.length() > 0) {
+			m_o.setIndentEnabled(false);
 			m_o.text(""); // 20100222 jal Force previous tag to end with >.
 			m_o.writeRaw(lit);
 		}
@@ -899,6 +900,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 		//		if(! isUpdating())
 		o().attr("type", "file");
 		o().attr("name", n.getActualID());
+
 		//		if(n.isDisabled())
 		//			o().attr("disabled", "disabled");
 		//		if(n.getMaxLength() > 0)
@@ -1139,10 +1141,27 @@ public class HtmlTagRenderer implements INodeVisitor {
 		basicNodeRender(n, m_o);
 		if(n.getSrc() != null)
 			o().attr("src", n.getSrc());
+
+		/*
+		 * jal 20120412: IE's 'frameborder' attribute is case sensitive, sigh. It must be frameBorder
+		 */
+		if(n.getFrameBorder() != null)
+			o().attr("frameBorder", n.getFrameBorder());
+		if(n.getFrameHeight() != null)
+			o().attr("height", n.getFrameHeight());
+		if(n.getFrameWidth() != null)
+			o().attr("width", n.getFrameWidth());
+		if(n.getMarginHeight() != null)
+			o().attr("marginheight", n.getMarginHeight());
+		if(n.getMarginWidth() != null)
+			o().attr("marginwidth", n.getMarginWidth());
+		if(n.getName() != null)
+			o().attr("name", n.getName());
+		if(n.getScrolling() != null)
+			o().attr("scrolling", n.getScrolling());
+
 		renderTagend(n, m_o);
-
 		renderEndTag(n);
-
 	}
 
 	//	protected void	renderDraggableCrud(NodeBase b) {
