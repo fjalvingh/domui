@@ -1957,3 +1957,15 @@ li.ui-tab-err {
 	background-color: blue;
 	margin-top: 2px;
 }
+/*** MessageLine ***/
+.ui-msgln {
+	clear: both;
+	padding: 4px 0px;
+/*	display: inline-block;		jal 20130215 This shows messages behind one another.... That should not happen.. */
+}
+.ui-msgln img {
+	float: left;
+}
+.ui-msgln-txt {
+	padding-left: 4px;
+}
