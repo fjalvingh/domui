@@ -2,6 +2,8 @@ package to.etc.domui.databinding;
 
 import javax.annotation.*;
 
+import to.etc.util.*;
+
 /**
  * Threadsafe fast listener list implementation.
  *
@@ -65,9 +67,18 @@ public class ListenerList<V, E extends IChangeEvent<V, E, T>, T extends IChangeL
 	 * Call all listeners.
 	 * @param event
 	 */
-	public void fireEvent(@Nonnull E event) throws Exception {
-		for(T listener : getListeners()) {
-			listener.handleChange(event);
+	public void fireEvent(@Nonnull E event) {
+		try {
+			for(T listener : getListeners()) {
+				listener.handleChange(event);
+			}
+		} catch(Exception x) {
+			/*
+			 * It's evil but we must wrap here, else all observed objects need throws clauses in their setters. It's a nice
+			 * example of how completely and utterly useless checked exceptions are: we will still have an exception, which
+			 * no one knows how to handle, but it is now also masked.
+			 */
+			throw WrappedException.wrap(x);
 		}
 	}
 }

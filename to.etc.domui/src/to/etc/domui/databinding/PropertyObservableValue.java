@@ -4,7 +4,13 @@ import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
 
-public class PropertyObservableValue<C, T> extends ListenerList<T, ValueChangeEvent<T>, IValueChangeListener<T>> implements IObservableValue<T, ValueChangeEvent<T>, IValueChangeListener<T>> {
+/**
+ * An observed property on some instance.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Apr 23, 2013
+ */
+public class PropertyObservableValue<C, T> extends ListenerList<T, ValueChangeEvent<T>, IValueChangeListener<T>> implements IObservableValue<T> {
 	@Nonnull
 	final private C m_instance;
 
@@ -30,6 +36,15 @@ public class PropertyObservableValue<C, T> extends ListenerList<T, ValueChangeEv
 
 	@Override
 	public void setValue(@Nullable T value) throws Exception {
+		T old = m_property.getValue(m_instance);
 		m_property.setValue(m_instance, value);
+		notifyIfChanged(old, value);
+	}
+
+	void notifyIfChanged(@Nullable T old, @Nullable T value) {
+		if(MetaManager.areObjectsEqual(old, value))
+			return;
+		ValueDiff<T> vd = new ValueDiff<T>(old, value);
+		fireEvent(new ValueChangeEvent<T>(this, vd));
 	}
 }

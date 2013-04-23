@@ -12,7 +12,7 @@ public class ValueChangeEvent<T> extends ObservableEvent<T, ValueChangeEvent<T>,
 	@Nonnull
 	final private ValueDiff<T> m_diff;
 
-	public ValueChangeEvent(@Nonnull IObservableValue<T, ValueChangeEvent<T>, IValueChangeListener<T>> source, @Nonnull ValueDiff<T> diff) {
+	public ValueChangeEvent(@Nonnull IObservableValue<T> source, @Nonnull ValueDiff<T> diff) {
 		super(source);
 		m_diff = diff;
 	}
@@ -23,8 +23,8 @@ public class ValueChangeEvent<T> extends ObservableEvent<T, ValueChangeEvent<T>,
 	 */
 	@Override
 	@Nonnull
-	public IObservableValue<T, ValueChangeEvent<T>, IValueChangeListener<T>> getSource() {
-		return (IObservableValue<T, ValueChangeEvent<T>, IValueChangeListener<T>>) super.getSource();
+	public IObservableValue<T> getSource() {
+		return (IObservableValue<T>) super.getSource();
 	}
 
 	@Nonnull
