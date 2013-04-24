@@ -36,7 +36,10 @@ public class PropertyObservableValue<C, T> extends ListenerList<T, ValueChangeEv
 
 	@Override
 	public void setValue(@Nullable T value) throws Exception {
-		T old = m_property.getValue(m_instance);
+		T old = null;
+		try {
+			old = m_property.getValue(m_instance);
+		} catch(Exception x) {}
 		m_property.setValue(m_instance, value);
 		notifyIfChanged(old, value);
 	}

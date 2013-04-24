@@ -52,8 +52,8 @@ public class ListenerList<V, E extends IChangeEvent<V, E, T>, T extends IChangeL
 	}
 
 	@Nonnull
-	private synchronized T[] getListeners() {
-		return (T[]) m_listeners;
+	private synchronized Object[] getListeners() {
+		return m_listeners;
 	}
 
 	/**
@@ -69,7 +69,8 @@ public class ListenerList<V, E extends IChangeEvent<V, E, T>, T extends IChangeL
 	 */
 	public void fireEvent(@Nonnull E event) {
 		try {
-			for(T listener : getListeners()) {
+			for(Object o : getListeners()) {
+				T listener = (T) o;								// Java generics SUCK: arrays cannot properly be generic.
 				listener.handleChange(event);
 			}
 		} catch(Exception x) {

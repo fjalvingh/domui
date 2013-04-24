@@ -24,7 +24,6 @@
  */
 package to.etc.domui.component.form;
 
-import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
@@ -79,10 +78,10 @@ public class ControlFactoryResult {
 		m_nodeList = new NodeBase[]{(NodeBase) control};
 		SimpleComponentPropertyBinding<C> b = new SimpleComponentPropertyBinding<C>(model, pmm, control);
 		m_binding = b;
-		m_handle = b;
-
-		//-- 20091208 jal Experimental: also bind to treemodel ModelBinding
-		control.bind().to(model, pmm);
+		m_handle = control;
+		//
+		//		//-- 20091208 jal Experimental: also bind to treemodel ModelBinding
+		//		control.bind().to(model, pmm);
 	}
 
 	public <A, B> ControlFactoryResult(final IDisplayControl<A> control, final IReadOnlyModel<B> model, final PropertyMetaModel<A> pmm) {
@@ -91,10 +90,10 @@ public class ControlFactoryResult {
 		DisplayOnlyPropertyBinding<A> b = new DisplayOnlyPropertyBinding<A>(model, pmm, control);
 		m_binding = b;
 		m_handle = b;
-
-		//-- 20091208 jal Experimental: also bind to treemodel ModelBinding
-		if(control instanceof IBindable)
-			((IBindable) control).bind().to(model, pmm);
+		//
+		//		//-- 20091208 jal Experimental: also bind to treemodel ModelBinding
+		//		if(control instanceof IBindable)
+		//			((IBindable) control).bind().to(model, pmm);
 	}
 
 

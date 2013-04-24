@@ -87,7 +87,7 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * to lookup the proper resource file.
 	 * @return	the label text, or null if unknown.
 	 */
-	@Nullable
+	@Nonnull
 	String getDefaultLabel();
 
 	/**
