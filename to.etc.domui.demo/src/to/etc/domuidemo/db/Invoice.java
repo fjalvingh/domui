@@ -28,6 +28,9 @@ public class Invoice extends DbRecordBase<Long> {
 
 	private BigDecimal m_total;
 
+	private List<InvoiceLine> m_invoiceLines;
+
+
 	@Override
 	@Id
 	@SequenceGenerator(name = "sq", sequenceName = "invoice_sq")
@@ -112,5 +115,14 @@ public class Invoice extends DbRecordBase<Long> {
 
 	public void setTotal(BigDecimal total) {
 		m_total = total;
+	}
+
+	@OneToMany(mappedBy = "invoice")
+	public List<InvoiceLine> getInvoiceLines() {
+		return m_invoiceLines;
+	}
+
+	public void setInvoiceLines(List<InvoiceLine> invoiceLines) {
+		m_invoiceLines = invoiceLines;
 	}
 }
