@@ -433,4 +433,9 @@ final public class PoolManager {
 	public synchronized boolean isCollectStatistics() {
 		return m_collectStatistics;
 	}
+
+	static public void setLongLiving(@Nonnull Connection dbc) throws SQLException {
+		ConnectionProxy proxy = dbc.unwrap(ConnectionProxy.class);
+		proxy.setLongliving(true);
+	}
 }
