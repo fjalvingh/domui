@@ -30,6 +30,7 @@ import javax.annotation.*;
 
 import to.etc.domui.component.form.*;
 import to.etc.domui.component.input.*;
+import to.etc.domui.databinding.*;
 import to.etc.domui.dom.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
@@ -70,7 +71,7 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 18, 2007
  */
-abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IModelBinding {
+abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IModelBinding, IObservableEntity {
 	static private boolean m_logAllocations;
 
 	/** The owner page. If set then this node IS attached to the parent in some way; if null it is not attached. */
@@ -1158,38 +1159,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 
 
 	/*--------------------------------------------------------------*/
-	/*	CODING:	User event stuff.									*/
-	/*--------------------------------------------------------------*/
-
-	private Map<Class< ? >, List<INodeEvent< ? >>> m_eventMap;
-
-	public <T> void sendEvent(@Nonnull T event) throws Exception {
-		Map<Class< ? >, List<INodeEvent< ? >>> eventMap = m_eventMap;
-		if(null == eventMap)
-			return;
-		List<INodeEvent<T>> list = (List) eventMap.get(event.getClass());
-		if(list == null)
-			return;
-		for(INodeEvent<T> ev : list) {
-			ev.handle(event);
-		}
-	}
-
-	final public <T> void addEventHandler(@Nonnull Class<T> sigh, @Nonnull INodeEvent<T> handler) {
-		Map<Class< ? >, List<INodeEvent< ? >>> eventMap = m_eventMap;
-		if(null == eventMap) {
-			eventMap = m_eventMap = new HashMap<Class< ? >, List<INodeEvent< ? >>>();
-		}
-		List<INodeEvent< ? >> list = eventMap.get(sigh);
-		if(list == null) {
-			list = new ArrayList<INodeEvent< ? >>();
-			eventMap.put(sigh, list);
-		}
-		list.add(handler);
-	}
-
-
-	/*--------------------------------------------------------------*/
 	/*	CODING:	Overridable event methods.							*/
 	/*--------------------------------------------------------------*/
 
@@ -1460,7 +1429,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * <LI>NOTE: In order to stretchHeight can work, parent container needs to have height defined in some way (works out of box for all FloatingWindow based containers).</LI>
 	 * <LI>In case that stretched node needs to be added directly in (non floating) page, to define page height as 100%, use following snippet inline in page code:
 	 * <BR/><CODE>appendCreateJS("$(document).ready(function() {document.body.parentNode.style.height = '100%'; document.body.style.height = '100%';WebUI.doCustomUpdates();});");</CODE>
-	 * <BR/>Note that triggering of stratch code evaluation needs also to be added inline.
+	 * <BR/>Note that triggering of scratch code evaluation needs also to be added inline.
 	 * </LI>
 	 */
 	public void setStretchHeight(boolean value) {
@@ -1485,4 +1454,58 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	public boolean isRendersOwnClose() {
 		return false;
 	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Hard data binding support (EXPERIMENTAL)			*/
+	/*--------------------------------------------------------------*/
+	@Nullable
+	private ObserverSupport< ? > m_osupport;
+
+	@Nonnull
+	public Set<String> getBindableProperties() {
+		return Collections.EMPTY_SET;
+	}
+
+	/**
+	 * Returns T if the property passed can be bound.
+	 * @param property
+	 * @return
+	 */
+	public boolean isBindableProperty(@Nonnull String property) {
+		return getBindableProperties().contains(property);
+	}
+
+	@Nonnull
+	protected ObserverSupport< ? > getObserverSupport() {
+		ObserverSupport< ? > osupport = m_osupport;
+		if(null == osupport) {
+			osupport = m_osupport = new ObserverSupport(this);
+		}
+		return osupport;
+	}
+
+	@Override
+	@Nonnull
+	public IObservableValue< ? > observableProperty(@Nonnull String property) {
+		if(! isBindableProperty(property))
+			throw new PropertyNotObservableException(getClass(), property);
+		return getObserverSupport().getValueObserver(property);
+	}
+
+	@Nonnull
+	static protected Set<String> createNameSet(@Nonnull String... names) {
+		Set<String> res = new HashSet<String>(names.length);
+		for(String name : names)
+			res.add(name);
+		return res;
+	}
+
+	protected <T> void fireModified(@Nonnull String propertyName, T old, T nw) {
+		ObserverSupport< ? > osupport = m_osupport;
+		if(null == osupport)					// Nothing observing?
+			return;
+		osupport.fireModified(propertyName, old, nw);
+	}
+
 }

@@ -42,7 +42,7 @@ public class ObserverSupport<C> {
 		return (PropertyObservableValue<C, T>) po;
 	}
 
-	protected <T> void firePropertyChange(@Nonnull String propertyName, @Nullable T oldValue, @Nullable T newValue) {
+	public <T> void fireModified(@Nonnull String propertyName, @Nullable T oldValue, @Nullable T newValue) {
 		IObservable< ? , ? , ? > po = m_propertyMap.get(propertyName);
 		if(po instanceof PropertyObservableValue) {
 			((PropertyObservableValue<C, T>) po).notifyIfChanged(oldValue, newValue);

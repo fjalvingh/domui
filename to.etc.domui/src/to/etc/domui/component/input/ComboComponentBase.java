@@ -26,6 +26,8 @@ package to.etc.domui.component.input;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
@@ -36,6 +38,9 @@ import to.etc.util.*;
 import to.etc.webapp.query.*;
 
 public class ComboComponentBase<T, V> extends Select implements IInputNode<V>, IHasModifiedIndication {
+	/** The properties bindable for this component. */
+	static private final Set<String> BINDABLE_SET = createNameSet("value", "disabled");
+
 	private String m_emptyText;
 
 	private V m_currentValue;
@@ -182,9 +187,11 @@ public class ComboComponentBase<T, V> extends Select implements IInputNode<V>, I
 	@Override
 	final public void setValue(V v) {
 		ClassMetaModel cmm = v != null ? MetaManager.findClassMeta(v.getClass()) : null;
-		if(MetaManager.areObjectsEqual(v, m_currentValue, cmm))
+		V currentValue = m_currentValue;
+		if(MetaManager.areObjectsEqual(v, currentValue, cmm))
 			return;
 		m_currentValue = v;
+		fireModified("value", currentValue, v);
 		if(!isBuilt())
 			return;
 
@@ -232,9 +239,12 @@ public class ComboComponentBase<T, V> extends Select implements IInputNode<V>, I
 		}
 
 		ClassMetaModel cmm = newval == null ? null : MetaManager.findClassMeta(newval.getClass());
-		if(MetaManager.areObjectsEqual(newval, m_currentValue, cmm))
+		V currentValue = m_currentValue;
+		if(MetaManager.areObjectsEqual(newval, currentValue, cmm))
 			return false;
+
 		m_currentValue = newval;
+		fireModified("value", currentValue, newval);
 		return true;
 	}
 
@@ -478,10 +488,6 @@ public class ComboComponentBase<T, V> extends Select implements IInputNode<V>, I
 		return m_currentValue;
 	}
 
-	protected void internalSetCurrentValue(V val) {
-		m_currentValue = val;
-	}
-
 	@Override
 	public void setMandatory(boolean mandatory) {
 		if(isMandatory() == mandatory)
@@ -489,4 +495,17 @@ public class ComboComponentBase<T, V> extends Select implements IInputNode<V>, I
 		super.setMandatory(mandatory); // Switch flag
 		forceRebuild(); // The "empty option" might have changed
 	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Hard data binding support.							*/
+	/*--------------------------------------------------------------*/
+
+	@Override
+	@Nonnull
+	public Set<String> getBindableProperties() {
+		return BINDABLE_SET;
+	}
+
+
 }

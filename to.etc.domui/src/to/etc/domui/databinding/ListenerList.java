@@ -15,7 +15,7 @@ public class ListenerList<V, E extends IChangeEvent<V, E, T>, T extends IChangeL
 	static private final Object[] NONE = new Object[0];
 
 	@Nonnull
-	private T[] m_listeners = (T[]) NONE;
+	private Object[] m_listeners = NONE;
 
 	/**
 	 * Add a new listener to the set.
@@ -30,7 +30,7 @@ public class ListenerList<V, E extends IChangeEvent<V, E, T>, T extends IChangeL
 		}
 
 		//-- We need a change. Reallocate, then add
-		T[] ar = (T[]) new Object[length + 1];
+		Object[] ar = new Object[length + 1];
 		System.arraycopy(m_listeners, 0, ar, 0, length);
 		ar[length] = listener;
 		m_listeners = ar;
@@ -53,14 +53,14 @@ public class ListenerList<V, E extends IChangeEvent<V, E, T>, T extends IChangeL
 
 	@Nonnull
 	private synchronized T[] getListeners() {
-		return m_listeners;
+		return (T[]) m_listeners;
 	}
 
 	/**
 	 * Remove all listeners.
 	 */
 	public void clear() {
-		m_listeners = (T[]) NONE;
+		m_listeners = NONE;
 	}
 
 	/**
