@@ -26,28 +26,53 @@ package to.etc.webapp.query;
 
 import javax.annotation.*;
 
+import to.etc.webapp.annotations.*;
+import to.etc.webapp.qsql.*;
+
 /**
- * Represents a subquery.
- *
+ * A subquery linked inside a master query, that can be joined to the master query.
+ *  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Apr 5, 2013
  */
-public class QSelectionSubquery extends QOperatorNode {
+public class QSubQuery<T, P> extends QSelection<T> {
 	@Nonnull
-	final private QSelection< ? > m_parentQuery;
+	final private QRestrictor<P> m_parent;
 
-	public QSelectionSubquery(@Nonnull QSelection< ? > parent) {
-		super(QOperation.SELECTION_SUBQUERY);
-		m_parentQuery = parent;
-	}
-
-	@Nonnull
-	public QSelection< ? > getSelectionQuery() {
-		return m_parentQuery;
+	public QSubQuery(@Nonnull QRestrictor<P> parent, @Nonnull Class<T> chclazz) {
+		super(chclazz);
+		m_parent = parent;
 	}
 
 	@Override
-	public void visit(@Nonnull QNodeVisitor v) throws Exception {
-		v.visitSelectionSubquery(this);
+	public void visit(QNodeVisitor v) throws Exception {
+		v.visitSubquery(this);
+	}
+
+	public <A> QJoiner<A, P, T> join(@Nonnull QRestrictor<A> parent) {
+		//-- Make sure parent is in my hierarchy
+		QSubQuery<?, ?> r = this;
+		for(;;) {
+			if(r.m_parent == parent)
+				break;
+
+			if(r.m_parent instanceof QSubQuery)
+				r = (QSubQuery<?, ?>) r.m_parent;
+			else
+				throw new QQuerySyntaxException("Parent passed is not a parent of this subquery: "+parent);
+		}
+
+		//-- Return the joiner.
+		return new QJoiner<A, P, T>(parent, this);
+	}
+
+	/**
+	 * Joins the parent to this subquery on the specified property, provided that the property exists in both entities
+	 * @param parentProperty
+	 * @param property
+	 */
+	public QSubQuery<T, P> join(@Nonnull @GProperty String property) {
+		add(new QPropertyJoinComparison(QOperation.EQ, property, property));
+		return this;
 	}
 }

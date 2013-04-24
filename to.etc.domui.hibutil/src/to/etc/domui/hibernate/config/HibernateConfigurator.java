@@ -268,6 +268,11 @@ final public class HibernateConfigurator {
 			config.setProperty("show_sql", "true");
 			config.setProperty("hibernate.show_sql", "true");
 		}
+
+		if(DeveloperOptions.getBool("hibernate.format_sql", true)) {
+			config.setProperty("hibernate.format_sql", "true");
+		}
+
 		switch(m_mode){
 			default:
 				throw new IllegalStateException("Mode: " + m_mode);

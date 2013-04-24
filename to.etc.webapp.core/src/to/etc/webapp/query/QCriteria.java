@@ -34,7 +34,7 @@ import to.etc.webapp.annotations.*;
  * that the selection must hold.
  * This is a concrete representation of something representing a query tree. To use a QCriteria in an actual
  * query you need a translator which translates the QCriteria tree into something for the target persistence
- * layer. Implementations of such a translator for Hibernate and SPF exist.
+ * layer. Implementations of such a translator for Hibernate, SPF, simple SQL/JDBC and in-memory lists exist.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 24, 2008
@@ -47,15 +47,6 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	private QCriteria(@Nonnull final ICriteriaTableDef<T> td) {
 		super(td);
 	}
-
-
-	//	/** 20100122 jal needs full deep copy
-	//	 * Copy constructor.
-	//	 * @param q
-	//	 */
-	//	protected QCriteria(final QCriteria<T> q) {
-	//		super(q);
-	//	}
 
 	/**
 	 * Create a QCriteria to select a set of the specified class. When used on it's own without

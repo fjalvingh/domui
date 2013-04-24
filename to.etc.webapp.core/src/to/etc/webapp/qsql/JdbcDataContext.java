@@ -198,6 +198,18 @@ public class JdbcDataContext implements QDataContext {
 	}
 
 	@Override
+	@Nonnull
+	public <R> List<R> query(@Nonnull Class<R> resultInterface, @Nonnull QSelection< ? > sel) throws Exception {
+		return QQueryUtils.mapSelectionQuery(this, resultInterface, sel);
+	}
+
+	@Override
+	@Nullable
+	public <R> R queryOne(@Nonnull Class<R> resultInterface, @Nonnull QSelection< ? > sel) throws Exception {
+		return QQueryUtils.mapSelectionOneQuery(this, resultInterface, sel);
+	}
+
+	@Override
 	public <T> T queryOne(QCriteria<T> q) throws Exception {
 		unclosed();
 		return JdbcQuery.queryOne(this, q);

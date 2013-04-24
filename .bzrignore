@@ -18,3 +18,4 @@ to.etc.domui/src/resources/themes/blue/style.theme.css.bak
 *.bak
 */maven
 
+to.etc.domui.demo/derby.log
