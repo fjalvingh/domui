@@ -1488,6 +1488,16 @@ var WebUI = {
 		    return;
 	    Calendar.__init();
 
+	    // -- 20130425 jal if this is a date+time thing the value will hold space-separated time, so make sure to split
+		// it;
+	    var pos = val.indexOf(' ');
+	    var timeval = null;
+	    if(pos != -1) {
+		    // -- Split into trimmed time part and val = only date
+		    timeval = $.trim(val.substring(pos + 1));
+		    val = $.trim(val.substring(0, pos));
+	    }
+
 	    // -- Try to decode then reformat the date input
 	    var fmt = Calendar._TT["DEF_DATE_FORMAT"];
 	    try {
@@ -1496,7 +1506,11 @@ var WebUI = {
 			    val = WebUI.insertDateSeparators(val, fmt, separatorsCount);
 		    }
 		    var res = Date.parseDate(val, fmt);
-		    c.value = res.print(fmt);
+		    val = res.print(fmt);
+		    if(timeval) {
+			    val += " " + timeval;
+		    }
+		    c.value = val;
 	    } catch(x) {
 		    alert(Calendar._TT["INVALID"]);
 	    }
