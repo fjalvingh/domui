@@ -79,7 +79,7 @@ public class Bind {
 		if(null == source || null == property)
 			throw new IllegalArgumentException("source/property cannot be null");
 		IObservableValue< ? > sourceo = createObservable(source, property);
-		return new Bind(sourceo);
+		return new Bind(sourceo, true);
 	}
 
 	/*--------------------------------------------------------------*/

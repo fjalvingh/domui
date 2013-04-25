@@ -70,8 +70,10 @@ public class ListenerList<V, E extends IChangeEvent<V, E, T>, T extends IChangeL
 	public void fireEvent(@Nonnull E event) {
 		try {
 			for(Object o : getListeners()) {
-				T listener = (T) o;								// Java generics SUCK: arrays cannot properly be generic.
-				listener.handleChange(event);
+				if(null != o) {
+					T listener = (T) o;								// Java generics SUCK: arrays cannot properly be generic.
+					listener.handleChange(event);
+				}
 			}
 		} catch(Exception x) {
 			/*

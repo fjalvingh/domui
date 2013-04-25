@@ -34,14 +34,23 @@ public class PropertyObservableValue<C, T> extends ListenerList<T, ValueChangeEv
 		return m_property.getValue(m_instance);
 	}
 
+
 	@Override
 	public void setValue(@Nullable T value) throws Exception {
-		T old = null;
-		try {
-			old = m_property.getValue(m_instance);
-		} catch(Exception x) {}
+		/*
+		 * 20130425 jal
+		 * The old implementation did a getvalue before the setvalue, and fired an event when the
+		 * old and new values changed. This should apparently not be done: the property we're observing
+		 * itself will fire an event when modified.
+		 */
 		m_property.setValue(m_instance, value);
-		notifyIfChanged(old, value);
+
+		//		T old = null;
+		//		try {
+		//			old = m_property.getValue(m_instance);
+		//		} catch(Exception x) {}
+		//		m_property.setValue(m_instance, value);
+		//		notifyIfChanged(old, value);
 	}
 
 	void notifyIfChanged(@Nullable T old, @Nullable T value) {
