@@ -417,11 +417,12 @@ public abstract class DomApplication {
 
 		/*
 		 * If we're running in development mode then we auto-reload changed pages when the developer changes
-		 * them. It can be reset by using a developer.properties option.
+		 * them. It can be reset by using a developer.properties option. If output logging is on then by
+		 * default autorefresh will be disabled, to prevent output every second from the poll.
 		 */
 		int refreshinterval = 0;
 		if(development) {
-			if(DeveloperOptions.getBool("domui.autorefresh", true)) {
+			if(DeveloperOptions.getBool("domui.autorefresh", !DeveloperOptions.getBool("domui.log", false))) {
 				//-- Auto-refresh pages is on.... Get the poll interval for it,
 				refreshinterval = DeveloperOptions.getInt("domui.refreshinterval", 2500);		// Initialize "auto refresh" interval to 2 seconds
 			}
