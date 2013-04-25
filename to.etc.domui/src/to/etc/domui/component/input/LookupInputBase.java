@@ -44,6 +44,9 @@ import to.etc.webapp.*;
 import to.etc.webapp.query.*;
 
 abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<OT>, IHasModifiedIndication {
+	/** The properties bindable for this component. */
+	static private final Set<String> BINDABLE_SET = createNameSet("value", "disabled");
+
 	static public final INodeContentRenderer<Object> DEFAULT_RENDERER = new SimpleLookupInputRenderer<Object>();
 
 	/**
@@ -258,6 +261,12 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 		m_clearButton.setDisplay(DisplayType.NONE);
 
 		setCssClass("ui-lui");
+	}
+
+	@Override
+	@Nonnull
+	public Set<String> getBindableProperties() {
+		return BINDABLE_SET;
 	}
 
 	@Override
@@ -834,6 +843,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 		m_disabled = disabled;
 		updateRoStyle();
 		forceRebuild();
+		fireModified("disabled", Boolean.valueOf(!disabled), Boolean.valueOf(disabled));
 	}
 
 	/*--------------------------------------------------------------*/
@@ -880,8 +890,9 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 	public void setValue(@Nullable OT v) {
 		if(DomUtil.isEqual(m_value, v) && (m_keySearch == null || m_keySearch.getKeySearchValue() == null))
 			return;
+		OT old = m_value;
 		m_value = v;
-		if(m_value != null) {
+		if(v != null) {
 			m_clearButton.setDisplay(DisplayType.INLINE);
 			clearMessage();
 			setCssClass("ui-lui-selected");
@@ -891,6 +902,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IInputNode<
 		}
 		updateRoStyle();
 		forceRebuild();
+		fireModified("value", old, v);
 	}
 
 	/**

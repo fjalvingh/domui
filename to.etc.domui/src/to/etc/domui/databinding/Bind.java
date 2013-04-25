@@ -61,7 +61,7 @@ public class Bind {
 		if(m_bidirectional)
 			addTargetListener(m_from);
 
-		//-- Immediately move the value of source to target too
+		//-- Immediately move the value of source to target too 2
 		V val = ((IObservableValue<V>) m_from).getValue();
 		((IObservableValue<V>) m_to).setValue(val);
 		return this;

@@ -38,6 +38,8 @@ abstract public class InputNodeContainer extends NodeContainer implements IHasCh
 
 	private boolean m_mandatory;
 
+	private boolean m_immediate;
+
 	@Override
 	abstract public void visit(INodeVisitor v) throws Exception;
 
@@ -56,7 +58,11 @@ abstract public class InputNodeContainer extends NodeContainer implements IHasCh
 	 */
 	@Override
 	public IValueChanged< ? > getOnValueChanged() {
-		return m_onValueChanged;
+		IValueChanged< ? > vc = m_onValueChanged;
+		if(null == vc && isImmediate()) {
+			return IValueChanged.DUMMY;
+		}
+		return vc;
 	}
 
 	/**
@@ -88,5 +94,17 @@ abstract public class InputNodeContainer extends NodeContainer implements IHasCh
 
 	public void setMandatory(boolean mandatory) {
 		m_mandatory = mandatory;
+	}
+
+	public boolean isImmediate() {
+		return m_immediate;
+	}
+
+	public void immediate(boolean immediate) {
+		m_immediate = immediate;
+	}
+
+	public void immediate() {
+		m_immediate = true;
 	}
 }
