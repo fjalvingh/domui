@@ -104,6 +104,7 @@ public class Select extends InputNodeContainer implements IHasModifiedIndication
 			removeCssClass("ui-ro");
 		}
 		changed();
+		fireModified("disabled", Boolean.valueOf(!disabled), Boolean.valueOf(disabled));
 	}
 
 	public int getSize() {

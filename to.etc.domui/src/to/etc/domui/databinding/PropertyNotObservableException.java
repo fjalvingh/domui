@@ -10,6 +10,6 @@ import javax.annotation.*;
  */
 final public class PropertyNotObservableException extends RuntimeException {
 	public PropertyNotObservableException(@Nonnull Class< ? > clz, @Nonnull String property) {
-		super("The property " + property + " in class " + clz + " is not Observable");
+		super("The property '" + property + "' in class '" + clz + "' is not Observable");
 	}
 }

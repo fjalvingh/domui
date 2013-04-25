@@ -1462,13 +1462,20 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	@Nullable
 	private ObserverSupport< ? > m_osupport;
 
+	/**
+	 * Returns a set of property names for this control that are bindable (can be bound to). Any attempt
+	 * to bind to a property that is not in this set will throw a {@link PropertyNotObservableException}.
+	 * Subclasses are expected to override this method to return their set of bindable properties. By
+	 * default the set is empty.
+	 * @return
+	 */
 	@Nonnull
 	public Set<String> getBindableProperties() {
 		return Collections.EMPTY_SET;
 	}
 
 	/**
-	 * Returns T if the property passed can be bound.
+	 * Returns T if the property passed can be bound to (is {@link IObservable}.
 	 * @param property
 	 * @return
 	 */
@@ -1476,15 +1483,27 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		return getBindableProperties().contains(property);
 	}
 
+	/**
+	 * Return the {@link ObserverSupport} implementation to use to handle data binding for DomUI
+	 * components. This lazily initializes, and only allocates the support structures if binding
+	 * is really used.
+	 * @return
+	 */
 	@Nonnull
-	protected ObserverSupport< ? > getObserverSupport() {
+	public ObserverSupport< ? > getObserverSupport() {
 		ObserverSupport< ? > osupport = m_osupport;
 		if(null == osupport) {
-			osupport = m_osupport = new ObserverSupport(this);
+			osupport = m_osupport = new ObserverSupport<NodeBase>(this);
 		}
 		return osupport;
 	}
 
+	/**
+	 * Return an observable for the specified property, <b>if that property can be observed</b>; if
+	 * not this will throw {@link PropertyNotObservableException}.
+	 * @see to.etc.domui.databinding.IObservableEntity#observableProperty(java.lang.String)
+	 * @throws PropertyNotObservableException if the property is not observable.
+	 */
 	@Override
 	@Nonnull
 	public IObservableValue< ? > observableProperty(@Nonnull String property) {
@@ -1493,6 +1512,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		return getObserverSupport().getValueObserver(property);
 	}
 
+	/**
+	 * Create a name set for properties.
+	 * @param names
+	 * @return
+	 */
 	@Nonnull
 	static protected Set<String> createNameSet(@Nonnull String... names) {
 		Set<String> res = new HashSet<String>(names.length);
@@ -1501,6 +1525,12 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		return res;
 	}
 
+	/**
+	 * Fire a "value changed" event for a property on this object, if they are observed.
+	 * @param propertyName
+	 * @param old
+	 * @param nw
+	 */
 	protected <T> void fireModified(@Nonnull String propertyName, T old, T nw) {
 		ObserverSupport< ? > osupport = m_osupport;
 		if(null == osupport)					// Nothing observing?
