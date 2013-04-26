@@ -3,6 +3,8 @@ package to.etc.pombuilder;
 import java.io.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import org.w3c.dom.*;
 
 import to.etc.util.*;
@@ -10,6 +12,8 @@ import to.etc.xml.*;
 
 public class PomBuilder {
 	static private final String MAVENSHIT = ".maven";
+
+	static private final String	PARENT_DIRECTORY		= "../";
 
 	private File m_rootPath;
 
@@ -70,9 +74,9 @@ public class PomBuilder {
 	}
 
 	private void	run(String[] args) throws Exception {
-		if(args.length != 1)
-			args = new String[]{"../viewpoint"};
-		File prj = new File(args[0]);
+		File prj = args.length >= 1 ? new File(args[0]) : findViewpointProjectPath(PARENT_DIRECTORY);
+
+		//File prj = new File(args[0]);
 		m_rootPath = prj.getParentFile();
 		Project p = loadProject(prj);
 		generateDependencies(p, new HashSet<Project>());
@@ -105,6 +109,53 @@ public class PomBuilder {
 		w.tagendnl();
 		w.close();
 		System.out.println("done");
+	}
+
+	/**
+	 * Try to find viewpoint project in regular workspace and if project
+	 * is not found do one more try in split workspace setup.
+	 * 
+	 * @param rootPath String
+	 * 
+	 * @return Directory of viewpoint
+	 * 
+	 * @throws FileNotFoundException if project cannot be found
+	 */
+	private File findViewpointProjectPath(@Nonnull String rootPath) throws FileNotFoundException {
+		File root = new File(rootPath);
+		
+		try {
+			return findViewpointProjectPathInDirectory(root);
+		} catch(FileNotFoundException ex) {
+			File rootParent = new File(PARENT_DIRECTORY + rootPath);
+			File[] fileList = rootParent.listFiles();
+
+			for(File subdirectory : fileList) {
+				try {
+					return findViewpointProjectPathInDirectory(subdirectory);
+				} catch(FileNotFoundException exc) {
+					//do nothing, skip it since it will throw FileNotFoundException which is valid search
+				}
+			}
+		}
+
+		throw new FileNotFoundException("Viewpoint project directory cannot be found.");
+	}
+
+	private File findViewpointProjectPathInDirectory(@Nonnull File directory) throws FileNotFoundException {
+		if(directory.isDirectory()) {
+			File[] fileList = directory.listFiles();
+
+			if(fileList != null && fileList.length > 0) {
+				for(File viewpointDirectory : fileList) {
+					if(viewpointDirectory.isDirectory() && "viewpoint".equals(viewpointDirectory.getName())) {
+						return viewpointDirectory;
+					}
+				}
+			}
+		}
+
+		throw new FileNotFoundException("Viewpoint project directory cannot be found in directory: " + directory.getName());
 	}
 
 	private void generateDependencies(Project p, HashSet<Project> stack) {
