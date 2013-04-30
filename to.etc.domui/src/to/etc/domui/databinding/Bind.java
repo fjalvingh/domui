@@ -107,6 +107,45 @@ public class Bind {
 
 	}
 
+	/**
+	 * Listen binding.
+	 *
+	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+	 * Created on Apr 30, 2013
+	 */
+	static public final class Listener {
+		private IObservableValue< ? >[] m_observables;
+
+		private int m_recurse;
+
+		public Listener(@Nonnull IObservableValue< ? >[] obsar) {
+			m_observables = obsar;
+		}
+
+		@Nonnull
+		public Listener call(@Nonnull final IBindingListener lsnr) {
+			IValueChangeListener<Object> ovs = new IValueChangeListener<Object>() {
+				@Override
+				public void handleChange(@Nonnull ValueChangeEvent<Object> event) throws Exception {
+					if(m_recurse > 0)
+						return;
+					try {
+						m_recurse++;
+						lsnr.valuesChanged();
+					} finally {
+						m_recurse--;
+					}
+				}
+			};
+			for(IObservableValue<?> ov: m_observables) {
+				IObservableValue<Object> ovo = (IObservableValue<Object>) ov;
+				ovo.addChangeListener(ovs);
+			}
+			return this;
+		}
+	}
+
+
 	private Bind(@Nonnull IObservableValue< ? > sourceo) {
 		m_from = sourceo;
 	}
@@ -139,6 +178,28 @@ public class Bind {
 		return new JoinBind(sourceo);
 	}
 
+	/**
+	 * Start a listening option.
+	 * @param source
+	 * @param property
+	 * @return
+	 */
+	@Nonnull
+	static public <T> Listener onchange(@Nonnull T source, @Nonnull String... properties) {
+		IObservableValue< ? >[] obsar = new IObservableValue< ? >[properties.length];
+		for(int i = properties.length; --i >= 0;) {
+			obsar[i] = createObservable(source, properties[i]);
+		}
+		return new Listener(obsar);
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Internal.											*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Internal: move source to target using an optional conversion.
+	 * @throws Exception
+	 */
 	protected void moveSourceToTarget() throws Exception {
 		Object val = ((IObservableValue<Object>) m_from).getValue();
 		IUniConverter<Object, Object> uc = (IUniConverter<Object, Object>) m_converter;
@@ -162,45 +223,6 @@ public class Bind {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Event listener.										*/
 	/*--------------------------------------------------------------*/
-
-	static public final class Listener {
-		@Nonnull
-		final private IBindingListener m_listener;
-
-		private int m_recurse;
-
-		public Listener(IBindingListener listener) {
-			m_listener = listener;
-		}
-
-		@Nonnull
-		public <T, V> Listener on(@Nonnull T instance, @Nonnull String... properties) {
-			for(String s : properties) {
-				IObservableValue<V> o = (IObservableValue<V>) createObservable(instance, s);
-				o.addChangeListener(new IValueChangeListener<V>() {
-					@Override
-					public void handleChange(ValueChangeEvent<V> event) throws Exception {
-						if(m_recurse > 0)
-							return;
-						try {
-							m_recurse++;
-							m_listener.valuesChanged();
-						} finally {
-							m_recurse--;
-						}
-					}
-				});
-			}
-
-			return this;
-		}
-	}
-
-	@Nonnull
-	static public Listener listener(@Nonnull IBindingListener lsnr) {
-		return new Listener(lsnr);
-	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Helper code.										*/
