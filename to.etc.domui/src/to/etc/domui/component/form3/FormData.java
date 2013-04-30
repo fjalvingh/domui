@@ -277,6 +277,17 @@ public class FormData<T> {
 	}
 
 	@Nonnull
+	public <V, C extends NodeBase & IControl<V>> IControl<V> addProp(@Nonnull @GProperty final String propertyname, @Nonnull final C ctl, @Nonnull IJoinConverter< ? , ? > converter) throws Exception {
+		PropertyMetaModel<V> pmm = (PropertyMetaModel<V>) resolveProperty(propertyname);
+		String label = pmm.getDefaultLabel();
+		builder().addControl(label, ctl, new NodeBase[]{ctl}, ctl.isMandatory(), true, pmm); // Since this is a full control it is editable
+		if(label != null)
+			ctl.setErrorLocation(label);
+		Bind.join(getModel().getValue(), propertyname).to(ctl, "value").convert(converter);
+		return ctl;
+	}
+
+	@Nonnull
 	public <V, C extends NodeBase & IDisplayControl<V>> IDisplayControl<V> addDisplayProp(@Nonnull @GProperty final String propertyname, @Nonnull final C ctl) throws Exception {
 		PropertyMetaModel<V> pmm = (PropertyMetaModel<V>) resolveProperty(propertyname);
 		String label = pmm.getDefaultLabel();
