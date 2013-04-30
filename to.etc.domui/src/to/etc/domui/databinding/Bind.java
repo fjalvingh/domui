@@ -10,23 +10,105 @@ import javax.annotation.*;
  */
 public class Bind {
 	@Nonnull
-	final private IObservableValue< ? > m_from;
+	final protected IObservableValue< ? > m_from;
 
-	final boolean m_bidirectional;
-
-	private IObservableValue< ? > m_to;
+	protected IObservableValue< ? > m_to;
 
 	private IValueChangeListener< ? > m_fromListener;
 
 	private IValueChangeListener< ? > m_toListener;
 
-	private Bind(@Nonnull IObservableValue< ? > sourceo) {
-		this(sourceo, false);
+	/** If not null, the IUniConverter OR IJoinConverter which converts values for this binding. */
+	@Nullable
+	protected IUniConverter< ? , ? > m_converter;
+
+	/**
+	 * Unidirectional bind from a -&gt; b.
+	 *
+	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+	 * Created on Apr 30, 2013
+	 */
+	public static class UniBind extends Bind {
+		private IValueChangeListener< ? > m_fromListener;
+
+		private UniBind(@Nonnull IObservableValue< ? > sourceo) {
+			super(sourceo);
+		}
+
+		/**
+		 * Belongs to a {@link Bind#from(Object, String)} call and defines the target side of
+		 * an unidirectional binding. Changes in "from" move to "to", but changes in "to" do
+		 * not move back.
+		 *
+		 * @param target
+		 * @param property
+		 * @return
+		 */
+		@Nonnull
+		public <T, V> UniBind to(@Nonnull T target, @Nonnull String property) throws Exception {
+			if(null == target || null == property)
+				throw new IllegalArgumentException("target/property cannot be null");
+			IObservableValue<V> targeto = (IObservableValue<V>) createObservable(target, property);
+			m_to = targeto;
+			addSourceListener(targeto);
+
+			//-- Immediately move the value of source to target too 2
+			moveSourceToTarget();
+			return this;
+		}
+
+		public <F, T> UniBind convert(@Nonnull IUniConverter<F, T> converter) {
+			m_converter = converter;
+			return this;
+		}
 	}
 
-	private Bind(@Nonnull IObservableValue< ? > sourceo, boolean bidirectional) {
+	/**
+	 * Bidirectional binding a &lt;--&gt; b.
+	 *
+	 *
+	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+	 * Created on Apr 30, 2013
+	 */
+	public static class JoinBind extends Bind {
+		private IValueChangeListener< ? > m_fromListener;
+
+		private JoinBind(@Nonnull IObservableValue< ? > sourceo) {
+			super(sourceo);
+		}
+
+		/**
+		 * Belongs to a {@link Bind#from(Object, String)} call and defines the target side of
+		 * an unidirectional binding. Changes in "from" move to "to", but changes in "to" do
+		 * not move back.
+		 *
+		 * @param target
+		 * @param property
+		 * @return
+		 */
+		@Nonnull
+		public <T, V> JoinBind to(@Nonnull T target, @Nonnull String property) throws Exception {
+			if(null == target || null == property)
+				throw new IllegalArgumentException("target/property cannot be null");
+			IObservableValue<V> targeto = (IObservableValue<V>) createObservable(target, property);
+			m_to = targeto;
+			addSourceListener(targeto);
+			addTargetListener(m_from);
+
+			//-- Immediately move the value of source to target too 2
+			moveSourceToTarget();
+			return this;
+		}
+
+		public <F, T> JoinBind convert(@Nonnull IJoinConverter<F, T> converter) {
+			m_converter = converter;
+			return this;
+		}
+
+	}
+
+	private Bind(@Nonnull IObservableValue< ? > sourceo) {
 		m_from = sourceo;
-		m_bidirectional = bidirectional;
 	}
 
 	/**
@@ -35,36 +117,11 @@ public class Bind {
 	 * @param property
 	 * @return
 	 */
-	static public <T> Bind from(@Nonnull T source, @Nonnull String property) {
+	static public <T> UniBind from(@Nonnull T source, @Nonnull String property) {
 		if(null == source || null == property)
 			throw new IllegalArgumentException("source/property cannot be null");
 		IObservableValue< ? > sourceo = createObservable(source, property);
-		return new Bind(sourceo);
-	}
-
-	/**
-	 * Belongs to a {@link Bind#from(Object, String)} call and defines the target side of
-	 * an unidirectional binding. Changes in "from" move to "to", but changes in "to" do
-	 * not move back.
-	 *
-	 * @param target
-	 * @param property
-	 * @return
-	 */
-	@Nonnull
-	public <T, V> Bind to(@Nonnull T target, @Nonnull String property) throws Exception {
-		if(null == target || null == property)
-			throw new IllegalArgumentException("target/property cannot be null");
-		IObservableValue<V> targeto = (IObservableValue<V>) createObservable(target, property);
-		m_to = targeto;
-		addSourceListener(targeto);
-		if(m_bidirectional)
-			addTargetListener(m_from);
-
-		//-- Immediately move the value of source to target too 2
-		V val = ((IObservableValue<V>) m_from).getValue();
-		((IObservableValue<V>) m_to).setValue(val);
-		return this;
+		return new UniBind(sourceo);
 	}
 
 	/**
@@ -75,12 +132,32 @@ public class Bind {
 	 * @return
 	 */
 	@Nonnull
-	static public <T> Bind join(@Nonnull T source, @Nonnull String property) {
+	static public <T> JoinBind join(@Nonnull T source, @Nonnull String property) {
 		if(null == source || null == property)
 			throw new IllegalArgumentException("source/property cannot be null");
 		IObservableValue< ? > sourceo = createObservable(source, property);
-		return new Bind(sourceo, true);
+		return new JoinBind(sourceo);
 	}
+
+	protected void moveSourceToTarget() throws Exception {
+		Object val = ((IObservableValue<Object>) m_from).getValue();
+		IUniConverter<Object, Object> uc = (IUniConverter<Object, Object>) m_converter;
+		if(null != uc) {
+			val = uc.convertSourceToTarget(val);
+		}
+		((IObservableValue<Object>) m_to).setValue(val);
+	}
+
+	protected void moveTargetToSource() throws Exception {
+		Object val = ((IObservableValue<Object>) m_to).getValue();
+		IJoinConverter<Object, Object> uc = (IJoinConverter<Object, Object>) m_converter;
+		if(null != uc) {
+			val = uc.convertTargetToSource(val);
+		}
+		((IObservableValue<Object>) m_from).setValue(val);
+
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Event listener.										*/
@@ -132,12 +209,11 @@ public class Bind {
 	 * Add a listener on FROM, so that changes there propagate to TO.
 	 * @param value
 	 */
-	private <V> void addSourceListener(@Nonnull IObservableValue<V> value) {
+	protected <V> void addSourceListener(@Nonnull IObservableValue<V> value) {
 		IValueChangeListener<V> ml = new IValueChangeListener<V>() {
 			@Override
 			public void handleChange(@Nonnull ValueChangeEvent<V> event) throws Exception {
-				V nwval = event.getDiff().getNew();
-				((IObservableValue<V>) m_to).setValue(nwval);
+				moveSourceToTarget();
 			}
 		};
 		m_fromListener = ml;
@@ -148,12 +224,11 @@ public class Bind {
 	 * Add a listener on FROM, so that changes there propagate to TO.
 	 * @param value
 	 */
-	private <V> void addTargetListener(@Nonnull IObservableValue<V> value) {
+	protected <V> void addTargetListener(@Nonnull IObservableValue<V> value) {
 		IValueChangeListener<V> ml = new IValueChangeListener<V>() {
 			@Override
 			public void handleChange(@Nonnull ValueChangeEvent<V> event) throws Exception {
-				V nwval = event.getDiff().getNew();
-				((IObservableValue<V>) m_from).setValue(nwval);
+				moveTargetToSource();
 			}
 		};
 		m_toListener = ml;
