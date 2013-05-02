@@ -2,6 +2,8 @@ package to.etc.domui.databinding;
 
 import javax.annotation.*;
 
+import to.etc.domui.trouble.*;
+
 /**
  * Static helper to create bindings using the IObservable model.
  *
@@ -50,7 +52,7 @@ public class Bind {
 				throw new IllegalArgumentException("target/property cannot be null");
 			IObservableValue<V> targeto = (IObservableValue<V>) createObservable(target, property);
 			m_to = targeto;
-			addSourceListener(targeto);
+			addSourceListener();
 
 			//-- Immediately move the value of source to target too 2
 			moveSourceToTarget();
@@ -87,24 +89,23 @@ public class Bind {
 		 * @return
 		 */
 		@Nonnull
-		public <T, V> JoinBind to(@Nonnull T target, @Nonnull String property) throws Exception {
+		public <T, V, X, Y> JoinBind to(@Nonnull T target, @Nonnull String property, @Nullable IJoinConverter<X, Y> convert) throws Exception {
 			if(null == target || null == property)
 				throw new IllegalArgumentException("target/property cannot be null");
+			m_converter = convert;
 			IObservableValue<V> targeto = (IObservableValue<V>) createObservable(target, property);
 			m_to = targeto;
-			addSourceListener(targeto);
-			addTargetListener(m_from);
+			addSourceListener();
+			addTargetListener();
 
 			//-- Immediately move the value of source to target too 2
 			moveSourceToTarget();
 			return this;
 		}
 
-		public <F, T> JoinBind convert(@Nonnull IJoinConverter<F, T> converter) {
-			m_converter = converter;
-			return this;
+		public <T, V> JoinBind to(@Nonnull T target, @Nonnull String property) throws Exception {
+			return to(target, property, null);
 		}
-
 	}
 
 	/**
@@ -201,7 +202,12 @@ public class Bind {
 	 * @throws Exception
 	 */
 	protected void moveSourceToTarget() throws Exception {
-		Object val = ((IObservableValue<Object>) m_from).getValue();
+		Object val;
+		try {
+			val = ((IObservableValue<Object>) m_from).getValue();
+		} catch(ValidationException vx) {
+			return;
+		}
 		IUniConverter<Object, Object> uc = (IUniConverter<Object, Object>) m_converter;
 		if(null != uc) {
 			val = uc.convertSourceToTarget(val);
@@ -210,7 +216,13 @@ public class Bind {
 	}
 
 	protected void moveTargetToSource() throws Exception {
-		Object val = ((IObservableValue<Object>) m_to).getValue();
+		Object val;
+		try {
+			val = ((IObservableValue<Object>) m_to).getValue();
+		} catch(ValidationException vx) {
+			return;
+		}
+
 		IJoinConverter<Object, Object> uc = (IJoinConverter<Object, Object>) m_converter;
 		if(null != uc) {
 			val = uc.convertTargetToSource(val);
@@ -231,7 +243,7 @@ public class Bind {
 	 * Add a listener on FROM, so that changes there propagate to TO.
 	 * @param value
 	 */
-	protected <V> void addSourceListener(@Nonnull IObservableValue<V> value) {
+	protected <V> void addSourceListener() {
 		IValueChangeListener<V> ml = new IValueChangeListener<V>() {
 			@Override
 			public void handleChange(@Nonnull ValueChangeEvent<V> event) throws Exception {
@@ -246,7 +258,7 @@ public class Bind {
 	 * Add a listener on FROM, so that changes there propagate to TO.
 	 * @param value
 	 */
-	protected <V> void addTargetListener(@Nonnull IObservableValue<V> value) {
+	protected <V> void addTargetListener() {
 		IValueChangeListener<V> ml = new IValueChangeListener<V>() {
 			@Override
 			public void handleChange(@Nonnull ValueChangeEvent<V> event) throws Exception {

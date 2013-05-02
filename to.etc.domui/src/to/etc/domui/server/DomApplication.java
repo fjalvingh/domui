@@ -717,6 +717,7 @@ public abstract class DomApplication {
 	/**
 	 * Return the component that knows everything you ever wanted to know about controls - but were afraid to ask...
 	 */
+	@Nonnull
 	final public ControlBuilder getControlBuilder() {
 		return m_controlBuilder;
 	}

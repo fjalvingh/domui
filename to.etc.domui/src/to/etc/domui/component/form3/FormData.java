@@ -106,11 +106,6 @@ public class FormData<T> {
 		return m_model;
 	}
 
-	//	@Nonnull
-	//	private ModelBindings getBindings() {
-	//		return builder().getBindings();
-	//	}
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Adding property-based controls.						*/
 	/*--------------------------------------------------------------*/
@@ -123,8 +118,7 @@ public class FormData<T> {
 	 */
 	@Nonnull
 	public IControl< ? > addProp(@Nonnull @GProperty final String name) throws Exception {
-		PropertyMetaModel< ? > pmm = resolveProperty(name);
-		return addProp(name, DomUtil.nullChecked(pmm.getDefaultLabel()));
+		return addProp(name, (String) null);
 	}
 
 	/**
@@ -136,7 +130,7 @@ public class FormData<T> {
 	 * @throws Exception
 	 */
 	@Nonnull
-	public IControl< ? > addProp(@Nonnull @GProperty final String name, @Nonnull String label) throws Exception {
+	public IControl< ? > addProp(@Nonnull @GProperty final String name, @Nullable String label) throws Exception {
 		PropertyMetaModel< ? > pmm = resolveProperty(name);
 		boolean editable = true;
 		if(pmm.getReadOnly() == YesNoType.YES)
@@ -145,7 +139,7 @@ public class FormData<T> {
 	}
 
 	/**
-	 * Add an input, label and {@link IModelBinding} for the specified property. The input model is default
+	 * Add an input, label and binding for the specified property. The input model is default
 	 * (using metadata).
 	 *
 	 * @param name
@@ -170,7 +164,12 @@ public class FormData<T> {
 	 * 			created if the control is display-only, not allowed by permissions or simply uncontrollable (the last one is uncommon).
 	 */
 	@Nonnull
-	private <C> IControl<C> addPropertyControl(@Nonnull @GProperty final String name, @Nonnull final String label, @Nonnull final PropertyMetaModel<C> pmm, final boolean editable, boolean mandatory) throws Exception {
+	private <C> IControl<C> addPropertyControl(@Nonnull @GProperty final String name, @Nullable String label, @Nonnull final PropertyMetaModel<C> pmm, boolean editable, boolean mandatory) throws Exception {
+		if(editable && builder().getRight() == AllowedRight.READ)
+			editable = false;
+		if(null == label)
+			label = pmm.getDefaultLabel();
+
 		final ControlFactoryResult r = builder().createControlFor(getModel(), pmm, editable); // Add the proper input control for that type
 		builder().addControl(label, r.getLabelNode(), r.getNodeList(), mandatory, editable, pmm);
 
@@ -249,8 +248,6 @@ public class FormData<T> {
 		}
 		dv.bind().to(getModel(), pmm);
 		return dv;
-
-//		return addPropertyControl(name, label, pmm, false, false);
 	}
 
 
@@ -267,35 +264,12 @@ public class FormData<T> {
 	 */
 	@Nonnull
 	public <V, C extends NodeBase & IControl<V>> IControl<V> addProp(@Nonnull @GProperty final String propertyname, @Nonnull final C ctl) throws Exception {
-		PropertyMetaModel<V> pmm = (PropertyMetaModel<V>) resolveProperty(propertyname);
-		String label = pmm.getDefaultLabel();
-		builder().addControl(label, ctl, new NodeBase[]{ctl}, ctl.isMandatory(), true, pmm); // Since this is a full control it is editable
-		if(label != null)
-			ctl.setErrorLocation(label);
-		Bind.join(getModel().getValue(), propertyname).to(ctl, "value");
-		return ctl;
+		return addProp(propertyname, ctl, null);
 	}
 
 	@Nonnull
-	public <V, C extends NodeBase & IControl<V>> IControl<V> addProp(@Nonnull @GProperty final String propertyname, @Nonnull final C ctl, @Nonnull IJoinConverter< ? , ? > converter) throws Exception {
-		PropertyMetaModel<V> pmm = (PropertyMetaModel<V>) resolveProperty(propertyname);
-		String label = pmm.getDefaultLabel();
-		builder().addControl(label, ctl, new NodeBase[]{ctl}, ctl.isMandatory(), true, pmm); // Since this is a full control it is editable
-		if(label != null)
-			ctl.setErrorLocation(label);
-		Bind.join(getModel().getValue(), propertyname).to(ctl, "value").convert(converter);
-		return ctl;
-	}
-
-	@Nonnull
-	public <V, C extends NodeBase & IDisplayControl<V>> IDisplayControl<V> addDisplayProp(@Nonnull @GProperty final String propertyname, @Nonnull final C ctl) throws Exception {
-		PropertyMetaModel<V> pmm = (PropertyMetaModel<V>) resolveProperty(propertyname);
-		String label = pmm.getDefaultLabel();
-		builder().addControl(label, ctl, new NodeBase[]{ctl}, false, true, pmm); // Since this is a full control it is editable
-		if(label != null)
-			ctl.setErrorLocation(label);
-		Bind.join(getModel().getValue(), propertyname).to(ctl, "value");
-		return ctl;
+	public <V, C extends NodeBase & IControl<V>> IControl<V> addProp(@Nonnull @GProperty final String propertyname, @Nonnull final C ctl, @Nullable IJoinConverter< ? , ? > converter) throws Exception {
+		return addProp(propertyname, null, ctl, converter);
 	}
 
 	/**
@@ -308,11 +282,30 @@ public class FormData<T> {
 	 */
 	@Nonnull
 	public <V, C extends NodeBase & IControl<V>> IControl<V> addProp(@Nonnull @GProperty final String name, @Nonnull String label, @Nonnull final C ctl) throws Exception {
+		return addProp(name, label, ctl, null);
+	}
+
+	@Nonnull
+	public <V, C extends NodeBase & IControl<V>> IControl<V> addProp(@Nonnull String name, @Nullable String label, @Nonnull final C ctl, @Nullable IJoinConverter< ? , ? > converter) throws Exception {
 		PropertyMetaModel<V> pmm = (PropertyMetaModel<V>) resolveProperty(name);
+		if(null == label)
+			label = pmm.getDefaultLabel();
+
 		builder().addControl(label, ctl, new NodeBase[]{ctl}, ctl.isMandatory(), true, pmm); // Since this is a full control it is editable
 		if(label != null)
 			ctl.setErrorLocation(label);
-		Bind.join(getModel().getValue(), name).to(ctl, "value");
+		Bind.join(getModel().getValue(), pmm.getName()).to(ctl, "value", converter);
+		return ctl;
+	}
+
+	@Nonnull
+	public <V, C extends NodeBase & IDisplayControl<V>> IDisplayControl<V> addDisplayProp(@Nonnull @GProperty final String propertyname, @Nonnull final C ctl) throws Exception {
+		PropertyMetaModel<V> pmm = (PropertyMetaModel<V>) resolveProperty(propertyname);
+		String label = pmm.getDefaultLabel();
+		builder().addControl(label, ctl, new NodeBase[]{ctl}, false, true, pmm);
+		if(label != null)
+			ctl.setErrorLocation(label);
+		Bind.join(getModel().getValue(), propertyname).to(ctl, "value");
 		return ctl;
 	}
 
@@ -330,7 +323,13 @@ public class FormData<T> {
 		String label = pmm.getDefaultLabel();
 
 		// FIXME Kludge to determine if the control is meant to be editable!
-		boolean editable = nb instanceof IControl< ? >;
+		boolean editable = false;
+		if(nb instanceof IControl< ? >) {
+			IControl< ? > c = (IControl< ? >) nb;
+			editable = !c.isDisabled();
+			if(editable && builder().getRight() == AllowedRight.READ)
+				editable = false;
+		}
 
 		builder().addControl(label, nb, new NodeBase[]{nb}, mandatory, editable, pmm);
 		if(label != null)
