@@ -2,7 +2,9 @@ package to.etc.domui.databinding;
 
 import javax.annotation.*;
 
+import to.etc.domui.component.meta.*;
 import to.etc.domui.trouble.*;
+import to.etc.domui.util.*;
 
 /**
  * Static helper to create bindings using the IObservable model.
@@ -15,6 +17,8 @@ public class Bind {
 	final protected IObservableValue< ? > m_from;
 
 	protected IObservableValue< ? > m_to;
+
+	protected IReadWriteModel< ? > m_tomodel;
 
 	private IValueChangeListener< ? > m_fromListener;
 
@@ -47,11 +51,26 @@ public class Bind {
 		 * @return
 		 */
 		@Nonnull
-		public <T, V> UniBind to(@Nonnull T target, @Nonnull String property) throws Exception {
+		public <T, V> UniBind to(@Nonnull final T target, @Nonnull String property) throws Exception {
 			if(null == target || null == property)
 				throw new IllegalArgumentException("target/property cannot be null");
-			IObservableValue<V> targeto = (IObservableValue<V>) createObservable(target, property);
-			m_to = targeto;
+
+			//-- Unidirectional binds only need to have access to a setter, we do not need an Observable.
+			final PropertyMetaModel<V> pmm = (PropertyMetaModel<V>) MetaManager.getPropertyMeta(target.getClass(), property);
+			m_tomodel = new IReadWriteModel<V>() {
+				@Override
+				public V getValue() throws Exception {
+					throw new IllegalStateException("Unexpected 'get' in unidirectional binding");
+				}
+
+				@Override
+				public void setValue(V value) throws Exception {
+					pmm.setValue(target, value);
+				}
+			};
+			//
+			//			IObservableValue<V> targeto = (IObservableValue<V>) createObservable(target, property);
+			//			m_to = targeto;
 			addSourceListener();
 
 			//-- Immediately move the value of source to target too 2
@@ -212,7 +231,10 @@ public class Bind {
 		if(null != uc) {
 			val = uc.convertSourceToTarget(val);
 		}
-		((IObservableValue<Object>) m_to).setValue(val);
+		if(m_to != null)
+			((IObservableValue<Object>) m_to).setValue(val);
+		else
+			((IReadWriteModel<Object>) m_tomodel).setValue(val);
 	}
 
 	protected void moveTargetToSource() throws Exception {

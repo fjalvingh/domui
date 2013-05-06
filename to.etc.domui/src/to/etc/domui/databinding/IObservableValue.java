@@ -2,7 +2,9 @@ package to.etc.domui.databinding;
 
 import javax.annotation.*;
 
-public interface IObservableValue<T> extends IObservable<T, ValueChangeEvent<T>, IValueChangeListener<T>> {
+import to.etc.domui.util.*;
+
+public interface IObservableValue<T> extends IObservable<T, ValueChangeEvent<T>, IValueChangeListener<T>>, IReadWriteModel<T> {
 	@Nonnull
 	public Class<T> getValueType();
 
@@ -11,7 +13,9 @@ public interface IObservableValue<T> extends IObservable<T, ValueChangeEvent<T>,
 	 * @return
 	 */
 	@Nullable
+	@Override
 	public T getValue() throws Exception;
 
+	@Override
 	public void setValue(@Nullable T value) throws Exception;
 }

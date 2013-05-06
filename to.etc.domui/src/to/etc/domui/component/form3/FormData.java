@@ -225,7 +225,7 @@ public class FormData<T> {
 	 * @param name
 	 */
 	@Nonnull
-	public IDisplayControl< ? > addDisplayProp(@Nonnull @GProperty final String name) {
+	public IDisplayControl< ? > addDisplayProp(@Nonnull @GProperty final String name) throws Exception {
 		PropertyMetaModel< ? > pmm = resolveProperty(name);
 		return addDisplayProp(name, pmm.getDefaultLabel());
 	}
@@ -238,7 +238,7 @@ public class FormData<T> {
 	 * @param label
 	 */
 	@Nonnull
-	public <T> IDisplayControl< ? > addDisplayProp(@Nonnull @GProperty final String name, @Nonnull String label) {
+	public <T> IDisplayControl< ? > addDisplayProp(@Nonnull @GProperty final String name, @Nonnull String label) throws Exception {
 		PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) resolveProperty(name);
 		DisplayValue<T> dv = new DisplayValue<T>(pmm.getActualType());
 		builder().addControl(label, null, new NodeBase[]{dv}, false, false, pmm);
@@ -246,7 +246,7 @@ public class FormData<T> {
 		if(label != null) {
 			dv.setErrorLocation(label);
 		}
-		dv.bind().to(getModel(), pmm);
+		Bind.from(getModel().getValue(), name).to(dv, "value");
 		return dv;
 	}
 
