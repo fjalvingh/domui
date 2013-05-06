@@ -164,9 +164,14 @@ public class JSONParser extends ReaderTokenizerBase {
 	}
 
 	private Number parseNumber() throws Exception {
-		Long i = Long.decode(getCopied());
+		String copied = getCopied();
+		Number res;
+		if(copied.contains(".") || copied.contains("e") || copied.contains("E"))
+			res = Double.valueOf(copied);
+		else
+			res = Long.decode(copied);
 		nextToken();
-		return i;
+		return res;
 	}
 
 	private Object parseKey() throws Exception {
