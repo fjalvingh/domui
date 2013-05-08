@@ -26,7 +26,9 @@ package to.etc.util;
 
 import java.io.*;
 import java.lang.reflect.*;
+import java.text.*;
 import java.util.*;
+import java.util.regex.*;
 
 import javax.annotation.*;
 
@@ -2534,6 +2536,21 @@ public class StringTool {
 		char[] fill = new char[count];
 		Arrays.fill(fill, character);
 		return new String(fill);
+	}
+
+	static private final Pattern	NORMALIZE_PATTERN	= Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+
+	/**
+	 * Replaces all accented letters with their non-accented equivalents - FOR WESTERN LANGUAGES ONLY!
+	 * @param str
+	 * @return
+	 */
+	@Nonnull
+	static public String removeAccents(@Nonnull String str) {
+		if(str == null)
+			return null;
+		String nfdNormalizedString = Normalizer.normalize(str, Normalizer.Form.NFD);
+		return NORMALIZE_PATTERN.matcher(nfdNormalizedString).replaceAll("");
 	}
 
 	static {
