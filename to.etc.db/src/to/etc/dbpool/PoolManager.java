@@ -433,4 +433,17 @@ final public class PoolManager {
 	public synchronized boolean isCollectStatistics() {
 		return m_collectStatistics;
 	}
+
+	/**
+	 * Mark connection long living, for those connections which need
+	 * to be opened for a long time (hanging connection check will skip 
+	 * this connection).
+	 * 
+	 * @param dbc
+	 * @throws SQLException
+	 */
+	static public void setLongLiving(@Nonnull Connection dbc) throws SQLException {
+		ConnectionProxy proxy = dbc.unwrap(ConnectionProxy.class);
+		proxy.setLongliving(true);
+	}
 }
