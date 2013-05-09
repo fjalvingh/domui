@@ -832,5 +832,13 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	protected void createFrame() throws Exception {
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	EXPERIMENTAL - hard binding support.				*/
+	/*--------------------------------------------------------------*/
 
+	@Override
+	public void validateComponents(@Nonnull List<UIMessage> errorList) {
+		for(NodeBase nb : this)
+			nb.validateComponents(errorList);
+	}
 }

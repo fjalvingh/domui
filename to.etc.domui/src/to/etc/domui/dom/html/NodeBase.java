@@ -1460,7 +1460,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	/*	CODING:	Hard data binding support (EXPERIMENTAL)			*/
 	/*--------------------------------------------------------------*/
 	@Nullable
-	private ObserverSupport< ? > m_osupport;
+	private ComponentObserverSupport< ? > m_osupport;
 
 	/**
 	 * Returns a set of property names for this control that are bindable (can be bound to). Any attempt
@@ -1491,9 +1491,9 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 */
 	@Nonnull
 	public ObserverSupport< ? > getObserverSupport() {
-		ObserverSupport< ? > osupport = m_osupport;
+		ComponentObserverSupport< ? > osupport = m_osupport;
 		if(null == osupport) {
-			osupport = m_osupport = new ObserverSupport<NodeBase>(this);
+			osupport = m_osupport = new ComponentObserverSupport<NodeBase>(this);
 		}
 		return osupport;
 	}
@@ -1538,4 +1538,23 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		osupport.fireModified(propertyName, old, nw);
 	}
 
+	/**
+	 * If this thing is a component, ask to validate and report an error if not ok.
+	 */
+	public List<UIMessage> validateComponents() {
+		List<UIMessage> res = new ArrayList<UIMessage>();
+		validateComponents(res);
+		return res;
+	}
+
+	public void validateComponents(@Nonnull List<UIMessage> errorList) {
+		NodeBase nb = this;
+		if(nb instanceof IControl< ? >) {
+			IControl< ? > ctl = (IControl< ? >) nb;
+			ctl.getValueSafe();										// Force validation
+			UIMessage message = ctl.getMessage();
+			if(null != message)
+				errorList.add(message);
+		}
+	}
 }

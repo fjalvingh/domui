@@ -14,6 +14,5 @@ public class ComponentObserverSupport<C> extends ObserverSupport<C> {
 	public ComponentObserverSupport(@Nonnull C instance) {
 		super(instance);
 	}
-
-
 }
+
