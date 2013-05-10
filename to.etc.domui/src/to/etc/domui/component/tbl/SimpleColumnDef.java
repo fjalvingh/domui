@@ -456,6 +456,7 @@ final public class SimpleColumnDef<T> {
 	@Nonnull
 	public SimpleColumnDef<T>	ascending() {
 		setSortable(SortableType.SORTABLE_ASC);
+		m_defList.updateDefaultSort(this);
 		return this;
 	}
 
@@ -466,6 +467,7 @@ final public class SimpleColumnDef<T> {
 	@Nonnull
 	public SimpleColumnDef<T>	descending() {
 		setSortable(SortableType.SORTABLE_DESC);
+		m_defList.updateDefaultSort(this);
 		return this;
 	}
 

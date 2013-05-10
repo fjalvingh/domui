@@ -1,9 +1,10 @@
-package to.etc.webapp.pendingoperations;
+package to.etc.webapp.mailer;
 
 import java.io.*;
 import java.lang.reflect.*;
 import java.sql.*;
 
+import javax.annotation.*;
 import javax.sql.*;
 
 import org.slf4j.*;
@@ -13,6 +14,8 @@ import to.etc.dbutil.*;
 import to.etc.dbutil.DbLockKeeper.LockHandle;
 import to.etc.smtp.*;
 import to.etc.util.*;
+import to.etc.webapp.pendingoperations.*;
+import to.etc.webapp.query.*;
 
 /**
  * Bulk mailer storing messages into the database for repeated delivery.
@@ -55,7 +58,7 @@ public class BulkMailer {
 	}
 
 	final private class PollTaskProvider implements IPollQueueTaskProvider {
-		private long m_tsNext;
+		private long m_tsNext = System.currentTimeMillis() + 20 * 1000;
 
 		@Override
 		public void initializeOnRegistration(PollingWorkerQueue pwq) throws Exception {}
@@ -114,10 +117,43 @@ public class BulkMailer {
 	/*--------------------------------------------------------------*/
 	/**
 	 * This stores the message into the database. This will cause the message to be sent asap.
+	 *
+	 * @param m
+	 * @throws Exception
+	 */
+	public void store(@Nonnull Message m) throws Exception {
+		boolean ok = false;
+		Connection dbc = m_ds.getConnection();
+		try {
+			store(dbc, m);
+			ok = true;
+		} finally {
+			try {
+				if(!ok)
+					dbc.rollback();
+			} catch(Exception x) {}
+			try {
+				dbc.close();
+			} catch(Exception x) {}
+		}
+	}
+
+	/**
+	 * This stores the message into the database. This will cause the message to be sent asap.
+	 *
+	 * @param dc
+	 * @param m
+	 * @throws Exception
+	 */
+	public void store(@Nonnull QDataContext dc, @Nonnull Message m) throws Exception {
+		store(dc.getConnection(), m);
+	}
+
+	/**
+	 * This stores the message into the database. This will cause the message to be sent as soon as the connection is committed.
 	 * @param m
 	 */
-	public void store(Message m) throws Exception {
-		Connection dbc = m_ds.getConnection();
+	public void store(@Nonnull Connection dbc, @Nonnull Message m) throws Exception {
 		PreparedStatement cs = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -150,8 +186,7 @@ public class BulkMailer {
 //				throw new SQLException("Cannot relocate record I just stored");
 			byte[] data = os.toByteArray();
 
-			FileTool.save(new File("/tmp/mailout.bin"), new byte[][]{data});
-
+//			FileTool.save(new File("/tmp/mailout.bin"), new byte[][]{data});
 
 			GenericDB.setBlob(dbc, "sys_mail_messages", "smm_data", "smm_id=" + key, new ByteArrayInputStream(data), data.length);
 
@@ -205,7 +240,7 @@ public class BulkMailer {
 		Timestamp now = new Timestamp(System.currentTimeMillis());
 		int i = 1;
 		ps.setLong(i++, sq);
-		ps.setString(i++, StringTool.strTrunc(a.getEmail(), 128));
+		ps.setString(i++, StringTool.strTrunc(DeveloperOptions.getString("debug.email", a.getEmail()), 128));
 		ps.setString(i++, type.name());
 		ps.setTimestamp(i++, now);
 		ps.setTimestamp(i++, now);
@@ -272,7 +307,7 @@ public class BulkMailer {
 				return;
 			}
 			LOG.info("Scanning for email to send");
-			System.out.println("Scanning for email to send");
+//			System.out.println("Scanning for email to send");
 
 
 			//-- Ok: we own the lock.
@@ -292,11 +327,11 @@ public class BulkMailer {
 			ps.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
 			rs = ps.executeQuery();
 			while(rs.next()) {
-				long rid = rs.getLong(1);
+//				long rid = rs.getLong(1);
 				String email = rs.getString(2);
-				DstType dt = DstType.valueOf(rs.getString(3));
+//				DstType dt = DstType.valueOf(rs.getString(3));
 				int retries = rs.getInt(4);
-				RState ds = RState.valueOf(rs.getString(5));
+//				RState ds = RState.valueOf(rs.getString(5));
 				String name = rs.getString(6);
 				long msgid = rs.getLong(7);
 
@@ -324,12 +359,12 @@ public class BulkMailer {
 					rs2.close();
 					rs2 = null;
 
-					FileTool.save(new File("/tmp/mail.bin"), new byte[][]{lastbody});
+//					FileTool.save(new File("/tmp/mail.bin"), new byte[][]{lastbody});
 				}
 
-				Address a = new Address(email, name);
+				Address a = name != null ? new Address(email, name) : new Address(email);
 
-				System.out.println(">trying " + a + ": " + subject + ", " + (lastbody != null ? lastbody.length + " bytes" : ""));
+//				System.out.println(">trying " + a + ": " + subject + ", " + (lastbody != null ? lastbody.length + " bytes" : ""));
 				String error = sendMessage(froma, a, subject, lastbody);
 
 				if(null == error) {
@@ -339,6 +374,7 @@ public class BulkMailer {
 					//-- Failed, sigh. Store failure reason et al.
 					retries++;
 					rs.updateString(8, StringTool.strTrunc(error, 128));
+					rs.updateInt(4, retries);
 
 					if(retries > 20)
 						rs.updateString(5, RState.FATL.name());
@@ -407,12 +443,14 @@ public class BulkMailer {
 			ps.setTimestamp(1, new Timestamp(System.currentTimeMillis() - DAY * 2));
 			ps.setTimestamp(2, new Timestamp(System.currentTimeMillis() - DAY * 7));
 			int rc = ps.executeUpdate();
-			System.out.println("bulkMail: deleted " + rc + " outdated recipients");
+			if(rc > 0)
+				System.out.println("bulkMail: deleted " + rc + " outdated recipients");
 			if(rc != 0) {
 				ps.close();
 				ps = dbc.prepareStatement("delete from sys_mail_messages m where not exists (select 1 from sys_mail_recipients r where r.smm_id=m.smm_id)");
 				rc = ps.executeUpdate();
-				System.out.println("bulkMail: deleted " + rc + " outdated message bodies");
+				if(rc > 0)
+					System.out.println("bulkMail: deleted " + rc + " outdated message bodies");
 			}
 		} catch(Exception x) {
 			System.out.println("bulkMail: cannot cleanup recipients: " + x);
@@ -459,7 +497,7 @@ public class BulkMailer {
 
 			BulkMailer.initialize(ds, new SmtpTransport("localhost"));
 
-			if(false) {
+			if(true) {
 				Message m = new Message();
 				m.setFrom(new Address("jal@etc.to", "Frits Jalvingh"));
 				m.addTo(new Address("jo.seaton@itris.nl", "Sea Joton"));

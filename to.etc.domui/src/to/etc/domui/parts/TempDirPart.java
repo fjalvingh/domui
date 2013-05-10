@@ -34,6 +34,7 @@ import to.etc.domui.server.parts.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
+import to.etc.webapp.core.*;
 
 /**
  * Safe reference to a server-side tempfile.
