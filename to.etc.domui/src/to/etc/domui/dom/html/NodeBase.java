@@ -34,6 +34,7 @@ import to.etc.domui.databinding.*;
 import to.etc.domui.dom.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
+import to.etc.domui.logic.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
@@ -592,9 +593,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 */
 	final public void appendAfterMe(@Nonnull final NodeBase item) {
 		int ix = getParent().findChildIndex(this);
-		if(ix == -1)
+		if(ix == -1) {
 			throw new IllegalStateException("!@?! Cannot find myself!?");
-		getParent().add(ix + 1, item);
+		}
+		getParent().undelegatedAdd(ix + 1, item);
 	}
 
 	/**
@@ -605,7 +607,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		int ix = getParent().findChildIndex(this);
 		if(ix == -1)
 			throw new IllegalStateException("!@?! Cannot find myself!?");
-		getParent().add(ix, item);
+		getParent().undelegatedAdd(ix, item);
 	}
 
 
@@ -1366,6 +1368,15 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 */
 	public QDataContext getSharedContext() throws Exception {
 		return QContextManager.getContext(getPage());
+	}
+
+	/**
+	 * Get the context.
+	 * @return
+	 */
+	@Nonnull
+	public LogiContext lc() throws Exception {
+		return getPage().getBody().lc();
 	}
 
 	/**

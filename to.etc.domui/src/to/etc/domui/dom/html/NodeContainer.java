@@ -228,8 +228,11 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @return
 	 */
 	final public int findChildIndex(@Nonnull final NodeBase b) {
-		if(m_delegate != null)
-			return m_delegate.findChildIndex(b);
+		if(m_delegate != null) {
+			int ix = m_delegate.findChildIndex(b);
+			if(ix != -1)
+				return ix;
+		}
 
 		if(!b.hasParent())
 			return -1;
@@ -248,6 +251,10 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		if(m_delegate != null)
 			return m_delegate.getChild(i);
 
+		return m_children.get(i);
+	}
+
+	final public NodeBase undelegatedGetChild(final int i) {
 		return m_children.get(i);
 	}
 
@@ -382,6 +389,21 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		//-- Is delegation active? Then delegate to wherever.
 		if(m_delegate != null) {
 			m_delegate.add(index, nd);
+			return;
+		}
+		internalAdd(index, nd);
+	}
+
+	final public void undelegatedAdd(final int index, @Nonnull final NodeBase nd) {
+		/*
+		 * Nodes that *must* be added to the body should delegate there immediately.
+		 */
+		if(nd instanceof IAddToBody) {
+			//-- This *must* be added to the BODY node, and this node must be attached for that to work.. Is it?
+			if(!isAttached())
+				throw new ProgrammerErrorException("The component " + nd.getClass() + " is defined as 'must be added to the body' but the node it is added to " + this
+					+ " is not yet added to the page.");
+			getPage().internalAddFloater(this, nd);
 			return;
 		}
 		internalAdd(index, nd);

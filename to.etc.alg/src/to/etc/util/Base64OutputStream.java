@@ -43,6 +43,8 @@ public class Base64OutputStream extends OutputStream {
 	/** The #bytes currently in the holding buffer. */
 	private int				m_holdix;
 
+	private int					m_lineLen;
+
 	static final private byte[]	BASE64MAP	= StringTool.getBase64Map();
 
 	public Base64OutputStream(OutputStream os, boolean close) {
@@ -52,6 +54,14 @@ public class Base64OutputStream extends OutputStream {
 
 	@Override
 	public void close() throws IOException {
+		if(m_os == null)									// Already closed.
+			return;
+
+		if(m_lineLen >= 76 - 4) {							// RFC2045 page 24: no line shall be > 76 characters in length
+			m_os.write("\r\n".getBytes());
+			m_lineLen = 0;
+		}
+
 		switch(m_holdix){
 			default:
 				throw new IllegalStateException(m_holdix + " !?!?");
@@ -65,6 +75,7 @@ public class Base64OutputStream extends OutputStream {
 				m_os.write(BASE64MAP[(m_buf[0] << 4) & 0x3f]); // 2nd char, with only 2 top bits
 				m_os.write('=');
 				m_os.write('=');
+				m_lineLen += 4;
 				break;
 
 			case 2:
@@ -73,10 +84,12 @@ public class Base64OutputStream extends OutputStream {
 				m_os.write(BASE64MAP[(m_buf[1] >>> 4) & 017 | (m_buf[0] << 4) & 077]);
 				m_os.write(BASE64MAP[(m_buf[1] << 2) & 077]);
 				m_os.write('=');
+				m_lineLen += 4;
 				break;
 		}
 		if(m_close)
 			m_os.close();
+		m_os = null;
 	}
 
 	@Override
@@ -122,10 +135,16 @@ public class Base64OutputStream extends OutputStream {
 		int eidx = off + len;
 
 		for(int sidx = off; sidx < eidx; sidx += 3) {
+			if(m_lineLen >= 76 - 4) {							// RFC2045 page 24: no line shall be > 76 characters in length
+				m_os.write("\r\n".getBytes());
+				m_lineLen = 0;
+			}
+
 			m_os.write(BASE64MAP[(data[sidx] >>> 2) & 0x3f]);
 			m_os.write(BASE64MAP[(data[sidx + 1] >>> 4) & 017 | (data[sidx] << 4) & 077]);
 			m_os.write(BASE64MAP[(data[sidx + 2] >>> 6) & 003 | (data[sidx + 1] << 2) & 077]);
 			m_os.write(BASE64MAP[data[sidx + 2] & 077]);
+			m_lineLen += 4;
 		}
 	}
 

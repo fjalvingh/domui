@@ -24,8 +24,11 @@
  */
 package to.etc.domui.dom.html;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.layout.title.*;
+import to.etc.domui.logic.*;
 
 
 /**
@@ -70,4 +73,21 @@ public class UrlPage extends Div {
 	public void setPageTitle(String pageTitle) {
 		m_pageTitle = pageTitle;
 	}
+
+	/**
+	 * EXPERIMENTAL Returns the business logic context for the current form.
+	 * @see to.etc.domui.dom.html.NodeBase#lc()
+	 */
+	@Override
+	@Nonnull
+	public LogiContext lc() throws Exception {
+		LogiContext lc = (LogiContext) getPage().getConversation().getAttribute(LogiContext.class.getName());
+		if(null == lc) {
+			lc = new LogiContext(getSharedContext());
+			getPage().getConversation().setAttribute(LogiContext.class.getName(), lc);
+
+		}
+		return lc;
+	}
+
 }

@@ -27,6 +27,8 @@ package to.etc.smtp;
 import java.io.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.util.*;
 
 /**
@@ -44,6 +46,9 @@ public class MailBuilder {
 	private StringBuilder m_html_sb = new StringBuilder();
 
 	private String m_subject;
+
+	/** If T, adds HTML header and body automatically, otherwise allow user to define whole HTML. */
+	private final boolean	m_decorateHtml;
 
 	static private class Attachment implements IMailAttachment {
 		public String mime;
@@ -83,7 +88,26 @@ public class MailBuilder {
 
 	private int m_attindex = 1;
 
-	public MailBuilder() {}
+	/**
+	 * Creates mail builder that automatically creates html header and body. To have full control over HTML content use {@link MailBuilder#createNondecoratedMailBuilder()}   
+	 */
+	public MailBuilder() {
+		this(true);
+	}
+
+	private MailBuilder(boolean decorateHTML) {
+		m_decorateHtml = decorateHTML;
+	}
+
+	/**
+	 * Creates mail builder that allows full control over HTML content.
+	 * @see MailBuilder#m_decorateHtml
+	 * @return
+	 */
+	public static @Nonnull
+	MailBuilder createNondecoratedMailBuilder() {
+		return new MailBuilder(false);
+	}
 
 	public void initialize(String subject) {
 		m_subject = subject;
@@ -92,18 +116,12 @@ public class MailBuilder {
 		m_attachmentList.clear();
 		m_attindex = 0;
 
-		m_html_sb.append("<html><head>");
-		m_html_sb.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n");
-		m_html_sb.append("</head>");
-		m_html_sb.append("<body>");
-		//		m_html_sb.append("");
-		//		m_html_sb.append("");
-		//		m_html_sb.append("");
-		//		m_html_sb.append("");
-		//		m_html_sb.append("");
-		//		m_html_sb.append("");
-
-
+		if(m_decorateHtml) {
+			m_html_sb.append("<html><head>");
+			m_html_sb.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n");
+			m_html_sb.append("</head>");
+			m_html_sb.append("<body>");
+		}
 	}
 
 	/**
@@ -281,8 +299,10 @@ public class MailBuilder {
 	 * @throws Exception
 	 */
 	public void send(Message m) throws Exception {
-		//-- Finish html
-		m_html_sb.append("</body></html>\n");
+		if(m_decorateHtml) {
+			//-- Finish html
+			m_html_sb.append("</body></html>\n");
+		}
 		m.setSubject(m_subject);
 		m.setBody(m_text_sb.toString());
 		m.setHtmlBody(m_html_sb.toString());
