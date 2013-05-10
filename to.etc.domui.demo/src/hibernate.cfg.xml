@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+                                         "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+ <session-factory>
+  <property name="connection.pool_size">5</property>
+  <property name="hibernate.jdbc.batch_size">0</property>
+  <!-- SQL dialect -->
+  <property name="dialect">org.hibernate.dialect.DerbyDialect</property>
+  <property name="dialectblech">org.hibernate.dialect.PostgreSQLDialect</property>
+  <property name="dialectflopsje">org.hibernate.dialect.MySQLDialect</property>
+  <!-- Enable Hibernate's automatic session context management -->
+  <property name="current_session_context_class">thread</property>
+  <!-- Disable the second-level cache  -->
+  <property name = "hibernate.connection.autocommit">false</property>
+  <property name = "connection.autocommit">false</property>
+  <property name="cache.provider_class">org.hibernate.cache.NoCacheProvider</property>
+  <!-- Echo all executed SQL to stdout -->
+  <property name="show_sql">false</property>
+  <!-- Drop and re-create the database schema on startup (jal: was create) -->
+  <property name="hbm2ddl.auto">none</property>
+ </session-factory>
+</hibernate-configuration>

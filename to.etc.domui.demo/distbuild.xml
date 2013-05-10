@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ====================================================================== 
+     Master ant build file for DomUI open source distribution                                                        
+     ====================================================================== -->
+<project name="to.etc.domui.demo" default="dist">
+	<property name="release" value="1.1" />
+    <description>
+		Master build file for DomUI distribution. This creates a "dist" directory containing the binary distribution.
+    </description>
+
+	<!--Initialization-->
+	<target name="init">
+		<delete dir="dist" />
+		<mkdir dir="dist" />
+		<delete dir="war" />
+	</target>
+
+	<target name="clean" depends="init">
+		<delete dir="bin" />
+	</target>
+
+	<!--Prepare for compilation-->
+	<target name="prepare" depends="clean">
+		<mkdir dir="dist" />
+	</target>
+
+	<target name="compileAll" depends="clean">
+		<subant>
+			<fileset dir="../..">
+				<include name="**/jsr305/build.xml" />
+			</fileset>
+		</subant>
+
+		<subant>
+			<fileset dir="../..">
+				<include name="**/to.etc.alg/build.xml" />
+			</fileset>
+		</subant>
+
+		<subant>
+			<fileset dir="../..">
+				<include name="**/to.etc.db/build.xml" />
+			</fileset>
+		</subant>
+
+		<subant>
+			<fileset dir="../..">
+				<include name="**/to.etc.webapp.core/build.xml" />
+			</fileset>
+		</subant>
+
+		<subant>
+			<fileset dir="../..">
+				<include name="**/to.etc.domui/build.xml" />
+			</fileset>
+		</subant>
+		
+		<subant>
+			<fileset dir="../..">
+				<include name="**/to.etc.syntaxer/build.xml" />
+			</fileset>
+		</subant>
+		
+		<subant>
+			<fileset dir="../..">
+				<include name="**/to.etc.domui.hibutil/build.xml" />
+			</fileset>
+		</subant>
+
+		<subant>
+			<fileset dir="../..">
+				<include name="**/to.etc.domui.demo/build.xml" />
+			</fileset>
+		</subant>
+	</target>
+
+
+	
+	
+	<!--
+		Create distribution: the domui binary distribution, the full demo webapp etc 
+	-->
+	<target name="distPrepare" depends="compileAll">
+		<delete dir="dist" />
+		<mkdir dir="dist" />
+	</target>	
+
+	<target name="binaryDist" depends="distPrepare">
+		<!-- Create binary distribution .zip and .tgz -->
+		<mkdir dir="dist/domui-${release}" />
+		
+		<!-- Core jars, into ./lib -->
+		<mkdir dir="dist/domui-${release}/lib" />
+		<copy todir="dist/domui-${release}/lib" flatten="true">
+	    	<fileset dir="../..">
+	    		<include name="**/to.etc.alg.jar"/>
+	    		<include name="**/to.etc.db.jar"/>
+	    		<include name="**/to.etc.webapp.core.jar"/>
+	    		<include name="**/to.etc.domui.jar"/>
+	    		<include name="**/to.etc.domui.hibutil.jar"/>
+			</fileset>
+		</copy>
+
+		<!-- Dependencies, as jars. -->
+		<mkdir dir="dist/domui-${release}/dependencies-lib" />
+		<copy todir="dist/domui-${release}/dependencies-lib" flatten="true">
+	    	<fileset dir="../..">
+	    		<include name="**/batik-*.jar"/>
+	    		<include name="**/batik.jar"/>
+	    		<include name="**/xml-apis-ext.jar"/>
+	    		<include name="**/jsr305.jar"/>
+	    		<include name="**/slf4j-api-*.jar"/>
+	    		<include name="**/jul-to-slf4j*.jar"/>
+	    		<include name="**/logback-*.jar"/>
+	    		<include name="**/lib-hibernate/*.jar"/>
+			</fileset>
+		</copy>
+
+		<!-- Javadoc -->
+		<copy todir="dist/domui-${release}" flatten="true">
+	    	<fileset dir="../..">
+	    		<include name="**/to.etc.domui-doc.jar"/>
+			</fileset>
+		</copy>
+
+		<!-- Miscellaneous -->
+		<copy todir="dist/domui-${release}" file="README" />
+		<copy todir="dist/domui-${release}" file="SPONSORS" />
+
+		<zip destfile="dist/domui-${release}.zip" basedir="dist" includes="domui-${release}/**" />
+		<tar destfile="dist/domui-${release}.tar.bz2" basedir="dist" includes="domui-${release}/**" compression="bzip2" />
+	</target>
+
+	<target name="sourceDist" depends="distPrepare">
+		<!-- Create source distribution .zip and .tgz -->
+		<property name="src" value="dist/domui-src-${release}" />
+		<mkdir dir="${src}" />
+		<copy todir="${src}">
+	    	<fileset dir="../..">
+	    		<exclude name="**/.maven/**"/>
+	    		<exclude name="**/bin"/>
+	    		<exclude name="**/bin/**"/>
+	    		<exclude name="**/.metadata"/>
+	    		<exclude name="**/.metadata/**"/>
+	    		<include name="**/to.etc.alg/**"/>
+	    		<include name="**/to.etc.db/**"/>
+	    		<include name="**/to.etc.webapp.core/**"/>
+	    		<include name="**/to.etc.domui/**"/>
+	    		<include name="**/to.etc.domui.hibutil/**"/>
+			</fileset>
+		</copy>
+
+		<!-- Miscellaneous -->
+		<copy todir="${src}" file="README" />
+		<copy todir="${src}" file="SPONSORS" />
+		<zip destfile="dist/domui-src-${release}.zip" basedir="dist" includes="domui-src-${release}/**" />
+		<tar destfile="dist/domui-src-${release}.tar.bz2" basedir="dist" includes="domui-src-${release}/**" compression="bzip2" />
+	</target>
+	
+	<target name="dist" depends="binaryDist, sourceDist">
+	</target>
+</project>

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="to.etc.domui.demo" default="deploy" basedir=".">
+	<!--Initialization-->
+	<target name="init">
+	    <!--Classpath-->
+	    <path id="project.class.path">
+	    	<fileset dir="../..">
+	    		<include name="**/j2ee.jar"/>
+	    		<include name="**/to.etc.alg.jar"/>
+	    		<include name="**/to.etc.db.jar"/>
+	    		<include name="**/to.etc.webapp.core.jar"/>
+	    		<include name="**/jsr305.jar"/>
+	    		<include name="**/slf4j-api-*.jar"/>
+	    		<include name="**/jul-to-slf4j*.jar"/>
+	    		<include name="**/logback-*.jar"/>
+	    		
+	    		<!-- DomUI dependencies -->
+	    		<include name="**/to.etc.domui.jar"/>
+	    		<include name="**/to.etc.domui/lib/*.jar"/>
+	    		<include name="**/to.etc.domui.hibutil.jar"/>
+	    		<include name="**/lib-hibernate/*.jar"/>
+	    		
+	    		<!-- to.etc.syntaxer -->
+	    		<include name="**/to.etc.syntaxer/*.jar"/>
+
+	    	</fileset>
+
+	    	<!-- Include the pertinent parts of apache Batik -->
+	    	<fileset dir="../..">
+	    		<include name="**/batik-css.jar"/>
+	    		<include name="**/batik-bridge.jar"/>
+	    		<include name="**/batik.jar"/>
+	    		<include name="**/batik-transcoder.jar"/>
+	    	</fileset>
+	    </path>
+	</target>
+
+	<!--Cleanup previous builds-->
+	<target name="clean" depends="init">
+		<delete dir="bin" />
+		<delete dir="war" />
+	</target>
+
+	<!--Prepare for compilation-->
+	<target name="prepare" depends="clean">
+		<mkdir dir="bin" />
+	</target>
+
+	<!--Compile project-->
+	<target name="compile" depends="prepare">
+		<javac srcdir="src" destDir="bin" classpathref="project.class.path" debug="on" source="1.6" target="1.6" />
+		<copy todir="bin" >
+			<fileset dir="src" casesensitive="no">
+				<exclude name="**/*.java"/>
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="doc" depends="init">
+		<mkdir dir="doc" />
+	  	<javadoc destdir="javadoc">
+	  		<fileset dir="src">
+	  			<include name="**/*.java" />
+	  		</fileset>
+	  	</javadoc>
+	  	<jar jarfile="${ant.project.name}-doc.jar" basedir="doc" compress="false" />
+	</target>
+	
+  	<!--Deploy project-->
+  	<target name="deploy" depends="compile">
+		<jar jarfile="${ant.project.name}.jar" basedir="bin" compress="false" />
+		<mkdir dir="war" />
+		<mkdir dir="war/WEB-INF/lib" />
+		<jar jarfile="war/WEB-INF/lib/demo-sources.jar" basedir="src" compress="false" />
+  		<copydir dest="war" src="WebContent"/>
+		<copy todir="war/WEB-INF/lib" flatten="true">
+	    	<fileset dir="../..">
+	    		<include name="**/to.etc.alg.jar"/>
+	    		<include name="**/to.etc.syntaxer.jar"/>
+	    		<include name="**/gnu-regexp-*.jar"/>
+	    		<include name="**/to.etc.db.jar"/>
+	    		<include name="**/to.etc.webapp.core.jar"/>
+	    		<include name="**/to.etc.domui.jar"/>
+	    		<include name="**/to.etc.domui.hibutil.jar"/>
+	    		<include name="**/to.etc.domui.demo.jar"/>
+	    		<include name="**/slf4j-api-*.jar"/>
+	    		<include name="**/jul-to-slf4j*.jar"/>
+	    		<include name="**/logback-*.jar"/>
+
+	    		<include name="**/derby.jar"/>
+	    		<include name="**/derbyclient.jar"/>
+
+	    		<include name="**/lib-hibernate/*.jar"/>
+	    		<include name="**/batik-*.jar"/>
+	    		<include name="**/batik.jar"/>
+	    		<include name="**/xml-apis-ext.jar"/>
+	    		<include name="**/batik-transcoder.jar"/>	    			
+			</fileset>
+		</copy>
+		<jar jarfile="demo.war" basedir="war" compress="false" />
+  		  	
+  	
+  	</target>
+</project>
