@@ -58,6 +58,8 @@ public interface Msgs {
 
 	public static final String UI_VALIDATION_FAILED = "ui.validation.failed";
 
+	public static final String UI_VALIDATION_INTERRUPTED = "ui.validation.wait";
+
 	//# Control texts
 	/** Page x of y */
 	public static final String UI_PAGER_TEXT = "ui.pagertext";

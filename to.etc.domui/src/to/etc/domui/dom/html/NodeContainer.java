@@ -859,8 +859,12 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	/*--------------------------------------------------------------*/
 
 	@Override
-	public void validateComponents(@Nonnull List<UIMessage> errorList) {
-		for(NodeBase nb : this)
-			nb.validateComponents(errorList);
+	public boolean validateSelf() {
+		boolean ok = true;
+		for(NodeBase nb : this) {
+			if(!nb.validateSelf())
+				ok = false;
+		}
+		return ok;
 	}
 }

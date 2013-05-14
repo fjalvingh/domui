@@ -36,8 +36,10 @@ import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.logic.*;
 import to.etc.domui.server.*;
+import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
+import to.etc.webapp.core.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
 
@@ -1552,20 +1554,29 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	/**
 	 * If this thing is a component, ask to validate and report an error if not ok.
 	 */
-	public List<UIMessage> validateComponents() {
-		List<UIMessage> res = new ArrayList<UIMessage>();
-		validateComponents(res);
-		return res;
+	public <T> void validate(@Nonnull IRunnable call) throws Exception {
+		Page page = getPage();
+		page.startValidation(this, call);
+		if(!validateSelf())									// Ask components to validate
+			throw new ValidationException(Msgs.BUNDLE, Msgs.NOT_VALID);
+		call.run();
 	}
 
-	public void validateComponents(@Nonnull List<UIMessage> errorList) {
+	/**
+	 * Called by a component if, after asking a question, it decides validation can continue.
+	 * @throws Exception
+	 */
+	protected void retryValidation() throws Exception {
+		getPage().retryValidation();
+	}
+
+	protected boolean validateSelf() {
 		NodeBase nb = this;
 		if(nb instanceof IControl< ? >) {
 			IControl< ? > ctl = (IControl< ? >) nb;
 			ctl.getValueSafe();										// Force validation
-			UIMessage message = ctl.getMessage();
-			if(null != message)
-				errorList.add(message);
+			return ctl.getMessage() == null;
 		}
+		return true;
 	}
 }
