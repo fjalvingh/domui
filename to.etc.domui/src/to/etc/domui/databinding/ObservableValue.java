@@ -26,33 +26,60 @@ package to.etc.domui.databinding;
 
 import javax.annotation.*;
 
+import to.etc.domui.component.meta.*;
+
 /**
- * An event due to a change in some observable value.
+ * Just some observable value container. This is meant to be used directly.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * Created on Apr 23, 2013
+ * Created on May 20, 2013
  */
-public class ValueChangeEvent<T> extends ObservableEvent<T, ValueChangeEvent<T>, IValueChangeListener<T>> {
-	@Nonnull
-	final private ValueDiff<T> m_diff;
+public class ObservableValue<T> extends ListenerList<T, ValueChangeEvent<T>, IValueChangeListener<T>> implements IObservableValue<T> {
+	private T m_value;
 
-	public ValueChangeEvent(@Nonnull IObservableValue<T> source, @Nonnull ValueDiff<T> diff) {
-		super(source);
-		m_diff = diff;
+	@Nonnull
+	final private Class<T> m_valueType;
+
+	/**
+	 * Create a null-holding value of the specified type.
+	 * @param valueType
+	 */
+	public ObservableValue(@Nonnull Class<T> valueType) {
+		m_valueType = valueType;
 	}
 
 	/**
-	 * The observable that this event sprung from.
-	 * @return
+	 * Create a new value with the specified initial non-null value.
+	 * @param value
 	 */
-	@Override
-	@Nonnull
-	public IObservableValue<T> getSource() {
-		return (IObservableValue<T>) super.getSource();
+	public ObservableValue(@Nonnull T value) {
+		m_value = value;
+		m_valueType = (Class<T>) value.getClass();
 	}
 
+	@Override
 	@Nonnull
-	public ValueDiff<T> getDiff() {
-		return m_diff;
+	public Class<T> getValueType() {
+		return m_valueType;
+	}
+
+	@Override
+	@Nullable
+	public T getValue() throws Exception {
+		return m_value;
+	}
+
+	@Override
+	public void setValue(@Nullable T value) throws Exception {
+		T oldValue = m_value;
+		m_value = value;
+		notifyIfChanged(oldValue, value);
+	}
+
+	void notifyIfChanged(@Nullable T old, @Nullable T value) {
+		if(MetaManager.areObjectsEqual(old, value))
+			return;
+		ValueDiff<T> vd = new ValueDiff<T>(old, value);
+		fireEvent(new ValueChangeEvent<T>(this, vd));
 	}
 }

@@ -180,10 +180,24 @@ public class FormData<T> {
 		}
 
 		Bind.join(getModel().getValue(), name).to(r.getFormControl(), "value");
+		bindOptionals(r.getFormControl());
 
 
 		//		getBindings().add(new SimpleComponentPropertyBinding<C>(getModel(), pmm, (IControl<C>) r.getFormControl()));
 		return (IControl<C>) r.getFormControl();
+	}
+
+	/**
+	 *
+	 * @param c
+	 */
+	private void bindOptionals(@Nullable IControl< ? > c) throws Exception {
+		if(null == c)
+			return;
+		IObservableValue<Boolean> diso = builder().getDisabledObservable();
+		if(null != diso) {
+			Bind.from(diso).to(c, "disabled");
+		}
 	}
 
 	/**
@@ -295,6 +309,7 @@ public class FormData<T> {
 		if(label != null)
 			ctl.setErrorLocation(label);
 		Bind.join(getModel().getValue(), pmm.getName()).to(ctl, "value", converter);
+		bindOptionals(ctl);
 		return ctl;
 	}
 

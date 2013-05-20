@@ -26,19 +26,41 @@ package to.etc.domui.databinding;
 
 import javax.annotation.*;
 
-public class ObservableEvent<V, E extends IChangeEvent<V, E, L>, L extends IChangeListener<V, E, L>> implements IChangeEvent<V, E, L> {
-	@Nonnull
-	final private IObservable<V, E, L> m_source;
+import to.etc.util.*;
 
-	public ObservableEvent(@Nonnull IObservable<V, E, L> source) {
-		if(null == source)
-			throw new IllegalArgumentException("Source cannot be null");
-		m_source = source;
+/**
+ * Utility observable for booleans.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on May 20, 2013
+ */
+public class ObservableBoolean extends ObservableValue<Boolean> {
+	public ObservableBoolean() {
+		super(Boolean.FALSE);
 	}
 
-	@Override
-	@Nonnull
-	public IObservable<V, E, L> getSource() {
-		return m_source;
+	public ObservableBoolean(boolean value) {
+		super(Boolean.valueOf(value));
+	}
+
+	public ObservableBoolean(@Nonnull Boolean value) {
+		super(value);
+	}
+
+	public boolean isSet() {
+		try {
+			Boolean val = getValue();
+			return val == Boolean.TRUE;
+		} catch(Exception x) {
+			throw WrappedException.wrap(x);
+		}
+	}
+
+	public void set(boolean value) {
+		try {
+			setValue(Boolean.valueOf(value));
+		} catch(Exception x) {
+			throw WrappedException.wrap(x);
+		}
 	}
 }
