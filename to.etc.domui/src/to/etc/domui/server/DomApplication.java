@@ -1590,12 +1590,10 @@ public abstract class DomApplication {
 
 			//-- We need to (re)load a theme store.
 			m_themeStore = getThemer().loadTheme(this);
-			if(inDevelopmentMode()) {
-				ThemeModifyableResource tmr = new ThemeModifyableResource(m_themeStore.getDependencies(), 3000); // Check for changes every 3 secs
-				m_themeDependencies = new ResourceDependencies(new IIsModified[]{tmr});
-				if(rdl != null)
-					rdl.add(m_themeDependencies);
-			}
+			ThemeModifyableResource tmr = new ThemeModifyableResource(m_themeStore.getDependencies(), 3000); // Check for changes every 3 secs
+			m_themeDependencies = new ResourceDependencies(new IIsModified[]{tmr});
+			if(rdl != null)
+				rdl.add(m_themeDependencies);
 			return m_themeStore;
 		}
 	}
