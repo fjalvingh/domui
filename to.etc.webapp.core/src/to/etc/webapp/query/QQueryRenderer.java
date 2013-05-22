@@ -26,6 +26,8 @@ package to.etc.webapp.query;
 
 import java.math.*;
 
+import javax.annotation.*;
+
 import to.etc.util.*;
 
 /**
@@ -248,6 +250,25 @@ public class QQueryRenderer extends QNodeVisitorBase {
 			case ISNULL:	return "isNull";
 			case SQL:	return "SQL";
 		}
+	}
+
+	@Override
+	public void visitSqlRestriction(@Nonnull QSqlRestriction v) throws Exception {
+		append("SQL['");
+		append(v.getSql());
+		append("'");
+		if(v.getParameters().length > 0) {
+			for(int i = 0; i < v.getParameters().length; i++) {
+				Object val = v.getParameters()[i];
+				append(", #" + i);
+				append("=");
+				append(String.valueOf(val));
+			}
+		}
+		append("]");
+
+		// TODO Auto-generated method stub
+		super.visitSqlRestriction(v);
 	}
 
 	/**

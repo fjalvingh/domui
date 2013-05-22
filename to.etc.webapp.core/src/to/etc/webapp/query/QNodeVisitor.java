@@ -26,6 +26,8 @@ package to.etc.webapp.query;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 public interface QNodeVisitor {
 	public void visitCriteria(QCriteria< ? > qc) throws Exception;
 
@@ -60,5 +62,7 @@ public interface QNodeVisitor {
 	void visitExistsSubquery(QExistsSubquery< ? > q) throws Exception;
 
 	void visitSelectionSubquery(QSelectionSubquery n) throws Exception;
+
+	public void visitSqlRestriction(@Nonnull QSqlRestriction v) throws Exception;
 
 }

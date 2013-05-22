@@ -26,6 +26,8 @@ package to.etc.webapp.qsql;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.webapp.query.*;
 
 /**
@@ -527,17 +529,15 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 
 	@Override
 	public void visitUnaryNode(final QUnaryNode n) throws Exception {
-		switch(n.getOperation()){
-			default:
-				throw new IllegalStateException("Unsupported UNARY operation: " + n.getOperation());
-			case SQL:
-				if(n.getNode() instanceof QLiteral) {
-					QLiteral l = (QLiteral) n.getNode();
-					appendWhere((String) l.getValue());
-					return;
-				}
-				break;
-		}
 		throw new IllegalStateException("Unsupported UNARY operation: " + n.getOperation());
 	}
+
+	@Override
+	public void visitSqlRestriction(@Nonnull QSqlRestriction v) throws Exception {
+		//-- We do not yet support parameterized ones
+		if(v.getParameters().length != 0)
+			throw new QQuerySyntaxException("Parameterized literal SQL not supported");
+		appendWhere(v.getSql());
+	}
+
 }

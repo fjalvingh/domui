@@ -24,6 +24,8 @@
  */
 package to.etc.webapp.query;
 
+import javax.annotation.*;
+
 import to.etc.webapp.annotations.*;
 
 /**
@@ -352,6 +354,16 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	@Override
 	public QCriteria<T> sqlCondition(final String sql) {
 		return (QCriteria<T>) super.sqlCondition(sql);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QCriteriaQueryBase#sqlCondition(java.lang.String)
+	 */
+	@Nonnull
+	@Override
+	public QCriteria<T> sqlCondition(@Nonnull final String sql, @Nonnull Object[] params) {
+		return (QCriteria<T>) super.sqlCondition(sql, params);
 	}
 
 	/**

@@ -26,6 +26,8 @@ package to.etc.webapp.query;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 /**
  * Base class for visiting a node tree. The methods in this base class cause all
  * children of a the tree to be visited in order.
@@ -47,6 +49,9 @@ public class QNodeVisitorBase implements QNodeVisitor {
 	public void visitUnaryNode(QUnaryNode n) throws Exception {
 		n.getNode().visit(this);
 	}
+
+	@Override
+	public void visitSqlRestriction(@Nonnull QSqlRestriction v) throws Exception {}
 
 	@Override
 	public void visitUnaryProperty(QUnaryProperty n) throws Exception {}

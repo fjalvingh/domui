@@ -890,19 +890,30 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 
 	@Override
 	public void visitUnaryNode(final QUnaryNode n) throws Exception {
-		switch(n.getOperation()){
-			default:
-				throw new IllegalStateException("Unsupported UNARY operation: " + n.getOperation());
-			case SQL:
-				if(n.getNode() instanceof QLiteral) {
-					QLiteral l = (QLiteral) n.getNode();
-					String s = (String) l.getValue();
-					m_last = Restrictions.sqlRestriction(s);
-					return;
-				}
-				break;
-		}
 		throw new IllegalStateException("Unsupported UNARY operation: " + n.getOperation());
+	}
+
+	@Override
+	public void visitSqlRestriction(@Nonnull QSqlRestriction v) throws Exception {
+		if(v.getParameters().length == 0) {
+			m_last = Restrictions.sqlRestriction(v.getSql());
+			return;
+		}
+
+		//-- Parameterized SQL query -> convert to Hibernate types.
+		Type[] htar = new Type[v.getParameters().length];
+		for(int i = 0; i < v.getTypes().length; i++) {
+			Class< ? > c = v.getTypes()[i];
+			if(c == null)
+				throw new QQuerySyntaxException("Type array for SQLRestriction cannot contain null");
+			Type t = TypeFactory.basic(c.getName());
+			if(null == t) {
+				throw new QQuerySyntaxException("Type[" + i + "] in type array (a " + c + ") is not a proper Hibernate type");
+
+			}
+			htar[i] = t;
+		}
+		m_last = Restrictions.sqlRestriction(v.getSql(), v.getParameters(), htar);
 	}
 
 	@Override
