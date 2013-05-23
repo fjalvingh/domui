@@ -130,14 +130,40 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 		m_rootMeta = JdbcMetaManager.getMeta(qc.getBaseClass());
 		m_timeout = 60;
 
-		m_retrieverList.add(new CountSelectorResultMaker());
+
+		m_retrieverList.add(new SelectorColumnsResultMaker(qc));
 		visitRestrictionsBase(qc);
 
 		/*
 		 * Generate SQL. Most of this is disgusting and should be replaced by a SN* tree passed to a database-dependent handler.
 		 */
 		StringBuilder sb = new StringBuilder(256);
-		sb.append("select count(*) from ");
+		sb.append("select ");
+
+		QQueryRenderer renderer = new QQueryRenderer() {
+			@Override
+			public void visitPropertySelection(QPropertySelection n) throws Exception {
+				//fix needed for COUNT_DISTINCT, correct syntax is 'select (distinct propXXX)'
+				if(n.getFunction().equals(QSelectionFunction.COUNT_DISTINCT)) {
+					int currentColumn = getCurrentColumn();
+					if(currentColumn > 0) {
+						append(",");
+					}
+					setCurrentColumn(currentColumn + 1);
+					append("count ");
+					append("(distinct ");
+					append(n.getProperty());
+					append(")");
+				} else {
+					super.visitPropertySelection(n);
+				}
+			}
+		};
+		renderer.visitSelectionColumns(qc);
+
+		sb.append(renderer.toString());
+
+		sb.append(" from ");
 
 		JdbcClassMeta cm = JdbcMetaManager.getMeta(m_root.getDataClass());
 		sb.append(cm.getTableName());
