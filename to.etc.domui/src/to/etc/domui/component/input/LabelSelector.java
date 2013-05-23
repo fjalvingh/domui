@@ -206,7 +206,7 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 	@Override
 	public void setValue(@Nonnull List<T> newlist) {
 		if(null == newlist)
-			newlist = Collections.EMPTY_LIST;
+			newlist = new ArrayList<T>();
 		m_labelList = newlist;
 		m_divMap.clear();
 		forceRebuild();
