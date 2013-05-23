@@ -494,7 +494,12 @@ public class PageParameters {
 	 * @return the value as a String
 	 */
 	@Nonnull
-	public String[] getStringArray(String name) {
+	public String[] getStringArray(@Nonnull String name) {
+		return getStringArray(name, true);
+	}
+
+	@Nonnull
+	public String[] getStringArray(@Nonnull String name, boolean mandatory) {
 		Object var = m_map.get(name);
 		if(null != var) {
 			if(var instanceof String)
@@ -503,8 +508,11 @@ public class PageParameters {
 			if(ar.length > 0)
 				return ar;
 		}
+		if(!mandatory)
+			return new String[0];
 		throw new MissingParameterException(name);
 	}
+
 
 	/**
 	 * Gets the value for the specified parametername as untyped value.

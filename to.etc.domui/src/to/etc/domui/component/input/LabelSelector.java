@@ -34,12 +34,12 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 		T find(@Nonnull String name) throws Exception;
 
 		@Nonnull
-		List<T> findLike(@Nonnull String input, int i);
+		List<T> findLike(@Nonnull String input, int i) throws Exception;
 	}
 
 	public interface INew<T> {
 		@Nullable
-		T create(String name) throws Exception;
+		T create(@Nonnull String name) throws Exception;
 	}
 
 	@Nonnull
@@ -55,6 +55,9 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 		m_actualClass = clz;
 		m_search = search;
 		setCssClass("ui-lsel-sel");
+		if(search instanceof INew< ? >) {
+			m_instanceFactory = (INew<T>) search;
+		}
 	}
 
 	//	/**
@@ -146,6 +149,10 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 		if(null == sel)
 			return;
 		addLabel(sel);					// Just add the thingy.
+	}
+
+	public void setInstanceFactory(INew<T> instanceFactory) {
+		m_instanceFactory = instanceFactory;
 	}
 
 	private void addLabel(T instance) throws Exception {
