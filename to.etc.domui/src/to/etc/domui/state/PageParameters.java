@@ -505,7 +505,7 @@ public class PageParameters {
 			if(var instanceof String)
 				return new String[]{(String) var};
 			String[] ar = (String[]) var;
-			if(ar.length > 0)
+			if(ar.length >= 0)
 				return ar;
 		}
 		if(!mandatory)
