@@ -1,6 +1,7 @@
 package to.etc.test.webapp.query;
 
 import java.sql.*;
+import java.util.*;
 
 import javax.annotation.*;
 import javax.sql.*;
@@ -26,7 +27,7 @@ public class TestJdbcSelector {
 	}
 
 	@Test
-	public void testSingleSelector() throws Exception {
+	public void testSingleNumericSelector() throws Exception {
 		testSingleSelector("count (id)", Integer.class);
 		testSingleSelector("max (id)", Long.class);
 		testSingleSelector("min (id)", Long.class);
@@ -36,11 +37,33 @@ public class TestJdbcSelector {
 	}
 
 	@Test
-	public void testMultiSelector() throws Exception {
+	public void testMultiNumericSelector() throws Exception {
 		testMultipleSelector("count (id)", Integer.class, "max (id)", Long.class);
 		testMultipleSelector("max (id)", Long.class, "min (id)", Long.class);
 		testMultipleSelector("count (id)", Integer.class, "count (distinct id)", Integer.class);
 		testMultipleSelector("avg (id)", Double.class, "sum (id)", Long.class);
+	}
+
+	@Test
+	public void testDistinctSelector() throws Exception {
+		List<String> selectBySql = JdbcUtil.selectSingleColumnList(m_dc.getConnection(), String.class,
+			"select distinct(omschrijving) from v_dec_grootboekrekeningen where omschrijving like ? order by omschrijving asc", "%a");
+
+		QCriteria<LedgerAccount> criteria = QCriteria.create(LedgerAccount.class).like(LedgerAccount.pDESCRIPTION, "%a");
+		criteria.ascending(LedgerAccount.pDESCRIPTION);
+		QSelection<LedgerAccount> selection = QSelection.create(LedgerAccount.class);
+		selection.setRestrictions(criteria.getRestrictions());
+
+		selection.distinct(LedgerAccount.pDESCRIPTION);
+
+		List<Object[]> selectResult = m_dc.query(selection);
+
+		Assert.assertEquals(selectBySql.size(), selectResult.size());
+
+		int index = 0;
+		for(String desc : selectBySql) {
+			Assert.assertEquals(desc, selectResult.get(index++)[0]);
+		}
 	}
 
 	public <T> void testSingleSelector(@Nonnull String selectFunction, @Nonnull Class<T> type) throws Exception {
