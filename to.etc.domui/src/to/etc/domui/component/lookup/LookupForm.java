@@ -32,7 +32,7 @@ import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.form.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.layout.*;
-import to.etc.domui.component.lookup.ILookupControlInstance.*;
+import to.etc.domui.component.lookup.ILookupControlInstance.AppendCriteriaResult;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.dom.css.*;
@@ -896,6 +896,10 @@ public class LookupForm<T> extends Div {
 		if(it.getErrorLocation() == null) {
 			it.setErrorLocation(it.getLabelText());
 		}
+
+		//-- jal 20130528 This component quite sucks balls- the interface is not able to add on-the-fly.
+		if(isBuilt())
+			internalAddLookupItem(it);
 	}
 
 
