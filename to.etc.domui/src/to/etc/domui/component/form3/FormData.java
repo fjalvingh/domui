@@ -182,6 +182,7 @@ public class FormData<T> {
 		Bind.join(getModel().getValue(), name).to(r.getFormControl(), "value");
 		bindOptionals(r.getFormControl());
 
+		r.getFormControl().setMandatory(mandatory);
 
 		//		getBindings().add(new SimpleComponentPropertyBinding<C>(getModel(), pmm, (IControl<C>) r.getFormControl()));
 		return (IControl<C>) r.getFormControl();
