@@ -220,7 +220,9 @@ public class PageParameters {
 		}
 
 		if(o instanceof String[]) {
-			setParameter(k, (String[]) o);
+			String[] ar = (String[]) o;
+			if(ar.length > 0)
+				setParameter(k, ar);
 			return;
 		}
 
