@@ -60,6 +60,6 @@ public class DbUtil {
     }
 
 	public static QDataContext getContext(final Page pg) throws Exception {
-		return QContextManager.getContext(pg);
+		return QContextManager.getContext(QContextManager.DEFAULT, pg);
     }
 }

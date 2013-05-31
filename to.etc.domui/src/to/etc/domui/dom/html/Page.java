@@ -799,31 +799,17 @@ final public class Page implements IQContextContainer {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IQContextContainer implementation.					*/
 	/*--------------------------------------------------------------*/
-	/**
-	 *
-	 */
-	@Override
-	public QDataContext internalGetSharedContext() {
-		return getConversation().internalGetSharedContext();
-	}
 
-	/**
-	 *
-	 * @see to.etc.webapp.query.IQContextContainer#internalSetSharedContext(to.etc.webapp.query.QDataContext)
-	 */
+	@Nonnull
 	@Override
-	public void internalSetSharedContext(final QDataContext c) {
-		getConversation().internalSetSharedContext(c);
+	public List<QContextContainer> getAllContextContainers() {
+		return getConversation().getAllContextContainers();
 	}
 
 	@Override
-	public QDataContextFactory internalGetDataContextFactory() {
-		return getConversation().internalGetDataContextFactory();
-	}
-
-	@Override
-	public void internalSetDataContextFactory(final QDataContextFactory s) {
-		getConversation().internalSetDataContextFactory(s);
+	@Nonnull
+	public QContextContainer getContextContainer(@Nonnull String key) {
+		return getConversation().getContextContainer(key);
 	}
 
 	public boolean isAllowVectorGraphics() {

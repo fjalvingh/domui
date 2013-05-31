@@ -498,37 +498,60 @@ public class ConversationContext implements IQContextContainer {
 		return m_state == ConversationState.ATTACHED;
 	}
 
-	static private final String KEY = QContextManager.class.getName();
-
-	static private final String SRCKEY = QDataContextFactory.class.getName();
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IQContextContainer implementation.					*/
 	/*--------------------------------------------------------------*/
-	/**
-	 *
-	 */
 	@Override
-	public QDataContext internalGetSharedContext() {
-		return (QDataContext) getAttribute(KEY);
-	}
-
-	/**
-	 *
-	 * @see to.etc.webapp.query.IQContextContainer#internalSetSharedContext(to.etc.webapp.query.QDataContext)
-	 */
-	@Override
-	public void internalSetSharedContext(final QDataContext c) {
-		setAttribute(KEY, c);
+	@Nonnull
+	public QContextContainer getContextContainer(@Nonnull String key) {
+		key = "cc-" + key;
+		QContextContainer cc = (QContextContainer) getAttribute(key);
+		if(null == cc) {
+			cc = new DomUIContextContainer();
+			setAttribute(key, cc);
+		}
+		return cc;
 	}
 
 	@Override
-	public QDataContextFactory internalGetDataContextFactory() {
-		return (QDataContextFactory) getAttribute(SRCKEY);
+	@Nonnull
+	public List<QContextContainer> getAllContextContainers() {
+		List<QContextContainer> ccl = new ArrayList<QContextContainer>();
+		for(Object o : m_map.values()) {
+			if(o instanceof QContextContainer) {
+				ccl.add((QContextContainer) o);
+			}
+		}
+		return ccl;
 	}
 
-	@Override
-	public void internalSetDataContextFactory(final QDataContextFactory s) {
-		setAttribute(SRCKEY, s);
+	static private final class DomUIContextContainer extends QContextContainer implements IConversationStateListener {
+		@Override
+		public void conversationNew(ConversationContext cc) throws Exception {
+			QDataContext c = internalGetSharedContext();
+			if(c instanceof IConversationStateListener)
+				((IConversationStateListener) c).conversationNew(cc);
+		}
+
+		@Override
+		public void conversationAttached(ConversationContext cc) throws Exception {
+			QDataContext c = internalGetSharedContext();
+			if(c instanceof IConversationStateListener)
+				((IConversationStateListener) c).conversationAttached(cc);
+		}
+
+		@Override
+		public void conversationDetached(ConversationContext cc) throws Exception {
+			QDataContext c = internalGetSharedContext();
+			if(c instanceof IConversationStateListener)
+				((IConversationStateListener) c).conversationDetached(cc);
+		}
+
+		@Override
+		public void conversationDestroyed(ConversationContext cc) throws Exception {
+			QDataContext c = internalGetSharedContext();
+			if(c instanceof IConversationStateListener)
+				((IConversationStateListener) c).conversationDestroyed(cc);
+		}
 	}
 }
