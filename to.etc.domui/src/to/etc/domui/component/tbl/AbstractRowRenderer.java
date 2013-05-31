@@ -53,7 +53,7 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 	private boolean m_completed;
 
 	@Nonnull
-	private final ColumnDefList m_columnList;
+	private final ColumnDefList<T> m_columnList;
 
 	private Img[] m_sortImages;
 
@@ -70,11 +70,11 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 	public AbstractRowRenderer(@Nonnull Class<T> data, @Nonnull ClassMetaModel cmm) {
 		m_dataClass = data;
 		m_metaModel = cmm;
-		m_columnList = new ColumnDefList(m_metaModel);
+		m_columnList = new ColumnDefList<T>(data, m_metaModel);
 	}
 
 	@Nonnull
-	protected ColumnDefList getColumnList() {
+	protected ColumnDefList<T> getColumnList() {
 		return m_columnList;
 	}
 
@@ -128,12 +128,12 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 		return m_completed;
 	}
 
-	protected void setSortColumn(@Nullable SimpleColumnDef cd, @Nullable SortableType type) {
+	protected void setSortColumn(@Nullable SimpleColumnDef< ? > cd, @Nullable SortableType type) {
 		m_columnList.setSortColumn(cd, type);
 	}
 
 	@Nullable
-	protected SimpleColumnDef getSortColumn() {
+	protected SimpleColumnDef< ? > getSortColumn() {
 		return m_columnList.getSortColumn();
 	}
 
@@ -151,7 +151,7 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 	 * @return
 	 */
 	@Nonnull
-	public SimpleColumnDef getColumn(final int ix) {
+	public SimpleColumnDef< ? > getColumn(final int ix) {
 		return m_columnList.get(ix);
 	}
 
@@ -170,8 +170,9 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 	 * @param propertyName
 	 * @return
 	 */
-	public SimpleColumnDef getColumnByName(String propertyName) {
-		for(SimpleColumnDef scd : m_columnList) {
+	@Nonnull
+	public SimpleColumnDef< ? > getColumnByName(String propertyName) {
+		for(SimpleColumnDef< ? > scd : m_columnList) {
 			if(propertyName.equals(scd.getPropertyName()))
 				return scd;
 		}
@@ -205,9 +206,9 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 	 * @param index
 	 * @param renderer
 	 */
-	public void setNodeRenderer(final int index, @Nullable final INodeContentRenderer< ? > renderer) {
+	public <T> void setNodeRenderer(final int index, @Nullable final INodeContentRenderer<T> renderer) {
 		check();
-		getColumn(index).setContentRenderer(renderer);
+		((SimpleColumnDef<T>) getColumn(index)).setContentRenderer(renderer);
 	}
 
 	/**
@@ -235,7 +236,7 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 	 * @param rowClicked
 	 */
 	@Override
-	public void setRowClicked(@Nullable final ICellClicked< ? > rowClicked) {
+	public <V> void setRowClicked(@Nullable final ICellClicked<V> rowClicked) {
 		m_rowClicked = rowClicked;
 	}
 
@@ -255,8 +256,8 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 	 * @param cellClicked
 	 */
 	@Override
-	public void setCellClicked(final int col, @Nullable final ICellClicked< ? > cellClicked) {
-		getColumn(col).setCellClicked(cellClicked);
+	public <T> void setCellClicked(final int col, @Nullable final ICellClicked<T> cellClicked) {
+		((SimpleColumnDef<T>) getColumn(col)).setCellClicked(cellClicked);
 	}
 
 
@@ -276,7 +277,7 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 		final boolean sortablemodel = tbl.getModel() instanceof ISortableTableModel;
 		StringBuilder sb = new StringBuilder();
 
-		for(final SimpleColumnDef cd : m_columnList) {
+		for(final SimpleColumnDef< ? > cd : m_columnList) {
 			TH th;
 			String label = cd.getColumnLabel();
 			if(!cd.getSortable().isSortable() || !sortablemodel) {
@@ -304,10 +305,10 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 				if(label == null || label.trim().length() == 0)
 					label = getUnknownColumnCaption();
 				cellSpan.add(new Span(label));
-				final SimpleColumnDef scd = cd;
+				final SimpleColumnDef< ? > scd = cd;
 				th.setClicked(new IClicked<TH>() {
 					@Override
-					public void clicked(final TH b) throws Exception {
+					public void clicked(final @Nonnull TH b) throws Exception {
 						handleSortClick(b, scd);
 					}
 				});
@@ -331,9 +332,9 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 			cc.add("");
 	}
 
-	void handleSortClick(@Nonnull final NodeBase nb, @Nonnull final SimpleColumnDef scd) throws Exception {
+	void handleSortClick(@Nonnull final NodeBase nb, @Nonnull final SimpleColumnDef< ? > scd) throws Exception {
 		//-- 1. Is this the same as the "current" sort column? If so toggle the sort order only.
-		SimpleColumnDef sortColumn = getSortColumn();
+		SimpleColumnDef< ? > sortColumn = getSortColumn();
 		if(scd == sortColumn) {
 			setSortDescending( ! isSortDescending());
 		} else {
@@ -356,7 +357,7 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 		}
 	}
 
-	private void updateSortImage(@Nonnull final SimpleColumnDef scd, @Nonnull final String img) {
+	private void updateSortImage(@Nonnull final SimpleColumnDef< ? > scd, @Nonnull final String img) {
 		final int index = m_columnList.indexOf(scd);
 		if(index == -1)
 			throw new IllegalStateException("?? Cannot find sort column!?");
@@ -380,7 +381,7 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 		}
 
 		//		m_sortableModel = true;
-		SimpleColumnDef scol = getSortColumn();
+		SimpleColumnDef< ? > scol = getSortColumn();
 		if(scol == null)
 			return;
 
@@ -404,7 +405,7 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 	 */
 	@Override
 	public void renderRow(@Nonnull final TableModelTableBase<T> tbl, @Nonnull final ColumnContainer<T> cc, final int index, @Nonnull final T instance) throws Exception {
-		for(final SimpleColumnDef cd : m_columnList) {
+		for(final SimpleColumnDef< ? > cd : m_columnList) {
 			renderColumn(tbl, cc, index, instance, cd);
 		}
 
@@ -435,7 +436,7 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 	 * @param cd
 	 * @throws Exception
 	 */
-	protected <X> void renderColumn(@Nonnull final TableModelTableBase<T> tbl, @Nonnull final ColumnContainer<T> cc, final int index, @Nonnull final T instance, @Nonnull final SimpleColumnDef cd) throws Exception {
+	protected <X> void renderColumn(@Nonnull final TableModelTableBase<T> tbl, @Nonnull final ColumnContainer<T> cc, final int index, @Nonnull final T instance, @Nonnull final SimpleColumnDef< ? > cd) throws Exception {
 		//-- If a value transformer is known get the column value, else just use the instance itself (case when Renderer is used)
 		X colval;
 		IValueTransformer< ? > valueTransformer = cd.getValueTransformer();
@@ -481,7 +482,7 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 			 */
 			cell.setClicked(new IClicked<TD>() {
 				@Override
-				public void clicked(final TD b) throws Exception {
+				public void clicked(final @Nonnull TD b) throws Exception {
 					((ICellClicked<Object>) cd.getCellClicked()).cellClicked(b, instance);
 				}
 			});

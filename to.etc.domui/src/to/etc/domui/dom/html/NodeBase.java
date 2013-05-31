@@ -33,6 +33,8 @@ import to.etc.domui.component.input.*;
 import to.etc.domui.dom.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
+import to.etc.domui.logic.*;
+import to.etc.domui.logic.events.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
@@ -590,9 +592,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 */
 	final public void appendAfterMe(@Nonnull final NodeBase item) {
 		int ix = getParent().findChildIndex(this);
-		if(ix == -1)
+		if(ix == -1) {
 			throw new IllegalStateException("!@?! Cannot find myself!?");
-		getParent().add(ix + 1, item);
+		}
+		getParent().undelegatedAdd(ix + 1, item);
 	}
 
 	/**
@@ -603,7 +606,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		int ix = getParent().findChildIndex(this);
 		if(ix == -1)
 			throw new IllegalStateException("!@?! Cannot find myself!?");
-		getParent().add(ix, item);
+		getParent().undelegatedAdd(ix, item);
 	}
 
 
@@ -1010,7 +1013,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		//-- Experimental fix for bug# 787: cannot locate error fence. Allow errors to be posted on disconnected nodes.
 		if(m_page != null) {
 			IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
-			fence.addMessage(this, m_message);
+			fence.addMessage(m_message);
 		}
 		return m_message;
 	}
@@ -1030,7 +1033,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		if(m_page != null) {
 			IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
 			UIMessage msg = m_message;
-			fence.removeMessage(this, msg);
+			fence.removeMessage(msg);
 		}
 		m_message = null;
 	}
@@ -1068,23 +1071,23 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 */
 	public UIMessage addGlobalMessage(UIMessage m) {
 		IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
-		fence.addMessage(this, m);
+		fence.addMessage(m);
 		return m;
 	}
 
 	public void clearGlobalMessage() {
 		IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
-		fence.clearGlobalMessages(this, null);
+		fence.clearGlobalMessages(null);
 	}
 
 	public void clearGlobalMessage(UIMessage m) {
 		IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
-		fence.removeMessage(null, m);
+		fence.removeMessage(m);
 	}
 
 	public void clearGlobalMessage(final String code) {
 		IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
-		fence.clearGlobalMessages(this, code);
+		fence.clearGlobalMessages(code);
 	}
 
 
@@ -1356,6 +1359,26 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		}
 	}
 
+	/**
+	 * EXPERIMENTAL Some logic event has occurred; this can see if it wants to do something with it. By default
+	 * this passes the event to any binding.
+	 * @param logiEvent
+	 * @return
+	 */
+	public void logicEvent(@Nonnull LogiEvent logiEvent) throws Exception {
+		Object v = this; 							// Silly: Eclipse compiler has bug - it does not allow this in instanceof because it incorrecly assumes 'this' is ALWAYS of type NodeBase - and it it not.
+		if(v instanceof IBindable) {
+			IBindable b = (IBindable) v;
+			if(b.isBound()) {
+				IBinder bind = b.bind();
+
+				if(bind instanceof ILogiEventListener) {
+					((ILogiEventListener) bind).logicEvent(logiEvent);
+				}
+			}
+		}
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Miscellaneous.										*/
@@ -1373,6 +1396,16 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	@Nonnull
 	public QDataContextFactory getSharedContextFactory() {
 		return getParent().getSharedContextFactory();
+	}
+
+
+	/**
+	 * Get the context.
+	 * @return
+	 */
+	@Nonnull
+	public LogiContext lc() throws Exception {
+		return getPage().getBody().lc();
 	}
 
 	/**

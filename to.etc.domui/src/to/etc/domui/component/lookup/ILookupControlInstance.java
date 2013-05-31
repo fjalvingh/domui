@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.lookup;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.html.*;
 import to.etc.webapp.query.*;
 
@@ -45,7 +47,7 @@ public interface ILookupControlInstance {
 	 * <LI>{@link AppendCriteriaResult#INVALID}</LI>
 	 * <LI>{@link AppendCriteriaResult#EMPTY}</LI>
 	 * <LI>{@link AppendCriteriaResult#VALID}</LI>
-	 * </OL> 
+	 * </OL>
 	 *
 	 * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
 	 * Created on 6 Jan 2011
@@ -55,7 +57,7 @@ public interface ILookupControlInstance {
 		INVALID, //
 		/** No search critaria is entered. This however can result in implicit filter added into criteria. */
 		EMPTY, //
-		/** Search critaria is entered by user, represents explicit filters. 
+		/** Search critaria is entered by user, represents explicit filters.
 		 * This information is important when we want to force user to define at least one explicit criteria in order to permit search on large data sets. */
 		VALID
 	};
@@ -74,7 +76,7 @@ public interface ILookupControlInstance {
 	public NodeBase getLabelControl();
 
 	/**
-	 * Sets the input(s) to disabled state. 
+	 * Sets the input(s) to disabled state.
 	 * @param disabled
 	 */
 	public void setDisabled(boolean disabled);
@@ -89,8 +91,8 @@ public interface ILookupControlInstance {
 	 * Evaluate the contents of the input for this lookup line; if the user has
 	 * added data there then add the values to the query.
 	 * @param crit
-	 * @return see {@link AppendCriteriaResult} 
+	 * @return see {@link AppendCriteriaResult}
 	 * @throws Exception
 	 */
-	public AppendCriteriaResult appendCriteria(QCriteria< ? > crit) throws Exception;
+	public AppendCriteriaResult appendCriteria(@Nonnull QCriteria< ? > crit) throws Exception;
 }

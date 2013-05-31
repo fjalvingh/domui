@@ -344,7 +344,7 @@ public class OptimalDeltaRenderer {
 			nd.visit(m_fullRenderer);
 			o().closetag("prepend");
 		} else {
-			NodeBase pre = parent.getChild(nd.m_origNewIndex - 1);
+			NodeBase pre = parent.internalGetChildren().get(nd.m_origNewIndex - 1);
 			if(pre instanceof TextNode)
 				throw new IllegalStateException("Internal: attempting to insert after a #text node");
 			o().tag("after");

@@ -26,6 +26,8 @@ package to.etc.domui.dom.errors;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.html.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
@@ -236,5 +238,11 @@ public class UIMessage {
 		} else if(!m_type.equals(other.m_type))
 			return false;
 		return true;
+	}
+
+	@Nonnull
+	@Override
+	public String toString() {
+		return getMessage();
 	}
 }

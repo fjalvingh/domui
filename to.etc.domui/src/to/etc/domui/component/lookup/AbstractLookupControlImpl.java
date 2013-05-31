@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.lookup;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.html.*;
 import to.etc.webapp.query.*;
 
@@ -39,7 +41,8 @@ abstract public class AbstractLookupControlImpl implements ILookupControlInstanc
 	private NodeBase[] m_nodes;
 
 	@Override
-	abstract public AppendCriteriaResult appendCriteria(QCriteria< ? > crit) throws Exception;
+	@Nonnull
+	abstract public AppendCriteriaResult appendCriteria(@Nonnull QCriteria< ? > crit) throws Exception;
 
 	public AbstractLookupControlImpl(NodeBase... nodes) {
 		m_nodes = nodes;

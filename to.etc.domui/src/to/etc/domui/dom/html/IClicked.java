@@ -24,6 +24,8 @@
  */
 package to.etc.domui.dom.html;
 
+import javax.annotation.*;
+
 /**
  * Listener for basic clickies on a Node. Represents the onclick handler.
  *
@@ -38,5 +40,5 @@ public interface IClicked<T extends NodeBase> extends IClickBase<T> {
 	 * @param clickednode
 	 * @throws Exception
 	 */
-	public void clicked(T clickednode) throws Exception;
+	public void clicked(@Nonnull T clickednode) throws Exception;
 }

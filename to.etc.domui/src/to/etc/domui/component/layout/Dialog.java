@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.layout;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
@@ -94,7 +96,7 @@ public class Dialog extends Window {
 	 * added to the top content area.
 	 * @return
 	 */
-	public ButtonBar getButtonBar() {
+	public IButtonBar getButtonBar() {
 		if(m_buttonBar == null)
 			createButtonBar(false);
 		return m_buttonBar;
@@ -104,7 +106,7 @@ public class Dialog extends Window {
 		DefaultButton b;
 		b = getButtonBar().addButton(Msgs.BUNDLE.getString(Msgs.EDLG_CANCEL), Msgs.BTN_CANCEL, new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(DefaultButton clickednode) throws Exception {
+			public void clicked(@Nonnull DefaultButton clickednode) throws Exception {
 				buttonCancel();
 			}
 		});
@@ -114,7 +116,7 @@ public class Dialog extends Window {
 	protected void createSaveButton() {
 		DefaultButton b = getButtonBar().addButton(Msgs.BUNDLE.getString(Msgs.EDLG_OKAY), Msgs.BTN_SAVE, new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(DefaultButton clickednode) throws Exception {
+			public void clicked(@Nonnull DefaultButton clickednode) throws Exception {
 				buttonSave();
 			}
 		});

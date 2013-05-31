@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.input;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.html.*;
 
 /**
@@ -35,7 +37,7 @@ import to.etc.domui.dom.html.*;
  * Created on Oct 13, 2009
  */
 public interface IBindingListener<T extends NodeBase> {
-	void moveControlToModel(T control) throws Exception;
+	void moveControlToModel(@Nonnull T control) throws Exception;
 
-	void moveModelToControl(T control) throws Exception;
+	void moveModelToControl(@Nonnull T control) throws Exception;
 }

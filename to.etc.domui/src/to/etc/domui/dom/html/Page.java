@@ -145,7 +145,14 @@ final public class Page implements IQContextContainer {
 	 * Nodes that are added to a render and that are removed by the Javascript framework are added here; this
 	 * will force them to be removed from the tree after any render without causing a delta.
 	 */
+	@Nonnull
 	private List<NodeBase> m_removeAfterRenderList = Collections.EMPTY_LIST;
+
+	@Nonnull
+	private List<IExecute> m_afterRequestListenerList = Collections.EMPTY_LIST;
+
+	@Nonnull
+	private List<IExecute> m_beforeRequestListenerList = Collections.EMPTY_LIST;
 
 	public Page(final UrlPage pageContent) throws Exception {
 		m_pageTag = DomApplication.internalNextPageTag(); // Unique page ID.
@@ -318,7 +325,7 @@ final public class Page implements IQContextContainer {
 		//-- Experimental fix for bug# 787: cannot locate error fence. Allow errors to be posted on disconnected nodes.
 		if(n.getMessage() != null) {
 			IErrorFence fence = DomUtil.getMessageFence(n); // Get the fence that'll handle the message by looking UPWARDS in the tree
-			fence.addMessage(n, n.getMessage());
+			fence.addMessage(n.getMessage());
 		}
 	}
 
@@ -498,7 +505,7 @@ final public class Page implements IQContextContainer {
 			//-- Add a click handler which will close the floater when the hider div is clicked.
 			hider.setClicked(new IClicked<NodeBase>() {
 				@Override
-				public void clicked(NodeBase clickednode) throws Exception {
+				public void clicked(@Nonnull NodeBase clickednode) throws Exception {
 					window.closePressed();
 				}
 			});
@@ -594,8 +601,9 @@ final public class Page implements IQContextContainer {
 		if(!(nd instanceof NodeContainer))
 			return;
 		NodeContainer nc = (NodeContainer) nd;
-		for(int i = 0, len = nc.getChildCount(); i < len; i++) {
-			buildSubTree(nc.getChild(i));
+		List<NodeBase> ichl = nc.internalGetChildren();
+		for(int i = 0, len = ichl.size(); i < len; i++) {
+			buildSubTree(ichl.get(i));
 		}
 	}
 
@@ -609,8 +617,10 @@ final public class Page implements IQContextContainer {
 		NodeContainer nc = (NodeContainer) nd;
 		if(nc.childHasUpdates() && nc.internalGetOldChildren() == null) {
 			nc.build();
-			for(int i = 0, len = nc.getChildCount(); i < len; i++) {
-				buildChangedTree(nc.getChild(i));
+
+			List<NodeBase> ichl = nc.internalGetChildren();
+			for(int i = 0, len = ichl.size(); i < len; i++) {
+				buildChangedTree(ichl.get(i));
 			}
 		}
 		if(nc.internalGetOldChildren() != null || nc.childHasUpdates() || nc.mustRenderChildrenFully()) {
@@ -835,5 +845,37 @@ final public class Page implements IQContextContainer {
 	@Nullable
 	public NodeBase getDefaultFocusSource() {
 		return m_defaultFocusSource;
+	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Page action events.									*/
+	/*--------------------------------------------------------------*/
+	/**
+	 *
+	 * @param x
+	 */
+	public void addAfterRequestListener(@Nonnull IExecute x) {
+		if(m_afterRequestListenerList.size() == 0)
+			m_afterRequestListenerList = new ArrayList<IExecute>();
+		m_afterRequestListenerList.add(x);
+	}
+
+	public void addBeforeRequestListener(@Nonnull IExecute x) {
+		if(m_beforeRequestListenerList.size() == 0)
+			m_beforeRequestListenerList = new ArrayList<IExecute>();
+		m_beforeRequestListenerList.add(x);
+	}
+
+	public void callRequestFinished() throws Exception {
+		for(IExecute x: m_afterRequestListenerList) {
+			x.execute();
+		}
+	}
+
+	public void callRequestStarted() throws Exception {
+		for(IExecute x : m_beforeRequestListenerList) {
+			x.execute();
+		}
 	}
 }

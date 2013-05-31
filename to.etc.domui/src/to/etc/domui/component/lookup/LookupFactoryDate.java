@@ -67,7 +67,7 @@ final class LookupFactoryDate implements ILookupControlFactory {
 		}
 		return new AbstractLookupControlImpl(dateFrom, tn, dateTo) {
 			@Override
-			public AppendCriteriaResult appendCriteria(QCriteria< ? > crit) throws Exception {
+			public @Nonnull AppendCriteriaResult appendCriteria(@Nonnull QCriteria< ? > crit) throws Exception {
 				if(spm == null)
 					throw new IllegalStateException("? SearchPropertyModel should not be null here.");
 				Date from, till;

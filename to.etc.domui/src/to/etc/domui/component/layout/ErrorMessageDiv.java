@@ -26,6 +26,8 @@ package to.etc.domui.component.layout;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
@@ -82,10 +84,10 @@ public class ErrorMessageDiv extends Div implements IErrorMessageListener {
 	 * important) then all INFO messages that are <i>already shown</i> are removed from
 	 * the display and the message list.
 	 *
-	 * @see to.etc.domui.dom.errors.IErrorMessageListener#errorMessageAdded(to.etc.domui.dom.html.Page, to.etc.domui.dom.errors.UIMessage)
+	 * @see to.etc.domui.dom.errors.IErrorMessageListener#errorMessageAdded(to.etc.domui.dom.errors.UIMessage)
 	 */
 	@Override
-	public void errorMessageAdded(Page pg, UIMessage m) {
+	public void errorMessageAdded(@Nonnull UIMessage m) {
 		if(m_msgList.contains(m))
 			return;
 
@@ -123,7 +125,7 @@ public class ErrorMessageDiv extends Div implements IErrorMessageListener {
 	}
 
 	@Override
-	public void errorMessageRemoved(Page pg, UIMessage m) {
+	public void errorMessageRemoved(@Nonnull UIMessage m) {
 		if(!m_msgList.remove(m))
 			return;
 

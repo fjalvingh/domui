@@ -24,6 +24,8 @@ package to.etc.domui.trouble;
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
+import javax.annotation.*;
+
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.misc.*;
@@ -75,7 +77,7 @@ public class ExpiredSessionPage extends UrlPage {
 			LinkButton closeBtn = new LinkButton(closeTxt, new IClicked<LinkButton>() {
 
 				@Override
-				public void clicked(LinkButton clickednode) throws Exception {
+				public void clicked(@Nonnull LinkButton clickednode) throws Exception {
 					closeWindow();
 				}
 			});

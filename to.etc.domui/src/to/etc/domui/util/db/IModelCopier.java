@@ -24,9 +24,14 @@
  */
 package to.etc.domui.util.db;
 
+import to.etc.domui.component.meta.*;
 import to.etc.webapp.query.*;
 
 public interface IModelCopier {
+	<T> boolean isUnloadedParent(T source, PropertyMetaModel< ? > pmm) throws Exception;
+
+	<T> boolean isUnloadedChildList(T source, PropertyMetaModel< ? > pmm) throws Exception;
+
 	<T> T copyInstanceShallow(QDataContext dc, T source) throws Exception;
 
 	<T> T copyInstanceDeep(QDataContext targetdc, QDataContext sourcedc, T source) throws Exception;

@@ -26,9 +26,10 @@ package to.etc.domui.injector;
 
 import java.lang.reflect.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
 import to.etc.domui.state.*;
 
 /**
@@ -56,7 +57,7 @@ public class UrlParameterInjector extends PropertyInjector {
 	 * @see to.etc.domui.state.PageMaker.PropertyInjector#inject(to.etc.domui.server.RequestContextImpl, to.etc.domui.state.PageParameters)
 	 */
 	@Override
-	public void inject(final UrlPage page, final RequestContextImpl ctx, final IPageParameters papa) throws Exception {
+	public void inject(@Nonnull final UrlPage page, final @Nonnull IPageParameters papa) throws Exception {
 		//-- 1. Get the URL parameter's value.
 		String pv = papa.getString(m_name, null);
 		if(pv == null) {

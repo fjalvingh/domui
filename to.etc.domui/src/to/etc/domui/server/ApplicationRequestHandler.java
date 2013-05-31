@@ -340,7 +340,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				if(DomUtil.USERLOG.isDebugEnabled())
 					DomUtil.USERLOG.debug(cid + ": IForceRefresh, cleared page data for " + page);
 			}
-			ctx.getApplication().getInjector().injectPageValues(page.getBody(), ctx, papa);
+			ctx.getApplication().getInjector().injectPageValues(page.getBody(), papa);
 
 			/*
 			 * This is a (new) page request. We need to check rights on the page before
@@ -382,6 +382,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				}
 				cm.setAttribute(UIGoto.SINGLESHOT_MESSAGE, null);
 			}
+			page.callRequestStarted();
 
 			m_application.internalCallPageComplete(ctx, page);
 			page.internalDeltaBuild(); // If listeners changed the page-> rebuild those parts
@@ -793,6 +794,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		long ts = System.nanoTime();
 
 		m_application.internalCallPageAction(ctx, page);
+		page.callRequestStarted();
 
 		NodeBase wcomp = null;
 		String wid = ctx.getRequest().getParameter("webuic");
@@ -859,6 +861,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			 */
 			if(LOG.isDebugEnabled())
 				LOG.debug("rq: ignoring validation exception " + x);
+		} catch(MsgException msg) {
+			MsgBox.error(page.getBody(), msg.getMessage());
 		} catch(Exception ex) {
 			Exception x = WrappedException.unwrap(ex);
 			if(x instanceof NotLoggedInException) { // FIXME Fugly. Generalize this kind of exception handling somewhere.
@@ -882,11 +886,13 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			if(!xl.handleException(ctx, page, wcomp, x))
 				throw x;
 		}
+		page.callRequestFinished();
+
 		if(m_logPerf && !inhibitlog) {
 			ts = System.nanoTime() - ts;
 			System.out.println("domui: Action handling took " + StringTool.strNanoTime(ts));
 		}
-		if(!page.isDestroyed()) // jal 20090827 If an exception handler or whatever destroyed conversation or page exit...
+		if(!page.isDestroyed()) 								// jal 20090827 If an exception handler or whatever destroyed conversation or page exit...
 			page.getConversation().processDelayedResults(page);
 
 		//-- Determine the response class to render; exit if we have a redirect,
@@ -900,7 +906,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		//-- We stay on the same page. Render tree delta as response
 		try {
 			renderOptimalDelta(ctx, page, inhibitlog);
-		} catch(NotLoggedInException x) { // FIXME Fugly. Generalize this kind of exception handling somewhere.
+		} catch(NotLoggedInException x) { 						// FIXME Fugly. Generalize this kind of exception handling somewhere.
 			String url = m_application.handleNotLoggedInException(ctx, page, x);
 			if(url != null) {
 				generateHttpRedirect(ctx, url, "You need to be logged in");
@@ -910,14 +916,14 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	}
 
 	/**
-	 * Called in DEVELOPMENT mode when the source code for a page is requested (double escape press). It shows
-	 * the nodes from the entered one upto the topmost one, and when selected tries to open the source code
-	 * by sending a command to the local Eclipse.
-	 *
-	 * @param ctx
-	 * @param page
-	 * @param wcomp
-	 */
+		 * Called in DEVELOPMENT mode when the source code for a page is requested (double escape press). It shows
+		 * the nodes from the entered one upto the topmost one, and when selected tries to open the source code
+		 * by sending a command to the local Eclipse.
+		 *
+		 * @param ctx
+		 * @param page
+		 * @param wcomp
+		 */
 	private void handleDevelopmentShowCode(RequestContextImpl ctx, Page page, NodeBase wcomp) {
 		if(null == wcomp)
 			return;

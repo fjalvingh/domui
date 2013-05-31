@@ -737,8 +737,11 @@ final public class WindowSession {
 		internalAttachConversations(); // ORDERED 3
 
 		//-- Create the page && add to shelve,
-		if(null == papa)
-			throw new IllegalStateException("Internal: trying to create a page for an AJAX request??");
+		if(null == papa) {
+			IllegalStateException ex = new IllegalStateException("Internal: trying to create a page for an AJAX request??");
+			//LOG.error("Internal: trying to create a page for an AJAX request??", ex); --useful for developer controlled debugging
+			throw ex;
+		}
 		Page newpg = PageMaker.createPageWithContent(rctx, bestpc, coco, papa);
 		shelvePage(newpg); // Append the current page to the shelve,
 
@@ -784,7 +787,7 @@ final public class WindowSession {
 			if(se instanceof ShelvedDomUIPage) {
 				ShelvedDomUIPage sdp = (ShelvedDomUIPage) se;
 
-				if(sdp.getPage().getBody().getClass() != clz)	// Of the appropriate type?
+				if(!sdp.getPage().getBody().getClass().getName().equals(clz.getName()))	// Of the appropriate type?
 					continue; 									// No -> not acceptable
 				if(cc != null && cc != sdp.getPage().getConversation()) // Is in the conversation supplied?
 					continue;									// No -> not acceptable

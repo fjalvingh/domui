@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.lookup;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.html.*;
 import to.etc.webapp.query.*;
 
@@ -46,7 +48,7 @@ final public class EqLookupControlImpl extends AbstractLookupControlImpl {
 	}
 
 	@Override
-	public AppendCriteriaResult appendCriteria(QCriteria< ? > crit) throws Exception {
+	public @Nonnull AppendCriteriaResult appendCriteria(@Nonnull QCriteria< ? > crit) throws Exception {
 		Object value = m_control.getValue();
 		if(value != null) {
 			crit.eq(m_property, value);

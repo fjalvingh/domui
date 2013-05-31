@@ -59,6 +59,8 @@ public class DefaultButton extends Button implements IActionControl {
 	/** If this is an action-based button this contains the action. */
 	private IUIAction< ? > m_action;
 
+	private Object m_actionInstance;
+
 	private final ButtonPartKey m_key = new ButtonPartKey();
 
 	/**
@@ -87,6 +89,18 @@ public class DefaultButton extends Button implements IActionControl {
 		m_action = action;
 		actionRefresh();
 	}
+
+	/**
+	 * Create a {@link IUIAction} based button.
+	 * @param txt
+	 */
+	public <T> DefaultButton(final T instance, final IUIAction<T> action) throws Exception {
+		this();
+		m_action = action;
+		m_actionInstance = instance;
+		actionRefresh();
+	}
+
 
 	/**
 	 * Create a button with a text and an icon.
@@ -268,23 +282,23 @@ public class DefaultButton extends Button implements IActionControl {
 	 * EXPERIMENTAL - UNSTABLE INTERFACE - Refresh the button regarding the state of the action.
 	 */
 	private void actionRefresh() throws Exception {
-		final IUIAction< ? > action = getAction();
+		final IUIAction<Object> action = (IUIAction<Object>) getAction();
 		if(null == action)
 			return;
-		String dt = action.getDisableReason(null);
+		String dt = action.getDisableReason(m_actionInstance);
 		if(null == dt) {
-			setTitle(action.getTitle(null)); // The default tooltip or remove it if not present
+			dt = action.getTitle(m_actionInstance);		// The default tooltip or remove it if not present
 			setDisabled(false);
 		} else {
-			setTitle(dt);						// Shot reason for being disabled
 			setDisabled(true);
 		}
-		setText(action.getName(null));
-		setIcon(action.getIcon(null));
+		setTitle(dt);
+		setText(action.getName(m_actionInstance));
+		setIcon(action.getIcon(m_actionInstance));
 		setClicked(new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(DefaultButton clickednode) throws Exception {
-				action.execute(DefaultButton.this, null);
+			public void clicked(@Nonnull DefaultButton clickednode) throws Exception {
+				action.execute(DefaultButton.this, m_actionInstance);
 			}
 		});
 	}

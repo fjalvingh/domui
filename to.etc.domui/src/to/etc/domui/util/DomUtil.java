@@ -227,7 +227,7 @@ final public class DomUtil {
 	 * @param name
 	 * @return
 	 */
-	static public final Object getClassValue(@Nonnull final Object inst, @Nonnull final String name) throws Exception {
+	static public final Object getClassValue(final @Nonnull Object inst, @Nonnull final String name) throws Exception {
 		if(inst == null)
 			throw new IllegalStateException("The input object is null");
 		Class< ? > clz = inst.getClass();
@@ -701,7 +701,6 @@ final public class DomUtil {
 
 		//-- Phase 1: start marking extends in the matrix.
 		int rowindex = 0;
-		int maxcols = 0;
 		for(NodeBase l0 : t) { // Expecting THead and TBodies here.
 			if(l0 instanceof THead || l0 instanceof TBody) {
 				//-- Walk all rows.
@@ -711,9 +710,7 @@ final public class DomUtil {
 					TR tr = (TR) trb;
 					int minrowspan = 1;
 
-					//-- Start traversing the TD's.
-					List<TD> baserowlist = getTdList(matrix, rowindex);
-					int colindex = 0;
+					getTdList(matrix, rowindex);
 					for(NodeBase tdb : tr) {
 						if(!(tdb instanceof TD))
 							throw new IllegalStateException("Unexpected child of type " + tr + " in TBody/THead node (expecting TD)");
@@ -888,10 +885,11 @@ final public class DomUtil {
 	}
 
 	/**
-	 * Lookup a page Title bar text..
+	 * Lookup a page Title bar text.. FIXME Bad logic, bad name; should have a version passing in class instance.
 	 * @param clz
 	 * @return
 	 */
+	@Nonnull
 	static public String calcPageTitle(final Class< ? > clz) {
 		UIMenu ma = clz.getAnnotation(UIMenu.class); // Is annotated with UIMenu?
 		Locale loc = NlsContext.getLocale();

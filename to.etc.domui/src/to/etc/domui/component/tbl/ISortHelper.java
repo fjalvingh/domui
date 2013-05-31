@@ -1,5 +1,7 @@
 package to.etc.domui.component.tbl;
 
+import javax.annotation.*;
+
 /**
  * Used to implement programmable sorting on ITableModels that are sortable.
  *
@@ -14,5 +16,5 @@ public interface ISortHelper {
 	 * @param model
 	 * @param descending
 	 */
-	<T extends ITableModel< ? > & IProgrammableSortableModel> void adjustSort(T model, boolean descending);
+	<T extends ITableModel< ? > & IProgrammableSortableModel> void adjustSort(@Nonnull T model, boolean descending);
 }

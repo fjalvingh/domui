@@ -247,7 +247,7 @@ public class DefaultBugListener implements IBugListener {
 			final BugRef info = ref; // Sigh
 			ind.setClicked(new IClicked<Div>() {
 				@Override
-				public void clicked(Div clickednode) throws Exception {
+				public void clicked(@Nonnull Div clickednode) throws Exception {
 					toggleBugDisplay(pg, info);
 				}
 			});
@@ -352,7 +352,7 @@ public class DefaultBugListener implements IBugListener {
 			m_clickimg.setAlign(ImgAlign.LEFT);
 			m_clickimg.setClicked(new IClicked<Img>() {
 				@Override
-				public void clicked(Img clickednode) throws Exception {
+				public void clicked(@Nonnull Img clickednode) throws Exception {
 					toggle();
 				}
 			});

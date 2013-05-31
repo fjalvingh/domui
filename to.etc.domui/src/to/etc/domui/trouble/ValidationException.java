@@ -28,6 +28,10 @@ import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
 
 public class ValidationException extends UIException {
+	public ValidationException() {
+		super(Msgs.BUNDLE, Msgs.NOT_VALID);
+	}
+
 	public ValidationException(BundleRef bundle, String code, Object... parameters) {
 		super(bundle, code, parameters);
 	}

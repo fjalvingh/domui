@@ -89,7 +89,7 @@ public class KeyWordSearchInput<T> extends Div {
 		m_keySearch.setOnLookupTyping(new ILookupTypingListener<TextStr>() {
 
 			@Override
-			public void onLookupTyping(TextStr component, boolean done) throws Exception {
+			public void onLookupTyping(@Nonnull TextStr component, boolean done) throws Exception {
 				if(done) {
 					if(getOnShowResults() != null) {
 						getOnShowResults().onValueChanged(KeyWordSearchInput.this);

@@ -28,12 +28,7 @@ import java.io.*;
 import java.lang.reflect.*;
 import java.sql.*;
 
-import javax.annotation.*;
-import javax.sql.*;
-
 import org.slf4j.*;
-
-import to.etc.util.*;
 
 public class OracleDB extends BaseDB {
 

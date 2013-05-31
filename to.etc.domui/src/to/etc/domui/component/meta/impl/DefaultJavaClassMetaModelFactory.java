@@ -168,7 +168,7 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 			if(mp.required() != YesNoType.UNKNOWN)
 				pmm.setRequired(mp.required() == YesNoType.YES);
 			if(mp.converterClass() != DummyConverter.class)
-				pmm.setConverter((IConverter<T>) ConverterRegistry.getConverterInstance((Class< ? extends IConverter<T>>) mp.converterClass()));
+				pmm.setConverter(ConverterRegistry.getConverterInstance((Class< ? extends IConverter<T>>) mp.converterClass()));
 			if(mp.temporal() != TemporalPresentationType.UNKNOWN && pmm.getTemporal() == TemporalPresentationType.UNKNOWN)
 				pmm.setTemporal(mp.temporal());
 			if(mp.numericPresentation() != NumericPresentation.UNKNOWN)
@@ -296,7 +296,7 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 		}
 	}
 
-	protected void decodePropertyAnnotationByName(DefaultJavaClassInfo colli, DefaultPropertyMetaModel< ? > pmm, Annotation an, String name) {
+	protected void decodePropertyAnnotationByName(@Nonnull DefaultJavaClassInfo colli, @Nonnull DefaultPropertyMetaModel< ? > pmm, @Nonnull Annotation an, @Nonnull String name) {
 		DefaultClassMetaModel cmm = colli.getModel();
 		if("javax.persistence.Column".equals(name)) {
 			decodeJpaColumn(pmm, an);
@@ -350,10 +350,10 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 	protected void decodeJpaColumn(DefaultPropertyMetaModel< ? > pmm, final Annotation an) {
 		try {
 			/*
-			 * Handle the "length" annotation. As usual, someone with a brain the size of a pea fucked up the standard. The
+			 * Handle the "length" annotation. As usual, someone with a brain the size of a pea f.cked up the standard. The
 			 * default value for the length is 255, which is of course a totally reasonable size. This makes it impossible to
-			 * see if someone has actually provided a value. This means that in absence of the length the field is fucking
-			 * suddenly 255 characters big. To prevent this utter disaster from fucking up the data we only accept this for
+			 * see if someone has actually provided a value. This means that in absence of the length the field is fscking
+			 * suddenly 255 characters big. To prevent this utter disaster from f'ing up the data we only accept this for
 			 * STRING fields.
 			 */
 			Integer iv = (Integer) DomUtil.getClassValue(an, "length");

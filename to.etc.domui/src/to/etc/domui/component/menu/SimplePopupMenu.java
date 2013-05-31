@@ -71,7 +71,7 @@ public class SimplePopupMenu extends Div {
 		Div d = renderItem(a.getTitle(), a.getHint(), a.getIcon(), false);
 		d.setClicked(new IClicked<NodeBase>() {
 			@Override
-			public void clicked(NodeBase clickednode) throws Exception {
+			public void clicked(@Nonnull NodeBase clickednode) throws Exception {
 				closeMenu();
 				if(null != a.getClicked())
 					a.getClicked().clicked(SimplePopupMenu.this);
@@ -96,14 +96,14 @@ public class SimplePopupMenu extends Div {
 		final T val = (T) m_targetObject;
 		String disa = action.getDisableReason(val);
 		if(null != disa) {
-			Div d = renderItem(action.getName(val), disa, action.getIcon(val), true);
+			renderItem(action.getName(val), disa, action.getIcon(val), true);
 			return;
 		}
 
 		Div d = renderItem(action.getName(val), action.getTitle(val), action.getIcon(val), false);
 		d.setClicked(new IClicked<NodeBase>() {
 			@Override
-			public void clicked(NodeBase clickednode) throws Exception {
+			public void clicked(@Nonnull NodeBase clickednode) throws Exception {
 				closeMenu();
 				action.execute(m_relativeTo, val);
 			}

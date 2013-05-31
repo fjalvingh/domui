@@ -26,6 +26,8 @@ package to.etc.domui.component.tree;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.html.*;
@@ -172,7 +174,7 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 					img.setSrc(last ? "THEME/tree-closed-last.png" : "THEME/tree-closed.png");
 					img.setClicked(new IClicked<Img>() {
 						@Override
-						public void clicked(Img bxx) throws Exception {
+						public void clicked(@Nonnull Img bxx) throws Exception {
 							expandNode(item);
 						}
 					});
@@ -193,7 +195,7 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 
 					img.setClicked(new IClicked<Img>() {
 						@Override
-						public void clicked(Img bxx) throws Exception {
+						public void clicked(@Nonnull Img bxx) throws Exception {
 							collapseNode(item);
 						}
 					});
@@ -273,7 +275,7 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 					img.setCssClass("ui-tr-act");
 					img.setClicked(new IClicked<Img>() {
 						@Override
-						public void clicked(Img bxx) throws Exception {
+						public void clicked(@Nonnull Img bxx) throws Exception {
 							collapseNode(o);
 						}
 					});
@@ -295,7 +297,7 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 
 					img.setClicked(new IClicked<Img>() {
 						@Override
-						public void clicked(Img bxx) throws Exception {
+						public void clicked(@Nonnull Img bxx) throws Exception {
 							collapseNode(o);
 						}
 					});
@@ -333,7 +335,7 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 		img.setCssClass("ui-tr-act");
 		img.setClicked(new IClicked<Img>() {
 			@Override
-			public void clicked(Img bxx) throws Exception {
+			public void clicked(@Nonnull Img bxx) throws Exception {
 				expandNode(item);
 			}
 		});
@@ -427,7 +429,7 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 
 			cell.setClicked(new IClicked<TD>() {
 				@Override
-				public void clicked(TD b) throws Exception {
+				public void clicked(@Nonnull TD b) throws Exception {
 					cellClicked(cell, value);
 				}
 			});

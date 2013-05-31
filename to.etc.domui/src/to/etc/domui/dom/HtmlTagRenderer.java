@@ -849,6 +849,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 	public void visitXmlNode(XmlTextNode n) throws Exception {
 		String lit = n.getText(); // Get tilde-replaced text
 		if(lit != null && lit.length() > 0) {
+			m_o.setIndentEnabled(false);
 			m_o.text(""); // 20100222 jal Force previous tag to end with >.
 			m_o.writeRaw(lit);
 		}

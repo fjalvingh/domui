@@ -95,7 +95,7 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 			}*/
 
 			@Override
-			public AppendCriteriaResult appendCriteria(QCriteria< ? > crit) throws Exception {
+			public @Nonnull AppendCriteriaResult appendCriteria(@Nonnull QCriteria< ? > crit) throws Exception {
 				NumericRelationType relation;
 				relation = relationCombo.getValue();
 				if(relation == null) {

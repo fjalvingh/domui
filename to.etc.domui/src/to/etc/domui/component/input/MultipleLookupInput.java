@@ -182,7 +182,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>> {
 					confirm.setClicked(new IClicked<NodeBase>() {
 
 						@Override
-						public void clicked(NodeBase clickednode) throws Exception {
+						public void clicked(@Nonnull NodeBase clickednode) throws Exception {
 							addSelection();
 							m_lookupInput.closePopup();
 						}
@@ -196,7 +196,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>> {
 		m_clearButton = new SmallImgButton(Theme.BTN_CLEARLOOKUP, new IClicked<SmallImgButton>() {
 			@Override
 			@SuppressWarnings("synthetic-access")
-			public void clicked(SmallImgButton b) throws Exception {
+			public void clicked(@Nonnull SmallImgButton b) throws Exception {
 				clearSelection(null);
 			}
 		});
@@ -300,7 +300,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>> {
 		final IClicked<NodeBase> removeHandler = new IClicked<NodeBase>() {
 
 			@Override
-			public void clicked(NodeBase clickednode) throws Exception {
+			public void clicked(@Nonnull NodeBase clickednode) throws Exception {
 				removeItem(item);
 			}
 

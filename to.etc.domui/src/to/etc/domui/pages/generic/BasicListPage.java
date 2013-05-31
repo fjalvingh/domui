@@ -24,6 +24,8 @@
  */
 package to.etc.domui.pages.generic;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.lookup.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.errors.*;
@@ -57,7 +59,7 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 	 * @param rcord
 	 * @throws Exception
 	 */
-	abstract public void onSelect(T rcord) throws Exception;
+	abstract public void onSelect(@Nonnull T rcord) throws Exception;
 
 	/**
 	 * Implement to handle pressing the "new record" button.
@@ -77,7 +79,7 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 	 * Override this to customize the lookup form. No need to call super. method.
 	 * @param lf
 	 */
-	protected void customizeLookupForm(LookupForm<T> lf) throws Exception {}
+	protected void customizeLookupForm(@Nonnull LookupForm<T> lf) throws Exception {}
 
 	@Override
 	public void createContent() throws Exception {
@@ -88,21 +90,21 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 		add(m_lookupForm);
 		m_lookupForm.setClicked(new IClicked<LookupForm<T>>() {
 			@Override
-			public void clicked(LookupForm<T> b) throws Exception {
+			public void clicked(@Nonnull LookupForm<T> b) throws Exception {
 				search(b);
 			}
 		});
 		if(hasEditRight()) {
 			m_lookupForm.setOnNew(new IClicked<LookupForm<T>>() {
 				@Override
-				public void clicked(LookupForm<T> b) throws Exception {
+				public void clicked(@Nonnull LookupForm<T> b) throws Exception {
 					onNew();
 				}
 			});
 		}
 		m_lookupForm.setOnClear(new IClicked<LookupForm<T>>() {
 			@Override
-			public void clicked(LookupForm<T> b) throws Exception {
+			public void clicked(@Nonnull LookupForm<T> b) throws Exception {
 				onLookupFormClear(b);
 			}
 		});
@@ -133,7 +135,7 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 		setTableQuery(c);
 	}
 
-	protected void adjustCriteria(QCriteria<T> crit) {}
+	protected void adjustCriteria(@Nonnull QCriteria<T> crit) {}
 
 	private void setTableQuery(QCriteria<T> qc) throws Exception {
 		adjustCriteria(qc);
@@ -196,7 +198,7 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 			if(arrh.getRowClicked() == null) {
 				arrh.setRowClicked(new ICellClicked<T>() {
 					@Override
-					public void cellClicked(NodeBase tr, T val) throws Exception {
+					public void cellClicked(@Nonnull NodeBase tr, @Nonnull T val) throws Exception {
 						onSelect(val);
 					}
 				});

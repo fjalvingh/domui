@@ -168,7 +168,7 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 		d.add(i);
 		i.setClicked(new IClicked<Img>() {
 			@Override
-			public void clicked(Img clickednode) throws Exception {
+			public void clicked(@Nonnull Img clickednode) throws Exception {
 				d.remove();
 				m_labelList.remove(lbl);
 				m_divMap.remove(lbl);

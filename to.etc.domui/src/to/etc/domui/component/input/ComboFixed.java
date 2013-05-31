@@ -168,6 +168,12 @@ public class ComboFixed<T> extends ComboComponentBase<ValueLabelPair<T>, T> {
 	 * @return
 	 */
 	static public <T extends Enum<T>> ComboFixed<T> createEnumCombo(T... items) {
+		List<ValueLabelPair<T>> l = createEnumValueList(items);
+		return new ComboFixed<T>(l);
+	}
+
+	@Nonnull
+	public static <T extends Enum<T>> List<ValueLabelPair<T>> createEnumValueList(T... items) {
 		if(items.length == 0)
 			throw new IllegalArgumentException("Missing parameters");
 
@@ -179,7 +185,7 @@ public class ComboFixed<T> extends ComboComponentBase<ValueLabelPair<T>, T> {
 				label = v.name();
 			l.add(new ValueLabelPair<T>(v, label));
 		}
-		return new ComboFixed<T>(l);
+		return l;
 	}
 
 	/**

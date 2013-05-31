@@ -272,14 +272,14 @@ public class ConversationContext implements IQContextContainer {
 			if(o instanceof IConversationStateListener) {
 				try {
 					((IConversationStateListener) o).conversationDestroyed(this);
-					m_manager.getApplication().internalCallConversationDestroyed(this);
+					getWindowSession().getApplication().internalCallConversationDestroyed(this);
 				} catch(Exception x) {
 					x.printStackTrace();
 					LOG.error("In calling destroy listener", x);
 				}
 			}
 		}
-		m_manager.getApplication().internalCallConversationDestroyed(this);
+		getWindowSession().getApplication().internalCallConversationDestroyed(this);
 		try {
 			onDestroy();
 		} finally {
@@ -297,7 +297,7 @@ public class ConversationContext implements IQContextContainer {
 	 * Force this context to destroy itself.
 	 */
 	public void destroy() {
-		m_manager.destroyConversation(this);
+		getWindowSession().destroyConversation(this);
 		m_manager = null;
 	}
 
@@ -318,7 +318,7 @@ public class ConversationContext implements IQContextContainer {
 		p.internalInitialize(papa, this);
 	}
 
-	void destroyPage(final Page pg) {
+	void destroyPage(@Nonnull final Page pg) {
 		//-- Call the page's DESTROY handler while still attached
 		try {
 			pg.getBody().onDestroy();
@@ -333,8 +333,11 @@ public class ConversationContext implements IQContextContainer {
 	 * Experimental interface: get the WindowSession for this page(set).
 	 * @return
 	 */
+	@Nonnull
 	public WindowSession getWindowSession() {
-		return m_manager;
+		if(null != m_manager)
+			return m_manager;
+		throw new IllegalStateException("Not initialized?");
 	}
 
 	/*--------------------------------------------------------------*/
@@ -402,9 +405,10 @@ public class ConversationContext implements IQContextContainer {
 	}
 
 	public void processDelayedResults(final Page pg) throws Exception {
-		if(m_delayManager == null)
+		DelayedActivitiesManager delayManager = m_delayManager;
+		if(delayManager == null)
 			return;
-		m_delayManager.processDelayedResults(pg);
+		delayManager.processDelayedResults(pg);
 	}
 
 	/**
@@ -412,7 +416,8 @@ public class ConversationContext implements IQContextContainer {
 	 * @return
 	 */
 	public boolean isPollCallbackRequired() {
-		return m_delayManager == null ? false : m_delayManager.callbackRequired();
+		DelayedActivitiesManager delayManager = m_delayManager;
+		return delayManager == null ? false : delayManager.callbackRequired();
 	}
 
 	/**
@@ -527,28 +532,28 @@ public class ConversationContext implements IQContextContainer {
 
 	static private final class DomUIContextContainer extends QContextContainer implements IConversationStateListener {
 		@Override
-		public void conversationNew(ConversationContext cc) throws Exception {
+		public void conversationNew(@Nonnull ConversationContext cc) throws Exception {
 			QDataContext c = internalGetSharedContext();
 			if(c instanceof IConversationStateListener)
 				((IConversationStateListener) c).conversationNew(cc);
 		}
 
 		@Override
-		public void conversationAttached(ConversationContext cc) throws Exception {
+		public void conversationAttached(@Nonnull ConversationContext cc) throws Exception {
 			QDataContext c = internalGetSharedContext();
 			if(c instanceof IConversationStateListener)
 				((IConversationStateListener) c).conversationAttached(cc);
 		}
 
 		@Override
-		public void conversationDetached(ConversationContext cc) throws Exception {
+		public void conversationDetached(@Nonnull ConversationContext cc) throws Exception {
 			QDataContext c = internalGetSharedContext();
 			if(c instanceof IConversationStateListener)
 				((IConversationStateListener) c).conversationDetached(cc);
 		}
 
 		@Override
-		public void conversationDestroyed(ConversationContext cc) throws Exception {
+		public void conversationDestroyed(@Nonnull ConversationContext cc) throws Exception {
 			QDataContext c = internalGetSharedContext();
 			if(c instanceof IConversationStateListener)
 				((IConversationStateListener) c).conversationDestroyed(cc);

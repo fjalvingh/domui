@@ -116,6 +116,7 @@ public class HibernateLongSessionContext extends BuggyHibernateBaseContext {
 		startTransaction();
 		m_session.flush();
 		super.commit();
+		startTransaction();
 	}
 
 	/**

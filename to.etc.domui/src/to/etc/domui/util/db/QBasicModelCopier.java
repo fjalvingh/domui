@@ -33,9 +33,11 @@ import to.etc.util.*;
 import to.etc.webapp.query.*;
 
 abstract public class QBasicModelCopier implements IModelCopier {
-	abstract protected <T> boolean isUnloadedParent(T source, PropertyMetaModel< ? > pmm) throws Exception;
+	@Override
+	abstract public <T> boolean isUnloadedParent(T source, PropertyMetaModel< ? > pmm) throws Exception;
 
-	abstract protected <T> boolean isUnloadedChildList(T source, PropertyMetaModel< ? > pmm) throws Exception;
+	@Override
+	abstract public <T> boolean isUnloadedChildList(T source, PropertyMetaModel< ? > pmm) throws Exception;
 
 	abstract protected QPersistentObjectState getObjectState(QDataContext dc, Object instance) throws Exception;
 

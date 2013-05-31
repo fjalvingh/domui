@@ -26,6 +26,7 @@ package to.etc.domui.server;
 
 import java.util.*;
 
+import javax.annotation.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
@@ -51,15 +52,37 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 
 	private Set<IReloadedClassesListener> m_listenerSet = new HashSet<IReloadedClassesListener>();
 
+	static private ReloadingContextMaker m_instance;
+
+	@Nonnull
+	static public List<IReloadListener> m_reloadListener = new ArrayList<IReloadListener>();
+
 
 	public ReloadingContextMaker(String applicationClassName, ConfigParameters pp, String patterns, String patternsWatchOnly) throws Exception {
 		super(pp);
+		m_instance = this;
 		m_applicationClassName = applicationClassName;
 		m_config = pp;
 		m_reloader = new Reloader(patterns, patternsWatchOnly);
 		System.out.println("DomUI: We are running in DEVELOPMENT mode. This will be VERY slow when used in a production environment.");
 
 		checkReload(); // Initial: force load and init of Application object.
+	}
+
+	static public synchronized void addReloadListener(IReloadListener l) {
+		m_reloadListener = new ArrayList<IReloadListener>(m_reloadListener);
+		m_reloadListener.add(l);
+	}
+
+	static private synchronized List<IReloadListener> listeners() {
+		return m_reloadListener;
+	}
+
+	static public Class< ? > loadClass(String name) throws Exception {
+		if(m_instance != null) {
+			return m_instance.getReloader().getReloadingLoader().loadClass(name);
+		}
+		return ReloadingContextMaker.class.getClassLoader().loadClass(name);
 	}
 
 	public Reloader getReloader() {
@@ -137,6 +160,13 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 		if(m_application != null) {
 			MetaManager.internalClear();
 			BundleRef.internalClear();
+			for(IReloadListener ll : listeners()) {
+				try {
+					ll.reloaded(m_reloader.getReloadingLoader());
+				} catch(Exception x) {
+					x.printStackTrace();
+				}
+			}
 
 			Class< ? > oclz = m_application.getClass();
 			System.out.println("OLD app = " + oclz + ", loaded by " + oclz.getClassLoader());
@@ -150,6 +180,7 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 
 		m_application = createApplication();
 	}
+
 
 	private DomApplication createApplication() throws Exception {
 		Class< ? > clz;

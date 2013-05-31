@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.input;
 
+import javax.annotation.*;
+
 import to.etc.webapp.query.*;
 
 /**
@@ -33,5 +35,11 @@ import to.etc.webapp.query.*;
  * Created on Aug 25, 2009
  */
 public interface IQueryManipulator<T> {
-	QCriteria<T> adjustQuery(QCriteria<T> c);
+	/**
+	 * Adjust the query. If the query is to be cancelled this should return null.
+	 * @param c
+	 * @return
+	 */
+	@Nullable
+	QCriteria<T> adjustQuery(@Nonnull QCriteria<T> c);
 }

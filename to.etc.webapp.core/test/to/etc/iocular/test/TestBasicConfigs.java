@@ -24,6 +24,8 @@
  */
 package to.etc.iocular.test;
 
+import javax.annotation.*;
+
 import org.junit.*;
 
 import to.etc.iocular.container.*;
@@ -34,7 +36,7 @@ import to.etc.webapp.query.*;
 public class TestBasicConfigs {
 	@BeforeClass
 	static public void init() {
-		QContextManager.initialize(new QDataContextFactory() {
+		final QDataContextFactory cf = new QDataContextFactory() {
 			@Override
 			public QDataContext getDataContext() throws Exception {
 				return new DataContextMock();
@@ -47,6 +49,13 @@ public class TestBasicConfigs {
 			@Override
 			public QQueryExecutorRegistry getQueryHandlerList() {
 				return QQueryExecutorRegistry.getInstance();
+			}
+		};
+		QContextManager.setImplementation(QContextManager.DEFAULT, new IQContextFactorySquared() {
+			@Override
+			@Nonnull
+			public QDataContextFactory getDataContextFactory() {
+				return cf;
 			}
 		});
 	}

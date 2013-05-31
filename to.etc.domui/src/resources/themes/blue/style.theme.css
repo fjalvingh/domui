@@ -63,6 +63,12 @@ button {
 .page-content {
 	margin: 0px 10px;
 }
+
+.ui-clickable {
+	cursor: pointer;
+}
+
+
 /*** 005_oddchars.frag.css ***/
 /*** Select special chars ***/
 .ui-oddchars {
@@ -1983,12 +1989,49 @@ li.ui-tab-err {
 /*** MessageLine ***/
 .ui-msgln {
 	padding: 4px 0px;
+/*	display: inline-block;		jal 20130215 This shows messages behind one another.... That should not happen.. */
 }
 .ui-msgln img {
 	float: left;
 }
 .ui-msgln-txt {
 	padding-left: 4px;
+}
+/*** 350_logtailer.frag.css ***/
+/*** Log tailer fragment ***/
+.ui-tlf-line {
+	font-family: Consolas, Liberation Mono, Courier, monospace;
+}
+.ui-tlf-lnr {
+	font: inherit;
+	width: 50px;
+	text-align: right;
+	background-color: #ccc;
+}
+.ui-tlf-l {
+	font: inherit;
+}
+.ui-tlf-hdr {
+	height: 2em;
+	background-color: #ff9436;
+}
+.ui-tlf-hdr img {
+}
+.ui-tlf-hdr input[type="checkbox"] {
+	vertical-align: middle;
+}
+
+.ui-tlf-btn {
+	display: inline-block;
+	width: 360px;
+}
+
+.ui-tlf-sz {
+	display: inline-block;
+	width: 140px;
+}
+.ui-tlf-sz span {
+	font-weight: bold;
 }
 /*** Asy IO failure dialog ***/
 .ui-ioe-asy {

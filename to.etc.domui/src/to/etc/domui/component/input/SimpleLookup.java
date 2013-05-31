@@ -123,14 +123,14 @@ public class SimpleLookup<T> extends AbstractFloatingLookup<T> {
 
 		lf.setClicked(new IClicked<LookupForm<T>>() {
 			@Override
-			public void clicked(LookupForm<T> b) throws Exception {
+			public void clicked(@Nonnull LookupForm<T> b) throws Exception {
 				search(b);
 			}
 		});
 
 		lf.setOnCancel(new IClicked<LookupForm<T>>() {
 			@Override
-			public void clicked(LookupForm<T> b) throws Exception {
+			public void clicked(@Nonnull LookupForm<T> b) throws Exception {
 				closePressed();
 			}
 		});
@@ -189,7 +189,7 @@ public class SimpleLookup<T> extends AbstractFloatingLookup<T> {
 
 			rr.setRowClicked(new ICellClicked<T>() {
 				@Override
-				public void cellClicked(NodeBase tr, T val) throws Exception {
+				public void cellClicked(@Nonnull NodeBase tr, @Nonnull T val) throws Exception {
 					clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 					close();
 					if(getOnValueSelected() != null) {

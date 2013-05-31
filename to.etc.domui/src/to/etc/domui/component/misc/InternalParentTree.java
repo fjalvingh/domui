@@ -27,6 +27,8 @@ package to.etc.domui.component.misc;
 import java.io.*;
 import java.net.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
@@ -60,7 +62,7 @@ public class InternalParentTree extends Div {
 		ttl.add(img);
 		img.setClicked(new IClicked<Img>() {
 			@Override
-			public void clicked(Img clickednode) throws Exception {
+			public void clicked(@Nonnull Img clickednode) throws Exception {
 				//-- Remove this.
 				InternalParentTree.this.remove();
 			}
@@ -102,7 +104,7 @@ public class InternalParentTree extends Div {
 			td.setCellWidth("1%");
 			td.setClicked(new IClicked<NodeBase>() {
 				@Override
-				public void clicked(NodeBase clickednode) throws Exception {
+				public void clicked(@Nonnull NodeBase clickednode) throws Exception {
 					openSource(clicked);
 				}
 			});
@@ -116,7 +118,7 @@ public class InternalParentTree extends Div {
 				td.setCellWidth("1%");
 				td.setClicked(new IClicked<NodeBase>() {
 					@Override
-					public void clicked(NodeBase clickednode) throws Exception {
+					public void clicked(@Nonnull NodeBase clickednode) throws Exception {
 						showCreationTrace(clicked, clicked.getAllocationTracepoint());
 					}
 				});
@@ -143,7 +145,7 @@ public class InternalParentTree extends Div {
 		m_structure.add(alt);
 		LinkButton lb = new LinkButton("Back to structure", "THEME/btnBack.png", new IClicked<LinkButton>() {
 			@Override
-			public void clicked(LinkButton clickednode) throws Exception {
+			public void clicked(@Nonnull LinkButton clickednode) throws Exception {
 				m_structure.removeAllChildren();
 				renderStructure(m_structure);
 			}
@@ -203,7 +205,7 @@ public class InternalParentTree extends Div {
 			final StackTraceElement cste = ste;
 			td.setClicked(new IClicked<NodeBase>() {
 				@Override
-				public void clicked(NodeBase clickednode) throws Exception {
+				public void clicked(@Nonnull NodeBase clickednode) throws Exception {
 					openSource(cste);
 				}
 			});

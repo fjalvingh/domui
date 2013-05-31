@@ -56,3 +56,9 @@ button {
 .page-content {
 	margin: 0px 10px;
 }
+
+.ui-clickable {
+	cursor: pointer;
+}
+
+

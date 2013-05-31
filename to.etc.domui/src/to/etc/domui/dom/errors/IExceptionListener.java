@@ -24,9 +24,11 @@
  */
 package to.etc.domui.dom.errors;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 
 public interface IExceptionListener {
-	public boolean handleException(IRequestContext ctx, Page pg, NodeBase source, Throwable t) throws Exception;
+	public boolean handleException(@Nonnull IRequestContext ctx, @Nonnull Page pg, @Nullable NodeBase source, @Nonnull Throwable t) throws Exception;
 }

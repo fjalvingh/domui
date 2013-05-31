@@ -549,15 +549,22 @@ public class JdbcUtil {
 	 * @throws Exception
 	 */
 	@Nullable
-	static public String hasChildRecords(@Nonnull Connection dbc, @Nonnull String schemaName, @Nonnull String tableName, @Nonnull String primaryKey) throws Exception {
+	static public String hasChildRecords(@Nonnull Connection dbc, @Nullable String schemaName, @Nonnull String tableName, @Nonnull String primaryKey) throws Exception {
 		DatabaseMetaData dmd = dbc.getMetaData();
 		ResultSet rs = null;
 		ResultSet rs2 = null;
 		PreparedStatement ps = null;
 		try {
 			//-- Find all of my child relations.
-			rs = dmd.getExportedKeys(null, schemaName.toUpperCase(), tableName.toUpperCase());
-			while(rs.next()) {
+			rs = dmd.getExportedKeys(dbc.getCatalog(), null == schemaName ? null : schemaName.toUpperCase(), tableName.toUpperCase());
+			if(!rs.next()) {
+				rs.close();
+				rs = dmd.getExportedKeys(dbc.getCatalog(), null == schemaName ? null : schemaName, tableName);
+				if(!rs.next())
+					return null;
+			}
+
+			do {
 				String pkColumn = rs.getString("PKCOLUMN_NAME");
 				String fkTable = rs.getString("FKTABLE_NAME");
 				String fkColumn = rs.getString("FKCOLUMN_NAME");
@@ -595,7 +602,7 @@ public class JdbcUtil {
 					rs2.close();
 					ps.close();
 				}
-			}
+			} while(rs.next());
 			return null;
 		} finally {
 			FileTool.closeAll(rs2, rs, ps);

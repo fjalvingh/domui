@@ -27,6 +27,8 @@ package to.etc.domui.component.agenda;
 import java.text.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.html.*;
 import to.etc.util.*;
 import to.etc.webapp.nls.*;
@@ -76,7 +78,7 @@ public class MonthPanel extends Div {
 		if(getDayClicked() != null && m_clickHandler == null) {
 			m_clickHandler = new IClicked<TD>() {
 				@Override
-				public void clicked(TD bx) throws Exception {
+				public void clicked(@Nonnull TD bx) throws Exception {
 					handleClick(bx);
 				}
 			};
