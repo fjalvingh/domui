@@ -158,7 +158,7 @@ public class QRestriction {
 	 * @return
 	 */
 	static public QOperatorNode createValueNode(Object value) {
-		if(value instanceof QOperatorNode)
+		if(value instanceof QOperatorNode) {
 			return (QOperatorNode) value;
 		} else if(value instanceof QSelection< ? >) {
 			return new QSelectionSubquery((QSelection< ? >) value);

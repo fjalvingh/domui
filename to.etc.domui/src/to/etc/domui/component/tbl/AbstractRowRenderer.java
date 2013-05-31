@@ -83,7 +83,7 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 	 * @param cd
 	 * @param type
 	 */
-	public void setDefaultSort(@Nonnull SimpleColumnDef cd, @Nonnull SortableType type) {
+	public void setDefaultSort(@Nonnull SimpleColumnDef< ? > cd, @Nonnull SortableType type) {
 		getColumnList().setSortColumn(cd, type);
 	}
 
