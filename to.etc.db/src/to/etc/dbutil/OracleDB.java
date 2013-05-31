@@ -28,6 +28,9 @@ import java.io.*;
 import java.lang.reflect.*;
 import java.sql.*;
 
+import javax.annotation.*;
+import javax.sql.*;
+
 import org.slf4j.*;
 
 public class OracleDB extends BaseDB {
@@ -578,59 +581,59 @@ public class OracleDB extends BaseDB {
 	}
 
 	public static void updateSynonyms(@Nonnull DataSource ds, @Nonnull String owner, String... objectNames) {
-		PreparedStatement ps = null;
-		PreparedStatement ps2 = null;
-		ResultSet rs = null;
-		Connection dbc = null;
-		try {
-			dbc = ds.getConnection();
-			int ct = 0;
-			long ts = System.currentTimeMillis();
-			String objectNamesFilter = null;
-			if(objectNames != null && objectNames.length > 0) {
-				StringBuilder sb = new StringBuilder();
-				for(String object : objectNames) {
-					sb.append("'").append(object).append("',");
-				}
-				sb.setLength(sb.length() - 1);
-				objectNamesFilter = " and o.object_name in (" + sb.toString() + ")";
-			}
-
-			ps = dbc.prepareStatement("select o.object_name from dba_objects o" //
-				+ " where o.owner = '" + owner + "'" //
-				+ " and o.object_type <> 'TYPE'" //
-				+ (objectNamesFilter != null ? objectNamesFilter : "") //
-				+ " and not exists  (" //
-				+ " select 1 from dba_synonyms s" //
-				+ " where s.owner = 'PUBLIC'" //
-				+ " and s.synonym_name = o.object_name " //
-				+ ")" //
-			);
-			rs = ps.executeQuery();
-			while(rs.next()) {
-				String on = rs.getString(1);
-				LOG.info(owner + ": create missing synonym '" + on + "'");
-				try {
-					ps2 = dbc.prepareStatement("create public synonym \"" + on + "\" for " + owner + ".\"" + on + "\"");
-					ps2.executeUpdate();
-				} catch(Exception x) {
-					String message = x.toString().toLowerCase();
-					if(!message.contains("ora-00955"))
-						LOG.error(owner + ": error creating synonym " + on + ": " + x);
-				} finally {
-					FileTool.closeAll(ps2);
-				}
-				ct++;
-			}
-
-			ts = System.currentTimeMillis() - ts;
-			LOG.info(owner + ": created " + ct + " public synonyms in " + StringTool.strDurationMillis(ts));
-		} catch(Exception x) {
-			LOG.error(owner + ": exception while trying to create missing synonyms: " + x);
-			x.printStackTrace();
-		} finally {
-			FileTool.closeAll(rs, ps, ps2, dbc);
-		}
+//		PreparedStatement ps = null;
+//		PreparedStatement ps2 = null;
+//		ResultSet rs = null;
+//		Connection dbc = null;
+//		try {
+//			dbc = ds.getConnection();
+//			int ct = 0;
+//			long ts = System.currentTimeMillis();
+//			String objectNamesFilter = null;
+//			if(objectNames != null && objectNames.length > 0) {
+//				StringBuilder sb = new StringBuilder();
+//				for(String object : objectNames) {
+//					sb.append("'").append(object).append("',");
+//				}
+//				sb.setLength(sb.length() - 1);
+//				objectNamesFilter = " and o.object_name in (" + sb.toString() + ")";
+//			}
+//
+//			ps = dbc.prepareStatement("select o.object_name from dba_objects o" //
+//				+ " where o.owner = '" + owner + "'" //
+//				+ " and o.object_type <> 'TYPE'" //
+//				+ (objectNamesFilter != null ? objectNamesFilter : "") //
+//				+ " and not exists  (" //
+//				+ " select 1 from dba_synonyms s" //
+//				+ " where s.owner = 'PUBLIC'" //
+//				+ " and s.synonym_name = o.object_name " //
+//				+ ")" //
+//			);
+//			rs = ps.executeQuery();
+//			while(rs.next()) {
+//				String on = rs.getString(1);
+//				LOG.info(owner + ": create missing synonym '" + on + "'");
+//				try {
+//					ps2 = dbc.prepareStatement("create public synonym \"" + on + "\" for " + owner + ".\"" + on + "\"");
+//					ps2.executeUpdate();
+//				} catch(Exception x) {
+//					String message = x.toString().toLowerCase();
+//					if(!message.contains("ora-00955"))
+//						LOG.error(owner + ": error creating synonym " + on + ": " + x);
+//				} finally {
+//					FileTool.closeAll(ps2);
+//				}
+//				ct++;
+//			}
+//
+//			ts = System.currentTimeMillis() - ts;
+//			LOG.info(owner + ": created " + ct + " public synonyms in " + StringTool.strDurationMillis(ts));
+//		} catch(Exception x) {
+//			LOG.error(owner + ": exception while trying to create missing synonyms: " + x);
+//			x.printStackTrace();
+//		} finally {
+//			FileTool.closeAll(rs, ps, ps2, dbc);
+//		}
 	}
 
 }
