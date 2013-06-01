@@ -221,7 +221,10 @@ public class ControlBuilder {
 	@Nonnull
 	public ControlFactoryResult createControlFor(@Nonnull final IReadOnlyModel< ? > model, @Nonnull final PropertyMetaModel< ? > pmm, final boolean editable) {
 		PropertyControlFactory cf = getControlFactory(pmm, editable, null);
-		return cf.createControl(pmm, editable, null);
+		ControlFactoryResult res = cf.createControl(pmm, editable, null);
+		if(pmm.getActualType().isPrimitive())
+			res.getFormControl().setMandatory(true);							// 20130601 jal Primitives must have a value.
+		return res;
 	}
 
 	/*--------------------------------------------------------------*/
