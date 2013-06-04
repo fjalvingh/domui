@@ -195,4 +195,6 @@ public interface IPageParameters {
 	public int getDataLength();
 
 	public boolean isReadOnly();
+
+	int size();
 }

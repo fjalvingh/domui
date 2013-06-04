@@ -27,6 +27,7 @@ package to.etc.domui.component.misc;
 import javax.annotation.*;
 
 import to.etc.domui.component.buttons.*;
+import to.etc.domui.component.input.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.css.*;
@@ -41,9 +42,16 @@ public class MsgBox extends Window {
 	public interface IAnswer {
 		void onAnswer(MsgBoxButton result) throws Exception;
 	}
+	public interface IAnswer2 {
+		void onAnswer(Object result) throws Exception;
+	}
+
+	public interface IInput<T> {
+		void onInput(T value) throws Exception;
+	}
 
 	public static enum Type {
-		INFO, WARNING, ERROR, DIALOG
+		INFO, WARNING, ERROR, DIALOG, INPUT
 	}
 
 	private Img m_theImage = new Img();
@@ -56,11 +64,17 @@ public class MsgBox extends Window {
 
 	private static final int HEIGHT = 210;
 
-	Object m_selectedChoice;
+	private Object m_selectedChoice;
 
-	IAnswer m_onAnswer;
+	private IAnswer m_onAnswer;
 
-	MsgBoxButton m_closeButtonObject;
+	private IAnswer2 m_onAnswer2;
+
+	private MsgBoxButton m_closeButtonObject;
+
+	private IInput< ? > m_oninput;
+
+	private Text< ? > m_inputControl;
 
 	/**
 	 * Custom dialog message text renderer.
@@ -68,9 +82,9 @@ public class MsgBox extends Window {
 	private INodeContentRenderer<String> m_dataRenderer;
 
 	protected MsgBox() {
-		super(true, false, WIDTH, HEIGHT, "");
+		super(true, false, WIDTH, -1, "");
 		setErrorFence(null); // Do not accept handling errors!!
-		m_theButtons.setCssClass("ui-mbx-bb");
+		m_theButtons.addCssClass("ui-bb-middle");
 		setOnClose(new IWindowClosed() {
 			@Override
 			public void closed(@Nonnull String closeReason) throws Exception {
@@ -78,6 +92,17 @@ public class MsgBox extends Window {
 					m_selectedChoice = m_closeButtonObject;
 					try {
 						m_onAnswer.onAnswer(m_closeButtonObject);
+					} catch(ValidationException ex) {
+						//close message box in case of validation exception is thrown as result of answer. Other exceptions do not close.
+						close();
+						throw ex;
+					}
+				}
+
+				if(null != m_onAnswer2) {
+					m_selectedChoice = m_closeButtonObject;
+					try {
+						m_onAnswer2.onAnswer(m_closeButtonObject);
 					} catch(ValidationException ex) {
 						//close message box in case of validation exception is thrown as result of answer. Other exceptions do not close.
 						close();
@@ -120,6 +145,10 @@ public class MsgBox extends Window {
 				break;
 			case DIALOG:
 				ttl = Msgs.BUNDLE.getString(Msgs.UI_MBX_DIALOG);
+				icon = Theme.ICON_MBX_DIALOG;
+				break;
+			case INPUT:
+				ttl = Msgs.BUNDLE.getString(Msgs.UI_MBX_INPUT);
 				icon = Theme.ICON_MBX_DIALOG;
 				break;
 		}
@@ -346,6 +375,18 @@ public class MsgBox extends Window {
 		box.construct();
 	}
 
+	public static <T> void inputString(NodeBase dad, String message, Text<T> input, IInput<T> onanswer) {
+		MsgBox box = create(dad);
+		box.setType(Type.INPUT);
+		box.setMessage(message);
+		box.addButton(MsgBoxButton.CONTINUE);
+		box.addButton(MsgBoxButton.CANCEL);
+		box.setCloseButton(MsgBoxButton.CANCEL);
+		box.setOninput(onanswer);
+		box.setInputControl(input);
+		box.construct();
+	}
+
 	/**
 	 * Ask a continue/cancel confirmation, and call the IClicked handler for CONTINUE only.
 	 * @param dad
@@ -370,6 +411,39 @@ public class MsgBox extends Window {
 	}
 
 	/**
+	 *
+	 * @param dad
+	 * @param boxType
+	 * @param message
+	 * @param onAnswer
+	 * @param buttonresultpairs
+	 */
+	public static void flexDialog(@Nonnull NodeBase dad, @Nonnull Type boxType, @Nonnull String message, @Nonnull IAnswer2 onAnswer, Object... buttonresultpairs) {
+		MsgBox box = create(dad);
+		box.setType(boxType);
+		box.setMessage(message);
+
+		int ix = 0;
+		while(ix < buttonresultpairs.length) {
+			Object o = buttonresultpairs[ix++];
+			if(o instanceof MsgBoxButton) {
+				MsgBoxButton b = (MsgBoxButton) o;
+				box.addButton(b);
+			} else if(o instanceof String) {
+				String s = (String) o;					// Button title
+				if(ix >= buttonresultpairs.length)
+					throw new IllegalArgumentException("Illegal format: must be [button name string], [response object].");
+				box.addButton(s, buttonresultpairs[ix++]);
+			} else
+				throw new IllegalArgumentException("Unsupported 'button' type in list: " + o + ", only supporting String:Object and MsgBoxButton");
+		}
+		box.setCloseButton(MsgBoxButton.NO);
+		box.setOnAnswer2(onAnswer);
+		box.construct();
+	}
+
+
+	/**
 	 * Create a button which will show an "are you sure" yes/no dialog with a specified text. Only if the user
 	 * presses the "yes" button will the clicked handler be executed.
 	 * @param icon
@@ -378,6 +452,7 @@ public class MsgBox extends Window {
 	 * @param ch		The delegate to call when the user is sure.
 	 * @return
 	 */
+	@Nonnull
 	public static DefaultButton areYouSureButton(String text, String icon, final String message, final IClicked<DefaultButton> ch) {
 		final DefaultButton btn = new DefaultButton(text, icon);
 		IClicked<DefaultButton> bch = new IClicked<DefaultButton>() {
@@ -404,6 +479,7 @@ public class MsgBox extends Window {
 	 * @param ch		The delegate to call when the user is sure.
 	 * @return
 	 */
+	@Nonnull
 	public static DefaultButton areYouSureButton(String text, final String message, final IClicked<DefaultButton> ch) {
 		return areYouSureButton(text, null, message, ch);
 	}
@@ -417,6 +493,7 @@ public class MsgBox extends Window {
 	 * @param ch		The delegate to call when the user is sure.
 	 * @return
 	 */
+	@Nonnull
 	public static LinkButton areYouSureLinkButton(String text, String icon, final String message, final IClicked<LinkButton> ch) {
 		final LinkButton btn = new LinkButton(text, icon);
 		IClicked<LinkButton> bch = new IClicked<LinkButton>() {
@@ -443,6 +520,7 @@ public class MsgBox extends Window {
 	 * @param ch		The delegate to call when the user is sure.
 	 * @return
 	 */
+	@Nonnull
 	public static LinkButton areYouSureLinkButton(String text, final String message, final IClicked<LinkButton> ch) {
 		return areYouSureLinkButton(text, null, message, ch);
 	}
@@ -484,9 +562,20 @@ public class MsgBox extends Window {
 		} else {
 			DomUtil.renderHtmlString(td, m_theText); // 20091206 Allow simple markup in message
 		}
+		if(m_inputControl != null) {
+			td = b.addRowAndCell();
+			td.setCssClass("ui-mbx-input-1");
+			td = b.addCell();
+			td.setCssClass("ui-mbx-input");
+			td.add(m_inputControl);
+			m_inputControl.setFocus();
+		}
+
 		add(m_theButtons);
+
 		//FIXME: vmijic 20090911 Set initial focus to first button. However preventing of keyboard input focus on window in background has to be resolved properly.
-		setFocusOnButton();
+		if(m_inputControl == null)
+			setFocusOnButton();
 	}
 
 
@@ -499,10 +588,10 @@ public class MsgBox extends Window {
 	@Override
 	public void setDimensions(int width, int height) {
 		super.setDimensions(width, height);
-		setTop("50%");
-		// center floating window horizontally on screen
-		setMarginLeft("-" + width / 2 + "px");
-		setMarginTop("-" + height / 2 + "px");
+		/*		setTop("50%");
+				// center floating window horizontally on screen
+				setMarginLeft("-" + width / 2 + "px");
+				setMarginTop("-" + height / 2 + "px"); */
 	}
 
 	void setSelectedChoice(Object selectedChoice) {
@@ -514,6 +603,26 @@ public class MsgBox extends Window {
 		if(m_onAnswer != null) {
 			try {
 				m_onAnswer.onAnswer((MsgBoxButton) m_selectedChoice);
+			} catch(ValidationException ex) {
+				//close message box in case of validation exception is thrown as result of answer
+				close();
+				throw ex;
+			}
+		}
+		if(m_onAnswer2 != null) {
+			try {
+				m_onAnswer2.onAnswer(m_selectedChoice);
+			} catch(ValidationException ex) {
+				//close message box in case of validation exception is thrown as result of answer
+				close();
+				throw ex;
+			}
+		}
+
+		if(m_oninput != null && sel == MsgBoxButton.CONTINUE) {
+			try {
+				Object v = m_inputControl.getValue();
+				((IInput<Object>) m_oninput).onInput(v);
 			} catch(ValidationException ex) {
 				//close message box in case of validation exception is thrown as result of answer
 				close();
@@ -558,6 +667,30 @@ public class MsgBox extends Window {
 
 	protected void setOnAnswer(IAnswer onAnswer) {
 		m_onAnswer = onAnswer;
+	}
+
+	public IAnswer2 getOnAnswer2() {
+		return m_onAnswer2;
+	}
+
+	public void setOnAnswer2(IAnswer2 onAnswer2) {
+		m_onAnswer2 = onAnswer2;
+	}
+
+	public IInput< ? > getOninput() {
+		return m_oninput;
+	}
+
+	public void setOninput(IInput< ? > oninput) {
+		m_oninput = oninput;
+	}
+
+	public Text< ? > getInputControl() {
+		return m_inputControl;
+	}
+
+	public void setInputControl(Text< ? > inputControl) {
+		m_inputControl = inputControl;
 	}
 
 	protected INodeContentRenderer<String> getDataRenderer() {

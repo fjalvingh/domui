@@ -399,7 +399,19 @@ public class QQueryRenderer implements QNodeVisitor {
 	}
 
 	@Override
-	public void visitUnaryNode(@Nonnull QUnaryNode n) throws Exception {
+	public void visitUnaryNode(QUnaryNode n) throws Exception {
+		appendOperation(n.getOperation());
+
+		int oldprec = m_curPrec;
+		m_curPrec = getOperationPrecedence(n.getOperation());
+		if(oldprec > m_curPrec)
+			append("(");
+		int ct = 0;
+
+		//-- Visit lower
 		n.getNode().visit(this);
+		if(oldprec > m_curPrec)
+			append(")");
+		m_curPrec = oldprec;
 	}
 }

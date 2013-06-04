@@ -54,16 +54,16 @@ public class LongSizeConverter implements IConverter<Long> {
 		if(lindex <= 0)
 			throw new ValidationException(Msgs.V_INVALID);
 
-		String f = val.substring(lindex).toLowerCase();
+		String f = val.substring(lindex).toLowerCase().trim();
 		val = val.substring(0, lindex);
 		double size = Double.parseDouble(val);
-		if("k".equals(f))
+		if("k".equals(f) || "kb".equals(f))
 			size *= 1024;
-		else if("m".equals(f))
+		else if("m".equals(f) || "mb".equals(f))
 			size *= 1024 * 1024;
-		else if("g".equals(f))
+		else if("g".equals(f) || "gb".equals(f))
 			size *= 1024l * 1024l * 1024l;
-		else if("t".equals(f))
+		else if("t".equals(f) || "tb".equals(f))
 			size *= 1024l * 1024l * 1024l * 1024l;
 		else if(f.length() != 0)
 			throw new ValidationException(Msgs.V_INVALID);

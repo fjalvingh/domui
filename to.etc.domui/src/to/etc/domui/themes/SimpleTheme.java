@@ -24,48 +24,98 @@
  */
 package to.etc.domui.themes;
 
+import java.io.*;
 import java.util.*;
 
 import javax.annotation.*;
+import javax.annotation.concurrent.*;
 
+import to.etc.domui.server.*;
+import to.etc.domui.util.js.*;
 import to.etc.domui.util.resources.*;
 
-public class SimpleTheme implements ITheme {
-	private String m_styleName;
+/**
+ * The result of a "simple" theme. It only contains the properties map for colors
+ * and icons, and a directory for theme resources.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Apr 27, 2011
+ */
+@Immutable
+public final class SimpleTheme implements ITheme {
+	@Nonnull
+	final private DomApplication m_da;
 
-	private ResourceDependencies m_rd;
+	@Nonnull
+	final private String m_styleName;
 
-	private Map<String, Object> m_themeProperties;
+	@Nonnull
+	final private ResourceDependencies m_rd;
 
-	public SimpleTheme(String styleName, Map<String, Object> themeProperties, ResourceDependencies rd) {
+	@Nonnull
+	final private IScriptScope m_propertyScope;
+
+	@Nonnull
+	final private List<String> m_searchpath;
+
+	public SimpleTheme(@Nonnull DomApplication da, @Nonnull String styleName, @Nonnull IScriptScope themeProperties, @Nonnull ResourceDependencies rd, @Nonnull List<String> searchpath) {
+		m_da = da;
 		m_styleName = styleName;
-		m_themeProperties = themeProperties;
+		m_propertyScope = themeProperties;
 		m_rd = rd;
-	}
-
-	@Override
-	public String getStylesheet() {
-		return "$themes/" + m_styleName + "/style.theme.css";
-	}
-
-	@Override
-	public @Nonnull ResourceDependencies getDependencies() {
-		return m_rd;
-	}
-
-	@Override
-	public @Nonnull Map<String, Object> getThemeProperties() {
-		return m_themeProperties;
+		m_searchpath = searchpath;
 	}
 
 	@Nonnull
 	@Override
-	public String getIconURL(@Nonnull String icon) {
-		return "$themes/" + m_styleName + "/" + icon;
+	public ResourceDependencies getDependencies() {
+		return m_rd;
 	}
 
 	@Override
-	public String getThemePath(String path) {
-		return "$themes/" + m_styleName + "/" + path;
+	@Nonnull
+	public IScriptScope getPropertyScope() {
+		return m_propertyScope;
+	}
+
+	@Nonnull
+	@Override
+	public IResourceRef getThemeResource(@Nonnull String name, @Nonnull IResourceDependencyList rdl) throws Exception {
+		//-- "Normal" resource.
+		for(String sitem : m_searchpath) {
+			String real = sitem + "/" + name;
+			IResourceRef rr = m_da.getResource(real, rdl);
+			if(rr != null && rr.exists())
+				return rr;
+		}
+		return new IResourceRef() {
+			@Override
+			public InputStream getInputStream() throws Exception {
+				return null;
+			}
+
+			@Override
+			public boolean exists() {
+				return false;
+			}
+		};
+
+		//		return m_da.getResource("$themes/" + m_styleName + "/" + name, rdl);
+	}
+
+	@Override
+	@Nonnull
+	public String translateResourceName(@Nonnull String name) {
+		try {
+			IScriptScope ss = getPropertyScope().getValue(IScriptScope.class, "icon");
+			if(null == ss)
+				return name;
+
+			//-- Retrieve a value here,
+			String val = ss.getValue(String.class, name);		// Is this icon name mapped to something else?
+			return val == null ? name : val;
+		} catch(Exception x) {
+			throw new StyleException("The 'icon' mapping for '" + name + "' results in an exception: " + name);
+		}
 	}
 }

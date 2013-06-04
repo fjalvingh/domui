@@ -1,10 +1,12 @@
 /*** 065_linkbutton.frag.css ***/
 /*** LinkButton component. ***/
 .ui-lbtn {
+	display: inline-block;
 	background-repeat: no-repeat;
 	background-position: left;
 	padding-left: 18px;
-	font-size: <%= link_font_size %>;
+	font-size: <%= font_size %>;
+	height: 16px;
 }
 .ui-lnkb {
 }

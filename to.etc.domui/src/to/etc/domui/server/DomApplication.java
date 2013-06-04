@@ -51,8 +51,8 @@ import to.etc.domui.state.*;
 import to.etc.domui.themes.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
+import to.etc.domui.util.js.*;
 import to.etc.domui.util.resources.*;
-import to.etc.template.*;
 import to.etc.util.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
@@ -79,12 +79,6 @@ public abstract class DomApplication {
 
 	@Nonnull
 	private ControlBuilder m_controlBuilder = new ControlBuilder(this);
-
-	//	private String m_currentTheme = "domui";
-	//
-	//	private String m_currentIconSet = "domui";
-	//
-	//	private String m_currentColorSet = "domui";
 
 	private boolean m_developmentMode;
 
@@ -225,12 +219,13 @@ public abstract class DomApplication {
 				return true;
 			}
 		});
-		m_themeFactory = new SimpleThemeFactory("blue", "orange", "blue");
+		setCurrentTheme("blue/domui/blue");
+		setThemeFactory(SimpleThemeFactory.INSTANCE);
 
 		registerResourceFactory(new ClassRefResourceFactory());
 		registerResourceFactory(new VersionedJsResourceFactory());
 		registerResourceFactory(new SimpleResourceFactory());
-		registerResourceFactory(new FragmentedThemeResourceFactory());
+		registerResourceFactory(new ThemeResourceFactory());
 
 		//-- Register default request handlers.
 		addRequestHandler(new ApplicationRequestHandler(this), 100);			// .ui and related
@@ -713,6 +708,7 @@ public abstract class DomApplication {
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/domui.js"), -900);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/weekagenda.js"), -790);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery.wysiwyg.js"), -780);
+		addHeaderContributor(HeaderContributor.loadJavascript("$js/wysiwyg.rmFormat.js"), -779);
 		addHeaderContributor(HeaderContributor.loadStylesheet("$js/jquery.wysiwyg.css"), -780);
 
 		/*
@@ -1454,29 +1450,86 @@ public abstract class DomApplication {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Programmable theme code.							*/
 	/*--------------------------------------------------------------*/
-	/** The thing that themes the application. Set only once @ init time. */
-	private IThemeFactory m_themeFactory;
+	/** The theme manager where theme calls are delegated to. */
+	final private ThemeManager m_themeManager = new ThemeManager(this);
 
-	private ITheme m_themeStore;
 
-	private ResourceDependencies m_themeDependencies;
+	/**
+	 * This method can be overridden to add extra stuff to the theme map, after
+	 * it has been loaded from properties or whatnot.
+	 * @param themeMap
+	 */
+	@OverridingMethodsMustInvokeSuper
+	public void augmentThemeMap(@Nonnull IScriptScope ss) throws Exception {
+		ss.put("util", new ThemeCssUtils(ss));
+		ss.eval(Object.class, "function url(x) { return util.url(x);};", "internal");
+	}
 
-	public synchronized IThemeFactory getThemer() {
-		return m_themeFactory;
+	/**
+	 * Sets the current theme string. This string is used as a "parameter" for the theme factory
+	 * which will use it to decide on the "real" theme to use.
+	 * @param currentTheme	The theme name, valid for the current theme engine. Cannot be null nor the empty string.
+	 */
+	public void setCurrentTheme(@Nonnull String currentTheme) {
+		m_themeManager.setCurrentTheme(currentTheme);
+	}
+
+	/**
+	 * Gets the current theme string.  This will become part of all themed resource URLs
+	 * and is interpreted by the theme factory to resolve resources.
+	 * @return
+	 */
+	@Nonnull
+	public String getCurrentTheme() {
+		return m_themeManager.getCurrentTheme();
+	}
+
+	/**
+	 * Get the current theme factory.
+	 * @return
+	 */
+	@Nonnull
+	public IThemeFactory getThemeFactory() {
+		return m_themeManager.getThemeFactory();
 	}
 
 	/**
 	 * Set the factory for handling the theme.
 	 * @param themer
 	 */
-	public synchronized void setThemeFactory(IThemeFactory themer) {
-		m_themeFactory = themer;
-		m_themeStore = null;
-		m_themeDependencies = null;
+	public void setThemeFactory(@Nonnull IThemeFactory themer) {
+		m_themeManager.setThemeFactory(themer);
 	}
 
-	public String getThemeReplacedString(@Nonnull IResourceDependencyList rdl, String rurl) throws Exception {
-		return getThemeReplacedString(rdl, rurl, null);
+	/**
+	 * Get the theme store representing the specified theme name. This is the name as obtained
+	 * from the resource name which is the part between $THEME/ and the actual filename.
+	 *
+	 * @param rdl
+	 * @return
+	 * @throws Exception
+	 */
+	public ITheme getTheme(@Nonnull String themeName, @Nonnull IResourceDependencyList rdl) throws Exception {
+		return m_themeManager.getTheme(themeName, rdl);
+	}
+
+	/**
+	 * EXPENSIVE CALL - ONLY USE TO CREATE CACHED RESOURCES
+	 *
+	 * This loads a theme resource as an utf-8 encoded template, then does expansion using the
+	 * current theme's variable map. This map is either a "style.properties" file
+	 * inside the theme's folder, or can be configured dynamically using a IThemeMapFactory.
+	 *
+	 * The result is returned as a string.
+	 *
+	 *
+	 * @param rdl
+	 * @param rurl
+	 * @return
+	 * @throws Exception
+	 */
+	public String getThemeReplacedString(IResourceDependencyList rdl, String rurl) throws Exception {
+		return m_themeManager.getThemeReplacedString(rdl, rurl);
 	}
 
 	/**
@@ -1492,87 +1545,9 @@ public abstract class DomApplication {
 	 * @param key
 	 * @return
 	 */
-	public String getThemeReplacedString(@Nonnull IResourceDependencyList rdl, @Nonnull String rurl, @Nullable BrowserVersion bv) throws Exception {
-		long ts = System.nanoTime();
-		IResourceRef ires = getResource(rurl, rdl); // Get the template source file
-//		if(ires == null)
-//			throw new ThingyNotFoundException("The theme-replaced file " + rurl + " cannot be found");
-
-		//-- Get the variable map to use.
-		Map<String, Object> themeMap = getThemeMap(rdl);
-		themeMap = new HashMap<String, Object>(themeMap); // Create a modifyable duplicate
-		if(bv != null) {
-			themeMap.put("browser", bv);
-		}
-		themeMap.put("util", new ThemeCssUtils());
-
-		augmentThemeMap(themeMap); // Provide a hook to let user code add stuff to the theme map
-
-		//-- 2. Get a reader.
-		InputStream is = ires.getInputStream();
-		if(is == null) {
-			System.out.println(">>>> RESOURCE ERROR: " + rurl + ", ref=" + ires);
-			throw new ThingyNotFoundException("Unexpected: cannot get input stream for IResourceRef rurl=" + rurl + ", ref=" + ires);
-		}
-		try {
-			Reader r = new InputStreamReader(is, "utf-8");
-			StringBuilder sb = new StringBuilder(65536);
-
-			JSTemplateCompiler tc = new JSTemplateCompiler();
-			tc.executeMap(sb, r, rurl, themeMap);
-
-			ts = System.nanoTime() - ts;
-			//			System.out.println("theme-replace: " + rurl + " took " + StringTool.strNanoTime(ts));
-			return sb.toString();
-		} finally {
-			try {
-				is.close();
-			} catch(Exception x) {}
-		}
+	public String getThemeReplacedString(IResourceDependencyList rdl, String rurl, BrowserVersion bv) throws Exception {
+		return m_themeManager.getThemeReplacedString(rdl, rurl, bv);
 	}
-
-	/**
-	 * Get the theme that is used for this application. The dependencies for the theme will
-	 * be added to the dependency list. This allows users of the theme to update themselves
-	 * when (parts of) the theme change.
-	 *
-	 * @param rdl
-	 * @return
-	 * @throws Exception
-	 */
-	public ITheme getTheme(@Nullable IResourceDependencyList rdl) throws Exception {
-		synchronized(this) {
-			//-- Do we have a theme store present?
-			if(m_themeStore != null) {
-				//-- Yes-> has it expired?
-				if(m_themeDependencies == null) // We're not checking (not in debug mode)
-					return m_themeStore;
-
-				if(!m_themeDependencies.isModified()) { // Not expired?
-					if(rdl != null)
-						rdl.add(m_themeDependencies);
-					return m_themeStore;
-				}
-
-				//-- We have an expired one...
-			}
-
-			//-- We need to (re)load a theme store.
-			m_themeStore = getThemer().loadTheme(this);
-			ThemeModifyableResource tmr = new ThemeModifyableResource(m_themeStore.getDependencies(), 3000); // Check for changes every 3 secs
-			m_themeDependencies = new ResourceDependencies(new IIsModified[]{tmr});
-			if(rdl != null)
-				rdl.add(m_themeDependencies);
-			return m_themeStore;
-		}
-	}
-
-	/**
-	 * This method can be overridden to add extra stuff to the theme map, after
-	 * it has been loaded from properties or whatnot.
-	 * @param themeMap
-	 */
-	protected void augmentThemeMap(Map<String, Object> themeMap) {}
 
 	/**
 	 * Return the current theme map (a readonly map), cached from the last
@@ -1583,32 +1558,25 @@ public abstract class DomApplication {
 	 * @return
 	 * @throws Exception
 	 */
-	public Map<String, Object> getThemeMap(IResourceDependencyList rdlin) throws Exception {
-		ITheme ts = getTheme(rdlin);
-		Map<String, Object> tmap = ts.getThemeProperties();
-		return tmap;
+	public IScriptScope getThemeMap(String themeName, IResourceDependencyList rdlin) throws Exception {
+		return m_themeManager.getThemeMap(themeName, rdlin);
 	}
 
+	/**
+	 * This checks to see if the RURL passed is a theme-relative URL. These URLs start
+	 * with THEME/. If not the RURL is returned as-is; otherwise the URL is translated
+	 * to a path containing the current theme string:
+	 * <pre>
+	 * 	$THEME/[currentThemeString]/[name]
+	 * </pre>
+	 * where [name] is the rest of the path string after THEME/ has been removed from it.
+	 * @param path
+	 * @return
+	 */
 	@Nullable
-	public String getThemedResourceRURL(String path) {
-		if(null == path)
-			return null;
-		if(path.startsWith("THEME/"))
-			path = path.substring(6); // Strip THEME/
-		else if(path.startsWith("ICON/"))
-			path = path.substring(5); // Strip ICON
-		else
-			return path; // Not theme-relative, so return as-is.
-
-		//-- We need to translate this according to the icon rules.
-		try {
-			String res = getTheme(null).getIconURL(path);
-			return res == null ? path : res;
-		} catch(Exception x) {
-			throw WrappedException.wrap(x);
-		}
+	public String getThemedResourceRURL(@Nullable String path) {
+		return m_themeManager.getThemedResourceRURL(path);
 	}
-
 
 
 	/*--------------------------------------------------------------*/

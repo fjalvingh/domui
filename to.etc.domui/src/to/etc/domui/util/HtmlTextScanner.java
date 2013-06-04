@@ -79,6 +79,8 @@ public class HtmlTextScanner extends TextScanner {
 		p("ul", false);
 		p("li", false);
 		p("br", true);
+		p("div", false);
+		p("code", false);
 	}
 
 	public Map<String, TagInfo> getMap() {

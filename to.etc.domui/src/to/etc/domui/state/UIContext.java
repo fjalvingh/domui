@@ -24,6 +24,7 @@
  */
 package to.etc.domui.state;
 
+import java.io.*;
 import java.util.*;
 
 import javax.annotation.*;
@@ -33,6 +34,7 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.login.*;
 import to.etc.domui.server.*;
 import to.etc.domui.trouble.*;
+import to.etc.net.*;
 
 /**
  * A class which allows access to the page's context and related information. This
@@ -109,6 +111,7 @@ public class UIContext {
 		m_page.set(pg);
 	}
 
+	@Nonnull
 	static public Page getCurrentPage() {
 		Page pg = m_page.get();
 		if(pg == null)
@@ -116,6 +119,7 @@ public class UIContext {
 		return pg;
 	}
 
+	@Nonnull
 	static public ConversationContext getCurrentConversation() {
 		return getCurrentPage().getConversation();
 	}
@@ -143,10 +147,19 @@ public class UIContext {
 		return u;
 	}
 
+	/**
+	 * Register a file as a file/directory to be deleted when the conversation terminates.
+	 * @param tmpf
+	 */
+	static public void registerTempFile(@Nonnull File tmpf) {
+		ConversationContext cc = getCurrentConversation();
+		cc.registerTempFile(tmpf);
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Login page logic. Temporary location.				*/
 	/*--------------------------------------------------------------*/
-	static private final String LOGIN_KEY = IUser.class.getName();
+	static public final String LOGIN_KEY = IUser.class.getName();
 
 	/**
 	 * UNSTABLE INTERFACE. This tries to retrieve an IUser context for the user. It tries to
@@ -411,5 +424,116 @@ public class UIContext {
 			}
 		}
 		return false;
+	}
+
+
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Handle cookies.										*/
+	/*--------------------------------------------------------------*/
+
+	/**
+	 * Find a cookie if it exists, return null otherwise.
+	 * @param name
+	 * @return
+	 */
+	@Nullable
+	static public Cookie findCookie(@Nonnull String name) {
+		RequestContextImpl rci = (RequestContextImpl) getRequestContext();
+		Cookie[] car = rci.getRequest().getCookies();
+		if(car == null || car.length == 0)
+			return null;
+
+		for(Cookie c : car) {
+			if(c.getName().equals(name)) {
+				return c;
+			}
+		}
+		return null;
+	}
+
+	@Nullable
+	static public String findCookieValue(@Nonnull String name) {
+		Cookie c = findCookie(name);
+		return c == null ? null : c.getValue();
+	}
+
+	/**
+	 * Set a new or overwrite an existing cookie.
+	 *
+	 * @param name
+	 * @param value
+	 * @param maxage	Max age, in seconds.
+	 */
+	static public void setCookie(@Nonnull String name, String value, int maxage) {
+		RequestContextImpl rci = (RequestContextImpl) getRequestContext();
+		Cookie k = new Cookie(name, value);
+		k.setMaxAge(maxage);
+		k.setPath(rci.getRequest().getContextPath());
+		k.setDomain(NetTools.getHostName(rci.getRequest()));
+		rci.getResponse().addCookie(k);
+	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Session attribute accessors.						*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Returns session value of expected type. Must be used within existing UIContext. In case that attribute is not stored in session, it would store defaultValue and return it.
+	 * See {@link UIContext#getSessionAttribute(Class, String)
+	 * See {@link UIContext#setSessionAttribute(String, Object)
+	 *
+	 * @param clz
+	 * @param attrName
+	 * @param defaultValue
+	 * @return
+	 */
+	public static <T> T getSessionAttribute(Class<T> clz, String attrName, T defaultValue) {
+		T val = getSessionAttribute(clz, attrName);
+		if(val != null) {
+			return val;
+		}
+		setSessionAttribute(attrName, defaultValue);
+		return defaultValue;
+	}
+
+	/**
+	 * Returns session value of expected type. Must be used within existing UIContext.
+	 * @param clz
+	 * @param attrName
+	 * @return  In case that value is not stored returns null. In case of expected type mismatch throws IllegalStateException.
+	 */
+	public static <T> T getSessionAttribute(Class<T> clz, String attrName) {
+		IRequestContext ctx = getRequestContext();
+		if(ctx instanceof RequestContextImpl) {
+			HttpSession hs = ((RequestContextImpl) ctx).getRequest().getSession();
+			Object val = hs.getAttribute(attrName);
+			if(val != null) {
+				if(clz.isAssignableFrom(val.getClass())) {
+					T res = (T) val;
+					return res;
+				} else {
+					throw new IllegalStateException("Session value of unexpected type: " + val.getClass().getCanonicalName() + ", expecting " + clz.getCanonicalName());
+				}
+			}
+			return null;
+		} else {
+			throw new IllegalStateException("Current request of unexpected type: " + ctx.getClass().getCanonicalName() + ", expecting " + RequestContextImpl.class.getCanonicalName());
+		}
+	}
+	/**
+	 * Sets session attribute value.
+	 * @param attrName
+	 * @param value
+	 */
+	public static void setSessionAttribute(String attrName, Object value) {
+		IRequestContext ctx = getRequestContext();
+		if(ctx instanceof RequestContextImpl) {
+			HttpSession hs = ((RequestContextImpl) ctx).getRequest().getSession();
+			hs.setAttribute(attrName, value);
+		} else {
+			throw new IllegalStateException("Current request of unexpected type: " + ctx.getClass().getCanonicalName() + ", expecting " + RequestContextImpl.class.getCanonicalName());
+		}
 	}
 }

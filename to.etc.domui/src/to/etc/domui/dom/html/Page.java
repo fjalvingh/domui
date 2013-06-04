@@ -705,6 +705,7 @@ final public class Page implements IQContextContainer {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Context handling code.								*/
 	/*--------------------------------------------------------------*/
+	@Nonnull
 	public ConversationContext getConversation() {
 		if(m_cc == null)
 			throw new IllegalStateException("The conversational context is null??????");

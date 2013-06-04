@@ -52,6 +52,10 @@ public class UrlPage extends Div implements ILogiEventListener {
 	/** The title for the page in the head's TITLE tag. */
 	private String m_pageTitle;
 
+	public UrlPage() {
+		setCssClass("ui-content");
+	}
+
 	/**
 	 * Gets called when a page is reloaded (for ROOT pages only).
 	 */

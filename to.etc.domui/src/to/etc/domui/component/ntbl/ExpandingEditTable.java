@@ -492,7 +492,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 			TD td = tr.addCell();
 			Div d = new Div("*");
 			td.add(d);
-			d.setCssClass("ui-xdt-ix ui-xdt-new");
+			d.setCssClass("ui-xdt-ix");
 
 			td.setClicked(new IClicked<TD>() {
 				@Override

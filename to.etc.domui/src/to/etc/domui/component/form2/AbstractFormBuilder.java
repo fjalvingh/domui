@@ -140,6 +140,25 @@ abstract public class AbstractFormBuilder {
 		return getControlBuilder().createControlFor(model, pmm, editable); // Delegate
 	}
 
+	/**
+	 * Add a fully manually specified label and control to the layout. This does not create any binding.
+	 * @param label
+	 * @param control
+	 * @param mandatory
+	 */
+	public void addLabelAndControl(final String label, final NodeBase control, final boolean mandatory) {
+		//-- jal 20090924 Bug 624 Assign the control label to all it's node so it can specify it in error messages
+		if(label != null)
+			control.setErrorLocation(label);
+
+		// FIXME Kludge to determine if the control is meant to be editable!
+		boolean editable = control instanceof IControl< ? >;
+		Label lbl = new Label(label);
+
+		addContent(lbl, new NodeBase[]{control}, editable);
+		lbl.setForNode(control);
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Simple getters and internal stuff.					*/
 	/*--------------------------------------------------------------*/

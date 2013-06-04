@@ -64,6 +64,10 @@ public class AppPageTitleBar extends BasePageTitleBar {
 
 	private ErrorMessageDiv m_errorThingy = new ErrorMessageDiv();
 
+	private Table m_titleTable;
+
+	private TBody m_body;
+
 	public AppPageTitleBar(boolean catchError) {
 		m_catchError = catchError;
 	}
@@ -96,17 +100,26 @@ public class AppPageTitleBar extends BasePageTitleBar {
 		m_hint = hint;
 	}
 
+	@Nonnull
+	public TBody getBody() {
+		if(null != m_body)
+			return m_body;
+		throw new IllegalStateException("Body null: call after createContent");
+	}
+
 	@Override
 	public void createContent() throws Exception {
 		super.createContent();
-		TBody b = new TBody();
-		add(b);
+		m_titleTable = new Table();
+		add(m_titleTable);
+		m_body = new TBody();
 		setCssClass("ui-atl");
-		setCellPadding("0");
-		setCellSpacing("0");
-		setTableBorder(0);
-		TR tr = b.addRow();
-		b.add(tr);
+		m_titleTable.add(m_body);
+		m_titleTable.setCellPadding("0");
+		m_titleTable.setCellSpacing("0");
+		m_titleTable.setTableBorder(0);
+		TR tr = m_body.addRow();
+		m_body.add(tr);
 
 		//-- Image...
 		setIconURL();
@@ -114,27 +127,27 @@ public class AppPageTitleBar extends BasePageTitleBar {
 			m_img.setDisplay(DisplayType.NONE);
 		}
 		m_img.setAlign(ImgAlign.LEFT);
-		TD td = b.addCell();
+		TD td = m_body.addCell();
 		td.add(m_img);
 		td.setCssClass("ui-atl-i");
 
 		//-- Title.
-		td = b.addCell();
+		td = m_body.addCell();
 		m_titlePart = td;
 		td.setCssClass("ui-atl-t");
 		td.setTestID("pageTitle");
 		renderTitleCell();
 
 		//-- Buttons
-		b.row().add(m_buttonpart);
+		m_body.row().add(m_buttonpart);
 		//		td = b.addCell();
 		m_buttonpart.setCssClass("ui-atl-bb");
 		//		td.setWidth("1%");
 		addDefaultButtons(m_buttonpart);
 
 		if(isCatchError()) {
-			int cspan = calcColSpan(getBody());
-			TD c = getBody().addRowAndCell();
+			int cspan = calcColSpan(m_titleTable.getBody());
+			TD c = m_titleTable.getBody().addRowAndCell();
 			c.add(m_errorThingy);
 			c.setColspan(cspan);
 		}

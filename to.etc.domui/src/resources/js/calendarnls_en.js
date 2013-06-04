@@ -101,6 +101,12 @@ Calendar._TT["SEL_DATE"] = "Select date";
 Calendar._TT["DRAG_TO_MOVE"] = "Drag to move";
 Calendar._TT["PART_TODAY"] = " (today)";
 Calendar._TT["INVALID"] = "Invalid date";
+Calendar._TT["INVALID_DATE"] = "Invalid date";
+Calendar._TT["INVALID_MONTH"] = "Invalid month";
+Calendar._TT["INVALID_YEAR"] = "Invalid year";
+Calendar._TT["INVALID_HOUR"] = "Invalid hour";
+Calendar._TT["INVALID_MINUTE"] = "Invalid minute";
+Calendar._TT["INVALID_SECOND"] = "Invalid second";
 
 // the following is to inform that "%s" is to be the first day of week
 // %s will be replaced with the day name.

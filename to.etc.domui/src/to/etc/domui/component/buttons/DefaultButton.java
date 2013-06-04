@@ -24,51 +24,44 @@
  */
 package to.etc.domui.component.buttons;
 
-import java.awt.*;
-
 import javax.annotation.*;
 
 import to.etc.domui.component.menu.*;
 import to.etc.domui.dom.html.*;
-import to.etc.domui.dom.html.Button;
 import to.etc.domui.parts.*;
-import to.etc.domui.server.*;
-import to.etc.domui.server.parts.*;
 import to.etc.domui.util.*;
-import to.etc.util.*;
 
 /**
- * This was the "DefaultButton" until june 2011.
- *
- * <p>An HTML button containing a rendered image as the button content. This button creates a button by creating the
- * full visible presence of the button as a server-side rendered image. The button can contain a text, an icon or
- * both, and things like the text color, font and style can be manipulated. The actual rendering process uses a
- * properties file 'defaultbutton.properties' present in the <i>current</i> theme. This property file contains
- * all of the basic rendering options for rendering the button, like:
- * <ul>
- * 	<li>What is the base image for the button (the image of the button without texts)</li>
- *	<li>What relative location is any optional icon placed? Left or right?</li>
- *	<li>What is the spacing between icon and text, and text and image</li>
- * </ul>
- * etc, etc.
+ * The default button for DomUI renders a sliding doors button that can
+ * contain a text and an icon. The button is fully styled through CSS.
+ * The rendered structure is as follows:
+ * <pre>
+ * 	&lt;button type='button' class='ui-sdbtn' onclick=... accesskey=...>
+ * 		&lt;span>
+ * 			&lt;img src="icon" border="0">
+ * 			&lt;u>l&lt;/u>abel text
+ * 		&lt;span>
+ * 	&lt;/button>
+ * </pre>
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * Created on Jul 21, 2008
+ * Created on Jun 3, 2011
  */
 public class DefaultButton extends Button implements IActionControl {
+	private String m_text;
+
+	private String m_icon;
+
 	/** If this is an action-based button this contains the action. */
 	private IUIAction< ? > m_action;
 
 	private Object m_actionInstance;
 
-	private final ButtonPartKey m_key = new ButtonPartKey();
-
 	/**
 	 * Create an empty button.
 	 */
 	public DefaultButton() {
-		setThemeConfig("defaultbutton.properties");
-		setCssClass("ui-dbtn");
+		setCssClass("ui-sdbtn");
 	}
 
 	/**
@@ -126,36 +119,32 @@ public class DefaultButton extends Button implements IActionControl {
 		setClicked(clicked);
 	}
 
-	/**
-	 * Set the rendering properties file to be used to render the button image. Use an absolute path to the
-	 * properties file. This overrides the default properties file which is 'defaultbutton.properties' in the
-	 * current theme.
-	 * @param src
-	 */
-	public void setConfig(final String src) {
-		m_key.setPropFile(src);
-		genURL();
+	@Override
+	public void createContent() throws Exception {
+		Span s = new Span();
+		add(s);
+		if(null != m_icon) {
+			String icon = m_icon;
+
+			if(isDisabled()) {
+				icon = GrayscalerPart.getURL(icon);
+			}
+
+			Img img = new Img(icon);
+			s.add(img);
+			img.setImgBorder(0);
+		}
+		if(!DomUtil.isBlank(m_text))
+			decodeAccelerator(m_text, s);
 	}
 
 	/**
-	 * Set the rendering properties file to be used to render the button image, as a class
-	 * resource. This overrides the default properties file which is 'defaultbutton.properties' in the
-	 * current theme.
-	 * @param resourceBase
-	 * @param name
+	 * Define this as a "mini" button, usable to be added inside a table row.
+	 * @return
 	 */
-	public void setConfig(final Class< ? > resourceBase, final String name) {
-		setConfig(DomUtil.getJavaResourceRURL(resourceBase, name));
-	}
-
-	/**
-	 * Set the rendering properties file to be used to render the button image. The name must
-	 * refer to a file in the current theme. This overrides the default properties file which
-	 * is 'defaultbutton.properties' in the current theme.
-	 * @param name
-	 */
-	public void setThemeConfig(final String name) {
-		setConfig(DomApplication.get().getThemedResourceRURL("THEME/" + name));
+	public DefaultButton	mini() {
+		setCssClass("ui-sdbtn-mini");
+		return this;
 	}
 
 	/**
@@ -164,8 +153,7 @@ public class DefaultButton extends Button implements IActionControl {
 	 * @param name				The resource's name relative to the class.
 	 */
 	public void setIconImage(final Class< ? > resourceBase, final String name) {
-		m_key.setIcon(DomUtil.getJavaResourceRURL(resourceBase, name));
-		genURL();
+		setIcon(DomUtil.getJavaResourceRURL(resourceBase, name));
 	}
 
 	/**
@@ -173,45 +161,8 @@ public class DefaultButton extends Button implements IActionControl {
 	 * @param name
 	 */
 	public void setIcon(final String name) {
-		m_key.setIcon(DomApplication.get().getThemedResourceRURL(name));
-		genURL();
-	}
-
-	/**
-	 * Generate the URL to the button renderer. Since things like the button text can contain
-	 * tilded resource keys we cannot generate the URL when we're not attached to a page; in
-	 * that case we ignore the call and generate the URL at page attachment time.
-	 */
-	private void genURL() {
-		if(!isAttached()) // Not attached yet?
-			return;
-		StringBuilder sb = new StringBuilder(128);
-		m_key.append(sb);
-		setBackgroundImage(sb.toString());
-
-		//-- Determine image size: force it generated and use the cached copy for sizing
-		PartRequestHandler ph = DomApplication.get().getPartRequestHandler();
-		try {
-			CachedPart ci = ph.getCachedInstance(PropBtnPart.INSTANCE, m_key);
-			Dimension d = (Dimension) ci.getExtra();
-			setWidth(d.width + "px");
-			setHeight(d.height + "px");
-		} catch(Exception x) {
-			throw WrappedException.wrap(x);
-		}
-	}
-
-	/**
-	 * When attached to a page, this causes the Button Image Renderer URL to be
-	 * set in the image. It can only be done when the button is attached because
-	 * the button can contain tilde-escaped keys.
-	 *
-	 * @see to.etc.domui.dom.html.NodeBase#onAddedToPage(to.etc.domui.dom.html.Page)
-	 */
-	@Override
-	public void onAddedToPage(Page p) {
-		super.onAddedToPage(p);
-		genURL();
+		m_icon = name;
+		forceRebuild();
 	}
 
 	/**
@@ -219,7 +170,7 @@ public class DefaultButton extends Button implements IActionControl {
 	 * @return
 	 */
 	public String getText() {
-		return m_key.getText();
+		return m_text;
 	}
 
 	/**
@@ -230,38 +181,77 @@ public class DefaultButton extends Button implements IActionControl {
 	 */
 	@Override
 	public void setText(final @Nullable String text) {
-		m_key.setText(text);
-		decodeAccelerator(text);
-		genURL();
+		m_text = text;
+		forceRebuild();
 	}
 
-	private void decodeAccelerator(final String txt) {
+	/**
+	 * Decode the text string and split it to put accelerator
+	 * in button and text in span.
+	 *
+	 * @param txt
+	 */
+	private void decodeAccelerator(final String txt, Span into) {
+		StringBuilder sb = new StringBuilder(txt.length());
 		int ix = 0;
 		int len = txt.length();
 		while(ix < len) {
 			int pos = txt.indexOf('!', ix);
-			if(pos == -1)
+			if(pos == -1) {
+				//-- Append the remainder
+				sb.append(txt.substring(ix));
+				if(sb.length() > 0)
+					into.add(sb.toString());
 				return;
+			}
+
 			if(pos > 0 && txt.charAt(pos - 1) == '\\') {
-				//-- Escaped. Try next one.
-				ix = pos + 1;
+				//-- Escaped with \ - add the part until just before the \\.
+				sb.append(txt, ix, pos - 1); // Copy excluding backslash
+				sb.append('!'); // Then add !
+				ix = pos + 1; // Just after !
 			} else {
-				if(pos + 1 >= len)
-					return;
-				char c = txt.charAt(pos + 1);
-				if(Character.isLetter(c)) {
-					c = Character.toLowerCase(c);
-					setAccessKey(c);
+				//-- Got an unescaped !. Add the part leading to it,
+				if(pos > ix)
+					sb.append(txt, ix, pos);
+
+				if(pos + 1 >= len) {
+					//-- Ends in '!' - treat as liternal 8-/
+					sb.append('!');
+					into.add(sb.toString());
 					return;
 				}
-				pos += 2;
+
+				//-- We have a probable accellerator.
+				char c = txt.charAt(pos + 1);
+				if(Character.isLetterOrDigit(c)) {
+					c = Character.toLowerCase(c);
+					setAccessKey(c);
+				}
+
+				if(sb.length() > 0) {
+					into.add(sb.toString());
+					sb.setLength(0);
+				}
+
+				//-- Accelerator chars are marked in a special way.
+				Underline ac = new Underline();
+				into.add(ac);
+				ac.add(txt.substring(pos + 1, pos + 2));
+				ix = pos + 2;
 			}
 		}
 	}
 
 	@Override
 	public String getComponentInfo() {
-		return "Button:" + m_key.getText();
+		return "Button:" + m_text;
+	}
+
+	@Override
+	public void setDisabled(boolean disabled) {
+		super.setDisabled(disabled);
+		forceRebuild();
 	}
 
 	/*--------------------------------------------------------------*/

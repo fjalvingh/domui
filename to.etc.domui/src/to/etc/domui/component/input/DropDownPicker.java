@@ -102,6 +102,7 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 			m_picker.setZIndex(10);
 		}
 		m_picker.setSize(m_size);
+		m_picker.setHeight("auto");
 		m_picker.setClicked(new IClicked<NodeBase>() {
 
 			@Override

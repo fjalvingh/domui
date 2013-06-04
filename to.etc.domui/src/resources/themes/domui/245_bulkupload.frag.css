@@ -5,17 +5,16 @@
 .ui-bupl-wrp {
 	width: 360px;
 	background-color: white;
-	padding: 1px;
 	border: 1px solid <%= header_bg %>;
 }
 .ui-bupl-ttl {
 /*	border: 1px solid <%= header_bg %>; */
 	padding: 2px 4px 2px 4px;
 	font-weight: bold;
-	background: url(bg-header.png.svg) repeat-x;
+	background: <%= header_bg %>;
 }
 .ui-bupl-legend {
-	color: black;
+	color: <%= bg_ttl_text %>; 
 }
 
 .ui-bupl .swfupload {
@@ -46,12 +45,12 @@
 	background-color: #bbb;
 }
 .ui-bupl-running {
-	border: 1px solid #DDF0DD;
-	background-color: #EBFFEB;
+	border: 1px solid <%= util.color(upl_runing).lighter(0.6) %>;
+	background-color: <%= util.color(upl_runing).lighter(0.6) %>;
 }
 .ui-bupl-complete {
-	border: 1px solid #cde0cd;
-	background-color: #dbefdb;
+	border: 1px solid <%= upl_runing %>;
+	background-color: <%= upl_runing %>;
 }
 .ui-bupl-error {
 	border: 1px solid #ff4900;
@@ -91,6 +90,6 @@
 	font-size: 0;
 	width: 0%;
 	height: 2px;
-	background-color: blue;
+	background-color: <%= util.color(upl_loading).lighter(0.2) %>;
 	margin-top: 2px;
 }

@@ -83,10 +83,14 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 		createButtonBar();
 		createButtons();
 		createEditableBase();
+		onAfterCreateContent();
 	}
 
 	protected boolean onBeforeCreateContent() {
 		return true;
+	}
+
+	protected void onAfterCreateContent() throws Exception {
 	}
 
 	private void createEditableBase() throws Exception {
@@ -150,7 +154,7 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 	}
 
 	protected void createDeleteButton() {
-		getButtonBar().addButton("!Delete", "THEME/btnDelete.png", new IClicked<DefaultButton>() {
+		getButtonBar().addConfirmedButton("!Delete", "THEME/btnDelete.png", "Delete: are you sure?", new IClicked<DefaultButton>() {
 			@Override
 			public void clicked(@Nonnull DefaultButton b) throws Exception {
 				delete();
@@ -194,8 +198,8 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 	}
 
 	protected void delete() throws Exception {
-		onDelete(getInstance());
-		UIGoto.back();
+		if(onDelete(getInstance()))
+			UIGoto.back();
 	}
 
 	public boolean isDisplayonly() {
@@ -213,7 +217,7 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 		return m_bindings;
 	}
 
-	protected void onSave(T object) throws Exception {
+	protected void onSave(@Nonnull T object) throws Exception {
 		//-- Do a commit, then exit;
 		QDataContext dc = getSharedContext();
 		dc.startTransaction();
@@ -221,18 +225,20 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 		dc.commit();
 	}
 
-	protected void saveObject(QDataContext dc, T object) throws Exception {
+	protected void saveObject(@Nonnull QDataContext dc, @Nonnull T object) throws Exception {
 		dc.save(object);
 	}
 
-	protected void onDelete(T object) throws Exception {
+	protected boolean onDelete(@Nonnull T object) throws Exception {
 		QDataContext dc = getSharedContext();
 		dc.startTransaction();
-		deleteObject(dc, object);
+		boolean res = deleteObject(dc, object);
 		dc.commit();
+		return res;
 	}
 
-	protected void deleteObject(QDataContext dc, T object) throws Exception {
+	protected boolean deleteObject(@Nonnull QDataContext dc, @Nonnull T object) throws Exception {
 		dc.delete(object);
+		return true;
 	}
 }

@@ -75,6 +75,9 @@ public class TabPanel extends TabPanelBase {
 		Ul u = new Ul();
 		m_tabul = u;
 		hdr.add(u);
+		Div bgFill = new Div();
+		bgFill.setCssClass("ui-tab-ibte");
+		hdr.add(bgFill);
 		renderTabPanels(m_tabul, this);
 		appendCreateJS(JavascriptUtil.disableSelection(m_tabul));
 	}

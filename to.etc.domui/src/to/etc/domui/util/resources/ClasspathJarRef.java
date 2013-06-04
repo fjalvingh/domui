@@ -108,13 +108,10 @@ public class ClasspathJarRef implements IModifyableResource {
 	 * @throws IOException
 	 */
 	private byte[][] loadFromJar(String name) throws IOException {
-		InputStream is = FileTool.getZipContent(m_src, name);
-		try {
+		try (InputStream is = FileTool.getZipContent(m_src, name)) {
+			if(null == is)
+				throw new IOException("File '" + name + "' not found in jar " + m_src);
 			return FileTool.loadByteBuffers(is); // Load as a set of byte buffers.
-		} finally {
-			try {
-				is.close();
-			} catch(Exception x) {}
 		}
 	}
 

@@ -194,8 +194,10 @@ public class DataCellTable<T> extends TabularComponentBase<T> {
 					value = list.get(index);
 
 				//-- Call the renderer
-				INodeContentRenderer<Object> r = (INodeContentRenderer<Object>) calculateContentRenderer(value);
-				r.renderNodeContent(this, td, value, null);
+				if(null != value) {
+					INodeContentRenderer<Object> r = (INodeContentRenderer<Object>) calculateContentRenderer(value);
+					r.renderNodeContent(this, td, value, null);
+				}
 				index++;
 			}
 

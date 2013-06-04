@@ -924,4 +924,14 @@ public class ResultSetProxy implements ResultSet {
 	public void updateSQLXML(String columnLabel, SQLXML xmlObject) throws SQLException {
 		m_rs.updateSQLXML(columnLabel, xmlObject);
 	}
+
+	@Override
+	public <T> T getObject(int columnIndex, Class<T> type) throws SQLException {
+		return m_rs.getObject(columnIndex, type);
+	}
+
+	@Override
+	public <T> T getObject(String columnLabel, Class<T> type) throws SQLException {
+		return m_rs.getObject(columnLabel, type);
+	}
 }

@@ -30,6 +30,8 @@ import java.net.*;
 import java.sql.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 final public class ClassUtil {
 	private ClassUtil() {
 	}
@@ -274,6 +276,25 @@ final public class ClassUtil {
 			return cl.loadClass(cname);
 		} catch(Exception x) {}
 		return null;
+	}
+
+	@Nonnull
+	static public final <T> T loadInstance(@Nonnull final ClassLoader cl, @Nonnull Class<T> clz, @Nonnull final String className) throws Exception {
+		Class< ? > acl;
+		try {
+			acl = cl.loadClass(className);
+		} catch(Exception x) {
+			throw new RuntimeException("The class " + className + " cannot be found/loaded: " + x);
+		}
+
+		if(!clz.isAssignableFrom(acl))
+			throw new IllegalArgumentException("The class " + className + " is not a/does not implement " + clz.getName());
+
+		try {
+			return (T) acl.newInstance();
+		} catch(Exception x) {
+			throw new RuntimeException("Cannot instantiate " + acl + ": " + x);
+		}
 	}
 
 	/**

@@ -25,10 +25,11 @@ final public class ShelvedDomUIPage implements IShelvedEntry {
 		UrlPage body = getPage().getBody();
 		if(body instanceof IBreadCrumbTitler) {
 			return ((IBreadCrumbTitler) body).getBreadcrumbName();
-		} else if(!DomUtil.isBlank(body.getTitle())) {
-			return body.getTitle();
+		} else if(!DomUtil.isBlank(body.getPageTitle())) {
+			return body.getPageTitle();
 		} else {
-			return body.getClass().getName();
+			String name = body.getClass().getName();
+			return name.substring(name.lastIndexOf('.') + 1);
 		}
 	}
 

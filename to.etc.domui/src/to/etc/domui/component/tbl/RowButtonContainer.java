@@ -28,16 +28,21 @@ import to.etc.domui.component.layout.*;
 import to.etc.domui.dom.html.*;
 
 public class RowButtonContainer extends ButtonMakerBase {
-	private NodeContainer m_into;
+	private TD m_into;
 
 	private int m_count;
 
 	public RowButtonContainer() {}
-	public RowButtonContainer(NodeContainer into) {
+
+	public RowButtonContainer(TD into) {
 		m_into = into;
 	}
 
-	public void setContainer(NodeContainer nc) {
+	public TD getInto() {
+		return m_into;
+	}
+
+	public void setContainer(TD nc) {
 		m_into = nc;
 		m_count = 0;
 	}

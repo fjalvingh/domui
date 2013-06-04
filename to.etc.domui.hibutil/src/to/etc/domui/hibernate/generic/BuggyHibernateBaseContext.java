@@ -185,6 +185,7 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 			throw new IllegalStateException("Commit called without startTransaction."); // jal 20101028 Finally fix problem where commit fails silently.
 		getSession().getTransaction().commit();
 		runCommitHandlers();
+		startTransaction();
 	}
 
 	protected void runCommitHandlers() throws Exception {

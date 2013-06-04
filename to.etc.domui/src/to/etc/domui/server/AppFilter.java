@@ -61,6 +61,11 @@ public class AppFilter implements Filter {
 	 */
 	private IContextMaker m_contextMaker;
 
+	/** If client logging is enabled this contains the registry. */
+	private ServerClientRegistry m_clientRegistry;
+
+	private ILoginDeterminator m_loginDeterminator;
+
 	@Override
 	public void destroy() {
 		//-- Pass DESTROY on to Application, if present.
@@ -77,8 +82,12 @@ public class AppFilter implements Filter {
 	public void doFilter(final ServletRequest req, final ServletResponse res, final FilterChain chain) throws IOException, ServletException {
 		try {
 			HttpServletRequest rq = (HttpServletRequest) req;
+			String userid = m_loginDeterminator.getLoginData(rq);
+			if(null != userid)
+				m_clientRegistry.registerRequest(rq, userid);
+
 			MDC.put(to.etc.log.EtcMDCAdapter.SESSION, rq.getSession().getId());
-			MDC.put(to.etc.log.EtcMDCAdapter.LOGINID, rq.getRemoteUser());
+			MDC.put(to.etc.log.EtcMDCAdapter.LOGINID, userid);
 			//LOG.info(MarkerFactory.getMarker("request-uri"), rq.getRequestURI()); -- useful for developer controlled debugging
 			rq.setCharacterEncoding("UTF-8"); // FIXME jal 20080804 Encoding of input was incorrect?
 			//			DomUtil.dumpRequest(rq);
@@ -172,7 +181,7 @@ public class AppFilter implements Filter {
 	 * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
 	 */
 	@Override
-	public void init(final FilterConfig config) throws ServletException {
+	public synchronized void init(final FilterConfig config) throws ServletException {
 		File approot = new File(config.getServletContext().getRealPath("/"));
 		try {
 			//Initialize logger
@@ -220,6 +229,15 @@ public class AppFilter implements Filter {
 			m_applicationClassName = getApplicationClassName(m_config);
 			if(m_applicationClassName == null)
 				throw new UnavailableException("The application class name is not set. Use 'application' in the Filter parameters to set a main class.");
+
+			//-- Do we want session logging?
+			String s = config.getInitParameter("login-determinator");
+			if(null != s) {
+				m_loginDeterminator = ClassUtil.loadInstance(getClass().getClassLoader(), ILoginDeterminator.class, s);
+			} else {
+				m_loginDeterminator = new DefaultLoginDeterminator();
+			}
+			m_clientRegistry = ServerClientRegistry.getInstance();
 
 			//-- Are we running in development mode?
 			String autoload = m_config.getString("auto-reload");

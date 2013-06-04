@@ -437,6 +437,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	public void createContent() throws Exception {
 		//-- If a page title is present render the search block in a CaptionedPanel, else present in it;s own div.
 		Div sroot = new Div();
+		sroot.setCssClass("ui-lf-mainContent");
 		if(getPageTitle() != null) {
 			CaptionedPanel cp = new CaptionedPanel(getPageTitle(), sroot);
 			add(cp);
@@ -448,11 +449,12 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 		//-- Ok, we need the items we're going to show now.
 		if(m_itemList.size() == 0) // If we don't have an item set yet....
-			setItems(); // ..define it from metadata, and abort if there is nothing there
+			setDefaultItems(); // ..define it from metadata, and abort if there is nothing there
 
 		NodeContainer searchContainer = sroot;
 		if(containsItemBreaks(m_itemList)) {
 			Table searchRootTable = new Table();
+			searchRootTable.setCssClass("ui-lf-multi");
 			sroot.add(searchRootTable);
 			TBody searchRootTableBody = new TBody();
 			searchRootTable.add(searchRootTableBody);
@@ -466,6 +468,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 		//-- Walk all search fields
 		m_table = new Table();
+		m_table.setCssClass("ui-lf-st");
 		searchContainer.add(m_table);
 		m_tbody = new TBody();
 		m_tbody.setTestID("tableBodyLookupForm");
@@ -479,6 +482,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 				searchContainer.appendAfterMe(anotherSearchRootCell);
 				searchContainer = anotherSearchRootCell;
 				m_table = new Table();
+				m_table.setCssClass("ui-lf-st");
 				searchContainer.add(m_table);
 				m_tbody = new TBody();
 				m_tbody.setTestID("tableBodyLookupForm");
@@ -491,6 +495,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		//-- The button bar.
 		Div d = new Div();
 		d.setTestID("buttonBar");
+		d.setCssClass("ui-lf-ebb");
 		sroot.add(d);
 		m_buttonRow = d;
 
@@ -554,7 +559,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 			}
 		});
 		m_collapseButton.setTestID("hideButton");
-		addButtonItem(m_collapseButton, 500, ButtonMode.BOTH);
+		addButtonItem(m_collapseButton, 300, ButtonMode.BOTH);
 	}
 
 	private boolean containsItemBreaks(List<Item> itemList) {
@@ -582,6 +587,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 		//-- Collapse button thingy
 		m_collapseButton.setText(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_RESTORE));
+		m_collapseButton.setIcon("THEME/btnShowLookup.png");
 		m_collapseButton.setClicked(new IClicked<DefaultButton>() {
 			@Override
 			public void clicked(@Nonnull DefaultButton bx) throws Exception {
@@ -603,6 +609,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		createButtonRow(m_buttonRow, false);
 
 		m_collapseButton.setText(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE));
+		m_collapseButton.setIcon("THEME/btnHideLookup.png");
 		m_collapseButton.setClicked(new IClicked<DefaultButton>() {
 			@Override
 			public void clicked(@Nonnull DefaultButton bx) throws Exception {
@@ -626,7 +633,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 * This adds all properties that are defined as "search" properties in either this control or the metadata
 	 * to the item list. The list is cleared before that!
 	 */
-	private void setItems() {
+	public void setDefaultItems() {
 		m_itemList.clear();
 		List<SearchPropertyMetaModel> list = getMetaModel().getSearchProperties();
 		if(list == null || list.size() == 0) {
@@ -1093,7 +1100,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 						}
 					}
 				});
-				addButtonItem(m_newBtn, 300, ButtonMode.BOTH);
+				addButtonItem(m_newBtn, 500, ButtonMode.BOTH);
 			} else if(m_onNew == null && m_newBtn != null) {
 				for(ButtonRowItem bri : m_buttonItemList) {
 					if(bri.getThingy() == m_newBtn) {

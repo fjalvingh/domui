@@ -1182,6 +1182,7 @@ public class FileTool {
 		}
 	}
 
+	@Nullable
 	static public InputStream getZipContent(final File src, final String name) throws IOException {
 		InputStream is = new FileInputStream(src);
 		boolean ok = false;
@@ -1203,7 +1204,8 @@ public class FileTool {
 	 * @return
 	 * @throws IOException
 	 */
-	static public InputStream getZipContent(final InputStream zipis, final String name) throws IOException {
+	@Nullable
+	static public InputStream getZipContent(@Nonnull final InputStream zipis, @Nonnull final String name) throws IOException {
 		ZipInputStream zis = null;
 
 		//-- Try to locate a zipentry for the spec'd name
@@ -1276,7 +1278,8 @@ public class FileTool {
 	 * @param is
 	 * @return
 	 */
-	static public byte[][] loadByteBuffers(final InputStream is) throws IOException {
+	@Nonnull
+	static public byte[][] loadByteBuffers(@Nonnull final InputStream is) throws IOException {
 		ArrayList<byte[]> al = new ArrayList<byte[]>();
 		byte[] buf = new byte[8192];
 		int off = 0;

@@ -140,7 +140,7 @@ public class BulkUpload extends Div implements IUploadAcceptingComponent {
 		UploadItem[] uiar = param.getFileParameter("filedata");
 		if(uiar != null) {
 			for(UploadItem ui : uiar) {
-				conversation.registerUploadTempFile(ui.getFile());
+				conversation.registerTempFile(ui.getFile());
 				m_newItemList.add(ui);
 			}
 		}

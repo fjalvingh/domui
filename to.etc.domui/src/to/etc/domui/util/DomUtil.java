@@ -63,10 +63,9 @@ final public class DomUtil {
 	}
 
 	/**
-	 * This fine idiocy is needed to handle null checking because the pathetic loosers that make up
-	 * the Java JSR board are so incredible stupid it boggles the mind. Java == cobol. Thanks, morons.
-	 * If those idiots ever come to their senses and define a reasonable way for checking nulls- we could
-	 * remove this abomination.
+	 * NULL CHECKING BELONGS IN THE LANGUAGE, NOT IN ANNOTATIONS, damnit! This fine idiocy is needed to
+	 * handle null checking because the pathetic losers that make up the Java JSR board are so incredible
+	 * stupid it boggles the mind. Java == cobol 8-(
 	 *
 	 * @param in
 	 * @return
@@ -78,13 +77,26 @@ final public class DomUtil {
 		return in;
 	}
 
-
-	static public final void ie8Capable(HttpServletResponse req) throws IOException {
+	/**
+	 * Define (or clear) the x-ua-compatible value sent for this page. When not called
+	 * this defaults to the value defined by the ms-emulation property in web.xml.
+	 * @param comp
+	 * @throws IOException
+	 */
+	static public final void setPageCompatibility(@Nonnull HttpServletResponse req, @Nullable String comp) throws IOException {
 		if(!(req instanceof WrappedHttpServetResponse))
 			return;
 		WrappedHttpServetResponse wsr = (WrappedHttpServetResponse) req;
-		wsr.setIE8Capable();
+		wsr.setIeEmulationMode(comp);
 	}
+
+	/**
+	 * FIXME REMOVE!??!
+	 * @param req
+	 * @throws IOException
+	 */
+	@Deprecated
+	static public final void ie8Capable(HttpServletResponse req) throws IOException {}
 
 	static public final boolean isEqualOLD(final Object a, final Object b) {
 		if(a == b)
@@ -227,7 +239,7 @@ final public class DomUtil {
 	 * @param name
 	 * @return
 	 */
-	static public final Object getClassValue(final @Nonnull Object inst, @Nonnull final String name) throws Exception {
+	static public final Object getClassValue(@Nonnull final Object inst, @Nonnull final String name) throws Exception {
 		if(inst == null)
 			throw new IllegalStateException("The input object is null");
 		Class< ? > clz = inst.getClass();
@@ -701,6 +713,7 @@ final public class DomUtil {
 
 		//-- Phase 1: start marking extends in the matrix.
 		int rowindex = 0;
+		int maxcols = 0;
 		for(NodeBase l0 : t) { // Expecting THead and TBodies here.
 			if(l0 instanceof THead || l0 instanceof TBody) {
 				//-- Walk all rows.
@@ -710,7 +723,9 @@ final public class DomUtil {
 					TR tr = (TR) trb;
 					int minrowspan = 1;
 
-					getTdList(matrix, rowindex);
+					//-- Start traversing the TD's.
+					List<TD> baserowlist = getTdList(matrix, rowindex);
+					int colindex = 0;
 					for(NodeBase tdb : tr) {
 						if(!(tdb instanceof TD))
 							throw new IllegalStateException("Unexpected child of type " + tr + " in TBody/THead node (expecting TD)");
@@ -811,12 +826,6 @@ final public class DomUtil {
 			throw new IllegalStateException("??");
 		return Constants.RESOURCE_PREFIX + rb.substring(0, pos + 1).replace('.', '/') + name;
 	}
-
-	public static void main(final String[] args) {
-		for(int i = 0; i < 10; i++)
-			System.out.println(generateGUID());
-	}
-
 	/**
 	 * Returns T if the specified resource exists.
 	 * @param clz
@@ -1250,8 +1259,9 @@ final public class DomUtil {
 		d.setUserObject(m);
 		String text = m.getErrorLocation() != null ? "<b>" + m.getErrorLocation() + "</b>" + ": " + m.getMessage() : m.getMessage();
 		renderHtmlString(d, text);
-		if(m.getErrorNode() != null) {
-			m.getErrorNode().addCssClass("ui-input-err");
+		NodeBase errorNode = m.getErrorNode();
+		if(errorNode != null) {
+			errorNode.addCssClass("ui-input-err");
 		}
 	}
 
@@ -1783,6 +1793,15 @@ final public class DomUtil {
 		return n.getComponentInfo();
 	}
 
+
+	public static void main(final String[] args) {
+		String html = "<p>This is <i>just</i> some html with<br>a new line <b>and a bold tag</b>";
+		String uns = htmlRemoveUnsafe(html);
+		System.out.println("uns=" + uns);
+
+
+	}
+
 	public static @Nonnull
 	List<UIMessage> addSingleShotMessage(@Nonnull NodeBase node, @Nonnull UIMessage message) {
 		WindowSession ws = node.getPage().getConversation().getWindowSession();
@@ -1798,5 +1817,4 @@ final public class DomUtil {
 		ws.setAttribute(UIGoto.SINGLESHOT_MESSAGE, msgl);
 		return msgl;
 	}
-
 }

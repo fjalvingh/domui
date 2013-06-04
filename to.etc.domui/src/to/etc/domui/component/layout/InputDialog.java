@@ -26,7 +26,6 @@ package to.etc.domui.component.layout;
 
 import javax.annotation.*;
 
-import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 
 /**
@@ -52,7 +51,7 @@ public class InputDialog<T, C extends NodeBase & IControl<T>> extends Dialog {
 	}
 
 	public InputDialog(C inputControl, String title, String label) {
-		this(inputControl, true, false, DEFWIDTH, DEFHEIGHT, title, label);
+		this(inputControl, true, false, DEFWIDTH, -1, title, label);
 	}
 
 	public InputDialog(C inputControl, boolean modal, boolean resizable, int width, int height, String title, String label) {
@@ -93,15 +92,18 @@ public class InputDialog<T, C extends NodeBase & IControl<T>> extends Dialog {
 	protected void createFrame() throws Exception {
 		super.createFrame();
 		createButtons();
+	}
+
+	@Override
+	public void createContent() throws Exception {
 		Div pnl = new Div();
-		pnl.setMarginTop("25px");
+		pnl.setCssClass("ui-idlg-pnl");
 		if(m_label != null) {
 			pnl.add(new Label(m_label));
 			getInputControl().setMarginLeft("10px");
 		}
 		pnl.add(getInputControl());
 		add(pnl);
-		pnl.setTextAlign(TextAlign.CENTER);
 	}
 
 	/**
@@ -111,7 +113,9 @@ public class InputDialog<T, C extends NodeBase & IControl<T>> extends Dialog {
 	 *
 	 * @throws Exception
 	 */
+	@Override
 	protected void createButtons() throws Exception {
+		setButtonsOnBottom(true);
 		createSaveButton();
 		createCancelButton();
 	}

@@ -30,6 +30,7 @@ public class HomePage extends UrlPage {
 
 	@Override
 	public void createContent() throws Exception {
+		addCssClass("home-page");
 		InfoPanel ip = new InfoPanel("Welcome to the DomUI demo application! This application has simple examples of many of the components. It also has some code "
 			+ "from the tutorial. Use it to get "
 			+ "an idea on what is possible with DomUI, and how easy it is! Click the links to go to a page, and when done use the \"breadcrumbs\" in the "
@@ -54,6 +55,7 @@ public class HomePage extends UrlPage {
 		addLink(DemoTabPanel.class, "The TabPanel component");
 		addLink(DemoScrollableTabPanel.class, "The ScrollableTabPanel panel, when there's many tabs to show.");
 		addLink(DemoSplitterPanel.class, "The SplitterPanel, containing two panels with a movable separator between them");
+		addLink(DemoMessageLine.class, "A message line");
 
 		addCaption("Simple components");
 		addLink(DemoDefaultButton.class, "The DefaultButton");
@@ -72,9 +74,6 @@ public class HomePage extends UrlPage {
 		addLink(DemoTextArea.class, "The TextArea component");
 		addLink(DemoHtmlEditor.class, "The small and fast HTMLEditor component");
 		addLink(DemoFCKEditor.class, "The big HTML editor - FCKEditor component");
-//		addLink(.class, "");
-		//		addLink(.class, "");
-		//		addLink(.class, "");
 
 		addCaption("Display-only components");
 		addLink(DemoDisplayValue.class, "The DisplayValue component");

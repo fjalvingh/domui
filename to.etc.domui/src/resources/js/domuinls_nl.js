@@ -4,6 +4,7 @@ WebUI._T = new Object();
 WebUI._T.sysSessionExpired = 'Uw sessie is verlopen. Het scherm wordt opnieuw opgevraagd met originele gegevens.';
 WebUI._T.sysSessionExpired2 = 'De server is opnieuw gestart of uw sessie is verlopen. Het scherm wordt opnieuw opgevraagd met originele gegevens.';
 WebUI._T.sysPopupBlocker = "Er is een popup blocker actief. Deze moet voor deze website worden uitgezet.";
+WebUI._T.sysUnsupported = "Internet Explorer {0} wordt niet langer ondersteund. U kunt deze website gebruiken maar houdt rekening met problemen. Upgrade naar Google Chrome, Mozilla Firefox of als het niet anders kan een nieuwere versie van Internet Explorer";
 WebUI._T.sysPollFailTitle = "De server is onbereikbaar";
 WebUI._T.sysPollFailMsg = "Server onbereikbaar: status=";
 WebUI._T.sysPollFailCont= "Wachten tot de server weer bereikbaar is....";

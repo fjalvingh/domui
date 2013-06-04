@@ -108,18 +108,6 @@ public class EditDialog<T> extends Dialog {
 	}
 
 	/**
-	 * Can be overridden to add extra buttons to the button bar where needed - this default
-	 * implementation adds the save and cancel buttons. If you override you should decide on
-	 * their fate yourself!
-	 *
-	 * @throws Exception
-	 */
-	protected void createButtons() throws Exception {
-		createSaveButton();
-		createCancelButton();
-	}
-
-	/**
 	 * This uses the bindings created by createContent to move data in controls back
 	 * to the instance (the model). If more than just those bindings are needed you
 	 * need to override this <b>and call super too</b>.

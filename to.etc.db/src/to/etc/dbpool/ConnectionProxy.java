@@ -26,6 +26,7 @@ package to.etc.dbpool;
 
 import java.sql.*;
 import java.util.*;
+import java.util.concurrent.*;
 
 import javax.annotation.*;
 
@@ -254,6 +255,7 @@ final public class ConnectionProxy implements Connection {
 	 * @throws SQLException
 	 */
 	public void forceClosed() throws SQLException {
+		m_pe.getPool().logAction(this, "close()");
 		synchronized(this) {
 			if(m_state != ConnState.OPEN)			// 20121025 jal must check here to prevent double close from calling all listeners again.
 				return;
@@ -319,6 +321,7 @@ final public class ConnectionProxy implements Connection {
 		 * is fully invalidated. Now release the poolentry outside locks.
 		 */
 		m_pe.invalidate(this);
+		m_pe.getPool().logAction(this, "invalidate()");
 	}
 
 	/**
@@ -330,6 +333,8 @@ final public class ConnectionProxy implements Connection {
 	 */
 	@Override
 	public void commit() throws java.sql.SQLException {
+		m_pe.getPool().logAction(this, "commit()");
+
 		if(!getPool().isCommitDisabled())
 			check().commit();
 		getPool().writeSpecial(this, StatementProxy.ST_COMMIT);
@@ -712,8 +717,9 @@ final public class ConnectionProxy implements Connection {
 	}
 
 	public void rollback() throws java.sql.SQLException {
-		check().rollback();
+		m_pe.getPool().logAction(this, "rollback()");
 
+		check().rollback();
 		for(IDatabaseEventListener icl : m_commitListenerList) {
 			try {
 				icl.onAfterRollback(this);
@@ -872,5 +878,30 @@ final public class ConnectionProxy implements Connection {
 		if(iface.isAssignableFrom(getClass()))
 			return (T) this;
 		return m_pe.getConnection().unwrap(iface);
+	}
+
+	@Override
+	public void setSchema(String schema) throws SQLException {
+		check().setSchema(schema);
+	}
+
+	@Override
+	public String getSchema() throws SQLException {
+		return check().getSchema();
+	}
+
+	@Override
+	public void abort(Executor executor) throws SQLException {
+		check().abort(executor);
+	}
+
+	@Override
+	public void setNetworkTimeout(Executor executor, int milliseconds) throws SQLException {
+		check().setNetworkTimeout(executor, milliseconds);
+	}
+
+	@Override
+	public int getNetworkTimeout() throws SQLException {
+		return check().getNetworkTimeout();
 	}
 }

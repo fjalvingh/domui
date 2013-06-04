@@ -177,8 +177,29 @@ abstract public class QRestrictor<T> {
 	 */
 	@Nonnull
 	public QRestrictor<T> eq(@Nonnull @GProperty final String property, @Nonnull Object value) {
-		add(QRestriction.eq(property, value));
-		return this;
+		return add(QRestriction.eq(property, value));
+	}
+
+	/**
+	 * Compare a property with some value.
+	 * @param property
+	 * @param value
+	 * @return
+	 */
+	@Nonnull
+	public <V, R extends QField<R, T>> QRestrictor<T> eq(@Nonnull final QField<R, V> property, @Nonnull V value) {
+		return eq(property.getPath(), value);
+	}
+
+	/**
+	 * Compare a property with some value.
+	 * @param property
+	 * @param value
+	 * @return
+	 */
+	@Nonnull
+	public <V, R extends QField<R, T>> QRestrictor<T> ne(@Nonnull final QField<R, V> property, @Nonnull V value) {
+		return ne(property.getPath(), value);
 	}
 
 	/**
@@ -490,7 +511,7 @@ abstract public class QRestrictor<T> {
 	}
 
 	/**
-	 * Create a joined "exists" subquery on some child list property. The parameters passed have a relation with each other;
+	 * Create a joined "exists" subquery on some child list property. The parameters passed have a relation with eachother;
 	 * this relation cannot be checked at compile time because Java still lacks property references (Sun is still too utterly
 	 * stupid to define them). They will be checked at runtime when the query is executed.
 	 *
@@ -500,8 +521,8 @@ abstract public class QRestrictor<T> {
 	 * @return
 	 */
 	@Nonnull
-	public <U> QRestrictor<U> exists(@Nonnull Class<U> childclass, @Nonnull @GProperty("U") String childproperty) {
-		final QExistsSubquery<U> sq = new QExistsSubquery<U>(this, childclass, childproperty);
+	public <U> QRestrictor<U> exists(@Nonnull Class<U> childclass, @Nonnull @GProperty(parameter = 1) String childproperty) {
+		final QExistsSubquery<U> sq = new QExistsSubquery<U>(this.getBaseClass(), childclass, childproperty);
 		QRestrictor<U> builder = new QRestrictor<U>(childclass, QOperation.AND) {
 			@Override
 			public QOperatorNode getRestrictions() {
@@ -518,7 +539,11 @@ abstract public class QRestrictor<T> {
 	}
 
 	@Nonnull
-	public <U> QSubQuery<U, T> subquery(@Nonnull Class<U> childClass) throws Exception {
-		return new QSubQuery<U, T>(this, childClass);
+	public <R extends QField<R, U>, U> QRestrictor<U> exists(@Nonnull QList<R> listProperty) throws Exception {
+		return (QRestrictor<U>) exists(listProperty.getRootClass(), listProperty.m_listName);
+	}
+
+	public <R extends QField<R, T>> QRestrictor<T> eq(@Nonnull QFieldDouble<R> property, double value) {
+		return eq(property.getPath(), value);
 	}
 }

@@ -242,7 +242,7 @@ final public class PoolConfig {
 		return m_logAllocationStack;
 	}
 
-	public boolean isLogStatements() {
+	public synchronized boolean isLogStatements() {
 		return m_logStatements;
 	}
 
@@ -280,5 +280,9 @@ final public class PoolConfig {
 	 */
 	public int getLongRunningGracePeriod() {
 		return 5 * 60;
+	}
+
+	public synchronized void setLogStatements(boolean logStatements) {
+		m_logStatements = logStatements;
 	}
 }

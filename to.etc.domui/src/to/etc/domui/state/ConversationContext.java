@@ -135,49 +135,62 @@ public class ConversationContext implements IQContextContainer {
 	}
 
 	/** The conversation ID, unique within the user's session. */
+	@Nullable
 	private String m_id;
 
+	@Nullable
 	private String m_fullId;
 
 	/** The pages that are part of this conversation, indexed by [className] */
+	@Nonnull
 	private final Map<String, Page> m_pageMap = new HashMap<String, Page>();
 
 	/** The map of all attribute objects added to this conversation. */
+	@Nonnull
 	private Map<String, Object> m_map = Collections.EMPTY_MAP;
 
+	@Nullable
 	private WindowSession m_manager;
 
+	@Nullable
 	private DelayedActivitiesManager m_delayManager;
 
+	@Nonnull
 	private ConversationState m_state = ConversationState.DETACHED;
 
+	@Nonnull
 	private List<File> m_uploadList = Collections.EMPTY_LIST;
-
-	void setId(final String id) {
-		m_id = id;
-	}
 
 	/**
 	 * Return the ID for this conversation.
 	 * @return
 	 */
 	final public String getId() {
+		if(null == m_id)
+			throw new IllegalStateException("ID is null??");
 		return m_id;
 	}
 
-	final void setManager(final WindowSession m) {
+	final void initialize(@Nonnull final WindowSession m, @Nonnull String id) {
 		if(m == null)
 			throw new IllegalStateException("Internal: manager cannot be null, dude");
 		if(m_manager != null)
 			throw new IllegalStateException("Internal: manager is ALREADY set, dude");
+		if(m_id != null)
+			throw new IllegalStateException("ID set twice?");
 		m_manager = m;
+		m_id = id;
 		m_fullId = m.getWindowID() + "." + m_id;
 	}
 
+
 	public String getFullId() {
+		if(null == m_fullId)
+			throw new IllegalStateException("fullID is null??");
 		return m_fullId;
 	}
 
+	@Nonnull
 	@Override
 	public String toString() {
 		return "conversation[" + getFullId() + "]";
@@ -284,7 +297,7 @@ public class ConversationContext implements IQContextContainer {
 			onDestroy();
 		} finally {
 			m_state = ConversationState.DESTROYED;
-			discardUploadFiles();
+			discardTempFiles();
 		}
 	}
 
@@ -449,13 +462,13 @@ public class ConversationContext implements IQContextContainer {
 	 * Register a file that was uploaded and that needs to be deleted at end of conversation time.
 	 * @param f
 	 */
-	public void registerUploadTempFile(final File f) {
+	public void registerTempFile(@Nonnull final File f) {
 		if(m_uploadList == Collections.EMPTY_LIST)
 			m_uploadList = new ArrayList<File>();
 		m_uploadList.add(f);
 	}
 
-	protected void discardUploadFiles() {
+	protected void discardTempFiles() {
 		for(File f : m_uploadList) {
 			try {
 				f.delete();

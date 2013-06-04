@@ -1,5 +1,8 @@
 package to.etc.domui.component.graph;
 
+import javax.annotation.*;
+
+import to.etc.domui.component.input.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
 
@@ -10,11 +13,13 @@ import to.etc.domui.dom.html.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 4, 2011
  */
-public class ColorPickerButton extends Div implements IHasChangeListener {
+public class ColorPickerButton extends Div implements IHasChangeListener, IControl<String> {
 	private Input m_hidden = new HiddenInput();
 
 	private Div m_coldiv = new Div();
 	private IValueChanged< ? > m_onValueChanged;
+
+	private boolean m_mandatory;
 
 	/**
 	 * Create the required structure.
@@ -38,11 +43,18 @@ public class ColorPickerButton extends Div implements IHasChangeListener {
 		p.addHeaderContributor(HeaderContributor.loadJavascript("$js/colorpicker.js"), 100);
 	}
 
+	@Override
 	public String getValue() {
 		return m_hidden.getRawValue();
 	}
 
-	public void setValue(String value) {
+	@Override
+	public String getValueSafe() {
+		return getValue();
+	}
+
+	@Override
+	public void setValue(@Nullable String value) {
 		if(value == null)
 			value = "000000"; // We do not allow null here.
 		if(value.startsWith("#"))
@@ -65,4 +77,65 @@ public class ColorPickerButton extends Div implements IHasChangeListener {
 	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}
+
+	@Override
+	public void setDisabled(boolean d) {
+	}
+
+	@Override
+	public boolean isReadOnly() {
+		return isDisabled();
+	}
+
+	@Override
+	public void setReadOnly(boolean ro) {
+		setDisabled(ro);
+	}
+
+	@Override
+	public boolean isDisabled() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isMandatory() {
+		return m_mandatory;
+	}
+
+	@Override
+	public void setMandatory(boolean ro) {
+		m_mandatory = ro;
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	IBindable interface (EXPERIMENTAL)					*/
+	/*--------------------------------------------------------------*/
+
+	/** When this is bound this contains the binder instance handling the binding. */
+	@Nullable
+	private SimpleBinder m_binder;
+
+	/**
+	 * Return the binder for this control.
+	 * @see to.etc.domui.component.input.IBindable#bind()
+	 */
+	@Override
+	@Nonnull
+	public IBinder bind() {
+		if(m_binder == null)
+			m_binder = new SimpleBinder(this);
+		return m_binder;
+	}
+
+	/**
+	 * Returns T if this control is bound to some data value.
+	 *
+	 * @see to.etc.domui.component.input.IBindable#isBound()
+	 */
+	@Override
+	public boolean isBound() {
+		return m_binder != null && m_binder.isBound();
+	}
+
 }

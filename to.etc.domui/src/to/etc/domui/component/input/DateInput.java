@@ -40,6 +40,18 @@ import to.etc.util.*;
  * Date input component: this is an INPUT component with a button attached; pressing
  * the button shows a calendar which can be used to enter a date. The date input must
  * follow the converter rules for the locale. This version allows only a date.
+ * <br/>
+ * <p>
+ * <b>Acceptable input:</b> <br/>
+ * '/', '.' or '-' are accepted as separators; for brevity only '/' formats will be listed below:<ul>
+ * <br/>
+ * <li> 13/3/2012, 23/02/2012 -> dd/mm/yyyy format; adapted to 13-3-2012 and 23-2-2012 leading 0 may be omitted i.e. 02/03/2012 equals 2/3/2012</li>
+ * <li> 13/3/13 -> dd/mm/yy format; adapted to 13-3-2013, year is considered to be 19yy if yy>29 or 20yy otherwise; leading 0 may be omitted</li>
+ * <li> 13/3, 23/12 -> dd/mm format, adapted to 13-3-2012 and 23-12-2012, year is considered to be the current year; leading 0 may be omitted</li>
+ * <br/>
+ * <li> 05022013 -> ddmmyyyy format - adapted to 5-2-2013; leading 0 may NOT be omitted</li>
+ * <li> 050213 -> ddmmyy format, adapted to 5-2-2013, year is considered to be 19yy if yy>29 or 20yy otherwise; leading 0 may NOT be omitted</li>
+ * <li> 0502 -> ddmmyy format, adapted to 5-2-2012, year is considered to be the current year; leading 0 may NOT be omitted</li></ul></p>
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 3, 2008
@@ -72,6 +84,7 @@ public class DateInput extends Text<Date> {
 		setSize(10);
 		setConverter(ConverterRegistry.getConverterInstance(DateConverter.class));
 		m_selCalButton = new SmallImgButton("THEME/btn-datein.png");
+		m_selCalButton.setCssClass("ui-di-sib");		// Allow separate styling of these buttons.
 		setWithTime(withtime);
 	}
 
@@ -104,6 +117,7 @@ public class DateInput extends Text<Date> {
 						}
 					}
 				});
+				m_todayButton.setCssClass("ui-di-sib");
 				m_todayButton.setDisplay(isReadOnly() || isDisabled() ? DisplayType.NONE : null);
 			}
 			m_selCalButton.appendAfterMe(m_todayButton);

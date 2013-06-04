@@ -94,8 +94,9 @@ public class ErrorPanel extends CaptionedPanel implements IErrorMessageListener 
 		getContent().add(d);
 		if(getContent().getChildCount() == 1)
 			setDisplay(DisplayType.BLOCK);
-		if(m.getErrorNode() != null) {
-			m.getErrorNode().addCssClass("ui-input-err");
+		NodeBase errorNode = m.getErrorNode();
+		if(errorNode != null) {
+			errorNode.addCssClass("ui-input-err");
 		}
 		if(m_highestType == null || m.getType().getOrder() > m_highestType.getOrder()) {
 			//-- Update title.
@@ -137,8 +138,9 @@ public class ErrorPanel extends CaptionedPanel implements IErrorMessageListener 
 				b.remove();
 				if(getContent().getChildCount() == 0)
 					setDisplay(DisplayType.NONE);
-				if(m.getErrorNode() != null) {
-					m.getErrorNode().removeCssClass("ui-input-err");
+				NodeBase errorNode = m.getErrorNode();
+				if(errorNode != null) {
+					errorNode.removeCssClass("ui-input-err");
 				}
 			} else {
 				if(b.getUserObject() instanceof UIMessage) {

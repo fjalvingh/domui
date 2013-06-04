@@ -212,7 +212,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * Internal, do the proper run sequence for a clicked event.
 	 * @throws Exception
 	 */
-	public void internalOnClicked(ClickInfo cli) throws Exception {
+	public void internalOnClicked(@Nonnull ClickInfo cli) throws Exception {
 		IClickBase<NodeBase> c = (IClickBase<NodeBase>) getClicked();
 		if(c instanceof IClicked< ? >) {
 			((IClicked<NodeBase>) c).clicked(this);
@@ -1085,6 +1085,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		fence.removeMessage(m);
 	}
 
+	/**
+	 * Delete all messages with the specified code (deprecated) or group name (see {@link UIMessage#getGroup()}).
+	 * @param code
+	 */
 	public void clearGlobalMessage(final String code) {
 		IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
 		fence.clearGlobalMessages(code);
@@ -1216,6 +1220,12 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	}
 
 	public void onBeforeFullRender() throws Exception {}
+
+	/**
+	 * Called just before the tag is rendered. It can only change attributes, no tree data(!)
+	 * @throws Exception
+	 */
+	public void onBeforeTagRender() throws Exception {}
 
 	@OverridingMethodsMustInvokeSuper
 	protected void beforeCreateContent() {}
@@ -1452,6 +1462,16 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 				return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Appends the jQuery "selector" code for this node as:
+	 * {@code $('#_a01')}
+	 *
+	 * @param sb
+	 */
+	final public void appendJQuerySelector(@Nonnull StringBuilder sb) {
+		sb.append("$(\"#").append(getActualID()).append("\")");
 	}
 
 	/**

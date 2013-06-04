@@ -18,8 +18,30 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 
 	final private boolean m_multiSelect;
 
+	final IAcceptable<T> m_acceptable;
+
+	/**
+	 * When defined in {@link InstanceSelectionModel}, this can accept or refuse items that are selected.
+	 *
+	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+	 * Created on Dec 18, 2012
+	 */
+	public interface IAcceptable<T> {
+		/**
+		 * Return T to allow an instance to become selected.
+		 * @param value
+		 * @return
+		 */
+		boolean acceptable(@Nonnull T value);
+	}
+
 	public InstanceSelectionModel(boolean multiSelect) {
+		this(multiSelect, null);
+	}
+
+	public InstanceSelectionModel(boolean multiSelect, @Nullable IAcceptable<T> acceptable) {
 		m_multiSelect = multiSelect;
+		m_acceptable = acceptable;
 	}
 
 	@Override
@@ -44,6 +66,9 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 		if(null == rowinstance) // Should not happen.
 			throw new IllegalArgumentException("null row");
 		if(on) {
+			if(m_acceptable != null && !m_acceptable.acceptable(rowinstance))
+				return;
+
 			if(!m_multiSelect && m_selectedSet.size() > 0) {
 				//-- We need to remove an earlier selected item.
 				T old = m_selectedSet.iterator().next();
@@ -81,7 +106,11 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 			if(eix > rows)
 				eix = rows;
 			List<T> itemlist = in.getItems(index, eix);
-			m_selectedSet.addAll(itemlist);
+			for(T item : itemlist) {
+				if(m_acceptable != null && !m_acceptable.acceptable(item))
+					continue;
+				m_selectedSet.add(item);
+			}
 			index = eix;
 		}
 		callSelectionAllChanged();
