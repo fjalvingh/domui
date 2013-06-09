@@ -47,7 +47,7 @@ import to.etc.webapp.annotations.*;
  * Created on Jul 14, 2009
  */
 public class QSelection<T> extends QCriteriaQueryBase<T> {
-	private QSelection(@Nonnull Class<T> clz) {
+	protected QSelection(@Nonnull Class<T> clz) {
 		super(clz);
 	}
 

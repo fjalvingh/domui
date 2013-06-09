@@ -25,22 +25,26 @@
 package to.etc.webapp.query;
 
 import java.math.*;
+import java.util.*;
 
 import javax.annotation.*;
 
 import to.etc.util.*;
 
 /**
- * Render a QCriteria query as something more or less human-readable.
+ * Render a QCriteria query as something more or less human-readable. This does not extend {@link QNodeVisitorBase} anymore because that
+ * way we're forced to implement new nodes.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 17, 2009
  */
-public class QQueryRenderer extends QNodeVisitorBase {
+public class QQueryRenderer implements QNodeVisitor {
 	private StringBuilder	m_sb = new StringBuilder(128);
 	private int				m_curPrec = 0;
 
 	private int m_orderIndx;
+
+	private int m_currentColumn;
 
 	/**
 	 * Return the result of the conversion.
@@ -51,12 +55,21 @@ public class QQueryRenderer extends QNodeVisitorBase {
 		return m_sb.toString();
 	}
 
-	protected void	append(String s) {
+	protected QQueryRenderer append(String s) {
 		m_sb.append(s);
+		return this;
 	}
 
 	@Override
 	public void visitCriteria(@Nonnull QCriteria< ? > qc) throws Exception {
+		renderFrom(qc);
+		if(qc.getRestrictions() != null)
+			append(" WHERE ");
+		visitRestrictionsBase(qc);
+		visitOrderList(qc.getOrder());
+	}
+
+	private void renderFrom(QCriteriaQueryBase< ? > qc) {
 		append("FROM ");
 		Class< ? > baseClass = qc.getBaseClass();
 		if(baseClass != null)
@@ -72,31 +85,52 @@ public class QQueryRenderer extends QNodeVisitorBase {
 		}
 		if(qc.getRestrictions() != null)
 			append(" WHERE ");
-		super.visitCriteria(qc);
 	}
 
 	@Override
 	public void visitSelection(@Nonnull QSelection< ? > s) throws Exception {
-		append("FROM ");
-
-		Class< ? > baseClass = s.getBaseClass();
-		if(baseClass != null)
-			append(baseClass.getName());
-		else {
-			ICriteriaTableDef< ? > metaTable = s.getMetaTable();
-			if(metaTable != null) {
-				append("[META:");
-				append(metaTable.toString());
-				append("]");
-			} else
-				append("[unknown-table]");
-		}
+		renderFrom(s);
 
 		if(s.getColumnList().size() != 0) {
 			//-- Restriction query: return the base class
 			append(" SELECT ");
 		}
-		super.visitSelection(s);
+		visitSelectionColumns(s);
+
+		if(s.getRestrictions() != null)
+			append(" WHERE ");
+		visitRestrictionsBase(s);
+		visitOrderList(s.getOrder());
+	}
+
+	@Override
+	public void visitSelectionColumn(QSelectionColumn n) throws Exception {
+		n.getItem().visit(this);
+		String alias = n.getAlias();
+		if(null != alias) {
+			append(" as ").append(alias);
+		}
+	}
+
+	public void visitSelectionColumns(QSelection< ? > s) throws Exception {
+		m_currentColumn = 0;
+		for(QSelectionColumn col : s.getColumnList())
+			col.visit(this);
+	}
+
+	@Override
+	public void visitSelectionItem(QSelectionItem n) throws Exception {
+		if(m_currentColumn++ > 0)
+			append(",");
+		append("[?").append(n.getFunction().name()).append("]");
+	}
+
+	@Override
+	public void visitPropertySelection(QPropertySelection n) throws Exception {
+		if(m_currentColumn++ > 0)
+			append(",");
+		append(n.getFunction().name().toLowerCase());
+		append("(").append(n.getProperty()).append(")");
 	}
 
 	/**
@@ -143,6 +177,24 @@ public class QQueryRenderer extends QNodeVisitorBase {
 			append(")");
 		m_curPrec = oldprec;
 	}
+
+	@Override
+	public void visitPropertyJoinComparison(@Nonnull QPropertyJoinComparison n) throws Exception {
+		int oldprec = m_curPrec;
+		m_curPrec = getOperationPrecedence(n.getOperation());
+		if(oldprec > m_curPrec)
+			append("(");
+
+		append("[parent].");
+		append(n.getParentProperty());
+		appendOperation(n.getOperation());
+		append(n.getSubProperty());
+
+		if(oldprec > m_curPrec)
+			append(")");
+		m_curPrec = oldprec;
+	}
+
 
 	@Override
 	public void visitUnaryProperty(@Nonnull QUnaryProperty n) throws Exception {
@@ -319,10 +371,37 @@ public class QQueryRenderer extends QNodeVisitorBase {
 	}
 
 	@Override
-	public void visitSelectionSubquery(@Nonnull QSelectionSubquery n) throws Exception {
+	public void visitSelectionSubquery(@Nonnull QSelectionSubquery q) throws Exception {
+		int oldprec = m_curPrec;
+		m_curPrec = 0;
 		append("(");
-		n.getSelectionQuery().visit(this);
+		q.getSelectionQuery().visit(this);
 		append(")");
+		m_curPrec = oldprec;
+	}
+
+	@Override
+	public void visitSubquery(@Nonnull QSubQuery< ? , ? > n) throws Exception {
+		visitSelection(n);
+	}
+
+	@Override
+	public void visitMultiSelection(@Nonnull QMultiSelection n) throws Exception {
+		for(QSelectionItem it : n.getItemList())
+			it.visit(this);
+	}
+
+	@Override
+	public void visitOrderList(@Nonnull List<QOrder> orderlist) throws Exception {
+		for(QOrder o : orderlist)
+			o.visit(this);
+	}
+
+	@Override
+	public void visitRestrictionsBase(@Nonnull QCriteriaQueryBase< ? > n) throws Exception {
+		QOperatorNode r = n.getRestrictions();
+		if(r != null)
+			r.visit(this);
 	}
 
 	@Override
@@ -341,5 +420,4 @@ public class QQueryRenderer extends QNodeVisitorBase {
 			append(")");
 		m_curPrec = oldprec;
 	}
-
 }

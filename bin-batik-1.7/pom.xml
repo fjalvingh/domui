@@ -33,5 +33,5 @@
     <module>.maven/pdf-transcoder</module>
     <module>.maven/xalan</module>
     <module>.maven/xml-apis-ext</module>
-    </modules>
-  </project>
+  </modules>
+</project>

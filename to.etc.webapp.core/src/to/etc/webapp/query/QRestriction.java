@@ -189,10 +189,11 @@ public class QRestriction {
 	 */
 	@Nonnull
 	static public QOperatorNode createValueNode(@Nullable Object value) {
-		if(value instanceof QOperatorNode)
+		if(value instanceof QOperatorNode) {
 			return (QOperatorNode) value;
-		else if(value instanceof QSelection< ? >)
+		} else if(value instanceof QSelection< ? >) {
 			return new QSelectionSubquery((QSelection< ? >) value);
+		}
 		return new QLiteral(value);
 	}
 

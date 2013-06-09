@@ -36,7 +36,7 @@ public class QList<P extends QField<P, ? >, R extends QField<R, ? >> {
 	R exists() throws Exception {
 
 		Class<T> rootClass = (Class<T>) getRootClass();
-		m_subquery = new QExistsSubquery<T>(m_parent.criteria().getBaseClass(), rootClass, m_listName);
+		m_subquery = new QExistsSubquery<T>(m_parent.criteria(), rootClass, m_listName);
 		m_parent.qbrace().add(this);
 		return m_root;
 	}

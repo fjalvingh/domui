@@ -86,6 +86,15 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 	}
 
 	/**
+	 * Sets default sort column on row renderer. Overrides property meta model setting if such defines default sort.
+	 * @param cd
+	 * @param type
+	 */
+	public void setDefaultSort(@Nonnull SimpleColumnDef< ? > cd, @Nonnull SortableType type) {
+		getColumnList().setSortColumn(cd, type);
+	}
+
+	/**
 	 * Returns the metamodel used.
 	 * @return
 	 */

@@ -125,8 +125,9 @@ public class EditDialog<T> extends Dialog {
 	/**
 	 * Get a tabular form builder using the shared bindings.
 	 * @return
+	 * @throws Exception
 	 */
-	public TabularFormBuilder getTabularFormBuilder() {
+	public TabularFormBuilder getTabularFormBuilder() throws Exception {
 		if(m_tfb == null) {
 			m_tfb = new TabularFormBuilder(getInstance());
 			m_tfb.setBindings(getBindings()); // Use the dialog's shared bindings.
@@ -174,7 +175,7 @@ public class EditDialog<T> extends Dialog {
 	 * @return
 	 */
 	@Nonnull
-	final public ModelBindings getBindings() {
+	public ModelBindings getBindings() {
 		return m_bindings;
 	}
 }

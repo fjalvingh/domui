@@ -133,6 +133,18 @@ abstract public class QAbstractDataContext implements QDataContext {
 		return getHandlerFactory().getHandler(this, sel).query(this, sel);
 	}
 
+	@Override
+	@Nonnull
+	public <R> List<R> query(@Nonnull Class<R> resultInterface, @Nonnull QSelection< ? > sel) throws Exception {
+		return QQueryUtils.mapSelectionQuery(this, resultInterface, sel);
+	}
+
+	@Override
+	@Nullable
+	public <R> R queryOne(@Nonnull Class<R> resultInterface, @Nonnull QSelection< ? > sel) throws Exception {
+		return QQueryUtils.mapSelectionOneQuery(this, resultInterface, sel);
+	}
+
 	/**
 	 * {@inheritDoc}
 	 * @see to.etc.webapp.query.QDataContext#queryOne(to.etc.webapp.query.QCriteria)

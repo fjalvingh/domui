@@ -10,7 +10,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compile.encoding>UTF-8</maven.compile.encoding>
     <maven.compile.fork>true</maven.compile.fork>
-    </properties>
+  </properties>
   <build>
     <sourceDirectory>../../src</sourceDirectory>
     <resources>
@@ -18,38 +18,38 @@
         <directory>../../src</directory>
         <excludes>
           <exclude>**/*.java</exclude>
-          </excludes>
-        </resource>
-      </resources>
+        </excludes>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.3</version>
+        <version>2.5.1</version>
         <configuration>
           <compilerId>eclipse</compilerId>
           <source>1.6</source>
           <target>1.6</target>
           <encoding>UTF-8</encoding>
-          </configuration>
+        </configuration>
         <dependencies>
           <dependency>
             <groupId>org.codehaus.plexus</groupId>
             <artifactId>plexus-compiler-eclipse</artifactId>
-            <version>1.7</version>
-            </dependency>
-          </dependencies>
-        </plugin>
+            <version>1.9.1</version>
+          </dependency>
+        </dependencies>
+      </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>findbugs-maven-plugin</artifactId>
         <version>2.3.1</version>
         <configuration>
           <timeout>60000000</timeout>
-          </configuration>
-        </plugin>
-      </plugins>
-    </build>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
   <dependencies>
     <dependency>
       <groupId>nl.itris.external</groupId>
@@ -57,391 +57,398 @@
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris</groupId>
       <artifactId>jsr305.source</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>junit.junit</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>to.etc</groupId>
       <artifactId>to.etc.alg.source</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>to.etc</groupId>
       <artifactId>to.etc.db.source</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>slf4j.jcl-over-slf4j</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>slf4j.jul-to-slf4j</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>slf4j.log4j-over-slf4j</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>slf4j.logback-access</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>slf4j.logback-classic</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>slf4j.logback-core</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>slf4j.slf4j-api</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>to.etc</groupId>
       <artifactId>to.etc.webapp.core.source</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>batik.batik-anim</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>batik.batik-awt-util</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>batik.batik-bridge</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>batik.batik-codec</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>batik.batik-css</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>batik.batik-dom</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>batik.batik-ext</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>batik.batik-extension</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>batik.batik-gui-util</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>batik.batik-gvt</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>batik.batik-parser</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>batik.batik-rasterizer</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>batik.batik-script</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>batik.batik-slideshow</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>batik.batik-squiggle</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>batik.batik-svg-dom</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>batik.batik-svggen</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>batik.batik-svgpp</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>batik.batik-swing</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>batik.batik-transcoder</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>batik.batik-ttf2svg</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>batik.batik-util</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>batik.batik-xml</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>batik.batik</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>batik.js</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>batik.pdf-transcoder</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>batik.xalan</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>batik.xml-apis-ext</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>to.etc</groupId>
       <artifactId>to.etc.domui.jCharts</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>to.etc</groupId>
       <artifactId>to.etc.domui.source</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
+    <dependency>
+      <groupId>nl.itris.external</groupId>
+      <artifactId>asm.asm</artifactId>
+      <version>trunk-SNAPSHOT</version>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>hibernate.cglib</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>hibernate.antlr</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>hibernate.commons-collections</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>hibernate.dom4j</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>hibernate.javassist-3.9.0.GA</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>hibernate.jta</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>hibernate.ant</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>hibernate.jacc-1_0-fr</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>hibernate.asm-all</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>hibernate.ejb3-persistence</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>hibernate.hibernate-annotations</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>hibernate.hibernate-commons-annotations</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
+    </dependency>
     <dependency>
       <groupId>nl.itris.external</groupId>
       <artifactId>hibernate.source</artifactId>
       <version>trunk-SNAPSHOT</version>
       <type>jar</type>
       <scope>compile</scope>
-      </dependency>
-    </dependencies>
-  </project>
+    </dependency>
+  </dependencies>
+</project>

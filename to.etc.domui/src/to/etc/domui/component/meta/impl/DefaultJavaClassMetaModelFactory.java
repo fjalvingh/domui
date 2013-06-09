@@ -428,7 +428,7 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 				String tablename = (String) DomUtil.getClassValue(an, "name");
 				String tableschema = (String) DomUtil.getClassValue(an, "schema");
 				if(tablename != null) {
-					if(!DomUtil.isBlank(tableschema))
+					if(!StringTool.isBlank(tableschema) )
 						tablename = tableschema + "." + tablename;
 					colli.getModel().setTableName(tablename);
 				}

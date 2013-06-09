@@ -54,6 +54,71 @@ public class FileTool {
 	/** The sequence number. */
 	static private long	m_index;
 
+	/**
+	 * This returns the File location of a directory that should contain application-generated
+	 * log files. This should be used instead of /tmp to allocate log files where needed. It
+	 * checks for several default locations.
+	 * @return
+	 */
+	@Nonnull
+	synchronized static public File getLogRoot(@Nonnull String appVar) {
+		String name = appVar.toUpperCase().replace(".", "").replace("-", "");
+
+		//-- Is there a valid "vp.logroot" thing?
+		String s = System.getProperty(appVar);
+		File logRoot = checkLogDir(s, "The java system property '" + appVar + "'");
+
+		if(null == logRoot) {
+			//-- Is there a valid logroot environment variable?
+			s = System.getenv(name);
+			checkLogDir(s, "The environment variable '" + name + "'");
+		}
+
+		if(null == logRoot) {
+			//-- No defined log output. Try java.io.tmpdir
+			s = System.getProperty("java.io.tmpdir");
+			logRoot = checkLogDir(s, "Java's tmpdir location");
+		}
+		if(null == logRoot) {
+			//-- Is there a valid TMP environment variable?
+			s = System.getenv("TMP");
+			logRoot = checkLogDir(s, "The environment variable 'TMP'");
+		}
+		if(null == logRoot) {
+			//-- Is there a valid TEMP environment variable?
+			s = System.getenv("TEMP");
+			logRoot = checkLogDir(s, "The environment variable 'TEMP'");
+		}
+		if(null == logRoot) {
+			logRoot = checkLogDir("/tmp", "The system /tmp directory");
+		}
+		if(null == logRoot)
+			throw new RuntimeException("None of the log directories can be found!! Please specify a proper one using " + appVar + " property, " + name + " envvar or normal UNIX conventions");
+		return logRoot.getAbsoluteFile();
+	}
+
+	@Nullable
+	private static File checkLogDir(@Nonnull String s, @Nonnull String source) {
+		if(null != s && s.trim().length() > 0) {
+			File f = new File(s);
+			if(!f.exists()) {
+				if(!f.mkdirs())
+					System.out.println("init: " + source + " is set to '" + s + "', but that directory does not exist and I cannot create it. Ignoring the parameter...");
+				else {
+					System.out.println("init: " + source + " is set to '" + s + "', but the directory was not present. I created it, please check it's permissions.");
+					return f;
+				}
+			} else {
+				if(!f.isDirectory())
+					System.out.println("init: " + source + " is set to '" + s + "', but that is not a directory. Ignoring the parameter...");
+				else
+					return f;
+			}
+		}
+		return null;
+	}
+
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Directory maintenance and bulk code.				*/
 	/*--------------------------------------------------------------*/
@@ -75,7 +140,6 @@ public class FileTool {
 	static {
 		m_seed_ts = System.currentTimeMillis();
 	}
-
 
 	/**
 	 * Create a temp directory within the root directory.
@@ -1882,7 +1946,7 @@ public class FileTool {
 	 * @param file
 	 * @return
 	 */
-	public static int getIntSizeOfFile(File file) {
+	public static int getIntSizeOfFile(@Nonnull File file) {
 		long size = file.length();
 		if (size > Integer.MAX_VALUE){
 			throw new IllegalStateException("We do not allow file sizes > " + StringTool.strSize(Integer.MAX_VALUE) + ", found file size:" + StringTool.strSize(size));
@@ -1895,5 +1959,25 @@ public class FileTool {
 		File f = File.createTempFile("work", ".dir");
 		f.delete();
 		return f;
+	}
+
+	/**
+	 * Returns number of lines in a specified file.
+	 *
+	 * @param file
+	 * @return
+	 * @throws IOException
+	 */
+	public static int getNumberOfLines(@Nonnull File file) throws IOException {
+		BufferedReader reader = null;
+		try {
+			reader = new BufferedReader(new FileReader(file));
+			int lines = 0;
+			while(reader.readLine() != null)
+				lines++;
+			return lines;
+		} finally {
+			FileTool.closeAll(reader);
+		}
 	}
 }

@@ -555,16 +555,27 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 				if(oldprec > m_curPrec){
 					appendWhere("(");
 				}
-				
+
 				n.getNode().visit(this);
 
 				if(oldprec > m_curPrec){
 					appendWhere(")");
 				}
-				
+
 				m_curPrec = oldprec;
 				return;
 		}
 		throw new IllegalStateException("Unsupported UNARY operation: " + n.getOperation());
+	}
+
+	@Override
+	public void visitPropertyJoinComparison(@Nonnull QPropertyJoinComparison qPropertyJoinComparison) {
+		throw new IllegalStateException("Correlated subqueries are not supported");
+	}
+
+	@Deprecated
+	@Override
+	public void visitSelectionSubquery(QSelectionSubquery qSelectionSubquery) throws Exception {
+		throw new IllegalStateException("Subqueries are not supported");
 	}
 }

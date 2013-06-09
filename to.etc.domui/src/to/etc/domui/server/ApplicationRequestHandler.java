@@ -229,7 +229,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 					if(m_application.getAutoRefreshPollInterval() <= 0) {
 						generateExpired(ctx, Msgs.BUNDLE.getString(Msgs.S_EXPIRED));
 					} else
-						System.out.println("DEBUG: Not sending expired message because autorefresh is ON for " + cid);
+						LOG.info("Not sending expired message because autorefresh is ON for " + cid);
 					return;
 				}
 			}
@@ -355,7 +355,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 						if(m_application.getAutoRefreshPollInterval() <= 0) {
 							generateExpired(ctx, Msgs.BUNDLE.getString(Msgs.S_EXPIRED));
 						} else
-							System.out.println("DEBUG: Not sending expired message because autorefresh is ON for " + cid);
+							LOG.info("Not sending expired message because autorefresh is ON for " + cid);
 					}
 					return;
 				}
@@ -434,7 +434,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 							DomUtil.USERLOG.debug(cid + ": page reload message = " + m.getMessage());
 
 						//page.getBody().addGlobalMessage(m);
-						MessageFlare.display(page.getBody(), m);
+						MessageFlare mf = MessageFlare.display(page.getBody(), m);
+						mf.setTestID("SingleShotMsg");
 					}
 				}
 				cm.setAttribute(UIGoto.SINGLESHOT_MESSAGE, null);

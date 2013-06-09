@@ -35,7 +35,7 @@ import javax.annotation.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 24, 2008
  */
-public class QNodeVisitorBase implements QNodeVisitor {
+abstract public class QNodeVisitorBase implements QNodeVisitor {
 	@Override
 	public void visitPropertyComparison(@Nonnull QPropertyComparison n) throws Exception {
 		n.getExpr().visit(this);
@@ -122,8 +122,21 @@ public class QNodeVisitorBase implements QNodeVisitor {
 	}
 
 	@Override
-	public void visitExistsSubquery(@Nonnull QExistsSubquery< ? > q) throws Exception {}
+	public void visitExistsSubquery(@Nonnull QExistsSubquery< ? > q) throws Exception {
+		throw new UnsupportedOperationException("Subqueries are not supported");
+	}
 
 	@Override
-	public void visitSelectionSubquery(@Nonnull QSelectionSubquery n) throws Exception {}
+	public void visitSubquery(QSubQuery< ? , ? > n) throws Exception {
+		throw new UnsupportedOperationException("Subqueries are not supported");
+	}
+
+	@Override
+	public void visitSelectionSubquery(@Nonnull QSelectionSubquery n) throws Exception {
+		throw new UnsupportedOperationException("Subqueries are not supported");
+	}
+
+	@Override
+	public void visitPropertyJoinComparison(@Nonnull QPropertyJoinComparison qPropertyJoinComparison) throws Exception {
+	}
 }

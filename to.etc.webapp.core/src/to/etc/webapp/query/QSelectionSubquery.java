@@ -26,14 +26,22 @@ package to.etc.webapp.query;
 
 import javax.annotation.*;
 
+/**
+ * Represents a subquery.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Apr 5, 2013
+ */
 public class QSelectionSubquery extends QOperatorNode {
-	private QSelection< ? > m_parentQuery;
+	@Nonnull
+	final private QSelection< ? > m_parentQuery;
 
-	public QSelectionSubquery(QSelection< ? > parent) {
+	public QSelectionSubquery(@Nonnull QSelection< ? > parent) {
 		super(QOperation.SELECTION_SUBQUERY);
 		m_parentQuery = parent;
 	}
 
+	@Nonnull
 	public QSelection< ? > getSelectionQuery() {
 		return m_parentQuery;
 	}

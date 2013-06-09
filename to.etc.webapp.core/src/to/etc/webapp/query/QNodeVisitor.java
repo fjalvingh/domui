@@ -49,7 +49,7 @@ public interface QNodeVisitor {
 
 	public void visitRestrictionsBase(@Nonnull QCriteriaQueryBase< ? > n) throws Exception;
 
-	public void visitOrderList(List<QOrder> orderlist) throws Exception;
+	public void visitOrderList(@Nonnull List<QOrder> orderlist) throws Exception;
 
 	public void visitSelectionItem(@Nonnull QSelectionItem n) throws Exception;
 
@@ -63,4 +63,7 @@ public interface QNodeVisitor {
 
 	void visitSelectionSubquery(@Nonnull QSelectionSubquery n) throws Exception;
 
+	void visitSubquery(@Nonnull QSubQuery< ? , ? > n) throws Exception;
+
+	public void visitPropertyJoinComparison(@Nonnull QPropertyJoinComparison qPropertyJoinComparison) throws Exception;
 }

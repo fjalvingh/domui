@@ -214,6 +214,17 @@ public class JdbcDataContext implements QDataContext {
 		throw new IllegalStateException("Inapplicable call for JdbcDataContext");
 	}
 
+	@Nonnull
+	public <R> List<R> query(@Nonnull Class<R> resultInterface, @Nonnull QSelection< ? > sel) throws Exception {
+		return QQueryUtils.mapSelectionQuery(this, resultInterface, sel);
+	}
+
+	@Override
+	@Nullable
+	public <R> R queryOne(@Nonnull Class<R> resultInterface, @Nonnull QSelection< ? > sel) throws Exception {
+		return QQueryUtils.mapSelectionOneQuery(this, resultInterface, sel);
+	}
+
 	@Override
 	public @Nonnull <T> T getInstance(@Nonnull ICriteriaTableDef<T> clz, @Nonnull Object pk) throws Exception {
 		throw new IllegalStateException("Inapplicable call for JdbcDataContext");

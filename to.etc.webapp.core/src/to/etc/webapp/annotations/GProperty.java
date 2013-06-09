@@ -38,5 +38,5 @@ import java.lang.annotation.*;
 @Target(value = ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface GProperty {
-	int parameter() default -1;
+	String value() default "";
 }
