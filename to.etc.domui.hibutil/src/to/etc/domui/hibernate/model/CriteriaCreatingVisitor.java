@@ -943,7 +943,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	 */
 	@Override
 	public void visitExistsSubquery(QExistsSubquery< ? > q) throws Exception {
-		Class< ? > parentBaseClass = q.getParentQuery().getBaseClass();
+		Class< ? > parentBaseClass = q.getParentBaseClass();
 		PropertyMetaModel< ? > pmm = MetaManager.getPropertyMeta(parentBaseClass, q.getParentProperty());
 
 		//-- If we have a dotted name it can only be parent.parent.parent.childList like (with multiple parents). Parse all parents.
@@ -962,7 +962,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 
 		//-- Should be List type
 		if(!List.class.isAssignableFrom(pmm.getActualType()))
-			throw new ProgrammerErrorException("The property '" + q.getParentQuery().getBaseClass() + "." + q.getParentProperty() + "' should be a list (it is a " + pmm.getActualType() + ")");
+			throw new ProgrammerErrorException("The property '" + q.getParentBaseClass() + "." + q.getParentProperty() + "' should be a list (it is a " + pmm.getActualType() + ")");
 
 		//-- Make sure there is a where condition to restrict
 		QOperatorNode where = q.getRestrictions();
@@ -972,7 +972,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		//-- Get the list's generic compound type because we're unable to get it from Hibernate easily.
 		Class< ? > coltype = MetaManager.findCollectionType(pmm.getGenericActualType());
 		if(coltype == null)
-			throw new ProgrammerErrorException("The property '" + q.getParentQuery().getBaseClass() + "." + q.getParentProperty() + "' has an undeterminable child type");
+			throw new ProgrammerErrorException("The property '" + q.getParentBaseClass() + "." + q.getParentProperty() + "' has an undeterminable child type");
 
 		//-- 2. Create an exists subquery; create a sub-statement
 		DetachedCriteria dc = DetachedCriteria.forClass(coltype, nextAlias());

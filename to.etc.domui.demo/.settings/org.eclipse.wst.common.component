@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
+<?xml version="1.0" encoding="UTF-8"?>
+<project-modules id="moduleCoreId" project-version="1.5.0">
     <wb-module deploy-name="to.etc.domui.demo">
         <wb-resource deploy-path="/" source-path="/WebContent"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
@@ -37,9 +38,6 @@
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/bin-slf4j/lib/slf4j-api-1.5.10.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module archiveName="lib-hibernate.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/lib-hibernate/lib-hibernate">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <dependent-module archiveName="bin-batik-1.7.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/bin-batik-1.7/bin-batik-1.7">

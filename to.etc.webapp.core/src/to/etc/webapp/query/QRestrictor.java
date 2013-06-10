@@ -521,7 +521,7 @@ abstract public class QRestrictor<T> {
 	 * @return
 	 */
 	@Nonnull
-	public <U> QRestrictor<U> exists(@Nonnull Class<U> childclass, @Nonnull @GProperty(parameter = 1) String childproperty) {
+	public <U> QRestrictor<U> exists(@Nonnull Class<U> childclass, @Nonnull @GProperty("U") String childproperty) {
 		final QExistsSubquery<U> sq = new QExistsSubquery<U>(this.getBaseClass(), childclass, childproperty);
 		QRestrictor<U> builder = new QRestrictor<U>(childclass, QOperation.AND) {
 			@Override
