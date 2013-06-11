@@ -591,7 +591,7 @@ public class PomBuilder {
 		//      </plugin>
 		w.tagfull("groupId", "org.codehaus.mojo");
 		w.tagfull("artifactId", "findbugs-maven-plugin");
-		w.tagfull("version", "2.3.1");
+		w.tagfull("version", "2.4.0");
 		w.tag("configuration");
 		w.tagfull("timeout", "60000000");
 		w.tagendnl();
@@ -690,7 +690,7 @@ public class PomBuilder {
 		w.tag("plugin");
 		w.tagfull("groupId", "org.codehaus.mojo");
 		w.tagfull("artifactId", "build-helper-maven-plugin");
-		w.tagfull("version", "1.1");
+		w.tagfull("version", "1.7");
 		w.tag("executions");
 		w.tag("execution");
 		w.tagfull("id", "add-source");

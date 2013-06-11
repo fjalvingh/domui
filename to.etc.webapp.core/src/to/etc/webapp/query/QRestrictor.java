@@ -546,4 +546,9 @@ abstract public class QRestrictor<T> {
 	public <R extends QField<R, T>> QRestrictor<T> eq(@Nonnull QFieldDouble<R> property, double value) {
 		return eq(property.getPath(), value);
 	}
+
+	@Nonnull
+	public <U> QSubQuery<U, T> subquery(@Nonnull Class<U> childClass) throws Exception {
+		return new QSubQuery<U, T>(this, childClass);
+	}
 }
