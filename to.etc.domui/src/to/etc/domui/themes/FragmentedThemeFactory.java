@@ -117,14 +117,15 @@ public class FragmentedThemeFactory implements IThemeFactory {
 	 */
 	@Nonnull
 	protected RhinoExecutor executor() throws Exception {
-		if(null == m_executor) {
-			m_executor = RhinoExecutorFactory.getInstance().createExecutor();
-			m_executor.eval(Object.class, "icon = new Object();", "internal");
-			m_executor.put("themeName", m_themeName);
-			m_executor.put("themePath", "$THEME/" + m_themeName + "/");
-			m_application.augmentThemeMap(m_executor);
+		RhinoExecutor executor = m_executor;
+		if(null == executor) {
+			executor = m_executor = RhinoExecutorFactory.getInstance().createExecutor();
+			executor.eval(Object.class, "icon = new Object();", "internal");
+			executor.put("themeName", m_themeName);
+			executor.put("themePath", "$THEME/" + m_themeName + "/");
+			m_application.augmentThemeMap(executor);
 		}
-		return m_executor;
+		return executor;
 	}
 
 	/**
@@ -134,6 +135,8 @@ public class FragmentedThemeFactory implements IThemeFactory {
 	protected ITheme createTheme() throws Exception {
 		loadStyleInfo();
 		ResourceDependencies rd = m_rdl.createDependencies();
+
+		m_searchList.add("$themes/all");						// 20130327 jal the "all" theme dir contains stuff shared over all themes.
 		return new FragmentedThemeStore(m_application, m_stylesheet.getBytes("utf-8"), executor(), m_searchList, rd);
 	}
 

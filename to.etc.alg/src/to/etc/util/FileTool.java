@@ -700,6 +700,7 @@ public class FileTool {
 	/**
 	 * Create an MD5 hash for a file's contents.
 	 */
+	@Nonnull
 	static public byte[] hashFile(final File f) throws IOException {
 		InputStream is = null;
 		try {
@@ -718,6 +719,7 @@ public class FileTool {
 	 * @param data
 	 * @return
 	 */
+	@Nonnull
 	static public byte[] hashBuffers(final byte[][] data) {
 		MessageDigest md = null;
 		try {
@@ -737,6 +739,7 @@ public class FileTool {
 	 * @param data
 	 * @return
 	 */
+	@Nonnull
 	static public String hashBuffersHex(final byte[][] data) {
 		return StringTool.toHex(hashBuffers(data));
 	}
@@ -747,6 +750,7 @@ public class FileTool {
 	 * @return		A hash (16 bytes MD5)
 	 * @throws IOException
 	 */
+	@Nonnull
 	static public byte[] hashFile(final InputStream is) throws IOException {
 		MessageDigest md = null;
 		try {
@@ -769,6 +773,7 @@ public class FileTool {
 	 * @return
 	 * @throws IOException
 	 */
+	@Nonnull
 	static public String hashFileHex(final File f) throws IOException {
 		return StringTool.toHex(hashFile(f));
 	}
@@ -779,6 +784,7 @@ public class FileTool {
 	 * @return
 	 * @throws IOException
 	 */
+	@Nonnull
 	static public String hashFileHex(final InputStream is) throws IOException {
 		return StringTool.toHex(hashFile(is));
 	}
@@ -1181,6 +1187,28 @@ public class FileTool {
 			} catch(Exception x) {}
 		}
 	}
+
+	@Nonnull
+	static public List<String> getZipDirectory(@Nonnull File in) throws Exception {
+		ZipInputStream zis = null;
+		byte[] buf = new byte[8192];
+		List<String> res = new ArrayList<>();
+		try {
+			zis = new ZipInputStream(new FileInputStream(in));
+			ZipEntry ze;
+			while(null != (ze = zis.getNextEntry())) {
+				res.add(ze.getName());
+				zis.closeEntry();
+			}
+			return res;
+		} finally {
+			try {
+				if(zis != null)
+					zis.close();
+			} catch(Exception x) {}
+		}
+	}
+
 
 	@Nullable
 	static public InputStream getZipContent(final File src, final String name) throws IOException {
@@ -1924,6 +1952,13 @@ public class FileTool {
 			throw new IllegalStateException("We do not allow file sizes > " + StringTool.strSize(Integer.MAX_VALUE) + ", found file size:" + StringTool.strSize(size));
 		}
 		return (int) size;
+	}
+
+	@Nonnull
+	public static File createTmpDir() throws IOException {
+		File f = File.createTempFile("work", ".dir");
+		f.delete();
+		return f;
 	}
 
 	/**

@@ -26,6 +26,8 @@ package to.etc.webapp.nls;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 /**
  * A list of message providers.
  *
@@ -37,7 +39,7 @@ public class NlsMessageProviderList implements NlsMessageProvider {
 	private List<NlsMessageProvider> m_providerList = new ArrayList<NlsMessageProvider>();
 
 	@Override
-	public String findMessage(Locale loc, String code) {
+	public String findMessage(@Nonnull Locale loc, @Nonnull String code) {
 		for(NlsMessageProvider p : m_providerList) {
 			String msg = p.findMessage(loc, code);
 			if(msg != null)

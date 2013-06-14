@@ -201,7 +201,11 @@ public class JdbcPropertyMeta {
 		if(inst == null)
 			throw new IllegalArgumentException("Null instance not allowed");
 		try {
-			m_pi.getSetter().invoke(inst, value);
+			Method setter = m_pi.getSetter();
+			if(null == setter)
+				throw new IllegalArgumentException("Property " + m_pi + " is read-only");
+
+			setter.invoke(inst, value);
 		} catch(InvocationTargetException itx) {
 			throw WrappedException.unwrap(itx);
 		}

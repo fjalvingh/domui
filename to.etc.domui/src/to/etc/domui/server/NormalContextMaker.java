@@ -24,22 +24,25 @@
  */
 package to.etc.domui.server;
 
+import javax.annotation.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
 import to.etc.domui.state.*;
 
 final public class NormalContextMaker extends AbstractContextMaker {
-	private String m_applicationClassName;
+	@Nonnull
+	final private String m_applicationClassName;
 
-	private ConfigParameters m_config;
-
+//	@Nonnull
+//	final private ConfigParameters m_config;
+//
 	private DomApplication m_application;
 
-	public NormalContextMaker(String applicationClassName, ConfigParameters pp) throws Exception {
+	public NormalContextMaker(@Nonnull String applicationClassName, @Nonnull ConfigParameters pp) throws Exception {
 		super(pp);
 		m_applicationClassName = applicationClassName;
-		m_config = pp;
+//		m_config = pp;
 
 		//-- Load class,
 		Class< ? > clz;
@@ -58,7 +61,7 @@ final public class NormalContextMaker extends AbstractContextMaker {
 			throw new IllegalStateException("The main application class '" + m_applicationClassName + "' cannot be INSTANTIATED: " + x, x);
 		}
 
-		m_application.internalInitialize(m_config, false);
+		m_application.internalInitialize(pp, false);
 	}
 
 	/**
@@ -66,7 +69,7 @@ final public class NormalContextMaker extends AbstractContextMaker {
 	 * @see to.etc.domui.server.IContextMaker#createContext(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
 	 */
 	@Override
-	public boolean handleRequest(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws Exception {
+	public boolean handleRequest(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull FilterChain chain) throws Exception {
 		//-- Get session,
 		try {
 			HttpSession sess = request.getSession(true);
@@ -74,7 +77,7 @@ final public class NormalContextMaker extends AbstractContextMaker {
 			synchronized(sess) {
 				ass = (AppSession) sess.getAttribute(AppSession.class.getName());
 				if(ass == null) {
-					ass = m_application.createSession();
+					ass = new AppSession(m_application);
 					sess.setAttribute(AppSession.class.getName(), ass);
 				}
 			}

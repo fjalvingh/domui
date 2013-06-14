@@ -24,6 +24,8 @@
  */
 package to.etc.domui.server;
 
+import javax.annotation.*;
+
 /**
  * Abstract thingy to get parameters for a page/request.
  *
@@ -31,9 +33,12 @@ package to.etc.domui.server;
  * Created on Jun 4, 2008
  */
 public interface IParameterInfo {
-	public String getParameter(String name);
+	@Nullable
+	public String getParameter(@Nonnull String name);
 
-	public String[] getParameters(String name);
+	@Nullable
+	public String[] getParameters(@Nonnull String name);
 
+	@Nonnull
 	public String[] getParameterNames();
 }

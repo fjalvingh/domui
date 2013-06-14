@@ -1,8 +1,13 @@
 /*** 040_captionedheader.frag.css ***/
 /*** CaptionedHeader ***/
+
+
+/* jal 20130305 removed, the captioned header falls over the item above it.
+
 .ui-content > .ui-chdr {
 	<%= margins_neutralize %>
 }
+*/
 .ui-chdr {
 	width: 100%;
 	margin-top: 10px;

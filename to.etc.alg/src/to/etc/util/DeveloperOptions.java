@@ -100,14 +100,24 @@ public class DeveloperOptions {
 	/*	CODING:	Getting values.										*/
 	/*--------------------------------------------------------------*/
 
+	static private final Object	ANULL	= new Object();
+
 	/**
 	 * Returns the developer option specified as a string. Return null if the option is not present.
 	 */
 	static synchronized public String getString(final String name) {
-		String val = internalGetString(name);
-		if(val != null)
-			System.out.println("WARNING: Development-time option " + name + " (string) changed to " + val);
-		return val;
+		if(m_map == null)
+			return null;
+		String s = (String) m_map.get(name);
+		if(s != null) {
+			return s == ANULL ? null : s;
+		}
+
+		s = m_p.getProperty(name);
+		m_map.put(name, s == null ? ANULL : s);
+		if(s != null)
+			System.out.println("WARNING: Development-time option " + name + " (string) changed to " + s);
+		return s;
 	}
 
 	static synchronized private String internalGetString(final String name) {

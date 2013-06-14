@@ -22,12 +22,13 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.server;
+package to.etc.domui.state;
 
+import javax.annotation.*;
 import javax.servlet.http.*;
 
+import to.etc.domui.server.*;
 import to.etc.domui.server.reloader.*;
-import to.etc.domui.state.*;
 
 /**
  * This is contained in an HttpSession and refers to the AppSession
@@ -39,10 +40,15 @@ import to.etc.domui.state.*;
 final public class HttpSessionLink implements IReloadedClassesListener, HttpSessionBindingListener {
 	private AppSession m_appSession;
 
-	private ReloadingContextMaker m_reloader;
+	@Nonnull
+	final private ReloadingContextMaker m_reloader;
 
-	public HttpSessionLink(ReloadingContextMaker reloader) {
+	@Nonnull
+	final private HttpSession m_httpSession;
+
+	public HttpSessionLink(@Nonnull HttpSession sess, @Nonnull ReloadingContextMaker reloader) {
 		m_reloader = reloader;
+		m_httpSession = sess;
 	}
 
 	/**
@@ -58,6 +64,7 @@ final public class HttpSessionLink implements IReloadedClassesListener, HttpSess
 			m_appSession = null;
 		}
 		if(old != null) {
+			old.saveOldState(m_httpSession);
 			old.internalDestroy();
 		}
 	}
@@ -71,18 +78,26 @@ final public class HttpSessionLink implements IReloadedClassesListener, HttpSess
 	 */
 	@Override
 	public void valueUnbound(HttpSessionBindingEvent arg0) {
-		classesReloaded();
-		m_reloader.removeListener(this); // Drop me from the class reloader list
+		AppSession old;
+		synchronized(this) {
+			old = m_appSession;
+			m_appSession = null;
+		}
+		if(old != null) {
+			old.internalDestroy();
+		}
+		m_reloader.removeListener(this); 							// Drop me from the class reloader list
 	}
 
-	AppSession getAppSession(DomApplication app) {
+	@Nonnull
+	public AppSession getAppSession(@Nonnull DomApplication app) {
 		AppSession s;
 		synchronized(this) {
-			if(m_appSession == null)
-				m_appSession = app.createSession();
+			s = m_appSession;
+			if(s == null)
+				s = m_appSession = new AppSession(app);
 			else if(m_appSession.getApplication() != app)
 				throw new IllegalStateException("Different DomApplication instances??");
-			s = m_appSession;
 		}
 		return s;
 	}

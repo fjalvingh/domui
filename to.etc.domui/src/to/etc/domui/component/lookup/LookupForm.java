@@ -41,6 +41,7 @@ import to.etc.domui.server.*;
 import to.etc.domui.themes.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.*;
+import to.etc.webapp.annotations.*;
 import to.etc.webapp.query.*;
 
 /**
@@ -392,7 +393,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	/** The list of buttons to show on the button row. */
 	private List<ButtonRowItem> m_buttonItemList = Collections.EMPTY_LIST;
 
-	public LookupForm(@Nonnull final Class<T> lookupClass, String... propertyList) {
+	public LookupForm(@Nonnull final Class<T> lookupClass, @GProperty String... propertyList) {
 		this(lookupClass, (ClassMetaModel) null, propertyList);
 	}
 

@@ -48,7 +48,7 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 22, 2008
  */
-public class PageParameters implements IPageParameters {
+public class PageParameters implements IPageParameters, Serializable {
 	/**
 	 * Contains either String or String[], maps parameter name to either one or an array of values of that parameter.
 	 */

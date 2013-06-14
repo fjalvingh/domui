@@ -109,6 +109,10 @@ public class MailHelper {
 	public MailHelper() {
 }
 
+	public void setRoot(File root) {
+		m_root = root;
+	}
+
 	private void init() {
 		if(m_init)
 			return;
@@ -133,9 +137,10 @@ public class MailHelper {
 
 	@Nonnull
 	private ITextLinkRenderer getLinkRenderer() {
-		if(null == m_linkRenderer) {
+		ITextLinkRenderer linkRenderer = m_linkRenderer;
+		if(null == linkRenderer) {
 			//-- Create a default link renderer.
-			m_linkRenderer = new ITextLinkRenderer() {
+			linkRenderer = m_linkRenderer = new ITextLinkRenderer() {
 				@Override
 				public void appendText(@Nonnull String text) {
 					appendVerbatim(text);
@@ -150,7 +155,7 @@ public class MailHelper {
 				}
 			};
 		}
-		return m_linkRenderer;
+		return linkRenderer;
 	}
 
 
@@ -272,7 +277,6 @@ public class MailHelper {
 	 * Append the text without scanning for any kind of embedded links.
 	 * @param s
 	 */
-	@Nonnull
 	public void appendVerbatim(@Nonnull String s) {
 		init();
 		m_text_sb.append(s);
@@ -439,6 +443,9 @@ public class MailHelper {
 		}
 	}
 
+	private File m_root;
+
+
 	/**
 	 * Add a web resource as an image. For this to work you must override {@link #getApplicationResource(String)}.
 	 * @param name
@@ -449,15 +456,22 @@ public class MailHelper {
 	 */
 	@Nonnull
 	public MailHelper image(@Nonnull String name, @Nonnull String mime, @Nonnull String rurl) throws Exception {
-		InputStream is = getApplicationResource(rurl);
+		InputStream is;
+		if(m_root != null) {
+			is = new FileInputStream(new File(m_root, rurl));
+		} else {
+			is = getApplicationResource(rurl);
+		}
+
 		byte[][] buf;
 		try {
 			buf = FileTool.loadByteBuffers(is);
 		} finally {
 			FileTool.closeAll(is);
 		}
-		m_lastImgKey = name + "-" + (m_attindex++);
-		image(new Attachment(mime, m_lastImgKey, buf), name);
+		String s = MimeWriter.generateContentID();
+//		String s = m_lastImgKey = name + "-" + (m_attindex++);
+		image(new Attachment(mime, s, buf), name);
 		return this;
 	}
 
@@ -486,7 +500,10 @@ public class MailHelper {
 	@Nonnull
 	public String addImage(@Nonnull String name, @Nonnull String rurl) throws Exception {
 		image(name, rurl);
-		return m_lastImgKey;
+		String s = m_lastImgKey;
+		if(s == null)
+			throw new IllegalStateException("Last image not set");
+		return s;
 	}
 
 	/**
@@ -693,8 +710,8 @@ public class MailHelper {
 	 */
 	protected void addTrailer() throws Exception {}
 
-	@Nullable
-	protected InputStream getApplicationResource(String name) throws Exception {
+	@Nonnull
+	protected InputStream getApplicationResource(@Nonnull String name) throws Exception {
 		throw new OperationNotSupportedException("Override getApplicationResource(String)");
 
 //		//-- Get the appfile represented by that RURL.

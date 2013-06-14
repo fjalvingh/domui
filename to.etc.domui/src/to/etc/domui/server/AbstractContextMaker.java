@@ -38,7 +38,7 @@ import to.etc.webapp.nls.*;
 
 abstract public class AbstractContextMaker implements IContextMaker {
 	@Override
-	abstract public boolean handleRequest(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws Exception;
+	abstract public boolean handleRequest(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull FilterChain chain) throws Exception;
 
 	private static class Pair {
 		@Nonnull
@@ -98,7 +98,7 @@ abstract public class AbstractContextMaker implements IContextMaker {
 		}
 	}
 
-	public boolean execute(final RequestContextImpl ctx, FilterChain chain) throws Exception {
+	public boolean execute(@Nonnull final RequestContextImpl ctx, @Nonnull FilterChain chain) throws Exception {
 		//-- 201012 jal Set the locale for this request
 		Locale loc = ctx.getApplication().getRequestLocale(ctx.getRequest());
 		NlsContext.setLocale(loc);
@@ -115,7 +115,7 @@ abstract public class AbstractContextMaker implements IContextMaker {
 				handleDoFilter(chain, ctx.getRequest(), ctx.getResponse());
 				return false;
 			}
-			ctx.getResponse().addHeader("X-UA-Compatible", "IE=edge"); // 20110329 jal Force to highest supported mode for DomUI code.
+			ctx.getResponse().addHeader("X-UA-Compatible", "IE=edge");	// 20110329 jal Force to highest supported mode for DomUI code.
 			ctx.getResponse().addHeader("X-XSS-Protection", "0");		// 20130124 jal Disable IE XSS filter, to prevent the idiot thing from seeing the CID as a piece of script 8-(
 			rh.handleRequest(ctx);
 			ctx.flush();
@@ -138,7 +138,7 @@ abstract public class AbstractContextMaker implements IContextMaker {
 		}
 	}
 
-	private void handleDoFilter(FilterChain chain, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	private void handleDoFilter(@Nonnull FilterChain chain, @Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response) throws ServletException, IOException {
 		if(m_ieEmulationList.size() == 0) {
 			chain.doFilter(request, response);
 			return;
@@ -165,7 +165,7 @@ abstract public class AbstractContextMaker implements IContextMaker {
 		wsr.flushBuffer();
 	}
 
-	private void callInterceptorsBegin(final List<IRequestInterceptor> il, final RequestContextImpl ctx) throws Exception {
+	private void callInterceptorsBegin(@Nonnull final List<IRequestInterceptor> il, @Nonnull final RequestContextImpl ctx) throws Exception {
 		int i;
 		for(i = 0; i < il.size(); i++) {
 			IRequestInterceptor ri = il.get(i);
@@ -188,7 +188,7 @@ abstract public class AbstractContextMaker implements IContextMaker {
 		}
 	}
 
-	private void callInterceptorsAfter(final List<IRequestInterceptor> il, final RequestContextImpl ctx, final Exception x) throws Exception {
+	private void callInterceptorsAfter(@Nonnull final List<IRequestInterceptor> il, @Nonnull final RequestContextImpl ctx, @Nullable final Exception x) throws Exception {
 		Exception endx = null;
 
 		for(int i = il.size(); --i >= 0;) {

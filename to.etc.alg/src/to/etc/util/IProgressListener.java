@@ -1,5 +1,7 @@
 package to.etc.util;
 
+import javax.annotation.*;
+
 /**
  * Listens for Progress changes at a given level.
  *
@@ -7,5 +9,5 @@ package to.etc.util;
  * Created on Dec 19, 2011
  */
 public interface IProgressListener {
-	void progressed(Progress level) throws Exception;
+	void progressed(@Nonnull Progress level) throws Exception;
 }

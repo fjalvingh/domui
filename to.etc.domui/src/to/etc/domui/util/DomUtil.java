@@ -381,6 +381,7 @@ final public class DomUtil {
 	 * does not use the known GUID format but shortens the string by encoding into base64-like encoding.
 	 * @return
 	 */
+	@Nonnull
 	static public String generateGUID() {
 		byte[] bin = new byte[18];
 		ByteArrayUtil.setInt(bin, 0, m_guidSeed); // Start with the seed
@@ -417,7 +418,10 @@ final public class DomUtil {
 		for(String name : ctx.getParameterNames()) {
 			if(name.equals(Constants.PARAM_CONVERSATION_ID))
 				continue;
-			for(String value : ctx.getParameters(name)) {
+			String[] parameters = ctx.getParameters(name);
+			if(null == parameters)
+				continue;
+			for(String value : parameters) {
 				if(first) {
 					sb.append('?');
 					first = false;
@@ -581,15 +585,16 @@ final public class DomUtil {
 		return ci.getRelativePath(rurl);
 	}
 
-	static public String[] decodeCID(final String param) {
-		if(param == null)
-			return null;
-		int pos = param.indexOf('.');
-		if(pos == -1)
-			throw new IllegalStateException("Missing '.' in $CID parameter");
-		String[] res = new String[]{param.substring(0, pos), param.substring(pos + 1)};
-		return res;
-	}
+//	@Nonnull
+//	static public String[] decodeCID(@Nonnull final String param) {
+//		if(param == null)
+//			throw new IllegalStateException("$cid cannot be null");
+//		int pos = param.indexOf('.');
+//		if(pos == -1)
+//			throw new IllegalStateException("Missing '.' in $CID parameter");
+//		String[] res = new String[]{param.substring(0, pos), param.substring(pos + 1)};
+//		return res;
+//	}
 
 	/**
 	 * Ensures that all of a node tree has been built.
@@ -1793,13 +1798,10 @@ final public class DomUtil {
 		return n.getComponentInfo();
 	}
 
-
 	public static void main(final String[] args) {
 		String html = "<p>This is <i>just</i> some html with<br>a new line <b>and a bold tag</b>";
 		String uns = htmlRemoveUnsafe(html);
 		System.out.println("uns=" + uns);
-
-
 	}
 
 	public static @Nonnull

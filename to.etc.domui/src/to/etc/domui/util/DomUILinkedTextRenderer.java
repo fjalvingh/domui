@@ -84,7 +84,20 @@ final public class DomUILinkedTextRenderer implements ITextLinkRenderer {
 
 	@Override
 	public void appendText(@Nonnull String text) {
-		DomUtil.renderHtmlString(m_c, text);
+		int pos = 0;
+		int len = text.length();
+		while(pos < len) {
+			int nl = text.indexOf("\n", pos);
+			if(nl == -1) {
+				DomUtil.renderHtmlString(m_c, text.substring(pos));
+				return;
+			}
+			if(nl > pos) {
+				DomUtil.renderHtmlString(m_c, text.substring(pos, nl));
+			}
+			pos = nl + 1;
+			m_c.add(new BR());
+		}
 	}
 
 	static public void register(@Nonnull Class< ? extends IIdentifyable< ? >> dataClass, @Nonnull Class< ? extends UrlPage> page, String paramName) {

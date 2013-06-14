@@ -104,6 +104,10 @@ public class Progress {
 		return m_parent;
 	}
 
+	public boolean isCancelable() {
+		return getRoot().m_cancelable;
+	}
+
 	@Nullable
 	public String getName() {
 		synchronized(m_root) {
@@ -294,7 +298,8 @@ public class Progress {
 	 * Create a sub-progress indicator for the specified portion of work.
 	 * @return
 	 */
-	public Progress createSubProgress(String name, double work) {
+	@Nonnull
+	public Progress createSubProgress(@Nullable String name, double work) {
 		synchronized(m_root) {
 			clearSubProgress();
 			checkCancelled();

@@ -36,7 +36,7 @@ public class DataContextMock implements QDataContext {
 	private int m_alloc = 1;
 
 	@Override
-	public void attach(final Object o) throws Exception {}
+	public void attach(final @Nonnull Object o) throws Exception {}
 
 	@Override
 	public void setIgnoreClose(boolean on) {}
@@ -47,15 +47,15 @@ public class DataContextMock implements QDataContext {
 	}
 
 	@Override
-	public void delete(final Object o) throws Exception {}
+	public void delete(final @Nonnull Object o) throws Exception {}
 
 	@Override
-	public QDataContextFactory getFactory() {
-		return null;
+	public @Nonnull QDataContextFactory getFactory() {
+		throw new IllegalStateException("Cannot use this");
 	}
 
 	@Override
-	public <T> T find(final Class<T> clz, final Object pk) throws Exception {
+	public <T> T find(final @Nonnull Class<T> clz, final @Nonnull Object pk) throws Exception {
 		return null;
 	}
 
@@ -66,13 +66,13 @@ public class DataContextMock implements QDataContext {
 	}
 
 	@Override
-	public <T> T getInstance(Class<T> clz, Object pk) throws Exception {
-		return null;
+	public @Nonnull <T> T getInstance(@Nonnull Class<T> clz, @Nonnull Object pk) throws Exception {
+		throw new IllegalStateException("Cannot use this");
 	}
 
 	@Override
-	public Connection getConnection() throws Exception {
-		return null;
+	public @Nonnull Connection getConnection() throws Exception {
+		throw new IllegalStateException("Cannot use this");
 	}
 
 	@Override
@@ -81,46 +81,58 @@ public class DataContextMock implements QDataContext {
 	}
 
 	@Override
-	public <T> List<T> query(final QCriteria<T> q) throws Exception {
+	public @Nonnull <T> List<T> query(final @Nonnull QCriteria<T> q) throws Exception {
+		throw new IllegalStateException("Cannot use this");
+	}
+
+	@Override
+	public <T> T queryOne(final @Nonnull QCriteria<T> q) throws Exception {
 		return null;
 	}
 
 	@Override
-	public <T> T queryOne(final QCriteria<T> q) throws Exception {
+	public @Nonnull List<Object[]> query(@Nonnull QSelection< ? > sel) throws Exception {
+		throw new IllegalStateException("Cannot use this");
+	}
+
+	@Override
+	public Object[] queryOne(@Nonnull QSelection< ? > sel) throws Exception {
 		return null;
 	}
 
 	@Override
-	public List<Object[]> query(QSelection< ? > sel) throws Exception {
-		return null;
-	}
-
-	@Override
-	public Object[] queryOne(QSelection< ? > sel) throws Exception {
-		return null;
-	}
-
-	@Override
-	public void refresh(final Object o) throws Exception {}
+	public void refresh(final @Nonnull Object o) throws Exception {}
 
 	@Override
 	public void rollback() throws Exception {}
 
 	@Override
-	public void save(final Object o) throws Exception {}
+	public void save(final @Nonnull Object o) throws Exception {}
 
 	@Override
 	public void startTransaction() throws Exception {}
 
 
 	@Override
-	public <T> T find(ICriteriaTableDef<T> metatable, Object pk) throws Exception {
+	public <T> T find(@Nonnull ICriteriaTableDef<T> metatable, @Nonnull Object pk) throws Exception {
 		return null;
 	}
 
 	@Override
-	public <T> T getInstance(ICriteriaTableDef<T> clz, Object pk) throws Exception {
-		return null;
+	public @Nonnull <T> T getInstance(@Nonnull ICriteriaTableDef<T> clz, @Nonnull Object pk) throws Exception {
+		throw new IllegalStateException("Cannot use this");
+	}
+
+	@Override
+	@Nonnull
+	public <R> List<R> query(@Nonnull Class<R> resultInterface, @Nonnull QSelection< ? > sel) throws Exception {
+		throw new IllegalStateException("Mocked");
+	}
+
+	@Override
+	@Nullable
+	public <R> R queryOne(@Nonnull Class<R> resultInterface, @Nonnull QSelection< ? > sel) throws Exception {
+		throw new IllegalStateException("Mocked");
 	}
 
 	@Override
@@ -154,7 +166,7 @@ public class DataContextMock implements QDataContext {
 	}
 
 	@Override
-	public void addCommitAction(IRunnable cx) {}
+	public void addCommitAction(@Nonnull IRunnable cx) {}
 
 	/**
 	 *

@@ -63,6 +63,13 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 
 	private String m_unknownColumnCaption;
 
+	@Nullable
+	private IRowRendered<T> m_onRowRendered;
+
+	public static interface IRowRendered<T> {
+		public void rowRendered(@Nonnull TR row, @Nonnull T instance);
+	}
+
 	public AbstractRowRenderer(@Nonnull Class<T> data) {
 		this(data, MetaManager.findClassMeta(data));
 	}
@@ -425,6 +432,11 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 			cc.getTR().removeCssClass("ui-even");
 			cc.getTR().addCssClass("ui-odd");
 		}
+
+		IRowRendered<T> rr = getOnRowRendered();
+		if(null != rr) {
+			rr.rowRendered(cc.getTR(), instance);
+		}
 	}
 
 	/**
@@ -436,7 +448,8 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 	 * @param cd
 	 * @throws Exception
 	 */
-	protected <X> void renderColumn(@Nonnull final TableModelTableBase<T> tbl, @Nonnull final ColumnContainer<T> cc, final int index, @Nonnull final T instance, @Nonnull final SimpleColumnDef< ? > cd) throws Exception {
+	protected <X> void renderColumn(@Nonnull final TableModelTableBase<T> tbl, @Nonnull final ColumnContainer<T> cc, final int index, @Nonnull final T instance, @Nonnull final SimpleColumnDef<X> cd)
+		throws Exception {
 		//-- If a value transformer is known get the column value, else just use the instance itself (case when Renderer is used)
 		X colval;
 		IValueTransformer< ? > valueTransformer = cd.getValueTransformer();
@@ -448,18 +461,27 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 		//-- Is a node renderer used?
 		TD cell;
 		String cssClass = cd.getCssClass();
-		if(null != cd.getContentRenderer()) {
+		INodeContentRenderer<X> contentRenderer = cd.getContentRenderer();
+		IControlFactory<X> ic = cd.getControl();
+		if(null != ic) {
+			IControl<X> control = ic.createControl();
+			cell = cc.add((NodeBase) control);
+			PropertyMetaModel<X> pmm = (PropertyMetaModel<X>) MetaManager.getPropertyMeta(m_dataClass, cd.getPropertyName());
+			control.bind().to(instance, pmm);
+			((NodeBase) control).moveModelToControl();
+		} else if(null != contentRenderer) {
 			cell = cc.add((NodeBase) null); // Add the new row
 			if(cssClass != null)
 				cell.addCssClass(cssClass);
-			((INodeContentRenderer<Object>) cd.getContentRenderer()).renderNodeContent(tbl, cell, colval, instance); // %&*(%&^%*&%&( generics require casting here
+			((INodeContentRenderer<Object>) contentRenderer).renderNodeContent(tbl, cell, colval, instance); // %&*(%&^%*&%&( generics require casting here
 		} else {
 			String s;
 			if(colval == null)
 				s = null;
 			else {
-				if(cd.getPresentationConverter() != null)
-					s = ((IConverter<X>) cd.getPresentationConverter()).convertObjectToString(NlsContext.getLocale(), colval);
+				IObjectToStringConverter< ? > presentationConverter = cd.getPresentationConverter();
+				if(presentationConverter != null)
+					s = ((IConverter<X>) presentationConverter).convertObjectToString(NlsContext.getLocale(), colval);
 				else
 					s = String.valueOf(colval);
 			}
@@ -483,7 +505,9 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 			cell.setClicked(new IClicked<TD>() {
 				@Override
 				public void clicked(final @Nonnull TD b) throws Exception {
-					((ICellClicked<Object>) cd.getCellClicked()).cellClicked(b, instance);
+					ICellClicked<Object> clicked = (ICellClicked<Object>) cd.getCellClicked();
+					if(null != clicked)
+						clicked.cellClicked(b, instance);
 				}
 			});
 			cell.addCssClass("ui-cellsel");
@@ -520,5 +544,19 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 	public String getUnknownColumnCaption() {
 		return m_unknownColumnCaption == null ? "" : m_unknownColumnCaption;
 	}
+
+	/**
+	 * Sets a handler that gets called every time a row is rendered.
+	 * @return
+	 */
+	@Nullable
+	public IRowRendered<T> getOnRowRendered() {
+		return m_onRowRendered;
+	}
+
+	public void setOnRowRendered(@Nullable IRowRendered<T> onRowRendered) {
+		m_onRowRendered = onRowRendered;
+	}
+
 
 }

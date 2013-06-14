@@ -90,6 +90,7 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 		checkValid();
 		if(m_session == null) {
 			m_session = m_sessionMaker.makeSession();
+			m_session.beginTransaction();					// jal 20130321 Needed for Postgres to properly load lob's.
 		}
 		return m_session;
 	}

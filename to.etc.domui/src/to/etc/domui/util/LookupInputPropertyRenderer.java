@@ -95,7 +95,7 @@ public class LookupInputPropertyRenderer<T> implements INodeContentRenderer<T> {
 	}
 
 	@Override
-	public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nonnull T object, @Nullable Object parameters) throws Exception {
+	public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable T object, @Nullable Object parameters) throws Exception {
 		String txt;
 		TBody tbl = ((LookupInput< ? >) node).getBody();
 		if(getBeforeRenderer() != null) {

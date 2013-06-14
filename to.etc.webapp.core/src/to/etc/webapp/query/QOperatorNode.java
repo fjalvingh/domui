@@ -24,13 +24,17 @@
  */
 package to.etc.webapp.query;
 
-abstract public class QOperatorNode extends QNodeBase {
-	private QOperation m_operation;
+import javax.annotation.*;
 
-	public QOperatorNode(QOperation operation) {
+abstract public class QOperatorNode extends QNodeBase {
+	@Nonnull
+	final private QOperation m_operation;
+
+	public QOperatorNode(@Nonnull QOperation operation) {
 		m_operation = operation;
 	}
 
+	@Nonnull
 	public QOperation getOperation() {
 		return m_operation;
 	}

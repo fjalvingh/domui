@@ -262,6 +262,38 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		}
 		if(qc.getTimeout() > 0)
 			m_rootCriteria.setTimeout(qc.getTimeout());
+
+		//-- 3. Handle fetch.
+		handleFetch(qc);
+	}
+
+	/**
+	 * Handle fetch selections.
+	 * @param qc
+	 */
+	private void handleFetch(QCriteriaQueryBase< ? > qc) {
+		for(Map.Entry<String, QFetchStrategy> ms : qc.getFetchStrategies().entrySet()) {
+			PropertyMetaModel< ? > pmm = MetaManager.findPropertyMeta(m_rootClass, ms.getKey());
+			if(null == pmm)
+				throw new QQuerySyntaxException("The 'fetch' path '" + ms.getKey() + " does not resolve on class " + m_rootClass);
+			if(ms.getValue() == QFetchStrategy.LAZY)
+				continue;
+
+			switch(pmm.getRelationType()){
+				case DOWN:
+					m_rootCriteria.setFetchMode(ms.getKey(), FetchMode.SELECT);
+					break;
+//					throw new QQuerySyntaxException("The 'fetch' path '" + ms.getKey()
+//						+ " is a child relation (list-of-children). Fetch is not yet supported for that because Hibernate will duplicate the master.");
+
+				case UP:
+					m_rootCriteria.setFetchMode(ms.getKey(), FetchMode.SELECT);
+					break;
+
+				case NONE:
+					throw new QQuerySyntaxException("The 'fetch' path '" + ms.getKey() + " is not recognized as a relation property");
+			}
+		}
 	}
 
 	/*--------------------------------------------------------------*/
@@ -943,7 +975,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	 */
 	@Override
 	public void visitExistsSubquery(QExistsSubquery< ? > q) throws Exception {
-		Class< ? > parentBaseClass = q.getParentBaseClass();
+		Class< ? > parentBaseClass = q.getParentQuery().getBaseClass();
 		PropertyMetaModel< ? > pmm = MetaManager.getPropertyMeta(parentBaseClass, q.getParentProperty());
 
 		//-- If we have a dotted name it can only be parent.parent.parent.childList like (with multiple parents). Parse all parents.
@@ -962,7 +994,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 
 		//-- Should be List type
 		if(!List.class.isAssignableFrom(pmm.getActualType()))
-			throw new ProgrammerErrorException("The property '" + q.getParentBaseClass() + "." + q.getParentProperty() + "' should be a list (it is a " + pmm.getActualType() + ")");
+			throw new ProgrammerErrorException("The property '" + q.getParentQuery().getBaseClass() + "." + q.getParentProperty() + "' should be a list (it is a " + pmm.getActualType() + ")");
 
 		//-- Make sure there is a where condition to restrict
 		QOperatorNode where = q.getRestrictions();
@@ -972,7 +1004,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		//-- Get the list's generic compound type because we're unable to get it from Hibernate easily.
 		Class< ? > coltype = MetaManager.findCollectionType(pmm.getGenericActualType());
 		if(coltype == null)
-			throw new ProgrammerErrorException("The property '" + q.getParentBaseClass() + "." + q.getParentProperty() + "' has an undeterminable child type");
+			throw new ProgrammerErrorException("The property '" + q.getParentQuery().getBaseClass() + "." + q.getParentProperty() + "' has an undeterminable child type");
 
 		//-- 2. Create an exists subquery; create a sub-statement
 		DetachedCriteria dc = DetachedCriteria.forClass(coltype, nextAlias());
@@ -1137,6 +1169,10 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 			throw new IllegalStateException("Unsupported current: " + m_currentCriteria);
 		visitRestrictionsBase(s);
 		visitOrderList(s.getOrder());
+
+		//-- 3. Handle fetch.
+		handleFetch(s);
+
 	}
 
 	@Override

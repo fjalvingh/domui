@@ -159,7 +159,7 @@ public class SimpleBinder implements IBinder, ILogiEventListener {
 			((IBindingListener<NodeBase>) m_listener).moveControlToModel((NodeBase) m_control); // Stupid generics idiocy requires cast
 		else {
 			PropertyMetaModel<Object> propertyModel = pmm();
-			if(propertyModel.getReadOnly() == YesNoType.YES)
+			if(propertyModel.getReadOnly() == YesNoType.YES || m_control instanceof IDisplayControl)
 				return;
 			Object val = m_control.getValue();
 			Object base = getBase();

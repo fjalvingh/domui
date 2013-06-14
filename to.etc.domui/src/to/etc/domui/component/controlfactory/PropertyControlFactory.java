@@ -39,7 +39,7 @@ import to.etc.domui.component.meta.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 8, 2008
  */
-public interface ControlFactory {
+public interface PropertyControlFactory {
 	/**
 	 * This must return a +ve value when this factory accepts the specified property; the returned value
 	 * is an eagerness score. The factory returning the highest eagerness wins.
@@ -65,24 +65,24 @@ public interface ControlFactory {
 	@Nonnull
 	<T> ControlFactoryResult createControl(@Nonnull PropertyMetaModel<T> pmm, boolean editable, @Nullable Class< ? > controlClass);
 
-	static public final ControlFactory TEXTAREA_CF = new ControlFactoryTextArea();
+	static public final PropertyControlFactory TEXTAREA_CF = new ControlFactoryTextArea();
 
 	/**
 	 * This is a fallback factory; it accepts anything and shows a String edit component for it. It
 	 * hopes that the Text<?> control can convert the string input value to the actual type using the
 	 * registered Converters. This is also the factory for regular Strings.
 	 */
-	static public final ControlFactory STRING_CF = new ControlFactoryString();
+	static public final PropertyControlFactory STRING_CF = new ControlFactoryString();
 
-	static public final ControlFactory BOOLEAN_AND_ENUM_CF = new ControlFactoryEnumAndBool();
+	static public final PropertyControlFactory BOOLEAN_AND_ENUM_CF = new ControlFactoryEnumAndBool();
 
-	static public final ControlFactory DATE_CF = new ControlFactoryDate();
+	static public final PropertyControlFactory DATE_CF = new ControlFactoryDate();
 
 	/**
 	 * Factory for UP relations. This creates a combobox input if the property is an
 	 * UP relation and has combobox properties set.
 	 */
-	static public final ControlFactory RELATION_COMBOBOX_CF = new ControlFactoryRelationCombo();
+	static public final PropertyControlFactory RELATION_COMBOBOX_CF = new ControlFactoryRelationCombo();
 
-	static public final ControlFactory RELATION_LOOKUP_CF = new ControlFactoryRelationLookup();
+	static public final PropertyControlFactory RELATION_LOOKUP_CF = new ControlFactoryRelationLookup();
 }

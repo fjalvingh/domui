@@ -29,10 +29,10 @@ import javax.annotation.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 
-public class ControlFactoryTextArea implements ControlFactory {
+public class ControlFactoryTextArea implements PropertyControlFactory {
 	/**
 	 * Accept if the componentHint says textarea.
-	 * @see to.etc.domui.component.controlfactory.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
+	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
 	public int accepts(@Nonnull PropertyMetaModel< ? > pmm, boolean editable, @Nullable Class< ? > controlClass) {

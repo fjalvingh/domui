@@ -22,7 +22,7 @@ public class QFieldLong<R extends QField<R, ? >> {
 	R gt(@Nonnull long... t) {
 		m_field.eqOrOr(new IRestrictor<long[]>() {
 			@Override
-			public QOperatorNode restrict(@Nonnull long[] value) {
+			public @Nonnull QOperatorNode restrict(@Nonnull long[] value) {
 				return QRestriction.gt(m_field.getPath(), value[0]);
 			}
 		}, t);
@@ -33,7 +33,7 @@ public class QFieldLong<R extends QField<R, ? >> {
 	R eq(@Nonnull long... t) {
 		m_field.eqOrOr(new IRestrictor<long[]>() {
 			@Override
-			public QOperatorNode restrict(@Nonnull long[] value) {
+			public @Nonnull QOperatorNode restrict(@Nonnull long[] value) {
 				return QRestriction.eq(m_field.getPath(), value[0]);
 			}
 		}, t);
@@ -44,7 +44,7 @@ public class QFieldLong<R extends QField<R, ? >> {
 	R ne(@Nonnull long... t) {
 		m_field.eqOrOr(new IRestrictor<long[]>() {
 			@Override
-			public QOperatorNode restrict(@Nonnull long[] value) {
+			public @Nonnull QOperatorNode restrict(@Nonnull long[] value) {
 				return QRestriction.ne(m_field.getPath(), value[0]);
 			}
 		}, t);

@@ -94,8 +94,9 @@ public class ErrorMessageDiv extends Div implements IErrorMessageListener {
 		if(m.getType() != MsgType.INFO) {
 			List<Div> errorDivs = getChildren(Div.class); // FIXME Why DIV's only?
 			for(Div errorDiv : errorDivs) {
-				if(errorDiv.getUserObject() instanceof UIMessage && ((UIMessage) errorDiv.getUserObject()).getType() == MsgType.INFO) {
-					m_msgList.remove(errorDiv.getUserObject());
+				Object userObject = errorDiv.getUserObject();
+				if(userObject instanceof UIMessage && ((UIMessage) userObject).getType() == MsgType.INFO) {
+					m_msgList.remove(userObject);
 					errorDiv.remove();
 				}
 			}

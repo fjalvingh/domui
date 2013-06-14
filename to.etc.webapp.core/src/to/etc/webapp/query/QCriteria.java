@@ -193,7 +193,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	 */
 	@Override
 	@Nonnull
-	public <R extends QField<R, T>> QCriteria<T> eq(@Nonnull final QFieldDouble<R> property, @Nonnull final double value) {
+	public <R extends QField<R, T>> QCriteria<T> eq(@Nonnull final QFieldDouble<R> property, final double value) {
 		return (QCriteria<T>) super.eq(property, value);
 	}
 
@@ -252,7 +252,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	 * @see to.etc.webapp.query.QCriteriaQueryBase#gt(java.lang.String, java.lang.Object)
 	 */
 	@Override
-	public QCriteria<T> gt(@Nonnull @GProperty final String property, @Nonnull final Object value) {
+	public @Nonnull QCriteria<T> gt(@Nonnull @GProperty final String property, @Nonnull final Object value) {
 		return (QCriteria<T>) super.gt(property, value);
 	}
 
@@ -261,7 +261,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	 * @see to.etc.webapp.query.QCriteriaQueryBase#ilike(java.lang.String, java.lang.Object)
 	 */
 	@Override
-	public QCriteria<T> ilike(@Nonnull @GProperty final String property, @Nonnull final Object value) {
+	public @Nonnull QCriteria<T> ilike(@Nonnull @GProperty final String property, @Nonnull final Object value) {
 		return (QCriteria<T>) super.ilike(property, value);
 	}
 
@@ -424,6 +424,19 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	@Nonnull
 	public QCriteria<T> start(final int start) {
 		return (QCriteria<T>) super.start(start);
+	}
+
+	@Override
+	@Nonnull
+	public QCriteria<T> fetch(@Nonnull @GProperty String property, @Nonnull QFetchStrategy strategy) {
+		super.fetch(property, strategy);
+		return this;
+	}
+
+	@Nonnull
+	public QCriteria<T> fetch(@Nonnull @GProperty String property) {
+		super.fetch(property, QFetchStrategy.EAGER);
+		return this;
 	}
 
 	@Override

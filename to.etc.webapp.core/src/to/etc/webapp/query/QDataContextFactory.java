@@ -34,12 +34,13 @@ import javax.annotation.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 25, 2008
  */
-public interface QDataContextFactory {
+public interface QDataContextFactory extends IQDataContextSource {
 	/**
 	 * Get the current Session to use for querying.
 	 * @return
 	 * @throws Exception
 	 */
+	@Override
 	@Nonnull
 	QDataContext getDataContext() throws Exception;
 

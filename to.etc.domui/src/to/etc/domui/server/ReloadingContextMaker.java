@@ -55,10 +55,12 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 	static private ReloadingContextMaker m_instance;
 
 	@Nonnull
-	static public List<IReloadListener> m_reloadListener = new ArrayList<IReloadListener>();
+	static public List<IReloadListener> m_reloadListener = new ArrayList<>();
+
+	static private long m_lastReloadTime;
 
 
-	public ReloadingContextMaker(String applicationClassName, ConfigParameters pp, String patterns, String patternsWatchOnly) throws Exception {
+	public ReloadingContextMaker(@Nonnull String applicationClassName, @Nonnull ConfigParameters pp, @Nullable String patterns, @Nullable String patternsWatchOnly) throws Exception {
 		super(pp);
 		m_instance = this;
 		m_applicationClassName = applicationClassName;
@@ -66,11 +68,11 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 		m_reloader = new Reloader(patterns, patternsWatchOnly);
 		System.out.println("DomUI: We are running in DEVELOPMENT mode. This will be VERY slow when used in a production environment.");
 
-		checkReload(); // Initial: force load and init of Application object.
+		checkReload(); 										// Initial: force load and init of Application object.
 	}
 
 	static public synchronized void addReloadListener(IReloadListener l) {
-		m_reloadListener = new ArrayList<IReloadListener>(m_reloadListener);
+		m_reloadListener = new ArrayList<>(m_reloadListener);
 		m_reloadListener.add(l);
 	}
 
@@ -89,8 +91,16 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 		return m_reloader;
 	}
 
+	static private synchronized void reloaded() {
+		m_lastReloadTime = System.currentTimeMillis();
+	}
+
+	static public synchronized long getLastReload() {
+		return m_lastReloadTime;
+	}
+
 	@Override
-	public boolean handleRequest(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws Exception {
+	public boolean handleRequest(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull FilterChain chain) throws Exception {
 		synchronized(this) {
 			if(m_nestCount == 0)
 				checkReload();
@@ -105,14 +115,13 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 			synchronized(sess) {
 				link = (HttpSessionLink) sess.getAttribute(AppSession.class.getName());
 				if(link == null) {
-					link = new HttpSessionLink(this);
+					link = new HttpSessionLink(sess, this);
 					sess.setAttribute(AppSession.class.getName(), link);
 					addListener(link);
 				}
 			}
 
 			//-- Ok: does the sessionlink have a session?
-			//			DomApplication.internalSetCurrent(m_application);
 			AppSession ass = link.getAppSession(m_application);
 			RequestContextImpl ctx = new RequestContextImpl(m_application, ass, request, response);
 			return execute(ctx, chain);
@@ -134,6 +143,7 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 		if(m_application == null) {
 			//-- Just load && be done
 			m_application = createApplication();
+			reloaded();
 			return;
 		}
 		if(!m_reloader.isChanged())
@@ -151,6 +161,7 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 		m_reloader.clear();
 
 		//-- Check to see if the application has changed
+		reloaded();
 		Class< ? > clz;
 		try {
 			clz = m_reloader.loadApplication(m_applicationClassName);

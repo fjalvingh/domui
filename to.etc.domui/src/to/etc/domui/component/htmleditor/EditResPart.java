@@ -28,6 +28,8 @@ import java.io.*;
 import java.text.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.*;
 import to.etc.domui.parts.*;
 import to.etc.domui.server.*;
@@ -59,7 +61,7 @@ public class EditResPart implements IUnbufferedPartFactory {
 	}
 
 	@Override
-	public void generate(DomApplication app, String rurl, RequestContextImpl param) throws Exception {
+	public void generate(@Nonnull DomApplication app, @Nonnull String rurl, @Nonnull RequestContextImpl param) throws Exception {
 		System.out.println("QS=" + param.getRequest().getQueryString());
 		System.out.println("RURL=" + rurl);
 

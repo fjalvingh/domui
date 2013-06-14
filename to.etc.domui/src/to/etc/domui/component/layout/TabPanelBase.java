@@ -237,6 +237,7 @@ public class TabPanelBase extends Div {
 		separator.setCssClass("ui-tab-ibt");
 		if(li == null || !li.isAttached()) {
 			li = new Li();
+			li.setCssClass("ui-tab-li");
 			into.add(separator);
 			into.add(li);
 			ti.setTab(li); // Save for later use,

@@ -130,6 +130,7 @@ public abstract class DomApplication {
 	 * root URL is entered without a class name.
 	 * @return
 	 */
+	@Nullable
 	abstract public Class< ? extends UrlPage> getRootPage();
 
 	/**
@@ -235,12 +236,12 @@ public abstract class DomApplication {
 	}
 
 	protected void registerControlFactories() {
-		registerControlFactory(ControlFactory.STRING_CF);
-		registerControlFactory(ControlFactory.TEXTAREA_CF);
-		registerControlFactory(ControlFactory.BOOLEAN_AND_ENUM_CF);
-		registerControlFactory(ControlFactory.DATE_CF);
-		registerControlFactory(ControlFactory.RELATION_COMBOBOX_CF);
-		registerControlFactory(ControlFactory.RELATION_LOOKUP_CF);
+		registerControlFactory(PropertyControlFactory.STRING_CF);
+		registerControlFactory(PropertyControlFactory.TEXTAREA_CF);
+		registerControlFactory(PropertyControlFactory.BOOLEAN_AND_ENUM_CF);
+		registerControlFactory(PropertyControlFactory.DATE_CF);
+		registerControlFactory(PropertyControlFactory.RELATION_COMBOBOX_CF);
+		registerControlFactory(PropertyControlFactory.RELATION_LOOKUP_CF);
 		registerControlFactory(new ControlFactoryMoney());
 	}
 
@@ -350,19 +351,10 @@ public abstract class DomApplication {
 	}
 
 	/**
-	 * Can be overridden to create your own instance of a session.
-	 * @return
-	 */
-	protected AppSession createSession() {
-		AppSession aps = new AppSession(this);
-		return aps;
-	}
-
-	/**
 	 * Called when the session is bound to the HTTPSession. This calls all session listeners.
 	 * @param sess
 	 */
-	void registerSession(final AppSession aps) {
+	void registerSession(@Nonnull final AppSession aps) {
 		for(IAppSessionListener l : getAppSessionListeners()) {
 			try {
 				l.sessionCreated(this, aps);
@@ -372,7 +364,7 @@ public abstract class DomApplication {
 		}
 	}
 
-	void unregisterSession(final AppSession aps) {
+	void unregisterSession(@Nonnull final AppSession aps) {
 
 	}
 
@@ -425,11 +417,12 @@ public abstract class DomApplication {
 
 		/*
 		 * If we're running in development mode then we auto-reload changed pages when the developer changes
-		 * them. It can be reset by using a developer.properties option.
+		 * them. It can be reset by using a developer.properties option. If output logging is on then by
+		 * default autorefresh will be disabled, to prevent output every second from the poll.
 		 */
 		int refreshinterval = 0;
 		if(development) {
-			if(DeveloperOptions.getBool("domui.autorefresh", true)) {
+			if(DeveloperOptions.getBool("domui.autorefresh", !DeveloperOptions.getBool("domui.log", false))) {
 				//-- Auto-refresh pages is on.... Get the poll interval for it,
 				refreshinterval = DeveloperOptions.getInt("domui.refreshinterval", 2500);		// Initialize "auto refresh" interval to 2 seconds
 			}
@@ -445,7 +438,8 @@ public abstract class DomApplication {
 		return id;
 	}
 
-	final Class< ? > loadApplicationClass(final String name) throws ClassNotFoundException {
+	@Nonnull
+	final Class< ? > loadApplicationClass(@Nonnull final String name) throws ClassNotFoundException {
 		/*
 		 * jal 20081030 Code below is very wrong. When the application is not reloaded due to a
 		 * change the classloader passed at init time does not change. But a new classloader will
@@ -456,7 +450,8 @@ public abstract class DomApplication {
 		return getClass().getClassLoader().loadClass(name);
 	}
 
-	public Class< ? extends UrlPage> loadPageClass(final String name) {
+	@Nonnull
+	public Class< ? extends UrlPage> loadPageClass(@Nonnull final String name) {
 		//-- This should be a classname now
 		Class< ? > clz = null;
 		try {
@@ -798,7 +793,7 @@ public abstract class DomApplication {
 	 * Add a new control factory to the registry.
 	 * @param cf		The new factory
 	 */
-	final public void registerControlFactory(final ControlFactory cf) {
+	final public void registerControlFactory(final PropertyControlFactory cf) {
 		getControlBuilder().registerControlFactory(cf);
 	}
 

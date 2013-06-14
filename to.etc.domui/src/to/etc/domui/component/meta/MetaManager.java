@@ -34,6 +34,7 @@ import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
+import to.etc.domui.util.db.*;
 import to.etc.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.nls.*;
@@ -285,7 +286,7 @@ final public class MetaManager {
 			public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable Object object, @Nullable Object parameters) {
 				String text = lr.getLabelFor(object);
 				if(text != null)
-					node.setText(text);
+					node.add(text);
 			}
 		};
 	}
@@ -298,7 +299,7 @@ final public class MetaManager {
 		@Override
 		public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable Object object, @Nullable Object parameters) {
 			if(object != null)
-				node.setText(object.toString());
+				node.add(object.toString());
 		}
 	};
 
@@ -1093,4 +1094,38 @@ final public class MetaManager {
 		return childTbl;
 	}
 
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	QCriteria queries on lists and instances.			*/
+	/*--------------------------------------------------------------*/
+	/*
+	 * FIXME This code should probably move to QCriteria itself, or at least close to to.etc.webapp.core. But because the
+	 * implementation is so nice if we use Metadata it's created here 8-/
+	 */
+
+	/**
+	 * Return a new list which contains only the items in the input list that are obeying
+	 * the specified criteria.
+	 * @param in
+	 * @param query
+	 * @return
+	 */
+	@Nonnull
+	static public <X, T extends Collection<X>> List<X> filter(@Nonnull T in, @Nonnull QCriteria<X> query) throws Exception {
+		CriteriaMatchingVisitor<X> v = null;
+		List<X> res = new ArrayList<X>();
+		for(X item : in) {
+			if(item == null)								// Null items in the list do not match by definition.
+				continue;
+			if(v == null) {
+				ClassMetaModel cmm = findClassMeta(item.getClass());
+				v = new CriteriaMatchingVisitor<X>(item, cmm);
+			} else
+				v.setInstance(item);
+			query.visit(v);
+			if(v.isMatching())
+				res.add(item);
+		}
+		return res;
+	}
 }

@@ -27,6 +27,8 @@ package to.etc.domui.parts;
 import java.io.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.caches.images.*;
 import to.etc.domui.server.*;
 import to.etc.domui.server.parts.*;
@@ -109,7 +111,7 @@ public class CachedImagePart implements IUnbufferedPartFactory {
 	}
 
 	@Override
-	public void generate(DomApplication app, String rurl, RequestContextImpl param) throws Exception {
+	public void generate(@Nonnull DomApplication app, @Nonnull String rurl, @Nonnull RequestContextImpl param) throws Exception {
 		//-- Split the url into retriever key and instance key.
 		String[] ar = rurl.split("/");
 		if(ar == null || ar.length != 2)
@@ -132,7 +134,7 @@ public class CachedImagePart implements IUnbufferedPartFactory {
 
 	protected void generateImage(RequestContextImpl ri, FullImage fima) throws Exception {
 		ri.getResponse().setContentType(fima.getInfo().getMime());
-		System.out.println("CachedImagePart: mime=" + fima.getInfo().getMime());
+//		System.out.println("CachedImagePart: mime=" + fima.getInfo().getMime());
 		ri.getResponse().setContentLength(fima.getSource().getSize());
 
 		//-- Do we need a content-disposition header to force a filename/download?

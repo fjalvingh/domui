@@ -39,7 +39,7 @@ import to.etc.domui.util.*;
  * Created on Nov 10, 2008
  */
 public class LinkButton extends ATag implements IActionControl {
-	@Nonnull
+	@Nullable
 	private String m_text;
 
 	@Nullable

@@ -24,9 +24,12 @@
  */
 package to.etc.domui.server;
 
+import java.io.*;
+import java.sql.*;
 import java.util.*;
 
 import javax.annotation.*;
+import javax.servlet.http.*;
 
 import org.slf4j.*;
 
@@ -40,7 +43,9 @@ import to.etc.domui.login.*;
 import to.etc.domui.state.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
+import to.etc.template.*;
 import to.etc.util.*;
+import to.etc.webapp.*;
 import to.etc.webapp.core.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
@@ -55,11 +60,12 @@ import to.etc.webapp.query.*;
 public class ApplicationRequestHandler implements IFilterRequestHandler {
 	static Logger LOG = LoggerFactory.getLogger(ApplicationRequestHandler.class);
 
+	@Nonnull
 	private final DomApplication m_application;
 
 	private static boolean m_logPerf = DeveloperOptions.getBool("domui.logtime", false);
 
-	public ApplicationRequestHandler(final DomApplication application) {
+	public ApplicationRequestHandler(@Nonnull final DomApplication application) {
 		m_application = application;
 	}
 
@@ -74,14 +80,48 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 	@Override
 	public void handleRequest(@Nonnull final RequestContextImpl ctx) throws Exception {
-		ServerTools.generateNoCache(ctx.getResponse()); // All replies may not be cached at all!!
+		ServerTools.generateNoCache(ctx.getResponse()); 				// All replies may not be cached at all!!
 		handleMain(ctx);
 		ctx.getSession().dump();
 	}
 
-	private void handleMain(final RequestContextImpl ctx) throws Exception {
+	private void handleMain(@Nonnull final RequestContextImpl ctx) throws Exception {
 		Class< ? extends UrlPage> runclass = decodeRunClass(ctx);
-		runClass(ctx, runclass);
+		try {
+			runClass(ctx, runclass);
+		} catch(ThingyNotFoundException xxxx) {
+			throw xxxx;
+		} catch(ClientDisconnectedException xxxx) {
+			throw xxxx;
+		} catch(Exception x) {
+			if(!m_application.inDevelopmentMode())
+				throw x;
+
+			tryRenderOopsFrame(ctx, x);
+		} catch(Error x) {
+			if(!m_application.inDevelopmentMode())
+				throw x;
+
+			String s = x.getMessage();
+			if(s != null && s.contains("compilation") && s.contains("problem")) {
+				tryRenderOopsFrame(ctx, x);
+			} else
+				throw x;
+		}
+	}
+
+	private void tryRenderOopsFrame(@Nonnull final RequestContextImpl ctx, @Nonnull Throwable x) throws Exception {
+		try {
+			renderOopsFrame(ctx, x);
+		} catch(Exception oopx) {
+			System.out.println("Exception while rendering exception page!!?? " + oopx);
+			oopx.printStackTrace();
+			if(x instanceof Error) {
+				throw (Error) x;
+			} else {
+				throw (Exception) x;
+			}
+		}
 	}
 
 	/**
@@ -89,16 +129,19 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 * @param ctx
 	 * @return
 	 */
-	private Class< ? extends UrlPage> decodeRunClass(final IRequestContext ctx) {
+	@Nonnull
+	private Class< ? extends UrlPage> decodeRunClass(@Nonnull final IRequestContext ctx) {
 		if(ctx.getInputPath().length() == 0) {
 			/*
 			 * We need to EXECUTE the application's main class. We cannot use the .class directly
 			 * because the reloader must be able to substitute a new version of the class when
 			 * needed.
 			 */
-			String txt = m_application.getRootPage().getCanonicalName();
+			Class< ? extends UrlPage> rootPage = m_application.getRootPage();
+			if(null == rootPage)
+				throw new ProgrammerErrorException("The DomApplication's 'getRootPage()' method returns null, and there is a request for the root of the web app... Override that method or make sure the root is handled differently.");
+			String txt = rootPage.getCanonicalName();
 			return m_application.loadPageClass(txt);
-			//			return m_application.getRootPage();
 		}
 
 		//-- Try to resolve as a class name,
@@ -128,7 +171,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 * @param clz
 	 * @throws Exception
 	 */
-	private void runClass(final RequestContextImpl ctx, final Class< ? extends UrlPage> clz) throws Exception {
+	private void runClass(@Nonnull final RequestContextImpl ctx, @Nonnull final Class< ? extends UrlPage> clz) throws Exception {
 		//		if(! UrlPage.class.isAssignableFrom(clz))
 		//			throw new IllegalStateException("Class "+clz+" is not a valid page class (does not extend "+UrlPage.class.getName()+")");
 		//		System.out.println("runClass="+clz);
@@ -136,9 +179,9 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		/*
 		 * If this is a full render request the URL must contain a $CID... If not send a redirect after allocating a window.
 		 */
-		String action = ctx.getRequest().getParameter("webuia"); // AJAX action request?
+		String action = ctx.getRequest().getParameter("webuia"); 				// AJAX action request?
 		String cid = ctx.getParameter(Constants.PARAM_CONVERSATION_ID);
-		String[] cida = DomUtil.decodeCID(cid);
+		CidPair cida = cid == null ? null : CidPair.decode(cid);
 
 		if(DomUtil.USERLOG.isDebugEnabled()) {
 			DomUtil.USERLOG.debug("\n\n\n========= DomUI request =================\nCID=" + cid + "\nAction=" + action + "\n");
@@ -161,7 +204,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 			if(LOG.isDebugEnabled())
 				LOG.debug("OBITUARY received for " + cid + ": pageTag=" + pageTag);
-			ctx.getSession().internalObituaryReceived(cida[0], pageTag);
+			ctx.getSession().internalObituaryReceived(cida.getWindowId(), pageTag);
 
 			//-- Send a silly response.
 			ctx.getResponse().setContentType("text/html");
@@ -173,7 +216,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		// ORDERED!!! Must be kept BELOW the OBITUARY check
 		WindowSession cm = null;
 		if(cida != null) {
-			cm = ctx.getSession().findWindowSession(cida[0]);
+			cm = ctx.getSession().findWindowSession(cida.getWindowId());
 		}
 
 		if(cm == null) {
@@ -196,6 +239,21 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			if(LOG.isDebugEnabled())
 				LOG.debug("$cid: input windowid=" + cid + " not found - created wid=" + cm.getWindowID());
 
+			String conversationId = "x";							// If not reloading a saved set- use x as the default conversation id
+			if(m_application.inDevelopmentMode() && cida != null) {
+				/*
+				 * 20130227 jal The WindowSession we did not find could have been destroyed due to a
+				 * reloader event. In that case it's page shelve will be stored in the HttpSession or
+				 * perhaps in a state file. Try to resurrect that page shelve as to not lose the navigation history.
+				 */
+				HttpSession hs = ctx.getRequest().getSession();
+				if(null != hs) {
+					String newid = cm.internalAttemptReload(hs, clz, PageParameters.createFrom(ctx), cida.getWindowId());
+					if(newid != null)
+						conversationId = newid;
+				}
+			}
+
 			if(nonReloadableExpiredDetected) {
 				generateNonReloadableExpired(ctx, cm);
 				return;
@@ -217,7 +275,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
 			sb.append('=');
 			sb.append(cm.getWindowID());
-			sb.append(".x"); // Dummy conversation ID
+			sb.append(".").append(conversationId);
 			DomUtil.addUrlParameters(sb, ctx, false);
 			generateHttpRedirect(ctx, sb.toString(), "Your session has expired. Starting a new session.");
 			if(DomUtil.USERLOG.isDebugEnabled())
@@ -232,7 +290,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		 * conversation just ignore it, and send an empty response to ie, hopefully causing it to die soon.
 		 */
 		if(action != null) {
-			if(cm.isConversationDestroyed(cida[1])) {					// This conversation was recently destroyed?
+			if(cm.isConversationDestroyed(cida.getConversationId())) {		// This conversation was recently destroyed?
 				//-- Render a null response
 				if(LOG.isDebugEnabled())
 					LOG.debug("Session " + cid + " was destroyed earlier- assuming this is an out-of-order event and sending empty delta back");
@@ -257,9 +315,9 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			//-- If this request is a huge post request - get the huge post parameters.
 			String hpq = papa.getString(Constants.PARAM_POST_CONVERSATION_KEY, null);
 			if(null != hpq) {
-				ConversationContext	coco = cm.findConversation(cida[1]);
+				ConversationContext coco = cm.findConversation(cida.getConversationId());
 				if(null == coco)
-					throw new IllegalStateException("The conversation "+cida[1]+" containing POST data is missing in windowSession "+cm);
+					throw new IllegalStateException("The conversation " + cida.getConversationId() + " containing POST data is missing in windowSession " + cm);
 
 				papa = (PageParameters) coco.getAttribute("__ORIPP");
 				if(null == papa)
@@ -426,13 +484,11 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			}
 
 			//-- 20100712 jal EXPERIMENTAL Pass exceptions in initial rendering mode to code too.
-			//			if(x instanceof QNotFoundException) {
 			IExceptionListener xl = ctx.getApplication().findExceptionListenerFor(x);
 			if(xl != null && xl.handleException(ctx, page, null, x)) {
 				if(cm.handleExceptionGoto(ctx, page, false))
 					return;
 			}
-			//			}
 
 			checkFullExceptionCount(page, x); // Rethrow, but clear state if page throws up too much.
 		} finally {
@@ -470,7 +526,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 */
 	private void redirectForPost(RequestContextImpl ctx, WindowSession cm, @Nonnull PageParameters pp) throws Exception {
 		//-- Create conversation
-		ConversationContext cc = cm.createConversation(ctx, ConversationContext.class);
+		ConversationContext cc = cm.createConversation(ConversationContext.class);
 		cm.acceptNewConversation(cc);
 
 		//-- Now: store the original PageParameters inside this conversation.
@@ -761,21 +817,23 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 * @param page
 	 * @throws Exception
 	 */
-	private List<NodeBase> handleComponentInput(final IRequestContext ctx, final Page page) throws Exception {
+	private List<NodeBase> handleComponentInput(@Nonnull final IRequestContext ctx, @Nonnull final Page page) throws Exception {
 		//-- Just walk all parameters in the input request.
 		List<NodeBase> changed = new ArrayList<NodeBase>();
 		for(String name : ctx.getParameterNames()) {
-			String[] values = ctx.getParameters(name); // Get the value;
+			String[] values = ctx.getParameters(name); 				// Get the value;
+			if(null == values)
+				continue;
 			//			System.out.println("input: "+name+", value="+values[0]);
 
 			//-- Locate the component that the parameter is for;
 			if(name.startsWith("_")) {
-				NodeBase nb = page.findNodeByID(name); // Can we find this literally?
+				NodeBase nb = page.findNodeByID(name); 				// Can we find this literally?
 				if(nb != null) {
 					//-- Try to bind this value to the component.
-					if(nb.acceptRequestParameter(values)) { // Make the thingy accept the parameter(s)
+					if(nb.acceptRequestParameter(values)) { 		// Make the thingy accept the parameter(s)
 						//-- This thing has changed.
-						if(nb instanceof IControl< ? >) { // Can have a value changed thingy?
+						if(nb instanceof IControl< ? >) { 			// Can have a value changed thingy?
 							IControl< ? > ch = (IControl< ? >) nb;
 							if(ch.getOnValueChanged() != null) {
 								changed.add(nb);
@@ -878,7 +936,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				throw x; // Move on, nothing to see here,
 			if(wcomp != null && !wcomp.isAttached()) {
 				wcomp = page.getTheCurrentControl();
-				System.out.println("DEBUG: Report exception on a " + wcomp.getClass());
+				System.out.println("DEBUG: Report exception on a " + (wcomp == null ? "unknown control/node" : wcomp.getClass()));
 			}
 			if(wcomp == null || !wcomp.isAttached())
 				throw new IllegalStateException("INTERNAL: Cannot determine node to report exception /on/", x);
@@ -1000,4 +1058,148 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		ClickInfo cli = new ClickInfo(ctx);
 		b.internalOnClicked(cli);
 	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	If a page failed, show a neater response.			*/
+	/*--------------------------------------------------------------*/
+
+	@Nullable
+	private JSTemplate m_exceptionTemplate;
+
+
+	/**
+	 *
+	 * @param ctx
+	 * @param x
+	 */
+	private void renderOopsFrame(@Nonnull RequestContextImpl ctx, @Nonnull Throwable x) throws Exception {
+		x.printStackTrace();
+		HttpServletResponse resp = ctx.getResponse();
+		resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);				// Fail with proper response code.
+		Map<String, Object> dataMap = new HashMap<>();
+		dataMap.put("x", x);
+		dataMap.put("ctx", ctx);
+		dataMap.put("app", ctx.getRelativePath(""));
+		String sheet = ctx.getApplication().getThemedResourceRURL("THEME/style.theme.css");
+		if(null == sheet)
+			throw new IllegalStateException("Unexpected null??");
+		dataMap.put("stylesheet", sheet);
+
+		String theme = ctx.getApplication().getThemedResourceRURL("THEME/");
+		dataMap.put("theme", theme);
+
+		StringBuilder sb = new StringBuilder();
+		dumpException(sb, x);
+		dataMap.put("stacktrace", sb.toString());
+		dataMap.put("message", StringTool.htmlStringize(x.toString()));
+
+
+		Writer w = resp.getWriter();
+		JSTemplate xt = getExceptionTemplate();
+		xt.execute(w, dataMap);
+		w.flush();
+		w.close();
+	}
+
+	@Nonnull
+	public JSTemplate getExceptionTemplate() throws Exception {
+		JSTemplate xt = m_exceptionTemplate;
+		if(xt == null) {
+			JSTemplateCompiler jtc = new JSTemplateCompiler();
+			if(false) {
+				File src = new File("/home/jal/bzr/puzzler-lf/domui/to.etc.domui/src/to/etc/domui/server/exceptionTemplate.html");
+				Reader r = new FileReader(src);
+				try {
+					xt = jtc.compile(r, src.getAbsolutePath());
+				} finally {
+					FileTool.closeAll(r);
+				}
+			} else {
+				xt = jtc.compile(ApplicationRequestHandler.class, "exceptionTemplate.html", "utf-8");
+			}
+		}
+		return xt;
+	}
+
+	static private void dumpException(@Nonnull StringBuilder a, @Nonnull Throwable x) {
+		Set<String> allset = new HashSet<>();
+		StackTraceElement[] ssear = x.getStackTrace();
+		for(StackTraceElement sse : ssear) {
+			allset.add(sse.toString());
+		}
+
+		dumpSingle(a, x, Collections.EMPTY_SET);
+
+		Throwable curr = x;
+		for(;;) {
+			Throwable cause = curr.getCause();
+			if(cause == null || cause == curr)
+				break;
+
+			a.append("\n\n     Caused by ").append(cause.toString()).append("\n");
+			dumpSingle(a, cause, allset);
+			curr = cause;
+		}
+	}
+
+	static private void dumpSingle(@Nonnull StringBuilder sb, @Nonnull Throwable x, @Nonnull Set<String> initset) {
+		//-- Try to render openable stack trace elements as links.
+		List<StackTraceElement> list = Arrays.asList(x.getStackTrace());
+
+		//-- Remove from the end the server stuff
+		int ix = findName(list, AppFilter.class.getName());
+		if(ix != -1) {
+			list = new ArrayList<>(stripFrames(list, ix + 1));
+		}
+
+		//-- Remove from the end all names in initset.
+		for(int i = list.size(); --i >= 0;) {
+			String str = list.get(i).toString();
+			if(!initset.contains(str))
+				break;
+			list.remove(i);
+		}
+
+		for(StackTraceElement ste : list) {
+			appendTraceLink(sb, ste);
+		}
+		if(x instanceof SQLException) {
+			SQLException sx = (SQLException) x;
+			while(sx.getNextException() != null) {
+				sx = sx.getNextException();
+				sb.append("SQL NextException: ");
+				sb.append(sx.toString());
+				sb.append("<br>");
+			}
+		}
+	}
+
+
+	private static int findName(@Nonnull List<StackTraceElement> list, String name) {
+		for(int i = list.size(); --i >= 0;) {
+			String cn = list.get(i).getClassName();
+			if(name.equals(cn))
+				return i;
+		}
+		return -1;
+	}
+
+	private static List<StackTraceElement> stripFrames(@Nonnull List<StackTraceElement> list, int from) {
+		return list.subList(0, from - 1);
+	}
+
+	private static void appendTraceLink(@Nonnull StringBuilder sb, @Nonnull StackTraceElement ste) {
+		sb.append("        <a class='exc-stk-l' href=\"#\" onclick=\"linkClicked('");
+		//-- Get name for the thingy,
+		String name;
+		if(ste.getLineNumber() <= 0)
+			name = ste.getClassName().replace('.', '/') + ".java@" + ste.getMethodName();
+		else
+			name = ste.getClassName().replace('.', '/') + ".java#" + ste.getLineNumber();
+		sb.append(name);
+		sb.append("')\">");
+		sb.append(ste.toString()).append("</a><br>");
+	}
+
 }

@@ -112,6 +112,16 @@ public class HtmlEditor extends TextArea {
 
 		sb.append(", initialContent: ''");
 		sb.append("});");
+
+		if(isFocusRequested()) {
+			sb.append("setTimeout(function() {");
+//			sb.append("xxxFocus('#").append(getActualID()).append("');");
+			appendJQuerySelector(sb);
+			sb.append(".focus();");
+//			sb.append("alert('focused');");
+			sb.append("}, 500);");
+		}
+
 		appendCreateJS(sb);
 		//		appendCreateJS("$(\"#" + getActualID() + "\").wysiwyg({css:'/ui/$themes/blue/style.theme.css'});");
 	}
@@ -131,7 +141,7 @@ public class HtmlEditor extends TextArea {
 	 * @return
 	 */
 	public String getStyleSheet() throws Exception {
-		return DomApplication.get().getThemedResourceRURL(m_styleSheet == null ? "minieditor.css" : m_styleSheet);
+		return DomApplication.get().getThemedResourceRURL(m_styleSheet == null ? "THEME/minieditor.css" : m_styleSheet);
 	}
 
 	public void setStyleSheet(String styleSheet) {
@@ -153,8 +163,9 @@ public class HtmlEditor extends TextArea {
 	 */
 	@Override
 	public void setValue(@Nullable String v) {
+//		System.out.println("setValue: " + v);
 		if(null != v) {
-			v = DomUtil.htmlRemoveUnsafe(v);
+			v = HtmlUtil.removeUnsafe(v);
 		}
 
 		if(isBuilt()) {
@@ -189,11 +200,19 @@ public class HtmlEditor extends TextArea {
 			String s = values[i];
 			StringBuilder sb = new StringBuilder();
 			try {
-				StringTool.entitiesToUnicode(sb, s, true);
-				String tmp = sb.toString();
-				sb.setLength(0);
-				DomUtil.htmlRemoveUnsafe(sb, tmp);
-				values[i] = sb.toString();
+				System.out.println("pre-value[" + i + "]=" + s);
+				values[i] = HtmlUtil.removeUnsafe(s);
+//
+//
+//				StringTool.entitiesToUnicode(sb, s, true);
+//				String tmp = sb.toString();
+//				System.out.println("pre-value[" + i + "]=" + tmp);
+//				sb.setLength(0);
+//
+//
+//				DomUtil.htmlRemoveUnsafe(sb, tmp);
+//				values[i] = sb.toString();
+				System.out.println("post-value[" + i + "]=" + values[i]);
 			} catch(Exception e) {
 				e.printStackTrace();
 				values[i] = e.toString();

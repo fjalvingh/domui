@@ -30,6 +30,7 @@ import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.css.*;
+import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
 /**
@@ -97,6 +98,9 @@ final public class SimpleColumnDef<T> {
 
 	@Nullable
 	private String m_renderHint;
+
+	@Nullable
+	private IControlFactory<T> m_control;
 
 	public <X> SimpleColumnDef(@Nonnull ColumnDefList< ? > cdl, @Nonnull Class<T> valueClass) {
 		m_columnType = valueClass;
@@ -203,7 +207,7 @@ final public class SimpleColumnDef<T> {
 	}
 
 	@Nullable
-	public INodeContentRenderer< ? > getContentRenderer() {
+	public INodeContentRenderer<T> getContentRenderer() {
 		return m_contentRenderer;
 	}
 
@@ -318,6 +322,11 @@ final public class SimpleColumnDef<T> {
 
 	public void setSortHelper(@Nullable ISortHelper sortHelper) {
 		m_sortHelper = sortHelper;
+	}
+
+	@Nullable
+	public IControlFactory<T> getControl() {
+		return m_control;
 	}
 
 	@Nonnull
@@ -506,6 +515,21 @@ final public class SimpleColumnDef<T> {
 	@Nonnull
 	public SimpleColumnDef<T> width(@Nullable String w) {
 		m_width = w;
+		return this;
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Bind to column values.								*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Use the specified control to display/control the value in this column.
+	 * @param control
+	 * @return
+	 */
+	public SimpleColumnDef<T> bind(@Nonnull IControlFactory<T> control) {
+		if(m_contentRenderer != null)
+			throw new IllegalStateException("Cannot set a control when a renderer is defined");
+		m_control = control;
 		return this;
 	}
 }
