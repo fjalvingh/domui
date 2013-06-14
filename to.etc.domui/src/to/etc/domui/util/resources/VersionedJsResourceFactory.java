@@ -6,6 +6,7 @@ import javax.annotation.*;
 
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
+import to.etc.util.*;
 
 /**
  * Handle $js/xxx resources, which are versionable.
@@ -25,7 +26,7 @@ public class VersionedJsResourceFactory implements IResourceFactory {
 	@Override
 	public IResourceRef getResource(@Nonnull DomApplication da, @Nonnull String name, @Nonnull IResourceDependencyList rdl) throws Exception {
 		//-- 1. Create a 'min version of the name
-		name = name.substring(3); // Strip $js, leave leading /.
+		name = name.substring(3); 							// Strip $js, leave leading /.
 		int pos = name.lastIndexOf('.');
 		String min = pos < 0 ? null : name.substring(0, pos) + "-min" + name.substring(pos);
 
@@ -64,16 +65,40 @@ public class VersionedJsResourceFactory implements IResourceFactory {
 	 * @param name.
 	 * @return
 	 */
-	private IResourceRef tryVersionedResource(DomApplication da, String name) {
+	private IResourceRef tryVersionedResource(DomApplication da, String iname) throws Exception {
 		//-- 1. Try WebFile first
-		File f = da.getAppFile(name);
+		File f = da.getAppFile(iname);
 		if(f.exists() && f.isFile())
 			return new WebappResourceRef(f);
 
 		//-- 2. Try /resources/[name] in classpath
-		name = "/resources/" + name;
-		if(!DomUtil.classResourceExists(getClass(), name))
-			return null;
-		return da.createClasspathReference(name);
+		String name = "/resources/" + iname;
+		if(DomUtil.classResourceExists(getClass(), name))
+			return da.createClasspathReference(name);
+
+		//-- Try constructed from include set.
+		name = iname + ".inclspec";						// Perhaps we have an include specification?
+		f = da.getAppFile(name);
+		String inclset = null;
+
+		if(f.exists() && f.isFile()) {
+			inclset = FileTool.readFileAsString(f);
+		} else {
+			//-- 2. Try /resources/[name] in classpath
+			name = "/resources/" + iname + ".inclspec";
+			if(DomUtil.classResourceExists(getClass(), name)) {
+				inclset = FileTool.readResourceAsString(getClass(), name, "utf-8");
+			} else {
+				return null;
+			}
+		}
+
+		String root = "";
+		int pos = iname.lastIndexOf("/");
+		if(pos > 0) {
+			root = iname.substring(0, pos + 1);
+		}
+
+		return CompoundResourceRef.loadBySpec(da, root, inclset, iname);
 	}
 }
