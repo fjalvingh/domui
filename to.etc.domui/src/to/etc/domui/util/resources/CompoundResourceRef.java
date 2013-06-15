@@ -11,7 +11,7 @@ import to.etc.util.*;
 public class CompoundResourceRef implements IResourceRef, IModifyableResource {
 	private byte[][] m_buffers;
 
-	private CompoundResourceRef(byte[][] buffers) {
+	private CompoundResourceRef(@Nonnull byte[][] buffers) {
 		super();
 		m_buffers = buffers;
 	}
@@ -51,6 +51,7 @@ public class CompoundResourceRef implements IResourceRef, IModifyableResource {
 		}
 
 		//-- Create the result
+		bos.close();
 		return new CompoundResourceRef(bos.getBuffers());
 	}
 

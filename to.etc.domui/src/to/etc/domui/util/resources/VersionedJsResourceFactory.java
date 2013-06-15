@@ -52,8 +52,11 @@ public class VersionedJsResourceFactory implements IResourceFactory {
 		sb.setLength(0);
 		sb.append("js/").append(da.getScriptVersion()).append(name);
 		r = tryVersionedResource(da, sb.toString());
-		if(r == null)
-			r = da.getAppFileOrResource("js" + name);
+		if(r == null) {
+			r = tryVersionedResource(da, "js" + name);
+			if(null == r)
+				r = da.getAppFileOrResource("js" + name);
+		}
 		if(null != rdl)
 			rdl.add(r);
 		return r;
