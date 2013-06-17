@@ -643,50 +643,90 @@ public class OracleDB extends BaseDB {
 	 * Created on Apr 5, 2011
 	 */
 	public interface IPrivilegedAction {
-		Object execute(Connection dbc) throws Exception;
+		Object execute(@Nonnull Connection dbc) throws Exception;
 	}
 
 	/**
 	 * Execute the action passed using a connection that is logged in as the privileged user of other specified schema.
 	 * We do not know the password for this user AND we do not want to store that password: if we do that any change to the
-	 * password would cause a problem. The solution implemented here is to use the privileged account and change the other shema user password
+	 * password would cause a problem. The solution implemented here is to use the privileged account and change the other schema user password
 	 * to a known value; then we login using that password and obtain connection for execute the action. We restore the original password
-	 * immediately after obtaining connection, even before priviledged action is executed.
+	 * immediately after obtaining connection, even before privileged action is executed.
 	 *
 	 * @param otherSchemaDs	DataSource for other schema.
-	 * @param otherUserName	Username - acount that we use to run priviledged action - we change its password temporarely.
+	 * @param otherUserName	Username - account that we use to run privileged action - we change its password temporary.
 	 * @param defaultDs DataSource that we use for password manipulations.
-	 * @param paction Privileged action that is executed under otherUserName account direclty in otherSchemaDs.
+	 * @param paction Privileged action that is executed under otherUserName account directly in otherSchemaDs.
 	 * @return
 	 * @throws Exception
 	 */
 	static public Object runAsOtherSchemaUser(@Nonnull DataSource otherSchemaDs, @Nonnull String otherUserName, @Nonnull DataSource defaultDs, @Nonnull IPrivilegedAction paction) throws Exception {
+		Connection otherSchemaConn = null;
+		Connection defaultConn = defaultDs.getConnection();
+		try {
+			otherSchemaConn = allocateConnectionAs(otherSchemaDs, otherUserName, defaultConn);
+			return paction.execute(otherSchemaConn);
+		} finally {
+			try {
+				if(otherSchemaConn != null)
+					otherSchemaConn.close();
+			} catch(Exception x) {}
+
+			try {
+				if(defaultConn != null)
+					defaultConn.close();
+			} catch(Exception x) {}
+		}
+	}
+
+	/**
+	 * This allocates a connection to another user without that other-user's password, using an initial connection with DBA privileges.
+	 * @param otherSchemaDs
+	 * @param otherUserName
+	 * @param sourceConn
+	 * @return
+	 * @throws Exception
+	 */
+	@Nonnull
+	static public Connection allocateConnectionAs(@Nonnull DataSource otherSchemaDs, @Nonnull String otherUserName, @Nonnull Connection sourceConn) throws Exception {
 		int phase = 0;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		String realhashpass = null;
 		String tmppass = "h3rr4lbr4k";
 		Connection otherSchemaConn = null;
-		Connection defaultConn = defaultDs.getConnection();
 		try {
-			//-- Get current hashed password for otherUserName user
-			ps = defaultConn.prepareStatement("select password from dba_users where username='" + otherUserName + "'");
+			//-- Make extremely sure we're not already the user; if we are abrt.
+			ps = sourceConn.prepareStatement("select user from dual");
 			rs = ps.executeQuery();
 			if(!rs.next())
-				throw new IllegalStateException("The privileged " + otherUserName + " user cannot be found in the data dictionary");
+				throw new SQLException("Cannot get own user id");
+			String myuid = rs.getString(1);
+			if(myuid == null)
+				throw new SQLException("Cannot get own user id");
+			if(myuid.equalsIgnoreCase(otherUserName))
+				throw new IllegalArgumentException("Trying to get a connection for user=" + otherUserName + " - but you are that user");
+			rs.close();
+			ps.close();
+
+			//-- Get current hashed password for otherUserName user
+			ps = sourceConn.prepareStatement("select password from dba_users where username='" + otherUserName + "'");
+			rs = ps.executeQuery();
+			if(!rs.next())
+				throw new SQLException("The privileged " + otherUserName + " user cannot be found in the data dictionary");
 			realhashpass = rs.getString(1);
 			if(null == realhashpass) {
 				//-- 11g: password always null, try password from sys.user$.
 				rs.close();
 				ps.close();
 
-				ps = defaultConn.prepareStatement("select password from sys.user$ where name='" + otherUserName + "'");
+				ps = sourceConn.prepareStatement("select password from sys.user$ where name='" + otherUserName + "'");
 				rs = ps.executeQuery();
 				if(!rs.next())
-					throw new IllegalStateException("The privileged " + otherUserName + " user cannot be found in the 11g user$ table");
+					throw new SQLException("The privileged " + otherUserName + " user cannot be found in the sys.user$ table");
 				realhashpass = rs.getString(1);
 				if(null == realhashpass)
-					throw new IllegalStateException("Null hash for privileged " + otherUserName + " user?");
+					throw new SQLException("Null hash for privileged " + otherUserName + " user?");
 			}
 			rs.close();
 			rs = null;
@@ -694,25 +734,26 @@ public class OracleDB extends BaseDB {
 			ps = null;
 
 			//-- Alter the password to a known value.
-			ps = defaultConn.prepareStatement("alter user " + otherUserName + " identified by " + tmppass);
+			ps = sourceConn.prepareStatement("alter user " + otherUserName + " identified by " + tmppass);
 			ps.executeUpdate();
 			phase = 1;
 			ps.close();
 			ps = null;
 
-			//-- Allocate a otherUserName connection using the new, temp password;
 			otherSchemaConn = otherSchemaDs.getConnection(otherUserName, tmppass); // FIXME URGENT Need actual security here 8-(
 			otherSchemaConn.setAutoCommit(false);
 
 			//-- Immediately restore the original password,
-			ps = defaultConn.prepareStatement("alter user " + otherUserName + " identified by values '" + realhashpass + "'");
+			ps = sourceConn.prepareStatement("alter user " + otherUserName + " identified by values '" + realhashpass + "'");
 			ps.executeUpdate();
 			ps.close();
 			ps = null;
 			phase = 0;
 
 			//-- Now execute the other schema command on the otherUserName connection.
-			return paction.execute(otherSchemaConn);
+			Connection newc = otherSchemaConn;					// Pass ownership to caller.
+			otherSchemaConn = null;
+			return newc;
 		} finally {
 			try {
 				if(rs != null)
@@ -724,16 +765,11 @@ public class OracleDB extends BaseDB {
 			} catch(Exception x) {}
 
 			if(phase == 1) {
-				restorePassword(defaultConn, otherUserName, realhashpass);
+				restorePassword(sourceConn, otherUserName, realhashpass);
 			}
 			try {
 				if(otherSchemaConn != null)
 					otherSchemaConn.close();
-			} catch(Exception x) {}
-
-			try {
-				if(defaultConn != null)
-					defaultConn.close();
 			} catch(Exception x) {}
 		}
 	}
