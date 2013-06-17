@@ -636,4 +636,123 @@ public class OracleDB extends BaseDB {
 		}
 	}
 
+	/**
+	 * Action to execute as the privileged oracle user.
+	 *
+	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+	 * Created on Apr 5, 2011
+	 */
+	public interface IPrivilegedAction {
+		Object execute(Connection dbc) throws Exception;
+	}
+
+	/**
+	 * Execute the action passed using a connection that is logged in as the privileged user of other specified schema.
+	 * We do not know the password for this user AND we do not want to store that password: if we do that any change to the
+	 * password would cause a problem. The solution implemented here is to use the privileged account and change the other shema user password
+	 * to a known value; then we login using that password and obtain connection for execute the action. We restore the original password
+	 * immediately after obtaining connection, even before priviledged action is executed.
+	 *
+	 * @param otherSchemaDs	DataSource for other schema.
+	 * @param otherUserName	Username - acount that we use to run priviledged action - we change its password temporarely.
+	 * @param defaultDs DataSource that we use for password manipulations.
+	 * @param paction Privileged action that is executed under otherUserName account direclty in otherSchemaDs.
+	 * @return
+	 * @throws Exception
+	 */
+	static public Object runAsOtherSchemaUser(@Nonnull DataSource otherSchemaDs, @Nonnull String otherUserName, @Nonnull DataSource defaultDs, @Nonnull IPrivilegedAction paction) throws Exception {
+		int phase = 0;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		String realhashpass = null;
+		String tmppass = "h3rr4lbr4k";
+		Connection otherSchemaConn = null;
+		Connection defaultConn = defaultDs.getConnection();
+		try {
+			//-- Get current hashed password for otherUserName user
+			ps = defaultConn.prepareStatement("select password from dba_users where username='" + otherUserName + "'");
+			rs = ps.executeQuery();
+			if(!rs.next())
+				throw new IllegalStateException("The privileged " + otherUserName + " user cannot be found in the data dictionary");
+			realhashpass = rs.getString(1);
+			if(null == realhashpass) {
+				//-- 11g: password always null, try password from sys.user$.
+				rs.close();
+				ps.close();
+
+				ps = defaultConn.prepareStatement("select password from sys.user$ where name='" + otherUserName + "'");
+				rs = ps.executeQuery();
+				if(!rs.next())
+					throw new IllegalStateException("The privileged " + otherUserName + " user cannot be found in the 11g user$ table");
+				realhashpass = rs.getString(1);
+				if(null == realhashpass)
+					throw new IllegalStateException("Null hash for privileged " + otherUserName + " user?");
+			}
+			rs.close();
+			rs = null;
+			ps.close();
+			ps = null;
+
+			//-- Alter the password to a known value.
+			ps = defaultConn.prepareStatement("alter user " + otherUserName + " identified by " + tmppass);
+			ps.executeUpdate();
+			phase = 1;
+			ps.close();
+			ps = null;
+
+			//-- Allocate a otherUserName connection using the new, temp password;
+			otherSchemaConn = otherSchemaDs.getConnection(otherUserName, tmppass); // FIXME URGENT Need actual security here 8-(
+			otherSchemaConn.setAutoCommit(false);
+
+			//-- Immediately restore the original password,
+			ps = defaultConn.prepareStatement("alter user " + otherUserName + " identified by values '" + realhashpass + "'");
+			ps.executeUpdate();
+			ps.close();
+			ps = null;
+			phase = 0;
+
+			//-- Now execute the other schema command on the otherUserName connection.
+			return paction.execute(otherSchemaConn);
+		} finally {
+			try {
+				if(rs != null)
+					rs.close();
+			} catch(Exception x) {}
+			try {
+				if(ps != null)
+					ps.close();
+			} catch(Exception x) {}
+
+			if(phase == 1) {
+				restorePassword(defaultConn, otherUserName, realhashpass);
+			}
+			try {
+				if(otherSchemaConn != null)
+					otherSchemaConn.close();
+			} catch(Exception x) {}
+
+			try {
+				if(defaultConn != null)
+					defaultConn.close();
+			} catch(Exception x) {}
+		}
+	}
+
+	static private void restorePassword(@Nonnull Connection dbc, @Nonnull String userName, @Nonnull String hash) {
+		PreparedStatement ps = null;
+		try {
+			//-- Immediately restore the original password,
+			ps = dbc.prepareStatement("alter user " + userName + " identified by values '" + hash + "'");
+			ps.executeUpdate();
+		} catch(Exception x) {
+			System.out.println("FATAL: Cannot restore the password for the " + userName + " user!!!!");
+			x.printStackTrace();
+		} finally {
+			try {
+				if(ps != null)
+					ps.close();
+			} catch(Exception x) {}
+		}
+	}
+
 }
