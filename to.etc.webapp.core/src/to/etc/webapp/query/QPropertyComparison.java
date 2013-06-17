@@ -29,9 +29,9 @@ public class QPropertyComparison extends QOperatorNode {
 
 	private QOperatorNode m_expr;
 
-	public QPropertyComparison(QOperation operation, String poperty, QOperatorNode expr) {
+	public QPropertyComparison(QOperation operation, String property, QOperatorNode expr) {
 		super(operation);
-		m_property = poperty;
+		m_property = property;
 		m_expr = expr;
 	}
 

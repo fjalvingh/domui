@@ -30,6 +30,7 @@ import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.css.*;
+import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.themes.*;
 import to.etc.domui.trouble.*;
@@ -566,4 +567,44 @@ public class MsgBox extends Window {
 	protected void setDataRenderer(INodeContentRenderer<String> dataRenderer) {
 		m_dataRenderer = dataRenderer;
 	}
+
+	/**
+	 * Shows specified UIMessage as message box, with proper message box type.
+	 *
+	 * @param dad
+	 * @param msg
+	 */
+	public static void message(@Nonnull NodeBase dad, @Nonnull UIMessage msg) {
+		message(dad, msg.getType(), msg.getMessage());
+	}
+
+	/**
+	 * Shows specified UIMsgException as message box, with proper message box type.
+	 *
+	 * @param dad
+	 * @param msgEx
+	 */
+	public static void message(@Nonnull NodeBase dad, @Nonnull UIMsgException msgEx) {
+		message(dad, msgEx.getType(), msgEx.getMessage());
+	}
+
+	private static void message(@Nonnull NodeBase dad, @Nonnull MsgType type, @Nonnull String msg) {
+		MsgBox box = create(dad);
+		switch(type){
+			case INFO:
+				box.setType(Type.INFO);
+				break;
+			case ERROR:
+				box.setType(Type.ERROR);
+				break;
+			case WARNING:
+				box.setType(Type.WARNING);
+				break;
+		}
+		box.setMessage(msg);
+		box.addButton(MsgBoxButton.CONTINUE);
+		box.setCloseButton(MsgBoxButton.CONTINUE);
+		box.construct();
+	}
+
 }

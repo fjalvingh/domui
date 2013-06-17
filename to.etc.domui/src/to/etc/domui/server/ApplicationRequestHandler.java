@@ -186,7 +186,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 					if(m_application.getAutoRefreshPollInterval() <= 0) {
 						generateExpired(ctx, Msgs.BUNDLE.getString(Msgs.S_EXPIRED));
 					} else
-						System.out.println("DEBUG: Not sending expired message because autorefresh is ON for " + cid);
+						LOG.info("Not sending expired message because autorefresh is ON for " + cid);
 					return;
 				}
 			}
@@ -297,7 +297,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 						if(m_application.getAutoRefreshPollInterval() <= 0) {
 							generateExpired(ctx, Msgs.BUNDLE.getString(Msgs.S_EXPIRED));
 						} else
-							System.out.println("DEBUG: Not sending expired message because autorefresh is ON for " + cid);
+							LOG.info("Not sending expired message because autorefresh is ON for " + cid);
 					}
 					return;
 				}

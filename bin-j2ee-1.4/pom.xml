@@ -6,5 +6,5 @@
   <packaging>pom</packaging>
   <modules>
     <module>.maven/j2ee</module>
-    </modules>
-  </project>
+  </modules>
+</project>

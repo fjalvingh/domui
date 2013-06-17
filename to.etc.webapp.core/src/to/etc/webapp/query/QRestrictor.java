@@ -158,8 +158,8 @@ abstract public class QRestrictor<T> {
 		add(not);
 		return new QRestrictorImpl<T>(this, and);
 	}
-	
-	
+
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Adding selection restrictions (where clause)		*/
 	/*--------------------------------------------------------------*/
@@ -490,7 +490,7 @@ abstract public class QRestrictor<T> {
 	}
 
 	/**
-	 * Create a joined "exists" subquery on some child list property. The parameters passed have a relation with eachother;
+	 * Create a joined "exists" subquery on some child list property. The parameters passed have a relation with each other;
 	 * this relation cannot be checked at compile time because Java still lacks property references (Sun is still too utterly
 	 * stupid to define them). They will be checked at runtime when the query is executed.
 	 *
@@ -500,7 +500,7 @@ abstract public class QRestrictor<T> {
 	 * @return
 	 */
 	@Nonnull
-	public <U> QRestrictor<U> exists(@Nonnull Class<U> childclass, @Nonnull @GProperty(parameter = 1) String childproperty) {
+	public <U> QRestrictor<U> exists(@Nonnull Class<U> childclass, @Nonnull @GProperty("U") String childproperty) {
 		final QExistsSubquery<U> sq = new QExistsSubquery<U>(this, childclass, childproperty);
 		QRestrictor<U> builder = new QRestrictor<U>(childclass, QOperation.AND) {
 			@Override
@@ -515,5 +515,10 @@ abstract public class QRestrictor<T> {
 		};
 		add(sq);
 		return builder;
+	}
+
+	@Nonnull
+	public <U> QSubQuery<U, T> subquery(@Nonnull Class<U> childClass) throws Exception {
+		return new QSubQuery<U, T>(this, childClass);
 	}
 }

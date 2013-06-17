@@ -1559,12 +1559,10 @@ public abstract class DomApplication {
 
 			//-- We need to (re)load a theme store.
 			m_themeStore = getThemer().loadTheme(this);
-			if(inDevelopmentMode()) {
-				ThemeModifyableResource tmr = new ThemeModifyableResource(m_themeStore.getDependencies(), 3000); // Check for changes every 3 secs
-				m_themeDependencies = new ResourceDependencies(new IIsModified[]{tmr});
-				if(rdl != null)
-					rdl.add(m_themeDependencies);
-			}
+			ThemeModifyableResource tmr = new ThemeModifyableResource(m_themeStore.getDependencies(), 3000); // Check for changes every 3 secs
+			m_themeDependencies = new ResourceDependencies(new IIsModified[]{tmr});
+			if(rdl != null)
+				rdl.add(m_themeDependencies);
 			return m_themeStore;
 		}
 	}
@@ -1621,8 +1619,13 @@ public abstract class DomApplication {
 		return m_keepAliveInterval;
 	}
 
+	/**
+	 * Set the keep-alive interval for DomUI screens, in milliseconds.
+	 * @param keepAliveInterval
+	 */
 	public synchronized void setKeepAliveInterval(int keepAliveInterval) {
-		m_keepAliveInterval = keepAliveInterval;
+		if(DeveloperOptions.getBool("domui.autorefresh", true) || DeveloperOptions.getBool("domui.keepalive", false))				// If "autorefresh" has been disabled do not use keepalive either.
+			m_keepAliveInterval = keepAliveInterval;
 	}
 
 	private List<IDomUIStateListener> m_uiStateListeners = Collections.EMPTY_LIST;
