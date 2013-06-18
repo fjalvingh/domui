@@ -791,4 +791,52 @@ public class OracleDB extends BaseDB {
 		}
 	}
 
+	/**
+	 * Set the database session to CHAR or BYTE semantics.
+	 * @param ischar
+	 * @throws Exception
+	 */
+	static public void setCharSemantics(@Nonnull Connection dbc, boolean ischar) throws Exception {
+		PreparedStatement ps = null;
+		try {
+			ps = dbc.prepareStatement("alter session set nls_length_semantics=" + (ischar ? "CHAR" : "BYTE"));
+			ps.executeUpdate();
+		} finally {
+			try {
+				if(ps != null)
+					ps.close();
+			} catch(Exception x) {}
+		}
+	}
+
+	/**
+	 * Recompile all packages or only invalid packages for the specified schema.
+	 * @param dbc
+	 * @param schema
+	 * @param invalidsonly
+	 * @param charsemantics
+	 * @throws Exception
+	 */
+	static public void recompileAll(@Nonnull Connection dbc, @Nonnull String schema, boolean invalidsonly, boolean charsemantics) throws Exception {
+		PreparedStatement ps = null;
+		try {
+			OracleDB.setCharSemantics(dbc, charsemantics);
+
+			ps = dbc.prepareStatement("begin dbms_utility.compile_schema(schema=>?, compile_all=>" + (invalidsonly ? "FALSE" : "TRUE") + "); end;");
+			ps.setString(1, schema.toUpperCase());
+			ps.executeUpdate();
+			ps.close();
+
+			//-- 20110113 jal Fix from Leo for the "state of packages" error that occurs regardless of the actual package state
+			ps = dbc.prepareStatement("begin dbms_session.reset_package; end;");
+			ps.executeUpdate();
+			ps.close();
+		} finally {
+			try {
+				if(ps != null)
+					ps.close();
+			} catch(Exception x) {}
+		}
+	}
+
 }
