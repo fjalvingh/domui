@@ -631,9 +631,9 @@ public class HtmlTagRenderer implements INodeVisitor {
 	public void basicNodeRender(final NodeBase b, final IBrowserOutput o, boolean inhibitevents) throws Exception {
 		renderTag(b, o);
 		if(m_tagless)
-			o.attr("select", "#" + b.getActualID()); // Always has an ID
+			o.attr("select", "#" + b.getActualID()); 			// Always has an ID
 		else
-			o.attr("id", b.getActualID()); // Always has an ID
+			o.attr("id", b.getActualID()); 						// Always has an ID
 
 		//-- Handle DRAGGABLE nodes.
 		if(b instanceof IDraggable) {
@@ -645,17 +645,22 @@ public class HtmlTagRenderer implements INodeVisitor {
 			UIDragDropUtil.exposeDroppable(b, dh);
 		}
 
-		String s = getStyleFor(b); // Get/recalculate style
+		String s = getStyleFor(b); 								// Get/recalculate style
 		if(s.length() > 0)
-			o.attr("style", s); // Append style
-		if(b.getTestID() != null)
+			o.attr("style", s); 								// Append style
+		if(b.getTestID() != null) {
 			o.attr("testid", b.getTestID());
+		} else {
+			String calcid = b.calcTestID();
+			if(null != calcid)
+				o.attr("testid", calcid);
+		}
 		if(b.isStretchHeight())
 			o.attr("stretch", "true");
 		if(b.getCssClass() != null)
 			o.attr("class", b.getCssClass());
 		String ttl = b.getTitle();
-		if(ttl != null && !(b instanceof UrlPage)) // Do NOT render title on the thing representing the BODY.
+		if(ttl != null && !(b instanceof UrlPage)) 				// Do NOT render title on the thing representing the BODY.
 			o().attr("title", ttl);
 
 		List<String> sal = b.getSpecialAttributeList();

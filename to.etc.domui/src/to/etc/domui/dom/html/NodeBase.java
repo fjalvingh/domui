@@ -146,6 +146,12 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 */
 	private boolean m_stretchHeight;
 
+	private String m_calculatedTestIdBase;
+
+	private String m_testFullRepeatID;
+
+	private String m_testRepeatId;
+
 	/**
 	 * This must visit the appropriate method in the node visitor. It should NOT recurse it's children.
 	 * @param v
@@ -741,6 +747,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		m_userObject = userObject;
 	}
 
+	/*----------- Test IDs -------------*/
 	/**
 	 * When set this causes a "testid" attribute to be rendered on the node. This ID can then be used for selenium tests et al.
 	 * @return
@@ -759,6 +766,52 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		m_testID = testID;
 		changed();
 	}
+
+	public void setCalculcatedId(@Nonnull String calcid) {
+		m_calculatedTestIdBase = calcid;
+	}
+
+	/**
+	 * This can be overridden for items that are supposed to be found for testing.
+	 * @return
+	 */
+	@Nullable
+	protected String getCalculatedTestID() {
+		return m_calculatedTestIdBase;
+	}
+
+	@Nullable
+	public String calcTestID() {
+		String baseName = getCalculatedTestID();
+		if(null == baseName)
+			return null;
+		String repeatId = getTestRepeatId();
+
+		return m_testID = m_page.allocateTestID(repeatId + baseName);
+	}
+
+	/**
+	 * EXPERIMENTAL: If this is part of some "repeating" structure this must hold a repeat ID, which is a
+	 * page-unique id for the repeating thing.
+	 * @return
+	 */
+	@Nonnull
+	public String getTestRepeatId() {
+		if(m_testFullRepeatID == null) {
+			String ptrid = m_parent.getTestRepeatId();
+			if(m_testRepeatId == null) {
+				m_testFullRepeatID = ptrid;
+			} else {
+				m_testFullRepeatID = ptrid + "/" + m_testRepeatId;
+			}
+		}
+		return m_testFullRepeatID;
+	}
+
+	public void setTestRepeatID(@Nonnull String trid) {
+		m_testRepeatId = trid;
+	}
+
 
 	public String getOnClickJS() {
 		return m_onClickJS;
