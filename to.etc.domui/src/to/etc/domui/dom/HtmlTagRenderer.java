@@ -50,15 +50,14 @@ public class HtmlTagRenderer implements INodeVisitor {
 
 	private boolean m_tagless;
 
-	//	private boolean				m_updating;
-
 	private HtmlRenderMode m_mode;
 
-	//	private boolean				m_isNewNode;
+	final private boolean m_uiTestMode;
 
-	protected HtmlTagRenderer(BrowserVersion bv, final IBrowserOutput o) {
+	protected HtmlTagRenderer(BrowserVersion bv, final IBrowserOutput o, boolean uiTestMode) {
 		m_o = o;
 		m_browserVersion = bv;
+		m_uiTestMode = uiTestMode;
 	}
 
 	protected BrowserVersion getBrowser() {
@@ -648,20 +647,40 @@ public class HtmlTagRenderer implements INodeVisitor {
 		String s = getStyleFor(b); 								// Get/recalculate style
 		if(s.length() > 0)
 			o.attr("style", s); 								// Append style
-		if(b.getTestID() != null) {
-			o.attr("testid", b.getTestID());
+
+		String ttl = b.getTitle();
+		if(m_uiTestMode) {
+			String testid = b.getTestID();
+			if(testid != null) {
+				o.attr("testid", testid);
+			} else {
+				testid = b.calcTestID();
+				if(null != testid)
+					o.attr("testid", testid);
+			}
+
+			//-- Adjust any title, if there
+			if(!(b instanceof UrlPage)) {
+				if(ttl != null) {
+					if(testid != null) {
+						o().attr("title", ttl + " (TestID: " + testid + ")");
+					} else {
+						o().attr("title", ttl);
+					}
+				} else if(testid != null) {
+					o().attr("title", "TestID: " + testid);
+				}
+			}
 		} else {
-			String calcid = b.calcTestID();
-			if(null != calcid)
-				o.attr("testid", calcid);
+			if(!(b instanceof UrlPage))
+				o().attr("title", ttl);
 		}
+
+
 		if(b.isStretchHeight())
 			o.attr("stretch", "true");
 		if(b.getCssClass() != null)
 			o.attr("class", b.getCssClass());
-		String ttl = b.getTitle();
-		if(ttl != null && !(b instanceof UrlPage)) 				// Do NOT render title on the thing representing the BODY.
-			o().attr("title", ttl);
 
 		List<String> sal = b.getSpecialAttributeList();
 		if(sal != null) {

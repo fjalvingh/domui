@@ -43,16 +43,16 @@ public class MsCrapwareRenderFactory implements IHtmlRenderFactory {
 	}
 
 	@Override
-	public HtmlFullRenderer createFullRenderer(BrowserVersion bv, IBrowserOutput o) {
+	public HtmlFullRenderer createFullRenderer(BrowserVersion bv, IBrowserOutput o, boolean uiTestMode) {
 		if(!isWrittenByMsMorons(bv))
 			return null;
-		return new MsGarbageHtmlFullRenderer(new MsGarbageHtmlTagRenderer(bv, o), o);
+		return new MsGarbageHtmlFullRenderer(new MsGarbageHtmlTagRenderer(bv, o, uiTestMode), o);
 	}
 
 	@Override
-	public HtmlTagRenderer createTagRenderer(BrowserVersion bv, IBrowserOutput o) {
+	public HtmlTagRenderer createTagRenderer(BrowserVersion bv, IBrowserOutput o, boolean uiTestMode) {
 		if(!isWrittenByMsMorons(bv))
 			return null;
-		return new MsGarbageHtmlTagRenderer(bv, o);
+		return new MsGarbageHtmlTagRenderer(bv, o, uiTestMode);
 	}
 }
