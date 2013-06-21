@@ -163,6 +163,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 
 		//-- Render the header.
 		THead hd = new THead();
+		m_table.add(hd);
 		HeaderContainer<T> hc = new HeaderContainer<T>(this);
 		TR tr = new TR();
 		tr.setCssClass("ui-dt-hdr");
@@ -170,8 +171,8 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		hc.setParent(tr);
 
 		renderHeader(hc);
-		if(hc.hasContent()) {
-			m_table.add(hd);
+		if(!hc.hasContent()) {
+			hd.remove();
 		} else {
 			hc = null;
 			hd = null;

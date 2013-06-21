@@ -419,6 +419,10 @@ final public class Page implements IQContextContainer {
 		return initial + "_" +v;
 	}
 
+	public boolean isTestIDALlocated(@Nonnull String id) {
+		return m_testIdMap.get(id) != null;
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Header contributors									*/
