@@ -79,7 +79,7 @@ public class InternalParentTree extends Div {
 		//-- Run all parents.
 		TBody b = list.addTable();
 
-		for(NodeBase nb = m_touched; nb != null && nb.hasParent(); nb = nb.getParent()) {
+		for(NodeBase nb = m_touched; nb != null;) {
 			final NodeBase clicked = nb;
 			TR row = b.addRow();
 			row.setCssClass("ui-ipt-item");
@@ -130,6 +130,10 @@ public class InternalParentTree extends Div {
 			td = b.addCell();
 			td.setCellWidth("97%");
 			td.add(nn);
+
+			if(!nb.hasParent())
+				break;
+			nb = nb.getParent();
 		}
 	}
 
