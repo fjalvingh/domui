@@ -437,7 +437,8 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		}
 
 		//-- Done: just re-render the collapsed row
-		renderCollapsedRow(index, item);
+		if(item != null)
+			renderCollapsedRow(index, item);
 	}
 
 	/*--------------------------------------------------------------*/
