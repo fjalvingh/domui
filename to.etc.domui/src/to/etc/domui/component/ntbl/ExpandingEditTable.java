@@ -134,38 +134,17 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		setErrorFence();
 	}
 
-	//	public ExpandingEditTable(@Nonnull Class<T> actualClass, @Nonnull IRowRenderer<T> r) {
-	//		m_rowRenderer = r;
-	//		setErrorFence();
-	//	}
-
-	//	public ExpandingEditTable(@Nonnull IRowRenderer<T> r) {
-	//		m_rowRenderer = r;
-	//		setErrorFence();
-	//	}
-
-	//	public ExpandingEditTable(@Nonnull Class<T> actualClass, @Nullable IRowRenderer<T> r) {
-	//		super(actualClass);
-	//		m_rowRenderer = r;
-	//		setErrorFence();
-	//	}
-	//
-	//	public ExpandingEditTable(@Nonnull Class<T> actualClass, @Nullable ITableModel<T> m, @Nullable IRowRenderer<T> r) {
-	//		super(actualClass, m);
-	//		m_rowRenderer = r;
-	//		setErrorFence();
-	//	}
-
 	private boolean setEmptyDiv() throws Exception {
 		if(getModel().getRows() == 0) {
 			if(m_emptyDiv != null)
 				return true; // Table is empty
 
 			//-- Create the "empty table" message.
-			m_emptyDiv = new Div();
-			m_emptyDiv.setCssClass("ui-xdt-nores");
-			m_emptyDiv.setText(Msgs.BUNDLE.getString(Msgs.UI_DATATABLE_EMPTY));
-			add(m_emptyDiv);
+			Div d = new Div();
+			m_emptyDiv = d;
+			d.setCssClass("ui-xdt-nores");
+			d.setText(Msgs.BUNDLE.getString(Msgs.UI_DATATABLE_EMPTY));
+			add(d);
 			return true;
 		}
 
@@ -173,6 +152,13 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 			m_emptyDiv.remove();
 		}
 		return false;
+	}
+
+	@Nonnull
+	private TBody getDataBody() {
+		if(null != m_dataBody)
+			return m_dataBody;
+		throw new IllegalStateException("The data body is empty??");
 	}
 
 	/**
@@ -228,7 +214,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		int ix = 0;
 		for(T o : list) {
 			TR tr = new TR();
-			m_dataBody.add(tr);
+			getDataBody().add(tr);
 			renderCollapsedRow(cc, rc, tr, ix, o);
 			ix++;
 		}
@@ -250,16 +236,16 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 * @param value
 	 * @throws Exception
 	 */
-	private void renderCollapsedRow(int index, T value) throws Exception {
+	private void renderCollapsedRow(int index, @Nonnull T value) throws Exception {
 		ColumnContainer<T> cc = new ColumnContainer<T>(this);
-		TR tr = (TR) m_dataBody.getChild(index);
+		TR tr = (TR) getDataBody().getChild(index);
 		tr.removeAllChildren(); // Discard current contents.
 		tr.setUserObject(null);
 		RowButtonContainer bc = new RowButtonContainer();
 		renderCollapsedRow(cc, bc, tr, index, value);
 	}
 
-	private void renderCollapsedRow(@Nonnull ColumnContainer<T> cc, @Nonnull RowButtonContainer bc, @Nonnull TR tr, int index, @Nullable final T value) throws Exception {
+	private void renderCollapsedRow(@Nonnull ColumnContainer<T> cc, @Nonnull RowButtonContainer bc, @Nonnull TR tr, int index, @Nonnull final T value) throws Exception {
 		cc.setParent(tr);
 
 		if(! isHideIndex()) {
@@ -313,8 +299,8 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	private void updateIndexes(int start) {
 		if(isHideIndex())
 			return;
-		for(int ix = start; ix < m_dataBody.getChildCount(); ix++) {
-			TR tr = (TR) m_dataBody.getChild(ix);
+		for(int ix = start; ix < getDataBody().getChildCount(); ix++) {
+			TR tr = (TR) getDataBody().getChild(ix);
 			TD td = (TD) tr.getChild(0);
 			td.removeAllChildren();
 			createIndexNode(td, ix, isExpanded(ix));
@@ -331,9 +317,9 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 * @return
 	 */
 	private boolean isExpanded(int ix) {
-		if(ix < 0 || ix >= m_dataBody.getChildCount())
+		if(ix < 0 || ix >= getDataBody().getChildCount())
 			return false;
-		TR tr = (TR) m_dataBody.getChild(ix);
+		TR tr = (TR) getDataBody().getChild(ix);
 		return tr.getUserObject() != null;
 	}
 
@@ -364,9 +350,9 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 * @param index
 	 */
 	protected void toggleExpanded(int index) throws Exception {
-		if(index < 0 || index >= m_dataBody.getChildCount()) // Ignore invalid indices
+		if(index < 0 || index >= getDataBody().getChildCount()) // Ignore invalid indices
 			return;
-		TR tr = (TR) m_dataBody.getChild(index);
+		TR tr = (TR) getDataBody().getChild(index);
 		if(tr.getUserObject() == null)
 			expandRow(index, tr);
 		else
@@ -374,16 +360,16 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	}
 
 	public void collapseRow(int index) throws Exception {
-		if(index < 0 || index >= m_dataBody.getChildCount()) // Ignore invalid indices
+		if(index < 0 || index >= getDataBody().getChildCount()) // Ignore invalid indices
 			return;
-		TR tr = (TR) m_dataBody.getChild(index);
+		TR tr = (TR) getDataBody().getChild(index);
 		collapseRow(index, tr);
 	}
 
 	public void expandRow(int index) throws Exception {
-		if(index < 0 || index >= m_dataBody.getChildCount()) // Ignore invalid indices
+		if(index < 0 || index >= getDataBody().getChildCount()) // Ignore invalid indices
 			return;
-		TR tr = (TR) m_dataBody.getChild(index);
+		TR tr = (TR) getDataBody().getChild(index);
 		expandRow(index, tr);
 	}
 
@@ -424,7 +410,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 * @param index
 	 * @param tr
 	 */
-	@SuppressWarnings({"unchecked", "rawtypes"})
+	@SuppressWarnings({"unchecked"})
 	private void collapseRow(int index, @Nonnull TR tr) throws Exception {
 		if(tr.getUserObject() == null) // Already collapsed?
 			return;
@@ -444,8 +430,9 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 				return;
 		}
 
-		if(getOnRowChangeCompleted() != null) {
-			if(!((IRowEditorEvent) getOnRowChangeCompleted()).onRowChanged(this, editor, item, false))
+		IRowEditorEvent<T, ? > completed = getOnRowChangeCompleted();
+		if(completed != null) {
+			if(!((IRowEditorEvent<T, NodeContainer>) completed).onRowChanged(this, editor, item, false))
 				return;
 		}
 
@@ -472,12 +459,12 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		clearNewEditor();
 
 		//-- Create a new edit body @ the appropriate location.
-		m_newBody = new TBody();
+		TBody newBody = m_newBody = new TBody();
 		if(m_newAtStart)
-			getTable().add(0, m_newBody);
+			getTable().add(0, newBody);
 		else
-			getTable().add(m_newBody);
-		TR tr = m_newBody.addRow();
+			getTable().add(newBody);
+		TR tr = newBody.addRow();
 
 		//-- Create row superstructure.
 		if(!isHideIndex()) {
@@ -540,7 +527,8 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		if(m_newEditor == null)
 			return;
 		m_newEditor = null;
-		m_newBody.remove();
+		if(m_newBody != null)
+			m_newBody.remove();
 		m_newBody = null;
 		m_newInstance = null;
 	}
@@ -549,21 +537,27 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		clearNewEditor();
 	}
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
+	@SuppressWarnings({"unchecked"})
 	private void clearNewEditor() throws Exception {
-		if(m_newBody == null)
+		TBody newBody = m_newBody;
+		NodeContainer newEditor = m_newEditor;
+		if(newBody == null || newEditor == null)
 			return;
 
 		//-- Try to commit, then add;
-		m_newEditor.moveControlToModel(); // Move data, exception @ err
-		if(m_newEditor instanceof IEditor) {
-			IEditor e = (IEditor) m_newEditor;
+		newEditor.moveControlToModel(); // Move data, exception @ err
+		if(newEditor instanceof IEditor) {
+			IEditor e = (IEditor) newEditor;
 			if(!e.validate(true))
 				return;
 		}
 
-		if(getOnRowChangeCompleted() != null) {
-			if(!((IRowEditorEvent) getOnRowChangeCompleted()).onRowChanged(this, m_newEditor, m_newInstance, true)) {
+		T newInstance = m_newInstance;
+		if(null == newInstance)
+			throw new IllegalStateException("The 'new' instance being edited is null?");
+		IRowEditorEvent<T, ? > completed = getOnRowChangeCompleted();
+		if(completed != null) {
+			if(!((IRowEditorEvent<T, NodeContainer>) completed).onRowChanged(this, newEditor, newInstance, true)) {
 				return;
 			}
 		}
@@ -571,11 +565,11 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 			if(!(getModel() instanceof IModifyableTableModel< ? >))
 				throw new IllegalStateException("model not of expected type IModifyableTableModel<T> : " + getModel().getClass().getName());
 			IModifyableTableModel<T> mtm = (IModifyableTableModel<T>) getModel();
-			mtm.add(m_newInstance);
+			mtm.add(newInstance);
 		}
 
 		//-- Data move succesful. Move to model proper
-		m_newBody.remove(); // Discard editor & stuff
+		newBody.remove(); // Discard editor & stuff
 		m_newBody = null;
 		m_newInstance = null;
 		m_newEditor = null;
@@ -606,12 +600,12 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 			return;
 
 		//-- Sanity
-		if(index < 0 || index > m_dataBody.getChildCount())
+		if(index < 0 || index > getDataBody().getChildCount())
 			throw new IllegalStateException("Insane index: " + index);
 
 		//-- Create an insert row && show as collapsed item
 		TR tr = new TR();
-		m_dataBody.add(index, tr);
+		getDataBody().add(index, tr);
 		renderCollapsedRow(index, value);
 		updateIndexes(index + 1);
 		setEmptyDiv();
@@ -630,11 +624,11 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 			return;
 
 		//-- Sanity
-		if(index < 0 || index >= m_dataBody.getChildCount())
+		if(index < 0 || index >= getDataBody().getChildCount())
 			throw new IllegalStateException("Insane index: " + index);
 
 		//-- Remove, and discard any open edit box
-		TR row = m_dataBody.getRow(index);
+		TR row = getDataBody().getRow(index);
 		row.remove();
 		updateIndexes(index);
 		setEmptyDiv();
@@ -650,7 +644,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		if(!isBuilt())
 			return;
 		//-- Sanity
-		if(index < 0 || index >= m_dataBody.getChildCount())
+		if(index < 0 || index >= getDataBody().getChildCount())
 			throw new IllegalStateException("Insane index: " + index);
 		renderCollapsedRow(index, value);
 	}
@@ -764,9 +758,9 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 */
 	@Nonnull
 	public IRowEditorFactory<T, ? extends NodeContainer> getEditorFactory() {
-		if(null == m_editorFactory)
-			throw new IllegalStateException("editorFactory is not set.");
-		return m_editorFactory;
+		if(null != m_editorFactory)
+			return m_editorFactory;
+		throw new IllegalStateException("editorFactory is not set.");
 	}
 
 	public void setEditorFactory(@Nullable IRowEditorFactory<T, ? extends NodeContainer> editorFactory) {
@@ -865,7 +859,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 
 		if(m_dataBody != null) {
 			int index = 0;
-			for(TR row : m_dataBody.getChildren(TR.class)) {
+			for(TR row : getDataBody().getChildren(TR.class)) {
 				if(row.getUserObject() != null && row.getUserObject() instanceof IEditor) {
 					collapseRow(index, row);
 					//in case that row can be collapsed, editing is successful

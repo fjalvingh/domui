@@ -155,10 +155,10 @@ public class DisplayOnlyBinder implements IBinder {
 	@Override
 	public void moveControlToModel() throws Exception {
 		if(m_listener != null)
-			((IBindingListener<NodeBase>) m_listener).moveControlToModel((NodeBase) m_control); // Stupid generics idiocy requires cast
+			((IBindingListener<NodeBase>) m_listener).moveControlToModel((NodeBase) m_control);
 		else {
 			Object val = m_control.getValue();
-			Object base = m_instance == null ? m_model.getValue() : m_instance;
+			Object base = m_instance == null ? getModel().getValue() : m_instance;
 			IValueAccessor<Object> a = (IValueAccessor<Object>) m_propertyModel;
 			a.setValue(base, val);
 		}
@@ -167,15 +167,22 @@ public class DisplayOnlyBinder implements IBinder {
 	@Override
 	public void moveModelToControl() throws Exception {
 		if(m_listener != null)
-			((IBindingListener<NodeBase>) m_listener).moveModelToControl((NodeBase) m_control); // Stupid generics idiocy requires cast
+			((IBindingListener<NodeBase>) m_listener).moveModelToControl((NodeBase) m_control);
 		else {
-			Object base = m_instance == null ? m_model.getValue() : m_instance;
+			Object base = m_instance == null ? getModel().getValue() : m_instance;
 			IValueAccessor< ? > vac = m_propertyModel;
 			if(vac == null)
 				throw new IllegalStateException("Null IValueAccessor<T> returned by PropertyMeta " + m_propertyModel);
 			Object pval = vac.getValue(base);
 			((IDisplayControl<Object>) m_control).setValue(pval);
 		}
+	}
+
+	@Nonnull
+	private IReadOnlyModel< ? > getModel() {
+		if(null != m_model)
+			return m_model;
+		throw new IllegalStateException("The model cannot be null");
 	}
 
 	/**

@@ -158,11 +158,29 @@ public class SimpleBinder implements IBinder {
 		if(m_listener != null)
 			((IBindingListener<NodeBase>) m_listener).moveControlToModel((NodeBase) m_control); // Stupid generics idiocy requires cast
 		else {
+			PropertyMetaModel<Object> propertyModel = pmm();
+			if(propertyModel.getReadOnly() == YesNoType.YES || m_control instanceof IDisplayControl)
+				return;
 			Object val = m_control.getValue();
-			Object base = m_instance == null ? m_model.getValue() : m_instance;
-			IValueAccessor<Object> a = (IValueAccessor<Object>) m_propertyModel;
-			a.setValue(base, val);
+			Object base = getBase();
+			propertyModel.setValue(base, val);
 		}
+	}
+
+	@Nonnull
+	private PropertyMetaModel<Object> pmm() {
+		PropertyMetaModel<Object> propertyModel = (PropertyMetaModel<Object>) m_propertyModel;
+		if(null == propertyModel)
+			throw new IllegalStateException("Binding for a model item without a propertyModel");
+		return propertyModel;
+	}
+
+	@Nonnull
+	private Object getBase() throws Exception {
+		Object base = m_instance == null ? getModel().getValue() : m_instance;
+		if(null == base)
+			throw new IllegalStateException(this + ": the base object is null");
+		return base;
 	}
 
 	@Override
@@ -170,13 +188,18 @@ public class SimpleBinder implements IBinder {
 		if(m_listener != null)
 			((IBindingListener<NodeBase>) m_listener).moveModelToControl((NodeBase) m_control); // Stupid generics idiocy requires cast
 		else {
-			Object base = m_instance == null ? m_model.getValue() : m_instance;
-			IValueAccessor< ? > vac = m_propertyModel;
-			if(vac == null)
-				throw new IllegalStateException("Null IValueAccessor<T> returned by PropertyMeta " + m_propertyModel);
+			Object base = getBase();
+			IValueAccessor< ? > vac = pmm();
 			Object pval = vac.getValue(base);
-			((IInputNode<Object>) m_control).setValue(pval);
+			((IControl<Object>) m_control).setValue(pval);
 		}
+	}
+
+	@Nonnull
+	private IReadOnlyModel< ? > getModel() {
+		if(null != m_model)
+			return m_model;
+		throw new IllegalStateException("The model cannot be null");
 	}
 
 	@Override
@@ -196,8 +219,9 @@ public class SimpleBinder implements IBinder {
 		} else {
 			sb.append("?");
 		}
-		if(m_propertyModel != null) {
-			sb.append("/").append(m_propertyModel.getName());
+		PropertyMetaModel< ? > pmm = m_propertyModel;
+		if(pmm != null) {
+			sb.append("/").append(pmm.getName());
 		}
 		return sb.toString();
 	}
