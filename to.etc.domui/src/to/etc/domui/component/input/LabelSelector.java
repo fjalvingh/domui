@@ -126,24 +126,25 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 		if(value.length() <= 1)
 			return;
 
-		T sel = m_search.find(value);	// Find by this name (full)
+		T sel = m_search.find(value);						// Find by this name (full)
 		if(null != sel) {
 			//-- Item by name exists. Not in already selected list?
 			for(T il : m_labelList) {
 				if(MetaManager.areObjectsEqual(value, il))
 					return;
 			}
-			addLabel(sel);				// Just add the thingy.
+			addLabel(sel);									// Just add the thingy.
 			return;
 		}
 
 		//-- Name does not exist -> create..
-		if(m_instanceFactory == null)
+		INew<T> instanceFactory = m_instanceFactory;
+		if(instanceFactory == null)
 			return;
-		sel = m_instanceFactory.create(value);
+		sel = instanceFactory.create(value);
 		if(null == sel)
 			return;
-		addLabel(sel);					// Just add the thingy.
+		addLabel(sel);										// Just add the thingy.
 	}
 
 	private void addLabel(T instance) throws Exception {

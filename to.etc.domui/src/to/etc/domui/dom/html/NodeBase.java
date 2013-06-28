@@ -267,9 +267,9 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 */
 	@Nonnull
 	final public String getActualID() {
-		if(null == m_actualID)
-			throw new IllegalStateException("Missing ID on " + this);
-		return m_actualID;
+		if(null != m_actualID)
+			return m_actualID;
+		throw new IllegalStateException("Missing ID on " + this);
 	}
 
 	@Nullable
@@ -308,9 +308,9 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 */
 	@Nonnull
 	final public Page getPage() {
-		if(null == m_page)
-			throw new IllegalStateException("Not attached to a page yet. Use isAttached() to check if a node is attached or not.");
-		return m_page;
+		if(null != m_page)
+			return m_page;
+		throw new IllegalStateException("Not attached to a page yet. Use isAttached() to check if a node is attached or not.");
 	}
 
 	/**
@@ -349,8 +349,9 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 
 	void internalOnAddedToPage(final Page p) {
 		onAddedToPage(p);
-		if(m_appendJS != null) {
-			getPage().appendJS(m_appendJS);
+		StringBuilder appendJS = m_appendJS;
+		if(appendJS != null) {
+			getPage().appendJS(appendJS);
 			m_appendJS = null;
 		}
 	}
@@ -467,12 +468,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 */
 	@Nonnull
 	final public NodeContainer getParent() {
-		if(m_parent == null) {
-			if(m_page != null && m_page.getBody() == this)
-				throw new IllegalStateException("Calling getParent() on the body tag is an indication of a problem...");
-			throw new IllegalStateException("The node is not attached to a page, call isAttached() to test for attachment");
-		}
-		return m_parent;
+		if(null != m_parent)
+			return m_parent;
+		if(m_page != null && m_page.getBody() == this)
+			throw new IllegalStateException("Calling getParent() on the body tag is an indication of a problem...");
+		throw new IllegalStateException("The node is not attached to a page, call isAttached() to test for attachment");
 	}
 
 	@Nullable
@@ -797,10 +797,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		if(isAttached())
 			getPage().appendJS(js);
 		else {
-			if(m_appendJS == null)
-				m_appendJS = new StringBuilder(js.length() + 100);
-			m_appendJS.append(';');
-			m_appendJS.append(js);
+			StringBuilder sb = m_appendJS;
+			if(sb == null)
+				sb = m_appendJS = new StringBuilder(js.length() + 100);
+			sb.append(';');
+			sb.append(js);
 		}
 	}
 
@@ -817,10 +818,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @param js
 	 */
 	public void appendCreateJS(final CharSequence js) {
-		if(m_createJS == null)
-			m_createJS = new StringBuilder();
-		m_createJS.append(js);
-		m_createJS.append(';');
+		StringBuilder sb = m_createJS;
+		if(sb == null)
+			sb = m_createJS = new StringBuilder();
+		sb.append(js);
+		sb.append(';');
 	}
 
 	public StringBuilder getCreateJS() {
@@ -840,24 +842,25 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @param value
 	 */
 	public void setSpecialAttribute(@Nonnull final String name, @Nullable final String value) {
-		if(m_specialAttributes == null) {
-			m_specialAttributes = new ArrayList<String>(5);
+		List<String> sa = m_specialAttributes;
+		if(sa == null) {
+			sa = m_specialAttributes = new ArrayList<String>(5);
 		} else {
-			for(int i = 0; i < m_specialAttributes.size(); i += 2) {
-				if(m_specialAttributes.get(i).equals(name)) {
+			for(int i = 0; i < sa.size(); i += 2) {
+				if(sa.get(i).equals(name)) {
 					if(value == null) {
-						m_specialAttributes.remove(i);
-						m_specialAttributes.remove(i);
+						sa.remove(i);
+						sa.remove(i);
 						return;
 					}
-					m_specialAttributes.set(i + 1, value);
+					sa.set(i + 1, value);
 					changed();
 					return;
 				}
 			}
 		}
-		m_specialAttributes.add(name);
-		m_specialAttributes.add(value);
+		sa.add(name);
+		sa.add(value);
 		changed();
 	}
 
