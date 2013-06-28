@@ -114,16 +114,16 @@ public class PomBuilder {
 	/**
 	 * Try to find viewpoint project in regular workspace and if project
 	 * is not found do one more try in split workspace setup.
-	 * 
+	 *
 	 * @param rootPath String
-	 * 
+	 *
 	 * @return Directory of viewpoint
-	 * 
+	 *
 	 * @throws FileNotFoundException if project cannot be found
 	 */
 	private File findViewpointProjectPath(@Nonnull String rootPath) throws FileNotFoundException {
 		File root = new File(rootPath);
-		
+
 		try {
 			return findViewpointProjectPathInDirectory(root);
 		} catch(FileNotFoundException ex) {
@@ -561,7 +561,7 @@ public class PomBuilder {
 		w.tagfull("artifactId", "maven-compiler-plugin");
 		w.tagfull("version", "2.5.1");
 		w.tag("configuration");
-		w.tagfull("compilerId", "eclipse");
+		w.tagfull("compilerId", "groovy-eclipse-compiler");
 		w.tagfull("source", sub.m_sourceVersion);
 		w.tagfull("target", sub.m_sourceVersion); // sub.m_targetVersion);
 		w.tagfull("encoding", sub.m_encoding);
@@ -569,9 +569,9 @@ public class PomBuilder {
 
 		w.tag("dependencies");
 		w.tag("dependency");
-		w.tagfull("groupId", "org.codehaus.plexus");
-		w.tagfull("artifactId", "plexus-compiler-eclipse");
-		w.tagfull("version", "1.9.1");
+		w.tagfull("groupId", "org.codehaus.groovy");
+		w.tagfull("artifactId", "groovy-eclipse-compiler");
+		w.tagfull("version", "2.7.0-01");
 		w.tagendnl(); // dependency
 		w.tagendnl(); //dependencies
 
@@ -611,13 +611,17 @@ public class PomBuilder {
 			w.tag("plugin");
 			w.tagfull("groupId", "org.apache.maven.plugins");
 			w.tagfull("artifactId", "maven-surefire-plugin");
-			w.tagfull("version", "2.12.4");
+			w.tagfull("version", "2.14.1");
+
+			w.tag("configuration");
+			w.tagfull("argLine", "-Xmx1024m -XX:MaxPermSize=1024m");
+			w.tagendnl();
 
 			w.tag("dependencies");
 			w.tag("dependency");
 			w.tagfull("groupId", "org.apache.maven.surefire");
-			w.tagfull("artifactId", "surefire-junit47");
-			w.tagfull("version", "2.12.4");
+			w.tagfull("artifactId", "surefire-junit4");
+			w.tagfull("version", "2.14.1");
 			w.tagendnl();
 			w.tagendnl();
 
@@ -787,8 +791,4 @@ public class PomBuilder {
 		w.tagendnl();
 		w.close();
 	}
-
-
-
-
 }

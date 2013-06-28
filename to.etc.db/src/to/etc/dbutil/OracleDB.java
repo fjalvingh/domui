@@ -659,4 +659,207 @@ public class OracleDB extends BaseDB {
 		}
 	}
 
+	/**
+	 * Action to execute as the privileged oracle user.
+	 *
+	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+	 * Created on Apr 5, 2011
+	 */
+	public interface IPrivilegedAction {
+		Object execute(@Nonnull Connection dbc) throws Exception;
+	}
+
+	/**
+	 * Execute the action passed using a connection that is logged in as the privileged user of other specified schema.
+	 * We do not know the password for this user AND we do not want to store that password: if we do that any change to the
+	 * password would cause a problem. The solution implemented here is to use the privileged account and change the other schema user password
+	 * to a known value; then we login using that password and obtain connection for execute the action. We restore the original password
+	 * immediately after obtaining connection, even before privileged action is executed.
+	 *
+	 * @param otherSchemaDs	DataSource for other schema.
+	 * @param otherUserName	Username - account that we use to run privileged action - we change its password temporary.
+	 * @param defaultDs DataSource that we use for password manipulations.
+	 * @param paction Privileged action that is executed under otherUserName account directly in otherSchemaDs.
+	 * @return
+	 * @throws Exception
+	 */
+	static public Object runAsOtherSchemaUser(@Nonnull DataSource otherSchemaDs, @Nonnull String otherUserName, @Nonnull DataSource defaultDs, @Nonnull IPrivilegedAction paction) throws Exception {
+		Connection otherSchemaConn = null;
+		Connection defaultConn = defaultDs.getConnection();
+		try {
+			otherSchemaConn = allocateConnectionAs(otherSchemaDs, otherUserName, defaultConn);
+			return paction.execute(otherSchemaConn);
+		} finally {
+			try {
+				if(otherSchemaConn != null)
+					otherSchemaConn.close();
+			} catch(Exception x) {}
+
+			try {
+				if(defaultConn != null)
+					defaultConn.close();
+			} catch(Exception x) {}
+		}
+	}
+
+	/**
+	 * This allocates a connection to another user without that other-user's password, using an initial connection with DBA privileges.
+	 * @param otherSchemaDs
+	 * @param otherUserName
+	 * @param sourceConn
+	 * @return
+	 * @throws Exception
+	 */
+	@Nonnull
+	static public Connection allocateConnectionAs(@Nonnull DataSource otherSchemaDs, @Nonnull String otherUserName, @Nonnull Connection sourceConn) throws Exception {
+		int phase = 0;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		String realhashpass = null;
+		String tmppass = "h3rr4lbr4k";
+		Connection otherSchemaConn = null;
+		try {
+			//-- Make extremely sure we're not already the user; if we are abrt.
+			ps = sourceConn.prepareStatement("select user from dual");
+			rs = ps.executeQuery();
+			if(!rs.next())
+				throw new SQLException("Cannot get own user id");
+			String myuid = rs.getString(1);
+			if(myuid == null)
+				throw new SQLException("Cannot get own user id");
+			if(myuid.equalsIgnoreCase(otherUserName))
+				throw new IllegalArgumentException("Trying to get a connection for user=" + otherUserName + " - but you are that user");
+			rs.close();
+			ps.close();
+
+			//-- Get current hashed password for otherUserName user
+			ps = sourceConn.prepareStatement("select password from dba_users where username='" + otherUserName + "'");
+			rs = ps.executeQuery();
+			if(!rs.next())
+				throw new SQLException("The privileged " + otherUserName + " user cannot be found in the data dictionary");
+			realhashpass = rs.getString(1);
+			if(null == realhashpass) {
+				//-- 11g: password always null, try password from sys.user$.
+				rs.close();
+				ps.close();
+
+				ps = sourceConn.prepareStatement("select password from sys.user$ where name='" + otherUserName + "'");
+				rs = ps.executeQuery();
+				if(!rs.next())
+					throw new SQLException("The privileged " + otherUserName + " user cannot be found in the sys.user$ table");
+				realhashpass = rs.getString(1);
+				if(null == realhashpass)
+					throw new SQLException("Null hash for privileged " + otherUserName + " user?");
+			}
+			rs.close();
+			rs = null;
+			ps.close();
+			ps = null;
+
+			//-- Alter the password to a known value.
+			ps = sourceConn.prepareStatement("alter user " + otherUserName + " identified by " + tmppass);
+			ps.executeUpdate();
+			phase = 1;
+			ps.close();
+			ps = null;
+
+			otherSchemaConn = otherSchemaDs.getConnection(otherUserName, tmppass); // FIXME URGENT Need actual security here 8-(
+			otherSchemaConn.setAutoCommit(false);
+
+			//-- Immediately restore the original password,
+			ps = sourceConn.prepareStatement("alter user " + otherUserName + " identified by values '" + realhashpass + "'");
+			ps.executeUpdate();
+			ps.close();
+			ps = null;
+			phase = 0;
+
+			//-- Now execute the other schema command on the otherUserName connection.
+			Connection newc = otherSchemaConn;					// Pass ownership to caller.
+			otherSchemaConn = null;
+			return newc;
+		} finally {
+			try {
+				if(rs != null)
+					rs.close();
+			} catch(Exception x) {}
+			try {
+				if(ps != null)
+					ps.close();
+			} catch(Exception x) {}
+
+			if(phase == 1) {
+				restorePassword(sourceConn, otherUserName, realhashpass);
+			}
+			try {
+				if(otherSchemaConn != null)
+					otherSchemaConn.close();
+			} catch(Exception x) {}
+		}
+	}
+
+	static private void restorePassword(@Nonnull Connection dbc, @Nonnull String userName, @Nonnull String hash) {
+		PreparedStatement ps = null;
+		try {
+			//-- Immediately restore the original password,
+			ps = dbc.prepareStatement("alter user " + userName + " identified by values '" + hash + "'");
+			ps.executeUpdate();
+		} catch(Exception x) {
+			System.out.println("FATAL: Cannot restore the password for the " + userName + " user!!!!");
+			x.printStackTrace();
+		} finally {
+			try {
+				if(ps != null)
+					ps.close();
+			} catch(Exception x) {}
+		}
+	}
+
+	/**
+	 * Set the database session to CHAR or BYTE semantics.
+	 * @param ischar
+	 * @throws Exception
+	 */
+	static public void setCharSemantics(@Nonnull Connection dbc, boolean ischar) throws Exception {
+		PreparedStatement ps = null;
+		try {
+			ps = dbc.prepareStatement("alter session set nls_length_semantics=" + (ischar ? "CHAR" : "BYTE"));
+			ps.executeUpdate();
+		} finally {
+			try {
+				if(ps != null)
+					ps.close();
+			} catch(Exception x) {}
+		}
+	}
+
+	/**
+	 * Recompile all packages or only invalid packages for the specified schema.
+	 * @param dbc
+	 * @param schema
+	 * @param invalidsonly
+	 * @param charsemantics
+	 * @throws Exception
+	 */
+	static public void recompileAll(@Nonnull Connection dbc, @Nonnull String schema, boolean invalidsonly, boolean charsemantics) throws Exception {
+		PreparedStatement ps = null;
+		try {
+			OracleDB.setCharSemantics(dbc, charsemantics);
+
+			ps = dbc.prepareStatement("begin dbms_utility.compile_schema(schema=>?, compile_all=>" + (invalidsonly ? "FALSE" : "TRUE") + "); end;");
+			ps.setString(1, schema.toUpperCase());
+			ps.executeUpdate();
+			ps.close();
+
+			//-- 20110113 jal Fix from Leo for the "state of packages" error that occurs regardless of the actual package state
+			ps = dbc.prepareStatement("begin dbms_session.reset_package; end;");
+			ps.executeUpdate();
+			ps.close();
+		} finally {
+			try {
+				if(ps != null)
+					ps.close();
+			} catch(Exception x) {}
+		}
+	}
+
 }
