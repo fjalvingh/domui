@@ -757,10 +757,11 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 * @param selectionModel
 	 */
 	public void setSelectionModel(@Nullable ISelectionModel<T> selectionModel) {
-		if(DomUtil.isEqual(m_selectionModel, selectionModel))
+		ISelectionModel<T> oldsm = m_selectionModel;
+		if(DomUtil.isEqual(oldsm, selectionModel))
 			return;
-		if(m_selectionModel != null) {
-			m_selectionModel.removeListener(this);
+		if(oldsm != null) {
+			oldsm.removeListener(this);
 			setDisableClipboardSelection(true);
 		}
 		m_selectionModel = selectionModel;
