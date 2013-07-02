@@ -519,7 +519,7 @@ abstract public class QRestrictor<T> {
 	}
 
 	/**
-	 * Create a joined "exists" subquery on some child list property. The parameters passed have a relation with each other;
+	 * Create a joined "exists" subquery on some child list property. The parameters passed have a relation with eachother;
 	 * this relation cannot be checked at compile time because Java still lacks property references (Sun is still too utterly
 	 * stupid to define them). They will be checked at runtime when the query is executed.
 	 *

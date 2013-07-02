@@ -582,6 +582,12 @@ public class OracleDB extends BaseDB {
 		}
 	}
 
+	/**
+	 * This method creates public synonyms for all objects in a schema (except TYPE objects).
+	 * @param ds
+	 * @param owner
+	 * @param objectNames
+	 */
 	public static void updateSynonyms(@Nonnull DataSource ds, @Nonnull String owner, String... objectNames) {
 		PreparedStatement ps = null;
 		PreparedStatement ps2 = null;
@@ -618,9 +624,12 @@ public class OracleDB extends BaseDB {
 				try {
 					ps2 = dbc.prepareStatement("create public synonym \"" + on + "\" for " + owner + ".\"" + on + "\"");
 					ps2.executeUpdate();
-					ps2.close();
 				} catch(Exception x) {
-					LOG.error(owner + ": error creating synonym " + on + ": " + x);
+					String message = x.toString().toLowerCase();
+					if(!message.contains("ora-00955"))
+						LOG.error(owner + ": error creating synonym " + on + ": " + x);
+				} finally {
+					ps2.close();
 				}
 				ct++;
 			}
@@ -644,7 +653,7 @@ public class OracleDB extends BaseDB {
 					ps2.close();
 			} catch(Exception x) {}
 			try {
-				if(dbc != null)
+				if(null != dbc)
 					dbc.close();
 			} catch(Exception x) {}
 		}

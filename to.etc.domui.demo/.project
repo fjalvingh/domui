@@ -8,7 +8,6 @@
 		<project>to.etc.domui</project>
 		<project>to.etc.domui.hibutil</project>
 		<project>to.etc.alg</project>
-		<project>lib-hibernate</project>
 		<project>bin-batik-1.7</project>
 	</projects>
 	<buildSpec>

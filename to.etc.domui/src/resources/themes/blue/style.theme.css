@@ -28,6 +28,7 @@ time, mark, audio, video {
 	font-size: 100%;
 	font: inherit;
 	vertical-align: baseline;
+	outline: none;
 }
 
 /* HTML5 display-role reset for older browsers */
@@ -90,6 +91,11 @@ input, textarea, select {
 	border-radius: 2px;	
 	-webkit-border-radius: 2px;	
 }
+input[type=checkbox] {
+	border: 0;
+	padding-left: 0px;
+	padding-top: 2px;
+}
 
 input[type=file] {
 	border: 0 !important;
@@ -130,15 +136,10 @@ div {
 .ui-content {
 	padding: <%= margins_main %> <%= margins_main %> 0px <%= margins_main %>;	/* Jal 20121214 bottom margin causes scrollbars with auto-height calculations. */
 }
-.ui-clickable {
-	cursor: pointer;
-}
-
 
 /*** HTML formatting ***/
 p {
 	margin: 5px 0px;
-	display: block;
 }
 h1, h2, h3, h4, h5 {
 	margin: 10px 0px 5px 0px;
@@ -176,19 +177,7 @@ li {
 code {
 	white-space: pre;
 	font-family: <%= fixed_font_family %>;
-	font-size: 11px;
-	background-color: #ddd;
-	display: block;
-	border: 1px dotted #000;
-	padding: 4px;
 }
-b, strong {
-	font-weight: bold;
-}
-i, em {
-	font-style: italic;
-}
-
 /*** 005_oddchars.frag.css ***/
 /*** Select special chars ***/
 .ui-oddchars {
@@ -434,14 +423,9 @@ td.ui-tr-selected {
 }
 /*** 040_captionedheader.frag.css ***/
 /*** CaptionedHeader ***/
-
-
-/* jal 20130305 removed, the captioned header falls over the item above it.
-
 .ui-content > .ui-chdr {
 	<%= margins_neutralize %>
 }
-*/
 .ui-chdr {
 	width: 100%;
 	margin-top: 10px;
@@ -736,20 +720,46 @@ a:hover.ui-lnkb-dis {
 table .ui-sh {
 	width: 100%;
 }
+.ui-sh td {
+	padding: 0px;
+}
 .ui-sh-sc {
 	width: 40%;
+	vertical-align: top;
 }
 .ui-sh-tc {
 	width: 40%;
+	vertical-align: top;
 }
 .ui-sh-tcd, .ui-sh-scd {
 	border: 1px solid #aaaaaa;
 }
 .ui-sh-bc {
 	width: 1%;
+	vertical-align: middle;
+}
+.ui-sh-oc {
+	vertical-align: middle;
+}
+.ui-sh-oc table, .ui-sh-bc table {
+	margin: <%= margins_main %>;
 }
 .ui-sh-sc .selected, .ui-sh-tc .selected {
 	background-color: <%= selected_bg %>;
+}
+.ui-sh button, .ui-sh button:hover, .ui-sh button:focus {
+	background-position: right -250px;
+	padding: 0 7px 0 0;
+	margin: 2px;
+}
+.ui-sh button span, .ui-sh button:hover span, .ui-sh button:focus span{
+	background-position: left -200px;
+	min-width: 0px;
+	width: 19px;
+}
+.ui-sh button img {
+	padding-right: 0px;
+	padding-left: 2px;
 }
 /*** 085_breadcrumb.frag.css ***/
 /*** BreadCrumb ***/
@@ -1267,6 +1277,12 @@ table.ui-lf-st tr > td.ui-f-lbl:first-child,
 	border:1px solid <%= readonly_border %>;
 	background-color: <%= readonly_bg %>;
 }
+input.ui-ro, input.ui-ro:hover {
+	text-align: left !important;
+	height: 12px !important;
+	margin: 0px !important;
+	padding: 0px !important;
+}
 
 select.ui-ro, select.ui-ro:hover {
 	border-color: <%= bevel_up %>;
@@ -1387,6 +1403,7 @@ div.ui-dt table{
 
 .ui-dt th, .ui-dt-hdr {
 	padding: 0px 3px;
+	border-left: none !important;
 	background: <%=	data_tbl_header_bg %>;
 	background-image: url(<%= data_tbl_header_bg_img %>);
 	color: <%= data_tbl_header_text_color %>;
@@ -1398,7 +1415,7 @@ div.ui-dt table{
 }
 
 .ui-dt th:FIRST-CHILD, .ui-dt-hdr:FIRST-CHILD {
-	border-left: 1px solid <%= data_tbl_header_btm_border %>;
+	border-left: 1px solid <%= data_tbl_header_btm_border %> !important;
 }
 
 .ui-dt th:LAST-CHILD, .ui-dt-hdr:LAST-CHILD {
@@ -1565,12 +1582,12 @@ div.ui-sortable {
 .ui-tab-c {
 	margin: 0px -<%= margins_main %> <%= margins_main %> -<%= margins_main %>;
 }
-.ui-tab-hdr ul {
+.ui-tab-c ul {
 	list-style-type: none;
 	margin: 0;
 	padding: 0;
 }
-.ui-tab-li {
+.ui-tab-c li {
 	margin: 0;
 	padding: 0;
 }
@@ -2809,7 +2826,7 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 .ui-msgln {
 	clear: both;
 	padding: 4px 0px;
-/*	display: inline-block;		jal 20130215 This shows messages behind one another.... That should not happen.. */
+	display: inline-block;
 }
 .ui-msgln img {
 	float: left;
@@ -2886,23 +2903,4 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	width: 32px;
 	height: 32px;
 	background-image: url(data:image/gif;base64,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);
-}
-.ui-cbis {
-	display: inline;
-}
-/*** 400_datacelltable.frag.css ***/
-.ui-dct {
-}
-
-.ui-dct-item {
-	padding: 3px;
-	border: 1px solid transparent;
-}
-
-.ui-dct-selected {
-	background-color: cyan;
-	border: 1px solid black;
-}
-.ui-dct td {
-	vertical-align: top;
 }

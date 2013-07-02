@@ -135,6 +135,18 @@ public class DataContextMock implements QDataContext {
 		throw new IllegalStateException("Mocked");
 	}
 
+	@Override
+	@Nonnull
+	public <R> List<R> query(@Nonnull Class<R> resultInterface, @Nonnull QSelection< ? > sel) throws Exception {
+		throw new IllegalStateException("Mocked");
+	}
+
+	@Override
+	@Nullable
+	public <R> R queryOne(@Nonnull Class<R> resultInterface, @Nonnull QSelection< ? > sel) throws Exception {
+		throw new IllegalStateException("Mocked");
+	}
+
 	/**
 	 * Internal test pps.
 	 */

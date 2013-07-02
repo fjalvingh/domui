@@ -32,8 +32,6 @@ import java.util.regex.*;
 
 import javax.annotation.*;
 
-import javax.annotation.*;
-
 /**
  * This static utility class contains a load of string functions. And some other
  * stuff I could not quickly find a place for ;-)

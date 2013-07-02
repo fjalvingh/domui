@@ -735,7 +735,6 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 					last = Restrictions.isNull(name);
 					break;
 				}
-
 				last = Restrictions.eq(name, lit.getValue());
 				break;
 			case NE:
@@ -834,7 +833,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 				throw new IllegalStateException("Unexpected operation: " + n.getOperation());
 
 			case EQ:
-				last = Subqueries.propertyIn(name, (DetachedCriteria) m_lastSubqueryCriteria);
+				last = Subqueries.propertyEq(name, (DetachedCriteria) m_lastSubqueryCriteria);
 				break;
 			case NE:
 				last = Subqueries.propertyNe(name, (DetachedCriteria) m_lastSubqueryCriteria);
@@ -1037,9 +1036,6 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		dc.add(Restrictions.eqProperty(childupprop + "." + childmd.getIdentifierPropertyName(), parentAlias + "." + parentmd.getIdentifierPropertyName()));
 
 		//-- Sigh; Recursively apply all parts to the detached thingerydoo
-		Map<String, String> oldAliasMap = m_aliasMap;
-		m_aliasMap = new HashMap<String, String>(m_aliasMap);
-
 		Object old = m_currentCriteria;
 		Class< ? > oldroot = m_rootClass;
 		Map<String, String> oldAliases = m_aliasMap;
@@ -1058,7 +1054,6 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		m_currentCriteria = old;
 		m_rootClass = oldroot;
 		m_last = exists;
-		m_aliasMap = oldAliasMap;
 	}
 
 	private String getCurrentAlias() {
@@ -1220,6 +1215,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 				break;
 			case PROPERTY:
 				m_lastProj = Projections.groupProperty(n.getProperty());
+
 				break;
 			case ROWCOUNT:
 				m_lastProj = Projections.rowCount();

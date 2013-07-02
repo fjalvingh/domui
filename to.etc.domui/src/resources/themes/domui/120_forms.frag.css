@@ -62,6 +62,12 @@
 	border:1px solid <%= readonly_border %>;
 	background-color: <%= readonly_bg %>;
 }
+input.ui-ro, input.ui-ro:hover {
+	text-align: left !important;
+	height: 12px !important;
+	margin: 0px !important;
+	padding: 0px !important;
+}
 
 select.ui-ro, select.ui-ro:hover {
 	border-color: <%= bevel_up %>;

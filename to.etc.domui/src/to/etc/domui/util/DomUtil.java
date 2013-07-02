@@ -239,7 +239,7 @@ final public class DomUtil {
 	 * @param name
 	 * @return
 	 */
-	static public final Object getClassValue(final @Nonnull Object inst, @Nonnull final String name) throws Exception {
+	static public final Object getClassValue(@Nonnull final Object inst, @Nonnull final String name) throws Exception {
 		if(inst == null)
 			throw new IllegalStateException("The input object is null");
 		Class< ? > clz = inst.getClass();
@@ -718,6 +718,7 @@ final public class DomUtil {
 
 		//-- Phase 1: start marking extends in the matrix.
 		int rowindex = 0;
+		int maxcols = 0;
 		for(NodeBase l0 : t) { // Expecting THead and TBodies here.
 			if(l0 instanceof THead || l0 instanceof TBody) {
 				//-- Walk all rows.
@@ -727,7 +728,9 @@ final public class DomUtil {
 					TR tr = (TR) trb;
 					int minrowspan = 1;
 
-					getTdList(matrix, rowindex);
+					//-- Start traversing the TD's.
+					List<TD> baserowlist = getTdList(matrix, rowindex);
+					int colindex = 0;
 					for(NodeBase tdb : tr) {
 						if(!(tdb instanceof TD))
 							throw new IllegalStateException("Unexpected child of type " + tr + " in TBody/THead node (expecting TD)");
@@ -1816,5 +1819,4 @@ final public class DomUtil {
 		ws.setAttribute(UIGoto.SINGLESHOT_MESSAGE, msgl);
 		return msgl;
 	}
-
 }

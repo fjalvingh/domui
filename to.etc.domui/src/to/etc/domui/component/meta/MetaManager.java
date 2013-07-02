@@ -1128,6 +1128,4 @@ final public class MetaManager {
 		}
 		return res;
 	}
-
-
 }
