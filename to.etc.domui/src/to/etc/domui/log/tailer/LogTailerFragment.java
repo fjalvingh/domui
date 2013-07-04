@@ -134,8 +134,9 @@ public class LogTailerFragment extends PollingDiv {
 		m_goto.setOnValueChanged(new IValueChanged<Text<Integer>>() {
 			@Override
 			public void onValueChanged(@Nonnull Text<Integer> component) throws Exception {
-				if(component.getValue() != null)
-					gotoLine(component.getValue().intValue());
+				Integer value = component.getValue();
+				if(value != null)
+					gotoLine(value.intValue());
 			}
 		});
 
@@ -235,7 +236,7 @@ public class LogTailerFragment extends PollingDiv {
 	}
 
 	private void updateLinesPerPage() throws Exception {
-		int lpp = m_linesCombo.getValue().intValue();
+		int lpp = getLinesPerPage();
 		int cln = m_task.getLastLine() - lpp;
 
 		//-- If this would exceed the end move current line back
@@ -343,6 +344,9 @@ public class LogTailerFragment extends PollingDiv {
 	}
 
 	private int getLinesPerPage() {
-		return m_linesCombo.getValue().intValue();
+		Integer value = m_linesCombo.getValue();
+		if(null == value)
+			return 50;
+		return value.intValue();
 	}
 }
