@@ -126,14 +126,14 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 		if(value.length() <= 1)
 			return;
 
-		T sel = m_search.find(value);	// Find by this name (full)
+		T sel = m_search.find(value);						// Find by this name (full)
 		if(null != sel) {
 			//-- Item by name exists. Not in already selected list?
 			for(T il : m_labelList) {
 				if(MetaManager.areObjectsEqual(value, il))
 					return;
 			}
-			addLabel(sel);				// Just add the thingy.
+			addLabel(sel);									// Just add the thingy.
 			return;
 		}
 
@@ -144,7 +144,7 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 		sel = ifa.create(value);
 		if(null == sel)
 			return;
-		addLabel(sel);					// Just add the thingy.
+		addLabel(sel);										// Just add the thingy.
 	}
 
 	private void addLabel(@Nonnull T instance) throws Exception {

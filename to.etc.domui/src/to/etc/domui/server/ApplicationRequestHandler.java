@@ -478,7 +478,6 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 		//-- Create an unique hash for the page parameters
 		String hashString = pp.calculateHashString();				// The unique hash of a page with these parameters
-		pp.addParameter(Constants.PARAM_POST_CONVERSATION_KEY, hashString);
 
 		StringBuilder sb = new StringBuilder(256);
 

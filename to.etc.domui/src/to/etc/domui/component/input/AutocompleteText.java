@@ -27,8 +27,9 @@ class AutocompleteText extends TextStr {
 
 	@Nonnull
 	protected Select getSelect() {
-		if(m_select != null)
+		if(m_select != null) {
 			return m_select;
+		}
 		throw new IllegalStateException(Select.class.getName() + " not connected to " + AutocompleteText.class.getName());
 	}
 
