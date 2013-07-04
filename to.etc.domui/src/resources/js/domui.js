@@ -141,8 +141,12 @@ $(window).bind('beforeunload', function() {
 			//-- jal 20130129 For large documents, redirecting "inside" an existing document causes huge problems, the 
 			// jquery loops in the "source" document while the new one is loading. This part "clears" the existing document
 			// causing an ugly white screen while loading - but the loading now always works..
-			document.write('<html></html>');
-			document.close();
+			try {
+				document.write('<html></html>');
+				document.close();
+			} catch(xxx) {
+				// jal 20130626 Suddenly Firefox no longer allows this. Deep, deep sigh.
+			}
 			window.location.href = to;
 			return true;
 		} else if (rname == 'expiredOnPollasy'){
