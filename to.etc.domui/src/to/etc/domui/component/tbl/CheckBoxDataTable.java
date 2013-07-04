@@ -262,11 +262,12 @@ public class CheckBoxDataTable<T> extends DataTable<T> {
 				tr.setClicked(new IClicked<TR>() {
 					@Override
 					public void clicked(@Nonnull TR row) throws Exception {
-						if(row.getUserObject() instanceof Checkbox) {
-							Checkbox ckb = (Checkbox) row.getUserObject();
+						Object userObject = row.getUserObject();
+						if(userObject instanceof Checkbox) {
+							Checkbox ckb = (Checkbox) userObject;
 							if(null == ckb)
 								throw new IllegalStateException("Missing checkbox in userObject?");
-							ckb.setChecked(!((Checkbox) row.getUserObject()).isChecked());
+							ckb.setChecked(!((Checkbox) userObject).isChecked());
 							handleSelectionChanged(ckb.isChecked(), (T) ckb.getUserObject());
 						}
 					}
