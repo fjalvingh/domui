@@ -12,14 +12,14 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
 /**
- * Control that behaves as {@link SmallImgButton} that has built in click handler that popups select list with predefined data to choose from. 
- * 
+ * Control that behaves as {@link SmallImgButton} that has built in click handler that popups select list with predefined data to choose from.
+ *
  *
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on Nov 26, 2012
  */
 public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
-	public enum HAlign {LEFT, MIDDLE, RIGHT}; 
+	public enum HAlign {LEFT, MIDDLE, RIGHT};
 
 	@Nullable
 	private IValueChanged<DropDownPicker<T>> m_onValueChanged;
@@ -43,17 +43,17 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 
 	@Nullable
 	private INotifyEvent<DropDownPicker<T>, ComboLookup<T>> m_onBeforeShow;
-	
+
 	@Nonnull
 	private HAlign m_halign = HAlign.LEFT;
 
 	/**
 	 * Control that drop down picker would use as base for vertical and horizontal alignment. Picker is always shown below base control, while horizontal alignment can be defined (see {@link DropDownPicker#setHalign(HAlign)}).
-	 * If not set different, picker {@link SmallImgButton} is used as alignment base. 
+	 * If not set different, picker {@link SmallImgButton} is used as alignment base.
 	 */
 	@Nullable
 	private NodeBase m_alignmentBase;
-	
+
 	/**
 	 * DropDownPicker constructor. By default size of drop down list is 8.
 	 */
@@ -117,10 +117,11 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 			}
 		});
 
+		List<T> data = m_data;
 		if(m_selected != null) {
 			m_picker.setValue(m_selected);
-		} else if(m_data.size() > 0 && isMandatory()) {
-			m_picker.setValue(m_data.get(0));
+		} else if(data != null && data.size() > 0 && isMandatory()) {
+			m_picker.setValue(data.get(0));
 		}
 
 		m_picker.setMandatory(isMandatory());
@@ -331,7 +332,9 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 
 	public @Nonnull
 	List<T> getData() {
-		return m_data;
+		if(null != m_data)
+			return m_data;
+		throw new IllegalStateException("The 'data' property is not set");
 	}
 
 	public boolean hasData() {
