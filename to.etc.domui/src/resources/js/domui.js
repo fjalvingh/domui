@@ -3001,10 +3001,9 @@ var WebUI = {
 																			// ;)
 				var frm = window.frames[frmname];
 				frm.document.open();
-				frm.document
-						.write('<html></head></head><body style="margin:0px;"><form><textarea style="width:99%; height:99%" wrap="virtual">');
-				frm.document.write(textData);
-				frm.document.write('</textarea></form></body></html>');
+				frm.document.write('<html></head></head><body style="margin:0px;">');
+				frm.document.write(textData.replace(/\n/g, '<br/>'));
+				frm.document.write('</body></html>');
 				frm.document.close();
 				frm.focus();
 				frm.print();
