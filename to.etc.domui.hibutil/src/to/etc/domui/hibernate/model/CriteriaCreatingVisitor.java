@@ -801,10 +801,10 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 				throw new IllegalStateException("Unexpected operation: " + n.getOperation());
 
 			case EQ:
-				last = Subqueries.propertyEq(name, (DetachedCriteria) m_lastSubqueryCriteria);
+				last = Subqueries.propertyIn(name, (DetachedCriteria) m_lastSubqueryCriteria);
 				break;
 			case NE:
-				last = Subqueries.propertyNe(name, (DetachedCriteria) m_lastSubqueryCriteria);
+				last = Subqueries.propertyNotIn(name, (DetachedCriteria) m_lastSubqueryCriteria);
 				break;
 //			case GT:
 //				last = Restrictions.gt(name, lit.getValue());
