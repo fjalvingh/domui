@@ -2555,7 +2555,6 @@ public class StringTool {
 		return NORMALIZE_PATTERN.matcher(nfdNormalizedString).replaceAll("");
 	}
 
-
 	static {
 		getJreVersion();
 		long val = System.currentTimeMillis() / 1000 / 60;

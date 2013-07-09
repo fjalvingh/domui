@@ -30,14 +30,16 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 	private INodeContentRenderer<T> m_contentRenderer;
 
 	public interface ISearch<T> {
-		T find(String name) throws Exception;
+		@Nullable
+		T find(@Nonnull String name) throws Exception;
 
-		List<T> findLike(String input, int i);
+		@Nonnull
+		List<T> findLike(@Nonnull String input, int i) throws Exception;
 	}
 
 	public interface INew<T> {
 		@Nullable
-		T create(String name) throws Exception;
+		T create(@Nonnull String name) throws Exception;
 	}
 
 	@Nonnull
@@ -53,6 +55,9 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 		m_actualClass = clz;
 		m_search = search;
 		setCssClass("ui-lsel-sel");
+		if(search instanceof INew< ? >) {
+			m_instanceFactory = (INew<T>) search;
+		}
 	}
 
 	//	/**
@@ -67,7 +72,7 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 
 
 	/**
-	 * We create something which looks like an iput box, but it has label spans followed by a single input box.
+	 * We create something which looks like an input box, but it has label spans followed by a single input box.
 	 * @see to.etc.domui.dom.html.NodeBase#createContent()
 	 */
 	@Override
@@ -147,6 +152,10 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 		addLabel(sel);										// Just add the thingy.
 	}
 
+	public void setInstanceFactory(INew<T> instanceFactory) {
+		m_instanceFactory = instanceFactory;
+	}
+
 	private void addLabel(@Nonnull T instance) throws Exception {
 		if(m_divMap.containsKey(instance))
 			return;
@@ -196,8 +205,10 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 	}
 
 	@Override
-	public void setValue(@Nullable List<T> newlist) {
-		m_labelList = newlist == null ? new ArrayList<T>() : newlist;
+	public void setValue(@Nonnull List<T> newlist) {
+		if(null == newlist)
+			newlist = new ArrayList<T>();
+		m_labelList = newlist;
 		m_divMap.clear();
 		forceRebuild();
 	}

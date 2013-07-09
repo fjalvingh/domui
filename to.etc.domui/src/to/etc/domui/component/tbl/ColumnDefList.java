@@ -509,6 +509,11 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 		return m_sortColumn;
 	}
 
+	protected void updateDefaultSort(@Nonnull SimpleColumnDef< ? > scd) {
+		if(m_sortColumn == scd)
+			m_sortDescending = scd.getSortable() == SortableType.SORTABLE_DESC;
+	}
+
 	public boolean isSortDescending() {
 		return m_sortDescending;
 	}

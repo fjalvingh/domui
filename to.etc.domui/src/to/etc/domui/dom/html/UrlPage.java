@@ -136,8 +136,6 @@ public class UrlPage extends Div implements ILogiEventListener {
 		if(null == lc) {
 			lc = new LogiContext(getSharedContext());
 			getPage().getConversation().setAttribute(LogiContext.class.getName(), lc);
-			registerLogicListeners(lc);
-
 		}
 		return lc;
 	}
@@ -195,6 +193,4 @@ public class UrlPage extends Div implements ILogiEventListener {
 
 
 	}
-
-
 }

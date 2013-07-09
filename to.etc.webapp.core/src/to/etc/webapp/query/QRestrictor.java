@@ -490,7 +490,21 @@ abstract public class QRestrictor<T> {
 	}
 
 	/**
-	 * Create a joined "exists" subquery on some child list property. The parameters passed have a relation with each other;
+	 * Add a restriction in bare SQL, with JDBC parameters inside the string (specified as '?'). This
+	 * is implementation-dependent. The first ? in the string corresponds to params[0]. Parameters are
+	 * not allowed to be null (i.e. the type is @Nonnull Object[@Nonnull] or something).
+	 * @param sql
+	 * @param params
+	 * @return
+	 */
+	@Nonnull
+	public QRestrictor<T> sqlCondition(@Nonnull final String sql, @Nonnull Object[] params) {
+		add(QRestriction.sqlCondition(sql, params));
+		return this;
+	}
+
+	/**
+	 * Create a joined "exists" subquery on some child list property. The parameters passed have a relation with eachother;
 	 * this relation cannot be checked at compile time because Java still lacks property references (Sun is still too utterly
 	 * stupid to define them). They will be checked at runtime when the query is executed.
 	 *

@@ -45,6 +45,9 @@ import to.etc.webapp.*;
 import to.etc.webapp.query.*;
 
 abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT>, IHasModifiedIndication {
+	/** The properties bindable for this component. */
+	static private final Set<String> BINDABLE_SET = createNameSet("value", "disabled");
+
 	static public final INodeContentRenderer<Object> DEFAULT_RENDERER = new SimpleLookupInputRenderer<Object>();
 
 	/**
@@ -272,6 +275,12 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		if(null != m_clearButton)
 			return m_clearButton;
 		throw new IllegalStateException("Clear button is not there.");
+	}
+
+	@Override
+	@Nonnull
+	public Set<String> getBindableProperties() {
+		return BINDABLE_SET;
 	}
 
 	@Override
@@ -876,6 +885,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		m_disabled = disabled;
 		updateRoStyle();
 		forceRebuild();
+		fireModified("disabled", Boolean.valueOf(!disabled), Boolean.valueOf(disabled));
 	}
 
 	/*--------------------------------------------------------------*/
@@ -933,8 +943,9 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		KeyWordSearchInput<OT> ks = m_keySearch;
 		if(DomUtil.isEqual(m_value, v) && (ks == null || ks.getKeySearchValue() == null))
 			return;
+		OT old = m_value;
 		m_value = v;
-		if(m_value != null) {
+		if(v != null) {
 			getClearButton().setDisplay(DisplayType.INLINE);
 			clearMessage();
 			setCssClass("ui-lui-selected");
@@ -944,6 +955,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		}
 		updateRoStyle();
 		forceRebuild();
+		fireModified("value", old, v);
 	}
 
 	/**

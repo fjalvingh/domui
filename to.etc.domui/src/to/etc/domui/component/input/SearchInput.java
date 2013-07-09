@@ -232,8 +232,18 @@ public class SearchInput<T> extends Div {
 
 		SimpleListModel<T>	mdl = new SimpleListModel<T>(isl);
 		KeyWordPopupRowRenderer<T> rr = new KeyWordPopupRowRenderer<T>(m_dataModel);
-		if(m_columns != null)
+
+		if(SIMPLECLASSES.contains(m_dataClass)) {
+			rr.addColumns("", new INodeContentRenderer<Object>() {
+				@Override
+				public void renderNodeContent(NodeBase component, NodeContainer node, Object object, Object parameters) throws Exception {
+					node.add(String.valueOf(object));
+				}
+			});
+
+		} else if(m_columns != null && m_columns.length > 0) {
 			rr.addColumns(m_columns);
+		}
 		rr.setRowClicked(new ICellClicked<T>() {
 			@Override
 			public void cellClicked(@Nonnull NodeBase tr, @Nonnull T val) throws Exception {
@@ -246,6 +256,8 @@ public class SearchInput<T> extends Div {
 		tbl.setOverflow(Overflow.HIDDEN);
 		tbl.setPosition(PositionType.RELATIVE);
 	}
+
+	static private final Set<Class< ? >> SIMPLECLASSES = new HashSet<Class< ? >>(Arrays.asList(String.class, Date.class, Integer.class, int.class, Long.class, long.class));
 
 	private void handleSelectValueFromPopup(T val) throws Exception {
 		System.out.println("GOT: "+val);

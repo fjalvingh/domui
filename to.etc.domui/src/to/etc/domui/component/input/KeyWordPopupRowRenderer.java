@@ -51,7 +51,7 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 	private final ColumnDefList<T> m_columnList;
 
 	/*--------------------------------------------------------------*/
-	/*	CODING:	Simple renderer initialization && parameterisation	*/
+	/*	CODING:	Simple renderer initialization && parameterization	*/
 	/*--------------------------------------------------------------*/
 	/**
 	 * Create a renderer by handling the specified class and a list of properties off it.

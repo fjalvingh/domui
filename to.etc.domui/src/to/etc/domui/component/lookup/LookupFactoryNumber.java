@@ -101,10 +101,10 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 				if(relation == null) {
 					return AppendCriteriaResult.EMPTY;
 				}
-				if(!numA.validate()) {
+				if(!numA.validate(true)) {
 					return AppendCriteriaResult.INVALID;
 				}
-				if(relation == NumericRelationType.BETWEEN && !numB.validate()) {
+				if(relation == NumericRelationType.BETWEEN && !numB.validate(true)) {
 					return AppendCriteriaResult.INVALID;
 				}
 				Object vala = numA.getValue();

@@ -246,7 +246,9 @@ public class PageParameters implements IPageParameters {
 		}
 
 		if(o instanceof String[]) {
-			setParameter(k, (String[]) o);
+			String[] ar = (String[]) o;
+			if(ar.length > 0)
+				setParameter(k, ar);
 			return;
 		}
 
@@ -480,11 +482,12 @@ public class PageParameters implements IPageParameters {
 			if(var instanceof String)
 				return new String[]{(String) var};
 			String[] ar = (String[]) var;
-			if(ar.length > 0)
+			if(ar.length >= 0)
 				return ar;
 		}
-		return null;
+		return deflt;
 	}
+
 
 	/**
 	 * Gets the value for the specified parametername as untyped value.

@@ -50,6 +50,10 @@ import to.etc.webapp.nls.*;
  * Created on Jun 11, 2008
  */
 public class Text<T> extends Input implements IControl<T>, IHasModifiedIndication, IConvertable<T> {
+	/** The properties bindable for this component. */
+	@Nonnull
+	static private final Set<String> BINDABLE_SET = createNameSet("value", "disabled");
+
 	/** The type of class that is expected. This is the return type of the getValue() call for a validated item */
 	private Class<T> m_inputClass;
 
@@ -123,14 +127,20 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		}
 	}
 
+	@Override
+	@Nonnull
+	public Set<String> getBindableProperties() {
+		return BINDABLE_SET;
+	}
+
 	/**
 	 * Handle the input from the request for this component.
 	 * @see to.etc.domui.dom.html.Input#acceptRequestParameter(java.lang.String[])
 	 */
 	@Override
 	public boolean acceptRequestParameter(@Nonnull String[] values) {
-		String oldValue = getRawValue(); // Retain previous value,
-		super.acceptRequestParameter(values); // Set the new one;
+		String oldValue = getRawValue();									// Retain previous value,
+		super.acceptRequestParameter(values);								// Set the new one;
 		String oldTrimmed = oldValue == null ? "" : oldValue.trim();
 		String newTrimmed = getRawValue() == null ? "" : getRawValue().trim();
 		if(oldTrimmed.equals(newTrimmed)) {
@@ -138,6 +148,13 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		}
 		m_validated = false;
 		DomUtil.setModifiedFlag(this);
+
+		//-- Handle data updates.
+		T old = m_value;
+		if(validate(false)) {
+			fireModified("value", old, m_value);
+		}
+
 		return true;
 	}
 
@@ -152,7 +169,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 * message into the Page. When in ERROR state an input control will add an "invalidValue"
 	 * class to it's HTML class, and it may expose error labels on it.
 	 */
-	public boolean validate() {
+	public boolean validate(boolean seterror) {
 		if(m_validated)
 			return m_wasvalid;
 
@@ -166,7 +183,8 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		m_wasvalid = false;
 		if(raw == null || raw.length() == 0) {
 			if(isMandatory()) {
-				setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.MANDATORY));
+				if(seterror)
+					setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.MANDATORY));
 				return false;
 			}
 
@@ -181,10 +199,12 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		if(getValidationRegexp() != null) {
 			if(!Pattern.matches(getValidationRegexp(), raw)) {
 				//-- We have a validation error.
-				if(getRegexpUserString() != null)
-					setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_NO_RE_MATCH, getRegexpUserString()));// Input format must be {0}
-				else
-					setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_INVALID, raw));
+				if(seterror) {
+					if(getRegexpUserString() != null)
+						setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_NO_RE_MATCH, getRegexpUserString()));// Input format must be {0}
+					else
+						setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_INVALID));
+				}
 				m_wasvalid = false;
 				return false;
 			}
@@ -207,14 +227,17 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 
 			m_wasvalid = true;
 		} catch(UIException x) {
-			setMessage(UIMessage.error(x.getBundle(), x.getCode(), x.getParameters()));
+			if(seterror)
+				setMessage(UIMessage.error(x.getBundle(), x.getCode(), x.getParameters()));
 			return false;
 		} catch(RuntimeConversionException x) {
-			setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.NOT_VALID, raw));
+			if(seterror)
+				setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.NOT_VALID, raw));
 			return false;
 		} catch(Exception x) {
 			x.printStackTrace();
-			setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.UNEXPECTED_EXCEPTION, x));
+			if(seterror)
+				setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.UNEXPECTED_EXCEPTION, x));
 			return false;
 		}
 
@@ -223,6 +246,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		clearMessage();
 		return true;
 	}
+
 
 	//	/**
 	//	 * Returns TRUE if the input for this control is currently valid. This does NOT call the validator if needed!!!!
@@ -269,7 +293,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 */
 	@Override
 	public T getValue() {
-		if(!validate())
+		if(!validate(true))
 			throw new ValidationException(Msgs.NOT_VALID, getRawValue());
 		return m_value;
 	}
@@ -321,35 +345,40 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		// will not change, so no delta will be generated....
 		//		if(isValidated() && DomUtil.isEqual(m_value, value)) // FIXME Removed pending explanation:  && DomUtil.isEqual(getRawValue(), value)
 		//			return;
+		T old = m_value;
 		m_value = value;
-		String converted;
 		try {
-			IConverter<T> c = m_converter;
-			if(c == null)
-				c = ConverterRegistry.findConverter(getInputClass());
+			String converted;
+			try {
+				IConverter<T> c = m_converter;
+				if(c == null)
+					c = ConverterRegistry.findConverter(getInputClass());
 
-			if(c != null)
-				converted = c.convertObjectToString(NlsContext.getLocale(), value);
-			else
-				converted = RuntimeConversions.convertTo(value, String.class);
-		} catch(UIException x) {
-			setMessage(UIMessage.error(x.getBundle(), x.getCode(), x.getParameters()));
-			return;
-		} catch(Exception x) {
-			x.printStackTrace();
-			setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.UNEXPECTED_EXCEPTION, x));
-			return;
-		}
-		setRawValue(converted == null ? "" : converted); // jal 20090821 If set to null for empty the value attribute will not be renderered, it must render a value as empty string
+				if(c != null)
+					converted = c.convertObjectToString(NlsContext.getLocale(), value);
+				else
+					converted = RuntimeConversions.convertTo(value, String.class);
+			} catch(UIException x) {
+				setMessage(UIMessage.error(x.getBundle(), x.getCode(), x.getParameters()));
+				return;
+			} catch(Exception x) {
+				x.printStackTrace();
+				setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.UNEXPECTED_EXCEPTION, x));
+				return;
+			}
+			setRawValue(converted == null ? "" : converted); // jal 20090821 If set to null for empty the value attribute will not be renderered, it must render a value as empty string
 
-		clearMessage();
+			clearMessage();
 
-		// jal 20081021 Clear validated als inputwaarde leeg is en de control is mandatory.
-		if((converted == null || converted.trim().length() == 0) && isMandatory())
-			m_validated = false;
-		else {
-			m_validated = true;
-			m_wasvalid = true;
+			// jal 20081021 Clear validated als inputwaarde leeg is en de control is mandatory.
+			if((converted == null || converted.trim().length() == 0) && isMandatory())
+				m_validated = false;
+			else {
+				m_validated = true;
+				m_wasvalid = true;
+			}
+		} finally {
+			fireModified("value", old, value);
 		}
 	}
 

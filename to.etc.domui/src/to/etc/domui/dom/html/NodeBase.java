@@ -30,14 +30,17 @@ import javax.annotation.*;
 
 import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.input.*;
+import to.etc.domui.databinding.*;
 import to.etc.domui.dom.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.logic.*;
 import to.etc.domui.logic.events.*;
 import to.etc.domui.server.*;
+import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
+import to.etc.webapp.core.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
 
@@ -72,8 +75,10 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 18, 2007
  */
-abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IModelBinding {
+abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IModelBinding, IObservableEntity {
 	static private boolean m_logAllocations;
+
+	static private int m_nextID;
 
 	/** The owner page. If set then this node IS attached to the parent in some way; if null it is not attached. */
 	@Nullable
@@ -264,15 +269,39 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	}
 
 	/**
+	 * Calculates a new ID for a node.
+	 * @return
+	 */
+	@Nonnull
+	final String nextUniqID() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("U");
+		int id = m_nextID++;
+		while(id != 0) {
+			int d = id % 36;
+			if(d <= 9)
+				d = d + '0';
+			else
+				d = ('A' + (d - 10));
+			sb.append((char) d);
+			id = id / 36;
+		}
+		return sb.toString();
+	}
+
+	/**
 	 * When the node is attached to a page this returns the ID assigned to it. To call it before
 	 * is an error and throws IllegalStateException.
 	 * @return
 	 */
 	@Nonnull
 	final public String getActualID() {
-		if(null != m_actualID)
-			return m_actualID;
-		throw new IllegalStateException("Missing ID on " + this);
+		String id = m_actualID;
+		if(null == id) {
+			id = m_actualID = nextUniqID();
+			//			throw new IllegalStateException("Missing ID on " + this);
+		}
+		return id;
 	}
 
 	@Nullable
@@ -1164,6 +1193,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		return br.formatMessage(key, param);
 	}
 
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Overridable event methods.							*/
 	/*--------------------------------------------------------------*/
@@ -1494,5 +1524,117 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 */
 	public boolean isRendersOwnClose() {
 		return false;
+	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Hard data binding support (EXPERIMENTAL)			*/
+	/*--------------------------------------------------------------*/
+	@Nullable
+	private ComponentObserverSupport< ? > m_osupport;
+
+	/**
+	 * Returns a set of property names for this control that are bindable (can be bound to). Any attempt
+	 * to bind to a property that is not in this set will throw a {@link PropertyNotObservableException}.
+	 * Subclasses are expected to override this method to return their set of bindable properties. By
+	 * default the set is empty.
+	 * @return
+	 */
+	@Nonnull
+	public Set<String> getBindableProperties() {
+		return Collections.EMPTY_SET;
+	}
+
+	/**
+	 * Returns T if the property passed can be bound to (is {@link IObservable}.
+	 * @param property
+	 * @return
+	 */
+	public boolean isBindableProperty(@Nonnull String property) {
+		return getBindableProperties().contains(property);
+	}
+
+	/**
+	 * Return the {@link ObserverSupport} implementation to use to handle data binding for DomUI
+	 * components. This lazily initializes, and only allocates the support structures if binding
+	 * is really used.
+	 * @return
+	 */
+	@Nonnull
+	public ObserverSupport< ? > getObserverSupport() {
+		ComponentObserverSupport< ? > osupport = m_osupport;
+		if(null == osupport) {
+			osupport = m_osupport = new ComponentObserverSupport<NodeBase>(this);
+		}
+		return osupport;
+	}
+
+	/**
+	 * Return an observable for the specified property, <b>if that property can be observed</b>; if
+	 * not this will throw {@link PropertyNotObservableException}.
+	 * @see to.etc.domui.databinding.IObservableEntity#observableProperty(java.lang.String)
+	 * @throws PropertyNotObservableException if the property is not observable.
+	 */
+	@Override
+	@Nonnull
+	public IObservableValue< ? > observableProperty(@Nonnull String property) {
+		if(! isBindableProperty(property))
+			throw new PropertyNotObservableException(getClass(), property);
+		return getObserverSupport().getValueObserver(property);
+	}
+
+	/**
+	 * Create a name set for properties.
+	 * @param names
+	 * @return
+	 */
+	@Nonnull
+	static protected Set<String> createNameSet(@Nonnull String... names) {
+		Set<String> res = new HashSet<String>(names.length);
+		for(String name : names)
+			res.add(name);
+		return res;
+	}
+
+	/**
+	 * Fire a "value changed" event for a property on this object, if they are observed.
+	 * @param propertyName
+	 * @param old
+	 * @param nw
+	 */
+	protected <T> void fireModified(@Nonnull String propertyName, T old, T nw) {
+		ObserverSupport< ? > osupport = m_osupport;
+		if(null == osupport)					// Nothing observing?
+			return;
+		osupport.fireModified(propertyName, old, nw);
+	}
+
+	/**
+	 * If this thing is a component, ask to validate and report an error if not ok.
+	 */
+	public <T> void validate(@Nonnull IRunnable call) throws Exception {
+		Page page = getPage();
+		page.startValidation(this, call);
+		if(!validateSelf())									// Ask components to validate
+			throw new ValidationException(Msgs.BUNDLE, Msgs.NOT_VALID);
+		call.run();
+	}
+
+	/**
+	 * Called by a component if, after asking a question, it decides validation can continue.
+	 * @throws Exception
+	 */
+	protected void retryValidation() throws Exception {
+		getPage().retryValidation();
+	}
+
+	protected boolean validateSelf() {
+		NodeBase nb = this;
+		if(nb instanceof IControl< ? >) {
+			IControl< ? > ctl = (IControl< ? >) nb;
+			ctl.getValueSafe();										// Force validation
+			return ctl.getMessage() == null;
+		}
+		return true;
 	}
 }
