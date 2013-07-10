@@ -33,7 +33,7 @@ public class AstParse {
 	private AST m_ast;
 
 	private void run(String[] args) throws Exception {
-		File src = new File("../vp/moca.database/src/nl/itris/viewpoint/db/wfl/WorkflowActivityDefinition.java").getAbsoluteFile();
+		File src = new File("../../vp/moca.database/src/nl/itris/viewpoint/db/wfl/WorkflowActivityDefinition.java").getCanonicalFile();
 
 //		File src = new File(args[0]);
 		String text = FileTool.readFileAsString(src, "utf-8");
@@ -140,9 +140,10 @@ public class AstParse {
 		VariableDeclarationStatement oldvd;
 
 		//-- Determine type: use wrapper where needed
+		String wrap = null;
 		if(type.isPrimitiveType()) {
 			PrimitiveType primt = (PrimitiveType) type;
-			String wrap = PRIM2WRAP.get(type.toString());
+			wrap = PRIM2WRAP.get(type.toString());
 			if(null == wrap)
 				throw new IllegalStateException("Cannot locate wrapper type for primitive " + type);
 			SimpleType nwtype = m_ast.newSimpleType(m_ast.newSimpleName(wrap));
@@ -189,7 +190,22 @@ public class AstParse {
 		fireme.arguments().add(sl1);
 
 		fireme.arguments().add(m_ast.newSimpleName("oldv"));
-		fireme.arguments().add(m_ast.newSimpleName(arg.getName().getFullyQualifiedName()));
+		if(type.isPrimitiveType()) {
+			//-- generate Wrapper.valueOf(parametername)
+			if(null == wrap)
+				throw new IllegalStateException("Wrapper not known");
+
+			MethodInvocation valueof = m_ast.newMethodInvocation();
+			valueof.setExpression(m_ast.newSimpleName(wrap));				// Integer.
+			valueof.setName(m_ast.newSimpleName("valueOf"));				// valueOf
+			valueof.arguments().add(m_ast.newSimpleName(arg.getName().getFullyQualifiedName()));		// parameter variable
+
+			fireme.arguments().add(valueof);
+
+		} else {
+			//-- Just generate the parameter variable name
+			fireme.arguments().add(m_ast.newSimpleName(arg.getName().getFullyQualifiedName()));
+		}
 
 		ExpressionStatement firest = m_ast.newExpressionStatement(fireme);
 
