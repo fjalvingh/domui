@@ -33,9 +33,28 @@ public class AstParse {
 	private AST m_ast;
 
 	private void run(String[] args) throws Exception {
-		File src = new File("../../vp/moca.database/src/nl/itris/viewpoint/db/wfl/WorkflowActivityDefinition.java").getCanonicalFile();
+		if(args.length == 0) {
+			System.out.println("Usage: AstParse [list-of-files]");
+			System.exit(10);
+		}
 
-//		File src = new File(args[0]);
+		for(String srcf : args) {
+			File src = new File(srcf);
+			if(!src.exists())
+				throw new RuntimeException(src + ": file does not exist.");
+			if(!src.isFile())
+				throw new RuntimeException(src + ": not a file");
+			updateFile(src);
+		}
+//
+//		File src = new File("../../vp/moca.database/src/nl/itris/viewpoint/db/wfl/WorkflowActivityDefinition.java").getCanonicalFile();
+//
+////		File src = new File(args[0]);
+//		updateFile(src);
+	}
+
+	private void updateFile(File src) throws Exception {
+		System.out.println("Updating: " + src);
 		String text = FileTool.readFileAsString(src, "utf-8");
 		Document doc = new Document(text);
 
@@ -57,13 +76,9 @@ public class AstParse {
 						MethodDeclaration method = (MethodDeclaration) body;
 						String methodName = method.getName().getFullyQualifiedName();
 						if(methodName.startsWith("set")) {
-							System.out.println("name: " + methodName);
+//							System.out.println("name: " + methodName);
 							checkMethod(method);
 						}
-
-
-//						System.out.println("modifiers: " + method.getModifiers());
-//						System.out.println("return type: " + method.getReturnType2().toString());
 					}
 				}
 			}
@@ -96,7 +111,7 @@ public class AstParse {
 		if(pt.getPrimitiveTypeCode() != PrimitiveType.VOID)
 			return;
 
-		System.out.println("   modifiers=" + modifiers + ", type=" + rv);
+//		System.out.println("   modifiers=" + modifiers + ", type=" + rv);
 
 		//-- Arguments
 		List<ASTNode> an = (List<ASTNode>) method.getStructuralProperty(MethodDeclaration.PARAMETERS_PROPERTY);
@@ -107,7 +122,7 @@ public class AstParse {
 		SingleVariableDeclaration arg = (SingleVariableDeclaration) an.get(0);
 		Type type = arg.getType();
 
-		System.out.println("Arg is " + arg + " of type " + type);
+//		System.out.println("Arg is " + arg + " of type " + type);
 		if(type.toString().contains("List"))
 			return;
 
@@ -211,7 +226,7 @@ public class AstParse {
 
 		body.statements().add(firest);
 
-		System.out.println("Body " + body);
+//		System.out.println("Body " + body);
 
 
 	}
