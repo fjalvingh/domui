@@ -114,6 +114,7 @@ public class EditDialog<T> extends Dialog {
 	 *
 	 * @throws Exception
 	 */
+	@Override
 	protected void createButtons() throws Exception {
 		createSaveButton();
 		createCancelButton();

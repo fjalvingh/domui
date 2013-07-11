@@ -1486,6 +1486,16 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	}
 
 	/**
+	 * Appends the jQuery "selector" code for this node as:
+	 * {@code $('#_a01')}
+	 *
+	 * @param sb
+	 */
+	final public void appendJQuerySelector(@Nonnull StringBuilder sb) {
+		sb.append("$(\"#").append(getActualID()).append("\")");
+	}
+
+	/**
 	 * Returns if node has set stretchHeight
 	 * @return
 	 */

@@ -8,20 +8,13 @@
 	border: 1px solid #cccccc;
 	border-top: none;
 	/*	overflow: hidden;	*/
-	top: 5%;
-	left: 50%;
+/*	top: 5%;
+	left: 50%; */
 }
 
 .ui-flw-ttl {
-/*	position: absolute;
-	top: 0px;
 	height: 20px;
-	left: 0px;
-	right: 0px; */
-	
-	height: 20px;
-	padding: 0;
-	padding: 2px;
+	padding: 3px 2px 3px 3px;
 	background: url(bg-float-ttl2.png) repeat-x;
 	border-bottom: 1px solid #eeeeee;
 	font-size: 15px;
@@ -29,19 +22,22 @@
 }
 
 .ui-flw-c {
-	width: 100%;
 	padding: 0;
 	margin: 0;
 	overflow: auto;
 }
 .ui-flw-tc {
 	width: 100%;
-	height: 5px;
+	height: 0px;
 }
 
 .ui-flw-bc {
 	width: 100%;
-	height: 5px;
+}
+
+.ui-flw-bc .ui-bb-middle {
+	padding: 0px;
+	text-align: right;
 }
 
 .ui-flw-hider {
@@ -56,6 +52,5 @@
 }
 
 .ui-flw-btn-close {
-	margin-top: -1px;
-	margin-right: -2px;
+	padding: 0px;
 }
