@@ -27,6 +27,7 @@ package to.etc.dbutil;
 import java.io.*;
 import java.lang.reflect.*;
 import java.sql.*;
+import java.util.*;
 
 import javax.annotation.*;
 import javax.sql.*;
@@ -603,8 +604,9 @@ public class OracleDB extends BaseDB {
 
 			ps = dbc.prepareStatement("select o.object_name from dba_objects o" //
 				+ " where o.owner = '" + owner + "'" //
-				+ " and o.object_type <> 'TYPE'" //
+				+ " and not (o.object_type in ('TYPE', 'SYNONYM'))" //
 				+ (objectNamesFilter != null ? objectNamesFilter : "") //
+				+ " and not (object_name like 'SYS@_PLSQL@_%' escape '@')"
 				+ " and not exists  (" //
 				+ " select 1 from dba_synonyms s" //
 				+ " where s.owner = 'PUBLIC'" //
@@ -619,6 +621,7 @@ public class OracleDB extends BaseDB {
 					ps2 = dbc.prepareStatement("create public synonym \"" + on + "\" for " + owner + ".\"" + on + "\"");
 					ps2.executeUpdate();
 				} catch(Exception x) {
+					System.out.println(owner + ": error creating synonym " + on + ": " + x);
 					LOG.error(owner + ": error creating synonym " + on + ": " + x);
 				} finally {
 					FileTool.closeAll(ps2);
@@ -628,7 +631,9 @@ public class OracleDB extends BaseDB {
 
 			ts = System.currentTimeMillis() - ts;
 			LOG.info(owner + ": created " + ct + " public synonyms in " + StringTool.strDurationMillis(ts));
+//			System.out.println(owner + ": created " + ct + " public synonyms in " + StringTool.strDurationMillis(ts));
 		} catch(Exception x) {
+			System.out.println(owner + ": exception while trying to create missing synonyms: " + x);
 			LOG.error(owner + ": exception while trying to create missing synonyms: " + x);
 			x.printStackTrace();
 		} finally {
@@ -809,6 +814,25 @@ public class OracleDB extends BaseDB {
 		}
 	}
 
+	static private class Pair {
+		final private String m_owner;
+
+		final private String m_name;
+
+		public Pair(String owner, String name) {
+			m_owner = owner;
+			m_name = name;
+		}
+
+		public String getOwner() {
+			return m_owner;
+		}
+
+		public String getName() {
+			return m_name;
+		}
+	}
+
 	/**
 	 * Recompile all packages or only invalid packages for the specified schema.
 	 * @param dbc
@@ -819,8 +843,22 @@ public class OracleDB extends BaseDB {
 	 */
 	static public void recompileAll(@Nonnull Connection dbc, @Nonnull String schema, boolean invalidsonly, boolean charsemantics) throws Exception {
 		PreparedStatement ps = null;
+		ResultSet rs = null;
 		try {
 			OracleDB.setCharSemantics(dbc, charsemantics);
+
+			//-- remove all invalid synonyms and all that refer to pipelined versioned objects (sys_plsql_ ones)
+			ps = dbc.prepareStatement("select owner,object_name from dba_objects where object_type = 'SYNONYM' and (object_name like 'SYS_PLSQL_%' or status = 'INVALID')");
+			rs = ps.executeQuery();
+			List<Pair> all = new ArrayList<Pair>();
+			while(rs.next()) {
+				all.add(new Pair(rs.getString(1), rs.getString(2)));
+			}
+			rs.close();
+			ps.close();
+
+			for(Pair p : all)
+				dropSynonym(dbc, p);
 
 			ps = dbc.prepareStatement("begin dbms_utility.compile_schema(schema=>?, compile_all=>" + (invalidsonly ? "FALSE" : "TRUE") + "); end;");
 			ps.setString(1, schema.toUpperCase());
@@ -831,6 +869,26 @@ public class OracleDB extends BaseDB {
 			ps = dbc.prepareStatement("begin dbms_session.reset_package; end;");
 			ps.executeUpdate();
 			ps.close();
+		} finally {
+			try {
+				if(rs != null)
+					rs.close();
+			} catch(Exception x) {}
+			try {
+				if(ps != null)
+					ps.close();
+			} catch(Exception x) {}
+		}
+	}
+
+	private static void dropSynonym(@Nonnull Connection dbc, @Nonnull Pair p) {
+		PreparedStatement ps = null;
+		try {
+			String sql = "PUBLIC".equalsIgnoreCase(p.getOwner()) ? "drop public synonym " + p.getName() : "drop synonym " + p.getOwner() + "." + p.getName();
+			ps = dbc.prepareStatement(sql);
+			ps.executeUpdate();
+		} catch(Exception x) {
+			//-- Willfully ignore.
 		} finally {
 			try {
 				if(ps != null)
