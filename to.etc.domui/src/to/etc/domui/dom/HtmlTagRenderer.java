@@ -672,8 +672,11 @@ public class HtmlTagRenderer implements INodeVisitor {
 				}
 			}
 		} else {
-			if(!(b instanceof UrlPage))
-				o().attr("title", ttl);
+			if(!(b instanceof UrlPage)){
+				if(ttl != null){ 				
+					o().attr("title", ttl);
+				}
+			}
 		}
 
 
