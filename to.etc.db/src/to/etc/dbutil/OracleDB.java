@@ -884,7 +884,7 @@ public class OracleDB extends BaseDB {
 	private static void dropSynonym(@Nonnull Connection dbc, @Nonnull Pair p) {
 		PreparedStatement ps = null;
 		try {
-			String sql = "PUBLIC".equalsIgnoreCase(p.getOwner()) ? "drop public synonym " + p.getName() : "drop synonym " + p.getOwner() + "." + p.getName();
+			String sql = "PUBLIC".equalsIgnoreCase(p.getOwner()) ? "drop public synonym \"" + p.getName() + "\"" : "drop synonym " + p.getOwner() + ".\"" + p.getName() + "\"";
 			ps = dbc.prepareStatement(sql);
 			ps.executeUpdate();
 		} catch(Exception x) {
