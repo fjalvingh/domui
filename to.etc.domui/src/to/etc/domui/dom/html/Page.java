@@ -859,20 +859,22 @@ final public class Page implements IQContextContainer {
 	/*	CODING:	Experimental - binding related code.				*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * Called when a (sub)tree validation (see {@link NodeBase#validate(IRunnable)}) starts. It stores the validation
+	 * LOUSY INTERFACE PENDING REMOVAL - Called when a (sub)tree validation (see {@link NodeBase#validate(IRunnable)}) starts. It stores the validation
 	 * start point and the action to take, so that validations can restart themselves. This is a very poor man's solution
 	 * to continuations not being present in Java.
 	 * @param nodeBase
 	 * @param call
 	 */
+	@Deprecated
 	protected void startValidation(@Nonnull NodeBase nodeBase, @Nonnull IRunnable call) {
 		m_validationSource = nodeBase;
 		m_validationAction = call;
 	}
 
 	/**
-	 * This restarts the validation process.
+	 * LOUSY INTERFACE PENDING REMOVAL - This restarts the validation process.
 	 */
+	@Deprecated
 	protected void retryValidation() throws Exception {
 		NodeBase vs = m_validationSource;
 		IRunnable va = m_validationAction;

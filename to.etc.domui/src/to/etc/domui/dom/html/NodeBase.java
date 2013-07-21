@@ -1059,7 +1059,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		}
 		if(getMessage() == null)
 			return;
-		//-- Experimental fix for bug# 787: cannot locate error fence. In case that control is still disconnected just skip error fence part (messge was not posted to it anyway).
+		//-- Experimental fix for bug# 787: cannot locate error fence. In case that control is still disconnected just skip error fence part (message was not posted to it anyway).
 		if(m_page != null) {
 			IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
 			UIMessage msg = m_message;
@@ -1620,8 +1620,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	}
 
 	/**
-	 * If this thing is a component, ask to validate and report an error if not ok.
+	 * LOUSY INTERFACE PENDING REMOVAL - If this thing is a component, ask to validate and report an error if not ok.
+	 *
 	 */
+	@Deprecated
 	public <T> void validate(@Nonnull IRunnable call) throws Exception {
 		Page page = getPage();
 		page.startValidation(this, call);
@@ -1631,13 +1633,19 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	}
 
 	/**
-	 * Called by a component if, after asking a question, it decides validation can continue.
+	 * LOUSY INTERFACE PENDING REMOVAL - Called by a component if, after asking a question, it decides validation can continue.
 	 * @throws Exception
 	 */
+	@Deprecated
 	protected void retryValidation() throws Exception {
 		getPage().retryValidation();
 	}
 
+	/**
+	 * LOUSY INTERFACE PENDING REMOVAL
+	 * @return
+	 */
+	@Deprecated
 	protected boolean validateSelf() {
 		NodeBase nb = this;
 		if(nb instanceof IControl< ? >) {

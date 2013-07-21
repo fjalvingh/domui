@@ -5,6 +5,7 @@ import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.state.*;
 import to.etc.domuidemo.pages.basic.*;
+import to.etc.domuidemo.pages.binding.*;
 import to.etc.domuidemo.pages.formbuilder.*;
 import to.etc.domuidemo.pages.graphs.*;
 import to.etc.domuidemo.pages.overview.*;
@@ -30,15 +31,22 @@ public class HomePage extends UrlPage {
 
 	@Override
 	public void createContent() throws Exception {
-		InfoPanel ip = new InfoPanel("Welcome to the DomUI demo application! This application has simple examples of many of the components. It also has some code "
+		Div ip = new Div();
+		add(ip);
+		ip.setCssClass("ui-expl");
+		Img i = new Img("THEME/big-info.png");
+		i.setAlign(ImgAlign.LEFT);
+		ip.add(i);
+		String text = "Welcome to the DomUI demo application! This application has simple examples of many of the components. It also has some code "
 			+ "from the tutorial. Use it to get "
 			+ "an idea on what is possible with DomUI, and how easy it is! Click the links to go to a page, and when done use the \"breadcrumbs\" in the "
 			+ "bar on top of the screen to return back to where you came from."
  + "<br><br>Please keep in mind: the examples here have been made as <b>simple as possible</b>. " //
 			+ "Which means that the code is quite verbose sometimes. That is not how it usually is, of course, " //
 			+ "it is done that way to make 'how it works' as clear as possible."
-);
-		add(ip);
+;
+		ip.add(text);
+
 		Div d = new Div();
 		ip.add(d);
 		//		d.setCssClass("d-expl");
@@ -116,10 +124,16 @@ public class HomePage extends UrlPage {
 		addLink(DemoAsyncContainer.class, "The AsyncContainer");
 		addLink(DemoPollingDiv.class, "The PollingDiv component");
 		addLink(DemoPopupMenu.class, "Popup menu");
+
+		addCaption("Binding");
+		addLink(BindingBasePage.class, "Basic data binding");
+
+
 	}
 
 	private void addCaption(String txt) {
-		add(new Caption(txt));
+		add(new VerticalSpacer(10));
+		add(new CaptionedHeader(txt));
 	}
 
 	private void addLink(Class< ? extends UrlPage> clz, String text) {

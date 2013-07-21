@@ -227,6 +227,13 @@ public class Bind {
 	}
 
 	/**
+	 * Bidirectional binding of a source Observable to some target.
+	 */
+	static public <T> JoinBind join(@Nonnull IObservableValue< ? > sourceo) {
+		return new JoinBind(sourceo);
+	}
+
+	/**
 	 * Start a listening option.
 	 * @param source
 	 * @param property

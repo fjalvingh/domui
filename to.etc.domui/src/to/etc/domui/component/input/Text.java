@@ -334,17 +334,6 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 */
 	@Override
 	public void setValue(@Nullable T value) {
-		// jal 20080930 Onderstaande code aangepast. Dit levert als bug op dat "wissen" van een niet-gevalideerde waarde niet werkt. Dat
-		// wordt veroorzaakt als volgt: als de control een niet-gevalideerde tekst bevat dan is m_rawValue de string maar m_value staat nog
-		// op null. Onderstaande code returnt dan onmiddelijk waardoor de rawvalue blijft bestaan.
-		// jal 20091002 If the value is currently INVALID but set from code we need to update always. This is needed
-		// because 'invalid' can mean that rawvalue is set but value is not. In this case setting value to null (which
-		// should clear the error)
-		// jal 20091002 Better yet: WHY IS THIS TEST HERE!? Removing this test means that errors will be set every time
-		// a setValue() is done with an incorrect value, but if the same value is set multiple times the rawValue
-		// will not change, so no delta will be generated....
-		//		if(isValidated() && DomUtil.isEqual(m_value, value)) // FIXME Removed pending explanation:  && DomUtil.isEqual(getRawValue(), value)
-		//			return;
 		T old = m_value;
 		m_value = value;
 		try {
