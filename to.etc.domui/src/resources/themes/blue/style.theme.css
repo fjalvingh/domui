@@ -2177,3 +2177,29 @@ li.ui-tab-err {
 .ui-cpnl {
 	padding: 10px 0px 0px 10px;
 }
+
+/*** Error message indicator on standard components. ***/
+.ui-mesi {
+	display: inline-block;
+/*	position: relative; */
+	left: -16px;
+	width: 16px;
+	height: 16px;
+	background: no-repeat;
+}
+.ui-mesi-error {
+	background: url(mini-error.png) no-repeat;
+}
+.ui-mesi-warning {
+	background: url(mini-warning.png) no-repeat;
+}
+.ui-mesi-info {
+	background: url(mini-info.png) no-repeat;
+}
+
+.ui-text-error {
+	background: <%= error_bg %> url(mini-error.png) no-repeat;
+	padding-left: 18px !important;
+	
+}
+

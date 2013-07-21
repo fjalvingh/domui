@@ -183,14 +183,13 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		m_wasvalid = false;
 		if(raw == null || raw.length() == 0) {
 			if(isMandatory()) {
-				if(seterror)
-					setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.MANDATORY));
+				handleValidationError(UIMessage.error(Msgs.BUNDLE, Msgs.MANDATORY), seterror);
 				return false;
 			}
 
 			//-- Empty field always results in null object.
 			m_value = null;
-			clearMessage();
+			handleValidationError(null, seterror);
 			m_wasvalid = true;
 			return true;
 		}
@@ -199,12 +198,10 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		if(getValidationRegexp() != null) {
 			if(!Pattern.matches(getValidationRegexp(), raw)) {
 				//-- We have a validation error.
-				if(seterror) {
-					if(getRegexpUserString() != null)
-						setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_NO_RE_MATCH, getRegexpUserString()));// Input format must be {0}
-					else
-						setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_INVALID));
-				}
+				if(getRegexpUserString() != null)
+					handleValidationError(UIMessage.error(Msgs.BUNDLE, Msgs.V_NO_RE_MATCH, getRegexpUserString()), seterror);// Input format must be {0}
+				else
+					handleValidationError(UIMessage.error(Msgs.BUNDLE, Msgs.V_INVALID), seterror);
 				m_wasvalid = false;
 				return false;
 			}
@@ -227,34 +224,66 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 
 			m_wasvalid = true;
 		} catch(UIException x) {
-			if(seterror)
-				setMessage(UIMessage.error(x.getBundle(), x.getCode(), x.getParameters()));
+			handleValidationError(UIMessage.error(x.getBundle(), x.getCode(), x.getParameters()), seterror);
 			return false;
 		} catch(RuntimeConversionException x) {
-			if(seterror)
-				setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.NOT_VALID, raw));
+			handleValidationError(UIMessage.error(Msgs.BUNDLE, Msgs.NOT_VALID, raw), seterror);
 			return false;
 		} catch(Exception x) {
 			x.printStackTrace();
-			if(seterror)
-				setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.UNEXPECTED_EXCEPTION, x));
+			handleValidationError(UIMessage.error(Msgs.BUNDLE, Msgs.UNEXPECTED_EXCEPTION, x), seterror);
 			return false;
 		}
 
 		//-- Conversion ok. Handle any validator in the validation chain
 		m_value = (T) converted;
-		clearMessage();
+		handleValidationError(null, seterror);
 		return true;
 	}
 
+	private void handleValidationError(@Nullable UIMessage message, boolean seterror) {
+		if(null == message) {
+			clearMessage();
+		} else {
+			if(seterror) {
+				setMessage(message);
+			}
+		}
+		messageNotifier(message);
+	}
 
-	//	/**
-	//	 * Returns TRUE if the input for this control is currently valid. This does NOT call the validator if needed!!!!
-	//	 * @return
-	//	 */
-	//	private boolean isValid() {
-	//		return m_validated && (getMessage() == null || getMessage().getType() != MsgType.ERROR);
-	//	}
+	private String m_errclass;
+
+	private void messageNotifier(@Nullable UIMessage msg) {
+		if(m_errclass != null) {
+			removeCssClass(m_errclass);
+			m_errclass = null;
+			setTitle("");
+		}
+		if(null != msg) {
+			m_errclass = "ui-text-" + msg.getType().name().toLowerCase();
+			addCssClass(m_errclass);
+			setTitle(msg.getMessage());
+		}
+	}
+
+
+	@Nullable
+	private Div m_mnot;
+
+	private void messageNotifier2(@Nullable UIMessage msg) {
+		Div mn = m_mnot;
+		if(mn != null)
+			mn.remove();
+		if(null == msg) {
+			m_mnot = null;
+		} else {
+			mn = m_mnot = new Div();
+			appendAfterMe(mn);
+			mn.setCssClass("ui-mesi ui-mesi-" + msg.getType().name().toLowerCase());
+			mn.setTitle(msg.getMessage());
+		}
+	}
 
 	/**
 	 * Returns the datatype of the value of this control, as passed in the constructor.
