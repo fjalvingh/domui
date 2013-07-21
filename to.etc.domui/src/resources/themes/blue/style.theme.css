@@ -2198,7 +2198,7 @@ li.ui-tab-err {
 }
 
 .ui-text-error {
-	background: <%= error_bg %> url(mini-error.png) no-repeat;
+	background: <%= error_bg %> url(mini-error.png) no-repeat 2px 3px;
 	padding-left: 18px !important;
 	
 }
