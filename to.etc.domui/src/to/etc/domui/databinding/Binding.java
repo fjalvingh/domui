@@ -2,6 +2,7 @@ package to.etc.domui.databinding;
 
 import javax.annotation.*;
 
+import to.etc.domui.dom.errors.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 
@@ -30,6 +31,9 @@ public class Binding {
 	/** If not null, the IUniConverter OR IJoinConverter which converts values for this binding. */
 	@Nullable
 	protected IUniConverter< ? , ? > m_converter;
+
+	@Nullable
+	private UIMessage m_message;
 
 	protected Binding(@Nonnull BindingContext context, @Nonnull IObservableValue< ? > sourceo) {
 		m_from = sourceo;
@@ -62,19 +66,37 @@ public class Binding {
 		Object val;
 		try {
 			val = ((IObservableValue<Object>) m_from).getValue();
+			IUniConverter<Object, Object> uc = (IUniConverter<Object, Object>) m_converter;
+			if(null != uc) {
+				val = uc.convertSourceToTarget(val);
+			}
+			if(m_to != null)
+				((IObservableValue<Object>) m_to).setValue(val);
+			else if(m_tomodel != null)
+				((IReadWriteModel<Object>) m_tomodel).setValue(val);
+			else
+				throw new IllegalStateException("Neither to nor tomodel is set");
 		} catch(ValidationException vx) {
+			bindingError(vx);
 			return;
 		}
-		IUniConverter<Object, Object> uc = (IUniConverter<Object, Object>) m_converter;
-		if(null != uc) {
-			val = uc.convertSourceToTarget(val);
+	}
+
+	private void bindingError(@Nullable ValidationException vx) {
+		UIMessage old = m_message;
+
+		if(vx == null) {
+			if(old == null)
+				return;
+			m_message = null;
+			m_context.bindingErrorChanged(this, old, null);
+		} else {
+			UIMessage nw = UIMessage.error(vx);						// Convert exception to message
+			if(nw.equals(old))										// Same message -> no change
+				return;
+			m_message = nw;
+			m_context.bindingErrorChanged(this, old, nw);
 		}
-		if(m_to != null)
-			((IObservableValue<Object>) m_to).setValue(val);
-		else if(m_tomodel != null)
-			((IReadWriteModel<Object>) m_tomodel).setValue(val);
-		else
-			throw new IllegalStateException("Neither to nor tomodel is set");
 	}
 
 }

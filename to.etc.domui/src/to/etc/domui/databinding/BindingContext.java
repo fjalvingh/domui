@@ -2,6 +2,8 @@ package to.etc.domui.databinding;
 
 import javax.annotation.*;
 
+import to.etc.domui.dom.errors.*;
+
 /**
  * Maintains all bindings, and their validation/error status.
  *
@@ -132,6 +134,17 @@ public class BindingContext {
 		}
 
 		throw new IllegalArgumentException("The class  " + source.getClass() + " is not Observable.");
+	}
+
+	/**
+	 *
+	 * @param binding
+	 * @param old
+	 * @param nw
+	 */
+	public void bindingErrorChanged(@Nonnull Binding binding, @Nullable UIMessage old, @Nullable UIMessage nw) {
+		// TODO Auto-generated method stub
+
 	}
 
 

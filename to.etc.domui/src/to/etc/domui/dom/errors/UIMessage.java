@@ -29,7 +29,6 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.dom.html.*;
-import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
 
@@ -158,7 +157,7 @@ public class UIMessage {
 		return Msgs.BUNDLE.formatMessage(m_code, m_parameters);
 	}
 
-	static public UIMessage error(UIException x) {
+	static public UIMessage error(@Nonnull CodeException x) {
 		return new UIMessage(null, null, MsgType.ERROR, x.getBundle(), x.getCode(), x.getParameters());
 	}
 
