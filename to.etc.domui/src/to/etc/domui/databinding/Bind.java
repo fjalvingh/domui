@@ -334,7 +334,7 @@ public class Bind {
 			return op;
 		}
 
-		throw new IllegalArgumentException("The class " + source.getClass() + " is not Observable.");
+		throw new IllegalArgumentException("The class  " + source.getClass() + " is not Observable.");
 	}
 
 }
