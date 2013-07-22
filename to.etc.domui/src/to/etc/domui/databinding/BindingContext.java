@@ -2,9 +2,6 @@ package to.etc.domui.databinding;
 
 import javax.annotation.*;
 
-import to.etc.domui.component.meta.*;
-import to.etc.domui.util.*;
-
 /**
  * Maintains all bindings, and their validation/error status.
  *
@@ -24,7 +21,9 @@ public class BindingContext {
 		throw new IllegalStateException();
 	}
 
+	void registerBinding(@Nonnull Binding binding) {
 
+	}
 
 
 	/*--------------------------------------------------------------*/

@@ -6,7 +6,7 @@ import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 
 /**
- * Base class for a binding.
+ * Base class for a binding. Also contains one side of the listener data (source -> target) because that is always there.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 22, 2013
