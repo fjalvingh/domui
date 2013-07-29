@@ -1335,6 +1335,10 @@ var WebUI = {
 				val = WebUI.insertDateSeparators(val, fmt);
 				var res = Date.parseDate(val, fmt);
 				c.value = res.print(fmt);
+			} else if(WebUI.isConvertibleToSupportedFormat(val, fmt)){
+				val = WebUI.convertToSupportedFormat(val, fmt);
+				var res = Date.parseDate(val, fmt);
+				c.value = res.print(fmt);
 			} else {
 				//-- Only parse the input to see if it parses.
 				Date.parseDate(val, fmt);
@@ -1342,6 +1346,100 @@ var WebUI = {
 		} catch(x) {
 			alert(Calendar._TT["INVALID"]);
 		}
+	},
+	
+	// constants for conversion string to valid date
+	ENGLISH_FORMAT : "%Y-%m-%d",
+	SEPARATOR : "-",
+	INDEX_OF_DAY : 0,
+	INDEX_OF_MONTH : 1,
+	INDEX_OF_YEAR : 2,
+	
+	/**
+	 * Function that checks is format valid after check that input has separators.
+	 */
+	isConvertibleToSupportedFormat: function(inputValue, format){
+		WebUI.settingConstantsIfWeHaveEnglishLanguange(format);
+		return WebUI.checkIfInputIsConvertible(inputValue);
+	},
+	
+	checkIfInputIsConvertible: function(inputValue){
+		var VALID_LENGTH_YEAR = 2;
+		
+		if(WebUI.hasSeparators(inputValue)){
+			var inputValueSplitted = inputValue.split(WebUI.SEPARATOR);
+			if(WebUI.hasFieldAppropriateFormat(inputValueSplitted[WebUI.INDEX_OF_DAY])){
+				return false;
+			}
+			if(WebUI.hasFieldAppropriateFormat(inputValueSplitted[WebUI.INDEX_OF_MONTH])){
+				return false;
+			}
+			if(inputValueSplitted[WebUI.INDEX_OF_YEAR].length !== VALID_LENGTH_YEAR){
+				return false;
+			}
+			return true;
+		}
+	},
+	
+	settingConstantsIfWeHaveEnglishLanguange: function(format){
+		if(format === WebUI.ENGLISH_FORMAT){
+			WebUI.INDEX_OF_DAY = 2;
+			WebUI.INDEX_OF_YEAR = 0;
+		}
+	},
+	
+	/**
+	 * Function that checks is format valid of fields day and month.
+	 */
+	hasFieldAppropriateFormat: function(inputValue){
+		var MAX_LENGTH = 2;
+		var FORBIDDEN_CHARACTER = "0";
+		
+		return (inputValue.length === MAX_LENGTH && (inputValue.charAt(0) === FORBIDDEN_CHARACTER)) || (inputValue.length > MAX_LENGTH);
+	},
+	
+	/**
+	 * Function that converts string that represents date to valid format.
+	 */
+	convertToSupportedFormat: function(inputValue, format){
+		return WebUI.formingOfResultForConversion(inputValue.split(WebUI.SEPARATOR), format);
+	},
+	
+	formingOfResultForConversion: function(inputValue, format){
+		var result = "";
+		if(format === WebUI.ENGLISH_FORMAT){
+			result = WebUI.setYearFormat(inputValue[WebUI.INDEX_OF_YEAR], result) + WebUI.SEPARATOR;
+			result = WebUI.setDayOrMonthFormat(inputValue[WebUI.INDEX_OF_MONTH], result) + WebUI.SEPARATOR;
+			result = WebUI.setDayOrMonthFormat(inputValue[WebUI.INDEX_OF_DAY], result);
+		}else {
+			result = WebUI.setDayOrMonthFormat(inputValue[WebUI.INDEX_OF_DAY], result) + WebUI.SEPARATOR;
+			result = WebUI.setDayOrMonthFormat(inputValue[WebUI.INDEX_OF_MONTH], result) + WebUI.SEPARATOR;
+			result = WebUI.setYearFormat(inputValue[WebUI.INDEX_OF_YEAR], result);
+		}
+		return result;
+	},	
+	
+	/**
+	 * Function that converts day and month parts of input string that represents date.
+	 */
+	setDayOrMonthFormat: function(inputValue, result){
+		var NEEDED_CHARACTER_DAY_MONTH = "0";
+		
+		if(inputValue == 1){
+			result += NEEDED_CHARACTER_DAY_MONTH + inputValue;
+		}else {
+			result += inputValue;
+		}
+		return result;
+	},
+	
+	/**
+	 * Function that converts year part of input string that represents date.
+	 */
+	setYearFormat: function(inputValue, result){
+		var NEEDED_CHARACTER_YEAR = "20";
+		
+		return result += NEEDED_CHARACTER_YEAR + inputValue;
 	},
 
 	/**
