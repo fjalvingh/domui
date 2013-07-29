@@ -53,6 +53,11 @@ public class Binding {
 			public void handleChange(@Nonnull ValueChangeEvent<V> event) throws Exception {
 				moveSourceToTarget();
 			}
+
+			@Override
+			public void setError(UIMessage error) {
+				setBindingError(error);
+			}
 		};
 		m_fromListener = ml;
 		((IObservableValue<V>) m_from).addChangeListener(ml);
@@ -97,6 +102,12 @@ public class Binding {
 			m_message = nw;
 			m_context.bindingErrorChanged(this, old, nw);
 		}
+	}
+
+	protected void setBindingError(@Nullable UIMessage msg) {
+		UIMessage old = m_message;
+		m_message = msg;
+		m_context.bindingErrorChanged(Binding.this, old, msg);
 	}
 
 }

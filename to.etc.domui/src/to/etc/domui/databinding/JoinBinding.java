@@ -2,6 +2,7 @@ package to.etc.domui.databinding;
 
 import javax.annotation.*;
 
+import to.etc.domui.dom.errors.*;
 import to.etc.domui.trouble.*;
 
 /**
@@ -56,6 +57,11 @@ public class JoinBinding extends Binding {
 			@Override
 			public void handleChange(@Nonnull ValueChangeEvent<V> event) throws Exception {
 				moveTargetToSource();
+			}
+
+			@Override
+			public void setError(UIMessage error) {
+				setBindingError(error);
 			}
 		};
 		m_toListener = ml;

@@ -61,6 +61,11 @@ public class BindingContext {
 						m_recurse--;
 					}
 				}
+
+				@Override
+				public void setError(UIMessage error) {
+					throw new IllegalStateException("Implement me, please");
+				}
 			};
 			for(IObservableValue< ? > ov : m_observables) {
 				IObservableValue<Object> ovo = (IObservableValue<Object>) ov;
@@ -143,7 +148,7 @@ public class BindingContext {
 	 * @param nw
 	 */
 	public void bindingErrorChanged(@Nonnull Binding binding, @Nullable UIMessage old, @Nullable UIMessage nw) {
-		// TODO Auto-generated method stub
+		System.out.println("binding error change: " + binding + " from " + old + " to " + nw);
 
 	}
 
