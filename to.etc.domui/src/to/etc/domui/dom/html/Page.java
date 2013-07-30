@@ -855,34 +855,6 @@ final public class Page implements IQContextContainer {
 		return m_defaultFocusSource;
 	}
 
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Experimental - binding related code.				*/
-	/*--------------------------------------------------------------*/
-	/**
-	 * LOUSY INTERFACE PENDING REMOVAL - Called when a (sub)tree validation (see {@link NodeBase#validate(IRunnable)}) starts. It stores the validation
-	 * start point and the action to take, so that validations can restart themselves. This is a very poor man's solution
-	 * to continuations not being present in Java.
-	 * @param nodeBase
-	 * @param call
-	 */
-	@Deprecated
-	protected void startValidation(@Nonnull NodeBase nodeBase, @Nonnull IRunnable call) {
-		m_validationSource = nodeBase;
-		m_validationAction = call;
-	}
-
-	/**
-	 * LOUSY INTERFACE PENDING REMOVAL - This restarts the validation process.
-	 */
-	@Deprecated
-	protected void retryValidation() throws Exception {
-		NodeBase vs = m_validationSource;
-		IRunnable va = m_validationAction;
-		if(null != vs && null != va)
-			vs.validate(va);
-	}
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Page action events.									*/
 	/*--------------------------------------------------------------*/

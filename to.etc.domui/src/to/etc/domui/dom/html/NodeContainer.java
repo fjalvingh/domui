@@ -867,17 +867,12 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	protected void createFrame() throws Exception {
 	}
 
-	/*--------------------------------------------------------------*/
-	/*	CODING:	EXPERIMENTAL - hard binding support.				*/
-	/*--------------------------------------------------------------*/
 
 	@Override
-	public boolean validateSelf() {
-		boolean ok = true;
+	public void appendTreeErrors(@Nonnull List<UIMessage> errorList) {
+		super.appendTreeErrors(errorList);
 		for(NodeBase nb : this) {
-			if(!nb.validateSelf())
-				ok = false;
+			nb.appendTreeErrors(errorList);
 		}
-		return ok;
 	}
 }
