@@ -19,6 +19,10 @@ public class BindingContext {
 	/** Maps POJO instances to a map of bindings on it's properties. */
 	final private Map<Object, Map<String, Object>> m_instanceBindingMap = new HashMap<Object, Map<String, Object>>();
 
+	/** Map [instance, property] to an observable which accepts errors. */
+	final private Map<Object, Map<String, ErrorBinding>> m_errorBindingMap = new HashMap<Object, Map<String, ErrorBinding>>();
+
+
 	/**
 	 * Create a binding between unnamed entities.
 	 * @param source
@@ -148,11 +152,34 @@ public class BindingContext {
 	/*	CODING:	Errors.												*/
 	/*--------------------------------------------------------------*/
 
+	/**
+	 * Bind the "message" property of a control to this context, so that problems in the control are propagated
+	 * to this binding context, and
+	 * @param instance
+	 * @param property
+	 * @param control
+	 */
 	public <T> void bindMessage(@Nonnull T instance, @Nonnull String property, @Nonnull NodeBase control) {
+		Map<String, ErrorBinding> map = getInstanceErrorMap(instance);
+		ErrorBinding eb = map.remove(property);
+		if(null != eb) {
+			eb.dispose();
+		}
 
-
+		IObservableValue<UIMessage> uimo = (IObservableValue<UIMessage>) control.observableProperty("message");
+		eb = new ErrorBinding(this, uimo);
+		map.put(property, eb);
 	}
 
+	@Nonnull
+	private <T> Map<String, ErrorBinding> getInstanceErrorMap(@Nonnull T instance) {
+		Map<String, ErrorBinding> map = m_errorBindingMap.get(instance);
+		if(null == map) {
+			map = new HashMap<String, ErrorBinding>();
+			m_errorBindingMap.put(instance, map);
+		}
+		return map;
+	}
 
 	/**
 	 * Callable by business logic, this notifies that an error has occurred or was cleared on some object.
@@ -160,28 +187,38 @@ public class BindingContext {
 	 * @param property
 	 * @param error
 	 */
-	public <T> void setProperyError(@Nonnull T instance, @Nonnull String property, @Nullable UIMessage error) {
-		Map<String, Object> imap = m_instanceBindingMap.get(instance);
-		if(null == imap) {
-			imap = new HashMap<String, Object>();
-			m_instanceBindingMap.put(instance, imap);
-		}
-
-		Object b = imap.get(property);
-		if(null == b) {
-			//-- No binding known. Put an error object in here.
-			imap.put(property, error);
-		} else {
-			if(b instanceof UIMessage) {
-				imap.put(property, error);
-			} else {
-				Binding bi = (Binding) b;
-				bi.setMessage(error);
-			}
+	public <T> void setProperyError(@Nonnull T instance, @Nonnull String property, @Nullable UIMessage error) throws Exception {
+		Map<String, ErrorBinding> map = getInstanceErrorMap(instance);
+		ErrorBinding eb = map.get(property);
+		if(null != eb) {
+			//-- report the error on the control.
+			eb.setMessage(error);
+		} else if(error != null) {
+			eb = new ErrorBinding(this, error);
+			map.put(property, eb);
 		}
 	}
 
-	public void bindingError(@Nonnull Binding binding, @Nullable UIMessage uiMessage) {
+	/**
+	 * If a binding's getValue() or setValue() call fails with a validation exception this method gets called to
+	 * change the error state of the property, if possible.
+	 * @param binding
+	 * @param uiMessage
+	 */
+	void bindingError(@Nonnull Binding binding, @Nullable UIMessage uiMessage) {
+
+	}
+
+	/**
+	 * When a component's error state changes this gets called by the {@link ErrorBinding} associated
+	 * with the control. It registers or clears the error state of the associated data item.
+	 *
+	 * @param errorBinding
+	 * @param old
+	 * @param new1
+	 */
+	public void errorBindingChanged(@Nonnull ErrorBinding errorBinding, @Nullable UIMessage old, @Nullable UIMessage new1) {
+		// TODO Auto-generated method stub
 
 	}
 
