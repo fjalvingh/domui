@@ -4,8 +4,10 @@ import java.util.*;
 
 import javax.annotation.*;
 
+import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.util.*;
 
 /**
  * Maintains all bindings, and their validation/error status.
@@ -81,23 +83,49 @@ public class BindingContext {
 		}
 	}
 
-
 	/**
 	 * Start for an "unidirectional" binding: Bind.from().to();
 	 * @param source
 	 * @param property
 	 * @return
 	 */
-	public <T> UnidirectionalBinding from(@Nonnull T source, @Nonnull String property) {
-		if(null == source || null == property)
+	@Nonnull
+	public <S, T, V> UnidirectionalBinding unibind(@Nonnull S source, @Nonnull String sproperty, @Nonnull final T target, @Nonnull final String tproperty) throws Exception {
+		if(null == source || null == sproperty)
 			throw new IllegalArgumentException("source/property cannot be null");
-		IObservableValue< ? > sourceo = createObservable(source, property);
-		return new UnidirectionalBinding(this, sourceo);
+		if(null == target || null == tproperty)
+			throw new IllegalArgumentException("target/property cannot be null");
+		IObservableValue< ? > sourceo = createObservable(source, sproperty);
+
+		//-- Unidirectional binds only need to have access to a setter, we do not need an Observable.
+		final PropertyMetaModel<V> pmm = (PropertyMetaModel<V>) MetaManager.getPropertyMeta(target.getClass(), tproperty);
+		IReadWriteModel<V> mdl = new IReadWriteModel<V>() {
+			@Override
+			public V getValue() throws Exception {
+				throw new IllegalStateException("Unexpected 'get' in unidirectional binding");
+			}
+
+			@Override
+			public void setValue(V value) throws Exception {
+				pmm.setValue(target, value);
+			}
+		};
+
+		//-- If target is a NodeBase then bind an error listener too
+		if(target instanceof NodeBase) {
+			NodeBase nb = (NodeBase) target;
+			bindMessage(source, sproperty, nb);
+		}
+
+		UnidirectionalBinding udb = new UnidirectionalBinding(this, sourceo, mdl);
+		return udb;
 	}
 
-	public <T> UnidirectionalBinding from(@Nonnull IObservableValue< ? > sourceo) {
-		return new UnidirectionalBinding(this, sourceo);
-	}
+
+	//	@Nonnull
+	//	public <T> UnidirectionalBinding from(@Nonnull IObservableValue< ? > sourceo) {
+	//		return new UnidirectionalBinding(this, sourceo);
+	//	}
 
 	/**
 	 * Start for a bidirectional binding: if either side changes it updates the other. The
@@ -107,19 +135,30 @@ public class BindingContext {
 	 * @return
 	 */
 	@Nonnull
-	public <T> JoinBinding join(@Nonnull T source, @Nonnull String property) {
-		if(null == source || null == property)
+	public <S, T, V> JoinBinding joinbinding(@Nonnull S source, @Nonnull String sproperty, @Nonnull final T target, @Nonnull final String tproperty) throws Exception {
+		if(null == source || null == sproperty)
 			throw new IllegalArgumentException("source/property cannot be null");
-		IObservableValue< ? > sourceo = createObservable(source, property);
-		return new JoinBinding(this, sourceo);
+		if(null == target || null == tproperty)
+			throw new IllegalArgumentException("target/property cannot be null");
+
+		IObservableValue< ? > sourceo = createObservable(source, sproperty);
+		IObservableValue<V> targeto = (IObservableValue<V>) BindingContext.createObservable(target, tproperty);
+
+		//-- If target is a NodeBase then bind an error listener too
+		if(target instanceof NodeBase) {
+			NodeBase nb = (NodeBase) target;
+			bindMessage(source, sproperty, nb);
+		}
+
+		return new JoinBinding(this, sourceo, targeto);
 	}
 
-	/**
-	 * Bidirectional binding of a source Observable to some target.
-	 */
-	public <T> JoinBinding join(@Nonnull IObservableValue< ? > sourceo) {
-		return new JoinBinding(this, sourceo);
-	}
+	//	/**
+	//	 * Bidirectional binding of a source Observable to some target.
+	//	 */
+	//	public <T> JoinBinding join(@Nonnull IObservableValue< ? > sourceo) {
+	//		return new JoinBinding(this, sourceo);
+	//	}
 
 	/**
 	 * Start a listening option.

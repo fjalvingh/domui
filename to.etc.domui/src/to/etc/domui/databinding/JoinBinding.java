@@ -2,8 +2,6 @@ package to.etc.domui.databinding;
 
 import javax.annotation.*;
 
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.html.*;
 import to.etc.domui.trouble.*;
 
 /**
@@ -17,45 +15,31 @@ public class JoinBinding extends Binding {
 	@Nullable
 	private IValueChangeListener< ? > m_toListener;
 
-	JoinBinding(@Nonnull BindingContext context, @Nonnull IObservableValue< ? > sourceo) {
-		super(context, sourceo);
-	}
-
-	/**
-	 * Belongs to a {@link Bind#from(Object, String)} call and defines the target side of
-	 * an unidirectional binding. Changes in "from" move to "to", but changes in "to" do
-	 * not move back.
-	 *
-	 * @param target
-	 * @param property
-	 * @return
-	 */
 	@Nonnull
-	public <T, V, X, Y> JoinBinding to(@Nonnull T target, @Nonnull String property, @Nullable IJoinConverter<X, Y> convert) throws Exception {
-		if(null == target || null == property)
-			throw new IllegalArgumentException("target/property cannot be null");
-		m_converter = convert;
-		IObservableValue<V> targeto = (IObservableValue<V>) BindingContext.createObservable(target, property);
-		m_to = targeto;
+	private IObservableValue< ? > m_target;
+
+	JoinBinding(@Nonnull BindingContext context, @Nonnull IObservableValue< ? > sourceo, @Nonnull IObservableValue< ? > targeto) throws Exception {
+		super(context, sourceo);
+		m_target = targeto;
 		addSourceListener();
 		addTargetListener();
-
-		//-- Handle errors if we bound to a component
-		if(target instanceof NodeBase && property.equals("value")) {
-			NodeBase nb = (NodeBase) target;
-			IObservableValue<UIMessage> eom = (IObservableValue<UIMessage>) ((NodeBase) target).observableProperty("message");
-
-
-
-		}
-
-		//-- Immediately move the value of source to target too 2
 		moveSourceToTarget();
-		return this;
 	}
 
-	public <T, V> JoinBinding to(@Nonnull T target, @Nonnull String property) throws Exception {
-		return to(target, property, null);
+	@Override
+	protected void moveSourceToTarget() throws Exception {
+		Object val;
+		try {
+			val = ((IObservableValue<Object>) m_from).getValue();
+			IUniConverter<Object, Object> uc = (IUniConverter<Object, Object>) m_converter;
+			if(null != uc) {
+				val = uc.convertSourceToTarget(val);
+			}
+			((IObservableValue<Object>) m_target).setValue(val);
+		} catch(ValidationException vx) {
+			bindingError(vx);
+			return;
+		}
 	}
 
 	/**
@@ -70,7 +54,7 @@ public class JoinBinding extends Binding {
 			}
 		};
 		m_toListener = ml;
-		IObservableValue< ? > to = m_to;
+		IObservableValue< ? > to = m_target;
 		if(null == to)
 			throw new IllegalStateException("'to' has not been defined");
 		((IObservableValue<V>) to).addChangeListener(ml);
@@ -79,7 +63,7 @@ public class JoinBinding extends Binding {
 	protected void moveTargetToSource() throws Exception {
 		Object val;
 		try {
-			IObservableValue< ? > to = m_to;
+			IObservableValue< ? > to = m_target;
 			if(null == to)
 				throw new IllegalStateException("'to' has not been defined");
 			val = ((IObservableValue<Object>) to).getValue();
@@ -92,8 +76,5 @@ public class JoinBinding extends Binding {
 			val = uc.convertTargetToSource(val);
 		}
 		((IObservableValue<Object>) m_from).setValue(val);
-
 	}
-
-
 }
