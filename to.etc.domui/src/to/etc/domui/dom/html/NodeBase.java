@@ -955,15 +955,15 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * When set this component has an error/warning/info message. A control can have only one
 	 * message associated with it; the most severe error of all message types gets used.
 	 */
+	@Nullable
 	private UIMessage m_message;
 
 	/**
 	 * When set this contains a user-understandable tekst indicating which control has the error. It usually contains
 	 * the "label" associated with the control, and is set automatically by form builders if possible.
 	 */
+	@Nullable
 	private String m_errorLocation;
-
-	private INodeErrorDelegate m_errorDelegate;
 
 	/**
 	 * When set this contains a user-understandable tekst indicating which control has the error. It usually contains
@@ -1016,36 +1016,40 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @param param
 	 */
 	@Override
-	public UIMessage setMessage(final UIMessage msg) {
-		if(m_errorDelegate != null)
-			return m_errorDelegate.setMessage(msg);
-
+	@Nullable
+	public UIMessage setMessage(@Nullable final UIMessage msg) {
 		//-- If this (new) message has a LOWER severity than the EXISTING message ignore this call and return the EXISTING message
-		if(m_message != null) {
-			if(m_message.getType().getOrder() > msg.getType().getOrder()) {
-				return m_message;
+		UIMessage old = m_message;
+		if(old == msg)
+			return old;
+		m_message = msg;
+
+		if(msg != null) {
+			if(old != null) {
+				if(old.getType().getOrder() > msg.getType().getOrder()) {
+					return m_message;
+				}
+
+				//-- If code, type and parameters are all equal just leave the existing message in-place
+				if(old.equals(msg))
+					return old;
 			}
 
-			//-- If code, type and parameters are all equal just leave the existing message in-place
-			if(m_message == msg || m_message.equals(msg))
-				return m_message;
-
-			//-- The current message is to be replaced. For that we need to clear it first
-			clearMessage(); // Discard existing message
+			//-- Update any error location.
+			if(msg.getErrorLocation() == null)
+				msg.setErrorLocation(m_errorLocation);
+			msg.setErrorNode(this);
 		}
 
-		//-- Now add the message
-		m_message = msg;
-		if(msg.getErrorLocation() == null)
-			msg.setErrorLocation(m_errorLocation);
-		msg.setErrorNode(this);
-
-		//-- Experimental fix for bug# 787: cannot locate error fence. Allow errors to be posted on disconnected nodes.
-		if(m_page != null) {
-			IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
-			fence.addMessage(m_message);
+		//-- Broadcast the error through the tree
+		if(m_page != null) {									// Fix for bug# 787: cannot locate error fence. Allow errors to be posted on disconnected nodes.
+			IErrorFence fence = DomUtil.getMessageFence(this);	// Get the fence that'll handle the message by looking UPWARDS in the tree
+			if(null != old)
+				fence.removeMessage(old);
+			if(null != msg)
+				fence.addMessage(msg);
 		}
-		return m_message;
+		return msg;
 	}
 
 	/**
@@ -1053,25 +1057,12 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 */
 	@Override
 	public void clearMessage() {
-		if(m_errorDelegate != null) {
-			m_errorDelegate.clearMessage();
-			return;
-		}
-		if(getMessage() == null)
-			return;
-		//-- Experimental fix for bug# 787: cannot locate error fence. In case that control is still disconnected just skip error fence part (message was not posted to it anyway).
-		if(m_page != null) {
-			IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
-			UIMessage msg = m_message;
-			fence.removeMessage(msg);
-		}
-		m_message = null;
+		setMessage(null);
 	}
 
+	@Nullable
 	@Override
 	public UIMessage getMessage() {
-		if(m_errorDelegate != null)
-			return m_errorDelegate.getMessage();
 		return m_message;
 	}
 
@@ -1080,15 +1071,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @return
 	 */
 	public boolean hasError() {
-		return getMessage() != null && getMessage().getType() == MsgType.ERROR;
-	}
-
-	public void setErrorDelegate(final INodeErrorDelegate errorDelegate) {
-		m_errorDelegate = errorDelegate;
-	}
-
-	public INodeErrorDelegate getErrorDelegate() {
-		return m_errorDelegate;
+		UIMessage message = getMessage();
+		return message != null && message.getType() == MsgType.ERROR;
 	}
 
 	/**

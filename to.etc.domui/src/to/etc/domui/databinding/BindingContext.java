@@ -1,5 +1,7 @@
 package to.etc.domui.databinding;
 
+import java.util.*;
+
 import javax.annotation.*;
 
 import to.etc.domui.dom.errors.*;
@@ -11,6 +13,10 @@ import to.etc.domui.dom.errors.*;
  * Created on Jul 21, 2013
  */
 public class BindingContext {
+	final private Set<Binding> m_bindingsInErrorSet = new HashSet<Binding>();
+
+	/** Maps POJO instances to a map of bindings on it's properties. */
+	final private Map<Object, Map<String, Object>> m_instanceBindingMap = new HashMap<Object, Map<String, Object>>();
 
 	/**
 	 * Create a binding between unnamed entities.
@@ -141,6 +147,9 @@ public class BindingContext {
 		throw new IllegalArgumentException("The class  " + source.getClass() + " is not Observable.");
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Errors.												*/
+	/*--------------------------------------------------------------*/
 	/**
 	 *
 	 * @param binding
@@ -149,7 +158,38 @@ public class BindingContext {
 	 */
 	public void bindingErrorChanged(@Nonnull Binding binding, @Nullable UIMessage old, @Nullable UIMessage nw) {
 		System.out.println("binding error change: " + binding + " from " + old + " to " + nw);
+		if(null == nw) {
+			m_bindingsInErrorSet.remove(binding);
+		} else {
+			m_bindingsInErrorSet.add(binding);
+		}
+	}
 
+	/**
+	 * Callable by business logic, this notifies that an error has occurred or was cleared on some object.
+	 * @param instance
+	 * @param property
+	 * @param error
+	 */
+	public <T> void setProperyError(@Nonnull T instance, @Nonnull String property, @Nullable UIMessage error) {
+		Map<String, Object> imap = m_instanceBindingMap.get(instance);
+		if(null == imap) {
+			imap = new HashMap<String, Object>();
+			m_instanceBindingMap.put(instance, imap);
+		}
+
+		Object b = imap.get(property);
+		if(null == b) {
+			//-- No binding known. Put an error object in here.
+			imap.put(property, error);
+		} else {
+			if(b instanceof UIMessage) {
+				imap.put(property, error);
+			} else {
+				Binding bi = (Binding) b;
+				bi.setMessage(error);
+			}
+		}
 	}
 
 

@@ -303,19 +303,19 @@ final public class Page implements IQContextContainer {
 		 */
 		String id = n.internalGetID();
 		if(id != null) {
-			if(m_nodeMap.containsKey(id)) { // Duplicate key?
-				id = nextID(); // Assign new ID
-				n.setActualID(id); // Save in node.
+			if(m_nodeMap.containsKey(id)) { 					// Duplicate key?
+				id = nextID();
+				n.setActualID(id);
 			}
 		} else {
 			//-- Assign new ID
-			id = nextID(); // Assign new ID
-			n.setActualID(id); // Save in node.
+			id = nextID();
+			n.setActualID(id);
 		}
 		if(null != m_nodeMap.put(id, n))
 			throw new IllegalStateException("Duplicate node ID '" + id + "'!?!?");
 		n.setPage(this);
-		n.onHeaderContributors(this); // Ask the node for it's header contributors.
+		n.onHeaderContributors(this);							// Ask the node for it's header contributors.
 		n.internalOnAddedToPage(this);
 		if(n.isFocusRequested()) {
 			setFocusComponent(n);
@@ -323,10 +323,11 @@ final public class Page implements IQContextContainer {
 		}
 		internalAddPendingBuild(n);
 
-		//-- Experimental fix for bug# 787: cannot locate error fence. Allow errors to be posted on disconnected nodes.
-		if(n.getMessage() != null) {
-			IErrorFence fence = DomUtil.getMessageFence(n); // Get the fence that'll handle the message by looking UPWARDS in the tree
-			fence.addMessage(n.getMessage());
+		//-- Fix for bug# 787: cannot locate error fence. Allow errors to be posted on disconnected nodes.
+		UIMessage message = n.getMessage();
+		if(message != null) {
+			IErrorFence fence = DomUtil.getMessageFence(n);		// Get the fence that'll handle the message by looking UPWARDS in the tree
+			fence.addMessage(message);
 		}
 	}
 

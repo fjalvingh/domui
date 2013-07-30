@@ -110,4 +110,8 @@ public class Binding {
 		m_context.bindingErrorChanged(Binding.this, old, msg);
 	}
 
+	public void setMessage(@Nullable UIMessage error) {
+		m_message = error;
+	}
+
 }

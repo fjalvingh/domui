@@ -242,14 +242,17 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	}
 
 	private void handleValidationError(@Nullable UIMessage message, boolean seterror) {
-		if(null == message) {
-			clearMessage();
-		} else {
-			if(seterror) {
-				setMessage(message);
+		if(seterror) {
+			if(null == message) {
+				clearMessage();
+			} else {
+				if(seterror) {
+					setMessage(message);
+				}
 			}
 		}
 		messageNotifier(message);
+		fireError("value", message);
 	}
 
 	private String m_errclass;
