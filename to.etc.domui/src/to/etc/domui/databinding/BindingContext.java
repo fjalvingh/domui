@@ -5,6 +5,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.dom.errors.*;
+import to.etc.domui.dom.html.*;
 
 /**
  * Maintains all bindings, and their validation/error status.
@@ -66,11 +67,6 @@ public class BindingContext {
 					} finally {
 						m_recurse--;
 					}
-				}
-
-				@Override
-				public void setError(UIMessage error) {
-					throw new IllegalStateException("Implement me, please");
 				}
 			};
 			for(IObservableValue< ? > ov : m_observables) {
@@ -147,23 +143,16 @@ public class BindingContext {
 		throw new IllegalArgumentException("The class  " + source.getClass() + " is not Observable.");
 	}
 
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Errors.												*/
 	/*--------------------------------------------------------------*/
-	/**
-	 *
-	 * @param binding
-	 * @param old
-	 * @param nw
-	 */
-	public void bindingErrorChanged(@Nonnull Binding binding, @Nullable UIMessage old, @Nullable UIMessage nw) {
-		System.out.println("binding error change: " + binding + " from " + old + " to " + nw);
-		if(null == nw) {
-			m_bindingsInErrorSet.remove(binding);
-		} else {
-			m_bindingsInErrorSet.add(binding);
-		}
+
+	public <T> void bindMessage(@Nonnull T instance, @Nonnull String property, @Nonnull NodeBase control) {
+
+
 	}
+
 
 	/**
 	 * Callable by business logic, this notifies that an error has occurred or was cleared on some object.
@@ -190,6 +179,10 @@ public class BindingContext {
 				bi.setMessage(error);
 			}
 		}
+	}
+
+	public void bindingError(@Nonnull Binding binding, @Nullable UIMessage uiMessage) {
+
 	}
 
 

@@ -30,7 +30,6 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.errors.*;
 
 /**
  * Like {@link PropertyChangeSupport}, this class handles the {@link IObservable} support for DomUI for
@@ -71,14 +70,6 @@ public class ObserverSupport<C> {
 		IObservable< ? , ? , ? > po = m_propertyMap.get(propertyName);
 		if(po instanceof PropertyObservableValue) {
 			((PropertyObservableValue<C, T>) po).notifyIfChanged(oldValue, newValue);
-		}
-	}
-
-	public void fireError(@Nonnull String propertyName, @Nullable UIMessage error) {
-		IObservable< ? , ? , ? > po = m_propertyMap.get(propertyName);
-		if(po instanceof IObservable) {
-			((IObservable< ? , ? , ? >) po).setError(error);
-			;
 		}
 	}
 }

@@ -1049,6 +1049,9 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 			if(null != msg)
 				fence.addMessage(msg);
 		}
+
+		//-- Fire a change event
+		fireModified("message", old, msg);
 		return msg;
 	}
 

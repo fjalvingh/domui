@@ -46,10 +46,12 @@ public class UIMessage {
 	private BundleRef m_bundle;
 
 	/** The error message code for the error that has occured. This exists always and is a lookup into the error NLS messages. */
+	@Nonnull
 	private String m_code;
 
 	/** The type of the message (error, warning, informational); this mainly defines whether actions continue, and it defines an icon to show. */
-	private MsgType m_type;
+	@Nonnull
+	final private MsgType m_type;
 
 	/** When set this is used in error messages as an indication of which input field contains the error. It usually contains the value for the "label" of the control. */
 	private String m_errorLocation;
@@ -71,7 +73,7 @@ public class UIMessage {
 	 * @param parameters
 	 */
 	@Deprecated
-	private UIMessage(NodeBase errorNode, String errorLocation, MsgType type, String code, Object[] parameters) {
+	private UIMessage(NodeBase errorNode, String errorLocation, @Nonnull MsgType type, @Nonnull String code, Object[] parameters) {
 		if(code == null)
 			throw new NullPointerException("Message code cannot be null");
 		if(type == null)
@@ -92,7 +94,7 @@ public class UIMessage {
 	 * @param code				The code for the message.
 	 * @param parameters		If needed a set of parameters to render into the message.
 	 */
-	protected UIMessage(NodeBase errorNode, String errorLocation, MsgType type, BundleRef br, String code, Object[] parameters) {
+	protected UIMessage(NodeBase errorNode, String errorLocation, @Nonnull MsgType type, BundleRef br, @Nonnull String code, Object[] parameters) {
 		if(code == null)
 			throw new NullPointerException("Message code cannot be null");
 		if(type == null)
@@ -150,6 +152,7 @@ public class UIMessage {
 	 * Returns the message part of the error message, properly localized for the request's locale.
 	 * @return
 	 */
+	@Nonnull
 	public String getMessage() {
 		if(m_bundle != null)
 			return m_bundle.formatMessage(m_code, m_parameters);
@@ -157,38 +160,47 @@ public class UIMessage {
 		return Msgs.BUNDLE.formatMessage(m_code, m_parameters);
 	}
 
+	@Nonnull
 	static public UIMessage error(@Nonnull CodeException x) {
 		return new UIMessage(null, null, MsgType.ERROR, x.getBundle(), x.getCode(), x.getParameters());
 	}
 
+	@Nonnull
 	static public UIMessage error(NodeBase node, String errorLocation, BundleRef ref, String code, Object... param) {
 		return new UIMessage(node, errorLocation, MsgType.ERROR, ref, code, param);
 	}
 
+	@Nonnull
 	static public UIMessage error(String errorLocation, BundleRef ref, String code, Object... param) {
 		return new UIMessage(null, errorLocation, MsgType.ERROR, ref, code, param);
 	}
 
+	@Nonnull
 	static public UIMessage error(NodeBase node, BundleRef ref, String code, Object... param) {
 		return new UIMessage(node, node.getErrorLocation(), MsgType.ERROR, ref, code, param);
 	}
 
+	@Nonnull
 	static public UIMessage error(BundleRef ref, String code, Object... param) {
 		return new UIMessage(null, null, MsgType.ERROR, ref, code, param);
 	}
 
+	@Nonnull
 	static public UIMessage warning(NodeBase node, String errorLocation, BundleRef ref, String code, Object... param) {
 		return new UIMessage(node, errorLocation, MsgType.WARNING, ref, code, param);
 	}
 
+	@Nonnull
 	static public UIMessage warning(NodeBase node, BundleRef ref, String code, Object... param) {
 		return new UIMessage(node, null, MsgType.WARNING, ref, code, param);
 	}
 
+	@Nonnull
 	static public UIMessage warning(BundleRef ref, String code, Object... param) {
 		return new UIMessage(null, null, MsgType.WARNING, ref, code, param);
 	}
 
+	@Nonnull
 	static public UIMessage info(BundleRef ref, String code, Object... param) {
 		return new UIMessage(null, null, MsgType.INFO, ref, code, param);
 	}

@@ -32,9 +32,6 @@ public class Binding {
 	@Nullable
 	protected IUniConverter< ? , ? > m_converter;
 
-	@Nullable
-	private UIMessage m_message;
-
 	protected Binding(@Nonnull BindingContext context, @Nonnull IObservableValue< ? > sourceo) {
 		m_from = sourceo;
 		m_context = context;
@@ -52,11 +49,6 @@ public class Binding {
 			@Override
 			public void handleChange(@Nonnull ValueChangeEvent<V> event) throws Exception {
 				moveSourceToTarget();
-			}
-
-			@Override
-			public void setError(UIMessage error) {
-				setBindingError(error);
 			}
 		};
 		m_fromListener = ml;
@@ -88,30 +80,6 @@ public class Binding {
 	}
 
 	private void bindingError(@Nullable ValidationException vx) {
-		UIMessage old = m_message;
-
-		if(vx == null) {
-			if(old == null)
-				return;
-			m_message = null;
-			m_context.bindingErrorChanged(this, old, null);
-		} else {
-			UIMessage nw = UIMessage.error(vx);						// Convert exception to message
-			if(nw.equals(old))										// Same message -> no change
-				return;
-			m_message = nw;
-			m_context.bindingErrorChanged(this, old, nw);
-		}
+		m_context.bindingError(this, vx == null ? null : UIMessage.error(vx));
 	}
-
-	protected void setBindingError(@Nullable UIMessage msg) {
-		UIMessage old = m_message;
-		m_message = msg;
-		m_context.bindingErrorChanged(Binding.this, old, msg);
-	}
-
-	public void setMessage(@Nullable UIMessage error) {
-		m_message = error;
-	}
-
 }

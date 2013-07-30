@@ -26,8 +26,6 @@ package to.etc.domui.databinding;
 
 import javax.annotation.*;
 
-import to.etc.domui.dom.errors.*;
-
 public interface IObservable<T, E extends IChangeEvent<T, E, L>, L extends IChangeListener<T, E, L>> {
 	/**
 	 * Adds a change listener for this observable item. The listener is notified of changes on the specified observable.
@@ -40,6 +38,4 @@ public interface IObservable<T, E extends IChangeEvent<T, E, L>, L extends IChan
 	 * @param listener
 	 */
 	public void removeChangeListener(@Nonnull L listener);
-
-	public void setError(@Nullable UIMessage msg);
 }

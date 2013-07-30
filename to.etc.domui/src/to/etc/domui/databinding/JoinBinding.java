@@ -3,6 +3,7 @@ package to.etc.domui.databinding;
 import javax.annotation.*;
 
 import to.etc.domui.dom.errors.*;
+import to.etc.domui.dom.html.*;
 import to.etc.domui.trouble.*;
 
 /**
@@ -39,6 +40,15 @@ public class JoinBinding extends Binding {
 		addSourceListener();
 		addTargetListener();
 
+		//-- Handle errors if we bound to a component
+		if(target instanceof NodeBase && property.equals("value")) {
+			NodeBase nb = (NodeBase) target;
+			IObservableValue<UIMessage> eom = (IObservableValue<UIMessage>) ((NodeBase) target).observableProperty("message");
+
+
+
+		}
+
 		//-- Immediately move the value of source to target too 2
 		moveSourceToTarget();
 		return this;
@@ -57,11 +67,6 @@ public class JoinBinding extends Binding {
 			@Override
 			public void handleChange(@Nonnull ValueChangeEvent<V> event) throws Exception {
 				moveTargetToSource();
-			}
-
-			@Override
-			public void setError(UIMessage error) {
-				setBindingError(error);
 			}
 		};
 		m_toListener = ml;

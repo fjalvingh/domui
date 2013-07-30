@@ -26,11 +26,7 @@ package to.etc.domui.databinding;
 
 import javax.annotation.*;
 
-import to.etc.domui.dom.errors.*;
-
 public interface IValueChangeListener<T> extends IChangeListener<T, ValueChangeEvent<T>, IValueChangeListener<T>> {
 	@Override
 	public void handleChange(@Nonnull ValueChangeEvent<T> event) throws Exception;
-
-	public void setError(@Nullable UIMessage error);
 }
