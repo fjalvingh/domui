@@ -55,7 +55,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	private boolean m_childHasUpdates;
 
 	/**
-	 * When an update knows that a full rerender is best it sets this hint. It will cause a full
+	 * When an update knows that a full re-render is best it sets this hint. It will cause a full
 	 * re-render of the children IN this node, not this container itself. The only reason his
 	 * gets set currently is when an embedded text changes because we cannot address a text
 	 * node.

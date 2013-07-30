@@ -11,7 +11,7 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Apr 30, 2013
  */
-public class UnidirectionalBinding extends Binding {
+final public class UnidirectionalBinding extends Binding {
 	private IReadWriteModel< ? > m_model;
 
 	public UnidirectionalBinding(@Nonnull BindingContext context, @Nonnull IObservableValue< ? > sourceo, @Nonnull IReadWriteModel< ? > mdl) throws Exception {

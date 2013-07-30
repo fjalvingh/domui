@@ -52,7 +52,7 @@ import to.etc.webapp.nls.*;
 public class Text<T> extends Input implements IControl<T>, IHasModifiedIndication, IConvertable<T> {
 	/** The properties bindable for this component. */
 	@Nonnull
-	static private final Set<String> BINDABLE_SET = createNameSet("value", "disabled");
+	static private final Set<String> BINDABLE_SET = createNameSet("value", "disabled", "message");
 
 	/** The type of class that is expected. This is the return type of the getValue() call for a validated item */
 	private Class<T> m_inputClass;
