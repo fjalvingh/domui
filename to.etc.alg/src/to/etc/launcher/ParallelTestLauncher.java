@@ -40,6 +40,7 @@ Plan how to do this:
  * Created on Jul 31, 2013
  */
 public class ParallelTestLauncher implements IRunnableArgumentsProvider {
+
 	public static final String	ARG_PROJECT	= "project";
 
 	public static final String	ARG_M2REPO	= "m2.repo";
@@ -75,6 +76,8 @@ public class ParallelTestLauncher implements IRunnableArgumentsProvider {
 	public static final String	ARG_HELP					= "help";
 
 	public static final int		DEFAULT_THREADS				= 5;
+
+	private static final String	TIMESTAMP_FORMAT			= "yyyyMMddHHmm";
 
 	private enum ParallelStartegyType {
 		CLASS, PACKAGE, TEST
@@ -216,7 +219,7 @@ public class ParallelTestLauncher implements IRunnableArgumentsProvider {
 		} else {
 			res = root;
 		}
-		String timestamp = new SimpleDateFormat("yyyyMMddhhmm").format(new Date());
+		String timestamp = new SimpleDateFormat(TIMESTAMP_FORMAT).format(new Date());
 		res = new File(res, "parallel" + timestamp);
 		return res;
 	}
@@ -246,39 +249,40 @@ public class ParallelTestLauncher implements IRunnableArgumentsProvider {
 		try {
 			runTests(classPath, generatedSuites);
 		} finally {
-			if("true".equals(getArgUtil().getSingleArgumentValue(ARG_REMOVE_GENERATED, "true")) && generatedSuites.size() > 0) {
+			if("true".equals(getArgUtil().getSingleArgumentValue(ARG_SINGLE_REPORT, "true"))) {
+				ReportFixer reportFixer = new ReportFixer();
+				reportFixer.assambleSingleReports(getReportRoot());
+			}
+			if("true".equals(getArgUtil().getSingleArgumentValue(ARG_REMOVE_GENERATED, "true"))) {
 				File parentLocation = generatedSuites.get(0).getParentFile();
 				for(File file : generatedSuites) {
 					file.delete();
 				}
 				parentLocation.delete();
 			}
-			if ("true".equals(getArgUtil().getSingleArgumentValue(ARG_SINGLE_REPORT, "true"))) {
-				ReportFixer reportFixer = new ReportFixer();
-				reportFixer.assambleSingleReports(getReportRoot());
-			}
 		}
 	}
 
 	private List<File> generateSuitesFromArtefacts(@Nonnull ParallelStartegyType parallel, @Nonnull List<String> testArtefacts, @Nonnull File reporter) throws Exception {
 		int index = 0;
-		String timestamp = new SimpleDateFormat("yyyyMMddhhmm").format(new Date());
+		String timestamp = new SimpleDateFormat(TIMESTAMP_FORMAT).format(new Date());
 		List<String> listeners = getArgUtil().getOptional(ARG_REPORTER);
 		List<File> res = new ArrayList<File>();
 		for(String artefact : testArtefacts) {
 			index++;
 			StringBuilder sb = new StringBuilder();
-			String testName = artefact.substring(artefact.lastIndexOf(".") + 1);
 			sb.append("<!DOCTYPE suite SYSTEM \"http://testng.org/testng-1.0.dtd\" >");
 			sb.append("<suite name=\"genSuite" + index + "\" verbose=\"1\">");
-			sb.append("<test name=\"" + testName + "\">");
 			switch(parallel){
 				case CLASS:
+					String testName = artefact.substring(artefact.lastIndexOf(".") + 1);
+					sb.append("<test name=\"" + testName + "\">");
 					sb.append("<classes>");
 					sb.append("<class name=\"" + artefact + "\"/>");
 					sb.append("</classes>");
 					break;
 				case PACKAGE:
+					sb.append("<test name=\"" + artefact + "\">");
 					sb.append("<packages>");
 					sb.append("<package name=\"" + artefact + "\"/>");
 					sb.append("</packages>");

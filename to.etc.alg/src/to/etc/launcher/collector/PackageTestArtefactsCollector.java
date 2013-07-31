@@ -8,8 +8,6 @@ import java.util.*;
 
 import javax.annotation.*;
 
-import to.etc.launcher.*;
-
 public class PackageTestArtefactsCollector extends ArtefactsCollector implements ITestArtefactsCollector {
 
 	public PackageTestArtefactsCollector(@Nonnull URLClassLoader loader) {
@@ -41,7 +39,7 @@ public class PackageTestArtefactsCollector extends ArtefactsCollector implements
 			}
 		}
 		if(containsTestClass) {
-			res.add(packagePath);
+			res.add(packagePath.substring(0, packagePath.length() - 1));
 		}
 		for(File file : subLocations) {
 			collectArtefacts(projectRoot, file, res);

@@ -24,7 +24,7 @@ public class ReportFixer {
 
 	public void assambleSingleReports(@Nonnull File reportsRoot) throws Exception {
 		for(File file : reportsRoot.listFiles()) {
-			if(file.isDirectory()) {
+			if(file.isDirectory() && !(file.getName().startsWith("gen"))) {
 				//root sub dirs are per browser
 				assambleSingleReport(file);
 			}
@@ -85,6 +85,10 @@ public class ReportFixer {
 		Source input = new DOMSource(doc);
 
 		transformer.transform(input, output);
+
+		for(File partialReport : xmlFiles) {
+			partialReport.delete();
+		}
 
 	}
 
