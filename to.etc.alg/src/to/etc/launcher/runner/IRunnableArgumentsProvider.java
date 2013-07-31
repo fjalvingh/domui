@@ -3,7 +3,6 @@ package to.etc.launcher.runner;
 import java.io.*;
 
 import javax.annotation.*;
-import javax.resource.spi.IllegalStateException;
 
 /**
  * Defines proxy for general testNg runner command arguments.

@@ -4,7 +4,6 @@ import java.io.*;
 import java.util.*;
 
 import javax.annotation.*;
-import javax.resource.spi.IllegalStateException;
 
 import to.etc.util.*;
 
