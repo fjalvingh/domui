@@ -6,7 +6,6 @@ import java.text.*;
 import java.util.*;
 
 import javax.annotation.*;
-import javax.resource.spi.IllegalStateException;
 import javax.xml.parsers.*;
 
 import org.w3c.dom.*;
