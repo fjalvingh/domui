@@ -70,9 +70,9 @@ public class TUtilTestProperties {
 			if(sysProp != null)
 				return loadProperties(sysProp, "VPTESTCFG");
 
-			System.out.println("----- Class path: -----");
+/*			System.out.println("----- Class path: -----");
 			System.out.println(System.getProperty("java.class.path"));
-			String testFileName = System.getProperty("testProperties");
+*/			String testFileName = System.getProperty("testProperties");
 			if(testFileName != null) {
 				is = TUtilTestProperties.class.getResourceAsStream("/resource/test/" + testFileName);
 				if(null == is){
