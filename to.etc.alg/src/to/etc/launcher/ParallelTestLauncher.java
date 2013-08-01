@@ -149,6 +149,8 @@ public class ParallelTestLauncher implements IRunnableArgumentsProvider {
 
 	private String			m_runnableClassPath;
 
+	private File			m_root;
+
 	private File			m_reportRoot;
 
 	public static void main(String[] args) {
@@ -176,6 +178,7 @@ public class ParallelTestLauncher implements IRunnableArgumentsProvider {
 		setArgUtil(new ArgumentsUtil(args));
 		File root = initializeRoot();
 		File reportRoot = initializeReporterRoot(root);
+		setRoot(root);
 		setReportRoot(reportRoot);
 		List<String> projects = getArgUtil().getMandatory(ARG_PROJECT);
 		for(String project : projects) {
@@ -248,16 +251,18 @@ public class ParallelTestLauncher implements IRunnableArgumentsProvider {
 		try {
 			runTests(classPath, generatedSuites);
 		} finally {
-			if("true".equals(getArgUtil().getSingleArgumentValue(ARG_SINGLE_REPORT, "true"))) {
-				ReportFixer reportFixer = new ReportFixer();
-				reportFixer.assambleSingleReports(getReportRoot());
-			}
-			if("true".equals(getArgUtil().getSingleArgumentValue(ARG_REMOVE_GENERATED, "true"))) {
-				File parentLocation = generatedSuites.get(0).getParentFile();
-				for(File file : generatedSuites) {
-					file.delete();
+			if(generatedSuites != null && generatedSuites.size() > 0) {
+				if("true".equals(getArgUtil().getSingleArgumentValue(ARG_SINGLE_REPORT, "true"))) {
+					ReportFixer reportFixer = new ReportFixer();
+					reportFixer.assambleSingleReports(getReportRoot());
 				}
-				parentLocation.delete();
+				if("true".equals(getArgUtil().getSingleArgumentValue(ARG_REMOVE_GENERATED, "true"))) {
+					File parentLocation = generatedSuites.get(0).getParentFile();
+					for(File file : generatedSuites) {
+						file.delete();
+					}
+					parentLocation.delete();
+				}
 			}
 		}
 	}
@@ -304,9 +309,52 @@ public class ParallelTestLauncher implements IRunnableArgumentsProvider {
 		return res;
 	}
 
-	private List<File> generateSuitesFromPreparedSuites(List<String> xmlSuites) {
-		// TODO Auto-generated method stub
-		return null;
+	private @Nonnull
+	List<File> generateSuitesFromPreparedSuites(@Nonnull List<String> xmlSuites) throws Exception {
+		int index = 0;
+		String timestamp = new SimpleDateFormat(TIMESTAMP_FORMAT).format(new Date());
+		List<String> listeners = getArgUtil().getOptional(ARG_REPORTER);
+		List<File> res = new ArrayList<File>();
+
+		StringBuilder template = new StringBuilder();
+		//template.append("<!DOCTYPE suite SYSTEM \"http://testng.org/testng-1.0.dtd\" >");
+		template.append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>");
+		template.append("<suite name=\"genSuite{INDEX}\" verbose=\"1\">");
+		if(!getArgUtil().isEmptyArgumentValues(listeners)) {
+			template.append("<listeners>");
+			for(String listenerArtefact : listeners) {
+				template.append("<listener class-name=\"" + listenerArtefact + "\"/>");
+			}
+			template.append("</listeners>");
+		}
+		template.append("</suite>");
+
+		for(String xmlSuiteName : xmlSuites) {
+			File xmlSuite = new File(xmlSuiteName);
+			if (!xmlSuite.exists()) {
+				xmlSuite = new File(getRoot(), xmlSuiteName);
+				if (!xmlSuite.exists()) {
+					throw new IllegalArgumentException("Unable to locate specified xml suite: " + xmlSuiteName);
+				}
+			}
+
+			Document docSuite = XmlHelper.getInstance().parseFile(xmlSuite);
+			List<Node> testNodes = XmlHelper.getInstance().locateDirectChilds(docSuite.getDocumentElement(), "test");
+
+			for(Node node : testNodes) {
+				index++;
+				String genDocSource = template.toString().replace("{INDEX}", index + "");
+				Document genDocSuite = XmlHelper.getInstance().parseString(genDocSource);
+				Node movingNode = genDocSuite.importNode(node, true);
+				genDocSuite.getDocumentElement().appendChild(movingNode);
+
+				File suite = new File(getReportRoot(), "gen" + timestamp + File.separator + "suite" + index + ".xml");
+				suite.getParentFile().mkdirs();
+				XmlHelper.getInstance().saveToFile(genDocSuite, suite);
+				res.add(suite);
+			}
+		}
+		return res;
 	}
 
 	private @Nonnull
@@ -411,15 +459,13 @@ public class ParallelTestLauncher implements IRunnableArgumentsProvider {
 
 	private List<Dependency> parseDependencies(@Nonnull File pom) throws ParserConfigurationException, SAXException, IOException {
 		List<Dependency> res = new ArrayList<Dependency>();
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder builder = factory.newDocumentBuilder();
-		Document doc = builder.parse(pom);
-		Node projectGroupId = XmlHelper.locateDirectChild(doc.getDocumentElement(), "groupId");
-		Node projectArtifactId = XmlHelper.locateDirectChild(doc.getDocumentElement(), "artifactId");
-		Node projectVersion = XmlHelper.locateDirectChild(doc.getDocumentElement(), "version");
+		Document doc = XmlHelper.getInstance().parseFile(pom);
+		Node projectGroupId = XmlHelper.getInstance().locateDirectChild(doc.getDocumentElement(), "groupId");
+		Node projectArtifactId = XmlHelper.getInstance().locateDirectChild(doc.getDocumentElement(), "artifactId");
+		Node projectVersion = XmlHelper.getInstance().locateDirectChild(doc.getDocumentElement(), "version");
 		Dependency projectRoot = new Dependency(projectGroupId.getTextContent().trim(), projectArtifactId.getTextContent().trim(), projectVersion.getTextContent().trim(), null, null);
 		res.add(projectRoot);
-		Node dependencies = XmlHelper.locateDirectChild(doc.getDocumentElement(), "dependencies");
+		Node dependencies = XmlHelper.getInstance().locateDirectChild(doc.getDocumentElement(), "dependencies");
 		if(null != dependencies) {
 			NodeList dependencyNodes = dependencies.getChildNodes();
 			for(int index = 0; index < dependencyNodes.getLength(); index++) {
@@ -432,8 +478,29 @@ public class ParallelTestLauncher implements IRunnableArgumentsProvider {
 		return res;
 	}
 
+	@Override
+	@Nonnull
+	public File getReportRoot() throws IllegalStateException {
+		if(null == m_reportRoot) {
+			throw new IllegalStateException("Report root still not resolved!");
+		}
+		return m_reportRoot;
+	}
+
 	private void setReportRoot(@Nonnull File reportRoot) {
 		m_reportRoot = reportRoot;
+	}
+
+	@Nonnull
+	private File getRoot() {
+		if(null == m_root) {
+			throw new IllegalStateException("Root location still not resolved!");
+		}
+		return m_root;
+	}
+
+	private void setRoot(@Nonnull File root) {
+		m_root = root;
 	}
 
 	@Override
@@ -473,15 +540,6 @@ public class ParallelTestLauncher implements IRunnableArgumentsProvider {
 	@Nullable
 	public String getUnitTestProperties() {
 		return getArgUtil().getOptionalSingle(ARG_UNIT_TEST_PROPERTIES);
-	}
-
-	@Override
-	@Nonnull
-	public File getReportRoot() throws IllegalStateException {
-		if(null == m_reportRoot) {
-			throw new IllegalStateException("Report root still not resolved!");
-		}
-		return m_reportRoot;
 	}
 
 }

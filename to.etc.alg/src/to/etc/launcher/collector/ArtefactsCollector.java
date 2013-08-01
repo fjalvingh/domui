@@ -5,6 +5,13 @@ import java.net.*;
 
 import javax.annotation.*;
 
+/**
+ * Base for collecting test artefacts within provided resources.
+ *
+ *
+ * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
+ * Created on Aug 1, 2013
+ */
 public abstract class ArtefactsCollector {
 	@Nonnull
 	private final URLClassLoader	m_loader;

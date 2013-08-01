@@ -27,7 +27,7 @@ public class SuiteRunner implements Runnable {
 	final String						m_name;
 
 	/**
-	 * Internal use -> to redirect process stdout.
+	 * Internal use -> redirect process stdout.
 	 *
 	 *
 	 * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
@@ -47,8 +47,9 @@ public class SuiteRunner implements Runnable {
 
 		@Override
 		public void run() {
+			InputStreamReader isr = null;
 			try {
-				InputStreamReader isr = new InputStreamReader(m_is);
+				isr = new InputStreamReader(m_is);
 				BufferedReader br = new BufferedReader(isr);
 				String line = null;
 				while((line = br.readLine()) != null) {
@@ -56,6 +57,8 @@ public class SuiteRunner implements Runnable {
 				}
 			} catch(IOException ioe) {
 				ioe.printStackTrace();
+			} finally {
+				FileTool.closeAll(isr);
 			}
 		}
 	}
@@ -89,9 +92,12 @@ public class SuiteRunner implements Runnable {
 	}
 
 	private int runTestNg(@Nonnull File suite, @Nonnull String browserString) throws IOException, InterruptedException, IllegalStateException {
-/*		String javaHome = System.getProperty("java.home");
-		String javaBin = javaHome + File.separator + "bin" + File.separator + "java";
-*/
+		/*
+		 * For not let's assume java is always in PATH ;)
+		 *
+		 * String javaHome = System.getProperty("java.home");
+		 * String javaBin = javaHome + File.separator + "bin" + File.separator + "java";
+		*/
 		List<String> args = assableArguments(suite, browserString);
 		ProcessBuilder builder = new ProcessBuilder(args);
 		Process process = builder.start();

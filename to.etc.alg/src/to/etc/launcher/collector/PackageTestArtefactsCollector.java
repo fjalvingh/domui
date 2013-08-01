@@ -8,6 +8,13 @@ import java.util.*;
 
 import javax.annotation.*;
 
+/**
+ * Util for collecting all packages that are containing test classes that can be executed by TestNG.
+ *
+ *
+ * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
+ * Created on Aug 1, 2013
+ */
 public class PackageTestArtefactsCollector extends ArtefactsCollector implements ITestArtefactsCollector {
 
 	public PackageTestArtefactsCollector(@Nonnull URLClassLoader loader) {

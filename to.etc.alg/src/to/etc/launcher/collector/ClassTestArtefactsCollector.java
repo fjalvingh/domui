@@ -8,8 +8,13 @@ import java.util.*;
 
 import javax.annotation.*;
 
-import to.etc.launcher.collector.*;
-
+/**
+ * Util for collecting all test classes that can be executed by TestNG.
+ *
+ *
+ * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
+ * Created on Aug 1, 2013
+ */
 public class ClassTestArtefactsCollector extends ArtefactsCollector implements ITestArtefactsCollector {
 
 	public ClassTestArtefactsCollector(@Nonnull URLClassLoader loader) {
