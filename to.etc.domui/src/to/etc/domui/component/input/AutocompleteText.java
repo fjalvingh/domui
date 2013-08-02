@@ -7,7 +7,7 @@ import to.etc.domui.dom.html.*;
 
 /**
  * String input that is connected to select control. Connected select control provides source strings for autocomplete functionality.
- * 
+ *
  *
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on Nov 7, 2012
@@ -27,10 +27,10 @@ class AutocompleteText extends TextStr {
 
 	@Nonnull
 	protected Select getSelect() {
-		if(m_select == null) {
-			throw new IllegalStateException(Select.class.getName() + " not connected to " + AutocompleteText.class.getName());
+		if(m_select != null) {
+			return m_select;
 		}
-		return m_select;
+		throw new IllegalStateException(Select.class.getName() + " not connected to " + AutocompleteText.class.getName());
 	}
 
 	protected void setSelect(@Nonnull Select select) {

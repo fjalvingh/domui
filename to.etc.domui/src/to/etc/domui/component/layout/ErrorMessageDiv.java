@@ -92,8 +92,9 @@ public class ErrorMessageDiv extends Div implements IErrorMessageListener {
 		if(m.getType() != MsgType.INFO) {
 			List<Div> errorDivs = getChildren(Div.class); // FIXME Why DIV's only?
 			for(Div errorDiv : errorDivs) {
-				if(errorDiv.getUserObject() instanceof UIMessage && ((UIMessage) errorDiv.getUserObject()).getType() == MsgType.INFO) {
-					m_msgList.remove(errorDiv.getUserObject());
+				Object userObject = errorDiv.getUserObject();
+				if(userObject instanceof UIMessage && ((UIMessage) userObject).getType() == MsgType.INFO) {
+					m_msgList.remove(userObject);
 					errorDiv.remove();
 				}
 			}
@@ -116,8 +117,9 @@ public class ErrorMessageDiv extends Div implements IErrorMessageListener {
 		d.setCssClass("ui-emd-msg ui-emd-" + m.getType().name().toLowerCase());
 		d.setUserObject(m);
 		DomUtil.renderErrorMessage(d, m);
-		if(m.getErrorNode() != null) {
-			m.getErrorNode().addCssClass("ui-input-err");
+		NodeBase errorNode = m.getErrorNode();
+		if(errorNode != null) {
+			errorNode.addCssClass("ui-input-err");
 		}
 		return d;
 	}
@@ -131,8 +133,9 @@ public class ErrorMessageDiv extends Div implements IErrorMessageListener {
 			if(b.getUserObject() == m) {
 				//-- Remove this object!
 				b.remove();
-				if(m.getErrorNode() != null)
-					m.getErrorNode().removeCssClass("ui-input-err");
+				NodeBase errorNode = m.getErrorNode();
+				if(errorNode != null)
+					errorNode.removeCssClass("ui-input-err");
 				break;
 			}
 		}

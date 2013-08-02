@@ -350,8 +350,9 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 
 	void internalOnAddedToPage(final Page p) {
 		onAddedToPage(p);
-		if(m_appendJS != null) {
-			getPage().appendJS(m_appendJS);
+		StringBuilder appendJS = m_appendJS;
+		if(appendJS != null) {
+			getPage().appendJS(appendJS);
 			m_appendJS = null;
 		}
 	}
