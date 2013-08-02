@@ -203,8 +203,9 @@ public class FloatingDiv extends Div implements IAddToBody {
 		if(null == closeReason)
 			throw new IllegalArgumentException("Close reason cannot be null");
 		onClosed(closeReason);
-		if(null != m_onClose)
-			m_onClose.closed(closeReason);
+		IWindowClosed onClose = m_onClose;
+		if(null != onClose)
+			onClose.closed(closeReason);
 	}
 
 	/**

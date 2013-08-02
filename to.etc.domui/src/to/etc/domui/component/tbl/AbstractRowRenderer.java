@@ -438,18 +438,20 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 		//-- Is a node renderer used?
 		TD cell;
 		String cssClass = cd.getCssClass();
-		if(null != cd.getContentRenderer()) {
+		INodeContentRenderer< ? > contentRenderer = cd.getContentRenderer();
+		if(null != contentRenderer) {
 			cell = cc.add((NodeBase) null); // Add the new row
 			if(cssClass != null)
 				cell.addCssClass(cssClass);
-			((INodeContentRenderer<Object>) cd.getContentRenderer()).renderNodeContent(tbl, cell, colval, instance); // %&*(%&^%*&%&( generics require casting here
+			((INodeContentRenderer<Object>) contentRenderer).renderNodeContent(tbl, cell, colval, instance); // %&*(%&^%*&%&( generics require casting here
 		} else {
 			String s;
 			if(colval == null)
 				s = null;
 			else {
-				if(cd.getPresentationConverter() != null)
-					s = ((IConverter<X>) cd.getPresentationConverter()).convertObjectToString(NlsContext.getLocale(), colval);
+				IObjectToStringConverter< ? > presentationConverter = cd.getPresentationConverter();
+				if(presentationConverter != null)
+					s = ((IConverter<X>) presentationConverter).convertObjectToString(NlsContext.getLocale(), colval);
 				else
 					s = String.valueOf(colval);
 			}
@@ -473,7 +475,9 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 			cell.setClicked(new IClicked<TD>() {
 				@Override
 				public void clicked(final TD b) throws Exception {
-					((ICellClicked<Object>) cd.getCellClicked()).cellClicked(b, instance);
+					ICellClicked<Object> clicked = (ICellClicked<Object>) cd.getCellClicked();
+					if(null != clicked)
+						clicked.cellClicked(b, instance);
 				}
 			});
 			cell.addCssClass("ui-cellsel");
