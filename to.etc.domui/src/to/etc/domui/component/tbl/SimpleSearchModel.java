@@ -191,7 +191,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 		if(m_sessionSource != null) {
 			return m_sessionSource.getDataContext(); // Create/get session
 		} else if(m_contextSourceNode != null) {
-			return QContextManager.getContext(m_contextSourceNode.getPage());
+			return m_contextSourceNode.getSharedContext();
 		}
 		throw new IllegalStateException("No sessionSource and no contextSourceNode present - I do not know how to allocate a QDataContext");
 	}
@@ -205,11 +205,12 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 		limit++; // Increment by 1: if that amount is returned we know we have overflowed.
 
 		try {
-			if(m_queryFunctor != null) {
+			IQuery<T> queryFunctor = m_queryFunctor;
+			if(queryFunctor != null) {
 				if(m_sortHelper != null)
 					throw new IllegalStateException("Implementation restriction: you cannot (currently) use an ISortHelper when using an IQuery functor to actually do the query.");
 				dc = getQueryContext(); // Allocate data context
-				m_workResult = m_queryFunctor.query(dc, m_sort, limit);
+				m_workResult = queryFunctor.query(dc, m_sort, limit);
 			} else if(m_query != null) {
 				QCriteria<T> qc = m_query; // Get the base query,
 				if(qc.getLimit() <= 0)
@@ -231,8 +232,8 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 			} catch(Exception x) {}
 		}
 
-		if(m_workResult.size() >= limit) {
-			m_workResult.remove(m_workResult.size() - 1);
+		if(getWorkResult().size() >= limit) {
+			getWorkResult().remove(getWorkResult().size() - 1);
 			m_truncated = true;
 		} else
 			m_truncated = false;
@@ -283,12 +284,13 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 
 	protected void handleQuerySorting(QCriteria<T> qc) {
 		//-- Handle the different sort forms. Are we sorting on property name?
-		if(m_sort != null) {
+		String sort = m_sort;
+		if(sort != null) {
 			qc.getOrder().clear(); // FIXME Need to duplicate.
 			if(m_desc)
-				qc.descending(m_sort);
+				qc.descending(sort);
 			else
-				qc.ascending(m_sort);
+				qc.ascending(sort);
 			return;
 		}
 
@@ -332,7 +334,14 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 	@Override
 	protected List<T> getList() throws Exception {
 		initResult();
-		return m_workResult;
+		return getWorkResult();
+	}
+
+	@Nonnull
+	private List<T> getWorkResult() {
+		if(null != m_workResult)
+			return m_workResult;
+		throw new IllegalStateException("workResult not initialized");
 	}
 
 	@Override
@@ -349,19 +358,19 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 		if(isRefreshAfterShelve()) {
 			//-- Make sure a refreshed map is present,
 			if(m_workRefreshed == null)
-				m_workRefreshed = new boolean[m_workResult.size()];
+				m_workRefreshed = new boolean[getWorkResult().size()];
 			QDataContext qs = null;
 			for(int i = start; i < end; i++) {
 				if(!m_workRefreshed[i]) {
 					if(qs == null)
-						qs = m_sessionSource.getDataContext(); // Create/get session
-					qs.refresh(m_workResult.get(i));
+						qs = getQueryContext();
+					qs.refresh(getWorkResult().get(i));
 					m_workRefreshed[i] = true;
 				}
 			}
 		}
 
-		return m_workResult.subList(start, end);
+		return getWorkResult().subList(start, end);
 	}
 
 	@Override
