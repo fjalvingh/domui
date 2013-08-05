@@ -94,6 +94,11 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 		getColumnList().setSortColumn(cd, type);
 	}
 
+	public void setSort(@Nonnull String column, @Nonnull SortableType type) {
+		getColumnList().setDefaultSortColumn(column);
+		getColumnList().setSortDescending(type == SortableType.SORTABLE_DESC);
+	}
+
 	/**
 	 * Returns the metamodel used.
 	 * @return
