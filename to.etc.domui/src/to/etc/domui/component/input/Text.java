@@ -261,24 +261,6 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		}
 	}
 
-
-	//	@Nullable
-	//	private Div m_mnot;
-	//
-	//	private void messageNotifier2(@Nullable UIMessage msg) {
-	//		Div mn = m_mnot;
-	//		if(mn != null)
-	//			mn.remove();
-	//		if(null == msg) {
-	//			m_mnot = null;
-	//		} else {
-	//			mn = m_mnot = new Div();
-	//			appendAfterMe(mn);
-	//			mn.setCssClass("ui-mesi ui-mesi-" + msg.getType().name().toLowerCase());
-	//			mn.setTitle(msg.getMessage());
-	//		}
-	//	}
-
 	/**
 	 * Returns the datatype of the value of this control, as passed in the constructor.
 	 * @return

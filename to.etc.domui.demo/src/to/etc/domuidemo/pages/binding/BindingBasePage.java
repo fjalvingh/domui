@@ -28,8 +28,8 @@ public class BindingBasePage extends UrlPage {
 				hoppa();
 			}
 		}));
-
-		Bind.join(m_durationO).to(durtext, "value");
+		BindingContext	bc = new BindingContext();
+		bc.joinbinding(m_durationO, durtext, "value");
 	}
 
 	private void hoppa() throws Exception {

@@ -147,11 +147,30 @@ public class BindingContext {
 		//-- If target is a NodeBase then bind an error listener too
 		if(target instanceof NodeBase) {
 			NodeBase nb = (NodeBase) target;
+			nb.setMessageBroadcastEnabled(false);
 			bindMessage(source, sproperty, nb);
 		}
 
 		return new JoinBinding(this, sourceo, targeto);
 	}
+
+	@Nonnull
+	public <S, T, V> JoinBinding joinbinding(@Nonnull IObservableValue< ? > sourceo, @Nonnull final T target, @Nonnull final String tproperty) throws Exception {
+		if(null == target || null == tproperty)
+			throw new IllegalArgumentException("target/property cannot be null");
+
+		IObservableValue<V> targeto = (IObservableValue<V>) BindingContext.createObservable(target, tproperty);
+
+		//-- If target is a NodeBase then bind an error listener too
+		if(target instanceof NodeBase) {
+			NodeBase nb = (NodeBase) target;
+			nb.setMessageBroadcastEnabled(false);
+			//			bindMessage(source, sproperty, nb);
+		}
+
+		return new JoinBinding(this, sourceo, targeto);
+	}
+
 
 	//	/**
 	//	 * Bidirectional binding of a source Observable to some target.
