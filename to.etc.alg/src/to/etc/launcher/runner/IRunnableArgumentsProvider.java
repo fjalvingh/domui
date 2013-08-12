@@ -33,4 +33,7 @@ public interface IRunnableArgumentsProvider {
 	@Nonnull
 	File getReportRoot() throws IllegalStateException;
 
+	@Nullable
+	String getTimeout();
+
 }

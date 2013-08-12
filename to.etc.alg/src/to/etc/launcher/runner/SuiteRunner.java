@@ -118,6 +118,7 @@ public class SuiteRunner implements Runnable {
 		addAsVMOptionalArgument(args, "testng.server.url", m_argumentsProvider.getServerUrl());
 		addAsVMOptionalArgument(args, "testng.username", m_argumentsProvider.getUserName());
 		addAsVMOptionalArgument(args, "testng.password", m_argumentsProvider.getPassword());
+		addAsVMOptionalArgument(args, "testng.wait.timeout", m_argumentsProvider.getTimeout());
 		addAsVMOptionalArgument(args, "testProperties", m_argumentsProvider.getUnitTestProperties());
 		addAsVMOptionalArgument(args, "testng.report.root", new File(m_argumentsProvider.getReportRoot(), browserString).getAbsolutePath());
 		add(args, "-cp").add(args, m_argumentsProvider.getClassPath());

@@ -62,6 +62,8 @@ public class ParallelTestLauncher implements IRunnableArgumentsProvider {
 
 	public static final String	ARG_URL				= "testng.server.url";
 
+	public static final String	ARG_TIMEOUT					= "testng.wait.timeout";
+
 	public static final String	ARG_USERNAME		= "testng.username";
 
 	public static final String	ARG_PASSWORD		= "testng.password";
@@ -542,4 +544,9 @@ public class ParallelTestLauncher implements IRunnableArgumentsProvider {
 		return getArgUtil().getOptionalSingle(ARG_UNIT_TEST_PROPERTIES);
 	}
 
+	@Override
+	@Nullable
+	public String getTimeout() {
+		return getArgUtil().getOptionalSingle(ARG_TIMEOUT);
+	}
 }

@@ -43,6 +43,9 @@ options:
 	-testng.username		, user name used to log in into target application
 
 	-testng.password		, password used to log in into target application
+
+	-testng.wait.timeout	, timeout after when test ng throws exception if expected conditions are not met, defined in miliseconds
+								(dafault is 20000)
 	
 	-testProperties			, name of test properties file
 								(defines custom test props needed to run database unit test, needs to be within [-project] classpath)
