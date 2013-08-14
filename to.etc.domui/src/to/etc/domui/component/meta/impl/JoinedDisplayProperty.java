@@ -84,9 +84,8 @@ public class JoinedDisplayProperty extends ExpandedDisplayProperty<String> imple
 			if(value == null)
 				continue;
 			String s;
-			IConverter< ? > converter = pm.getConverter();
-			if(converter != null)
-				s = ((IConverter<Object>) converter).convertObjectToString(NlsContext.getLocale(), value);
+			if(pm.getConverter() != null)
+				s = ((IConverter<Object>) pm.getConverter()).convertObjectToString(NlsContext.getLocale(), value);
 			else
 				s = ConverterRegistry.convertToString((PropertyMetaModel<Object>) pm, value);
 			if(s == null || s.length() == 0)
