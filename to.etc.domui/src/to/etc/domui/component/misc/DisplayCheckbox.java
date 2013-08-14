@@ -71,8 +71,7 @@ public class DisplayCheckbox extends Img implements IDisplayControl<Boolean>, IB
 	}
 
 	public boolean isChecked() {
-		Boolean value = getValue();
-		return value != null && value.booleanValue();
+		return getValue() != null && getValue().booleanValue();
 	}
 
 	/*--------------------------------------------------------------*/
