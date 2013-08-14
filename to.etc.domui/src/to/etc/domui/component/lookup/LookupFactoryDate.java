@@ -97,9 +97,8 @@ final class LookupFactoryDate implements ILookupControlFactory {
 						//-- Swap vals
 						dateFrom.setValue(till);
 						dateTo.setValue(from);
-						Date tmp = from;
 						from = till;
-						till = tmp;
+						till = dateTo.getValue();
 					}
 
 					//-- Between query

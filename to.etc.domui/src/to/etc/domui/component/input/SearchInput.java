@@ -162,10 +162,9 @@ public class SearchInput<T> extends Div {
 		}
 
 		//-- If just enter is pressed-> call handler and be done.
-		IQuery<T> handler = m_handler;
 		if(done) {
-			if(handler != null) {
-				handler.onEnter(curdata);
+			if(m_handler != null) {
+				m_handler.onEnter(curdata);
 			}
 			clearResultPopup();
 			clearResultMessage();
@@ -175,8 +174,8 @@ public class SearchInput<T> extends Div {
 
 		//-- We need to do a query.. Ask the handler for a result
 		List<T>	res = null;
-		if(handler != null) {
-			res = handler.queryFromString(curdata, MAX_RESULTS);
+		if(m_handler != null) {
+			res = m_handler.queryFromString(curdata, MAX_RESULTS);
 		}
 		showResults(res);
 	}

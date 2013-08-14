@@ -46,7 +46,7 @@ public final class BindingMessenger {
 	@Nullable
 	private BundleRef m_bundleRef;
 
-	@Nullable
+	@Nonnull
 	private Object m_object;
 
 	public BindingMessenger(@Nonnull ModelBindings bindings, @Nonnull BundleRef bundleRef) {
@@ -85,15 +85,8 @@ public final class BindingMessenger {
 		error(object, property, UIMessage.error(m_bundleRef, message, param));
 	}
 
-	@Nonnull
-	public Object getObject() {
-		if(null != m_object)
-			return m_object;
-		throw new IllegalStateException("This binding does not have an object set.");
-	}
-
 	public void error(@Nonnull String property, @Nonnull String message, @Nullable Object... param) throws Exception {
-		error(getObject(), property, UIMessage.error(m_bundleRef, message, param));
+		error(m_object, property, UIMessage.error(m_bundleRef, message, param));
 	}
 
 	/**
@@ -134,7 +127,7 @@ public final class BindingMessenger {
 	 * @throws Exception
 	 */
 	public <T> IControl<T> findControl(@Nonnull String property) throws Exception {
-		return findControl(getObject(), property);
+		return findControl(m_object, property);
 	}
 
 	public <T> IControl<T> findControl(@Nonnull Object object, @Nonnull String property) throws Exception {

@@ -122,9 +122,7 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 				@Override
 				@SuppressWarnings("unchecked")
 				public void clicked(final TR b) throws Exception {
-					ICellClicked< ? > rowClicked = getRowClicked();
-					if(null != rowClicked)
-						((ICellClicked<T>) rowClicked).cellClicked(b, instance);
+					((ICellClicked<T>) getRowClicked()).cellClicked(b, instance);
 				}
 			});
 			cc.getTR().addCssClass("ui-keyword-popup-row");
@@ -167,17 +165,15 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 		cell = cc.add((NodeBase) null); // Add the new row
 		cell.add(wrapDiv); // Add no-wrap div
 
-		INodeContentRenderer< ? > contentRenderer = cd.getContentRenderer();
-		if(null != contentRenderer) {
-			((INodeContentRenderer<Object>) contentRenderer).renderNodeContent(tbl, wrapDiv, colval, instance); // %&*(%&^%*&%&( generics require casting here
+		if(null != cd.getContentRenderer()) {
+			((INodeContentRenderer<Object>) cd.getContentRenderer()).renderNodeContent(tbl, wrapDiv, colval, instance); // %&*(%&^%*&%&( generics require casting here
 		} else {
 			String s;
 			if(colval == null)
 				s = null;
 			else {
-				IObjectToStringConverter< ? > presentationConverter = cd.getPresentationConverter();
-				if(presentationConverter != null)
-					s = ((IConverter<X>) presentationConverter).convertObjectToString(NlsContext.getLocale(), colval);
+				if(cd.getPresentationConverter() != null)
+					s = ((IConverter<X>) cd.getPresentationConverter()).convertObjectToString(NlsContext.getLocale(), colval);
 				else
 					s = String.valueOf(colval);
 			}
