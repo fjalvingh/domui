@@ -107,35 +107,29 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 				if(relation == NumericRelationType.BETWEEN && !numB.validate()) {
 					return AppendCriteriaResult.INVALID;
 				}
-				Object vala = numA.getValue();
-				if(vala == null)
-					return AppendCriteriaResult.EMPTY;
 				switch(relation){
 					default:
 						throw new IllegalStateException(relation + ": unhandled case");
 					case EQ:
-						crit.eq(spm.getPropertyName(), vala);
+						crit.eq(spm.getPropertyName(), numA.getValue());
 						break;
 					case LT:
-						crit.lt(spm.getPropertyName(), vala);
+						crit.lt(spm.getPropertyName(), numA.getValue());
 						break;
 					case LE:
-						crit.le(spm.getPropertyName(), vala);
+						crit.le(spm.getPropertyName(), numA.getValue());
 						break;
 					case GT:
-						crit.gt(spm.getPropertyName(), vala);
+						crit.gt(spm.getPropertyName(), numA.getValue());
 						break;
 					case GE:
-						crit.ge(spm.getPropertyName(), vala);
+						crit.ge(spm.getPropertyName(), numA.getValue());
 						break;
 					case NOT_EQ:
-						crit.ne(spm.getPropertyName(), vala);
+						crit.ne(spm.getPropertyName(), numA.getValue());
 						break;
 					case BETWEEN:
-						Object numb = numB.getValue();
-						if(null == numb)
-							return AppendCriteriaResult.INVALID;
-						crit.between(spm.getPropertyName(), vala, numb);
+						crit.between(spm.getPropertyName(), numA.getValue(), numB.getValue());
 						break;
 				}
 				return AppendCriteriaResult.VALID;
