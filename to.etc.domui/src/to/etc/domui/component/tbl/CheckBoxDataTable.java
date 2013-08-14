@@ -261,7 +261,7 @@ public class CheckBoxDataTable<T> extends DataTable<T> {
 				tr.addCssClass("ui-rowsel");
 				tr.setClicked(new IClicked<TR>() {
 					@Override
-					public void clicked(@Nonnull TR row) throws Exception {
+					public void clicked(TR row) throws Exception {
 						Object userObject = row.getUserObject();
 						if(userObject instanceof Checkbox) {
 							Checkbox ckb = (Checkbox) userObject;
