@@ -178,10 +178,8 @@ public class FormData<T> {
 			for(NodeBase b : r.getNodeList())
 				b.setErrorLocation(label);
 		}
-
-		Bind.join(getModel().getValue(), name).to(r.getFormControl(), "value");
+		builder().getBindingContext().joinbinding(getModel().getValue(), name, r.getFormControl(), "value");
 		bindOptionals(r.getFormControl());
-
 		r.getFormControl().setMandatory(mandatory);
 
 		//		getBindings().add(new SimpleComponentPropertyBinding<C>(getModel(), pmm, (IControl<C>) r.getFormControl()));
@@ -261,7 +259,7 @@ public class FormData<T> {
 		if(label != null) {
 			dv.setErrorLocation(label);
 		}
-		Bind.from(getModel().getValue(), name).to(dv, "value");
+		builder().getBindingContext().joinbinding(getModel().getValue(), name, dv, "value");
 		return dv;
 	}
 
@@ -309,7 +307,10 @@ public class FormData<T> {
 		builder().addControl(label, ctl, new NodeBase[]{ctl}, ctl.isMandatory(), true, pmm); // Since this is a full control it is editable
 		if(label != null)
 			ctl.setErrorLocation(label);
-		Bind.join(getModel().getValue(), pmm.getName()).to(ctl, "value", converter);
+		JoinBinding binding = builder().getBindingContext().joinbinding(getModel().getValue(), pmm.getName(), ctl, "value");
+		if(null != converter)
+			binding.converter(converter);
+
 		bindOptionals(ctl);
 		return ctl;
 	}
@@ -321,7 +322,7 @@ public class FormData<T> {
 		builder().addControl(label, ctl, new NodeBase[]{ctl}, false, true, pmm);
 		if(label != null)
 			ctl.setErrorLocation(label);
-		Bind.join(getModel().getValue(), propertyname).to(ctl, "value");
+		builder().getBindingContext().joinbinding(getModel().getValue(), propertyname, ctl, "value");
 		return ctl;
 	}
 

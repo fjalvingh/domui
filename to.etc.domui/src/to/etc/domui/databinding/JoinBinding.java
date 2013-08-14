@@ -26,6 +26,11 @@ public class JoinBinding extends Binding {
 		moveSourceToTarget();
 	}
 
+	final public <A, B> JoinBinding converter(@Nonnull IJoinConverter<A, B> jc) {
+		m_converter = jc;
+		return this;
+	}
+
 	@Override
 	protected void moveSourceToTarget() throws Exception {
 		Object val;

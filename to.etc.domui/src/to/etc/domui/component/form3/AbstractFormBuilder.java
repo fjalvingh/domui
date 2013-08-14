@@ -44,6 +44,9 @@ import to.etc.domui.util.*;
 abstract public class AbstractFormBuilder {
 	static protected final Logger LOG = LoggerFactory.getLogger(AbstractFormBuilder.class);
 
+	@Nonnull
+	final private BindingContext m_bindingContext;
+
 	@Nullable
 	private ControlBuilder m_builder;
 
@@ -90,7 +93,8 @@ abstract public class AbstractFormBuilder {
 	 * {@link IAppender#add(NodeContainer)} method.
 	 * @param a
 	 */
-	protected AbstractFormBuilder(@Nonnull IAppender a) {
+	protected AbstractFormBuilder(@Nonnull BindingContext bc, @Nonnull IAppender a) {
+		m_bindingContext = bc;
 		m_appender = a;
 	}
 
@@ -99,13 +103,15 @@ abstract public class AbstractFormBuilder {
 	 * @param target
 	 */
 	protected AbstractFormBuilder(@Nonnull final NodeContainer target) {
-		this(new IAppender() {
+		this(target.getBindingContext(), new IAppender() {
 			@Override
 			public void add(@Nonnull NodeBase formNode) {
 				target.add(formNode);
 			}
 		});
 	}
+
+
 
 	/**
 	 * Set rights for components created on this form.
@@ -137,6 +143,10 @@ abstract public class AbstractFormBuilder {
 	 */
 	public void appendFormNode(@Nonnull NodeBase node) {
 		m_appender.add(node);
+	}
+
+	public BindingContext getBindingContext() {
+		return m_bindingContext;
 	}
 
 	@Nonnull

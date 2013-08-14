@@ -7,6 +7,7 @@ import to.etc.domui.component.input.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.databinding.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domuidemo.db.*;
 
 public class BindingBasePage extends UrlPage {
 	@Nonnull
@@ -30,6 +31,14 @@ public class BindingBasePage extends UrlPage {
 		}));
 		BindingContext	bc = new BindingContext();
 		bc.joinbinding(m_durationO, durtext, "value");
+
+		Artist art = getSharedContext().get(Artist.class, Long.valueOf(58));
+
+		Div d = new Div();
+		add(d);
+		Label artl = new Label("Artist: " + art.getName());
+		d.add(artl);
+
 	}
 
 	private void hoppa() throws Exception {

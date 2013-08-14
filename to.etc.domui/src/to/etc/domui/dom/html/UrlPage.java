@@ -31,6 +31,7 @@ import javax.annotation.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.layout.title.*;
 import to.etc.domui.component.misc.*;
+import to.etc.domui.databinding.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.logic.*;
 import to.etc.domui.logic.events.*;
@@ -51,6 +52,9 @@ import to.etc.webapp.query.*;
 public class UrlPage extends Div implements ILogiEventListener {
 	/** The title for the page in the head's TITLE tag. */
 	private String m_pageTitle;
+
+	@Nullable
+	private BindingContext m_bindingContext;
 
 	/**
 	 * Gets called when a page is reloaded (for ROOT pages only).
@@ -123,6 +127,20 @@ public class UrlPage extends Div implements ILogiEventListener {
 	@Nonnull
 	public QDataContextFactory getSharedContextFactory(@Nonnull String key) {
 		return QContextManager.getDataContextFactory(key, getPage().getContextContainer(key));
+	}
+
+	/**
+	 * EXPERIMENTAL Get the binding context for the page/module.
+	 * @return
+	 */
+	@Override
+	@Nonnull
+	public BindingContext getBindingContext() {
+		BindingContext bc = m_bindingContext;
+		if(null == bc) {
+			bc = m_bindingContext = new BindingContext();
+		}
+		return bc;
 	}
 
 	/**

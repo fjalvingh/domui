@@ -1432,6 +1432,14 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		return getParent().getSharedContextFactory();
 	}
 
+	/**
+	 * EXPERIMENTAL Get the binding context for the page/module.
+	 * @return
+	 */
+	@Nonnull
+	public BindingContext getBindingContext() {
+		return getParent().getBindingContext();
+	}
 
 	/**
 	 * Get the context.
