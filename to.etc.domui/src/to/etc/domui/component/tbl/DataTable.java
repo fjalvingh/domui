@@ -303,9 +303,8 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		}
 
 		//-- If this has a click handler- fire it.
-		ICellClicked< ? > rowClicked = m_rowRenderer.getRowClicked();
-		if(null != rowClicked)
-			((ICellClicked<T>) rowClicked).cellClicked(b, instance);
+		if(null != m_rowRenderer.getRowClicked())
+			((ICellClicked<T>) m_rowRenderer.getRowClicked()).cellClicked(b, instance);
 	}
 
 	/**
@@ -758,11 +757,10 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 * @param selectionModel
 	 */
 	public void setSelectionModel(@Nullable ISelectionModel<T> selectionModel) {
-		ISelectionModel<T> oldsm = m_selectionModel;
-		if(DomUtil.isEqual(oldsm, selectionModel))
+		if(DomUtil.isEqual(m_selectionModel, selectionModel))
 			return;
-		if(oldsm != null) {
-			oldsm.removeListener(this);
+		if(m_selectionModel != null) {
+			m_selectionModel.removeListener(this);
 			setDisableClipboardSelection(true);
 		}
 		m_selectionModel = selectionModel;

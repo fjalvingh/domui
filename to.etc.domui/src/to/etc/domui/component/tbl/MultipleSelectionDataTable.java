@@ -121,8 +121,7 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 				tr.add(selectionMarkerCell);
 
 				//-- Is a rowclick handler needed?
-				final ICellClicked< ? > rowClicked = getRowRenderer().getRowClicked();
-				if(rowClicked != null /* || null != getSelectionModel() */) {
+				if(getRowRenderer().getRowClicked() != null || null != getSelectionModel()) {
 					//-- Add a click handler to select or pass the rowclicked event.
 					final TR therow = tr;
 					final T theitem = item;
@@ -130,7 +129,7 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 						@Override
 						@SuppressWarnings({"synthetic-access"})
 						public void clicked(@Nonnull TR b, @Nonnull ClickInfo clinfo) throws Exception {
-							((ICellClicked<T>) rowClicked).cellClicked(therow, theitem);
+							((ICellClicked<T>) getRowRenderer().getRowClicked()).cellClicked(therow, theitem);
 						}
 					});
 					cc.getTR().addCssClass("ui-rowsel");
@@ -190,8 +189,7 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 		});
 
 		//-- jal: added due to multiselect refactoring. The above setclicked should never have worked???
-		final ICellClicked< ? > rowClicked = getRowRenderer().getRowClicked();
-		if(rowClicked != null /* || null != getSelectionModel() */) {
+		if(getRowRenderer().getRowClicked() != null || null != getSelectionModel()) {
 			//-- Add a click handler to select or pass the rowclicked event.
 			final TR therow = tr;
 			final T theitem = item;
@@ -199,7 +197,7 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 				@Override
 				@SuppressWarnings({"synthetic-access"})
 				public void clicked(@Nonnull TR b, @Nonnull ClickInfo clinfo) throws Exception {
-					((ICellClicked<T>) rowClicked).cellClicked(therow, theitem);
+					((ICellClicked<T>) getRowRenderer().getRowClicked()).cellClicked(therow, theitem);
 				}
 			});
 			cc.getTR().addCssClass("ui-rowsel");
