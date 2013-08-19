@@ -167,7 +167,7 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 		Checkbox b = new Checkbox();
 		b.setClicked(new IClicked<Checkbox>() {
 			@Override
-			public void clicked(@Nonnull Checkbox ckb) throws Exception {
+			public void clicked(Checkbox ckb) throws Exception {
 				TR row = ckb.getParent(TR.class);
 				handleAccumulatedItemRowSelectionChanged(row, Boolean.valueOf(ckb.isChecked()));
 			}
@@ -180,9 +180,10 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 		tr.setClicked(new IClicked<TR>() {
 
 			@Override
-			public void clicked(@Nonnull TR row) throws Exception {
-				if(row.getUserObject() instanceof Checkbox) {
-					((Checkbox) row.getUserObject()).setChecked(!((Checkbox) row.getUserObject()).isChecked());
+			public void clicked(TR row) throws Exception {
+				Object userObject = row.getUserObject();
+				if(userObject instanceof Checkbox) {
+					((Checkbox) userObject).setChecked(!((Checkbox) userObject).isChecked());
 				}
 			}
 		});
