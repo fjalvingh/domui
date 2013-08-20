@@ -614,7 +614,7 @@ public class PomBuilder {
 			w.tagfull("version", "2.14.1");
 
 			w.tag("configuration");
-			w.tagfull("argLine", "-Xmx1024m -XX:MaxPermSize=1024m");
+			w.tagfull("argLine", "-Xmx2048m -XX:MaxPermSize=1024m");
 			w.tagendnl();
 
 			w.tag("dependencies");
