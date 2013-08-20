@@ -25,12 +25,12 @@ public class ParallelTestLauncherTest {
 			"-threads", "10", //
 			"-testng.reporter", "nl.itris.vp.webdriver.core.report.WdVpTestXMLReporter", //
 			"-testng.reporter.root", "/home/vmijic/Data/Projects/Itris/Viewpoint/testing/tests/proba/vp-suite", //
-			"-testng.browser", "firefox", "ie", //
+			"-testng.browser", "firefox", //
 			"-testng.remote.hub", "local", //
 			"-testng.server.url", "http://ws061.execom.co.yu:8080/Itris_VO02/", //
 			"-testng.username", "vpc", //
 			"-testng.password", "rhijnspoor", //
-			"-testProperties", "wd44.properties", //
+		//"-testProperties", "wd44.properties", //
 		};
 
 		new ParallelTestLauncher().run(args);
@@ -57,16 +57,17 @@ public class ParallelTestLauncherTest {
 		"-root", "/home/vmijic/Data/Projects/Itris/Viewpoint/bzr/vp-split-4.4-webdriver/vp-4.4", //
 			"-m2.repo", "/home/vmijic/.m2", //
 			"-project", "vp-selenium-webdriver-tests", //
-			"-suiteFiles", "vp-selenium-webdriver-tests/src/nl/itris/vp/webdriver/vp/wdParallelSuiteVp.xml", "vp-selenium-webdriver-tests/src/nl/itris/vp/webdriver/vp/debugSuiteVp.xml", //
-			"-threads", "10", //
+			"-suiteFiles", "vp-selenium-webdriver-tests/src/nl/itris/vp/webdriver/vp/wdSuiteDecade.xml", //
+			"-threads", "5", //
 			"-testng.reporter", "nl.itris.vp.webdriver.core.report.WdVpTestXMLReporter", //
 			"-testng.reporter.root", "/home/vmijic/Data/Projects/Itris/Viewpoint/testing/tests/proba/vp-suite", //
-			"-testng.browser", "firefox", "ie", //
-			"-testng.remote.hub", "local", //
-			"-testng.server.url", "http://ws061.execom.co.yu:8080/Itris_VO02/", //
+			"-testng.browser", "firefox", //
+			"-testng.remote.hub", "http://192.168.0.118:4444/wd/hub",
+			//"testng.remote.hub", "local", //
+			"-testng.server.url", "http://192.168.0.118:8080/Itris_VO02/", //
 			"-testng.username", "vpc", //
 			"-testng.password", "rhijnspoor", //
-			"-testProperties", "wd44.properties", //
+		//"-testProperties", "wd44.properties", //
 		};
 
 		new ParallelTestLauncher().run(args);
