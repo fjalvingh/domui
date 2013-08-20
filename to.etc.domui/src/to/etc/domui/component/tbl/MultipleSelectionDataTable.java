@@ -181,8 +181,9 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 
 			@Override
 			public void clicked(TR row) throws Exception {
-				if(row.getUserObject() instanceof Checkbox) {
-					((Checkbox) row.getUserObject()).setChecked(!((Checkbox) row.getUserObject()).isChecked());
+				Object userObject = row.getUserObject();
+				if(userObject instanceof Checkbox) {
+					((Checkbox) userObject).setChecked(!((Checkbox) userObject).isChecked());
 				}
 			}
 		});
