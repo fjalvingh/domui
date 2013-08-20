@@ -262,6 +262,10 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	@Override
 	public void setConverter(IConverter<T> converter) {
 		m_converter = converter;
+		if(m_numberMode != NumberMode.NONE && converter != null) {
+			m_numberMode = NumberMode.NONE;
+			setOnKeyPressJS(null);
+		}
 	}
 
 	/**
