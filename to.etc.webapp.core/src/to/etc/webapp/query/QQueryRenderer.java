@@ -46,6 +46,14 @@ public class QQueryRenderer implements QNodeVisitor {
 
 	private int m_currentColumn;
 
+	protected int getCurrentColumn() {
+		return m_currentColumn;
+	}
+
+	protected void setCurrentColumn(int currentColumn) {
+		m_currentColumn = currentColumn;
+	}
+
 	/**
 	 * Return the result of the conversion.
 	 * @see java.lang.Object#toString()

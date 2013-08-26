@@ -40,6 +40,8 @@ public class LedgerAccount {
 
 	private String m_description;
 
+	public static final String pDESCRIPTION = "description";
+
 	private String m_typeDescription;
 
 	public LedgerAccount() {}
