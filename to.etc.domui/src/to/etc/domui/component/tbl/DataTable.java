@@ -453,6 +453,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		TD th = new TH();
 		th.add(new Img("THEME/dspcb-on.png"));
 		headerrow.add(0, th);
+		th.setWidth("1px"); //keep selection column with minimal width
 
 		//-- 2. Insert a checkbox in all rows.
 		for(int i = 0; i < m_dataBody.getChildCount(); i++) {
