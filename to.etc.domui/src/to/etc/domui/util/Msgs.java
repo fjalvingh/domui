@@ -276,6 +276,8 @@ public interface Msgs {
 	/** General purpose */
 	public static final String BTN_CLOSE = "btn.close";
 
+	public static final String BTN_PRINT = "btn.print";
+
 	/*** BulkUpload ***/
 	public static final String BULKUPLD_DISABLED = "bupl.disabled";
 
