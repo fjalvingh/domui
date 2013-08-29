@@ -3995,22 +3995,53 @@ function FCKeditor_fixLayout(fckIFrame, fckId) {
 	}
 };
 
-$(document).keydown(function(e) {
+$(document).keydown(function(e){
+	addPaggerAccessKeys(e);
+	triggerLastAccessKey(e);
+});
+
+function addPaggerAccessKeys(e) {
 	var KEY = {
 		HOME : 36,
 		END : 35,
 		PAGE_UP : 33,
 		PAGE_DOWN : 34
 	};
-	if ($('div.ui-szless').length > 0) {
-		if (e.altKey && e.keyCode == KEY.HOME) {
-			$("div.ui-szless > button.ui-sib:nth-child(1)").click();
-		} else if (e.altKey && e.keyCode == KEY.PAGE_UP) {
-			$("div.ui-szless > button.ui-sib:nth-child(2)").click();
-		} else if (e.altKey && e.keyCode == KEY.PAGE_DOWN) {
-			$("div.ui-szless > button.ui-sib:nth-child(3)").click();
-		} else if (e.altKey && e.keyCode == KEY.END) {
-			$("div.ui-szless > button.ui-sib:nth-child(4)").click();
+	if ($('div.ui-dp-btns').size() > 0) {
+		if (e.altKey){
+			if(e.keyCode == KEY.HOME) {
+				$("div.ui-dp-btns > a:nth-child(1)").click();
+			} else if (e.keyCode == KEY.PAGE_UP) {
+				$("div.ui-dp-btns > a:nth-child(2)").click();
+			} else if (e.keyCode == KEY.PAGE_DOWN) {
+				$("div.ui-dp-btns > a:nth-child(3)").click();
+			} else if (e.keyCode == KEY.END) {
+				$("div.ui-dp-btns > a:nth-child(4)").click();
+			}
+		} 
+	}
+}
+/**
+ * Unifying accesskey functionality for all browsers.
+ * The only browser which "supports" duplicate accesskey values is Internet Explorer for Windows, although this is only because
+ * Internet Explorer handles accesskey differently than other browsers (and some would say improperly).
+ */ 
+function triggerLastAccessKey(e) {
+	if ($.browser.msie){
+		if (e.altKey && e.keyCode != null) {
+			var pressedCharacter;
+			var accessKeys = null;
+			try{
+				pressedCharacter = String.fromCharCode(e.keyCode).toLowerCase();
+				accessKeys = $('button[accesskey="' + pressedCharacter + '"]');
+			} catch (e) {
+				//some kayCodes can't be converted to characters
+			}
+			if(accessKeys != null && accessKeys.size() > 1){
+				e.preventDefault();
+				accessKeys.last().click();
+				return false;
+			}
 		}
 	}
-});
+};
