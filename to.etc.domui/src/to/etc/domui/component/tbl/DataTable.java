@@ -194,8 +194,11 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	@Deprecated
 	void renderHeader(@Nonnull HeaderContainer<T> hc) throws Exception {
 		//-- Are we rendering a multi-selection?
-		if(m_multiSelectMode)
-			hc.add(new Img("THEME/dspcb-on.png"));
+		if(m_multiSelectMode) {
+			TH headerCell = hc.add("");
+			headerCell.add(new Img("THEME/dspcb-on.png"));
+			headerCell.setWidth("1px"); //keep selection column with minimal width
+		}
 		m_rowRenderer.renderHeader(this, hc);
 	}
 
@@ -452,8 +455,8 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		//-- 1. Add the select TH.
 		TD th = new TH();
 		th.add(new Img("THEME/dspcb-on.png"));
-		headerrow.add(0, th);
 		th.setWidth("1px"); //keep selection column with minimal width
+		headerrow.add(0, th);
 
 		//-- 2. Insert a checkbox in all rows.
 		for(int i = 0; i < m_dataBody.getChildCount(); i++) {
