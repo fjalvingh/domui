@@ -9,6 +9,10 @@
 		<project>to.etc.domui.hibutil</project>
 		<project>to.etc.alg</project>
 		<project>bin-batik-1.7</project>
+		<project>jsr305</project>
+		<project>bin-slf4j</project>
+		<project>lib-jericho</project>
+		<project>lib-hibernate</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
