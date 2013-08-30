@@ -3,6 +3,7 @@ package to.etc.domuidemo.pages;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.fd.*;
 import to.etc.domui.state.*;
 import to.etc.domuidemo.pages.basic.*;
 import to.etc.domuidemo.pages.formbuilder.*;
@@ -109,6 +110,7 @@ public class HomePage extends UrlPage {
 		addLink(DemoLookupForm2.class, "LookupForm with LookupInput for a many-to-one relation, and search-as-you-type");
 
 		addLink(SimpleForm1.class, "The FormBuilder - very simple edit page");
+		addLink(FormDesigner.class, "Form designer - work in progress");
 
 		addCaption("Special components");
 		addLink(DemoWeekAgenda.class, "The WeekAgenda");

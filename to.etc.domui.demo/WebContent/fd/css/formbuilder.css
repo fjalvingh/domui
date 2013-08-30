@@ -1,0 +1,46 @@
+/*
+ * Form designer editor stylesheet.
+ */
+.fb-main {
+	
+}
+.fb-top {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	right: 0px;
+	height: 30px;
+	background: black;
+	color: white;
+}
+.fb-left {
+	position: absolute;
+	top: 30px;
+	bottom: 0px;
+	left: 0px;
+	right: 300px;
+}
+.fb-right {
+	position: absolute;
+	top: 30px;
+	bottom: 0px;
+	width: 300px;
+	right: 0px;
+	border-left: 1px dotted black;
+	background-color: #eee;
+}
+
+/*** Paint panel ***/
+.fd-pp {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	bottom: 0px;
+	right: 0px;
+		
+	background-image: linear-gradient(rgba(131, 170, 229, 0.298039) 1px, transparent 1px), linear-gradient(90deg, rgba(131, 170, 229, 0.298039) 1px, transparent 1px), linear-gradient(rgba(131, 170, 229, 0.14902) 1px, transparent 1px), linear-gradient(90deg, rgba(131, 170, 229, 0.14902) 1px, transparent 1px);
+	background-size: 50px, 50px, 10px, 10px;
+	background-repeat: repeat;
+}
+
+
