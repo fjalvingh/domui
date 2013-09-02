@@ -3997,7 +3997,6 @@ function FCKeditor_fixLayout(fckIFrame, fckId) {
 
 $(document).keydown(function(e){
 	addPaggerAccessKeys(e);
-	triggerLastAccessKey(e);
 });
 
 function addPaggerAccessKeys(e) {
@@ -4021,27 +4020,3 @@ function addPaggerAccessKeys(e) {
 		} 
 	}
 }
-/**
- * Unifying accesskey functionality for all browsers.
- * The only browser which "supports" duplicate accesskey values is Internet Explorer for Windows, although this is only because
- * Internet Explorer handles accesskey differently than other browsers (and some would say improperly).
- */ 
-function triggerLastAccessKey(e) {
-	if ($.browser.msie){
-		if (e.altKey && e.keyCode != null) {
-			var pressedCharacter;
-			var accessKeys = null;
-			try{
-				pressedCharacter = String.fromCharCode(e.keyCode).toLowerCase();
-				accessKeys = $('button[accesskey="' + pressedCharacter + '"]');
-			} catch (e) {
-				//some kayCodes can't be converted to characters
-			}
-			if(accessKeys != null && accessKeys.size() > 1){
-				e.preventDefault();
-				accessKeys.last().click();
-				return false;
-			}
-		}
-	}
-};
