@@ -235,6 +235,8 @@ public class SessionStorageUtil {
 			((IControl<Long>) control).setValue((Long) value);
 		} else if(value instanceof Date) {
 			((IControl<Date>) control).setValue((Date) value);
+		} else if(value instanceof Boolean) {
+			((IControl<Boolean>) control).setValue((Boolean) value);
 		} else if(value instanceof String) {
 			((IControl<String>) control).setValue((String) value);
 		} else if(Enum.class.isAssignableFrom(value.getClass())) {
