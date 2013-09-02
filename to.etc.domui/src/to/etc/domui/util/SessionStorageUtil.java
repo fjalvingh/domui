@@ -23,6 +23,12 @@ import to.etc.webapp.query.*;
  */
 public class SessionStorageUtil {
 
+	private static final String PART_TIME = "time";
+
+	private static final String PART_TYPE = "type";
+
+	private static final String PART_ID = "id";
+
 	/**
 	 * Defines data that can be stored/load from session storage.
 	 *
@@ -101,7 +107,7 @@ public class SessionStorageUtil {
 	 */
 	public static boolean hasStoredData(@Nonnull IRequestContext ctx, @Nonnull ISessionStorage storableData) {
 		AppSession ses = ctx.getSession();
-		return null != ses.getAttribute(storableData.getStorageId() + "|time");
+		return null != ses.getAttribute(storableData.getStorageId() + "|" + PART_TYPE);
 	}
 
 	/**
@@ -112,7 +118,7 @@ public class SessionStorageUtil {
 	 */
 	public static void storeData(@Nonnull IRequestContext ctx, @Nonnull ISessionStorage storableData) {
 		AppSession ses = ctx.getSession();
-		ses.setAttribute(storableData.getStorageId() + "|time", new Date());
+		ses.setAttribute(storableData.getStorageId() + "|" + PART_TIME, new Date());
 
 		for(IControl< ? > control : storableData.getNodeToStore().getDeepChildren(IControl.class)) {
 			String controlKey = control.getErrorLocation();
@@ -127,8 +133,8 @@ public class SessionStorageUtil {
 							ClassMetaModel cmm = MetaManager.findClassMeta(value.getClass());
 							if(null != cmm) {
 								Object id = ((IIdentifyable< ? >) value).getId();
-								ses.setAttribute(key + "|type", cmm.getActualClass());
-								ses.setAttribute(key + "|id", id);
+								ses.setAttribute(key + "|" + PART_TYPE, cmm.getActualClass());
+								ses.setAttribute(key + "|" + PART_ID, id);
 							}
 						} else {
 							ses.setAttribute(key, value);
@@ -181,9 +187,9 @@ public class SessionStorageUtil {
 					}
 				}
 			} else {
-				Class< ? > type = (Class< ? >) ses.getAttribute(key + "|type");
+				Class< ? > type = (Class< ? >) ses.getAttribute(key + "|" + PART_TYPE);
 				if(null != type) {
-					Object id = ses.getAttribute(key + "|id");
+					Object id = ses.getAttribute(key + "|" + PART_ID);
 					if(null != id) {
 						if(setIdentifiableValue(dc, control, type, id, existingValue)) {
 							updated.add(control);
