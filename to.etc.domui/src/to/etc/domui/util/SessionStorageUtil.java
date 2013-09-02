@@ -160,7 +160,6 @@ public class SessionStorageUtil {
 	public static void loadData(@Nonnull QDataContext dc, @Nonnull IRequestContext ctx, @Nonnull ISessionStorage storableData)
 		throws Exception {
 		AppSession ses = ctx.getSession();
-		List<IControl< ? >> updated = new ArrayList<IControl< ? >>();
 		for(IControl< ? > control : storableData.getNodeToStore().getDeepChildren(IControl.class)) {
 			UIMessage existingMessage = control.getMessage();
 			Object existingValue = control.getValueSafe();
@@ -177,12 +176,10 @@ public class SessionStorageUtil {
 				if(!MetaManager.areObjectsEqual(sesValue, existingValue)) {
 					boolean handled = setNonIdentifiableTypeValue(control, sesValue);
 					if(handled) {
-						updated.add(control);
+						fireValueChanged(control);
 					} else {
-						if(callback != null) {
-							if(callback.check(new ControlValuePair(control, sesValue))) {
-								updated.add(control);
-							}
+						if(callback != null && callback.check(new ControlValuePair(control, sesValue))) {
+							fireValueChanged(control);
 						}
 					}
 				}
@@ -192,21 +189,22 @@ public class SessionStorageUtil {
 					Object id = ses.getAttribute(key + "|" + PART_ID);
 					if(null != id) {
 						if(setIdentifiableValue(dc, control, type, id, existingValue)) {
-							updated.add(control);
+							fireValueChanged(control);
 						}
 					}
 				}
 			}
 		}
-		for(IControl< ? > control : updated) {
-			if(control instanceof NodeBase) {
-				IValueChanged<NodeBase> valueChangedListener = (IValueChanged<NodeBase>) control.getOnValueChanged();
-				if(valueChangedListener != null) {
-					valueChangedListener.onValueChanged((NodeBase) control);
-				}
-			} else {
-				throw new IllegalStateException("Unexpected type for control[" + control.getClass() + "]. Has to be assignable from " + NodeBase.class);
+	}
+
+	private static void fireValueChanged(@Nonnull IControl< ? > control) throws Exception {
+		if(control instanceof NodeBase) {
+			IValueChanged<NodeBase> valueChangedListener = (IValueChanged<NodeBase>) control.getOnValueChanged();
+			if(valueChangedListener != null) {
+				valueChangedListener.onValueChanged((NodeBase) control);
 			}
+		} else {
+			throw new IllegalStateException("Unexpected type for control[" + control.getClass() + "]. Has to be assignable from " + NodeBase.class);
 		}
 	}
 
