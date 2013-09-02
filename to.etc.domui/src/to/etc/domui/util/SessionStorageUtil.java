@@ -107,7 +107,7 @@ public class SessionStorageUtil {
 	 */
 	public static boolean hasStoredData(@Nonnull IRequestContext ctx, @Nonnull ISessionStorage storableData) {
 		AppSession ses = ctx.getSession();
-		return null != ses.getAttribute(storableData.getStorageId() + "|" + PART_TYPE);
+		return null != ses.getAttribute(storableData.getStorageId() + "|" + PART_TIME);
 	}
 
 	/**
@@ -239,6 +239,8 @@ public class SessionStorageUtil {
 			((IControl<Date>) control).setValue((Date) value);
 		} else if(value instanceof String) {
 			((IControl<String>) control).setValue((String) value);
+		} else if(Enum.class.isAssignableFrom(value.getClass())) {
+			((IControl<Enum< ? >>) control).setValue((Enum< ? >) value);
 		} else {
 			recognized = false;
 		}
