@@ -29,6 +29,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
+import to.etc.domui.databinding.*;
 import to.etc.domui.dom.html.*;
 
 public class VerticalFormBuilder extends TableFormBuilder {
@@ -72,8 +73,8 @@ public class VerticalFormBuilder extends TableFormBuilder {
 	/** When set, the mode does not change between different "add" calls. Used to add a control list with the same settings applied. */
 	private boolean m_bulkMode;
 
-	public VerticalFormBuilder(@Nonnull IAppender a) {
-		super(a);
+	public VerticalFormBuilder(@Nonnull BindingContext bc, @Nonnull IAppender a) {
+		super(bc, a);
 	}
 
 	public VerticalFormBuilder(@Nonnull NodeContainer target) {

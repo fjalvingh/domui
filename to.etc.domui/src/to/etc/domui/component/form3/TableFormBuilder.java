@@ -26,6 +26,7 @@ package to.etc.domui.component.form3;
 
 import javax.annotation.*;
 
+import to.etc.domui.databinding.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
@@ -40,8 +41,8 @@ abstract public class TableFormBuilder extends AbstractFormBuilder {
 	@Nullable
 	private TR m_lastUsedRow;
 
-	protected TableFormBuilder(@Nonnull IAppender a) {
-		super(a);
+	protected TableFormBuilder(@Nonnull BindingContext bc, @Nonnull IAppender a) {
+		super(bc, a);
 	}
 
 	protected TableFormBuilder(@Nonnull NodeContainer target) {

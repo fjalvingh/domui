@@ -27,6 +27,7 @@ package to.etc.domui.component.form3;
 import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
+import to.etc.domui.databinding.*;
 import to.etc.domui.dom.html.*;
 
 public class HorizontalFormBuilder extends TableFormBuilder {
@@ -40,8 +41,8 @@ public class HorizontalFormBuilder extends TableFormBuilder {
 
 	private TableMode m_tableMode = TableMode.perForm;
 
-	public HorizontalFormBuilder(@Nonnull IAppender a) {
-		super(a);
+	public HorizontalFormBuilder(@Nonnull BindingContext bc, @Nonnull IAppender a) {
+		super(bc, a);
 	}
 
 	public HorizontalFormBuilder(@Nonnull NodeContainer target) {

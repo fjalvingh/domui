@@ -195,7 +195,7 @@ public class FormData<T> {
 			return;
 		IObservableValue<Boolean> diso = builder().getDisabledObservable();
 		if(null != diso) {
-			Bind.from(diso).to(c, "disabled");
+			builder().getBindingContext().joinbinding(diso, c, "disabled");
 		}
 	}
 
