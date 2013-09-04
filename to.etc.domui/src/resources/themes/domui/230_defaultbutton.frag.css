@@ -41,12 +41,6 @@
 	background: transparent url(<%= button_img %>) no-repeat left top;
 }
 
-@media screen and (-webkit-min-device-pixel-ratio:0) {
-	/* Safari and Google Chrome only - fix margins */
-	.ui-sdbtn span {
-		margin-top: -1px;
-	}
-}
 .ui-sdbtn:hover, .ui-sdbtn:focus {
 	background-position: right -150px;
 }
