@@ -43,6 +43,7 @@ public class DatabaseRelationPage extends UrlPage {
 		List<Album> res = rowval.getAlbumList();
 		System.out.println("Type is: " + res.getClass());
 
+
 	}
 
 }

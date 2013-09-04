@@ -21,4 +21,9 @@ public class ListChangeDelete<T> extends ListChange<T> {
 	public T getValue() {
 		return m_value;
 	}
+
+	@Override
+	public void visit(IListChangeVisitor<T> visitor) throws Exception {
+		visitor.visitDelete(this);
+	}
 }

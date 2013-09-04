@@ -17,4 +17,9 @@ public class ListChangeEvent<T> extends ObservableEvent<T, ListChangeEvent<T>, I
 	public List<ListChange<T>> getChanges() {
 		return m_changeList;
 	}
+
+	public void visit(@Nonnull IListChangeVisitor<T> visitor) throws Exception {
+		for(ListChange<T> lc : m_changeList)
+			lc.visit(visitor);
+	}
 }

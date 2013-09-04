@@ -8,6 +8,15 @@ import org.hibernate.event.*;
 import to.etc.domui.databinding.*;
 import to.etc.util.*;
 
+/**
+ * EXPERIMENTAL This Hibernate after-load listener will locate all List properties in the loaded entity, and
+ * will replace the value of the property (the Hibernate lazy list representing the relation)
+ * with a {@link ObservableList} wrapped around the original Hibernate list.
+ * This should allow List events to take place when the entity's relations change.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Sep 4, 2013
+ */
 public class InjectObservableListEventListener implements PostLoadEventListener {
 	@Override
 	public void onPostLoad(PostLoadEvent event) {

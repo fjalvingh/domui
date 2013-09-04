@@ -30,4 +30,9 @@ public class ListChangeModify<T> extends ListChange<T> {
 	public T getNewValue() {
 		return m_newValue;
 	}
+
+	@Override
+	public void visit(IListChangeVisitor<T> visitor) throws Exception {
+		visitor.visitModify(this);
+	}
 }

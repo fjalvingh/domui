@@ -20,4 +20,9 @@ public class ListChangeAdd<T> extends ListChange<T> {
 	public T getValue() {
 		return m_value;
 	}
+
+	@Override
+	public void visit(@Nonnull IListChangeVisitor<T> visitor) throws Exception {
+		visitor.visitAdd(this);
+	}
 }
