@@ -69,9 +69,17 @@ public class DataTable<T> extends SelectableTabularComponent<T> implements ISele
 		m_rowRenderer = r;
 	}
 
+	public DataTable(@Nonnull IRowRenderer<T> r) {
+		m_rowRenderer = r;
+	}
+
 	public DataTable(@Nonnull ITableModel<T> m) {
 		super(m);
 	}
+
+	public DataTable() {
+	}
+
 
 	/**
 	 * Return the backing table for this data browser. For component extension only - DO NOT MAKE PUBLIC.

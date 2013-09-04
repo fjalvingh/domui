@@ -23,6 +23,11 @@ public class ObservableListModelAdapter<T> implements ITableModel<T> {
 		m_list = list;
 	}
 
+	@Nonnull
+	public IObservableList<T> getSource() {
+		return m_list;
+	}
+
 	@Override
 	public List<T> getItems(int start, int end) throws Exception {
 		return m_list.subList(start, end);

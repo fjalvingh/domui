@@ -2,10 +2,16 @@ package to.etc.domuidemo.pages.binding;
 
 import java.util.*;
 
+import javax.annotation.*;
+
+import to.etc.domui.component.buttons.*;
+import to.etc.domui.component.layout.*;
+import to.etc.domui.component.misc.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.databinding.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domuidemo.db.*;
+import to.etc.util.*;
 import to.etc.webapp.query.*;
 
 /**
@@ -15,6 +21,7 @@ import to.etc.webapp.query.*;
  * Created on Sep 4, 2013
  */
 public class DatabaseRelationPage extends UrlPage {
+	final private Div m_lower = new Div();
 
 	@Override
 	public void createContent() throws Exception {
@@ -36,14 +43,65 @@ public class DatabaseRelationPage extends UrlPage {
 				clickedOne(rowval);
 			}
 		});
+		add(new VerticalSpacer(10));
+		add(m_lower);
 
 	}
 
-	private void clickedOne(Artist rowval) {
-		List<Album> res = rowval.getAlbumList();
+	private void clickedOne(@Nonnull final Artist a) {
+		List<Album> res = a.getAlbumList();
 		System.out.println("Type is: " + res.getClass());
 
+		m_lower.removeAllChildren();
+		m_lower.add(new CaptionedHeader("Artist: " + a.getName()));
 
+		final IObservableList<Album> ol = (IObservableList<Album>) res;
+
+		RowRenderer<Album> rr = new RowRenderer<Album>(Album.class);
+		rr.column("title").label("Title");
+
+		DataTable<Album> dt = new DataTable<Album>(rr);
+		m_lower.add(dt);
+		dt.setList(ol);
+
+		LinkButton lb = new LinkButton("Add album", "THEME/btnAdd.png", new IClicked<LinkButton>() {
+			@Override
+			public void clicked(LinkButton clickednode) throws Exception {
+				addAlbum(a, ol);
+			}
+		});
+		add(lb);
+
+		lb = new LinkButton("Delete album", "THEME/btnDelete.png", new IClicked<LinkButton>() {
+			@Override
+			public void clicked(LinkButton clickednode) throws Exception {
+				deleteAlbum(a, ol);
+			}
+		});
+		add(lb);
+
+
+	}
+
+	private void deleteAlbum(@Nonnull Artist a, @Nonnull IObservableList<Album> ol) {
+		if(ol.size() == 0)
+			return;
+		int ix = random(ol.size());
+		ol.remove(ix);
+	}
+
+	private int random(int max) {
+		Random r = new Random();
+		return r.nextInt(max);
+	}
+
+	private void addAlbum(@Nonnull Artist a, @Nonnull IObservableList<Album> ol) {
+		Album al = new Album();
+		al.setArtist(a);
+		al.setTitle(StringTool.getRandomStringWithPrefix(10, "NewAl-"));
+
+		int index = random(ol.size());
+		ol.add(index, al);
 	}
 
 }
