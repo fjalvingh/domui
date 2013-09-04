@@ -32,6 +32,7 @@ import javax.sql.*;
 
 import org.hibernate.*;
 import org.hibernate.cfg.*;
+import org.hibernate.event.*;
 
 import to.etc.dbpool.*;
 import to.etc.domui.hibernate.generic.*;
@@ -289,6 +290,8 @@ final public class HibernateConfigurator {
 				config.setProperty("hibernate.hbm2ddl.auto", "update");
 				break;
 		}
+
+		config.getEventListeners().setPostLoadEventListeners(new PostLoadEventListener[]{new InjectObservableListEventListener()});
 
 		//-- Create the session factory: this completes the Hibernate config part.
 		m_sessionFactory = config.buildSessionFactory();

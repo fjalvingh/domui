@@ -11,7 +11,15 @@ import javax.annotation.*;
  * Created on Sep 4, 2013
  */
 public class ObservableList<T> extends ListenerList<T, ListChangeEvent<T>, IListChangeListener<T>> implements IObservableList<T> {
-	private final List<T> m_list = new ArrayList<T>();
+	private final List<T> m_list;
+
+	public ObservableList() {
+		m_list = new ArrayList<T>();
+	}
+
+	public ObservableList(@Nonnull List<T> list) {
+		m_list = list;
+	}
 
 	@Override
 	public int size() {

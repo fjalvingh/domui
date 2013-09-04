@@ -127,7 +127,7 @@ public class HomePage extends UrlPage {
 
 		addCaption("Binding");
 		addLink(BindingBasePage.class, "Basic data binding");
-
+		addLink(DatabaseRelationPage.class, "Database relation IObservableList binding");
 
 	}
 
