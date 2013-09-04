@@ -4,11 +4,12 @@ import java.util.*;
 
 import javax.annotation.*;
 
-public class IListChangeEvent<T> {
+public class ListChangeEvent<T> extends ObservableEvent<T, ListChangeEvent<T>, IListChangeListener<T>> {
 	@Nonnull
 	final private List<ListChange<T>> m_changeList;
 
-	public IListChangeEvent(@Nonnull List<ListChange<T>> changeList) {
+	public ListChangeEvent(@Nonnull IObservableList<T> source, @Nonnull List<ListChange<T>> changeList) {
+		super(source);
 		m_changeList = changeList;
 	}
 
