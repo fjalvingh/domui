@@ -2,6 +2,8 @@ package to.etc.domui.databinding;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 /**
  * A list that generates change events for it's content, and that does not allow null elements.
  *
@@ -42,13 +44,28 @@ public class ObservableList<T> extends ListenerList<T, ListChangeEvent<T>, IList
 	}
 
 	@Override
-	public boolean add(T e) {
-		return m_list.add(e);
+	public boolean add(@Nonnull T e) {
+		int indx = size();
+		boolean res = m_list.add(e);
+
+		List<ListChange<T>> el = new ArrayList<ListChange<T>>();
+		el.add(new ListChangeAdd<T>(indx, e));
+		fireEvent(new ListChangeEvent<T>(this, el));
+		return res;
 	}
 
 	@Override
 	public boolean remove(Object o) {
-		return m_list.remove(o);
+		int indx = m_list.indexOf(o);
+		if(indx < 0)
+			return false;
+		m_list.remove(indx);
+
+		List<ListChange<T>> el = new ArrayList<ListChange<T>>();
+		el.add(new ListChangeDelete<T>(indx, (T) o));
+		fireEvent(new ListChangeEvent<T>(this, el));
+
+		return true;
 	}
 
 	@Override
@@ -58,26 +75,72 @@ public class ObservableList<T> extends ListenerList<T, ListChangeEvent<T>, IList
 
 	@Override
 	public boolean addAll(Collection< ? extends T> c) {
-		return m_list.addAll(c);
+		boolean res = m_list.addAll(c);
+
+		List<ListChange<T>> el = new ArrayList<ListChange<T>>();
+		int indx = size();
+		for(T v : c) {
+			el.add(new ListChangeAdd<T>(indx++, v));
+		}
+		fireEvent(new ListChangeEvent<T>(this, el));
+
+		return res;
 	}
 
 	@Override
 	public boolean addAll(int index, Collection< ? extends T> c) {
-		return m_list.addAll(index, c);
+		boolean res = m_list.addAll(index, c);
+
+		List<ListChange<T>> el = new ArrayList<ListChange<T>>();
+		int indx = index;
+		for(T v : c) {
+			el.add(new ListChangeAdd<T>(indx++, v));
+		}
+		fireEvent(new ListChangeEvent<T>(this, el));
+
+		return res;
 	}
 
 	@Override
 	public boolean removeAll(Collection< ? > c) {
-		return m_list.removeAll(c);
+		List<ListChange<T>> el = new ArrayList<ListChange<T>>();
+		boolean done = false;
+		for(Object v : c) {
+			int indx = indexOf(v);
+			if(indx >= 0) {
+				m_list.remove(indx);
+				el.add(new ListChangeDelete<T>(indx, (T) v));
+				done = true;
+			}
+		}
+		fireEvent(new ListChangeEvent<T>(this, el));
+		return done;
 	}
 
 	@Override
 	public boolean retainAll(Collection< ? > c) {
-		return m_list.retainAll(c);
+		List<ListChange<T>> el = new ArrayList<ListChange<T>>();
+		boolean done = false;
+		for(int i = size(); --i >= 0;) {
+			T cv = m_list.get(i);
+			if(!c.contains(cv)) {
+				m_list.remove(i);
+				el.add(new ListChangeDelete<T>(i, cv));
+				done = true;
+			}
+		}
+		fireEvent(new ListChangeEvent<T>(this, el));
+		return done;
 	}
 
 	@Override
 	public void clear() {
+		List<ListChange<T>> el = new ArrayList<ListChange<T>>();
+		for(int i = size(); --i >= 0;) {
+			T cv = m_list.get(i);
+			el.add(new ListChangeDelete<T>(i, cv));
+		}
+		fireEvent(new ListChangeEvent<T>(this, el));
 		m_list.clear();
 	}
 
@@ -98,17 +161,33 @@ public class ObservableList<T> extends ListenerList<T, ListChangeEvent<T>, IList
 
 	@Override
 	public T set(int index, T element) {
-		return m_list.set(index, element);
+		T res = m_list.set(index, element);
+
+		List<ListChange<T>> el = new ArrayList<ListChange<T>>();
+		el.add(new ListChangeModify<T>(index, res, element));
+		fireEvent(new ListChangeEvent<T>(this, el));
+
+		return res;
 	}
 
 	@Override
 	public void add(int index, T element) {
 		m_list.add(index, element);
+
+		List<ListChange<T>> el = new ArrayList<ListChange<T>>();
+		el.add(new ListChangeAdd<T>(index, element));
+		fireEvent(new ListChangeEvent<T>(this, el));
 	}
 
 	@Override
 	public T remove(int index) {
-		return m_list.remove(index);
+		T res = m_list.remove(index);
+
+		List<ListChange<T>> el = new ArrayList<ListChange<T>>();
+		el.add(new ListChangeDelete<T>(index, res));
+		fireEvent(new ListChangeEvent<T>(this, el));
+
+		return res;
 	}
 
 	@Override
@@ -135,6 +214,4 @@ public class ObservableList<T> extends ListenerList<T, ListChangeEvent<T>, IList
 	public List<T> subList(int fromIndex, int toIndex) {
 		return m_list.subList(fromIndex, toIndex);
 	}
-
-
 }
