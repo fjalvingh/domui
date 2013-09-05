@@ -875,4 +875,14 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 			nb.appendTreeErrors(errorList);
 		}
 	}
+
+	@Override
+	public boolean hasError() {
+		for(NodeBase nb : this) {
+			if(nb.hasError())
+				return true;
+		}
+
+		return false;
+	}
 }
