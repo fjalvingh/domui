@@ -1614,6 +1614,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		Set<String> res = new HashSet<String>(names.length);
 		for(String name : names)
 			res.add(name);
+		res.add("message");
 		return res;
 	}
 

@@ -39,7 +39,7 @@ import to.etc.webapp.query.*;
 
 public class ComboComponentBase<T, V> extends Select implements IControl<V>, IHasModifiedIndication {
 	/** The properties bindable for this component. */
-	static private final Set<String> BINDABLE_SET = createNameSet("value", "disabled");
+	static private final Set<String> BINDABLE_SET = createNameSet("value", "disabled", "message");
 
 	private String m_emptyText;
 

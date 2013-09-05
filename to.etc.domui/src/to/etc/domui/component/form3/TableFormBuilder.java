@@ -49,6 +49,10 @@ abstract public class TableFormBuilder extends AbstractFormBuilder {
 		super(target);
 	}
 
+	protected TableFormBuilder(@Nonnull BindingContext bc, @Nonnull NodeContainer target) {
+		super(bc, target);
+	}
+
 	/**
 	 * This finishes off the current table by calculating colspans for all skewed rows. This discards the
 	 * current table!

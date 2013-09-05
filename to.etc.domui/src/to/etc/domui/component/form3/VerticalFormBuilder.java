@@ -81,6 +81,10 @@ public class VerticalFormBuilder extends TableFormBuilder {
 		super(target);
 	}
 
+	public VerticalFormBuilder(@Nonnull BindingContext bc, @Nonnull NodeContainer target) {
+		super(bc, target);
+	}
+
 	/**
 	 * Reset variables after finish.
 	 * @see to.etc.domui.component.builder.IFormLayouter#finish()

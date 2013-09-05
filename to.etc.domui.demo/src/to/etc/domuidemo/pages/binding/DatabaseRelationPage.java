@@ -70,7 +70,7 @@ public class DatabaseRelationPage extends UrlPage {
 				addAlbum(a, ol);
 			}
 		});
-		add(lb);
+		m_lower.add(lb);
 
 		lb = new LinkButton("Delete album", "THEME/btnDelete.png", new IClicked<LinkButton>() {
 			@Override
@@ -78,7 +78,7 @@ public class DatabaseRelationPage extends UrlPage {
 				deleteAlbum(a, ol);
 			}
 		});
-		add(lb);
+		m_lower.add(lb);
 
 
 	}
@@ -91,6 +91,8 @@ public class DatabaseRelationPage extends UrlPage {
 	}
 
 	private int random(int max) {
+		if(max <= 0)
+			return 0;
 		Random r = new Random();
 		return r.nextInt(max);
 	}

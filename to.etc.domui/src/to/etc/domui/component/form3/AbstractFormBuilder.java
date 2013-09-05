@@ -102,8 +102,8 @@ abstract public class AbstractFormBuilder {
 	 *
 	 * @param target
 	 */
-	protected AbstractFormBuilder(@Nonnull final NodeContainer target) {
-		this(target.getBindingContext(), new IAppender() {
+	protected AbstractFormBuilder(@Nonnull BindingContext bc, @Nonnull final NodeContainer target) {
+		this(bc, new IAppender() {
 			@Override
 			public void add(@Nonnull NodeBase formNode) {
 				target.add(formNode);
@@ -111,7 +111,9 @@ abstract public class AbstractFormBuilder {
 		});
 	}
 
-
+	protected AbstractFormBuilder(@Nonnull final NodeContainer target) {
+		this(target.getBindingContext(), target);
+	}
 
 	/**
 	 * Set rights for components created on this form.
