@@ -98,6 +98,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		NONE, DIGITS, FLOAT,
 	}
 
+	@Nonnull
 	private NumberMode m_numberMode = NumberMode.NONE;
 
 	/** Indication if the contents of this thing has been altered by the user. This merely compares any incoming value with the present value and goes "true" when those are not equal. */
@@ -110,21 +111,12 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	public Text(Class<T> inputClass) {
 		m_inputClass = inputClass;
 
+		NumberMode nm = NumberMode.NONE;
 		if(BigDecimal.class.isAssignableFrom(inputClass) || DomUtil.isRealType(inputClass))
-			m_numberMode = NumberMode.FLOAT;
+			nm = NumberMode.FLOAT;
 		else if(DomUtil.isIntegerType(inputClass))
-			m_numberMode = NumberMode.DIGITS;
-
-		switch(m_numberMode){
-			default:
-				break;
-			case DIGITS:
-				setOnKeyPressJS("WebUI.isNumberKey(event)");
-				break;
-			case FLOAT:
-				setOnKeyPressJS("WebUI.isFloatKey(event)");
-				break;
-		}
+			nm = NumberMode.DIGITS;
+		setNumberMode(nm);
 	}
 
 	@Override
@@ -291,6 +283,8 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	@Override
 	public void setConverter(IConverter<T> converter) {
 		m_converter = converter;
+		if(null != converter)
+			setNumberMode(NumberMode.NONE);
 	}
 
 	/**
@@ -506,6 +500,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 * Returns the current numeric mode in effect. This mode prevents letters from being input on the screen.
 	 * @return
 	 */
+	@Nonnull
 	public NumberMode getNumberMode() {
 		return m_numberMode;
 	}
@@ -514,8 +509,24 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 * Sets the current numeric mode in effect. This mode prevents letters from being input on the screen.
 	 * @param numberMode
 	 */
-	public void setNumberMode(NumberMode numberMode) {
+	public void setNumberMode(@Nonnull NumberMode numberMode) {
 		m_numberMode = numberMode;
+
+		switch(numberMode){
+			default:
+				throw new IllegalStateException(numberMode + "?");
+
+			case NONE:
+				setOnKeyPressJS("");
+				break;
+			case DIGITS:
+				setOnKeyPressJS("WebUI.isNumberKey(event)");
+				break;
+			case FLOAT:
+				setOnKeyPressJS("WebUI.isFloatKey(event)");
+				break;
+		}
+
 	}
 
 	public void addValidator(IValueValidator< ? > v) {
