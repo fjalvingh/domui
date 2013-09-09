@@ -37,6 +37,7 @@ import to.etc.domui.dom.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.login.*;
+import to.etc.domui.parts.*;
 import to.etc.domui.state.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
@@ -310,6 +311,12 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 		UIContext.internalSet(page);
 
+		//-- If this is a PAGEDATA request - handle that
+		if(Constants.ACMD_PAGEDATA.equals(action)) {
+			runPageData(ctx, page);
+			return;
+		}
+
 		//-- All commands EXCEPT ASYPOLL have all fields, so bind them to the current component data,
 		List<NodeBase> pendingChangeList = Collections.EMPTY_LIST;
 		if(!Constants.ACMD_ASYPOLL.equals(action)) {
@@ -460,6 +467,40 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 		//-- Start any delayed actions now.
 		page.getConversation().startDelayedExecution();
+	}
+
+	/**
+	 *
+	 * @param ctx
+	 * @param page
+	 */
+	private void runPageData(@Nonnull RequestContextImpl ctx, @Nonnull Page page) throws Exception {
+		m_application.internalCallPageAction(ctx, page);
+		page.callRequestStarted();
+
+		NodeBase wcomp = null;
+		String wid = ctx.getRequest().getParameter("webuic");
+		if(wid != null) {
+			wcomp = page.findNodeByID(wid);
+			// jal 20091120 The code below was active but is nonsense because we do not return after generateExpired!?
+			//			if(wcomp == null) {
+			//				generateExpired(ctx, NlsContext.getGlobalMessage(Msgs.S_BADNODE, wid));
+			//				//				throw new IllegalStateException("Unknown node '"+wid+"'");
+			//			}
+		}
+		if(wcomp == null)
+			return;
+
+		boolean inhibitlog = false;
+		page.setTheCurrentNode(wcomp);
+
+		try {
+			IComponentUrlDataProvider dp = (IComponentUrlDataProvider) wcomp;
+			dp.provideUrlData(ctx);
+		} finally {
+			page.callRequestFinished();
+			page.setTheCurrentNode(null);
+		}
 	}
 
 	private void generateNonReloadableExpired(RequestContextImpl ctx, WindowSession cm) throws Exception {

@@ -36,7 +36,9 @@ import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.logic.*;
 import to.etc.domui.logic.events.*;
+import to.etc.domui.parts.*;
 import to.etc.domui.server.*;
+import to.etc.domui.state.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 import to.etc.webapp.nls.*;
@@ -943,6 +945,42 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 
 	public boolean acceptRequestParameter(@Nonnull final String[] values) throws Exception {
 		throw new IllegalStateException("?? The '" + getTag() + "' component (" + this.getClass() + ") with id=" + m_actualID + " does NOT accept input!");
+	}
+
+	/**
+	 * Return an URL to a data stream generator for this component.
+	 * @param pp
+	 * @return
+	 */
+	@Nonnull
+	public String getComponentDataURL(@Nullable IPageParameters pp) {
+		NodeBase nb = this;
+		if(!(nb instanceof IComponentUrlDataProvider))
+			throw new IllegalStateException("This component (" + this + ") does not implement " + IComponentUrlDataProvider.class.getName());
+
+		StringBuilder sb = new StringBuilder();
+		sb.append(UIContext.getRequestContext().getRelativePath(getPage().getBody().getClass().getName()));
+		sb.append(".").append(DomApplication.get().getUrlExtension());
+
+		PageParameters newpp = PageParameters.createFrom(UIContext.getRequestContext());
+		if(null != pp) {
+			for(String name : pp.getParameterNames()) {
+				String value = pp.getString(name);
+				newpp.addParameter(name, value);
+			}
+		}
+
+		//-- Add the action code.
+		newpp.addParameter("webuia", Constants.ACMD_PAGEDATA);
+		newpp.addParameter("webuic", getActualID());
+
+		sb.append("?");
+		sb.append(Constants.PARAM_CONVERSATION_ID);
+		sb.append("=");
+		StringTool.encodeURLEncoded(sb, getPage().getConversation().getFullId());
+
+		DomUtil.addUrlParameters(sb, newpp, false);
+		return sb.toString();
 	}
 
 
