@@ -1,5 +1,5 @@
 $(function(){
-	$.getScript("$js/inputDateCheck.js");
+	$.getScript("$js/domui-date-chacker.js");
 });
 
 function _block() {
@@ -694,7 +694,7 @@ $(window).bind('beforeunload', function() {
 })(jQuery);
 
 /** WebUI helper namespace */
-var WebUI = {
+var WebUIDomUI = {
 	/**
 	 * can be set to true from server code with appendJavaScript so that the
 	 * expired messages will not show and block effortless refresh on class
@@ -1549,7 +1549,7 @@ var WebUI = {
 	
 	/** *** DateInput control code *** */
 	dateInputCheckInput : function(evt) {
-		InputDateCheck.dateInputCheck(evt);
+		WebUI.dateInputCheck(evt);
 	},
 
 	/**
@@ -3355,6 +3355,12 @@ var WebUI = {
 		$(node).css('left', myLeftPos);
 	}
 };
+
+if(WebUI === undefined) {
+	var WebUI = WebUIDomUI;
+} else {
+	WebUI = $.extend(WebUI, WebUIDomUI);
+}
 
 WebUI._DEFAULT_DROPZONE_HANDLER = {
 	checkRerender : function(dz) {

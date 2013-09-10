@@ -1,4 +1,4 @@
-/** InputDateCheck helper namespace 
+/** WebUI helper namespace 
 Acceptable input: 
 '/', '.' or '-' are accepted as separators; for brevity only '/' formats will be listed below:
 
@@ -11,7 +11,7 @@ Acceptable input:
 050213 -> ddmmyy format, adapted to 5-2-2013, year is considered to be 19yy if yy>29 or 20yy otherwise; leading 0 may NOT be omitted
 0502 -> ddmmyy format, adapted to 5-2-2012, year is considered to be the current year; leading 0 may NOT be omitted
 */
-var InputDateCheck = {
+var WebUIDate = {
 			
 	/** *** DateInput control code *** */
 	dateInputCheck : function(evt) {
@@ -22,7 +22,7 @@ var InputDateCheck = {
 			}
 		}
 		var c = evt.target || evt.srcElement;
-		InputDateCheck.dateInputRepairValueIn(c);
+		WebUI.dateInputRepairValueIn(c);
 	},
 	
 	dateInputRepairValueIn : function(c) {
@@ -37,9 +37,9 @@ var InputDateCheck = {
 		// -- Try to decode then reformat the date input
 		var fmt = Calendar._TT["DEF_DATE_FORMAT"];
 		try {
-			var separatorsCount = InputDateCheck.countSeparators(val)
+			var separatorsCount = WebUI.countSeparators(val)
 			if (separatorsCount < 2) {
-				val = InputDateCheck.insertDateSeparators(val, fmt, separatorsCount);
+				val = WebUI.insertDateSeparators(val, fmt, separatorsCount);
 			}
 			var res = Date.parseDate(val, fmt);
 			c.value = res.print(fmt);
@@ -54,7 +54,7 @@ var InputDateCheck = {
 	countSeparators : function(str) {
 		var count = 0;
 		for ( var i = str.length; --i >= 0;) {
-			if (InputDateCheck.isSeparator(str.charAt(i)))
+			if (WebUI.isSeparator(str.charAt(i)))
 				count++;
 		}
 		return count;
@@ -82,7 +82,7 @@ var InputDateCheck = {
 		// dd-mm dd/mm case - ignore existing separator
 		if (separatorsCount == 1) {
 			var index = 0;
-			while (!InputDateCheck.isSeparator(str.charAt(index))) {
+			while (!WebUI.isSeparator(str.charAt(index))) {
 				index++;
 				if (index > len - 1) {
 					throw "invalid state";
@@ -119,4 +119,10 @@ var InputDateCheck = {
 		return res;
 	}
 	
+};
+
+if(WebUI === undefined) {
+	var WebUI = WebUIDate;
+} else {
+	WebUI = $.extend(WebUI, WebUIDate);
 }
