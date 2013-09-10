@@ -129,7 +129,7 @@ public class SessionStorageUtil {
 				if(null == existingMessage) {
 					Object value = control.getValueSafe();
 					control.clearMessage();
-					String key = storableData.getStorageId() + "|" + control.getErrorLocation();
+					String key = storableData.getStorageId() + "|" + controlKey;
 					if(null == value) {
 						value = EMPTY_VALUE;
 						ses.setAttribute(key, value);
@@ -177,11 +177,14 @@ public class SessionStorageUtil {
 			String key = storableData.getStorageId() + "|" + control.getErrorLocation();
 			Object sesValue = ses.getAttribute(key);
 			ICheckCallback<ControlValuePair> callback = storableData.getCustomLoadCallback();
-			if(EMPTY_VALUE.equals(sesValue)) {
-				control.setValue(null);
-				fireValueChanged(control);
-			} else if(null != sesValue) {
-				if(!MetaManager.areObjectsEqual(sesValue, existingValue)) {
+			if(null != sesValue) {
+				if(EMPTY_VALUE.equals(sesValue)) {
+					if(!MetaManager.areObjectsEqual(null, existingValue)) {
+						control.setValue(null);
+						fireValueChanged(control);
+					}
+				}
+ else if(!MetaManager.areObjectsEqual(sesValue, existingValue)) {
 					boolean handled = setNonIdentifiableTypeValue(control, sesValue);
 					if(handled) {
 						fireValueChanged(control);
