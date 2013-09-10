@@ -1,5 +1,5 @@
 $(function(){
-	$.getScript("$js/domui-date-chacker.js");
+	$.getScript("$js/domui-date-checker.js");
 });
 
 function _block() {
@@ -694,7 +694,11 @@ $(window).bind('beforeunload', function() {
 })(jQuery);
 
 /** WebUI helper namespace */
-var WebUIDomUI = {
+var WebUI;
+if(WebUI === undefined)
+    WebUI = new Object();
+
+$.extend(WebUI, {
 	/**
 	 * can be set to true from server code with appendJavaScript so that the
 	 * expired messages will not show and block effortless refresh on class
@@ -3354,13 +3358,7 @@ var WebUIDomUI = {
 		}
 		$(node).css('left', myLeftPos);
 	}
-};
-
-if(WebUI === undefined) {
-	var WebUI = WebUIDomUI;
-} else {
-	WebUI = $.extend(WebUI, WebUIDomUI);
-}
+});
 
 WebUI._DEFAULT_DROPZONE_HANDLER = {
 	checkRerender : function(dz) {

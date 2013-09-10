@@ -11,7 +11,11 @@ Acceptable input:
 050213 -> ddmmyy format, adapted to 5-2-2013, year is considered to be 19yy if yy>29 or 20yy otherwise; leading 0 may NOT be omitted
 0502 -> ddmmyy format, adapted to 5-2-2012, year is considered to be the current year; leading 0 may NOT be omitted
 */
-var WebUIDate = {
+var WebUI;
+if(WebUI === undefined)
+    WebUI = new Object();
+
+$.extend(WebUI, {
 			
 	/** *** DateInput control code *** */
 	dateInputCheck : function(evt) {
@@ -119,10 +123,4 @@ var WebUIDate = {
 		return res;
 	}
 	
-};
-
-if(WebUI === undefined) {
-	var WebUI = WebUIDate;
-} else {
-	WebUI = $.extend(WebUI, WebUIDate);
-}
+});
