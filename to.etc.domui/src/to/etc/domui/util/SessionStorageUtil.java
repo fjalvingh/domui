@@ -29,6 +29,8 @@ public class SessionStorageUtil {
 
 	private static final String PART_ID = "id";
 
+	private static final String EMPTY_VALUE = "#NULL#";
+
 	/**
 	 * Defines data that can be stored/load from session storage.
 	 *
@@ -127,8 +129,11 @@ public class SessionStorageUtil {
 				if(null == existingMessage) {
 					Object value = control.getValueSafe();
 					control.clearMessage();
-					if(null != value) {
-						String key = storableData.getStorageId() + "|" + control.getErrorLocation();
+					String key = storableData.getStorageId() + "|" + control.getErrorLocation();
+					if(null == value) {
+						value = EMPTY_VALUE;
+						ses.setAttribute(key, value);
+					} else {
 						if(value instanceof IIdentifyable< ? >) {
 							ClassMetaModel cmm = MetaManager.findClassMeta(value.getClass());
 							if(null != cmm) {
@@ -172,7 +177,10 @@ public class SessionStorageUtil {
 			String key = storableData.getStorageId() + "|" + control.getErrorLocation();
 			Object sesValue = ses.getAttribute(key);
 			ICheckCallback<ControlValuePair> callback = storableData.getCustomLoadCallback();
-			if(null != sesValue) {
+			if(EMPTY_VALUE.equals(sesValue)) {
+				control.setValue(null);
+				fireValueChanged(control);
+			} else if(null != sesValue) {
 				if(!MetaManager.areObjectsEqual(sesValue, existingValue)) {
 					boolean handled = setNonIdentifiableTypeValue(control, sesValue);
 					if(handled) {
