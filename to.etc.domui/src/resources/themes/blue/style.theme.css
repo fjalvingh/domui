@@ -2434,6 +2434,7 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	overflow: visible; /* remove extra padding in IE */
 	background: transparent url(<%= button_img %>) no-repeat right -50px;
 	outline: none;
+	font: inherit;
 }
 
 @-moz-document url-prefix() { /** btadic 20120711 Firefox is adding strange left padding to the buttons **/
