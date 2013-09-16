@@ -1106,8 +1106,12 @@ tbody td.ui-dt-separator {
 	background: url(bg-errors.png) repeat-x bottom;
 }
 
-.ui-input-err {
+.ui-input-err, .ui-input-err textarea {
 	background-color: <%= error_input_bg %> !important;
+}
+
+.ui-input-err * .ui-lui-v {
+	background-color: #ffe5e5 !important;
 }
 /*** 165_tabpanel.frag.css ***/
 /*** The tab control, using the "sliding doors" technique as in http://www.alistapart.com/articles/slidingdoors/ ***/
