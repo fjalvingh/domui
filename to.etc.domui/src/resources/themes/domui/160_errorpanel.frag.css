@@ -14,6 +14,6 @@
 	background: url(bg-errors.png) repeat-x bottom;
 }
 
-.ui-input-err {
+.ui-input-err, .ui-input-err textarea {
 	background-color: <%= error_input_bg %> !important;
 }
