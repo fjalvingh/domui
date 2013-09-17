@@ -573,6 +573,12 @@ public class PomBuilder {
 		w.tagfull("artifactId", "groovy-eclipse-compiler");
 		w.tagfull("version", "2.8.0-01");
 		w.tagendnl(); // dependency
+		w.tag("dependency");
+		w.tagfull("groupId", "org.codehaus.groovy");
+		w.tagfull("artifactId", "groovy-eclipse-batch");
+		w.tagfull("version", "2.1.5-03");
+		w.tagendnl(); // dependency
+
 		w.tagendnl(); //dependencies
 
 
