@@ -559,7 +559,7 @@ public class PomBuilder {
 
 		w.tagfull("groupId", "org.apache.maven.plugins");
 		w.tagfull("artifactId", "maven-compiler-plugin");
-		w.tagfull("version", "2.5.1");
+		w.tagfull("version", "3.0");
 		w.tag("configuration");
 		w.tagfull("compilerId", "groovy-eclipse-compiler");
 		w.tagfull("source", sub.m_sourceVersion);
@@ -571,7 +571,7 @@ public class PomBuilder {
 		w.tag("dependency");
 		w.tagfull("groupId", "org.codehaus.groovy");
 		w.tagfull("artifactId", "groovy-eclipse-compiler");
-		w.tagfull("version", "2.7.0-01");
+		w.tagfull("version", "2.8.0-01");
 		w.tagendnl(); // dependency
 		w.tagendnl(); //dependencies
 
