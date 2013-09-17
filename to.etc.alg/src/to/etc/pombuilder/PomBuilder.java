@@ -617,7 +617,7 @@ public class PomBuilder {
 			w.tag("plugin");
 			w.tagfull("groupId", "org.apache.maven.plugins");
 			w.tagfull("artifactId", "maven-surefire-plugin");
-			w.tagfull("version", "2.14.1");
+			w.tagfull("version", "2.16");
 
 			w.tag("configuration");
 			w.tagfull("argLine", "-Xmx2048m -XX:MaxPermSize=1024m");
@@ -626,8 +626,8 @@ public class PomBuilder {
 			w.tag("dependencies");
 			w.tag("dependency");
 			w.tagfull("groupId", "org.apache.maven.surefire");
-			w.tagfull("artifactId", "surefire-junit4");
-			w.tagfull("version", "2.14.1");
+			w.tagfull("artifactId", "surefire-junit47");
+			w.tagfull("version", "2.16");
 			w.tagendnl();
 			w.tagendnl();
 
