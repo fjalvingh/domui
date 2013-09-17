@@ -24,9 +24,11 @@
  */
 package to.etc.domui.server;
 
+import java.io.*;
 import java.util.*;
 
 import javax.annotation.*;
+import javax.servlet.http.*;
 
 import org.slf4j.*;
 
@@ -42,6 +44,8 @@ import to.etc.domui.state.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
+import to.etc.webapp.*;
+import to.etc.webapp.ajax.renderer.json.*;
 import to.etc.webapp.core.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
@@ -315,6 +319,9 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		if(Constants.ACMD_PAGEDATA.equals(action)) {
 			runPageData(ctx, page);
 			return;
+		} else if(Constants.ACMD_PAGEJSON.equals(action)) {
+			runPageJson(ctx, page);
+			return;
 		}
 
 		//-- All commands EXCEPT ASYPOLL have all fields, so bind them to the current component data,
@@ -491,7 +498,6 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		if(wcomp == null)
 			return;
 
-		boolean inhibitlog = false;
 		page.setTheCurrentNode(wcomp);
 
 		try {
@@ -500,6 +506,56 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		} finally {
 			page.callRequestFinished();
 			page.setTheCurrentNode(null);
+		}
+	}
+
+	/**
+	 * Call a component's JSON request handler, and render back the result.
+	 * @param ctx
+	 * @param page
+	 */
+	private void runPageJson(@Nonnull RequestContextImpl ctx, @Nonnull Page page) throws Exception {
+		m_application.internalCallPageAction(ctx, page);
+		page.callRequestStarted();
+
+		NodeBase wcomp = null;
+		String wid = ctx.getRequest().getParameter("webuic");
+		if(wid != null) {
+			wcomp = page.findNodeByID(wid);
+		}
+		if(wcomp == null)
+			return;
+
+		page.setTheCurrentNode(wcomp);
+
+		try {
+			if(!(wcomp instanceof IComponentJsonProvider))
+				throw new ProgrammerErrorException("The component " + wcomp + " must implement " + IComponentJsonProvider.class.getName() + " to be able to accept JSON data requests");
+
+			IComponentJsonProvider dp = (IComponentJsonProvider) wcomp;
+			PageParameters pp = PageParameters.createFrom(ctx);
+			Object value = dp.provideJsonData(pp);							// Let the component return something to render.
+			renderJsonLikeResponse(ctx, value);
+		} finally {
+			page.callRequestFinished();
+			page.setTheCurrentNode(null);
+		}
+	}
+
+	@Nonnull
+	final private JSONRegistry m_jsonRegistry = new JSONRegistry();
+
+	private void renderJsonLikeResponse(@Nonnull RequestContextImpl ctx, @Nonnull Object value) throws Exception {
+		HttpServletResponse response = ctx.getResponse();
+		response.setContentType("application/javascript");
+		Writer w = ctx.getOutputWriter();
+		if(value instanceof String) {
+			//-- String return: we'll assume this is a javascript response by itself.
+			w.write((String) value);
+		} else {
+			//-- Object return: render as JSON
+			JSONRenderer jr = new JSONRenderer(m_jsonRegistry, new IndentWriter(w), false);
+			jr.render(value);
 		}
 	}
 

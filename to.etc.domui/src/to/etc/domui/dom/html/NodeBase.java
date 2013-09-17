@@ -947,8 +947,12 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		throw new IllegalStateException("?? The '" + getTag() + "' component (" + this.getClass() + ") with id=" + m_actualID + " does NOT accept input!");
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Getting data from a component.						*/
+	/*--------------------------------------------------------------*/
 	/**
-	 * Return an URL to a data stream generator for this component.
+	 * Return an URL to a data stream generator for this component. The component must implement
+	 * {@link IComponentUrlDataProvider} to handle the data request.
 	 * @param pp
 	 * @return
 	 */
@@ -957,30 +961,15 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		NodeBase nb = this;
 		if(!(nb instanceof IComponentUrlDataProvider))
 			throw new IllegalStateException("This component (" + this + ") does not implement " + IComponentUrlDataProvider.class.getName());
+		return DomUtil.getAdjustedComponentUrl(this, Constants.ACMD_PAGEDATA, pp);
+	}
 
-		StringBuilder sb = new StringBuilder();
-		sb.append(UIContext.getRequestContext().getRelativePath(getPage().getBody().getClass().getName()));
-		sb.append(".").append(DomApplication.get().getUrlExtension());
-
-		PageParameters newpp = PageParameters.createFrom(UIContext.getRequestContext());
-		if(null != pp) {
-			for(String name : pp.getParameterNames()) {
-				String value = pp.getString(name);
-				newpp.addParameter(name, value);
-			}
-		}
-
-		//-- Add the action code.
-		newpp.addParameter("webuia", Constants.ACMD_PAGEDATA);
-		newpp.addParameter("webuic", getActualID());
-
-		sb.append("?");
-		sb.append(Constants.PARAM_CONVERSATION_ID);
-		sb.append("=");
-		StringTool.encodeURLEncoded(sb, getPage().getConversation().getFullId());
-
-		DomUtil.addUrlParameters(sb, newpp, false);
-		return sb.toString();
+	@Nonnull
+	public String getComponentJSONURL(@Nullable IPageParameters pp) {
+		NodeBase nb = this;
+		if(!(nb instanceof IComponentJsonProvider))
+			throw new IllegalStateException("This component (" + this + ") does not implement " + IComponentJsonProvider.class.getName());
+		return DomUtil.getAdjustedComponentUrl(this, Constants.ACMD_PAGEJSON, pp);
 	}
 
 

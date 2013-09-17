@@ -454,30 +454,18 @@ $(window).bind('beforeunload', function() {
 						continue;
 					} else if (dest && ($.browser.msie || $.browser.webkit || ($.browser.mozilla && $.browser.majorVersion >= 9 )) && n.substring(0, 2) == 'on') {
 						try {
-//							if(! this._xxxw)
-//								alert('event '+n+' value '+v);
-							// var se = 'function(){'+v+';}';
-							var se;
-							if (v.indexOf('return') != -1 || v.indexOf('javascript:') != -1){
-								if (!$.browser.msie && $.browser.majorVersion >= 9 ){
-									se = new Function("event", v);
-								}else{
-									se = new Function(v);
-								}
-							}else{
-								if (!$.browser.msie && $.browser.majorVersion >= 9 ){
-									se = new Function("event", 'return ' + v);
-								}else{
-									se = new Function('return ' + v);
-								}
-							}
-//							if(! this._xxxw)
-//								alert('event '+n+' value '+se);
+							if(v.indexOf("javascript:") == 0)
+								v = $.trim(v.substring(11));
+							var fntext = v.indexOf("return") == 0 ? v : "return "+v;
+
+							if($.browser.msie && $.browser.majorVersion < 9)
+								se = new Function(fn);
+							else
+								se = new Function("event", fntext);
 							dest[n] = se;
-//							this._xxxw = true;
 
 						} catch(x) {
-							alert('Cannot set EVENT: '+n+" as "+v+' on '+dest);
+							alert('DomUI: Cannot set EVENT '+n+" as "+v+' on '+dest+": "+x);
 						}
 					} else if (n == 'style') { // IE workaround
 						dest.style.cssText = v;
@@ -530,6 +518,38 @@ $(window).bind('beforeunload', function() {
 
 		});
 	};
+})(jQuery);
+
+(function($) {
+	if(false && $.browser.msie) {
+		$.dbg = function(a,b,c,d,e) {
+			switch(arguments.length) {
+			default:
+				window.console.log(a);
+				return;
+			case 2:
+				window.console.log(a,b);
+				return;
+			case 3:
+				window.console.log(a,b,c);
+				return;
+			case 4:
+				window.console.log(a,b,c,d);
+				return;
+			case 5:
+				window.console.log(a,b,c,d,e);
+				return;
+			}
+		};
+	} else if(console.debug) {
+		$.dbg = function() {
+			console.debug.apply(console, arguments);
+		};
+	} else if(console.log) {
+		$.dbg = function() {
+			console.log.apply(console, arguments);
+		};
+	}
 })(jQuery);
 
 (function ($) {
@@ -763,6 +783,35 @@ var WebUI = {
 			success :WebUI.handleResponse,
 			error :WebUI.handleError
 		});
+	},
+	
+	jsoncall: function(id, fields) {
+		if (!fields)
+			fields = new Object();
+		fields.webuia = "$pagejson";
+		fields.webuic = id;
+		fields["$pt"] = DomUIpageTag;
+		fields["$cid"] = DomUICID;
+
+		var response = "";
+		$.ajax( {
+			url :DomUI.getPostURL(),
+			dataType :"text/xml",
+			data :fields,
+			cache :false,
+			async: false,
+			type: "POST",
+			success : function(data, state) {
+				response = data;
+			},
+			error :WebUI.handleError
+		});
+//		console.debug("jsoncall-", response);
+//		try {
+			return eval("("+response+")");
+//		} catch(x) {
+//			console.debug("json data error", x);
+//		}
 	},
 
 	clickandchange: function(h, id, evt) {
