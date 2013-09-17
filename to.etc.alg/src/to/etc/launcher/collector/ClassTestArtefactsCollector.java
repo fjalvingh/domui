@@ -48,15 +48,18 @@ public class ClassTestArtefactsCollector extends ArtefactsCollector implements I
 	}
 
 	private void handleFile(@Nonnull String packagePath, @Nonnull File file, @Nonnull List<String> res) throws ClassNotFoundException {
-		URLClassLoader loader = getLoader();
-		Class loadedClass = loader.loadClass(packagePath + file.getName().substring(0, file.getName().length() - 5));
-		Method[] methods = loadedClass.getDeclaredMethods();
-		for(Method method : methods) {
-			Annotation[] annotations = method.getAnnotations();
-			for(Annotation ann : annotations) {
-				if(ann.toString().contains("@org.testng.annotations.Test")) {
-					res.add(loadedClass.getCanonicalName());
-					return;
+		IArtefactMatcher matcher = getMatcher();
+		if(null == matcher || matcher.accept(packagePath)) {
+			URLClassLoader loader = getLoader();
+			Class loadedClass = loader.loadClass(packagePath + file.getName().substring(0, file.getName().length() - 5));
+			Method[] methods = loadedClass.getDeclaredMethods();
+			for(Method method : methods) {
+				Annotation[] annotations = method.getAnnotations();
+				for(Annotation ann : annotations) {
+					if(ann.toString().contains("@org.testng.annotations.Test")) {
+						res.add(loadedClass.getCanonicalName());
+						return;
+					}
 				}
 			}
 		}

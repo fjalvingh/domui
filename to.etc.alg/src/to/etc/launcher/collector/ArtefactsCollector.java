@@ -6,13 +6,24 @@ import java.net.*;
 import javax.annotation.*;
 
 /**
- * Base for collecting test artefacts within provided resources.
+ * Base for collecting test artifacts within provided resources.
  *
  *
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on Aug 1, 2013
  */
 public abstract class ArtefactsCollector {
+
+	private IArtefactMatcher	m_matcher;
+
+	public IArtefactMatcher getMatcher() {
+		return m_matcher;
+	}
+
+	public void setMatcher(@Nullable IArtefactMatcher matcher) {
+		m_matcher = matcher;
+	}
+
 	@Nonnull
 	private final URLClassLoader	m_loader;
 
@@ -36,6 +47,5 @@ public abstract class ArtefactsCollector {
 		packagePath = packageSb.toString();
 		return packagePath;
 	}
-
 
 }

@@ -53,17 +53,19 @@ public class PackageTestArtefactsCollector extends ArtefactsCollector implements
 		}
 	}
 
-	private boolean handleFile(@Nonnull String path, @Nonnull File file) throws ClassNotFoundException {
-		URLClassLoader loader = getLoader();
-		//"nl.itris.vp.webdriver.core." +
+	private boolean handleFile(@Nonnull String packagePath, @Nonnull File file) throws ClassNotFoundException {
+		IArtefactMatcher matcher = getMatcher();
+		if(null == matcher || matcher.accept(packagePath)) {
+			URLClassLoader loader = getLoader();
 
-		Class loadedClass = loader.loadClass(path + file.getName().substring(0, file.getName().length() - 5));
-		Method[] methods = loadedClass.getDeclaredMethods();
-		for(Method method : methods) {
-			Annotation[] annotations = method.getAnnotations();
-			for(Annotation ann : annotations) {
-				if(ann.toString().contains("@org.testng.annotations.Test")) {
-					return true;
+			Class loadedClass = loader.loadClass(packagePath + file.getName().substring(0, file.getName().length() - 5));
+			Method[] methods = loadedClass.getDeclaredMethods();
+			for(Method method : methods) {
+				Annotation[] annotations = method.getAnnotations();
+				for(Annotation ann : annotations) {
+					if(ann.toString().contains("@org.testng.annotations.Test")) {
+						return true;
+					}
 				}
 			}
 		}

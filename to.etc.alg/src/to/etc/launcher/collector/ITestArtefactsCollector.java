@@ -6,7 +6,7 @@ import java.util.*;
 import javax.annotation.*;
 
 /**
- * Proxy for test artefacts collector.
+ * Proxy for test artifacts collector.
  *
  *
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
@@ -15,13 +15,16 @@ import javax.annotation.*;
 public interface ITestArtefactsCollector {
 
 	/**
-	 * Collects test artefacts within specified resource and its sub locations.
+	 * Collects test artifacts within specified resource and its sub locations.
 	 *
 	 * @param location
+	 * @param skipPackages
 	 * @return
 	 * @throws ClassNotFoundException
 	 */
 	@Nonnull
 	List<String> collectArtefacts(@Nonnull File location) throws ClassNotFoundException;
+
+	void setMatcher(@Nonnull IArtefactMatcher matcher);
 
 }

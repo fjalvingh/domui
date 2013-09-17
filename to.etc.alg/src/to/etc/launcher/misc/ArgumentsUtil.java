@@ -90,6 +90,15 @@ public class ArgumentsUtil {
 		return m_arguments.get(argKey);
 	}
 
+	public @Nullable
+	List<String> getOptionalNonNull(@Nonnull String argKey) {
+		List<String> res = m_arguments.get(argKey);
+		if(null == res) {
+			return Collections.EMPTY_LIST;
+		}
+		return res;
+	}
+
 	public int getIntParam(@Nonnull String argkey, int defaultVal) {
 		List<String> values = m_arguments.get(argkey);
 		if(isEmptyArgumentValues(values)) {

@@ -46,6 +46,10 @@ public class ParallelTestLauncher implements IRunnableArgumentsProvider {
 
 	public static final String	ARG_PARALLEL	= "parallel";
 
+	public static final String	ARG_SKIP_PACKAGE			= "skip.package";
+
+	public static final String	ARG_INCLUDE_PACKAGE			= "include.package";
+
 	public static final String	ARG_SUITES		= "suiteFiles";
 
 	public static final String	ARG_ROOT		= "root";
@@ -406,8 +410,33 @@ public class ParallelTestLauncher implements IRunnableArgumentsProvider {
 	}
 
 	private @Nonnull
-	List<String> collectTestArtefacts(@Nonnull URLClassLoader parentLoader, @Nonnull ParallelStartegyType parallel, @Nonnull File location) throws ClassNotFoundException {
+	List<String> collectTestArtefacts(@Nonnull URLClassLoader parentLoader, @Nonnull ParallelStartegyType parallel, @Nonnull File location)
+		throws ClassNotFoundException {
 		ITestArtefactsCollector collector = getTestArtefactsCollector(parallel, parentLoader);
+		final List<String> skipPackages = getArgUtil().getOptionalNonNull(ARG_SKIP_PACKAGE);
+		final List<String> includePackages = getArgUtil().getOptionalNonNull(ARG_INCLUDE_PACKAGE);
+		if (!skipPackages.isEmpty() || !includePackages.isEmpty()) {
+			collector.setMatcher(new IArtefactMatcher() {
+
+				@Override
+				public boolean accept(@Nonnull String packagePath) {
+					for(String skipPackage : skipPackages) {
+						if(packagePath.contains(skipPackage)) {
+							return false;
+						}
+					}
+					if(includePackages.isEmpty()) {
+						return true;
+					}
+					for(String includePackage : includePackages) {
+						if(packagePath.contains(includePackage)) {
+							return true;
+						}
+					}
+					return false;
+				}
+			});
+		}
 		return collector.collectArtefacts(location);
 	}
 
