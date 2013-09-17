@@ -30,6 +30,7 @@ import to.etc.domui.component.input.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
+import to.etc.util.*;
 
 public class TextArea extends InputNodeContainer implements IControl<String>, IHasModifiedIndication {
 	private int m_cols = -1;
@@ -82,7 +83,7 @@ public class TextArea extends InputNodeContainer implements IControl<String>, IH
 	}
 
 	public boolean validate() {
-		if(m_value == null || m_value.length() == 0) {
+		if(StringTool.isBlank(m_value)) {
 			if(isMandatory()) {
 				setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.MANDATORY));
 				return false;
