@@ -541,14 +541,18 @@ $(window).bind('beforeunload', function() {
 				return;
 			}
 		};
-	} else if(console.debug) {
-		$.dbg = function() {
-			console.debug.apply(console, arguments);
-		};
-	} else if(console.log) {
-		$.dbg = function() {
-			console.log.apply(console, arguments);
-		};
+	} else if(window.console != undefined) {
+		if(window.console.debug != undefined) {
+			$.dbg = function() {
+				window.console.debug.apply(window.console, arguments);
+			};
+		} else if(window.console.log != undefined) {
+			$.dbg = function() {
+				window.console.log.apply(window.console, arguments);
+			};
+		}
+	} else {
+		$.dbg = function() {};
 	}
 })(jQuery);
 
@@ -611,10 +615,11 @@ var WebUI = {
 	},
 
 	log: function() {
-		if (!window.console || !window.console.debug)
-			return;
-		window.console.debug.apply(window.console, arguments);
-		// window.console.debug("Args: "+[].join.call(arguments,''));
+		$.dbg.apply(this, arguments);
+//		if (!window.console || !window.console.debug)
+//			return;
+//		window.console.debug.apply(window.console, arguments);
+//		// window.console.debug("Args: "+[].join.call(arguments,''));
 	},
 
 	/**
