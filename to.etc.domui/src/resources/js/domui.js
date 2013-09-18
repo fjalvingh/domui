@@ -1374,7 +1374,7 @@ var WebUI = {
 	focus : function(id) {
 		var n = document.getElementById(id);
 		if(n) {
-			if($.browser.isIE) {
+			if($.browser.msie) {
 				setTimeout(function() { try { n.focus();} catch (e) { /*just ignore */ } }, 100); //Due to IE bug, we need to set focus on timeout :( See http://www.mkyong.com/javascript/focus-is-not-working-in-ie-solution/
 			} else {
 				try {
