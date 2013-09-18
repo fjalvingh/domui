@@ -459,7 +459,7 @@ $(window).bind('beforeunload', function() {
 							var fntext = v.indexOf("return") == 0 ? v : "return "+v;
 
 							if($.browser.msie && $.browser.majorVersion < 9)
-								se = new Function(fn);
+								se = new Function(fntext);
 							else
 								se = new Function("event", fntext);
 							dest[n] = se;
@@ -521,8 +521,10 @@ $(window).bind('beforeunload', function() {
 })(jQuery);
 
 (function($) {
-	if(false && $.browser.msie) {
+	if($.browser.msie && $.browser.majorVersion < 10) {
 		$.dbg = function(a,b,c,d,e) {
+			if(window.console == undefined)
+				return;
 			switch(arguments.length) {
 			default:
 				window.console.log(a);
