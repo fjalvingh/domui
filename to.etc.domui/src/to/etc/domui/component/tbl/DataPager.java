@@ -267,12 +267,13 @@ public class DataPager extends Div implements IDataTableChangeListener {
 
 		int cp = m_table.getCurrentPage();
 		int np = m_table.getPageCount();
-		if(np == 0)
-			// mtesic:there is already 'There are no results' message inside DataCellTable
-			// m_txt.setText(NlsContext.getGlobalMessage(Msgs.UI_PAGER_EMPTY));
+		if(np == 0) {
 			m_txt.setText("");
-		else
+			setDisplay(DisplayType.NONE);
+		} else {
 			m_txt.setText(Msgs.BUNDLE.formatMessage(Msgs.UI_PAGER_TEXT, Integer.valueOf(cp + 1), Integer.valueOf(np), Integer.valueOf(m_table.getModel().getRows())));
+			setDisplay(DisplayType.INLINE);
+		}
 
 		if(cp <= 0) {
 			m_firstBtn.setCssClass("ui-dp-nav-f-dis");
