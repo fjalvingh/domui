@@ -765,10 +765,10 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 			return;
 		if(m_selectionModel != null) {
 			m_selectionModel.removeListener(this);
-			setDisableClipboardSelection(true);
 		}
 		m_selectionModel = selectionModel;
 		if(null != selectionModel) {
+			setDisableClipboardSelection(true);
 			selectionModel.addListener(this);
 		}
 		m_lastSelectionLocation = -1;
