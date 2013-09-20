@@ -267,6 +267,10 @@ public class CalculationUtil {
 			n3 = n3 * 10 + (c - '0'); // Add in digit
 			ix++;
 		}
+		// if the year consists of 2 digits, add '20' at the begining
+		if(nch == 2) {
+			n3 += 2000;
+		}
 		ix = skippy(s, len, ix); // Temove any trailing shit
 		if(ix < len || n3 > 2200 || nch == 0) // Not completely consumed, year way too big, no year?
 			return null;
