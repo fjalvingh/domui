@@ -29,6 +29,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.buttons.*;
+import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
@@ -92,6 +93,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		add(d);
 		d.setFloat(FloatType.RIGHT);
 		m_txt = new TextNode();
+		d.add(new VerticalSpacer(10));
 		d.add(m_txt);
 		m_textDiv = d;
 
