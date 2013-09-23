@@ -41,15 +41,102 @@ $.extend(WebUI, {
 		// -- Try to decode then reformat the date input
 		var fmt = Calendar._TT["DEF_DATE_FORMAT"];
 		try {
-			var separatorsCount = WebUI.countSeparators(val)
+			var res = "";
+			var separatorsCount = WebUI.countSeparators(val);
 			if (separatorsCount < 2) {
 				val = WebUI.insertDateSeparators(val, fmt, separatorsCount);
+				res = Date.parseDate(val, fmt);
+			} else {
+				try {
+					var resultOfConversion = WebUI.parsingOfFormat(val, fmt);
+					res = Date.parseDate(resultOfConversion, fmt);
+					c.value = res.print(fmt);
+				} catch(x) {
+					res = Date.parseDate(val, fmt);
+				}
 			}
-			var res = Date.parseDate(val, fmt);
 			c.value = res.print(fmt);
 		} catch (x) {
 			alert(Calendar._TT["INVALID"]);
 		}
+	},
+	
+	/**
+	 * Function that checks is format valid after check that input has separators.
+	 */
+	
+	parsingOfFormat: function(inputValue, format){
+		// splits to array of alphanumeric "words" from an input (separators are non-alphanumeric characters)
+		var inputValueSplitted = inputValue.match(/(\w+)/g);
+		var formatWithoutPercentCharSplitted = format.replace(/%/g, "").match(/(\w+)/g);
+		var result = "";
+		for(var i = 0; i < formatWithoutPercentCharSplitted.length; i++){			
+			switch(formatWithoutPercentCharSplitted[i]){
+			case "d":
+				result = WebUI.formingResultForDayOrMonth(inputValueSplitted[i], result);
+				break;
+			case "m":
+				result = WebUI.formingResultForDayOrMonth(inputValueSplitted[i], result);
+				break;
+			case "Y":
+				result = WebUI.formingResultForYear(inputValueSplitted[i], result);
+				break;
+			}
+		}
+		result = WebUI.insertDateSeparators(result, format);
+		return result;	
+	},
+	
+	formingResultForDayOrMonth: function(inputValue, result){
+		if(!WebUI.hasFieldInvalidFormat(inputValue)){
+			return result = WebUI.setDayOrMonthFormat(inputValue, result);
+		}
+		else{
+			throw "Invalid date";
+		}
+	},
+	
+	formingResultForYear: function(inputValue, result){
+		var VALID_LENGTH_YEAR = 2;
+		if(inputValue.length == VALID_LENGTH_YEAR){
+			return result = WebUI.setYearFormat(inputValue, result);
+		}
+		else{
+			throw "Invalid date";
+		}
+	},
+	
+	/**
+	 * Function that checks is format valid of fields day and month.
+	 */
+	hasFieldInvalidFormat: function(inputValue){
+		var MAX_LENGTH = 2;
+		var FORBIDDEN_CHARACTER = "0";
+		
+		return (inputValue.length === MAX_LENGTH && (inputValue.charAt(0) === FORBIDDEN_CHARACTER)) || (inputValue.length > MAX_LENGTH);
+	},
+	
+	/**
+	 * Function that converts day and month parts of input string that represents date.
+	 */
+	setDayOrMonthFormat: function(inputValue, result){
+		var NEEDED_CHARACTER_DAY_MONTH = "0";
+		
+		if(inputValue.length == 1){
+			result += NEEDED_CHARACTER_DAY_MONTH + inputValue;
+		}else {
+			result += inputValue;
+		}
+		return result;
+	},
+	
+	/**
+	 * Function that converts year part of input string that represents date.
+	 */
+	setYearFormat: function(inputValue, result){
+		var NEEDED_CHARACTER_YEAR = "20";
+		
+		return result += NEEDED_CHARACTER_YEAR + inputValue;
 	},
 	
 	/**
