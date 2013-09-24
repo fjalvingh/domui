@@ -73,10 +73,10 @@ public class W3CSchemaCoder {
 	static private GregorianCalendar calendar() {
 		GregorianCalendar c = m_calendar.get();
 		if(c == null) {
-			TimeZone tz = TimeZone.getTimeZone("Europe/Amsterdam");
-			c = new GregorianCalendar(tz, Locale.US);
+			c = new GregorianCalendar(Locale.US);
 			m_calendar.set(c);
 		}
+		c.setTimeZone(TimeZone.getDefault());
 		return c;
 	}
 
