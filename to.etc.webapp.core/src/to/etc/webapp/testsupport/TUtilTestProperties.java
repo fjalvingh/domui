@@ -70,17 +70,11 @@ public class TUtilTestProperties {
 			if(sysProp != null)
 				return loadProperties(sysProp, "VPTESTCFG");
 
-/*			System.out.println("----- Class path: -----");
-			System.out.println(System.getProperty("java.class.path"));
-*/			String testFileName = System.getProperty("testProperties");
+			String testFileName = System.getProperty("testProperties");
 			if(testFileName != null) {
 				is = TUtilTestProperties.class.getResourceAsStream("/resource/test/" + testFileName);
-				if(null == is){
+				if(null == is)
 					throw new IllegalStateException(testFileName + ": this test.properties file, defined by the 'testProperties' java property does not exist as a resource below /resource/test/");
-				}else{
-					URL resour = TUtilTestProperties.class.getResource("/resource/test/" + testFileName);
-					System.out.println("path:" + resour.getPath());
-				}
 				m_properties = new Properties();
 				m_properties.load(is);
 				m_propertiesLocation = "resource /resource/test/" + testFileName + " (through testProperties system property)";
