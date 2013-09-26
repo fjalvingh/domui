@@ -28,6 +28,8 @@ import java.util.*;
 
 import javax.annotation.*;
 
+import org.slf4j.*;
+
 import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.dom.*;
@@ -71,6 +73,8 @@ import to.etc.webapp.query.*;
  * Created on Aug 18, 2007
  */
 abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IModelBinding {
+	private static final Logger LOG = LoggerFactory.getLogger(NodeBase.class);
+
 	static private boolean m_logAllocations;
 
 	/** The owner page. If set then this node IS attached to the parent in some way; if null it is not attached. */
@@ -772,16 +776,22 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	}
 
 	public void setCalculcatedId(@Nonnull String calcid, @Nullable String parentId) {
-		String base = getTestRepeatId();
-		if(parentId != null) {
-			String nid = base + "/" + calcid;
-			if(m_page.isTestIDALlocated(nid)) {
-				m_calculatedTestIdBase = parentId + "_" + calcid;
+		try {
+			String base = getTestRepeatId();
+			if(parentId != null) {
+				String nid = base + "/" + calcid;
+				if(m_page.isTestIDALlocated(nid)) {
+					m_calculatedTestIdBase = parentId + "_" + calcid;
+				} else {
+					m_calculatedTestIdBase = calcid;
+				}
 			} else {
 				m_calculatedTestIdBase = calcid;
 			}
-		} else {
-			m_calculatedTestIdBase = calcid;
+		} catch(Exception ex) {
+			//FIXME: 20130926 vmijic : for now try less intrusive error reporting in problems with generating calculated testid.
+			LOG.error("Error in setCalculcatedId", ex);
+			m_calculatedTestIdBase = "ERROR_IN_setCalculcatedId_" + calcid;
 		}
 	}
 
@@ -816,8 +826,9 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	@Nonnull
 	public String getTestRepeatId() {
 		if(m_testFullRepeatID == null) {
-			if(m_parent == null)
+			if(m_parent == null) {
 				throw new IllegalStateException("?? " + getClass().getName() + " null parent");
+			}
 			String ptrid = m_parent.getTestRepeatId();
 			if(m_testRepeatId == null) {
 				m_testFullRepeatID = ptrid;
