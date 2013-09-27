@@ -29,8 +29,6 @@ a.ui-lnkb-dis {
 	-moz-filter: grayscale(100%);
 	filter: gray; /* IE6-9 */
     -webkit-filter: grayscale(1); /* Google Chrome & Safari 6+ */
-	margin-right: 2px;
-	vertical-align: top;
 }
 
 a:hover.ui-lnkb-dis {
