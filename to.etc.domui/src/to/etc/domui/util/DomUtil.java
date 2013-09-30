@@ -1495,13 +1495,16 @@ final public class DomUtil {
 	}
 
 	/**
-	 * EXPENSIVE - USE WITH CARE Check if first string paramater is equal to some from others
+	 * EXPENSIVE - USE WITH CARE
+	 * Check if first primitive type paramater is equal to some from others.
+	 * Use only for primitive types and enums, for other complex types use {@link MetaManager#areObjectsEqual(Object, Object, ClassMetaModel)}.
+	 *
 	 * @param value
 	 * @param values
 	 * @return
 	 */
-	static public boolean isIn(String value, String... values) {
-		for(String item : values) {
+	static public <T> boolean isIn(T value, T... values) {
+		for(T item : values) {
 			if(item.equals(value)) {
 				return true;
 			}
