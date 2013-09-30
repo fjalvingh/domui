@@ -1,10 +1,10 @@
-package to.etc.launcher;
+package to.etc.testng.launcher;
 
 import java.io.*;
 
 import org.junit.*;
 
-import to.etc.launcher.misc.*;
+import to.etc.testng.launcher.misc.*;
 
 /**
  * Tests (and experiment area) for running ParallelTestLauncher tool.
@@ -21,18 +21,17 @@ public class ParallelTestLauncherTest {
 			"-m2.repo", "/home/vmijic/.m2", //
 			"-project", "vp-selenium-webdriver-tests", //
 			//"-skip.package", "nl.itris.vp.webdriver.vp_old_do_not_use", "nl.itris.vp.webdriver.decade", //
-			"-include.package", "nl.itris.vp.webdriver.viewpoint.tests.fin", //
+			"-include.package", "nl.itris.vp.webdriver.viewpoint.tests.fin", //"nl.itris.vp.webdriver.decade.tests", //
 			"-parallel", "CLASS", //
-			//"-suiteFiles", "file1.xml", // still not implemented
 			"-threads", "5", //
 			"-testng.reporter", "nl.itris.vp.webdriver.core.report.WdVpTestXMLReporter", //
-			"-testng.reporter.root", "/home/vmijic/Data/Projects/Itris/Viewpoint/testing/tests/proba/vp-suite", //
+			"-testng.reporter.root", "/home/vmijic/Data/Projects/Itris/Viewpoint/testing/tests/local/parallel", //
 			"-testng.browser", "firefox", //
 			"-testng.remote.hub", "local", //
-			"-testng.server.url", "http://localhost:8080/Itris_VO02/", //
+			"-testng.server.url", "http://lyon.hosts.itris.nl/wd44/", //"http://localhost:8080/Itris_VO02/", //
 			"-testng.username", "vpc", //
 			"-testng.password", "rhijnspoor", //
-			"-remove.generated", "false",
+			"-remove.generated", "false", //
 		//"-testProperties", "wd44.properties", //
 		};
 

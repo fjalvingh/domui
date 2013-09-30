@@ -1,4 +1,4 @@
-package to.etc.launcher.runner;
+package to.etc.testng.launcher.runner;
 
 import java.io.*;
 import java.util.*;
@@ -34,7 +34,7 @@ public class RunnableDataProvider implements IRunnablePairProvider {
 	/**
 	 * Provides next {@link RunnablePair} for multithreaded test runners consumption.
 	 *
-	 * @see to.etc.launcher.runner.IRunnablePairProvider#getNext()
+	 * @see to.etc.testng.launcher.runner.IRunnablePairProvider#getNext()
 	 */
 	@Override
 	@Nullable

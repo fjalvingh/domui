@@ -1,4 +1,4 @@
-package to.etc.launcher.runner;
+package to.etc.testng.launcher.runner;
 
 import javax.annotation.*;
 

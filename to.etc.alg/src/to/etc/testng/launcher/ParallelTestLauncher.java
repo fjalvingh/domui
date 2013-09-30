@@ -1,4 +1,4 @@
-package to.etc.launcher;
+package to.etc.testng.launcher;
 
 import java.io.*;
 import java.net.*;
@@ -11,9 +11,9 @@ import javax.xml.parsers.*;
 import org.w3c.dom.*;
 import org.xml.sax.*;
 
-import to.etc.launcher.collector.*;
-import to.etc.launcher.misc.*;
-import to.etc.launcher.runner.*;
+import to.etc.testng.launcher.collector.*;
+import to.etc.testng.launcher.misc.*;
+import to.etc.testng.launcher.runner.*;
 import to.etc.util.*;
 
 /*

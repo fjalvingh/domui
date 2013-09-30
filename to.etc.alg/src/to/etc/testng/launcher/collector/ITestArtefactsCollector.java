@@ -1,4 +1,4 @@
-package to.etc.launcher.collector;
+package to.etc.testng.launcher.collector;
 
 import java.io.*;
 import java.util.*;

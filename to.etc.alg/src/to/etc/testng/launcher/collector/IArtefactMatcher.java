@@ -1,4 +1,4 @@
-package to.etc.launcher.collector;
+package to.etc.testng.launcher.collector;
 
 import javax.annotation.*;
 
