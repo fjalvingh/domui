@@ -410,6 +410,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			}
 
 			m_application.internalCallPageComplete(ctx, page);
+			page.getBody().internalOnBeforeRender();
 			page.internalDeltaBuild(); // If listeners changed the page-> rebuild those parts
 			// END ORDERED
 
@@ -1050,6 +1051,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	static private void renderOptimalDelta(final RequestContextImpl ctx, final Page page, boolean inhibitlog) throws Exception {
 		// ORDERED
 		//-- 20100519 jal Force full rebuild before rendering, always. See bug 688.
+		page.getBody().internalOnBeforeRender();
 		page.internalDeltaBuild();
 		ctx.getApplication().internalCallPageComplete(ctx, page);
 		page.internalDeltaBuild();

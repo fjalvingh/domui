@@ -817,6 +817,14 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 			m_errorFence = new ErrorFenceHandler(this);
 	}
 
+	@Override
+	final public void internalOnBeforeRender() throws Exception {
+		onBeforeRender();
+		for(int i = m_children.size(); --i >= 0;) {
+			m_children.get(i).internalOnBeforeRender();
+		}
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Content delegation and framed nodes handling.		*/
 	/*--------------------------------------------------------------*/
