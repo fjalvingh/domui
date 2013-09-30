@@ -983,7 +983,7 @@ public class LookupForm<T> extends Div {
 		}
 	}
 
-	private void assignCalcTestID(Item item, NodeBase b) {
+	private void assignCalcTestID(@Nonnull Item item, @Nonnull NodeBase b) {
 		if(b.getTestID() != null)
 			return;
 		String lbl = item.getPropertyName();
