@@ -31,6 +31,9 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
 public class Caption extends Div {
+
+	private static final String FIRST_CAPTION = "ui-cptn-first";
+
 	private String m_caption;
 
 	private TD m_buttonpart;
@@ -124,5 +127,17 @@ public class Caption extends Div {
 		if(isBuilt() && m_buttonpart != null) {
 			m_buttonpart.add(ib);
 		}
+	}
+
+	public void setFirst(boolean isFirst) {
+		if(isFirst) {
+			addCssClass(FIRST_CAPTION);
+		} else {
+			removeCssClass(FIRST_CAPTION);
+		}
+	}
+
+	public boolean isFirst() {
+		return hasCssClass(FIRST_CAPTION);
 	}
 }
