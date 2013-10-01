@@ -75,6 +75,7 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 
 			//-- Render the header.
 			THead hd = new THead();
+			getTable().add(hd);
 			HeaderContainer<T> hc = new HeaderContainer<T>(this);
 			TR tr = new TR();
 			tr.setCssClass("ui-dt-hdr");
@@ -84,7 +85,6 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 			selImg.setTitle(getSelectionColTitle() == null ? Msgs.BUNDLE.getString(Msgs.UI_MLUI_COL_TTL) : getSelectionColTitle());
 			hc.add(selImg);
 			getRowRenderer().renderHeader(this, hc);
-			getTable().add(hd);
 
 			//-- Render loop: add rows && ask the renderer to add columns.
 			setDataBody(new TBody());

@@ -177,6 +177,8 @@ public class DefaultButton extends Button implements IActionControl {
 	@Override
 	public void setText(final @Nullable String text) {
 		m_text = text;
+		if(null != text)
+			setCalculcatedId("button_" + DomUtil.convertToID(text));
 		forceRebuild();
 	}
 

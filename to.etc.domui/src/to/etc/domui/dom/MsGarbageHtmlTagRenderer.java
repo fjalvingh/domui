@@ -38,8 +38,8 @@ import to.etc.util.*;
  * Created on Nov 24, 2009
  */
 public class MsGarbageHtmlTagRenderer extends HtmlTagRenderer {
-	public MsGarbageHtmlTagRenderer(BrowserVersion bv, IBrowserOutput o) {
-		super(bv, o);
+	public MsGarbageHtmlTagRenderer(BrowserVersion bv, IBrowserOutput o, boolean uiTestMode) {
+		super(bv, o, uiTestMode);
 	}
 
 	/**

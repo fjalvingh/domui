@@ -33,7 +33,7 @@ import to.etc.domui.server.*;
  * Created on Nov 24, 2009
  */
 public class StandardHtmlTagRenderer extends HtmlTagRenderer {
-	public StandardHtmlTagRenderer(BrowserVersion bv, IBrowserOutput o) {
-		super(bv, o);
+	public StandardHtmlTagRenderer(BrowserVersion bv, IBrowserOutput o, boolean uiTestMode) {
+		super(bv, o, uiTestMode);
 	}
 }

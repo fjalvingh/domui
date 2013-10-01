@@ -313,6 +313,13 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 					}
 				});
 
+				//-- Experimental: set a calculated test ID
+				String lbl = cd.getPropertyName();
+				if(null == lbl)
+					lbl = label;
+				if(null == lbl || lbl.length() == 0)
+					lbl = Integer.toString(m_columnList.indexOf(cd));
+				th.setCalculcatedId("H-" + lbl, tbl.calcTestID());
 			}
 			if(cd.getHeaderCssClass() != null) {
 				sb.setLength(0);
@@ -494,6 +501,15 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 		else if(cssClass != null) {
 			cell.addCssClass(cssClass);
 		}
+
+		//-- Assign a testID
+		String label = cd.getColumnLabel();
+		String lbl = cd.getPropertyName();
+		if(null == lbl)
+			lbl = label;
+		if(null == lbl || lbl.length() == 0)
+			lbl = Integer.toString(m_columnList.indexOf(cd));
+		cell.setCalculcatedId("C-" + lbl, tbl.calcTestID());
 	}
 
 	/*--------------------------------------------------------------*/
