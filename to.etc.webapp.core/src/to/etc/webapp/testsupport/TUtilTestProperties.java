@@ -72,7 +72,7 @@ public class TUtilTestProperties {
 
 			String testFileName = System.getProperty("testProperties");
 			if(testFileName != null) {
-				is = testFileName.getClass().getResourceAsStream("/resource/test/" + testFileName);
+				is = TUtilTestProperties.class.getResourceAsStream("/resource/test/" + testFileName);
 				if(null == is)
 					throw new IllegalStateException(testFileName + ": this test.properties file, defined by the 'testProperties' java property does not exist as a resource below /resource/test/");
 				m_properties = new Properties();

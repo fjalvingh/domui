@@ -815,6 +815,19 @@ final public class DomUtil {
 		return Constants.RESOURCE_PREFIX + rb.substring(0, pos + 1).replace('.', '/') + name;
 	}
 
+	@Nonnull
+	static public String convertToID(@Nonnull String id) {
+		StringBuilder sb = new StringBuilder();
+		for(int i = 0, len = id.length(); i < len; i++) {
+			char c = id.charAt(i);
+			if(Character.isLetterOrDigit(c))
+				sb.append(Character.toLowerCase(c));
+		}
+
+		return sb.toString();
+	}
+
+
 	public static void main(final String[] args) {
 		for(int i = 0; i < 10; i++)
 			System.out.println(generateGUID());
