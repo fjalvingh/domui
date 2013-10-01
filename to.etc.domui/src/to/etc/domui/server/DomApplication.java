@@ -88,6 +88,9 @@ public abstract class DomApplication {
 
 	private boolean m_developmentMode;
 
+	/** When T the UI will try to generate test ID's and helper thingies to easily show those IDs */
+	private boolean m_uiTestMode;
+
 	/** When > 0, this defines that pages are automatically reloaded when changed */
 	private int m_autoRefreshPollInterval;
 
@@ -423,11 +426,21 @@ public abstract class DomApplication {
 				throw new IllegalArgumentException("The 'extension' parameter contains too many dots...");
 			m_urlExtension = ext;
 		}
-		initialize(pp);
+		
 		m_developmentMode = development;
 		if(m_developmentMode && DeveloperOptions.getBool("domui.traceallocations", true))
 			NodeBase.internalSetLogAllocations(true);
+		String haso = DeveloperOptions.getString("domui.testui", null);
+		if(m_developmentMode && haso == null)
+			m_uiTestMode = true;
+		if("true".equals(haso))
+			m_uiTestMode = true;
+		haso = System.getProperty("domui.testui");
+		if("true".equals(haso))
+			m_uiTestMode = true;
 
+		initialize(pp);
+		
 		/*
 		 * If we're running in development mode then we auto-reload changed pages when the developer changes
 		 * them. It can be reset by using a developer.properties option.
@@ -493,24 +506,26 @@ public abstract class DomApplication {
 	 * @return
 	 */
 	public HtmlFullRenderer findRendererFor(BrowserVersion bv, final IBrowserOutput o) {
+		boolean tm = inUiTestMode();
 		for(IHtmlRenderFactory f : getRenderFactoryList()) {
-			HtmlFullRenderer tr = f.createFullRenderer(bv, o);
+			HtmlFullRenderer tr = f.createFullRenderer(bv, o, tm);
 			if(tr != null)
 				return tr;
 		}
 
-		return new StandardHtmlFullRenderer(new StandardHtmlTagRenderer(bv, o), o);
+		return new StandardHtmlFullRenderer(new StandardHtmlTagRenderer(bv, o, tm), o);
 		//		HtmlTagRenderer base = new HtmlTagRenderer(bv, o);
 		//		return new HtmlFullRenderer(base, o);
 	}
 
 	public HtmlTagRenderer findTagRendererFor(BrowserVersion bv, final IBrowserOutput o) {
+		boolean tm = inUiTestMode();
 		for(IHtmlRenderFactory f : getRenderFactoryList()) {
-			HtmlTagRenderer tr = f.createTagRenderer(bv, o);
+			HtmlTagRenderer tr = f.createTagRenderer(bv, o, tm);
 			if(tr != null)
 				return tr;
 		}
-		return new StandardHtmlTagRenderer(bv, o);
+		return new StandardHtmlTagRenderer(bv, o, tm);
 	}
 
 	private synchronized List<IHtmlRenderFactory> getRenderFactoryList() {
@@ -587,6 +602,10 @@ public abstract class DomApplication {
 	 */
 	public synchronized boolean inDevelopmentMode() {
 		return m_developmentMode;
+	}
+
+	public synchronized boolean inUiTestMode() {
+		return m_uiTestMode;
 	}
 
 	/**
@@ -1720,5 +1739,9 @@ public abstract class DomApplication {
 				x.printStackTrace();
 			}
 		}
+	}
+	
+	synchronized public void setUiTestMode(boolean value){
+		m_uiTestMode = value;
 	}
 }

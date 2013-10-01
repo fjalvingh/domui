@@ -148,7 +148,9 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 		//-- Check control permissions: does it have view permissions?
 		final ControlFactoryResult r = createControlFor(getModel(), pmm, editable); // Add the proper input control for that type
 		addControl(label, r.getLabelNode(), r.getNodeList(), mandatory, editable, pmm);
-		r.getFormControl().setMandatory(mandatory);
+		NodeBase formControl = r.getFormControl();
+		((IControl<C>) formControl).setMandatory(mandatory);
+		formControl.setCalculcatedId(name);
 
 		//-- jal 20090924 Bug 624 Assign the control label to all it's node so it can specify it in error messages
 		if(label != null) {
@@ -251,6 +253,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 			ctl.setErrorLocation(label);
 		SimpleComponentPropertyBinding<V> b = new SimpleComponentPropertyBinding<V>(getModel(), pmm, ctl);
 		getBindings().add(b);
+		ctl.setCalculcatedId(propertyname);
 		return ctl;
 	}
 
@@ -262,6 +265,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 			ctl.setErrorLocation(label);
 		DisplayOnlyPropertyBinding<V> b = new DisplayOnlyPropertyBinding<V>(getModel(), pmm, ctl);
 		getBindings().add(b);
+		ctl.setCalculcatedId(propertyname);
 		return ctl;
 	}
 
@@ -303,6 +307,8 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 		boolean editable = control instanceof IControl< ? >;
 
 		addControl(label, control, new NodeBase[]{control}, mandatory, editable, null);
+		if(null != label)
+			control.setCalculcatedId(label);
 	}
 
 	/**
@@ -351,7 +357,12 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 		}
 
 		getBindings().add(b);
-		return (IControl<C>) r.getFormControl();
+		IControl<C> formControl = (IControl<C>) r.getFormControl();
+		if(formControl instanceof NodeBase) {
+			((NodeBase) formControl).setCalculcatedId(name);
+		}
+
+		return formControl;
 	}
 
 
@@ -374,6 +385,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 		addControl(label, nb, new NodeBase[]{nb}, mandatory, editable, pmm);
 		if(label != null)
 			nb.setErrorLocation(label);
+		nb.setCalculcatedId(propertyName);
 	}
 
 	/**

@@ -1,0 +1,63 @@
+Tool is used to run testNG tests in parallel. Here is list of available mandatory and optional arguments.
+Arguments are specified in notation:
+-ARGUMENT1 VALUE_A1 [VALUE_A2] [VALUE_A3] -ARGUMENT2 VALUE_B1 [VALUE_B2] [VALUE_B3]
+
+
+mandatories:
+	-m2.repo				, location of .m2 
+								(maven installation location. Having maven shared repo with installed dependencies in mandatory for running this tool)
+	-project				, one or more projects
+								(relative to [root] location, specifies project that is containing tests to run)
+
+options: 
+	-parallel				, CLASS | PACKAGE | TEST
+								per thread execution grouping strategy:
+									CLASS - single thread runs single class
+									PACKAGE - single thread runs single package with all containg classes
+									TEST - single thread runs single TEST element within specified testNg test suite(s). Works only if [-suiteFiles] is used.
+								if [-suiteFiles] is in use dafault is TEST, otherwise default is CLASS
+	-skip.package			, list of packages to skip from running tests. This option is ignored if paired with [-parallel TEST] 								
+	-include.package		, list of packages to include into running tests. This option is ignored if paired with [-parallel TEST] 								
+	-root					, location where tool starts, all paths are relative from here
+								(if not specified uses default location where command is executed) 
+	-threads				, number of parallel threads executing tests
+								(default is 5)
+	-remove.generated		, true | false
+								 if specified, removes generated on-the-fly per thread suites
+								(default is true)
+	-single.report			, true | false
+								 if specified, assembles single test report at the end
+								(default is true)
+	-suiteFiles				, one or more testNG suite xml files
+								(relative to [root] location, if non is specified test are discovered within [-project] locations)
+	-testng.reporter.root	, root location where generated test suites and testNG reports and screenshots are created
+								(if not specified uses same location as root)
+	-testng.reporter		, specific reporter attached as testNG runner listener
+
+	-testng.browser			, firefox chrome ie ie7 ie8 ie9 ie10 (one or more)
+								(default is firefox. Specifies one or more browsers to run test on)
+								
+	-testng.remote.hub		, webdriver remote hub location
+								(use 'local' when run locally with no hub in use, or specify started hub url) 
+								 
+	-testng.server.url		, target web application url used for executing tests
+	
+	-testng.username		, user name used to log in into target application
+
+	-testng.password		, password used to log in into target application
+
+	-testng.wait.timeout	, timeout after when test ng throws exception if expected conditions are not met, defined in milliseconds
+								(dafault is 20000)
+	
+	-testProperties			, name of test properties file
+								(defines custom test props needed to run database unit test, needs to be within [-project] classpath)
+								
+	-help					, shows this help
+	/?						, shows this help
+	 
+Although defined as optional, following arguments have to be specified either in command line or in .test.properties file located at user home:
+	-testng.browser
+	-testng.remote.hub 
+	-testng.server.url
+	-testng.username
+	-testng.password

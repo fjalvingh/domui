@@ -219,6 +219,8 @@ public class DefaultButton extends Button implements IActionControl {
 		m_key.setText(text);
 		decodeAccelerator(text);
 		genURL();
+		if(null != text)
+			setCalculcatedId("button_" + DomUtil.convertToID(text));
 	}
 
 	private void decodeAccelerator(final String txt) {

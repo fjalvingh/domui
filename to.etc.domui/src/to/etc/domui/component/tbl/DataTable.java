@@ -140,6 +140,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 			m_visibleItemList.add(o);
 			TR tr = new TR();
 			m_dataBody.add(tr);
+			tr.setTestRepeatID("r" + ix);
 			cc.setParent(tr);
 			renderRow(tr, cc, ix, o);
 			ix++;
@@ -162,6 +163,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 
 		//-- Render the header.
 		THead hd = new THead();
+		m_table.add(hd);
 		HeaderContainer<T> hc = new HeaderContainer<T>(this);
 		TR tr = new TR();
 		tr.setCssClass("ui-dt-hdr");
@@ -169,8 +171,8 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		hc.setParent(tr);
 
 		renderHeader(hc);
-		if(hc.hasContent()) {
-			m_table.add(hd);
+		if(!hc.hasContent()) {
+			hd.remove();
 		} else {
 			hc = null;
 			hd = null;
@@ -581,6 +583,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		ColumnContainer<T> cc = new ColumnContainer<T>(this);
 		TR tr = new TR();
 		cc.setParent(tr);
+		tr.setTestRepeatID("r" + index);
 		renderRow(tr, cc, index, value);
 		m_dataBody.add(rrow, tr);
 		m_visibleItemList.add(rrow, value);

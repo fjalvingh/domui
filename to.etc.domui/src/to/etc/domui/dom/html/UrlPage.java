@@ -24,6 +24,8 @@
  */
 package to.etc.domui.dom.html;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.layout.title.*;
 
@@ -59,6 +61,12 @@ public class UrlPage extends Div {
 	 */
 	public String getPageTitle() {
 		return m_pageTitle;
+	}
+
+	@Override
+	@Nonnull
+	public String getTestRepeatId() {
+		return "";
 	}
 
 	/**

@@ -50,15 +50,14 @@ public class HtmlTagRenderer implements INodeVisitor {
 
 	private boolean m_tagless;
 
-	//	private boolean				m_updating;
-
 	private HtmlRenderMode m_mode;
 
-	//	private boolean				m_isNewNode;
+	final private boolean m_uiTestMode;
 
-	protected HtmlTagRenderer(BrowserVersion bv, final IBrowserOutput o) {
+	protected HtmlTagRenderer(BrowserVersion bv, final IBrowserOutput o, boolean uiTestMode) {
 		m_o = o;
 		m_browserVersion = bv;
+		m_uiTestMode = uiTestMode;
 	}
 
 	protected BrowserVersion getBrowser() {
@@ -631,9 +630,9 @@ public class HtmlTagRenderer implements INodeVisitor {
 	public void basicNodeRender(final NodeBase b, final IBrowserOutput o, boolean inhibitevents) throws Exception {
 		renderTag(b, o);
 		if(m_tagless)
-			o.attr("select", "#" + b.getActualID()); // Always has an ID
+			o.attr("select", "#" + b.getActualID()); 			// Always has an ID
 		else
-			o.attr("id", b.getActualID()); // Always has an ID
+			o.attr("id", b.getActualID()); 						// Always has an ID
 
 		//-- Handle DRAGGABLE nodes.
 		if(b instanceof IDraggable) {
@@ -645,18 +644,46 @@ public class HtmlTagRenderer implements INodeVisitor {
 			UIDragDropUtil.exposeDroppable(b, dh);
 		}
 
-		String s = getStyleFor(b); // Get/recalculate style
+		String s = getStyleFor(b); 								// Get/recalculate style
 		if(s.length() > 0)
-			o.attr("style", s); // Append style
-		if(b.getTestID() != null)
-			o.attr("testid", b.getTestID());
+			o.attr("style", s); 								// Append style
+
+		String ttl = b.getTitle();
+		if(m_uiTestMode) {
+			String testid = b.getTestID();
+			if(testid != null) {
+				o.attr("testid", testid);
+			} else {
+				testid = b.calcTestID();
+				if(null != testid)
+					o.attr("testid", testid);
+			}
+
+			//-- Adjust any title, if there
+			if(!(b instanceof UrlPage)) {
+				if(ttl != null) {
+					if(testid != null) {
+						o().attr("title", ttl + " (TestID: " + testid + ")");
+					} else {
+						o().attr("title", ttl);
+					}
+				} else if(testid != null) {
+					o().attr("title", "TestID: " + testid);
+				}
+			}
+		} else {
+			if(!(b instanceof UrlPage)){
+				if(ttl != null){ 				
+					o().attr("title", ttl);
+				}
+			}
+		}
+
+
 		if(b.isStretchHeight())
 			o.attr("stretch", "true");
 		if(b.getCssClass() != null)
 			o.attr("class", b.getCssClass());
-		String ttl = b.getTitle();
-		if(ttl != null && !(b instanceof UrlPage)) // Do NOT render title on the thing representing the BODY.
-			o().attr("title", ttl);
 
 		List<String> sal = b.getSpecialAttributeList();
 		if(sal != null) {
