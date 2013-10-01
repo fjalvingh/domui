@@ -1,10 +1,7 @@
 /*** 055_misc.frag.css ***/
 /*** Miscellaneous components styles ***/
 /* AccessDeniedPage */
-.ui-acd-ttl {
-	font-size: larger;
-	font-style: italic;
-}
+.ui-acd-ttl {}
 
 /* InfoPanel */
 .ui-ipa {

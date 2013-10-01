@@ -69,13 +69,12 @@ public class AccessDeniedPage extends UrlPage {
 		CaptionedPanel ep = new CaptionedPanel(Msgs.BUNDLE.getString(Msgs.LOGIN_ACCESS_TITLE));
 		add(ep);
 		Table t = new Table();
+		t.addCssClass("ui-acd-tbl");
 		ep.getContent().add(t);
-		t.setWidth("100%");
 		TBody b = t.addBody();
 		TD td = b.addRowAndCell();
 		Img img = new Img(Theme.ACCESS_DENIED);
 		td.add(img);
-		td.setWidth("1%");
 
 		TD co = b.addCell();
 		String txt = Msgs.BUNDLE.formatMessage(Msgs.LOGIN_ACCESS_DENIED, pageName);
