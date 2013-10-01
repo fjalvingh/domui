@@ -199,7 +199,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		if(m_multiSelectMode) {
 			TH headerCell = hc.add("");
 			headerCell.add(new Img("THEME/dspcb-on.png"));
-			headerCell.setWidth("1px"); //keep selection column with minimal width
+			headerCell.setWidth("1%");
 		}
 		m_rowRenderer.renderHeader(this, hc);
 	}
@@ -455,7 +455,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		//-- 1. Add the select TH.
 		TD th = new TH();
 		th.add(new Img("THEME/dspcb-on.png"));
-		th.setWidth("1px"); //keep selection column with minimal width
+		th.setWidth("1%");
 		headerrow.add(0, th);
 
 		//-- 2. Insert a checkbox in all rows.
