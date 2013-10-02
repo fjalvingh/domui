@@ -198,7 +198,7 @@ public class AppFilter implements Filter {
 			if(!approot.exists() || !approot.isDirectory())
 				throw new IllegalStateException("Internal: cannot get webapp root directory");
 
-			m_config = new ConfigParameters(config, approot);
+			m_config = new FilterConfigParameters(config, approot);
 
 			//-- Handle application construction
 			m_applicationClassName = getApplicationClassName(m_config);
