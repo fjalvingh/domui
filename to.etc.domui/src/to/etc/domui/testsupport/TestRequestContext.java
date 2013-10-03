@@ -113,7 +113,7 @@ public class TestRequestContext implements IRequestContext {
 	}
 
 	@Override
-	public String getParameter(final String name) {
+	public String getParameter(final @Nonnull String name) {
 		String[] v = getParameters(name);
 		if(v == null || v.length != 1)
 			return null;
@@ -126,7 +126,7 @@ public class TestRequestContext implements IRequestContext {
 	}
 
 	@Override
-	public String[] getParameters(final String name) {
+	public String[] getParameters(final @Nonnull String name) {
 		return m_parameterMap.get(name);
 	}
 

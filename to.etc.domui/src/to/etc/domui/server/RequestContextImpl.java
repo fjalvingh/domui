@@ -28,22 +28,21 @@ import java.io.*;
 import java.util.*;
 
 import javax.annotation.*;
-import javax.servlet.http.*;
 
 import to.etc.domui.state.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.upload.*;
-import to.etc.net.*;
 import to.etc.util.*;
 
 public class RequestContextImpl implements IRequestContext, IAttributeContainer {
-	private HttpServletRequest m_request;
+	@Nonnull
+	final private DomApplication m_application;
 
-	private HttpServletResponse m_response;
+	@Nonnull
+	final private AppSession m_session;
 
-	private DomApplication m_application;
-
-	private AppSession m_session;
+	@Nonnull
+	final private IRequestResponse m_requestResponse;
 
 	private WindowSession m_windowSession;
 
@@ -62,46 +61,10 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 
 	private Map<String, Object> m_attributeMap = Collections.EMPTY_MAP;
 
-	RequestContextImpl(DomApplication app, AppSession ses, HttpServletRequest request, HttpServletResponse response) {
-		m_response = response;
+	RequestContextImpl(@Nonnull IRequestResponse rr, @Nonnull DomApplication app, @Nonnull AppSession ses) {
+		m_requestResponse = rr;
 		m_application = app;
 		m_session = ses;
-		m_request = request;
-
-		//-- If this is a multipart (file transfer) request we need to parse the request,
-		m_urlin = request.getRequestURI();
-		int pos = m_urlin.lastIndexOf('.');
-		m_extension = "";
-		if(pos != -1)
-			m_extension = m_urlin.substring(pos + 1).toLowerCase();
-		//FIXME dubbele slashes in viewpoint, wellicht anders oplossen
-		while(m_urlin.startsWith("/"))
-			m_urlin = m_urlin.substring(1);
-		if(m_application.getUrlExtension().equals(m_extension) || m_urlin.contains(".part")) // QD Fix for upload
-			m_request = UploadParser.wrapIfNeeded(request); // Make multipart wrapper if multipart/form-data
-
-		m_webapp = request.getContextPath();
-		if(m_webapp == null)
-			m_webapp = "";
-		else {
-			if(m_webapp.startsWith("/"))
-				m_webapp = m_webapp.substring(1);
-			if(!m_webapp.endsWith("/"))
-				m_webapp = m_webapp + "/";
-			if(!m_urlin.startsWith(m_webapp)) {
-				throw new IllegalStateException("webapp url incorrect: lousy SUN spec");
-			}
-			m_urlin = m_urlin.substring(m_webapp.length());
-		}
-
-		//		for(Enumeration<String> en = m_request.getHeaderNames(); en.hasMoreElements();) {
-		//			String name = en.nextElement();
-		//			System.out.println("Header: "+name);
-		//			for(Enumeration<String> en2 = m_request.getHeaders(name); en2.hasMoreElements();) {
-		//				String val = en2.nextElement();
-		//				System.out.println("     ="+val);
-		//			}
-		//		}
 	}
 
 	/**
@@ -120,7 +83,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 */
 	@Override
 	final public @Nonnull AppSession getSession() {
-		m_session.internalLockSession(); // Someone uses session -> lock it for use by CURRENT-THREAD.
+		m_session.internalLockSession(); 						// Someone uses session -> lock it for use by CURRENT-THREAD.
 		if(!m_amLockingSession)
 			m_session.internalCheckExpiredWindowSessions();
 		m_amLockingSession = true;
@@ -178,11 +141,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 * If this was an upload we discard all files that have not yet been claimed.
 	 */
 	private void internalReleaseUploads() {
-		if(!(m_request instanceof UploadHttpRequestWrapper))
-			return;
-
-		UploadHttpRequestWrapper w = (UploadHttpRequestWrapper) m_request;
-		w.releaseFiles();
+		m_requestResponse.releaseUploads();
 	}
 
 	/**
@@ -204,14 +163,14 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		return m_extension;
 	}
 
-	public HttpServletRequest getRequest() {
-		return m_request;
-	}
-
-	public HttpServletResponse getResponse() {
-		return m_response;
-	}
-
+	//	public HttpServletRequest getRequest() {
+	//		return m_request;
+	//	}
+	//
+	//	public HttpServletResponse getResponse() {
+	//		return m_response;
+	//	}
+	//
 	/**
 	 * @see to.etc.domui.server.IRequestContext#getInputPath()
 	 */
@@ -225,7 +184,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 */
 	@Override
 	public String getUserAgent() {
-		return m_request.getHeader("user-agent");
+		return m_requestResponse.getUserAgent();
 	}
 
 	@Override
@@ -270,8 +229,8 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 */
 	@Override
 	public @Nonnull String getRelativePath(@Nonnull String rel) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(NetTools.getApplicationURL(getRequest()));
+		StringBuilder sb = new StringBuilder(rel.length() + 128);
+		sb.append(m_requestResponse.getApplicationURL());
 		sb.append(rel);
 		return sb.toString();
 	}
@@ -297,11 +256,6 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		//		return m_outWriter;
 	}
 
-	@Override
-	public boolean hasPermission(@Nonnull String permissionName) {
-		return m_request.isUserInRole(permissionName);
-	}
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	ParameterInfo implementation						*/
 	/*--------------------------------------------------------------*/
@@ -310,24 +264,26 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 * @see to.etc.domui.server.IRequestContext#getParameter(java.lang.String)
 	 */
 	@Override
-	public String getParameter(String name) {
-		return getRequest().getParameter(name);
+	public String getParameter(@Nonnull String name) {
+		return m_requestResponse.getParameter(name);
 	}
 
 	/**
 	 * @see to.etc.domui.server.IRequestContext#getParameters(java.lang.String)
 	 */
 	@Override
-	public String[] getParameters(String name) {
-		return getRequest().getParameterValues(name);
+	@Nonnull
+	public String[] getParameters(@Nonnull String name) {
+		return m_requestResponse.getParameters(name);
 	}
 
 	/**
 	 * @see to.etc.domui.server.IRequestContext#getParameterNames()
 	 */
 	@Override
+	@Nonnull
 	public String[] getParameterNames() {
-		return (String[]) getRequest().getParameterMap().keySet().toArray(new String[getRequest().getParameterMap().size()]);
+		return m_requestResponse.getParameterNames();
 	}
 
 	/**
@@ -335,24 +291,23 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 * @return
 	 */
 	public String[] getFileParameters() {
-		if(!(m_request instanceof UploadHttpRequestWrapper))
-			return new String[0];
-		UploadHttpRequestWrapper urw = (UploadHttpRequestWrapper) m_request;
-		return urw.getFileItemMap().keySet().toArray(new String[urw.getFileItemMap().size()]);
+		return m_requestResponse.getFileParameters();
 	}
 
-	public UploadItem[] getFileParameter(String name) {
-		if(!(m_request instanceof UploadHttpRequestWrapper))
-			return null;
-		UploadHttpRequestWrapper urw = (UploadHttpRequestWrapper) m_request;
-		return urw.getFileItems(name);
+	public UploadItem[] getFileParameter(@Nonnull String name) {
+		return m_requestResponse.getFileParameter(name);
 	}
 
-	@Override
-	public String getRemoteUser() {
-		return getRequest().getRemoteUser();
-	}
-
+//	/**
+//	 * DO NOT USE - functionality only present for declarative security.
+//	 * @see to.etc.domui.server.IRequestContext#getRemoteUser()
+//	 */
+//	@Deprecated
+//	@Override
+//	public String getRemoteUser() {
+//		return getRequest().getRemoteUser();
+//	}
+//
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IAttributeContainer implementation.					*/
 	/*--------------------------------------------------------------*/

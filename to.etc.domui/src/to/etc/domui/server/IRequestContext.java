@@ -91,15 +91,6 @@ public interface IRequestContext extends IExtendedParameterInfo {
 	public String getUserAgent();
 
 	/**
-	 * If the request has a "remoteUser", usually indicating the web server somehow logged
-	 * in the user, this returns the user ID. This should not normally be used since there
-	 * are many ways to login. Use {@link UIContext} methods instead.
-	 * @return
-	 */
-	@Nullable
-	public String getRemoteUser();
-
-	/**
 	 * Creates a full path from an application-relative path. So if the root of the application
 	 * is "http://localhost/demo/", calling this with "img/button.png" will return the string
 	 * "http://localhost/demo/img/button.png".
@@ -130,14 +121,4 @@ public interface IRequestContext extends IExtendedParameterInfo {
 	//	public String getRelativeThemePath(@Nonnull String frag);
 
 	//	public String translateResourceName(String in);
-
-	/**
-	 * This checks if the currently logged on user has the named permission. This permission is
-	 * what the J2EE code stupidly calls a "role", which it isn't of course.
-	 * This should be very fast as it's called very often.
-	 *
-	 * @param permissionName
-	 * @return
-	 */
-	public boolean hasPermission(@Nonnull String permissionName);
 }

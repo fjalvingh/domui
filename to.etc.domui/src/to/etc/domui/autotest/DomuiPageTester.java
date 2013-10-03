@@ -58,12 +58,31 @@ public class DomuiPageTester {
 	}
 
 	private void run(@Nonnull Class< ? extends UrlPage> pageClass, @Nonnull PageParameters parameters) {
+		checkInit();
 
-
+		//-- We need an appsession for this page.
+		AppSession session = createTestSession();
 
 
 
 	}
+
+	//	@Nonnull
+	//	private Page instantiate(@Nonnull Class< ? extends UrlPage> pageClass, @Nonnull PageParameters parameters) {
+	//
+	//
+	//		// TODO Auto-generated method stub
+	//		return null;
+	//	}
+
+	@Nonnull
+	private AppSession createTestSession() {
+		AppSession ass = new AppSession(app());
+
+
+		return ass;
+	}
+
 
 	@Nullable
 	static private DomApplication m_appInstance;
@@ -82,8 +101,22 @@ public class DomuiPageTester {
 
 		ConfigParameters cp = new TestConfigParameters(webappFiles, map);
 		da.internalInitialize(cp, false);
+		m_appInstance = da;
 
+		//-- Application instance is now active.
 
+	}
+
+	@Nonnull
+	static public DomApplication app() {
+		DomApplication da = m_appInstance;
+		if(null == da)
+			throw new IllegalStateException("Call #initApplication() before you can run tests.");
+		return da;
+	}
+
+	static private void checkInit() {
+		app();
 	}
 
 
