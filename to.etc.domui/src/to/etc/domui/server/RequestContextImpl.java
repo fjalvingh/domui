@@ -90,6 +90,11 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		return m_session;
 	}
 
+	@Nonnull
+	public IRequestResponse getRequestResponse() {
+		return m_requestResponse;
+	}
+
 	/**
 	 * QUESTIONABLE.
 	 * @param cm

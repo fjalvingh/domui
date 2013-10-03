@@ -1,10 +1,13 @@
 package to.etc.domui.server;
 
+import java.io.*;
+
 import javax.annotation.*;
 import javax.servlet.http.*;
 
 import to.etc.domui.util.upload.*;
 import to.etc.net.*;
+import to.etc.webapp.core.*;
 
 public class HttpServerRequestResponse implements IRequestResponse {
 	@Nonnull
@@ -172,5 +175,39 @@ public class HttpServerRequestResponse implements IRequestResponse {
 			return new UploadItem[0];
 		UploadHttpRequestWrapper urw = (UploadHttpRequestWrapper) m_request;
 		return urw.getFileItems(name);
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Output												*/
+	/*--------------------------------------------------------------*/
+
+	@Override
+	public void setNoCache() {
+		ServerTools.generateNoCache(getResponse());
+	}
+
+	@Override
+	@Nonnull
+	public Writer getOutputWriter(@Nonnull String contentType, @Nullable String encoding) throws IOException {
+		getResponse().setContentType(contentType);
+		if(null != encoding)
+			getResponse().setCharacterEncoding(encoding);
+		return getResponse().getWriter();
+	}
+
+	@Override
+	@Nonnull
+	public OutputStream getOutputStream(@Nonnull String contentType, @Nullable String encoding, int contentLength) throws Exception {
+		getResponse().setContentType(contentType);
+		if(null != encoding)
+			getResponse().setCharacterEncoding(encoding);
+		if(contentLength > 0)
+			getResponse().setContentLength(contentLength);
+		return getResponse().getOutputStream();
+	}
+
+	@Override
+	public void addHeader(@Nonnull String name, @Nonnull String value) {
+		getResponse().addHeader(name, value);
 	}
 }

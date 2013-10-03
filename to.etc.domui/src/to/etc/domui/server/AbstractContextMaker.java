@@ -27,6 +27,7 @@ package to.etc.domui.server;
 import java.io.*;
 import java.util.*;
 
+import javax.annotation.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
@@ -45,9 +46,9 @@ abstract public class AbstractContextMaker implements IContextMaker {
 			m_ie8header = true;
 	}
 
-	public boolean execute(final RequestContextImpl ctx, FilterChain chain) throws Exception {
+	public boolean execute(@Nonnull HttpServerRequestResponse requestResponse, @Nonnull final RequestContextImpl ctx, FilterChain chain) throws Exception {
 		//-- 201012 jal Set the locale for this request
-		Locale loc = ctx.getApplication().getRequestLocale(ctx.getRequest());
+		Locale loc = ctx.getApplication().getRequestLocale(requestResponse.getRequest());
 		NlsContext.setLocale(loc);
 
 		List<IRequestInterceptor> il = ctx.getApplication().getInterceptorList();
@@ -59,16 +60,16 @@ abstract public class AbstractContextMaker implements IContextMaker {
 			rh = ctx.getApplication().findRequestHandler(ctx);
 			if(rh == null) {
 				//-- Non-DomUI request.
-				handleDoFilter(chain, ctx.getRequest(), ctx.getResponse());
+				handleDoFilter(chain, requestResponse.getRequest(), requestResponse.getResponse());
 				return false;
 			}
-			ctx.getResponse().addHeader("X-UA-Compatible", "IE=edge"); // 20110329 jal Force to highest supported mode for DomUI code.
-			ctx.getResponse().addHeader("X-XSS-Protection", "0");		// 20130124 jal Disable IE XSS filter, to prevent the idiot thing from seeing the CID as a piece of script 8-(
+			requestResponse.getResponse().addHeader("X-UA-Compatible", "IE=edge"); // 20110329 jal Force to highest supported mode for DomUI code.
+			requestResponse.getResponse().addHeader("X-XSS-Protection", "0");		// 20130124 jal Disable IE XSS filter, to prevent the idiot thing from seeing the CID as a piece of script 8-(
 			rh.handleRequest(ctx);
 			ctx.flush();
 			return true;
 		} catch(ThingyNotFoundException x) {
-			ctx.getResponse().sendError(404, x.getMessage());
+			requestResponse.getResponse().sendError(404, x.getMessage());
 			return true;
 		} catch(Exception xxx) {
 			xx = xxx;

@@ -1,5 +1,7 @@
 package to.etc.domui.server;
 
+import java.io.*;
+
 import javax.annotation.*;
 
 import to.etc.domui.util.upload.*;
@@ -47,5 +49,15 @@ public interface IRequestResponse {
 	@Nonnull
 	public UploadItem[] getFileParameter(@Nonnull String name);
 
+	public void setNoCache();
 
+	/*--- Content output ---*/
+
+	public void addHeader(@Nonnull String name, @Nonnull String value);
+
+	@Nonnull
+	public Writer getOutputWriter(@Nonnull String contentType, @Nullable String encoding) throws Exception;
+
+	@Nonnull
+	public OutputStream getOutputStream(@Nonnull String contentType, @Nullable String encoding, int contentLength) throws Exception;
 }

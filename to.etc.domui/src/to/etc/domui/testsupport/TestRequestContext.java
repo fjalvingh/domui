@@ -121,30 +121,20 @@ public class TestRequestContext implements IRequestContext {
 	}
 
 	@Override
+	@Nonnull
 	public String[] getParameterNames() {
 		return m_parameterMap.keySet().toArray(new String[m_parameterMap.size()]);
 	}
 
 	@Override
+	@Nonnull
 	public String[] getParameters(final @Nonnull String name) {
-		return m_parameterMap.get(name);
-	}
-
-	@Override
-	public String getRemoteUser() {
-		return "VPC";
+		String[] strings = m_parameterMap.get(name);
+		return strings == null ? new String[0] : strings;
 	}
 
 	@Override
 	public BrowserVersion getBrowserVersion() {
 		return null;
-	}
-	/**
-	 * FIXME Does this need more?
-	 * @see to.etc.domui.server.IRequestContext#hasPermission(java.lang.String)
-	 */
-	@Override
-	public boolean hasPermission(final @Nonnull String permissionName) {
-		return true;
 	}
 }

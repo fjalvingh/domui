@@ -41,7 +41,6 @@ import to.etc.domui.state.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
-import to.etc.webapp.core.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
 
@@ -74,7 +73,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 	@Override
 	public void handleRequest(@Nonnull final RequestContextImpl ctx) throws Exception {
-		ServerTools.generateNoCache(ctx.getResponse()); // All replies may not be cached at all!!
+		ctx.getRequestResponse().setNoCache();					// All replies may not be cached at all!!
+
 		handleMain(ctx);
 		ctx.getSession().dump();
 	}
@@ -136,7 +136,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		/*
 		 * If this is a full render request the URL must contain a $CID... If not send a redirect after allocating a window.
 		 */
-		String action = ctx.getRequest().getParameter("webuia"); // AJAX action request?
+		String action = ctx.getParameter("webuia"); 			// AJAX action request?
 		String cid = ctx.getParameter(Constants.PARAM_CONVERSATION_ID);
 		String[] cida = DomUtil.decodeCID(cid);
 

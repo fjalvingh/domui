@@ -70,17 +70,18 @@ final public class NormalContextMaker extends AbstractContextMaker {
 		//-- Get session,
 		try {
 			HttpSession sess = request.getSession(true);
-			AppSession ass;
+			AppSession appSession;
 			synchronized(sess) {
-				ass = (AppSession) sess.getAttribute(AppSession.class.getName());
-				if(ass == null) {
-					ass = m_application.createSession();
-					sess.setAttribute(AppSession.class.getName(), ass);
+				appSession = (AppSession) sess.getAttribute(AppSession.class.getName());
+				if(appSession == null) {
+					appSession = m_application.createSession();
+					sess.setAttribute(AppSession.class.getName(), appSession);
 				}
 			}
-			//			DomApplication.internalSetCurrent(m_application);
-			RequestContextImpl ctx = new RequestContextImpl(m_application, ass, request, response);
-			return execute(ctx, chain);
+
+			HttpServerRequestResponse requestResponse = HttpServerRequestResponse.create(m_application, request, response);
+			RequestContextImpl ctx = new RequestContextImpl(requestResponse, m_application, appSession);
+			return execute(requestResponse, ctx, chain);
 		} finally {
 			//			DomApplication.internalSetCurrent(null);
 		}

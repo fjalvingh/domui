@@ -24,6 +24,7 @@
  */
 package to.etc.domui.server;
 
+import javax.annotation.*;
 import javax.servlet.http.*;
 
 import to.etc.domui.server.reloader.*;
@@ -75,14 +76,15 @@ final public class HttpSessionLink implements IReloadedClassesListener, HttpSess
 		m_reloader.removeListener(this); // Drop me from the class reloader list
 	}
 
-	AppSession getAppSession(DomApplication app) {
+	@Nonnull
+	AppSession getAppSession(@Nonnull DomApplication app) {
 		AppSession s;
 		synchronized(this) {
-			if(m_appSession == null)
-				m_appSession = app.createSession();
-			else if(m_appSession.getApplication() != app)
-				throw new IllegalStateException("Different DomApplication instances??");
 			s = m_appSession;
+			if(s == null)
+				s = m_appSession = app.createSession();
+			else if(s.getApplication() != app)
+				throw new IllegalStateException("Different DomApplication instances??");
 		}
 		return s;
 	}
