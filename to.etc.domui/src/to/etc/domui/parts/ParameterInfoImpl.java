@@ -72,12 +72,15 @@ public class ParameterInfoImpl implements IParameterInfo {
 	}
 
 	@Override
+	@Nonnull
 	public String[] getParameterNames() {
 		return m_parameterMap.keySet().toArray(new String[m_parameterMap.size()]);
 	}
 
 	@Override
+	@Nonnull
 	public String[] getParameters(@Nonnull String name) {
-		return m_parameterMap.get(name);
+		String[] res = m_parameterMap.get(name);
+		return res == null ? new String[0] : res;
 	}
 }

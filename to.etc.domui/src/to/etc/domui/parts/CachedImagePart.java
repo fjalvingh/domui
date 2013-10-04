@@ -147,11 +147,7 @@ public class CachedImagePart implements IUnbufferedPartFactory {
 			ri.getRequestResponse().addHeader("Content-Disposition", sb.toString());
 		}
 
-		ri.getResponse().setContentType(fima.getInfo().getMime());
-		System.out.println("CachedImagePart: mime=" + fima.getInfo().getMime());
-		ri.getResponse().setContentLength(fima.getSource().getSize());
-
-		OutputStream os = ri.getResponse().getOutputStream();
+		OutputStream os = ri.getRequestResponse().getOutputStream(fima.getInfo().getMime(), null, fima.getSource().getSize());
 		InputStream is = null;
 		try {
 			if(fima.getSource() instanceof IImageMemorySource) {
