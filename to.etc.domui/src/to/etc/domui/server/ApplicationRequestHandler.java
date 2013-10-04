@@ -24,6 +24,7 @@
  */
 package to.etc.domui.server;
 
+import java.io.*;
 import java.util.*;
 
 import javax.annotation.*;
@@ -388,6 +389,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			// END ORDERED
 
 			//-- Start the main rendering process. Determine the browser type.
+			Writer w;
 			if(page.isRenderAsXHTML())
 				ctx.getResponse().setContentType("application/xhtml+xml; charset=UTF-8");
 			else
@@ -533,7 +535,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 * @throws Exception
 	 */
 	private boolean checkAccess(final WindowSession cm, final RequestContextImpl ctx, final Page page) throws Exception {
-		if(ctx.getRequest().getParameter("webuia") != null)
+		if(ctx.getParameter("webuia") != null)
 			throw new IllegalStateException("Cannot be called for an AJAX request");
 		UrlPage body = page.getBody();										// The actual, instantiated and injected class - which is unbuilt, though
 		UIRights rann = body.getClass().getAnnotation(UIRights.class);		// Get class annotation

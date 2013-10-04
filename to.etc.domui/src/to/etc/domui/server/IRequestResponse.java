@@ -3,6 +3,7 @@ package to.etc.domui.server;
 import java.io.*;
 
 import javax.annotation.*;
+import javax.servlet.http.*;
 
 import to.etc.domui.util.upload.*;
 
@@ -60,4 +61,12 @@ public interface IRequestResponse {
 
 	@Nonnull
 	public OutputStream getOutputStream(@Nonnull String contentType, @Nullable String encoding, int contentLength) throws Exception;
+
+	@Nonnull
+	public String getWebappContext();
+
+	public void addCookie(@Nonnull Cookie cookie);
+
+	@Nonnull
+	public Cookie[] getCookies();
 }
