@@ -20,6 +20,7 @@ import to.etc.domuidemo.components.*;
 import to.etc.domuidemo.db.*;
 import to.etc.domuidemo.pages.*;
 import to.etc.domuidemo.sourceviewer.*;
+import to.etc.formbuilder.pages.*;
 import to.etc.util.*;
 import to.etc.webapp.query.*;
 

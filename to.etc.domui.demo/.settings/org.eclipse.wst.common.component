@@ -54,6 +54,9 @@
         <dependent-module archiveName="lib-hibernate-3.3.2.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/lib-hibernate/lib-hibernate">
             <dependency-type>uses</dependency-type>
         </dependent-module>
+        <dependent-module archiveName="to.etc.domui.formbuilder.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/to.etc.domui.formbuilder/to.etc.domui.formbuilder">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
         <property name="context-root" value="demo"/>
         <property name="java-output-path"/>
     </wb-module>

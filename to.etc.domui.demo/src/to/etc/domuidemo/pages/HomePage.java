@@ -23,6 +23,7 @@ import to.etc.domuidemo.pages.overview.misc.*;
 import to.etc.domuidemo.pages.overview.tbl.*;
 import to.etc.domuidemo.pages.overview.tree.*;
 import to.etc.domuidemo.sourceviewer.*;
+import to.etc.formbuilder.pages.*;
 
 public class HomePage extends UrlPage {
 	public HomePage() {

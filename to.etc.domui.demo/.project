@@ -13,6 +13,7 @@
 		<project>bin-slf4j</project>
 		<project>lib-jericho</project>
 		<project>lib-hibernate</project>
+		<project>to.etc.domui.formbuilder</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

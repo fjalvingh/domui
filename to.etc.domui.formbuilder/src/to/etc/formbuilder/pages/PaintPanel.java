@@ -1,4 +1,4 @@
-package to.etc.domui.fd;
+package to.etc.formbuilder.pages;
 
 import to.etc.domui.dom.html.*;
 
@@ -9,6 +9,4 @@ public class PaintPanel extends Div {
 
 
 	}
-
-
 }
