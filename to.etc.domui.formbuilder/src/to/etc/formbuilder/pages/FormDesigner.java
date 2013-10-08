@@ -1,5 +1,6 @@
 package to.etc.formbuilder.pages;
 
+import to.etc.domui.component.layout.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
 
@@ -34,12 +35,16 @@ public class FormDesigner extends UrlPage {
 
 		Div right = new Div();
 		add(right);
-		right.setCssClass("fb-right");
+		right.setCssClass("fb-right ui-content");
 
+		TabPanel tp = new TabPanel();
+		right.add(tp);
 		ComponentPanel cp = new ComponentPanel();
-		right.add(cp);
+		tp.add(cp, "Components");
+		PropertyPanel pp = new PropertyPanel();
+		tp.add(pp, "Properties");
 
-
+		FormComponentRegistry.getInstance().getComponentList();
 	}
 
 }
