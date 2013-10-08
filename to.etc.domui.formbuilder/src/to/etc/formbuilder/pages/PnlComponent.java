@@ -12,14 +12,16 @@ import to.etc.domui.dom.html.*;
  */
 public class PnlComponent extends Div {
 	@Nonnull
-	final private String m_name;
+	final private IFbComponent m_component;
 
-	public PnlComponent(@Nonnull String name) {
-		m_name = name;
+	public PnlComponent(@Nonnull IFbComponent comp) {
+		m_component = comp;
 	}
 
 	@Override
 	public void createContent() throws Exception {
 		setCssClass("fb-pc");
+
+		m_component.drawSelector(this);
 	}
 }

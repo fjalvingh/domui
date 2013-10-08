@@ -1,5 +1,7 @@
 package to.etc.formbuilder.pages;
 
+import java.util.*;
+
 import javax.annotation.*;
 
 import to.etc.domui.component.layout.*;
@@ -50,12 +52,13 @@ public class FormDesigner extends UrlPage {
 
 		TabPanel tp = new TabPanel();
 		right.add(tp);
-		ComponentPanel cp = new ComponentPanel();
+		List<IFbComponent> componentList = r().getComponentList();
+		ComponentPanel cp = new ComponentPanel(componentList);
 		tp.add(cp, "Components");
 		PropertyPanel pp = new PropertyPanel();
 		tp.add(pp, "Properties");
 
-		r().getComponentList();
+
 	}
 
 }
