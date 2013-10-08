@@ -165,9 +165,10 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			ctx.getSession().internalObituaryReceived(cida[0], pageTag);
 
 			//-- Send a silly response.
-			ctx.getResponse().setContentType("text/html");
-			/*Writer w = */ctx.getResponse().getWriter();
-			//			w.append("<html><body><p>Obituary?</body></html>\n");
+			ctx.getOutputWriter("text/html", "utf-8");
+
+//			ctx.getResponse().setContentType("text/html");
+//			/*Writer w = */ctx.getResponse().getWriter();
 			return; // Obituaries get a zero response.
 		}
 
@@ -204,9 +205,13 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 			//-- EXPERIMENTAL 20121008 jal - if the code was sent through a POST - the data can be huge so we need a workaround for the get URL.
 			PageParameters pp = PageParameters.createFrom(ctx);
-			if("post".equalsIgnoreCase(ctx.getRequest().getMethod()) && pp.getDataLength() > 768) {
-				redirectForPost(ctx, cm, pp);
-				return;
+			if(ctx.getRequestResponse() instanceof HttpServerRequestResponse) {
+				HttpServerRequestResponse srr = (HttpServerRequestResponse) ctx.getRequestResponse();
+
+				if("post".equalsIgnoreCase(srr.getRequest().getMethod()) && pp.getDataLength() > 768) {
+					redirectForPost(ctx, cm, pp);
+					return;
+				}
 			}
 			//-- END EXPERIMENTAL
 
@@ -390,12 +395,12 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 			//-- Start the main rendering process. Determine the browser type.
 			Writer w;
-			if(page.isRenderAsXHTML())
-				ctx.getResponse().setContentType("application/xhtml+xml; charset=UTF-8");
-			else
-				ctx.getResponse().setContentType("text/html; charset=UTF-8");
-			ctx.getResponse().setCharacterEncoding("UTF-8");
-			IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
+			if(page.isRenderAsXHTML()) {
+				w = ctx.getOutputWriter("application/xhtml+xml; charset=UTF-8", "utf-8");
+			} else {
+				w = ctx.getOutputWriter("text/html; charset=UTF-8", "utf-8");
+			}
+			IBrowserOutput out = new PrettyXmlOutputWriter(w);
 
 			HtmlFullRenderer hr = m_application.findRendererFor(ctx.getBrowserVersion(), out);
 			hr.render(ctx, page);
@@ -673,11 +678,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 * @throws Exception
 	 */
 	static public void generateHttpRedirect(final RequestContextImpl ctx, final String to, final String rsn) throws Exception {
-		//		ctx.getResponse().sendRedirect(sb.toString());	// Force redirect.
-
-		ctx.getResponse().setContentType("text/html; charset=UTF-8");
-		ctx.getResponse().setCharacterEncoding("UTF-8");
-		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
+		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/html; charset=UTF-8", "utf-8"));
 		out.writeRaw("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n" + "<html><head><script language=\"javascript\"><!--\n"
 			+ "location.replace(" + StringTool.strToJavascriptString(to, true) + ");\n" + "--></script>\n" + "</head><body>" + rsn + "</body></html>\n");
 	}
@@ -692,9 +693,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		if(LOG.isInfoEnabled())
 			LOG.info("redirecting to " + url);
 
-		ctx.getResponse().setContentType("text/xml; charset=UTF-8");
-		ctx.getResponse().setCharacterEncoding("UTF-8");
-		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
+		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"));
 		out.tag("redirect");
 		out.attr("url", url);
 		out.endAndCloseXmltag();
@@ -710,9 +709,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 */
 	private void generateExpired(final RequestContextImpl ctx, final String message) throws Exception {
 		//-- We stay on the same page. Render tree delta as response
-		ctx.getResponse().setContentType("text/xml; charset=UTF-8");
-		ctx.getResponse().setCharacterEncoding("UTF-8");
-		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
+		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"));
 		out.tag("expired");
 		out.endtag();
 
@@ -725,9 +722,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 	private void generateEmptyDelta(final RequestContextImpl ctx) throws Exception {
 		//-- We stay on the same page. Render tree delta as response
-		ctx.getResponse().setContentType("text/xml; charset=UTF-8");
-		ctx.getResponse().setCharacterEncoding("UTF-8");
-		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
+		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"));
 		out.tag("delta");
 		out.endtag();
 		out.closetag("delta");
@@ -741,9 +736,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 */
 	private void generateExpiredPollasy(final RequestContextImpl ctx) throws Exception {
 		//-- We stay on the same page. Render tree delta as response
-		ctx.getResponse().setContentType("text/xml; charset=UTF-8");
-		ctx.getResponse().setCharacterEncoding("UTF-8");
-		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
+		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"));
 		out.tag("expiredOnPollasy");
 		out.endtag();
 		out.closetag("expiredOnPollasy");
@@ -796,7 +789,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		m_application.internalCallPageAction(ctx, page);
 
 		NodeBase wcomp = null;
-		String wid = ctx.getRequest().getParameter("webuic");
+		String wid = ctx.getParameter("webuic");
 		if(wid != null) {
 			wcomp = page.findNodeByID(wid);
 			// jal 20091120 The code below was active but is nonsense because we do not return after generateExpired!?
@@ -943,9 +936,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		page.internalDeltaBuild();
 		// /ORDERED
 
-		ctx.getResponse().setContentType("text/xml; charset=UTF-8");
-		ctx.getResponse().setCharacterEncoding("UTF-8");
-		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
+		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"));
 
 		long ts = System.nanoTime();
 		//		String	usag = ctx.getUserAgent();

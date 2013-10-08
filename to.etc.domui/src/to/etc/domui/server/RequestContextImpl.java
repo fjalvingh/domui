@@ -77,6 +77,10 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 
 	private boolean m_amLockingSession;
 
+	private String m_outputContentType;
+
+	private String m_outputEncoding;
+
 	/**
 	 * Get the session for this context.
 	 * @see to.etc.domui.server.IRequestContext#getSession()
@@ -200,25 +204,6 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		return m_browserVersion;
 	}
 
-	protected void flush() throws Exception {
-		if(m_sw != null) {
-			if(getApplication().logOutput()) {
-				String res = m_sw.getBuffer().toString();
-				File tgt = new File("/tmp/last-domui-output.xml");
-				try {
-					FileTool.writeFileFromString(tgt, res, "utf-8");
-				} catch(Exception x) {}
-
-				System.out.println("---- rendered output:");
-				System.out.println(res);
-				System.out.println("---- end");
-			}
-			getResponse().getWriter().append(m_sw.getBuffer());
-			m_sw = null;
-		}
-
-	}
-
 	protected void discard() throws IOException {
 	//		if(m_sw != null) {
 	//			String res = m_sw.getBuffer().toString();
@@ -241,10 +226,19 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	}
 
 	/**
+	 * This returns a fully buffered output writer. Flush will write data
+	 * to the "real" output stream.
 	 * @see to.etc.domui.server.IRequestContext#getOutputWriter()
 	 */
 	@Override
-	public @Nonnull Writer getOutputWriter() throws IOException {
+	@Nonnull
+	public Writer getOutputWriter(@Nonnull String contentType, @Nullable String encoding) throws IOException {
+		if(m_outWriter != null)
+			throw new IllegalStateException("Output writer already created");
+
+		m_outputContentType = contentType;
+		m_outputEncoding = encoding;
+
 		if(m_outWriter == null) {
 			m_sw = new StringWriter(8192);
 			m_outWriter = m_sw;
@@ -260,6 +254,30 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		//		}
 		//		return m_outWriter;
 	}
+
+	protected void flush() throws Exception {
+		if(m_sw != null) {
+			if(getApplication().logOutput()) {
+				String res = m_sw.getBuffer().toString();
+				File tgt = new File("/tmp/last-domui-output.xml");
+				try {
+					FileTool.writeFileFromString(tgt, res, "utf-8");
+				} catch(Exception x) {}
+
+				System.out.println("---- rendered output:");
+				System.out.println(res);
+				System.out.println("---- end");
+			}
+			String outputContentType = m_outputContentType;
+			if(null == outputContentType)
+				throw new IllegalStateException("The content type for buffered output is not set.");
+			Writer ow = getRequestResponse().getOutputWriter(outputContentType, m_outputEncoding);
+			ow.append(m_sw.getBuffer());
+			m_sw = null;
+		}
+
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	ParameterInfo implementation						*/
