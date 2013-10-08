@@ -5,6 +5,7 @@ import java.util.*;
 
 import javax.annotation.*;
 
+import to.etc.domui.component.input.*;
 import to.etc.domui.dom.html.*;
 
 /**
@@ -17,6 +18,11 @@ final public class FormComponentRegistry {
 	static private final FormComponentRegistry m_instance = new FormComponentRegistry();
 
 	private List<IFbComponent> m_componentList = new ArrayList<IFbComponent>();
+
+	public FormComponentRegistry() {
+		registerComponent(Text.class);
+		registerComponent(TextArea.class);
+	}
 
 	@Nonnull
 	public static FormComponentRegistry getInstance() {
@@ -60,12 +66,18 @@ final public class FormComponentRegistry {
 			throw new IllegalStateException(componentClass + "'s companion class " + altc.getName() + " does not implement " + IFbComponent.class.getName());
 		}
 
-		//-- Register component as-is, if it extends a DomUI NodeBase and has a parameterless constructor
-		Constructor< ? > cons;
+		//-- Get usable constructors.
+		Constructor< ? > cons = null;
 		try {
 			cons = componentClass.getConstructor();
 		} catch(Exception x) {
-			throw new IllegalStateException(componentClass + " has no parameterless constructor");
+		}
+		if(null == cons) {
+			try {
+				cons = componentClass.getConstructor(Class.class);
+			} catch(Exception x) {
+				throw new IllegalStateException(componentClass + " has no parameterless/Class<T> constructor");
+			}
 		}
 
 		if(!NodeBase.class.isAssignableFrom(componentClass))
@@ -86,8 +98,6 @@ final public class FormComponentRegistry {
 	}
 
 	static {
-//		getInstance().registerComponent(Text.class);
-		getInstance().registerComponent(TextArea.class);
 	}
 
 

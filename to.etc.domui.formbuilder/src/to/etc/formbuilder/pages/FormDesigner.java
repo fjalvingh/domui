@@ -1,5 +1,7 @@
 package to.etc.formbuilder.pages;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.layout.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
@@ -14,8 +16,17 @@ import to.etc.domui.dom.html.*;
 public class FormDesigner extends UrlPage {
 	private PaintPanel m_paint;
 
+	private FormComponentRegistry m_registry;
+
+	@Nonnull
+	private FormComponentRegistry r() {
+		return m_registry;
+	}
+
 	@Override
 	public void createContent() throws Exception {
+		m_registry = new FormComponentRegistry();
+
 		getPage().addHeaderContributor(HeaderContributor.loadStylesheet("fd/css/formbuilder.css"), 100);
 		getPage().addHeaderContributor(HeaderContributor.loadJavascript("fd/js/formbuilder.js"), 100);
 
@@ -44,7 +55,7 @@ public class FormDesigner extends UrlPage {
 		PropertyPanel pp = new PropertyPanel();
 		tp.add(pp, "Properties");
 
-		FormComponentRegistry.getInstance().getComponentList();
+		r().getComponentList();
 	}
 
 }
