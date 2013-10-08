@@ -69,4 +69,6 @@ public interface IRequestResponse {
 
 	@Nonnull
 	public Cookie[] getCookies();
+
+	public void setExpiry(int cacheTime);
 }

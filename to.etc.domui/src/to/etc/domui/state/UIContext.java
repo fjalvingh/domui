@@ -299,7 +299,7 @@ public class UIContext {
 			return false;
 
 		RequestContextImpl ci = (RequestContextImpl) rcx;
-		HttpSession hs = ci.getRequest().getSession(false);
+		HttpSession hs = HttpServerRequestResponse.getSession(ci, false);
 		if(hs == null)
 			return false;
 		synchronized(hs) {
@@ -337,7 +337,7 @@ public class UIContext {
 			return;
 		RequestContextImpl ci = (RequestContextImpl) rcx;
 
-		HttpSession hs = ci.getRequest().getSession(false);
+		HttpSession hs = HttpServerRequestResponse.getSession(ci, false);
 		if(hs == null)
 			return;
 

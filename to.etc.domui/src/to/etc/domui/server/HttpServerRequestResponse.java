@@ -188,6 +188,11 @@ public class HttpServerRequestResponse implements IRequestResponse {
 	}
 
 	@Override
+	public void setExpiry(int cacheTime) {
+		ServerTools.generateExpiryHeader(getResponse(), cacheTime); 						// Allow browser-local caching.
+	}
+
+	@Override
 	@Nonnull
 	public Writer getOutputWriter(@Nonnull String contentType, @Nullable String encoding) throws IOException {
 		getResponse().setContentType(contentType);
@@ -210,5 +215,26 @@ public class HttpServerRequestResponse implements IRequestResponse {
 	@Override
 	public void addHeader(@Nonnull String name, @Nonnull String value) {
 		getResponse().addHeader(name, value);
+	}
+
+
+	@Override
+	public void addCookie(@Nonnull Cookie cookie) {
+		getResponse().addCookie(cookie);
+	}
+
+	@Override
+	@Nonnull
+	public Cookie[] getCookies() {
+		return getRequest().getCookies();
+	}
+
+	@Nullable
+	public static HttpSession getSession(RequestContextImpl ci, boolean create) {
+		IRequestResponse rr = ci.getRequestResponse();
+		if(!(rr instanceof HttpServerRequestResponse))
+			return null;
+		HttpServerRequestResponse hr = (HttpServerRequestResponse) rr;
+		return hr.getRequest().getSession(create);
 	}
 }

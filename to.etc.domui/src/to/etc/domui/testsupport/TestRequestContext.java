@@ -89,7 +89,8 @@ public class TestRequestContext implements IRequestContext {
 	}
 
 	@Override
-	public @Nonnull Writer getOutputWriter() throws IOException {
+	@Nonnull
+	public Writer getOutputWriter(@Nonnull String contentType, @Nullable String encoding) throws IOException {
 		if(m_sw == null)
 			m_sw = new StringWriter();
 		return m_sw;

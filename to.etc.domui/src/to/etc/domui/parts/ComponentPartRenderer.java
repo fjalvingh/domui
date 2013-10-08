@@ -24,6 +24,8 @@
  */
 package to.etc.domui.parts;
 
+import javax.servlet.http.*;
+
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.server.parts.*;
@@ -115,7 +117,10 @@ public class ComponentPartRenderer {
 		sb.append(b.getActualID());
 		if(ctx instanceof RequestContextImpl) {
 			RequestContextImpl ci = (RequestContextImpl) ctx;
-			String sessid = ci.getRequest().getSession(true).getId();
+			HttpSession hs = HttpServerRequestResponse.getSession(ci, true);
+			if(null == hs)
+				throw new IllegalStateException("?");
+			String sessid = hs.getId();
 			sb.append(";jsessionid=").append(sessid);
 		}
 	}
