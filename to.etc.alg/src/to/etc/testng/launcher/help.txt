@@ -15,7 +15,7 @@ options:
 									CLASS - single thread runs single class
 									PACKAGE - single thread runs single package with all containg classes
 									TEST - single thread runs single TEST element within specified testNg test suite(s). Works only if [-suiteFiles] is used.
-								if [-suiteFiles] is in use dafault is TEST, otherwise default is CLASS
+								if [-suiteFiles] is in use default is TEST, otherwise default is CLASS
 	-skip.package			, list of packages to skip from running tests. This option is ignored if paired with [-parallel TEST] 								
 	-include.package		, list of packages to include into running tests. This option is ignored if paired with [-parallel TEST] 								
 	-root					, location where tool starts, all paths are relative from here
@@ -47,7 +47,7 @@ options:
 	-testng.password		, password used to log in into target application
 
 	-testng.wait.timeout	, timeout after when test ng throws exception if expected conditions are not met, defined in milliseconds
-								(dafault is 20000)
+								(default is 20000)
 	
 	-testProperties			, name of test properties file
 								(defines custom test props needed to run database unit test, needs to be within [-project] classpath)

@@ -14,21 +14,23 @@ import to.etc.testng.launcher.misc.*;
  * Created on Aug 1, 2013
  */
 public class ParallelTestLauncherTest {
-	//@Test
+	/*Keep this as ignored - it is not meant to be run as regular scheduled unit test, but as debug launcher until for developers -see xwiki*/
+	@Ignore
+	@Test
 	public void testClassLauncher() throws Exception {
 		String[] args = new String[]{ //
-		"-root", "/home/vmijic/Data/Projects/Itris/Viewpoint/bzr/vp-split-4.4-webdriver/vp-4.4", //
+		"-root", "/home/vmijic/Data/Projects/Itris/Viewpoint/bzr/vp-split-4.4/vp-4.4", //
 			"-m2.repo", "/home/vmijic/.m2", //
 			"-project", "vp-selenium-webdriver-tests", //
 			//"-skip.package", "nl.itris.vp.webdriver.vp_old_do_not_use", "nl.itris.vp.webdriver.decade", //
-			"-include.package", "nl.itris.vp.webdriver.viewpoint.tests.fin", //"nl.itris.vp.webdriver.decade.tests", //
+			"-include.package", "nl.itris.vp.webdriver.viewpoint.tests.bae", "nl.itris.vp.webdriver.viewpoint.tests.fin", //
 			"-parallel", "CLASS", //
 			"-threads", "5", //
 			"-testng.reporter", "nl.itris.vp.webdriver.core.report.WdVpTestXMLReporter", //
 			"-testng.reporter.root", "/home/vmijic/Data/Projects/Itris/Viewpoint/testing/tests/local/parallel", //
 			"-testng.browser", "firefox", //
 			"-testng.remote.hub", "local", //
-			"-testng.server.url", "http://lyon.hosts.itris.nl/wd44/", //"http://localhost:8080/Itris_VO02/", //
+			"-testng.server.url", "http://localhost:8080/Itris_VO02/", //
 			"-testng.username", "vpc", //
 			"-testng.password", "rhijnspoor", //
 			"-remove.generated", "false", //
@@ -53,7 +55,9 @@ public class ParallelTestLauncherTest {
 		r.assambleSingleReports(new File("/home/vmijic/parallel201307311250/"));
 	}
 
-	//@Test
+	/*Keep this as ignored - it is not meant to be run as regular scheduled unit test, but as debug launcher until for developers -see xwiki*/
+	@Ignore
+	@Test
 	public void testSuiteLauncher() throws Exception {
 		String[] args = new String[]{ //
 		"-root", "/home/vmijic/Data/Projects/Itris/Viewpoint/bzr/vp-split-4.4-webdriver/vp-4.4", //
