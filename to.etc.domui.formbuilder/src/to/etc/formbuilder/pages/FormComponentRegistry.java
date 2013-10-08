@@ -5,6 +5,8 @@ import java.util.*;
 
 import javax.annotation.*;
 
+import to.etc.domui.component.buttons.*;
+import to.etc.domui.component.graph.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.dom.html.*;
 
@@ -22,6 +24,9 @@ final public class FormComponentRegistry {
 	public FormComponentRegistry() {
 		registerComponent(Text.class);
 		registerComponent(TextArea.class);
+		registerComponent(DefaultButton.class);
+		registerComponent(SmallImgButton.class);
+		registerComponent(ColorPickerButton.class);
 	}
 
 	@Nonnull

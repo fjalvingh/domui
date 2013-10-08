@@ -41,4 +41,23 @@
 	background: url(gridbackground.png) repeat;
 }
 
+/*** Component panel ***/
+.fb-cp {
+	position: relative;
+	
+}
+
+/*** Components inside the panel (PanelComponent) ***/
+.fb-pc {
+	background-color: #ccf;
+	padding: 5px;
+	margin: 5px;
+	border-bottom: 1px dotted gray;
+}
+
+.fb-pc-label {
+	font-size: 8px;
+	font-style: italic;
+}
+
 

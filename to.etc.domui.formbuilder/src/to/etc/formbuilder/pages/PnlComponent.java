@@ -21,7 +21,14 @@ public class PnlComponent extends Div {
 	@Override
 	public void createContent() throws Exception {
 		setCssClass("fb-pc");
+		Div pres = new Div();
+		add(pres);
+		pres.setCssClass("fb-pc-pres");
 
-		m_component.drawSelector(this);
+		m_component.drawSelector(pres);
+		Div label = new Div();
+		add(label);
+		label.setCssClass("fb-pc-label");
+		label.add(m_component.getShortName());
 	}
 }

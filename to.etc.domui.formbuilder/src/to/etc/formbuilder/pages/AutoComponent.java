@@ -17,8 +17,17 @@ import to.etc.util.*;
 public class AutoComponent implements IFbComponent {
 	final private Class< ? extends NodeBase> m_componentClass;
 
+	@Nonnull
+	final private String m_shortName;
+
 	public AutoComponent(Class< ? extends NodeBase> componentClass) {
 		m_componentClass = componentClass;
+		String name = componentClass.getName();
+		name = name.substring(name.lastIndexOf('.') + 1);
+		Constructor< ? > cons = ClassUtil.findConstructor(componentClass, Class.class);	// Class<T> constructor?
+		if(null != cons)
+			name += "<T>";
+		m_shortName = name;
 	}
 
 	@Override
@@ -28,6 +37,20 @@ public class AutoComponent implements IFbComponent {
 
 	}
 
+	@Override
+	@Nonnull
+	public String getShortName() {
+		return m_shortName;
+	}
+
+	@Override
+	@Nonnull
+	public String getLongName() {
+		return m_componentClass.getName();
+	}
+
+	/* Java sucks */
+	@Nonnull
 	static final private Class< ? >[] PARAMCLZ = {String.class, Integer.class, Boolean.class};
 
 
