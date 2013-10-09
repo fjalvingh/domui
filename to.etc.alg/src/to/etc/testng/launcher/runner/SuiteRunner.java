@@ -93,7 +93,7 @@ public class SuiteRunner implements Runnable {
 
 	private int runTestNg(@Nonnull File suite, @Nonnull String browserString) throws IOException, InterruptedException, IllegalStateException {
 		/*
-		 * For not let's assume java is always in PATH ;)
+		 * For now let's assume java is always in PATH ;)
 		 *
 		 * String javaHome = System.getProperty("java.home");
 		 * String javaBin = javaHome + File.separator + "bin" + File.separator + "java";
