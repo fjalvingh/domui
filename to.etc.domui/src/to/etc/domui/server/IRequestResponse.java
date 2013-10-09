@@ -71,4 +71,10 @@ public interface IRequestResponse {
 	public Cookie[] getCookies();
 
 	public void setExpiry(int cacheTime);
+
+	/**
+	 * Send a redirect response to the client.
+	 * @param newUrl
+	 */
+	public void redirect(@Nonnull String newUrl) throws Exception;
 }

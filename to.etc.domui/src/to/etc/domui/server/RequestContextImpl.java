@@ -275,7 +275,14 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 			ow.append(m_sw.getBuffer());
 			m_sw = null;
 		}
+	}
 
+	/**
+	 * Send a redirect response to the client.
+	 * @param newUrl
+	 */
+	public void redirect(@Nonnull String newUrl) throws Exception {
+		getRequestResponse().redirect(newUrl);
 	}
 
 

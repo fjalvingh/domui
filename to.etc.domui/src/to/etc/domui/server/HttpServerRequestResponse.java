@@ -212,6 +212,15 @@ public class HttpServerRequestResponse implements IRequestResponse {
 		return getResponse().getOutputStream();
 	}
 
+	/**
+	 * Send a redirect response to the client.
+	 * @param newUrl
+	 */
+	@Override
+	public void redirect(@Nonnull String newUrl) throws Exception {
+		getResponse().sendRedirect(newUrl);
+	}
+
 	@Override
 	public void addHeader(@Nonnull String name, @Nonnull String value) {
 		getResponse().addHeader(name, value);
