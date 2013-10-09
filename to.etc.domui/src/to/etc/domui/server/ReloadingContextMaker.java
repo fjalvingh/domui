@@ -26,6 +26,7 @@ package to.etc.domui.server;
 
 import java.util.*;
 
+import javax.annotation.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
@@ -67,7 +68,7 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 	}
 
 	@Override
-	public boolean handleRequest(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws Exception {
+	public void handleRequest(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull FilterChain chain) throws Exception {
 		synchronized(this) {
 			if(m_nestCount == 0)
 				checkReload();
@@ -95,7 +96,7 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 			AppSession ass = link.getAppSession(application);
 			HttpServerRequestResponse requestResponse = HttpServerRequestResponse.create(application, request, response);
 			RequestContextImpl ctx = new RequestContextImpl(requestResponse, application, ass);
-			return execute(requestResponse, ctx, chain);
+			execute(requestResponse, ctx, chain);
 		} finally {
 			synchronized(this) {
 				m_nestCount--;

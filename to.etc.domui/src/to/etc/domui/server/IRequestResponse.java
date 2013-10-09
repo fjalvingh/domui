@@ -15,6 +15,11 @@ import to.etc.domui.util.upload.*;
  * Created on Oct 3, 2013
  */
 public interface IRequestResponse {
+	/**
+	 * Must return the path part of a request URL. It contains both webapp context and relative path, but no host name etc. It is required to
+	 * start with a '/'.
+	 * @return
+	 */
 	@Nonnull
 	public String getRequestURI();
 
@@ -77,4 +82,11 @@ public interface IRequestResponse {
 	 * @param newUrl
 	 */
 	public void redirect(@Nonnull String newUrl) throws Exception;
+
+	/**
+	 * Send an error back to the client.
+	 * @param httpErrorCode
+	 * @param message
+	 */
+	public void sendError(int httpErrorCode, @Nonnull String message) throws Exception;
 }

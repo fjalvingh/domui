@@ -93,8 +93,7 @@ public class AppFilter implements Filter {
 			//			NlsContext.setLocale(new Locale("nl", "NL"));
 			initContext(req);
 
-			if(m_contextMaker.handleRequest(rq, (HttpServletResponse) res, chain))
-				return;
+			m_contextMaker.handleRequest(rq, (HttpServletResponse) res, chain);
 		} catch(RuntimeException x) {
 			DomUtil.dumpException(x);
 			throw x;

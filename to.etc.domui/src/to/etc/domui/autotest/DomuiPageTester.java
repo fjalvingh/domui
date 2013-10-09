@@ -4,10 +4,12 @@ import java.io.*;
 import java.util.*;
 
 import javax.annotation.*;
+import javax.servlet.http.*;
 
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
+import to.etc.domui.trouble.*;
 
 /**
  * Experimental.
@@ -16,7 +18,7 @@ import to.etc.domui.state.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 2, 2013
  */
-public class DomuiPageTester {
+public class DomuiPageTester implements IDomUITestInfo {
 	private static class PageRef {
 		@Nonnull
 		private final Class< ? extends UrlPage> m_pageClass;
@@ -43,6 +45,10 @@ public class DomuiPageTester {
 	@Nonnull
 	final private List<PageRef> m_pageList = new ArrayList<PageRef>();
 
+	@Nonnull
+	private String m_userAgent = "Mozilla/5.0 (Windows; U; MSIE 9.0; Windows NT 9.0; en-US)";
+
+
 	public void addPage(@Nonnull Class< ? extends UrlPage> page, @Nonnull PageParameters pp) {
 		m_pageList.add(new PageRef(page, pp));
 	}
@@ -57,15 +63,73 @@ public class DomuiPageTester {
 			run(pr.getPageClass(), pr.getParameters());
 	}
 
-	private void run(@Nonnull Class< ? extends UrlPage> pageClass, @Nonnull PageParameters parameters) {
+	private void run(@Nonnull Class< ? extends UrlPage> pageClass, @Nonnull PageParameters parameters) throws Exception {
 		checkInit();
 
 		//-- We need an appsession for this page.
 		AppSession session = createTestSession();
 
+		TestRequestResponse rr = createRequestResponse(pageClass, parameters);
+		RequestContextImpl rci = new RequestContextImpl(rr, getApplication(), session);
+		interact(rci);
 
 
 	}
+
+	@Nonnull
+	private TestRequestResponse createRequestResponse(@Nonnull Class< ? extends UrlPage> clz, @Nonnull PageParameters pp) {
+		StringBuilder sb = new StringBuilder();
+		sb.append('/');
+		String webappContext = getWebappContext();
+		if(webappContext.length() > 0) {
+			sb.append(webappContext);						// Start with the app context as "xxx/" or the empty string.
+			sb.append('/');
+		}
+		sb.append(clz.getName());
+		sb.append('.');
+		sb.append(getApplication().getUrlExtension());
+
+		String requestURI = sb.toString();
+
+		TestRequestResponse rr = new TestRequestResponse(this, requestURI, pp);
+		return rr;
+	}
+
+
+
+	private void interact(@Nonnull RequestContextImpl ctx) throws Exception {
+		List<IRequestInterceptor> il = ctx.getApplication().getInterceptorList();
+		Exception xx = null;
+		IFilterRequestHandler rh = null;
+		try {
+			UIContext.internalSet(ctx);
+			AbstractContextMaker.callInterceptorsBegin(il, ctx);
+			rh = ctx.getApplication().findRequestHandler(ctx);
+			if(rh == null) {
+				//-- Non-DomUI request.
+				throw new IllegalStateException("Test DomUI request not a DomUI URL: " + ctx.getRequestResponse().getRequestURI());
+			}
+			rh.handleRequest(ctx);
+			ctx.flush();
+		} catch(ThingyNotFoundException x) {
+			ctx.sendError(HttpServletResponse.SC_NOT_FOUND, x.getMessage());
+		} catch(Exception xxx) {
+			xx = xxx;
+			throw xxx;
+		} finally {
+			AbstractContextMaker.callInterceptorsAfter(il, ctx, xx);
+			ctx.internalOnRequestFinished();
+			try {
+				ctx.discard();
+			} catch(Exception x) {
+				x.printStackTrace();
+			}
+			UIContext.internalClear();
+		}
+
+
+	}
+
 
 	//	@Nonnull
 	//	private Page instantiate(@Nonnull Class< ? extends UrlPage> pageClass, @Nonnull PageParameters parameters) {
@@ -117,6 +181,34 @@ public class DomuiPageTester {
 
 	static private void checkInit() {
 		app();
+	}
+
+	@Override
+	@Nonnull
+	public DomApplication getApplication() {
+		return app();
+	}
+
+	@Override
+	@Nonnull
+	public String getApplicationHost() {
+		return "http://www.test.nl/";
+	}
+
+	@Nonnull
+	@Override
+	public String getWebappContext() {
+		return "test";
+	}
+
+	@Override
+	@Nonnull
+	public String getUserAgent() {
+		return m_userAgent;
+	}
+
+	public void setUserAgent(@Nonnull String userAgent) {
+		m_userAgent = userAgent;
 	}
 
 

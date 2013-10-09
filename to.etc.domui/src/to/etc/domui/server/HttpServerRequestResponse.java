@@ -222,6 +222,11 @@ public class HttpServerRequestResponse implements IRequestResponse {
 	}
 
 	@Override
+	public void sendError(int httpErrorCode, @Nonnull String message) throws Exception {
+		getResponse().sendError(httpErrorCode, message);
+	}
+
+	@Override
 	public void addHeader(@Nonnull String name, @Nonnull String value) {
 		getResponse().addHeader(name, value);
 	}

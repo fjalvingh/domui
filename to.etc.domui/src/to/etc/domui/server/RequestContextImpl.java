@@ -61,7 +61,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 
 	private Map<String, Object> m_attributeMap = Collections.EMPTY_MAP;
 
-	RequestContextImpl(@Nonnull IRequestResponse rr, @Nonnull DomApplication app, @Nonnull AppSession ses) {
+	public RequestContextImpl(@Nonnull IRequestResponse rr, @Nonnull DomApplication app, @Nonnull AppSession ses) {
 		m_requestResponse = rr;
 		m_application = app;
 		m_session = ses;
@@ -156,7 +156,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	/**
 	 * Called for all requests that have used a RequestContextImpl. This releases all lazily-aquired resources.
 	 */
-	void onRequestFinished() {
+	public void internalOnRequestFinished() {
 		internalDetachConversations();
 		internalReleaseUploads();
 		//		m_session.getWindowSession().dump();
@@ -204,7 +204,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		return m_browserVersion;
 	}
 
-	protected void discard() throws IOException {
+	public void discard() throws IOException {
 	//		if(m_sw != null) {
 	//			String res = m_sw.getBuffer().toString();
 	//			System.out.println("---- rendered output:");
@@ -255,7 +255,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		//		return m_outWriter;
 	}
 
-	protected void flush() throws Exception {
+	public void flush() throws Exception {
 		if(m_sw != null) {
 			if(getApplication().logOutput()) {
 				String res = m_sw.getBuffer().toString();
@@ -283,6 +283,15 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 */
 	public void redirect(@Nonnull String newUrl) throws Exception {
 		getRequestResponse().redirect(newUrl);
+	}
+
+	/**
+	 * Send an error back to the client.
+	 * @param httpErrorCode
+	 * @param message
+	 */
+	public void sendError(int httpErrorCode, @Nonnull String message) throws Exception {
+		getRequestResponse().sendError(httpErrorCode, message);
 	}
 
 
@@ -359,4 +368,5 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		else
 			m_attributeMap.put(name, value);
 	}
+
 }
