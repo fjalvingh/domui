@@ -26,9 +26,29 @@ public class TestRequestResponse implements IRequestResponse {
 	@Nonnull
 	private String m_requestURI;
 
+	@Nullable
+	private ByteArrayOutputStream m_os;
+
+	@Nullable
+	private Writer m_writer;
+
+	@Nullable
+	private String m_outputEncoding;
+
+	@Nullable
+	private String m_outputContentType;
+
 	public TestRequestResponse(@Nonnull IDomUITestInfo info, @Nonnull String requestURI, @Nonnull PageParameters parameters) {
 		m_testInfo = info;
 		m_requestURI = requestURI;
+		initParameters(parameters);
+	}
+
+	private void initParameters(@Nonnull PageParameters parameters) {
+		for(String name : parameters.getParameterNames()) {
+			String[] vals = parameters.getStringArray(name);
+			m_parameterMap.put(name, vals);
+		}
 	}
 
 	@Override
@@ -63,70 +83,74 @@ public class TestRequestResponse implements IRequestResponse {
 	@Override
 	@Nonnull
 	public String[] getParameters(@Nonnull String name) {
-		// TODO Auto-generated method stub
-		return null;
+		String[] vals = (String[]) m_parameterMap.get(name);
+		return null == vals ? new String[0] : vals;
 	}
 
 	@Override
 	@Nullable
 	public String getParameter(@Nonnull String name) {
-		// TODO Auto-generated method stub
-		return null;
+		String[] vals = getParameters(name);
+		if(vals.length >= 1)
+			return vals[0];
+		else
+			return null;
 	}
 
 	@Override
 	@Nonnull
 	public String[] getParameterNames() {
-		// TODO Auto-generated method stub
-		return null;
+		return m_parameterMap.keySet().toArray(new String[m_parameterMap.keySet().size()]);
 	}
 
 	@Override
 	@Nonnull
 	public String[] getFileParameters() {
-		// TODO Auto-generated method stub
-		return null;
+		return new String[0];
 	}
 
 	@Override
 	@Nonnull
 	public UploadItem[] getFileParameter(@Nonnull String name) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new IllegalStateException("Unsupported");
 	}
 
 	@Override
 	@Nonnull
 	public Writer getOutputWriter(@Nonnull String contentType, @Nullable String encoding) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		if(m_writer != null)
+			throw new IllegalStateException("Duplicate request for output writer");
+
+		OutputStream os = getOutputStream(contentType, encoding, -1);
+		Writer osw = m_writer = new OutputStreamWriter(os, encoding);
+		return osw;
 	}
 
 	@Override
 	@Nonnull
 	public OutputStream getOutputStream(@Nonnull String contentType, @Nullable String encoding, int contentLength) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		if(m_os != null)
+			throw new IllegalStateException("Duplicate request for output stream");
+		OutputStream os = m_os = new ByteArrayOutputStream();
+		m_outputContentType = contentType;
+		m_outputEncoding = encoding;
+		return os;
 	}
 
 	@Override
 	@Nonnull
 	public String getWebappContext() {
-		// TODO Auto-generated method stub
-		return null;
+		return m_testInfo.getWebappContext();
 	}
 
 	@Override
 	public void addCookie(@Nonnull Cookie cookie) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	@Nonnull
 	public Cookie[] getCookies() {
-		// TODO Auto-generated method stub
-		return null;
+		return new Cookie[0];
 	}
 
 	@Override
