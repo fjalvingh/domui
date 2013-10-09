@@ -115,6 +115,8 @@ public class ComponentPartRenderer {
 		sb.append(b.getPage().getBody().getClass().getName());
 		sb.append("/");
 		sb.append(b.getActualID());
+
+
 		if(ctx instanceof RequestContextImpl) {
 			RequestContextImpl ci = (RequestContextImpl) ctx;
 			HttpSession hs = HttpServerRequestResponse.getSession(ci, true);

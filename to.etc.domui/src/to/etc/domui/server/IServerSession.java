@@ -10,6 +10,9 @@ import javax.annotation.*;
  * Created on Oct 9, 2013
  */
 public interface IServerSession {
+	@Nonnull
+	public String getId();
+
 	@Nullable
 	public Object getAttribute(@Nonnull String name);
 

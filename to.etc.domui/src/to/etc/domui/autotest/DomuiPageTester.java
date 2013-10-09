@@ -49,6 +49,11 @@ public class DomuiPageTester implements IDomUITestInfo {
 	@Nonnull
 	private String m_userAgent = "Mozilla/5.0 (Windows; U; MSIE 9.0; Windows NT 9.0; en-US)";
 
+	@Nullable
+	static private DomApplication m_appInstance;
+
+	private TestServerSession m_ssession;
+
 
 	public void addPage(@Nonnull Class< ? extends UrlPage> page, @Nonnull PageParameters pp) {
 		m_pageList.add(new PageRef(page, pp));
@@ -68,11 +73,11 @@ public class DomuiPageTester implements IDomUITestInfo {
 		checkInit();
 
 		//-- We need an appsession for this page.
-		AppSession session = createTestSession();
-
+		AppSession appSession = createTestSession();
+		m_ssession = new TestServerSession();
 
 		TestRequestResponse rr = createRequestResponse(pageClass, parameters);
-		interact(session, rr);
+		interact(appSession, rr);
 
 		//-- Enter the handle loop.
 		for(int counter = 0; counter < 10; counter++) {
@@ -106,7 +111,7 @@ public class DomuiPageTester implements IDomUITestInfo {
 				return;
 			rr = newrr;
 
-			interact(session, rr);
+			interact(appSession, rr);
 		}
 	}
 
@@ -186,7 +191,7 @@ public class DomuiPageTester implements IDomUITestInfo {
 
 		PageParameters pp = decodeParameters(query);
 
-		TestRequestResponse	rr = new TestRequestResponse(this, redirectURL, pp);
+		TestRequestResponse rr = new TestRequestResponse(m_ssession, this, redirectURL, pp);
 		return rr;
 	}
 
@@ -248,7 +253,7 @@ public class DomuiPageTester implements IDomUITestInfo {
 
 		String requestURI = sb.toString();
 
-		TestRequestResponse rr = new TestRequestResponse(this, requestURI, pp);
+		TestRequestResponse rr = new TestRequestResponse(m_ssession, this, requestURI, pp);
 		return rr;
 	}
 
@@ -299,9 +304,6 @@ public class DomuiPageTester implements IDomUITestInfo {
 		return ass;
 	}
 
-
-	@Nullable
-	static private DomApplication m_appInstance;
 
 	static synchronized public void initApplication(@Nonnull Class< ? extends DomApplication> applicationClass, @Nonnull File webappFiles) throws Exception {
 		AppFilter.initializeLogging(null);
@@ -375,6 +377,12 @@ public class DomuiPageTester implements IDomUITestInfo {
 
 	public void setUserAgent(@Nonnull String userAgent) {
 		m_userAgent = userAgent;
+	}
+
+	@Override
+	@Nullable
+	public String getRemoteUser() {
+		return "VPC";
 	}
 
 

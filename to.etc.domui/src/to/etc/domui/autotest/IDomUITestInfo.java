@@ -34,4 +34,7 @@ public interface IDomUITestInfo {
 	@Nonnull
 	public String getWebappContext();
 
+	@Nullable
+	public String getRemoteUser();
+
 }

@@ -12,6 +12,12 @@ public class HttpServerSession implements IServerSession {
 	}
 
 	@Override
+	@Nonnull
+	public String getId() {
+		return m_session.getId();
+	}
+
+	@Override
 	@Nullable
 	public Object getAttribute(@Nonnull String name) {
 		return m_session.getAttribute(name);

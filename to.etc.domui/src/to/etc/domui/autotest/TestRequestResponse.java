@@ -49,9 +49,13 @@ public class TestRequestResponse implements IRequestResponse {
 	@Nullable
 	private String m_errorMessage;
 
-	public TestRequestResponse(@Nonnull IDomUITestInfo info, @Nonnull String requestURI, @Nonnull PageParameters parameters) {
+	@Nonnull
+	final private TestServerSession m_session;
+
+	public TestRequestResponse(@Nonnull TestServerSession session, @Nonnull IDomUITestInfo info, @Nonnull String requestURI, @Nonnull PageParameters parameters) {
 		m_testInfo = info;
 		m_requestURI = requestURI;
+		m_session = session;
 		initParameters(parameters);
 	}
 
@@ -270,6 +274,17 @@ public class TestRequestResponse implements IRequestResponse {
 
 		System.out.println("Unknown text document type: " + ct + " encoding " + enc);
 		return null;
+	}
 
+	@Override
+	@Nullable
+	public String getRemoteUser() {
+		return m_testInfo.getRemoteUser();
+	}
+
+	@Override
+	@Nullable
+	public IServerSession getServerSession(boolean create) {
+		return m_session;
 	}
 }
