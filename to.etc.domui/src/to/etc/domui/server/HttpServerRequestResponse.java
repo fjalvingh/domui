@@ -19,6 +19,8 @@ public class HttpServerRequestResponse implements IRequestResponse {
 	@Nonnull
 	final private String m_webappContext;
 
+	private IServerSession m_serverSession;
+
 	private HttpServerRequestResponse(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull String webappContext) {
 		m_request = request;
 		m_response = response;
@@ -220,12 +222,32 @@ public class HttpServerRequestResponse implements IRequestResponse {
 		return getRequest().getCookies();
 	}
 
+	@Override
 	@Nullable
-	public static HttpSession getSession(RequestContextImpl ci, boolean create) {
-		IRequestResponse rr = ci.getRequestResponse();
-		if(!(rr instanceof HttpServerRequestResponse))
-			return null;
-		HttpServerRequestResponse hr = (HttpServerRequestResponse) rr;
-		return hr.getRequest().getSession(create);
+	public String getRemoteUser() {
+		return getRequest().getRemoteUser();
 	}
+
+	@Override
+	@Nullable
+	public IServerSession getServerSession(boolean create) {
+		IServerSession ss = m_serverSession;
+		if(ss == null) {
+			HttpSession ses = getRequest().getSession(create);
+			if(null != ses) {
+				ss = new HttpServerSession(ses);
+				m_serverSession = ss;
+			}
+		}
+		return ss;
+	}
+//
+//	@Nullable
+//	public static HttpSession getSession(RequestContextImpl ci, boolean create) {
+//		IRequestResponse rr = ci.getRequestResponse();
+//		if(!(rr instanceof HttpServerRequestResponse))
+//			return null;
+//		HttpServerRequestResponse hr = (HttpServerRequestResponse) rr;
+//		return hr.getRequest().getSession(create);
+//	}
 }

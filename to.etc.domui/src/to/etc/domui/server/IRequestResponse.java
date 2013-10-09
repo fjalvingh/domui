@@ -32,6 +32,24 @@ public interface IRequestResponse {
 	public String getUserAgent();
 
 	/**
+	 * The "remote" user ID from a server request, if present. This does <b>not</b> need to represent the
+	 * real logged-in user; it will however be filled if JSDK declarative security is used. This field is
+	 * null if DomUI internal login code is used.
+	 * @return
+	 */
+	@Nullable
+	public String getRemoteUser();
+
+	/**
+	 * Returns a wrapper for a {@link HttpSession}. If "create" is true the session will be
+	 * created if it does not exist in which case the call will never return null.
+	 * @param create
+	 * @return
+	 */
+	@Nullable
+	public IServerSession getServerSession(boolean create);
+
+	/**
 	 * Return the base URL to the web application from the current requests. This uses hostname, protocol, portname
 	 * and web application context from the incoming requests and returns it. The returned URL is guaranteed to end
 	 * in a slash.
