@@ -38,6 +38,17 @@ public class TestRequestResponse implements IRequestResponse {
 	@Nullable
 	private String m_outputContentType;
 
+	@Nonnull
+	private TestResponseType m_responseType = TestResponseType.NOTHING;
+
+	@Nullable
+	private String m_redirectURL;
+
+	private int m_errorCode;
+
+	@Nullable
+	private String m_errorMessage;
+
 	public TestRequestResponse(@Nonnull IDomUITestInfo info, @Nonnull String requestURI, @Nonnull PageParameters parameters) {
 		m_testInfo = info;
 		m_requestURI = requestURI;
@@ -131,10 +142,35 @@ public class TestRequestResponse implements IRequestResponse {
 	public OutputStream getOutputStream(@Nonnull String contentType, @Nullable String encoding, int contentLength) throws Exception {
 		if(m_os != null)
 			throw new IllegalStateException("Duplicate request for output stream");
-		OutputStream os = m_os = new ByteArrayOutputStream();
+		setType(TestResponseType.DOCUMENT);
+		ByteArrayOutputStream os = m_os = new ByteArrayOutputStream();
 		m_outputContentType = contentType;
 		m_outputEncoding = encoding;
 		return os;
+	}
+
+	public void flush() throws Exception {
+		if(m_writer != null)
+			m_writer.flush();
+	}
+
+	private void setType(@Nonnull TestResponseType type) {
+		if(m_responseType != TestResponseType.NOTHING)
+			throw new IllegalStateException("Reassigning output from " + m_responseType + " to ");
+		m_responseType = type;
+	}
+
+	@Override
+	public void redirect(@Nonnull String newUrl) throws Exception {
+		setType(TestResponseType.REDIRECT);
+		m_redirectURL = newUrl;
+	}
+
+	@Override
+	public void sendError(int httpErrorCode, @Nonnull String message) throws Exception {
+		setType(TestResponseType.ERROR);
+		m_errorCode = httpErrorCode;
+		m_errorMessage = message;
 	}
 
 	@Override
@@ -160,13 +196,6 @@ public class TestRequestResponse implements IRequestResponse {
 	}
 
 	@Override
-	public void redirect(@Nonnull String newUrl) throws Exception {}
-
-	@Override
-	public void sendError(int httpErrorCode, @Nonnull String message) throws Exception {
-	}
-
-	@Override
 	public void releaseUploads() {}
 
 
@@ -175,4 +204,72 @@ public class TestRequestResponse implements IRequestResponse {
 
 	@Override
 	public void addHeader(@Nonnull String name, @Nonnull String value) {}
+
+	@Nonnull
+	public TestResponseType getResponseType() {
+		return m_responseType;
+	}
+
+	public int getErrorCode() {
+		return m_errorCode;
+	}
+
+	@Nullable
+	public String getErrorMessage() {
+		return m_errorMessage;
+	}
+
+	@Nullable
+	public String getRedirectURL() {
+		return m_redirectURL;
+	}
+
+	@Nullable
+	public String getOutputContentType() {
+		return m_outputContentType;
+	}
+
+	@Nullable
+	public String getTextDocument() throws Exception {
+		ByteArrayOutputStream os = m_os;
+		if(null == os)
+			return null;
+
+		String ct = m_outputContentType;
+		String enc = m_outputEncoding;
+		if(ct == null)
+			return null;
+		int pos = ct.indexOf(';');
+		if(pos > 0) {
+			//-- We might have contentType+charset.
+			String rest = ct.substring(pos + 1).trim();
+			ct = ct.substring(0, pos).trim();
+
+			//-- Split rest into strings separated by ';'
+			String[] splits = rest.split(";");
+			for(String frag : splits) {
+				int eq = frag.indexOf('=');
+				String name = frag;
+				String value = "";
+				if(eq > 0) {
+					name = frag.substring(0, eq).trim().toLowerCase();
+					value = frag.substring(eq + 1).trim();
+				}
+
+				if("charset".equalsIgnoreCase(name))
+					enc = value;
+			}
+		}
+
+		//-- We should have encoding and type.
+		ct = ct.toLowerCase();
+		if(ct.contains("text") || ct.contains("xml") || ct.contains("javascript")) {
+			String str = new String(os.toByteArray(), enc);
+			return str;
+		}
+
+		System.out.println("Unknown text document type: " + ct + " encoding " + enc);
+		return null;
+
+	}
 }

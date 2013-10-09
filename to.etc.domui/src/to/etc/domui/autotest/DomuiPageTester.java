@@ -10,6 +10,7 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
 import to.etc.domui.trouble.*;
+import to.etc.util.*;
 
 /**
  * Experimental.
@@ -69,13 +70,58 @@ public class DomuiPageTester implements IDomUITestInfo {
 		//-- We need an appsession for this page.
 		AppSession session = createTestSession();
 
+
 		TestRequestResponse rr = createRequestResponse(pageClass, parameters);
-		RequestContextImpl rci = new RequestContextImpl(rr, getApplication(), session);
-		interact(rci);
+		interact(session, rr);
 
+		//-- Enter the handle loop.
+		for(int counter = 0; counter < 10; counter++) {
+			TestRequestResponse newrr = null;
+			switch(rr.getResponseType()){
+				default:
+					throw new IllegalStateException(rr.getResponseType() + ": not handled?");
 
+				case DOCUMENT:
+					System.out.println("Responded with a DOCUMENT");
+					String doc = rr.getTextDocument();
+					System.out.println(StringTool.strTrunc(doc, 512));
+					return;
+
+				case REDIRECT:
+					newrr = handleRedirect(rr);
+					break;
+
+				case ERROR:
+					System.out.println("http error " + rr.getErrorCode() + ": " + rr.getErrorMessage());
+					return;
+
+				case NOTHING:
+					throw new IllegalStateException("Page did nothing!?");
+			}
+
+			if(newrr == null)
+				return;
+			rr = newrr;
+
+			interact(session, rr);
+		}
 	}
 
+	@Nullable
+	private TestRequestResponse handleRedirect(@Nonnull TestRequestResponse rr) {
+		System.out.println("Redirect: " + rr.getRedirectURL());
+
+
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+	 * Create a request/response object for the specified page.
+	 * @param clz
+	 * @param pp
+	 * @return
+	 */
 	@Nonnull
 	private TestRequestResponse createRequestResponse(@Nonnull Class< ? extends UrlPage> clz, @Nonnull PageParameters pp) {
 		StringBuilder sb = new StringBuilder();
@@ -97,7 +143,9 @@ public class DomuiPageTester implements IDomUITestInfo {
 
 
 
-	private void interact(@Nonnull RequestContextImpl ctx) throws Exception {
+	private void interact(@Nonnull AppSession session, @Nonnull TestRequestResponse rr) throws Exception {
+		RequestContextImpl ctx = new RequestContextImpl(rr, getApplication(), session);
+
 		List<IRequestInterceptor> il = ctx.getApplication().getInterceptorList();
 		Exception xx = null;
 		IFilterRequestHandler rh = null;
@@ -111,6 +159,8 @@ public class DomuiPageTester implements IDomUITestInfo {
 			}
 			rh.handleRequest(ctx);
 			ctx.flush();
+			rr.flush();
+
 		} catch(ThingyNotFoundException x) {
 			ctx.sendError(HttpServletResponse.SC_NOT_FOUND, x.getMessage());
 		} catch(Exception xxx) {
@@ -129,15 +179,6 @@ public class DomuiPageTester implements IDomUITestInfo {
 
 
 	}
-
-
-	//	@Nonnull
-	//	private Page instantiate(@Nonnull Class< ? extends UrlPage> pageClass, @Nonnull PageParameters parameters) {
-	//
-	//
-	//		// TODO Auto-generated method stub
-	//		return null;
-	//	}
 
 	@Nonnull
 	private AppSession createTestSession() {
