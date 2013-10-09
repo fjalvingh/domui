@@ -80,6 +80,8 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 				throw new IllegalStateException("webapp url '" + urlin + "' incorrect: it does not start with '" + webapp + "'");
 			}
 			urlin = urlin.substring(webapp.length());
+			while(urlin.startsWith("/"))
+				urlin = urlin.substring(1);
 		}
 		m_urlin = urlin;
 	}

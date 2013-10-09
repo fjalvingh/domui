@@ -27,6 +27,7 @@ package to.etc.domui.server;
 import java.io.*;
 import java.util.*;
 
+import javax.annotation.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
@@ -130,11 +131,11 @@ public class AppFilter implements Filter {
 		return m_appContext;
 	}
 
-	private InputStream findLogConfig(String logconfig) {
+	static private InputStream findLogConfig(@Nullable String logconfig) {
 		if(logconfig != null) {
 			//-- Try to find this as a class-relative resource;
 			if(!logconfig.startsWith("/")) {
-				InputStream is = getClass().getResourceAsStream("/" + logconfig);
+				InputStream is = AppFilter.class.getResourceAsStream("/" + logconfig);
 				if(is != null) {
 					System.out.println("DomUI: using user-specified logback config file from classpath-resource " + logconfig);
 					return is;
@@ -169,18 +170,7 @@ public class AppFilter implements Filter {
 				if(null == logconfig)
 					logconfig = config.getInitParameter("logpath");
 			}
-			InputStream logStream = findLogConfig(logconfig);
-			if(logStream != null) {
-				JoranConfigurator jc = new JoranConfigurator();
-				LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-				jc.setContext(lc);
-				lc.reset();
-				jc.doConfigure(logStream);
-				System.out.println("DomUI: logging configured.");
-				StatusPrinter.printInCaseOfErrorsOrWarnings(lc);
-				SLF4JBridgeHandler.install();
-
-			}
+			initializeLogging(logconfig);
 		} catch(Exception x) {
 			x.printStackTrace();
 			throw WrappedException.wrap(x);
@@ -188,6 +178,7 @@ public class AppFilter implements Filter {
 			x.printStackTrace();
 			throw x;
 		}
+
 		try {
 			m_logRequest = DeveloperOptions.getBool("domui.logurl", false);
 
@@ -227,6 +218,20 @@ public class AppFilter implements Filter {
 		} catch(Error x) {
 			x.printStackTrace();
 			throw x;
+		}
+	}
+
+	static public void initializeLogging(String logconfig) throws Exception {
+		InputStream logStream = findLogConfig(logconfig);
+		if(logStream != null) {
+			JoranConfigurator jc = new JoranConfigurator();
+			LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+			jc.setContext(lc);
+			lc.reset();
+			jc.doConfigure(logStream);
+			System.out.println("DomUI: logging configured.");
+			StatusPrinter.printInCaseOfErrorsOrWarnings(lc);
+			SLF4JBridgeHandler.install();
 		}
 	}
 

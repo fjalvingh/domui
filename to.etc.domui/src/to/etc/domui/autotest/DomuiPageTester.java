@@ -84,8 +84,11 @@ public class DomuiPageTester implements IDomUITestInfo {
 				case DOCUMENT:
 					System.out.println("Responded with a DOCUMENT");
 					String doc = rr.getTextDocument();
+					if(null == doc)
+						break;
 					System.out.println(StringTool.strTrunc(doc, 512));
-					return;
+					newrr = handleDocument(doc);
+					break;
 
 				case REDIRECT:
 					newrr = handleRedirect(rr);
@@ -108,12 +111,120 @@ public class DomuiPageTester implements IDomUITestInfo {
 	}
 
 	@Nullable
-	private TestRequestResponse handleRedirect(@Nonnull TestRequestResponse rr) {
-		System.out.println("Redirect: " + rr.getRedirectURL());
+	private TestRequestResponse handleDocument(@Nonnull String doc) {
+		//-- Contains javascript redirect (initial-response)?
+		String str = "location.replace(";
+		int pos = doc.indexOf(str);
+		if(pos > 0) {
+			return handleDocumentRedirect(doc, pos + str.length());
+		}
 
 
-		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Nullable
+	private TestRequestResponse handleDocumentRedirect(@Nonnull String doc, int pos) {
+		int end = doc.indexOf(')', pos);
+		if(end == -1)
+			throw new IllegalStateException("No redirect statement found");
+		String sub = doc.substring(pos, end).trim();
+		if(sub.length() < 2)
+			throw new IllegalStateException("Bad redirect statement found: " + sub);
+		char a = sub.charAt(0);
+		char b = sub.charAt(sub.length() - 1);
+		if(a == b && (a == '\'' || a == '"')) {
+			sub = sub.substring(1, sub.length() - 1);
+		}
+		return handleRedirectTo(sub);
+	}
+
+	@Nullable
+	private TestRequestResponse handleRedirect(@Nonnull TestRequestResponse rr) {
+		String redirectURL = rr.getRedirectURL();
+		if(null == redirectURL)
+			throw new IllegalStateException("Null redirect URL in test response");
+		return handleRedirectTo(redirectURL);
+	}
+
+	@Nullable
+	private TestRequestResponse handleRedirectTo(@Nonnull String redirectURL) {
+		System.out.println("URL redirect to: " + redirectURL);
+		String app = getApplicationURL();
+		if(redirectURL.contains(":")) {
+			//-- Absolute URL.
+			String host = getApplicationHost();
+
+			if(!redirectURL.startsWith(host)) {
+				//-- Redirected to something ouside our scope -> end.
+				System.out.println("Redirected ouside our host -> page test ends");
+				return null;
+			}
+			redirectURL = redirectURL.substring(host.length() - 1);		// Should now be /webapp/rest (starting with /)
+			if(!redirectURL.startsWith("/"))
+				throw new IllegalStateException();
+		} else if(! redirectURL.startsWith("/")) {
+			throw new IllegalStateException("Page-relative redirect URLs not supported: " + redirectURL);
+		}
+
+		String webapp = getWebappContext();
+		if(webapp.length() > 0) {
+			webapp = "/" + webapp + "/";
+			if(!redirectURL.startsWith(webapp)) {
+				System.out.println("Redirected ouside our webapp context -> page test ends");
+				return null;
+			}
+		}
+
+		//-- Remove and split any query string.
+		String query = "";
+		int qpos = redirectURL.indexOf('?');
+		if(qpos >= 0) {
+			query = redirectURL.substring(qpos + 1);
+			redirectURL = redirectURL.substring(0, qpos);
+		}
+
+		PageParameters pp = decodeParameters(query);
+
+		TestRequestResponse	rr = new TestRequestResponse(this, redirectURL, pp);
+		return rr;
+	}
+
+	/**
+	 * Decode a http query string into a PageParameters instance.
+	 * @param query
+	 * @return
+	 */
+	@Nonnull
+	private PageParameters decodeParameters(@Nonnull String query) {
+		String[] indiar = query.split("&");
+		Map<String, List<String>> map = new HashMap<String, List<String>>();
+		for(String frag : indiar) {
+			int pos = frag.indexOf('=');
+			if(pos >= 0) {
+				String name = frag.substring(0, pos).toLowerCase();
+				String value = frag.substring(pos + 1);
+				name = StringTool.decodeURLEncoded(name);
+				value = StringTool.decodeURLEncoded(value);
+
+				List<String>	l = map.get(name);
+				if(null == l) {
+					l = new ArrayList<String>();
+					map.put(name, l);
+				}
+				l.add(value);
+			}
+		}
+
+		PageParameters pp = new PageParameters();
+		for(Map.Entry<String, List<String>> me : map.entrySet()) {
+			if(me.getValue().size() == 1) {
+				pp.addParameter(me.getKey(), me.getValue().get(0));
+			} else {
+				pp.addParameter(me.getKey(), me.getValue().toArray(new String[0]));
+			}
+		}
+		return pp;
 	}
 
 	/**
@@ -193,6 +304,8 @@ public class DomuiPageTester implements IDomUITestInfo {
 	static private DomApplication m_appInstance;
 
 	static synchronized public void initApplication(@Nonnull Class< ? extends DomApplication> applicationClass, @Nonnull File webappFiles) throws Exception {
+		AppFilter.initializeLogging(null);
+
 		DomApplication da = m_appInstance;
 		if(da != null) {
 			if(applicationClass.isAssignableFrom(da.getClass()))
@@ -240,6 +353,18 @@ public class DomuiPageTester implements IDomUITestInfo {
 	@Override
 	public String getWebappContext() {
 		return "test";
+	}
+
+	@Nonnull
+	public String getApplicationURL() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(getApplicationHost());
+		String wc = getWebappContext();
+		if(wc.length() > 0) {
+			sb.append(wc);
+			sb.append('/');
+		}
+		return sb.toString();
 	}
 
 	@Override
