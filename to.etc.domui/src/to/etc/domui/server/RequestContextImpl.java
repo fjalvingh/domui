@@ -46,13 +46,6 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 
 	private WindowSession m_windowSession;
 
-	private String m_urlin;
-
-	private String m_extension;
-
-	private String m_webapp;
-
-	//	private boolean					m_logging = true;
 	private StringWriter m_sw;
 
 	private Writer m_outWriter;
@@ -61,10 +54,34 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 
 	private Map<String, Object> m_attributeMap = Collections.EMPTY_MAP;
 
+	@Nonnull
+	final private String m_urlin;
+
+	@Nonnull
+	final private String m_extension;
+
 	public RequestContextImpl(@Nonnull IRequestResponse rr, @Nonnull DomApplication app, @Nonnull AppSession ses) {
 		m_requestResponse = rr;
 		m_application = app;
 		m_session = ses;
+
+		//-- ViewPoint sends malconstructed URLs containing duplicated slashes.
+		String urlin = rr.getRequestURI();
+		while(urlin.startsWith("/"))
+			urlin = urlin.substring(1);
+
+		int pos = urlin.lastIndexOf('.');
+		m_extension = pos < 0 ? "" : urlin.substring(pos + 1).toLowerCase();
+
+		//-- Strip webapp name from url.
+		String webapp = rr.getWebappContext();						// Get "viewpoint/" like webapp context
+		if(webapp.length() > 0) {
+			if(!urlin.startsWith(webapp)) {
+				throw new IllegalStateException("webapp url '" + urlin + "' incorrect: it does not start with '" + webapp + "'");
+			}
+			urlin = urlin.substring(webapp.length());
+		}
+		m_urlin = urlin;
 	}
 
 	/**
@@ -168,23 +185,17 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 * @see to.etc.domui.server.IRequestContext#getExtension()
 	 */
 	@Override
-	public @Nonnull String getExtension() {
+	@Nonnull
+	public String getExtension() {
 		return m_extension;
 	}
 
-	//	public HttpServletRequest getRequest() {
-	//		return m_request;
-	//	}
-	//
-	//	public HttpServletResponse getResponse() {
-	//		return m_response;
-	//	}
-	//
 	/**
 	 * @see to.etc.domui.server.IRequestContext#getInputPath()
 	 */
 	@Override
-	public final @Nonnull String getInputPath() {
+	@Nonnull
+	public final String getInputPath() {
 		return m_urlin;
 	}
 

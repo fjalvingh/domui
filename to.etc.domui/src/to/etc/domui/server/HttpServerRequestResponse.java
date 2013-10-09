@@ -17,21 +17,12 @@ public class HttpServerRequestResponse implements IRequestResponse {
 	final private HttpServletResponse m_response;
 
 	@Nonnull
-	final private String m_relativeURL;
-
-	@Nonnull
 	final private String m_webappContext;
 
-	@Nonnull
-	final private String m_extension;
-
-	private HttpServerRequestResponse(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull String relativeURL, @Nonnull String webappContext,
-		@Nonnull String extension) {
+	private HttpServerRequestResponse(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull String webappContext) {
 		m_request = request;
 		m_response = response;
-		m_relativeURL = relativeURL;
 		m_webappContext = webappContext;
-		m_extension = extension;
 	}
 
 	@Override
@@ -50,38 +41,19 @@ public class HttpServerRequestResponse implements IRequestResponse {
 		return m_response;
 	}
 
-	@Nonnull
-	public String getRelativeURL() {
-		return m_relativeURL;
-	}
-
 	@Override
 	@Nonnull
 	public String getWebappContext() {
 		return m_webappContext;
 	}
 
-	@Nonnull
-	public String getExtension() {
-		return m_extension;
-	}
-
+//	@Nonnull
+//	public String getExtension() {
+//		return m_extension;
+//	}
+//
 	@Nonnull
 	static public HttpServerRequestResponse create(@Nonnull DomApplication application, @Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response) {
-		//-- If this is a multipart (file transfer) request we need to parse the request,
-		String urlin = request.getRequestURI();
-		int pos = urlin.lastIndexOf('.');
-		String extension = "";
-		if(pos != -1)
-			extension = urlin.substring(pos + 1).toLowerCase();
-
-		//FIXME dubbele slashes in viewpoint, wellicht anders oplossen
-		while(urlin.startsWith("/"))
-			urlin = urlin.substring(1);
-		HttpServletRequest realrequest = request;
-		if(application.getUrlExtension().equals(extension) || urlin.contains(".part")) 		// QD Fix for upload
-			realrequest = UploadParser.wrapIfNeeded(request); 								// Make multipart wrapper if multipart/form-data
-
 		String webapp = request.getContextPath();
 		if(webapp == null)
 			webapp = "";
@@ -90,11 +62,16 @@ public class HttpServerRequestResponse implements IRequestResponse {
 				webapp = webapp.substring(1);
 			if(!webapp.endsWith("/"))
 				webapp = webapp + "/";
-			if(!urlin.startsWith(webapp)) {
-				throw new IllegalStateException("webapp url incorrect: lousy SUN spec");
-			}
-			urlin = urlin.substring(webapp.length());
 		}
+
+		//-- Wrap request with multipart code if needed
+		String requesturi = request.getRequestURI();
+		int pos = requesturi.lastIndexOf('.');
+		String extension = pos < 0 ? "" : requesturi.substring(pos + 1).toLowerCase();
+
+		HttpServletRequest realrequest = request;
+		if(application.getUrlExtension().equals(extension) || requesturi.contains(".part")) 		// QD Fix for upload
+			realrequest = UploadParser.wrapIfNeeded(request); 								// Make multipart wrapper if multipart/form-data
 
 //		for(Enumeration<String> en = m_request.getHeaderNames(); en.hasMoreElements();) {
 //			String name = en.nextElement();
@@ -105,7 +82,7 @@ public class HttpServerRequestResponse implements IRequestResponse {
 //			}
 //		}
 
-		return new HttpServerRequestResponse(realrequest, response, urlin, webapp, extension);
+		return new HttpServerRequestResponse(realrequest, response, webapp);
 	}
 
 	@Override

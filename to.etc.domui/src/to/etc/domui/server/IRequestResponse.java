@@ -67,6 +67,11 @@ public interface IRequestResponse {
 	@Nonnull
 	public OutputStream getOutputStream(@Nonnull String contentType, @Nullable String encoding, int contentLength) throws Exception;
 
+	/**
+	 * Returns the webapp context as either an empty string for the ROOT context or a string starting without a slash and always ending
+	 * in one, like "viewpoint/".
+	 * @return
+	 */
 	@Nonnull
 	public String getWebappContext();
 
