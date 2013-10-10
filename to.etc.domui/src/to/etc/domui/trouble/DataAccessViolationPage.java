@@ -25,7 +25,6 @@
 package to.etc.domui.trouble;
 
 import to.etc.domui.component.layout.*;
-import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.themes.*;
 import to.etc.domui.util.*;
@@ -41,6 +40,7 @@ public class DataAccessViolationPage extends UrlPage {
 		CaptionedPanel ep = new CaptionedPanel(Msgs.BUNDLE.getString(Msgs.DATA_ACCESS_VIOLATION_TITLE));
 		add(ep);
 		Table t = new Table();
+		t.addCssClass("ui-acd-tbl");
 		ep.getContent().add(t);
 		TBody b = t.addBody();
 		TD td = b.addRowAndCell();
@@ -48,7 +48,6 @@ public class DataAccessViolationPage extends UrlPage {
 		td.add(img);
 
 		TD co = b.addCell();
-		co.setVerticalAlign(VerticalAlignType.TOP);
 		String txt = msg;
 		Div d = new Div(txt);
 		co.add(d);
