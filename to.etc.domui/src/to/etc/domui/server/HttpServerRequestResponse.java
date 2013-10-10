@@ -72,7 +72,7 @@ public class HttpServerRequestResponse implements IRequestResponse {
 		String extension = pos < 0 ? "" : requesturi.substring(pos + 1).toLowerCase();
 
 		HttpServletRequest realrequest = request;
-		if(application.getUrlExtension().equals(extension) || requesturi.contains(".part")) 		// QD Fix for upload
+		if(application.getUrlExtension().equals(extension) || requesturi.contains(".part")) // QD Fix for upload
 			realrequest = UploadParser.wrapIfNeeded(request); 								// Make multipart wrapper if multipart/form-data
 
 //		for(Enumeration<String> en = m_request.getHeaderNames(); en.hasMoreElements();) {

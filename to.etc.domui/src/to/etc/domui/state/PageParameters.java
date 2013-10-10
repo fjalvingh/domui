@@ -27,6 +27,7 @@ package to.etc.domui.state;
 import java.io.*;
 import java.security.*;
 import java.util.*;
+import java.util.Map.Entry;
 
 import javax.annotation.*;
 
@@ -716,5 +717,42 @@ public class PageParameters implements IPageParameters {
 	@Override
 	public boolean isReadOnly() {
 		return m_readOnly;
+	}
+
+	/**
+	 * Decode a http query string into a PageParameters instance.
+	 * @param query
+	 * @return
+	 */
+	@Nonnull
+	static public PageParameters decodeParameters(@Nonnull String query) {
+		String[] indiar = query.split("&");
+		Map<String, List<String>> map = new HashMap<String, List<String>>();
+		for(String frag : indiar) {
+			int pos = frag.indexOf('=');
+			if(pos >= 0) {
+				String name = frag.substring(0, pos).toLowerCase();
+				String value = frag.substring(pos + 1);
+				name = StringTool.decodeURLEncoded(name);
+				value = StringTool.decodeURLEncoded(value);
+	
+				List<String>	l = map.get(name);
+				if(null == l) {
+					l = new ArrayList<String>();
+					map.put(name, l);
+				}
+				l.add(value);
+			}
+		}
+	
+		PageParameters pp = new PageParameters();
+		for(Map.Entry<String, List<String>> me : map.entrySet()) {
+			if(me.getValue().size() == 1) {
+				pp.addParameter(me.getKey(), me.getValue().get(0));
+			} else {
+				pp.addParameter(me.getKey(), me.getValue().toArray(new String[0]));
+			}
+		}
+		return pp;
 	}
 }
