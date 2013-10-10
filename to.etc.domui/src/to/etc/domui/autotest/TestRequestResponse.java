@@ -56,6 +56,16 @@ public class TestRequestResponse implements IRequestResponse {
 	@Nonnull
 	final private String m_queryString;
 
+	public TestRequestResponse(@Nonnull TestServerSession session, @Nonnull IDomUITestInfo info, @Nonnull String requestURI, @Nonnull String queryString) {
+		m_testInfo = info;
+		m_requestURI = requestURI;
+		m_session = session;
+		m_queryString = queryString;
+		PageParameters pp = PageParameters.decodeParameters(queryString);
+		initParameters(pp);
+	}
+
+
 	public TestRequestResponse(@Nonnull TestServerSession session, @Nonnull IDomUITestInfo info, @Nonnull String requestURI, @Nonnull PageParameters parameters) {
 		m_testInfo = info;
 		m_requestURI = requestURI;

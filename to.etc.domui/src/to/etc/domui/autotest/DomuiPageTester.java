@@ -263,7 +263,7 @@ public class DomuiPageTester implements IDomUITestInfo {
 
 		pp.addParameter(Constants.PARAM_UIACTION, Constants.ACMD_CLICKED);
 		pp.addParameter(Constants.PARAM_UICOMPONENT, nodeToClick.getActualID());
-		return createRequestResponse(pinfo.getPage().getBody().getClass(), pp);
+		return createRequestResponse(pinfo.getPage(), pp);
 	}
 
 
@@ -364,19 +364,27 @@ public class DomuiPageTester implements IDomUITestInfo {
 			redirectURL = redirectURL.substring(0, qpos);
 		}
 
-		PageParameters pp = PageParameters.decodeParameters(query);
-		TestRequestResponse rr = new TestRequestResponse(m_ssession, this, redirectURL, pp);
+//		PageParameters pp = PageParameters.decodeParameters(query);
+		TestRequestResponse rr = new TestRequestResponse(m_ssession, this, redirectURL, query);
 		return rr;
 	}
 
 	/**
-	 * Create a request/response object for the specified page.
+	 * Create a request/response object for the specified page class.
 	 * @param clz
 	 * @param pp
 	 * @return
 	 */
 	@Nonnull
 	private TestRequestResponse createRequestResponse(@Nonnull Class< ? extends UrlPage> clz, @Nonnull PageParameters pp) {
+		String requestURI = getClassURI(clz);
+
+		TestRequestResponse rr = new TestRequestResponse(m_ssession, this, requestURI, pp);
+		return rr;
+	}
+
+	@Nonnull
+	private String getClassURI(@Nonnull Class< ? extends UrlPage> clz) {
 		StringBuilder sb = new StringBuilder();
 		sb.append('/');
 		String webappContext = getWebappContext();
@@ -388,8 +396,13 @@ public class DomuiPageTester implements IDomUITestInfo {
 		sb.append('.');
 		sb.append(getApplication().getUrlExtension());
 
-		String requestURI = sb.toString();
+		return sb.toString();
+	}
 
+	@Nonnull
+	private TestRequestResponse createRequestResponse(@Nonnull Page page, @Nonnull PageParameters pp) {
+		String requestURI = getClassURI(page.getBody().getClass());
+		pp.addParameter(Constants.PARAM_CONVERSATION_ID, page.internalGetConversation().getFullId());
 		TestRequestResponse rr = new TestRequestResponse(m_ssession, this, requestURI, pp);
 		return rr;
 	}
@@ -404,7 +417,7 @@ public class DomuiPageTester implements IDomUITestInfo {
 	 * @throws Exception
 	 */
 	private void interact(@Nonnull AppSession session, @Nonnull TestRequestResponse rr) throws Exception {
-		System.out.println("T: url: " + rr.getRequestURI() + "?" + rr.getQueryString());
+		System.out.println("T: url: " + rr.getRequestURI() + rr.getQueryString());
 
 		RequestContextImpl ctx = new RequestContextImpl(rr, getApplication(), session);
 
