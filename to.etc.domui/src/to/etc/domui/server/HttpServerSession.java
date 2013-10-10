@@ -30,4 +30,9 @@ public class HttpServerSession implements IServerSession {
 		else
 			m_session.setAttribute(name, value);
 	}
+
+	@Override
+	public void invalidate() {
+		m_session.invalidate();
+	}
 }

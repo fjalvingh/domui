@@ -138,4 +138,16 @@ public class TestRequestContext implements IRequestContext {
 	public BrowserVersion getBrowserVersion() {
 		return null;
 	}
+
+	@Override
+	@Nonnull
+	public IRequestResponse getRequestResponse() {
+		throw new IllegalStateException("Not implemented");
+	}
+
+	@Override
+	@Nullable
+	public IServerSession getServerSession(boolean create) {
+		throw new IllegalStateException("Not implemented");
+	}
 }

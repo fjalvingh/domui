@@ -48,12 +48,18 @@ public interface IRequestContext extends IExtendedParameterInfo {
 	@Nonnull
 	public DomApplication getApplication();
 
+	@Nonnull
+	public IRequestResponse getRequestResponse();
+
 	/**
 	 * Return this-user's AppSession.
 	 * @return
 	 */
 	@Nonnull
 	public AppSession getSession();
+
+	@Nullable
+	public IServerSession getServerSession(boolean create);
 
 	/**
 	 * Return the WindowSession for this request. The WindowSession represents one of the possible

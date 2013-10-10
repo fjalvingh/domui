@@ -298,16 +298,15 @@ public class UIContext {
 		if(!(rcx instanceof RequestContextImpl))
 			return false;
 
-		RequestContextImpl ci = (RequestContextImpl) rcx;
-		HttpSession hs = HttpServerRequestResponse.getSession(ci, false);
+		IServerSession hs = rcx.getServerSession(false);
 		if(hs == null)
 			return false;
 		synchronized(hs) {
 			//-- Force logout
-			hs.removeAttribute(LOGIN_KEY);
+			hs.setAttribute(LOGIN_KEY, null);
 
 			//-- Check credentials,
-			ILoginAuthenticator la = ci.getApplication().getLoginAuthenticator();
+			ILoginAuthenticator la = rcx.getApplication().getLoginAuthenticator();
 			if(la == null)
 				throw new IllegalStateException("There is no login authenticator set in the Application!");
 			IUser user = la.authenticateUser(userid, password);
@@ -315,10 +314,10 @@ public class UIContext {
 				return false;
 
 			//-- Login succeeded: save the user in the session context
-			hs.setAttribute(LOGIN_KEY, user); // This causes the user to be logged on.
+			hs.setAttribute(LOGIN_KEY, user); 					// This causes the user to be logged on.
 			m_currentUser.set(user);
 
-			List<ILoginListener> ll = ci.getApplication().getLoginListenerList();
+			List<ILoginListener> ll = rcx.getApplication().getLoginListenerList();
 			for(ILoginListener l : ll)
 				l.userLogin(user);
 			return true;
@@ -335,21 +334,20 @@ public class UIContext {
 			throw new IllegalStateException("You can logout from a server request only");
 		if(!(rcx instanceof RequestContextImpl))
 			return;
-		RequestContextImpl ci = (RequestContextImpl) rcx;
 
-		HttpSession hs = HttpServerRequestResponse.getSession(ci, false);
+		IServerSession hs = rcx.getServerSession(false);
 		if(hs == null)
 			return;
 
 		//first we delete LOGINCOOKIE if exists, otherwise user can never logout...
-		deleteLoginCookie(ci);
+		deleteLoginCookie(rcx);
 		synchronized(hs) {
-			IUser user = internalGetLoggedInUser(ci);
+			IUser user = internalGetLoggedInUser(rcx);
 			if(user == null)
 				return;
 
 			//-- Call logout handlers BEFORE actual logout
-			List<ILoginListener> ll = ci.getApplication().getLoginListenerList();
+			List<ILoginListener> ll = rcx.getApplication().getLoginListenerList();
 			for(ILoginListener l : ll) {
 				try {
 					l.userLogout(user);
@@ -359,7 +357,7 @@ public class UIContext {
 			}
 
 			//-- Force logout
-			hs.removeAttribute(LOGIN_KEY);
+			hs.setAttribute(LOGIN_KEY, null);
 			m_currentUser.set(null);
 			try {
 				hs.invalidate();
@@ -393,7 +391,7 @@ public class UIContext {
 		return k;
 	}
 
-	public static boolean deleteLoginCookie(RequestContextImpl rci) throws Exception {
+	public static boolean deleteLoginCookie(IRequestContext rci) throws Exception {
 		if(rci == null)
 			throw new IllegalStateException("You can logout from a server request only");
 
@@ -408,11 +406,10 @@ public class UIContext {
 					}
 
 					//-- Create a new cookie value containing a delete.
-					RequestContextImpl ci = rci;
 					Cookie k = new Cookie("domuiLogin", "logout");
 					k.setMaxAge(60);
-					k.setPath(ci.getRequestResponse().getWebappContext());
-					ci.getRequestResponse().addCookie(k);
+					k.setPath(rci.getRequestResponse().getWebappContext());
+					rci.getRequestResponse().addCookie(k);
 					return true;
 				}
 			}

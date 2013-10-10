@@ -9,7 +9,11 @@ import to.etc.domui.server.*;
 public class TestServerSession implements IServerSession {
 	static private int m_idcount;
 
+	@Nonnull
 	final private String m_id;
+
+	@Nonnull
+	private final Map<String, Object> m_data = new HashMap<String, Object>();
 
 	public TestServerSession() {
 		m_id = "sess" + nextID();
@@ -25,9 +29,6 @@ public class TestServerSession implements IServerSession {
 		return ++m_idcount;
 	}
 
-	@Nonnull
-	private final Map<String, Object> m_data = new HashMap<String, Object>();
-
 	@Override
 	@Nullable
 	public Object getAttribute(@Nonnull String name) {
@@ -37,5 +38,10 @@ public class TestServerSession implements IServerSession {
 	@Override
 	public void setAttribute(@Nonnull String name, @Nullable Object value) {
 		m_data.put(name, value);
+	}
+
+	@Override
+	public void invalidate() {
+		m_data.clear();
 	}
 }

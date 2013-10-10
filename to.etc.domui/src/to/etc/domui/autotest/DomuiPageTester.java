@@ -52,6 +52,7 @@ public class DomuiPageTester implements IDomUITestInfo {
 	@Nullable
 	static private DomApplication m_appInstance;
 
+	@Nullable
 	private TestServerSession m_ssession;
 
 
@@ -190,7 +191,6 @@ public class DomuiPageTester implements IDomUITestInfo {
 		}
 
 		PageParameters pp = decodeParameters(query);
-
 		TestRequestResponse rr = new TestRequestResponse(m_ssession, this, redirectURL, pp);
 		return rr;
 	}

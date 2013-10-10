@@ -113,6 +113,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		return m_session;
 	}
 
+	@Override
 	@Nonnull
 	public IRequestResponse getRequestResponse() {
 		return m_requestResponse;
@@ -307,6 +308,11 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		getRequestResponse().sendError(httpErrorCode, message);
 	}
 
+	@Override
+	@Nullable
+	public IServerSession getServerSession(boolean create) {
+		return getRequestResponse().getServerSession(create);
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	ParameterInfo implementation						*/
