@@ -1497,7 +1497,7 @@ Calendar.prototype.hideShowCovered = function () {
 		return value;
 	};
 
-	var tags = new Array("applet", "select"); //vmijic 20120316 we excluded "iframe" from this set of tags, since it conflicts with fckeditor iframe, and it is not clear why we had this hiding of iframes at all  
+	var tags = new Array("applet");
 	var el = this.element;
 
 	var p = Calendar.getAbsolutePos(el);
