@@ -55,6 +55,10 @@ public class DomuiPageTester implements IDomUITestInfo {
 	@Nullable
 	private TestServerSession m_ssession;
 
+	private Page m_lastPage;
+
+	private IRequestContext m_lastContext;
+
 	static synchronized public void initApplication(@Nonnull Class< ? extends DomApplication> applicationClass, @Nonnull File webappFiles) throws Exception {
 		AppFilter.initializeLogging(null);
 
@@ -214,6 +218,16 @@ public class DomuiPageTester implements IDomUITestInfo {
 			return handleDocumentRedirect(doc, pos + str.length());
 		}
 
+		RequestContextImpl rci = (RequestContextImpl) m_lastContext;
+		if(null == rci)
+			throw new IllegalStateException("? No current context was set");
+
+		Page page = m_lastPage;
+		if(null == page)
+			throw new IllegalStateException("? No current page was set");
+
+		System.out.println("Page class was " + page.getBody());
+
 
 		return null;
 	}
@@ -352,6 +366,10 @@ public class DomuiPageTester implements IDomUITestInfo {
 			rh.handleRequest(ctx);
 			ctx.flush();
 			rr.flush();
+
+			//-- Collect structures to use later on
+			m_lastPage = UIContext.internalGetPage();
+			m_lastContext = UIContext.internalGetContext();
 
 		} catch(ThingyNotFoundException x) {
 			ctx.sendError(HttpServletResponse.SC_NOT_FOUND, x.getMessage());

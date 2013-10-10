@@ -46,8 +46,8 @@ import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
 
 /**
- * Mostly silly handler to handle direct DOM requests. Phaseless handler for testing
- * direct/delta building only using a reloadable class.
+ * Main handler for DomUI page requests. This handles all requests that target or come
+ * from a DomUI page.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on May 22, 2008
@@ -55,11 +55,12 @@ import to.etc.webapp.query.*;
 public class ApplicationRequestHandler implements IFilterRequestHandler {
 	static Logger LOG = LoggerFactory.getLogger(ApplicationRequestHandler.class);
 
+	@Nonnull
 	private final DomApplication m_application;
 
 	private static boolean m_logPerf = DeveloperOptions.getBool("domui.logtime", false);
 
-	public ApplicationRequestHandler(final DomApplication application) {
+	public ApplicationRequestHandler(@Nonnull final DomApplication application) {
 		m_application = application;
 	}
 
@@ -238,7 +239,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		 * conversation just ignore it, and send an empty response to ie, hopefully causing it to die soon.
 		 */
 		if(action != null) {
-			if(cm.isConversationDestroyed(cida[1])) {					// This conversation was recently destroyed?
+			if(cm.isConversationDestroyed(cida[1])) {			// This conversation was recently destroyed?
 				//-- Render a null response
 				if(LOG.isDebugEnabled())
 					LOG.debug("Session " + cid + " was destroyed earlier- assuming this is an out-of-order event and sending empty delta back");
@@ -256,7 +257,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		 * request we'll always respond with a full page re-render, but we must check to see if
 		 * the page has been requested with different parameters this time.
 		 */
-		PageParameters papa = null;							// Null means: ajax request, not a full page.
+		PageParameters papa = null;								// Null means: ajax request, not a full page.
 		if(action == null) {
 			papa = PageParameters.createFrom(ctx);
 
@@ -311,7 +312,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		}
 
 		if(page == null) {
-			throw new IllegalStateException("Page can not be null here. Null is already handler inside expired AJAX request handling.");
+			throw new IllegalStateException("Page can not be null here. Null is already handled inside expired AJAX request handling.");
 		}
 
 		UIContext.internalSet(page);
@@ -469,7 +470,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	}
 
 	/**
-	 * EXPERIMENTAL - fix for huge POST requests being resent as a get.
+	 * Fix for huge POST requests being resent as a get.
 	 * @param ctx
 	 * @param cm
 	 * @param pp2
@@ -483,7 +484,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		cc.setAttribute("__ORIPP", pp);
 
 		//-- Create an unique hash for the page parameters
-		String hashString = pp.calculateHashString();				// The unique hash of a page with these parameters
+		String hashString = pp.calculateHashString();			// The unique hash of a page with these parameters
 
 		StringBuilder sb = new StringBuilder(256);
 
@@ -508,7 +509,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 */
 	private void checkFullExceptionCount(Page page, Exception x) throws Exception {
 		//-- Full renderer aborted. Handle exception counting.
-		if(!page.isFullRenderCompleted()) { // Has the page at least once rendered OK?
+		if(!page.isFullRenderCompleted()) {						// Has the page at least once rendered OK?
 			//-- This page is initially unrenderable; the error is not due to state changes. Just rethrow and give up.
 			throw x;
 		}
@@ -542,16 +543,16 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	private boolean checkAccess(final WindowSession cm, final RequestContextImpl ctx, final Page page) throws Exception {
 		if(ctx.getParameter("webuia") != null)
 			throw new IllegalStateException("Cannot be called for an AJAX request");
-		UrlPage body = page.getBody();										// The actual, instantiated and injected class - which is unbuilt, though
+		UrlPage body = page.getBody();							// The actual, instantiated and injected class - which is unbuilt, though
 		UIRights rann = body.getClass().getAnnotation(UIRights.class);		// Get class annotation
 		IRightsCheckedManually rcm = body instanceof IRightsCheckedManually ? (IRightsCheckedManually) body : null;
 
-		if(rann == null && rcm == null) {									// Any kind of rights checking is required?
-			return true;													// No -> allow access.
+		if(rann == null && rcm == null) {						// Any kind of rights checking is required?
+			return true;										// No -> allow access.
 		}
 
 		//-- Get user's IUser; if not present we need to log in.
-		IUser user = UIContext.getCurrentUser(); 							// Currently logged in?
+		IUser user = UIContext.getCurrentUser(); 				// Currently logged in?
 		if(user == null) {
 			redirectToLoginPage(cm, ctx);
 			return false;
@@ -561,7 +562,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		String failureReason = null;
 		try {
 			if(null != rcm) {
-				boolean allowed = rcm.isAccessAllowedBy(user);				// Call interface: it explicitly allows
+				boolean allowed = rcm.isAccessAllowedBy(user);	// Call interface: it explicitly allows
 				if(allowed)
 					return true;
 
@@ -569,7 +570,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			}
 
 			if(null != rann) {
-				if(checkRightsAnnotation(ctx, body, rann, user)) {			// Check annotation rights
+				if(checkRightsAnnotation(ctx, body, rann, user)) { // Check annotation rights
 					return true;
 				}
 

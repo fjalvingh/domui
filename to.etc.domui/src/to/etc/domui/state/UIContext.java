@@ -109,6 +109,7 @@ public class UIContext {
 		m_page.set(pg);
 	}
 
+	@Nonnull
 	static public Page getCurrentPage() {
 		Page pg = m_page.get();
 		if(pg == null)
@@ -116,6 +117,17 @@ public class UIContext {
 		return pg;
 	}
 
+	@Nullable
+	static public Page internalGetPage() {
+		return m_page.get();
+	}
+
+	@Nullable
+	static public IRequestContext internalGetContext() {
+		return m_current.get();
+	}
+
+	@Nonnull
 	static public ConversationContext getCurrentConversation() {
 		return getCurrentPage().getConversation();
 	}
