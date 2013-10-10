@@ -19,4 +19,6 @@ public interface IServerSession {
 	public void setAttribute(@Nonnull String name, @Nullable Object value);
 
 	public void invalidate();
+
+	public boolean isNew();
 }

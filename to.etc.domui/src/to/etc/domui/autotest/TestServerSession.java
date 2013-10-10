@@ -44,4 +44,9 @@ public class TestServerSession implements IServerSession {
 	public void invalidate() {
 		m_data.clear();
 	}
+
+	@Override
+	public boolean isNew() {
+		return false;
+	}
 }

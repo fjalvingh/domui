@@ -35,4 +35,9 @@ public class HttpServerSession implements IServerSession {
 	public void invalidate() {
 		m_session.invalidate();
 	}
+
+	@Override
+	public boolean isNew() {
+		return m_session.isNew();
+	}
 }
