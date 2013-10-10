@@ -25,6 +25,7 @@
 package to.etc.domui.trouble;
 
 import to.etc.domui.component.layout.*;
+import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.themes.*;
 import to.etc.domui.util.*;
@@ -41,15 +42,13 @@ public class DataAccessViolationPage extends UrlPage {
 		add(ep);
 		Table t = new Table();
 		ep.getContent().add(t);
-		t.setWidth("100%");
 		TBody b = t.addBody();
 		TD td = b.addRowAndCell();
 		Img img = new Img(Theme.ACCESS_DENIED);
-		//		img.setAlign(ImgAlign.LEFT);
 		td.add(img);
-		td.setWidth("1%");
 
 		TD co = b.addCell();
+		co.setVerticalAlign(VerticalAlignType.TOP);
 		String txt = msg;
 		Div d = new Div(txt);
 		co.add(d);
