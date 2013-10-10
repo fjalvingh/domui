@@ -10,6 +10,7 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
 import to.etc.domui.trouble.*;
+import to.etc.domui.util.*;
 import to.etc.util.*;
 
 /**
@@ -185,7 +186,7 @@ public class DomuiPageTester implements IDomUITestInfo {
 					String doc = rr.getTextDocument();
 					if(null == doc)
 						break;
-					System.out.println(StringTool.strTrunc(doc, 512));
+					System.out.println(StringTool.strTrunc(doc, 5120));
 					newrr = handleDocument(doc, rr);
 					break;
 
@@ -210,7 +211,7 @@ public class DomuiPageTester implements IDomUITestInfo {
 	}
 
 	@Nullable
-	private TestRequestResponse handleDocument(@Nonnull String doc, @Nonnull TestRequestResponse rr) {
+	private TestRequestResponse handleDocument(@Nonnull String doc, @Nonnull TestRequestResponse rr) throws Exception {
 		//-- Contains javascript redirect (initial-response)?
 		String str = "location.replace(";
 		int pos = doc.indexOf(str);
@@ -225,13 +226,66 @@ public class DomuiPageTester implements IDomUITestInfo {
 		Page page = m_lastPage;
 		if(null == page)
 			throw new IllegalStateException("? No current page was set");
-
 		System.out.println("Page class was " + page.getBody());
 
+		//-- Collect everything we need to know about this incarnation of the page
+		PageData pageData = new PageData(page);
+		scanPageData(pageData, page.getBody());
+		System.out.println("Got " + pageData.getClickTargets().size() + " click targets");
 
-		return null;
+		//-- We need to send the 1st click.
+		if(pageData.getClickTargets().size() == 0)
+			return null;
+
+		NodeBase cb = DomUtil.nullChecked(pageData.getClickTargets().get(0));
+
+		return createClickRequest(pageData, cb);
 	}
 
+
+	/**
+	 * Prepare
+	 * @param page
+	 * @return
+	 */
+	@Nonnull
+	private TestRequestResponse createClickRequest(@Nonnull PageData pinfo, @Nonnull NodeBase nodeToClick) throws Exception {
+		PageParameters pp = pinfo.getPage().getPageParameters().getUnlockedCopy();
+
+		for(NodeBase nb : pinfo.getBaseInputs()) {
+			if(nb instanceof Input) {
+				String id = nb.getActualID();
+				String rv = ((Input) nb).getRawValue();
+				if(null != rv)
+					pp.addParameter(id, rv);
+			}
+		}
+
+		pp.addParameter(Constants.PARAM_UIACTION, Constants.ACMD_CLICKED);
+		pp.addParameter(Constants.PARAM_UICOMPONENT, nodeToClick.getActualID());
+		return createRequestResponse(pinfo.getPage().getBody().getClass(), pp);
+	}
+
+
+	/**
+	 * Walk the node and it's children recursively and add all nodes that have a "clicked"
+	 * handler to the output list.
+	 *
+	 * @param clickTargets
+	 * @param body
+	 */
+	private void scanPageData(@Nonnull PageData pageData, @Nonnull NodeBase body) {
+		pageData.checkNode(body);
+		if(body instanceof NodeContainer) {
+			for(NodeBase nb : ((NodeContainer) body))
+				scanPageData(pageData, nb);
+		}
+	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Redirection handling.								*/
+	/*--------------------------------------------------------------*/
 	/**
 	 * Extracts the redirect url from a Javascript redirect response, and then redirects to the new page.
 	 * @param doc
@@ -350,6 +404,8 @@ public class DomuiPageTester implements IDomUITestInfo {
 	 * @throws Exception
 	 */
 	private void interact(@Nonnull AppSession session, @Nonnull TestRequestResponse rr) throws Exception {
+		System.out.println("T: url: " + rr.getRequestURI() + "?" + rr.getQueryString());
+
 		RequestContextImpl ctx = new RequestContextImpl(rr, getApplication(), session);
 
 		List<IRequestInterceptor> il = ctx.getApplication().getInterceptorList();

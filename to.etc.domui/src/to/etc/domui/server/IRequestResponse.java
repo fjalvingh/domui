@@ -23,6 +23,9 @@ public interface IRequestResponse {
 	@Nonnull
 	public String getRequestURI();
 
+	@Nonnull
+	public String getQueryString();
+
 	/**
 	 * Called when uploaded files are no longer needed; this can then discard of them.
 	 */

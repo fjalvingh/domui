@@ -138,7 +138,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		/*
 		 * If this is a full render request the URL must contain a $CID... If not send a redirect after allocating a window.
 		 */
-		String action = ctx.getParameter("webuia"); 			// AJAX action request?
+		String action = ctx.getParameter(Constants.PARAM_UIACTION); 			// AJAX action request?
 		String cid = ctx.getParameter(Constants.PARAM_CONVERSATION_ID);
 		String[] cida = DomUtil.decodeCID(cid);
 
@@ -790,7 +790,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		m_application.internalCallPageAction(ctx, page);
 
 		NodeBase wcomp = null;
-		String wid = ctx.getParameter("webuic");
+		String wid = ctx.getParameter(Constants.PARAM_UICOMPONENT);
 		if(wid != null) {
 			wcomp = page.findNodeByID(wid);
 			// jal 20091120 The code below was active but is nonsense because we do not return after generateExpired!?

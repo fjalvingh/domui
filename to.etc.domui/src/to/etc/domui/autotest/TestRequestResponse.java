@@ -8,6 +8,7 @@ import javax.servlet.http.*;
 
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
+import to.etc.domui.util.*;
 import to.etc.domui.util.upload.*;
 
 /**
@@ -52,11 +53,17 @@ public class TestRequestResponse implements IRequestResponse {
 	@Nonnull
 	final private TestServerSession m_session;
 
+	@Nonnull
+	final private String m_queryString;
+
 	public TestRequestResponse(@Nonnull TestServerSession session, @Nonnull IDomUITestInfo info, @Nonnull String requestURI, @Nonnull PageParameters parameters) {
 		m_testInfo = info;
 		m_requestURI = requestURI;
 		m_session = session;
 		initParameters(parameters);
+		StringBuilder sb = new StringBuilder();
+		DomUtil.addUrlParameters(sb, parameters, true);
+		m_queryString = sb.toString();
 	}
 
 	private void initParameters(@Nonnull PageParameters parameters) {
@@ -70,6 +77,12 @@ public class TestRequestResponse implements IRequestResponse {
 	@Nonnull
 	public String getRequestURI() {
 		return m_requestURI;
+	}
+
+	@Override
+	@Nonnull
+	public String getQueryString() {
+		return m_queryString;
 	}
 
 	public void setRequestURI(@Nonnull String requestURI) {

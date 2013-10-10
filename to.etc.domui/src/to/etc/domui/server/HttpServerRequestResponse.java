@@ -33,6 +33,12 @@ public class HttpServerRequestResponse implements IRequestResponse {
 		return m_request.getRequestURI();
 	}
 
+	@Override
+	@Nonnull
+	public String getQueryString() {
+		return m_request.getQueryString();
+	}
+
 	@Nonnull
 	public HttpServletRequest getRequest() {
 		return m_request;
