@@ -1,10 +1,12 @@
 package to.etc.formbuilder.pages;
 
+import java.io.*;
 import java.lang.reflect.*;
 
 import javax.annotation.*;
 
 import to.etc.domui.dom.html.*;
+import to.etc.domui.util.*;
 import to.etc.util.*;
 
 /**
@@ -20,6 +22,9 @@ public class AutoComponent implements IFbComponent {
 	@Nonnull
 	final private String m_shortName;
 
+	@Nullable
+	private String m_selectorImage;
+
 	public AutoComponent(Class< ? extends NodeBase> componentClass) {
 		m_componentClass = componentClass;
 		String name = componentClass.getName();
@@ -30,11 +35,38 @@ public class AutoComponent implements IFbComponent {
 		m_shortName = name;
 	}
 
+	public void setSelectorImage(@Nonnull String image) {
+		m_selectorImage = image;
+	}
+
+	@Nonnull
+	public String getSelectorImage() {
+		String si = m_selectorImage;
+		if(null == si) {
+			//-- Is there a class resource for this thingy?
+			String name = "/"+m_componentClass.getName().replace(".", "/")+".png";
+			if(hasClassResource(name)) {
+				si = m_selectorImage = DomUtil.getJavaResourceRURL(m_componentClass, getShortName()+".png");
+			} else {
+				si = m_selectorImage = DomUtil.getJavaResourceRURL(getClass(), "autoComponent.png");
+			}
+		}
+
+		return si;
+	}
+
+	private boolean hasClassResource(@Nonnull String ref) {
+		InputStream is = m_componentClass.getResourceAsStream(ref);
+		FileTool.closeAll(is);
+		return is != null;
+	}
+
 	@Override
 	public void drawSelector(@Nonnull NodeContainer container) throws Exception {
-		NodeBase instance = createInstance();
-		container.add(instance);
-
+		Img img = new Img(getSelectorImage());
+		container.add(img);
+//		NodeBase instance = createInstance();
+//		container.add(instance);
 	}
 
 	@Override

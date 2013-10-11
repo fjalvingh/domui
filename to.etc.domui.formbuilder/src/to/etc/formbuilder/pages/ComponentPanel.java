@@ -17,15 +17,14 @@ public class ComponentPanel extends Div {
 	@Override
 	public void createContent() throws Exception {
 		setCssClass("fb-cp");
-		HTag ht = new HTag(4);
-		add(ht);
-		ht.add("Components");
-		ht.setCssClass("fb-comp");
+//		HTag ht = new HTag(4);
+//		add(ht);
+//		ht.add("Components");
+//		ht.setCssClass("fb-comp");
 
 		for(IFbComponent comp : m_componentList) {
 			PnlComponent pc = new PnlComponent(comp);
 			add(pc);
 		}
 	}
-
 }

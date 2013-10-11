@@ -57,8 +57,6 @@ public class FormDesigner extends UrlPage {
 		tp.add(cp, "Components");
 		PropertyPanel pp = new PropertyPanel();
 		tp.add(pp, "Properties");
-
-
 	}
 
 }

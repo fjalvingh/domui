@@ -93,7 +93,7 @@ final public class FormComponentRegistry {
 		register(component);
 	}
 
-	private IFbComponent autoRegister(@Nonnull Class< ? extends NodeBase> componentClass) {
+	private AutoComponent autoRegister(@Nonnull Class< ? extends NodeBase> componentClass) {
 		return new AutoComponent(componentClass);
 	}
 
@@ -101,6 +101,12 @@ final public class FormComponentRegistry {
 		// TODO Auto-generated method stub
 
 	}
+
+	public void scanComponents() {
+
+
+	}
+
 
 	static {
 	}

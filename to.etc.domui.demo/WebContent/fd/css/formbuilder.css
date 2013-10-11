@@ -56,8 +56,14 @@
 }
 
 .fb-pc-label {
+	display: inline-block;
+	height: 24px;
 	font-size: 8px;
 	font-style: italic;
 }
 
-
+.fb-pc-pres {
+	display: inline-block;
+	height: 24px;
+	width: 48px;
+}
