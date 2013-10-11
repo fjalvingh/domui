@@ -100,6 +100,7 @@ public class FileUpload extends Div implements IUploadAcceptingComponent /* impl
 
 	private void renderSelectedFiles() {
 		Table t = new Table();
+		t.addCssClass("ui-fu-selected");
 		add(t);
 		TBody b = new TBody();
 		t.add(b);
