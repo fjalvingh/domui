@@ -60,6 +60,10 @@ public class DomuiPageTester implements IDomUITestInfo {
 
 	private IRequestContext m_lastContext;
 
+	/** Set of all nodes that were "clicked" on the "current" screen. */
+	private Set<String>		m_clickedNodeSet = new HashSet<String>();
+
+
 	static synchronized public void initApplication(@Nonnull Class< ? extends DomApplication> applicationClass, @Nonnull File webappFiles) throws Exception {
 		AppFilter.initializeLogging(null);
 
@@ -171,6 +175,7 @@ public class DomuiPageTester implements IDomUITestInfo {
 		AppSession appSession = new AppSession(app());
 		m_ssession = new TestServerSession();
 
+		m_clickedNodeSet.clear();
 		TestRequestResponse rr = createRequestResponse(pageClass, parameters);
 		interact(appSession, rr);
 
@@ -233,13 +238,23 @@ public class DomuiPageTester implements IDomUITestInfo {
 		scanPageData(pageData, page.getBody());
 		System.out.println("Got " + pageData.getClickTargets().size() + " click targets");
 
-		//-- We need to send the 1st click.
-		if(pageData.getClickTargets().size() == 0)
-			return null;
+		NodeBase nb = findClickTarget(pageData);
+		if(null != nb) {
+			return createClickRequest(pageData, nb);
+		}
 
-		NodeBase cb = DomUtil.nullChecked(pageData.getClickTargets().get(0));
+		return null;
+	}
 
-		return createClickRequest(pageData, cb);
+	@Nullable
+	private NodeBase findClickTarget(@Nonnull PageData pinfo) {
+		for(NodeBase nb : pinfo.getClickTargets()) {
+			if(!m_clickedNodeSet.contains(nb.getActualID())) {
+				m_clickedNodeSet.add(nb.getActualID());
+				return nb;
+			}
+		}
+		return null;
 	}
 
 
