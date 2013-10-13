@@ -104,7 +104,7 @@ public class QQueryRenderer implements QNodeVisitor {
 	}
 
 	@Override
-	public void visitSelectionColumn(QSelectionColumn n) throws Exception {
+	public void visitSelectionColumn(@Nonnull QSelectionColumn n) throws Exception {
 		n.getItem().visit(this);
 		String alias = n.getAlias();
 		if(null != alias) {
@@ -119,14 +119,14 @@ public class QQueryRenderer implements QNodeVisitor {
 	}
 
 	@Override
-	public void visitSelectionItem(QSelectionItem n) throws Exception {
+	public void visitSelectionItem(@Nonnull QSelectionItem n) throws Exception {
 		if(m_currentColumn++ > 0)
 			append(",");
 		append("[?").append(n.getFunction().name()).append("]");
 	}
 
 	@Override
-	public void visitPropertySelection(QPropertySelection n) throws Exception {
+	public void visitPropertySelection(@Nonnull QPropertySelection n) throws Exception {
 		if(m_currentColumn++ > 0)
 			append(",");
 		append(n.getFunction().name().toLowerCase());

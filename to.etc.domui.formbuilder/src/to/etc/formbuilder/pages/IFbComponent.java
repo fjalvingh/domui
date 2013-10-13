@@ -13,4 +13,6 @@ public interface IFbComponent {
 	@Nonnull
 	public String getLongName();
 
+	@Nonnull
+	public String getCategoryName();
 }

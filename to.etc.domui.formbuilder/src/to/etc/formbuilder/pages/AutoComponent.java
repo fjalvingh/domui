@@ -25,14 +25,25 @@ public class AutoComponent implements IFbComponent {
 	@Nullable
 	private String m_selectorImage;
 
+	@Nonnull
+	final private String m_categoryName;
+
 	public AutoComponent(Class< ? extends NodeBase> componentClass) {
 		m_componentClass = componentClass;
-		String name = componentClass.getName();
-		name = name.substring(name.lastIndexOf('.') + 1);
+		String fullname = componentClass.getName();
+
+		int ldot = fullname.lastIndexOf('.');
+		String name = fullname.substring(ldot + 1);
+
 		Constructor< ? > cons = ClassUtil.findConstructor(componentClass, Class.class);	// Class<T> constructor?
 		if(null != cons)
 			name += "<T>";
 		m_shortName = name;
+
+		//-- Determine category from package name last entry
+		int pdot = fullname.lastIndexOf('.', ldot - 1);
+		name = StringTool.getCapitalized(fullname.substring(pdot + 1, ldot));
+		m_categoryName = name;
 	}
 
 	public void setSelectorImage(@Nonnull String image) {
@@ -79,6 +90,12 @@ public class AutoComponent implements IFbComponent {
 	@Nonnull
 	public String getLongName() {
 		return m_componentClass.getName();
+	}
+
+	@Override
+	@Nonnull
+	public String getCategoryName() {
+		return m_categoryName;
 	}
 
 	/* Java sucks */

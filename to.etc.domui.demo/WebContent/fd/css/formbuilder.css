@@ -44,7 +44,8 @@
 /*** Component panel ***/
 .fb-cp {
 	position: relative;
-	
+	overflow: auto;
+	bottom: 0px;
 }
 
 /*** Components inside the panel (PanelComponent) ***/

@@ -21,6 +21,9 @@ import to.etc.util.*;
 final public class FormComponentRegistry {
 	static private final FormComponentRegistry m_instance = new FormComponentRegistry();
 
+	@Nonnull
+	private Set<Class< ? >> m_ignoreSet = new HashSet<Class< ? >>();
+
 	private List<IFbComponent> m_componentList = new ArrayList<IFbComponent>();
 
 	public FormComponentRegistry() {
@@ -51,6 +54,9 @@ final public class FormComponentRegistry {
 	 * @param componentClass
 	 */
 	public void registerComponent(@Nonnull Class< ? > componentClass) {
+		if(!m_ignoreSet.add(componentClass))
+			return;
+
 		if(IFbComponent.class.isAssignableFrom(componentClass)) {
 			registerComponentHelper((Class< ? extends IFbComponent>) componentClass);
 			return;
@@ -111,11 +117,11 @@ final public class FormComponentRegistry {
 			public void foundClass(@Nonnull File source, @Nonnull Class< ? > theClass) throws Exception {
 //				System.out.println("Clz: " + theClass.getName());
 				if(NodeBase.class.isAssignableFrom(theClass) && !UrlPage.class.isAssignableFrom(theClass)) {
-					System.out.println("Trying: " + theClass.getName());
+//					System.out.println("Trying: " + theClass.getName());
 					try {
 						registerComponent(theClass);
 					} catch(Exception x) {
-						System.err.println(theClass + ": " + x.getMessage());
+						System.err.println(x.getMessage());
 					}
 
 				}

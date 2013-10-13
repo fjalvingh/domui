@@ -54,8 +54,16 @@ public class FormDesigner extends UrlPage {
 		TabPanel tp = new TabPanel();
 		right.add(tp);
 		List<IFbComponent> componentList = r().getComponentList();
+
+		Div td = new Div();
+		Div topd = new Div();
+		td.add(topd);
 		ComponentPanel cp = new ComponentPanel(componentList);
-		tp.add(cp, "Components");
+		td.add(cp);
+
+		tp.add(td, "Components");
+//		appendCreateJS("WebUI.autoHeightReset('" + topd.getActualID() + "','" + cp.getActualID() + "', 0);");
+
 		PropertyPanel pp = new PropertyPanel();
 		tp.add(pp, "Properties");
 	}
