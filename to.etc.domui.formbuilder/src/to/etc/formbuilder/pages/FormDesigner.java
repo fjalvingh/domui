@@ -5,6 +5,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.layout.*;
+import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
 
@@ -56,6 +57,8 @@ public class FormDesigner extends UrlPage {
 		List<IFbComponent> componentList = r().getComponentList();
 
 		Div td = new Div();
+		td.setHeight("800px");
+		td.setOverflow(Overflow.AUTO);
 		Div topd = new Div();
 		td.add(topd);
 		ComponentPanel cp = new ComponentPanel(componentList);

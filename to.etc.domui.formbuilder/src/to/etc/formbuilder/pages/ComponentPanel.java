@@ -29,6 +29,9 @@ public class ComponentPanel extends Div {
 		Map<String, List<IFbComponent>> cmap = new HashMap<String, List<IFbComponent>>();
 		for(IFbComponent comp : m_componentList) {
 			String cat = comp.getCategoryName();
+			if(cat.toLowerCase().contains("misc"))
+				cat = "Miscellaneous";
+
 			List<IFbComponent> l = cmap.get(cat);
 			if(l == null) {
 				l = new ArrayList<IFbComponent>();
@@ -54,6 +57,9 @@ public class ComponentPanel extends Div {
 		List<String> catlist = new ArrayList<String>(cmap.keySet());
 		Collections.sort(catlist);
 		for(String cat : catlist) {
+			if("Html".equals(cat))
+				continue;
+
 			List<IFbComponent> list = cmap.get(cat);
 			Collections.sort(list, new Comparator<IFbComponent>() {
 				@Override
