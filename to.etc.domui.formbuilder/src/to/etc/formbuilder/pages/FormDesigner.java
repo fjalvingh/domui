@@ -5,7 +5,6 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.layout.*;
-import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
 
@@ -57,18 +56,21 @@ public class FormDesigner extends UrlPage {
 		List<IFbComponent> componentList = r().getComponentList();
 
 		Div td = new Div();
-		td.setHeight("800px");
-		td.setOverflow(Overflow.AUTO);
+//		td.setHeight("800px");
+//		td.setOverflow(Overflow.AUTO);
 		Div topd = new Div();
 		td.add(topd);
 		ComponentPanel cp = new ComponentPanel(componentList);
 		td.add(cp);
 
 		tp.add(td, "Components");
-//		appendCreateJS("WebUI.autoHeightReset('" + topd.getActualID() + "','" + cp.getActualID() + "', 0);");
 
 		PropertyPanel pp = new PropertyPanel();
 		tp.add(pp, "Properties");
+		tp.build();
+
+		appendCreateJS("WebUI.autoHeightReset('#" + topd.getActualID() + "','#" + cp.getActualID() + "', 0);");
+		appendCreateJS("FormBuilder.create('" + m_paint.getActualID() + "','" + cp.getActualID() + "');");
 	}
 
 }

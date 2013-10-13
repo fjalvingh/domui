@@ -29,6 +29,8 @@ public class PnlComponent extends Div {
 		Div label = new Div();
 		add(label);
 		label.setCssClass("fb-pc-label");
-		label.add(m_component.getShortName());
+		Div d = new Div();
+		label.add(d);
+		d.add(new Span(m_component.getShortName()));
 	}
 }

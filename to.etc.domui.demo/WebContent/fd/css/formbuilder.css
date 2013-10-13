@@ -55,19 +55,20 @@
 /*** Components inside the panel (PanelComponent) ***/
 .fb-pc {
 	display: inline-block;
-	width: 100px;
 	height: 20px;
 	background-color: #ccf;
-	padding: 5px;
-	margin: 5px;
+	padding: 2px;
+	margin: 2px;
 	border-bottom: 1px dotted gray;
 }
 
 .fb-pc-label {
 	display: inline-block;
 	height: 16px;
+	width: 110px;
 	font-size: 8px;
 	font-style: italic;
+	word-wrap: break-word;
 }
 
 .fb-pc-pres {
