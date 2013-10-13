@@ -1,5 +1,6 @@
 package to.etc.formbuilder.pages;
 
+import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
 
@@ -9,6 +10,7 @@ import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.graph.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.dom.html.*;
+import to.etc.util.*;
 
 /**
  * This singleton class will collect all DomUI components that are usable inside the form builder.
@@ -102,9 +104,26 @@ final public class FormComponentRegistry {
 
 	}
 
-	public void scanComponents() {
+	public void scanComponents() throws Exception {
+		ClassPathScanner csc = new ClassPathScanner();
+		csc.addListener(new ClassPathScanner.IClassEntry() {
+			@Override
+			public void foundClass(@Nonnull File source, @Nonnull Class< ? > theClass) throws Exception {
+//				System.out.println("Clz: " + theClass.getName());
+				if(NodeBase.class.isAssignableFrom(theClass) && !UrlPage.class.isAssignableFrom(theClass)) {
+					System.out.println("Trying: " + theClass.getName());
+					try {
+						registerComponent(theClass);
+					} catch(Exception x) {
+						System.err.println(theClass + ": " + x.getMessage());
+					}
 
-
+				}
+			}
+		});
+		csc.addClassloader(getClass().getClassLoader());
+		csc.addClassloader(NodeBase.class.getClassLoader());
+		csc.scan();
 	}
 
 

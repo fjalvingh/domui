@@ -28,6 +28,7 @@ public class FormDesigner extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
 		m_registry = new FormComponentRegistry();
+		m_registry.scanComponents();
 
 		getPage().addHeaderContributor(HeaderContributor.loadStylesheet("fd/css/formbuilder.css"), 100);
 		getPage().addHeaderContributor(HeaderContributor.loadJavascript("fd/js/formbuilder.js"), 100);
