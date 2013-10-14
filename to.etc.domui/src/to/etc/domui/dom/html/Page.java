@@ -441,7 +441,7 @@ final public class Page implements IQContextContainer {
 		return initial + "_" +v;
 	}
 
-	public boolean isTestIDALlocated(@Nonnull String id) {
+	public boolean isTestIDAllocated(@Nonnull String id) {
 		return m_testIdMap.get(id) != null;
 	}
 
