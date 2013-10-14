@@ -33,7 +33,7 @@ import to.etc.domui.server.*;
  * Created on Nov 24, 2009
  */
 public interface IHtmlRenderFactory {
-	HtmlTagRenderer createTagRenderer(final BrowserVersion bv, final IBrowserOutput o);
+	HtmlTagRenderer createTagRenderer(final BrowserVersion bv, final IBrowserOutput o, boolean uiTestMode);
 
-	HtmlFullRenderer createFullRenderer(final BrowserVersion bv, final IBrowserOutput o);
+	HtmlFullRenderer createFullRenderer(final BrowserVersion bv, final IBrowserOutput o, boolean uiTestMode);
 }

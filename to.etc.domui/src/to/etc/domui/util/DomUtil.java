@@ -831,6 +831,19 @@ final public class DomUtil {
 			throw new IllegalStateException("??");
 		return Constants.RESOURCE_PREFIX + rb.substring(0, pos + 1).replace('.', '/') + name;
 	}
+
+	@Nonnull
+	static public String convertToID(@Nonnull String id) {
+		StringBuilder sb = new StringBuilder();
+		for(int i = 0, len = id.length(); i < len; i++) {
+			char c = id.charAt(i);
+			if(Character.isLetterOrDigit(c))
+				sb.append(Character.toLowerCase(c));
+		}
+
+		return sb.toString();
+	}
+
 	/**
 	 * Returns T if the specified resource exists.
 	 * @param clz
@@ -1500,13 +1513,16 @@ final public class DomUtil {
 	}
 
 	/**
-	 * EXPENSIVE - USE WITH CARE Check if first string paramater is equal to some from others
+	 * EXPENSIVE - USE WITH CARE
+	 * Check if first primitive type paramater is equal to some from others.
+	 * Use only for primitive types and enums, for other complex types use {@link MetaManager#areObjectsEqual(Object, Object, ClassMetaModel)}.
+	 *
 	 * @param value
 	 * @param values
 	 * @return
 	 */
-	static public boolean isIn(String value, String... values) {
-		for(String item : values) {
+	static public <T> boolean isIn(T value, T... values) {
+		for(T item : values) {
 			if(item.equals(value)) {
 				return true;
 			}

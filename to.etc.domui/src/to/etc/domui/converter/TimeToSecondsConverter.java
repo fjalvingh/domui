@@ -18,7 +18,7 @@ public class TimeToSecondsConverter implements IConverter<Integer> {
 
 	final private Pattern m_pattern;
 
-	private static final String TIME24HOURS_PATTERN = "([01]?[0-9]|2[0-3]):[0-5][0-9]";
+	private static final String TIME24HOURS_PATTERN = "([01]?[0-9]|2[0-3])[:]?[0-5][0-9]";
 
 	public TimeToSecondsConverter() {
 		m_pattern = Pattern.compile(TIME24HOURS_PATTERN);
@@ -40,7 +40,7 @@ public class TimeToSecondsConverter implements IConverter<Integer> {
 			return hours + ":" + String.format("%02d", min);
 		} else {
 			Integer min = new Integer(time / 60);
-			return "00:" + String.format("%02d", min);
+			return "0:" + String.format("%02d", min);
 		}
 	}
 
@@ -57,13 +57,26 @@ public class TimeToSecondsConverter implements IConverter<Integer> {
 			throw new ValidationException(Msgs.NOT_VALID, in);
 		}
 
-		//-- Format is [hh:]mm
+		//-- Format is hh[:]mm
 		int pos = in.indexOf(':');
 		try {
-			if(pos == -1)
-				return Integer.decode(in); // Time is in minutes.
-			String hs = in.substring(0, pos);
-			String ms = in.substring(pos + 1);
+			String hs;
+			String ms;
+			if(pos == -1) {
+				if(in.length() == 3) {
+					// format hmm
+					hs = in.substring(0, 1);
+					ms = in.substring(1);
+				} else {
+					// format hhmm
+					hs = in.substring(0, 2);
+					ms = in.substring(2);
+				}
+			} else {
+				// format [h]h:mm
+				hs = in.substring(0, pos);
+				ms = in.substring(pos + 1);
+			}
 			int h = Integer.parseInt(hs.trim());
 			int m = Integer.parseInt(ms.trim());
 			return Integer.valueOf((h * HOURS) + (m * 60));

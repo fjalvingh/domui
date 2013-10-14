@@ -22,4 +22,7 @@
 }
 .ui-emd-warning {
 	background-image: url(mini-warning.png);
+	background-color: <%= warnings_background %>;
+	color: <%= warnings_foreground %>;
+	border-color: 1px solid <%= warnings_border %>;
 }

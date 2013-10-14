@@ -28,6 +28,8 @@ import java.io.*;
 import java.math.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.util.*;
 
 /**
@@ -67,12 +69,21 @@ public class W3CSchemaCoder {
 	 * Get the per-thread shared copy of a Calendar; this prevents lots of garbage while scanning XML.
 	 * @return
 	 */
+	@Nonnull
 	static private GregorianCalendar calendar() {
 		GregorianCalendar c = m_calendar.get();
 		if(c == null) {
 			c = new GregorianCalendar(Locale.US);
 			m_calendar.set(c);
 		}
+		c.setTimeZone(TimeZone.getDefault());
+		return c;
+	}
+
+	@Nonnull
+	static private GregorianCalendar calendar(@Nonnull Date in) {
+		GregorianCalendar c = calendar();
+		c.setTime(in);
 		return c;
 	}
 
@@ -206,8 +217,7 @@ public class W3CSchemaCoder {
 	 * @return
 	 */
 	static public String encodeTime(final Date in, final TimeZone timezone) {
-		Calendar cal = calendar();
-		cal.setTime(in);
+		Calendar cal = calendar(in);
 
 		StringBuilder sb = new StringBuilder(32);
 		appendInt(sb, cal.get(Calendar.HOUR_OF_DAY), 2);
@@ -233,8 +243,9 @@ public class W3CSchemaCoder {
 	 * @return
 	 */
 	static public String encodeDate(final Date in, final TimeZone timezone) {
-		Calendar cal = calendar();
-		cal.setTime(in);
+		Calendar cal = calendar(in);
+
+		System.out.println("tzoff-in = " + in.getTimezoneOffset() + ", cal=" + cal.getTimeZone().getID());
 
 		StringBuilder sb = new StringBuilder(32);
 		int yr = cal.get(Calendar.YEAR);

@@ -76,6 +76,12 @@ public class UrlPage extends Div implements ILogiEventListener {
 		return m_pageTitle;
 	}
 
+	@Override
+	@Nonnull
+	public String getTestRepeatId() {
+		return "";
+	}
+
 	/**
 	 * Set the page name used for {@link AppPageTitleBar} and {@link BreadCrumb} related code. To set the head title use the
 	 * "title" property.

@@ -170,6 +170,10 @@ public class JdbcUtil {
 				res = Long.valueOf(rs.getLong(1));
 			else if(clz == Integer.class || clz == int.class)
 				res = Integer.valueOf(rs.getInt(1));
+			else if(clz == Double.class || clz == double.class)
+				res = Double.valueOf(rs.getDouble(1));
+			else if(clz == BigDecimal.class)
+				res = rs.getBigDecimal(1);
 			else if(clz == java.util.Date.class) {
 				java.sql.Timestamp ts = rs.getTimestamp(1);
 				if(ts != null)
