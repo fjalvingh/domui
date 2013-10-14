@@ -742,8 +742,22 @@ public class MsgBox extends Window {
 	 * @param msg
 	 */
 	public static void message(@Nonnull NodeBase dad, @Nonnull UIMessage msg) {
+		message(dad, msg.getType(), msg.getMessage());
+	}
+
+	/**
+	 * Shows specified UIMsgException as message box, with proper message box type.
+	 *
+	 * @param dad
+	 * @param msgEx
+	 */
+	public static void message(@Nonnull NodeBase dad, @Nonnull UIMsgException msgEx) {
+		message(dad, msgEx.getType(), msgEx.getMessage());
+	}
+
+	private static void message(@Nonnull NodeBase dad, @Nonnull MsgType type, @Nonnull String msg) {
 		MsgBox box = create(dad);
-		switch(msg.getType()){
+		switch(type){
 			case INFO:
 				box.setType(Type.INFO);
 				break;
@@ -754,9 +768,10 @@ public class MsgBox extends Window {
 				box.setType(Type.WARNING);
 				break;
 		}
-		box.setMessage(msg.getMessage());
+		box.setMessage(msg);
 		box.addButton(MsgBoxButton.CONTINUE);
 		box.setCloseButton(MsgBoxButton.CONTINUE);
 		box.construct();
 	}
+
 }

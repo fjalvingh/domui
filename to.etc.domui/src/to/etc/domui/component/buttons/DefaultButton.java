@@ -183,6 +183,8 @@ public class DefaultButton extends Button implements IActionControl {
 	public void setText(final @Nullable String text) {
 		m_text = text;
 		forceRebuild();
+		if(null != text)
+			setCalculcatedId("button_" + DomUtil.convertToID(text));
 	}
 
 	/**

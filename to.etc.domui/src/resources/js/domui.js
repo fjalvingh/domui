@@ -1417,16 +1417,98 @@ var WebUI = {
 			var separatorsCount = WebUI.countSeparators(val)
 			if(separatorsCount < 2) {
 				val = WebUI.insertDateSeparators(val, fmt, separatorsCount);
+				var res = Date.parseDate(val, fmt);
+				c.value = res.print(fmt);				
+			} else {
+				try{
+					var resultOfConversion = WebUI.parsingOfFormat(val, fmt);
+					var res = Date.parseDate(resultOfConversion, fmt);
+					c.value = res.print(fmt);
+				}catch(x){
+					Date.parseDate(val, fmt);
+				}
 			}
-			var res = Date.parseDate(val, fmt);
-			val = res.print(fmt);
-			if(timeval) {
-				val += " " + timeval;
-			}
-			c.value = val;
 		} catch(x) {
 			alert(Calendar._TT["INVALID"]);
 		}
+	},
+	
+	/**
+	 * Function that checks is format valid after check that input has separators.
+	 */
+	
+	parsingOfFormat: function(inputValue, format){
+		// splits to array of alphanumeric "words" from an input (separators are non-alphanumeric characters)
+		var inputValueSplitted = inputValue.match(/(\w+)/g);
+		var formatWithoutPercentCharSplitted = format.replace(/%/g, "").match(/(\w+)/g);
+		var result = "";
+		for(var i = 0; i < formatWithoutPercentCharSplitted.length; i++){			
+			switch(formatWithoutPercentCharSplitted[i]){
+			case "d":
+				result = WebUI.formingResultForDayOrMonth(inputValueSplitted[i], result);
+				break;
+			case "m":
+				result = WebUI.formingResultForDayOrMonth(inputValueSplitted[i], result);
+				break;
+			case "Y":
+				result = WebUI.formingResultForYear(inputValueSplitted[i], result);
+				break;
+			}
+		}
+		result = WebUI.insertDateSeparators(result, format);
+		return result;	
+	},
+	
+	formingResultForDayOrMonth: function(inputValue, result){
+		if(!WebUI.hasFieldInvalidFormat(inputValue)){
+			return result = WebUI.setDayOrMonthFormat(inputValue, result);
+		}
+		else{
+			throw "Invalid date";
+		}
+	},
+	
+	formingResultForYear: function(inputValue, result){
+		var VALID_LENGTH_YEAR = 2;
+		if(inputValue.length == VALID_LENGTH_YEAR){
+			return result = WebUI.setYearFormat(inputValue, result);
+		}
+		else{
+			throw "Invalid date";
+		}
+	},
+	
+	/**
+	 * Function that checks is format valid of fields day and month.
+	 */
+	hasFieldInvalidFormat: function(inputValue){
+		var MAX_LENGTH = 2;
+		var FORBIDDEN_CHARACTER = "0";
+		
+		return (inputValue.length === MAX_LENGTH && (inputValue.charAt(0) === FORBIDDEN_CHARACTER)) || (inputValue.length > MAX_LENGTH);
+	},
+	
+	/**
+	 * Function that converts day and month parts of input string that represents date.
+	 */
+	setDayOrMonthFormat: function(inputValue, result){
+		var NEEDED_CHARACTER_DAY_MONTH = "0";
+		
+		if(inputValue.length == 1){
+			result += NEEDED_CHARACTER_DAY_MONTH + inputValue;
+		}else {
+			result += inputValue;
+		}
+		return result;
+	},
+	
+	/**
+	 * Function that converts year part of input string that represents date.
+	 */
+	setYearFormat: function(inputValue, result){
+		var NEEDED_CHARACTER_YEAR = "20";
+		
+		return result += NEEDED_CHARACTER_YEAR + inputValue;
 	},
 
 	/**
@@ -2705,9 +2787,9 @@ var WebUI = {
 				$(div).html('<iframe id="'+frmname+'" name="'+frmname+'" width="1000px" height="1000px"/>'); //well, this is simple text printing, so we have some size limitations ;) 
 				var frm = window.frames[frmname];
 				frm.document.open();
-				frm.document.write('<html></head></head><body style="margin:0px;"><form><textarea style="width:99%; height:99%" wrap="virtual">');
-				frm.document.write(textData);
-				frm.document.write('</textarea></form></body></html>');
+				frm.document.write('<html></head></head><body style="margin:0px;">');
+				frm.document.write(textData.replace(/\n/g, '<br/>'));
+				frm.document.write('</body></html>');
 				frm.document.close();
 				frm.focus();
 				frm.print();
