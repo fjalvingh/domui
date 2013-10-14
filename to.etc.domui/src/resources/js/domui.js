@@ -2537,6 +2537,10 @@ var WebUI = {
 		WebUI._busyTimer = setTimeout("WebUI.busyIndicate()", 250);
 	},
 
+	isUIBlocked: function() {
+		return WebUI._busyOvl != undefined && WebUI._busyOvl != null;
+	},
+
 	busyIndicate: function() {
 		if(WebUI._busyTimer) {
 			clearTimeout(WebUI._busyTimer);
@@ -2804,6 +2808,9 @@ var WebUI = {
 	},
 
 	popinMouseClose: function() {
+		if(WebUI.isUIBlocked())							// We will get a LEAVE if the UI blocks during menu code... Ignore it
+			return;
+
 		try {
 			for(var i = 0; i < WebUI._popinCloseList.length; i++) {
 				var id = WebUI._popinCloseList[i];
