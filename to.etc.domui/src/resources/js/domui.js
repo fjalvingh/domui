@@ -2595,9 +2595,13 @@ var WebUI = {
 	},
 	
 	recalculateAutoHeight: function(topid, flexid, bottom) {
-		var tbot = $(topid).offset().top + $(topid).height();
-		var height = $(window).height() - tbot - bottom;
-		$(flexid).height(height+"px");
+		try {
+			var tbot = $(topid).offset().top + $(topid).height();
+			var height = $(window).height() - tbot - bottom;
+			$(flexid).height(height+"px");
+		} catch(x) {
+			//-- Ignore for now
+		}
 	},
 	
 	/** *************** Debug thingy - it can be used internaly for debuging javascript ;) ************** */

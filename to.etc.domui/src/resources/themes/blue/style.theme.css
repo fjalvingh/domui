@@ -850,7 +850,7 @@ a.ui-brc-l, a.ui-brc-l:hover a.ui-brc-l :VISITED, a.ui-brc-l:ACTIVE {
 }
 
 .ui-mp-top {
-	background: url(bg-caption.png) repeat-x;
+	background: url(<%= caption_separator %>) repeat-x;
 	font-weight: bold;
 	font-style: italic;
 }

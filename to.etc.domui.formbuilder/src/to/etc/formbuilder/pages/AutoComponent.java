@@ -76,8 +76,18 @@ public class AutoComponent implements IFbComponent {
 	public void drawSelector(@Nonnull NodeContainer container) throws Exception {
 		Img img = new Img(getSelectorImage());
 		container.add(img);
-//		NodeBase instance = createInstance();
-//		container.add(instance);
+//
+//		try {
+//			NodeBase instance = createInstance();
+//			instance.build();
+//			container.add(instance);
+//			instance.setVisibility(VisibilityType.HIDDEN);
+//
+//			container.appendCreateJS("window._fb.registerComponent('" + container.getActualID() + "','" + instance.getActualID() + "');");
+//
+//		} catch(Exception x) {
+//			x.printStackTrace();
+//		}
 	}
 
 	@Override
@@ -102,6 +112,10 @@ public class AutoComponent implements IFbComponent {
 	@Nonnull
 	static final private Class< ? >[] PARAMCLZ = {String.class, Integer.class, Boolean.class};
 
+	public void checkInstantiation() throws Exception {
+		NodeBase instance = createInstance();
+		instance.build();
+	}
 
 	@Nonnull
 	private NodeBase createInstance() throws Exception {

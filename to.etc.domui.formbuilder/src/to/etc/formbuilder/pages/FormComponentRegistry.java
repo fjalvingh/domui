@@ -56,6 +56,10 @@ final public class FormComponentRegistry {
 	public void registerComponent(@Nonnull Class< ? > componentClass) {
 		if(!m_ignoreSet.add(componentClass))
 			return;
+		if(Modifier.isAbstract(componentClass.getModifiers()))
+			return;
+		if(!Modifier.isPublic(componentClass.getModifiers()))
+			return;
 
 		if(IFbComponent.class.isAssignableFrom(componentClass)) {
 			registerComponentHelper((Class< ? extends IFbComponent>) componentClass);
@@ -97,7 +101,16 @@ final public class FormComponentRegistry {
 			throw new IllegalStateException(componentClass + " does not extend " + NodeBase.class.getName());
 
 		//-- auto-register
-		IFbComponent component = autoRegister((Class< ? extends NodeBase>) componentClass);
+		AutoComponent component = autoRegister((Class< ? extends NodeBase>) componentClass);
+
+		//-- Only register if we can create instances without trouble
+		try {
+			component.checkInstantiation();
+		} catch(Exception x) {
+			System.out.println(componentClass.getName() + ": ignored because it cannot instantiate: " + x);
+			return;
+		}
+
 		register(component);
 	}
 

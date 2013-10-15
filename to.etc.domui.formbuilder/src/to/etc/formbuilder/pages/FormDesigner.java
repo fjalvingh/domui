@@ -28,7 +28,7 @@ public class FormDesigner extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
 		m_registry = new FormComponentRegistry();
-		m_registry.scanComponents();
+//		m_registry.scanComponents();
 
 		getPage().addHeaderContributor(HeaderContributor.loadStylesheet("fd/css/formbuilder.css"), 100);
 		getPage().addHeaderContributor(HeaderContributor.loadJavascript("fd/js/formbuilder.js"), 100);
@@ -72,5 +72,6 @@ public class FormDesigner extends UrlPage {
 		appendCreateJS("WebUI.autoHeightReset('#" + topd.getActualID() + "','#" + cp.getActualID() + "', 0);");
 		appendCreateJS("FormBuilder.create('" + m_paint.getActualID() + "','" + cp.getActualID() + "');");
 	}
+
 
 }
