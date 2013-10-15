@@ -128,8 +128,7 @@ public class AutoComponent implements IFbComponent {
 		Constructor< ? > cons = ClassUtil.findConstructor(m_componentClass);	// Parameterless constructor?
 		if(null != cons) {
 			NodeBase base = (NodeBase) cons.newInstance();
-			forcePainterView(base);
-			return base;
+			return convertToPainter(base);
 		}
 
 		//-- Need class<T>
@@ -140,18 +139,29 @@ public class AutoComponent implements IFbComponent {
 		for(Class< ? > pc : PARAMCLZ) {
 			try {
 				NodeBase base = (NodeBase) cons.newInstance(pc);
-				forcePainterView(base);
-				return base;
+				return convertToPainter(base);
 			} catch(Exception x) {}
 		}
 		throw new IllegalStateException(m_componentClass + ": no idea how to make'un.");
 	}
 
+	public NodeBase convertToPainter(@Nonnull NodeBase node) {
+		forcePainterView(node);
+
+		return node;
+//		Div d = new Div();
+//		d.setCssClass("fb-ui-test");
+//		d.add(node);
+//		forcePainterView(node);
+//
+//		return d;
+	}
+
 
 	public void forcePainterView(@Nonnull NodeBase node) {
 		if(node instanceof IHtmlInput) {
-			((IHtmlInput) node).setDisabled(true);
-//			node.setSpecialAttribute("onfocus", "return false;");
+//			((IHtmlInput) node).setDisabled(true);
+			node.setSpecialAttribute("onfocus", "return false;");
 			node.addCssClass("fb-ui-paint");
 		}
 		if(node instanceof Button) {

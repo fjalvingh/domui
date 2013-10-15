@@ -93,15 +93,16 @@ $.extend(FormBuilder.prototype, {
 		var fb = this;
 
 		$("#"+nodeid).draggable({
+			cancel:"",											// NOT FUNNY 8-( Enable dragging on controls.
 			containment: "body",
 			appendTo: "body",
 			distance: 10,
-			helper: 'clone',
-//			helper: function() {
-//				var node = $("#"+handle).clone();
-//				fb._draggedComponent = comp;					// $.data does not work because stuff gets copied.
-//				return node;
-//			},
+			helper: function() {
+				console.debug("Dragging started");
+				var node = $("#"+nodeid).clone();
+				fb._draggedComponent = null;						// Don't add/register
+				return node;
+			},
 			grid: [10, 10],
 			cursorAt: {left: 0, top: 0}
 		});
