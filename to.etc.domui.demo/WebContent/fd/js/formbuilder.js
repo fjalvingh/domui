@@ -1,9 +1,3 @@
-FB = new Object();
-FB.Toolbox = new Object();
-FB.Toolbox.createOverlays = function() {
-//	$(".fb-pc").
-};
-
 FormBuilder = function(paintid, compid) {
 	window._fb = this;
 
@@ -22,9 +16,15 @@ FormBuilder.create = function(paintid,compid) {
 
 $.extend(FormBuilder.prototype, {
 	register: function() {
+		var fb = this;
 		this._paintid.droppable({
 			activeClass: "fb-pp-drop",
 			drop: function(event, ui) {
+				var comp = fb._draggedComponent;
+				if(! comp)
+					return;
+				console.debug("comp=", comp);
+
 	            $(ui.draggable).clone().appendTo(this);
 //	            $(ui.draggable).remove();
 			}
@@ -42,14 +42,19 @@ $.extend(FormBuilder.prototype, {
 	},
 
 	registerComponent: function(handle) {
-		var comp = new FormComponent(handle);
+		var comp = new FormComponent(this, handle);
 		this._componentMap[handle] = comp;
+		var fb = this;
 
 		$("#"+handle).draggable({
 			containment: "body",
 			appendTo: "body",
 			distance: 20,
-			helper: "clone",
+			helper: function() {
+				var node = $("#"+handle).clone();
+				fb._draggedComponent = comp;					// $.data does not work because stuff gets copied.
+				return node;
+			},
 			grid: [10, 10],
 			cursorAt: {left: 0, top: 0}
 		});
