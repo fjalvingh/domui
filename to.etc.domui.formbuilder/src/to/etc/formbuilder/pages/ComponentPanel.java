@@ -31,6 +31,10 @@ public class ComponentPanel extends Div {
 			String cat = comp.getCategoryName();
 			if(cat.toLowerCase().contains("misc"))
 				cat = "Miscellaneous";
+			else if(cat.equals("layout"))
+				cat = "Panel Stuff";
+			else if(cat.equals("panellayout"))
+				cat = "Layout Panels";
 
 			List<IFbComponent> l = cmap.get(cat);
 			if(l == null) {

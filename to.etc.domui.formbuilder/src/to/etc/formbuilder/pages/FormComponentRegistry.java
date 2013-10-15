@@ -9,6 +9,7 @@ import javax.annotation.*;
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.graph.*;
 import to.etc.domui.component.input.*;
+import to.etc.domui.component.panellayout.*;
 import to.etc.domui.dom.html.*;
 import to.etc.util.*;
 
@@ -36,6 +37,7 @@ final public class FormComponentRegistry {
 		registerComponent(DefaultButton.class);
 		registerComponent(SmallImgButton.class);
 		registerComponent(ColorPickerButton.class);
+		registerComponent(LayoutPanelBase.class);
 	}
 
 	@Nonnull
@@ -48,7 +50,7 @@ final public class FormComponentRegistry {
 		compl.add(component);
 		m_componentList = Collections.unmodifiableList(compl);
 
-		m_byNameMap.put(component.getLongName(), component);
+		m_byNameMap.put(component.getTypeID(), component);
 		if(null != rootClass) {
 			m_byNameMap.put(rootClass.getName(), component);
 		}
@@ -135,6 +137,9 @@ final public class FormComponentRegistry {
 	}
 
 	private AutoComponent autoRegister(@Nonnull Class< ? extends NodeBase> componentClass) {
+		if(ILayoutPanel.class.isAssignableFrom(componentClass))
+			return new AutoLayout(componentClass);
+
 		return new AutoComponent(componentClass);
 	}
 

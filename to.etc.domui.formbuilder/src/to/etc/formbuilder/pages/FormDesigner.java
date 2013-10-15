@@ -45,7 +45,7 @@ public class FormDesigner extends UrlPage {
 		left.setCssClass("fb-left");
 
 		setCssClass("fb-main");
-		m_paint = new PaintPanel(createRootLayout());
+		m_paint = new PaintPanel(r(), createRootLayout());
 		left.add(m_paint);
 
 		Div right = new Div();
@@ -76,14 +76,12 @@ public class FormDesigner extends UrlPage {
 
 	@Nonnull
 	private LayoutInstance createRootLayout() {
+		IFbComponent root = r().findComponent(LayoutPanelBase.class);
+		if(null == root)
+			throw new IllegalStateException("Cannot find default root layout container");
 
-
-		XYLayout xy = new XYLayout();
-		LayoutPanelBase root = new LayoutPanelBase(xy);						// Create a panel defaulting to XYLayout.
-
-
-
-
+		LayoutInstance li = new LayoutInstance((IFbLayout) root);
+		return li;
 	}
 
 

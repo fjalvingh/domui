@@ -46,6 +46,11 @@ public class AutoComponent implements IFbComponent {
 		m_categoryName = name;
 	}
 
+	@Override
+	public String getTypeID() {
+		return getLongName();
+	}
+
 	public void setSelectorImage(@Nonnull String image) {
 		m_selectorImage = image;
 	}
@@ -145,4 +150,9 @@ public class AutoComponent implements IFbComponent {
 //		// TODO Auto-generated method stub
 //		return null;
 //	}
+
+	@Override
+	public String toString() {
+		return "AutoComponent:" + getLongName();
+	}
 }

@@ -5,6 +5,9 @@ import javax.annotation.*;
 import to.etc.domui.dom.html.*;
 
 public interface IFbComponent {
+	@Nonnull
+	public String getTypeID();
+
 	public void drawSelector(@Nonnull NodeContainer container) throws Exception;
 
 	@Nonnull

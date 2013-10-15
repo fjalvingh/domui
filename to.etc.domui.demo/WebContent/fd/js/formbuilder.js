@@ -4,7 +4,7 @@ FormBuilder = function(id, paintid, compid) {
 	this._id = id;
 	this._paintid = paintid;
 	this._compid = compid;
-	this._componentMap = new Object();
+	this._componentTypeMap = new Object();
 	this._pendingUpdateList = new Array();
 	this.register();
 };
@@ -26,7 +26,7 @@ $.extend(FormBuilder.prototype, {
 				if(! comp)
 					return;
 				console.debug("comp=", comp);
-				fb.sendEvent("DropComponent", {id: comp._id, x:ui.position.left, y:ui.position.top});
+				fb.sendEvent("DropComponent", {typeName: comp._typeName, x:ui.position.left, y:ui.position.top});
 //	            $(ui.draggable).clone().appendTo(this);
 			}
 		});
@@ -42,9 +42,9 @@ $.extend(FormBuilder.prototype, {
 		WebUI.scall(this._id, action, fields);
 	},
 
-	registerComponent: function(handle) {
-		var comp = new FormComponent(this, handle);
-		this._componentMap[handle] = comp;
+	registerComponentType: function(handle, typename) {
+		var comp = new ComponentType(this, typename, handle);
+		this._componentTypeMap[typename] = comp;
 		var fb = this;
 
 		$("#"+handle).draggable({
@@ -84,9 +84,11 @@ $.extend(FormBuilder.prototype, {
 
 
 /*----- FormComponent -----*/
-FormComponent = function(builder, rootid) {
+ComponentType = function(builder, typename, rootid) {
 	this._builder = builder;
+	this._typeName = typename;
 	this._id = rootid;
+	
 };
 
 
