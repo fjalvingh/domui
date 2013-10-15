@@ -27,6 +27,8 @@ package to.etc.domui.util.images.machines;
 import java.io.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.util.images.converters.*;
 import to.etc.util.*;
 import to.etc.webapp.core.*;
@@ -40,7 +42,8 @@ final public class ImageMagicImageHandler implements ImageHandler {
 
 	static public final String GIF = "image/gif";
 
-	static private final String[] UNIXPATHS = {"/usr/bin", "/usr/local/bin", "/bin", "/opt/imagemagick"};
+	/** Locations for ImageMagick, from "unlikely" to "likely". DO NOT CHANGE THIS ORDER - it is important to be able to have a "customized" ImageMagick somewhere - so /usr/bin must be last, not first. */
+	static private final String[] UNIXPATHS = {"/opt/imagemagick", "/usr/local/bin", "/usr/bin", "/bin"};
 
 	static private final String[] WINDOWSPATHS = {"c:\\program files\\ImageMagick", "c:\\Windows"};
 
@@ -62,7 +65,11 @@ final public class ImageMagicImageHandler implements ImageHandler {
 	/** The current #of running tasks. */
 	private int m_numTasks;
 
-	private ImageMagicImageHandler() {}
+	private ImageMagicImageHandler(@Nonnull File ident, @Nonnull File convert, File filecommand) {
+		m_convert = convert;
+		m_identify = ident;
+		m_fileCommand = filecommand;
+	}
 
 	/**
 	 * This returns the ImageMagic manipulator *if* it is available. If
@@ -79,55 +86,81 @@ final public class ImageMagicImageHandler implements ImageHandler {
 		return File.separatorChar == '\\';
 	}
 
+	@Nonnull
+	static private String getExt() {
+		return onWindows() ? ".exe" : "";
+	}
+
 	/**
 	 * Initializes and checks to see if ImageMagick is present.
 	 * @return
 	 */
 	static private synchronized void initialize() {
 		m_initialized = true;
-		String ext = "";
 
+		//-- 1. First create a path list, so that we can find the "file" command and perhaps later ImageMagick on it.
+		//-- Create a path list. Start with hardcoded.
 		List<String> pathlist = new ArrayList<String>();
 		if(File.separatorChar == '\\') {
 			pathlist.addAll(Arrays.asList(WINDOWSPATHS));
-			ext = ".exe";
 		} else {
 			pathlist.addAll(Arrays.asList(UNIXPATHS));
-			ext = "";
 		}
-		String path = System.getenv("PATH");
-		if(path != null) {
-			String[] list = path.split("\\" + File.pathSeparator);
+
+		//-- Then append the system path
+		String s = System.getenv("PATH");
+		if(s != null) {
+			String[] list = s.split("\\" + File.pathSeparator);
 			if(list != null)
 				pathlist.addAll(Arrays.asList(list));
 		}
-		System.out.println("ImageMagickHandler: paths " + pathlist);
 
-		ImageMagicImageHandler m = new ImageMagicImageHandler();
-
-		//-- Locate the Linux 'file' command, if present,
-		for(String s : pathlist) {
-			File f = new File(s, "file" + ext);
+		//-- Locate the Linux 'file' command, if present, on the path
+		File filecommand = null;
+		for(String path : pathlist) {
+			File f = new File(path, "file" + getExt());
 			if(f.exists()) {
-				m.m_fileCommand = f;
+				filecommand = f;
 				break;
 			}
 		}
 
-		//-- Locate ImageMagick using predefined paths;
-		for(String s : pathlist) {
-			File f = new File(s, "convert" + ext);
-			if(f.exists()) {
-				m.m_convert = f;
-				f = new File(s, "identify" + ext);
-				if(f.exists()) {
-					m.m_identify = f;
-					m_instance = m;
-					return;
-				}
+		//-- Now try to locate imagemagick.
+		s = System.getenv("VP_MAGICK");                     // VP_MAGICK environment variable
+		if(!StringTool.isBlank(s)) {
+			File f = new File(s);
+			if(initMagick(f, filecommand))
+				return;
+		}
+
+		s = System.getProperty("vp.magick");
+		if(!StringTool.isBlank(s)) {
+			File f = new File(s);
+			if(initMagick(f, filecommand))
+				return;
+		}
+
+		//-- Locate ImageMagick using paths
+		for(String path : pathlist) {
+			File base = new File(path);
+			if(initMagick(base, filecommand))
+				return;
+		}
+		System.out.println("Error: ImageMagick not found in paths " + pathlist);
+	}
+
+	static private synchronized boolean initMagick(@Nonnull File base, @Nullable File filecommand) {
+		File convert = new File(base, "convert" + getExt());
+		if(convert.exists()) {
+			File ident = new File(base, "identify" + getExt());
+			if(ident.exists()) {
+				ImageMagicImageHandler h = new ImageMagicImageHandler(ident, convert, filecommand);
+				m_instance = h;
+				System.out.println("ImageMagick: using base=" + base);
+				return true;
 			}
 		}
-		System.out.println("Warning: ImageMagick not found.");
+		return false;
 	}
 
 	/**
