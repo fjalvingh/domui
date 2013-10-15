@@ -24,6 +24,7 @@
  */
 package to.etc.domui.dom.html;
 
+import java.lang.reflect.*;
 import java.util.*;
 
 import javax.annotation.*;
@@ -997,7 +998,19 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 			handleDrop(ctx);
 			return;
 		}
-		throw new IllegalStateException("The component " + this + " does not accept the web action " + action);
+
+		//-- Find a drop handler method.
+		String methodName = "webAction" + action;
+
+		Method drophandler = ClassUtil.findMethod(getClass(), methodName, RequestContextImpl.class);
+		if(null == drophandler)
+			throw new IllegalStateException("The component " + this + " does not accept the web action " + action + " (no method " + methodName + "(RequestContextImpl ctx) present)");
+
+		try {
+			drophandler.invoke(this, ctx);
+		} catch(InvocationTargetException itx) {
+			throw WrappedException.unwrap(itx);
+		}
 	}
 
 	public boolean acceptRequestParameter(@Nonnull final String[] values) throws Exception {
