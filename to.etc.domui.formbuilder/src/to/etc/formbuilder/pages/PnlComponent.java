@@ -33,5 +33,8 @@ public class PnlComponent extends Div {
 		Div d = new Div();
 		label.add(d);
 		d.add(new Span(m_component.getShortName()));
+
+		appendCreateJS("window._fb.registerComponent('" + getActualID() + "');");
+
 	}
 }
