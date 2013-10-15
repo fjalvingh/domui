@@ -84,6 +84,7 @@ public class PaintPanel extends Div {
 
 		li.addComponent(ci);
 		li.getRendered().add(ci.getRendered());
+		updateComponent(ci);
 
 
 	}

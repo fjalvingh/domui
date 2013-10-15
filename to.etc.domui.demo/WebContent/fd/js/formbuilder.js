@@ -83,10 +83,29 @@ $.extend(FormBuilder.prototype, {
 	},
 	
 	registerInstance: function(typeid, nodeid) {
+		$.dbg("registering instance "+typeid+":"+nodeid);
 		var type = this.getComponentType(typeid);
 		var node = $("#"+nodeid);
 		var inst = new ComponentInstance(this, type, node);
 		this._componentMap[nodeid] = inst;
+		
+		//-- Make the instance draggable too.
+		var fb = this;
+
+		$("#"+nodeid).draggable({
+			containment: "body",
+			appendTo: "body",
+			distance: 10,
+			helper: 'clone',
+//			helper: function() {
+//				var node = $("#"+handle).clone();
+//				fb._draggedComponent = comp;					// $.data does not work because stuff gets copied.
+//				return node;
+//			},
+			grid: [10, 10],
+			cursorAt: {left: 0, top: 0}
+		});
+
 	}
 	
 	

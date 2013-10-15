@@ -88,4 +88,7 @@
 .fb-ui-paint:hover {
 	background: white !important;
 }
+.fb-ui-button, .fb-ui-button:hover {
+	cursor: pointer;
+}
 
