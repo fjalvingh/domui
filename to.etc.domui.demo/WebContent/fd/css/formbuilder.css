@@ -40,6 +40,7 @@
 
 /*** Paint panel ***/
 .fd-pp {
+	position: relative;
 	background: url(gridbackground.png) repeat;
 	width: 100%;
 	height: 100%;

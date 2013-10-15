@@ -1,8 +1,11 @@
 package to.etc.formbuilder.pages;
 
+import java.awt.*;
+
 import javax.annotation.*;
 
 import to.etc.domui.component.misc.*;
+import to.etc.domui.component.panellayout.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
@@ -82,8 +85,9 @@ public class PaintPanel extends Div {
 		ComponentInstance ci = new ComponentInstance(component);			// Create the instance
 		LayoutInstance li = m_rootLayout;
 
+		LayoutPanelBase lpb = (LayoutPanelBase) li.getRendered();
 		li.addComponent(ci);
-		li.getRendered().add(ci.getRendered());
+		lpb.add(ci.getRendered(), new Point(x, y));
 		updateComponent(ci);
 
 

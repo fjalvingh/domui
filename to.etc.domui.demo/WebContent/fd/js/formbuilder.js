@@ -81,7 +81,7 @@ $.extend(FormBuilder.prototype, {
 			throw "Unknown component type "+typeid;
 		return type;
 	},
-	
+
 	registerInstance: function(typeid, nodeid) {
 		$.dbg("registering instance "+typeid+":"+nodeid);
 		var type = this.getComponentType(typeid);

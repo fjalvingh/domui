@@ -22,7 +22,6 @@ public class LayoutPanelBase extends Div implements ILayoutPanel {
 		m_layout = layout;
 	}
 
-
 	@Nonnull
 	@Override
 	public ILayoutManager getLayout() {
@@ -31,6 +30,10 @@ public class LayoutPanelBase extends Div implements ILayoutPanel {
 
 	public void setLayout(@Nonnull ILayoutManager layout) {
 		m_layout = layout;
+	}
+
+	public void add(@Nonnull NodeBase node, @Nonnull Object layoutOptions) {
+		getLayout().place(this, node, layoutOptions);
 	}
 
 
