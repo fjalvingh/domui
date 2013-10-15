@@ -5,6 +5,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.layout.*;
+import to.etc.domui.component.panellayout.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
 
@@ -44,7 +45,7 @@ public class FormDesigner extends UrlPage {
 		left.setCssClass("fb-left");
 
 		setCssClass("fb-main");
-		m_paint = new PaintPanel();
+		m_paint = new PaintPanel(createRootLayout());
 		left.add(m_paint);
 
 		Div right = new Div();
@@ -71,6 +72,18 @@ public class FormDesigner extends UrlPage {
 
 		appendCreateJS("WebUI.autoHeightReset('#" + topd.getActualID() + "','#" + cp.getActualID() + "', 0);");
 		appendCreateJS("FormBuilder.create('" + m_paint.getActualID() + "','" + cp.getActualID() + "');");
+	}
+
+	@Nonnull
+	private LayoutInstance createRootLayout() {
+
+
+		XYLayout xy = new XYLayout();
+		LayoutPanelBase root = new LayoutPanelBase(xy);						// Create a panel defaulting to XYLayout.
+
+
+
+
 	}
 
 

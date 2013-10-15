@@ -113,12 +113,13 @@ public class AutoComponent implements IFbComponent {
 	static final private Class< ? >[] PARAMCLZ = {String.class, Integer.class, Boolean.class};
 
 	public void checkInstantiation() throws Exception {
-		NodeBase instance = createInstance();
+		NodeBase instance = createNodeInstance();
 		instance.build();
 	}
 
+	@Override
 	@Nonnull
-	private NodeBase createInstance() throws Exception {
+	public NodeBase createNodeInstance() throws Exception {
 		Constructor< ? > cons = ClassUtil.findConstructor(m_componentClass);	// Parameterless constructor?
 		if(null != cons) {
 			NodeBase base = (NodeBase) cons.newInstance();
@@ -138,4 +139,10 @@ public class AutoComponent implements IFbComponent {
 		}
 		throw new IllegalStateException(m_componentClass + ": no idea how to make'un.");
 	}
+//
+//	@Override
+//	public ComponentInstance createInstance() throws Exception {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
 }

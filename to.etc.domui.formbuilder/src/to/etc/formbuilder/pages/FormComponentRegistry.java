@@ -24,7 +24,11 @@ final public class FormComponentRegistry {
 	@Nonnull
 	private Set<Class< ? >> m_ignoreSet = new HashSet<Class< ? >>();
 
+	@Nonnull
 	private List<IFbComponent> m_componentList = new ArrayList<IFbComponent>();
+
+	@Nonnull
+	private Map<String, IFbComponent> m_byNameMap = new HashMap<String, IFbComponent>();
 
 	public FormComponentRegistry() {
 		registerComponent(Text.class);
@@ -39,14 +43,30 @@ final public class FormComponentRegistry {
 		return m_instance;
 	}
 
-	public synchronized void register(@Nonnull IFbComponent component) {
+	public synchronized void register(@Nonnull IFbComponent component, @Nullable Class< ? > rootClass) {
 		List<IFbComponent> compl = new ArrayList<IFbComponent>(m_componentList);
 		compl.add(component);
 		m_componentList = Collections.unmodifiableList(compl);
+
+		m_byNameMap.put(component.getLongName(), component);
+		if(null != rootClass) {
+			m_byNameMap.put(rootClass.getName(), component);
+		}
 	}
 
+	@Nonnull
 	public synchronized List<IFbComponent> getComponentList() {
 		return m_componentList;
+	}
+
+	@Nullable
+	public synchronized IFbComponent findComponent(@Nonnull String name) {
+		return m_byNameMap.get(name);
+	}
+
+	@Nullable
+	public IFbComponent findComponent(@Nonnull Class< ? > clz) {
+		return m_byNameMap.get(clz.getName());
 	}
 
 	/**
@@ -111,7 +131,7 @@ final public class FormComponentRegistry {
 			return;
 		}
 
-		register(component);
+		register(component, componentClass);
 	}
 
 	private AutoComponent autoRegister(@Nonnull Class< ? extends NodeBase> componentClass) {

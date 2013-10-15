@@ -15,4 +15,7 @@ public interface IFbComponent {
 
 	@Nonnull
 	public String getCategoryName();
+
+	@Nonnull
+	public NodeBase createNodeInstance() throws Exception;
 }
