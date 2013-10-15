@@ -6,16 +6,10 @@ FormBuilder = function(id, paintid, compid) {
 	this._compid = compid;
 	this._componentTypeMap = new Object();
 	this._pendingUpdateList = new Array();
+	this._componentMap = new Object();
+	this._componentNodeMap = new Object();
 	this.register();
 };
-FormBuilder.create = function(paintid,compid) {
-	var pa = $('#'+paintid);
-	var co = $('#'+compid);
-	var fb = new FormBuilder(paintid, pa, co);
-
-	pa.data('fb', fb);
-};
-
 $.extend(FormBuilder.prototype, {
 	register: function() {
 		var fb = this;
@@ -60,7 +54,7 @@ $.extend(FormBuilder.prototype, {
 			cursorAt: {left: 0, top: 0}
 		});
 
-		var fb = this;
+//		var fb = this;
 //		this._instanceId = instid;
 //		$("#"+handle).draggable({
 //			containment: "body",
@@ -80,7 +74,31 @@ $.extend(FormBuilder.prototype, {
 
 		return node;
 	},
+	
+	getComponentType: function(typeid) {
+		var type = this._componentTypeMap[typeid];
+		if(! type)
+			throw "Unknown component type "+typeid;
+		return type;
+	},
+	
+	registerInstance: function(typeid, nodeid) {
+		var type = this.getComponentType(typeid);
+		var node = $("#"+nodeid);
+		var inst = new ComponentInstance(this, type, node);
+		this._componentMap[nodeid] = inst;
+	}
+	
+	
 });
+
+FormBuilder.create = function(paintid,compid) {
+	var pa = $('#'+paintid);
+	var co = $('#'+compid);
+	var fb = new FormBuilder(paintid, pa, co);
+
+	pa.data('fb', fb);
+};
 
 
 /*----- FormComponent -----*/
@@ -89,6 +107,13 @@ ComponentType = function(builder, typename, rootid) {
 	this._typeName = typename;
 	this._id = rootid;
 	
+};
+
+/*------ Component instance -----*/
+ComponentInstance = function(builder, type, node) {
+	this._builder = builder;
+	this._type = type;
+	this._node = node;
 };
 
 

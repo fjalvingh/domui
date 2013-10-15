@@ -45,6 +45,7 @@ public class PaintPanel extends Div {
 	private void renderLayout(@Nonnull NodeContainer target, LayoutInstance layout) throws Exception {
 		NodeContainer layoutc = layout.getRendered();
 		target.add(layoutc);
+		updateComponent(layout);
 
 		for(ComponentInstance ci : layout.getComponentList()) {
 			if(ci instanceof LayoutInstance) {
@@ -58,6 +59,11 @@ public class PaintPanel extends Div {
 	private void renderComponent(@Nonnull NodeContainer layoutc, @Nonnull ComponentInstance ci) throws Exception {
 		NodeBase inst = ci.getRendered();
 		layoutc.add(inst);
+		updateComponent(ci);
+	}
+
+	private void updateComponent(@Nonnull ComponentInstance ci) throws Exception {
+		appendJavascript("window._fb.registerInstance('" + ci.getComponentType().getTypeID() + "','" + ci.getRendered().getActualID() + "');");
 	}
 
 	public void webActionDropComponent(@Nonnull RequestContextImpl ctx) throws Exception {

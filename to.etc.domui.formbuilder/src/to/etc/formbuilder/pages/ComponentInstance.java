@@ -20,6 +20,11 @@ public class ComponentInstance {
 	}
 
 	@Nonnull
+	public IFbComponent getComponentType() {
+		return m_component;
+	}
+
+	@Nonnull
 	public NodeBase getRendered() throws Exception {
 		NodeBase nc = m_rendered;
 		if(null == nc) {

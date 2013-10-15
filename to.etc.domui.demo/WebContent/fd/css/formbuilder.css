@@ -80,3 +80,12 @@
 	height: 16px;
 	width: 16px;
 }
+
+/*** Component augmentation classes ***/
+.fb-ui-paint {
+	background: white;
+}
+.fb-ui-paint:hover {
+	background: white !important;
+}
+
