@@ -19,5 +19,13 @@ public class ComponentInstance {
 		m_component = component;
 	}
 
+	@Nonnull
+	public NodeBase getRendered() throws Exception {
+		NodeBase nc = m_rendered;
+		if(null == nc) {
+			nc = m_rendered = m_component.createNodeInstance();
+		}
+		return nc;
+	}
 
 }

@@ -33,6 +33,31 @@ public class PaintPanel extends Div {
 	@Override
 	public void createContent() throws Exception {
 		setCssClass("fd-pp");
+		renderLayout();
+
+
+	}
+
+	private void renderLayout() throws Exception {
+		renderLayout(this, m_rootLayout);
+	}
+
+	private void renderLayout(@Nonnull NodeContainer target, LayoutInstance layout) throws Exception {
+		NodeContainer layoutc = layout.getRendered();
+		target.add(layoutc);
+
+		for(ComponentInstance ci : layout.getComponentList()) {
+			if(ci instanceof LayoutInstance) {
+				renderLayout(layoutc, (LayoutInstance) ci);
+			} else {
+				renderComponent(layoutc, ci);
+			}
+		}
+	}
+
+	private void renderComponent(@Nonnull NodeContainer layoutc, @Nonnull ComponentInstance ci) throws Exception {
+		NodeBase inst = ci.getRendered();
+		layoutc.add(inst);
 	}
 
 	public void webActionDropComponent(@Nonnull RequestContextImpl ctx) throws Exception {
@@ -46,10 +71,13 @@ public class PaintPanel extends Div {
 			MsgBox.error(this, "Internal: no type '" + type + "'");
 			return;
 		}
-
 		System.out.println("Drop event: " + component + " @(" + x + "," + y + ")");
 
-		//-- Get what component we need to create.
+		ComponentInstance ci = new ComponentInstance(component);			// Create the instance
+		LayoutInstance li = m_rootLayout;
+
+		li.addComponent(ci);
+		li.getRendered().add(ci.getRendered());
 
 
 	}

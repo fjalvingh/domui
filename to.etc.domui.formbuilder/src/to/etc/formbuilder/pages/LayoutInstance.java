@@ -27,6 +27,24 @@ public class LayoutInstance extends ComponentInstance {
 		m_component = component;
 	}
 
+	@Nonnull
+	public List<ComponentInstance> getComponentList() {
+		return m_componentList;
+	}
+
+	public void addComponent(@Nonnull ComponentInstance ci) {
+		m_componentList.add(ci);
+	}
+
+	@Override
+	@Nonnull
+	public NodeContainer getRendered() throws Exception {
+		NodeContainer nc = m_rendered;
+		if(null == nc) {
+			nc = m_rendered = m_component.createNodeInstance();
+		}
+		return nc;
+	}
 
 
 }
