@@ -477,7 +477,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	}
 
 	/**
-	 * Return the current actual parent of this node. Is null if not attached to a parent yet.
+	 * Return the current actual parent of this node. Throws exception if not attached.
 	 * @return
 	 */
 	@Nonnull

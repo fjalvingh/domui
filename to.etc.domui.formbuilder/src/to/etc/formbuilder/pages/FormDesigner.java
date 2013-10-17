@@ -5,7 +5,6 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.layout.*;
-import to.etc.domui.component.panellayout.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
 
@@ -45,7 +44,7 @@ public class FormDesigner extends UrlPage {
 		left.setCssClass("fb-left");
 
 		setCssClass("fb-main");
-		m_paint = new PaintPanel(r(), createRootLayout());
+		m_paint = new PaintPanel(r());
 		left.add(m_paint);
 
 		Div right = new Div();
@@ -72,16 +71,6 @@ public class FormDesigner extends UrlPage {
 
 		appendCreateJS("WebUI.autoHeightReset('#" + topd.getActualID() + "','#" + cp.getActualID() + "', 0);");
 		appendCreateJS("FormBuilder.create('" + m_paint.getActualID() + "','" + cp.getActualID() + "');");
-	}
-
-	@Nonnull
-	private LayoutInstance createRootLayout() {
-		IFbComponent root = r().findComponent(LayoutPanelBase.class);
-		if(null == root)
-			throw new IllegalStateException("Cannot find default root layout container");
-
-		LayoutInstance li = new LayoutInstance((IFbLayout) root);
-		return li;
 	}
 
 

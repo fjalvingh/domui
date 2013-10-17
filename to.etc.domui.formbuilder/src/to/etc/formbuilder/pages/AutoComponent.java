@@ -161,7 +161,7 @@ public class AutoComponent implements IFbComponent {
 	public void forcePainterView(@Nonnull NodeBase node) {
 		if(node instanceof IHtmlInput) {
 //			((IHtmlInput) node).setDisabled(true);
-			node.setSpecialAttribute("onfocus", "return false;");
+//			node.setSpecialAttribute("onfocus", "return false;");
 			node.addCssClass("fb-ui-paint");
 		}
 		if(node instanceof Button) {

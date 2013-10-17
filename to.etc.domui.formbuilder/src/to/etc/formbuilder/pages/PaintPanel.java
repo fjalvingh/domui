@@ -1,7 +1,5 @@
 package to.etc.formbuilder.pages;
 
-import java.awt.*;
-
 import javax.annotation.*;
 
 import to.etc.domui.component.misc.*;
@@ -9,6 +7,7 @@ import to.etc.domui.component.panellayout.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
+import to.etc.domui.util.*;
 
 /**
  * This is the peer component of the painter representing the paint area.
@@ -17,15 +16,27 @@ import to.etc.domui.state.*;
  * Created on Oct 15, 2013
  */
 public class PaintPanel extends Div {
-	@Nonnull
-	final private LayoutInstance m_rootLayout;
+	@Nullable
+	private LayoutInstance m_rootLayout;
 
 	@Nonnull
 	final private FormComponentRegistry m_registry;
 
-	public PaintPanel(@Nonnull FormComponentRegistry registry, @Nonnull LayoutInstance rootLayout) {
+	@Nonnull
+	final private PageContainer m_pageContainer = new PageContainer();
+
+	public PaintPanel(@Nonnull FormComponentRegistry registry) {
 		m_registry = registry;
-		m_rootLayout = rootLayout;
+	}
+
+	private void createRootLayout() {
+		if(null != m_rootLayout)
+			return;
+		IFbComponent root = r().findComponent(LayoutPanelBase.class);
+		if(null == root)
+			throw new IllegalStateException("Cannot find default root layout container");
+		LayoutInstance li = pc().createLayout((IFbLayout) root);
+		m_rootLayout = li;
 	}
 
 	@Nonnull
@@ -33,8 +44,21 @@ public class PaintPanel extends Div {
 		return m_registry;
 	}
 
+	@Nonnull
+	private PageContainer pc() {
+		return m_pageContainer;
+	}
+
+	@Nonnull
+	private LayoutInstance root() {
+		if(null != m_rootLayout)
+			return m_rootLayout;
+		throw new IllegalStateException("Root layout not set");
+	}
+
 	@Override
 	public void createContent() throws Exception {
+		createRootLayout();
 		setCssClass("fd-pp");
 		renderLayout();
 
@@ -69,27 +93,50 @@ public class PaintPanel extends Div {
 		appendJavascript("window._fb.registerInstance('" + ci.getComponentType().getTypeID() + "','" + ci.getRendered().getActualID() + "');");
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Javascript actions.									*/
+	/*--------------------------------------------------------------*/
+	/**
+	 *
+	 * @param ctx
+	 * @throws Exception
+	 */
 	public void webActionDropComponent(@Nonnull RequestContextImpl ctx) throws Exception {
 		PageParameters pp = PageParameters.createFrom(ctx);
 		String type = pp.getString("typeName");
 		int x = pp.getInt("x");
 		int y = pp.getInt("y");
 
-		IFbComponent component = r().findComponent(type);
-		if(null == component) {
+		IFbComponent componentType = r().findComponent(type);
+		if(null == componentType) {
 			MsgBox.error(this, "Internal: no type '" + type + "'");
 			return;
 		}
-		System.out.println("Drop event: " + component + " @(" + x + "," + y + ")");
+		System.out.println("Drop event: " + componentType + " @(" + x + "," + y + ")");
 
-		ComponentInstance ci = new ComponentInstance(component);			// Create the instance
+		ComponentInstance ci = pc().createComponent(componentType);			// Create the instance
 		LayoutInstance li = m_rootLayout;
 
 		LayoutPanelBase lpb = (LayoutPanelBase) li.getRendered();
 		li.addComponent(ci);
-		lpb.add(ci.getRendered(), new Point(x, y));
+		lpb.add(ci.getRendered(), new IntPoint(x, y));
 		updateComponent(ci);
-
-
 	}
+
+	public void webActionMoveComponent(@Nonnull RequestContextImpl ctx) throws Exception {
+		PageParameters pp = PageParameters.createFrom(ctx);
+		String id = pp.getString("id");
+		int x = pp.getInt("x");
+		int y = pp.getInt("y");
+
+		ComponentInstance ci = pc().getComponent(id);
+		LayoutInstance layout = ci.getParent();
+		if(null == layout)
+			throw new IllegalStateException("Moving a thingy that is not part of a layout?");
+
+
+		layout.positionComponent(ci, new IntPoint(x, y));
+	}
+
+
 }

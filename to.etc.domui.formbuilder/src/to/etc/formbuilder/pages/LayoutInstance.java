@@ -4,7 +4,9 @@ import java.util.*;
 
 import javax.annotation.*;
 
+import to.etc.domui.component.panellayout.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.util.*;
 
 /**
  * This wraps a component that can contain other components using some kind
@@ -22,8 +24,8 @@ public class LayoutInstance extends ComponentInstance {
 	@Nonnull
 	final private List<ComponentInstance> m_componentList = new ArrayList<ComponentInstance>();
 
-	public LayoutInstance(@Nonnull IFbLayout component) {
-		super(component);
+	public LayoutInstance(@Nonnull PageContainer pc, @Nonnull String id, @Nonnull IFbLayout component) {
+		super(pc, id, component);
 		m_component = component;
 	}
 
@@ -33,7 +35,19 @@ public class LayoutInstance extends ComponentInstance {
 	}
 
 	public void addComponent(@Nonnull ComponentInstance ci) {
+		LayoutInstance oldparent = ci.getParent();
+		if(oldparent == this)
+			return;
+		if(oldparent != null) {
+			oldparent.removeComponent(ci);
+		}
 		m_componentList.add(ci);
+		ci.setParent(this);
+	}
+
+	public void removeComponent(@Nonnull ComponentInstance ci) {
+		if(m_componentList.remove(ci))
+			ci.setParent(null);
 	}
 
 	@Override
@@ -44,6 +58,11 @@ public class LayoutInstance extends ComponentInstance {
 			nc = m_rendered = m_component.createNodeInstance();
 		}
 		return nc;
+	}
+
+	public void positionComponent(ComponentInstance ci, IntPoint point) throws Exception {
+		LayoutPanelBase lpb = (LayoutPanelBase) getRendered();
+		lpb.getLayout().place(lpb, ci.getRendered(), point);
 	}
 
 

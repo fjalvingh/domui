@@ -10,25 +10,35 @@ FormBuilder = function(id, paintid, compid) {
 	this._componentNodeMap = new Object();
 	this.register();
 };
+
 $.extend(FormBuilder.prototype, {
 	register: function() {
 		var fb = this;
 		this._paintid.droppable({
 			activeClass: "fb-pp-drop",
 			drop: function(event, ui) {
-				var comp = fb._draggedComponent;
-				if(! comp)
-					return;
-				console.debug("comp=", comp);
-				var loc = ui.offset;
-				var toploc = fb._paintid.offset().top;
+				var comp = fb._draggedType;
+				if(comp) {
+					$.dbg("type drop=", comp);
+					var loc = ui.offset;
+					var toploc = fb._paintid.offset().top;
+	
+					fb.sendEvent("DropComponent", {typeName: comp._typeName, x:loc.left, y:loc.top-toploc});
+				}
+				comp = fb._draggedComponent;
+				if(comp) {
+					$.dbg("comp drop=", comp);
+					var loc = ui.offset;
+					var toploc = fb._paintid.offset().top;
+	
+					fb.sendEvent("MoveComponent", {id: comp._id, x:loc.left, y:loc.top-toploc});
+				}
 
-				fb.sendEvent("DropComponent", {typeName: comp._typeName, x:loc.left, y:loc.top-toploc});
 //	            $(ui.draggable).clone().appendTo(this);
 			}
 		});
 	},
-	
+
 	sendEvent: function(action, fields) {
 		var pupd = this._pendingUpdateList;
 		if(pupd.length > 0) {
@@ -50,7 +60,7 @@ $.extend(FormBuilder.prototype, {
 			distance: 20,
 			helper: function() {
 				var node = $("#"+handle).clone();
-				fb._draggedComponent = comp;					// $.data does not work because stuff gets copied.
+				fb._draggedType = comp;					// $.data does not work because stuff gets copied.
 				return node;
 			},
 			grid: [10, 10],
@@ -102,14 +112,14 @@ $.extend(FormBuilder.prototype, {
 			distance: 10,
 			helper: function() {
 				console.debug("Dragging started");
-				var node = $("#"+nodeid).clone();
-				fb._draggedComponent = null;						// Don't add/register
+				var node = $("#"+nodeid);
+				fb._draggedComponent = inst;				// We're dragging this instance
+				fb._draggedType = null;						// Don't add/register
 				return node;
 			},
 			grid: [10, 10],
 			cursorAt: {left: 0, top: 0}
 		});
-
 	}
 	
 	
@@ -133,9 +143,10 @@ ComponentType = function(builder, typename, rootid) {
 };
 
 /*------ Component instance -----*/
-ComponentInstance = function(builder, type, node) {
+ComponentInstance = function(builder, type, id, node) {
 	this._builder = builder;
 	this._type = type;
+	this._id = id;
 	this._node = node;
 };
 
