@@ -66,7 +66,7 @@ public class JsonClassType<T> implements ITypeMapping {
 			} else if(token == ReaderScannerBase.T_STRING) {
 				name = StringTool.strUnquote(reader.getCopied());
 			} else
-				throw new JsonParseException(reader, this, "Expecting a property name, got " + token);
+				throw new JsonParseException(reader, this, "Expecting a property name, got " + (char) token);
 
 			//-- Got a thingy. Must map to a class property.
 			PropertyMapping pm = m_map.get(name);
@@ -91,11 +91,12 @@ public class JsonClassType<T> implements ITypeMapping {
 			}
 
 			//--
-			token = reader.nextToken();
+			token = reader.getLastToken();
 			if(token == '}')
 				break;
 			else if(token != ',')
 				throw new JsonParseException(reader, this, "Missing ',' after property:value " + name);
+			reader.nextToken();
 		}
 		reader.nextToken();
 		return instance;
