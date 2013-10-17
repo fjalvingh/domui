@@ -33,6 +33,9 @@ public class JsonClassType<T> implements ITypeMapping {
 			if(null != value) {
 				if(ct++ > 0)
 					w.write(",");
+				w.append(pm.getName());
+				w.append(':');
+
 				pm.getMapper().render(w, value);
 			}
 		}
@@ -83,7 +86,7 @@ public class JsonClassType<T> implements ITypeMapping {
 					value = setter.invoke(instance, value);
 				} catch(Exception x) {
 					Exception nx = WrappedException.unwrap(x);
-					throw new RuntimeException("JSON decode failed for " + pm.getName() + ": " + nx, nx);
+					throw new RuntimeException("JSON decode failed for " + pm.getName() + " value " + value + ": " + nx, nx);
 				}
 			}
 

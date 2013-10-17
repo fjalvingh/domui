@@ -20,6 +20,7 @@ public class JsonReader extends ReaderTokenizerBase {
 		ITypeMapping mapping = m_registry.createMapping(typeClass, null);
 		if(null == mapping)
 			throw new IllegalStateException("Could not find a json mapping for " + typeClass);
+		nextToken();
 		return (T) mapping.parse(this);
 	}
 

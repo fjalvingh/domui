@@ -19,6 +19,8 @@ public class JsonData1 {
 		m_next = next;
 	}
 
+	public JsonData1() {}
+
 	public int getNumber1() {
 		return m_number1;
 	}
