@@ -20,7 +20,10 @@ $.extend(FormBuilder.prototype, {
 				if(! comp)
 					return;
 				console.debug("comp=", comp);
-				fb.sendEvent("DropComponent", {typeName: comp._typeName, x:ui.position.left, y:ui.position.top});
+				var loc = ui.offset;
+				var toploc = fb._paintid.offset().top;
+
+				fb.sendEvent("DropComponent", {typeName: comp._typeName, x:loc.left, y:loc.top-toploc});
 //	            $(ui.draggable).clone().appendTo(this);
 			}
 		});
