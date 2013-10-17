@@ -10,8 +10,12 @@ public class JsonWriter extends Writer {
 	@Nonnull
 	final private Writer m_writer;
 
-	public JsonWriter(@Nonnull Writer writer) {
+	@Nonnull
+	final private JsonTypeRegistry m_registry;
+
+	public JsonWriter(@Nonnull Writer writer, @Nonnull JsonTypeRegistry registry) {
 		m_writer = writer;
+		m_registry = registry;
 	}
 
 	@Override
@@ -39,5 +43,15 @@ public class JsonWriter extends Writer {
 		else {
 			StringTool.strToJavascriptString(m_writer, string, true);
 		}
+	}
+
+	public void render(@Nullable Object instance) throws Exception {
+		if(null == instance)
+			return;
+
+		ITypeMapping mapping = m_registry.createMapping(instance.getClass(), null);
+		if(null == mapping)
+			throw new IllegalStateException("Could not find a json mapping for " + instance.getClass());
+		mapping.render(this, instance);
 	}
 }

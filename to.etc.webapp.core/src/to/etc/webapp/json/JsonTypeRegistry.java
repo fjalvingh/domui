@@ -29,10 +29,15 @@ public class JsonTypeRegistry {
 		}
 	}
 
+	private Map<Class< ? >, ITypeMapping> m_classMap = new HashMap<Class< ? >, ITypeMapping>();
+
 	private Set<Entry> m_list = new TreeSet<Entry>(new Comparator<Entry>() {
 		@Override
 		public int compare(Entry a, Entry b) {
-			return a.getOrder() - b.getOrder();
+			int ct = a.getOrder() - b.getOrder();
+			if(ct != 0)
+				return ct;
+			return a.hashCode() - b.hashCode();
 		}
 	});
 
@@ -55,6 +60,8 @@ public class JsonTypeRegistry {
 		return null;
 	}
 
+	static private Set<String> IGNORESET = new HashSet<String>(Arrays.asList("class"));
+
 	public <T> ITypeMapping createMapping(@Nonnull Class<T> clz, @Nullable Type type) {
 		ITypeMapping tm = findFactory(clz, type);
 		if(null != tm)
@@ -63,23 +70,36 @@ public class JsonTypeRegistry {
 		if(clz.isPrimitive())
 			throw new IllegalStateException("No renderer for " + clz);
 
-		//-- Create a class type mapper.
+		//-- Create/get a class type mapper.
+		ITypeMapping cm = m_classMap.get(clz);
+		if(null != cm)
+			return cm;
+		JsonClassType<T> ct = new JsonClassType<T>(clz);
+		m_classMap.put(clz, ct);
+
 		List<PropertyInfo> props = ClassUtil.calculateProperties(clz);
 		Map<String, PropertyMapping> res = new HashMap<String, PropertyMapping>();
 		for(PropertyInfo pi : props) {
+			if(IGNORESET.contains(pi.getName()))
+				continue;
 			PropertyMapping pm = createPropertyMapper(clz, pi);
 			if(null != pm)
 				res.put(pm.getName(), pm);
 		}
-
-		return new JsonClassType<T>(clz, res);
+		ct.setMap(res);
+		return ct;
 	}
 
 	@Nullable
 	private <T> PropertyMapping createPropertyMapper(@Nonnull Class<T> type, @Nonnull PropertyInfo pi) {
-		ITypeMapping pm = findFactory(pi.getActualType(), pi.getActualGenericType());
-		if(null == pm)
-			return null;
-		return new PropertyMapping(pi.getGetter(), pi.getSetter(), pi.getName(), pm);
+		try {
+			ITypeMapping pm = createMapping(pi.getActualType(), pi.getActualGenericType());
+			if(null == pm)
+				return null;
+			return new PropertyMapping(pi.getGetter(), pi.getSetter(), pi.getName(), pm);
+		} catch(Exception x) {
+			throw new RuntimeException("In mapping " + pi.getName() + " of class " + type.getName() + ": " + x, x);
+		}
+
 	}
 }

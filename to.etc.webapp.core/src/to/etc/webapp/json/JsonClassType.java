@@ -13,9 +13,8 @@ public class JsonClassType<T> implements ITypeMapping {
 
 	private Map<String, PropertyMapping> m_map;
 
-	public JsonClassType(@Nonnull Class<T> rootClass, @Nonnull Map<String, PropertyMapping> res) {
+	public JsonClassType(@Nonnull Class<T> rootClass) {
 		m_rootClass = rootClass;
-		m_map = res;
 	}
 
 	@Override
@@ -97,5 +96,9 @@ public class JsonClassType<T> implements ITypeMapping {
 		}
 		reader.nextToken();
 		return instance;
+	}
+
+	public void setMap(@Nonnull Map<String, PropertyMapping> res) {
+		m_map = res;
 	}
 }

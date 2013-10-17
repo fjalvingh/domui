@@ -13,4 +13,9 @@ public class JSON {
 		return reader.parse(typeClass);
 	}
 
+	public <T> void render(@Nonnull Writer writer, @Nullable T instance) throws Exception {
+		JsonWriter w = (writer instanceof JsonWriter ? (JsonWriter) writer : new JsonWriter(writer, m_registry));
+		w.render(instance);
+	}
+
 }
