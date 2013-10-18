@@ -853,6 +853,18 @@ var WebUI = {
 		});
 	},
 
+	/**
+	 * Send a server request to a component, which will be handled by that component's componentHandleWebAction
+	 * method. The json data is sent as a string parameter with the name "json"; the response is handled as a normal
+	 * DomUI page request.
+	 * @returns void
+	 */
+	sendJsonAction: function(id, action, json) {
+		var fields = new Object();
+		fields.json = JSON.stringify(json);
+		WebUI.scall(id, action, fields);
+	},
+
 	clickandchange: function(h, id, evt) {
 		//-- Do not call upward handlers too.
 		if(! evt)

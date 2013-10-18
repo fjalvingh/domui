@@ -44,10 +44,7 @@ $.extend(FormBuilder.prototype, {
 		if(pupd.length > 0) {
 			this._pendingUpdateList = new Array();
 		}
-//		json.pending = pupd;
-		var fields = new Object();
-		fields.json = JSON.stringify(json);
-		WebUI.scall(this._id, action, fields);
+		WebUI.sendJsonAction(this._id, action, json);
 	},
 
 	registerComponentType: function(handle, typename) {
