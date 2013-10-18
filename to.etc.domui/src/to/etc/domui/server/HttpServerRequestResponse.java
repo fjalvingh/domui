@@ -219,6 +219,7 @@ public class HttpServerRequestResponse implements IRequestResponse {
 
 	@Override
 	public void addCookie(@Nonnull Cookie cookie) {
+		cookie.setDomain(NetTools.getHostName(getRequest()));
 		getResponse().addCookie(cookie);
 	}
 

@@ -246,11 +246,15 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				 * reloader event. In that case it's page shelve will be stored in the HttpSession or
 				 * perhaps in a state file. Try to resurrect that page shelve as to not lose the navigation history.
 				 */
-				HttpSession hs = ctx.getRequestResponse().getSession();
-				if(null != hs) {
-					String newid = cm.internalAttemptReload(hs, clz, PageParameters.createFrom(ctx), cida.getWindowId());
-					if(newid != null)
-						conversationId = newid;
+				if(ctx.getRequestResponse() instanceof HttpServerRequestResponse) {
+					HttpServerRequestResponse srr = (HttpServerRequestResponse) ctx.getRequestResponse();
+
+					HttpSession hs = srr.getRequest().getSession();
+					if(null != hs) {
+						String newid = cm.internalAttemptReload(hs, clz, PageParameters.createFrom(ctx), cida.getWindowId());
+						if(newid != null)
+							conversationId = newid;
+					}
 				}
 			}
 

@@ -34,7 +34,6 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.login.*;
 import to.etc.domui.server.*;
 import to.etc.domui.trouble.*;
-import to.etc.net.*;
 
 /**
  * A class which allows access to the page's context and related information. This
@@ -485,7 +484,6 @@ public class UIContext {
 		Cookie k = new Cookie(name, value);
 		k.setMaxAge(maxage);
 		k.setPath("/" + rci.getRequestResponse().getWebappContext());
-		k.setDomain(NetTools.getHostName(rci.getRequestResponse().get));
 		rci.getRequestResponse().addCookie(k);
 	}
 

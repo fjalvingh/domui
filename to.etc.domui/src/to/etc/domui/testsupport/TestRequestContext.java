@@ -141,11 +141,6 @@ public class TestRequestContext implements IRequestContext {
 	}
 
 	@Override
-	public String getRemoteUser() {
-		return "VPC";
-	}
-
-	@Override
 	public BrowserVersion getBrowserVersion() {
 		return null;
 	}
