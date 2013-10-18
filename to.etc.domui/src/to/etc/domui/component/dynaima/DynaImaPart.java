@@ -38,7 +38,7 @@ public class DynaImaPart implements IUnbufferedPartFactory {
 	@Override
 	public void generate(@Nonnull DomApplication app, @Nonnull String rurl, @Nonnull RequestContextImpl param) throws Exception {
 		DynaRenderer cpr = new DynaRenderer();
-		cpr.generate(app, param, rurl); // Decode input to get to the component in question.
+		cpr.generate(app, param, rurl);							// Decode input to get to the component in question.
 	}
 
 	static public class DynaRenderer extends ComponentPartRenderer {
@@ -67,15 +67,12 @@ public class DynaImaPart implements IUnbufferedPartFactory {
 			}
 
 			//-- Render output.
-			if(data == null) { // No data in image?
+			if(data == null) {									// No data in image?
 				throw new ThingyNotFoundException("No image in " + rurl);
 			}
 
-			param.getResponse().setContentType(mime);
-			if(size > 0)
-				param.getResponse().setContentLength(size);
-			OutputStream os = param.getResponse().getOutputStream();
-			FileTool.save(os, data); // Flush to output
+			OutputStream os = param.getRequestResponse().getOutputStream(mime, null, size);
+			FileTool.save(os, data); 							// Flush to output
 		}
 	}
 }

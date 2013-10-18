@@ -13,7 +13,9 @@ public class OpenStacktracePart implements IUnbufferedPartFactory {
 	@Override
 	public void generate(@Nonnull DomApplication app, @Nonnull String rurl, @Nonnull RequestContextImpl param) throws Exception {
 		//-- Get the stacktrace element,
-		HttpServletResponse r = param.getResponse();
+		if(!(param.getRequestResponse() instanceof HttpServerRequestResponse))
+			return;
+		HttpServletResponse r = ((HttpServerRequestResponse) param.getRequestResponse()).getResponse();
 		r.setStatus(200);
 		r.setContentType("application/json");
 		r.setCharacterEncoding("utf-8");

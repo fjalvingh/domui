@@ -133,10 +133,6 @@ public class CachedImagePart implements IUnbufferedPartFactory {
 	}
 
 	protected void generateImage(RequestContextImpl ri, FullImage fima) throws Exception {
-		ri.getResponse().setContentType(fima.getInfo().getMime());
-//		System.out.println("CachedImagePart: mime=" + fima.getInfo().getMime());
-		ri.getResponse().setContentLength(fima.getSource().getSize());
-
 		//-- Do we need a content-disposition header to force a filename/download?
 		String filename = ri.getParameter(PARAM_FILENAME);
 		String dis = ri.getParameter(PARAM_DISPOSITION);
@@ -150,10 +146,10 @@ public class CachedImagePart implements IUnbufferedPartFactory {
 				sb.append("filename=");
 				sb.append(filename);
 			}
-			ri.getResponse().addHeader("Content-Disposition", sb.toString());
+			ri.getRequestResponse().addHeader("Content-Disposition", sb.toString());
 		}
 
-		OutputStream os = ri.getResponse().getOutputStream();
+		OutputStream os = ri.getRequestResponse().getOutputStream(fima.getInfo().getMime(), null, fima.getSource().getSize());
 		InputStream is = null;
 		try {
 			if(fima.getSource() instanceof IImageMemorySource) {

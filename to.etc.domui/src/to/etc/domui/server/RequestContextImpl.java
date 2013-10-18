@@ -28,33 +28,24 @@ import java.io.*;
 import java.util.*;
 
 import javax.annotation.*;
-import javax.servlet.http.*;
 
 import to.etc.domui.state.*;
-import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.upload.*;
-import to.etc.net.*;
 import to.etc.util.*;
 
 public class RequestContextImpl implements IRequestContext, IAttributeContainer {
-	private HttpServletRequest m_request;
+	@Nonnull
+	final private DomApplication m_application;
 
-	private HttpServletResponse m_response;
+	@Nonnull
+	final private AppSession m_session;
 
-	private DomApplication m_application;
-
-	private AppSession m_session;
+	@Nonnull
+	final private IRequestResponse m_requestResponse;
 
 	private WindowSession m_windowSession;
 
-	private String m_urlin;
-
-	private String m_extension;
-
-	private String m_webapp;
-
-	//	private boolean					m_logging = true;
 	private StringWriter m_sw;
 
 	private Writer m_outWriter;
@@ -63,48 +54,36 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 
 	private Map<String, Object> m_attributeMap = Collections.EMPTY_MAP;
 
-	RequestContextImpl(DomApplication app, AppSession ses, HttpServletRequest request, HttpServletResponse response) {
-		m_response = response;
+	@Nonnull
+	final private String m_urlin;
+
+	@Nonnull
+	final private String m_extension;
+
+	public RequestContextImpl(@Nonnull IRequestResponse rr, @Nonnull DomApplication app, @Nonnull AppSession ses) {
+		m_requestResponse = rr;
 		m_application = app;
 		m_session = ses;
-		m_request = request;
 
-		//-- If this is a multipart (file transfer) request we need to parse the request,
-		m_urlin = request.getRequestURI();
-		int pos = m_urlin.lastIndexOf('.');
-		m_extension = "";
-		if(pos != -1)
-			m_extension = m_urlin.substring(pos + 1).toLowerCase();
-		//FIXME dubbele slashes in viewpoint, wellicht anders oplossen
-		while(m_urlin.startsWith("/"))
-			m_urlin = m_urlin.substring(1);
-		if(m_application.getUrlExtension().equals(m_extension) || m_urlin.contains(".part")) // QD Fix for upload
-			m_request = UploadParser.wrapIfNeeded(request); // Make multipart wrapper if multipart/form-data
+		//-- ViewPoint sends malconstructed URLs containing duplicated slashes.
+		String urlin = rr.getRequestURI();
+		while(urlin.startsWith("/"))
+			urlin = urlin.substring(1);
 
-		m_webapp = request.getContextPath();
-		if(m_webapp == null)
-			m_webapp = "";
-		else {
-			if(m_webapp.startsWith("/"))
-				m_webapp = m_webapp.substring(1);
-			if(!m_webapp.endsWith("/"))
-				m_webapp = m_webapp + "/";
-			if(!m_urlin.startsWith(m_webapp)) {
-				throw new IllegalStateException("webapp url incorrect: lousy SUN spec");
+		int pos = urlin.lastIndexOf('.');
+		m_extension = pos < 0 ? "" : urlin.substring(pos + 1).toLowerCase();
+
+		//-- Strip webapp name from url.
+		String webapp = rr.getWebappContext();						// Get "viewpoint/" like webapp context
+		if(webapp.length() > 0) {
+			if(!urlin.startsWith(webapp)) {
+				throw new IllegalStateException("webapp url '" + urlin + "' incorrect: it does not start with '" + webapp + "'");
 			}
-			m_urlin = m_urlin.substring(m_webapp.length());
-			while(m_urlin.startsWith("/"))
-				m_urlin = m_urlin.substring(1);
+			urlin = urlin.substring(webapp.length());
+			while(urlin.startsWith("/"))
+				urlin = urlin.substring(1);
 		}
-
-		//		for(Enumeration<String> en = m_request.getHeaderNames(); en.hasMoreElements();) {
-		//			String name = en.nextElement();
-		//			System.out.println("Header: "+name);
-		//			for(Enumeration<String> en2 = m_request.getHeaders(name); en2.hasMoreElements();) {
-		//				String val = en2.nextElement();
-		//				System.out.println("     ="+val);
-		//			}
-		//		}
+		m_urlin = urlin;
 	}
 
 	/**
@@ -117,17 +96,27 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 
 	private boolean m_amLockingSession;
 
+	private String m_outputContentType;
+
+	private String m_outputEncoding;
+
 	/**
 	 * Get the session for this context.
 	 * @see to.etc.domui.server.IRequestContext#getSession()
 	 */
 	@Override
 	final public @Nonnull AppSession getSession() {
-		m_session.internalLockSession(); // Someone uses session -> lock it for use by CURRENT-THREAD.
+		m_session.internalLockSession(); 						// Someone uses session -> lock it for use by CURRENT-THREAD.
 		if(!m_amLockingSession)
 			m_session.internalCheckExpiredWindowSessions();
 		m_amLockingSession = true;
 		return m_session;
+	}
+
+	@Override
+	@Nonnull
+	public IRequestResponse getRequestResponse() {
+		return m_requestResponse;
 	}
 
 	/**
@@ -181,17 +170,13 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 * If this was an upload we discard all files that have not yet been claimed.
 	 */
 	private void internalReleaseUploads() {
-		if(!(m_request instanceof UploadHttpRequestWrapper))
-			return;
-
-		UploadHttpRequestWrapper w = (UploadHttpRequestWrapper) m_request;
-		w.releaseFiles();
+		m_requestResponse.releaseUploads();
 	}
 
 	/**
 	 * Called for all requests that have used a RequestContextImpl. This releases all lazily-aquired resources.
 	 */
-	void onRequestFinished() {
+	public void internalOnRequestFinished() {
 		internalDetachConversations();
 		internalReleaseUploads();
 		//		m_session.getWindowSession().dump();
@@ -203,23 +188,17 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 * @see to.etc.domui.server.IRequestContext#getExtension()
 	 */
 	@Override
-	public @Nonnull String getExtension() {
+	@Nonnull
+	public String getExtension() {
 		return m_extension;
-	}
-
-	public HttpServletRequest getRequest() {
-		return m_request;
-	}
-
-	public HttpServletResponse getResponse() {
-		return m_response;
 	}
 
 	/**
 	 * @see to.etc.domui.server.IRequestContext#getInputPath()
 	 */
 	@Override
-	public final @Nonnull String getInputPath() {
+	@Nonnull
+	public final String getInputPath() {
 		return m_urlin;
 	}
 
@@ -228,7 +207,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 */
 	@Override
 	public String getUserAgent() {
-		return m_request.getHeader("user-agent");
+		return m_requestResponse.getUserAgent();
 	}
 
 	@Override
@@ -239,54 +218,30 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		return m_browserVersion;
 	}
 
-	protected void flush() throws Exception {
-		try {
-			if(m_sw != null) {
-				if(getApplication().logOutput()) {
-					String res = m_sw.getBuffer().toString();
-					File tgt = new File("/tmp/last-domui-output.xml");
-					try {
-						FileTool.writeFileFromString(tgt, res, "utf-8");
-					} catch(Exception x) {}
+	public void flush() throws Exception {
+		if(m_sw != null) {
+			if(getApplication().logOutput()) {
+				String res = m_sw.getBuffer().toString();
+				File tgt = new File("/tmp/last-domui-output.xml");
+				try {
+					FileTool.writeFileFromString(tgt, res, "utf-8");
+				} catch(Exception x) {}
 
-					System.out.println("---- rendered output:");
-					System.out.println(res);
-					System.out.println("---- end");
-				}
-
-				//-- debug: flush in small parts and delay.
-				if(false) {
-					int fnr = 0;
-					StringBuffer buffer = m_sw.getBuffer();
-					int len = buffer.length();
-					int six = 0;
-					int xf = (len + 65535) / 65536;
-					while(six < len) {
-						if(six > 0) {
-							System.out.println(" ..... wrote fragment " + fnr + " of " + xf);
-							Thread.sleep(250);
-						}
-
-						int eix = six + 65536;
-						if(eix > len)
-							eix = len;
-						String frag = buffer.substring(six, eix);
-						getResponse().getWriter().append(frag);
-						six = eix;
-						fnr++;
-					}
-					System.out.println("              .... all done");
-				} else {
-					getResponse().getWriter().append(m_sw.getBuffer());
-				}
-				m_sw = null;
+				System.out.println("---- rendered output:");
+				System.out.println(res);
+				System.out.println("---- end");
 			}
-		} catch(IOException ioe) {
-			throw new ClientDisconnectedException(ioe);
+			String outputContentType = m_outputContentType;
+			if(null == outputContentType)
+				throw new IllegalStateException("The content type for buffered output is not set.");
+			Writer ow = getRequestResponse().getOutputWriter(outputContentType, m_outputEncoding);
+			ow.append(m_sw.getBuffer());
+			m_sw = null;
 		}
 	}
 
-	protected void discard() throws IOException {
+
+	public void discard() throws IOException {
 	//		if(m_sw != null) {
 	//			String res = m_sw.getBuffer().toString();
 	//			System.out.println("---- rendered output:");
@@ -301,8 +256,8 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 */
 	@Override
 	public @Nonnull String getRelativePath(@Nonnull String rel) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(NetTools.getApplicationURL(getRequest()));
+		StringBuilder sb = new StringBuilder(rel.length() + 128);
+		sb.append(m_requestResponse.getApplicationURL());
 		sb.append(rel);
 		return sb.toString();
 	}
@@ -316,10 +271,19 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	}
 
 	/**
+	 * This returns a fully buffered output writer. Flush will write data
+	 * to the "real" output stream.
 	 * @see to.etc.domui.server.IRequestContext#getOutputWriter()
 	 */
 	@Override
-	public @Nonnull Writer getOutputWriter() throws IOException {
+	@Nonnull
+	public Writer getOutputWriter(@Nonnull String contentType, @Nullable String encoding) throws IOException {
+		if(m_outWriter != null)
+			throw new IllegalStateException("Output writer already created");
+
+		m_outputContentType = contentType;
+		m_outputEncoding = encoding;
+
 		if(m_outWriter == null) {
 			m_sw = new StringWriter(8192);
 			m_outWriter = m_sw;
@@ -336,9 +300,27 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		//		return m_outWriter;
 	}
 
+	/**
+	 * Send a redirect response to the client.
+	 * @param newUrl
+	 */
+	public void redirect(@Nonnull String newUrl) throws Exception {
+		getRequestResponse().redirect(newUrl);
+	}
+
+	/**
+	 * Send an error back to the client.
+	 * @param httpErrorCode
+	 * @param message
+	 */
+	public void sendError(int httpErrorCode, @Nonnull String message) throws Exception {
+		getRequestResponse().sendError(httpErrorCode, message);
+	}
+
 	@Override
-	public boolean hasPermission(@Nonnull String permissionName) {
-		return m_request.isUserInRole(permissionName);
+	@Nullable
+	public IServerSession getServerSession(boolean create) {
+		return getRequestResponse().getServerSession(create);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -351,15 +333,16 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	@Override
 	@Nullable
 	public String getParameter(@Nonnull String name) {
-		return getRequest().getParameter(name);
+		return m_requestResponse.getParameter(name);
 	}
 
 	/**
 	 * @see to.etc.domui.server.IRequestContext#getParameters(java.lang.String)
 	 */
 	@Override
+	@Nonnull
 	public String[] getParameters(@Nonnull String name) {
-		return getRequest().getParameterValues(name);
+		return m_requestResponse.getParameters(name);
 	}
 
 	/**
@@ -368,7 +351,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	@Override
 	@Nonnull
 	public String[] getParameterNames() {
-		return (String[]) getRequest().getParameterMap().keySet().toArray(new String[getRequest().getParameterMap().size()]);
+		return m_requestResponse.getParameterNames();
 	}
 
 	/**
@@ -376,24 +359,23 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 * @return
 	 */
 	public String[] getFileParameters() {
-		if(!(m_request instanceof UploadHttpRequestWrapper))
-			return new String[0];
-		UploadHttpRequestWrapper urw = (UploadHttpRequestWrapper) m_request;
-		return urw.getFileItemMap().keySet().toArray(new String[urw.getFileItemMap().size()]);
+		return m_requestResponse.getFileParameters();
 	}
 
-	public UploadItem[] getFileParameter(String name) {
-		if(!(m_request instanceof UploadHttpRequestWrapper))
-			return null;
-		UploadHttpRequestWrapper urw = (UploadHttpRequestWrapper) m_request;
-		return urw.getFileItems(name);
+	public UploadItem[] getFileParameter(@Nonnull String name) {
+		return m_requestResponse.getFileParameter(name);
 	}
 
-	@Override
-	public String getRemoteUser() {
-		return getRequest().getRemoteUser();
-	}
-
+//	/**
+//	 * DO NOT USE - functionality only present for declarative security.
+//	 * @see to.etc.domui.server.IRequestContext#getRemoteUser()
+//	 */
+//	@Deprecated
+//	@Override
+//	public String getRemoteUser() {
+//		return getRequest().getRemoteUser();
+//	}
+//
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IAttributeContainer implementation.					*/
 	/*--------------------------------------------------------------*/
@@ -415,4 +397,5 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		else
 			m_attributeMap.put(name, value);
 	}
+
 }

@@ -44,7 +44,6 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
 import to.etc.domui.trouble.*;
-import to.etc.net.*;
 import to.etc.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.nls.*;
@@ -464,7 +463,7 @@ final public class DomUtil {
 	 * @return
 	 */
 	static public String getApplicationURL() {
-		return NetTools.getApplicationURL(((RequestContextImpl) UIContext.getRequestContext()).getRequest());
+		return ((RequestContextImpl) UIContext.getRequestContext()).getRequestResponse().getApplicationURL();
 	}
 
 	/**
@@ -473,7 +472,7 @@ final public class DomUtil {
 	 * @return
 	 */
 	static public String getApplicationContext() {
-		return NetTools.getApplicationContext(((RequestContextImpl) UIContext.getRequestContext()).getRequest());
+		return ((RequestContextImpl) UIContext.getRequestContext()).getRequestResponse().getWebappContext();
 	}
 
 	/**
@@ -606,6 +605,7 @@ final public class DomUtil {
 		}
 		return sb.toString();
 	}
+
 
 	/**
 	 * Calculate a full URL from a rurl. If the rurl starts with a scheme it is returned verbatim;

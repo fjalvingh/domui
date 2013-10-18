@@ -51,9 +51,7 @@ public class JsonWebActionFactory implements WebActionRegistry.IFactory {
 	 * @throws Exception
 	 */
 	static public void renderResponse(@Nonnull Method calledMethod, @Nonnull RequestContextImpl ctx, @Nullable Object response) throws Exception {
-		ctx.getResponse().setContentType("application/javascript; charset=UTF-8");
-		ctx.getResponse().setCharacterEncoding("UTF-8");
-		Writer out = ctx.getResponse().getWriter();
+		Writer out = ctx.getRequestResponse().getOutputWriter("application/javascript; charset=UTF-8", "utf-8");
 		try {
 			JSON.render(out, response);
 		} finally {

@@ -101,8 +101,7 @@ public class AppFilter implements Filter {
 			//			NlsContext.setLocale(new Locale("nl", "NL"));
 			initContext(req);
 
-			if(m_contextMaker.handleRequest(rq, (HttpServletResponse) res, chain))
-				return;
+			m_contextMaker.handleRequest(rq, (HttpServletResponse) res, chain);
 		} catch(RuntimeException x) {
 			DomUtil.dumpException(x);
 			throw x;
@@ -199,6 +198,7 @@ public class AppFilter implements Filter {
 			//FIXME: this uses Viewpoint specific location (%approot%/Private) and needs to be fixed later.
 			File logConfigLocation = new File(approot, "Private" + File.separator + "etcLog");
 			new File(logConfigLocation, EtcLoggerFactory.CONFIG_FILENAME);
+
 			//-- logger config location should always exist (FIXME: check if under LINUX it needs to be created in some special way to have write rights for tomcat user)
 			logConfigLocation.mkdirs();
 			if(logConfigXml != null && EtcLoggerFactory.getSingleton().tryLoadConfigFromXml(logConfigLocation, logConfigXml)) {
@@ -215,6 +215,7 @@ public class AppFilter implements Filter {
 			x.printStackTrace();
 			throw x;
 		}
+
 		try {
 			m_logRequest = DeveloperOptions.getBool("domui.logurl", false);
 
@@ -223,7 +224,7 @@ public class AppFilter implements Filter {
 			if(!approot.exists() || !approot.isDirectory())
 				throw new IllegalStateException("Internal: cannot get webapp root directory");
 
-			m_config = new ConfigParameters(config, approot);
+			m_config = new FilterConfigParameters(config, approot);
 
 			//-- Handle application construction
 			m_applicationClassName = getApplicationClassName(m_config);

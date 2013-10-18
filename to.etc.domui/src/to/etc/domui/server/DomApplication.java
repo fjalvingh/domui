@@ -389,6 +389,16 @@ public abstract class DomApplication {
 	}
 
 	/**
+	 * Can be overridden to create your own instance of a session.
+	 * @return
+	 */
+	@Nonnull
+	public AppSession createSession() {
+		AppSession aps = new AppSession(this);
+		return aps;
+	}
+
+	/**
 	 * Called when the session is bound to the HTTPSession. This calls all session listeners.
 	 * @param sess
 	 */
