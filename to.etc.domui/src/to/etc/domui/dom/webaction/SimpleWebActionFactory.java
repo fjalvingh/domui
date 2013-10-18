@@ -18,10 +18,9 @@ public class SimpleWebActionFactory implements WebActionRegistry.IFactory {
 	@Override
 	@Nullable
 	public IWebActionHandler createHandler(@Nonnull Class< ? extends NodeBase> nodeClass, @Nonnull String actionCode) {
-		String name = "webAction" + actionCode;
-		Method method = ClassUtil.findMethod(nodeClass, name, RequestContextImpl.class);
+		Method method = ClassUtil.findMethod(nodeClass, actionCode, RequestContextImpl.class);
 		if(null == method) {
-			method = ClassUtil.findMethod(nodeClass, name, IRequestContext.class);
+			method = ClassUtil.findMethod(nodeClass, actionCode, IRequestContext.class);
 			if(null == method)
 				return null;
 		}

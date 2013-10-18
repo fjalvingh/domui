@@ -23,10 +23,8 @@ public class JsonWebActionFactory implements WebActionRegistry.IFactory {
 	@Override
 	@Nullable
 	public IWebActionHandler createHandler(@Nonnull Class< ? extends NodeBase> node, @Nonnull String actionCode) {
-		String name = "webAction"+actionCode;
-
 		for(Method m: node.getMethods()) {
-			if(m.getName().equals(name)) {
+			if(m.getName().equals(actionCode)) {
 				Class< ? >[] par = m.getParameterTypes();
 				if(par.length == 1) {
 					Class< ? > formal = par[0];
