@@ -748,7 +748,7 @@ var WebUI = {
 		
 		$.ajax( {
 			url :DomUI.getPostURL(),
-			dataType :"text/xml",
+			dataType :"*",
 			data :fields,
 			cache :false,
 			type: "POST",
@@ -771,7 +771,7 @@ var WebUI = {
 
 		$.ajax( {
 			url :DomUI.getPostURL(),
-			dataType :"text/xml",
+			dataType :"*",
 			data :fields,
 			cache :false,
 			type: "POST",
@@ -811,7 +811,7 @@ var WebUI = {
 
 		$.ajax( {
 			url :DomUI.getPostURL(),
-			dataType :"text/xml",
+			dataType :"*",
 			data :fields,
 			cache :false,
 			type: "POST",
@@ -1124,7 +1124,7 @@ var WebUI = {
 
 			$.ajax( {
 				url :DomUI.getPostURL(),
-				dataType :"text/xml",
+				dataType :"*",
 				data :fields,
 				cache :false,
 				type: "POST",
@@ -1169,7 +1169,7 @@ var WebUI = {
 
 		$.ajax( {
 			url :DomUI.getPostURL(),
-			dataType :"text/xml",
+			dataType :"*",
 			data :fields,
 			cache :false,
 			type: "POST",
@@ -1214,6 +1214,7 @@ var WebUI = {
 			return;
 
 		WebUI._asyalerted = true;
+		console.log("asy error: "+status, exc);
 		
 		var txt = request.responseText || "No response - status="+status;
 		if(txt.length > 512)
@@ -1759,7 +1760,7 @@ var WebUI = {
 
 		$.ajax( {
 			url :window.location.href,
-			dataType :"text/xml",
+			dataType :"*", // "text/xml",
 			data :fields,
 			cache :false,
 			global: false, // jal 20091015 prevent block/unblock on polling call.
@@ -1780,7 +1781,7 @@ var WebUI = {
 		fields["$cid"] = DomUICID;
 		$.ajax( {
 			url: url,
-			dataType: "text/xml",
+			dataType: "*",
 			data: fields,
 			cache: false,
 			global: false, // jal 20091015 prevent block/unblock on polling call.

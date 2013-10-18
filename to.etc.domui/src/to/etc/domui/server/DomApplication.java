@@ -147,8 +147,6 @@ public abstract class DomApplication {
 	@Nonnull
 	private List<IHtmlRenderFactory> m_renderFactoryList = new ArrayList<IHtmlRenderFactory>();
 
-	final private String m_scriptVersion;
-
 	@Nonnull
 	private List<IResourceFactory> m_resourceFactoryList = Collections.EMPTY_LIST;
 
@@ -195,15 +193,47 @@ public abstract class DomApplication {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Initialization and session management.				*/
 	/*--------------------------------------------------------------*/
+	static private String[][] JQUERYSETS = {												//
+		{"1.4.4", "jquery-1.4.4", "jquery.js", "jquery-ui.js"},								//
+		{"1.10.2", "jquery-1.10.2", "jquery.js", "jquery-ui.js", "jquery-migrate.js"},		//
+
+	};
+
+	@Nonnull
+	private String m_jQueryVersion;
+
+	@Nonnull
+	private List<String> m_jQueryScripts;
+
+	@Nonnull
+	private String m_jQueryPath;
+
 	/**
 	 * The only constructor.
 	 */
 	public DomApplication() {
-		m_scriptVersion = DeveloperOptions.getString("domui.scriptversion", "jquery-1.4.4");
+		//-- Handle jQuery version.
+		String jqversion = DeveloperOptions.getString("domui.jqueryversion", "1.10.2");
+		String[] jqdata = null;
+		for(String[] jqd : JQUERYSETS) {
+			if(jqd[0].equalsIgnoreCase(jqversion)) {
+				jqdata = jqd;
+				break;
+			}
+		}
+		if(null == jqdata || null == jqversion)
+			throw new IllegalStateException("jQuery version '" + jqversion + "' not supported");
+		m_jQueryVersion = jqversion;
+		m_jQueryPath = jqdata[1];
+		List<String> jqp = new ArrayList<String>(jqdata.length - 2);
+		for(int i = 2; i < jqdata.length; i++)
+			jqp.add(jqdata[i]);
+		m_jQueryScripts = jqp;
+
 		registerControlFactories();
 		registerPartFactories();
 		initHeaderContributors();
-		addRenderFactory(new MsCrapwareRenderFactory()); // Add html renderers for IE <= 8
+		addRenderFactory(new MsCrapwareRenderFactory()); 						// Add html renderers for IE <= 8
 		addExceptionListener(QNotFoundException.class, new IExceptionListener() {
 			@Override
 			public boolean handleException(final IRequestContext ctx, final Page page, final NodeBase source, final Throwable x) throws Exception {
@@ -493,8 +523,18 @@ public abstract class DomApplication {
 		return (Class< ? extends UrlPage>) clz;
 	}
 
+	@Nonnull
 	public String getScriptVersion() {
-		return m_scriptVersion;
+		return m_jQueryPath;
+	}
+
+	@Nonnull
+	public List<String> getJQueryScripts() {
+		return m_jQueryScripts;
+	}
+
+	public String getJQueryVersion() {
+		return m_jQueryVersion;
 	}
 
 	/*--------------------------------------------------------------*/
@@ -724,8 +764,10 @@ public abstract class DomApplication {
 	/*--------------------------------------------------------------*/
 
 	protected void initHeaderContributors() {
-		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery.js"), -1000);
-		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery-ui.js"), -1000);
+		int order = -1200;
+		for(String jqresource : getJQueryScripts()) {
+			addHeaderContributor(HeaderContributor.loadJavascript("$js/" + jqresource), order++);
+		}
 
 		//		addHeaderContributor(HeaderContributor.loadJavascript("$js/ui.core.js"), -990);
 		//		addHeaderContributor(HeaderContributor.loadJavascript("$js/ui.draggable.js"), -980);
