@@ -6,10 +6,10 @@ import javax.annotation.*;
 
 import to.etc.lexer.*;
 
-public class JsonIntFactory implements IJsonTypeFactory {
+public class JsonLongFactory implements IJsonTypeFactory {
 	@Override
 	public ITypeMapping createMapper(@Nonnull JsonTypeRegistry registry, @Nonnull Class< ? > typeClass, @Nullable Type type) {
-		if(typeClass == Integer.class || typeClass == int.class) {
+		if(typeClass == Long.class || typeClass == long.class) {
 			return new ITypeMapping() {
 				@Override
 				public void render(@Nonnull JsonWriter w, @Nonnull Object instance) throws Exception {
@@ -20,8 +20,8 @@ public class JsonIntFactory implements IJsonTypeFactory {
 				@Override
 				public Object parse(@Nonnull JsonReader reader) throws Exception {
 					if(reader.getLastToken() != ReaderScannerBase.T_NUMBER)
-						throw new JsonParseException(reader, this, "Expecting an integer but got " + reader.getTokenString());
-					Integer res = Integer.decode(reader.getCopied());
+						throw new JsonParseException(reader, this, "Expecting a long integer but got " + reader.getTokenString());
+					Long res = Long.decode(reader.getCopied());
 					reader.nextToken();
 					return res;
 				}
@@ -29,4 +29,5 @@ public class JsonIntFactory implements IJsonTypeFactory {
 		}
 		return null;
 	}
+
 }

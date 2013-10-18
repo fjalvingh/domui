@@ -44,6 +44,10 @@ public class JsonWriter extends Writer {
 		m_writer.append(value.toString());
 	}
 
+	public void writeLong(long value) throws Exception {
+		m_writer.append(Long.toString(value));
+	}
+
 	public void writeString(@Nullable String string) throws Exception {
 		if(null == string)
 			write("null");

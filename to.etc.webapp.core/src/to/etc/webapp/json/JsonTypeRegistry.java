@@ -43,7 +43,15 @@ public class JsonTypeRegistry {
 
 	public JsonTypeRegistry() {
 		register(1000, new JsonIntFactory());
-		register(1000, new JsonStringTypeFactory());
+		register(1000, new JsonStringFactory());
+		register(1000, new JsonLongFactory());
+		register(1000, new JsonBooleanFactory());
+		register(1000, new JsonUtcDateFactory());
+		register(1000, new JsonEnumFactory());
+		register(1000, new JsonListFactory());
+		register(1000, new JsonSetFactory());
+		register(1000, new JsonArrayFactory());
+//		register(1000, new JsonFactory());
 	}
 
 	public synchronized void register(int order, @Nonnull IJsonTypeFactory factory) {
@@ -53,7 +61,7 @@ public class JsonTypeRegistry {
 	@Nullable
 	public synchronized ITypeMapping findFactory(@Nonnull Class< ? > typeClass, @Nullable Type type) {
 		for(Entry e: m_list) {
-			ITypeMapping mapper = e.getFactory().createMapper(typeClass, type);
+			ITypeMapping mapper = e.getFactory().createMapper(this, typeClass, type);
 			if(null != mapper)
 				return mapper;
 		}
@@ -62,6 +70,7 @@ public class JsonTypeRegistry {
 
 	static private Set<String> IGNORESET = new HashSet<String>(Arrays.asList("class"));
 
+	@Nullable
 	public <T> ITypeMapping createMapping(@Nonnull Class<T> clz, @Nullable Type type) {
 		ITypeMapping tm = findFactory(clz, type);
 		if(null != tm)

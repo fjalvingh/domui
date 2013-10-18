@@ -7,9 +7,9 @@ import javax.annotation.*;
 import to.etc.lexer.*;
 import to.etc.util.*;
 
-public class JsonStringTypeFactory implements IJsonTypeFactory {
+public class JsonStringFactory implements IJsonTypeFactory {
 	@Override
-	public ITypeMapping createMapper(@Nonnull Class< ? > typeClass, @Nullable Type type) {
+	public ITypeMapping createMapper(@Nonnull JsonTypeRegistry registry, @Nonnull Class< ? > typeClass, @Nullable Type type) {
 		if(String.class == typeClass) {
 			return new ITypeMapping() {
 
@@ -21,7 +21,7 @@ public class JsonStringTypeFactory implements IJsonTypeFactory {
 				@Override
 				public Object parse(@Nonnull JsonReader reader) throws Exception {
 					if(reader.getLastToken() != ReaderScannerBase.T_STRING)
-						throw new JsonParseException(reader, this, "Expecting a string");
+						throw new JsonParseException(reader, this, "Expecting a string but got " + reader.getTokenString());
 					String res = StringTool.strUnquote(reader.getCopied());
 					reader.nextToken();
 					return res;
@@ -31,5 +31,4 @@ public class JsonStringTypeFactory implements IJsonTypeFactory {
 		}
 		return null;
 	}
-
 }
