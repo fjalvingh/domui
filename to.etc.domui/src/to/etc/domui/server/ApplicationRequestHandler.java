@@ -475,7 +475,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 */
 	private void runComponentAction(@Nonnull RequestContextImpl ctx, @Nonnull Page page, @Nonnull String action) throws Exception {
 		m_application.internalCallPageAction(ctx, page);
-		page.callRequestStarted();
+//		page.callRequestStarted();
 		try {
 			NodeBase wcomp = null;
 			String wid = ctx.getParameter("webuic");
@@ -487,7 +487,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			page.setTheCurrentNode(wcomp);
 			wcomp.componentHandleWebDataRequest(ctx, action);
 		} finally {
-			page.callRequestFinished();
+//			page.callRequestFinished();
 			page.setTheCurrentNode(null);
 		}
 	}
