@@ -52,7 +52,7 @@ public class JsonWriter extends Writer {
 		if(null == string)
 			write("null");
 		else {
-			StringTool.strToJavascriptString(m_writer, string, true);
+			StringTool.strToJavascriptString(m_writer, string, false);
 		}
 	}
 

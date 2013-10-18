@@ -10,6 +10,7 @@ import to.etc.util.*;
 public class TestJson {
 	@Test
 	public void testRoundTrip1() throws Exception {
+		// 1. Create structure.
 		JsonData1 d1 = new JsonData1(123, 456, "Hello", null, null);
 		JsonData1 d2 = new JsonData1(666, 777, "World", null, d1);
 		List<Long> nl = d2.getList2();
@@ -24,32 +25,35 @@ public class TestJson {
 		cl.add(new JsonData1(14, 83, "Bleh3", null, null));
 		cl.add(new JsonData1(15, 84, "Bleh4", null, null));
 
-		JSON json = new JSON();
+		//-- 2. Render it initially as a string.
 		StringWriter sw = new StringWriter();
-		json.render(new IndentWriter(sw), d2);
-
+		JSON.render(new IndentWriter(sw), d2);
 		String io = sw.getBuffer().toString();
 		System.out.println(io);
 
-		//-- Reverse
+		//-- 3. Parse that string, now.
 		StringReader sr = new StringReader(io);
+		JsonData1 data = JSON.decode(JsonData1.class, sr);
 
-		JsonData1 data = json.decode(JsonData1.class, sr);
-
+		//-- 4. Then re-render.
+		sw.getBuffer().setLength(0);
+		JSON.render(new IndentWriter(sw), d2);
+		String io2 = sw.getBuffer().toString();
+		Assert.assertEquals(io, io2);
 	}
 
 	@Test
 	public void testRender2() throws Exception {
-		JSON json = new JSON();
-
-		StringReader sr = new StringReader("{number2:777,number1:666,string1:\"World\",next:{number2:456,number1:123,string1:\"Hello\"}}");
-
-		JsonData1 data = json.decode(JsonData1.class, sr);
+		String in = "{list2:[],number2:777,number1:666,onoff:false,list1:[],string1:'World',next:{list2:[],number2:456,number1:123,onoff:false,list1:[],string1:'Hello'}}";
+		StringReader sr = new StringReader(in);
+		JsonData1 data = JSON.decode(JsonData1.class, sr);
 
 		StringWriter sw = new StringWriter();
-		json.render(new IndentWriter(sw), data);
+		JSON.render(sw, data);
+		String out = sw.getBuffer().toString();
+		System.out.println("recode: " + out);
+		Assert.assertEquals(in, out);
 
-		System.out.println("recode: " + sw.getBuffer());
 
 	}
 }
