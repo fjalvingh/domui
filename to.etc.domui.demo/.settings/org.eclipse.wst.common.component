@@ -21,9 +21,6 @@
         <dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/bin-slf4j/lib/logback-access-0.9.18.jar">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/bin-slf4j/lib/logback-classic-0.9.18.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
         <dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/bin-slf4j/lib/logback-core-0.9.18.jar">
             <dependency-type>uses</dependency-type>
         </dependent-module>
