@@ -23,7 +23,7 @@ $.extend(FormBuilder.prototype, {
 					var loc = ui.offset;
 					var toploc = fb._paintid.offset().top;
 	
-					fb.sendEvent("DropComponent", {typeName: comp._typeName, x:loc.left, y:loc.top-toploc});
+					fb.sendEvent("DropComponent", {typeId: comp._typeName, x:loc.left, y:loc.top-toploc});
 				}
 				comp = fb._draggedComponent;
 				if(comp) {
@@ -39,13 +39,14 @@ $.extend(FormBuilder.prototype, {
 		});
 	},
 
-	sendEvent: function(action, fields) {
+	sendEvent: function(action, json) {
 		var pupd = this._pendingUpdateList;
 		if(pupd.length > 0) {
 			this._pendingUpdateList = new Array();
 		}
-
-		fields.pending = JSON.stringify(pupd);
+//		json.pending = pupd;
+		var fields = new Object();
+		fields.json = JSON.stringify(json);
 		WebUI.scall(this._id, action, fields);
 	},
 
@@ -95,11 +96,11 @@ $.extend(FormBuilder.prototype, {
 		return type;
 	},
 
-	registerInstance: function(typeid, nodeid) {
-		$.dbg("registering instance "+typeid+":"+nodeid);
+	registerInstance: function(typeid, id, nodeid) {
+		$.dbg("registering instance "+typeid+":"+id);
 		var type = this.getComponentType(typeid);
 		var node = $("#"+nodeid);
-		var inst = new ComponentInstance(this, type, node);
+		var inst = new ComponentInstance(this, type, id, node);
 		this._componentMap[nodeid] = inst;
 		
 		//-- Make the instance draggable too.

@@ -1,6 +1,7 @@
 package to.etc.json;
 
 import java.io.*;
+import java.lang.reflect.*;
 
 import javax.annotation.*;
 
@@ -22,12 +23,20 @@ final public class JSON {
 	}
 
 	static public <T> T decode(@Nonnull Class<T> typeClass, @Nonnull Reader input) throws Exception {
+		return decode(typeClass, null);
+	}
+
+	static public <T> T decode(@Nonnull Class<T> typeClass, @Nonnull Type type, @Nonnull Reader input) throws Exception {
 		JsonReader reader = new JsonReader("input", input, m_registry);
-		return reader.parse(typeClass);
+		return reader.parse(typeClass, type);
 	}
 
 	static public <T> void render(@Nonnull Writer writer, @Nullable T instance) throws Exception {
+		render(writer, instance, null);
+	}
+
+	static public <T> void render(@Nonnull Writer writer, @Nullable T instance, @Nullable Type fullType) throws Exception {
 		JsonWriter w = (writer instanceof JsonWriter ? (JsonWriter) writer : new JsonWriter(writer, m_registry));
-		w.render(instance);
+		w.render(instance, fullType);
 	}
 }

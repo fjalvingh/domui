@@ -1,6 +1,7 @@
 package to.etc.json;
 
 import java.io.*;
+import java.lang.reflect.*;
 
 import javax.annotation.*;
 
@@ -16,8 +17,8 @@ public class JsonReader extends ReaderTokenizerBase {
 	}
 
 	@Nullable
-	public <T> T parse(@Nonnull Class<T> typeClass) throws Exception {
-		ITypeMapping mapping = m_registry.createMapping(typeClass, null);
+	public <T> T parse(@Nonnull Class<T> typeClass, @Nullable Type type) throws Exception {
+		ITypeMapping mapping = m_registry.createMapping(typeClass, type);
 		if(null == mapping)
 			throw new IllegalStateException("Could not find a json mapping for " + typeClass);
 		nextToken();

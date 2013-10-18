@@ -43,6 +43,7 @@ import to.etc.domui.dom.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.dom.webaction.*;
 import to.etc.domui.injector.*;
 import to.etc.domui.login.*;
 import to.etc.domui.parts.*;
@@ -185,6 +186,9 @@ public abstract class DomApplication {
 	@Nonnull
 	private List<IAsyncListener< ? >> m_asyncListenerList = Collections.emptyList();
 
+	@Nonnull
+	private final WebActionRegistry m_webActionRegistry = new WebActionRegistry();
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Initialization and session management.				*/
 	/*--------------------------------------------------------------*/
@@ -228,6 +232,7 @@ public abstract class DomApplication {
 		registerControlFactories();
 		registerPartFactories();
 		initHeaderContributors();
+		initializeWebActions();
 		addRenderFactory(new MsCrapwareRenderFactory()); 						// Add html renderers for IE <= 8
 		addExceptionListener(QNotFoundException.class, new IExceptionListener() {
 			@Override
@@ -524,6 +529,27 @@ public abstract class DomApplication {
 
 	public String getJQueryVersion() {
 		return m_jQueryVersion;
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	WebActionRegistry.									*/
+	/*--------------------------------------------------------------*/
+
+	/**
+	 * Get the action registry for  {@link NodeBase#componentHandleWebAction(RequestContextImpl, String)} requests.
+	 * @return
+	 */
+	@Nonnull
+	public WebActionRegistry getWebActionRegistry() {
+		return m_webActionRegistry;
+	}
+
+	/**
+	 * Register all default web actions for {@link NodeBase#componentHandleWebAction(RequestContextImpl, String)} requests.
+	 */
+	protected void initializeWebActions() {
+		getWebActionRegistry().register(new SimpleWebActionFactory());			// ORDERED
+		getWebActionRegistry().register(new JsonWebActionFactory());
 	}
 
 	/*--------------------------------------------------------------*/

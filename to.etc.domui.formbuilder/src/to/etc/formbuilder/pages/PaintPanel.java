@@ -5,8 +5,6 @@ import javax.annotation.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.component.panellayout.*;
 import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.domui.state.*;
 import to.etc.domui.util.*;
 
 /**
@@ -90,7 +88,7 @@ public class PaintPanel extends Div {
 	}
 
 	private void updateComponent(@Nonnull ComponentInstance ci) throws Exception {
-		appendJavascript("window._fb.registerInstance('" + ci.getComponentType().getTypeID() + "','" + ci.getRendered().getActualID() + "');");
+		appendJavascript("window._fb.registerInstance('" + ci.getComponentType().getTypeID() + "','" + ci.getId() + "','" + ci.getRendered().getActualID() + "');");
 	}
 
 	/*--------------------------------------------------------------*/
@@ -101,41 +99,31 @@ public class PaintPanel extends Div {
 	 * @param ctx
 	 * @throws Exception
 	 */
-	public void webActionDropComponent(@Nonnull RequestContextImpl ctx) throws Exception {
-		PageParameters pp = PageParameters.createFrom(ctx);
-		String type = pp.getString("typeName");
-		int x = pp.getInt("x");
-		int y = pp.getInt("y");
-
-		IFbComponent componentType = r().findComponent(type);
+	public void webActionDropComponent(@Nonnull JsonComponentInfo info) throws Exception {
+		IFbComponent componentType = r().findComponent(info.getTypeId());
 		if(null == componentType) {
-			MsgBox.error(this, "Internal: no type '" + type + "'");
+			MsgBox.error(this, "Internal: no type '" + info.getTypeId() + "'");
 			return;
 		}
-		System.out.println("Drop event: " + componentType + " @(" + x + "," + y + ")");
+		System.out.println("Drop event: " + componentType + " @(" + info.getX() + "," + info.getY() + ")");
 
 		ComponentInstance ci = pc().createComponent(componentType);			// Create the instance
 		LayoutInstance li = m_rootLayout;
 
 		LayoutPanelBase lpb = (LayoutPanelBase) li.getRendered();
 		li.addComponent(ci);
-		lpb.add(ci.getRendered(), new IntPoint(x, y));
+		lpb.add(ci.getRendered(), new IntPoint(info.getX(), info.getY()));
 		updateComponent(ci);
 	}
 
-	public void webActionMoveComponent(@Nonnull RequestContextImpl ctx) throws Exception {
-		PageParameters pp = PageParameters.createFrom(ctx);
-		String id = pp.getString("id");
-		int x = pp.getInt("x");
-		int y = pp.getInt("y");
-
-		ComponentInstance ci = pc().getComponent(id);
+	public void webActionMoveComponent(@Nonnull JsonComponentInfo info) throws Exception {
+		System.out.println("Move event: " + info.getId() + " @(" + info.getX() + "," + info.getY() + ")");
+		ComponentInstance ci = pc().getComponent(info.getId());
 		LayoutInstance layout = ci.getParent();
 		if(null == layout)
 			throw new IllegalStateException("Moving a thingy that is not part of a layout?");
 
-
-		layout.positionComponent(ci, new IntPoint(x, y));
+		layout.positionComponent(ci, new IntPoint(info.getX(), info.getY()));
 	}
 
 

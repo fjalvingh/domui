@@ -1,6 +1,7 @@
 package to.etc.json;
 
 import java.io.*;
+import java.lang.reflect.*;
 
 import javax.annotation.*;
 
@@ -57,10 +58,14 @@ public class JsonWriter extends Writer {
 	}
 
 	public void render(@Nullable Object instance) throws Exception {
+		render(instance, null);
+	}
+
+	public void render(@Nullable Object instance, @Nullable Type fullType) throws Exception {
 		if(null == instance)
 			return;
 
-		ITypeMapping mapping = m_registry.createMapping(instance.getClass(), null);
+		ITypeMapping mapping = m_registry.createMapping(instance.getClass(), fullType);
 		if(null == mapping)
 			throw new IllegalStateException("Could not find a json mapping for " + instance.getClass());
 		mapping.render(this, instance);
