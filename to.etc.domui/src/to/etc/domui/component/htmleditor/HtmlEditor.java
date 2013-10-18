@@ -177,7 +177,7 @@ public class HtmlEditor extends TextArea {
 	}
 
 	@Override
-	public void onBeforeTagRender() throws Exception {
+	public void onBeforeRender() throws Exception {
 		if(null != m_updateValueJS) {
 			StringBuilder sb = new StringBuilder();
 			appendJQuerySelector(sb);

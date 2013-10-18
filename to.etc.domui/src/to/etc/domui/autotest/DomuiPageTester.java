@@ -65,7 +65,7 @@ public class DomuiPageTester implements IDomUITestInfo {
 
 
 	static synchronized public void initApplication(@Nonnull Class< ? extends DomApplication> applicationClass, @Nonnull File webappFiles) throws Exception {
-		AppFilter.initializeLogging(null);
+		AppFilter.initLogConfig(null, null);
 
 		DomApplication da = m_appInstance;
 		if(da != null) {
@@ -173,7 +173,7 @@ public class DomuiPageTester implements IDomUITestInfo {
 
 		//-- We need an appsession for this page.
 		AppSession appSession = new AppSession(app());
-		m_ssession = new TestServerSession();
+		setSvSession(new TestServerSession());
 
 		m_clickedNodeSet.clear();
 		TestRequestResponse rr = createRequestResponse(pageClass, parameters);
@@ -380,7 +380,7 @@ public class DomuiPageTester implements IDomUITestInfo {
 		}
 
 //		PageParameters pp = PageParameters.decodeParameters(query);
-		TestRequestResponse rr = new TestRequestResponse(m_ssession, this, redirectURL, query);
+		TestRequestResponse rr = new TestRequestResponse(getSvSession(), this, redirectURL, query);
 		return rr;
 	}
 
@@ -394,7 +394,7 @@ public class DomuiPageTester implements IDomUITestInfo {
 	private TestRequestResponse createRequestResponse(@Nonnull Class< ? extends UrlPage> clz, @Nonnull PageParameters pp) {
 		String requestURI = getClassURI(clz);
 
-		TestRequestResponse rr = new TestRequestResponse(m_ssession, this, requestURI, pp);
+		TestRequestResponse rr = new TestRequestResponse(getSvSession(), this, requestURI, pp);
 		return rr;
 	}
 
@@ -417,8 +417,11 @@ public class DomuiPageTester implements IDomUITestInfo {
 	@Nonnull
 	private TestRequestResponse createRequestResponse(@Nonnull Page page, @Nonnull PageParameters pp) {
 		String requestURI = getClassURI(page.getBody().getClass());
-		pp.addParameter(Constants.PARAM_CONVERSATION_ID, page.internalGetConversation().getFullId());
-		TestRequestResponse rr = new TestRequestResponse(m_ssession, this, requestURI, pp);
+		ConversationContext internalGetConversation = page.internalGetConversation();
+		if(null == internalGetConversation)
+			throw new IllegalStateException("Page conversation is null???");
+		pp.addParameter(Constants.PARAM_CONVERSATION_ID, internalGetConversation.getFullId());
+		TestRequestResponse rr = new TestRequestResponse(getSvSession(), this, requestURI, pp);
 		return rr;
 	}
 
@@ -470,6 +473,17 @@ public class DomuiPageTester implements IDomUITestInfo {
 			}
 			UIContext.internalClear();
 		}
+	}
+
+	@Nonnull
+	private TestServerSession getSvSession() {
+		if(null != m_ssession)
+			return m_ssession;
+		throw new IllegalStateException("Null SvSession");
+	}
+
+	private void setSvSession(TestServerSession ssession) {
+		m_ssession = ssession;
 	}
 
 

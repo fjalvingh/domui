@@ -1361,7 +1361,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	public void onBeforeFullRender() throws Exception {}
 
 	/**
-	 * Called just before the tag is rendered. It can only change attributes, no tree data(!)
 	 * Called before rendering starts. All "actions" have executed. This executes before {@link #onBeforeFullRender()} and
 	 * is safe to use.
 	 * @throws Exception
