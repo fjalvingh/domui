@@ -1339,7 +1339,20 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 
 	}
 
+	/**
+	 * Will be called just before "full render" starts. It gets called INSIDE the rendering
+	 * loop, so only changes "below" this node will have an effect.. Better said: DO NOT CHANGE THE
+	 * TREE, this should be an internal interface 8-/
+	 * @throws Exception
+	 */
 	public void onBeforeFullRender() throws Exception {}
+
+	/**
+	 * Called before rendering starts. All "actions" have executed. This executes before {@link #onBeforeFullRender()} and
+	 * is safe to use.
+	 * @throws Exception
+	 */
+	public void onBeforeRender() throws Exception {}
 
 	@OverridingMethodsMustInvokeSuper
 	protected void beforeCreateContent() {}
@@ -1355,6 +1368,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	public void onRemoveFromPage(final Page p) {}
 
 	public void onHeaderContributors(final Page page) {}
+
+	public void internalOnBeforeRender() throws Exception {
+		onBeforeRender();
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Handle dropping of dnd nodes.						*/

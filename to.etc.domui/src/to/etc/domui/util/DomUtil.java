@@ -590,6 +590,7 @@ final public class DomUtil {
 		return sb.toString();
 	}
 
+
 	/**
 	 * Calculate a full URL from a rurl. If the rurl starts with a scheme it is returned verbatim;
 	 * if it starts with slash (host-relative path absolute) it is returned verbatim; in all other

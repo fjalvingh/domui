@@ -399,6 +399,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			}
 
 			m_application.internalCallPageComplete(ctx, page);
+			page.getBody().internalOnBeforeRender();
 			page.internalDeltaBuild(); // If listeners changed the page-> rebuild those parts
 			// END ORDERED
 
@@ -476,6 +477,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	private void runComponentAction(@Nonnull RequestContextImpl ctx, @Nonnull Page page, @Nonnull String action) throws Exception {
 		m_application.internalCallPageAction(ctx, page);
 //		page.callRequestStarted();
+
 		try {
 			NodeBase wcomp = null;
 			String wid = ctx.getParameter("webuic");
@@ -491,6 +493,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			page.setTheCurrentNode(null);
 		}
 	}
+
 
 	private void generateNonReloadableExpired(RequestContextImpl ctx, WindowSession cm) throws Exception {
 		StringBuilder sb = new StringBuilder();
@@ -966,6 +969,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	static private void renderOptimalDelta(final RequestContextImpl ctx, final Page page, boolean inhibitlog) throws Exception {
 		// ORDERED
 		//-- 20100519 jal Force full rebuild before rendering, always. See bug 688.
+		page.getBody().internalOnBeforeRender();
 		page.internalDeltaBuild();
 		ctx.getApplication().internalCallPageComplete(ctx, page);
 		page.internalDeltaBuild();

@@ -431,30 +431,17 @@ $(window).bind('beforeunload', function() {
 						continue;
 					} else if (dest && ($.browser.msie || $.browser.webkit || ($.browser.mozilla && $.browser.majorVersion >= 9 )) && n.substring(0, 2) == 'on') {
 						try {
-//							if(! this._xxxw)
-//								alert('event '+n+' value '+v);
-							// var se = 'function(){'+v+';}';
-							var se;
-							if (v.indexOf('return') != -1 || v.indexOf('javascript:') != -1){
-								if (!$.browser.msie && $.browser.majorVersion >= 9 ){
-									se = new Function("event", v);
-								}else{
-									se = new Function(v);
-								}
-							}else{
-								if (!$.browser.msie && $.browser.majorVersion >= 9 ){ 	
-									se = new Function("event", 'return ' + v);
-								}else{
-									se = new Function('return ' + v);
-								}
-							}
-//							if(! this._xxxw)
-//								alert('event '+n+' value '+se);
+							if(v.indexOf("javascript:") == 0)
+								v = $.trim(v.substring(11));
+							var fntext = v.indexOf("return") == 0 ? v : "return "+v;
+
+							if($.browser.msie && $.browser.majorVersion < 9)
+								se = new Function(fntext);
+							else
+								se = new Function("event", fntext);
 							dest[n] = se;
-//							this._xxxw = true;
-							
 						} catch(x) {
-							alert('Cannot set EVENT: '+n+" as "+v+' on '+dest);
+							alert('DomUI: Cannot set EVENT '+n+" as "+v+' on '+dest+": "+x);
 						}
 					} else if (n == 'style') { // IE workaround
 						dest.style.cssText = v;
@@ -606,10 +593,11 @@ var WebUI = {
 	},
 
 	log: function() {
-		if (!window.console || !window.console.debug)
-			return;
-		window.console.debug.apply(window.console, arguments);
-		// window.console.debug("Args: "+[].join.call(arguments,''));
+		$.dbg.apply(this, arguments);
+//		if (!window.console || !window.console.debug)
+//			return;
+//		window.console.debug.apply(window.console, arguments);
+//		// window.console.debug("Args: "+[].join.call(arguments,''));
 	},
 
 	/**
@@ -805,6 +793,35 @@ var WebUI = {
 		if (!fields)
 			fields = new Object();
 		fields.webuia = "#"+action;
+		fields.webuic = id;
+		fields["$pt"] = DomUIpageTag;
+		fields["$cid"] = DomUICID;
+
+		var response = "";
+		$.ajax( {
+			url :DomUI.getPostURL(),
+			dataType :"text/xml",
+			data :fields,
+			cache :false,
+			async: false,
+			type: "POST",
+			success : function(data, state) {
+				response = data;
+			},
+			error :WebUI.handleError
+		});
+//		console.debug("jsoncall-", response);
+//		try {
+			return eval("("+response+")");
+//		} catch(x) {
+//			console.debug("json data error", x);
+//		}
+	},
+	
+	jsoncall: function(id, fields) {
+		if (!fields)
+			fields = new Object();
+		fields.webuia = "$pagejson";
 		fields.webuic = id;
 		fields["$pt"] = DomUIpageTag;
 		fields["$cid"] = DomUICID;
@@ -1384,7 +1401,7 @@ var WebUI = {
 	focus : function(id) {
 		var n = document.getElementById(id);
 		if(n) {
-			if($.browser.isIE) {
+			if($.browser.msie) {
 				setTimeout(function() { try { n.focus();} catch (e) { /*just ignore */ } }, 100); //Due to IE bug, we need to set focus on timeout :( See http://www.mkyong.com/javascript/focus-is-not-working-in-ie-solution/
 			} else {
 				try {
