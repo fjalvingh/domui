@@ -1,10 +1,11 @@
-package to.etc.webapp.json;
+package to.etc.json;
 
 import java.io.*;
 import java.util.*;
 
 import org.junit.*;
 
+import to.etc.json.*;
 import to.etc.util.*;
 
 public class TestJson {

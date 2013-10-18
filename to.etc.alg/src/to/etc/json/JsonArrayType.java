@@ -1,17 +1,19 @@
-package to.etc.webapp.json;
+package to.etc.json;
 
 import java.lang.reflect.*;
 import java.util.*;
 
 import javax.annotation.*;
 
-final class JsonCollectionType extends AbstractJsonArrayType implements ITypeMapping {
-	@Nonnull
-	private final Class<? extends Collection<?>>	m_implementationType;
+import to.etc.util.*;
 
-	JsonCollectionType(@Nonnull ITypeMapping memberMapping, @Nonnull Class< ? extends Collection< ? >> implementationType) {
+public class JsonArrayType extends AbstractJsonArrayType implements ITypeMapping {
+	@Nonnull
+	private final Class< ? > m_implementationType;
+
+	public JsonArrayType(@Nonnull ITypeMapping memberMapping, @Nonnull Class< ? > memberClass) {
 		super(memberMapping);
-		m_implementationType = implementationType;
+		m_implementationType = memberClass;
 	}
 
 	/**
@@ -30,12 +32,22 @@ final class JsonCollectionType extends AbstractJsonArrayType implements ITypeMap
 	@Override
 	@Nonnull
 	protected Collection< ? > createInstance() throws Exception {
-		return m_implementationType.newInstance();
+		return new ArrayList<Object>();
 	}
 
 	@Override
 	@Nonnull
 	protected Iterator<Object> getIterator(@Nonnull Object instance) {
-		return ((Collection<Object>) instance).iterator();
+		return new ArrayIterator<Object>((Object[]) instance);
+	}
+
+	@Override
+	protected Object convertResult(@Nonnull Collection<Object> res) throws Exception {
+		Object[] val = (Object[]) Array.newInstance(m_implementationType, res.size());
+		int index = 0;
+		for(Object o : res) {
+			val[index++] = o;
+		}
+		return val;
 	}
 }

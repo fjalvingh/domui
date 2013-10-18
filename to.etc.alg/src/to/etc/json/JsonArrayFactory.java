@@ -1,27 +1,26 @@
-package to.etc.webapp.json;
+package to.etc.json;
 
 import java.lang.reflect.*;
-import java.util.*;
 
 import javax.annotation.*;
 
 import to.etc.util.*;
 
-public class JsonSetFactory implements IJsonTypeFactory {
+public class JsonArrayFactory  implements IJsonTypeFactory {
 	@Override
 	public ITypeMapping createMapper(@Nonnull JsonTypeRegistry registry, @Nonnull final Class< ? > typeClass, @Nullable Type type) {
-		if(!Set.class.isAssignableFrom(typeClass) || type == null)
+		if(! typeClass.isArray())
 			return null;
-		final Class< ? > memberType = ClassUtil.findCollectionType(type);
+		final Class< ? > memberType = ClassUtil.findCollectionType(typeClass);
 		if(null == memberType || Object.class == memberType)
 			return null;
+
 		int mod = memberType.getModifiers();
 		if(Modifier.isAbstract(mod) || Modifier.isInterface(mod) || !Modifier.isPublic(mod))
 			return null;
 		final ITypeMapping memberMapping = registry.createMapping(memberType, null);
 		if(null == memberMapping)
 			return null;
-		Class< ? > def = SortedSet.class.isAssignableFrom(typeClass) ? TreeSet.class : HashSet.class;
-		return new JsonCollectionType(memberMapping, JsonCollectionType.getImplementationClass(typeClass, def));
+		return new JsonArrayType(memberMapping, memberType);
 	}
 }

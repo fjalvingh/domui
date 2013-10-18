@@ -1,34 +1,33 @@
-package to.etc.webapp.json;
+package to.etc.json;
 
 import java.lang.reflect.*;
 
 import javax.annotation.*;
 
 import to.etc.lexer.*;
-import to.etc.util.*;
 
-public class JsonStringFactory implements IJsonTypeFactory {
+public class JsonLongFactory implements IJsonTypeFactory {
 	@Override
 	public ITypeMapping createMapper(@Nonnull JsonTypeRegistry registry, @Nonnull Class< ? > typeClass, @Nullable Type type) {
-		if(String.class == typeClass) {
+		if(typeClass == Long.class || typeClass == long.class) {
 			return new ITypeMapping() {
-
 				@Override
 				public void render(@Nonnull JsonWriter w, @Nonnull Object instance) throws Exception {
-					w.writeString((String) instance);
+					Number n = (Number) instance;
+					w.writeNumber(n);
 				}
 
 				@Override
 				public Object parse(@Nonnull JsonReader reader) throws Exception {
-					if(reader.getLastToken() != ReaderScannerBase.T_STRING)
-						throw new JsonParseException(reader, this, "Expecting a string but got " + reader.getTokenString());
-					String res = StringTool.strUnquote(reader.getCopied());
+					if(reader.getLastToken() != ReaderScannerBase.T_NUMBER)
+						throw new JsonParseException(reader, this, "Expecting a long integer but got " + reader.getTokenString());
+					Long res = Long.decode(reader.getCopied());
 					reader.nextToken();
 					return res;
 				}
 			};
-
 		}
 		return null;
 	}
+
 }

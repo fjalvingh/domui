@@ -1,4 +1,4 @@
-package to.etc.webapp.json;
+package to.etc.json;
 
 import java.lang.reflect.*;
 import java.util.*;
@@ -71,7 +71,11 @@ public class JsonTypeRegistry {
 	static private Set<String> IGNORESET = new HashSet<String>(Arrays.asList("class"));
 
 	@Nullable
-	public <T> ITypeMapping createMapping(@Nonnull Class<T> clz, @Nullable Type type) {
+	public synchronized <T> ITypeMapping createMapping(@Nonnull Class<T> clz, @Nullable Type type) {
+		ITypeMapping cm = m_classMap.get(clz);
+		if(null != cm)
+			return cm;
+
 		ITypeMapping tm = findFactory(clz, type);
 		if(null != tm)
 			return tm;
@@ -80,9 +84,6 @@ public class JsonTypeRegistry {
 			throw new IllegalStateException("No renderer for " + clz);
 
 		//-- Create/get a class type mapper.
-		ITypeMapping cm = m_classMap.get(clz);
-		if(null != cm)
-			return cm;
 		JsonClassType<T> ct = new JsonClassType<T>(clz);
 		m_classMap.put(clz, ct);
 

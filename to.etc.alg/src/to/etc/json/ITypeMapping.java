@@ -1,4 +1,4 @@
-package to.etc.webapp.json;
+package to.etc.json;
 
 import javax.annotation.*;
 
