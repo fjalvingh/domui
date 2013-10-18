@@ -4,6 +4,8 @@ import java.io.*;
 
 import org.junit.*;
 
+import to.etc.util.*;
+
 public class TestJson {
 	@Test
 	public void testRender1() throws Exception {
@@ -12,7 +14,7 @@ public class TestJson {
 
 		JSON json = new JSON();
 		StringWriter sw = new StringWriter();
-		json.render(sw, d2);
+		json.render(new IndentWriter(sw), d2);
 
 		System.out.println(sw.getBuffer());
 	}
@@ -26,7 +28,7 @@ public class TestJson {
 		JsonData1 data = json.decode(JsonData1.class, sr);
 
 		StringWriter sw = new StringWriter();
-		json.render(sw, data);
+		json.render(new IndentWriter(sw), data);
 
 		System.out.println("recode: " + sw.getBuffer());
 

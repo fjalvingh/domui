@@ -20,6 +20,8 @@ public class JsonClassType<T> implements ITypeMapping {
 	@Override
 	public void render(@Nonnull JsonWriter w, @Nonnull Object instance) throws Exception {
 		w.write("{");
+		w.nl();
+		w.inc();
 		int ct = 0;
 		for(PropertyMapping pm : m_map.values()) {
 			Object value;
@@ -35,11 +37,12 @@ public class JsonClassType<T> implements ITypeMapping {
 					w.write(",");
 				w.append(pm.getName());
 				w.append(':');
-
 				pm.getMapper().render(w, value);
+				w.nl();
 			}
 		}
-		w.write("}\n");
+		w.dec();
+		w.write("}");
 	}
 
 	@Override

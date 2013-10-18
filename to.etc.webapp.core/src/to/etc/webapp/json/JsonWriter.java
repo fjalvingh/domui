@@ -13,9 +13,16 @@ public class JsonWriter extends Writer {
 	@Nonnull
 	final private JsonTypeRegistry m_registry;
 
+	@Nullable
+	private IndentWriter m_iw;
+
 	public JsonWriter(@Nonnull Writer writer, @Nonnull JsonTypeRegistry registry) {
 		m_writer = writer;
 		m_registry = registry;
+
+		if(writer instanceof IndentWriter) {
+			m_iw = (IndentWriter) writer;
+		}
 	}
 
 	@Override
@@ -53,5 +60,25 @@ public class JsonWriter extends Writer {
 		if(null == mapping)
 			throw new IllegalStateException("Could not find a json mapping for " + instance.getClass());
 		mapping.render(this, instance);
+	}
+
+	public void inc() {
+		IndentWriter iw = m_iw;
+		if(null == iw)
+			return;
+		iw.inc();
+	}
+
+	public void dec() throws IOException {
+		IndentWriter iw = m_iw;
+		if(null == iw)
+			return;
+		iw.dec();
+//		iw.println();
+	}
+
+	public void nl() throws IOException {
+		if(m_iw != null)
+			write("\n");
 	}
 }
