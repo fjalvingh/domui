@@ -32,7 +32,9 @@ import javax.annotation.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.login.*;
 import to.etc.domui.server.*;
+import to.etc.domui.state.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 import to.etc.webapp.*;
@@ -263,10 +265,14 @@ final public class MetaManager {
 	static public boolean isAccessAllowed(String[][] roleset, IRequestContext ctx) {
 		if(roleset == null)
 			return true; // No restrictions
+
+		IUser user = UIContext.getCurrentUser();
+		if(null == user)
+			return false;
 		for(String[] orset : roleset) {
 			boolean ok = true;
 			for(String perm : orset) {
-				if(!ctx.hasPermission(perm)) {
+				if(!user.hasRight(perm)) {
 					ok = false;
 					break;
 				}

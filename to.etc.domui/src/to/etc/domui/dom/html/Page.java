@@ -97,6 +97,7 @@ final public class Page implements IQContextContainer {
 	/** Set to T if an initial full render of the page completed OK. */
 	private boolean m_fullRenderCompleted;
 
+	@Nonnull
 	private final UrlPage m_rootContent;
 
 	/** The component that needs to be focused. This is null if no explicit focus request was done. */
@@ -147,7 +148,7 @@ final public class Page implements IQContextContainer {
 	 */
 	private List<NodeBase> m_removeAfterRenderList = Collections.EMPTY_LIST;
 
-	public Page(final UrlPage pageContent) throws Exception {
+	public Page(@Nonnull final UrlPage pageContent) throws Exception {
 		m_pageTag = DomApplication.internalNextPageTag(); // Unique page ID.
 		m_rootContent = pageContent;
 		registerNode(pageContent); // First node.
@@ -468,6 +469,7 @@ final public class Page implements IQContextContainer {
 	 * Return the BODY component for this page.
 	 * @return
 	 */
+	@Nonnull
 	public UrlPage getBody() {
 		return m_rootContent;
 	}
@@ -723,6 +725,7 @@ final public class Page implements IQContextContainer {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Context handling code.								*/
 	/*--------------------------------------------------------------*/
+	@Nonnull
 	public ConversationContext getConversation() {
 		if(m_cc == null)
 			throw new IllegalStateException("The conversational context is null??????");

@@ -24,6 +24,7 @@
  */
 package to.etc.domui.server;
 
+import javax.annotation.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
@@ -34,5 +35,5 @@ import javax.servlet.http.*;
  * Created on May 22, 2008
  */
 public interface IContextMaker {
-	public boolean handleRequest(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws Exception;
+	public void handleRequest(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull FilterChain chain) throws Exception;
 }
