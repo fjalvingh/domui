@@ -486,6 +486,51 @@ final public class DomUtil {
 		return sb.toString();
 	}
 
+	@Nonnull
+	public static String getAdjustedPageUrl(@Nonnull Page page, @Nullable IPageParameters pp) {
+		PageParameters newpp = mergePageParameters(pp);
+		StringBuilder sb = getPageContextURL(page);
+		DomUtil.addUrlParameters(sb, newpp, false);
+		return sb.toString();
+	}
+
+	@Nonnull
+	public static String getAdjustedComponentUrl(@Nonnull NodeBase component, @Nonnull String command, @Nullable IPageParameters pp) {
+		PageParameters newpp = mergePageParameters(pp);
+
+		//-- Add the action code.
+		newpp.addParameter("webuia", command);
+		newpp.addParameter("webuic", component.getActualID());
+
+		StringBuilder sb = getPageContextURL(component.getPage());
+		DomUtil.addUrlParameters(sb, newpp, false);
+		return sb.toString();
+	}
+
+	@Nonnull
+	private static PageParameters mergePageParameters(@Nullable IPageParameters pp) {
+		PageParameters newpp = PageParameters.createFrom(UIContext.getRequestContext());
+		if(null != pp) {
+			for(String name : pp.getParameterNames()) {
+				String value = pp.getString(name);
+				newpp.addParameter(name, value);
+			}
+		}
+		return newpp;
+	}
+
+	@Nonnull
+	private static StringBuilder getPageContextURL(@Nonnull Page page) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(UIContext.getRequestContext().getRelativePath(page.getBody().getClass().getName()));
+		sb.append(".").append(DomApplication.get().getUrlExtension());
+		sb.append("?");
+		sb.append(Constants.PARAM_CONVERSATION_ID);
+		sb.append("=");
+		StringTool.encodeURLEncoded(sb, page.getConversation().getFullId());
+		return sb;
+	}
+
 	/**
 	 * Create a relative URL for the specified page (an URL that is relative to the application's context, i.e. without
 	 * hostname nor webapp context).

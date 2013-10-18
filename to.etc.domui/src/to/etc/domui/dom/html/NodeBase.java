@@ -35,7 +35,9 @@ import to.etc.domui.component.input.*;
 import to.etc.domui.dom.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
+import to.etc.domui.dom.webaction.*;
 import to.etc.domui.server.*;
+import to.etc.domui.state.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 import to.etc.webapp.nls.*;
@@ -473,7 +475,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	}
 
 	/**
-	 * Return the current actual parent of this node. Is null if not attached to a parent yet.
+	 * Return the current actual parent of this node. Throws exception if not attached.
 	 * @return
 	 */
 	@Nonnull
@@ -977,18 +979,59 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		return null;
 	}
 
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Getting data from a component from Javascript.		*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Return an URL to a data call on this node. The call must be found by the {@link #componentHandleWebDataRequest(RequestContextImpl, String)}
+	 * method, so there should be a handler.
+	 * @param pp
+	 * @return
+	 */
+	@Nonnull
+	public String getComponentDataURL(@Nonnull String action, @Nullable IPageParameters pp) {
+		NodeBase nb = this;
+		return DomUtil.getAdjustedComponentUrl(this, action, pp);
+	}
+
 	/**
 	 * Default handling for webui AJAX actions to a component.
 	 * @param ctx
 	 * @param action
 	 * @throws Exception
 	 */
-	public void componentHandleWebAction(@Nonnull final RequestContextImpl ctx, @Nonnull final String action) throws Exception {
+	public void componentHandleWebAction(@Nonnull final RequestContextImpl ctx, @Nonnull String action) throws Exception {
 		if("WEBUIDROP".equals(action)) {
 			handleDrop(ctx);
 			return;
 		}
+		action = "webAction" + action;
+
+		IWebActionHandler handler = ctx.getApplication().getWebActionRegistry().findActionHandler(getClass(), action);
+		if(null != handler) {
+			handler.handleWebAction(this, ctx, false);
+			return;
+		}
 		throw new IllegalStateException("The component " + this + " does not accept the web action " + action);
+	}
+
+	/**
+	 * Out-of-bound data request for a component. This is not allowed to change the state of the tree as no delta
+	 * response will be returned. The action itself must decide on a response.
+	 * @param ctx
+	 * @param action
+	 * @throws Exception
+	 */
+	public void componentHandleWebDataRequest(@Nonnull final RequestContextImpl ctx, @Nonnull String action) throws Exception {
+		action = "webData" + action;
+
+		IWebActionHandler handler = ctx.getApplication().getWebActionRegistry().findActionHandler(getClass(), action);
+		if(null != handler) {
+			handler.handleWebAction(this, ctx, true);
+			return;
+		}
+		throw new IllegalStateException("The component " + this + " does not accept the web data request #" + action);
 	}
 
 	public boolean acceptRequestParameter(@Nonnull final String[] values) throws Exception {

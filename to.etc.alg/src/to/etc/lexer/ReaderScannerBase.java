@@ -59,6 +59,25 @@ public class ReaderScannerBase extends TextReaderBase {
 		m_allowNewlineInString = allowNewlineInString;
 	}
 
+	public String tokenString(int type) {
+		switch(type){
+			default:
+				return Character.toString((char) type);
+			case T_EOF:
+				return "<<eof>>";
+			case T_STRING:
+				return "string";
+			case T_COMMENT:
+				return "comment";
+			case T_IDENT:
+				return "identifier";
+			case T_IPADDR:
+				return "ip address";
+			case T_NUMBER:
+				return "number";
+		}
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Current token data.									*/
 	/*--------------------------------------------------------------*/

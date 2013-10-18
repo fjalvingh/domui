@@ -57,7 +57,7 @@ final public class ClassUtil {
 		}
 	}
 
-	static public Method findMethod(final Class< ? > clz, final String name, final Class< ? >[] param) {
+	static public Method findMethod(final Class< ? > clz, final String name, final Class< ? >... param) {
 		try {
 			return clz.getMethod(name, param);
 		} catch(Exception x) {
