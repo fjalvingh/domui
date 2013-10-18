@@ -26,7 +26,7 @@ public class WebActionRegistry {
 	@Nonnull
 	static private final IWebActionHandler DUMMY = new IWebActionHandler() {
 		@Override
-		public void handleWebAction(@Nonnull NodeBase node, @Nonnull IRequestContext context) throws Exception {
+		public void handleWebAction(@Nonnull NodeBase node, @Nonnull RequestContextImpl context, boolean responseExpected) throws Exception {
 			throw new IllegalStateException("Stop calling me!");
 		}
 	};

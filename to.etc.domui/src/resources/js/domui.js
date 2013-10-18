@@ -856,13 +856,51 @@ var WebUI = {
 	/**
 	 * Send a server request to a component, which will be handled by that component's componentHandleWebAction
 	 * method. The json data is sent as a string parameter with the name "json"; the response is handled as a normal
-	 * DomUI page request.
+	 * DomUI page request: the page is updated and any delta is returned.
 	 * @returns void
 	 */
 	sendJsonAction: function(id, action, json) {
 		var fields = new Object();
 		fields.json = JSON.stringify(json);
 		WebUI.scall(id, action, fields);
+	},
+
+	/**
+	 * Call a JSON handler on a component. This is "out of bound": the current browser state of
+	 * the page is /not/ sent, and the response must be a JSON document which will be the return
+	 * value of this function.
+	 *
+	 * @param id
+	 * @param fields
+	 * @returns
+	 */
+	callJsonFunction: function(id, action, fields) {
+		if (!fields)
+			fields = new Object();
+		fields.webuia = "#"+action;
+		fields.webuic = id;
+		fields["$pt"] = DomUIpageTag;
+		fields["$cid"] = DomUICID;
+
+		var response = "";
+		$.ajax( {
+			url :DomUI.getPostURL(),
+			dataType :"text/xml",
+			data :fields,
+			cache :false,
+			async: false,
+			type: "POST",
+			success : function(data, state) {
+				response = data;
+			},
+			error :WebUI.handleError
+		});
+//		console.debug("jsoncall-", response);
+//		try {
+			return eval("("+response+")");
+//		} catch(x) {
+//			console.debug("json data error", x);
+//		}
 	},
 
 	clickandchange: function(h, id, evt) {

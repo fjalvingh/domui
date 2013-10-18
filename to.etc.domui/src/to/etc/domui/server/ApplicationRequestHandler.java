@@ -368,6 +368,14 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 		UIContext.internalSet(page);
 
+		/*
+		 * Handle all out-of-bound actions: those that do not manipulate UI state.
+		 */
+		if(action != null && action.startsWith("#")) {
+			runComponentAction(ctx, page, action.substring(1));
+			return;
+		}
+
 		//-- All commands EXCEPT ASYPOLL have all fields, so bind them to the current component data,
 		List<NodeBase> pendingChangeList = Collections.EMPTY_LIST;
 		if(!Constants.ACMD_ASYPOLL.equals(action)) {
@@ -505,6 +513,32 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 		//-- Start any delayed actions now.
 		page.getConversation().startDelayedExecution();
+	}
+
+	/**
+	 * Handle out-of-bound component requests. These are not allowed to change the tree but must return a result
+	 * by themselves.
+	 *
+	 * @param ctx
+	 * @param page
+	 */
+	private void runComponentAction(@Nonnull RequestContextImpl ctx, @Nonnull Page page, @Nonnull String action) throws Exception {
+		m_application.internalCallPageAction(ctx, page);
+		page.callRequestStarted();
+		try {
+			NodeBase wcomp = null;
+			String wid = ctx.getRequest().getParameter("webuic");
+			if(wid != null) {
+				wcomp = page.findNodeByID(wid);
+			}
+			if(wcomp == null)
+				return;
+			page.setTheCurrentNode(wcomp);
+			wcomp.componentHandleWebDataRequest(ctx, action);
+		} finally {
+			page.callRequestFinished();
+			page.setTheCurrentNode(null);
+		}
 	}
 
 	private void generateNonReloadableExpired(RequestContextImpl ctx, WindowSession cm) throws Exception {

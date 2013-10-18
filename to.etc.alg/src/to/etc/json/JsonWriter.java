@@ -62,8 +62,10 @@ public class JsonWriter extends Writer {
 	}
 
 	public void render(@Nullable Object instance, @Nullable Type fullType) throws Exception {
-		if(null == instance)
+		if(null == instance) {
+			write("null");
 			return;
+		}
 
 		ITypeMapping mapping = m_registry.createMapping(instance.getClass(), fullType);
 		if(null == mapping)

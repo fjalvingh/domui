@@ -25,16 +25,20 @@ public class SimpleWebActionFactory implements WebActionRegistry.IFactory {
 			if(null == method)
 				return null;
 		}
-		final Method drophandler = method;
+		final Method theMethod = method;
 		return new IWebActionHandler() {
 			@Override
-			public void handleWebAction(@Nonnull NodeBase nodein, @Nonnull IRequestContext context) throws Exception {
+			public void handleWebAction(@Nonnull NodeBase nodein, @Nonnull RequestContextImpl context, boolean responseExpected) throws Exception {
 				try {
-					drophandler.invoke(nodein, context);
+					Object response = theMethod.invoke(nodein, context);
+					if(responseExpected) {
+						if(theMethod.getReturnType() != Void.TYPE) {
+							JsonWebActionFactory.renderResponse(theMethod, context, response);
+						}
+					}
 				} catch(InvocationTargetException itx) {
 					throw WrappedException.unwrap(itx);
 				}
-
 			}
 		};
 	}

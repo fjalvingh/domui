@@ -11,8 +11,10 @@ import to.etc.json.*;
 import to.etc.util.*;
 
 /**
- * This action factory tries to find a method called "webAction"+actionCode which accepts a single java class type.
- *
+ * This action factory tries to find a method with the name specified in actionCode which accepts a single java class type
+ * which will be marshalled from a "json" request parameter. The response is either void (in which case it is assumed
+ * the call did any of it's work by manipulating data) or it is an Object which will be rendered as a JSON response inside
+ * the request.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 18, 2013
@@ -35,10 +37,28 @@ public class JsonWebActionFactory implements WebActionRegistry.IFactory {
 					Type paramType = m.getGenericParameterTypes()[0];	// Get full parameter declaration,
 					return new JsonWebAction(m, formal, paramType);
 				}
-				return null;										// Quick exit if name is found but arguments do not match
+				return null;											// Quick exit if name is found but arguments do not match
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Render the response as a JSON object, by default.
+	 * @param calledMethod
+	 * @param ctx
+	 * @param response
+	 * @throws Exception
+	 */
+	static public void renderResponse(@Nonnull Method calledMethod, @Nonnull RequestContextImpl ctx, @Nullable Object response) throws Exception {
+		ctx.getResponse().setContentType("application/javascript; charset=UTF-8");
+		ctx.getResponse().setCharacterEncoding("UTF-8");
+		Writer out = ctx.getResponse().getWriter();
+		try {
+			JSON.render(out, response);
+		} finally {
+			FileTool.closeAll(out);
+		}
 	}
 }
 
@@ -59,7 +79,7 @@ class JsonWebAction implements IWebActionHandler {
 	}
 
 	@Override
-	public void handleWebAction(@Nonnull NodeBase node, @Nonnull IRequestContext context) throws Exception {
+	public void handleWebAction(@Nonnull NodeBase node, @Nonnull RequestContextImpl context, boolean responseExpected) throws Exception {
 		String json = context.getParameter("json");						// Get required json parameter
 		if(null == json)
 			throw new IllegalArgumentException("The request parameter 'json' is missing for web action method " + m_method);
@@ -67,7 +87,12 @@ class JsonWebAction implements IWebActionHandler {
 		StringReader sr = new StringReader(json);
 		Object decoded = JSON.decode(m_formal, m_paramType, sr);
 		try {
-			m_method.invoke(node, decoded);
+			Object response = m_method.invoke(node, decoded);
+			if(responseExpected) {
+				if(m_method.getReturnType() != Void.TYPE) {
+					JsonWebActionFactory.renderResponse(m_method, context, response);
+				}
+			}
 		} catch(Exception x) {
 			throw WrappedException.unwrap(x);
 		}
