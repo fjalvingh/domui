@@ -85,7 +85,7 @@ abstract public class QNodeVisitorBase implements QNodeVisitor {
 	}
 
 	@Override
-	public void visitOrderList(List<QOrder> orderlist) throws Exception {
+	public void visitOrderList(@Nonnull List<QOrder> orderlist) throws Exception {
 		for(@Nonnull
 		QOrder o : orderlist)
 			o.visit(this);
@@ -127,7 +127,7 @@ abstract public class QNodeVisitorBase implements QNodeVisitor {
 	}
 
 	@Override
-	public void visitSubquery(QSubQuery< ? , ? > n) throws Exception {
+	public void visitSubquery(@Nonnull QSubQuery< ? , ? > n) throws Exception {
 		throw new UnsupportedOperationException("Subqueries are not supported");
 	}
 

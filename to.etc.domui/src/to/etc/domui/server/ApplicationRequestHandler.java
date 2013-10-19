@@ -46,13 +46,12 @@ import to.etc.domui.util.*;
 import to.etc.template.*;
 import to.etc.util.*;
 import to.etc.webapp.*;
-import to.etc.webapp.core.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
 
 /**
- * Mostly silly handler to handle direct DOM requests. Phaseless handler for testing
- * direct/delta building only using a reloadable class.
+ * Main handler for DomUI page requests. This handles all requests that target or come
+ * from a DomUI page.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on May 22, 2008
@@ -80,7 +79,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 	@Override
 	public void handleRequest(@Nonnull final RequestContextImpl ctx) throws Exception {
-		ServerTools.generateNoCache(ctx.getResponse()); 				// All replies may not be cached at all!!
+		ctx.getRequestResponse().setNoCache();					// All replies may not be cached at all!!
 		handleMain(ctx);
 		ctx.getSession().dump();
 	}
@@ -179,7 +178,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		/*
 		 * If this is a full render request the URL must contain a $CID... If not send a redirect after allocating a window.
 		 */
-		String action = ctx.getRequest().getParameter("webuia"); 				// AJAX action request?
+		String action = ctx.getParameter(Constants.PARAM_UIACTION); 			// AJAX action request?
 		String cid = ctx.getParameter(Constants.PARAM_CONVERSATION_ID);
 		CidPair cida = cid == null ? null : CidPair.decode(cid);
 
@@ -207,9 +206,10 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			ctx.getSession().internalObituaryReceived(cida.getWindowId(), pageTag);
 
 			//-- Send a silly response.
-			ctx.getResponse().setContentType("text/html");
-			/*Writer w = */ctx.getResponse().getWriter();
-			//			w.append("<html><body><p>Obituary?</body></html>\n");
+			ctx.getOutputWriter("text/html", "utf-8");
+
+//			ctx.getResponse().setContentType("text/html");
+//			/*Writer w = */ctx.getResponse().getWriter();
 			return; // Obituaries get a zero response.
 		}
 
@@ -246,11 +246,15 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				 * reloader event. In that case it's page shelve will be stored in the HttpSession or
 				 * perhaps in a state file. Try to resurrect that page shelve as to not lose the navigation history.
 				 */
-				HttpSession hs = ctx.getRequest().getSession();
-				if(null != hs) {
-					String newid = cm.internalAttemptReload(hs, clz, PageParameters.createFrom(ctx), cida.getWindowId());
-					if(newid != null)
-						conversationId = newid;
+				if(ctx.getRequestResponse() instanceof HttpServerRequestResponse) {
+					HttpServerRequestResponse srr = (HttpServerRequestResponse) ctx.getRequestResponse();
+
+					HttpSession hs = srr.getRequest().getSession();
+					if(null != hs) {
+						String newid = cm.internalAttemptReload(hs, clz, PageParameters.createFrom(ctx), cida.getWindowId());
+						if(newid != null)
+							conversationId = newid;
+					}
 				}
 			}
 
@@ -261,9 +265,13 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 			//-- EXPERIMENTAL 20121008 jal - if the code was sent through a POST - the data can be huge so we need a workaround for the get URL.
 			PageParameters pp = PageParameters.createFrom(ctx);
-			if("post".equalsIgnoreCase(ctx.getRequest().getMethod()) && pp.getDataLength() > 768) {
-				redirectForPost(ctx, cm, pp);
-				return;
+			if(ctx.getRequestResponse() instanceof HttpServerRequestResponse) {
+				HttpServerRequestResponse srr = (HttpServerRequestResponse) ctx.getRequestResponse();
+
+				if("post".equalsIgnoreCase(srr.getRequest().getMethod()) && pp.getDataLength() > 768) {
+					redirectForPost(ctx, cm, pp);
+					return;
+				}
 			}
 			//-- END EXPERIMENTAL
 
@@ -308,7 +316,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		 * request we'll always respond with a full page re-render, but we must check to see if
 		 * the page has been requested with different parameters this time.
 		 */
-		PageParameters papa = null;							// Null means: ajax request, not a full page.
+		PageParameters papa = null;								// Null means: ajax request, not a full page.
 		if(action == null) {
 			papa = PageParameters.createFrom(ctx);
 
@@ -363,10 +371,18 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		}
 
 		if(page == null) {
-			throw new IllegalStateException("Page can not be null here. Null is already handler inside expired AJAX request handling.");
+			throw new IllegalStateException("Page can not be null here. Null is already handled inside expired AJAX request handling.");
 		}
 
 		UIContext.internalSet(page);
+
+		/*
+		 * Handle all out-of-bound actions: those that do not manipulate UI state.
+		 */
+		if(action != null && action.startsWith("#")) {
+			runComponentAction(ctx, page, action.substring(1));
+			return;
+		}
 
 		//-- All commands EXCEPT ASYPOLL have all fields, so bind them to the current component data,
 		List<NodeBase> pendingChangeList = Collections.EMPTY_LIST;
@@ -443,16 +459,18 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			page.callRequestStarted();
 
 			m_application.internalCallPageComplete(ctx, page);
+			page.getBody().internalOnBeforeRender();
 			page.internalDeltaBuild(); // If listeners changed the page-> rebuild those parts
 			// END ORDERED
 
 			//-- Start the main rendering process. Determine the browser type.
-			if(page.isRenderAsXHTML())
-				ctx.getResponse().setContentType("application/xhtml+xml; charset=UTF-8");
-			else
-				ctx.getResponse().setContentType("text/html; charset=UTF-8");
-			ctx.getResponse().setCharacterEncoding("UTF-8");
-			IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
+			Writer w;
+			if(page.isRenderAsXHTML()) {
+				w = ctx.getOutputWriter("application/xhtml+xml; charset=UTF-8", "utf-8");
+			} else {
+				w = ctx.getOutputWriter("text/html; charset=UTF-8", "utf-8");
+			}
+			IBrowserOutput out = new PrettyXmlOutputWriter(w);
 
 			HtmlFullRenderer hr = m_application.findRendererFor(ctx.getBrowserVersion(), out);
 			hr.render(ctx, page);
@@ -507,6 +525,32 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		page.getConversation().startDelayedExecution();
 	}
 
+	/**
+	 * Handle out-of-bound component requests. These are not allowed to change the tree but must return a result
+	 * by themselves.
+	 *
+	 * @param ctx
+	 * @param page
+	 */
+	private void runComponentAction(@Nonnull RequestContextImpl ctx, @Nonnull Page page, @Nonnull String action) throws Exception {
+		m_application.internalCallPageAction(ctx, page);
+		page.callRequestStarted();
+		try {
+			NodeBase wcomp = null;
+			String wid = ctx.getParameter("webuic");
+			if(wid != null) {
+				wcomp = page.findNodeByID(wid);
+			}
+			if(wcomp == null)
+				return;
+			page.setTheCurrentNode(wcomp);
+			wcomp.componentHandleWebDataRequest(ctx, action);
+		} finally {
+			page.callRequestFinished();
+			page.setTheCurrentNode(null);
+		}
+	}
+
 	private void generateNonReloadableExpired(RequestContextImpl ctx, WindowSession cm) throws Exception {
 		StringBuilder sb = new StringBuilder();
 		sb.append(ExpiredSessionPage.class.getName()).append('.').append(DomApplication.get().getUrlExtension());
@@ -519,7 +563,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	}
 
 	/**
-	 * EXPERIMENTAL - fix for huge POST requests being resent as a get.
+	 * Fix for huge POST requests being resent as a get.
 	 * @param ctx
 	 * @param cm
 	 * @param pp2
@@ -533,7 +577,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		cc.setAttribute("__ORIPP", pp);
 
 		//-- Create an unique hash for the page parameters
-		String hashString = pp.calculateHashString();				// The unique hash of a page with these parameters
+		String hashString = pp.calculateHashString();			// The unique hash of a page with these parameters
 
 		StringBuilder sb = new StringBuilder(256);
 
@@ -558,7 +602,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 */
 	private void checkFullExceptionCount(Page page, Exception x) throws Exception {
 		//-- Full renderer aborted. Handle exception counting.
-		if(!page.isFullRenderCompleted()) { // Has the page at least once rendered OK?
+		if(!page.isFullRenderCompleted()) {						// Has the page at least once rendered OK?
 			//-- This page is initially unrenderable; the error is not due to state changes. Just rethrow and give up.
 			throw x;
 		}
@@ -590,18 +634,18 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 * @throws Exception
 	 */
 	private boolean checkAccess(final WindowSession cm, final RequestContextImpl ctx, final Page page) throws Exception {
-		if(ctx.getRequest().getParameter("webuia") != null)
+		if(ctx.getParameter("webuia") != null)
 			throw new IllegalStateException("Cannot be called for an AJAX request");
-		UrlPage body = page.getBody();										// The actual, instantiated and injected class - which is unbuilt, though
+		UrlPage body = page.getBody();							// The actual, instantiated and injected class - which is unbuilt, though
 		UIRights rann = body.getClass().getAnnotation(UIRights.class);		// Get class annotation
 		IRightsCheckedManually rcm = body instanceof IRightsCheckedManually ? (IRightsCheckedManually) body : null;
 
-		if(rann == null && rcm == null) {									// Any kind of rights checking is required?
-			return true;													// No -> allow access.
+		if(rann == null && rcm == null) {						// Any kind of rights checking is required?
+			return true;										// No -> allow access.
 		}
 
 		//-- Get user's IUser; if not present we need to log in.
-		IUser user = UIContext.getCurrentUser(); 							// Currently logged in?
+		IUser user = UIContext.getCurrentUser(); 				// Currently logged in?
 		if(user == null) {
 			redirectToLoginPage(cm, ctx);
 			return false;
@@ -611,7 +655,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		String failureReason = null;
 		try {
 			if(null != rcm) {
-				boolean allowed = rcm.isAccessAllowedBy(user);				// Call interface: it explicitly allows
+				boolean allowed = rcm.isAccessAllowedBy(user);	// Call interface: it explicitly allows
 				if(allowed)
 					return true;
 
@@ -619,7 +663,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			}
 
 			if(null != rann) {
-				if(checkRightsAnnotation(ctx, body, rann, user)) {			// Check annotation rights
+				if(checkRightsAnnotation(ctx, body, rann, user)) { // Check annotation rights
 					return true;
 				}
 
@@ -728,11 +772,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 * @throws Exception
 	 */
 	static public void generateHttpRedirect(final RequestContextImpl ctx, final String to, final String rsn) throws Exception {
-		//		ctx.getResponse().sendRedirect(sb.toString());	// Force redirect.
-
-		ctx.getResponse().setContentType("text/html; charset=UTF-8");
-		ctx.getResponse().setCharacterEncoding("UTF-8");
-		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
+		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/html; charset=UTF-8", "utf-8"));
 		out.writeRaw("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n" + "<html><head><script language=\"javascript\"><!--\n"
 			+ "location.replace(" + StringTool.strToJavascriptString(to, true) + ");\n" + "--></script>\n" + "</head><body>" + rsn + "</body></html>\n");
 	}
@@ -747,9 +787,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		if(LOG.isInfoEnabled())
 			LOG.info("redirecting to " + url);
 
-		ctx.getResponse().setContentType("text/xml; charset=UTF-8");
-		ctx.getResponse().setCharacterEncoding("UTF-8");
-		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
+		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"));
 		out.tag("redirect");
 		out.attr("url", url);
 		out.endAndCloseXmltag();
@@ -765,9 +803,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 */
 	private void generateExpired(final RequestContextImpl ctx, final String message) throws Exception {
 		//-- We stay on the same page. Render tree delta as response
-		ctx.getResponse().setContentType("text/xml; charset=UTF-8");
-		ctx.getResponse().setCharacterEncoding("UTF-8");
-		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
+		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"));
 		out.tag("expired");
 		out.endtag();
 
@@ -780,9 +816,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 	private void generateEmptyDelta(final RequestContextImpl ctx) throws Exception {
 		//-- We stay on the same page. Render tree delta as response
-		ctx.getResponse().setContentType("text/xml; charset=UTF-8");
-		ctx.getResponse().setCharacterEncoding("UTF-8");
-		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
+		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"));
 		out.tag("delta");
 		out.endtag();
 		out.closetag("delta");
@@ -796,9 +830,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 */
 	private void generateExpiredPollasy(final RequestContextImpl ctx) throws Exception {
 		//-- We stay on the same page. Render tree delta as response
-		ctx.getResponse().setContentType("text/xml; charset=UTF-8");
-		ctx.getResponse().setCharacterEncoding("UTF-8");
-		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
+		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"));
 		out.tag("expiredOnPollasy");
 		out.endtag();
 		out.closetag("expiredOnPollasy");
@@ -854,7 +886,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		page.callRequestStarted();
 
 		NodeBase wcomp = null;
-		String wid = ctx.getRequest().getParameter("webuic");
+		String wid = ctx.getParameter(Constants.PARAM_UICOMPONENT);
 		if(wid != null) {
 			wcomp = page.findNodeByID(wid);
 			// jal 20091120 The code below was active but is nonsense because we do not return after generateExpired!?
@@ -1000,14 +1032,13 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	static private void renderOptimalDelta(final RequestContextImpl ctx, final Page page, boolean inhibitlog) throws Exception {
 		// ORDERED
 		//-- 20100519 jal Force full rebuild before rendering, always. See bug 688.
+		page.getBody().internalOnBeforeRender();
 		page.internalDeltaBuild();
 		ctx.getApplication().internalCallPageComplete(ctx, page);
 		page.internalDeltaBuild();
 		// /ORDERED
 
-		ctx.getResponse().setContentType("text/xml; charset=UTF-8");
-		ctx.getResponse().setCharacterEncoding("UTF-8");
-		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter());
+		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"));
 
 		long ts = System.nanoTime();
 		//		String	usag = ctx.getUserAgent();
@@ -1074,8 +1105,11 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 */
 	private void renderOopsFrame(@Nonnull RequestContextImpl ctx, @Nonnull Throwable x) throws Exception {
 		x.printStackTrace();
-		HttpServletResponse resp = ctx.getResponse();
-		resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);				// Fail with proper response code.
+		if(ctx.getRequestResponse() instanceof HttpServerRequestResponse) {
+			HttpServerRequestResponse srr = (HttpServerRequestResponse) ctx.getRequestResponse();
+			HttpServletResponse resp = srr.getResponse();
+			resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);				// Fail with proper response code.
+		}
 		Map<String, Object> dataMap = new HashMap<>();
 		dataMap.put("x", x);
 		dataMap.put("ctx", ctx);
@@ -1094,7 +1128,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		dataMap.put("message", StringTool.htmlStringize(x.toString()));
 
 
-		Writer w = resp.getWriter();
+		Writer w = ctx.getRequestResponse().getOutputWriter("text/html", "utf-8");
 		JSTemplate xt = getExceptionTemplate();
 		xt.execute(w, dataMap);
 		w.flush();

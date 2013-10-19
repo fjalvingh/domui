@@ -36,7 +36,7 @@ public interface IParameterInfo {
 	@Nullable
 	public String getParameter(@Nonnull String name);
 
-	@Nullable
+	@Nonnull
 	public String[] getParameters(@Nonnull String name);
 
 	@Nonnull

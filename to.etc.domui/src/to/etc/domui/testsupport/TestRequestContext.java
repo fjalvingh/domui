@@ -89,7 +89,8 @@ public class TestRequestContext implements IRequestContext {
 	}
 
 	@Override
-	public @Nonnull Writer getOutputWriter() throws IOException {
+	@Nonnull
+	public Writer getOutputWriter(@Nonnull String contentType, @Nullable String encoding) throws IOException {
 		if(m_sw == null)
 			m_sw = new StringWriter();
 		return m_sw;
@@ -133,25 +134,26 @@ public class TestRequestContext implements IRequestContext {
 	}
 
 	@Override
+	@Nonnull
 	public String[] getParameters(final @Nonnull String name) {
-		return m_parameterMap.get(name);
-	}
-
-	@Override
-	public String getRemoteUser() {
-		return "VPC";
+		String[] strings = m_parameterMap.get(name);
+		return strings == null ? new String[0] : strings;
 	}
 
 	@Override
 	public BrowserVersion getBrowserVersion() {
 		return null;
 	}
-	/**
-	 * FIXME Does this need more?
-	 * @see to.etc.domui.server.IRequestContext#hasPermission(java.lang.String)
-	 */
+
 	@Override
-	public boolean hasPermission(final @Nonnull String permissionName) {
-		return true;
+	@Nonnull
+	public IRequestResponse getRequestResponse() {
+		throw new IllegalStateException("Not implemented");
+	}
+
+	@Override
+	@Nullable
+	public IServerSession getServerSession(boolean create) {
+		throw new IllegalStateException("Not implemented");
 	}
 }

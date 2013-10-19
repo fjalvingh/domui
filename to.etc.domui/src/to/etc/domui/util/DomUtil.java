@@ -44,7 +44,6 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
 import to.etc.domui.trouble.*;
-import to.etc.net.*;
 import to.etc.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.nls.*;
@@ -464,7 +463,7 @@ final public class DomUtil {
 	 * @return
 	 */
 	static public String getApplicationURL() {
-		return NetTools.getApplicationURL(((RequestContextImpl) UIContext.getRequestContext()).getRequest());
+		return ((RequestContextImpl) UIContext.getRequestContext()).getRequestResponse().getApplicationURL();
 	}
 
 	/**
@@ -473,7 +472,7 @@ final public class DomUtil {
 	 * @return
 	 */
 	static public String getApplicationContext() {
-		return NetTools.getApplicationContext(((RequestContextImpl) UIContext.getRequestContext()).getRequest());
+		return ((RequestContextImpl) UIContext.getRequestContext()).getRequestResponse().getWebappContext();
 	}
 
 	/**
@@ -501,6 +500,51 @@ final public class DomUtil {
 		if(pp != null)
 			addUrlParameters(sb, pp, true);
 		return sb.toString();
+	}
+
+	@Nonnull
+	public static String getAdjustedPageUrl(@Nonnull Page page, @Nullable IPageParameters pp) {
+		PageParameters newpp = mergePageParameters(pp);
+		StringBuilder sb = getPageContextURL(page);
+		DomUtil.addUrlParameters(sb, newpp, false);
+		return sb.toString();
+	}
+
+	@Nonnull
+	public static String getAdjustedComponentUrl(@Nonnull NodeBase component, @Nonnull String command, @Nullable IPageParameters pp) {
+		PageParameters newpp = mergePageParameters(pp);
+
+		//-- Add the action code.
+		newpp.addParameter("webuia", command);
+		newpp.addParameter("webuic", component.getActualID());
+
+		StringBuilder sb = getPageContextURL(component.getPage());
+		DomUtil.addUrlParameters(sb, newpp, false);
+		return sb.toString();
+	}
+
+	@Nonnull
+	private static PageParameters mergePageParameters(@Nullable IPageParameters pp) {
+		PageParameters newpp = PageParameters.createFrom(UIContext.getRequestContext());
+		if(null != pp) {
+			for(String name : pp.getParameterNames()) {
+				String value = pp.getString(name);
+				newpp.addParameter(name, value);
+			}
+		}
+		return newpp;
+	}
+
+	@Nonnull
+	private static StringBuilder getPageContextURL(@Nonnull Page page) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(UIContext.getRequestContext().getRelativePath(page.getBody().getClass().getName()));
+		sb.append(".").append(DomApplication.get().getUrlExtension());
+		sb.append("?");
+		sb.append(Constants.PARAM_CONVERSATION_ID);
+		sb.append("=");
+		StringTool.encodeURLEncoded(sb, page.getConversation().getFullId());
+		return sb;
 	}
 
 	/**
@@ -561,6 +605,7 @@ final public class DomUtil {
 		}
 		return sb.toString();
 	}
+
 
 	/**
 	 * Calculate a full URL from a rurl. If the rurl starts with a scheme it is returned verbatim;

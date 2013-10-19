@@ -237,7 +237,7 @@ public class DataCellTable<T> extends SelectableTabularComponent<T> implements I
 			td.addCssClass("ui-clickable");
 			td.setClicked(new IClicked<Div>() {
 				@Override
-				public void clicked(Div clickednode) throws Exception {
+				public void clicked(@Nonnull Div clickednode) throws Exception {
 					handleSelectionClick(td, value);
 				}
 			});

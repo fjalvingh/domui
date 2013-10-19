@@ -635,7 +635,7 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 
 	@Deprecated
 	@Override
-	public void visitSelectionSubquery(QSelectionSubquery qSelectionSubquery) throws Exception {
+	public void visitSelectionSubquery(@Nonnull QSelectionSubquery qSelectionSubquery) throws Exception {
 		throw new IllegalStateException("Subqueries are not supported");
 	}
 }

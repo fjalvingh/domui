@@ -2628,4 +2628,12 @@ public class StringTool {
 			throw new WrappedException(e);
 		}
 	}
+
+	@Nonnull
+	public static String getCapitalized(@Nonnull String name) {
+		if(name.length() == 0)
+			return name;
+		char c = name.charAt(0);
+		return Character.toUpperCase(c) + name.substring(1).toLowerCase();
+	}
 }

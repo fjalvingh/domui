@@ -95,8 +95,8 @@ final public class HttpSessionLink implements IReloadedClassesListener, HttpSess
 		synchronized(this) {
 			s = m_appSession;
 			if(s == null)
-				s = m_appSession = new AppSession(app);
-			else if(m_appSession.getApplication() != app)
+				s = m_appSession = app.createSession();
+			else if(s.getApplication() != app)
 				throw new IllegalStateException("Different DomApplication instances??");
 		}
 		return s;

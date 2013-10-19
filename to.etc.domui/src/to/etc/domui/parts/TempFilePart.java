@@ -87,7 +87,7 @@ public class TempFilePart implements IUnbufferedPartFactory {
 		sb.append(".part?key=").append(key).append("&passkey=").append(pw);
 		return sb.toString();
 	}
-	
+
 	/**
 	 * Saves blob into temporary file, register temporary file in provided context, and returns generated download link.
 	 * @param ctx
@@ -117,11 +117,9 @@ public class TempFilePart implements IUnbufferedPartFactory {
 			throw new ThingyNotFoundException("The content with content-id " + fkey + "/" + fpw + " cannot be found");
 
 		//-- Present: render to output.
-		param.getResponse().setContentType(fi.getMime());
 		if(fi.getDisposition() != null)
-			param.getResponse().addHeader("Content-Disposition", fi.getDisposition());
-		param.getResponse().setContentLength((int) fi.getSource().length());
-		OutputStream os = param.getResponse().getOutputStream();
+			param.getRequestResponse().addHeader("Content-Disposition", fi.getDisposition());
+		OutputStream os = param.getRequestResponse().getOutputStream(fi.getMime(), null, (int) fi.getSource().length());
 		InputStream	is	= new FileInputStream(fi.getSource());
 		try {
 			FileTool.copyFile(os, is);

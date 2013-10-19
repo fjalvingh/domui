@@ -32,7 +32,7 @@ import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 
-public class TextArea extends InputNodeContainer implements IControl<String>, IHasModifiedIndication {
+public class TextArea extends InputNodeContainer implements IControl<String>, IHasModifiedIndication, IHtmlInput {
 	private int m_cols = -1;
 
 	private int m_rows = -1;

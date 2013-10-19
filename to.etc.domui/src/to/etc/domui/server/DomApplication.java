@@ -43,6 +43,7 @@ import to.etc.domui.dom.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.dom.webaction.*;
 import to.etc.domui.injector.*;
 import to.etc.domui.login.*;
 import to.etc.domui.parts.*;
@@ -142,8 +143,6 @@ public abstract class DomApplication {
 	@Nonnull
 	private List<IHtmlRenderFactory> m_renderFactoryList = new ArrayList<IHtmlRenderFactory>();
 
-	final private String m_scriptVersion;
-
 	@Nonnull
 	private List<IResourceFactory> m_resourceFactoryList = Collections.EMPTY_LIST;
 
@@ -187,18 +186,54 @@ public abstract class DomApplication {
 	@Nonnull
 	private List<IAsyncListener< ? >> m_asyncListenerList = Collections.emptyList();
 
+	@Nonnull
+	private final WebActionRegistry m_webActionRegistry = new WebActionRegistry();
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Initialization and session management.				*/
 	/*--------------------------------------------------------------*/
+	static private String[][] JQUERYSETS = {												//
+		{"1.4.4", "jquery-1.4.4", "jquery.js", "jquery-ui.js"},								//
+		{"1.10.2", "jquery-1.10.2", "jquery.js", "jquery-ui.js", "jquery-migrate.js"},		//
+
+	};
+
+	@Nonnull
+	private String m_jQueryVersion;
+
+	@Nonnull
+	private List<String> m_jQueryScripts;
+
+	@Nonnull
+	private String m_jQueryPath;
+
 	/**
 	 * The only constructor.
 	 */
 	public DomApplication() {
-		m_scriptVersion = DeveloperOptions.getString("domui.scriptversion", "jquery-1.4.4");
+		//-- Handle jQuery version.
+		String jqversion = DeveloperOptions.getString("domui.jqueryversion", "1.10.2");
+		String[] jqdata = null;
+		for(String[] jqd : JQUERYSETS) {
+			if(jqd[0].equalsIgnoreCase(jqversion)) {
+				jqdata = jqd;
+				break;
+			}
+		}
+		if(null == jqdata || null == jqversion)
+			throw new IllegalStateException("jQuery version '" + jqversion + "' not supported");
+		m_jQueryVersion = jqversion;
+		m_jQueryPath = jqdata[1];
+		List<String> jqp = new ArrayList<String>(jqdata.length - 2);
+		for(int i = 2; i < jqdata.length; i++)
+			jqp.add(jqdata[i]);
+		m_jQueryScripts = jqp;
+
 		registerControlFactories();
 		registerPartFactories();
 		initHeaderContributors();
-		addRenderFactory(new MsCrapwareRenderFactory()); // Add html renderers for IE <= 8
+		initializeWebActions();
+		addRenderFactory(new MsCrapwareRenderFactory()); 						// Add html renderers for IE <= 8
 		addExceptionListener(QNotFoundException.class, new IExceptionListener() {
 			@Override
 			public boolean handleException(final @Nonnull IRequestContext ctx, final @Nonnull Page page, final @Nullable NodeBase source, final @Nonnull Throwable x) throws Exception {
@@ -354,6 +389,16 @@ public abstract class DomApplication {
 	}
 
 	/**
+	 * Can be overridden to create your own instance of a session.
+	 * @return
+	 */
+	@Nonnull
+	public AppSession createSession() {
+		AppSession aps = new AppSession(this);
+		return aps;
+	}
+
+	/**
 	 * Called when the session is bound to the HTTPSession. This calls all session listeners.
 	 * @param sess
 	 */
@@ -413,7 +458,7 @@ public abstract class DomApplication {
 				throw new IllegalArgumentException("The 'extension' parameter contains too many dots...");
 			m_urlExtension = ext;
 		}
-		
+
 		m_developmentMode = development;
 		if(m_developmentMode && DeveloperOptions.getBool("domui.traceallocations", true))
 			NodeBase.internalSetLogAllocations(true);
@@ -427,7 +472,7 @@ public abstract class DomApplication {
 			m_uiTestMode = true;
 
 		initialize(pp);
-		
+
 		/*
 		 * If we're running in development mode then we auto-reload changed pages when the developer changes
 		 * them. It can be reset by using a developer.properties option. If output logging is on then by
@@ -482,8 +527,39 @@ public abstract class DomApplication {
 		return (Class< ? extends UrlPage>) clz;
 	}
 
+	@Nonnull
 	public String getScriptVersion() {
-		return m_scriptVersion;
+		return m_jQueryPath;
+	}
+
+	@Nonnull
+	public List<String> getJQueryScripts() {
+		return m_jQueryScripts;
+	}
+
+	public String getJQueryVersion() {
+		return m_jQueryVersion;
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	WebActionRegistry.									*/
+	/*--------------------------------------------------------------*/
+
+	/**
+	 * Get the action registry for  {@link NodeBase#componentHandleWebAction(RequestContextImpl, String)} requests.
+	 * @return
+	 */
+	@Nonnull
+	public WebActionRegistry getWebActionRegistry() {
+		return m_webActionRegistry;
+	}
+
+	/**
+	 * Register all default web actions for {@link NodeBase#componentHandleWebAction(RequestContextImpl, String)} requests.
+	 */
+	protected void initializeWebActions() {
+		getWebActionRegistry().register(new SimpleWebActionFactory());			// ORDERED
+		getWebActionRegistry().register(new JsonWebActionFactory());
 	}
 
 	/*--------------------------------------------------------------*/
@@ -713,8 +789,10 @@ public abstract class DomApplication {
 	/*--------------------------------------------------------------*/
 
 	protected void initHeaderContributors() {
-		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery.js"), -1000);
-		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery-ui.js"), -1000);
+		int order = -1200;
+		for(String jqresource : getJQueryScripts()) {
+			addHeaderContributor(HeaderContributor.loadJavascript("$js/" + jqresource), order++);
+		}
 
 		//		addHeaderContributor(HeaderContributor.loadJavascript("$js/ui.core.js"), -990);
 		//		addHeaderContributor(HeaderContributor.loadJavascript("$js/ui.draggable.js"), -980);
@@ -1703,7 +1781,7 @@ public abstract class DomApplication {
 			}
 		}
 	}
-	
+
 	synchronized public void setUiTestMode(boolean value){
 		m_uiTestMode = value;
 	}

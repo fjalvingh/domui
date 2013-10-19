@@ -605,7 +605,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 	}
 
 	protected void renderTag(final NodeBase b, final IBrowserOutput o) throws Exception {
-		b.onBeforeTagRender();
+//		b.onBeforeTagRender();
 		if(!m_tagless)
 			o.tag(b.getTag()); // Open the tag
 	}
@@ -674,7 +674,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 			}
 		} else {
 			if(!(b instanceof UrlPage)){
-				if(ttl != null){ 				
+				if(ttl != null){
 					o().attr("title", ttl);
 				}
 			}
@@ -960,11 +960,11 @@ public class HtmlTagRenderer implements INodeVisitor {
 			o().attr("onblur", sb().append(transformScript).append("WebUI.hideLookupTypingPopup('").append(n.getActualID()).append("')").toString());
 		} else {
 			//-- Attach normal onKeyPress handling.
-			if(n.getOnKeyPressJS() != null) {
+			if(!StringTool.isBlank(n.getOnKeyPressJS())) {
 				o().attr("onkeypress", "return " + n.getOnKeyPressJS());
 			}
 
-			if(!DomUtil.isBlank(transformScript)) {
+			if(!StringTool.isBlank(transformScript)) {
 				o().attr("onblur", sb().append(transformScript).toString());
 			}
 		}

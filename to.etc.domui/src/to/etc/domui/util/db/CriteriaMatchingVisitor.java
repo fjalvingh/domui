@@ -364,7 +364,7 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 	}
 
 	@Override
-	public void visitOrderList(List<QOrder> orderlist) throws Exception {
+	public void visitOrderList(@Nonnull List<QOrder> orderlist) throws Exception {
 	}
 
 	@Override

@@ -61,4 +61,9 @@ public class Constants {
 	static public final String ACMD_DEVTREE = "DEVTREE";
 
 	public static final String PARAM_POST_CONVERSATION_KEY = "xxxpck";
+
+	public static final String PARAM_UIACTION = "webuia";
+
+	public static final String PARAM_UICOMPONENT = "webuic";
+
 }

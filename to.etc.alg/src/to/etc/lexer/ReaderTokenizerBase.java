@@ -69,6 +69,26 @@ public class ReaderTokenizerBase extends ReaderScannerBase {
 		m_returnComment = returnComment;
 	}
 
+	public String getTokenString() {
+		int type = getLastToken();
+		switch(type){
+			default:
+				return "'" + Character.toString((char) type) + "'";
+			case T_EOF:
+				return "<<eof>>";
+			case T_STRING:
+				return "string:" + getCopied();
+			case T_COMMENT:
+				return "comment";
+			case T_IDENT:
+				return "identifier:" + getCopied();
+			case T_IPADDR:
+				return "ip address:+" + getCopied();
+			case T_NUMBER:
+				return "number:" + getCopied();
+		}
+	}
+
 	protected int scanString() throws IOException, SourceErrorException {
 		scanSimpleString(isKeepQuotes());
 		return T_STRING;

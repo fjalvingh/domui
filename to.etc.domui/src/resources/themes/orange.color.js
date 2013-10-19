@@ -194,6 +194,10 @@ selected_bg="#ff9436";
 caption_bg="#f0810a";
 readonly_bg="transparent";
 
+//-- Caption
+caption_separator="hr-caption.png";
+
+
 info_bg="#a9c5f1";		// blueish light
 info_fg="blue";
 info_border="blue";

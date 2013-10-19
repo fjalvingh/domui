@@ -26,6 +26,8 @@ package to.etc.domui.testsupport;
 
 import java.io.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
@@ -37,12 +39,13 @@ public class TUtilDomUI {
 	static private DomApplication m_application;
 
 	static public synchronized void setApplication(DomApplication application) throws Exception {
-		ConfigParameters cp = new ConfigParameters(null, null) {
+		ConfigParameters cp = new ConfigParameters() {
 			@Override
-			public String getString(String name) {
+			public String getString(@Nonnull String name) {
 				return null;
 			}
 
+			@Nonnull
 			@Override
 			public File getWebFileRoot() {
 				return new File("/tmp"); // FIXME Howto?
@@ -60,12 +63,14 @@ public class TUtilDomUI {
 					return null;
 				}
 			};
-			ConfigParameters cp = new ConfigParameters(null, null) {
+			ConfigParameters cp = new ConfigParameters() {
+				@Nullable
 				@Override
-				public String getString(String name) {
+				public String getString(@Nonnull String name) {
 					return null;
 				}
 
+				@Nonnull
 				@Override
 				public File getWebFileRoot() {
 					return new File("/tmp"); // FIXME Howto?

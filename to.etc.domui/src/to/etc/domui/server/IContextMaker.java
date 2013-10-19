@@ -35,5 +35,5 @@ import javax.servlet.http.*;
  * Created on May 22, 2008
  */
 public interface IContextMaker {
-	public boolean handleRequest(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull FilterChain chain) throws Exception;
+	public void handleRequest(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull FilterChain chain) throws Exception;
 }

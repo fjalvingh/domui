@@ -21,9 +21,6 @@
         <dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/bin-slf4j/lib/logback-access-0.9.18.jar">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/bin-slf4j/lib/logback-classic-0.9.18.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
         <dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/bin-slf4j/lib/logback-core-0.9.18.jar">
             <dependency-type>uses</dependency-type>
         </dependent-module>
@@ -52,6 +49,9 @@
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <dependent-module archiveName="lib-hibernate-3.3.2.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/lib-hibernate/lib-hibernate">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="to.etc.domui.formbuilder.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/to.etc.domui.formbuilder/to.etc.domui.formbuilder">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <property name="context-root" value="demo"/>

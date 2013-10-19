@@ -464,30 +464,17 @@ $(window).bind('beforeunload', function() {
 						continue;
 					} else if (dest && ($.browser.msie || $.browser.webkit || ($.browser.mozilla && $.browser.majorVersion >= 9 )) && n.substring(0, 2) == 'on') {
 						try {
-//							if(! this._xxxw)
-//								alert('event '+n+' value '+v);
-							// var se = 'function(){'+v+';}';
-							var se;
-							if (v.indexOf('return') != -1 || v.indexOf('javascript:') != -1){
-								if (!$.browser.msie && $.browser.majorVersion >= 9 ){
-									se = new Function("event", v);
-								}else{
-									se = new Function(v);
-								}
-							}else{
-								if (!$.browser.msie && $.browser.majorVersion >= 9 ){ 	
-									se = new Function("event", 'return ' + v);
-								}else{
-									se = new Function('return ' + v);
-								}
-							}
-//							if(! this._xxxw)
-//								alert('event '+n+' value '+se);
+							if(v.indexOf("javascript:") == 0)
+								v = $.trim(v.substring(11));
+							var fntext = v.indexOf("return") == 0 ? v : "return "+v;
+
+							if($.browser.msie && $.browser.majorVersion < 9)
+								se = new Function(fntext);
+							else
+								se = new Function("event", fntext);
 							dest[n] = se;
-//							this._xxxw = true;
-							
 						} catch(x) {
-							alert('Cannot set EVENT: '+n+" as "+v+' on '+dest);
+							alert('DomUI: Cannot set EVENT '+n+" as "+v+' on '+dest+": "+x);
 						}
 					} else if (n == 'style') { // IE workaround
 						dest.style.cssText = v;
@@ -578,6 +565,44 @@ $(window).bind('beforeunload', function() {
 	};
 })(jQuery);
 
+(function($) {
+	if($.browser.msie && $.browser.majorVersion < 10) {
+		$.dbg = function(a,b,c,d,e) {
+			if(window.console == undefined)
+				return;
+			switch(arguments.length) {
+			default:
+				window.console.log(a);
+				return;
+			case 2:
+				window.console.log(a,b);
+				return;
+			case 3:
+				window.console.log(a,b,c);
+				return;
+			case 4:
+				window.console.log(a,b,c,d);
+				return;
+			case 5:
+				window.console.log(a,b,c,d,e);
+				return;
+			}
+		};
+	} else if(window.console != undefined) {
+		if(window.console.debug != undefined) {
+			$.dbg = function() {
+				window.console.debug.apply(window.console, arguments);
+			};
+		} else if(window.console.log != undefined) {
+			$.dbg = function() {
+				window.console.log.apply(window.console, arguments);
+			};
+		}
+	} else {
+		$.dbg = function() {};
+	}
+})(jQuery);
+
 (function ($) {
 	$.fn.doStretch = function () {
 		return this.each(function () {
@@ -641,10 +666,11 @@ var WebUI = {
 	},
 
 	log: function() {
-		if (!window.console || !window.console.debug)
-			return;
-		window.console.debug.apply(window.console, arguments);
-		// window.console.debug("Args: "+[].join.call(arguments,''));
+		$.dbg.apply(this, arguments);
+//		if (!window.console || !window.console.debug)
+//			return;
+//		window.console.debug.apply(window.console, arguments);
+//		// window.console.debug("Args: "+[].join.call(arguments,''));
 	},
 
 	/**
@@ -783,7 +809,7 @@ var WebUI = {
 		
 		$.ajax( {
 			url :DomUI.getPostURL(),
-			dataType :"text/xml",
+			dataType :"*",
 			data :fields,
 			cache :false,
 			type: "POST",
@@ -806,13 +832,142 @@ var WebUI = {
 
 		$.ajax( {
 			url :DomUI.getPostURL(),
-			dataType :"text/xml",
+			dataType :"*",
 			data :fields,
 			cache :false,
 			type: "POST",
 			success :WebUI.handleResponse,
 			error :WebUI.handleError
 		});
+	},
+
+	/**
+	 * Send a server request to a component, which will be handled by that component's componentHandleWebAction
+	 * method. The json data is sent as a string parameter with the name "json"; the response is handled as a normal
+	 * DomUI page request: the page is updated and any delta is returned.
+	 * @returns void
+	 */
+	sendJsonAction: function(id, action, json) {
+		var fields = new Object();
+		fields.json = JSON.stringify(json);
+		WebUI.scall(id, action, fields);
+	},
+
+	/**
+	 * Call a JSON handler on a component. This is "out of bound": the current browser state of
+	 * the page is /not/ sent, and the response must be a JSON document which will be the return
+	 * value of this function.
+	 *
+	 * @param id
+	 * @param fields
+	 * @returns
+	 */
+	callJsonFunction: function(id, action, fields) {
+		if (!fields)
+			fields = new Object();
+		fields.webuia = "#"+action;
+		fields.webuic = id;
+		fields["$pt"] = DomUIpageTag;
+		fields["$cid"] = DomUICID;
+
+		var response = "";
+		$.ajax( {
+			url :DomUI.getPostURL(),
+			dataType :"text/xml",
+			data :fields,
+			cache :false,
+			async: false,
+			type: "POST",
+			success : function(data, state) {
+				response = data;
+			},
+			error :WebUI.handleError
+		});
+//		console.debug("jsoncall-", response);
+//		try {
+			return eval("("+response+")");
+//		} catch(x) {
+//			console.debug("json data error", x);
+//		}
+	},
+
+	/**
+	 * Send a server request to a component, which will be handled by that component's componentHandleWebAction
+	 * method. The json data is sent as a string parameter with the name "json"; the response is handled as a normal
+	 * DomUI page request: the page is updated and any delta is returned.
+	 * @returns void
+	 */
+	sendJsonAction: function(id, action, json) {
+		var fields = new Object();
+		fields.json = JSON.stringify(json);
+		WebUI.scall(id, action, fields);
+	},
+
+	/**
+	 * Call a JSON handler on a component. This is "out of bound": the current browser state of
+	 * the page is /not/ sent, and the response must be a JSON document which will be the return
+	 * value of this function.
+	 *
+	 * @param id
+	 * @param fields
+	 * @returns
+	 */
+	callJsonFunction: function(id, action, fields) {
+		if (!fields)
+			fields = new Object();
+		fields.webuia = "#"+action;
+		fields.webuic = id;
+		fields["$pt"] = DomUIpageTag;
+		fields["$cid"] = DomUICID;
+
+		var response = "";
+		$.ajax( {
+			url :DomUI.getPostURL(),
+			dataType :"text/xml",
+			data :fields,
+			cache :false,
+			async: false,
+			type: "POST",
+			success : function(data, state) {
+				response = data;
+			},
+			error :WebUI.handleError
+		});
+//		console.debug("jsoncall-", response);
+//		try {
+			return eval("("+response+")");
+//		} catch(x) {
+//			console.debug("json data error", x);
+//		}
+	},
+	
+	jsoncall: function(id, fields) {
+		if (!fields)
+			fields = new Object();
+		fields.webuia = "$pagejson";
+		fields.webuic = id;
+		fields["$pt"] = DomUIpageTag;
+		fields["$cid"] = DomUICID;
+
+		var response = "";
+		$.ajax( {
+			url :DomUI.getPostURL(),
+			dataType :"text/xml",
+			data :fields,
+			cache :false,
+			async: false,
+			type: "POST",
+			success : function(data, state) {
+				response = data;
+			},
+			error :WebUI.handleError
+		});
+//		console.debug("jsoncall-", response);
+//		try {
+			return eval("("+response+")");
+//		} catch(x) {
+//			console.debug("json data error", x);
+//		}
 	},
 
 	clickandchange: function(h, id, evt) {
@@ -846,7 +1001,7 @@ var WebUI = {
 
 		$.ajax( {
 			url :DomUI.getPostURL(),
-			dataType :"text/xml",
+			dataType :"*",
 			data :fields,
 			cache :false,
 			type: "POST",
@@ -1159,7 +1314,7 @@ var WebUI = {
 
 			$.ajax( {
 				url :DomUI.getPostURL(),
-				dataType :"text/xml",
+				dataType :"*",
 				data :fields,
 				cache :false,
 				type: "POST",
@@ -1204,7 +1359,7 @@ var WebUI = {
 
 		$.ajax( {
 			url :DomUI.getPostURL(),
-			dataType :"text/xml",
+			dataType :"*",
 			data :fields,
 			cache :false,
 			type: "POST",
@@ -1249,6 +1404,7 @@ var WebUI = {
 			return;
 
 		WebUI._asyalerted = true;
+		console.log("asy error: "+status, exc);
 		
 		var txt = request.responseText || "No response - status="+status;
 		if(txt.length > 512)
@@ -1368,7 +1524,7 @@ var WebUI = {
 	focus : function(id) {
 		var n = document.getElementById(id);
 		if(n) {
-			if($.browser.isIE) {
+			if($.browser.msie) {
 				setTimeout(function() { try { n.focus();} catch (e) { /*just ignore */ } }, 100); //Due to IE bug, we need to set focus on timeout :( See http://www.mkyong.com/javascript/focus-is-not-working-in-ie-solution/
 			} else {
 				try {
@@ -1827,7 +1983,7 @@ var WebUI = {
 
 		$.ajax( {
 			url :window.location.href,
-			dataType :"text/xml",
+			dataType :"*", // "text/xml",
 			data :fields,
 			cache :false,
 			global: false, // jal 20091015 prevent block/unblock on polling call.
@@ -1848,7 +2004,7 @@ var WebUI = {
 		fields["$cid"] = DomUICID;
 		$.ajax( {
 			url: url,
-			dataType: "text/xml",
+			dataType: "*",
 			data: fields,
 			cache: false,
 			global: false, // jal 20091015 prevent block/unblock on polling call.
@@ -2595,9 +2751,13 @@ var WebUI = {
 	},
 	
 	recalculateAutoHeight: function(topid, flexid, bottom) {
-		var tbot = $(topid).offset().top + $(topid).height();
-		var height = $(window).height() - tbot - bottom;
-		$(flexid).height(height+"px");
+		try {
+			var tbot = $(topid).offset().top + $(topid).height();
+			var height = $(window).height() - tbot - bottom;
+			$(flexid).height(height+"px");
+		} catch(x) {
+			//-- Ignore for now
+		}
 	},
 	
 	/** *************** Debug thingy - it can be used internaly for debuging javascript ;) ************** */

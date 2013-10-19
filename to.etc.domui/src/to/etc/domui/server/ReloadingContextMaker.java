@@ -100,7 +100,7 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 	}
 
 	@Override
-	public boolean handleRequest(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull FilterChain chain) throws Exception {
+	public void handleRequest(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull FilterChain chain) throws Exception {
 		synchronized(this) {
 			if(m_nestCount == 0)
 				checkReload();
@@ -122,14 +122,17 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 			}
 
 			//-- Ok: does the sessionlink have a session?
-			AppSession ass = link.getAppSession(m_application);
-			RequestContextImpl ctx = new RequestContextImpl(m_application, ass, request, response);
-			return execute(ctx, chain);
+			DomApplication application = m_application;
+			if(null == application)
+				throw new IllegalStateException("Application not loaded/known");
+			AppSession ass = link.getAppSession(application);
+			HttpServerRequestResponse requestResponse = HttpServerRequestResponse.create(application, request, response);
+			RequestContextImpl ctx = new RequestContextImpl(requestResponse, application, ass);
+			execute(requestResponse, ctx, chain);
 		} finally {
 			synchronized(this) {
 				m_nestCount--;
 			}
-			//			DomApplication.internalSetCurrent(null);
 		}
 	}
 

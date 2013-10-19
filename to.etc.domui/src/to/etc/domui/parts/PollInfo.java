@@ -18,8 +18,7 @@ import to.etc.domui.server.parts.*;
 public class PollInfo implements IUnbufferedPartFactory {
 	@Override
 	public void generate(@Nonnull DomApplication app, @Nonnull String rurl, @Nonnull RequestContextImpl param) throws Exception {
-		param.getResponse().setContentType("text/html; charset=UTF-8");
-		Writer w = param.getResponse().getWriter();
+		Writer w = param.getRequestResponse().getOutputWriter("text/html; charset=UTF-8", "utf-8");
 		w.write("<html><body>");
 
 		w.write("</body></html>");

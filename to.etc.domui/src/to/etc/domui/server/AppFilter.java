@@ -101,8 +101,7 @@ public class AppFilter implements Filter {
 			//			NlsContext.setLocale(new Locale("nl", "NL"));
 			initContext(req);
 
-			if(m_contextMaker.handleRequest(rq, (HttpServletResponse) res, chain))
-				return;
+			m_contextMaker.handleRequest(rq, (HttpServletResponse) res, chain);
 		} catch(RuntimeException x) {
 			DomUtil.dumpException(x);
 			throw x;
@@ -139,15 +138,15 @@ public class AppFilter implements Filter {
 		return m_appContext;
 	}
 
-	private @Nullable
-	String readSpecificLoggerConfig(String logConfigLocation) {
+	@Nullable
+	static private String readDefaultConfiguration(@Nullable String logConfigLocation) {
 		if(logConfigLocation != null) {
 			try {
 				File configFile = new File(logConfigLocation);
 				if(!(configFile.exists() && configFile.isFile())) {
 					//-- Try to find this as a class-relative resource;
 					if(!logConfigLocation.startsWith("/")) {
-						String res = FileTool.readResourceAsString(getClass(), "/" + logConfigLocation, "utf-8");
+						String res = FileTool.readResourceAsString(AppFilter.class, "/" + logConfigLocation, "utf-8");
 						if(res != null) {
 							System.out.println("DomUI: using user-specified log config file from classpath-resource " + logConfigLocation);
 							return res;
@@ -163,16 +162,13 @@ public class AppFilter implements Filter {
 			} catch(Exception ex) {
 			}
 		}
-		return null;
-	}
-
-	private String readDefaultLoggerConfig() {
 		try {
-			String res = FileTool.readResourceAsString(getClass(), "etcLoggerConfig.xml", "utf-8");
+			String res = FileTool.readResourceAsString(AppFilter.class, "etcLoggerConfig.xml", "utf-8");
 			if(res != null)
 				System.out.println("DomUI: using internal etcLoggerConfig.xml");
 			return res;
 		} catch(Exception ex) {}
+
 		return null;
 	}
 
@@ -183,38 +179,12 @@ public class AppFilter implements Filter {
 	@Override
 	public synchronized void init(final FilterConfig config) throws ServletException {
 		File approot = new File(config.getServletContext().getRealPath("/"));
-		try {
-			//Initialize logger
-			// -- Where to get log config from?
-			String specificLogConfigLocation = DeveloperOptions.getString("domui.logconfig");
-			if(specificLogConfigLocation == null) {
-				specificLogConfigLocation = System.getProperty("domui.logconfig");
-				if(null == specificLogConfigLocation)
-					specificLogConfigLocation = config.getInitParameter("logpath");
-			}
-			String logConfigXml = null;
-			if(specificLogConfigLocation != null) {
-				logConfigXml = readSpecificLoggerConfig(specificLogConfigLocation);
-			}
-			//FIXME: this uses Viewpoint specific location (%approot%/Private) and needs to be fixed later.
-			File logConfigLocation = new File(approot, "Private" + File.separator + "etcLog");
-			new File(logConfigLocation, EtcLoggerFactory.CONFIG_FILENAME);
-			//-- logger config location should always exist (FIXME: check if under LINUX it needs to be created in some special way to have write rights for tomcat user)
-			logConfigLocation.mkdirs();
-			if(logConfigXml != null && EtcLoggerFactory.getSingleton().tryLoadConfigFromXml(logConfigLocation, logConfigXml)) {
-				LOG.info(EtcLoggerFactory.getSingleton().getClass().getName() + " is initialized by loading specific logger configuration from xml:\n" + logConfigXml);
-			} else {
-				//-- If 'special' logger config does not exists or fails to load, we try to use standard way of initializing logger
-				String defaultConfigXml = readDefaultLoggerConfig();
-				EtcLoggerFactory.getSingleton().initialize(logConfigLocation, defaultConfigXml);
-			}
-		} catch(Exception x) {
-			x.printStackTrace();
-			throw WrappedException.wrap(x);
-		} catch(Error x) {
-			x.printStackTrace();
-			throw x;
-		}
+
+		//FIXME: this uses Viewpoint specific location (%approot%/Private) and needs to be fixed later.
+		File logConfigLocation = new File(approot, "Private" + File.separator + "etcLog");
+
+		initLogConfig(logConfigLocation, config.getInitParameter("logpath"));
+
 		try {
 			m_logRequest = DeveloperOptions.getBool("domui.logurl", false);
 
@@ -223,7 +193,7 @@ public class AppFilter implements Filter {
 			if(!approot.exists() || !approot.isDirectory())
 				throw new IllegalStateException("Internal: cannot get webapp root directory");
 
-			m_config = new ConfigParameters(config, approot);
+			m_config = new FilterConfigParameters(config, approot);
 
 			//-- Handle application construction
 			m_applicationClassName = getApplicationClassName(m_config);
@@ -259,6 +229,56 @@ public class AppFilter implements Filter {
 		} catch(Exception x) {
 			DomUtil.dumpException(x);
 			throw new RuntimeException(x); // checked exceptions are idiotic
+		} catch(Error x) {
+			x.printStackTrace();
+			throw x;
+		}
+	}
+
+	static public void initLogConfig(@Nullable File writableConfigLocation, @Nullable String logConfig) throws Error {
+		try {
+			if(null == writableConfigLocation) {
+				File f = FileTool.getTmpDir();
+				writableConfigLocation = new File(f, "etclogger.config");
+			}
+			writableConfigLocation.mkdirs();
+
+			//-- 2. Try to load the "writable" one, if present.
+			String xmlContent = null;
+			if(writableConfigLocation.exists() && writableConfigLocation.isFile()) {
+				try {
+					xmlContent = FileTool.readFileAsString(writableConfigLocation);
+				} catch(Exception x) {
+					System.err.println("etclog: failed to read " + writableConfigLocation);
+				}
+			}
+
+			//-- 3. If user-changed one failed- load a default one.
+			if(null == xmlContent) {
+				// -- Where to get log config from?
+				String logspec = DeveloperOptions.getString("domui.logconfig");
+				if(logspec == null) {
+					logspec = System.getProperty("domui.logconfig");
+					if(null == logspec)
+						logspec = logConfig;
+				}
+				xmlContent = readDefaultConfiguration(logspec);
+				if(null == xmlContent)
+					throw new IllegalStateException("no logger configuration found at all");
+			}
+
+			EtcLoggerFactory.getSingleton().initialize(writableConfigLocation, xmlContent);
+//
+//			//-- logger config location should always exist (FIXME: check if under LINUX it needs to be created in some special way to have write rights for tomcat user)
+//			if(logConfigXml != null && EtcLoggerFactory.getSingleton().tryLoadConfigFromXml(writableConfigLocation, logConfigXml)) {
+//				LOG.info(EtcLoggerFactory.getSingleton().getClass().getName() + " is initialized by loading specific logger configuration from xml:\n" + logConfigXml);
+//			} else {
+//				//-- If 'special' logger config does not exists or fails to load, we try to use standard way of initializing logger
+//				String defaultConfigXml = readDefaultLoggerConfig();
+//			}
+		} catch(Exception x) {
+			x.printStackTrace();
+			throw WrappedException.wrap(x);
 		} catch(Error x) {
 			x.printStackTrace();
 			throw x;

@@ -27,6 +27,7 @@ package to.etc.net;
 import java.io.*;
 import java.net.*;
 
+import javax.annotation.*;
 import javax.servlet.http.*;
 
 import org.w3c.dom.*;
@@ -136,7 +137,8 @@ final public class NetTools {
 	 * @param req
 	 * @return
 	 */
-	static public String getApplicationURL(HttpServletRequest req) {
+	@Nonnull
+	static public String getApplicationURL(@Nonnull HttpServletRequest req) {
 		String hu = getHostURL(req);
 		String ctx = req.getContextPath();
 		if(ctx.length() == 0) // Is this the root application?

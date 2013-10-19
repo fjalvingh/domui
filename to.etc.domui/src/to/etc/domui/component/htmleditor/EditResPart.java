@@ -62,8 +62,8 @@ public class EditResPart implements IUnbufferedPartFactory {
 
 	@Override
 	public void generate(@Nonnull DomApplication app, @Nonnull String rurl, @Nonnull RequestContextImpl param) throws Exception {
-		System.out.println("QS=" + param.getRequest().getQueryString());
-		System.out.println("RURL=" + rurl);
+//		System.out.println("QS=" + param.getRequest().getQueryString());
+//		System.out.println("RURL=" + rurl);
 
 		ComponentPartRenderer cpr = new ComponentPartRenderer();
 		cpr.initialize(app, param, rurl); // Decode input to get to the component in question.
@@ -98,9 +98,7 @@ public class EditResPart implements IUnbufferedPartFactory {
 	}
 
 	private IBrowserOutput defaultHeader(RequestContextImpl ctx, String cmd, String rtype, String path) throws Exception {
-		ctx.getResponse().setContentType("text/xml; charset=UTF-8");
-		ctx.getResponse().setCharacterEncoding("UTF-8");
-		IBrowserOutput w = new PrettyXmlOutputWriter(ctx.getOutputWriter());
+		IBrowserOutput w = new PrettyXmlOutputWriter(ctx.getRequestResponse().getOutputWriter("text/xml; charset=UTF-8", "UTF-8"));
 		w.tag("Connector");
 		w.attr("command", cmd);
 		w.attr("resourceType", rtype);
@@ -180,9 +178,7 @@ public class EditResPart implements IUnbufferedPartFactory {
 	}
 
 	private void sendInit(DomApplication app, IEditorFileSystem ifs, RequestContextImpl ctx) throws Exception {
-		ctx.getResponse().setContentType("text/xml; charset=UTF-8");
-		ctx.getResponse().setCharacterEncoding("UTF-8");
-		IBrowserOutput w = new PrettyXmlOutputWriter(ctx.getOutputWriter());
+		IBrowserOutput w = new PrettyXmlOutputWriter(ctx.getRequestResponse().getOutputWriter("text/xml; charset=UTF-8", "UTF-8"));
 		w.tag("Connector");
 		w.endtag();
 		w.tag("Error");
@@ -236,11 +232,7 @@ public class EditResPart implements IUnbufferedPartFactory {
 		//-- Stream the thingy.
 		OutputStream os = null;
 		try {
-			ctx.getResponse().setContentType(efr.getMimeType());
-			int len = efr.getSize();
-			if(len > 0)
-				ctx.getResponse().setContentLength(len);
-			os = ctx.getResponse().getOutputStream();
+			os = ctx.getRequestResponse().getOutputStream(efr.getMimeType(), null, efr.getSize());
 			efr.copyTo(os);
 		} finally {
 			try {
