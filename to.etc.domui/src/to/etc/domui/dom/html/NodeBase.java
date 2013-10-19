@@ -911,8 +911,18 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		sb.append(';');
 	}
 
+	@Nullable
 	public StringBuilder getCreateJS() {
 		return m_createJS;
+	}
+
+	/**
+	 * This should be overridden to allow components to render their Javascript state. It gets
+	 * called by the framework whenever a form (re)render is done, i.e. either at initial form
+	 * build time or on a full browser refresh.
+	 */
+	protected void renderJavascriptState() {
+
 	}
 
 	/*--------------------------------------------------------------*/
