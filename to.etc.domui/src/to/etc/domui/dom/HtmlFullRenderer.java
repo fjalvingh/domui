@@ -26,10 +26,13 @@ package to.etc.domui.dom;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
+import to.etc.domui.util.javascript.*;
 import to.etc.util.*;
 
 /**
@@ -52,9 +55,14 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 
 	private boolean m_xml;
 
+	@Nonnull
 	private StringBuilder m_createJS = new StringBuilder();
 
+	@Nonnull
 	private StringBuilder m_stateJS = new StringBuilder();
+
+	@Nonnull
+	private JavascriptStmt m_stateBuilder = new JavascriptStmt(m_stateJS);
 
 	protected HtmlFullRenderer(HtmlTagRenderer tagRenderer, IBrowserOutput o) {
 		//		m_browserVersion = tagRenderer.getBrowser();
@@ -102,18 +110,18 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 	@Override
 	public void visitNodeBase(NodeBase n) throws Exception {
 		n.build();
-		n.onBeforeFullRender(); // Do pre-node stuff,
+		n.onBeforeFullRender();									// Do pre-node stuff,
 		n.visit(getTagRenderer());
 		if(n.getCreateJS() != null)
 			m_createJS.append(n.getCreateJS());
-		n.renderJavascriptState(m_stateJS); // Append Javascript state to state buffer
+		n.internalRenderJavascriptState(m_stateBuilder);
 		if(!(n instanceof TextNode)) {
 			if(m_xml) {
 				if(!n.isRendersOwnClose()) {
 					getTagRenderer().renderEndTag(n);
 				}
 			} else
-				m_o.dec(); // 20080626 img et al does not dec()...
+				m_o.dec();										// 20080626 img et al does not dec()...
 		}
 		n.internalClearDelta();
 		checkForFocus(n);
@@ -155,16 +163,16 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 	@Override
 	public void visitNodeContainer(NodeContainer n) throws Exception {
 		n.build();
-		n.onBeforeFullRender(); // Do pre-node stuff,
+		n.onBeforeFullRender();								// Do pre-node stuff,
 
-		boolean indena = o().isIndentEnabled(); // jal 20090903 Save indenting request....
-		n.visit(getTagRenderer()); // Ask base renderer to render tag
+		boolean indena = o().isIndentEnabled();				// jal 20090903 Save indenting request....
+		n.visit(getTagRenderer());							// Ask base renderer to render tag
 		if(n.getCreateJS() != null)
 			m_createJS.append(n.getCreateJS());
-		n.renderJavascriptState(m_stateJS); // Append Javascript state to state buffer
+		n.internalRenderJavascriptState(m_stateBuilder);	// Append Javascript state to state buffer
 		visitChildren(n);
 		getTagRenderer().renderEndTag(n);
-		o().setIndentEnabled(indena); // And restore indenting if tag handler caused it to be cleared.
+		o().setIndentEnabled(indena);						// And restore indenting if tag handler caused it to be cleared.
 		n.internalClearDelta();
 		checkForFocus(n);
 	}

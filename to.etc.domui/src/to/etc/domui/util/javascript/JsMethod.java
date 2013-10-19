@@ -4,11 +4,11 @@ import javax.annotation.*;
 
 public class JsMethod {
 	@Nonnull
-	private final Stmt m_stmt;
+	private final JavascriptStmt m_stmt;
 
 	private JsMethod m_currentMethod;
 
-	public JsMethod(@Nonnull Stmt stmt) {
+	public JsMethod(@Nonnull JavascriptStmt stmt) {
 		m_stmt = stmt;
 	}
 
@@ -60,7 +60,7 @@ public class JsMethod {
 //	}
 
 	@Nonnull
-	public Stmt end() {
+	public JavascriptStmt end() {
 		m_stmt.endmethod();
 		return m_stmt;
 	}

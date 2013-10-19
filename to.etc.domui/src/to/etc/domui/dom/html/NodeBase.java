@@ -39,6 +39,7 @@ import to.etc.domui.dom.webaction.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
 import to.etc.domui.util.*;
+import to.etc.domui.util.javascript.*;
 import to.etc.util.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
@@ -917,12 +918,23 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	}
 
 	/**
-	 * This should be overridden to allow components to render their Javascript state. It gets
-	 * called by the framework whenever a form (re)render is done, i.e. either at initial form
-	 * build time or on a full browser refresh.
+	 * This gets called when a component is re-rendered fully because of a full page
+	 * refresh. It should only be used for components that maintain a lot of state
+	 * in Javascript on the browser. These components need to add Javascript commands
+	 * to that browser to restore/initialize the state to whatever is present in the
+	 * server's data store. It must do that by adding the needed Javascript to the buffer
+	 * passed.
+	 *
+	 * @param sb
+	 * @throws Exception
 	 */
-	protected void renderJavascriptState() {
+	protected void renderJavascriptState(@Nonnull JavascriptStmt b) {
 
+	}
+
+	final public void internalRenderJavascriptState(@Nonnull JavascriptStmt stmt) {
+		renderJavascriptState(stmt);
+		stmt.next();
 	}
 
 	/*--------------------------------------------------------------*/
@@ -1333,21 +1345,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	protected void onUnshelve() throws Exception {}
 
 	protected void onRefresh() throws Exception {}
-
-	/**
-	 * This gets called when a component is re-rendered fully because of a full page
-	 * refresh. It should only be used for components that maintain a lot of state
-	 * in Javascript on the browser. These components need to add Javascript commands
-	 * to that browser to restore/initialize the state to whatever is present in the
-	 * server's data store. It must do that by adding the needed Javascript to the buffer
-	 * passed.
-	 *
-	 * @param sb
-	 * @throws Exception
-	 */
-	public void renderJavascriptState(StringBuilder sb) throws Exception {
-
-	}
 
 	/**
 	 * Will be called just before "full render" starts. It gets called INSIDE the rendering

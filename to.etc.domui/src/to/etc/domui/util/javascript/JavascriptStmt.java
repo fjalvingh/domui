@@ -6,7 +6,7 @@ import to.etc.domui.dom.html.*;
 import to.etc.json.*;
 import to.etc.util.*;
 
-public class Stmt {
+public class JavascriptStmt {
 	@Nonnull
 	final private StringBuilder m_sb;
 
@@ -14,17 +14,19 @@ public class Stmt {
 
 	private JsMethod m_currentMethod;
 
-	Stmt(@Nonnull StringBuilder worksb) {
+	public JavascriptStmt(@Nonnull StringBuilder worksb) {
 		m_sb = worksb;
 	}
 
 	@Nonnull
-	StringBuilder sb() {
+	public StringBuilder sb() {
 		return m_sb;
 	}
 
 	@Nonnull
-	public Stmt next() {
+	public JavascriptStmt next() {
+		if(!m_instmt)
+			return this;
 		if(m_sb.length() == 0)
 			return this;
 		char last = m_sb.charAt(m_sb.length() - 1);
@@ -40,7 +42,7 @@ public class Stmt {
 	 * @return
 	 */
 	@Nonnull
-	public Stmt select(@Nonnull NodeBase node) {
+	public JavascriptStmt select(@Nonnull NodeBase node) {
 		return select(node.getActualID());
 	}
 
@@ -50,7 +52,7 @@ public class Stmt {
 	 * @return
 	 */
 	@Nonnull
-	public Stmt select(@Nonnull String id) {
+	public JavascriptStmt select(@Nonnull String id) {
 		sb().append("$('#").append(id).append("')");
 		m_instmt = true;
 		return this;
@@ -69,8 +71,9 @@ public class Stmt {
 	 * @return
 	 */
 	@Nonnull
-	public Stmt append(@Nonnull String string) {
+	public JavascriptStmt append(@Nonnull String string) {
 		sb().append(string);
+		m_instmt = true;
 		return this;
 	}
 
@@ -80,7 +83,9 @@ public class Stmt {
 	 * @return
 	 */
 	@Nonnull
-	public Stmt object(@Nonnull Object object) throws Exception {
+	public JavascriptStmt object(@Nonnull Object object) throws Exception {
+		m_instmt = true;
+
 		if(object == null) {
 			sb().append("null");
 		} else if(object instanceof String) {
@@ -99,7 +104,7 @@ public class Stmt {
 	}
 
 	@Nonnull
-	public Stmt endmethod() {
+	public JavascriptStmt endmethod() {
 		JsMethod jm = m_currentMethod;
 		if(null != jm) {
 			m_currentMethod = null;
@@ -110,6 +115,7 @@ public class Stmt {
 
 	@Nonnull
 	public JsMethod method(@Nonnull String name) {
+		m_instmt = true;
 		endmethod();
 		char lc = lastChar();
 		if(lc != 0 && lc != ';' && lc != '.' && lc != '(') {
@@ -122,7 +128,7 @@ public class Stmt {
 
 	public static void main(String[] args) throws Exception {
 		StringBuilder sb = new StringBuilder();
-		Stmt st = new Stmt(sb);
+		JavascriptStmt st = new JavascriptStmt(sb);
 
 		st.select("_IZ").method("options").arg("hello").arg(Integer.valueOf(1)).arg(Boolean.TRUE).end().next();
 
