@@ -248,6 +248,15 @@ public class HttpServerRequestResponse implements IRequestResponse {
 		}
 		return ss;
 	}
+
+	@Nullable
+	public static HttpServerRequestResponse get(@Nonnull IRequestContext ctx) {
+		IRequestResponse rr = ctx.getRequestResponse();
+		if(rr instanceof HttpServerRequestResponse)
+			return (HttpServerRequestResponse) rr;
+		return null;
+	}
+
 //
 //	@Nullable
 //	public static HttpSession getSession(RequestContextImpl ci, boolean create) {
