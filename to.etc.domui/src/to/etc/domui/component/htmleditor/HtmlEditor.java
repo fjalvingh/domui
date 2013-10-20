@@ -24,8 +24,6 @@
  */
 package to.etc.domui.component.htmleditor;
 
-import java.io.*;
-
 import javax.annotation.*;
 
 import to.etc.domui.dom.css.*;
@@ -182,11 +180,7 @@ public class HtmlEditor extends TextArea {
 			StringBuilder sb = new StringBuilder();
 			appendJQuerySelector(sb);
 			sb.append(".wysiwyg('setContent', ");
-			try {
-				StringTool.strToJavascriptString(sb, m_updateValueJS, true);
-			} catch(IOException x) {
-				//-- Checked exceptions are an abomination.
-			}
+			StringTool.strToJavascriptString(sb, m_updateValueJS, true);
 			sb.append(");");
 			appendJavascript(sb);
 			m_updateValueJS = null;

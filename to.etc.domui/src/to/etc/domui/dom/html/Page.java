@@ -35,6 +35,7 @@ import to.etc.domui.dom.header.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
 import to.etc.domui.util.*;
+import to.etc.domui.util.javascript.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
 
@@ -689,17 +690,25 @@ final public class Page implements IQContextContainer {
 	 * execute on return to the browser (once).
 	 */
 	public void appendJS(@Nonnull final CharSequence sq) {
-		if(m_appendJS == null)
-			m_appendJS = new StringBuilder(sq.length() + 100);
-		m_appendJS.append(sq);
+		internalGetAppendJS().append(sq);
 	}
 
 	@Nullable
-	public StringBuilder internalGetAppendedJS() {
+	public StringBuilder internalFlushAppendJS() {
 		StringBuilder sb = m_appendJS;
 		m_appendJS = null;
 		return sb;
 	}
+
+	@Nonnull
+	public StringBuilder internalGetAppendJS() {
+		StringBuilder sb = m_appendJS;
+		if(null == sb) {
+			sb = m_appendJS = new StringBuilder(2048);
+		}
+		return sb;
+	}
+
 
 	/**
 	 * DEPRECATED: Should use {@link DomUtil#createOpenWindowJS(String, WindowParameters)}.
@@ -815,6 +824,57 @@ final public class Page implements IQContextContainer {
 
 	public boolean isShelved() {
 		return m_shelved;
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Javascript component state registration.			*/
+	/*--------------------------------------------------------------*/
+	@Nonnull
+	final private Set<NodeBase> m_javaScriptStateChangedSet = new HashSet<NodeBase>();
+
+	/**
+	 * Registers the node specified as needing a callback at delta render time.
+	 * @param nodeBase
+	 */
+	void registerJavascriptStateChanged(@Nonnull NodeBase nodeBase) {
+		m_javaScriptStateChangedSet.add(nodeBase);
+	}
+
+	@Nonnull
+	public Set<NodeBase> internalGetJavaScriptStateChangedSet() {
+		return m_javaScriptStateChangedSet;
+	}
+
+	/**
+	 * For all nodes that registered a "javascript delta", this calls that node's {@link NodeBase#renderJavascriptDelta(JavascriptStmt)}
+	 * method, then it will reset the state for the node. Because calls might cause other nodes to become invalid this
+	 * code loops max 10 times checking the set of delta nodes.
+	 * @throws Exception
+	 */
+	@Nullable
+	public StringBuilder internalFlushJavascriptStateChanges() throws Exception {
+		if(m_javaScriptStateChangedSet.size() == 0)
+			return null;
+
+		ArrayList<NodeBase> todo = new ArrayList<NodeBase>(m_javaScriptStateChangedSet);
+		StringBuilder sb = new StringBuilder(8192);
+		JavascriptStmt stmt = new JavascriptStmt(sb);
+		for(int count = 0; count < 10; count++) {
+			m_javaScriptStateChangedSet.clear();
+			for(NodeBase nb : todo) {
+				nb.renderJavascriptDelta(stmt);
+				stmt.next();
+			}
+
+			if(m_javaScriptStateChangedSet.size() == 0) {
+				return sb;
+			}
+
+			todo.clear();
+			todo.addAll(m_javaScriptStateChangedSet);
+			m_javaScriptStateChangedSet.clear();
+		}
+		throw new IllegalStateException("Javascript state keeps changing: set is " + todo);
 	}
 
 	/*--------------------------------------------------------------*/

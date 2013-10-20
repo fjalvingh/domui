@@ -27,7 +27,7 @@ package to.etc.domui.dom;
 import java.io.*;
 
 public interface IBrowserOutput {
-	public void writeRaw(String s) throws IOException;
+	public void writeRaw(CharSequence s) throws IOException;
 
 	/**
 	 * Writes string data. This escapes XML control characters to their entity

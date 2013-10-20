@@ -266,8 +266,8 @@ public class XmlOutputWriterBase {
 	}
 
 
-	public void writeRaw(String s) throws IOException {
-		m_w.write(s);
+	public void writeRaw(CharSequence s) throws IOException {
+		m_w.append(s);
 	}
 
 	protected void writeRaw(String s, int off, int len) throws IOException {

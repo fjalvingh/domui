@@ -39,4 +39,17 @@ final public class JSON {
 		JsonWriter w = (writer instanceof JsonWriter ? (JsonWriter) writer : new JsonWriter(writer, m_registry));
 		w.render(instance, fullType);
 	}
+
+	@Nonnull
+	static public <T> String render(@Nullable T instance, @Nullable Type fullType) throws Exception {
+		StringWriter sw = new StringWriter();
+		JsonWriter w = new JsonWriter(sw, m_registry);
+		w.render(instance, fullType);
+		return sw.getBuffer().toString();
+	}
+
+	@Nonnull
+	static public <T> String render(@Nullable T instance) throws Exception {
+		return render(instance, null);
+	}
 }
