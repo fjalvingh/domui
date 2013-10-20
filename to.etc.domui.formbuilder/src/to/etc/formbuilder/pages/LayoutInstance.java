@@ -56,8 +56,9 @@ public class LayoutInstance extends ComponentInstance {
 		NodeContainer nc = m_rendered;
 		if(null == nc) {
 			nc = m_rendered = m_component.createNodeInstance();
-			nc.setWidth("200px");
-			nc.setHeight("200px");
+			nc.setMinWidth("200px");
+			nc.setMinHeight("200px");
+			nc.addCssClass("fb-ui-panel");
 		}
 		return nc;
 	}

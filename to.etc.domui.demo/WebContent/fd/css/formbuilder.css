@@ -87,14 +87,23 @@
 	background: white;
 }
 .fb-ui-paint:hover {
-	background: white !important;
+	background: white;
 }
 .fb-ui-button, .fb-ui-button:hover {
 	cursor: pointer;
+}
+.fb-ui-selected {
+	background-color: cyan !important;
 }
 .fb-ui-test {
 	width: 100px;
 	height: 100px;
 	border: 1px red solid;
+}
+
+.fb-ui-panel {
+	background: #ddd;
+	opacity: 0.9;
+	position: relative;
 }
 

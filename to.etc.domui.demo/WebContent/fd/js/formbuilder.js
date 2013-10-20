@@ -8,6 +8,7 @@ FormBuilder = function(id, paintid, compid) {
 	this._pendingUpdateList = new Array();
 	this._componentMap = new Object();
 	this._componentNodeMap = new Object();
+	this._selectionList = new Array();
 	this.register();
 };
 
@@ -119,9 +120,68 @@ $.extend(FormBuilder.prototype, {
 			},
 			grid: [10, 10],
 //			cursorAt: {left: 0, top: 0}
+		}).dblclick(function(event) {
+			fb.dblClick(inst, event);
 		});
-	}
+	},
+
+	dblClick: function(component, e) {
+		if(e.ctrlKey) {
+			this.selectionToggle(component);			
+		} else {
+			var si = this.selectionIndex(component);
+			this.selectionClear();
+			if(si < 0) {
+				this.selectionToggle(component);
+			}
+		}
+		e.stopPropagation();
+	},
 	
+	/*----------------- Selection -------------------------*/
+	selection: function(item) {
+		this.selectionClear();
+		this.selectionToggle(item);
+	},
+
+	/**
+	 * Clear all selections - this also resets selection state display on all selected items.
+	 */
+	selectionClear: function() {
+		for(var i = this._selectionList.length; --i >= 0;) {
+			var item = this._selectionList[i];
+			item.setSelected(false);
+		}
+		this._selectionList = new Array();
+	},
+
+	selectionIndex: function(item) {
+		for(var i = this._selectionList.length; --i >= 0;) {
+			if(item == this._selectionList[i])
+				return i;
+		}
+		return -1;
+	},
+
+	selectionToggle: function(item) {
+		var ix = this.selectionIndex(item);
+		if(ix < 0) {								// Not selected - then add
+			this._selectionList.push(item);
+			item.setSelected(true);
+		} else {
+			this.slice(ix, 1);						// Remove from selection list,
+			item.setSelected(false);
+		}
+
+		//-- Send a SELECTION event with all selected item IDs
+		var curs = new Array();
+		for(var i = this._selectionList.length; --i >= 0;) {
+			curs.push(this._selectionList[i]._id);
+		}
+		this.sendEvent("Selection", {selected: curs});
+//		this.sendEvent("WFLSELECTION", {selected: curs});
+	},
+
 	
 });
 
@@ -149,5 +209,15 @@ ComponentInstance = function(builder, type, id, node) {
 	this._id = id;
 	this._node = node;
 };
+$.extend(ComponentInstance.prototype, {
+	setSelected: function(on) {
+		$.dbg("Selected "+on);
+		if(on)
+			$(this._node).addClass("fb-ui-selected");
+		else
+			$(this._node).removeClass("fb-ui-selected");
+	}
+});
+
 
 
