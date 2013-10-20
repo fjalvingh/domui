@@ -69,7 +69,7 @@ public class PaintPanel extends Div {
 	private void renderLayout(@Nonnull NodeContainer target, LayoutInstance layout) throws Exception {
 		NodeContainer layoutc = layout.getRendered();
 		target.add(layoutc);
-		updateComponent(layout);
+//		updateComponent(layout);
 
 		for(ComponentInstance ci : layout.getComponentList()) {
 			if(ci instanceof LayoutInstance) {
@@ -86,6 +86,7 @@ public class PaintPanel extends Div {
 	 */
 	@Override
 	protected void renderJavascriptState(@Nonnull JavascriptStmt b) throws Exception {
+		setFocus();
 		renderJsState(b, m_rootLayout);
 	}
 
@@ -94,7 +95,8 @@ public class PaintPanel extends Div {
 			.arg(ci.getComponentType().getTypeID())			//
 			.arg(ci.getId())								//
 			.arg(ci.getRendered().getActualID())			//
-			.end();
+			.end()											//
+			.next();
 		if(!(ci instanceof LayoutInstance))
 			return;
 		for(ComponentInstance c : ((LayoutInstance) ci).getComponentList()) {
@@ -105,11 +107,13 @@ public class PaintPanel extends Div {
 	private void renderComponent(@Nonnull NodeContainer layoutc, @Nonnull ComponentInstance ci) throws Exception {
 		NodeBase inst = ci.getRendered();
 		layoutc.add(inst);
-		updateComponent(ci);
+//		updateComponent(ci);
 	}
 
 	private void updateComponent(@Nonnull ComponentInstance ci) throws Exception {
-		appendJavascript("window._fb.registerInstance('" + ci.getComponentType().getTypeID() + "','" + ci.getId() + "','" + ci.getRendered().getActualID() + "');");
+		renderJsState(appendStatement(), ci);
+//
+//		appendJavascript("window._fb.registerInstance('" + ci.getComponentType().getTypeID() + "','" + ci.getId() + "','" + ci.getRendered().getActualID() + "');");
 	}
 
 	/*--------------------------------------------------------------*/
@@ -134,6 +138,7 @@ public class PaintPanel extends Div {
 		LayoutPanelBase lpb = (LayoutPanelBase) li.getRendered();
 		li.addComponent(ci);
 		lpb.add(ci.getRendered(), new IntPoint(info.getX(), info.getY()));
+
 		updateComponent(ci);
 	}
 

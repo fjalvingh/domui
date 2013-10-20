@@ -59,6 +59,8 @@ $.extend(FormBuilder.prototype, {
 			helper: function() {
 				var node = $("#"+handle).clone();
 				fb._draggedType = comp;					// $.data does not work because stuff gets copied.
+				fb._draggedComponent = null;
+			
 				return node;
 			},
 			grid: [10, 10],
