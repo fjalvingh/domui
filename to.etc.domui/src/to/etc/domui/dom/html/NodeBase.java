@@ -82,6 +82,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 
 	static private boolean m_logAllocations;
 
+	static private int m_nextID;
+
 	/** The owner page. If set then this node IS attached to the parent in some way; if null it is not attached. */
 	@Nullable
 	private Page m_page;
@@ -277,15 +279,38 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	}
 
 	/**
+	 * Calculates a new ID for a node.
+	 * @return
+	 */
+	@Nonnull
+	final String nextUniqID() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("U");
+		int id = m_nextID++;
+		while(id != 0) {
+			int d = id % 36;
+			if(d <= 9)
+				d = d + '0';
+			else
+				d = ('A' + (d - 10));
+			sb.append((char) d);
+			id = id / 36;
+		}
+		return sb.toString();
+	}
+
+	/**
 	 * When the node is attached to a page this returns the ID assigned to it. To call it before
 	 * is an error and throws IllegalStateException.
 	 * @return
 	 */
 	@Nonnull
 	final public String getActualID() {
-		if(null != m_actualID)
-			return m_actualID;
-		throw new IllegalStateException("Missing ID on " + this);
+		String id = m_actualID;
+		if(null == id) {
+			id = m_actualID = nextUniqID();
+		}
+		return id;
 	}
 
 	@Nullable
