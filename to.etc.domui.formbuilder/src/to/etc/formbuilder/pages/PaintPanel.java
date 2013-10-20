@@ -59,8 +59,6 @@ public class PaintPanel extends Div {
 		createRootLayout();
 		setCssClass("fd-pp");
 		renderLayout();
-
-
 	}
 
 	private void renderLayout() throws Exception {

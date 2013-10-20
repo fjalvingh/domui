@@ -62,7 +62,7 @@ $.extend(FormBuilder.prototype, {
 				return node;
 			},
 			grid: [10, 10],
-			cursorAt: {left: 0, top: 0}
+//			cursorAt: {left: 0, top: 0}
 		});
 
 //		var fb = this;
@@ -116,7 +116,7 @@ $.extend(FormBuilder.prototype, {
 				return node;
 			},
 			grid: [10, 10],
-			cursorAt: {left: 0, top: 0}
+//			cursorAt: {left: 0, top: 0}
 		});
 	}
 	
