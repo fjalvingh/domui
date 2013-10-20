@@ -953,10 +953,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @param sb
 	 * @throws Exception
 	 */
-	protected void renderJavascriptState(@Nonnull JavascriptStmt b) {
+	protected void renderJavascriptState(@Nonnull JavascriptStmt b) throws Exception {
 	}
 
-	final public void internalRenderJavascriptState(@Nonnull JavascriptStmt stmt) {
+	final public void internalRenderJavascriptState(@Nonnull JavascriptStmt stmt) throws Exception {
 		renderJavascriptState(stmt);
 		stmt.next();
 	}
@@ -972,11 +972,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 			page.registerJavascriptStateChanged(this);
 	}
 
-	protected void renderJavascriptDelta(@Nonnull JavascriptStmt b) {
+	protected void renderJavascriptDelta(@Nonnull JavascriptStmt b) throws Exception {
 
 	}
 
-	final public void internalRenderJavascriptDelta(@Nonnull JavascriptStmt stmt) {
+	final public void internalRenderJavascriptDelta(@Nonnull JavascriptStmt stmt) throws Exception {
 		renderJavascriptDelta(stmt);
 		stmt.next();
 	}
