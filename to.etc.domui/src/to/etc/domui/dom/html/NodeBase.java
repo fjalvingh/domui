@@ -244,7 +244,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		internalSetHasChangedAttributes();
 		NodeContainer p = m_parent;
 		if(p != null)
-			p.childChanged(); // Indicate child has changed
+			p.childChanged(); 									// Indicate child has changed
 		super.changed();
 	}
 
@@ -880,17 +880,27 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 *
 	 * @param js
 	 */
-	public void appendJavascript(final CharSequence js) {
-		if(isAttached())
-			getPage().appendJS(js);
-		else {
-			StringBuilder sb = m_appendJS;
-			if(sb == null)
-				sb = m_appendJS = new StringBuilder(js.length() + 100);
-			sb.append(';');
-			sb.append(js);
-		}
+	public void appendJavascript(@Nonnull final CharSequence js) {
+		StringBuilder sb = getAppendJavascriptBuffer();
+		sb.append(';');
+		sb.append(js);
 	}
+
+	@Nonnull
+	public JavascriptStmt appendStatement() {
+		return new JavascriptStmt(getAppendJavascriptBuffer());
+	}
+
+	@Nonnull
+	private StringBuilder getAppendJavascriptBuffer() {
+		if(isAttached())
+			return getPage().internalGetAppendJS();
+		StringBuilder sb = m_appendJS;
+		if(sb == null)
+			sb = m_appendJS = new StringBuilder(128);
+		return sb;
+	}
+
 
 	/**
 	 * This adds a Javascript segment to be executed when the component is (re)constructed. It
@@ -904,12 +914,27 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 *
 	 * @param js
 	 */
-	public void appendCreateJS(final CharSequence js) {
+	public void appendCreateJS(@Nonnull final CharSequence js) {
+		int len = js.length();
+		if(len == 0)
+			return;
+		StringBuilder sb = getCreateJavascriptBuffer();
+		sb.append(js);
+		if(js.charAt(len - 1) != ';')
+			sb.append(';');
+	}
+
+	@Nonnull
+	private StringBuilder getCreateJavascriptBuffer() {
 		StringBuilder sb = m_createJS;
 		if(sb == null)
 			sb = m_createJS = new StringBuilder();
-		sb.append(js);
-		sb.append(';');
+		return sb;
+	}
+
+	@Nonnull
+	public JavascriptStmt createStatement() {
+		return new JavascriptStmt(getCreateJavascriptBuffer());
 	}
 
 	@Nullable
@@ -929,11 +954,30 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @throws Exception
 	 */
 	protected void renderJavascriptState(@Nonnull JavascriptStmt b) {
-
 	}
 
 	final public void internalRenderJavascriptState(@Nonnull JavascriptStmt stmt) {
 		renderJavascriptState(stmt);
+		stmt.next();
+	}
+
+
+	/**
+	 * This marks this component as having "changed" javascript state. It will
+	 * cause the node's
+	 */
+	final public void changedJavascriptState() {
+		Page page = m_page;
+		if(null != page)
+			page.registerJavascriptStateChanged(this);
+	}
+
+	protected void renderJavascriptDelta(@Nonnull JavascriptStmt b) {
+
+	}
+
+	final public void internalRenderJavascriptDelta(@Nonnull JavascriptStmt stmt) {
+		renderJavascriptDelta(stmt);
 		stmt.next();
 	}
 

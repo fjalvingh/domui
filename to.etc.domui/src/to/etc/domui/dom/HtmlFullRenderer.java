@@ -47,6 +47,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 	/** The thingy responsible for rendering the tags, */
 	private HtmlTagRenderer m_tagRenderer;
 
+	@Nonnull
 	private IBrowserOutput m_o;
 
 	private IRequestContext m_ctx;
@@ -58,13 +59,15 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 	@Nonnull
 	private StringBuilder m_createJS = new StringBuilder();
 
+	/** Javascript state change calls. */
 	@Nonnull
 	private StringBuilder m_stateJS = new StringBuilder();
 
+	/** Builder wrapping the above. */
 	@Nonnull
 	private JavascriptStmt m_stateBuilder = new JavascriptStmt(m_stateJS);
 
-	protected HtmlFullRenderer(HtmlTagRenderer tagRenderer, IBrowserOutput o) {
+	protected HtmlFullRenderer(@Nonnull HtmlTagRenderer tagRenderer, @Nonnull IBrowserOutput o) {
 		//		m_browserVersion = tagRenderer.getBrowser();
 		m_tagRenderer = tagRenderer;
 		m_o = o;
@@ -95,6 +98,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		m_xml = xml;
 	}
 
+	@Nonnull
 	public IBrowserOutput o() {
 		return m_o;
 	}
@@ -326,7 +330,6 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		 * Render all attached Javascript in an onReady() function. This code will run
 		 * as soon as the body load has completed.
 		 */
-		StringBuilder sq = page.internalGetAppendedJS();
 		o().tag("script");
 		o().attr("language", "javascript");
 		o().endtag();
@@ -342,10 +345,12 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 			o().writeRaw(getCreateJS().toString());
 			//				o().text(m_createJS.toString());
 		}
-		if(sq != null) {
-			o().writeRaw(sq.toString());
-			//				o().text(sq.toString());
-		}
+		StringBuilder sb = m_page.internalFlushAppendJS();
+		if(null != sb)
+			o().writeRaw(sb);
+		sb = m_page.internalFlushJavascriptStateChanges();
+		if(null != sb)
+			o().writeRaw(sb);
 
 		/*
 		 * We need polling if we have any of the keep alive options on, or when there is an async request.
@@ -375,8 +380,8 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 	 * @return
 	 */
 	public StringBuilder getCreateJS() {
-		if(m_stateJS.length() > 0) { // Stuff present in state buffer too?
-			m_createJS.append(';'); // Always add after all create stuff
+		if(m_stateJS.length() > 0) { 							// Stuff present in state buffer too?
+			m_createJS.append(';');								// Always add after all create stuff
 			m_createJS.append(m_stateJS);
 			m_stateJS.setLength(0);
 		}

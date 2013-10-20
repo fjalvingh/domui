@@ -27,6 +27,8 @@ package to.etc.domui.dom.html;
 import java.io.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.server.*;
@@ -158,6 +160,7 @@ public class OptimalDeltaRenderer {
 		m_page = page;
 	}
 
+	@Nonnull
 	public IBrowserOutput o() {
 		return m_o;
 	}
@@ -204,15 +207,17 @@ public class OptimalDeltaRenderer {
 
 		//-- 20091127 jal Add header contributors delta rendering end
 		calc(m_page);
-
-		StringBuilder sq = m_page.internalGetAppendedJS();
 		o().tag("eval");
 		o().endtag();
 
 		//-- Render all component-requested Javascript code for this phase
 		o().text(m_fullRenderer.getCreateJS().toString());
-		if(sq != null)
-			o().text(sq.toString());
+		StringBuilder sb = m_page.internalFlushAppendJS();
+		if(null != sb)
+			o().text(sb.toString());
+		sb = m_page.internalFlushJavascriptStateChanges();
+		if(null != sb)
+			o().writeRaw(sb);
 
 		//-- If we have a special calculate focus request (Window created) - calculate it
 		if(m_page.getDefaultFocusSource() != null && m_page.getFocusComponent() == null) {
