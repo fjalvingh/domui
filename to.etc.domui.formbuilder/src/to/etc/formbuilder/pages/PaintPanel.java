@@ -6,6 +6,7 @@ import to.etc.domui.component.misc.*;
 import to.etc.domui.component.panellayout.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
+import to.etc.domui.util.javascript.*;
 
 /**
  * This is the peer component of the painter representing the paint area.
@@ -76,6 +77,28 @@ public class PaintPanel extends Div {
 			} else {
 				renderComponent(layoutc, ci);
 			}
+		}
+	}
+
+	/**
+	 * Called at full-refresh time, this calls all Javascript methods needed to sync the browser.
+	 * @see to.etc.domui.dom.html.NodeBase#renderJavascriptState(to.etc.domui.util.javascript.JavascriptStmt)
+	 */
+	@Override
+	protected void renderJavascriptState(@Nonnull JavascriptStmt b) throws Exception {
+		renderJsState(b, m_rootLayout);
+	}
+
+	private void renderJsState(@Nonnull JavascriptStmt b, @Nonnull ComponentInstance ci) throws Exception {
+		b.method("window._fb.registerInstance")				//
+			.arg(ci.getComponentType().getTypeID())			//
+			.arg(ci.getId())								//
+			.arg(ci.getRendered().getActualID())			//
+			.end();
+		if(!(ci instanceof LayoutInstance))
+			return;
+		for(ComponentInstance c : ((LayoutInstance) ci).getComponentList()) {
+			renderJsState(b, c);
 		}
 	}
 
