@@ -87,6 +87,7 @@ public class ScrollableTabPanel extends TabPanelBase {
 		hdr.setFloat(FloatType.NONE);
 		m_tabul.setWidth("3000px");
 		m_tabul.setMarginLeft("0px");
+		m_tabul.setPadding("0px");
 		hdr.add(u);
 		Div bgFill = new Div();
 		bgFill.setCssClass("ui-tab-ibte");

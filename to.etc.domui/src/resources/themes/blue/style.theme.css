@@ -178,6 +178,12 @@ code {
 	white-space: pre;
 	font-family: <%= fixed_font_family %>;
 }
+
+.ui-clickable {
+	cursor: pointer;
+}
+
+
 /*** 005_oddchars.frag.css ***/
 /*** Select special chars ***/
 .ui-oddchars {
@@ -480,9 +486,8 @@ td.ui-tr-selected {
 }
 .ui-emd-warning {
 	background-image: url(mini-warning.png);
-	background-color: <%= warning_bg %>;
-	color: <%= warning_fg %>;
-	border-color: 1px solid <%= warning_border %>;
+	background-color: <%= warnings_background %>;
+	color: <%= warnings_foreground %>;
 }
 /*** 050_popinpanel.frag ***/
 /*** Pop-in panel ***/
@@ -511,10 +516,7 @@ div.ui-popin {
 /*** 055_misc.frag.css ***/
 /*** Miscellaneous components styles ***/
 /* AccessDeniedPage */
-.ui-acd-ttl {
-	font-size: larger;
-	font-style: italic;
-}
+.ui-acd-ttl {}
 
 /* InfoPanel */
 .ui-ipa {
@@ -642,6 +644,7 @@ div.ui-asc div {
 .dso-remove-top-margin {
 	margin-top: 0px !important;
 }
+.dso-cell-with-text-and-input {}
 /*** 060_msgbox.frag.css ***/
 /*** MsgBox ***/
 .ui-mbx-top {
@@ -685,6 +688,11 @@ a.ui-lnkb-dis {
 	font-style: italic;
 	cursor: default;
 	color: gray; 
+	
+	filter: url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><filter id=\'grayscale\'><feColorMatrix type=\'matrix\' values=\'0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0\'/></filter></svg>#grayscale"); /* Firefox 3.5+ */
+	-moz-filter: grayscale(100%);
+	filter: gray; /* IE6-9 */
+    -webkit-filter: grayscale(1); /* Google Chrome & Safari 6+ */
 }
 
 a:hover.ui-lnkb-dis {
@@ -1239,6 +1247,7 @@ table.ui-lf-st tr > td.ui-f-lbl:first-child,
 }
 
 .ui-f-in input, .ui-f-in select{
+	font: inherit;
 	margin-bottom: 2px;
 	margin-right: 2px;
 }
@@ -1395,6 +1404,9 @@ div.ui-dt table td{
 	height: 19px;
 	vertical-align: middle;
 }
+div.ui-dt table td * {
+	vertical-align: middle;
+}
 
 div.ui-dt table{
 	overflow: auto;
@@ -1542,6 +1554,8 @@ div.ui-sortable {
 	padding-left: 5px;
 	padding-bottom: 2px;
 }
+
+.ui-cptn-first{}
 /*** 155_captionedpanel.frag.css ***/
 /*** CaptionedPanel ***/
 .ui-pnl-outer {
@@ -2434,6 +2448,7 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	overflow: visible; /* remove extra padding in IE */
 	background: transparent url(<%= button_img %>) no-repeat right -50px;
 	outline: none;
+	font: inherit;
 }
 
 @-moz-document url-prefix() { /** btadic 20120711 Firefox is adding strange left padding to the buttons **/
@@ -2447,6 +2462,13 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	vertical-align: middle;
 	height: 16px;
 }
+.ui-sdbtn[disabled] img {
+	filter: url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><filter id=\'grayscale\'><feColorMatrix type=\'matrix\' values=\'0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0\'/></filter></svg>#grayscale"); /* Firefox 3.5+ */
+	-moz-filter: grayscale(100%);
+	filter: gray; /* IE6-9 */
+    -webkit-filter: grayscale(1); /* Google Chrome & Safari 6+ */
+}
+
 .ui-sdbtn::-moz-focus-inner {
 	border: none; /* overrides extra padding in ffox */
 }
@@ -2464,12 +2486,6 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	background: transparent url(<%= button_img %>) no-repeat left top;
 }
 
-@media screen and (-webkit-min-device-pixel-ratio:0) {
-	/* Safari and Google Chrome only - fix margins */
-	.ui-sdbtn span {
-		margin-top: -1px;
-	}
-}
 .ui-sdbtn:hover, .ui-sdbtn:focus {
 	background-position: right -150px;
 }
@@ -2826,7 +2842,7 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 .ui-msgln {
 	clear: both;
 	padding: 4px 0px;
-	display: inline-block;
+/*	display: inline-block;		jal 20130215 This shows messages behind one another.... That should not happen.. */
 }
 .ui-msgln img {
 	float: left;
