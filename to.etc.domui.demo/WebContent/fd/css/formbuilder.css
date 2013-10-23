@@ -107,3 +107,10 @@
 	position: relative;
 }
 
+
+/*** Properties panel ***/
+.fb-prp {
+	position: relative;
+	overflow: auto;
+	bottom: 0px;
+}

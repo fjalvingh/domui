@@ -5,6 +5,8 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
+import to.etc.domui.dom.css.*;
+import to.etc.domui.dom.html.*;
 
 /**
  * A mutable property definition. This is component-agnostic. Instances are cached and can be checked for referential equality.
@@ -23,14 +25,14 @@ public class PropertyDefinition {
 	final private String m_category;
 
 	@Nonnull
-	final private IPropertyEditor m_editor;
+	final private IPropertyEditorFactory m_editor;
 
 	@Nonnull
 	static private final Map<PropertyDefinition, PropertyDefinition> m_map = new HashMap<PropertyDefinition, PropertyDefinition>();
 
 	static private Map<String, String> m_categoryMap = new HashMap<String, String>();
 
-	private PropertyDefinition(@Nonnull Class< ? > actualType, @Nonnull String name, @Nonnull String category, @Nonnull IPropertyEditor editor) {
+	private PropertyDefinition(@Nonnull Class< ? > actualType, @Nonnull String name, @Nonnull String category, @Nonnull IPropertyEditorFactory editor) {
 		m_actualType = actualType;
 		m_name = name;
 		m_category = category;
@@ -53,12 +55,12 @@ public class PropertyDefinition {
 	}
 
 	@Nonnull
-	public IPropertyEditor getEditor() {
+	public IPropertyEditorFactory getEditor() {
 		return m_editor;
 	}
 
 	@Nonnull
-	static public PropertyDefinition getDefinition(@Nonnull Class< ? > actualType, @Nonnull String name, @Nonnull String category, @Nonnull IPropertyEditor editor) {
+	static public PropertyDefinition getDefinition(@Nonnull Class< ? > actualType, @Nonnull String name, @Nonnull String category, @Nonnull IPropertyEditorFactory editor) {
 		PropertyDefinition pd = new PropertyDefinition(actualType, name, category, editor);
 		PropertyDefinition rpd = m_map.get(pd);
 		if(rpd != null)
@@ -77,7 +79,8 @@ public class PropertyDefinition {
 		for(PropertyMetaModel< ? > pmm : MetaManager.findClassMeta(ifclss).getProperties()) {
 			if(pmm.getReadOnly() == YesNoType.YES)
 				continue;
-			m_categoryMap.put(pmm.getName(), category);
+			if(!m_categoryMap.containsKey(pmm.getName()))
+				m_categoryMap.put(pmm.getName(), category);
 		}
 	}
 
@@ -85,5 +88,22 @@ public class PropertyDefinition {
 	static synchronized public String getCategory(@Nonnull String propertyName) {
 		String cat = m_categoryMap.get(propertyName);
 		return cat == null ? "Miscellaneous" : cat;
+	}
+
+	static private final Set<String> m_ignoreSet = new HashSet<String>();
+
+	public static synchronized void ignore(@Nonnull String property) {
+		m_ignoreSet.add(property);
+	}
+
+	public static synchronized boolean isIgnored(@Nonnull String property) {
+		return m_ignoreSet.contains(property);
+	}
+
+	static {
+		registerCategories("CSS", CssBase.class);
+		registerCategories("Control", IControl.class);
+
+		ignore("defaultResourceBundle");
 	}
 }

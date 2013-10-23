@@ -67,7 +67,10 @@ public class FormDesigner extends UrlPage {
 		tp.add(td, "Components");
 
 		final PropertyPanel pp = new PropertyPanel();
-		tp.add(pp, "Properties");
+		Div propd = new Div();
+		propd.add(pp);
+
+		tp.add(propd, "Properties");
 		tp.build();
 
 		m_paint.addSelectionChanged(new ISelectionChanged() {
@@ -78,6 +81,8 @@ public class FormDesigner extends UrlPage {
 		});
 
 		appendCreateJS("WebUI.autoHeightReset('#" + topd.getActualID() + "','#" + cp.getActualID() + "', 0);");
+		appendCreateJS("WebUI.autoHeightReset('#" + propd.getActualID() + "','#" + pp.getActualID() + "', 0);");
+
 		appendCreateJS("FormBuilder.create('" + m_paint.getActualID() + "','" + cp.getActualID() + "');");
 	}
 

@@ -217,8 +217,10 @@ public class AutoComponent implements IFbComponent {
 	private PropertyDefinition createDefinition(@Nonnull PropertyMetaModel< ? > pmm) {
 		if(pmm.getReadOnly() == YesNoType.YES)
 			return null;
+		if(PropertyDefinition.isIgnored(pmm.getName()))
+			return null;
 
-		PropertyDefinition pd = PropertyDefinition.getDefinition(pmm.getActualType(), pmm.getName(), calculateCategory(pmm), DefaultPropertyEditor.INSTANCE);
+		PropertyDefinition pd = PropertyDefinition.getDefinition(pmm.getActualType(), pmm.getName(), calculateCategory(pmm), DefaultPropertyEditorFactory.INSTANCE);
 		return pd;
 	}
 
