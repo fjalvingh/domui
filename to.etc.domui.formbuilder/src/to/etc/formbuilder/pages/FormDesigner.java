@@ -7,6 +7,7 @@ import javax.annotation.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
+import to.etc.formbuilder.pages.PaintPanel.ISelectionChanged;
 
 /**
  * DomUI form designer.
@@ -65,9 +66,16 @@ public class FormDesigner extends UrlPage {
 
 		tp.add(td, "Components");
 
-		PropertyPanel pp = new PropertyPanel();
+		final PropertyPanel pp = new PropertyPanel();
 		tp.add(pp, "Properties");
 		tp.build();
+
+		m_paint.addSelectionChanged(new ISelectionChanged() {
+			@Override
+			public void selectionChanged(Set<ComponentInstance> newSelection, Set<ComponentInstance> oldSelection) throws Exception {
+				pp.selectionChanged(newSelection);
+			}
+		});
 
 		appendCreateJS("WebUI.autoHeightReset('#" + topd.getActualID() + "','#" + cp.getActualID() + "', 0);");
 		appendCreateJS("FormBuilder.create('" + m_paint.getActualID() + "','" + cp.getActualID() + "');");

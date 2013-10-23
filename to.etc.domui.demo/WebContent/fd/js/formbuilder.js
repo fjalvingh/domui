@@ -178,7 +178,7 @@ $.extend(FormBuilder.prototype, {
 		for(var i = this._selectionList.length; --i >= 0;) {
 			curs.push(this._selectionList[i]._id);
 		}
-		this.sendEvent("Selection", {selected: curs});
+		this.sendEvent("Selection", curs);
 //		this.sendEvent("WFLSELECTION", {selected: curs});
 	},
 

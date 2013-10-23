@@ -2,9 +2,11 @@ package to.etc.formbuilder.pages;
 
 import java.io.*;
 import java.lang.reflect.*;
+import java.util.*;
 
 import javax.annotation.*;
 
+import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
@@ -28,6 +30,9 @@ public class AutoComponent implements IFbComponent {
 	@Nonnull
 	final private String m_categoryName;
 
+	@Nonnull
+	final private Set<PropertyDefinition> m_propertySet;
+
 	public AutoComponent(Class< ? extends NodeBase> componentClass) {
 		m_componentClass = componentClass;
 		String fullname = componentClass.getName();
@@ -44,6 +49,8 @@ public class AutoComponent implements IFbComponent {
 		int pdot = fullname.lastIndexOf('.', ldot - 1);
 		name = StringTool.getCapitalized(fullname.substring(pdot + 1, ldot));
 		m_categoryName = name;
+
+		m_propertySet = calculatePropertySet(componentClass);
 	}
 
 	@Override
@@ -177,6 +184,27 @@ public class AutoComponent implements IFbComponent {
 		}
 	}
 
+	/**
+	 * Return all editable properties for a component of this type.
+	 *
+	 * @see to.etc.formbuilder.pages.IFbComponent#getProperties()
+	 */
+	@Override
+	public Set<PropertyDefinition> getProperties() {
+		return m_propertySet;
+	}
+
+	@Nonnull
+	private Set<PropertyDefinition> calculatePropertySet(@Nonnull Class< ? extends NodeBase> componentClass) {
+		List<PropertyMetaModel< ? >> prl = MetaManager.findClassMeta(componentClass).getProperties();
+		Set<PropertyDefinition> res = new HashSet<PropertyDefinition>();
+		for(PropertyMetaModel< ? > pmm : prl) {
+			PropertyDefinition pd = createDefinition(pmm);
+			if(null != pd)
+				res.add(pd);
+		}
+		return res;
+	}
 
 //
 //	@Override
@@ -184,6 +212,25 @@ public class AutoComponent implements IFbComponent {
 //		// TODO Auto-generated method stub
 //		return null;
 //	}
+
+	@Nullable
+	private PropertyDefinition createDefinition(@Nonnull PropertyMetaModel< ? > pmm) {
+		if(pmm.getReadOnly() == YesNoType.YES)
+			return null;
+
+		PropertyDefinition pd = PropertyDefinition.getDefinition(pmm.getActualType(), pmm.getName(), calculateCategory(pmm), DefaultPropertyEditor.INSTANCE);
+		return pd;
+	}
+
+	/**
+	 * Tries to categorize.
+	 * @param pmm
+	 * @return
+	 */
+	@Nonnull
+	private String calculateCategory(@Nonnull PropertyMetaModel< ? > pmm) {
+		return PropertyDefinition.getCategory(pmm.getName());
+	}
 
 	@Override
 	public String toString() {

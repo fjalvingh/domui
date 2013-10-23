@@ -1,5 +1,7 @@
 package to.etc.formbuilder.pages;
 
+import java.util.*;
+
 import javax.annotation.*;
 
 import to.etc.domui.component.misc.*;
@@ -24,8 +26,22 @@ public class PaintPanel extends Div {
 	@Nonnull
 	final private PageContainer m_pageContainer = new PageContainer();
 
+	@Nonnull
+	private Set<ComponentInstance> m_selectSet = new HashSet<ComponentInstance>();
+
+	public interface ISelectionChanged {
+		public void selectionChanged(@Nonnull Set<ComponentInstance> newSelection, Set<ComponentInstance> oldSelection) throws Exception;
+	}
+
+	@Nonnull
+	private List<ISelectionChanged> m_selectionChangedListeners = new ArrayList<ISelectionChanged>();
+
 	public PaintPanel(@Nonnull FormComponentRegistry registry) {
 		m_registry = registry;
+	}
+
+	public void addSelectionChanged(@Nonnull ISelectionChanged sel) {
+		m_selectionChangedListeners.add(sel);
 	}
 
 	private void createRootLayout() {
@@ -150,6 +166,19 @@ public class PaintPanel extends Div {
 			throw new IllegalStateException("Moving a thingy that is not part of a layout?");
 
 		layout.positionComponent(ci, new IntPoint(info.getX(), info.getY()));
+	}
+
+	public void webActionSelection(@Nonnull Set<String> idlist) throws Exception {
+		Set<ComponentInstance> selectSet = new HashSet<ComponentInstance>();
+		for(String id : idlist) {
+			ComponentInstance component = pc().getComponent(id);
+			selectSet.add(component);
+		}
+		Set<ComponentInstance> oldSet = m_selectSet;
+		m_selectSet = selectSet;
+		for(ISelectionChanged ss : m_selectionChangedListeners)
+			ss.selectionChanged(selectSet, oldSet);
+
 	}
 
 
