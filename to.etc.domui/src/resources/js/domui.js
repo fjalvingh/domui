@@ -3627,7 +3627,7 @@ WebUI.colorPickerInput = function(inid, divid, value, onchange) {
 	});
 };
 WebUI.colorPickerDisable = function(id) {
-	$(id).ColorPicker.destroy();
+	$(id).die();
 };
 
 WebUI.colorPickerOnchange = function(id, last) {
