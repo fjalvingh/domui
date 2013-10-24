@@ -82,6 +82,28 @@
 	width: 16px;
 }
 
+/*** Tab panel ***/
+.fb-tab-lab {
+	position: relative;
+	height: 36px;
+	padding: 2px;
+	background-color: gray;
+}
+.fb-tab-lbl {
+	display: inline-block;
+	border: 1px dotted red;
+	padding: 5px;
+	background: green;
+}
+.fb-tab-cont {
+	position: absolute;
+	top: 40px;
+	bottom: 0px;
+	width: 300px;
+	overflow: auto;
+}
+
+
 /*** Component augmentation classes ***/
 .fb-ui-paint {
 	background: white;
@@ -110,7 +132,4 @@
 
 /*** Properties panel ***/
 .fb-prp {
-	position: relative;
-	overflow: auto;
-	bottom: 0px;
 }

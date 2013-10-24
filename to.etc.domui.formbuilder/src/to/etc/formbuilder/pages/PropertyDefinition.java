@@ -104,6 +104,6 @@ public class PropertyDefinition {
 		registerCategories("CSS", CssBase.class);
 		registerCategories("Control", IControl.class);
 
-		ignore("defaultResourceBundle");
+		ignore("componentBundle");
 	}
 }

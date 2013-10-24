@@ -404,6 +404,8 @@ public class TabPanelBase extends Div {
 			if(newti instanceof IDisplayedListener) {
 				((IDisplayedListener) oldti).onDisplayStateChanged(true);
 			}
+
+//			appendJavascript("$(window).trigger('resize');");
 		}
 		m_currentTab = index;										// ORDERED!!! Must be below the above!!!
 	}
