@@ -28,10 +28,8 @@ import java.math.*;
 
 import javax.annotation.*;
 
-import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.errors.*;
 
 /**
  * PLEASE LOOK IN THE CONTROL CLASS YOU WANT TO CREATE FOR MORE METHODS!
@@ -306,22 +304,6 @@ final public class UIControlUtil {
 			hexString = "#" + hexString;
 		}
 		return hexString;
-	}
-
-	/**
-	 * Util for updating button enabled / disabled state depending on existence of error (reason for disabling).
-	 *
-	 * @param btn button to update
-	 * @param rsn reason to disable button. If null, button gets enabled, otherwise it gets disabled with rsn.getMessage() as title
-	 */
-	public static void updateBtn(@Nonnull DefaultButton btn, @Nullable UIMessage rsn) {
-		if(null != rsn) {
-			btn.setDisabled(true);
-			btn.setTitle(rsn.getMessage());
-		} else {
-			btn.setDisabled(false);
-			btn.setTitle("");
-		}
 	}
 
 }
