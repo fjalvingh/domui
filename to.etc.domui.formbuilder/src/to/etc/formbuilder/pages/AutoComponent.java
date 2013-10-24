@@ -220,7 +220,16 @@ public class AutoComponent implements IFbComponent {
 		if(PropertyDefinition.isIgnored(pmm.getName()))
 			return null;
 
-		PropertyDefinition pd = PropertyDefinition.getDefinition(pmm.getActualType(), pmm.getName(), calculateCategory(pmm), DefaultPropertyEditorFactory.INSTANCE);
+		IPropertyEditorFactory fact = DefaultPropertyEditorFactory.INSTANCE;
+		if(pmm.getDomainValues() != null) {
+			//-- Domain-specific thing. Create combo thing.
+			fact = ComboPropertyEditorFactory.createFactory(pmm);
+		} else if(pmm.getName().toLowerCase().contains("color")) {
+			fact = ColorPropertyEditorFactory.INSTANCE;
+		}
+
+
+		PropertyDefinition pd = PropertyDefinition.getDefinition(pmm.getActualType(), pmm.getName(), calculateCategory(pmm), fact);
 		return pd;
 	}
 
