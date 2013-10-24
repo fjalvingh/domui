@@ -35,6 +35,7 @@ public class FormDesigner extends UrlPage {
 
 		getPage().addHeaderContributor(HeaderContributor.loadStylesheet("fd/css/formbuilder.css"), 100);
 		getPage().addHeaderContributor(HeaderContributor.loadJavascript("fd/js/formbuilder.js"), 100);
+		getPage().addHeaderContributor(HeaderContributor.loadJavascript("$js/colorpicker.js"), 100);
 
 		Div top = new Div();
 		add(top);
