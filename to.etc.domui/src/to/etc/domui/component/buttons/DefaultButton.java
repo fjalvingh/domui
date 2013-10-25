@@ -27,6 +27,7 @@ package to.etc.domui.component.buttons;
 import javax.annotation.*;
 
 import to.etc.domui.component.menu.*;
+import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
@@ -288,5 +289,20 @@ public class DefaultButton extends Button implements IActionControl {
 				action.execute(DefaultButton.this, m_actionInstance);
 			}
 		});
+	}
+
+	/**
+	 * Util for updating button enabled / disabled state depending on existence of error (reason for disabling).
+	 *
+	 * @param rsn reason to disable button. If null, button gets enabled, otherwise it gets disabled with rsn.getMessage() as title (hint)
+	 */
+	public void setDisabled(@Nullable UIMessage rsn) {
+		if(null != rsn) {
+			setDisabled(true);
+			setTitle(rsn.getMessage());
+		} else {
+			setDisabled(false);
+			setTitle("");
+		}
 	}
 }
