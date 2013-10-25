@@ -38,6 +38,7 @@
     text-decoration: none;
  	min-height: 22px;
  	color: <%= tab_pnl_inactive_col %>;
+ 	margin-right: 0px !important;
 }
 
 .ui-tab-hdr img {
