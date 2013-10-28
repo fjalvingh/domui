@@ -6,7 +6,6 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.layout.*;
 import to.etc.domui.component.layout.title.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
@@ -14,6 +13,7 @@ import to.etc.domui.server.ServerClientRegistry.Client;
 import to.etc.util.*;
 
 public class CurrentlyLoggedInUsersPage extends UrlPage {
+
 	@Override
 	public void createContent() throws Exception {
 		createHeader();
@@ -35,8 +35,18 @@ public class CurrentlyLoggedInUsersPage extends UrlPage {
 		});
 
 		long cts = System.currentTimeMillis();
-		TBody b = addTable("UserID", "IP Address/host", "#requests", "Logged in since", "Last use");
-		b.getTable().setCssClass("listtbl");
+
+		Div content = new Div();
+		content.setCssClass("ui-dt");
+		add(content);
+
+		Table t = new Table();
+		content.add(t);
+		t.getHead().setHeaders("UserID", "IP Address/host", "#requests", "Logged in since", "Last use", "Used pages");
+		TBody b = new TBody();
+		t.add(b);
+
+		b.getTable().setCssClass("ui-dt");
 		b.getTable().setCellPadding("0");
 		b.getTable().setCellSpacing("0");
 
@@ -60,13 +70,11 @@ public class CurrentlyLoggedInUsersPage extends UrlPage {
 					tr.appendAfterMe(ntr);
 					ntr.addCell();
 					TD d = ntr.addCell();
-					d.setColspan(4);
-					d.add(new CaptionedHeader("Used pages"));
+					d.setColspan(5);
 
 					TBody nb = d.addTable("When", "Url");
-					nb.getTable().setCssClass("listtbl");
-					nb.getTable().setCellPadding("0");
-					nb.getTable().setCellSpacing("0");
+					nb.getTable().setCssClass("listtbl vp-inline-edit");
+					nb.getTable().setWidth("80%");
 					long cts = System.currentTimeMillis();
 
 					for(ServerClientRegistry.Use u : fcl.getLastUseList()) {
