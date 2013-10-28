@@ -818,6 +818,12 @@ $.extend(WebUI, {
 				if (fck) {
 					val = fck.GetXHTML();
 				}
+			} else if(sel.className == 'ui-ckeditor') {
+				//-- Locate the variable for this editor.
+				var editor = CKEDITOR.instances[sel.id];
+				if(null == editor)
+					throw "Cannot locate editor with id="+sel.id;
+				val = editor.getData();
 			} else {
 				// if($.browser.msie) { // The MS idiots remove newlines from
 				// value....
