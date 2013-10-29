@@ -27,6 +27,7 @@ package to.etc.domui.server;
 import java.io.*;
 import java.util.*;
 
+import javax.annotation.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
@@ -60,10 +61,17 @@ public class AppFilter implements Filter {
 
 	static private String m_appContext;
 
+	@Nullable
+	static private IRequestResponseWrapper m_ioWrapper;
+
 	/**
 	 * If a reloader is needed for debug/development pps this will hold the reloader.
 	 */
 	private IContextMaker m_contextMaker;
+
+	static public synchronized void setIoWrapper(@Nonnull IRequestResponseWrapper ww) {
+		m_ioWrapper = ww;
+	}
 
 	@Override
 	public void destroy() {
@@ -81,6 +89,13 @@ public class AppFilter implements Filter {
 	public void doFilter(final ServletRequest req, final ServletResponse res, final FilterChain chain) throws IOException, ServletException {
 		try {
 			HttpServletRequest rq = (HttpServletRequest) req;
+			HttpServletResponse response = (HttpServletResponse) res;
+			IRequestResponseWrapper ww = m_ioWrapper;
+			if(null != ww) {
+				rq = ww.getWrappedRequest(rq);
+				response = ww.getWrappedResponse(response);
+			}
+
 			rq.setCharacterEncoding("UTF-8"); // FIXME jal 20080804 Encoding of input was incorrect?
 			//			DomUtil.dumpRequest(rq);
 
