@@ -26,6 +26,8 @@ package to.etc.domui.databinding;
 
 import javax.annotation.*;
 
+import to.etc.domui.databinding.observables.*;
+
 /**
  * This is a special observable handler for DomUI components. This observer handles
  * property changes in such a way that errors in the validation and conversion of the

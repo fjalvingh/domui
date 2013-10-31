@@ -1,10 +1,13 @@
-package to.etc.domui.databinding;
+package to.etc.domui.databinding.observables;
 
 import java.util.*;
 
 import javax.annotation.*;
 
 import to.etc.domui.component.tbl.*;
+import to.etc.domui.databinding.*;
+import to.etc.domui.databinding.list.*;
+import to.etc.domui.databinding.list2.*;
 
 /**
  * EXPERIMENTAL This adapter creates a {@link ITableModel} from an {@link IObservableList} instance, converting the ObservableList

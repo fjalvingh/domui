@@ -1,12 +1,14 @@
-package to.etc.domui.databinding;
+package to.etc.domui.databinding.observables;
 
 import java.util.*;
 
 import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
+import to.etc.domui.databinding.*;
+import to.etc.domui.databinding.list2.*;
 
-public class PropertyObservableList<C, T> extends ListenerList<T, ListChangeEvent<T>, IListChangeListener<T>> implements IObservableList<List<T>> {
+public class PropertyObservableList<C, T> extends ListenerList<T, ListChangeEvent<T>, IListChangeListener<T>> {
 	@Nonnull
 	final private C m_instance;
 

@@ -1,10 +1,11 @@
-package to.etc.domui.databinding;
+package to.etc.domui.databinding.observables;
 
 import java.util.*;
 
 import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
+import to.etc.domui.databinding.*;
 
 public class ObservableObject implements IObservableEntity {
 	@Nullable

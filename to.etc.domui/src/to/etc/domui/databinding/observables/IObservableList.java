@@ -1,8 +1,11 @@
-package to.etc.domui.databinding;
+package to.etc.domui.databinding.observables;
 
 import java.util.*;
 
 import javax.annotation.*;
+
+import to.etc.domui.databinding.*;
+import to.etc.domui.databinding.list2.*;
 
 public interface IObservableList<T> extends List<T>, IObservable<T, ListChangeEvent<T>, IListChangeListener<T>> {
 	@Override

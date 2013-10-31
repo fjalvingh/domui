@@ -31,6 +31,8 @@ import javax.annotation.*;
 import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.databinding.*;
+import to.etc.domui.databinding.observables.*;
+import to.etc.domui.databinding.value.*;
 import to.etc.domui.dom.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
@@ -1637,7 +1639,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	/**
 	 * Return an observable for the specified property, <b>if that property can be observed</b>; if
 	 * not this will throw {@link PropertyNotObservableException}.
-	 * @see to.etc.domui.databinding.IObservableEntity#observableValue(java.lang.String)
+	 * @see to.etc.domui.databinding.observables.IObservableEntity#observableValue(java.lang.String)
 	 * @throws PropertyNotObservableException if the property is not observable.
 	 */
 	@Override

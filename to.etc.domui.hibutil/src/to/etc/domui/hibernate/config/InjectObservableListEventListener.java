@@ -6,6 +6,7 @@ import java.util.*;
 import org.hibernate.event.*;
 
 import to.etc.domui.databinding.*;
+import to.etc.domui.databinding.observables.*;
 import to.etc.util.*;
 
 /**

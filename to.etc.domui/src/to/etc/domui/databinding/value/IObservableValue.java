@@ -22,10 +22,11 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.databinding;
+package to.etc.domui.databinding.value;
 
 import javax.annotation.*;
 
+import to.etc.domui.databinding.*;
 import to.etc.domui.util.*;
 
 public interface IObservableValue<T> extends IObservable<T, ValueChangeEvent<T>, IValueChangeListener<T>>, IReadWriteModel<T> {

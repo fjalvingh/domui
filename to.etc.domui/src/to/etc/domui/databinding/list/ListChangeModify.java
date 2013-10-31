@@ -1,6 +1,8 @@
-package to.etc.domui.databinding;
+package to.etc.domui.databinding.list;
 
 import javax.annotation.*;
+
+import to.etc.domui.databinding.list2.*;
 
 public class ListChangeModify<E> extends ListChange<E> {
 	final private int m_index;

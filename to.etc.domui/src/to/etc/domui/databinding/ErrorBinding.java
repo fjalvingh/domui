@@ -2,6 +2,7 @@ package to.etc.domui.databinding;
 
 import javax.annotation.*;
 
+import to.etc.domui.databinding.value.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 
@@ -33,7 +34,7 @@ public class ErrorBinding implements IValueChangeListener<UIMessage> {
 
 	/**
 	 * Called when the control's message property changes. Delegates the change to the context.
-	 * @see to.etc.domui.databinding.IValueChangeListener#handleChange(to.etc.domui.databinding.ValueChangeEvent)
+	 * @see to.etc.domui.databinding.value.IValueChangeListener#handleChange(to.etc.domui.databinding.value.ValueChangeEvent)
 	 */
 	@Override
 	public void handleChange(@Nonnull ValueChangeEvent<UIMessage> event) throws Exception {

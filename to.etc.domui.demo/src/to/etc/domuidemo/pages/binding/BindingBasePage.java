@@ -6,6 +6,7 @@ import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.databinding.*;
+import to.etc.domui.databinding.observables.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domuidemo.db.*;
 

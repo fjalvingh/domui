@@ -22,11 +22,45 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.databinding;
+package to.etc.domui.databinding.observables;
 
 import javax.annotation.*;
 
-public interface IObservableEntity {
-	@Nonnull
-	public IObservableValue< ? > observableValue(@Nonnull String property);
+import to.etc.util.*;
+
+/**
+ * Utility observable for booleans.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on May 20, 2013
+ */
+public class ObservableBoolean extends ObservableValue<Boolean> {
+	public ObservableBoolean() {
+		super(Boolean.FALSE);
+	}
+
+	public ObservableBoolean(boolean value) {
+		super(Boolean.valueOf(value));
+	}
+
+	public ObservableBoolean(@Nonnull Boolean value) {
+		super(value);
+	}
+
+	public boolean isSet() {
+		try {
+			Boolean val = getValue();
+			return val == Boolean.TRUE;
+		} catch(Exception x) {
+			throw WrappedException.wrap(x);
+		}
+	}
+
+	public void set(boolean value) {
+		try {
+			setValue(Boolean.valueOf(value));
+		} catch(Exception x) {
+			throw WrappedException.wrap(x);
+		}
+	}
 }

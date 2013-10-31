@@ -22,9 +22,11 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.databinding;
+package to.etc.domui.databinding.value;
 
 import javax.annotation.*;
+
+import to.etc.domui.databinding.*;
 
 /**
  * An event due to a change in some observable value.

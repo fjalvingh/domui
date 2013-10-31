@@ -22,59 +22,60 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.databinding;
+package to.etc.domui.databinding.observables;
 
 import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
+import to.etc.domui.databinding.*;
+import to.etc.domui.databinding.value.*;
 
 /**
- * An observed property on some instance.
+ * Just some observable value container. This is meant to be used directly.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * Created on Apr 23, 2013
+ * Created on May 20, 2013
  */
-public class PropertyObservableValue<C, T> extends ListenerList<T, ValueChangeEvent<T>, IValueChangeListener<T>> implements IObservableValue<T> {
-	@Nonnull
-	final private C m_instance;
+public class ObservableValue<T> extends ListenerList<T, ValueChangeEvent<T>, IValueChangeListener<T>> implements IObservableValue<T> {
+	private T m_value;
 
 	@Nonnull
-	final private PropertyMetaModel<T> m_property;
+	final private Class<T> m_valueType;
 
-	public PropertyObservableValue(@Nonnull C instance, @Nonnull PropertyMetaModel<T> property) {
-		m_instance = instance;
-		m_property = property;
+	/**
+	 * Create a null-holding value of the specified type.
+	 * @param valueType
+	 */
+	public ObservableValue(@Nonnull Class<T> valueType) {
+		m_valueType = valueType;
+	}
+
+	/**
+	 * Create a new value with the specified initial non-null value.
+	 * @param value
+	 */
+	public ObservableValue(@Nonnull T value) {
+		m_value = value;
+		m_valueType = (Class<T>) value.getClass();
 	}
 
 	@Override
 	@Nonnull
 	public Class<T> getValueType() {
-		return m_property.getActualType();
+		return m_valueType;
 	}
 
 	@Override
 	@Nullable
 	public T getValue() throws Exception {
-		return m_property.getValue(m_instance);
+		return m_value;
 	}
-
 
 	@Override
 	public void setValue(@Nullable T value) throws Exception {
-		/*
-		 * 20130425 jal
-		 * The old implementation did a getvalue before the setvalue, and fired an event when the
-		 * old and new values changed. This should apparently not be done: the property we're observing
-		 * itself will fire an event when modified.
-		 */
-		m_property.setValue(m_instance, value);
-
-		//		T old = null;
-		//		try {
-		//			old = m_property.getValue(m_instance);
-		//		} catch(Exception x) {}
-		//		m_property.setValue(m_instance, value);
-		//		notifyIfChanged(old, value);
+		T oldValue = m_value;
+		m_value = value;
+		notifyIfChanged(oldValue, value);
 	}
 
 	void notifyIfChanged(@Nullable T old, @Nullable T value) {

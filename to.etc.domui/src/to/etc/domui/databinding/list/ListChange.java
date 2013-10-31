@@ -1,6 +1,8 @@
-package to.etc.domui.databinding;
+package to.etc.domui.databinding.list;
 
 import javax.annotation.*;
+
+import to.etc.domui.databinding.list2.*;
 
 /**
  * The base class for all list change event items.

@@ -22,45 +22,13 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.databinding;
+package to.etc.domui.databinding.value;
 
 import javax.annotation.*;
 
-import to.etc.util.*;
+import to.etc.domui.databinding.*;
 
-/**
- * Utility observable for booleans.
- *
- * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * Created on May 20, 2013
- */
-public class ObservableBoolean extends ObservableValue<Boolean> {
-	public ObservableBoolean() {
-		super(Boolean.FALSE);
-	}
-
-	public ObservableBoolean(boolean value) {
-		super(Boolean.valueOf(value));
-	}
-
-	public ObservableBoolean(@Nonnull Boolean value) {
-		super(value);
-	}
-
-	public boolean isSet() {
-		try {
-			Boolean val = getValue();
-			return val == Boolean.TRUE;
-		} catch(Exception x) {
-			throw WrappedException.wrap(x);
-		}
-	}
-
-	public void set(boolean value) {
-		try {
-			setValue(Boolean.valueOf(value));
-		} catch(Exception x) {
-			throw WrappedException.wrap(x);
-		}
-	}
+public interface IValueChangeListener<T> extends IChangeListener<T, ValueChangeEvent<T>, IValueChangeListener<T>> {
+	@Override
+	public void handleChange(@Nonnull ValueChangeEvent<T> event) throws Exception;
 }

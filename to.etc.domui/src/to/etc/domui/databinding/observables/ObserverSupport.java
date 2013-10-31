@@ -22,7 +22,7 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.databinding;
+package to.etc.domui.databinding.observables;
 
 import java.beans.*;
 import java.util.*;
@@ -30,6 +30,8 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
+import to.etc.domui.databinding.*;
+import to.etc.domui.databinding.observables.*;
 
 /**
  * Like {@link PropertyChangeSupport}, this class handles the {@link IObservable} support for DomUI for

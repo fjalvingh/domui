@@ -3,6 +3,8 @@ package to.etc.domui.util;
 import javax.annotation.*;
 
 import to.etc.domui.databinding.*;
+import to.etc.domui.databinding.observables.*;
+import to.etc.domui.databinding.value.*;
 import to.etc.webapp.annotations.*;
 
 public class ObservableObject implements IObservableEntity {

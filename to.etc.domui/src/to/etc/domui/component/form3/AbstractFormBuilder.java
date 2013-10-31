@@ -31,6 +31,7 @@ import org.slf4j.*;
 import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.databinding.*;
+import to.etc.domui.databinding.value.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;

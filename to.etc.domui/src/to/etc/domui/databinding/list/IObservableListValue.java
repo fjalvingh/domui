@@ -1,9 +1,10 @@
-package to.etc.domui.databinding;
+package to.etc.domui.databinding.list;
 
 import java.util.*;
 
 import javax.annotation.*;
 
+import to.etc.domui.databinding.*;
 import to.etc.domui.util.*;
 
 /**
@@ -12,18 +13,15 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 31, 2013
  */
-public interface IObservableListValue<E> extends IObservable<List<E>, ListChangeEvent<E>, IListChangeListener<E>>, IReadWriteModel<List<E>> {
-	@Nonnull
-	public Class<T> getValueType();
-
+public interface IObservableListValue<E> extends IObservable<List<E>, ListValueChangedEvent<E>, IListValueChangeListener<E>>, IReadWriteModel<List<E>> {
 	/**
 	 * Return the current value of the observable.
 	 * @return
 	 */
 	@Nullable
 	@Override
-	public T getValue() throws Exception;
+	public List<E> getValue() throws Exception;
 
 	@Override
-	public void setValue(@Nullable T value) throws Exception;
+	public void setValue(@Nullable List<E> value) throws Exception;
 }
