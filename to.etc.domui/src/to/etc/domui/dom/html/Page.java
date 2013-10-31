@@ -397,6 +397,34 @@ final public class Page implements IQContextContainer {
 
 
 	/*--------------------------------------------------------------*/
+	/*	CODING:	Automatic Test ID management.						*/
+	/*--------------------------------------------------------------*/
+
+	private static class IntRef {
+		public int m_value;
+	}
+
+	@Nonnull
+	private final Map<String, IntRef> m_testIdMap = new HashMap<String, Page.IntRef>();
+
+	@Nonnull
+	public String	allocateTestID(@Nonnull String initial) {
+		IntRef ir = m_testIdMap.get(initial);
+		if(null == ir) {
+			ir = new IntRef();
+			m_testIdMap.put(initial, ir);
+			return initial;
+		}
+		int v = ++ir.m_value;
+		return initial + "_" +v;
+	}
+
+	public boolean isTestIDALlocated(@Nonnull String id) {
+		return m_testIdMap.get(id) != null;
+	}
+
+
+	/*--------------------------------------------------------------*/
 	/*	CODING:	Header contributors									*/
 	/*--------------------------------------------------------------*/
 	/**
