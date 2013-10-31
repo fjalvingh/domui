@@ -8,6 +8,15 @@ import to.etc.domui.component.meta.*;
 import to.etc.domui.databinding.*;
 import to.etc.domui.databinding.list.*;
 
+/**
+ * The thingy that describes a property containing a list that can be observed. This
+ * both handles "property assignments" where a new list value is assigned to the property
+ * (mimicking what {@link ObservablePropertyValue} does) but also handles list content
+ * change reporting.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Oct 31, 2013
+ */
 public class ObservablePropertyList<C, T> extends ListenerList<List<T>, ListValueChangeEvent<T>, IListValueChangeListener<T>> implements IObservableListValue<T> {
 	@Nonnull
 	final private C m_instance;
