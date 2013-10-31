@@ -236,7 +236,7 @@ public class SearchInput<T> extends Div {
 		if(SIMPLECLASSES.contains(m_dataClass)) {
 			rr.addColumns("", new INodeContentRenderer<Object>() {
 				@Override
-				public void renderNodeContent(NodeBase component, NodeContainer node, Object object, Object parameters) throws Exception {
+				public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable Object object, @Nullable Object parameters) throws Exception {
 					node.add(String.valueOf(object));
 				}
 			});

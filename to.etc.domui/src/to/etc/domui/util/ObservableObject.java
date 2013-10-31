@@ -27,7 +27,7 @@ public class ObservableObject implements IObservableEntity {
 
 	@Override
 	@Nonnull
-	public IObservableValue< ? > observableProperty(@Nonnull @GProperty String property) {
+	public IObservableValue< ? > observableValue(@Nonnull @GProperty String property) {
 		return getObserverSupport().getValueObserver(property);
 	}
 }

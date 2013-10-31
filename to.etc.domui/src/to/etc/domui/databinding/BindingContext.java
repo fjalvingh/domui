@@ -198,7 +198,7 @@ public class BindingContext {
 	static <T> IObservableValue< ? > createObservable(@Nonnull T source, @Nonnull String property) {
 		if(source instanceof IObservableEntity) {
 			IObservableEntity oe = (IObservableEntity) source;
-			IObservableValue< ? > op = oe.observableProperty(property);
+			IObservableValue< ? > op = oe.observableValue(property);
 			return op;
 		}
 
@@ -224,7 +224,7 @@ public class BindingContext {
 			eb.dispose();
 		}
 
-		IObservableValue<UIMessage> uimo = (IObservableValue<UIMessage>) control.observableProperty("message");
+		IObservableValue<UIMessage> uimo = (IObservableValue<UIMessage>) control.observableValue("message");
 		eb = new ErrorBinding(this, uimo);
 		map.put(property, eb);
 	}

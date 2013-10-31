@@ -26,6 +26,8 @@ package to.etc.domui.component.dynaima;
 
 import java.io.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.parts.*;
 import to.etc.domui.server.*;
 import to.etc.domui.server.parts.*;
@@ -34,7 +36,7 @@ import to.etc.util.*;
 
 public class DynaImaPart implements IUnbufferedPartFactory {
 	@Override
-	public void generate(DomApplication app, String rurl, RequestContextImpl param) throws Exception {
+	public void generate(@Nonnull DomApplication app, @Nonnull String rurl, @Nonnull RequestContextImpl param) throws Exception {
 		DynaRenderer cpr = new DynaRenderer();
 		cpr.generate(app, param, rurl); // Decode input to get to the component in question.
 	}

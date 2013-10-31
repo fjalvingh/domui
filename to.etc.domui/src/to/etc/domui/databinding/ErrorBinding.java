@@ -36,7 +36,7 @@ public class ErrorBinding implements IValueChangeListener<UIMessage> {
 	 * @see to.etc.domui.databinding.IValueChangeListener#handleChange(to.etc.domui.databinding.ValueChangeEvent)
 	 */
 	@Override
-	public void handleChange(ValueChangeEvent<UIMessage> event) throws Exception {
+	public void handleChange(@Nonnull ValueChangeEvent<UIMessage> event) throws Exception {
 		m_bindingContext.errorBindingChanged(this, event.getDiff().getOld(), event.getDiff().getNew());
 	}
 

@@ -2,12 +2,12 @@ package to.etc.domui.databinding;
 
 import javax.annotation.*;
 
-public class ListChangeAdd<T> extends ListChange<T> {
+public class ListChangeAdd<E> extends ListChange<E> {
 	private int m_index;
 
-	private T m_value;
+	private E m_value;
 
-	public ListChangeAdd(int index, @Nonnull T value) {
+	public ListChangeAdd(int index, @Nonnull E value) {
 		m_index = index;
 		m_value = value;
 	}
@@ -17,12 +17,12 @@ public class ListChangeAdd<T> extends ListChange<T> {
 	}
 
 	@Nonnull
-	public T getValue() {
+	public E getValue() {
 		return m_value;
 	}
 
 	@Override
-	public void visit(@Nonnull IListChangeVisitor<T> visitor) throws Exception {
+	public void visit(@Nonnull IListChangeVisitor<E> visitor) throws Exception {
 		visitor.visitAdd(this);
 	}
 }

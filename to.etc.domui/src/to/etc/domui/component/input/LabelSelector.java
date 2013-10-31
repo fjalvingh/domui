@@ -205,7 +205,7 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 	}
 
 	@Override
-	public void setValue(@Nonnull List<T> newlist) {
+	public void setValue(@Nullable List<T> newlist) {
 		if(null == newlist)
 			newlist = new ArrayList<T>();
 		m_labelList = newlist;

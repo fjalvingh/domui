@@ -1637,12 +1637,12 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	/**
 	 * Return an observable for the specified property, <b>if that property can be observed</b>; if
 	 * not this will throw {@link PropertyNotObservableException}.
-	 * @see to.etc.domui.databinding.IObservableEntity#observableProperty(java.lang.String)
+	 * @see to.etc.domui.databinding.IObservableEntity#observableValue(java.lang.String)
 	 * @throws PropertyNotObservableException if the property is not observable.
 	 */
 	@Override
 	@Nonnull
-	public IObservableValue< ? > observableProperty(@Nonnull String property) {
+	public IObservableValue< ? > observableValue(@Nonnull String property) {
 		if(! isBindableProperty(property))
 			throw new PropertyNotObservableException(getClass(), property);
 		return getObserverSupport().getValueObserver(property);

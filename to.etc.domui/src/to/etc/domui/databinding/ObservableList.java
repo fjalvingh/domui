@@ -5,7 +5,8 @@ import java.util.*;
 import javax.annotation.*;
 
 /**
- * A list that generates change events for it's content, and that does not allow null elements.
+ * A list that generates change events for it's content, and that does <b>not allow null elements</b>. This
+ * observes the list <i>itself</i>, not the property containing a list value.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Sep 4, 2013

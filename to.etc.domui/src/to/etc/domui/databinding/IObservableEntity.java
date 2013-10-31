@@ -28,5 +28,5 @@ import javax.annotation.*;
 
 public interface IObservableEntity {
 	@Nonnull
-	public IObservableValue< ? > observableProperty(@Nonnull String property);
+	public IObservableValue< ? > observableValue(@Nonnull String property);
 }
