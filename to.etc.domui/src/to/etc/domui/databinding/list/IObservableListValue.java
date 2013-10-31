@@ -13,7 +13,7 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 31, 2013
  */
-public interface IObservableListValue<E> extends IObservable<List<E>, ListValueChangedEvent<E>, IListValueChangeListener<E>>, IReadWriteModel<List<E>> {
+public interface IObservableListValue<E> extends IObservable<List<E>, ListValueChangeEvent<E>, IListValueChangeListener<E>>, IReadWriteModel<List<E>> {
 	/**
 	 * Return the current value of the observable.
 	 * @return

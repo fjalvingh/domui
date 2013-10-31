@@ -56,22 +56,22 @@ public class ObserverSupport<C> {
 	}
 
 	@Nonnull
-	public <T> PropertyObservableValue<C, T> getValueObserver(@Nonnull String property) {
+	public <T> ObservablePropertyValue<C, T> getValueObserver(@Nonnull String property) {
 		IObservable< ? , ? , ? > po = m_propertyMap.get(property);
 		if(null == po) {
 			if(m_propertyMap.size() == 0)
 				m_propertyMap = new HashMap<String, IObservable< ? , ? , ? >>(10);
 			PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) m_model.getProperty(property);
-			po = new PropertyObservableValue<C, T>(m_instance, pmm);
+			po = new ObservablePropertyValue<C, T>(m_instance, pmm);
 			m_propertyMap.put(property, po);
 		}
-		return (PropertyObservableValue<C, T>) po;
+		return (ObservablePropertyValue<C, T>) po;
 	}
 
 	public <T> void fireModified(@Nonnull String propertyName, @Nullable T oldValue, @Nullable T newValue) {
 		IObservable< ? , ? , ? > po = m_propertyMap.get(propertyName);
-		if(po instanceof PropertyObservableValue) {
-			((PropertyObservableValue<C, T>) po).notifyIfChanged(oldValue, newValue);
+		if(po instanceof ObservablePropertyValue) {
+			((ObservablePropertyValue<C, T>) po).notifyIfChanged(oldValue, newValue);
 		}
 	}
 }

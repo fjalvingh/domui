@@ -25,7 +25,7 @@ public class ObservableObject implements IObservableEntity {
 
 	@Override
 	@Nonnull
-	public PropertyObservableValue<ObservableObject, ? > observableValue(@Nonnull String property) {
+	public ObservablePropertyValue<ObservableObject, ? > observableValue(@Nonnull String property) {
 		IObservable< ? , ? , ? > po = m_propertyMap.get(property);
 		if(null == po) {
 			if(m_propertyMap.size() == 0)
@@ -33,7 +33,7 @@ public class ObservableObject implements IObservableEntity {
 			po = createObservable(property);
 			m_propertyMap.put(property, po);
 		}
-		return (PropertyObservableValue<ObservableObject, ? >) po;
+		return (ObservablePropertyValue<ObservableObject, ? >) po;
 	}
 
 	/**
@@ -42,9 +42,9 @@ public class ObservableObject implements IObservableEntity {
 	 * @return
 	 */
 	@Nonnull
-	private <T> PropertyObservableValue<ObservableObject, T> createObservable(@Nonnull String property) {
+	private <T> ObservablePropertyValue<ObservableObject, T> createObservable(@Nonnull String property) {
 		PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) classMetaModel().getProperty(property);
-		return new PropertyObservableValue<ObservableObject, T>(this, pmm);
+		return new ObservablePropertyValue<ObservableObject, T>(this, pmm);
 	}
 
 	//	@Nonnull
@@ -52,8 +52,8 @@ public class ObservableObject implements IObservableEntity {
 
 	public <T> void fireModified(@Nonnull String propertyName, @Nullable T oldValue, @Nullable T newValue) {
 		IObservable< ? , ? , ? > po = m_propertyMap.get(propertyName);
-		if(po instanceof PropertyObservableValue) {
-			((PropertyObservableValue<ObservableObject, T>) po).notifyIfChanged(oldValue, newValue);
+		if(po instanceof ObservablePropertyValue) {
+			((ObservablePropertyValue<ObservableObject, T>) po).notifyIfChanged(oldValue, newValue);
 		}
 	}
 }

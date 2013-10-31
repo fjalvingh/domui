@@ -6,7 +6,7 @@ import javax.annotation.*;
 
 import to.etc.domui.databinding.*;
 
-public interface IListValueChangeListener<E> extends IChangeListener<List<E>, ListValueChangedEvent<E>, IListValueChangeListener<E>> {
+public interface IListValueChangeListener<E> extends IChangeListener<List<E>, ListValueChangeEvent<E>, IListValueChangeListener<E>> {
 	@Override
-	public void handleChange(@Nonnull ListValueChangedEvent<E> event) throws Exception;
+	public void handleChange(@Nonnull ListValueChangeEvent<E> event) throws Exception;
 }

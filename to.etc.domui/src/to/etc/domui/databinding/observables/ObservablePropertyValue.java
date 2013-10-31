@@ -36,14 +36,14 @@ import to.etc.domui.databinding.value.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Apr 23, 2013
  */
-public class PropertyObservableValue<C, T> extends ListenerList<T, ValueChangeEvent<T>, IValueChangeListener<T>> implements IObservableValue<T> {
+public class ObservablePropertyValue<C, T> extends ListenerList<T, ValueChangeEvent<T>, IValueChangeListener<T>> implements IObservableValue<T> {
 	@Nonnull
 	final private C m_instance;
 
 	@Nonnull
 	final private PropertyMetaModel<T> m_property;
 
-	public PropertyObservableValue(@Nonnull C instance, @Nonnull PropertyMetaModel<T> property) {
+	public ObservablePropertyValue(@Nonnull C instance, @Nonnull PropertyMetaModel<T> property) {
 		m_instance = instance;
 		m_property = property;
 	}
