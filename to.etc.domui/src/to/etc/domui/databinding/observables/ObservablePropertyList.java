@@ -35,12 +35,21 @@ public class ObservablePropertyList<C, T> extends ListenerList<List<T>, ListValu
 	//		return m_property.getActualType();
 	//	}
 	//
+
+	/**
+	 * Get the property's current value (which should be an observable list).
+	 * @see to.etc.domui.databinding.list.IObservableListValue#getValue()
+	 */
 	@Override
 	@Nullable
 	public List<T> getValue() throws Exception {
 		return m_property.getValue(m_instance);
 	}
 
+	/**
+	 * Set a new List into the property.
+	 * @see to.etc.domui.databinding.list.IObservableListValue#setValue(java.util.List)
+	 */
 	@Override
 	public void setValue(@Nullable List<T> value) throws Exception {
 		/*

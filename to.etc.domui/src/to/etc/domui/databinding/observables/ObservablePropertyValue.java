@@ -31,7 +31,7 @@ import to.etc.domui.databinding.*;
 import to.etc.domui.databinding.value.*;
 
 /**
- * An observed property on some instance.
+ * An observed property on some instance that just contains a "simple value", not any kind of collection.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Apr 23, 2013

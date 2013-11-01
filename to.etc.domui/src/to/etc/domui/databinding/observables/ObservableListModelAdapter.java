@@ -5,7 +5,6 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.tbl.*;
-import to.etc.domui.databinding.*;
 import to.etc.domui.databinding.list.*;
 import to.etc.domui.databinding.list2.*;
 
@@ -88,6 +87,11 @@ public class ObservableListModelAdapter<T> implements ITableModel<T> {
 				@Override
 				public void visitModify(ListChangeModify<T> l) throws Exception {
 					m_modelListener.rowModified(ObservableListModelAdapter.this, l.getIndex(), l.getNewValue());
+				}
+
+				@Override
+				public void visitAssign(ListChangeAssign<T> assign) throws Exception {
+					m_modelListener.modelChanged(ObservableListModelAdapter.this);
 				}
 			});
 		}
