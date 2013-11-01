@@ -7,12 +7,20 @@ import javax.annotation.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.databinding.*;
 import to.etc.domui.databinding.list.*;
+import to.etc.domui.databinding.list2.*;
+import to.etc.util.*;
 
 /**
  * The thingy that describes a property containing a list that can be observed. This
  * both handles "property assignments" where a new list value is assigned to the property
  * (mimicking what {@link ObservablePropertyValue} does) but also handles list content
  * change reporting.
+ *
+ * <p>This instance will post a listener on the observable list <i>inside</i> the property
+ * as soon as listeners on this instance are added. The listener on the observable list
+ * will "propagate" changes on the list itself to the listeners for this property. If the
+ * property value itself changes the listener is removed from the "old" list and re-added
+ * to the "new" one, and a {@link ListChangeAssign} event gets fired.</p>
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 31, 2013
@@ -24,17 +32,17 @@ public class ObservablePropertyList<C, T> extends ListenerList<List<T>, ListValu
 	@Nonnull
 	final private PropertyMetaModel<List<T>> m_property;
 
+	/**
+	 * Contains the list event adapter for the current observable list inside the property, if one has
+	 * been added.
+	 */
+	@Nullable
+	private ListEventAdapter m_listEventAdapter;
+
 	public ObservablePropertyList(@Nonnull C instance, @Nonnull PropertyMetaModel<List<T>> property) {
 		m_instance = instance;
 		m_property = property;
 	}
-
-	//	@Override
-	//	@Nonnull
-	//	public Class<List<T>> getValueType() {
-	//		return m_property.getActualType();
-	//	}
-	//
 
 	/**
 	 * Get the property's current value (which should be an observable list).
@@ -59,6 +67,48 @@ public class ObservablePropertyList<C, T> extends ListenerList<List<T>, ListValu
 		 * itself will fire an event when modified.
 		 */
 		m_property.setValue(m_instance, value);
+	}
+
+	/**
+	 * Registers a change listener for events on this property's list. This registers a change
+	 * listener to be added to the observable list inside the property.
+	 *
+	 * @see to.etc.domui.databinding.ListenerList#addChangeListener(to.etc.domui.databinding.IChangeListener)
+	 */
+	@Override
+	public synchronized void addChangeListener(IListValueChangeListener<T> listener) {
+		if(null == m_listEventAdapter) {
+			try {
+				//-- Do we have a value?
+				List<T> list = getValue();
+				if(null != list) {
+					if(!(list instanceof IObservableList))
+						throw new ListNotObservableException(m_instance.getClass(), m_property.getName());
+					ListEventAdapter lea = m_listEventAdapter = new ListEventAdapter();		// Create the adapter.
+					IObservableList<T> olist = (IObservableList<T>) list;
+					olist.addChangeListener(lea);
+				}
+			} catch(Exception x) {
+				throw WrappedException.wrap(x);					// Sigh
+			}
+		}
+		super.addChangeListener(listener);
+	}
+
+	/**
+	 * This adapter changes {@link IObservableList} events of type {@link ListChangeEvent} to events for
+	 * an observed list property ({@link ListValueChangeEvent}'s). An instance gets registered on the
+	 * observable list contained in the property we're observing.
+	 *
+	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+	 * Created on Nov 1, 2013
+	 */
+	private class ListEventAdapter implements IListChangeListener<T> {
+		@Override
+		public void handleChange(ListChangeEvent<T> event) throws Exception {
+			// TODO Auto-generated method stub
+
+		}
 	}
 
 	//	void notifyIfChanged(@Nullable T old, @Nullable T value) {

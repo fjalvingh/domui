@@ -33,5 +33,4 @@ public class ListValueChangeEvent<E> extends ObservableEvent<List<E>, ListValueC
 		for(ListChange<E> lc : m_changeList)
 			lc.visit(visitor);
 	}
-
 }

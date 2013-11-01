@@ -12,5 +12,10 @@ import to.etc.domui.databinding.list2.*;
  * Created on Oct 31, 2013
  */
 abstract public class ListChange<E> {
+	/**
+	 * Visit a handler to handle this change.
+	 * @param visitor
+	 * @throws Exception
+	 */
 	abstract public void visit(@Nonnull IListChangeVisitor<E> visitor) throws Exception;
 }
