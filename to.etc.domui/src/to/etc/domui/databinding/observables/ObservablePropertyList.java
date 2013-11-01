@@ -106,8 +106,8 @@ public class ObservablePropertyList<C, T> extends ListenerList<List<T>, ListValu
 	private class ListEventAdapter implements IListChangeListener<T> {
 		@Override
 		public void handleChange(ListChangeEvent<T> event) throws Exception {
-			// TODO Auto-generated method stub
-
+			ListValueChangeEvent<T> lvce = new ListValueChangeEvent<T>(ObservablePropertyList.this, event.getChanges());
+			fireEvent(lvce);									// Send the converted event.
 		}
 	}
 
