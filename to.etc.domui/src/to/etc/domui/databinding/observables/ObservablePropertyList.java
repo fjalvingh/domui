@@ -111,10 +111,39 @@ public class ObservablePropertyList<C, T> extends ListenerList<List<T>, ListValu
 		}
 	}
 
-	//	void notifyIfChanged(@Nullable T old, @Nullable T value) {
-	//		if(MetaManager.areObjectsEqual(old, value))
-	//			return;
-	//		ValueDiff<T> vd = new ValueDiff<T>(old, value);
-	//		fireEvent(new ValueChangeEvent<T>(this, vd));
-	//	}
+	/**
+	 * Called from observer support, this handles registering the listener to the new observable list.
+	 * @param old
+	 * @param value
+	 */
+	void notifyIfChanged(@Nullable List<T> old, @Nullable List<T> value) {
+		if(MetaManager.areObjectsEqual(old, value))
+			return;
+
+		ListEventAdapter ea = m_listEventAdapter;
+		if(null != ea) {
+			//-- We registered an adapter apparently... Unregister from old and re-register on new...
+			if(old != null) {
+				if(!(old instanceof IObservableList))
+					throw new ListNotObservableException(m_instance.getClass(), m_property.getName());
+				IObservableList<T> olist = (IObservableList<T>) old;
+				olist.removeChangeListener(ea);
+			}
+
+			//-- Re-register @ new
+			if(null != value) {
+				if(!(value instanceof IObservableList))
+					throw new ListNotObservableException(m_instance.getClass(), m_property.getName());
+				IObservableList<T> nlist = (IObservableList<T>) value;
+				nlist.addChangeListener(ea);
+			}
+
+			//-- Send the event.
+			ListChangeAssign<T> lca = new ListChangeAssign<T>(old, value);
+			List<ListChange<T>> res = new ArrayList<ListChange<T>>(1);
+			res.add(lca);
+			ListValueChangeEvent<T> lvca = new ListValueChangeEvent<T>(this, res);
+			fireEvent(lvca);
+		}
+	}
 }

@@ -1647,7 +1647,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	public IObservableValue< ? > observableValue(@Nonnull String property) {
 		if(! isBindableProperty(property))
 			throw new PropertyNotObservableException(getClass(), property);
-		return getObserverSupport().getValueObserver(property);
+		return getObserverSupport().observableValue(property);
 	}
 
 	/**

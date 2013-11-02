@@ -31,7 +31,6 @@ import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
 import to.etc.domui.databinding.*;
-import to.etc.domui.databinding.observables.*;
 
 /**
  * Like {@link PropertyChangeSupport}, this class handles the {@link IObservable} support for DomUI for
@@ -56,7 +55,7 @@ public class ObserverSupport<C> {
 	}
 
 	@Nonnull
-	public <T> ObservablePropertyValue<C, T> getValueObserver(@Nonnull String property) {
+	public <T> ObservablePropertyValue<C, T> observableValue(@Nonnull String property) {
 		IObservable< ? , ? , ? > po = m_propertyMap.get(property);
 		if(null == po) {
 			if(m_propertyMap.size() == 0)
@@ -66,6 +65,21 @@ public class ObserverSupport<C> {
 			m_propertyMap.put(property, po);
 		}
 		return (ObservablePropertyValue<C, T>) po;
+	}
+
+	@Nonnull
+	public <T> ObservablePropertyList<C, T> bservableList(@Nonnull String property) {
+		IObservable< ? , ? , ? > po = m_propertyMap.get(property);
+		if(null == po) {
+			if(m_propertyMap.size() == 0)
+				m_propertyMap = new HashMap<String, IObservable< ? , ? , ? >>(10);
+			PropertyMetaModel<List<T>> pmm = (PropertyMetaModel<List<T>>) m_model.getProperty(property);
+			if(!List.class.isAssignableFrom(pmm.getActualType()))
+				throw new IllegalStateException("Property " + property + " is not of type List<T>");
+			po = new ObservablePropertyList<C, T>(m_instance, pmm);
+			m_propertyMap.put(property, po);
+		}
+		return (ObservablePropertyList<C, T>) po;
 	}
 
 	public <T> void fireModified(@Nonnull String propertyName, @Nullable T oldValue, @Nullable T newValue) {

@@ -23,6 +23,10 @@ public class ObservableObject implements IObservableEntity {
 		return cmm;
 	}
 
+	/**
+	 * Create a reference to the property that can be used to observe changes.
+	 * @see to.etc.domui.databinding.observables.IObservableEntity#observableValue(java.lang.String)
+	 */
 	@Override
 	@Nonnull
 	public ObservablePropertyValue<ObservableObject, ? > observableValue(@Nonnull String property) {
@@ -30,7 +34,7 @@ public class ObservableObject implements IObservableEntity {
 		if(null == po) {
 			if(m_propertyMap.size() == 0)
 				m_propertyMap = new HashMap<String, IObservable< ? , ? , ? >>(10);
-			po = createObservable(property);
+			po = createObservableValue(property);
 			m_propertyMap.put(property, po);
 		}
 		return (ObservablePropertyValue<ObservableObject, ? >) po;
@@ -42,13 +46,35 @@ public class ObservableObject implements IObservableEntity {
 	 * @return
 	 */
 	@Nonnull
-	private <T> ObservablePropertyValue<ObservableObject, T> createObservable(@Nonnull String property) {
+	private <T> ObservablePropertyValue<ObservableObject, T> createObservableValue(@Nonnull String property) {
 		PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) classMetaModel().getProperty(property);
 		return new ObservablePropertyValue<ObservableObject, T>(this, pmm);
 	}
 
-	//	@Nonnull
-	//	public <T>
+	@Nonnull
+	public ObservablePropertyList<ObservableObject, ? > observableList(@Nonnull String property) {
+		IObservable< ? , ? , ? > po = m_propertyMap.get(property);
+		if(null == po) {
+			if(m_propertyMap.size() == 0)
+				m_propertyMap = new HashMap<String, IObservable< ? , ? , ? >>(10);
+			po = createObservableList(property);
+			m_propertyMap.put(property, po);
+		}
+		return (ObservablePropertyList<ObservableObject, ? >) po;
+	}
+
+	/**
+	 * Needed to fix lobotomized java generics.
+	 * @param property
+	 * @return
+	 */
+	@Nonnull
+	private <T> ObservablePropertyList<ObservableObject, T> createObservableList(@Nonnull String property) {
+		PropertyMetaModel<List<T>> pmm = (PropertyMetaModel<List<T>>) classMetaModel().getProperty(property);
+		if(!List.class.isAssignableFrom(pmm.getActualType()))
+			throw new IllegalStateException("Property " + property + " is not of type List<T>");
+		return new ObservablePropertyList<ObservableObject, T>(this, pmm);
+	}
 
 	public <T> void fireModified(@Nonnull String propertyName, @Nullable T oldValue, @Nullable T newValue) {
 		IObservable< ? , ? , ? > po = m_propertyMap.get(propertyName);
