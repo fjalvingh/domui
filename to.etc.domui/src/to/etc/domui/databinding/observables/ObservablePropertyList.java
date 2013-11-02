@@ -25,7 +25,7 @@ import to.etc.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 31, 2013
  */
-public class ObservablePropertyList<C, T> extends ListenerList<List<T>, ListValueChangeEvent<T>, IListValueChangeListener<T>> implements IObservableListValue<T> {
+public class ObservablePropertyList<C, T> extends ListenerList<List<T>, ListValueChangeEvent<T>, IListValueChangeListener<T>> implements IObservableListValue<T>, IPropertyChangeNotifier {
 	@Nonnull
 	final private C m_instance;
 
@@ -116,7 +116,8 @@ public class ObservablePropertyList<C, T> extends ListenerList<List<T>, ListValu
 	 * @param old
 	 * @param value
 	 */
-	void notifyIfChanged(@Nullable List<T> old, @Nullable List<T> value) {
+	@Override
+	public <X> void notifyIfChanged(@Nullable X old, @Nullable X value) {
 		if(MetaManager.areObjectsEqual(old, value))
 			return;
 
@@ -139,7 +140,7 @@ public class ObservablePropertyList<C, T> extends ListenerList<List<T>, ListValu
 			}
 
 			//-- Send the event.
-			ListChangeAssign<T> lca = new ListChangeAssign<T>(old, value);
+			ListChangeAssign<T> lca = new ListChangeAssign<T>((List<T>) old, (List<T>) value);
 			List<ListChange<T>> res = new ArrayList<ListChange<T>>(1);
 			res.add(lca);
 			ListValueChangeEvent<T> lvca = new ListValueChangeEvent<T>(this, res);

@@ -36,7 +36,7 @@ import to.etc.domui.databinding.value.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Apr 23, 2013
  */
-public class ObservablePropertyValue<C, T> extends ListenerList<T, ValueChangeEvent<T>, IValueChangeListener<T>> implements IObservableValue<T> {
+public class ObservablePropertyValue<C, T> extends ListenerList<T, ValueChangeEvent<T>, IValueChangeListener<T>> implements IObservableValue<T>, IPropertyChangeNotifier {
 	@Nonnull
 	final private C m_instance;
 
@@ -78,10 +78,11 @@ public class ObservablePropertyValue<C, T> extends ListenerList<T, ValueChangeEv
 		//		notifyIfChanged(old, value);
 	}
 
-	void notifyIfChanged(@Nullable T old, @Nullable T value) {
+	@Override
+	public <V> void notifyIfChanged(@Nullable V old, @Nullable V value) {
 		if(MetaManager.areObjectsEqual(old, value))
 			return;
-		ValueDiff<T> vd = new ValueDiff<T>(old, value);
+		ValueDiff<T> vd = new ValueDiff<T>((T) old, (T) value);
 		fireEvent(new ValueChangeEvent<T>(this, vd));
 	}
 }

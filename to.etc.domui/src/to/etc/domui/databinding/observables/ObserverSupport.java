@@ -68,7 +68,7 @@ public class ObserverSupport<C> {
 	}
 
 	@Nonnull
-	public <T> ObservablePropertyList<C, T> bservableList(@Nonnull String property) {
+	public <T> ObservablePropertyList<C, T> observableList(@Nonnull String property) {
 		IObservable< ? , ? , ? > po = m_propertyMap.get(property);
 		if(null == po) {
 			if(m_propertyMap.size() == 0)
@@ -84,8 +84,8 @@ public class ObserverSupport<C> {
 
 	public <T> void fireModified(@Nonnull String propertyName, @Nullable T oldValue, @Nullable T newValue) {
 		IObservable< ? , ? , ? > po = m_propertyMap.get(propertyName);
-		if(po instanceof ObservablePropertyValue) {
-			((ObservablePropertyValue<C, T>) po).notifyIfChanged(oldValue, newValue);
+		if(po instanceof IPropertyChangeNotifier) {
+			((IPropertyChangeNotifier) po).notifyIfChanged(oldValue, newValue);
 		}
 	}
 }

@@ -78,7 +78,7 @@ public class ObservableValue<T> extends ListenerList<T, ValueChangeEvent<T>, IVa
 		notifyIfChanged(oldValue, value);
 	}
 
-	void notifyIfChanged(@Nullable T old, @Nullable T value) {
+	private void notifyIfChanged(@Nullable T old, @Nullable T value) {
 		if(MetaManager.areObjectsEqual(old, value))
 			return;
 		ValueDiff<T> vd = new ValueDiff<T>(old, value);

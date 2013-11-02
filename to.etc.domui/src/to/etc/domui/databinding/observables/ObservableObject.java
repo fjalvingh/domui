@@ -78,8 +78,8 @@ public class ObservableObject implements IObservableEntity {
 
 	public <T> void fireModified(@Nonnull String propertyName, @Nullable T oldValue, @Nullable T newValue) {
 		IObservable< ? , ? , ? > po = m_propertyMap.get(propertyName);
-		if(po instanceof ObservablePropertyValue) {
-			((ObservablePropertyValue<ObservableObject, T>) po).notifyIfChanged(oldValue, newValue);
+		if(po instanceof IPropertyChangeNotifier) {
+			((IPropertyChangeNotifier) po).notifyIfChanged(oldValue, newValue);
 		}
 	}
 }
