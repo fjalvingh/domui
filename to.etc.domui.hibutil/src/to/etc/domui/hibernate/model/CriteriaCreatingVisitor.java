@@ -965,10 +965,9 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		int ldot = childListProperty.lastIndexOf('.');
 		if(ldot != -1) {
 			//-- Join all parents, and get the last parent's reference and name
-			String input = childListProperty;
+			String last = parseSubcriteria(childListProperty, true);		// Create the join path;
 			String parentpath = childListProperty.substring(0, ldot);		// This now holds parent.parent.parent
 			childListProperty = childListProperty.substring(ldot + 1);		// And this childList
-			String last = parseSubcriteria(input, true);					// Create the join path;
 
 			//-- We need a "new" parent class: the class that actually contains the "child" list...
 			PropertyMetaModel< ? > parentpm = MetaManager.getPropertyMeta(parentBaseClass, parentpath);
@@ -1021,8 +1020,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 			throw new IllegalStateException("Cannot find child's parent property in crufty Hibernate metadata: " + Arrays.toString(keyCols));
 
 		//-- Well, that was it. What a sheitfest. Add the join condition to the parent
-//		dc.add(Restrictions.eqProperty(childupprop + "." + childmd.getIdentifierPropertyName(), parentAlias + "." + parentmd.getIdentifierPropertyName()));
-		dc.add(Restrictions.eqProperty(parentAlias + "." + parentmd.getIdentifierPropertyName(), childupprop + "." + childmd.getIdentifierPropertyName()));
+		dc.add(Restrictions.eqProperty(childupprop + "." + childmd.getIdentifierPropertyName(), parentAlias + "." + parentmd.getIdentifierPropertyName()));
 
 		//-- Sigh; Recursively apply all parts to the detached thingerydoo
 		Object old = m_currentCriteria;
