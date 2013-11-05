@@ -13,11 +13,13 @@ import to.etc.xml.*;
 public class PomBuilder {
 	static private final String MAVENSHIT = ".maven";
 
+	static private final String	PARAM_VERSION		= "-version=";
+
 	static private final String	PARENT_DIRECTORY		= "../";
 
 	private File m_rootPath;
 
-	private String m_version = "trunk-SNAPSHOT";
+	private String				m_version			= "trunk-SNAPSHOT";
 
 	private Set<String> m_knownNameSet = new HashSet<String>();
 
@@ -74,7 +76,22 @@ public class PomBuilder {
 	}
 
 	private void	run(String[] args) throws Exception {
-		File prj = args.length >= 1 ? new File(args[0]) : findViewpointProjectPath(PARENT_DIRECTORY);
+		File prj = null;
+		if(args.length >= 0) {
+			for(String arg : args) {
+				if(arg.startsWith(PARAM_VERSION)) {
+					m_version = arg.substring(PARAM_VERSION.length());
+				} else {
+					if(prj != null) {
+						throw new IllegalStateException("prj is already defined! Invalid parameter encountered: " + arg);
+					}
+					prj = new File(arg);
+				}
+			}
+		}
+		if(prj == null) {
+			prj = findViewpointProjectPath(PARENT_DIRECTORY);
+		}
 
 		//File prj = new File(args[0]);
 		m_rootPath = prj.getParentFile();
