@@ -50,15 +50,15 @@ public class PomBuilder {
 		//File prj = new File(args[0]);
 		m_rootPath = prj.getParentFile();
 		Project p = loadProject(prj);
-		generateDependencies(p, new HashSet<Project>());
+		p.generateDependencies(new HashSet<Project>());
 		//		testClassFile(new File(prj, ".classpath"));
 
 		System.out.println("Build order:");
 		for(Project sub : p.m_fullDepList) {
-			System.out.println(sub.m_name);
+			System.out.println(sub.getName());
 		}
 		for(Project sub : p.m_fullDepList) {
-			System.out.println("... " + sub.m_name);
+			System.out.println("... " + sub.getName());
 			generateProjectPoms(sub);
 		}
 		generateProjectPoms(p); // And for vp itself
@@ -73,11 +73,11 @@ public class PomBuilder {
 		w.tag("modules");
 		//		int count = 0;
 		for(Project sub : p.m_fullDepList) {
-			w.tagfull("module", sub.m_root.getName());
+			w.tagfull("module", sub.getRoot().getName());
 			//			if(sub.m_sourceList.size() > 0 && count++ > 4)
 			//				break;
 		}
-		w.tagfull("module", p.m_root.getName());
+		w.tagfull("module", p.getRoot().getName());
 
 		w.tagendnl();
 		w.tagendnl();
@@ -143,32 +143,6 @@ public class PomBuilder {
 		throw new FileNotFoundException("Viewpoint project directory cannot be found in directory: " + directory.getName());
 	}
 
-	private void generateDependencies(Project p, HashSet<Project> stack) {
-		if(p.m_dependenciesDone)
-			return;
-
-		if(stack.contains(p))
-			throw new IllegalStateException("Circular dependency on "+p.m_name);
-
-		//--Depth-1st traversal of all dependencies
-		stack.add(p);
-		for(Project sub : p.m_directDepList) {
-			generateDependencies(sub, stack);
-			addNewTo(p.m_fullDepList, sub.m_fullDepList);
-			if(!p.m_fullDepList.contains(sub))
-				p.m_fullDepList.add(sub);
-		}
-		stack.remove(p);
-		p.m_dependenciesDone = true;
-	}
-
-	private void addNewTo(List<Project> target, List<Project> src) {
-		for(Project p : src) {
-			if(!target.contains(p))
-				target.add(p);
-		}
-	}
-
 
 
 	private String removeVersionFromFile(String in) {
@@ -199,37 +173,6 @@ public class PomBuilder {
 		sb.append(ext);
 		return sb.toString();
 	}
-
-	static public String removeVersionFromDir(String in) {
-		String[] ar = in.split("-");
-		if(ar == null)
-			return in;
-
-		StringBuilder sb = new StringBuilder();
-		for(int i = 0; i < ar.length; i++) {
-			if(!isDottedVersion(ar[i])) {
-				if(sb.length() != 0)
-					sb.append('-');
-				sb.append(ar[i]);
-			}
-		}
-		return sb.toString();
-	}
-
-	static private boolean isDottedVersion(String string) {
-		string = string.replace("rc", ".");
-
-		String[] dots = string.split("\\.");
-		if(dots == null) {
-			dots = new String[]{string};
-		}
-		for(String s : dots) {
-			if(!StringTool.isNumber(s))
-				return false;
-		}
-		return true;
-	}
-
 
 	/*
 	 * <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -277,8 +220,8 @@ public class PomBuilder {
 			generateJar(sub, jr);
 
 		//-- Generate master pom referring all these modules.
-		File f = new File(sub.m_root, "pom.xml");
-		XmlWriter w = createMavenXml(f, sub.m_baseGroup, sub.m_baseName + ".BasePOM", sub.m_name, "pom");
+		File f = new File(sub.getRoot(), "pom.xml");
+		XmlWriter w = createMavenXml(f, sub.getBaseGroup(), sub.getBaseName() + ".BasePOM", sub.getName(), "pom");
 
 		w.tag("modules");
 		for(JarRef jr : sub.m_jarList) {
@@ -298,22 +241,22 @@ public class PomBuilder {
 	}
 
 	private String generateSourceBuild(Project sub) throws Exception {
-		File mv = new File(sub.m_root, MAVENSHIT);
+		File mv = new File(sub.getRoot(), MAVENSHIT);
 		mv.mkdirs();
 
 		File f = new File(mv, "source");
 		f.mkdirs();
 		f = new File(f, "pom.xml");
-		sub.m_groupId = sub.m_baseGroup;
-		sub.m_artefactId = sub.m_baseName + ".source";
+		sub.m_groupId = sub.getBaseGroup();
+		sub.m_artefactId = sub.getBaseName() + ".source";
 
-		XmlWriter w = createMavenXml(f, sub.m_baseGroup, sub.m_artefactId, sub.m_name + " source", "jar");
+		XmlWriter w = createMavenXml(f, sub.getBaseGroup(), sub.m_artefactId, sub.getName() + " source", "jar");
 
 		w.tag("properties");
 		w.tagfull("cobertura.maxmem", "8292M");
 		w.tagfull("maven.cobertura.instrumentation.maxmemory", "8192M");
-		w.tagfull("project.build.sourceEncoding", sub.m_encoding);
-		w.tagfull("maven.compile.encoding", sub.m_encoding);
+		w.tagfull("project.build.sourceEncoding", sub.getEncoding());
+		w.tagfull("maven.compile.encoding", sub.getEncoding());
 		w.tagfull("maven.compile.fork", "true"); // Split compile in separate task to prevent memory leaks in javac
 		w.tagendnl();
 
@@ -371,9 +314,9 @@ public class PomBuilder {
 		w.tagfull("version", "2.5.1");
 		w.tag("configuration");
 		w.tagfull("compilerId", "groovy-eclipse-compiler");
-		w.tagfull("source", sub.m_sourceVersion);
-		w.tagfull("target", sub.m_sourceVersion); // sub.m_targetVersion);
-		w.tagfull("encoding", sub.m_encoding);
+		w.tagfull("source", sub.getSourceVersion());
+		w.tagfull("target", sub.getSourceVersion()); // sub.m_targetVersion);
+		w.tagfull("encoding", sub.getEncoding());
 		w.tagendnl(); // configuration
 
 		w.tag("dependencies");
@@ -546,10 +489,10 @@ public class PomBuilder {
 	private void generateJar(Project sub, JarRef jr) throws Exception {
 		String basename = removeVersionFromFile(jr.m_jar.getName());
 		System.out.println("Jar: " + jr.m_jarName + ", basename=" + basename);
-		File mroot = new File(sub.m_root, MAVENSHIT);
+		File mroot = new File(sub.getRoot(), MAVENSHIT);
 
-		jr.m_groupId = sub.m_baseGroup;
-		jr.m_artefactId = sub.m_baseName+"."+basename;
+		jr.m_groupId = sub.getBaseGroup();
+		jr.m_artefactId = sub.getBaseName()+"."+basename;
 
 		File f = new File(mroot, basename);
 		f.mkdirs();
@@ -626,6 +569,39 @@ public class PomBuilder {
 		m_knownNameSet.add(name);
 		return name;
 	}
+
+	@Nonnull
+	static public String removeVersionFromDir(@Nonnull String in) {
+		String[] ar = in.split("-");
+		if(ar == null)
+			return in;
+
+		StringBuilder sb = new StringBuilder();
+		for(int i = 0; i < ar.length; i++) {
+			if(!isDottedVersion(ar[i])) {
+				if(sb.length() != 0)
+					sb.append('-');
+				sb.append(ar[i]);
+			}
+		}
+		return sb.toString();
+	}
+
+	static private boolean isDottedVersion(@Nonnull String string) {
+		string = string.replace("rc", ".");
+
+		String[] dots = string.split("\\.");
+		if(dots == null) {
+			dots = new String[]{string};
+		}
+		for(String s : dots) {
+			if(!StringTool.isNumber(s))
+				return false;
+		}
+		return true;
+	}
+
+
 }
 
 /**
@@ -639,16 +615,19 @@ class Project {
 	final private PomBuilder	m_builder;
 
 	@Nonnull
-	final File					m_root;
+	private final File			m_root;
 
 	@Nonnull
-	final String				m_baseName;
+	private final String		m_baseName;
 
 	@Nonnull
-	final String				m_baseGroup;
+	private final String		m_baseGroup;
 
 	@Nonnull
-	final String				m_name;
+	private final String		m_name;
+
+	@Nonnull
+	private final String		m_encoding;
 
 	boolean	m_dependenciesDone;
 
@@ -656,11 +635,11 @@ class Project {
 
 	String	m_artefactId;
 
-	final String				m_encoding;
+	@Nonnull
+	private String						m_sourceVersion	= "1.6";
 
-	String						m_sourceVersion	= "1.6";
-
-	String						m_targetVersion	= "1.6";
+	@Nonnull
+	private String						m_targetVersion	= "1.6";
 
 	List<String>	m_sourceList	= new ArrayList<String>();
 
@@ -708,15 +687,15 @@ class Project {
 	}
 
 	private void loadJavaPreferences() throws Exception {
-		File enc = new File(m_root, ".settings/org.eclipse.jdt.core.prefs");
+		File enc = new File(getRoot(), ".settings/org.eclipse.jdt.core.prefs");
 		if(enc.exists()) {
 			Properties pf = FileTool.loadProperties(enc);
 			String s = pf.getProperty("org.eclipse.jdt.core.compiler.compliance");
 			if(s != null)
-				m_sourceVersion = s;
+				setSourceVersion(s);
 			s = pf.getProperty("org.eclipse.jdt.core.compiler.codegen.targetPlatform");
 			if(s != null)
-				m_targetVersion = s;
+				setTargetVersion(s);
 		}
 	}
 
@@ -757,21 +736,90 @@ class Project {
 					File jar;
 					if(path.startsWith("/")) {
 						if(true)
-							throw new IllegalStateException("Link to external jar not allowed in " + m_name + ": " + path);
+							throw new IllegalStateException("Link to external jar not allowed in " + getName() + ": " + path);
 						jar = new File(m_builder.m_rootPath, path.substring(1));
 					} else
-						jar = new File(m_root, path);
+						jar = new File(getRoot(), path);
 					if(!jar.exists() || !jar.isFile()) {
 						System.out.println("Ignoring nonexistent " + jar);
 					} else {
 						JarRef j = new JarRef();
-						j.m_jar = new File(m_root, path);
+						j.m_jar = new File(getRoot(), path);
 						j.m_jarName = path;
 						m_jarList.add(j);
 					}
 				}
 			}
 		}
+	}
+
+	public void generateDependencies(@Nonnull HashSet<Project> stack) {
+		if(m_dependenciesDone)
+			return;
+
+		if(stack.contains(this))
+			throw new IllegalStateException("Circular dependency on " + getName());
+
+		//--Depth-1st traversal of all dependencies
+		stack.add(this);
+		for(Project sub : m_directDepList) {
+			sub.generateDependencies(stack);
+			addNewTo(m_fullDepList, sub.m_fullDepList);
+			if(!m_fullDepList.contains(sub))
+				m_fullDepList.add(sub);
+		}
+		stack.remove(this);
+		m_dependenciesDone = true;
+	}
+
+	static private void addNewTo(@Nonnull List<Project> target, @Nonnull List<Project> src) {
+		for(Project p : src) {
+			if(!target.contains(p))
+				target.add(p);
+		}
+	}
+
+	@Nonnull
+	public File getRoot() {
+		return m_root;
+	}
+
+	@Nonnull
+	public String getBaseName() {
+		return m_baseName;
+	}
+
+	@Nonnull
+	public String getBaseGroup() {
+		return m_baseGroup;
+	}
+
+	@Nonnull
+	public String getName() {
+		return m_name;
+	}
+
+	@Nonnull
+	public String getEncoding() {
+		return m_encoding;
+	}
+
+	@Nonnull
+	public String getSourceVersion() {
+		return m_sourceVersion;
+	}
+
+	public void setSourceVersion(@Nonnull String sourceVersion) {
+		m_sourceVersion = sourceVersion;
+	}
+
+	@Nonnull
+	public String getTargetVersion() {
+		return m_targetVersion;
+	}
+
+	public void setTargetVersion(@Nonnull String targetVersion) {
+		m_targetVersion = targetVersion;
 	}
 
 
