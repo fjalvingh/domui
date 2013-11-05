@@ -419,7 +419,12 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	 * </ol>
 	 *
 	 */
+
 	private String parseSubcriteria(String input) {
+		return parseSubcriteria(input, false);
+	}
+
+	private String parseSubcriteria(String input, boolean allowDown) {
 		m_targetProperty = null;
 		m_inputPath = input;
 		Class< ? > currentClass = m_rootClass; // The current class reached by the property; start @ the root entity
@@ -483,6 +488,14 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 				}
 				currentClass = pmm.getActualType();
 			} else if(pmm.getRelationType() == PropertyRelationType.DOWN) {
+				if(allowDown && last) {
+					currentAlias = flushJoin(currentAlias);
+					StringBuilder sb = sb();
+					sb.append(currentAlias).append('.').append(name);
+					return sb.toString();
+				}
+
+
 				if(true) {
 					/*
 					 * For now, we're not allowing queries on children. The old version translated this into an
@@ -975,6 +988,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	 */
 	@Override
 	public void visitExistsSubquery(QExistsSubquery< ? > q) throws Exception {
+		String parentAlias = getCurrentAlias();
 		Class< ? > parentBaseClass = q.getParentQuery().getBaseClass();
 		PropertyMetaModel< ? > pmm = MetaManager.getPropertyMeta(parentBaseClass, q.getParentProperty());
 
@@ -983,13 +997,19 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		int ldot = childListProperty.lastIndexOf('.');
 		if(ldot != -1) {
 			//-- Join all parents, and get the last parent's reference and name
+			String last = parseSubcriteria(childListProperty, true);		// Create the join path;
 			String parentpath = childListProperty.substring(0, ldot);		// This now holds parent.parent.parent
 			childListProperty = childListProperty.substring(ldot + 1);		// And this childList
-			String last = parseSubcriteria(parentpath);						// Create the join path;
 
 			//-- We need a "new" parent class: the class that actually contains the "child" list...
 			PropertyMetaModel< ? > parentpm = MetaManager.getPropertyMeta(parentBaseClass, parentpath);
 			parentBaseClass = parentpm.getActualType();
+
+			//-- The above join will have created another alias to the joined table; this is the first part of the "last" reference (which is alias.property).
+			ldot = last.indexOf('.');
+			if(ldot < 0)
+				throw new IllegalStateException("Invalid result from parseSubcriteria inside exists.");
+			parentAlias = last.substring(0, ldot);
 		}
 
 		//-- Should be List type
@@ -1032,7 +1052,6 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 			throw new IllegalStateException("Cannot find child's parent property in crufty Hibernate metadata: " + Arrays.toString(keyCols));
 
 		//-- Well, that was it. What a sheitfest. Add the join condition to the parent
-		String parentAlias = getCurrentAlias();
 		dc.add(Restrictions.eqProperty(childupprop + "." + childmd.getIdentifierPropertyName(), parentAlias + "." + parentmd.getIdentifierPropertyName()));
 
 		//-- Sigh; Recursively apply all parts to the detached thingerydoo
