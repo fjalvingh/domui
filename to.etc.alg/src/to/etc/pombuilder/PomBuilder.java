@@ -7,6 +7,7 @@ import javax.annotation.*;
 
 import org.w3c.dom.*;
 
+import to.etc.pombuilder.PomBuilder.JarRef;
 import to.etc.util.*;
 import to.etc.xml.*;
 
@@ -15,11 +16,12 @@ public class PomBuilder {
 
 	static private final String	PARENT_DIRECTORY		= "../";
 
-	private File m_rootPath;
+	File								m_rootPath;
 
 	private String m_version = "trunk-SNAPSHOT";
 
-	private Set<String> m_knownNameSet = new HashSet<String>();
+	@Nonnull
+	final static private Set<String>	m_knownNameSet		= new HashSet<String>();
 
 	static class JarRef {
 		String	m_jarName;
@@ -32,38 +34,7 @@ public class PomBuilder {
 		String m_pomDir;
 	}
 
-	static class Project {
-		File		m_root;
-
-		boolean m_dependenciesDone;
-
-		String m_groupId;
-
-		String m_artefactId;
-
-		String m_baseName;
-
-		String m_baseGroup;
-
-		String m_name;
-
-		String m_encoding = "UTF-8";
-
-		private String m_sourceVersion = "1.6", m_targetVersion = "1.6";
-
-		List<String> m_sourceList = new ArrayList<String>();
-
-		List<Project>	m_directDepList = new ArrayList<Project>();
-
-		List<JarRef> m_jarList = new ArrayList<JarRef>();
-
-		List<Project> m_fullDepList = new ArrayList<Project>();
-
-
-	}
-
 	private Map<String, Project> m_prjMap = new HashMap<String, Project>();
-
 
 	public static void main(String[] args) {
 		try {
@@ -92,9 +63,12 @@ public class PomBuilder {
 		}
 		generateProjectPoms(p); // And for vp itself
 
-
+		//-- Create root
 		File f = new File(m_rootPath, "pom.xml");
 		XmlWriter w = createMavenXml(f, "nl.itris.viewpoint", "viewpointModuleSet", "viewpointModuleSet", "pom");
+
+		w.tagendnl();				// plugin
+		w.tagendnl();				// plugins
 
 		w.tag("modules");
 		//		int count = 0;
@@ -109,6 +83,17 @@ public class PomBuilder {
 		w.tagendnl();
 		w.close();
 		System.out.println("done");
+	}
+
+	private void generateWarConfig(XmlWriter w) throws IOException {
+		w.tag("plugins");
+		w.tag("plugin");
+		w.tagfull("groupId", "org.apache.maven.plugins");
+		w.tagfull("artifactId", "maven-war-plugin");
+		w.tagfull("version", "2.1-beta-1");
+		w.tag("configuration");
+		w.tagfull("webappDirectory", "WebContent");
+		w.tagendnl();				// configuration
 	}
 
 	/**
@@ -185,72 +170,6 @@ public class PomBuilder {
 	}
 
 
-	private Project loadProject(File dir) throws Exception {
-		String name = dir.getName().toLowerCase();
-		Project p = m_prjMap.get(name);
-		if(null != p)
-			return p;
-
-		File classfile = new File(dir, ".classpath");
-		File prjfile = new File(dir, ".project");
-
-		if(!classfile.isFile() || !classfile.exists() || !prjfile.isFile() || !prjfile.exists())
-			throw new IllegalArgumentException(dir + " is not an eclipse project directory.");
-
-		p = new Project();
-		p.m_name = name;
-		p.m_root = dir;
-		m_prjMap.put(name, p);
-
-		//-- Prepare groupid and stuff.
-		String base = name;
-		p.m_baseGroup = "nl.itris";
-		if(base.startsWith("bin-") || base.startsWith("lib-")) {
-			base = base.substring(4); // Cut off the bin/lib prefix.
-			p.m_baseGroup = "nl.itris.external";
-		} else if(base.startsWith("to."))
-			p.m_baseGroup = "to.etc";
-
-		//-- Start cutting off version numbers.
-		p.m_baseName = removeVersionFromDir(base);
-		String bn = p.m_baseName;
-		int cn = 1;
-		for(;;) {
-			if(!m_knownNameSet.contains(p.m_baseName))
-				break;
-			p.m_baseName = bn + (cn++);
-		}
-		m_knownNameSet.add(p.m_baseName);
-
-		System.out.println(dir.getName() + ": Base name is: " + p.m_baseName + ", group base is " + p.m_baseGroup);
-		//-- Try to load all dependencies.
-		loadClassFile(p, classfile);
-
-		//-- Determine source file encoding
-		File enc = new File(dir, ".settings/org.eclipse.core.resources.prefs");
-		if(enc.exists()) {
-			Properties encp = FileTool.loadProperties(enc);
-			p.m_encoding = encp.getProperty("encoding/<project>");
-			if(p.m_encoding == null)
-				p.m_encoding = "UTF-8";
-		}
-		enc = new File(dir, ".settings/org.eclipse.jdt.core.prefs");
-		if(enc.exists()) {
-			Properties pf = FileTool.loadProperties(enc);
-			String s = pf.getProperty("org.eclipse.jdt.core.compiler.compliance");
-			if(s != null)
-				p.m_sourceVersion = s;
-			s = pf.getProperty("org.eclipse.jdt.core.compiler.codegen.targetPlatform");
-			if(s != null)
-				p.m_targetVersion = s;
-
-
-		}
-
-
-		return p;
-	}
-
 
 	private String removeVersionFromFile(String in) {
 		int d = in.lastIndexOf('.');
@@ -281,7 +200,7 @@ public class PomBuilder {
 		return sb.toString();
 	}
 
-	private String removeVersionFromDir(String in) {
+	static public String removeVersionFromDir(String in) {
 		String[] ar = in.split("-");
 		if(ar == null)
 			return in;
@@ -297,7 +216,7 @@ public class PomBuilder {
 		return sb.toString();
 	}
 
-	private boolean isDottedVersion(String string) {
+	static private boolean isDottedVersion(String string) {
 		string = string.replace("rc", ".");
 
 		String[] dots = string.split("\\.");
@@ -311,116 +230,6 @@ public class PomBuilder {
 		return true;
 	}
 
-	private void loadClassFile(Project p, File classfile) throws Exception {
-		Document doc = DomTools.getDocument(classfile, false);
-		Node root = DomTools.getRootElement(doc);
-		DOMDecoder d = new DOMDecoder(root);
-		for(DOMDecoder child : d.getChildIterator()) {
-			if(child.getCurrentRoot().getNodeName().equals("classpathentry")) {
-				Node n = child.getCurrentRoot();
-
-				String kind = DomTools.strAttr(n, "kind");
-				if("src".equals(kind)) {
-					String path = DomTools.strAttr(n, "path");
-					if(path.startsWith("/")) {
-						File f = new File(m_rootPath, path.substring(1));
-						Project dp = loadProject(f);
-						p.m_directDepList.add(dp);
-						//						System.out.println("direct dep: " + path);
-					} else {
-						p.m_sourceList.add(path);
-					}
-					//					System.out.println("src: " + path);
-				} else if("lib".equals(kind)) {
-					String path = DomTools.strAttr(n, "path");
-					File jar;
-					if(path.startsWith("/")) {
-						if(true)
-							throw new IllegalStateException("Link to external jar not allowed in " + p.m_name + ": " + path);
-
-						jar = new File(m_rootPath, path.substring(1));
-					} else
-						jar = new File(p.m_root, path);
-					if(!jar.exists() || !jar.isFile()) {
-						System.out.println("Ignoring nonexistent " + jar);
-					} else {
-						JarRef j = new JarRef();
-						j.m_jar = new File(p.m_root, path);
-						j.m_jarName = path;
-						p.m_jarList.add(j);
-						//					System.out.println("jar: " + path);
-					}
-				}
-			}
-		}
-	}
-
-	//	private void testClassFile(File classfile) throws Exception {
-	//		Document doc = DomTools.getDocument(classfile, false);
-	//		Node root = DomTools.getRootElement(doc);
-	//		DOMDecoder d = new DOMDecoder(root);
-	//		for(DOMDecoder child : d.getChildIterator()) {
-	//			if(child.getCurrentRoot().getNodeName().equals("classpathentry")) {
-	//				Node n = child.getCurrentRoot();
-	//
-	//				String kind = DomTools.strAttr(n, "kind");
-	//				if("src".equals(kind)) {
-	//					String path = DomTools.strAttr(n, "path");
-	//					if(path.startsWith("/")) {
-	//						System.out.println(">> project " + path);
-	//						if(path.startsWith("/vp-domui"))
-	//							System.out.println("GOTCHA");
-	//					} else {
-	//						System.out.println(">> source " + path);
-	//					}
-	//					//					System.out.println("src: " + path);
-	//				} else if("lib".equals(kind)) {
-	//					String path = DomTools.strAttr(n, "path");
-	//					System.out.println("jar: " + path);
-	//				}
-	//			}
-	//		}
-	//	}
-
-
-	//	/**
-	//	 * Generate pom's to build all kinds of jarbage.
-	//	 * @throws Exception
-	//	 */
-	//	private void generateJarPoms() throws Exception {
-	//		for(String jarref : m_jarList) {
-	//			generateJarPom(jarref);
-	//		}
-	//	}
-	//
-	//	/**
-	//	 *
-	//	 * @param jar
-	//	 * @throws Exception
-	//	 */
-	//	private void generateJarPom(String jarname) throws Exception {
-	//		File jar = new File(m_prjPath, jarname);
-	//		if(!jar.exists() || !jar.isFile()) {
-	//			System.out.println("Ignoring nonexistent " + jar);
-	//			return;
-	//		}
-	//
-	//		//-- We need to generate an artefact name..
-	//		String basename = removeVersion(jar.getName());
-	//		System.out.println("Jar: " + jarname + ", basename=" + basename);
-	//		File mroot = new File(m_prjPath, "maven");
-	//
-	//		File f = new File(mroot, basename);
-	//		f.mkdirs();
-	//		f = new File(f, "pom.xml");
-	//		XmlWriter w = new XmlWriter(new OutputStreamWriter(new FileOutputStream(f)));
-	//		w.tag("project", "xmlns", "http://maven.apache.org/POM/4.0.0", "xmlns:xsl", "http://www.w3.org/2001/XMLSchema-instance", "xsi:schemaLocation", "http://maven.apache.org/POM/4.0.0");
-	//
-	//
-	//
-	//		w.tagendnl();
-	//		w.close();
-	//	}
 
 	/*
 	 * <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -791,4 +600,179 @@ public class PomBuilder {
 		w.tagendnl();
 		w.close();
 	}
+
+	@Nonnull
+	public Project loadProject(@Nonnull File dir) throws Exception {
+		String name = dir.getName().toLowerCase();
+		Project p = m_prjMap.get(name);
+		if(null != p)
+			return p;
+		p = Project.createProject(this, dir);
+		m_prjMap.put(name, p);
+		return p;
+
+	}
+
+	@Nonnull
+	static public String generateUniqueName(@Nonnull String bn) {
+		//-- Start cutting off version numbers.
+		int cn = 1;
+		String name = bn;
+		for(;;) {
+			if(!m_knownNameSet.contains(name))
+				break;
+			name = bn + (cn++);
+		}
+		m_knownNameSet.add(name);
+		return name;
+	}
+}
+
+/**
+ * Encapsulates a project as read from the Eclipse configuration.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Nov 5, 2013
+ */
+class Project {
+	@Nonnull
+	final private PomBuilder	m_builder;
+
+	@Nonnull
+	final File					m_root;
+
+	@Nonnull
+	final String				m_baseName;
+
+	@Nonnull
+	final String				m_baseGroup;
+
+	@Nonnull
+	final String				m_name;
+
+	boolean	m_dependenciesDone;
+
+	String	m_groupId;
+
+	String	m_artefactId;
+
+	final String				m_encoding;
+
+	String						m_sourceVersion	= "1.6";
+
+	String						m_targetVersion	= "1.6";
+
+	List<String>	m_sourceList	= new ArrayList<String>();
+
+	List<Project>	m_directDepList	= new ArrayList<Project>();
+
+	List<JarRef>	m_jarList		= new ArrayList<JarRef>();
+
+	List<Project>	m_fullDepList	= new ArrayList<Project>();
+
+	private Project(@Nonnull PomBuilder b, @Nonnull String name, @Nonnull File root, @Nonnull String baseGroup, @Nonnull String baseName, @Nonnull String encoding) {
+		m_builder = b;
+		m_root = root;
+		m_name = name;
+		m_baseName = baseName;
+		m_baseGroup = baseGroup;
+		m_encoding = encoding;
+	}
+
+	static public Project createProject(@Nonnull PomBuilder b, @Nonnull File dir) throws Exception {
+		String name = dir.getName().toLowerCase();
+		File classfile = new File(dir, ".classpath");
+		File prjfile = new File(dir, ".project");
+
+		if(!classfile.isFile() || !classfile.exists() || !prjfile.isFile() || !prjfile.exists())
+			throw new IllegalArgumentException(dir + " is not an eclipse project directory.");
+
+		//-- Prepare groupid and stuff.
+		String base = name;
+		String baseGroup = "nl.itris";
+		if(base.startsWith("bin-") || base.startsWith("lib-")) {
+			base = base.substring(4);							// Cut off the bin/lib prefix.
+			baseGroup = "nl.itris.external";
+		} else if(base.startsWith("to."))
+			baseGroup = "to.etc";
+
+		//-- Start cutting off version numbers.
+		String basename = PomBuilder.removeVersionFromDir(base);
+		basename = PomBuilder.generateUniqueName(basename);
+		String encoding = loadEncoding(dir);
+
+		Project p = new Project(b, name, dir, baseGroup, basename, encoding);
+		p.loadClassFile(classfile);
+		p.loadJavaPreferences();
+		return p;
+	}
+
+	private void loadJavaPreferences() throws Exception {
+		File enc = new File(m_root, ".settings/org.eclipse.jdt.core.prefs");
+		if(enc.exists()) {
+			Properties pf = FileTool.loadProperties(enc);
+			String s = pf.getProperty("org.eclipse.jdt.core.compiler.compliance");
+			if(s != null)
+				m_sourceVersion = s;
+			s = pf.getProperty("org.eclipse.jdt.core.compiler.codegen.targetPlatform");
+			if(s != null)
+				m_targetVersion = s;
+		}
+	}
+
+	@Nonnull
+	static private String loadEncoding(@Nonnull File dir) throws Exception {
+		File enc = new File(dir, ".settings/org.eclipse.core.resources.prefs");
+		String encoding = null;
+		if(enc.exists()) {
+			Properties encp = FileTool.loadProperties(enc);
+			encoding = encp.getProperty("encoding/<project>");
+		}
+		if(encoding == null)
+			encoding = "UTF-8";
+		return encoding;
+	}
+
+	private void loadClassFile(@Nonnull File classfile) throws Exception {
+		Document doc = DomTools.getDocument(classfile, false);
+		Node root = DomTools.getRootElement(doc);
+		DOMDecoder d = new DOMDecoder(root);
+		for(DOMDecoder child : d.getChildIterator()) {
+			if(child.getCurrentRoot().getNodeName().equals("classpathentry")) {
+				Node n = child.getCurrentRoot();
+
+				String kind = DomTools.strAttr(n, "kind");
+				if("src".equals(kind)) {
+					String path = DomTools.strAttr(n, "path");
+					if(path.startsWith("/")) {
+						File f = new File(m_builder.m_rootPath, path.substring(1));
+						Project dp = m_builder.loadProject(f);
+						m_directDepList.add(dp);
+					} else {
+						m_sourceList.add(path);
+					}
+					//					System.out.println("src: " + path);
+				} else if("lib".equals(kind)) {
+					String path = DomTools.strAttr(n, "path");
+					File jar;
+					if(path.startsWith("/")) {
+						if(true)
+							throw new IllegalStateException("Link to external jar not allowed in " + m_name + ": " + path);
+						jar = new File(m_builder.m_rootPath, path.substring(1));
+					} else
+						jar = new File(m_root, path);
+					if(!jar.exists() || !jar.isFile()) {
+						System.out.println("Ignoring nonexistent " + jar);
+					} else {
+						JarRef j = new JarRef();
+						j.m_jar = new File(m_root, path);
+						j.m_jarName = path;
+						m_jarList.add(j);
+					}
+				}
+			}
+		}
+	}
+
+
 }
