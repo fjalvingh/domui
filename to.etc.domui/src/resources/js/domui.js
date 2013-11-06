@@ -3935,6 +3935,36 @@ function addPaggerAccessKeys(e) {
  *  FIXME LF BTADIC REMOVE AFTER THE PROJECT
 ***/
 $(document).ready(function() {
+	function checkIEVersion() {
+		var agentStr = navigator.userAgent;
+		var ieVersion;
+		if (agentStr.indexOf("Trident/6.0") > -1) {
+			ieVersion = 10;
+		} else if (agentStr.indexOf("Trident/5.0") > -1) {
+			ieVersion = 9;
+		} else if (agentStr.indexOf("Trident/4.0") > -1) {
+			ieVersion = 8;
+		} else {
+			ieVersion = 7;
+		}
+		return ieVersion;
+	}
+
+	function getPageName(){
+		var file, n;
+
+		file = window.location.pathname;
+		n = file.lastIndexOf('/');
+		if (n >= 0) {
+		    file = file.substring(n + 1);
+		}
+		return file;
+	}
+
+	function copyToClipboard (text) {
+		var prompt = window.prompt("Copy to clipboard: Ctrl+C, Enter", text);
+	}
+
 	if (navigator.userAgent.indexOf("MSIE") > -1) {
 		var ieVersion = checkIEVersion();
 		var docMode = document.documentMode;
@@ -3947,35 +3977,6 @@ $(document).ready(function() {
     }
 });
 
-function checkIEVersion() {
-	var agentStr = navigator.userAgent;
-	var ieVersion;
-	if (agentStr.indexOf("Trident/6.0") > -1) {
-		ieVersion = 10;
-	} else if (agentStr.indexOf("Trident/5.0") > -1) {
-		ieVersion = 9;
-	} else if (agentStr.indexOf("Trident/4.0") > -1) {
-		ieVersion = 8;
-	} else {
-		ieVersion = 7;
-	}
-	return ieVersion;
-}
-
-function getPageName(){
-	var file, n;
-
-	file = window.location.pathname;
-	n = file.lastIndexOf('/');
-	if (n >= 0) {
-	    file = file.substring(n + 1);
-	}
-	return file;
-}
-
-function copyToClipboard (text) {
-	var prompt = window.prompt("Copy to clipboard: Ctrl+C, Enter", text);
-}
 /***
  * Look and Feel check of compatibility modes 
 ***/
