@@ -627,10 +627,11 @@ public class OracleDB extends BaseDB {
 					ps2 = dbc.prepareStatement("create public synonym \"" + on + "\" for " + owner + ".\"" + on + "\"");
 					ps2.executeUpdate();
 				} catch(Exception x) {
-					System.out.println(owner + ": error creating synonym " + on + ": " + x);
 					String message = x.toString().toLowerCase();
-					if(!message.contains("ora-00955"))
+					if(!message.contains("ora-00955")) {
+						System.out.println(owner + ": error creating synonym " + on + ": " + x);
 						LOG.error(owner + ": error creating synonym " + on + ": " + x);
+					}
 				} finally {
 					ps2.close();
 				}
