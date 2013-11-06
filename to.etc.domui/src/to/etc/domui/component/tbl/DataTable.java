@@ -580,10 +580,10 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		int rrow = index - m_six; // This is the location within the child array
 		ColumnContainer<T> cc = new ColumnContainer<T>(this);
 		TR tr = new TR();
+		m_dataBody.add(rrow, tr);
 		cc.setParent(tr);
 		tr.setTestRepeatID("r" + index);
 		renderRow(tr, cc, index, value);
-		m_dataBody.add(rrow, tr);
 		m_visibleItemList.add(rrow, value);
 
 		//-- Is the size not > the page size?
