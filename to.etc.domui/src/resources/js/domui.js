@@ -3929,3 +3929,27 @@ function addPaggerAccessKeys(e) {
 		} 
 	}
 }
+
+WebUI.deactivateHiddenAccessKeys = function(windowId) {
+	$('button').each(function(index) {
+		var iButton = $(this);
+		if(isButtonChildOfElement(iButton, windowId)){
+			var oldAccessKey = $(iButton).attr('accesskey');
+			if(oldAccessKey != null ){
+				$(iButton).attr('accesskey', $(windowId).attr('id') + '~' + oldAccessKey);
+			}
+		}
+	});
+};
+
+WebUI.reactivateHiddenAccessKeys = function(windowId) {
+	$("button[accesskey*='" + windowId + "~']" ).each(function(index){
+		var accessKeyArray = $(this).attr('accesskey').split(windowId + '~');
+		$(this).attr('accesskey', accessKeyArray[accessKeyArray.length - 1]);
+	});
+};
+
+isButtonChildOfElement = function(buttonId, windowId){
+	return $(buttonId).parents('#' + $(windowId).attr('id')).length == 0;
+};
+
