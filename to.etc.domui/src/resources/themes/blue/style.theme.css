@@ -84,6 +84,7 @@ input, textarea, select {
 	margin: 0px 2px 2px 0px;
 	padding: 0px 2px 0px 2px;	
 	font-size: <%= font_size %>;
+	font: inherit;
 	border-color:<%= bevel_up %> <%= bevel_down %> <%= bevel_down %>;
 	border-style:solid;
 	border-width:1px;
