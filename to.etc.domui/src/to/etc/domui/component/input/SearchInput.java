@@ -255,6 +255,7 @@ public class SearchInput<T> extends Div {
 		clearResultMessage();
 		clearResultPopup();
 		m_input.setRawValue("");
+		m_input.setFocus();
 	}
 
 	private void clearResultPopup() {
