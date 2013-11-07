@@ -778,8 +778,9 @@ var WebUI = {
 
 	clicked : function(h, id, evt) {
 		//-- Trigger the before-clicked event on body
-		$(document.body).trigger("beforeclick", $("#"+id), evt);
-		
+		var nde = $("#"+id);
+		$(document.body).trigger("beforeclick", nde, evt);
+
 		// Collect all input, then create input.
 		var fields = new Object();
 		this.getInputFields(fields);
@@ -792,11 +793,13 @@ var WebUI = {
 		//-- Do not call upward handlers too.
 		if(! evt)
 			evt = window.event;
-		if(evt) {
-			evt.cancelBubble = true;
-			if(evt.stopPropagation)
-				evt.stopPropagation();
-		}
+		
+		// jal 20131107 Cancelling the event means that you cannot click items inside a clickable item
+//		if(evt) {
+//			evt.cancelBubble = true;
+//			if(evt.stopPropagation)
+//				evt.stopPropagation();
+//		}
 		var e = $.event.fix(evt);		// Convert to jQuery event
 		//e.preventDefault(); // jal 20110216 DO NOT PREVENTDEFAULT- it will disable checkbox enable/disable
 
@@ -816,7 +819,7 @@ var WebUI = {
 			error :WebUI.handleError,
 			success :WebUI.handleResponse
 		});
-		return false;
+		return true;						// jal 20131107 Was false, but inhibits clicking on radiobutton inside a table.
 	},
 
 	scall : function(id, action, fields) {

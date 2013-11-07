@@ -201,6 +201,16 @@ public class RadioButton<T> extends NodeBase implements IHasModifiedIndication {
 		m_checked = radioButton == this;
 	}
 
+//	@Override
+//	public boolean internalNeedClickHandler() {
+//		return getClicked() == null;
+//	}
+//
+//	@Override
+//	public String getOnClickJS() {
+//		return "WebUI.clicked(this, '" + getActualID() + "', event);return true;";
+//	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IHasModifiedIndication impl							*/
 	/*--------------------------------------------------------------*/
