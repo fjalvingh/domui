@@ -469,7 +469,7 @@ public class DataTable<T> extends SelectableTabularComponent<T> implements ISele
 				if(null == sm)
 					return;
 				int ct = sm.getSelectionCount();
-				if(0 == ct) {
+				if(0 == ct && sm.isMultiSelect()) {
 					sm.selectAll(getModel());
 				} else {
 					sm.clearSelection();
