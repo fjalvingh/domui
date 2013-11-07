@@ -462,6 +462,21 @@ public class DataTable<T> extends SelectableTabularComponent<T> implements ISele
 		th.add(new Img("THEME/dspcb-on.png"));
 		th.setWidth("1px"); //keep selection column with minimal width
 		headerrow.add(0, th);
+		th.setClicked(new IClicked<TH>() {
+			@Override
+			public void clicked(TH clickednode) throws Exception {
+				ISelectionModel<T> sm = getSelectionModel();
+				if(null == sm)
+					return;
+				int ct = sm.getSelectionCount();
+				if(0 == ct) {
+					sm.selectAll(getModel());
+				} else {
+					sm.clearSelection();
+				}
+			}
+		});
+		th.setCssClass("ui-clickable");
 
 		//-- 2. Insert a checkbox in all rows.
 		for(int i = 0; i < m_dataBody.getChildCount(); i++) {
