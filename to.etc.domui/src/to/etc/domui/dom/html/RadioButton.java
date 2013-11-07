@@ -197,6 +197,7 @@ public class RadioButton<T> extends NodeBase implements IHasModifiedIndication {
 	}
 
 	private void selectionChangedTo(RadioButton<T> radioButton) {
+//		setChecked(radioButton == this);
 		m_checked = radioButton == this;
 	}
 
