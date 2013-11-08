@@ -32,8 +32,6 @@ import java.util.regex.*;
 
 import javax.annotation.*;
 
-import javax.annotation.*;
-
 /**
  * This static utility class contains a load of string functions. And some other
  * stuff I could not quickly find a place for ;-)
@@ -2629,5 +2627,14 @@ public class StringTool {
 		} catch(UnsupportedEncodingException e) {
 			throw new WrappedException(e);
 		}
+	}
+
+	/**
+	 * Checks whether a given text is too big for the maximum varchar2 database field
+	 * @param text
+	 * @return
+	 */
+	public static boolean isInvalidOracleLength(@Nonnull String text) {
+		return getUtf8LengthInBytes(text) >= MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2;
 	}
 }
