@@ -795,11 +795,11 @@ var WebUI = {
 			evt = window.event;
 		
 		// jal 20131107 Cancelling the event means that you cannot click items inside a clickable item
-//		if(evt) {
-//			evt.cancelBubble = true;
-//			if(evt.stopPropagation)
-//				evt.stopPropagation();
-//		}
+		if(evt) {
+			evt.cancelBubble = true;
+			if(evt.stopPropagation)
+				evt.stopPropagation();
+		}
 		var e = $.event.fix(evt);		// Convert to jQuery event
 		//e.preventDefault(); // jal 20110216 DO NOT PREVENTDEFAULT- it will disable checkbox enable/disable
 
@@ -819,7 +819,7 @@ var WebUI = {
 			error :WebUI.handleError,
 			success :WebUI.handleResponse
 		});
-		return true;						// jal 20131107 Was false, but inhibits clicking on radiobutton inside a table.
+		return false;						// jal 20131107 Was false, but inhibits clicking on radiobutton inside a table in Chrome.
 	},
 
 	scall : function(id, action, fields) {

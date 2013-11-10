@@ -455,6 +455,14 @@ public class FileTool {
 		}
 	}
 
+	@Nonnull
+	public static byte[] readByteArray(@Nonnull InputStream is) throws Exception {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		FileTool.copyFile(baos, is);
+		baos.close();
+		return baos.toByteArray();
+	}
+
 	/**
 	 * Load a class resource as a byte array. If the resource is not found this returns null.
 	 * @param clz
@@ -638,11 +646,7 @@ public class FileTool {
 
 	static public void readStreamAsString(final Appendable o, final InputStream f, final String enc) throws Exception {
 		Reader r = new InputStreamReader(f, enc);
-		try {
-			readStreamAsString(o, r);
-		} finally {
-			r.close();
-		}
+		readStreamAsString(o, r);
 	}
 
 	static public void readStreamAsString(final Appendable o, final Reader r) throws Exception {
