@@ -578,8 +578,8 @@ public class DataTable<T> extends SelectableTabularComponent<T> implements ISele
 		TR tr = new TR();
 		cc.setParent(tr);
 		tr.setTestRepeatID("r" + index);
-		renderRow(tr, cc, index, value);
 		m_dataBody.add(rrow, tr);
+		renderRow(tr, cc, index, value);
 		m_visibleItemList.add(rrow, value);
 
 		//-- Is the size not > the page size?
