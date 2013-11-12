@@ -18,6 +18,9 @@ public class PageContainer {
 
 	@Nonnull
 	public ComponentInstance createComponent(@Nonnull IFbComponent type) {
+		if(type instanceof IFbLayout)
+			return createLayout((IFbLayout) type);
+
 		String nextid = "C" + (m_idcounter++);
 		ComponentInstance ci = new ComponentInstance(this, nextid, type);
 		m_instanceMap.put(nextid, ci);

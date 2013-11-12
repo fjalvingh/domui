@@ -1,11 +1,14 @@
 package to.etc.formbuilder.pages;
 
+import java.util.*;
+
 import javax.annotation.*;
 
 import to.etc.domui.component.misc.*;
 import to.etc.domui.component.panellayout.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
+import to.etc.domui.util.javascript.*;
 
 /**
  * This is the peer component of the painter representing the paint area.
@@ -23,8 +26,22 @@ public class PaintPanel extends Div {
 	@Nonnull
 	final private PageContainer m_pageContainer = new PageContainer();
 
+	@Nonnull
+	private Set<ComponentInstance> m_selectSet = new HashSet<ComponentInstance>();
+
+	public interface ISelectionChanged {
+		public void selectionChanged(@Nonnull Set<ComponentInstance> newSelection, Set<ComponentInstance> oldSelection) throws Exception;
+	}
+
+	@Nonnull
+	private List<ISelectionChanged> m_selectionChangedListeners = new ArrayList<ISelectionChanged>();
+
 	public PaintPanel(@Nonnull FormComponentRegistry registry) {
 		m_registry = registry;
+	}
+
+	public void addSelectionChanged(@Nonnull ISelectionChanged sel) {
+		m_selectionChangedListeners.add(sel);
 	}
 
 	private void createRootLayout() {
@@ -59,8 +76,6 @@ public class PaintPanel extends Div {
 		createRootLayout();
 		setCssClass("fd-pp");
 		renderLayout();
-
-
 	}
 
 	private void renderLayout() throws Exception {
@@ -70,7 +85,7 @@ public class PaintPanel extends Div {
 	private void renderLayout(@Nonnull NodeContainer target, LayoutInstance layout) throws Exception {
 		NodeContainer layoutc = layout.getRendered();
 		target.add(layoutc);
-		updateComponent(layout);
+//		updateComponent(layout);
 
 		for(ComponentInstance ci : layout.getComponentList()) {
 			if(ci instanceof LayoutInstance) {
@@ -81,14 +96,40 @@ public class PaintPanel extends Div {
 		}
 	}
 
+	/**
+	 * Called at full-refresh time, this calls all Javascript methods needed to sync the browser.
+	 * @see to.etc.domui.dom.html.NodeBase#renderJavascriptState(to.etc.domui.util.javascript.JavascriptStmt)
+	 */
+	@Override
+	protected void renderJavascriptState(@Nonnull JavascriptStmt b) throws Exception {
+		setFocus();
+		renderJsState(b, m_rootLayout);
+	}
+
+	private void renderJsState(@Nonnull JavascriptStmt b, @Nonnull ComponentInstance ci) throws Exception {
+		b.method("window._fb.registerInstance")				//
+			.arg(ci.getComponentType().getTypeID())			//
+			.arg(ci.getId())								//
+			.arg(ci.getRendered().getActualID())			//
+			.end()											//
+			.next();
+		if(!(ci instanceof LayoutInstance))
+			return;
+		for(ComponentInstance c : ((LayoutInstance) ci).getComponentList()) {
+			renderJsState(b, c);
+		}
+	}
+
 	private void renderComponent(@Nonnull NodeContainer layoutc, @Nonnull ComponentInstance ci) throws Exception {
 		NodeBase inst = ci.getRendered();
 		layoutc.add(inst);
-		updateComponent(ci);
+//		updateComponent(ci);
 	}
 
 	private void updateComponent(@Nonnull ComponentInstance ci) throws Exception {
-		appendJavascript("window._fb.registerInstance('" + ci.getComponentType().getTypeID() + "','" + ci.getId() + "','" + ci.getRendered().getActualID() + "');");
+		renderJsState(appendStatement(), ci);
+//
+//		appendJavascript("window._fb.registerInstance('" + ci.getComponentType().getTypeID() + "','" + ci.getId() + "','" + ci.getRendered().getActualID() + "');");
 	}
 
 	/*--------------------------------------------------------------*/
@@ -113,6 +154,7 @@ public class PaintPanel extends Div {
 		LayoutPanelBase lpb = (LayoutPanelBase) li.getRendered();
 		li.addComponent(ci);
 		lpb.add(ci.getRendered(), new IntPoint(info.getX(), info.getY()));
+
 		updateComponent(ci);
 	}
 
@@ -124,6 +166,19 @@ public class PaintPanel extends Div {
 			throw new IllegalStateException("Moving a thingy that is not part of a layout?");
 
 		layout.positionComponent(ci, new IntPoint(info.getX(), info.getY()));
+	}
+
+	public void webActionSelection(@Nonnull Set<String> idlist) throws Exception {
+		Set<ComponentInstance> selectSet = new HashSet<ComponentInstance>();
+		for(String id : idlist) {
+			ComponentInstance component = pc().getComponent(id);
+			selectSet.add(component);
+		}
+		Set<ComponentInstance> oldSet = m_selectSet;
+		m_selectSet = selectSet;
+		for(ISelectionChanged ss : m_selectionChangedListeners)
+			ss.selectionChanged(selectSet, oldSet);
+
 	}
 
 

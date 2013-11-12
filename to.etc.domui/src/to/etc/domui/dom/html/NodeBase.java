@@ -41,6 +41,7 @@ import to.etc.domui.logic.events.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
 import to.etc.domui.util.*;
+import to.etc.domui.util.javascript.*;
 import to.etc.util.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
@@ -80,6 +81,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	private static final Logger LOG = LoggerFactory.getLogger(NodeBase.class);
 
 	static private boolean m_logAllocations;
+
+	static private int m_nextID;
 
 	/** The owner page. If set then this node IS attached to the parent in some way; if null it is not attached. */
 	@Nullable
@@ -245,7 +248,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		internalSetHasChangedAttributes();
 		NodeContainer p = m_parent;
 		if(p != null)
-			p.childChanged(); // Indicate child has changed
+			p.childChanged(); 									// Indicate child has changed
 		super.changed();
 	}
 
@@ -276,15 +279,38 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	}
 
 	/**
+	 * Calculates a new ID for a node.
+	 * @return
+	 */
+	@Nonnull
+	final String nextUniqID() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("U");
+		int id = m_nextID++;
+		while(id != 0) {
+			int d = id % 36;
+			if(d <= 9)
+				d = d + '0';
+			else
+				d = ('A' + (d - 10));
+			sb.append((char) d);
+			id = id / 36;
+		}
+		return sb.toString();
+	}
+
+	/**
 	 * When the node is attached to a page this returns the ID assigned to it. To call it before
 	 * is an error and throws IllegalStateException.
 	 * @return
 	 */
 	@Nonnull
 	final public String getActualID() {
-		if(null != m_actualID)
-			return m_actualID;
-		throw new IllegalStateException("Missing ID on " + this);
+		String id = m_actualID;
+		if(null == id) {
+			id = m_actualID = nextUniqID();
+		}
+		return id;
 	}
 
 	@Nullable
@@ -888,17 +914,27 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 *
 	 * @param js
 	 */
-	public void appendJavascript(final CharSequence js) {
-		if(isAttached())
-			getPage().appendJS(js);
-		else {
-			StringBuilder sb = m_appendJS;
-			if(sb == null)
-				sb = m_appendJS = new StringBuilder(js.length() + 100);
-			sb.append(';');
-			sb.append(js);
-		}
+	public void appendJavascript(@Nonnull final CharSequence js) {
+		StringBuilder sb = getAppendJavascriptBuffer();
+		sb.append(';');
+		sb.append(js);
 	}
+
+	@Nonnull
+	public JavascriptStmt appendStatement() {
+		return new JavascriptStmt(getAppendJavascriptBuffer());
+	}
+
+	@Nonnull
+	private StringBuilder getAppendJavascriptBuffer() {
+		if(isAttached())
+			return getPage().internalGetAppendJS();
+		StringBuilder sb = m_appendJS;
+		if(sb == null)
+			sb = m_appendJS = new StringBuilder(128);
+		return sb;
+	}
+
 
 	/**
 	 * This adds a Javascript segment to be executed when the component is (re)constructed. It
@@ -912,16 +948,71 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 *
 	 * @param js
 	 */
-	public void appendCreateJS(final CharSequence js) {
+	public void appendCreateJS(@Nonnull final CharSequence js) {
+		int len = js.length();
+		if(len == 0)
+			return;
+		StringBuilder sb = getCreateJavascriptBuffer();
+		sb.append(js);
+		if(js.charAt(len - 1) != ';')
+			sb.append(';');
+	}
+
+	@Nonnull
+	private StringBuilder getCreateJavascriptBuffer() {
 		StringBuilder sb = m_createJS;
 		if(sb == null)
 			sb = m_createJS = new StringBuilder();
-		sb.append(js);
-		sb.append(';');
+		return sb;
 	}
 
+	@Nonnull
+	public JavascriptStmt createStatement() {
+		return new JavascriptStmt(getCreateJavascriptBuffer());
+	}
+
+	@Nullable
 	public StringBuilder getCreateJS() {
 		return m_createJS;
+	}
+
+	/**
+	 * This gets called when a component is re-rendered fully because of a full page
+	 * refresh. It should only be used for components that maintain a lot of state
+	 * in Javascript on the browser. These components need to add Javascript commands
+	 * to that browser to restore/initialize the state to whatever is present in the
+	 * server's data store. It must do that by adding the needed Javascript to the buffer
+	 * passed.
+	 *
+	 * @param sb
+	 * @throws Exception
+	 */
+	protected void renderJavascriptState(@Nonnull JavascriptStmt b) throws Exception {
+	}
+
+	final public void internalRenderJavascriptState(@Nonnull JavascriptStmt stmt) throws Exception {
+		renderJavascriptState(stmt);
+		stmt.next();
+	}
+
+
+	/**
+	 * This marks this component as having "changed" javascript state. It will
+	 * cause the node's
+	 */
+	final public void changedJavascriptState() {
+		Page page = m_page;
+		if(null != page)
+			page.registerJavascriptStateChanged(this);
+	}
+
+	protected void renderJavascriptDelta(@Nonnull JavascriptStmt b) throws Exception {
+
+	}
+
+	final public void internalRenderJavascriptDelta(@Nonnull JavascriptStmt stmt) throws Exception {
+		renderJavascriptDelta(stmt);
+		stmt.next();
 	}
 
 	/*--------------------------------------------------------------*/
@@ -1336,21 +1427,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	protected void onUnshelve() throws Exception {}
 
 	protected void onRefresh() throws Exception {}
-
-	/**
-	 * This gets called when a component is re-rendered fully because of a full page
-	 * refresh. It should only be used for components that maintain a lot of state
-	 * in Javascript on the browser. These components need to add Javascript commands
-	 * to that browser to restore/initialize the state to whatever is present in the
-	 * server's data store. It must do that by adding the needed Javascript to the buffer
-	 * passed.
-	 *
-	 * @param sb
-	 * @throws Exception
-	 */
-	public void renderJavascriptState(StringBuilder sb) throws Exception {
-
-	}
 
 	/**
 	 * Will be called just before "full render" starts. It gets called INSIDE the rendering

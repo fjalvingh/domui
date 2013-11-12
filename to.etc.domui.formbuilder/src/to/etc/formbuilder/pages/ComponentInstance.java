@@ -2,6 +2,7 @@ package to.etc.formbuilder.pages;
 
 import javax.annotation.*;
 
+import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 
 /**
@@ -59,4 +60,12 @@ public class ComponentInstance {
 		return nc;
 	}
 
+	@Nullable
+	public Object getPropertyValue(@Nonnull PropertyDefinition pd) throws Exception {
+		NodeBase nb = getRendered();
+		PropertyMetaModel< ? > pmm = MetaManager.getPropertyMeta(nb.getClass(), pd.getName());
+		if(null == pmm)
+			return null;
+		return pmm.getValue(nb);
+	}
 }

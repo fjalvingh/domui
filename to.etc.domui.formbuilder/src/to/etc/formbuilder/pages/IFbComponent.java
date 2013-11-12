@@ -1,5 +1,7 @@
 package to.etc.formbuilder.pages;
 
+import java.util.*;
+
 import javax.annotation.*;
 
 import to.etc.domui.dom.html.*;
@@ -21,4 +23,11 @@ public interface IFbComponent {
 
 	@Nonnull
 	public NodeBase createNodeInstance() throws Exception;
+
+	/**
+	 * Return all properties for this component.
+	 * @return
+	 */
+	@Nonnull
+	public Set<PropertyDefinition> getProperties();
 }
