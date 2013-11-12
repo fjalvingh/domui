@@ -2949,3 +2949,24 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 .ui-dct td {
 	vertical-align: top;
 }
+
+.ui-panel {
+	background-color: <%= bg_color %>; 
+}
+
+.ui-cptn2 {
+} 
+
+/*-- alg substyle --*/
+
+
+/*-- pnl substyle --*/
+.ui-cptn2-pnl {
+	font-size: large;
+	background: <%= header_bg %>;
+	color: <%= bg_ttl_text %>;
+	margin-top: 0px;
+}
+
+
+

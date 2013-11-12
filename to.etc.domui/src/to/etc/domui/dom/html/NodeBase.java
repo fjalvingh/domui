@@ -963,16 +963,31 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		StringBuilder sb = m_createJS;
 		if(sb == null)
 			sb = m_createJS = new StringBuilder();
+		else {
+			JavascriptStmt st = m_createStmt;
+			if(null != st)
+				st.next();
+		}
 		return sb;
 	}
 
+	@Nullable
+	private JavascriptStmt m_createStmt;
+
 	@Nonnull
 	public JavascriptStmt createStatement() {
-		return new JavascriptStmt(getCreateJavascriptBuffer());
+		JavascriptStmt st = m_createStmt;
+		if(null == st) {
+			st = m_createStmt = new JavascriptStmt(getCreateJavascriptBuffer());
+		}
+		return st;
 	}
 
 	@Nullable
 	public StringBuilder getCreateJS() {
+		JavascriptStmt st = m_createStmt;
+		if(null != st)
+			st.next();
 		return m_createJS;
 	}
 

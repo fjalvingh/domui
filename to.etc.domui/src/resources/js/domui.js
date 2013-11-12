@@ -2764,7 +2764,8 @@ var WebUI = {
 	},
 
 	setThreePanelHeight: function(top, middle, bottom) {
-		try {
+//		try {
+			middle = "#"+middle;
 			var height = $(middle).parent().height();		// Assigned height of the container
 
 			var theight = 0;
@@ -2787,9 +2788,9 @@ var WebUI = {
 			}
 			$(middle).height(height+"px");
 			$(middle).css({"overflow-y": "auto"});
-		} catch(x) {
-			//-- Ignore for now
-		}
+//		} catch(x) {
+//			//-- Ignore for now
+//		}
 
 	},
 	
