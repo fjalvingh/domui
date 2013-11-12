@@ -416,15 +416,15 @@ public class ConverterRegistry {
 		}
 	};
 
-
 	/**
 	 * Register a comparator for a given type.
 	 * @param valueClass
 	 * @param comp
 	 */
-	static synchronized public <T> void registerComparator(Class<T> valueClass, Comparator<T> comp) {
+	static synchronized public <T> void registerComparator(@Nonnull Comparator<T> comp, Class< ? >... valueClass) {
 		m_comparatorMap = new HashMap<Class< ? >, Comparator< ? >>(m_comparatorMap);
-		m_comparatorMap.put(valueClass, comp);
+		for(Class< ? > clz : valueClass)
+			m_comparatorMap.put(clz, comp);
 	}
 
 	static private synchronized Map<Class< ? >, Comparator< ? >> getComparatorMap() {
@@ -499,6 +499,32 @@ public class ConverterRegistry {
 				return c;
 		}
 		return null;
+	}
+
+	static {
+		Comparator<Number> comp = new Comparator<Number>() {
+			@Override
+			public int compare(Number a, Number b) {
+				long res = a.longValue() - b.longValue();
+				if(res == 0)
+					return 0;
+				return res < 0 ? -1 : 1;
+			}
+		};
+		registerComparator(comp, Long.class, long.class, Integer.class, int.class, Short.class, short.class, Character.class, char.class);
+
+		Comparator<Number> comp2 = new Comparator<Number>() {
+			@Override
+			public int compare(Number a, Number b) {
+				double res = a.doubleValue() - b.doubleValue();
+				if(res == 0)
+					return 0;
+				return res < 0 ? -1 : 1;
+			}
+		};
+		registerComparator(comp2, Double.class, double.class, Float.class, float.class);
+
+
 	}
 
 	//	/**

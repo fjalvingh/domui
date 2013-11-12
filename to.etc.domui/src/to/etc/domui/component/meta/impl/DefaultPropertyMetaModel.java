@@ -185,7 +185,9 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 			else
 				throw itx;
 		} catch(Exception x) {
-			System.err.println("in calling " + m_descriptor.getGetter() + " with input object " + in);
+			try {
+				System.err.println("in calling " + m_descriptor.getGetter() + " with input object " + in);
+			} catch(Exception xx) {}
 			throw x;
 		}
 	}
