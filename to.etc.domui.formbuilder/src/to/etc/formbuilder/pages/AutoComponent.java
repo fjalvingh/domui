@@ -42,7 +42,7 @@ public class AutoComponent implements IFbComponent {
 
 		//-- Determine category from package name last entry
 		int pdot = fullname.lastIndexOf('.', ldot - 1);
-		name = StringTool.getCapitalized(fullname.substring(pdot + 1, ldot));
+		name = StringTool.strCapitalized(fullname.substring(pdot + 1, ldot));
 		m_categoryName = name;
 	}
 

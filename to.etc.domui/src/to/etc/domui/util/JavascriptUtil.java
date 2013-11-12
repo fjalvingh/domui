@@ -24,4 +24,8 @@ final public class JavascriptUtil {
 	static public String enableSelection(NodeBase nb) {
 		return "$('#" + nb.getActualID() + "').enableSelection();";
 	}
+
+//	static public void	setThreePanelHeight(@Nonnull )
+
+
 }

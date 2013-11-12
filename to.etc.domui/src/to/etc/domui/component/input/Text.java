@@ -745,6 +745,17 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		return txt;
 	}
 
+//	@Nonnull
+//	static public <N extends Number> Text<N> createNumericInput(PropertyMetaModel<N> pmm, boolean editable) {
+//		if(pmm == null)
+//			throw new NullPointerException("Null property model not allowed");
+//		Text<N> txt = new Text<N>(pmm.getActualType());
+//		Text.configureNumericInput(txt, pmm, editable);
+//		NumericUtil.assignNumericConverter(pmm, editable, txt, pmm.getActualType());
+//		return txt;
+//	}
+//
+
 	@Nonnull
 	static public Text<BigDecimal> createBigDecimalInput(Class< ? > clz, String property, boolean editable) {
 		return Text.createBigDecimalInput((PropertyMetaModel<BigDecimal>) MetaManager.findPropertyMeta(clz, property), editable);

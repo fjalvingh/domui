@@ -2762,6 +2762,36 @@ var WebUI = {
 			//-- Ignore for now
 		}
 	},
+
+	setThreePanelHeight: function(top, middle, bottom) {
+		try {
+			var height = $(middle).parent().height();		// Assigned height of the container
+
+			var theight = 0;
+			if(typeof top === "string") {
+				theight = $("#"+top).height();					// Get the end of the "top" element
+			} else if(top) {
+				theight = top;
+			}
+
+			//-- Get height of bottom, if present
+			var bheight = 0;
+			if(typeof bottom === "string") {
+				bheight = $("#"+bottom).height(); 
+			} else if(bottom) {
+				tbottom = bottom;
+			}
+			height -= theight - bheight;
+			if(height < 0) {
+				height = 0;
+			}
+			$(middle).height(height+"px");
+			$(middle).css({"overflow-y": "auto"});
+		} catch(x) {
+			//-- Ignore for now
+		}
+
+	},
 	
 	/** *************** Debug thingy - it can be used internaly for debuging javascript ;) ************** */
 	debug : function(debugId, posX, posY, debugInfoHtml) {

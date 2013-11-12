@@ -2630,7 +2630,7 @@ public class StringTool {
 	}
 
 	@Nonnull
-	public static String getCapitalized(@Nonnull String name) {
+	public static String strCapitalized(@Nonnull String name) {
 		if(name.length() == 0)
 			return name;
 		char c = name.charAt(0);
