@@ -84,6 +84,7 @@ input, textarea, select {
 	margin: 0px 2px 2px 0px;
 	padding: 0px 2px 0px 2px;	
 	font-size: <%= font_size %>;
+	font: inherit;
 	border-color:<%= bevel_up %> <%= bevel_down %> <%= bevel_down %>;
 	border-style:solid;
 	border-width:1px;
@@ -1523,6 +1524,21 @@ div.ui-sortable {
 .ui-sib:hover {
 	background-color: <%= header_bg %> !important;
 }
+
+.ui-sib[disabled] {
+	cursor: default;
+}
+
+.ui-sib[disabled] img {
+	filter: url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><filter id=\'grayscale\'><feColorMatrix type=\'matrix\' values=\'0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0\'/></filter></svg>#grayscale"); /* Firefox 3.5+ */
+	-moz-filter: grayscale(100%);
+	filter: gray; /* IE6-9 */
+    -webkit-filter: grayscale(1); /* Google Chrome & Safari 6+ */
+}
+
+.ui-sib[disabled]:hover {
+	background: none !important;
+}
 /*** 150_caption.frag.css ***/
 /*** Caption ***/
 .ui-cptn {
@@ -1634,6 +1650,7 @@ div.ui-sortable {
     text-decoration: none;
  	min-height: 22px;
  	color: <%= tab_pnl_inactive_col %>;
+ 	margin-right: 0px !important;
 }
 
 .ui-tab-hdr img {
@@ -2739,8 +2756,18 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	background-color: <%= util.color(upl_loading).lighter(0.2) %>;
 	margin-top: 2px;
 }
-.ui-idlg-pnl {
-	margin: 15px 10px;
+.ui-idlg-pnl {}
+
+.ui-idlg-pnl label {
+	width: 1%;
+	min-width: 150px;
+	font-weight: bold;
+	display: inline-block;
+	text-align: right;
+}
+
+.ui-idlg-pnl input {
+	vertical-align: top;
 }
 /*** 255_datapager.frag.css ***/
 /*** Result table pager ***/

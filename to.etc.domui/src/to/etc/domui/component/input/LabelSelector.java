@@ -17,6 +17,9 @@ import to.etc.domui.util.*;
  * Created on Aug 6, 2011
  */
 public class LabelSelector<T> extends Div implements IControl<List<T>> {
+
+	private static final int MAX_LABELS_IN_TOOLTIP = 10;
+
 	@Nonnull
 	private Class<T> m_actualClass;
 
@@ -61,6 +64,8 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 
 	private boolean m_disabled;
 
+	private boolean m_defaultTooltip = true;
+
 	public LabelSelector(@Nonnull Class<T> clz, @Nonnull ISearch<T> search) {
 		m_actualClass = clz;
 		m_search = search;
@@ -80,15 +85,17 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 
 		if(! m_disabled) {
 			m_input = new SearchInput<T>(m_actualClass);
+			updateTooltip();
 			add(m_input);
 			m_input.setHandler(new SearchInput.IQuery<T>() {
 				@Override
 				public List<T> queryFromString(String input, int max) throws Exception {
-					return queryLabels(input, max);
+					return queryLabelsOnType(input, max);
 				}
 
 				@Override
 				public void onSelect(T instance) throws Exception {
+					updateTooltip();
 					addLabelOnInput(instance);
 				}
 
@@ -100,6 +107,23 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 		}
 	}
 
+	private void updateTooltip() throws Exception {
+		if(isDefaultTooltip()) {
+			fillTooltipWithAvailableLabels();
+		}
+	}
+
+	private void fillTooltipWithAvailableLabels() throws Exception {
+		StringBuilder sb = new StringBuilder();
+		final List<T> availableLabels = getAvailableLabels();
+		for(int i = 0; i < availableLabels.size(); i++) {
+			if(i > 0) {
+				sb.append(", ");
+			}
+			sb.append(availableLabels.get(i).toString());
+		}
+		m_input.setTitle(Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_HINT, sb.toString()));
+	}
 
 	/**
 	 * This queries for labels with the specified name. It does so by querying the db, and removes
@@ -109,11 +133,19 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 	 * @return
 	 * @throws Exception
 	 */
-	private List<T> queryLabels(String input, int max) throws Exception {
+	private List<T> queryLabelsOnType(String input, int max) throws Exception {
 		input = input.trim();
 		if(input.length() < 1)
 			return null;
 
+		return getLabels(input, max);
+	}
+
+	private List<T> getAvailableLabels() {
+		return getLabels("", MAX_LABELS_IN_TOOLTIP);
+	}
+
+	private List<T> getLabels(String input, int max) {
 		List<T> isl = m_search.findLike(input, max + m_labelList.size() + 1);
 		for(T tisl : m_labelList) {
 			isl.remove(tisl);					// Remove all that has been entered before
@@ -350,6 +382,12 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 		return m_binder != null && m_binder.isBound();
 	}
 
+	public boolean isDefaultTooltip() {
+		return m_defaultTooltip;
+	}
 
+	public void setDefaultTooltip(boolean defaultTooltip) {
+		m_defaultTooltip = defaultTooltip;
+	}
 
 }

@@ -693,6 +693,17 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Numeric Text inputs for base types.					*/
 	/*--------------------------------------------------------------*/
+
+	@Nonnull
+	static public <T extends Number> Text<T> createNumericInput(PropertyMetaModel<T> pmm, boolean editable) {
+		if(pmm == null)
+			throw new NullPointerException("Null property model not allowed");
+		Text<T> txt = new Text<T>(pmm.getActualType());
+		Text.configureNumericInput(txt, pmm, editable);
+		NumericUtil.assignNumericConverter(pmm, editable, txt, pmm.getActualType());
+		return txt;
+	}
+
 	/**
 	 * Create an int input control, properly configured for the specified property.
 	 * @param clz
@@ -702,62 +713,22 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 */
 	@Nonnull
 	static public Text<Integer> createIntInput(Class< ? > clz, String property, boolean editable) {
-		return Text.createIntInput((PropertyMetaModel<Integer>) MetaManager.findPropertyMeta(clz, property), editable);
-	}
-
-	@Nonnull
-	static public Text<Integer> createIntInput(PropertyMetaModel<Integer> pmm, boolean editable) {
-		if(pmm == null)
-			throw new NullPointerException("Null property model not allowed");
-		Text<Integer> txt = new Text<Integer>(Integer.class);
-		Text.configureNumericInput(txt, pmm, editable);
-		NumericUtil.assignNumericConverter(pmm, editable, txt, Integer.class);
-		return txt;
+		return Text.createNumericInput((PropertyMetaModel<Integer>) MetaManager.findPropertyMeta(clz, property), editable);
 	}
 
 	@Nonnull
 	static public Text<Long> createLongInput(Class< ? > clz, String property, boolean editable) {
-		return Text.createLongInput((PropertyMetaModel<Long>) MetaManager.findPropertyMeta(clz, property), editable);
-	}
-
-	@Nonnull
-	static public Text<Long> createLongInput(PropertyMetaModel<Long> pmm, boolean editable) {
-		if(pmm == null)
-			throw new NullPointerException("Null property model not allowed");
-		Text<Long> txt = new Text<Long>(Long.class);
-		Text.configureNumericInput(txt, pmm, editable);
-		NumericUtil.assignNumericConverter(pmm, editable, txt, Long.class);
-		return txt;
+		return Text.createNumericInput((PropertyMetaModel<Long>) MetaManager.findPropertyMeta(clz, property), editable);
 	}
 
 	@Nonnull
 	static public Text<Double> createDoubleInput(Class< ? > clz, String property, boolean editable) {
-		return Text.createDoubleInput((PropertyMetaModel<Double>) MetaManager.findPropertyMeta(clz, property), editable);
-	}
-
-	@Nonnull
-	static public Text<Double> createDoubleInput(PropertyMetaModel<Double> pmm, boolean editable) {
-		if(pmm == null)
-			throw new NullPointerException("Null property model not allowed");
-		Text<Double> txt = new Text<Double>(Double.class);
-		Text.configureNumericInput(txt, pmm, editable);
-		NumericUtil.assignNumericConverter(pmm, editable, txt, Double.class);
-		return txt;
+		return Text.createNumericInput((PropertyMetaModel<Double>) MetaManager.findPropertyMeta(clz, property), editable);
 	}
 
 	@Nonnull
 	static public Text<BigDecimal> createBigDecimalInput(Class< ? > clz, String property, boolean editable) {
-		return Text.createBigDecimalInput((PropertyMetaModel<BigDecimal>) MetaManager.findPropertyMeta(clz, property), editable);
-	}
-
-	@Nonnull
-	static public Text<BigDecimal> createBigDecimalInput(PropertyMetaModel<BigDecimal> pmm, boolean editable) {
-		if(pmm == null)
-			throw new NullPointerException("Null property model not allowed");
-		Text<BigDecimal> txt = new Text<BigDecimal>(BigDecimal.class);
-		Text.configureNumericInput(txt, pmm, editable);
-		NumericUtil.assignNumericConverter(pmm, editable, txt, BigDecimal.class);
-		return txt;
+		return Text.createNumericInput((PropertyMetaModel<BigDecimal>) MetaManager.findPropertyMeta(clz, property), editable);
 	}
 
 	@Nonnull

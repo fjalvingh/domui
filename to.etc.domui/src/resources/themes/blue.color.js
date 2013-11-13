@@ -97,3 +97,6 @@ data_pager_icon_size_y = 19;
 //-- Tab panel image
 tab_pnl_img = "tab-all-domui.png";
 /* Icon definition for DomUI icons */
+
+//label selector color 
+label_selector_item = '#bfd1f3';
