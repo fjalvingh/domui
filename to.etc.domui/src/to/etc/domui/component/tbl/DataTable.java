@@ -64,6 +64,23 @@ public class DataTable<T> extends SelectableTabularComponent<T> implements ISele
 	/** When selecting, this is the last index that was used in a select click.. */
 	private int m_lastSelectionLocation = -1;
 
+	@Nonnull
+	final private IClicked<TH> m_headerSelectClickHandler = new IClicked<TH>() {
+		@Override
+		public void clicked(TH clickednode) throws Exception {
+			ISelectionModel<T> sm = getSelectionModel();
+			if(null == sm)
+				return;
+			int ct = sm.getSelectionCount();
+			if(0 == ct && sm.isMultiSelect()) {
+				sm.selectAll(getModel());
+			} else {
+				sm.clearSelection();
+			}
+		}
+	};
+
+
 	public DataTable(@Nonnull ITableModel<T> m, @Nonnull IRowRenderer<T> r) {
 		super(m);
 		m_rowRenderer = r;
@@ -198,6 +215,8 @@ public class DataTable<T> extends SelectableTabularComponent<T> implements ISele
 			TH headerCell = hc.add("");
 			headerCell.add(new Img("THEME/dspcb-on.png"));
 			headerCell.setWidth("1px"); //keep selection column with minimal width
+			headerCell.setClicked(m_headerSelectClickHandler);
+			headerCell.setCssClass("ui-clickable");
 		}
 		m_rowRenderer.renderHeader(this, hc);
 	}
@@ -462,20 +481,7 @@ public class DataTable<T> extends SelectableTabularComponent<T> implements ISele
 		th.add(new Img("THEME/dspcb-on.png"));
 		th.setWidth("1px"); //keep selection column with minimal width
 		headerrow.add(0, th);
-		th.setClicked(new IClicked<TH>() {
-			@Override
-			public void clicked(TH clickednode) throws Exception {
-				ISelectionModel<T> sm = getSelectionModel();
-				if(null == sm)
-					return;
-				int ct = sm.getSelectionCount();
-				if(0 == ct && sm.isMultiSelect()) {
-					sm.selectAll(getModel());
-				} else {
-					sm.clearSelection();
-				}
-			}
-		});
+		th.setClicked(m_headerSelectClickHandler);
 		th.setCssClass("ui-clickable");
 
 		//-- 2. Insert a checkbox in all rows.
