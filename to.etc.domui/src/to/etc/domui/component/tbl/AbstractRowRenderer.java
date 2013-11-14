@@ -135,7 +135,14 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 	/**
 	 * Complete this object if it is not already complete (internal).
 	 */
+	@OverridingMethodsMustInvokeSuper
 	protected void complete(@Nonnull final TableModelTableBase<T> tbl) {
+		if(!m_completed) {
+			SimpleColumnDef< ? > scol = getSortColumn();
+			if(scol != null) {
+				m_sortDescending = scol.getSortable() == SortableType.SORTABLE_DESC;
+			}
+		}
 		m_completed = true;
 	}
 
@@ -297,6 +304,7 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 	 */
 	@Override
 	public void renderHeader(@Nonnull final TableModelTableBase<T> tbl, @Nonnull final HeaderContainer<T> cc) throws Exception {
+
 		m_sortImages = new Img[m_columnList.size()];
 		int ix = 0;
 		final boolean sortablemodel = tbl.getModel() instanceof ISortableTableModel;
