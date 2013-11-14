@@ -1208,39 +1208,41 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 
 	@Override
 	public void visitPropertySelection(QPropertySelection n) throws Exception {
+		String name = parseSubcriteria(n.getProperty());
+
 		switch(n.getFunction()){
 			default:
 				throw new IllegalStateException("Unexpected selection item function: " + n.getFunction());
 			case AVG:
-				m_lastProj = Projections.avg(n.getProperty());
+				m_lastProj = Projections.avg(name);
 				break;
 			case MAX:
-				m_lastProj = Projections.max(n.getProperty());
+				m_lastProj = Projections.max(name);
 				break;
 			case MIN:
-				m_lastProj = Projections.min(n.getProperty());
+				m_lastProj = Projections.min(name);
 				break;
 			case SUM:
-				m_lastProj = Projections.sum(n.getProperty());
+				m_lastProj = Projections.sum(name);
 				break;
 			case COUNT:
-				m_lastProj = Projections.count(n.getProperty());
+				m_lastProj = Projections.count(name);
 				break;
 			case COUNT_DISTINCT:
-				m_lastProj = Projections.countDistinct(n.getProperty());
+				m_lastProj = Projections.countDistinct(name);
 				break;
 			case ID:
 				m_lastProj = Projections.id();
 				break;
 			case PROPERTY:
-				m_lastProj = Projections.groupProperty(n.getProperty());
+				m_lastProj = Projections.groupProperty(name);
 
 				break;
 			case ROWCOUNT:
 				m_lastProj = Projections.rowCount();
 				break;
 			case DISTINCT:
-				m_lastProj = Projections.distinct(Projections.property(n.getProperty()));
+				m_lastProj = Projections.distinct(Projections.property(name));
 				break;
 		}
 	}

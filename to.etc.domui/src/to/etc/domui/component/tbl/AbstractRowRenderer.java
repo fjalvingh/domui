@@ -66,6 +66,8 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 	@Nullable
 	private IRowRendered<T> m_onRowRendered;
 
+	private boolean m_sortDescending;
+
 	public static interface IRowRendered<T> {
 		public void rowRendered(@Nonnull TR row, @Nonnull T instance);
 	}
@@ -91,12 +93,17 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 	 * @param type
 	 */
 	public void setDefaultSort(@Nonnull SimpleColumnDef< ? > cd, @Nonnull SortableType type) {
-		getColumnList().setSortColumn(cd, type);
+		cd.setSortable(type);
+		getColumnList().setSortColumn(cd);
 	}
 
 	public void setSort(@Nonnull String column, @Nonnull SortableType type) {
-		getColumnList().setDefaultSortColumn(column);
-		getColumnList().setSortDescending(type == SortableType.SORTABLE_DESC);
+		SimpleColumnDef< ? > col = getColumnList().findColumn(column);
+		if(null == col)
+			return;
+
+		getColumnList().setSortColumn(col);
+		col.setSortable(type);
 	}
 
 	/**
@@ -141,7 +148,9 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 	}
 
 	protected void setSortColumn(@Nullable SimpleColumnDef< ? > cd, @Nullable SortableType type) {
-		m_columnList.setSortColumn(cd, type);
+		if(null != cd && null != type)
+			cd.setSortable(type);
+		m_columnList.setSortColumn(cd);
 	}
 
 	@Nullable
@@ -153,9 +162,9 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 		return m_columnList.isSortDescending();
 	}
 
-	protected void setSortDescending(boolean desc) {
-		m_columnList.setSortDescending(desc);
-	}
+//	protected void setSortDescending(boolean desc) {
+//		m_columnList.setSortDescending(desc);
+//	}
 
 	/**
 	 * Return the definition for the nth column. You can change the column's definition there.
@@ -355,12 +364,13 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 		//-- 1. Is this the same as the "current" sort column? If so toggle the sort order only.
 		SimpleColumnDef< ? > sortColumn = getSortColumn();
 		if(scd == sortColumn) {
-			setSortDescending( ! isSortDescending());
+			m_sortDescending = !m_sortDescending;
 		} else {
 			if(sortColumn != null)
 				updateSortImage(sortColumn, "THEME/sort-none.png");
 
-			m_columnList.setSortColumn(scd, scd.getSortable());			 // Set the new sort column
+			m_columnList.setSortColumn(scd);			 // Set the new sort column
+			m_sortDescending = scd.getSortable() == SortableType.SORTABLE_DESC;
 		}
 		updateSortImage(scd, isSortDescending() ? "THEME/sort-desc.png" : "THEME/sort-asc.png");
 
