@@ -158,8 +158,12 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 		return m_columnList.getSortColumn();
 	}
 
+	/**
+	 * The <i>current</i> sorting state of the sort column, as defined by the user's clicking the header.
+	 * @return
+	 */
 	protected boolean isSortDescending() {
-		return m_columnList.isSortDescending();
+		return m_sortDescending;
 	}
 
 //	protected void setSortDescending(boolean desc) {
@@ -316,7 +320,7 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 				cellSpan.add(img);
 
 				if(cd == getSortColumn()) {
-					img.setSrc(m_columnList.isSortDescending() ? "THEME/sort-desc.png" : "THEME/sort-asc.png");
+					img.setSrc(m_sortDescending ? "THEME/sort-desc.png" : "THEME/sort-asc.png");
 				} else {
 					img.setSrc("THEME/sort-none.png");
 				}
