@@ -3,10 +3,7 @@ package to.etc.util;
 import java.io.*;
 import java.util.*;
 
-import to.etc.util.*;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.annotation.*;
 
 public class LineIterator implements Iterable<String>, Iterator<String> {
 	private LineNumberReader m_reader;

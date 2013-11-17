@@ -1,5 +1,4 @@
-#Tue Feb 06 12:39:28 CET 2007
 eclipse.preferences.version=1
-formatter_profile=_jal
-formatter_settings_version=11
+formatter_profile=_JalFormat
+formatter_settings_version=12
 internal.default.compliance=default

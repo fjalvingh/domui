@@ -1984,4 +1984,20 @@ public class FileTool {
 			FileTool.closeAll(reader);
 		}
 	}
+
+	/**
+	 * Calculate the relative path of file in the root passed.
+	 * @param root
+	 * @param file
+	 * @return
+	 * @throws Exception
+	 */
+	@Nonnull
+	public static String getRelativePath(@Nonnull File root, @Nonnull File file) throws Exception {
+		String rp = root.getCanonicalPath() + File.separator;
+		String fp = file.getCanonicalPath();
+		if(!fp.startsWith(rp))
+			throw new IllegalStateException("Path " + fp + " is not a subpath of " + rp);
+		return fp.substring(rp.length());
+	}
 }
