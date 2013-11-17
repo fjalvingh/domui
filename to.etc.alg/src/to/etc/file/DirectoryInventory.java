@@ -17,7 +17,7 @@ import to.etc.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Nov 16, 2013
  */
-public class DirectoryInventory {
+public class DirectoryInventory implements Serializable {
 	private static final long serialVersionUID = 42328462L;
 
 	static private final class InvEntry implements Serializable {
@@ -78,12 +78,16 @@ public class DirectoryInventory {
 	 */
 	@Nonnull
 	static public DirectoryInventory create(@Nonnull File src) throws Exception {
+		if(!src.exists())
+			throw new IOException(src + ": directory does not exist");
+		if(!src.isDirectory())
+			throw new IOException(src + ": is not a directory");
 		long ts = System.nanoTime();
 		StringBuilder sb = new StringBuilder(128);
 		DirectoryInventory de = new DirectoryInventory(System.currentTimeMillis());
 		de.m_root = de.scanDirectory(src, sb);
 		ts = System.nanoTime() - ts;
-		System.out.println(".. initial inventory of " + src + " took " + StringTool.strNanoTime(ts));
+		System.out.println(".. initial inventory of " + src + " took " + StringTool.strNanoTime(ts) + " for " + de.m_numFiles + " files in " + de.m_numDirectories + " dirs");
 		return de;
 	}
 
@@ -117,6 +121,8 @@ public class DirectoryInventory {
 			elen++;
 		}
 		File[] far = src.listFiles();
+		if(null == far)
+			throw new IllegalStateException("No results from " + src);
 		List<InvEntry> list = new ArrayList<InvEntry>(far.length);
 		for(File f : far) {
 			//-- Construct the relative path into sb
@@ -206,7 +212,6 @@ public class DirectoryInventory {
 	 * Created on Nov 16, 2013
 	 */
 	static public interface IDeltaListener {
-
 		void fileDeleted(@Nonnull String path, long lastModified, @Nonnull byte[] md5hash) throws Exception;
 
 		void directoryDeleted(@Nonnull String path) throws Exception;
@@ -218,6 +223,39 @@ public class DirectoryInventory {
 		void fileModified(@Nonnull String path, long srcLastModified, long dstLastModified, @Nonnull byte[] srchash, @Nonnull byte[] dsthash) throws Exception;
 	}
 
+	public enum DeltaType {
+		fileDeleted, fileAdded, fileModified, directoryAdded, directoryDeleted,
+	}
+
+	/**
+	 * Records a single change between two inventories.
+	 *
+	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+	 * Created on Nov 17, 2013
+	 */
+	static public class DeltaRecord {
+		@Nonnull
+		final private DeltaType m_type;
+
+		@Nonnull
+		final private String m_path;
+
+		public DeltaRecord(@Nonnull DeltaType type, @Nonnull String path) {
+			m_type = type;
+			m_path = path;
+		}
+
+		@Nonnull
+		public DeltaType getType() {
+			return m_type;
+		}
+
+		@Nonnull
+		public String getPath() {
+			return m_path;
+		}
+	}
+
 	/**
 	 * Compare this and another inventory, and generate events that tell how THIS would need to change to become OTHER.
 	 * @param other
@@ -227,6 +265,56 @@ public class DirectoryInventory {
 		handleCompare(sb, listener, m_root, other.m_root);
 	}
 
+	/**
+	 * Compare to inventories and return a list of changes.
+	 * @param other
+	 * @return
+	 */
+	@Nonnull
+	public List<DeltaRecord> compareTo(@Nonnull DirectoryInventory other) {
+		try {
+			final List<DeltaRecord> result = new ArrayList<>();
+
+			compareTo(other, new IDeltaListener() {
+				@Override
+				public void fileModified(String path, long srcLastModified, long dstLastModified, byte[] srchash, byte[] dsthash) throws Exception {
+					result.add(new DeltaRecord(DeltaType.fileModified, path));
+				}
+
+				@Override
+				public void fileDeleted(String path, long lastModified, byte[] md5hash) throws Exception {
+					result.add(new DeltaRecord(DeltaType.fileDeleted, path));
+				}
+
+				@Override
+				public void fileAdded(String path, long lastModified, byte[] md5hash) throws Exception {
+					result.add(new DeltaRecord(DeltaType.fileAdded, path));
+				}
+
+				@Override
+				public void directoryDeleted(String path) throws Exception {
+					result.add(new DeltaRecord(DeltaType.directoryDeleted, path));
+				}
+
+				@Override
+				public void directoryAdded(String path) throws Exception {
+					result.add(new DeltaRecord(DeltaType.directoryAdded, path));
+				}
+			});
+			return result;
+		} catch(Exception x) {
+			throw WrappedException.wrap(x);
+		}
+	}
+
+	/**
+	 * Main event-generating delta method, comparing two directory entries.
+	 * @param sb
+	 * @param listener
+	 * @param src
+	 * @param dst
+	 * @throws Exception
+	 */
 	private void handleCompare(@Nonnull StringBuilder sb, @Nonnull IDeltaListener listener, @Nonnull InvEntry src, @Nonnull InvEntry dst) throws Exception {
 		//-- If both directory hash entries are equal this dir has no changes
 		if(Arrays.equals(src.m_md5hash, dst.m_md5hash))
@@ -342,4 +430,16 @@ public class DirectoryInventory {
 		}
 	}
 
+
+	public static void main(String[] args) throws Exception {
+		DirectoryInventory a = DirectoryInventory.create(new File("/home/jal/bzr/puzzler-split/domui/to.etc.domui/src"));
+		DirectoryInventory b = DirectoryInventory.create(new File("/home/jal/bzr/puzzler-split/domui/to.etc.domui/src"));
+		List<DeltaRecord> res = a.compareTo(b);
+		System.out.println("We have " + res.size() + " changes");
+
+		DirectoryInventory c = DirectoryInventory.create(new File("/home/jal/bzr/domui-form/to.etc.domui/src"));
+		res = a.compareTo(c);
+		System.out.println("We have " + res.size() + " changes");
+
+	}
 }
