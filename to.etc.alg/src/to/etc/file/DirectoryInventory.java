@@ -156,25 +156,20 @@ public class DirectoryInventory implements Serializable {
 
 
 	/**
-	 * Tries to load the source inventory; returns null if it could not be found/loaded.
+	 * Load the inventory from a file.
 	 * @param src
 	 * @return
 	 */
-	@Nullable
-	static public DirectoryInventory load(@Nonnull File src) {
+	@Nonnull
+	static public DirectoryInventory load(@Nonnull File src) throws Exception {
 		if(!src.exists())
-			return null;
+			throw new FileNotFoundException(src + ": not found");
 		ObjectInputStream ois = null;
 		try {
 			ois = new ObjectInputStream(new FileInputStream(src));
 			return (DirectoryInventory) ois.readObject();
-		} catch(Exception x) {
-			return null;
 		} finally {
-			try {
-				if(ois != null)
-					ois.close();
-			} catch(Exception x) {}
+			FileTool.closeAll(ois);
 		}
 	}
 
@@ -441,5 +436,17 @@ public class DirectoryInventory implements Serializable {
 		res = a.compareTo(c);
 		System.out.println("We have " + res.size() + " changes");
 
+	}
+
+	public int getNumFiles() {
+		return m_numFiles;
+	}
+
+	public int getNumDirectories() {
+		return m_numDirectories;
+	}
+
+	public long getCreationTime() {
+		return m_creationTime;
 	}
 }
