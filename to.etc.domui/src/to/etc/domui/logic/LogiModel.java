@@ -251,8 +251,9 @@ public class LogiModel {
 				return false;
 
 			//-- Child was set to empty list...
-			throw new IllegalStateException("ni: child set to unloaded while copy is discrete??");
-			//			return true;
+			return true;
+//			throw new IllegalStateException("ni: child set to unloaded while copy is discrete??");
+//			//			return true;
 		}
 
 		//-- We have some collection here. Handle the supported cases (List only)
