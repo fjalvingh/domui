@@ -472,18 +472,18 @@ td.ui-tr-selected {
 }
 .ui-emd-msg {
 	background-repeat: no-repeat;
-	background-position: left;
-	padding-left: 18px;
+	background-position: 10px;
+	padding-left: 24px;
+	background-size: 11px 11px;
 }
 .ui-emd-info {
 	background-image: url(mini-info.png);
-	background-color: <%= info_bg %>; /* some nice light blue */
+	background-color: <%= info_bg %>;
 	color: <%= info_fg %>;
 	border-color: 1px solid <%= info_border %>;
 }
 .ui-emd-error {
 	background-image: url(mini-error.png);
-	/*	height: 16px; We have to remove this because there are big error messages */
 }
 .ui-emd-warning {
 	background-image: url(mini-warning.png);
@@ -2623,44 +2623,50 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 /*** LabelSelector component ***/
 .ui-lsel {
 	display: inline-block;
-	border-color:#ABADB3 #BFCDD9 #BFCDD9;
-	border-style:solid;
-	border-width:1px;
-	-moz-border-radius: 5px;
-	border-radius: 5px;
-	-webkit-border-radius: 5px;
-	padding: 4px;
+	background: white;
+	margin-right: 2px;
+	margin-bottom: 2px;
+	border-color: <%= bevel_up %> <%= bevel_down %> <%= bevel_down %>;
+	border-style: solid;
+	border-width: 1px;
 }
 .ui-lsel-item {
 	display: inline-block;
-	-moz-border-radius: 4px;
-	border-radius: 4px;
-	-webkit-border-radius: 4px;
-	border: 1px dotted #999;
-	margin: 0 2px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border: 1px solid #999;
+	margin: 1px;
 	padding: 2px;
-	background-color: cyan;
+	background-color: <%= label_selector_item %>;
 }
 .ui-lsel-btn {
 	display: inline-block;
 	margin-left: 5px;
 	width: 14px;
 	height: 14px;
-	background-image: url(lsel-delete.png);
-	background-position: 14px 0;
+	background-image: url(btnClose.png);
+	background-size: 14px 14px;
 }
-.ui-lsel-btn:hover {
-	background-position: 0px 0px;
-	}
 
 .ui-lsel img {
 	padding-left: 5px;
 	padding-bottom: 2px;
 	vertical-align: middle;
 }
-.ui-lsel-sel input {
+.ui-lsel input {
 	border: none;
+	outline: none;
+	vertical-align: top;
+	height: 18px;
+	margin: 0px 0px 0px 2px;
+	padding: 0px;
 }
+.ui-lui-keyword-no-res {
+	display: inline-block;
+	margin: 4px;
+}
+
 /*** 245_bulkupload.frag.css ***/
 /*** BulkUpload component ***/
 .ui-bupl {
@@ -2867,9 +2873,7 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 }
 /*** MessageLine ***/
 .ui-msgln {
-	clear: both;
 	padding: 4px 0px;
-/*	display: inline-block;		jal 20130215 This shows messages behind one another.... That should not happen.. */
 }
 .ui-msgln img {
 	float: left;
