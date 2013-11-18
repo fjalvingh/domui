@@ -83,9 +83,8 @@ public class DirectoryInventory implements Serializable {
 		if(!src.isDirectory())
 			throw new IOException(src + ": is not a directory");
 		long ts = System.nanoTime();
-		StringBuilder sb = new StringBuilder(128);
 		DirectoryInventory de = new DirectoryInventory(System.currentTimeMillis());
-		de.m_root = de.scanDirectory(src, sb);
+		de.m_root = de.scanDirectory(src);
 		ts = System.nanoTime() - ts;
 		System.out.println(".. initial inventory of " + src + " took " + StringTool.strNanoTime(ts) + " for " + de.m_numFiles + " files in " + de.m_numDirectories + " dirs");
 		return de;
@@ -112,32 +111,21 @@ public class DirectoryInventory implements Serializable {
 	}
 
 	@Nonnull
-	private InvEntry scanDirectory(@Nonnull File src, @Nonnull StringBuilder sb) throws Exception {
-		String dirname = sb.toString();
-		int len = sb.length();
-		int elen = len;
-		if(len > 0) {
-			sb.append('/');
-			elen++;
-		}
+	private InvEntry scanDirectory(@Nonnull File src) throws Exception {
 		File[] far = src.listFiles();
 		if(null == far)
 			throw new IllegalStateException("No results from " + src);
 		List<InvEntry> list = new ArrayList<InvEntry>(far.length);
 		for(File f : far) {
 			//-- Construct the relative path into sb
-			sb.setLength(elen);
-			sb.append(f.getName());
-
 			if(f.isDirectory()) {
-				InvEntry ie = scanDirectory(f, sb);
+				InvEntry ie = scanDirectory(f);
 				list.add(ie);
 				m_numDirectories++;
 			} else {
 				//-- File: add signature
-				String rn = sb.toString();
 				byte[] hash = FileTool.hashFile(f);
-				InvEntry ie = new InvEntry(rn, (int) f.length(), f.lastModified(), hash);
+				InvEntry ie = new InvEntry(f.getName(), (int) f.length(), f.lastModified(), hash);
 				list.add(ie);
 				m_numFiles++;
 			}
@@ -151,7 +139,7 @@ public class DirectoryInventory implements Serializable {
 			dig.update(ie.m_md5hash);
 		}
 		byte[] dirhash = dig.digest();
-		return new InvEntry(dirname, 0, 0, dirhash, ar);
+		return new InvEntry(src.getName(), 0, 0, dirhash, ar);
 	}
 
 
@@ -435,6 +423,9 @@ public class DirectoryInventory implements Serializable {
 		DirectoryInventory c = DirectoryInventory.create(new File("/home/jal/bzr/domui-form/to.etc.domui/src"));
 		res = a.compareTo(c);
 		System.out.println("We have " + res.size() + " changes");
+		for(DeltaRecord dr : res) {
+			System.out.println(dr.getType() + ": " + dr.getPath());
+		}
 
 	}
 
