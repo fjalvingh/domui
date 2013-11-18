@@ -274,7 +274,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 			setDisplay(DisplayType.NONE);
 		} else {
 			m_txt.setText(Msgs.BUNDLE.formatMessage(Msgs.UI_PAGER_TEXT, Integer.valueOf(cp + 1), Integer.valueOf(np), Integer.valueOf(m_table.getModel().getRows())));
-			setDisplay(DisplayType.INLINE);
+			setDisplay(DisplayType.BLOCK);
 		}
 
 		if(cp <= 0) {
