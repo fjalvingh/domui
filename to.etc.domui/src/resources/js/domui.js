@@ -3296,6 +3296,17 @@ WebUI.flareStay = function(id) {
 	});
 };
 
+WebUI.flareStayCustom = function(id, delay, fadeOut) {
+	$('#'+id).fadeIn('fast', function() {
+		$('body,html').bind('mousemove.' + id, function(e){
+			$('body,html').unbind('mousemove.' + id);
+			$('#'+id).delay(delay).fadeOut(fadeOut, function() {
+				$('#'+id).remove();
+			});
+		});
+	});
+};
+
 /** Bulk upload code using swfupload */
 WebUI.bulkUpload = function(id, buttonId, url) {
 	var ctl = $('#'+id);
