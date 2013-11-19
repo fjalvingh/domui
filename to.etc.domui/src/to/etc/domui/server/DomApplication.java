@@ -1684,7 +1684,7 @@ public abstract class DomApplication {
 	 * @param keepAliveInterval
 	 */
 	public synchronized void setKeepAliveInterval(int keepAliveInterval) {
-		if(DeveloperOptions.getBool("domui.autorefresh", true) || DeveloperOptions.getBool("domui.keepalive", false))				// If "autorefresh" has been disabled do not use keepalive either.
+		if(!DeveloperOptions.getBool("domui.log", false) && (DeveloperOptions.getBool("domui.autorefresh", true) || DeveloperOptions.getBool("domui.keepalive", false)))				// If "autorefresh" has been disabled do not use keepalive either.
 			m_keepAliveInterval = keepAliveInterval;
 	}
 

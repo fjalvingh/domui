@@ -201,6 +201,25 @@ public class RadioButton<T> extends NodeBase implements IHasModifiedIndication {
 		m_checked = radioButton == this;
 	}
 
+	@Override
+	@Nullable
+	public IClickBase< ? > getClicked() {
+		IClickBase< ? > clicked = super.getClicked();
+		if(null != clicked)
+			return clicked;
+
+		final IClicked<RadioGroup<T>> c2 = (IClicked<RadioGroup<T>>) getGroup().getClicked();
+		if(c2 != null) {
+			return new IClicked<RadioButton<T>>() {
+				@Override
+				public void clicked(RadioButton<T> clickednode) throws Exception {
+					c2.clicked(getGroup());
+				}
+			};
+		}
+		return c2;
+	}
+
 //	@Override
 //	public boolean internalNeedClickHandler() {
 //		return getClicked() == null;

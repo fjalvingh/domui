@@ -1057,9 +1057,11 @@ public class HtmlTagRenderer implements INodeVisitor {
 				m_o.attr("onclick", sb().append("WebUI.clicked(this, '").append(n.getActualID()).append("', event); return true;").toString());
 			} else if(n.getOnClickJS() != null) {
 				m_o.attr("onclick", n.getOnClickJS());
+			} else if(n.getGroup().getClicked() != null) {
+				m_o.attr("onclick", sb().append("WebUI.clicked(this, '").append(n.getActualID()).append("', event); return true;").toString());
 			}
 			if(null != n.getGroup().getOnValueChanged()) {
-				m_o.attr("onchange", sb().append("WebUI.valuechanged(this, '").append(n.getActualID()).append("', event)").toString());
+				m_o.attr("onchange", sb().append("WebUI.valuechanged(this, '").append(n.getActualID()).append("', event); return true;").toString());
 			}
 		}
 		renderTagend(n, m_o);
