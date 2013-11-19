@@ -1,8 +1,6 @@
 /*** MessageLine ***/
 .ui-msgln {
-	clear: both;
 	padding: 4px 0px;
-/*	display: inline-block;		jal 20130215 This shows messages behind one another.... That should not happen.. */
 }
 .ui-msgln img {
 	float: left;

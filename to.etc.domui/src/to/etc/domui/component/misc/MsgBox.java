@@ -547,8 +547,8 @@ public class MsgBox extends Window {
 		TR row = b.addRow();
 		row.setVerticalAlign(VerticalAlignType.TOP);
 		TD td = row.addCell();
+		td.setVerticalAlign(VerticalAlignType.TOP);
 		td.add(m_theImage);
-		m_theImage.setPosition(PositionType.ABSOLUTE);
 		td.setNowrap(true);
 		td.setWidth("50px");
 
