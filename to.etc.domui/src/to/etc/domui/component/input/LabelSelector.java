@@ -95,7 +95,6 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 
 				@Override
 				public void onSelect(T instance) throws Exception {
-					updateTooltip();
 					addLabelOnInput(instance);
 				}
 
@@ -259,8 +258,10 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 	}
 
 	private void callValueChanged() throws Exception {
-		if(null != m_onValueChanged)
+		if(null != m_onValueChanged) {
 			((IValueChanged<LabelSelector<T>>) m_onValueChanged).onValueChanged(this);
+		}
+		updateTooltip();
 	}
 
 	public boolean isEnableAdding() {
