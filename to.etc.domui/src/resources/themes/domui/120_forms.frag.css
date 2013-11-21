@@ -32,6 +32,10 @@
 	padding-left: 4px;
 }
 
+.ui-f-do textarea {
+	background-color: <%= readonly_bg %>;
+}
+
 /* for forms having the label ABOVE the field (vertical stacked) */
 .ui-fvs-lbl {
 	font-weight: bold;
