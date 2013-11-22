@@ -36,6 +36,9 @@ input, textarea, select {
 	border-radius: 2px;	
 	-webkit-border-radius: 2px;	
 }
+textarea{
+	line-height: normal;
+}
 input[type=checkbox] {
 	border: 0;
 	padding-left: 0px;
