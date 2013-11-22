@@ -32,8 +32,6 @@ import java.util.regex.*;
 
 import javax.annotation.*;
 
-import javax.annotation.*;
-
 /**
  * This static utility class contains a load of string functions. And some other
  * stuff I could not quickly find a place for ;-)
@@ -116,12 +114,21 @@ public class StringTool {
 		return true;
 	}
 
+	/**
+	 * Returns TRUE if the string is a number, possibly containing a '.'.
+	 * @param s
+	 * @return
+	 */
 	static public boolean isNumber(final String s) {
-		try {
-			Integer.parseInt(s.trim());
-			return true;
-		} catch(Exception x) {}
-		return false;
+		int dots = 0;
+		for(int i = s.length(); --i >= 0;) {
+			char c = s.charAt(i);
+			if(c == '.')
+				dots++;
+			else if(c < '0' || c > '9')
+				return false;
+		}
+		return dots < 2;
 	}
 
 	static public boolean isDomainChar(final char c) {
