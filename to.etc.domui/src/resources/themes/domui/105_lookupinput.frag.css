@@ -41,6 +41,10 @@ table.ui-lui-selected {
 	width: 100%;
 }
 
+.ui-lui-v div {
+	width: 104px;
+}
+
 .ui-lui-selected tbody { /*	selected value is rendered with white back and outline, on IE border is not rendred!? */
 	padding: 0px;
 	margin: 0px;
@@ -70,6 +74,7 @@ table.ui-lui-selected {
 input.ui-lui-keyword {
 	min-width: 98px;
 	width: 1%;
+	display: block;
 }
 
 img.ui-lui-waiting{

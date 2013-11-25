@@ -40,6 +40,7 @@
 	height: 18px;
 	margin: 0px 0px 0px 2px;
 	padding: 0px;
+	display: inline-block;
 }
 .ui-lui-keyword-no-res {
 	display: inline-block;
