@@ -19,10 +19,6 @@ div.ui-lui-selected-ro {
 	border: <%= readonly_border %> solid 1px; /* same border color as one used for ui-dspv fields */
 }
 	
-div.ui-lui {
-	width: 12em; /*	this width match with date field picker icon on IE rendering */
-	display: inline-block;
-}
 
 table.ui-lui {
 	width: 12em; /*	this width match with date field picker icon on IE rendering */
@@ -33,74 +29,12 @@ div.ui-lui td{
 	vertical-align: top;
 }
 
-table.ui-lui-selected {
-	width: 100%;
-	white-space: nowrap;
-	padding: 1px;
-}
-
-.ui-lui-v { /* no selection is rendered transparent without border */
-	padding: 0px;
-	margin: 0px;
-	width: 100%;
-}
-
-.ui-lui-selected tbody { /*	selected value is rendered with white back and outline, on IE border is not rendred!? */
-	padding: 0px;
-	margin: 0px;
-	background-color: #ffffff;
-	width: 100%;
-	white-space: nowrap;
-}
-
-.ui-lui-selected-ro tbody {
-	background-color: <%= readonly_bg %>;
-}
 
 .ui-input-err * .ui-lui-v {
 	background-color: #ffe5e5 !important;
 }
 .ui-lui-vcell {
 	width: 99%;
-}
-input.ui-lui-keyword {
-	min-width: 98px;
-}
-
-img.ui-lui-waiting{
-	position:absolute;
-	top:2px;
-	right:2px;
-}
-.ui-lui-keyword-res{
-	color: black;
-}
-.ui-lui-keyword-no-res{
-	color: red;
-}
-.ui-lui-keyword-large{
-	color: red;
-}
-.ui-lui-keyword-popup{
-	position: absolute;
-	left: 0px;
-	top: 18px;
-	background-color: white;
-	border: 1px solid gray;
-	width: 402px;
-	overflow: hidden;
-}
-tr.ui-keyword-popop-rowsel {
-	cursor: pointer;
-	background-color: <%= highlight2_bg %> !important;
-}
-
-tr.ui-keyword-popop-rowsel:hover {
-	background-color: <%= highlight2_bg %> !important;
-}
-
-tr.ui-keyword-popup-row {
-	cursor: pointer;
 }
 
 /*** LookupForm ***/

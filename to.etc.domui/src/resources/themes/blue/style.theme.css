@@ -92,6 +92,9 @@ input, textarea, select {
 	border-radius: 2px;	
 	-webkit-border-radius: 2px;	
 }
+textarea{
+	line-height: normal;
+}
 input[type=checkbox] {
 	border: 0;
 	padding-left: 0px;
@@ -975,6 +978,7 @@ div.ui-lui-selected-ro {
 }
 	
 div.ui-lui {
+	width: 12em; /*	this width match with date field picker icon on IE rendering */
 	display: inline-block;
 }
 
@@ -995,7 +999,7 @@ table.ui-lui-selected {
 .ui-lui-v { /* no selection is rendered transparent without border */
 	padding: 0px;
 	margin: 0px;
-	width: 1%;
+	width: 100%;
 }
 
 .ui-lui-selected tbody { /*	selected value is rendered with white back and outline, on IE border is not rendred!? */
@@ -1113,10 +1117,6 @@ div.ui-lui-selected-ro {
 	border: <%= readonly_border %> solid 1px; /* same border color as one used for ui-dspv fields */
 }
 	
-div.ui-lui {
-	width: 12em; /*	this width match with date field picker icon on IE rendering */
-	display: inline-block;
-}
 
 table.ui-lui {
 	width: 12em; /*	this width match with date field picker icon on IE rendering */
@@ -1127,74 +1127,12 @@ div.ui-lui td{
 	vertical-align: top;
 }
 
-table.ui-lui-selected {
-	width: 100%;
-	white-space: nowrap;
-	padding: 1px;
-}
-
-.ui-lui-v { /* no selection is rendered transparent without border */
-	padding: 0px;
-	margin: 0px;
-	width: 100%;
-}
-
-.ui-lui-selected tbody { /*	selected value is rendered with white back and outline, on IE border is not rendred!? */
-	padding: 0px;
-	margin: 0px;
-	background-color: #ffffff;
-	width: 100%;
-	white-space: nowrap;
-}
-
-.ui-lui-selected-ro tbody {
-	background-color: <%= readonly_bg %>;
-}
 
 .ui-input-err * .ui-lui-v {
 	background-color: #ffe5e5 !important;
 }
 .ui-lui-vcell {
 	width: 99%;
-}
-input.ui-lui-keyword {
-	min-width: 98px;
-}
-
-img.ui-lui-waiting{
-	position:absolute;
-	top:2px;
-	right:2px;
-}
-.ui-lui-keyword-res{
-	color: black;
-}
-.ui-lui-keyword-no-res{
-	color: red;
-}
-.ui-lui-keyword-large{
-	color: red;
-}
-.ui-lui-keyword-popup{
-	position: absolute;
-	left: 0px;
-	top: 18px;
-	background-color: white;
-	border: 1px solid gray;
-	width: 402px;
-	overflow: hidden;
-}
-tr.ui-keyword-popop-rowsel {
-	cursor: pointer;
-	background-color: <%= highlight2_bg %> !important;
-}
-
-tr.ui-keyword-popop-rowsel:hover {
-	background-color: <%= highlight2_bg %> !important;
-}
-
-tr.ui-keyword-popup-row {
-	cursor: pointer;
 }
 
 /*** LookupForm ***/
@@ -1257,6 +1195,10 @@ table.ui-lf-st tr > td.ui-f-lbl:first-child,
 	font-size: <%= font_size %>;
 	vertical-align: top; /* jal 20090818 changed from top to middle to align DateInput buttons better/20100708 jal: back to top because LookupInput causes misalignment of labels after it. */
 	padding-left: 4px;
+}
+
+.ui-f-do textarea {
+	background-color: <%= readonly_bg %>;
 }
 
 /* for forms having the label ABOVE the field (vertical stacked) */
@@ -2423,6 +2365,10 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 .ui-flw-tc {
 	width: 100%;
 	height: 0px;
+}
+.ui-flw-tc .ui-buttonbar {
+	margin: <%= margins_main %>;
+	margin-bottom: 0px;
 }
 
 .ui-flw-bc {

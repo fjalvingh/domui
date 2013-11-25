@@ -17,6 +17,7 @@ div.ui-lui-selected-ro {
 }
 	
 div.ui-lui {
+	width: 12em; /*	this width match with date field picker icon on IE rendering */
 	display: inline-block;
 }
 
@@ -37,7 +38,7 @@ table.ui-lui-selected {
 .ui-lui-v { /* no selection is rendered transparent without border */
 	padding: 0px;
 	margin: 0px;
-	width: 1%;
+	width: 100%;
 }
 
 .ui-lui-selected tbody { /*	selected value is rendered with white back and outline, on IE border is not rendred!? */
