@@ -97,6 +97,13 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 	private DefaultButton m_collapseButton;
 
+	private DefaultButton m_clearButton;
+
+	public @Nullable
+	DefaultButton getClearButton() {
+		return m_clearButton;
+	}
+
 	private Table m_table;
 
 	private TBody m_tbody;
@@ -538,7 +545,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		});
 		addButtonItem(b, 100, ButtonMode.NORMAL);
 
-		b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CLEAR));
+		m_clearButton = b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CLEAR));
 		b.setIcon("THEME/btnClear.png");
 		b.setTestID("clearButton");
 		b.setClicked(new IClicked<NodeBase>() {

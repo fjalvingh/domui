@@ -21,6 +21,9 @@ import to.etc.webapp.annotations.*;
  * Created on May 11, 2012
  */
 final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
+
+	static public final String NUMERIC_CSS_CLASS = "ui-numeric";
+
 	@Nonnull
 	final private ClassMetaModel m_metaModel;
 
@@ -261,6 +264,9 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 			add(cd);
 			cd.setWidth(width);
 			cd.setCssClass(cssclass);
+			if(NUMERIC_CSS_CLASS.equals(cssclass)) {
+				cd.setHeaderCssClass(cssclass);
+			}
 			cd.setNowrap(nowrap);
 			cd.setColumnLabel(caption);
 			sort = defineClassProperty(conv, convclz, nodeRenderer, nrclass, sort, clickHandler, defaultsort, sortHelper, cd);
@@ -345,8 +351,8 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 		scd.setNowrap(nowrap);
 		scd.setNumericPresentation(xdp.getNumericPresentation());
 		if(scd.getNumericPresentation() != null && scd.getNumericPresentation() != NumericPresentation.UNKNOWN) {
-			scd.setCssClass("ui-numeric");
-			scd.setHeaderCssClass("ui-numeric");
+			scd.setCssClass(NUMERIC_CSS_CLASS);
+			scd.setHeaderCssClass(NUMERIC_CSS_CLASS);
 		}
 		if(clickHandler != null) {
 			scd.setCellClicked((ICellClicked<V>) clickHandler);
@@ -374,8 +380,8 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 				setSortColumn(cd, sort);
 		}
 		if(pmm.getNumericPresentation() != null && pmm.getNumericPresentation() != NumericPresentation.UNKNOWN) {
-			cd.setCssClass("ui-numeric");
-			cd.setHeaderCssClass("ui-numeric");
+			cd.setCssClass(NUMERIC_CSS_CLASS);
+			cd.setHeaderCssClass(NUMERIC_CSS_CLASS);
 		}
 		if(clickHandler != null) {
 			cd.setCellClicked((ICellClicked<V>) clickHandler);
@@ -423,8 +429,8 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	private <V> SimpleColumnDef<V> addExpandedDisplayProp(@Nonnull ExpandedDisplayProperty<V> xdp) {
 		SimpleColumnDef<V> scd = new SimpleColumnDef<V>(this, xdp);
 		if(scd.getNumericPresentation() != null && scd.getNumericPresentation() != NumericPresentation.UNKNOWN) {
-			scd.setCssClass("ui-numeric");
-			scd.setHeaderCssClass("ui-numeric");
+			scd.setCssClass(NUMERIC_CSS_CLASS);
+			scd.setHeaderCssClass(NUMERIC_CSS_CLASS);
 		}
 
 		m_columnList.add(scd);
