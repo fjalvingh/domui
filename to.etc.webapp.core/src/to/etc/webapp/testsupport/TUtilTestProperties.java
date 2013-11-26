@@ -437,5 +437,31 @@ public class TUtilTestProperties {
 		}
 	}
 
+	public static synchronized boolean findBoolean(@Nonnull String propertyName, @Nonnull boolean defaultValue) {
+		if(!m_checkedProperties) {
+			findTestProperties();
+		}
+		if(m_properties == null)
+			return defaultValue;
+		String s = m_properties.getProperty(propertyName);
+		if(s == null)
+			return defaultValue;
+		s = s.toLowerCase();
+		Boolean b = Boolean.valueOf(s.startsWith("true") || s.startsWith("yes"));
+		return b.booleanValue();
+	}
+
+	static synchronized public String findString(final String name, final String def) {
+		if(!m_checkedProperties) {
+			findTestProperties();
+		}
+		if(m_properties == null)
+			return def;
+		String s = m_properties.getProperty(name);
+		if(s != null)
+			return s;
+		return def;
+	}
+
 
 }
