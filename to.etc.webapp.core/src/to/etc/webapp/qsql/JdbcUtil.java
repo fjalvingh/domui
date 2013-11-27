@@ -421,6 +421,35 @@ public class JdbcUtil {
 	}
 
 	/**
+	 * Provides interface to execute sql as {@link CallableStatement} that is updating data and also possibly return some values.
+	 * Out values should be specified as {@link JdbcOutParam}.
+	 *
+	 * @param dbc
+	 * @param sql i.e. "begin insert into table1(colA, colB, colC) values (?,?,?) returning colId into ? ; end;"
+	 * @param args
+	 * @return T in case update changed any data, otherwise F.
+	 * @throws SQLException
+	 */
+	public static boolean executeCallableStatement(@Nonnull Connection dbc, @Nonnull String sql, @Nullable Object... args) throws SQLException {
+		CallableStatement ps = null;
+		try {
+			ps = dbc.prepareCall(sql);
+			setParameters(ps, 1, args);
+			if(ps.executeUpdate() == 1) {
+				readParameters(ps, 1, args);
+				return true;
+			} else {
+				return false;
+			}
+		} finally {
+			try {
+				if(ps != null)
+					ps.close();
+			} catch(Exception x) {}
+		}
+	}
+
+	/**
 	 * Provides interface to call Oracle stored procedures and functions.
 	 * In case that called function returns boolean use {@link JdbcUtil#oracleSpCallReturningBool(Connection, String, Object...)}
 	 * Support all three type of parameters:<BR/>
