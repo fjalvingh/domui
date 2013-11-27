@@ -437,31 +437,37 @@ public class TUtilTestProperties {
 		}
 	}
 
-	public static synchronized boolean findBoolean(@Nonnull String propertyName, @Nonnull boolean defaultValue) {
-		if(!m_checkedProperties) {
-			findTestProperties();
-		}
-		if(m_properties == null)
-			return defaultValue;
-		String s = m_properties.getProperty(propertyName);
-		if(s == null)
-			return defaultValue;
-		s = s.toLowerCase();
-		Boolean b = Boolean.valueOf(s.startsWith("true") || s.startsWith("yes"));
-		return b.booleanValue();
+	/**
+	 * Find boolean value stored in test.properties file based on property name.
+	 * If value doesn't exist return default one.
+	 *
+	 * @param propertyName name of property requested from properties file
+	 * @param defaultValue default value returned if property can't be found
+	 * @return stored or default boolean value
+	 */
+	public static boolean getBoolean(@Nonnull final String propertyName, final boolean defaultValue) {
+		String s = getString(propertyName, defaultValue ? "true" : "false");
+		return ("true".equalsIgnoreCase(s) || "yes".equalsIgnoreCase(s));
 	}
 
-	static synchronized public String findString(final String name, final String def) {
-		if(!m_checkedProperties) {
-			findTestProperties();
-		}
-		if(m_properties == null)
-			return def;
-		String s = m_properties.getProperty(name);
+	/**
+	 * Find string value stored in test.properties file based on property name.
+	 * If value doesn't exist return default one.
+	 *
+	 * @param propertyName name of property requested from properties file
+	 * @param defaultValue default value returned if property can't be found
+	 * @return stored or default string value
+	 */
+	@Nullable
+	public static String getString(@Nonnull final String propertyName, @Nullable final String defaultValue) {
+		Properties props = findTestProperties();
+		if(props == null)
+			return defaultValue;
+
+		String s = props.getProperty(propertyName);
 		if(s != null)
 			return s;
-		return def;
+		return defaultValue;
 	}
-
 
 }
