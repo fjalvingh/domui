@@ -13,7 +13,12 @@
 }
 
 div.ui-lui-selected-ro {
-	border: <%= readonly_border %> solid 1px; /* same border color as one used for ui-dspv fields */
+	border: none !important;
+	margin-bottom: 0px;
+}
+
+div.ui-lui-selected-ro td {
+	padding: 0px;
 }
 	
 div.ui-lui {
