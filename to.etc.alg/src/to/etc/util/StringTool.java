@@ -392,7 +392,7 @@ public class StringTool {
 	 *	maxlen characters.
 	 */
 	public static String truncLength(final String s, final int maxlen) {
-		if(s.length() < maxlen)
+		if(s == null || s.length() < maxlen)
 			return s;
 		return s.substring(0, maxlen);
 	}
