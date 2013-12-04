@@ -56,6 +56,8 @@ public class AppFilter implements Filter {
 
 	static private String m_appContext;
 
+	@Nullable
+	static private IRequestResponseWrapper m_ioWrapper;
 	/**
 	 * If a reloader is needed for debug/development pps this will hold the reloader.
 	 */
@@ -65,6 +67,10 @@ public class AppFilter implements Filter {
 	private ServerClientRegistry m_clientRegistry;
 
 	private ILoginDeterminator m_loginDeterminator;
+
+	static public synchronized void setIoWrapper(@Nonnull IRequestResponseWrapper ww) {
+		m_ioWrapper = ww;
+	}
 
 	@Override
 	public void destroy() {
@@ -82,6 +88,14 @@ public class AppFilter implements Filter {
 	public void doFilter(final ServletRequest req, final ServletResponse res, final FilterChain chain) throws IOException, ServletException {
 		try {
 			HttpServletRequest rq = (HttpServletRequest) req;
+			HttpServletResponse response = (HttpServletResponse) res;
+			IRequestResponseWrapper ww = m_ioWrapper;
+			if(null != ww) {
+				rq = ww.getWrappedRequest(rq);
+				response = ww.getWrappedResponse(response);
+			}
+
+
 			String userid = m_loginDeterminator.getLoginData(rq);
 			if(null != userid)
 				m_clientRegistry.registerRequest(rq, userid);

@@ -362,6 +362,8 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 			o().writeRaw("WebUI.setHideExpired();");
 		}
 
+		//-- Add the page name as a parameter to the body, so that WebDriver tests can see which page is loaded.
+		o().writeRaw("WebUI.definePageName('" + page.getBody().getClass().getName() + "');");
 
 		//		int kit = ctx().getApplication().getKeepAliveInterval();
 		//		if(kit > 0) {
