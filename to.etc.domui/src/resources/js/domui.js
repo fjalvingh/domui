@@ -723,6 +723,10 @@ $.extend(WebUI, {
 	setHideExpired : function() {
 		WebUI._hideExpiredMessage = true;
 	},
+        
+	definePageName : function(pn) {
+	    $(document.body).attr("pageName", pn);
+	},
 
 	log : function() {
 		if (!window.console || !window.console.debug)
