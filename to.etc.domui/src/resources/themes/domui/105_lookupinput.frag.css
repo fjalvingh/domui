@@ -46,7 +46,7 @@ table.ui-lui-selected {
 	width: 100%;
 }
 
-.ui-lui-v div {
+.ui-lui-v > div {
 	width: 104px;
 }
 
