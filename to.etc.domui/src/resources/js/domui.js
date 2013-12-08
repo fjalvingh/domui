@@ -818,6 +818,12 @@ $.extend(WebUI, {
 				if (fck) {
 					val = fck.GetXHTML();
 				}
+			} else if(sel.className == 'ui-ckeditor') {
+				//-- Locate the variable for this editor.
+				var editor = CKEDITOR.instances[sel.id];
+				if(null == editor)
+					throw "Cannot locate editor with id="+sel.id;
+				val = editor.getData();
 			} else {
 				// if($.browser.msie) { // The MS idiots remove newlines from
 				// value....
@@ -3237,6 +3243,57 @@ $.extend(WebUI, {
 		}
 	},
 
+	// CK editor support
+	_ckEditorMap : {},
+
+	/**
+	 * Register fckeditor for extra handling, if needed.
+	 * 
+	 * @param id
+	 */
+	registerCkEditorId : function(id, ckeInstance) {
+		WebUI._ckEditorMap[id] = [ckeInstance, null];
+	},
+
+	unregisterCkEditorId : function(id) {
+		try {
+			var editorBindings = WebUI._ckEditorMap[id];
+			//do something with it if needed later...
+			WebUI._ckEditorMap[id] = null;
+			if (editorBindings && editorBindings[1]){
+				$(window).unbind('resize', editorBindings[1]); 
+			} 
+		} catch (ex) {
+			//nothing specific here...
+		}
+	},
+
+	getCkEditorInstance : function(id) {
+		try {
+			return WebUI._ckEditorMap[id][0];
+		} catch (ex) {
+			//nothing specific here...
+		}
+	},
+	
+	//piece of support needed for CK editor to properly fix heights
+	CKeditor_OnComplete : function(id) {
+		var elem = document.getElementById(id);
+		WebUI.doCustomUpdates();
+		var parentDiv = elem.parentNode;
+		var editor = WebUI._ckEditorMap[id][0];
+		var resizeFunction = function(ev) {
+			try{
+				editor.resize($(parentDiv).width() - 2, $(parentDiv).height());
+			}catch (ex){
+				//nothing specific here...
+			}
+		};
+		WebUI._ckEditorMap[id] = [editor, resizeFunction];
+		$(window).bind('resize', resizeFunction);
+		$(window).trigger('resize');	
+	},
+	
 	// connects input to usually hidden list select and provides autocomplete
 	// feature inside input. Down arrow does show and focus select list.
 	initAutocomplete : function(inputId, selectId) {

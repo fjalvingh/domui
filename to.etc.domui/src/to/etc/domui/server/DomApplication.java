@@ -421,7 +421,7 @@ public abstract class DomApplication {
 				throw new IllegalArgumentException("The 'extension' parameter contains too many dots...");
 			m_urlExtension = ext;
 		}
-		
+
 		m_developmentMode = development;
 		if(m_developmentMode && DeveloperOptions.getBool("domui.traceallocations", true))
 			NodeBase.internalSetLogAllocations(true);
@@ -435,7 +435,7 @@ public abstract class DomApplication {
 			m_uiTestMode = true;
 
 		initialize(pp);
-		
+
 		/*
 		 * If we're running in development mode then we auto-reload changed pages when the developer changes
 		 * them. It can be reset by using a developer.properties option.
@@ -744,6 +744,7 @@ public abstract class DomApplication {
 		 * FIXME Same as above, this is for loading the FCKEditor.
 		 */
 		addHeaderContributor(HeaderContributor.loadJavascript("$fckeditor/fckeditor.js"), -760);
+		addHeaderContributor(HeaderContributor.loadJavascript("$ckeditor/ckeditor.js"), -762);
 	}
 
 
@@ -1708,7 +1709,7 @@ public abstract class DomApplication {
 			}
 		}
 	}
-	
+
 	synchronized public void setUiTestMode(boolean value){
 		m_uiTestMode = value;
 	}
