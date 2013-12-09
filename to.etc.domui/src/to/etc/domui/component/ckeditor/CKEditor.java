@@ -97,7 +97,7 @@ public class CKEditor extends TextArea {
 	@Override
 	public void createContent() throws Exception {
 		StringBuilder sb = new StringBuilder(1024);
-		m_vn = "_fck" + getActualID();
+		m_vn = "_ck" + getActualID();
 
 
 		sb.append("var ").append(m_vn).append(" = CKEDITOR.replace('").append(getActualID()).append("', {");
@@ -113,6 +113,9 @@ public class CKEditor extends TextArea {
 
 		if(!isToolbarStartExpanded()) {
 			sb.append(", toolbarStartupExpanded: false\n");
+			sb.append(", toolbarCanCollapse: true\n");
+		} else {
+			sb.append(", toolbarCanCollapse: false\n");
 		}
 		sb.append(", resize_enabled: false\n");
 
@@ -121,7 +124,7 @@ public class CKEditor extends TextArea {
 			case DOMUI:
 			case FULL:
 				//sb.append(", extraPlugins : 'domuiimage,domuioddchar,justify,colorbutton,smiley,font'\n"); FIXME: vmijic Hm, seems like colorbutton has the problem, we have to exclude it...?
-				sb.append(", extraPlugins : 'domuiimage,domuioddchar,justify,smiley,font'\n");
+				sb.append(", extraPlugins : 'domuiimage,domuioddchar,justify,colorbutton,smiley,font'\n");
 				break;
 			case BASIC:
 			case TXTONLY:
@@ -158,35 +161,6 @@ public class CKEditor extends TextArea {
 		m_internalHeight = height;
 	}
 
-/*	private void appendConfig(final StringBuilder sb, final String option, final String value) {
-		sb.append(m_vn).append(".Config['").append(option).append("'] = ").append(value).append(';'); // Disable this connector component
-	}
-*/
-/*	private void appendConnectorConfig(final StringBuilder sb, final String option, final String value) {
-		if(getFileSystem() == null) {
-			//-- Disable connector in config.
-			sb.append(m_vn).append(".Config['").append(option).append("'] = false;"); // Disable this connector component
-			return;
-		}
-
-		//-- Set the connector's URL proper.
-		sb.append(m_vn).append(".Config['").append(option).append("URL'] = '"); // Start URL base path
-		sb.append(UIContext.getRequestContext().getRelativePath("$fckeditor/editor/"));
-		sb.append("filemanager/browser/default/browser.html?Type=Image&Connector=");
-		sb.append(UIContext.getRequestContext().getRelativePath(CKEditResPart.class.getName()));
-		sb.append("/");
-		sb.append(getPage().getConversation().getFullId());
-		sb.append("/");
-		sb.append(getPage().getBody().getClass().getName());
-		sb.append("/");
-		sb.append(getActualID());
-		sb.append("/");
-		sb.append(value);
-		sb.append(".part");
-
-		sb.append("';");
-	}
-*/
 	private void appendOption(@Nonnull final StringBuilder sb, @Nonnull final String option, @Nonnull final String value) {
 		sb.append(m_vn).append(".").append(option).append(" = ");
 		try {
@@ -223,8 +197,8 @@ public class CKEditor extends TextArea {
 	}
 
 	/**
-	 * Handle {@link CKEditor#WEBUI_CK_DOMUIIMAGE_ACTION} activity on FCKEditor customized commands that interacts with domui.
-	 * Handle {@link CKEditor#WEBUI_CK_DOMUIODDCHAR_ACTION} activity on FCKEditor customized commands that interacts with domui.
+	 * Handle {@link CKEditor#WEBUI_CK_DOMUIIMAGE_ACTION} activity on CKEditor customized commands that interacts with domui.
+	 * Handle {@link CKEditor#WEBUI_CK_DOMUIODDCHAR_ACTION} activity on CKEditor customized commands that interacts with domui.
 	 *
 	 * @see to.etc.domui.dom.html.Div#componentHandleWebAction(to.etc.domui.server.RequestContextImpl, java.lang.String)
 	 */

@@ -741,10 +741,9 @@ public abstract class DomApplication {
 		//-- Localized calendar resources are added per-page.
 
 		/*
-		 * FIXME Same as above, this is for loading the FCKEditor.
+		 * FIXME Same as above, this is for loading the CKEditor.
 		 */
-		addHeaderContributor(HeaderContributor.loadJavascript("$fckeditor/fckeditor.js"), -760);
-		addHeaderContributor(HeaderContributor.loadJavascript("$ckeditor/ckeditor.js"), -762);
+		addHeaderContributor(HeaderContributor.loadJavascript("$ckeditor/ckeditor.js"), -760);
 	}
 
 

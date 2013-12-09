@@ -50,7 +50,6 @@ $.extend(CkeditorDomUIOddChar, {
 	 */
 	cancel : function(ckId){
 		var oEditor = WebUI.getCkEditorInstance(ckId);
-		//all we do is to get focus back to editor
 		oEditor.focus();
 	}
 });

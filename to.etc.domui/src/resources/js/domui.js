@@ -810,15 +810,7 @@ $.extend(WebUI, {
 		var q1 = $("textarea").get();
 		for ( var i = q1.length; --i >= 0;) {
 			var sel = q1[i];
-			if (sel.className == 'ui-fck') {
-				val = "";
-
-				// -- Get the FCKEditor that wrapped this class,
-				var fck = FCKeditorAPI.GetInstance(sel.id);
-				if (fck) {
-					val = fck.GetXHTML();
-				}
-			} else if(sel.className == 'ui-ckeditor') {
+			if (sel.className == 'ui-ckeditor') {
 				//-- Locate the variable for this editor.
 				var editor = CKEDITOR.instances[sel.id];
 				if(null == editor)
@@ -3216,38 +3208,11 @@ $.extend(WebUI, {
 		return ($.browser.msie && (parseInt($.browser.version) >= 8 || (parseInt($.browser.version) == 7 && document.documentMode >= 8)));
 	},
 
-	// FCK editor support
-	_fckEditorIDs : [],
-
-	/**
-	 * Register fckeditor for extra handling, if needed.
-	 * 
-	 * @param id
-	 */
-	registerFckEditorId : function(id) {
-		if (!WebUI._fckEditorIDs) {
-			WebUI._fckEditorIDs = [];
-		}
-		WebUI._fckEditorIDs.push(id);
-	},
-
-	unregisterFckEditorId : function(id) {
-		try {
-			var index = WebUI._fckEditorIDs.indexOf(id);
-			if (index > -1) {
-				WebUI._fckEditorIDs.splice(index, 1);
-			}
-		} catch (ex) {
-			// nothing to do -> no _fckEditorIDs means nothing to unregister
-			// from
-		}
-	},
-
 	// CK editor support
 	_ckEditorMap : {},
 
 	/**
-	 * Register fckeditor for extra handling, if needed.
+	 * Register ckeditor for extra handling when needed.
 	 * 
 	 * @param id
 	 */
@@ -3258,7 +3223,6 @@ $.extend(WebUI, {
 	unregisterCkEditorId : function(id) {
 		try {
 			var editorBindings = WebUI._ckEditorMap[id];
-			//do something with it if needed later...
 			WebUI._ckEditorMap[id] = null;
 			if (editorBindings && editorBindings[1]){
 				$(window).unbind('resize', editorBindings[1]); 
@@ -3276,10 +3240,10 @@ $.extend(WebUI, {
 		}
 	},
 	
-	//piece of support needed for CK editor to properly fix heights
+	//piece of support needed for CK editor to properly fix its size
 	CKeditor_OnComplete : function(id) {
-		var elem = document.getElementById(id);
 		WebUI.doCustomUpdates();
+		var elem = document.getElementById(id);
 		var parentDiv = elem.parentNode;
 		var editor = WebUI._ckEditorMap[id][0];
 		var resizeFunction = function(ev) {
@@ -3953,30 +3917,6 @@ $(document).ajaxComplete(function() {
 	WebUI.handleCalendarChanges();
 	WebUI.doCustomUpdates();
 });
-
-// piece of support needed for FCK editor to properly fix heights in IE8+
-function FCKeditor_OnComplete(editorInstance) {
-	if (WebUI.isIE8orNewer()) {
-		for ( var i = 0; i < WebUI._fckEditorIDs.length; i++) {
-			var fckId = WebUI._fckEditorIDs[i];
-			var fckIFrame = document.getElementById(fckId + '___Frame');
-			if (fckIFrame) {
-				$(fckIFrame.contentWindow.window).bind('resize', function() {
-					FCKeditor_fixLayout(fckIFrame, fckId);
-				});
-				$(fckIFrame.contentWindow.window).trigger('resize');
-			}
-		}
-	}
-
-	WebUI.doCustomUpdates();
-}
-
-function FCKeditor_fixLayout(fckIFrame, fckId) {
-	if (fckIFrame) {
-		fckIFrame.contentWindow.Domui_fixLayout(fckId);
-	}
-};
 
 $(document).keydown(function(e){
 	addPaggerAccessKeys(e);

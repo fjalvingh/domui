@@ -38,7 +38,7 @@ import to.etc.domui.trouble.*;
 
 /**
  * This part handles requests from the HtmlEditor component (using the
- * FCKeditor) for images and other files. When called it always gets
+ * CKeditor) for images and other files. When called it always gets
  * passed the conversation and the ID of the editor in question. It
  * uses that to retrieve the IEditorFileSystem implementation added
  * on it. That filesystem is then used to generate the required
