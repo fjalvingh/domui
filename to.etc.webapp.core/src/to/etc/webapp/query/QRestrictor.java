@@ -159,6 +159,29 @@ abstract public class QRestrictor<T> {
 		return new QRestrictorImpl<T>(this, and);
 	}
 
+	/**
+	 * This merges the "other" restrictor's restrictions inside this restriction. Both
+	 * restrictions are merged by using an "and" between both complete sets. Only "this"
+	 * restriction is altered; the original is kept as-is (the nodes are copied).
+	 *
+	 * @param other
+	 */
+	public void mergeCriteria(@Nonnull QRestrictor<T> other) {
+		QOperatorNode othertree = other.getRestrictions();
+		if(null == othertree)
+			return;
+
+		//-- Duplicate the other restrictions set, then "and" it with this entire set.
+		othertree = othertree.dup();
+		QOperatorNode thistree = getRestrictions();
+		if(null == thistree) {
+			setRestrictions(othertree);
+			return;
+		}
+
+		QMultiNode and = new QMultiNode(QOperation.AND, new QOperatorNode[]{thistree, othertree});
+		setRestrictions(and);
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Adding selection restrictions (where clause)		*/

@@ -41,6 +41,11 @@ public class QSqlRestriction extends QOperatorNode {
 	}
 
 	@Override
+	public QSqlRestriction dup() {
+		return new QSqlRestriction(getSql(), getParameters(), getTypes());
+	}
+
+	@Override
 	public void visit(@Nonnull QNodeVisitor v) throws Exception {
 		v.visitSqlRestriction(this);
 	}

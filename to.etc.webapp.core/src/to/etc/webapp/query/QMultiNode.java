@@ -45,6 +45,15 @@ public class QMultiNode extends QOperatorNode {
 		m_children = new ArrayList<QOperatorNode>();
 	}
 
+	@Override
+	public QMultiNode dup() {
+		QMultiNode n = new QMultiNode(getOperation());
+		for(QOperatorNode child : m_children) {
+			n.add(child.dup());
+		}
+		return n;
+	}
+
 	public QMultiNode(QOperation operation, QOperatorNode[] ch) {
 		super(operation);
 		m_children = new ArrayList<QOperatorNode>(ch.length);

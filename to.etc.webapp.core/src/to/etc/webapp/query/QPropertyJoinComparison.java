@@ -45,6 +45,11 @@ public class QPropertyJoinComparison extends QOperatorNode {
 		m_subProperty = subProperty;
 	}
 
+	@Override
+	public QPropertyJoinComparison dup() {
+		return new QPropertyJoinComparison(getOperation(), getParentProperty(), getSubProperty());
+	}
+
 	@Nonnull
 	public String getParentProperty() {
 		return m_parentProperty;
