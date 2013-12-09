@@ -638,9 +638,9 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		if(null != root) {
 			//-- We merge the "root" criteria inside the "child" criteria. We do that by a complete "and", as follows:
 			//-- result = (root criteria) AND (entered criteria), and we ignore any "other" part of the root criterion.
-			enteredCriteria.mergeCriteria(root);
+			result.mergeCriteria(root);
 		}
-		return root;
+		return result;
 	}
 
 	/*--------------------------------------------------------------*/
