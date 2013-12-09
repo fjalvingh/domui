@@ -41,7 +41,7 @@ $.extend(CkeditorDomUIImage, {
 	 * Method that is exected when some image url needs to be added to editor (usually as rendered response from domui handler)
 	 */
 	addImage : function(ckId, imageUrl){
-		var oEditor = WebUI.getCkEditorInstance(ckId);
+		var oEditor = CKEDITOR.instances[ckId];
 		var elem = new CKEDITOR.dom.element('img', oEditor.document);
 		elem.setAttribute('src', imageUrl);
 		oEditor.insertElement(elem);
@@ -51,7 +51,7 @@ $.extend(CkeditorDomUIImage, {
 	 * Method that is exected when image dialog is canceled (usually as rendered response from domui handler)
 	 */
 	cancel : function(ckId){
-		var oEditor = WebUI.getCkEditorInstance(ckId);
+		var oEditor = CKEDITOR.instances[ckId];
 		oEditor.focus();
 	}
 });

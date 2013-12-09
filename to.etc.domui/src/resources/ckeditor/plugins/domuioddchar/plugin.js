@@ -41,7 +41,7 @@ $.extend(CkeditorDomUIOddChar, {
 	 * Method that is exected when selected 'odd character dialog string' needs to be added to editor (usually as rendered response from domui handler)
 	 */
 	addString : function(ckId, input){
-		var oEditor = WebUI.getCkEditorInstance(ckId);
+		var oEditor = CKEDITOR.instances[ckId];
 		oEditor.insertText(input);
 	},
 
@@ -49,7 +49,7 @@ $.extend(CkeditorDomUIOddChar, {
 	 * Method that is exected when 'odd character dialog string' is canceled (usually as rendered response from domui handler)
 	 */
 	cancel : function(ckId){
-		var oEditor = WebUI.getCkEditorInstance(ckId);
+		var oEditor = CKEDITOR.instances[ckId];
 		oEditor.focus();
 	}
 });

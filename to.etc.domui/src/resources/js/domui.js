@@ -3208,18 +3208,24 @@ $.extend(WebUI, {
 		return ($.browser.msie && (parseInt($.browser.version) >= 8 || (parseInt($.browser.version) == 7 && document.documentMode >= 8)));
 	},
 
-	// CK editor support
+	// CK editor support, map of key (id of editor) value (pair of [editor instance, assigned resize function])
 	_ckEditorMap : {},
 
 	/**
-	 * Register ckeditor for extra handling when needed.
+	 * Register ckeditor for extra handling that is set in CKeditor_OnComplete.
 	 * 
 	 * @param id
+	 * @param ckeInstance
 	 */
 	registerCkEditorId : function(id, ckeInstance) {
 		WebUI._ckEditorMap[id] = [ckeInstance, null];
 	},
 
+	/**
+	 * Unregister ckeditor and removes handlings bound to it.
+	 *  
+	 * @param id
+	 */
 	unregisterCkEditorId : function(id) {
 		try {
 			var editorBindings = WebUI._ckEditorMap[id];
@@ -3228,19 +3234,15 @@ $.extend(WebUI, {
 				$(window).unbind('resize', editorBindings[1]); 
 			} 
 		} catch (ex) {
-			//nothing specific here...
+			log('error in unregisterCkEditorId: ' + ex);
 		}
 	},
 
-	getCkEditorInstance : function(id) {
-		try {
-			return WebUI._ckEditorMap[id][0];
-		} catch (ex) {
-			//nothing specific here...
-		}
-	},
-	
-	//piece of support needed for CK editor to properly fix its size
+	/**
+	 * Piece of support needed for CK editor to properly fix its size, using _OnComplete handler. 
+	 * 
+	 * @param id
+	 */
 	CKeditor_OnComplete : function(id) {
 		WebUI.doCustomUpdates();
 		var elem = document.getElementById(id);
@@ -3250,7 +3252,7 @@ $.extend(WebUI, {
 			try{
 				editor.resize($(parentDiv).width() - 2, $(parentDiv).height());
 			}catch (ex){
-				//nothing specific here...
+				log('error in CKeditor_OnComplete#resizeFunction: ' + ex);
 			}
 		};
 		WebUI._ckEditorMap[id] = [editor, resizeFunction];

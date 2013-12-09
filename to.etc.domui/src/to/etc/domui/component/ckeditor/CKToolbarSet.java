@@ -25,7 +25,15 @@
 package to.etc.domui.component.ckeditor;
 
 
+/**
+ * Set of predefined toolbar configurations for CKEditor.
+ * For more details check
+ * to.etc.domui/src/resources/ckeditor/domuiconfig.js
+ *
+ *
+ * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
+ * Created on Dec 9, 2013
+ */
 public enum CKToolbarSet {
-	TXTONLY, BASIC, DOMUI,
-	FULL
+	TXTONLY, BASIC, DOMUI, FULL,
 }
