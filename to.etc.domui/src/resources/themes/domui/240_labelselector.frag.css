@@ -14,10 +14,10 @@
 	-moz-border-radius: 3px;
 	border-radius: 3px;
 	-webkit-border-radius: 3px;
-	border: 1px solid #999;
+	border: 1px solid <%= multiple_lookup_label_color %>;
 	margin: 1px;
 	padding: 2px;
-	background-color: <%= label_selector_item %>;
+	background-color: <%= multiple_lookup_label_border %>;
 }
 .ui-lsel-btn {
 	display: inline-block;

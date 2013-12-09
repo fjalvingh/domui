@@ -7,22 +7,26 @@
 }
 
 .ui-mli-itm { /* selected items */
-	background-color: <%= selected_bg %>;
+	display: inline;
 	float: left;
-	padding-left: 5px;
-	margin-left: 1px;
-	margin-right: 1px;
-	margin-top: 3px;
-	margin-bottom: 3px;	
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border: 1px solid <%= multiple_lookup_label_color %>;
+	margin: 1px;
+	padding: 2px;
+	padding-bottom: 0px;
+	background-color: <%= multiple_lookup_label_border %>;
+}
+
+.ui-mli-itm label {
 	vertical-align: middle;
-	-webkit-border-top-left-radius: 5px;
-	-webkit-border-bottom-right-radius: 5px;
-	-moz-border-radius-topleft: 5px;
-	-moz-border-radius-bottomright: 5px;
-	border-top-left-radius: 5px;
-	border-bottom-right-radius: 5px;
-	box-shadow : 3px 3px 3px #CCCCCC;
-	-moz-box-shadow : 3px 3px 3px #CCCCCC;
-	zoom: 1; /* FIXME: bojan needs to specify why this is needed! */ 
-	*display:inline;
+}
+
+.ui-mli-itm img {
+	display: inline-block;
+	margin-left: 5px;
+	width: 14px;
+	height: 14px;
+	vertical-align: top;
 }
