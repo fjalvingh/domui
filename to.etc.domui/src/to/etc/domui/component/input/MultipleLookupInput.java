@@ -249,6 +249,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>> {
 					if(ovc != null) {
 						ovc.onValueChanged(MultipleLookupInput.this);
 					}
+					component.setFocus();
 				}
 			}
 		});
