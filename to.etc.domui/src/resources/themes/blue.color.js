@@ -100,3 +100,7 @@ tab_pnl_img = "tab-all-domui.png";
 
 //label selector color 
 label_selector_item = '#bfd1f3';
+
+//multiple lookup labels
+multiple_lookup_label_color = '#ffa21e';
+multiple_lookup_label_border = '#fff2ab';
