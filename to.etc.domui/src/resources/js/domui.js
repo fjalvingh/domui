@@ -3708,6 +3708,12 @@ WebUI.flareStayCustom = function(id, delay, fadeOut) {
 	});
 };
 
+WebUI.replaceBrokenImageSrc = function(id, alternativeImage) {
+	$('img#' + id).error(function() {
+		$(this).attr("src", alternativeImage);
+	});
+};
+
 /** Bulk upload code using swfupload */
 WebUI.bulkUpload = function(id, buttonId, url) {
 	var ctl = $('#' + id);
