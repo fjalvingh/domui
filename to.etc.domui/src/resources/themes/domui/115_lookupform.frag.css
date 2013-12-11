@@ -45,7 +45,11 @@ div.ui-lui td{
 /*** Button bar ***/
 div.ui-lf-ebb {
 	margin-top		: 8px;
-	padding-bottom	: 10px;
+	padding-bottom	: 8px;
+}
+
+div.ui-lf-ebb button {
+	margin-bottom: 2px !important;
 }
 
 /*** Layout for table with input data in two, or more, rows ***/
