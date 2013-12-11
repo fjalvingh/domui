@@ -810,18 +810,10 @@ a.ui-brc-l, a.ui-brc-l:hover a.ui-brc-l :VISITED, a.ui-brc-l:ACTIVE {
 /*** 090_buttonbar.frag.css ***/
 /*** ButtonBar component ***/
 .ui-buttonbar {
-	margin-bottom: 10px;
+	margin-bottom: 8px;
 }
-.ui-bb-left {
-	padding: 0; margin: 0;
-	display: none;
-	width: 0px;
-	height: 0px;
-}
-.ui-bb-right {
-	padding: 0; margin: 0;
-	width: 29px;
-/*	height: 36px;	jal 20121009 Do not add height: empty button bar must be empty. */
+.ui-buttonbar button {
+	margin-bottom: 2px !important;
 }
 .ui-bb-middle {
 	padding: 0; margin: 0;
@@ -974,7 +966,12 @@ table.ui-wa-bgtbl {
 }
 
 div.ui-lui-selected-ro {
-	border: <%= readonly_border %> solid 1px; /* same border color as one used for ui-dspv fields */
+	border: none !important;
+	margin-bottom: 0px;
+}
+
+div.ui-lui-selected-ro td {
+	padding: 0px;
 }
 	
 div.ui-lui {
@@ -1000,6 +997,10 @@ table.ui-lui-selected {
 	padding: 0px;
 	margin: 0px;
 	width: 100%;
+}
+
+.ui-lui-v > div {
+	width: 104px;
 }
 
 .ui-lui-selected tbody { /*	selected value is rendered with white back and outline, on IE border is not rendred!? */
@@ -1031,6 +1032,7 @@ table.ui-lui-selected {
 input.ui-lui-keyword {
 	min-width: 98px;
 	width: 1%;
+	display: block;
 }
 
 img.ui-lui-waiting{
@@ -1077,24 +1079,28 @@ tr.ui-keyword-popup-row {
 }
 
 .ui-mli-itm { /* selected items */
-	background-color: <%= selected_bg %>;
+	display: inline;
 	float: left;
-	padding-left: 5px;
-	margin-left: 1px;
-	margin-right: 1px;
-	margin-top: 3px;
-	margin-bottom: 3px;	
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border: 1px solid <%= multiple_lookup_label_color %>;
+	margin: 1px;
+	padding: 2px;
+	padding-bottom: 0px;
+	background-color: <%= multiple_lookup_label_border %>;
+}
+
+.ui-mli-itm label {
 	vertical-align: middle;
-	-webkit-border-top-left-radius: 5px;
-	-webkit-border-bottom-right-radius: 5px;
-	-moz-border-radius-topleft: 5px;
-	-moz-border-radius-bottomright: 5px;
-	border-top-left-radius: 5px;
-	border-bottom-right-radius: 5px;
-	box-shadow : 3px 3px 3px #CCCCCC;
-	-moz-box-shadow : 3px 3px 3px #CCCCCC;
-	zoom: 1; /* FIXME: bojan needs to specify why this is needed! */ 
-	*display:inline;
+}
+
+.ui-mli-itm img {
+	display: inline-block;
+	margin-left: 5px;
+	width: 14px;
+	height: 14px;
+	vertical-align: top;
 }
 /*** 105_lookupinput.frag.css ***/
 /*** LookupInput thingerydoo ***/
@@ -1143,7 +1149,11 @@ div.ui-lui td{
 /*** Button bar ***/
 div.ui-lf-ebb {
 	margin-top		: 8px;
-	padding-bottom	: 10px;
+	padding-bottom	: 8px;
+}
+
+div.ui-lf-ebb button {
+	margin-bottom: 2px !important;
 }
 
 /*** Layout for table with input data in two, or more, rows ***/
@@ -2581,10 +2591,10 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	-moz-border-radius: 3px;
 	border-radius: 3px;
 	-webkit-border-radius: 3px;
-	border: 1px solid #999;
+	border: 1px solid <%= multiple_lookup_label_color %>;
 	margin: 1px;
 	padding: 2px;
-	background-color: <%= label_selector_item %>;
+	background-color: <%= multiple_lookup_label_border %>;
 }
 .ui-lsel-btn {
 	display: inline-block;
@@ -2607,6 +2617,7 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	height: 18px;
 	margin: 0px 0px 0px 2px;
 	padding: 0px;
+	display: inline-block;
 }
 .ui-lui-keyword-no-res {
 	display: inline-block;
