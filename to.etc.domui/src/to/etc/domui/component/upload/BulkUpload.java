@@ -74,7 +74,7 @@ public class BulkUpload extends Div implements IUploadAcceptingComponent {
 		Span s = new Span();									// Flash button placeholder: this transparant thing will overlay the button below.
 		buttonBar.add(s);
 
-		m_startButton = new DefaultButton("Select Files");
+		m_startButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.BULKUPLD_SELECT_FILES));
 		buttonBar.add(m_startButton);
 
 		add(new VerticalSpacer(10));
@@ -89,7 +89,7 @@ public class BulkUpload extends Div implements IUploadAcceptingComponent {
 		Span legend = new Span();
 		ttl.add(legend);
 		legend.setCssClass("ui-bupl-legend");
-		legend.add("Upload Queue");
+		legend.add(Msgs.BUNDLE.getString(Msgs.BULKUPLD_UPLOAD_QUEUE));
 
 		Div outputDiv = new Div();
 		wrapper.add(outputDiv);
