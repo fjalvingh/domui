@@ -123,7 +123,6 @@ public class CKEditor extends TextArea {
 		switch (m_toolbarSet) {
 			case DOMUI:
 			case FULL:
-				//sb.append(", extraPlugins : 'domuiimage,domuioddchar,justify,colorbutton,smiley,font'\n"); FIXME: vmijic Hm, seems like colorbutton has the problem, we have to exclude it...?
 				sb.append(", extraPlugins : 'domuiimage,domuioddchar,justify,colorbutton,smiley,font'\n");
 				break;
 			case BASIC:
@@ -132,7 +131,9 @@ public class CKEditor extends TextArea {
 				break;
 		}
 
-		String color = "#5689E6"; //FIXME btadic lf :see how to get that from theme or something...
+		//String color = DomApplication.get().getThemeMap().getValue(String.class, "dt_rowhdr_bg"); //FIXME btadic lf :see if that matches in all themes nicely.
+		String color = "#5689E6";
+
 		sb.append(", uiColor: '" + color + "'\n");
 
 		String s = m_internalWidth;
