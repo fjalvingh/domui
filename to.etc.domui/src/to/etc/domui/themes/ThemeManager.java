@@ -149,6 +149,7 @@ final public class ThemeManager {
 	 * @return
 	 * @throws Exception
 	 */
+	@Nonnull
 	public ITheme getTheme(String themeName, @Nullable IResourceDependencyList rdl) {
 		synchronized(this) {
 			if(m_themeReapCount++ > 1000) {
