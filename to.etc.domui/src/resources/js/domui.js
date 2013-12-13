@@ -814,14 +814,12 @@ $.extend(WebUI, {
 		var q1 = $("textarea").get();
 		for ( var i = q1.length; --i >= 0;) {
 			var sel = q1[i];
-			if (sel.className == 'ui-fck') {
-				val = "";
-
-				// -- Get the FCKEditor that wrapped this class,
-				var fck = FCKeditorAPI.GetInstance(sel.id);
-				if (fck) {
-					val = fck.GetXHTML();
-				}
+			if (sel.className == 'ui-ckeditor') {
+				//-- Locate the variable for this editor.
+				var editor = CKEDITOR.instances[sel.id];
+				if(null == editor)
+					throw "Cannot locate editor with id="+sel.id;
+				val = editor.getData();
 			} else {
 				// if($.browser.msie) { // The MS idiots remove newlines from
 				// value....
@@ -3214,33 +3212,58 @@ $.extend(WebUI, {
 		return ($.browser.msie && (parseInt($.browser.version) >= 8 || (parseInt($.browser.version) == 7 && document.documentMode >= 8)));
 	},
 
-	// FCK editor support
-	_fckEditorIDs : [],
+	// CK editor support, map of key (id of editor) value (pair of [editor instance, assigned resize function])
+	_ckEditorMap : {},
 
 	/**
-	 * Register fckeditor for extra handling, if needed.
+	 * Register ckeditor for extra handling that is set in CKeditor_OnComplete.
+	 * 
+	 * @param id
+	 * @param ckeInstance
+	 */
+	registerCkEditorId : function(id, ckeInstance) {
+		WebUI._ckEditorMap[id] = [ckeInstance, null];
+	},
+
+	/**
+	 * Unregister ckeditor and removes handlings bound to it.
+	 *  
+	 * @param id
+	 */
+	unregisterCkEditorId : function(id) {
+		try {
+			var editorBindings = WebUI._ckEditorMap[id];
+			WebUI._ckEditorMap[id] = null;
+			if (editorBindings && editorBindings[1]){
+				$(window).unbind('resize', editorBindings[1]); 
+			} 
+		} catch (ex) {
+			log('error in unregisterCkEditorId: ' + ex);
+		}
+	},
+
+	/**
+	 * Piece of support needed for CK editor to properly fix its size, using _OnComplete handler. 
 	 * 
 	 * @param id
 	 */
-	registerFckEditorId : function(id) {
-		if (!WebUI._fckEditorIDs) {
-			WebUI._fckEditorIDs = [];
-		}
-		WebUI._fckEditorIDs.push(id);
-	},
-
-	unregisterFckEditorId : function(id) {
-		try {
-			var index = WebUI._fckEditorIDs.indexOf(id);
-			if (index > -1) {
-				WebUI._fckEditorIDs.splice(index, 1);
+	CKeditor_OnComplete : function(id) {
+		WebUI.doCustomUpdates();
+		var elem = document.getElementById(id);
+		var parentDiv = elem.parentNode;
+		var editor = WebUI._ckEditorMap[id][0];
+		var resizeFunction = function(ev) {
+			try{
+				editor.resize($(parentDiv).width() - 2, $(parentDiv).height());
+			}catch (ex){
+				log('error in CKeditor_OnComplete#resizeFunction: ' + ex);
 			}
-		} catch (ex) {
-			// nothing to do -> no _fckEditorIDs means nothing to unregister
-			// from
-		}
+		};
+		WebUI._ckEditorMap[id] = [editor, resizeFunction];
+		$(window).bind('resize', resizeFunction);
+		$(window).trigger('resize');	
 	},
-
+	
 	// connects input to usually hidden list select and provides autocomplete
 	// feature inside input. Down arrow does show and focus select list.
 	initAutocomplete : function(inputId, selectId) {
@@ -3900,30 +3923,6 @@ $(document).ajaxComplete(function() {
 	WebUI.handleCalendarChanges();
 	WebUI.doCustomUpdates();
 });
-
-// piece of support needed for FCK editor to properly fix heights in IE8+
-function FCKeditor_OnComplete(editorInstance) {
-	if (WebUI.isIE8orNewer()) {
-		for ( var i = 0; i < WebUI._fckEditorIDs.length; i++) {
-			var fckId = WebUI._fckEditorIDs[i];
-			var fckIFrame = document.getElementById(fckId + '___Frame');
-			if (fckIFrame) {
-				$(fckIFrame.contentWindow.window).bind('resize', function() {
-					FCKeditor_fixLayout(fckIFrame, fckId);
-				});
-				$(fckIFrame.contentWindow.window).trigger('resize');
-			}
-		}
-	}
-
-	WebUI.doCustomUpdates();
-}
-
-function FCKeditor_fixLayout(fckIFrame, fckId) {
-	if (fckIFrame) {
-		fckIFrame.contentWindow.Domui_fixLayout(fckId);
-	}
-};
 
 $(document).keydown(function(e){
 	addPaggerAccessKeys(e);

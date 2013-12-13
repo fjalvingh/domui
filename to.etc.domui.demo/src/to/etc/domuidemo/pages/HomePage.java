@@ -73,7 +73,7 @@ public class HomePage extends UrlPage {
 		addLink(DemoBulkUpload.class, "The bulk file upload component");
 		addLink(DemoTextArea.class, "The TextArea component");
 		addLink(DemoHtmlEditor.class, "The small and fast HTMLEditor component");
-		addLink(DemoFCKEditor.class, "The big HTML editor - FCKEditor component");
+		addLink(DemoCKEditor.class, "The big HTML editor - CKEditor component");
 
 		addCaption("Display-only components");
 		addLink(DemoDisplayValue.class, "The DisplayValue component");
