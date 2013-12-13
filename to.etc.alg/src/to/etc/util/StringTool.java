@@ -401,7 +401,7 @@ public class StringTool {
 	 *	maxlen characters.
 	 */
 	public static String truncLength(final String s, final int maxlen) {
-		if(s.length() < maxlen)
+		if(s == null || s.length() < maxlen)
 			return s;
 		return s.substring(0, maxlen);
 	}
@@ -2636,5 +2636,14 @@ public class StringTool {
 		} catch(UnsupportedEncodingException e) {
 			throw new WrappedException(e);
 		}
+	}
+
+	/**
+	 * Checks whether a given text is too big for the maximum varchar2 database field
+	 * @param text
+	 * @return
+	 */
+	public static boolean isInvalidOracleLength(@Nonnull String text) {
+		return getUtf8LengthInBytes(text) >= MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2;
 	}
 }
