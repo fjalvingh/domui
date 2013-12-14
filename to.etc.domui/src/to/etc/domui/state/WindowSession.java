@@ -407,58 +407,57 @@ final public class WindowSession {
 		IPageParameters pp = getTargetPageParameters();
 		Constructor< ? extends UrlPage> bestpc = null;
 
-		if(getTargetMode() != MoveMode.REPLACE) {
+		/*
+		 *  jal 20131214 Replace handling change. For replace always pop the topmost page first, then enter normal "move" handling.
+		 */
+		if(getTargetMode() == MoveMode.REPLACE) {
+			int cursz = m_shelvedPageStack.size() - 1;		// Last entry on the stack is the one we're replacing
+			if(cursz < 0)
+				cursz = 0;
+			clearShelve(cursz);								// Drop it
+		}
+
+		/*
+		 * Look back in the page shelve and check if a compatible page is present there. If so
+		 * we move back by destroying the pages "above" the target.
+		 */
+		//-- Locate the specified page/conversation in the page stack,
+		int psix = findInPageStack(cc, clz, pp);
+		if(psix != -1) {
 			/*
-			 * Look back in the page shelve and check if a compatible page is present there. If so
-			 * we move back by destroying the pages "above" the target.
+			 * Page found. Is it the current page? If so we just ignore the request.
 			 */
-			//-- Locate the specified page/conversation in the page stack,
-			int psix = findInPageStack(cc, clz, pp);
-			if(psix != -1) {
-				/*
-				 * Page found. Is it the current page? If so we just ignore the request.
-				 */
-				if(psix == m_shelvedPageStack.size() - 1) {
-					return false;
-				}
-
-				/*
-				 * Entry accepted. Discard all stacked entries *above* the selected thing.
-				 */
-				clearShelve(psix + 1);
-				internalAttachConversations();
-				IShelvedEntry xse = m_shelvedPageStack.get(psix);
-				if(!(xse instanceof ShelvedDomUIPage))
-					throw new IllegalStateException("Shelve entry is not a domui page but " + xse);
-
-				Page currentPage = ((ShelvedDomUIPage) xse).getPage();
-
-				/*
-				 * jal 20100224 The old page is destroyed and we're now running in the "new" page's context! Since
-				 * unshelve calls user code - which can access that context using PageContext.getXXX calls- we must
-				 * make sure it is correct even though the request was for another page and is almost dying.
-				 */
-				UIContext.internalSet(currentPage);
-				currentPage.internalUnshelve();
-				generateRedirect(ctx, currentPage, ajax);
-				saveWindowState();
-				return true;
+			if(psix == m_shelvedPageStack.size() - 1) {
+				return false;
 			}
+
+			/*
+			 * Entry accepted. Discard all stacked entries *above* the selected thing.
+			 */
+			clearShelve(psix + 1);
+			internalAttachConversations();
+			IShelvedEntry xse = m_shelvedPageStack.get(psix);
+			if(!(xse instanceof ShelvedDomUIPage))
+				throw new IllegalStateException("Shelve entry is not a domui page but " + xse);
+
+			Page currentPage = ((ShelvedDomUIPage) xse).getPage();
+
+			/*
+			 * jal 20100224 The old page is destroyed and we're now running in the "new" page's context! Since
+			 * unshelve calls user code - which can access that context using PageContext.getXXX calls- we must
+			 * make sure it is correct even though the request was for another page and is almost dying.
+			 */
+			UIContext.internalSet(currentPage);
+			currentPage.internalUnshelve();
+			generateRedirect(ctx, currentPage, ajax);
+			saveWindowState();
+			return true;
 		}
 
 		//-- Handle the shelve mode,
-		if(getTargetMode() == MoveMode.NEW || mustResetShelve(clz))
+		if(getTargetMode() == MoveMode.NEW || mustResetShelve(clz)) {
 			clearShelve(0);
-		else if(getTargetMode() == MoveMode.REPLACE) {
-			/*
-			 * The "current" page on top of the shelve stack is destroyed; the new page replaces it on top
-			 * of the stack.
-			 */
-			int psix = m_shelvedPageStack.size() - 1; 			// We need to DESTROY the last page stack element,
-			if(psix < 0) // If there is no topmost page
-				psix = 0; // Just clear.
-			clearShelve(psix);
-		} else if(getTargetMode() == MoveMode.SUB) {
+		} else if(getTargetMode() == MoveMode.SUB || getTargetMode() == MoveMode.REPLACE) {
 			//-- We're shelving the current page- call all shelve handlers.
 			currentpg.internalShelve();
 		} else
