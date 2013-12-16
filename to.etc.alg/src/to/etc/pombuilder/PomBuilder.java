@@ -11,6 +11,19 @@ import to.etc.pombuilder.PomBuilder.JarRef;
 import to.etc.util.*;
 import to.etc.xml.*;
 
+/**
+ * Generates the heaps of crap Maven needs to build a simple webapp.
+ *
+ * Documentation:
+ * <ul>
+ *	<li>http://blog.miloszikic.com/2010/04/maven-war-plugin-and-non-default-webapp.html: configure WebContent for war packaging in only 12 lines for a single parameter 8-(</li>
+ *	<li>http://i-proving.com/2007/03/29/split-your-project-into-sub-projects/: a way to handle sub-projects</li>
+ * </ul>
+ *
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Nov 5, 2013
+ */
 public class PomBuilder {
 	static private final String MAVENSHIT = ".maven";
 
@@ -22,6 +35,8 @@ public class PomBuilder {
 
 	@Nonnull
 	final static private Set<String>	m_knownNameSet		= new HashSet<String>();
+
+	static private final String			TOPNAME				= "allViewpointModules";
 
 	static class JarRef {
 		String	m_jarName;
@@ -54,10 +69,10 @@ public class PomBuilder {
 		//		testClassFile(new File(prj, ".classpath"));
 
 		System.out.println("Build order:");
-		for(Project sub : p.m_fullDepList) {
+		for(Project sub : p.getFullDepList()) {
 			System.out.println(sub.getName());
 		}
-		for(Project sub : p.m_fullDepList) {
+		for(Project sub : p.getFullDepList()) {
 			System.out.println("... " + sub.getName());
 			generateProjectPoms(sub);
 		}
@@ -65,24 +80,63 @@ public class PomBuilder {
 
 		//-- Create root
 		File f = new File(m_rootPath, "pom.xml");
-		XmlWriter w = createMavenXml(f, "nl.itris.viewpoint", "viewpointModuleSet", "viewpointModuleSet", "pom");
+		XmlWriter w = createMavenXml(f, "nl.itris.viewpoint", TOPNAME, TOPNAME, "pom");
 
-		w.tagendnl();				// plugin
-		w.tagendnl();				// plugins
+		//		w.tagendnl();				// plugin
+		//		w.tagendnl();				// plugins
+
+		//-- Skip SONAR modules
+		w.tag("properties");
+		//		w.tagfull("sonar.skippedModules", getSkippedSonarModules(p));
+		w.tagfull("sonar.includedModules", getSonarModules(p));
+		w.tagendnl();											// properties
+
 
 		w.tag("modules");
 		//		int count = 0;
-		for(Project sub : p.m_fullDepList) {
+		for(Project sub : p.getFullDepList()) {
 			w.tagfull("module", sub.getRoot().getName());
 			//			if(sub.m_sourceList.size() > 0 && count++ > 4)
 			//				break;
 		}
 		w.tagfull("module", p.getRoot().getName());
-
-		w.tagendnl();
+		w.tagendnl();				// Modules
 		w.tagendnl();
 		w.close();
 		System.out.println("done");
+	}
+
+	@Nonnull
+	private String getSonarModules(@Nonnull Project prj) {
+		StringBuilder sb = new StringBuilder();
+
+		List<Project> depset = new ArrayList<Project>(prj.getFullDepList());
+		//		List<Project> depset = new ArrayList<Project>();
+		depset.add(prj);
+		for(Project p : depset) {
+			if(p.hasSources()) {
+				if(sb.length() > 0)
+					sb.append(',');
+				sb.append(p.getProjectArtifactID());
+				sb.append(",").append(p.getSourceArtefactId());
+			}
+		}
+		return sb.toString();
+	}
+
+	@Nonnull
+	private String getSkippedSonarModules(@Nonnull Project prj) {
+		StringBuilder sb = new StringBuilder();
+
+		//		sb.append("viewpointModuleSet");
+		for(Project p : prj.getFullDepList()) {
+			if(!p.hasSources()) {
+				if(sb.length() > 0)
+					sb.append(',');
+				sb.append(p.getProjectArtifactID());
+			}
+		}
+		return sb.toString();
 	}
 
 	private void generateWarConfig(XmlWriter w) throws IOException {
@@ -106,6 +160,7 @@ public class PomBuilder {
 	 *
 	 * @throws FileNotFoundException if project cannot be found
 	 */
+	@Nonnull
 	private File findViewpointProjectPath(@Nonnull String rootPath) throws FileNotFoundException {
 		File root = new File(rootPath);
 
@@ -127,6 +182,7 @@ public class PomBuilder {
 		throw new FileNotFoundException("Viewpoint project directory cannot be found.");
 	}
 
+	@Nonnull
 	private File findViewpointProjectPathInDirectory(@Nonnull File directory) throws FileNotFoundException {
 		if(directory.isDirectory()) {
 			File[] fileList = directory.listFiles();
@@ -145,90 +201,24 @@ public class PomBuilder {
 
 
 
-	private String removeVersionFromFile(String in) {
-		int d = in.lastIndexOf('.');
-		String ext;
-		if(d != -1) {
-			ext = in.substring(d + 1);
-			if(!StringTool.isNumber(ext)) {
-				in = in.substring(0, d);
-				ext = in.substring(d); // Include dot
-			} else
-				ext = "";
-		} else
-			ext = "";
-
-		String[] ar = in.split("-");
-		if(ar == null)
-			return in;
-
-		StringBuilder sb = new StringBuilder();
-		for(int i = 0; i < ar.length; i++) {
-			if(!isDottedVersion(ar[i])) {
-				if(sb.length() != 0)
-					sb.append('-');
-				sb.append(ar[i]);
-			}
-		}
-		sb.append(ext);
-		return sb.toString();
-	}
-
-	/*
-	 * <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-	">http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>itris</groupId>
-	<artifactId>commons-logging</artifactId>
-	<name>commons-logging</name>
-	<version>1.0.4</version>
-	<packaging>jar</packaging>
-	<build>
-	<plugins>
-	  <plugin>
-	    <artifactId>maven-antrun-plugin</artifactId>
-	    <executions>
-	      <execution>
-	        <id>trick maven into installing the binary jar</id>
-	        <phase>verify</phase> <!-- runs after packaging, before
-	        install, exactly what we need... -->
-	        <goals>
-	          <goal>run</goal>
-	        </goals>
-	        <configuration>
-	          <tasks>
-	             <copy overwrite="true" file="commons-logging.jar"
-	             tofile="${project.build.directory}/${project.artifactId}-${project.version}.jar"/>
-	          </tasks>
-	        </configuration>
-	      </execution>
-	    </executions>
-	  </plugin>
-	</plugins>
-	</build>
-	</project>
-	 */
-
-
 	/**
 	 *
 	 */
 	private void generateProjectPoms(Project sub) throws Exception {
 		//-- Generate poms for all jars in this project
-		for(JarRef jr : sub.m_jarList)
+		for(JarRef jr : sub.getJarList())
 			generateJar(sub, jr);
 
 		//-- Generate master pom referring all these modules.
 		File f = new File(sub.getRoot(), "pom.xml");
-		XmlWriter w = createMavenXml(f, sub.getBaseGroup(), sub.getBaseName() + ".BasePOM", sub.getName(), "pom");
+		XmlWriter w = createMavenXml(f, sub.getBaseGroup(), sub.getProjectArtifactID(), sub.getName(), "pom");
 
 		w.tag("modules");
-		for(JarRef jr : sub.m_jarList) {
+		for(JarRef jr : sub.getJarList()) {
 			w.tagfull("module", jr.m_pomDir);
 		}
 
-		if(sub.m_sourceList.size() > 0) {
+		if(sub.hasSources()) {
 			String srcmod = generateSourceBuild(sub);
 
 			if(srcmod != null)
@@ -240,6 +230,7 @@ public class PomBuilder {
 		w.close();
 	}
 
+	@Nonnull
 	private String generateSourceBuild(Project sub) throws Exception {
 		File mv = new File(sub.getRoot(), MAVENSHIT);
 		mv.mkdirs();
@@ -248,9 +239,8 @@ public class PomBuilder {
 		f.mkdirs();
 		f = new File(f, "pom.xml");
 		sub.m_groupId = sub.getBaseGroup();
-		sub.m_artefactId = sub.getBaseName() + ".source";
 
-		XmlWriter w = createMavenXml(f, sub.getBaseGroup(), sub.m_artefactId, sub.getName() + " source", "jar");
+		XmlWriter w = createMavenXml(f, sub.getBaseGroup(), sub.getSourceArtefactId(), sub.getName() + " source", "jar");
 
 		w.tag("properties");
 		w.tagfull("cobertura.maxmem", "8292M");
@@ -268,13 +258,14 @@ public class PomBuilder {
 		boolean hastests = false;
 
 		//-- Generate source
-		if(sub.m_sourceList.size() > 0) {
+		if(sub.getSourceList().size() > 0) {
 			//-- Create a SOURCE and a TEST list.
-			for(String src : sub.m_sourceList) {
-				if(src.endsWith("test") || src.endsWith("test/"))
+			for(String src : sub.getSourceList()) {
+				if(isTestSources(src)) {
 					testList.add(src);
-				else
+				} else {
 					sourceList.add(src);
+				}
 			}
 
 			//-- Generate the 1st source dir as the "sourceDirectory" if present, and remove;
@@ -294,7 +285,7 @@ public class PomBuilder {
 
 			//-- Resources; thing is too stupid to do it by itself.
 			w.tag("resources");
-			for(String src : sub.m_sourceList) {
+			for(String src : sub.getSourceList()) {
 				w.tag("resource");
 
 				w.tagfull("directory", "../../" + src);
@@ -377,10 +368,6 @@ public class PomBuilder {
 			w.tagendnl();
 			w.tagendnl();
 
-//			w.tag("configuration");
-//			w.tagfull("testClassesDirectory", "../../bin");
-//			w.tagendnl();
-
 			w.tagendnl(); // plugin
 		}
 
@@ -394,16 +381,16 @@ public class PomBuilder {
 
 		//--dependencies in downward projects
 		w.tag("dependencies");
-		generateJarDeps(w, sub.m_jarList);
-		for(Project p : sub.m_fullDepList) {
-			generateJarDeps(w, p.m_jarList);
+		generateJarDeps(w, sub.getJarList());
+		for(Project p : sub.getFullDepList()) {
+			generateJarDeps(w, p.getJarList());
 
 			//-- If this project has sources add the src jar dep
-			if(p.m_sourceList.size() > 0) {
+			if(p.hasSources()) {
 				//-- Generate the 1st source dir in the usualway
 				w.tag("dependency");
 				w.tagfull("groupId", p.m_groupId);
-				w.tagfull("artifactId", p.m_artefactId);
+				w.tagfull("artifactId", p.getSourceArtefactId());
 				w.tagfull("version", m_version);
 				w.tagfull("type", "jar");
 				w.tagfull("scope", "compile");
@@ -587,6 +574,36 @@ public class PomBuilder {
 		return sb.toString();
 	}
 
+	@Nonnull
+	static private String removeVersionFromFile(@Nonnull String in) {
+		int d = in.lastIndexOf('.');
+		String ext;
+		if(d != -1) {
+			ext = in.substring(d + 1);
+			if(!StringTool.isNumber(ext)) {
+				in = in.substring(0, d);
+				ext = in.substring(d); // Include dot
+			} else
+				ext = "";
+		} else
+			ext = "";
+
+		String[] ar = in.split("-");
+		if(ar == null)
+			return in;
+
+		StringBuilder sb = new StringBuilder();
+		for(int i = 0; i < ar.length; i++) {
+			if(!isDottedVersion(ar[i])) {
+				if(sb.length() != 0)
+					sb.append('-');
+				sb.append(ar[i]);
+			}
+		}
+		sb.append(ext);
+		return sb.toString();
+	}
+
 	static private boolean isDottedVersion(@Nonnull String string) {
 		string = string.replace("rc", ".");
 
@@ -599,6 +616,10 @@ public class PomBuilder {
 				return false;
 		}
 		return true;
+	}
+
+	static public boolean isTestSources(@Nonnull String src) {
+		return src.endsWith("test") || src.endsWith("test/");
 	}
 
 
@@ -629,11 +650,14 @@ class Project {
 	@Nonnull
 	private final String		m_encoding;
 
+	/** T if there are actually source files in the project that need a compile. */
+	private boolean				m_hasSources;
+
 	boolean	m_dependenciesDone;
 
 	String	m_groupId;
 
-	String	m_artefactId;
+	private final String				m_sourceArtefactId;
 
 	@Nonnull
 	private String						m_sourceVersion	= "1.6";
@@ -641,13 +665,13 @@ class Project {
 	@Nonnull
 	private String						m_targetVersion	= "1.6";
 
-	List<String>	m_sourceList	= new ArrayList<String>();
+	private final List<String>			m_sourceList	= new ArrayList<String>();
 
-	List<Project>	m_directDepList	= new ArrayList<Project>();
+	private final List<Project>			m_directDepList	= new ArrayList<Project>();
 
-	List<JarRef>	m_jarList		= new ArrayList<JarRef>();
+	private final List<JarRef>			m_jarList		= new ArrayList<JarRef>();
 
-	List<Project>	m_fullDepList	= new ArrayList<Project>();
+	private final List<Project>			m_fullDepList	= new ArrayList<Project>();
 
 	private Project(@Nonnull PomBuilder b, @Nonnull String name, @Nonnull File root, @Nonnull String baseGroup, @Nonnull String baseName, @Nonnull String encoding) {
 		m_builder = b;
@@ -656,6 +680,7 @@ class Project {
 		m_baseName = baseName;
 		m_baseGroup = baseGroup;
 		m_encoding = encoding;
+		m_sourceArtefactId = getBaseName() + ".source";
 	}
 
 	static public Project createProject(@Nonnull PomBuilder b, @Nonnull File dir) throws Exception {
@@ -683,7 +708,43 @@ class Project {
 		Project p = new Project(b, name, dir, baseGroup, basename, encoding);
 		p.loadClassFile(classfile);
 		p.loadJavaPreferences();
+		p.checkSources();
 		return p;
+	}
+
+	private void checkSources() throws Exception {
+		for(String srcref: m_sourceList) {
+			File path = new File(m_root, srcref);
+			if(path.exists() && path.isDirectory()) {
+				int nf = countFiles(path, 3);
+				if(nf >= 3) {
+					m_hasSources = true;
+					return;
+				}
+			}
+		}
+	}
+
+	private int countFiles(@Nonnull File root, int max) {
+		File[] ar = root.listFiles();
+		int count = 0;
+		for(int i = ar.length; --i >= 0;) {
+			File f = ar[i];
+			if(f.isFile())
+				count++;
+			if(count >= max)
+				return count;
+		}
+		for(int i = ar.length; --i >= 0;) {
+			File f = ar[i];
+			if(f.isDirectory()) {
+				int tc = countFiles(f, max - count);
+				count += tc;
+				if(count >= max)
+					return count;
+			}
+		}
+		return count;
 	}
 
 	private void loadJavaPreferences() throws Exception {
@@ -726,9 +787,9 @@ class Project {
 					if(path.startsWith("/")) {
 						File f = new File(m_builder.m_rootPath, path.substring(1));
 						Project dp = m_builder.loadProject(f);
-						m_directDepList.add(dp);
+						getDirectDepList().add(dp);
 					} else {
-						m_sourceList.add(path);
+						getSourceList().add(path);
 					}
 					//					System.out.println("src: " + path);
 				} else if("lib".equals(kind)) {
@@ -746,7 +807,7 @@ class Project {
 						JarRef j = new JarRef();
 						j.m_jar = new File(getRoot(), path);
 						j.m_jarName = path;
-						m_jarList.add(j);
+						getJarList().add(j);
 					}
 				}
 			}
@@ -762,11 +823,11 @@ class Project {
 
 		//--Depth-1st traversal of all dependencies
 		stack.add(this);
-		for(Project sub : m_directDepList) {
+		for(Project sub : getDirectDepList()) {
 			sub.generateDependencies(stack);
-			addNewTo(m_fullDepList, sub.m_fullDepList);
-			if(!m_fullDepList.contains(sub))
-				m_fullDepList.add(sub);
+			addNewTo(getFullDepList(), sub.getFullDepList());
+			if(!getFullDepList().contains(sub))
+				getFullDepList().add(sub);
 		}
 		stack.remove(this);
 		m_dependenciesDone = true;
@@ -822,5 +883,39 @@ class Project {
 		m_targetVersion = targetVersion;
 	}
 
+	@Nonnull
+	public List<String> getSourceList() {
+		return m_sourceList;
+	}
 
+	@Nonnull
+	public List<Project> getDirectDepList() {
+		return m_directDepList;
+	}
+
+	@Nonnull
+	public List<JarRef> getJarList() {
+		return m_jarList;
+	}
+
+	@Nonnull
+	public List<Project> getFullDepList() {
+		return m_fullDepList;
+	}
+
+	@Nonnull
+	public String getSourceArtefactId() {
+		if(!hasSources())
+			throw new IllegalStateException("There should not be an artifact ID for a module without sources (module " + getName() + ")");
+		return m_sourceArtefactId;
+	}
+
+	public boolean hasSources() {
+		return m_hasSources;
+	}
+
+	@Nonnull
+	public String getProjectArtifactID() {
+		return getBaseName() + ".BasePOM";
+	}
 }
