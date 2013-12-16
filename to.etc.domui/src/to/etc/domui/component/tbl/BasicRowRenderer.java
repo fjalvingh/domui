@@ -52,6 +52,8 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IClic
 
 	static public final String DEFAULTSORT = SimpleColumnDef.DEFAULTSORT;
 
+	static public final String NUMERIC = "$ui-numeric";
+
 	/** The column name to sort on by default, set by metadata. This is only used to keep it for a while until the actual column list is known; at that point the column def to sort on is determined and used. */
 	private String m_sortColumnName;
 
