@@ -437,5 +437,37 @@ public class TUtilTestProperties {
 		}
 	}
 
+	/**
+	 * Find boolean value stored in test.properties file based on property name.
+	 * If value doesn't exist return default one.
+	 *
+	 * @param propertyName name of property requested from properties file
+	 * @param defaultValue default value returned if property can't be found
+	 * @return stored or default boolean value
+	 */
+	public static boolean getBoolean(@Nonnull final String propertyName, final boolean defaultValue) {
+		String s = getString(propertyName, defaultValue ? "true" : "false");
+		return ("true".equalsIgnoreCase(s) || "yes".equalsIgnoreCase(s));
+	}
+
+	/**
+	 * Find string value stored in test.properties file based on property name.
+	 * If value doesn't exist return default one.
+	 *
+	 * @param propertyName name of property requested from properties file
+	 * @param defaultValue default value returned if property can't be found
+	 * @return stored or default string value
+	 */
+	@Nullable
+	public static String getString(@Nonnull final String propertyName, @Nullable final String defaultValue) {
+		Properties props = findTestProperties();
+		if(props == null)
+			return defaultValue;
+
+		String s = props.getProperty(propertyName);
+		if(s != null)
+			return s;
+		return defaultValue;
+	}
 
 }
