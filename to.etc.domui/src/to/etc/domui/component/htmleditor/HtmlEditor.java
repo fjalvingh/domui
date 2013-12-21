@@ -192,7 +192,6 @@ public class HtmlEditor extends TextArea {
 		setDisplay(DisplayType.NONE);
 		for(int i = 0; i < values.length; i++) {
 			String s = values[i];
-			StringBuilder sb = new StringBuilder();
 			try {
 				System.out.println("pre-value[" + i + "]=" + s);
 				values[i] = HtmlUtil.removeUnsafe(s);

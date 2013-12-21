@@ -32,22 +32,13 @@ final public class HtmlUtil {
 			return null;
 //		System.out.println("Sanitize: input=" + htmlIn);
 		String s = sanitize(htmlIn, false, true);
-		StringBuilder sb = new StringBuilder();
-		try {
-			StringTool.entitiesToUnicode(sb, s, false);
-		} catch(IOException x) {
-			;
-		}
-		s = sb.toString();
-
-//		System.out.println("Output: " + s);
 		return s;
 	}
 
 	private static String sanitize(String pseudoHTML, boolean formatWhiteSpace, boolean stripInvalidElements) {
 		StringBuilder sb = new StringBuilder(pseudoHTML.length() + 2000);
 		try {
-			StringTool.entitiesToUnicode(sb, pseudoHTML, false);
+			StringTool.entitiesToUnicode(sb, pseudoHTML, true);	// jal 20131221 Do NOT convert quoted < and >!!
 			pseudoHTML = sb.toString();
 		} catch(IOException x) {
 			//-- Sigh.
@@ -63,7 +54,7 @@ final public class HtmlUtil {
 				tag.setUserData(VALID_MARKER);
 			} else {
 				if(!stripInvalidElements)
-					continue;										// element will be encoded along with surrounding text
+					continue;									// element will be encoded along with surrounding text
 				outputDocument.remove(tag);
 			}
 			reencodeTextSegment(source, outputDocument, pos, tag.getBegin(), formatWhiteSpace);
@@ -71,8 +62,15 @@ final public class HtmlUtil {
 		}
 		reencodeTextSegment(source, outputDocument, pos, source.getEnd(), formatWhiteSpace);
 
-//		System.out.println("doc:" + outputDocument.getDebugInfo());
-		return outputDocument.toString();
+		//-- Remove any entities from the result
+		sb.setLength(0);
+		try {
+			StringTool.entitiesToUnicode(sb, outputDocument.toString(), true);	// jal 20131221 Do NOT convert quoted < and >!!
+			pseudoHTML = sb.toString();
+		} catch(IOException x) {
+			//-- Sigh.
+		}
+		return sb.toString();
 	}
 
 	private static boolean processTag(Tag tag, OutputDocument outputDocument) {
