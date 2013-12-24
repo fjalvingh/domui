@@ -193,14 +193,7 @@ public class JdbcUtil {
 			}
 			throw x;
 		} finally {
-			try {
-				if(rs != null)
-					rs.close();
-			} catch(Exception x) {}
-			try {
-				if(ps != null)
-					ps.close();
-			} catch(Exception x) {}
+			FileTool.closeAll(rs, ps);
 		}
 	}
 
@@ -252,14 +245,7 @@ public class JdbcUtil {
 			}
 			throw x;
 		} finally {
-			try {
-				if(rs != null)
-					rs.close();
-			} catch(Exception x) {}
-			try {
-				if(ps != null)
-					ps.close();
-			} catch(Exception x) {}
+			FileTool.closeAll(rs, ps);
 		}
 	}
 
@@ -329,14 +315,7 @@ public class JdbcUtil {
 			rs = ps.executeQuery();
 			return queryAny(select, rs);
 		} finally {
-			try {
-				if(rs != null)
-					rs.close();
-			} catch(Exception x) {}
-			try {
-				if(ps != null)
-					ps.close();
-			} catch(Exception x) {}
+			FileTool.closeAll(rs, ps);
 		}
 	}
 
@@ -360,14 +339,7 @@ public class JdbcUtil {
 			rs = ps.executeQuery();
 			return queryAnyOne(select, rs);
 		} finally {
-			try {
-				if(rs != null)
-					rs.close();
-			} catch(Exception x) {}
-			try {
-				if(ps != null)
-					ps.close();
-			} catch(Exception x) {}
+			FileTool.closeAll(rs, ps);
 		}
 	}
 
@@ -413,10 +385,44 @@ public class JdbcUtil {
 			setParameters(ps, 1, args);
 			return ps.execute();
 		} finally {
-			try {
-				if(ps != null)
-					ps.close();
-			} catch(Exception x) {}
+			FileTool.closeAll(ps);
+		}
+	}
+
+	/**
+	 * Provides interface to execute SQL as {@link CallableStatement} that is UPDATING DATA and also possibly return some values.
+	 * Out values should be specified as {@link JdbcOutParam}.
+	 * In case that intention is to just execute CallableStatement that does not explicitly do updates (i.e. to execute stored procedure), please use
+	 * {@link JdbcUtil#executeStatement} or {@link JdbcUtil#oracleSpCall} methods.
+	 *
+	 * @param dbc
+	 * @param sql i.e. "begin insert into table1(colA, colB, colC) values (?,?,?) returning colId into ? ; end;"
+	 * @param args
+	 * @return T in case update changed any data, otherwise F.
+	 * @throws SQLException
+	 */
+	public static boolean executeUpdatingCallableStatement(@Nonnull Connection dbc, @Nonnull String sql, @Nullable Object... args) throws SQLException {
+		sql = sql.trim();
+		if(!StringTool.strStartsWithIgnoreCase(sql, "begin") || !StringTool.strEndsWithIgnoreCase(sql, "end;")) {
+			StringBuilder response = new StringBuilder();
+			response.append("Expected sql that starts with \"begin\" and ends with \"end;\", for example : begin insert into table1(colA, colB, colC) values (?,?,?) returning colId into ? ; end;\n");
+			response.append("Found sql: ").append(sql).append("\n");
+			response
+				.append("In case that intention is to just execute CallableStatement that does not explicitly do updates (i.e. to execute stored procedure), please use {@link JdbcUtil#executeStatement} or {@link JdbcUtil#oracleSpCall} methods.");
+			throw new IllegalArgumentException(response.toString());
+		}
+		CallableStatement cs = null;
+		try {
+			cs = dbc.prepareCall(sql);
+			setParameters(cs, 1, args);
+			if(cs.executeUpdate() == 1) {
+				readParameters(cs, 1, args);
+				return true;
+			} else {
+				return false;
+			}
+		} finally {
+			FileTool.closeAll(cs);
 		}
 	}
 
