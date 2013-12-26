@@ -142,6 +142,17 @@ public class TelnetServer extends TelnetStateThing implements Runnable {
 			ts.close();
 			return;
 		}
+		if(csd.currIs("stdout")) {
+			if(csd.hasMore()) {
+				String n = csd.getNext();
+				if("on".equalsIgnoreCase(n) || "true".equalsIgnoreCase(n) || "capture".equals(n))
+					setCapture(true);
+				else
+					setCapture(false);
+			}
+			tpw.println("Stdout state is: " + (m_capturing_stdout ? "capturing stdout" : "not capturing stdout"));
+			return;
+		}
 
 
 		ITelnetCommandHandler[] ar;
@@ -156,7 +167,7 @@ public class TelnetServer extends TelnetStateThing implements Runnable {
 				handled = true;
 		}
 		if(!handled) {
-			tpw.write("TS: Unrecognised command " + command + "\r\n");
+			tpw.write("TS: Unrecognized command " + command + "\r\n");
 		}
 	}
 
@@ -360,6 +371,30 @@ public class TelnetServer extends TelnetStateThing implements Runnable {
 	/// The Telnet server
 	static private TelnetServer	m_telnet_server;
 
+	private static PrintStream	m_orig_stdout;
+
+	private static PrintStream	m_orig_stderr;
+
+	static private boolean		m_capturing_stdout;
+
+	static private void setCapture(boolean on) {
+		if(m_capturing_stdout == on)
+			return;
+		synchronized(System.class) {
+			if(on) {
+				TelnetSysoutMirrorStream tsms = new TelnetSysoutMirrorStream(m_telnet_server, System.out);
+				PrintStream ps = new PrintStream(tsms);
+				System.setOut(ps);
+				System.setErr(ps);
+			} else {
+				System.setOut(m_orig_stdout);
+				System.setErr(m_orig_stderr);
+			}
+			m_capturing_stdout = on;
+		}
+
+	}
+
 	/**
 	 *	Called to start the telnet server. If the server has already
 	 *  started this returns false.
@@ -372,15 +407,19 @@ public class TelnetServer extends TelnetStateThing implements Runnable {
 			try {
 				m_telnet_server = TelnetServer.createServer(port);
 
-				//-- Add the logmaster command handler.
-				ITelnetCommandHandler lh = new ITelnetCommandHandler() {
-					public boolean executeTelnetCommand(TelnetPrintWriter tpw, CmdStringDecoder commandline) throws Exception {
-						return executeTelnetCommand(tpw, commandline);
-					}
-				};
-				m_telnet_server.addCommandHandler(lh);
+				//				//-- Add the logmaster command handler.
+				//				ITelnetCommandHandler lh = new ITelnetCommandHandler() {
+				//					public boolean executeTelnetCommand(TelnetPrintWriter tpw, CmdStringDecoder commandline) throws Exception {
+				//						return executeTnCommand(tpw, commandline);
+				//					}
+				//				};
+				//				m_telnet_server.addCommandHandler(lh);
 
 				//-- Add system.out handler...
+				m_orig_stdout = System.out;
+				m_orig_stderr = System.err;
+
+				m_capturing_stdout = true;
 				TelnetSysoutMirrorStream tsms = new TelnetSysoutMirrorStream(m_telnet_server, System.out);
 				PrintStream ps = new PrintStream(tsms);
 				System.setOut(ps);
