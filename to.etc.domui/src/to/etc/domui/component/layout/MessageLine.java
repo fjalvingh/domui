@@ -36,7 +36,7 @@ public class MessageLine extends Div {
 
 	@Override
 	public void createContent() throws Exception {
-		setCssClass("ui-msgln");
+		addCssClass("ui-msgln");
 		Img img = new Img();
 		if(m_type != null) {
 			img.setSrc("THEME/mini-" + m_type.name().toLowerCase() + ".png");
@@ -47,7 +47,7 @@ public class MessageLine extends Div {
 		add(img);
 		Span sp = new Span();
 		add(sp);
-		sp.setCssClass("ui-msgln-txt");
+		sp.addCssClass("ui-msgln-txt");
 		DomUtil.renderHtmlString(sp, m_text);
 	}
 }
