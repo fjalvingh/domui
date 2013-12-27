@@ -177,6 +177,8 @@ public class JdbcUtil {
 					res = new java.util.Date(ts.getTime());
 			} else if(clz == Boolean.class || clz == boolean.class)
 				res = Boolean.valueOf(rs.getBoolean(1));
+			else if(clz == Blob.class)
+				res = rs.getBlob(1);
 			else
 				throw new IllegalStateException("Call error: cannot handle requested return type " + clz);
 			if(rs.wasNull())
