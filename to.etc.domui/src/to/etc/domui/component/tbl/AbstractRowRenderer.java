@@ -367,7 +367,12 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 		final int index = m_columnList.indexOf(scd);
 		if(index == -1)
 			throw new IllegalStateException("?? Cannot find sort column!?");
-		m_sortImages[index].setSrc(img);
+		Img sortimg = m_sortImages[index];
+		if(null == sortimg) {
+			//-- The code has decided this was not sortable after all, even though the column was marked as such. Ignore updating the sort image. Fixes 44131.
+			return;
+		}
+		sortimg.setSrc(img);
 	}
 
 	/**
