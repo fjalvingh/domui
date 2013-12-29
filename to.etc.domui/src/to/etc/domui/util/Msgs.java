@@ -281,6 +281,9 @@ public interface Msgs {
 	/*** BulkUpload ***/
 	public static final String BULKUPLD_DISABLED = "bupl.disabled";
 
+	public static final String BULKUPLD_SELECT_FILES = "bupl.select.files";
+
+	public static final String BULKUPLD_UPLOAD_QUEUE = "bupl.upload.queue";
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Available icons within the framework theme set.		*/

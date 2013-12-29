@@ -114,12 +114,21 @@ public class StringTool {
 		return true;
 	}
 
+	/**
+	 * Returns TRUE if the string is a number, possibly containing a '.'.
+	 * @param s
+	 * @return
+	 */
 	static public boolean isNumber(final String s) {
-		try {
-			Integer.parseInt(s.trim());
-			return true;
-		} catch(Exception x) {}
-		return false;
+		int dots = 0;
+		for(int i = s.length(); --i >= 0;) {
+			char c = s.charAt(i);
+			if(c == '.')
+				dots++;
+			else if(c < '0' || c > '9')
+				return false;
+		}
+		return dots < 2;
 	}
 
 	static public boolean isDomainChar(final char c) {
@@ -392,7 +401,7 @@ public class StringTool {
 	 *	maxlen characters.
 	 */
 	public static String truncLength(final String s, final int maxlen) {
-		if(s.length() < maxlen)
+		if(s == null || s.length() < maxlen)
 			return s;
 		return s.substring(0, maxlen);
 	}

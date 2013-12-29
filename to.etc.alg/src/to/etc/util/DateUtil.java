@@ -404,7 +404,8 @@ public class DateUtil {
 	}
 
 	static public boolean between(Date start, Date end, Date v) {
-		return v.getTime() >= start.getTime() && v.getTime() < end.getTime();
+		return (start == null || v.getTime() >= start.getTime())							//
+			&& (end == null || v.getTime() < end.getTime());								//
 	}
 
 	static public boolean overlaps(Date s1, Date e1, Date s2, Date e2) {
