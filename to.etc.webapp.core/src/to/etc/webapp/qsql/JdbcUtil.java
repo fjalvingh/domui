@@ -179,6 +179,8 @@ public class JdbcUtil {
 				res = Boolean.valueOf(rs.getBoolean(1));
 			else if(clz == Blob.class)
 				res = rs.getBlob(1);
+			else if(clz == Clob.class)
+				res = rs.getClob(1);
 			else
 				throw new IllegalStateException("Call error: cannot handle requested return type " + clz);
 			if(rs.wasNull())
@@ -228,6 +230,10 @@ public class JdbcUtil {
 						res = new java.util.Date(ts.getTime());
 				} else if(clz == Boolean.class || clz == boolean.class)
 					res = Boolean.valueOf(rs.getBoolean(1));
+				else if(clz == Blob.class)
+					res = rs.getBlob(1);
+				else if(clz == Clob.class)
+					res = rs.getClob(1);
 				else
 					throw new IllegalStateException("Call error: cannot handle requested return type " + clz);
 				if(rs.wasNull())
@@ -290,6 +296,10 @@ public class JdbcUtil {
 			ps.setTimestamp(px, new Timestamp(((java.util.Date) val).getTime()));
 		} else if(val instanceof Boolean) {
 			ps.setBoolean(px, ((Boolean) val).booleanValue());
+		} else if(val instanceof Blob) {
+			ps.setBlob(px, ((Blob) val));
+		} else if(val instanceof Clob) {
+			ps.setClob(px, ((Clob) val));
 		} else
 			throw new IllegalStateException("Call error: unknown SQL parameter of type " + val.getClass());
 	}
@@ -539,6 +549,10 @@ public class JdbcUtil {
 			return (T) (Double.valueOf(ps.getDouble(index)));
 		} else if(rtype == BigDecimal.class) {
 			return (T) ps.getBigDecimal(index);
+		} else if(rtype == Blob.class) {
+			return (T) ps.getBlob(index);
+		} else if(rtype == Clob.class) {
+			return (T) ps.getClob(index);
 		} else {
 			throw new IllegalStateException("Call error: cannot get out parameter for result java type=" + rtype);
 		}
