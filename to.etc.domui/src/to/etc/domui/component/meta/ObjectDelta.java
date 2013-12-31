@@ -69,14 +69,18 @@ final public class ObjectDelta {
 	}
 
 	@Nonnull
-	static public <T> ObjectDelta compare(@Nonnull T a, @Nonnull T b) throws Exception {
+	static public <T> ObjectDelta compare(@Nonnull T a, @Nonnull T b, Object... ignored) throws Exception {
 		ClassMetaModel acmm = MetaManager.findClassMeta(a.getClass());
 		ClassMetaModel bcmm = MetaManager.findClassMeta(b.getClass());
 		if(acmm != bcmm)
 			throw new IllegalStateException("Class " + a + " and class " + b + " are not the same class.");
+		Set<String> ignoreSet = getPropertyList(ignored);
 
 		Map<String, Delta< ? >> deltaMap = new HashMap<String, Delta< ? >>();
 		for(PropertyMetaModel< ? > pmm : acmm.getProperties()) {
+			if(ignoreSet.contains(pmm.getName()))
+				continue;
+
 			if(Collection.class.isAssignableFrom(pmm.getActualType())) {
 				//-- todo
 			} else if(Map.class.isAssignableFrom(pmm.getActualType())) {
