@@ -10,6 +10,8 @@ import org.eclipse.text.edits.*;
 import to.etc.util.*;
 
 public class AstParse {
+	static private final boolean DEBUG = false;
+
 	static private final Map<String, String> PRIM2WRAP = new HashMap<String, String>();
 	static {
 		PRIM2WRAP.put("byte", "Byte");
@@ -25,12 +27,12 @@ public class AstParse {
 //		PRIM2WRAP.put("", "");
 	}
 
+	private AST m_ast;
+
 
 	public static void main(String[] args) throws Exception {
 		new AstParse().run(args);
 	}
-
-	private AST m_ast;
 
 	private void run(String[] args) throws Exception {
 		if(args.length == 0) {
@@ -130,8 +132,10 @@ public class AstParse {
 			return;
 
 		System.out.println("Changed " + src);
-		System.out.println(newsource);
-		System.exit(10);
+		if(DEBUG) {
+			System.out.println(newsource);
+			System.exit(10);
+		}
 
 		FileTool.writeFileFromString(src, newsource, "utf-8");
 	}
