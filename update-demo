@@ -1,0 +1,8 @@
+#!/bin/bash
+if [ -e ../.metadata ]; then
+	rsync -av --delete ../.metadata/.plugins/org.eclipse.wst.server.core/tmp0/wtpwebapps/to.etc.domui.demo/* root@anvers.etc.to:/home/domui/www/webapps/demo
+else
+	rsync -av --delete .metadata/.plugins/org.eclipse.wst.server.core/tmp0/wtpwebapps/to.etc.domui.demo/* root@anvers.etc.tp:/home/domui/www/webapps/demo
+fi
+ssh root@anvers.etc.to "home domui stop; home domui start"
+
