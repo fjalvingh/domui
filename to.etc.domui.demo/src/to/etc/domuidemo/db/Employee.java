@@ -3,12 +3,14 @@ package to.etc.domuidemo.db;
 import java.util.*;
 
 import javax.persistence.*;
+
+import to.etc.domui.component.meta.*;
 import to.etc.domui.databinding.observables.*;
 
 @Entity
 @Table(name = "Employee")
 @SequenceGenerator(name = "sq", sequenceName = "employee_sq")
-//@MetaObject(defaultColumns = {@MetaDisplayProperty(name = "name")})
+@MetaObject(defaultColumns = {@MetaDisplayProperty(name = "firstName"), @MetaDisplayProperty(name = "lastName")})
 public class Employee extends DbRecordBase<Long> implements IObservableEntity {
 	private Long m_id;
 
@@ -59,12 +61,14 @@ public class Employee extends DbRecordBase<Long> implements IObservableEntity {
 		return m_firstName;
 	}
 
+	@MetaSearch(order = 2)
 	public void setFirstName(String firstName) {
 		String oldv = getFirstName();
 		m_firstName = firstName;
 		firePropertyChange("firstName", oldv, firstName);
 	}
 
+	@MetaSearch(order = 1)
 	@Column(name = "LastName", length = 20, nullable = false)
 	public String getLastName() {
 		return m_lastName;

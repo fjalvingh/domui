@@ -2,12 +2,13 @@ package to.etc.domuidemo.components;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
-import to.etc.domuidemo.pages.*;
 import to.etc.domuidemo.sourceviewer.*;
 
 public class SourceBreadCrumb extends Div {
@@ -35,8 +36,7 @@ public class SourceBreadCrumb extends Div {
 		}
 		setDisplay(null);
 
-		if(!(getPage().getBody() instanceof WikiExplanationPage)) {
-
+		if(!hasSuper(getPage().getBody(), "WikiExplanationPage")) {
 			//-- Add logo.
 			Div right = new Div();
 			add(right);
@@ -61,6 +61,19 @@ public class SourceBreadCrumb extends Div {
 			ct++;
 		}
 	}
+
+	private static boolean hasSuper(@Nonnull Object instance, String what) {
+		Class< ? > clz = instance.getClass();
+		for(;;) {
+			if(clz.getName().endsWith(what)) {
+				return true;
+			}
+			clz = clz.getSuperclass();
+			if(clz == null || clz == Object.class)
+				return false;
+		}
+	}
+
 
 	private void addPageLink(int ct, Class< ? extends UrlPage> class1, IPageParameters pageParameters, String ttl, boolean last) {
 		//-- Create a LINK or a SPAN

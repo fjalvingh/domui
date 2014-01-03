@@ -13,5 +13,5 @@ import to.etc.domui.dom.html.*;
  */
 public interface IControlFactory<V> {
 	@Nonnull
-	public <C extends NodeBase & IControl<V>> C createControl(@Nullable PropertyMetaModel<V> pmm) throws Exception;
+	public IControl<V> createControl(@Nullable PropertyMetaModel<V> pmm) throws Exception;
 }

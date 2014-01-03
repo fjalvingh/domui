@@ -1,6 +1,10 @@
 package to.etc.domuidemo.pages.binding.tbl;
 
+import to.etc.domui.component.input.*;
+import to.etc.domui.component.meta.*;
 import to.etc.domui.component.tbl.*;
+import to.etc.domui.dom.html.*;
+import to.etc.domui.util.*;
 import to.etc.domuidemo.db.*;
 import to.etc.domuidemo.pages.*;
 import to.etc.webapp.query.*;
@@ -15,10 +19,29 @@ public class DemoTableBinding2 extends WikiExplanationPage {
 		RowRenderer<Employee> rr = new RowRenderer<Employee>(Employee.class);
 		rr.column("firstName").label("First Name").ascending().editable();
 		rr.column("lastName").label("Last Name").ascending().sortdefault().editable();
+
+		final INodeContentRenderer<Employee> contentRenderer = new INodeContentRenderer<Employee>() {
+			@Override
+			public void renderNodeContent(NodeBase component, NodeContainer node, Employee object, Object parameters) throws Exception {
+				if(null == object)
+					return;
+				node.add(object.getFirstName() + " " + object.getLastName());
+			}
+		};
+
+		rr.column(Employee.class, "reportsTo").label("Manager").editable().factory(new IControlFactory<Employee>() {
+			@Override
+			public IControl<Employee> createControl(PropertyMetaModel<Employee> pmm) throws Exception {
+				LookupInput<Employee> li = new LookupInput<Employee>(Employee.class);
+				li.setValueRenderer(contentRenderer);
+				return li;
+			}
+		});
+
 		rr.column("email").label("email").ascending().editable();
 		rr.column("phone").label("phone");
 		rr.column("title").label("Title");
-		rr.column("address").label("Address");
+//		rr.column("address").label("Address");
 		rr.column("postalCode").label("Postal code");
 
 		DataTable<Employee> dt = new DataTable<Employee>(sm, rr);

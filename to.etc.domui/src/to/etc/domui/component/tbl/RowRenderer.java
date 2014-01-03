@@ -337,7 +337,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 		IControlFactory<X> cf = cd.getControlFactory();
 		C control;
 		if(cf != null) {
-			control = cf.createControl(pmm);
+			control = (C) cf.createControl(pmm);
 
 			//FIXME We need to bind the control to the INSTANCE if that was passed 8-/
 

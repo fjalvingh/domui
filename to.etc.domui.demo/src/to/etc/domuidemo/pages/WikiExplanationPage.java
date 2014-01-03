@@ -1,6 +1,7 @@
 package to.etc.domuidemo.pages;
 
 import to.etc.domui.dom.html.*;
+import to.etc.domuidemo.components.*;
 
 /**
  * Base page for examples that also shows a wiki article.
@@ -15,6 +16,7 @@ public class WikiExplanationPage extends UrlPage {
 
 	@Override
 	protected void createFrame() throws Exception {
+		add(new SourceBreadCrumb());
 		Div d = m_content = new Div();
 		add(d);
 		d.setCssClass("ui-demo-content");
