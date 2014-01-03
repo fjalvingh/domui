@@ -1,10 +1,11 @@
 package to.etc.domuidemo.db;
 
 import javax.persistence.*;
+import to.etc.domui.databinding.observables.*;
 
 @Entity
 @Table(name = "Album")
-public class Album extends DbRecordBase<Long> {
+public class Album extends DbRecordBase<Long> implements IObservableEntity {
 	private Long m_id;
 
 	private String m_title;
@@ -20,7 +21,9 @@ public class Album extends DbRecordBase<Long> {
 	}
 
 	public void setId(Long id) {
+		Long oldv = getId();
 		m_id = id;
+		firePropertyChange("id", oldv, id);
 	}
 
 	@Column(name = "Title", length = 160, nullable = false)
@@ -29,7 +32,9 @@ public class Album extends DbRecordBase<Long> {
 	}
 
 	public void setTitle(String name) {
+		String oldv = getTitle();
 		m_title = name;
+		firePropertyChange("title", oldv, name);
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -39,6 +44,8 @@ public class Album extends DbRecordBase<Long> {
 	}
 
 	public void setArtist(Artist primaryArtist) {
+		Artist oldv = getArtist();
 		m_artist = primaryArtist;
+		firePropertyChange("artist", oldv, primaryArtist);
 	}
 }
