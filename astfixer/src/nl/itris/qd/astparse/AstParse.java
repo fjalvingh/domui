@@ -29,6 +29,7 @@ public class AstParse {
 
 	private AST m_ast;
 
+	private boolean m_haschanges;
 
 	public static void main(String[] args) throws Exception {
 		new AstParse().run(args);
@@ -67,6 +68,7 @@ public class AstParse {
 
 
 	private void updateFile(File src) throws Exception {
+		m_haschanges = false;
 		System.out.println("Updating: " + src);
 		String text = FileTool.readFileAsString(src, "utf-8");
 		Document doc = new Document(text);
@@ -91,13 +93,16 @@ public class AstParse {
 
 				boolean isObservable = false;
 
-				for(SimpleType t : superInterfaces) {
-					System.out.println(" >> " + t.getName() + ", " + t.getClass());
-//					ITypeBinding binding = t.resolveBinding();
-//					String qname = binding.getQualifiedName();
-					if(t.getName().getFullyQualifiedName().equals("IObservableEntity")) {
-						isObservable = true;
-						break;
+				for(Type tt : superInterfaces) {
+					if(tt instanceof SimpleType) {
+						SimpleType t = (SimpleType) tt;
+						System.out.println(" >> " + t.getName() + ", " + t.getClass());
+						//					ITypeBinding binding = t.resolveBinding();
+						//					String qname = binding.getQualifiedName();
+						if(t.getName().getFullyQualifiedName().equals("IObservableEntity")) {
+							isObservable = true;
+							break;
+						}
 					}
 				}
 
@@ -128,7 +133,7 @@ public class AstParse {
 		TextEdit edits = cu.rewrite(doc, null);
 		edits.apply(doc);
 		String newsource = doc.get();
-		if(newsource.equals(text))
+		if(!m_haschanges || newsource.equals(text))
 			return;
 
 		System.out.println("Changed " + src);
@@ -273,6 +278,7 @@ public class AstParse {
 			SimpleType nwtype = m_ast.newSimpleType(m_ast.newSimpleName(type.toString()));
 			oldvd.setType(nwtype);
 		}
+		m_haschanges = true;
 
 		body.statements().add(0, oldvd);
 
