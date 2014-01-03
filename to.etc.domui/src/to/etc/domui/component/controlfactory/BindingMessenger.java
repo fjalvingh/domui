@@ -46,7 +46,6 @@ public final class BindingMessenger {
 	@Nullable
 	private BundleRef m_bundleRef;
 
-	@Nonnull
 	private Object m_object;
 
 	public BindingMessenger(@Nonnull ModelBindings bindings, @Nonnull BundleRef bundleRef) {

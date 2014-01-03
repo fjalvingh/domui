@@ -780,7 +780,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 			String base = getTestRepeatId();
 			if(parentId != null) {
 				String nid = base + "/" + calcid;
-				if(m_page.isTestIDALlocated(nid)) {
+				Page page = m_page;
+				if(page != null && page.isTestIDALlocated(nid)) {
 					m_calculatedTestIdBase = parentId + "_" + calcid;
 				} else {
 					m_calculatedTestIdBase = calcid;
@@ -807,6 +808,9 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 
 	@Nullable
 	public String calcTestID() {
+		Page page = m_page;
+		if(null == page)
+			return null;
 		String baseName = getTestID();
 		if(null != baseName)
 			return baseName;
@@ -815,7 +819,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 			return null;
 		String repeatId = getTestRepeatId();
 
-		return m_testID = m_page.allocateTestID(repeatId + baseName);
+		return m_testID = page.allocateTestID(repeatId + baseName);
 	}
 
 	/**
@@ -826,10 +830,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	@Nonnull
 	public String getTestRepeatId() {
 		if(m_testFullRepeatID == null) {
-			if(m_parent == null) {
+			NodeContainer parent = m_parent;
+			if(parent == null) {
 				throw new IllegalStateException("?? " + getClass().getName() + " null parent");
 			}
-			String ptrid = m_parent.getTestRepeatId();
+			String ptrid = parent.getTestRepeatId();
 			if(m_testRepeatId == null) {
 				m_testFullRepeatID = ptrid;
 			} else {

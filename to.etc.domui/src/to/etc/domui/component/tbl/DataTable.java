@@ -308,8 +308,9 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		}
 
 		//-- If this has a click handler- fire it.
-		if(null != m_rowRenderer.getRowClicked())
-			((ICellClicked<T>) m_rowRenderer.getRowClicked()).cellClicked(b, instance);
+		ICellClicked< ? > rowClicked = m_rowRenderer.getRowClicked();
+		if(null != rowClicked)
+			((ICellClicked<T>) rowClicked).cellClicked(b, instance);
 	}
 
 	/**

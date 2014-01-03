@@ -129,7 +129,9 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 						@Override
 						@SuppressWarnings({"synthetic-access"})
 						public void clicked(@Nonnull TR b, @Nonnull ClickInfo clinfo) throws Exception {
-							((ICellClicked<T>) getRowRenderer().getRowClicked()).cellClicked(therow, theitem);
+							ICellClicked< ? > rowClicked = getRowRenderer().getRowClicked();
+							if(null != rowClicked)
+								((ICellClicked<T>) rowClicked).cellClicked(therow, theitem);
 						}
 					});
 					cc.getTR().addCssClass("ui-rowsel");
@@ -197,7 +199,9 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 				@Override
 				@SuppressWarnings({"synthetic-access"})
 				public void clicked(@Nonnull TR b, @Nonnull ClickInfo clinfo) throws Exception {
-					((ICellClicked<T>) getRowRenderer().getRowClicked()).cellClicked(therow, theitem);
+					ICellClicked< ? > rowClicked = getRowRenderer().getRowClicked();
+					if(null != rowClicked)
+						((ICellClicked<T>) rowClicked).cellClicked(therow, theitem);
 				}
 			});
 			cc.getTR().addCssClass("ui-rowsel");

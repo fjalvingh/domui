@@ -205,8 +205,9 @@ public class SimpleBinder implements IBinder {
 		} else {
 			sb.append("?");
 		}
-		if(m_propertyModel != null) {
-			sb.append("/").append(m_propertyModel.getName());
+		PropertyMetaModel< ? > propertyModel = m_propertyModel;
+		if(propertyModel != null) {
+			sb.append("/").append(propertyModel.getName());
 		}
 		return sb.toString();
 	}
