@@ -6,9 +6,10 @@ import to.etc.domui.component.misc.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domuidemo.db.*;
+import to.etc.domuidemo.pages.*;
 import to.etc.webapp.query.*;
 
-public class DemoTableBinding1 extends UrlPage {
+public class DemoTableBinding1 extends WikiExplanationPage {
 	final private Div m_lower = new Div();
 
 	@Override
