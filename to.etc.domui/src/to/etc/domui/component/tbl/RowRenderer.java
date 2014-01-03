@@ -3,14 +3,14 @@ package to.etc.domui.component.tbl;
 import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
+import to.etc.domui.component.misc.*;
 import to.etc.domui.component.ntbl.*;
-import to.etc.domui.converter.*;
+import to.etc.domui.databinding.observables.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.annotations.*;
-import to.etc.webapp.nls.*;
 
 /**
  * This is the type-safe replacement for the other row renderers which are now deprecated.
@@ -51,42 +51,10 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 		m_columnList = new ColumnList<T>(data, m_metaModel);
 	}
 
-	@Nonnull
-	private ColumnList<T> getColumnList() {
-		return m_columnList;
-	}
-
-	/**
-	 * Sets default sort column on row renderer. Overrides property meta model setting if such defines default sort.
-	 * @param cd
-	 * @param type
-	 */
-	public void setDefaultSort(@Nonnull ColumnDef< ? > cd, @Nonnull SortableType type) {
-		getColumnList().setSortColumn(cd, type);
-	}
-
-	/**
-	 * Returns the metamodel used.
-	 * @return
-	 */
-	@Nonnull
-	protected ClassMetaModel model() {
-		return m_metaModel;
-	}
-
-	/**
-	 * Returns the record type being rendered.
-	 * @return
-	 */
-	@Nonnull
-	protected Class< ? > getActualClass() {
-		return m_dataClass;
-	}
-
 	/**
 	 * Throws an exception if this renderer has been completed and is unmutable.
 	 */
-	protected void check() {
+	private void check() {
 		if(m_completed)
 			throw new IllegalStateException("Programmer error: This object has been USED and cannot be changed anymore");
 	}
@@ -110,146 +78,6 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 
 		getColumnList().assignPercentages();				// Calculate widths
 		m_completed = true;
-	}
-
-	/**
-	 * Check if this object is used (completed) and thereby unmodifyable (internal).
-	 * @return
-	 */
-	protected boolean isComplete() {
-		return m_completed;
-	}
-
-	protected void setSortColumn(@Nullable ColumnDef< ? > cd, @Nullable SortableType type) {
-		m_columnList.setSortColumn(cd, type);
-	}
-
-	@Nullable
-	protected ColumnDef< ? > getSortColumn() {
-		return m_columnList.getSortColumn();
-	}
-
-	protected boolean isSortDescending() {
-		return m_columnList.isSortDescending();
-	}
-
-	protected void setSortDescending(boolean desc) {
-		m_columnList.setSortDescending(desc);
-	}
-
-	/**
-	 * Return the definition for the nth column. You can change the column's definition there.
-	 * @param ix
-	 * @return
-	 */
-	@Nonnull
-	public ColumnDef< ? > getColumn(final int ix) {
-		return m_columnList.get(ix);
-	}
-
-	/**
-	 * Return the #of columns in this renderer.
-	 * @return
-	 */
-	public int getColumnCount() {
-		return m_columnList.size();
-	}
-
-	/**
-	 * Find a column by the property it is displaying. This only works for that kind of columns, and will
-	 * not work for any joined columns defined from metadata. If no column exists for the specified property
-	 * this will throw an exception.
-	 * @param propertyName
-	 * @return
-	 */
-	@Nonnull
-	public ColumnDef< ? > getColumnByName(String propertyName) {
-		for(ColumnDef< ? > scd : m_columnList) {
-			if(propertyName.equals(scd.getPropertyName()))
-				return scd;
-		}
-		throw new ProgrammerErrorException("The property with the name '" + propertyName + "' is undefined in this RowRenderer - perhaps metadata has changed?");
-	}
-
-	/**
-	 * Quickly set the widths of all columns in the same order as defined.
-	 * @param widths
-	 */
-	public void setColumnWidths(final String... widths) {
-		check();
-		int ix = 0;
-		for(final String s : widths) {
-			getColumn(ix++).setWidth(s);
-		}
-	}
-
-	/**
-	 * Convenience method to set the column width; replacement for getColumn(index).setWidth().
-	 * @param index
-	 * @param width
-	 */
-	public void setColumnWidth(final int index, final String width) {
-		check();
-		getColumn(index).setWidth(width);
-	}
-
-	/**
-	 * Convenience method to set the column's cell renderer; replacement for getColumn(index).setRenderer().
-	 * @param index
-	 * @param renderer
-	 */
-	public <T> void setNodeRenderer(final int index, @Nullable final INodeContentRenderer<T> renderer) {
-		check();
-		((ColumnDef<T>) getColumn(index)).setContentRenderer(renderer);
-	}
-
-	/**
-	 * Convenience method to get the column's cell renderer; replacement for getColumn(index).getRenderer().
-	 * @param index
-	 * @return
-	 */
-	public INodeContentRenderer< ? > getNodeRenderer(final int index) {
-		return getColumn(index).getContentRenderer();
-	}
-
-
-	/**
-	 * When set each row will be selectable (will react when the mouse hovers over it), and when clicked will call this handler.
-	 * @return
-	 */
-	@Override
-	@Nullable
-	public ICellClicked< ? > getRowClicked() {
-		return m_rowClicked;
-	}
-
-	/**
-	 * When set each row will be selectable (will react when the mouse hovers over it), and when clicked will call this handler.
-	 * @param rowClicked
-	 */
-	@Override
-	public <V> void setRowClicked(@Nullable final ICellClicked<V> rowClicked) {
-		m_rowClicked = rowClicked;
-	}
-
-	/**
-	 * Get the cell clicked handler for the specified column. Convenience method for getColumn(col).getCellClicked().
-	 * @param col
-	 * @return
-	 */
-	@Nullable
-	public ICellClicked< ? > getCellClicked(final int col) {
-		return getColumn(col).getCellClicked();
-	}
-
-	/**
-	 * Set the cell clicked handler for the specified column. Convenience method for getColumn(col).setCellClicked().
-	 * @param col
-	 * @param cellClicked
-	 */
-	@Override
-	public <T> void setCellClicked(final int col, @Nullable final ICellClicked<T> cellClicked) {
-		((ColumnDef<T>) getColumn(col)).setCellClicked(cellClicked);
 	}
 
 
@@ -463,48 +291,36 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 		}
 
 		//-- Render the value, in whatever way
-		if(cd.isEditable()) {
-			throw new IllegalStateException("Editable not implemented yet");
-		}
 
 		//-- Start rendering.
 		INodeContentRenderer<X> contentRenderer = cd.getContentRenderer();
 		if(null != contentRenderer) {
-			//-- Using a content renderer means you need to take care of your own binding chores.
-			X colval = cd.getColumnValue(instance);
-			contentRenderer.renderNodeContent(tbl, cell, colval, instance);	// %&*(%&^%*&%&( generics require casting here
-		} else {
-
-
-		}
-
-		//-- If a value transformer is known get the column value, else just use the instance itself (case when Renderer is used)
-		X colval;
-		IValueTransformer< ? > valueTransformer = cd.getValueTransformer();
-		if(valueTransformer == null)
-			colval = (X) instance;
-		else
-			colval = (X) valueTransformer.getValue(instance);
-
-		//-- Is a node renderer used?
-		if(null != contentRenderer) {
-			((INodeContentRenderer<Object>) contentRenderer).renderNodeContent(tbl, cell, colval, instance); // %&*(%&^%*&%&( generics require casting here
-		} else {
-			String s;
-			if(colval == null)
-				s = null;
-			else {
-				IObjectToStringConverter< ? > presentationConverter = cd.getPresentationConverter();
-				if(presentationConverter != null)
-					s = ((IConverter<X>) presentationConverter).convertObjectToString(NlsContext.getLocale(), colval);
-				else
-					s = String.valueOf(colval);
+			if(cd.isEditable()) {
+				throw new IllegalStateException("A column cannot be editable if you assign your own renderer to it: handle the editing inside the renderer yourself.");
 			}
 
-			if(s != null)
-				cell.setText(s);
+			//-- Using a content renderer means you need to take care of everything related to rendering yourself.
+			X colval = cd.getColumnValue(instance);
+			contentRenderer.renderNodeContent(tbl, cell, colval, instance);
+		} else if(cd.isEditable()) {
+			renderEditable(tbl, cell, instance);
+		} else if(instance instanceof IObservableEntity) {
+			PropertyMetaModel<X> pmm = cd.getPropertyMetaModel();
+			if(null == pmm)
+				throw new IllegalStateException("Cannot render display value for row type");
+			DisplaySpan<X> dv = new DisplaySpan<X>(cd.getActualClass());
+			cell.getBindingContext().unibind(instance, pmm.getName(), dv, "value");
+			cell.add(dv);
+		} else {
+			X value = cd.getColumnValue(instance);
+			if(null != value) {
+				cell.add(new DisplaySpan<X>(value));
+			}
 		}
+	}
 
+	private void renderEditable(@Nonnull TableModelTableBase<T> tbl, @Nonnull TD cell, @Nonnull T instance) {
+		// TODO Auto-generated method stub
 
 	}
 
@@ -531,6 +347,177 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 		getColumnList().addDefaultColumns();
 	}
 
+	@Nonnull
+	private ColumnList<T> getColumnList() {
+		return m_columnList;
+	}
+
+	/**
+	 * Sets default sort column on row renderer. Overrides property meta model setting if such defines default sort.
+	 * @param cd
+	 * @param type
+	 */
+	public void setDefaultSort(@Nonnull ColumnDef< ? > cd, @Nonnull SortableType type) {
+		getColumnList().setSortColumn(cd, type);
+	}
+
+	/**
+	 * Returns the metamodel used.
+	 * @return
+	 */
+	@Nonnull
+	protected ClassMetaModel model() {
+		return m_metaModel;
+	}
+
+	/**
+	 * Returns the record type being rendered.
+	 * @return
+	 */
+	@Nonnull
+	protected Class< ? > getActualClass() {
+		return m_dataClass;
+	}
+
+	/**
+	 * Check if this object is used (completed) and thereby unmodifyable (internal).
+	 * @return
+	 */
+	protected boolean isComplete() {
+		return m_completed;
+	}
+
+	protected void setSortColumn(@Nullable ColumnDef< ? > cd, @Nullable SortableType type) {
+		m_columnList.setSortColumn(cd, type);
+	}
+
+	@Nullable
+	protected ColumnDef< ? > getSortColumn() {
+		return m_columnList.getSortColumn();
+	}
+
+	protected boolean isSortDescending() {
+		return m_columnList.isSortDescending();
+	}
+
+	protected void setSortDescending(boolean desc) {
+		m_columnList.setSortDescending(desc);
+	}
+
+	/**
+	 * Return the definition for the nth column. You can change the column's definition there.
+	 * @param ix
+	 * @return
+	 */
+	@Nonnull
+	public ColumnDef< ? > getColumn(final int ix) {
+		return m_columnList.get(ix);
+	}
+
+	/**
+	 * Return the #of columns in this renderer.
+	 * @return
+	 */
+	public int getColumnCount() {
+		return m_columnList.size();
+	}
+
+	/**
+	 * Find a column by the property it is displaying. This only works for that kind of columns, and will
+	 * not work for any joined columns defined from metadata. If no column exists for the specified property
+	 * this will throw an exception.
+	 * @param propertyName
+	 * @return
+	 */
+	@Nonnull
+	public ColumnDef< ? > getColumnByName(String propertyName) {
+		for(ColumnDef< ? > scd : m_columnList) {
+			if(propertyName.equals(scd.getPropertyName()))
+				return scd;
+		}
+		throw new ProgrammerErrorException("The property with the name '" + propertyName + "' is undefined in this RowRenderer - perhaps metadata has changed?");
+	}
+
+	/**
+	 * Quickly set the widths of all columns in the same order as defined.
+	 * @param widths
+	 */
+	public void setColumnWidths(final String... widths) {
+		check();
+		int ix = 0;
+		for(final String s : widths) {
+			getColumn(ix++).setWidth(s);
+		}
+	}
+
+	/**
+	 * Convenience method to set the column width; replacement for getColumn(index).setWidth().
+	 * @param index
+	 * @param width
+	 */
+	public void setColumnWidth(final int index, final String width) {
+		check();
+		getColumn(index).setWidth(width);
+	}
+
+	/**
+	 * Convenience method to set the column's cell renderer; replacement for getColumn(index).setRenderer().
+	 * @param index
+	 * @param renderer
+	 */
+	public <T> void setNodeRenderer(final int index, @Nullable final INodeContentRenderer<T> renderer) {
+		check();
+		((ColumnDef<T>) getColumn(index)).setContentRenderer(renderer);
+	}
+
+	/**
+	 * Convenience method to get the column's cell renderer; replacement for getColumn(index).getRenderer().
+	 * @param index
+	 * @return
+	 */
+	public INodeContentRenderer< ? > getNodeRenderer(final int index) {
+		return getColumn(index).getContentRenderer();
+	}
+
+
+	/**
+	 * When set each row will be selectable (will react when the mouse hovers over it), and when clicked will call this handler.
+	 * @return
+	 */
+	@Override
+	@Nullable
+	public ICellClicked< ? > getRowClicked() {
+		return m_rowClicked;
+	}
+
+	/**
+	 * When set each row will be selectable (will react when the mouse hovers over it), and when clicked will call this handler.
+	 * @param rowClicked
+	 */
+	@Override
+	public <V> void setRowClicked(@Nullable final ICellClicked<V> rowClicked) {
+		m_rowClicked = rowClicked;
+	}
+
+	/**
+	 * Get the cell clicked handler for the specified column. Convenience method for getColumn(col).getCellClicked().
+	 * @param col
+	 * @return
+	 */
+	@Nullable
+	public ICellClicked< ? > getCellClicked(final int col) {
+		return getColumn(col).getCellClicked();
+	}
+
+	/**
+	 * Set the cell clicked handler for the specified column. Convenience method for getColumn(col).setCellClicked().
+	 * @param col
+	 * @param cellClicked
+	 */
+	@Override
+	public <T> void setCellClicked(final int col, @Nullable final ICellClicked<T> cellClicked) {
+		((ColumnDef<T>) getColumn(col)).setCellClicked(cellClicked);
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Typesafe definition delegates.						*/

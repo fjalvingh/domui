@@ -3,11 +3,13 @@ package to.etc.domui.component.tbl;
 import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
-import to.etc.domui.converter.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.util.*;
 
 public class ColumnDef<T> {
+	@Nonnull
+	final private Class<T> m_actualClass;
+
 	/** The label text, if needed, to use as the column heading */
 	@Nullable
 	private String m_columnLabel;
@@ -41,12 +43,9 @@ public class ColumnDef<T> {
 
 	private boolean m_nowrap = true;
 
-	/** The thingy which obtains the column's value (as an object) */
+	/** If bound to a property: the metamodel for the property. This is null if the column binds to the entire row object. */
 	@Nullable
-	private IValueTransformer<T> m_valueTransformer;
-
-	@Nullable
-	private IObjectToStringConverter<T> m_presentationConverter;
+	private PropertyMetaModel<T> m_propertyMetaModel;
 
 	@Nonnull
 	private NumericPresentation m_numericPresentation = NumericPresentation.UNKNOWN;
@@ -67,6 +66,7 @@ public class ColumnDef<T> {
 	private boolean m_editable;
 
 	public <X> ColumnDef(@Nonnull ColumnList< ? > cdl, @Nonnull Class<T> valueClass) {
+		m_actualClass = valueClass;
 		m_columnType = valueClass;
 		m_defList = cdl;
 	}
@@ -76,16 +76,26 @@ public class ColumnDef<T> {
 	 * @param pmm
 	 */
 	public ColumnDef(@Nonnull ColumnList< ? > cdl, @Nonnull PropertyMetaModel<T> pmm) {
+		m_actualClass = pmm.getActualType();
 		m_defList = cdl;
 		m_columnType = pmm.getActualType();
 		setColumnLabel(pmm.getDefaultLabel());
-		setValueTransformer(pmm); 								// Thing which can obtain the value from the property
-		setPresentationConverter(ConverterRegistry.findBestConverter(pmm));
+		m_propertyMetaModel = pmm;
 		setSortable(pmm.getSortable());
 		setPropertyName(pmm.getName());
 		setNumericPresentation(pmm.getNumericPresentation());
 		if(pmm.getNowrap() == YesNoType.YES)
 			setNowrap(true);
+	}
+
+	@Nonnull
+	public Class<T> getActualClass() {
+		return m_actualClass;
+	}
+
+	@Nullable
+	public PropertyMetaModel<T> getPropertyMetaModel() {
+		return m_propertyMetaModel;
 	}
 
 	@Nullable
@@ -97,6 +107,7 @@ public class ColumnDef<T> {
 		label(columnLabel);
 	}
 
+
 	/**
 	 * Create an editable component bound to the column's value.
 	 * @since 2013/1/2
@@ -104,7 +115,7 @@ public class ColumnDef<T> {
 	 */
 	@Nonnull
 	public ColumnDef<T> editable() {
-		if(m_valueTransformer == null)
+		if(m_propertyMetaModel == null)
 			throw new IllegalStateException("Cannot edit a row instance");
 		m_editable = true;
 		return this;
@@ -115,11 +126,11 @@ public class ColumnDef<T> {
 	}
 
 	<R> T getColumnValue(@Nonnull R instance) throws Exception {
-		IValueTransformer<T> valueTransformer = getValueTransformer();
-		if(valueTransformer == null)
+		PropertyMetaModel<T> pmm = m_propertyMetaModel;
+		if(pmm == null)
 			return (T) instance;
 		else
-			return valueTransformer.getValue(instance);
+			return pmm.getValue(instance);
 	}
 
 	@Nonnull
@@ -143,28 +154,6 @@ public class ColumnDef<T> {
 
 	public void setWidth(@Nullable String width) {
 		width(width);
-	}
-
-	@Nullable
-	public IValueTransformer<T> getValueTransformer() {
-		return m_valueTransformer;
-	}
-
-	public void setValueTransformer(@Nullable IValueTransformer<T> valueTransformer) {
-		m_valueTransformer = valueTransformer;
-	}
-
-	/**
-	 * Returns the optional converter to use to convert raw object values to some presentation string value.
-	 * @return
-	 */
-	@Nullable
-	public IObjectToStringConverter<T> getPresentationConverter() {
-		return m_presentationConverter;
-	}
-
-	public void setPresentationConverter(@Nullable IConverter<T> valueConverter) {
-		m_presentationConverter = valueConverter;
 	}
 
 	@Nullable
@@ -402,17 +391,6 @@ public class ColumnDef<T> {
 	}
 
 	/**
-	 * Set a column value-to-string converter to be used.
-	 * @param c
-	 * @return
-	 */
-	@Nonnull
-	public ColumnDef<T> converter(@Nonnull IObjectToStringConverter<T> c) {
-		m_presentationConverter = c;
-		return this;
-	}
-
-	/**
 	 * Set the hint for a column.
 	 * @param hint
 	 * @return
@@ -463,17 +441,6 @@ public class ColumnDef<T> {
 		m_sortHelper = sh;
 		if(m_sortable == SortableType.UNKNOWN)
 			m_sortable = SortableType.SORTABLE_ASC;
-		return this;
-	}
-
-	/**
-	 * Set a value transformer to convert this column value into something else.
-	 * @param vt
-	 * @return
-	 */
-	@Nonnull
-	public ColumnDef<T> transform(@Nonnull IValueTransformer<T> vt) {
-		m_valueTransformer = vt;
 		return this;
 	}
 

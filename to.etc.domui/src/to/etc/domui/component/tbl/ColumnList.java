@@ -10,6 +10,12 @@ import to.etc.domui.util.*;
 import to.etc.util.*;
 import to.etc.webapp.annotations.*;
 
+/**
+ * A list of columns defined in a new-style row renderer.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Jan 3, 2014
+ */
 public class ColumnList<T> implements Iterable<ColumnDef< ? >> {
 	@Nonnull
 	final private ClassMetaModel m_metaModel;
@@ -69,7 +75,6 @@ public class ColumnList<T> implements Iterable<ColumnDef< ? >> {
 			}
 		}
 	}
-
 
 	public void setSortColumn(@Nullable ColumnDef< ? > cd, @Nullable SortableType type) {
 		m_sortColumn = cd;

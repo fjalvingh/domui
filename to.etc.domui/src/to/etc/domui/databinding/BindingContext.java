@@ -157,7 +157,7 @@ public class BindingContext {
 	}
 
 	@Nonnull
-	public <S, T, V> JoinBinding joinbinding(@Nonnull IObservableValue< ? > sourceo, @Nonnull final T target, @Nonnull final String tproperty) throws Exception {
+	public <S, T, V> JoinBinding joinbinding(@Nonnull IObservableValue<S> sourceo, @Nonnull final T target, @Nonnull final String tproperty) throws Exception {
 		if(null == target || null == tproperty)
 			throw new IllegalArgumentException("target/property cannot be null");
 
