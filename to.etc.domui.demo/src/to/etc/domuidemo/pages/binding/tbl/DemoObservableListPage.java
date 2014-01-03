@@ -1,4 +1,4 @@
-package to.etc.domuidemo.pages.binding;
+package to.etc.domuidemo.pages.binding.tbl;
 
 import java.util.*;
 
@@ -21,7 +21,7 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Sep 4, 2013
  */
-public class DatabaseRelationPage extends UrlPage {
+public class DemoObservableListPage extends UrlPage {
 	final private Div m_lower = new Div();
 
 	@Override

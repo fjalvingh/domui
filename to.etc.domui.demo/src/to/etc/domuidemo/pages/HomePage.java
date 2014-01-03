@@ -3,6 +3,7 @@ package to.etc.domuidemo.pages;
 import to.etc.domui.dom.html.*;
 import to.etc.domuidemo.pages.basic.*;
 import to.etc.domuidemo.pages.binding.*;
+import to.etc.domuidemo.pages.binding.tbl.*;
 import to.etc.domuidemo.pages.formbuilder.*;
 import to.etc.domuidemo.pages.graphs.*;
 import to.etc.domuidemo.pages.overview.agenda.*;
@@ -113,7 +114,7 @@ public class HomePage extends MenuPage {
 
 		addCaption("Binding");
 		addLink(BindingBasePage.class, "Basic data binding");
-		addLink(DatabaseRelationPage.class, "Database relation IObservableList binding");
+		addLink(DemoObservableListPage.class, "Database relation IObservableList binding");
 
 	}
 }
