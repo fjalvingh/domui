@@ -53,7 +53,8 @@ public class AstParse {
 
 	private void handleItem(File src) throws Exception {
 		if(src.isFile()) {
-			updateFile(src);
+			if(src.getName().endsWith(".java"))
+				updateFile(src);
 			return;
 		}
 
@@ -70,6 +71,7 @@ public class AstParse {
 
 		ASTParser parser = ASTParser.newParser(AST.JLS4);
 		parser.setSource(doc.get().toCharArray());
+		parser.setResolveBindings(true);
 		CompilationUnit cu = (CompilationUnit) parser.createAST(null);
 
 		cu.recordModifications();
@@ -79,6 +81,36 @@ public class AstParse {
 		List<AbstractTypeDeclaration> types = cu.types();
 		for(AbstractTypeDeclaration type : types) {
 			if(type.getNodeType() == ASTNode.TYPE_DECLARATION) {
+				System.out.println("Class def: " + type.getName());
+
+				//-- We need to implement IObservableEntity
+				TypeDeclaration td = (org.eclipse.jdt.core.dom.TypeDeclaration) type;
+				List<SimpleType> superInterfaces = td.superInterfaceTypes();
+
+				boolean isObservable = false;
+
+				for(SimpleType t : superInterfaces) {
+					System.out.println(" >> " + t.getName() + ", " + t.getClass());
+//					ITypeBinding binding = t.resolveBinding();
+//					String qname = binding.getQualifiedName();
+					if(t.getName().getFullyQualifiedName().equals("IObservableEntity")) {
+						isObservable = true;
+						break;
+					}
+				}
+
+				if(!isObservable) {
+					// Add IObservable interface
+					SimpleType st = m_ast.newSimpleType(m_ast.newSimpleName("IObservableEntity"));
+					superInterfaces.add(st);
+
+					//-- Make sure imports contain proper thingy.
+					addImport(cu, "to.etc.domui.databinding.observables");
+
+
+
+				}
+
 				// Class def found
 				List<BodyDeclaration> bodies = type.bodyDeclarations();
 				for(BodyDeclaration body : bodies) {
@@ -97,8 +129,47 @@ public class AstParse {
 		TextEdit edits = cu.rewrite(doc, null);
 		edits.apply(doc);
 		String newsource = doc.get();
+		if(newsource.equals(text))
+			return;
+
+		System.out.println("Changed " + src);
+		System.out.println(newsource);
+		System.exit(10);
+
 		FileTool.writeFileFromString(src, newsource, "utf-8");
 	}
+
+	private void addImport(CompilationUnit cu, String impname) {
+		List<ImportDeclaration> imports = cu.imports();
+		for(ImportDeclaration id: imports) {
+			String name = id.getName().getFullyQualifiedName();
+			System.out.println("import>> " + name + " : " + id + ", " + id.getName().getClass());
+			if(name.equals(impname))
+				return;
+		}
+
+		ImportDeclaration id = m_ast.newImportDeclaration();
+		id.setName(createQualifiedName(impname));
+		id.setOnDemand(true);
+		imports.add(id);
+	}
+
+	private Name createQualifiedName(String path) {
+		String[] ar = path.split("\\.");
+		if(ar.length == 0)
+			throw new IllegalStateException("Bad qualified name: " + path);
+		Name curr = null;
+		for(int i = 0; i < ar.length; i++) {
+			SimpleName sn = m_ast.newSimpleName(ar[i]);					// Current level's name
+			if(curr == null) {
+				curr = sn;
+			} else {
+				curr = m_ast.newQualifiedName(curr, sn);
+			}
+		}
+		return curr;
+	}
+
 
 	private void checkMethod(MethodDeclaration method) {
 		//-- Must be "void" type.
