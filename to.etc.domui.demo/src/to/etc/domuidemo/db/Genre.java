@@ -4,7 +4,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "Genre")
-public class Genre {
+public class Genre extends DbRecordBase<Long> {
 	private Long m_id;
 
 	private String m_name;

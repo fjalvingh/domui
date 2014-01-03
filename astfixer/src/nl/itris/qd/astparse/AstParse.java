@@ -106,9 +106,6 @@ public class AstParse {
 
 					//-- Make sure imports contain proper thingy.
 					addImport(cu, "to.etc.domui.databinding.observables");
-
-
-
 				}
 
 				// Class def found

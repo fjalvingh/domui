@@ -12,7 +12,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "Track")
-public class Track {
+public class Track extends DbRecordBase<Long> {
 	private Long m_id;
 
 	private MediaType m_mediaType;

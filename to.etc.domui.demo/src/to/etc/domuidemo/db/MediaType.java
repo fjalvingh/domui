@@ -4,7 +4,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "MediaType")
-public class MediaType {
+public class MediaType extends DbRecordBase<Long> {
 	private Long m_id;
 
 	private String m_name;
