@@ -346,7 +346,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 			control = cb.createControlFor(pmm, true, null).getFormControl();
 		}
 		cell.add(control);
-		cell.getBindingContext().unibind(instance, pmm.getName(), control, "value");
+		cell.getBindingContext().joinbinding(instance, pmm.getName(), control, "value");
 	}
 
 	/*--------------------------------------------------------------*/
