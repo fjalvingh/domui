@@ -7,6 +7,7 @@ import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
+import to.etc.domuidemo.pages.*;
 import to.etc.domuidemo.sourceviewer.*;
 
 public class SourceBreadCrumb extends Div {
@@ -34,18 +35,21 @@ public class SourceBreadCrumb extends Div {
 		}
 		setDisplay(null);
 
-		//-- Add logo.
-		Div right = new Div();
-		add(right);
-		right.setCssClass("d-sbc-logo");
-		ATag at = new ATag();
-		right.add(at);
-		at.setHref("http://www.domui.org/");
-		at.setTarget("_blank");
+		if(!(getPage().getBody() instanceof WikiExplanationPage)) {
 
-		Img img = new Img("img/logo-small.png");
-		at.add(img);
-		img.setImgBorder(0);
+			//-- Add logo.
+			Div right = new Div();
+			add(right);
+			right.setCssClass("d-sbc-logo");
+			ATag at = new ATag();
+			right.add(at);
+			at.setHref("http://www.domui.org/");
+			at.setTarget("_blank");
+
+			Img img = new Img("img/logo-small.png");
+			at.add(img);
+			img.setImgBorder(0);
+		}
 
 		for(int i = 0; i < stack.size(); i++) {
 			boolean last = i + 1 >= stack.size();

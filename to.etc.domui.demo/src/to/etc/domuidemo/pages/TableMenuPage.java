@@ -23,7 +23,8 @@ public class TableMenuPage extends MenuPage {
 		addLink(DemoSortableListTable.class, "DataTable: using a List<> with sorting");
 
 		addCaption("Data tables using data binding");
-		addLink(DemoTableBinding1.class, "DataTable display data binding");
+		addLink(DemoTableBinding1.class, "DataTable display data binding: when a property value changes so does the column's displayed value");
+		addLink(DemoTableBinding2.class, "Using a DataTable with editable rows");
 		addLink(DemoObservableListPage.class, "Database relation IObservableList binding");
 	}
 }
