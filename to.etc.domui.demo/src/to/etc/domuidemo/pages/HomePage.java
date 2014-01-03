@@ -5,7 +5,6 @@ import to.etc.domuidemo.pages.basic.*;
 import to.etc.domuidemo.pages.binding.*;
 import to.etc.domuidemo.pages.formbuilder.*;
 import to.etc.domuidemo.pages.graphs.*;
-import to.etc.domuidemo.pages.overview.*;
 import to.etc.domuidemo.pages.overview.agenda.*;
 import to.etc.domuidemo.pages.overview.buttons.*;
 import to.etc.domuidemo.pages.overview.delayed.*;
@@ -17,7 +16,6 @@ import to.etc.domuidemo.pages.overview.layout.*;
 import to.etc.domuidemo.pages.overview.lookup.*;
 import to.etc.domuidemo.pages.overview.menu.*;
 import to.etc.domuidemo.pages.overview.misc.*;
-import to.etc.domuidemo.pages.overview.tbl.*;
 import to.etc.domuidemo.pages.overview.tree.*;
 
 public class HomePage extends MenuPage {
@@ -92,16 +90,7 @@ public class HomePage extends MenuPage {
 		addLink(GraphPage.class, "DOES NOT YET WORK- Pie chart using a dynamic image/JChart");
 
 		addCaption("Tables");
-		addLink(DemoTableModel.class, "Using a DataTable and a simple ITableModel implementation");
-
-		addLink(DatabaseSchemaExpl.class, "Explanation of the database schema for database examples");
-		addLink(DemoDataTable.class, "The DataTable component and SimpleSearchModel: simplest use");
-		addLink(DemoDataPager.class, "The DataPager component");
-		addLink(DemoRowRenderer1.class, "Using the BasicRowRenderer, part 1");
-		addLink(DemoRowRenderer2.class, "Using the BasicRowRenderer with an INodeContentRenderer");
-		addLink(DemoDataTable2.class, "DataTable: making rows clickable");
-		addLink(DemoTableSelect.class, "DataTable: adding select row(s) functionality with ISelectionModel");
-		addLink(DemoSortableListTable.class, "DataTable: using a List<> with sorting");
+		addLink(TableMenuPage.class, "Data tables, row renderers and ITableModels.");
 
 		addCaption("Trees");
 		addLink(DemoTree.class, "The tree component - file system tree, lazily loaded, and file type icons");

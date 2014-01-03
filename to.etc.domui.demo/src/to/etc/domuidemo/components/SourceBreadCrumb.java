@@ -52,6 +52,7 @@ public class SourceBreadCrumb extends Div {
 			ShelvedDomUIPage p = (ShelvedDomUIPage) stack.get(i);
 
 			String ttl = p.getName();
+			ttl = ttl.substring(ttl.lastIndexOf('.') + 1);
 			addPageLink(ct, p.getPage().getBody().getClass(), p.getPage().getPageParameters(), ttl, last);
 			ct++;
 		}

@@ -42,9 +42,7 @@ public class AstParse {
 			File src = new File(srcf);
 			if(!src.exists())
 				throw new RuntimeException(src + ": file does not exist.");
-			if(!src.isFile())
-				throw new RuntimeException(src + ": not a file");
-			updateFile(src);
+			handleItem(src);
 		}
 //
 //		File src = new File("../../vp/moca.database/src/nl/itris/viewpoint/db/wfl/WorkflowActivityDefinition.java").getCanonicalFile();
@@ -52,6 +50,18 @@ public class AstParse {
 ////		File src = new File(args[0]);
 //		updateFile(src);
 	}
+
+	private void handleItem(File src) throws Exception {
+		if(src.isFile()) {
+			updateFile(src);
+			return;
+		}
+
+		for(File f : src.listFiles()) {
+			handleItem(f);
+		}
+	}
+
 
 	private void updateFile(File src) throws Exception {
 		System.out.println("Updating: " + src);

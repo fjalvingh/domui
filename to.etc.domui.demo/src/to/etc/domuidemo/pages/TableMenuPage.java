@@ -1,5 +1,27 @@
 package to.etc.domuidemo.pages;
 
-public class TableMenuPage {
+import to.etc.domuidemo.pages.overview.*;
+import to.etc.domuidemo.pages.overview.tbl.*;
 
+public class TableMenuPage extends MenuPage {
+	public TableMenuPage() {
+		super("Data tables, row renderers and ITableModels");
+	}
+
+	@Override
+	public void createContent() throws Exception {
+		addLink(DemoTableModel.class, "Using a DataTable and a simple ITableModel implementation");
+
+		addLink(DatabaseSchemaExpl.class, "Explanation of the database schema for database examples");
+		addLink(DemoDataTable.class, "The DataTable component and SimpleSearchModel: simplest use");
+		addLink(DemoDataPager.class, "The DataPager component");
+		addLink(DemoRowRenderer1.class, "Using the BasicRowRenderer, part 1");
+		addLink(DemoRowRenderer2.class, "Using the BasicRowRenderer with an INodeContentRenderer");
+		addLink(DemoDataTable2.class, "DataTable: making rows clickable");
+		addLink(DemoTableSelect.class, "DataTable: adding select row(s) functionality with ISelectionModel");
+		addLink(DemoSortableListTable.class, "DataTable: using a List<> with sorting");
+
+		addCaption("Data tables using data binding");
+
+	}
 }
