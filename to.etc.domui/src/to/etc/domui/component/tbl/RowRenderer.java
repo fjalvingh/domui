@@ -109,7 +109,6 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 		}
 
 		getColumnList().assignPercentages();				// Calculate widths
-		complete(tbl);
 		m_completed = true;
 	}
 
