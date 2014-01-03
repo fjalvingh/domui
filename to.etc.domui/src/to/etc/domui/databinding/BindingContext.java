@@ -207,7 +207,6 @@ public class BindingContext {
 		throw new IllegalArgumentException("The class  " + source.getClass() + " is not Observable.");
 	}
 
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Errors.												*/
 	/*--------------------------------------------------------------*/
@@ -281,6 +280,4 @@ public class BindingContext {
 		// TODO Auto-generated method stub
 
 	}
-
-
 }

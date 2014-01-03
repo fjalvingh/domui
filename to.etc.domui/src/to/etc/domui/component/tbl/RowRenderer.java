@@ -2,11 +2,13 @@ package to.etc.domui.component.tbl;
 
 import javax.annotation.*;
 
+import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.component.ntbl.*;
 import to.etc.domui.databinding.observables.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 import to.etc.webapp.*;
@@ -303,7 +305,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 			X colval = cd.getColumnValue(instance);
 			contentRenderer.renderNodeContent(tbl, cell, colval, instance);
 		} else if(cd.isEditable()) {
-			renderEditable(tbl, cell, instance);
+			renderEditable(tbl, cd, cell, instance);
 		} else if(instance instanceof IObservableEntity) {
 			PropertyMetaModel<X> pmm = cd.getPropertyMetaModel();
 			if(null == pmm)
@@ -319,9 +321,32 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 		}
 	}
 
-	private void renderEditable(@Nonnull TableModelTableBase<T> tbl, @Nonnull TD cell, @Nonnull T instance) {
-		// TODO Auto-generated method stub
+	/**
+	 * Render an editable component for the thingy, and bind it to the item value.
+	 * @param tbl
+	 * @param cell
+	 * @param instance
+	 */
+	private <X, C extends NodeBase & IControl<X>> void renderEditable(@Nonnull TableModelTableBase<T> tbl, @Nonnull ColumnDef<X> cd, @Nonnull TD cell, @Nonnull T instance) throws Exception {
+		if(!(instance instanceof IObservableEntity))
+			throw new IllegalStateException("The instance type " + instance.getClass().getName() + "' is not an Observable entity; I need one to be able to bind to it's properties");
+		PropertyMetaModel<X> pmm = cd.getPropertyMetaModel();
+		if(null == pmm)
+			throw new IllegalStateException("Cannot render edit value for row type");
 
+		IControlFactory<X> cf = cd.getControlFactory();
+		C control;
+		if(cf != null) {
+			control = cf.createControl(pmm);
+
+			//FIXME We need to bind the control to the INSTANCE if that was passed 8-/
+
+		} else {
+			ControlBuilder cb = DomApplication.get().getControlBuilder();
+			control = cb.createControlFor(pmm, true, null).getFormControl();
+		}
+		cell.add(control);
+		cell.getBindingContext().unibind(instance, pmm.getName(), control, "value");
 	}
 
 	/*--------------------------------------------------------------*/

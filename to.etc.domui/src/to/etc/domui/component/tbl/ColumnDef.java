@@ -4,6 +4,7 @@ import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.css.*;
+import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
 public class ColumnDef<T> {
@@ -64,6 +65,8 @@ public class ColumnDef<T> {
 
 	/** @since 2014/1/2 T when this should create an editable component bound to the column's value. */
 	private boolean m_editable;
+
+	private IControlFactory<T> m_controlFactory;
 
 	public <X> ColumnDef(@Nonnull ColumnList< ? > cdl, @Nonnull Class<T> valueClass) {
 		m_actualClass = valueClass;
@@ -448,5 +451,26 @@ public class ColumnDef<T> {
 	public ColumnDef<T> width(@Nullable String w) {
 		m_width = w;
 		return this;
+	}
+
+	/**
+	 * Define the control factory to create the control to use to show the column's value.
+	 * @param factory
+	 * @return
+	 */
+	@Nonnull
+	public ColumnDef<T> factory(@Nonnull IControlFactory<T> factory) {
+		m_controlFactory = factory;
+		return this;
+	}
+
+	/**
+	 * Return the control factory to create the control to use to show the column's value.
+	 *
+	 * @return
+	 */
+	@Nullable
+	public IControlFactory<T> getControlFactory() {
+		return m_controlFactory;
 	}
 }

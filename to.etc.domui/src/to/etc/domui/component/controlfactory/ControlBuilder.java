@@ -219,10 +219,17 @@ public class ControlBuilder {
 	/**
 	 * Main workhorse which creates input controls for forms, from metadata.
 	 */
+	@Deprecated
 	@Nonnull
 	public ControlFactoryResult createControlFor(@Nonnull final IReadOnlyModel< ? > model, @Nonnull final PropertyMetaModel< ? > pmm, final boolean editable) {
 		ControlFactory cf = getControlFactory(pmm, editable, null);
 		return cf.createControl(pmm, editable, null);
+	}
+
+	@Nonnull
+	public ControlFactoryResult createControlFor(@Nonnull final PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
+		ControlFactory cf = getControlFactory(pmm, editable, controlClass);
+		return cf.createControl(pmm, editable, controlClass);
 	}
 
 	/**
