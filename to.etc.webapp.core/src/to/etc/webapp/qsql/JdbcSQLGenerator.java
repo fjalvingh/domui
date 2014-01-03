@@ -124,8 +124,68 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 	}
 
 	@Override
-	public void visitSelection(QSelection< ? > s) throws Exception {
-		throw new IllegalStateException("Not implemented yet");
+	public void visitSelection(QSelection< ? > qc) throws Exception {
+		m_root = new PClassRef(qc.getBaseClass(), "this_");
+		m_tblMap.put(m_root.getAlias(), m_root);
+		m_rootMeta = JdbcMetaManager.getMeta(qc.getBaseClass());
+		m_timeout = 60;
+
+
+		m_retrieverList.add(new SelectorColumnsResultMaker(qc));
+		visitRestrictionsBase(qc);
+		visitOrderList(qc.getOrder());
+
+		StringBuilder sb = new StringBuilder(256);
+		sb.append("select ");
+
+		final JdbcClassMeta cm = JdbcMetaManager.getMeta(m_root.getDataClass()); // Will throw exception if not proper jdbc class.
+
+		/**
+		 * Jdbc selection query renderer has specific overrides in rendering selection columns.
+		 */
+		QQueryRenderer renderer = new QQueryRenderer() {
+
+			@Override
+			public void visitPropertySelection(QPropertySelection n) throws Exception {
+				int currentColumn = getCurrentColumn();
+				if(currentColumn > 0) {
+					append(",");
+				}
+				setCurrentColumn(currentColumn + 1);
+				//fix needed for COUNT_DISTINCT, correct syntax is 'select (distinct propXXX)'
+				if(n.getFunction().equals(QSelectionFunction.COUNT_DISTINCT)) {
+					append("count ");
+					append("(distinct ");
+					append(cm.findProperty(n.getProperty()).getColumnName());
+					append(")");
+				} else {
+					append(n.getFunction().name().toLowerCase());
+					append("(");
+					append(cm.findProperty(n.getProperty()).getColumnName());
+					append(")");
+				}
+			}
+		};
+		renderer.visitSelectionColumns(qc);
+
+		sb.append(renderer.toString());
+
+		sb.append(" from ");
+
+		sb.append(cm.getTableName());
+		sb.append(" ");
+		sb.append(m_root.getAlias());
+
+		if(m_where.length() > 0) {
+			sb.append(" where ");
+			sb.append(m_where);
+		}
+
+		if(m_order != null) {
+			sb.append(" order by ");
+			sb.append(m_order);
+		}
+		m_sql = sb.toString();
 	}
 
 	private String getColumnRef(PClassRef ref, String name) {

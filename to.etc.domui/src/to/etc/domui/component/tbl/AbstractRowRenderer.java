@@ -313,6 +313,13 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 					}
 				});
 
+				//-- Experimental: set a calculated test ID
+				String lbl = cd.getPropertyName();
+				if(null == lbl)
+					lbl = label;
+				if(null == lbl || lbl.length() == 0)
+					lbl = Integer.toString(m_columnList.indexOf(cd));
+				th.setCalculcatedId("H-" + lbl, tbl.calcTestID());
 			}
 			if(cd.getHeaderCssClass() != null) {
 				sb.setLength(0);
@@ -361,7 +368,12 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 		final int index = m_columnList.indexOf(scd);
 		if(index == -1)
 			throw new IllegalStateException("?? Cannot find sort column!?");
-		m_sortImages[index].setSrc(img);
+		Img sortimg = m_sortImages[index];
+		if(null == sortimg) {
+			//-- The code has decided this was not sortable after all, even though the column was marked as such. Ignore updating the sort image. Fixes 44131.
+			return;
+		}
+		sortimg.setSrc(img);
 	}
 
 	/**
@@ -498,6 +510,15 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 		else if(cssClass != null) {
 			cell.addCssClass(cssClass);
 		}
+
+		//-- Assign a testID
+		String label = cd.getColumnLabel();
+		String lbl = cd.getPropertyName();
+		if(null == lbl)
+			lbl = label;
+		if(null == lbl || lbl.length() == 0)
+			lbl = Integer.toString(m_columnList.indexOf(cd));
+		cell.setCalculcatedId("C-" + lbl, tbl.calcTestID());
 	}
 
 	/*--------------------------------------------------------------*/

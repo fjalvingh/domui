@@ -28,6 +28,8 @@ import java.util.*;
 
 import javax.annotation.*;
 
+import org.slf4j.*;
+
 import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.databinding.*;
@@ -78,6 +80,8 @@ import to.etc.webapp.query.*;
  * Created on Aug 18, 2007
  */
 abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IModelBinding, IObservableEntity {
+	private static final Logger LOG = LoggerFactory.getLogger(NodeBase.class);
+
 	static private boolean m_logAllocations;
 
 	static private int m_nextID;
@@ -157,6 +161,12 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * If marked as stretched, element gets attribute stretched. It would be used on client side to adjust its height to all available space in parent element (what is left when other siblings take their pieces)
 	 */
 	private boolean m_stretchHeight;
+
+	private String m_calculatedTestIdBase;
+
+	private String m_testFullRepeatID;
+
+	private String m_testRepeatId;
 
 	/**
 	 * This must visit the appropriate method in the node visitor. It should NOT recurse it's children.
@@ -779,6 +789,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		m_userObject = userObject;
 	}
 
+	/*----------- Test IDs -------------*/
 	/**
 	 * When set this causes a "testid" attribute to be rendered on the node. This ID can then be used for selenium tests et al.
 	 * @return
@@ -797,6 +808,84 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		m_testID = testID;
 		changed();
 	}
+
+	public void setCalculcatedId(@Nonnull String calcid) {
+		m_calculatedTestIdBase = calcid;
+	}
+
+	public void setCalculcatedId(@Nonnull String calcid, @Nullable String parentId) {
+		try {
+			String base = getTestRepeatId();
+			if(parentId != null) {
+				String nid = base + "/" + calcid;
+				Page page = m_page;
+				if(null != page && page.isTestIDALlocated(nid)) {
+					m_calculatedTestIdBase = parentId + "_" + calcid;
+				} else {
+					m_calculatedTestIdBase = calcid;
+				}
+			} else {
+				m_calculatedTestIdBase = calcid;
+			}
+		} catch(Exception ex) {
+			//FIXME: 20130926 vmijic : for now try less intrusive error reporting in problems with generating calculated testid.
+			LOG.error("Error in setCalculcatedId", ex);
+			m_calculatedTestIdBase = "ERROR_IN_setCalculcatedId_" + calcid;
+		}
+	}
+
+
+	/**
+	 * This can be overridden for items that are supposed to be found for testing.
+	 * @return
+	 */
+	@Nullable
+	protected String getCalculatedTestID() {
+		return m_calculatedTestIdBase;
+	}
+
+	@Nullable
+	public String calcTestID() {
+		Page page = m_page;
+		if(null == page)
+			return null;
+		String baseName = getTestID();
+		if(null != baseName)
+			return baseName;
+		baseName = getCalculatedTestID();
+		if(null == baseName)
+			return null;
+		String repeatId = getTestRepeatId();
+
+		return m_testID = page.allocateTestID(repeatId + baseName);
+	}
+
+	/**
+	 * EXPERIMENTAL: If this is part of some "repeating" structure this must hold a repeat ID, which is a
+	 * page-unique id for the repeating thing.
+	 * @return
+	 */
+	@Nonnull
+	public String getTestRepeatId() {
+		if(m_testFullRepeatID == null) {
+			NodeContainer parent = m_parent;
+			if(parent == null) {
+				throw new IllegalStateException("?? " + getClass().getName() + " null parent");
+			}
+			String ptrid = parent.getTestRepeatId();
+			if(m_testRepeatId == null) {
+				m_testFullRepeatID = ptrid;
+			} else {
+				m_testFullRepeatID = ptrid + "/" + m_testRepeatId + "/";
+			}
+		}
+		return m_testFullRepeatID;
+	}
+
+	public void setTestRepeatID(@Nonnull String trid) {
+		m_testRepeatId = trid;
+	}
+
 
 	public String getOnClickJS() {
 		return m_onClickJS;

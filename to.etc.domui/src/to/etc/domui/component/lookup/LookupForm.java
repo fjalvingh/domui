@@ -982,6 +982,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		NodeBase labelcontrol = qt.getLabelControl();
 		for(NodeBase b : qt.getInputControls()) { // Add all nodes && try to find label control if unknown.
 			ccell.add(b);
+			assignCalcTestID(it, b);
 			if(labelcontrol == null && b instanceof IControl< ? >)
 				labelcontrol = b;
 		}
@@ -996,6 +997,18 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 			lcell.add(l);
 		}
 	}
+
+	private void assignCalcTestID(@Nonnull Item item, @Nonnull NodeBase b) {
+		if(b.getTestID() != null)
+			return;
+		String lbl = item.getPropertyName();
+		if(null == lbl)
+			lbl = item.getLabelText();
+		if(null == lbl)
+			lbl = DomUtil.getClassNameOnly(b.getClass());
+		b.setCalculcatedId(lbl);
+	}
+
 
 	/**
 	 * Create the optimal control using metadata for a property. This can only be called for an item

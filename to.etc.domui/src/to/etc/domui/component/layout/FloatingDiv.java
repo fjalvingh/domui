@@ -29,6 +29,7 @@ import javax.annotation.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
+import to.etc.util.*;
 
 /**
  * The base class for all floating thingeries (new style).
@@ -280,4 +281,20 @@ public class FloatingDiv extends Div implements IAddToBody {
 	public void close() {
 		remove();
 	}
+
+
+	/**
+	 * Position floater into center of screen vertically.
+	 */
+	public void verticallyAlignToCenter() {
+		setTop("50%");
+		String height = getHeight();
+		if(!StringTool.isBlank(height) && height.endsWith("px")) {
+			// center floating window vertically on screen
+			setMarginTop("-" + Integer.parseInt(height.replace("px", "")) / 2 + "px");
+		} else {
+			throw new IllegalStateException("Unable to vertically align floater if height is not specified in px!");
+		}
+	}
+
 }

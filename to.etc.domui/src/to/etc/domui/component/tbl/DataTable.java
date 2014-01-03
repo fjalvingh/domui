@@ -146,6 +146,7 @@ public class DataTable<T> extends SelectableTabularComponent<T> implements ISele
 			m_visibleItemList.add(o);
 			TR tr = new TR();
 			m_dataBody.add(tr);
+			tr.setTestRepeatID("r" + ix);
 			cc.setParent(tr);
 			renderRow(tr, cc, ix, o);
 			ix++;
@@ -168,6 +169,7 @@ public class DataTable<T> extends SelectableTabularComponent<T> implements ISele
 
 		//-- Render the header.
 		THead hd = new THead();
+		m_table.add(hd);
 		HeaderContainer<T> hc = new HeaderContainer<T>(this);
 		TR tr = new TR();
 		tr.setCssClass("ui-dt-hdr");
@@ -175,8 +177,8 @@ public class DataTable<T> extends SelectableTabularComponent<T> implements ISele
 		hc.setParent(tr);
 
 		renderHeader(hc);
-		if(hc.hasContent()) {
-			m_table.add(hd);
+		if(!hc.hasContent()) {
+			hd.remove();
 		} else {
 			hc = null;
 			hd = null;
@@ -200,8 +202,11 @@ public class DataTable<T> extends SelectableTabularComponent<T> implements ISele
 	@Deprecated
 	void renderHeader(@Nonnull HeaderContainer<T> hc) throws Exception {
 		//-- Are we rendering a multi-selection?
-		if(m_multiSelectMode)
-			hc.add(new Img("THEME/dspcb-on.png"));
+		if(m_multiSelectMode) {
+			TH headerCell = hc.add("");
+			headerCell.add(new Img("THEME/dspcb-on.png"));
+			headerCell.setWidth("1px"); //keep selection column with minimal width
+		}
 		m_rowRenderer.renderHeader(this, hc);
 	}
 
@@ -463,6 +468,7 @@ public class DataTable<T> extends SelectableTabularComponent<T> implements ISele
 		//-- 1. Add the select TH.
 		TD th = new TH();
 		th.add(new Img("THEME/dspcb-on.png"));
+		th.setWidth("1px"); //keep selection column with minimal width
 		headerrow.add(0, th);
 
 		//-- 2. Insert a checkbox in all rows.
@@ -564,6 +570,7 @@ public class DataTable<T> extends SelectableTabularComponent<T> implements ISele
 		ColumnContainer<T> cc = new ColumnContainer<T>(this);
 		TR tr = new TR();
 		cc.setParent(tr);
+		tr.setTestRepeatID("r" + index);
 		renderRow(tr, cc, index, value);
 		m_dataBody.add(rrow, tr);
 		m_visibleItemList.add(rrow, value);
