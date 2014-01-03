@@ -24,8 +24,20 @@
  */
 package to.etc.domui.component.meta;
 
+import javax.annotation.*;
+
 public enum SortableType {
-	UNKNOWN, UNSORTABLE, SORTABLE_ASC, SORTABLE_DESC;
+	@Nonnull
+	UNKNOWN,
+
+	@Nonnull
+	UNSORTABLE,
+
+	@Nonnull
+	SORTABLE_ASC,
+
+	@Nonnull
+	SORTABLE_DESC;
 
 	public boolean isSortable() {
 		return this == SORTABLE_ASC || this == SORTABLE_DESC;
