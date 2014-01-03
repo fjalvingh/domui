@@ -1,9 +1,6 @@
 package to.etc.domuidemo.pages;
 
-import to.etc.domui.component.layout.*;
-import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.html.*;
-import to.etc.domui.state.*;
 import to.etc.domuidemo.pages.basic.*;
 import to.etc.domuidemo.pages.binding.*;
 import to.etc.domuidemo.pages.formbuilder.*;
@@ -22,15 +19,15 @@ import to.etc.domuidemo.pages.overview.menu.*;
 import to.etc.domuidemo.pages.overview.misc.*;
 import to.etc.domuidemo.pages.overview.tbl.*;
 import to.etc.domuidemo.pages.overview.tree.*;
-import to.etc.domuidemo.sourceviewer.*;
 
-public class HomePage extends UrlPage {
+public class HomePage extends MenuPage {
 	public HomePage() {
-		setPageTitle("Component Overview - DomUI");
+		super("Component Overview - DomUI");
 	}
 
 	@Override
 	public void createContent() throws Exception {
+		setCssClass("ui-content");
 		Div ip = new Div();
 		add(ip);
 		ip.setCssClass("ui-expl");
@@ -129,31 +126,5 @@ public class HomePage extends UrlPage {
 		addLink(BindingBasePage.class, "Basic data binding");
 		addLink(DatabaseRelationPage.class, "Database relation IObservableList binding");
 
-	}
-
-	private void addCaption(String txt) {
-		add(new VerticalSpacer(10));
-		add(new CaptionedHeader(txt));
-	}
-
-	private void addLink(Class< ? extends UrlPage> clz, String text) {
-		addLink(clz, text, false);
-	}
-
-	private void addLink(Class< ? extends UrlPage> clz, String text, boolean nw) {
-		Div d = new Div();
-		add(d);
-		ALink link = new ALink(clz);
-		d.add(link);
-		link.setText(text);
-
-		ALink link2 = new ALink(SourcePage.class, new PageParameters("name", clz.getName().replace('.', '/') + ".java"));
-		d.add("\u00a0");
-		d.add(link2);
-		Img si = new Img("img/java.png");
-		link2.add(si);
-		link2.setTitle("View sourcefile");
-		if(nw)
-			d.add(new Img("img/aniNew.gif"));
 	}
 }
