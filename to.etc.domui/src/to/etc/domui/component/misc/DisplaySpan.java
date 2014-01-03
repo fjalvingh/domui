@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.misc;
 
+import java.util.*;
+
 import javax.annotation.*;
 
 import to.etc.domui.component.input.*;
@@ -43,6 +45,10 @@ import to.etc.webapp.nls.*;
  * Created on Feb 15, 2010
  */
 public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IBindable, IConvertable<T> {
+	/** The properties bindable for this component. */
+	@Nonnull
+	static private final Set<String> BINDABLE_SET = createNameSet("value");
+
 	@Nonnull
 	private Class<T> m_valueClass;
 
@@ -246,8 +252,10 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IBindabl
 	public void setValue(@Nullable T v) {
 		if(DomUtil.isEqual(m_value, v))
 			return;
+		T oldvalue = m_value;
 		m_value = v;
 		forceRebuild();
+		fireModified("value", oldvalue, v);
 	}
 
 	public void defineFrom(@Nonnull PropertyMetaModel< ? > pmm) {
@@ -257,6 +265,13 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IBindabl
 
 		// FIXME Define more fully.
 	}
+
+	@Override
+	@Nonnull
+	public Set<String> getBindableProperties() {
+		return BINDABLE_SET;
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IControl implementation.							*/
