@@ -20,6 +20,13 @@ final public class DirWalker {
 		public T onEntry(@Nonnull File file, @Nonnull String relativePath) throws Exception;
 	}
 
+	/**
+	 * Walk a directory recursively and call a function for every entry found.
+	 * @param srcdir
+	 * @param handler
+	 * @return
+	 * @throws Exception
+	 */
 	@Nullable
 	static public <T> T scan(@Nonnull File srcdir, @Nonnull IEntry<T> handler) throws Exception {
 		StringBuilder sb = new StringBuilder();
@@ -49,6 +56,14 @@ final public class DirWalker {
 		return null;
 	}
 
+	/**
+	 * Get a list of all files, directories under a given directory.
+	 * @param srcdir			The source dir
+	 * @param files				T if you want files to be included in the list
+	 * @param dirs				T if you want directories to be included in the list.
+	 * @return
+	 * @throws Exception
+	 */
 	@Nonnull
 	static public List<File> dir(@Nonnull File srcdir, boolean files, boolean dirs) throws Exception {
 		if(!files && !dirs)
@@ -69,6 +84,9 @@ final public class DirWalker {
 				res.add(f);
 			else if(dirs && f.isDirectory())
 				res.add(f);
+			if(f.isDirectory()) {
+				dir(res, f, files, dirs);
+			}
 		}
 	}
 }
