@@ -70,6 +70,13 @@ public class DirectoryInventory implements Serializable {
 		m_creationTime = currentTimeMillis;
 	}
 
+	@Nonnull
+	public static DirectoryInventory createEmpty() {
+		DirectoryInventory de = new DirectoryInventory(System.currentTimeMillis());
+		de.m_root = new InvEntry("", 0, 0, new byte[16]);
+		return de;
+	}
+
 	/**
 	 * Create an inventory for the specified directory by scanning and reading all files.
 	 * @param src

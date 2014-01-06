@@ -82,6 +82,16 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 			cr = m_actualContentRenderer = calculateContentRenderer(lv);
 		cr.renderNodeContent(this, this, lv, cb);
 		m_checkMap.put(listval, cb);
+
+		final IValueChanged<CheckboxSetInputBase<V, T>> ovc = (IValueChanged<CheckboxSetInputBase<V, T>>) getOnValueChanged();
+		if(ovc != null) {
+			cb.setClicked(new IClicked<Checkbox>() {
+				@Override
+				public void clicked(Checkbox clickednode) throws Exception {
+					ovc.onValueChanged(CheckboxSetInputBase.this);
+				}
+			});
+		}
 	}
 
 	private INodeContentRenderer<T> calculateContentRenderer(T val) {
@@ -114,6 +124,12 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 				value.remove(me.getKey());
 			}
 		}
+	}
+
+	@Override
+	public void setValue(Set<V> v) {
+		getValue();									// Update set to the latest checkbox states.
+		super.setValue(v);
 	}
 
 	@Override
