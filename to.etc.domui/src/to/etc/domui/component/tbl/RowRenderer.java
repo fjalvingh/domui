@@ -309,7 +309,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 		} else if(instance instanceof IObservableEntity) {
 			PropertyMetaModel<X> pmm = cd.getPropertyMetaModel();
 			if(null == pmm)
-				throw new IllegalStateException("Cannot render display value for row type");
+				throw new IllegalStateException("Cannot render display value for row type of " + cd.getColumnLabel());
 			DisplaySpan<X> dv = new DisplaySpan<X>(cd.getActualClass());
 			cell.getBindingContext().unibind(instance, pmm.getName(), dv, "value");
 			cell.add(dv);

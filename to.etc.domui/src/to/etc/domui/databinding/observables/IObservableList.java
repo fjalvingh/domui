@@ -40,4 +40,6 @@ public interface IObservableList<T> extends List<T>, IObservable<T, ListChangeEv
 	@Nonnull
 	@Override
 	public List<T> subList(int fromIndex, int toIndex);
+
+	public void changed(T t);
 }
