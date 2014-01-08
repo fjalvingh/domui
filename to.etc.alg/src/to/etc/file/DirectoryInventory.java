@@ -73,7 +73,7 @@ public class DirectoryInventory implements Serializable {
 	@Nonnull
 	public static DirectoryInventory createEmpty() {
 		DirectoryInventory de = new DirectoryInventory(System.currentTimeMillis());
-		de.m_root = new InvEntry("", 0, 0, new byte[16]);
+		de.m_root = new InvEntry("", 0, 0, new byte[16], new InvEntry[0]);
 		return de;
 	}
 
@@ -93,7 +93,7 @@ public class DirectoryInventory implements Serializable {
 		DirectoryInventory de = new DirectoryInventory(System.currentTimeMillis());
 		de.m_root = de.scanDirectory(src);
 		ts = System.nanoTime() - ts;
-		System.out.println(".. initial inventory of " + src + " took " + StringTool.strNanoTime(ts) + " for " + de.m_numFiles + " files in " + de.m_numDirectories + " dirs");
+		System.out.println(".. inventory of " + src + " took " + StringTool.strNanoTime(ts) + " for " + de.m_numFiles + " files in " + de.m_numDirectories + " dirs");
 		return de;
 	}
 
