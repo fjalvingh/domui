@@ -68,7 +68,7 @@
 	background-color: <%= readonly_bg %>;
 }
 input.ui-ro, input.ui-ro:hover {
-	text-align: left !important;
+	text-align: left;
 	height: 12px !important;
 	margin: 0px !important;
 	padding: 0px !important;

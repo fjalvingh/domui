@@ -69,3 +69,8 @@ table.ui-lf-st tr > td.ui-f-lbl:first-child,
 	min-width: 150px;
 	width: 1%;
 }
+
+table.ui-lf-st input.ui-ro,
+table.ui-lf-st input.ui-ro:hover {
+	text-align: left !important;
+}
