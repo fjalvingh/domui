@@ -3,9 +3,10 @@ package to.etc.domui.hibernate.config;
 import java.lang.reflect.*;
 import java.util.*;
 
+import javax.persistence.*;
+
 import org.hibernate.event.*;
 
-import to.etc.domui.databinding.*;
 import to.etc.domui.databinding.observables.*;
 import to.etc.util.*;
 
@@ -27,7 +28,8 @@ public class InjectObservableListEventListener implements PostLoadEventListener 
 				Method m = mar[i];
 				if(List.class.isAssignableFrom(m.getReturnType()) && m.getParameterTypes().length == 0) {
 					if(m.getName().startsWith("get") && Modifier.isPublic(m.getModifiers()) && !Modifier.isStatic(m.getModifiers())) {
-						handleModifier(event.getEntity(), m);
+						if(m.getAnnotation(Transient.class) == null)
+							handleModifier(event.getEntity(), m);
 					}
 				}
 			}
