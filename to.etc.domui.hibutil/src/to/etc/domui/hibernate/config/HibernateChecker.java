@@ -127,16 +127,26 @@ final public class HibernateChecker {
 			for(Iterator< ? > iter2 = pc.getPropertyIterator(); iter2.hasNext();) {
 				Property property = (Property) iter2.next();
 				//				System.out.println("... " + property.getName() + " type " + property.getType().getName());
+				Getter g = property.getGetter(pc.getMappedClass());
+
+				Method method = g.getMethod();
+				Class< ? > actual = null == method ? null : method.getReturnType();
+
 				if(property.getType().getName().equals(MappedEnumType.class.getName()) || "nl.itris.viewpoint.db.hibernate.ViewPointMappedEnumType".equals(property.getType().getName())) {
 					//-- Sigh.. Try to obtain the property's actual type from the getter because Hibernate does not have an easy route to it, appearently.
-					Getter g = property.getGetter(pc.getMappedClass());
-					Class< ? > actual = g.getMethod().getReturnType();
 					SimpleValue v = (SimpleValue) property.getValue();
 					//					System.out.println("Property " + v + " is " + v.getTypeName() + " class=" + actual);
 					if(v.getTypeParameters() == null)
 						v.setTypeParameters(new Properties());
 					v.getTypeParameters().setProperty("propertyType", actual.getName());
 				}
+				if(actual != null && List.class.isAssignableFrom(actual)) {
+					Bag many = (Bag) property.getValue();
+
+
+				}
+
+
 			}
 		}
 		if(m_reportProblems)
