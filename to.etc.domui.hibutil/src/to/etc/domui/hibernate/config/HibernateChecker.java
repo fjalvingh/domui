@@ -142,7 +142,7 @@ final public class HibernateChecker {
 				}
 				if(actual != null && List.class.isAssignableFrom(actual)) {
 					Bag many = (Bag) property.getValue();
-
+					many.setTypeName("to.etc.domui.hibernate.types.ObservableListType");
 
 				}
 
