@@ -16,12 +16,6 @@ import to.etc.domui.databinding.list2.*;
  * Created on Sep 4, 2013
  */
 public class ObservableList<T> extends ListenerList<T, ListChangeEvent<T>, IListChangeListener<T>> implements IObservableList<T> {
-
-	@Override
-	public void changed(T t) {
-		set(indexOf(t), t);
-	}
-
 	private final List<T> m_list;
 
 	public ObservableList() {
