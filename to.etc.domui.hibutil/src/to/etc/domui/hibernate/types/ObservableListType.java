@@ -24,12 +24,12 @@ public class ObservableListType implements UserCollectionType {
 
 	@Override
 	public PersistentCollection instantiate(SessionImplementor session, CollectionPersister persister) throws HibernateException {
-		return new PersistentList(session);
+		return new PersistentObservableList(session);
 	}
 
 	@Override
 	public PersistentCollection wrap(SessionImplementor session, Object collection) {
-		return new PersistentList(session, (ObservableList< ? >) collection);
+		return new PersistentObservableList(session, (List< ? >) collection);
 	}
 
 	@Override

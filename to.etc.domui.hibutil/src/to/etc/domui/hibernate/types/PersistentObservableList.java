@@ -5,6 +5,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import org.hibernate.collection.*;
+import org.hibernate.engine.*;
 
 import to.etc.domui.databinding.*;
 import to.etc.domui.databinding.list.*;
@@ -26,6 +27,18 @@ public class PersistentObservableList<T> extends PersistentList implements IObse
 
 	@Nonnull
 	private IListChangeListener<T>[] m_listeners = (IListChangeListener<T>[]) NONE;
+
+	public PersistentObservableList() {
+		super();
+	}
+
+	public PersistentObservableList(SessionImplementor session, List<T> list) {
+		super(session, list);
+	}
+
+	public PersistentObservableList(SessionImplementor session) {
+		super(session);
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	List methods.										*/
