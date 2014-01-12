@@ -24,10 +24,11 @@
  */
 package org.hibernate;
 
-import java.io.Serializable;
-import java.util.Iterator;
+import java.io.*;
+import java.util.*;
 
-import org.hibernate.type.Type;
+import org.hibernate.event.*;
+import org.hibernate.type.*;
 
 /**
  * Allows user code to inspect and/or change property values.
@@ -60,6 +61,14 @@ public interface Interceptor {
 	 * @return <tt>true</tt> if the user modified the <tt>state</tt> in any way.
 	 */
 	public boolean onLoad(Object entity, Serializable id, Object[] state, String[] propertyNames, Type[] types) throws CallbackException;
+
+	/**
+	 * NOT IN HIBERNATE: this was added because it is so clearly missing, and the above method is a sad joke.
+	 * This gets called AFTER an entity was loaded AND initialized (on the {@link PostLoadEventListener} event.
+	 * @param loadevent
+	 */
+	public void onAfterLoad(PostLoadEvent loadevent);
+
 	/**
 	 * Called when an object is detected to be dirty, during a flush. The interceptor may modify the detected
 	 * <tt>currentState</tt>, which will be propagated to both the database and the persistent object.
@@ -108,7 +117,7 @@ public interface Interceptor {
 	 * <ul>
 	 * <li><tt>Boolean.TRUE</tt> - the entity is transient
 	 * <li><tt>Boolean.FALSE</tt> - the entity is detached
-	 * <li><tt>null</tt> - Hibernate uses the <tt>unsaved-value</tt> mapping and other heuristics to 
+	 * <li><tt>null</tt> - Hibernate uses the <tt>unsaved-value</tt> mapping and other heuristics to
 	 * determine if the object is unsaved
 	 * </ul>
 	 * @param entity a transient or detached entity
@@ -153,10 +162,10 @@ public interface Interceptor {
 	 * @throws CallbackException
 	 */
 	public Object getEntity(String entityName, Serializable id) throws CallbackException;
-	
+
 	/**
-	 * Called when a Hibernate transaction is begun via the Hibernate <tt>Transaction</tt> 
-	 * API. Will not be called if transactions are being controlled via some other 
+	 * Called when a Hibernate transaction is begun via the Hibernate <tt>Transaction</tt>
+	 * API. Will not be called if transactions are being controlled via some other
 	 * mechanism (CMT, for example).
 	 */
 	public void afterTransactionBegin(Transaction tx);
@@ -170,7 +179,7 @@ public interface Interceptor {
 	public void afterTransactionCompletion(Transaction tx);
 
 	/**
-	 * Called when sql string is being prepared. 
+	 * Called when sql string is being prepared.
 	 * @param sql sql to be prepared
 	 * @return original or modified sql
 	 */

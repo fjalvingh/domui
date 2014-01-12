@@ -24,9 +24,8 @@
  */
 package org.hibernate.event.def;
 
-import org.hibernate.classic.Lifecycle;
-import org.hibernate.event.PostLoadEvent;
-import org.hibernate.event.PostLoadEventListener;
+import org.hibernate.classic.*;
+import org.hibernate.event.*;
 
 /**
  * Call <tt>Lifecycle</tt> interface if necessary
@@ -34,12 +33,16 @@ import org.hibernate.event.PostLoadEventListener;
  * @author Gavin King
  */
 public class DefaultPostLoadEventListener implements PostLoadEventListener {
-	
+
 	public void onPostLoad(PostLoadEvent event) {
 		if ( event.getPersister().implementsLifecycle( event.getSession().getEntityMode() ) ) {
 			//log.debug( "calling onLoad()" );
 			( ( Lifecycle ) event.getEntity() ).onLoad( event.getSession(), event.getId() );
 		}
+
+		//-- jal 2014/01/12 fix the omission of postLoad in interceptor 8-(
+		event.getSession().getInterceptor().onAfterLoad(event);
+
 
 	}
 }

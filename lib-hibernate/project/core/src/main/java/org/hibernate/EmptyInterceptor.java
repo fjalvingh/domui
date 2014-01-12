@@ -24,54 +24,55 @@
  */
 package org.hibernate;
 
-import java.io.Serializable;
-import java.util.Iterator;
+import java.io.*;
+import java.util.*;
 
-import org.hibernate.type.Type;
+import org.hibernate.event.*;
+import org.hibernate.type.*;
 
 /**
  * An interceptor that does nothing. May be used as a base class
  * for application-defined custom interceptors.
- * 
+ *
  * @author Gavin King
  */
 public class EmptyInterceptor implements Interceptor, Serializable {
-	
+
 	public static final Interceptor INSTANCE = new EmptyInterceptor();
-	
+
 	protected EmptyInterceptor() {}
 
 	public void onDelete(
-			Object entity, 
-			Serializable id, 
-			Object[] state, 
-			String[] propertyNames, 
+			Object entity,
+			Serializable id,
+			Object[] state,
+			String[] propertyNames,
 			Type[] types) {}
 
 	public boolean onFlushDirty(
-			Object entity, 
-			Serializable id, 
-			Object[] currentState, 
-			Object[] previousState, 
-			String[] propertyNames, 
+			Object entity,
+			Serializable id,
+			Object[] currentState,
+			Object[] previousState,
+			String[] propertyNames,
 			Type[] types) {
 		return false;
 	}
 
 	public boolean onLoad(
-			Object entity, 
-			Serializable id, 
-			Object[] state, 
-			String[] propertyNames, 
+			Object entity,
+			Serializable id,
+			Object[] state,
+			String[] propertyNames,
 			Type[] types) {
 		return false;
 	}
 
 	public boolean onSave(
-			Object entity, 
-			Serializable id, 
-			Object[] state, 
-			String[] propertyNames, 
+			Object entity,
+			Serializable id,
+			Object[] state,
+			String[] propertyNames,
 			Type[] types) {
 		return false;
 	}
@@ -117,5 +118,13 @@ public class EmptyInterceptor implements Interceptor, Serializable {
 	public void onCollectionRecreate(Object collection, Serializable key) throws CallbackException {}
 
 	public void onCollectionUpdate(Object collection, Serializable key) throws CallbackException {}
-	
+
+	/**
+	 * NOT IN HIBERNATE
+	 * @author jal@etc.to
+	 * @since 2014/01/12
+	 * @see org.hibernate.Interceptor#onAfterLoad(org.hibernate.event.PostLoadEvent)
+	 */
+	@Override
+	public void onAfterLoad(PostLoadEvent loadevent) {}
 }
