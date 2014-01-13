@@ -454,6 +454,7 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 		IRowButtonFactory<T> rbf = getRowButtonFactory();
 		if(rbf != null) {
 			TD td = cc.add((NodeBase) null);
+			td.setNowrap(true);
 			cc.getRowButtonContainer().setContainer(td);
 			rbf.addButtonsFor(cc.getRowButtonContainer(), instance);
 		}
