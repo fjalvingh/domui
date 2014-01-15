@@ -63,6 +63,11 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 	@Nonnull
 	private List<IRunnable> m_commitHandlerList = Collections.EMPTY_LIST;
 
+	@Nullable
+	private DefaultBeforeImageCache m_beforeCache;
+
+	private boolean m_dataLoaded;
+
 	/**
 	 * Create a context, using the specified factory to create Hibernate sessions.
 	 * @param sessionMaker
@@ -102,6 +107,7 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 	protected void setConversationInvalid(String conversationInvalid) {
 		m_conversationInvalid = conversationInvalid;
 	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	QDataContext implementation.						*/
@@ -221,6 +227,28 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 			getSession().getTransaction().rollback();
 	}
 
+	@Override
+	public <T> T original(T copy) {
+		DefaultBeforeImageCache bc = m_beforeCache;
+		if(null == bc)
+			throw new IllegalStateException("Before caching is not enabled on this data context, call setKeepOriginals() before using it.");
+		return bc.findBeforeImage(copy);
+	}
+
+	/**
+	 *
+	 * @see to.etc.webapp.query.QDataContext#setKeepOriginals()
+	 */
+	@Override
+	public void setKeepOriginals() {
+		if(m_beforeCache == null) {
+			if(m_dataLoaded)
+				throw new IllegalStateException("This data context has already been used to load data, you can only set the before images flag on an unused context");
+			m_beforeCache = new DefaultBeforeImageCache();
+		}
+	}
+
+
 	/**
 	 * We explicitly undeprecate here.
 	 *
@@ -239,6 +267,19 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 			m_commitHandlerList = new ArrayList<IRunnable>();
 		m_commitHandlerList.add(cx);
 	}
+
+	@Override
+	public <T> T find(Class<T> clz, Object pk) throws Exception {
+		m_dataLoaded = true;
+		return super.find(clz, pk);
+	}
+
+	@Override
+	public <T> T getInstance(Class<T> clz, Object pk) throws Exception {
+		m_dataLoaded = true;
+		return super.getInstance(clz, pk);
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	ConversationStateListener impl.						*/

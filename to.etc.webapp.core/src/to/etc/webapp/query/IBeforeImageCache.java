@@ -8,9 +8,19 @@ public interface IBeforeImageCache {
 
 	public boolean wasNew();
 
+	/**
+	 * Returns any image, even if uninitialized.
+	 * @param source
+	 * @return
+	 */
 	@Nullable
 	public <T> T findBeforeImage(@Nonnull T source);
 
-	public <T> boolean isLoaded(@Nonnull T beforeImage);
+	/**
+	 * Returns an image and ensures it's initialized.
+	 */
+	@Nullable
+	public <T> T getBeforeImage(@Nonnull T instance);
 
+	public <T> boolean isLoaded(@Nonnull T beforeImage);
 }

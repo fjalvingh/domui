@@ -35,7 +35,6 @@ public class CreateCopyInterceptor extends EmptyInterceptor {
 		Object instance = loadevent.getEntity();
 		if(null == instance)
 			throw new IllegalStateException("entity instance null in interceptor!?");
-		Object id = loadevent.getId();					// Get the entity's PK
 
 		try {
 			Object copy = m_cache.createImage(instance, true);
@@ -98,7 +97,7 @@ public class CreateCopyInterceptor extends EmptyInterceptor {
 			//-- Replace the instance with the before image of that instance.
 			V before = m_cache.findBeforeImage(src);
 			if(null == before)
-				throw new IllegalStateException("The 'before' image for " + src + " cannot be found");
+				throw new IllegalStateException("The 'before' image for " + src + " cannot be found, even though it is loaded by Hibernate!?");
 			return before;
 		}
 

@@ -161,15 +161,22 @@ public interface QDataContext {
 	@Nullable
 	<T> T find(@Nonnull ICriteriaTableDef<T> metatable, @Nonnull Object pk) throws Exception;
 
-//	/**
-//	 * EXPERIMENTAL INTERFACE This retrieves the "original" copy of the specified instance (which must
-//	 * be loaded inside this data context). The original copy contains the field instances as they were
-//	 * before the record was loaded.
-//	 * @param copy
-//	 * @return
-//	 */
-//	@Nullable
-//	<T> T original(@Nonnull T copy);
+	/**
+	 * EXPERIMENTAL INTERFACE This retrieves the "original" copy of the specified instance (which must
+	 * be loaded inside this data context). The original copy contains the field instances as they were
+	 * before the record was loaded.
+	 * @param copy
+	 * @return
+	 */
+	@Nullable
+	<T> T original(@Nonnull T copy);
+
+	/**
+	 * EXPERIMENTAL Sets the context so that it creates "before" copies. Can only be used before any data
+	 * is loaded. If the context does not support before copies this throws Exception.
+	 */
+	void setKeepOriginals();
+
 
 	/**
 	 * Load the persistent object with the specified type and primary key from the database. This will

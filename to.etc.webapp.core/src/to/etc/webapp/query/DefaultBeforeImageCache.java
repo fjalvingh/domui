@@ -50,6 +50,16 @@ public class DefaultBeforeImageCache implements IBeforeImageCache {
 	}
 
 	@Override
+	public <T> T getBeforeImage(T instance) {
+		T copy = (T) m_copyMap.get(instance);
+		if(null == copy)
+			return null;
+		if(!isLoaded(copy))
+			throw new IllegalStateException("Trying to get the before image of an unloaded instance");
+		return null;
+	}
+
+	@Override
 	public <T> boolean isLoaded(T beforeImage) {
 		return !m_uninitializedSet.contains(beforeImage);
 	}
