@@ -248,6 +248,13 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 		}
 	}
 
+	@Nonnull
+	public DefaultBeforeImageCache getBeforeCache() {
+		DefaultBeforeImageCache beforeCache = m_beforeCache;
+		if(null == beforeCache)
+			throw new IllegalStateException("No before cache configured");
+		return beforeCache;
+	}
 
 	/**
 	 * We explicitly undeprecate here.

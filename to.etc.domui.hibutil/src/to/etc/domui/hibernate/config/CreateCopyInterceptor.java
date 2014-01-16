@@ -36,6 +36,7 @@ public class CreateCopyInterceptor extends EmptyInterceptor {
 		if(null == instance)
 			throw new IllegalStateException("entity instance null in interceptor!?");
 
+		System.out.println("Interceptor: afterload " + MetaManager.identify(instance));
 		try {
 			Object copy = m_cache.createImage(instance, true);
 			copyProperties(copy, instance);				// Copy whatever properties we can
@@ -79,7 +80,8 @@ public class CreateCopyInterceptor extends EmptyInterceptor {
 				break;
 
 			case UP:
-				value = convertParentRelation(value);
+				if(value != null)
+					value = convertParentRelation(value);
 				pmm.setValue(dst, value);
 				break;
 
@@ -97,7 +99,7 @@ public class CreateCopyInterceptor extends EmptyInterceptor {
 			//-- Replace the instance with the before image of that instance.
 			V before = m_cache.findBeforeImage(src);
 			if(null == before)
-				throw new IllegalStateException("The 'before' image for " + src + " cannot be found, even though it is loaded by Hibernate!?");
+				throw new IllegalStateException("The 'before' image for " + MetaManager.identify(src) + " cannot be found, even though it is loaded by Hibernate!?");
 			return before;
 		}
 
