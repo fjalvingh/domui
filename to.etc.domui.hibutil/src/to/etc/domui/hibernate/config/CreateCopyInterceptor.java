@@ -4,6 +4,7 @@ import javax.annotation.*;
 
 import org.hibernate.*;
 import org.hibernate.event.*;
+import org.hibernate.proxy.*;
 
 import to.etc.domui.component.meta.*;
 import to.etc.util.*;
@@ -38,7 +39,9 @@ public class CreateCopyInterceptor extends EmptyInterceptor {
 
 		System.out.println("Interceptor: afterload " + MetaManager.identify(instance));
 		try {
-			Object copy = m_cache.createImage(instance, true);
+			Class real = Hibernate.getClass(instance);
+
+			Object copy = m_cache.createImage(real, instance, true);
 			copyProperties(copy, instance);				// Copy whatever properties we can
 		} catch(Exception x) {
 			throw WrappedException.wrap(x);
@@ -58,6 +61,7 @@ public class CreateCopyInterceptor extends EmptyInterceptor {
 	 */
 	private <T> void copyProperties(@Nonnull T dst, @Nonnull T src) throws Exception {
 		for(PropertyMetaModel< ? > pmm : MetaManager.findClassMeta(src.getClass()).getProperties()) {
+			System.out.println("   >> copy property " + pmm + " of " + src.getClass());
 			copyProperty(dst, src, pmm);
 		}
 	}
@@ -80,6 +84,8 @@ public class CreateCopyInterceptor extends EmptyInterceptor {
 				break;
 
 			case UP:
+				if(pmm.getName().equals("btwCode"))
+					System.out.println("Gotcha");
 				if(value != null)
 					value = convertParentRelation(value);
 				pmm.setValue(dst, value);
@@ -106,7 +112,8 @@ public class CreateCopyInterceptor extends EmptyInterceptor {
 		/*
 		 * The instance is not loaded 8-/. We need to create a copy that is marked as "uninitialized".
 		 */
-		V copy = m_cache.createImage(src, false);
+		Class<V> realclass = getProxyClass(src);
+		V copy = m_cache.createImage(realclass, src, false);
 		if(m_cache.wasNew()) {
 			//-- We need to dup the PK and insert it into the copy. The PK itself can be compound and so also hold data to be copied 8-/
 			ClassMetaModel cmm = MetaManager.findClassMeta(src.getClass());
@@ -118,5 +125,13 @@ public class CreateCopyInterceptor extends EmptyInterceptor {
 		return copy;
 	}
 
+	@Nonnull
+	static private <T> Class<T> getProxyClass(@Nonnull T proxy) {
+		if(proxy instanceof HibernateProxy) {
+			return ((HibernateProxy) proxy).getHibernateLazyInitializer().getPersistentClass();
+		} else {
+			return (Class<T>) proxy.getClass();
+		}
+	}
 
 }

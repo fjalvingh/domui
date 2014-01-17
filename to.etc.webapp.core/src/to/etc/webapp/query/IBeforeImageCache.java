@@ -4,7 +4,7 @@ import javax.annotation.*;
 
 public interface IBeforeImageCache {
 	@Nonnull
-	public <T> T createImage(@Nonnull T instance, boolean loaded) throws Exception;
+	public <T> T createImage(@Nonnull Class<T> classType, @Nonnull T instance, boolean loaded) throws Exception;
 
 	public boolean wasNew();
 
