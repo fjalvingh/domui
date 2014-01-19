@@ -171,9 +171,9 @@ public class CreateCopyInterceptor extends EmptyInterceptor {
 		Class<V> clz = (Class<V>) source.getClass();
 		V res;
 		if(List.class.isAssignableFrom(clz)) {
-			res = (V) new ArrayList<T>(source.size());
+			res = (V) new ArrayList<T>();
 		} else if(Set.class.isAssignableFrom(clz)) {
-			res = (V) new HashSet<T>(source.size());
+			res = (V) new HashSet<T>();
 		} else
 			throw new IllegalStateException("Before Images Interceptor: cannot create before images for collection of type " + source.getClass());
 		return res;

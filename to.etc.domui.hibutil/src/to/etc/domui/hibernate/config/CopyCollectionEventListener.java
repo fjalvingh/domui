@@ -21,7 +21,8 @@ public class CopyCollectionEventListener implements InitializeCollectionEventLis
 		if(!(ic instanceof CreateCopyInterceptor))
 			throw new IllegalStateException("Interceptor must be of type 'CreateCopyInterceptor' to allow before-images");
 
-
+		CreateCopyInterceptor ccic = (CreateCopyInterceptor) ic;
+		ccic.collectionLoaded(event.getCollection());
 	}
 
 
