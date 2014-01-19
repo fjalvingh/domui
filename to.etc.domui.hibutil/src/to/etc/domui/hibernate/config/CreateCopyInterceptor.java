@@ -1,8 +1,11 @@
 package to.etc.domui.hibernate.config;
 
+import java.util.*;
+
 import javax.annotation.*;
 
 import org.hibernate.*;
+import org.hibernate.collection.*;
 import org.hibernate.event.*;
 import org.hibernate.proxy.*;
 
@@ -20,8 +23,16 @@ public class CreateCopyInterceptor extends EmptyInterceptor {
 	@Nonnull
 	final private IBeforeImageCache m_cache;
 
+	@Nonnull
+	final private Map<Object, Object> m_mirrorMap = new HashMap<Object, Object>();
+
 	public CreateCopyInterceptor(@Nonnull IBeforeImageCache cache) {
 		m_cache = cache;
+	}
+
+	@Nonnull
+	public IBeforeImageCache getCache() {
+		return m_cache;
 	}
 
 	/**
@@ -80,7 +91,8 @@ public class CreateCopyInterceptor extends EmptyInterceptor {
 				break;
 
 			case DOWN:
-				System.out.println("TODO: 'down' relation");
+				if(null != value)
+					value = convertChildCollection(value);
 				break;
 
 			case UP:
@@ -125,6 +137,49 @@ public class CreateCopyInterceptor extends EmptyInterceptor {
 		return copy;
 	}
 
+	/**
+	 * We cannot just copy collections because they might be lazy-loaded. So for lazy collections we have to do
+	 * the following, conceptually:
+	 * <ul>
+	 *	<li>Create our own "mirror" proxy class as the Collection<> type.</li>
+	 *	<li>Register the "mirror" as belonging to the original</li>
+	 *	<li>We will have added a {@link InitializeCollectionEventListener} to Hibernate. This listener will be called after the collection is initialized.</li>
+	 *	<li>That listener will lookup the "mirror" collection and copy the just-loaded data in there.</li>
+	 * </ul>
+	 *
+	 * @param src
+	 * @return
+	 * @throws Exception
+	 */
+	private <V, E, C extends Collection<E>> V convertChildCollection(@Nonnull V src) throws Exception {
+		if(!(src instanceof Collection))
+			throw new IllegalStateException("Before-image is supported only for OneToMany of type Collection<T>.");
+
+		C mirror = createMirrorCollection((C) src);
+
+		if(Hibernate.isInitialized(src)) {
+			mirror.addAll((C) src);
+		} else {
+			//-- We need to create a mirror-proxy.
+			m_mirrorMap.put(src, mirror);
+		}
+		return (V) mirror;
+	}
+
+	@Nonnull
+	static private <T, V extends Collection<T>> V createMirrorCollection(@Nonnull V source) {
+		Class<V> clz = (Class<V>) source.getClass();
+		V res;
+		if(List.class.isAssignableFrom(clz)) {
+			res = (V) new ArrayList<T>(source.size());
+		} else if(Set.class.isAssignableFrom(clz)) {
+			res = (V) new HashSet<T>(source.size());
+		} else
+			throw new IllegalStateException("Before Images Interceptor: cannot create before images for collection of type " + source.getClass());
+		return res;
+	}
+
+
 	@Nonnull
 	static private <T> Class<T> getProxyClass(@Nonnull T proxy) {
 		if(proxy instanceof HibernateProxy) {
@@ -132,6 +187,26 @@ public class CreateCopyInterceptor extends EmptyInterceptor {
 		} else {
 			return (Class<T>) proxy.getClass();
 		}
+	}
+
+	/**
+	 * Called from {@link CopyCollectionEventListener} when a lazy collection is loaded, this
+	 * initializes the "before" image of that collection.
+	 * @param collection
+	 */
+	public void collectionLoaded(@Nonnull PersistentCollection collection) {
+		Object mirror = m_mirrorMap.remove(collection);
+		if(null == mirror) {
+			System.out.println("CopyInterceptor: no 'mirror' collection for collection " + collection.getClass().getName() + " @" + System.identityHashCode(collection));
+			return;
+		}
+		System.out.println("CopyInterceptor: load event for " + collection.getClass().getName() + " @" + System.identityHashCode(collection));
+
+		copyCollection((Collection< ? >) mirror, (Collection) collection);
+	}
+
+	private <E, C extends Collection<E>> void copyCollection(C mirror, C collection) {
+		mirror.addAll(collection);
 	}
 
 }

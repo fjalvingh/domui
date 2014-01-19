@@ -4,26 +4,25 @@ import org.hibernate.*;
 import org.hibernate.event.*;
 
 /**
- * Used to create "before" copies of all instances loaded from the database. This listener
- * must be registered for before copy support to work on Hibernate.
+ * This listener must be added to Hibernate's listeners to support before-images of loaded collections. The
+ * listener gets called after a lazy collection is loaded, and will update the "mirror" of that collection
+ * inside the before cache.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * Created on Jan 12, 2014
+ * Created on Jan 19, 2014
  */
-public class CreateCopyEventListener implements PostLoadEventListener {
+public class CopyCollectionEventListener implements InitializeCollectionEventListener {
 	@Override
-	public void onPostLoad(PostLoadEvent event) {
-		Object entity = event.getEntity();
-		if(null == entity)
-			throw new IllegalStateException("Entity passed to listener is null?");
-
+	public void onInitializeCollection(InitializeCollectionEvent event) throws HibernateException {
 		EventSource session = event.getSession();
 
 		//-- The only way to get hold of the QDataContext is through the Interceptor which must be of a type we support.
 		Interceptor ic = session.getInterceptor();
 		if(!(ic instanceof CreateCopyInterceptor))
 			throw new IllegalStateException("Interceptor must be of type 'CreateCopyInterceptor' to allow before-images");
-		CreateCopyInterceptor ccic = (CreateCopyInterceptor) ic;
-		ccic.onAfterLoad(event);
+
+
 	}
+
+
 }
