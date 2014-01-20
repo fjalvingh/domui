@@ -4,7 +4,7 @@ import java.util.*;
 
 import javax.annotation.*;
 
-public class BeforeImageSetProxy<T> implements Set<T>, IBeforeImageCollectionProxy<Set<T>> {
+class BeforeImageSetProxy<T> implements Set<T>, IBeforeImageCollectionProxy<Set<T>> {
 	private Set<T> m_set;
 
 	private void present() {
