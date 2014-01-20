@@ -1,8 +1,10 @@
 package to.etc.domui.hibernate.config;
 
+import java.io.*;
 import java.util.*;
 
 import javax.annotation.*;
+import javax.annotation.concurrent.*;
 
 import org.hibernate.*;
 import org.hibernate.collection.*;
@@ -23,8 +25,69 @@ public class CreateCopyInterceptor extends EmptyInterceptor {
 	@Nonnull
 	final private IBeforeImageCache m_cache;
 
+	/**
+	 * Identifies a collection inside a given instance.
+	 *
+	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+	 * Created on Jan 20, 2014
+	 */
+	@Immutable
+	static private class CollectionKey {
+		@Nonnull
+		final private String m_role;
+
+		@Nonnull
+		final private Serializable m_key;
+
+		public CollectionKey(@Nonnull String role, @Nonnull Serializable key) {
+			m_role = role;
+			m_key = key;
+		}
+
+		@Nonnull
+		public String getRole() {
+			return m_role;
+		}
+
+		@Nonnull
+		public Serializable getKey() {
+			return m_key;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((m_key == null) ? 0 : m_key.hashCode());
+			result = prime * result + ((m_role == null) ? 0 : m_role.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if(this == obj)
+				return true;
+			if(obj == null)
+				return false;
+			if(getClass() != obj.getClass())
+				return false;
+			CollectionKey other = (CollectionKey) obj;
+			if(m_key == null) {
+				if(other.m_key != null)
+					return false;
+			} else if(!m_key.equals(other.m_key))
+				return false;
+			if(m_role == null) {
+				if(other.m_role != null)
+					return false;
+			} else if(!m_role.equals(other.m_role))
+				return false;
+			return true;
+		}
+	}
+
 	@Nonnull
-	final private Map<Object, Object> m_mirrorMap = new HashMap<Object, Object>();
+	final private Map<CollectionKey, Object> m_mirrorMap = new HashMap<CollectionKey, Object>();
 
 	public CreateCopyInterceptor(@Nonnull IBeforeImageCache cache) {
 		m_cache = cache;
@@ -137,6 +200,8 @@ public class CreateCopyInterceptor extends EmptyInterceptor {
 		return copy;
 	}
 
+
+
 	/**
 	 * We cannot just copy collections because they might be lazy-loaded. So for lazy collections we have to do
 	 * the following, conceptually:
@@ -161,7 +226,9 @@ public class CreateCopyInterceptor extends EmptyInterceptor {
 			mirror.addAll((C) src);
 		} else {
 			//-- We need to create a mirror-proxy.
-			m_mirrorMap.put(src, mirror);
+			PersistentCollection pc = (PersistentCollection) src;
+			CollectionKey kk = new CollectionKey(pc.getRole(), pc.getKey());
+			m_mirrorMap.put(kk, mirror);
 		}
 		return (V) mirror;
 	}
@@ -195,7 +262,8 @@ public class CreateCopyInterceptor extends EmptyInterceptor {
 	 * @param collection
 	 */
 	public void collectionLoaded(@Nonnull PersistentCollection collection) {
-		Object mirror = m_mirrorMap.remove(collection);
+		CollectionKey kk = new CollectionKey(collection.getRole(), collection.getKey());
+		Object mirror = m_mirrorMap.remove(kk);
 		if(null == mirror) {
 			System.out.println("CopyInterceptor: no 'mirror' collection for collection " + collection.getClass().getName() + " @" + System.identityHashCode(collection));
 			return;
