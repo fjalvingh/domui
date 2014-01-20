@@ -1,4 +1,4 @@
-package to.etc.domui.hibernate.config;
+package to.etc.domui.hibernate.beforeimages;
 
 import java.io.*;
 import java.util.*;
@@ -21,7 +21,7 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 13, 2014
  */
-public class CreateCopyInterceptor extends EmptyInterceptor {
+public class BeforeImageInterceptor extends EmptyInterceptor {
 	@Nonnull
 	final private IBeforeImageCache m_cache;
 
@@ -89,7 +89,7 @@ public class CreateCopyInterceptor extends EmptyInterceptor {
 	@Nonnull
 	final private Map<CollectionKey, IBeforeImageCollectionProxy< ? >> m_mirrorMap = new HashMap<CollectionKey, IBeforeImageCollectionProxy< ? >>();
 
-	public CreateCopyInterceptor(@Nonnull IBeforeImageCache cache) {
+	public BeforeImageInterceptor(@Nonnull IBeforeImageCache cache) {
 		m_cache = cache;
 	}
 

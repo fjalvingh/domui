@@ -1,4 +1,4 @@
-package to.etc.domui.hibernate.config;
+package to.etc.domui.hibernate.beforeimages;
 
 import org.hibernate.*;
 import org.hibernate.event.*;
@@ -18,10 +18,10 @@ public class CopyCollectionEventListener implements InitializeCollectionEventLis
 
 		//-- The only way to get hold of the QDataContext is through the Interceptor which must be of a type we support.
 		Interceptor ic = session.getInterceptor();
-		if(!(ic instanceof CreateCopyInterceptor))
+		if(!(ic instanceof BeforeImageInterceptor))
 			throw new IllegalStateException("Interceptor must be of type 'CreateCopyInterceptor' to allow before-images");
 
-		CreateCopyInterceptor ccic = (CreateCopyInterceptor) ic;
+		BeforeImageInterceptor ccic = (BeforeImageInterceptor) ic;
 		ccic.collectionLoaded(event.getCollection());
 	}
 

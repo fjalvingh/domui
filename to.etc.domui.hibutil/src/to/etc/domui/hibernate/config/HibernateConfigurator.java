@@ -33,7 +33,6 @@ import java.util.Map;
 import javax.annotation.*;
 import javax.persistence.*;
 import javax.persistence.Column;
-import javax.persistence.Entity;
 import javax.sql.*;
 
 import org.hibernate.*;
@@ -45,6 +44,7 @@ import org.hibernate.property.*;
 
 import to.etc.dbpool.*;
 import to.etc.domui.component.meta.*;
+import to.etc.domui.hibernate.beforeimages.*;
 import to.etc.domui.hibernate.generic.*;
 import to.etc.domui.hibernate.types.*;
 import to.etc.util.*;
@@ -517,7 +517,7 @@ final public class HibernateConfigurator {
 				break;
 		}
 
-		config.getEventListeners().setPostLoadEventListeners(new PostLoadEventListener[]{new CreateCopyEventListener()});
+		config.getEventListeners().setPostLoadEventListeners(new PostLoadEventListener[]{new CreateBeforeImagePostLoadListener()});
 
 		//-- Create the session factory: this completes the Hibernate config part.
 		m_sessionFactory = config.buildSessionFactory();

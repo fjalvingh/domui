@@ -1,4 +1,4 @@
-package to.etc.domui.hibernate.config;
+package to.etc.domui.hibernate.beforeimages;
 
 import java.util.*;
 

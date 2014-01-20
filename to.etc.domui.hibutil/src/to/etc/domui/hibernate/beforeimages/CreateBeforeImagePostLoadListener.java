@@ -1,4 +1,4 @@
-package to.etc.domui.hibernate.config;
+package to.etc.domui.hibernate.beforeimages;
 
 import org.hibernate.*;
 import org.hibernate.event.*;
@@ -10,7 +10,7 @@ import org.hibernate.event.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 12, 2014
  */
-public class CreateCopyEventListener implements PostLoadEventListener {
+public class CreateBeforeImagePostLoadListener implements PostLoadEventListener {
 	@Override
 	public void onPostLoad(PostLoadEvent event) {
 		Object entity = event.getEntity();
@@ -21,9 +21,9 @@ public class CreateCopyEventListener implements PostLoadEventListener {
 
 		//-- The only way to get hold of the QDataContext is through the Interceptor which must be of a type we support.
 		Interceptor ic = session.getInterceptor();
-		if(!(ic instanceof CreateCopyInterceptor))
+		if(!(ic instanceof BeforeImageInterceptor))
 			throw new IllegalStateException("Interceptor must be of type 'CreateCopyInterceptor' to allow before-images");
-		CreateCopyInterceptor ccic = (CreateCopyInterceptor) ic;
+		BeforeImageInterceptor ccic = (BeforeImageInterceptor) ic;
 		ccic.onAfterLoad(event);
 	}
 }
