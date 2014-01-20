@@ -158,6 +158,7 @@ public class CreateCopyInterceptor extends EmptyInterceptor {
 					if(!(value instanceof Collection))
 						throw new IllegalStateException("Before-image is supported only for OneToMany of type Collection<T>.");
 					value = (V) convertChildCollection((Collection) value);
+					pmm.setValue(dst, value);
 				}
 				break;
 
@@ -220,8 +221,6 @@ public class CreateCopyInterceptor extends EmptyInterceptor {
 	 * @throws Exception
 	 */
 	private <E, C extends Collection<E>> C convertChildCollection(@Nonnull C src) throws Exception {
-		C mirror = createMirrorCollection(src);
-
 		if(Hibernate.isInitialized(src)) {
 			return createMirrorCollection(src);					// Just create an immutable copy.
 		}
@@ -234,7 +233,6 @@ public class CreateCopyInterceptor extends EmptyInterceptor {
 		m_mirrorMap.put(kk, proxy);
 		return (C) proxy;
 	}
-
 
 	/**
 	 * This creates the mirrored collection for an already-loaded collection. It just creates a new base
