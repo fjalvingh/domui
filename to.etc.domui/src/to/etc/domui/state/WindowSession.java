@@ -457,9 +457,11 @@ final public class WindowSession {
 		//-- Handle the shelve mode,
 		if(getTargetMode() == MoveMode.NEW || mustResetShelve(clz)) {
 			clearShelve(0);
-		} else if(getTargetMode() == MoveMode.SUB || getTargetMode() == MoveMode.REPLACE) {
+		} else if(getTargetMode() == MoveMode.SUB) {
 			//-- We're shelving the current page- call all shelve handlers.
 			currentpg.internalShelve();
+		} else if(getTargetMode() == MoveMode.REPLACE) {
+			//-- All has been done already.
 		} else
 			throw new IllegalStateException("Internal: don't know how to handle shelve mode " + getTargetMode());
 
