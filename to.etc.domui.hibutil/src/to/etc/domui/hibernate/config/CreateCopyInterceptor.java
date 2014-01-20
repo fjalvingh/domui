@@ -87,7 +87,7 @@ public class CreateCopyInterceptor extends EmptyInterceptor {
 	}
 
 	@Nonnull
-	final private Map<CollectionKey, Object> m_mirrorMap = new HashMap<CollectionKey, Object>();
+	final private Map<CollectionKey, IBeforeImageCollectionProxy< ? >> m_mirrorMap = new HashMap<CollectionKey, IBeforeImageCollectionProxy< ? >>();
 
 	public CreateCopyInterceptor(@Nonnull IBeforeImageCache cache) {
 		m_cache = cache;
@@ -154,8 +154,11 @@ public class CreateCopyInterceptor extends EmptyInterceptor {
 				break;
 
 			case DOWN:
-				if(null != value)
-					value = convertChildCollection(value);
+				if(null != value) {
+					if(!(value instanceof Collection))
+						throw new IllegalStateException("Before-image is supported only for OneToMany of type Collection<T>.");
+					value = (V) convertChildCollection((Collection) value);
+				}
 				break;
 
 			case UP:
@@ -216,34 +219,55 @@ public class CreateCopyInterceptor extends EmptyInterceptor {
 	 * @return
 	 * @throws Exception
 	 */
-	private <V, E, C extends Collection<E>> V convertChildCollection(@Nonnull V src) throws Exception {
-		if(!(src instanceof Collection))
-			throw new IllegalStateException("Before-image is supported only for OneToMany of type Collection<T>.");
-
-		C mirror = createMirrorCollection((C) src);
+	private <E, C extends Collection<E>> C convertChildCollection(@Nonnull C src) throws Exception {
+		C mirror = createMirrorCollection(src);
 
 		if(Hibernate.isInitialized(src)) {
-			mirror.addAll((C) src);
-		} else {
-			//-- We need to create a mirror-proxy.
-			PersistentCollection pc = (PersistentCollection) src;
-			CollectionKey kk = new CollectionKey(pc.getRole(), pc.getKey());
-			m_mirrorMap.put(kk, mirror);
+			return createMirrorCollection(src);					// Just create an immutable copy.
 		}
-		return (V) mirror;
+
+		//-- We need to create the correct mirror proxy.
+		IBeforeImageCollectionProxy<E> proxy = (IBeforeImageCollectionProxy<E>) createMirrorCollectionProxy(src);
+
+		PersistentCollection pc = (PersistentCollection) src;
+		CollectionKey kk = new CollectionKey(pc.getRole(), pc.getKey());
+		m_mirrorMap.put(kk, proxy);
+		return (C) proxy;
 	}
 
+
+	/**
+	 * This creates the mirrored collection for an already-loaded collection. It just creates a new base
+	 * type of the real collection type expected as an immutable type, then returns it.
+	 * @param source
+	 * @return
+	 */
+	@Nonnull
+	static private <T, V extends Collection<T>, R extends IBeforeImageCollectionProxy<V>> R createMirrorCollectionProxy(@Nonnull V source) {
+		Class<V> clz = (Class<V>) source.getClass();
+		if(List.class.isAssignableFrom(clz)) {
+			return (R) new BeforeImageListProxy<T>();
+		} else if(Set.class.isAssignableFrom(clz)) {
+			return (R) new BeforeImageSetProxy<T>();
+		} else
+			throw new IllegalStateException("Before Images Interceptor: cannot create before images for collection of type " + source.getClass());
+	}
+
+	/**
+	 * This creates the mirrored collection for an already-loaded collection. It just creates a new base
+	 * type of the real collection type expected as an immutable type, then returns it.
+	 * @param source
+	 * @return
+	 */
 	@Nonnull
 	static private <T, V extends Collection<T>> V createMirrorCollection(@Nonnull V source) {
 		Class<V> clz = (Class<V>) source.getClass();
-		V res;
 		if(List.class.isAssignableFrom(clz)) {
-			res = (V) new ArrayList<T>();
+			return (V) Collections.unmodifiableList(new ArrayList<T>(source));
 		} else if(Set.class.isAssignableFrom(clz)) {
-			res = (V) new HashSet<T>();
+			return (V) Collections.unmodifiableSet(new HashSet<T>(source));
 		} else
 			throw new IllegalStateException("Before Images Interceptor: cannot create before images for collection of type " + source.getClass());
-		return res;
 	}
 
 
@@ -263,18 +287,18 @@ public class CreateCopyInterceptor extends EmptyInterceptor {
 	 */
 	public void collectionLoaded(@Nonnull PersistentCollection collection) {
 		CollectionKey kk = new CollectionKey(collection.getRole(), collection.getKey());
-		Object mirror = m_mirrorMap.remove(kk);
+		IBeforeImageCollectionProxy mirror = m_mirrorMap.remove(kk);
 		if(null == mirror) {
 			System.out.println("CopyInterceptor: no 'mirror' collection for collection " + collection.getClass().getName() + " @" + System.identityHashCode(collection));
 			return;
 		}
 		System.out.println("CopyInterceptor: load event for " + collection.getClass().getName() + " @" + System.identityHashCode(collection));
 
-		copyCollection((Collection< ? >) mirror, (Collection) collection);
+		copyCollection(mirror, (Collection) collection);
 	}
 
-	private <E, C extends Collection<E>> void copyCollection(C mirror, C collection) {
-		mirror.addAll(collection);
+	private <E, C extends Collection<E>> void copyCollection(IBeforeImageCollectionProxy<C> mirror, C collection) {
+		mirror.initializeFromOriginal(collection);
 	}
 
 }
