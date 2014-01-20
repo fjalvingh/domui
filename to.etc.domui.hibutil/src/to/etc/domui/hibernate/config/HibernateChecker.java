@@ -50,13 +50,16 @@ final public class HibernateChecker {
 
 	private int m_domuiMetaFatals;
 
+	final private boolean m_observableCollections;
+
 	private static enum Severity {
 		INFO, WARNING, ERROR, MUSTFIXNOW
 	}
 
-	public HibernateChecker(Configuration config, boolean reportProblems) {
+	public HibernateChecker(Configuration config, boolean reportProblems, boolean enableObservableCollections) {
 		m_config = config;
 		m_reportProblems = reportProblems;
+		m_observableCollections = enableObservableCollections;
 	}
 
 	private void problem(Severity sev, String s) {
@@ -140,12 +143,10 @@ final public class HibernateChecker {
 						v.setTypeParameters(new Properties());
 					v.getTypeParameters().setProperty("propertyType", actual.getName());
 				}
-				if(actual != null && List.class.isAssignableFrom(actual)) {
+				if(m_observableCollections && actual != null && List.class.isAssignableFrom(actual)) {
 					Bag many = (Bag) property.getValue();
 					many.setTypeName("to.etc.domui.hibernate.types.ObservableListType");
 				}
-
-
 			}
 		}
 		if(m_reportProblems)

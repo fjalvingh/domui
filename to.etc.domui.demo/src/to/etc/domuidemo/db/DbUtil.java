@@ -24,6 +24,8 @@ public class DbUtil {
 		HibernateConfigurator.addClasses(Genre.class, Customer.class, Employee.class, Invoice.class, InvoiceLine.class);
 
 		HibernateConfigurator.initialize(ds);
+		HibernateConfigurator.enableBeforeImages(true);
+		HibernateConfigurator.enableObservableCollections(true);
     }
 
 	/**

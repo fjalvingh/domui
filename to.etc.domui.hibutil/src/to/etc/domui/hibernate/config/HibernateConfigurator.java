@@ -100,6 +100,12 @@ final public class HibernateConfigurator {
 	 */
 	static private Mode m_mode = Mode.NONE;
 
+	static private boolean m_observableEnabled;
+
+	static private boolean m_beforeImagesEnabled;
+
+	static private Interceptor m_defaultInterceptor;
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Accessing the completed configuration's data.		*/
 	/*--------------------------------------------------------------*/
@@ -221,36 +227,22 @@ final public class HibernateConfigurator {
 		m_handlers.register(qexecutor);
 	}
 
-	private static enum Severity {
-		INFO, WARNING, ERROR, MUSTFIXNOW
+	static public void enableBeforeImages(boolean yes) {
+		m_beforeImagesEnabled = yes;
 	}
 
-	static private Class m_currentClass;
+	static public void enableObservableCollections(boolean yes) {
+		m_observableEnabled = yes;
+	}
 
-	static private PropertyInfo m_currentProperty;
-
-	static private void problem(Severity sev, String s) {
-		if(!DeveloperOptions.getBool("hibernate.report", false))
-			return;
-
-		StringBuilder sb = new StringBuilder();
-		sb.append(sev.name());
-		sb.append(": ").append(s);
-		if(m_currentClass != null) {
-			sb.append(" class ").append(m_currentClass.getName());
-			if(m_currentProperty != null) {
-				sb.append(" property ").append(m_currentProperty.getName());
-			}
-		}
-
-		System.out.println("MAPPING " + sb.toString());
+	static public void setInterceptor(@Nonnull Interceptor inter) {
+		m_defaultInterceptor = inter;
 	}
 
 	static private void enhanceMappings(@Nonnull Configuration config) throws Exception {
-		HibernateChecker hc = new HibernateChecker(config, DeveloperOptions.isDeveloperWorkstation());
+		HibernateChecker hc = new HibernateChecker(config, DeveloperOptions.isDeveloperWorkstation(), m_observableEnabled);
 		hc.enhanceMappings();
 	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Main initialization entrypoints.					*/
@@ -285,7 +277,6 @@ final public class HibernateConfigurator {
 		 */
 		String resname = "/" + HibernateConfigurator.class.getPackage().getName().replace('.', '/') + "/hibernate.cfg.xml";
 		config.configure(resname);
-
 		enhanceMappings(config);
 
 		/*
@@ -326,6 +317,23 @@ final public class HibernateConfigurator {
 		}
 
 		config.getEventListeners().setPostLoadEventListeners(new PostLoadEventListener[]{new CreateBeforeImagePostLoadListener()});
+		if(m_beforeImagesEnabled) {
+//			/*
+//			 * jal 20140120 Add a collection initialized event listener to support before-images.
+//			 */
+//			if(m_defaultInterceptor != null) {
+//				if(! (m_defaultInterceptor instanceof BeforeImageInterceptor))
+//					throw new IllegalStateException("Using before images means that your Interceptor MUST extend BeforeImageInterceptor");
+//			} else {
+//				m_defaultInterceptor = new BeforeImageInterceptor()
+//			}
+
+			InitializeCollectionEventListener[] iel = config.getEventListeners().getInitializeCollectionEventListeners();
+			InitializeCollectionEventListener[] iel2 = new InitializeCollectionEventListener[iel.length + 1];
+			System.arraycopy(iel, 0, iel2, 0, iel.length);
+			iel2[iel.length] = new CopyCollectionEventListener();	// Add the listener that updates collection before-images for lazy-loaded collections
+			config.getEventListeners().setInitializeCollectionEventListeners(iel2);
+		}
 
 		//-- Create the session factory: this completes the Hibernate config part.
 		m_sessionFactory = config.buildSessionFactory();
