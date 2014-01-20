@@ -294,9 +294,12 @@ final public class HibernateChecker {
 			System.out.println("MAPPING: " + getBadChildType() + " bad @OneToMany mappings with non-List<T> type");
 		if(getBadJoinColumn() > 0)
 			System.out.println("MAPPING: " + getBadJoinColumn() + " bad @OneToMany mappings with @JoinColumn");
-		System.out.println("MAPPING: " + getDupTables() + " duplicate tables");
-		System.out.println("MAPPING: " + getEnumErrors() + " enum's mapped as ORDINAL or missing @Enumerated annotation");
-		System.out.println("MAPPING: " + getDateErrors() + " date field without proper @Temporal annotation or of the wrong date type");
+		if(getDupTables() > 0)
+			System.out.println("MAPPING: " + getDupTables() + " duplicate tables");
+		if(getEnumErrors() > 0)
+			System.out.println("MAPPING: " + getEnumErrors() + " enum's mapped as ORDINAL or missing @Enumerated annotation");
+		if(getDateErrors() > 0)
+			System.out.println("MAPPING: " + getDateErrors() + " date field without proper @Temporal annotation or of the wrong date type");
 		if(getMissingEntity() > 0)
 			System.out.println("MAPPING: " + getMissingEntity() + " classes missing an @Entity annotation");
 		if(getBadBooleans() > 0)

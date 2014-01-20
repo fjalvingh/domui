@@ -24,6 +24,4 @@ public class CopyCollectionEventListener implements InitializeCollectionEventLis
 		BeforeImageInterceptor ccic = (BeforeImageInterceptor) ic;
 		ccic.collectionLoaded(event.getCollection());
 	}
-
-
 }
