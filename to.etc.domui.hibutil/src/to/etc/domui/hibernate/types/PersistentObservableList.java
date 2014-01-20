@@ -21,7 +21,7 @@ import to.etc.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 12, 2014
  */
-public class PersistentObservableList<T> extends PersistentList implements IObservableList {
+public class PersistentObservableList<T> extends PersistentBag implements IObservableList {
 	@Nonnull
 	static private final IListChangeListener< ? >[] NONE = new IListChangeListener[0];
 
