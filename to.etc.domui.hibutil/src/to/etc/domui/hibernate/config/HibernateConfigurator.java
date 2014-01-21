@@ -104,8 +104,6 @@ final public class HibernateConfigurator {
 
 	static private boolean m_beforeImagesEnabled;
 
-	static private Interceptor m_defaultInterceptor;
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Accessing the completed configuration's data.		*/
 	/*--------------------------------------------------------------*/
@@ -228,15 +226,13 @@ final public class HibernateConfigurator {
 	}
 
 	static public void enableBeforeImages(boolean yes) {
+		configured();
 		m_beforeImagesEnabled = yes;
 	}
 
 	static public void enableObservableCollections(boolean yes) {
+		configured();
 		m_observableEnabled = yes;
-	}
-
-	static public void setInterceptor(@Nonnull Interceptor inter) {
-		m_defaultInterceptor = inter;
 	}
 
 	static private void enhanceMappings(@Nonnull Configuration config) throws Exception {
