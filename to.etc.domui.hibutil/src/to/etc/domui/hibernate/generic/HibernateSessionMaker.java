@@ -24,6 +24,8 @@
  */
 package to.etc.domui.hibernate.generic;
 
+import javax.annotation.*;
+
 import org.hibernate.*;
 
 
@@ -34,5 +36,5 @@ import org.hibernate.*;
  * Created on Jun 26, 2008
  */
 public interface HibernateSessionMaker {
-	public Session makeSession() throws Exception;
+	public Session makeSession(@Nonnull BuggyHibernateBaseContext bhbc) throws Exception;
 }

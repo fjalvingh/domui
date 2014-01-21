@@ -94,7 +94,7 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 	public Session getSession() throws Exception {
 		checkValid();
 		if(m_session == null) {
-			m_session = m_sessionMaker.makeSession();
+			m_session = m_sessionMaker.makeSession(this);
 		}
 		return m_session;
 	}

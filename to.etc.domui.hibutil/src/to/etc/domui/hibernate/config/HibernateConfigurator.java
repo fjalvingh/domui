@@ -341,7 +341,7 @@ final public class HibernateConfigurator {
 		//-- Start DomUI/WebApp.core initialization: generalized database layer
 		HibernateSessionMaker hsm = new HibernateSessionMaker() {
 			@Override
-			public Session makeSession() throws Exception {
+			public Session makeSession(@Nonnull BuggyHibernateBaseContext dc) throws Exception {
 				return m_sessionFactory.openSession();
 			}
 		};
