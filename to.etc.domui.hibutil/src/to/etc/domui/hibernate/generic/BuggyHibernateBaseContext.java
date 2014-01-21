@@ -68,6 +68,8 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 
 	private boolean m_dataLoaded;
 
+	private boolean m_keepOriginals;
+
 	/**
 	 * Create a context, using the specified factory to create Hibernate sessions.
 	 * @param sessionMaker
@@ -241,18 +243,23 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 	 */
 	@Override
 	public void setKeepOriginals() {
-		if(m_beforeCache == null) {
-			if(m_dataLoaded)
-				throw new IllegalStateException("This data context has already been used to load data, you can only set the before images flag on an unused context");
-			m_beforeCache = new DefaultBeforeImageCache();
-		}
+		if(m_keepOriginals)
+			return;
+		if(m_dataLoaded)
+			throw new IllegalStateException("This data context has already been used to load data, you can only set the before images flag on an unused context");
+		m_keepOriginals = true;
+	}
+
+	public boolean isKeepOriginals() {
+		return m_keepOriginals;
 	}
 
 	@Nonnull
 	public DefaultBeforeImageCache getBeforeCache() {
 		DefaultBeforeImageCache beforeCache = m_beforeCache;
-		if(null == beforeCache)
-			throw new IllegalStateException("No before cache configured");
+		if(null == beforeCache) {
+			beforeCache = m_beforeCache = new DefaultBeforeImageCache();
+		}
 		return beforeCache;
 	}
 

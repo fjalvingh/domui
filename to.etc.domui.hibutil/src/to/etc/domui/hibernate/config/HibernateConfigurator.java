@@ -316,7 +316,6 @@ final public class HibernateConfigurator {
 				break;
 		}
 
-		config.getEventListeners().setPostLoadEventListeners(new PostLoadEventListener[]{new CreateBeforeImagePostLoadListener()});
 		if(m_beforeImagesEnabled) {
 //			/*
 //			 * jal 20140120 Add a collection initialized event listener to support before-images.
@@ -327,6 +326,8 @@ final public class HibernateConfigurator {
 //			} else {
 //				m_defaultInterceptor = new BeforeImageInterceptor()
 //			}
+
+			config.getEventListeners().setPostLoadEventListeners(new PostLoadEventListener[]{new CreateBeforeImagePostLoadListener()});
 
 			InitializeCollectionEventListener[] iel = config.getEventListeners().getInitializeCollectionEventListeners();
 			InitializeCollectionEventListener[] iel2 = new InitializeCollectionEventListener[iel.length + 1];
@@ -339,12 +340,23 @@ final public class HibernateConfigurator {
 		m_sessionFactory = config.buildSessionFactory();
 
 		//-- Start DomUI/WebApp.core initialization: generalized database layer
-		HibernateSessionMaker hsm = new HibernateSessionMaker() {
-			@Override
-			public Session makeSession(@Nonnull BuggyHibernateBaseContext dc) throws Exception {
-				return m_sessionFactory.openSession();
-			}
-		};
+		HibernateSessionMaker hsm;
+		if(m_beforeImagesEnabled) {
+			//-- We need the copy interceptor to handle these.
+			hsm = new HibernateSessionMaker() {
+				@Override
+				public Session makeSession(@Nonnull BuggyHibernateBaseContext dc) throws Exception {
+					return m_sessionFactory.openSession(new BeforeImageInterceptor(dc.getBeforeCache()));
+				}
+			};
+		} else {
+			hsm = new HibernateSessionMaker() {
+				@Override
+				public Session makeSession(@Nonnull BuggyHibernateBaseContext dc) throws Exception {
+					return m_sessionFactory.openSession();
+				}
+			};
+		}
 
 		//-- If no handlers are registered: register the default ones.
 		if(m_handlers.size() == 0) {

@@ -22,7 +22,7 @@ public class CreateBeforeImagePostLoadListener implements PostLoadEventListener 
 		//-- The only way to get hold of the QDataContext is through the Interceptor which must be of a type we support.
 		Interceptor ic = session.getInterceptor();
 		if(!(ic instanceof BeforeImageInterceptor))
-			throw new IllegalStateException("Interceptor must be of type 'CreateCopyInterceptor' to allow before-images");
+			throw new IllegalStateException("Interceptor must be of type '" + BeforeImageInterceptor.class.getName() + "' to allow before-images");
 		BeforeImageInterceptor ccic = (BeforeImageInterceptor) ic;
 		ccic.onAfterLoad(event);
 	}
