@@ -1,6 +1,8 @@
 package to.etc.domuidemo.db;
 
+import javax.annotation.*;
 import javax.persistence.*;
+
 import to.etc.domui.databinding.observables.*;
 
 @Entity
@@ -11,6 +13,9 @@ public class Album extends DbRecordBase<Long> implements IObservableEntity {
 	private String m_title;
 
 	private Artist m_artist;
+
+	@Nonnull
+	private IObservableList<Track> m_trackList = new ObservableList<Track>();
 
 	@Override
 	@Id
@@ -47,5 +52,15 @@ public class Album extends DbRecordBase<Long> implements IObservableEntity {
 		Artist oldv = getArtist();
 		m_artist = primaryArtist;
 		firePropertyChange("artist", oldv, primaryArtist);
+	}
+
+	@Nonnull
+	@OneToMany(mappedBy = "album", fetch = FetchType.LAZY)
+	public IObservableList<Track> getTrackList() {
+		return m_trackList;
+	}
+
+	public void setTrackList(@Nonnull IObservableList<Track> trackList) {
+		m_trackList = trackList;
 	}
 }
