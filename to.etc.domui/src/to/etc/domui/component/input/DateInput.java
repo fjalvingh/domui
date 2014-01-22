@@ -92,6 +92,8 @@ public class DateInput extends Text<Date> {
 	public void createContent() throws Exception {
 		setCssClass("ui-di");
 		m_selCalButton.setOnClickJS("WebUI.showCalendar('" + getActualID() + "'," + isWithTime() + ")");
+		//Specify wether or not the input should contain the time
+		setSpecialAttribute("withtime", String.valueOf(isWithTime()));
 		setSpecialAttribute("onblur", "WebUI.dateInputCheckInput(event);");
 	}
 

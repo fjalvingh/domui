@@ -1,5 +1,5 @@
-/** WebUI helper namespace 
-Acceptable input: 
+/** WebUI helper namespace
+Acceptable input:
 '/', '.' or '-' are accepted as separators; for brevity only '/' formats will be listed below:
 
 
@@ -16,7 +16,7 @@ if(WebUI === undefined)
     WebUI = new Object();
 
 $.extend(WebUI, {
-			
+
 	/** *** DateInput control code *** */
 	dateInputCheck : function(evt) {
 		if (!evt) {
@@ -28,18 +28,23 @@ $.extend(WebUI, {
 		var c = evt.target || evt.srcElement;
 		WebUI.dateInputRepairValueIn(c);
 	},
-	
+
 	dateInputRepairValueIn : function(c) {
 		if (!c)
 			return;
 		var val = c.value;
-	
+
 		if (!val || val.length == 0) // Nothing to see here, please move on.
 			return;
 		Calendar.__init();
-	
+
 		// -- Try to decode then reformat the date input
-		var fmt = Calendar._TT["DEF_DATE_FORMAT"];
+		var fmt;
+		if(c.getAttribute('withtime') == 'true') {
+			fmt = Calendar._TT["DEF_DATETIME_FORMAT"];
+		} else {
+			fmt = Calendar._TT["DEF_DATE_FORMAT"];
+		}
 		try {
 			var res = "";
 			var separatorsCount = WebUI.countSeparators(val);
@@ -60,17 +65,16 @@ $.extend(WebUI, {
 			alert(Calendar._TT["INVALID"]);
 		}
 	},
-	
+
 	/**
 	 * Function that checks is format valid after check that input has separators.
 	 */
-	
 	parsingOfFormat: function(inputValue, format){
 		// splits to array of alphanumeric "words" from an input (separators are non-alphanumeric characters)
 		var inputValueSplitted = inputValue.match(/(\w+)/g);
 		var formatWithoutPercentCharSplitted = format.replace(/%/g, "").match(/(\w+)/g);
 		var result = "";
-		for(var i = 0; i < formatWithoutPercentCharSplitted.length; i++){			
+		for(var i = 0; i < formatWithoutPercentCharSplitted.length; i++){
 			switch(formatWithoutPercentCharSplitted[i]){
 			case "d":
 				result = WebUI.formingResultForDayOrMonth(inputValueSplitted[i], result);
@@ -84,9 +88,9 @@ $.extend(WebUI, {
 			}
 		}
 		result = WebUI.insertDateSeparators(result, format);
-		return result;	
+		return result;
 	},
-	
+
 	formingResultForDayOrMonth: function(inputValue, result){
 		if(!WebUI.hasFieldInvalidFormat(inputValue)){
 			return result = WebUI.setDayOrMonthFormat(inputValue, result);
@@ -95,7 +99,7 @@ $.extend(WebUI, {
 			throw "Invalid date";
 		}
 	},
-	
+
 	formingResultForYear: function(inputValue, result){
 		var VALID_LENGTH_YEAR = 2;
 		if(inputValue.length == VALID_LENGTH_YEAR){
@@ -105,23 +109,23 @@ $.extend(WebUI, {
 			throw "Invalid date";
 		}
 	},
-	
+
 	/**
 	 * Function that checks is format valid of fields day and month.
 	 */
 	hasFieldInvalidFormat: function(inputValue){
 		var MAX_LENGTH = 2;
 		var FORBIDDEN_CHARACTER = "0";
-		
+
 		return (inputValue.length === MAX_LENGTH && (inputValue.charAt(0) === FORBIDDEN_CHARACTER)) || (inputValue.length > MAX_LENGTH);
 	},
-	
+
 	/**
 	 * Function that converts day and month parts of input string that represents date.
 	 */
 	setDayOrMonthFormat: function(inputValue, result){
 		var NEEDED_CHARACTER_DAY_MONTH = "0";
-		
+
 		if(inputValue.length == 1){
 			result += NEEDED_CHARACTER_DAY_MONTH + inputValue;
 		}else {
@@ -129,16 +133,16 @@ $.extend(WebUI, {
 		}
 		return result;
 	},
-	
+
 	/**
 	 * Function that converts year part of input string that represents date.
 	 */
 	setYearFormat: function(inputValue, result){
 		var NEEDED_CHARACTER_YEAR = "20";
-		
+
 		return result += NEEDED_CHARACTER_YEAR + inputValue;
 	},
-	
+
 	/**
 	 * Count of separator chars (anything else than letters and/or digits).
 	 */
@@ -150,14 +154,14 @@ $.extend(WebUI, {
 		}
 		return count;
 	},
-	
+
 	/**
 	 * Returns T if char is anything else than letters and/or digits.
 	 */
 	isSeparator : function(c) {
 		return !((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9'));
 	},
-	
+
 	insertDateSeparators : function(str, fmt, separatorsCount) {
 		var b = fmt.match(/%./g); // Split format items
 		var len = str.length;
@@ -209,5 +213,5 @@ $.extend(WebUI, {
 		}
 		return res;
 	}
-	
+
 });
