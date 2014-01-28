@@ -43,6 +43,8 @@ import to.etc.util.*;
  * Created on Dec 28, 2010
  */
 public class InternalParentTree extends Div {
+	private static final String PMS = ". Please make sure you use the latest plugin version always.";
+
 	private NodeBase m_touched;
 
 	private Div m_structure;
@@ -239,8 +241,35 @@ public class InternalParentTree extends Div {
 	}
 
 	private void openSourceWithWarning(@Nonnull NodeBase body, @Nonnull String name) {
-		if(! openEclipseSource(name)) {
-			MsgBox.message(body, MsgBox.Type.WARNING, "I was not able to send an OPEN FILE command to Eclipse.. You need to have the newest version of the Eclipse plugin running. Please see " + URL + " for details");
+		CommandResponse cr = openEclipseSource(name);
+
+		switch(cr.getType()){
+			case ERROR:
+				MsgBox.message(body, MsgBox.Type.ERROR, "Eclipse responded with an error to the 'open file' command: " + cr.getMessage() + PMS);
+				break;
+
+			case NOCONNECTION:
+				//-- No one responded.
+				if(isOldPortInUse()) {
+					MsgBox.message(body, MsgBox.Type.ERROR, "It looks like you are using an old version of the DomUI Plugin. Please update using Help -> Check for updates in Eclipse");
+				} else {
+					MsgBox.message(body, MsgBox.Type.ERROR, "It looks like you do not have the DomUI Eclipse plugin installed. Please see " + URL + " for installation details");
+				}
+				break;
+
+			case SUCCESS:
+				return;
+
+			case REFUSED:
+				if(isOldPortInUse()) {
+					MsgBox.message(body, MsgBox.Type.ERROR, "None of your running Eclipse instances wanted to open the page. It looks like " +	//
+						"you have at least one Eclipse installation that uses the old version of the plugin, which is not compatible. " + //
+						"Please update the DomUI plugin to the latest version using Help -> Check for updates in all your running Eclipses"); //
+				} else {
+					MsgBox.message(body, MsgBox.Type.ERROR, "An unexpected error has occurred: none of the running Eclipse installations " +	//
+							"recognized this web application. Please report this as a bug.");
+				}
+				break;
 		}
 	}
 
@@ -259,7 +288,8 @@ public class InternalParentTree extends Div {
 
 	static private final String URL = "http://www.domui.org/wiki/bin/view/Documentation/EclipsePlugin";
 
-	private boolean openEclipseSource(@Nonnull String name) {
+	@Nonnull
+	private CommandResponse openEclipseSource(@Nonnull String name) {
 		File root = DomApplication.get().getAppFile("");
 		return openEclipseSource(root.toString(), name);
 	}
@@ -269,14 +299,82 @@ public class InternalParentTree extends Div {
 	 * @param name
 	 * @return
 	 */
-	static public boolean openEclipseSource(@Nonnull String webappRoot, @Nonnull String name) {
+	@Nonnull
+	static public CommandResponse openEclipseSource(@Nonnull String webappRoot, @Nonnull String name) {
+		int nconnects = 0;
 		for(int port = 5051; port < 5060; port++) {
-			if(tryPortCommand(port, webappRoot, name)) {
-				return true;
+			CommandResponse cr = tryPortCommand(port, webappRoot, name);
+
+			switch(cr.getType()){
+				case NOCONNECTION:
+					break;
+
+				case SUCCESS:
+					//-- It worked ;-)
+					return cr;
+
+				case ERROR:
+					//-- An eclipse did react but had a specific error. This means we FOUND the right handler but it was unable to execute the command.
+					return cr;
+
+				case REFUSED:
+					//-- That plugin did not want to handle our webapp.
+					nconnects++;
+					break;
 			}
 		}
-		System.out.println("DomUI: cannot connect to Eclipse on localhost ports 5051..5060. Is the new version of the DomUI plugin running in Eclipse? See " + URL);
-		return false;
+
+		//-- Nothing worked. Distill some meaning of why not.
+		System.out.println("DomUI: cannot connect to Eclipse on localhost ports 5051..5060. See " + URL);
+		if(nconnects > 0) {
+			return new CommandResponse(AnswerType.REFUSED, null);					// We had connects but all refused.
+		}
+		return new CommandResponse(AnswerType.NOCONNECTION, null);
+	}
+
+	static private boolean isOldPortInUse() {
+		Socket s = null;
+		//		boolean connected = false;
+		try {
+			s = new Socket("127.0.0.1", 5050);
+			return true;
+		} catch(Exception x) {
+			return false;
+		} finally {
+			try {
+				if(null != s)
+					s.close();
+			} catch(Exception x) {
+				//-- willfully ignore.
+			}
+		}
+	}
+
+	static private enum AnswerType {
+		NOCONNECTION, REFUSED, ERROR, SUCCESS
+	}
+
+	static private class CommandResponse {
+		@Nonnull
+		final private AnswerType m_type;
+
+		@Nullable
+		final private String m_message;
+
+		public CommandResponse(@Nonnull AnswerType type, @Nullable String message) {
+			m_type = type;
+			m_message = message;
+		}
+
+		@Nonnull
+		public String getMessage() {
+			return m_message;
+		}
+
+		@Nonnull
+		public AnswerType getType() {
+			return m_type;
+		}
 	}
 
 	/**
@@ -286,14 +384,15 @@ public class InternalParentTree extends Div {
 	 * @param name
 	 * @return
 	 */
-	static private boolean tryPortCommand(int port, @Nonnull String webappRoot, @Nonnull String name) {
+	@Nonnull
+	static private CommandResponse tryPortCommand(int port, @Nonnull String webappRoot, @Nonnull String name) {
 		Socket s = null;
 		//		boolean connected = false;
 		try {
 			s = new Socket("127.0.0.1", port);
 		} catch(Exception x) {
 			System.out.println("DomUI: connect to Eclipse on socket "+port+" failed: "+x);
-			return false;
+			return new CommandResponse(AnswerType.NOCONNECTION, null);
 		}
 
 		//-- Send a command
@@ -328,22 +427,37 @@ public class InternalParentTree extends Div {
 			String response = new String(baos.toByteArray(), "utf-8");
 			System.out.println("DomUI Eclipse: response=" + response);
 
-			String[] frags = response.split("\\s+");
-			if(frags.length < 1)
-				return false;
+			//-- If response ends in lf strip it
+			while(response.length() > 0 && response.charAt(response.length() - 1) == '\n')
+				response = response.substring(0, response.length() - 1);
 
-			String cmd = frags[0];
-			if("SELECT-FAILED".equals(cmd))
-				return false;
-			if("OK".equals(cmd))
-				return true;
+			//-- Get 1st token in the response.
+			int pos = response.indexOf(' ');
+			String code, rest;
+			if(pos == -1) {
+				code = response;
+				rest = "";
+			} else {
+				code = response.substring(0, pos).trim();
+				rest = response.substring(pos + 1).trim();
+			}
 
-			//-- TBD
-			return true;
+			if("SELECT-FAILED".equals(code)) {
+				return new CommandResponse(AnswerType.REFUSED, rest);
+			} else if("OK".equals(code)) {
+				return new CommandResponse(AnswerType.SUCCESS, rest);
+			} else if("ERROR".equals(code)) {
+				return new CommandResponse(AnswerType.ERROR, rest);
+			} else {
+				//-- Unknown response, but we have one -> treat as refused with a message.
+				return new CommandResponse(AnswerType.REFUSED, rest);
+			}
 		} catch(Exception x) {
-			System.out.println("DomUI: eclipse connect failed with " + x);
+			System.out.println("DomUI: eclipse data exchange failed with " + x);
 			x.printStackTrace();
-			return false;
+
+			//-- We return refused, because this might not be the right eclipse anyway.
+			return new CommandResponse(AnswerType.REFUSED, x.toString());
 		} finally {
 			FileTool.closeAll(outputStream, is);
 			try {
