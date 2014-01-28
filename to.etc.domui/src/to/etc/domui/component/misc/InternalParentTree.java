@@ -224,12 +224,21 @@ public class InternalParentTree extends Div {
 		}
 	}
 
+	@Nonnull
+	private String openableClassName(@Nonnull String str) {
+		return str.replace('.', '/').replaceAll("\\$.*", "");
+	}
+
 	protected void openSource(NodeBase clicked) {
 		NodeBase body = getPage().getBody();
 		remove();
 
 		//-- Get name for the thingy,
-		String name = clicked.getClass().getName().replace('.', '/') + ".java";
+		String name = openableClassName(clicked.getClass().getName()) + ".java";
+		openSourceWithWarning(body, name);
+	}
+
+	private void openSourceWithWarning(@Nonnull NodeBase body, @Nonnull String name) {
 		if(! openEclipseSource(name)) {
 			MsgBox.message(body, MsgBox.Type.WARNING, "I was not able to send an OPEN FILE command to Eclipse.. You need to have the newest version of the Eclipse plugin running. Please see " + URL + " for details");
 		}
@@ -240,52 +249,15 @@ public class InternalParentTree extends Div {
 		remove();
 
 		//-- Get name for the thingy,
-		String name;
+		String name = openableClassName(ste.getClassName()) + ".java";
 		if(ste.getLineNumber() <= 0)
-			name = ste.getClassName().replace('.', '/') + ".java@" + ste.getMethodName();
+			name += "@" + ste.getMethodName();
 		else
-			name = ste.getClassName().replace('.', '/') + ".java#" + ste.getLineNumber();
-		if(!openEclipseSource(name)) {
-			MsgBox.message(body, MsgBox.Type.WARNING, "I was not able to send an OPEN FILE command to Eclipse.. You need to have the newest version of the Eclipse plugin running. Please see " + URL + " for details");
-		}
+			name += "#" + ste.getLineNumber();
+		openSourceWithWarning(body, name);
 	}
 
 	static private final String URL = "http://www.domui.org/wiki/bin/view/Documentation/EclipsePlugin";
-
-	//	/**
-	//	 * Try to reach Eclipse on localhost and make it open the source for the specified class.
-	//	 * @param name
-	//	 * @return
-	//	 */
-	//	static public boolean openEclipseSource(String name) {
-	//		int port = DeveloperOptions.getInt("domui.eclipse", 5050); // Default Eclipse port is 5050.
-	//		Socket s = null;
-	//		OutputStream outputStream = null;
-	//		//		boolean connected = false;
-	//		try {
-	//			s = new Socket("127.0.0.1", port);
-	//			//			connected = true;
-	//			outputStream = s.getOutputStream();
-	//			String msg = "OPENFILE " + name;
-	//			outputStream.write(msg.getBytes("UTF-8"));
-	//			outputStream.close();
-	//			s.close();
-	//			return true;
-	//		} catch(Exception x) {
-	//			System.out.println("DomUI: cannot connect to Eclipse on localhost:" + port + ". Is the DomUI plugin running in Eclipse? See "+URL);
-	//			System.out.println("DomUI: the connect failed with " + x);
-	//			return false;
-	//		} finally {
-	//			try {
-	//				if(outputStream != null)
-	//					outputStream.close();
-	//			} catch(Exception x) {}
-	//			try {
-	//				if(s != null)
-	//					s.close();
-	//			} catch(Exception x) {}
-	//		}
-	//	}
 
 	private boolean openEclipseSource(@Nonnull String name) {
 		File root = DomApplication.get().getAppFile("");
