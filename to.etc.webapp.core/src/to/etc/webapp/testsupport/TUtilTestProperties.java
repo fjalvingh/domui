@@ -55,10 +55,14 @@ public class TUtilTestProperties {
 
 
 	@Nonnull
-	static public Properties getTestProperties() {
+	static public synchronized Properties getTestProperties() {
 		Properties p = findTestProperties();
-		if(null == p)
-			throw new IllegalStateException("I cannot find the proper test properties.");
+		if(null == p) {
+			System.err.println("TUtilTestProperties: no test.properties file found, using an empty one");
+			p = m_properties = new Properties();
+// jal 20140111 No not abort but try to skip tests.
+//			throw new IllegalStateException("I cannot find the proper test properties.");
+		}
 		return p;
 	}
 
