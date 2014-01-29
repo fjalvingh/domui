@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="project/core/src/main/resources"/>
+	<classpathentry kind="src" path="annotations-common-src"/>
 	<classpathentry kind="src" path="annotations-src"/>
 	<classpathentry kind="src" path="generated-sources/antlr"/>
 	<classpathentry kind="src" path="project/core/src/main/java"/>
@@ -48,11 +49,6 @@
 	</classpathentry>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/bin-slf4j"/>
 	<classpathentry exported="true" kind="lib" path="lib-annotations/ejb3-persistence.jar">
-		<attributes>
-			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="lib-annotations/hibernate-commons-annotations.jar">
 		<attributes>
 			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
 		</attributes>

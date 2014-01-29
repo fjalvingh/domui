@@ -1,87 +1,31 @@
 package org.hibernate.cfg.annotations;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.*;
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
-import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
-import javax.persistence.Embeddable;
-import javax.persistence.FetchType;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
+
+import javax.persistence.*;
 import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
 
-import org.hibernate.AnnotationException;
-import org.hibernate.AssertionFailure;
+import org.hibernate.*;
 import org.hibernate.FetchMode;
-import org.hibernate.MappingException;
-import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CollectionId;
-import org.hibernate.annotations.CollectionOfElements;
-import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.*;
 import org.hibernate.annotations.Filter;
-import org.hibernate.annotations.FilterJoinTable;
-import org.hibernate.annotations.FilterJoinTables;
-import org.hibernate.annotations.Filters;
 import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Immutable;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
-import org.hibernate.annotations.Loader;
-import org.hibernate.annotations.ManyToAny;
-import org.hibernate.annotations.OptimisticLock;
 import org.hibernate.annotations.OrderBy;
-import org.hibernate.annotations.Persister;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.SQLDeleteAll;
-import org.hibernate.annotations.SQLInsert;
-import org.hibernate.annotations.SQLUpdate;
-import org.hibernate.annotations.Sort;
-import org.hibernate.annotations.SortType;
-import org.hibernate.annotations.Where;
-import org.hibernate.annotations.WhereJoinTable;
-import org.hibernate.annotations.common.reflection.XClass;
-import org.hibernate.annotations.common.reflection.XProperty;
-import org.hibernate.cfg.AnnotatedClassType;
-import org.hibernate.cfg.AnnotationBinder;
-import org.hibernate.cfg.BinderHelper;
-import org.hibernate.cfg.CollectionSecondPass;
-import org.hibernate.cfg.Ejb3Column;
-import org.hibernate.cfg.Ejb3JoinColumn;
-import org.hibernate.cfg.ExtendedMappings;
+import org.hibernate.annotations.common.reflection.*;
+import org.hibernate.cfg.*;
 import org.hibernate.cfg.IndexColumn;
-import org.hibernate.cfg.PropertyData;
-import org.hibernate.cfg.PropertyHolder;
-import org.hibernate.cfg.PropertyHolderBuilder;
-import org.hibernate.cfg.PropertyInferredData;
-import org.hibernate.cfg.PropertyPreloadedData;
-import org.hibernate.cfg.SecondPass;
-import org.hibernate.engine.ExecuteUpdateResultCheckStyle;
+import org.hibernate.engine.*;
+import org.hibernate.mapping.*;
 import org.hibernate.mapping.Any;
-import org.hibernate.mapping.Backref;
 import org.hibernate.mapping.Collection;
 import org.hibernate.mapping.Column;
-import org.hibernate.mapping.Component;
-import org.hibernate.mapping.DependantValue;
-import org.hibernate.mapping.IdGenerator;
-import org.hibernate.mapping.Join;
-import org.hibernate.mapping.KeyValue;
 import org.hibernate.mapping.ManyToOne;
-import org.hibernate.mapping.PersistentClass;
-import org.hibernate.mapping.Property;
-import org.hibernate.mapping.Selectable;
-import org.hibernate.mapping.SimpleValue;
-import org.hibernate.mapping.SingleTableSubclass;
 import org.hibernate.mapping.Table;
-import org.hibernate.util.StringHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.hibernate.util.*;
+import org.slf4j.*;
 
 /**
  * Base class for binding different types of collections to Hibernate configuration objects.
@@ -240,7 +184,7 @@ public abstract class CollectionBinder {
 					return new BagBinder();
 				}
 			}
-			else if ( java.util.List.class.equals( returnedClass ) ) {
+			else if(java.util.List.class.isAssignableFrom(returnedClass)) {  // jal 2014/01/29 Experimental: allow using subinterfaces as God intended
 				if ( isIndexed ) {
 					if ( property.isAnnotationPresent( CollectionId.class ) ) {
 						throw new AnnotationException( "List do not support @CollectionId and @IndexColumn at the same time: "
@@ -427,7 +371,7 @@ public abstract class CollectionBinder {
 		);
 		if ( collectionType.isAnnotationPresent( Embeddable.class )
 				|| property.isAnnotationPresent( CollectionOfElements.class ) ) {
-			// do it right away, otherwise @ManyToon on composite element call addSecondPass 
+			// do it right away, otherwise @ManyToon on composite element call addSecondPass
 			// and raise a ConcurrentModificationException
 			//sp.doSecondPass( CollectionHelper.EMPTY_MAP );
 			mappings.addSecondPass( sp, !isMappedBy );
@@ -538,6 +482,7 @@ public abstract class CollectionBinder {
 
 		return new CollectionSecondPass( mappings, collection ) {
 
+			@Override
 			public void secondPass(java.util.Map persistentClasses, java.util.Map inheritedMetas)
 					throws MappingException {
 				bindStarToManySecondPass(
@@ -877,7 +822,7 @@ public abstract class CollectionBinder {
 						//TODO check whether @ManyToOne @JoinTable in @IdClass used for @OrderBy works: doh!
 						table = "";
 					}
-					
+
 					else if (pc == associatedClass
 							|| (associatedClass instanceof SingleTableSubclass && pc
 									.getMappedClass().isAssignableFrom(
@@ -886,7 +831,7 @@ public abstract class CollectionBinder {
 					} else {
 						table = pc.getTable().getQuotedName() + ".";
 					}
-					
+
 					Iterator propertyColumns = p.getColumnIterator();
 					while ( propertyColumns.hasNext() ) {
 						Selectable column = (Selectable) propertyColumns.next();
