@@ -87,6 +87,7 @@ public class TypeUtils {
 	private static boolean isCollectionClass(Class<?> clazz) {
 		return clazz == Collection.class
 				|| clazz == java.util.List.class
+				|| java.util.List.class.isAssignableFrom(clazz)		// jal 2014/01/29 Attempt to accept List derived interfaces too. 
 				|| clazz == java.util.Set.class
 				|| clazz == java.util.Map.class
 				|| clazz == java.util.SortedSet.class // extension to the specs
