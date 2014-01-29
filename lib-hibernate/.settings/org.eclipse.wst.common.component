@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project-modules id="moduleCoreId" project-version="1.5.0">
+<?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
     <wb-module deploy-name="lib-hibernate-3.3.2">
         <wb-resource deploy-path="/" source-path="/project/core/src/main/resources"/>
         <wb-resource deploy-path="/" source-path="/generated-sources/antlr"/>
         <wb-resource deploy-path="/" source-path="/project/core/src/main/java"/>
+        <wb-resource deploy-path="/" source-path="/annotations-src"/>
     </wb-module>
 </project-modules>
