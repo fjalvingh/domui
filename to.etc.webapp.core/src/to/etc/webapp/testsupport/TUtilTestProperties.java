@@ -355,7 +355,7 @@ public class TUtilTestProperties {
 	}
 
 	@Nullable
-	static private InputStream findLogConfig(@Nonnull String logconfig) {
+	static private InputStream findLogConfig(@Nullable String logconfig) {
 		if(logconfig != null) {
 			//-- Try to find this as a class-relative resource;
 			if(!logconfig.startsWith("/")) {
