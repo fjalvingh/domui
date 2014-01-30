@@ -50,9 +50,9 @@ $.extend(WebUI, {
 				try {
 					var resultOfConversion = WebUI.parsingOfFormat(val, fmt);
 					res = Date.parseDate(resultOfConversion, fmt);
-					c.value = res.print(fmt);
 				} catch(x) {
 					res = Date.parseDate(val, fmt);
+					return;
 				}
 			}
 			c.value = res.print(fmt);
