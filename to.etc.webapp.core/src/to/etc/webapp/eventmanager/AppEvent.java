@@ -24,6 +24,8 @@
  */
 package to.etc.webapp.eventmanager;
 
+import javax.annotation.*;
+
 /**
  * A base class for VP based record events. This extends the base
  * with a change type and a primary key ID field.
@@ -45,6 +47,7 @@ public class AppEvent extends AppEventBase {
 		return m_key;
 	}
 
+	@Nonnull
 	public ChangeType getType() {
 		return m_type;
 	}
