@@ -31,6 +31,7 @@ import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 
 public class MaxMinValidator implements IValueValidator<Number> {
+	@Nonnull
 	private Number m_max, m_min;
 
 	@Nullable
@@ -42,7 +43,7 @@ public class MaxMinValidator implements IValueValidator<Number> {
 	 * @param min
 	 * @param msg If specified this error message will be shown, otherwise default error message is shown.
 	 */
-	public MaxMinValidator(Number min, Number max, @Nullable UIMessage msg) {
+	public MaxMinValidator(@Nonnull Number min, @Nonnull Number max, @Nullable UIMessage msg) {
 		m_max = max;
 		m_min = min;
 		m_msg = msg;
@@ -53,7 +54,7 @@ public class MaxMinValidator implements IValueValidator<Number> {
 	 * @param max
 	 * @param min
 	 */
-	public MaxMinValidator(Number min, Number max) {
+	public MaxMinValidator(@Nonnull Number min, @Nonnull Number max) {
 		this(min, max, null);
 	}
 
@@ -83,11 +84,11 @@ public class MaxMinValidator implements IValueValidator<Number> {
 		}
 	}
 
-	private void throwError(String vToosmall, Number val) {
+	private void throwError(@Nonnull String code, @Nonnull Number val) {
 		if(m_msg != null) {
 			throw new ValidationException(m_msg.getBundle(), m_msg.getCode(), m_msg.getParameters());
 		} else {
-			throw new ValidationException(vToosmall, val.toString());
+			throw new ValidationException(code, val.toString());
 		}
 	}
 }
