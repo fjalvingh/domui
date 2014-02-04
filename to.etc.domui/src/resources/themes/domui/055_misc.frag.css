@@ -130,3 +130,8 @@ div.ui-asc div {
 	margin-top: 0px !important;
 }
 .dso-cell-with-text-and-input {}
+
+/** Default cursor */
+.ui-cur-default {
+	cursor: default !important;
+}
