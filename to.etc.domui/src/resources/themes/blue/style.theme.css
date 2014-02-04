@@ -649,6 +649,11 @@ div.ui-asc div {
 	margin-top: 0px !important;
 }
 .dso-cell-with-text-and-input {}
+
+/** Default cursor */
+.ui-cur-default {
+	cursor: default !important;
+}
 /*** 060_msgbox.frag.css ***/
 /*** MsgBox ***/
 .ui-mbx-top {
@@ -1173,6 +1178,11 @@ table.ui-lf-st tr > td.ui-f-lbl:first-child,
 	min-width: 150px;
 	width: 1%;
 }
+
+table.ui-lf-st input.ui-ro,
+table.ui-lf-st input.ui-ro:hover {
+	text-align: left !important;
+}
 /*** 120_forms.frag.css ***/
 /*** Form basic styles ***/
 /* these are for forms having the label BEFORE the field (horizontal). */
@@ -1243,7 +1253,7 @@ table.ui-lf-st tr > td.ui-f-lbl:first-child,
 	background-color: <%= readonly_bg %>;
 }
 input.ui-ro, input.ui-ro:hover {
-	text-align: left !important;
+	text-align: left;
 	height: 12px !important;
 	margin: 0px !important;
 	padding: 0px !important;
