@@ -254,7 +254,7 @@ public class TUtilTestProperties {
 			m_gotLoginName = true;
 			m_viewpointLoginName = getTestProperties().getProperty("loginid");
 			if(m_viewpointLoginName == null)
-				m_viewpointLoginName = "VIEWPOINT";
+				m_viewpointLoginName = "VPC";								// jal 2014/02/11 Do not use "VIEWPOINT" since it has no rights at all and is not a real account
 			else if("ANONYMOUS".equalsIgnoreCase(m_viewpointLoginName))
 				m_viewpointLoginName = null;
 		}
