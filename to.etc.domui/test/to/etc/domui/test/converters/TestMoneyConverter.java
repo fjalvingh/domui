@@ -42,6 +42,23 @@ public class TestMoneyConverter {
 		NlsContext.setLocale(nl);
 	}
 
+	@Test
+	public void checkBigDecimalRendering() {
+		BigDecimal bd = BigDecimal.valueOf(0.0);
+		String s = bd.setScale(2, RoundingMode.HALF_EVEN).toString();
+		Assert.assertEquals("0.00", s);
+	}
+
+	@Test
+	public void checkProperRounding() {
+		Assert.assertEquals(RoundingMode.HALF_EVEN, MoneyUtil.getRoundingMode());
+	}
+
+	@Test
+	public void checkProperScale() {
+		Assert.assertEquals(2, MoneyUtil.getMoneyScale());
+	}
+
 	/**
 	 * Checks a valid conversion and compares the output with the expected output.
 	 * @param in
