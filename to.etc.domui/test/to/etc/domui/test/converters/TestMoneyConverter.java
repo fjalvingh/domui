@@ -35,8 +35,8 @@ import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
 
 public class TestMoneyConverter {
-	@BeforeClass
-	static public void setUp() {
+	@Before
+	public void setUp() {
 		Locale nl = new Locale("nl", "NL");
 		NlsContext.setCurrencyLocale(nl);
 		NlsContext.setLocale(nl);
@@ -53,6 +53,12 @@ public class TestMoneyConverter {
 	public void checkProperRounding() {
 		Assert.assertEquals(RoundingMode.HALF_EVEN, MoneyUtil.getRoundingMode());
 	}
+
+	//	@Test
+	//	public void checkCurrencyLocale() {
+	//		Currency c = NlsContext.getCurrency();
+	//		Assert.fail("Currency is " + c + ", " + c.getCurrencyCode() + ", clocale=" + NlsContext.getCurrencyLocale());
+	//	}
 
 	@Test
 	public void checkProperScale() {
@@ -216,14 +222,6 @@ public class TestMoneyConverter {
 
 	@Test
 	public void testOtherLocales() {
-		//		Locale loc = Locale.US; //new Locale("en_US");
-		Locale loc = new Locale("nl", "NL");
-		Currency c = Currency.getInstance(loc);
-		System.out.println("c  = " + c.getSymbol(loc) + ", digs=" + c.getDefaultFractionDigits());
-
-		Locale nl = new Locale("nl", "NL");
-		NlsContext.setLocale(nl);
-		NlsContext.setCurrencyLocale(nl);
 		testMoney(1234.45, false, true, true, "\u20ac\u00a01234,45");
 		testMoney(1234.45111, false, true, true, "\u20ac\u00a01234,45");
 		testMoney(1234.00, false, true, true, "\u20ac\u00a01234");
