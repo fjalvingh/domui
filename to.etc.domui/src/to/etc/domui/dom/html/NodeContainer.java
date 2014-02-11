@@ -36,9 +36,6 @@ import to.etc.webapp.*;
 /**
  * Base node for tags that can contain other nodes.
  *
- * A description on the deltaing mechanism used can be found in the header for {@link NodeBase}
- * @see NodeBase
- *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 17, 2007
  */
@@ -617,6 +614,8 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 */
 	public TBody addTable(String... headers) {
 		Table t = new Table();
+		t.setCellPadding("0");
+		t.setCellSpacing("0");
 		add(t);
 		if(headers != null && headers.length > 0)
 			t.getHead().setHeaders(headers);
@@ -652,6 +651,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @param ofClass
 	 * @return
 	 */
+	@Nonnull
 	final public <T> List<T> getDeepChildren(@Nonnull Class<T> ofClass) {
 		if(m_delegate != null)
 			return m_delegate.getDeepChildren(ofClass);
@@ -704,7 +704,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @see to.etc.domui.dom.html.NodeBase#moveControlToModel()
 	 */
 	@Override
-	final public void moveControlToModel() throws Exception {
+	public void moveControlToModel() throws Exception {
 		super.moveControlToModel();
 		Exception x = null;
 		for(NodeBase b : new ArrayList<NodeBase>(m_children)) {
@@ -729,7 +729,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @see to.etc.domui.dom.html.NodeBase#moveModelToControl()
 	 */
 	@Override
-	final public void moveModelToControl() throws Exception {
+	public void moveModelToControl() throws Exception {
 		super.moveModelToControl(); 					// Move the value to *this* node if it is bindable
 		build(); 										// And only build it AFTER a value can have been set.
 		for(NodeBase b : new ArrayList<NodeBase>(m_children))
@@ -815,6 +815,14 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 			m_delegate.setErrorFence();
 		else if(m_errorFence == null)
 			m_errorFence = new ErrorFenceHandler(this);
+	}
+
+	@Override
+	final public void internalOnBeforeRender() throws Exception {
+		onBeforeRender();
+		for(int i = m_children.size(); --i >= 0;) {
+			m_children.get(i).internalOnBeforeRender();
+		}
 	}
 
 	/*--------------------------------------------------------------*/

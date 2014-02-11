@@ -10,21 +10,25 @@ import javax.annotation.*;
  * @author <a href="mailto:dennis.bekkering@itris.nl">Dennis Bekkering</a>
  * Created on Feb 3, 2013
  */
-public class QList<R extends QField<R, ? >> {
+public class QList<P extends QField<P, ? >, R extends QField<R, ? >> {
 
 
 	private @Nonnull R m_root;
 
-	private @Nonnull QField< ? , ? > m_parent;
+	@Nonnull
+	QField<P, ? > m_parent;
+
+	@Nullable
+	private QExistsSubquery< ? > m_subquery;
 
 	@Nonnull
 	String m_listName;
 
-	public QList(@Nonnull R root, @Nonnull QField< ? , ? > parent, String listName) throws Exception {
+	public QList(@Nonnull R root, @Nonnull QField<P, ? > parent, String listName) throws Exception {
 		m_root = root;
 		m_root.m_isSub = true;
 		m_parent = parent;
-		m_listName = listName;
+		m_listName = parent.toString().equals("") ? listName : parent.toString() + "." + listName;
 	}
 
 	public @Nonnull
@@ -32,34 +36,28 @@ public class QList<R extends QField<R, ? >> {
 	R exists() throws Exception {
 
 		Class<T> rootClass = (Class<T>) getRootClass();
-		final QExistsSubquery<T> sq = new QExistsSubquery<T>(m_parent.criteria().getBaseClass(), rootClass, m_listName);
-		QRestrictor<T> builder = new QRestrictor<T>(rootClass, QOperation.AND) {
-			@Override
-			public QOperatorNode getRestrictions() {
-				return sq.getRestrictions();
-			}
-
-			@Override
-			public void setRestrictions(QOperatorNode n) {
-				sq.setRestrictions(n);
-			}
-		};
-
-		m_parent.addNode(sq);
-		m_root.m_criteria = cast(builder);
+		m_subquery = new QExistsSubquery<T>(m_parent.criteria(), rootClass, m_listName);
+		m_parent.qbrace().add(this);
 		return m_root;
 	}
 
-	/**
-	 * dirty trick ;(
-	 * @param t
-	 * @return
-	 */
-	<T> T cast(Object t) {
-		return (T) t;
-	}
 
 	@Nonnull Class< ? > getRootClass() {
 		return  (Class<?>) ((ParameterizedType) m_root.getClass().getSuperclass().getGenericSuperclass()).getActualTypeArguments()[1];
 	}
+
+	@Nonnull
+	QExistsSubquery< ? > getSubquery() {
+		QExistsSubquery< ? > subquery = m_subquery;
+		if(null == subquery)
+			throw new IllegalStateException("Subquery is not defined");
+		return subquery;
+	}
+
+	@Nonnull
+	R getRoot() {
+		return m_root;
+	}
+
+
 }

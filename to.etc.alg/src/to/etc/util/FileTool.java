@@ -455,6 +455,14 @@ public class FileTool {
 		}
 	}
 
+	@Nonnull
+	public static byte[] readByteArray(@Nonnull InputStream is) throws Exception {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		FileTool.copyFile(baos, is);
+		baos.close();
+		return baos.toByteArray();
+	}
+
 	/**
 	 * Load a class resource as a byte array. If the resource is not found this returns null.
 	 * @param clz
@@ -638,11 +646,7 @@ public class FileTool {
 
 	static public void readStreamAsString(final Appendable o, final InputStream f, final String enc) throws Exception {
 		Reader r = new InputStreamReader(f, enc);
-		try {
-			readStreamAsString(o, r);
-		} finally {
-			r.close();
-		}
+		readStreamAsString(o, r);
 	}
 
 	static public void readStreamAsString(final Appendable o, final Reader r) throws Exception {
@@ -700,6 +704,7 @@ public class FileTool {
 	/**
 	 * Create an MD5 hash for a file's contents.
 	 */
+	@Nonnull
 	static public byte[] hashFile(final File f) throws IOException {
 		InputStream is = null;
 		try {
@@ -718,6 +723,7 @@ public class FileTool {
 	 * @param data
 	 * @return
 	 */
+	@Nonnull
 	static public byte[] hashBuffers(final byte[][] data) {
 		MessageDigest md = null;
 		try {
@@ -737,6 +743,7 @@ public class FileTool {
 	 * @param data
 	 * @return
 	 */
+	@Nonnull
 	static public String hashBuffersHex(final byte[][] data) {
 		return StringTool.toHex(hashBuffers(data));
 	}
@@ -747,6 +754,7 @@ public class FileTool {
 	 * @return		A hash (16 bytes MD5)
 	 * @throws IOException
 	 */
+	@Nonnull
 	static public byte[] hashFile(final InputStream is) throws IOException {
 		MessageDigest md = null;
 		try {
@@ -769,6 +777,7 @@ public class FileTool {
 	 * @return
 	 * @throws IOException
 	 */
+	@Nonnull
 	static public String hashFileHex(final File f) throws IOException {
 		return StringTool.toHex(hashFile(f));
 	}
@@ -779,6 +788,7 @@ public class FileTool {
 	 * @return
 	 * @throws IOException
 	 */
+	@Nonnull
 	static public String hashFileHex(final InputStream is) throws IOException {
 		return StringTool.toHex(hashFile(is));
 	}
@@ -1181,6 +1191,28 @@ public class FileTool {
 			} catch(Exception x) {}
 		}
 	}
+
+	@Nonnull
+	static public List<String> getZipDirectory(@Nonnull File in) throws Exception {
+		ZipInputStream zis = null;
+		byte[] buf = new byte[8192];
+		List<String> res = new ArrayList<>();
+		try {
+			zis = new ZipInputStream(new FileInputStream(in));
+			ZipEntry ze;
+			while(null != (ze = zis.getNextEntry())) {
+				res.add(ze.getName());
+				zis.closeEntry();
+			}
+			return res;
+		} finally {
+			try {
+				if(zis != null)
+					zis.close();
+			} catch(Exception x) {}
+		}
+	}
+
 
 	@Nullable
 	static public InputStream getZipContent(final File src, final String name) throws IOException {
@@ -1926,6 +1958,13 @@ public class FileTool {
 		return (int) size;
 	}
 
+	@Nonnull
+	public static File createTmpDir() throws IOException {
+		File f = File.createTempFile("work", ".dir");
+		f.delete();
+		return f;
+	}
+
 	/**
 	 * Returns number of lines in a specified file.
 	 *
@@ -1944,5 +1983,21 @@ public class FileTool {
 		} finally {
 			FileTool.closeAll(reader);
 		}
+	}
+
+	/**
+	 * Calculate the relative path of file in the root passed.
+	 * @param root
+	 * @param file
+	 * @return
+	 * @throws Exception
+	 */
+	@Nonnull
+	public static String getRelativePath(@Nonnull File root, @Nonnull File file) throws Exception {
+		String rp = root.getCanonicalPath() + File.separator;
+		String fp = file.getCanonicalPath();
+		if(!fp.startsWith(rp))
+			throw new IllegalStateException("Path " + fp + " is not a subpath of " + rp);
+		return fp.substring(rp.length());
 	}
 }

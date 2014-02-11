@@ -33,15 +33,13 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	@Nullable
 	private SimpleColumnDef< ? > m_sortColumn;
 
-	private boolean m_sortDescending;
-
 	@Nonnull
 	final private Class<T> m_rootClass;
 
 	public ColumnDefList(@Nonnull Class<T> rootClass, @Nonnull ClassMetaModel cmm) {
 		m_rootClass = rootClass;
 		m_metaModel = cmm;
-		m_sortDescending = cmm.getDefaultSortDirection() == SortableType.SORTABLE_DESC;
+//		m_sortDescending = cmm.getDefaultSortDirection() == SortableType.SORTABLE_DESC;
 	}
 
 	public int size() {
@@ -66,6 +64,16 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 		return m_columnList.get(ix);
 	}
 
+	@Nullable
+	public SimpleColumnDef< ? > findColumn(@Nonnull String propertyName) {
+		for(final SimpleColumnDef< ? > scd : m_columnList) {
+			if(DomUtil.isEqual(scd.getPropertyName(), propertyName)) {
+				return scd;
+			}
+		}
+		return null;
+	}
+
 	/**
 	 * Set the default sort column by property name. If it is null the default sort is undone.
 	 * @param sort
@@ -74,20 +82,17 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 		if(null == sort) {
 			m_sortColumn = null;
 		} else {
-			for(final SimpleColumnDef< ? > scd : m_columnList) {
-				if(DomUtil.isEqual(scd.getPropertyName(), sort)) {
-					setSortColumn(scd, scd.getSortable());
-					break;
-				}
-			}
+			SimpleColumnDef< ? > scd = findColumn(sort);
+			if(null != scd)
+				setSortColumn(scd);
 		}
 	}
 
 
-	public void setSortColumn(@Nullable SimpleColumnDef< ? > cd, @Nullable SortableType type) {
-		m_sortColumn = cd;
-		m_sortDescending = type == SortableType.SORTABLE_DESC;
-	}
+//	public void setSortColumn(@Nullable SimpleColumnDef< ? > cd, @Nullable SortableType type) {
+//		m_sortColumn = cd;
+//		m_sortDescending = type == SortableType.SORTABLE_DESC;
+//	}
 
 	public void setSortColumn(@Nullable SimpleColumnDef< ? > cd) {
 		m_sortColumn = cd;
@@ -329,7 +334,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 			scd.setSortable(xdp.getSortable());
 		scd.setSortHelper(sortHelper); 									// All sort actions here are QUESTIONABLE - what happens for multiple expanded columns?!
 		if(defaultsort) {
-			setSortColumn(scd, sort);
+			setSortColumn(scd);
 		}
 
 		defaultsort = false;
@@ -377,7 +382,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 			cd.setSortable(sort);
 			cd.setSortHelper(sortHelper);
 			if(defaultsort)
-				setSortColumn(cd, sort);
+				setSortColumn(cd);
 		}
 		if(pmm.getNumericPresentation() != null && pmm.getNumericPresentation() != NumericPresentation.UNKNOWN) {
 			cd.setCssClass(NUMERIC_CSS_CLASS);
@@ -403,7 +408,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 			cd.setSortable(sort);
 			cd.setSortHelper(sortHelper);
 			if(defaultsort)
-				setSortColumn(cd, sort);
+				setSortColumn(cd);
 		}
 		if(clickHandler != null) {
 			cd.setCellClicked((ICellClicked<V>) clickHandler);
@@ -515,13 +520,11 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 		return m_sortColumn;
 	}
 
-	public boolean isSortDescending() {
-		return m_sortDescending;
-	}
+//	public boolean isSortDescending() {
+//		SimpleColumnDef< ? > sd = m_sortColumn;
+//		return sd == null ? false : sd.getSortable() == SortableType.SORTABLE_DESC;
+//	}
 
-	public void setSortDescending(boolean desc) {
-		m_sortDescending = desc;
-	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Typeful column definition code.						*/

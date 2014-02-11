@@ -59,9 +59,15 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 		m_dottedName = dottedName;
 	}
 
+	@Nonnull
 	@Override
 	public String toString() {
 		return "PathProperty[" + m_dottedName + "@" + m_accessPath[0].getClassModel().toString() + "]";
+	}
+
+	@Nonnull
+	public List<PropertyMetaModel< ? >> getAccessPath() {
+		return Arrays.asList(m_accessPath);
 	}
 
 	/**
@@ -93,7 +99,7 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 
 			cv = pmm.getValue(cv);
 			if(cv == null)
-				throw new IllegalStateException("The property '" + pmm.getName() + " in classModel=" + pmm.getClassModel() + " is null - cannot set a value!!");
+				throw new IllegalStateException("In path '" + m_dottedName + "', property '" + pmm.getName() + "' in classModel=" + pmm.getClassModel() + " is null - cannot set a value!!");
 		}
 	}
 
@@ -385,7 +391,7 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	}
 
 	@Override
-	public ControlFactory getControlFactory() {
+	public PropertyControlFactory getControlFactory() {
 		return m_original.getControlFactory();
 	}
 

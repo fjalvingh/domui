@@ -43,10 +43,10 @@ import to.etc.domui.component.misc.*;
  */
 @SuppressWarnings("unchecked")
 // Hating Generics
-public class ControlFactoryString implements ControlFactory {
+public class ControlFactoryString implements PropertyControlFactory {
 	/**
 	 * Accept any type using a string.
-	 * @see to.etc.domui.component.controlfactory.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel)
+	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel)
 	 */
 	@Override
 	public int accepts(final @Nonnull PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {

@@ -84,10 +84,10 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 		}
 
 		if(! m_disabled) {
-			m_input = new SearchInput<T>(m_actualClass);
+			SearchInput<T> input = m_input = new SearchInput<T>(m_actualClass);
+			add(input);
 			updateTooltip();
-			add(m_input);
-			m_input.setHandler(new SearchInput.IQuery<T>() {
+			input.setHandler(new SearchInput.IQuery<T>() {
 				@Override
 				public List<T> queryFromString(String input, int max) throws Exception {
 					return queryLabelsOnType(input, max);
@@ -234,10 +234,11 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 		m_divMap.put(lbl, d);
 		d.setCssClass("ui-lsel-item");
 
-		if(m_contentRenderer == null)
+		INodeContentRenderer<T> contentRenderer = m_contentRenderer;
+		if(contentRenderer == null)
 			d.add(lbl.toString());
 		else
-			m_contentRenderer.renderNodeContent(this, d, lbl, null);
+			contentRenderer.renderNodeContent(this, d, lbl, null);
 
 		if(!m_disabled) {
 			Div btn = new Div();

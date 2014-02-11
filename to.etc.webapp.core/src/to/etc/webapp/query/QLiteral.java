@@ -24,6 +24,8 @@
  */
 package to.etc.webapp.query;
 
+import javax.annotation.*;
+
 public class QLiteral extends QOperatorNode {
 	private Object m_value;
 
@@ -37,7 +39,7 @@ public class QLiteral extends QOperatorNode {
 	}
 
 	@Override
-	public void visit(QNodeVisitor v) throws Exception {
+	public void visit(@Nonnull QNodeVisitor v) throws Exception {
 		v.visitLiteral(this);
 	}
 }

@@ -26,6 +26,8 @@ package to.etc.webapp.nls;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 /**
  * This is a wrapper for a message provider which caches all of the retrievals.
  *
@@ -42,7 +44,7 @@ public class NlsCachingMessageProvider implements NlsMessageProvider {
 	}
 
 	@Override
-	public synchronized String findMessage(Locale loc, String code) {
+	public synchronized String findMessage(@Nonnull Locale loc, @Nonnull String code) {
 		Map<Locale, String> m = m_messageMap.get(code);
 		if(m == null) {
 			m = new HashMap<Locale, String>();

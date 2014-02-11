@@ -12,6 +12,6 @@
 			<attribute name="owner.project.facets" value="java"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry combineaccessrules="false" kind="src" path="/bin-junit-4.8.2"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/bin-junit-4.11"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

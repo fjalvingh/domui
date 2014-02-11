@@ -24,6 +24,7 @@
  */
 package to.etc.webapp.qsql;
 
+import java.lang.reflect.*;
 import java.sql.*;
 
 import to.etc.util.*;
@@ -111,7 +112,10 @@ class JdbcCompoundType implements IJdbcType, IJdbcTypeFactory {
 				}
 			}
 			if(pvalue != null) {
-				pm.getPi().getSetter().invoke(inst, pvalue);
+				Method setter = pm.getPi().getSetter();
+				if(null == setter)
+					throw new IllegalArgumentException("Property " + pm + " is read-only");
+				setter.invoke(inst, pvalue);
 			}
 			rix += pm.getColumnNames().length;
 		}

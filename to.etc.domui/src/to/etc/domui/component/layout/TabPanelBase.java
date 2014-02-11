@@ -211,22 +211,22 @@ public class TabPanelBase extends Div {
 			renderLabel(labelcontainer, index, ti);
 			boolean isselected = getCurrentTab() == index;
 			//-- Add the body to the tab's main div, except if it is lazy.
-			if(ti.isLazy() && !isselected)
-				continue;
-
-			ti.setAdded(true);
 			NodeBase content = ti.getContent();
-			contentcontainer.add(content);
-			content.setClear(ClearType.BOTH);
-			if(isselected) {
-				content.setDisplay(DisplayType.BLOCK);
-				if(content instanceof IDisplayedListener) {
-					((IDisplayedListener) content).onDisplayStateChanged(false);
-				}
-			} else {
-				content.setDisplay(DisplayType.NONE);
-			}
 			content.addCssClass("ui-tab-pg");
+			content.setClear(ClearType.BOTH);
+
+			if(!ti.isLazy() || isselected) {
+				ti.setAdded(true);
+				contentcontainer.add(content);
+				if(isselected) {
+					content.setDisplay(DisplayType.BLOCK);
+					if(content instanceof IDisplayedListener) {
+						((IDisplayedListener) content).onDisplayStateChanged(false);
+					}
+				} else {
+					content.setDisplay(DisplayType.NONE);
+				}
+			}
 			index++;
 		}
 	}
@@ -237,6 +237,7 @@ public class TabPanelBase extends Div {
 		separator.setCssClass("ui-tab-ibt");
 		if(li == null || !li.isAttached()) {
 			li = new Li();
+			li.setCssClass("ui-tab-li");
 			into.add(separator);
 			into.add(li);
 			ti.setTab(li); // Save for later use,
@@ -403,6 +404,8 @@ public class TabPanelBase extends Div {
 			if(newti instanceof IDisplayedListener) {
 				((IDisplayedListener) oldti).onDisplayStateChanged(true);
 			}
+
+//			appendJavascript("$(window).trigger('resize');");
 		}
 		m_currentTab = index;										// ORDERED!!! Must be below the above!!!
 	}

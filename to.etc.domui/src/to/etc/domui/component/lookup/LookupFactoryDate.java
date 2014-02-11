@@ -81,6 +81,7 @@ final class LookupFactoryDate implements ILookupControlFactory {
 				} catch(Exception x) {
 					return AppendCriteriaResult.INVALID;
 				}
+
 				try {
 					till = dateTo.getValue();
 					//in case of date only search add 1 day and truncate time, since date only search is inclusive for dateTo

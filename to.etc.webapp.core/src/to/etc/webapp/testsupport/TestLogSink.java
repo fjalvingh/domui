@@ -2,6 +2,8 @@ package to.etc.webapp.testsupport;
 
 import java.io.*;
 
+import javax.annotation.*;
+
 import to.etc.util.*;
 
 /**
@@ -34,7 +36,7 @@ public class TestLogSink implements ILogSink {
 	}
 
 	@Override
-	public void log(String msg) {
+	public void log(@Nonnull String msg) {
 		m_sb.append(msg).append("\n");
 		if(m_link != null) {
 			try {
@@ -47,7 +49,7 @@ public class TestLogSink implements ILogSink {
 	}
 
 	@Override
-	public void exception(Throwable t, String msg) {
+	public void exception(@Nonnull Throwable t, @Nonnull String msg) {
 		m_sb.append(msg).append("\n");
 		StringTool.strStacktrace(m_sb, t);
 		if(m_link != null) {

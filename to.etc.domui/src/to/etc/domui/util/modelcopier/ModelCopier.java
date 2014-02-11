@@ -26,7 +26,7 @@ public class ModelCopier {
 	final private ILogSink m_sink;
 
 	@Nonnull
-	final Map<Class< ? >, EntityDef< ? >> m_defMap = new HashMap<Class< ? >, EntityDef< ? >>();
+	final Map<Class< ? >, EntityDef< ? >> m_defMap = new HashMap<>();
 
 	private StringBuilder m_pathSb = new StringBuilder();
 
@@ -97,11 +97,11 @@ public class ModelCopier {
 
 	/** Maps known/located/created instances in dest by key. */
 	@Nonnull
-	private Map<InstanceKey< ? >, Object> m_destInstanceMap = new HashMap<InstanceKey< ? >, Object>();
+	private Map<InstanceKey< ? >, Object> m_destInstanceMap = new HashMap<>();
 
 	/** Maps known/located/created instances in src by key. */
 	@Nonnull
-	private Map<InstanceKey< ? >, Object> m_srcInstanceMap = new HashMap<InstanceKey< ? >, Object>();
+	private Map<InstanceKey< ? >, Object> m_srcInstanceMap = new HashMap<>();
 
 	@Nonnull
 	private Stack<InstanceKey< ? >> m_currentFindSet = new Stack<InstanceKey< ? >>();
@@ -164,7 +164,7 @@ public class ModelCopier {
 	private <T> void updateProperties(InstanceKey<T> key, T di) throws Exception {
 		EntityDef<T> ed = key.getEntity();
 		List<PropertyMetaModel< ? >> pl = ed.getMetaModel().getProperties();
-		List<PropertyMetaModel< ? >> childList = new ArrayList<PropertyMetaModel< ? >>();
+		List<PropertyMetaModel< ? >> childList = new ArrayList<>();
 		T si = key.getSourceInstance();
 		if(null == si)
 			throw new IllegalStateException("No source instance for key " + key);
@@ -240,7 +240,7 @@ public class ModelCopier {
 
 	private <T, I> void copyProperties(@Nonnull EntityDef<T> ed, @Nonnull T di, @Nonnull T si, @Nonnull InstanceKey<T> key) throws Exception {
 		List<PropertyMetaModel< ? >> pl = ed.getMetaModel().getProperties();
-		List<PropertyMetaModel< ? >> childList = new ArrayList<PropertyMetaModel< ? >>();
+		List<PropertyMetaModel< ? >> childList = new ArrayList<>();
 
 		for(PropertyMetaModel< ? > pmm : pl) {
 			switch(pmm.getRelationType()){

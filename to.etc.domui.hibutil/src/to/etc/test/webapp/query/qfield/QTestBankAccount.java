@@ -253,7 +253,7 @@ public class QTestBankAccount<R extends QField<R, ? >> extends QField<R,to.etc.t
 	}
 
 	public static final @Nonnull
-	QTestBankAccountEntityRoot get() {
-		return new QTestBankAccountEntityRoot();
+	QTestBankAccountRoot get() {
+		return new QTestBankAccountRoot();
 	}
 }

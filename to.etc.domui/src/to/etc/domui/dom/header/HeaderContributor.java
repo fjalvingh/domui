@@ -26,6 +26,8 @@ package to.etc.domui.dom.header;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.*;
 import to.etc.domui.dom.html.*;
 
@@ -63,6 +65,7 @@ abstract public class HeaderContributor {
 	@Override
 	abstract public boolean equals(final Object obj);
 
+	@Nonnull
 	static synchronized public HeaderContributor loadJavascript(final String name) {
 		HeaderContributor c = m_jsMap.get(name);
 		if(c == null) {
@@ -72,6 +75,7 @@ abstract public class HeaderContributor {
 		return c;
 	}
 
+	@Nonnull
 	static synchronized public HeaderContributor loadJavaScriptlet(final String name) {
 		HeaderContributor c = m_jsMap.get(name);
 		if(c == null) {

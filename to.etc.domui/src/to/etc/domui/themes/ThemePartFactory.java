@@ -50,10 +50,13 @@ public class ThemePartFactory implements IBufferedPartFactory, IUrlPart {
 
 		private BrowserVersion m_bv;
 
-		public Key(BrowserVersion bv, String rurl) {
+		private int m_iv;
+
+		public Key(BrowserVersion bv, String rurl, int iv) {
 			m_bv = bv;
 			m_browserID = bv.getBrowserName() + "/" + bv.getMajorVersion();
 			m_rurl = rurl;
+			m_iv = iv;
 		}
 
 		//		public String getBrowserID() {
@@ -72,12 +75,17 @@ public class ThemePartFactory implements IBufferedPartFactory, IUrlPart {
 			return m_rurl;
 		}
 
+		public int getIv() {
+			return m_iv;
+		}
+
 		@Override
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
 			result = prime * result + ((m_browserID == null) ? 0 : m_browserID.hashCode());
 			result = prime * result + ((m_rurl == null) ? 0 : m_rurl.hashCode());
+			result = prime * result + m_iv;
 			return result;
 		}
 
@@ -100,6 +108,8 @@ public class ThemePartFactory implements IBufferedPartFactory, IUrlPart {
 					return false;
 			} else if(!m_rurl.equals(other.m_rurl))
 				return false;
+			else if(m_iv != other.m_iv)
+				return false;
 			return true;
 		}
 	};
@@ -118,7 +128,25 @@ public class ThemePartFactory implements IBufferedPartFactory, IUrlPart {
 
 	@Override
 	public @Nonnull Object decodeKey(@Nonnull String rurl, @Nonnull IExtendedParameterInfo param) throws Exception {
-		return new Key(param.getBrowserVersion(), rurl);
+//		String rand = param.getParameter("rand");
+//		int rndom = 0;
+//		if(null != rand) {
+//			RequestContextImpl rcx = (RequestContextImpl) param;
+//			IServerSession ses = (rcx.getServerSession(true));
+//			if(null != ses) {
+//				Integer r = (Integer) ses.getAttribute("random-theme");
+//				if(null == r) {
+//					rndom = (int) (Math.random() * 20);
+//					ses.setAttribute("random-theme", Integer.valueOf(rndom));
+//				}
+//			}
+//		}
+//
+		String iv = param.getParameter("iv");
+		int val = 0;
+		if(null != iv)
+			val = Integer.parseInt(iv);
+		return new Key(param.getBrowserVersion(), rurl, val);
 	}
 
 	@Override

@@ -69,6 +69,6 @@ public class DisplayPropertyNodeContentRenderer implements INodeContentRenderer<
 			String s = xdp.getPresentationString(object);
 			sb.append(s);
 		}
-		node.setText(sb.toString());
+		node.add(sb.toString());
 	}
 }

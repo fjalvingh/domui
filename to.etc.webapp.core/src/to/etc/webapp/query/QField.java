@@ -1,6 +1,5 @@
 package to.etc.webapp.query;
 
-import static to.etc.webapp.query.QOperation.AND;
 import static to.etc.webapp.query.QOperation.OR;
 
 import java.lang.reflect.*;
@@ -40,35 +39,42 @@ import to.etc.webapp.*;
  */
 public class QField<R extends QField<R, ? >, T> {
 
-	private @Nullable
-	QField<R, ? > m_parent;
+	@Nullable
+	private QField<R, ? > m_parent;
 
-	protected @Nonnull
-	R m_root;
+	@Nonnull
+	protected R m_root;
 
-	private @Nullable
-	String m_propertyNameInParent;
+	@Nullable
+	private String m_propertyNameInParent;
 
 	boolean m_isSub = false;
+
+	@Nullable
+	protected QCriteria<T> m_criteria;
+
+	protected QBrace m_qBrace;
 
 	public QField(@Nullable R root, @Nullable QField<R, ? > parent, @Nullable String propertyNameInParent) {
 		m_parent = parent;
 		if(root == null) {
 			Class<T> cls = (Class<T>) ((ParameterizedType) getClass().getSuperclass().getGenericSuperclass()).getActualTypeArguments()[1];
 			m_criteria = QCriteria.create(cls);
-			m_stack = new Stack<QMultiNode>();
+			m_qBrace = new QBrace(null);
+
 		}
 		m_root = (R) (root == null ? this : root);
 		m_propertyNameInParent = propertyNameInParent;
 	}
 
-	final @Nullable
-	String getPath() {
+	@Nonnull
+	final String getPath() {
 		List<QField<R, ? >> fields = new ArrayList<QField<R, ? >>();
 		QField<R, ? > parent = this;
-		while(parent.m_parent != null) {
+		QField<R, ? > f;
+		while((f = parent.m_parent) != null) {
 			fields.add(parent);
-			parent = parent.m_parent;
+			parent = f;
 		}
 		Collections.reverse(fields);
 		StringBuilder sb = new StringBuilder();
@@ -107,7 +113,7 @@ public class QField<R extends QField<R, ? >, T> {
 	R gt(@Nonnull T... t) {
 		eqOrOr(new IRestrictor<T>() {
 			@Override
-			public QOperatorNode restrict(@Nonnull T value) {
+			public @Nonnull QOperatorNode restrict(@Nonnull T value) {
 				return QRestriction.gt(getPath(), value);
 			}
 		}, t);
@@ -123,7 +129,7 @@ public class QField<R extends QField<R, ? >, T> {
 	R eq(@Nonnull T... t) {
 		eqOrOr(new IRestrictor<T>() {
 			@Override
-			public QOperatorNode restrict(@Nonnull T value) {
+			public @Nonnull QOperatorNode restrict(@Nonnull T value) {
 				return QRestriction.eq(getPath(), value);
 			}
 		}, t);
@@ -139,7 +145,7 @@ public class QField<R extends QField<R, ? >, T> {
 	R ne(@Nonnull T... t) {
 		eqOrOr(new IRestrictor<T>() {
 			@Override
-			public QOperatorNode restrict(@Nonnull T value) {
+			public @Nonnull QOperatorNode restrict(@Nonnull T value) {
 				return QRestriction.ne(getPath(), value);
 			}
 		}, t);
@@ -154,20 +160,7 @@ public class QField<R extends QField<R, ? >, T> {
 	 */
 	public final @Nonnull
 	R or() {
-		QOperatorNode node = node();
-		if(node != null) {
-			if(!(node instanceof QMultiNode && node.getOperation() == OR)) {
-				QMultiNode or = new QMultiNode(OR);
-				or.add(node);
-				if(!(node instanceof QMultiNode)) {
-					criteria().setRestrictions(or);
-					node(or);
-				}
-				setOr(or);
-			}
-		} else {
-			throw new ProgrammerErrorException("Nothing to or yet");
-		}
+		qbrace().add(OR);
 		return m_root;
 	}
 
@@ -201,57 +194,28 @@ public class QField<R extends QField<R, ? >, T> {
 			} else {
 				node = irestrictor.restrict(v[0]);
 			}
+			qbrace().add(node);
 
 		} else {
-			QMultiNode or = new QMultiNode(OR);
-			node = or;
 			for(int i = 0; i < length; i++) {
+				QOperatorNode restrict;
 				if(v[0] instanceof double[]) {
-					or.add(irestrictor.restrict((T) new double[]{((double[]) v[0])[i]}));
+					restrict = irestrictor.restrict((T) new double[]{((double[]) v[0])[i]});
 				} else if(v[0] instanceof long[]) {
-					or.add(irestrictor.restrict((T) new long[]{((long[]) v[0])[i]}));
+					restrict = irestrictor.restrict((T) new long[]{((long[]) v[0])[i]});
 				} else if(v[0] instanceof boolean[]) {
-					or.add(irestrictor.restrict((T) new boolean[]{((boolean[]) v[0])[i]}));
+					restrict = irestrictor.restrict((T) new boolean[]{((boolean[]) v[0])[i]});
 				} else {
-					or.add(irestrictor.restrict(v[i]));
+					restrict = irestrictor.restrict(v[i]);
+				}
+				qbrace().add(restrict);
+				if(i < length - 1) {
+					qbrace().add(OR);
 				}
 			}
 		}
-
-		addNode(node);
-		releaseOr();
 	}
 
-	void addNode(@Nonnull QOperatorNode newNode) {
-		QOperatorNode node = node();
-		if(node == null) {
-			node(newNode);
-			if(criteria().getRestrictions() == null) {
-				criteria().setRestrictions(newNode);
-			}
-		} else if(node instanceof QMultiNode) {
-			QMultiNode multiNode = (QMultiNode) node;
-			if(!isOr() && multiNode.getOperation() == OR) {
-				QOperatorNode pop = pop(multiNode);
-				QMultiNode and = new QMultiNode(AND);
-				and.add(pop);
-				and.add(newNode);
-				multiNode.add(and);
-			} else {
-				if(newNode instanceof QMultiNode && newNode.getOperation() == OR) {
-					multiNode.getChildren().addAll(((QMultiNode) newNode).getChildren());
-				} else {
-					multiNode.add(newNode);
-				}
-			}
-		} else {
-			QMultiNode multiNode = new QMultiNode(AND);
-			multiNode.add(node);
-			multiNode.add(newNode);
-			node(multiNode);
-			criteria().setRestrictions(multiNode);
-		}
-	}
 
 	/**
 	 * Brace open, can be places anywhere natural. Can also be placed unnatural, that will give error's where possible or strange results.
@@ -260,12 +224,9 @@ public class QField<R extends QField<R, ? >, T> {
 	 */
 	public final @Nonnull
 	R $_() {
-		brace(1);
-		QOperatorNode node = node();
-		if(node != null && node instanceof QMultiNode) {
-			stack().push((QMultiNode) node);
-			node(new QMultiNode(AND));
-		}
+		QBrace child = new QBrace(qbrace());
+		qbrace().add(child);
+		qbrace(child);
 		return m_root;
 	}
 
@@ -273,107 +234,27 @@ public class QField<R extends QField<R, ? >, T> {
 	 * Brace close, can be places anywhere natural. Can also be placed unnatural, that will give error's where possible or strange results.
 	 * So use with care. Place them as if you are writing an sql statement or any other conditional structure.
 	 * @return
+	 * @throws Exception
 	 */
 	public final @Nonnull
-	R _$() {
-		brace(-1);
-		if(stack().size() > 0) {
-			QOperatorNode pop = stack().pop();
-			node(pop);
-		} else {
-			QOperatorNode node = node();
-			if(!(node instanceof QMultiNode)) {
-				throw new ProgrammerErrorException("Useless bracing at level " + stack().size() + " : " + getPath());
-			} else {
-				QMultiNode multiNode = (QMultiNode) node;
-				QMultiNode next = new QMultiNode(AND);
-				next.add(multiNode);
-				node(next);
-				criteria().setRestrictions(next);
-			}
+	R _$() throws Exception {
+		QBrace parent = qbrace().getParent();
+		if(parent == null) {
+			throw new Exception("Trying to close a brace that is not opened.");
 		}
+		qbrace(parent);
 		return m_root;
 	}
 
-	private final @Nullable
-	QOperatorNode pop(@Nonnull QMultiNode multiNode) {
-		if(multiNode.getChildren().size() == 0) {
-			return null;
-		}
-		return multiNode.getChildren().remove(multiNode.getChildren().size() - 1);
+	@Nonnull
+	final QBrace qbrace() {
+		return m_root.m_qBrace;
 	}
 
-
-	protected @Nonnull
-	QRestrictor<T> m_criteria;
-
-
-
-	final @Nonnull
-	QRestrictor< ? > criteria() {
-		return m_root.m_criteria;
+	final void qbrace(@Nonnull QBrace brace) {
+		m_root.m_qBrace = brace;
 	}
 
-	protected @Nonnull
-	QOperatorNode m_node;
-
-	private final @Nonnull
-	QOperatorNode node() {
-		return m_root.m_node;
-	}
-
-	final void node(QOperatorNode node) {
-		m_root.m_node = node;
-	}
-
-	protected @Nonnull
-	QOperatorNode m_or;
-
-	protected int m_brace = 0;
-
-	private final void brace(int brace) {
-		m_root.m_brace += brace;
-		if(m_root.m_brace < 0) {
-			if(brace() != 0) {
-				throw new ProgrammerErrorException("No matching open brace found  : " + getPath());
-			}
-		}
-	}
-
-	private final int brace() {
-		return m_root.m_brace;
-	}
-
-
-	private final @Nonnull
-	QOperatorNode getOr() {
-		return m_root.m_or;
-	}
-
-	private final boolean isOr() {
-		return m_root.m_or != null;
-	}
-
-	private final void setOr(@Nonnull QMultiNode or) {
-		m_root.m_or = m_root.m_node;
-		m_root.m_node = or;
-	}
-
-	private final void releaseOr() {
-		if(m_root.m_or != null) {
-			m_root.m_node = m_root.m_or;
-			m_root.m_or = null;
-		}
-	}
-
-
-	protected @Nonnull
-	Stack<QMultiNode> m_stack;
-
-	private final @Nonnull
-	Stack<QMultiNode> stack() {
-		return m_root.m_stack;
-	}
 
 	/**
 	 * Call this on the root query, any other attempt will give a runtime exception.
@@ -384,7 +265,11 @@ public class QField<R extends QField<R, ? >, T> {
 	public final @Nonnull
 	List<T> query(@Nonnull QDataContext dc) throws Exception {
 		validateGetCriteria();
-		return dc.query((QCriteria<T>) m_criteria);
+		QCriteria<T> criteria = m_criteria;
+		if(criteria == null) {
+			throw new ProgrammerErrorException("Can only call this on the root field.");
+		}
+		return dc.query(criteria);
 	}
 
 	/**
@@ -393,27 +278,39 @@ public class QField<R extends QField<R, ? >, T> {
 	 * @return
 	 * @throws Exception
 	 */
-	public final @Nullable
-	T queryOne(@Nonnull QDataContext dc) throws Exception {
+	@Nullable
+	public final T queryOne(@Nonnull QDataContext dc) throws Exception {
 		validateGetCriteria();
-		return dc.queryOne((QCriteria<T>) m_criteria);
-	}
-
-	protected final void validateGetCriteria() {
-		if(m_criteria == null) {
+		QCriteria<T> criteria = m_criteria;
+		if(criteria == null) {
 			throw new ProgrammerErrorException("Can only call this on the root field.");
 		}
-		if(!(m_criteria instanceof QCriteria)) {
+		return dc.queryOne(criteria);
+	}
+
+	protected final void validateGetCriteria() throws Exception {
+		QCriteria<T> criteria = m_criteria;
+		if(criteria == null) {
+			throw new ProgrammerErrorException("Can only call this on the root field.");
+		}
+		if(!(criteria instanceof QCriteria)) {
 			throw new ProgrammerErrorException("Can only call this on the root field.");
 		}
 		if(m_isSub) {
 			throw new ProgrammerErrorException("Cannot get criteria from subselect.");
 		}
-		if(stack().size() != 0) {
-			throw new ProgrammerErrorException("Missing close brace at level " + stack().size() + " : " + getPath());
+		if(criteria.getRestrictions() == null) {
+			//System.out.println("qbrace:" + qbrace().toString());
+			criteria.setRestrictions(qbrace().toQOperatorNode());
 		}
-		if(brace() != 0) {
-			throw new ProgrammerErrorException("Number of open braces does not match number of closing braces (" + brace() + ") : " + getPath());
+	}
+
+	@Nonnull
+	final public QCriteria< ? > criteria() {
+		QCriteria< ? > criteria = m_root.m_criteria;
+		if(criteria == null) {
+			throw new ProgrammerErrorException("Null criteria in root");
 		}
+		return criteria;
 	}
 }

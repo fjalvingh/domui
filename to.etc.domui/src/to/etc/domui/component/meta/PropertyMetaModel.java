@@ -335,7 +335,7 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * @return
 	 */
 	@Nullable
-	ControlFactory getControlFactory();
+	PropertyControlFactory getControlFactory();
 
 	/**
 	 * If the property has some kind of "annotation" (which in here does not need to be a Java annotation, but

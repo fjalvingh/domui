@@ -532,7 +532,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	//	}
 
 	@Override
-	public ControlFactory getControlFactory() {
+	public PropertyControlFactory getControlFactory() {
 		return m_propertyMeta == null ? null : m_propertyMeta.getControlFactory();
 	}
 

@@ -91,9 +91,12 @@ public class InternalParentTree extends Div {
 			String nn = nb.getClass().getName();
 			if(nn.startsWith("to.etc.domui.dom.")) {
 				icon = "iptHtml.png";
+				td.setTitle("HTML Node");
 			} else if(nb instanceof UrlPage) {
 				icon = "iptPage.png";
+				td.setTitle("DomUI Page");
 			} else {
+				td.setTitle("DomUI Component");
 				icon = "iptComponent.png";
 			}
 			td.add(new Img("THEME/" + icon));

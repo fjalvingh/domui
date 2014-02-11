@@ -24,6 +24,8 @@
  */
 package to.etc.webapp.query;
 
+import javax.annotation.*;
+
 /**
  * Represents the selection of some operation on a property, or of the property value itself.
  *
@@ -47,7 +49,7 @@ final public class QPropertySelection extends QSelectionItem {
 		return m_property;
 	}
 	@Override
-	public void visit(QNodeVisitor v) throws Exception {
+	public void visit(@Nonnull QNodeVisitor v) throws Exception {
 		v.visitPropertySelection(this);
 	}
 }

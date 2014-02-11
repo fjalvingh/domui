@@ -22,7 +22,7 @@ public class QFieldDouble<R extends QField<R, ? >> {
 	R gt(@Nonnull double... t) {
 		m_field.eqOrOr(new IRestrictor<double[]>() {
 			@Override
-			public QOperatorNode restrict(@Nonnull double[] value) {
+			public @Nonnull QOperatorNode restrict(@Nonnull double[] value) {
 				return QRestriction.gt(m_field.getPath(), value[0]);
 			}
 		}, t);
@@ -33,7 +33,7 @@ public class QFieldDouble<R extends QField<R, ? >> {
 	R eq(@Nonnull double... t) {
 		m_field.eqOrOr(new IRestrictor<double[]>() {
 			@Override
-			public QOperatorNode restrict(@Nonnull double[] value) {
+			public @Nonnull QOperatorNode restrict(@Nonnull double[] value) {
 				return QRestriction.eq(m_field.getPath(), value[0]);
 			}
 		}, t);
@@ -44,7 +44,7 @@ public class QFieldDouble<R extends QField<R, ? >> {
 	R ne(@Nonnull double... t) {
 		m_field.eqOrOr(new IRestrictor<double[]>() {
 			@Override
-			public QOperatorNode restrict(@Nonnull double[] value) {
+			public @Nonnull QOperatorNode restrict(@Nonnull double[] value) {
 				return QRestriction.ne(m_field.getPath(), value[0]);
 			}
 		}, t);

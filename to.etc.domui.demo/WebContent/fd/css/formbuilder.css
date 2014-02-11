@@ -1,0 +1,135 @@
+/*
+ * Form designer editor stylesheet.
+ */
+.fb-main {
+	
+}
+.fb-top {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	right: 0px;
+	height: 30px;
+	background: black;
+	color: white;
+}
+.fb-left {
+	position: absolute;
+	top: 30px;
+	bottom: 0px;
+	left: 0px;
+	right: 300px;
+}
+.fb-right {
+	position: absolute;
+	top: 30px;
+	bottom: 0px;
+	width: 300px;
+	right: 0px;
+	border-left: 1px dotted black;
+	background-color: #eee;
+}
+.fb-main {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	bottom: 0px;
+	right: 0px;
+	overflow: auto;
+}
+
+/*** Paint panel ***/
+.fd-pp {
+	position: relative;
+	background: url(gridbackground.png) repeat;
+	width: 100%;
+	height: 100%;
+}
+.fb-pp-drop {
+/*	background-color: #ffe773; */
+	cursor: crosshair;
+}
+
+/*** Component panel ***/
+.fb-cp {
+	position: relative;
+	overflow: auto;
+	bottom: 0px;
+}
+
+/*** Components inside the panel (PanelComponent) ***/
+.fb-pc {
+	display: inline-block;
+	height: 20px;
+	background-color: #ccf;
+	padding: 2px;
+	margin: 0px;
+	border-bottom: 1px dotted gray;
+}
+
+.fb-pc-label {
+	display: inline-block;
+	height: 16px;
+	width: 110px;
+	font-size: 8px;
+	font-style: italic;
+	word-wrap: break-word;
+}
+
+.fb-pc-pres {
+	display: inline-block;
+	height: 16px;
+	width: 16px;
+}
+
+/*** Tab panel ***/
+.fb-tab-lab {
+	position: relative;
+	height: 36px;
+	padding: 2px;
+	background-color: gray;
+}
+.fb-tab-lbl {
+	display: inline-block;
+	border: 1px dotted red;
+	padding: 5px;
+	background: green;
+}
+.fb-tab-cont {
+	position: absolute;
+	top: 40px;
+	bottom: 0px;
+	width: 300px;
+	overflow: auto;
+}
+
+
+/*** Component augmentation classes ***/
+.fb-ui-paint {
+	background: white;
+}
+.fb-ui-paint:hover {
+	background: white;
+}
+.fb-ui-button, .fb-ui-button:hover {
+	cursor: pointer;
+}
+.fb-ui-selected {
+	background-color: cyan !important;
+}
+.fb-ui-test {
+	width: 100px;
+	height: 100px;
+	border: 1px red solid;
+}
+
+.fb-ui-panel {
+	background: #ddd;
+	opacity: 0.9;
+	position: relative;
+}
+
+
+/*** Properties panel ***/
+.fb-prp {
+}

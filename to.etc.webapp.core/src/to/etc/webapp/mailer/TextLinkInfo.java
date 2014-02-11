@@ -133,13 +133,19 @@ final public class TextLinkInfo {
 		Class< ? > clz = instance.getClass();
 		TextLinkInfo best = null;
 		for(TextLinkInfo tl : m_map.values()) {
-			if(tl.getTargetClass() == null)
+			Class< ? > targetClass = tl.getTargetClass();
+			if(targetClass == null)
 				continue;
-			if(tl.getTargetClass().isAssignableFrom(clz)) {
+			if(targetClass.isAssignableFrom(clz)) {
 				if(best == null)
 					best = tl;
-				else if(best.getTargetClass().isAssignableFrom(tl.getTargetClass()))
-					best = tl; // This match is more precise (matches subclass of earlier class)
+				else {
+					Class< ? > bestTargetClass = best.getTargetClass();
+					if(null == bestTargetClass)
+						throw new IllegalStateException(best + ": not a class based target");
+					if(bestTargetClass.isAssignableFrom(targetClass))
+						best = tl;
+				} // This match is more precise (matches subclass of earlier class)
 			}
 		}
 		return best;

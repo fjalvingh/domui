@@ -61,9 +61,9 @@ public interface QNodeVisitor {
 
 	void visitExistsSubquery(@Nonnull QExistsSubquery< ? > q) throws Exception;
 
+	void visitSelectionSubquery(@Nonnull QSelectionSubquery n) throws Exception;
+
 	void visitSubquery(@Nonnull QSubQuery< ? , ? > n) throws Exception;
 
 	public void visitPropertyJoinComparison(@Nonnull QPropertyJoinComparison qPropertyJoinComparison) throws Exception;
-
-	public void visitSelectionSubquery(QSelectionSubquery qSelectionSubquery) throws Exception;
 }
