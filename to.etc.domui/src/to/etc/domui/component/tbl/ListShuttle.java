@@ -164,7 +164,13 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 		TBody b = new TBody();
 		t.add(b);
 
-		DefaultButton ib = new DefaultButton("", "THEME/sh-2ar-right.png");
+		DefaultButton ib = new DefaultButton("", "THEME/sh-2ar-right.png", new IClicked<DefaultButton>() {
+
+			@Override
+			public void clicked(@Nonnull DefaultButton clickednode) throws Exception {
+				moveRight();
+			}
+		});
 		b.addRowAndCell().add(ib);
 
 		ib = new DefaultButton("", "THEME/sh-1ar-right.png", new IClicked<DefaultButton>() {
@@ -183,7 +189,13 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 		});
 		b.addRowAndCell().add(ib);
 
-		ib = new DefaultButton("", "THEME/sh-2ar-left.png");
+		ib = new DefaultButton("", "THEME/sh-2ar-left.png", new IClicked<DefaultButton>() {
+
+			@Override
+			public void clicked(@Nonnull DefaultButton clickednode) throws Exception {
+				moveLeft();
+			}
+		});
 		b.addRowAndCell().add(ib);
 
 	}
