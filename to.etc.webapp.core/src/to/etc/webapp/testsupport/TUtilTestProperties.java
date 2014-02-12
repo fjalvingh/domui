@@ -163,6 +163,9 @@ public class TUtilTestProperties {
 		String db = System.getenv("VPTESTDB");
 		if(db != null)
 			return true;
+		db = System.getProperty("TESTDB");
+		if(null != db)
+			return true;
 		Properties p = findTestProperties();
 		if(p == null)
 			return false;
@@ -181,6 +184,9 @@ public class TUtilTestProperties {
 	static public String getDbString() {
 		String db = System.getenv("VPTESTDB");
 		if(db != null)
+			return db;
+		db = System.getProperty("TESTDB");
+		if(null != db)
 			return db;
 		Properties p = getTestProperties();
 		db = p.getProperty("database");
