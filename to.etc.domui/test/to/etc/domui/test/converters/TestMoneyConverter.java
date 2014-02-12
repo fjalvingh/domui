@@ -54,6 +54,7 @@ public class TestMoneyConverter {
 		Assert.assertEquals(RoundingMode.HALF_EVEN, MoneyUtil.getRoundingMode());
 	}
 
+	// jal 20140212 Please leave here: this can be enabled when we have odd locale problems.
 	//	@Test
 	//	public void checkCurrencyLocale() {
 	//		Currency c = NlsContext.getCurrency();
