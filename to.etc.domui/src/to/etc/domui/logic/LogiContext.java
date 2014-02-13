@@ -31,13 +31,7 @@ final public class LogiContext {
 	final private Map<Class< ? >, Map<Object, ILogic>> m_instanceMap = new HashMap<Class< ? >, Map<Object, ILogic>>();
 
 	@Nonnull
-	final private LogiModel m_model = new LogiModel();
-
-	@Nonnull
 	final private List<UIMessage> m_actionMessageList = new ArrayList<UIMessage>();
-
-	@Nonnull
-	final private List<IMessageListener> m_actionMsgListenerList = new ArrayList<IMessageListener>();
 
 	@Nonnull
 	final private List<ILogiEventListener> m_eventListenerList = new ArrayList<ILogiEventListener>();
@@ -113,57 +107,9 @@ final public class LogiContext {
 		throw new ProgrammerErrorException("Could not create an instance of " + clz + ": constructor(LogiContext, " + instance.getClass().getName() + ") not found");
 	}
 
-	public <T> void addRoot(T root) {
-		m_model.addRoot(root);
-	}
-
-	public void updateCopy() throws Exception {
-		m_model.updateCopy();
-	}
-
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Phase handling.										*/
-	/*--------------------------------------------------------------*/
-	/**
-	 *
-	 */
-	public void startPhase() throws Exception {
-		m_actionMessageList.clear();
-		m_model.updateCopy();
-	}
-
-	/**
-	 * Should be called @ user interaction end time.
-	 */
-	public void endPhase() throws Exception {
-		LogiEventSet eventSet = m_model.compareCopy();
-//		System.out.println("model: eventSet=" + eventSet);
-
-		LogiEvent le = eventSet.createEvent();
-		sendEvent(le);
-
-		if(m_actionMessageList.size() > 0) {
-			for(IMessageListener l : m_actionMsgListenerList) {
-				l.actionMessages(m_actionMessageList);
-			}
-			m_actionMessageList.clear();
-		}
-	}
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Error and action error events.						*/
 	/*--------------------------------------------------------------*/
-
-	/**
-	 * Add a listener for Action messages. The listener will be called at the end of a "phase" if
-	 * message(s) were posted during it.
-	 * @param l
-	 */
-	public void addActionMessageListener(@Nonnull IMessageListener l) {
-		m_actionMsgListenerList.add(l);
-	}
-
 	/**
 	 * Add a message to be displayed as the result of an "action". This message type is different from a "state" message: it is caused by an action
 	 * that needs to send some message, which is related to the action only and transient. This differs from messages that represent an error in the
