@@ -41,6 +41,8 @@ import to.etc.domui.util.*;
 final public class SimpleColumnDef {
 	static public final String NOWRAP = "-NOWRAP";
 
+	static public final String WRAP = "-WRAP";
+
 	static public final String DEFAULTSORT = "-DSORT";
 
 	/** The label text, if needed, to use as the column heading */
@@ -70,7 +72,9 @@ final public class SimpleColumnDef {
 
 	private int m_displayLength;
 
-	private boolean m_nowrap;
+	/** When set, specifically define wrap or nowrap. When unset use the default. */
+	@Nullable
+	private Boolean m_nowrap;
 
 	/** The thingy which obtains the column's value (as an object) */
 	@Nullable
@@ -109,7 +113,7 @@ final public class SimpleColumnDef {
 		setPropertyName(m.getName());
 		setNumericPresentation(m.getNumericPresentation());
 		if(m.getNowrap() == YesNoType.YES)
-			setNowrap(true);
+			setNowrap(Boolean.TRUE);
 	}
 
 	public SimpleColumnDef(@Nonnull ExpandedDisplayProperty< ? > m) {
@@ -127,7 +131,7 @@ final public class SimpleColumnDef {
 		if(m.getDisplayLength() > 0)
 			setDisplayLength(m.getDisplayLength());
 		if(m.getNowrap() == YesNoType.YES)
-			setNowrap(true);
+			setNowrap(Boolean.TRUE);
 	}
 
 	@Nullable
@@ -251,11 +255,12 @@ final public class SimpleColumnDef {
 		m_displayLength = displayLength;
 	}
 
-	public boolean isNowrap() {
+	@Nullable
+	public Boolean isNowrap() {
 		return m_nowrap;
 	}
 
-	public void setNowrap(boolean nowrap) {
+	public void setNowrap(@Nullable Boolean nowrap) {
 		m_nowrap = nowrap;
 	}
 
