@@ -114,8 +114,8 @@ final public class ProcessTools {
 			throw new IllegalStateException("Either stdout or stderr not redirected");
 		Process pr = m_builder.start();
 
-		StreamReaderThread outr = new StreamReaderThread(stdout, "stdout", pr.getInputStream());
-		StreamReaderThread errr = new StreamReaderThread(stderr, "stderr", pr.getErrorStream());
+		StreamReaderThread outr = new StreamReaderThread(stdout, "stdout", pr.getInputStream(), null, m_follow, m_flush);
+		StreamReaderThread errr = new StreamReaderThread(stderr, "stderr", pr.getErrorStream(), null, m_follow, m_flush);
 		outr.start();
 		errr.start();
 		int rc = pr.waitFor();
@@ -176,6 +176,8 @@ final public class ProcessTools {
 			m_follow = follow;
 			m_flush = flush;
 			setName("StreamReader" + name);
+			if(null == encoding)
+				encoding = System.getProperty("file.encoding");
 			try {
 				m_reader = new InputStreamReader(is, encoding);
 			} catch(UnsupportedEncodingException x) // Fuck James Gosling with his stupid checked exceptions crap
