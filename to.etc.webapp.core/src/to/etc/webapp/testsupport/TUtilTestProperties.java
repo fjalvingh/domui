@@ -163,6 +163,9 @@ public class TUtilTestProperties {
 		String db = System.getenv("VPTESTDB");
 		if(db != null)
 			return true;
+		db = System.getProperty("TESTDB");
+		if(null != db)
+			return true;
 		Properties p = findTestProperties();
 		if(p == null)
 			return false;
@@ -181,6 +184,9 @@ public class TUtilTestProperties {
 	static public String getDbString() {
 		String db = System.getenv("VPTESTDB");
 		if(db != null)
+			return db;
+		db = System.getProperty("TESTDB");
+		if(null != db)
 			return db;
 		Properties p = getTestProperties();
 		db = p.getProperty("database");
@@ -254,7 +260,7 @@ public class TUtilTestProperties {
 			m_gotLoginName = true;
 			m_viewpointLoginName = getTestProperties().getProperty("loginid");
 			if(m_viewpointLoginName == null)
-				m_viewpointLoginName = "VIEWPOINT";
+				m_viewpointLoginName = "VPC";								// jal 2014/02/11 Do not use "VIEWPOINT" since it has no rights at all and is not a real account
 			else if("ANONYMOUS".equalsIgnoreCase(m_viewpointLoginName))
 				m_viewpointLoginName = null;
 		}
