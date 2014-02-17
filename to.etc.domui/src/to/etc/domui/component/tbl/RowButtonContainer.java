@@ -49,7 +49,7 @@ public class RowButtonContainer extends ButtonMakerBase {
 
 	@Override
 	protected void addButton(NodeBase b) {
-		if(m_count++ > 1)
+		if(m_count++ > 0)
 			m_into.add(" ");
 		m_into.add(b);
 	}

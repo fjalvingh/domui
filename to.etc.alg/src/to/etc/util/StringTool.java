@@ -2638,6 +2638,14 @@ public class StringTool {
 		}
 	}
 
+	@Nonnull
+	public static String strCapitalized(@Nonnull String name) {
+		if(name.length() == 0)
+			return name;
+		char c = name.charAt(0);
+		return Character.toUpperCase(c) + name.substring(1).toLowerCase();
+	}
+
 	/**
 	 * Checks whether a given text is too big for the maximum varchar2 database field
 	 * @param text
@@ -2645,14 +2653,6 @@ public class StringTool {
 	 */
 	public static boolean isInvalidOracleLength(@Nonnull String text) {
 		return getUtf8LengthInBytes(text) >= MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2;
-	}
-
-	@Nonnull
-	public static String strCapitalized(@Nonnull String name) {
-		if(name.length() == 0)
-			return name;
-		char c = name.charAt(0);
-		return Character.toUpperCase(c) + name.substring(1).toLowerCase();
 	}
 }
 

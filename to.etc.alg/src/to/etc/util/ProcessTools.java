@@ -25,6 +25,9 @@
 package to.etc.util;
 
 import java.io.*;
+import java.util.*;
+
+import javax.annotation.*;
 
 /**
  * Helper code to spawn processes and capture their output.
@@ -32,8 +35,95 @@ import java.io.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Nov 25, 2010
  */
-public class ProcessTools {
-	private ProcessTools() {
+final public class ProcessTools {
+	public interface IFollow {
+		public void newData(boolean stderr, char[] data, int length);
+	}
+
+	@Nonnull
+	final private ProcessBuilder m_builder;
+
+	private Writer m_stdout;
+
+	private Writer m_stderr;
+
+	private IFollow m_follow;
+
+	private boolean m_flush;
+
+	public ProcessTools() {
+		m_builder = new ProcessBuilder();
+	}
+
+	public ProcessTools(@Nonnull ProcessBuilder pb) {
+		m_builder = pb;
+	}
+
+	@Nonnull
+	public ProcessTools stdout(@Nonnull Writer stdout) {
+		m_stdout = stdout;
+		return this;
+	}
+
+	@Nonnull
+	public ProcessTools stderr(@Nonnull Writer stderr) {
+		m_stderr = stderr;
+		return this;
+	}
+
+	@Nonnull
+	public ProcessTools add(@Nonnull String cmd) {
+		m_builder.command().add(cmd);
+		return this;
+	}
+
+	@Nonnull
+	public ProcessTools add(@Nonnull List<String> cmd) {
+		m_builder.command().addAll(cmd);
+		return this;
+	}
+
+	@Nonnull
+	public ProcessTools setCommand(@Nonnull List<String> cmd) {
+		m_builder.command(cmd);
+		return this;
+	}
+
+	@Nonnull
+	public ProcessTools directory(@Nonnull File cmd) {
+		m_builder.directory(cmd);
+		return this;
+	}
+
+	@Nonnull
+	public ProcessTools follow(@Nonnull IFollow cmd) {
+		m_follow = cmd;
+		return this;
+	}
+
+	@Nonnull
+	public ProcessTools flush() {
+		m_flush = true;
+		return this;
+	}
+
+	public int run() throws Exception {
+		Writer stdout = m_stdout;
+		Writer stderr = m_stderr;
+		if(null == stdout || null == stderr)
+			throw new IllegalStateException("Either stdout or stderr not redirected");
+		Process pr = m_builder.start();
+
+		StreamReaderThread outr = new StreamReaderThread(stdout, "stdout", pr.getInputStream(), null, m_follow, m_flush);
+		StreamReaderThread errr = new StreamReaderThread(stderr, "stderr", pr.getErrorStream(), null, m_follow, m_flush);
+		outr.start();
+		errr.start();
+		int rc = pr.waitFor();
+		outr.join();
+		errr.join();
+		return rc;
+
+
 	}
 
 	/**
@@ -46,7 +136,13 @@ public class ProcessTools {
 		/** The output writer thing. */
 		private final Writer	m_w;
 
+		@Nonnull
 		private final char[]	m_buf;
+
+		/** When T this flushes written output. */
+		private boolean m_flush;
+
+		private IFollow m_follow;
 
 		public StreamReaderThread(final Appendable sb, String name, InputStream is) {
 			this(sb, name, is, System.getProperty("file.encoding"));
@@ -67,17 +163,21 @@ public class ProcessTools {
 				@Override
 				public void close() throws IOException {
 				}
-			}, name, is, encoding);
+			}, name, is, encoding, null, false);
 		}
 
 		public StreamReaderThread(Writer sb, String name, InputStream is) {
-			this(sb, name, is, System.getProperty("file.encoding"));
+			this(sb, name, is, System.getProperty("file.encoding"), null, false);
 		}
 
-		public StreamReaderThread(Writer w, String name, InputStream is, String encoding) {
+		public StreamReaderThread(Writer w, String name, InputStream is, String encoding, IFollow follow, boolean flush) {
 			m_w = w;
-			m_buf = new char[1024];
+			m_buf = new char[8192];
+			m_follow = follow;
+			m_flush = flush;
 			setName("StreamReader" + name);
+			if(null == encoding)
+				encoding = System.getProperty("file.encoding");
 			try {
 				m_reader = new InputStreamReader(is, encoding);
 			} catch(UnsupportedEncodingException x) // Fuck James Gosling with his stupid checked exceptions crap
@@ -94,9 +194,21 @@ public class ProcessTools {
 		public void run() {
 			try {
 				int szrd;
+				IFollow follow = m_follow;
 				while(0 < (szrd = m_reader.read(m_buf))) {
 					//					System.out.println("dbg: writing "+szrd+" chars to the stream");
 					m_w.write(m_buf, 0, szrd);
+					if(m_flush) {
+						if(szrd > 512 || needsFlush(m_buf, szrd))
+							m_w.flush();
+					}
+					if(null != follow) {
+						try {
+							m_follow.newData(false, m_buf, szrd);
+						} catch(Exception x) {
+							x.printStackTrace();
+						}
+					}
 				}
 				m_w.flush();
 			} catch(Throwable x) {
@@ -109,6 +221,15 @@ public class ProcessTools {
 			}
 			//			System.out.println("Reader "+m_name+" terminated.");
 		}
+
+		static private boolean needsFlush(@Nonnull char[] buf, int szrd) {
+			while(--szrd >= 0) {
+				if(buf[szrd] == '\n')
+					return true;
+			}
+			return false;
+		}
+
 	}
 
 	/**
