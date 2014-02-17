@@ -20,8 +20,9 @@ public class DefaultBeforeImageCache implements IBeforeImageCache {
 
 	private boolean m_wasNew;
 
+	@Nonnull
 	@Override
-	public <T> T createImage(Class<T> realclass, T instance, boolean loaded) throws Exception {
+	public <T> T createImage(@Nonnull Class<T> realclass, @Nonnull T instance, boolean loaded) throws Exception {
 		System.out.println("   >> createImage " + realclass.getName() + "@" + System.identityHashCode(instance));
 		T copy = (T) m_copyMap.get(instance);
 		if(null != copy) {
@@ -46,14 +47,14 @@ public class DefaultBeforeImageCache implements IBeforeImageCache {
 	}
 
 	@Override
-	public <T> T findBeforeImage(T source) {
+	public <T> T findBeforeImage(@Nonnull T source) {
 		T res = (T) m_copyMap.get(source);
 		System.out.println("     >> " + source + " maps to " + res);
 		return res;
 	}
 
 	@Override
-	public <T> T getBeforeImage(T instance) {
+	public <T> T getBeforeImage(@Nonnull T instance) {
 		T copy = (T) m_copyMap.get(instance);
 		if(null == copy)
 			return null;
@@ -63,7 +64,7 @@ public class DefaultBeforeImageCache implements IBeforeImageCache {
 	}
 
 	@Override
-	public <T> boolean isLoaded(T beforeImage) {
+	public <T> boolean isLoaded(@Nonnull T beforeImage) {
 		return !m_uninitializedSet.contains(beforeImage);
 	}
 }

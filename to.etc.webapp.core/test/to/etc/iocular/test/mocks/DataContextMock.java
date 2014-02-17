@@ -164,7 +164,7 @@ public class DataContextMock implements QDataContext {
 	public void addListener(@Nonnull IQDataContextListener qDataContextListener) {}
 
 	@Override
-	public <T> T original(T copy) {
+	public <T> T original(@Nonnull T copy) {
 		throw new IllegalStateException("Not implemented");
 	}
 
