@@ -530,7 +530,8 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 			cell.setNowrap(true);
 
 		//-- If a cellclicked thing is present attach it to the td
-		if(cd.getCellClicked() != null) {
+		final ICellClicked< ? > cellClicked = cd.getCellClicked();
+		if(cellClicked != null) {
 			/*
 			 * FIXME For now I add a separate instance of the handler to every cell. A single instance is OK too,
 			 * provided it can calculate the row and cell data from the TR it is attached to.

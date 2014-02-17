@@ -27,10 +27,11 @@ class AutocompleteText extends TextStr {
 
 	@Nonnull
 	protected Select getSelect() {
-		if(m_select != null) {
-			return m_select;
+		Select select = m_select;
+		if(select == null) {
+			throw new IllegalStateException(Select.class.getName() + " not connected to " + AutocompleteText.class.getName());
 		}
-		throw new IllegalStateException(Select.class.getName() + " not connected to " + AutocompleteText.class.getName());
+		return select;
 	}
 
 	protected void setSelect(@Nonnull Select select) {
