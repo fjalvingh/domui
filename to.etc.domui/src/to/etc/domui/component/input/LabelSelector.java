@@ -126,7 +126,7 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 			}
 			sb.append(availableLabels.get(i).toString());
 		}
-		m_input.setTitle(Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_HINT, sb.toString()));
+		DomUtil.nullChecked(m_input).setTitle(Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_HINT, sb.toString()));
 	}
 
 	/**
