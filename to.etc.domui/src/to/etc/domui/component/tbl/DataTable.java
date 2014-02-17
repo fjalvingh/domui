@@ -67,7 +67,7 @@ public class DataTable<T> extends SelectableTabularComponent<T> implements ISele
 	@Nonnull
 	final private IClicked<TH> m_headerSelectClickHandler = new IClicked<TH>() {
 		@Override
-		public void clicked(TH clickednode) throws Exception {
+		public void clicked(@Nonnull TH clickednode) throws Exception {
 			ISelectionModel<T> sm = getSelectionModel();
 			if(null == sm)
 				return;

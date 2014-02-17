@@ -87,7 +87,7 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 		if(ovc != null) {
 			cb.setClicked(new IClicked<Checkbox>() {
 				@Override
-				public void clicked(Checkbox clickednode) throws Exception {
+				public void clicked(@Nonnull Checkbox clickednode) throws Exception {
 					ovc.onValueChanged(CheckboxSetInputBase.this);
 				}
 			});
@@ -127,7 +127,7 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 	}
 
 	@Override
-	public void setValue(Set<V> v) {
+	public void setValue(@Nullable Set<V> v) {
 		getValue();									// Update set to the latest checkbox states.
 		super.setValue(v);
 	}

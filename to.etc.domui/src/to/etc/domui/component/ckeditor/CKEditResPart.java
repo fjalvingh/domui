@@ -28,6 +28,8 @@ import java.io.*;
 import java.text.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.htmleditor.*;
 import to.etc.domui.dom.*;
 import to.etc.domui.parts.*;
@@ -60,8 +62,8 @@ public class CKEditResPart implements IUnbufferedPartFactory {
 	}
 
 	@Override
-	public void generate(DomApplication app, String rurl, RequestContextImpl param) throws Exception {
-		System.out.println("QS=" + param.getRequest().getQueryString());
+	public void generate(@Nonnull DomApplication app, @Nonnull String rurl, @Nonnull RequestContextImpl param) throws Exception {
+		System.out.println("QS=" + param.getRequestResponse().getQueryString());
 		System.out.println("RURL=" + rurl);
 
 		ComponentPartRenderer cpr = new ComponentPartRenderer();
@@ -97,9 +99,8 @@ public class CKEditResPart implements IUnbufferedPartFactory {
 	}
 
 	private IBrowserOutput defaultHeader(RequestContextImpl ctx, String cmd, String rtype, String path) throws Exception {
-		ctx.getResponse().setContentType("text/xml; charset=UTF-8");
-		ctx.getResponse().setCharacterEncoding("UTF-8");
-		IBrowserOutput w = new PrettyXmlOutputWriter(ctx.getOutputWriter());
+		Writer outputWriter = ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8");
+		IBrowserOutput w = new PrettyXmlOutputWriter(outputWriter);
 		w.tag("Connector");
 		w.attr("command", cmd);
 		w.attr("resourceType", rtype);
@@ -179,9 +180,7 @@ public class CKEditResPart implements IUnbufferedPartFactory {
 	}
 
 	private void sendInit(DomApplication app, IEditorFileSystem ifs, RequestContextImpl ctx) throws Exception {
-		ctx.getResponse().setContentType("text/xml; charset=UTF-8");
-		ctx.getResponse().setCharacterEncoding("UTF-8");
-		IBrowserOutput w = new PrettyXmlOutputWriter(ctx.getOutputWriter());
+		IBrowserOutput w = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"));
 		w.tag("Connector");
 		w.endtag();
 		w.tag("Error");
@@ -235,12 +234,11 @@ public class CKEditResPart implements IUnbufferedPartFactory {
 		//-- Stream the thingy.
 		OutputStream os = null;
 		try {
-			ctx.getResponse().setContentType(efr.getMimeType());
 			int len = efr.getSize();
-			if(len > 0)
-				ctx.getResponse().setContentLength(len);
-			os = ctx.getResponse().getOutputStream();
+			os = ctx.getRequestResponse().getOutputStream(efr.getMimeType(), null, len);
 			efr.copyTo(os);
+			os.close();
+			os = null;
 		} finally {
 			try {
 				efr.close();

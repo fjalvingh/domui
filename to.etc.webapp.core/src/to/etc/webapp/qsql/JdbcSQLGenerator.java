@@ -146,7 +146,7 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 		QQueryRenderer renderer = new QQueryRenderer() {
 
 			@Override
-			public void visitPropertySelection(QPropertySelection n) throws Exception {
+			public void visitPropertySelection(@Nonnull QPropertySelection n) throws Exception {
 				int currentColumn = getCurrentColumn();
 				if(currentColumn > 0) {
 					append(",");
