@@ -173,6 +173,7 @@ public class FragmentedThemeFactory implements IThemeFactory {
 		//-- Now load all stylesheet fragments (.frag.css)
 		StringBuilder sb = new StringBuilder(65536);
 		executor().put("browser", BrowserVersion.parseUserAgent("Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0; .NET CLR 2.0.50727)"));
+		executor().put("util", new ThemeCssUtils());
 		getFragments(sb, m_inheritanceStack, ".frag.css", Check.CHECK, m_rdl);
 		m_stylesheet = sb.toString();
 	}

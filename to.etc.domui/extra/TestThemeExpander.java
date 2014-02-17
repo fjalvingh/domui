@@ -35,17 +35,6 @@ public class TestThemeExpander {
 	}
 
 	@Test
-	public void testThemeExpander3() throws Exception {
-		for(int i = 0; i < 10; i++) {
-			FragmentedThemeFactory cfc = new FragmentedThemeFactory();
-			long ts = System.nanoTime();
-			cfc.loadTheme(m_da);
-			ts = System.nanoTime() - ts;
-			System.out.println("#" + i + ": Loaded in " + StringTool.strNanoTime(ts));
-		}
-	}
-
-	@Test
 	public void testThemeExpander4() throws Exception {
 		FragmentedThemeFactory cfc = new FragmentedThemeFactory();
 		long ts = System.nanoTime();

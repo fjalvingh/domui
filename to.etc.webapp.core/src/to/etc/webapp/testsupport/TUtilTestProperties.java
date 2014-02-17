@@ -48,10 +48,14 @@ public class TUtilTestProperties {
 
 
 	@Nonnull
-	static public Properties getTestProperties() {
+	static public synchronized Properties getTestProperties() {
 		Properties p = findTestProperties();
-		if(null == p)
-			throw new IllegalStateException("I cannot find the proper test properties.");
+		if(null == p) {
+			System.err.println("TUtilTestProperties: no test.properties file found, using an empty one");
+			p = m_properties = new Properties();
+// jal 20140111 No not abort but try to skip tests.
+//			throw new IllegalStateException("I cannot find the proper test properties.");
+		}
 		return p;
 	}
 
@@ -159,6 +163,9 @@ public class TUtilTestProperties {
 		String db = System.getenv("VPTESTDB");
 		if(db != null)
 			return true;
+		db = System.getProperty("TESTDB");
+		if(null != db)
+			return true;
 		Properties p = findTestProperties();
 		if(p == null)
 			return false;
@@ -177,6 +184,9 @@ public class TUtilTestProperties {
 	static public String getDbString() {
 		String db = System.getenv("VPTESTDB");
 		if(db != null)
+			return db;
+		db = System.getProperty("TESTDB");
+		if(null != db)
 			return db;
 		Properties p = getTestProperties();
 		db = p.getProperty("database");
@@ -250,7 +260,7 @@ public class TUtilTestProperties {
 			m_gotLoginName = true;
 			m_viewpointLoginName = getTestProperties().getProperty("loginid");
 			if(m_viewpointLoginName == null)
-				m_viewpointLoginName = "VIEWPOINT";
+				m_viewpointLoginName = "VPC";								// jal 2014/02/11 Do not use "VIEWPOINT" since it has no rights at all and is not a real account
 			else if("ANONYMOUS".equalsIgnoreCase(m_viewpointLoginName))
 				m_viewpointLoginName = null;
 		}
@@ -437,5 +447,37 @@ public class TUtilTestProperties {
 		}
 	}
 
+	/**
+	 * Find boolean value stored in test.properties file based on property name.
+	 * If value doesn't exist return default one.
+	 *
+	 * @param propertyName name of property requested from properties file
+	 * @param defaultValue default value returned if property can't be found
+	 * @return stored or default boolean value
+	 */
+	public static boolean getBoolean(@Nonnull final String propertyName, final boolean defaultValue) {
+		String s = getString(propertyName, defaultValue ? "true" : "false");
+		return ("true".equalsIgnoreCase(s) || "yes".equalsIgnoreCase(s));
+	}
+
+	/**
+	 * Find string value stored in test.properties file based on property name.
+	 * If value doesn't exist return default one.
+	 *
+	 * @param propertyName name of property requested from properties file
+	 * @param defaultValue default value returned if property can't be found
+	 * @return stored or default string value
+	 */
+	@Nullable
+	public static String getString(@Nonnull final String propertyName, @Nullable final String defaultValue) {
+		Properties props = findTestProperties();
+		if(props == null)
+			return defaultValue;
+
+		String s = props.getProperty(propertyName);
+		if(s != null)
+			return s;
+		return defaultValue;
+	}
 
 }

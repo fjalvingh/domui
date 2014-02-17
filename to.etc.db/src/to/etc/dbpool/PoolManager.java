@@ -30,6 +30,7 @@ import java.util.*;
 
 import javax.annotation.*;
 import javax.annotation.concurrent.*;
+import javax.sql.*;
 
 import to.etc.dbpool.info.*;
 
@@ -532,9 +533,9 @@ final public class PoolManager {
 
 	/**
 	 * Mark connection long living, for those connections which need
-	 * to be opened for a long time (hanging connection check will skip 
+	 * to be opened for a long time (hanging connection check will skip
 	 * this connection).
-	 * 
+	 *
 	 * @param dbc
 	 * @throws SQLException
 	 */
@@ -542,4 +543,18 @@ final public class PoolManager {
 		ConnectionProxy proxy = dbc.unwrap(ConnectionProxy.class);
 		proxy.setLongliving(true);
 	}
+
+	@Nullable
+	static public ConnectionPool getPoolFrom(@Nonnull DataSource ds) {
+		//-- Try to locate the unpooled data source for this database pool.
+		if(ds instanceof DataSourceImpl) {
+			return ((DataSourceImpl) ds).getPool();
+		} else if(ds instanceof UnpooledDataSourceImpl) {
+			UnpooledDataSourceImpl udi = (UnpooledDataSourceImpl) ds;
+			return udi.getPool();
+		} else {
+			return null;
+		}
+	}
 }
+
