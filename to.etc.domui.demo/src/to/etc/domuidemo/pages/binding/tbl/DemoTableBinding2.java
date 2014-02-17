@@ -3,6 +3,7 @@ package to.etc.domuidemo.pages.binding.tbl;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.tbl.*;
+import to.etc.domui.component.tbl.IControlFactory;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 import to.etc.domuidemo.db.*;
