@@ -967,7 +967,9 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 			Class< ? > c = v.getTypes()[i];
 			if(c == null)
 				throw new QQuerySyntaxException("Type array for SQLRestriction cannot contain null");
-			Type t = TypeFactory.basic(c.getName());
+			org.hibernate.TypeHelper th = m_session.getTypeHelper();
+
+			Type t = th.basic(c.getName());
 			if(null == t) {
 				throw new QQuerySyntaxException("Type[" + i + "] in type array (a " + c + ") is not a proper Hibernate type");
 

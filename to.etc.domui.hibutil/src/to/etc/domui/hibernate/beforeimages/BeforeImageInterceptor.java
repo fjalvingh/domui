@@ -105,7 +105,6 @@ public class BeforeImageInterceptor extends EmptyInterceptor {
 	 *
 	 * @see org.hibernate.EmptyInterceptor#onAfterLoad(org.hibernate.event.PostLoadEvent)
 	 */
-	@Override
 	public void onAfterLoad(@Nonnull PostLoadEvent loadevent) {
 		Object instance = loadevent.getEntity();
 		if(null == instance)
