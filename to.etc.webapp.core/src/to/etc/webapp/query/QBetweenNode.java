@@ -46,6 +46,11 @@ public class QBetweenNode extends QOperatorNode {
 		m_prop = prop;
 	}
 
+	@Override
+	public QBetweenNode dup() {
+		return new QBetweenNode(getOperation(), getProp(), getA().dup(), getB().dup());
+	}
+
 	/**
 	 * The low value of the between operation (prop between A and B)
 	 * @return

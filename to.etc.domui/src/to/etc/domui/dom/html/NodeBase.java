@@ -32,12 +32,16 @@ import org.slf4j.*;
 
 import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.input.*;
+import to.etc.domui.databinding.*;
+import to.etc.domui.databinding.observables.*;
+import to.etc.domui.databinding.value.*;
 import to.etc.domui.dom.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.webaction.*;
 import to.etc.domui.logic.*;
 import to.etc.domui.logic.events.*;
+import to.etc.domui.parts.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
 import to.etc.domui.util.*;
@@ -77,7 +81,7 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 18, 2007
  */
-abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IModelBinding {
+abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IModelBinding, IObservableEntity {
 	private static final Logger LOG = LoggerFactory.getLogger(NodeBase.class);
 
 	static private boolean m_logAllocations;
@@ -147,6 +151,9 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	static private final byte F_BUNDLEFOUND = 0x02;
 
 	static private final byte F_BUNDLEUSED = 0x04;
+
+	/** When set, this means setMessage() will not broadcast the message to a message fence. This gets set for hard binding, so that code can decide when/how to show errors. */
+	static private final byte F_NO_MESSAGE_BROADCAST = 0x08;
 
 	private byte m_flags;
 
@@ -813,7 +820,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 			Page page = m_page;
 			if(parentId != null && page != null) {
 				String nid = base + "/" + calcid;
-				if(page.isTestIDAllocated(nid)) {
+				Page page = m_page;
+				if(null != page && page.isTestIDALlocated(nid)) {
 					m_calculatedTestIdBase = parentId + "_" + calcid;
 				} else {
 					m_calculatedTestIdBase = calcid;
@@ -840,6 +848,9 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 
 	@Nullable
 	public String calcTestID() {
+		Page page = m_page;
+		if(null == page)
+			return null;
 		String baseName = getTestID();
 		if(null != baseName)
 			return baseName;
@@ -1153,6 +1164,31 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		throw new IllegalStateException("?? The '" + getTag() + "' component (" + this.getClass() + ") with id=" + m_actualID + " does NOT accept input!");
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Getting data from a component.						*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Return an URL to a data stream generator for this component. The component must implement
+	 * {@link IComponentUrlDataProvider} to handle the data request.
+	 * @param pp
+	 * @return
+	 */
+	@Nonnull
+	public String getComponentDataURL(@Nullable IPageParameters pp) {
+		NodeBase nb = this;
+		if(!(nb instanceof IComponentUrlDataProvider))
+			throw new IllegalStateException("This component (" + this + ") does not implement " + IComponentUrlDataProvider.class.getName());
+		return DomUtil.getAdjustedComponentUrl(this, Constants.ACMD_PAGEDATA, pp);
+	}
+
+	@Nonnull
+	public String getComponentJSONURL(@Nullable IPageParameters pp) {
+		NodeBase nb = this;
+		if(!(nb instanceof IComponentJsonProvider))
+			throw new IllegalStateException("This component (" + this + ") does not implement " + IComponentJsonProvider.class.getName());
+		return DomUtil.getAdjustedComponentUrl(this, Constants.ACMD_PAGEJSON, pp);
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Error message handling code.						*/
@@ -1164,15 +1200,15 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * When set this component has an error/warning/info message. A control can have only one
 	 * message associated with it; the most severe error of all message types gets used.
 	 */
+	@Nullable
 	private UIMessage m_message;
 
 	/**
 	 * When set this contains a user-understandable tekst indicating which control has the error. It usually contains
 	 * the "label" associated with the control, and is set automatically by form builders if possible.
 	 */
+	@Nullable
 	private String m_errorLocation;
-
-	private INodeErrorDelegate m_errorDelegate;
 
 	/**
 	 * When set this contains a user-understandable tekst indicating which control has the error. It usually contains
@@ -1225,62 +1261,58 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @param param
 	 */
 	@Override
-	public UIMessage setMessage(final UIMessage msg) {
-		if(m_errorDelegate != null)
-			return m_errorDelegate.setMessage(msg);
-
+	@Nullable
+	public UIMessage setMessage(@Nullable final UIMessage msg) {
 		//-- If this (new) message has a LOWER severity than the EXISTING message ignore this call and return the EXISTING message
-		if(m_message != null) {
-			if(m_message.getType().getOrder() > msg.getType().getOrder()) {
-				return m_message;
+		UIMessage old = m_message;
+		if(old == msg)
+			return old;
+		m_message = msg;
+
+		if(msg != null) {
+			if(old != null) {
+				if(old.getType().getOrder() > msg.getType().getOrder()) {
+					return m_message;
+				}
+
+				//-- If code, type and parameters are all equal just leave the existing message in-place
+				if(old.equals(msg))
+					return old;
 			}
 
-			//-- If code, type and parameters are all equal just leave the existing message in-place
-			if(m_message == msg || m_message.equals(msg))
-				return m_message;
-
-			//-- The current message is to be replaced. For that we need to clear it first
-			clearMessage(); // Discard existing message
+			//-- Update any error location.
+			if(msg.getErrorLocation() == null)
+				msg.setErrorLocation(m_errorLocation);
+			msg.setErrorNode(this);
 		}
 
-		//-- Now add the message
-		m_message = msg;
-		if(msg.getErrorLocation() == null)
-			msg.setErrorLocation(m_errorLocation);
-		msg.setErrorNode(this);
-
-		//-- Experimental fix for bug# 787: cannot locate error fence. Allow errors to be posted on disconnected nodes.
-		if(m_page != null) {
-			IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
-			fence.addMessage(m_message);
+		//-- Broadcast the error through the tree
+		if(m_page != null && isMessageBroadcastEnabled()) {		// Fix for bug# 787: cannot locate error fence. Allow errors to be posted on disconnected nodes.
+			IErrorFence fence = DomUtil.getMessageFence(this);	// Get the fence that'll handle the message by looking UPWARDS in the tree
+			if(null != old)
+				fence.removeMessage(old);
+			if(null != msg)
+				fence.addMessage(msg);
 		}
-		return m_message;
+
+		//-- Fire a change event
+		fireModified("message", old, msg);
+		return msg;
 	}
 
 	/**
+	 * Deprecated: use {@link #setMessage(UIMessage)} with a null parameter.
 	 * Remove this-component's "current" error message, if present.
 	 */
+	@Deprecated
 	@Override
 	public void clearMessage() {
-		if(m_errorDelegate != null) {
-			m_errorDelegate.clearMessage();
-			return;
-		}
-		if(getMessage() == null)
-			return;
-		//-- Experimental fix for bug# 787: cannot locate error fence. In case that control is still disconnected just skip error fence part (messge was not posted to it anyway).
-		if(m_page != null) {
-			IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
-			UIMessage msg = m_message;
-			fence.removeMessage(msg);
-		}
-		m_message = null;
+		setMessage(null);
 	}
 
+	@Nullable
 	@Override
 	public UIMessage getMessage() {
-		if(m_errorDelegate != null)
-			return m_errorDelegate.getMessage();
 		return m_message;
 	}
 
@@ -1289,15 +1321,21 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @return
 	 */
 	public boolean hasError() {
-		return getMessage() != null && getMessage().getType() == MsgType.ERROR;
+		UIMessage message = getMessage();
+		return message != null && message.getType() == MsgType.ERROR;
 	}
 
-	public void setErrorDelegate(final INodeErrorDelegate errorDelegate) {
-		m_errorDelegate = errorDelegate;
+	public void appendTreeErrors(@Nonnull List<UIMessage> errorList) {
+		UIMessage message = getMessage();
+		if(null != message && message.getType() == MsgType.ERROR)
+			errorList.add(message);
 	}
 
-	public INodeErrorDelegate getErrorDelegate() {
-		return m_errorDelegate;
+	@Nonnull
+	public List<UIMessage> getErrorList() {
+		List<UIMessage> res = new ArrayList<UIMessage>();
+		appendTreeErrors(res);
+		return res;
 	}
 
 	/**
@@ -1406,6 +1444,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		return br.formatMessage(key, param);
 	}
 
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Overridable event methods.							*/
 	/*--------------------------------------------------------------*/
@@ -1442,6 +1481,16 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	protected void onUnshelve() throws Exception {}
 
 	protected void onRefresh() throws Exception {}
+
+	/**
+	 * Will be called just before "full render" starts. It gets called INSIDE the rendering
+	 * loop, so only changes "below" this node will have an effect.. Better said: DO NOT CHANGE THE
+	 * TREE, this should be an internal interface 8-/
+	 * @throws Exception
+	 */
+	public void renderJavascriptState(StringBuilder sb) throws Exception {
+
+	}
 
 	/**
 	 * Will be called just before "full render" starts. It gets called INSIDE the rendering
@@ -1643,6 +1692,14 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		return getParent().getSharedContextFactory();
 	}
 
+	/**
+	 * EXPERIMENTAL Get the binding context for the page/module.
+	 * @return
+	 */
+	@Nonnull
+	public BindingContext getBindingContext() {
+		return getParent().getBindingContext();
+	}
 
 	/**
 	 * Get the context.
@@ -1748,5 +1805,115 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 */
 	public boolean isRendersOwnClose() {
 		return false;
+	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Hard data binding support (EXPERIMENTAL)			*/
+	/*--------------------------------------------------------------*/
+	@Nullable
+	private ComponentObserverSupport< ? > m_osupport;
+
+	/**
+	 * Returns a set of property names for this control that are bindable (can be bound to). Any attempt
+	 * to bind to a property that is not in this set will throw a {@link PropertyNotObservableException}.
+	 * Subclasses are expected to override this method to return their set of bindable properties. By
+	 * default the set is empty.
+	 * @return
+	 */
+	@Nonnull
+	public Set<String> getBindableProperties() {
+		return Collections.EMPTY_SET;
+	}
+
+	/**
+	 * Returns T if the property passed can be bound to (is {@link IObservable}.
+	 * @param property
+	 * @return
+	 */
+	public boolean isBindableProperty(@Nonnull String property) {
+		return getBindableProperties().contains(property);
+	}
+
+	/**
+	 * Return the {@link ObserverSupport} implementation to use to handle data binding for DomUI
+	 * components. This lazily initializes, and only allocates the support structures if binding
+	 * is really used.
+	 * @return
+	 */
+	@Nonnull
+	public ObserverSupport< ? > getObserverSupport() {
+		ComponentObserverSupport< ? > osupport = m_osupport;
+		if(null == osupport) {
+			osupport = m_osupport = new ComponentObserverSupport<NodeBase>(this);
+		}
+		return osupport;
+	}
+
+	/**
+	 * Return an observable for the specified property, <b>if that property can be observed</b>; if
+	 * not this will throw {@link PropertyNotObservableException}.
+	 * @see to.etc.domui.databinding.observables.IObservableEntity#observableValue(java.lang.String)
+	 * @throws PropertyNotObservableException if the property is not observable.
+	 */
+	@Override
+	@Nonnull
+	public IObservableValue< ? > observableValue(@Nonnull String property) {
+		if(! isBindableProperty(property))
+			throw new PropertyNotObservableException(getClass(), property);
+		return getObserverSupport().observableValue(property);
+	}
+
+	/**
+	 * Create a name set for properties.
+	 * @param names
+	 * @return
+	 */
+	@Nonnull
+	static protected Set<String> createNameSet(@Nonnull String... names) {
+		Set<String> res = new HashSet<String>(names.length);
+		for(String name : names)
+			res.add(name);
+		res.add("message");
+		return res;
+	}
+
+	/**
+	 * Fire a "value changed" event for a property on this object, if they are observed.
+	 * @param propertyName
+	 * @param old
+	 * @param nw
+	 */
+	protected <T> void fireModified(@Nonnull String propertyName, T old, T nw) {
+		ObserverSupport< ? > osupport = m_osupport;
+		if(null == osupport)					// Nothing observing?
+			return;
+		osupport.fireModified(propertyName, old, nw);
+	}
+
+	/**
+	 * When set, this means setMessage() will not broadcast the message to a message
+	 * fence. This gets set for hard binding, so that code can decide when/how to show
+	 * errors. It defaults to true.
+	 * @return
+	 */
+	public boolean isMessageBroadcastEnabled() {
+		return (m_flags & F_NO_MESSAGE_BROADCAST) == 0;
+	}
+
+	/**
+	 * When set, this means setMessage() will not broadcast the message to a message
+	 * fence. This gets set for hard binding, so that code can decide when/how to show
+	 * errors. It defaults to true.
+	 *
+	 * @see to.etc.domui.dom.errors.INodeErrorDelegate#setMessageBroadcastEnabled(boolean)
+	 */
+	@Override
+	public void setMessageBroadcastEnabled(boolean yes) {
+		if(yes) {
+			m_flags &= F_NO_MESSAGE_BROADCAST;
+		} else {
+			m_flags |= F_NO_MESSAGE_BROADCAST;
+		}
 	}
 }

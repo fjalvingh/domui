@@ -47,6 +47,10 @@ public class Constants {
 
 	static public final String ACMD_OBITUARY = "OBITUARY";
 
+	static public final String ACMD_PAGEDATA = "$pagedata";
+
+	static public final String ACMD_PAGEJSON = "$pagejson";
+
 	static public final String ACMD_VALUE_CHANGED = "vchange";
 
 	/** Added to fix bug# 917: idiot IE does not handle onchange on checkbox. */

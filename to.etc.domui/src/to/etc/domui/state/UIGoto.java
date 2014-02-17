@@ -26,6 +26,9 @@ package to.etc.domui.state;
 
 import java.util.*;
 
+import javax.annotation.*;
+
+import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
@@ -37,7 +40,10 @@ import to.etc.domui.util.*;
  * Created on Jan 9, 2009
  */
 final public class UIGoto {
+	@Deprecated
 	static public final String SINGLESHOT_MESSAGE = "uigoto.msgs";
+
+	static public final String PAGE_ACTION = "uigoto.action";
 
 	private UIGoto() {}
 
@@ -55,6 +61,63 @@ final public class UIGoto {
 		Class< ? extends UrlPage> clz = pg.getBody().getClass();
 		IPageParameters pp = pg.getPageParameters();
 		context().internalSetNextPage(MoveMode.REPLACE, clz, null, null, pp);
+	}
+
+	/**
+	 * Destroy the current page, and reload a fresh copy with fresh new parameters.
+	 * @param pp
+	 */
+	static public void reload(@Nonnull PageParameters pp) {
+		Page pg = UIContext.getCurrentPage();
+		Class< ? extends UrlPage> clz = pg.getBody().getClass();
+		context().internalSetNextPage(MoveMode.REPLACE, clz, null, null, pp);
+	}
+
+	static public void reload(@Nonnull Object... parameters) {
+		PageParameters pp = new PageParameters(parameters);
+		reload(pp);
+	}
+
+	/**
+	 * Add a "goto action" to be executed on the page we will go-to.
+	 * @param action
+	 */
+	static public void addAction(@Nonnull IGotoAction action) {
+		WindowSession ws = UIContext.getCurrentConversation().getWindowSession();
+		List<IGotoAction> ga = (List<IGotoAction>) ws.getAttribute(PAGE_ACTION);
+		if(null == ga) {
+			ga = new ArrayList<IGotoAction>();
+			ws.setAttribute(PAGE_ACTION, ga);
+		}
+		ga.add(action);
+	}
+
+	/**
+	 * Add a message as a {@link IGotoAction} action. It will be shown as a {@link MessageFlare}.
+	 * @param message
+	 */
+	static public void addActionMessage(@Nonnull final UIMessage message) {
+		addAction(new IGotoAction() {
+			@Override
+			public void executeAction(@Nonnull UrlPage page) throws Exception {
+				MessageFlare.display(page, message);
+			}
+		});
+	}
+
+	/**
+	 * Add a message as a {@link IGotoAction} action. It will be shown as a {@link MessageFlare}.
+	 *
+	 * @param type
+	 * @param message
+	 */
+	static public void addActionMessage(@Nonnull final MsgType type, @Nonnull final String message) {
+		addAction(new IGotoAction() {
+			@Override
+			public void executeAction(@Nonnull UrlPage page) throws Exception {
+				MessageFlare.display(page, type, message);
+			}
+		});
 	}
 
 	/**
@@ -203,17 +266,20 @@ final public class UIGoto {
 	}
 
 	/**
+	 * Deprecated - use {@link #reload()} or one of it's variants instead.
 	 * Destroy the current page and replace it with the new page specified. On the new page show the specified
 	 * message as an ERROR message.
 	 *
 	 * @param pg
 	 * @param msg
 	 */
+	@Deprecated
 	static public final void clearPageAndReload(Page pg, String msg) {
 		clearPageAndReload(pg, msg, pg.getPageParameters());
 	}
 
 	/**
+	 * Deprecated - use {@link #reload()} or one of it's variants instead.
 	 * Destroy the current page and replace it with the new page specified with provided page parameters. On the new page show the specified
 	 * message as an ERROR message.
 	 *
@@ -221,22 +287,26 @@ final public class UIGoto {
 	 * @param msg
 	 * @param pp
 	 */
+	@Deprecated
 	static public final void clearPageAndReload(Page pg, String msg, IPageParameters pp) {
 		clearPageAndReload(pg, UIMessage.info(Msgs.BUNDLE, Msgs.S_PAGE_CLEARED, msg), pp);
 	}
 
 	/**
+	 * Deprecated - use {@link #reload()} or one of it's variants instead.
 	 * Destroy the current page and replace it with the new page specified. On the new page show the specified
 	 * message.
 	 *
 	 * @param pg
 	 * @param msg
 	 */
+	@Deprecated
 	static public final void clearPageAndReload(Page pg, UIMessage msg) {
 		clearPageAndReload(pg, msg, pg.getPageParameters());
 	}
 
 	/**
+	 * Deprecated - use {@link #reload()} or one of it's variants instead.
 	 * Destroy the current page and replace it with the new page specified. On the new page show the specified
 	 * message.
 	 *
@@ -244,6 +314,7 @@ final public class UIGoto {
 	 * @param msg
 	 * @param pp
 	 */
+	@Deprecated
 	static public final void clearPageAndReload(Page pg, UIMessage msg, IPageParameters pp) {
 		WindowSession ws = pg.getConversation().getWindowSession();
 		List<UIMessage> msgl = new ArrayList<UIMessage>(1);
@@ -256,4 +327,5 @@ final public class UIGoto {
 		 */
 		replace(pg.getBody().getClass(), pp); // Destroy the current page, and replace with a new one. This will also destroy
 	}
+
 }

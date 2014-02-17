@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.misc;
 
+import java.util.*;
+
 import javax.annotation.*;
 
 import to.etc.domui.component.input.*;
@@ -37,11 +39,21 @@ import to.etc.domui.util.*;
  * Created on Apr 9, 2010
  */
 public class DisplayCheckbox extends Img implements IDisplayControl<Boolean>, IBindable {
+	/** The properties bindable for this component. */
+	@Nonnull
+	static private final Set<String> BINDABLE_SET = createNameSet("value");
+
 	private Boolean m_value;
 
 	public DisplayCheckbox() {
 		setCssClass("ui-dspcb");
 		setSrc("THEME/dspcb-off.png");
+	}
+
+	@Override
+	@Nonnull
+	public Set<String> getBindableProperties() {
+		return BINDABLE_SET;
 	}
 
 	/**
@@ -71,7 +83,8 @@ public class DisplayCheckbox extends Img implements IDisplayControl<Boolean>, IB
 	}
 
 	public boolean isChecked() {
-		return getValue() != null && getValue().booleanValue();
+		Boolean value = getValue();
+		return value != null && value.booleanValue();
 	}
 
 	/*--------------------------------------------------------------*/

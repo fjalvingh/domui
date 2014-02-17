@@ -34,16 +34,21 @@ import javax.annotation.*;
  */
 public class QSelectionSubquery extends QOperatorNode {
 	@Nonnull
-	final private QSelection< ? > m_parentQuery;
+	final private QSelection< ? > m_subQuery;
 
-	public QSelectionSubquery(@Nonnull QSelection< ? > parent) {
+	public QSelectionSubquery(@Nonnull QSelection< ? > subquery) {
 		super(QOperation.SELECTION_SUBQUERY);
-		m_parentQuery = parent;
+		m_subQuery = subquery;
+	}
+
+	@Override
+	public QOperatorNode dup() {
+		return new QSelectionSubquery(getSelectionQuery());						// FIXME this should actually duplicate the subquery!!!
 	}
 
 	@Nonnull
 	public QSelection< ? > getSelectionQuery() {
-		return m_parentQuery;
+		return m_subQuery;
 	}
 
 	@Override

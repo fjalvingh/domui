@@ -499,11 +499,12 @@ public class PageParameters implements IPageParameters, Serializable {
 			if(var instanceof String)
 				return new String[]{(String) var};
 			String[] ar = (String[]) var;
-			if(ar.length > 0)
+			if(ar.length >= 0)
 				return ar;
 		}
-		return null;
+		return deflt;
 	}
+
 
 	/**
 	 * Gets the value for the specified parametername as untyped value.

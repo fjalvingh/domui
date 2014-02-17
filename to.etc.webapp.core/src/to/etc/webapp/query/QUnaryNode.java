@@ -27,13 +27,20 @@ package to.etc.webapp.query;
 import javax.annotation.*;
 
 public class QUnaryNode extends QOperatorNode {
-	private QOperatorNode m_node;
+	@Nonnull
+	final private QOperatorNode m_node;
 
-	public QUnaryNode(QOperation operation, QOperatorNode node) {
+	public QUnaryNode(@Nonnull QOperation operation, @Nonnull QOperatorNode node) {
 		super(operation);
 		m_node = node;
 	}
 
+	@Override
+	public QUnaryNode dup() {
+		return new QUnaryNode(getOperation(), getNode());
+	}
+
+	@Nonnull
 	public QOperatorNode getNode() {
 		return m_node;
 	}

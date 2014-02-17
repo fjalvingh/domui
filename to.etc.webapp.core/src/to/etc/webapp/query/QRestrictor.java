@@ -167,6 +167,29 @@ abstract public class QRestrictor<T> {
 		return new QRestrictorImpl<T>(this, and);
 	}
 
+	/**
+	 * This merges the "other" restrictor's restrictions inside this restriction. Both
+	 * restrictions are merged by using an "and" between both complete sets. Only "this"
+	 * restriction is altered; the original is kept as-is (the nodes are copied).
+	 *
+	 * @param other
+	 */
+	public void mergeCriteria(@Nonnull QRestrictor<T> other) {
+		QOperatorNode othertree = other.getRestrictions();
+		if(null == othertree)
+			return;
+
+		//-- Duplicate the other restrictions set, then "and" it with this entire set.
+		othertree = othertree.dup();
+		QOperatorNode thistree = getRestrictions();
+		if(null == thistree) {
+			setRestrictions(othertree);
+			return;
+		}
+
+		QMultiNode and = new QMultiNode(QOperation.AND, new QOperatorNode[]{thistree, othertree});
+		setRestrictions(and);
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Adding selection restrictions (where clause)		*/
@@ -519,6 +542,20 @@ abstract public class QRestrictor<T> {
 	}
 
 	/**
+	 * Add a restriction in bare SQL, with JDBC parameters inside the string (specified as '?'). This
+	 * is implementation-dependent. The first ? in the string corresponds to params[0]. Parameters are
+	 * not allowed to be null (i.e. the type is @Nonnull Object[@Nonnull] or something).
+	 * @param sql
+	 * @param params
+	 * @return
+	 */
+	@Nonnull
+	public QRestrictor<T> sqlCondition(@Nonnull final String sql, @Nonnull Object[] params) {
+		add(QRestriction.sqlCondition(sql, params));
+		return this;
+	}
+
+	/**
 	 * Create a joined "exists" subquery on some child list property. The parameters passed have a relation with eachother;
 	 * this relation cannot be checked at compile time because Java still lacks property references (Sun is still too utterly
 	 * stupid to define them). They will be checked at runtime when the query is executed.
@@ -559,3 +596,4 @@ abstract public class QRestrictor<T> {
 		return new QSubQuery<U, T>(this, childClass);
 	}
 }
+

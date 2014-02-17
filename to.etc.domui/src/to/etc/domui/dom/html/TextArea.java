@@ -136,14 +136,17 @@ public class TextArea extends InputNodeContainer implements IControl<String>, IH
 			return;
 		changed();
 		m_disabled = disabled;
+		fireModified("disabled", Boolean.valueOf(!disabled), Boolean.valueOf(disabled));
 	}
 
 	@Override
 	public void setValue(@Nullable String v) {
-		if(DomUtil.isEqual(v, m_value))
+		String value = m_value;
+		if(DomUtil.isEqual(v, value))
 			return;
 		m_value = v;
 		setText(v);
+		fireModified("value", value, v);
 	}
 
 	@Override
@@ -154,14 +157,14 @@ public class TextArea extends InputNodeContainer implements IControl<String>, IH
 			nw = null;
 		String cur = m_value != null && m_value.length() == 0 ? null : m_value; // Treat empty string and null the same
 
-		//vmijic 20091124 - some existing entries have \r\n, but after client request roundtrip nw get values with \n instead. Prevent differencies being raised because of this.
+		//vmijic 20091124 - some existing entries have \r\n, but after client request roundtrip nw get values with \n instead. Prevent differences being raised because of this.
 		if(cur != null) {
 			cur = cur.replaceAll("\r\n", "\n");
 		}
 		//vmijic 20091126 - now IE returns \r\n, but FF returns \n... So, both nw and cur have to be compared with "\r\n" replaced by "\n"...
 		String flattenLineBreaksNw = (nw != null) ? nw.replaceAll("\r\n", "\n") : null;
 
-		//vmijic 20101117 - it is discovered (call 28340) that from some reason firts \n is not rendered in TextArea on client side in initial page render. That cause that same \n is missing from unchanged text area input that comes through client request roundtrip and cause modified flag to be set... So as dirty fix we have to compare without that starting \n too...
+		//vmijic 20101117 - it is discovered (call 28340) that from some reason first \n is not rendered in TextArea on client side in initial page render. That cause that same \n is missing from unchanged text area input that comes through client request roundtrip and cause modified flag to be set... So as dirty fix we have to compare without that starting \n too...
 		if(flattenLineBreaksNw != null && cur != null && cur.startsWith("\n") && !flattenLineBreaksNw.startsWith("\n")) {
 			cur = cur.substring(1);
 		}

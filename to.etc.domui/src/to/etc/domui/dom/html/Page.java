@@ -36,6 +36,7 @@ import to.etc.domui.server.*;
 import to.etc.domui.state.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.javascript.*;
+import to.etc.webapp.core.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
 
@@ -321,8 +322,8 @@ final public class Page implements IQContextContainer {
 			}
 		} else {
 			//-- Assign new ID
-			id = nextID(); 								// Assign new ID
-			n.setActualID(id); 							// Save in node.
+			id = nextID();
+			n.setActualID(id);
 		}
 		if(null != m_nodeMap.put(id, n))
 			throw new IllegalStateException("Duplicate node ID '" + id + "'!?!?");
@@ -335,10 +336,10 @@ final public class Page implements IQContextContainer {
 		}
 		internalAddPendingBuild(n);
 
-		//-- Experimental fix for bug# 787: cannot locate error fence. Allow errors to be posted on disconnected nodes.
+		//-- Fix for bug# 787: cannot locate error fence. Allow errors to be posted on disconnected nodes.
 		UIMessage message = n.getMessage();
 		if(message != null) {
-			IErrorFence fence = DomUtil.getMessageFence(n); // Get the fence that'll handle the message by looking UPWARDS in the tree
+			IErrorFence fence = DomUtil.getMessageFence(n);		// Get the fence that'll handle the message by looking UPWARDS in the tree
 			fence.addMessage(message);
 		}
 	}
@@ -799,6 +800,12 @@ final public class Page implements IQContextContainer {
 
 	private NodeBase m_defaultFocusSource;
 
+	/** When a (sub)tree validation has started this holds the validation's start point, so that the validation can be repeated. */
+	private NodeBase m_validationSource;
+
+	/** When a (sub)tree validation has started this holds the action to run at the end of succesful validation. */
+	private IRunnable m_validationAction;
+
 	/**
 	 * Call all onShelve() handlers on all attached components.
 	 * @throws Exception
@@ -960,7 +967,6 @@ final public class Page implements IQContextContainer {
 	public NodeBase getDefaultFocusSource() {
 		return m_defaultFocusSource;
 	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Page action events.									*/

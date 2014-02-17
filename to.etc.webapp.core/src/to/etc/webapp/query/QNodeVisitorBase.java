@@ -53,6 +53,8 @@ abstract public class QNodeVisitorBase implements QNodeVisitor {
 	@Override
 	public void visitUnaryProperty(@Nonnull QUnaryProperty n) throws Exception {}
 
+	public void visitSqlRestriction(@Nonnull QSqlRestriction v) throws Exception {}
+
 	@Override
 	public void visitBetween(@Nonnull QBetweenNode n) throws Exception {
 		n.getA().visit(this);

@@ -62,9 +62,9 @@ public class TreeNodeModelBase<T extends ITreeNode<T>> implements ITreeModel<T> 
 		return m_listeners;
 	}
 
+	@Nonnull
 	@Override
-	public @Nonnull
-	T getChild(@Nullable T parent, int index) throws Exception {
+	public T getChild(@Nullable T parent, int index) throws Exception {
 		if(null == parent)
 			throw new IllegalArgumentException("Parent cannot be null");
 		return parent.getChild(index);

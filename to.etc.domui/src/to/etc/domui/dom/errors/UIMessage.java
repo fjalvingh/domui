@@ -29,7 +29,6 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.dom.html.*;
-import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
 
@@ -47,10 +46,12 @@ public class UIMessage {
 	private BundleRef m_bundle;
 
 	/** The error message code for the error that has occured. This exists always and is a lookup into the error NLS messages. */
+	@Nonnull
 	private String m_code;
 
 	/** The type of the message (error, warning, informational); this mainly defines whether actions continue, and it defines an icon to show. */
-	private MsgType m_type;
+	@Nonnull
+	final private MsgType m_type;
 
 	/** When set this is used in error messages as an indication of which input field contains the error. It usually contains the value for the "label" of the control. */
 	private String m_errorLocation;
@@ -75,7 +76,7 @@ public class UIMessage {
 	 * @param parameters
 	 */
 	@Deprecated
-	private UIMessage(NodeBase errorNode, String errorLocation, MsgType type, String code, Object[] parameters) {
+	private UIMessage(NodeBase errorNode, String errorLocation, @Nonnull MsgType type, @Nonnull String code, Object[] parameters) {
 		if(code == null)
 			throw new NullPointerException("Message code cannot be null");
 		if(type == null)
@@ -185,7 +186,7 @@ public class UIMessage {
 	}
 
 	@Nonnull
-	static public UIMessage error(UIException x) {
+	static public UIMessage error(@Nonnull CodeException x) {
 		return new UIMessage(null, null, MsgType.ERROR, x.getBundle(), x.getCode(), x.getParameters());
 	}
 

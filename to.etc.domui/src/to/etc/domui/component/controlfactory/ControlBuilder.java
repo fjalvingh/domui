@@ -218,14 +218,66 @@ public class ControlBuilder {
 	/**
 	 * Main workhorse which creates input controls for forms, from metadata.
 	 */
+	@Deprecated
 	@Nonnull
 	public ControlFactoryResult createControlFor(@Nonnull final IReadOnlyModel< ? > model, @Nonnull final PropertyMetaModel< ? > pmm, final boolean editable) {
 		PropertyControlFactory cf = getControlFactory(pmm, editable, null);
-		ControlFactoryResult res = cf.createControl(pmm, editable, null);
-		if(pmm.getActualType().isPrimitive())
-			res.getFormControl().setMandatory(true);							// 20130601 jal Primitives must have a value.
-		return res;
+		ControlFactory cf = getControlFactory(pmm, editable, null);
+		return cf.createControl(pmm, editable, null);
 	}
+
+	@Nonnull
+	public ControlFactoryResult createControlFor(@Nonnull final PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
+		ControlFactory cf = getControlFactory(pmm, editable, controlClass);
+		return cf.createControl(pmm, editable, controlClass);
+	}
+
+	/**
+	 *
+	 * @param <T>
+	 * @param controlClass
+	 * @param dataClass
+	 * @param propertyName
+	 * @param editableWhen
+	 * @return
+	 */
+	public <T> T createControl(@Nonnull Class<T> controlClass, @Nonnull Class< ? > dataClass, @Nonnull String propertyName, boolean editable) {
+		PropertyMetaModel< ? > pmm = MetaManager.getPropertyMeta(dataClass, propertyName); // Must exist or throws exception.
+		return createControl(controlClass, pmm, editable);
+	}
+
+	@Nonnull
+	static private final IReadOnlyModel<Object> DUMMY_MODEL = new IReadOnlyModel<Object>() {
+		@Override
+		public Object getValue() throws Exception {
+			throw new IllegalStateException("Should not ever call this");
+		}
+	};
+
+	/**
+	 *
+	 * @param <T>
+	 * @param controlClass
+	 * @param dataClass
+	 * @param pmm
+	 * @param editable
+	 * @return
+	 */
+	public <T> T createControl(@Nonnull Class<T> controlClass, @Nonnull PropertyMetaModel< ? > pmm, boolean editable) {
+		if(controlClass == null)
+			throw new IllegalArgumentException("controlClass cannot be null");
+		ControlFactory cf = getControlFactory(pmm, editable, null);
+		ControlFactoryResult r = cf.createControl(pmm, editable, controlClass);	// FIXME Bad, bad bug: I should be able to create a control without binding!!
+
+		//-- This must have generated a single control of the specified type, so check...
+		if(r.getNodeList().length != 1)
+			throw new IllegalStateException("The control factory "+cf+" created != 1 components for a find-control-for-class query");
+		NodeBase c = r.getNodeList()[0];
+		if(!controlClass.isAssignableFrom(controlClass))
+			throw new IllegalStateException("The control factory " + cf + " created a " + c + " which is NOT assignment-compatible with the requested class " + controlClass);
+		return (T) c;
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Creating all kinds of combo boxes.					*/

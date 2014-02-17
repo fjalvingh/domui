@@ -66,4 +66,8 @@ public interface QNodeVisitor {
 	void visitSubquery(@Nonnull QSubQuery< ? , ? > n) throws Exception;
 
 	public void visitPropertyJoinComparison(@Nonnull QPropertyJoinComparison qPropertyJoinComparison) throws Exception;
+
+	public void visitSelectionSubquery(QSelectionSubquery qSelectionSubquery) throws Exception;
+
+	public void visitSqlRestriction(@Nonnull QSqlRestriction v) throws Exception;
 }

@@ -47,6 +47,8 @@ abstract public class TabularComponentBase<T> extends TableModelTableBase<T> imp
 		super(model);
 	}
 
+	public TabularComponentBase() {}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Model/page changed listener code..					*/
 	/*--------------------------------------------------------------*/

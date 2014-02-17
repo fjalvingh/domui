@@ -28,17 +28,21 @@ import java.util.*;
 
 import javax.annotation.*;
 
+import to.etc.domui.databinding.*;
+import to.etc.domui.databinding.observables.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
 abstract public class TableModelTableBase<T> extends Div implements ITableModelListener<T> {
-	@Nonnull
+	@Nullable
 	private ITableModel<T> m_model;
 
 	protected TableModelTableBase(@Nonnull ITableModel<T> model) {
 		m_model = model;
 		model.addChangeListener(this);
 	}
+
+	public TableModelTableBase() {}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Model updates.										*/
@@ -48,7 +52,9 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 	 */
 	@Nonnull
 	public ITableModel<T> getModel() {
-		return m_model;
+		if(null != m_model)
+			return m_model;
+		throw new IllegalStateException("The table model has not been set.");
 	}
 
 	/**
@@ -74,7 +80,7 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 
 	@Nonnull
 	protected T getModelItem(int index) throws Exception {
-		List<T> res = m_model.getItems(index, index + 1);
+		List<T> res = getModel().getItems(index, index + 1);
 		if(res.size() == 0)
 			throw new IllegalStateException("Model did not return a row at index=" + index);
 		T val = res.get(0);
@@ -111,4 +117,31 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 	protected void firePageChanged() {}
 
 	protected void fireModelChanged(@Nullable ITableModel<T> old, @Nonnull ITableModel<T> model) {}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Experimental: using ObservableList as a value.		*/
+	/*--------------------------------------------------------------*/
+
+	public void setList(@Nonnull IObservableList<T> list) {
+		ITableModel<T> om = m_model;
+		if(om instanceof ObservableListModelAdapter< ? >) {
+			//-- Check if this is the same list, wrapped already.
+			ObservableListModelAdapter<T> oa = (ObservableListModelAdapter<T>) om;
+			if(oa.getSource() == list)							// Same list?
+				return;
+		}
+		ObservableListModelAdapter<T> ma = new ObservableListModelAdapter<T>(list);
+		setModel(ma);
+	}
+
+	@Nullable
+	public IObservableList<T> getList() {
+		ITableModel<T> om = getModel();
+		if(om instanceof ObservableListModelAdapter< ? >) {
+			ObservableListModelAdapter<T> oa = (ObservableListModelAdapter<T>) om;
+			return oa.getSource();
+		}
+		return null;
+	}
+
 }

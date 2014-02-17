@@ -329,6 +329,22 @@ public class QQueryRenderer implements QNodeVisitor {
 		}
 	}
 
+	@Override
+	public void visitSqlRestriction(@Nonnull QSqlRestriction v) throws Exception {
+		append("SQL['");
+		append(v.getSql());
+		append("'");
+		if(v.getParameters().length > 0) {
+			for(int i = 0; i < v.getParameters().length; i++) {
+				Object val = v.getParameters()[i];
+				append(", #" + i);
+				append("=");
+				append(String.valueOf(val));
+			}
+		}
+		append("]");
+	}
+
 	/**
 	 * Returns the operator precedence
 	 * @param ot

@@ -2562,7 +2562,6 @@ public class StringTool {
 		return NORMALIZE_PATTERN.matcher(nfdNormalizedString).replaceAll("");
 	}
 
-
 	static {
 		getJreVersion();
 		long val = System.currentTimeMillis() / 1000 / 60;
@@ -2655,4 +2654,5 @@ public class StringTool {
 		return getUtf8LengthInBytes(text) >= MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2;
 	}
 }
+
 

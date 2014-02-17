@@ -27,14 +27,22 @@ package to.etc.webapp.query;
 import javax.annotation.*;
 
 public class QPropertyComparison extends QOperatorNode {
-	private String m_property;
+	@Nonnull
+	final private String m_property;
 
-	private QOperatorNode m_expr;
+	@Nonnull
+	final private QOperatorNode m_expr;
 
-	public QPropertyComparison(QOperation operation, String property, QOperatorNode expr) {
+	public QPropertyComparison(@Nonnull QOperation operation, @Nonnull String property, @Nonnull QOperatorNode expr) {
 		super(operation);
 		m_property = property;
 		m_expr = expr;
+	}
+
+	@Override
+	@Nonnull
+	public QPropertyComparison dup() {
+		return new QPropertyComparison(getOperation(), getProperty(), getExpr().dup());
 	}
 
 	@Override
@@ -42,10 +50,12 @@ public class QPropertyComparison extends QOperatorNode {
 		v.visitPropertyComparison(this);
 	}
 
+	@Nonnull
 	public QOperatorNode getExpr() {
 		return m_expr;
 	}
 
+	@Nonnull
 	public String getProperty() {
 		return m_property;
 	}

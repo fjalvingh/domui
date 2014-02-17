@@ -520,10 +520,14 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 		return m_sortColumn;
 	}
 
-//	public boolean isSortDescending() {
-//		SimpleColumnDef< ? > sd = m_sortColumn;
-//		return sd == null ? false : sd.getSortable() == SortableType.SORTABLE_DESC;
-//	}
+	protected void updateDefaultSort(@Nonnull SimpleColumnDef< ? > scd) {
+		if(m_sortColumn == scd)
+			m_sortDescending = scd.getSortable() == SortableType.SORTABLE_DESC;
+	}
+
+	public boolean isSortDescending() {
+		return m_sortDescending;
+	}
 
 
 	/*--------------------------------------------------------------*/

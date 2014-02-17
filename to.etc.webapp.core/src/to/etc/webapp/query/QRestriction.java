@@ -177,9 +177,17 @@ public class QRestriction {
 		return new QUnaryProperty(QOperation.ISNOTNULL, property);
 	}
 
+	static public final QSqlRestriction sqlCondition(String sql) {
+		return new QSqlRestriction(sql, new Object[0]);
+	}
+
 	@Nonnull
-	static public final QUnaryNode sqlCondition(String sql) {
+	static public final QUnaryNode sqlCondition(@Nonnull String sql) {
 		return new QUnaryNode(QOperation.SQL, new QLiteral(sql));
+	}
+
+	static public final QSqlRestriction sqlCondition(@Nonnull String sql, @Nonnull Object[] param) {
+		return new QSqlRestriction(sql, param);
 	}
 
 	/**

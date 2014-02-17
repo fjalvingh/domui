@@ -633,6 +633,14 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 		throw new IllegalStateException("Correlated subqueries are not supported");
 	}
 
+	@Override
+	public void visitSqlRestriction(@Nonnull QSqlRestriction v) throws Exception {
+		//-- We do not yet support parameterized ones
+		if(v.getParameters().length != 0)
+			throw new QQuerySyntaxException("Parameterized literal SQL not supported");
+		appendWhere(v.getSql());
+	}
+
 	@Deprecated
 	@Override
 	public void visitSelectionSubquery(@Nonnull QSelectionSubquery qSelectionSubquery) throws Exception {

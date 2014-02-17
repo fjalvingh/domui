@@ -64,9 +64,10 @@ public class SourceLocator {
 				return sf;
 			} else {
 				//-- Found multiple- treat as NOTFOUND for now.
-				System.err.println("sourceViewer: got " + res.size() + " files named " + name);
-				m_sourceMap.put(name, NOT_FOUND);
-				return null;
+				System.err.println("sourceViewer: got " + res.size() + " files named " + name + ": " + res);
+				sf = new SourceFile(name, res.get(0), name);
+				m_sourceMap.put(name, sf);
+				return sf;
 			}
 		} finally {
 			try {

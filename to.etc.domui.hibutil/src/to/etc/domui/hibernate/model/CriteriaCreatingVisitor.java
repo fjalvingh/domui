@@ -955,6 +955,29 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	}
 
 	@Override
+	public void visitSqlRestriction(@Nonnull QSqlRestriction v) throws Exception {
+		if(v.getParameters().length == 0) {
+			m_last = Restrictions.sqlRestriction(v.getSql());
+			return;
+		}
+
+		//-- Parameterized SQL query -> convert to Hibernate types.
+		Type[] htar = new Type[v.getParameters().length];
+		for(int i = 0; i < v.getTypes().length; i++) {
+			Class< ? > c = v.getTypes()[i];
+			if(c == null)
+				throw new QQuerySyntaxException("Type array for SQLRestriction cannot contain null");
+			Type t = TypeFactory.basic(c.getName());
+			if(null == t) {
+				throw new QQuerySyntaxException("Type[" + i + "] in type array (a " + c + ") is not a proper Hibernate type");
+
+			}
+			htar[i] = t;
+		}
+		m_last = Restrictions.sqlRestriction(v.getSql(), v.getParameters(), htar);
+	}
+
+	@Override
 	public void visitUnaryProperty(final QUnaryProperty n) throws Exception {
 		String name = n.getProperty();
 		name = parseSubcriteria(name); // If this is a dotted name prepare a subcriteria on it.
@@ -1236,7 +1259,6 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 				break;
 			case PROPERTY:
 				m_lastProj = Projections.groupProperty(name);
-
 				break;
 			case ROWCOUNT:
 				m_lastProj = Projections.rowCount();

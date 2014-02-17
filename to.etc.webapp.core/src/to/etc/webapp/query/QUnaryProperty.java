@@ -35,6 +35,11 @@ public class QUnaryProperty extends QOperatorNode {
 	}
 
 	@Override
+	public QUnaryProperty dup() {
+		return new QUnaryProperty(getOperation(), getProperty());
+	}
+
+	@Override
 	public void visit(@Nonnull QNodeVisitor v) throws Exception {
 		v.visitUnaryProperty(this);
 	}

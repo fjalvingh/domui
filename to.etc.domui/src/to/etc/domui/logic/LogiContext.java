@@ -31,6 +31,10 @@ final public class LogiContext {
 	final private Map<Class< ? >, Map<Object, ILogic>> m_instanceMap = new HashMap<Class< ? >, Map<Object, ILogic>>();
 
 	@Nonnull
+	final private Map<Class< ? >, ILogic> m_allMap = new HashMap<Class< ? >, ILogic>();
+
+
+	@Nonnull
 	final private LogiModel m_model = new LogiModel();
 
 	@Nonnull
@@ -111,6 +115,39 @@ final public class LogiContext {
 		}
 
 		throw new ProgrammerErrorException("Could not create an instance of " + clz + ": constructor(LogiContext, " + instance.getClass().getName() + ") not found");
+	}
+
+	/**
+	 * Find an undecorating instance (all-xxxx instance) for logic.
+	 * @param clz
+	 * @param instance
+	 * @return
+	 * @throws Exception
+	 */
+	@Nonnull
+	public <L extends ILogic> L get(@Nonnull Class<L> clz) throws Exception {
+		//-- Already exists in this context?
+		ILogic il = m_allMap.get(clz);
+		if(null != il)
+			return (L) il;
+
+		//-- Nothing there. We need to create an instance.
+		for(Constructor< ? > c : clz.getConstructors()) {
+			Class< ? >[] formalar = c.getParameterTypes();						// We only accept constructor(LogiContext, T)
+			if(formalar.length != 1)
+				continue;
+			if(!formalar[0].isAssignableFrom(LogiContext.class))
+				continue;
+
+			//-- We got L(LogiContext). Instantiate the object using it.
+			L ni = (L) c.newInstance(this);
+			if(null == ni)
+				throw new IllegalStateException("Java sucks balls error");
+			m_allMap.put(clz, ni);
+			return ni;
+		}
+
+		throw new ProgrammerErrorException("Could not create an instance of " + clz + ": constructor(LogiContext) not found");
 	}
 
 	public <T> void addRoot(T root) {

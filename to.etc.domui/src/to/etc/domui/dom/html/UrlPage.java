@@ -31,6 +31,7 @@ import javax.annotation.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.layout.title.*;
 import to.etc.domui.component.misc.*;
+import to.etc.domui.databinding.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.logic.*;
 import to.etc.domui.logic.events.*;
@@ -51,6 +52,9 @@ import to.etc.webapp.query.*;
 public class UrlPage extends Div implements ILogiEventListener {
 	/** The title for the page in the head's TITLE tag. */
 	private String m_pageTitle;
+
+	@Nullable
+	private BindingContext m_bindingContext;
 
 	public UrlPage() {
 		setCssClass("ui-content");
@@ -136,6 +140,20 @@ public class UrlPage extends Div implements ILogiEventListener {
 	}
 
 	/**
+	 * EXPERIMENTAL Get the binding context for the page/module.
+	 * @return
+	 */
+	@Override
+	@Nonnull
+	public BindingContext getBindingContext() {
+		BindingContext bc = m_bindingContext;
+		if(null == bc) {
+			bc = m_bindingContext = new BindingContext();
+		}
+		return bc;
+	}
+
+	/**
 	 * EXPERIMENTAL Returns the business logic context for the current form.
 	 * @see to.etc.domui.dom.html.NodeBase#lc()
 	 */
@@ -146,8 +164,6 @@ public class UrlPage extends Div implements ILogiEventListener {
 		if(null == lc) {
 			lc = new LogiContext(getSharedContext());
 			getPage().getConversation().setAttribute(LogiContext.class.getName(), lc);
-			registerLogicListeners(lc);
-
 		}
 		return lc;
 	}
@@ -205,6 +221,4 @@ public class UrlPage extends Div implements ILogiEventListener {
 
 
 	}
-
-
 }
