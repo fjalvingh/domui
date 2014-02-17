@@ -21,7 +21,7 @@ public interface IObservableList<T> extends List<T>, IObservable<T, ListChangeEv
 	public Iterator<T> iterator();
 
 	@Override
-	public boolean add(@Nonnull T item);
+	public boolean add(T item);
 
 	@Override
 	@Nonnull

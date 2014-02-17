@@ -76,7 +76,7 @@ public class ObservablePropertyList<C, T> extends ListenerList<List<T>, ListValu
 	 * @see to.etc.domui.databinding.ListenerList#addChangeListener(to.etc.domui.databinding.IChangeListener)
 	 */
 	@Override
-	public synchronized void addChangeListener(IListValueChangeListener<T> listener) {
+	public synchronized void addChangeListener(@Nonnull IListValueChangeListener<T> listener) {
 		if(null == m_listEventAdapter) {
 			try {
 				//-- Do we have a value?
@@ -105,7 +105,7 @@ public class ObservablePropertyList<C, T> extends ListenerList<List<T>, ListValu
 	 */
 	private class ListEventAdapter implements IListChangeListener<T> {
 		@Override
-		public void handleChange(ListChangeEvent<T> event) throws Exception {
+		public void handleChange(@Nonnull ListChangeEvent<T> event) throws Exception {
 			ListValueChangeEvent<T> lvce = new ListValueChangeEvent<T>(ObservablePropertyList.this, event.getChanges());
 			fireEvent(lvce);									// Send the converted event.
 		}

@@ -94,8 +94,7 @@ public class DataTable<T> extends SelectableTabularComponent<T> implements ISele
 		super(m);
 	}
 
-	public DataTable() {
-	}
+	public DataTable() {}
 
 
 	/**

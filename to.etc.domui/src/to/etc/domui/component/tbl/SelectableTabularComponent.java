@@ -12,6 +12,8 @@ abstract public class SelectableTabularComponent<T> extends TabularComponentBase
 		super(model);
 	}
 
+	public SelectableTabularComponent() {}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Handling selections.								*/
 	/*--------------------------------------------------------------*/

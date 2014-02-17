@@ -30,6 +30,7 @@ public class ObservableListModelAdapter<T> implements ITableModel<T> {
 		return m_list;
 	}
 
+	@Nonnull
 	@Override
 	public List<T> getItems(int start, int end) throws Exception {
 		return m_list.subList(start, end);
@@ -41,7 +42,7 @@ public class ObservableListModelAdapter<T> implements ITableModel<T> {
 	}
 
 	@Override
-	public void addChangeListener(ITableModelListener<T> l) {
+	public void addChangeListener(@Nonnull ITableModelListener<T> l) {
 		if(m_lmap.containsKey(l))
 			return;
 		EvListener el = new EvListener(l);
@@ -50,7 +51,7 @@ public class ObservableListModelAdapter<T> implements ITableModel<T> {
 	}
 
 	@Override
-	public void removeChangeListener(ITableModelListener<T> l) {
+	public void removeChangeListener(@Nonnull ITableModelListener<T> l) {
 		EvListener el = m_lmap.remove(l);
 		if(null == el)
 			return;
@@ -72,25 +73,25 @@ public class ObservableListModelAdapter<T> implements ITableModel<T> {
 		 * @see to.etc.domui.databinding.IChangeListener#handleChange(to.etc.domui.databinding.IChangeEvent)
 		 */
 		@Override
-		public void handleChange(ListChangeEvent<T> event) throws Exception {
+		public void handleChange(@Nonnull ListChangeEvent<T> event) throws Exception {
 			event.visit(new IListChangeVisitor<T>() {
 				@Override
-				public void visitAdd(ListChangeAdd<T> l) throws Exception {
+				public void visitAdd(@Nonnull ListChangeAdd<T> l) throws Exception {
 					m_modelListener.rowAdded(ObservableListModelAdapter.this, l.getIndex(), l.getValue());
 				}
 
 				@Override
-				public void visitDelete(ListChangeDelete<T> l) throws Exception {
+				public void visitDelete(@Nonnull ListChangeDelete<T> l) throws Exception {
 					m_modelListener.rowDeleted(ObservableListModelAdapter.this, l.getIndex(), l.getValue());
 				}
 
 				@Override
-				public void visitModify(ListChangeModify<T> l) throws Exception {
+				public void visitModify(@Nonnull ListChangeModify<T> l) throws Exception {
 					m_modelListener.rowModified(ObservableListModelAdapter.this, l.getIndex(), l.getNewValue());
 				}
 
 				@Override
-				public void visitAssign(ListChangeAssign<T> assign) throws Exception {
+				public void visitAssign(@Nonnull ListChangeAssign<T> assign) throws Exception {
 					m_modelListener.modelChanged(ObservableListModelAdapter.this);
 				}
 			});

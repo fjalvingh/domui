@@ -34,7 +34,7 @@ public class ListChangeModify<E> extends ListChange<E> {
 	}
 
 	@Override
-	public void visit(IListChangeVisitor<E> visitor) throws Exception {
+	public void visit(@Nonnull IListChangeVisitor<E> visitor) throws Exception {
 		visitor.visitModify(this);
 	}
 }

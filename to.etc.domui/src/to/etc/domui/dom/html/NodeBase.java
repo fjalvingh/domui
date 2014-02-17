@@ -820,8 +820,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 			Page page = m_page;
 			if(parentId != null && page != null) {
 				String nid = base + "/" + calcid;
-				Page page = m_page;
-				if(null != page && page.isTestIDALlocated(nid)) {
+				if(page.isTestIDAllocated(nid)) {
 					m_calculatedTestIdBase = parentId + "_" + calcid;
 				} else {
 					m_calculatedTestIdBase = calcid;
@@ -858,10 +857,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		if(null == baseName)
 			return null;
 		String repeatId = getTestRepeatId();
-
-		Page page = m_page;
-		if(null == page)
-			throw new IllegalStateException("Page cannot be null");
 		return m_testID = page.allocateTestID(repeatId + baseName);
 	}
 

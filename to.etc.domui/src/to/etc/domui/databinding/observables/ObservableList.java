@@ -41,6 +41,7 @@ public class ObservableList<T> extends ListenerList<T, ListChangeEvent<T>, IList
 		return m_list.contains(o);
 	}
 
+	@Nonnull
 	@Override
 	public Iterator<T> iterator() {
 		return m_list.iterator();
@@ -57,7 +58,7 @@ public class ObservableList<T> extends ListenerList<T, ListChangeEvent<T>, IList
 	}
 
 	@Override
-	public boolean add(@Nonnull T e) {
+	public boolean add(T e) {
 		int indx = size();
 		boolean res = m_list.add(e);
 
@@ -167,6 +168,7 @@ public class ObservableList<T> extends ListenerList<T, ListChangeEvent<T>, IList
 		return m_list.hashCode();
 	}
 
+	@Nonnull
 	@Override
 	public T get(int index) {
 		return m_list.get(index);
@@ -223,6 +225,7 @@ public class ObservableList<T> extends ListenerList<T, ListChangeEvent<T>, IList
 		return m_list.listIterator(index);
 	}
 
+	@Nonnull
 	@Override
 	public List<T> subList(int fromIndex, int toIndex) {
 		return m_list.subList(fromIndex, toIndex);

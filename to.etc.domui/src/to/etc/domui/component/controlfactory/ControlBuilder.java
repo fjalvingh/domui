@@ -222,13 +222,12 @@ public class ControlBuilder {
 	@Nonnull
 	public ControlFactoryResult createControlFor(@Nonnull final IReadOnlyModel< ? > model, @Nonnull final PropertyMetaModel< ? > pmm, final boolean editable) {
 		PropertyControlFactory cf = getControlFactory(pmm, editable, null);
-		ControlFactory cf = getControlFactory(pmm, editable, null);
 		return cf.createControl(pmm, editable, null);
 	}
 
 	@Nonnull
 	public ControlFactoryResult createControlFor(@Nonnull final PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
-		ControlFactory cf = getControlFactory(pmm, editable, controlClass);
+		PropertyControlFactory cf = getControlFactory(pmm, editable, controlClass);
 		return cf.createControl(pmm, editable, controlClass);
 	}
 
@@ -266,7 +265,7 @@ public class ControlBuilder {
 	public <T> T createControl(@Nonnull Class<T> controlClass, @Nonnull PropertyMetaModel< ? > pmm, boolean editable) {
 		if(controlClass == null)
 			throw new IllegalArgumentException("controlClass cannot be null");
-		ControlFactory cf = getControlFactory(pmm, editable, null);
+		PropertyControlFactory cf = getControlFactory(pmm, editable, null);
 		ControlFactoryResult r = cf.createControl(pmm, editable, controlClass);	// FIXME Bad, bad bug: I should be able to create a control without binding!!
 
 		//-- This must have generated a single control of the specified type, so check...

@@ -48,7 +48,6 @@ import to.etc.template.*;
 import to.etc.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.ajax.renderer.json.*;
-import to.etc.webapp.core.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
 
@@ -577,7 +576,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		page.callRequestStarted();
 
 		NodeBase wcomp = null;
-		String wid = ctx.getRequest().getParameter("webuic");
+		String wid = ctx.getParameter("webuic");
 		if(wid != null) {
 			wcomp = page.findNodeByID(wid);
 			// jal 20091120 The code below was active but is nonsense because we do not return after generateExpired!?
@@ -610,7 +609,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		page.callRequestStarted();
 
 		NodeBase wcomp = null;
-		String wid = ctx.getRequest().getParameter("webuic");
+		String wid = ctx.getParameter("webuic");
 		if(wid != null) {
 			wcomp = page.findNodeByID(wid);
 		}
@@ -637,9 +636,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	final private JSONRegistry m_jsonRegistry = new JSONRegistry();
 
 	private void renderJsonLikeResponse(@Nonnull RequestContextImpl ctx, @Nonnull Object value) throws Exception {
-		HttpServletResponse response = ctx.getResponse();
-		response.setContentType("application/javascript");
-		Writer w = ctx.getOutputWriter();
+		Writer w = ctx.getOutputWriter("application/javascript", "utf-8");
 		if(value instanceof String) {
 			//-- String return: we'll assume this is a javascript response by itself.
 			w.write((String) value);

@@ -32,7 +32,6 @@ import javax.servlet.http.*;
 import to.etc.domui.server.*;
 import to.etc.domui.server.parts.*;
 import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
 import to.etc.util.*;
 import to.etc.webapp.core.*;
 
@@ -103,9 +102,7 @@ public class TempDirPart implements IUnbufferedPartFactory {
 		String mime = ServerTools.getMimeType(inside.getName());
 		if(null == mime)
 			mime = "application/octet-stream";
-		param.getResponse().setContentType(mime);
-		param.getResponse().setContentLength((int) inside.length());
-		OutputStream os = param.getResponse().getOutputStream();
+		OutputStream os = param.getRequestResponse().getOutputStream(mime, null, (int) inside.length());
 		InputStream is = new FileInputStream(inside);
 		try {
 			FileTool.copyFile(os, is);

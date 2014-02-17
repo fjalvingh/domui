@@ -145,11 +145,11 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 		return getLabels(input, max);
 	}
 
-	private List<T> getAvailableLabels() {
+	private List<T> getAvailableLabels() throws Exception {
 		return getLabels("", MAX_LABELS_IN_TOOLTIP);
 	}
 
-	private List<T> getLabels(String input, int max) {
+	private List<T> getLabels(String input, int max) throws Exception {
 		List<T> isl = m_search.findLike(input, max + m_labelList.size() + 1);
 		for(T tisl : m_labelList) {
 			isl.remove(tisl);					// Remove all that has been entered before
@@ -208,7 +208,7 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 	 * @throws Exception
 	 */
 	public void addItem(@Nonnull T instance) throws Exception {
-		addLabel(sel);										// Just add the thingy.
+		addLabel(instance);										// Just add the thingy.
 	}
 
 	public void setInstanceFactory(INew<T> instanceFactory) {
