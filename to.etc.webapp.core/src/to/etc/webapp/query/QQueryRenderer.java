@@ -91,8 +91,6 @@ public class QQueryRenderer implements QNodeVisitor {
 			} else
 				append("[unknown-table]");
 		}
-		if(qc.getRestrictions() != null)
-			append(" WHERE ");
 	}
 
 	@Override
