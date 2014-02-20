@@ -59,7 +59,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	private boolean m_multiSelectMode;
 
 	/** When T and the table has a multiselection model the checkboxes indicating selection will be rendered always, even when no selection has been made. */
-	private boolean m_showSelectionAlways;
+	private boolean m_showSelectionAlways = true;
 
 	/** When selecting, this is the last index that was used in a select click.. */
 	private int m_lastSelectionLocation = -1;
