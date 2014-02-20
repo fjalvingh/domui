@@ -36,6 +36,8 @@ final public class QContextManager {
 	/** The actual implementation handling all manager chores. */
 	static private IQContextManager m_instance;
 
+	static private Exception m_initLocation;
+
 	private QContextManager() {}
 
 	/**
@@ -44,8 +46,19 @@ final public class QContextManager {
 	 * @param cm
 	 */
 	static synchronized public void setImplementation(@Nonnull IQContextManager cm) {
-		if(m_instance != null)
-			throw new IllegalStateException("The QContextManager has already been used, setting a different implementation is no longer possible");
+		if(m_instance != null) {
+			System.err.println("qcm>>> Reinitialized, original was at:");
+			if(null != m_initLocation)
+				m_initLocation.printStackTrace();
+			else
+				System.err.println("UNKNOWN??");
+			throw new IllegalStateException("The QContextManager has already been used, setting a different implementation is no longer possible", m_initLocation);
+		}
+		try {
+			throw new RuntimeException("Initialized here");
+		} catch(Exception x) {
+			m_initLocation = x;
+		}
 		m_instance = cm;
 	}
 
@@ -56,8 +69,10 @@ final public class QContextManager {
 	 */
 	@Nonnull
 	static private synchronized IQContextManager instance() {
-		if(m_instance == null)
-			m_instance = new QDefaultContextManager();
+		if(m_instance == null) {
+			setImplementation(new QDefaultContextManager());
+		}
+
 		return m_instance;
 	}
 
