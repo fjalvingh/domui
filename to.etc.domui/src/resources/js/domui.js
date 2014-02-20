@@ -2937,31 +2937,25 @@ $.extend(WebUI, {
 	/*-- Printing support --*/
 	_frmIdCounter: 0,
 
-	backgroundPrint: function(url) {
-		if (jQuery.browser.msie) {
-			WebUI.documentPrintIE(url);
-		} else {
-			WebUI.documentPrint(url);
+	backgroundPrint : function(url) {
+		try {
+			var frmname = WebUI.priparePrintDiv(url);
+			WebUI.framePrint(frmname);
+		} catch (x) {
+			alert("Failed: " + x);
 		}
 	},
 
-	documentPrintIE: function(url) {
+	framePrint : function(frmname){
+		if (jQuery.browser.msie) {
+			WebUI.documentPrintIE(frmname);
+		} else {
+			WebUI.documentPrintNonIE(frmname);
+		}
+	},
+
+	documentPrintIE : function(frmname) {
 		try {
-			// Create embedded sizeless div to contain the iframe, invisibly.
-			var div = document.getElementById('domuiprif');
-			if(div)
-				div.innerHTML = "";
-			else {
-				div = document.createElement('div');
-				div.id = 'domuiprif';
-				div.className = 'ui-printdiv';
-				document.body.appendChild(div);
-			}
-
-			//-- Create an iframe loading the required thingy.
-			var frmname = "dmuifrm"+(WebUI._frmIdCounter++);		// Create unique name to circumvent ffox "print only once" bug
-			$(div).html('<iframe id="'+frmname+'" name="'+frmname+'" src="'+url+'">');
-
 			var frm = window.frames[frmname];
 			$("#"+frmname).load(function() {
 				try {
@@ -2980,23 +2974,8 @@ $.extend(WebUI, {
 		}
 	},
 
-	documentPrint: function(url) {
+	documentPrintNonIE : function(frmname) {
 		try {
-			// Create embedded sizeless div to contain the iframe, invisibly.
-			var div = document.getElementById('domuiprif');
-			if(div)
-				div.innerHTML = "";
-			else {
-				div = document.createElement('div');
-				div.id = 'domuiprif';
-				div.className = 'ui-printdiv';
-				document.body.appendChild(div);
-			}
-
-			//-- Create an iframe loading the required thingy.
-			var frmname = "dmuifrm"+(WebUI._frmIdCounter++);		// Create unique name to circumvent ffox "print only once" bug
-			$(div).html('<iframe id="'+frmname+'" name="'+frmname+'" src="'+url+'">');
-
 			var frm = window.frames[frmname];
 			$("#"+frmname).load(function() {
 				try {
@@ -3011,6 +2990,34 @@ $.extend(WebUI, {
 		} catch(x) {
 			alert("Failed: "+x);
 		}
+	},
+
+	priparePrintDiv : function(url){
+		// Create embedded sizeless div to contain the iframe, invisibly.
+		var div = document.getElementById('domuiprif');
+		if (div)
+			div.innerHTML = "";
+		else {
+			div = document.createElement('div');
+			div.id = 'domuiprif';
+			div.className = 'ui-printdiv';
+			document.body.appendChild(div);
+		}
+
+		// -- Create an iframe loading the required thingy.
+		var frmname = "dmuifrm" + (WebUI._frmIdCounter++); // Create unique
+															// name to
+															// circumvent
+															// ffox "print
+															// only once"
+															// bug
+		if($(url)){
+			$(div).html('<iframe id="' + frmname + '" name="' + frmname + '" src="' + url + '">');
+		} else {
+			//well, this is simple element printing, so we have some size limitations
+			$(div).html('<iframe id="' + frmname + '" name="' + frmname + '" width="1000px" height="1000px"/>');
+		}
+		return frmname;
 	},
 
 	/*-- Printing support for simple text messages. Parameter is id of input/textarea tag that contrains text to be printed out. --*/
