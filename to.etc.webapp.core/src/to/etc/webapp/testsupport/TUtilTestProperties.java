@@ -7,9 +7,16 @@ import java.util.*;
 import java.util.Date;
 
 import javax.annotation.*;
+import javax.annotation.concurrent.*;
 import javax.sql.*;
 
 import org.junit.*;
+import org.slf4j.*;
+import org.slf4j.bridge.*;
+
+import ch.qos.logback.classic.*;
+import ch.qos.logback.classic.joran.*;
+import ch.qos.logback.core.util.*;
 
 import to.etc.dbpool.*;
 import to.etc.dbutil.*;
@@ -163,6 +170,9 @@ public class TUtilTestProperties {
 		String db = System.getenv("VPTESTDB");
 		if(db != null)
 			return true;
+		db = System.getProperty("TESTDB");
+		if(null != db)
+			return true;
 		Properties p = findTestProperties();
 		if(p == null)
 			return false;
@@ -181,6 +191,9 @@ public class TUtilTestProperties {
 	static public String getDbString() {
 		String db = System.getenv("VPTESTDB");
 		if(db != null)
+			return db;
+		db = System.getProperty("TESTDB");
+		if(null != db)
 			return db;
 		Properties p = getTestProperties();
 		db = p.getProperty("database");
@@ -254,7 +267,7 @@ public class TUtilTestProperties {
 			m_gotLoginName = true;
 			m_viewpointLoginName = getTestProperties().getProperty("loginid");
 			if(m_viewpointLoginName == null)
-				m_viewpointLoginName = "VIEWPOINT";
+				m_viewpointLoginName = "VPC";								// jal 2014/02/11 Do not use "VIEWPOINT" since it has no rights at all and is not a real account
 			else if("ANONYMOUS".equalsIgnoreCase(m_viewpointLoginName))
 				m_viewpointLoginName = null;
 		}
@@ -311,6 +324,68 @@ public class TUtilTestProperties {
 			return;
 		m_connectionPool.setCommitDisabled(on);
 	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Initialize slf4j logger.							*/
+	/*--------------------------------------------------------------*/
+
+	@GuardedBy("class")
+	static private boolean m_loggingInitialized;
+
+	static synchronized public void initLogging() {
+		if(m_loggingInitialized)
+			return;
+		m_loggingInitialized = true;
+		String logconfig = getString("logconfig", null);
+		if(logconfig == null) {
+			logconfig = System.getProperty("domui.logconfig");
+		}
+		InputStream logStream = findLogConfig(logconfig);
+		try {
+			if(logStream != null) {
+				JoranConfigurator jc = new JoranConfigurator();
+				LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+				jc.setContext(lc);
+				lc.reset();
+				jc.getStatusManager().clear();
+				jc.doConfigure(logStream);
+				System.out.println("TUtilTestProperties: logging configured.");
+				StatusPrinter.printInCaseOfErrorsOrWarnings(lc);
+				SLF4JBridgeHandler.install();
+			}
+
+		} catch(Exception x) {
+			System.err.println("TUtilTestProperties: logging initialization failed with " + x);
+		}
+	}
+
+	@Nullable
+	static private InputStream findLogConfig(@Nullable String logconfig) {
+		if(logconfig != null) {
+			//-- Try to find this as a class-relative resource;
+			if(!logconfig.startsWith("/")) {
+				InputStream is = TUtilTestProperties.class.getResourceAsStream("/" + logconfig);
+				if(is != null) {
+					System.out.println("TUtilTestProperties: using user-specified logback config file from classpath-resource " + logconfig);
+					return is;
+				}
+			}
+
+			try {
+				File f = new File(logconfig);
+				if(f.exists() && f.isFile()) {
+					System.out.println("TUtilTestProperties: using logback logging configuration file " + f.getAbsolutePath());
+					return new FileInputStream(f);
+				}
+			} catch(Exception x) {}
+		}
+		InputStream is = TUtilTestProperties.class.getResourceAsStream("logback.xml");
+		if(is != null)
+			System.out.println("TUtilTestProperties: using internal logback.xml");
+		return is;
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Test logging using a LogSink.						*/

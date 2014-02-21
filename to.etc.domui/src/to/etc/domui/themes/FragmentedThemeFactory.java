@@ -120,6 +120,7 @@ public class FragmentedThemeFactory implements IThemeFactory {
 		//		ResourceDependencyList rdl = new ResourceDependencyList();
 		Map<String, Object> tmap = new HashMap<String, Object>(m_styleSet.getMap());
 		tmap.put("browser", BrowserVersion.parseUserAgent("Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0; .NET CLR 2.0.50727)"));
+		tmap.put("util", new ThemeCssUtils());
 
 		getFragments(sb, m_styleSet.getInheritanceStack(), ".frag.css", Check.CHECK, rdl, tmap);
 		m_stylesheet = sb.toString();
