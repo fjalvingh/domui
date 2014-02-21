@@ -293,6 +293,7 @@ final public class ColumnDefList implements Iterable<SimpleColumnDef> {
 			cd.setWidth(width);
 			cd.setCssClass(cssclass);
 			cd.setNowrap(nowrap);
+			cd.setDisplayLength(pmm.getDisplayLength());
 			if(sort != null) {
 				cd.setSortable(sort);
 				cd.setSortHelper(sortHelper);
