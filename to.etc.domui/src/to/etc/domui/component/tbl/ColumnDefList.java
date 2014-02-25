@@ -313,7 +313,8 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 		}
 	}
 
-	private <V, R> boolean defineFromExpandedItem(final String width, final IConverter<R> conv, final Class<R> convclz, final String caption, final String cssclass, final boolean nowrap, SortableType sort,
+	private <V, R> boolean defineFromExpandedItem(final String width, final IConverter<R> conv, final Class<R> convclz, final String caption, final String cssclass, final Boolean nowrap,
+		SortableType sort,
 		ICellClicked< ? > clickHandler, boolean defaultsort, ISortHelper sortHelper, final ExpandedDisplayProperty<V> xdp) {
 		if(xdp.getName() == null)
 			throw new IllegalStateException("All columns MUST have some name");
@@ -364,7 +365,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	}
 
 	private <V, R> void defineRendererProperty(final String property, final String width, final IConverter<R> conv, final Class<R> convclz, final String caption, final String cssclass,
-		final INodeContentRenderer< ? > nodeRenderer, final Class< ? > nrclass, final boolean nowrap, SortableType sort, ICellClicked< ? > clickHandler, boolean defaultsort, ISortHelper sortHelper,
+		final INodeContentRenderer< ? > nodeRenderer, final Class< ? > nrclass, final Boolean nowrap, SortableType sort, ICellClicked< ? > clickHandler, boolean defaultsort, ISortHelper sortHelper,
 		final PropertyMetaModel<V> pmm) {
 		final SimpleColumnDef<V> cd = new SimpleColumnDef<V>(this, pmm);
 		add(cd);
@@ -547,7 +548,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	@Nonnull
 	private <V> SimpleColumnDef<V> createColumnDef(@Nonnull PropertyMetaModel<V> pmm) {
 		SimpleColumnDef<V> scd = new SimpleColumnDef<V>(this, pmm);
-		scd.setNowrap(true);
+		scd.setNowrap(Boolean.TRUE);
 		add(scd);
 		return scd;
 	}
@@ -572,7 +573,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	public SimpleColumnDef<T> column() {
 		SimpleColumnDef<T> scd = new SimpleColumnDef<T>(this, m_rootClass);
 		add(scd);
-		scd.setNowrap(true);
+		scd.setNowrap(Boolean.TRUE);
 		return scd;
 	}
 

@@ -407,7 +407,7 @@ final public class SimpleColumnDef<T> {
 	 */
 	@Nonnull
 	public SimpleColumnDef<T> wrap() {
-		m_nowrap = false;
+		m_nowrap = Boolean.FALSE;
 		return this;
 	}
 
@@ -417,7 +417,7 @@ final public class SimpleColumnDef<T> {
 	 */
 	@Nonnull
 	public SimpleColumnDef<T> nowrap() {
-		m_nowrap = true;
+		m_nowrap = Boolean.TRUE;
 		return this;
 	}
 
