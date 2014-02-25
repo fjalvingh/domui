@@ -243,12 +243,12 @@ public class SmtpTransport {
 		MimeWriter hw = null;
 		if(null != msg.getHtmlBody()) {
 			//-- Start HTML section.
-			String cid= "<hdr//"+(hdrc++)+">";
+			String cid = "hdr//" + (hdrc++);
 			if(null == hw) {
-				hw = w.createSubMime("multipart/related", "start="+cid);
+				hw = w.createSubMime("multipart/related", "start=\"" + cid + "\"");
 			}
 			hw.partStart(false, "text/html", "charset=\"UTF-8\"");
-			hw.partHeader("Content-id", cid);
+			hw.partHeader("Content-id", "<" + cid + ">");
 			pw = hw.partWriter("UTF-8"); // The writer for this part's contents; also indicates end of header writing.
 			pw.append(msg.getHtmlBody()); // Just write raw string stream here.
 			pw.close();
