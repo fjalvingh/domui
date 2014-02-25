@@ -50,6 +50,8 @@ import to.etc.domui.component.meta.*;
 public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 	static public final String NOWRAP = SimpleColumnDef.NOWRAP;
 
+	static public final String WRAP = SimpleColumnDef.WRAP;
+
 	static public final String DEFAULTSORT = SimpleColumnDef.DEFAULTSORT;
 
 	static public final String NUMERIC = "$ui-numeric";

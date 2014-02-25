@@ -31,6 +31,7 @@ import javax.annotation.*;
 
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 
@@ -42,6 +43,8 @@ import to.etc.util.*;
  * Created on Dec 28, 2010
  */
 public class InternalParentTree extends Div {
+	private static final String PMS = ". Please make sure you use the latest plugin version always.";
+
 	private NodeBase m_touched;
 
 	private Div m_structure;
@@ -223,14 +226,50 @@ public class InternalParentTree extends Div {
 		}
 	}
 
+	@Nonnull
+	private String openableClassName(@Nonnull String str) {
+		return str.replace('.', '/').replaceAll("\\$.*", "");
+	}
+
 	protected void openSource(NodeBase clicked) {
 		NodeBase body = getPage().getBody();
 		remove();
 
 		//-- Get name for the thingy,
-		String name = clicked.getClass().getName().replace('.', '/') + ".java";
-		if(! openEclipseSource(name)) {
-			MsgBox.message(body, MsgBox.Type.WARNING, "I was not able to send an OPEN FILE command to Eclipse.. You need to have the Eclipse plugin running. Please see " + URL + " for details");
+		String name = openableClassName(clicked.getClass().getName()) + ".java";
+		openSourceWithWarning(body, name);
+	}
+
+	private void openSourceWithWarning(@Nonnull NodeBase body, @Nonnull String name) {
+		CommandResponse cr = openEclipseSource(name);
+
+		switch(cr.getType()){
+			case ERROR:
+				MsgBox.message(body, MsgBox.Type.ERROR, "Eclipse responded with an error to the 'open file' command: " + cr.getMessage() + PMS);
+				break;
+
+			case NOCONNECTION:
+				//-- No one responded.
+				if(isOldPortInUse()) {
+					MsgBox.message(body, MsgBox.Type.ERROR, "It looks like you are using an old version of the DomUI Plugin. Please update using Help -> Check for updates in Eclipse");
+				} else {
+					MsgBox.message(body, MsgBox.Type.ERROR, "It looks like you do not have the DomUI Eclipse plugin installed. Please see " + URL + " for installation details");
+				}
+				break;
+
+			case SUCCESS:
+				return;
+
+			case REFUSED:
+				if(isOldPortInUse()) {
+					MsgBox.message(body, MsgBox.Type.ERROR, "None of your running Eclipse instances wanted to open the page. It looks like " +	//
+						"you have at least one Eclipse installation that uses the old version of the plugin, which is not compatible. " + //
+						"Please update the DomUI plugin to the latest version using Help -> Check for updates in all your running Eclipses"); //
+				} else {
+					MsgBox.message(body, MsgBox.Type.ERROR, "An unexpected error has occurred: none of the running Eclipse installations " +	//
+							"recognized this web application. Please report this as a bug.");
+				}
+				break;
 		}
 	}
 
@@ -239,50 +278,194 @@ public class InternalParentTree extends Div {
 		remove();
 
 		//-- Get name for the thingy,
-		String name;
+		String name = openableClassName(ste.getClassName()) + ".java";
 		if(ste.getLineNumber() <= 0)
-			name = ste.getClassName().replace('.', '/') + ".java@" + ste.getMethodName();
+			name += "@" + ste.getMethodName();
 		else
-			name = ste.getClassName().replace('.', '/') + ".java#" + ste.getLineNumber();
-		if(!openEclipseSource(name)) {
-			MsgBox.message(body, MsgBox.Type.WARNING, "I was not able to send an OPEN FILE command to Eclipse.. You need to have the Eclipse plugin running. Please see " + URL + " for details");
-		}
+			name += "#" + ste.getLineNumber();
+		openSourceWithWarning(body, name);
 	}
 
 	static private final String URL = "http://www.domui.org/wiki/bin/view/Documentation/EclipsePlugin";
+
+	@Nonnull
+	private CommandResponse openEclipseSource(@Nonnull String name) {
+		File root = DomApplication.get().getAppFile("");
+		return openEclipseSource(root.toString(), name);
+	}
 
 	/**
 	 * Try to reach Eclipse on localhost and make it open the source for the specified class.
 	 * @param name
 	 * @return
 	 */
-	static public boolean openEclipseSource(String name) {
-		int port = DeveloperOptions.getInt("domui.eclipse", 5050); // Default Eclipse port is 5050.
+	@Nonnull
+	static public CommandResponse openEclipseSource(@Nonnull String webappRoot, @Nonnull String name) {
+		int nconnects = 0;
+		for(int port = 5051; port < 5060; port++) {
+			CommandResponse cr = tryPortCommand(port, webappRoot, name);
+
+			switch(cr.getType()){
+				case NOCONNECTION:
+					break;
+
+				case SUCCESS:
+					//-- It worked ;-)
+					return cr;
+
+				case ERROR:
+					//-- An eclipse did react but had a specific error. This means we FOUND the right handler but it was unable to execute the command.
+					return cr;
+
+				case REFUSED:
+					//-- That plugin did not want to handle our webapp.
+					nconnects++;
+					break;
+			}
+		}
+
+		//-- Nothing worked. Distill some meaning of why not.
+		System.out.println("DomUI: cannot connect to Eclipse on localhost ports 5051..5060. See " + URL);
+		if(nconnects > 0) {
+			return new CommandResponse(AnswerType.REFUSED, null);					// We had connects but all refused.
+		}
+		return new CommandResponse(AnswerType.NOCONNECTION, null);
+	}
+
+	static private boolean isOldPortInUse() {
 		Socket s = null;
-		OutputStream outputStream = null;
 		//		boolean connected = false;
 		try {
-			s = new Socket("127.0.0.1", port);
-			//			connected = true;
-			outputStream = s.getOutputStream();
-			String msg = "OPENFILE " + name;
-			outputStream.write(msg.getBytes("UTF-8"));
-			outputStream.close();
-			s.close();
+			s = new Socket("127.0.0.1", 5050);
 			return true;
 		} catch(Exception x) {
-			System.out.println("DomUI: cannot connect to Eclipse on localhost:" + port + ". Is the DomUI plugin running in Eclipse? See "+URL);
-			System.out.println("DomUI: the connect failed with " + x);
 			return false;
 		} finally {
 			try {
-				if(outputStream != null)
-					outputStream.close();
-			} catch(Exception x) {}
+				if(null != s)
+					s.close();
+			} catch(Exception x) {
+				//-- willfully ignore.
+			}
+		}
+	}
+
+	static private enum AnswerType {
+		NOCONNECTION, REFUSED, ERROR, SUCCESS
+	}
+
+	static private class CommandResponse {
+		@Nonnull
+		final private AnswerType m_type;
+
+		@Nullable
+		final private String m_message;
+
+		public CommandResponse(@Nonnull AnswerType type, @Nullable String message) {
+			m_type = type;
+			m_message = message;
+		}
+
+		@Nonnull
+		public String getMessage() {
+			return m_message;
+		}
+
+		@Nonnull
+		public AnswerType getType() {
+			return m_type;
+		}
+	}
+
+	/**
+	 * New-style command sending: send a SELECT [webapp] COMMAND url and wait for Eclipse to answer.
+	 * @param port
+	 * @param webappRoot
+	 * @param name
+	 * @return
+	 */
+	@Nonnull
+	static private CommandResponse tryPortCommand(int port, @Nonnull String webappRoot, @Nonnull String name) {
+		Socket s = null;
+		//		boolean connected = false;
+		try {
+			s = new Socket("127.0.0.1", port);
+		} catch(Exception x) {
+			System.out.println("DomUI: connect to Eclipse on socket "+port+" failed: "+x);
+			return new CommandResponse(AnswerType.NOCONNECTION, null);
+		}
+
+		//-- Send a command
+		OutputStream outputStream = null;
+		InputStream is = null;
+		try {
+			//			connected = true;
+			outputStream = s.getOutputStream();
+
+			StringBuilder sb = new StringBuilder();
+			sb.append("SELECT `");
+			sb.append(webappRoot);
+			sb.append("` OPENFILE `");
+			sb.append(name);
+			sb.append('`');
+			outputStream.write(sb.toString().getBytes("UTF-8"));
+			outputStream.write(0);
+			outputStream.flush();
+
+			//-- Read the response till EOF or error.
+			is = s.getInputStream();
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			byte[] buffer = new byte[512];
+			int szrd;
+			while(0 < (szrd = is.read(buffer))) {
+				//				System.out.println("data: " + szrd);
+				baos.write(buffer, 0, szrd);
+			}
+			//			System.out.println("data end = " + szrd);
+			baos.close();
+
+			String response = new String(baos.toByteArray(), "utf-8");
+			System.out.println("DomUI Eclipse: response=" + response);
+
+			//-- If response ends in lf strip it
+			while(response.length() > 0 && response.charAt(response.length() - 1) == '\n')
+				response = response.substring(0, response.length() - 1);
+
+			//-- Get 1st token in the response.
+			int pos = response.indexOf(' ');
+			String code, rest;
+			if(pos == -1) {
+				code = response;
+				rest = "";
+			} else {
+				code = response.substring(0, pos).trim();
+				rest = response.substring(pos + 1).trim();
+			}
+
+			if("SELECT-FAILED".equals(code)) {
+				return new CommandResponse(AnswerType.REFUSED, rest);
+			} else if("OK".equals(code)) {
+				return new CommandResponse(AnswerType.SUCCESS, rest);
+			} else if("ERROR".equals(code)) {
+				return new CommandResponse(AnswerType.ERROR, rest);
+			} else {
+				//-- Unknown response, but we have one -> treat as refused with a message.
+				return new CommandResponse(AnswerType.REFUSED, rest);
+			}
+		} catch(Exception x) {
+			System.out.println("DomUI: eclipse data exchange failed with " + x);
+			x.printStackTrace();
+
+			//-- We return refused, because this might not be the right eclipse anyway.
+			return new CommandResponse(AnswerType.REFUSED, x.toString());
+		} finally {
+			FileTool.closeAll(outputStream, is);
 			try {
 				if(s != null)
 					s.close();
 			} catch(Exception x) {}
 		}
 	}
+
+
 }

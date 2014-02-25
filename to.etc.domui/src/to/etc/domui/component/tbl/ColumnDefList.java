@@ -126,7 +126,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 		Class<R> convclz = null;
 		String caption = null;
 		String cssclass = null;
-		boolean nowrap = false;
+		Boolean nowrap = null;
 		SortableType sort = null;
 		ISortHelper sortHelper = null;
 		boolean defaultsort = false;
@@ -140,7 +140,9 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 					throw new IllegalArgumentException("Expecting a 'property' path expression, not a " + val);
 				property = (String) val;
 			} else if(SimpleColumnDef.NOWRAP == val) {
-				nowrap = true;
+				nowrap = Boolean.TRUE;
+			} else if(SimpleColumnDef.WRAP == val) {
+				nowrap = Boolean.FALSE;
 			} else if(SimpleColumnDef.DEFAULTSORT == val) {
 				defaultsort = true;
 			} else if(val instanceof String) {
@@ -161,7 +163,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 						cssclass = null;
 						nodeRenderer = null;
 						nrclass = null;
-						nowrap = false;
+						nowrap = null;
 						sort = null;
 						defaultsort = false;
 						sortHelper = null;
@@ -250,7 +252,8 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	 * @param defaultsort
 	 */
 	private <R> void internalAddProperty(final String property, final String width, final IConverter<R> conv, final Class<R> convclz,
-		final String caption, final String cssclass, final INodeContentRenderer< ? > nodeRenderer, final Class< ? > nrclass, final boolean nowrap, SortableType sort, ICellClicked< ? > clickHandler, boolean defaultsort,
+ final String caption, final String cssclass,
+		final INodeContentRenderer< ? > nodeRenderer, final Class< ? > nrclass, final Boolean nowrap, SortableType sort, ICellClicked< ? > clickHandler, boolean defaultsort,
  ISortHelper sortHelper) {
 		if(property == null)
 			throw new IllegalStateException("? property name is empty?!");
@@ -373,6 +376,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 		cd.setWidth(width);
 		cd.setCssClass(cssclass);
 		cd.setNowrap(nowrap);
+		cd.setDisplayLength(pmm.getDisplayLength());
 		if(sort != null) {
 			cd.setSortable(sort);
 			cd.setSortHelper(sortHelper);
