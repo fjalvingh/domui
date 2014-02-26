@@ -526,7 +526,8 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 			if(cssClass != null)
 				cell.addCssClass(cssClass);
 		}
-		if(cd.isNowrap() || cd.getDisplayLength() == 0)
+		Boolean nw = cd.isNowrap();
+		if((nw == null && cd.getDisplayLength() == 0) || (nw != null && nw.booleanValue()))
 			cell.setNowrap(true);
 
 		//-- If a cellclicked thing is present attach it to the td

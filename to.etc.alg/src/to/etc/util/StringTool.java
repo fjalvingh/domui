@@ -2653,6 +2653,23 @@ public class StringTool {
 	public static boolean isInvalidOracleLength(@Nonnull String text) {
 		return getUtf8LengthInBytes(text) >= MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2;
 	}
-}
 
+	/**
+	 * Checks if forwarded string can be parsed into an Integer.
+	 *
+	 * @param string
+	 * @return
+	 * @author jradovic
+	 */
+	public static boolean isInteger(@Nullable String string) {
+		if(null == string)
+			return false;
+		try {
+			Integer.parseInt(string);
+			return true;
+		} catch(Exception e) {
+			return false;
+		}
+	}
+}
 

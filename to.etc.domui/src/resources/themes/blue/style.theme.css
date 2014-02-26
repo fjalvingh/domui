@@ -2572,7 +2572,7 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	-moz-border-radius: 5px;
 	border-radius: 5px;
 	-webkit-border-radius: 5px;
-	border: 1px dotted #999;
+	border: 1px solid #4075db;
 	padding: 15px;
 }
 .ui-flare-error {
