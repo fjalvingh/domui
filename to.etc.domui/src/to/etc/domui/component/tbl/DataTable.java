@@ -742,19 +742,6 @@ public class DataTable<T> extends SelectableTabularComponent<T> implements ISele
 		}
 	}
 
-	public boolean isDisableClipboardSelection() {
-		return m_disableClipboardSelection;
-	}
-
-	public void setDisableClipboardSelection(boolean disableClipboardSelection) {
-		if(m_disableClipboardSelection == disableClipboardSelection)
-			return;
-		m_disableClipboardSelection = disableClipboardSelection;
-		if(isBuilt() && disableClipboardSelection) {
-			appendJavascript(JavascriptUtil.disableSelection(this)); // Needed to prevent ctrl+click in IE doing clipboard-select, because preventDefault does not work there of course.
-		}
-	}
-
 	@Nonnull
 	private Checkbox createSelectionCheckbox(@Nonnull final T rowInstance, @Nullable ISelectionModel<T> selectionModel) {
 		Checkbox cb = new Checkbox();
@@ -766,7 +753,7 @@ public class DataTable<T> extends SelectableTabularComponent<T> implements ISele
 			cb.setClicked(new IClicked2<Checkbox>() {
 				@Override
 				public void clicked(@Nonnull Checkbox clickednode, @Nonnull ClickInfo info) throws Exception {
-					selectionCheckboxClicked(rowInstance, clickednode.isChecked(), info);
+					selectionCheckboxClicked(rowInstance, clickednode.isChecked(), info, clickednode);
 				}
 			});
 		} else {
