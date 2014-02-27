@@ -31,7 +31,7 @@ final public class LogiContext {
 	final private Map<Class< ? >, Map<Object, ILogic>> m_instanceMap = new HashMap<>();
 
 	@Nonnull
-	final private Map<Class< ? >, IClassLogic> m_classMap = new HashMap<>();
+	final private Map<Class< ? >, Object> m_classMap = new HashMap<>();
 
 	@Nonnull
 	final private List<UIMessage> m_actionMessageList = new ArrayList<>();
@@ -64,7 +64,7 @@ final public class LogiContext {
 	 * @throws Exception
 	 */
 	@Nonnull
-	public <L extends IClassLogic> L get(@Nonnull Class<L> classClass) throws Exception {
+	public <L> L get(@Nonnull Class<L> classClass) throws Exception {
 		L logic = (L) m_classMap.get(classClass);
 		if(null == logic) {
 			Constructor<L> c;
