@@ -1,12 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry exported="true" kind="lib" path="guice-4.0-beta2.jar"/>
-	<classpathentry exported="true" kind="lib" path="guice-assistedinject-4.0-beta2.jar"/>
-	<classpathentry exported="true" kind="lib" path="guice-multibindings-4.0-beta2.jar"/>
-	<classpathentry exported="true" kind="lib" path="guice-persist-4.0-beta2.jar"/>
-	<classpathentry exported="true" kind="lib" path="guice-servlet-4.0-beta2.jar"/>
-	<classpathentry exported="true" kind="lib" path="guice-throwingproviders-4.0-beta2.jar"/>
-	<classpathentry exported="true" kind="lib" path="javax.inject.jar"/>
+	<classpathentry exported="true" kind="lib" path="guice-4.0-beta2.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry exported="true" kind="lib" path="guice-assistedinject-4.0-beta2.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry exported="true" kind="lib" path="guice-multibindings-4.0-beta2.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry exported="true" kind="lib" path="guice-persist-4.0-beta2.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry exported="true" kind="lib" path="guice-servlet-4.0-beta2.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry exported="true" kind="lib" path="guice-throwingproviders-4.0-beta2.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry exported="true" kind="lib" path="javax.inject.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
+	<classpathentry exported="true" kind="lib" path="aopalliance.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
