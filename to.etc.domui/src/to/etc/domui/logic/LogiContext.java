@@ -24,6 +24,9 @@ final public class LogiContext {
 	@Nonnull
 	final private QDataContext m_dc;
 
+	@Nullable
+	final ILogiInjector m_injector;
+
 	@Nonnull
 	final private Map<String, QDataContext> m_dataContextMap = new HashMap<>();
 
@@ -46,6 +49,13 @@ final public class LogiContext {
 	public LogiContext(@Nonnull QDataContext dataContext) {
 		m_dataContextMap.put(QContextManager.DEFAULT, dataContext);
 		m_dc = dataContext;
+		m_injector = null;
+	}
+
+	public LogiContext(@Nonnull QDataContext dataContext, @Nonnull ILogiInjector injector) {
+		m_dataContextMap.put(QContextManager.DEFAULT, dataContext);
+		m_dc = dataContext;
+		m_injector = injector;
 	}
 
 	/**
@@ -140,26 +150,42 @@ final public class LogiContext {
 	/*	CODING:	Error and action error events.						*/
 	/*--------------------------------------------------------------*/
 	/**
+	 * PENDING REMOVAL
 	 * Add a message to be displayed as the result of an "action". This message type is different from a "state" message: it is caused by an action
 	 * that needs to send some message, which is related to the action only and transient. This differs from messages that represent an error in the
 	 * current state of the model. Messages like these are usually displayed as a {@link MsgBox}.
 	 * @param m
 	 */
+	@Deprecated
 	public void addActionMessage(@Nonnull UIMessage m) {
 		m_actionMessageList.add(m);
 	}
 
+	/**
+	 * PENDING REMOVAL
+	 * @param listener
+	 */
+	@Deprecated
 	public void addEventListener(@Nonnull ILogiEventListener listener) {
 		m_eventListenerList.add(listener);
 	}
 
+	/**
+	 * PENDING REMOVAL
+	 * @param listener
+	 */
+	@Deprecated
 	public void removeEventListener(@Nonnull ILogiEventListener listener) {
 		m_eventListenerList.remove(listener);
 	}
 
+	/**
+	 * PENDING REMOVAL
+	 * @param listener
+	 */
+	@Deprecated
 	private void sendEvent(@Nonnull LogiEvent event) throws Exception {
 		for(ILogiEventListener lel : m_eventListenerList)
 			lel.logicEvent(event);
 	}
-
 }

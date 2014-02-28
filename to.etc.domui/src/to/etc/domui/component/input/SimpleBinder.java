@@ -212,6 +212,7 @@ public class SimpleBinder implements IBinder, ILogiEventListener {
 	 * update that thing we're bound to.
 	 * @see to.etc.domui.logic.events.ILogiEventListener#logicEvent(to.etc.domui.logic.events.LogiEvent)
 	 */
+	@Deprecated
 	@Override
 	public void logicEvent(@Nonnull LogiEvent event) throws Exception {
 		//-- If I just have a listener pass on the event to the listener.

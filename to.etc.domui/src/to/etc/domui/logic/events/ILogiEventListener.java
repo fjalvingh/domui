@@ -8,6 +8,7 @@ import javax.annotation.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Feb 14, 2013
  */
+@Deprecated
 public interface ILogiEventListener {
 	public void logicEvent(@Nonnull LogiEvent event) throws Exception;
 }
