@@ -24,6 +24,7 @@ final public class LogiContext {
 	@Nonnull
 	final private QDataContext m_dc;
 
+	/** If we're using a dependency injection framework this should be that framework's injector for logicontext classes. */
 	@Nullable
 	final ILogiInjector m_injector;
 
@@ -75,6 +76,11 @@ final public class LogiContext {
 	 */
 	@Nonnull
 	public <L> L get(@Nonnull Class<L> classClass) throws Exception {
+		ILogiInjector ij = m_injector;
+		if(null != ij) {
+			return ij.getInstance(classClass);
+		}
+
 		L logic = (L) m_classMap.get(classClass);
 		if(null == logic) {
 			Constructor<L> c;
@@ -138,6 +144,11 @@ final public class LogiContext {
 			L ni = (L) c.newInstance(this, instance);
 			if(null == ni)
 				throw new IllegalStateException("Cobol'74 exception: no nullities defined in 2014.");
+
+			ILogiInjector ij = m_injector;
+			if(null != ij) {
+				ij.injectMembers(ni);
+			}
 
 			cmap.put(key, ni);
 			return ni;
