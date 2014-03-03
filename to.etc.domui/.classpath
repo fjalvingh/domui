@@ -20,6 +20,5 @@
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/lib-jericho"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/bin-junit-4.11"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/lib-guice"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
