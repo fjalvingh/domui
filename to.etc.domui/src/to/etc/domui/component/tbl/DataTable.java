@@ -257,7 +257,10 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		//-- If we're in multiselect mode show the select boxes
 		if(m_multiSelectMode && sm != null) {
 			Checkbox cb = createSelectionCheckbox(value, sm);
-			cc.add(cb);
+			TD td = cc.add(cb);
+			if(cb.isReadOnly()) {
+				td.addCssClass("ui-cur-default");
+			}
 
 			boolean issel = sm.isSelected(value);
 			cb.setChecked(issel);
@@ -460,6 +463,9 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 			tr.add(0, td);
 
 			Checkbox cb = createSelectionCheckbox(instance, getSelectionModel());
+			if(cb.isReadOnly()) {
+				td.addCssClass("ui-cur-default");
+			}
 			td.add(cb);
 			cb.setChecked(false);
 		}
