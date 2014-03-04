@@ -731,6 +731,15 @@ public abstract class DomApplication {
 		addHeaderContributor(HeaderContributor.loadStylesheet("$js/jquery.wysiwyg.css"), -780);
 
 		/*
+		 * FIXME LF lf Look&Feel btadic STYLE DEBUGER
+		 * STYLE DEBUGER
+		 * FOR DEVELOPMENT ONLY
+		 * REMOVE IT AFTER LOOK AND FEEL PROJECTS
+		 */
+		addHeaderContributor(HeaderContributor.loadJavascript("$js/styleDebuger.js"), 10);
+
+
+		/*
 		 * FIXME: Delayed construction of components causes problems with components
 		 * that are delayed and that contribute. Example: tab pabel containing a
 		 * DateInput. The TabPanel gets built when header contributions have already
