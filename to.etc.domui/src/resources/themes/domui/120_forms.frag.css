@@ -20,7 +20,7 @@
 	padding: 0px 0px 0px 4px;
 }
 
-.ui-f-in input, .ui-f-in select{
+.ui-f-in input, .ui-f-in select, .ui-f-in .wysiwyg {
 	font: inherit;
 	margin-bottom: 2px;
 	margin-right: 2px;
