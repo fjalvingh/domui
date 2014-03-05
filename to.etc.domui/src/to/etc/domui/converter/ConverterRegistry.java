@@ -416,15 +416,15 @@ public class ConverterRegistry {
 		}
 	};
 
-
 	/**
 	 * Register a comparator for a given type.
 	 * @param valueClass
 	 * @param comp
 	 */
-	static synchronized public <T> void registerComparator(Class<T> valueClass, Comparator<T> comp) {
+	static synchronized public <T> void registerComparator(@Nonnull Comparator<T> comp, Class< ? >... valueClass) {
 		m_comparatorMap = new HashMap<Class< ? >, Comparator< ? >>(m_comparatorMap);
-		m_comparatorMap.put(valueClass, comp);
+		for(Class< ? > clz : valueClass)
+			m_comparatorMap.put(clz, comp);
 	}
 
 	static private synchronized Map<Class< ? >, Comparator< ? >> getComparatorMap() {
@@ -444,16 +444,35 @@ public class ConverterRegistry {
 	}
 
 	static public Comparator< ? > getComparator(@Nonnull ClassMetaModel cmm, @Nonnull String property, boolean descending) {
-		PropertyMetaModel<Object> pmm = (PropertyMetaModel<Object>) cmm.findProperty(property);
-		if(null == pmm)
-			throw new ProgrammerErrorException("The property '" + cmm + "." + property + "' is not known.");
+		String[] ar = property.split(";");
+		List<Comparator<Object>> all = new ArrayList<Comparator<Object>>();
+		for(String pn : ar) {
+			pn = pn.trim();
+			boolean desc = descending;
+			int pos = pn.indexOf(':');
+			if(pos > 0) {
+				String s = pn.substring(pos + 1);
+				pn = pn.substring(0, pos);
+				if("a".equalsIgnoreCase(s))
+					desc = false;
+				else if("d".equalsIgnoreCase(s))
+					desc = true;
+			}
 
-		//-- Get the actual data type, and get a comparator for that data type;
-		Comparator<Object> comp = (Comparator<Object>) findComparatorForType(pmm.getActualType());
-		if(null == comp) {
-			comp = DEFAULT_COMPARATOR;
+			PropertyMetaModel<Object> pmm = (PropertyMetaModel<Object>) cmm.findProperty(pn);
+			if(null == pmm)
+				throw new ProgrammerErrorException("The property '" + cmm + "." + property + "' is not known.");
+
+			//-- Get the actual data type, and get a comparator for that data type;
+			Comparator<Object> comp = (Comparator<Object>) findComparatorForType(pmm.getActualType());
+			if(null == comp) {
+				comp = DEFAULT_COMPARATOR;
+			}
+			all.add(new PropertyComparator<Object>(pmm, comp, descending));
 		}
-		return new PropertyComparator<Object>(pmm, comp, descending);
+		if(all.size() == 1)
+			return all.get(0);
+		return new CompoundComparator<Object>(all, false);
 	}
 
 	/**
@@ -480,6 +499,32 @@ public class ConverterRegistry {
 				return c;
 		}
 		return null;
+	}
+
+	static {
+		Comparator<Number> comp = new Comparator<Number>() {
+			@Override
+			public int compare(Number a, Number b) {
+				long res = a.longValue() - b.longValue();
+				if(res == 0)
+					return 0;
+				return res < 0 ? -1 : 1;
+			}
+		};
+		registerComparator(comp, Long.class, long.class, Integer.class, int.class, Short.class, short.class, Character.class, char.class);
+
+		Comparator<Number> comp2 = new Comparator<Number>() {
+			@Override
+			public int compare(Number a, Number b) {
+				double res = a.doubleValue() - b.doubleValue();
+				if(res == 0)
+					return 0;
+				return res < 0 ? -1 : 1;
+			}
+		};
+		registerComparator(comp2, Double.class, double.class, Float.class, float.class);
+
+
 	}
 
 	//	/**

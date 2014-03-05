@@ -84,10 +84,15 @@ div {
 .ui-content {
 	padding: <%= margins_main %> <%= margins_main %> 0px <%= margins_main %>;	/* Jal 20121214 bottom margin causes scrollbars with auto-height calculations. */
 }
+.ui-clickable {
+	cursor: pointer;
+}
+
 
 /*** HTML formatting ***/
 p {
 	margin: 5px 0px;
+	display: block;
 }
 h1, h2, h3, h4, h5 {
 	margin: 10px 0px 5px 0px;
@@ -125,10 +130,16 @@ li {
 code {
 	white-space: pre;
 	font-family: <%= fixed_font_family %>;
+	font-size: 11px;
+	background-color: #ddd;
+	display: block;
+	border: 1px dotted #000;
+	padding: 4px;
 }
-
-.ui-clickable {
-	cursor: pointer;
+b, strong {
+	font-weight: bold;
 }
-
+i, em {
+	font-style: italic;
+}
 

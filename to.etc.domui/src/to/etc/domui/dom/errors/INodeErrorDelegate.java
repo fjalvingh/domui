@@ -24,6 +24,8 @@
  */
 package to.etc.domui.dom.errors;
 
+import javax.annotation.*;
+
 
 /**
  * FIXME Bad name
@@ -41,12 +43,23 @@ public interface INodeErrorDelegate {
 	 *
 	 * @param message
 	 */
-	UIMessage setMessage(UIMessage msg);
+	UIMessage setMessage(@Nullable UIMessage msg);
 
 	/**
 	 * Remove this-component's "current" error message, if present.
 	 */
+	@Deprecated
 	void clearMessage();
 
+	@Nullable
 	UIMessage getMessage();
+
+	/**
+	 * When set, this means setMessage() will not broadcast the message to a message
+	 * fence. This gets set for hard binding, so that code can decide when/how to show
+	 * errors. It defaults to true.
+	 *
+	 * @param yes
+	 */
+	public void setMessageBroadcastEnabled(boolean yes);
 }

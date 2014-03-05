@@ -54,21 +54,26 @@ import to.etc.domui.util.janitor.*;
 public class AppSession implements HttpSessionBindingListener, IAttributeContainer {
 	static private final Logger LOG = LoggerFactory.getLogger(AppSession.class);
 
-	private DomApplication m_application;
+	@Nonnull
+	final private DomApplication m_application;
 
+	@Nonnull
 	final private Map<String, Object> m_objCache = new HashMap<String, Object>();
 
 	/**
 	 * Not-null if some other request is executing for this session. Prevent multi-user access
 	 * to shared variables.
 	 */
+	@Nullable
 	private Thread m_lockingThread;
 
+	@Nonnull
 	private Map<String, WindowSession> m_windowMap = new HashMap<String, WindowSession>();
 
+	@Nonnull
 	private Map<String, Object> m_attributeMap = Collections.EMPTY_MAP;
 
-	public AppSession(DomApplication da) {
+	public AppSession(@Nonnull DomApplication da) {
 		m_application = da;
 	}
 
@@ -87,6 +92,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	 * Questionable use.
 	 * @return
 	 */
+	@Nonnull
 	public DomApplication getApplication() {
 		return m_application;
 	}
@@ -184,7 +190,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 		}
 
 		for(WindowSession cm : map.values()) {
-			cm.destroyConversations();
+			cm.destroyWindow();
 			m_application.internalCallWindowSessionDestroyed(cm);
 		}
 	}
@@ -217,7 +223,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 		for(WindowSession cm : droplist) {
 			System.out.println("cm: dropping window session " + cm.getWindowID() + " due to timeout");
 			try {
-				cm.destroyConversations();
+				cm.destroyWindow();
 				m_application.internalCallWindowSessionDestroyed(cm);
 			} catch(Exception x) {
 				LOG.warn("Exception in destroyConversations", x);
@@ -229,11 +235,11 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	 * Create a new WindowSession. The thingy has a new, globally-unique ID.
 	 * @return
 	 */
+	@Nonnull
 	final public synchronized WindowSession createWindowSession() {
 		WindowSession cm = new WindowSession(this);
 		m_windowMap.put(cm.getWindowID(), cm);
-		if(!resurrectWindowSession(cm))
-			return null;
+		cm.internalTouched();
 		m_application.internalCallWindowSessionCreated(cm);
 		return cm;
 	}
@@ -245,7 +251,8 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	 * @param wid
 	 * @return
 	 */
-	final public synchronized WindowSession findWindowSession(final String wid) {
+	@Nullable
+	final public synchronized WindowSession findWindowSession(@Nonnull final String wid) {
 		WindowSession cm = m_windowMap.get(wid);
 		if(cm != null) {
 			cm.internalTouched();
@@ -259,10 +266,10 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	 * Marks the WindowSession as recently used, and cancels any obituary processing on it.
 	 * @param cm
 	 */
-	private synchronized boolean resurrectWindowSession(final WindowSession cm) {
+	private synchronized boolean resurrectWindowSession(@Nonnull final WindowSession cm) {
 		cm.internalTouched();
-		int tm = cm.getObituaryTimer(); // Obituary timer has started?
-		if(tm == -1) // Nope, nothing wrong
+		int tm = cm.getObituaryTimer();							// Obituary timer has started?
+		if(tm == -1)											// Nope, nothing wrong
 			return true;
 		cm.setObituaryTimer(-1);
 		boolean res = Janitor.getJanitor().cancelJob(tm);
@@ -334,11 +341,11 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 		if(LOG.isInfoEnabled())
 			LOG.info("session: destroying WindowSession=" + cm.getWindowID() + " because it's obituary was received.");
 		synchronized(this) {
-			if(cm.getObituaryTimer() == -1) // Was cancelled?
-				return; // Do not drop it then.
-			m_windowMap.remove(cm.getWindowID()); // Atomically remove the thingy.
+			if(cm.getObituaryTimer() == -1) 					// Was cancelled?
+				return; 										// Do not drop it then.
+			m_windowMap.remove(cm.getWindowID()); 				// Atomically remove the thingy.
 		}
-		cm.destroyConversations(); // Discard all of it's contents.
+		cm.destroyWindow();										// Discard all of it's contents.
 		m_application.internalCallWindowSessionDestroyed(cm);
 	}
 
@@ -394,6 +401,21 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 					x.printStackTrace();
 				}
 			}
+		}
+	}
+
+	/**
+	 * Saves this session's windows and their shelve stacks into the HttpSession allowing
+	 * a session to be "resurrected" after a development mode reload.
+	 *
+	 * @param httpSession
+	 */
+	synchronized void saveOldState(@Nonnull HttpSession httpSession) {
+		for(WindowSession ws : m_windowMap.values()) {
+			List<SavedPage> wl = ws.getSavedPageList();
+			SavedWindow sw = new SavedWindow(ws.getWindowID(), wl);
+			httpSession.setAttribute(ws.getWindowID(), sw);
+			System.out.println("appSession: saved " + sw);
 		}
 	}
 }

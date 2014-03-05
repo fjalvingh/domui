@@ -24,18 +24,14 @@
  */
 package to.etc.domui.dom.html;
 
-import java.util.*;
-
 import javax.annotation.*;
 
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.layout.title.*;
-import to.etc.domui.component.misc.*;
-import to.etc.domui.dom.errors.*;
+import to.etc.domui.databinding.*;
 import to.etc.domui.logic.*;
 import to.etc.domui.logic.events.*;
 import to.etc.domui.server.*;
-import to.etc.domui.util.*;
 import to.etc.webapp.query.*;
 
 
@@ -51,6 +47,9 @@ import to.etc.webapp.query.*;
 public class UrlPage extends Div implements ILogiEventListener {
 	/** The title for the page in the head's TITLE tag. */
 	private String m_pageTitle;
+
+	@Nullable
+	private BindingContext m_bindingContext;
 
 	public UrlPage() {
 		setCssClass("ui-content");
@@ -136,6 +135,20 @@ public class UrlPage extends Div implements ILogiEventListener {
 	}
 
 	/**
+	 * EXPERIMENTAL Get the binding context for the page/module.
+	 * @return
+	 */
+	@Override
+	@Nonnull
+	public BindingContext getBindingContext() {
+		BindingContext bc = m_bindingContext;
+		if(null == bc) {
+			bc = m_bindingContext = new BindingContext();
+		}
+		return bc;
+	}
+
+	/**
 	 * EXPERIMENTAL Returns the business logic context for the current form.
 	 * @see to.etc.domui.dom.html.NodeBase#lc()
 	 */
@@ -146,8 +159,6 @@ public class UrlPage extends Div implements ILogiEventListener {
 		if(null == lc) {
 			lc = new LogiContext(getSharedContext());
 			getPage().getConversation().setAttribute(LogiContext.class.getName(), lc);
-			registerLogicListeners(lc);
-
 		}
 		return lc;
 	}
@@ -160,51 +171,6 @@ public class UrlPage extends Div implements ILogiEventListener {
 	}
 
 	protected void registerLogicListeners(@Nonnull final LogiContext lc) {
-		lc.addActionMessageListener(new IMessageListener() {
-			@Override
-			public void actionMessages(@Nonnull List<UIMessage> msgl) {
-				StringBuilder sb = new StringBuilder();
-
-				MsgType maxt = MsgType.INFO;
-				for(UIMessage m: msgl) {
-					MsgType type = m.getType();
-					if(type.getOrder() > maxt.getOrder())
-						maxt = type;
-					if(sb.length() > 0)
-						sb.append("<br/>");
-					sb.append(m.getMessage());
-				}
-				MsgBox.Type t;
-				switch(maxt) {
-					default:
-						throw new IllegalStateException(maxt+": cannot map type");
-					case ERROR: t = MsgBox.Type.ERROR; break;
-					case INFO: t = MsgBox.Type.INFO; break;
-					case WARNING: t = MsgBox.Type.WARNING; break;
-				}
-
-				MsgBox.message(UrlPage.this, t, sb.toString());
-			}
-		});
 		lc.addEventListener(this);									// Pass all logi events to the entire page tree.
-
-		//-- Add phase listeners
-		getPage().addAfterRequestListener(new IExecute() {
-			@Override
-			public void execute() throws Exception {
-				lc.endPhase();
-			}
-		});
-
-		getPage().addBeforeRequestListener(new IExecute() {
-			@Override
-			public void execute() throws Exception {
-				lc.startPhase();
-			}
-		});
-
-
 	}
-
-
 }

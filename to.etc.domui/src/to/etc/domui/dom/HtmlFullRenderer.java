@@ -26,10 +26,13 @@ package to.etc.domui.dom;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
+import to.etc.domui.util.javascript.*;
 import to.etc.util.*;
 
 /**
@@ -44,6 +47,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 	/** The thingy responsible for rendering the tags, */
 	private HtmlTagRenderer m_tagRenderer;
 
+	@Nonnull
 	private IBrowserOutput m_o;
 
 	private IRequestContext m_ctx;
@@ -52,11 +56,18 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 
 	private boolean m_xml;
 
+	@Nonnull
 	private StringBuilder m_createJS = new StringBuilder();
 
+	/** Javascript state change calls. */
+	@Nonnull
 	private StringBuilder m_stateJS = new StringBuilder();
 
-	protected HtmlFullRenderer(HtmlTagRenderer tagRenderer, IBrowserOutput o) {
+	/** Builder wrapping the above. */
+	@Nonnull
+	private JavascriptStmt m_stateBuilder = new JavascriptStmt(m_stateJS);
+
+	protected HtmlFullRenderer(@Nonnull HtmlTagRenderer tagRenderer, @Nonnull IBrowserOutput o) {
 		//		m_browserVersion = tagRenderer.getBrowser();
 		m_tagRenderer = tagRenderer;
 		m_o = o;
@@ -87,6 +98,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		m_xml = xml;
 	}
 
+	@Nonnull
 	public IBrowserOutput o() {
 		return m_o;
 	}
@@ -102,18 +114,18 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 	@Override
 	public void visitNodeBase(NodeBase n) throws Exception {
 		n.build();
-		n.onBeforeFullRender(); // Do pre-node stuff,
+		n.onBeforeFullRender();									// Do pre-node stuff,
 		n.visit(getTagRenderer());
 		if(n.getCreateJS() != null)
 			m_createJS.append(n.getCreateJS());
-		n.renderJavascriptState(m_stateJS); // Append Javascript state to state buffer
+		n.internalRenderJavascriptState(m_stateBuilder);
 		if(!(n instanceof TextNode)) {
 			if(m_xml) {
 				if(!n.isRendersOwnClose()) {
 					getTagRenderer().renderEndTag(n);
 				}
 			} else
-				m_o.dec(); // 20080626 img et al does not dec()...
+				m_o.dec();										// 20080626 img et al does not dec()...
 		}
 		n.internalClearDelta();
 		checkForFocus(n);
@@ -155,16 +167,16 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 	@Override
 	public void visitNodeContainer(NodeContainer n) throws Exception {
 		n.build();
-		n.onBeforeFullRender(); // Do pre-node stuff,
+		n.onBeforeFullRender();								// Do pre-node stuff,
 
-		boolean indena = o().isIndentEnabled(); // jal 20090903 Save indenting request....
-		n.visit(getTagRenderer()); // Ask base renderer to render tag
+		boolean indena = o().isIndentEnabled();				// jal 20090903 Save indenting request....
+		n.visit(getTagRenderer());							// Ask base renderer to render tag
 		if(n.getCreateJS() != null)
 			m_createJS.append(n.getCreateJS());
-		n.renderJavascriptState(m_stateJS); // Append Javascript state to state buffer
+		n.internalRenderJavascriptState(m_stateBuilder);	// Append Javascript state to state buffer
 		visitChildren(n);
 		getTagRenderer().renderEndTag(n);
-		o().setIndentEnabled(indena); // And restore indenting if tag handler caused it to be cleared.
+		o().setIndentEnabled(indena);						// And restore indenting if tag handler caused it to be cleared.
 		n.internalClearDelta();
 		checkForFocus(n);
 	}
@@ -254,11 +266,13 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		o().closetag("link");
 	}
 
-	public void renderLoadJavascript(String path) throws Exception {
+	public void renderLoadJavascript(@Nonnull String path) throws Exception {
 		//-- render an app-relative url
 		o().tag("script");
 		o().attr("language", "javascript");
-		o().attr("src", ctx().getThemedPath(path));
+		if(!path.startsWith("http"))
+			path = ctx().getThemedPath(path);
+		o().attr("src", path);
 		o().endtag();
 		o().closetag("script");
 	}
@@ -329,7 +343,6 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		 * Render all attached Javascript in an onReady() function. This code will run
 		 * as soon as the body load has completed.
 		 */
-		StringBuilder sq = page.internalGetAppendedJS();
 		o().tag("script");
 		o().attr("language", "javascript");
 		o().endtag();
@@ -345,10 +358,12 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 			o().writeRaw(getCreateJS().toString());
 			//				o().text(m_createJS.toString());
 		}
-		if(sq != null) {
-			o().writeRaw(sq.toString());
-			//				o().text(sq.toString());
-		}
+		StringBuilder sb = m_page.internalFlushAppendJS();
+		if(null != sb)
+			o().writeRaw(sb);
+		sb = m_page.internalFlushJavascriptStateChanges();
+		if(null != sb)
+			o().writeRaw(sb);
 
 		/*
 		 * We need polling if we have any of the keep alive options on, or when there is an async request.
@@ -380,8 +395,8 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 	 * @return
 	 */
 	public StringBuilder getCreateJS() {
-		if(m_stateJS.length() > 0) { // Stuff present in state buffer too?
-			m_createJS.append(';'); // Always add after all create stuff
+		if(m_stateJS.length() > 0) { 							// Stuff present in state buffer too?
+			m_createJS.append(';');								// Always add after all create stuff
 			m_createJS.append(m_stateJS);
 			m_stateJS.setLength(0);
 		}

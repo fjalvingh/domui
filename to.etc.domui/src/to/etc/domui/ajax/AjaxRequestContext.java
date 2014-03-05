@@ -51,7 +51,11 @@ public class AjaxRequestContext implements IRpcCallContext {
 	}
 
 	private HttpServletResponse getResponse() {
-		return m_rctx.getResponse();
+		IRequestResponse rr = m_rctx.getRequestResponse();
+		if(rr instanceof HttpServerRequestResponse) {
+			return ((HttpServerRequestResponse) rr).getResponse();
+		}
+		throw new IllegalStateException("Cannot get response object from a " + rr);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -131,7 +135,7 @@ public class AjaxRequestContext implements IRpcCallContext {
 			IParameterProvider pp = new URLParameterProvider(m_rctx);
 			m_callHandler.executeSingleCall(this, pp, call, rf);
 		} catch(RpcException sx) {
-			sx.setUrl(getRctx().getRequest().getRequestURI());
+			sx.setUrl(getRctx().getRequestResponse().getRequestURI());
 			//			sx.setContext(this);
 			throw sx;
 		} finally {

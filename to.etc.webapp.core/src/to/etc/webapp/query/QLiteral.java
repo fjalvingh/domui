@@ -24,6 +24,10 @@
  */
 package to.etc.webapp.query;
 
+import javax.annotation.*;
+import javax.annotation.concurrent.*;
+
+@Immutable
 public class QLiteral extends QOperatorNode {
 	private Object m_value;
 
@@ -32,12 +36,17 @@ public class QLiteral extends QOperatorNode {
 		m_value = value;
 	}
 
+	@Override
+	public QLiteral dup() {
+		return this;							// QLiterals are immutable, hence return self.
+	}
+
 	public Object getValue() {
 		return m_value;
 	}
 
 	@Override
-	public void visit(QNodeVisitor v) throws Exception {
+	public void visit(@Nonnull QNodeVisitor v) throws Exception {
 		v.visitLiteral(this);
 	}
 }

@@ -37,7 +37,6 @@ import to.etc.domui.state.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.upload.*;
-import to.etc.webapp.core.*;
 
 /**
  * Represents a file upload thingy which handles ajaxy uploads. The basic model
@@ -305,7 +304,7 @@ public class FileUpload extends Div implements IUploadAcceptingComponent /* impl
 			((IValueChanged<FileUpload>) m_onValueChanged).onValueChanged(this);
 
 		//-- Render an optimal delta as the response,
-		ServerTools.generateNoCache(param.getResponse()); // Do not allow the browser to cache
+		param.getRequestResponse().setNoCache();
 		ApplicationRequestHandler.renderOptimalDelta(param, getPage());
 	}
 }

@@ -1,9 +1,6 @@
-/*
- * "blue" stylesheet properties.
- */
-font_family='Verdana, Geneva, "DejaVu Sans", sans-serif';
-//font_family='Verdana, Tahoma, helvetica, sans-serif';
-font_size="11px";
+// inherit('$themes/coretheme');
+font_family='Verdana, Tahoma, Arial, Bitstream Vera, Helvetica, sans-serif';
+font_size='12px';
 hdr_font_size="14px";
 
 fixed_font_family='Courier New, Courier, monospace';
@@ -20,6 +17,7 @@ button_height=24;
 
 defaultbutton_height=23;
 window_title_font_size='15px';
+defaultbutton_height=22;
 
 margins_main = '10px';
 

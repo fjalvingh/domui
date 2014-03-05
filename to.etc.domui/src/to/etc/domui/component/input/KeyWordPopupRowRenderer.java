@@ -51,7 +51,7 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 	private final ColumnDefList<T> m_columnList;
 
 	/*--------------------------------------------------------------*/
-	/*	CODING:	Simple renderer initialization && parameterisation	*/
+	/*	CODING:	Simple renderer initialization && parameterization	*/
 	/*--------------------------------------------------------------*/
 	/**
 	 * Create a renderer by handling the specified class and a list of properties off it.
@@ -117,12 +117,15 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 	 */
 	@Override
 	public void renderRow(final @Nonnull TableModelTableBase<T> tbl, final @Nonnull ColumnContainer<T> cc, final int index, final @Nonnull T instance) throws Exception {
-		if(m_rowClicked != null) {
+		final ICellClicked< ? > rowClicked = m_rowClicked;
+		if(rowClicked != null) {
 			cc.getTR().setClicked(new IClicked<TR>() {
 				@Override
 				@SuppressWarnings("unchecked")
 				public void clicked(final @Nonnull TR b) throws Exception {
-					((ICellClicked<T>) getRowClicked()).cellClicked(b, instance);
+					ICellClicked< ? > rowClicked = getRowClicked();
+					if(null != rowClicked)
+						((ICellClicked<T>) rowClicked).cellClicked(b, instance);
 				}
 			});
 			cc.getTR().addCssClass("ui-keyword-popup-row");
@@ -165,15 +168,17 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 		cell = cc.add((NodeBase) null); // Add the new row
 		cell.add(wrapDiv); // Add no-wrap div
 
-		if(null != cd.getContentRenderer()) {
-			((INodeContentRenderer<Object>) cd.getContentRenderer()).renderNodeContent(tbl, wrapDiv, colval, instance); // %&*(%&^%*&%&( generics require casting here
+		INodeContentRenderer< ? > contentRenderer = cd.getContentRenderer();
+		if(null != contentRenderer) {
+			((INodeContentRenderer<Object>) contentRenderer).renderNodeContent(tbl, wrapDiv, colval, instance); // %&*(%&^%*&%&( generics require casting here
 		} else {
 			String s;
 			if(colval == null)
 				s = null;
 			else {
-				if(cd.getPresentationConverter() != null)
-					s = ((IConverter<X>) cd.getPresentationConverter()).convertObjectToString(NlsContext.getLocale(), colval);
+				IObjectToStringConverter<X> presentationConverter = cd.getPresentationConverter();
+				if(presentationConverter != null)
+					s = ((IConverter<X>) presentationConverter).convertObjectToString(NlsContext.getLocale(), colval);
 				else
 					s = String.valueOf(colval);
 			}

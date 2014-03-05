@@ -31,13 +31,13 @@ public class HibernateLongSessionContextFactory extends AbstractHibernateContext
 		super(eventSet, sessionMaker, handlers);
 	}
 
-	public HibernateLongSessionContextFactory(QEventListenerSet eventSet, HibernateSessionMaker sessionMaker) {
-		super(eventSet, sessionMaker);
-	}
+//	public HibernateLongSessionContextFactory(QEventListenerSet eventSet, HibernateSessionMaker sessionMaker) {
+//		super(eventSet, sessionMaker);
+//	}
 
-	public HibernateLongSessionContextFactory(HibernateSessionMaker sessionMaker) {
-		super(sessionMaker);
-	}
+//	public HibernateLongSessionContextFactory(HibernateSessionMaker sessionMaker) {
+//		super(sessionMaker);
+//	}
 
 	/**
 	 * {@inheritDoc}

@@ -86,7 +86,7 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 		onAfterCreateContent();
 	}
 
-	protected boolean onBeforeCreateContent() {
+	protected boolean onBeforeCreateContent() throws Exception {
 		return true;
 	}
 

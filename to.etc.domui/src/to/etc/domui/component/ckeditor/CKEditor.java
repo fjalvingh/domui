@@ -214,7 +214,8 @@ public class CKEditor extends TextArea {
 	}
 
 	private void selectImage(@Nonnull RequestContextImpl ctx) throws Exception {
-		if(m_onDomuiImageClicked == null) {
+		IClicked<NodeBase> clicked = m_onDomuiImageClicked;
+		if(clicked == null) {
 			MsgBox.message(this, Type.ERROR, "No image picker is defined", new IAnswer() {
 				@Override
 				public void onAnswer(MsgBoxButton result) throws Exception {
@@ -222,12 +223,13 @@ public class CKEditor extends TextArea {
 				}
 			});
 		} else {
-			m_onDomuiImageClicked.clicked(this);
+			clicked.clicked(this);
 		}
 	}
 
 	private void oddChars(@Nonnull RequestContextImpl ctx) throws Exception {
-		if(m_onDomuiOddCharsClicked == null) {
+		IClicked<NodeBase> clicked = m_onDomuiOddCharsClicked;
+		if(clicked == null) {
 			//if no other handler is specified we show framework default OddCharacters dialog
 			OddCharacters oddChars = new OddCharacters();
 			oddChars.setOnClose(new IWindowClosed() {
@@ -239,7 +241,7 @@ public class CKEditor extends TextArea {
 			});
 			getPage().getBody().add(oddChars);
 		} else {
-			m_onDomuiOddCharsClicked.clicked(this);
+			clicked.clicked(this);
 		}
 	}
 

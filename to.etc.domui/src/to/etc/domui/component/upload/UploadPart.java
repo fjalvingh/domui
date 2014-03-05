@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.upload;
 
+import javax.annotation.*;
+
 import to.etc.domui.parts.*;
 import to.etc.domui.server.*;
 import to.etc.domui.server.parts.*;
@@ -36,7 +38,7 @@ import to.etc.domui.server.parts.*;
  */
 public class UploadPart implements IUnbufferedPartFactory {
 	@Override
-	public void generate(DomApplication app, String rurl, RequestContextImpl param) throws Exception {
+	public void generate(@Nonnull DomApplication app, @Nonnull String rurl, @Nonnull RequestContextImpl param) throws Exception {
 		try {
 			ComponentPartRenderer r = new ComponentPartRenderer();
 			r.initialize(app, param, rurl);

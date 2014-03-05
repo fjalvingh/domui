@@ -11,6 +11,7 @@ import to.etc.domui.component.layout.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.fd.*;
 import to.etc.domui.server.*;
 import to.etc.domui.themes.*;
 import to.etc.domui.trouble.*;
@@ -19,6 +20,7 @@ import to.etc.domuidemo.components.*;
 import to.etc.domuidemo.db.*;
 import to.etc.domuidemo.pages.*;
 import to.etc.domuidemo.sourceviewer.*;
+import to.etc.formbuilder.pages.*;
 import to.etc.util.*;
 import to.etc.webapp.query.*;
 
@@ -100,7 +102,7 @@ public class Application extends DomApplication {
 	}
 
 	void onNewPage(final UrlPage p) throws Exception {
-		if(p instanceof SourcePage)
+		if(p instanceof SourcePage || p instanceof FormDesigner)
 			return;
 
 		if(null != DomUtil.findComponentInTree(p, BreadCrumb.class))

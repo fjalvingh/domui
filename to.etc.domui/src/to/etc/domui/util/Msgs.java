@@ -59,6 +59,8 @@ public interface Msgs {
 
 	public static final String UI_VALIDATION_FAILED = "ui.validation.failed";
 
+	public static final String UI_VALIDATION_INTERRUPTED = "ui.validation.wait";
+
 	//# Control texts
 	/** Page x of y */
 	public static final String UI_PAGER_TEXT = "ui.pagertext";
@@ -154,6 +156,8 @@ public interface Msgs {
 
 	/** Alle zoekvelden zijn leeg; vul minimaal een veld in om een zoekopdracht te doen. */
 	public static final String V_MISSING_SEARCH = "v.missing.search";
+
+	public static final String V_BAD_DURATION = "v.bad.duration";
 
 	/** Invalid monetary amount */
 	public static final String V_BAD_AMOUNT = "v.bad.amount";

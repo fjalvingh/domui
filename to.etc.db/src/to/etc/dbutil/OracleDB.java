@@ -640,7 +640,6 @@ public class OracleDB extends BaseDB {
 
 			ts = System.currentTimeMillis() - ts;
 			LOG.info(owner + ": created " + ct + " public synonyms in " + DbPoolUtil.strMillis(ts));
-//			System.out.println(owner + ": created " + ct + " public synonyms in " + StringTool.strDurationMillis(ts));
 		} catch(Exception x) {
 			System.out.println(owner + ": exception while trying to create missing synonyms: " + x);
 			LOG.error(owner + ": exception while trying to create missing synonyms: " + x);

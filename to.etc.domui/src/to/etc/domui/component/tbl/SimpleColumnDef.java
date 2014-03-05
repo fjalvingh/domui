@@ -109,18 +109,18 @@ final public class SimpleColumnDef<T> {
 
 	/**
 	 * Create a column definition using metadata for the column.
-	 * @param m
+	 * @param pmm
 	 */
-	public SimpleColumnDef(@Nonnull ColumnDefList< ? > cdl, @Nonnull PropertyMetaModel<T> m) {
+	public SimpleColumnDef(@Nonnull ColumnDefList< ? > cdl, @Nonnull PropertyMetaModel<T> pmm) {
 		m_defList = cdl;
-		m_columnType = m.getActualType();
-		setColumnLabel(m.getDefaultLabel());
-		setValueTransformer(m); // Thing which can obtain the value from the property
-		setPresentationConverter(ConverterRegistry.findBestConverter(m));
-		setSortable(m.getSortable());
-		setPropertyName(m.getName());
-		setNumericPresentation(m.getNumericPresentation());
-		if(m.getNowrap() == YesNoType.YES)
+		m_columnType = pmm.getActualType();
+		setColumnLabel(pmm.getDefaultLabel());
+		setValueTransformer(pmm); 								// Thing which can obtain the value from the property
+		setPresentationConverter(ConverterRegistry.findBestConverter(pmm));
+		setSortable(pmm.getSortable());
+		setPropertyName(pmm.getName());
+		setNumericPresentation(pmm.getNumericPresentation());
+		if(pmm.getNowrap() == YesNoType.YES)
 			setNowrap(Boolean.TRUE);
 	}
 
@@ -128,9 +128,9 @@ final public class SimpleColumnDef<T> {
 		m_defList = cdl;
 		m_columnType = m.getActualType();
 		setColumnLabel(m.getDefaultLabel());
-		setValueTransformer(m); // Thing which can obtain the value from the property
+		setValueTransformer(m); 								// Thing which can obtain the value from the property
 		setPresentationConverter(m.getBestConverter());
-		setSortable(SortableType.UNSORTABLE); // FIXME From meta pls
+		setSortable(SortableType.UNSORTABLE); 					// FIXME From meta pls
 		setSortable(m.getSortable());
 		setPropertyName(m.getName());
 		if(m.getName() == null)
@@ -150,6 +150,14 @@ final public class SimpleColumnDef<T> {
 
 	public void setColumnLabel(@Nullable String columnLabel) {
 		label(columnLabel);
+	}
+
+	<R> T getColumnValue(@Nonnull R instance) throws Exception {
+		IValueTransformer<T> valueTransformer = getValueTransformer();
+		if(valueTransformer == null)
+			return (T) instance;
+		else
+			return valueTransformer.getValue(instance);
 	}
 
 	@Nonnull
@@ -207,7 +215,7 @@ final public class SimpleColumnDef<T> {
 	}
 
 	@Nullable
-	public INodeContentRenderer< ? > getContentRenderer() {
+	public INodeContentRenderer<T> getContentRenderer() {
 		return m_contentRenderer;
 	}
 

@@ -1,13 +1,13 @@
 package to.etc.domuidemo.pages;
 
-import to.etc.domui.component.layout.*;
-import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.fd.*;
 import to.etc.domui.state.*;
 import to.etc.domuidemo.pages.basic.*;
+import to.etc.domuidemo.pages.binding.*;
+import to.etc.domuidemo.pages.binding.tbl.*;
 import to.etc.domuidemo.pages.formbuilder.*;
 import to.etc.domuidemo.pages.graphs.*;
-import to.etc.domuidemo.pages.overview.*;
 import to.etc.domuidemo.pages.overview.agenda.*;
 import to.etc.domuidemo.pages.overview.buttons.*;
 import to.etc.domuidemo.pages.overview.delayed.*;
@@ -19,27 +19,34 @@ import to.etc.domuidemo.pages.overview.layout.*;
 import to.etc.domuidemo.pages.overview.lookup.*;
 import to.etc.domuidemo.pages.overview.menu.*;
 import to.etc.domuidemo.pages.overview.misc.*;
-import to.etc.domuidemo.pages.overview.tbl.*;
 import to.etc.domuidemo.pages.overview.tree.*;
 import to.etc.domuidemo.sourceviewer.*;
+import to.etc.formbuilder.pages.*;
 
-public class HomePage extends UrlPage {
+public class HomePage extends MenuPage {
 	public HomePage() {
-		setPageTitle("Component Overview - DomUI");
+		super("Component Overview - DomUI");
 	}
 
 	@Override
 	public void createContent() throws Exception {
-		addCssClass("home-page");
-		InfoPanel ip = new InfoPanel("Welcome to the DomUI demo application! This application has simple examples of many of the components. It also has some code "
+		setCssClass("ui-content");
+		Div ip = new Div();
+		add(ip);
+		ip.setCssClass("ui-expl");
+		Img i = new Img("THEME/big-info.png");
+		i.setAlign(ImgAlign.LEFT);
+		ip.add(i);
+		String text = "Welcome to the DomUI demo application! This application has simple examples of many of the components. It also has some code "
 			+ "from the tutorial. Use it to get "
 			+ "an idea on what is possible with DomUI, and how easy it is! Click the links to go to a page, and when done use the \"breadcrumbs\" in the "
 			+ "bar on top of the screen to return back to where you came from."
  + "<br><br>Please keep in mind: the examples here have been made as <b>simple as possible</b>. " //
 			+ "Which means that the code is quite verbose sometimes. That is not how it usually is, of course, " //
 			+ "it is done that way to make 'how it works' as clear as possible."
-);
-		add(ip);
+;
+		ip.add(text);
+
 		Div d = new Div();
 		ip.add(d);
 		//		d.setCssClass("d-expl");
@@ -86,16 +93,7 @@ public class HomePage extends UrlPage {
 		addLink(GraphPage.class, "DOES NOT YET WORK- Pie chart using a dynamic image/JChart");
 
 		addCaption("Tables");
-		addLink(DemoTableModel.class, "Using a DataTable and a simple ITableModel implementation");
-
-		addLink(DatabaseSchemaExpl.class, "Explanation of the database schema for database examples");
-		addLink(DemoDataTable.class, "The DataTable component and SimpleSearchModel: simplest use");
-		addLink(DemoDataPager.class, "The DataPager component");
-		addLink(DemoRowRenderer1.class, "Using the BasicRowRenderer, part 1");
-		addLink(DemoRowRenderer2.class, "Using the BasicRowRenderer with an INodeContentRenderer");
-		addLink(DemoDataTable2.class, "DataTable: making rows clickable");
-		addLink(DemoTableSelect.class, "DataTable: adding select row(s) functionality with ISelectionModel");
-		addLink(DemoSortableListTable.class, "DataTable: using a List<> with sorting");
+		addLink(TableMenuPage.class, "Data tables, row renderers and ITableModels.");
 
 		addCaption("Trees");
 		addLink(DemoTree.class, "The tree component - file system tree, lazily loaded, and file type icons");
@@ -109,36 +107,17 @@ public class HomePage extends UrlPage {
 		addLink(DemoLookupForm2.class, "LookupForm with LookupInput for a many-to-one relation, and search-as-you-type");
 
 		addLink(SimpleForm1.class, "The FormBuilder - very simple edit page");
+		addLink(FormDesigner.class, "Form designer - work in progress");
 
 		addCaption("Special components");
 		addLink(DemoWeekAgenda.class, "The WeekAgenda");
 		addLink(DemoAsyncContainer.class, "The AsyncContainer");
 		addLink(DemoPollingDiv.class, "The PollingDiv component");
 		addLink(DemoPopupMenu.class, "Popup menu");
-	}
 
-	private void addCaption(String txt) {
-		add(new Caption(txt));
-	}
+		addCaption("Binding");
+		addLink(BindingBasePage.class, "Basic data binding");
+		addLink(DemoObservableListPage.class, "Database relation IObservableList binding");
 
-	private void addLink(Class< ? extends UrlPage> clz, String text) {
-		addLink(clz, text, false);
-	}
-
-	private void addLink(Class< ? extends UrlPage> clz, String text, boolean nw) {
-		Div d = new Div();
-		add(d);
-		ALink link = new ALink(clz);
-		d.add(link);
-		link.setText(text);
-
-		ALink link2 = new ALink(SourcePage.class, new PageParameters("name", clz.getName().replace('.', '/') + ".java"));
-		d.add("\u00a0");
-		d.add(link2);
-		Img si = new Img("img/java.png");
-		link2.add(si);
-		link2.setTitle("View sourcefile");
-		if(nw)
-			d.add(new Img("img/aniNew.gif"));
 	}
 }

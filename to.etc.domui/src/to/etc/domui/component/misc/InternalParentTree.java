@@ -94,9 +94,12 @@ public class InternalParentTree extends Div {
 			String nn = nb.getClass().getName();
 			if(nn.startsWith("to.etc.domui.dom.")) {
 				icon = "iptHtml.png";
+				td.setTitle("HTML Node");
 			} else if(nb instanceof UrlPage) {
 				icon = "iptPage.png";
+				td.setTitle("DomUI Page");
 			} else {
+				td.setTitle("DomUI Component");
 				icon = "iptComponent.png";
 			}
 			td.add(new Img("THEME/" + icon));
@@ -242,36 +245,44 @@ public class InternalParentTree extends Div {
 
 	private void openSourceWithWarning(@Nonnull NodeBase body, @Nonnull String name) {
 		CommandResponse cr = openEclipseSource(name);
+		if(cr.getType() == AnswerType.SUCCESS)
+			return;
 
+		String message = getResponseMessage(cr);
+		MsgBox.message(body, MsgBox.Type.ERROR, message);
+	}
+
+	@Nonnull
+	static public String getResponseMessage(@Nonnull CommandResponse cr) {
 		switch(cr.getType()){
+			default:
+				throw new IllegalStateException("Missing case: " + cr.getType());
 			case ERROR:
-				MsgBox.message(body, MsgBox.Type.ERROR, "Eclipse responded with an error to the 'open file' command: " + cr.getMessage() + PMS);
-				break;
+				return "Eclipse responded with an error to the 'open file' command: " + cr.getMessage() + PMS;
 
 			case NOCONNECTION:
 				//-- No one responded.
 				if(isOldPortInUse()) {
-					MsgBox.message(body, MsgBox.Type.ERROR, "It looks like you are using an old version of the DomUI Plugin. Please update using Help -> Check for updates in Eclipse");
+					return "It looks like you are using an old version of the DomUI Plugin. Please update using Help -> Check for updates in Eclipse";
 				} else {
-					MsgBox.message(body, MsgBox.Type.ERROR, "It looks like you do not have the DomUI Eclipse plugin installed. Please see " + URL + " for installation details");
+					return "It looks like you do not have the DomUI Eclipse plugin installed. Please see " + URL + " for installation details";
 				}
-				break;
 
 			case SUCCESS:
-				return;
+				return "";
 
 			case REFUSED:
 				if(isOldPortInUse()) {
-					MsgBox.message(body, MsgBox.Type.ERROR, "None of your running Eclipse instances wanted to open the page. It looks like " +	//
+					return "None of your running Eclipse instances wanted to open the page. It looks like " +	//
 						"you have at least one Eclipse installation that uses the old version of the plugin, which is not compatible. " + //
-						"Please update the DomUI plugin to the latest version using Help -> Check for updates in all your running Eclipses"); //
+						"Please update the DomUI plugin to the latest version using Help -> Check for updates in all your running Eclipses"; //
 				} else {
-					MsgBox.message(body, MsgBox.Type.ERROR, "An unexpected error has occurred: none of the running Eclipse installations " +	//
-							"recognized this web application. Please report this as a bug.");
+					return "An unexpected error has occurred: none of the running Eclipse installations " +	//
+						"recognized this web application. Please report this as a bug.";
 				}
-				break;
 		}
 	}
+
 
 	protected void openSource(StackTraceElement ste) {
 		NodeBase body = getPage().getBody();
@@ -289,7 +300,7 @@ public class InternalParentTree extends Div {
 	static private final String URL = "http://www.domui.org/wiki/bin/view/Documentation/EclipsePlugin";
 
 	@Nonnull
-	private CommandResponse openEclipseSource(@Nonnull String name) {
+	static public CommandResponse openEclipseSource(@Nonnull String name) {
 		File root = DomApplication.get().getAppFile("");
 		return openEclipseSource(root.toString(), name);
 	}
@@ -350,11 +361,11 @@ public class InternalParentTree extends Div {
 		}
 	}
 
-	static private enum AnswerType {
+	static public enum AnswerType {
 		NOCONNECTION, REFUSED, ERROR, SUCCESS
 	}
 
-	static private class CommandResponse {
+	static public class CommandResponse {
 		@Nonnull
 		final private AnswerType m_type;
 
@@ -366,9 +377,12 @@ public class InternalParentTree extends Div {
 			m_message = message;
 		}
 
-		@Nonnull
+		@Nullable
 		public String getMessage() {
-			return m_message;
+			String message = m_message;
+			if(null == message)
+				throw new IllegalStateException("Message not defined");
+			return message;
 		}
 
 		@Nonnull

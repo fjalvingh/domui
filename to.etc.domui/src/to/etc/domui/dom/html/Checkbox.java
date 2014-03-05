@@ -32,6 +32,9 @@ import to.etc.domui.component.input.*;
 import to.etc.domui.util.*;
 
 public class Checkbox extends NodeBase implements IControl<Boolean>, IHasModifiedIndication {
+	/** The properties bindable for this component. */
+	@Nonnull
+	static private final Set<String> BINDABLE_SET = createNameSet("value", "disabled");
 
 	private boolean m_checked;
 
@@ -52,6 +55,12 @@ public class Checkbox extends NodeBase implements IControl<Boolean>, IHasModifie
 	}
 
 	@Override
+	@Nonnull
+	public Set<String> getBindableProperties() {
+		return BINDABLE_SET;
+	}
+
+	@Override
 	public void visit(INodeVisitor v) throws Exception {
 		v.visitCheckbox(this);
 	}
@@ -61,9 +70,11 @@ public class Checkbox extends NodeBase implements IControl<Boolean>, IHasModifie
 	}
 
 	public void setChecked(boolean checked) {
-		if(m_checked != checked)
-			changed();
+		if(m_checked == checked)
+			return;
+		changed();
 		m_checked = checked;
+		fireModified("value", Boolean.valueOf(!checked), Boolean.valueOf(checked));
 	}
 
 	@Override
@@ -73,9 +84,11 @@ public class Checkbox extends NodeBase implements IControl<Boolean>, IHasModifie
 
 	@Override
 	public void setDisabled(boolean disabled) {
-		if(m_disabled != disabled)
-			changed();
+		if(m_disabled == disabled)
+			return;
+		changed();
 		m_disabled = disabled;
+		fireModified("value", Boolean.valueOf(!disabled), Boolean.valueOf(disabled));
 	}
 
 	/**
@@ -98,6 +111,8 @@ public class Checkbox extends NodeBase implements IControl<Boolean>, IHasModifie
 
 	@Override
 	public boolean acceptRequestParameter(@Nonnull String[] values) {
+		if(isDisabled())								// Never accept data from request in disabled control.
+			return false;
 		if(values == null || values.length != 1)
 			throw new IllegalStateException("Checkbox: expecting a single input value, not " + Arrays.toString(values));
 		String s = values[0].trim();
@@ -108,6 +123,7 @@ public class Checkbox extends NodeBase implements IControl<Boolean>, IHasModifie
 
 		DomUtil.setModifiedFlag(this);
 		m_checked = on;
+		fireModified("value", Boolean.valueOf(!on), Boolean.valueOf(on));
 		return true; // Value changed
 	}
 

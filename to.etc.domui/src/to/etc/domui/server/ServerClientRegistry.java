@@ -21,7 +21,7 @@ public class ServerClientRegistry {
 	final public static class Use {
 		private long m_timeStamp;
 
-		@Nonnull
+		@Nullable
 		private String m_url;
 
 		void update(@Nonnull final String url, final long ts) {
@@ -35,7 +35,9 @@ public class ServerClientRegistry {
 
 		@Nonnull
 		public String getUrl() {
-			return m_url;
+			if(null != m_url)
+				return m_url;
+			throw new IllegalStateException("update() not called");
 		}
 	}
 

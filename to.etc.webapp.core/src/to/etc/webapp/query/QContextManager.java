@@ -240,7 +240,7 @@ final public class QContextManager {
 		}
 
 		@Override
-		public QDataContext getDataContext() throws Exception {
+		public @Nonnull QDataContext getDataContext() throws Exception {
 			//-- First check the container for something usable
 			QDataContext dc = m_contextContainer.internalGetSharedContext();
 			if(dc != null)
@@ -252,12 +252,12 @@ final public class QContextManager {
 		}
 
 		@Override
-		public QEventListenerSet getEventListeners() {
+		public @Nonnull QEventListenerSet getEventListeners() {
 			return m_orig.getEventListeners();
 		}
 
 		@Override
-		public QQueryExecutorRegistry getQueryHandlerList() {
+		public @Nonnull QQueryExecutorRegistry getQueryHandlerList() {
 			return m_orig.getQueryHandlerList();
 		}
 	}

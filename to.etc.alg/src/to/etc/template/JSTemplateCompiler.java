@@ -121,6 +121,7 @@ public class JSTemplateCompiler {
 	 * @return
 	 * @throws Exception
 	 */
+	@Nonnull
 	public JSTemplate compile(@Nonnull Class< ? > clz, @Nonnull String resource, @Nullable String encoding) throws Exception {
 		if(null == encoding)
 			encoding = "utf-8";

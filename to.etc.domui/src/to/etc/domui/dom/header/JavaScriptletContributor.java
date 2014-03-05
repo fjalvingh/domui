@@ -68,7 +68,7 @@ final public class JavaScriptletContributor extends HeaderContributor {
 		r.o().tag("script");
 		r.o().attr("language", "javascript");
 		r.o().endtag();
-		r.o().writeRaw("<!--"); // Embed JS in comment
+		r.o().writeRaw("<!--\n"); // Embed JS in comment IMPORTANT: the \n is required!!!
 		r.o().writeRaw(m_javascript);
 		r.o().writeRaw("\n-->");
 		r.o().closetag("script");

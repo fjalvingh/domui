@@ -24,39 +24,53 @@
  */
 package to.etc.webapp.query;
 
+import javax.annotation.*;
+
 public class QOrder extends QOperatorNode {
-	private String m_property;
+	@Nonnull
+	final private String m_property;
 
-	private QSortOrderDirection m_direction;
+	@Nonnull
+	final private QSortOrderDirection m_direction;
 
-	public QOrder(QSortOrderDirection direction, String property) {
+	public QOrder(@Nonnull QSortOrderDirection direction, @Nonnull String property) {
 		super(QOperation.ORDER);
 		m_direction = direction;
 		m_property = property;
 	}
 
+	@Override
+	public QOrder dup() {
+		return new QOrder(getDirection(), getProperty());
+	}
+
+	@Nonnull
 	public String getProperty() {
 		return m_property;
 	}
 
+	@Nonnull
 	public QSortOrderDirection getDirection() {
 		return m_direction;
 	}
 
+	@Nonnull
 	static public final QOrder ascending(String name) {
 		return new QOrder(QSortOrderDirection.ASC, name);
 	}
 
+	@Nonnull
 	static public final QOrder descending(String name) {
 		return new QOrder(QSortOrderDirection.DESC, name);
 	}
 
+	@Nonnull
 	static public final QOrder order(String name, QSortOrderDirection dir) {
 		return new QOrder(dir, name);
 	}
 
 	@Override
-	public void visit(QNodeVisitor v) throws Exception {
+	public void visit(@Nonnull QNodeVisitor v) throws Exception {
 		v.visitOrder(this);
 	}
 }

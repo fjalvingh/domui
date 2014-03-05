@@ -26,6 +26,8 @@ package to.etc.webapp.qsql;
 
 import java.sql.*;
 
+import javax.annotation.*;
+
 /**
  * Holds a value and a location (result set) to set a value.
  *
@@ -67,7 +69,7 @@ class ValSetter implements IQValueSetter {
 	 * @see to.etc.webapp.qsql.IQValueSetter#assign(java.sql.PreparedStatement)
 	 */
 	@Override
-	public void assign(PreparedStatement ps) throws Exception {
+	public void assign(@Nonnull PreparedStatement ps) throws Exception {
 		m_converter.assignParameter(ps, getIndex(), getProperty(), getValue());
 	}
 }

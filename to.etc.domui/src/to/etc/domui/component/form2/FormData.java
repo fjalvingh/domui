@@ -28,6 +28,7 @@ import javax.annotation.*;
 
 import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.meta.*;
+import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.annotations.*;
@@ -231,9 +232,18 @@ public class FormData<T> {
 	 * @param label
 	 */
 	@Nonnull
-	public IControl< ? > addDisplayProp(@Nonnull @GProperty final String name, @Nonnull String label) {
-		PropertyMetaModel< ? > pmm = resolveProperty(name);
-		return addPropertyControl(name, label, pmm, false, false);
+	public <T> IControl< ? > addDisplayProp(@Nonnull @GProperty final String name, @Nonnull String label) {
+		PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) resolveProperty(name);
+		DisplayValue<T> dv = new DisplayValue<T>(pmm.getActualType());
+		builder().addControl(label, null, new NodeBase[]{dv}, false, false, pmm);
+
+		if(label != null) {
+			dv.setErrorLocation(label);
+		}
+		dv.bind().to(getModel(), pmm);
+		return dv;
+
+//		return addPropertyControl(name, label, pmm, false, false);
 	}
 
 

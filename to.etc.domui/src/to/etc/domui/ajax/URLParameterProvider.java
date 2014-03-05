@@ -40,7 +40,7 @@ public class URLParameterProvider implements IParameterProvider {
 
 	@Override
 	public Object findParameterValue(final Class< ? > targetcl, final Annotation[] annotations, final int paramIndex, final AjaxParam ap) throws Exception {
-		String[] pv = m_ctx.getRequest().getParameterValues(ap.value()); // Parameter by name
+		String[] pv = m_ctx.getParameters(ap.value()); // Parameter by name
 		if(pv == null || pv.length == 0)
 			return NO_VALUE;
 		if(pv.length > 1)

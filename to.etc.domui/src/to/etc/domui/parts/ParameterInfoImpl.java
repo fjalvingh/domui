@@ -26,6 +26,8 @@ package to.etc.domui.parts;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.server.*;
 import to.etc.util.*;
 
@@ -62,7 +64,7 @@ public class ParameterInfoImpl implements IParameterInfo {
 	}
 
 	@Override
-	public String getParameter(String name) {
+	public String getParameter(@Nonnull String name) {
 		String[] v = m_parameterMap.get(name);
 		if(v == null || v.length != 1)
 			return null;
@@ -70,12 +72,15 @@ public class ParameterInfoImpl implements IParameterInfo {
 	}
 
 	@Override
+	@Nonnull
 	public String[] getParameterNames() {
 		return m_parameterMap.keySet().toArray(new String[m_parameterMap.size()]);
 	}
 
 	@Override
-	public String[] getParameters(String name) {
-		return m_parameterMap.get(name);
+	@Nonnull
+	public String[] getParameters(@Nonnull String name) {
+		String[] res = m_parameterMap.get(name);
+		return res == null ? new String[0] : res;
 	}
 }

@@ -27,6 +27,8 @@ package to.etc.domui.dom.html;
 import java.io.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.server.*;
@@ -158,6 +160,7 @@ public class OptimalDeltaRenderer {
 		m_page = page;
 	}
 
+	@Nonnull
 	public IBrowserOutput o() {
 		return m_o;
 	}
@@ -174,11 +177,12 @@ public class OptimalDeltaRenderer {
 		if(DEBUG) {
 			DumpDirtyStateRenderer.dump(m_page.getBody());
 			System.out.println("--- BEFORE node map: ----");
-			if(m_page.getBeforeMap() == null) {
+			Map<String, NodeBase> beforeMap = m_page.getBeforeMap();
+			if(beforeMap == null) {
 				System.out.println("No before map - no tree changes");
 			} else {
-				for(String k : m_page.getBeforeMap().keySet()) {
-					System.out.println(k + ": " + m_page.getBeforeMap().get(k));
+				for(String k : beforeMap.keySet()) {
+					System.out.println(k + ": " + beforeMap.get(k));
 				}
 			}
 		}
@@ -204,25 +208,29 @@ public class OptimalDeltaRenderer {
 
 		//-- 20091127 jal Add header contributors delta rendering end
 		calc(m_page);
-
-		StringBuilder sq = m_page.internalGetAppendedJS();
 		o().tag("eval");
 		o().endtag();
 
 		//-- Render all component-requested Javascript code for this phase
 		o().text(m_fullRenderer.getCreateJS().toString());
-		if(sq != null)
-			o().text(sq.toString());
+		StringBuilder sb = m_page.internalFlushAppendJS();
+		if(null != sb)
+			o().text(sb.toString());
+		sb = m_page.internalFlushJavascriptStateChanges();
+		if(null != sb)
+			o().writeRaw(sb);
 
 		//-- If we have a special calculate focus request (Window created) - calculate it
-		if(m_page.getDefaultFocusSource() != null && m_page.getFocusComponent() == null) {
+		NodeBase focusComponent = m_page.getFocusComponent();
+		if(m_page.getDefaultFocusSource() != null && focusComponent == null) {
 			recurseCheckFocus(m_page.getDefaultFocusSource());
 		}
 		m_page.calculateDefaultFocus(null);
 
 		//-- If a component has requested focus - do it.
-		if(m_page.getFocusComponent() != null) {
-			o().text("WebUI.focus('" + m_page.getFocusComponent().getActualID() + "');");
+		focusComponent = m_page.getFocusComponent();
+		if(focusComponent != null) {
+			o().text("WebUI.focus('" + focusComponent.getActualID() + "');");
 			m_page.setFocusComponent(null);
 		}
 
@@ -529,8 +537,11 @@ public class OptimalDeltaRenderer {
 			 * There is a tree delta; this is valid ONLY if this node existed earlier. If the node did not exist
 			 * earlier we have a logic error: the "upper" node should have seen this node as NEW, so abort.
 			 */
-			if(!m_page.getBeforeMap().containsKey(n.getActualID())) {
-				for(String s : m_page.getBeforeMap().keySet())
+			Map<String, NodeBase> beforeMap = m_page.getBeforeMap();
+			if(null == beforeMap)
+				throw new IllegalStateException("Before map is null inside delta?");
+			if(!beforeMap.containsKey(n.getActualID())) {
+				for(String s : beforeMap.keySet())
 					System.out.println("before key=" + s);
 				throw new IllegalStateException("Rotary device exception: delta exists on NEW node, and we're trying to render the new node as a delta!? Node=" + n.getActualID());
 			}
@@ -632,7 +643,10 @@ public class OptimalDeltaRenderer {
 			nn.m_origNewIndex = i; // The actual index for the new node.
 
 			//-- Is this an addition from somewhere else? If so handle it here && remove from the working list
-			if(nn.internalGetOldParent() == null || nn.internalGetOldParent() != nc || !m_page.getBeforeMap().containsKey(nn.getActualID())) {
+			Map<String, NodeBase> beforeMap = m_page.getBeforeMap();
+			if(null == beforeMap)
+				throw new IllegalStateException("Before map is null inside delta??");
+			if(nn.internalGetOldParent() == null || nn.internalGetOldParent() != nc || !beforeMap.containsKey(nn.getActualID())) {
 				//-- Came from somewhere else or is new -> render.
 				/*
 				 * This node is NEW in this tree. We're pretty sure we need to ADD it then. This has

@@ -39,10 +39,10 @@ import to.etc.domui.converter.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 2, 2009
  */
-public class ControlFactoryDate implements ControlFactory {
+public class ControlFactoryDate implements PropertyControlFactory {
 	/**
 	 * Accept java.util.Date class <i>only</i>.
-	 * @see to.etc.domui.component.controlfactory.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
+	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
 	public int accepts(@Nonnull final PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {

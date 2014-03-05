@@ -112,7 +112,7 @@ public class FileImageRetriever implements IImageRetriever {
 	}
 
 	@Override
-	public IImageReference loadImage(String key) throws Exception {
+	public IImageReference loadImage(@Nonnull String key) throws Exception {
 		IRequestContext ctx = UIContext.getRequestContext();
 		Map<String, FileRef> map = (Map<String, FileRef>) ctx.getSession().getAttribute(KEY);
 		if(map == null)

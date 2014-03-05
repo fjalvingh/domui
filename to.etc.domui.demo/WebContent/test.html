@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="$js/jquery.js"></script>
+	<script src="$js/jquery-ui.js"></script>
+<script language="javascript">
+$(document).ready(function() {
+	$("#xx").draggable({
+		
+	});
+	var el = $("#x1");
+	
+	el.draggable({cancel:""
+		
+	});
+	
+	el = $("#x2");
+	el.draggable({cancel:""});
+
+});
+</script>
+<style>
+html, body {
+	height: 100%;
+	width: 100%;
+}
+input {
+	padding: 5px;
+	border: 10px solid green;
+	background: white;
+	color: black;
+}
+</style>
+	
+</head>
+<body>
+	<h1>Hello, world</h1>
+
+	<div id="xx" style="width:100px; height: 100px; background: red">&nbsp;</div>
+	
+	<input id="x1" type="text" size="40"   >
+	
+	<button id="x2">
+		Hello, world
+	</button>
+</body>
+</html>

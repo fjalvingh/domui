@@ -72,7 +72,8 @@ final public class ShelvedDomUIPage implements IShelvedEntry {
 
 	@Override
 	public String toString() {
-		return getPage() + " in " + getPage().internalGetConversation() + ": " + getPage().internalGetConversation().getState();
+		ConversationContext cc = getPage().internalGetConversation();
+		return getPage() + " in " + cc + ": " + (cc == null ? "(null conv)" : cc.getState());
 	}
 
 	@Override

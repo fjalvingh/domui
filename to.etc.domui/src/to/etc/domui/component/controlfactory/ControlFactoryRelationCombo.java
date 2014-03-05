@@ -40,11 +40,11 @@ import to.etc.util.*;
  * Created on Jul 2, 2009
  */
 @SuppressWarnings("unchecked")
-public class ControlFactoryRelationCombo implements ControlFactory {
+public class ControlFactoryRelationCombo implements PropertyControlFactory {
 	/**
 	 * Accept any UP relation; if the relation has a "comboLookup" type hint we score 10, else we score 2.
 	 *
-	 * @see to.etc.domui.component.controlfactory.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
+	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
 	public int accepts(final @Nonnull PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {

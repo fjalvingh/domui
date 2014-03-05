@@ -36,14 +36,16 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 	private INodeContentRenderer<T> m_contentRenderer;
 
 	public interface ISearch<T> {
-		T find(String name) throws Exception;
+		@Nullable
+		T find(@Nonnull String name) throws Exception;
 
-		List<T> findLike(String input, int i);
+		@Nonnull
+		List<T> findLike(@Nonnull String input, int i) throws Exception;
 	}
 
 	public interface INew<T> {
 		@Nullable
-		T create(String name) throws Exception;
+		T create(@Nonnull String name) throws Exception;
 	}
 
 	public interface IAllow<T> {
@@ -70,10 +72,13 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 		m_actualClass = clz;
 		m_search = search;
 		setCssClass("ui-lsel");
+		if(search instanceof INew< ? >) {
+			m_instanceFactory = (INew<T>) search;
+		}
 	}
 
 	/**
-	 * We create something which looks like an iput box, but it has label spans followed by a single input box.
+	 * We create something which looks like an input box, but it has label spans followed by a single input box.
 	 * @see to.etc.domui.dom.html.NodeBase#createContent()
 	 */
 	@Override
@@ -84,10 +89,10 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 		}
 
 		if(! m_disabled) {
-			m_input = new SearchInput<T>(m_actualClass);
+			SearchInput<T> input = m_input = new SearchInput<T>(m_actualClass);
+			add(input);
 			updateTooltip();
-			add(m_input);
-			m_input.setHandler(new SearchInput.IQuery<T>() {
+			input.setHandler(new SearchInput.IQuery<T>() {
 				@Override
 				public List<T> queryFromString(String input, int max) throws Exception {
 					return queryLabelsOnType(input, max);
@@ -121,7 +126,7 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 			}
 			sb.append(availableLabels.get(i).toString());
 		}
-		m_input.setTitle(Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_HINT, sb.toString()));
+		DomUtil.nullChecked(m_input).setTitle(Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_HINT, sb.toString()));
 	}
 
 	/**
@@ -140,11 +145,11 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 		return getLabels(input, max);
 	}
 
-	private List<T> getAvailableLabels() {
+	private List<T> getAvailableLabels() throws Exception {
 		return getLabels("", MAX_LABELS_IN_TOOLTIP);
 	}
 
-	private List<T> getLabels(String input, int max) {
+	private List<T> getLabels(String input, int max) throws Exception {
 		List<T> isl = m_search.findLike(input, max + m_labelList.size() + 1);
 		for(T tisl : m_labelList) {
 			isl.remove(tisl);					// Remove all that has been entered before
@@ -162,7 +167,7 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 		if(value.length() <= 1)
 			return;
 
-		T sel = m_search.find(value);	// Find by this name (full)
+		T sel = m_search.find(value);						// Find by this name (full)
 		if(null != sel) {
 			//-- Item by name exists. Not in already selected list?
 			for(T il : m_labelList) {
@@ -203,6 +208,14 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 	 * @throws Exception
 	 */
 	public void addItem(@Nonnull T instance) throws Exception {
+		addLabel(instance);										// Just add the thingy.
+	}
+
+	public void setInstanceFactory(INew<T> instanceFactory) {
+		m_instanceFactory = instanceFactory;
+	}
+
+	private void addLabel(@Nonnull T instance) throws Exception {
 		if(m_divMap.containsKey(instance))
 			return;
 		m_labelList.add(instance);
@@ -234,10 +247,11 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 		m_divMap.put(lbl, d);
 		d.setCssClass("ui-lsel-item");
 
-		if(m_contentRenderer == null)
+		INodeContentRenderer<T> contentRenderer = m_contentRenderer;
+		if(contentRenderer == null)
 			d.add(lbl.toString());
 		else
-			m_contentRenderer.renderNodeContent(this, d, lbl, null);
+			contentRenderer.renderNodeContent(this, d, lbl, null);
 
 		if(!m_disabled) {
 			Div btn = new Div();
@@ -284,7 +298,11 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 
 	@Override
 	public void setValue(@Nullable List<T> newlist) {
-		m_labelList = newlist == null ? new ArrayList<T>() : new ArrayList<T>(newlist);
+		if(null == newlist)
+			newlist = new ArrayList<T>();
+		else
+			newlist = new ArrayList<T>(newlist);
+		m_labelList = newlist;
 		m_divMap.clear();
 		forceRebuild();
 	}

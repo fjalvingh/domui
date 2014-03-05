@@ -63,6 +63,15 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 
 	private String m_unknownColumnCaption;
 
+	@Nullable
+	private IRowRendered<T> m_onRowRendered;
+
+	private boolean m_sortDescending;
+
+	public static interface IRowRendered<T> {
+		public void rowRendered(@Nonnull TR row, @Nonnull T instance);
+	}
+
 	public AbstractRowRenderer(@Nonnull Class<T> data) {
 		this(data, MetaManager.findClassMeta(data));
 	}
@@ -84,7 +93,17 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 	 * @param type
 	 */
 	public void setDefaultSort(@Nonnull SimpleColumnDef< ? > cd, @Nonnull SortableType type) {
-		getColumnList().setSortColumn(cd, type);
+		cd.setSortable(type);
+		getColumnList().setSortColumn(cd);
+	}
+
+	public void setSort(@Nonnull String column, @Nonnull SortableType type) {
+		SimpleColumnDef< ? > col = getColumnList().findColumn(column);
+		if(null == col)
+			return;
+
+		getColumnList().setSortColumn(col);
+		col.setSortable(type);
 	}
 
 	/**
@@ -116,7 +135,14 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 	/**
 	 * Complete this object if it is not already complete (internal).
 	 */
+	@OverridingMethodsMustInvokeSuper
 	protected void complete(@Nonnull final TableModelTableBase<T> tbl) {
+		if(!m_completed) {
+			SimpleColumnDef< ? > scol = getSortColumn();
+			if(scol != null) {
+				m_sortDescending = scol.getSortable() == SortableType.SORTABLE_DESC;
+			}
+		}
 		m_completed = true;
 	}
 
@@ -129,7 +155,9 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 	}
 
 	protected void setSortColumn(@Nullable SimpleColumnDef< ? > cd, @Nullable SortableType type) {
-		m_columnList.setSortColumn(cd, type);
+		if(null != cd && null != type)
+			cd.setSortable(type);
+		m_columnList.setSortColumn(cd);
 	}
 
 	@Nullable
@@ -137,13 +165,17 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 		return m_columnList.getSortColumn();
 	}
 
+	/**
+	 * The <i>current</i> sorting state of the sort column, as defined by the user's clicking the header.
+	 * @return
+	 */
 	protected boolean isSortDescending() {
-		return m_columnList.isSortDescending();
+		return m_sortDescending;
 	}
 
-	protected void setSortDescending(boolean desc) {
-		m_columnList.setSortDescending(desc);
-	}
+//	protected void setSortDescending(boolean desc) {
+//		m_columnList.setSortDescending(desc);
+//	}
 
 	/**
 	 * Return the definition for the nth column. You can change the column's definition there.
@@ -272,6 +304,7 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 	 */
 	@Override
 	public void renderHeader(@Nonnull final TableModelTableBase<T> tbl, @Nonnull final HeaderContainer<T> cc) throws Exception {
+
 		m_sortImages = new Img[m_columnList.size()];
 		int ix = 0;
 		final boolean sortablemodel = tbl.getModel() instanceof ISortableTableModel;
@@ -295,7 +328,7 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 				cellSpan.add(img);
 
 				if(cd == getSortColumn()) {
-					img.setSrc(m_columnList.isSortDescending() ? "THEME/sort-desc.png" : "THEME/sort-asc.png");
+					img.setSrc(m_sortDescending ? "THEME/sort-desc.png" : "THEME/sort-asc.png");
 				} else {
 					img.setSrc("THEME/sort-none.png");
 				}
@@ -343,12 +376,13 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 		//-- 1. Is this the same as the "current" sort column? If so toggle the sort order only.
 		SimpleColumnDef< ? > sortColumn = getSortColumn();
 		if(scd == sortColumn) {
-			setSortDescending( ! isSortDescending());
+			m_sortDescending = !m_sortDescending;
 		} else {
 			if(sortColumn != null)
 				updateSortImage(sortColumn, "THEME/sort-none.png");
 
-			m_columnList.setSortColumn(scd, scd.getSortable());			 // Set the new sort column
+			m_columnList.setSortColumn(scd);			 // Set the new sort column
+			m_sortDescending = scd.getSortable() == SortableType.SORTABLE_DESC;
 		}
 		updateSortImage(scd, isSortDescending() ? "THEME/sort-desc.png" : "THEME/sort-asc.png");
 
@@ -425,6 +459,7 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 		IRowButtonFactory<T> rbf = getRowButtonFactory();
 		if(rbf != null) {
 			TD td = cc.add((NodeBase) null);
+			td.setNowrap(true);
 			cc.getRowButtonContainer().setContainer(td);
 			rbf.addButtonsFor(cc.getRowButtonContainer(), instance);
 		}
@@ -437,6 +472,11 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 			cc.getTR().removeCssClass("ui-even");
 			cc.getTR().addCssClass("ui-odd");
 		}
+
+		IRowRendered<T> rr = getOnRowRendered();
+		if(null != rr) {
+			rr.rowRendered(cc.getTR(), instance);
+		}
 	}
 
 	/**
@@ -448,30 +488,33 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 	 * @param cd
 	 * @throws Exception
 	 */
-	protected <X> void renderColumn(@Nonnull final TableModelTableBase<T> tbl, @Nonnull final ColumnContainer<T> cc, final int index, @Nonnull final T instance, @Nonnull final SimpleColumnDef< ? > cd) throws Exception {
+	protected <X> void renderColumn(@Nonnull final TableModelTableBase<T> tbl, @Nonnull final ColumnContainer<T> cc, final int index, @Nonnull final T instance, @Nonnull final SimpleColumnDef<X> cd)
+		throws Exception {
 		//-- If a value transformer is known get the column value, else just use the instance itself (case when Renderer is used)
 		X colval;
-		IValueTransformer< ? > valueTransformer = cd.getValueTransformer();
+		IValueTransformer<X> valueTransformer = cd.getValueTransformer();
 		if(valueTransformer == null)
 			colval = (X) instance;
 		else
-			colval = (X) valueTransformer.getValue(instance);
+			colval = valueTransformer.getValue(instance);
 
 		//-- Is a node renderer used?
 		TD cell;
 		String cssClass = cd.getCssClass();
-		if(null != cd.getContentRenderer()) {
-			cell = cc.add((NodeBase) null); // Add the new row
+		INodeContentRenderer<X> contentRenderer = cd.getContentRenderer();
+		if(null != contentRenderer) {
+			cell = cc.add((NodeBase) null); 					// Add the new row
 			if(cssClass != null)
 				cell.addCssClass(cssClass);
-			((INodeContentRenderer<Object>) cd.getContentRenderer()).renderNodeContent(tbl, cell, colval, instance); // %&*(%&^%*&%&( generics require casting here
+			contentRenderer.renderNodeContent(tbl, cell, colval, instance); // %&*(%&^%*&%&( generics require casting here
 		} else {
 			String s;
 			if(colval == null)
 				s = null;
 			else {
-				if(cd.getPresentationConverter() != null)
-					s = ((IConverter<X>) cd.getPresentationConverter()).convertObjectToString(NlsContext.getLocale(), colval);
+				IObjectToStringConverter< ? > presentationConverter = cd.getPresentationConverter();
+				if(presentationConverter != null)
+					s = ((IConverter<X>) presentationConverter).convertObjectToString(NlsContext.getLocale(), colval);
 				else
 					s = String.valueOf(colval);
 			}
@@ -488,7 +531,8 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 			cell.setNowrap(true);
 
 		//-- If a cellclicked thing is present attach it to the td
-		if(cd.getCellClicked() != null) {
+		final ICellClicked< ? > cellClicked = cd.getCellClicked();
+		if(cellClicked != null) {
 			/*
 			 * FIXME For now I add a separate instance of the handler to every cell. A single instance is OK too,
 			 * provided it can calculate the row and cell data from the TR it is attached to.
@@ -496,7 +540,9 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 			cell.setClicked(new IClicked<TD>() {
 				@Override
 				public void clicked(final @Nonnull TD b) throws Exception {
-					((ICellClicked<Object>) cd.getCellClicked()).cellClicked(b, instance);
+					ICellClicked<Object> clicked = (ICellClicked<Object>) cd.getCellClicked();
+					if(null != clicked)
+						clicked.cellClicked(b, instance);
 				}
 			});
 			cell.addCssClass("ui-cellsel");
@@ -542,5 +588,19 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 	public String getUnknownColumnCaption() {
 		return m_unknownColumnCaption == null ? "" : m_unknownColumnCaption;
 	}
+
+	/**
+	 * Sets a handler that gets called every time a row is rendered.
+	 * @return
+	 */
+	@Nullable
+	public IRowRendered<T> getOnRowRendered() {
+		return m_onRowRendered;
+	}
+
+	public void setOnRowRendered(@Nullable IRowRendered<T> onRowRendered) {
+		m_onRowRendered = onRowRendered;
+	}
+
 
 }

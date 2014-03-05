@@ -3,6 +3,7 @@ package to.etc.domuidemo.db;
 import java.math.*;
 
 import javax.persistence.*;
+import to.etc.domui.databinding.observables.*;
 
 /**
  * A single track on a CD.
@@ -12,7 +13,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "Track")
-public class Track {
+public class Track extends DbRecordBase<Long> implements IObservableEntity {
 	private Long m_id;
 
 	private MediaType m_mediaType;
@@ -40,7 +41,9 @@ public class Track {
 	}
 
 	public void setId(Long id) {
+		Long oldv = getId();
 		m_id = id;
+		firePropertyChange("id", oldv, id);
 	}
 
 	@Column(name = "Name", length = 128, nullable = false)
@@ -49,7 +52,9 @@ public class Track {
 	}
 
 	public void setName(String title) {
+		String oldv = getName();
 		m_name = title;
+		firePropertyChange("name", oldv, title);
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY, optional = true)
@@ -59,7 +64,9 @@ public class Track {
 	}
 
 	public void setGenre(Genre song) {
+		Genre oldv = getGenre();
 		m_genre = song;
+		firePropertyChange("genre", oldv, song);
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -69,7 +76,9 @@ public class Track {
 	}
 
 	public void setAlbum(Album album) {
+		Album oldv = getAlbum();
 		m_album = album;
+		firePropertyChange("album", oldv, album);
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -79,7 +88,9 @@ public class Track {
 	}
 
 	public void setMediaType(MediaType mediaType) {
+		MediaType oldv = getMediaType();
 		m_mediaType = mediaType;
+		firePropertyChange("mediaType", oldv, mediaType);
 	}
 
 	@Column(name = "Composer", length = 220, nullable = true)
@@ -88,7 +99,9 @@ public class Track {
 	}
 
 	public void setComposer(String composer) {
+		String oldv = getComposer();
 		m_composer = composer;
+		firePropertyChange("composer", oldv, composer);
 	}
 
 	@Column(name = "Milliseconds", precision = 10, scale = 0, nullable = false)
@@ -97,7 +110,9 @@ public class Track {
 	}
 
 	public void setMilliseconds(long milliseconds) {
+		Long oldv = Long.valueOf(getMilliseconds());
 		m_milliseconds = milliseconds;
+		firePropertyChange("milliseconds", oldv, Long.valueOf(milliseconds));
 	}
 
 	@Column(name = "bytes", precision = 10, scale = 0, nullable = true)
@@ -106,7 +121,9 @@ public class Track {
 	}
 
 	public void setBytes(Integer bytes) {
+		Integer oldv = getBytes();
 		m_bytes = bytes;
+		firePropertyChange("bytes", oldv, bytes);
 	}
 
 	@Column(name = "UnitPrice", precision = 10, scale = 2, nullable = false)
@@ -115,6 +132,8 @@ public class Track {
 	}
 
 	public void setUnitPrice(BigDecimal unitPrice) {
+		BigDecimal oldv = getUnitPrice();
 		m_unitPrice = unitPrice;
+		firePropertyChange("unitPrice", oldv, unitPrice);
 	}
 }

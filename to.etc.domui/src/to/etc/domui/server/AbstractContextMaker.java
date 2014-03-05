@@ -38,7 +38,7 @@ import to.etc.webapp.nls.*;
 
 abstract public class AbstractContextMaker implements IContextMaker {
 	@Override
-	abstract public boolean handleRequest(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws Exception;
+	abstract public void handleRequest(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull FilterChain chain) throws Exception;
 
 	private static class Pair {
 		@Nonnull
@@ -98,9 +98,9 @@ abstract public class AbstractContextMaker implements IContextMaker {
 		}
 	}
 
-	public boolean execute(final RequestContextImpl ctx, FilterChain chain) throws Exception {
+	public void execute(@Nonnull HttpServerRequestResponse requestResponse, @Nonnull final RequestContextImpl ctx, FilterChain chain) throws Exception {
 		//-- 201012 jal Set the locale for this request
-		Locale loc = ctx.getApplication().getRequestLocale(ctx.getRequest());
+		Locale loc = ctx.getApplication().getRequestLocale(requestResponse.getRequest());
 		NlsContext.setLocale(loc);
 
 		List<IRequestInterceptor> il = ctx.getApplication().getInterceptorList();
@@ -112,23 +112,21 @@ abstract public class AbstractContextMaker implements IContextMaker {
 			rh = ctx.getApplication().findRequestHandler(ctx);
 			if(rh == null) {
 				//-- Non-DomUI request.
-				handleDoFilter(chain, ctx.getRequest(), ctx.getResponse());
-				return false;
+				handleDoFilter(chain, requestResponse.getRequest(), requestResponse.getResponse());
+				return;
 			}
-			ctx.getResponse().addHeader("X-UA-Compatible", "IE=edge"); // 20110329 jal Force to highest supported mode for DomUI code.
-			ctx.getResponse().addHeader("X-XSS-Protection", "0");		// 20130124 jal Disable IE XSS filter, to prevent the idiot thing from seeing the CID as a piece of script 8-(
+			requestResponse.getResponse().addHeader("X-UA-Compatible", "IE=edge");	// 20110329 jal Force to highest supported mode for DomUI code.
+			requestResponse.getResponse().addHeader("X-XSS-Protection", "0");		// 20130124 jal Disable IE XSS filter, to prevent the idiot thing from seeing the CID as a piece of script 8-(
 			rh.handleRequest(ctx);
 			ctx.flush();
-			return true;
 		} catch(ThingyNotFoundException x) {
-			ctx.getResponse().sendError(404, x.getMessage());
-			return true;
+			requestResponse.getResponse().sendError(404, x.getMessage());
 		} catch(Exception xxx) {
 			xx = xxx;
 			throw xxx;
 		} finally {
 			callInterceptorsAfter(il, ctx, xx);
-			ctx.onRequestFinished();
+			ctx.internalOnRequestFinished();
 			try {
 				ctx.discard();
 			} catch(Exception x) {
@@ -138,7 +136,7 @@ abstract public class AbstractContextMaker implements IContextMaker {
 		}
 	}
 
-	private void handleDoFilter(FilterChain chain, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	private void handleDoFilter(@Nonnull FilterChain chain, @Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response) throws ServletException, IOException {
 		if(m_ieEmulationList.size() == 0) {
 			chain.doFilter(request, response);
 			return;
@@ -165,7 +163,8 @@ abstract public class AbstractContextMaker implements IContextMaker {
 		wsr.flushBuffer();
 	}
 
-	private void callInterceptorsBegin(final List<IRequestInterceptor> il, final RequestContextImpl ctx) throws Exception {
+
+	static public void callInterceptorsBegin(final List<IRequestInterceptor> il, final RequestContextImpl ctx) throws Exception {
 		int i;
 		for(i = 0; i < il.size(); i++) {
 			IRequestInterceptor ri = il.get(i);
@@ -188,7 +187,7 @@ abstract public class AbstractContextMaker implements IContextMaker {
 		}
 	}
 
-	private void callInterceptorsAfter(final List<IRequestInterceptor> il, final RequestContextImpl ctx, final Exception x) throws Exception {
+	static public void callInterceptorsAfter(final List<IRequestInterceptor> il, final RequestContextImpl ctx, final Exception x) throws Exception {
 		Exception endx = null;
 
 		for(int i = il.size(); --i >= 0;) {

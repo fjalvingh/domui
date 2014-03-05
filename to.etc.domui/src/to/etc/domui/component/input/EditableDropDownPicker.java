@@ -73,8 +73,7 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 	public void createContent() throws Exception {
 		super.createContent();
 
-		m_picker = new DropDownPicker<T>(m_data);
-		DropDownPicker<T> picker = m_picker;
+		DropDownPicker<T> picker = m_picker = new DropDownPicker<T>(m_data);
 		if(m_dropDownIcon != null) {
 			picker.setSrc(m_dropDownIcon);
 		}

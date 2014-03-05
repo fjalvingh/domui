@@ -17,3 +17,4 @@
 .ui-input-err, .ui-input-err textarea {
 	background-color: <%= errors_input_background %> !important;
 }
+

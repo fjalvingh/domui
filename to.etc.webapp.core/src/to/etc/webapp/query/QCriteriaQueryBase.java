@@ -59,6 +59,8 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	@Nullable
 	private Map<String, Object> m_optionMap;
 
+	private Map<String, QFetchStrategy> m_fetchMap = Collections.EMPTY_MAP;
+
 	protected QCriteriaQueryBase(@Nonnull Class<T> clz) {
 		super(clz, QOperation.AND);
 	}
@@ -113,9 +115,10 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	 * @param val
 	 */
 	public void setOption(@Nonnull String name, @Nullable Object val) {
-		if(m_optionMap == null)
-			m_optionMap = new HashMap<String, Object>();
-		m_optionMap.put(name, val);
+		Map<String, Object> optionMap = m_optionMap;
+		if(optionMap == null)
+			optionMap = m_optionMap = new HashMap<String, Object>();
+		optionMap.put(name, val);
 	}
 
 	/**
@@ -124,7 +127,8 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	 * @return
 	 */
 	public boolean hasOption(@Nonnull String name) {
-		return m_optionMap != null && m_optionMap.containsKey(name);
+		Map<String, Object> optionMap = m_optionMap;
+		return optionMap != null && optionMap.containsKey(name);
 	}
 
 	/**
@@ -134,7 +138,13 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	 */
 	@Nullable
 	public Object getOption(@Nonnull String name) {
-		return m_optionMap == null ? null : m_optionMap.get(name);
+		Map<String, Object> optionMap = m_optionMap;
+		return optionMap == null ? null : optionMap.get(name);
+	}
+
+	@Nonnull
+	public Map<String, QFetchStrategy> getFetchStrategies() {
+		return m_fetchMap;
 	}
 
 	/*--------------------------------------------------------------*/
@@ -442,5 +452,19 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	 */
 	public void setTimeout(int timeout) {
 		m_timeout = timeout;
+	}
+
+	/**
+	 * Set a fetch strategy for a relation.
+	 * @param property
+	 * @param strategy
+	 * @return
+	 */
+	@Nonnull
+	public QCriteriaQueryBase<T> fetch(@Nonnull @GProperty String property, @Nonnull QFetchStrategy strategy) {
+		if(m_fetchMap.size() == 0)
+			m_fetchMap = new HashMap<String, QFetchStrategy>();
+		m_fetchMap.put(property, strategy);
+		return this;
 	}
 }

@@ -41,7 +41,7 @@ abstract public class QRestrictor<T> {
 	private final Class<T> m_baseClass;
 
 	/** The return data type; baseclass for class-based queries and metaTable.getDataClass() for metatable queries. */
-	@Nullable
+	@Nonnull
 	private final Class<T> m_returnClass;
 
 	/** If this is a selector on some metathing this represents the metathing. */
@@ -69,6 +69,13 @@ abstract public class QRestrictor<T> {
 		m_returnClass = meta.getDataClass();
 		m_combinator = combinator;
 		m_baseClass = null;
+	}
+
+	protected QRestrictor(@Nonnull QRestrictor<T> parent, @Nonnull QOperation combinator) {
+		m_metaTable = parent.getMetaTable();
+		m_baseClass = parent.getBaseClass();
+		m_returnClass = parent.getReturnClass();
+		m_combinator = combinator;
 	}
 
 	/**
@@ -106,20 +113,21 @@ abstract public class QRestrictor<T> {
 	}
 
 	/**
-	 * Add a new restriction to the list of restrictions on the data. This will do "and" collapsion: when the node added is an "and"
+	 * Add a new restriction to the list of restrictions on the data. This will do "and" collapsing: when the node added is an "and"
 	 * it's nodes will be added directly to the list (because that already represents an and combinatory).
 	 * @param r
 	 */
 	protected void internalAdd(@Nonnull QOperatorNode r) {
-		if(getRestrictions() == null) {
-			setRestrictions(r); // Just set the single operation,
-		} else if(getRestrictions().getOperation() == m_combinator) {
+		QOperatorNode restrictions = getRestrictions();
+		if(restrictions == null) {
+			setRestrictions(r); 						// Just set the single operation,
+		} else if(restrictions.getOperation() == m_combinator) {
 			//-- Already the proper combinator - add the node to it.
-			((QMultiNode) getRestrictions()).add(r);
+			((QMultiNode) restrictions).add(r);
 		} else {
 			//-- We need to replace the current restriction with a higher combinator node and add the items there.
 			QMultiNode comb = new QMultiNode(m_combinator);
-			comb.add(getRestrictions());
+			comb.add(restrictions);
 			comb.add(r);
 			setRestrictions(comb);
 		}
@@ -159,6 +167,29 @@ abstract public class QRestrictor<T> {
 		return new QRestrictorImpl<T>(this, and);
 	}
 
+	/**
+	 * This merges the "other" restrictor's restrictions inside this restriction. Both
+	 * restrictions are merged by using an "and" between both complete sets. Only "this"
+	 * restriction is altered; the original is kept as-is (the nodes are copied).
+	 *
+	 * @param other
+	 */
+	public void mergeCriteria(@Nonnull QRestrictor<T> other) {
+		QOperatorNode othertree = other.getRestrictions();
+		if(null == othertree)
+			return;
+
+		//-- Duplicate the other restrictions set, then "and" it with this entire set.
+		othertree = othertree.dup();
+		QOperatorNode thistree = getRestrictions();
+		if(null == thistree) {
+			setRestrictions(othertree);
+			return;
+		}
+
+		QMultiNode and = new QMultiNode(QOperation.AND, new QOperatorNode[]{thistree, othertree});
+		setRestrictions(and);
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Adding selection restrictions (where clause)		*/
@@ -511,6 +542,20 @@ abstract public class QRestrictor<T> {
 	}
 
 	/**
+	 * Add a restriction in bare SQL, with JDBC parameters inside the string (specified as '?'). This
+	 * is implementation-dependent. The first ? in the string corresponds to params[0]. Parameters are
+	 * not allowed to be null (i.e. the type is @Nonnull Object[@Nonnull] or something).
+	 * @param sql
+	 * @param params
+	 * @return
+	 */
+	@Nonnull
+	public QRestrictor<T> sqlCondition(@Nonnull final String sql, @Nonnull Object[] params) {
+		add(QRestriction.sqlCondition(sql, params));
+		return this;
+	}
+
+	/**
 	 * Create a joined "exists" subquery on some child list property. The parameters passed have a relation with eachother;
 	 * this relation cannot be checked at compile time because Java still lacks property references (Sun is still too utterly
 	 * stupid to define them). They will be checked at runtime when the query is executed.
@@ -522,7 +567,7 @@ abstract public class QRestrictor<T> {
 	 */
 	@Nonnull
 	public <U> QRestrictor<U> exists(@Nonnull Class<U> childclass, @Nonnull @GProperty("U") String childproperty) {
-		final QExistsSubquery<U> sq = new QExistsSubquery<U>(this.getBaseClass(), childclass, childproperty);
+		final QExistsSubquery<U> sq = new QExistsSubquery<U>(this, childclass, childproperty);
 		QRestrictor<U> builder = new QRestrictor<U>(childclass, QOperation.AND) {
 			@Override
 			public QOperatorNode getRestrictions() {
@@ -530,7 +575,7 @@ abstract public class QRestrictor<T> {
 			}
 
 			@Override
-			public void setRestrictions(QOperatorNode n) {
+			public void setRestrictions(@Nullable QOperatorNode n) {
 				sq.setRestrictions(n);
 			}
 		};
@@ -539,7 +584,7 @@ abstract public class QRestrictor<T> {
 	}
 
 	@Nonnull
-	public <R extends QField<R, U>, U> QRestrictor<U> exists(@Nonnull QList<R> listProperty) throws Exception {
+	public <P extends QField<P, T>, R extends QField<R, U>, U> QRestrictor<U> exists(@Nonnull QList<P, R> listProperty) throws Exception {
 		return (QRestrictor<U>) exists(listProperty.getRootClass(), listProperty.m_listName);
 	}
 
@@ -547,8 +592,8 @@ abstract public class QRestrictor<T> {
 		return eq(property.getPath(), value);
 	}
 
-	@Nonnull
 	public <U> QSubQuery<U, T> subquery(@Nonnull Class<U> childClass) throws Exception {
 		return new QSubQuery<U, T>(this, childClass);
 	}
 }
+

@@ -43,6 +43,7 @@ import to.etc.domui.dom.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.dom.webaction.*;
 import to.etc.domui.injector.*;
 import to.etc.domui.login.*;
 import to.etc.domui.parts.*;
@@ -133,6 +134,7 @@ public abstract class DomApplication {
 	 * root URL is entered without a class name.
 	 * @return
 	 */
+	@Nullable
 	abstract public Class< ? extends UrlPage> getRootPage();
 
 	/**
@@ -140,8 +142,6 @@ public abstract class DomApplication {
 	 */
 	@Nonnull
 	private List<IHtmlRenderFactory> m_renderFactoryList = new ArrayList<IHtmlRenderFactory>();
-
-	final private String m_scriptVersion;
 
 	@Nonnull
 	private List<IResourceFactory> m_resourceFactoryList = Collections.EMPTY_LIST;
@@ -186,18 +186,54 @@ public abstract class DomApplication {
 	@Nonnull
 	private List<IAsyncListener< ? >> m_asyncListenerList = Collections.emptyList();
 
+	@Nonnull
+	private final WebActionRegistry m_webActionRegistry = new WebActionRegistry();
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Initialization and session management.				*/
 	/*--------------------------------------------------------------*/
+	static private String[][] JQUERYSETS = {												//
+		{"1.4.4", "jquery-1.4.4", "jquery.js", "jquery-ui.js"},								//
+		{"1.10.2", "jquery-1.10.2", "jquery.js", "jquery-ui.js", "jquery-migrate.js"},		//
+
+	};
+
+	@Nonnull
+	private String m_jQueryVersion;
+
+	@Nonnull
+	private List<String> m_jQueryScripts;
+
+	@Nonnull
+	private String m_jQueryPath;
+
 	/**
 	 * The only constructor.
 	 */
 	public DomApplication() {
-		m_scriptVersion = DeveloperOptions.getString("domui.scriptversion", "jquery-1.4.4");
+		//-- Handle jQuery version.
+		String jqversion = DeveloperOptions.getString("domui.jqueryversion", "1.10.2");
+		String[] jqdata = null;
+		for(String[] jqd : JQUERYSETS) {
+			if(jqd[0].equalsIgnoreCase(jqversion)) {
+				jqdata = jqd;
+				break;
+			}
+		}
+		if(null == jqdata || null == jqversion)
+			throw new IllegalStateException("jQuery version '" + jqversion + "' not supported");
+		m_jQueryVersion = jqversion;
+		m_jQueryPath = jqdata[1];
+		List<String> jqp = new ArrayList<String>(jqdata.length - 2);
+		for(int i = 2; i < jqdata.length; i++)
+			jqp.add(jqdata[i]);
+		m_jQueryScripts = jqp;
+
 		registerControlFactories();
 		registerPartFactories();
 		initHeaderContributors();
-		addRenderFactory(new MsCrapwareRenderFactory()); // Add html renderers for IE <= 8
+		initializeWebActions();
+		addRenderFactory(new MsCrapwareRenderFactory()); 						// Add html renderers for IE <= 8
 		addExceptionListener(QNotFoundException.class, new IExceptionListener() {
 			@Override
 			public boolean handleException(final @Nonnull IRequestContext ctx, final @Nonnull Page page, final @Nullable NodeBase source, final @Nonnull Throwable x) throws Exception {
@@ -238,12 +274,12 @@ public abstract class DomApplication {
 	}
 
 	protected void registerControlFactories() {
-		registerControlFactory(ControlFactory.STRING_CF);
-		registerControlFactory(ControlFactory.TEXTAREA_CF);
-		registerControlFactory(ControlFactory.BOOLEAN_AND_ENUM_CF);
-		registerControlFactory(ControlFactory.DATE_CF);
-		registerControlFactory(ControlFactory.RELATION_COMBOBOX_CF);
-		registerControlFactory(ControlFactory.RELATION_LOOKUP_CF);
+		registerControlFactory(PropertyControlFactory.STRING_CF);
+		registerControlFactory(PropertyControlFactory.TEXTAREA_CF);
+		registerControlFactory(PropertyControlFactory.BOOLEAN_AND_ENUM_CF);
+		registerControlFactory(PropertyControlFactory.DATE_CF);
+		registerControlFactory(PropertyControlFactory.RELATION_COMBOBOX_CF);
+		registerControlFactory(PropertyControlFactory.RELATION_LOOKUP_CF);
 		registerControlFactory(new ControlFactoryMoney());
 	}
 
@@ -356,7 +392,8 @@ public abstract class DomApplication {
 	 * Can be overridden to create your own instance of a session.
 	 * @return
 	 */
-	protected AppSession createSession() {
+	@Nonnull
+	public AppSession createSession() {
 		AppSession aps = new AppSession(this);
 		return aps;
 	}
@@ -365,7 +402,7 @@ public abstract class DomApplication {
 	 * Called when the session is bound to the HTTPSession. This calls all session listeners.
 	 * @param sess
 	 */
-	void registerSession(final AppSession aps) {
+	void registerSession(@Nonnull final AppSession aps) {
 		for(IAppSessionListener l : getAppSessionListeners()) {
 			try {
 				l.sessionCreated(this, aps);
@@ -375,7 +412,7 @@ public abstract class DomApplication {
 		}
 	}
 
-	void unregisterSession(final AppSession aps) {
+	void unregisterSession(@Nonnull final AppSession aps) {
 
 	}
 
@@ -438,11 +475,12 @@ public abstract class DomApplication {
 
 		/*
 		 * If we're running in development mode then we auto-reload changed pages when the developer changes
-		 * them. It can be reset by using a developer.properties option.
+		 * them. It can be reset by using a developer.properties option. If output logging is on then by
+		 * default autorefresh will be disabled, to prevent output every second from the poll.
 		 */
 		int refreshinterval = 0;
 		if(development) {
-			if(DeveloperOptions.getBool("domui.autorefresh", true)) {
+			if(DeveloperOptions.getBool("domui.autorefresh", !DeveloperOptions.getBool("domui.log", false))) {
 				//-- Auto-refresh pages is on.... Get the poll interval for it,
 				refreshinterval = DeveloperOptions.getInt("domui.refreshinterval", 2500);		// Initialize "auto refresh" interval to 2 seconds
 			}
@@ -458,7 +496,8 @@ public abstract class DomApplication {
 		return id;
 	}
 
-	final Class< ? > loadApplicationClass(final String name) throws ClassNotFoundException {
+	@Nonnull
+	final Class< ? > loadApplicationClass(@Nonnull final String name) throws ClassNotFoundException {
 		/*
 		 * jal 20081030 Code below is very wrong. When the application is not reloaded due to a
 		 * change the classloader passed at init time does not change. But a new classloader will
@@ -469,7 +508,8 @@ public abstract class DomApplication {
 		return getClass().getClassLoader().loadClass(name);
 	}
 
-	public Class< ? extends UrlPage> loadPageClass(final String name) {
+	@Nonnull
+	public Class< ? extends UrlPage> loadPageClass(@Nonnull final String name) {
 		//-- This should be a classname now
 		Class< ? > clz = null;
 		try {
@@ -487,8 +527,39 @@ public abstract class DomApplication {
 		return (Class< ? extends UrlPage>) clz;
 	}
 
+	@Nonnull
 	public String getScriptVersion() {
-		return m_scriptVersion;
+		return m_jQueryPath;
+	}
+
+	@Nonnull
+	public List<String> getJQueryScripts() {
+		return m_jQueryScripts;
+	}
+
+	public String getJQueryVersion() {
+		return m_jQueryVersion;
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	WebActionRegistry.									*/
+	/*--------------------------------------------------------------*/
+
+	/**
+	 * Get the action registry for  {@link NodeBase#componentHandleWebAction(RequestContextImpl, String)} requests.
+	 * @return
+	 */
+	@Nonnull
+	public WebActionRegistry getWebActionRegistry() {
+		return m_webActionRegistry;
+	}
+
+	/**
+	 * Register all default web actions for {@link NodeBase#componentHandleWebAction(RequestContextImpl, String)} requests.
+	 */
+	protected void initializeWebActions() {
+		getWebActionRegistry().register(new SimpleWebActionFactory());			// ORDERED
+		getWebActionRegistry().register(new JsonWebActionFactory());
 	}
 
 	/*--------------------------------------------------------------*/
@@ -718,8 +789,10 @@ public abstract class DomApplication {
 	/*--------------------------------------------------------------*/
 
 	protected void initHeaderContributors() {
-		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery.js"), -1000);
-		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery-ui.js"), -1000);
+		int order = -1200;
+		for(String jqresource : getJQueryScripts()) {
+			addHeaderContributor(HeaderContributor.loadJavascript("$js/" + jqresource), order++);
+		}
 
 		//		addHeaderContributor(HeaderContributor.loadJavascript("$js/ui.core.js"), -990);
 		//		addHeaderContributor(HeaderContributor.loadJavascript("$js/ui.draggable.js"), -980);
@@ -818,6 +891,7 @@ public abstract class DomApplication {
 	/**
 	 * Return the component that knows everything you ever wanted to know about controls - but were afraid to ask...
 	 */
+	@Nonnull
 	final public ControlBuilder getControlBuilder() {
 		return m_controlBuilder;
 	}
@@ -826,7 +900,7 @@ public abstract class DomApplication {
 	 * Add a new control factory to the registry.
 	 * @param cf		The new factory
 	 */
-	final public void registerControlFactory(final ControlFactory cf) {
+	final public void registerControlFactory(final PropertyControlFactory cf) {
 		getControlBuilder().registerControlFactory(cf);
 	}
 
@@ -1638,7 +1712,7 @@ public abstract class DomApplication {
 	 * @param keepAliveInterval
 	 */
 	public synchronized void setKeepAliveInterval(int keepAliveInterval) {
-		if(DeveloperOptions.getBool("domui.autorefresh", true) || DeveloperOptions.getBool("domui.keepalive", false))				// If "autorefresh" has been disabled do not use keepalive either.
+		if(!DeveloperOptions.getBool("domui.log", false) && (DeveloperOptions.getBool("domui.autorefresh", true) || DeveloperOptions.getBool("domui.keepalive", false)))				// If "autorefresh" has been disabled do not use keepalive either.
 			m_keepAliveInterval = keepAliveInterval;
 	}
 

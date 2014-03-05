@@ -34,8 +34,6 @@ import to.etc.domui.trouble.*;
  * Something to control a control: some input or control comnponent in a generic way. This
  * interface is allowed to be implemented on non-nodebase object.
  *
- * FIXME Should this also be a IBindable control?
- *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 6, 2009
  */

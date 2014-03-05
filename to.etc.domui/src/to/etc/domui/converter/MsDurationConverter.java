@@ -26,21 +26,144 @@ package to.etc.domui.converter;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.trouble.*;
-import to.etc.util.*;
+import to.etc.domui.util.*;
 
 public class MsDurationConverter implements IConverter<Long> {
+	static private final long DAYS = 24 * 60 * 60;
+
+	static private final long HOURS = 60 * 60;
+
 	@Override
 	public String convertObjectToString(Locale loc, Long in) throws UIException {
 		if(in == null)
 			return "";
 		if(in.longValue() < 0)
 			return "";
-		return StringTool.strDurationMillis(in.longValue());
+		return strDurationMillis(in.longValue());
 	}
 
 	@Override
 	public Long convertStringToObject(Locale loc, String in) throws UIException {
-		throw new IllegalStateException("Not implemented yet");
+		if(null == in)
+			return null;
+		in = in.trim();
+		if(in.length() == 0)
+			return null;
+		MiniScanner ms = MiniScanner.getInstance();
+		ms.init(in);
+		long dur = 0;
+		ms.skipWs();
+		while(!ms.eof()) {
+			int nr = scanNumber(ms);
+			if(nr == -1)
+				throw new ValidationException(Msgs.V_BAD_DURATION);
+
+			ms.skipWs();
+			int mc = ms.LA();
+			switch(mc) {
+				default:
+					throw new ValidationException(Msgs.V_BAD_DURATION);
+
+				case -1:
+				case 'd':
+				case 'D':
+					dur += nr * DAYS * 1000;
+					break;
+
+				case 'H':
+				case 'h':
+				case 'U':
+				case 'u':
+					dur += nr * HOURS * 1000;
+					break;
+
+				case 'm':
+				case 'M':
+					if(ms.LA(1) == 's' || ms.LA(1) == 'S') {
+						dur += nr;
+						ms.accept();
+					} else {
+						dur += nr * 60 * 1000;
+					}
+					break;
+
+				case 's':
+				case 'S':
+					dur += nr;
+					break;
+
+			}
+			ms.accept();
+			ms.skipWs();
+		}
+		return Long.valueOf(dur);
 	}
+
+	private int scanNumber(@Nonnull MiniScanner ms) {
+		int nr = 0;
+		int ct = 0;
+		for(;;) {
+			int c = ms.LA();
+			if(!Character.isDigit(c))
+				return ct > 0 ? nr : -1;
+			nr = nr * 10 + Character.digit(c, 10);
+			ct++;
+			ms.accept();
+		}
+	}
+
+	static public String strDurationMillis(long dlt) {
+		StringBuffer sb = new StringBuffer();
+
+		int millis = (int) (dlt % 1000); // Get milliseconds,
+		dlt /= 1000; // Now in seconds,
+
+		boolean sp = false;
+		if(dlt >= DAYS) {
+			sb.append(dlt / DAYS);
+			sb.append("D");
+			dlt %= DAYS;
+			sp = true;
+		}
+		if(dlt >= HOURS) {
+			long v = dlt / HOURS;
+			if(v != 0) {
+				if(sp)
+					sb.append(' ');
+				sb.append(v);
+				sb.append("u");
+				sp = true;
+			}
+			dlt %= HOURS;
+		}
+		if(dlt >= 60) {
+			long v = dlt / 60;
+			if(v != 0) {
+				if(sp)
+					sb.append(' ');
+				sb.append(v);
+				sb.append("m");
+				sp = true;
+			}
+			dlt %= 60;
+		}
+		if(dlt != 0) {
+			if(sp)
+				sb.append(' ');
+			sb.append(dlt);
+			sb.append("s");
+			sp = true;
+		}
+		if(millis != 0) {
+			if(sp)
+				sb.append(' ');
+			sb.append(millis);
+			sb.append("ms");
+		}
+		return sb.toString();
+	}
+
 }

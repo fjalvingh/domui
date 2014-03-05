@@ -36,7 +36,7 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 1, 2008
  */
-public class Input extends NodeBase implements IHasChangeListener, INodeErrorDelegate {
+public class Input extends NodeBase implements IHasChangeListener, INodeErrorDelegate, IHtmlInput {
 	private boolean m_disabled;
 
 	private int m_maxLength;
@@ -70,10 +70,12 @@ public class Input extends NodeBase implements IHasChangeListener, INodeErrorDel
 		v.visitInput(this);
 	}
 
+	@Override
 	public boolean isDisabled() {
 		return m_disabled;
 	}
 
+	@Override
 	public void setDisabled(boolean disabled) {
 		if(m_disabled == disabled)
 			return;
@@ -160,8 +162,8 @@ public class Input extends NodeBase implements IHasChangeListener, INodeErrorDel
 
 		//-- For "changed" determination: treat null and empty string in rawValue the same.
 		if((prev == null || prev.length() == 0) && (m_rawValue == null || m_rawValue.length() == 0))
-			return false; // Both are "empty" meaning null/""
-		return !DomUtil.isEqual(prev, m_rawValue); // Changed if not equal
+			return false; 													// Both are "empty" meaning null/""
+		return !DomUtil.isEqual(prev, m_rawValue);							// Changed if not equal
 	}
 
 	/**

@@ -24,6 +24,8 @@
  */
 package to.etc.util;
 
+import javax.annotation.*;
+
 /**
  * Stuff to write logging to.
  *
@@ -31,7 +33,7 @@ package to.etc.util;
  * Created on Apr 16, 2005
  */
 public interface ILogSink {
-	void log(String msg);
+	void log(@Nonnull String msg);
 
-	void exception(Throwable t, String msg);
+	void exception(@Nonnull Throwable t, @Nonnull String msg);
 }

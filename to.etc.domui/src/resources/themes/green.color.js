@@ -42,7 +42,8 @@ errors_input_background="#ffe5e5";	// error bg for input component
 
 warnings_background="#fffeee"; // light yellow
 warnings_foreground="yellow";
-warnings_foreground="black";
+warnings_border="#fffeee";
+
 
 info_bg="#e4eeff";		// blueish light
 info_fg="#4075db";

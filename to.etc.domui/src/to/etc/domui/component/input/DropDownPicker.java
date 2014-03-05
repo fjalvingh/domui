@@ -331,11 +331,12 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 		return m_picker;
 	}
 
-	public @Nonnull
-	List<T> getData() {
-		if(null != m_data)
-			return m_data;
-		throw new IllegalStateException("The 'data' property is not set");
+	@Nonnull
+	private List<T> getData() {
+		List<T> data = m_data;
+		if(null == data)
+			throw new IllegalStateException("Data is null");
+		return data;
 	}
 
 	public boolean hasData() {

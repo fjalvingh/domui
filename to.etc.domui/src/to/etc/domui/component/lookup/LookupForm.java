@@ -41,6 +41,7 @@ import to.etc.domui.server.*;
 import to.etc.domui.themes.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.*;
+import to.etc.webapp.annotations.*;
 import to.etc.webapp.query.*;
 
 /**
@@ -399,7 +400,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	/** The list of buttons to show on the button row. */
 	private List<ButtonRowItem> m_buttonItemList = Collections.EMPTY_LIST;
 
-	public LookupForm(@Nonnull final Class<T> lookupClass, String... propertyList) {
+	public LookupForm(@Nonnull final Class<T> lookupClass, @GProperty String... propertyList) {
 		this(lookupClass, (ClassMetaModel) null, propertyList);
 	}
 
@@ -669,6 +670,8 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 			if(m_twoColumnsMode && (totalCount >= m_minSizeForTwoColumnsMode) && m_itemList.size() == (totalCount + 1) / 2) {
 				m_itemList.add(new ItemBreak());
 			}
+			updateUI(it);
+
 		}
 	}
 
@@ -727,6 +730,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		it.setIgnoreCase(ignorecase == null ? true : ignorecase.booleanValue());
 		it.setMinLength(minlen);
 		addAndFinish(it);
+		updateUI(it);
 		return it;
 	}
 
@@ -743,6 +747,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		Item it = new Item();
 		it.setInstance(lci);
 		addAndFinish(it);
+		updateUI(it);
 		return it;
 	}
 
@@ -767,6 +772,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		if(qt == null || qt.getInputControls() == null || qt.getInputControls().length == 0)
 			throw new IllegalStateException("Lookup factory " + lcf + " did not link thenlookup thingy for property " + it.getPropertyName());
 		it.setInstance(qt);
+		updateUI(it);
 		return it;
 	}
 
@@ -779,6 +785,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		it.setInstance(lci);
 		it.setLabelText(labelText);
 		addAndFinish(it);
+		updateUI(it);
 		return it;
 	}
 
@@ -911,6 +918,13 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		if(it.getErrorLocation() == null) {
 			it.setErrorLocation(it.getLabelText());
 		}
+
+	}
+
+	private void updateUI(@Nonnull Item it) {
+		//-- jal 20130528 This component quite sucks balls- the interface is not able to add on-the-fly.
+		if(m_tbody != null)
+			internalAddLookupItem(it);
 	}
 
 

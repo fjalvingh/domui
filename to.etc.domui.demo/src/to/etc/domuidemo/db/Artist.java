@@ -9,12 +9,13 @@ import javax.persistence.Table;
 import org.hibernate.annotations.*;
 
 import to.etc.domui.component.meta.*;
+import to.etc.domui.databinding.observables.*;
 
 @Entity
 @Table(name = "Artist")
 @SequenceGenerator(name = "sq", sequenceName = "artist_sq")
 @MetaObject(defaultColumns = {@MetaDisplayProperty(name = "name")})
-public class Artist extends DbRecordBase<Long> {
+public class Artist extends DbRecordBase<Long> implements IObservableEntity {
 	private Long m_id;
 
 	private String m_name;
@@ -30,7 +31,9 @@ public class Artist extends DbRecordBase<Long> {
 	}
 
 	public void setId(Long id) {
+		Long oldv = getId();
 		m_id = id;
+		firePropertyChange("id", oldv, id);
 	}
 
 	@Column(length = 120, nullable = false, unique = true)
@@ -40,7 +43,9 @@ public class Artist extends DbRecordBase<Long> {
 	}
 
 	public void setName(String name) {
+		String oldv = getName();
 		m_name = name;
+		firePropertyChange("name", oldv, name);
 	}
 
 	@OneToMany(mappedBy = "artist")

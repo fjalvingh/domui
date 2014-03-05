@@ -28,6 +28,8 @@ import java.util.*;
 
 import javax.annotation.*;
 
+import to.etc.domui.util.*;
+
 abstract public class TabularComponentBase<T> extends TableModelTableBase<T> implements ITableModelListener<T> {
 	/** The current page #, starting at 0 */
 	private int m_currentPage;
@@ -37,11 +39,15 @@ abstract public class TabularComponentBase<T> extends TableModelTableBase<T> imp
 	@Nonnull
 	private List<IDataTableChangeListener> m_listeners = Collections.EMPTY_LIST;
 
+	private boolean m_disableClipboardSelection;
+
 	abstract int getPageSize();
 
 	public TabularComponentBase(ITableModel<T> model) {
 		super(model);
 	}
+
+	public TabularComponentBase() {}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Model/page changed listener code..					*/
@@ -158,4 +164,18 @@ abstract public class TabularComponentBase<T> extends TableModelTableBase<T> imp
 		ITruncateableDataModel t = (ITruncateableDataModel) tm;
 		return t.getTruncatedCount();
 	}
+
+	public boolean isDisableClipboardSelection() {
+		return m_disableClipboardSelection;
+	}
+
+	public void setDisableClipboardSelection(boolean disableClipboardSelection) {
+		if(m_disableClipboardSelection == disableClipboardSelection)
+			return;
+		m_disableClipboardSelection = disableClipboardSelection;
+		if(isBuilt() && disableClipboardSelection) {
+			appendJavascript(JavascriptUtil.disableSelection(this)); // Needed to prevent ctrl+click in IE doing clipboard-select, because preventDefault does not work there of course.
+		}
+	}
+
 }

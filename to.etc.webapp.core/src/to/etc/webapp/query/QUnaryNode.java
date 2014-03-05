@@ -24,20 +24,29 @@
  */
 package to.etc.webapp.query;
 
-public class QUnaryNode extends QOperatorNode {
-	private QOperatorNode m_node;
+import javax.annotation.*;
 
-	public QUnaryNode(QOperation operation, QOperatorNode node) {
+public class QUnaryNode extends QOperatorNode {
+	@Nonnull
+	final private QOperatorNode m_node;
+
+	public QUnaryNode(@Nonnull QOperation operation, @Nonnull QOperatorNode node) {
 		super(operation);
 		m_node = node;
 	}
 
+	@Override
+	public QUnaryNode dup() {
+		return new QUnaryNode(getOperation(), getNode());
+	}
+
+	@Nonnull
 	public QOperatorNode getNode() {
 		return m_node;
 	}
 
 	@Override
-	public void visit(QNodeVisitor v) throws Exception {
+	public void visit(@Nonnull QNodeVisitor v) throws Exception {
 		v.visitUnaryNode(this);
 	}
 }

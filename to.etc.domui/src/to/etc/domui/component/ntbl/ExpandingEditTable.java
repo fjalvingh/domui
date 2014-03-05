@@ -134,28 +134,6 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		setErrorFence();
 	}
 
-	//	public ExpandingEditTable(@Nonnull Class<T> actualClass, @Nonnull IRowRenderer<T> r) {
-	//		m_rowRenderer = r;
-	//		setErrorFence();
-	//	}
-
-	//	public ExpandingEditTable(@Nonnull IRowRenderer<T> r) {
-	//		m_rowRenderer = r;
-	//		setErrorFence();
-	//	}
-
-	//	public ExpandingEditTable(@Nonnull Class<T> actualClass, @Nullable IRowRenderer<T> r) {
-	//		super(actualClass);
-	//		m_rowRenderer = r;
-	//		setErrorFence();
-	//	}
-	//
-	//	public ExpandingEditTable(@Nonnull Class<T> actualClass, @Nullable ITableModel<T> m, @Nullable IRowRenderer<T> r) {
-	//		super(actualClass, m);
-	//		m_rowRenderer = r;
-	//		setErrorFence();
-	//	}
-
 	private boolean setEmptyDiv() throws Exception {
 		if(getModel().getRows() == 0) {
 			if(m_emptyDiv != null)
@@ -452,13 +430,15 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 				return;
 		}
 
-		if(getOnRowChangeCompleted() != null) {
-			if(!((IRowEditorEvent<T, NodeContainer>) getOnRowChangeCompleted()).onRowChanged(this, editor, item, false))
+		IRowEditorEvent<T, ? > onRowChangeCompleted = getOnRowChangeCompleted();
+		if(onRowChangeCompleted != null) {
+			if(!((IRowEditorEvent<T, NodeContainer>) onRowChangeCompleted).onRowChanged(this, editor, item, false))
 				return;
 		}
 
 		//-- Done: just re-render the collapsed row
-		renderCollapsedRow(index, item);
+		if(item != null)
+			renderCollapsedRow(index, item);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -576,8 +556,9 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		T newInstance = m_newInstance;
 		if(null == newInstance)
 			throw new IllegalStateException("The 'new' instance being edited is null?");
-		if(getOnRowChangeCompleted() != null) {
-			if(!((IRowEditorEvent<T, NodeContainer>) getOnRowChangeCompleted()).onRowChanged(this, newEditor, newInstance, true)) {
+		IRowEditorEvent<T, ? > onRowChangeCompleted = getOnRowChangeCompleted();
+		if(onRowChangeCompleted != null) {
+			if(!((IRowEditorEvent<T, NodeContainer>) onRowChangeCompleted).onRowChanged(this, newEditor, newInstance, true)) {
 				return;
 			}
 		}

@@ -149,7 +149,7 @@ public class LinkedText /* implements Appendable */{
 	 * @param len
 	 * @return
 	 */
-	private static int decodeKey(ITextLinkRenderer r, StringBuilder sb, int ix, String in, int len) {
+	private static int decodeKey(@Nonnull ITextLinkRenderer r, @Nonnull StringBuilder sb, int ix, @Nonnull String in, int len) {
 		int dol = 0;
 		String type = null;
 		String key = null;
@@ -158,11 +158,15 @@ public class LinkedText /* implements Appendable */{
 		while(ix < len) {
 			char c = in.charAt(ix++);
 			if(c == '\\' && ix < len) {
-				sb.append(in.charAt(ix++)); // Escaped char added verbatim.
+				sb.append(in.charAt(ix++)); 				// Escaped char added verbatim.
 			} else if(c == ']') {
 				//-- End-of-key. Add collected part.
 				text = sb.toString();
 				sb.setLength(0);
+				if(null == key)
+					key = "?";
+				if(null == text)
+					text = "?";
 
 				//-- Find the info
 				TextLinkInfo tli = TextLinkInfo.getInfo(type);
@@ -172,7 +176,7 @@ public class LinkedText /* implements Appendable */{
 					r.appendLink(tli.getFullUrl(key), text);
 				}
 				return ix;
-			} else if(c == '$') { // Item separator?
+			} else if(c == '$') { 							// Item separator?
 				if(dol == 0)
 					type = sb.toString();
 				else if(dol == 1)
