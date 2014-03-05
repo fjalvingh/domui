@@ -85,8 +85,9 @@ public class MaxMinValidator implements IValueValidator<Number> {
 	}
 
 	private void throwError(@Nonnull String code, @Nonnull Number val) {
-		if(m_msg != null) {
-			throw new ValidationException(m_msg.getBundle(), m_msg.getCode(), m_msg.getParameters());
+		UIMessage msg = m_msg;
+		if(msg != null) {
+			throw new ValidationException(msg.getBundle(), msg.getCode(), msg.getParameters());
 		} else {
 			throw new ValidationException(code, val.toString());
 		}

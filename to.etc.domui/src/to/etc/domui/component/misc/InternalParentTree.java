@@ -368,7 +368,10 @@ public class InternalParentTree extends Div {
 
 		@Nonnull
 		public String getMessage() {
-			return m_message;
+			String message = m_message;
+			if(null == message)
+				throw new IllegalStateException("Message not defined");
+			return message;
 		}
 
 		@Nonnull
