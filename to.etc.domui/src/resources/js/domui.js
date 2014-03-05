@@ -2657,20 +2657,25 @@ var WebUI = {
 		$(document).bind("keydown", function(e) {
 			if(e.keyCode != 192)
 				return;
+//			if(console)
+//				console.debug("first click");
 
 			var t = new Date().getTime();
 			if(! WebUI._debugLastKeypress || (t - WebUI._debugLastKeypress) > 250) {
 				WebUI._debugLastKeypress = t;
 				return;
 			}
-//			console.debug("double ", e);
+//			if(console)
+//				console.debug("second click");
 
 //			WebUI._NOMOVE = true;
 			//-- Send a DEBUG command to the server, indicating the current node below the last mouse move....
 			var id = WebUI.nearestID(WebUI._debugMouseTarget);
-//			console.debug("idis  "+id+", m="+WebUI._debugMouseTarget);
-			if(! id)
-				return;
+			if(! id) {
+				id = document.body.id;
+			}
+//			if(console)
+//				console.debug("debug open: id="+id);
 
 //			console.debug("Escape doublepress on ID="+id);
 			WebUI.scall(id, "DEVTREE", {});

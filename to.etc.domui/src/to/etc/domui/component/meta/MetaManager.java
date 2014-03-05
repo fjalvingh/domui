@@ -941,6 +941,7 @@ final public class MetaManager {
 			if((!opmm.isPrimaryKey() || copyPK) && //
 				(!opmm.isTransient() || copyTransient) && //
 				(!"tcn".equalsIgnoreCase(opmm.getName()) || copyTCN) && //
+				opmm.getReadOnly() != YesNoType.YES && //
 				(ignoreList.size() == 0 || !ignoreList.contains(opmm.getName()))) {
 				try {
 					opmm.setValue(target, opmm.getValue(source));

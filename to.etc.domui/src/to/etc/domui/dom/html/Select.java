@@ -29,6 +29,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.buttons.*;
+import to.etc.domui.dom.errors.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 
@@ -107,6 +108,21 @@ public class Select extends InputNodeContainer implements IHasModifiedIndication
 			removeCssClass("ui-ro");
 		}
 		changed();
+	}
+
+	/**
+	 * Util for updating select enabled / disabled state depending on existence of error (reason for disabling).
+	 *
+	 * @param rsn reason to disable select. If null, select gets enabled, otherwise it gets disabled with rsn.getMessage() as title (hint)
+	 */
+	public void setDisabled(@Nullable UIMessage rsn) {
+		if(null != rsn) {
+			setDisabled(true);
+			setTitle(rsn.getMessage());
+		} else {
+			setDisabled(false);
+			setTitle(null);
+		}
 	}
 
 	public int getSize() {
@@ -264,7 +280,7 @@ public class Select extends InputNodeContainer implements IHasModifiedIndication
 
 	/**
 	 * Set or clear return press handler. Dropdown list that has size > 1 behaves different then ordinary drop down list, since value changed event gets triggered while list is browsed.
-	 * In order to prevent server roundtrip for each selection change while moving trought list wth arrow keys, implement setClicked and setReturnPressed events instead. 
+	 * In order to prevent server roundtrip for each selection change while moving trought list wth arrow keys, implement setClicked and setReturnPressed events instead.
 	 * @return
 	 */
 	public IReturnPressed<Select> getReturnPressed() {
