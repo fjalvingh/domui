@@ -11,6 +11,7 @@ import to.etc.domui.util.db.*;
 import to.etc.util.*;
 
 /**
+ * DO NOT USE. This class is retained to be reused once declarative logic is researched.
  * Helper class to copy models and to handle model changes related to models by comparing their
  * contents. The entire model is constructed by having a set of model "roots" that form the
  * basis for the data model we're manipulating.
@@ -26,6 +27,7 @@ import to.etc.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 29, 2012
  */
+@Deprecated
 public class LogiModel {
 	@Nonnull
 	private Set<Object> m_modelRoots = new HashSet<Object>();
@@ -251,9 +253,8 @@ public class LogiModel {
 				return false;
 
 			//-- Child was set to empty list...
-			return true;
-//			throw new IllegalStateException("ni: child set to unloaded while copy is discrete??");
-//			//			return true;
+			throw new IllegalStateException("ni: child set to unloaded while copy is discrete??");
+			//			return true;
 		}
 
 		//-- We have some collection here. Handle the supported cases (List only)
