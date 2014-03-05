@@ -29,6 +29,8 @@ import java.math.*;
 import java.text.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 /**
  * This static class contains a sh..tload of code which converts
  * runtime objects into other objects, using generic rules for doing that. This
@@ -706,6 +708,26 @@ public class RuntimeConversions {
 		if(o instanceof Calendar)
 			return ((Calendar) o).getTime();
 		throw new RuntimeConversionException("Cannot convert a " + o.getClass().getName() + " to a java.util.Date");
+	}
+
+	/**
+	 * Parses <b>input</b> String to {@link Date} class, acording to <b>dateFormat</b> argument.
+	 * @param input - input string to be parsed
+	 * @param dateFormat - to what format should the date be parsed
+	 * @return
+	 * @throws ParseException
+	 */
+	@Nonnull
+	static public java.util.Date convertToDate(@Nonnull final String input, @Nonnull final String dateFormat) throws ParseException {
+		if(StringTool.isBlank(dateFormat)) {
+			throw new IllegalArgumentException("dateFormat must not be empty");
+		}
+		if(StringTool.isBlank(input)) {
+			throw new IllegalArgumentException("input string must not be empty");
+		}
+
+		final SimpleDateFormat simpleDateFormat = new SimpleDateFormat(dateFormat);
+		return simpleDateFormat.parse(input);
 	}
 
 	static public Enum< ? > convertToEnum(Class<Enum< ? >> cl, Object o) {
