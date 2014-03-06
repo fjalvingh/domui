@@ -24,7 +24,7 @@ abstract public class SelectableTabularComponent<T> extends TabularComponentBase
 	@Nullable
 	private ISelectionAllHandler m_selectionAllHandler;
 
-	private boolean m_showSelectionAlways;
+	private boolean m_showSelectionAlways = true;
 
 	private boolean m_multiSelectMode;
 
