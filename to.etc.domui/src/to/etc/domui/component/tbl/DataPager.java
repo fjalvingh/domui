@@ -59,8 +59,6 @@ public class DataPager extends Div implements IDataTableChangeListener {
 
 	private SmallImgButton m_showSelectionBtn;
 
-	private SmallImgButton m_selectAllBtn, m_selectNoneBtn;
-
 	private Img m_truncated;
 
 	TabularComponentBase< ? > m_table;
@@ -347,40 +345,6 @@ public class DataPager extends Div implements IDataTableChangeListener {
 			needselectnone = true;
 		}
 
-		if(m_selectAllBtn == null && needselectall) {
-			m_selectAllBtn = new SmallImgButton("THEME/dpr-select-all.png");
-			m_buttonDiv.add(4, m_selectAllBtn);
-			m_selectAllBtn.setTitle(Msgs.BUNDLE.getString("ui.dpr.all"));
-			m_selectAllBtn.setClicked(new IClicked<SmallImgButton>() {
-				@Override
-				public void clicked(@Nonnull SmallImgButton clickednode) throws Exception {
-					ISelectionAllHandler ah = dt.getSelectionAllHandler();
-					if(null == ah)
-						throw new IllegalStateException("selectionAllHandler is null");
-					ah.selectAll(dt.getModel(), dt.getSelectionModel());
-				}
-			});
-		} else if(m_selectAllBtn != null && ! needselectall) {
-			m_selectAllBtn.remove();
-			m_selectAllBtn = null;
-		}
-
-		if(m_selectNoneBtn == null && needselectnone) {
-			m_selectNoneBtn = new SmallImgButton("THEME/dpr-select-none.png");
-			m_buttonDiv.add(4, m_selectNoneBtn);
-			m_selectNoneBtn.setTitle(Msgs.BUNDLE.getString("ui.dpr.none"));
-			m_selectNoneBtn.setClicked(new IClicked<SmallImgButton>() {
-				@Override
-				public void clicked(@Nonnull SmallImgButton clickednode) throws Exception {
-					ISelectionModel<?> sm = getSelectionModel();
-					if(null != sm)
-						sm.clearSelection();
-				}
-			});
-		} else if(m_selectNoneBtn != null && !needselectnone) {
-			m_selectNoneBtn.remove();
-			m_selectNoneBtn = null;
-		}
 	}
 
 	public Div getButtonDiv() {
