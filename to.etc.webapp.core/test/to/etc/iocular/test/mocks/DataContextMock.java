@@ -36,7 +36,7 @@ public class DataContextMock implements QDataContext {
 	private int m_alloc = 1;
 
 	@Override
-	public void attach(final Object o) throws Exception {}
+	public void attach(final @Nonnull Object o) throws Exception {}
 
 	@Override
 	public void setIgnoreClose(boolean on) {}
@@ -55,7 +55,7 @@ public class DataContextMock implements QDataContext {
 	}
 
 	@Override
-	public <T> T find(final Class<T> clz, final Object pk) throws Exception {
+	public <T> T find(final @Nonnull Class<T> clz, final @Nonnull Object pk) throws Exception {
 		return null;
 	}
 
@@ -86,7 +86,7 @@ public class DataContextMock implements QDataContext {
 	}
 
 	@Override
-	public <T> T queryOne(final QCriteria<T> q) throws Exception {
+	public <T> T queryOne(final @Nonnull QCriteria<T> q) throws Exception {
 		return null;
 	}
 
@@ -96,25 +96,25 @@ public class DataContextMock implements QDataContext {
 	}
 
 	@Override
-	public Object[] queryOne(QSelection< ? > sel) throws Exception {
+	public Object[] queryOne(@Nonnull QSelection< ? > sel) throws Exception {
 		return null;
 	}
 
 	@Override
-	public void refresh(final Object o) throws Exception {}
+	public void refresh(final @Nonnull Object o) throws Exception {}
 
 	@Override
 	public void rollback() throws Exception {}
 
 	@Override
-	public void save(final Object o) throws Exception {}
+	public void save(final @Nonnull Object o) throws Exception {}
 
 	@Override
 	public void startTransaction() throws Exception {}
 
 
 	@Override
-	public <T> T find(ICriteriaTableDef<T> metatable, Object pk) throws Exception {
+	public <T> T find(@Nonnull ICriteriaTableDef<T> metatable, @Nonnull Object pk) throws Exception {
 		return null;
 	}
 
@@ -154,7 +154,7 @@ public class DataContextMock implements QDataContext {
 	}
 
 	@Override
-	public void addCommitAction(IRunnable cx) {}
+	public void addCommitAction(@Nonnull IRunnable cx) {}
 
 	/**
 	 *

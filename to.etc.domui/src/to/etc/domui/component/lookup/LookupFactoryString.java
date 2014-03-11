@@ -84,7 +84,7 @@ final class LookupFactoryString implements ILookupControlFactory {
 		//-- Converter thingy is known. Now add a
 		return new AbstractLookupControlImpl(txt) {
 			@Override
-			public AppendCriteriaResult appendCriteria(QCriteria< ? > crit) throws Exception {
+			public AppendCriteriaResult appendCriteria(@Nonnull QCriteria< ? > crit) throws Exception {
 				Object value = null;
 				try {
 					value = txt.getValue();

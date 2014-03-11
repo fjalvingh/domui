@@ -26,6 +26,8 @@ package to.etc.webapp.query;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 /**
  * A node representing the same operation spanning several
  * nodes (like x AND y AND z)
@@ -70,7 +72,7 @@ public class QMultiNode extends QOperatorNode {
 	}
 
 	@Override
-	public void visit(QNodeVisitor v) throws Exception {
+	public void visit(@Nonnull QNodeVisitor v) throws Exception {
 		v.visitMulti(this);
 	}
 

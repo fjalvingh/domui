@@ -517,7 +517,7 @@ abstract public class QRestrictor<T> {
 			}
 
 			@Override
-			public void setRestrictions(QOperatorNode n) {
+			public void setRestrictions(@Nullable QOperatorNode n) {
 				sq.setRestrictions(n);
 			}
 		};
