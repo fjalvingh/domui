@@ -393,7 +393,7 @@ public class QQueryRenderer implements QNodeVisitor {
 	}
 
 	@Override
-	public void visitSelectionSubquery(@Nonnull QSelectionSubquery q) throws Exception {
+	public void visitSelectionSubquery(QSelectionSubquery q) throws Exception {
 		int oldprec = m_curPrec;
 		m_curPrec = 0;
 		append("(");

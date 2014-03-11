@@ -88,8 +88,7 @@ abstract public class QNodeVisitorBase implements QNodeVisitor {
 
 	@Override
 	public void visitOrderList(@Nonnull List<QOrder> orderlist) throws Exception {
-		for(@Nonnull
-		QOrder o : orderlist)
+		for(QOrder o : orderlist)
 			o.visit(this);
 	}
 
@@ -98,8 +97,7 @@ abstract public class QNodeVisitorBase implements QNodeVisitor {
 
 	@Override
 	public void visitMulti(@Nonnull QMultiNode n) throws Exception {
-		for(@Nonnull
-		QOperatorNode o : n.getChildren())
+		for(QOperatorNode o : n.getChildren())
 			o.visit(this);
 	}
 
@@ -118,8 +116,7 @@ abstract public class QNodeVisitorBase implements QNodeVisitor {
 	}
 	@Override
 	public void visitMultiSelection(@Nonnull QMultiSelection n) throws Exception {
-		for(@Nonnull
-		QSelectionItem it : n.getItemList())
+		for(QSelectionItem it: n.getItemList())
 			it.visit(this);
 	}
 
