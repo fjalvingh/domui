@@ -44,7 +44,7 @@ public interface IBundle extends NlsMessageProvider {
 	 * @param key
 	 * @throws  ResourceNotFoundException the bundle cannot be located.
 	 */
-	String getString(final Locale loc, final String key);
+	String getString(@Nonnull final Locale loc, @Nonnull final String key);
 
 	/**
 	 * Returns the translation of the key passed in the <i>current</i> client
@@ -53,7 +53,7 @@ public interface IBundle extends NlsMessageProvider {
 	 * @param key
 	 * @return
 	 */
-	String getString(final String key);
+	String getString(@Nonnull final String key);
 
 	/**
 	 * Gets the string, and applies default message formatting using the parameters
@@ -63,5 +63,5 @@ public interface IBundle extends NlsMessageProvider {
 	 * @return
 	 */
 	@Nonnull
-	String formatMessage(final String key, final Object... param);
+	String formatMessage(@Nonnull final String key, @Nonnull final Object... param);
 }

@@ -54,9 +54,10 @@ public class QDefaultContextManager implements IQContextManager {
 	@Override
 	@Nonnull
 	public synchronized QDataContextFactory getDataContextFactory() {
-		if(m_factory == null)
+		QDataContextFactory factory = m_factory;
+		if(factory == null)
 			throw new IllegalStateException("QContextManager not initialized");
-		return m_factory;
+		return factory;
 	}
 
 	/**

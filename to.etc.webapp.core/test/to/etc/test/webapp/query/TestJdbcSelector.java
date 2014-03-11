@@ -102,6 +102,9 @@ public class TestJdbcSelector {
 
 		Assert.assertEquals("FROM to.etc.test.webapp.qsql.LedgerAccount SELECT " + selectFunction.name().toLowerCase() + "(" + propertyName + ") WHERE description like '%a'", render(selection));
 
+		if(null == selectResult) {
+			throw new IllegalStateException("No result");
+		}
 		Assert.assertEquals(selectResult.length, 1);
 
 		if(selectBySql instanceof Number) {
@@ -181,6 +184,9 @@ public class TestJdbcSelector {
 		Assert.assertEquals("FROM to.etc.test.webapp.qsql.LedgerAccount SELECT " + selectFunction1.name().toLowerCase() + "(" + propertyName1 + ")," + selectFunction2.name().toLowerCase() + "("
 			+ propertyName2 + ") WHERE description like '%a'", render(selection));
 
+		if(null == selectResult) {
+			throw new IllegalStateException("No result");
+		}
 		Assert.assertEquals(selectResult.length, 2);
 
 		if(selectBySql1 instanceof Number) {

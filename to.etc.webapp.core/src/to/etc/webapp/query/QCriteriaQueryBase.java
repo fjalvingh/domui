@@ -113,9 +113,10 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	 * @param val
 	 */
 	public void setOption(@Nonnull String name, @Nullable Object val) {
-		if(m_optionMap == null)
-			m_optionMap = new HashMap<String, Object>();
-		m_optionMap.put(name, val);
+		Map<String, Object> optionMap = m_optionMap;
+		if(optionMap == null)
+			optionMap = m_optionMap = new HashMap<String, Object>();
+		optionMap.put(name, val);
 	}
 
 	/**
@@ -124,7 +125,8 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	 * @return
 	 */
 	public boolean hasOption(@Nonnull String name) {
-		return m_optionMap != null && m_optionMap.containsKey(name);
+		Map<String, Object> optionMap = m_optionMap;
+		return optionMap != null && optionMap.containsKey(name);
 	}
 
 	/**
@@ -134,7 +136,8 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	 */
 	@Nullable
 	public Object getOption(@Nonnull String name) {
-		return m_optionMap == null ? null : m_optionMap.get(name);
+		Map<String, Object> optionMap = m_optionMap;
+		return optionMap == null ? null : optionMap.get(name);
 	}
 
 	/*--------------------------------------------------------------*/

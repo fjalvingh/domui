@@ -79,14 +79,18 @@ public class QQueryRenderer implements QNodeVisitor {
 
 	private void renderFrom(QCriteriaQueryBase< ? > qc) {
 		append("FROM ");
-		if(qc.getBaseClass() != null)
-			append(qc.getBaseClass().getName());
-		else if(qc.getMetaTable() != null) {
-			append("[META:");
-			append(qc.getMetaTable().toString());
-			append("]");
-		} else
-			append("[unknown-table]");
+		Class< ? > baseClass = qc.getBaseClass();
+		if(baseClass != null)
+			append(baseClass.getName());
+		else {
+			ICriteriaTableDef< ? > metaTable = qc.getMetaTable();
+			if(metaTable != null) {
+				append("[META:");
+				append(metaTable.toString());
+				append("]");
+			} else
+				append("[unknown-table]");
+		}
 	}
 
 	@Override
@@ -373,7 +377,7 @@ public class QQueryRenderer implements QNodeVisitor {
 	}
 
 	@Override
-	public void visitSelectionSubquery(@Nonnull QSelectionSubquery q) throws Exception {
+	public void visitSelectionSubquery(QSelectionSubquery q) throws Exception {
 		int oldprec = m_curPrec;
 		m_curPrec = 0;
 		append("(");

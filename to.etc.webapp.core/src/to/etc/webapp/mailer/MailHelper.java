@@ -132,9 +132,10 @@ public class MailHelper {
 
 	@Nonnull
 	private ITextLinkRenderer getLinkRenderer() {
-		if(null == m_linkRenderer) {
+		ITextLinkRenderer linkRenderer = m_linkRenderer;
+		if(null == linkRenderer) {
 			//-- Create a default link renderer.
-			m_linkRenderer = new ITextLinkRenderer() {
+			linkRenderer = m_linkRenderer = new ITextLinkRenderer() {
 				@Override
 				public void appendText(@Nonnull String text) {
 					appendVerbatim(text);
@@ -145,11 +146,11 @@ public class MailHelper {
 					String appurl = getApplicationURL();
 					if(null == appurl)
 						throw new IllegalStateException("To render LinkedText-like links you must set applicationURL or linkRenderer.");
-
+					link(appurl + rurl, text);
 				}
 			};
 		}
-		return m_linkRenderer;
+		return linkRenderer;
 	}
 
 	/**
@@ -170,7 +171,6 @@ public class MailHelper {
 	 * Append the text without scanning for any kind of embedded links.
 	 * @param s
 	 */
-	@Nonnull
 	public void appendVerbatim(@Nonnull String s) {
 		init();
 		m_text_sb.append(s);
@@ -384,7 +384,10 @@ public class MailHelper {
 	@Nonnull
 	public String addImage(@Nonnull String name, @Nonnull String rurl) throws Exception {
 		image(name, rurl);
-		return m_lastImgKey;
+		String s = m_lastImgKey;
+		if(s == null)
+			throw new IllegalStateException("Last image not set");
+		return s;
 	}
 
 	/**
@@ -418,7 +421,7 @@ public class MailHelper {
 	 * @throws Exception
 	 */
 	public void send() throws Exception {
-		send((QDataContext) null);
+		sendInternal(null);
 	}
 
 	/**
