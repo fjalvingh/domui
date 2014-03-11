@@ -54,9 +54,10 @@ public class QDefaultContextManager implements IQContextManager {
 	@Override
 	@Nonnull
 	public synchronized QDataContextFactory getDataContextFactory() {
-		if(m_factory == null)
+		QDataContextFactory factory = m_factory;
+		if(factory == null)
 			throw new IllegalStateException("QContextManager not initialized");
-		return m_factory;
+		return factory;
 	}
 
 	/**
@@ -145,7 +146,7 @@ public class QDefaultContextManager implements IQContextManager {
 		}
 
 		@Override
-		public QDataContext getDataContext() throws Exception {
+		public @Nonnull QDataContext getDataContext() throws Exception {
 			//-- First check the container for something usable
 			QDataContext dc = m_contextContainer.internalGetSharedContext();
 			if(dc != null)
@@ -157,12 +158,12 @@ public class QDefaultContextManager implements IQContextManager {
 		}
 
 		@Override
-		public QEventListenerSet getEventListeners() {
+		public @Nonnull QEventListenerSet getEventListeners() {
 			return m_orig.getEventListeners();
 		}
 
 		@Override
-		public QQueryExecutorRegistry getQueryHandlerList() {
+		public @Nonnull QQueryExecutorRegistry getQueryHandlerList() {
 			return m_orig.getQueryHandlerList();
 		}
 	}

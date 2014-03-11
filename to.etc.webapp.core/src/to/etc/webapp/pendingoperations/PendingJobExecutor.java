@@ -2,6 +2,8 @@ package to.etc.webapp.pendingoperations;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.util.*;
 
 
@@ -19,7 +21,7 @@ public class PendingJobExecutor implements Runnable {
 	static public void register() {
 		PendingOperationTaskProvider.getInstance().registerPendingOperationType("PJEX", new IPendingOperationExecutor() {
 			@Override
-			public void executePendingOperation(final PendingOperation po, final ILogSink ls) throws Exception {
+			public void executePendingOperation(final @Nonnull PendingOperation po, final @Nonnull ILogSink ls) throws Exception {
 				new PendingJobExecutor(po, ls).run();
 			}
 		});

@@ -24,6 +24,8 @@
  */
 package to.etc.webapp.query;
 
+import javax.annotation.*;
+
 /**
  * Represents an "exists" subquery on some child relation of a record. This
  * is always defined as a subquery on a parent record's child-record-set, and
@@ -75,7 +77,7 @@ public class QExistsSubquery<T> extends QOperatorNode {
 	}
 
 	@Override
-	public void visit(QNodeVisitor v) throws Exception {
+	public void visit(@Nonnull QNodeVisitor v) throws Exception {
 		v.visitExistsSubquery(this);
 	}
 }

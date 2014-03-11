@@ -24,6 +24,8 @@
  */
 package to.etc.webapp.query;
 
+import javax.annotation.*;
+
 /**
  * Part of a selected thing.
  *
@@ -46,7 +48,7 @@ public class QSelectionItem extends QNodeBase {
 		return m_function;
 	}
 	@Override
-	public void visit(QNodeVisitor v) throws Exception {
+	public void visit(@Nonnull QNodeVisitor v) throws Exception {
 		v.visitSelectionItem(this);
 	}
 }

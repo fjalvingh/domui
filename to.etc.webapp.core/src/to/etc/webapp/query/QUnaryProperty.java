@@ -24,6 +24,8 @@
  */
 package to.etc.webapp.query;
 
+import javax.annotation.*;
+
 public class QUnaryProperty extends QOperatorNode {
 	private String m_property;
 
@@ -33,7 +35,7 @@ public class QUnaryProperty extends QOperatorNode {
 	}
 
 	@Override
-	public void visit(QNodeVisitor v) throws Exception {
+	public void visit(@Nonnull QNodeVisitor v) throws Exception {
 		v.visitUnaryProperty(this);
 	}
 

@@ -24,6 +24,7 @@
  */
 package to.etc.webapp.qsql;
 
+import java.lang.reflect.*;
 import java.sql.*;
 import java.util.*;
 
@@ -173,7 +174,11 @@ public class JdbcQuery<T> {
 
 		//-- Try to create one. Just die on failure.
 		v = clz.newInstance();
-		pkpm.getPi().getSetter().invoke(v, pk);
+		Method setter = pkpm.getPi().getSetter();
+		if(null == setter)
+			throw new IllegalArgumentException("Property " + pkpm + " is read-only");
+
+		setter.invoke(v, pk);
 		return v;
 	}
 

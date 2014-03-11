@@ -823,7 +823,7 @@ public class LookupForm<T> extends Div {
 
 		AbstractLookupControlImpl thingy = new AbstractLookupControlImpl(lookupInstance.getInputControls()) {
 			@Override
-			public AppendCriteriaResult appendCriteria(QCriteria< ? > crit) throws Exception {
+			public AppendCriteriaResult appendCriteria(@Nonnull QCriteria< ? > crit) throws Exception {
 
 				QCriteria< ? > r = QCriteria.create(childPmm.getClassModel().getActualClass());
 				AppendCriteriaResult subRes = lookupInstance.appendCriteria(r);

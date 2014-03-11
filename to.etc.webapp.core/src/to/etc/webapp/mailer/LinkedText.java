@@ -39,14 +39,14 @@ public class LinkedText implements Appendable {
 
 	@Nonnull
 	@Override
-	public LinkedText append(@Nonnull CharSequence csq) {
+	public LinkedText append(CharSequence csq) {
 		m_sb.append(csq);
 		return this;
 	}
 
 	@Nonnull
 	@Override
-	public LinkedText append(@Nonnull CharSequence csq, int start, int end) {
+	public LinkedText append(CharSequence csq, int start, int end) {
 		m_sb.append(csq, start, end);
 		return this;
 	}
@@ -166,6 +166,10 @@ public class LinkedText implements Appendable {
 				//-- End-of-key. Add collected part.
 				text = sb.toString();
 				sb.setLength(0);
+				if(null == key)
+					key = "?";
+				if(null == text)
+					text = "?";
 
 				//-- Find the info
 				TextLinkInfo tli = TextLinkInfo.getInfo(type);

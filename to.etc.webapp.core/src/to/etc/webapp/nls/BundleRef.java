@@ -27,6 +27,8 @@ package to.etc.webapp.nls;
 import java.io.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 /**
  * A bundleRef represents a single set of messages in multiple languages. It differs from a ResourceBundle
  * in that a single instantiated ResourceBundle is always for a <i>single</i> language; this makes a ResourceBundle
@@ -140,7 +142,7 @@ final public class BundleRef extends BundleBase implements IBundle {
 	}
 
 	@Override
-	public String findMessage(final Locale loc, final String code) {
+	public String findMessage(final @Nonnull Locale loc, final @Nonnull String code) {
 		if(m_parent != null)
 			return m_parent.findMessage(loc, code);
 

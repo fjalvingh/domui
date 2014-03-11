@@ -26,6 +26,8 @@ package to.etc.webapp.qsql;
 
 import java.sql.*;
 
+import javax.annotation.*;
+
 import to.etc.webapp.query.*;
 
 class ClassInstanceMaker extends JdbcCompoundType implements IInstanceMaker {
@@ -41,7 +43,7 @@ class ClassInstanceMaker extends JdbcCompoundType implements IInstanceMaker {
 	 * @see to.etc.webapp.qsql.IInstanceMaker#make(java.sql.ResultSet)
 	 */
 	@Override
-	public Object make(QDataContext dc, ResultSet rs) throws Exception {
+	public Object make(@Nonnull QDataContext dc, @Nonnull ResultSet rs) throws Exception {
 		Object inst = convertToInstance(rs, m_startIndex);
 		if(inst instanceof IInitializable) {
 			((IInitializable) inst).initializeInstance(dc);

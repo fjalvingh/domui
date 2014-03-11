@@ -29,13 +29,10 @@ import javax.annotation.*;
 import to.etc.iocular.*;
 
 public class IocConfigurationException extends IocException {
-	@Nullable
 	private BasicContainerBuilder m_builder;
 
-	@Nullable
 	private ComponentBuilder m_cb;
 
-	@Nullable
 	private String m_location;
 
 	public IocConfigurationException(@Nullable ComponentBuilder b, @Nonnull String message) {
