@@ -32,11 +32,20 @@ import org.slf4j.*;
 
 import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.input.*;
+import to.etc.domui.databinding.*;
+import to.etc.domui.databinding.observables.*;
+import to.etc.domui.databinding.value.*;
 import to.etc.domui.dom.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
+import to.etc.domui.dom.webaction.*;
+import to.etc.domui.logic.*;
+import to.etc.domui.logic.events.*;
+import to.etc.domui.parts.*;
 import to.etc.domui.server.*;
+import to.etc.domui.state.*;
 import to.etc.domui.util.*;
+import to.etc.domui.util.javascript.*;
 import to.etc.util.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
@@ -72,10 +81,12 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 18, 2007
  */
-abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IModelBinding {
+abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IModelBinding, IObservableEntity {
 	private static final Logger LOG = LoggerFactory.getLogger(NodeBase.class);
 
 	static private boolean m_logAllocations;
+
+	static private int m_nextID;
 
 	/** The owner page. If set then this node IS attached to the parent in some way; if null it is not attached. */
 	@Nullable
@@ -140,6 +151,9 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	static private final byte F_BUNDLEFOUND = 0x02;
 
 	static private final byte F_BUNDLEUSED = 0x04;
+
+	/** When set, this means setMessage() will not broadcast the message to a message fence. This gets set for hard binding, so that code can decide when/how to show errors. */
+	static private final byte F_NO_MESSAGE_BROADCAST = 0x08;
 
 	private byte m_flags;
 
@@ -220,7 +234,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * Internal, do the proper run sequence for a clicked event.
 	 * @throws Exception
 	 */
-	public void internalOnClicked(ClickInfo cli) throws Exception {
+	public void internalOnClicked(@Nonnull ClickInfo cli) throws Exception {
 		IClickBase<NodeBase> c = (IClickBase<NodeBase>) getClicked();
 		if(c instanceof IClicked< ? >) {
 			((IClicked<NodeBase>) c).clicked(this);
@@ -241,7 +255,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		internalSetHasChangedAttributes();
 		NodeContainer p = m_parent;
 		if(p != null)
-			p.childChanged(); // Indicate child has changed
+			p.childChanged(); 									// Indicate child has changed
 		super.changed();
 	}
 
@@ -272,15 +286,38 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	}
 
 	/**
+	 * Calculates a new ID for a node.
+	 * @return
+	 */
+	@Nonnull
+	final String nextUniqID() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("U");
+		int id = m_nextID++;
+		while(id != 0) {
+			int d = id % 36;
+			if(d <= 9)
+				d = d + '0';
+			else
+				d = ('A' + (d - 10));
+			sb.append((char) d);
+			id = id / 36;
+		}
+		return sb.toString();
+	}
+
+	/**
 	 * When the node is attached to a page this returns the ID assigned to it. To call it before
 	 * is an error and throws IllegalStateException.
 	 * @return
 	 */
 	@Nonnull
 	final public String getActualID() {
-		if(null != m_actualID)
-			return m_actualID;
-		throw new IllegalStateException("Missing ID on " + this);
+		String id = m_actualID;
+		if(null == id) {
+			id = m_actualID = nextUniqID();
+		}
+		return id;
 	}
 
 	@Nullable
@@ -360,8 +397,9 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 
 	void internalOnAddedToPage(final Page p) {
 		onAddedToPage(p);
-		if(m_appendJS != null) {
-			getPage().appendJS(m_appendJS);
+		StringBuilder appendJS = m_appendJS;
+		if(appendJS != null) {
+			getPage().appendJS(appendJS);
 			m_appendJS = null;
 		}
 	}
@@ -473,7 +511,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	}
 
 	/**
-	 * Return the current actual parent of this node. Is null if not attached to a parent yet.
+	 * Return the current actual parent of this node. Throws exception if not attached.
 	 * @return
 	 */
 	@Nonnull
@@ -600,9 +638,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 */
 	final public void appendAfterMe(@Nonnull final NodeBase item) {
 		int ix = getParent().findChildIndex(this);
-		if(ix == -1)
+		if(ix == -1) {
 			throw new IllegalStateException("!@?! Cannot find myself!?");
-		getParent().add(ix + 1, item);
+		}
+		getParent().undelegatedAdd(ix + 1, item);
 	}
 
 	/**
@@ -613,7 +652,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		int ix = getParent().findChildIndex(this);
 		if(ix == -1)
 			throw new IllegalStateException("!@?! Cannot find myself!?");
-		getParent().add(ix, item);
+		getParent().undelegatedAdd(ix, item);
 	}
 
 
@@ -778,9 +817,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	public void setCalculcatedId(@Nonnull String calcid, @Nullable String parentId) {
 		try {
 			String base = getTestRepeatId();
-			if(parentId != null) {
+			Page page = m_page;
+			if(parentId != null && page != null) {
 				String nid = base + "/" + calcid;
-				if(m_page.isTestIDALlocated(nid)) {
+				if(page.isTestIDAllocated(nid)) {
 					m_calculatedTestIdBase = parentId + "_" + calcid;
 				} else {
 					m_calculatedTestIdBase = calcid;
@@ -807,6 +847,9 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 
 	@Nullable
 	public String calcTestID() {
+		Page page = m_page;
+		if(null == page)
+			return null;
 		String baseName = getTestID();
 		if(null != baseName)
 			return baseName;
@@ -814,8 +857,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		if(null == baseName)
 			return null;
 		String repeatId = getTestRepeatId();
-
-		return m_testID = m_page.allocateTestID(repeatId + baseName);
+		return m_testID = page.allocateTestID(repeatId + baseName);
 	}
 
 	/**
@@ -826,10 +868,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	@Nonnull
 	public String getTestRepeatId() {
 		if(m_testFullRepeatID == null) {
-			if(m_parent == null) {
+			NodeContainer parent = m_parent;
+			if(parent == null) {
 				throw new IllegalStateException("?? " + getClass().getName() + " null parent");
 			}
-			String ptrid = m_parent.getTestRepeatId();
+			String ptrid = parent.getTestRepeatId();
 			if(m_testRepeatId == null) {
 				m_testFullRepeatID = ptrid;
 			} else {
@@ -877,17 +920,27 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 *
 	 * @param js
 	 */
-	public void appendJavascript(final CharSequence js) {
-		if(isAttached())
-			getPage().appendJS(js);
-		else {
-			StringBuilder sb = m_appendJS;
-			if(sb == null)
-				sb = m_appendJS = new StringBuilder(js.length() + 100);
-			sb.append(';');
-			sb.append(js);
-		}
+	public void appendJavascript(@Nonnull final CharSequence js) {
+		StringBuilder sb = getAppendJavascriptBuffer();
+		sb.append(';');
+		sb.append(js);
 	}
+
+	@Nonnull
+	public JavascriptStmt appendStatement() {
+		return new JavascriptStmt(getAppendJavascriptBuffer());
+	}
+
+	@Nonnull
+	private StringBuilder getAppendJavascriptBuffer() {
+		if(isAttached())
+			return getPage().internalGetAppendJS();
+		StringBuilder sb = m_appendJS;
+		if(sb == null)
+			sb = m_appendJS = new StringBuilder(128);
+		return sb;
+	}
+
 
 	/**
 	 * This adds a Javascript segment to be executed when the component is (re)constructed. It
@@ -901,16 +954,86 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 *
 	 * @param js
 	 */
-	public void appendCreateJS(final CharSequence js) {
+	public void appendCreateJS(@Nonnull final CharSequence js) {
+		int len = js.length();
+		if(len == 0)
+			return;
+		StringBuilder sb = getCreateJavascriptBuffer();
+		sb.append(js);
+		if(js.charAt(len - 1) != ';')
+			sb.append(';');
+	}
+
+	@Nonnull
+	private StringBuilder getCreateJavascriptBuffer() {
 		StringBuilder sb = m_createJS;
 		if(sb == null)
 			sb = m_createJS = new StringBuilder();
-		sb.append(js);
-		sb.append(';');
+		else {
+			JavascriptStmt st = m_createStmt;
+			if(null != st)
+				st.next();
+		}
+		return sb;
 	}
 
+	@Nullable
+	private JavascriptStmt m_createStmt;
+
+	@Nonnull
+	public JavascriptStmt createStatement() {
+		JavascriptStmt st = m_createStmt;
+		if(null == st) {
+			st = m_createStmt = new JavascriptStmt(getCreateJavascriptBuffer());
+		}
+		return st;
+	}
+
+	@Nullable
 	public StringBuilder getCreateJS() {
+		JavascriptStmt st = m_createStmt;
+		if(null != st)
+			st.next();
 		return m_createJS;
+	}
+
+	/**
+	 * This gets called when a component is re-rendered fully because of a full page
+	 * refresh. It should only be used for components that maintain a lot of state
+	 * in Javascript on the browser. These components need to add Javascript commands
+	 * to that browser to restore/initialize the state to whatever is present in the
+	 * server's data store. It must do that by adding the needed Javascript to the buffer
+	 * passed.
+	 *
+	 * @param sb
+	 * @throws Exception
+	 */
+	protected void renderJavascriptState(@Nonnull JavascriptStmt b) throws Exception {
+	}
+
+	final public void internalRenderJavascriptState(@Nonnull JavascriptStmt stmt) throws Exception {
+		renderJavascriptState(stmt);
+		stmt.next();
+	}
+
+
+	/**
+	 * This marks this component as having "changed" javascript state. It will
+	 * cause the node's
+	 */
+	final public void changedJavascriptState() {
+		Page page = m_page;
+		if(null != page)
+			page.registerJavascriptStateChanged(this);
+	}
+
+	protected void renderJavascriptDelta(@Nonnull JavascriptStmt b) throws Exception {
+
+	}
+
+	final public void internalRenderJavascriptDelta(@Nonnull JavascriptStmt stmt) throws Exception {
+		renderJavascriptDelta(stmt);
+		stmt.next();
 	}
 
 	/*--------------------------------------------------------------*/
@@ -977,22 +1100,88 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		return null;
 	}
 
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Getting data from a component from Javascript.		*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Return an URL to a data call on this node. The call must be found by the {@link #componentHandleWebDataRequest(RequestContextImpl, String)}
+	 * method, so there should be a handler.
+	 * @param pp
+	 * @return
+	 */
+	@Nonnull
+	public String getComponentDataURL(@Nonnull String action, @Nullable IPageParameters pp) {
+		NodeBase nb = this;
+		return DomUtil.getAdjustedComponentUrl(this, action, pp);
+	}
+
 	/**
 	 * Default handling for webui AJAX actions to a component.
 	 * @param ctx
 	 * @param action
 	 * @throws Exception
 	 */
-	public void componentHandleWebAction(@Nonnull final RequestContextImpl ctx, @Nonnull final String action) throws Exception {
+	public void componentHandleWebAction(@Nonnull final RequestContextImpl ctx, @Nonnull String action) throws Exception {
 		if("WEBUIDROP".equals(action)) {
 			handleDrop(ctx);
+			return;
+		}
+		action = "webAction" + action;
+
+		IWebActionHandler handler = ctx.getApplication().getWebActionRegistry().findActionHandler(getClass(), action);
+		if(null != handler) {
+			handler.handleWebAction(this, ctx, false);
 			return;
 		}
 		throw new IllegalStateException("The component " + this + " does not accept the web action " + action);
 	}
 
+	/**
+	 * Out-of-bound data request for a component. This is not allowed to change the state of the tree as no delta
+	 * response will be returned. The action itself must decide on a response.
+	 * @param ctx
+	 * @param action
+	 * @throws Exception
+	 */
+	public void componentHandleWebDataRequest(@Nonnull final RequestContextImpl ctx, @Nonnull String action) throws Exception {
+		action = "webData" + action;
+
+		IWebActionHandler handler = ctx.getApplication().getWebActionRegistry().findActionHandler(getClass(), action);
+		if(null != handler) {
+			handler.handleWebAction(this, ctx, true);
+			return;
+		}
+		throw new IllegalStateException("The component " + this + " does not accept the web data request #" + action);
+	}
+
 	public boolean acceptRequestParameter(@Nonnull final String[] values) throws Exception {
 		throw new IllegalStateException("?? The '" + getTag() + "' component (" + this.getClass() + ") with id=" + m_actualID + " does NOT accept input!");
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Getting data from a component.						*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Return an URL to a data stream generator for this component. The component must implement
+	 * {@link IComponentUrlDataProvider} to handle the data request.
+	 * @param pp
+	 * @return
+	 */
+	@Nonnull
+	public String getComponentDataURL(@Nullable IPageParameters pp) {
+		NodeBase nb = this;
+		if(!(nb instanceof IComponentUrlDataProvider))
+			throw new IllegalStateException("This component (" + this + ") does not implement " + IComponentUrlDataProvider.class.getName());
+		return DomUtil.getAdjustedComponentUrl(this, Constants.ACMD_PAGEDATA, pp);
+	}
+
+	@Nonnull
+	public String getComponentJSONURL(@Nullable IPageParameters pp) {
+		NodeBase nb = this;
+		if(!(nb instanceof IComponentJsonProvider))
+			throw new IllegalStateException("This component (" + this + ") does not implement " + IComponentJsonProvider.class.getName());
+		return DomUtil.getAdjustedComponentUrl(this, Constants.ACMD_PAGEJSON, pp);
 	}
 
 
@@ -1006,15 +1195,15 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * When set this component has an error/warning/info message. A control can have only one
 	 * message associated with it; the most severe error of all message types gets used.
 	 */
+	@Nullable
 	private UIMessage m_message;
 
 	/**
 	 * When set this contains a user-understandable tekst indicating which control has the error. It usually contains
 	 * the "label" associated with the control, and is set automatically by form builders if possible.
 	 */
+	@Nullable
 	private String m_errorLocation;
-
-	private INodeErrorDelegate m_errorDelegate;
 
 	/**
 	 * When set this contains a user-understandable tekst indicating which control has the error. It usually contains
@@ -1067,62 +1256,58 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @param param
 	 */
 	@Override
-	public UIMessage setMessage(final UIMessage msg) {
-		if(m_errorDelegate != null)
-			return m_errorDelegate.setMessage(msg);
-
+	@Nullable
+	public UIMessage setMessage(@Nullable final UIMessage msg) {
 		//-- If this (new) message has a LOWER severity than the EXISTING message ignore this call and return the EXISTING message
-		if(m_message != null) {
-			if(m_message.getType().getOrder() > msg.getType().getOrder()) {
-				return m_message;
+		UIMessage old = m_message;
+		if(old == msg)
+			return old;
+		m_message = msg;
+
+		if(msg != null) {
+			if(old != null) {
+				if(old.getType().getOrder() > msg.getType().getOrder()) {
+					return m_message;
+				}
+
+				//-- If code, type and parameters are all equal just leave the existing message in-place
+				if(old.equals(msg))
+					return old;
 			}
 
-			//-- If code, type and parameters are all equal just leave the existing message in-place
-			if(m_message == msg || m_message.equals(msg))
-				return m_message;
-
-			//-- The current message is to be replaced. For that we need to clear it first
-			clearMessage(); // Discard existing message
+			//-- Update any error location.
+			if(msg.getErrorLocation() == null)
+				msg.setErrorLocation(m_errorLocation);
+			msg.setErrorNode(this);
 		}
 
-		//-- Now add the message
-		m_message = msg;
-		if(msg.getErrorLocation() == null)
-			msg.setErrorLocation(m_errorLocation);
-		msg.setErrorNode(this);
-
-		//-- Experimental fix for bug# 787: cannot locate error fence. Allow errors to be posted on disconnected nodes.
-		if(m_page != null) {
-			IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
-			fence.addMessage(this, m_message);
+		//-- Broadcast the error through the tree
+		if(m_page != null && isMessageBroadcastEnabled()) {		// Fix for bug# 787: cannot locate error fence. Allow errors to be posted on disconnected nodes.
+			IErrorFence fence = DomUtil.getMessageFence(this);	// Get the fence that'll handle the message by looking UPWARDS in the tree
+			if(null != old)
+				fence.removeMessage(old);
+			if(null != msg)
+				fence.addMessage(msg);
 		}
-		return m_message;
+
+		//-- Fire a change event
+		fireModified("message", old, msg);
+		return msg;
 	}
 
 	/**
+	 * Deprecated: use {@link #setMessage(UIMessage)} with a null parameter.
 	 * Remove this-component's "current" error message, if present.
 	 */
+	@Deprecated
 	@Override
 	public void clearMessage() {
-		if(m_errorDelegate != null) {
-			m_errorDelegate.clearMessage();
-			return;
-		}
-		if(getMessage() == null)
-			return;
-		//-- Experimental fix for bug# 787: cannot locate error fence. In case that control is still disconnected just skip error fence part (messge was not posted to it anyway).
-		if(m_page != null) {
-			IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
-			UIMessage msg = m_message;
-			fence.removeMessage(this, msg);
-		}
-		m_message = null;
+		setMessage(null);
 	}
 
+	@Nullable
 	@Override
 	public UIMessage getMessage() {
-		if(m_errorDelegate != null)
-			return m_errorDelegate.getMessage();
 		return m_message;
 	}
 
@@ -1131,15 +1316,21 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @return
 	 */
 	public boolean hasError() {
-		return getMessage() != null && getMessage().getType() == MsgType.ERROR;
+		UIMessage message = getMessage();
+		return message != null && message.getType() == MsgType.ERROR;
 	}
 
-	public void setErrorDelegate(final INodeErrorDelegate errorDelegate) {
-		m_errorDelegate = errorDelegate;
+	public void appendTreeErrors(@Nonnull List<UIMessage> errorList) {
+		UIMessage message = getMessage();
+		if(null != message && message.getType() == MsgType.ERROR)
+			errorList.add(message);
 	}
 
-	public INodeErrorDelegate getErrorDelegate() {
-		return m_errorDelegate;
+	@Nonnull
+	public List<UIMessage> getErrorList() {
+		List<UIMessage> res = new ArrayList<UIMessage>();
+		appendTreeErrors(res);
+		return res;
 	}
 
 	/**
@@ -1152,23 +1343,27 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 */
 	public UIMessage addGlobalMessage(UIMessage m) {
 		IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
-		fence.addMessage(this, m);
+		fence.addMessage(m);
 		return m;
 	}
 
 	public void clearGlobalMessage() {
 		IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
-		fence.clearGlobalMessages(this, null);
+		fence.clearGlobalMessages(null);
 	}
 
 	public void clearGlobalMessage(UIMessage m) {
 		IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
-		fence.removeMessage(null, m);
+		fence.removeMessage(m);
 	}
 
+	/**
+	 * Delete all messages with the specified code (deprecated) or group name (see {@link UIMessage#getGroup()}).
+	 * @param code
+	 */
 	public void clearGlobalMessage(final String code) {
 		IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
-		fence.clearGlobalMessages(this, code);
+		fence.clearGlobalMessages(code);
 	}
 
 
@@ -1244,6 +1439,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		return br.formatMessage(key, param);
 	}
 
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Overridable event methods.							*/
 	/*--------------------------------------------------------------*/
@@ -1282,21 +1478,29 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	protected void onRefresh() throws Exception {}
 
 	/**
-	 * This gets called when a component is re-rendered fully because of a full page
-	 * refresh. It should only be used for components that maintain a lot of state
-	 * in Javascript on the browser. These components need to add Javascript commands
-	 * to that browser to restore/initialize the state to whatever is present in the
-	 * server's data store. It must do that by adding the needed Javascript to the buffer
-	 * passed.
-	 *
-	 * @param sb
+	 * Will be called just before "full render" starts. It gets called INSIDE the rendering
+	 * loop, so only changes "below" this node will have an effect.. Better said: DO NOT CHANGE THE
+	 * TREE, this should be an internal interface 8-/
 	 * @throws Exception
 	 */
 	public void renderJavascriptState(StringBuilder sb) throws Exception {
 
 	}
 
+	/**
+	 * Will be called just before "full render" starts. It gets called INSIDE the rendering
+	 * loop, so only changes "below" this node will have an effect.. Better said: DO NOT CHANGE THE
+	 * TREE, this should be an internal interface 8-/
+	 * @throws Exception
+	 */
 	public void onBeforeFullRender() throws Exception {}
+
+	/**
+	 * Called before rendering starts. All "actions" have executed. This executes before {@link #onBeforeFullRender()} and
+	 * is safe to use.
+	 * @throws Exception
+	 */
+	public void onBeforeRender() throws Exception {}
 
 	@OverridingMethodsMustInvokeSuper
 	protected void beforeCreateContent() {}
@@ -1312,6 +1516,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	public void onRemoveFromPage(final Page p) {}
 
 	public void onHeaderContributors(final Page page) {}
+
+	public void internalOnBeforeRender() throws Exception {
+		onBeforeRender();
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Handle dropping of dnd nodes.						*/
@@ -1440,18 +1648,61 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		}
 	}
 
+	/**
+	 * EXPERIMENTAL Some logic event has occurred; this can see if it wants to do something with it. By default
+	 * this passes the event to any binding.
+	 * @param logiEvent
+	 * @return
+	 */
+	public void logicEvent(@Nonnull LogiEvent logiEvent) throws Exception {
+		Object v = this; 							// Silly: Eclipse compiler has bug - it does not allow this in instanceof because it incorrecly assumes 'this' is ALWAYS of type NodeBase - and it it not.
+		if(v instanceof IBindable) {
+			IBindable b = (IBindable) v;
+			if(b.isBound()) {
+				IBinder bind = b.bind();
+
+				if(bind instanceof ILogiEventListener) {
+					((ILogiEventListener) bind).logicEvent(logiEvent);
+				}
+			}
+		}
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Miscellaneous.										*/
 	/*--------------------------------------------------------------*/
 	/**
-	 *
+	 * This returns the default "shared context" for database access.
 	 * @return
 	 * @throws Exception
 	 */
 	@Nonnull
 	public QDataContext getSharedContext() throws Exception {
-		return QContextManager.getContext(getPage());
+		return getParent().getSharedContext();								// Delegate getting the "default context" to the parent node.
+	}
+
+	@Nonnull
+	public QDataContextFactory getSharedContextFactory() {
+		return getParent().getSharedContextFactory();
+	}
+
+	/**
+	 * EXPERIMENTAL Get the binding context for the page/module.
+	 * @return
+	 */
+	@Nonnull
+	public BindingContext getBindingContext() {
+		return getParent().getBindingContext();
+	}
+
+	/**
+	 * Get the context.
+	 * @return
+	 */
+	@Nonnull
+	public LogiContext lc() throws Exception {
+		return getPage().getBody().lc();
 	}
 
 	/**
@@ -1501,6 +1752,16 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	}
 
 	/**
+	 * Appends the jQuery "selector" code for this node as:
+	 * {@code $('#_a01')}
+	 *
+	 * @param sb
+	 */
+	final public void appendJQuerySelector(@Nonnull StringBuilder sb) {
+		sb.append("$(\"#").append(getActualID()).append("\")");
+	}
+
+	/**
 	 * Returns if node has set stretchHeight
 	 * @return
 	 */
@@ -1539,5 +1800,115 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 */
 	public boolean isRendersOwnClose() {
 		return false;
+	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Hard data binding support (EXPERIMENTAL)			*/
+	/*--------------------------------------------------------------*/
+	@Nullable
+	private ComponentObserverSupport< ? > m_osupport;
+
+	/**
+	 * Returns a set of property names for this control that are bindable (can be bound to). Any attempt
+	 * to bind to a property that is not in this set will throw a {@link PropertyNotObservableException}.
+	 * Subclasses are expected to override this method to return their set of bindable properties. By
+	 * default the set is empty.
+	 * @return
+	 */
+	@Nonnull
+	public Set<String> getBindableProperties() {
+		return Collections.EMPTY_SET;
+	}
+
+	/**
+	 * Returns T if the property passed can be bound to (is {@link IObservable}.
+	 * @param property
+	 * @return
+	 */
+	public boolean isBindableProperty(@Nonnull String property) {
+		return getBindableProperties().contains(property);
+	}
+
+	/**
+	 * Return the {@link ObserverSupport} implementation to use to handle data binding for DomUI
+	 * components. This lazily initializes, and only allocates the support structures if binding
+	 * is really used.
+	 * @return
+	 */
+	@Nonnull
+	public ObserverSupport< ? > getObserverSupport() {
+		ComponentObserverSupport< ? > osupport = m_osupport;
+		if(null == osupport) {
+			osupport = m_osupport = new ComponentObserverSupport<NodeBase>(this);
+		}
+		return osupport;
+	}
+
+	/**
+	 * Return an observable for the specified property, <b>if that property can be observed</b>; if
+	 * not this will throw {@link PropertyNotObservableException}.
+	 * @see to.etc.domui.databinding.observables.IObservableEntity#observableValue(java.lang.String)
+	 * @throws PropertyNotObservableException if the property is not observable.
+	 */
+	@Override
+	@Nonnull
+	public IObservableValue< ? > observableValue(@Nonnull String property) {
+		if(! isBindableProperty(property))
+			throw new PropertyNotObservableException(getClass(), property);
+		return getObserverSupport().observableValue(property);
+	}
+
+	/**
+	 * Create a name set for properties.
+	 * @param names
+	 * @return
+	 */
+	@Nonnull
+	static protected Set<String> createNameSet(@Nonnull String... names) {
+		Set<String> res = new HashSet<String>(names.length);
+		for(String name : names)
+			res.add(name);
+		res.add("message");
+		return res;
+	}
+
+	/**
+	 * Fire a "value changed" event for a property on this object, if they are observed.
+	 * @param propertyName
+	 * @param old
+	 * @param nw
+	 */
+	protected <T> void fireModified(@Nonnull String propertyName, T old, T nw) {
+		ObserverSupport< ? > osupport = m_osupport;
+		if(null == osupport)					// Nothing observing?
+			return;
+		osupport.fireModified(propertyName, old, nw);
+	}
+
+	/**
+	 * When set, this means setMessage() will not broadcast the message to a message
+	 * fence. This gets set for hard binding, so that code can decide when/how to show
+	 * errors. It defaults to true.
+	 * @return
+	 */
+	public boolean isMessageBroadcastEnabled() {
+		return (m_flags & F_NO_MESSAGE_BROADCAST) == 0;
+	}
+
+	/**
+	 * When set, this means setMessage() will not broadcast the message to a message
+	 * fence. This gets set for hard binding, so that code can decide when/how to show
+	 * errors. It defaults to true.
+	 *
+	 * @see to.etc.domui.dom.errors.INodeErrorDelegate#setMessageBroadcastEnabled(boolean)
+	 */
+	@Override
+	public void setMessageBroadcastEnabled(boolean yes) {
+		if(yes) {
+			m_flags &= F_NO_MESSAGE_BROADCAST;
+		} else {
+			m_flags |= F_NO_MESSAGE_BROADCAST;
+		}
 	}
 }

@@ -39,13 +39,13 @@ import to.etc.domui.converter.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 2, 2009
  */
-public class ControlFactoryDate implements ControlFactory {
+public class ControlFactoryDate implements PropertyControlFactory {
 	/**
 	 * Accept java.util.Date class <i>only</i>.
-	 * @see to.etc.domui.component.controlfactory.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
+	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
-	public int accepts(final @Nonnull PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
+	public int accepts(@Nonnull final PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
 		if(controlClass != null && !controlClass.isAssignableFrom(DateInput.class))
 			return -1;
 
@@ -56,9 +56,9 @@ public class ControlFactoryDate implements ControlFactory {
 		return 0;
 	}
 
-	@Override
 	@Nonnull
-	public <T> ControlFactoryResult createControl(final @Nonnull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass) {
+	@Override
+	public <T> ControlFactoryResult createControl(@Nonnull final PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass) {
 		if(!editable && (controlClass == null || controlClass.isAssignableFrom(Text.class))) {
 			//			Text<Date> txt = new Text<Date>(Date.class);
 			//			txt.setReadOnly(true);

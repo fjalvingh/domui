@@ -116,7 +116,7 @@ public class BundleStack extends BundleBase implements IBundle {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String findMessage(Locale loc, String code) {
+	public String findMessage(@Nonnull Locale loc, @Nonnull String code) {
 		for(int i = 0; i < m_bundleStack.length; i++) {
 			String msg = m_bundleStack[i].findMessage(loc, code);
 			if(null != msg)

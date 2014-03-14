@@ -24,6 +24,7 @@
  */
 package to.etc.domui.state;
 
+import java.io.*;
 import java.util.*;
 
 import javax.annotation.*;
@@ -109,6 +110,7 @@ public class UIContext {
 		m_page.set(pg);
 	}
 
+	@Nonnull
 	static public Page getCurrentPage() {
 		Page pg = m_page.get();
 		if(pg == null)
@@ -116,6 +118,17 @@ public class UIContext {
 		return pg;
 	}
 
+	@Nullable
+	static public Page internalGetPage() {
+		return m_page.get();
+	}
+
+	@Nullable
+	static public IRequestContext internalGetContext() {
+		return m_current.get();
+	}
+
+	@Nonnull
 	static public ConversationContext getCurrentConversation() {
 		return getCurrentPage().getConversation();
 	}
@@ -143,10 +156,19 @@ public class UIContext {
 		return u;
 	}
 
+	/**
+	 * Register a file as a file/directory to be deleted when the conversation terminates.
+	 * @param tmpf
+	 */
+	static public void registerTempFile(@Nonnull File tmpf) {
+		ConversationContext cc = getCurrentConversation();
+		cc.registerTempFile(tmpf);
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Login page logic. Temporary location.				*/
 	/*--------------------------------------------------------------*/
-	static private final String LOGIN_KEY = IUser.class.getName();
+	static public final String LOGIN_KEY = IUser.class.getName();
 
 	/**
 	 * UNSTABLE INTERFACE. This tries to retrieve an IUser context for the user. It tries to
@@ -161,61 +183,68 @@ public class UIContext {
 		if(!(rx instanceof RequestContextImpl))
 			return null;
 		RequestContextImpl rci = (RequestContextImpl) rx;
-		HttpSession hs = rci.getRequest().getSession(false);
-		if(hs == null)
-			return null;
-		synchronized(hs) {
-			Object sval = hs.getAttribute(LOGIN_KEY); // Try to find the key,
-			if(sval != null) {
-				if(sval instanceof IUser) {
-					//-- Proper IUser structure- return it.
-					return (IUser) sval;
-				}
-			}
+		HttpServerRequestResponse srr = null;
+		if(rci.getRequestResponse() instanceof HttpServerRequestResponse) {
+			srr = (HttpServerRequestResponse) rci.getRequestResponse();
+		}
 
-			/*
-			 * If a LOGINCOOKIE is found check it's usability. If the cookie is part of the ignored hash set try to delete it again and again...
-			 */
-			Cookie[] car = rci.getRequest().getCookies();
-			if(car != null) {
-				for(Cookie c : car) {
-					if(c.getName().equals("domuiLogin")) {
-						String domval = c.getValue();
-						IUser user = decodeCookie(rci, domval);
-						if(user != null) {
-							//-- Store the user in the HttpSession.
-							hs.setAttribute(LOGIN_KEY, user);
-							return user;
-						} else {
-							//-- Invalid cookie: delete it.
-							c.setMaxAge(10);
-							c.setValue("logout");
-						}
-						break;
+		if(srr != null) {
+			HttpSession hs = srr.getRequest().getSession(false);
+			if(hs == null)
+				return null;
+			synchronized(hs) {
+				Object sval = hs.getAttribute(LOGIN_KEY); // Try to find the key,
+				if(sval != null) {
+					if(sval instanceof IUser) {
+						//-- Proper IUser structure- return it.
+						return (IUser) sval;
 					}
 				}
+
+				/*
+				 * If a LOGINCOOKIE is found check it's usability. If the cookie is part of the ignored hash set try to delete it again and again...
+				 */
+				Cookie[] car = srr.getRequest().getCookies();
+				if(car != null) {
+					for(Cookie c : car) {
+						if(c.getName().equals("domuiLogin")) {
+							String domval = c.getValue();
+							IUser user = decodeCookie(rci, domval);
+							if(user != null) {
+								//-- Store the user in the HttpSession.
+								hs.setAttribute(LOGIN_KEY, user);
+								return user;
+							} else {
+								//-- Invalid cookie: delete it.
+								c.setMaxAge(10);
+								c.setValue("logout");
+							}
+							break;
+						}
+					}
+				}
+
+				/*
+				 * If a remoteUser is set the user IS authenticated using Tomcat; get it's credentials.
+				 */
+				String ruser = srr.getRequest().getRemoteUser();
+				if(ruser != null) {
+					//-- Ask login provider for an IUser instance.
+					ILoginAuthenticator la = rci.getApplication().getLoginAuthenticator();
+					if(null == la)
+						return null;
+
+					IUser user = la.authenticateUser(ruser, null); // Tomcat authenticator has no password.
+					if(user == null)
+						throw new IllegalStateException("Internal: container has logged-in user '" + ruser + "', but authenticator class=" + la + " does not return an IUser for it!!");
+
+					//-- Store the user in the HttpSession.
+					hs.setAttribute(LOGIN_KEY, user);
+					return user;
+				}
 			}
-
-			/*
-			 * If a remoteUser is set the user IS authenticated using Tomcat; get it's credentials.
-			 */
-			String ruser = rci.getRequest().getRemoteUser();
-			if(ruser != null) {
-				//-- Ask login provider for an IUser instance.
-				ILoginAuthenticator la = rci.getApplication().getLoginAuthenticator();
-				if(null == la)
-					return null;
-
-				IUser user = la.authenticateUser(ruser, null); // Tomcat authenticator has no password.
-				if(user == null)
-					throw new IllegalStateException("Internal: container has logged-in user '" + ruser + "', but authenticator class=" + la + " does not return an IUser for it!!");
-
-				//-- Store the user in the HttpSession.
-				hs.setAttribute(LOGIN_KEY, user);
-				return user;
-			}
-			return null;
 		}
+		return null;
 	}
 
 	/**
@@ -291,16 +320,15 @@ public class UIContext {
 		if(!(rcx instanceof RequestContextImpl))
 			return false;
 
-		RequestContextImpl ci = (RequestContextImpl) rcx;
-		HttpSession hs = ci.getRequest().getSession(false);
+		IServerSession hs = rcx.getServerSession(false);
 		if(hs == null)
 			return false;
 		synchronized(hs) {
 			//-- Force logout
-			hs.removeAttribute(LOGIN_KEY);
+			hs.setAttribute(LOGIN_KEY, null);
 
 			//-- Check credentials,
-			ILoginAuthenticator la = ci.getApplication().getLoginAuthenticator();
+			ILoginAuthenticator la = rcx.getApplication().getLoginAuthenticator();
 			if(la == null)
 				throw new IllegalStateException("There is no login authenticator set in the Application!");
 			IUser user = la.authenticateUser(userid, password);
@@ -308,10 +336,10 @@ public class UIContext {
 				return false;
 
 			//-- Login succeeded: save the user in the session context
-			hs.setAttribute(LOGIN_KEY, user); // This causes the user to be logged on.
+			hs.setAttribute(LOGIN_KEY, user); 					// This causes the user to be logged on.
 			m_currentUser.set(user);
 
-			List<ILoginListener> ll = ci.getApplication().getLoginListenerList();
+			List<ILoginListener> ll = rcx.getApplication().getLoginListenerList();
 			for(ILoginListener l : ll)
 				l.userLogin(user);
 			return true;
@@ -328,21 +356,20 @@ public class UIContext {
 			throw new IllegalStateException("You can logout from a server request only");
 		if(!(rcx instanceof RequestContextImpl))
 			return;
-		RequestContextImpl ci = (RequestContextImpl) rcx;
 
-		HttpSession hs = ci.getRequest().getSession(false);
+		IServerSession hs = rcx.getServerSession(false);
 		if(hs == null)
 			return;
 
 		//first we delete LOGINCOOKIE if exists, otherwise user can never logout...
-		deleteLoginCookie(ci);
+		deleteLoginCookie(rcx);
 		synchronized(hs) {
-			IUser user = internalGetLoggedInUser(ci);
+			IUser user = internalGetLoggedInUser(rcx);
 			if(user == null)
 				return;
 
 			//-- Call logout handlers BEFORE actual logout
-			List<ILoginListener> ll = ci.getApplication().getLoginListenerList();
+			List<ILoginListener> ll = rcx.getApplication().getLoginListenerList();
 			for(ILoginListener l : ll) {
 				try {
 					l.userLogout(user);
@@ -352,7 +379,7 @@ public class UIContext {
 			}
 
 			//-- Force logout
-			hs.removeAttribute(LOGIN_KEY);
+			hs.setAttribute(LOGIN_KEY, null);
 			m_currentUser.set(null);
 			try {
 				hs.invalidate();
@@ -381,16 +408,16 @@ public class UIContext {
 		String value = user.getLoginID() + ":" + l + ":" + auth;
 		Cookie k = new Cookie("domuiLogin", value);
 		k.setMaxAge((int) ((l - System.currentTimeMillis()) / 1000)); // #seconds before expiry
-		k.setPath(ci.getRequest().getContextPath());
-		ci.getResponse().addCookie(k);
+		k.setPath(ci.getRequestResponse().getWebappContext());
+		ci.getRequestResponse().addCookie(k);
 		return k;
 	}
 
-	public static boolean deleteLoginCookie(RequestContextImpl rci) throws Exception {
+	public static boolean deleteLoginCookie(IRequestContext rci) throws Exception {
 		if(rci == null)
 			throw new IllegalStateException("You can logout from a server request only");
 
-		Cookie[] car = rci.getRequest().getCookies();
+		Cookie[] car = rci.getRequestResponse().getCookies();
 		if(car != null) {
 			for(Cookie c : car) {
 				if(c.getName().equals("domuiLogin")) {
@@ -401,15 +428,122 @@ public class UIContext {
 					}
 
 					//-- Create a new cookie value containing a delete.
-					RequestContextImpl ci = rci;
 					Cookie k = new Cookie("domuiLogin", "logout");
 					k.setMaxAge(60);
-					k.setPath(ci.getRequest().getContextPath());
-					ci.getResponse().addCookie(k);
+					k.setPath(rci.getRequestResponse().getWebappContext());
+					rci.getRequestResponse().addCookie(k);
 					return true;
 				}
 			}
 		}
 		return false;
+	}
+
+
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Handle cookies.										*/
+	/*--------------------------------------------------------------*/
+
+	/**
+	 * Find a cookie if it exists, return null otherwise.
+	 * @param name
+	 * @return
+	 */
+	@Nullable
+	static public Cookie findCookie(@Nonnull String name) {
+		IRequestContext rci = getRequestContext();
+		Cookie[] car = rci.getRequestResponse().getCookies();
+		if(car == null || car.length == 0)
+			return null;
+
+		for(Cookie c : car) {
+			if(c.getName().equals(name)) {
+				return c;
+			}
+		}
+		return null;
+	}
+
+	@Nullable
+	static public String findCookieValue(@Nonnull String name) {
+		Cookie c = findCookie(name);
+		return c == null ? null : c.getValue();
+	}
+
+	/**
+	 * Set a new or overwrite an existing cookie.
+	 *
+	 * @param name
+	 * @param value
+	 * @param maxage	Max age, in seconds.
+	 */
+	static public void setCookie(@Nonnull String name, String value, int maxage) {
+		IRequestContext rci = getRequestContext();
+		Cookie k = new Cookie(name, value);
+		k.setMaxAge(maxage);
+		k.setPath("/" + rci.getRequestResponse().getWebappContext());
+		rci.getRequestResponse().addCookie(k);
+	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Session attribute accessors.						*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Returns session value of expected type. Must be used within existing UIContext. In case that attribute is not stored in session, it would store defaultValue and return it.
+	 * See {@link UIContext#getSessionAttribute(Class, String)
+	 * See {@link UIContext#setSessionAttribute(String, Object)
+	 *
+	 * @param clz
+	 * @param attrName
+	 * @param defaultValue
+	 * @return
+	 */
+	public static <T> T getSessionAttribute(Class<T> clz, String attrName, T defaultValue) {
+		T val = getSessionAttribute(clz, attrName);
+		if(val != null) {
+			return val;
+		}
+		setSessionAttribute(attrName, defaultValue);
+		return defaultValue;
+	}
+
+	/**
+	 * Returns session value of expected type. Must be used within existing UIContext.
+	 * @param clz
+	 * @param attrName
+	 * @return  In case that value is not stored returns null. In case of expected type mismatch throws IllegalStateException.
+	 */
+	public static <T> T getSessionAttribute(Class<T> clz, String attrName) {
+		IRequestContext ctx = getRequestContext();
+		IServerSession hs = ctx.getServerSession(false);
+		if(null == hs)
+			return null;
+
+		Object val = hs.getAttribute(attrName);
+		if(val != null) {
+			if(clz.isAssignableFrom(val.getClass())) {
+				T res = (T) val;
+				return res;
+			} else {
+				throw new IllegalStateException("Session value of unexpected type: " + val.getClass().getCanonicalName() + ", expecting " + clz.getCanonicalName());
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Sets session attribute value.
+	 * @param attrName
+	 * @param value
+	 */
+	public static void setSessionAttribute(String attrName, Object value) {
+		IRequestContext ctx = getRequestContext();
+		IServerSession hs = ctx.getServerSession(true);
+		if(null == hs)
+			return;
+		hs.setAttribute(attrName, value);
 	}
 }

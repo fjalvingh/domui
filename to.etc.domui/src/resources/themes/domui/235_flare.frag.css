@@ -6,22 +6,23 @@
 	top: 100px;
 	left: 100px;
 	width: auto;
-	height: auto;
-	-moz-border-radius: 5px 5px;
-	border: 1px dotted grey;
+	height: auto;	
 	padding: 15px;
 }
 .ui-flare-error {
-	background: <%= error_bg %>;
-	color: <%= error_fg %>
+	background: <%= errors_background %>;
+	color: <%= errors_foreground %>;
+	border: 1px solid <%= errors_border %>;
 }
 .ui-flare-info {
 	background: <%= info_bg %>;
-	color: <%= info_fg %>
+	color: <%= info_fg %>;
+	border: 1px solid <%= info_border %>;
 }
 .ui-flare-warning {
-	background: <%= warning_bg %>;
-	color: <%= warning_fg %>
+	background: <%= warnings_background %>;
+	color: <%= warnings_foreground %>;
+	border: 1px solid <%= warnings_border %>;
 }
 .ui-flare-msg {
 	opacity: 0.9;
@@ -31,11 +32,15 @@
 	top: auto;
 	left: auto;
 }
+.ui-flare-msg img {
+	margin-right: 20px;
+}
 .ui-flare-msg div {
-	font-weight: bold;
- 	text-align: right;	
+	font-weight: normal;
+ 	text-align: left;	
  	min-width: 400px;
 }
 .ui-flare-msg div div {
-	font-size: large;
+	font-size: 14pt;
+	
 }

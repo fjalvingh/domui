@@ -26,6 +26,8 @@ package to.etc.domui.state;
 
 import java.lang.reflect.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
@@ -45,14 +47,15 @@ public class PageMaker {
 	 * null if the page cannot be located. It is a helper function to allow access to components
 	 * from Parts etc.
 	 */
-	static public Page findPageInConversation(final IRequestContext rctx, final Class< ? extends UrlPage> clz, final String cid) throws Exception {
+	@Nullable
+	static public Page findPageInConversation(@Nonnull final IRequestContext rctx, @Nonnull final Class< ? extends UrlPage> clz, @Nonnull final String cid) throws Exception {
 		if(cid == null)
 			return null;
-		String[] cida = DomUtil.decodeCID(cid);
-		WindowSession cm = rctx.getSession().findWindowSession(cida[0]);
+		CidPair cida = CidPair.decode(cid);
+		WindowSession cm = rctx.getSession().findWindowSession(cida.getWindowId());
 		if(cm == null)
-			throw new IllegalStateException("The WindowSession with wid=" + cida[0] + " has expired.");
-		ConversationContext cc = cm.findConversation(cida[1]);
+			throw new IllegalStateException("The WindowSession with wid=" + cida.getWindowId() + " has expired.");
+		ConversationContext cc = cm.findConversation(cida.getConversationId());
 		if(cc == null)
 			return null;
 
@@ -60,8 +63,9 @@ public class PageMaker {
 		return cc.findPage(clz); // Is this page already current in this context?
 	}
 
-	static Page createPageWithContent(final IRequestContext ctx, final Constructor< ? extends UrlPage> con, final ConversationContext cc, final IPageParameters pp) throws Exception {
-		UrlPage nc = createPageContent(ctx, con, cc, pp);
+	@Nonnull
+	static Page createPageWithContent(@Nonnull final Constructor< ? extends UrlPage> con, @Nonnull final ConversationContext cc, @Nonnull final IPageParameters pp) throws Exception {
+		UrlPage nc = createPageContent(con, cc, pp);
 		Page pg = new Page(nc);
 		cc.internalRegisterPage(pg, pp);
 		return pg;
@@ -69,14 +73,14 @@ public class PageMaker {
 
 	/**
 	 * FIXME Needs new name
-	 * @param ctx
 	 * @param con
 	 * @param cc
 	 * @param pp
 	 * @return
 	 * @throws Exception
 	 */
-	static private UrlPage createPageContent(final IRequestContext ctx, final Constructor< ? extends UrlPage> con, final ConversationContext cc, final IPageParameters pp) throws Exception {
+	@Nonnull
+	static private UrlPage createPageContent(@Nonnull final Constructor< ? extends UrlPage> con, @Nonnull final ConversationContext cc, @Nonnull final IPageParameters pp) throws Exception {
 		//-- Create the page.
 		Class< ? >[] par = con.getParameterTypes();
 		Object[] args = new Object[par.length];
@@ -99,7 +103,7 @@ public class PageMaker {
 
 		UrlPage p;
 		try {
-			p = con.newInstance(args);
+			p = DomUtil.nullChecked(con.newInstance(args));
 		} catch(InvocationTargetException itx) {
 			Throwable c = itx.getCause();
 			if(c instanceof Exception)
@@ -112,7 +116,8 @@ public class PageMaker {
 		return p;
 	}
 
-	static public <T extends UrlPage> Constructor<T> getBestPageConstructor(final Class<T> clz, final boolean hasparam) {
+	@Nonnull
+	static public <T extends UrlPage> Constructor<T> getBestPageConstructor(@Nonnull final Class<T> clz, final boolean hasparam) {
 		Constructor<T>[] car = (Constructor<T>[]) clz.getConstructors(); // Can we kill the idiot that defined this generics idiocy? Please?
 		Constructor<T> bestcc = null; // Will be set if a conversationless constructor is found
 		int score = 0;
@@ -175,7 +180,8 @@ public class PageMaker {
 	 * @param hasparam
 	 * @return
 	 */
-	static public <T extends UrlPage> Constructor<T> getPageConstructor(final Class<T> clz, final Class< ? extends ConversationContext> ccclz, final boolean hasparam) {
+	@Nonnull
+	static public <T extends UrlPage> Constructor<T> getPageConstructor(@Nonnull final Class<T> clz, @Nonnull final Class< ? extends ConversationContext> ccclz, final boolean hasparam) {
 		Constructor<T> bestcc = null; // Will be set if a conversationless constructor is found
 		int score = 0;
 		for(Constructor<T> cc : (Constructor<T>[]) clz.getConstructors()) { // Generics idiocy requires useless cast.
@@ -219,30 +225,13 @@ public class PageMaker {
 	/*	CODING:	Conversation creation.								*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * Checks to see if the page specified accepts the given conversation class.
-	 * @param pgclz
-	 * @param ccclz
-	 * @return
-	 */
-	//	static public boolean	pageAcceptsConversation(Class<Page> pgclz, Class<? extends ConversationContext> ccclz) {
-	//		Constructor<Page>[]	coar = pgclz.getConstructors();
-	//		for(Constructor<Page> c : coar) {
-	//			Class<?>[]	par = c.getParameterTypes();
-	//			for(Class<?> pc : par) {
-	//				if(pc.isAssignableFrom(ccclz))					// This constructor accepts this conversation.
-	//					return true;
-	//			}
-	//		}
-	//		return false;
-	//	}
-	//
-	/**
 	 * From a page constructor, get the Conversation class to use.
 	 *
 	 * @param clz
 	 * @return
 	 */
-	static public Class< ? extends ConversationContext> getConversationType(final Constructor< ? extends UrlPage> clz) {
+	@Nonnull
+	static public Class< ? extends ConversationContext> getConversationType(@Nonnull final Constructor< ? extends UrlPage> clz) {
 		Class< ? extends ConversationContext> ccclz = null;
 		for(Class< ? > pc : clz.getParameterTypes()) {
 			if(ConversationContext.class.isAssignableFrom(pc)) {

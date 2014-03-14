@@ -13,13 +13,20 @@ import javax.annotation.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Feb 17, 2011
  */
-public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> implements Iterable<T> {
+public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> implements Iterable<T>, IAcceptable<T> {
 	final private Set<T> m_selectedSet = new HashSet<T>();
 
 	final private boolean m_multiSelect;
 
+	final private IAcceptable<T> m_acceptable;
+
 	public InstanceSelectionModel(boolean multiSelect) {
+		this(multiSelect, null);
+	}
+
+	public InstanceSelectionModel(boolean multiSelect, @Nullable IAcceptable<T> acceptable) {
 		m_multiSelect = multiSelect;
+		m_acceptable = acceptable;
 	}
 
 	@Override
@@ -30,6 +37,14 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 	@Override
 	public int getSelectionCount() {
 		return m_selectedSet.size();
+	}
+
+	@Override
+	public boolean acceptable(@Nonnull T value) {
+		IAcceptable<T> acceptor = m_acceptable;
+		if(acceptor != null)
+			return acceptor.acceptable(value);
+		return true;
 	}
 
 	@Override
@@ -44,6 +59,9 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 		if(null == rowinstance) // Should not happen.
 			throw new IllegalArgumentException("null row");
 		if(on) {
+			if(m_acceptable != null && !m_acceptable.acceptable(rowinstance))
+				return;
+
 			if(!m_multiSelect && m_selectedSet.size() > 0) {
 				//-- We need to remove an earlier selected item.
 				T old = m_selectedSet.iterator().next();
@@ -81,7 +99,11 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 			if(eix > rows)
 				eix = rows;
 			List<T> itemlist = in.getItems(index, eix);
-			m_selectedSet.addAll(itemlist);
+			for(T item : itemlist) {
+				if(m_acceptable != null && !m_acceptable.acceptable(item))
+					continue;
+				m_selectedSet.add(item);
+			}
 			index = eix;
 		}
 		callSelectionAllChanged();
@@ -95,5 +117,36 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 	public @Nonnull
 	Set<T> getSelectedSet() {
 		return new HashSet<T>(m_selectedSet);
+	}
+
+	/**
+	 * Only usable for a non-multiselect, this returns the selected item or null.
+	 * @return
+	 */
+	@Nullable
+	public T getSelected() {
+		if(isMultiSelect())
+			throw new IllegalStateException("This call is invalid for multi-select");
+		if(m_selectedSet.size() == 0)
+			return null;
+		return getSelectedSet().iterator().next();
+	}
+
+	public void setSelectedSet(@Nonnull Collection<T> in) throws Exception {
+		if(null == in) {
+			clearSelection();
+			return;
+		}
+
+		Set<T> old = new HashSet<T>(m_selectedSet);
+		for(T data : in) {
+			if(old.remove(data)) {
+				//-- Already selected
+			} else {
+				setInstanceSelected(data, true);
+			}
+		}
+		for(T s : old)
+			setInstanceSelected(s, false);
 	}
 }

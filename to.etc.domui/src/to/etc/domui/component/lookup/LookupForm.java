@@ -41,6 +41,7 @@ import to.etc.domui.server.*;
 import to.etc.domui.themes.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.*;
+import to.etc.webapp.annotations.*;
 import to.etc.webapp.query.*;
 
 /**
@@ -72,7 +73,7 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 14, 2008
  */
-public class LookupForm<T> extends Div {
+public class LookupForm<T> extends Div implements IButtonContainer {
 	/** The data class we're looking for */
 	@Nonnull
 	private Class<T> m_lookupClass;
@@ -97,6 +98,13 @@ public class LookupForm<T> extends Div {
 
 	private DefaultButton m_collapseButton;
 
+	private DefaultButton m_clearButton;
+
+	public @Nullable
+	DefaultButton getClearButton() {
+		return m_clearButton;
+	}
+
 	private Table m_table;
 
 	private TBody m_tbody;
@@ -108,6 +116,8 @@ public class LookupForm<T> extends Div {
 	private NodeContainer m_buttonRow;
 
 	private ControlBuilder m_builder;
+
+	private ButtonFactory m_buttonFactory = new ButtonFactory(this);
 
 	/**
 	 * T in case that control is rendered as collapsed (meaning that search panel is hidden).
@@ -390,7 +400,7 @@ public class LookupForm<T> extends Div {
 	/** The list of buttons to show on the button row. */
 	private List<ButtonRowItem> m_buttonItemList = Collections.EMPTY_LIST;
 
-	public LookupForm(@Nonnull final Class<T> lookupClass, String... propertyList) {
+	public LookupForm(@Nonnull final Class<T> lookupClass, @GProperty String... propertyList) {
 		this(lookupClass, (ClassMetaModel) null, propertyList);
 	}
 
@@ -435,6 +445,7 @@ public class LookupForm<T> extends Div {
 	public void createContent() throws Exception {
 		//-- If a page title is present render the search block in a CaptionedPanel, else present in it;s own div.
 		Div sroot = new Div();
+		sroot.setCssClass("ui-lf-mainContent");
 		if(getPageTitle() != null) {
 			CaptionedPanel cp = new CaptionedPanel(getPageTitle(), sroot);
 			add(cp);
@@ -446,11 +457,12 @@ public class LookupForm<T> extends Div {
 
 		//-- Ok, we need the items we're going to show now.
 		if(m_itemList.size() == 0) // If we don't have an item set yet....
-			setItems(); // ..define it from metadata, and abort if there is nothing there
+			setDefaultItems(); // ..define it from metadata, and abort if there is nothing there
 
 		NodeContainer searchContainer = sroot;
 		if(containsItemBreaks(m_itemList)) {
 			Table searchRootTable = new Table();
+			searchRootTable.setCssClass("ui-lf-multi");
 			sroot.add(searchRootTable);
 			TBody searchRootTableBody = new TBody();
 			searchRootTable.add(searchRootTableBody);
@@ -464,6 +476,7 @@ public class LookupForm<T> extends Div {
 
 		//-- Walk all search fields
 		m_table = new Table();
+		m_table.setCssClass("ui-lf-st");
 		searchContainer.add(m_table);
 		m_tbody = new TBody();
 		m_tbody.setTestID("tableBodyLookupForm");
@@ -477,6 +490,7 @@ public class LookupForm<T> extends Div {
 				searchContainer.appendAfterMe(anotherSearchRootCell);
 				searchContainer = anotherSearchRootCell;
 				m_table = new Table();
+				m_table.setCssClass("ui-lf-st");
 				searchContainer.add(m_table);
 				m_tbody = new TBody();
 				m_tbody.setTestID("tableBodyLookupForm");
@@ -489,6 +503,7 @@ public class LookupForm<T> extends Div {
 		//-- The button bar.
 		Div d = new Div();
 		d.setTestID("buttonBar");
+		d.setCssClass("ui-lf-ebb");
 		sroot.add(d);
 		m_buttonRow = d;
 
@@ -524,19 +539,19 @@ public class LookupForm<T> extends Div {
 		b.setTestID("searchButton");
 		b.setClicked(new IClicked<NodeBase>() {
 			@Override
-			public void clicked(final NodeBase bx) throws Exception {
+			public void clicked(final @Nonnull NodeBase bx) throws Exception {
 				if(m_clicker != null)
 					m_clicker.clicked(LookupForm.this);
 			}
 		});
 		addButtonItem(b, 100, ButtonMode.NORMAL);
 
-		b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CLEAR));
+		m_clearButton = b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CLEAR));
 		b.setIcon("THEME/btnClear.png");
 		b.setTestID("clearButton");
 		b.setClicked(new IClicked<NodeBase>() {
 			@Override
-			public void clicked(final NodeBase xb) throws Exception {
+			public void clicked(final @Nonnull NodeBase xb) throws Exception {
 				clearInput();
 				if(getOnClear() != null)
 					((IClicked<LookupForm<T>>) getOnClear()).clicked(LookupForm.this); // FIXME Another generics snafu, fix.
@@ -547,12 +562,12 @@ public class LookupForm<T> extends Div {
 		//-- Collapse button thingy
 		m_collapseButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE), "THEME/btnHideLookup.png", new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(DefaultButton bx) throws Exception {
+			public void clicked(@Nonnull DefaultButton bx) throws Exception {
 				collapse();
 			}
 		});
 		m_collapseButton.setTestID("hideButton");
-		addButtonItem(m_collapseButton, 500, ButtonMode.BOTH);
+		addButtonItem(m_collapseButton, 300, ButtonMode.BOTH);
 	}
 
 	private boolean containsItemBreaks(List<Item> itemList) {
@@ -580,9 +595,10 @@ public class LookupForm<T> extends Div {
 
 		//-- Collapse button thingy
 		m_collapseButton.setText(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_RESTORE));
+		m_collapseButton.setIcon("THEME/btnShowLookup.png");
 		m_collapseButton.setClicked(new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(DefaultButton bx) throws Exception {
+			public void clicked(@Nonnull DefaultButton bx) throws Exception {
 				restore();
 			}
 		});
@@ -601,9 +617,10 @@ public class LookupForm<T> extends Div {
 		createButtonRow(m_buttonRow, false);
 
 		m_collapseButton.setText(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE));
+		m_collapseButton.setIcon("THEME/btnHideLookup.png");
 		m_collapseButton.setClicked(new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(DefaultButton bx) throws Exception {
+			public void clicked(@Nonnull DefaultButton bx) throws Exception {
 				collapse();
 			}
 		});
@@ -624,7 +641,7 @@ public class LookupForm<T> extends Div {
 	 * This adds all properties that are defined as "search" properties in either this control or the metadata
 	 * to the item list. The list is cleared before that!
 	 */
-	private void setItems() {
+	public void setDefaultItems() {
 		m_itemList.clear();
 		List<SearchPropertyMetaModel> list = getMetaModel().getSearchProperties();
 		if(list == null || list.size() == 0) {
@@ -653,6 +670,8 @@ public class LookupForm<T> extends Div {
 			if(m_twoColumnsMode && (totalCount >= m_minSizeForTwoColumnsMode) && m_itemList.size() == (totalCount + 1) / 2) {
 				m_itemList.add(new ItemBreak());
 			}
+			updateUI(it);
+
 		}
 	}
 
@@ -711,6 +730,7 @@ public class LookupForm<T> extends Div {
 		it.setIgnoreCase(ignorecase == null ? true : ignorecase.booleanValue());
 		it.setMinLength(minlen);
 		addAndFinish(it);
+		updateUI(it);
 		return it;
 	}
 
@@ -727,6 +747,7 @@ public class LookupForm<T> extends Div {
 		Item it = new Item();
 		it.setInstance(lci);
 		addAndFinish(it);
+		updateUI(it);
 		return it;
 	}
 
@@ -751,6 +772,7 @@ public class LookupForm<T> extends Div {
 		if(qt == null || qt.getInputControls() == null || qt.getInputControls().length == 0)
 			throw new IllegalStateException("Lookup factory " + lcf + " did not link thenlookup thingy for property " + it.getPropertyName());
 		it.setInstance(qt);
+		updateUI(it);
 		return it;
 	}
 
@@ -763,6 +785,7 @@ public class LookupForm<T> extends Div {
 		it.setInstance(lci);
 		it.setLabelText(labelText);
 		addAndFinish(it);
+		updateUI(it);
 		return it;
 	}
 
@@ -823,7 +846,7 @@ public class LookupForm<T> extends Div {
 
 		AbstractLookupControlImpl thingy = new AbstractLookupControlImpl(lookupInstance.getInputControls()) {
 			@Override
-			public AppendCriteriaResult appendCriteria(QCriteria< ? > crit) throws Exception {
+			public @Nonnull AppendCriteriaResult appendCriteria(@Nonnull QCriteria< ? > crit) throws Exception {
 
 				QCriteria< ? > r = QCriteria.create(childPmm.getClassModel().getActualClass());
 				AppendCriteriaResult subRes = lookupInstance.appendCriteria(r);
@@ -895,6 +918,13 @@ public class LookupForm<T> extends Div {
 		if(it.getErrorLocation() == null) {
 			it.setErrorLocation(it.getLabelText());
 		}
+
+	}
+
+	private void updateUI(@Nonnull Item it) {
+		//-- jal 20130528 This component quite sucks balls- the interface is not able to add on-the-fly.
+		if(m_tbody != null)
+			internalAddLookupItem(it);
 	}
 
 
@@ -1034,6 +1064,7 @@ public class LookupForm<T> extends Div {
 	 *
 	 * @return
 	 */
+	@Nullable
 	public QCriteria<T> getEnteredCriteria() throws Exception {
 		m_hasUserDefinedCriteria = false;
 		QCriteria<T> root;
@@ -1097,13 +1128,13 @@ public class LookupForm<T> extends Div {
 				m_newBtn.setTestID("newButton");
 				m_newBtn.setClicked(new IClicked<NodeBase>() {
 					@Override
-					public void clicked(final NodeBase xb) throws Exception {
+					public void clicked(final @Nonnull NodeBase xb) throws Exception {
 						if(getOnNew() != null) {
 							getOnNew().clicked(LookupForm.this);
 						}
 					}
 				});
-				addButtonItem(m_newBtn, 300, ButtonMode.BOTH);
+				addButtonItem(m_newBtn, 500, ButtonMode.BOTH);
 			} else if(m_onNew == null && m_newBtn != null) {
 				for(ButtonRowItem bri : m_buttonItemList) {
 					if(bri.getThingy() == m_newBtn) {
@@ -1171,7 +1202,7 @@ public class LookupForm<T> extends Div {
 				m_cancelBtn.setTestID("cancelButton");
 				m_cancelBtn.setClicked(new IClicked<NodeBase>() {
 					@Override
-					public void clicked(final NodeBase xb) throws Exception {
+					public void clicked(final @Nonnull NodeBase xb) throws Exception {
 
 						if(getOnCancel() != null) {
 							getOnCancel().clicked(LookupForm.this);
@@ -1350,5 +1381,26 @@ public class LookupForm<T> extends Div {
 	public void setQueryFactory(IQueryFactory<T> queryFactory) {
 		m_queryFactory = queryFactory;
 	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Button container handling.							*/
+	/*--------------------------------------------------------------*/
+	/**
+	 *
+	 * @see to.etc.domui.component.layout.IButtonContainer#addButton(to.etc.domui.dom.html.NodeBase, int)
+	 */
+	@Override
+	public void addButton(@Nonnull NodeBase thing, int order) {
+		if(order < 0)
+			addButtonItem(thing);
+		else
+			addButtonItem(thing, order);
+	}
+
+	@Nonnull
+	public ButtonFactory getButtonFactory() {
+		return m_buttonFactory;
+	}
+
 
 }

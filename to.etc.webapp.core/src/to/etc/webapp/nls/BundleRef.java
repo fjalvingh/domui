@@ -27,6 +27,8 @@ package to.etc.webapp.nls;
 import java.io.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 /**
  * A bundleRef represents a single set of messages in multiple languages. It differs from a ResourceBundle
  * in that a single instantiated ResourceBundle is always for a <i>single</i> language; this makes a ResourceBundle
@@ -44,6 +46,7 @@ import java.util.*;
 final public class BundleRef extends BundleBase implements IBundle {
 	private ClassLoader m_loader;
 
+	@Nullable
 	private final String m_bundleKey;
 
 	private NlsMessageProvider m_parent;
@@ -52,30 +55,35 @@ final public class BundleRef extends BundleBase implements IBundle {
 
 	private final Map<Object, Object> m_map = new HashMap<Object, Object>();
 
-	static public final BundleRef DUMMY = new BundleRef((String) null);
+	static public final BundleRef DUMMY = new BundleRef();
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Creating/accessing BundleRefs.						*/
 	/*--------------------------------------------------------------*/
+
+	private BundleRef() {
+		m_bundleKey = null;
+	}
+
 	/**
 	 * Constructor for global BundleRef's.
 	 * @param key
 	 */
-	BundleRef(final String key) {
+	BundleRef(@Nonnull final String key) {
 		m_bundleKey = key;
 	}
 
-	private BundleRef(final Class< ? > base, final String name) {
+	private BundleRef(@Nullable final Class< ? > base, @Nonnull final String name) {
 		m_loader = null == base ? null : base.getClassLoader();
 		m_bundleKey = calcAbsName(base, name);
 	}
 
-	private BundleRef(NlsMessageProvider mp) {
+	private BundleRef(@Nonnull NlsMessageProvider mp) {
 		m_bundleKey = null;
 		m_parent = mp;
 	}
 
-	static public BundleRef createWrapper(NlsMessageProvider mp) {
+	static public BundleRef createWrapper(@Nonnull NlsMessageProvider mp) {
 		return new BundleRef(mp);
 	}
 
@@ -86,7 +94,7 @@ final public class BundleRef extends BundleBase implements IBundle {
 	 * @param name Name of the bundle file (minus the ".properties" extension). Case is important!!!
 	 * @return
 	 */
-	static public synchronized BundleRef create(final Class< ? > clz, final String name) {
+	static public synchronized BundleRef create(@Nonnull final Class< ? > clz, @Nonnull final String name) {
 		Map<String, BundleRef> refMap = m_cachedMap.get(clz);
 		if(refMap == null) {
 			refMap = new HashMap<String, BundleRef>(3);
@@ -140,7 +148,7 @@ final public class BundleRef extends BundleBase implements IBundle {
 	}
 
 	@Override
-	public String findMessage(final Locale loc, final String code) {
+	public String findMessage(final @Nonnull Locale loc, final @Nonnull String code) {
 		if(m_parent != null)
 			return m_parent.findMessage(loc, code);
 

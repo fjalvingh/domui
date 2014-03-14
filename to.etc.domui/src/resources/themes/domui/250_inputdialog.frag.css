@@ -1,0 +1,13 @@
+.ui-idlg-pnl {}
+
+.ui-idlg-pnl label {
+	width: 1%;
+	min-width: 150px;
+	font-weight: bold;
+	display: inline-block;
+	text-align: right;
+}
+
+.ui-idlg-pnl input {
+	vertical-align: top;
+}

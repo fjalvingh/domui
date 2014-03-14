@@ -28,6 +28,11 @@ import javax.annotation.*;
 
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.layout.title.*;
+import to.etc.domui.databinding.*;
+import to.etc.domui.logic.*;
+import to.etc.domui.logic.events.*;
+import to.etc.domui.server.*;
+import to.etc.webapp.query.*;
 
 
 /**
@@ -39,9 +44,16 @@ import to.etc.domui.component.layout.title.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Sep 1, 2008
  */
-public class UrlPage extends Div {
+public class UrlPage extends Div implements ILogiEventListener {
 	/** The title for the page in the head's TITLE tag. */
 	private String m_pageTitle;
+
+	@Nullable
+	private BindingContext m_bindingContext;
+
+	public UrlPage() {
+		setCssClass("ui-content");
+	}
 
 	/**
 	 * Gets called when a page is reloaded (for ROOT pages only).
@@ -93,5 +105,72 @@ public class UrlPage extends Div {
 		//Since html and body are not by default 100% anymore we need to make it like this here in order to enable stretch to work.
 		//We really need this layout support in domui!).
 		appendCreateJS("$(document).ready(function() {document.body.parentNode.style.height = '100%'; document.body.style.height = '100%'; " + getCustomUpdatesCallJS() + "});");
+	}
+
+	/**
+	 * This is the root implementation to get the "shared context" for database access. Override this to get
+	 * a different "default".
+	 * @see to.etc.domui.dom.html.NodeBase#getSharedContext()
+	 */
+	@Override
+	@Nonnull
+	public QDataContext getSharedContext() throws Exception {
+		return getSharedContext(QContextManager.DEFAULT);
+	}
+
+	@Nonnull
+	public QDataContext getSharedContext(@Nonnull String key) throws Exception {
+		return QContextManager.getContext(key, getPage().getContextContainer(key));
+	}
+
+	@Override
+	@Nonnull
+	public QDataContextFactory getSharedContextFactory() {
+		return getSharedContextFactory(QContextManager.DEFAULT);
+	}
+
+	@Nonnull
+	public QDataContextFactory getSharedContextFactory(@Nonnull String key) {
+		return QContextManager.getDataContextFactory(key, getPage().getContextContainer(key));
+	}
+
+	/**
+	 * EXPERIMENTAL Get the binding context for the page/module.
+	 * @return
+	 */
+	@Override
+	@Nonnull
+	public BindingContext getBindingContext() {
+		BindingContext bc = m_bindingContext;
+		if(null == bc) {
+			bc = m_bindingContext = new BindingContext();
+		}
+		return bc;
+	}
+
+	/**
+	 * EXPERIMENTAL Returns the business logic context for the current form.
+	 * @see to.etc.domui.dom.html.NodeBase#lc()
+	 */
+	@Override
+	@Nonnull
+	public LogiContext lc() throws Exception {
+		LogiContext lc = (LogiContext) getPage().getConversation().getAttribute(LogiContext.class.getName());
+		if(null == lc) {
+			lc = new LogiContext(getSharedContext());
+			getPage().getConversation().setAttribute(LogiContext.class.getName(), lc);
+		}
+		return lc;
+	}
+
+	public void forceReloadData() throws Exception {
+		getPage().getConversation().setAttribute(LogiContext.class.getName(), null);			// Destroy any context
+		QContextManager.closeSharedContexts(getPage().getConversation());			// Drop all connections
+		DomApplication.get().getInjector().injectPageValues(this, getPage().getPageParameters());	// Force reload of all parameters
+		forceRebuild();
+	}
+
+	protected void registerLogicListeners(@Nonnull final LogiContext lc) {
+		lc.addEventListener(this);									// Pass all logi events to the entire page tree.
 	}
 }

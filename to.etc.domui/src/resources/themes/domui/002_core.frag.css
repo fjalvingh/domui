@@ -1,50 +1,21 @@
 /*** 002_core.frag.css ***/
 /*** Core style ***/
 /* Body style */
-body,html {
-	background: url(bg-gradient.png.svg) repeat-x;
+body, html {
+<% if(typeof body_image != 'undefined') { %>
+	background: url(<%= body_image %>) repeat-x;
+<% } %>
 	background-color: <%= bg_color %>;
-/*	height: 100%; jal 20110221 Body height causes no end of problems with scrollbars. */
-	margin: 0px;
+/*	height: 100%; */ /* vmijic - changed to 100% (was 90%). Is here a reason for 90%? We have problem with splitter otherwise... */
 }
 
-/* Reset styles */
-* {
-	border: 0;
-	margin: 0;
-	padding: 0;
+/** jal: do not put this in the reset script! Using it here inherits the spec to all lower elements by default. */
+body {
 	font-family: <%= font_family %>;
 	font-size: <%= font_size %>;
 }
 
-input, textarea, select {
-	border-color:#ABADB3 #BFCDD9 #BFCDD9;
-	border-style:solid;
-	border-width:1px;
-	-moz-border-radius: 2px;	
-}
-
-input, textarea {
-	padding: 2px;
-}
-
-input[type=file] {
-	border: 0 !important;
-	padding: 0px !important;
-}
-
-input:hover, textarea:hover, select:hover {
-	border-color:#5794BF #D7E8F8 #D7E8F8 #5794BF;
-}
-
-select {
-	background-color:#FFFFFF;
-}
-
-pre {
-	font-family: Courier New, Courier, monospace;
-}
-
+/*** Input related components ***/
 button img {
 	vertical-align: bottom;
 }
@@ -53,6 +24,122 @@ button {
 	vertical-align: bottom;
 }
 
-.page-content {
-	margin: 0px 10px;
+input, textarea, select {
+	margin: 0px 2px 2px 0px;
+	padding: 0px 2px 0px 2px;	
+	font-size: <%= font_size %>;
+	font: inherit;
+	border-color:<%= bevel_up %> <%= bevel_down %> <%= bevel_down %>;
+	border-style:solid;
+	border-width:1px;
+	-moz-border-radius: 2px;	
+	border-radius: 2px;	
+	-webkit-border-radius: 2px;	
 }
+textarea{
+	line-height: normal;
+}
+input[type=checkbox] {
+	border: 0;
+	padding-left: 0px;
+	padding-top: 2px;
+}
+
+input[type=file] {
+	border: 0 !important;
+	padding: 0px !important;
+}
+
+input[type="text"], input[type="password"] {
+	height: 16px;
+}
+
+input:hover, textarea:hover, select:hover {
+	border-color:<%= bevel_hover_up %> <%= bevel_hover_down %> <%= bevel_hover_down %> <%= bevel_hover_up %>;
+}
+
+select {
+	background-color:#FFFFFF;
+	height: 18px;
+}
+
+/*** HTML entities ***/
+pre {
+	font-family: <%= fixed_font_family %>;
+	font-size: <%= fixed_font_size %>;
+}
+
+td {
+	padding: 1px;
+}
+
+td input, td select, td label {
+	vertical-align: top;
+} 
+
+div {
+	vertical-align: top;
+}
+
+.ui-content {
+	padding: <%= margins_main %> <%= margins_main %> 0px <%= margins_main %>;	/* Jal 20121214 bottom margin causes scrollbars with auto-height calculations. */
+}
+.ui-clickable {
+	cursor: pointer;
+}
+
+
+/*** HTML formatting ***/
+p {
+	margin: 5px 0px;
+	display: block;
+}
+h1, h2, h3, h4, h5 {
+	margin: 10px 0px 5px 0px;
+}
+h1 {
+	font-size: 150%;
+	font-weight: bold;
+	border-bottom: 1px solid #777;
+}
+h2 {
+	font-size: 130%;
+	font-weight: bold;
+}
+h3 {
+	font-size: 110%;
+	font-weight: bold;
+}
+h4 {
+	font-style: italic;
+}
+ul {
+	list-style-type: disc;
+	list-style-position: outside;
+	padding: 0px 20px;
+}
+ol {
+	list-style-type: decimal;
+	list-style-position: outside;
+	padding: 0px 20px;
+}
+li {
+	margin: 4px 4px;
+	padding: 3px 0px;
+}
+code {
+	white-space: pre;
+	font-family: <%= fixed_font_family %>;
+	font-size: 11px;
+	background-color: #ddd;
+	display: block;
+	border: 1px dotted #000;
+	padding: 4px;
+}
+b, strong {
+	font-weight: bold;
+}
+i, em {
+	font-style: italic;
+}
+

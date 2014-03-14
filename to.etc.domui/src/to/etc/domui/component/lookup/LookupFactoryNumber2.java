@@ -30,6 +30,7 @@ import javax.annotation.*;
 
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
+import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
@@ -105,6 +106,10 @@ final class LookupFactoryNumber2 implements ILookupControlFactory {
 		}
 		Double minmax = Double.valueOf(calcMaxValue(pmm));
 		boolean monetary = NumericPresentation.isMonetary(pmm.getNumericPresentation());
+
+		if(monetary) {
+			numText.setTextAlign(TextAlign.RIGHT);
+		}
 
 		//-- FIXME Generic bounds violation due to it's gross definition, ignored.
 		//-- FIXME jal 20110415 Vladimir- transient here is wrong because transient usually means querying is impossible at all.

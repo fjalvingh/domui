@@ -63,12 +63,12 @@ public class DisplayOnlyPropertyBinding<T> implements IModelBinding {
 
 	@Override
 	public void moveControlToModel() throws Exception {
-		if(m_propertyMeta.getReadOnly() == YesNoType.YES)
-			return;
+		//		if(m_propertyMeta.getReadOnly() == YesNoType.YES)
+		//			return;
 
-		T val = m_control.getValue();
-		Object base = m_model.getValue();
-		m_propertyMeta.setValue(base, val);
+		//		T val = m_control.getValue();
+		//		Object base = m_model.getValue();
+		//		m_propertyMeta.setValue(base, val);
 	}
 
 	@Override

@@ -47,7 +47,7 @@ import to.etc.webapp.nls.*;
 public class ControlBuilder {
 	//	private DomApplication m_app;
 	@Nonnull
-	private List<ControlFactory> m_controlFactoryList = new ArrayList<ControlFactory>();
+	private List<PropertyControlFactory> m_controlFactoryList = new ArrayList<PropertyControlFactory>();
 
 	@Nonnull
 	private final LookupControlRegistry m_lookupControlRegistry = new LookupControlRegistry();
@@ -74,13 +74,13 @@ public class ControlBuilder {
 	 *
 	 * @param cf
 	 */
-	public synchronized void registerControlFactory(@Nonnull final ControlFactory cf) {
-		m_controlFactoryList = new ArrayList<ControlFactory>(m_controlFactoryList); // Dup original
+	public synchronized void registerControlFactory(@Nonnull final PropertyControlFactory cf) {
+		m_controlFactoryList = new ArrayList<PropertyControlFactory>(m_controlFactoryList); // Dup original
 		m_controlFactoryList.add(cf);
 	}
 
 	@Nonnull
-	protected synchronized List<ControlFactory> getControlFactoryList() {
+	protected synchronized List<PropertyControlFactory> getControlFactoryList() {
 		return m_controlFactoryList;
 	}
 
@@ -90,13 +90,13 @@ public class ControlBuilder {
 	 * @param editable	When false this is a displayonly control request.
 	 * @return			null if no factory is found.
 	 */
-	public ControlFactory findControlFactory(@Nonnull final PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
+	public PropertyControlFactory findControlFactory(@Nonnull final PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
 		if(pmm.getControlFactory() != null)
 			return pmm.getControlFactory();
 
-		ControlFactory best = null;
+		PropertyControlFactory best = null;
 		int score = 0;
-		for(ControlFactory cf : getControlFactoryList()) {
+		for(PropertyControlFactory cf : getControlFactoryList()) {
 			int v = cf.accepts(pmm, editable, controlClass);
 			if(v > score) {
 				score = v;
@@ -146,8 +146,8 @@ public class ControlBuilder {
 	 * @return	The factory to use
 	 */
 	@Nonnull
-	public ControlFactory getControlFactory(@Nonnull final PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
-		ControlFactory cf = findControlFactory(pmm, editable, controlClass);
+	public PropertyControlFactory getControlFactory(@Nonnull final PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
+		PropertyControlFactory cf = findControlFactory(pmm, editable, controlClass);
 		if(cf == null)
 			throw new IllegalStateException("Cannot get a control factory for " + pmm);
 		return cf;
@@ -215,14 +215,20 @@ public class ControlBuilder {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Utilities to help you to create controls..			*/
 	/*--------------------------------------------------------------*/
-
 	/**
 	 * Main workhorse which creates input controls for forms, from metadata.
 	 */
+	@Deprecated
 	@Nonnull
 	public ControlFactoryResult createControlFor(@Nonnull final IReadOnlyModel< ? > model, @Nonnull final PropertyMetaModel< ? > pmm, final boolean editable) {
-		ControlFactory cf = getControlFactory(pmm, editable, null);
+		PropertyControlFactory cf = getControlFactory(pmm, editable, null);
 		return cf.createControl(pmm, editable, null);
+	}
+
+	@Nonnull
+	public ControlFactoryResult createControlFor(@Nonnull final PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
+		PropertyControlFactory cf = getControlFactory(pmm, editable, controlClass);
+		return cf.createControl(pmm, editable, controlClass);
 	}
 
 	/**
@@ -259,7 +265,7 @@ public class ControlBuilder {
 	public <T> T createControl(@Nonnull Class<T> controlClass, @Nonnull PropertyMetaModel< ? > pmm, boolean editable) {
 		if(controlClass == null)
 			throw new IllegalArgumentException("controlClass cannot be null");
-		ControlFactory cf = getControlFactory(pmm, editable, null);
+		PropertyControlFactory cf = getControlFactory(pmm, editable, null);
 		ControlFactoryResult r = cf.createControl(pmm, editable, controlClass);	// FIXME Bad, bad bug: I should be able to create a control without binding!!
 
 		//-- This must have generated a single control of the specified type, so check...

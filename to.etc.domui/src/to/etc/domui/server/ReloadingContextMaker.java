@@ -26,6 +26,7 @@ package to.etc.domui.server;
 
 import java.util.*;
 
+import javax.annotation.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
@@ -51,23 +52,55 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 
 	private Set<IReloadedClassesListener> m_listenerSet = new HashSet<IReloadedClassesListener>();
 
+	static private ReloadingContextMaker m_instance;
 
-	public ReloadingContextMaker(String applicationClassName, ConfigParameters pp, String patterns, String patternsWatchOnly) throws Exception {
+	@Nonnull
+	static public List<IReloadListener> m_reloadListener = new ArrayList<>();
+
+	static private long m_lastReloadTime;
+
+
+	public ReloadingContextMaker(@Nonnull String applicationClassName, @Nonnull ConfigParameters pp, @Nullable String patterns, @Nullable String patternsWatchOnly) throws Exception {
 		super(pp);
+		m_instance = this;
 		m_applicationClassName = applicationClassName;
 		m_config = pp;
 		m_reloader = new Reloader(patterns, patternsWatchOnly);
 		System.out.println("DomUI: We are running in DEVELOPMENT mode. This will be VERY slow when used in a production environment.");
 
-		checkReload(); // Initial: force load and init of Application object.
+		checkReload(); 										// Initial: force load and init of Application object.
+	}
+
+	static public synchronized void addReloadListener(IReloadListener l) {
+		m_reloadListener = new ArrayList<>(m_reloadListener);
+		m_reloadListener.add(l);
+	}
+
+	static private synchronized List<IReloadListener> listeners() {
+		return m_reloadListener;
+	}
+
+	static public Class< ? > loadClass(String name) throws Exception {
+		if(m_instance != null) {
+			return m_instance.getReloader().getReloadingLoader().loadClass(name);
+		}
+		return ReloadingContextMaker.class.getClassLoader().loadClass(name);
 	}
 
 	public Reloader getReloader() {
 		return m_reloader;
 	}
 
+	static private synchronized void reloaded() {
+		m_lastReloadTime = System.currentTimeMillis();
+	}
+
+	static public synchronized long getLastReload() {
+		return m_lastReloadTime;
+	}
+
 	@Override
-	public boolean handleRequest(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws Exception {
+	public void handleRequest(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull FilterChain chain) throws Exception {
 		synchronized(this) {
 			if(m_nestCount == 0)
 				checkReload();
@@ -82,22 +115,24 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 			synchronized(sess) {
 				link = (HttpSessionLink) sess.getAttribute(AppSession.class.getName());
 				if(link == null) {
-					link = new HttpSessionLink(this);
+					link = new HttpSessionLink(sess, this);
 					sess.setAttribute(AppSession.class.getName(), link);
 					addListener(link);
 				}
 			}
 
 			//-- Ok: does the sessionlink have a session?
-			//			DomApplication.internalSetCurrent(m_application);
-			AppSession ass = link.getAppSession(m_application);
-			RequestContextImpl ctx = new RequestContextImpl(m_application, ass, request, response);
-			return execute(ctx, chain);
+			DomApplication application = m_application;
+			if(null == application)
+				throw new IllegalStateException("Application not loaded/known");
+			AppSession ass = link.getAppSession(application);
+			HttpServerRequestResponse requestResponse = HttpServerRequestResponse.create(application, request, response);
+			RequestContextImpl ctx = new RequestContextImpl(requestResponse, application, ass);
+			execute(requestResponse, ctx, chain);
 		} finally {
 			synchronized(this) {
 				m_nestCount--;
 			}
-			//			DomApplication.internalSetCurrent(null);
 		}
 	}
 
@@ -111,6 +146,7 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 		if(m_application == null) {
 			//-- Just load && be done
 			m_application = createApplication();
+			reloaded();
 			return;
 		}
 		if(!m_reloader.isChanged())
@@ -128,6 +164,7 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 		m_reloader.clear();
 
 		//-- Check to see if the application has changed
+		reloaded();
 		Class< ? > clz;
 		try {
 			clz = m_reloader.loadApplication(m_applicationClassName);
@@ -137,6 +174,13 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 		if(m_application != null) {
 			MetaManager.internalClear();
 			BundleRef.internalClear();
+			for(IReloadListener ll : listeners()) {
+				try {
+					ll.reloaded(m_reloader.getReloadingLoader());
+				} catch(Exception x) {
+					x.printStackTrace();
+				}
+			}
 
 			Class< ? > oclz = m_application.getClass();
 			System.out.println("OLD app = " + oclz + ", loaded by " + oclz.getClassLoader());
@@ -150,6 +194,7 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 
 		m_application = createApplication();
 	}
+
 
 	private DomApplication createApplication() throws Exception {
 		Class< ? > clz;

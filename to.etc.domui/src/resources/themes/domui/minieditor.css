@@ -4,3 +4,11 @@ body,html {
 	font-family: Arial, Verdana, Bitstream Vera, sans-serif;
 	font-size: 13px;
 }
+code {
+	white-space: pre;
+	font-family: Courier New, Courier, monospace;
+	font-size: 13px;
+	background-color: #ddd;
+	display: block;
+}
+

@@ -55,6 +55,8 @@ public class RadioGroup<T> extends Div implements IHasChangeListener {
 	}
 
 	void internalSetValue(T newval) {
+//		if(m_value != newval)
+//			System.out.println("Changed from " + m_value + " to " + newval);
 		m_value = newval;
 	}
 

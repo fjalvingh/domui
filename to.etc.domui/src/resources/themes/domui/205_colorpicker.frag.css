@@ -6,7 +6,6 @@
 	overflow: hidden;
 	position: absolute;
 	background: url(colorpicker_background.png);
-	font-family: Arial, Helvetica, sans-serif;
 	display: none;
 }
 .colorpicker_color {
@@ -75,7 +74,6 @@
 	border: 1px solid transparent;
 	position: absolute;
 	font-size: 10px;
-	font-family: Arial, Helvetica, sans-serif;
 	color: #898989;
 	top: 4px;
 	right: 11px;
@@ -178,4 +176,15 @@
 	width: 28px;
 	left: 4px;
 	top: 4px;
+}
+
+/*** ColorPickerInput ***/
+.ui-cpin {
+}
+.ui-cpin-div {
+        display: inline-block;
+        margin-top: 5px;
+        border: 1px solid grey;
+        height: 11px;
+        width: 20px;
 }

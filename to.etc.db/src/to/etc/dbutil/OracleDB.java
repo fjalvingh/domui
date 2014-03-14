@@ -34,7 +34,7 @@ import javax.sql.*;
 
 import org.slf4j.*;
 
-import to.etc.util.*;
+import to.etc.dbpool.*;
 
 public class OracleDB extends BaseDB {
 
@@ -583,6 +583,12 @@ public class OracleDB extends BaseDB {
 		}
 	}
 
+	/**
+	 * This method creates public synonyms for all objects in a schema (except TYPE objects).
+	 * @param ds
+	 * @param owner
+	 * @param objectNames
+	 */
 	public static void updateSynonyms(@Nonnull DataSource ds, @Nonnull String owner, String... objectNames) {
 		PreparedStatement ps = null;
 		PreparedStatement ps2 = null;
@@ -621,23 +627,40 @@ public class OracleDB extends BaseDB {
 					ps2 = dbc.prepareStatement("create public synonym \"" + on + "\" for " + owner + ".\"" + on + "\"");
 					ps2.executeUpdate();
 				} catch(Exception x) {
-					System.out.println(owner + ": error creating synonym " + on + ": " + x);
-					LOG.error(owner + ": error creating synonym " + on + ": " + x);
+					String message = x.toString().toLowerCase();
+					if(!message.contains("ora-00955")) {
+						System.out.println(owner + ": error creating synonym " + on + ": " + x);
+						LOG.error(owner + ": error creating synonym " + on + ": " + x);
+					}
 				} finally {
-					FileTool.closeAll(ps2);
+					ps2.close();
 				}
 				ct++;
 			}
 
 			ts = System.currentTimeMillis() - ts;
-			LOG.info(owner + ": created " + ct + " public synonyms in " + StringTool.strDurationMillis(ts));
-//			System.out.println(owner + ": created " + ct + " public synonyms in " + StringTool.strDurationMillis(ts));
+			LOG.info(owner + ": created " + ct + " public synonyms in " + DbPoolUtil.strMillis(ts));
 		} catch(Exception x) {
 			System.out.println(owner + ": exception while trying to create missing synonyms: " + x);
 			LOG.error(owner + ": exception while trying to create missing synonyms: " + x);
 			x.printStackTrace();
 		} finally {
-			FileTool.closeAll(rs, ps, ps2, dbc);
+			try {
+				if(rs != null)
+					rs.close();
+			} catch(Exception x) {}
+			try {
+				if(ps != null)
+					ps.close();
+			} catch(Exception x) {}
+			try {
+				if(ps2 != null)
+					ps2.close();
+			} catch(Exception x) {}
+			try {
+				if(null != dbc)
+					dbc.close();
+			} catch(Exception x) {}
 		}
 	}
 

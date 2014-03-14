@@ -65,13 +65,13 @@ public class MessageFlare extends Flare {
 		Img img = null;
 		switch(m_type){
 			case ERROR:
-				img = new Img("THEME/flare-important.png");
+				img = new Img(Theme.ICON_MBX_ERROR);
 				break;
 			case INFO:
-				img = new Img("THEME/info.png");
+				img = new Img(Theme.ICON_MBX_INFO);
 				break;
 			case WARNING:
-				img = new Img(Theme.ICON_WARNING);
+				img = new Img(Theme.ICON_MBX_WARNING);
 				break;
 			default:
 				throw new IllegalStateException("Unknown msg type:" + m_type);

@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.controlfactory;
 
+import java.math.*;
+
 import javax.annotation.*;
 
 import to.etc.domui.component.input.*;
@@ -41,10 +43,10 @@ import to.etc.domui.component.misc.*;
  */
 @SuppressWarnings("unchecked")
 // Hating Generics
-public class ControlFactoryString implements ControlFactory {
+public class ControlFactoryString implements PropertyControlFactory {
 	/**
 	 * Accept any type using a string.
-	 * @see to.etc.domui.component.controlfactory.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel)
+	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel)
 	 */
 	@Override
 	public int accepts(final @Nonnull PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
@@ -72,7 +74,14 @@ public class ControlFactoryString implements ControlFactory {
 				dv.setTitle(s);
 			return new ControlFactoryResult(dv);
 		}
-		Text<T> txt = Text.createText(iclz, pmm, editable);
+
+		Text<T> txt;
+
+		if(pmm.getActualType() == Double.class || pmm.getActualType() == double.class || pmm.getActualType() == BigDecimal.class) {
+			txt = (Text<T>) Text.createNumericInput((PropertyMetaModel<Double>) pmm, editable);
+		} else {
+			txt = Text.createText(iclz, pmm, editable);
+		}
 		return new ControlFactoryResult(txt);
 	}
 }

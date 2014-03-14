@@ -134,28 +134,6 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		setErrorFence();
 	}
 
-	//	public ExpandingEditTable(@Nonnull Class<T> actualClass, @Nonnull IRowRenderer<T> r) {
-	//		m_rowRenderer = r;
-	//		setErrorFence();
-	//	}
-
-	//	public ExpandingEditTable(@Nonnull IRowRenderer<T> r) {
-	//		m_rowRenderer = r;
-	//		setErrorFence();
-	//	}
-
-	//	public ExpandingEditTable(@Nonnull Class<T> actualClass, @Nullable IRowRenderer<T> r) {
-	//		super(actualClass);
-	//		m_rowRenderer = r;
-	//		setErrorFence();
-	//	}
-	//
-	//	public ExpandingEditTable(@Nonnull Class<T> actualClass, @Nullable ITableModel<T> m, @Nullable IRowRenderer<T> r) {
-	//		super(actualClass, m);
-	//		m_rowRenderer = r;
-	//		setErrorFence();
-	//	}
-
 	private boolean setEmptyDiv() throws Exception {
 		if(getModel().getRows() == 0) {
 			if(m_emptyDiv != null)
@@ -291,7 +269,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 			//-- Render a default "delete" button.
 			bc.addConfirmedLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_DELETE), "THEME/btnDelete.png", Msgs.BUNDLE.getString(Msgs.UI_XDT_DELSURE), new IClicked<LinkButton>() {
 				@Override
-				public void clicked(LinkButton clickednode) throws Exception {
+				public void clicked(@Nonnull LinkButton clickednode) throws Exception {
 					((IModifyableTableModel<T>) getModel()).delete(value);
 					DomUtil.setModifiedFlag(ExpandingEditTable.this);
 				}
@@ -307,7 +285,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 
 			td.setClicked(new IClicked<TD>() {
 				@Override
-				public void clicked(TD clickednode) throws Exception {
+				public void clicked(@Nonnull TD clickednode) throws Exception {
 					toggleExpanded(index);
 				}
 			});
@@ -452,13 +430,15 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 				return;
 		}
 
-		if(getOnRowChangeCompleted() != null) {
-			if(!((IRowEditorEvent<T, NodeContainer>) getOnRowChangeCompleted()).onRowChanged(this, editor, item, false))
+		IRowEditorEvent<T, ? > onRowChangeCompleted = getOnRowChangeCompleted();
+		if(onRowChangeCompleted != null) {
+			if(!((IRowEditorEvent<T, NodeContainer>) onRowChangeCompleted).onRowChanged(this, editor, item, false))
 				return;
 		}
 
 		//-- Done: just re-render the collapsed row
-		renderCollapsedRow(index, item);
+		if(item != null)
+			renderCollapsedRow(index, item);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -492,11 +472,11 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 			TD td = tr.addCell();
 			Div d = new Div("*");
 			td.add(d);
-			d.setCssClass("ui-xdt-ix ui-xdt-new");
+			d.setCssClass("ui-xdt-ix");
 
 			td.setClicked(new IClicked<TD>() {
 				@Override
-				public void clicked(TD clickednode) throws Exception {
+				public void clicked(@Nonnull TD clickednode) throws Exception {
 					commitNewRow();
 				}
 			});
@@ -516,14 +496,14 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		//-- Now add commit/cancel button in action column
 		bc.addLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_ADD), "THEME/btnConfirm.png", new IClicked<LinkButton>() {
 			@Override
-			public void clicked(LinkButton clickednode) throws Exception {
+			public void clicked(@Nonnull LinkButton clickednode) throws Exception {
 				commitNewRow();
 			}
 		});
 
 		bc.addLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_CANCEL), "THEME/btnDelete.png", new IClicked<LinkButton>() {
 			@Override
-			public void clicked(LinkButton clickednode) throws Exception {
+			public void clicked(@Nonnull LinkButton clickednode) throws Exception {
 				cancelNew();
 			}
 		});
@@ -535,7 +515,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		if(DomUtil.isModified(m_newEditor)) {
 			MsgBox.continueCancel(this, Msgs.BUNDLE.getString(Msgs.UI_XDT_SURE), new IClicked<MsgBox>() {
 				@Override
-				public void clicked(MsgBox clickednode) throws Exception {
+				public void clicked(@Nonnull MsgBox clickednode) throws Exception {
 					cancelNewReally();
 				}
 			});
@@ -576,8 +556,9 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		T newInstance = m_newInstance;
 		if(null == newInstance)
 			throw new IllegalStateException("The 'new' instance being edited is null?");
-		if(getOnRowChangeCompleted() != null) {
-			if(!((IRowEditorEvent<T, NodeContainer>) getOnRowChangeCompleted()).onRowChanged(this, newEditor, newInstance, true)) {
+		IRowEditorEvent<T, ? > onRowChangeCompleted = getOnRowChangeCompleted();
+		if(onRowChangeCompleted != null) {
+			if(!((IRowEditorEvent<T, NodeContainer>) onRowChangeCompleted).onRowChanged(this, newEditor, newInstance, true)) {
 				return;
 			}
 		}

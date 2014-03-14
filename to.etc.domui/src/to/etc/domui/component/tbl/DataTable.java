@@ -38,7 +38,7 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 1, 2008
  */
-public class DataTable<T> extends TabularComponentBase<T> implements ISelectionListener<T>, ISelectableTableComponent<T> {
+public class DataTable<T> extends SelectableTabularComponent<T> implements ISelectionListener<T>, ISelectableTableComponent<T> {
 	private Table m_table = new Table();
 
 	private IRowRenderer<T> m_rowRenderer;
@@ -58,22 +58,41 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	/** When set, the table is in "multiselect" mode and shows checkboxes before all rows. */
 	private boolean m_multiSelectMode;
 
-	/** When T and the table has a multiselection model the checkboxes indicating selection will be rendered always, even when no selection has been made. */
-	private boolean m_showSelectionAlways;
-
 	/** When selecting, this is the last index that was used in a select click.. */
 	private int m_lastSelectionLocation = -1;
 
-	private boolean m_disableClipboardSelection;
+	@Nonnull
+	final private IClicked<TH> m_headerSelectClickHandler = new IClicked<TH>() {
+		@Override
+		public void clicked(@Nonnull TH clickednode) throws Exception {
+			ISelectionModel<T> sm = getSelectionModel();
+			if(null == sm)
+				return;
+			int ct = sm.getSelectionCount();
+			if(0 == ct && sm.isMultiSelect()) {
+				sm.selectAll(getModel());
+			} else {
+				sm.clearSelection();
+			}
+		}
+	};
+
 
 	public DataTable(@Nonnull ITableModel<T> m, @Nonnull IRowRenderer<T> r) {
 		super(m);
 		m_rowRenderer = r;
 	}
 
+	public DataTable(@Nonnull IRowRenderer<T> r) {
+		m_rowRenderer = r;
+	}
+
 	public DataTable(@Nonnull ITableModel<T> m) {
 		super(m);
 	}
+
+	public DataTable() {}
+
 
 	/**
 	 * Return the backing table for this data browser. For component extension only - DO NOT MAKE PUBLIC.
@@ -105,7 +124,7 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	public void createContent() throws Exception {
 		m_dataBody = null;
 		m_errorDiv = null;
-		setCssClass("ui-dt");
+		addCssClass("ui-dt");
 
 		//-- Do we need to render multiselect checkboxes?
 		ISelectionModel<T> sm = getSelectionModel();
@@ -199,7 +218,9 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		if(m_multiSelectMode) {
 			TH headerCell = hc.add("");
 			headerCell.add(new Img("THEME/dspcb-on.png"));
-			headerCell.setWidth("1px"); //keep selection column with minimal width
+			headerCell.setWidth("1%"); //keep selection column with minimal width
+			headerCell.setClicked(m_headerSelectClickHandler);
+			headerCell.setCssClass("ui-clickable");
 		}
 		m_rowRenderer.renderHeader(this, hc);
 	}
@@ -256,14 +277,11 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 
 		//-- If we're in multiselect mode show the select boxes
 		if(m_multiSelectMode && sm != null) {
-			Checkbox cb = new Checkbox();
-			cc.add(cb);
-			cb.setClicked(new IClicked2<Checkbox>() {
-				@Override
-				public void clicked(@Nonnull Checkbox clickednode, @Nonnull ClickInfo info) throws Exception {
-					selectionCheckboxClicked(value, clickednode.isChecked(), info);
-				}
-			});
+			Checkbox cb = createSelectionCheckbox(value, sm);
+			TD td = cc.add(cb);
+			if(cb.isReadOnly()) {
+				td.addCssClass("ui-cur-default");
+			}
 
 			boolean issel = sm.isSelected(value);
 			cb.setChecked(issel);
@@ -308,8 +326,9 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		}
 
 		//-- If this has a click handler- fire it.
-		if(null != m_rowRenderer.getRowClicked())
-			((ICellClicked<T>) m_rowRenderer.getRowClicked()).cellClicked(b, instance);
+		ICellClicked< ? > rowClicked = m_rowRenderer.getRowClicked();
+		if(null != rowClicked)
+			((ICellClicked<T>) rowClicked).cellClicked(b, instance);
 	}
 
 	/**
@@ -317,10 +336,16 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	 * @param instance
 	 * @param checked
 	 * @param info
+	 * @param clickednode
 	 * @throws Exception
 	 */
-	private void selectionCheckboxClicked(T instance, boolean checked, ClickInfo info) throws Exception {
+	private void selectionCheckboxClicked(T instance, boolean checked, ClickInfo info, @Nonnull Checkbox checkbox) throws Exception {
 		handleSelectClicky(instance, info, Boolean.valueOf(checked));
+		ISelectionModel<T> sm = getSelectionModel();
+		if(null != sm) {
+			checkbox.setChecked(sm.isSelected(instance));
+		}
+
 	}
 
 	/**
@@ -375,8 +400,6 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		}
 
 		//-- Now toggle all instances, in batches, to prevent loading 1000+ records that cannot be gc'd.
-		index = sl;
-
 		for(int i = sl; i < el;) {
 			int ex = i + 50;
 			if(ex > el)
@@ -457,8 +480,10 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		//-- 1. Add the select TH.
 		TD th = new TH();
 		th.add(new Img("THEME/dspcb-on.png"));
-		th.setWidth("1px"); //keep selection column with minimal width
+		th.setWidth("1%");
 		headerrow.add(0, th);
+		th.setClicked(m_headerSelectClickHandler);
+		th.setCssClass("ui-clickable");
 
 		//-- 2. Insert a checkbox in all rows.
 		for(int i = 0; i < m_dataBody.getChildCount(); i++) {
@@ -467,57 +492,30 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 			TD td = new TD();
 			tr.add(0, td);
 
-			Checkbox cb = new Checkbox();
+			Checkbox cb = createSelectionCheckbox(instance, getSelectionModel());
+			if(cb.isReadOnly()) {
+				td.addCssClass("ui-cur-default");
+			}
 			td.add(cb);
-			cb.setClicked(new IClicked2<Checkbox>() {
-				@Override
-				public void clicked(@Nonnull Checkbox clickednode, @Nonnull ClickInfo clinfo) throws Exception {
-					selectionCheckboxClicked(instance, clickednode.isChecked(), clinfo);
-				}
-			});
 			cb.setChecked(false);
 		}
 
 		fireSelectionUIChanged();
 	}
 
-	/**
-	 * When T and a selection model in multiselect mode is present, this causes the
-	 * checkboxes to be rendered initially even when no selection is made.
-	 * @return
-	 */
-	public boolean isShowSelectionAlways() {
-		return m_showSelectionAlways;
-	}
-
 	@Override
-	public boolean isMultiSelectionVisible() {
-		return m_multiSelectMode;
-	}
-
-	/**
-	 * When T and a selection model in multiselect mode is present, this causes the
-	 * checkboxes to be rendered initially even when no selection is made.
-	 * @param showSelectionAlways
-	 * @throws Exception
-	 */
-	@Override
-	public void setShowSelection(boolean showSelectionAlways) throws Exception {
-		if(m_showSelectionAlways == showSelectionAlways || getModel() == null || getModel().getRows() == 0)
-			return;
-		m_showSelectionAlways = showSelectionAlways;
-		ISelectionModel<T> sm = getSelectionModel();
-		if(sm == null)
-			throw new IllegalStateException("Selection model is empty?");
-		if(!isBuilt() || m_multiSelectMode || getSelectionModel() == null || !sm.isMultiSelect())
-			return;
-
+	protected void createSelectionUI() throws Exception {
 		THead head = m_table.getHead();
 		if(null == head)
 			throw new IllegalStateException("I've lost my head!?");
 
 		TR headerrow = (TR) head.getChild(0);
 		createMultiselectUI(headerrow);
+	}
+
+	@Override
+	public boolean isMultiSelectionVisible() {
+		return m_multiSelectMode;
 	}
 
 	/*--------------------------------------------------------------*/
@@ -582,10 +580,10 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		int rrow = index - m_six; // This is the location within the child array
 		ColumnContainer<T> cc = new ColumnContainer<T>(this);
 		TR tr = new TR();
+		m_dataBody.add(rrow, tr);
 		cc.setParent(tr);
 		tr.setTestRepeatID("r" + index);
 		renderRow(tr, cc, index, value);
-		m_dataBody.add(rrow, tr);
 		m_visibleItemList.add(rrow, value);
 
 		//-- Is the size not > the page size?
@@ -728,56 +726,6 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Handling selections.								*/
 	/*--------------------------------------------------------------*/
-	/** If this table allows selection of rows, this model maintains the selections. */
-	@Nullable
-	private ISelectionModel<T> m_selectionModel;
-
-	@Nullable
-	private ISelectionAllHandler m_selectionAllHandler;
-
-	@Override
-	@Nullable
-	public ISelectionAllHandler getSelectionAllHandler() {
-		return m_selectionAllHandler;
-	}
-
-	public void setSelectionAllHandler(@Nullable ISelectionAllHandler selectionAllHandler) {
-		if(m_selectionAllHandler == selectionAllHandler)
-			return;
-		m_selectionAllHandler = selectionAllHandler;
-		fireSelectionUIChanged();
-	}
-
-	/**
-	 * Return the model used for table selections, if applicable.
-	 * @return
-	 */
-	@Override
-	@Nullable
-	public ISelectionModel<T> getSelectionModel() {
-		return m_selectionModel;
-	}
-
-	/**
-	 * Set the model to maintain selections, if this table allows selections.
-	 *
-	 * @param selectionModel
-	 */
-	public void setSelectionModel(@Nullable ISelectionModel<T> selectionModel) {
-		if(DomUtil.isEqual(m_selectionModel, selectionModel))
-			return;
-		if(m_selectionModel != null) {
-			m_selectionModel.removeListener(this);
-		}
-		m_selectionModel = selectionModel;
-		if(null != selectionModel) {
-			setDisableClipboardSelection(true);
-			selectionModel.addListener(this);
-		}
-		m_lastSelectionLocation = -1;
-		forceRebuild();
-	}
-
 	/**
 	 * Called when a selection cleared event fires. The underlying model has already been changed. It
 	 * tries to see if the row is currently paged in, and if so asks the row renderer to update
@@ -797,16 +745,23 @@ public class DataTable<T> extends TabularComponentBase<T> implements ISelectionL
 		}
 	}
 
-	public boolean isDisableClipboardSelection() {
-		return m_disableClipboardSelection;
-	}
-
-	public void setDisableClipboardSelection(boolean disableClipboardSelection) {
-		if(m_disableClipboardSelection == disableClipboardSelection)
-			return;
-		m_disableClipboardSelection = disableClipboardSelection;
-		if(isBuilt() && disableClipboardSelection) {
-			appendJavascript(JavascriptUtil.disableSelection(this)); // Needed to prevent ctrl+click in IE doing clipboard-select, because preventDefault does not work there of course.
+	@Nonnull
+	private Checkbox createSelectionCheckbox(@Nonnull final T rowInstance, @Nullable ISelectionModel<T> selectionModel) {
+		Checkbox cb = new Checkbox();
+		boolean selectable = true;
+		if(selectionModel instanceof IAcceptable) {
+			selectable = ((IAcceptable<T>) selectionModel).acceptable(rowInstance);
 		}
+		if(selectable) {
+			cb.setClicked(new IClicked2<Checkbox>() {
+				@Override
+				public void clicked(@Nonnull Checkbox clickednode, @Nonnull ClickInfo info) throws Exception {
+					selectionCheckboxClicked(rowInstance, clickednode.isChecked(), info, clickednode);
+				}
+			});
+		} else {
+			cb.setReadOnly(true);
+		}
+		return cb;
 	}
 }

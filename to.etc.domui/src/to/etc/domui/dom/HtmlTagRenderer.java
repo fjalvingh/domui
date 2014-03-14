@@ -605,6 +605,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 	}
 
 	protected void renderTag(final NodeBase b, final IBrowserOutput o) throws Exception {
+//		b.onBeforeTagRender();
 		if(!m_tagless)
 			o.tag(b.getTag()); // Open the tag
 	}
@@ -673,7 +674,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 			}
 		} else {
 			if(!(b instanceof UrlPage)){
-				if(ttl != null){ 				
+				if(ttl != null){
 					o().attr("title", ttl);
 				}
 			}
@@ -876,6 +877,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 	public void visitXmlNode(XmlTextNode n) throws Exception {
 		String lit = n.getText(); // Get tilde-replaced text
 		if(lit != null && lit.length() > 0) {
+			m_o.setIndentEnabled(false);
 			m_o.text(""); // 20100222 jal Force previous tag to end with >.
 			m_o.writeRaw(lit);
 		}
@@ -958,11 +960,11 @@ public class HtmlTagRenderer implements INodeVisitor {
 			o().attr("onblur", sb().append(transformScript).append("WebUI.hideLookupTypingPopup('").append(n.getActualID()).append("')").toString());
 		} else {
 			//-- Attach normal onKeyPress handling.
-			if(n.getOnKeyPressJS() != null) {
+			if(!StringTool.isBlank(n.getOnKeyPressJS())) {
 				o().attr("onkeypress", "return " + n.getOnKeyPressJS());
 			}
 
-			if(!DomUtil.isBlank(transformScript)) {
+			if(!StringTool.isBlank(transformScript)) {
 				o().attr("onblur", sb().append(transformScript).toString());
 			}
 		}
@@ -1055,9 +1057,11 @@ public class HtmlTagRenderer implements INodeVisitor {
 				m_o.attr("onclick", sb().append("WebUI.clicked(this, '").append(n.getActualID()).append("', event); return true;").toString());
 			} else if(n.getOnClickJS() != null) {
 				m_o.attr("onclick", n.getOnClickJS());
+			} else if(n.getGroup().getClicked() != null) {
+				m_o.attr("onclick", sb().append("WebUI.clicked(this, '").append(n.getActualID()).append("', event); return true;").toString());
 			}
 			if(null != n.getGroup().getOnValueChanged()) {
-				m_o.attr("onchange", sb().append("WebUI.valuechanged(this, '").append(n.getActualID()).append("', event)").toString());
+				m_o.attr("onchange", sb().append("WebUI.valuechanged(this, '").append(n.getActualID()).append("', event); return true;").toString());
 			}
 		}
 		renderTagend(n, m_o);

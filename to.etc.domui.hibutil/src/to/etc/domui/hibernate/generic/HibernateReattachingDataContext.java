@@ -55,7 +55,7 @@ public class HibernateReattachingDataContext extends BuggyHibernateBaseContext {
 	@Override
 	public Session getSession() throws Exception {
 		if(m_session == null) {
-			m_session = m_sessionMaker.makeSession();
+			m_session = m_sessionMaker.makeSession(this);
 
 			//-- jal 20080822 reattach all previously-loaded entities.
 			long ts = System.nanoTime();

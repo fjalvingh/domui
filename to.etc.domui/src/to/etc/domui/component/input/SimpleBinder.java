@@ -28,6 +28,7 @@ import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.logic.events.*;
 import to.etc.domui.util.*;
 
 /**
@@ -38,7 +39,7 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 13, 2009
  */
-public class SimpleBinder implements IBinder {
+public class SimpleBinder implements IBinder, ILogiEventListener {
 	@Nonnull
 	private IControl< ? > m_control;
 
@@ -144,7 +145,6 @@ public class SimpleBinder implements IBinder {
 		m_instance = instance;
 	}
 
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IModelBinding interface implementation.				*/
 	/*--------------------------------------------------------------*/
@@ -158,13 +158,29 @@ public class SimpleBinder implements IBinder {
 		if(m_listener != null)
 			((IBindingListener<NodeBase>) m_listener).moveControlToModel((NodeBase) m_control); // Stupid generics idiocy requires cast
 		else {
+			PropertyMetaModel<Object> propertyModel = pmm();
+			if(propertyModel.getReadOnly() == YesNoType.YES || m_control instanceof IDisplayControl)
+				return;
 			Object val = m_control.getValue();
-			Object base = m_instance == null ? getModel().getValue() : m_instance;
-			IValueAccessor<Object> a = (IValueAccessor<Object>) m_propertyModel;
-			if(null == a)
-				throw new IllegalStateException("The propertyModel cannot be null");
-			a.setValue(base, val);
+			Object base = getBase();
+			propertyModel.setValue(base, val);
 		}
+	}
+
+	@Nonnull
+	private PropertyMetaModel<Object> pmm() {
+		PropertyMetaModel<Object> propertyModel = (PropertyMetaModel<Object>) m_propertyModel;
+		if(null == propertyModel)
+			throw new IllegalStateException("Binding for a model item without a propertyModel");
+		return propertyModel;
+	}
+
+	@Nonnull
+	private Object getBase() throws Exception {
+		Object base = m_instance == null ? getModel().getValue() : m_instance;
+		if(null == base)
+			throw new IllegalStateException(this + ": the base object is null");
+		return base;
 	}
 
 	@Override
@@ -172,10 +188,8 @@ public class SimpleBinder implements IBinder {
 		if(m_listener != null)
 			((IBindingListener<NodeBase>) m_listener).moveModelToControl((NodeBase) m_control); // Stupid generics idiocy requires cast
 		else {
-			Object base = m_instance == null ? getModel().getValue() : m_instance;
-			IValueAccessor< ? > vac = m_propertyModel;
-			if(vac == null)
-				throw new IllegalStateException("Null IValueAccessor<T> returned by PropertyMeta " + m_propertyModel);
+			Object base = getBase();
+			IValueAccessor< ? > vac = pmm();
 			Object pval = vac.getValue(base);
 			((IControl<Object>) m_control).setValue(pval);
 		}
@@ -193,6 +207,31 @@ public class SimpleBinder implements IBinder {
 		m_control.setDisabled(!on);
 	}
 
+	/**
+	 * Handle a logic event: if the event contains a change to something we're bound to then
+	 * update that thing we're bound to.
+	 * @see to.etc.domui.logic.events.ILogiEventListener#logicEvent(to.etc.domui.logic.events.LogiEvent)
+	 */
+	@Override
+	public void logicEvent(@Nonnull LogiEvent event) throws Exception {
+		//-- If I just have a listener pass on the event to the listener.
+		IBindingListener< ? > listener = m_listener;
+		if(null != listener) {
+			if(listener instanceof ILogiEventListener) {
+				((ILogiEventListener) listener).logicEvent(event);
+			}
+			return;
+		}
+
+		//-- Get my binding as instance:property.
+		Object base = getBase();
+		if(!event.propertyChanged(base, pmm().getName()))
+			return;
+
+		//-- The thing we're bound to has changed value. For now just set the new value.
+		moveModelToControl();
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -205,8 +244,9 @@ public class SimpleBinder implements IBinder {
 		} else {
 			sb.append("?");
 		}
-		if(m_propertyModel != null) {
-			sb.append("/").append(m_propertyModel.getName());
+		PropertyMetaModel< ? > propertyModel = m_propertyModel;
+		if(propertyModel != null) {
+			sb.append("/").append(propertyModel.getName());
 		}
 		return sb.toString();
 	}

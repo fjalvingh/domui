@@ -56,7 +56,8 @@ final class LookupFactoryDate implements ILookupControlFactory {
 
 		final DateInput dateFrom = new DateInput();
 		dateFrom.setWithTime(withTime);
-		TextNode tn = new TextNode(Msgs.BUNDLE.getString(Msgs.UI_LOOKUP_DATE_TILL) + " ");
+		Span sp = new Span(Msgs.BUNDLE.getString(Msgs.UI_LOOKUP_DATE_TILL) + " ");
+		sp.setFontWeight("BOLD");
 		final DateInput dateTo = new DateInput();
 		dateTo.setWithTime(withTime);
 
@@ -65,9 +66,9 @@ final class LookupFactoryDate implements ILookupControlFactory {
 			dateFrom.setTitle(hint);
 			dateTo.setTitle(hint);
 		}
-		return new AbstractLookupControlImpl(dateFrom, tn, dateTo) {
+		return new AbstractLookupControlImpl(dateFrom, sp, dateTo) {
 			@Override
-			public AppendCriteriaResult appendCriteria(QCriteria< ? > crit) throws Exception {
+			public @Nonnull AppendCriteriaResult appendCriteria(@Nonnull QCriteria< ? > crit) throws Exception {
 				if(spm == null)
 					throw new IllegalStateException("? SearchPropertyModel should not be null here.");
 				Date from, till;
@@ -80,6 +81,7 @@ final class LookupFactoryDate implements ILookupControlFactory {
 				} catch(Exception x) {
 					return AppendCriteriaResult.INVALID;
 				}
+
 				try {
 					till = dateTo.getValue();
 					//in case of date only search add 1 day and truncate time, since date only search is inclusive for dateTo
@@ -97,8 +99,9 @@ final class LookupFactoryDate implements ILookupControlFactory {
 						//-- Swap vals
 						dateFrom.setValue(till);
 						dateTo.setValue(from);
+						Date tmp = from;
 						from = till;
-						till = dateTo.getValue();
+						till = tmp;
 					}
 
 					//-- Between query

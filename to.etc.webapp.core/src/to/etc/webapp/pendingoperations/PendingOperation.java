@@ -613,6 +613,9 @@ public class PendingOperation {
 				throw new SQLException("Cannot re-find sys_pending_operations.id=" + m_id);
 			Blob tb = rs.getBlob(1);
 			os = (OutputStream) ClassUtil.callObjectMethod(tb, "getBinaryOutputStream", new Class< ? >[0]);
+			if(null == os)
+				throw new PendingOperationSerializationException("Failed to serialize object from pendingOperation=" + m_id + ": cannot get blob output stream");
+
 			try {
 				FileTool.copyFile(os, is);
 				os.close();

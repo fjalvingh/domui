@@ -28,6 +28,7 @@ import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.tbl.*;
+import to.etc.domui.util.*;
 import to.etc.webapp.query.*;
 
 
@@ -59,12 +60,16 @@ public class LookupInput<T> extends LookupInputBase<T, T> {
 		super(lookupClass, lookupClass, metaModel, metaModel);
 	}
 
-	public LookupInput(@Nonnull Class<T> lookupClass, @Nonnull String[] resultColumns) {
+	public LookupInput(@Nonnull Class<T> lookupClass, @Nonnull String... resultColumns) {
 		super(lookupClass, lookupClass, resultColumns);
 	}
 
 	public LookupInput(@Nonnull Class<T> lookupClass) {
 		super(lookupClass, lookupClass);
+	}
+
+	public LookupInput(@Nonnull QCriteria<T> rootQuery) {
+		super(rootQuery, DomUtil.nullChecked(rootQuery.getBaseClass()));
 	}
 
 	@Nonnull
@@ -82,7 +87,7 @@ public class LookupInput<T> extends LookupInputBase<T, T> {
 	protected ITableModel<T> createTableModel(@Nonnull QCriteria<T> query) throws Exception {
 		IQueryHandler<T> queryHandler = getQueryHandler();
 		if(queryHandler == null) {
-			QDataContextFactory src = QContextManager.getDataContextFactory(getPage().getConversation());
+			QDataContextFactory src = QContextManager.getDataContextFactory(QContextManager.DEFAULT, getPage().getConversation());	// FIXME Urgent bad data context handling.
 			return new SimpleSearchModel<T>(src, query);
 		} else {
 			return new SimpleSearchModel<T>(queryHandler, query);

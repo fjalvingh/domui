@@ -2,13 +2,15 @@
 	border-bottom: 1px dotted #333;
 	background-color: #ddd;
 	padding: 4px 8px 4px 8px;
-	margin-bottom: 15px;
+	margin: -10px -10px 10px -10px;
 }
 .d-sbc * {
 	font-size: 18px;
 }
 .d-sbc-logo {
-	float: right;
+	position: fixed;
+	top: 0px;
+	right: 10px;
 }
 
 .d-expl {
@@ -17,6 +19,9 @@
 	padding-bottom: 8px;
 }
 
+.home-page .ui-cptn{
+	margin-top: 10px;
+}
 
 /******** Syntax highlighting for patch renderer ***********/
 pre.code {
@@ -85,4 +90,21 @@ pre.code {
 .s-digit {
 	color: #842900;
 }
-	
+
+/*** Wiki page data ***/
+.ui-wiki {
+	position: absolute;
+	width: 550px;
+	top: 0px;
+	bottom: 0px;
+	right: 0px;	
+	border-left: 2px dotted gray;
+}
+.ui-demo-content {
+	position: absolute;
+	top: 0px;
+	bottom: 0px;
+	left: 0px;
+	right: 550px;
+	padding: 5px;
+}

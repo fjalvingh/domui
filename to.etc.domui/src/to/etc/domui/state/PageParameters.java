@@ -27,6 +27,7 @@ package to.etc.domui.state;
 import java.io.*;
 import java.security.*;
 import java.util.*;
+import java.util.Map.Entry;
 
 import javax.annotation.*;
 
@@ -48,7 +49,7 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 22, 2008
  */
-public class PageParameters implements IPageParameters {
+public class PageParameters implements IPageParameters, Serializable {
 	/**
 	 * Contains either String or String[], maps parameter name to either one or an array of values of that parameter.
 	 */
@@ -92,6 +93,7 @@ public class PageParameters implements IPageParameters {
 	/**
 	 * @see to.etc.domui.state.IPageParameters#getUnlockedCopy()
 	 */
+	@Nonnull
 	@Override
 	public PageParameters getUnlockedCopy() {
 		PageParameters clone = new PageParameters();
@@ -246,7 +248,9 @@ public class PageParameters implements IPageParameters {
 		}
 
 		if(o instanceof String[]) {
-			setParameter(k, (String[]) o);
+			String[] ar = (String[]) o;
+			if(ar.length > 0)
+				setParameter(k, ar);
 			return;
 		}
 
@@ -313,6 +317,15 @@ public class PageParameters implements IPageParameters {
 	@Override
 	public boolean hasParameter(String name) {
 		return m_map.containsKey(name);
+	}
+
+	/**
+	 * Return the number of parameter (names) in this instance.
+	 * @return
+	 */
+	@Override
+	public int size() {
+		return m_map.size();
 	}
 
 	/**
@@ -393,6 +406,12 @@ public class PageParameters implements IPageParameters {
 		String v = getOne(name);
 		if(null != v && (v = v.trim()).length() > 0) {
 			try {
+				v = v.toLowerCase();
+				if(v.startsWith("y"))
+					return true;
+				else if(v.startsWith("n"))
+					return false;
+
 				return Boolean.parseBoolean(v);
 			} catch(Exception x) {
 				throw new UnusableParameterException(name, "boolean", v);
@@ -480,11 +499,12 @@ public class PageParameters implements IPageParameters {
 			if(var instanceof String)
 				return new String[]{(String) var};
 			String[] ar = (String[]) var;
-			if(ar.length > 0)
+			if(ar.length >= 0)
 				return ar;
 		}
-		return null;
+		return deflt;
 	}
+
 
 	/**
 	 * Gets the value for the specified parametername as untyped value.
@@ -716,5 +736,42 @@ public class PageParameters implements IPageParameters {
 	@Override
 	public boolean isReadOnly() {
 		return m_readOnly;
+	}
+
+	/**
+	 * Decode a http query string into a PageParameters instance.
+	 * @param query
+	 * @return
+	 */
+	@Nonnull
+	static public PageParameters decodeParameters(@Nonnull String query) {
+		String[] indiar = query.split("&");
+		Map<String, List<String>> map = new HashMap<String, List<String>>();
+		for(String frag : indiar) {
+			int pos = frag.indexOf('=');
+			if(pos >= 0) {
+				String name = frag.substring(0, pos).toLowerCase();
+				String value = frag.substring(pos + 1);
+				name = StringTool.decodeURLEncoded(name);
+				value = StringTool.decodeURLEncoded(value);
+	
+				List<String>	l = map.get(name);
+				if(null == l) {
+					l = new ArrayList<String>();
+					map.put(name, l);
+				}
+				l.add(value);
+			}
+		}
+	
+		PageParameters pp = new PageParameters();
+		for(Map.Entry<String, List<String>> me : map.entrySet()) {
+			if(me.getValue().size() == 1) {
+				pp.addParameter(me.getKey(), me.getValue().get(0));
+			} else {
+				pp.addParameter(me.getKey(), me.getValue().toArray(new String[0]));
+			}
+		}
+		return pp;
 	}
 }

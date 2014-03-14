@@ -55,9 +55,6 @@ final public class PoolManager {
 
 	private boolean m_collectStatistics;
 
-	/** manipulates queries FOR TEST PURPOSES ONLY !!! */
-	private IReplacer m_replacer;
-
 	/** Threadlocal containing the per-thread collected statistics, per request. */
 	private final ThreadLocal<IInfoHandler> m_infoHandler = new ThreadLocal<IInfoHandler>();
 
@@ -334,6 +331,7 @@ final public class PoolManager {
 		//-- Start the task,
 		try {
 			m_scanthread = new Thread(new Runnable() {
+				@Override
 				public void run() {
 					expiredConnectionScannerLoop();
 				}
@@ -535,27 +533,6 @@ final public class PoolManager {
 	}
 
 	/**
-	 * set a replacer so that some parts of the sql can be manipulated, not desirable but some unit test
-	 * cannot be set up in al reason without this or another solution that provides a way of overriding results.
-	 * @param replacer
-	 */
-	public static synchronized void setReplacer(IReplacer replacer) {
-		getInstance().m_replacer = replacer;
-	}
-
-	/**
-	 * Well here it is fetched and released so that it will only be used once and will nog linger.
-	 * @return
-	 */
-	public static synchronized IReplacer getReplacer() {
-		IReplacer replacer = getInstance().m_replacer;
-		if(replacer != null) {
-			setReplacer(null);
-		}
-		return replacer;
-	}
-
-	/**
 	 * Mark connection long living, for those connections which need
 	 * to be opened for a long time (hanging connection check will skip
 	 * this connection).
@@ -580,5 +557,5 @@ final public class PoolManager {
 			return null;
 		}
 	}
-
 }
+

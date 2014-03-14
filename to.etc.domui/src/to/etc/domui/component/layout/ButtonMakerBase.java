@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.layout;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.html.*;
@@ -55,7 +57,7 @@ abstract public class ButtonMakerBase {
 	public DefaultButton addBackButton(final String txt, final String icon) {
 		DefaultButton b = new DefaultButton(txt, icon, new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(final DefaultButton bxx) throws Exception {
+			public void clicked(final @Nonnull DefaultButton bxx) throws Exception {
 				UIGoto.back();
 			}
 		});

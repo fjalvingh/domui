@@ -26,8 +26,10 @@ package to.etc.webapp.qsql;
 
 import java.sql.*;
 
+import javax.annotation.*;
+
 import to.etc.webapp.query.*;
 
 interface IInstanceMaker {
-	Object make(QDataContext dc, ResultSet rs) throws Exception;
+	Object make(@Nonnull QDataContext dc, @Nonnull ResultSet rs) throws Exception;
 }

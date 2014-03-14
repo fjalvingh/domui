@@ -24,6 +24,8 @@
  */
 package to.etc.webapp.query;
 
+import javax.annotation.*;
+
 /**
  * Represents an "exists" subquery on some child relation of a record. This
  * is always defined as a subquery on a parent record's child-record-set, and
@@ -44,7 +46,7 @@ public class QExistsSubquery<T> extends QOperatorNode {
 
 	private String m_parentProperty;
 
-	private Class< ? > m_baseClass;
+	private Class<T> m_baseClass;
 
 	private QOperatorNode m_restrictions;
 
@@ -53,6 +55,15 @@ public class QExistsSubquery<T> extends QOperatorNode {
 		m_parentQuery = parent;
 		m_parentProperty = property;
 		m_baseClass = baseClass;
+	}
+
+	@Override
+	public QExistsSubquery<T> dup() {
+		QExistsSubquery<T> q = new QExistsSubquery<T>(m_parentQuery, m_baseClass, getParentProperty());
+		QOperatorNode r = getRestrictions();
+		if(null != r)
+			q.setRestrictions(r.dup());
+		return q;
 	}
 
 	public QRestrictor< ? > getParentQuery() {
@@ -75,7 +86,7 @@ public class QExistsSubquery<T> extends QOperatorNode {
 	}
 
 	@Override
-	public void visit(QNodeVisitor v) throws Exception {
+	public void visit(@Nonnull QNodeVisitor v) throws Exception {
 		v.visitExistsSubquery(this);
 	}
 }

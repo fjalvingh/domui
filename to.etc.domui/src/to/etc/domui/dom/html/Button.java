@@ -56,8 +56,9 @@ public class Button extends NodeContainer {
 	}
 
 	public void setDisabled(boolean disabled) {
-		if(m_disabled != disabled)
+		if(m_disabled != disabled) {
 			changed();
+		}
 		m_disabled = disabled;
 	}
 

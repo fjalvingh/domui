@@ -1434,71 +1434,71 @@ public class StringTool {
 		if(cs == null)
 			return null;
 		StringBuilder sb = new StringBuilder(cs.length() + 10);
-		try {
-			strToJavascriptString(sb, cs, dblquote);
-			return sb.toString();
-		} catch(IOException x) {
-			throw new RuntimeException(x.toString(), x);
-		}
+		strToJavascriptString(sb, cs, dblquote);
+		return sb.toString();
 	}
 
-	static public void strToJavascriptString(final Appendable w, final String cs, final boolean dblquote) throws IOException {
-		int len = cs.length();
-		//		if(len == 0)					jal 20090225 WTF!?!! Empty strings MUST be ""!!!!!
-		//			return;
-		int ix = 0;
-		char quotechar;
-		quotechar = dblquote ? '\"' : '\'';
-		w.append(quotechar);
+	static public void strToJavascriptString(final Appendable w, final String cs, final boolean dblquote) {
+		try {
+			int len = cs.length();
+			//		if(len == 0)					jal 20090225 WTF!?!! Empty strings MUST be ""!!!!!
+			//			return;
+			int ix = 0;
+			char quotechar;
+			quotechar = dblquote ? '\"' : '\'';
+			w.append(quotechar);
 
-		while(ix < len) {
-			//-- Collect a run
-			int runstart = ix;
-			char c = 0;
 			while(ix < len) {
-				c = cs.charAt(ix);
-				if(c < 32 || c == '\'' || c == '\\' || c == quotechar)
-					break;
+				//-- Collect a run
+				int runstart = ix;
+				char c = 0;
+				while(ix < len) {
+					c = cs.charAt(ix);
+					if(c < 32 || c == '\'' || c == '\\' || c == quotechar)
+						break;
+					ix++;
+				}
+				if(ix > runstart) {
+					w.append(cs, runstart, ix);
+					if(ix >= len)
+						break;
+				}
 				ix++;
+				switch(c){
+					default:
+						w.append("\\u"); // Unicode escape
+						w.append(StringTool.intToStr(c & 0xffff, 16, 4));
+						break;
+					case '\n':
+						w.append("\\n");
+						break;
+					case '\b':
+						w.append("\\b");
+						break;
+					case '\f':
+						w.append("\\f");
+						break;
+					case '\r':
+						w.append("\\r");
+						break;
+					case '\t':
+						w.append("\\t");
+						break;
+					case '\'':
+						w.append("\\'");
+						break;
+					case '\"':
+						w.append("\\\"");
+						break;
+					case '\\':
+						w.append("\\\\");
+						break;
+				}
 			}
-			if(ix > runstart) {
-				w.append(cs, runstart, ix);
-				if(ix >= len)
-					break;
-			}
-			ix++;
-			switch(c){
-				default:
-					w.append("\\u"); // Unicode escape
-					w.append(StringTool.intToStr(c & 0xffff, 16, 4));
-					break;
-				case '\n':
-					w.append("\\n");
-					break;
-				case '\b':
-					w.append("\\b");
-					break;
-				case '\f':
-					w.append("\\f");
-					break;
-				case '\r':
-					w.append("\\r");
-					break;
-				case '\t':
-					w.append("\\t");
-					break;
-				case '\'':
-					w.append("\\'");
-					break;
-				case '\"':
-					w.append("\\\"");
-					break;
-				case '\\':
-					w.append("\\\\");
-					break;
-			}
+			w.append(quotechar);
+		} catch(IOException x) {
+			throw WrappedException.wrap(x);
 		}
-		w.append(quotechar);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -2562,7 +2562,6 @@ public class StringTool {
 		return NORMALIZE_PATTERN.matcher(nfdNormalizedString).replaceAll("");
 	}
 
-
 	static {
 		getJreVersion();
 		long val = System.currentTimeMillis() / 1000 / 60;
@@ -2638,6 +2637,14 @@ public class StringTool {
 		}
 	}
 
+	@Nonnull
+	public static String strCapitalized(@Nonnull String name) {
+		if(name.length() == 0)
+			return name;
+		char c = name.charAt(0);
+		return Character.toUpperCase(c) + name.substring(1).toLowerCase();
+	}
+
 	/**
 	 * Checks whether a given text is too big for the maximum varchar2 database field
 	 * @param text
@@ -2665,3 +2672,4 @@ public class StringTool {
 		}
 	}
 }
+

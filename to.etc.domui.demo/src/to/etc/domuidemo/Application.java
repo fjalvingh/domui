@@ -19,6 +19,7 @@ import to.etc.domuidemo.components.*;
 import to.etc.domuidemo.db.*;
 import to.etc.domuidemo.pages.*;
 import to.etc.domuidemo.sourceviewer.*;
+import to.etc.formbuilder.pages.*;
 import to.etc.util.*;
 import to.etc.webapp.query.*;
 
@@ -36,13 +37,15 @@ public class Application extends DomApplication {
 	protected void initialize(final ConfigParameters pp) throws Exception {
 		ImageCache.initialize(32 * 1024 * 1024, 5l * 1024 * 1024 * 1024, new File("/tmp/imagecache"));
 
-		if(DeveloperOptions.getBool("domui.newtheme", false)) {
-			setThemeFactory(new FragmentedThemeFactory());
-		} else {
+		String newtheme = DeveloperOptions.getString("domuidemo.simpletheme", null);
+		if(null != newtheme) {
 			//-- Set the SIMPLE theme provider with the specified theme set.
-			String stylename = DeveloperOptions.getString("domuidemo.theme");
-			if(null != stylename)
-				setThemeFactory(new SimpleThemeFactory(stylename, "orange", "blue"));
+			setThemeFactory(SimpleThemeFactory.INSTANCE);
+			setCurrentTheme(newtheme);
+		} else {
+			setThemeFactory(FragmentedThemeFactory.getInstance());
+			String stylename = DeveloperOptions.getString("domuidemo.theme", "domui/domui/orange");		// Default to DomUI's native fragmented theme
+			setCurrentTheme(stylename);
 		}
 
 		//-- Append the default style sheet.
@@ -98,7 +101,7 @@ public class Application extends DomApplication {
 	}
 
 	void onNewPage(final UrlPage p) throws Exception {
-		if(p instanceof SourcePage)
+		if(p instanceof SourcePage || p instanceof FormDesigner)
 			return;
 
 		if(null != DomUtil.findComponentInTree(p, BreadCrumb.class))
@@ -177,7 +180,7 @@ public class Application extends DomApplication {
 		DbUtil.initialize(p.getPooledDataSource());
 
 		//-- Tell the generic layer how to create default DataContext's.
-		QContextManager.initialize(DbUtil.getContextSource()); // Prime factory with connection source
+		QContextManager.setImplementation(QContextManager.DEFAULT, DbUtil.getContextSource()); // Prime factory with connection source
 	}
 
 	synchronized void waitForInit() throws Exception {

@@ -26,6 +26,8 @@ package to.etc.util;
 
 import java.io.*;
 
+import javax.annotation.*;
+
 /**
  * Helper class to determine a file's type (text, binary) and encoding (for text files). A file
  * is marked as "binary" if it contains nulls and is not recognized as a text file. This will
@@ -66,7 +68,8 @@ public class FileContentInfo {
 		m_name = name;
 	}
 
-	static public FileContentInfo createType(File src, String name) throws Exception {
+	@Nonnull
+	static public FileContentInfo createType(@Nonnull File src, @Nonnull String name) throws Exception {
 		FileContentInfo fc = new FileContentInfo(src, name);
 		fc.load();
 		return fc;

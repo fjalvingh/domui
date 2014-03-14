@@ -29,13 +29,14 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.buttons.*;
+import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.parts.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
+import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.upload.*;
-import to.etc.webapp.core.*;
 
 /**
  * Represents a file upload thingy which handles ajaxy uploads. The basic model
@@ -67,7 +68,7 @@ public class FileUpload extends Div implements IUploadAcceptingComponent /* impl
 
 	//	private int m_maxSize;
 
-	private boolean m_required;
+	private boolean m_mandatory;
 
 	private int m_maxFiles = 1;
 
@@ -98,6 +99,7 @@ public class FileUpload extends Div implements IUploadAcceptingComponent /* impl
 
 	private void renderSelectedFiles() {
 		Table t = new Table();
+		t.addCssClass("ui-fu-selected");
 		add(t);
 		TBody b = new TBody();
 		t.add(b);
@@ -134,7 +136,7 @@ public class FileUpload extends Div implements IUploadAcceptingComponent /* impl
 			if(!isDisabled()) {
 				td.add(new DefaultButton(Msgs.BUNDLE.getString("upld.delete"), "THEME/btnDelete.png", new IClicked<DefaultButton>() {
 					@Override
-					public void clicked(DefaultButton bx) throws Exception {
+					public void clicked(@Nonnull DefaultButton bx) throws Exception {
 						removeUploadItem(ufi);
 						if(m_onValueChanged != null)
 							((IValueChanged<FileUpload>) m_onValueChanged).onValueChanged(FileUpload.this);
@@ -165,6 +167,31 @@ public class FileUpload extends Div implements IUploadAcceptingComponent /* impl
 	@Nonnull
 	public List<UploadItem> getFiles() {
 		return m_files;
+	}
+
+	@Nullable
+	public UploadItem getValue() {
+		if(m_maxFiles != 1)
+			throw new IllegalStateException("Can only be called for max files = 1");
+		if(m_files.size() == 0) {
+			if(isMandatory()) {
+				setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.MANDATORY));
+				throw new ValidationException(Msgs.BUNDLE, Msgs.MANDATORY);
+			}
+			clearMessage();
+			return null;
+		}
+		clearMessage();
+		return m_files.get(0);
+	}
+
+	@Nullable
+	public UploadItem getValueSafe() {
+		if(m_maxFiles != 1)
+			throw new IllegalStateException("Can only be called for max files = 1");
+		if(m_files.size() == 0)
+			return null;
+		return m_files.get(0);
 	}
 
 	/**
@@ -222,18 +249,18 @@ public class FileUpload extends Div implements IUploadAcceptingComponent /* impl
 	//	}
 
 	/**
-	 * FIXME T if at least 1 file needs to be uploaded.
+	 * T if at least 1 file needs to be uploaded.
 	 */
-	public boolean isRequired() {
-		return m_required;
+	public boolean isMandatory() {
+		return m_mandatory;
 	}
 
 	/**
 	 * Set to T if at least one file needs to have been uploaded.
 	 * @param required
 	 */
-	public void setRequired(boolean required) {
-		m_required = required;
+	public void setMandatory(boolean required) {
+		m_mandatory = required;
 	}
 
 	public int getMaxFiles() {
@@ -269,7 +296,7 @@ public class FileUpload extends Div implements IUploadAcceptingComponent /* impl
 		if(uiar != null) {
 			for(UploadItem ui : uiar) {
 				getFiles().add(ui);
-				conversation.registerUploadTempFile(ui.getFile());
+				conversation.registerTempFile(ui.getFile());
 			}
 		}
 		forceRebuild();
@@ -277,7 +304,7 @@ public class FileUpload extends Div implements IUploadAcceptingComponent /* impl
 			((IValueChanged<FileUpload>) m_onValueChanged).onValueChanged(this);
 
 		//-- Render an optimal delta as the response,
-		ServerTools.generateNoCache(param.getResponse()); // Do not allow the browser to cache
+		param.getRequestResponse().setNoCache();
 		ApplicationRequestHandler.renderOptimalDelta(param, getPage());
 	}
 }

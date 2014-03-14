@@ -31,7 +31,7 @@ import javax.annotation.*;
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.layout.*;
-import to.etc.domui.component.lookup.LookupForm.ButtonMode;
+import to.etc.domui.component.lookup.LookupForm.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.errors.*;
@@ -107,7 +107,7 @@ public class MultipleSelectionLookup<T> extends AbstractFloatingLookup<T> {
 			b.setTestID("confirmButton");
 			b.setClicked(new IClicked<NodeBase>() {
 				@Override
-				public void clicked(final NodeBase xb) throws Exception {
+				public void clicked(final @Nonnull NodeBase xb) throws Exception {
 					close();
 					m_onReceiveResult.onReturnResult((m_queryResultTable != null) ? m_queryResultTable.getAccumulatedResults() : Collections.EMPTY_LIST);
 				}
@@ -128,14 +128,14 @@ public class MultipleSelectionLookup<T> extends AbstractFloatingLookup<T> {
 
 		lf.setClicked(new IClicked<LookupForm<T>>() {
 			@Override
-			public void clicked(LookupForm<T> b) throws Exception {
+			public void clicked(@Nonnull LookupForm<T> b) throws Exception {
 				search(b);
 			}
 		});
 
 		lf.setOnCancel(new IClicked<LookupForm<T>>() {
 			@Override
-			public void clicked(LookupForm<T> b) throws Exception {
+			public void clicked(@Nonnull LookupForm<T> b) throws Exception {
 				closePressed();
 			}
 		});
@@ -162,7 +162,7 @@ public class MultipleSelectionLookup<T> extends AbstractFloatingLookup<T> {
 	private void setTableQuery(QCriteria<T> qc) throws Exception {
 		ITableModel<T> model;
 		if(m_queryHandler == null) {
-			QDataContextFactory src = QContextManager.getDataContextFactory(getPage().getConversation());
+			QDataContextFactory src = QContextManager.getDataContextFactory(QContextManager.DEFAULT, getPage().getConversation());		// FIXME Bad context handling
 			model = new SimpleSearchModel<T>(src, qc);
 		} else {
 			model = new SimpleSearchModel<T>(m_queryHandler, qc);
@@ -190,7 +190,7 @@ public class MultipleSelectionLookup<T> extends AbstractFloatingLookup<T> {
 
 			rr.setRowClicked(new ICellClicked<T>() {
 				@Override
-				public void cellClicked(NodeBase tr, T val) throws Exception {
+				public void cellClicked(@Nonnull NodeBase tr, @Nonnull T val) throws Exception {
 					m_queryResultTable.handleRowClicked(tr, val);
 				}
 			});

@@ -45,6 +45,9 @@ import to.etc.webapp.*;
 import to.etc.webapp.query.*;
 
 abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT>, IHasModifiedIndication {
+	/** The properties bindable for this component. */
+	static private final Set<String> BINDABLE_SET = createNameSet("value", "disabled");
+
 	static public final INodeContentRenderer<Object> DEFAULT_RENDERER = new SimpleLookupInputRenderer<Object>();
 
 	/**
@@ -205,6 +208,10 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	@Nullable
 	private KeyWordPopupRowRenderer<OT> m_dropdownRowRenderer;
 
+
+	@Nullable
+	private QCriteria<QT> m_rootCriteria;
+
 	/**
 	 * This must create the table model for the output type from the query on the input type.
 	 * @param query
@@ -234,6 +241,10 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		this(queryClass, resultClass, (ClassMetaModel) null, (ClassMetaModel) null);
 	}
 
+	public LookupInputBase(@Nonnull QCriteria<QT> rootCriteria, @Nonnull Class<OT> resultClass) {
+		this(DomUtil.nullChecked(rootCriteria.getBaseClass()), resultClass, (ClassMetaModel) null, (ClassMetaModel) null);
+	}
+
 	public LookupInputBase(@Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass, @Nullable ClassMetaModel queryMetaModel, @Nullable ClassMetaModel outputMetaModel) {
 		m_queryClass = queryClass;
 		m_outputClass = resultClass;
@@ -243,7 +254,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		b.setTestID("selButtonInputLookup");
 		b.setClicked(new IClicked<NodeBase>() {
 			@Override
-			public void clicked(NodeBase b) throws Exception {
+			public void clicked(@Nonnull NodeBase b) throws Exception {
 				toggleFloaterByClick();
 			}
 		});
@@ -251,7 +262,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		b = m_clearButton = new SmallImgButton(Theme.BTN_CLEARLOOKUP, new IClicked<SmallImgButton>() {
 			@Override
 			@SuppressWarnings("synthetic-access")
-			public void clicked(SmallImgButton b) throws Exception {
+			public void clicked(@Nonnull SmallImgButton b) throws Exception {
 				handleSetValue(null);
 			}
 		});
@@ -272,6 +283,12 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		if(null != m_clearButton)
 			return m_clearButton;
 		throw new IllegalStateException("Clear button is not there.");
+	}
+
+	@Override
+	@Nonnull
+	public Set<String> getBindableProperties() {
+		return BINDABLE_SET;
 	}
 
 	@Override
@@ -318,12 +335,14 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 			}
 			getSelButton().appendAfterMe(clearButton);
 			//This code is needed for proper control alignment.
-			//FIXME: vmijic, not suitable for larger button images, see is this can be resolved by introducing span container for buttons.
-			if(clearButton.getDisplay() == DisplayType.NONE) {
-				clearButton.getParent().setMinWidth("24px");
-			} else {
-				clearButton.getParent().setMinWidth("58px");
-			}
+
+// jal 20121025 temp disabled
+//			//FIXME: vmijic, not suitable for larger button images, see is this can be resolved by introducing span container for buttons.
+//			if(clearButton.getDisplay() == DisplayType.NONE) {
+//				clearButton.getParent().setMinWidth("24px");
+//			} else {
+//				clearButton.getParent().setMinWidth("58px");
+//			}
 		}
 		if(m_rebuildCause == RebuildCause.CLEAR) {
 			//User clicked clear button, so we can try to set focus to input search if possible.
@@ -333,19 +352,26 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		} else if(m_rebuildCause == RebuildCause.SELECT) {
 			//User did reselected value, so we can try to set focus to clear button if possible.
 			if(clearButton != null && clearButton.getDisplay() != DisplayType.NONE) {
-				clearButton.setFocus();
+				if(getPage().getFocusComponent() == null)
+					clearButton.setFocus();
 			}
 		}
 		m_rebuildCause = null;
+
+		if(m_doFocus) {
+			m_doFocus = false;
+			if(m_keySearch != null)
+				m_keySearch.setFocus();
+			else if(m_clearButton != null)
+				m_clearButton.setFocus();
+		}
 	}
 
 	private void appendParameters(@Nonnull TD cell, @Nonnull Object parameters) {
 		TD tdParameters = new TD();
 		cell.appendAfterMe(tdParameters);
+		tdParameters.setCssClass("ui-lui-btntd");
 		tdParameters.setValign(TableVAlign.TOP);
-		tdParameters.setMinWidth("24px");
-		tdParameters.setTextAlign(TextAlign.RIGHT);
-		tdParameters.addCssClass("ui-nowrap");
 		tdParameters.add((NodeBase) parameters); // Add the button,
 	}
 
@@ -386,7 +412,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		TD td = m_table.getBody().addRowAndCell();
 		td.setValign(TableVAlign.TOP);
 		td.setCssClass("ui-lui-v");
-		td.setWidth("100%");
+//		td.setWidth("100%"); jal 20121025 Width should not be set but style should be used?
 		addKeySearchField(td);
 
 		//-- parameters is either the button, or null if this is a readonly version.
@@ -397,12 +423,11 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 
 	private void addKeySearchField(NodeContainer parent) {
 		KeyWordSearchInput<OT> ks = m_keySearch = new KeyWordSearchInput<OT>(m_keyWordSearchCssClass);
-		m_keySearch.setWidth("100%");
 		ks.setPopupWidth(getKeyWordSearchPopupWidth());
 		KeyWordPopupRowRenderer<OT> rr = getDropdownRowRenderer();
 		rr.setRowClicked(new ICellClicked<OT>() {
 			@Override
-			public void cellClicked(NodeBase tr, OT val) throws Exception {
+			public void cellClicked(@Nonnull NodeBase tr, @Nonnull OT val) throws Exception {
 				handleSetValue(val);
 			}
 		});
@@ -586,18 +611,36 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 			}
 		}
 
-		IQueryManipulator<QT> qm = getQueryManipulator();
-		if(qm != null) {
-			searchQuery = qm.adjustQuery(searchQuery);
-			if(searchQuery == null) {
-				//in case of cancelled search by query manipulator return
-				return null;
-			}
+		searchQuery = manipulateCriteria(searchQuery);
+		if(searchQuery == null) {
+			//in case of cancelled search by query manipulator return
+			return null;
 		}
 
 		return createTableModel(searchQuery);
 	}
 
+	@Nullable
+	private QCriteria<QT> manipulateCriteria(@Nonnull QCriteria<QT> enteredCriteria) {
+		IQueryManipulator<QT> qm = getQueryManipulator();
+		QCriteria<QT> result = enteredCriteria;
+		if(qm != null) {
+			result = qm.adjustQuery(enteredCriteria);
+			if(result == null) {
+				//in case of cancelled search by query manipulator return
+				return null;
+			}
+		}
+
+		//-- Join any root criteria, if applicable
+		QCriteria<QT> root = m_rootCriteria;
+		if(null != root) {
+			//-- We merge the "root" criteria inside the "child" criteria. We do that by a complete "and", as follows:
+			//-- result = (root criteria) AND (entered criteria), and we ignore any "other" part of the root criterion.
+			result.mergeCriteria(root);
+		}
+		return result;
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Full search popup window code..						*/
@@ -672,14 +715,14 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 
 		lf.setClicked(new IClicked<LookupForm<QT>>() {
 			@Override
-			public void clicked(LookupForm<QT> b) throws Exception {
+			public void clicked(@Nonnull LookupForm<QT> b) throws Exception {
 				search(b);
 			}
 		});
 
 		lf.setOnCancel(new IClicked<LookupForm<QT>>() {
 			@Override
-			public void clicked(LookupForm<QT> b) throws Exception {
+			public void clicked(@Nonnull LookupForm<QT> b) throws Exception {
 				f.closePressed();
 			}
 		});
@@ -718,14 +761,12 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		if(c == null)						// Some error has occured?
 			return;							// Don't do anything (errors will have been registered)
 
-		IQueryManipulator<QT> qm = getQueryManipulator();
-		if(qm != null) {
-			c = qm.adjustQuery(c);			// Adjust the query where needed,
-			if(c == null) {
-				//in case of cancelled search by query manipulator return null
-				return;
-			}
+		c = manipulateCriteria(c);
+		if(c == null) {
+			//in case of cancelled search by query manipulator return
+			return;
 		}
+
 		getFloater().clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 		if(!lf.hasUserDefinedCriteria() && !isAllowEmptyQuery()) {
 			getFloater().addGlobalMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_MISSING_SEARCH)); // Missing inputs
@@ -785,7 +826,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 			//-- Always set a click handler on the row renderer, so we can accept the selected record.
 			actualFormRowRenderer.setRowClicked(new ICellClicked<OT>() {
 				@Override
-				public void cellClicked(NodeBase tr, OT val) throws Exception {
+				public void cellClicked(@Nonnull NodeBase tr, @Nonnull OT val) throws Exception {
 					getFloater().clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 					if(!getDataTable().isMultiSelectionVisible()) {
 						LookupInputBase.this.toggleFloater(null);
@@ -867,6 +908,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		m_disabled = disabled;
 		updateRoStyle();
 		forceRebuild();
+		fireModified("disabled", Boolean.valueOf(!disabled), Boolean.valueOf(disabled));
 	}
 
 	/*--------------------------------------------------------------*/
@@ -924,8 +966,9 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		KeyWordSearchInput<OT> ks = m_keySearch;
 		if(DomUtil.isEqual(m_value, v) && (ks == null || ks.getKeySearchValue() == null))
 			return;
+		OT old = m_value;
 		m_value = v;
-		if(m_value != null) {
+		if(v != null) {
 			getClearButton().setDisplay(DisplayType.INLINE);
 			clearMessage();
 			setCssClass("ui-lui-selected");
@@ -935,6 +978,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		}
 		updateRoStyle();
 		forceRebuild();
+		fireModified("value", old, v);
 	}
 
 	/**
@@ -947,8 +991,9 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 			DomUtil.setModifiedFlag(this);
 			setValue(value);
 			//-- Handle onValueChanged
-			if(getOnValueChanged() != null) {
-				((IValueChanged<NodeBase>) getOnValueChanged()).onValueChanged(this);
+			IValueChanged< ? > onValueChanged = getOnValueChanged();
+			if(onValueChanged != null) {
+				((IValueChanged<NodeBase>) onValueChanged).onValueChanged(this);
 			}
 		}
 		m_rebuildCause = value == null ? RebuildCause.CLEAR : RebuildCause.SELECT;
@@ -1092,6 +1137,8 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	/** When this is bound this contains the binder instance handling the binding. */
 	@Nullable
 	private SimpleBinder m_binder;
+
+	private boolean m_doFocus;
 
 	/**
 	 * Return the binder for this control.
@@ -1431,5 +1478,13 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	@Override
 	public boolean isFocusable() {
 		return false;
+	}
+
+	@Override
+	public void setFocus() {
+		if(null != m_keySearch)
+			m_keySearch.setFocus();
+		else if(!isBuilt())
+			m_doFocus = true;
 	}
 }

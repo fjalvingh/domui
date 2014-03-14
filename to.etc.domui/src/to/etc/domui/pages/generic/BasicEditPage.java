@@ -24,6 +24,8 @@
  */
 package to.etc.domui.pages.generic;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.form.*;
@@ -41,7 +43,7 @@ import to.etc.webapp.query.*;
  * Created on Oct 22, 2008
  */
 public abstract class BasicEditPage<T> extends BasicPage<T> {
-	private ButtonBar m_buttonBar;
+	private IButtonBar m_buttonBar;
 
 	private boolean m_deleteable;
 
@@ -81,10 +83,14 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 		createButtonBar();
 		createButtons();
 		createEditableBase();
+		onAfterCreateContent();
 	}
 
-	protected boolean onBeforeCreateContent() {
+	protected boolean onBeforeCreateContent() throws Exception {
 		return true;
+	}
+
+	protected void onAfterCreateContent() throws Exception {
 	}
 
 	private void createEditableBase() throws Exception {
@@ -107,10 +113,10 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 	}
 
 	protected void createButtonBar() {
-		add(getButtonBar());
+		add((ButtonBar) getButtonBar());
 	}
 
-	public ButtonBar getButtonBar() {
+	public IButtonBar getButtonBar() {
 		if(m_buttonBar == null)
 			m_buttonBar = new ButtonBar();
 		return m_buttonBar;
@@ -132,7 +138,7 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 	protected void createCommitButton() {
 		getButtonBar().addButton("C!ommit", "THEME/btnSave.png", new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(DefaultButton b) throws Exception {
+			public void clicked(@Nonnull DefaultButton b) throws Exception {
 				save();
 			}
 		});
@@ -141,16 +147,16 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 	protected void createCancelButton() {
 		getButtonBar().addButton("!Cancel", Theme.BTN_CANCEL, new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(DefaultButton b) throws Exception {
+			public void clicked(@Nonnull DefaultButton b) throws Exception {
 				cancel();
 			}
 		});
 	}
 
 	protected void createDeleteButton() {
-		getButtonBar().addButton("!Delete", "THEME/btnDelete.png", new IClicked<DefaultButton>() {
+		getButtonBar().addConfirmedButton("!Delete", "THEME/btnDelete.png", "Delete: are you sure?", new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(DefaultButton b) throws Exception {
+			public void clicked(@Nonnull DefaultButton b) throws Exception {
 				delete();
 			}
 		});
@@ -192,8 +198,8 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 	}
 
 	protected void delete() throws Exception {
-		onDelete(getInstance());
-		UIGoto.back();
+		if(onDelete(getInstance()))
+			UIGoto.back();
 	}
 
 	public boolean isDisplayonly() {
@@ -211,26 +217,28 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 		return m_bindings;
 	}
 
-	protected void onSave(T object) throws Exception {
+	protected void onSave(@Nonnull T object) throws Exception {
 		//-- Do a commit, then exit;
-		QDataContext dc = QContextManager.getContext(getPage());
+		QDataContext dc = getSharedContext();
 		dc.startTransaction();
 		saveObject(dc, object);
 		dc.commit();
 	}
 
-	protected void saveObject(QDataContext dc, T object) throws Exception {
+	protected void saveObject(@Nonnull QDataContext dc, @Nonnull T object) throws Exception {
 		dc.save(object);
 	}
 
-	protected void onDelete(T object) throws Exception {
-		QDataContext dc = QContextManager.getContext(getPage());
+	protected boolean onDelete(@Nonnull T object) throws Exception {
+		QDataContext dc = getSharedContext();
 		dc.startTransaction();
-		deleteObject(dc, object);
+		boolean res = deleteObject(dc, object);
 		dc.commit();
+		return res;
 	}
 
-	protected void deleteObject(QDataContext dc, T object) throws Exception {
+	protected boolean deleteObject(@Nonnull QDataContext dc, @Nonnull T object) throws Exception {
 		dc.delete(object);
+		return true;
 	}
 }

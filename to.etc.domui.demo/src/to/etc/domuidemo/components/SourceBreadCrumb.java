@@ -2,6 +2,8 @@ package to.etc.domuidemo.components;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
@@ -34,28 +36,44 @@ public class SourceBreadCrumb extends Div {
 		}
 		setDisplay(null);
 
-		//-- Add logo.
-		Div right = new Div();
-		add(right);
-		right.setCssClass("d-sbc-logo");
-		ATag at = new ATag();
-		right.add(at);
-		at.setHref("http://www.domui.org/");
-		at.setTarget("_blank");
+		if(!hasSuper(getPage().getBody(), "WikiExplanationPage")) {
+			//-- Add logo.
+			Div right = new Div();
+			add(right);
+			right.setCssClass("d-sbc-logo");
+			ATag at = new ATag();
+			right.add(at);
+			at.setHref("http://www.domui.org/");
+			at.setTarget("_blank");
 
-		Img img = new Img("img/logo-small.png");
-		at.add(img);
-		img.setImgBorder(0);
+			Img img = new Img("img/logo-small.png");
+			at.add(img);
+			img.setImgBorder(0);
+		}
 
 		for(int i = 0; i < stack.size(); i++) {
 			boolean last = i + 1 >= stack.size();
 			ShelvedDomUIPage p = (ShelvedDomUIPage) stack.get(i);
 
 			String ttl = p.getName();
+			ttl = ttl.substring(ttl.lastIndexOf('.') + 1);
 			addPageLink(ct, p.getPage().getBody().getClass(), p.getPage().getPageParameters(), ttl, last);
 			ct++;
 		}
 	}
+
+	private static boolean hasSuper(@Nonnull Object instance, String what) {
+		Class< ? > clz = instance.getClass();
+		for(;;) {
+			if(clz.getName().endsWith(what)) {
+				return true;
+			}
+			clz = clz.getSuperclass();
+			if(clz == null || clz == Object.class)
+				return false;
+		}
+	}
+
 
 	private void addPageLink(int ct, Class< ? extends UrlPage> class1, IPageParameters pageParameters, String ttl, boolean last) {
 		//-- Create a LINK or a SPAN

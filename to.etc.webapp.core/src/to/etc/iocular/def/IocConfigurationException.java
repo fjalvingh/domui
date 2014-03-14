@@ -29,13 +29,10 @@ import javax.annotation.*;
 import to.etc.iocular.*;
 
 public class IocConfigurationException extends IocException {
-	@Nullable
 	private BasicContainerBuilder m_builder;
 
-	@Nullable
 	private ComponentBuilder m_cb;
 
-	@Nullable
 	private String m_location;
 
 	public IocConfigurationException(@Nullable ComponentBuilder b, @Nonnull String message) {
@@ -70,13 +67,15 @@ public class IocConfigurationException extends IocException {
 	public String getMessage() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(super.getMessage());
-		if(m_cb != null) {
+		ComponentBuilder cb = m_cb;
+		if(cb != null) {
 			sb.append("\n- The object being built is: ");
-			sb.append(m_cb.getIdent());
+			sb.append(cb.getIdent());
 		}
-		if(m_builder != null) {
+		BasicContainerBuilder builder = m_builder;
+		if(builder != null) {
 			sb.append("\n- for the container with the name '");
-			sb.append(m_builder.getName());
+			sb.append(builder.getName());
 			sb.append("'");
 		}
 		if(m_location != null) {

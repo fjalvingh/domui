@@ -123,7 +123,7 @@ public class AsyncContainer extends Div {
 		if(isAbortable()) {
 			DefaultButton db = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL), Theme.BTN_CANCEL, new IClicked<DefaultButton>() {
 				@Override
-				public void clicked(DefaultButton b) throws Exception {
+				public void clicked(@Nonnull DefaultButton b) throws Exception {
 					cancel();
 					b.setDisabled(true);
 				}

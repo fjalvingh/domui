@@ -120,7 +120,7 @@ public class TestNumberConverter {
 	public <T extends Number> void testNumericPresentation(NumericPresentation np, int scale, Class<T> classType) {
 		if(NumericPresentation.isMonetary(np)) {
 			try {
-				IConverter<T> nc = NumericUtil.createNumberConverter(classType, np, scale);
+				NumericUtil.createNumberConverter(classType, np, scale);
 			} catch(IllegalArgumentException e) {
 				//This is expected exception!
 				return;
@@ -128,7 +128,7 @@ public class TestNumberConverter {
 			Assert.fail("Should not be possible to make instance of NumberConverter using monetary presentation!");
 		} else {
 			try {
-				IConverter<BigDecimal> nc = NumericUtil.createNumberConverter(BigDecimal.class, np, scale);
+				NumericUtil.createNumberConverter(BigDecimal.class, np, scale);
 			} catch(IllegalArgumentException e) {
 				if(DomUtil.isIntegerType(classType) && scale != 0) {
 					return; //expected -> not possible to create NumberConverter on int types with scale other than 0.

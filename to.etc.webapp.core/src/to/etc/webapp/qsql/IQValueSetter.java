@@ -2,6 +2,8 @@ package to.etc.webapp.qsql;
 
 import java.sql.*;
 
+import javax.annotation.*;
+
 public interface IQValueSetter {
-	void assign(PreparedStatement ps) throws Exception;
+	void assign(@Nonnull PreparedStatement ps) throws Exception;
 }

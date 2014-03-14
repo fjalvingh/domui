@@ -24,6 +24,7 @@
  */
 package to.etc.domui.dom.css;
 
+import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 
 /**
@@ -189,10 +190,12 @@ public class CssBase {
 	}
 
 	public String getBackgroundImage() {
-		return m_backgroundImage;
+		return DomApplication.get().getThemedResourceRURL(m_backgroundImage);
+		//		return m_backgroundImage;
 	}
 
 	public void setBackgroundImage(final String backgroundImage) {
+
 		if(!DomUtil.isEqual(backgroundImage, m_backgroundImage))
 			changed();
 		m_backgroundImage = backgroundImage;

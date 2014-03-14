@@ -35,7 +35,6 @@ import to.etc.domui.util.*;
 import to.etc.domui.util.LRUHashMap;
 import to.etc.domui.util.resources.*;
 import to.etc.util.*;
-import to.etc.webapp.core.*;
 
 public class PartRequestHandler implements IFilterRequestHandler {
 	@Nonnull
@@ -225,13 +224,10 @@ public class PartRequestHandler implements IFilterRequestHandler {
 		//-- Generate the part
 		OutputStream os = null;
 		if(cp.m_cacheTime > 0 && m_allowExpires) {
-			ServerTools.generateExpiryHeader(ctx.getResponse(), cp.getCacheTime()); // Allow browser-local caching.
+			ctx.getRequestResponse().setExpiry(cp.getCacheTime());
 		}
-		ctx.getResponse().setContentType(cp.getContentType());
-		ctx.getResponse().setContentLength(cp.getSize());
-
 		try {
-			os = ctx.getResponse().getOutputStream();
+			os = ctx.getRequestResponse().getOutputStream(cp.getContentType(), null, cp.getSize());
 			for(byte[] data : cp.getData())
 				os.write(data);
 		} finally {

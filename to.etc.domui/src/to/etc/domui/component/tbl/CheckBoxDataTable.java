@@ -236,7 +236,7 @@ public class CheckBoxDataTable<T> extends DataTable<T> {
 		if(!isDisabled) {
 			b.setClicked(new IClicked<Checkbox>() {
 				@Override
-				public void clicked(Checkbox ckb) throws Exception {
+				public void clicked(@Nonnull Checkbox ckb) throws Exception {
 					//FIXME: must be done as double change of value to cause changed protected field to be set, otherwise is not rendered properly in HTML response.
 					// jal 20091105 Please explain??? The 2nd call is not doing anything right now.... I would understand if the 1st call was ckb.setChecked(ckb.isChecked())...
 					ckb.setChecked(!ckb.isChecked());
@@ -261,13 +261,13 @@ public class CheckBoxDataTable<T> extends DataTable<T> {
 				tr.addCssClass("ui-rowsel");
 				tr.setClicked(new IClicked<TR>() {
 					@Override
-					public void clicked(TR row) throws Exception {
+					public void clicked(@Nonnull TR row) throws Exception {
 						Object userObject = row.getUserObject();
 						if(userObject instanceof Checkbox) {
 							Checkbox ckb = (Checkbox) userObject;
 							if(null == ckb)
 								throw new IllegalStateException("Missing checkbox in userObject?");
-							ckb.setChecked(!((Checkbox) row.getUserObject()).isChecked());
+							ckb.setChecked(!(ckb.isChecked()));
 							handleSelectionChanged(ckb.isChecked(), (T) ckb.getUserObject());
 						}
 					}

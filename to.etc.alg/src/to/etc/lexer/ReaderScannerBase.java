@@ -59,6 +59,25 @@ public class ReaderScannerBase extends TextReaderBase {
 		m_allowNewlineInString = allowNewlineInString;
 	}
 
+	public String tokenString(int type) {
+		switch(type){
+			default:
+				return Character.toString((char) type);
+			case T_EOF:
+				return "<<eof>>";
+			case T_STRING:
+				return "string";
+			case T_COMMENT:
+				return "comment";
+			case T_IDENT:
+				return "identifier";
+			case T_IPADDR:
+				return "ip address";
+			case T_NUMBER:
+				return "number";
+		}
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Current token data.									*/
 	/*--------------------------------------------------------------*/
@@ -89,7 +108,7 @@ public class ReaderScannerBase extends TextReaderBase {
 	 * Skips whitespace until current character is either EOF or non-ws.
 	 * @throws IOException
 	 */
-	protected void skipWs() throws IOException {
+	public void skipWs() throws IOException {
 		for(;;) {
 			int c = LA();
 			if(c == -1 || !Character.isWhitespace((char) c))
@@ -102,7 +121,7 @@ public class ReaderScannerBase extends TextReaderBase {
 	 * Skips whitespace until current character is either EOF or non-ws.
 	 * @throws IOException
 	 */
-	protected void skipWsNoNL() throws IOException {
+	public void skipWsNoNL() throws IOException {
 		for(;;) {
 			int c = LA();
 			if(c == -1 || c == '\n' || !Character.isWhitespace((char) c))
@@ -116,7 +135,7 @@ public class ReaderScannerBase extends TextReaderBase {
 	 * with the same something and not allowing anything ugly in between.
 	 * @throws IOException
 	 */
-	protected void scanSimpleString(boolean keepquotes) throws IOException, SourceErrorException {
+	public void scanSimpleString(boolean keepquotes) throws IOException, SourceErrorException {
 		int qc = LA(); // Get quote start
 		accept();
 		if(!keepquotes)
@@ -141,7 +160,7 @@ public class ReaderScannerBase extends TextReaderBase {
 		accept();
 	}
 
-	protected int scanNumber() throws IOException {
+	public int scanNumber() throws IOException {
 		int c = LA(); // Get current numeral
 		append(c); // Add 1st digit
 		accept();
@@ -194,7 +213,7 @@ public class ReaderScannerBase extends TextReaderBase {
 			throw new IllegalStateException("Odd number or IP address started at line " + m_token_lnr + ":" + m_token_cnr);
 	}
 
-	protected int scanIdentifier() throws IOException {
+	public int scanIdentifier() throws IOException {
 		for(;;) {
 			int c = LA();
 			if(!isIdChar((char) c))
@@ -204,11 +223,11 @@ public class ReaderScannerBase extends TextReaderBase {
 		}
 	}
 
-	protected boolean isIdStart(char c) {
+	public boolean isIdStart(char c) {
 		return Character.isLetter(c) || c == '_' || c == '$';
 	}
 
-	protected boolean isIdChar(char c) {
+	public boolean isIdChar(char c) {
 		return Character.isLetterOrDigit(c) || c == '_' || c == '$';
 	}
 

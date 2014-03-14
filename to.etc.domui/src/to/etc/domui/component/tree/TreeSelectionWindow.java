@@ -78,13 +78,13 @@ public class TreeSelectionWindow<T> extends FloatingWindow implements ICellClick
 		add(bb);
 		bb.addButton(Msgs.BUNDLE.getString("ui.tsw.select"), new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(DefaultButton clickednode) throws Exception {
+			public void clicked(@Nonnull DefaultButton clickednode) throws Exception {
 				select();
 			}
 		});
 		bb.addButton(Msgs.BUNDLE.getString("ui.tsw.cancel"), new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(DefaultButton clickednode) throws Exception {
+			public void clicked(@Nonnull DefaultButton clickednode) throws Exception {
 				cancel();
 			}
 		});
@@ -108,8 +108,9 @@ public class TreeSelectionWindow<T> extends FloatingWindow implements ICellClick
 			((IClicked<TreeSelectionWindow<T>>) getCancelClicked()).clicked(this);
 			return;
 		}
-		if(getClicked() != null) {
-			((IClicked<TreeSelectionWindow<T>>) getClicked()).clicked(this);
+		IClickBase< ? > clicked = getClicked();
+		if(clicked != null) {
+			((IClicked<TreeSelectionWindow<T>>) clicked).clicked(this);
 		}
 	}
 
@@ -117,8 +118,9 @@ public class TreeSelectionWindow<T> extends FloatingWindow implements ICellClick
 		if(m_selected == null)
 			return;
 		close();
-		if(getClicked() != null) {
-			((IClicked<TreeSelectionWindow<T>>) getClicked()).clicked(this);
+		IClickBase< ? > clicked = getClicked();
+		if(clicked != null) {
+			((IClicked<TreeSelectionWindow<T>>) clicked).clicked(this);
 		}
 	}
 
@@ -127,7 +129,7 @@ public class TreeSelectionWindow<T> extends FloatingWindow implements ICellClick
 	 * @see to.etc.domui.component.tbl.ICellClicked#cellClicked(to.etc.domui.dom.html.NodeBase, java.lang.Object)
 	 */
 	@Override
-	final public void cellClicked(NodeBase tr, T rowval) throws Exception {
+	final public void cellClicked(@Nonnull NodeBase tr, @Nonnull T rowval) throws Exception {
 		long ts = System.currentTimeMillis();
 		if(m_selected == rowval) {
 			//-- Reselect...

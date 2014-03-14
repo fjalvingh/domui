@@ -114,7 +114,7 @@ public class PopInPanel extends Div {
 		createPopin();
 	}
 
-	public ButtonBar getButtonBar() {
+	public IButtonBar getButtonBar() {
 		if(m_buttonBar == null) {
 			m_buttonBar = new ButtonBar();
 			add(m_buttonBar);

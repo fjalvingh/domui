@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.layout;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
@@ -40,6 +42,8 @@ public class Dialog extends Window {
 
 	/** The button bar for the dialog. */
 	private ButtonBar m_buttonBar;
+
+	public Dialog() {}
 
 	public Dialog(boolean modal, boolean resizable, int width, int height, String title) {
 		super(modal, resizable, width, height, title);
@@ -59,6 +63,41 @@ public class Dialog extends Window {
 
 	public Dialog(int width, int height, String title) {
 		super(width, height, title);
+	}
+
+	@Nonnull
+	@Override
+	public Dialog size(int width, int height) {
+		super.size(width, height);
+		return this;
+	}
+
+	@Nonnull
+	@Override
+	public Dialog resizable() {
+		super.resizable();
+		return this;
+	}
+
+	@Nonnull
+	@Override
+	public Dialog modal(boolean yes) {
+		super.modal(yes);
+		return this;
+	}
+
+	@Nonnull
+	@Override
+	public Dialog modal() {
+		super.modal();
+		return this;
+	}
+
+	@Nonnull
+	@Override
+	public Dialog title(@Nonnull String set) {
+		super.title(set);
+		return this;
 	}
 
 	/*--------------------------------------------------------------*/
@@ -85,18 +124,31 @@ public class Dialog extends Window {
 		m_buttonBar = new ButtonBar();
 		Div area = onbottom ? getBottomContent() : getTopContent();
 		if(area.getHeight() == null)
-			area.setHeight("30px");
+			area.setHeight("34px");
 		area.add(m_buttonBar);
 	}
+
+	/**
+	 * Can be overridden to add extra buttons to the button bar where needed - this default
+	 * implementation adds the save and cancel buttons. If you override you should decide on
+	 * their fate yourself!
+	 *
+	 * @throws Exception
+	 */
+	protected void createButtons() throws Exception {
+		createSaveButton();
+		createCancelButton();
+	}
+
 
 	/**
 	 * Get the control's button bar. If it does not already exists it will be created and
 	 * added to the top content area.
 	 * @return
 	 */
-	public ButtonBar getButtonBar() {
+	public IButtonBar getButtonBar() {
 		if(m_buttonBar == null)
-			createButtonBar(false);
+			createButtonBar(true);
 		return m_buttonBar;
 	}
 
@@ -104,7 +156,7 @@ public class Dialog extends Window {
 		DefaultButton b;
 		b = getButtonBar().addButton(Msgs.BUNDLE.getString(Msgs.EDLG_CANCEL), Msgs.BTN_CANCEL, new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(DefaultButton clickednode) throws Exception {
+			public void clicked(@Nonnull DefaultButton clickednode) throws Exception {
 				buttonCancel();
 			}
 		});
@@ -114,7 +166,7 @@ public class Dialog extends Window {
 	protected void createSaveButton() {
 		DefaultButton b = getButtonBar().addButton(Msgs.BUNDLE.getString(Msgs.EDLG_OKAY), Msgs.BTN_SAVE, new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(DefaultButton clickednode) throws Exception {
+			public void clicked(@Nonnull DefaultButton clickednode) throws Exception {
 				buttonSave();
 			}
 		});
@@ -166,7 +218,7 @@ public class Dialog extends Window {
 	 * @throws Exception
 	 */
 	protected boolean onSaveBind() throws Exception {
-		return false;
+		return true;
 	}
 
 	/**

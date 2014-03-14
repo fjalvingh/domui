@@ -135,49 +135,62 @@ public class ConversationContext implements IQContextContainer {
 	}
 
 	/** The conversation ID, unique within the user's session. */
+	@Nullable
 	private String m_id;
 
+	@Nullable
 	private String m_fullId;
 
 	/** The pages that are part of this conversation, indexed by [className] */
+	@Nonnull
 	private final Map<String, Page> m_pageMap = new HashMap<String, Page>();
 
 	/** The map of all attribute objects added to this conversation. */
+	@Nonnull
 	private Map<String, Object> m_map = Collections.EMPTY_MAP;
 
+	@Nullable
 	private WindowSession m_manager;
 
+	@Nullable
 	private DelayedActivitiesManager m_delayManager;
 
+	@Nonnull
 	private ConversationState m_state = ConversationState.DETACHED;
 
+	@Nonnull
 	private List<File> m_uploadList = Collections.EMPTY_LIST;
-
-	void setId(final String id) {
-		m_id = id;
-	}
 
 	/**
 	 * Return the ID for this conversation.
 	 * @return
 	 */
 	final public String getId() {
+		if(null == m_id)
+			throw new IllegalStateException("ID is null??");
 		return m_id;
 	}
 
-	final void setManager(final WindowSession m) {
+	final void initialize(@Nonnull final WindowSession m, @Nonnull String id) {
 		if(m == null)
 			throw new IllegalStateException("Internal: manager cannot be null, dude");
 		if(m_manager != null)
 			throw new IllegalStateException("Internal: manager is ALREADY set, dude");
+		if(m_id != null)
+			throw new IllegalStateException("ID set twice?");
 		m_manager = m;
+		m_id = id;
 		m_fullId = m.getWindowID() + "." + m_id;
 	}
 
+
 	public String getFullId() {
+		if(null == m_fullId)
+			throw new IllegalStateException("fullID is null??");
 		return m_fullId;
 	}
 
+	@Nonnull
 	@Override
 	public String toString() {
 		return "conversation[" + getFullId() + "]";
@@ -272,19 +285,19 @@ public class ConversationContext implements IQContextContainer {
 			if(o instanceof IConversationStateListener) {
 				try {
 					((IConversationStateListener) o).conversationDestroyed(this);
-					m_manager.getApplication().internalCallConversationDestroyed(this);
+					getWindowSession().getApplication().internalCallConversationDestroyed(this);
 				} catch(Exception x) {
 					x.printStackTrace();
 					LOG.error("In calling destroy listener", x);
 				}
 			}
 		}
-		m_manager.getApplication().internalCallConversationDestroyed(this);
+		getWindowSession().getApplication().internalCallConversationDestroyed(this);
 		try {
 			onDestroy();
 		} finally {
 			m_state = ConversationState.DESTROYED;
-			discardUploadFiles();
+			discardTempFiles();
 		}
 	}
 
@@ -297,7 +310,7 @@ public class ConversationContext implements IQContextContainer {
 	 * Force this context to destroy itself.
 	 */
 	public void destroy() {
-		m_manager.destroyConversation(this);
+		getWindowSession().destroyConversation(this);
 		m_manager = null;
 	}
 
@@ -318,7 +331,7 @@ public class ConversationContext implements IQContextContainer {
 		p.internalInitialize(papa, this);
 	}
 
-	void destroyPage(final Page pg) {
+	void destroyPage(@Nonnull final Page pg) {
 		//-- Call the page's DESTROY handler while still attached
 		try {
 			pg.getBody().onDestroy();
@@ -333,8 +346,11 @@ public class ConversationContext implements IQContextContainer {
 	 * Experimental interface: get the WindowSession for this page(set).
 	 * @return
 	 */
+	@Nonnull
 	public WindowSession getWindowSession() {
-		return m_manager;
+		if(null != m_manager)
+			return m_manager;
+		throw new IllegalStateException("Not initialized?");
 	}
 
 	/*--------------------------------------------------------------*/
@@ -402,9 +418,10 @@ public class ConversationContext implements IQContextContainer {
 	}
 
 	public void processDelayedResults(final Page pg) throws Exception {
-		if(m_delayManager == null)
+		DelayedActivitiesManager delayManager = m_delayManager;
+		if(delayManager == null)
 			return;
-		m_delayManager.processDelayedResults(pg);
+		delayManager.processDelayedResults(pg);
 	}
 
 	/**
@@ -412,7 +429,8 @@ public class ConversationContext implements IQContextContainer {
 	 * @return
 	 */
 	public boolean isPollCallbackRequired() {
-		return m_delayManager == null ? false : m_delayManager.callbackRequired();
+		DelayedActivitiesManager delayManager = m_delayManager;
+		return delayManager == null ? false : delayManager.callbackRequired();
 	}
 
 	/**
@@ -444,13 +462,13 @@ public class ConversationContext implements IQContextContainer {
 	 * Register a file that was uploaded and that needs to be deleted at end of conversation time.
 	 * @param f
 	 */
-	public void registerUploadTempFile(final File f) {
+	public void registerTempFile(@Nonnull final File f) {
 		if(m_uploadList == Collections.EMPTY_LIST)
 			m_uploadList = new ArrayList<File>();
 		m_uploadList.add(f);
 	}
 
-	protected void discardUploadFiles() {
+	protected void discardTempFiles() {
 		for(File f : m_uploadList) {
 			try {
 				f.delete();
@@ -498,37 +516,60 @@ public class ConversationContext implements IQContextContainer {
 		return m_state == ConversationState.ATTACHED;
 	}
 
-	static private final String KEY = QContextManager.class.getName();
-
-	static private final String SRCKEY = QDataContextFactory.class.getName();
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IQContextContainer implementation.					*/
 	/*--------------------------------------------------------------*/
-	/**
-	 *
-	 */
 	@Override
-	public QDataContext internalGetSharedContext() {
-		return (QDataContext) getAttribute(KEY);
-	}
-
-	/**
-	 *
-	 * @see to.etc.webapp.query.IQContextContainer#internalSetSharedContext(to.etc.webapp.query.QDataContext)
-	 */
-	@Override
-	public void internalSetSharedContext(final QDataContext c) {
-		setAttribute(KEY, c);
+	@Nonnull
+	public QContextContainer getContextContainer(@Nonnull String key) {
+		key = "cc-" + key;
+		QContextContainer cc = (QContextContainer) getAttribute(key);
+		if(null == cc) {
+			cc = new DomUIContextContainer();
+			setAttribute(key, cc);
+		}
+		return cc;
 	}
 
 	@Override
-	public QDataContextFactory internalGetDataContextFactory() {
-		return (QDataContextFactory) getAttribute(SRCKEY);
+	@Nonnull
+	public List<QContextContainer> getAllContextContainers() {
+		List<QContextContainer> ccl = new ArrayList<QContextContainer>();
+		for(Object o : m_map.values()) {
+			if(o instanceof QContextContainer) {
+				ccl.add((QContextContainer) o);
+			}
+		}
+		return ccl;
 	}
 
-	@Override
-	public void internalSetDataContextFactory(final QDataContextFactory s) {
-		setAttribute(SRCKEY, s);
+	static private final class DomUIContextContainer extends QContextContainer implements IConversationStateListener {
+		@Override
+		public void conversationNew(@Nonnull ConversationContext cc) throws Exception {
+			QDataContext c = internalGetSharedContext();
+			if(c instanceof IConversationStateListener)
+				((IConversationStateListener) c).conversationNew(cc);
+		}
+
+		@Override
+		public void conversationAttached(@Nonnull ConversationContext cc) throws Exception {
+			QDataContext c = internalGetSharedContext();
+			if(c instanceof IConversationStateListener)
+				((IConversationStateListener) c).conversationAttached(cc);
+		}
+
+		@Override
+		public void conversationDetached(@Nonnull ConversationContext cc) throws Exception {
+			QDataContext c = internalGetSharedContext();
+			if(c instanceof IConversationStateListener)
+				((IConversationStateListener) c).conversationDetached(cc);
+		}
+
+		@Override
+		public void conversationDestroyed(@Nonnull ConversationContext cc) throws Exception {
+			QDataContext c = internalGetSharedContext();
+			if(c instanceof IConversationStateListener)
+				((IConversationStateListener) c).conversationDestroyed(cc);
+		}
 	}
 }

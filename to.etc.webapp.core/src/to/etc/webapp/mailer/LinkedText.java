@@ -11,7 +11,7 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 5, 2010
  */
-public class LinkedText implements Appendable {
+public class LinkedText /* implements Appendable */{
 	private StringBuilder m_sb = new StringBuilder();
 
 	public LinkedText() {}
@@ -28,7 +28,6 @@ public class LinkedText implements Appendable {
 	 * @see java.lang.Appendable#append(char)
 	 */
 	@Nonnull
-	@Override
 	public LinkedText append(char c) {
 		if(c == '$')
 			m_sb.append("\\$");
@@ -38,14 +37,12 @@ public class LinkedText implements Appendable {
 	}
 
 	@Nonnull
-	@Override
 	public LinkedText append(@Nonnull CharSequence csq) {
 		m_sb.append(csq);
 		return this;
 	}
 
 	@Nonnull
-	@Override
 	public LinkedText append(@Nonnull CharSequence csq, int start, int end) {
 		m_sb.append(csq, start, end);
 		return this;
@@ -152,7 +149,7 @@ public class LinkedText implements Appendable {
 	 * @param len
 	 * @return
 	 */
-	private static int decodeKey(ITextLinkRenderer r, StringBuilder sb, int ix, String in, int len) {
+	private static int decodeKey(@Nonnull ITextLinkRenderer r, @Nonnull StringBuilder sb, int ix, @Nonnull String in, int len) {
 		int dol = 0;
 		String type = null;
 		String key = null;
@@ -161,11 +158,15 @@ public class LinkedText implements Appendable {
 		while(ix < len) {
 			char c = in.charAt(ix++);
 			if(c == '\\' && ix < len) {
-				sb.append(in.charAt(ix++)); // Escaped char added verbatim.
+				sb.append(in.charAt(ix++)); 				// Escaped char added verbatim.
 			} else if(c == ']') {
 				//-- End-of-key. Add collected part.
 				text = sb.toString();
 				sb.setLength(0);
+				if(null == key)
+					key = "?";
+				if(null == text)
+					text = "?";
 
 				//-- Find the info
 				TextLinkInfo tli = TextLinkInfo.getInfo(type);
@@ -175,7 +176,7 @@ public class LinkedText implements Appendable {
 					r.appendLink(tli.getFullUrl(key), text);
 				}
 				return ix;
-			} else if(c == '$') { // Item separator?
+			} else if(c == '$') { 							// Item separator?
 				if(dol == 0)
 					type = sb.toString();
 				else if(dol == 1)

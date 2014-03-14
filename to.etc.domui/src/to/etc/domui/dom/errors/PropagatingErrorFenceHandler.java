@@ -43,25 +43,25 @@ public class PropagatingErrorFenceHandler extends ErrorFenceHandler {
 	}
 
 	@Override
-	public void addMessage(@Nonnull NodeBase source, @Nonnull UIMessage uim) {
-		super.addMessage(source, uim);
+	public void addMessage(@Nonnull UIMessage uim) {
+		super.addMessage(uim);
 		NodeContainer propagationContainer = (getContainer() != null && getContainer().hasParent()) ? getContainer().getParent() : null;
 		if(propagationContainer != null) {
 			IErrorFence fence = DomUtil.getMessageFence(propagationContainer);
 			if(fence != this) {
-				fence.addMessage(source, uim);
+				fence.addMessage(uim);
 			}
 		}
 	}
 
 	@Override
-	public void removeMessage(@Nullable NodeBase source, @Nonnull UIMessage uim) {
-		super.removeMessage(source, uim);
+	public void removeMessage(@Nonnull UIMessage uim) {
+		super.removeMessage(uim);
 		NodeContainer propagationContainer = (getContainer() != null && getContainer().hasParent()) ? getContainer().getParent() : null;
 		if(propagationContainer != null) {
 			IErrorFence fence = DomUtil.getMessageFence(propagationContainer);
 			if(fence != this) {
-				fence.removeMessage(source, uim);
+				fence.removeMessage(uim);
 			}
 		}
 	}

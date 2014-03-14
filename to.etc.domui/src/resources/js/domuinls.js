@@ -4,6 +4,7 @@ WebUI._T = new Object();
 WebUI._T.sysSessionExpired = 'Your session has expired. The screen will be reloaded with fresh data.';
 WebUI._T.sysSessionExpired2 = 'The server has restarted or your session has expired. The screen will be reloaded with fresh data.';
 WebUI._T.sysPopupBlocker = "A popup blocker is active. You need to disable it for this website.";
+WebUI._T.sysUnsupported = "Internet Explorer {0} is no longer supported. You can use this website, but your mileage may vary. Please upgrade to Google Chrome, Mozilla Firefox or - if you cannot help it - to a newer version of Internet Explorer";
 WebUI._T.sysPollFailTitle = "Server unreachable";
 WebUI._T.sysPollFailMsg = "Server unreachable: status=";
 WebUI._T.sysPollFailCont= "Waiting for the server to return....";

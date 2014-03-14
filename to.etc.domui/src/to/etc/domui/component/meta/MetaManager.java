@@ -32,8 +32,11 @@ import javax.annotation.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.login.*;
 import to.etc.domui.server.*;
+import to.etc.domui.state.*;
 import to.etc.domui.util.*;
+import to.etc.domui.util.db.*;
 import to.etc.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.nls.*;
@@ -263,10 +266,14 @@ final public class MetaManager {
 	static public boolean isAccessAllowed(String[][] roleset, IRequestContext ctx) {
 		if(roleset == null)
 			return true; // No restrictions
+
+		IUser user = UIContext.getCurrentUser();
+		if(null == user)
+			return false;
 		for(String[] orset : roleset) {
 			boolean ok = true;
 			for(String perm : orset) {
-				if(!ctx.hasPermission(perm)) {
+				if(!user.hasRight(perm)) {
 					ok = false;
 					break;
 				}
@@ -285,7 +292,7 @@ final public class MetaManager {
 			public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable Object object, @Nullable Object parameters) {
 				String text = lr.getLabelFor(object);
 				if(text != null)
-					node.setText(text);
+					node.add(text);
 			}
 		};
 	}
@@ -298,7 +305,7 @@ final public class MetaManager {
 		@Override
 		public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable Object object, @Nullable Object parameters) {
 			if(object != null)
-				node.setText(object.toString());
+				node.add(object.toString());
 		}
 	};
 
@@ -833,6 +840,90 @@ final public class MetaManager {
 	}
 
 	/**
+	 * Copy all matching properties from "from" to "to", but ignore the specified list of
+	 * properties. Since properties are copied by name the objects can be of different types.
+	 *
+	 * @param to
+	 * @param from
+	 * @param except
+	 * @throws Exception
+	 */
+	public static void copyValuesExcept(Object to, Object from, String... except) throws Exception {
+		Set<String> exceptSet = new HashSet<String>();
+		for(String xc : except)
+			exceptSet.add(xc);
+
+		List<PropertyMetaModel< ? >> tolist = MetaManager.findClassMeta(to.getClass()).getProperties();
+		Map<String, PropertyMetaModel< ? >> tomap = new HashMap<String, PropertyMetaModel< ? >>();
+		for(PropertyMetaModel< ? > pmm : tolist)
+			tomap.put(pmm.getName(), pmm);
+
+		List<PropertyMetaModel< ? >> frlist = MetaManager.findClassMeta(from.getClass()).getProperties();
+		for(PropertyMetaModel< ? > frpmm : frlist) {
+			if(exceptSet.contains(frpmm.getName()))
+				continue;
+			PropertyMetaModel< ? > topmm = tomap.get(frpmm.getName());
+			if(null == topmm)
+				continue;
+
+			if(!topmm.getActualType().isAssignableFrom(frpmm.getActualType()))
+				continue;
+
+			((PropertyMetaModel<Object>) topmm).setValue(to, frpmm.getValue(from));
+		}
+
+	}
+
+	/**
+	 * Copy all matching properties from "from" to "to", but ignore the specified list of
+	 * properties. Since properties are copied by name the objects can be of different types.
+	 *
+	 * @param to
+	 * @param from
+	 * @param except
+	 * @throws Exception
+	 */
+	public static void copyValuesExcept(Object to, Object from, Object... except) throws Exception {
+		Set<Object> exceptSet = new HashSet<Object>();
+		for(Object xc : except)
+			exceptSet.add(xc);
+
+		List<PropertyMetaModel< ? >> tolist = MetaManager.findClassMeta(to.getClass()).getProperties();
+		Map<String, PropertyMetaModel< ? >> tomap = new HashMap<String, PropertyMetaModel< ? >>();
+		for(PropertyMetaModel< ? > pmm : tolist)
+			tomap.put(pmm.getName(), pmm);
+
+		List<PropertyMetaModel< ? >> frlist = MetaManager.findClassMeta(from.getClass()).getProperties();
+		for(PropertyMetaModel< ? > frpmm : frlist) {
+			if(isExcepted(exceptSet, frpmm))
+				continue;
+			PropertyMetaModel< ? > topmm = tomap.get(frpmm.getName());
+			if(null == topmm)
+				continue;
+
+			if(!topmm.getActualType().isAssignableFrom(frpmm.getActualType()))
+				continue;
+
+			((PropertyMetaModel<Object>) topmm).setValue(to, frpmm.getValue(from));
+		}
+
+	}
+
+	private static boolean isExcepted(@Nonnull Set<Object> exceptSet, @Nonnull PropertyMetaModel< ? > frpmm) {
+		if(exceptSet.contains(frpmm.getName()))
+			return true;
+		for(Object t : exceptSet) {
+			if(t == Class.class) {
+				Class< ? > rc = (Class< ? >) t;
+
+				if(rc.isAssignableFrom(frpmm.getActualType()))
+					return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Return the list of defined combo properties, either on property model or class model. Returns
 	 * the empty list if none are defined.
 	 * @param pmm
@@ -1011,4 +1102,37 @@ final public class MetaManager {
 	}
 
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	QCriteria queries on lists and instances.			*/
+	/*--------------------------------------------------------------*/
+	/*
+	 * FIXME This code should probably move to QCriteria itself, or at least close to to.etc.webapp.core. But because the
+	 * implementation is so nice if we use Metadata it's created here 8-/
+	 */
+
+	/**
+	 * Return a new list which contains only the items in the input list that are obeying
+	 * the specified criteria.
+	 * @param in
+	 * @param query
+	 * @return
+	 */
+	@Nonnull
+	static public <X, T extends Collection<X>> List<X> filter(@Nonnull T in, @Nonnull QCriteria<X> query) throws Exception {
+		CriteriaMatchingVisitor<X> v = null;
+		List<X> res = new ArrayList<X>();
+		for(X item : in) {
+			if(item == null)								// Null items in the list do not match by definition.
+				continue;
+			if(v == null) {
+				ClassMetaModel cmm = findClassMeta(item.getClass());
+				v = new CriteriaMatchingVisitor<X>(item, cmm);
+			} else
+				v.setInstance(item);
+			query.visit(v);
+			if(v.isMatching())
+				res.add(item);
+		}
+		return res;
+	}
 }

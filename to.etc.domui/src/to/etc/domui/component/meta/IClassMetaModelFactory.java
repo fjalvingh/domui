@@ -53,5 +53,5 @@ public interface IClassMetaModelFactory {
 	 * @return
 	 */
 	@Nonnull
-	ClassMetaModel createModel(List<Runnable> actionList, @Nonnull Object theThingy);
+	ClassMetaModel createModel(@Nonnull List<Runnable> actionList, @Nonnull Object theThingy);
 }

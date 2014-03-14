@@ -3,6 +3,7 @@
 	<name>to.etc.domui</name>
 	<comment></comment>
 	<projects>
+		<project>lib-jericho</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

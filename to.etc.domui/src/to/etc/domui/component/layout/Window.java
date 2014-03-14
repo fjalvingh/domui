@@ -64,6 +64,11 @@ public class Window extends FloatingDiv {
 	/** The optional area just below the content area which remains fixed when the content area scrolls. */
 	private Div m_bottomContent;
 
+
+	public Window() {
+		init();
+	}
+
 	/**
 	 * Full constructor: create a window and be able to set all options at once.
 	 * @param modal			T for a modal window.
@@ -119,10 +124,55 @@ public class Window extends FloatingDiv {
 		this(true, true, width, height, title);
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Builder modifiers.									*/
+	/*--------------------------------------------------------------*/
+
+	@Override
+	@Nonnull
+	public Window size(int width, int height) {
+		super.size(width, height);
+		return this;
+	}
+
+	@Nonnull
+	@Override
+	public Window resizable() {
+		super.resizable();
+		return this;
+	}
+
+	@Nonnull
+	@Override
+	public Window modal(boolean yes) {
+		super.modal(yes);
+		return this;
+	}
+
+	@Nonnull
+	@Override
+	public Window modal() {
+		super.modal();
+		return this;
+	}
+
+	@Nonnull
+	public Window title(@Nonnull String set) {
+		setWindowTitle(set);
+		return this;
+	}
+
+	@Override
+	@Nonnull
+	public Window width(int pxsl) {
+		super.width(pxsl);
+		return this;
+	}
+
 	private void init() {
 		m_content = new Div();
 		m_content.setCssClass("ui-flw-c ui-fixovfl");
-		m_content.setStretchHeight(true);
+		//		m_content.setStretchHeight(true);
 		m_topContent = new Div();
 		m_topContent.setCssClass("ui-flw-tc");
 		m_bottomContent = new Div();
@@ -147,9 +197,21 @@ public class Window extends FloatingDiv {
 		add(m_bottomContent);
 		setErrorFence();
 
+		//-- jal 20121105 If an explicit height is set then we stretch the content to max, else the content itself decides on the height of the window.
+		if(getHeight() != null) {
+			m_content.setStretchHeight(true);
+		}
+
 		//vmijic 20091125 - since z-index is dynamic value, correct value has to be used also in js.
 		appendCreateJS("$('#" + getActualID() + "').draggable({" + "ghosting: false, zIndex:" + getZIndex() + ", handle: '#" + m_titleBar.getActualID() + "'});");
 		delegateTo(m_content);
+	}
+
+	@Override
+	public void setDimensions(int width, int height) {
+		super.setDimensions(width, height);
+		if(null != m_content && getHeight() != null)
+			m_content.setStretchHeight(true);
 	}
 
 	/**
@@ -174,7 +236,7 @@ public class Window extends FloatingDiv {
 			m_titleBar.add(m_closeButton);
 			m_closeButton.setClicked(new IClicked<NodeBase>() {
 				@Override
-				public void clicked(NodeBase b) throws Exception {
+				public void clicked(@Nonnull NodeBase b) throws Exception {
 					closePressed();
 				}
 			});

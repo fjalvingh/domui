@@ -80,7 +80,7 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 
 	static private IClicked<TD> C_CLICK = new IClicked<TD>() {
 		@Override
-		public void clicked(final TD b) throws Exception {
+		public void clicked(final @Nonnull TD b) throws Exception {
 			if(b.hasCssClass("selected"))
 				b.removeCssClass("selected");
 			else
@@ -116,9 +116,7 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 
 		createMiddle(midcell);
 
-		if(needOrderButtons()) {
-			createOrderPane();
-		}
+		createOrderPane();
 
 		renderSource();
 		renderTarget();
@@ -132,21 +130,23 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 
 		m_orderCell.setCssClass("ui-sh-oc");
 		Table t = new Table();
-		m_orderCell.add(t);
+		if(needOrderButtons()) {
+			m_orderCell.add(t);
+		}
 		TBody b = new TBody();
 		t.add(b);
 
-		SmallImgButton ib = new SmallImgButton("THEME/sh-up.png", new IClicked<SmallImgButton>() {
+		DefaultButton ib = new DefaultButton("", "THEME/sh-up.png", new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(final SmallImgButton xb) throws Exception {
+			public void clicked(final @Nonnull DefaultButton xb) throws Exception {
 				moveUp();
 			}
 		});
 		b.addRowAndCell().add(ib);
 
-		ib = new SmallImgButton("THEME/sh-down.png", new IClicked<SmallImgButton>() {
+		ib = new DefaultButton("", "THEME/sh-down.png", new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(final SmallImgButton xb) throws Exception {
+			public void clicked(final @Nonnull DefaultButton xb) throws Exception {
 				moveDown();
 			}
 		});
@@ -164,27 +164,40 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 		TBody b = new TBody();
 		t.add(b);
 
-		SmallImgButton ib = new SmallImgButton("THEME/sh-1ar-right.png", new IClicked<SmallImgButton>() {
+		DefaultButton ib = new DefaultButton("", "THEME/sh-2ar-right.png", new IClicked<DefaultButton>() {
+
 			@Override
-			public void clicked(final SmallImgButton xb) throws Exception {
+			public void clicked(@Nonnull DefaultButton clickednode) throws Exception {
 				moveRight();
 			}
 		});
 		b.addRowAndCell().add(ib);
 
-		ib = new SmallImgButton("THEME/sh-1ar-left.png", new IClicked<SmallImgButton>() {
+		ib = new DefaultButton("", "THEME/sh-1ar-right.png", new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(final SmallImgButton xb) throws Exception {
+			public void clicked(final @Nonnull DefaultButton xb) throws Exception {
+				moveRight();
+			}
+		});
+		b.addRowAndCell().add(ib);
+
+		ib = new DefaultButton("", "THEME/sh-1ar-left.png", new IClicked<DefaultButton>() {
+			@Override
+			public void clicked(final @Nonnull DefaultButton xb) throws Exception {
 				moveLeft();
 			}
 		});
 		b.addRowAndCell().add(ib);
 
-		ib = new SmallImgButton("THEME/sh-2ar-right.png");
+		ib = new DefaultButton("", "THEME/sh-2ar-left.png", new IClicked<DefaultButton>() {
+
+			@Override
+			public void clicked(@Nonnull DefaultButton clickednode) throws Exception {
+				moveLeft();
+			}
+		});
 		b.addRowAndCell().add(ib);
 
-		ib = new SmallImgButton("THEME/sh-2ar-left.png");
-		b.addRowAndCell().add(ib);
 	}
 
 	/**

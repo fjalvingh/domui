@@ -2,56 +2,76 @@
  * DomUI "blue" stylesheet.
  * File represents composition of fragments that are defining default style for each component.
  */
-/*** 000_dateinput.frag.css ***/
-/*** Date input ***/
-@IMPORT url("calendar-blue2.css");
+/*** Imports ***/
+/* btadic 20121102 This file was imported from 000_dateinput.frag.css. Now, when it is renamed to 340_dateinput.frag.css, 
+file will not be imported properly. For now it's moved here because here is start of generated style.
+We can create one more fragment for imports which will be loaded before this fragment.  */
+@IMPORT url("calendar-theme.css");
+
+/*** 000_areset.frag.css - reset script ***/
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+	outline: none;
+}
+
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-spacing: 0;
+	border-collapse: collapse;
+}
 /*** 002_core.frag.css ***/
 /*** Core style ***/
 /* Body style */
-body,html {
-	background: url(bg-gradient.png.svg) repeat-x;
+body, html {
+<% if(typeof body_image != 'undefined') { %>
+	background: url(<%= body_image %>) repeat-x;
+<% } %>
 	background-color: <%= bg_color %>;
-/*	height: 100%; jal 20110221 Body height causes no end of problems with scrollbars. */
-	margin: 0px;
+/*	height: 100%; */ /* vmijic - changed to 100% (was 90%). Is here a reason for 90%? We have problem with splitter otherwise... */
 }
 
-/* Reset styles */
-* {
-	border: 0;
-	margin: 0;
-	padding: 0;
+/** jal: do not put this in the reset script! Using it here inherits the spec to all lower elements by default. */
+body {
 	font-family: <%= font_family %>;
 	font-size: <%= font_size %>;
 }
 
-input, textarea, select {
-	border-color:#ABADB3 #BFCDD9 #BFCDD9;
-	border-style:solid;
-	border-width:1px;
-	-moz-border-radius: 2px;	
-}
-
-input, textarea {
-	padding: 2px;
-}
-
-input[type=file] {
-	border: 0 !important;
-	padding: 0px !important;
-}
-
-input:hover, textarea:hover, select:hover {
-	border-color:#5794BF #D7E8F8 #D7E8F8 #5794BF;
-}
-
-select {
-	background-color:#FFFFFF;
-}
-
-pre {
-	font-family: Courier New, Courier, monospace;
-}
-
+/*** Input related components ***/
 button img {
 	vertical-align: bottom;
 }
@@ -60,9 +80,125 @@ button {
 	vertical-align: bottom;
 }
 
-.page-content {
-	margin: 0px 10px;
+input, textarea, select {
+	margin: 0px 2px 2px 0px;
+	padding: 0px 2px 0px 2px;	
+	font-size: <%= font_size %>;
+	font: inherit;
+	border-color:<%= bevel_up %> <%= bevel_down %> <%= bevel_down %>;
+	border-style:solid;
+	border-width:1px;
+	-moz-border-radius: 2px;	
+	border-radius: 2px;	
+	-webkit-border-radius: 2px;	
 }
+textarea{
+	line-height: normal;
+}
+input[type=checkbox] {
+	border: 0;
+	padding-left: 0px;
+	padding-top: 2px;
+}
+
+input[type=file] {
+	border: 0 !important;
+	padding: 0px !important;
+}
+
+input[type="text"], input[type="password"] {
+	height: 16px;
+}
+
+input:hover, textarea:hover, select:hover {
+	border-color:<%= bevel_hover_up %> <%= bevel_hover_down %> <%= bevel_hover_down %> <%= bevel_hover_up %>;
+}
+
+select {
+	background-color:#FFFFFF;
+	height: 18px;
+}
+
+/*** HTML entities ***/
+pre {
+	font-family: <%= fixed_font_family %>;
+	font-size: <%= fixed_font_size %>;
+}
+
+td {
+	padding: 1px;
+}
+
+td input, td select, td label {
+	vertical-align: top;
+} 
+
+div {
+	vertical-align: top;
+}
+
+.ui-content {
+	padding: <%= margins_main %> <%= margins_main %> 0px <%= margins_main %>;	/* Jal 20121214 bottom margin causes scrollbars with auto-height calculations. */
+}
+.ui-clickable {
+	cursor: pointer;
+}
+
+
+/*** HTML formatting ***/
+p {
+	margin: 5px 0px;
+	display: block;
+}
+h1, h2, h3, h4, h5 {
+	margin: 10px 0px 5px 0px;
+}
+h1 {
+	font-size: 150%;
+	font-weight: bold;
+	border-bottom: 1px solid #777;
+}
+h2 {
+	font-size: 130%;
+	font-weight: bold;
+}
+h3 {
+	font-size: 110%;
+	font-weight: bold;
+}
+h4 {
+	font-style: italic;
+}
+ul {
+	list-style-type: disc;
+	list-style-position: outside;
+	padding: 0px 20px;
+}
+ol {
+	list-style-type: decimal;
+	list-style-position: outside;
+	padding: 0px 20px;
+}
+li {
+	margin: 4px 4px;
+	padding: 3px 0px;
+}
+code {
+	white-space: pre;
+	font-family: <%= fixed_font_family %>;
+	font-size: 11px;
+	background-color: #ddd;
+	display: block;
+	border: 1px dotted #000;
+	padding: 4px;
+}
+b, strong {
+	font-weight: bold;
+}
+i, em {
+	font-style: italic;
+}
+
 /*** 005_oddchars.frag.css ***/
 /*** Select special chars ***/
 .ui-oddchars {
@@ -94,28 +230,42 @@ button {
 }
 /*** 010_apptitle.frag.css ***/
 /*** App Title bar ***/
+.ui-atl {
+	background: url(<%= bg_ttl_gradient %>) repeat-y;
+	background-color: <%= bg_ttl_end %>;
+	<%= margins_neutralize %>
+}
+
+.ui-atl table{
+	width: 100%;
+}
+
 .ui-atl-bb {
 	white-space: nowrap;
-	background-image: url(bg-caption.png.svg);
-	background-repeat: no-repeat;
 	width: 90%;
 	text-align: right;
+	vertical-align: middle;
 }
 
 .ui-atl-i {
-	background-color: <%= header_bg %>;
-	padding-right: 10px;
-	padding-left: 5px;
+	padding: 0px;
+}
+
+.ui-atl-i img {
+	display: none;
 }
 
 .ui-atl-t {
-	background-color: <%= header_bg %>;
 	width: 10%;
+	height: 40px;
 	white-space: nowrap;
-	color: #123667;
+	color: <%= bg_ttl_text %>;
 	font-weight: bold;
 	font-size: <%= hdr_font_size %>;
+	padding-left: 9px;
+	vertical-align: middle;
 }
+
 /*** 015_splitterbar.frag.css ***/
 /*** SplitterPanel. These style names are required by jquery.splitter.js ***/
 .splitbarV {
@@ -124,8 +274,8 @@ button {
 	height: 100%;
 	line-height: 0px;
 	font-size: 0px;
-	border-left: solid 1px <%= header_bg %>;
-	border-right: solid 1px <%= header_bg %>;
+	border-left: solid 1px white;
+	border-right: solid 1px white;
 	background: #cbe1fb url(panev.gif) 0% 50%;
 }
 
@@ -156,8 +306,8 @@ button {
 	text-align: left;
 	line-height: 0px;
 	font-size: 0px;
-	border-top: solid 1px <%= header_bg %>;
-	border-bottom: solid 1px <%= header_bg %>;
+	border-top: solid 1px white;
+	border-bottom: solid 1px white;
 	background: #cbe1fb url(paneh.gif) 50% 0%;
 }
 
@@ -192,7 +342,7 @@ button {
 .ui-splt-left {
 	float: left;
 	height: 100%;
-	border-top: solid 1px <%= header_bg %>;
+	border-top: solid 1px white;
 	overflow: auto;
 	position: relative;
 }
@@ -237,7 +387,7 @@ button {
 }
 .ui-bug-stk {
 	white-space: pre;
-	font-family: monospace;
+	font-family: <%= fixed_font_family %>;
 	font-size: 8px;
 }
 /*** 025_displaycheckbox.frag.css ***/
@@ -256,11 +406,21 @@ TD .ui-tree .selected:hover {
 	background: <%= selected_bg %> !important;
 }
 
+.ui-tree TD {
+	padding: 0px;
+	margin: 0px;
+	border: 0px;
+}
+
 .ui-tr-act {
 	cursor: pointer;
 }
 .ui-tr-val {
 	white-space: nowrap;
+	vertical-align: middle;
+}
+.ui-tr-val img {
+	vertical-align: middle;
 }
 td.ui-tr-sel:hover {
 	background-color: <%= highlight_bg %> !important;
@@ -269,7 +429,7 @@ td.ui-tr-sel {
 	cursor: pointer;
 }
 td.ui-tr-selected {
-	background-color: <%= header_bg %>; !important;
+	background-color: <%= bg_ttl_end %>; !important;
 }
 
 .ui-tree {
@@ -278,33 +438,44 @@ td.ui-tr-selected {
 /*** 035_displayvalue.frag.css ***/
 /*** DisplayValue ***/
 .ui-dspv {
-	background:none repeat scroll 0 0 <%= readonly_bg %>;
-	border: 1px solid <%= readonly_border %>;
-	display:block;
-	padding:2px;
-	min-height:1em;
+	background: none repeat scroll 0 0 <%= readonly_bg %>;
+	display: block;
+	text-align: left;
 }
 /*** 040_captionedheader.frag.css ***/
 /*** CaptionedHeader ***/
+
+
+/* jal 20130305 removed, the captioned header falls over the item above it.
+
+.ui-content > .ui-chdr {
+	<%= margins_neutralize %>
+}
+*/
 .ui-chdr {
 	width: 100%;
-/*	height: 20px; */
-	background-image: url(bg-chdr.png.svg);
-	background-position: 0px -2px;
 	margin-top: 10px;
+/*	margin-bottom: 10px; */
+	border-bottom: 2px solid <%= bg_ttl_end %>;
+}
+.ui-chdr td{
+	padding: 0;
 }
 .ui-chdr-ttl {
-	background-color: <%= util.color(header_bg).lighter(0.4) %>;
-	-moz-border-radius: 5px;
+	color: <%= bg_ttl_text %>;
+	background-color: <%= bg_ttl_end %>;
 	padding: 2px 10px 2px 10px;
 	white-space: nowrap;
+	-moz-border-radius: 2px 2px 0px 0px;
+	-webkit-border-radius: 2px 2px 0px 0px;
+	-khtml-border-radius: 2px 2px 0px 0px;
+	border-radius: 2px 2px 0px 0px;
 }
 .ui-chdr-ttl img {
 	padding-right: 10px;
 }
 .ui-chdr-l {
-	width: 20px;
-	padding: 0;
+	width: 10px;
 	margin: 0;
 }
 .ui-chdr-c {
@@ -314,18 +485,19 @@ td.ui-tr-selected {
 /*** 045_errormessagediv.frag.css ***/
 /*** ErrorMessageDiv helper for components that handle their error display ***/
 .ui-emd {
-	background-color: <%= error_bg %>;
-	color: <%= error_fg %>;
-	border-color: 1px solid <%= error_border %>;
+	background-color: <%= errors_background %>;
+	color: <%= errors_foreground %>;
+	border-color: 1px solid <%= errors_border %>;
 }
 .ui-emd-msg {
 	background-repeat: no-repeat;
-	background-position: left;
-	padding-left: 18px;
+	background-position: 10px;
+	padding-left: 24px;
+	background-size: 11px 11px;
 }
 .ui-emd-info {
 	background-image: url(mini-info.png);
-	background-color: <%= info_bg %>; /* some nice light blue */
+	background-color: <%= info_bg %>;
 	color: <%= info_fg %>;
 	border-color: 1px solid <%= info_border %>;
 }
@@ -334,10 +506,10 @@ td.ui-tr-selected {
 }
 .ui-emd-warning {
 	background-image: url(mini-warning.png);
-	background-color: <%= warning_bg %>;
-	color: <%= warning_fg %>;
-	border-color: 1px solid <%= warning_border %>;
+	background-color: <%= warnings_background %>;
+	color: <%= warnings_foreground %>;
 }
+
 /*** 050_popinpanel.frag ***/
 /*** Pop-in panel ***/
 div.ui-popin {
@@ -346,6 +518,8 @@ div.ui-popin {
 	background-color: #b8e59d;
 	margin-top: 15px;
 	-moz-border-radius: 5px;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
 }
 
 .ui-popin-ttl {
@@ -354,6 +528,8 @@ div.ui-popin {
 	left: 15px;
 	border: 1px solid black;
 	-moz-border-radius: 5px;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
 	background-color: #6af218;
 	padding: 3px;
 	font-weight: bold;
@@ -361,22 +537,25 @@ div.ui-popin {
 /*** 055_misc.frag.css ***/
 /*** Miscellaneous components styles ***/
 /* AccessDeniedPage */
-.ui-acd-ttl {
-	font-size: larger;
-	font-style: italic;
-}
+.ui-acd-ttl {}
 
 /* InfoPanel */
 .ui-ipa {
 	padding: 4px;
 	margin: 4px;
 	-moz-border-radius: 5px;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
 	border: 1px solid #d0d0d0;
 	font-style: italic;
+	vertical-align: top;
+	min-height: 48px;
 }
 
 div.ui-ipa img {
 	padding-right: 4px;
+	float: none;
+	vertical-align: top;
 }
 
 /* Explanation box */
@@ -384,6 +563,8 @@ div.ui-ipa img {
 	border: 2px solid #777777;
 	padding: 5px;
 	-moz-border-radius: 10px;
+	border-radius: 10px;
+	-webkit-border-radius: 10px;
 	background: url(bg-expl.png) repeat-x;
 	color: black;
 }
@@ -391,6 +572,10 @@ div.ui-ipa img {
 /* AsyncContainer */
 .ui-asc {
 	text-align: center;
+}
+
+div.ui-asc div {
+	height:15px;
 }
 
 /* SplitPanel (simple version) layout thingy */
@@ -431,6 +616,61 @@ div.ui-ipa img {
 	background-color: #e5e5e5;
 }
 
+/** Sizeless item */
+.ui-szless {
+	padding: 0px;
+	margin: 0px;
+}
+
+/*** Display data table ***/
+.ui-dd-table {
+	font-size: <%= data_tbl_font_size %>;
+	margin-bottom: <%= margins_main %>;
+	border: 1px solid #aaaaaa;
+	border-left: 0px;
+}
+.ui-dd-table > TBODY > TR > TD {
+	padding: 1px 2px;
+	vertical-align: top;
+	border-left: 1px solid #aaaaaa;
+}
+<% if(browser.IE && browser.majorVersion < 9) { %>
+.ui-dd-table TR {
+	border-bottom: 1px solid #aaaaaa;
+}
+<% } else { %>
+.ui-dd-table TR:nth-child(even) {
+	background-color: rgba(255, 255, 255, 0.1);
+}
+<% } %>
+.ui-dd-table THEAD TH {
+	font-weight: bold;
+	padding: 3px;
+	border-left: 1px solid #7c7c7c;
+	background: <%= data_tbl_header_bg %>;
+	color: white;
+}
+
+/**
+*DomUI components style options 
+**/
+
+/** Removing top or bottom margin */
+.dso-remove-bottom-margin {
+	margin-bottom: 0px !important;
+}
+.dso-add-bottom-margin {
+	margin-bottom: <%= margins_main %> !important;
+}
+.dso-remove-top-margin {
+	margin-top: 0px !important;
+}
+.dso-cell-with-text-and-input {}
+
+/** Default cursor */
+.ui-cur-default {
+	cursor: default !important;
+}
 /*** 060_msgbox.frag.css ***/
 /*** MsgBox ***/
 .ui-mbx-top {
@@ -444,13 +684,19 @@ div.ui-ipa img {
 .ui-mbx-mc {
 	font-size: 13px;
 }
+.ui-mbx-input {
+	padding-top: 20px;
+}
+
 /*** 065_linkbutton.frag.css ***/
 /*** LinkButton component. ***/
 .ui-lbtn {
+	display: inline-block;
 	background-repeat: no-repeat;
 	background-position: left;
 	padding-left: 18px;
-	font-size: <%= link_font_size %>;
+	font-size: <%= font_size %>;
+	height: 16px;
 }
 .ui-lnkb {
 }
@@ -468,6 +714,11 @@ a.ui-lnkb-dis {
 	font-style: italic;
 	cursor: default;
 	color: gray; 
+	
+	filter: url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><filter id=\'grayscale\'><feColorMatrix type=\'matrix\' values=\'0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0\'/></filter></svg>#grayscale"); /* Firefox 3.5+ */
+	-moz-filter: grayscale(100%);
+	filter: gray; /* IE6-9 */
+    -webkit-filter: grayscale(1); /* Google Chrome & Safari 6+ */
 }
 
 a:hover.ui-lnkb-dis {
@@ -506,20 +757,46 @@ a:hover.ui-lnkb-dis {
 table .ui-sh {
 	width: 100%;
 }
+.ui-sh td {
+	padding: 0px;
+}
 .ui-sh-sc {
 	width: 40%;
+	vertical-align: top;
 }
 .ui-sh-tc {
 	width: 40%;
+	vertical-align: top;
 }
 .ui-sh-tcd, .ui-sh-scd {
 	border: 1px solid #aaaaaa;
 }
 .ui-sh-bc {
 	width: 1%;
+	vertical-align: middle;
+}
+.ui-sh-oc {
+	vertical-align: middle;
+}
+.ui-sh-oc table, .ui-sh-bc table {
+	margin: <%= margins_main %>;
 }
 .ui-sh-sc .selected, .ui-sh-tc .selected {
 	background-color: <%= selected_bg %>;
+}
+.ui-sh button, .ui-sh button:hover, .ui-sh button:focus {
+	background-position: right -250px;
+	padding: 0 7px 0 0;
+	margin: 2px;
+}
+.ui-sh button span, .ui-sh button:hover span, .ui-sh button:focus span{
+	background-position: left -200px;
+	min-width: 0px;
+	width: 19px;
+}
+.ui-sh button img {
+	padding-right: 0px;
+	padding-left: 2px;
 }
 /*** 085_breadcrumb.frag.css ***/
 /*** BreadCrumb ***/
@@ -555,22 +832,13 @@ a.ui-brc-l, a.ui-brc-l:hover a.ui-brc-l :VISITED, a.ui-brc-l:ACTIVE {
 /*** 090_buttonbar.frag.css ***/
 /*** ButtonBar component ***/
 .ui-buttonbar {
-	padding: 0; margin: 0;
+	margin-bottom: 8px;
 }
-.ui-bb-left {
-	padding: 0; margin: 0;
-	display: none;
-	width: 0px;
-	height: 0px;
-}
-.ui-bb-right {
-	padding: 0; margin: 0;
-	width: 29px;
-/*	height: 36px;	jal 20121009 Do not add height: empty button bar must be empty. */
+.ui-buttonbar button {
+	margin-bottom: 2px !important;
 }
 .ui-bb-middle {
 	padding: 0; margin: 0;
-/*	height: 36px;	jal 20121009 Do not add height: empty button bar must be empty. */
 }
 /*** 095_monthpanel.frag.css ***/
 /*** MonthPanel ***/
@@ -586,7 +854,7 @@ a.ui-brc-l, a.ui-brc-l:hover a.ui-brc-l :VISITED, a.ui-brc-l:ACTIVE {
 }
 
 .ui-mp-top {
-	background: url(bg-caption.png) repeat-x;
+	background: url(<%= caption_separator %>) repeat-x;
 	font-weight: bold;
 	font-style: italic;
 }
@@ -713,15 +981,19 @@ table.ui-wa-bgtbl {
 	margin: 0px;
 }
 
-div.ui-lui-selected {
-	border-color:#ABADB3 #BFCDD9 #BFCDD9;
-	border-style:solid;
-	border-width:1px;
-	-moz-border-radius: 2px;	
+.ui-lui-btntd {
+	min-width: 18px;
+	text-align: left;
+	white-space: nowrap;
 }
 
 div.ui-lui-selected-ro {
-	border: <%= readonly_border %> solid 1px; /* same border color as one used for ui-dspv fields */
+	border: none !important;
+	margin-bottom: 0px;
+}
+
+div.ui-lui-selected-ro td {
+	padding: 0px;
 }
 	
 div.ui-lui {
@@ -729,8 +1001,11 @@ div.ui-lui {
 	display: inline-block;
 }
 
+div.ui-lui > table {
+	width: 1%;
+}
+
 table.ui-lui {
-	width: 12em; /*	this width match with date field picker icon on IE rendering */
 	white-space: nowrap;
 }
 
@@ -746,11 +1021,16 @@ table.ui-lui-selected {
 	width: 100%;
 }
 
+.ui-lui-v > div {
+	width: 104px;
+}
+
 .ui-lui-selected tbody { /*	selected value is rendered with white back and outline, on IE border is not rendred!? */
 	padding: 0px;
 	margin: 0px;
 	background-color: #ffffff;
 	width: 100%;
+	white-space: nowrap;
 }
 
 .ui-lui-selected-ro tbody {
@@ -761,10 +1041,20 @@ table.ui-lui-selected {
 	background-color: #ffe5e5 !important;
 }
 .ui-lui-vcell {
+	min-width: 100px;
 	width: 99%;
+	padding: 2px 5px 2px 2px;
+	vertical-align: top;
 }
+.ui-lui-btncell {
+	min-width: 41px;
+	padding-top: 2px;
+}
+
 input.ui-lui-keyword {
 	min-width: 98px;
+	width: 1%;
+	display: block;
 }
 
 img.ui-lui-waiting{
@@ -811,29 +1101,104 @@ tr.ui-keyword-popup-row {
 }
 
 .ui-mli-itm { /* selected items */
-	background-color: <%= selected_bg %>;
+	display: inline;
 	float: left;
-	padding-left: 5px;
-	margin-left: 1px;
-	margin-right: 1px;
-	margin-top: 3px;
-	margin-bottom: 3px;	
-	vertical-align: middle;
-	-webkit-border-top-left-radius: 5px;
-	-webkit-border-bottom-right-radius: 5px;
-	-moz-border-radius-topleft: 5px;
-	-moz-border-radius-bottomright: 5px;
-	border-top-left-radius: 5px;
-	border-bottom-right-radius: 5px;
-	box-shadow : 3px 3px 3px #CCCCCC;
-	-moz-box-shadow : 3px 3px 3px #CCCCCC;
-	zoom: 1; /* FIXME: bojan needs to specify why this is needed! */ 
-	*display:inline;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border: 1px solid <%= multiple_lookup_label_color %>;
+	margin: 1px;
+	padding: 2px;
+	padding-bottom: 0px;
+	background-color: <%= multiple_lookup_label_border %>;
 }
-/*** 115_lookupform.frag.css ***/
+
+.ui-mli-itm label {
+	vertical-align: middle;
+}
+
+.ui-mli-itm img {
+	display: inline-block;
+	margin-left: 5px;
+	width: 14px;
+	height: 14px;
+	vertical-align: top;
+}
+/*** 105_lookupinput.frag.css ***/
+/*** LookupInput thingerydoo ***/
+.ui-lui {
+	/* background: #ffffff; */
+	padding: 0px;
+	margin: 0px;
+}
+
+div.ui-lui-selected{
+	border-color:#ABADB3 #BFCDD9 #BFCDD9;
+	display: inline-block;
+	border-style:solid;
+	border-width:1px;
+	-moz-border-radius: 2px;
+	margin-bottom: 3px;
+}
+
+div.ui-lui-selected-ro {
+	border: <%= readonly_border %> solid 1px; /* same border color as one used for ui-dspv fields */
+}
+	
+
+table.ui-lui {
+	width: 12em; /*	this width match with date field picker icon on IE rendering */
+	white-space: nowrap;
+}
+
+div.ui-lui td{
+	vertical-align: top;
+}
+
+
+.ui-input-err * .ui-lui-v {
+	background-color: #ffe5e5 !important;
+}
+.ui-lui-vcell {
+	width: 99%;
+}
+
 /*** LookupForm ***/
 .ui-lf-coll {
-	border-bottom: 1px dotted #666666;
+	padding-bottom: 10px;
+}
+
+/*** Button bar ***/
+div.ui-lf-ebb {
+	margin-top		: 8px;
+	padding-bottom	: 8px;
+}
+
+div.ui-lf-ebb button {
+	margin-bottom: 2px !important;
+}
+
+/*** Layout for table with input data in two, or more, rows ***/
+table.ui-lf-multi > tbody > tr > td {
+	padding-left			: 100px;
+	white-space				: nowrap;
+}
+
+table.ui-lf-multi > tbody > tr > td:first-child {
+	width					: 1%;
+	padding-left			: 0px;
+}
+
+/*** Standard table with inputs style - prompt and input cells table kind ***/
+table.ui-lf-st tr > td.ui-f-lbl:first-child,
+.ui-lf-multi table tr > td.ui-f-lbl:first-child {
+	min-width: 150px;
+	width: 1%;
+}
+
+table.ui-lf-st input.ui-ro,
+table.ui-lf-st input.ui-ro:hover {
+	text-align: left !important;
 }
 /*** 120_forms.frag.css ***/
 /*** Form basic styles ***/
@@ -841,50 +1206,78 @@ tr.ui-keyword-popup-row {
 .ui-f-lbl {
 	text-align: right;
 	font-weight: bold;
+	font-size: <%= font_size %>;
 	vertical-align: top;
+	white-space: nowrap;
+	width: 1%;
+}
+
+.ui-f-lbl:FIRST-CHILD {
 	min-width: 150px;
 }
 
 .ui-f-in {
+	font-size: <%= font_size %>;
 	vertical-align: top; /* jal 20090818 changed from top to middle to align DateInput buttons better */
-	padding: 0px;
+	padding: 0px 0px 0px 4px;
 }
+
+.ui-f-in input, .ui-f-in select{
+	font: inherit;
+	margin-bottom: 2px;
+	margin-right: 2px;
+}
+
 .ui-f-do {
+	font-size: <%= font_size %>;
 	vertical-align: top; /* jal 20090818 changed from top to middle to align DateInput buttons better/20100708 jal: back to top because LookupInput causes misalignment of labels after it. */
-	padding: 0px;
+	padding-left: 4px;
+}
+
+.ui-f-do textarea {
+	background-color: <%= readonly_bg %>;
 }
 
 /* for forms having the label ABOVE the field (vertical stacked) */
 .ui-fvs-lbl {
 	font-weight: bold;
+	font-size: <%= font_size %>;
+	padding: 2px 4px 2px 2px;
 }
 
 .ui-fvs-in {
+	font-size: <%= font_size %>;
 	vertical-align: top;
 }
 
 .ui-fvs-do { /* displayonly field */
-	background-color: white;
-	padding: 2px;
+	font-size: <%= font_size %>;
+/*	background-color: white; jal 20121025 why? This messes up any redefinition of any background... */
+	padding: 2px 4px 2px 2px;
 }
 
 /* Display-only field */
 .ui-f-display {
+	font-size: <%= font_size %>;
 	vertical-align: top;
 	background: #eff7ff;
 }
 
 /* for forms where the label is above the edit control (vertical). */
-.ui-ro {
+.ui-ro, .ui-ro:hover {
 	/*background: #eff7ff;*/
 	border:1px solid <%= readonly_border %>;
 	background-color: <%= readonly_bg %>;
 }
+input.ui-ro, input.ui-ro:hover {
+	text-align: left;
+	height: 12px !important;
+	margin: 0px !important;
+	padding: 0px !important;
+}
 
-.ui-ro:hover {
-	/*background: #eff7ff;*/
-	border:1px solid <%= readonly_border %>;
-	background-color: <%= readonly_bg %>;
+select.ui-ro, select.ui-ro:hover {
+	border-color: <%= bevel_up %>;
 }
 /*** 125_numeric.frag.css ***/
 /*** Typed presentation for fields containing numerics ***/
@@ -894,6 +1287,10 @@ tr.ui-keyword-popup-row {
 
 TD.ui-numeric {
 	padding-right: 3px;
+}
+
+.ui-dspv.ui-numeric {
+	text-align: left !important;
 }
 /*** 130_imagebutton.frag.css ***/
 /*** Image Button ***/
@@ -936,9 +1333,9 @@ td .ui-ib[class] {
 .ui-xdt-ix {
 	cursor: pointer;
 	background-repeat: no-repeat;
-	background-position: left;
+	background-position: 0px -4px;
 	padding-left: 18px;
-	font-size: 12px;
+	font-size: <%= font_size %>;
 	color: #1700ee;
 	text-decoration: underline !important;
 }
@@ -948,17 +1345,26 @@ div:hover.ui-xdt-clp {
 div:hover.ui-xdt-exp {
 	background-image: url(xdt-expanded.png);
 }
-.ui-xdt-new {
-	background-image: url(btnConfirm.png);
-}
 
 .ui-xdt-edt {
-	background-color: #dffbf7;
+	background-color: <%= data_tbl_expanding_row_bg %>;
 	/*width: 99%;  */
 	vertical-align: top;
-	-moz-border-radius: 5px;
-	border: 1px dotted #333333;
+	border: 1px solid #bababa;
+	margin: 2px 5px 5px 2px;
+	
+	-moz-box-shadow: 2px 2px 10px #AAA;
+	-webkit-box-shadow: 2px 2px 10px #AAA;
+	box-shadow: 2px 2px 10px #AAA;
+	border-bottom: 1px solid #BABABA;
+	border-right: 1px solid #BABABA;
+	filter: progid:DXImageTransform.Microsoft.Shadow(color='#BABABA', Direction=135, Strength=7);
 }
+
+.ui-xdt-edt td{
+	padding-left: 2px;
+}
+
 .ui-xdt-nores {
 	padding: 10px 0px 10px 0px;
 	font-style: italic;
@@ -970,23 +1376,54 @@ div.ui-dt {
 	position: relative;
 }
 
-.ui-dt th {
+div.ui-dt table td{
+	border: 0;
+	margin: 0;
+	padding: 0px 3px;
+	border-left: 1px solid #bababa; /* gray so it is theme invariant */
+	height: 19px;
+	vertical-align: middle;
+}
+div.ui-dt table td * {
+	vertical-align: middle;
+}
+
+div.ui-dt table{
+	overflow: auto;
+	position: relative;
+	border-right: 1px solid #bababa;
+	border-bottom: 1px solid #bababa;
+	border-spacing: 2px;
+}
+
+.ui-dt th, .ui-dt-hdr {
+	padding: 0px 3px;
+	border-left: none !important;
+	background: <%=	data_tbl_header_bg %>;
+	background-image: url(<%= data_tbl_header_bg_img %>);
+	color: <%= data_tbl_header_text_color %>;
+	border-bottom: 1px solid <%= data_tbl_header_btm_border %>;
 	text-align: left;
 	font-weight: bold;
-	padding: 0px 3px;
-	vertical-align: top;
+	height: 18px;
+	vertical-align: middle;
 }
 
-.ui-dt tbody td {
-	padding: 0px 3px;
+.ui-dt th:FIRST-CHILD, .ui-dt-hdr:FIRST-CHILD {
+	border-left: 1px solid <%= data_tbl_header_btm_border %> !important;
 }
 
-.ui-dt-hdr {
-	/* default domui table header style is still to be defined */
+.ui-dt th:LAST-CHILD, .ui-dt-hdr:LAST-CHILD {
+	border-right: 1px solid <%= data_tbl_header_btm_border %>;
+}
+
+.ui-dt tbody tr > td.ui-f-lbl:first-child {
+	min-width: 150px;
+	margin-left: 10px;
 }
 
 .ui-dt-nores {
-	padding: 10px 0px 10px 0px;
+	padding: 0px 0px 10px 0px;
 	font-style: italic;
 }
 
@@ -994,7 +1431,7 @@ div.ui-dt {
 }
 
 .ui-even {
-	background-color: <%= even_bg %>;
+	background: <%= data_tbl_even_row_bg %>;
 }
 
 tr.ui-rowsel {
@@ -1012,7 +1449,8 @@ td.ui-cellsel {
 
 td.ui-cellsel:hover {
 	text-decoration: underline;
-	background-color: <%= cellhighlight_bg %> !important;
+	background-color: <%= data_tbl_cell_highlight_bg %> !important;
+	color: <%= data_tbl_cell_highlight_link_color_bg %>;
 }
 
 th.ui-sortable {
@@ -1024,23 +1462,26 @@ div.ui-sortable {
 }
 
 .ui-sortable img {
-	top: 2px;
-	left: -2px;
+	top: -3px;
 	position: absolute;
 	border: 0px;
 }
 
 .ui-sortable span {
-	margin-left: 8px;
+	margin-left: 10px;
 }
 
-tbody td.ui-dt-separator {
+.ui-dt {
+	font-size: <%= data_tbl_font_size %>;
+}
+
+.ui-dt-separator {
 	background: url(bg-horiz-separator.png) repeat-x center;
 	padding: 1px;
 }
 
 .ui-dt .mselected {
-	background-color: #dedeff; /* 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
+	background-color: <%= highlight2_bg %>; /* 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
 }
 /*** 145_smallimgbutton.frag.css ***/
 /*** Small Image button ***/
@@ -1062,122 +1503,166 @@ tbody td.ui-dt-separator {
 .ui-sib:hover {
 	background-color: <%= header_bg %> !important;
 }
+
+.ui-sib[disabled] {
+	cursor: default;
+}
+
+.ui-sib[disabled] img {
+	filter: url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><filter id=\'grayscale\'><feColorMatrix type=\'matrix\' values=\'0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0\'/></filter></svg>#grayscale"); /* Firefox 3.5+ */
+	-moz-filter: grayscale(100%);
+	filter: gray; /* IE6-9 */
+    -webkit-filter: grayscale(1); /* Google Chrome & Safari 6+ */
+}
+
+.ui-sib[disabled]:hover {
+	background: none !important;
+}
 /*** 150_caption.frag.css ***/
 /*** Caption ***/
 .ui-cptn {
-	border: 1px solid <%= header_bg %>;
-	padding: 2px 4px 2px 4px;
 	font-weight: bold;
-	background: url(bg-header.png.svg) repeat-x;
-/*	margin-top: 10px; jal 20120213 removed: header should not define it's upper location, because it cannot be used at the top of a screen! */
+	background: <%= header_bg %>;
+	color: <%= bg_ttl_text %>;
+	<%= margins_neutralize %>
+	margin-top: 0px;
 }
+
+.ui-cptn table {
+	height: 21px;
+}
+
+.ui-cptn div {
+	padding-top: 13px;
+	padding-bottom: 5px;
+	font-size: large;
+}
+
+.ui-cptn .ui-cptn-ttl {
+	width: 1%;
+	padding-left: 5px;
+}
+
+.ui-cptn .ui-cptn-btn {
+	text-align: left;
+	vertical-align: bottom;
+	padding-left: 5px;
+	padding-bottom: 2px;
+}
+
+.ui-cptn-first{}
 /*** 155_captionedpanel.frag.css ***/
 /*** CaptionedPanel ***/
 .ui-pnl-outer {
 	background-color: white;
-	padding: 1px;
-	border: 1px solid <%= header_bg %>;
 }
 
 .ui-pnl-caption {
-	border: 1px solid <%= header_bg %>;
 	padding: 2px 4px 2px 4px;
 	font-weight: bold;
-	background: url(bg-header.png.svg) repeat-x;
+	font-size: 120%;
+	color: <%= bg_ttl_text %>;
+	background: <%= header_bg %>;
 }
 
 .ui-pnl-cont {
 	position: relative;
 	padding: 5px;
+	border: 1px solid <%= header_bg %>;
 }
 /*** 160_errorpanel.frag.css ***/
 /*** ErrorPanel - a CaptionedPanel used to display errors in the page ***/
 .ui-err-outer { /*	background-color: #ffe5e5; */
 	background-color: white;
 	padding: 1px;
-	border: 1px solid <%= error_bg %>;
+	border: 1px solid <%= errors_background %>;
 	margin-bottom: 5px;
 }
 
 .ui-err-caption {
-	border: 1px solid <%= error_bg %>;
+	border: 1px solid <%= errors_background %>;
 	padding: 2px 4px 2px 4px;
 	font-weight: bold;
 	background: url(bg-errors.png) repeat-x bottom;
 }
 
 .ui-input-err, .ui-input-err textarea {
-	background-color: <%= error_input_bg %> !important;
+	background-color: <%= errors_input_background %> !important;
 }
+
 /*** 165_tabpanel.frag.css ***/
 /*** The tab control, using the "sliding doors" technique as in http://www.alistapart.com/articles/slidingdoors/ ***/
+.ui-tab-c {
+	margin: 0px -<%= margins_main %> <%= margins_main %> -<%= margins_main %>;
+}
+.ui-tab-hdr ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+.ui-tab-li {
+	margin: 0;
+	padding: 0;
+}
+
 .ui-tab-hdr {
 	float: left;
-	font-size: 12px;
+	font-size: <%= font_size %>;
 	line-height: normal;
-	border-bottom: 1px solid black;
 	width: 100%;
+	margin: 0px 0px <%= margins_main %>;
 }
 
-.ui-tab-hdr ul {
-	margin: 0;
-	padding: 8px 10px 0;
-	list-style: none;
-}
-
-.ui-tab-hdr  li {
-	float: left;
-	margin: 0;
-	padding: 0 0 0 8px;
-	background: url(tab-off-left.png) no-repeat left top;
-}
-
-li.ui-tab-err {
-	float: left;
-	margin: 0;
-	padding: 0 0 0 8px;
-	background: url(tab-off-err-left.png) no-repeat left top;
+.ui-tab-hdr li {
+    background: url("<%= tab_pnl_img %>") no-repeat scroll left -200px transparent;
+    float: left;
+    margin: 0;
+    padding: 0 0 0 8px;
+    cursor: pointer;
+    list-style: none;
 }
 
 .ui-tab-hdr a {
-	display: block;
-	background: url(tab-off-right.png) no-repeat right top;
-	padding: 5px 14px 4px 6px;
-	text-decoration: none;
-	font-weight: bold;
-	color: <%= tab_fg %>;
+	background: url("<%= tab_pnl_img %>") no-repeat scroll right -250px transparent;
+    display: block;
+    font-weight: bold;
+    padding: 9px 14px 0px 6px;
+    text-decoration: none;
+ 	min-height: 22px;
+ 	color: <%= tab_pnl_inactive_col %>;
+ 	margin-right: 0px !important;
 }
 
-.ui-tab-hdr ul a:hover {
-	color: <%= tab_link_color %>;
+.ui-tab-hdr img {
+	vertical-align: top;	
 }
 
-.ui-tab-hdr .ui-tab-sel {
-	background-image: url(tab-norm-left-sel.png);
+.ui-tab-hdr li:hover {
+	background-position: left -300px;
 }
 
-.ui-tab-hdr .ui-tab-err a {
-	background-image: url(tab-off-err-right.png);
+.ui-tab-hdr li:hover a{
+	background-position: right -350px;
+	color: <%= tab_pnl_hover_inactive_col %>;
 }
 
-.ui-tab-hdr .ui-tab-sel a {
-	background-image: url(tab-norm-right-sel.png);
+.ui-tab-hdr li.ui-tab-sel, 
+.ui-tab-hdr li.ui-tab-sel:hover {
+	background-position: left top;
 }
 
-.ui-tab-err a {
-	color: <%= error_fg %>;
+.ui-tab-hdr li.ui-tab-sel a, 
+.ui-tab-hdr li.ui-tab-sel:hover a {
+	background-position: right -50px;
+	color: <%= tab_pnl_active_col %>;
+}
+
+li.ui-tab-err a {
+	color: <%= errors_foreground %> !important;
 }
 
 .ui-tab-icon {
 	padding-right: 5px;
-}
-
-.ui-tab {
-	position: relative; /* jal new 20070625 */
-	clear: both;
-	background-color: #ffffff;
-	border: 1px solid <%= header_bg %>;
-	padding: 0px;
 }
 
 .ui-tab-tabbar {
@@ -1188,84 +1673,186 @@ li.ui-tab-err {
 .ui-tab-pag {
 	border-top: 1px solid black;
 }
+
+.ui-tab-ibte {
+	height: 31px;
+	background: <%= tab_pnl_sep_bg %>;
+	overflow: hidden;
+}
+
+li.ui-tab-ibt {
+	background: <%= tab_pnl_sep_bg %>;
+	height: 31px;
+	width: 3px;
+	padding: 0px;
+	margin: 0px;
+}
+
+div.ui-tab-hdr li, div.ui-tab-ibte {
+	border-bottom: <%= tab_pnl_btm_border %> solid #727272;
+}
+
+div.ui-tab-hdr li.ui-tab-sel {
+	border-bottom: 0px;
+}
+
+li.ui-tab-ibt:FIRST-CHILD {
+	width: 10px;
+}
+
+.ui-tab-pg {
+	padding: 0px 10px;
+}
+
+.ui-tab-pg .ui-buttonbar, .ui-tab-pg .ui-szless {
+	margin-left: 0px;
+}
 /*** 170_scrollabletabpanel.frag.css ***/
 /*** ScrollableTabPanel ***/
+.ui-stab-c {
+	margin: 0px -<%= margins_main %> <%= margins_main %> -<%= margins_main %>;
+}
+
 .ui-stab-hdr {
 	float: left;
-	font-size: 12px;
+	font-size: <%= font_size %>;
 	line-height: normal;
+	margin: 9px 0px 10px;
+	height: 32px;
 }
 
-.ui-stab-hdr ul {
-	margin: 0;
-	padding: 8px 0px 0;
-	list-style: none;
-}
-
-.ui-stab-hdr  li {
-	float: left;
-	margin: 0;
-	padding: 0 0 0 8px;
-	background: url(tab-off-left.png) no-repeat left top;
+.ui-stab-hdr li {
+    background: url("<%= tab_pnl_img %>") no-repeat scroll left -200px transparent;
+    float: left;
+    margin: 0;
+    padding: 0 0 0 8px;
+    cursor: pointer;
+    list-style: none;
 }
 
 .ui-stab-hdr a {
-	display: block;
-	background: url(tab-off-right.png) no-repeat right top;
-	padding: 5px 14px 4px 6px;
-	text-decoration: none;
-	font-weight: bold;
-	color: <%= tab_fg %>;
+	background: url("<%= tab_pnl_img %>") no-repeat scroll right -250px transparent;
+    display: block;
+    font-weight: bold;
+    padding: 9px 14px 0px 6px;
+    text-decoration: none;
+ 	min-height: 22px;
+ 	color: <%= tab_pnl_inactive_col %>;
 }
 
-.ui-stab-hdr ul a:hover {
-	color: <%= tab_link_color %>;
+.ui-stab-hdr li:hover {
+	background-position: left -300px;
 }
 
-.ui-stab-hdr .ui-tab-sel {
-	background-image: url(tab-norm-left-sel.png);
+.ui-stab-hdr li:hover a{
+	background-position: right -350px;
+	color: <%= tab_pnl_hover_inactive_col %>;
 }
 
-.ui-stab-hdr .ui-tab-err a {
-	background-image: url(tab-off-err-right.png);
+.ui-stab-hdr li.ui-stab-sel, 
+.ui-stab-hdr li.ui-stab-sel:hover {
+	background-position: left top;
 }
 
-.ui-stab-hdr .ui-tab-sel a {
-	background-image: url(tab-norm-right-sel.png);
+.ui-stab-hdr li.ui-stab-sel a, 
+.ui-stab-hdr li.ui-stab-sel:hover a {
+	background-position: right -50px;
+	color: <%= tab_pnl_active_col %>;
 }
 
-.ui-stab-scrl {
-	border-bottom: 1px solid black;
+li.ui-stab-err a {
+	color: <%= errors_foreground %> !important;
+}
+
+.ui-stab-icon {
+	padding-right: 5px;
+}
+
+.ui-stab-tabbar {
+	margin: 0px;
+	padding: 0px;
+}
+
+.ui-stab-pag {
+	border-top: 1px solid black;
+}
+
+.ui-stab-ibte {
+	height: 31px;
+	background: <%= tab_pnl_sep_bg %>;
+	overflow: hidden;
+}
+
+li.ui-tab-ibt {
+	background: <%= tab_pnl_sep_bg %>;
+	height: 31px;
+	width: 3px;
+	padding: 0px;
+	margin: 0px;
+}
+
+li.ui-stab-ibt:FIRST-CHILD {
+	width: 10px;
+}
+
+.ui-stab-pg {
+	padding: 0px 10px;
+}
+
+.ui-stab-pg .ui-buttonbar, .ui-stab-pg .ui-szless {
+	margin-left: 0px;
 }
 
 .ui-stab-scrl-left {
-	background: url(tab-scrl-left1.png) no-repeat transparent center;
+	background: url(<%= tab_pnl_arrows %>) no-repeat transparent center;
+	background-position: 0px 0px;
+	background-color: <%= tab_pnl_sep_bg %>;
 	border:0 none;
 	margin:0;
-	visibility:hidden;
 	display:block;
 	width: 15px;
-	height: 24px;	
+	height: 31px;
+	margin: 0px 0px <%= margins_main %>;
 }
 
 .ui-stab-scrl-left:hover {
-	background: url(tab-scrl-left.png) no-repeat transparent center;
+	background-position: -15px 0px;
 	cursor: pointer;
 }
 
 .ui-stab-scrl-right {
-	background: url(tab-scrl-right1.png) no-repeat transparent center;
+	background: url(<%= tab_pnl_arrows %>) no-repeat transparent center;
+	background-position: 0px -31px;
+	background-color: <%= tab_pnl_sep_bg %>;
 	border:0 none;
 	margin:0;
-	visibility:hidden;	
 	display:block;
 	width: 15px;
-	height: 24px;	
+	height: 31px;
 }
 
 .ui-stab-scrl-right:hover {
-	background: url(tab-scrl-right.png) no-repeat transparent center;
+	background-position: -15px -31px;
 	cursor: pointer;
+}
+
+.ui-stab-dis {
+	background: <%= tab_pnl_sep_bg %>;
+	cursor: default !important;
+}
+
+div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
+	border-bottom: <%= tab_pnl_btm_border %> solid #727272;
+}
+
+.ui-stab-hdr li.ui-tab-sel {
+	background-position: left top;
+	border-bottom: 0px;
+}
+
+.ui-stab-hdr li.ui-tab-sel a{
+	background-position: right -50px;
+	color: <%= tab_pnl_active_col %>;
 }
 /*** 175_iohideroverlay.frag.css ***/
 /*** IO hider overlay ***/
@@ -1286,7 +1873,7 @@ li.ui-tab-err {
 	position: fixed;
 	top: 0px;
 	left: 0px;
-	background: black url(io-blk-wait.gif) no-repeat center center; 
+	background: black url(<%= io_blk_wait %>) no-repeat center center; 
 	filter:alpha(opacity=50);
 	z-index: 1000;
 }
@@ -1341,10 +1928,6 @@ li.ui-tab-err {
 .no-wrap{
 	white-space: nowrap;
     overflow: hidden;
-}
-.ui-szless {
-	padding: 0px;
-	margin: 0px;
 }
 .ui-clickable {
 	cursor: pointer;
@@ -1402,7 +1985,6 @@ li.ui-tab-err {
 	overflow: hidden;
 	position: absolute;
 	background: url(colorpicker_background.png);
-	font-family: Arial, Helvetica, sans-serif;
 	display: none;
 }
 .colorpicker_color {
@@ -1471,7 +2053,6 @@ li.ui-tab-err {
 	border: 1px solid transparent;
 	position: absolute;
 	font-size: 10px;
-	font-family: Arial, Helvetica, sans-serif;
 	color: #898989;
 	top: 4px;
 	right: 11px;
@@ -1575,14 +2156,31 @@ li.ui-tab-err {
 	left: 4px;
 	top: 4px;
 }
+
+/*** ColorPickerInput ***/
+.ui-cpin {
+}
+.ui-cpin-div {
+        display: inline-block;
+        margin-top: 5px;
+        border: 1px solid grey;
+        height: 11px;
+        width: 20px;
+}
 /*** 210_popupmenu.frag.css ***/
 /*** Popup menu ***/
 .ui-pmnu {
 	display: none;
-	width: 200px;
-	background-color: grey;
+	width: auto;
+	background-color: #444;
 	border: 1px dotted black;
 	-moz-border-radius: 5px;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	overflow: hidden;
+}
+.ui-pmnu-items {
+	padding: 4px 0px;
 }
 .ui-pmnu-disabled {
 	color: #999;
@@ -1604,9 +2202,34 @@ li.ui-tab-err {
 	background-repeat: no-repeat;
 	background-position: 2px 4px;
 }
+.ui-pmnu-action img {
+	padding-left: 5px;
+}
+
 .ui-pmnu-action:hover {
 	background-color: #ff9436;
 }
+.ui-pmnu-subsel {
+	background-color: #ff9436;
+}
+
+/*** Submenu's ***/
+.ui-pmnu-sm {
+	float: left;
+	width: auto;
+	padding-bottom: 100%;
+	margin-bottom: -100%;
+}
+.ui-pmnu-sm1 {
+	background-color: #666;
+}
+.ui-pmnu-sm2 {
+	background-color: #888;
+}
+.ui-pmnu-sm3 {
+	background-color: #aaa;
+}
+
 /*** 215_layout.frag.css ***/
 /*** Layout styles ***/
 /* jquery-layout css. */
@@ -1753,72 +2376,189 @@ li.ui-tab-err {
 	padding: 0;
 	margin: 0;
 	/*	border: 1px solid black; */
-	background: url(bg-body.png) repeat-x white;
-	border: 1px solid #cccccc;
+	background: url(<%= body_image %>) repeat-x <%= bg_color %>;
+	background-position: 50px 0px;
 	border-top: none;
 	/*	overflow: hidden;	*/
-	top: 5%;
-	left: 50%;
+/*	top: 5%;
+	left: 50%; */
 }
 
 .ui-flw-ttl {
-/*	position: absolute;
-	top: 0px;
-	height: 20px;
-	left: 0px;
-	right: 0px; */
-	
-	height: 20px;
-	padding: 0;
-	padding: 2px;
-	background: url(bg-float-ttl2.png) repeat-x;
+	height: 22px;
+	padding: 3px 2px 3px 3px;
+	background: url(<%= bg_ttl_gradient %>) repeat-y;
+	background-color: <%= bg_ttl_end %>;
+	color: <%= bg_ttl_text %>;
 	border-bottom: 1px solid #eeeeee;
-	font-size: 15px;
+	font-size: 140%;
 	font-weight: bold;
 }
 
 .ui-flw-c {
-	width: 100%;
-	padding: 0;
+	padding: <%= margins_main %>;
 	margin: 0;
 	overflow: auto;
 }
 .ui-flw-tc {
 	width: 100%;
-	height: 5px;
+	height: 0px;
+}
+.ui-flw-tc .ui-buttonbar {
+	margin: <%= margins_main %>;
+	margin-bottom: 0px;
 }
 
 .ui-flw-bc {
 	width: 100%;
-	height: 5px;
+}
+
+.ui-flw-bc .ui-bb-middle {
+	padding: 0px <%= margins_main %> <%= margins_main %> <%= margins_main %>;
+	text-align: right;
 }
 
 .ui-flw-hider {
 	height: 100%;
 	width: 100%;
-	opacity: 0.5;
 	position: fixed;
 	top: 0px;
 	left: 0px;
 	background-color: black;
-	filter:alpha(opacity=50);
+	opacity: 0.3;
+	filter:alpha(opacity=30);
 }
 
 .ui-flw-btn-close {
-	margin-top: -1px;
-	margin-right: -2px;
+	padding: 0px;
+}
+
+.ui-flw .ui-emd {
+	<%= margins_neutralize %>
 }
 /*** 230_defaultbutton.frag.css ***/
-/*** DefaultButton (replaces old version, this one uses hover effects) ***/
-.ui-dbtn {
-	margin: 2px;
-	background: none;
+/*** New default button, uses sliding doors and a single bg image ***/
+.ui-sdbtn {
+	height: <%= button_height %>px;
+	position: relative;
+	border: 0;
+	padding: 0 10px 0 0;
+	margin: 0 4px 0 0;
+	vertical-align: top;
+	cursor: pointer;
+	overflow: visible; /* remove extra padding in IE */
+	background: transparent url(<%= button_img %>) no-repeat right -50px;
+	outline: none;
+	font: inherit;
 }
-.ui-dbtn:HOVER, .ui-dbtn:FOCUS {
-	background-position: 0px -<%= defaultbutton_height %>px;
+
+@-moz-document url-prefix() { /** btadic 20120711 Firefox is adding strange left padding to the buttons **/
+	.ui-sdbtn {
+		margin-left: -2px;
+	}
 }
-.ui-dbtn[disabled] {
-	background-position: 0px -<%= defaultbutton_height*2 %>px !important;
+
+.ui-sdbtn img {
+	padding-right: 3px;
+	vertical-align: middle;
+	height: 16px;
+}
+.ui-sdbtn[disabled] img {
+	filter: url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><filter id=\'grayscale\'><feColorMatrix type=\'matrix\' values=\'0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0\'/></filter></svg>#grayscale"); /* Firefox 3.5+ */
+	-moz-filter: grayscale(100%);
+	filter: gray; /* IE6-9 */
+    -webkit-filter: grayscale(1); /* Google Chrome & Safari 6+ */
+}
+
+.ui-sdbtn::-moz-focus-inner {
+	border: none; /* overrides extra padding in ffox */
+}
+.ui-sdbtn span {
+	position: relative;
+	display: block;
+	min-width: 94px;
+	white-space: nowrap;
+	height: <%= button_height %>px;
+	padding: 3px 0 0 6px;
+	color: white;
+	font-weight: bold;
+	vertical-align: middle;
+	text-align: left;
+	background: transparent url(<%= button_img %>) no-repeat left top;
+}
+
+.ui-sdbtn:hover, .ui-sdbtn:focus {
+	background-position: right -150px;
+}
+.ui-sdbtn:hover span, .ui-sdbtn:focus span {
+	background-position: left -100px;
+}
+
+/* support for disabled attribute */
+.ui-sdbtn[disabled], .ui-sdbtn[disabled]:hover, .ui-sdbtn[disabled]:focus {
+	background-position: right -250px;
+}
+.ui-sdbtn[disabled] span, .ui-sdbtn[disabled]:hover span, .ui-sdbtn[disabled]:focus span {
+	background-position: left -200px;
+}
+
+/*** DefaultButton in 'mini' mode ***/
+.ui-sdbtn-mini {
+	height: 16px;
+	position: relative;
+	top:1px;
+	border: 0;
+	padding: 0 8px 0 0;
+	margin: 0 4px 0 0;
+	vertical-align: top;
+	cursor: pointer;
+	overflow: visible; /* remove extra padding in IE */
+	background: transparent url(<%= button_img %>) no-repeat -7px -4px;
+	outline: none;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
+	-webkit-border-radius: 2px;
+}
+
+@-moz-document url-prefix() { /** btadic 20120711 Firefox is adding strange left padding to the buttons **/
+	.ui-sdbtn-mini {
+		margin-left: -2px;
+	}
+}
+
+.ui-sdbtn-mini img {
+	padding-right: 3px;
+	vertical-align: middle;
+	height: 16px;
+}
+.ui-sdbtn-mini::-moz-focus-inner {
+	border: none; /* overrides extra padding in ffox */
+}
+.ui-sdbtn-mini span {
+	position: relative;
+	display: block;
+	white-space: nowrap;
+	height: 16px;
+	padding: 0 0 0 6px;
+	color: white;
+	font-weight: bold;
+	vertical-align: middle;
+	text-align: left;
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+	/* Safari and Google Chrome only - fix margins */
+	.ui-sdbtn-mini span {
+		margin-top: -1px;
+	}
+}
+.ui-sdbtn-mini:hover, .ui-sdbtn-mini:focus {
+	background-position: -7px -104px;
+}
+
+/* support for disabled attribute */
+.ui-sdbtn-mini[disabled], .ui-sdbtn-mini[disabled]:hover, .ui-sdbtn-mini[disabled]:focus {
+	background-position: -7px -204px;
 }
 /*** 235_flare.frag.css ***/
 /*** Flare component. ***/
@@ -1829,21 +2569,23 @@ li.ui-tab-err {
 	left: 100px;
 	width: auto;
 	height: auto;
-	-moz-border-radius: 5px 5px;
-	border: 1px dotted grey;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border: 1px solid #4075db;
 	padding: 15px;
 }
 .ui-flare-error {
-	background: <%= error_bg %>;
-	color: <%= error_fg %>
+	background: <%= errors_background %>;
+	color: <%= errors_foreground %>
 }
 .ui-flare-info {
 	background: <%= info_bg %>;
 	color: <%= info_fg %>
 }
 .ui-flare-warning {
-	background: <%= warning_bg %>;
-	color: <%= warning_fg %>
+	background: <%= warnings_background %>;
+	color: <%= warnings_foreground %>
 }
 .ui-flare-msg {
 	opacity: 0.9;
@@ -1863,31 +2605,148 @@ li.ui-tab-err {
 }
 /*** 240_labelselector.frag.css ***/
 /*** LabelSelector component ***/
-.ui-lsel-sel {
-        border-color:#ABADB3 #BFCDD9 #BFCDD9;
-        border-style:solid;
-        border-width:1px;
-        -moz-border-radius: 2px;
-        padding: 4px;
-}
 .ui-lsel {
-        -moz-border-radius: 4px;
-        border: 1px dotted grey;
-        margin: 2px;
-        padding: 2px;
-        background-color: cyan;
+	display: inline-block;
+	background: white;
+	margin-right: 2px;
+	margin-bottom: 2px;
+	border-color: <%= bevel_up %> <%= bevel_down %> <%= bevel_down %>;
+	border-style: solid;
+	border-width: 1px;
 }
+.ui-lsel-item {
+	display: inline-block;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border: 1px solid <%= multiple_lookup_label_color %>;
+	margin: 1px;
+	padding: 2px;
+	background-color: <%= multiple_lookup_label_border %>;
+}
+.ui-lsel-btn {
+	display: inline-block;
+	margin-left: 5px;
+	width: 14px;
+	height: 14px;
+	background-image: url(btnClose.png);
+	background-size: 14px 14px;
+}
+
 .ui-lsel img {
-/*      margin: 5px; */
-        padding-left: 5px;
-        padding-bottom: 2px;
-        vertical-align: bottom;
-        background-color: cyan;
+	padding-left: 5px;
+	padding-bottom: 2px;
+	vertical-align: middle;
 }
-.ui-lsel-sel input {
-        border: none;
+.ui-lsel input {
+	border: none;
+	outline: none;
+	vertical-align: top;
+	height: 18px;
+	margin: 0px 0px 0px 2px;
+	padding: 0px;
+	display: inline-block;
 }
+.ui-lui-keyword-no-res {
+	display: inline-block;
+	margin: 4px;
+}
+
 /*** 245_bulkupload.frag.css ***/
+/*** BulkUpload component ***/
+.ui-bupl {
+}
+.ui-bupl-wrp {
+	width: 360px;
+	background-color: white;
+	border: 1px solid <%= header_bg %>;
+}
+.ui-bupl-ttl {
+/*	border: 1px solid <%= header_bg %>; */
+	padding: 2px 4px 2px 4px;
+	font-weight: bold;
+	background: <%= header_bg %>;
+}
+.ui-bupl-legend {
+	color: <%= bg_ttl_text %>; 
+}
+
+.ui-bupl .swfupload {
+	position: absolute;
+	z-index: 1;
+	vertical-align: top;
+}
+<% var buplround = 5; %>
+.ui-bupl-queue {
+	width: 354px;
+	min-height: 40px;
+	height: auto;
+	max-height: 400px;
+	overflow: auto;
+}
+/* BulkUpload: single queued file progress indicator. */
+.ui-bupl-file {
+	width: 350px;
+	overflow: hidden;
+}
+.ui-bupl-inner {
+	margin: 5px;
+	padding: 4px;
+	overflow: hidden;
+}
+.ui-bupl-pending {
+	border: 1px solid #888;
+	background-color: #bbb;
+}
+.ui-bupl-running {
+	border: 1px solid <%= util.color(upl_runing).lighter(0.6) %>;
+	background-color: <%= util.color(upl_runing).lighter(0.6) %>;
+}
+.ui-bupl-complete {
+	border: 1px solid <%= upl_runing %>;
+	background-color: <%= upl_runing %>;
+}
+.ui-bupl-error {
+	border: 1px solid #ff4900;
+	background-color: #ffebeb;	
+}
+.ui-bupl-name {
+	font-size: 12px;
+	color: #000;
+	width: 300px;
+	height: 14px;
+	text-align: left;
+	white-space: nowrap;
+	overflow: hidden;
+}
+.ui-bupl-cancl {
+	font-size: 0;
+	display: block;
+	height: 14px;
+	width: 14px;
+	background-image: url(bupl-cancel.png);
+	background-repeat: no-repeat;
+	background-position: -14px 0px;
+	float: right;
+}
+.ui-bupl-cancl:hover {
+	background-position: 0px 0px;
+}
+.ui-bupl-stat {
+	margin-top: 2px;
+	width: 300px;
+	font-size: 10px;
+	text-align: left;
+	white-space: nowrap;
+}
+
+.ui-bupl-perc {
+	font-size: 0;
+	width: 0%;
+	height: 2px;
+	background-color: <%= util.color(upl_loading).lighter(0.2) %>;
+	margin-top: 2px;
+}
 /*** BulkUpload component ***/
 .ui-bupl {
 }
@@ -1983,6 +2842,115 @@ li.ui-tab-err {
 	background-color: blue;
 	margin-top: 2px;
 }
+.ui-idlg-pnl {}
+
+.ui-idlg-pnl label {
+	width: 1%;
+	min-width: 150px;
+	font-weight: bold;
+	display: inline-block;
+	text-align: right;
+}
+
+.ui-idlg-pnl input {
+	vertical-align: top;
+}
+/*** 255_datapager.frag.css ***/
+/*** Result table pager ***/
+.ui-dp {
+	margin-top: 2px;
+	margin-left: 4px;
+	padding: 0px;
+}
+.ui-dp-btns {
+	margin-left: -9px;	
+}
+
+.ui-dp-btns a{
+	height: <%= data_pager_icon_size_y %>px;
+	width: <%= data_pager_icon_size_x %>px;
+	display: inline-block;
+	padding: 0px;
+	margin-left: -3px;
+	outline: 0; 				/* btadic 20120712: Removing dotted border form focused button */
+	background-repeat: no-repeat;
+	background: url(<%= data_pager_icons %>);
+}
+
+.ui-dp-btns a.ui-dp-nav-f {
+	background-position: 0px 0px;
+}
+.ui-dp-btns a.ui-dp-nav-f:HOVER {
+	background-position: 0px <%= -data_pager_icon_size_y %>px;
+}
+.ui-dp-btns a.ui-dp-nav-f-dis {
+	background-position: 0px <%= -2 * data_pager_icon_size_y %>px;
+}
+
+.ui-dp-btns a.ui-dp-nav-p {
+	background-position: <%= -1 * data_pager_icon_size_x %>px <%= 0 * data_pager_icon_size_y %>px;
+}
+.ui-dp-btns a.ui-dp-nav-p:HOVER {
+	background-position: <%= -1 * data_pager_icon_size_x %>px <%= -1 * data_pager_icon_size_y %>px;
+}
+.ui-dp-btns a.ui-dp-nav-p-dis {
+	background-position: <%= -1 * data_pager_icon_size_x %>px <%= -2 * data_pager_icon_size_y %>px;
+}
+
+.ui-dp-btns a.ui-dp-nav-n {
+	background-position: <%= -2 * data_pager_icon_size_x %>px <%= 0 * data_pager_icon_size_y %>px;
+}
+.ui-dp-btns a.ui-dp-nav-n:HOVER {
+	background-position: <%= -2 * data_pager_icon_size_x %>px <%= -1 * data_pager_icon_size_y %>px;
+}
+.ui-dp-btns a.ui-dp-nav-n-dis {
+	background-position: <%= -2 * data_pager_icon_size_x %>px <%= -2 * data_pager_icon_size_y %>px;
+}
+
+.ui-dp-btns a.ui-dp-nav-l {
+	background-position: <%= -3 * data_pager_icon_size_x %>px <%= 0 * data_pager_icon_size_y %>px;
+}
+.ui-dp-btns a.ui-dp-nav-l:HOVER {
+	background-position: <%= -3 * data_pager_icon_size_x %>px <%= -1 * data_pager_icon_size_y %>px;
+}
+.ui-dp-btns a.ui-dp-nav-l-dis {
+	background-position: <%= -3 * data_pager_icon_size_x %>px <%= -2 * data_pager_icon_size_y %>px;
+}
+/*** 250_smallhoverbutton.frag.css ***/
+/*** Small Hover Button ***/
+.ui-smhb {
+	width: 16px;
+	height: 16px;
+	border: none;
+	background-color: transparent;
+	cursor: pointer;
+	padding: 0;
+	margin: 3px;
+}
+
+.ui-smhb:hover {
+	background-position: 0px -16px;
+}
+/*** 340_dateinput.frag.css ***/
+/*** Date input ***/
+.ui-di-sib {
+	vertical-align: top;
+	padding: 0px 1px 0px 1px;
+	margin: 0px;
+	border: 0px;
+	background: transparent;
+	cursor: pointer;
+}
+
+.ui-di-sib img {
+	padding: 0px;
+	margin: 0px;
+	border: 0px;
+}
+
+.ui-di-sib:hover {
+	background-color: <%= data_tbl_header_bg %> !important;
+}
 /*** MessageLine ***/
 .ui-msgln {
 	padding: 4px 0px;
@@ -1992,6 +2960,42 @@ li.ui-tab-err {
 }
 .ui-msgln-txt {
 	padding-left: 4px;
+}
+/*** 350_logtailer.frag.css ***/
+/*** Log tailer fragment ***/
+.ui-tlf-line {
+	font-family: Consolas, Liberation Mono, Courier, monospace;
+}
+.ui-tlf-lnr {
+	font: inherit;
+	width: 50px;
+	text-align: right;
+	background-color: #ccc;
+}
+.ui-tlf-l {
+	font: inherit;
+}
+.ui-tlf-hdr {
+	height: 2em;
+	background-color: #ff9436;
+}
+.ui-tlf-hdr img {
+}
+.ui-tlf-hdr input[type="checkbox"] {
+	vertical-align: middle;
+}
+
+.ui-tlf-btn {
+	display: inline-block;
+	width: 360px;
+}
+
+.ui-tlf-sz {
+	display: inline-block;
+	width: 140px;
+}
+.ui-tlf-sz span {
+	font-weight: bold;
 }
 /*** Asy IO failure dialog ***/
 .ui-ioe-asy {
@@ -2026,4 +3030,55 @@ li.ui-tab-err {
 	width: 32px;
 	height: 32px;
 	background-image: url(data:image/gif;base64,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);
+}
+.ui-cbis {
+	display: inline;
+}
+/*** 400_datacelltable.frag.css ***/
+.ui-dct {
+}
+
+.ui-dct-item {
+	padding: 3px;
+	border: 1px solid transparent;
+}
+
+.ui-dct-selected {
+	background-color: cyan;
+	border: 1px solid black;
+}
+.ui-dct td {
+	vertical-align: top;
+}
+/*** 410_sizedpanel ***/
+.ui-szdp {
+	background: <%= bg_color %>;
+}
+
+.ui-panel {
+	background-color: <%= bg_color %>; 
+}
+/*** 420_caption2 ***/
+.ui-cptn2 {
+} 
+
+/*-- alg substyle --*/
+.ui-cptn2-alg {
+	font-size: large;
+	background: <%= header_bg %>;
+	color: <%= bg_ttl_text %>;
+	margin-top: 0px;
+}
+
+
+/*-- pnl substyle --*/
+.ui-cptn2-pnl {
+	font-size: large;
+	background: <%= header_bg %>;
+	color: <%= bg_ttl_text %>;
+	margin-top: 0px;
+}
+/*** ContentPanel ***/
+.ui-cpnl {
+	padding: 10px 0px 0px 10px;
 }

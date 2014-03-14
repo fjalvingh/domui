@@ -70,7 +70,7 @@ public class BasicPropertyMetaModel<T> {
 	/** T if marked as @Transient */
 	private boolean m_transient;
 
-	private ControlFactory m_controlFactory;
+	private PropertyControlFactory m_controlFactory;
 
 	@Nonnull
 	private String[] m_columnNames = NO_NAMES;
@@ -188,11 +188,11 @@ public class BasicPropertyMetaModel<T> {
 		m_transient = transient1;
 	}
 
-	public ControlFactory getControlFactory() {
+	public PropertyControlFactory getControlFactory() {
 		return m_controlFactory;
 	}
 
-	public void setControlFactory(ControlFactory controlFactory) {
+	public void setControlFactory(PropertyControlFactory controlFactory) {
 		m_controlFactory = controlFactory;
 	}
 

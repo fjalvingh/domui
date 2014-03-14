@@ -52,5 +52,6 @@ public interface IImageRetriever {
 	 */
 	public long getCheckInterval();
 
-	public IImageReference loadImage(String key) throws Exception;
+	@Nullable
+	public IImageReference loadImage(@Nonnull String key) throws Exception;
 }

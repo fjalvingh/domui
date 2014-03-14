@@ -41,10 +41,10 @@ import to.etc.domui.converter.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 4, 2009
  */
-public class ControlFactoryMoney implements ControlFactory {
+public class ControlFactoryMoney implements PropertyControlFactory {
 	/**
 	 * Accept any type using a string.
-	 * @see to.etc.domui.component.controlfactory.ControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel)
+	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel)
 	 */
 	@Override
 	public int accepts(final @Nonnull PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
@@ -60,7 +60,7 @@ public class ControlFactoryMoney implements ControlFactory {
 
 	/**
 	 * Create a Text control with the basic monetary converter, or the proper converter for the specified type.
-	 * @see to.etc.domui.component.controlfactory.ControlFactory#createControl(to.etc.domui.util.IReadOnlyModel, to.etc.domui.component.meta.PropertyMetaModel, boolean)
+	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#createControl(to.etc.domui.util.IReadOnlyModel, to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
 	@SuppressWarnings({"unchecked"})

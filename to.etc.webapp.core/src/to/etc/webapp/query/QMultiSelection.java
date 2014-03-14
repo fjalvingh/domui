@@ -26,6 +26,8 @@ package to.etc.webapp.query;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 /**
  * Some kind of selection item which is formed by using multiple sub
  * items (like numeric operations). This is currently unused as the main
@@ -50,7 +52,7 @@ public class QMultiSelection extends QSelectionItem {
 		return m_itemList;
 	}
 	@Override
-	public void visit(QNodeVisitor v) throws Exception {
+	public void visit(@Nonnull QNodeVisitor v) throws Exception {
 		v.visitMultiSelection(this);
 	}
 }

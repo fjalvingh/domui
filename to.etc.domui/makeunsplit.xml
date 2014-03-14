@@ -1,15 +1,42 @@
 <project name="to.etc.domui" default="go" basedir=".">
 	<target name="go">
-	<echo>Generating unsplit theme style</echo>
-	<concat destfile="src/resources/themes/blue/style.theme.css" overwrite="true" fixlastline="true">
-	    <header>/*${line.separator} * DomUI "blue" stylesheet.${line.separator} * File represents composition of fragments that are defining default style for each component.${line.separator} */${line.separator}</header>
-		<sort xmlns:rcmp="antlib:org.apache.tools.ant.types.resources.comparators">
-			<fileset dir="src/resources/themes/domui">
-				<include name="**/*.frag.css" />
+		<delete dir="src/resources/themes/blue"/>
+		<mkdir dir="src/resources/themes/blue" />
+		<echo>Generating 'blue' theme stylesheet</echo>
+		<concat destfile="src/resources/themes/blue/style.theme.css" overwrite="true" fixlastline="true">
+		    <header>/*${line.separator} * DomUI "blue" stylesheet.${line.separator} * File represents composition of fragments that are defining default style for each component.${line.separator} */${line.separator}</header>
+			<sort xmlns:rcmp="antlib:org.apache.tools.ant.types.resources.comparators">
+				<fileset dir="src/resources/themes/domui">
+					<include name="**/*.frag.css" />
+				</fileset>
+				<rcmp:name />
+			</sort>
+		</concat>
+		<echo>Copying icons</echo>
+		<copy todir="src/resources/themes/blue">
+			<fileset dir="src/resources/themes/domui-icons">
+				<include name="**/*.png" />
+				<include name="**/*.gif" />
+				<include name="**/*.jpg" />
 			</fileset>
-			<rcmp:name />
-		</sort>
-	</concat>
-	<echo>Done</echo>
+			<fileset dir="src/resources/themes/domui">
+				<include name="**/*.png" />
+				<include name="**/*.gif" />
+				<include name="**/*.jpg" />
+				<include name="**/*.js" />
+				<exclude name="**.frag.css" />
+				<include name="**/*.css" />
+			</fileset>
+		</copy>
+	<!--		
+		<echo>Creating colorsets</echo>
+		<concat destfile="src/resources/themes/blue.color.js">
+			<filelist>
+				<file name="src/resources/themes/domui.color.js"/>
+				<file name="src/resources/themes/domui-icons/icon.props.js" />
+			</filelist>
+		</concat>
+	-->
+		<echo>Done</echo>
 	</target>
 </project>

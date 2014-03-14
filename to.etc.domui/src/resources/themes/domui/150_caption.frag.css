@@ -1,9 +1,33 @@
 /*** 150_caption.frag.css ***/
 /*** Caption ***/
 .ui-cptn {
-	border: 1px solid <%= header_bg %>;
-	padding: 2px 4px 2px 4px;
 	font-weight: bold;
-	background: url(bg-header.png.svg) repeat-x;
-/*	margin-top: 10px; jal 20120213 removed: header should not define it's upper location, because it cannot be used at the top of a screen! */
+	background: <%= header_bg %>;
+	color: <%= bg_ttl_text %>;
+	<%= margins_neutralize %>
+	margin-top: 0px;
 }
+
+.ui-cptn table {
+	height: 21px;
+}
+
+.ui-cptn div {
+	padding-top: 13px;
+	padding-bottom: 5px;
+	font-size: large;
+}
+
+.ui-cptn .ui-cptn-ttl {
+	width: 1%;
+	padding-left: 5px;
+}
+
+.ui-cptn .ui-cptn-btn {
+	text-align: left;
+	vertical-align: bottom;
+	padding-left: 5px;
+	padding-bottom: 2px;
+}
+
+.ui-cptn-first{}

@@ -59,7 +59,7 @@ public class FileImageRetriever implements IImageRetriever {
 	 * @param what
 	 * @return
 	 */
-	static public String createFileURL(File what, String mime) {
+	static public String createFileURL(File what, String mime, String... convs) {
 		IRequestContext ctx = UIContext.getRequestContext();
 		Map<String, FileRef> map = (Map<String, FileRef>) ctx.getSession().getAttribute(KEY);
 		if(map == null) {
@@ -81,7 +81,7 @@ public class FileImageRetriever implements IImageRetriever {
 		long ts = System.currentTimeMillis();
 		fr.m_validTill = ts + 2 * MIN_LIVE_TIME;
 		map.put(key, fr);
-		return CachedImagePart.getURL(KEY, key);
+		return CachedImagePart.getURL(KEY, key, convs);
 	}
 
 	static private FileRef findAndClear(Map<String, FileRef> map, File what) {
@@ -112,7 +112,7 @@ public class FileImageRetriever implements IImageRetriever {
 	}
 
 	@Override
-	public IImageReference loadImage(String key) throws Exception {
+	public IImageReference loadImage(@Nonnull String key) throws Exception {
 		IRequestContext ctx = UIContext.getRequestContext();
 		Map<String, FileRef> map = (Map<String, FileRef>) ctx.getSession().getAttribute(KEY);
 		if(map == null)

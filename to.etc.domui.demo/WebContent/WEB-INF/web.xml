@@ -28,7 +28,7 @@
   <!-- This allows changing of pages and page parts at runtime, for quick development. It enables advanced classloading to reload classes that are changed. -->
   <init-param>
    <param-name>auto-reload</param-name>
-   <param-value>to\.etc\.domuidemo\.pages.*, to\.etc\.domuidemo\.component.*, .*\.component[s?]\..*, .*\.pages\..*</param-value>
+   <param-value>to\.etc\.domuidemo\.pages.*, to\.etc\.domuidemo\.component.*, .*\.component[s?]\..*, .*\.pages\..*, .*\.fd\..*</param-value>
   </init-param>
  </filter>
  <filter-mapping>

@@ -319,7 +319,7 @@ public class PomBuilder {
 
 		w.tagfull("groupId", "org.apache.maven.plugins");
 		w.tagfull("artifactId", "maven-compiler-plugin");
-		w.tagfull("version", "2.5.1");
+		w.tagfull("version", "3.0");
 		w.tag("configuration");
 		w.tagfull("compilerId", "groovy-eclipse-compiler");
 		w.tagfull("source", sub.getSourceVersion());
@@ -331,8 +331,14 @@ public class PomBuilder {
 		w.tag("dependency");
 		w.tagfull("groupId", "org.codehaus.groovy");
 		w.tagfull("artifactId", "groovy-eclipse-compiler");
-		w.tagfull("version", "2.7.0-01");
+		w.tagfull("version", "2.8.0-01");
 		w.tagendnl(); // dependency
+		w.tag("dependency");
+		w.tagfull("groupId", "org.codehaus.groovy");
+		w.tagfull("artifactId", "groovy-eclipse-batch");
+		w.tagfull("version", "2.1.5-03");
+		w.tagendnl(); // dependency
+
 		w.tagendnl(); //dependencies
 
 
@@ -351,7 +357,7 @@ public class PomBuilder {
 		//      </plugin>
 		w.tagfull("groupId", "org.codehaus.mojo");
 		w.tagfull("artifactId", "findbugs-maven-plugin");
-		w.tagfull("version", "2.3.1");
+		w.tagfull("version", "2.4.0");
 		w.tag("configuration");
 		w.tagfull("timeout", "60000000");
 		w.tagendnl();
@@ -371,17 +377,17 @@ public class PomBuilder {
 			w.tag("plugin");
 			w.tagfull("groupId", "org.apache.maven.plugins");
 			w.tagfull("artifactId", "maven-surefire-plugin");
-			w.tagfull("version", "2.14.1");
+			w.tagfull("version", "2.16");
 
 			w.tag("configuration");
-			w.tagfull("argLine", "-Xmx2048m -XX:MaxPermSize=1024m");
+			w.tagfull("argLine", "-Xmx2048m -XX:MaxPermSize=1024m -XX:-UseSplitVerifier");
 			w.tagendnl();
 
 			w.tag("dependencies");
 			w.tag("dependency");
 			w.tagfull("groupId", "org.apache.maven.surefire");
-			w.tagfull("artifactId", "surefire-junit4");
-			w.tagfull("version", "2.14.1");
+			w.tagfull("artifactId", "surefire-junit47");
+			w.tagfull("version", "2.16");
 			w.tagendnl();
 			w.tagendnl();
 
@@ -450,7 +456,7 @@ public class PomBuilder {
 		w.tag("plugin");
 		w.tagfull("groupId", "org.codehaus.mojo");
 		w.tagfull("artifactId", "build-helper-maven-plugin");
-		w.tagfull("version", "1.1");
+		w.tagfull("version", "1.7");
 		w.tag("executions");
 		w.tag("execution");
 		w.tagfull("id", "add-source");

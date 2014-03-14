@@ -109,6 +109,10 @@ public class MailHelper {
 	public MailHelper() {
 }
 
+	public void setRoot(File root) {
+		m_root = root;
+	}
+
 	private void init() {
 		if(m_init)
 			return;
@@ -126,15 +130,17 @@ public class MailHelper {
 	}
 
 	public void start(Address to, String subject) {
+		m_htmlLen = 0;
 		setSubject(subject);
 		addTo(to);
 	}
 
 	@Nonnull
 	private ITextLinkRenderer getLinkRenderer() {
-		if(null == m_linkRenderer) {
+		ITextLinkRenderer linkRenderer = m_linkRenderer;
+		if(null == linkRenderer) {
 			//-- Create a default link renderer.
-			m_linkRenderer = new ITextLinkRenderer() {
+			linkRenderer = m_linkRenderer = new ITextLinkRenderer() {
 				@Override
 				public void appendText(@Nonnull String text) {
 					appendVerbatim(text);
@@ -145,11 +151,112 @@ public class MailHelper {
 					String appurl = getApplicationURL();
 					if(null == appurl)
 						throw new IllegalStateException("To render LinkedText-like links you must set applicationURL or linkRenderer.");
-
+					link(appurl + rurl, text);
 				}
 			};
 		}
-		return m_linkRenderer;
+		return linkRenderer;
+	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	HTML Primitives.									*/
+	/*--------------------------------------------------------------*/
+	private int m_htmlLen = 0;
+
+	private static final int MAXLINE = 78;
+
+	private void htmlWrap(@Nonnull String seg) {
+		int len = seg.length();
+		if(m_htmlLen + len >= MAXLINE) {
+			internalNL();
+		}
+		m_html_sb.append(seg);
+		m_htmlLen += len;
+	}
+
+	/**
+	 * Render a html tag with optional attr=value pairs.
+	 * @param tag
+	 * @param attrs
+	 */
+	public void htmlTag(String tag, String... attrs) {
+		htmlWrap("<" + tag);
+		for(int i = 0; i < attrs.length; i += 2) {
+			htmlAttr(attrs[i], attrs[i + 1]);
+		}
+		htmlWrap(">");
+	}
+
+	private void htmlAttr(String name, String value) {
+		htmlWrap(" " + name + "=");
+		htmlWrap("\"" + value + "\"");
+	}
+
+	public void htmlEndTag(String tag) {
+		htmlWrap("</" + tag + ">");
+	}
+
+	/**
+	 * Split text into whitespace-separated things, and make sure lines are smaller than MAXLINE.
+	 * @param text
+	 */
+	public void htmlText(String text) {
+		int ix = 0;
+		int eix = text.length();
+		int six = 0;
+		while(ix < eix) {
+			char c = text.charAt(ix);
+			if(!Character.isWhitespace(c)) {
+				ix++;
+				continue;
+			}
+
+			//-- We have a run of characters from six to ix, and we have a whitespace char now...
+			boolean wrapped = false;
+			int sz = ix - six;
+			if(sz > 0) {
+				if(m_htmlLen + sz >= MAXLINE) {
+					//-- We need to wrap. Do so.
+					m_htmlLen = 0;
+					m_html_sb.append("\r\n");
+					wrapped = true;
+				}
+				m_htmlLen += sz;
+				m_html_sb.append(text, six, ix);
+			}
+
+			//-- Is the current whitespace \r\n? Eat it,
+			ix++;									// Past whitespace char
+			if(c == '\r') {
+				if(ix < eix && text.charAt(ix) == '\n')
+					ix++;							// Eat \n
+				if(!wrapped)
+					internalNL();
+
+			} else if(c == '\n') {
+				if(!wrapped)
+					internalNL();
+			} else {
+				m_html_sb.append(c);
+				m_htmlLen++;
+			}
+			six = ix;
+		}
+
+		int sz = ix - six;
+		if(sz > 0) {
+			if(m_htmlLen + sz >= MAXLINE) {
+				internalNL();
+			}
+			m_htmlLen += sz;
+			m_html_sb.append(text, six, ix);
+		}
+	}
+
+	private void internalNL() {
+		m_html_sb.append("\r\n");
+		m_htmlLen = 0;
 	}
 
 	/**
@@ -170,18 +277,17 @@ public class MailHelper {
 	 * Append the text without scanning for any kind of embedded links.
 	 * @param s
 	 */
-	@Nonnull
 	public void appendVerbatim(@Nonnull String s) {
 		init();
 		m_text_sb.append(s);
-		StringTool.htmlStringize(m_html_sb, s);
+		String html = StringTool.htmlStringize(s);
+		htmlText(html);
 	}
-
 
 	@Nonnull
 	public MailHelper ttl(@Nonnull String s) {
 		init();
-		m_html_sb.append("<h2>");
+		htmlTag("h2");
 		append(s);
 
 		m_text_sb.append("\n");
@@ -190,42 +296,45 @@ public class MailHelper {
 		m_text_sb.append("\n");
 
 		//-- HTML fragment
-		m_html_sb.append("</h2>\n");
+		htmlEndTag("h2");
+		htmlText("\r\n");
 		return this;
 	}
 
 	@Nonnull
 	public MailHelper i(String s) {
 		init();
-		m_html_sb.append("<i>");
+		htmlTag("i");
 		append(s);
-		m_html_sb.append("</i>");
+		htmlEndTag("i");
 		return this;
 	}
 
 	@Nonnull
 	public MailHelper b(String s) {
 		init();
-		m_html_sb.append("<b>");
+		htmlTag("b");
 		append(s);
-		m_html_sb.append("</b>");
+		htmlEndTag("b");
 		return this;
 	}
 
 	@Nonnull
 	public MailHelper nl() {
 		init();
-		m_text_sb.append("\n");
-		m_html_sb.append("<br/>");
+		m_text_sb.append("\r\n");
+		htmlTag("br/");
+		htmlText("\r\n");
 		return this;
 	}
 
 	@Nonnull
 	public MailHelper pre(String content) {
 		init();
-		m_html_sb.append("<pre>");
+		htmlTag("pre");
 		append(content);
-		m_html_sb.append("</pre>");
+		htmlEndTag("pre");
+		htmlText("\r\n");
 		return this;
 	}
 
@@ -246,11 +355,9 @@ public class MailHelper {
 		m_text_sb.append(url);
 		m_text_sb.append(")");
 
-		m_html_sb.append("<a href=\"");
-		m_html_sb.append(url); // ! Do not URLencode- parent should have as it only pertains to parameters!!
-		m_html_sb.append("\">");
-		StringTool.htmlStringize(m_html_sb, text);
-		m_html_sb.append("</a>");
+		htmlTag("a", "href", url);
+		htmlText(StringTool.htmlStringize(text));
+		htmlEndTag("a");
 		return this;
 	}
 
@@ -282,11 +389,10 @@ public class MailHelper {
 	public MailHelper linkNoText(String url, String text) {
 		init();
 		m_text_sb.append(url);
-		m_html_sb.append("<a href=\"");
-		m_html_sb.append(url);
-		m_html_sb.append("\">");
-		StringTool.htmlStringize(m_html_sb, text);
-		m_html_sb.append("</a>");
+
+		htmlTag("a", "href", url);
+		htmlText(StringTool.htmlStringize(text));
+		htmlEndTag("a");
 		return this;
 	}
 
@@ -337,6 +443,9 @@ public class MailHelper {
 		}
 	}
 
+	private File m_root;
+
+
 	/**
 	 * Add a web resource as an image. For this to work you must override {@link #getApplicationResource(String)}.
 	 * @param name
@@ -347,15 +456,22 @@ public class MailHelper {
 	 */
 	@Nonnull
 	public MailHelper image(@Nonnull String name, @Nonnull String mime, @Nonnull String rurl) throws Exception {
-		InputStream is = getApplicationResource(rurl);
+		InputStream is;
+		if(m_root != null) {
+			is = new FileInputStream(new File(m_root, rurl));
+		} else {
+			is = getApplicationResource(rurl);
+		}
+
 		byte[][] buf;
 		try {
 			buf = FileTool.loadByteBuffers(is);
 		} finally {
 			FileTool.closeAll(is);
 		}
-		m_lastImgKey = name + "-" + (m_attindex++);
-		image(new Attachment(mime, m_lastImgKey, buf), name);
+		String s = MimeWriter.generateContentID();
+//		String s = m_lastImgKey = name + "-" + (m_attindex++);
+		image(new Attachment(mime, s, buf), name);
 		return this;
 	}
 
@@ -384,7 +500,10 @@ public class MailHelper {
 	@Nonnull
 	public String addImage(@Nonnull String name, @Nonnull String rurl) throws Exception {
 		image(name, rurl);
-		return m_lastImgKey;
+		String s = m_lastImgKey;
+		if(s == null)
+			throw new IllegalStateException("Last image not set");
+		return s;
 	}
 
 	/**
@@ -400,9 +519,7 @@ public class MailHelper {
 		m_text_sb.append(a.m_ident);
 		m_text_sb.append(") ");
 
-		m_html_sb.append("<img src=\"cid:");
-		m_html_sb.append(a.m_ident);
-		m_html_sb.append("\">");
+		htmlTag("img", "src", "cid:" + a.m_ident);
 
 		//-- Create the attachment image.
 		m_attachmentList.add(a);
@@ -418,7 +535,7 @@ public class MailHelper {
 	 * @throws Exception
 	 */
 	public void send() throws Exception {
-		send((QDataContext) null);
+		sendInternal(null);
 	}
 
 	/**
@@ -448,7 +565,8 @@ public class MailHelper {
 	 */
 	public void sendInternal(@Nullable Object through) throws Exception {
 		addTrailer();
-		m_html_sb.append("</body></html>");
+		htmlEndTag("body");
+		htmlEndTag("html");
 		if(DeveloperOptions.getBool("email.send", true)) {
 			String alt = DeveloperOptions.getString("email.debug", null);
 			if(alt != null) {
@@ -592,8 +710,8 @@ public class MailHelper {
 	 */
 	protected void addTrailer() throws Exception {}
 
-	@Nullable
-	protected InputStream getApplicationResource(String name) throws Exception {
+	@Nonnull
+	protected InputStream getApplicationResource(@Nonnull String name) throws Exception {
 		throw new OperationNotSupportedException("Override getApplicationResource(String)");
 
 //		//-- Get the appfile represented by that RURL.

@@ -70,7 +70,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 
 	private String m_defaultLabel;
 
-	private IConverter< ? > m_bestConverter;
+	private IConverter<T> m_bestConverter;
 
 	/**
 	* Constructor for LIST types.
@@ -384,7 +384,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 		m_propertyName = propertyName;
 	}
 
-	public IConverter< ? > getBestConverter() {
+	public IConverter<T> getBestConverter() {
 		return m_bestConverter;
 	}
 
@@ -532,7 +532,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	//	}
 
 	@Override
-	public ControlFactory getControlFactory() {
+	public PropertyControlFactory getControlFactory() {
 		return m_propertyMeta == null ? null : m_propertyMeta.getControlFactory();
 	}
 

@@ -26,6 +26,8 @@ package to.etc.domui.dom;
 
 import java.io.*;
 
+import javax.annotation.*;
+
 import to.etc.util.*;
 
 /**
@@ -38,7 +40,7 @@ import to.etc.util.*;
 public class PrettyXmlOutputWriter extends XmlOutputWriterBase implements IBrowserOutput {
 	private IndentWriter m_w;
 
-	public PrettyXmlOutputWriter(Writer out) {
+	public PrettyXmlOutputWriter(@Nonnull Writer out) {
 		super(new IndentWriter(out));
 		m_w = (IndentWriter) getWriter();
 	}

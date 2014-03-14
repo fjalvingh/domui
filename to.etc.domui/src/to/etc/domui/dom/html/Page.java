@@ -35,6 +35,8 @@ import to.etc.domui.dom.header.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
 import to.etc.domui.util.*;
+import to.etc.domui.util.javascript.*;
+import to.etc.webapp.core.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
 
@@ -56,6 +58,7 @@ final public class Page implements IQContextContainer {
 	private final int m_pageTag;
 
 	/** Temp work buffer to prevent lots of allocations. */
+	@Nullable
 	private StringBuilder m_sb;
 
 	/**
@@ -67,13 +70,16 @@ final public class Page implements IQContextContainer {
 
 	//	private boolean					m_built;
 
+	@Nonnull
 	private final Map<String, NodeBase> m_nodeMap = new HashMap<String, NodeBase>(127);
 
+	@Nullable
 	private Map<String, NodeBase> m_beforeMap;
 
 	/**
 	 * Contains the header contributors in the order that they were added.
 	 */
+	@Nonnull
 	private List<HeaderContributorEntry> m_orderedContributorList = Collections.EMPTY_LIST;
 
 	/**
@@ -97,6 +103,7 @@ final public class Page implements IQContextContainer {
 	/** Set to T if an initial full render of the page completed OK. */
 	private boolean m_fullRenderCompleted;
 
+	@Nonnull
 	private final UrlPage m_rootContent;
 
 	/** The component that needs to be focused. This is null if no explicit focus request was done. */
@@ -145,9 +152,16 @@ final public class Page implements IQContextContainer {
 	 * Nodes that are added to a render and that are removed by the Javascript framework are added here; this
 	 * will force them to be removed from the tree after any render without causing a delta.
 	 */
+	@Nonnull
 	private List<NodeBase> m_removeAfterRenderList = Collections.EMPTY_LIST;
 
-	public Page(final UrlPage pageContent) throws Exception {
+	@Nonnull
+	private List<IExecute> m_afterRequestListenerList = Collections.EMPTY_LIST;
+
+	@Nonnull
+	private List<IExecute> m_beforeRequestListenerList = Collections.EMPTY_LIST;
+
+	public Page(@Nonnull final UrlPage pageContent) throws Exception {
 		m_pageTag = DomApplication.internalNextPageTag(); // Unique page ID.
 		m_rootContent = pageContent;
 		registerNode(pageContent); // First node.
@@ -175,7 +189,7 @@ final public class Page implements IQContextContainer {
 	 * @param pp
 	 * @param cc
 	 */
-	final public void internalInitialize(@Nonnull IPageParameters pp, final ConversationContext cc) {
+	final public void internalInitialize(@Nonnull IPageParameters pp, @Nonnull final ConversationContext cc) {
 		if(pp == null)
 			throw new IllegalStateException("Internal: Page parameters cannot be null here");
 		if(cc == null)
@@ -195,12 +209,13 @@ final public class Page implements IQContextContainer {
 		m_pageParameters = pp;
 	}
 
-	public void setTheCurrentNode(NodeBase b) {
+	public void setTheCurrentNode(@Nullable NodeBase b) {
 		if(b != null && b.getPage() != this)
 			throw new IllegalStateException("The node is not part of this page!");
 		m_theCurrentNode = b;
 	}
 
+	@Nullable
 	public NodeBase getTheCurrentNode() {
 		return m_theCurrentNode;
 	}
@@ -210,6 +225,7 @@ final public class Page implements IQContextContainer {
 	 * can be found it returns the node verbatim.
 	 * @return
 	 */
+	@Nullable
 	public NodeBase getTheCurrentControl() {
 		//-- Locate the best encapsulating control if possible.
 		NodeBase nb = getTheCurrentNode();
@@ -219,18 +235,22 @@ final public class Page implements IQContextContainer {
 		return nb != null ? nb : getTheCurrentNode();
 	}
 
+	@Nonnull
 	public Map<String, NodeBase> internalNodeMap() {
 		return m_nodeMap;
 	}
 
+	@Nonnull
 	private StringBuilder sb() {
-		if(m_sb == null)
-			m_sb = new StringBuilder(64);
+		StringBuilder sb = m_sb;
+		if(sb == null)
+			sb = m_sb = new StringBuilder(64);
 		else
-			m_sb.setLength(0);
-		return m_sb;
+			sb.setLength(0);
+		return sb;
 	}
 
+	@Nonnull
 	public DomApplication getApplication() {
 		return DomApplication.get();
 	}
@@ -262,6 +282,7 @@ final public class Page implements IQContextContainer {
 	 * Calculates a new ID for a node.
 	 * @return
 	 */
+	@Nonnull
 	final String nextID() {
 		StringBuilder sb = sb();
 		sb.append("_");
@@ -283,7 +304,7 @@ final public class Page implements IQContextContainer {
 	 * a new ID is assigned.
 	 * @param n
 	 */
-	final void registerNode(final NodeBase n) {
+	final void registerNode(@Nonnull final NodeBase n) {
 		if(n.isAttached())
 			throw new IllegalStateException("Node still attached to other page");
 
@@ -295,19 +316,19 @@ final public class Page implements IQContextContainer {
 		 */
 		String id = n.internalGetID();
 		if(id != null) {
-			if(m_nodeMap.containsKey(id)) { // Duplicate key?
-				id = nextID(); // Assign new ID
-				n.setActualID(id); // Save in node.
+			if(m_nodeMap.containsKey(id)) { 			// Duplicate key?
+				id = nextID();							// Assign new ID
+				n.setActualID(id); 						// Save in node.
 			}
 		} else {
 			//-- Assign new ID
-			id = nextID(); // Assign new ID
-			n.setActualID(id); // Save in node.
+			id = nextID();
+			n.setActualID(id);
 		}
 		if(null != m_nodeMap.put(id, n))
 			throw new IllegalStateException("Duplicate node ID '" + id + "'!?!?");
 		n.setPage(this);
-		n.onHeaderContributors(this); // Ask the node for it's header contributors.
+		n.onHeaderContributors(this);					// Ask the node for it's header contributors.
 		n.internalOnAddedToPage(this);
 		if(n.isFocusRequested()) {
 			setFocusComponent(n);
@@ -315,10 +336,11 @@ final public class Page implements IQContextContainer {
 		}
 		internalAddPendingBuild(n);
 
-		//-- Experimental fix for bug# 787: cannot locate error fence. Allow errors to be posted on disconnected nodes.
-		if(n.getMessage() != null) {
-			IErrorFence fence = DomUtil.getMessageFence(n); // Get the fence that'll handle the message by looking UPWARDS in the tree
-			fence.addMessage(n, n.getMessage());
+		//-- Fix for bug# 787: cannot locate error fence. Allow errors to be posted on disconnected nodes.
+		UIMessage message = n.getMessage();
+		if(message != null) {
+			IErrorFence fence = DomUtil.getMessageFence(n);		// Get the fence that'll handle the message by looking UPWARDS in the tree
+			fence.addMessage(message);
 		}
 	}
 
@@ -326,7 +348,7 @@ final public class Page implements IQContextContainer {
 	 * Removes this node from the IDmap.
 	 * @param n
 	 */
-	final void unregisterNode(final NodeBase n) {
+	final void unregisterNode(@Nonnull final NodeBase n) {
 		if(n.getPage() != this)
 			throw new IllegalStateException("This node does not belong to this page!?");
 		if(n.getActualID() == null)
@@ -340,7 +362,8 @@ final public class Page implements IQContextContainer {
 		m_pendingBuildSet.remove(n); // ?? Needed?
 	}
 
-	public NodeBase findNodeByID(final String id) {
+	@Nullable
+	public NodeBase findNodeByID(@Nonnull final String id) {
 		return m_nodeMap.get(id);
 	}
 
@@ -372,6 +395,7 @@ final public class Page implements IQContextContainer {
 		m_beforeMap = new HashMap<String, NodeBase>(m_nodeMap);
 	}
 
+	@Nullable
 	final public Map<String, NodeBase> getBeforeMap() {
 		return m_beforeMap;
 	}
@@ -388,7 +412,7 @@ final public class Page implements IQContextContainer {
 	}
 
 
-	public void addRemoveAfterRenderNode(NodeBase node) {
+	public void addRemoveAfterRenderNode(@Nonnull NodeBase node) {
 		if(m_removeAfterRenderList == Collections.EMPTY_LIST) {
 			m_removeAfterRenderList = new ArrayList<NodeBase>();
 		}
@@ -419,7 +443,7 @@ final public class Page implements IQContextContainer {
 		return initial + "_" +v;
 	}
 
-	public boolean isTestIDALlocated(@Nonnull String id) {
+	public boolean isTestIDAllocated(@Nonnull String id) {
 		return m_testIdMap.get(id) != null;
 	}
 
@@ -432,7 +456,7 @@ final public class Page implements IQContextContainer {
 	 * contributors needed by a node.
 	 * @param hc
 	 */
-	final public void addHeaderContributor(final HeaderContributor hc, int order) {
+	final public void addHeaderContributor(@Nonnull final HeaderContributor hc, int order) {
 		if(m_headerContributorSet == null) {
 			m_headerContributorSet = new HashSet<HeaderContributor>(30);
 			m_orderedContributorList = new ArrayList<HeaderContributorEntry>(30);
@@ -446,14 +470,16 @@ final public class Page implements IQContextContainer {
 		m_orderedContributorList.add(new HeaderContributorEntry(hc, order));
 	}
 
-	public synchronized void internalAddContributors(List<HeaderContributorEntry> full) {
+	public synchronized void internalAddContributors(@Nonnull List<HeaderContributorEntry> full) {
 		full.addAll(m_orderedContributorList);
 	}
 
+	@Nonnull
 	public List<HeaderContributorEntry> getHeaderContributorList() {
 		return new ArrayList<HeaderContributorEntry>(m_orderedContributorList);
 	}
 
+	@Nonnull
 	public List<HeaderContributorEntry> getAddedContributors() {
 		if(m_orderedContributorList == null || m_lastContributorIndex >= m_orderedContributorList.size())
 			return Collections.EMPTY_LIST;
@@ -468,17 +494,19 @@ final public class Page implements IQContextContainer {
 	 * Return the BODY component for this page.
 	 * @return
 	 */
+	@Nonnull
 	public UrlPage getBody() {
 		return m_rootContent;
 	}
 
-	public <T> void setData(final T inst) {
+	public <T> void setData(@Nonnull final T inst) {
 		if(m_pageData == Collections.EMPTY_MAP)
 			m_pageData = new HashMap<String, Object>();
 		m_pageData.put(inst.getClass().getName(), inst);
 	}
 
-	public <T> T getData(final Class<T> clz) {
+	@Nullable
+	public <T> T getData(@Nonnull final Class<T> clz) {
 		return (T) m_pageData.get(clz.getName());
 	}
 
@@ -492,7 +520,7 @@ final public class Page implements IQContextContainer {
 	 * @param originalParent
 	 * @param in
 	 */
-	void internalAddFloater(NodeContainer originalParent, NodeBase in) {
+	void internalAddFloater(@Nonnull NodeContainer originalParent, @Nonnull NodeBase in) {
 		//-- Sanity checks.
 		if(!(in instanceof FloatingDiv))
 			throw new IllegalStateException("Floaters can only be FloatingDiv-derived, and " + in + " is not.");
@@ -526,7 +554,7 @@ final public class Page implements IQContextContainer {
 			//-- Add a click handler which will close the floater when the hider div is clicked.
 			hider.setClicked(new IClicked<NodeBase>() {
 				@Override
-				public void clicked(NodeBase clickednode) throws Exception {
+				public void clicked(@Nonnull NodeBase clickednode) throws Exception {
 					window.closePressed();
 				}
 			});
@@ -541,7 +569,7 @@ final public class Page implements IQContextContainer {
 	 * Callback called by a floating window when it is removed from the page.
 	 * @param floater
 	 */
-	public void internalRemoveFloater(FloatingDiv floater) {
+	public void internalRemoveFloater(@Nonnull FloatingDiv floater) {
 		if(!getFloatingStack().remove(floater)) // If already removed exit
 			return;
 		Div h = floater.internalGetHider();
@@ -551,6 +579,7 @@ final public class Page implements IQContextContainer {
 		}
 	}
 
+	@Nonnull
 	private List<FloatingDiv> getFloatingStack() {
 		if(m_floatingWindowStack == null)
 			m_floatingWindowStack = new ArrayList<FloatingDiv>();
@@ -568,7 +597,7 @@ final public class Page implements IQContextContainer {
 //		getBody().build();
 //	}
 
-	void internalAddPendingBuild(NodeBase n) {
+	void internalAddPendingBuild(@Nonnull NodeBase n) {
 		m_pendingBuildSet.add(n);
 	}
 
@@ -616,18 +645,19 @@ final public class Page implements IQContextContainer {
 	 * @param nd
 	 * @throws Exception
 	 */
-	private void buildSubTree(NodeBase nd) throws Exception {
+	private void buildSubTree(@Nonnull NodeBase nd) throws Exception {
 		nd.build();
 		m_pendingBuildSet.remove(nd); // We're building this dude.
 		if(!(nd instanceof NodeContainer))
 			return;
 		NodeContainer nc = (NodeContainer) nd;
-		for(int i = 0, len = nc.getChildCount(); i < len; i++) {
-			buildSubTree(nc.getChild(i));
+		List<NodeBase> ichl = nc.internalGetChildren();
+		for(int i = 0, len = ichl.size(); i < len; i++) {
+			buildSubTree(ichl.get(i));
 		}
 	}
 
-	private void buildChangedTree(NodeBase nd) throws Exception {
+	private void buildChangedTree(@Nonnull NodeBase nd) throws Exception {
 		m_pendingBuildSet.remove(nd);
 		if(!(nd instanceof NodeContainer)) {
 			//-- NodeBase only- simple; always rebuild.
@@ -637,8 +667,10 @@ final public class Page implements IQContextContainer {
 		NodeContainer nc = (NodeContainer) nd;
 		if(nc.childHasUpdates() && nc.internalGetOldChildren() == null) {
 			nc.build();
-			for(int i = 0, len = nc.getChildCount(); i < len; i++) {
-				buildChangedTree(nc.getChild(i));
+
+			List<NodeBase> ichl = nc.internalGetChildren();
+			for(int i = 0, len = ichl.size(); i < len; i++) {
+				buildChangedTree(ichl.get(i));
 			}
 		}
 		if(nc.internalGetOldChildren() != null || nc.childHasUpdates() || nc.mustRenderChildrenFully()) {
@@ -658,17 +690,26 @@ final public class Page implements IQContextContainer {
 	 * Add a Javascript statement (MUST be a valid, semicolon-terminated statement or statement list) to
 	 * execute on return to the browser (once).
 	 */
-	public void appendJS(final CharSequence sq) {
-		if(m_appendJS == null)
-			m_appendJS = new StringBuilder(sq.length() + 100);
-		m_appendJS.append(sq);
+	public void appendJS(@Nonnull final CharSequence sq) {
+		internalGetAppendJS().append(sq);
 	}
 
-	public StringBuilder internalGetAppendedJS() {
+	@Nullable
+	public StringBuilder internalFlushAppendJS() {
 		StringBuilder sb = m_appendJS;
 		m_appendJS = null;
 		return sb;
 	}
+
+	@Nonnull
+	public StringBuilder internalGetAppendJS() {
+		StringBuilder sb = m_appendJS;
+		if(null == sb) {
+			sb = m_appendJS = new StringBuilder(2048);
+		}
+		return sb;
+	}
+
 
 	/**
 	 * DEPRECATED: Should use {@link DomUtil#createOpenWindowJS(String, WindowParameters)}.
@@ -712,24 +753,28 @@ final public class Page implements IQContextContainer {
 	 * Return the component that currently has a focus request.
 	 * @return
 	 */
+	@Nullable
 	public NodeBase getFocusComponent() {
 		return m_focusComponent;
 	}
 
-	public void setFocusComponent(final NodeBase focusComponent) {
+	public void setFocusComponent(@Nullable final NodeBase focusComponent) {
 		m_focusComponent = focusComponent;
 	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Context handling code.								*/
 	/*--------------------------------------------------------------*/
+	@Nonnull
 	public ConversationContext getConversation() {
-		if(m_cc == null)
+		ConversationContext cc = m_cc;
+		if(cc == null)
 			throw new IllegalStateException("The conversational context is null??????");
-		m_cc.checkAttached();
-		return m_cc;
+		cc.checkAttached();
+		return cc;
 	}
 
+	@Nullable
 	public ConversationContext internalGetConversation() {
 		return m_cc;
 	}
@@ -754,6 +799,12 @@ final public class Page implements IQContextContainer {
 	private boolean m_shelved;
 
 	private NodeBase m_defaultFocusSource;
+
+	/** When a (sub)tree validation has started this holds the validation's start point, so that the validation can be repeated. */
+	private NodeBase m_validationSource;
+
+	/** When a (sub)tree validation has started this holds the action to run at the end of succesful validation. */
+	private IRunnable m_validationAction;
 
 	/**
 	 * Call all onShelve() handlers on all attached components.
@@ -783,6 +834,57 @@ final public class Page implements IQContextContainer {
 	}
 
 	/*--------------------------------------------------------------*/
+	/*	CODING:	Javascript component state registration.			*/
+	/*--------------------------------------------------------------*/
+	@Nonnull
+	final private Set<NodeBase> m_javaScriptStateChangedSet = new HashSet<NodeBase>();
+
+	/**
+	 * Registers the node specified as needing a callback at delta render time.
+	 * @param nodeBase
+	 */
+	void registerJavascriptStateChanged(@Nonnull NodeBase nodeBase) {
+		m_javaScriptStateChangedSet.add(nodeBase);
+	}
+
+	@Nonnull
+	public Set<NodeBase> internalGetJavaScriptStateChangedSet() {
+		return m_javaScriptStateChangedSet;
+	}
+
+	/**
+	 * For all nodes that registered a "javascript delta", this calls that node's {@link NodeBase#renderJavascriptDelta(JavascriptStmt)}
+	 * method, then it will reset the state for the node. Because calls might cause other nodes to become invalid this
+	 * code loops max 10 times checking the set of delta nodes.
+	 * @throws Exception
+	 */
+	@Nullable
+	public StringBuilder internalFlushJavascriptStateChanges() throws Exception {
+		if(m_javaScriptStateChangedSet.size() == 0)
+			return null;
+
+		ArrayList<NodeBase> todo = new ArrayList<NodeBase>(m_javaScriptStateChangedSet);
+		StringBuilder sb = new StringBuilder(8192);
+		JavascriptStmt stmt = new JavascriptStmt(sb);
+		for(int count = 0; count < 10; count++) {
+			m_javaScriptStateChangedSet.clear();
+			for(NodeBase nb : todo) {
+				nb.renderJavascriptDelta(stmt);
+				stmt.next();
+			}
+
+			if(m_javaScriptStateChangedSet.size() == 0) {
+				return sb;
+			}
+
+			todo.clear();
+			todo.addAll(m_javaScriptStateChangedSet);
+			m_javaScriptStateChangedSet.clear();
+		}
+		throw new IllegalStateException("Javascript state keeps changing: set is " + todo);
+	}
+
+	/*--------------------------------------------------------------*/
 	/*	CODING:	Pop-in support.										*/
 	/*--------------------------------------------------------------*/
 	/**
@@ -791,7 +893,7 @@ final public class Page implements IQContextContainer {
 	 *
 	 * @param pin
 	 */
-	public void setPopIn(final NodeContainer pin) {
+	public void setPopIn(@Nullable final NodeContainer pin) {
 		if(m_currentPopIn != null && m_currentPopIn != pin) {
 			NodeContainer old = m_currentPopIn;
 			m_currentPopIn = null;
@@ -811,6 +913,7 @@ final public class Page implements IQContextContainer {
 		}
 	}
 
+	@Nullable
 	public NodeContainer getPopIn() {
 		return m_currentPopIn;
 	}
@@ -827,31 +930,17 @@ final public class Page implements IQContextContainer {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IQContextContainer implementation.					*/
 	/*--------------------------------------------------------------*/
-	/**
-	 *
-	 */
-	@Override
-	public QDataContext internalGetSharedContext() {
-		return getConversation().internalGetSharedContext();
-	}
 
-	/**
-	 *
-	 * @see to.etc.webapp.query.IQContextContainer#internalSetSharedContext(to.etc.webapp.query.QDataContext)
-	 */
+	@Nonnull
 	@Override
-	public void internalSetSharedContext(final QDataContext c) {
-		getConversation().internalSetSharedContext(c);
+	public List<QContextContainer> getAllContextContainers() {
+		return getConversation().getAllContextContainers();
 	}
 
 	@Override
-	public QDataContextFactory internalGetDataContextFactory() {
-		return getConversation().internalGetDataContextFactory();
-	}
-
-	@Override
-	public void internalSetDataContextFactory(final QDataContextFactory s) {
-		getConversation().internalSetDataContextFactory(s);
+	@Nonnull
+	public QContextContainer getContextContainer(@Nonnull String key) {
+		return getConversation().getContextContainer(key);
 	}
 
 	public boolean isAllowVectorGraphics() {
@@ -877,5 +966,36 @@ final public class Page implements IQContextContainer {
 	@Nullable
 	public NodeBase getDefaultFocusSource() {
 		return m_defaultFocusSource;
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Page action events.									*/
+	/*--------------------------------------------------------------*/
+	/**
+	 *
+	 * @param x
+	 */
+	public void addAfterRequestListener(@Nonnull IExecute x) {
+		if(m_afterRequestListenerList.size() == 0)
+			m_afterRequestListenerList = new ArrayList<IExecute>();
+		m_afterRequestListenerList.add(x);
+	}
+
+	public void addBeforeRequestListener(@Nonnull IExecute x) {
+		if(m_beforeRequestListenerList.size() == 0)
+			m_beforeRequestListenerList = new ArrayList<IExecute>();
+		m_beforeRequestListenerList.add(x);
+	}
+
+	public void callRequestFinished() throws Exception {
+		for(IExecute x: m_afterRequestListenerList) {
+			x.execute();
+		}
+	}
+
+	public void callRequestStarted() throws Exception {
+		for(IExecute x : m_beforeRequestListenerList) {
+			x.execute();
+		}
 	}
 }

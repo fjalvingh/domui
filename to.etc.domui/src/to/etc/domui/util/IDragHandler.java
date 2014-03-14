@@ -42,7 +42,7 @@ public interface IDragHandler {
 	 * Called when the dragged node has been dropped on a DropTarget which has accepted the
 	 * node. This should then remove the source to prevent it from being reused.
 	 */
-	public void onDropped(DropEvent context) throws Exception;
+	public void onDropped(@Nonnull DropEvent context) throws Exception;
 
 	/**
 	 * Indicates that the handler is responsible for the drag and drop implementation, but does not

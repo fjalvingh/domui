@@ -40,6 +40,10 @@ import to.etc.domui.dom.html.*;
  */
 public class InputDialog<T, C extends NodeBase & IControl<T>> extends Dialog {
 
+	private static int DEFAULT_WIDTH = 400;
+
+	private static int DEFAULT_MIN_HEIGHT = 200;
+
 	private C m_inputControl;
 
 	private T m_instance;
@@ -52,7 +56,7 @@ public class InputDialog<T, C extends NodeBase & IControl<T>> extends Dialog {
 	}
 
 	public InputDialog(C inputControl, String title, String label) {
-		this(inputControl, true, false, DEFWIDTH, DEFHEIGHT, title, label);
+		this(inputControl, true, false, DEFAULT_WIDTH, -1, title, label);
 	}
 
 	public InputDialog(C inputControl, boolean modal, boolean resizable, int width, int height, String title, String label) {
@@ -62,18 +66,18 @@ public class InputDialog<T, C extends NodeBase & IControl<T>> extends Dialog {
 	}
 
 	public InputDialog(C inputControl, boolean modal, boolean resizable, String title, String label) {
-		super(modal, resizable, DEFWIDTH, MINHEIGHT, title);
+		super(modal, resizable, DEFAULT_WIDTH, DEFAULT_MIN_HEIGHT, title);
 		m_inputControl = inputControl;
 		m_label = label;
 	}
 
 	public InputDialog(C inputControl, boolean resizable, String title) {
-		super(true, resizable, DEFWIDTH, MINHEIGHT, title);
+		super(true, resizable, DEFAULT_WIDTH, DEFAULT_MIN_HEIGHT, title);
 		m_inputControl = inputControl;
 	}
 
 	public InputDialog(C inputControl, String title) {
-		super(true, false, DEFWIDTH, MINHEIGHT, title);
+		super(true, false, DEFAULT_WIDTH, DEFAULT_MIN_HEIGHT, title);
 		m_inputControl = inputControl;
 	}
 
@@ -93,15 +97,18 @@ public class InputDialog<T, C extends NodeBase & IControl<T>> extends Dialog {
 	protected void createFrame() throws Exception {
 		super.createFrame();
 		createButtons();
+	}
+
+	@Override
+	public void createContent() throws Exception {
 		Div pnl = new Div();
-		pnl.setMarginTop("25px");
+		pnl.setCssClass("ui-idlg-pnl");
 		if(m_label != null) {
 			pnl.add(new Label(m_label));
-			getInputControl().setMarginLeft("10px");
+			getInputControl().setVerticalAlign(VerticalAlignType.TOP);
 		}
 		pnl.add(getInputControl());
 		add(pnl);
-		pnl.setTextAlign(TextAlign.CENTER);
 	}
 
 	/**
@@ -111,7 +118,9 @@ public class InputDialog<T, C extends NodeBase & IControl<T>> extends Dialog {
 	 *
 	 * @throws Exception
 	 */
+	@Override
 	protected void createButtons() throws Exception {
+		setButtonsOnBottom(true);
 		createSaveButton();
 		createCancelButton();
 	}

@@ -33,7 +33,7 @@ public class DefaultQueryHandler<T> implements IQueryHandler<T> {
 	private QDataContextFactory m_dcf;
 
 	public DefaultQueryHandler(NodeBase b) {
-		m_dcf = QContextManager.getDataContextFactory(b.getPage().getConversation());
+		m_dcf = QContextManager.getDataContextFactory(QContextManager.DEFAULT, b.getPage().getConversation());
 	}
 
 	@Override

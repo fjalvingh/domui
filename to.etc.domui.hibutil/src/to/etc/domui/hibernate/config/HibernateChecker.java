@@ -17,7 +17,6 @@ import org.hibernate.property.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.hibernate.types.*;
 import to.etc.util.*;
-import to.etc.webapp.testsupport.*;
 
 /**
  * This class attempts to check/correct common hibernate errors that it itself is too stupid to check for.
@@ -51,13 +50,16 @@ final public class HibernateChecker {
 
 	private int m_domuiMetaFatals;
 
+	final private boolean m_observableCollections;
+
 	private static enum Severity {
 		INFO, WARNING, ERROR, MUSTFIXNOW
 	}
 
-	public HibernateChecker(Configuration config, boolean reportProblems) {
+	public HibernateChecker(Configuration config, boolean reportProblems, boolean enableObservableCollections) {
 		m_config = config;
 		m_reportProblems = reportProblems;
+		m_observableCollections = enableObservableCollections;
 	}
 
 	private void problem(Severity sev, String s) {
@@ -93,58 +95,57 @@ final public class HibernateChecker {
 		for(Iterator< ? > iter = m_config.getClassMappings(); iter.hasNext();) {
 			PersistentClass pc = (PersistentClass) iter.next();
 			m_currentClass = pc.getMappedClass();
+			m_currentProperty = null;
 
-			String skipThis = null;
-			try {
-				skipThis = TUtilTestProperties.getTestProperties().getProperty("vptest.skip-hibernate-checks");
-			} catch(Exception e) {}
-			if(skipThis == null || !skipThis.equals("true")) {
-				m_currentProperty = null;
-
-				String tn = pc.getTable().getName();
-				Class< ? > xcl = exmaps.get(tn.toLowerCase());
-				if(xcl != null) {
-					m_dupTables++;
-					problem(Severity.ERROR, "DUPLICATE TABLE IN HIBERNATE MAPPING: " + tn + " in " + xcl + " and " + pc.getMappedClass());
-				}
-				exmaps.put(tn.toLowerCase(), pc.getMappedClass());
-
-				//-- Handle nasty types.
-				Entity ent = (Entity) pc.getMappedClass().getAnnotation(Entity.class);
-				if(null == ent) {
-					problem(Severity.ERROR, "Class " + pc.getClassName() + " added without @Entity annotation - is this a real table class??");
-					m_missingEntity++;
-				}
-
-				//-- Check property annotations.
-				List<PropertyInfo> pilist = ClassUtil.calculateProperties(pc.getMappedClass());
-				for(PropertyInfo pi : pilist) {
-					m_currentProperty = pi;
-					Method g = pi.getGetter();
-					if(g != null) {
-						checkOneToMany(g);
-						checkEnumMapping(g);
-						checkDateMapping(g);
-						checkBooleanMapping(g);
-					}
-				}
-
-				checkDomuiMetadata();
-
+			String tn = pc.getTable().getName();
+			Class< ? > xcl = exmaps.get(tn.toLowerCase());
+			if(xcl != null) {
+				m_dupTables++;
+				problem(Severity.ERROR, "DUPLICATE TABLE IN HIBERNATE MAPPING: " + tn + " in " + xcl + " and " + pc.getMappedClass());
 			}
+			exmaps.put(tn.toLowerCase(), pc.getMappedClass());
+
+			//-- Handle nasty types.
+			Entity ent = (Entity) pc.getMappedClass().getAnnotation(Entity.class);
+			if(null == ent) {
+				problem(Severity.ERROR, "Class " + pc.getClassName() + " added without @Entity annotation - is this a real table class??");
+				m_missingEntity++;
+			}
+
+			//-- Check property annotations.
+			List<PropertyInfo> pilist = ClassUtil.calculateProperties(pc.getMappedClass());
+			for(PropertyInfo pi : pilist) {
+				m_currentProperty = pi;
+				Method g = pi.getGetter();
+				if(g != null) {
+					checkOneToMany(g);
+					checkEnumMapping(g);
+					checkDateMapping(g);
+					checkBooleanMapping(g);
+				}
+			}
+
+			checkDomuiMetadata();
 
 			for(Iterator< ? > iter2 = pc.getPropertyIterator(); iter2.hasNext();) {
 				Property property = (Property) iter2.next();
 				//				System.out.println("... " + property.getName() + " type " + property.getType().getName());
+				Getter g = property.getGetter(pc.getMappedClass());
+
+				Method method = g.getMethod();
+				Class< ? > actual = null == method ? null : method.getReturnType();
+
 				if(property.getType().getName().equals(MappedEnumType.class.getName()) || "nl.itris.viewpoint.db.hibernate.ViewPointMappedEnumType".equals(property.getType().getName())) {
 					//-- Sigh.. Try to obtain the property's actual type from the getter because Hibernate does not have an easy route to it, appearently.
-					Getter g = property.getGetter(pc.getMappedClass());
-					Class< ? > actual = g.getMethod().getReturnType();
 					SimpleValue v = (SimpleValue) property.getValue();
 					//					System.out.println("Property " + v + " is " + v.getTypeName() + " class=" + actual);
 					if(v.getTypeParameters() == null)
 						v.setTypeParameters(new Properties());
 					v.getTypeParameters().setProperty("propertyType", actual.getName());
+				}
+				if(m_observableCollections && actual != null && List.class.isAssignableFrom(actual)) {
+					Bag many = (Bag) property.getValue();
+					many.setTypeName("to.etc.domui.hibernate.types.ObservableListType");
 				}
 			}
 		}
@@ -294,9 +295,12 @@ final public class HibernateChecker {
 			System.out.println("MAPPING: " + getBadChildType() + " bad @OneToMany mappings with non-List<T> type");
 		if(getBadJoinColumn() > 0)
 			System.out.println("MAPPING: " + getBadJoinColumn() + " bad @OneToMany mappings with @JoinColumn");
-		System.out.println("MAPPING: " + getDupTables() + " duplicate tables");
-		System.out.println("MAPPING: " + getEnumErrors() + " enum's mapped as ORDINAL or missing @Enumerated annotation");
-		System.out.println("MAPPING: " + getDateErrors() + " date field without proper @Temporal annotation or of the wrong date type");
+		if(getDupTables() > 0)
+			System.out.println("MAPPING: " + getDupTables() + " duplicate tables");
+		if(getEnumErrors() > 0)
+			System.out.println("MAPPING: " + getEnumErrors() + " enum's mapped as ORDINAL or missing @Enumerated annotation");
+		if(getDateErrors() > 0)
+			System.out.println("MAPPING: " + getDateErrors() + " date field without proper @Temporal annotation or of the wrong date type");
 		if(getMissingEntity() > 0)
 			System.out.println("MAPPING: " + getMissingEntity() + " classes missing an @Entity annotation");
 		if(getBadBooleans() > 0)

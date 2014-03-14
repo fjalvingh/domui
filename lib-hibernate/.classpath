@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="project/core/src/main/resources"/>
-	<classpathentry kind="src" path="generated-sources/antlr"/>
-	<classpathentry kind="src" path="project/core/src/main/java"/>
-	<classpathentry exported="true" kind="lib" path="lib/bytecode/cglib/cglib-2.2.jar">
-		<attributes>
-			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
-		</attributes>
-	</classpathentry>
+	<classpathentry kind="src" path="project/hibernate-core/src/main/resources"/>
+	<classpathentry kind="src" path="generated"/>
+	<classpathentry kind="src" path="project/hibernate-core/src/main/java"/>
+	<classpathentry kind="src" path="annotation-commons"/>
 	<classpathentry exported="true" kind="lib" path="lib/required/antlr-2.7.6.jar">
 		<attributes>
 			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
@@ -23,7 +19,7 @@
 			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="lib/required/javassist-3.9.0.GA.jar">
+	<classpathentry exported="true" kind="lib" path="lib/required/javassist-3.12.0.GA.jar">
 		<attributes>
 			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
 		</attributes>
@@ -33,34 +29,46 @@
 			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/ant-1.6.5.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jacc-1_0-fr.jar">
+	<classpathentry exported="true" kind="lib" path="lib/jpa/hibernate-jpa-2.0-api-1.0.1.Final.jar">
 		<attributes>
 			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="lib/asm-all-3.0.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6">
-		<attributes>
-			<attribute name="owner.project.facets" value="jst.java"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/bin-slf4j"/>
-	<classpathentry exported="true" kind="lib" path="lib-annotations/ejb3-persistence.jar">
+	<classpathentry exported="true" kind="lib" path="lib/validation-api-1.0.0.GA.jar">
 		<attributes>
 			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="lib-annotations/hibernate-annotations.jar">
+	<classpathentry kind="lib" path="lib/ant-1.6.5.jar">
 		<attributes>
 			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="lib-annotations/hibernate-commons-annotations.jar">
+	<classpathentry exported="true" kind="lib" path="lib/bytecode/cglib/cglib-2.2.jar">
 		<attributes>
 			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/bin-asm-3.3"/>
+	<classpathentry exported="true" kind="lib" path="lib/asm-3.1.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry exported="true" kind="lib" path="lib/jboss-jacc-api_JDK4-1.1.0.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry exported="true" kind="lib" path="lib/hibernate-validator-4.1.0.Final.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry combineaccessrules="false" kind="src" path="/bin-slf4j"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7">
+		<attributes>
+			<attribute name="owner.project.facets" value="java"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

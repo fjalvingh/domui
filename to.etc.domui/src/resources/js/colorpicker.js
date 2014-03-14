@@ -194,6 +194,10 @@
 			leaveSubmit = function (ev) {
 				$(this).removeClass('colorpicker_focus');
 			},
+			getColor = function() {
+				var cal = $(this).parent();
+				return cal.data('colorpicker').color;
+			},			
 			clickSubmit = function (ev) {
 				var cal = $(this).parent();
 				var col = cal.data('colorpicker').color;
@@ -448,6 +452,14 @@
 					}
 				});
 			},
+			destroy: function() {
+				var x = $(this).data('colorpickerId');
+				if(x) {
+					var cal = $(tpl).attr('id', id);
+					cal .find('input').unbind('keyup', keyDown).unbind('change', change).unbind('blur', blur).unbind('focus', focus);
+				}
+			},
+
 			setColor: function(col) {
 				if (typeof col == 'string') {
 					col = HexToHSB(col);
@@ -479,6 +491,7 @@
 		ColorPicker: ColorPicker.init,
 		ColorPickerHide: ColorPicker.hidePicker,
 		ColorPickerShow: ColorPicker.showPicker,
-		ColorPickerSetColor: ColorPicker.setColor
+		ColorPickerSetColor: ColorPicker.setColor,
+		ColorPickerGetColor: ColorPicker.getColor
 	});
 })(jQuery)

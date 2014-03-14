@@ -120,6 +120,20 @@ public class TextScanner {
 		return true;
 	}
 
+	public Double scanDouble() {
+		sb().setLength(0);
+		while(m_ix < m_len) {
+			char c = m_text.charAt(m_ix);
+			if(!Character.isDigit(c) && c != '.')
+				break;
+			copy();
+		}
+		String s = sb().toString();
+		if(s.length() == 0)
+			return null;
+		return Double.valueOf(s);
+	}
+
 	/**
 	 * Scans for a generic "word", which is defined as a sequence of
 	 * characters starting with a letter, followed by letters and/or

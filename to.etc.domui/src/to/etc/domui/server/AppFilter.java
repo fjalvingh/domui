@@ -27,18 +27,14 @@ package to.etc.domui.server;
 import java.io.*;
 import java.util.*;
 
+import javax.annotation.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
 import org.slf4j.*;
-import org.slf4j.Logger;
-import org.slf4j.bridge.*;
-
-import ch.qos.logback.classic.*;
-import ch.qos.logback.classic.joran.*;
-import ch.qos.logback.core.util.*;
 
 import to.etc.domui.util.*;
+import to.etc.log.*;
 import to.etc.net.*;
 import to.etc.util.*;
 
@@ -60,10 +56,21 @@ public class AppFilter implements Filter {
 
 	static private String m_appContext;
 
+	@Nullable
+	static private IRequestResponseWrapper m_ioWrapper;
 	/**
 	 * If a reloader is needed for debug/development pps this will hold the reloader.
 	 */
 	private IContextMaker m_contextMaker;
+
+	/** If client logging is enabled this contains the registry. */
+	private ServerClientRegistry m_clientRegistry;
+
+	private ILoginDeterminator m_loginDeterminator;
+
+	static public synchronized void setIoWrapper(@Nonnull IRequestResponseWrapper ww) {
+		m_ioWrapper = ww;
+	}
 
 	@Override
 	public void destroy() {
@@ -81,6 +88,21 @@ public class AppFilter implements Filter {
 	public void doFilter(final ServletRequest req, final ServletResponse res, final FilterChain chain) throws IOException, ServletException {
 		try {
 			HttpServletRequest rq = (HttpServletRequest) req;
+			HttpServletResponse response = (HttpServletResponse) res;
+			IRequestResponseWrapper ww = m_ioWrapper;
+			if(null != ww) {
+				rq = ww.getWrappedRequest(rq);
+				response = ww.getWrappedResponse(response);
+			}
+
+
+			String userid = m_loginDeterminator.getLoginData(rq);
+			if(null != userid)
+				m_clientRegistry.registerRequest(rq, userid);
+
+			MDC.put(to.etc.log.EtcMDCAdapter.SESSION, rq.getSession().getId());
+			MDC.put(to.etc.log.EtcMDCAdapter.LOGINID, userid);
+			//LOG.info(MarkerFactory.getMarker("request-uri"), rq.getRequestURI()); -- useful for developer controlled debugging
 			rq.setCharacterEncoding("UTF-8"); // FIXME jal 20080804 Encoding of input was incorrect?
 			//			DomUtil.dumpRequest(rq);
 
@@ -93,8 +115,7 @@ public class AppFilter implements Filter {
 			//			NlsContext.setLocale(new Locale("nl", "NL"));
 			initContext(req);
 
-			if(m_contextMaker.handleRequest(rq, (HttpServletResponse) res, chain))
-				return;
+			m_contextMaker.handleRequest(rq, (HttpServletResponse) res, chain);
 		} catch(RuntimeException x) {
 			DomUtil.dumpException(x);
 			throw x;
@@ -131,29 +152,38 @@ public class AppFilter implements Filter {
 		return m_appContext;
 	}
 
-	private InputStream findLogConfig(String logconfig) {
-		if(logconfig != null) {
-			//-- Try to find this as a class-relative resource;
-			if(!logconfig.startsWith("/")) {
-				InputStream is = getClass().getResourceAsStream("/" + logconfig);
-				if(is != null) {
-					System.out.println("DomUI: using user-specified logback config file from classpath-resource " + logconfig);
-					return is;
-				}
-			}
-
+	@Nullable
+	static private String readDefaultConfiguration(@Nullable String logConfigLocation) {
+		if(logConfigLocation != null) {
 			try {
-				File f = new File(logconfig);
-				if(f.exists() && f.isFile()) {
-					System.out.println("DomUI: using logback logging configuration file " + f.getAbsolutePath());
-					return new FileInputStream(f);
+				File configFile = new File(logConfigLocation);
+				if(!(configFile.exists() && configFile.isFile())) {
+					//-- Try to find this as a class-relative resource;
+					if(!logConfigLocation.startsWith("/")) {
+						String res = FileTool.readResourceAsString(AppFilter.class, "/" + logConfigLocation, "utf-8");
+						if(res != null) {
+							System.out.println("DomUI: using user-specified log config file from classpath-resource " + logConfigLocation);
+							return res;
+						}
+					}
+				} else {
+					String res = FileTool.readFileAsString(configFile, "utf-8");
+					if(res != null) {
+						System.out.println("DomUI: using logging configuration file " + configFile.getAbsolutePath());
+						return res;
+					}
 				}
-			} catch(Exception x) {}
+			} catch(Exception ex) {
+			}
 		}
-		InputStream is = AppFilter.class.getResourceAsStream("logback.xml");
-		if(is != null)
-			System.out.println("DomUI: using internal logback.xml");
-		return is;
+		try {
+			String res = FileTool.readResourceAsString(AppFilter.class, "etcLoggerConfig.xml", "utf-8");
+			if(res != null)
+				System.out.println("DomUI: using internal etcLoggerConfig.xml");
+			return res;
+		} catch(Exception ex) {}
+
+		return null;
 	}
 
 	/**
@@ -161,53 +191,41 @@ public class AppFilter implements Filter {
 	 * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
 	 */
 	@Override
-	public void init(final FilterConfig config) throws ServletException {
-		try {
-			//-- Where to get log config from?
-			String logconfig = DeveloperOptions.getString("domui.logconfig");
-			if(logconfig == null) {
-				logconfig = System.getProperty("domui.logconfig");
-				if(null == logconfig)
-					logconfig = config.getInitParameter("logpath");
-			}
-			InputStream logStream = findLogConfig(logconfig);
-			if(logStream != null) {
-				JoranConfigurator jc = new JoranConfigurator();
-				LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-				jc.setContext(lc);
-				lc.reset();
-				jc.doConfigure(logStream);
-				System.out.println("DomUI: logging configured.");
-				StatusPrinter.printInCaseOfErrorsOrWarnings(lc);
-				SLF4JBridgeHandler.install();
+	public synchronized void init(final FilterConfig config) throws ServletException {
+		File approot = new File(config.getServletContext().getRealPath("/"));
 
-			}
-		} catch(Exception x) {
-			x.printStackTrace();
-			throw WrappedException.wrap(x);
-		} catch(Error x) {
-			x.printStackTrace();
-			throw x;
-		}
+		//FIXME: this uses Viewpoint specific location (%approot%/Private) and needs to be fixed later.
+		File logConfigLocation = new File(approot, "Private" + File.separator + "etcLog");
+
+		initLogConfig(logConfigLocation, config.getInitParameter("logpath"));
+
 		try {
 			m_logRequest = DeveloperOptions.getBool("domui.logurl", false);
 
 			//-- Get the root for all files in the webapp
-			File approot = new File(config.getServletContext().getRealPath("/"));
 			System.out.println("WebApp root=" + approot);
 			if(!approot.exists() || !approot.isDirectory())
 				throw new IllegalStateException("Internal: cannot get webapp root directory");
 
-			m_config = new ConfigParameters(config, approot);
+			m_config = new FilterConfigParameters(config, approot);
 
 			//-- Handle application construction
 			m_applicationClassName = getApplicationClassName(m_config);
 			if(m_applicationClassName == null)
 				throw new UnavailableException("The application class name is not set. Use 'application' in the Filter parameters to set a main class.");
 
+			//-- Do we want session logging?
+			String s = config.getInitParameter("login-determinator");
+			if(null != s) {
+				m_loginDeterminator = ClassUtil.loadInstance(getClass().getClassLoader(), ILoginDeterminator.class, s);
+			} else {
+				m_loginDeterminator = new DefaultLoginDeterminator();
+			}
+			m_clientRegistry = ServerClientRegistry.getInstance();
+
 			//-- Are we running in development mode?
 			String autoload = m_config.getString("auto-reload");
-			autoload = DeveloperOptions.getString("domui.reload", autoload); // Allow override of web.xml values.
+			autoload = DeveloperOptions.getString("domui.reload", autoload); 			// Allow override of web.xml values.
 
 			//these patterns will be only watched not really reloaded. It makes sure the reloader kicks in. Found bundles and MetaData will be reloaded only.
 			String autoloadWatchOnly = m_config.getString("auto-reload-watch-only");
@@ -225,6 +243,56 @@ public class AppFilter implements Filter {
 		} catch(Exception x) {
 			DomUtil.dumpException(x);
 			throw new RuntimeException(x); // checked exceptions are idiotic
+		} catch(Error x) {
+			x.printStackTrace();
+			throw x;
+		}
+	}
+
+	static public void initLogConfig(@Nullable File writableConfigLocation, @Nullable String logConfig) throws Error {
+		try {
+			if(null == writableConfigLocation) {
+				File f = FileTool.getTmpDir();
+				writableConfigLocation = new File(f, "etclogger.config");
+			}
+			writableConfigLocation.mkdirs();
+
+			//-- 2. Try to load the "writable" one, if present.
+			String xmlContent = null;
+			if(writableConfigLocation.exists() && writableConfigLocation.isFile()) {
+				try {
+					xmlContent = FileTool.readFileAsString(writableConfigLocation);
+				} catch(Exception x) {
+					System.err.println("etclog: failed to read " + writableConfigLocation);
+				}
+			}
+
+			//-- 3. If user-changed one failed- load a default one.
+			if(null == xmlContent) {
+				// -- Where to get log config from?
+				String logspec = DeveloperOptions.getString("domui.logconfig");
+				if(logspec == null) {
+					logspec = System.getProperty("domui.logconfig");
+					if(null == logspec)
+						logspec = logConfig;
+				}
+				xmlContent = readDefaultConfiguration(logspec);
+				if(null == xmlContent)
+					throw new IllegalStateException("no logger configuration found at all");
+			}
+
+			EtcLoggerFactory.getSingleton().initialize(writableConfigLocation, xmlContent);
+//
+//			//-- logger config location should always exist (FIXME: check if under LINUX it needs to be created in some special way to have write rights for tomcat user)
+//			if(logConfigXml != null && EtcLoggerFactory.getSingleton().tryLoadConfigFromXml(writableConfigLocation, logConfigXml)) {
+//				LOG.info(EtcLoggerFactory.getSingleton().getClass().getName() + " is initialized by loading specific logger configuration from xml:\n" + logConfigXml);
+//			} else {
+//				//-- If 'special' logger config does not exists or fails to load, we try to use standard way of initializing logger
+//				String defaultConfigXml = readDefaultLoggerConfig();
+//			}
+		} catch(Exception x) {
+			x.printStackTrace();
+			throw WrappedException.wrap(x);
 		} catch(Error x) {
 			x.printStackTrace();
 			throw x;

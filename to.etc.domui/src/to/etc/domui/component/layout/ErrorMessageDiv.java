@@ -26,6 +26,8 @@ package to.etc.domui.component.layout;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
@@ -82,18 +84,19 @@ public class ErrorMessageDiv extends Div implements IErrorMessageListener {
 	 * important) then all INFO messages that are <i>already shown</i> are removed from
 	 * the display and the message list.
 	 *
-	 * @see to.etc.domui.dom.errors.IErrorMessageListener#errorMessageAdded(to.etc.domui.dom.html.Page, to.etc.domui.dom.errors.UIMessage)
+	 * @see to.etc.domui.dom.errors.IErrorMessageListener#errorMessageAdded(to.etc.domui.dom.errors.UIMessage)
 	 */
 	@Override
-	public void errorMessageAdded(Page pg, UIMessage m) {
+	public void errorMessageAdded(@Nonnull UIMessage m) {
 		if(m_msgList.contains(m))
 			return;
 
 		if(m.getType() != MsgType.INFO) {
 			List<Div> errorDivs = getChildren(Div.class); // FIXME Why DIV's only?
 			for(Div errorDiv : errorDivs) {
-				if(errorDiv.getUserObject() instanceof UIMessage && ((UIMessage) errorDiv.getUserObject()).getType() == MsgType.INFO) {
-					m_msgList.remove(errorDiv.getUserObject());
+				Object userObject = errorDiv.getUserObject();
+				if(userObject instanceof UIMessage && ((UIMessage) userObject).getType() == MsgType.INFO) {
+					m_msgList.remove(userObject);
 					errorDiv.remove();
 				}
 			}
@@ -116,14 +119,15 @@ public class ErrorMessageDiv extends Div implements IErrorMessageListener {
 		d.setCssClass("ui-emd-msg ui-emd-" + m.getType().name().toLowerCase());
 		d.setUserObject(m);
 		DomUtil.renderErrorMessage(d, m);
-		if(m.getErrorNode() != null) {
-			m.getErrorNode().addCssClass("ui-input-err");
+		NodeBase errorNode = m.getErrorNode();
+		if(errorNode != null) {
+			errorNode.addCssClass("ui-input-err");
 		}
 		return d;
 	}
 
 	@Override
-	public void errorMessageRemoved(Page pg, UIMessage m) {
+	public void errorMessageRemoved(@Nonnull UIMessage m) {
 		if(!m_msgList.remove(m))
 			return;
 
@@ -131,8 +135,9 @@ public class ErrorMessageDiv extends Div implements IErrorMessageListener {
 			if(b.getUserObject() == m) {
 				//-- Remove this object!
 				b.remove();
-				if(m.getErrorNode() != null)
-					m.getErrorNode().removeCssClass("ui-input-err");
+				NodeBase errorNode = m.getErrorNode();
+				if(errorNode != null)
+					errorNode.removeCssClass("ui-input-err");
 				break;
 			}
 		}

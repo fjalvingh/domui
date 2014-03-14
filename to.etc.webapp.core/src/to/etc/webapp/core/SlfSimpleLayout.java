@@ -24,14 +24,18 @@
  */
 package to.etc.webapp.core;
 
-import java.util.*;
+//import java.util.*;
 
-import ch.qos.logback.classic.spi.*;
-import ch.qos.logback.core.*;
+//import ch.qos.logback.classic.spi.*;
+//import ch.qos.logback.core.*;
 
-import to.etc.util.*;
+//import to.etc.util.*;
 
-public class SlfSimpleLayout extends LayoutBase<ILoggingEvent> {
+public class SlfSimpleLayout {
+/*
+ * Code is temporary commented out - we can't reference logback implementation currently 
+ * 
+ * extends LayoutBase<ILoggingEvent> {
 	@Override
 	public String doLayout(ILoggingEvent e) {
 		StringBuilder sb = new StringBuilder(512);
@@ -56,4 +60,5 @@ public class SlfSimpleLayout extends LayoutBase<ILoggingEvent> {
 		}
 		return sb.toString();
 	}
+*/
 }

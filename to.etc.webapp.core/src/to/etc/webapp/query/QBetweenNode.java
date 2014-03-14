@@ -24,6 +24,8 @@
  */
 package to.etc.webapp.query;
 
+import javax.annotation.*;
+
 /**
  * Represents a "between" operation where the base item is a property reference.
  *
@@ -42,6 +44,11 @@ public class QBetweenNode extends QOperatorNode {
 		m_a = a;
 		m_b = b;
 		m_prop = prop;
+	}
+
+	@Override
+	public QBetweenNode dup() {
+		return new QBetweenNode(getOperation(), getProp(), getA().dup(), getB().dup());
 	}
 
 	/**
@@ -69,7 +76,7 @@ public class QBetweenNode extends QOperatorNode {
 	}
 
 	@Override
-	public void visit(QNodeVisitor v) throws Exception {
+	public void visit(@Nonnull QNodeVisitor v) throws Exception {
 		v.visitBetween(this);
 	}
 }

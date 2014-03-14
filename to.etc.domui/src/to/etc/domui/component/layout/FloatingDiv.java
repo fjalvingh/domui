@@ -49,9 +49,9 @@ public class FloatingDiv extends Div implements IAddToBody {
 
 	static protected final int MINHEIGHT = 200;
 
-	final private boolean m_modal;
+	private boolean m_modal;
 
-	final private boolean m_resizable;
+	private boolean m_resizable;
 
 	/** A handler to call when the floating (window) is closed. This is only called if the window is closed by a user action, not when the window is closed by code (by calling {@link #close()}). */
 	@Nullable
@@ -61,18 +61,49 @@ public class FloatingDiv extends Div implements IAddToBody {
 	@Nullable
 	private Div m_hider;
 
+	public FloatingDiv() {}
+
 	public FloatingDiv(boolean modal) {
-		this(modal, false, DEFWIDTH, DEFHEIGHT);
+		this(modal, false, -1, -1);
 	}
 
 	public FloatingDiv(boolean modal, boolean resizable) {
-		this(modal, resizable, DEFWIDTH, DEFHEIGHT);
+		this(modal, resizable, -1, -1);
 	}
 
 	public FloatingDiv(boolean modal, boolean resizable, int widthinpx, int heightinpx) {
 		m_modal = modal;
 		m_resizable = resizable;
 		setDimensions(widthinpx, heightinpx);
+	}
+
+	@Nonnull
+	public FloatingDiv size(int width, int height) {
+		setDimensions(width, height);
+		return this;
+	}
+
+	@Nonnull
+	public FloatingDiv resizable() {
+		m_resizable = true;
+		return this;
+	}
+
+	@Nonnull
+	public FloatingDiv modal(boolean yes) {
+		m_modal = yes;
+		return this;
+	}
+
+	@Nonnull
+	public FloatingDiv modal() {
+		return modal(true);
+	}
+
+	@Nonnull
+	public FloatingDiv width(int pxsl) {
+		setWidth(pxsl + "px");
+		return this;
 	}
 
 	/**
@@ -83,14 +114,16 @@ public class FloatingDiv extends Div implements IAddToBody {
 	 * @param height
 	 */
 	public void setDimensions(int width, int height) {
-		if(width < 250 || height < 200)
-			throw new IllegalArgumentException("The width=" + width + " or height=" + height + " is invalid: it cannot be smaller than 250x200.");
-
-
-		//		if(isBuilt())
-		//			throw new IllegalStateException("The initial size can only be changed before the component " + getClass() + " is built.");
-		setWidth(width + "px");
-		setHeight(height + "px");
+		if(width > 0) {
+			if(width < 250)
+				throw new IllegalArgumentException("The width=" + width + " is invalid: it cannot be smaller than 250.");
+			setWidth(width + "px");
+		}
+		if(height > 0) {
+			if(height < 200)
+				throw new IllegalArgumentException("The height=" + height + " is invalid: it cannot be smaller than 200.");
+			setHeight(height + "px");
+		}
 	}
 
 	/**
@@ -128,11 +161,14 @@ public class FloatingDiv extends Div implements IAddToBody {
 	protected void beforeCreateContent() {
 		super.beforeCreateContent();
 		setCssClass("ui-flw");
+		deactivateHiddenAccessKeys();
 
-		if(getWidth() == null) // Should not be possible.
-			setWidth("640px");
-		if(getHeight() == null) // Should not be possible
-			setHeight("400px");
+		// jal 20121105 Removed: interferes with auto-resizing floating window.
+		//		if(getWidth() == null) // Should not be possible.
+		//			setWidth("640px");
+		//		if(getHeight() == null) // Should not be possible
+		//			setHeight("400px");
+
 		if(getZIndex() <= 0) { // Should not be possible.
 			FloatingDiv parentFloatingDiv = findParent(FloatingDiv.class);
 			if(parentFloatingDiv != null) {
@@ -152,15 +188,25 @@ public class FloatingDiv extends Div implements IAddToBody {
 			if(widthPerc != -1) {
 				// center floating window horizontally on screen
 				setMarginLeft("-" + widthPerc / 2 + "%");
+				setLeft("50%");
 			}
 		} else {
 			//when relative size is in use we don't center window horizontaly, otherwise we need to center it
 			int width = DomUtil.pixelSize(getWidth());
-			if(-1 == width)
-			    throw new IllegalStateException("Bad width!");
+			if(-1 == width) {
+				StringBuilder sb = new StringBuilder();
+				appendJQuerySelector(sb);
+				sb.append(".center();");
+				appendCreateJS(sb.toString());
+				//			    throw new IllegalStateException("Bad width!");
+			} else {
+				// center floating window horizontally on screen
+				setMarginLeft("-" + width / 2 + "px");
+				setMarginTop("0px");
+				setLeft("50%");
+				setTop("5%");
 
-			// center floating window horizontally on screen
-			setMarginLeft("-" + width / 2 + "px");
+			}
 		}
 
 		//-- If this is resizable add the resizable() thing to the create javascript.
@@ -234,6 +280,7 @@ public class FloatingDiv extends Div implements IAddToBody {
 	 */
 	@OverridingMethodsMustInvokeSuper
 	public void close() {
+		reactivateHiddenAccessKeys();
 		remove();
 	}
 
@@ -252,4 +299,20 @@ public class FloatingDiv extends Div implements IAddToBody {
 		}
 	}
 
+	/**
+	 * Disables all button access keys which are not part of active floating window.
+	 * They will be enabled again on window close
+	 * @see FloatingDiv#reactivateHiddenAccessKeys()
+	 */
+	private void deactivateHiddenAccessKeys() {
+		appendCreateJS("WebUI.deactivateHiddenAccessKeys(" + getActualID() + ");");
+	}
+
+	/**
+	 * Enables all button access keys, disabled during the floating window presence.
+	 * @see FloatingDiv#deactivateHiddenAccessKeys()
+	 */
+	private void reactivateHiddenAccessKeys() {
+		appendJavascript("WebUI.reactivateHiddenAccessKeys('" + getActualID() + "');");
+	}
 }

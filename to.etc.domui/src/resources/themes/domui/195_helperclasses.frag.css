@@ -4,10 +4,6 @@
 	white-space: nowrap;
     overflow: hidden;
 }
-.ui-szless {
-	padding: 0px;
-	margin: 0px;
-}
 .ui-clickable {
 	cursor: pointer;
 }

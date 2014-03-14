@@ -26,6 +26,7 @@ package to.etc.dbpool;
 
 import java.io.*;
 import java.sql.*;
+import java.util.logging.*;
 
 import javax.sql.*;
 
@@ -75,6 +76,16 @@ final public class DataSourceImpl implements DataSource {
 	}
 
 	public <T> T unwrap(Class<T> iface) throws SQLException {
+		if(DataSourceImpl.class == iface)
+			return (T) this;
+		if(DataSource.class == iface)
+			return (T) this;
+
 		throw new IllegalStateException("Cannot unwrap to " + iface);
+	}
+
+	@Override
+	public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+		throw new SQLFeatureNotSupportedException();
 	}
 }

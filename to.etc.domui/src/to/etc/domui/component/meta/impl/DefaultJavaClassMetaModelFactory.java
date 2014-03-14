@@ -59,7 +59,7 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 	 */
 	@Override
 	@Nonnull
-	public ClassMetaModel createModel(List<Runnable> init, @Nonnull Object theThingy) {
+	public ClassMetaModel createModel(@Nonnull List<Runnable> init, @Nonnull Object theThingy) {
 		Class< ? > clz = (Class< ? >) theThingy;
 		final DefaultJavaClassInfo colli = new DefaultJavaClassInfo(new DefaultClassMetaModel(clz), init);
 
@@ -105,7 +105,7 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 	 * @param colli
 	 * @param pilist
 	 */
-	private void createPropertyMetas(DefaultJavaClassInfo colli, List<PropertyInfo> pilist) {
+	private void createPropertyMetas(@Nonnull DefaultJavaClassInfo colli, @Nonnull List<PropertyInfo> pilist) {
 		List<PropertyMetaModel< ? >> reslist = new ArrayList<PropertyMetaModel< ? >>(pilist.size());
 
 		//-- Create model data from this thingy.
@@ -130,19 +130,19 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 	 * @param m_keySearchList
 	 * @param m_searchList
 	 */
-	protected void decodeProperties(final DefaultJavaClassInfo colli) {
+	protected void decodeProperties(@Nonnull final DefaultJavaClassInfo colli) {
 		for(Map.Entry<PropertyInfo, DefaultPropertyMetaModel< ? >> e : colli.getMap().entrySet()) {
 			updatePropertyInfo(colli, e.getValue(), e.getKey());
 		}
 	}
 
-	protected void updatePropertyInfo(final DefaultJavaClassInfo colli, DefaultPropertyMetaModel< ? > pm, PropertyInfo pd) {
+	protected void updatePropertyInfo(@Nonnull final DefaultJavaClassInfo colli, @Nonnull DefaultPropertyMetaModel< ? > pm, @Nonnull PropertyInfo pd) {
 		initPropertyModel(colli, pd, pm);
 		if(pm.isPrimaryKey())
 			colli.getModel().setPrimaryKey(pm);
 	}
 
-	protected void initPropertyModel(DefaultJavaClassInfo colli, PropertyInfo pd, DefaultPropertyMetaModel< ? > pmm) {
+	protected void initPropertyModel(@Nonnull DefaultJavaClassInfo colli, @Nonnull PropertyInfo pd, @Nonnull DefaultPropertyMetaModel< ? > pmm) {
 		Annotation[] annar = pd.getGetter().getAnnotations();
 		for(Annotation an : annar) {
 			String ana = an.annotationType().getName();
@@ -151,8 +151,8 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 		}
 	}
 
-	@SuppressWarnings({"cast", "unchecked"})
-	protected <T> void decodePropertyAnnotation(final DefaultJavaClassInfo colli, final DefaultPropertyMetaModel<T> pmm, Annotation an) {
+	@SuppressWarnings({"unchecked"})
+	protected <T> void decodePropertyAnnotation(@Nonnull final DefaultJavaClassInfo colli, @Nonnull final DefaultPropertyMetaModel<T> pmm, Annotation an) {
 		final DefaultClassMetaModel cmm = colli.getModel();
 		if(an instanceof MetaProperty) {
 			//-- Handle meta-assignments.
@@ -168,7 +168,7 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 			if(mp.required() != YesNoType.UNKNOWN)
 				pmm.setRequired(mp.required() == YesNoType.YES);
 			if(mp.converterClass() != DummyConverter.class)
-				pmm.setConverter((IConverter<T>) ConverterRegistry.getConverterInstance((Class< ? extends IConverter<T>>) mp.converterClass()));
+				pmm.setConverter(ConverterRegistry.getConverterInstance((Class< ? extends IConverter<T>>) mp.converterClass()));
 			if(mp.temporal() != TemporalPresentationType.UNKNOWN && pmm.getTemporal() == TemporalPresentationType.UNKNOWN)
 				pmm.setTemporal(mp.temporal());
 			if(mp.numericPresentation() != NumericPresentation.UNKNOWN)
@@ -296,7 +296,7 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 		}
 	}
 
-	protected void decodePropertyAnnotationByName(DefaultJavaClassInfo colli, DefaultPropertyMetaModel< ? > pmm, Annotation an, String name) {
+	protected void decodePropertyAnnotationByName(@Nonnull DefaultJavaClassInfo colli, @Nonnull DefaultPropertyMetaModel< ? > pmm, @Nonnull Annotation an, @Nonnull String name) {
 		DefaultClassMetaModel cmm = colli.getModel();
 		if("javax.persistence.Column".equals(name)) {
 			decodeJpaColumn(pmm, an);
@@ -347,13 +347,13 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 	 * @param pmm
 	 * @param an
 	 */
-	protected void decodeJpaColumn(DefaultPropertyMetaModel< ? > pmm, final Annotation an) {
+	protected void decodeJpaColumn(@Nonnull DefaultPropertyMetaModel< ? > pmm, @Nonnull final Annotation an) {
 		try {
 			/*
-			 * Handle the "length" annotation. As usual, someone with a brain the size of a pea fucked up the standard. The
+			 * Handle the "length" annotation. As usual, someone with a brain the size of a pea f.cked up the standard. The
 			 * default value for the length is 255, which is of course a totally reasonable size. This makes it impossible to
-			 * see if someone has actually provided a value. This means that in absence of the length the field is fucking
-			 * suddenly 255 characters big. To prevent this utter disaster from fucking up the data we only accept this for
+			 * see if someone has actually provided a value. This means that in absence of the length the field is fscking
+			 * suddenly 255 characters big. To prevent this utter disaster from f'ing up the data we only accept this for
 			 * STRING fields.
 			 */
 			Integer iv = (Integer) DomUtil.getClassValue(an, "length");
@@ -387,7 +387,7 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 	 * @param dmm
 	 * @param m_clz
 	 */
-	protected void decodeDomainValues(DefaultJavaClassInfo colli) {
+	protected void decodeDomainValues(@Nonnull DefaultJavaClassInfo colli) {
 		//-- If this is an enumerable thingerydoo...
 		if(colli.getTypeClass() == Boolean.class) {
 			colli.getModel().setDomainValues(new Object[]{Boolean.FALSE, Boolean.TRUE});
@@ -406,7 +406,7 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 	 * @param m_keySearchList
 	 * @param m_searchList
 	 */
-	protected void decodeClassAnnotations(DefaultJavaClassInfo colli) {
+	protected void decodeClassAnnotations(@Nonnull DefaultJavaClassInfo colli) {
 		Annotation[] annar = colli.getTypeClass().getAnnotations(); // All class-level thingerydoos
 		for(Annotation an : annar) {
 			String ana = an.annotationType().getName(); // Get the annotation's name
@@ -447,7 +447,7 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 	 * @param m_keySearchList
 	 * @param m_searchList
 	 */
-	protected void decodeClassAnnotation(final DefaultJavaClassInfo colli, final Annotation an) {
+	protected void decodeClassAnnotation(@Nonnull final DefaultJavaClassInfo colli, @Nonnull final Annotation an) {
 		final DefaultClassMetaModel cmm = colli.getModel();
 		if(an instanceof MetaCombo) {
 			final MetaCombo c = (MetaCombo) an;

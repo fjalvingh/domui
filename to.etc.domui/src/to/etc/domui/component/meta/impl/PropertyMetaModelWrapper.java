@@ -104,7 +104,7 @@ abstract public class PropertyMetaModelWrapper<T> implements PropertyMetaModel<T
 	}
 
 	@Override
-	public ControlFactory getControlFactory() {
+	public PropertyControlFactory getControlFactory() {
 		return m_parent.getControlFactory();
 	}
 

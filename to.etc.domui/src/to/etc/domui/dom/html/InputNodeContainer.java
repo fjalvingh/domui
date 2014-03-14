@@ -24,12 +24,21 @@
  */
 package to.etc.domui.dom.html;
 
+import java.util.*;
+
+import javax.annotation.*;
+
 abstract public class InputNodeContainer extends NodeContainer implements IHasChangeListener {
+	/** The properties bindable for this component. */
+	static private final Set<String> BINDABLE_SET = createNameSet("value", "disabled");
+
 	private IValueChanged< ? > m_onValueChanged;
 
 	private boolean m_readOnly;
 
 	private boolean m_mandatory;
+
+	private boolean m_immediate;
 
 	@Override
 	abstract public void visit(INodeVisitor v) throws Exception;
@@ -38,12 +47,22 @@ abstract public class InputNodeContainer extends NodeContainer implements IHasCh
 		super(tag);
 	}
 
+	@Override
+	@Nonnull
+	public Set<String> getBindableProperties() {
+		return BINDABLE_SET;
+	}
+
 	/**
 	 * @see to.etc.domui.dom.html.IHasChangeListener#getOnValueChanged()
 	 */
 	@Override
 	public IValueChanged< ? > getOnValueChanged() {
-		return m_onValueChanged;
+		IValueChanged< ? > vc = m_onValueChanged;
+		if(null == vc && isImmediate()) {
+			return IValueChanged.DUMMY;
+		}
+		return vc;
 	}
 
 	/**
@@ -75,5 +94,17 @@ abstract public class InputNodeContainer extends NodeContainer implements IHasCh
 
 	public void setMandatory(boolean mandatory) {
 		m_mandatory = mandatory;
+	}
+
+	public boolean isImmediate() {
+		return m_immediate;
+	}
+
+	public void immediate(boolean immediate) {
+		m_immediate = immediate;
+	}
+
+	public void immediate() {
+		m_immediate = true;
 	}
 }

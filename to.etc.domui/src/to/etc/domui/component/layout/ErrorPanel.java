@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.layout;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
@@ -81,10 +83,10 @@ public class ErrorPanel extends CaptionedPanel implements IErrorMessageListener 
 
 	/**
 	 * Adds the new error message to this panel, making it visible.
-	 * @see to.etc.domui.dom.errors.IErrorMessageListener#errorMessageAdded(to.etc.domui.dom.html.Page, to.etc.domui.dom.errors.UIMessage)
+	 * @see to.etc.domui.dom.errors.IErrorMessageListener#errorMessageAdded(to.etc.domui.dom.errors.UIMessage)
 	 */
 	@Override
-	public void errorMessageAdded(Page pg, UIMessage m) {
+	public void errorMessageAdded(@Nonnull UIMessage m) {
 		Div d = new Div();
 		d.setUserObject(m);
 		//		String text = m.getErrorLocation() != null ? m.getErrorLocation() + ": " + m.getMessage() : m.getMessage();
@@ -92,8 +94,9 @@ public class ErrorPanel extends CaptionedPanel implements IErrorMessageListener 
 		getContent().add(d);
 		if(getContent().getChildCount() == 1)
 			setDisplay(DisplayType.BLOCK);
-		if(m.getErrorNode() != null) {
-			m.getErrorNode().addCssClass("ui-input-err");
+		NodeBase errorNode = m.getErrorNode();
+		if(errorNode != null) {
+			errorNode.addCssClass("ui-input-err");
 		}
 		if(m_highestType == null || m.getType().getOrder() > m_highestType.getOrder()) {
 			//-- Update title.
@@ -124,19 +127,21 @@ public class ErrorPanel extends CaptionedPanel implements IErrorMessageListener 
 
 	/**
 	 * Removes the error message from this panel, rendering it invisible.
-	 * @see to.etc.domui.dom.errors.IErrorMessageListener#errorMessageRemoved(to.etc.domui.dom.html.Page, to.etc.domui.dom.errors.UIMessage)
+	 * @see to.etc.domui.dom.errors.IErrorMessageListener#errorMessageRemoved(to.etc.domui.dom.errors.UIMessage)
 	 */
 	@Override
-	public void errorMessageRemoved(Page pg, UIMessage m) {
+	public void errorMessageRemoved(@Nonnull UIMessage m) {
 		MsgType highest = null;
-		for(NodeBase b : getContent()) {
+		for(int i = getContent().getChildCount(); --i >= 0;) {
+			NodeBase b = getContent().getChild(i);
 			if(b.getUserObject() == m) {
 				//-- Remove this object!
 				b.remove();
 				if(getContent().getChildCount() == 0)
 					setDisplay(DisplayType.NONE);
-				if(m.getErrorNode() != null) {
-					m.getErrorNode().removeCssClass("ui-input-err");
+				NodeBase errorNode = m.getErrorNode();
+				if(errorNode != null) {
+					errorNode.removeCssClass("ui-input-err");
 				}
 			} else {
 				if(b.getUserObject() instanceof UIMessage) {

@@ -3,14 +3,15 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/to.etc.alg"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/to.etc.domui"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6">
-		<attributes>
-			<attribute name="owner.project.facets" value="jst.java"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/lib-hibernate"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jsr305"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/to.etc.db"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/bin-slf4j"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/bin-junit-4.11"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7">
+		<attributes>
+			<attribute name="owner.project.facets" value="java"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

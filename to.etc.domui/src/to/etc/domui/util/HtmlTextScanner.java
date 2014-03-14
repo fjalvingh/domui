@@ -79,6 +79,8 @@ public class HtmlTextScanner extends TextScanner {
 		p("ul", false);
 		p("li", false);
 		p("br", true);
+		p("div", false);
+		p("code", false);
 	}
 
 	public Map<String, TagInfo> getMap() {
@@ -90,7 +92,7 @@ public class HtmlTextScanner extends TextScanner {
 	}
 
 	/**
-	 * Scan HTML and remove unsafe tags and attributes. The result is garantueed to be safe and well-formed.
+	 * Scan HTML and remove unsafe tags and attributes. The result is guaranteed to be safe and well-formed.
 	 * @param sb
 	 * @param html
 	 */
@@ -162,7 +164,8 @@ public class HtmlTextScanner extends TextScanner {
 				if(name != null) {
 					if(end)
 						name = "/" + name;
-					if("/p".equals(name) || "br".equals(name) || "/h1".equals(name) || "/h2".equals(name) || "/h3".equals(name) || "/h4".equals(name))
+					if("/p".equalsIgnoreCase(name) || "br".equalsIgnoreCase(name) || "tr".equalsIgnoreCase(name) || "/h1".equalsIgnoreCase(name) || "/h2".equalsIgnoreCase(name)
+						|| "/h3".equalsIgnoreCase(name) || "/h4".equalsIgnoreCase(name))
 						sb.append('\n');
 				}
 			}

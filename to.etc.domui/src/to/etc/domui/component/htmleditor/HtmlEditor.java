@@ -53,17 +53,83 @@ import to.etc.util.*;
 public class HtmlEditor extends TextArea {
 	private String m_styleSheet;
 
+	private String m_updateValueJS;
+
 	@Override
 	public void createContent() throws Exception {
 		StringBuilder sb = new StringBuilder();
-		sb.append("$(\"#").append(getActualID()).append("\").wysiwyg({css:");
+		appendJQuerySelector(sb);
+		sb.append(".wysiwyg({css:");
 		String css = getStyleSheet();
-		if(css == null)
-			css = DomApplication.get().getTheme(null).getThemePath("minieditor.css");
 		StringTool.strToJavascriptString(sb, css, false);
+
+		sb.append(", controls: {");
+		disable(sb, "separator05");
+		sb.append(",");
+		disable(sb, "createLink");
+		sb.append(",");
+		disable(sb, "insertImage");
+		sb.append(",");
+		disable(sb, "separator06");
+		sb.append(",");
+		disable(sb, "h1mozilla");
+		sb.append(",");
+		disable(sb, "h2mozilla");
+		sb.append(",");
+		disable(sb, "h3mozilla");
+		sb.append(",");
+		disable(sb, "h1");
+		sb.append(",");
+		disable(sb, "h2");
+		sb.append(",");
+		disable(sb, "h3");
+		sb.append(",");
+		disable(sb, "separator08");
+		sb.append(",");
+		disable(sb, "separator09");
+		sb.append(",");
+		disable(sb, "unLink");
+		sb.append(",");
+		enable(sb, "highlight");
+		//		sb.append(",");
+		//		disable(sb, "");
+		//		sb.append(",");
+		//		disable(sb, "");
+		//		sb.append(",");
+		//		disable(sb, "");
+		//		sb.append(",");
+		sb.append("}");
+
+		sb.append(", options: {");
+		sb.append("autosave: false");
+		sb.append("}");
+
+		sb.append(", plugins: {");
+		sb.append("rmFormat: {rmMsWordMarkup: {enabled: true, rules: {inlineCSS: true}}}");
+		sb.append("}");
+
+		sb.append(", initialContent: ''");
 		sb.append("});");
+
+		if(isFocusRequested()) {
+			sb.append("setTimeout(function() {");
+//			sb.append("xxxFocus('#").append(getActualID()).append("');");
+			appendJQuerySelector(sb);
+			sb.append(".focus();");
+//			sb.append("alert('focused');");
+			sb.append("}, 500);");
+		}
+
 		appendCreateJS(sb);
 		//		appendCreateJS("$(\"#" + getActualID() + "\").wysiwyg({css:'/ui/$themes/blue/style.theme.css'});");
+	}
+
+	static private void disable(StringBuilder sb, String what) {
+		sb.append(what).append(": {visible:false}");
+	}
+
+	static private void enable(StringBuilder sb, String what) {
+		sb.append(what).append(": {visible:true}");
 	}
 
 	/**
@@ -73,7 +139,7 @@ public class HtmlEditor extends TextArea {
 	 * @return
 	 */
 	public String getStyleSheet() throws Exception {
-		return DomApplication.get().getTheme(null).getThemePath(m_styleSheet);
+		return DomApplication.get().getThemedResourceRURL(m_styleSheet == null ? "THEME/minieditor.css" : m_styleSheet);
 	}
 
 	public void setStyleSheet(String styleSheet) {
@@ -88,15 +154,58 @@ public class HtmlEditor extends TextArea {
 		setDisplay(DisplayType.BLOCK);
 	}
 
+	/**
+	 * Set a new HTML document value into the area. If the page is built we need to call a method on
+	 * the editor object so that it will update it's presentation.
+	 * @see to.etc.domui.dom.html.TextArea#setValue(java.lang.String)
+	 */
+	@Override
+	public void setValue(@Nullable String v) {
+//		System.out.println("setValue: " + v);
+		if(null != v) {
+			v = HtmlUtil.removeUnsafe(v);
+		}
+
+		if(isBuilt()) {
+			//-- Leave a marker to set the value through Javascript too.
+			m_updateValueJS = v;
+		}
+
+		super.setValue(v);
+	}
+
+	@Override
+	public void onBeforeRender() throws Exception {
+		if(null != m_updateValueJS) {
+			StringBuilder sb = new StringBuilder();
+			appendJQuerySelector(sb);
+			sb.append(".wysiwyg('setContent', ");
+			StringTool.strToJavascriptString(sb, m_updateValueJS, true);
+			sb.append(");");
+			appendJavascript(sb);
+			m_updateValueJS = null;
+		}
+	}
+
 	@Override
 	public boolean acceptRequestParameter(@Nonnull String[] values) throws Exception {
 		setDisplay(DisplayType.NONE);
 		for(int i = 0; i < values.length; i++) {
 			String s = values[i];
-			StringBuilder sb = new StringBuilder();
 			try {
-				StringTool.entitiesToUnicode(sb, s, true);
-				values[i] = sb.toString();
+				System.out.println("pre-value[" + i + "]=" + s);
+				values[i] = HtmlUtil.removeUnsafe(s);
+//
+//
+//				StringTool.entitiesToUnicode(sb, s, true);
+//				String tmp = sb.toString();
+//				System.out.println("pre-value[" + i + "]=" + tmp);
+//				sb.setLength(0);
+//
+//
+//				DomUtil.htmlRemoveUnsafe(sb, tmp);
+//				values[i] = sb.toString();
+				System.out.println("post-value[" + i + "]=" + values[i]);
 			} catch(Exception e) {
 				e.printStackTrace();
 				values[i] = e.toString();

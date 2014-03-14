@@ -44,7 +44,6 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
 import to.etc.domui.trouble.*;
-import to.etc.net.*;
 import to.etc.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.nls.*;
@@ -63,10 +62,9 @@ final public class DomUtil {
 	}
 
 	/**
-	 * This fine idiocy is needed to handle null checking because the pathetic loosers that make up
-	 * the Java JSR board are so incredible stupid it boggles the mind. Java == cobol. Thanks, morons.
-	 * If those idiots ever come to their senses and define a reasonable way for checking nulls- we could
-	 * remove this abomination.
+	 * NULL CHECKING BELONGS IN THE LANGUAGE, NOT IN ANNOTATIONS, damnit! This fine idiocy is needed to
+	 * handle null checking because the pathetic losers that make up the Java JSR board are so incredible
+	 * stupid it boggles the mind. Java == cobol 8-(
 	 *
 	 * @param in
 	 * @return
@@ -78,13 +76,26 @@ final public class DomUtil {
 		return in;
 	}
 
-
-	static public final void ie8Capable(HttpServletResponse req) throws IOException {
+	/**
+	 * Define (or clear) the x-ua-compatible value sent for this page. When not called
+	 * this defaults to the value defined by the ms-emulation property in web.xml.
+	 * @param comp
+	 * @throws IOException
+	 */
+	static public final void setPageCompatibility(@Nonnull HttpServletResponse req, @Nullable String comp) throws IOException {
 		if(!(req instanceof WrappedHttpServetResponse))
 			return;
 		WrappedHttpServetResponse wsr = (WrappedHttpServetResponse) req;
-		wsr.setIE8Capable();
+		wsr.setIeEmulationMode(comp);
 	}
+
+	/**
+	 * FIXME REMOVE!??!
+	 * @param req
+	 * @throws IOException
+	 */
+	@Deprecated
+	static public final void ie8Capable(HttpServletResponse req) throws IOException {}
 
 	static public final boolean isEqualOLD(final Object a, final Object b) {
 		if(a == b)
@@ -369,6 +380,7 @@ final public class DomUtil {
 	 * does not use the known GUID format but shortens the string by encoding into base64-like encoding.
 	 * @return
 	 */
+	@Nonnull
 	static public String generateGUID() {
 		byte[] bin = new byte[18];
 		ByteArrayUtil.setInt(bin, 0, m_guidSeed); // Start with the seed
@@ -405,7 +417,10 @@ final public class DomUtil {
 		for(String name : ctx.getParameterNames()) {
 			if(name.equals(Constants.PARAM_CONVERSATION_ID))
 				continue;
-			for(String value : ctx.getParameters(name)) {
+			String[] parameters = ctx.getParameters(name);
+			if(null == parameters)
+				continue;
+			for(String value : parameters) {
 				if(first) {
 					sb.append('?');
 					first = false;
@@ -448,7 +463,7 @@ final public class DomUtil {
 	 * @return
 	 */
 	static public String getApplicationURL() {
-		return NetTools.getApplicationURL(((RequestContextImpl) UIContext.getRequestContext()).getRequest());
+		return ((RequestContextImpl) UIContext.getRequestContext()).getRequestResponse().getApplicationURL();
 	}
 
 	/**
@@ -457,7 +472,7 @@ final public class DomUtil {
 	 * @return
 	 */
 	static public String getApplicationContext() {
-		return NetTools.getApplicationContext(((RequestContextImpl) UIContext.getRequestContext()).getRequest());
+		return ((RequestContextImpl) UIContext.getRequestContext()).getRequestResponse().getWebappContext();
 	}
 
 	/**
@@ -546,6 +561,51 @@ final public class DomUtil {
 		return sb.toString();
 	}
 
+	@Nonnull
+	public static String getAdjustedPageUrl(@Nonnull Page page, @Nullable IPageParameters pp) {
+		PageParameters newpp = mergePageParameters(pp);
+		StringBuilder sb = getPageContextURL(page);
+		DomUtil.addUrlParameters(sb, newpp, false);
+		return sb.toString();
+	}
+
+	@Nonnull
+	public static String getAdjustedComponentUrl(@Nonnull NodeBase component, @Nonnull String command, @Nullable IPageParameters pp) {
+		PageParameters newpp = mergePageParameters(pp);
+
+		//-- Add the action code.
+		newpp.addParameter("webuia", command);
+		newpp.addParameter("webuic", component.getActualID());
+
+		StringBuilder sb = getPageContextURL(component.getPage());
+		DomUtil.addUrlParameters(sb, newpp, false);
+		return sb.toString();
+	}
+
+	@Nonnull
+	private static PageParameters mergePageParameters(@Nullable IPageParameters pp) {
+		PageParameters newpp = PageParameters.createFrom(UIContext.getRequestContext());
+		if(null != pp) {
+			for(String name : pp.getParameterNames()) {
+				String value = pp.getString(name);
+				newpp.addParameter(name, value);
+			}
+		}
+		return newpp;
+	}
+
+	@Nonnull
+	private static StringBuilder getPageContextURL(@Nonnull Page page) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(UIContext.getRequestContext().getRelativePath(page.getBody().getClass().getName()));
+		sb.append(".").append(DomApplication.get().getUrlExtension());
+		sb.append("?");
+		sb.append(Constants.PARAM_CONVERSATION_ID);
+		sb.append("=");
+		StringTool.encodeURLEncoded(sb, page.getConversation().getFullId());
+		return sb;
+	}
+
 	/**
 	 * Calculate a full URL from a rurl. If the rurl starts with a scheme it is returned verbatim;
 	 * if it starts with slash (host-relative path absolute) it is returned verbatim; in all other
@@ -569,15 +629,16 @@ final public class DomUtil {
 		return ci.getRelativePath(rurl);
 	}
 
-	static public String[] decodeCID(final String param) {
-		if(param == null)
-			return null;
-		int pos = param.indexOf('.');
-		if(pos == -1)
-			throw new IllegalStateException("Missing '.' in $CID parameter");
-		String[] res = new String[]{param.substring(0, pos), param.substring(pos + 1)};
-		return res;
-	}
+//	@Nonnull
+//	static public String[] decodeCID(@Nonnull final String param) {
+//		if(param == null)
+//			throw new IllegalStateException("$cid cannot be null");
+//		int pos = param.indexOf('.');
+//		if(pos == -1)
+//			throw new IllegalStateException("Missing '.' in $CID parameter");
+//		String[] res = new String[]{param.substring(0, pos), param.substring(pos + 1)};
+//		return res;
+//	}
 
 	/**
 	 * Ensures that all of a node tree has been built.
@@ -827,12 +888,6 @@ final public class DomUtil {
 		return sb.toString();
 	}
 
-
-	public static void main(final String[] args) {
-		for(int i = 0; i < 10; i++)
-			System.out.println(generateGUID());
-	}
-
 	/**
 	 * Returns T if the specified resource exists.
 	 * @param clz
@@ -901,10 +956,11 @@ final public class DomUtil {
 	}
 
 	/**
-	 * Lookup a page Title bar text..
+	 * Lookup a page Title bar text.. FIXME Bad logic, bad name; should have a version passing in class instance.
 	 * @param clz
 	 * @return
 	 */
+	@Nonnull
 	static public String calcPageTitle(final Class< ? > clz) {
 		UIMenu ma = clz.getAnnotation(UIMenu.class); // Is annotated with UIMenu?
 		Locale loc = NlsContext.getLocale();
@@ -1265,8 +1321,9 @@ final public class DomUtil {
 		d.setUserObject(m);
 		String text = m.getErrorLocation() != null ? "<b>" + m.getErrorLocation() + "</b>" + ": " + m.getMessage() : m.getMessage();
 		renderHtmlString(d, text);
-		if(m.getErrorNode() != null) {
-			m.getErrorNode().addCssClass("ui-input-err");
+		NodeBase errorNode = m.getErrorNode();
+		if(errorNode != null) {
+			errorNode.addCssClass("ui-input-err");
 		}
 	}
 
@@ -1801,6 +1858,12 @@ final public class DomUtil {
 		return n.getComponentInfo();
 	}
 
+	public static void main(final String[] args) {
+		String html = "<p>This is <i>just</i> some html with<br>a new line <b>and a bold tag</b>";
+		String uns = htmlRemoveUnsafe(html);
+		System.out.println("uns=" + uns);
+	}
+
 	public static @Nonnull
 	List<UIMessage> addSingleShotMessage(@Nonnull NodeBase node, @Nonnull UIMessage message) {
 		WindowSession ws = node.getPage().getConversation().getWindowSession();
@@ -1816,5 +1879,4 @@ final public class DomUtil {
 		ws.setAttribute(UIGoto.SINGLESHOT_MESSAGE, msgl);
 		return msgl;
 	}
-
 }

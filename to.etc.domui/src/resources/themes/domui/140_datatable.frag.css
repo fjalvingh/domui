@@ -5,23 +5,54 @@ div.ui-dt {
 	position: relative;
 }
 
-.ui-dt th {
+div.ui-dt table td{
+	border: 0;
+	margin: 0;
+	padding: 0px 3px;
+	border-left: 1px solid #bababa; /* gray so it is theme invariant */
+	height: 19px;
+	vertical-align: middle;
+}
+div.ui-dt table td * {
+	vertical-align: middle;
+}
+
+div.ui-dt table{
+	overflow: auto;
+	position: relative;
+	border-right: 1px solid #bababa;
+	border-bottom: 1px solid #bababa;
+	border-spacing: 2px;
+}
+
+.ui-dt th, .ui-dt-hdr {
+	padding: 0px 3px;
+	border-left: none !important;
+	background: <%=	data_tbl_header_bg %>;
+	background-image: url(<%= data_tbl_header_bg_img %>);
+	color: <%= data_tbl_header_text_color %>;
+	border-bottom: 1px solid <%= data_tbl_header_btm_border %>;
 	text-align: left;
 	font-weight: bold;
-	padding: 0px 3px;
-	vertical-align: top;
+	height: 18px;
+	vertical-align: middle;
 }
 
-.ui-dt tbody td {
-	padding: 0px 3px;
+.ui-dt th:FIRST-CHILD, .ui-dt-hdr:FIRST-CHILD {
+	border-left: 1px solid <%= data_tbl_header_btm_border %> !important;
 }
 
-.ui-dt-hdr {
-	/* default domui table header style is still to be defined */
+.ui-dt th:LAST-CHILD, .ui-dt-hdr:LAST-CHILD {
+	border-right: 1px solid <%= data_tbl_header_btm_border %>;
+}
+
+.ui-dt tbody tr > td.ui-f-lbl:first-child {
+	min-width: 150px;
+	margin-left: 10px;
 }
 
 .ui-dt-nores {
-	padding: 10px 0px 10px 0px;
+	padding: 0px 0px 10px 0px;
 	font-style: italic;
 }
 
@@ -29,7 +60,7 @@ div.ui-dt {
 }
 
 .ui-even {
-	background-color: <%= even_bg %>;
+	background: <%= data_tbl_even_row_bg %>;
 }
 
 tr.ui-rowsel {
@@ -47,7 +78,8 @@ td.ui-cellsel {
 
 td.ui-cellsel:hover {
 	text-decoration: underline;
-	background-color: <%= cellhighlight_bg %> !important;
+	background-color: <%= data_tbl_cell_highlight_bg %> !important;
+	color: <%= data_tbl_cell_highlight_link_color_bg %>;
 }
 
 th.ui-sortable {
@@ -59,21 +91,24 @@ div.ui-sortable {
 }
 
 .ui-sortable img {
-	top: 2px;
-	left: -2px;
+	top: -3px;
 	position: absolute;
 	border: 0px;
 }
 
 .ui-sortable span {
-	margin-left: 8px;
+	margin-left: 10px;
 }
 
-tbody td.ui-dt-separator {
+.ui-dt {
+	font-size: <%= data_tbl_font_size %>;
+}
+
+.ui-dt-separator {
 	background: url(bg-horiz-separator.png) repeat-x center;
 	padding: 1px;
 }
 
 .ui-dt .mselected {
-	background-color: #dedeff; /* 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
+	background-color: <%= highlight2_bg %>; /* 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
 }

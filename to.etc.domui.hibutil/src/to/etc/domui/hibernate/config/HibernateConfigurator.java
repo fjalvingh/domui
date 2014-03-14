@@ -32,8 +32,10 @@ import javax.sql.*;
 
 import org.hibernate.*;
 import org.hibernate.cfg.*;
+import org.hibernate.event.*;
 
 import to.etc.dbpool.*;
+import to.etc.domui.hibernate.beforeimages.*;
 import to.etc.domui.hibernate.generic.*;
 import to.etc.util.*;
 import to.etc.webapp.qsql.*;
@@ -97,6 +99,10 @@ final public class HibernateConfigurator {
 	 * The database creation/update mode.
 	 */
 	static private Mode m_mode = Mode.NONE;
+
+	static private boolean m_observableEnabled;
+
+	static private boolean m_beforeImagesEnabled;
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Accessing the completed configuration's data.		*/
@@ -219,6 +225,21 @@ final public class HibernateConfigurator {
 		m_handlers.register(qexecutor);
 	}
 
+	static public void enableBeforeImages(boolean yes) {
+		configured();
+		m_beforeImagesEnabled = yes;
+	}
+
+	static public void enableObservableCollections(boolean yes) {
+		configured();
+		m_observableEnabled = yes;
+	}
+
+	static private void enhanceMappings(@Nonnull Configuration config) throws Exception {
+		HibernateChecker hc = new HibernateChecker(config, DeveloperOptions.isDeveloperWorkstation(), m_observableEnabled);
+		hc.enhanceMappings();
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Main initialization entrypoints.					*/
 	/*--------------------------------------------------------------*/
@@ -252,6 +273,7 @@ final public class HibernateConfigurator {
 		 */
 		String resname = "/" + HibernateConfigurator.class.getPackage().getName().replace('.', '/') + "/hibernate.cfg.xml";
 		config.configure(resname);
+		enhanceMappings(config);
 
 		/*
 		 * Set other properties according to config settings made.
@@ -290,16 +312,47 @@ final public class HibernateConfigurator {
 				break;
 		}
 
+		if(m_beforeImagesEnabled) {
+//			/*
+//			 * jal 20140120 Add a collection initialized event listener to support before-images.
+//			 */
+//			if(m_defaultInterceptor != null) {
+//				if(! (m_defaultInterceptor instanceof BeforeImageInterceptor))
+//					throw new IllegalStateException("Using before images means that your Interceptor MUST extend BeforeImageInterceptor");
+//			} else {
+//				m_defaultInterceptor = new BeforeImageInterceptor()
+//			}
+
+			config.getEventListeners().setPostLoadEventListeners(new PostLoadEventListener[]{new CreateBeforeImagePostLoadListener()});
+
+			InitializeCollectionEventListener[] iel = config.getEventListeners().getInitializeCollectionEventListeners();
+			InitializeCollectionEventListener[] iel2 = new InitializeCollectionEventListener[iel.length + 1];
+			System.arraycopy(iel, 0, iel2, 0, iel.length);
+			iel2[iel.length] = new CopyCollectionEventListener();	// Add the listener that updates collection before-images for lazy-loaded collections
+			config.getEventListeners().setInitializeCollectionEventListeners(iel2);
+		}
+
 		//-- Create the session factory: this completes the Hibernate config part.
 		m_sessionFactory = config.buildSessionFactory();
 
 		//-- Start DomUI/WebApp.core initialization: generalized database layer
-		HibernateSessionMaker hsm = new HibernateSessionMaker() {
-			@Override
-			public Session makeSession() throws Exception {
-				return m_sessionFactory.openSession();
-			}
-		};
+		HibernateSessionMaker hsm;
+		if(m_beforeImagesEnabled) {
+			//-- We need the copy interceptor to handle these.
+			hsm = new HibernateSessionMaker() {
+				@Override
+				public Session makeSession(@Nonnull BuggyHibernateBaseContext dc) throws Exception {
+					return m_sessionFactory.openSession(new BeforeImageInterceptor(dc.getBeforeCache()));
+				}
+			};
+		} else {
+			hsm = new HibernateSessionMaker() {
+				@Override
+				public Session makeSession(@Nonnull BuggyHibernateBaseContext dc) throws Exception {
+					return m_sessionFactory.openSession();
+				}
+			};
+		}
 
 		//-- If no handlers are registered: register the default ones.
 		if(m_handlers.size() == 0) {

@@ -30,13 +30,11 @@ import javax.annotation.*;
 
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.errors.*;
+import to.etc.domui.logic.events.*;
 import to.etc.webapp.*;
 
 /**
  * Base node for tags that can contain other nodes.
- *
- * A description on the deltaing mechanism used can be found in the header for {@link NodeBase}
- * @see NodeBase
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 17, 2007
@@ -54,7 +52,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	private boolean m_childHasUpdates;
 
 	/**
-	 * When an update knows that a full rerender is best it sets this hint. It will cause a full
+	 * When an update knows that a full re-render is best it sets this hint. It will cause a full
 	 * re-render of the children IN this node, not this container itself. The only reason his
 	 * gets set currently is when an embedded text changes because we cannot address a text
 	 * node.
@@ -228,8 +226,11 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @return
 	 */
 	final public int findChildIndex(@Nonnull final NodeBase b) {
-		if(m_delegate != null)
-			return m_delegate.findChildIndex(b);
+		if(m_delegate != null) {
+			int ix = m_delegate.findChildIndex(b);
+			if(ix != -1)
+				return ix;
+		}
 
 		if(!b.hasParent())
 			return -1;
@@ -248,6 +249,10 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		if(m_delegate != null)
 			return m_delegate.getChild(i);
 
+		return m_children.get(i);
+	}
+
+	final public NodeBase undelegatedGetChild(final int i) {
 		return m_children.get(i);
 	}
 
@@ -382,6 +387,21 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		//-- Is delegation active? Then delegate to wherever.
 		if(m_delegate != null) {
 			m_delegate.add(index, nd);
+			return;
+		}
+		internalAdd(index, nd);
+	}
+
+	final public void undelegatedAdd(final int index, @Nonnull final NodeBase nd) {
+		/*
+		 * Nodes that *must* be added to the body should delegate there immediately.
+		 */
+		if(nd instanceof IAddToBody) {
+			//-- This *must* be added to the BODY node, and this node must be attached for that to work.. Is it?
+			if(!isAttached())
+				throw new ProgrammerErrorException("The component " + nd.getClass() + " is defined as 'must be added to the body' but the node it is added to " + this
+					+ " is not yet added to the page.");
+			getPage().internalAddFloater(this, nd);
 			return;
 		}
 		internalAdd(index, nd);
@@ -594,6 +614,8 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 */
 	public TBody addTable(String... headers) {
 		Table t = new Table();
+		t.setCellPadding("0");
+		t.setCellSpacing("0");
 		add(t);
 		if(headers != null && headers.length > 0)
 			t.getHead().setHeaders(headers);
@@ -629,6 +651,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @param ofClass
 	 * @return
 	 */
+	@Nonnull
 	final public <T> List<T> getDeepChildren(@Nonnull Class<T> ofClass) {
 		if(m_delegate != null)
 			return m_delegate.getDeepChildren(ofClass);
@@ -681,8 +704,8 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @see to.etc.domui.dom.html.NodeBase#moveControlToModel()
 	 */
 	@Override
-	final public void moveControlToModel() throws Exception {
-		super.moveControlToModel(); // FIXME Is this useful?
+	public void moveControlToModel() throws Exception {
+		super.moveControlToModel();
 		Exception x = null;
 		for(NodeBase b : new ArrayList<NodeBase>(m_children)) {
 			try {
@@ -706,9 +729,9 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @see to.etc.domui.dom.html.NodeBase#moveModelToControl()
 	 */
 	@Override
-	final public void moveModelToControl() throws Exception {
-		super.moveModelToControl(); // Move the value to *this* node if it is bindable
-		build(); // And only build it AFTER a value can have been set.
+	public void moveModelToControl() throws Exception {
+		super.moveModelToControl(); 					// Move the value to *this* node if it is bindable
+		build(); 										// And only build it AFTER a value can have been set.
 		for(NodeBase b : new ArrayList<NodeBase>(m_children))
 			b.moveModelToControl();
 	}
@@ -722,6 +745,18 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	final public void setControlsEnabled(boolean on) {
 		for(NodeBase b : new ArrayList<NodeBase>(m_children))
 			b.setControlsEnabled(on);
+	}
+
+	/**
+	 * EXPERIMENTAL Pass the event to all my children, but before that pass it to myself if I'm bound.
+	 * @see to.etc.domui.dom.html.NodeBase#logicEvent(to.etc.domui.logic.events.LogiEvent)
+	 */
+	@Override
+	public void logicEvent(@Nonnull LogiEvent logiEvent) throws Exception {
+		super.logicEvent(logiEvent);					// Handle binding to myself;
+		build(); 										// And only build it AFTER a value can have been set.
+		for(NodeBase b : new ArrayList<NodeBase>(m_children))
+			b.logicEvent(logiEvent);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -782,6 +817,14 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 			m_errorFence = new ErrorFenceHandler(this);
 	}
 
+	@Override
+	final public void internalOnBeforeRender() throws Exception {
+		onBeforeRender();
+		for(int i = m_children.size(); --i >= 0;) {
+			m_children.get(i).internalOnBeforeRender();
+		}
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Content delegation and framed nodes handling.		*/
 	/*--------------------------------------------------------------*/
@@ -792,7 +835,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 *
 	 * @param c
 	 */
-	final protected void delegateTo(@Nullable NodeContainer c) {
+	final public void delegateTo(@Nullable NodeContainer c) {
 		if(c == this)
 			throw new IllegalStateException("Cannot delegate to self: this would nicely loop..");
 
@@ -833,4 +876,21 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	}
 
 
+	@Override
+	public void appendTreeErrors(@Nonnull List<UIMessage> errorList) {
+		super.appendTreeErrors(errorList);
+		for(NodeBase nb : this) {
+			nb.appendTreeErrors(errorList);
+		}
+	}
+
+	@Override
+	public boolean hasError() {
+		for(NodeBase nb : this) {
+			if(nb.hasError())
+				return true;
+		}
+
+		return false;
+	}
 }

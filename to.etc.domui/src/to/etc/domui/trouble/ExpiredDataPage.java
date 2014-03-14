@@ -37,23 +37,20 @@ public class ExpiredDataPage extends UrlPage {
 
 	@Override
 	public void createContent() throws Exception {
-		//-- Error message
 		String msg = getPage().getPageParameters().getString(PARAM_ERRMSG);
 
 		CaptionedPanel ep = new CaptionedPanel(Msgs.BUNDLE.getString(Msgs.DATA_EXPIRED_TITLE));
 		add(ep);
 		Table t = new Table();
+		t.addCssClass("ui-edp-tbl");
 		ep.getContent().add(t);
-		t.setWidth("100%");
 		TBody b = t.addBody();
 		TD td = b.addRowAndCell();
 		Img img = new Img(Theme.DATA_EXPIRED);
-		//		img.setAlign(ImgAlign.LEFT);
 		td.add(img);
-		td.setWidth("1%");
 
 		TD co = b.addCell();
-		String txt = msg;//Msgs.BUNDLE.formatMessage("expired.data.label", pageName);
+		String txt = msg;
 		Div d = new Div(txt);
 		co.add(d);
 		d.setCssClass("ui-acd-ttl");

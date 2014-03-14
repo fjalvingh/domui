@@ -5,6 +5,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.menu.PopupMenu.Item;
+import to.etc.domui.component.menu.PopupMenu.Submenu;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 
@@ -17,61 +18,169 @@ import to.etc.domui.server.*;
 public class SimplePopupMenu extends Div {
 	private PopupMenu m_source;
 
+	private String m_menuTitle;
+
 	private NodeBase m_relativeTo;
 
 	private Object m_targetObject;
 
-	private String m_menuTitle;
-
 	final private List<Item> m_actionList;
+
+	static private class MenuLevel {
+		private Submenu m_submenu;
+
+		private Div m_div;
+
+		private Div m_selDiv;
+
+		public MenuLevel(Submenu submenu, Div div, Div selDiv) {
+			m_submenu = submenu;
+			m_div = div;
+			m_selDiv = selDiv;
+		}
+
+		public Submenu getSubmenu() {
+			return m_submenu;
+		}
+
+		public Div getDiv() {
+			return m_div;
+		}
+
+		public Div getSelDiv() {
+			return m_selDiv;
+		}
+	}
+
+	private List<MenuLevel> m_stack = new ArrayList<>();
 
 	public SimplePopupMenu() {
 		m_actionList = new ArrayList<Item>();
 	}
 
 	SimplePopupMenu(NodeBase b, PopupMenu pm, List<Item> actionList, Object target) {
-		m_relativeTo = b;
 		m_actionList = Collections.unmodifiableList(actionList);
-		m_source = pm;
 		m_targetObject = target;
+		m_relativeTo = b;
+		m_source = pm;
 	}
 
 	@Override
 	public void createContent() throws Exception {
 		setCssClass("ui-pmnu");
+
+		Div root = new Div();
+		add(root);
+		root.setCssClass("ui-pmnu-sm");
+
 		Div ttl = new Div();
-		add(ttl);
+		root.add(ttl);
 		ttl.setCssClass("ui-pmnu-ttl");
 		ttl.add(m_menuTitle == null ? "Menu" : m_menuTitle);
 
-		for(Item a : m_actionList) {
-			if(a.getAction() != null)
-				renderAction(a.getAction());
-			else
-				renderItem(a);
+		Div items = new Div();
+		root.add(items);
+		for(Item a : getActionList()) {
+			if(a instanceof Submenu) {
+				renderSubmenu(items, (Submenu) a);
+			} else if(a.getAction() != null) {
+				renderAction(items, (IUIAction<Object>) a.getAction(), m_targetObject);
+			} else {
+				renderItem(items, a);
+			}
 		}
 
 		//		appendCreateJS("WebUI.registerPopinClose('" + getActualID() + "');");
-		appendCreateJS("WebUI.popupMenuShow('#" + m_relativeTo.getActualID() + "', '#" + getActualID() + "');");
+		appendCreateJS("WebUI.popupMenuShow('#" + getRelativeTo().getActualID() + "', '#" + getActualID() + "');");
 	}
 
-	public void addAction(IUIAction< ? > action) {
-		m_actionList.add(new Item(action));
+	private void setSubmenuSelected(Div selectDiv, boolean on, int level) {
+		Img img = selectDiv.getChildren(Img.class).get(0);
+		if(on) {
+//			selectDiv.addCssClass("ui-pmnu-subsel");
+			selectDiv.addCssClass("ui-pmnu-sm" + level);
+			img.setSrc("THEME/pmnu-submenu-close.png");
+		} else {
+//			selectDiv.removeCssClass("ui-pmnu-subsel");
+			selectDiv.removeCssClass("ui-pmnu-sm" + level);
+			img.setSrc("THEME/pmnu-submenu-open.png");
+		}
 	}
 
-	public void addItem(String caption, String icon, String hint, boolean disabled, IClicked<SimplePopupMenu> clk) {
-		m_actionList.add(new Item(icon, caption, hint, disabled, clk));
+	protected void submenuClicked(Div selectDiv, Submenu s) throws Exception {
+		//-- If the item clicked is the top level one- just discard it,
+		if(m_stack.size() > 0 && m_stack.get(m_stack.size() - 1).getSubmenu() == s) {
+			MenuLevel level = m_stack.remove(m_stack.size() - 1);
+			level.getDiv().remove();
+			setSubmenuSelected(level.getSelDiv(), false, m_stack.size() + 1);
+			return;
+		}
+
+		//-- Wind back the stack till the parent of the wanted menu
+		while(m_stack.size() > 0) {
+			MenuLevel level = m_stack.get(m_stack.size() - 1);
+			if(level.getSubmenu() == s.getParent())
+				break;
+
+			m_stack.remove(m_stack.size() - 1);
+			level.getDiv().remove();
+			setSubmenuSelected(level.getSelDiv(), false, m_stack.size() + 1);
+		}
+
+		//-- Now add the new level,
+		Div root = new Div();
+		add(root);
+
+		root.setCssClass("ui-pmnu-sm ui-pmnu-sm" + (m_stack.size() + 1));
+		Div ttl = new Div();
+		root.add(ttl);
+		ttl.setCssClass("ui-pmnu-ttl");
+		ttl.add(m_menuTitle == null ? "\u00a0" : m_menuTitle);
+
+		Div items = new Div();
+		root.add(items);
+		for(Item a : s.getItemList()) {
+			if(a instanceof Submenu) {
+				renderSubmenu(items, (Submenu) a);
+			} else if(a.getAction() != null) {
+				Object target = null;
+				if(s.getTarget() != null)
+					target = s.getTarget();
+
+				renderAction(items, (IUIAction<Object>) a.getAction(), target);
+			} else {
+				renderItem(items, a);
+			}
+		}
+		setSubmenuSelected(selectDiv, true, m_stack.size() + 1);
+
+		m_stack.add(new MenuLevel(s, root, selectDiv));
 	}
 
-	public void addItem(String caption, String icon, IClicked<SimplePopupMenu> clk) {
-		m_actionList.add(new Item(icon, caption, null, false, clk));
-	}
-
-	private void renderItem(final Item a) {
-		Div d = renderItem(a.getTitle(), a.getHint(), a.getIcon(), false);
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Renderers.											*/
+	/*--------------------------------------------------------------*/
+	/**
+	 *
+	 * @param a
+	 */
+	protected void renderSubmenu(@Nonnull NodeContainer into, final Submenu a) {
+		final Div d = renderItem(into, a.getTitle(), a.getHint(), a.getIcon(), false);
+		Img img = new Img("THEME/pmnu-submenu-open.png");
+		d.add(img);
 		d.setClicked(new IClicked<NodeBase>() {
 			@Override
-			public void clicked(NodeBase clickednode) throws Exception {
+			public void clicked(@Nonnull NodeBase clickednode) throws Exception {
+				submenuClicked(d, a);
+			}
+		});
+	}
+
+	protected void renderItem(@Nonnull NodeContainer into, final Item a) {
+		Div d = renderItem(into, a.getTitle(), a.getHint(), a.getIcon(), false);
+		d.setClicked(new IClicked<NodeBase>() {
+			@Override
+			public void clicked(@Nonnull NodeBase clickednode) throws Exception {
 				closeMenu();
 				if(null != a.getClicked())
 					a.getClicked().clicked(SimplePopupMenu.this);
@@ -79,9 +188,9 @@ public class SimplePopupMenu extends Div {
 		});
 	}
 
-	private Div renderItem(String text, String hint, String icon, boolean disabled) {
+	private Div renderItem(@Nonnull NodeContainer into, String text, String hint, String icon, boolean disabled) {
 		Div d = new Div();
-		add(d);
+		into.add(d);
 		d.setCssClass("ui-pmnu-action " + (disabled ? "ui-pmnu-disabled" : "ui-pmnu-enabled"));
 		if(null != icon) {
 			d.setBackgroundImage(icon);
@@ -92,20 +201,19 @@ public class SimplePopupMenu extends Div {
 		return d;
 	}
 
-	private <T> void renderAction(final IUIAction<T> action) throws Exception {
-		final T val = (T) m_targetObject;
+	protected <T> void renderAction(@Nonnull NodeContainer into, final IUIAction<T> action, final T val) throws Exception {
 		String disa = action.getDisableReason(val);
 		if(null != disa) {
-			Div d = renderItem(action.getName(val), disa, action.getIcon(val), true);
+			renderItem(into, action.getName(val), disa, action.getIcon(val), true);
 			return;
 		}
 
-		Div d = renderItem(action.getName(val), action.getTitle(val), action.getIcon(val), false);
+		Div d = renderItem(into, action.getName(val), action.getTitle(val), action.getIcon(val), false);
 		d.setClicked(new IClicked<NodeBase>() {
 			@Override
-			public void clicked(NodeBase clickednode) throws Exception {
+			public void clicked(@Nonnull NodeBase clickednode) throws Exception {
 				closeMenu();
-				action.execute(m_relativeTo, val);
+				action.execute(getRelativeTo(), val);
 			}
 		});
 	}
@@ -113,19 +221,40 @@ public class SimplePopupMenu extends Div {
 	public void closeMenu() {
 		if(!isAttached())
 			return;
-		getPage().clearPopIn();
+		clearPopinIf();
 		forceRebuild();
+		appendJavascript("WebUI.popinClosed('#" + getActualID() + "');");
 		remove();
+	}
+
+	protected List<Item> getActionList() {
+		return m_actionList;
+	}
+
+	private NodeBase getRelativeTo() {
+		return m_relativeTo;
+	}
+
+	public void addAction(IUIAction< ? > action) {
+		getActionList().add(new Item(action));
+	}
+
+	public void addItem(String caption, String icon, String hint, boolean disabled, IClicked<NodeBase> clk) {
+		getActionList().add(new Item(icon, caption, hint, disabled, clk, null));
+	}
+
+	public void addItem(String caption, String icon, IClicked<NodeBase> clk) {
+		getActionList().add(new Item(icon, caption, null, false, clk, null));
 	}
 
 	@Override
 	public void componentHandleWebAction(@Nonnull RequestContextImpl ctx, @Nonnull String action) throws Exception {
+		System.out.println("SimplePopupMenu: received " + action);
 		if("POPINCLOSE?".equals(action)) {
 			closeMenu();
 		} else
 			super.componentHandleWebAction(ctx, action);
 	}
-
 
 	PopupMenu getSource() {
 		return m_source;
@@ -133,6 +262,10 @@ public class SimplePopupMenu extends Div {
 
 	public Object getTargetObject() {
 		return m_targetObject;
+	}
+
+	protected void clearPopinIf() {
+		getPage().clearPopIn();
 	}
 
 }

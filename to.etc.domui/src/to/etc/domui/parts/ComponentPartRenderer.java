@@ -113,9 +113,13 @@ public class ComponentPartRenderer {
 		sb.append(b.getPage().getBody().getClass().getName());
 		sb.append("/");
 		sb.append(b.getActualID());
+
+
 		if(ctx instanceof RequestContextImpl) {
-			RequestContextImpl ci = (RequestContextImpl) ctx;
-			String sessid = ci.getRequest().getSession(true).getId();
+			IServerSession hs = ctx.getServerSession(true);
+			if(null == hs)
+				throw new IllegalStateException("?");
+			String sessid = hs.getId();
 			sb.append(";jsessionid=").append(sessid);
 		}
 	}

@@ -138,6 +138,8 @@ public class ComboLookup<T> extends ComboComponentBase<T, T> {
 
 				if(null != qm) {
 					q = qm.adjustQuery(q); // Adjust query if needed
+					if(q == null)
+						throw new IllegalStateException("The query manipulator " + qm + " returned null");
 				}
 
 				//-- Handle sorting if applicable

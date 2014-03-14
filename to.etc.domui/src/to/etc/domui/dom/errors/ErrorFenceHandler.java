@@ -96,7 +96,7 @@ public class ErrorFenceHandler implements IErrorFence {
 	}
 
 	@Override
-	public void addMessage(@Nonnull NodeBase source, @Nonnull UIMessage uim) {
+	public void addMessage(@Nonnull UIMessage uim) {
 		if(m_messageList == Collections.EMPTY_LIST)
 			m_messageList = new ArrayList<UIMessage>(15);
 		m_messageList.add(uim);
@@ -108,7 +108,7 @@ public class ErrorFenceHandler implements IErrorFence {
 		}
 		for(IErrorMessageListener eml : m_errorListeners) {
 			try {
-				eml.errorMessageAdded(source.getPage(), uim);
+				eml.errorMessageAdded(uim);
 			} catch(Exception x) {
 				x.printStackTrace();
 			}
@@ -116,15 +116,15 @@ public class ErrorFenceHandler implements IErrorFence {
 	}
 
 	@Override
-	public void removeMessage(@Nullable NodeBase source, @Nonnull UIMessage uim) {
+	public void removeMessage(@Nonnull UIMessage uim) {
 		if(!m_messageList.remove(uim)) // Must be known to the page or something's wrong..
 			return;
 
 		//-- Call the listeners.
 		List<IErrorMessageListener> list = m_errorListeners;
-		for(IErrorMessageListener eml : list) {
+		for(IErrorMessageListener eml : new ArrayList<IErrorMessageListener>(list)) {
 			try {
-				eml.errorMessageRemoved(source == null ? null : source.getPage(), uim);
+				eml.errorMessageRemoved(uim);
 			} catch(Exception x) {
 				x.printStackTrace();
 			}
@@ -132,26 +132,17 @@ public class ErrorFenceHandler implements IErrorFence {
 	}
 
 	@Override
-	public void clearGlobalMessages(@Nonnull NodeBase source, @Nullable String code) {
+	public void clearGlobalMessages(@Nullable String code) {
 		List<UIMessage> todo = new ArrayList<UIMessage>();
 		for(UIMessage m : m_messageList) {
-			if(m.getErrorNode() == null && (code == null || code.equals(m.getCode())))
+			if(code != null && code.equals(m.getGroup()))
+				todo.add(m);
+			else if(m.getErrorNode() == null && (code == null || code.equals(m.getCode())))
 				todo.add(m);
 		}
 
 		//-- Remove all messages from the list,
 		for(UIMessage m : todo)
-			removeMessage(source, m);
+			removeMessage(m);
 	}
-
-	//	public void	clearError(NodeBase component, String code) {
-	//		List<UIMessage>	todo = new ArrayList<UIMessage>();
-	//		for(UIMessage m: m_messageList) {
-	//			if(m.getErrorNode() == component && (code != null && m.getCode().equals(code)))
-	//				todo.add(m);
-	//		}
-	//		for(UIMessage m: todo) {
-	//			internalRemoveMessage(m);
-	//		}
-	//	}
 }

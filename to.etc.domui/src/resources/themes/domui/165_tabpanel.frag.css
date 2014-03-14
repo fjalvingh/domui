@@ -1,72 +1,76 @@
 /*** 165_tabpanel.frag.css ***/
 /*** The tab control, using the "sliding doors" technique as in http://www.alistapart.com/articles/slidingdoors/ ***/
+.ui-tab-c {
+	margin: 0px -<%= margins_main %> <%= margins_main %> -<%= margins_main %>;
+}
+.ui-tab-hdr ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+.ui-tab-li {
+	margin: 0;
+	padding: 0;
+}
+
 .ui-tab-hdr {
 	float: left;
-	font-size: 12px;
+	font-size: <%= font_size %>;
 	line-height: normal;
-	border-bottom: 1px solid black;
 	width: 100%;
+	margin: 0px 0px <%= margins_main %>;
 }
 
-.ui-tab-hdr ul {
-	margin: 0;
-	padding: 8px 10px 0;
-	list-style: none;
-}
-
-.ui-tab-hdr  li {
-	float: left;
-	margin: 0;
-	padding: 0 0 0 8px;
-	background: url(tab-off-left.png) no-repeat left top;
-}
-
-li.ui-tab-err {
-	float: left;
-	margin: 0;
-	padding: 0 0 0 8px;
-	background: url(tab-off-err-left.png) no-repeat left top;
+.ui-tab-hdr li {
+    background: url("<%= tab_pnl_img %>") no-repeat scroll left -200px transparent;
+    float: left;
+    margin: 0;
+    padding: 0 0 0 8px;
+    cursor: pointer;
+    list-style: none;
 }
 
 .ui-tab-hdr a {
-	display: block;
-	background: url(tab-off-right.png) no-repeat right top;
-	padding: 5px 14px 4px 6px;
-	text-decoration: none;
-	font-weight: bold;
-	color: <%= tab_fg %>;
+	background: url("<%= tab_pnl_img %>") no-repeat scroll right -250px transparent;
+    display: block;
+    font-weight: bold;
+    padding: 9px 14px 0px 6px;
+    text-decoration: none;
+ 	min-height: 22px;
+ 	color: <%= tab_pnl_inactive_col %>;
+ 	margin-right: 0px !important;
 }
 
-.ui-tab-hdr ul a:hover {
-	color: <%= tab_link_color %>;
+.ui-tab-hdr img {
+	vertical-align: top;	
 }
 
-.ui-tab-hdr .ui-tab-sel {
-	background-image: url(tab-norm-left-sel.png);
+.ui-tab-hdr li:hover {
+	background-position: left -300px;
 }
 
-.ui-tab-hdr .ui-tab-err a {
-	background-image: url(tab-off-err-right.png);
+.ui-tab-hdr li:hover a{
+	background-position: right -350px;
+	color: <%= tab_pnl_hover_inactive_col %>;
 }
 
-.ui-tab-hdr .ui-tab-sel a {
-	background-image: url(tab-norm-right-sel.png);
+.ui-tab-hdr li.ui-tab-sel, 
+.ui-tab-hdr li.ui-tab-sel:hover {
+	background-position: left top;
 }
 
-.ui-tab-err a {
-	color: <%= error_fg %>;
+.ui-tab-hdr li.ui-tab-sel a, 
+.ui-tab-hdr li.ui-tab-sel:hover a {
+	background-position: right -50px;
+	color: <%= tab_pnl_active_col %>;
+}
+
+li.ui-tab-err a {
+	color: <%= errors_foreground %> !important;
 }
 
 .ui-tab-icon {
 	padding-right: 5px;
-}
-
-.ui-tab {
-	position: relative; /* jal new 20070625 */
-	clear: both;
-	background-color: #ffffff;
-	border: 1px solid <%= header_bg %>;
-	padding: 0px;
 }
 
 .ui-tab-tabbar {
@@ -76,4 +80,38 @@ li.ui-tab-err {
 
 .ui-tab-pag {
 	border-top: 1px solid black;
+}
+
+.ui-tab-ibte {
+	height: 31px;
+	background: <%= tab_pnl_sep_bg %>;
+	overflow: hidden;
+}
+
+li.ui-tab-ibt {
+	background: <%= tab_pnl_sep_bg %>;
+	height: 31px;
+	width: 3px;
+	padding: 0px;
+	margin: 0px;
+}
+
+div.ui-tab-hdr li, div.ui-tab-ibte {
+	border-bottom: <%= tab_pnl_btm_border %> solid #727272;
+}
+
+div.ui-tab-hdr li.ui-tab-sel {
+	border-bottom: 0px;
+}
+
+li.ui-tab-ibt:FIRST-CHILD {
+	width: 10px;
+}
+
+.ui-tab-pg {
+	padding: 0px 10px;
+}
+
+.ui-tab-pg .ui-buttonbar, .ui-tab-pg .ui-szless {
+	margin-left: 0px;
 }

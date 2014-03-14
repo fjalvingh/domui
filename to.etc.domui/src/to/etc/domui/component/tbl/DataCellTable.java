@@ -28,6 +28,7 @@ import java.util.*;
 
 import javax.annotation.*;
 
+import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
@@ -42,10 +43,11 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 13, 2008
  */
-public class DataCellTable<T> extends TabularComponentBase<T> {
+public class DataCellTable<T> extends SelectableTabularComponent<T> implements ISelectionListener<T>, ISelectableTableComponent<T> {
 	private int m_rows = 3, m_columns = 3;
 
-	private Table m_table = new Table();
+	@Nonnull
+	final private Table m_table = new Table();
 
 	private TBody m_dataBody;
 
@@ -54,13 +56,16 @@ public class DataCellTable<T> extends TabularComponentBase<T> {
 	private boolean m_renderEmptyRows;
 
 	/** The specified ComboRenderer used. */
-	private INodeContentRenderer< ? > m_contentRenderer;
+	private INodeContentRenderer<T> m_contentRenderer;
 
-	private INodeContentRenderer< ? > m_actualContentRenderer;
+	private INodeContentRenderer<T> m_actualContentRenderer;
 
-	private Class< ? extends INodeContentRenderer< ? >> m_contentRendererClass;
+	private Class< ? extends INodeContentRenderer<T>> m_contentRendererClass;
 
-	public DataCellTable(ITableModel<T> model) {
+	@Nonnull
+	final private Map<T, Div> m_visibleMap = new HashMap<T, Div>();
+
+	public DataCellTable(@Nonnull ITableModel<T> model) {
 		super(model);
 	}
 
@@ -107,19 +112,21 @@ public class DataCellTable<T> extends TabularComponentBase<T> {
 		m_renderEmptyCells = renderEmptyCells;
 	}
 
-	public INodeContentRenderer< ? > getContentRenderer() {
+	@Nullable
+	public INodeContentRenderer<T> getContentRenderer() {
 		return m_contentRenderer;
 	}
 
-	public void setContentRenderer(INodeContentRenderer< ? > contentRenderer) {
+	public void setContentRenderer(@Nullable INodeContentRenderer<T> contentRenderer) {
 		m_contentRenderer = contentRenderer;
 	}
 
-	public Class< ? extends INodeContentRenderer< ? >> getContentRendererClass() {
+	@Nullable
+	public Class< ? extends INodeContentRenderer<T>> getContentRendererClass() {
 		return m_contentRendererClass;
 	}
 
-	public void setContentRendererClass(Class< ? extends INodeContentRenderer< ? >> contentRendererClass) {
+	public void setContentRendererClass(@Nullable Class< ? extends INodeContentRenderer<T>> contentRendererClass) {
 		m_contentRendererClass = contentRendererClass;
 	}
 
@@ -135,7 +142,8 @@ public class DataCellTable<T> extends TabularComponentBase<T> {
 		forceRebuild();
 	}
 
-	private INodeContentRenderer< ? > calculateContentRenderer(Object val) {
+	@Nonnull
+	private INodeContentRenderer<T> calculateContentRenderer(@Nullable Object val) {
 		if(m_actualContentRenderer != null)
 			return m_actualContentRenderer;
 		if(m_contentRenderer != null)
@@ -158,7 +166,7 @@ public class DataCellTable<T> extends TabularComponentBase<T> {
 		calcIndices(); // Calculate rows to show.
 
 		//-- If we've nothing to show- show nothing beautifully.
-		List< ? > list = getPageItems(); // Data to show
+		List<T> list = getPageItems(); // Data to show
 		if(list.size() == 0) {
 			Div error = new Div();
 			error.setCssClass("ui-dct-nores");
@@ -168,34 +176,43 @@ public class DataCellTable<T> extends TabularComponentBase<T> {
 		}
 		m_table.removeAllChildren();
 		add(m_table);
-		m_dataBody = new TBody();
-		m_table.add(m_dataBody);
+		TBody body = m_dataBody = new TBody();
+		m_table.add(body);
 
 		//-- Row- and column renderer thingerydoo.
+		m_visibleMap.clear();
 		int index = 0;
 		for(int row = 0; row < getRows(); row++) {
 			//-- Create the next row of cells,
 			TR tr = new TR();
-			m_dataBody.add(tr);
+			body.add(tr);
 
 			//-- Do all columns,
 			for(int col = 0; col < getColumns(); col++) {
 				TD td = new TD();
 				tr.add(td);
+				td.setValign(TableVAlign.TOP);
 
-				Object value = null;
+				Div seldiv = new Div();
+				td.add(seldiv);
+				seldiv.setCssClass("ui-dct-item");
+
+
+				T value = null;
 				if(index >= list.size()) {
 					if(!isRenderEmptyCells()) {
 						//-- Empty cell node
-						td.setCssClass("ui-dct-empty");
+						seldiv.setCssClass("ui-dct-empty");
 						continue;
 					}
 				} else
 					value = list.get(index);
 
 				//-- Call the renderer
-				INodeContentRenderer<Object> r = (INodeContentRenderer<Object>) calculateContentRenderer(value);
-				r.renderNodeContent(this, td, value, null);
+				if(null != value) {
+					m_visibleMap.put(value, seldiv);
+					renderCell(seldiv, value);
+				}
 				index++;
 			}
 
@@ -205,6 +222,40 @@ public class DataCellTable<T> extends TabularComponentBase<T> {
 					break;
 			}
 		}
+	}
+
+	private boolean hasSelectionModel() {
+		return getSelectionModel() != null;
+	}
+
+
+	private void renderCell(@Nonnull final Div td, @Nonnull final T value) throws Exception {
+		boolean selected = false;
+		ISelectionModel<T> sm = getSelectionModel();
+		if(null != sm) {
+			selected = sm.isSelected(value);
+			td.addCssClass("ui-clickable");
+			td.setClicked(new IClicked<Div>() {
+				@Override
+				public void clicked(@Nonnull Div clickednode) throws Exception {
+					handleSelectionClick(td, value);
+				}
+			});
+		}
+
+		INodeContentRenderer<T> r = calculateContentRenderer(value);
+		r.renderNodeContent(this, td, value, Boolean.valueOf(selected));
+
+		if(selected)
+			td.setCssClass("ui-dct-selected");
+	}
+
+	private void handleSelectionClick(@Nonnull Div td, @Nonnull T value) throws Exception {
+		ISelectionModel<T> sm = getSelectionModel();
+		if(null == sm)
+			throw new IllegalStateException("SelectionModel is null??");
+		boolean nvalue = !sm.isSelected(value);
+		sm.setInstanceSelected(value, nvalue);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -230,4 +281,58 @@ public class DataCellTable<T> extends TabularComponentBase<T> {
 	@Override
 	public void rowModified(@Nonnull ITableModel<T> model, int index, @Nonnull T value) throws Exception {
 	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	ISelectionListener.									*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Called when a selection event fires. The underlying model has already been changed. It
+	 * tries to see if the row is currently paged in, and if so asks the row renderer to update
+	 * it's selection presentation.
+	 *
+	 * @see to.etc.domui.component.tbl.ISelectionListener#selectionChanged(java.lang.Object, boolean)
+	 */
+	@Override
+	public void selectionChanged(@Nonnull T row, boolean on) throws Exception {
+		//-- Is this a visible row?
+		for(Map.Entry<T, Div> me : m_visibleMap.entrySet()) {
+			if(MetaManager.areObjectsEqual(me.getKey(), row)) {
+				Div d = me.getValue();
+				if(on)
+					d.addCssClass("ui-dct-selected");
+				else
+					d.removeCssClass("ui-dct-selected");
+				return;
+			}
+		}
+	}
+
+	/**
+	 * Called when a selection cleared event fires. The underlying model has already been changed. It
+	 * tries to see if the row is currently paged in, and if so asks the row renderer to update
+	 * it's selection presentation.
+	 *
+	 * @see to.etc.domui.component.tbl.ISelectionListener#selectionCleared(java.lang.Object, boolean)
+	 */
+	@Override
+	public void selectionAllChanged() throws Exception {
+		ISelectionModel<T> sm = getSelectionModel();
+		if(sm == null)
+			throw new IllegalStateException("Got selection changed event but selection model is empty?");
+
+		for(T item : m_visibleMap.keySet()) {
+			selectionChanged(item, sm.isSelected(item));
+		}
+	}
+
+	@Override
+	public boolean isMultiSelectionVisible() {
+		ISelectionModel<T> sm = getSelectionModel();
+		return sm != null && sm.isMultiSelect();
+	}
+
+	@Override
+	protected void createSelectionUI() throws Exception {}
+
 }
