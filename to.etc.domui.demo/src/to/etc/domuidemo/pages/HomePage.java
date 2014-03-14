@@ -1,8 +1,6 @@
 package to.etc.domuidemo.pages;
 
 import to.etc.domui.dom.html.*;
-import to.etc.domui.fd.*;
-import to.etc.domui.state.*;
 import to.etc.domuidemo.pages.basic.*;
 import to.etc.domuidemo.pages.binding.*;
 import to.etc.domuidemo.pages.binding.tbl.*;
@@ -20,7 +18,6 @@ import to.etc.domuidemo.pages.overview.lookup.*;
 import to.etc.domuidemo.pages.overview.menu.*;
 import to.etc.domuidemo.pages.overview.misc.*;
 import to.etc.domuidemo.pages.overview.tree.*;
-import to.etc.domuidemo.sourceviewer.*;
 import to.etc.formbuilder.pages.*;
 
 public class HomePage extends MenuPage {
