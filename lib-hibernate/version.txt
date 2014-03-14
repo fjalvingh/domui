@@ -1,0 +1,6 @@
+2012/02/19 jal
+This is a patched version of Hibernate 3.6.10.
+
+
+-----
+This is a patched version of Hibernate 3.6.6
