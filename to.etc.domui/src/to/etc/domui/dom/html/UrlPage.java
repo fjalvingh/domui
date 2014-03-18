@@ -130,6 +130,12 @@ public class UrlPage extends Div implements ILogiEventListener {
 		return QContextManager.getDataContextFactory(key, getPage().getContextContainer(key));
 	}
 
+	@Override
+	protected void onForceRebuild() {
+		super.onForceRebuild();
+		getPage().getConversation().setAttribute(LogiContext.class.getName(), null);
+	}
+
 	/**
 	 * EXPERIMENTAL Returns the business logic context for the current form.
 	 * @see to.etc.domui.dom.html.NodeBase#lc()
