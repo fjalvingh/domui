@@ -554,6 +554,9 @@ public class JspPageHandler {
 				atag("Disable session tracing", "action", "sessionoff");
 				text("\u00a0\u00a0\u00a0");
 			}
+			text("\u00a0\u00a0\u00a0");
+
+			atag("Disable statistics", "__statistics", "f");
 		} else {
 			text("Statistics disabled in database pool config. Click ");
 			atag("here", "__statistics", "t");
