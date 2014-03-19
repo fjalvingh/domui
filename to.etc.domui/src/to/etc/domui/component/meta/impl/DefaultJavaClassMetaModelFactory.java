@@ -300,6 +300,8 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 		DefaultClassMetaModel cmm = colli.getModel();
 		if("javax.persistence.Column".equals(name)) {
 			decodeJpaColumn(pmm, an);
+		} else if("javax.persistence.JoinColumn".equals(name)) {
+			decodeJpaJoinColumn(pmm, an);
 		} else if("javax.persistence.Id".equals(name)) {
 			pmm.setPrimaryKey(true);
 			cmm.setPersistentClass(true);
@@ -369,6 +371,25 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 			pmm.setPrecision(iv.intValue());
 			iv = (Integer) DomUtil.getClassValue(an, "scale");
 			pmm.setScale(iv.intValue());
+			String name = (String) DomUtil.getClassValue(an, "name");
+			if(null == name) {
+				name = pmm.getName(); // If column is present but name is null- use the property name verbatim.
+			}
+			pmm.setColumnNames(new String[]{name});
+		} catch(RuntimeException x) {
+			throw x;
+		} catch(Exception x) {
+			throw new WrappedException(x);
+		}
+	}
+
+	/**
+	 * Generically decode a JPA  javax.persistence.JoinColumn annotation.
+	 * @param pmm
+	 * @param an
+	 */
+	protected void decodeJpaJoinColumn(DefaultPropertyMetaModel< ? > pmm, final Annotation an) {
+		try {
 			String name = (String) DomUtil.getClassValue(an, "name");
 			if(null == name) {
 				name = pmm.getName(); // If column is present but name is null- use the property name verbatim.
