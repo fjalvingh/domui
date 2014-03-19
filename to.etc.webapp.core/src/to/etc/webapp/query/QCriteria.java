@@ -378,6 +378,16 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 
 	/**
 	 * {@inheritDoc}
+	 * @see to.etc.webapp.query.QCriteriaQueryBase#sqlCondition(java.lang.String)
+	 */
+	@Nonnull
+	@Override
+	public QCriteria<T> sqlCondition(@Nonnull final String sql, @Nonnull Object[] params) {
+		return (QCriteria<T>) super.sqlCondition(sql, params);
+	}
+
+	/**
+	 * {@inheritDoc}
 	 * @see to.etc.webapp.query.QCriteriaQueryBase#limit(int)
 	 */
 	@Override
