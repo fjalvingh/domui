@@ -32,6 +32,8 @@ import java.util.regex.*;
 
 import javax.annotation.*;
 
+import org.slf4j.*;
+
 /**
  * This static utility class contains a load of string functions. And some other
  * stuff I could not quickly find a place for ;-)
@@ -2206,12 +2208,43 @@ public class StringTool {
 	}
 
 
-	static public final void dumpLocation(final String msg) {
+	static public final void dumpDebugLocation(@Nonnull Logger log, final @Nonnull String msg) {
 		try {
-			throw new IllegalStateException("duh");
+			throw new IllegalStateException("Dump at debug level for source location...");
 		} catch(IllegalStateException x) {
-			System.out.println(msg);
-			x.printStackTrace(System.out);
+			log.debug(msg, x);
+		}
+	}
+
+	static public final void dumpTraceLocation(@Nonnull Logger log, final @Nonnull String msg) {
+		try {
+			throw new IllegalStateException("Dump at trace level for source location...");
+		} catch(IllegalStateException x) {
+			log.trace(msg, x);
+		}
+	}
+
+	static public final void dumpInfoLocation(@Nonnull Logger log, final @Nonnull String msg) {
+		try {
+			throw new IllegalStateException("Dump at info level for source location...");
+		} catch(IllegalStateException x) {
+			log.info(msg, x);
+		}
+	}
+
+	static public final void dumpWarnLocation(@Nonnull Logger log, final @Nonnull String msg) {
+		try {
+			throw new IllegalStateException("Dump at warn level for source location...");
+		} catch(IllegalStateException x) {
+			log.warn(msg, x);
+		}
+	}
+
+	static public final void dumpErrorLocation(@Nonnull Logger log, final @Nonnull String msg) {
+		try {
+			throw new IllegalStateException("Dump at error level for source location...");
+		} catch(IllegalStateException x) {
+			log.error(msg, x);
 		}
 	}
 
