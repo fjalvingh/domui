@@ -8,7 +8,6 @@ import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.component.tbl.*;
-import to.etc.domui.databinding.*;
 import to.etc.domui.databinding.observables.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domuidemo.db.*;

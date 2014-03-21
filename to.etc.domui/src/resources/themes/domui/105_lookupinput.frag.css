@@ -46,6 +46,10 @@ table.ui-lui-selected {
 	width: 100%;
 }
 
+.ui-ro .ui-lui-v {
+	white-space: nowrap;
+}
+
 .ui-lui-v > div {
 	width: 104px;
 }
