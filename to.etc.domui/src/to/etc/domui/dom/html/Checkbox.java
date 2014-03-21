@@ -131,6 +131,7 @@ public class Checkbox extends NodeBase implements IControl<Boolean>, IHasModifie
 	 * @see to.etc.domui.dom.html.IControl#getValue()
 	 */
 	@Override
+	@Nonnull
 	public Boolean getValue() {
 		return Boolean.valueOf(isChecked());
 	}
