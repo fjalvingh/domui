@@ -11,6 +11,7 @@
     <orderEntry type="module" module-name="to.etc.domui" />
     <orderEntry type="module" module-name="jsr305" />
     <orderEntry type="jdk" jdkName="JavaSE-1.7" jdkType="JavaSDK" />
+    <orderEntry type="library" name="annotations" level="project" />
   </component>
 </module>
 
