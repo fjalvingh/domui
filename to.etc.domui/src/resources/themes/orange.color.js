@@ -207,6 +207,8 @@ link_color="#2200cc";	// dark blue
 
 readonly_border="#EEEEEF"; // bit darker grey
 
+multiple_lookup_label_color = '#ffa21e';
+
 //-- Bulk upload
 upl_runing=highlight_bg;
 upl_loading=data_tbl_cell_highlight_bg;
