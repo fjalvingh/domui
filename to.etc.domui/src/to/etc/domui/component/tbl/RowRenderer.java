@@ -6,6 +6,7 @@ import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.component.ntbl.*;
+import to.etc.domui.component.tbl.AbstractRowRenderer.IRowRendered;
 import to.etc.domui.databinding.observables.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
@@ -42,6 +43,9 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 
 	@Nullable
 	private IRowButtonFactory<T> m_rowButtonFactory;
+
+	@Nullable
+	private IRowRendered<T> m_onRowRendered;
 
 	public RowRenderer(@Nonnull Class<T> data) {
 		this(data, MetaManager.findClassMeta(data));
@@ -249,6 +253,11 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 			cc.getTR().removeCssClass("ui-even");
 			cc.getTR().addCssClass("ui-odd");
 		}
+
+		IRowRendered<T> rr = getOnRowRendered();
+		if(null != rr) {
+			rr.rowRendered(cc.getTR(), instance);
+		}
 	}
 
 	/**
@@ -352,6 +361,20 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Setters and getters.								*/
 	/*--------------------------------------------------------------*/
+
+	/**
+	 * Sets a handler that gets called every time a row is rendered.
+	 * @return
+	 */
+	@Nullable
+	public IRowRendered<T> getOnRowRendered() {
+		return m_onRowRendered;
+	}
+
+	public void setOnRowRendered(@Nullable IRowRendered<T> onRowRendered) {
+		m_onRowRendered = onRowRendered;
+	}
+
 	/**
 	 *
 	 * @return
