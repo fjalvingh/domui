@@ -7,6 +7,7 @@ import java.util.*;
 import java.util.Date;
 
 import javax.annotation.*;
+import javax.annotation.concurrent.*;
 import javax.sql.*;
 
 import org.junit.*;
@@ -316,6 +317,20 @@ public class TUtilTestProperties {
 		if(m_connectionPool == null)
 			return;
 		m_connectionPool.setCommitDisabled(on);
+	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Initialize slf4j logger.							*/
+	/*--------------------------------------------------------------*/
+
+	@GuardedBy("class")
+	static private boolean m_loggingInitialized;
+
+	static synchronized public void initLogging() {
+		if(m_loggingInitialized)
+			return;
+		m_loggingInitialized = true;
 	}
 
 	/*--------------------------------------------------------------*/

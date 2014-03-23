@@ -161,6 +161,7 @@ public class FloatingDiv extends Div implements IAddToBody {
 	protected void beforeCreateContent() {
 		super.beforeCreateContent();
 		setCssClass("ui-flw");
+		deactivateHiddenAccessKeys();
 
 		// jal 20121105 Removed: interferes with auto-resizing floating window.
 		//		if(getWidth() == null) // Should not be possible.
@@ -279,6 +280,7 @@ public class FloatingDiv extends Div implements IAddToBody {
 	 */
 	@OverridingMethodsMustInvokeSuper
 	public void close() {
+		reactivateHiddenAccessKeys();
 		remove();
 	}
 
@@ -297,4 +299,20 @@ public class FloatingDiv extends Div implements IAddToBody {
 		}
 	}
 
+	/**
+	 * Disables all button access keys which are not part of active floating window.
+	 * They will be enabled again on window close
+	 * @see FloatingDiv#reactivateHiddenAccessKeys()
+	 */
+	private void deactivateHiddenAccessKeys() {
+		appendCreateJS("WebUI.deactivateHiddenAccessKeys(" + getActualID() + ");");
+	}
+
+	/**
+	 * Enables all button access keys, disabled during the floating window presence.
+	 * @see FloatingDiv#deactivateHiddenAccessKeys()
+	 */
+	private void reactivateHiddenAccessKeys() {
+		appendJavascript("WebUI.reactivateHiddenAccessKeys('" + getActualID() + "');");
+	}
 }

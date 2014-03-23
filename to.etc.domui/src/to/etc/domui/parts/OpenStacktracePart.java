@@ -6,6 +6,8 @@ import javax.annotation.*;
 import javax.servlet.http.*;
 
 import to.etc.domui.component.misc.*;
+import to.etc.domui.component.misc.InternalParentTree.AnswerType;
+import to.etc.domui.component.misc.InternalParentTree.CommandResponse;
 import to.etc.domui.server.*;
 import to.etc.domui.server.parts.*;
 
@@ -31,11 +33,10 @@ public class OpenStacktracePart implements IUnbufferedPartFactory {
 			if(stk == null || stk.trim().length() == 0)
 				throw new IllegalArgumentException("Missing 'element' argument");
 
-			boolean ok = InternalParentTree.openEclipseSource(stk);
-
+			CommandResponse rc = InternalParentTree.openEclipseSource(stk);
 			w.print("{\"message\":\"");
-			if(!ok) {
-				w.print("Failed to connect to Eclipse. You need to have the Eclipse DomUI plugin running.");
+			if(rc.getType() != AnswerType.SUCCESS) {
+				w.print(InternalParentTree.getResponseMessage(rc));
 			}
 			w.print("\"}");
 		}

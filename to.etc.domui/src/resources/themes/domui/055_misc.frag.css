@@ -1,10 +1,7 @@
 /*** 055_misc.frag.css ***/
 /*** Miscellaneous components styles ***/
 /* AccessDeniedPage */
-.ui-acd-ttl {
-	font-size: larger;
-	font-style: italic;
-}
+.ui-acd-ttl {}
 
 /* InfoPanel */
 .ui-ipa {
@@ -131,4 +128,10 @@ div.ui-asc div {
 }
 .dso-remove-top-margin {
 	margin-top: 0px !important;
+}
+.dso-cell-with-text-and-input {}
+
+/** Default cursor */
+.ui-cur-default {
+	cursor: default !important;
 }

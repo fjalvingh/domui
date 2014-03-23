@@ -3,12 +3,13 @@ package to.etc.domuidemo.db;
 import java.math.*;
 
 import javax.persistence.*;
+import to.etc.domui.databinding.observables.*;
 
 @Entity
 @Table(name = "InvoiceLine")
 @SequenceGenerator(name = "sq", sequenceName = "invoiceline_sq")
 //@MetaObject(defaultColumns = {@MetaDisplayProperty(name = "name")})
-public class InvoiceLine extends DbRecordBase<Long> {
+public class InvoiceLine extends DbRecordBase<Long> implements IObservableEntity {
 	private Long m_id;
 
 	private Invoice m_invoice;
@@ -28,7 +29,9 @@ public class InvoiceLine extends DbRecordBase<Long> {
 	}
 
 	public void setId(Long id) {
+		Long oldv = getId();
 		m_id = id;
+		firePropertyChange("id", oldv, id);
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -38,7 +41,9 @@ public class InvoiceLine extends DbRecordBase<Long> {
 	}
 
 	public void setInvoice(Invoice invoice) {
+		Invoice oldv = getInvoice();
 		m_invoice = invoice;
+		firePropertyChange("invoice", oldv, invoice);
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -48,7 +53,9 @@ public class InvoiceLine extends DbRecordBase<Long> {
 	}
 
 	public void setTrack(Track track) {
+		Track oldv = getTrack();
 		m_track = track;
+		firePropertyChange("track", oldv, track);
 	}
 
 	@Column(name = "UnitPrice", precision = 10, scale = 2, nullable = false)
@@ -57,7 +64,9 @@ public class InvoiceLine extends DbRecordBase<Long> {
 	}
 
 	public void setUnitPrice(BigDecimal unitPrice) {
+		BigDecimal oldv = getUnitPrice();
 		m_unitPrice = unitPrice;
+		firePropertyChange("unitPrice", oldv, unitPrice);
 	}
 
 	@Column(name = "Quantity", precision = 10, scale = 0, nullable = false)
@@ -66,6 +75,8 @@ public class InvoiceLine extends DbRecordBase<Long> {
 	}
 
 	public void setQuantity(int quantity) {
+		Integer oldv = Integer.valueOf(getQuantity());
 		m_quantity = quantity;
+		firePropertyChange("quantity", oldv, Integer.valueOf(quantity));
 	}
 }

@@ -24,20 +24,38 @@
  */
 package to.etc.domui.converter;
 
+import javax.annotation.*;
+
+import to.etc.domui.dom.errors.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 
 public class MaxMinValidator implements IValueValidator<Number> {
+	@Nonnull
 	private Number m_max, m_min;
+
+	@Nullable
+	private final UIMessage m_msg;
+
+	/**
+	 * Create a validator comparing to these INCLUSIVE bounds.
+	 * @param max
+	 * @param min
+	 * @param msg If specified this error message will be shown, otherwise default error message is shown.
+	 */
+	public MaxMinValidator(@Nonnull Number min, @Nonnull Number max, @Nullable UIMessage msg) {
+		m_max = max;
+		m_min = min;
+		m_msg = msg;
+	}
 
 	/**
 	 * Create a validator comparing to these INCLUSIVE bounds.
 	 * @param max
 	 * @param min
 	 */
-	public MaxMinValidator(Number min, Number max) {
-		m_max = max;
-		m_min = min;
+	public MaxMinValidator(@Nonnull Number min, @Nonnull Number max) {
+		this(min, max, null);
 	}
 
 	/**
@@ -52,17 +70,26 @@ public class MaxMinValidator implements IValueValidator<Number> {
 		if(m_max.getClass() == ac && m_min.getClass() == ac && input instanceof Comparable< ? >) {
 			int r = ((Comparable<Number>) input).compareTo(m_min);
 			if(r < 0) {
-				throw new ValidationException(Msgs.V_TOOSMALL, m_min.toString());
+				throwError(Msgs.V_TOOSMALL, m_min);
 			}
 			r = ((Comparable<Number>) input).compareTo(m_max);
 			if(r > 0) {
-				throw new ValidationException(Msgs.V_TOOLARGE, m_max.toString());
+				throwError(Msgs.V_TOOLARGE, m_max);
 			}
 		} else {
 			if(input.doubleValue() > m_max.doubleValue())
-				throw new ValidationException(Msgs.V_TOOLARGE, m_max.toString());
+				throwError(Msgs.V_TOOLARGE, m_max);
 			if(input.doubleValue() < m_min.doubleValue())
-				throw new ValidationException(Msgs.V_TOOSMALL, m_min.toString());
+				throwError(Msgs.V_TOOSMALL, m_min);
+		}
+	}
+
+	private void throwError(@Nonnull String code, @Nonnull Number val) {
+		UIMessage msg = m_msg;
+		if(msg != null) {
+			throw new ValidationException(msg.getBundle(), msg.getCode(), msg.getParameters());
+		} else {
+			throw new ValidationException(code, val.toString());
 		}
 	}
 }

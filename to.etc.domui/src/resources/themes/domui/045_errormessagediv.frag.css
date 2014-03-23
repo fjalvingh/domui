@@ -7,22 +7,22 @@
 }
 .ui-emd-msg {
 	background-repeat: no-repeat;
-	background-position: left;
-	padding-left: 18px;
+	background-position: 10px;
+	padding-left: 24px;
+	background-size: 11px 11px;
 }
 .ui-emd-info {
 	background-image: url(mini-info.png);
-	background-color: <%= info_bg %>; /* some nice light blue */
+	background-color: <%= info_bg %>;
 	color: <%= info_fg %>;
 	border-color: 1px solid <%= info_border %>;
 }
 .ui-emd-error {
 	background-image: url(mini-error.png);
-	/*	height: 16px; We have to remove this because there are big error messages */
 }
 .ui-emd-warning {
 	background-image: url(mini-warning.png);
 	background-color: <%= warnings_background %>;
 	color: <%= warnings_foreground %>;
-	border-color: 1px solid <%= warnings_border %>;
 }
+

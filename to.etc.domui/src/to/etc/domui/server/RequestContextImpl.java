@@ -100,6 +100,8 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 
 	private String m_outputEncoding;
 
+	private Exception m_outputAllocated;
+
 	/**
 	 * Get the session for this context.
 	 * @see to.etc.domui.server.IRequestContext#getSession()
@@ -270,34 +272,30 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		return getRelativePath(p);
 	}
 
+	static private final boolean OUTPUTDEBUG = true;
+
 	/**
-	 * This returns a fully buffered output writer. Flush will write data
-	 * to the "real" output stream.
+	 * This returns a fully buffered output writer. Calling it twice is explicitly
+	 * allowed, but clears the data written before as it's assumed that another route
+	 * to output will be chosen.
+	 *
 	 * @see to.etc.domui.server.IRequestContext#getOutputWriter()
 	 */
 	@Override
 	@Nonnull
 	public Writer getOutputWriter(@Nonnull String contentType, @Nullable String encoding) throws IOException {
-		if(m_outWriter != null)
-			throw new IllegalStateException("Output writer already created");
+		StringWriter sw = m_sw;
+		if(null != sw) {
+			if(sw.getBuffer().length() > 0) {
+				System.out.println("domui warning: outputwriter reallocated after writing " + sw.getBuffer().length() + " characters of data already");
+			}
+		}
 
 		m_outputContentType = contentType;
 		m_outputEncoding = encoding;
-
-		if(m_outWriter == null) {
-			m_sw = new StringWriter(8192);
-			m_outWriter = m_sw;
-		}
+		m_sw = new StringWriter(8192);
+		m_outWriter = m_sw;
 		return m_outWriter;
-
-		//		if(m_outWriter == null) {
-		//			if(m_logging) {
-		//				m_sw = new StringWriter();
-		//				m_outWriter = new TeeWriter(getResponse().getWriter(), m_sw);
-		//			} else
-		//				m_outWriter = getResponse().getWriter();
-		//		}
-		//		return m_outWriter;
 	}
 
 	/**

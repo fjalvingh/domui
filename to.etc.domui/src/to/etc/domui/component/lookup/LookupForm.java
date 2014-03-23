@@ -98,6 +98,13 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 	private DefaultButton m_collapseButton;
 
+	private DefaultButton m_clearButton;
+
+	public @Nullable
+	DefaultButton getClearButton() {
+		return m_clearButton;
+	}
+
 	private Table m_table;
 
 	private TBody m_tbody;
@@ -539,7 +546,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		});
 		addButtonItem(b, 100, ButtonMode.NORMAL);
 
-		b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CLEAR));
+		m_clearButton = b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CLEAR));
 		b.setIcon("THEME/btnClear.png");
 		b.setTestID("clearButton");
 		b.setClicked(new IClicked<NodeBase>() {
@@ -663,6 +670,8 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 			if(m_twoColumnsMode && (totalCount >= m_minSizeForTwoColumnsMode) && m_itemList.size() == (totalCount + 1) / 2) {
 				m_itemList.add(new ItemBreak());
 			}
+			updateUI(it);
+
 		}
 	}
 
@@ -721,6 +730,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		it.setIgnoreCase(ignorecase == null ? true : ignorecase.booleanValue());
 		it.setMinLength(minlen);
 		addAndFinish(it);
+		updateUI(it);
 		return it;
 	}
 
@@ -737,6 +747,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		Item it = new Item();
 		it.setInstance(lci);
 		addAndFinish(it);
+		updateUI(it);
 		return it;
 	}
 
@@ -761,6 +772,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		if(qt == null || qt.getInputControls() == null || qt.getInputControls().length == 0)
 			throw new IllegalStateException("Lookup factory " + lcf + " did not link thenlookup thingy for property " + it.getPropertyName());
 		it.setInstance(qt);
+		updateUI(it);
 		return it;
 	}
 
@@ -773,6 +785,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		it.setInstance(lci);
 		it.setLabelText(labelText);
 		addAndFinish(it);
+		updateUI(it);
 		return it;
 	}
 
@@ -905,6 +918,13 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		if(it.getErrorLocation() == null) {
 			it.setErrorLocation(it.getLabelText());
 		}
+
+	}
+
+	private void updateUI(@Nonnull Item it) {
+		//-- jal 20130528 This component quite sucks balls- the interface is not able to add on-the-fly.
+		if(m_tbody != null)
+			internalAddLookupItem(it);
 	}
 
 

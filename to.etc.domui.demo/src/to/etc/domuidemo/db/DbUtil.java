@@ -23,6 +23,9 @@ public class DbUtil {
 		HibernateConfigurator.addClasses(Artist.class, Album.class, MediaType.class, Track.class);
 		HibernateConfigurator.addClasses(Genre.class, Customer.class, Employee.class, Invoice.class, InvoiceLine.class);
 
+		HibernateConfigurator.enableBeforeImages(true);
+		HibernateConfigurator.enableObservableCollections(true);
+
 		HibernateConfigurator.initialize(ds);
     }
 

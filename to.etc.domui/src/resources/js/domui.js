@@ -1,3 +1,7 @@
+$(function(){
+	$.getScript("$js/domui-date-checker.js");
+});
+
 function _block() {
 	WebUI.blockUI();
 }
@@ -24,13 +28,12 @@ $(window).bind('beforeunload', function() {
 ( function($) {
 	$.fn.center = function() {
 		if(this.css("position") != "fixed")
-			this.css("position","absolute");
-	    this.css("top", Math.max(0, (($(window).height() - this.outerHeight()) / 2) + $(window).scrollTop()) + "px");
-	    this.css("left", Math.max(0, (($(window).width() - this.outerWidth()) / 2) + $(window).scrollLeft()) + "px");
-	    return this;
+			this.css("position", "absolute");
+		this.css("top", Math.max(0, ( ($(window).height() - this.outerHeight()) / 2) + $(window).scrollTop()) + "px");
+		this.css("left", Math.max(0, ( ($(window).width() - this.outerWidth()) / 2) + $(window).scrollLeft()) + "px");
+		return this;
 	};
-	
-	
+
 	$.webui = function(xml) {
 		processDoc(xml);
 	};
@@ -148,12 +151,17 @@ $(window).bind('beforeunload', function() {
 			log("Redirecting- ");
 			var to = xml.documentElement.getAttribute('url');
 
-			// -- jal 20130129 For large documents, redirecting "inside" an existing document causes huge problems, the
-			// jquery loops in the "source" document while the new one is loading. This part "clears" the existing
-			// document
-			// causing an ugly white screen while loading - but the loading now always works..
-			document.write('<html></html>');
-			document.close();
+			if (!$.browser.msie) {
+				//-- jal 20130129 For large documents, redirecting "inside" an existing document causes huge problems, the
+				// jquery loops in the "source" document while the new one is loading. This part "clears" the existing document
+				// causing an ugly white screen while loading - but the loading now always works..
+				try {
+					document.write('<html></html>');
+					document.close();
+				} catch(xxx) {
+					// jal 20130626 Suddenly Firefox no longer allows this. Deep, deep sigh.
+				}
+			}
 			window.location.href = to;
 			return true;
 		} else if (rname == 'expiredOnPollasy'){
@@ -271,11 +279,11 @@ $(window).bind('beforeunload', function() {
 									if ((dest.tagName.toLowerCase() == 'div' && $(dest).height() == 0) && ((v.indexOf('visibility') != -1 && v.indexOf('hidden') == -1) || (v.indexOf('display') != -1 && v.indexOf('none') == -1))){
 										WebUI.refreshElement(dest.id);
 									}
-								}								
+								}
 							} else {
 								//-- jal 20100720 handle disabled, readonly, checked differently: these are either present or not present; their value is always the same.
 //								alert('changeAttr: id='+dest.id+' change '+n+" to "+v);
-								
+
 								if(dest.tagName.toLowerCase() == 'select' && n == 'class' && $.browser.mozilla) {
 									dest.className = v;
 									var old = dest.selectedIndex;
@@ -437,7 +445,7 @@ $(window).bind('beforeunload', function() {
 //						this._xxxw = true;
 //						alert('dest='+dest+", src="+src+", inline="+inline+", ffox="+$.browser.mozilla);
 //					}
-					
+
 					if (inline) {
 						//-- 20091110 jal When inlining we are in trouble if domjs_ is used... The domjs_ mechanism is replaced with setDelayedAttributes in java.
 						if(n.substring(0, 6) == 'domjs_') {
@@ -473,6 +481,7 @@ $(window).bind('beforeunload', function() {
 							else
 								se = new Function("event", fntext);
 							dest[n] = se;
+
 						} catch(x) {
 							alert('DomUI: Cannot set EVENT '+n+" as "+v+' on '+dest+": "+x);
 						}
@@ -535,7 +544,7 @@ $(window).bind('beforeunload', function() {
 	$.fn.executeDeltaXML = executeXML;
 })(jQuery);
 
-/** 
+/**
  * jQuery scroll overflow fixerydoo for IE7's "let's create huge problems by putting a scrollbar inside the scrolling area" blunder. It
  * locates all scrolled-in area's and adds 20px of padding at the bottom.
  */
@@ -552,7 +561,7 @@ $(window).bind('beforeunload', function() {
 					$(this).css({ 'overflow-y' : 'hidden' });
 				}
 			}
-			
+
 			//-- jal 20110727 Do the same for height?
 			if(this.scrollHeight > this.offsetHeight) {
 				$(this).css({ 'margin-right' : '17px' });
@@ -560,8 +569,8 @@ $(window).bind('beforeunload', function() {
 					$(this).css({ 'overflow-x' : 'hidden' });
 				}
 			}
-			
-		});            
+
+		});
 	};
 })(jQuery);
 
@@ -642,7 +651,11 @@ $(window).bind('beforeunload', function() {
 })(jQuery);
 
 /** WebUI helper namespace */
-var WebUI = {
+var WebUI;
+if(WebUI === undefined)
+    WebUI = new Object();
+
+$.extend(WebUI, {
 	/**
 	 * can be set to true from server code with appendJavaScript so that the expired messages will not show and
 	 * block effortless refresh on class reload. Configurable in .developer.properties domui.hide-expired-alert.
@@ -655,14 +668,18 @@ var WebUI = {
 	_pollInterval: 2500,
 
 	/**
-	 * When this is > 0, this keeps any page "alive" by sending an async  
+	 * When this is > 0, this keeps any page "alive" by sending an async
 	 */
 	_keepAliveInterval: 0,
-	
+
 	_ignoreErrors: false,
 
 	setHideExpired: function() {
 		WebUI._hideExpiredMessage = true;
+	},
+
+	definePageName : function(pn) {
+	    $(document.body).attr("pageName", pn);
 	},
 
 	log: function() {
@@ -711,9 +728,9 @@ var WebUI = {
 		var q1 = $("input").get();
 		for ( var i = q1.length; --i >= 0;) {
 			var t = q1[i];
-			if (t.type == 'file')				
+			if (t.type == 'file')
 				continue;
-			if (t.type == 'hidden' && !t.getAttribute('s')) // All hidden input nodes are created directly in browser java-script and because that are filtered out from server requests.				
+			if (t.type == 'hidden' && !t.getAttribute('s')) // All hidden input nodes are created directly in browser java-script and because that are filtered out from server requests.
 				continue;
 
 			var val = undefined;
@@ -740,14 +757,12 @@ var WebUI = {
 		var q1 = $("textarea").get();
 		for ( var i = q1.length; --i >= 0;) {
 			var sel = q1[i];
-			if (sel.className == 'ui-fck') {
-				val = "";
-
-				// -- Get the FCKEditor that wrapped this class,
-				var fck = FCKeditorAPI.GetInstance(sel.id);
-				if (fck) {
-					val = fck.GetXHTML();
-				}
+			if (sel.className == 'ui-ckeditor') {
+				//-- Locate the variable for this editor.
+				var editor = CKEDITOR.instances[sel.id];
+				if(null == editor)
+					throw "Cannot locate editor with id="+sel.id;
+				val = editor.getData();
 			} else {
 //				if($.browser.msie) { // The MS idiots remove newlines from value....
 //					val = sel.innerText;
@@ -778,8 +793,7 @@ var WebUI = {
 
 	clicked : function(h, id, evt) {
 		//-- Trigger the before-clicked event on body
-		var nde = $("#"+id);
-		$(document.body).trigger("beforeclick", nde, evt);
+		$(document.body).trigger("beforeclick", $("#"+id), evt);
 
 		// Collect all input, then create input.
 		var fields = new Object();
@@ -789,7 +803,7 @@ var WebUI = {
 		fields["$pt"] = DomUIpageTag;
 		fields["$cid"] = DomUICID;
 		WebUI.cancelPolling();
-		
+
 		//-- Do not call upward handlers too.
 		if(! evt)
 			evt = window.event;
@@ -809,7 +823,7 @@ var WebUI = {
 		fields._controlKey = e.ctrlKey == true;
 		fields._shiftKey = e.shiftKey == true;
 		fields._altKey = e.altKey == true;
-		
+
 		$.ajax( {
 			url :DomUI.getPostURL(),
 			dataType :"*",
@@ -842,6 +856,35 @@ var WebUI = {
 			success :WebUI.handleResponse,
 			error :WebUI.handleError
 		});
+	},
+	
+	jsoncall: function(id, fields) {
+		if (!fields)
+			fields = new Object();
+		fields.webuia = "$pagejson";
+		fields.webuic = id;
+		fields["$pt"] = DomUIpageTag;
+		fields["$cid"] = DomUICID;
+
+		var response = "";
+		$.ajax( {
+			url :DomUI.getPostURL(),
+			dataType :"text/xml",
+			data :fields,
+			cache :false,
+			async: false,
+			type: "POST",
+			success : function(data, state) {
+				response = data;
+			},
+			error :WebUI.handleError
+		});
+//		console.debug("jsoncall-", response);
+//		try {
+			return eval("("+response+")");
+//		} catch(x) {
+//			console.debug("json data error", x);
+//		}
 	},
 
 	/**
@@ -984,7 +1027,7 @@ var WebUI = {
 		}
 		WebUI.scall(id, 'clickandvchange');
 	},
-	
+
 	valuechanged: function(h, id) {
 		// FIXME 20100315 jal Temporary fix for bug 680: if a DateInput has a value changed listener the onblur does not execute. So handle it here too.... The fix is horrible and needs generalization.
 		var item = document.getElementById(id);
@@ -1018,7 +1061,7 @@ var WebUI = {
 	 */
 	onLookupTypingReturnKeyHandler : function(id, event) {
 		var node = document.getElementById(id);
-		if(!node || node.tagName.toLowerCase() != 'input')    
+		if(!node || node.tagName.toLowerCase() != 'input')
 			return;
 
 		if(!event){
@@ -1026,14 +1069,14 @@ var WebUI = {
 			if (!event)
 				return;
 		}
-		
+
 		var keyCode = WebUI.normalizeKey(event);
 		var isReturn = (keyCode == 13000 || keyCode == 13);
-		
+
 		if (isReturn) {
-			//cancel current scheduledOnLookupTypingTimerID 
+			//cancel current scheduledOnLookupTypingTimerID
 			if (WebUI.scheduledOnLookupTypingTimerID){
-				//cancel already scheduled timer event 
+				//cancel already scheduled timer event
 				window.clearTimeout(WebUI.scheduledOnLookupTypingTimerID);
 				WebUI.scheduledOnLookupTypingTimerID = null;
 			}
@@ -1042,7 +1085,7 @@ var WebUI = {
 			if(event.stopPropagation)
 				event.stopPropagation();
 
-			//locate keyword input node 
+			//locate keyword input node
 			var selectedIndex = WebUI.getKeywordPopupSelectedRowIndex(node);
 			var trNode = selectedIndex < 0 ? null : $(node.parentNode).children("div.ui-lui-keyword-popup").children("div").children("table").children("tbody").children("tr:nth-child(" + selectedIndex + ")").get(0);
 			if(trNode){
@@ -1055,7 +1098,7 @@ var WebUI = {
 			}
 		}
 	},
-	
+
 	/**
 	 * Handle for timer delayed actions, used for onLookupTyping event.
 	 */
@@ -1069,9 +1112,9 @@ var WebUI = {
 	 */
 	scheduleOnLookupTypingEvent : function(id, event) {
 		var node = document.getElementById(id);
-		if(!node || node.tagName.toLowerCase() != 'input')    
+		if(!node || node.tagName.toLowerCase() != 'input')
 			return;
-		
+
 		if(!event){
 			event = window.event;
 			if (!event)
@@ -1089,11 +1132,11 @@ var WebUI = {
 		var isLeftArrowKey = (keyCode == 37000 || keyCode == 37);
 		var isRightArrowKey = (keyCode == 39000 || keyCode == 39);
 		if (isLeftArrowKey || isRightArrowKey){
-			//in case of left or right arrow keys do nothing 
+			//in case of left or right arrow keys do nothing
 			return;
 		}
 		if (WebUI.scheduledOnLookupTypingTimerID){
-			//cancel already scheduled timer event 
+			//cancel already scheduled timer event
 			window.clearTimeout(WebUI.scheduledOnLookupTypingTimerID);
 			WebUI.scheduledOnLookupTypingTimerID = null;
 		}
@@ -1164,10 +1207,10 @@ var WebUI = {
 		}
 		selectedIndexInput.value = intValue;
 	},
-	
+
 	lookupPopupClicked : function(id) {
 		var node = document.getElementById(id);
-		if(!node || node.tagName.toLowerCase() != 'input') {    
+		if(!node || node.tagName.toLowerCase() != 'input') {
 			return;
 		}
 
@@ -1179,22 +1222,22 @@ var WebUI = {
 			WebUI.clicked(trNode, trNode.id, null);
 		}
 	},
-	
+
 	lookupRowMouseOver : function(keywordInputId, rowNodeId) {
 		var keywordInput = document.getElementById(keywordInputId);
-		if(!keywordInput || keywordInput.tagName.toLowerCase() != 'input') {    
+		if(!keywordInput || keywordInput.tagName.toLowerCase() != 'input') {
 			return;
 		}
-		
+
 		var rowNode = document.getElementById(rowNodeId);
-		if(!rowNode || rowNode.tagName.toLowerCase() != 'tr') {    
+		if(!rowNode || rowNode.tagName.toLowerCase() != 'tr') {
 			return;
 		}
 
 		var oldIndex = WebUI.getKeywordPopupSelectedRowIndex(keywordInput);
 		if(oldIndex < 0)
 			oldIndex = 0;
-		
+
 		var trNodes = $(rowNode.parentNode).children("tr");
 		var newIndex = 0;
 		for(var i = 1; i <= trNodes.length; i++){
@@ -1203,7 +1246,7 @@ var WebUI = {
 				break;
 			}
 		}
-		
+
 		if (oldIndex != newIndex){
 			var deselectRow = $(rowNode.parentNode).children("tr:nth-child(" + oldIndex + ")").get(0);
 			if (deselectRow){
@@ -1214,10 +1257,10 @@ var WebUI = {
 		}
 	},
 
-	//Called only from onBlur of input node that is used for lookup typing.  
+	//Called only from onBlur of input node that is used for lookup typing.
 	hideLookupTypingPopup: function(id) {
 		var node = document.getElementById(id);
-		if(!node || node.tagName.toLowerCase() != 'input')    
+		if(!node || node.tagName.toLowerCase() != 'input')
 			return;
 		var divPopup = $(node.parentNode).children("div.ui-lui-keyword-popup").get();
 		if (divPopup){
@@ -1225,22 +1268,22 @@ var WebUI = {
 		}
 		//fix z-index to one saved in input node
 		if ($.browser.msie){
-            //IE kills event stack (click is canceled) when z index is set during onblur event handler... So, we need to postpone it a bit... 
+            //IE kills event stack (click is canceled) when z index is set during onblur event handler... So, we need to postpone it a bit...
             window.setTimeout(function() { try { node.parentNode.style.zIndex = node.style.zIndex;} catch (e) { /*just ignore */ } }, 200);
 		}else{
-            //Other browsers dont suffer of this problem, and we can set z index instantly 
+            //Other browsers dont suffer of this problem, and we can set z index instantly
             node.parentNode.style.zIndex = node.style.zIndex;
 		}
 	},
 
 	showLookupTypingPopupIfStillFocusedAndFixZIndex: function(id) {
 		var node = document.getElementById(id);
-		if(!node || node.tagName.toLowerCase() != 'input')    
+		if(!node || node.tagName.toLowerCase() != 'input')
 			return;
-		var wasInFocus = node == document.activeElement; 
+		var wasInFocus = node == document.activeElement;
 		var qDivPopup = $(node.parentNode).children("div.ui-lui-keyword-popup");
 		if (qDivPopup.length > 0){
-			var divPopup = qDivPopup.get(0); 
+			var divPopup = qDivPopup.get(0);
 			//z-index correction must be set manually from javascript (because some bug in IE7 -> if set from domui renders incorrectly until page is refreshed?)
 			divPopup.style.zIndex = node.style.zIndex + 1;
 			node.parentNode.style.zIndex = divPopup.style.zIndex;
@@ -1248,7 +1291,7 @@ var WebUI = {
 			//fix z-index to one saved in input node
 			node.parentNode.style.zIndex = node.style.zIndex;
 		}
-		
+
 		if (wasInFocus && divPopup){
 			//show popup in case that input field still has focus
 			$(divPopup).show();
@@ -1265,15 +1308,15 @@ var WebUI = {
 			}
 		}
 		if (divPopup){
-			$(divPopup).bind("click", {nodeId: id}, function(event) { 
-				WebUI.lookupPopupClicked(event.data.nodeId); 
+			$(divPopup).bind("click", {nodeId: id}, function(event) {
+				WebUI.lookupPopupClicked(event.data.nodeId);
 			});
 		}
 	},
-	
+
 	/*
-	 * In case of longer waiting for lookupTyping ajax response show waiting animated marker. 
-	 * Function is called with delay of 500ms from ajax.beforeSend method for lookupTyping event. 
+	 * In case of longer waiting for lookupTyping ajax response show waiting animated marker.
+	 * Function is called with delay of 500ms from ajax.beforeSend method for lookupTyping event.
 	 */
 	displayWaiting: function(id) {
 		var node = document.getElementById(id);
@@ -1288,7 +1331,7 @@ var WebUI = {
 
 	/*
 	 * Hiding waiting animated marker that was shown in case of longer waiting for lookupTyping ajax response.
-	 * Function is called from ajax.completed method for lookupTyping event. 
+	 * Function is called from ajax.completed method for lookupTyping event.
 	 */
 	hideWaiting: function(id) {
 		var node = document.getElementById(id);
@@ -1300,7 +1343,7 @@ var WebUI = {
 			}
 		}
 	},
-	
+
 	lookupTyping : function(id) {
 		var lookupField = document.getElementById(id);
 		//check for exsistence, since it is delayed action component can be removed when action is executed.
@@ -1349,7 +1392,7 @@ var WebUI = {
 				error :WebUI.handleError
 			});
 		}
-	},	
+	},
 	lookupTypingDone : function(id) {
 		// Collect all input, then create input.
 		var fields = new Object();
@@ -1369,7 +1412,7 @@ var WebUI = {
 			success :WebUI.handleResponse,
 			error :WebUI.handleError
 		});
-	},	
+	},
 	handleResponse : function(data, state) {
 		WebUI._asyalerted = false;
 		if (false && window.console && window.console.debug)
@@ -1393,7 +1436,7 @@ var WebUI = {
 		window.setTimeout('document.body.style.cursor="default"', 1000);
 		return true;
 	},
-	
+
 	_asyalerted: false,
 	_asyDialog: null,
 
@@ -1407,8 +1450,6 @@ var WebUI = {
 			return;
 
 		WebUI._asyalerted = true;
-		console.log("asy error: "+status, exc);
-		
 		var txt = request.responseText || "No response - status="+status;
 		if(txt.length > 512)
 			txt = txt.substring(0, 512)+"...";
@@ -1419,7 +1460,7 @@ var WebUI = {
 		 * As usual there is a problem with error reporting: if the request is aborted because the browser reloads the page
 		 * any pending request is cancelled and comes in here- but with the wrong error code of course. So to prevent us from
 		 * showing an error message: set a timer to show that message 250 milli's later, and hope the stupid browser disables
-		 * that timer. 
+		 * that timer.
 		 */
 		setTimeout(function() {
 			if(WebUI._ignoreErrors)
@@ -1441,16 +1482,16 @@ var WebUI = {
 			ald.appendChild(d);
 			d.className = "ui-ioe-ttl";
 			d.appendChild(document.createTextNode(WebUI._T.sysPollFailTitle));	// Server unreachable
-			
+
 			d = document.createElement('div');				// Message content
 			ald.appendChild(d);
 			d.className = "ui-ioe-msg";
 			d.appendChild(document.createTextNode(txt));	// Server unreachable
-			
+
 			d = document.createElement('div');				// Message content
 			ald.appendChild(d);
 			d.className = "ui-ioe-msg2";
-	
+
 			var img = document.createElement('div');
 			d.appendChild(img);
 			img.className = "ui-ioe-img";
@@ -1458,7 +1499,7 @@ var WebUI = {
 			WebUI.startPolling(WebUI._pollInterval);
 		}, 250);
 	},
-	
+
 	clearErrorAsy: function() {
 		if(WebUI._asyDialog) {
 			WebUI._asyDialog.remove();
@@ -1470,7 +1511,7 @@ var WebUI = {
 		WebUI._asyHider = null;
 		WebUI._asyalerted = false;
 	},
-	
+
 	/*
 	 * IE/FF compatibility: IE only has the 'keycode' field, and it always hides
 	 * all non-input like arrows, fn keys etc. FF has keycode which is used ONLY
@@ -1523,7 +1564,7 @@ var WebUI = {
 			}
 		}
 	},
-	
+
 	focus : function(id) {
 		var n = document.getElementById(id);
 		if(n) {
@@ -1538,7 +1579,7 @@ var WebUI = {
 			}
 		}
 	},
-	
+
 	/***** DateInput control code ****/
 	dateInputCheckInput: function(evt) {
 		if(! evt) {
@@ -1741,7 +1782,7 @@ var WebUI = {
 	},
 
 	/**
-	 * 
+	 *
 	 */
 	showCalendar : function(id, withtime) {
 		var inp = document.getElementById(id);
@@ -1842,6 +1883,10 @@ var WebUI = {
 			}
 		}
 	},
+	oddCharAndClickCallback : function(nodeId, clickId) {
+		WebUI.oddChar(document.getElementById(nodeId));
+		document.getElementById(clickId).click();
+	},
 	oddChar : function(obj) {
 		WebUI.toClip(obj.innerHTML);
 	},
@@ -1868,7 +1913,7 @@ var WebUI = {
 	 * per appointment. For every appointment on a way we check if there is an
 	 * appointment on a LATER way that overlaps. If not the width of the
 	 * appointment includes all LATER ways that do not overlap.
-	 * 
+	 *
 	 * For this code to work no item may "overlap" a day. The server code takes
 	 * care of splitting long appointments into multiple "items" here.
 	 */
@@ -2020,13 +2065,13 @@ var WebUI = {
 		});
 		WebUI.startPingServer(timeout);
 	},
-	
+
 	startPingServer: function(timeout) {
 		if(timeout < 60*1000)
 			timeout = 60*1000;
 		setTimeout("WebUI.pingServer("+timeout+")", timeout);
 	},
-	
+
 	executePollCommands: function(data) {
 		// TBD
 	},
@@ -2036,7 +2081,7 @@ var WebUI = {
 	 * Load the specified stylesheet by creating a script tag and inserting it @ head.
 	 */
 	loadStylesheet: function(path) {
-		var head = document.getElementsByTagName("head")[0];  
+		var head = document.getElementsByTagName("head")[0];
 		if(! head)
 			throw "Headless document!?";
 		var link = document.createElement('link');
@@ -2048,7 +2093,7 @@ var WebUI = {
 	},
 
 	loadJavascript: function(path) {
-		var head = document.getElementsByTagName("head")[0];         
+		var head = document.getElementsByTagName("head")[0];
 		if(! head)
 			throw "Headless document!?";
 		var scp = document.createElement('script');
@@ -2151,19 +2196,19 @@ var WebUI = {
 	 * that as the content document of the iframe- so getting that means you get no XML at all.
 	 * This abomination was more or less fixed in ie9 - but of course they fucked up compatibility mode
 	 * badly.
-	 * 
+	 *
 	 * Everything below ie9
 	 * ====================
 	 * Everything below ie9 has a special property "XMLDocument" attached to the "document" property of
 	 * the window. This property contains the original XML that was used as an XML tree. So for these
 	 * browsers we just get that and move on.
-	 * 
+	 *
 	 * IE9 in native mode
 	 * ==================
 	 * IE9 in native mode does not mess up the iframe content document, so this mode takes the path of
 	 * all browsers worth the name. Since the original problem was solved the XMLDocument property no
 	 * longer exists.
-	 * 
+	 *
 	 * IE9 in compatibility mode (IE7)
 	 * ===============================
 	 * This gets funny. In this mode the browser /still/ messes up the iframe's content model like the
@@ -2172,10 +2217,10 @@ var WebUI = {
 	 * Remember: this mode is also entered if you are part of a frameset or iframe that is part of an
 	 * mode: the topmost frameset/page determines the mode for the entire set of pages - they are that
 	 * stupid.
-	 * 
+	 *
 	 * I know no other "workaround" than the horrible concoction below; please turn away if you have
 	 * a weak stomach....
-	 * 
+	 *
 	 * In this case we get the "innerText" content of the iframe. This differers from innerHTML in that
 	 * all html tags that IE added are removed, and only the text is retained. Since the html was generated
 	 * by IE in such a way that the xml was presented to the user - this is actually most of our XML...
@@ -2187,9 +2232,9 @@ var WebUI = {
 	 * The resulting thing can sometimes be parsed as XML and then processing continues. But it is far
 	 * from perfect. The biggest problem is that the resulting xml has not properly reserved the original
 	 * whitespace; this may lead to rendering problems.
-	 * 
-	 * But as far as I know no other solution to this stupifying bug is possible. Please prove me wrong. 
-	 * 
+	 *
+	 * But as far as I know no other solution to this stupifying bug is possible. Please prove me wrong.
+	 *
 	 * @param e
 	 */
 	ieUpdateUpload : function(e) { // Piece of crap
@@ -2252,7 +2297,7 @@ var WebUI = {
 		WebUI._ignoreErrors = true;
 		WebUI.sendobituary();
 	},
-	
+
 	beforeUnload: function() {
 		//-- Make sure no "ajax" errors are reported.
 		WebUI._ignoreErrors = true;
@@ -2307,9 +2352,9 @@ var WebUI = {
 
 		return false;
 	},
-	
+
 	_selectStart : undefined,
-	
+
 
 	/** ************ Drag-and-drop support code ****************** */
 	/**
@@ -2322,7 +2367,7 @@ var WebUI = {
 		WebUI._dragType = item.getAttribute('uitype');
 		if (!WebUI._dragType)
 			alert("This DRAGGABLE node has no 'uitype' attribute??");
-		var dragAreaId = item.getAttribute('dragarea'); 
+		var dragAreaId = item.getAttribute('dragarea');
 		if (dragAreaId){
 			WebUI._dragNode  = document.getElementById(dragAreaId);
 		}else
@@ -2343,7 +2388,7 @@ var WebUI = {
 			document.attachEvent( "onselectstart", WebUI.preventSelection);
 		}
 	},
-	
+
 	preventSelection : function(){
 		return false;
 	},
@@ -2358,7 +2403,7 @@ var WebUI = {
 				if (dz) {
 					WebUI.dropClearZone(); // Discard any dropzone visuals
 					dz._drophandler.drop(dz);
-				}else{  
+				}else{
 					WebUI._dragNode.style.display='';//no drop zone, so restore the dragged item
 				}
 			}
@@ -2379,7 +2424,7 @@ var WebUI = {
 			WebUI._dragCopy = WebUI.dragCreateCopy(WebUI._dragNode);
 			//MVE make this optional.
 			WebUI._dragNode.style.display='none';
-			
+
 			WebUI._dragMode = 2;
 			document.body.appendChild(WebUI._dragCopy);
 		}
@@ -2501,13 +2546,13 @@ var WebUI = {
 		}
 		WebUI.dropClearZone();
 		WebUI._dragMode = 0; // NOTDRAGGED
-		
+
 		if(document.detachEvent){
 			document.detachEvent( "onselectstart", WebUI.preventSelection);
 		}
-		
+
 //		if(WebUI._selectStart){
-//			document.onselectstart = WebUI._selectStart;  
+//			document.onselectstart = WebUI._selectStart;
 //		}
 	},
 
@@ -2644,7 +2689,7 @@ var WebUI = {
 		var maxLeftOffset = tabsTotalWidth - tabsVisibleWidth;
 		var diff = tabsVisibleWidth;
 		var offset = -1 * parseInt($('ul',scrlNavig).css('marginLeft'));
-		
+
 		var disa = false;
 		if (offset >= maxLeftOffset){
 			return;
@@ -2662,7 +2707,7 @@ var WebUI = {
 			me._ignoreScrollClick--;
 		});
 	},
-	
+
 	recalculateScrollers : function(scrlNavigId){
 		var scrlNavig = document.getElementById(scrlNavigId);
 		var tabsTotalWidth = $('li:last',scrlNavig).width() + 8 /* paddong = 8 */ + $('li:last',scrlNavig).offset().left - $('li:first',scrlNavig).offset().left;
@@ -2693,7 +2738,7 @@ var WebUI = {
 			$('ul', scrlNavig).animate({marginLeft: 0}, 400, 'swing');
 		}
 	},
-	
+
 	/** ***************** Stretch elemnt height. Must be done via javascript. **************** */
 	stretchHeight : function(elemId) {
 		var elem = document.getElementById(elemId);
@@ -2719,7 +2764,7 @@ var WebUI = {
 		}
 		$(elem).height($(elem).parent().height() - totHeight - elemDeltaHeight);
 		if($.browser.msie && $.browser.version.substring(0, 1) == "7"){
-			//we need to special handle another IE7 muddy hack -> extra padding-bottom that is added to table to prevent non-necesarry vertical scrollers 
+			//we need to special handle another IE7 muddy hack -> extra padding-bottom that is added to table to prevent non-necesarry vertical scrollers
 			if (elem.scrollWidth > elem.offsetWidth){
 				$(elem).height($(elem).height() - 20);
 				//show hidden vertical scroller if it is again needed after height is decreased.
@@ -2741,7 +2786,7 @@ var WebUI = {
 	 *	<li>A bottom 'offset', currently an integer in pixels. It will become a "bottom item" id later, so we can auto-size a div "sandwiched" between two other elements.</li>
 	 * </ul>
 	 * The recalculate code will be called every time the window resizes.
-	 * 
+	 *
 	 * @param topid
 	 * @param flexid
 	 * @param bottom
@@ -2794,6 +2839,19 @@ var WebUI = {
 
 	},
 	
+    autoHeight: function(flexid, bottom) {
+	    $(window).bind("resize", function() {
+		    WebUI.autoHeightRecalc(flexid, bottom);
+	    });
+	    WebUI.autoHeightRecalc(flexid, bottom);
+    },
+
+    autoHeightRecalc: function(flexid, bottom) {
+	    var tbot = $(flexid).offset().top;
+	    var height = $(window).height() - tbot - bottom;
+	    $(flexid).height(height + "px");
+    },
+
 	/** *************** Debug thingy - it can be used internaly for debuging javascript ;) ************** */
 	debug : function(debugId, posX, posY, debugInfoHtml) {
 		//Be aware that debugId must not start with digit when using FF! Just lost 1 hour to learn this...
@@ -2816,7 +2874,7 @@ var WebUI = {
 		$(debugPanel).css('top', posY);
 	    $(debugPanel).html(debugInfoHtml);
 	},
-	
+
 	_busyCount: 0,
 
 	/*
@@ -2879,31 +2937,25 @@ var WebUI = {
 	/*-- Printing support --*/
 	_frmIdCounter: 0,
 
-	backgroundPrint: function(url) {
-		if (jQuery.browser.msie) {
-			WebUI.documentPrintIE(url);
-		} else {
-			WebUI.documentPrint(url);
+	backgroundPrint : function(url) {
+		try {
+			var frmname = WebUI.priparePrintDiv(url);
+			WebUI.framePrint(frmname);
+		} catch (x) {
+			alert("Failed: " + x);
 		}
 	},
 
-	documentPrintIE: function(url) {
-		try {
-			// Create embedded sizeless div to contain the iframe, invisibly.
-			var div = document.getElementById('domuiprif');
-			if(div)
-				div.innerHTML = "";
-			else {
-				div = document.createElement('div');
-				div.id = 'domuiprif';
-				div.className = 'ui-printdiv';
-				document.body.appendChild(div);
-			}
-	
-			//-- Create an iframe loading the required thingy.
-			var frmname = "dmuifrm"+(WebUI._frmIdCounter++);		// Create unique name to circumvent ffox "print only once" bug
-			$(div).html('<iframe id="'+frmname+'" name="'+frmname+'" src="'+url+'">');
+	framePrint : function(frmname){
+		if (jQuery.browser.msie) {
+			WebUI.documentPrintIE(frmname);
+		} else {
+			WebUI.documentPrintNonIE(frmname);
+		}
+	},
 
+	documentPrintIE : function(frmname) {
+		try {
 			var frm = window.frames[frmname];
 			$("#"+frmname).load(function() {
 				try {
@@ -2921,24 +2973,9 @@ var WebUI = {
 			alert("Failed: "+x);
 		}
 	},
-	
-	documentPrint: function(url) {
-		try {
-			// Create embedded sizeless div to contain the iframe, invisibly.
-			var div = document.getElementById('domuiprif');
-			if(div)
-				div.innerHTML = "";
-			else {
-				div = document.createElement('div');
-				div.id = 'domuiprif';
-				div.className = 'ui-printdiv';
-				document.body.appendChild(div);
-			}
-	
-			//-- Create an iframe loading the required thingy.
-			var frmname = "dmuifrm"+(WebUI._frmIdCounter++);		// Create unique name to circumvent ffox "print only once" bug
-			$(div).html('<iframe id="'+frmname+'" name="'+frmname+'" src="'+url+'">');
 
+	documentPrintNonIE : function(frmname) {
+		try {
 			var frm = window.frames[frmname];
 			$("#"+frmname).load(function() {
 				try {
@@ -2954,7 +2991,35 @@ var WebUI = {
 			alert("Failed: "+x);
 		}
 	},
-	
+
+	priparePrintDiv : function(url){
+		// Create embedded sizeless div to contain the iframe, invisibly.
+		var div = document.getElementById('domuiprif');
+		if (div)
+			div.innerHTML = "";
+		else {
+			div = document.createElement('div');
+			div.id = 'domuiprif';
+			div.className = 'ui-printdiv';
+			document.body.appendChild(div);
+		}
+
+		// -- Create an iframe loading the required thingy.
+		var frmname = "dmuifrm" + (WebUI._frmIdCounter++); // Create unique
+															// name to
+															// circumvent
+															// ffox "print
+															// only once"
+															// bug
+		if($(url)){
+			$(div).html('<iframe id="' + frmname + '" name="' + frmname + '" src="' + url + '">');
+		} else {
+			//well, this is simple element printing, so we have some size limitations
+			$(div).html('<iframe id="' + frmname + '" name="' + frmname + '" width="1000px" height="1000px"/>');
+		}
+		return frmname;
+	},
+
 	/*-- Printing support for simple text messages. Parameter is id of input/textarea tag that contrains text to be printed out. --*/
 	printtext: function (id) {
 		var item = document.getElementById(id);
@@ -2978,7 +3043,7 @@ var WebUI = {
 				//-- Create an iframe loading the required thingy.
 				var frmname = "dmuifrm"+(WebUI._frmIdCounter++);		// Create unique name to circumvent ffox "print only once" bug
 
-				$(div).html('<iframe id="'+frmname+'" name="'+frmname+'" width="1000px" height="1000px"/>'); //well, this is simple text printing, so we have some size limitations ;) 
+				$(div).html('<iframe id="'+frmname+'" name="'+frmname+'" width="1000px" height="1000px"/>'); //well, this is simple text printing, so we have some size limitations ;)
 				var frm = window.frames[frmname];
 				frm.document.open();
 				frm.document.write('<html></head></head><body style="margin:0px;">');
@@ -2992,7 +3057,7 @@ var WebUI = {
 			}
 		}
 	},
-	
+
 	nearestID: function(elem) {
 		while(elem) {
 			if(elem.id)
@@ -3012,16 +3077,13 @@ var WebUI = {
 				WebUI._debugLastKeypress = t;
 				return;
 			}
-//			console.debug("double ", e);
 
-//			WebUI._NOMOVE = true;
 			//-- Send a DEBUG command to the server, indicating the current node below the last mouse move....
 			var id = WebUI.nearestID(WebUI._debugMouseTarget);
-//			console.debug("idis  "+id+", m="+WebUI._debugMouseTarget);
-			if(! id)
-				return;
+			if(! id) {
+				id = document.body.id;
+			}
 
-//			console.debug("Escape doublepress on ID="+id);
 			WebUI.scall(id, "DEVTREE", {});
 		});
 		$(document.body).bind("mousemove", function(e) {
@@ -3032,14 +3094,14 @@ var WebUI = {
 		});
 	},
 
-	
+
 	/***** Popup menu code *****/
-	
+
 	_popinCloseList: [],
 
 	popupMenuShow: function(refid, menu) {
 		WebUI.registerPopinClose(menu);
-		var pos = $(refid).offset();    
+		var pos = $(refid).offset();
 		var eWidth = $(refid).outerWidth();
 		var mwidth = $(menu).outerWidth();
 		var left = (pos.left);
@@ -3049,7 +3111,7 @@ var WebUI = {
 		$(menu).css( {
 			position: 'absolute',
 			zIndex: 100,
-			left: left+"px", 
+			left: left+"px",
 			top: top+"px"
 		});
 
@@ -3064,7 +3126,7 @@ var WebUI = {
 	 * Register the popup. If the mouse leaves the popup window the popup needs to send a POPINCLOSE? command; this
 	 * will tell DomUI server that the popin needs to go. If an item inside the popin is clicked it should mean the
 	 * popin closes too; at that point we will deregister the mouse listener to prevent sending double events.
-	 * 
+	 *
 	 * @param id
 	 */
 	registerPopinClose: function(id) {
@@ -3143,22 +3205,22 @@ var WebUI = {
 		}
 	},
 
-	//We need to re-show element to force IE7 browser to recalculate correct height of element. This must be done to fix some IE7 missbehaviors.   
+	//We need to re-show element to force IE7 browser to recalculate correct height of element. This must be done to fix some IE7 missbehaviors.
 	refreshElement: function(id) {
 		var elem = document.getElementById(id);
 		if (elem){
-			$(elem).hide();			
-			$(elem).show(1); //needs to be done on timeout/animation, otherwise it still fails to recalculate... 
+			$(elem).hide();
+			$(elem).show(1); //needs to be done on timeout/animation, otherwise it still fails to recalculate...
 		}
 	},
-	
-	//Use this to make sure that item would be visible inside parent scrollable area. It uses scroll animation. In case when item is already in visible part, we just do single blink to gets user attention ;)  
+
+	//Use this to make sure that item would be visible inside parent scrollable area. It uses scroll animation. In case when item is already in visible part, we just do single blink to gets user attention ;)
 	scrollMeToTop: function(elemId, selColor, offset) {
 		var elem = document.getElementById(elemId);
 		if (!elem){
 			return;
 		}
-		var parent = elem.parentNode; 
+		var parent = elem.parentNode;
 		if (!parent){
 			return;
 		}
@@ -3167,7 +3229,7 @@ var WebUI = {
 			if (elemPos > 0 && elemPos < parent.offsetHeight){
 				//if elem already visible -> just do one blink
 				if (selColor){
-					var oldColor = $(elem).css('background-color');  
+					var oldColor = $(elem).css('background-color');
 					$(elem).animate({backgroundColor: selColor}, "slow", function(){$(elem).animate({backgroundColor: oldColor}, "fast");});
 				}
 			}else{
@@ -3185,8 +3247,8 @@ var WebUI = {
 			}
 		}
 	},
-	
-	//Use this to make sure that option in dropdown would be visible. It needs fix only in FF sinve IE would always make visible selected option.  
+
+	//Use this to make sure that option in dropdown would be visible. It needs fix only in FF sinve IE would always make visible selected option.
 	makeOptionVisible: function(elemId, offset) {
 		if($.browser.msie){
 			//IE already fix this... we need fix only for FF and other browsers
@@ -3196,7 +3258,7 @@ var WebUI = {
 		if (!elem){
 			return;
 		}
-		var parent = elem.parentNode; 
+		var parent = elem.parentNode;
 		if (!parent){
 			return;
 		}
@@ -3213,13 +3275,13 @@ var WebUI = {
 			}
 		}
 	},
-	
+
 	//Returns T if browser is really using IE7 rendering engine (since IE8 compatibility mode presents  browser as version 7 but renders as IE8!)
 	isReallyIE7: function() {
 		//Stupid IE8 in compatibility mode lies that it is IE7, and renders as IE8! At least we can detect that using document.documentMode (it is 8 in that case)
 		//document.documentMode == 7 		 --- IE8 running in IE7 mode
 		//document.documentMode == 8 		 --- IE8 running in IE8 mode or IE7 Compatibility mode
-		//document.documentMode == undefined --- plain old IE7 
+		//document.documentMode == undefined --- plain old IE7
 		return ($.browser.msie && parseInt($.browser.version) == 7 && (!document.documentMode || document.documentMode == 7));
 	},
 	//Returns T if browser is IE8 or IE8 compatibility mode
@@ -3227,70 +3289,97 @@ var WebUI = {
 		//Stupid IE8 in compatibility mode lies that it is IE7, and renders as IE8! At least we can detect that using document.documentMode (it is 8 in that case)
 		//document.documentMode == 7 		 --- IE8 running in IE7 mode
 		//document.documentMode == 8 		 --- IE8 running in IE8 mode or IE7 Compatibility mode
-		//document.documentMode == undefined --- plain old IE7 
+		//document.documentMode == undefined --- plain old IE7
 		return ($.browser.msie && (parseInt($.browser.version) == 8 || (parseInt($.browser.version) == 7 && document.documentMode == 8)));
 	},
 	//Returns T if browser is IE of at least version 9 and does not run in any of compatibility modes for earlier versions
 	isNormalIE9plus: function() {
 		return ($.browser.msie && parseInt($.browser.version) >= 9 && document.documentMode >= 9);
 	},
-	
+
 	//Returns T if browser is IE of at least version 8 even if it runs in IE7 compatibility mode
 	isIE8orNewer: function() {
 		return ($.browser.msie && (parseInt($.browser.version) >= 8 || (parseInt($.browser.version) == 7 && document.documentMode >= 8)));
 	},
 
-	//FCK editor support
-	_fckEditorIDs: [],
-	
+	// CK editor support, map of key (id of editor) value (pair of [editor instance, assigned resize function])
+	_ckEditorMap : {},
+
 	/**
-	 * Register fckeditor for extra handling, if needed.
-	 * 
+	 * Register ckeditor for extra handling that is set in CKeditor_OnComplete.
+	 *
+	 * @param id
+	 * @param ckeInstance
+	 */
+	registerCkEditorId : function(id, ckeInstance) {
+		WebUI._ckEditorMap[id] = [ckeInstance, null];
+	},
+
+	/**
+	 * Unregister ckeditor and removes handlings bound to it.
+	 *
 	 * @param id
 	 */
-	registerFckEditorId : function(id) {
-		if (!WebUI._fckEditorIDs){
-			WebUI._fckEditorIDs = [];
-		}
-		WebUI._fckEditorIDs.push(id);
-	},
-
-	unregisterFckEditorId : function(id) {
-		try{
-			var index = WebUI._fckEditorIDs.indexOf(id);
-			if (index > -1){
-				WebUI._fckEditorIDs.splice(index, 1);
+	unregisterCkEditorId : function(id) {
+		try {
+			var editorBindings = WebUI._ckEditorMap[id];
+			WebUI._ckEditorMap[id] = null;
+			if (editorBindings && editorBindings[1]){
+				$(window).unbind('resize', editorBindings[1]);
 			}
-		}catch(ex){
-			//nothing to do -> no _fckEditorIDs means nothing to unregister from
+		} catch (ex) {
+			log('error in unregisterCkEditorId: ' + ex);
 		}
 	},
 
-	// connects input to usually hidden list select and provides autocomplete feature inside input. Down arrow does show and focus select list.
-	initAutocomplete : function (inputId, selectId){
+	/**
+	 * Piece of support needed for CK editor to properly fix its size, using _OnComplete handler.
+	 *
+	 * @param id
+	 */
+	CKeditor_OnComplete : function(id) {
+		WebUI.doCustomUpdates();
+		var elem = document.getElementById(id);
+		var parentDiv = elem.parentNode;
+		var editor = WebUI._ckEditorMap[id][0];
+		var resizeFunction = function(ev) {
+			try{
+				editor.resize($(parentDiv).width() - 2, $(parentDiv).height());
+			}catch (ex){
+				log('error in CKeditor_OnComplete#resizeFunction: ' + ex);
+			}
+		};
+		WebUI._ckEditorMap[id] = [editor, resizeFunction];
+		$(window).bind('resize', resizeFunction);
+		$(window).trigger('resize');
+	},
+
+	// connects input to usually hidden list select and provides autocomplete
+	// feature inside input. Down arrow does show and focus select list.
+	initAutocomplete : function(inputId, selectId) {
 		var input = document.getElementById(inputId);
 		var select = document.getElementById(selectId);
 		$(input).keyup(function(event) {
-			WebUI.autocomplete(event, inputId, selectId); 
+			WebUI.autocomplete(event, inputId, selectId);
 		});
 		$(select).keypress(function(event) {
-			//esc hides select and prevents fireing of click and blur handlers that are temporary disconnected while focus moves back to input 
-			var keyCode = WebUI.normalizeKey(event);			
+			//esc hides select and prevents fireing of click and blur handlers that are temporary disconnected while focus moves back to input
+			var keyCode = WebUI.normalizeKey(event);
 			if (keyCode == 27 || keyCode == 27000) {
 				var oldVal = input.value;
-				var selectOnClick = select.click; 
+				var selectOnClick = select.click;
 				var selectOnBlur = select.blur;
-				select.click = null; 
+				select.click = null;
 				select.blur = null;
 				select.style.display = 'none';
 				input.focus();
 				input.value = oldVal;
-				select.click = selectOnClick; 
+				select.click = selectOnClick;
 				select.blur = selectOnBlur;
 			}
 		});
 	},
-	
+
 	// does autocomplete part of logic
 	autocomplete : function (event, inputId, selectId) {
 		var select = document.getElementById(selectId);
@@ -3313,10 +3402,10 @@ var WebUI = {
 				if (typeof input.selectionStart != "undefined") {
 					//normal browsers
 		            input.value = newValue;
-		            input.selectionStart = oldValue.length; 
+		            input.selectionStart = oldValue.length;
 			        input.selectionEnd =  newValue.length;
 			        input.focus();
-			    } 
+			    }
 				if (document.selection && document.selection.createRange) {
 					//IE9
 					input.value = newValue;
@@ -3340,16 +3429,16 @@ var WebUI = {
 			select.focus();
 		}
 	},
-	
+
 	//alignment methods
 	alignToTop : function (nodeId, alignToId, offsetY){
-		var alignNode = $('#' + alignToId); 
+		var alignNode = $('#' + alignToId);
 		$('#' + nodeId).css('top', $(alignNode).position().top + offsetY + $(alignNode).outerHeight(true));
 	},
 
 	alignToLeft : function (nodeId, alignToId, offsetX){
-		var node = $('#' + nodeId); 
-		var alignNode = $('#' + alignToId); 
+		var node = $('#' + nodeId);
+		var alignNode = $('#' + alignToId);
 		var myLeftPos = $(alignNode).position().left + offsetX;
 		var myRightPos = $(node).outerWidth(true) + myLeftPos;
 		if (myRightPos > $(window).width()){
@@ -3360,27 +3449,27 @@ var WebUI = {
 		}
 		$(node).css('left', myLeftPos);
 	},
-	
+
 	alignToRight : function (nodeId, alignToId, offsetX){
-		var node = $('#' + nodeId); 
-		var alignNode = $('#' + alignToId); 
+		var node = $('#' + nodeId);
+		var alignNode = $('#' + alignToId);
 		var myLeftPos = $(alignNode).position().left + offsetX - $(node).outerWidth(true) + $(alignNode).outerWidth(true) - 3;
 		if (myLeftPos < 1){
-			myLeftPos = 1; 
+			myLeftPos = 1;
 		}
 		$(node).css('left', myLeftPos);
 	},
-	
+
 	alignToMiddle : function (nodeId, alignToId, offsetX){
-		var node = $('#' + nodeId); 
-		var alignNode = $('#' + alignToId); 
+		var node = $('#' + nodeId);
+		var alignNode = $('#' + alignToId);
 		var myLeftPos = $(alignNode).position().left + ($(alignNode).outerWidth(true) / 2) - ($(node).outerWidth(true) / 2);
 		if (myLeftPos < 1){
-			myLeftPos = 1; 
+			myLeftPos = 1;
 		}
 		$(node).css('left', myLeftPos);
 	}
-};
+});
 
 WebUI._DEFAULT_DROPZONE_HANDLER = {
 	checkRerender : function(dz) {
@@ -3432,7 +3521,7 @@ WebUI._ROW_DROPZONE_HANDLER = {
 			position = { top: off.top, index: i };
 			if (position) {
 	//			console.debug('mouse:' +mousePos+','+mouseX+' row: prevPosition.top='+prevPosition.top+", position.top="+position.top+", index="+position.index);
-				
+
 				// -- Is the mouse IN the Y range for this row?
 				if (mousePos >= prevPosition.top && mousePos < position.top) {
 					// -- Cursor is WITHIN this node. Is it near the TOP or near the
@@ -3444,7 +3533,7 @@ WebUI._ROW_DROPZONE_HANDLER = {
 					}
 	//				console.debug('ACCEPTED top='+prevPosition.top+', bottom='+position.top+', hy='+hy+', rowindex='+(rowindex-1));
 	//				console.debug('index='+prevPosition.index+', gravety='+gravity);
-	
+
 					var colIndex = this.getColIndex(tr, mouseX);
 					return {
 						index :rowindex-1,
@@ -3454,7 +3543,7 @@ WebUI._ROW_DROPZONE_HANDLER = {
 						colIndex : colIndex
 					};
 				}
-	
+
 				// -- Is the thing between this row and the PREVIOUS one?
 	//			if (mousePos < position.top) {
 	//				// -- Use this row with gravity 0 (should insert BEFORE this row).
@@ -3474,7 +3563,7 @@ WebUI._ROW_DROPZONE_HANDLER = {
 			rowindex++;
 		}
 		//console.debug("ACCEPTED last one");
-	
+
 		// -- If we're here we must insert at the last location
 		var colIndex = this.getColIndex(lastrow, mouseX);
 		return {
@@ -3501,26 +3590,26 @@ WebUI._ROW_DROPZONE_HANDLER = {
 				//because only the left position can be asked, the check is done for the previous collumn
 				return j-1;
 			}
-			
+
 		}
 		//TODO MVE should return maxColumn
 		return 2;
-		
+
 	},
-	
+
 	checkRerender : function(dz) {
 		var b = this.locateBest(dz);
 		// console.debug("checkRerender: "+b.iindex+", "+b.index+", g="+b.gravity);
 		if (b.iindex == WebUI._dropRowIndex)
 			return;
-	
+
 		this.unmark(dz);
 		this.renderTween(dz, b);
 	},
-	
+
 	renderTween : function(dz, b) {
 		var body = dz._tbody;
-		
+
 		var colCount = 0;
 		if(dz._tbody.rows.length > 0){
 			var temp = dz._tbody.rows[0].cells;
@@ -3528,8 +3617,8 @@ WebUI._ROW_DROPZONE_HANDLER = {
 		        colCount += $(this).attr('colspan') ? parseInt($(this).attr('colspan')) : 1;
 		    });
 		}
-	    
-	
+
+
 		// -- To mark, we insert a ROW at the insert location and visualize that
 		var tr = document.createElement('tr');
 		//b.colIndex should define the correct collumn
@@ -3544,7 +3633,7 @@ WebUI._ROW_DROPZONE_HANDLER = {
 		WebUI._dropRow = tr;
 		WebUI._dropRowIndex = b.iindex;
 	},
-	
+
 	appendPlaceHolderCell : function(tr, appendPlaceholder) {
 		var td = document.createElement('td');
 		if(appendPlaceholder){
@@ -3552,15 +3641,15 @@ WebUI._ROW_DROPZONE_HANDLER = {
 			td.className = 'ui-drp-ins';
 		}
 		tr.appendChild(td);
-		
+
 	},
-	
+
 	hover : function(dz) {
 		var b = this.locateBest(dz);
 	//	console.debug("hover: "+b.iindex+", "+b.index+", g="+b.gravity + ", col=" +b.colIndex);
 		this.renderTween(dz, b);
 	},
-	
+
 	unmark : function(dz) {
 		if (WebUI._dropRow) {
 			$(WebUI._dropRow).remove();
@@ -3568,7 +3657,7 @@ WebUI._ROW_DROPZONE_HANDLER = {
 			delete WebUI._dropRowIndex;
 		}
 	},
-	
+
 	drop : function(dz) {
 		this.unmark(dz);
 		var b = this.locateBest(dz);
@@ -3628,7 +3717,7 @@ WebUI.colorPickerInput = function(inid, divid, value, onchange) {
 	});	
 };
 WebUI.colorPickerDisable = function(id) {
-	$(id).ColorPicker.destroy();
+	$(id).die();
 };
 
 WebUI.colorPickerOnchange= function(id, last) {
@@ -3690,6 +3779,23 @@ WebUI.flareStay = function(id) {
 				$('#'+id).remove();
 			});
 		});
+	});
+};
+
+WebUI.flareStayCustom = function(id, delay, fadeOut) {
+	$('#'+id).fadeIn('fast', function() {
+		$('body,html').bind('mousemove.' + id, function(e){
+			$('body,html').unbind('mousemove.' + id);
+			$('#'+id).delay(delay).fadeOut(fadeOut, function() {
+				$('#'+id).remove();
+			});
+		});
+	});
+};
+
+WebUI.replaceBrokenImageSrc = function(id, alternativeImage) {
+	$('img#' + id).error(function() {
+		$(this).attr("src", alternativeImage);
 	});
 };
 
@@ -3790,22 +3896,22 @@ WebUI.bulkUpload = function(id, buttonId, url) {
 //
 //	setTimeout(function() {
 //		uf.uploadStarted();
-//		
+//
 //	}, 2000);
 //
 //	setTimeout(function() {
 //		uf.setProgress(10);
-//		
+//
 //	}, 3000);
-//	
+//
 //	setTimeout(function() {
 //		uf.setProgress(20);
-//		
+//
 //	}, 4000);
 //
 ////	setTimeout(function() {
 ////		uf.uploadError("Server IO error");
-////		
+////
 ////	}, 6000);
 //
 //	setTimeout(function() {
@@ -3818,7 +3924,7 @@ WebUI.bulkUpload = function(id, buttonId, url) {
  */
 WebUI.UploadFile = function(file, target, cancelFn) {
 	this._id = file.id;
-	
+
 	//-- connect to pre-existing UI
 	this._ui = $('#'+file.id);
 	if(this._ui.length == 0) {
@@ -3868,47 +3974,69 @@ $(document).ajaxComplete( function() {
 	WebUI.doCustomUpdates();
 });
 
-//piece of support needed for FCK editor to properly fix heights in IE8+
-function FCKeditor_OnComplete(editorInstance){
-	if(WebUI.isIE8orNewer()) {
-		for(var i = 0; i < WebUI._fckEditorIDs.length; i++) {
-			var fckId = WebUI._fckEditorIDs[i];
-			var fckIFrame = document.getElementById(fckId + '___Frame');
-			if(fckIFrame) {
-				$(fckIFrame.contentWindow.window).bind('resize', function() {
-					FCKeditor_fixLayout(fckIFrame, fckId);
-				});
-				$(fckIFrame.contentWindow.window).trigger('resize');
-			}
-		}
-	}
-
-	WebUI.doCustomUpdates();
-}
-
-function FCKeditor_fixLayout(fckIFrame, fckId){
-	if (fckIFrame){
-		fckIFrame.contentWindow.Domui_fixLayout(fckId);
-	}
-};
-
 $(document).keydown(function(e){
+	addPaggerAccessKeys(e);
+});
+
+function addPaggerAccessKeys(e) {
 	var KEY = {
 			HOME		: 36,
 			END			: 35,
 			PAGE_UP		: 33,
 			PAGE_DOWN	: 34
 	};
-	if($('div.ui-szless').length > 0){
-		if (e.altKey && e.keyCode == KEY.HOME) { 
-	    		$("div.ui-szless > button.ui-sib:nth-child(1)").click();
-		} else if (e.altKey && e.keyCode == KEY.PAGE_UP) {    	
-	    		$("div.ui-szless > button.ui-sib:nth-child(2)").click();
-		} else if(e.altKey && e.keyCode == KEY.PAGE_DOWN) {
-	    		$("div.ui-szless > button.ui-sib:nth-child(3)").click();
-		} else if (e.altKey && e.keyCode == KEY.END) { 
-	    		$("div.ui-szless > button.ui-sib:nth-child(4)").click();
+	if ($('div.ui-dp-btns').size() > 0) {
+		if (e.altKey){
+			if(e.keyCode == KEY.HOME) {
+				$("div.ui-dp-btns > a:nth-child(1)").click();
+			} else if (e.keyCode == KEY.PAGE_UP) {
+				$("div.ui-dp-btns > a:nth-child(2)").click();
+			} else if (e.keyCode == KEY.PAGE_DOWN) {
+				$("div.ui-dp-btns > a:nth-child(3)").click();
+			} else if (e.keyCode == KEY.END) {
+				$("div.ui-dp-btns > a:nth-child(4)").click();
+			}
 		}
-    }
-});
+	}
+}
+
+//piece of support needed for FCK editor to properly fix heights in IE8+
+function FCKeditor_OnComplete(editorInstance){
+	if (WebUI.isIE8orNewer()){
+		for (var i = 0; i < WebUI._fckEditorIDs.length; i++) {
+		    var fckId = WebUI._fckEditorIDs[i];
+		    var fckIFrame = document.getElementById(fckId + '___Frame');
+			if (fckIFrame){
+				$(fckIFrame.contentWindow.window).bind('resize', function()
+					{
+						FCKeditor_fixLayout(fckIFrame, fckId);
+					});
+				$(fckIFrame.contentWindow.window).trigger('resize');
+			};
+		};
+	};
+}
+
+WebUI.deactivateHiddenAccessKeys = function(windowId) {
+	$('button').each(function(index) {
+		var iButton = $(this);
+		if(isButtonChildOfElement(iButton, windowId)){
+			var oldAccessKey = $(iButton).attr('accesskey');
+			if(oldAccessKey != null ){
+				$(iButton).attr('accesskey', $(windowId).attr('id') + '~' + oldAccessKey);
+			}
+		}
+	});
+};
+
+WebUI.reactivateHiddenAccessKeys = function(windowId) {
+	$("button[accesskey*='" + windowId + "~']" ).each(function(index){
+		var accessKeyArray = $(this).attr('accesskey').split(windowId + '~');
+		$(this).attr('accesskey', accessKeyArray[accessKeyArray.length - 1]);
+	});
+};
+
+isButtonChildOfElement = function(buttonId, windowId){
+	return $(buttonId).parents('#' + $(windowId).attr('id')).length == 0;
+};
 

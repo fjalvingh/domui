@@ -29,6 +29,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.buttons.*;
+import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
@@ -57,8 +58,6 @@ public class DataPager extends Div implements IDataTableChangeListener {
 	private ATag m_lastBtn;
 
 	private SmallImgButton m_showSelectionBtn;
-
-	private SmallImgButton m_selectAllBtn, m_selectNoneBtn;
 
 	private Img m_truncated;
 
@@ -92,6 +91,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		add(d);
 		d.setFloat(FloatType.RIGHT);
 		m_txt = new TextNode();
+		d.add(new VerticalSpacer(10));
 		d.add(m_txt);
 		m_textDiv = d;
 
@@ -267,12 +267,13 @@ public class DataPager extends Div implements IDataTableChangeListener {
 
 		int cp = m_table.getCurrentPage();
 		int np = m_table.getPageCount();
-		if(np == 0)
-			// mtesic:there is already 'There are no results' message inside DataCellTable
-			// m_txt.setText(NlsContext.getGlobalMessage(Msgs.UI_PAGER_EMPTY));
+		if(np == 0) {
 			m_txt.setText("");
-		else
+			setDisplay(DisplayType.NONE);
+		} else {
 			m_txt.setText(Msgs.BUNDLE.formatMessage(Msgs.UI_PAGER_TEXT, Integer.valueOf(cp + 1), Integer.valueOf(np), Integer.valueOf(m_table.getModel().getRows())));
+			setDisplay(DisplayType.BLOCK);
+		}
 
 		if(cp <= 0) {
 			m_firstBtn.setCssClass("ui-dp-nav-f-dis");
@@ -344,40 +345,6 @@ public class DataPager extends Div implements IDataTableChangeListener {
 			needselectnone = true;
 		}
 
-		if(m_selectAllBtn == null && needselectall) {
-			m_selectAllBtn = new SmallImgButton("THEME/dpr-select-all.png");
-			m_buttonDiv.add(4, m_selectAllBtn);
-			m_selectAllBtn.setTitle(Msgs.BUNDLE.getString("ui.dpr.all"));
-			m_selectAllBtn.setClicked(new IClicked<SmallImgButton>() {
-				@Override
-				public void clicked(@Nonnull SmallImgButton clickednode) throws Exception {
-					ISelectionAllHandler ah = dt.getSelectionAllHandler();
-					if(null == ah)
-						throw new IllegalStateException("selectionAllHandler is null");
-					ah.selectAll(dt.getModel(), dt.getSelectionModel());
-				}
-			});
-		} else if(m_selectAllBtn != null && ! needselectall) {
-			m_selectAllBtn.remove();
-			m_selectAllBtn = null;
-		}
-
-		if(m_selectNoneBtn == null && needselectnone) {
-			m_selectNoneBtn = new SmallImgButton("THEME/dpr-select-none.png");
-			m_buttonDiv.add(4, m_selectNoneBtn);
-			m_selectNoneBtn.setTitle(Msgs.BUNDLE.getString("ui.dpr.none"));
-			m_selectNoneBtn.setClicked(new IClicked<SmallImgButton>() {
-				@Override
-				public void clicked(@Nonnull SmallImgButton clickednode) throws Exception {
-					ISelectionModel<?> sm = getSelectionModel();
-					if(null != sm)
-						sm.clearSelection();
-				}
-			});
-		} else if(m_selectNoneBtn != null && !needselectnone) {
-			m_selectNoneBtn.remove();
-			m_selectNoneBtn = null;
-		}
 	}
 
 	public Div getButtonDiv() {

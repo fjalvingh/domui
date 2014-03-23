@@ -23,7 +23,8 @@ final public class JSON {
 	}
 
 	static public <T> T decode(@Nonnull Class<T> typeClass, @Nonnull Reader input) throws Exception {
-		return decode(typeClass, null);
+		JsonReader reader = new JsonReader("input", input, m_registry);
+		return reader.parse(typeClass, null);
 	}
 
 	static public <T> T decode(@Nonnull Class<T> typeClass, @Nonnull Type type, @Nonnull Reader input) throws Exception {

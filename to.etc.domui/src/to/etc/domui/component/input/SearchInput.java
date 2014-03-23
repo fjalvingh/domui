@@ -162,9 +162,10 @@ public class SearchInput<T> extends Div {
 		}
 
 		//-- If just enter is pressed-> call handler and be done.
+		IQuery<T> handler = m_handler;
 		if(done) {
-			if(m_handler != null) {
-				m_handler.onEnter(curdata);
+			if(handler != null) {
+				handler.onEnter(curdata);
 			}
 			clearResultPopup();
 			clearResultMessage();
@@ -174,8 +175,8 @@ public class SearchInput<T> extends Div {
 
 		//-- We need to do a query.. Ask the handler for a result
 		List<T>	res = null;
-		if(m_handler != null) {
-			res = m_handler.queryFromString(curdata, MAX_RESULTS);
+		if(handler != null) {
+			res = handler.queryFromString(curdata, MAX_RESULTS);
 		}
 		showResults(res);
 	}
@@ -231,8 +232,18 @@ public class SearchInput<T> extends Div {
 
 		SimpleListModel<T>	mdl = new SimpleListModel<T>(isl);
 		KeyWordPopupRowRenderer<T> rr = new KeyWordPopupRowRenderer<T>(m_dataModel);
-		if(m_columns != null)
+
+		if(SIMPLECLASSES.contains(m_dataClass)) {
+			rr.addColumns("", new INodeContentRenderer<Object>() {
+				@Override
+				public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable Object object, @Nullable Object parameters) throws Exception {
+					node.add(String.valueOf(object));
+				}
+			});
+
+		} else if(m_columns != null && m_columns.length > 0) {
 			rr.addColumns(m_columns);
+		}
 		rr.setRowClicked(new ICellClicked<T>() {
 			@Override
 			public void cellClicked(@Nonnull NodeBase tr, @Nonnull T val) throws Exception {
@@ -246,6 +257,8 @@ public class SearchInput<T> extends Div {
 		tbl.setPosition(PositionType.RELATIVE);
 	}
 
+	static private final Set<Class< ? >> SIMPLECLASSES = new HashSet<Class< ? >>(Arrays.asList(String.class, Date.class, Integer.class, int.class, Long.class, long.class));
+
 	private void handleSelectValueFromPopup(T val) throws Exception {
 		System.out.println("GOT: "+val);
 		if(null != m_handler) {
@@ -255,6 +268,7 @@ public class SearchInput<T> extends Div {
 		clearResultMessage();
 		clearResultPopup();
 		m_input.setRawValue("");
+		m_input.setFocus();
 	}
 
 	private void clearResultPopup() {

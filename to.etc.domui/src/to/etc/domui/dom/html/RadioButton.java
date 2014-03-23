@@ -212,7 +212,7 @@ public class RadioButton<T> extends NodeBase implements IHasModifiedIndication {
 		if(c2 != null) {
 			return new IClicked<RadioButton<T>>() {
 				@Override
-				public void clicked(RadioButton<T> clickednode) throws Exception {
+				public void clicked(@Nonnull RadioButton<T> clickednode) throws Exception {
 					c2.clicked(getGroup());
 				}
 			};

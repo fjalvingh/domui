@@ -58,16 +58,13 @@ public class DataTable<T> extends SelectableTabularComponent<T> implements ISele
 	/** When set, the table is in "multiselect" mode and shows checkboxes before all rows. */
 	private boolean m_multiSelectMode;
 
-	/** When T and the table has a multiselection model the checkboxes indicating selection will be rendered always, even when no selection has been made. */
-	private boolean m_showSelectionAlways;
-
 	/** When selecting, this is the last index that was used in a select click.. */
 	private int m_lastSelectionLocation = -1;
 
 	@Nonnull
 	final private IClicked<TH> m_headerSelectClickHandler = new IClicked<TH>() {
 		@Override
-		public void clicked(TH clickednode) throws Exception {
+		public void clicked(@Nonnull TH clickednode) throws Exception {
 			ISelectionModel<T> sm = getSelectionModel();
 			if(null == sm)
 				return;
@@ -86,9 +83,16 @@ public class DataTable<T> extends SelectableTabularComponent<T> implements ISele
 		m_rowRenderer = r;
 	}
 
+	public DataTable(@Nonnull IRowRenderer<T> r) {
+		m_rowRenderer = r;
+	}
+
 	public DataTable(@Nonnull ITableModel<T> m) {
 		super(m);
 	}
+
+	public DataTable() {}
+
 
 	/**
 	 * Return the backing table for this data browser. For component extension only - DO NOT MAKE PUBLIC.
@@ -214,7 +218,7 @@ public class DataTable<T> extends SelectableTabularComponent<T> implements ISele
 		if(m_multiSelectMode) {
 			TH headerCell = hc.add("");
 			headerCell.add(new Img("THEME/dspcb-on.png"));
-			headerCell.setWidth("1px"); //keep selection column with minimal width
+			headerCell.setWidth("1%"); //keep selection column with minimal width
 			headerCell.setClicked(m_headerSelectClickHandler);
 			headerCell.setCssClass("ui-clickable");
 		}
@@ -273,14 +277,11 @@ public class DataTable<T> extends SelectableTabularComponent<T> implements ISele
 
 		//-- If we're in multiselect mode show the select boxes
 		if(m_multiSelectMode && sm != null) {
-			Checkbox cb = new Checkbox();
-			cc.add(cb);
-			cb.setClicked(new IClicked2<Checkbox>() {
-				@Override
-				public void clicked(@Nonnull Checkbox clickednode, @Nonnull ClickInfo info) throws Exception {
-					selectionCheckboxClicked(value, clickednode.isChecked(), info, clickednode);
-				}
-			});
+			Checkbox cb = createSelectionCheckbox(value, sm);
+			TD td = cc.add(cb);
+			if(cb.isReadOnly()) {
+				td.addCssClass("ui-cur-default");
+			}
 
 			boolean issel = sm.isSelected(value);
 			cb.setChecked(issel);
@@ -479,7 +480,7 @@ public class DataTable<T> extends SelectableTabularComponent<T> implements ISele
 		//-- 1. Add the select TH.
 		TD th = new TH();
 		th.add(new Img("THEME/dspcb-on.png"));
-		th.setWidth("1px"); //keep selection column with minimal width
+		th.setWidth("1%");
 		headerrow.add(0, th);
 		th.setClicked(m_headerSelectClickHandler);
 		th.setCssClass("ui-clickable");
@@ -491,14 +492,11 @@ public class DataTable<T> extends SelectableTabularComponent<T> implements ISele
 			TD td = new TD();
 			tr.add(0, td);
 
-			Checkbox cb = new Checkbox();
+			Checkbox cb = createSelectionCheckbox(instance, getSelectionModel());
+			if(cb.isReadOnly()) {
+				td.addCssClass("ui-cur-default");
+			}
 			td.add(cb);
-			cb.setClicked(new IClicked2<Checkbox>() {
-				@Override
-				public void clicked(@Nonnull Checkbox clickednode, @Nonnull ClickInfo clinfo) throws Exception {
-					selectionCheckboxClicked(instance, clickednode.isChecked(), clinfo, clickednode);
-				}
-			});
 			cb.setChecked(false);
 		}
 
@@ -582,9 +580,9 @@ public class DataTable<T> extends SelectableTabularComponent<T> implements ISele
 		int rrow = index - m_six; // This is the location within the child array
 		ColumnContainer<T> cc = new ColumnContainer<T>(this);
 		TR tr = new TR();
+		m_dataBody.add(rrow, tr);
 		cc.setParent(tr);
 		tr.setTestRepeatID("r" + index);
-		m_dataBody.add(rrow, tr);
 		renderRow(tr, cc, index, value);
 		m_visibleItemList.add(rrow, value);
 
@@ -745,5 +743,25 @@ public class DataTable<T> extends SelectableTabularComponent<T> implements ISele
 			T item = m_visibleItemList.get(i);
 			updateSelectionChanged(item, i, sm.isSelected(item));
 		}
+	}
+
+	@Nonnull
+	private Checkbox createSelectionCheckbox(@Nonnull final T rowInstance, @Nullable ISelectionModel<T> selectionModel) {
+		Checkbox cb = new Checkbox();
+		boolean selectable = true;
+		if(selectionModel instanceof IAcceptable) {
+			selectable = ((IAcceptable<T>) selectionModel).acceptable(rowInstance);
+		}
+		if(selectable) {
+			cb.setClicked(new IClicked2<Checkbox>() {
+				@Override
+				public void clicked(@Nonnull Checkbox clickednode, @Nonnull ClickInfo info) throws Exception {
+					selectionCheckboxClicked(rowInstance, clickednode.isChecked(), info, clickednode);
+				}
+			});
+		} else {
+			cb.setReadOnly(true);
+		}
+		return cb;
 	}
 }

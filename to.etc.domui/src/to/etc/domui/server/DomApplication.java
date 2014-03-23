@@ -804,6 +804,15 @@ public abstract class DomApplication {
 		addHeaderContributor(HeaderContributor.loadStylesheet("$js/jquery.wysiwyg.css"), -780);
 
 		/*
+		 * FIXME LF lf Look&Feel btadic STYLE DEBUGER
+		 * STYLE DEBUGER
+		 * FOR DEVELOPMENT ONLY
+		 * REMOVE IT AFTER LOOK AND FEEL PROJECTS
+		 */
+		addHeaderContributor(HeaderContributor.loadJavascript("$js/styleDebuger.js"), 10);
+
+
+		/*
 		 * FIXME: Delayed construction of components causes problems with components
 		 * that are delayed and that contribute. Example: tab pabel containing a
 		 * DateInput. The TabPanel gets built when header contributions have already
@@ -814,9 +823,9 @@ public abstract class DomApplication {
 		//-- Localized calendar resources are added per-page.
 
 		/*
-		 * FIXME Same as above, this is for loading the FCKEditor.
+		 * FIXME Same as above, this is for loading the CKEditor.
 		 */
-		addHeaderContributor(HeaderContributor.loadJavascript("$fckeditor/fckeditor.js"), -760);
+		addHeaderContributor(HeaderContributor.loadJavascript("$ckeditor/ckeditor.js"), -760);
 	}
 
 
@@ -882,6 +891,7 @@ public abstract class DomApplication {
 	/**
 	 * Return the component that knows everything you ever wanted to know about controls - but were afraid to ask...
 	 */
+	@Nonnull
 	final public ControlBuilder getControlBuilder() {
 		return m_controlBuilder;
 	}
@@ -1574,6 +1584,24 @@ public abstract class DomApplication {
 	@Nonnull
 	public String getCurrentTheme() {
 		return m_themeManager.getCurrentTheme();
+	}
+
+	/**
+	 * Return the current theme itself.
+	 * @return
+	 */
+	@Nonnull
+	public ITheme getTheme() {
+		return m_themeManager.getTheme(getCurrentTheme(), null);
+	}
+
+	/**
+	 * Get the property map (the collection of all *.js files associated with the theme).
+	 * @return
+	 */
+	@Nonnull
+	public IScriptScope getThemeMap() {
+		return getTheme().getPropertyScope();
 	}
 
 	/**

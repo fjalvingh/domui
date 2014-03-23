@@ -40,14 +40,12 @@ public class DataAccessViolationPage extends UrlPage {
 		CaptionedPanel ep = new CaptionedPanel(Msgs.BUNDLE.getString(Msgs.DATA_ACCESS_VIOLATION_TITLE));
 		add(ep);
 		Table t = new Table();
+		t.addCssClass("ui-acd-tbl");
 		ep.getContent().add(t);
-		t.setWidth("100%");
 		TBody b = t.addBody();
 		TD td = b.addRowAndCell();
 		Img img = new Img(Theme.ACCESS_DENIED);
-		//		img.setAlign(ImgAlign.LEFT);
 		td.add(img);
-		td.setWidth("1%");
 
 		TD co = b.addCell();
 		String txt = msg;

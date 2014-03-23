@@ -122,7 +122,7 @@ public class ErrorFenceHandler implements IErrorFence {
 
 		//-- Call the listeners.
 		List<IErrorMessageListener> list = m_errorListeners;
-		for(IErrorMessageListener eml : list) {
+		for(IErrorMessageListener eml : new ArrayList<IErrorMessageListener>(list)) {
 			try {
 				eml.errorMessageRemoved(uim);
 			} catch(Exception x) {

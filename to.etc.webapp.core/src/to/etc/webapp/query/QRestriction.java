@@ -178,8 +178,13 @@ public class QRestriction {
 	}
 
 	@Nonnull
-	static public final QUnaryNode sqlCondition(String sql) {
-		return new QUnaryNode(QOperation.SQL, new QLiteral(sql));
+	static public final QSqlRestriction sqlCondition(@Nonnull String sql) {
+		return new QSqlRestriction(sql, new Object[0]);
+	}
+
+	@Nonnull
+	static public final QSqlRestriction sqlCondition(@Nonnull String sql, @Nonnull Object[] param) {
+		return new QSqlRestriction(sql, param);
 	}
 
 	/**

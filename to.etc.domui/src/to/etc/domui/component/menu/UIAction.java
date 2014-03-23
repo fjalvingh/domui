@@ -17,25 +17,25 @@ abstract public class UIAction<T> implements IUIAction<T> {
 
 	@Override
 	@Nullable
-	public String getDisableReason(T instance) throws Exception {
+	public String getDisableReason(@Nullable T instance) throws Exception {
 		return null;
 	}
 
 	@Override
 	@Nonnull
-	public String getName(T instance) throws Exception {
+	public String getName(@Nullable T instance) throws Exception {
 		return m_name;
 	}
 
 	@Override
 	@Nullable
-	public String getTitle(T instance) throws Exception {
+	public String getTitle(@Nullable T instance) throws Exception {
 		return m_title;
 	}
 
 	@Override
 	@Nullable
-	public String getIcon(T instance) throws Exception {
+	public String getIcon(@Nullable T instance) throws Exception {
 		return m_icon;
 	}
 }

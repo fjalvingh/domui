@@ -17,6 +17,7 @@ import to.etc.domui.util.*;
 import to.etc.util.*;
 
 public class CurrentlyLoggedInUsersPage extends UrlPage {
+
 	@Override
 	public void createContent() throws Exception {
 		createHeader();

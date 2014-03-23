@@ -38,4 +38,6 @@ abstract public class QOperatorNode extends QNodeBase {
 	public QOperation getOperation() {
 		return m_operation;
 	}
+
+	abstract public QOperatorNode dup();
 }

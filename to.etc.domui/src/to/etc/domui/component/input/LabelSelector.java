@@ -17,6 +17,9 @@ import to.etc.domui.util.*;
  * Created on Aug 6, 2011
  */
 public class LabelSelector<T> extends Div implements IControl<List<T>> {
+
+	private static final int MAX_LABELS_IN_TOOLTIP = 10;
+
 	@Nonnull
 	private Class<T> m_actualClass;
 
@@ -33,14 +36,16 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 	private INodeContentRenderer<T> m_contentRenderer;
 
 	public interface ISearch<T> {
-		T find(String name) throws Exception;
+		@Nullable
+		T find(@Nonnull String name) throws Exception;
 
-		List<T> findLike(String input, int i);
+		@Nonnull
+		List<T> findLike(@Nonnull String input, int i) throws Exception;
 	}
 
 	public interface INew<T> {
 		@Nullable
-		T create(String name) throws Exception;
+		T create(@Nonnull String name) throws Exception;
 	}
 
 	public interface IAllow<T> {
@@ -61,14 +66,19 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 
 	private boolean m_disabled;
 
+	private boolean m_defaultTooltip = true;
+
 	public LabelSelector(@Nonnull Class<T> clz, @Nonnull ISearch<T> search) {
 		m_actualClass = clz;
 		m_search = search;
 		setCssClass("ui-lsel");
+		if(search instanceof INew< ? >) {
+			m_instanceFactory = (INew<T>) search;
+		}
 	}
 
 	/**
-	 * We create something which looks like an iput box, but it has label spans followed by a single input box.
+	 * We create something which looks like an input box, but it has label spans followed by a single input box.
 	 * @see to.etc.domui.dom.html.NodeBase#createContent()
 	 */
 	@Override
@@ -81,10 +91,11 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 		if(! m_disabled) {
 			SearchInput<T> input = m_input = new SearchInput<T>(m_actualClass);
 			add(input);
+			updateTooltip();
 			input.setHandler(new SearchInput.IQuery<T>() {
 				@Override
 				public List<T> queryFromString(String input, int max) throws Exception {
-					return queryLabels(input, max);
+					return queryLabelsOnType(input, max);
 				}
 
 				@Override
@@ -100,6 +111,23 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 		}
 	}
 
+	private void updateTooltip() throws Exception {
+		if(isDefaultTooltip()) {
+			fillTooltipWithAvailableLabels();
+		}
+	}
+
+	private void fillTooltipWithAvailableLabels() throws Exception {
+		StringBuilder sb = new StringBuilder();
+		final List<T> availableLabels = getAvailableLabels();
+		for(int i = 0; i < availableLabels.size(); i++) {
+			if(i > 0) {
+				sb.append(", ");
+			}
+			sb.append(availableLabels.get(i).toString());
+		}
+		DomUtil.nullChecked(m_input).setTitle(Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_HINT, sb.toString()));
+	}
 
 	/**
 	 * This queries for labels with the specified name. It does so by querying the db, and removes
@@ -109,11 +137,19 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 	 * @return
 	 * @throws Exception
 	 */
-	private List<T> queryLabels(String input, int max) throws Exception {
+	private List<T> queryLabelsOnType(String input, int max) throws Exception {
 		input = input.trim();
 		if(input.length() < 1)
 			return null;
 
+		return getLabels(input, max);
+	}
+
+	private List<T> getAvailableLabels() throws Exception {
+		return getLabels("", MAX_LABELS_IN_TOOLTIP);
+	}
+
+	private List<T> getLabels(String input, int max) throws Exception {
 		List<T> isl = m_search.findLike(input, max + m_labelList.size() + 1);
 		for(T tisl : m_labelList) {
 			isl.remove(tisl);					// Remove all that has been entered before
@@ -131,7 +167,7 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 		if(value.length() <= 1)
 			return;
 
-		T sel = m_search.find(value);	// Find by this name (full)
+		T sel = m_search.find(value);						// Find by this name (full)
 		if(null != sel) {
 			//-- Item by name exists. Not in already selected list?
 			for(T il : m_labelList) {
@@ -172,6 +208,14 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 	 * @throws Exception
 	 */
 	public void addItem(@Nonnull T instance) throws Exception {
+		addLabel(instance);										// Just add the thingy.
+	}
+
+	public void setInstanceFactory(INew<T> instanceFactory) {
+		m_instanceFactory = instanceFactory;
+	}
+
+	private void addLabel(@Nonnull T instance) throws Exception {
 		if(m_divMap.containsKey(instance))
 			return;
 		m_labelList.add(instance);
@@ -228,8 +272,10 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 	}
 
 	private void callValueChanged() throws Exception {
-		if(null != m_onValueChanged)
+		if(null != m_onValueChanged) {
 			((IValueChanged<LabelSelector<T>>) m_onValueChanged).onValueChanged(this);
+		}
+		updateTooltip();
 	}
 
 	public boolean isEnableAdding() {
@@ -252,7 +298,11 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 
 	@Override
 	public void setValue(@Nullable List<T> newlist) {
-		m_labelList = newlist == null ? new ArrayList<T>() : new ArrayList<T>(newlist);
+		if(null == newlist)
+			newlist = new ArrayList<T>();
+		else
+			newlist = new ArrayList<T>(newlist);
+		m_labelList = newlist;
 		m_divMap.clear();
 		forceRebuild();
 	}
@@ -351,6 +401,12 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 		return m_binder != null && m_binder.isBound();
 	}
 
+	public boolean isDefaultTooltip() {
+		return m_defaultTooltip;
+	}
 
+	public void setDefaultTooltip(boolean defaultTooltip) {
+		m_defaultTooltip = defaultTooltip;
+	}
 
 }

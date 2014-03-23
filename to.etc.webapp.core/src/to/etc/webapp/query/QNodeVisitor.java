@@ -59,11 +59,13 @@ public interface QNodeVisitor {
 
 	public void visitMultiSelection(@Nonnull QMultiSelection n) throws Exception;
 
-	void visitExistsSubquery(@Nonnull QExistsSubquery< ? > q) throws Exception;
+	public void visitExistsSubquery(@Nonnull QExistsSubquery< ? > q) throws Exception;
 
-	void visitSelectionSubquery(@Nonnull QSelectionSubquery n) throws Exception;
+	public void visitSelectionSubquery(@Nonnull QSelectionSubquery n) throws Exception;
 
-	void visitSubquery(@Nonnull QSubQuery< ? , ? > n) throws Exception;
+	public void visitSubquery(@Nonnull QSubQuery< ? , ? > n) throws Exception;
 
 	public void visitPropertyJoinComparison(@Nonnull QPropertyJoinComparison qPropertyJoinComparison) throws Exception;
+
+	public void visitSqlRestriction(@Nonnull QSqlRestriction v) throws Exception;
 }

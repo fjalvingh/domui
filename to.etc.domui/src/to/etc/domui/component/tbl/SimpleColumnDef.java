@@ -30,7 +30,6 @@ import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
 /**
@@ -41,6 +40,8 @@ import to.etc.domui.util.*;
  */
 final public class SimpleColumnDef<T> {
 	static public final String NOWRAP = "-NOWRAP";
+
+	static public final String WRAP = "-WRAP";
 
 	static public final String DEFAULTSORT = "-DSORT";
 
@@ -75,7 +76,9 @@ final public class SimpleColumnDef<T> {
 	@Deprecated
 	private int m_displayLength;
 
-	private boolean m_nowrap;
+	/** When set, specifically define wrap or nowrap. When unset use the default. */
+	@Nullable
+	private Boolean m_nowrap;
 
 	/** The thingy which obtains the column's value (as an object) */
 	@Nullable
@@ -99,9 +102,6 @@ final public class SimpleColumnDef<T> {
 	@Nullable
 	private String m_renderHint;
 
-	@Nullable
-	private IControlFactory<T> m_control;
-
 	public <X> SimpleColumnDef(@Nonnull ColumnDefList< ? > cdl, @Nonnull Class<T> valueClass) {
 		m_columnType = valueClass;
 		m_defList = cdl;
@@ -109,28 +109,28 @@ final public class SimpleColumnDef<T> {
 
 	/**
 	 * Create a column definition using metadata for the column.
-	 * @param m
+	 * @param pmm
 	 */
-	public SimpleColumnDef(@Nonnull ColumnDefList< ? > cdl, @Nonnull PropertyMetaModel<T> m) {
+	public SimpleColumnDef(@Nonnull ColumnDefList< ? > cdl, @Nonnull PropertyMetaModel<T> pmm) {
 		m_defList = cdl;
-		m_columnType = m.getActualType();
-		setColumnLabel(m.getDefaultLabel());
-		setValueTransformer(m); // Thing which can obtain the value from the property
-		setPresentationConverter(ConverterRegistry.findBestConverter(m));
-		setSortable(m.getSortable());
-		setPropertyName(m.getName());
-		setNumericPresentation(m.getNumericPresentation());
-		if(m.getNowrap() == YesNoType.YES)
-			setNowrap(true);
+		m_columnType = pmm.getActualType();
+		setColumnLabel(pmm.getDefaultLabel());
+		setValueTransformer(pmm); 								// Thing which can obtain the value from the property
+		setPresentationConverter(ConverterRegistry.findBestConverter(pmm));
+		setSortable(pmm.getSortable());
+		setPropertyName(pmm.getName());
+		setNumericPresentation(pmm.getNumericPresentation());
+		if(pmm.getNowrap() == YesNoType.YES)
+			setNowrap(Boolean.TRUE);
 	}
 
 	public SimpleColumnDef(@Nonnull ColumnDefList< ? > cdl, @Nonnull ExpandedDisplayProperty<T> m) {
 		m_defList = cdl;
 		m_columnType = m.getActualType();
 		setColumnLabel(m.getDefaultLabel());
-		setValueTransformer(m); // Thing which can obtain the value from the property
+		setValueTransformer(m); 								// Thing which can obtain the value from the property
 		setPresentationConverter(m.getBestConverter());
-		setSortable(SortableType.UNSORTABLE); // FIXME From meta pls
+		setSortable(SortableType.UNSORTABLE); 					// FIXME From meta pls
 		setSortable(m.getSortable());
 		setPropertyName(m.getName());
 		if(m.getName() == null)
@@ -140,7 +140,7 @@ final public class SimpleColumnDef<T> {
 		if(m.getDisplayLength() > 0)
 			setDisplayLength(m.getDisplayLength());
 		if(m.getNowrap() == YesNoType.YES)
-			setNowrap(true);
+			setNowrap(Boolean.TRUE);
 	}
 
 	@Nullable
@@ -150,6 +150,14 @@ final public class SimpleColumnDef<T> {
 
 	public void setColumnLabel(@Nullable String columnLabel) {
 		label(columnLabel);
+	}
+
+	<R> T getColumnValue(@Nonnull R instance) throws Exception {
+		IValueTransformer<T> valueTransformer = getValueTransformer();
+		if(valueTransformer == null)
+			return (T) instance;
+		else
+			return valueTransformer.getValue(instance);
 	}
 
 	@Nonnull
@@ -271,11 +279,12 @@ final public class SimpleColumnDef<T> {
 		m_displayLength = displayLength;
 	}
 
-	public boolean isNowrap() {
+	@Nullable
+	public Boolean isNowrap() {
 		return m_nowrap;
 	}
 
-	public void setNowrap(boolean nowrap) {
+	public void setNowrap(@Nullable Boolean nowrap) {
 		m_nowrap = nowrap;
 	}
 
@@ -322,11 +331,6 @@ final public class SimpleColumnDef<T> {
 
 	public void setSortHelper(@Nullable ISortHelper sortHelper) {
 		m_sortHelper = sortHelper;
-	}
-
-	@Nullable
-	public IControlFactory<T> getControl() {
-		return m_control;
 	}
 
 	@Nonnull
@@ -411,7 +415,7 @@ final public class SimpleColumnDef<T> {
 	 */
 	@Nonnull
 	public SimpleColumnDef<T> wrap() {
-		m_nowrap = false;
+		m_nowrap = Boolean.FALSE;
 		return this;
 	}
 
@@ -421,7 +425,7 @@ final public class SimpleColumnDef<T> {
 	 */
 	@Nonnull
 	public SimpleColumnDef<T> nowrap() {
-		m_nowrap = true;
+		m_nowrap = Boolean.TRUE;
 		return this;
 	}
 
@@ -515,21 +519,6 @@ final public class SimpleColumnDef<T> {
 	@Nonnull
 	public SimpleColumnDef<T> width(@Nullable String w) {
 		m_width = w;
-		return this;
-	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Bind to column values.								*/
-	/*--------------------------------------------------------------*/
-	/**
-	 * Use the specified control to display/control the value in this column.
-	 * @param control
-	 * @return
-	 */
-	public SimpleColumnDef<T> bind(@Nonnull IControlFactory<T> control) {
-		if(m_contentRenderer != null)
-			throw new IllegalStateException("Cannot set a control when a renderer is defined");
-		m_control = control;
 		return this;
 	}
 }

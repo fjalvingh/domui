@@ -28,6 +28,7 @@ import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.tbl.*;
+import to.etc.domui.util.*;
 import to.etc.webapp.query.*;
 
 
@@ -65,6 +66,10 @@ public class LookupInput<T> extends LookupInputBase<T, T> {
 
 	public LookupInput(@Nonnull Class<T> lookupClass) {
 		super(lookupClass, lookupClass);
+	}
+
+	public LookupInput(@Nonnull QCriteria<T> rootQuery) {
+		super(rootQuery, DomUtil.nullChecked(rootQuery.getBaseClass()));
 	}
 
 	@Nonnull

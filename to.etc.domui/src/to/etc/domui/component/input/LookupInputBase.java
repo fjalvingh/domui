@@ -45,6 +45,9 @@ import to.etc.webapp.*;
 import to.etc.webapp.query.*;
 
 abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT>, IHasModifiedIndication {
+	/** The properties bindable for this component. */
+	static private final Set<String> BINDABLE_SET = createNameSet("value", "disabled");
+
 	static public final INodeContentRenderer<Object> DEFAULT_RENDERER = new SimpleLookupInputRenderer<Object>();
 
 	/**
@@ -205,6 +208,10 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	@Nullable
 	private KeyWordPopupRowRenderer<OT> m_dropdownRowRenderer;
 
+
+	@Nullable
+	private QCriteria<QT> m_rootCriteria;
+
 	/**
 	 * This must create the table model for the output type from the query on the input type.
 	 * @param query
@@ -232,6 +239,10 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	 */
 	public LookupInputBase(@Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass) {
 		this(queryClass, resultClass, (ClassMetaModel) null, (ClassMetaModel) null);
+	}
+
+	public LookupInputBase(@Nonnull QCriteria<QT> rootCriteria, @Nonnull Class<OT> resultClass) {
+		this(DomUtil.nullChecked(rootCriteria.getBaseClass()), resultClass, (ClassMetaModel) null, (ClassMetaModel) null);
 	}
 
 	public LookupInputBase(@Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass, @Nullable ClassMetaModel queryMetaModel, @Nullable ClassMetaModel outputMetaModel) {
@@ -272,6 +283,12 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		if(null != m_clearButton)
 			return m_clearButton;
 		throw new IllegalStateException("Clear button is not there.");
+	}
+
+	@Override
+	@Nonnull
+	public Set<String> getBindableProperties() {
+		return BINDABLE_SET;
 	}
 
 	@Override
@@ -406,7 +423,6 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 
 	private void addKeySearchField(NodeContainer parent) {
 		KeyWordSearchInput<OT> ks = m_keySearch = new KeyWordSearchInput<OT>(m_keyWordSearchCssClass);
-//		m_keySearch.setWidth("100%");		jal 20121025 temp removed
 		ks.setPopupWidth(getKeyWordSearchPopupWidth());
 		KeyWordPopupRowRenderer<OT> rr = getDropdownRowRenderer();
 		rr.setRowClicked(new ICellClicked<OT>() {
@@ -595,18 +611,36 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 			}
 		}
 
-		IQueryManipulator<QT> qm = getQueryManipulator();
-		if(qm != null) {
-			searchQuery = qm.adjustQuery(searchQuery);
-			if(searchQuery == null) {
-				//in case of cancelled search by query manipulator return
-				return null;
-			}
+		searchQuery = manipulateCriteria(searchQuery);
+		if(searchQuery == null) {
+			//in case of cancelled search by query manipulator return
+			return null;
 		}
 
 		return createTableModel(searchQuery);
 	}
 
+	@Nullable
+	private QCriteria<QT> manipulateCriteria(@Nonnull QCriteria<QT> enteredCriteria) {
+		IQueryManipulator<QT> qm = getQueryManipulator();
+		QCriteria<QT> result = enteredCriteria;
+		if(qm != null) {
+			result = qm.adjustQuery(enteredCriteria);
+			if(result == null) {
+				//in case of cancelled search by query manipulator return
+				return null;
+			}
+		}
+
+		//-- Join any root criteria, if applicable
+		QCriteria<QT> root = m_rootCriteria;
+		if(null != root) {
+			//-- We merge the "root" criteria inside the "child" criteria. We do that by a complete "and", as follows:
+			//-- result = (root criteria) AND (entered criteria), and we ignore any "other" part of the root criterion.
+			result.mergeCriteria(root);
+		}
+		return result;
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Full search popup window code..						*/
@@ -727,14 +761,12 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		if(c == null)						// Some error has occured?
 			return;							// Don't do anything (errors will have been registered)
 
-		IQueryManipulator<QT> qm = getQueryManipulator();
-		if(qm != null) {
-			c = qm.adjustQuery(c);			// Adjust the query where needed,
-			if(c == null) {
-				//in case of cancelled search by query manipulator return null
-				return;
-			}
+		c = manipulateCriteria(c);
+		if(c == null) {
+			//in case of cancelled search by query manipulator return
+			return;
 		}
+
 		getFloater().clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 		if(!lf.hasUserDefinedCriteria() && !isAllowEmptyQuery()) {
 			getFloater().addGlobalMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_MISSING_SEARCH)); // Missing inputs
@@ -876,6 +908,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		m_disabled = disabled;
 		updateRoStyle();
 		forceRebuild();
+		fireModified("disabled", Boolean.valueOf(!disabled), Boolean.valueOf(disabled));
 	}
 
 	/*--------------------------------------------------------------*/
@@ -933,8 +966,9 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		KeyWordSearchInput<OT> ks = m_keySearch;
 		if(DomUtil.isEqual(m_value, v) && (ks == null || ks.getKeySearchValue() == null))
 			return;
+		OT old = m_value;
 		m_value = v;
-		if(m_value != null) {
+		if(v != null) {
 			getClearButton().setDisplay(DisplayType.INLINE);
 			clearMessage();
 			setCssClass("ui-lui-selected");
@@ -944,6 +978,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		}
 		updateRoStyle();
 		forceRebuild();
+		fireModified("value", old, v);
 	}
 
 	/**

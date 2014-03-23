@@ -249,6 +249,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>> {
 					if(ovc != null) {
 						ovc.onValueChanged(MultipleLookupInput.this);
 					}
+					component.setFocus();
 				}
 			}
 		});
@@ -292,8 +293,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>> {
 		} else {
 			itemNode.setCssClass("ui-mli-itm");
 		}
-		Img imgClose = new Img("THEME/btnDelete.png");
-		imgClose.setMarginLeft("2px");
+		Img imgClose = new Img(Theme.BTN_CLOSE);
 		itemNode.add(itemText);
 		itemNode.add(imgClose);
 

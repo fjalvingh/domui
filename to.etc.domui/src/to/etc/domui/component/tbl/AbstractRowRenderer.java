@@ -492,28 +492,21 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 		throws Exception {
 		//-- If a value transformer is known get the column value, else just use the instance itself (case when Renderer is used)
 		X colval;
-		IValueTransformer< ? > valueTransformer = cd.getValueTransformer();
+		IValueTransformer<X> valueTransformer = cd.getValueTransformer();
 		if(valueTransformer == null)
 			colval = (X) instance;
 		else
-			colval = (X) valueTransformer.getValue(instance);
+			colval = valueTransformer.getValue(instance);
 
 		//-- Is a node renderer used?
 		TD cell;
 		String cssClass = cd.getCssClass();
 		INodeContentRenderer<X> contentRenderer = cd.getContentRenderer();
-		IControlFactory<X> ic = cd.getControl();
-		if(null != ic) {
-			IControl<X> control = ic.createControl();
-			cell = cc.add((NodeBase) control);
-			PropertyMetaModel<X> pmm = (PropertyMetaModel<X>) MetaManager.getPropertyMeta(m_dataClass, cd.getPropertyName());
-			control.bind().to(instance, pmm);
-			((NodeBase) control).moveModelToControl();
-		} else if(null != contentRenderer) {
-			cell = cc.add((NodeBase) null); // Add the new row
+		if(null != contentRenderer) {
+			cell = cc.add((NodeBase) null); 					// Add the new row
 			if(cssClass != null)
 				cell.addCssClass(cssClass);
-			((INodeContentRenderer<Object>) contentRenderer).renderNodeContent(tbl, cell, colval, instance); // %&*(%&^%*&%&( generics require casting here
+			contentRenderer.renderNodeContent(tbl, cell, colval, instance); // %&*(%&^%*&%&( generics require casting here
 		} else {
 			String s;
 			if(colval == null)
@@ -533,11 +526,13 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 			if(cssClass != null)
 				cell.addCssClass(cssClass);
 		}
-		if(cd.isNowrap() || cd.getDisplayLength() == 0)
+		Boolean nw = cd.isNowrap();
+		if((nw == null && cd.getDisplayLength() == 0) || (nw != null && nw.booleanValue()))
 			cell.setNowrap(true);
 
 		//-- If a cellclicked thing is present attach it to the td
-		if(cd.getCellClicked() != null) {
+		final ICellClicked< ? > cellClicked = cd.getCellClicked();
+		if(cellClicked != null) {
 			/*
 			 * FIXME For now I add a separate instance of the handler to every cell. A single instance is OK too,
 			 * provided it can calculate the row and cell data from the TR it is attached to.

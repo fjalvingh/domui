@@ -14,5 +14,7 @@ public class CssStyleOptions {
 	static public final String ADD_MARGIN_BOTTOM = "dso-add-bottom-margin";
 
 	static public final String REMOVE_MARGIN_TOP = "dso-remove-top-margin";
+
+	static public final String CELL_WITH_TEXT_AND_INPUT = "dso-cell-with-text-and-input";
 }
 

@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.controlfactory;
 
+import java.math.*;
+
 import javax.annotation.*;
 
 import to.etc.domui.component.input.*;
@@ -72,7 +74,14 @@ public class ControlFactoryString implements PropertyControlFactory {
 				dv.setTitle(s);
 			return new ControlFactoryResult(dv);
 		}
-		Text<T> txt = Text.createText(iclz, pmm, editable);
+
+		Text<T> txt;
+
+		if(pmm.getActualType() == Double.class || pmm.getActualType() == double.class || pmm.getActualType() == BigDecimal.class) {
+			txt = (Text<T>) Text.createNumericInput((PropertyMetaModel<Double>) pmm, editable);
+		} else {
+			txt = Text.createText(iclz, pmm, editable);
+		}
 		return new ControlFactoryResult(txt);
 	}
 }

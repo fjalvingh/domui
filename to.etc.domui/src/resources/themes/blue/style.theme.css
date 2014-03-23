@@ -84,12 +84,16 @@ input, textarea, select {
 	margin: 0px 2px 2px 0px;
 	padding: 0px 2px 0px 2px;	
 	font-size: <%= font_size %>;
+	font: inherit;
 	border-color:<%= bevel_up %> <%= bevel_down %> <%= bevel_down %>;
 	border-style:solid;
 	border-width:1px;
 	-moz-border-radius: 2px;	
 	border-radius: 2px;	
 	-webkit-border-radius: 2px;	
+}
+textarea{
+	line-height: normal;
 }
 input[type=checkbox] {
 	border: 0;
@@ -487,25 +491,25 @@ td.ui-tr-selected {
 }
 .ui-emd-msg {
 	background-repeat: no-repeat;
-	background-position: left;
-	padding-left: 18px;
+	background-position: 10px;
+	padding-left: 24px;
+	background-size: 11px 11px;
 }
 .ui-emd-info {
 	background-image: url(mini-info.png);
-	background-color: <%= info_bg %>; /* some nice light blue */
+	background-color: <%= info_bg %>;
 	color: <%= info_fg %>;
 	border-color: 1px solid <%= info_border %>;
 }
 .ui-emd-error {
 	background-image: url(mini-error.png);
-	/*	height: 16px; We have to remove this because there are big error messages */
 }
 .ui-emd-warning {
 	background-image: url(mini-warning.png);
 	background-color: <%= warnings_background %>;
 	color: <%= warnings_foreground %>;
-	border-color: 1px solid <%= warnings_border %>;
 }
+
 /*** 050_popinpanel.frag ***/
 /*** Pop-in panel ***/
 div.ui-popin {
@@ -533,10 +537,7 @@ div.ui-popin {
 /*** 055_misc.frag.css ***/
 /*** Miscellaneous components styles ***/
 /* AccessDeniedPage */
-.ui-acd-ttl {
-	font-size: larger;
-	font-style: italic;
-}
+.ui-acd-ttl {}
 
 /* InfoPanel */
 .ui-ipa {
@@ -664,6 +665,12 @@ div.ui-asc div {
 .dso-remove-top-margin {
 	margin-top: 0px !important;
 }
+.dso-cell-with-text-and-input {}
+
+/** Default cursor */
+.ui-cur-default {
+	cursor: default !important;
+}
 /*** 060_msgbox.frag.css ***/
 /*** MsgBox ***/
 .ui-mbx-top {
@@ -707,6 +714,11 @@ a.ui-lnkb-dis {
 	font-style: italic;
 	cursor: default;
 	color: gray; 
+	
+	filter: url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><filter id=\'grayscale\'><feColorMatrix type=\'matrix\' values=\'0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0\'/></filter></svg>#grayscale"); /* Firefox 3.5+ */
+	-moz-filter: grayscale(100%);
+	filter: gray; /* IE6-9 */
+    -webkit-filter: grayscale(1); /* Google Chrome & Safari 6+ */
 }
 
 a:hover.ui-lnkb-dis {
@@ -820,18 +832,10 @@ a.ui-brc-l, a.ui-brc-l:hover a.ui-brc-l :VISITED, a.ui-brc-l:ACTIVE {
 /*** 090_buttonbar.frag.css ***/
 /*** ButtonBar component ***/
 .ui-buttonbar {
-	margin-bottom: 10px;
+	margin-bottom: 8px;
 }
-.ui-bb-left {
-	padding: 0; margin: 0;
-	display: none;
-	width: 0px;
-	height: 0px;
-}
-.ui-bb-right {
-	padding: 0; margin: 0;
-	width: 29px;
-/*	height: 36px;	jal 20121009 Do not add height: empty button bar must be empty. */
+.ui-buttonbar button {
+	margin-bottom: 2px !important;
 }
 .ui-bb-middle {
 	padding: 0; margin: 0;
@@ -984,10 +988,16 @@ table.ui-wa-bgtbl {
 }
 
 div.ui-lui-selected-ro {
-	border: <%= readonly_border %> solid 1px; /* same border color as one used for ui-dspv fields */
+	border: none !important;
+	margin-bottom: 0px;
+}
+
+div.ui-lui-selected-ro td {
+	padding: 0px;
 }
 	
 div.ui-lui {
+	width: 12em; /*	this width match with date field picker icon on IE rendering */
 	display: inline-block;
 }
 
@@ -1008,7 +1018,11 @@ table.ui-lui-selected {
 .ui-lui-v { /* no selection is rendered transparent without border */
 	padding: 0px;
 	margin: 0px;
-	width: 1%;
+	width: 100%;
+}
+
+.ui-lui-v > div {
+	width: 104px;
 }
 
 .ui-lui-selected tbody { /*	selected value is rendered with white back and outline, on IE border is not rendred!? */
@@ -1040,6 +1054,7 @@ table.ui-lui-selected {
 input.ui-lui-keyword {
 	min-width: 98px;
 	width: 1%;
+	display: block;
 }
 
 img.ui-lui-waiting{
@@ -1086,24 +1101,28 @@ tr.ui-keyword-popup-row {
 }
 
 .ui-mli-itm { /* selected items */
-	background-color: <%= selected_bg %>;
+	display: inline;
 	float: left;
-	padding-left: 5px;
-	margin-left: 1px;
-	margin-right: 1px;
-	margin-top: 3px;
-	margin-bottom: 3px;	
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border: 1px solid <%= multiple_lookup_label_color %>;
+	margin: 1px;
+	padding: 2px;
+	padding-bottom: 0px;
+	background-color: <%= multiple_lookup_label_border %>;
+}
+
+.ui-mli-itm label {
 	vertical-align: middle;
-	-webkit-border-top-left-radius: 5px;
-	-webkit-border-bottom-right-radius: 5px;
-	-moz-border-radius-topleft: 5px;
-	-moz-border-radius-bottomright: 5px;
-	border-top-left-radius: 5px;
-	border-bottom-right-radius: 5px;
-	box-shadow : 3px 3px 3px #CCCCCC;
-	-moz-box-shadow : 3px 3px 3px #CCCCCC;
-	zoom: 1; /* FIXME: bojan needs to specify why this is needed! */ 
-	*display:inline;
+}
+
+.ui-mli-itm img {
+	display: inline-block;
+	margin-left: 5px;
+	width: 14px;
+	height: 14px;
+	vertical-align: top;
 }
 /*** 105_lookupinput.frag.css ***/
 /*** LookupInput thingerydoo ***/
@@ -1126,10 +1145,6 @@ div.ui-lui-selected-ro {
 	border: <%= readonly_border %> solid 1px; /* same border color as one used for ui-dspv fields */
 }
 	
-div.ui-lui {
-	width: 12em; /*	this width match with date field picker icon on IE rendering */
-	display: inline-block;
-}
 
 table.ui-lui {
 	width: 12em; /*	this width match with date field picker icon on IE rendering */
@@ -1140,74 +1155,12 @@ div.ui-lui td{
 	vertical-align: top;
 }
 
-table.ui-lui-selected {
-	width: 100%;
-	white-space: nowrap;
-	padding: 1px;
-}
-
-.ui-lui-v { /* no selection is rendered transparent without border */
-	padding: 0px;
-	margin: 0px;
-	width: 100%;
-}
-
-.ui-lui-selected tbody { /*	selected value is rendered with white back and outline, on IE border is not rendred!? */
-	padding: 0px;
-	margin: 0px;
-	background-color: #ffffff;
-	width: 100%;
-	white-space: nowrap;
-}
-
-.ui-lui-selected-ro tbody {
-	background-color: <%= readonly_bg %>;
-}
 
 .ui-input-err * .ui-lui-v {
 	background-color: #ffe5e5 !important;
 }
 .ui-lui-vcell {
 	width: 99%;
-}
-input.ui-lui-keyword {
-	min-width: 98px;
-}
-
-img.ui-lui-waiting{
-	position:absolute;
-	top:2px;
-	right:2px;
-}
-.ui-lui-keyword-res{
-	color: black;
-}
-.ui-lui-keyword-no-res{
-	color: red;
-}
-.ui-lui-keyword-large{
-	color: red;
-}
-.ui-lui-keyword-popup{
-	position: absolute;
-	left: 0px;
-	top: 18px;
-	background-color: white;
-	border: 1px solid gray;
-	width: 402px;
-	overflow: hidden;
-}
-tr.ui-keyword-popop-rowsel {
-	cursor: pointer;
-	background-color: <%= highlight2_bg %> !important;
-}
-
-tr.ui-keyword-popop-rowsel:hover {
-	background-color: <%= highlight2_bg %> !important;
-}
-
-tr.ui-keyword-popup-row {
-	cursor: pointer;
 }
 
 /*** LookupForm ***/
@@ -1218,7 +1171,11 @@ tr.ui-keyword-popup-row {
 /*** Button bar ***/
 div.ui-lf-ebb {
 	margin-top		: 8px;
-	padding-bottom	: 10px;
+	padding-bottom	: 8px;
+}
+
+div.ui-lf-ebb button {
+	margin-bottom: 2px !important;
 }
 
 /*** Layout for table with input data in two, or more, rows ***/
@@ -1237,6 +1194,11 @@ table.ui-lf-st tr > td.ui-f-lbl:first-child,
 .ui-lf-multi table tr > td.ui-f-lbl:first-child {
 	min-width: 150px;
 	width: 1%;
+}
+
+table.ui-lf-st input.ui-ro,
+table.ui-lf-st input.ui-ro:hover {
+	text-align: left !important;
 }
 /*** 120_forms.frag.css ***/
 /*** Form basic styles ***/
@@ -1261,6 +1223,7 @@ table.ui-lf-st tr > td.ui-f-lbl:first-child,
 }
 
 .ui-f-in input, .ui-f-in select{
+	font: inherit;
 	margin-bottom: 2px;
 	margin-right: 2px;
 }
@@ -1269,6 +1232,10 @@ table.ui-lf-st tr > td.ui-f-lbl:first-child,
 	font-size: <%= font_size %>;
 	vertical-align: top; /* jal 20090818 changed from top to middle to align DateInput buttons better/20100708 jal: back to top because LookupInput causes misalignment of labels after it. */
 	padding-left: 4px;
+}
+
+.ui-f-do textarea {
+	background-color: <%= readonly_bg %>;
 }
 
 /* for forms having the label ABOVE the field (vertical stacked) */
@@ -1303,7 +1270,7 @@ table.ui-lf-st tr > td.ui-f-lbl:first-child,
 	background-color: <%= readonly_bg %>;
 }
 input.ui-ro, input.ui-ro:hover {
-	text-align: left !important;
+	text-align: left;
 	height: 12px !important;
 	margin: 0px !important;
 	padding: 0px !important;
@@ -1415,6 +1382,9 @@ div.ui-dt table td{
 	padding: 0px 3px;
 	border-left: 1px solid #bababa; /* gray so it is theme invariant */
 	height: 19px;
+	vertical-align: middle;
+}
+div.ui-dt table td * {
 	vertical-align: middle;
 }
 
@@ -1533,6 +1503,21 @@ div.ui-sortable {
 .ui-sib:hover {
 	background-color: <%= header_bg %> !important;
 }
+
+.ui-sib[disabled] {
+	cursor: default;
+}
+
+.ui-sib[disabled] img {
+	filter: url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><filter id=\'grayscale\'><feColorMatrix type=\'matrix\' values=\'0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0\'/></filter></svg>#grayscale"); /* Firefox 3.5+ */
+	-moz-filter: grayscale(100%);
+	filter: gray; /* IE6-9 */
+    -webkit-filter: grayscale(1); /* Google Chrome & Safari 6+ */
+}
+
+.ui-sib[disabled]:hover {
+	background: none !important;
+}
 /*** 150_caption.frag.css ***/
 /*** Caption ***/
 .ui-cptn {
@@ -1564,6 +1549,8 @@ div.ui-sortable {
 	padding-left: 5px;
 	padding-bottom: 2px;
 }
+
+.ui-cptn-first{}
 /*** 155_captionedpanel.frag.css ***/
 /*** CaptionedPanel ***/
 .ui-pnl-outer {
@@ -1643,6 +1630,7 @@ div.ui-sortable {
     text-decoration: none;
  	min-height: 22px;
  	color: <%= tab_pnl_inactive_col %>;
+ 	margin-right: 0px !important;
 }
 
 .ui-tab-hdr img {
@@ -2416,6 +2404,10 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	width: 100%;
 	height: 0px;
 }
+.ui-flw-tc .ui-buttonbar {
+	margin: <%= margins_main %>;
+	margin-bottom: 0px;
+}
 
 .ui-flw-bc {
 	width: 100%;
@@ -2457,6 +2449,7 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	overflow: visible; /* remove extra padding in IE */
 	background: transparent url(<%= button_img %>) no-repeat right -50px;
 	outline: none;
+	font: inherit;
 }
 
 @-moz-document url-prefix() { /** btadic 20120711 Firefox is adding strange left padding to the buttons **/
@@ -2470,6 +2463,13 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	vertical-align: middle;
 	height: 16px;
 }
+.ui-sdbtn[disabled] img {
+	filter: url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><filter id=\'grayscale\'><feColorMatrix type=\'matrix\' values=\'0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0\'/></filter></svg>#grayscale"); /* Firefox 3.5+ */
+	-moz-filter: grayscale(100%);
+	filter: gray; /* IE6-9 */
+    -webkit-filter: grayscale(1); /* Google Chrome & Safari 6+ */
+}
+
 .ui-sdbtn::-moz-focus-inner {
 	border: none; /* overrides extra padding in ffox */
 }
@@ -2486,15 +2486,6 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	text-align: left;
 	background: transparent url(<%= button_img %>) no-repeat left top;
 }
-
-/* jal 20130624 Seems to be no longer needed- this caused the misalignment of buttons in the Puzzler under Chrome.
-@media screen and (-webkit-min-device-pixel-ratio:0) {
-	Safari and Google Chrome only - fix margins
-	.ui-sdbtn span {
-		margin-top: -1px;
-	}
-}
-*/
 
 .ui-sdbtn:hover, .ui-sdbtn:focus {
 	background-position: right -150px;
@@ -2581,7 +2572,7 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	-moz-border-radius: 5px;
 	border-radius: 5px;
 	-webkit-border-radius: 5px;
-	border: 1px dotted #999;
+	border: 1px solid #4075db;
 	padding: 15px;
 }
 .ui-flare-error {
@@ -2616,44 +2607,51 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 /*** LabelSelector component ***/
 .ui-lsel {
 	display: inline-block;
-	border-color:#ABADB3 #BFCDD9 #BFCDD9;
-	border-style:solid;
-	border-width:1px;
-	-moz-border-radius: 5px;
-	border-radius: 5px;
-	-webkit-border-radius: 5px;
-	padding: 4px;
+	background: white;
+	margin-right: 2px;
+	margin-bottom: 2px;
+	border-color: <%= bevel_up %> <%= bevel_down %> <%= bevel_down %>;
+	border-style: solid;
+	border-width: 1px;
 }
 .ui-lsel-item {
 	display: inline-block;
-	-moz-border-radius: 4px;
-	border-radius: 4px;
-	-webkit-border-radius: 4px;
-	border: 1px dotted #999;
-	margin: 0 2px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border: 1px solid <%= multiple_lookup_label_color %>;
+	margin: 1px;
 	padding: 2px;
-	background-color: cyan;
+	background-color: <%= multiple_lookup_label_border %>;
 }
 .ui-lsel-btn {
 	display: inline-block;
 	margin-left: 5px;
 	width: 14px;
 	height: 14px;
-	background-image: url(lsel-delete.png);
-	background-position: 14px 0;
+	background-image: url(btnClose.png);
+	background-size: 14px 14px;
 }
-.ui-lsel-btn:hover {
-	background-position: 0px 0px;
-	}
 
 .ui-lsel img {
 	padding-left: 5px;
 	padding-bottom: 2px;
 	vertical-align: middle;
 }
-.ui-lsel-sel input {
+.ui-lsel input {
 	border: none;
+	outline: none;
+	vertical-align: top;
+	height: 18px;
+	margin: 0px 0px 0px 2px;
+	padding: 0px;
+	display: inline-block;
 }
+.ui-lui-keyword-no-res {
+	display: inline-block;
+	margin: 4px;
+}
+
 /*** 245_bulkupload.frag.css ***/
 /*** BulkUpload component ***/
 .ui-bupl {
@@ -2749,8 +2747,113 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	background-color: <%= util.color(upl_loading).lighter(0.2) %>;
 	margin-top: 2px;
 }
-.ui-idlg-pnl {
-	margin: 15px 10px;
+/*** BulkUpload component ***/
+.ui-bupl {
+}
+.ui-bupl-wrp {
+	width: 360px;
+	background-color: white;
+	padding: 1px;
+	border: 1px solid <%= header_bg %>;
+}
+.ui-bupl-ttl {
+/*	border: 1px solid <%= header_bg %>; */
+	padding: 2px 4px 2px 4px;
+	font-weight: bold;
+	background: url(bg-header.png.svg) repeat-x;
+}
+.ui-bupl-legend {
+	color: black;
+}
+
+.ui-bupl .swfupload {
+	position: absolute;
+	z-index: 1;
+	vertical-align: top;
+}
+<% var buplround = 5; %>
+.ui-bupl-queue {
+	width: 354px;
+	min-height: 40px;
+	height: auto;
+	max-height: 400px;
+	overflow: auto;
+}
+/* BulkUpload: single queued file progress indicator. */
+.ui-bupl-file {
+	width: 350px;
+	overflow: hidden;
+}
+.ui-bupl-inner {
+	margin: 5px;
+	padding: 4px;
+	overflow: hidden;
+}
+.ui-bupl-pending {
+	border: 1px solid #888;
+	background-color: #bbb;
+}
+.ui-bupl-running {
+	border: 1px solid #DDF0DD;
+	background-color: #EBFFEB;
+}
+.ui-bupl-complete {
+	border: 1px solid #cde0cd;
+	background-color: #dbefdb;
+}
+.ui-bupl-error {
+	border: 1px solid #ff4900;
+	background-color: #ffebeb;	
+}
+.ui-bupl-name {
+	font-size: 12px;
+	color: #000;
+	width: 300px;
+	height: 14px;
+	text-align: left;
+	white-space: nowrap;
+	overflow: hidden;
+}
+.ui-bupl-cancl {
+	font-size: 0;
+	display: block;
+	height: 14px;
+	width: 14px;
+	background-image: url(bupl-cancel.png);
+	background-repeat: no-repeat;
+	background-position: -14px 0px;
+	float: right;
+}
+.ui-bupl-cancl:hover {
+	background-position: 0px 0px;
+}
+.ui-bupl-stat {
+	margin-top: 2px;
+	width: 300px;
+	font-size: 10px;
+	text-align: left;
+	white-space: nowrap;
+}
+
+.ui-bupl-perc {
+	font-size: 0;
+	width: 0%;
+	height: 2px;
+	background-color: blue;
+	margin-top: 2px;
+}
+.ui-idlg-pnl {}
+
+.ui-idlg-pnl label {
+	width: 1%;
+	min-width: 150px;
+	font-weight: bold;
+	display: inline-block;
+	text-align: right;
+}
+
+.ui-idlg-pnl input {
+	vertical-align: top;
 }
 /*** 255_datapager.frag.css ***/
 /*** Result table pager ***/
@@ -2850,9 +2953,7 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 }
 /*** MessageLine ***/
 .ui-msgln {
-	clear: both;
 	padding: 4px 0px;
-/*	display: inline-block;		jal 20130215 This shows messages behind one another.... That should not happen.. */
 }
 .ui-msgln img {
 	float: left;
@@ -2949,15 +3050,25 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 .ui-dct td {
 	vertical-align: top;
 }
+/*** 410_sizedpanel ***/
+.ui-szdp {
+	background: <%= bg_color %>;
+}
 
 .ui-panel {
 	background-color: <%= bg_color %>; 
 }
-
+/*** 420_caption2 ***/
 .ui-cptn2 {
 } 
 
 /*-- alg substyle --*/
+.ui-cptn2-alg {
+	font-size: large;
+	background: <%= header_bg %>;
+	color: <%= bg_ttl_text %>;
+	margin-top: 0px;
+}
 
 
 /*-- pnl substyle --*/
@@ -2967,6 +3078,7 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	color: <%= bg_ttl_text %>;
 	margin-top: 0px;
 }
-
-
-
+/*** ContentPanel ***/
+.ui-cpnl {
+	padding: 10px 0px 0px 10px;
+}

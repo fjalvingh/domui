@@ -13,6 +13,9 @@ div.ui-dt table td{
 	height: 19px;
 	vertical-align: middle;
 }
+div.ui-dt table td * {
+	vertical-align: middle;
+}
 
 div.ui-dt table{
 	overflow: auto;

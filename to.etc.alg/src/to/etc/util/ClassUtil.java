@@ -24,6 +24,7 @@
  */
 package to.etc.util;
 
+import java.io.*;
 import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.net.*;
@@ -472,5 +473,81 @@ final public class ClassUtil {
 		if(c == null)
 			throw new IllegalStateException("Cannot find constructor in " + clz + " with args " + Arrays.toString(formals));
 		return c.newInstance(args);
+	}
+
+	/**
+	 * Finds sources for classes in the same project. Not meant for jar searching
+	 * @param className
+	 * @param classLoader
+	 * @return
+	 * @throws Exception
+	 */
+	public static @Nullable
+	File findSrcForModification(@Nonnull String className) throws Exception {
+		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+		final String rel = className.replace(".", "/") + ".class";
+		URL resource = classLoader.getResource(rel);
+		if(resource == null) {
+			return null;
+		}
+		final String path = resource.getFile();
+		if(resource.getProtocol().equals("jar")) {
+			throw new Exception("Finding sources in jars for modifications is not supported.");
+		}
+		String srcRel = rel.substring(0, rel.length() - 5) + "java";
+
+		File root = new File(path.substring(0, path.length() - rel.length()));
+		File[] files = new File[1];
+		find(root.getParentFile(), srcRel, files);
+		return files[0];
+	}
+
+	/**
+	 * Finds source folder for package in the same project. Not meant for jar searching
+	 * @param className
+	 * @param classLoader
+	 * @return
+	 * @throws Exception
+	 */
+	public static @Nullable
+	File findSrcFolderForModification(@Nonnull String packageName) throws Exception {
+		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+		final String rel = packageName.replace(".", "/");
+		URL resource = classLoader.getResource(rel);
+		if(resource == null) {
+			return null;
+		}
+		final String path = resource.getFile();
+		if(resource.getProtocol().equals("jar")) {
+			throw new Exception("Finding sources in jars for modifications is not supported.");
+		}
+		File root = new File(path.substring(0, path.length() - rel.length()));
+		File[] files = new File[1];
+		find(root.getParentFile(), rel, files);
+		return files[0];
+	}
+
+	/**
+	 * Searches for a file in a root recursively upwards and one level down every time.
+	 * @param root
+	 * @param srcRel
+	 * @param files
+	 */
+	private static void find(@Nullable File root, @Nonnull String srcRel, @Nonnull File[] files) {
+		if(root == null) {
+			return;
+		}
+		File[] listFiles = root.listFiles();
+		if(listFiles != null) {
+			for(int i = 0; i < listFiles.length; i++) {
+				File child = listFiles[i];
+				File src = new File(child, srcRel);
+				if(src.exists()) {
+					files[0] = src;
+					return;
+				}
+			}
+		}
+		find(root.getParentFile(), srcRel, files);
 	}
 }

@@ -628,8 +628,10 @@ public class OracleDB extends BaseDB {
 					ps2.executeUpdate();
 				} catch(Exception x) {
 					String message = x.toString().toLowerCase();
-					if(!message.contains("ora-00955"))
+					if(!message.contains("ora-00955")) {
+						System.out.println(owner + ": error creating synonym " + on + ": " + x);
 						LOG.error(owner + ": error creating synonym " + on + ": " + x);
+					}
 				} finally {
 					ps2.close();
 				}

@@ -217,6 +217,25 @@ public class FragmentedThemeFactory implements IThemeFactory {
 	}
 
 	/**
+	 * Menu theme. Theme consists of theme images and icon.props.js file and they are mandatory for each theme.
+	 * @param themeName
+	 * @throws Exception
+	 */
+	protected void loadMenuThemeIcons(String themeName) throws Exception {
+		loadClear();
+		setInheritence("internalInheritIcon");
+		String dirname = normalizeName("themes/menu-icons/themes/" + themeName + "-icons");
+		if(m_inheritanceStack.contains(dirname))
+			throw new StyleException("Menu theme: " + themeName + "' is used before (cyclic loop in styles, or double inheritance)");
+		m_inheritanceStack.add(0, dirname);
+		m_searchList.add(0, dirname);
+
+		loadScript("$" + dirname + "/icon.props.js");
+
+		loadFragments("iconset:" + themeName, ".props.js", "icon.props.js");
+	}
+
+	/**
 	 * Load the icon set specified. The iconName is a simple name; this code will
 	 * convert it to a directory name.
 	 * @param iconName

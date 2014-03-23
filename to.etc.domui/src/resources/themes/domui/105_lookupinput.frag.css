@@ -13,10 +13,16 @@
 }
 
 div.ui-lui-selected-ro {
-	border: <%= readonly_border %> solid 1px; /* same border color as one used for ui-dspv fields */
+	border: none !important;
+	margin-bottom: 0px;
+}
+
+div.ui-lui-selected-ro td {
+	padding: 0px;
 }
 	
 div.ui-lui {
+	width: 12em; /*	this width match with date field picker icon on IE rendering */
 	display: inline-block;
 }
 
@@ -37,7 +43,15 @@ table.ui-lui-selected {
 .ui-lui-v { /* no selection is rendered transparent without border */
 	padding: 0px;
 	margin: 0px;
-	width: 1%;
+	width: 100%;
+}
+
+.ui-ro .ui-lui-v {
+	white-space: nowrap;
+}
+
+.ui-lui-v > div {
+	width: 104px;
 }
 
 .ui-lui-selected tbody { /*	selected value is rendered with white back and outline, on IE border is not rendred!? */
@@ -69,6 +83,7 @@ table.ui-lui-selected {
 input.ui-lui-keyword {
 	min-width: 98px;
 	width: 1%;
+	display: block;
 }
 
 img.ui-lui-waiting{

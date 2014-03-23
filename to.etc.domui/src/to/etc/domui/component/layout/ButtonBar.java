@@ -91,18 +91,12 @@ public class ButtonBar extends Table implements IButtonBar, IButtonContainer {
 	}
 
 	/**
-	 * Create horizontal presentation: 3 cells for border-left, content, border-right
+	 * Create horizontal presentation
 	 */
 	private void createHorizontal() {
 		m_body.addRow();
-		//		TD td = m_body.addCell();	jal 20100222 Buttons do not properly align when this is present.
-		//		td.setCssClass("ui-bb-left");
-
 		m_center = m_body.addCell();
 		m_center.setCssClass("ui-bb-middle");
-		//
-		//		td = m_body.addCell();
-		//		td.setCssClass("ui-bb-right");
 	}
 
 	/**

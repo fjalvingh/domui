@@ -302,7 +302,7 @@ public class TabPanelBase extends Div {
 	 * @param tablabel
 	 */
 	public void add(NodeBase content, NodeBase tablabel) {
-		add(content, tablabel);
+		add(content, tablabel, false);
 	}
 
 	/**

@@ -146,7 +146,7 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 		QQueryRenderer renderer = new QQueryRenderer() {
 
 			@Override
-			public void visitPropertySelection(QPropertySelection n) throws Exception {
+			public void visitPropertySelection(@Nonnull QPropertySelection n) throws Exception {
 				int currentColumn = getCurrentColumn();
 				if(currentColumn > 0) {
 					append(",");
@@ -631,6 +631,14 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 	@Override
 	public void visitPropertyJoinComparison(@Nonnull QPropertyJoinComparison qPropertyJoinComparison) {
 		throw new IllegalStateException("Correlated subqueries are not supported");
+	}
+
+	@Override
+	public void visitSqlRestriction(@Nonnull QSqlRestriction v) throws Exception {
+		//-- We do not yet support parameterized ones
+		if(v.getParameters().length != 0)
+			throw new QQuerySyntaxException("Parameterized literal SQL not supported");
+		appendWhere(v.getSql());
 	}
 
 	@Deprecated

@@ -32,7 +32,7 @@ data_tbl_cell_highlight_link_color_bg="#ffffff";	// link color of cell select: w
 data_tbl_font_size = "12px";
 data_tbl_expanding_row_bg = util.color(main_color).lighter(0.7);
 
-readonly_bg="transparent"; 
+readonly_bg="transparent";
 readonly_border="#EEEEEF"; // bit darker grey
 
 errors_background="#a9c5f1";	// red/pink light
@@ -41,12 +41,12 @@ errors_foreground="#ff0000";	// red
 errors_input_background="#ffe5e5"; // error bg for input component
 
 warnings_background="#fffeee"; // light yellow
-warnings_foreground="yellow";
+warnings_foreground="black";
 warnings_border="yellow";
 
-info_bg="#a9c5f1";		// blueish light
-info_fg="blue";
-info_border="blue";
+info_bg="#e4eeff";		// blueish light
+info_fg="#4075db";
+info_border="#4075db";
 
 // row odd/even
 dt_rowhdr_bg="#98bbf3";
@@ -62,7 +62,7 @@ bevel_hover_down="#D7E8F8";
 
 //-- button color
 button_bg="#6290E1";
-button_text_color="#ffffff";   
+button_text_color="#ffffff";
 button_img= "defaultButton.png";
 
 //-- Caption
@@ -98,3 +98,10 @@ data_pager_icon_size_y = 19;
 //-- Tab panel image
 tab_pnl_img = "tab-all-domui.png";
 /* Icon definition for DomUI icons */
+
+//label selector color
+label_selector_item = '#bfd1f3';
+
+//multiple lookup labels
+multiple_lookup_label_color = '#ffa21e';
+multiple_lookup_label_border = '#fff2ab';

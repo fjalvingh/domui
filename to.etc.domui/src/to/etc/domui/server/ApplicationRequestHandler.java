@@ -40,12 +40,14 @@ import to.etc.domui.dom.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.login.*;
+import to.etc.domui.parts.*;
 import to.etc.domui.state.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.template.*;
 import to.etc.util.*;
 import to.etc.webapp.*;
+import to.etc.webapp.ajax.renderer.json.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
 
@@ -382,6 +384,13 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		if(action != null && action.startsWith("#")) {
 			runComponentAction(ctx, page, action.substring(1));
 			return;
+		//-- If this is a PAGEDATA request - handle that
+		} else if(Constants.ACMD_PAGEDATA.equals(action)) {
+			runPageData(ctx, page);
+			return;
+		} else if(Constants.ACMD_PAGEJSON.equals(action)) {
+			runPageJson(ctx, page);
+			return;
 		}
 
 		//-- All commands EXCEPT ASYPOLL have all fields, so bind them to the current component data,
@@ -457,6 +466,17 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				cm.setAttribute(UIGoto.SINGLESHOT_MESSAGE, null);
 			}
 			page.callRequestStarted();
+
+			List<IGotoAction> al = (List<IGotoAction>) cm.getAttribute(UIGoto.PAGE_ACTION);
+			if(al != null && al.size() > 0) {
+				page.getBody().build();
+				for(IGotoAction ga : al) {
+					if(DomUtil.USERLOG.isDebugEnabled())
+						DomUtil.USERLOG.debug(cid + ": page reload action = " + ga);
+					ga.executeAction(page.getBody());
+				}
+				cm.setAttribute(UIGoto.PAGE_ACTION, null);
+			}
 
 			m_application.internalCallPageComplete(ctx, page);
 			page.getBody().internalOnBeforeRender();
@@ -548,6 +568,82 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		} finally {
 			page.callRequestFinished();
 			page.setTheCurrentNode(null);
+		}
+	}
+
+	private void runPageData(@Nonnull RequestContextImpl ctx, @Nonnull Page page) throws Exception {
+		m_application.internalCallPageAction(ctx, page);
+		page.callRequestStarted();
+
+		NodeBase wcomp = null;
+		String wid = ctx.getParameter("webuic");
+		if(wid != null) {
+			wcomp = page.findNodeByID(wid);
+			// jal 20091120 The code below was active but is nonsense because we do not return after generateExpired!?
+			//			if(wcomp == null) {
+			//				generateExpired(ctx, NlsContext.getGlobalMessage(Msgs.S_BADNODE, wid));
+			//				//				throw new IllegalStateException("Unknown node '"+wid+"'");
+			//			}
+		}
+		if(wcomp == null)
+			return;
+
+		page.setTheCurrentNode(wcomp);
+
+		try {
+			IComponentUrlDataProvider dp = (IComponentUrlDataProvider) wcomp;
+			dp.provideUrlData(ctx);
+		} finally {
+			page.callRequestFinished();
+			page.setTheCurrentNode(null);
+		}
+	}
+
+	/**
+	 * Call a component's JSON request handler, and render back the result.
+	 * @param ctx
+	 * @param page
+	 */
+	private void runPageJson(@Nonnull RequestContextImpl ctx, @Nonnull Page page) throws Exception {
+		m_application.internalCallPageAction(ctx, page);
+		page.callRequestStarted();
+
+		NodeBase wcomp = null;
+		String wid = ctx.getParameter("webuic");
+		if(wid != null) {
+			wcomp = page.findNodeByID(wid);
+		}
+		if(wcomp == null)
+			return;
+
+		page.setTheCurrentNode(wcomp);
+
+		try {
+			if(!(wcomp instanceof IComponentJsonProvider))
+				throw new ProgrammerErrorException("The component " + wcomp + " must implement " + IComponentJsonProvider.class.getName() + " to be able to accept JSON data requests");
+
+			IComponentJsonProvider dp = (IComponentJsonProvider) wcomp;
+			PageParameters pp = PageParameters.createFrom(ctx);
+			Object value = dp.provideJsonData(pp);							// Let the component return something to render.
+			renderJsonLikeResponse(ctx, value);
+		} finally {
+			page.callRequestFinished();
+			page.setTheCurrentNode(null);
+		}
+	}
+
+	@Nonnull
+	final private JSONRegistry m_jsonRegistry = new JSONRegistry();
+
+	private void renderJsonLikeResponse(@Nonnull RequestContextImpl ctx, @Nonnull Object value) throws Exception {
+		Writer w = ctx.getOutputWriter("application/javascript", "utf-8");
+		if(value instanceof String) {
+			//-- String return: we'll assume this is a javascript response by itself.
+			w.write((String) value);
+		} else {
+			//-- Object return: render as JSON
+			JSONRenderer jr = new JSONRenderer(m_jsonRegistry, new IndentWriter(w), false);
+			jr.render(value);
 		}
 	}
 

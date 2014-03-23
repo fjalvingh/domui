@@ -21,6 +21,9 @@ import to.etc.webapp.annotations.*;
  * Created on May 11, 2012
  */
 final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
+
+	static public final String NUMERIC_CSS_CLASS = "ui-numeric";
+
 	@Nonnull
 	final private ClassMetaModel m_metaModel;
 
@@ -128,7 +131,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 		Class<R> convclz = null;
 		String caption = null;
 		String cssclass = null;
-		boolean nowrap = false;
+		Boolean nowrap = null;
 		SortableType sort = null;
 		ISortHelper sortHelper = null;
 		boolean defaultsort = false;
@@ -142,7 +145,9 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 					throw new IllegalArgumentException("Expecting a 'property' path expression, not a " + val);
 				property = (String) val;
 			} else if(SimpleColumnDef.NOWRAP == val) {
-				nowrap = true;
+				nowrap = Boolean.TRUE;
+			} else if(SimpleColumnDef.WRAP == val) {
+				nowrap = Boolean.FALSE;
 			} else if(SimpleColumnDef.DEFAULTSORT == val) {
 				defaultsort = true;
 			} else if(val instanceof String) {
@@ -163,7 +168,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 						cssclass = null;
 						nodeRenderer = null;
 						nrclass = null;
-						nowrap = false;
+						nowrap = null;
 						sort = null;
 						defaultsort = false;
 						sortHelper = null;
@@ -252,7 +257,8 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	 * @param defaultsort
 	 */
 	private <R> void internalAddProperty(final String property, final String width, final IConverter<R> conv, final Class<R> convclz,
-		final String caption, final String cssclass, final INodeContentRenderer< ? > nodeRenderer, final Class< ? > nrclass, final boolean nowrap, SortableType sort, ICellClicked< ? > clickHandler, boolean defaultsort,
+ final String caption, final String cssclass,
+		final INodeContentRenderer< ? > nodeRenderer, final Class< ? > nrclass, final Boolean nowrap, SortableType sort, ICellClicked< ? > clickHandler, boolean defaultsort,
  ISortHelper sortHelper) {
 		if(property == null)
 			throw new IllegalStateException("? property name is empty?!");
@@ -266,6 +272,9 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 			add(cd);
 			cd.setWidth(width);
 			cd.setCssClass(cssclass);
+			if(NUMERIC_CSS_CLASS.equals(cssclass)) {
+				cd.setHeaderCssClass(cssclass);
+			}
 			cd.setNowrap(nowrap);
 			cd.setColumnLabel(caption);
 			sort = defineClassProperty(conv, convclz, nodeRenderer, nrclass, sort, clickHandler, defaultsort, sortHelper, cd);
@@ -309,7 +318,8 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 		}
 	}
 
-	private <V, R> boolean defineFromExpandedItem(final String width, final IConverter<R> conv, final Class<R> convclz, final String caption, final String cssclass, final boolean nowrap, SortableType sort,
+	private <V, R> boolean defineFromExpandedItem(final String width, final IConverter<R> conv, final Class<R> convclz, final String caption, final String cssclass, final Boolean nowrap,
+		SortableType sort,
 		ICellClicked< ? > clickHandler, boolean defaultsort, ISortHelper sortHelper, final ExpandedDisplayProperty<V> xdp) {
 		if(xdp.getName() == null)
 			throw new IllegalStateException("All columns MUST have some name");
@@ -350,8 +360,8 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 		scd.setNowrap(nowrap);
 		scd.setNumericPresentation(xdp.getNumericPresentation());
 		if(scd.getNumericPresentation() != null && scd.getNumericPresentation() != NumericPresentation.UNKNOWN) {
-			scd.setCssClass("ui-numeric");
-			scd.setHeaderCssClass("ui-numeric");
+			scd.setCssClass(NUMERIC_CSS_CLASS);
+			scd.setHeaderCssClass(NUMERIC_CSS_CLASS);
 		}
 		if(clickHandler != null) {
 			scd.setCellClicked((ICellClicked<V>) clickHandler);
@@ -360,7 +370,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	}
 
 	private <V, R> void defineRendererProperty(final String property, final String width, final IConverter<R> conv, final Class<R> convclz, final String caption, final String cssclass,
-		final INodeContentRenderer< ? > nodeRenderer, final Class< ? > nrclass, final boolean nowrap, SortableType sort, ICellClicked< ? > clickHandler, boolean defaultsort, ISortHelper sortHelper,
+		final INodeContentRenderer< ? > nodeRenderer, final Class< ? > nrclass, final Boolean nowrap, SortableType sort, ICellClicked< ? > clickHandler, boolean defaultsort, ISortHelper sortHelper,
 		final PropertyMetaModel<V> pmm) {
 		final SimpleColumnDef<V> cd = new SimpleColumnDef<V>(this, pmm);
 		add(cd);
@@ -372,6 +382,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 		cd.setWidth(width);
 		cd.setCssClass(cssclass);
 		cd.setNowrap(nowrap);
+		cd.setDisplayLength(pmm.getDisplayLength());
 		if(sort != null) {
 			cd.setSortable(sort);
 			cd.setSortHelper(sortHelper);
@@ -379,8 +390,8 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 				setSortColumn(cd);
 		}
 		if(pmm.getNumericPresentation() != null && pmm.getNumericPresentation() != NumericPresentation.UNKNOWN) {
-			cd.setCssClass("ui-numeric");
-			cd.setHeaderCssClass("ui-numeric");
+			cd.setCssClass(NUMERIC_CSS_CLASS);
+			cd.setHeaderCssClass(NUMERIC_CSS_CLASS);
 		}
 		if(clickHandler != null) {
 			cd.setCellClicked((ICellClicked<V>) clickHandler);
@@ -428,8 +439,8 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	private <V> SimpleColumnDef<V> addExpandedDisplayProp(@Nonnull ExpandedDisplayProperty<V> xdp) {
 		SimpleColumnDef<V> scd = new SimpleColumnDef<V>(this, xdp);
 		if(scd.getNumericPresentation() != null && scd.getNumericPresentation() != NumericPresentation.UNKNOWN) {
-			scd.setCssClass("ui-numeric");
-			scd.setHeaderCssClass("ui-numeric");
+			scd.setCssClass(NUMERIC_CSS_CLASS);
+			scd.setHeaderCssClass(NUMERIC_CSS_CLASS);
 		}
 
 		m_columnList.add(scd);
@@ -514,9 +525,13 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 		return m_sortColumn;
 	}
 
+//	protected void updateDefaultSort(@Nonnull SimpleColumnDef< ? > scd) {
+//		if(m_sortColumn == scd)
+//			m_sortDescending = scd.getSortable() == SortableType.SORTABLE_DESC;
+//	}
+//
 //	public boolean isSortDescending() {
-//		SimpleColumnDef< ? > sd = m_sortColumn;
-//		return sd == null ? false : sd.getSortable() == SortableType.SORTABLE_DESC;
+//		return m_sortDescending;
 //	}
 
 
@@ -540,7 +555,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	@Nonnull
 	private <V> SimpleColumnDef<V> createColumnDef(@Nonnull PropertyMetaModel<V> pmm) {
 		SimpleColumnDef<V> scd = new SimpleColumnDef<V>(this, pmm);
-		scd.setNowrap(true);
+		scd.setNowrap(Boolean.TRUE);
 		add(scd);
 		return scd;
 	}
@@ -565,7 +580,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	public SimpleColumnDef<T> column() {
 		SimpleColumnDef<T> scd = new SimpleColumnDef<T>(this, m_rootClass);
 		add(scd);
-		scd.setNowrap(true);
+		scd.setNowrap(Boolean.TRUE);
 		return scd;
 	}
 

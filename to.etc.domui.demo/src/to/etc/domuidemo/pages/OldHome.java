@@ -25,7 +25,7 @@ public class OldHome extends UrlPage {
 		addPanel("Basic component demo's");
 		addLink(BasicOverviewPage.class, "Basic component demo page");
 		addLink(MiniPage.class, "Data input using layer 2: components");
-		addLink(WikiDemo.class, "'Big' HtmlEditor component (FckEditor, Work-In-Progress)");
+		addLink(WikiDemo.class, "'Big' HtmlEditor component (CkEditor, Work-In-Progress)");
 
 		addPanel("Table and tree components");
 		//		addLink(TestShuttle.class, "List shuttle component (verhuizen van dingesen van source naar target");

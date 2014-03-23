@@ -225,11 +225,11 @@ final public class UIControlUtil {
 	}
 
 	/**
-	 * @deprecated Use {@link Text#createIntInput(PropertyMetaModel<Integer>,boolean)} instead
+	 * @deprecated Use {@link Text#createNumericInput(PropertyMetaModel<Integer>,boolean)} instead
 	 */
 	@Deprecated
 	static public Text<Integer> createIntInput(PropertyMetaModel<Integer> pmm, boolean editable) {
-		return Text.createIntInput(pmm, editable);
+		return Text.createNumericInput(pmm, editable);
 	}
 
 	/**
@@ -241,11 +241,11 @@ final public class UIControlUtil {
 	}
 
 	/**
-	 * @deprecated Use {@link Text#createLongInput(PropertyMetaModel<Long>,boolean)} instead
+	 * @deprecated Use {@link Text#createNumericInput(PropertyMetaModel<Long>,boolean)} instead
 	 */
 	@Deprecated
 	static public Text<Long> createLongInput(PropertyMetaModel<Long> pmm, boolean editable) {
-		return Text.createLongInput(pmm, editable);
+		return Text.createNumericInput(pmm, editable);
 	}
 
 	/**
@@ -257,11 +257,11 @@ final public class UIControlUtil {
 	}
 
 	/**
-	 * @deprecated Use {@link Text#createDoubleInput(PropertyMetaModel<Double>,boolean)} instead
+	 * @deprecated Use {@link Text#createNumericInput(PropertyMetaModel<Double>,boolean)} instead
 	 */
 	@Deprecated
 	static public Text<Double> createDoubleInput(PropertyMetaModel<Double> pmm, boolean editable) {
-		return Text.createDoubleInput(pmm, editable);
+		return Text.createNumericInput(pmm, editable);
 	}
 
 	/**
@@ -273,11 +273,11 @@ final public class UIControlUtil {
 	}
 
 	/**
-	 * @deprecated Use {@link Text#createBigDecimalInput(PropertyMetaModel<BigDecimal>,boolean)} instead
+	 * @deprecated Use {@link Text#createNumericInput(PropertyMetaModel<BigDecimal>,boolean)} instead
 	 */
 	@Deprecated
 	static public Text<BigDecimal> createBigDecimalInput(PropertyMetaModel<BigDecimal> pmm, boolean editable) {
-		return Text.createBigDecimalInput(pmm, editable);
+		return Text.createNumericInput(pmm, editable);
 	}
 
 	/**

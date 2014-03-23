@@ -51,7 +51,7 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 	private final ColumnDefList<T> m_columnList;
 
 	/*--------------------------------------------------------------*/
-	/*	CODING:	Simple renderer initialization && parameterisation	*/
+	/*	CODING:	Simple renderer initialization && parameterization	*/
 	/*--------------------------------------------------------------*/
 	/**
 	 * Create a renderer by handling the specified class and a list of properties off it.
@@ -123,7 +123,9 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 				@Override
 				@SuppressWarnings("unchecked")
 				public void clicked(final @Nonnull TR b) throws Exception {
-					((ICellClicked<T>) rowClicked).cellClicked(b, instance);
+					ICellClicked< ? > rowClicked = getRowClicked();
+					if(null != rowClicked)
+						((ICellClicked<T>) rowClicked).cellClicked(b, instance);
 				}
 			});
 			cc.getTR().addCssClass("ui-keyword-popup-row");

@@ -132,7 +132,8 @@ public class ErrorPanel extends CaptionedPanel implements IErrorMessageListener 
 	@Override
 	public void errorMessageRemoved(@Nonnull UIMessage m) {
 		MsgType highest = null;
-		for(NodeBase b : getContent()) {
+		for(int i = getContent().getChildCount(); --i >= 0;) {
+			NodeBase b = getContent().getChild(i);
 			if(b.getUserObject() == m) {
 				//-- Remove this object!
 				b.remove();

@@ -331,6 +331,7 @@ final public class PoolManager {
 		//-- Start the task,
 		try {
 			m_scanthread = new Thread(new Runnable() {
+				@Override
 				public void run() {
 					expiredConnectionScannerLoop();
 				}

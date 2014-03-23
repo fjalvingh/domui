@@ -91,8 +91,6 @@ public class QQueryRenderer implements QNodeVisitor {
 			} else
 				append("[unknown-table]");
 		}
-		if(qc.getRestrictions() != null)
-			append(" WHERE ");
 	}
 
 	@Override
@@ -329,6 +327,22 @@ public class QQueryRenderer implements QNodeVisitor {
 		}
 	}
 
+	@Override
+	public void visitSqlRestriction(@Nonnull QSqlRestriction v) throws Exception {
+		append("SQL['");
+		append(v.getSql());
+		append("'");
+		if(v.getParameters().length > 0) {
+			for(int i = 0; i < v.getParameters().length; i++) {
+				Object val = v.getParameters()[i];
+				append(", #" + i);
+				append("=");
+				append(String.valueOf(val));
+			}
+		}
+		append("]");
+	}
+
 	/**
 	 * Returns the operator precedence
 	 * @param ot
@@ -379,7 +393,7 @@ public class QQueryRenderer implements QNodeVisitor {
 	}
 
 	@Override
-	public void visitSelectionSubquery(@Nonnull QSelectionSubquery q) throws Exception {
+	public void visitSelectionSubquery(QSelectionSubquery q) throws Exception {
 		int oldprec = m_curPrec;
 		m_curPrec = 0;
 		append("(");

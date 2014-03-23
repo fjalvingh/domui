@@ -31,7 +31,7 @@ dataTableOrange = {
 	expanding_row_bg : "#FBD9B6"
 };
 
-//-------------------------------- 
+//--------------------------------
 //-- Data pager
 //--------------------------------
 dataPagerOrange = {
@@ -40,22 +40,22 @@ dataPagerOrange = {
 	icon_height: "19"
 };
 
-//--------------------------------- 
+//---------------------------------
 //-- Colors for errors and warnings
 //---------------------------------
 errorsAndWarningsDomui = {
-		error_bg: "#e2eeff",
-		error_fg: "#ff0000", // red
-		error_border: "#ff0000", // red
+		error_bg: "#ffedee",
+		error_fg: "#de1727", // red
+		error_border: "#ef2533", // red
 		error_input_bg: "#ffe5e5",
-		warning_bg: "#fffeee", // light yellow
-		warning_border: "yellow",
-		warning_fg: "black"
+		warning_bg: "#fdf5d6", // light yellow
+		warning_border: "#dd8730",
+		warning_fg: "#3b2f10"
 };
 
-//-------------------------------- 
+//--------------------------------
 //-- Primary background selections
-//-------------------------------- 
+//--------------------------------
 backgroundMap = new Object();		// REQUIRED NAME - used in VisualThemeEditPage
 backgroundMap["Orange"] = {
 	name: 'Lichtgrijze achtergrond met verloop',
@@ -74,7 +74,7 @@ currentBackground = backgroundMap[theme_body_set];
 bg_image = currentBackground.image;
 bg_body_color = currentBackground.bgcolor;
 
-//------------------------ 
+//------------------------
 //-- Button set selections
 //------------------------
 buttonMap = new Object();			// REQUIRED NAME - used in VisualThemeEditPage
@@ -103,7 +103,7 @@ tab_pnl_arrows = currentTab.arrows;
 tab_pnl_btm_border = currentTab.btm_border;
 
 //------------------------------------------------------------
-//-- The data table's colors. 
+//-- The data table's colors.
 //------------------------------------------------------------
 currentDataTable = currentBackground.dataTable;
 data_tbl_even_row_bg = currentDataTable.even_row_bg;
@@ -124,7 +124,7 @@ data_pager_icons = currentDataPager.icons;
 data_pager_icon_size_x = currentDataPager.icon_width;
 data_pager_icon_size_y = currentDataPager.icon_height;
 
-//--------------------------------- 
+//---------------------------------
 //-- Colors for errors and warnings
 //---------------------------------
 currentErrorsAndWarnings = currentBackground.errorsAndWarnings;
@@ -170,9 +170,9 @@ bg_info_panel = resourceNameMap["bg-info-panel-" + bset];
 bg_hdr_ntbl = dataColorMap["bg-hdr-ntbl-" + bset];
 
 //loading bar. You can use http://ajaxload.info/ for generating them in different colors
-resourceNameMap["io-blk-wait-blue"] = "io-blk-wait-blue.gif"; 
-resourceNameMap["io-blk-wait-grey"] = "io-blk-wait.gif"; 
-resourceNameMap["io-blk-wait-orange"] = "io-blk-wait.gif"; 
+resourceNameMap["io-blk-wait-blue"] = "io-blk-wait-blue.gif";
+resourceNameMap["io-blk-wait-grey"] = "io-blk-wait.gif";
+resourceNameMap["io-blk-wait-orange"] = "io-blk-wait.gif";
 io_blk_wait = resourceNameMap["io-blk-wait-" + bset];
 io_blk_wait = "io-blk-wait.gif";
 
@@ -189,7 +189,7 @@ bevel_down="#BFCDD9";
 bevel_hover_up="#5794BF";
 bevel_hover_down="#D7E8F8";
 
-//-- selected items background	
+//-- selected items background
 selected_bg="#ff9436";
 caption_bg="#f0810a";
 readonly_bg="transparent";

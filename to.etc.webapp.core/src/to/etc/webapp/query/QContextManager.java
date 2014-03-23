@@ -40,6 +40,8 @@ final public class QContextManager {
 	/** The actual implementation handling all manager chores. */
 	final static private Map<String, IQContextFactorySquared> m_instanceMap = new HashMap<String, IQContextFactorySquared>();
 
+	final static private Map<String, Exception> m_initializedMap = new HashMap<>();
+
 	private QContextManager() {}
 
 	/**
@@ -49,9 +51,19 @@ final public class QContextManager {
 	 */
 	static synchronized public void setImplementation(@Nonnull String key, @Nonnull IQContextFactorySquared cm) {
 		IQContextFactorySquared m = m_instanceMap.get(key);
-		if(m != null)
-			throw new IllegalStateException("Context factory for [" + key + "] has already been used, setting a different implementation is no longer possible");
+		if(m != null) {
+			Exception where = m_initializedMap.get(key);
+			throw new IllegalStateException("Context factory for [" + key + "] has already been used, setting a different implementation is no longer possible", where);
+		}
+
+		Exception where = null;
+		try {
+			throw new RuntimeException("The instance was previously initialized here");
+		} catch(Exception x) {
+			where = x;
+		}
 		m_instanceMap.put(key, cm);
+		m_initializedMap.put(key, where);
 	}
 
 	static public void setImplementation(@Nonnull String key, @Nonnull final QDataContextFactory factory) {

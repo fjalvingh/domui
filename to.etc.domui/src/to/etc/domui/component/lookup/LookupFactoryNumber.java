@@ -101,35 +101,41 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 				if(relation == null) {
 					return AppendCriteriaResult.EMPTY;
 				}
-				if(!numA.validate()) {
+				if(!numA.validate(true)) {
 					return AppendCriteriaResult.INVALID;
 				}
-				if(relation == NumericRelationType.BETWEEN && !numB.validate()) {
+				if(relation == NumericRelationType.BETWEEN && !numB.validate(true)) {
 					return AppendCriteriaResult.INVALID;
 				}
+				Object vala = numA.getValue();
+				if(vala == null)
+					return AppendCriteriaResult.EMPTY;
 				switch(relation){
 					default:
 						throw new IllegalStateException(relation + ": unhandled case");
 					case EQ:
-						crit.eq(spm.getPropertyName(), numA.getValue());
+						crit.eq(spm.getPropertyName(), vala);
 						break;
 					case LT:
-						crit.lt(spm.getPropertyName(), numA.getValue());
+						crit.lt(spm.getPropertyName(), vala);
 						break;
 					case LE:
-						crit.le(spm.getPropertyName(), numA.getValue());
+						crit.le(spm.getPropertyName(), vala);
 						break;
 					case GT:
-						crit.gt(spm.getPropertyName(), numA.getValue());
+						crit.gt(spm.getPropertyName(), vala);
 						break;
 					case GE:
-						crit.ge(spm.getPropertyName(), numA.getValue());
+						crit.ge(spm.getPropertyName(), vala);
 						break;
 					case NOT_EQ:
-						crit.ne(spm.getPropertyName(), numA.getValue());
+						crit.ne(spm.getPropertyName(), vala);
 						break;
 					case BETWEEN:
-						crit.between(spm.getPropertyName(), numA.getValue(), numB.getValue());
+						Object numb = numB.getValue();
+						if(null == numb)
+							return AppendCriteriaResult.INVALID;
+						crit.between(spm.getPropertyName(), vala, numb);
 						break;
 				}
 				return AppendCriteriaResult.VALID;
