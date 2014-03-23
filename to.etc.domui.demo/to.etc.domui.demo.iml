@@ -46,6 +46,8 @@
     <orderEntry type="library" name="org.eclipse.jst.server.core.container/org.eclipse.jst.server.tomcat.runtimeTarget/Apache Tomcat v7.0" level="application" />
     <orderEntry type="module" module-name="to.etc.domui.formbuilder" />
     <orderEntry type="module" module-name="bin-junit-4.11" />
+    <orderEntry type="module" module-name="to.etc.db" />
+    <orderEntry type="module" module-name="bin-j2ee-1.4" />
   </component>
 </module>
 
