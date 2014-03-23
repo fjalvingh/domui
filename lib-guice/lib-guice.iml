@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="EclipseModuleManager">
+    <libelement value="jar://$MODULE_DIR$/guice-4.0-beta2.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/guice-assistedinject-4.0-beta2.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/guice-multibindings-4.0-beta2.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/guice-persist-4.0-beta2.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/guice-servlet-4.0-beta2.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/guice-throwingproviders-4.0-beta2.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/javax.inject.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/aopalliance.jar!/" />
+    <conelement value="org.eclipse.jst.j2ee.internal.module.container" />
+    <src_description expected_position="0" />
+  </component>
+  <component name="NewModuleRootManager" inherit-compiler-output="false">
+    <output url="file://$MODULE_DIR$/bin" />
+    <content url="file://$MODULE_DIR$" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="module-library" exported="">
+      <library name="guice-4.0-beta2.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/guice-4.0-beta2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="guice-assistedinject-4.0-beta2.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/guice-assistedinject-4.0-beta2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="guice-multibindings-4.0-beta2.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/guice-multibindings-4.0-beta2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="guice-persist-4.0-beta2.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/guice-persist-4.0-beta2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="guice-servlet-4.0-beta2.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/guice-servlet-4.0-beta2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="guice-throwingproviders-4.0-beta2.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/guice-throwingproviders-4.0-beta2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="javax.inject.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/javax.inject.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="library" name="org.eclipse.jst.j2ee.internal.module.container" level="application" />
+    <orderEntry type="module-library" exported="">
+      <library name="aopalliance.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/aopalliance.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+  </component>
+</module>
+

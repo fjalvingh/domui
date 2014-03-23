@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="EclipseModuleManager" forced_jdk="true">
+    <libelement value="jar://$MODULE_DIR$/lib/slf4j-api-1.5.10.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/jcl-over-slf4j-1.5.10.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/jul-to-slf4j-1.5.10.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/log4j-over-slf4j-1.5.10.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/slf4j-ext-1.5.10.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/logback-access-0.9.18.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/logback-core-0.9.18.jar!/" />
+    <src_description expected_position="2" />
+  </component>
+  <component name="NewModuleRootManager" inherit-compiler-output="false">
+    <output url="file://$MODULE_DIR$/bin" />
+    <content url="file://$MODULE_DIR$" />
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module-library" exported="">
+      <library name="slf4j-api-1.5.10.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/slf4j-api-1.5.10.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="jcl-over-slf4j-1.5.10.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/jcl-over-slf4j-1.5.10.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="jul-to-slf4j-1.5.10.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/jul-to-slf4j-1.5.10.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="log4j-over-slf4j-1.5.10.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/log4j-over-slf4j-1.5.10.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="slf4j-ext-1.5.10.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/slf4j-ext-1.5.10.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="logback-access-0.9.18.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/logback-access-0.9.18.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="logback-core-0.9.18.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/logback-core-0.9.18.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+  </component>
+</module>
+
