@@ -635,8 +635,8 @@ public class DataTable<T> extends SelectableTabularComponent<T> implements ISele
 			cc.setParent(tr);
 
 			T mi = getModelItem(peix);
-			renderRow(tr, cc, peix, mi);
 			m_dataBody.add(m_pageSize - 1, tr);
+			renderRow(tr, cc, peix, mi);
 			m_visibleItemList.add(m_pageSize - 1, mi);
 		}
 		calcIndices(); // Calculate visible nodes

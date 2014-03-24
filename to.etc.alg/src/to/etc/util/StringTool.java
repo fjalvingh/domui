@@ -24,8 +24,6 @@
  */
 package to.etc.util;
 
-import org.jetbrains.annotations.Contract;
-
 import java.io.*;
 import java.lang.reflect.*;
 import java.text.*;
@@ -185,7 +183,7 @@ public class StringTool {
 		return true;
 	}
 
-	@Contract(value = "null -> null; !null -> !null")
+//	@Contract(value = "null -> null; !null -> !null")
 	static public boolean isValidDottedName(String s) {
 		if(s == null)
 			return false;
@@ -402,7 +400,7 @@ public class StringTool {
 	 *	If the input string is too long, returns a substring containing at most
 	 *	maxlen characters.
 	 */
-	@Contract("null -> null; !null -> !null")
+//	@Contract("null -> null; !null -> !null")
 	public static String truncLength(@Nullable final String s, final int maxlen) {
 		if(s == null || s.length() < maxlen)
 			return s;
@@ -414,7 +412,7 @@ public class StringTool {
 	 *	Returns a string with the specified length. If the string is too long
 	 *	it is truncated; if it is too short it is filled with spaces.
 	 */
-	@Contract("null -> null; !null -> !null")
+//	@Contract("null -> null; !null -> !null")
 	public static String strToFixedLength(String s, final int l) {
 		if(s == null)
 			s = "null";
@@ -751,7 +749,7 @@ public class StringTool {
 		return sb.toString();
 	}
 
-	@Contract("null -> null; !null -> !null")
+//	@Contract("null -> null; !null -> !null")
 	static public String strTrunc(@Nullable final String s, final int len) {
 		if(s == null)
 			return null;
