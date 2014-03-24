@@ -27,6 +27,7 @@ package to.etc.util;
 import java.io.*;
 import java.lang.reflect.*;
 import java.net.*;
+import java.nio.file.*;
 import java.security.*;
 import java.sql.*;
 import java.util.*;
@@ -418,6 +419,72 @@ public class FileTool {
 				copyDir(df, sf); // ..before copying
 			}
 		}
+	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Copy using hard links.								*/
+	/*--------------------------------------------------------------*/
+
+	/**
+	 * Copy a file or directory using hard links.
+	 * @param targetDir
+	 * @param sourceDir
+	 * @throws IOException
+	 */
+	static public void copyHardlinked(@Nonnull File targetDir, @Nonnull File sourceDir, String... ignorePaths) throws IOException {
+		if(! sourceDir.exists())
+			return;
+
+		if(targetDir.exists()) {
+			if(targetDir.isFile())
+				targetDir.delete();
+			else
+				FileTool.dirEmpty(targetDir);
+		}
+		if(sourceDir.isFile()) {
+			hardlinkFile(new File(targetDir, sourceDir.getName()), sourceDir);
+			return;
+		}
+
+		Set<String> ignoreSet = new HashSet<>();
+		for(String s : ignorePaths)
+			ignoreSet.add(s);
+
+		targetDir.mkdirs();
+		StringBuilder sb = new StringBuilder();
+		internalCopyHardDir(targetDir, sourceDir, sb, ignoreSet);
+	}
+
+	static private void internalCopyHardDir(@Nonnull File targetDir, @Nonnull File sourceDir, @Nonnull StringBuilder sb, @Nonnull Set<String> ignoreSet) throws IOException {
+		File[] ar = sourceDir.listFiles();
+		if(null == ar)
+			return;
+		int len = sb.length();
+		for(File f:ar) {
+			File destf = new File(targetDir, f.getName());
+			sb.setLength(len);
+			if(len > 0)
+				sb.append("/");
+			sb.append(f.getName());
+			if(ignoreSet.contains(sb.toString()))
+				continue;
+
+			if(f.isFile()) {
+				hardlinkFile(destf, f);
+			} else {
+				destf.mkdirs();
+				internalCopyHardDir(destf, f, sb, ignoreSet);
+			}
+		}
+	}
+
+	private static void hardlinkFile(@Nonnull File destf, @Nonnull File srcf) throws IOException {
+		Files.createLink(destf.toPath(), srcf.toPath());
+	}
+
+	public static void copyHardLinked(@Nonnull Path targetDir, @Nonnull Path sourceDir) throws IOException {
+
 	}
 
 	/*--------------------------------------------------------------*/
