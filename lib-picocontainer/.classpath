@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry exported="true" kind="lib" path="picocontainer-2.14.3.jar" sourcepath="picocontainer-2.14.3-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/lib-picocontainer/picocontainer-2.14.3-javadoc.jar!/"/>
+			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

@@ -134,6 +134,12 @@ public class UrlPage extends Div implements ILogiEventListener {
 		return QContextManager.getDataContextFactory(key, getPage().getContextContainer(key));
 	}
 
+	@Override
+	protected void onForceRebuild() {
+		super.onForceRebuild();
+		getPage().getConversation().setAttribute(LogiContext.class.getName(), null);
+	}
+
 	/**
 	 * EXPERIMENTAL Get the binding context for the page/module.
 	 * @return
