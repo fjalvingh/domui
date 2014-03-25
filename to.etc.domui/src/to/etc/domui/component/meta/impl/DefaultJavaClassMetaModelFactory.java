@@ -388,7 +388,7 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 	 * @param pmm
 	 * @param an
 	 */
-	protected void decodeJpaJoinColumn(DefaultPropertyMetaModel< ? > pmm, final Annotation an) {
+	protected void decodeJpaJoinColumn(@Nonnull DefaultPropertyMetaModel< ? > pmm, @Nonnull final Annotation an) {
 		try {
 			String name = (String) DomUtil.getClassValue(an, "name");
 			if(null == name) {
