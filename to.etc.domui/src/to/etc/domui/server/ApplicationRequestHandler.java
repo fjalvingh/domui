@@ -521,7 +521,6 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				}
 			}
 
-			//-- 20100712 jal EXPERIMENTAL Pass exceptions in initial rendering mode to code too.
 			IExceptionListener xl = ctx.getApplication().findExceptionListenerFor(x);
 			if(xl != null && xl.handleException(ctx, page, null, x)) {
 				if(cm.handleExceptionGoto(ctx, page, false))
@@ -1222,7 +1221,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		dumpException(sb, x);
 		dataMap.put("stacktrace", sb.toString());
 		dataMap.put("message", StringTool.htmlStringize(x.toString()));
-
+		dataMap.put("ctx", ctx);
+		dataMap.put("util", new ExceptionUtil(ctx));
 
 		Writer w = ctx.getRequestResponse().getOutputWriter("text/html", "utf-8");
 		JSTemplate xt = getExceptionTemplate();
@@ -1236,8 +1236,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		JSTemplate xt = m_exceptionTemplate;
 		if(xt == null) {
 			JSTemplateCompiler jtc = new JSTemplateCompiler();
-			if(false) {
-				File src = new File("/home/jal/bzr/puzzler-lf/domui/to.etc.domui/src/to/etc/domui/server/exceptionTemplate.html");
+			if(true) {
+				File src = new File("/home/jal/git/puzzler/domui/to.etc.domui/src/to/etc/domui/server/exceptionTemplate.html");
 				Reader r = new FileReader(src);
 				try {
 					xt = jtc.compile(r, src.getAbsolutePath());
