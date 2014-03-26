@@ -27,6 +27,8 @@ package to.etc.util;
 import java.io.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 /**
  * This is a static-only class which should be used to access
  * options that configure a system on a developer's station. This
@@ -105,10 +107,14 @@ public class DeveloperOptions {
 	/**
 	 * Returns the developer option specified as a string. Return null if the option is not present.
 	 */
+	@Nullable
 	static synchronized public String getString(final String name) {
 		if(m_map == null)
 			return null;
-		String s = (String) m_map.get(name);
+		Object rawObject = m_map.get(name);
+		if(rawObject == ANULL)
+			return null;
+		String s = (String) rawObject;
 		if(s != null) {
 			return s == ANULL ? null : s;
 		}
