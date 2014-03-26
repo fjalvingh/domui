@@ -1100,14 +1100,14 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	}
 
 	/**
-		 * Called in DEVELOPMENT mode when the source code for a page is requested (double escape press). It shows
-		 * the nodes from the entered one upto the topmost one, and when selected tries to open the source code
-		 * by sending a command to the local Eclipse.
-		 *
-		 * @param ctx
-		 * @param page
-		 * @param wcomp
-		 */
+	 * Called in DEVELOPMENT mode when the source code for a page is requested (double escape press). It shows
+	 * the nodes from the entered one upto the topmost one, and when selected tries to open the source code
+	 * by sending a command to the local Eclipse.
+	 *
+	 * @param ctx
+	 * @param page
+	 * @param wcomp
+	 */
 	private void handleDevelopmentShowCode(RequestContextImpl ctx, Page page, NodeBase wcomp) {
 		if(null == wcomp)
 			return;

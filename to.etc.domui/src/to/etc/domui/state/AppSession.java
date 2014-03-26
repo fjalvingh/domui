@@ -222,10 +222,12 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 		//-- Force state closed.
 		for(WindowSession cm : droplist) {
 			System.out.println("cm: dropping window session " + cm.getWindowID() + " due to timeout");
+			logUser(cm.getWindowID(), "cm: dropping window session " + cm.getWindowID() + " due to timeout");
 			try {
 				cm.destroyWindow();
 				m_application.internalCallWindowSessionDestroyed(cm);
 			} catch(Exception x) {
+				logUser(cm.getWindowID(), "Exception in destroyConversations: " + x);
 				LOG.warn("Exception in destroyConversations", x);
 			}
 		}
@@ -274,6 +276,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 		cm.setObituaryTimer(-1);
 		boolean res = Janitor.getJanitor().cancelJob(tm);
 		System.out.println("session: resurrected window " + cm.getWindowID() + ", canceltask=" + res);
+		logUser(cm.getWindowID(), "session: resurrected window " + cm.getWindowID() + ", canceltask=" + res);
 		return res;
 	}
 
@@ -299,20 +302,24 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	public synchronized void internalObituaryReceived(final String cid, final int obitPageTag) throws Exception {
 		final WindowSession cm = m_windowMap.get(cid);
 		if(cm == null) {
+			logUser(cid, "Obituary ignored: the window ID is unknown");
 			LOG.info("Obituary ignored: the window ID is unknown");
 			return;
 		}
 
 		if(cm.getObituaryTimer() != -1) { // Already marked?
+			logUser(cid, "Obituary ignored: the kill timer has already been started");
 			LOG.info("Obituary ignored: the kill timer has already been started");
 			return;
 		}
 		if(obitPageTag != cm.internalGetLastPageTag()) {// Some other page is already present?
 			LOG.info("Obituary ignored: the last page has a different page tag (the corpse arrived too late)");
+			logUser(cid, "Obituary ignored: the last page has a different page tag (the corpse arrived too late)");
 			return;
 		}
 		long ts = System.currentTimeMillis() - 2000; // 2 seconds ago....
 		if(cm.getLastUsed() > ts) { // Used less than 2 seconds ago?
+			logUser(cid, "Obituary ignored: the last request was less than 2 secs ago (order problem)");
 			LOG.info("Obituary ignored: the last request was less than 2 secs ago (order problem)");
 			return;
 		}
@@ -330,6 +337,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 		});
 		cm.setObituaryTimer(timer);
 		LOG.info("Obituary kill timer " + timer + " set to kill window=" + cm.getWindowID());
+		logUser(cid, "Obituary kill timer " + timer + " set to kill window=" + cm.getWindowID());
 	}
 
 	/**
@@ -340,6 +348,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	void internalDropWindowSession(final WindowSession cm) {
 		if(LOG.isInfoEnabled())
 			LOG.info("session: destroying WindowSession=" + cm.getWindowID() + " because it's obituary was received.");
+		logUser(cm.getWindowID(), "session: destroying WindowSession=" + cm.getWindowID() + " because it's obituary was received.");
 		synchronized(this) {
 			if(cm.getObituaryTimer() == -1) 					// Was cancelled?
 				return; 										// Do not drop it then.
@@ -418,4 +427,28 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 			System.out.println("appSession: saved " + sw);
 		}
 	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	User events log.									*/
+	/*--------------------------------------------------------------*/
+
+	@Nonnull
+	final private LinkedList<UserLogItem> m_itemList = new LinkedList<>();
+
+	public synchronized void log(@Nonnull UserLogItem uli) {
+		while(m_itemList.size() > 400)
+			m_itemList.removeFirst();
+		m_itemList.addLast(uli);
+	}
+
+	@Nonnull
+	synchronized public List<UserLogItem> getLogItems() {
+		return new ArrayList<>(m_itemList);
+	}
+
+	public void logUser(@Nonnull String cid, @Nonnull String message) {
+		log(new UserLogItem(cid, null, null, message));
+	}
+
+
 }
