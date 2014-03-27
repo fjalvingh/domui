@@ -129,7 +129,7 @@ public class ExceptionUtil {
 
 		Message m = mb.createMessage();
 		m.addTo(new Address(addr));
-		m.setFrom(new Address(from));
+		m.setFrom(new Address(from, from));
 		try {
 			BulkMailer.getInstance().store(m);
 		} catch(Exception xxx) {
