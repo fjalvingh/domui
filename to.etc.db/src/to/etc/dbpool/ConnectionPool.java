@@ -287,6 +287,8 @@ final public class ConnectionPool {
 	/** The sequence generator for entries. */
 	private int m_entryidgen;
 
+	private volatile int m_forceTimeout;
+
 	/**
 	 * Pool event, add listeners using
 	 *
@@ -1692,6 +1694,18 @@ final public class ConnectionPool {
 
 	public DataSource getPooledDataSource() {
 		return m_pooled_ds;
+	}
+
+	/**
+	 * When set &gt; 0, this will call setTimeout on all statements and calls.
+	 * @param timeout
+	 */
+	public void setForceTimeout(int timeout) {
+		m_forceTimeout = timeout;
+	}
+
+	public int getForceTimeout() {
+		return m_forceTimeout;
 	}
 
 	/**

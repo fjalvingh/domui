@@ -10,7 +10,7 @@ import javax.annotation.*;
 import javax.annotation.concurrent.*;
 import javax.sql.*;
 
-import org.junit.*;
+import org.junit.internal.*;
 import org.slf4j.*;
 import org.slf4j.bridge.*;
 
@@ -207,7 +207,9 @@ public class TUtilTestProperties {
 	 * is unconfigured.
 	 */
 	static public final void assumeDatabase() {
-		Assume.assumeTrue(hasDbConfig());
+		if(!hasDbConfig())
+			throw new AssumptionViolatedException("The database is not available");
+//		Assume.assumeTrue(hasDbConfig());
 	}
 
 	/**
@@ -304,6 +306,10 @@ public class TUtilTestProperties {
 			}
 			VpEventManager.getInstance().start();
 			DbLockKeeper.init(m_rawDS);
+
+			ConnectionPool pool = PoolManager.getPoolFrom(m_rawDS);
+			if(null != pool)
+				pool.setForceTimeout(120);
 		}
 		return m_rawDS;
 	}
