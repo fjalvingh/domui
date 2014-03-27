@@ -96,12 +96,12 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		} catch(ClientDisconnectedException xxxx) {
 			throw xxxx;
 		} catch(Exception x) {
-			if(!m_application.inDevelopmentMode())
+			if(!m_application.isShowProblemTemplate() && !m_application.inDevelopmentMode())
 				throw x;
 
 			tryRenderOopsFrame(ctx, x);
 		} catch(Error x) {
-			if(!m_application.inDevelopmentMode())
+			if(!m_application.isShowProblemTemplate() && !m_application.inDevelopmentMode())
 				throw x;
 
 			String s = x.getMessage();
@@ -1233,7 +1233,6 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	@Nullable
 	private JSTemplate m_exceptionTemplate;
 
-
 	/**
 	 *
 	 * @param ctx
@@ -1263,7 +1262,10 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		dataMap.put("stacktrace", sb.toString());
 		dataMap.put("message", StringTool.htmlStringize(x.toString()));
 		dataMap.put("ctx", ctx);
-		dataMap.put("util", new ExceptionUtil(ctx));
+		ExceptionUtil util = new ExceptionUtil(ctx);
+		dataMap.put("util", util);
+
+		util.renderEmail(x);
 
 		Writer w = ctx.getRequestResponse().getOutputWriter("text/html", "utf-8");
 		JSTemplate xt = getExceptionTemplate();

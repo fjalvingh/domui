@@ -89,7 +89,7 @@ public class MailBuilder {
 	private int m_attindex = 1;
 
 	/**
-	 * Creates mail builder that automatically creates html header and body. To have full control over HTML content use {@link MailBuilder#createNondecoratedMailBuilder()}   
+	 * Creates mail builder that automatically creates html header and body. To have full control over HTML content use {@link MailBuilder#createNondecoratedMailBuilder()}
 	 */
 	public MailBuilder() {
 		this(true);
@@ -309,6 +309,17 @@ public class MailBuilder {
 		for(Attachment a: m_attachmentList)
 			m.addAttachment(a);
 		m.send();
+	}
+
+	@Nonnull
+	public Message createMessage() {
+		Message m = new Message();
+		m.setSubject(m_subject);
+		m.setBody(m_text_sb.toString());
+		m.setHtmlBody(m_html_sb.toString());
+		for(Attachment a : m_attachmentList)
+			m.addAttachment(a);
+		return m;
 	}
 
 	public void send(SmtpTransport t, Address from, List<Address> dest) throws Exception {

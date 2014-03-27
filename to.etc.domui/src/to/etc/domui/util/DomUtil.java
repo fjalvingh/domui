@@ -853,6 +853,27 @@ final public class DomUtil {
 		}
 	}
 
+
+	static public void dumpException(@Nonnull StringBuilder sb, final Throwable x) {
+		StringTool.strStacktrace(sb, x);
+
+		Throwable next = null;
+		for(Throwable curr = x; curr != null; curr = next) {
+			next = curr.getCause();
+			if(next == curr)
+				next = null;
+
+			if(curr instanceof SQLException) {
+				SQLException sx = (SQLException) curr;
+				while(sx.getNextException() != null) {
+					sx = sx.getNextException();
+					sb.append("SQL NextException: " + sx).append("\n");
+				}
+			}
+		}
+	}
+
+
 	static public void dumpRequest(HttpServletRequest req) {
 		System.out.println("---- request parameter dump ----");
 		for(Enumeration<String> en = req.getParameterNames(); en.hasMoreElements();) {
