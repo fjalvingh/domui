@@ -10,14 +10,7 @@ import javax.annotation.*;
 import javax.annotation.concurrent.*;
 import javax.sql.*;
 
-import org.junit.*;
 import org.junit.internal.*;
-import org.slf4j.*;
-import org.slf4j.bridge.*;
-
-import ch.qos.logback.classic.*;
-import ch.qos.logback.classic.joran.*;
-import ch.qos.logback.core.util.*;
 
 import to.etc.dbpool.*;
 import to.etc.dbutil.*;
