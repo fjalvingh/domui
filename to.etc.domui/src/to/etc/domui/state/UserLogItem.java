@@ -1,5 +1,9 @@
 package to.etc.domui.state;
 
+import javax.annotation.*;
+
+import to.etc.util.*;
+
 /**
  * Log item for action logging inside a user's session.
  *
@@ -12,6 +16,8 @@ public class UserLogItem {
 
 	private long m_timestamp;
 
+	private String m_page;
+
 	/** If applicable, the action from the request */
 	private String m_action;
 
@@ -20,12 +26,17 @@ public class UserLogItem {
 
 	private String m_text;
 
-	public UserLogItem(String cid, String action, String component, String text) {
+	public UserLogItem(String cid, String page, String action, String component, String text) {
 		m_cid = cid;
 		m_timestamp = System.currentTimeMillis();
 		m_action = action;
 		m_component = component;
 		m_text = text;
+		m_page = page;
+	}
+
+	public String getPage() {
+		return m_page;
 	}
 
 	public String getCid() {
@@ -34,6 +45,15 @@ public class UserLogItem {
 
 	public long getTimestamp() {
 		return m_timestamp;
+	}
+
+	@Nonnull
+	public String getRelaTime(long currt) {
+		return StringTool.strDurationMillis(currt - m_timestamp);
+	}
+
+	public String time() {
+		return getRelaTime(System.currentTimeMillis());
 	}
 
 	public String getAction() {

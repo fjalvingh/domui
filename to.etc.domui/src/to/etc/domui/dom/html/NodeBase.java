@@ -1241,6 +1241,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 				sb.append(" bind(").append(bi).append(")");
 			}
 		}
+		if(this instanceof NodeContainer) {
+			String txt = DomUtil.calcNodeText((NodeContainer) this);
+			if(txt.length() > 0)
+				sb.append("/").append(txt);
+		}
 
 		return sb.toString();
 	}

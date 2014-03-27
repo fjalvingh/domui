@@ -435,20 +435,26 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	@Nonnull
 	final private LinkedList<UserLogItem> m_itemList = new LinkedList<>();
 
+	/**
+	 * Add a log item to the round-robin list of per user log entries.
+	 * @param uli
+	 */
 	public synchronized void log(@Nonnull UserLogItem uli) {
 		while(m_itemList.size() > 400)
 			m_itemList.removeFirst();
 		m_itemList.addLast(uli);
 	}
 
+	/**
+	 * Get a copy of the currently collected log entries.
+	 * @return
+	 */
 	@Nonnull
 	synchronized public List<UserLogItem> getLogItems() {
 		return new ArrayList<>(m_itemList);
 	}
 
 	public void logUser(@Nonnull String cid, @Nonnull String message) {
-		log(new UserLogItem(cid, null, null, message));
+		log(new UserLogItem(cid, null, null, null, message));
 	}
-
-
 }

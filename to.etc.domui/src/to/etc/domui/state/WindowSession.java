@@ -391,6 +391,7 @@ final public class WindowSession {
 			if(tu.indexOf(':') == -1) {
 				tu = ctx.getRelativePath(tu); 				// Make absolute.
 			}
+			logUser(ctx, currentpg, "GOTO redirect to " + tu);
 			generateRedirect(ctx, tu, ajax);
 			return true;
 		}
@@ -428,6 +429,7 @@ final public class WindowSession {
 			 * Page found. Is it the current page? If so we just ignore the request.
 			 */
 			if(psix == m_shelvedPageStack.size() - 1) {
+				logUser(ctx, currentpg, "GOTO " + getTargetMode() + " to current page - ignored");
 				return false;
 			}
 
@@ -441,6 +443,7 @@ final public class WindowSession {
 				throw new IllegalStateException("Shelve entry is not a domui page but " + xse);
 
 			Page currentPage = ((ShelvedDomUIPage) xse).getPage();
+			logUser(ctx, currentpg, "GOTO " + getTargetMode() + " and unshelve page " + currentPage);
 
 			/*
 			 * jal 20100224 The old page is destroyed and we're now running in the "new" page's context! Since
@@ -503,6 +506,7 @@ final public class WindowSession {
 		if(pp == null)
 			pp = new PageParameters();
 		Page currentPage = PageMaker.createPageWithContent(bestpc, cc, pp);
+		logUser(ctx, currentpg, "GOTO " + getTargetMode() + " to NEW page " + currentPage);
 		UIContext.internalSet(currentPage); 					// jal 20100224 Code can run in new page on shelve.
 		shelvePage(currentPage);
 
@@ -581,6 +585,7 @@ final public class WindowSession {
 
 			//-- If we have a root page go there, else
 			Class< ? extends UrlPage> clz = getApplication().getRootPage();
+			logUser(ctx, currentpg, "GOTO root page");
 			if(clz != null) {
 				internalSetNextPage(MoveMode.NEW, getApplication().getRootPage(), null, null, null);
 				handleGoto(ctx, currentpg, ajax);
@@ -596,7 +601,14 @@ final public class WindowSession {
 		clearShelve(ix + 1); // Destroy everything above;
 		IShelvedEntry se = m_shelvedPageStack.get(ix);		// Get the thing to move to,
 		se.activate(ctx, ajax);								// Activate this page.
+		logUser(ctx, currentpg, "Goto shelved page " + se.getURL());
 		saveWindowState();
+	}
+
+	private void logUser(@Nonnull RequestContextImpl ctx, @Nonnull Page page, String string) {
+		ConversationContext conversation = page.internalGetConversation();
+		String cid = conversation == null ? null : conversation.getFullId();
+		ctx.getSession().log(new UserLogItem(cid, page.getBody().getClass().getName(), null, null, string));
 	}
 
 	/*--------------------------------------------------------------*/

@@ -1,7 +1,10 @@
 package to.etc.domui.server;
 
+import java.util.*;
+
 import javax.annotation.*;
 
+import to.etc.domui.state.*;
 import to.etc.util.*;
 
 public class ExceptionUtil {
@@ -45,4 +48,16 @@ public class ExceptionUtil {
 		return sb.toString();
 	}
 
+	@Nonnull
+	public List<UserLogItem> getUserLog() {
+		AppSession session = m_ctx.getSession();
+		return session.getLogItems();
+	}
+
+	@Nullable
+	public String lastName(@Nullable String name) {
+		if(null == name)
+			return null;
+		return name.substring(name.lastIndexOf('.') + 1);
+	}
 }

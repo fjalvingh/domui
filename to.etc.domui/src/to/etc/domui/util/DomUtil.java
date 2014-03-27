@@ -1879,4 +1879,39 @@ final public class DomUtil {
 		ws.setAttribute(UIGoto.SINGLESHOT_MESSAGE, msgl);
 		return msgl;
 	}
+
+	/**
+	 * Try to get some content text from this node, for displaying what the node "is".
+	 * @param nc
+	 * @return
+	 */
+	public static String calcNodeText(@Nonnull NodeContainer nc) {
+		StringBuilder sb = new StringBuilder();
+		calcNodeText(sb, nc);
+		return sb.toString();
+	}
+
+	private static void calcNodeText(@Nonnull StringBuilder sb, @Nonnull NodeContainer nc) {
+		for(NodeBase nb : nc) {
+			if(nb instanceof TextNode) {
+				if(!appendPartial(sb, ((TextNode) nb).getText()))
+					return;
+			} else {
+				if(nb instanceof NodeContainer) {
+					calcNodeText(sb, (NodeContainer) nb);
+				}
+			}
+		}
+	}
+
+	private static boolean appendPartial(@Nonnull StringBuilder sb, @Nonnull String text) {
+		int todo = 400 - sb.length();
+		if(todo >= text.length()) {
+			sb.append(text);
+			return true;
+		} else if(todo > 0) {
+			sb.append(text.substring(0, todo));
+		}
+		return false;
+	}
 }

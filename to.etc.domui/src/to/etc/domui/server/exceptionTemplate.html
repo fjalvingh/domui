@@ -199,7 +199,30 @@ startTrying();
 
 		<div class="exc-subtitle">Page parameters</div>
 		<%= util.renderParameters() %>
-
+		
+		<div class="exc-subtitle">Session event log leading up to this...</div>
+		<table class='listtbl'>
+			<thead>
+				<tr>
+					<th>Time</th>
+					<th>cid</th>
+					<th>Page</th>
+					<th>Message</th>
+				</tr>
+			</thead>
+		<% 
+			var llist = util.getUserLog();
+			for(var i = 0; i < llist.size(); i++) {
+				var item = llist.get(i);
+		%>
+			<tr>		
+				<td nowrap="nowrap">-<%= item.time() %></td>
+				<td nowrap="nowrap"><%= item.cid %></td>
+				<td nowrap="nowrap"><%= util.lastName(item.page) %></td>
+				<td><%= item.text %></td>
+			</tr>
+		<% } %>		
+		</table>
 		<div>If you have the <a href="http://domui.org/wiki/bin/view/Documentation/EclipsePlugin" target="_blank">DomUI Eclipse plugin</a> installed, clicking a stack trace entry should open the class in Eclipse.</div>
 	</div>
 	<div class="exc-bottom">
