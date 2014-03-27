@@ -388,7 +388,7 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 	 * @param pmm
 	 * @param an
 	 */
-	protected void decodeJpaJoinColumn(DefaultPropertyMetaModel< ? > pmm, final Annotation an) {
+	protected void decodeJpaJoinColumn(@Nonnull DefaultPropertyMetaModel< ? > pmm, @Nonnull final Annotation an) {
 		try {
 			String name = (String) DomUtil.getClassValue(an, "name");
 			if(null == name) {
@@ -434,6 +434,27 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 			decodeClassAnnotationByName(colli, an, ana); // Decode by name literal
 			decodeClassAnnotation(colli, an); // Decode well-known annotations
 		}
+
+		//-- Some annotations can be on parent classes.
+		Class< ? > parentClass = colli.getTypeClass();
+		for(;;) {
+			parentClass = parentClass.getSuperclass();
+			if(parentClass == Object.class || parentClass == null)
+				break;
+
+			annar = parentClass.getAnnotations();
+			for(Annotation an : annar) {
+				String ana = an.annotationType().getName();				// Get the annotation's name
+				decodeParentClassAnnotationByName(colli, an, ana);		// Decode by name literal
+				//				decodeParentClassAnnotation(colli, an);					// Decode well-known annotations
+			}
+		}
+	}
+
+	private void decodeParentClassAnnotationByName(@Nonnull DefaultJavaClassInfo colli, @Nonnull Annotation an, @Nonnull String name) {
+		if("javax.persistence.Table".equals(name)) {
+			decodeTableAnnotation(colli, an);
+		}
 	}
 
 	/**
@@ -445,19 +466,27 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 	protected void decodeClassAnnotationByName(@Nonnull final DefaultJavaClassInfo colli, @Nonnull final Annotation an, @Nonnull final String name) {
 		if("javax.persistence.Table".equals(name)) {
 			//-- Decode fields from the annotation.
-			try {
-				String tablename = (String) DomUtil.getClassValue(an, "name");
-				String tableschema = (String) DomUtil.getClassValue(an, "schema");
-				if(tablename != null) {
-					if(!StringTool.isBlank(tableschema) )
-						tablename = tableschema + "." + tablename;
-					colli.getModel().setTableName(tablename);
-				}
-			} catch(Exception x) {
-				Trouble.wrapException(x);
-			}
+			decodeTableAnnotation(colli, an);
 		} else if("to.etc.webapp.qsql.QJdbcTable".equals(name)) {
 			colli.getModel().setPersistentClass(true);
+		}
+	}
+
+	private void decodeTableAnnotation(@Nonnull final DefaultJavaClassInfo colli, @Nonnull final Annotation an) {
+		//-- Decode fields from the annotation.
+		if(colli.getModel().getTableName() != null)
+			return;
+
+		try {
+			String tablename = (String) DomUtil.getClassValue(an, "name");
+			String tableschema = (String) DomUtil.getClassValue(an, "schema");
+			if(tablename != null) {
+				if(!StringTool.isBlank(tableschema))
+					tablename = tableschema + "." + tablename;
+				colli.getModel().setTableName(tablename);
+			}
+		} catch(Exception x) {
+			Trouble.wrapException(x);
 		}
 	}
 
