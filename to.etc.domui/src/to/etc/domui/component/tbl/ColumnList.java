@@ -104,8 +104,8 @@ public class ColumnList<T> implements Iterable<ColumnDef< ? >> {
 	private <V> ColumnDef<V> addExpandedDisplayProp(@Nonnull ExpandedDisplayProperty<V> xdp) {
 		ColumnDef<V> scd = new ColumnDef<V>(this, xdp);
 		if(scd.getNumericPresentation() != null && scd.getNumericPresentation() != NumericPresentation.UNKNOWN) {
-			scd.setCssClass("ui-numeric");
-			scd.setHeaderCssClass("ui-numeric");
+			scd.css("ui-numeric");
+			scd.cssHeader("ui-numeric");
 		}
 
 		m_columnList.add(scd);
@@ -165,7 +165,7 @@ public class ColumnList<T> implements Iterable<ColumnDef< ? >> {
 					final int pct = (int) (fact * pctleft + 0.5);
 					pctleft -= pct;
 					totdw -= scd.getDisplayLength();
-					scd.setWidth(pct + "%");
+					scd.width(pct + "%");
 				}
 			}
 		}
@@ -223,7 +223,7 @@ public class ColumnList<T> implements Iterable<ColumnDef< ? >> {
 	@Nonnull
 	private <V> ColumnDef<V> createColumnDef(@Nonnull PropertyMetaModel<V> pmm) {
 		ColumnDef<V> scd = new ColumnDef<V>(this, pmm);
-		scd.setNowrap(true);
+		scd.nowrap();
 		add(scd);
 		return scd;
 	}
@@ -248,7 +248,7 @@ public class ColumnList<T> implements Iterable<ColumnDef< ? >> {
 	public ColumnDef<T> column() {
 		ColumnDef<T> scd = new ColumnDef<T>(this, m_actualClass);
 		add(scd);
-		scd.setNowrap(true);
+		scd.nowrap();
 		return scd;
 	}
 
