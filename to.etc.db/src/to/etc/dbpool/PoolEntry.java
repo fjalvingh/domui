@@ -57,6 +57,8 @@ final class PoolEntry {
 	/** The connection proxy that currently references this connection. */
 	private ConnectionProxy m_proxy;
 
+	private int m_timeout;
+
 	/** This entry's state; will change if the entry is forced closed. */
 	@GuardedBy("m_pool")
 	private ConnState m_state = ConnState.OPEN;
@@ -66,6 +68,7 @@ final class PoolEntry {
 		m_cx = cx;
 		m_id = idnr;
 		m_userID = userid;
+		m_timeout = pool.getForceTimeout();
 	}
 
 	/*--------------------------------------------------------------*/
@@ -420,6 +423,11 @@ final class PoolEntry {
 		}
 	}
 
+	private void handleTimeout(Statement ps) throws SQLException {
+		if(m_timeout <= 0)
+			return;
+		ps.setQueryTimeout(m_timeout);
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Tracked resource allocation routines..				*/
@@ -427,6 +435,7 @@ final class PoolEntry {
 	protected java.sql.PreparedStatement proxyPrepareStatement(final ConnectionProxy pc, final java.lang.String p1) throws java.sql.SQLException {
 		PreparedStatementProxy ps = new PreparedStatementProxy(pc, p1);
 		try {
+			handleTimeout(ps);
 			pc.statsHandler().prepareStatement(ps);
 			ps.associate(getConnection().prepareStatement(p1));
 		} finally {
@@ -440,6 +449,7 @@ final class PoolEntry {
 	protected java.sql.PreparedStatement proxyPrepareStatement(final ConnectionProxy pc, final java.lang.String p1, final int p2, final int p3) throws java.sql.SQLException {
 		PreparedStatementProxy ps = new PreparedStatementProxy(pc, p1);
 		try {
+			handleTimeout(ps);
 			pc.statsHandler().prepareStatement(ps);
 			ps.associate(getConnection().prepareStatement(p1, p2, p3));
 		} finally {
@@ -453,6 +463,7 @@ final class PoolEntry {
 	protected java.sql.PreparedStatement proxyPrepareStatement(final ConnectionProxy pc, final java.lang.String p1, final int[] p2) throws java.sql.SQLException {
 		PreparedStatementProxy ps = new PreparedStatementProxy(pc, p1);
 		try {
+			handleTimeout(ps);
 			pc.statsHandler().prepareStatement(ps);
 			ps.associate(getConnection().prepareStatement(p1, p2));
 		} finally {
@@ -466,6 +477,7 @@ final class PoolEntry {
 	protected java.sql.PreparedStatement proxyPrepareStatement(final ConnectionProxy pc, final java.lang.String p1, final int p2, final int p3, final int p4) throws java.sql.SQLException {
 		PreparedStatementProxy ps = new PreparedStatementProxy(pc, p1);
 		try {
+			handleTimeout(ps);
 			pc.statsHandler().prepareStatement(ps);
 			ps.associate(getConnection().prepareStatement(p1, p2, p3, p4));
 		} finally {
@@ -479,6 +491,7 @@ final class PoolEntry {
 	protected java.sql.PreparedStatement proxyPrepareStatement(final ConnectionProxy pc, final java.lang.String p1, final int p2) throws java.sql.SQLException {
 		PreparedStatementProxy ps = new PreparedStatementProxy(pc, p1);
 		try {
+			handleTimeout(ps);
 			pc.statsHandler().prepareStatement(ps);
 			ps.associate(getConnection().prepareStatement(p1, p2));
 		} finally {
@@ -492,6 +505,7 @@ final class PoolEntry {
 	protected java.sql.PreparedStatement proxyPrepareStatement(final ConnectionProxy pc, final java.lang.String p1, final String[] ar) throws java.sql.SQLException {
 		PreparedStatementProxy ps = new PreparedStatementProxy(pc, p1);
 		try {
+			handleTimeout(ps);
 			pc.statsHandler().prepareStatement(ps);
 			ps.associate(getConnection().prepareStatement(p1, ar));
 		} finally {
@@ -505,6 +519,7 @@ final class PoolEntry {
 	protected java.sql.Statement proxyCreateStatement(final ConnectionProxy pc) throws java.sql.SQLException {
 		StatementProxy ps = new StatementProxy(pc, null);
 		try {
+			handleTimeout(ps);
 			pc.statsHandler().prepareStatement(ps);
 			ps.associate(getConnection().createStatement());
 		} finally {
@@ -518,6 +533,7 @@ final class PoolEntry {
 	protected java.sql.Statement proxyCreateStatement(final ConnectionProxy pc, final int p1, final int p2) throws java.sql.SQLException {
 		StatementProxy ps = new StatementProxy(pc, null);
 		try {
+			handleTimeout(ps);
 			pc.statsHandler().prepareStatement(ps);
 			ps.associate(getConnection().createStatement(p1, p2));
 		} finally {
@@ -531,6 +547,7 @@ final class PoolEntry {
 	protected java.sql.Statement proxyCreateStatement(final ConnectionProxy pc, final String a, final String[] b) throws java.sql.SQLException {
 		StatementProxy ps = new StatementProxy(pc, a);
 		try {
+			handleTimeout(ps);
 			pc.statsHandler().prepareStatement(ps);
 			ps.associate(getConnection().prepareStatement(a, b));
 		} finally {
@@ -544,6 +561,7 @@ final class PoolEntry {
 	protected java.sql.Statement proxyCreateStatement(final ConnectionProxy pc, final int p1, final int p2, final int p3) throws java.sql.SQLException {
 		StatementProxy ps = new StatementProxy(pc, null);
 		try {
+			handleTimeout(ps);
 			pc.statsHandler().prepareStatement(ps);
 			ps.associate(getConnection().createStatement(p1, p2, p3));
 		} finally {
@@ -557,6 +575,7 @@ final class PoolEntry {
 	protected java.sql.CallableStatement proxyPrepareCall(final ConnectionProxy pc, final String p1, final int p2, final int p3) throws java.sql.SQLException {
 		CallableStatementProxy ps = new CallableStatementProxy(pc, p1);
 		try {
+			handleTimeout(ps);
 			pc.statsHandler().prepareStatement(ps);
 			ps.associate(getConnection().prepareCall(p1, p2, p3));
 		} finally {
@@ -570,6 +589,7 @@ final class PoolEntry {
 	protected java.sql.CallableStatement proxyPrepareCall(final ConnectionProxy pc, final String p1, final int p2, final int p3, final int p4) throws java.sql.SQLException {
 		CallableStatementProxy ps = new CallableStatementProxy(pc, p1);
 		try {
+			handleTimeout(ps);
 			pc.statsHandler().prepareStatement(ps);
 			ps.associate(getConnection().prepareCall(p1, p2, p3, p4));
 		} finally {
@@ -583,6 +603,7 @@ final class PoolEntry {
 	protected java.sql.CallableStatement proxyPrepareCall(final ConnectionProxy pc, final String p1) throws java.sql.SQLException {
 		CallableStatementProxy ps = new CallableStatementProxy(pc, p1);
 		try {
+			handleTimeout(ps);
 			pc.statsHandler().prepareStatement(ps);
 			ps.associate(getConnection().prepareCall(p1));
 		} finally {

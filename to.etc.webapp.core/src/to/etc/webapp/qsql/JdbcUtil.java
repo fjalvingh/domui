@@ -293,6 +293,10 @@ public class JdbcUtil {
 			ps.setTimestamp(px, new Timestamp(((java.util.Date) val).getTime()));
 		} else if(val instanceof Boolean) {
 			ps.setBoolean(px, ((Boolean) val).booleanValue());
+		} else if(val instanceof RowId) {
+			ps.setRowId(px, (RowId) val);
+		} else if(val.getClass().getName().endsWith(".ROWID")) { // Oracle sucks at standards.
+			ps.setObject(px, val);
 		} else
 			throw new IllegalStateException("Call error: unknown SQL parameter of type " + val.getClass());
 	}
