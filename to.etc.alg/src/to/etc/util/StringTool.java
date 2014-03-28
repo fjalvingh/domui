@@ -2664,4 +2664,25 @@ public class StringTool {
 			return false;
 		}
 	}
+
+	@Nullable
+	public static String removeEndOfLines(@Nullable String content) {
+		if(content == null) {
+			return null;
+		}
+		content = removeTailing(content, "\r\n");
+		content = removeTailing(content, "\n");
+		return content;
+	}
+
+	@Nonnull
+	public static String removeTailing(@Nonnull String content, @Nonnull String tail) {
+		if("".equals(tail)) {
+			return content;
+		}
+		while(content.endsWith(tail)) {
+			content = content.substring(0, content.length() - tail.length());
+		}
+		return content;
+	}
 }
