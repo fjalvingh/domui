@@ -187,6 +187,8 @@ public class UIMessage {
 
 	@Nonnull
 	static public UIMessage error(@Nonnull CodeException x) {
+		return new UIMessage(null, null, MsgType.ERROR, x.getBundle(), x.getCode(), x.getParameters());
+	}
 
 	@Override
 	public String toString() {
