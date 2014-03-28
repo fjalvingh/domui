@@ -45,9 +45,11 @@ public class DeveloperOptions {
 	/** This becomes T if a .developer.properties exists, indicating that this is a developer's workstation */
 	static private boolean				m_isdeveloper;
 
+	@Nullable
 	static private Properties			m_p;
 
-	static private Map<String, Object>	m_map;
+	@Nonnull
+	static private Set<String> m_warnedSet = new HashSet<>();
 
 	private DeveloperOptions() {
 	}
@@ -72,7 +74,6 @@ public class DeveloperOptions {
 				Properties p = new Properties();
 				p.load(is);
 				m_p = p;
-				m_map = new HashMap<String, Object>();
 				System.out.println("WARNING: " + f + " used for DEVELOPMENT-TIME OPTIONS!!");
 			} catch(Exception x) {
 				System.out.println("DeveloperOptions: exception while reading " + f + ": " + x);
@@ -101,35 +102,25 @@ public class DeveloperOptions {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Getting values.										*/
 	/*--------------------------------------------------------------*/
-
-	static private final Object	ANULL	= new Object();
-
 	/**
 	 * Returns the developer option specified as a string. Return null if the option is not present.
 	 */
-	@Nullable
-	static synchronized public String getString(final String name) {
-		if(m_map == null)
-			return null;
-		Object rawObject = m_map.get(name);
-		if(rawObject == ANULL)
-			return null;
-		String s = (String) rawObject;
-		if(s != null) {
-			return s == ANULL ? null : s;
-		}
-
-		s = m_p.getProperty(name);
-		m_map.put(name, s == null ? ANULL : s);
-		if(s != null)
-			System.out.println("WARNING: Development-time option " + name + " (string) changed to " + s);
-		return s;
+	static synchronized public String getString(@Nonnull final String name) {
+		return internalGetString(name);
 	}
 
-	static synchronized private String internalGetString(final String name) {
-		if(m_map == null)
+	@Nullable
+	static synchronized private String internalGetString(@Nonnull final String name) {
+		Properties p = m_p;
+		if(null == p)
 			return null;
-		return m_p.getProperty(name);
+		String value = p.getProperty(name);
+		if(null == value)
+			return null;
+
+		if(m_warnedSet.add(name))
+			System.out.println("WARNING: Development-time option " + name + " changed to " + value);
+		return value;
 	}
 
 	/**
@@ -141,17 +132,8 @@ public class DeveloperOptions {
 	 * @return
 	 */
 	static synchronized public String getString(final String name, final String def) {
-		if(m_map == null)
-			return def;
-		String s = (String) m_map.get(name);
-		if(s != null)
-			return s;
-		s = m_p.getProperty(name);
-		if(s == null)
-			return def;
-		System.out.println("WARNING: Development-time option " + name + " (string) changed to " + s);
-		m_map.put(name, s);
-		return s;
+		String s = internalGetString(name);
+		return s == null ? def : s;
 	}
 
 	/**
@@ -163,19 +145,11 @@ public class DeveloperOptions {
 	 * @return
 	 */
 	static synchronized public boolean getBool(final String name, final boolean def) {
-		if(m_map == null)
-			return def;
-		Boolean b = (Boolean) m_map.get(name);
-		if(b != null)
-			return b.booleanValue();
 		String s = internalGetString(name);
-		if(s == null)
+		if(null == s)
 			return def;
 		s = s.toLowerCase();
-		b = Boolean.valueOf(s.startsWith("t") || s.startsWith("y"));
-		System.out.println("WARNING: Development-time option " + name + " (boolean) changed to " + b);
-		m_map.put(name, b);
-		return b.booleanValue();
+		return s.startsWith("t") || s.startsWith("y");
 	}
 
 	/**
@@ -187,17 +161,9 @@ public class DeveloperOptions {
 	 * @return
 	 */
 	static synchronized public int getInt(final String name, final int def) {
-		if(m_map == null)
-			return def;
-		Integer b = (Integer) m_map.get(name);
-		if(b != null)
-			return b.intValue();
 		String s = internalGetString(name);
-		if(s == null)
+		if(null == s)
 			return def;
-		b = Integer.valueOf(s);
-		System.out.println("WARNING: Development-time option " + name + " (int) changed to " + b);
-		m_map.put(name, b);
-		return b.intValue();
+		return Integer.decode(s.trim());
 	}
 }
