@@ -105,6 +105,7 @@ public class DeveloperOptions {
 	/**
 	 * Returns the developer option specified as a string. Return null if the option is not present.
 	 */
+	@Nullable
 	static synchronized public String getString(@Nonnull final String name) {
 		return internalGetString(name);
 	}
@@ -131,6 +132,7 @@ public class DeveloperOptions {
 	 * @param def
 	 * @return
 	 */
+	@Nonnull
 	static synchronized public String getString(final String name, final String def) {
 		String s = internalGetString(name);
 		return s == null ? def : s;
