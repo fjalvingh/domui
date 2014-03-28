@@ -190,11 +190,6 @@ public class UIMessage {
 		return new UIMessage(null, null, MsgType.ERROR, x.getBundle(), x.getCode(), x.getParameters());
 	}
 
-	@Override
-	public String toString() {
-		return getMessage();
-	}
-
 	static public UIMessage error(UIException x) {
 		return new UIMessage(null, null, MsgType.ERROR, x.getBundle(), x.getCode(), x.getParameters());
 	}
