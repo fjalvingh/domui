@@ -291,8 +291,20 @@ public class TUtilTestProperties {
 		if(m_rawDS == null) {
 			String url = "jdbc:oracle:thin:@" + getDbConn().hostname + ":" + getDbConn().port + ":" + getDbConn().sid;
 			try {
-				m_connectionPool = PoolManager.getInstance().definePool("test", "oracle.jdbc.driver.OracleDriver", url, getDbConn().userid, getDbConn().password,
-					getTestProperties().getProperty("driverpath"));
+				PoolConfig.Template t = new PoolConfig.Template();
+				t.setDriverClassName("oracle.jdbc.driver.OracleDriver");
+				t.setUrl(url);
+				t.setUid(getDbConn().userid);
+				t.setPw(getDbConn().password);
+				String s = getTestProperties().getProperty("driverpath");
+				if(null != s)
+					t.setDriverPath(new File(s));
+				t.setMinConns(2);
+				t.setMaxConns(50);
+				m_connectionPool = PoolManager.getInstance().definePool("test", new PoolConfig(t));
+
+//				m_connectionPool = PoolManager.getInstance().definePool("test", "oracle.jdbc.driver.OracleDriver", url, getDbConn().userid, getDbConn().password,
+//					getTestProperties().getProperty("driverpath"));
 				m_connectionPool.initialize();
 				m_rawDS = m_connectionPool.getPooledDataSource();
 			} catch(SQLException x) {
