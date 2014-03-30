@@ -293,7 +293,8 @@ public class TUtilTestProperties {
 			try {
 				m_connectionPool = PoolManager.getInstance().definePool("test", "oracle.jdbc.driver.OracleDriver", url, getDbConn().userid, getDbConn().password,
 					getTestProperties().getProperty("driverpath"));
-				m_rawDS = m_connectionPool.getUnpooledDataSource();
+				m_connectionPool.initialize();
+				m_rawDS = m_connectionPool.getPooledDataSource();
 			} catch(SQLException x) {
 				throw new RuntimeException("cannot init pool: " + x, x);
 			}
