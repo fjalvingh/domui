@@ -57,6 +57,8 @@ final class PoolEntry {
 	/** The connection proxy that currently references this connection. */
 	private ConnectionProxy m_proxy;
 
+	private int m_timeout;
+
 	/** This entry's state; will change if the entry is forced closed. */
 	@GuardedBy("m_pool")
 	private ConnState m_state = ConnState.OPEN;
@@ -66,6 +68,7 @@ final class PoolEntry {
 		m_cx = cx;
 		m_id = idnr;
 		m_userID = userid;
+		m_timeout = pool.getForceTimeout();
 	}
 
 	/*--------------------------------------------------------------*/
@@ -419,7 +422,6 @@ final class PoolEntry {
 				x.printStackTrace();
 		}
 	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Tracked resource allocation routines..				*/

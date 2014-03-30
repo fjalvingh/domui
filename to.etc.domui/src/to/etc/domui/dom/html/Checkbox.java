@@ -122,7 +122,7 @@ public class Checkbox extends NodeBase implements IControl<Boolean>, IHasModifie
 			return false; // Unchanged
 
 		DomUtil.setModifiedFlag(this);
-		m_checked = on;
+		setChecked(on);
 		fireModified("value", Boolean.valueOf(!on), Boolean.valueOf(on));
 		return true; // Value changed
 	}

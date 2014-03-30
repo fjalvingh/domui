@@ -78,6 +78,132 @@ final public class PoolConfig {
 
 	private File m_binaryLogFile;
 
+	static public class Template {
+		/** The max. #of connections that can be allocated before the pool blocks */
+		private int m_max_conns;
+
+		/** The #of connections to allocate when INITIALIZING */
+		private int m_min_conns;
+
+		/** This pool's connection characteristics */
+		private String m_url, m_driverClassName, m_uid, m_pw;
+
+		/** If present (not null) the driver should be instantiated off this file. */
+		private File m_driverPath;
+
+		/** The SQL statement that is to be sent as a check for valid cnnections */
+		private String m_checkSQL;
+
+		private boolean m_checkConnection;
+
+		/** Set to T if logstream logging must be enabled. */
+		private boolean m_setlog;
+
+		private boolean m_printExceptions;
+
+		/** When T this logs to stdout every time a connection is allocated or closed */
+		private boolean m_logAllocation;
+
+		/** When T this logs to stdout a stacktrace for every allocation and close */
+		private boolean m_logAllocationStack;
+
+		/** When T this logs all statements to stdout */
+		private boolean m_logStatements;
+
+		private boolean m_ignoreUnclosed;
+
+		private boolean m_logResultSetLocations;
+
+		/** Forces every allocated connection to execute "alter session set sql_trace=true". */
+		private boolean m_sqlTraceMode;
+
+		private boolean m_collectStatistics;
+
+		private ScanMode m_scanMode = ScanMode.WARNING;
+
+		private File m_binaryLogFile;
+
+		public void setDriverPath(File driverPath) {
+			m_driverPath = driverPath;
+		}
+
+		public void setCheckSQL(String checkSQL) {
+			m_checkSQL = checkSQL;
+		}
+
+		public void setCheckConnection(boolean checkConnection) {
+			m_checkConnection = checkConnection;
+		}
+
+		public void setSetlog(boolean setlog) {
+			m_setlog = setlog;
+		}
+
+		public void setPrintExceptions(boolean printExceptions) {
+			m_printExceptions = printExceptions;
+		}
+
+		public void setLogAllocation(boolean logAllocation) {
+			m_logAllocation = logAllocation;
+		}
+
+		public void setLogAllocationStack(boolean logAllocationStack) {
+			m_logAllocationStack = logAllocationStack;
+		}
+
+		public void setLogStatements(boolean logStatements) {
+			m_logStatements = logStatements;
+		}
+
+		public void setIgnoreUnclosed(boolean ignoreUnclosed) {
+			m_ignoreUnclosed = ignoreUnclosed;
+		}
+
+		public void setLogResultSetLocations(boolean logResultSetLocations) {
+			m_logResultSetLocations = logResultSetLocations;
+		}
+
+		public void setSqlTraceMode(boolean sqlTraceMode) {
+			m_sqlTraceMode = sqlTraceMode;
+		}
+
+		public void setCollectStatistics(boolean collectStatistics) {
+			m_collectStatistics = collectStatistics;
+		}
+
+		public void setScanMode(ScanMode scanMode) {
+			m_scanMode = scanMode;
+		}
+
+		public void setBinaryLogFile(File binaryLogFile) {
+			m_binaryLogFile = binaryLogFile;
+		}
+
+		public void setUrl(String url) {
+			m_url = url;
+		}
+
+		public void setDriverClassName(String driverClassName) {
+			m_driverClassName = driverClassName;
+		}
+
+		public void setUid(String uid) {
+			m_uid = uid;
+		}
+
+		public void setPw(String pw) {
+			m_pw = pw;
+		}
+
+		public void setMaxConns(int max_conns) {
+			m_max_conns = max_conns;
+		}
+
+		public void setMinConns(int min_conns) {
+			m_min_conns = min_conns;
+		}
+	}
+
 	PoolConfig(String driver, String url, String userid, String passwd, String driverpath) throws SQLException {
 		m_url = url;
 		m_driverClassName = driver;
@@ -88,6 +214,30 @@ final public class PoolConfig {
 		m_min_conns = 5;
 		if(driverpath != null)
 			m_driverPath = new File(driverpath);
+	}
+
+	public PoolConfig(Template tpl) {
+		m_binaryLogFile = tpl.m_binaryLogFile;
+		m_checkConnection = tpl.m_checkConnection;
+		m_checkSQL = tpl.m_checkSQL;
+		m_collectStatistics = tpl.m_collectStatistics;
+		m_driverClassName = tpl.m_driverClassName;
+		m_driverPath = tpl.m_driverPath;
+		m_ignoreUnclosed = tpl.m_ignoreUnclosed;
+		m_logAllocation = tpl.m_logAllocation;
+		m_logAllocationStack = tpl.m_logAllocationStack;
+		m_logResultSetLocations = tpl.m_logResultSetLocations;
+		m_logStatements = tpl.m_logStatements;
+		m_max_conns = tpl.m_max_conns;
+		m_min_conns = tpl.m_min_conns;
+		m_printExceptions = tpl.m_printExceptions;
+		m_pw = tpl.m_pw;
+		m_scanMode = tpl.m_scanMode;
+		m_setlog = tpl.m_setlog;
+		m_sqlTraceMode = tpl.m_sqlTraceMode;
+		m_uid = tpl.m_uid;
+		m_url = tpl.m_url;
+
 	}
 
 	/**
