@@ -119,7 +119,7 @@ final public class PoolConfig {
 
 		private boolean m_collectStatistics;
 
-		private ScanMode m_scanMode = ScanMode.WARNING;
+		private ScanMode m_scanMode = ScanMode.ENABLED;
 
 		private File m_binaryLogFile;
 
