@@ -110,20 +110,6 @@ public class DeveloperOptions {
 		return internalGetString(name);
 	}
 
-	@Nullable
-	static synchronized private String internalGetString(@Nonnull final String name) {
-		Properties p = m_p;
-		if(null == p)
-			return null;
-		String value = p.getProperty(name);
-		if(null == value)
-			return null;
-
-		if(m_warnedSet.add(name))
-			System.out.println("WARNING: Development-time option " + name + " changed to " + value);
-		return value;
-	}
-
 	/**
 	 * Returns the developer option specified by name as a string. If the option is not present in the
 	 * file return the default value.
@@ -133,7 +119,7 @@ public class DeveloperOptions {
 	 * @return
 	 */
 	@Nonnull
-	static synchronized public String getString(final String name, final String def) {
+	static synchronized public String getString(final String name, @Nonnull final String def) {
 		String s = internalGetString(name);
 		return s == null ? def : s;
 	}
@@ -167,5 +153,19 @@ public class DeveloperOptions {
 		if(null == s)
 			return def;
 		return Integer.decode(s.trim());
+	}
+
+	@Nullable
+	static synchronized private String internalGetString(@Nonnull final String name) {
+		Properties p = m_p;
+		if(null == p)
+			return null;
+		String value = p.getProperty(name);
+		if(null == value)
+			return null;
+
+		if(m_warnedSet.add(name))
+			System.out.println("WARNING: Development-time option " + name + " changed to " + value);
+		return value;
 	}
 }

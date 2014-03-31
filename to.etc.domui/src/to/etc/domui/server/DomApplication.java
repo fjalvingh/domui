@@ -462,7 +462,7 @@ public abstract class DomApplication {
 		m_developmentMode = development;
 		if(m_developmentMode && DeveloperOptions.getBool("domui.traceallocations", true))
 			NodeBase.internalSetLogAllocations(true);
-		String haso = DeveloperOptions.getString("domui.testui", null);
+		String haso = DeveloperOptions.getString("domui.testui");
 		if(m_developmentMode && haso == null)
 			m_uiTestMode = true;
 		if("true".equals(haso))
