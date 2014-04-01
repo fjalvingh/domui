@@ -50,6 +50,8 @@ public class StatementProxy implements Statement {
 
 	private Tracepoint m_allocationLocation;
 
+	private int m_timeout;
+
 	/** The start timestamp of the last action on this statement. */
 	long m_tsStart;
 
@@ -77,11 +79,20 @@ public class StatementProxy implements Statement {
 		if(c.getPool().c().isLogResultSetLocations()) {
 			m_allocationLocation = Tracepoint.create(null);
 		}
+		m_timeout = c.getPool().getForceTimeout();
 	}
 
-	void associate(Statement st) {
+	void associate(Statement st) throws SQLException {
 		m_st = st;
+		handleTimeout(st);
 	}
+
+	private void handleTimeout(Statement ps) throws SQLException {
+		if(m_timeout <= 0)
+			return;
+		ps.setQueryTimeout(m_timeout);
+	}
+
 
 	/**
 	 *  The original close is augmented with a call to remove this from the

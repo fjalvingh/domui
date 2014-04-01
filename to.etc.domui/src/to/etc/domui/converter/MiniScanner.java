@@ -24,7 +24,6 @@
  */
 package to.etc.domui.converter;
 
-import to.etc.domui.test.converters.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
@@ -211,7 +210,7 @@ public class MiniScanner {
 	 * EXPERIMENTAL: Tries to fix problems with custom scale.
 	 * Scans the input as a lax euro string and leave the buffer to hold
 	 * a parseable numeric string for one of the to-java-type converters.
-	 * TESTING: method is tested via verbose testing on NumberConverter that uses internaly this method, see {@link TestNumberConverter}.
+	 * TESTING: method is tested via verbose testing on NumberConverter that uses internaly this method
 	 *
 	 * @param in
 	 * @param monetary
