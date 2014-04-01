@@ -82,6 +82,20 @@ final public class DomUtil {
 	 * @param comp
 	 * @throws IOException
 	 */
+	@Deprecated
+	@Nonnull
+	static public <T> T badCheck(T in) {
+		return in;
+	}
+
+	/**
+	 * Don not use.
+	 * We are not sure that it's checked before. This is a potential null pointer access.
+	 * Adding this mean that we didn't want to introduce risk but we are making this as a bad part of code.
+	 *
+	 * @param in
+	 * @return
+	 */
 	static public final void setPageCompatibility(@Nonnull HttpServletResponse req, @Nullable String comp) throws IOException {
 		if(!(req instanceof WrappedHttpServetResponse))
 			return;
