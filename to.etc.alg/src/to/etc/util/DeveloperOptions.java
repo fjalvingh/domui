@@ -119,7 +119,7 @@ public class DeveloperOptions {
 	 * @return
 	 */
 	@Nonnull
-	static synchronized public String getString(final String name, @Nonnull final String def) {
+	static synchronized public String getString(@Nonnull final String name, @Nonnull final String def) {
 		String s = internalGetString(name);
 		return s == null ? def : s;
 	}
@@ -132,7 +132,7 @@ public class DeveloperOptions {
 	 * @param def
 	 * @return
 	 */
-	static synchronized public boolean getBool(final String name, final boolean def) {
+	static synchronized public boolean getBool(@Nonnull final String name, final boolean def) {
 		String s = internalGetString(name);
 		if(null == s)
 			return def;
@@ -148,7 +148,7 @@ public class DeveloperOptions {
 	 * @param def
 	 * @return
 	 */
-	static synchronized public int getInt(final String name, final int def) {
+	static synchronized public int getInt(@Nonnull final String name, final int def) {
 		String s = internalGetString(name);
 		if(null == s)
 			return def;
