@@ -329,19 +329,28 @@ public class EtcLoggerFactory implements ILoggerFactory {
 			} else {
 				String logLocation = val.getNodeValue();
 				m_logDirOriginalConfigured = logLocation;
-				boolean checkNext = true;
-				do {
-					checkNext = false;
-					int posStart = logLocation.indexOf("%");
-					if(posStart > -1) {
-						int posEnd = logLocation.indexOf("%", posStart + 1);
-						if(posEnd > -1) {
-							logLocation = logLocation.substring(0, posStart) + System.getProperty(logLocation.substring(posStart + 1, posEnd)) + logLocation.substring(posEnd + 1);
-							checkNext = true;
+				try {
+					boolean checkNext = true;
+					do {
+						checkNext = false;
+						int posStart = logLocation.indexOf("%");
+						if(posStart > -1) {
+							int posEnd = logLocation.indexOf("%", posStart + 1);
+							if(posEnd > -1) {
+								String part = System.getProperty(logLocation.substring(posStart + 1, posEnd));
+								if(part == null) {
+									throw new Exception("Empty part!");
+								}
+								logLocation = logLocation.substring(0, posStart) + part + logLocation.substring(posEnd + 1);
+								checkNext = true;
+							}
 						}
-					}
-				} while(checkNext);
-				logLocation = logLocation.replace("/", File.separator);
+					} while(checkNext);
+					logLocation = logLocation.replace("/", File.separator);
+				} catch(Exception ex) {
+					System.out.println("Etc logger - problem in resolving logger configuration location from loaded default config: " + m_logDirOriginalConfigured + ".\nUsing default location: "
+						+ logLocation);
+				}
 				m_logDir = new File(logLocation);
 				m_logDir.mkdirs();
 			}

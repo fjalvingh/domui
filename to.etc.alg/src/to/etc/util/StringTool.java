@@ -32,6 +32,8 @@ import java.util.regex.*;
 
 import javax.annotation.*;
 
+import org.slf4j.*;
+
 /**
  * This static utility class contains a load of string functions. And some other
  * stuff I could not quickly find a place for ;-)
@@ -2212,13 +2214,58 @@ public class StringTool {
 		}
 	}
 
-
+	/**
+	 * Kept in api since it was useful for some debugs while coding, use just for debug purposes only, do not use in produciton code.
+	 * In case that dumping stack is required for production code for remote sessions on client side, please use sumbLEVELLocation methods that are using regular logger.
+	 *
+	 * @param msg
+	 */
 	static public final void dumpLocation(final String msg) {
 		try {
 			throw new IllegalStateException("duh");
 		} catch(IllegalStateException x) {
 			System.out.println(msg);
 			x.printStackTrace(System.out);
+		}
+	}
+
+	static public final void dumpDebugLocation(@Nonnull Logger log, final @Nonnull String msg) {
+		try {
+			throw new IllegalStateException("Dump at debug level for source location...");
+		} catch(IllegalStateException x) {
+			log.debug(msg, x);
+		}
+	}
+
+	static public final void dumpTraceLocation(@Nonnull Logger log, final @Nonnull String msg) {
+		try {
+			throw new IllegalStateException("Dump at trace level for source location...");
+		} catch(IllegalStateException x) {
+			log.trace(msg, x);
+		}
+	}
+
+	static public final void dumpInfoLocation(@Nonnull Logger log, final @Nonnull String msg) {
+		try {
+			throw new IllegalStateException("Dump at info level for source location...");
+		} catch(IllegalStateException x) {
+			log.info(msg, x);
+		}
+	}
+
+	static public final void dumpWarnLocation(@Nonnull Logger log, final @Nonnull String msg) {
+		try {
+			throw new IllegalStateException("Dump at warn level for source location...");
+		} catch(IllegalStateException x) {
+			log.warn(msg, x);
+		}
+	}
+
+	static public final void dumpErrorLocation(@Nonnull Logger log, final @Nonnull String msg) {
+		try {
+			throw new IllegalStateException("Dump at error level for source location...");
+		} catch(IllegalStateException x) {
+			log.error(msg, x);
 		}
 	}
 
