@@ -124,7 +124,7 @@ public abstract class DomApplication {
 	private int m_windowSessionTimeout = 15;
 
 	/** The default expiry time for resources, in seconds. */
-	private int m_defaultExpiryTime = 7 * 24 * 60 * 60;
+	private int m_defaultExpiryTime = 1 * 24 * 60 * 60;
 
 	private ILoginAuthenticator m_loginAuthenticator;
 
