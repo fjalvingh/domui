@@ -323,6 +323,22 @@ public class QQueryRenderer implements QNodeVisitor {
 		}
 	}
 
+	@Override
+	public void visitSqlRestriction(@Nonnull QSqlRestriction v) throws Exception {
+		append("SQL['");
+		append(v.getSql());
+		append("'");
+		if(v.getParameters().length > 0) {
+			for(int i = 0; i < v.getParameters().length; i++) {
+				Object val = v.getParameters()[i];
+				append(", #" + i);
+				append("=");
+				append(String.valueOf(val));
+			}
+		}
+		append("]");
+	}
+
 	/**
 	 * Returns the operator precedence
 	 * @param ot
@@ -408,6 +424,18 @@ public class QQueryRenderer implements QNodeVisitor {
 
 	@Override
 	public void visitUnaryNode(@Nonnull QUnaryNode n) throws Exception {
+		appendOperation(n.getOperation());
+
+		int oldprec = m_curPrec;
+		m_curPrec = getOperationPrecedence(n.getOperation());
+		if(oldprec > m_curPrec)
+			append("(");
+		int ct = 0;
+
+		//-- Visit lower
 		n.getNode().visit(this);
+		if(oldprec > m_curPrec)
+			append(")");
+		m_curPrec = oldprec;
 	}
 }
