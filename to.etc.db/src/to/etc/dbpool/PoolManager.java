@@ -175,7 +175,7 @@ final public class PoolManager {
 		}
 	}
 
-	private ConnectionPool addPool(String id, PoolConfig pc) throws SQLException {
+	public ConnectionPool definePool(String id, PoolConfig pc) throws SQLException {
 		//-- Create a new pool structure,
 		ConnectionPool newpool = new ConnectionPool(this, id, pc);
 		newpool.checkParameters(); // Check all parameters outside any lock.
@@ -191,12 +191,12 @@ final public class PoolManager {
 	 */
 	public ConnectionPool definePool(final PoolConfigSource cs, final String id) throws SQLException {
 		PoolConfig pc = new PoolConfig(id, cs);
-		return addPool(id, pc);
+		return definePool(id, pc);
 	}
 
 	public ConnectionPool definePool(final String id, final String driver, final String url, final String userid, final String password, final String driverpath) throws SQLException {
 		PoolConfig pc = new PoolConfig(driver, url, userid, password, driverpath);
-		return addPool(id, pc);
+		return definePool(id, pc);
 	}
 
 	/**
