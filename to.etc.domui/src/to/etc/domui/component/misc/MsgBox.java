@@ -272,7 +272,6 @@ public class MsgBox extends Window {
 		message(dad, Type.ERROR, string);
 	}
 
-
 	public static void message(NodeBase dad, Type mt, String string, IAnswer onAnswer) {
 		if(mt == Type.DIALOG) {
 			throw new IllegalArgumentException("Please use one of the predefined button calls for MsgType.DIALOG type MsgBox!");
@@ -773,5 +772,4 @@ public class MsgBox extends Window {
 		box.setCloseButton(MsgBoxButton.CONTINUE);
 		box.construct();
 	}
-
 }
