@@ -79,7 +79,7 @@ public class SimpleBinder implements IBinder {
 	}
 
 	@Override
-	public <T> void to(@Nonnull T instance, @Nonnull String property) {
+	public <T> void to(@Nonnull T instance, @Nonnull String property) throws Exception {
 		if(instance == null || property == null)
 			throw new IllegalArgumentException("The instance in a component bind request CANNOT be null!");
 		to(instance, MetaManager.getPropertyMeta(instance.getClass(), property));
@@ -89,14 +89,18 @@ public class SimpleBinder implements IBinder {
 	 * Bind to a propertyMetaModel and the given instance.
 	 * @param instance
 	 * @param pmm
+	 * @throws Exception
 	 */
 	@Override
-	public <T, V> void to(@Nonnull T instance, @Nonnull PropertyMetaModel<V> pmm) {
+	public <T, V> void to(@Nonnull T instance, @Nonnull PropertyMetaModel<V> pmm) throws Exception {
 		checkAssigned();
 		if(instance == null || pmm == null)
 			throw new IllegalArgumentException("Parameters in a bind request CANNOT be null!");
 		m_instanceProperty = pmm;
 		m_instance = instance;
+
+		//-- Move the data now!
+		moveModelToControl();
 	}
 
 

@@ -42,7 +42,7 @@ public interface IBinder {
 	 * @param instance
 	 * @param property
 	 */
-	public <T> void to(@Nonnull T instance, @Nonnull @GProperty String property);
+	public <T> void to(@Nonnull T instance, @Nonnull @GProperty String property) throws Exception;
 
 	/**
 	 * Creates a "value" property binding from the control TO the model object's property specified. If the
@@ -51,7 +51,7 @@ public interface IBinder {
 	 * @param instance
 	 * @param pmm
 	 */
-	public <T, V> void to(@Nonnull T instance, @Nonnull PropertyMetaModel<V> pmm);
+	public <T, V> void to(@Nonnull T instance, @Nonnull PropertyMetaModel<V> pmm) throws Exception;
 
 	/**
 	 * Bind the control to a listener.

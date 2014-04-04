@@ -28,6 +28,7 @@ import java.util.*;
 
 import javax.annotation.*;
 
+import to.etc.domui.component.input.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.errors.*;
@@ -511,6 +512,29 @@ final public class Page implements IQContextContainer {
 
 	public <T> T getData(final Class<T> clz) {
 		return (T) m_pageData.get(clz.getName());
+	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Simple component binding.							*/
+	/*--------------------------------------------------------------*/
+
+	public void modelToControl() throws Exception {
+		internalSetPhase(PagePhase.bindModelToControl);
+		try {
+			SimpleBinder.modelToControl(getBody());
+		} finally {
+			internalSetPhase(PagePhase.NULL);
+		}
+	}
+
+	public void controlToModel() throws Exception {
+		internalSetPhase(PagePhase.bindControlToModel);
+		try {
+			SimpleBinder.controlToModel(getBody());
+		} finally {
+			internalSetPhase(PagePhase.NULL);
+		}
 	}
 
 	/*--------------------------------------------------------------*/
