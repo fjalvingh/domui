@@ -30,7 +30,6 @@ import javax.annotation.*;
 
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.errors.*;
-import to.etc.domui.logic.events.*;
 import to.etc.webapp.*;
 
 /**
@@ -669,18 +668,17 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		}
 	}
 
-
-	/**
-	 * EXPERIMENTAL Pass the event to all my children, but before that pass it to myself if I'm bound.
-	 * @see to.etc.domui.dom.html.NodeBase#logicEvent(to.etc.domui.logic.events.LogiEvent)
-	 */
-	@Override
-	public void logicEvent(@Nonnull LogiEvent logiEvent) throws Exception {
-		super.logicEvent(logiEvent);					// Handle binding to myself;
-		build(); 										// And only build it AFTER a value can have been set.
-		for(NodeBase b : new ArrayList<NodeBase>(m_children))
-			b.logicEvent(logiEvent);
-	}
+//	/**
+//	 * EXPERIMENTAL Pass the event to all my children, but before that pass it to myself if I'm bound.
+//	 * @see to.etc.domui.dom.html.NodeBase#logicEvent(to.etc.domui.logic.events.LogiEvent)
+//	 */
+//	@Override
+//	public void logicEvent(@Nonnull LogiEvent logiEvent) throws Exception {
+//		super.logicEvent(logiEvent);					// Handle binding to myself;
+//		build(); 										// And only build it AFTER a value can have been set.
+//		for(NodeBase b : new ArrayList<NodeBase>(m_children))
+//			b.logicEvent(logiEvent);
+//	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Miscellaneous										*/

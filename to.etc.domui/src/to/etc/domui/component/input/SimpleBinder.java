@@ -245,10 +245,12 @@ public class SimpleBinder implements IBinder, ILogiEventListener {
 		}
 
 		//-- Get my binding as instance:property.
-		Object base = getBase();
-		if(!event.propertyChanged(base, pmm().getName()))
-			return;
-
+		Object base = m_instance;
+		PropertyMetaModel< ? > pmm = m_instanceProperty;
+		if(pmm != null && base != null) {
+			if(!event.propertyChanged(base, pmm.getName()))
+				return;
+		}
 		//-- The thing we're bound to has changed value. For now just set the new value.
 		moveModelToControl();
 	}
