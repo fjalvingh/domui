@@ -44,7 +44,7 @@ public class SimpleBinder implements IBinder {
 	final private IBindable m_control;
 
 	@Nonnull
-	final private String m_controlProperty;
+	final private PropertyMetaModel< ? > m_controlProperty;
 
 	/** The instance bound to */
 	@Nullable
@@ -52,7 +52,7 @@ public class SimpleBinder implements IBinder {
 
 	/** If this contains whatever property-related binding this contains the property's meta model, needed to use it's value accessor. */
 	@Nullable
-	private PropertyMetaModel< ? > m_propertyModel;
+	private PropertyMetaModel< ? > m_instanceProperty;
 
 	/** If this thing is bound to some event listener... */
 	@Nullable
@@ -62,7 +62,7 @@ public class SimpleBinder implements IBinder {
 		if(control == null)
 			throw new IllegalArgumentException("The control cannot be null.");
 		m_control = control;
-		m_controlProperty = controlProperty;
+		m_controlProperty = MetaManager.getPropertyMeta(control.getClass(), controlProperty);
 	}
 
 	private void checkAssigned() {
@@ -95,9 +95,10 @@ public class SimpleBinder implements IBinder {
 		checkAssigned();
 		if(instance == null || pmm == null)
 			throw new IllegalArgumentException("Parameters in a bind request CANNOT be null!");
-		m_propertyModel = pmm;
+		m_instanceProperty = pmm;
 		m_instance = instance;
 	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IModelBinding interface implementation.				*/
@@ -105,34 +106,115 @@ public class SimpleBinder implements IBinder {
 	/**
 	 * Move the control value to wherever it's needed. If this is a listener binding it calls the listener,
 	 * else it moves the value either to the model's value or the instance's value.
-	 * @see to.etc.domui.component.controlfactory.IModelBinding#moveControlToModel()
 	 */
-	@Override
-	public void moveControlToModel() throws Exception {
-		if(m_listener != null)
-			((IBindingListener<NodeBase>) m_listener).moveControlToModel((NodeBase) m_control); // Stupid generics idiocy requires cast
-		else {
-			Object val = m_control.getValue();
-			Object base = m_instance == null ? getModel().getValue() : m_instance;
-			IValueAccessor<Object> a = (IValueAccessor<Object>) m_propertyModel;
-			if(null == a)
-				throw new IllegalStateException("The propertyModel cannot be null");
-			a.setValue(base, val);
+	void moveControlToModel() throws Exception {
+		IBindingListener< ? > listener = m_listener;
+		if(listener != null) {
+			((IBindingListener<NodeBase>) listener).moveControlToModel((NodeBase) m_control);
+			return;
+		}
+
+		try {
+			Object value = m_controlProperty.getValue(m_control);
+			((PropertyMetaModel<Object>) m_instanceProperty).setValue(m_instance, value);
+		} catch(Exception x) {
+			System.out.println("Binding error moving " + m_controlProperty + " to " + m_instanceProperty + ": " + x);
 		}
 	}
 
-	@Override
-	public void moveModelToControl() throws Exception {
-		if(m_listener != null)
-			((IBindingListener<NodeBase>) m_listener).moveModelToControl((NodeBase) m_control); // Stupid generics idiocy requires cast
-		else {
-			Object base = m_instance == null ? getModel().getValue() : m_instance;
-			IValueAccessor< ? > vac = m_propertyModel;
-			if(vac == null)
-				throw new IllegalStateException("Null IValueAccessor<T> returned by PropertyMeta " + m_propertyModel);
-			Object pval = vac.getValue(base);
-			((IControl<Object>) m_control).setValue(pval);
+	/**
+	 *
+	 * @throws Exception
+	 */
+	void moveModelToControl() throws Exception {
+		IBindingListener< ? > listener = m_listener;
+		if(listener != null) {
+			((IBindingListener<NodeBase>) listener).moveModelToControl((NodeBase) m_control);
+			return;
 		}
+		Object base = m_instance;
+		if(base != null) {
+			// FIXME We should think about exception handling here
+			Object val = m_instanceProperty.getValue(base);
+			((PropertyMetaModel<Object>) m_controlProperty).setValue(m_control, val);
+		}
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Handling simple binding chores.						*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * System helper method to move all bindings from control into the model (called at request start).
+	 * @param root
+	 * @throws Exception
+	 */
+	static public void controlToModel(@Nonnull NodeBase root) throws Exception {
+		DomUtil.walkTree(root, new DomUtil.IPerNode() {
+			@Override
+			public Object before(NodeBase n) throws Exception {
+				if(n instanceof IBindable) {
+					IBindable b = (IBindable) n;
+					List<SimpleBinder> list = b.getBindingList();
+					if(null != list) {
+						for(SimpleBinder sb : list)
+							sb.moveControlToModel();
+					}
+				}
+				return null;
+			}
+
+			@Override
+			public Object after(NodeBase n) throws Exception {
+				return null;
+			}
+		});
+	}
+
+	/**
+	 * System helper method to move all bindings from model to control (called at request end).
+	 * @param root
+	 * @throws Exception
+	 */
+	static public void modelToControl(@Nonnull NodeBase root) throws Exception {
+		DomUtil.walkTree(root, new DomUtil.IPerNode() {
+			@Override
+			public Object before(NodeBase n) throws Exception {
+				if(n instanceof IBindable) {
+					IBindable b = (IBindable) n;
+					List<SimpleBinder> list = b.getBindingList();
+					if(null != list) {
+						for(SimpleBinder sb : list)
+							sb.moveModelToControl();
+					}
+				}
+				return null;
+			}
+
+			@Override
+			public Object after(NodeBase n) throws Exception {
+				return null;
+			}
+		});
+	}
+
+	@Nullable
+	public static SimpleBinder findBinding(NodeBase nodeBase, String string) {
+		if(nodeBase instanceof IBindable) {
+			IBindable b = (IBindable) nodeBase;
+			List<SimpleBinder> list = b.getBindingList();
+			if(list != null) {
+				for(SimpleBinder sb : list) {
+					if(string.equals(sb.getControlProperty().getName()))
+						return sb;
+				}
+			}
+		}
+		return null;
+	}
+
+	@Nonnull
+	public PropertyMetaModel< ? > getControlProperty() {
+		return m_controlProperty;
 	}
 
 	@Override
@@ -146,30 +228,10 @@ public class SimpleBinder implements IBinder {
 		} else {
 			sb.append("?");
 		}
-		if(m_propertyModel != null) {
-			sb.append("/").append(m_propertyModel.getName());
+		if(m_instanceProperty != null) {
+			sb.append("/").append(m_instanceProperty.getName());
 		}
 		sb.append("]");
 		return sb.toString();
-	}
-
-	@Nullable
-	public static SimpleBinder findBinding(NodeBase nodeBase, String string) {
-		if(nodeBase  instanceof IBindable) {
-			IBindable b = (IBindable) nodeBase;
-			List<SimpleBinder> list = b.getBindingList();
-			if(list != null) {
-				for(SimpleBinder sb: list) {
-					if(string.equals(sb.getControlProperty()))
-						return sb;
-				}
-			}
-		}
-		return null;
-	}
-
-	@Nonnull
-	public String getControlProperty() {
-		return m_controlProperty;
 	}
 }
