@@ -176,7 +176,7 @@ public class FormData<T> {
 				b.setErrorLocation(label);
 		}
 
-		r.getFormControl().bind().to(getModel(), pmm);
+		r.getFormControl().bind().to(getModel().getValue(), pmm);
 
 		//		getBindings().add(new SimpleComponentPropertyBinding<C>(getModel(), pmm, (IControl<C>) r.getFormControl()));
 		return (IControl<C>) r.getFormControl();
@@ -264,7 +264,7 @@ public class FormData<T> {
 		builder().addControl(label, ctl, new NodeBase[]{ctl}, ctl.isMandatory(), true, pmm); // Since this is a full control it is editable
 		if(label != null)
 			ctl.setErrorLocation(label);
-		ctl.bind().to(getModel(), pmm);
+		ctl.bind().to(getModel().getValue(), pmm);
 		return ctl;
 	}
 
@@ -275,7 +275,7 @@ public class FormData<T> {
 		builder().addControl(label, ctl, new NodeBase[]{ctl}, false, true, pmm); // Since this is a full control it is editable
 		if(label != null)
 			ctl.setErrorLocation(label);
-		ctl.bind().to(getModel(), pmm);
+		ctl.bind().to(getModel().getValue(), pmm);
 		return ctl;
 	}
 
@@ -292,7 +292,7 @@ public class FormData<T> {
 		builder().addControl(label, ctl, new NodeBase[]{ctl}, ctl.isMandatory(), true, pmm); // Since this is a full control it is editable
 		if(label != null)
 			ctl.setErrorLocation(label);
-		ctl.bind().to(getModel(), pmm);
+		ctl.bind().to(getModel().getValue(), pmm);
 		return ctl;
 	}
 
