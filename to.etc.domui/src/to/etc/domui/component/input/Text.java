@@ -589,36 +589,33 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	}
 
 	/*--------------------------------------------------------------*/
-	/*	CODING:	IBindable interface (EXPERIMENTAL)					*/
+	/*	CODING:	IBindable interface.								*/
 	/*--------------------------------------------------------------*/
 
-	/** When this is bound this contains the binder instance handling the binding. */
 	@Nullable
-	private SimpleBinder m_binder;
+	private List<SimpleBinder> m_bindingList;
 
-	/**
-	 * Return the binder for this control.
-	 * @see to.etc.domui.component.input.IBindable#bind()
-	 */
+	@Override
+	public @Nonnull IBinder bind() {
+		return bind("value");
+	}
+
 	@Override
 	@Nonnull
-	public IBinder bind() {
-		SimpleBinder binder = m_binder;
-		if(binder == null)
-			binder = m_binder = new SimpleBinder(this);
+	public IBinder bind(@Nonnull String componentProperty) {
+		List<SimpleBinder> list = m_bindingList;
+		if(list == null)
+			list = m_bindingList = new ArrayList<SimpleBinder>(1);
+		SimpleBinder binder = new SimpleBinder(this, componentProperty);
+		list.add(binder);
 		return binder;
 	}
 
-	/**
-	 * Returns T if this control is bound to some data value.
-	 *
-	 * @see to.etc.domui.component.input.IBindable#isBound()
-	 */
 	@Override
-	public boolean isBound() {
-		return m_binder != null && m_binder.isBound();
+	@Nullable
+	public List<SimpleBinder> getBindingList() {
+		return m_bindingList;
 	}
-
 
 	/**
 	 * This adds a validator for the maximal and minimal value for an input, gotten from the property metamodel.

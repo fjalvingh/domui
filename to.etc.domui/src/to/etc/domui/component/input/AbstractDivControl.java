@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.input;
 
+import java.util.*;
+
 import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
@@ -139,29 +141,31 @@ abstract public class AbstractDivControl<T> extends Div implements IControl<T> {
 
 
 	/*--------------------------------------------------------------*/
-	/*	CODING:	IBindable interface (EXPERIMENTAL)					*/
+	/*	CODING:	IBindable interface.								*/
 	/*--------------------------------------------------------------*/
-	/** When this is bound this contains the binder instance handling the binding. */
-	private SimpleBinder m_binder;
 
-	/**
-	 * Return the binder for this control.
-	 * @see to.etc.domui.component.input.IBindable#bind()
-	 */
+	@Nullable
+	private List<SimpleBinder> m_bindingList;
+
 	@Override
 	public @Nonnull IBinder bind() {
-		if(m_binder == null)
-			m_binder = new SimpleBinder(this);
-		return m_binder;
+		return bind("value");
 	}
 
-	/**
-	 * Returns T if this control is bound to some data value.
-	 *
-	 * @see to.etc.domui.component.input.IBindable#isBound()
-	 */
 	@Override
-	public boolean isBound() {
-		return m_binder != null && m_binder.isBound();
+	@Nonnull
+	public IBinder bind(@Nonnull String componentProperty) {
+		List<SimpleBinder> list = m_bindingList;
+		if(list == null)
+			list = m_bindingList = new ArrayList<SimpleBinder>(1);
+		SimpleBinder binder = new SimpleBinder(this, componentProperty);
+		list.add(binder);
+		return binder;
+	}
+
+	@Override
+	@Nullable
+	public List<SimpleBinder> getBindingList() {
+		return m_bindingList;
 	}
 }

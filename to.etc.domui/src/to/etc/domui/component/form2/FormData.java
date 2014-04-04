@@ -120,7 +120,7 @@ public class FormData<T> {
 	 * @param name
 	 */
 	@Nonnull
-	public IControl< ? > addProp(@Nonnull @GProperty final String name) {
+	public IControl< ? > addProp(@Nonnull @GProperty final String name) throws Exception {
 		PropertyMetaModel< ? > pmm = resolveProperty(name);
 		return addProp(name, pmm.getDefaultLabel());
 	}
@@ -133,7 +133,7 @@ public class FormData<T> {
 	 * @param label		The label text to use. Use the empty string to prevent a label from being generated. This still adds an empty cell for the label though.
 	 */
 	@Nonnull
-	public IControl< ? > addProp(@Nonnull @GProperty final String name, @Nonnull String label) {
+	public IControl< ? > addProp(@Nonnull @GProperty final String name, @Nonnull String label) throws Exception {
 		PropertyMetaModel< ? > pmm = resolveProperty(name);
 		boolean editable = true;
 		if(pmm.getReadOnly() == YesNoType.YES)
@@ -151,7 +151,7 @@ public class FormData<T> {
 	 * @param mandatory Specify if field is mandatory. This <b>always</b> overrides the mandatoryness of the metadata which is questionable.
 	 */
 	@Nonnull
-	public IControl< ? > addProp(@Nonnull @GProperty final String name, @Nonnull String label, final boolean editable, final boolean mandatory) {
+	public IControl< ? > addProp(@Nonnull @GProperty final String name, @Nonnull String label, final boolean editable, final boolean mandatory) throws Exception {
 		PropertyMetaModel< ? > pmm = resolveProperty(name);
 		return addPropertyControl(name, label, pmm, editable, mandatory);
 	}
@@ -166,7 +166,7 @@ public class FormData<T> {
 	 * 			created if the control is display-only, not allowed by permissions or simply uncontrollable (the last one is uncommon).
 	 */
 	@Nonnull
-	private <C> IControl<C> addPropertyControl(@Nonnull @GProperty final String name, @Nonnull final String label, @Nonnull final PropertyMetaModel<C> pmm, final boolean editable, boolean mandatory) {
+	private <C> IControl<C> addPropertyControl(@Nonnull @GProperty final String name, @Nonnull final String label, @Nonnull final PropertyMetaModel<C> pmm, final boolean editable, boolean mandatory) throws Exception {
 		final ControlFactoryResult r = builder().createControlFor(getModel(), pmm, editable); // Add the proper input control for that type
 		builder().addControl(label, r.getLabelNode(), r.getNodeList(), mandatory, editable, pmm);
 
@@ -190,7 +190,7 @@ public class FormData<T> {
 	 * @param editable When false add a display-only control, else add an editable control.
 	 */
 	@Nonnull
-	public IControl< ? > addProp(@Nonnull @GProperty final String name, final boolean editable) {
+	public IControl< ? > addProp(@Nonnull @GProperty final String name, final boolean editable) throws Exception {
 		if(editable) {
 			return addProp(name);
 		} else {
@@ -207,7 +207,7 @@ public class FormData<T> {
 	 * @param mandatory Specify if field is mandatory. This <b>always</b> overrides the mandatoryness of the metadata which is questionable.
 	 */
 	@Nonnull
-	public IControl< ? > addProp(@Nonnull @GProperty final String name, final boolean editable, final boolean mandatory) {
+	public IControl< ? > addProp(@Nonnull @GProperty final String name, final boolean editable, final boolean mandatory) throws Exception {
 		PropertyMetaModel< ? > pmm = resolveProperty(name);
 		String label = pmm.getDefaultLabel();
 		return addProp(name, label, editable, mandatory);
@@ -219,7 +219,7 @@ public class FormData<T> {
 	 * @param name
 	 */
 	@Nonnull
-	public IControl< ? > addDisplayProp(@Nonnull @GProperty final String name) {
+	public IControl< ? > addDisplayProp(@Nonnull @GProperty final String name) throws Exception {
 		PropertyMetaModel< ? > pmm = resolveProperty(name);
 		return addDisplayProp(name, pmm.getDefaultLabel());
 	}
@@ -232,7 +232,7 @@ public class FormData<T> {
 	 * @param label
 	 */
 	@Nonnull
-	public <T> IControl< ? > addDisplayProp(@Nonnull @GProperty final String name, @Nonnull String label) {
+	public <T> IControl< ? > addDisplayProp(@Nonnull @GProperty final String name, @Nonnull String label) throws Exception {
 		PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) resolveProperty(name);
 		DisplayValue<T> dv = new DisplayValue<T>(pmm.getActualType());
 		builder().addControl(label, null, new NodeBase[]{dv}, false, false, pmm);
@@ -258,7 +258,7 @@ public class FormData<T> {
 	 * @param ctl
 	 */
 	@Nonnull
-	public <V, C extends NodeBase & IControl<V>> IControl<V> addProp(@Nonnull @GProperty final String propertyname, @Nonnull final C ctl) {
+	public <V, C extends NodeBase & IControl<V>> IControl<V> addProp(@Nonnull @GProperty final String propertyname, @Nonnull final C ctl) throws Exception {
 		PropertyMetaModel<V> pmm = (PropertyMetaModel<V>) resolveProperty(propertyname);
 		String label = pmm.getDefaultLabel();
 		builder().addControl(label, ctl, new NodeBase[]{ctl}, ctl.isMandatory(), true, pmm); // Since this is a full control it is editable
@@ -269,7 +269,7 @@ public class FormData<T> {
 	}
 
 	@Nonnull
-	public <V, C extends NodeBase & IDisplayControl<V>> IControl<V> addDisplayProp(@Nonnull @GProperty final String propertyname, @Nonnull final C ctl) {
+	public <V, C extends NodeBase & IDisplayControl<V>> IControl<V> addDisplayProp(@Nonnull @GProperty final String propertyname, @Nonnull final C ctl) throws Exception {
 		PropertyMetaModel<V> pmm = (PropertyMetaModel<V>) resolveProperty(propertyname);
 		String label = pmm.getDefaultLabel();
 		builder().addControl(label, ctl, new NodeBase[]{ctl}, false, true, pmm); // Since this is a full control it is editable
@@ -287,7 +287,7 @@ public class FormData<T> {
 	 * @param ctl
 	 */
 	@Nonnull
-	public <V, C extends NodeBase & IControl<V>> IControl<V> addProp(@Nonnull @GProperty final String name, @Nonnull String label, @Nonnull final C ctl) {
+	public <V, C extends NodeBase & IControl<V>> IControl<V> addProp(@Nonnull @GProperty final String name, @Nonnull String label, @Nonnull final C ctl) throws Exception {
 		PropertyMetaModel<V> pmm = (PropertyMetaModel<V>) resolveProperty(name);
 		builder().addControl(label, ctl, new NodeBase[]{ctl}, ctl.isMandatory(), true, pmm); // Since this is a full control it is editable
 		if(label != null)
@@ -325,7 +325,7 @@ public class FormData<T> {
 	 * @return
 	 */
 	@Nonnull
-	private IControl< ? >[] addPropertyList(boolean editable, @Nonnull String[] names) {
+	private IControl< ? >[] addPropertyList(boolean editable, @Nonnull String[] names) throws Exception {
 		builder().startBulkLayout();
 		IControl< ? >[] res = new IControl< ? >[names.length];
 		int ix = 0;
@@ -353,7 +353,7 @@ public class FormData<T> {
 	 * @param names
 	 */
 	@Nonnull
-	public IControl< ? >[] addProps(@Nonnull @GProperty final String... names) {
+	public IControl< ? >[] addProps(@Nonnull @GProperty final String... names) throws Exception {
 		return addPropertyList(true, names);
 	}
 
@@ -372,7 +372,7 @@ public class FormData<T> {
 	 * @param names
 	 */
 	@Nonnull
-	public IControl< ? >[] addDisplayProps(@Nonnull @GProperty final String... names) {
+	public IControl< ? >[] addDisplayProps(@Nonnull @GProperty final String... names) throws Exception {
 		return addPropertyList(false, names);
 	}
 

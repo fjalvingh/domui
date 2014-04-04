@@ -24,107 +24,63 @@
  */
 package to.etc.domui.component.input;
 
+import java.util.*;
+
 import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.logic.events.*;
 import to.etc.domui.util.*;
+import to.etc.webapp.*;
 
 /**
- * EXPERIMENTAL - DO NOT USE.
- * This is a simple binder implementation for base IControl<T> implementing controls. It handles all
- * binding chores.
+ * This is a single binding instance between a control and one of the control's properties.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 13, 2009
  */
 public class SimpleBinder implements IBinder, ILogiEventListener {
 	@Nonnull
-	private IControl< ? > m_control;
+	final private IBindable m_control;
+
+	@Nonnull
+	final private PropertyMetaModel< ? > m_controlProperty;
+
+	/** The instance bound to */
+	@Nullable
+	private Object m_instance;
 
 	/** If this contains whatever property-related binding this contains the property's meta model, needed to use it's value accessor. */
 	@Nullable
-	private PropertyMetaModel< ? > m_propertyModel;
-
-	/** If this is bound to some model this contains the model, */
-	@Nullable
-	private IReadOnlyModel< ? > m_model;
-
-	/** If this is bound to an object instance directly it contains the instance */
-	@Nullable
-	private Object m_instance;
+	private PropertyMetaModel< ? > m_instanceProperty;
 
 	/** If this thing is bound to some event listener... */
 	@Nullable
 	private IBindingListener< ? > m_listener;
 
-	public SimpleBinder(@Nonnull IControl< ? > control) {
+	public SimpleBinder(@Nonnull IBindable control, @Nonnull String controlProperty) {
 		if(control == null)
 			throw new IllegalArgumentException("The control cannot be null.");
 		m_control = control;
+		m_controlProperty = MetaManager.getPropertyMeta(control.getClass(), controlProperty);
 	}
 
-	/**
-	 * Returns T if this contains an actual binding. We are bound if property is set OR a listener is set.
-	 * @see to.etc.domui.component.input.IBinder#isBound()
-	 */
-	@Override
-	public boolean isBound() {
-		return m_propertyModel != null || m_listener != null;
+	private void checkAssigned() {
+		if(m_listener != null || m_instance != null)
+			throw new ProgrammerErrorException("This binding is already fully defined. Create a new one.");
 	}
 
-	/**
-	 * Bind to a property of the object returned by this model.
-	 * @see to.etc.domui.component.input.IBinder#to(java.lang.Class, to.etc.domui.util.IReadOnlyModel, java.lang.String)
-	 */
-	@Override
-	public <T> void to(@Nonnull Class<T> theClass, @Nonnull IReadOnlyModel<T> model, @Nonnull String property) {
-		if(theClass == null || property == null || model == null)
-			throw new IllegalArgumentException("Argument cannot be null");
-		m_listener = null;
-		m_propertyModel = MetaManager.getPropertyMeta(theClass, property);
-		m_model = model;
-		m_instance = null;
-	}
-
-	/**
-	 * Bind to a property on some model whose metadata is passed.
-	 * @param <T>
-	 * @param model
-	 * @param pmm
-	 */
-	@Override
-	public <T> void to(@Nonnull IReadOnlyModel<T> model, @Nonnull PropertyMetaModel< ? > pmm) {
-		if(pmm == null || model == null)
-			throw new IllegalArgumentException("Argument cannot be null");
-		m_listener = null;
-		m_propertyModel = pmm;
-		m_model = model;
-		m_instance = null;
-	}
-
-	/**
-	 *
-	 * @see to.etc.domui.component.input.IBinder#to(to.etc.domui.component.input.IBindingListener)
-	 */
 	@Override
 	public void to(@Nonnull IBindingListener< ? > listener) {
+		checkAssigned();
 		if(listener == null)
 			throw new IllegalArgumentException("Argument cannot be null");
-		m_propertyModel = null;
-		m_instance = null;
-		m_model = null;
 		m_listener = listener;
 	}
 
-	/**
-	 * Bind to a property of the instance specified.
-	 *
-	 * @see to.etc.domui.component.input.IBinder#to(java.lang.Object, java.lang.String)
-	 */
 	@Override
-	public void to(@Nonnull Object instance, @Nonnull String property) {
+	public <T> void to(@Nonnull T instance, @Nonnull String property) throws Exception {
 		if(instance == null || property == null)
 			throw new IllegalArgumentException("The instance in a component bind request CANNOT be null!");
 		to(instance, MetaManager.getPropertyMeta(instance.getClass(), property));
@@ -134,15 +90,18 @@ public class SimpleBinder implements IBinder, ILogiEventListener {
 	 * Bind to a propertyMetaModel and the given instance.
 	 * @param instance
 	 * @param pmm
+	 * @throws Exception
 	 */
 	@Override
-	public void to(@Nonnull Object instance, @Nonnull PropertyMetaModel< ? > pmm) {
+	public <T, V> void to(@Nonnull T instance, @Nonnull PropertyMetaModel<V> pmm) throws Exception {
+		checkAssigned();
 		if(instance == null || pmm == null)
 			throw new IllegalArgumentException("Parameters in a bind request CANNOT be null!");
-		m_listener = null;
-		m_model = null;
-		m_propertyModel = pmm;
+		m_instanceProperty = pmm;
 		m_instance = instance;
+
+		//-- Move the data now!
+		moveModelToControl();
 	}
 
 	/*--------------------------------------------------------------*/
@@ -151,60 +110,115 @@ public class SimpleBinder implements IBinder, ILogiEventListener {
 	/**
 	 * Move the control value to wherever it's needed. If this is a listener binding it calls the listener,
 	 * else it moves the value either to the model's value or the instance's value.
-	 * @see to.etc.domui.component.controlfactory.IModelBinding#moveControlToModel()
 	 */
-	@Override
-	public void moveControlToModel() throws Exception {
-		if(m_listener != null)
-			((IBindingListener<NodeBase>) m_listener).moveControlToModel((NodeBase) m_control); // Stupid generics idiocy requires cast
-		else {
-			PropertyMetaModel<Object> propertyModel = pmm();
-			if(propertyModel.getReadOnly() == YesNoType.YES || m_control instanceof IDisplayControl)
-				return;
-			Object val = m_control.getValue();
-			Object base = getBase();
-			propertyModel.setValue(base, val);
+	void moveControlToModel() throws Exception {
+		IBindingListener< ? > listener = m_listener;
+		if(listener != null) {
+			((IBindingListener<NodeBase>) listener).moveControlToModel((NodeBase) m_control);
+			return;
+		}
+
+		try {
+			Object value = m_controlProperty.getValue(m_control);
+			((PropertyMetaModel<Object>) m_instanceProperty).setValue(m_instance, value);
+		} catch(Exception x) {
+			System.out.println("Binding error moving " + m_controlProperty + " to " + m_instanceProperty + ": " + x);
 		}
 	}
 
-	@Nonnull
-	private PropertyMetaModel<Object> pmm() {
-		PropertyMetaModel<Object> propertyModel = (PropertyMetaModel<Object>) m_propertyModel;
-		if(null == propertyModel)
-			throw new IllegalStateException("Binding for a model item without a propertyModel");
-		return propertyModel;
-	}
-
-	@Nonnull
-	private Object getBase() throws Exception {
-		Object base = m_instance == null ? getModel().getValue() : m_instance;
-		if(null == base)
-			throw new IllegalStateException(this + ": the base object is null");
-		return base;
-	}
-
-	@Override
-	public void moveModelToControl() throws Exception {
-		if(m_listener != null)
-			((IBindingListener<NodeBase>) m_listener).moveModelToControl((NodeBase) m_control); // Stupid generics idiocy requires cast
-		else {
-			Object base = getBase();
-			IValueAccessor< ? > vac = pmm();
-			Object pval = vac.getValue(base);
-			((IControl<Object>) m_control).setValue(pval);
+	/**
+	 *
+	 * @throws Exception
+	 */
+	void moveModelToControl() throws Exception {
+		IBindingListener< ? > listener = m_listener;
+		if(listener != null) {
+			((IBindingListener<NodeBase>) listener).moveModelToControl((NodeBase) m_control);
+			return;
+		}
+		Object base = m_instance;
+		if(base != null) {
+			// FIXME We should think about exception handling here
+			Object val = m_instanceProperty.getValue(base);
+			((PropertyMetaModel<Object>) m_controlProperty).setValue(m_control, val);
 		}
 	}
 
-	@Nonnull
-	private IReadOnlyModel< ? > getModel() {
-		if(null != m_model)
-			return m_model;
-		throw new IllegalStateException("The model cannot be null");
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Handling simple binding chores.						*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * System helper method to move all bindings from control into the model (called at request start).
+	 * @param root
+	 * @throws Exception
+	 */
+	static public void controlToModel(@Nonnull NodeBase root) throws Exception {
+		DomUtil.walkTree(root, new DomUtil.IPerNode() {
+			@Override
+			public Object before(NodeBase n) throws Exception {
+				if(n instanceof IBindable) {
+					IBindable b = (IBindable) n;
+					List<SimpleBinder> list = b.getBindingList();
+					if(null != list) {
+						for(SimpleBinder sb : list)
+							sb.moveControlToModel();
+					}
+				}
+				return null;
+			}
+
+			@Override
+			public Object after(NodeBase n) throws Exception {
+				return null;
+			}
+		});
 	}
 
-	@Override
-	public void setControlsEnabled(boolean on) {
-		m_control.setDisabled(!on);
+	/**
+	 * System helper method to move all bindings from model to control (called at request end).
+	 * @param root
+	 * @throws Exception
+	 */
+	static public void modelToControl(@Nonnull NodeBase root) throws Exception {
+		DomUtil.walkTree(root, new DomUtil.IPerNode() {
+			@Override
+			public Object before(NodeBase n) throws Exception {
+				if(n instanceof IBindable) {
+					IBindable b = (IBindable) n;
+					List<SimpleBinder> list = b.getBindingList();
+					if(null != list) {
+						for(SimpleBinder sb : list)
+							sb.moveModelToControl();
+					}
+				}
+				return null;
+			}
+
+			@Override
+			public Object after(NodeBase n) throws Exception {
+				return null;
+			}
+		});
+	}
+
+	@Nullable
+	public static SimpleBinder findBinding(NodeBase nodeBase, String string) {
+		if(nodeBase instanceof IBindable) {
+			IBindable b = (IBindable) nodeBase;
+			List<SimpleBinder> list = b.getBindingList();
+			if(list != null) {
+				for(SimpleBinder sb : list) {
+					if(string.equals(sb.getControlProperty().getName()))
+						return sb;
+				}
+			}
+		}
+		return null;
+	}
+
+	@Nonnull
+	public PropertyMetaModel< ? > getControlProperty() {
+		return m_controlProperty;
 	}
 
 	/**
@@ -236,19 +250,18 @@ public class SimpleBinder implements IBinder, ILogiEventListener {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
+		sb.append("binding[");
 		if(m_instance != null) {
 			sb.append("i=").append(m_instance);
 		} else if(m_listener != null) {
 			sb.append("l=").append(m_listener);
-		} else if(m_model != null) {
-			sb.append("m=").append(m_model);
 		} else {
 			sb.append("?");
 		}
-		PropertyMetaModel< ? > propertyModel = m_propertyModel;
-		if(propertyModel != null) {
-			sb.append("/").append(propertyModel.getName());
+		if(m_instanceProperty != null) {
+			sb.append("/").append(m_instanceProperty.getName());
 		}
+		sb.append("]");
 		return sb.toString();
 	}
 }

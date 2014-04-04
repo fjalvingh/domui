@@ -30,7 +30,6 @@ import javax.annotation.*;
 
 import org.slf4j.*;
 
-import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.databinding.*;
 import to.etc.domui.databinding.observables.*;
@@ -81,7 +80,7 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 18, 2007
  */
-abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IModelBinding, IObservableEntity {
+abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IObservableEntity {
 	private static final Logger LOG = LoggerFactory.getLogger(NodeBase.class);
 
 	static private boolean m_logAllocations;
@@ -665,6 +664,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @throws Exception
 	 */
 	final public void build() throws Exception {
+		//		Page pg = m_page;
+		//		if(pg != null)
+		//			pg.inBuild();									// jal 20131206 Test checked phase handling
+
 		if(!m_built) {
 			m_built = true;
 			boolean ok = false;
@@ -1234,12 +1237,9 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		if(null != el) {
 			sb.append(":").append(el);
 		}
-		if(this instanceof IBindable) {
-			IBindable b = (IBindable) this;
-			if(b.isBound()) {
-				IBinder bi = b.bind();
-				sb.append(" bind(").append(bi).append(")");
-			}
+		SimpleBinder binding = SimpleBinder.findBinding(this, "value");
+		if(binding != null) {
+			sb.append(" ").append(binding);
 		}
 
 		return sb.toString();
@@ -1590,84 +1590,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		dragh.onDropped(dx);
 		droph.onDropped(dx);
 	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	IModelBinding implementation.						*/
-	/*--------------------------------------------------------------*/
-	/**
-	 * EXPERIMENTAL - DO NOT USE.
-	 * For non-input non-container nodes this does exactly nothing.
-	 * @see to.etc.domui.component.controlfactory.IModelBinding#moveControlToModel()
-	 */
-	@Override
-	public void moveControlToModel() throws Exception {
-		build();
-		Object v = this; // Silly: Eclipse compiler has bug - it does not allow this in instanceof because it incorrecly assumes 'this' is ALWAYS of type NodeBase - and it it not.
-		if(v instanceof IBindable) {
-			IBindable b = (IBindable) v;
-			if(b.isBound())
-				b.bind().moveControlToModel();
-		}
-	}
-
-	/**
-	 * EXPERIMENTAL - DO NOT USE.
-	 * For non-input non-container nodes this does exactly nothing.
-	 * @see to.etc.domui.component.controlfactory.IModelBinding#moveModelToControl()
-	 */
-	@Override
-	public void moveModelToControl() throws Exception {
-		//		build();		jal 20100606 Do not build: this is not a container, and if *this* implements IBindable set it's value BEFORE it is built.
-		Object v = this; // Silly: Eclipse compiler has bug - it does not allow this in instanceof because it incorrecly assumes 'this' is ALWAYS of type NodeBase - and it it not.
-		if(v instanceof IBindable) {
-			IBindable b = (IBindable) v;
-			if(b.isBound()) {
-				b.bind().moveModelToControl();
-			}
-		}
-	}
-
-	/**
-	 * EXPERIMENTAL - DO NOT USE.
-	 * For non-input non-container nodes this does exactly nothing.
-	 *
-	 * @see to.etc.domui.component.controlfactory.IModelBinding#setControlsEnabled(boolean)
-	 */
-	@Override
-	public void setControlsEnabled(boolean on) {
-		try {
-			build();
-		} catch(Exception x) {
-			throw WrappedException.wrap(x);
-		}
-		Object v = this; // Silly: Eclipse compiler has bug - it does not allow this in instanceof because it incorrecly assumes 'this' is ALWAYS of type NodeBase - and it it not.
-		if(v instanceof IBindable) {
-			IBindable b = (IBindable) v;
-			if(b.isBound())
-				b.bind().setControlsEnabled(on);
-		}
-	}
-
-	/**
-	 * EXPERIMENTAL Some logic event has occurred; this can see if it wants to do something with it. By default
-	 * this passes the event to any binding.
-	 * @param logiEvent
-	 * @return
-	 */
-	public void logicEvent(@Nonnull LogiEvent logiEvent) throws Exception {
-		Object v = this; 							// Silly: Eclipse compiler has bug - it does not allow this in instanceof because it incorrecly assumes 'this' is ALWAYS of type NodeBase - and it it not.
-		if(v instanceof IBindable) {
-			IBindable b = (IBindable) v;
-			if(b.isBound()) {
-				IBinder bind = b.bind();
-
-				if(bind instanceof ILogiEventListener) {
-					((ILogiEventListener) bind).logicEvent(logiEvent);
-				}
-			}
-		}
-	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Miscellaneous.										*/
