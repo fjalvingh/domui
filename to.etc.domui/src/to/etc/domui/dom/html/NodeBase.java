@@ -30,14 +30,12 @@ import javax.annotation.*;
 
 import org.slf4j.*;
 
-import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.dom.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
-import to.etc.util.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
 
@@ -72,7 +70,7 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 18, 2007
  */
-abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IModelBinding {
+abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	private static final Logger LOG = LoggerFactory.getLogger(NodeBase.class);
 
 	static private boolean m_logAllocations;
@@ -1382,64 +1380,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		dragh.onDropped(dx);
 		droph.onDropped(dx);
 	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	IModelBinding implementation.						*/
-	/*--------------------------------------------------------------*/
-	/**
-	 * EXPERIMENTAL - DO NOT USE.
-	 * For non-input non-container nodes this does exactly nothing.
-	 * @see to.etc.domui.component.controlfactory.IModelBinding#moveControlToModel()
-	 */
-	@Override
-	public void moveControlToModel() throws Exception {
-		build();
-		Object v = this; // Silly: Eclipse compiler has bug - it does not allow this in instanceof because it incorrecly assumes 'this' is ALWAYS of type NodeBase - and it it not.
-		if(v instanceof IBindable) {
-			IBindable b = (IBindable) v;
-			if(b.isBound())
-				b.bind().moveControlToModel();
-		}
-	}
-
-	/**
-	 * EXPERIMENTAL - DO NOT USE.
-	 * For non-input non-container nodes this does exactly nothing.
-	 * @see to.etc.domui.component.controlfactory.IModelBinding#moveModelToControl()
-	 */
-	@Override
-	public void moveModelToControl() throws Exception {
-		//		build();		jal 20100606 Do not build: this is not a container, and if *this* implements IBindable set it's value BEFORE it is built.
-		Object v = this; // Silly: Eclipse compiler has bug - it does not allow this in instanceof because it incorrecly assumes 'this' is ALWAYS of type NodeBase - and it it not.
-		if(v instanceof IBindable) {
-			IBindable b = (IBindable) v;
-			if(b.isBound()) {
-				b.bind().moveModelToControl();
-			}
-		}
-	}
-
-	/**
-	 * EXPERIMENTAL - DO NOT USE.
-	 * For non-input non-container nodes this does exactly nothing.
-	 *
-	 * @see to.etc.domui.component.controlfactory.IModelBinding#setControlsEnabled(boolean)
-	 */
-	@Override
-	public void setControlsEnabled(boolean on) {
-		try {
-			build();
-		} catch(Exception x) {
-			throw WrappedException.wrap(x);
-		}
-		Object v = this; // Silly: Eclipse compiler has bug - it does not allow this in instanceof because it incorrecly assumes 'this' is ALWAYS of type NodeBase - and it it not.
-		if(v instanceof IBindable) {
-			IBindable b = (IBindable) v;
-			if(b.isBound())
-				b.bind().setControlsEnabled(on);
-		}
-	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Miscellaneous.										*/

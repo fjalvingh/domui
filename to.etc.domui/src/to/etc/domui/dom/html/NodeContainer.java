@@ -44,8 +44,6 @@ import to.etc.webapp.*;
 abstract public class NodeContainer extends NodeBase implements Iterable<NodeBase> {
 	private List<NodeBase> m_children = Collections.EMPTY_LIST;
 
-	//	private boolean			m_treeChanged;	jal 20090116 Seems to be unused
-
 	/**
 	 * Indicator that a child of this node has changes. NOT SET when THIS node has changes: that
 	 * can be seen because this node is dirty (attribute changes) or it's before tree is not-null
@@ -648,81 +646,6 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		}
 	}
 
-	//	/**
-	//	 * Find the nth instance of a specific child class using a full depth traversal of this node's subtree.
-	//	 *
-	//	 * FIXME Very questionable- pending deletion.
-	//	 *
-	//	 * @param <T>
-	//	 * @param ofClass
-	//	 * @param instance
-	//	 * @return
-	//	 */
-	//	@Deprecated
-	//	final public <T> T getDeepChild(@Nonnull Class<T> ofClass, int instance) {
-	//		List<T> res = getDeepChildren(ofClass);
-	//		if(res.size() <= instance)
-	//			throw new ProgrammerErrorException("Cannot find the " + instance + "th instance of a " + ofClass + " in subtree");
-	//		return res.get(instance);
-	//	}
-
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	IModelBinding implementation.						*/
-	/*--------------------------------------------------------------*/
-	/**
-	 * EXPERIMENTAL - DO NOT USE.
-	 * For all bound controls that are contained in this container, move the value
-	 * present in the control to the data model. This converts and validates each
-	 * control value as per the defined converters and validators. This will always
-	 * attempt to move all values even if some control fails; the exception for the
-	 * first failed control is rethrown after all controls are moved.
-	 *
-	 * @see to.etc.domui.dom.html.NodeBase#moveControlToModel()
-	 */
-	@Override
-	final public void moveControlToModel() throws Exception {
-		super.moveControlToModel(); // FIXME Is this useful?
-		Exception x = null;
-		for(NodeBase b : new ArrayList<NodeBase>(m_children)) {
-			try {
-				b.moveControlToModel();
-			} catch(Exception nx) {
-				if(x == null)
-					x = nx;
-			}
-		}
-		if(x != null)
-			throw x;
-	}
-
-	/**
-	 * EXPERIMENTAL - DO NOT USE.
-	 * For all bound controls that are contained in this container, move the value found in
-	 * the model to the control so it can be edited. If setting a value into a control results
-	 * in an error (Exception) this will terminate immediately with that exception (meaning
-	 * data is not moved to the controls following the failed controls).
-	 *
-	 * @see to.etc.domui.dom.html.NodeBase#moveModelToControl()
-	 */
-	@Override
-	final public void moveModelToControl() throws Exception {
-		super.moveModelToControl(); // Move the value to *this* node if it is bindable
-		build(); // And only build it AFTER a value can have been set.
-		for(NodeBase b : new ArrayList<NodeBase>(m_children))
-			b.moveModelToControl();
-	}
-
-	/**
-	 * EXPERIMENTAL - DO NOT USE.
-	 *
-	 * @see to.etc.domui.dom.html.NodeBase#setControlsEnabled(boolean)
-	 */
-	@Override
-	final public void setControlsEnabled(boolean on) {
-		for(NodeBase b : new ArrayList<NodeBase>(m_children))
-			b.setControlsEnabled(on);
-	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Miscellaneous										*/
