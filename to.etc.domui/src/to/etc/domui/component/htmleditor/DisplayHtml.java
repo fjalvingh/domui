@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.htmleditor;
 
+import java.util.*;
+
 import javax.annotation.*;
 
 import to.etc.domui.component.input.*;
@@ -79,32 +81,33 @@ public class DisplayHtml extends Div implements IDisplayControl<String>, IBindab
 	}
 
 	/*--------------------------------------------------------------*/
-	/*	CODING:	IBindable interface (EXPERIMENTAL)					*/
+	/*	CODING:	IBindable interface.								*/
 	/*--------------------------------------------------------------*/
-	/** When this is bound this contains the binder instance handling the binding. */
-	@Nullable
-	private SimpleBinder m_binder;
 
-	/**
-	 * Return the binder for this control.
-	 * @see to.etc.domui.component.input.IBindable#bind()
-	 */
+	@Nullable
+	private List<SimpleBinder> m_bindingList;
+
 	@Override
-	@Nonnull
-	public IBinder bind() {
-		IBinder b = m_binder;
-		if(b == null)
-			b = m_binder = new SimpleBinder(this);
-		return b;
+	public @Nonnull
+	IBinder bind() {
+		return bind("value");
 	}
 
-	/**
-	 * Returns T if this control is bound to some data value.
-	 * @see to.etc.domui.component.input.IBindable#isBound()
-	 */
 	@Override
-	public boolean isBound() {
-		return m_binder != null && m_binder.isBound();
+	@Nonnull
+	public IBinder bind(@Nonnull String componentProperty) {
+		List<SimpleBinder> list = m_bindingList;
+		if(list == null)
+			list = m_bindingList = new ArrayList<SimpleBinder>(1);
+		SimpleBinder binder = new SimpleBinder(this, componentProperty);
+		list.add(binder);
+		return binder;
+	}
+
+	@Override
+	@Nullable
+	public List<SimpleBinder> getBindingList() {
+		return m_bindingList;
 	}
 
 	public boolean isUnchecked() {

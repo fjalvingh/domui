@@ -362,7 +362,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		if(editor.getCssClass() == null)
 			editor.setCssClass("ui-xdt-edt"); // 20091221 jal Configuration by exception: provide a reasonable style for simple editors
 		into.getParent(TR.class).setUserObject(editor);
-		editor.moveModelToControl();
+		//		editor.moveModelToControl();
 		return editor;
 	}
 
@@ -445,7 +445,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		if(DomUtil.isModified(editor)) // On collapse pass on modified state
 			DomUtil.setModifiedFlag(ExpandingEditTable.this);
 
-		editor.moveControlToModel(); // Phase 1 move data to model;
+		//		editor.moveControlToModel(); // Phase 1 move data to model;
 		if(editor instanceof IEditor) {
 			IEditor e = (IEditor) editor;
 			if(!e.validate(false))
@@ -566,7 +566,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 			return;
 
 		//-- Try to commit, then add;
-		newEditor.moveControlToModel(); // Move data, exception @ err
+		//		newEditor.moveControlToModel(); // Move data, exception @ err
 		if(newEditor instanceof IEditor) {
 			IEditor e = (IEditor) newEditor;
 			if(!e.validate(true))

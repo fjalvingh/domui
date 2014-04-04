@@ -141,7 +141,7 @@ abstract public class AbstractDivControl<T> extends Div implements IControl<T> {
 
 
 	/*--------------------------------------------------------------*/
-	/*	CODING:	IBindable interface (EXPERIMENTAL)					*/
+	/*	CODING:	IBindable interface.								*/
 	/*--------------------------------------------------------------*/
 
 	@Nullable
