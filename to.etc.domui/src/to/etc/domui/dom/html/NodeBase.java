@@ -1043,12 +1043,9 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		if(null != el) {
 			sb.append(":").append(el);
 		}
-		if(this instanceof IBindable) {
-			IBindable b = (IBindable) this;
-			if(b.isBound()) {
-				IBinder bi = b.bind();
-				sb.append(" bind(").append(bi).append(")");
-			}
+		SimpleBinder binding = SimpleBinder.findBinding(this, "value");
+		if(binding != null) {
+			sb.append(" ").append(binding);
 		}
 
 		return sb.toString();

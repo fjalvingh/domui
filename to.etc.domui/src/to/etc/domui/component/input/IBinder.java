@@ -26,62 +26,36 @@ package to.etc.domui.component.input;
 
 import javax.annotation.*;
 
-import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.meta.*;
-import to.etc.domui.util.*;
+import to.etc.webapp.annotations.*;
 
 /**
- * EXPERIMENTAL - DO NOT USE.
- * A thingy which handles binding a control to a model/property, data move event or
- * IReadOnlyModel/property.
- *
- * FIXME Question - should this <i>be</i> a IModelBinding or should this <i>have</i> a IModelBinding?
+ * This exposes the several kinds of bindings that can be done on any control.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 13, 2009
  */
-public interface IBinder extends IModelBinding {
+public interface IBinder {
 	/**
-	 * Create a binding to the associated control and the specified object instance and the named property of that instance.
+	 * Creates a "value" property binding from the control TO the model object's property specified. If the
+	 * control does not <b>have</i> a value property this throws an exception.
 	 * @param instance
 	 * @param property
 	 */
-	void to(@Nonnull Object instance, @Nonnull String property);
+	public <T> void to(@Nonnull T instance, @Nonnull @GProperty String property);
 
 	/**
-	 * Create a binding to the associated instance's property whose metadata is passed.
+	 * Creates a "value" property binding from the control TO the model object's property specified. If the
+	 * control does not <b>have</i> a value property this throws an exception.
+	 *
 	 * @param instance
 	 * @param pmm
 	 */
-	void to(@Nonnull Object instance, @Nonnull PropertyMetaModel< ? > pmm);
-
-	/**
-	 * Create a binding between the associated control, the specified model and the property specified.
-	 * @param <T>
-	 * @param theClass
-	 * @param model
-	 * @param property
-	 */
-	<T> void to(@Nonnull Class<T> theClass, @Nonnull IReadOnlyModel<T> model, @Nonnull String property);
-
-	/**
-	 * Create a binding between the specified model and the property whose metadata is passed in.
-	 * @param <T>
-	 * @param model		The model to obtain an instance from
-	 * @param pmm		The propertymeta for a property on that instance.
-	 */
-	<T> void to(@Nonnull IReadOnlyModel<T> model, @Nonnull PropertyMetaModel< ? > pmm);
+	public <T, V> void to(@Nonnull T instance, @Nonnull PropertyMetaModel<V> pmm);
 
 	/**
 	 * Bind the control to a listener.
 	 * @param listener
 	 */
-	void to(@Nonnull IBindingListener< ? > listener);
-
-	/**
-	 * If this object is actually bound to something return true.
-	 *
-	 * @return
-	 */
-	boolean isBound();
+	public void to(@Nonnull IBindingListener< ? > listener);
 }
