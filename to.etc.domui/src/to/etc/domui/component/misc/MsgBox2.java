@@ -1,23 +1,19 @@
 package to.etc.domui.component.misc;
 
-import to.etc.domui.component.buttons.DefaultButton;
-import to.etc.domui.component.input.Text;
-import to.etc.domui.component.layout.IWindowClosed;
-import to.etc.domui.component.layout.Window;
-import to.etc.domui.component.meta.MetaManager;
-import to.etc.domui.dom.css.Overflow;
-import to.etc.domui.dom.css.VerticalAlignType;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.themes.Theme;
-import to.etc.domui.trouble.ValidationException;
-import to.etc.domui.util.DomUtil;
-import to.etc.domui.util.INodeContentRenderer;
-import to.etc.domui.util.Msgs;
-import to.etc.domui.util.bugs.Bug;
+import java.util.*;
 
-import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.List;
+import javax.annotation.*;
+
+import to.etc.domui.component.buttons.*;
+import to.etc.domui.component.input.*;
+import to.etc.domui.component.layout.*;
+import to.etc.domui.component.meta.*;
+import to.etc.domui.dom.css.*;
+import to.etc.domui.dom.html.*;
+import to.etc.domui.themes.*;
+import to.etc.domui.trouble.*;
+import to.etc.domui.util.*;
+import to.etc.domui.util.bugs.*;
 
 /**
  * Easier to use MsgBox using Builder pattern.
@@ -300,6 +296,7 @@ final public class MsgBox2 extends Window {
 		return this;
 	}
 
+	@Override
 	@Nonnull
 	public MsgBox2 size(int w, int h) {
 		setDimensions(w, h);
