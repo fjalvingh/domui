@@ -240,7 +240,7 @@ public class FormData<T> {
 		if(label != null) {
 			dv.setErrorLocation(label);
 		}
-		dv.bind().to(getModel(), pmm);
+		dv.bind().to(getModel().getValue(), pmm);
 		return dv;
 
 //		return addPropertyControl(name, label, pmm, false, false);
