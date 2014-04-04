@@ -5,9 +5,7 @@ import java.util.*;
 
 import javax.annotation.*;
 
-import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.errors.*;
-import to.etc.domui.logic.events.*;
 import to.etc.webapp.*;
 import to.etc.webapp.query.*;
 
@@ -39,9 +37,6 @@ final public class LogiContext {
 
 	@Nonnull
 	final private List<UIMessage> m_actionMessageList = new ArrayList<>();
-
-	@Nonnull
-	final private List<ILogiEventListener> m_eventListenerList = new ArrayList<>();
 
 	/**
 	 * Create and set the default data context to use.
@@ -155,48 +150,5 @@ final public class LogiContext {
 		}
 
 		throw new ProgrammerErrorException("Could not create an instance of " + clz + ": constructor(LogiContext, " + instance.getClass().getName() + ") not found");
-	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Error and action error events.						*/
-	/*--------------------------------------------------------------*/
-	/**
-	 * PENDING REMOVAL
-	 * Add a message to be displayed as the result of an "action". This message type is different from a "state" message: it is caused by an action
-	 * that needs to send some message, which is related to the action only and transient. This differs from messages that represent an error in the
-	 * current state of the model. Messages like these are usually displayed as a {@link MsgBox}.
-	 * @param m
-	 */
-	@Deprecated
-	public void addActionMessage(@Nonnull UIMessage m) {
-		m_actionMessageList.add(m);
-	}
-
-	/**
-	 * PENDING REMOVAL
-	 * @param listener
-	 */
-	@Deprecated
-	public void addEventListener(@Nonnull ILogiEventListener listener) {
-		m_eventListenerList.add(listener);
-	}
-
-	/**
-	 * PENDING REMOVAL
-	 * @param listener
-	 */
-	@Deprecated
-	public void removeEventListener(@Nonnull ILogiEventListener listener) {
-		m_eventListenerList.remove(listener);
-	}
-
-	/**
-	 * PENDING REMOVAL
-	 * @param listener
-	 */
-	@Deprecated
-	private void sendEvent(@Nonnull LogiEvent event) throws Exception {
-		for(ILogiEventListener lel : m_eventListenerList)
-			lel.logicEvent(event);
 	}
 }

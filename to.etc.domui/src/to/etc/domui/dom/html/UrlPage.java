@@ -174,8 +174,4 @@ public class UrlPage extends Div {
 		DomApplication.get().getInjector().injectPageValues(this, getPage().getPageParameters());	// Force reload of all parameters
 		forceRebuild();
 	}
-
-	protected void registerLogicListeners(@Nonnull final LogiContext lc) {
-		lc.addEventListener(this);									// Pass all logi events to the entire page tree.
-	}
 }
