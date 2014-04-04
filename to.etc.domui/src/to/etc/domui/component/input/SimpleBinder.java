@@ -266,7 +266,7 @@ public class SimpleBinder implements IBinder, ILogiEventListener {
 		}
 		PropertyMetaModel< ? > instanceProperty = m_instanceProperty;
 		if(instanceProperty != null) {
-			sb.append("/").append(m_instanceProperty.getName());
+			sb.append("/").append(instanceProperty.getName());
 		}
 		sb.append("]");
 		return sb.toString();
