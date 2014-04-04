@@ -117,10 +117,13 @@ public class SimpleBinder implements IBinder {
 			((IBindingListener<NodeBase>) listener).moveControlToModel((NodeBase) m_control);
 			return;
 		}
+		PropertyMetaModel< ? > instanceProperty = m_instanceProperty;
+		if(null == instanceProperty)
+			throw new IllegalStateException("instance property cannot be null");
 
 		try {
 			Object value = m_controlProperty.getValue(m_control);
-			((PropertyMetaModel<Object>) m_instanceProperty).setValue(m_instance, value);
+			((PropertyMetaModel<Object>) instanceProperty).setValue(m_instance, value);
 		} catch(Exception x) {
 			System.out.println("Binding error moving " + m_controlProperty + " to " + m_instanceProperty + ": " + x);
 		}
@@ -136,10 +139,13 @@ public class SimpleBinder implements IBinder {
 			((IBindingListener<NodeBase>) listener).moveModelToControl((NodeBase) m_control);
 			return;
 		}
+		PropertyMetaModel< ? > instanceProperty = m_instanceProperty;
+		if(null == instanceProperty)
+			throw new IllegalStateException("instance property cannot be null");
 		Object base = m_instance;
 		if(base != null) {
 			// FIXME We should think about exception handling here
-			Object val = m_instanceProperty.getValue(base);
+			Object val = instanceProperty.getValue(base);
 			((PropertyMetaModel<Object>) m_controlProperty).setValue(m_control, val);
 		}
 	}
@@ -232,7 +238,8 @@ public class SimpleBinder implements IBinder {
 		} else {
 			sb.append("?");
 		}
-		if(m_instanceProperty != null) {
+		PropertyMetaModel< ? > instanceProperty = m_instanceProperty;
+		if(instanceProperty != null) {
 			sb.append("/").append(m_instanceProperty.getName());
 		}
 		sb.append("]");

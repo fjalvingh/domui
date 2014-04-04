@@ -162,10 +162,12 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 	@Override
 	public void visitNodeContainer(NodeContainer n) throws Exception {
 		// 20131206 jal attempt to check phases
-		if(!n.isBuilt())
-			throw new IllegalStateException("Node unbuilt in render?");
-//		n.build();
-		//-- 20131206 end
+		if(DeveloperOptions.isDeveloperWorkstation()) {
+			if(!n.isBuilt()) {
+				throw new IllegalStateException("Node " + n + " unbuilt in render?");
+			}
+		} else
+			n.build();												// FIXME Should be removed once we prove change is stable
 
 		n.onBeforeFullRender(); // Do pre-node stuff,
 
