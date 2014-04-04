@@ -171,6 +171,7 @@ public class OptimalDeltaRenderer {
 	}
 
 	public void render() throws Exception {
+		m_page.internalSetPhase(PagePhase.DELTARENDER);
 		if(DEBUG) {
 			DumpDirtyStateRenderer.dump(m_page.getBody());
 			System.out.println("--- BEFORE node map: ----");
@@ -198,6 +199,7 @@ public class OptimalDeltaRenderer {
 			for(HeaderContributorEntry hc : list)
 				hc.getContributor().contribute(this);
 			o().closetag("eval");
+
 			//-- 20111004 vmijic We need to state that delta contributors are added, so next render would not add it again -> this fixes infinite adds in pulling divs that causes browsers memory leak
 			m_page.internalContributorsRendered();
 		}
@@ -236,6 +238,7 @@ public class OptimalDeltaRenderer {
 
 		o().closetag("eval");
 		o().closetag("delta");
+		m_page.internalSetPhase(PagePhase.NULL);
 	}
 
 	private boolean recurseCheckFocus(NodeBase nb) {

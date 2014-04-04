@@ -269,6 +269,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 		Page page = cm.tryToMakeOrGetPage(ctx, clz, papa, action);
 		if(page != null) {
+			page.internalSetPhase(PagePhase.BUILD);				// Tree can change at will
 			page.internalIncrementRequestCounter();
 			cm.internalSetLastPage(page);
 			if(DomUtil.USERLOG.isDebugEnabled()) {

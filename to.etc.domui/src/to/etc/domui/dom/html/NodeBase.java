@@ -624,6 +624,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @throws Exception
 	 */
 	final public void build() throws Exception {
+		//		Page pg = m_page;
+		//		if(pg != null)
+		//			pg.inBuild();									// jal 20131206 Test checked phase handling
+
 		if(!m_built) {
 			m_built = true;
 			boolean ok = false;

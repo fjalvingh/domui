@@ -101,7 +101,14 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 
 	@Override
 	public void visitNodeBase(NodeBase n) throws Exception {
-		n.build();
+		// 20131206 jal attempt to check phases
+		if(DeveloperOptions.isDeveloperWorkstation()) {
+			if(!n.isBuilt()) {
+				throw new IllegalStateException("Node " + n + " unbuilt in render?");
+			}
+		} else
+			n.build();												// FIXME Should be removed once we prove change is stable
+
 		n.onBeforeFullRender(); // Do pre-node stuff,
 		n.visit(getTagRenderer());
 		if(n.getCreateJS() != null)
@@ -154,7 +161,12 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 
 	@Override
 	public void visitNodeContainer(NodeContainer n) throws Exception {
-		n.build();
+		// 20131206 jal attempt to check phases
+		if(!n.isBuilt())
+			throw new IllegalStateException("Node unbuilt in render?");
+//		n.build();
+		//-- 20131206 end
+
 		n.onBeforeFullRender(); // Do pre-node stuff,
 
 		boolean indena = o().isIndentEnabled(); // jal 20090903 Save indenting request....
@@ -259,6 +271,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 	public void render(IRequestContext ctx, Page page) throws Exception {
 		m_ctx = ctx;
 		m_page = page;
+		page.internalSetPhase(PagePhase.FULLRENDER);
 
 		page.calculateDefaultFocus(null);							// Full page's do not use the default focus calculation from a start point.
 
@@ -360,6 +373,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		o().text("});");
 		o().closetag("script");
 		o().closetag("html");
+		page.internalSetPhase(PagePhase.NULL);
 	}
 
 	/**
