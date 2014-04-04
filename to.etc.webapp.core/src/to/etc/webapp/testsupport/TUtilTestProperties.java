@@ -10,7 +10,7 @@ import javax.annotation.*;
 import javax.annotation.concurrent.*;
 import javax.sql.*;
 
-import org.junit.*;
+import org.junit.internal.*;
 
 import to.etc.dbpool.*;
 import to.etc.dbutil.*;
@@ -201,7 +201,9 @@ public class TUtilTestProperties {
 	 * is unconfigured.
 	 */
 	static public final void assumeDatabase() {
-		Assume.assumeTrue(hasDbConfig());
+		if(!hasDbConfig())
+			throw new AssumptionViolatedException("The database is not available");
+//		Assume.assumeTrue(hasDbConfig());
 	}
 
 	/**
@@ -283,9 +285,22 @@ public class TUtilTestProperties {
 		if(m_rawDS == null) {
 			String url = "jdbc:oracle:thin:@" + getDbConn().hostname + ":" + getDbConn().port + ":" + getDbConn().sid;
 			try {
-				m_connectionPool = PoolManager.getInstance().definePool("test", "oracle.jdbc.driver.OracleDriver", url, getDbConn().userid, getDbConn().password,
-					getTestProperties().getProperty("driverpath"));
-				m_rawDS = m_connectionPool.getUnpooledDataSource();
+				PoolConfig.Template t = new PoolConfig.Template();
+				t.setDriverClassName("oracle.jdbc.driver.OracleDriver");
+				t.setUrl(url);
+				t.setUid(getDbConn().userid);
+				t.setPw(getDbConn().password);
+				String s = getTestProperties().getProperty("driverpath");
+				if(null != s)
+					t.setDriverPath(new File(s));
+				t.setMinConns(2);
+				t.setMaxConns(50);
+				m_connectionPool = PoolManager.getInstance().definePool("test", new PoolConfig(t));
+
+//				m_connectionPool = PoolManager.getInstance().definePool("test", "oracle.jdbc.driver.OracleDriver", url, getDbConn().userid, getDbConn().password,
+//					getTestProperties().getProperty("driverpath"));
+				m_connectionPool.initialize();
+				m_rawDS = m_connectionPool.getPooledDataSource();
 			} catch(SQLException x) {
 				throw new RuntimeException("cannot init pool: " + x, x);
 			}
@@ -298,6 +313,10 @@ public class TUtilTestProperties {
 			}
 			VpEventManager.getInstance().start();
 			DbLockKeeper.init(m_rawDS);
+
+			ConnectionPool pool = PoolManager.getPoolFrom(m_rawDS);
+			if(null != pool)
+				pool.setForceTimeout(120);
 		}
 		return m_rawDS;
 	}
@@ -379,7 +398,7 @@ public class TUtilTestProperties {
 	static public boolean isLogging() {
 		if(!m_testLogInitialized) {
 			m_testLogInitialized = true;
-			String s = DeveloperOptions.getString("test.logfile", null);
+			String s = DeveloperOptions.getString("test.logfile");
 			openTestLog(s, "test.logfile in developer.properties");
 			openTestLog(System.getProperty("test.logfile"), "test.logfile java property");
 			openTestLog(System.getenv("TESTLOGFILE"), "TESTLOGFILE environment variable");
