@@ -971,29 +971,41 @@ final public class WindowSession {
 		Constructor< ? extends UrlPage> bestpc = PageMaker.getBestPageConstructor(clz, true);
 		Class< ? extends ConversationContext> ccclz = PageMaker.getConversationType(bestpc); 	// Get the conversation class to use,
 		ConversationContext coco = createConversation(ccclz);
-		registerConversation(coco, null); 						// ORDERED 2
-		ConversationContext.LOG.debug("Created conversation=" + coco + " for new page=" + clz);
-		internalAttachConversations();							// ORDERED 3
-		if(coco.getState() == ConversationState.DETACHED)		// Be very sure we're attached.
-			coco.internalAttach();
+		boolean ok = false;
+		try {
+			registerConversation(coco, null); 						// ORDERED 2
+			ConversationContext.LOG.debug("Created conversation=" + coco + " for new page=" + clz);
+			internalAttachConversations();							// ORDERED 3
+			if(coco.getState() == ConversationState.DETACHED)		// Be very sure we're attached.
+				coco.internalAttach();
 
-		//-- Create the page && add to shelve,
-		Page newpg = PageMaker.createPageWithContent(bestpc, coco, parameters);
+			//-- Create the page && add to shelve,
+			Page newpg = PageMaker.createPageWithContent(bestpc, coco, parameters);
 
-		if(depth > 0)
-			throw new IllegalArgumentException("Depth must be <= 0");
-		int ix = m_shelvedPageStack.size() + depth;			// Depth moves index backwards because it is -ve
-		if(ix < 0)
-			throw new IllegalArgumentException("Depth of " + depth + " invalid: max is " + -m_shelvedPageStack.size());
-		m_shelvedPageStack.add(ix, new ShelvedDomUIPage(this, newpg));
+			if(depth > 0)
+				throw new IllegalArgumentException("Depth must be <= 0");
+			int ix = m_shelvedPageStack.size() + depth;			// Depth moves index backwards because it is -ve
+			if(ix < 0)
+				throw new IllegalArgumentException("Depth of " + depth + " invalid: max is " + -m_shelvedPageStack.size());
+			m_shelvedPageStack.add(ix, new ShelvedDomUIPage(this, newpg));
 
-		getApplication().getInjector().injectPageValues(newpg.getBody(), parameters);
-		newpg.internalFullBuild();								// 20130411 jal Page must be built before stacking it.
+			getApplication().getInjector().injectPageValues(newpg.getBody(), parameters);
+			newpg.internalFullBuild();								// 20130411 jal Page must be built before stacking it.
 
-		//-- Call all of the page's listeners.
-		callNewPageCreatedListeners(newpg);
-		newpg.internalShelve();
-		return newpg;
+			//-- Call all of the page's listeners.
+			callNewPageCreatedListeners(newpg);
+			newpg.internalShelve();
+			ok = true;
+			return newpg;
+		} finally {
+			try {
+				coco.internalDetach();
+				if(!ok)
+					coco.internalDestroy();
+			} catch(Exception x) {
+				x.printStackTrace();
+			}
+		}
 	}
 
 
