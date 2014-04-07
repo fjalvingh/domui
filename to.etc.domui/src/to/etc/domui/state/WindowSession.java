@@ -989,7 +989,7 @@ final public class WindowSession {
 			ConversationContext.LOG.debug("Created conversation=" + coco + " for new page=" + clz);
 			internalAttachConversations();							// ORDERED 3
 			if(coco.getState() == ConversationState.DETACHED)		// Be very sure we're attached.
-			coco.internalAttach();
+				coco.internalAttach();
 
 			//-- Create the page && add to shelve,
 			Page newpg = PageMaker.createPageWithContent(bestpc, coco, parameters);
@@ -1002,15 +1002,17 @@ final public class WindowSession {
 			m_shelvedPageStack.add(ix, new ShelvedDomUIPage(this, newpg));
 
 			getApplication().getInjector().injectPageValues(newpg.getBody(), parameters);
+			UIContext.internalSet(newpg);
 			newpg.internalFullBuild();								// 20130411 jal Page must be built before stacking it.
 
 			//-- Call all of the page's listeners.
 			callNewPageCreatedListeners(newpg);
 			newpg.internalShelve();
+			ok = true;
 			return newpg;
 		} finally {
+			UIContext.internalSet((Page) null);
 			try {
-				coco.internalDetach();
 				if(!ok)
 					coco.internalDestroy();
 			} catch(Exception x) {
@@ -1074,25 +1076,35 @@ final public class WindowSession {
 		}
 
 		String conversationId = null;
-		for(SavedPage sp : list) {
-			try {
-				//-- 1. Load the class by name.
-				Class<? extends UrlPage> clz = m_appSession.getApplication().loadPageClass(sp.getClassName());
+		try {
+			internalAttachConversations();
+			for(SavedPage sp : list) {
+				try {
+					//-- 1. Load the class by name.
+					Class< ? extends UrlPage> clz = m_appSession.getApplication().loadPageClass(sp.getClassName());
 
-
-				//-- 2. Insert @ location [0]
-				Page pg = insertShelveEntryMain(0, clz, sp.getParameters());
-				if(null != pg && clz2.getName().equals(sp.getClassName()) && sp.getParameters().equals(pageParameters)) {
-					ConversationContext cc = pg.internalGetConversation();
-					if(null != cc)
-						conversationId = cc.getId();
+					//-- 2. Insert @ location [0]
+					Page pg = insertShelveEntryMain(0, clz, sp.getParameters());
+					if(null != pg && clz2.getName().equals(sp.getClassName()) && sp.getParameters().equals(pageParameters)) {
+						ConversationContext cc = pg.internalGetConversation();
+						if(null != cc)
+							conversationId = cc.getId();
+					}
+				} catch(Exception x) {
+					System.err.println("domui: developer page reload failed: " + x);
+					x.printStackTrace();
+					LOG.info("Cannot reload " + sp.getClassName() + ": " + x);
 				}
-			} catch(Exception x) {
-				LOG.info("Cannot reload " + sp.getClassName() + ": " + x);
 			}
+			saveWindowState();								// Save new window's state
+			return conversationId;
+		} catch(Exception x) {
+			System.err.println("domui: developer reload failed: " + x);
+			x.printStackTrace();
+			return null;
+		} finally {
+			internalDetachConversations();
 		}
-		saveWindowState();								// Save new window's state
-		return conversationId;
 	}
 
 	/**
