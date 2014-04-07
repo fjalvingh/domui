@@ -1013,8 +1013,10 @@ final public class WindowSession {
 		} finally {
 			UIContext.internalSet((Page) null);
 			try {
-				if(!ok)
-					coco.internalDestroy();
+				if(!ok) {
+					destroyConversation(coco);
+
+				}
 			} catch(Exception x) {
 				x.printStackTrace();
 			}
