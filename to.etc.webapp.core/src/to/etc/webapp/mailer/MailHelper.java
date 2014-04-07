@@ -568,7 +568,7 @@ public class MailHelper {
 		htmlEndTag("body");
 		htmlEndTag("html");
 		if(DeveloperOptions.getBool("email.send", true)) {
-			String alt = DeveloperOptions.getString("email.debug", null);
+			String alt = DeveloperOptions.getString("email.debug");
 			if(alt != null) {
 				List<Address> replaced = new ArrayList<Address>();
 				for(Address adr : getTo()) {

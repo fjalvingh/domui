@@ -398,7 +398,7 @@ public class TUtilTestProperties {
 	static public boolean isLogging() {
 		if(!m_testLogInitialized) {
 			m_testLogInitialized = true;
-			String s = DeveloperOptions.getString("test.logfile", null);
+			String s = DeveloperOptions.getString("test.logfile");
 			openTestLog(s, "test.logfile in developer.properties");
 			openTestLog(System.getProperty("test.logfile"), "test.logfile java property");
 			openTestLog(System.getenv("TESTLOGFILE"), "TESTLOGFILE environment variable");
