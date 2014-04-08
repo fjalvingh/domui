@@ -1,9 +1,11 @@
 package to.etc.domui.server;
 
+import java.net.*;
 import java.util.*;
 
 import javax.annotation.*;
 
+import to.etc.domui.login.*;
 import to.etc.domui.state.*;
 import to.etc.domui.util.*;
 import to.etc.smtp.*;
@@ -75,11 +77,29 @@ public class ExceptionUtil {
 		if(null == from)
 			return;
 
+		try {
+			InetAddress host = InetAddress.getLocalHost();
+			subj += " (" + host.getCanonicalHostName() + ")";
+		} catch(Exception xxx) {}
+
 		//-- Print a text version of all information and cause it to be sent.
 		MailBuilder mb = new MailBuilder();
 		mb.initialize(subj);
 		mb.append("A problem occurred in this DomUI application: ").append(x.toString()).nl();
 		mb.nl();
+		try {
+			InetAddress host = InetAddress.getLocalHost();
+			mb.append("Server: ").append(host.getCanonicalHostName()).append(", ").append(host.getHostAddress()).nl();
+		} catch(Exception xxx) {}
+
+		try {
+			IUser user = UIContext.getCurrentUser();
+			if(null != user) {
+				mb.append("User name: ").append(user.getDisplayName()).append(", login id ").append(user.getLoginID()).nl();
+			}
+		} catch(Exception xxx) {}
+
+
 		mb.ttl("Exception stack trace");
 		StringBuilder sb = new StringBuilder();
 		DomUtil.dumpException(sb, x);
