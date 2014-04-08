@@ -195,6 +195,13 @@ final public class MsgBox2 extends Window {
 	}
 
 	@Nonnull
+	@Override
+	public MsgBox2 title(String set) {
+		super.title(set);
+		return this;
+	}
+
+	@Nonnull
 	public MsgBox2 type(@Nonnull Type type) {
 		String ttl;
 		String icon;
