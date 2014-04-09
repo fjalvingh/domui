@@ -984,6 +984,7 @@ final public class WindowSession {
 		Class< ? extends ConversationContext> ccclz = PageMaker.getConversationType(bestpc); 	// Get the conversation class to use,
 		ConversationContext coco = createConversation(ccclz);
 		boolean ok = false;
+		Page prevpage = UIContext.internalGetPage();
 		try {
 			registerConversation(coco, null); 						// ORDERED 2
 			ConversationContext.LOG.debug("Created conversation=" + coco + " for new page=" + clz);
@@ -1011,7 +1012,7 @@ final public class WindowSession {
 			ok = true;
 			return newpg;
 		} finally {
-			UIContext.internalSet((Page) null);
+			UIContext.internalSet(prevpage);
 			try {
 				if(!ok) {
 					destroyConversation(coco);
