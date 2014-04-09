@@ -794,7 +794,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 		m_application.internalCallPageAction(ctx, page);
 
-		page.controlToModel();
+		if(!Constants.ACMD_ASYPOLL.equals(action))
+			page.controlToModel();
 
 		NodeBase wcomp = null;
 		String wid = ctx.getRequest().getParameter("webuic");
@@ -861,7 +862,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			 */
 			if(LOG.isDebugEnabled())
 				LOG.debug("rq: ignoring validation exception " + x);
-			page.controlToModel();
+			page.modelToControl();
 		} catch(Exception ex) {
 			Exception x = WrappedException.unwrap(ex);
 			if(x instanceof NotLoggedInException) { // FIXME Fugly. Generalize this kind of exception handling somewhere.
@@ -871,7 +872,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 					return;
 				}
 			}
-			page.controlToModel();
+			page.modelToControl();
 
 			IExceptionListener xl = ctx.getApplication().findExceptionListenerFor(x);
 			if(xl == null) // No handler?
