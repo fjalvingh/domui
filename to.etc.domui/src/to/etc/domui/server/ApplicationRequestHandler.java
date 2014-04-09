@@ -855,6 +855,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			} else {
 				wcomp.componentHandleWebAction(ctx, action);
 			}
+			page.modelToControl();
 		} catch(ValidationException x) {
 			/*
 			 * When an action handler failed because it accessed a component which has a validation error
