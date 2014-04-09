@@ -132,7 +132,7 @@ public class ExceptionUtil {
 		}
 
 		mb.nl();
-		mb.ttl("Click/event stream (old to new)");
+		mb.ttl("Click/event stream (new to old)");
 		AppSession session = m_ctx.getSession();
 		//                                     012345678901 012345678901234567890123456789 0123456789012345678901234
 		//                                     -13s 999ms   0MC0ZakN00016ddnzHC00FYG.c3    LocalEnvironmentsPage
@@ -140,7 +140,9 @@ public class ExceptionUtil {
 		mb.append(StringTool.strToFixedLength("CID", 30));
 		mb.append(StringTool.strToFixedLength("Page", 24));
 		mb.append("Message").nl();
-		for(UserLogItem li : session.getLogItems()) {
+		List<UserLogItem> logItems = new ArrayList<>(session.getLogItems());
+		Collections.reverse(logItems);
+		for(UserLogItem li : logItems) {
 			mb.append(StringTool.strToFixedLength(li.time(), 12));
 			mb.append(StringTool.strToFixedLength(li.getCid(), 30));
 			mb.append(StringTool.strToFixedLength(lastName(li.getPage()), 24));

@@ -1085,7 +1085,9 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				LOG.debug("rq: ignoring validation exception " + x);
 		} catch(MsgException msg) {
 			MsgBox.error(page.getBody(), msg.getMessage());
+			logUser(ctx, page, "error message: " + msg.getMessage());
 		} catch(Exception ex) {
+			logUser(ctx, page, "Action handler exception: " + ex);
 			Exception x = WrappedException.unwrap(ex);
 			if(x instanceof NotLoggedInException) { // FIXME Fugly. Generalize this kind of exception handling somewhere.
 				String url = m_application.handleNotLoggedInException(ctx, page, (NotLoggedInException) x);
@@ -1134,6 +1136,9 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				generateHttpRedirect(ctx, url, "You need to be logged in");
 				return;
 			}
+		} catch(Exception x) {
+			logUser(ctx, page, "Delta render failed: " + x);
+			throw x;
 		}
 	}
 
