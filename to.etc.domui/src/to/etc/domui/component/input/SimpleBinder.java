@@ -110,7 +110,7 @@ public class SimpleBinder implements IBinder {
 	 * Move the control value to wherever it's needed. If this is a listener binding it calls the listener,
 	 * else it moves the value either to the model's value or the instance's value.
 	 */
-	void moveControlToModel() throws Exception {
+	public void moveControlToModel() throws Exception {
 		IBindingListener< ? > listener = m_listener;
 		if(listener != null) {
 			((IBindingListener<NodeBase>) listener).moveControlToModel((NodeBase) m_control);
@@ -132,7 +132,7 @@ public class SimpleBinder implements IBinder {
 	 *
 	 * @throws Exception
 	 */
-	void moveModelToControl() throws Exception {
+	public void moveModelToControl() throws Exception {
 		IBindingListener< ? > listener = m_listener;
 		if(listener != null) {
 			((IBindingListener<NodeBase>) listener).moveModelToControl((NodeBase) m_control);

@@ -31,6 +31,7 @@ import javax.annotation.*;
 import org.slf4j.*;
 
 import to.etc.domui.component.input.*;
+import to.etc.domui.component.meta.*;
 import to.etc.domui.databinding.*;
 import to.etc.domui.databinding.observables.*;
 import to.etc.domui.databinding.value.*;
@@ -39,7 +40,6 @@ import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.webaction.*;
 import to.etc.domui.logic.*;
-import to.etc.domui.logic.events.*;
 import to.etc.domui.parts.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
@@ -1802,6 +1802,23 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 	 * @param nw
 	 */
 	protected <T> void fireModified(@Nonnull String propertyName, T old, T nw) {
+		if(this instanceof IBindable) {
+			IBindable b = (IBindable) this;
+			List<SimpleBinder> bindingList = b.getBindingList();
+			if(null != bindingList) {
+				for(SimpleBinder sb : bindingList) {
+					PropertyMetaModel< ? > property = sb.getControlProperty();
+					if(null != property && property.getName().equals(propertyName)) {
+						try {
+							sb.moveControlToModel();
+						} catch(Exception x) {
+							throw WrappedException.wrap(x);
+						}
+					}
+				}
+			}
+		}
+
 		ObserverSupport< ? > osupport = m_osupport;
 		if(null == osupport)					// Nothing observing?
 			return;
