@@ -31,11 +31,11 @@ import java.nio.file.*;
 import java.security.*;
 import java.sql.*;
 import java.util.*;
-import java.util.logging.*;
 import java.util.zip.*;
 
 import javax.annotation.*;
 
+import org.slf4j.*;
 import org.w3c.dom.*;
 
 import to.etc.xml.*;
@@ -46,6 +46,9 @@ import to.etc.xml.*;
  * @version 1.0
  */
 public class FileTool {
+
+	private static final Logger LOG = LoggerFactory.getLogger(FileTool.class);
+
 	private FileTool() {
 	}
 
@@ -1792,7 +1795,7 @@ public class FileTool {
 				} else if(v != null)
 					list[tox++] = v; // Keep, todo
 			} catch(Exception x) {
-				Logger.getLogger(FileTool.class.getName()).log(Level.FINE, "Cannot close resource " + v + " (a " + v.getClass() + "): " + x, x);
+				LOG.trace("Cannot close resource " + v + " (a " + v.getClass() + "): " + x, x);
 			}
 		}
 
@@ -1807,7 +1810,7 @@ public class FileTool {
 				} else
 					list[tox++] = v; // Keep, todo
 			} catch(Exception x) {
-				Logger.getLogger(FileTool.class.getName()).log(Level.FINE, "Cannot close resource " + v + " (a " + v.getClass() + "): " + x, x);
+				LOG.trace("Cannot close resource " + v + " (a " + v.getClass() + "): " + x, x);
 			}
 		}
 
@@ -1831,11 +1834,11 @@ public class FileTool {
 					}
 				}
 			} catch(Exception x) {
-				Logger.getLogger(FileTool.class.getName()).log(Level.FINE, "Cannot close resource " + v + " (a " + v.getClass() + "): " + x, x);
+				LOG.trace("Cannot close resource " + v + " (a " + v.getClass() + "): " + x, x);
 			}
 
 			if(v != null) {
-				StringTool.dumpLocation("UNKNOWN RESOURCE OF TYPE " + v.getClass() + " TO CLOSE PASSED TO FileTool.closeAll()!!!!\nFIX THIS IMMEDIATELY!!!!!!");
+				StringTool.dumpErrorLocation(LOG, "UNKNOWN RESOURCE OF TYPE " + v.getClass() + " TO CLOSE PASSED TO FileTool.closeAll()!!!!\nFIX THIS IMMEDIATELY!!!!!!");
 			}
 		}
 	}
