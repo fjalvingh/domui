@@ -38,6 +38,9 @@ final public class LogiContext {
 	@Nonnull
 	final private List<UIMessage> m_actionMessageList = new ArrayList<>();
 
+	@Nonnull
+	final private LogiErrors m_errorModel = new LogiErrors();
+
 	/**
 	 * Create and set the default data context to use.
 	 * @param dataContext
@@ -150,5 +153,10 @@ final public class LogiContext {
 		}
 
 		throw new ProgrammerErrorException("Could not create an instance of " + clz + ": constructor(LogiContext, " + instance.getClass().getName() + ") not found");
+	}
+
+	@Nonnull
+	public LogiErrors getErrorModel() {
+		return m_errorModel;
 	}
 }
