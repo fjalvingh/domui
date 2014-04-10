@@ -181,7 +181,7 @@ public class TestStringTool {
 
 	/**
 	 * <pre>
-	 * Test the method StringTool.strToJavascriptString(final String cs, final boolean dblquote) 
+	 * Test the method StringTool.strToJavascriptString(final String cs, final boolean dblquote)
 	 * if single quotes are escaped as expected.
 	 *
 	 * </pre>
@@ -197,7 +197,7 @@ public class TestStringTool {
 
 	/**
 	 * <pre>
-	 * Test the method StringTool.strToJavascriptString(final String cs, final boolean dblquote) 
+	 * Test the method StringTool.strToJavascriptString(final String cs, final boolean dblquote)
 	 * if double quotes are escaped as expected.
 	 *
 	 * @throws Exception
@@ -208,7 +208,7 @@ public class TestStringTool {
 
 		String textIn = "\"test string\"";
 		String testOut = StringTool.strToJavascriptString(textIn, true);
-		
+
 		StringBuilder sb = new StringBuilder();
 		sb.append("\\\"");
 		sb.append("test string");
@@ -217,6 +217,23 @@ public class TestStringTool {
 
 		Assert.assertTrue(testOut.contains(expectedStringSequence));
 
+	}
+
+	@Test
+	public void removeTailing() {
+		Assert.assertEquals("ab", StringTool.removeTailing("abcacacacacaca", "ca"));
+		Assert.assertEquals("ab", StringTool.removeTailing("ab", ""));
+		Assert.assertEquals("", StringTool.removeTailing("aaaaaaaaa", "a"));
+	}
+
+	@Test
+	public void removeEndOfLines() {
+		Assert.assertEquals("ab", StringTool.removeEndOfLines("ab\r\n\r\n"));
+		Assert.assertEquals("ab", StringTool.removeEndOfLines("ab\n\n"));
+		Assert.assertEquals("ab", StringTool.removeEndOfLines("ab"));
+		Assert.assertEquals("ab\n\nbebeb", StringTool.removeEndOfLines("ab\n\nbebeb\n\n"));
+		Assert.assertEquals(null, StringTool.removeEndOfLines(null));
+		Assert.assertEquals("", StringTool.removeEndOfLines(""));
 	}
 
 	private String makeText(int textLength, String text) {
