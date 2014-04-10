@@ -29,9 +29,12 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
+import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.logic.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.*;
+import to.etc.webapp.nls.*;
 
 /**
  * This is a single binding instance between a control and one of the control's properties.
@@ -109,6 +112,9 @@ public class SimpleBinder implements IBinder {
 	/**
 	 * Move the control value to wherever it's needed. If this is a listener binding it calls the listener,
 	 * else it moves the value either to the model's value or the instance's value.
+	 *
+	 * This is the *hard* part of binding: it needs to handle control errors caused by bindValue() throwing
+	 * an exception.
 	 */
 	public void moveControlToModel() throws Exception {
 		IBindingListener< ? > listener = m_listener;
@@ -116,12 +122,33 @@ public class SimpleBinder implements IBinder {
 			((IBindingListener<NodeBase>) listener).moveControlToModel((NodeBase) m_control);
 			return;
 		}
+
 		PropertyMetaModel< ? > instanceProperty = m_instanceProperty;
 		if(null == instanceProperty)
 			throw new IllegalStateException("instance property cannot be null");
+		Object instance = m_instance;
+		if(null == instance)
+			throw new IllegalStateException("instance cannot be null");
 
+		/*
+		 * Get the control's value. If the control is in error (validation/conversion) then
+		 * add the problem inside the Error collector, signaling a problem to any logic
+		 * that would run after.
+		 */
+		Object value;
 		try {
-			Object value = m_controlProperty.getValue(m_control);
+			value = m_controlProperty.getValue(m_control);
+		} catch(CodeException cx) {
+			//-- Conversion/validation or other UI related trouble.
+			UIMessage err = UIMessage.error(cx);
+			LogiErrors errorModel = ((NodeBase) m_control).lc().getErrorModel();
+			errorModel.message(instance, instanceProperty, err);
+			return;
+
+		} // throw all others
+
+		//-- QUESTION: Should we move something to the model @ error?
+		try {
 			((PropertyMetaModel<Object>) instanceProperty).setValue(m_instance, value);
 		} catch(Exception x) {
 			System.out.println("Binding error moving " + m_controlProperty + " to " + m_instanceProperty + ": " + x);

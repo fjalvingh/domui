@@ -235,7 +235,8 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 
 	private void handleValidationError(@Nullable UIMessage message, boolean seterror) {
 		setMessage(message);
-		messageNotifier(message);
+		if(seterror)
+			messageNotifier(message);
 	}
 
 	private String m_errclass;
@@ -288,6 +289,26 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 			setOnKeyPressJS(null);
 		}
 	}
+
+	/**
+	 * Bind-capable version of getValue(). If called (usually from binding) this will act as follows:
+	 * <ul>
+	 * 	<li>If this component has an input error: throw the ValidationException for that error</li>
+	 * 	<li>On no error this returns the value.</li>
+	 * </ul>
+	 * @return
+	 */
+	public T getBindValue() {
+		if(!validate(false))
+			throw new ValidationException(Msgs.NOT_VALID, getRawValue());
+		return m_value;
+
+	}
+
+	public void setBindValue(T value) {
+		setValue(value);
+	}
+
 
 	/**
 	 * @see to.etc.domui.dom.html.IControl#getValue()
