@@ -220,20 +220,12 @@ public class TestStringTool {
 	}
 
 	@Test
-	public void removeTailing() {
-		Assert.assertEquals("ab", StringTool.removeTailing("abcacacacacaca", "ca"));
-		Assert.assertEquals("ab", StringTool.removeTailing("ab", ""));
-		Assert.assertEquals("", StringTool.removeTailing("aaaaaaaaa", "a"));
-	}
-
-	@Test
-	public void removeEndOfLines() {
-		Assert.assertEquals("ab", StringTool.removeEndOfLines("ab\r\n\r\n"));
-		Assert.assertEquals("ab", StringTool.removeEndOfLines("ab\n\n"));
-		Assert.assertEquals("ab", StringTool.removeEndOfLines("ab"));
-		Assert.assertEquals("ab\n\nbebeb", StringTool.removeEndOfLines("ab\n\nbebeb\n\n"));
-		Assert.assertEquals(null, StringTool.removeEndOfLines(null));
-		Assert.assertEquals("", StringTool.removeEndOfLines(""));
+	public void replaceNewLineChars() {
+		Assert.assertEquals("ab", StringTool.replaceNewLineChars("ab\r\n\r\n", ""));
+		Assert.assertEquals("ab", StringTool.replaceNewLineChars("ab\n\n", ""));
+		Assert.assertEquals("ab", StringTool.replaceNewLineChars("ab", ""));
+		Assert.assertEquals("ab bebeb  ", StringTool.replaceNewLineChars("ab\r\nbebeb\n\n", " "));
+		Assert.assertEquals("", StringTool.replaceNewLineChars("", ""));
 	}
 
 	private String makeText(int textLength, String text) {

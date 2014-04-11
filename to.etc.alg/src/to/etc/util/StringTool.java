@@ -2665,25 +2665,15 @@ public class StringTool {
 		}
 	}
 
-	@Nullable
-	public static String removeEndOfLines(@Nullable String content) {
-		if(content == null) {
-			return null;
-		}
-		content = removeTailing(content, "\r\n");
-		content = removeTailing(content, "\n");
-		content = removeTailing(content, "\r");
-		return content;
-	}
-
+	/**
+	 * Replaces all end of line characters with space so that content is represented in one line.
+	 *
+	 * @param content that should be without new line characters
+	 * @param replacement for new line characters
+	 * @return given string without new line characters
+	 */
 	@Nonnull
-	public static String removeTailing(@Nonnull String content, @Nonnull String tail) {
-		if("".equals(tail)) {
-			return content;
-		}
-		while(content.endsWith(tail)) {
-			content = content.substring(0, content.length() - tail.length());
-		}
-		return content;
+	public static String replaceNewLineChars(@Nonnull String content, @Nonnull String replacement) {
+		return content.replace("\r\n", replacement).replace("\r", replacement).replace("\n", replacement);
 	}
 }
