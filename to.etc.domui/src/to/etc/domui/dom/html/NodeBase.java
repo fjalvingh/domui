@@ -1251,9 +1251,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 	 * higher than the severity of the existing one; only in that case will the error
 	 * be removed. To clear the error message call clearMessage().
 	 *
-	 * @param mt
-	 * @param code
-	 * @param param
+	 * @see to.etc.domui.dom.errors.INodeErrorDelegate#setMessage(to.etc.domui.dom.errors.UIMessage)
 	 */
 	@Override
 	@Nullable
@@ -1845,7 +1843,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 	@Override
 	public void setMessageBroadcastEnabled(boolean yes) {
 		if(yes) {
-			m_flags &= F_NO_MESSAGE_BROADCAST;
+			m_flags &= ~F_NO_MESSAGE_BROADCAST;
 		} else {
 			m_flags |= F_NO_MESSAGE_BROADCAST;
 		}

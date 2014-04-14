@@ -143,7 +143,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 
 		//-- Handle data updates.
 		T old = m_value;
-		if(validate(false)) {
+		if(validate(true)) {
 			fireModified("value", old, m_value);
 		}
 
@@ -234,9 +234,15 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	}
 
 	private void handleValidationError(@Nullable UIMessage message, boolean seterror) {
+		boolean wasBroadcastEnabled = isMessageBroadcastEnabled();
+		if(!seterror && wasBroadcastEnabled) {
+			setMessageBroadcastEnabled(false);
+		}
 		setMessage(message);
-		if(seterror)
-			messageNotifier(message);
+		messageNotifier(message);
+		if(!seterror && wasBroadcastEnabled) {
+			setMessageBroadcastEnabled(true);
+		}
 	}
 
 	private String m_errclass;
@@ -305,7 +311,10 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 
 	}
 
-	public void setBindValue(T value) {
+	public void setBindValue(@Nullable T value) {
+		if(MetaManager.areObjectsEqual(m_value, value)) {
+			return;
+		}
 		setValue(value);
 	}
 
@@ -618,7 +627,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 
 	@Override
 	public @Nonnull IBinder bind() {
-		return bind("value");
+		return bind("bindValue");
 	}
 
 	@Override

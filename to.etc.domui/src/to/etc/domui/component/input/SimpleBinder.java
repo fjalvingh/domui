@@ -61,6 +61,12 @@ public class SimpleBinder implements IBinder {
 	@Nullable
 	private IBindingListener< ? > m_listener;
 
+	@Nullable
+	private Object m_lastBindValue;
+
+	@Nullable
+	private UIMessage m_lastBindError;
+
 	public SimpleBinder(@Nonnull IBindable control, @Nonnull String controlProperty) {
 		if(control == null)
 			throw new IllegalArgumentException("The control cannot be null.");
@@ -135,20 +141,32 @@ public class SimpleBinder implements IBinder {
 		 * add the problem inside the Error collector, signaling a problem to any logic
 		 * that would run after.
 		 */
-		Object value;
+		Object value = null;
 		try {
 			value = m_controlProperty.getValue(m_control);
 		} catch(CodeException cx) {
 			//-- Conversion/validation or other UI related trouble.
-			UIMessage err = UIMessage.error(cx);
+/*			actually, we do nothing here -> we read error set on control anyway...
+ *
+ * 			UIMessage err = UIMessage.error(cx);
 			LogiErrors errorModel = ((NodeBase) m_control).lc().getErrorModel();
 			errorModel.message(instance, instanceProperty, err);
-			return;
+*/
 
 		} // throw all others
 
+		LogiErrors errorModel = ((NodeBase) m_control).lc().getErrorModel();
+		UIMessage err = ((NodeBase) m_control).getMessage();
+		if(err != null) {
+			errorModel.message(instance, instanceProperty, err);
+		} else {
+			errorModel.clearMessages(instance, instanceProperty);
+		}
+
 		//-- QUESTION: Should we move something to the model @ error?
 		try {
+			m_lastBindValue = value;
+			m_lastBindError = err;
 			((PropertyMetaModel<Object>) instanceProperty).setValue(m_instance, value);
 		} catch(Exception x) {
 			System.out.println("Binding error moving " + m_controlProperty + " to " + m_instanceProperty + ": " + x);
@@ -168,11 +186,28 @@ public class SimpleBinder implements IBinder {
 		PropertyMetaModel< ? > instanceProperty = m_instanceProperty;
 		if(null == instanceProperty)
 			throw new IllegalStateException("instance property cannot be null");
-		Object base = m_instance;
-		if(base != null) {
+		Object instance = m_instance;
+		if(instance != null) {
 			// FIXME We should think about exception handling here
-			Object val = instanceProperty.getValue(base);
-			((PropertyMetaModel<Object>) m_controlProperty).setValue(m_control, val);
+			Object modelValue = instanceProperty.getValue(instance);
+			if(!MetaManager.areObjectsEqual(modelValue, m_lastBindValue)) {
+				m_lastBindValue = modelValue;
+				((PropertyMetaModel<Object>) m_controlProperty).setValue(m_control, modelValue);
+			}
+			LogiErrors errorModel = ((NodeBase) m_control).lc().getErrorModel();
+			UIMessage errorToBind = null;
+			List<UIMessage> errorsToBind = errorModel.getErrorsOn(instance, instanceProperty);
+			if(!errorsToBind.isEmpty()) {
+				errorToBind = errorsToBind.get(0);
+				if(!errorToBind.equals(m_lastBindError)) {
+					//set first error from error model...
+					((NodeBase) m_control).setMessage(errorToBind);
+					m_lastBindError = errorToBind;
+				}
+			} else {
+				((NodeBase) m_control).setMessage(null);
+				m_lastBindError = null;
+			}
 		}
 	}
 

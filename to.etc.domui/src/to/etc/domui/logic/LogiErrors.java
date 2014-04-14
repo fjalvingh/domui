@@ -32,24 +32,73 @@ import to.etc.domui.dom.errors.*;
  * Created on Apr 10, 2014
  */
 final public class LogiErrors {
+	private Map<Object, Map<PropertyMetaModel< ? >, List<UIMessage>>> m_map = new HashMap<Object, Map<PropertyMetaModel< ? >, List<UIMessage>>>();
+
+	private Map<Object, List<UIMessage>> m_mapGlobals = new HashMap<Object, List<UIMessage>>();
+
 	public LogiErrors() {}
 
-	public <T> void message(@Nonnull T businessObject, @Nonnull UIMessage message) {}
+	public <T> void message(@Nonnull T businessObject, @Nonnull UIMessage message) {
+		List<UIMessage> messagesList = m_mapGlobals.get(businessObject);
+		if(messagesList == null) {
+			messagesList = new ArrayList<UIMessage>();
+			m_mapGlobals.put(businessObject, messagesList);
+		}
+		if(!messagesList.contains(message)) {
+			messagesList.add(message);
+		}
+	}
 
 	public <T> void message(@Nonnull T businessObject, @Nonnull String property, @Nonnull UIMessage message) {
 		message(businessObject, MetaManager.getPropertyMeta(businessObject.getClass(), property), message);
 	}
 
 	public <T, V> void message(@Nonnull T businessObject, @Nonnull PropertyMetaModel<V> property, @Nonnull UIMessage message) {
+		Map<PropertyMetaModel< ? >, List<UIMessage>> mapOnProp = m_map.get(businessObject);
+		if(mapOnProp == null) {
+			mapOnProp = new HashMap<PropertyMetaModel< ? >, List<UIMessage>>();
+			m_map.put(businessObject, mapOnProp);
+		}
+		List<UIMessage> messagesList = mapOnProp.get(property);
+		if(messagesList == null) {
+			messagesList = new ArrayList<UIMessage>();
+			mapOnProp.put(property, messagesList);
+		}
+		if(!messagesList.contains(message)) {
+			messagesList.clear(); //FIXME: there can be only one (for now)...
+			messagesList.add(message);
+		}
+	}
+
+	public <T, V> void clearMessages(@Nonnull T businessObject, @Nonnull PropertyMetaModel<V> property) {
+		Map<PropertyMetaModel< ? >, List<UIMessage>> mapOnProp = m_map.get(businessObject);
+		if(mapOnProp != null) {
+			List<UIMessage> messagesList = mapOnProp.get(property);
+			if(messagesList != null) {
+				messagesList.clear();
+				mapOnProp.remove(property);
+			}
+		}
 	}
 
 	@Nonnull
 	public <T> List<UIMessage> getErrorsOn(@Nonnull T businessObject) {
+		List<UIMessage> messagesList = m_mapGlobals.get(businessObject);
+		if(messagesList != null) {
+			return messagesList; //consider making copy list
+		}
 		return Collections.EMPTY_LIST;
 	}
 
 	@Nonnull
-	public <T, V> List<UIMessage> getErrorsOn(@Nonnull T businessObject, @Nonnull PropertyMetaModel<V> pmm) {
+	public <T, V> List<UIMessage> getErrorsOn(@Nonnull T businessObject, @Nonnull PropertyMetaModel<V> property) {
+		Map<PropertyMetaModel< ? >, List<UIMessage>> mapOnProp = m_map.get(businessObject);
+		if(mapOnProp != null) {
+			List<UIMessage> messagesList = mapOnProp.get(property);
+			if(messagesList != null) {
+				return messagesList; //consider making copy list
+			}
+		}
 		return Collections.EMPTY_LIST;
 	}
 
