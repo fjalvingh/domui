@@ -65,9 +65,11 @@ public class JavassistLazyInitializer extends BasicLazyInitializer implements Me
 	        final Serializable id,
 	        final Method getIdentifierMethod,
 	        final Method setIdentifierMethod,
+	        final Method genericGetIdentifier,
+	        final Method genericSetIdentifier,
 	        final CompositeType componentIdType,
 	        final SessionImplementor session) {
-		super( entityName, persistentClass, id, getIdentifierMethod, setIdentifierMethod, componentIdType, session );
+		super( entityName, persistentClass, id, getIdentifierMethod, setIdentifierMethod, genericGetIdentifier, genericSetIdentifier, componentIdType, session );
 		this.interfaces = interfaces;
 	}
 
@@ -77,6 +79,8 @@ public class JavassistLazyInitializer extends BasicLazyInitializer implements Me
 	        final Class[] interfaces,
 	        final Method getIdentifierMethod,
 	        final Method setIdentifierMethod,
+	        final Method genericGetIdentifier,
+	        final Method genericSetIdentifier,
 	        CompositeType componentIdType,
 	        final Serializable id,
 	        final SessionImplementor session) throws HibernateException {
@@ -89,6 +93,8 @@ public class JavassistLazyInitializer extends BasicLazyInitializer implements Me
 			        id,
 			        getIdentifierMethod,
 			        setIdentifierMethod,
+			        genericGetIdentifier,
+			        genericSetIdentifier,
 			        componentIdType,
 			        session
 			);
@@ -120,6 +126,8 @@ public class JavassistLazyInitializer extends BasicLazyInitializer implements Me
 	        final Class[] interfaces,
 	        final Method getIdentifierMethod,
 	        final Method setIdentifierMethod,
+	        final Method genericGetIdentifier,
+	        final Method genericSetIdentifier,
 	        final CompositeType componentIdType,
 	        final Serializable id,
 	        final SessionImplementor session) throws HibernateException {
@@ -130,6 +138,8 @@ public class JavassistLazyInitializer extends BasicLazyInitializer implements Me
 		        interfaces, id,
 		        getIdentifierMethod,
 		        setIdentifierMethod,
+		        genericGetIdentifier,
+		        genericSetIdentifier,
 		        componentIdType,
 		        session
 		);

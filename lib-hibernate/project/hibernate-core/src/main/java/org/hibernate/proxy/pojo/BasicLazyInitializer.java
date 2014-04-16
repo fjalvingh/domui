@@ -23,19 +23,17 @@
  */
 package org.hibernate.proxy.pojo;
 
-import java.io.Serializable;
-import java.lang.reflect.Method;
+import java.io.*;
+import java.lang.reflect.*;
 
-import org.hibernate.engine.EntityKey;
-import org.hibernate.engine.SessionImplementor;
-import org.hibernate.type.CompositeType;
-import org.hibernate.util.MarkerObject;
-import org.hibernate.util.ReflectHelper;
-import org.hibernate.proxy.AbstractLazyInitializer;
+import org.hibernate.engine.*;
+import org.hibernate.proxy.*;
+import org.hibernate.type.*;
+import org.hibernate.util.*;
 
 /**
  * Lazy initializer for POJOs
- * 
+ *
  * @author Gavin King
  */
 public abstract class BasicLazyInitializer extends AbstractLazyInitializer {
@@ -45,6 +43,10 @@ public abstract class BasicLazyInitializer extends AbstractLazyInitializer {
 	protected Class persistentClass;
 	protected Method getIdentifierMethod;
 	protected Method setIdentifierMethod;
+
+	protected Method genericGetIdentifier;
+
+	protected Method genericSetIdentifier;
 	protected boolean overridesEquals;
 	private Object replacement;
 	protected CompositeType componentIdType;
@@ -55,6 +57,8 @@ public abstract class BasicLazyInitializer extends AbstractLazyInitializer {
 	        Serializable id,
 	        Method getIdentifierMethod,
 	        Method setIdentifierMethod,
+	        Method genericGetIdentifier,
+	        Method genericSetIdentifier,
 	        CompositeType componentIdType,
 	        SessionImplementor session) {
 		super(entityName, id, session);
@@ -62,6 +66,11 @@ public abstract class BasicLazyInitializer extends AbstractLazyInitializer {
 		this.getIdentifierMethod = getIdentifierMethod;
 		this.setIdentifierMethod = setIdentifierMethod;
 		this.componentIdType = componentIdType;
+		this.genericGetIdentifier = genericGetIdentifier;
+		this.genericSetIdentifier = genericSetIdentifier;
+		
+//		this.genericGetIdentifier = ReflectHelper.findSyntheticGenericIdMethod(getIdentifierMethod);
+//		this.genericSetIdentifier = ReflectHelper.findSyntheticGenericIdMethod(setIdentifierMethod);
 		overridesEquals = ReflectHelper.overridesEquals(persistentClass);
 	}
 
@@ -79,7 +88,7 @@ public abstract class BasicLazyInitializer extends AbstractLazyInitializer {
 			else if ( !overridesEquals && "hashCode".equals(methodName) ) {
 				return Integer.valueOf( System.identityHashCode(proxy) );
 			}
-			else if ( isUninitialized() && method.equals(getIdentifierMethod) ) {
+			else if ( isUninitialized() && (method.equals(getIdentifierMethod) || method.equals(genericGetIdentifier) )) {
 				return getIdentifier();
 			}
 			else if ( "getHibernateLazyInitializer".equals(methodName) ) {
@@ -90,7 +99,7 @@ public abstract class BasicLazyInitializer extends AbstractLazyInitializer {
 			if ( !overridesEquals && "equals".equals(methodName) ) {
 				return args[0]==proxy ? Boolean.TRUE : Boolean.FALSE;
 			}
-			else if ( method.equals(setIdentifierMethod) ) {
+			else if(method.equals(setIdentifierMethod) || method.equals(genericSetIdentifier)) {
 				initialize();
 				setIdentifier( (Serializable) args[0] );
 				return INVOKE_IMPLEMENTATION;

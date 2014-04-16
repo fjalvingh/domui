@@ -71,6 +71,8 @@ public final class CGLIBLazyInitializer extends BasicLazyInitializer implements 
 			final Class[] interfaces,
 			final Method getIdentifierMethod,
 			final Method setIdentifierMethod,
+	        final Method genericGetIdentifier,
+	        final Method genericSetIdentifier,
 			CompositeType componentIdType,
 			final Serializable id,
 			final SessionImplementor session) throws HibernateException {
@@ -84,6 +86,8 @@ public final class CGLIBLazyInitializer extends BasicLazyInitializer implements 
 					id,
 					getIdentifierMethod,
 					setIdentifierMethod,
+					genericGetIdentifier,
+					genericSetIdentifier,
 					componentIdType,
 					session
 				);
@@ -108,6 +112,8 @@ public final class CGLIBLazyInitializer extends BasicLazyInitializer implements 
 			final Class[] interfaces,
 			final Method getIdentifierMethod,
 			final Method setIdentifierMethod,
+	        final Method genericGetIdentifier,
+	        final Method genericSetIdentifier,
 			final CompositeType componentIdType,
 			final Serializable id,
 			final SessionImplementor session) throws HibernateException {
@@ -118,6 +124,8 @@ public final class CGLIBLazyInitializer extends BasicLazyInitializer implements 
 				id,
 				getIdentifierMethod,
 				setIdentifierMethod,
+				genericGetIdentifier,
+				genericSetIdentifier,
 				componentIdType,
 				session
 			);
@@ -168,6 +176,8 @@ public final class CGLIBLazyInitializer extends BasicLazyInitializer implements 
 			final Serializable id,
 			final Method getIdentifierMethod,
 			final Method setIdentifierMethod,
+	        final Method genericGetIdentifier,
+	        final Method genericSetIdentifier,
 			final CompositeType componentIdType,
 			final SessionImplementor session) {
 		super(
@@ -176,6 +186,8 @@ public final class CGLIBLazyInitializer extends BasicLazyInitializer implements 
 				id,
 				getIdentifierMethod,
 				setIdentifierMethod,
+				genericGetIdentifier,
+				genericSetIdentifier,
 				componentIdType,
 				session
 			);
@@ -231,7 +243,7 @@ public final class CGLIBLazyInitializer extends BasicLazyInitializer implements 
 				( isReadOnlySettingAvailable() ? Boolean.valueOf( isReadOnly() ) : isReadOnlyBeforeAttachedToSession() ),
 				getIdentifierMethod,
 				setIdentifierMethod,
-				componentIdType 
+				componentIdType
 			);
 	}
 }
