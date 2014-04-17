@@ -428,10 +428,10 @@ final public class WindowSession {
 			/*
 			 * Page found. Is it the current page? If so we just ignore the request.
 			 */
-			if(psix == m_shelvedPageStack.size() - 1) {
-				logUser(ctx, currentpg, "GOTO " + getTargetMode() + " to current page - ignored");
-				return false;
-			}
+//			if(psix == m_shelvedPageStack.size() - 1) {
+//				logUser(ctx, currentpg, "GOTO " + getTargetMode() + " to current page - ignored");
+//				return false;
+//			}
 
 			/*
 			 * Entry accepted. Discard all stacked entries *above* the selected thing.
