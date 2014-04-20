@@ -429,7 +429,7 @@ final public class WindowSession {
 			 * Page found. Is it the current page? If so we just ignore the request.
 			 */
 			if(psix == m_shelvedPageStack.size() - 1) {
-				logUser(ctx, currentpg, "GOTO " + getTargetMode() + " to current page - ignored");
+				logUser(ctx, currentpg, "GOTO " + getTargetMode() + " to current page?");
 //				return false;
 			}
 
@@ -443,6 +443,10 @@ final public class WindowSession {
 				throw new IllegalStateException("Shelve entry is not a domui page but " + xse);
 
 			Page currentPage = ((ShelvedDomUIPage) xse).getPage();
+			if(currentPage == currentpg) {
+				logUser(ctx, currentpg, "GOTO " + getTargetMode() + " to current page - ignored");
+				return false;
+			}
 			logUser(ctx, currentpg, "GOTO " + getTargetMode() + " and unshelve page " + currentPage);
 
 			/*
