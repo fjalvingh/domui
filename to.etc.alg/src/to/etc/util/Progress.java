@@ -46,12 +46,12 @@ public class Progress {
 	private Progress m_parent;
 
 	/** If a subprogress is in action this contains it. */
-	private Progress m_subProgress;
+	final private List<Progress> m_subProgress = new ArrayList<Progress>();
 
-	/** The amount of work in this-progress' units. */
+	/** The amount of work in the parent(!) progress' units. */
 	private double m_subTotalWork;
 
-	/** The "current" amount of work units that was set when the sub work started. */
+	/** The "current" amount of work units that was set when the sub(s) work started. */
 	private double m_subStartWork;
 
 	/** The total amount of work. */
@@ -62,6 +62,8 @@ public class Progress {
 
 	/** T if a cancel request is received. */
 	private boolean m_cancelled;
+
+	private boolean m_parallel;
 
 	/** If F, then this cannot be cancelled, and any attempt to do that is ignored. */
 	private boolean					m_cancelable	= true;
@@ -146,6 +148,10 @@ public class Progress {
 		}
 	}
 
+	/**
+	 * Get the path until the first parallel subprocess or the specified level
+	 */
+	@Nonnull
 	public String getActionPath(int levels) {
 		StringBuilder sb = new StringBuilder(80);
 
@@ -160,7 +166,10 @@ public class Progress {
 						sb.append(p.m_extra);
 					levels--;
 				}
-				p = p.m_subProgress;
+				if(p.m_subProgress.size() != 1)
+					p = null;
+				else
+					p = p.m_subProgress.get(0);
 			}
 		}
 		return sb.toString();
@@ -260,11 +269,20 @@ public class Progress {
 			if(m_totalWork == 0) {
 				m_totalWork = 100.0;
 				m_currentWork = 100.0;
-				updateTree();
 			} else if(m_currentWork < m_totalWork) {
 				m_currentWork = m_totalWork;
-				updateTree();
 			}
+
+			//-- If I am part of a parallel: clear myself from my parent
+			Progress dad = m_parent;
+			if(null != dad) {
+				if(dad.m_subProgress.remove(this)) {			// Remove from my parent as I'm done
+					dad.m_subStartWork += m_subTotalWork;		// Increment parent's sub-work-done
+					dad.m_currentWork = dad.m_subStartWork;		// And update current work
+				}
+			}
+			updateTree();
+			m_parent = null;
 		}
 	}
 
@@ -284,18 +302,25 @@ public class Progress {
 	 */
 	private void clearSubProgress() {
 		synchronized(m_root) {
+			m_parallel = false;
 			checkCancelled();
-			if(m_subProgress == null || m_subProgress.m_parent == null) // Nothing active?
+			if(m_subProgress.size() == 0)
 				return;
-			m_currentWork = m_subStartWork + m_subTotalWork; // Finish off the sub.
-			m_subProgress.m_parent = null;
-			m_subProgress = null;
+
+			double totalWork = 0.0;
+			for(Progress sub : m_subProgress) {
+				totalWork += sub.m_subTotalWork;
+				sub.m_parent = null;
+
+			}
+			m_currentWork = m_subStartWork + totalWork;			// Finish off the sub.
+			m_subProgress.clear();
 			updateTree();
 		}
 	}
 
 	/**
-	 * Create a sub-progress indicator for the specified portion of work.
+	 * Create a single (non-parallel) sub-progress indicator for the specified portion of work.
 	 * @return
 	 */
 	@Nonnull
@@ -308,13 +333,35 @@ public class Progress {
 				if(work < 0) // If we think we're already done- just ignore..
 					work = 0;
 			}
-			m_subTotalWork = work; // The max amount of work this subprocess can complete, in our units.
 			m_subStartWork = m_currentWork; // Save the base value to be able to do a full recalculate (prevent rounding trouble)
-
-			m_subProgress = new Progress(this, name);
-			return m_subProgress;
+			Progress sub = new Progress(this, name);
+			sub.m_subTotalWork = work;							// The max amount of work this subprocess can complete, in our units.
+			m_subProgress.add(sub);
+			return sub;
 		}
 	}
+
+	@Nonnull
+	public Progress createParallelProgress(@Nullable String name, double work) {
+		checkCancelled();
+		if(!m_parallel) {
+			clearSubProgress();
+			m_parallel = true;
+			m_subStartWork = m_currentWork; 					// Save the base value to be able to do a full recalculate (prevent rounding trouble)
+		}
+
+		if(m_currentWork + work > m_totalWork) { 				// Truncate if amount == too big
+			work = m_totalWork - m_currentWork; 				// How much is possible?
+			if(work < 0) 										// If we think we're already done- just ignore..
+				work = 0;
+		}
+
+		Progress sub = new Progress(this, name);
+		sub.m_subTotalWork = work;							// The max amount of work this subprocess can complete, in our units.
+		m_subProgress.add(sub);
+		return sub;
+	}
+
 
 	/**
 	 * Called when a thingy has updated; this passes the change to all parents. The current
@@ -346,17 +393,23 @@ public class Progress {
 
 	protected boolean updateFromSub() {
 		synchronized(m_root) {
-			if(m_subProgress == null)
+			if(m_subProgress.size() == 0)
 				throw new IllegalStateException("?? Unexpected: no sub active?");
+			double totalAmount = 0.0;
+			for(Progress p : m_subProgress) {
+				if(p.m_parent == null)
+					continue;
 
-			//** Calculate the fraction of work done, then adjust
-			double frac = m_subProgress.getFraction();
-			double amount = frac * m_subTotalWork + m_subStartWork;
-			if(m_currentWork >= amount)
+				//** Calculate the fraction of work done, then adjust
+				double frac = p.getFraction();
+				double amount = frac * p.m_subTotalWork;
+				totalAmount += amount;
+				if(amount > m_subStartWork + m_subTotalWork)
+					throw new IllegalStateException("?? Sub adjustment causes overflow: " + amount + ", start=" + m_subStartWork + ", max-sub=" + m_subTotalWork);
+			}
+			if(m_currentWork >= totalAmount)
 				return false;
-			if(amount > m_subStartWork+m_subTotalWork)
-				throw new IllegalStateException("?? Sub adjustment causes overflow: "+amount+", start="+m_subStartWork+", max-sub="+m_subTotalWork);
-			m_currentWork = amount;
+			m_currentWork = totalAmount + m_subStartWork;
 			updated();
 			return true;
 		}
