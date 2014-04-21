@@ -380,7 +380,7 @@ public class Progress {
 				if(dad.m_subProgress.remove(this)) {			// Remove from my parent as I'm done
 					double toreport = m_parentsWorkForSub - m_workReportedToParent;
 					if(toreport > 0) {
-						dad.internalSetCompleted(toreport);
+						dad.internalSetCompleted(m_parent.m_currentWork + toreport);
 					}
 				}
 			}
