@@ -337,7 +337,6 @@ public class Progress {
 	private void internalSetCompleted(double now) {
 		synchronized(m_root) {
 			checkCancelled();
-			clearSubProgress();
 			if(now <= m_currentWork)
 				return;
 			if(now >= m_totalWork)
@@ -350,7 +349,8 @@ public class Progress {
 				double parentwork = getFraction() * m_parentsWorkForSub;		// Amount of work done if parent's units'
 				double toreport = parentwork - m_workReportedToParent;
 				if(toreport > 0) {
-					dad.increment(toreport);
+					double dadwork = dad.m_currentWork + toreport;
+					dad.internalSetCompleted(dadwork);
 					m_workReportedToParent = parentwork;
 				}
 			}
