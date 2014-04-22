@@ -207,7 +207,7 @@ abstract public class QRestrictor<T> {
 	 * @return
 	 */
 	@Nonnull
-	public QRestrictor<T> eq(@Nonnull @GProperty final String property, @Nonnull Object value) {
+	public QRestrictor<T> eq(@Nonnull @GProperty final String property, @Nullable Object value) {
 		return add(QRestriction.eq(property, value));
 	}
 
@@ -265,7 +265,7 @@ abstract public class QRestrictor<T> {
 	 * @return
 	 */
 	@Nonnull
-	public QRestrictor<T> ne(@Nonnull @GProperty final String property, @Nonnull Object value) {
+	public QRestrictor<T> ne(@Nonnull @GProperty final String property, @Nullable Object value) {
 		add(QRestriction.ne(property, value));
 		return this;
 	}
