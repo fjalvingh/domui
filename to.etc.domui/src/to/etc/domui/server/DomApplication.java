@@ -462,7 +462,7 @@ public abstract class DomApplication {
 		m_developmentMode = development;
 		if(m_developmentMode && DeveloperOptions.getBool("domui.traceallocations", true))
 			NodeBase.internalSetLogAllocations(true);
-		String haso = DeveloperOptions.getString("domui.testui", null);
+		String haso = DeveloperOptions.getString("domui.testui");
 		if(m_developmentMode && haso == null)
 			m_uiTestMode = true;
 		if("true".equals(haso))
@@ -1629,7 +1629,7 @@ public abstract class DomApplication {
 	 * @return
 	 * @throws Exception
 	 */
-	public ITheme getTheme(@Nonnull String themeName, @Nonnull IResourceDependencyList rdl) throws Exception {
+	public ITheme getTheme(@Nonnull String themeName, @Nullable IResourceDependencyList rdl) throws Exception {
 		return m_themeManager.getTheme(themeName, rdl);
 	}
 

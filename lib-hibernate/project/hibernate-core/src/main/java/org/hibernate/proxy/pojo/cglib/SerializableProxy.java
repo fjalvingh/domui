@@ -30,6 +30,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.proxy.AbstractSerializableProxy;
 import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.type.CompositeType;
+import org.hibernate.util.*;
 
 /**
  * Serializable placeholder for <tt>CGLIB</tt> proxies
@@ -77,17 +78,28 @@ public final class SerializableProxy extends AbstractSerializableProxy {
 
 	private Object readResolve() {
 		try {
+			Method getIdMethod = null;
+			Method setIdMethod = null;
+			Method genericGetIdMethod = null;
+			Method genericSetIdMethod = null;
+			if(getIdentifierMethodName != null) {
+				getIdMethod = getIdentifierMethodClass.getDeclaredMethod(getIdentifierMethodName, null);
+				genericGetIdMethod = ReflectHelper.findSyntheticGenericIdMethod(getIdMethod);
+			}
+			if(setIdentifierMethodName != null) {
+				setIdMethod = setIdentifierMethodClass.getDeclaredMethod(setIdentifierMethodName, setIdentifierMethodParams);
+				genericSetIdMethod = ReflectHelper.findSyntheticGenericIdMethod(setIdMethod);
+			}
+
 			HibernateProxy proxy = CGLIBLazyInitializer.getProxy(
 				getEntityName(),
 				persistentClass,
 				interfaces,
-				getIdentifierMethodName==null ?
-					null :
-					getIdentifierMethodClass.getDeclaredMethod(getIdentifierMethodName, null),
-				setIdentifierMethodName==null ?
-					null :
-					setIdentifierMethodClass.getDeclaredMethod(setIdentifierMethodName, setIdentifierMethodParams),
-					componentIdType,
+				getIdMethod,
+				setIdMethod,
+				genericGetIdMethod,
+				genericSetIdMethod,
+				componentIdType,
 				getId(),
 				null
 			);

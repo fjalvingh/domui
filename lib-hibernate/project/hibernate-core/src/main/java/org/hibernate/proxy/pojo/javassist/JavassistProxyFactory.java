@@ -32,6 +32,7 @@ import org.hibernate.engine.SessionImplementor;
 import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.proxy.ProxyFactory;
 import org.hibernate.type.CompositeType;
+import org.hibernate.util.*;
 
 /**
  * A {@link ProxyFactory} implementation for producing Javassist-based proxies.
@@ -46,6 +47,8 @@ public class JavassistProxyFactory implements ProxyFactory, Serializable {
 	private Class[] interfaces;
 	private Method getIdentifierMethod;
 	private Method setIdentifierMethod;
+    private Method genericGetIdentifier;
+    private Method genericSetIdentifier;
 	private CompositeType componentIdType;
 	private Class factory;
 
@@ -63,6 +66,8 @@ public class JavassistProxyFactory implements ProxyFactory, Serializable {
 		this.setIdentifierMethod = setIdentifierMethod;
 		this.componentIdType = componentIdType;
 		factory = JavassistLazyInitializer.getProxyFactory( persistentClass, this.interfaces );
+		this.genericGetIdentifier = ReflectHelper.findSyntheticGenericIdMethod(getIdentifierMethod);
+		this.genericSetIdentifier = ReflectHelper.findSyntheticGenericIdMethod(setIdentifierMethod);
 	}
 
 	public HibernateProxy getProxy(
@@ -75,6 +80,8 @@ public class JavassistProxyFactory implements ProxyFactory, Serializable {
 		        interfaces,
 		        getIdentifierMethod,
 				setIdentifierMethod,
+				genericGetIdentifier,
+				genericSetIdentifier,
 		        componentIdType,
 		        id,
 		        session

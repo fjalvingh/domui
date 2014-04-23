@@ -32,6 +32,7 @@ import org.hibernate.proxy.ProxyFactory;
 import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.engine.SessionImplementor;
 import org.hibernate.type.CompositeType;
+import org.hibernate.util.*;
 
 /**
  * @author Gavin King
@@ -48,6 +49,8 @@ public class CGLIBProxyFactory implements ProxyFactory {
 	private Class[] interfaces;
 	private Method getIdentifierMethod;
 	private Method setIdentifierMethod;
+    private Method genericGetIdentifier;
+    private Method genericSetIdentifier;
 	private CompositeType componentIdType;
 	private Class factory;
 
@@ -66,20 +69,24 @@ public class CGLIBProxyFactory implements ProxyFactory {
 		this.setIdentifierMethod = setIdentifierMethod;
 		this.componentIdType = componentIdType;
 		factory = CGLIBLazyInitializer.getProxyFactory(persistentClass, this.interfaces);
+		this.genericGetIdentifier = ReflectHelper.findSyntheticGenericIdMethod(getIdentifierMethod);
+		this.genericSetIdentifier = ReflectHelper.findSyntheticGenericIdMethod(setIdentifierMethod);
 	}
 
 	public HibernateProxy getProxy(Serializable id, SessionImplementor session)
 		throws HibernateException {
 
 		return CGLIBLazyInitializer.getProxy(
-				factory, 
-				entityName, 
-				persistentClass, 
-				interfaces, 
-				getIdentifierMethod, 
+				factory,
+				entityName,
+				persistentClass,
+				interfaces,
+				getIdentifierMethod,
 				setIdentifierMethod,
+				genericGetIdentifier,
+				genericSetIdentifier,
 				componentIdType,
-				id, 
+				id,
 				session
 			);
 	}
