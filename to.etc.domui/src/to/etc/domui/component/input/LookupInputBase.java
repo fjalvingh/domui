@@ -729,10 +729,9 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 
 		if(keySearchModel != null && keySearchModel.getRows() > 0) {
 			setResultModel(keySearchModel);
-		}
-
-		if(isSearchImmediately())
+		} else if(isSearchImmediately()) {
 			search(lf);
+		}
 	}
 
 	/**
