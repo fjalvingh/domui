@@ -1,5 +1,7 @@
 package to.etc.util;
 
+import java.util.*;
+
 import javax.annotation.*;
 
 import org.junit.*;
@@ -38,6 +40,30 @@ public class TestStringTool {
 		Assert.assertTrue("THe string must start with tne prefix 'PREFIX_' : " + result, result.startsWith(PREFIX));
 	}
 
+	@Test
+	/**
+	 * Test the validation of e-mailaddresses. user@localhost is a special one. It should be accepted too.
+	 */
+	public void testValidateEmail() {
+
+		List<String> validEmailAdresses = Arrays.asList("a.b@c.d", "a.b.c@d.e", "user@localhost");
+		for(String emailaddress : validEmailAdresses) {
+			checkValidEmailAddress(emailaddress);
+		}
+
+		List<String> invalidEmailAdresses = Arrays.asList("a.b@c", "a@b..c", "a.b@.c", "a.b@..c", "@a.b", "a.@b.c", "");
+		for(String emailaddress : invalidEmailAdresses) {
+			checkInValidEmailAddress(emailaddress);
+		}
+	}
+
+	private void checkValidEmailAddress(@Nullable String emailAddress) {
+		Assert.assertTrue("E-mailaddress " + emailAddress + " is a valid e-mailaddress.", StringTool.isValidEmail(emailAddress));
+	}
+
+	private void checkInValidEmailAddress(@Nullable String emailAddress) {
+		Assert.assertFalse("E-mailaddress " + emailAddress + " is an invalid e-mailaddress.", StringTool.isValidEmail(emailAddress));
+	}
 
 	/**
 	 * Test method for {@link to.etc.util.StringTool#isBlank(java.lang.String)}.
@@ -181,7 +207,7 @@ public class TestStringTool {
 
 	/**
 	 * <pre>
-	 * Test the method StringTool.strToJavascriptString(final String cs, final boolean dblquote) 
+	 * Test the method StringTool.strToJavascriptString(final String cs, final boolean dblquote)
 	 * if single quotes are escaped as expected.
 	 *
 	 * </pre>
@@ -197,7 +223,7 @@ public class TestStringTool {
 
 	/**
 	 * <pre>
-	 * Test the method StringTool.strToJavascriptString(final String cs, final boolean dblquote) 
+	 * Test the method StringTool.strToJavascriptString(final String cs, final boolean dblquote)
 	 * if double quotes are escaped as expected.
 	 *
 	 * @throws Exception
@@ -208,7 +234,7 @@ public class TestStringTool {
 
 		String textIn = "\"test string\"";
 		String testOut = StringTool.strToJavascriptString(textIn, true);
-		
+
 		StringBuilder sb = new StringBuilder();
 		sb.append("\\\"");
 		sb.append("test string");
