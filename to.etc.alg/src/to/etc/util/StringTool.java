@@ -1587,6 +1587,8 @@ public class StringTool {
 				p = Runtime.getRuntime().exec("cmd.exe /c set");
 			else if(opsys.indexOf("unix") > -1 || opsys.indexOf("Linux") > -1 || File.separatorChar == '/')
 				p = Runtime.getRuntime().exec("env");
+			else
+				throw new IllegalStateException("No environment can be found. This should not be possible.");
 
 			//-- Take the result..
 			BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));

@@ -67,7 +67,7 @@ public class XmlHelper {
 		return null;
 	}
 
-	public @Nullable
+	public @Nonnull
 	List<Node> locateDirectChilds(@Nonnull Element element, @Nonnull String tagName) {
 		ArrayList<Node> res = new ArrayList<Node>();
 		NodeList codes = element.getChildNodes();

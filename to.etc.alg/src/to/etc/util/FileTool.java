@@ -1795,7 +1795,11 @@ public class FileTool {
 				} else if(v != null)
 					list[tox++] = v; // Keep, todo
 			} catch(Exception x) {
-				LOG.trace("Cannot close resource " + v + " (a " + v.getClass() + "): " + x, x);
+				if(v == null) {
+					// v is already null and doesn't need to be closed anymore
+				} else {
+					LOG.trace("Cannot close resource " + v + " (a " + v.getClass() + "): " + x, x);
+				}
 			}
 		}
 
@@ -1834,7 +1838,11 @@ public class FileTool {
 					}
 				}
 			} catch(Exception x) {
-				LOG.trace("Cannot close resource " + v + " (a " + v.getClass() + "): " + x, x);
+				if(v == null) {
+					// v is already null and doesn't need to be closed anymore
+				} else {
+					LOG.trace("Cannot close resource " + v + " (a " + v.getClass() + "): " + x, x);
+				}
 			}
 
 			if(v != null) {

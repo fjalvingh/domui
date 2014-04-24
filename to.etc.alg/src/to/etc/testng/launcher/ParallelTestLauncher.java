@@ -301,6 +301,9 @@ public class ParallelTestLauncher implements IRunnableArgumentsProvider {
 			sb.append("</test>");
 			if(!getArgUtil().isEmptyArgumentValues(listeners)) {
 				sb.append("<listeners>");
+				if(listeners == null) {
+					throw new IllegalStateException("It is not possible that listeners is null here.");
+				}
 				for(String listenerArtefact : listeners) {
 					sb.append("<listener class-name=\"" + listenerArtefact + "\"/>");
 				}

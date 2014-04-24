@@ -166,8 +166,7 @@ public class Soundex {
 	*/
 	public static void main(String[] strings) {
 		if((strings == null) || (strings.length == 0)) {
-			System.out.println("Specify some words and this will display a soundex code for each.");
-			System.exit(0);
+			throw new IllegalArgumentException("Specify some words and this will display a soundex code for each.");
 		}
 		Soundex s = new Soundex();
 		for(int i = 0; i < strings.length; i++)
