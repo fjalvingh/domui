@@ -77,10 +77,12 @@ final public class DomUtil {
 	}
 
 	/**
-	 * Define (or clear) the x-ua-compatible value sent for this page. When not called
-	 * this defaults to the value defined by the ms-emulation property in web.xml.
-	 * @param comp
-	 * @throws IOException
+	 * Don not use.
+	 * We are not sure that it's checked before. This is a potential null pointer access.
+	 * Adding this mean that we didn't want to introduce risk but we are marking this as a bad part of code.
+	 *
+	 * @param in
+	 * @return
 	 */
 	@Deprecated
 	@Nonnull
@@ -89,12 +91,10 @@ final public class DomUtil {
 	}
 
 	/**
-	 * Don not use.
-	 * We are not sure that it's checked before. This is a potential null pointer access.
-	 * Adding this mean that we didn't want to introduce risk but we are making this as a bad part of code.
-	 *
-	 * @param in
-	 * @return
+	 * Define (or clear) the x-ua-compatible value sent for this page. When not called
+	 * this defaults to the value defined by the ms-emulation property in web.xml.
+	 * @param comp
+	 * @throws IOException
 	 */
 	static public final void setPageCompatibility(@Nonnull HttpServletResponse req, @Nullable String comp) throws IOException {
 		if(!(req instanceof WrappedHttpServetResponse))
