@@ -163,7 +163,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	 */
 	@Override
 	@Nonnull
-	public QCriteria<T> eq(@Nonnull @GProperty final String property, @Nonnull final Object value) {
+	public QCriteria<T> eq(@Nonnull @GProperty final String property, @Nullable final Object value) {
 		return (QCriteria<T>) super.eq(property, value);
 	}
 
@@ -381,7 +381,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	 */
 	@Override
 	@Nonnull
-	public QCriteria<T> ne(@Nonnull @GProperty final String property, @Nonnull final Object value) {
+	public QCriteria<T> ne(@Nonnull @GProperty final String property, @Nullable final Object value) {
 		return (QCriteria<T>) super.ne(property, value);
 	}
 
