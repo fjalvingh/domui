@@ -21,7 +21,7 @@ $(window).bind('beforeunload', function() {
 		$.browser.majorVersion = parseInt(v[0], 10);
 		$.browser.minorVersion = parseInt(v[1], 10);
 	} catch(x) {}
-	
+
 //	alert('bmaj='+$.browser.majorVersion+", mv="+$.browser.minorVersion);
 }
 
@@ -213,7 +213,7 @@ $(window).bind('beforeunload', function() {
 					window.location.href = window.location.href;
 					return;
 				}
-				
+
 				if(cmd == 'head' || cmd == 'body') {
 					//-- HTML response. Server state is gone due to restart or lost session.
 					if(!WebUI._hideExpiredMessage){
@@ -807,7 +807,7 @@ $.extend(WebUI, {
 		//-- Do not call upward handlers too.
 		if(! evt)
 			evt = window.event;
-		
+
 		// jal 20131107 Cancelling the event means that you cannot click items inside a clickable item
 		if(evt) {
 			evt.cancelBubble = true;
@@ -857,7 +857,7 @@ $.extend(WebUI, {
 			error :WebUI.handleError
 		});
 	},
-	
+
 	jsoncall: function(id, fields) {
 		if (!fields)
 			fields = new Object();
@@ -986,7 +986,7 @@ $.extend(WebUI, {
 //			console.debug("json data error", x);
 //		}
 	},
-	
+
 	jsoncall: function(id, fields) {
 		if (!fields)
 			fields = new Object();
@@ -1618,7 +1618,7 @@ $.extend(WebUI, {
 			if(separatorsCount < 2) {
 				val = WebUI.insertDateSeparators(val, fmt, separatorsCount);
 				var res = Date.parseDate(val, fmt);
-				c.value = res.print(fmt);				
+				c.value = res.print(fmt);
 			} else {
 				try{
 					var resultOfConversion = WebUI.parsingOfFormat(val, fmt);
@@ -1632,17 +1632,17 @@ $.extend(WebUI, {
 			alert(Calendar._TT["INVALID"]);
 		}
 	},
-	
+
 	/**
 	 * Function that checks is format valid after check that input has separators.
 	 */
-	
+
 	parsingOfFormat: function(inputValue, format){
 		// splits to array of alphanumeric "words" from an input (separators are non-alphanumeric characters)
 		var inputValueSplitted = inputValue.match(/(\w+)/g);
 		var formatWithoutPercentCharSplitted = format.replace(/%/g, "").match(/(\w+)/g);
 		var result = "";
-		for(var i = 0; i < formatWithoutPercentCharSplitted.length; i++){			
+		for(var i = 0; i < formatWithoutPercentCharSplitted.length; i++){
 			switch(formatWithoutPercentCharSplitted[i]){
 			case "d":
 				result = WebUI.formingResultForDayOrMonth(inputValueSplitted[i], result);
@@ -1656,9 +1656,9 @@ $.extend(WebUI, {
 			}
 		}
 		result = WebUI.insertDateSeparators(result, format);
-		return result;	
+		return result;
 	},
-	
+
 	formingResultForDayOrMonth: function(inputValue, result){
 		if(!WebUI.hasFieldInvalidFormat(inputValue)){
 			return result = WebUI.setDayOrMonthFormat(inputValue, result);
@@ -1667,7 +1667,7 @@ $.extend(WebUI, {
 			throw "Invalid date";
 		}
 	},
-	
+
 	formingResultForYear: function(inputValue, result){
 		var VALID_LENGTH_YEAR = 2;
 		if(inputValue.length == VALID_LENGTH_YEAR){
@@ -1677,23 +1677,23 @@ $.extend(WebUI, {
 			throw "Invalid date";
 		}
 	},
-	
+
 	/**
 	 * Function that checks is format valid of fields day and month.
 	 */
 	hasFieldInvalidFormat: function(inputValue){
 		var MAX_LENGTH = 2;
 		var FORBIDDEN_CHARACTER = "0";
-		
+
 		return (inputValue.length === MAX_LENGTH && (inputValue.charAt(0) === FORBIDDEN_CHARACTER)) || (inputValue.length > MAX_LENGTH);
 	},
-	
+
 	/**
 	 * Function that converts day and month parts of input string that represents date.
 	 */
 	setDayOrMonthFormat: function(inputValue, result){
 		var NEEDED_CHARACTER_DAY_MONTH = "0";
-		
+
 		if(inputValue.length == 1){
 			result += NEEDED_CHARACTER_DAY_MONTH + inputValue;
 		}else {
@@ -1701,13 +1701,13 @@ $.extend(WebUI, {
 		}
 		return result;
 	},
-	
+
 	/**
 	 * Function that converts year part of input string that represents date.
 	 */
 	setYearFormat: function(inputValue, result){
 		var NEEDED_CHARACTER_YEAR = "20";
-		
+
 		return result += NEEDED_CHARACTER_YEAR + inputValue;
 	},
 
@@ -1715,14 +1715,14 @@ $.extend(WebUI, {
 	 * Count of separator chars (anything else than letters and/or digits).
 	 */
 	countSeparators: function(str) {
-		var count = 0; 
+		var count = 0;
 		for(var i = str.length; --i >= 0;) {
 			if(WebUI.isSeparator(str.charAt(i)))
 				count++;
 		}
 		return count;
 	},
-	
+
 	/**
 	 * Returns T if char is anything else than letters and/or digits.
 	 */
@@ -2650,7 +2650,7 @@ $.extend(WebUI, {
 				alert(WebUI.format(WebUI._T.sysUnsupported, $.browser.majorVersion));
 				$.cookie("domuiie", "true", {});
 			}
-		} 
+		}
 	},
 
 	/** ***************** ScrollableTabPanel stuff. **************** */
@@ -2729,11 +2729,11 @@ $.extend(WebUI, {
 				$('.ui-stab-scrl-left',scrlNavig).addClass('ui-stab-dis');
 			}
 		}else{
-			
-			// 20121115 btadic: we just want to render scroll buttons without arrows and actions. We don't want empty spaces. 
-			//$('.ui-stab-scrl-left',scrlNavig).css('visibility','hidden');		
+
+			// 20121115 btadic: we just want to render scroll buttons without arrows and actions. We don't want empty spaces.
+			//$('.ui-stab-scrl-left',scrlNavig).css('visibility','hidden');
 			//$('.ui-stab-scrl-right',scrlNavig).css('visibility','hidden');
-			$('.ui-stab-scrl-left',scrlNavig).css('display','none');		
+			$('.ui-stab-scrl-left',scrlNavig).css('display','none');
 			$('.ui-stab-scrl-right',scrlNavig).css('display','none');
 			$('ul', scrlNavig).animate({marginLeft: 0}, 400, 'swing');
 		}
@@ -2777,7 +2777,7 @@ $.extend(WebUI, {
 			}
 		}
 	},
-	
+
 	/**
 	 * This adds a "resize" listener to the window, and every window "resize" it will call a method
 	 * to recalculate the height of a single div (flexid) based on the position of:
@@ -2797,7 +2797,7 @@ $.extend(WebUI, {
 		});
 		WebUI.recalculateAutoHeight(topid, flexid, bottom);
 	},
-	
+
 	recalculateAutoHeight: function(topid, flexid, bottom) {
 		try {
 			var tbot = $(topid).offset().top + $(topid).height();
@@ -2823,7 +2823,7 @@ $.extend(WebUI, {
 			//-- Get height of bottom, if present
 			var bheight = 0;
 			if(typeof bottom === "string") {
-				bheight = $("#"+bottom).height(); 
+				bheight = $("#"+bottom).height();
 			} else if(bottom) {
 				tbottom = bottom;
 			}
@@ -2838,7 +2838,7 @@ $.extend(WebUI, {
 //		}
 
 	},
-	
+
     autoHeight: function(flexid, bottom) {
 	    $(window).bind("resize", function() {
 		    WebUI.autoHeightRecalc(flexid, bottom);
@@ -3117,11 +3117,11 @@ $.extend(WebUI, {
 
 		$(menu).hide().fadeIn();
 	},
-	
+
 	popupSubmenuShow: function(parentId, submenu) {
 		$(submenu).position({my: 'left top', at: 'center top', of: parentId});
 	},
-	
+
 	/**
 	 * Register the popup. If the mouse leaves the popup window the popup needs to send a POPINCLOSE? command; this
 	 * will tell DomUI server that the popin needs to go. If an item inside the popin is clicked it should mean the
@@ -3137,7 +3137,7 @@ $.extend(WebUI, {
 		$(document.body).bind("keydown", WebUI.popinKeyClose);
 //		$(document.body).bind("beforeclick", WebUI.popinBeforeClick);	// Called when a click is done somewhere - not needed anymore, handled from java
 	},
-	
+
 	popinClosed: function(id) {
 		for(var i = 0; i < WebUI._popinCloseList.length; i++) {
 			if(id === WebUI._popinCloseList[i]) {
@@ -3714,7 +3714,7 @@ WebUI.colorPickerInput = function(inid, divid, value, onchange) {
 			if(onchange)
 				WebUI.colorPickerOnchange(btnid, hex);
 		}
-	});	
+	});
 };
 WebUI.colorPickerDisable = function(id) {
 	$(id).die();
@@ -3810,7 +3810,7 @@ WebUI.bulkUpload = function(id, buttonId, url) {
 		file_queue_limit: 0,
 		file_size_limit: "100 MB",
 		button_width: 120,
-		button_height: 22,
+		button_height: 24,
 		button_placeholder_id: buttonId,
 		button_window_mode: SWFUpload.WINDOW_MODE.TRANSPARENT,
 		button_cursor: SWFUpload.CURSOR.HAND
@@ -3849,7 +3849,11 @@ WebUI.bulkUpload = function(id, buttonId, url) {
 //	ctl.bind('uploadComplete', function(event, file) {
 //		var uf = new WebUI.UploadFile(file, target);
 //	});
-	ctl.bind('fileDialogComplete', function() {
+	ctl.bind('fileDialogComplete', function(nfiles) {
+		if(0 == nfiles) {
+			return;
+		}
+
 		//-- Autostart upload on dialog completion.
 		ctl.swfupload('startUpload');
 
