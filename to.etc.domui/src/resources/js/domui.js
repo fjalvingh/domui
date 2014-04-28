@@ -20,6 +20,15 @@ $(window).bind('beforeunload', function() {
 		var v = $.browser.version.split(".");
 		$.browser.majorVersion = parseInt(v[0], 10);
 		$.browser.minorVersion = parseInt(v[1], 10);
+
+		//-- And like clockwork MS fucks up with IE 11: it no longer registers as msie. Fix that here.
+		if(navigator.appName == 'Netscape') {
+			var ua = navigator.userAgent;
+			if(ua.indexOf("Trident/") != -1)
+				$.browser.msie = true;
+		}
+
+
 	} catch(x) {}
 
 //	alert('bmaj='+$.browser.majorVersion+", mv="+$.browser.minorVersion);
