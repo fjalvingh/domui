@@ -1021,6 +1021,10 @@ table.ui-lui-selected {
 	width: 100%;
 }
 
+.ui-ro .ui-lui-v {
+	white-space: nowrap;
+}
+
 .ui-lui-v > div {
 	width: 104px;
 }
@@ -1222,7 +1226,7 @@ table.ui-lf-st input.ui-ro:hover {
 	padding: 0px 0px 0px 4px;
 }
 
-.ui-f-in input, .ui-f-in select{
+.ui-f-in input, .ui-f-in select, .ui-f-in .wysiwyg {
 	font: inherit;
 	margin-bottom: 2px;
 	margin-right: 2px;
@@ -1544,7 +1548,7 @@ div.ui-sortable {
 }
 
 .ui-cptn .ui-cptn-btn {
-	text-align: left;
+	text-align: right;
 	vertical-align: bottom;
 	padding-left: 5px;
 	padding-bottom: 2px;
@@ -2568,24 +2572,23 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	top: 100px;
 	left: 100px;
 	width: auto;
-	height: auto;
-	-moz-border-radius: 5px;
-	border-radius: 5px;
-	-webkit-border-radius: 5px;
-	border: 1px solid #4075db;
+	height: auto;	
 	padding: 15px;
 }
 .ui-flare-error {
 	background: <%= errors_background %>;
-	color: <%= errors_foreground %>
+	color: <%= errors_foreground %>;
+	border: 1px solid <%= errors_border %>;
 }
 .ui-flare-info {
 	background: <%= info_bg %>;
-	color: <%= info_fg %>
+	color: <%= info_fg %>;
+	border: 1px solid <%= info_border %>;
 }
 .ui-flare-warning {
 	background: <%= warnings_background %>;
-	color: <%= warnings_foreground %>
+	color: <%= warnings_foreground %>;
+	border: 1px solid <%= warnings_border %>;
 }
 .ui-flare-msg {
 	opacity: 0.9;
@@ -2595,13 +2598,17 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	top: auto;
 	left: auto;
 }
+.ui-flare-msg img {
+	margin-right: 20px;
+}
 .ui-flare-msg div {
-	font-weight: bold;
- 	text-align: right;	
+	font-weight: normal;
+ 	text-align: left;	
  	min-width: 400px;
 }
 .ui-flare-msg div div {
-	font-size: large;
+	font-size: 14pt;
+	
 }
 /*** 240_labelselector.frag.css ***/
 /*** LabelSelector component ***/

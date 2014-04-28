@@ -46,22 +46,23 @@ public class Progress {
 	private Progress m_parent;
 
 	/** If a subprogress is in action this contains it. */
-	private Progress m_subProgress;
+	final private List<Progress> m_subProgress = new ArrayList<Progress>();
 
-	/** The amount of work in this-progress' units. */
-	private double m_subTotalWork;
+	/** The amount of work in the parent(!) progress' units. */
+	private double m_parentsWorkForSub;
 
-	/** The "current" amount of work units that was set when the sub work started. */
-	private double m_subStartWork;
-
-	/** The total amount of work. */
+	/** The total amount of work in *this* thing. */
 	private double m_totalWork;
 
 	/** The amount of work done. */
 	private double m_currentWork;
 
+	private double m_workReportedToParent;
+
 	/** T if a cancel request is received. */
 	private boolean m_cancelled;
+
+	private boolean m_parallel;
 
 	/** If F, then this cannot be cancelled, and any attempt to do that is ignored. */
 	private boolean					m_cancelable	= true;
@@ -76,6 +77,26 @@ public class Progress {
 	@Nonnull
 	private List<IProgressListener>	m_listeners	= Collections.emptyList();
 
+	static public class Info {
+		final private String m_path;
+
+		final private int m_percentage;
+
+		public Info(String path, int percentage) {
+			m_path = path;
+			m_percentage = percentage;
+		}
+
+		public String getPath() {
+			return m_path;
+		}
+
+		public int getPercentage() {
+			return m_percentage;
+		}
+	}
+
+
 	/**
 	 * Top-level progress indicator for a given task.
 	 */
@@ -88,6 +109,72 @@ public class Progress {
 		m_parent = parent;
 		m_root = parent.m_root;
 		m_name = name;
+	}
+
+	/**
+	 * Return all parallel-running progress parts, starting with the root one.
+	 * @param level
+	 * @return
+	 */
+	@Nonnull
+	public List<Info> getParallels(int level) {
+		List<Info> prl = new ArrayList<>();
+		synchronized(m_root) {
+			if(m_parent != null)
+				throw new IllegalStateException("Only callable on root entity");
+
+			StringBuilder sb = new StringBuilder();
+			Progress split = findSplitPoint(sb, this, level);
+
+			//-- Got 1st split point. Add this-items's progress
+			prl.add(new Info(sb.toString(), getPercentage()));
+
+			if(split != null) {
+				sb.setLength(0);
+				handleSplit(sb, prl, split);
+			}
+		}
+		return prl;
+	}
+
+	private void handleSplit(@Nonnull StringBuilder sb, @Nonnull List<Info> prl, @Nonnull Progress split) {
+		int len = sb.length();
+
+		for(Progress sub : split.m_subProgress) {
+			sb.setLength(len);
+			Progress nsplit = findSplitPoint(sb, sub, 3);
+			if(nsplit == null) {
+				prl.add(new Info(sb.toString(), sub.getPercentage()));
+			} else {
+				handleSplit(sb, prl, nsplit);
+			}
+		}
+		sb.setLength(len);
+	}
+
+	private Progress findSplitPoint(@Nonnull StringBuilder sb, @Nonnull Progress progress, int level) {
+		while(progress != null) {
+			String name = progress.m_name;
+			if(name != null) {
+				if(sb.length() > 0)
+					sb.append('>');
+				sb.append(name);
+				name = progress.m_extra;
+				if(name != null)
+					sb.append(' ').append(name);
+			}
+
+			if(--level == 0)
+				return null;
+			if(m_subProgress.size() == 0) {
+				return null;
+			} else if(m_subProgress.size() == 1) {
+				progress = m_subProgress.get(0);
+			} else {
+				return progress;
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -146,6 +233,10 @@ public class Progress {
 		}
 	}
 
+	/**
+	 * Get the path until the first parallel subprocess or the specified level
+	 */
+	@Nonnull
 	public String getActionPath(int levels) {
 		StringBuilder sb = new StringBuilder(80);
 
@@ -160,7 +251,10 @@ public class Progress {
 						sb.append(p.m_extra);
 					levels--;
 				}
-				p = p.m_subProgress;
+				if(p.m_subProgress.size() != 1)
+					p = null;
+				else
+					p = p.m_subProgress.get(0);
 			}
 		}
 		return sb.toString();
@@ -240,18 +334,34 @@ public class Progress {
 	 * only advance, not go back.
 	 * @param now
 	 */
-	public void setCompleted(double now, @Nullable String extra) {
+	private void internalSetCompleted(double now) {
 		synchronized(m_root) {
 			checkCancelled();
-			clearSubProgress();
-			m_extra = extra;
 			if(now <= m_currentWork)
 				return;
 			if(now >= m_totalWork)
 				now = m_totalWork;
 			m_currentWork = now;
-			updateTree();
+
+			//-- If I have a parent: increment it's work done.
+			Progress dad = m_parent;
+			if(null != dad) {
+				double parentwork = getFraction() * m_parentsWorkForSub;		// Amount of work done if parent's units'
+				double toreport = parentwork - m_workReportedToParent;
+				if(toreport > 0) {
+					double dadwork = dad.m_currentWork + toreport;
+					dad.internalSetCompleted(dadwork);
+					m_workReportedToParent = parentwork;
+				}
+			}
+			updated();
 		}
+	}
+
+	public synchronized void setCompleted(double now, @Nullable String extra) {
+		m_extra = extra;
+		internalSetCompleted(now);
+		updateTree();
 	}
 
 	public void complete() {
@@ -260,11 +370,21 @@ public class Progress {
 			if(m_totalWork == 0) {
 				m_totalWork = 100.0;
 				m_currentWork = 100.0;
-				updateTree();
 			} else if(m_currentWork < m_totalWork) {
 				m_currentWork = m_totalWork;
-				updateTree();
 			}
+
+			//-- If I am part of a parallel: clear myself from my parent and update parent progress
+			Progress dad = m_parent;
+			if(null != dad) {
+				if(dad.m_subProgress.remove(this)) {			// Remove from my parent as I'm done
+					double toreport = m_parentsWorkForSub - m_workReportedToParent;
+					if(toreport > 0) {
+						dad.internalSetCompleted(m_parent.m_currentWork + toreport);
+					}
+				}
+			}
+			updateTree();
 		}
 	}
 
@@ -284,18 +404,20 @@ public class Progress {
 	 */
 	private void clearSubProgress() {
 		synchronized(m_root) {
+			m_parallel = false;
 			checkCancelled();
-			if(m_subProgress == null || m_subProgress.m_parent == null) // Nothing active?
+			if(m_subProgress.size() == 0)
 				return;
-			m_currentWork = m_subStartWork + m_subTotalWork; // Finish off the sub.
-			m_subProgress.m_parent = null;
-			m_subProgress = null;
+
+			double totalWork = 0.0;
+			while(m_subProgress.size() > 0)
+				m_subProgress.get(0).complete();
 			updateTree();
 		}
 	}
 
 	/**
-	 * Create a sub-progress indicator for the specified portion of work.
+	 * Create a single (non-parallel) sub-progress indicator for the specified portion of work.
 	 * @return
 	 */
 	@Nonnull
@@ -303,17 +425,36 @@ public class Progress {
 		synchronized(m_root) {
 			clearSubProgress();
 			checkCancelled();
-			if(m_currentWork + work > m_totalWork) { // Truncate if amount == too big
-				work = m_totalWork - m_currentWork; // How much is possible?
-				if(work < 0) // If we think we're already done- just ignore..
+			if(m_currentWork + work > m_totalWork) { 			// Truncate if amount == too big
+				work = m_totalWork - m_currentWork;				// How much is possible?
+				if(work < 0) 									// If we think we're already done- just ignore..
 					work = 0;
 			}
-			m_subTotalWork = work; // The max amount of work this subprocess can complete, in our units.
-			m_subStartWork = m_currentWork; // Save the base value to be able to do a full recalculate (prevent rounding trouble)
-
-			m_subProgress = new Progress(this, name);
-			return m_subProgress;
+			Progress sub = new Progress(this, name);
+			sub.m_parentsWorkForSub = work;						// The max amount of work this subprocess can complete, in our units.
+			m_subProgress.add(sub);
+			return sub;
 		}
+	}
+
+	@Nonnull
+	public Progress createParallelProgress(@Nullable String name, double work) {
+		checkCancelled();
+		if(!m_parallel) {
+			clearSubProgress();
+			m_parallel = true;
+		}
+
+		if(m_currentWork + work > m_totalWork) { 				// Truncate if amount == too big
+			work = m_totalWork - m_currentWork; 				// How much is possible?
+			if(work < 0) 										// If we think we're already done- just ignore..
+				work = 0;
+		}
+
+		Progress sub = new Progress(this, name);
+		sub.m_parentsWorkForSub = work;							// The max amount of work this subprocess can complete, in our units.
+		m_subProgress.add(sub);
+		return sub;
 	}
 
 	/**
@@ -329,37 +470,10 @@ public class Progress {
 				throw WrappedException.wrap(x);		// Bad interfaces: I hate checked exceptions.
 			}
 		}
-		updated();
-		synchronized(m_root) {
-			Progress p = m_parent;
-			while(p != null) {
-				if(!p.updateFromSub())
-					return;
-				p = p.m_parent;
-			}
-		}
 	}
 
 	protected void updated() {
 
-	}
-
-	protected boolean updateFromSub() {
-		synchronized(m_root) {
-			if(m_subProgress == null)
-				throw new IllegalStateException("?? Unexpected: no sub active?");
-
-			//** Calculate the fraction of work done, then adjust
-			double frac = m_subProgress.getFraction();
-			double amount = frac * m_subTotalWork + m_subStartWork;
-			if(m_currentWork >= amount)
-				return false;
-			if(amount > m_subStartWork+m_subTotalWork)
-				throw new IllegalStateException("?? Sub adjustment causes overflow: "+amount+", start="+m_subStartWork+", max-sub="+m_subTotalWork);
-			m_currentWork = amount;
-			updated();
-			return true;
-		}
 	}
 
 	public synchronized void addListener(@Nonnull IProgressListener l) {

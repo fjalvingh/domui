@@ -39,6 +39,8 @@ import to.etc.util.*;
 public class LongSizeConverter implements IConverter<Long> {
 	@Override
 	public String convertObjectToString(Locale loc, Long in) throws UIException {
+		if(null == in)
+			return null;
 		return StringTool.strSize(in.longValue());
 	}
 

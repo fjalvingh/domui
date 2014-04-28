@@ -30,6 +30,7 @@ import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.logic.events.*;
 import to.etc.domui.util.*;
+import to.etc.util.*;
 
 /**
  * EXPERIMENTAL - DO NOT USE.
@@ -86,6 +87,11 @@ public class SimpleBinder implements IBinder, ILogiEventListener {
 		m_propertyModel = MetaManager.getPropertyMeta(theClass, property);
 		m_model = model;
 		m_instance = null;
+		try {
+			moveModelToControl();
+		} catch(Exception x) {
+			throw WrappedException.wrap(x);
+		}
 	}
 
 	/**
@@ -102,6 +108,11 @@ public class SimpleBinder implements IBinder, ILogiEventListener {
 		m_propertyModel = pmm;
 		m_model = model;
 		m_instance = null;
+		try {
+			moveModelToControl();
+		} catch(Exception x) {
+			throw WrappedException.wrap(x);
+		}
 	}
 
 	/**
@@ -143,6 +154,11 @@ public class SimpleBinder implements IBinder, ILogiEventListener {
 		m_model = null;
 		m_propertyModel = pmm;
 		m_instance = instance;
+		try {
+			moveModelToControl();
+		} catch(Exception x) {
+			throw WrappedException.wrap(x);
+		}
 	}
 
 	/*--------------------------------------------------------------*/

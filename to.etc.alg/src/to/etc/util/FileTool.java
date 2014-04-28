@@ -486,10 +486,6 @@ public class FileTool {
 		Files.createLink(destf.toPath(), srcf.toPath());
 	}
 
-	public static void copyHardLinked(@Nonnull Path targetDir, @Nonnull Path sourceDir) throws IOException {
-
-	}
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Fully reading some data stream/file into a string.	*/
 	/*--------------------------------------------------------------*/
