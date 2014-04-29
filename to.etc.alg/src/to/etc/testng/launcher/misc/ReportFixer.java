@@ -58,6 +58,9 @@ public class ReportFixer {
 			Node partialSuite = XmlHelper.getInstance().locateDirectChild(partialDoc.getDocumentElement(), "suite");
 			Node partialTest = XmlHelper.getInstance().locateDirectChild((Element) partialSuite, "test");
 			Node movingNode = doc.importNode(partialTest, true);
+			if(suite == null) {
+				throw new NullPointerException("This is null and shouldn't be.");
+			}
 			suite.appendChild(movingNode);
 			suite.appendChild(doc.createTextNode("\n\t"));
 		}

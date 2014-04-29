@@ -1,5 +1,7 @@
 package to.etc.util;
 
+import java.util.*;
+
 import javax.annotation.*;
 
 import org.junit.*;
@@ -38,6 +40,30 @@ public class TestStringTool {
 		Assert.assertTrue("THe string must start with tne prefix 'PREFIX_' : " + result, result.startsWith(PREFIX));
 	}
 
+	@Test
+	/**
+	 * Test the validation of e-mailaddresses. user@localhost is a special one. It should be accepted too.
+	 */
+	public void testValidateEmail() {
+
+		List<String> validEmailAdresses = Arrays.asList("a.b@c.d", "a.b.c@d.e", "user@localhost");
+		for(String emailaddress : validEmailAdresses) {
+			checkValidEmailAddress(emailaddress);
+		}
+
+		List<String> invalidEmailAdresses = Arrays.asList("a.b@c", "a@b..c", "a.b@.c", "a.b@..c", "@a.b", "a.@b.c", "");
+		for(String emailaddress : invalidEmailAdresses) {
+			checkInValidEmailAddress(emailaddress);
+		}
+	}
+
+	private void checkValidEmailAddress(@Nullable String emailAddress) {
+		Assert.assertTrue("E-mailaddress " + emailAddress + " is a valid e-mailaddress.", StringTool.isValidEmail(emailAddress));
+	}
+
+	private void checkInValidEmailAddress(@Nullable String emailAddress) {
+		Assert.assertFalse("E-mailaddress " + emailAddress + " is an invalid e-mailaddress.", StringTool.isValidEmail(emailAddress));
+	}
 
 	/**
 	 * Test method for {@link to.etc.util.StringTool#isBlank(java.lang.String)}.
@@ -70,6 +96,7 @@ public class TestStringTool {
 		Assert.assertEquals("Length of m_text should be " + StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2, StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2, textIn.getBytes("UTF8").length);
 
 		String textOut = StringTool.truncLeadingOracleColumn(textIn, StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2);
+		Assert.assertNotNull("This can't be null!", textOut);
 
 		Assert.assertEquals("Length of m_text should be " + StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2, StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2, textOut.getBytes("UTF8").length);
 	}
@@ -90,6 +117,7 @@ public class TestStringTool {
 		Assert.assertEquals("Length of m_text should be 12000", 12000, textIn.getBytes("UTF8").length);
 
 		String textOut = StringTool.truncLeadingOracleColumn(textIn, StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2);
+		Assert.assertNotNull("This can't be null!", textOut);
 		Assert.assertEquals("Length of m_text should be " + StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2, StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2, textOut.getBytes("UTF8").length);
 	}
 
@@ -109,6 +137,7 @@ public class TestStringTool {
 		Assert.assertEquals("Length of m_text should be 16800", 16800, textIn.getBytes("UTF8").length);
 
 		String textOut = StringTool.truncLeadingOracleColumn(textIn, StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2);
+		Assert.assertNotNull("This can't be null!", textOut);
 		Assert.assertEquals("Length of m_text should be " + StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2, StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2, textOut.getBytes("UTF8").length);
 	}
 
@@ -129,6 +158,7 @@ public class TestStringTool {
 		Assert.assertEquals("Length of m_text should be 18000", 18000, textIn.getBytes("UTF8").length);
 
 		String textOut = StringTool.truncLeadingOracleColumn(textIn, StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2);
+		Assert.assertNotNull("This can't be null!", textOut);
 		Assert.assertEquals("Length of m_text should be " + (StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2 - 2), StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2 - 2,
 			textOut.getBytes("UTF8").length);
 	}
@@ -151,7 +181,7 @@ public class TestStringTool {
 
 		// COLUMN SIZE is 50
 		String textOut = StringTool.truncLeadingOracleColumn(textIn, 50);
-
+		Assert.assertNotNull("This can't be null!", textOut);
 		Assert.assertEquals("Length of m_text should be 50", 50, textOut.getBytes("UTF8").length);
 	}
 
@@ -173,7 +203,7 @@ public class TestStringTool {
 
 		// COLUMN SIZE is 3000
 		String textOut = StringTool.truncLeadingOracleColumn(textIn, 3000);
-
+		Assert.assertNotNull("This can't be null!", textOut);
 		Assert.assertEquals("Length of m_text in bytes should be 4000", 4000, textOut.getBytes("UTF8").length);
 		// Because there are to much bytes used the max number of characters is 2667.
 		Assert.assertEquals("Length of m_text in characters should be 2667", 2667, textOut.length());
@@ -181,7 +211,7 @@ public class TestStringTool {
 
 	/**
 	 * <pre>
-	 * Test the method StringTool.strToJavascriptString(final String cs, final boolean dblquote) 
+	 * Test the method StringTool.strToJavascriptString(final String cs, final boolean dblquote)
 	 * if single quotes are escaped as expected.
 	 *
 	 * </pre>
@@ -197,7 +227,7 @@ public class TestStringTool {
 
 	/**
 	 * <pre>
-	 * Test the method StringTool.strToJavascriptString(final String cs, final boolean dblquote) 
+	 * Test the method StringTool.strToJavascriptString(final String cs, final boolean dblquote)
 	 * if double quotes are escaped as expected.
 	 *
 	 * @throws Exception
@@ -208,7 +238,7 @@ public class TestStringTool {
 
 		String textIn = "\"test string\"";
 		String testOut = StringTool.strToJavascriptString(textIn, true);
-		
+
 		StringBuilder sb = new StringBuilder();
 		sb.append("\\\"");
 		sb.append("test string");
