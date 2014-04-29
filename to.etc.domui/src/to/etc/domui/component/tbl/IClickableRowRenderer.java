@@ -20,5 +20,5 @@ public interface IClickableRowRenderer<T> extends IRowRenderer<T> {
 	 * @param col
 	 * @param cellClicked
 	 */
-	<V> void setCellClicked(final int col, @Nullable final ICellClicked<V> cellClicked);
+	void setCellClicked(final int col, @Nullable final ICellClicked<T> cellClicked);
 }

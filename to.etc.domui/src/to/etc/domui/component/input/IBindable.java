@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.input;
 
+import java.util.*;
+
 import javax.annotation.*;
 
 /**
@@ -36,18 +38,24 @@ import javax.annotation.*;
  */
 public interface IBindable {
 	/**
-	 * EXPERIMENTAL - DO NOT USE.
-	 * Return the object that is able to bind this control to some data value.
+	 * Return the binding builder that will bind to the default "value" property.
 	 * @return
 	 */
 	@Nonnull
 	IBinder bind();
 
 	/**
-	 * EXPERIMENTAL - DO NOT USE.
-	 * If this object is actually bound to something return true.
-	 *
+	 * Return the binding builder that will bind to the specified component property.
+	 * @param componentProperty
 	 * @return
 	 */
-	boolean isBound();
+	@Nonnull
+	IBinder bind(@Nonnull String componentProperty);
+
+	/**
+	 * Internal use mostly: return the list of bindings in effect for this control, or null if nothing is bound.
+	 * @return
+	 */
+	@Nullable
+	List<SimpleBinder> getBindingList();
 }

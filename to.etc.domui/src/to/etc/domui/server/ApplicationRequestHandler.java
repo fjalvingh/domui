@@ -351,6 +351,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 		Page page = cm.tryToMakeOrGetPage(ctx, clz, papa, action);
 		if(page != null) {
+			page.internalSetPhase(PagePhase.BUILD);				// Tree can change at will
 			page.internalIncrementRequestCounter();
 			cm.internalSetLastPage(page);
 			if(DomUtil.USERLOG.isDebugEnabled()) {
@@ -1017,6 +1018,9 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		m_application.internalCallPageAction(ctx, page);
 		page.callRequestStarted();
 
+		if(!Constants.ACMD_ASYPOLL.equals(action))
+			page.controlToModel();
+
 		NodeBase wcomp = null;
 		String wid = ctx.getParameter(Constants.PARAM_UICOMPONENT);
 		if(wid != null) {
@@ -1076,6 +1080,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			} else {
 				wcomp.componentHandleWebAction(ctx, action);
 			}
+			page.modelToControl();
 		} catch(ValidationException x) {
 			/*
 			 * When an action handler failed because it accessed a component which has a validation error
@@ -1083,9 +1088,11 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			 */
 			if(LOG.isDebugEnabled())
 				LOG.debug("rq: ignoring validation exception " + x);
+			page.modelToControl();
 		} catch(MsgException msg) {
 			MsgBox.error(page.getBody(), msg.getMessage());
 			logUser(ctx, page, "error message: " + msg.getMessage());
+			page.modelToControl();
 		} catch(Exception ex) {
 			logUser(ctx, page, "Action handler exception: " + ex);
 			Exception x = WrappedException.unwrap(ex);
@@ -1096,6 +1103,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 					return;
 				}
 			}
+			page.modelToControl();
 
 			IExceptionListener xl = ctx.getApplication().findExceptionListenerFor(x);
 			if(xl == null) // No handler?

@@ -372,8 +372,15 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 	}
 
 	@Override
-	public boolean isBound() {
-		return false;
+	@Nonnull
+	public IBinder bind(@Nonnull String componentProperty) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	@Nullable
+	public List<SimpleBinder> getBindingList() {
+		return null;
 	}
 
 	@Override

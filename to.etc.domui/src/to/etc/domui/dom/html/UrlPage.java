@@ -30,7 +30,6 @@ import to.etc.domui.component.layout.*;
 import to.etc.domui.component.layout.title.*;
 import to.etc.domui.databinding.*;
 import to.etc.domui.logic.*;
-import to.etc.domui.logic.events.*;
 import to.etc.domui.server.*;
 import to.etc.webapp.query.*;
 
@@ -44,7 +43,7 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Sep 1, 2008
  */
-public class UrlPage extends Div implements ILogiEventListener {
+public class UrlPage extends Div {
 	/** The title for the page in the head's TITLE tag. */
 	private String m_pageTitle;
 
@@ -174,9 +173,5 @@ public class UrlPage extends Div implements ILogiEventListener {
 		QContextManager.closeSharedContexts(getPage().getConversation());			// Drop all connections
 		DomApplication.get().getInjector().injectPageValues(this, getPage().getPageParameters());	// Force reload of all parameters
 		forceRebuild();
-	}
-
-	protected void registerLogicListeners(@Nonnull final LogiContext lc) {
-		lc.addEventListener(this);									// Pass all logi events to the entire page tree.
 	}
 }

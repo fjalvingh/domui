@@ -143,7 +143,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 
 		//-- Handle data updates.
 		T old = m_value;
-		if(validate(false)) {
+		if(validate(true)) {
 			fireModified("value", old, m_value);
 		}
 
@@ -234,8 +234,15 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	}
 
 	private void handleValidationError(@Nullable UIMessage message, boolean seterror) {
+		boolean wasBroadcastEnabled = isMessageBroadcastEnabled();
+		if(!seterror && wasBroadcastEnabled) {
+			setMessageBroadcastEnabled(false);
+		}
 		setMessage(message);
 		messageNotifier(message);
+		if(!seterror && wasBroadcastEnabled) {
+			setMessageBroadcastEnabled(true);
+		}
 	}
 
 	private String m_errclass;
@@ -288,6 +295,29 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 			setOnKeyPressJS(null);
 		}
 	}
+
+	/**
+	 * Bind-capable version of getValue(). If called (usually from binding) this will act as follows:
+	 * <ul>
+	 * 	<li>If this component has an input error: throw the ValidationException for that error</li>
+	 * 	<li>On no error this returns the value.</li>
+	 * </ul>
+	 * @return
+	 */
+	public T getBindValue() {
+		if(!validate(false))
+			throw new ValidationException(Msgs.NOT_VALID, getRawValue());
+		return m_value;
+
+	}
+
+	public void setBindValue(@Nullable T value) {
+		if(MetaManager.areObjectsEqual(m_value, value)) {
+			return;
+		}
+		setValue(value);
+	}
+
 
 	/**
 	 * @see to.etc.domui.dom.html.IControl#getValue()
@@ -589,36 +619,33 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	}
 
 	/*--------------------------------------------------------------*/
-	/*	CODING:	IBindable interface (EXPERIMENTAL)					*/
+	/*	CODING:	IBindable interface.								*/
 	/*--------------------------------------------------------------*/
 
-	/** When this is bound this contains the binder instance handling the binding. */
 	@Nullable
-	private SimpleBinder m_binder;
+	private List<SimpleBinder> m_bindingList;
 
-	/**
-	 * Return the binder for this control.
-	 * @see to.etc.domui.component.input.IBindable#bind()
-	 */
+	@Override
+	public @Nonnull IBinder bind() {
+		return bind("bindValue");
+	}
+
 	@Override
 	@Nonnull
-	public IBinder bind() {
-		SimpleBinder binder = m_binder;
-		if(binder == null)
-			binder = m_binder = new SimpleBinder(this);
+	public IBinder bind(@Nonnull String componentProperty) {
+		List<SimpleBinder> list = m_bindingList;
+		if(list == null)
+			list = m_bindingList = new ArrayList<SimpleBinder>(1);
+		SimpleBinder binder = new SimpleBinder(this, componentProperty);
+		list.add(binder);
 		return binder;
 	}
 
-	/**
-	 * Returns T if this control is bound to some data value.
-	 *
-	 * @see to.etc.domui.component.input.IBindable#isBound()
-	 */
 	@Override
-	public boolean isBound() {
-		return m_binder != null && m_binder.isBound();
+	@Nullable
+	public List<SimpleBinder> getBindingList() {
+		return m_bindingList;
 	}
-
 
 	/**
 	 * This adds a validator for the maximal and minimal value for an input, gotten from the property metamodel.
