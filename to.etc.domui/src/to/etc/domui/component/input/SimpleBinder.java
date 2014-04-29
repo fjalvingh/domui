@@ -124,6 +124,8 @@ public class SimpleBinder implements IBinder {
 	 */
 	public void moveControlToModel() throws Exception {
 		NodeBase control = (NodeBase) m_control;
+		if(control instanceof IDisplayControl)
+			return;
 
 		IBindingListener< ? > listener = m_listener;
 		if(listener != null) {
