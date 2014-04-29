@@ -89,6 +89,7 @@ public class StringTool {
 	 * Checks if the name is a valid domain name. These can contain only
 	 * letters (a..z), digits (0..9), the dash and dots. Dots cannot start or
 	 * end a name, nor can two dots occurs immediately next to another.
+	 *
 	 * @param s
 	 * @return
 	 */
@@ -108,6 +109,9 @@ public class StringTool {
 			} else if(!isDomainChar(c))
 				return false; // Invalid character for domain name
 			ix++;
+		}
+		if(lastdot == -1 && !"LOCALHOST".equalsIgnoreCase(s)) {
+			return false; // There must be at least one dot.
 		}
 		if(lastdot + 1 == len)
 			return false;
@@ -149,13 +153,16 @@ public class StringTool {
 
 	static public boolean isValidEmail(final String em) {
 		int ix = em.indexOf('@');
-		if(ix == -1)
+		if(ix <= 0)
 			return false;
-		//		String pre = em.substring(0, ix);
+		String pre = em.substring(0, ix);
+		if(pre.startsWith(".") || pre.endsWith(".")) {
+			return false;
+		}
 		String dom = em.substring(ix + 1);
 		if(!isValidDomainName(dom))
 			return false;
-		return true; //isValidDottedName(pre);
+		return true;
 	}
 
 	/**
