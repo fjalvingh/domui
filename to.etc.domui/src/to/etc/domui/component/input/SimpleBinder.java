@@ -168,7 +168,7 @@ public class SimpleBinder implements IBinder {
 			try {
 				((PropertyMetaModel<Object>) instanceProperty).setValue(m_instance, value);
 			} catch(Exception x) {
-				throw new IllegalStateException("Binding error moving " + m_controlProperty + " to " + m_instanceProperty + ": " + x);
+				throw new IllegalStateException("Binding error moving " + m_controlProperty + " to " + m_instanceProperty + ": " + x, x);
 			}
 		}
 	}

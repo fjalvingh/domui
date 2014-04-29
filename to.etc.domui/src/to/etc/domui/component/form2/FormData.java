@@ -166,7 +166,11 @@ public class FormData<T> {
 	 * 			created if the control is display-only, not allowed by permissions or simply uncontrollable (the last one is uncommon).
 	 */
 	@Nonnull
-	private <C> IControl<C> addPropertyControl(@Nonnull @GProperty final String name, @Nonnull final String label, @Nonnull final PropertyMetaModel<C> pmm, final boolean editable, boolean mandatory) throws Exception {
+	private <C> IControl<C> addPropertyControl(@Nonnull @GProperty final String name, @Nonnull final String label, @Nonnull final PropertyMetaModel<C> pmm, boolean editable, boolean mandatory)
+		throws Exception {
+		if(editable && builder().getRight() == AllowedRight.READ)
+			editable = false;
+
 		final ControlFactoryResult r = builder().createControlFor(getModel(), pmm, editable); // Add the proper input control for that type
 		builder().addControl(label, r.getLabelNode(), r.getNodeList(), mandatory, editable, pmm);
 
@@ -310,7 +314,13 @@ public class FormData<T> {
 		String label = pmm.getDefaultLabel();
 
 		// FIXME Kludge to determine if the control is meant to be editable!
-		boolean editable = nb instanceof IControl< ? >;
+		boolean editable = false;
+		if(nb instanceof IControl< ? >) {
+			IControl< ? > c = (IControl< ? >) nb;
+			editable = !c.isDisabled();
+			if(editable && builder().getRight() == AllowedRight.READ)
+				editable = false;
+		}
 
 		builder().addControl(label, nb, new NodeBase[]{nb}, mandatory, editable, pmm);
 		if(label != null)
