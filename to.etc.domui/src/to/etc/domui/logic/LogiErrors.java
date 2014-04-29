@@ -32,8 +32,10 @@ import to.etc.domui.dom.errors.*;
  * Created on Apr 10, 2014
  */
 final public class LogiErrors {
+	@Nonnull
 	private Map<Object, Map<PropertyMetaModel< ? >, List<UIMessage>>> m_map = new HashMap<Object, Map<PropertyMetaModel< ? >, List<UIMessage>>>();
 
+	@Nonnull
 	private Map<Object, List<UIMessage>> m_mapGlobals = new HashMap<Object, List<UIMessage>>();
 
 	public LogiErrors() {}

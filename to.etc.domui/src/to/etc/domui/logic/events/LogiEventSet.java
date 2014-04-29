@@ -51,7 +51,7 @@ public class LogiEventSet {
 	 * @param sourceval
 	 * @param copyval
 	 */
-	public <T, P> void propertyChange(@Nonnull PropertyMetaModel<P> pmm, @Nonnull T source, @Nonnull T copy, @Nullable P sourceval, @Nullable P copyval) {
+	public <T, P> void propertyChange(@Nonnull PropertyMetaModel<P> pmm, @Nonnull T source, @Nullable T copy, @Nullable P sourceval, @Nullable P copyval) {
 		LogiEventInstanceChange ic = getInstance(source);
 		enter();
 		appendPath(pmm.getName());
@@ -69,7 +69,7 @@ public class LogiEventSet {
 		leave();
 	}
 
-	public <T, P> void addCollectionDelete(@Nonnull PropertyMetaModel<P> pmm, @Nonnull T source, @Nonnull T copy, int collectionIndex, @Nullable Object sourceCollectionInstanceEntry) {
+	public <T, P> void addCollectionDelete(@Nonnull PropertyMetaModel<P> pmm, @Nonnull T source, @Nullable T copy, int collectionIndex, @Nullable Object sourceCollectionInstanceEntry) {
 		enter();
 		appendPath(pmm.getName());
 		LogiEventListDelta<T, P, Object> ld = new LogiEventListDelta<T, P, Object>(m_path_sb.toString(), source, pmm, collectionIndex, sourceCollectionInstanceEntry, ListDeltaType.DELETE);
@@ -77,7 +77,7 @@ public class LogiEventSet {
 		leave();
 	}
 
-	public <T, P> void addCollectionAdd(@Nonnull PropertyMetaModel<P> pmm, @Nonnull T source, @Nonnull T copy, int collectionIndex, @Nullable Object sourceCollectionInstanceEntry) {
+	public <T, P> void addCollectionAdd(@Nonnull PropertyMetaModel<P> pmm, @Nonnull T source, @Nullable T copy, int collectionIndex, @Nullable Object sourceCollectionInstanceEntry) {
 		enter();
 		appendPath(pmm.getName());
 		LogiEventListDelta<T, P, Object> ld = new LogiEventListDelta<T, P, Object>(m_path_sb.toString(), source, pmm, collectionIndex, sourceCollectionInstanceEntry, ListDeltaType.INSERT);
