@@ -33,79 +33,77 @@ import to.etc.domui.dom.errors.*;
  */
 final public class LogiErrors {
 	@Nonnull
-	private Map<Object, Map<PropertyMetaModel< ? >, List<UIMessage>>> m_map = new HashMap<Object, Map<PropertyMetaModel< ? >, List<UIMessage>>>();
+	private Map<Object, Map<PropertyMetaModel< ? >, Set<UIMessage>>> m_map = new HashMap<>();
 
 	@Nonnull
-	private Map<Object, List<UIMessage>> m_mapGlobals = new HashMap<Object, List<UIMessage>>();
+	private Map<Object, Set<UIMessage>> m_mapGlobals = new HashMap<>();
 
 	public LogiErrors() {}
 
-	public <T> void message(@Nonnull T businessObject, @Nonnull UIMessage message) {
-		List<UIMessage> messagesList = m_mapGlobals.get(businessObject);
-		if(messagesList == null) {
-			messagesList = new ArrayList<UIMessage>();
-			m_mapGlobals.put(businessObject, messagesList);
+	public <T> void addMessage(@Nonnull T businessObject, @Nonnull UIMessage message) {
+		Set<UIMessage> messages = m_mapGlobals.get(businessObject);
+		if(messages == null) {
+			messages = new HashSet<UIMessage>();
+			m_mapGlobals.put(businessObject, messages);
 		}
-		if(!messagesList.contains(message)) {
-			messagesList.add(message);
-		}
+		messages.add(message);
 	}
 
-	public <T> void message(@Nonnull T businessObject, @Nonnull String property, @Nonnull UIMessage message) {
-		message(businessObject, MetaManager.getPropertyMeta(businessObject.getClass(), property), message);
+	public <T> void addMessage(@Nonnull T businessObject, @Nonnull String property, @Nonnull UIMessage message) {
+		addMessage(businessObject, MetaManager.getPropertyMeta(businessObject.getClass(), property), message);
 	}
 
-	public <T, V> void message(@Nonnull T businessObject, @Nonnull PropertyMetaModel<V> property, @Nonnull UIMessage message) {
-		Map<PropertyMetaModel< ? >, List<UIMessage>> mapOnProp = m_map.get(businessObject);
+	public <T, V> void addMessage(@Nonnull T businessObject, @Nonnull PropertyMetaModel<V> property, @Nonnull UIMessage message) {
+		Map<PropertyMetaModel< ? >, Set<UIMessage>> mapOnProp = m_map.get(businessObject);
 		if(mapOnProp == null) {
-			mapOnProp = new HashMap<PropertyMetaModel< ? >, List<UIMessage>>();
+			mapOnProp = new HashMap<PropertyMetaModel< ? >, Set<UIMessage>>();
 			m_map.put(businessObject, mapOnProp);
 		}
-		List<UIMessage> messagesList = mapOnProp.get(property);
-		if(messagesList == null) {
-			messagesList = new ArrayList<UIMessage>();
-			mapOnProp.put(property, messagesList);
+		Set<UIMessage> messages = mapOnProp.get(property);
+		if(messages == null) {
+			messages = new HashSet<UIMessage>();
+			mapOnProp.put(property, messages);
 		}
-		if(!messagesList.contains(message)) {
-			messagesList.clear(); //FIXME: there can be only one (for now)...
-			messagesList.add(message);
-		}
+		messages.add(message);
 	}
 
-	public <T, V> void clearMessages(@Nonnull T businessObject, @Nonnull PropertyMetaModel<V> property) {
-		Map<PropertyMetaModel< ? >, List<UIMessage>> mapOnProp = m_map.get(businessObject);
+	public <T> void clearMessage(@Nonnull T businessObject, @Nonnull String property, @Nonnull UIMessage msg) {
+		clearMessage(businessObject, MetaManager.getPropertyMeta(businessObject.getClass(), property), msg);
+	}
+
+	public <T, V> void clearMessage(@Nonnull T businessObject, @Nonnull PropertyMetaModel<V> property, @Nonnull UIMessage msg) {
+		Map<PropertyMetaModel< ? >, Set<UIMessage>> mapOnProp = m_map.get(businessObject);
 		if(mapOnProp != null) {
-			List<UIMessage> messagesList = mapOnProp.get(property);
-			if(messagesList != null) {
-				messagesList.clear();
-				mapOnProp.remove(property);
+			Set<UIMessage> messages = mapOnProp.get(property);
+			if(messages != null) {
+				messages.remove(msg);
 			}
 		}
 	}
 
 	@Nonnull
-	public <T> List<UIMessage> getErrorsOn(@Nonnull T businessObject) {
-		List<UIMessage> messagesList = m_mapGlobals.get(businessObject);
+	public <T> Set<UIMessage> getErrorsOn(@Nonnull T businessObject) {
+		Set<UIMessage> messagesList = m_mapGlobals.get(businessObject);
 		if(messagesList != null) {
-			return messagesList; //consider making copy list
+			return Collections.unmodifiableSet(messagesList);
 		}
-		return Collections.EMPTY_LIST;
+		return Collections.EMPTY_SET;
 	}
 
 	@Nonnull
-	public <T, V> List<UIMessage> getErrorsOn(@Nonnull T businessObject, @Nonnull PropertyMetaModel<V> property) {
-		Map<PropertyMetaModel< ? >, List<UIMessage>> mapOnProp = m_map.get(businessObject);
+	public <T, V> Set<UIMessage> getErrorsOn(@Nonnull T businessObject, @Nonnull PropertyMetaModel<V> property) {
+		Map<PropertyMetaModel< ? >, Set<UIMessage>> mapOnProp = m_map.get(businessObject);
 		if(mapOnProp != null) {
-			List<UIMessage> messagesList = mapOnProp.get(property);
+			Set<UIMessage> messagesList = mapOnProp.get(property);
 			if(messagesList != null) {
 				return messagesList; //consider making copy list
 			}
 		}
-		return Collections.EMPTY_LIST;
+		return Collections.EMPTY_SET;
 	}
 
 	@Nonnull
-	public <T> List<UIMessage> getErrorsOn(@Nonnull T businessObject, @Nonnull String property) {
+	public <T> Set<UIMessage> getErrorsOn(@Nonnull T businessObject, @Nonnull String property) {
 		return getErrorsOn(businessObject, MetaManager.getPropertyMeta(businessObject.getClass(), property));
 	}
 }

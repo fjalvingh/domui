@@ -33,7 +33,6 @@ import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.logic.*;
 import to.etc.domui.util.*;
-import to.etc.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.nls.*;
 
@@ -63,7 +62,7 @@ public class SimpleBinder implements IBinder {
 	private IBindingListener< ? > m_listener;
 
 	@Nullable
-	private Object m_lastBindValue;
+	private Object m_lastValueFromControl;
 
 	@Nullable
 	private UIMessage m_lastBindError;
@@ -124,9 +123,11 @@ public class SimpleBinder implements IBinder {
 	 * an exception.
 	 */
 	public void moveControlToModel() throws Exception {
+		NodeBase control = (NodeBase) m_control;
+
 		IBindingListener< ? > listener = m_listener;
 		if(listener != null) {
-			((IBindingListener<NodeBase>) listener).moveControlToModel((NodeBase) m_control);
+			((IBindingListener<NodeBase>) listener).moveControlToModel(control);
 			return;
 		}
 
@@ -143,34 +144,32 @@ public class SimpleBinder implements IBinder {
 		 * that would run after.
 		 */
 		Object value = null;
+		UIMessage newError = null;
 		try {
 			value = m_controlProperty.getValue(m_control);
 		} catch(CodeException cx) {
-			//-- Conversion/validation or other UI related trouble.
-/*			actually, we do nothing here -> we read error set on control anyway...
- *
- * 			UIMessage err = UIMessage.error(cx);
-			LogiErrors errorModel = ((NodeBase) m_control).lc().getErrorModel();
-			errorModel.message(instance, instanceProperty, err);
-*/
-
-		} // throw all others
-
-		LogiErrors errorModel = ((NodeBase) m_control).lc().getErrorModel();
-		UIMessage err = ((NodeBase) m_control).getMessage();
-		if(err != null) {
-			errorModel.message(instance, instanceProperty, err);
-		} else {
-			errorModel.clearMessages(instance, instanceProperty);
+			newError = UIMessage.error(cx);
 		}
 
-		//-- QUESTION: Should we move something to the model @ error?
-		try {
-			m_lastBindValue = value;
-			m_lastBindError = err;
-			((PropertyMetaModel<Object>) instanceProperty).setValue(m_instance, value);
-		} catch(Exception x) {
-			System.out.println("Binding error moving " + m_controlProperty + " to " + m_instanceProperty + ": " + x);
+		LogiErrors errorModel = control.lc().getErrorModel();
+		UIMessage oldError = m_lastBindError;
+		if(oldError != null && !oldError.equals(newError)) {
+			errorModel.clearMessage(instance, instanceProperty.getName(), oldError);
+			m_lastBindError = null;
+		}
+		if(newError != null) {
+			if(!newError.equals(oldError))
+				errorModel.addMessage(instance, instanceProperty.getName(), newError);
+			m_lastBindError = newError;
+		} else {
+			m_lastValueFromControl = value;
+
+			//-- QUESTION: Should we move something to the model @ error?
+			try {
+				((PropertyMetaModel<Object>) instanceProperty).setValue(m_instance, value);
+			} catch(Exception x) {
+				throw new IllegalStateException("Binding error moving " + m_controlProperty + " to " + m_instanceProperty + ": " + x);
+			}
 		}
 	}
 
@@ -188,26 +187,41 @@ public class SimpleBinder implements IBinder {
 		if(null == instanceProperty)
 			throw new IllegalStateException("instance property cannot be null");
 		Object instance = m_instance;
-		if(instance != null) {
-			// FIXME We should think about exception handling here
-			Object modelValue = instanceProperty.getValue(instance);
-			if(!MetaManager.areObjectsEqual(modelValue, m_lastBindValue)) {
-				m_lastBindValue = modelValue;
-				((PropertyMetaModel<Object>) m_controlProperty).setValue(m_control, modelValue);
+		if(null == instance)
+			throw new IllegalStateException("instance cannot be null");
+		NodeBase control = (NodeBase) m_control;
+
+		// FIXME We should think about exception handling here
+		LogiErrors errorModel = control.lc().getErrorModel();
+		Object modelValue = instanceProperty.getValue(instance);
+		if(!MetaManager.areObjectsEqual(modelValue, m_lastValueFromControl)) {
+			m_lastValueFromControl = modelValue;
+			((PropertyMetaModel<Object>) m_controlProperty).setValue(m_control, modelValue);
+
+			/*
+			 * jal yeah, this also suffers from "knowing" that we're accessing the control's value 8-/ We need
+			 * to think about this.
+			 *
+			 * When updated from the model: clear the control's error. This should probably call the control's validation
+			 * methods to see if the new value set obeys the control's validation (notably: mandatoryness, pattern).
+			 */
+			UIMessage ctlError = control.getMessage();
+			if(null != ctlError) {
+				errorModel.clearMessage(instance, instanceProperty, ctlError);
+				control.setMessage(null);
 			}
-			LogiErrors errorModel = ((NodeBase) m_control).lc().getErrorModel();
-			UIMessage errorToBind = null;
-			List<UIMessage> errorsToBind = errorModel.getErrorsOn(instance, instanceProperty);
-			if(!errorsToBind.isEmpty()) {
-				errorToBind = errorsToBind.get(0);
-				if(!errorToBind.equals(m_lastBindError)) {
-					//set first error from error model...
-					((NodeBase) m_control).setMessage(errorToBind);
-					m_lastBindError = errorToBind;
+		} else {
+			/*
+			 * Model has not updated the value. If the control *itself* has an error (Which can be known because the
+			 * last bind error is != null) we keep that error, otherwise we set the 1st error from the model.
+			 */
+			if(m_lastBindError == null) {
+				Set<UIMessage> e2b = errorModel.getErrorsOn(instance, instanceProperty);
+				UIMessage msg = null;
+				if(e2b.size() > 0) {
+					msg = e2b.iterator().next();
 				}
-			} else {
-				((NodeBase) m_control).setMessage(null);
-				m_lastBindError = null;
+				control.setMessage(msg);
 			}
 		}
 	}
