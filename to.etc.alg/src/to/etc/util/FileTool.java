@@ -1265,7 +1265,6 @@ public class FileTool {
 	@Nonnull
 	static public List<String> getZipDirectory(@Nonnull File in) throws Exception {
 		ZipInputStream zis = null;
-		byte[] buf = new byte[8192];
 		List<String> res = new ArrayList<>();
 		try {
 			zis = new ZipInputStream(new FileInputStream(in));
@@ -1795,7 +1794,11 @@ public class FileTool {
 				} else if(v != null)
 					list[tox++] = v; // Keep, todo
 			} catch(Exception x) {
-				LOG.trace("Cannot close resource " + v + " (a " + v.getClass() + "): " + x, x);
+				if(v == null) {
+					// v is already null and doesn't need to be closed anymore
+				} else {
+					LOG.trace("Cannot close resource " + v + " (a " + v.getClass() + "): " + x, x);
+				}
 			}
 		}
 
@@ -1824,9 +1827,9 @@ public class FileTool {
 					((Connection) v).close();
 					v = null;
 				} else {
-					Method m = ClassUtil.findMethod(v.getClass(), "close", null);
+					Method m = ClassUtil.findMethod(v.getClass(), "close");
 					if(m == null) {
-						m = ClassUtil.findMethod(v.getClass(), "release", null);
+						m = ClassUtil.findMethod(v.getClass(), "release");
 					}
 					if(m != null) {
 						m.invoke(v);
@@ -1834,7 +1837,11 @@ public class FileTool {
 					}
 				}
 			} catch(Exception x) {
-				LOG.trace("Cannot close resource " + v + " (a " + v.getClass() + "): " + x, x);
+				if(v == null) {
+					// v is already null and doesn't need to be closed anymore
+				} else {
+					LOG.trace("Cannot close resource " + v + " (a " + v.getClass() + "): " + x, x);
+				}
 			}
 
 			if(v != null) {

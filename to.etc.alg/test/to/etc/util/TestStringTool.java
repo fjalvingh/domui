@@ -96,6 +96,7 @@ public class TestStringTool {
 		Assert.assertEquals("Length of m_text should be " + StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2, StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2, textIn.getBytes("UTF8").length);
 
 		String textOut = StringTool.truncLeadingOracleColumn(textIn, StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2);
+		Assert.assertNotNull("This can't be null!", textOut);
 
 		Assert.assertEquals("Length of m_text should be " + StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2, StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2, textOut.getBytes("UTF8").length);
 	}
@@ -116,6 +117,7 @@ public class TestStringTool {
 		Assert.assertEquals("Length of m_text should be 12000", 12000, textIn.getBytes("UTF8").length);
 
 		String textOut = StringTool.truncLeadingOracleColumn(textIn, StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2);
+		Assert.assertNotNull("This can't be null!", textOut);
 		Assert.assertEquals("Length of m_text should be " + StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2, StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2, textOut.getBytes("UTF8").length);
 	}
 
@@ -135,6 +137,7 @@ public class TestStringTool {
 		Assert.assertEquals("Length of m_text should be 16800", 16800, textIn.getBytes("UTF8").length);
 
 		String textOut = StringTool.truncLeadingOracleColumn(textIn, StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2);
+		Assert.assertNotNull("This can't be null!", textOut);
 		Assert.assertEquals("Length of m_text should be " + StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2, StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2, textOut.getBytes("UTF8").length);
 	}
 
@@ -155,6 +158,7 @@ public class TestStringTool {
 		Assert.assertEquals("Length of m_text should be 18000", 18000, textIn.getBytes("UTF8").length);
 
 		String textOut = StringTool.truncLeadingOracleColumn(textIn, StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2);
+		Assert.assertNotNull("This can't be null!", textOut);
 		Assert.assertEquals("Length of m_text should be " + (StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2 - 2), StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2 - 2,
 			textOut.getBytes("UTF8").length);
 	}
@@ -177,7 +181,7 @@ public class TestStringTool {
 
 		// COLUMN SIZE is 50
 		String textOut = StringTool.truncLeadingOracleColumn(textIn, 50);
-
+		Assert.assertNotNull("This can't be null!", textOut);
 		Assert.assertEquals("Length of m_text should be 50", 50, textOut.getBytes("UTF8").length);
 	}
 
@@ -199,7 +203,7 @@ public class TestStringTool {
 
 		// COLUMN SIZE is 3000
 		String textOut = StringTool.truncLeadingOracleColumn(textIn, 3000);
-
+		Assert.assertNotNull("This can't be null!", textOut);
 		Assert.assertEquals("Length of m_text in bytes should be 4000", 4000, textOut.getBytes("UTF8").length);
 		// Because there are to much bytes used the max number of characters is 2667.
 		Assert.assertEquals("Length of m_text in characters should be 2667", 2667, textOut.length());

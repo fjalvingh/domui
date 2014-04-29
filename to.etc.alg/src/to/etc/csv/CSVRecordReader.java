@@ -416,8 +416,11 @@ public class CSVRecordReader implements iRecordReader {
 
 	public int getIntValue(String name) throws IOException {
 		iInputField f = find(name);
-		if(f == null || f.isEmpty())
+		if(f == null || f.isEmpty()) {
 			error("Expecting an integer value in '" + name + "'");
+			return 0; //This will never be returned but it fools the compiler into accepting that the null check was done.
+		}
+
 		return convertToInt(f.getValue(), name);
 	}
 
@@ -438,8 +441,10 @@ public class CSVRecordReader implements iRecordReader {
 
 	public long getLongValue(String name) throws IOException {
 		iInputField f = find(name);
-		if(f == null || f.isEmpty())
+		if(f == null || f.isEmpty()) {
 			error("Expecting an long value in '" + name + "'");
+			return 0; //This will never be returned but it fools the compiler into accepting that the null check was done.
+		}
 		return convertToLong(f.getValue(), name);
 	}
 

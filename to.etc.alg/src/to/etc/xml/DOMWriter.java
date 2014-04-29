@@ -148,10 +148,12 @@ public class DOMWriter {
 				NamedNodeMap attrs = node.getAttributes();
 				int len = (attrs != null) ? attrs.getLength() : 0;
 
-				for(int i = 0; i < len; i++) {
-					Attr attr = (Attr) attrs.item(i);
+				if(attrs != null) {
+					for(int i = 0; i < len; i++) {
+						Attr attr = (Attr) attrs.item(i);
 
-					out.print(' ' + attr.getNodeName() + "=\"" + normalize(attr.getValue()) + '\"');
+						out.print(' ' + attr.getNodeName() + "=\"" + normalize(attr.getValue()) + '\"');
+					}
 				}
 
 				NodeList children = node.getChildNodes();
@@ -230,6 +232,10 @@ public class DOMWriter {
 
 	private static String normalize(String s) {
 		StringBuffer str = new StringBuffer();
+		if(s == null) {
+			return str.toString();
+		}
+
 		int len = (s != null) ? s.length() : 0;
 
 		for(int i = 0; i < len; i++) {

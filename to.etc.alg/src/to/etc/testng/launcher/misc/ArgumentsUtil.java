@@ -90,7 +90,7 @@ public class ArgumentsUtil {
 		return m_arguments.get(argKey);
 	}
 
-	public @Nullable
+	public @Nonnull
 	List<String> getOptionalNonNull(@Nonnull String argKey) {
 		List<String> res = m_arguments.get(argKey);
 		if(null == res) {
