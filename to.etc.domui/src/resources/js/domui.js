@@ -470,7 +470,7 @@ $(window).bind('beforeunload', function() {
 							throw ex;
 						}
 						continue;
-					} else if (dest && ($.browser.msie || $.browser.webkit || ($.browser.mozilla && $.browser.majorVersion >= 9 )) && n.substring(0, 2) == 'on') {
+					} else if (v != "" && dest && ($.browser.msie || $.browser.webkit || ($.browser.mozilla && $.browser.majorVersion >= 9 )) && n.substring(0, 2) == 'on') {
 						try {
 							if(v.indexOf("javascript:") == 0)
 								v = $.trim(v.substring(11));

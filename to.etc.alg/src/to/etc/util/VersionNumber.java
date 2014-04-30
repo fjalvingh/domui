@@ -183,6 +183,11 @@ final public class VersionNumber implements Comparable<VersionNumber> {
 			return -1;
 		else if(a == null && b != null)
 			return 1;
+
+		if(a == null) {
+			throw new IllegalStateException("This is not possible because of the previous checks.");
+		}
+
 		if(a.length == 0 && b.length == 0)
 			return 0;
 

@@ -77,6 +77,20 @@ final public class DomUtil {
 	}
 
 	/**
+	 * Don not use.
+	 * We are not sure that it's checked before. This is a potential null pointer access.
+	 * Adding this mean that we didn't want to introduce risk but we are marking this as a bad part of code.
+	 *
+	 * @param in
+	 * @return
+	 */
+	@Deprecated
+	@Nonnull
+	static public <T> T badCheck(T in) {
+		return in;
+	}
+
+	/**
 	 * Define (or clear) the x-ua-compatible value sent for this page. When not called
 	 * this defaults to the value defined by the ms-emulation property in web.xml.
 	 * @param comp

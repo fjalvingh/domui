@@ -281,7 +281,8 @@ public class QSelection<T> extends QCriteriaQueryBase<T> {
 	 * @see to.etc.webapp.query.QCriteriaQueryBase#eq(java.lang.String, java.lang.Object)
 	 */
 	@Override
-	public @Nonnull QSelection<T> eq(@GProperty final @Nonnull String property, final @Nonnull Object value) {
+	public @Nonnull
+	QSelection<T> eq(@GProperty final @Nonnull String property, final @Nullable Object value) {
 		return (QSelection<T>) super.eq(property, value);
 	}
 
@@ -452,7 +453,8 @@ public class QSelection<T> extends QCriteriaQueryBase<T> {
 	 * @see to.etc.webapp.query.QCriteriaQueryBase#ne(java.lang.String, java.lang.Object)
 	 */
 	@Override
-	public @Nonnull QSelection<T> ne(@GProperty final @Nonnull String property, final @Nonnull Object value) {
+	public @Nonnull
+	QSelection<T> ne(@GProperty final @Nonnull String property, final @Nullable Object value) {
 		return (QSelection<T>) super.ne(property, value);
 	}
 
