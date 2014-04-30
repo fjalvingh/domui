@@ -391,6 +391,7 @@ final public class WindowSession {
 			if(tu.indexOf(':') == -1) {
 				tu = ctx.getRelativePath(tu); 				// Make absolute.
 			}
+			logUser(ctx, currentpg, "GOTO redirect to " + tu);
 			generateRedirect(ctx, tu, ajax);
 			return true;
 		}
@@ -428,7 +429,8 @@ final public class WindowSession {
 			 * Page found. Is it the current page? If so we just ignore the request.
 			 */
 			if(psix == m_shelvedPageStack.size() - 1) {
-				return false;
+				logUser(ctx, currentpg, "GOTO " + getTargetMode() + " to current page?");
+//				return false;
 			}
 
 			/*
@@ -441,6 +443,11 @@ final public class WindowSession {
 				throw new IllegalStateException("Shelve entry is not a domui page but " + xse);
 
 			Page currentPage = ((ShelvedDomUIPage) xse).getPage();
+			if(currentPage == currentpg) {
+				logUser(ctx, currentpg, "GOTO " + getTargetMode() + " to current page - ignored");
+				return false;
+			}
+			logUser(ctx, currentpg, "GOTO " + getTargetMode() + " and unshelve page " + currentPage);
 
 			/*
 			 * jal 20100224 The old page is destroyed and we're now running in the "new" page's context! Since
@@ -503,6 +510,7 @@ final public class WindowSession {
 		if(pp == null)
 			pp = new PageParameters();
 		Page currentPage = PageMaker.createPageWithContent(bestpc, cc, pp);
+		logUser(ctx, currentpg, "GOTO " + getTargetMode() + " to NEW page " + currentPage);
 		UIContext.internalSet(currentPage); 					// jal 20100224 Code can run in new page on shelve.
 		shelvePage(currentPage);
 
@@ -581,6 +589,7 @@ final public class WindowSession {
 
 			//-- If we have a root page go there, else
 			Class< ? extends UrlPage> clz = getApplication().getRootPage();
+			logUser(ctx, currentpg, "GOTO root page");
 			if(clz != null) {
 				internalSetNextPage(MoveMode.NEW, getApplication().getRootPage(), null, null, null);
 				handleGoto(ctx, currentpg, ajax);
@@ -596,7 +605,14 @@ final public class WindowSession {
 		clearShelve(ix + 1); // Destroy everything above;
 		IShelvedEntry se = m_shelvedPageStack.get(ix);		// Get the thing to move to,
 		se.activate(ctx, ajax);								// Activate this page.
+		logUser(ctx, currentpg, "Goto shelved page " + se.getURL());
 		saveWindowState();
+	}
+
+	private void logUser(@Nonnull RequestContextImpl ctx, @Nonnull Page page, String string) {
+		ConversationContext conversation = page.internalGetConversation();
+		String cid = conversation == null ? null : conversation.getFullId();
+		ctx.getSession().log(new UserLogItem(cid, page.getBody().getClass().getName(), null, null, string));
 	}
 
 	/*--------------------------------------------------------------*/
@@ -972,6 +988,7 @@ final public class WindowSession {
 		Class< ? extends ConversationContext> ccclz = PageMaker.getConversationType(bestpc); 	// Get the conversation class to use,
 		ConversationContext coco = createConversation(ccclz);
 		boolean ok = false;
+		Page prevpage = UIContext.internalGetPage();
 		try {
 			registerConversation(coco, null); 						// ORDERED 2
 			ConversationContext.LOG.debug("Created conversation=" + coco + " for new page=" + clz);
@@ -990,6 +1007,7 @@ final public class WindowSession {
 			m_shelvedPageStack.add(ix, new ShelvedDomUIPage(this, newpg));
 
 			getApplication().getInjector().injectPageValues(newpg.getBody(), parameters);
+			UIContext.internalSet(newpg);
 			newpg.internalFullBuild();								// 20130411 jal Page must be built before stacking it.
 
 			//-- Call all of the page's listeners.
@@ -998,10 +1016,12 @@ final public class WindowSession {
 			ok = true;
 			return newpg;
 		} finally {
+			UIContext.internalSet(prevpage);
 			try {
-				coco.internalDetach();
-				if(!ok)
-					coco.internalDestroy();
+				if(!ok) {
+					destroyConversation(coco);
+
+				}
 			} catch(Exception x) {
 				x.printStackTrace();
 			}
@@ -1063,25 +1083,35 @@ final public class WindowSession {
 		}
 
 		String conversationId = null;
-		for(SavedPage sp : list) {
-			try {
-				//-- 1. Load the class by name.
-				Class<? extends UrlPage> clz = m_appSession.getApplication().loadPageClass(sp.getClassName());
+		try {
+			internalAttachConversations();
+			for(SavedPage sp : list) {
+				try {
+					//-- 1. Load the class by name.
+					Class< ? extends UrlPage> clz = m_appSession.getApplication().loadPageClass(sp.getClassName());
 
-
-				//-- 2. Insert @ location [0]
-				Page pg = insertShelveEntryMain(0, clz, sp.getParameters());
-				if(null != pg && clz2.getName().equals(sp.getClassName()) && sp.getParameters().equals(pageParameters)) {
-					ConversationContext cc = pg.internalGetConversation();
-					if(null != cc)
-						conversationId = cc.getId();
+					//-- 2. Insert @ location [0]
+					Page pg = insertShelveEntryMain(0, clz, sp.getParameters());
+					if(null != pg && clz2.getName().equals(sp.getClassName()) && sp.getParameters().equals(pageParameters)) {
+						ConversationContext cc = pg.internalGetConversation();
+						if(null != cc)
+							conversationId = cc.getId();
+					}
+				} catch(Exception x) {
+					System.err.println("domui: developer page reload failed: " + x);
+					x.printStackTrace();
+					LOG.info("Cannot reload " + sp.getClassName() + ": " + x);
 				}
-			} catch(Exception x) {
-				LOG.info("Cannot reload " + sp.getClassName() + ": " + x);
 			}
+			saveWindowState();								// Save new window's state
+			return conversationId;
+		} catch(Exception x) {
+			System.err.println("domui: developer reload failed: " + x);
+			x.printStackTrace();
+			return null;
+		} finally {
+			internalDetachConversations();
 		}
-		saveWindowState();								// Save new window's state
-		return conversationId;
 	}
 
 	/**

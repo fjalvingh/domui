@@ -23,7 +23,7 @@ public class DefaultBeforeImageCache implements IBeforeImageCache {
 	@Nonnull
 	@Override
 	public <T> T createImage(@Nonnull Class<T> realclass, @Nonnull T instance, boolean loaded) throws Exception {
-		System.out.println("   >> createImage " + realclass.getName() + "@" + System.identityHashCode(instance));
+//		System.out.println("   >> createImage " + realclass.getName() + "@" + System.identityHashCode(instance));
 		T copy = (T) m_copyMap.get(instance);
 		if(null != copy) {
 			m_wasNew = false;
@@ -49,7 +49,7 @@ public class DefaultBeforeImageCache implements IBeforeImageCache {
 	@Override
 	public <T> T findBeforeImage(@Nonnull T source) {
 		T res = (T) m_copyMap.get(source);
-		System.out.println("     >> " + source + " maps to " + res);
+//		System.out.println("     >> " + source + " maps to " + res);
 		return res;
 	}
 

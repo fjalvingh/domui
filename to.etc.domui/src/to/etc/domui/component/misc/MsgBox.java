@@ -277,7 +277,6 @@ public class MsgBox extends Window {
 		message(dad, Type.ERROR, string);
 	}
 
-
 	public static void message(NodeBase dad, Type mt, String string, IAnswer onAnswer) {
 		if(mt == Type.DIALOG) {
 			throw new IllegalArgumentException("Please use one of the predefined button calls for MsgType.DIALOG type MsgBox!");
@@ -663,8 +662,8 @@ public class MsgBox extends Window {
 				Object v = m_inputControl.getValue();
 				((IInput<Object>) m_oninput).onInput(v);
 			} catch(ValidationException ex) {
-				//close message box in case of validation exception is thrown as result of answer
-				close();
+//				//close message box in case of validation exception is thrown as result of answer
+//				close();
 				throw ex;
 			}
 		}
@@ -778,5 +777,4 @@ public class MsgBox extends Window {
 		box.setCloseButton(MsgBoxButton.CONTINUE);
 		box.construct();
 	}
-
 }

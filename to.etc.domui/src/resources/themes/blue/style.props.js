@@ -17,7 +17,6 @@ button_height=24;
 
 defaultbutton_height=23;
 window_title_font_size='15px';
-defaultbutton_height=22;
 
 margins_main = '10px';
 

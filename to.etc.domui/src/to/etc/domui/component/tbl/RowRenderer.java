@@ -7,6 +7,7 @@ import to.etc.domui.component.meta.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.component.ntbl.*;
 import to.etc.domui.component.tbl.AbstractRowRenderer.IRowRendered;
+import to.etc.domui.converter.*;
 import to.etc.domui.databinding.observables.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
@@ -324,6 +325,18 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 			cell.add(dv);
 		} else {
 			X value = cd.getColumnValue(instance);
+			PropertyMetaModel< ? > pmm = cd.getPropertyMetaModel();
+			if(pmm != null) {
+				IConverter<Object> converter = (IConverter<Object>) pmm.getConverter();
+				if(converter != null) {
+					DisplaySpan<Object> ds = new DisplaySpan<Object>(pmm.getActualType());
+					ds.setConverter(converter);
+					ds.setValue(value);
+					cell.add(ds);
+					return;
+				}
+			}
+
 			if(null != value) {
 				cell.add(new DisplaySpan<X>(value));
 			}

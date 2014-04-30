@@ -868,6 +868,8 @@ final public class MetaManager {
 
 			if(!topmm.getActualType().isAssignableFrom(frpmm.getActualType()))
 				continue;
+			if(topmm.getReadOnly() == YesNoType.YES)
+				continue;
 
 			((PropertyMetaModel<Object>) topmm).setValue(to, frpmm.getValue(from));
 		}

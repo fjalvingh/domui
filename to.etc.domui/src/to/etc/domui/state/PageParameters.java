@@ -27,8 +27,6 @@ package to.etc.domui.state;
 import java.io.*;
 import java.security.*;
 import java.util.*;
-import java.util.Map.Entry;
-
 import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;

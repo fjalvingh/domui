@@ -69,6 +69,8 @@ abstract public class AbstractFormBuilder {
 	@Nonnull
 	final private IAppender m_appender;
 
+	private AllowedRight m_allowedRight;
+
 	abstract protected void addControl(@Nullable NodeBase label, @Nullable NodeBase labelnode, @Nonnull NodeBase[] list, boolean mandatory, boolean editable, PropertyMetaModel< ? > pmm);
 
 	abstract protected void addContent(@Nullable NodeBase label, @Nonnull NodeBase[] control, boolean editable);
@@ -157,6 +159,19 @@ abstract public class AbstractFormBuilder {
 
 		addContent(lbl, new NodeBase[]{control}, editable);
 		lbl.setForNode(control);
+	}
+
+	/**
+	 * Set rights for components created on this form.
+	 * @param r
+	 */
+	public void setRight(@Nonnull AllowedRight r) {
+		m_allowedRight = r;
+	}
+
+	@Nonnull
+	public AllowedRight getRight() {
+		return m_allowedRight;
 	}
 
 	/*--------------------------------------------------------------*/
