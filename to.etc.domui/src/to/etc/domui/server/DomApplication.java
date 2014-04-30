@@ -1667,7 +1667,7 @@ public abstract class DomApplication {
 	 * @return
 	 * @throws Exception
 	 */
-	public ITheme getTheme(@Nonnull String themeName, @Nonnull IResourceDependencyList rdl) throws Exception {
+	public ITheme getTheme(@Nonnull String themeName, @Nullable IResourceDependencyList rdl) throws Exception {
 		return m_themeManager.getTheme(themeName, rdl);
 	}
 

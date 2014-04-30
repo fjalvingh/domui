@@ -24,7 +24,10 @@
  */
 package to.etc.util;
 
+import java.text.*;
 import java.util.*;
+
+import javax.annotation.*;
 
 /**
  * Static date/time utiility class.
@@ -530,6 +533,26 @@ public class DateUtil {
 		cal.set(Calendar.YEAR, year);
 		cal.set(Calendar.WEEK_OF_YEAR, weekOfYear);
 		return cal;
+	}
+
+	/**
+	 * Parses <b>input</b> String to {@link Date} class, acording to <b>dateFormat</b> argument.
+	 * @param input - input string to be parsed
+	 * @param dateFormat - to what format should the date be parsed
+	 * @return
+	 * @throws ParseException
+	 */
+	@Nonnull
+	static public java.util.Date convertToDate(@Nonnull final String input, @Nonnull final String dateFormat) throws ParseException {
+		if(StringTool.isBlank(dateFormat)) {
+			throw new IllegalArgumentException("dateFormat must not be empty");
+		}
+		if(StringTool.isBlank(input)) {
+			throw new IllegalArgumentException("input string must not be empty");
+		}
+
+		final SimpleDateFormat simpleDateFormat = new SimpleDateFormat(dateFormat);
+		return simpleDateFormat.parse(input);
 	}
 
 	/**

@@ -242,7 +242,12 @@ public class MsgBox extends Window {
 		box.m_theImage.setSrc(iconSrc);
 		box.setWindowTitle(title);
 		box.addButton(MsgBoxButton.CONTINUE);
-		box.setCloseButton(MsgBoxButton.CONTINUE);
+		if(onAnswer != null) {
+			box.addButton(MsgBoxButton.CANCEL);
+			box.setCloseButton(MsgBoxButton.CANCEL);
+		} else {
+			box.setCloseButton(MsgBoxButton.CONTINUE);
+		}
 		box.setOnAnswer(onAnswer);
 		box.setDataRenderer(msgRenderer);
 		box.construct();

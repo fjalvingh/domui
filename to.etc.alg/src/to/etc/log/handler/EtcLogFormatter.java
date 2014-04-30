@@ -73,7 +73,8 @@ public class EtcLogFormatter {
 								ix = handleMdc(format, ix, sb);
 							} else if((len >= ix + 5) && "marker".equalsIgnoreCase(format.substring(ix - 1, ix + 5))) {
 								ix += 5;
-								sb.append(event.getMarker() != null ? event.getMarker().getName() : "");
+								Marker marker = event.getMarker();
+								sb.append(marker != null ? marker.getName() : "");
 							} else {
 								sb.append("%").append(nextChar);
 							}
@@ -87,8 +88,8 @@ public class EtcLogFormatter {
 			}
 		}
 
-		if(event.getThrown() != null) {
-			Throwable t = event.getThrown();
+		Throwable t = event.getThrown();
+		if(t != null) {
 			sb.append("\n").append("---------- THROWN ---------- " + t.getClass()).append("\n");
 			logThrowable(sb, 0, t, true);
 			int loggedCauses = 0;
@@ -103,13 +104,14 @@ public class EtcLogFormatter {
 	}
 
 	private static void handleMsg(@Nonnull EtcLogEvent event, @Nonnull StringBuilder sb) {
-		if(event.getArgs() != null && event.getArgs().length > 0) {
-			if(event.getArgs().length == 1) {
-				sb.append(org.slf4j.helpers.MessageFormatter.format(event.getMsg(), event.getArgs()));
-			} else if(event.getArgs().length == 2) {
-				sb.append(org.slf4j.helpers.MessageFormatter.format(event.getMsg(), event.getArgs()[0], event.getArgs()[1]));
+		Object[] args = event.getArgs();
+		if(args != null && args.length > 0) {
+			if(args.length == 1) {
+				sb.append(org.slf4j.helpers.MessageFormatter.format(event.getMsg(), args));
+			} else if(args.length == 2) {
+				sb.append(org.slf4j.helpers.MessageFormatter.format(event.getMsg(), args[0], args[1]));
 			} else {
-				sb.append(org.slf4j.helpers.MessageFormatter.arrayFormat(event.getMsg(), event.getArgs()));
+				sb.append(org.slf4j.helpers.MessageFormatter.arrayFormat(event.getMsg(), args));
 			}
 		} else {
 			sb.append(event.getMsg());
