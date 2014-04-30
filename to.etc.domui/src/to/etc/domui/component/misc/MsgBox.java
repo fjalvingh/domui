@@ -657,8 +657,8 @@ public class MsgBox extends Window {
 				Object v = m_inputControl.getValue();
 				((IInput<Object>) m_oninput).onInput(v);
 			} catch(ValidationException ex) {
-				//close message box in case of validation exception is thrown as result of answer
-				close();
+//				//close message box in case of validation exception is thrown as result of answer
+//				close();
 				throw ex;
 			}
 		}
