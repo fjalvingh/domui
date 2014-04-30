@@ -25,6 +25,8 @@ public class BeforeImageInterceptor extends EmptyInterceptor {
 	@Nonnull
 	final private IBeforeImageCache m_cache;
 
+	static private final boolean DEBUG = false;
+
 	/**
 	 * Identifies a collection inside a given instance.
 	 *
@@ -180,9 +182,16 @@ public class BeforeImageInterceptor extends EmptyInterceptor {
 		if(Hibernate.isInitialized(src)) {						// Loaded?
 			//-- Replace the instance with the before image of that instance.
 			V before = m_cache.findBeforeImage(src);
-			if(null == before)
-				throw new IllegalStateException("The 'before' image for " + MetaManager.identify(src) + " cannot be found, even though it is loaded by Hibernate!?");
-			return before;
+			if(null != before) {
+				return before;
+			}
+			/*
+			 * 20140414 jal Loads for complex sets can have delayed registration of a "loaded" entity. This means we cannot
+			 * yet register it.
+			 */
+			if(DEBUG)
+				System.err.println("The 'before' image for " + MetaManager.identify(src) + " cannot be found, even though it is loaded by Hibernate!?");
+//				throw new IllegalStateException("The 'before' image for " + MetaManager.identify(src) + " cannot be found, even though it is loaded by Hibernate!?");
 		}
 
 		/*

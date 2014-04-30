@@ -140,6 +140,13 @@ final public class Page implements IQContextContainer {
 	private boolean m_renderAsXHTML;
 
 	/**
+	 * If the page has gotten it's values injected this is set to true. This prevents injecting
+	 * a value twice which causes trouble for NEW objects (it creates two separate instances of
+	 * a new object).
+	 */
+	private boolean m_injected;
+
+	/**
 	 * The stack of floating windows on top of the main canvas, in ZIndex order.
 	 */
 	private List<FloatingDiv> m_floatingWindowStack;
@@ -984,9 +991,19 @@ final public class Page implements IQContextContainer {
 		return m_cc != null && !m_cc.isValid();
 	}
 
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IQContextContainer implementation.					*/
 	/*--------------------------------------------------------------*/
+
+	public boolean isInjected() {
+		return m_injected;
+	}
+
+	public void setInjected(boolean injected) {
+		m_injected = injected;
+	}
+
 
 	@Nonnull
 	@Override

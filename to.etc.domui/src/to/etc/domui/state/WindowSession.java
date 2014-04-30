@@ -1007,6 +1007,7 @@ final public class WindowSession {
 			m_shelvedPageStack.add(ix, new ShelvedDomUIPage(this, newpg));
 
 			getApplication().getInjector().injectPageValues(newpg.getBody(), parameters);
+			newpg.setInjected(true);
 			UIContext.internalSet(newpg);
 			newpg.internalFullBuild();								// 20130411 jal Page must be built before stacking it.
 

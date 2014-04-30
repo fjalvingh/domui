@@ -439,6 +439,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 			if(page.getBody() instanceof IRebuildOnRefresh) { 				// Must fully refresh?
 				page.getBody().forceRebuild(); 								// Cleanout state
+				page.setInjected(false);
 				QContextManager.closeSharedContexts(page.getConversation());
 				if(DomUtil.USERLOG.isDebugEnabled())
 					DomUtil.USERLOG.debug(cid + ": IForceRefresh, cleared page data for " + page);
@@ -446,7 +447,10 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			} else {
 				logUser(ctx, cid, clz.getName(), "Full page render");
 			}
-			ctx.getApplication().getInjector().injectPageValues(page.getBody(), papa);
+			if(!page.isInjected()) {
+				ctx.getApplication().getInjector().injectPageValues(page.getBody(), papa);
+				page.setInjected(true);
+			}
 
 			/*
 			 * This is a (new) page request. We need to check rights on the page before
