@@ -82,6 +82,10 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 			String dsp = model().getDefaultSortProperty();
 			getColumnList().setDefaultSortColumn(dsp);
 		}
+		ColumnDef< ? > column = getSortColumn();
+		if(null != column) {
+			setSortDescending(column.getSortable() == SortableType.SORTABLE_DESC);
+		}
 
 		getColumnList().assignPercentages();				// Calculate widths
 		m_completed = true;
