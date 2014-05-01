@@ -32,28 +32,27 @@ import to.etc.domui.dom.errors.*;
  * Created on Apr 10, 2014
  */
 final public class LogiErrors {
+	/** Group for errors coming from binding. */
+	@Nonnull
+	static public final String G_BINDING = "binding";
+
+	/**
+	 * Maps [object, property] to a set of errors. If the property is not known it is mapped as null.
+	 */
 	@Nonnull
 	private Map<Object, Map<PropertyMetaModel< ? >, Set<UIMessage>>> m_map = new HashMap<>();
-
-	@Nonnull
-	private Map<Object, Set<UIMessage>> m_mapGlobals = new HashMap<>();
 
 	public LogiErrors() {}
 
 	public <T> void addMessage(@Nonnull T businessObject, @Nonnull UIMessage message) {
-		Set<UIMessage> messages = m_mapGlobals.get(businessObject);
-		if(messages == null) {
-			messages = new HashSet<UIMessage>();
-			m_mapGlobals.put(businessObject, messages);
-		}
-		messages.add(message);
+		addMessage(businessObject, (PropertyMetaModel< ? >) null, message);
 	}
 
 	public <T> void addMessage(@Nonnull T businessObject, @Nonnull String property, @Nonnull UIMessage message) {
 		addMessage(businessObject, MetaManager.getPropertyMeta(businessObject.getClass(), property), message);
 	}
 
-	public <T, V> void addMessage(@Nonnull T businessObject, @Nonnull PropertyMetaModel<V> property, @Nonnull UIMessage message) {
+	public <T, V> void addMessage(@Nonnull T businessObject, @Nullable PropertyMetaModel<V> property, @Nonnull UIMessage message) {
 		Map<PropertyMetaModel< ? >, Set<UIMessage>> mapOnProp = m_map.get(businessObject);
 		if(mapOnProp == null) {
 			mapOnProp = new HashMap<PropertyMetaModel< ? >, Set<UIMessage>>();
@@ -71,7 +70,7 @@ final public class LogiErrors {
 		clearMessage(businessObject, MetaManager.getPropertyMeta(businessObject.getClass(), property), msg);
 	}
 
-	public <T, V> void clearMessage(@Nonnull T businessObject, @Nonnull PropertyMetaModel<V> property, @Nonnull UIMessage msg) {
+	public <T, V> void clearMessage(@Nonnull T businessObject, @Nullable PropertyMetaModel<V> property, @Nonnull UIMessage msg) {
 		Map<PropertyMetaModel< ? >, Set<UIMessage>> mapOnProp = m_map.get(businessObject);
 		if(mapOnProp != null) {
 			Set<UIMessage> messages = mapOnProp.get(property);
@@ -83,20 +82,16 @@ final public class LogiErrors {
 
 	@Nonnull
 	public <T> Set<UIMessage> getErrorsOn(@Nonnull T businessObject) {
-		Set<UIMessage> messagesList = m_mapGlobals.get(businessObject);
-		if(messagesList != null) {
-			return Collections.unmodifiableSet(messagesList);
-		}
-		return Collections.EMPTY_SET;
+		return getErrorsOn(businessObject, (PropertyMetaModel< ? >) null);
 	}
 
 	@Nonnull
-	public <T, V> Set<UIMessage> getErrorsOn(@Nonnull T businessObject, @Nonnull PropertyMetaModel<V> property) {
+	public <T, V> Set<UIMessage> getErrorsOn(@Nonnull T businessObject, @Nullable PropertyMetaModel<V> property) {
 		Map<PropertyMetaModel< ? >, Set<UIMessage>> mapOnProp = m_map.get(businessObject);
 		if(mapOnProp != null) {
 			Set<UIMessage> messagesList = mapOnProp.get(property);
 			if(messagesList != null) {
-				return messagesList; //consider making copy list
+				return messagesList; 						//consider making copy list
 			}
 		}
 		return Collections.EMPTY_SET;
@@ -105,5 +100,45 @@ final public class LogiErrors {
 	@Nonnull
 	public <T> Set<UIMessage> getErrorsOn(@Nonnull T businessObject, @Nonnull String property) {
 		return getErrorsOn(businessObject, MetaManager.getPropertyMeta(businessObject.getClass(), property));
+	}
+
+	public boolean hasBindingErrors() {
+		for(Map<PropertyMetaModel< ? >, Set<UIMessage>> m1 : m_map.values()) {
+			for(Set<UIMessage> set : m1.values()) {
+				for(UIMessage m : set) {
+					if(G_BINDING.equals(m.getGroup()))
+						return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	public boolean hasErrors() {
+		for(Map<PropertyMetaModel< ? >, Set<UIMessage>> m1 : m_map.values()) {
+			for(Set<UIMessage> set : m1.values()) {
+				if(set.size() > 0)
+					return true;
+			}
+		}
+		return false;
+	}
+
+//	@Nonnull
+//	public List<LogicError> getErrorList() {
+//		List<LogicError> res = new ArrayList<>();
+//		for(Map.Entry<Object, Map<PropertyMetaModel< ? >, Set<UIMessage>>> m1 : m_map.entrySet()) {
+//			for(Map.Entry<PropertyMetaModel<?>, Set<UIMessage>> m2: m1.getValue().entrySet()) {
+//				for(UIMessage m : m2.getValue()) {
+//					res.add(new LogicError(m, m1.getKey(), m2.getKey()));
+//				}
+//			}
+//		}
+//		return res;
+//	}
+
+	@Nonnull
+	public ErrorSet getErrorSet() {
+		return new ErrorSet(m_map);
 	}
 }

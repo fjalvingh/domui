@@ -149,8 +149,11 @@ public class SimpleBinder implements IBinder {
 		UIMessage newError = null;
 		try {
 			value = m_controlProperty.getValue(m_control);
+			control.removeCssClass("ui-input-err");							// This is horrible.
 		} catch(CodeException cx) {
-			newError = UIMessage.error(cx);
+			newError = UIMessage.error(cx).group(LogiErrors.G_BINDING);
+			System.out.println("~~ " + control + " to " + instanceProperty + ": " + cx);
+			control.addCssClass("ui-input-err");							// As is this.
 		}
 
 		LogiErrors errorModel = control.lc().getErrorModel();
@@ -322,5 +325,15 @@ public class SimpleBinder implements IBinder {
 		}
 		sb.append("]");
 		return sb.toString();
+	}
+
+	@Nullable
+	public Object getInstance() {
+		return m_instance;
+	}
+
+	@Nullable
+	public PropertyMetaModel< ? > getInstanceProperty() {
+		return m_instanceProperty;
 	}
 }

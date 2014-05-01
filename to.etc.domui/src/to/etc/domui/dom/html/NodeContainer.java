@@ -814,4 +814,11 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 
 		return false;
 	}
+
+	@Override
+	public <T> void sendComponentMessage(T message) {
+		for(NodeBase child : this) {
+			child.sendComponentMessage(message);
+		}
+	}
 }

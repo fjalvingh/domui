@@ -1853,4 +1853,12 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 			m_flags |= F_NO_MESSAGE_BROADCAST;
 		}
 	}
+
+	/**
+	 * Send any kind of message down the component tree, for whomever listens.
+	 * @param message
+	 */
+	public <T> void sendComponentMessage(@Nonnull T message) {}
+
+
 }
