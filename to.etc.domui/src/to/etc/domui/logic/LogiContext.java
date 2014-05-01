@@ -122,9 +122,10 @@ final public class LogiContext {
 		Object key = "ihc-" + ihc;
 		ILogic logic = cmap.get(key);
 		if(null == logic) {
-			key = instance.getId();												// Get the ID for this instance.
-			if(null != key) {
-				logic = cmap.get(key);
+			K altkey = instance.getId();												// Get the ID for this instance.
+			if(null != altkey) {
+				logic = cmap.get(altkey);
+				key = altkey;
 			}
 		}
 		if(null != logic)
