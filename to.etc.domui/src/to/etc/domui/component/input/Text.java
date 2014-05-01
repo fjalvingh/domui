@@ -305,8 +305,10 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 * @return
 	 */
 	public T getBindValue() {
-		if(!validate(false))
-			throw new ValidationException(Msgs.NOT_VALID, getRawValue());
+		if(!validate(false)) {
+			throw new ValidationException(DomUtil.nullChecked(getMessage()));			// Yes, this is a mess 8-(
+//			throw new ValidationException(Msgs.NOT_VALID, getRawValue());
+		}
 		return m_value;
 
 	}

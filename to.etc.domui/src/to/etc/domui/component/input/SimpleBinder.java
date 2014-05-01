@@ -152,6 +152,8 @@ public class SimpleBinder implements IBinder {
 			control.removeCssClass("ui-input-err");							// This is horrible.
 		} catch(CodeException cx) {
 			newError = UIMessage.error(cx).group(LogiErrors.G_BINDING);
+			newError.setErrorNode(control);
+			newError.setErrorLocation(control.getErrorLocation());
 			System.out.println("~~ " + control + " to " + instanceProperty + ": " + cx);
 			control.addCssClass("ui-input-err");							// As is this.
 		}
@@ -197,7 +199,6 @@ public class SimpleBinder implements IBinder {
 		NodeBase control = (NodeBase) m_control;
 
 		// FIXME We should think about exception handling here
-		LogiErrors errorModel = control.lc().getErrorModel();
 		Object modelValue = instanceProperty.getValue(instance);
 		if(!MetaManager.areObjectsEqual(modelValue, m_lastValueFromControl)) {
 			m_lastValueFromControl = modelValue;
@@ -210,10 +211,13 @@ public class SimpleBinder implements IBinder {
 			 * When updated from the model: clear the control's error. This should probably call the control's validation
 			 * methods to see if the new value set obeys the control's validation (notably: mandatoryness, pattern).
 			 */
-			UIMessage ctlError = control.getMessage();
-			if(null != ctlError) {
-				errorModel.clearMessage(instance, instanceProperty, ctlError);
-				control.setMessage(null);
+			if(control.isAttached()) {
+				UIMessage ctlError = control.getMessage();
+				if(null != ctlError) {
+					LogiErrors errorModel = control.lc().getErrorModel();
+					errorModel.clearMessage(instance, instanceProperty, ctlError);
+					control.setMessage(null);
+				}
 			}
 		} else {
 			/*
@@ -221,12 +225,15 @@ public class SimpleBinder implements IBinder {
 			 * last bind error is != null) we keep that error, otherwise we set the 1st error from the model.
 			 */
 			if(m_lastBindError == null) {
-				Set<UIMessage> e2b = errorModel.getErrorsOn(instance, instanceProperty);
-				UIMessage msg = null;
-				if(e2b.size() > 0) {
-					msg = e2b.iterator().next();
+				if(control.isAttached()) {
+					LogiErrors errorModel = control.lc().getErrorModel();
+					Set<UIMessage> e2b = errorModel.getErrorsOn(instance, instanceProperty);
+					UIMessage msg = null;
+					if(e2b.size() > 0) {
+						msg = e2b.iterator().next();
+					}
+					control.setMessage(msg);
 				}
-				control.setMessage(msg);
 			}
 		}
 	}

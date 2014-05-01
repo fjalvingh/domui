@@ -149,7 +149,7 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 			setter.invoke(target, value);
 		} catch(InvocationTargetException itx) {
 			Throwable c = itx.getCause();
-			System.err.println("(in calling " + setter + " with input object " + target + " and value " + value + ")");
+//			System.err.println("(in calling " + setter + " with input object " + target + " and value " + value + ")");
 			if(c instanceof Exception) {
 				throw (Exception) c;
 			}
@@ -158,7 +158,7 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 			else
 				throw itx;
 		} catch(Exception x) {
-			System.err.println("(in calling " + setter + " with input object " + target + " and value " + value + ")");
+//			System.err.println("(in calling " + setter + " with input object " + target + " and value " + value + ")");
 			throw x;
 		}
 	}
@@ -176,7 +176,7 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 		try {
 			return (T) m_descriptor.getGetter().invoke(in);
 		} catch(InvocationTargetException itx) {
-			System.err.println(itx + " (in calling " + m_descriptor.getGetter() + " with input object " + in + ")");
+//			System.err.println(itx + " (in calling " + m_descriptor.getGetter() + " with input object " + in + ")");
 			Throwable c = itx.getCause();
 			if(c instanceof Exception)
 				throw (Exception) c;

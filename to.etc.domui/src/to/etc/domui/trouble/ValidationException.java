@@ -24,6 +24,9 @@
  */
 package to.etc.domui.trouble;
 
+import javax.annotation.*;
+
+import to.etc.domui.dom.errors.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
 
@@ -38,5 +41,9 @@ public class ValidationException extends UIException {
 
 	public ValidationException(String code, Object... param) {
 		super(Msgs.BUNDLE, code, param);
+	}
+
+	public ValidationException(@Nonnull UIMessage msg) {
+		super(msg.getBundle(), msg.getCode(), msg.getParameters());
 	}
 }
