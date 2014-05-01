@@ -141,4 +141,22 @@ final public class LogiErrors {
 	public ErrorSet getErrorSet() {
 		return new ErrorSet(m_map);
 	}
+
+	/**
+	 * EXPERIMENTAL Delete all errors of a given group. Usually called by business logic
+	 * that will recalculate it's errors.
+	 * @param name
+	 */
+	public void clearErrorGroup(@Nonnull String name) {
+		for(Map.Entry<Object, Map<PropertyMetaModel< ? >, Set<UIMessage>>> m1 : m_map.entrySet()) {
+			for(Map.Entry<PropertyMetaModel< ? >, Set<UIMessage>> m2 : m1.getValue().entrySet()) {
+				for(Iterator<UIMessage> it = m2.getValue().iterator(); it.hasNext();) {
+					UIMessage m = it.next();
+					if(name.equals(m.getGroup())) {
+						it.remove();
+					}
+				}
+			}
+		}
+	}
 }
