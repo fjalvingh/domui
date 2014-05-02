@@ -483,7 +483,7 @@ $(window).bind('beforeunload', function() {
 						try {
 							if(v.indexOf("javascript:") == 0)
 								v = $.trim(v.substring(11));
-							var fntext = v.indexOf("return") == 0 ? v : "return "+v;
+							var fntext = v.indexOf("return") >= 0 ? v : "return "+v;		// for now accept everything that at least does a return.
 
 							if($.browser.msie && $.browser.majorVersion < 9)
 								se = new Function(fntext);
