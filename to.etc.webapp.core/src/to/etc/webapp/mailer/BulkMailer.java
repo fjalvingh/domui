@@ -49,7 +49,7 @@ public class BulkMailer {
 		try {
 			DbLockKeeper.init(ds);
 		} catch(Exception x) {
-			x.printStackTrace();
+//			x.printStackTrace();
 		}
 		getInstance().init(ds, t);
 	}
