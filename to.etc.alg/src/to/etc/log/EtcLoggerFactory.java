@@ -132,7 +132,7 @@ public class EtcLoggerFactory implements ILoggerFactory {
 		try {
 			configXml = FileTool.readResourceAsString(this.getClass(), CONFIG_FILENAME, "utf-8");
 			loadConfigFromXml(configXml);
-			System.out.println(this.getClass().getName() + " is initialized by loading built-in logger configuration as " + this.getClass().getName() + " resource " + CONFIG_FILENAME);
+			System.err.println(this.getClass().getName() + " is initialized by loading built-in logger configuration as " + this.getClass().getName() + " resource " + CONFIG_FILENAME);
 		} catch(Exception e) {
 			//this should not happen -> we load design time created resource - it must be valid
 			System.err.println("Built-in logger config is invalid! Check class " + this.getClass().getName() + " resource " + CONFIG_FILENAME);

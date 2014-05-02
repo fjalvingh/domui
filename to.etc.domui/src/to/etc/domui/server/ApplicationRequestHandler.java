@@ -54,6 +54,7 @@ import to.etc.webapp.query.*;
 /**
  * Main handler for DomUI page requests. This handles all requests that target or come
  * from a DomUI page.
+ * FIXME Needs to be split up badly.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on May 22, 2008
@@ -95,12 +96,12 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		} catch(ClientDisconnectedException xxxx) {
 			throw xxxx;
 		} catch(Exception x) {
-			if(!m_application.inDevelopmentMode())
+			if(!m_application.isShowProblemTemplate() && !m_application.inDevelopmentMode())
 				throw x;
 
 			tryRenderOopsFrame(ctx, x);
 		} catch(Error x) {
-			if(!m_application.inDevelopmentMode())
+			if(!m_application.isShowProblemTemplate() && !m_application.inDevelopmentMode())
 				throw x;
 
 			String s = x.getMessage();
@@ -187,6 +188,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		if(DomUtil.USERLOG.isDebugEnabled()) {
 			DomUtil.USERLOG.debug("\n\n\n========= DomUI request =================\nCID=" + cid + "\nAction=" + action + "\n");
 		}
+		if(!Constants.ACMD_ASYPOLL.equals(action))
+			logUser(ctx, cid, clz.getName(), "Incoming request on " + cid + " action=" + action);
 
 		//-- If this is an OBITUARY just mark the window as possibly gone, then exit;
 		if(Constants.ACMD_OBITUARY.equals(action)) {
@@ -229,17 +232,24 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				} else {
 					// In auto refresh: do not send the "expired" message, but let the refresh handle this.
 					if(m_application.getAutoRefreshPollInterval() <= 0) {
-						generateExpired(ctx, Msgs.BUNDLE.getString(Msgs.S_EXPIRED));
-					} else
-						LOG.info("Not sending expired message because autorefresh is ON for " + cid);
+						String msg = Msgs.BUNDLE.getString(Msgs.S_EXPIRED);
+						generateExpired(ctx, msg);
+						logUser(ctx, cid, clz.getName(), msg);
+					} else {
+						String msg = "Not sending expired message because autorefresh is ON for " + cid;
+						LOG.info(msg);
+						logUser(ctx, cid, clz.getName(), msg);
+					}
 					return;
 				}
 			}
 
 			//-- We explicitly need to create a new Window and need to send a redirect back
 			cm = ctx.getSession().createWindowSession();
+			String newmsg = "$cid: input windowid=" + cid + " not found - created wid=" + cm.getWindowID();
 			if(LOG.isDebugEnabled())
-				LOG.debug("$cid: input windowid=" + cid + " not found - created wid=" + cm.getWindowID());
+				LOG.debug(newmsg);
+			logUser(ctx, cid, clz.getName(), newmsg);
 
 			String conversationId = "x";							// If not reloading a saved set- use x as the default conversation id
 			if(m_application.inDevelopmentMode() && cida != null) {
@@ -288,8 +298,10 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			sb.append(".").append(conversationId);
 			DomUtil.addUrlParameters(sb, ctx, false);
 			generateHttpRedirect(ctx, sb.toString(), "Your session has expired. Starting a new session.");
+			String expmsg = "Session " + cid + " has expired - starting a new session by redirecting to " + sb.toString();
+			logUser(ctx, cid, clz.getName(), expmsg);
 			if(DomUtil.USERLOG.isDebugEnabled())
-				DomUtil.USERLOG.debug("Session " + cid + " has expired - starting a new session by redirecting to " + sb.toString());
+				DomUtil.USERLOG.debug(expmsg);
 			return;
 		}
 		if(cida == null)
@@ -302,9 +314,11 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		if(action != null) {
 			if(cm.isConversationDestroyed(cida.getConversationId())) {		// This conversation was recently destroyed?
 				//-- Render a null response
+				String msg = "Session " + cid + " was destroyed earlier- assuming this is an out-of-order event and sending empty delta back";
 				if(LOG.isDebugEnabled())
-					LOG.debug("Session " + cid + " was destroyed earlier- assuming this is an out-of-order event and sending empty delta back");
-				System.out.println("Session " + cid + " was destroyed earlier- assuming this is an out-of-order event and sending empty delta back");
+					LOG.debug(msg);
+				logUser(ctx, cid, clz.getName(), msg);
+				System.out.println(msg);
 				generateEmptyDelta(ctx);
 				return;											// jal 20121122 Must return after sending that delta or the document is invalid!!
 			}
@@ -358,14 +372,19 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 					if(Constants.ACMD_ASYPOLL.equals(action)) {
 						generateExpiredPollasy(ctx);
 					} else {
+						String msg = "Session " + cid + " expired, page will be reloaded (page tag difference) on action=" + action;
 						if(DomUtil.USERLOG.isDebugEnabled())
-							DomUtil.USERLOG.debug("Session " + cid + " expired, page will be reloaded (page tag difference) on action=" + action);
+							DomUtil.USERLOG.debug(msg);
+						logUser(ctx, cid, clz.getName(), msg);
 
 						// In auto refresh: do not send the "expired" message, but let the refresh handle this.
 						if(m_application.getAutoRefreshPollInterval() <= 0) {
 							generateExpired(ctx, Msgs.BUNDLE.getString(Msgs.S_EXPIRED));
-						} else
-							LOG.info("Not sending expired message because autorefresh is ON for " + cid);
+						} else {
+							msg = "Not sending expired message because autorefresh is ON for " + cid;
+							LOG.info(msg);
+							logUser(ctx, cid, clz.getName(), msg);
+						}
 					}
 					return;
 				}
@@ -422,6 +441,9 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				QContextManager.closeSharedContexts(page.getConversation());
 				if(DomUtil.USERLOG.isDebugEnabled())
 					DomUtil.USERLOG.debug(cid + ": IForceRefresh, cleared page data for " + page);
+				logUser(ctx, cid, clz.getName(), "Full page render with forced refresh");
+			} else {
+				logUser(ctx, cid, clz.getName(), "Full page render");
 			}
 			ctx.getApplication().getInjector().injectPageValues(page.getBody(), papa);
 
@@ -501,6 +523,10 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		} catch(Exception ex) {
 			Exception x = WrappedException.unwrap(ex);
 
+			if(!(x instanceof ValidationException)) {
+				logUser(ctx, cid, clz.getName(), "Page exception: " + x);
+			}
+
 			//-- 20100504 jal Exception in page means it's content is invalid, so force a full rebuild
 			try {
 				page.getBody().forceRebuild();
@@ -521,7 +547,6 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				}
 			}
 
-			//-- 20100712 jal EXPERIMENTAL Pass exceptions in initial rendering mode to code too.
 			IExceptionListener xl = ctx.getApplication().findExceptionListenerFor(x);
 			if(xl != null && xl.handleException(ctx, page, null, x)) {
 				if(cm.handleExceptionGoto(ctx, page, false))
@@ -543,6 +568,16 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 		//-- Start any delayed actions now.
 		page.getConversation().startDelayedExecution();
+	}
+
+	private void logUser(@Nonnull RequestContextImpl ctx, @Nullable String cid, @Nonnull String pageName, String string) {
+		ctx.getSession().log(new UserLogItem(cid, pageName, null, null, string));
+	}
+
+	private void logUser(@Nonnull RequestContextImpl ctx, @Nonnull Page page, String string) {
+		ConversationContext conversation = page.internalGetConversation();
+		String cid = conversation == null ? null : conversation.getFullId();
+		ctx.getSession().log(new UserLogItem(cid, page.getBody().getClass().getName(), null, null, string));
 	}
 
 	/**
@@ -802,6 +837,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			}
 		}
 		generateHttpRedirect(ctx, sb.toString(), "Access denied");
+		logUser(ctx, cm.getWindowID(), page.getBody().getClass().getName(), sb.toString());
 		return false;
 	}
 
@@ -1009,6 +1045,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			for(NodeBase n : pendingChangeList) {
 				if(DomUtil.USERLOG.isDebugEnabled()) {
 					DomUtil.USERLOG.debug("valueChanged on " + DomUtil.getComponentDetails(n));
+					logUser(ctx, page, "valueChanged on " + DomUtil.getComponentDetails(n));
 				}
 
 				n.internalOnValueChanged();
@@ -1048,7 +1085,9 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				LOG.debug("rq: ignoring validation exception " + x);
 		} catch(MsgException msg) {
 			MsgBox.error(page.getBody(), msg.getMessage());
+			logUser(ctx, page, "error message: " + msg.getMessage());
 		} catch(Exception ex) {
+			logUser(ctx, page, "Action handler exception: " + ex);
 			Exception x = WrappedException.unwrap(ex);
 			if(x instanceof NotLoggedInException) { // FIXME Fugly. Generalize this kind of exception handling somewhere.
 				String url = m_application.handleNotLoggedInException(ctx, page, (NotLoggedInException) x);
@@ -1097,18 +1136,21 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				generateHttpRedirect(ctx, url, "You need to be logged in");
 				return;
 			}
+		} catch(Exception x) {
+			logUser(ctx, page, "Delta render failed: " + x);
+			throw x;
 		}
 	}
 
 	/**
-		 * Called in DEVELOPMENT mode when the source code for a page is requested (double escape press). It shows
-		 * the nodes from the entered one upto the topmost one, and when selected tries to open the source code
-		 * by sending a command to the local Eclipse.
-		 *
-		 * @param ctx
-		 * @param page
-		 * @param wcomp
-		 */
+	 * Called in DEVELOPMENT mode when the source code for a page is requested (double escape press). It shows
+	 * the nodes from the entered one upto the topmost one, and when selected tries to open the source code
+	 * by sending a command to the local Eclipse.
+	 *
+	 * @param ctx
+	 * @param page
+	 * @param wcomp
+	 */
 	private void handleDevelopmentShowCode(RequestContextImpl ctx, Page page, NodeBase wcomp) {
 		if(null == wcomp)
 			return;
@@ -1173,12 +1215,15 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 */
 	private void handleClicked(final IRequestContext ctx, final Page page, final NodeBase b) throws Exception {
 		if(b == null) {
+			logUser((RequestContextImpl) ctx, page, "User clicked to fast on " + DomUtil.getComponentDetails(b));
 			System.out.println("User clicked too fast? Node not found. Ignoring.");
 			return;
 			//			throw new IllegalStateException("Clicked must have a node!!");
 		}
+		String msg = "Clicked on " + DomUtil.getComponentDetails(b);
+		logUser((RequestContextImpl) ctx, page, msg);
 		if(DomUtil.USERLOG.isDebugEnabled()) {
-			DomUtil.USERLOG.debug("Clicked on " + b.getComponentInfo());
+			DomUtil.USERLOG.debug(msg);
 		}
 
 		ClickInfo cli = new ClickInfo(ctx);
@@ -1192,7 +1237,6 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 	@Nullable
 	private JSTemplate m_exceptionTemplate;
-
 
 	/**
 	 *
@@ -1222,7 +1266,11 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		dumpException(sb, x);
 		dataMap.put("stacktrace", sb.toString());
 		dataMap.put("message", StringTool.htmlStringize(x.toString()));
+		dataMap.put("ctx", ctx);
+		ExceptionUtil util = new ExceptionUtil(ctx);
+		dataMap.put("util", util);
 
+		util.renderEmail(x);
 
 		Writer w = ctx.getRequestResponse().getOutputWriter("text/html", "utf-8");
 		JSTemplate xt = getExceptionTemplate();
@@ -1236,8 +1284,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		JSTemplate xt = m_exceptionTemplate;
 		if(xt == null) {
 			JSTemplateCompiler jtc = new JSTemplateCompiler();
-			if(false) {
-				File src = new File("/home/jal/bzr/puzzler-lf/domui/to.etc.domui/src/to/etc/domui/server/exceptionTemplate.html");
+			if(true) {
+				File src = new File("/home/jal/git/puzzler/domui/to.etc.domui/src/to/etc/domui/server/exceptionTemplate.html");
 				Reader r = new FileReader(src);
 				try {
 					xt = jtc.compile(r, src.getAbsolutePath());

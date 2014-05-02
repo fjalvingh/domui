@@ -4,6 +4,7 @@
 */bin/*
 */javadoc
 *.~*
+/bin
 .svn
 .metadata
 Servers

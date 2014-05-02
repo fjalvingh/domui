@@ -4,7 +4,6 @@ import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
 public class ColumnDef<T> {

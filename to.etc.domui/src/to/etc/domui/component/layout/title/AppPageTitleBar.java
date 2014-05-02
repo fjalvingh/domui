@@ -77,7 +77,7 @@ public class AppPageTitleBar extends BasePageTitleBar {
 		m_catchError = catchError;
 	}
 
-	protected AppPageTitleBar(final String icon, final String title, boolean catchError) {
+	public AppPageTitleBar(final String icon, final String title, boolean catchError) {
 		super(title);
 		setIcon(icon);
 		m_catchError = catchError;
