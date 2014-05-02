@@ -521,5 +521,10 @@ public class Oracle8iDialect extends Dialect {
 	public boolean supportsExistsInSelect() {
 		return false;
 	}
+	
+	@Override
+	public boolean forceLobAsLastValue() {
+		return true;
+	}
 
 }

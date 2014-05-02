@@ -27,18 +27,10 @@ import java.io.Serializable;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.hibernate.AssertionFailure;
 import org.hibernate.EntityMode;
 import org.hibernate.FetchMode;
@@ -167,6 +159,8 @@ public abstract class AbstractEntityPersister
 	private final boolean[] propertyUniqueness;
 	private final boolean[] propertySelectable;
 
+	private final List<Integer> lobProperties = new ArrayList<Integer>();
+
 	//information about lazy properties of this class
 	private final String[] lazyPropertyNames;
 	private final int[] lazyPropertyNumbers;
@@ -294,12 +288,12 @@ public abstract class AbstractEntityPersister
 
 	public String getDiscriminatorColumnReaders() {
 		return DISCRIMINATOR_ALIAS;
-	}	
-	
+	}
+
 	public String getDiscriminatorColumnReaderTemplate() {
 		return DISCRIMINATOR_ALIAS;
-	}	
-	
+	}
+
 	protected String getDiscriminatorAlias() {
 		return DISCRIMINATOR_ALIAS;
 	}
@@ -384,7 +378,7 @@ public abstract class AbstractEntityPersister
 
 	/**
 	 * The query that inserts a row, letting the database generate an id
-	 * 
+	 *
 	 * @return The IDENTITY-based insertion query.
 	 */
 	protected String getSQLIdentityInsertString() {
@@ -610,6 +604,10 @@ public abstract class AbstractEntityPersister
 
 			propertyUniqueness[i] = prop.getValue().isAlternateUniqueKey();
 
+			if (prop.isLob() && getFactory().getDialect().forceLobAsLastValue() ) {
+				lobProperties.add( i );
+			}
+
 			i++;
 
 		}
@@ -685,7 +683,7 @@ public abstract class AbstractEntityPersister
 					aliases.add( thing.getAlias( factory.getDialect(), prop.getValue().getTable() ) );
 					columnsLazy.add( lazy );
 					columnSelectables.add( Boolean.valueOf( prop.isSelectable() ) );
-					
+
 					readers[l] = col.getReadExpr( factory.getDialect() );
 					String readerTemplate = col.getTemplate( factory.getDialect(), factory.getSqlFunctionRegistry() );
 					readerTemplates[l] = readerTemplate;
@@ -922,6 +920,8 @@ public abstract class AbstractEntityPersister
 
 		log.trace( "done initializing lazy properties" );
 
+			// TODO: Does this need AttributeBindings wired into lobProperties?  Currently in Property only.
+
 		return result;
 	}
 
@@ -964,12 +964,12 @@ public abstract class AbstractEntityPersister
 
 	public String[] getIdentifierColumnReaders() {
 		return rootTableKeyColumnReaders;
-	}	
+	}
 
 	public String[] getIdentifierColumnReaderTemplates() {
 		return rootTableKeyColumnReaderTemplates;
-	}	
-	
+	}
+
 	protected int getIdentifierColumnSpan() {
 		return identifierColumnSpan;
 	}
@@ -1431,7 +1431,7 @@ public abstract class AbstractEntityPersister
 	        SessionImplementor session) throws HibernateException {
 		getLocker( lockMode ).lock( id, version, object, LockOptions.WAIT_FOREVER, session );
 	}
-	
+
 	public void lock(
 			Serializable id,
 	        Object version,
@@ -1575,10 +1575,10 @@ public abstract class AbstractEntityPersister
 	public String[] getPropertyColumnNames(int i) {
 		return propertyColumnNames[i];
 	}
-	
+
 	public String[] getPropertyColumnWriters(int i) {
 		return propertyColumnWriters[i];
-	}	
+	}
 
 	protected int getPropertyColumnSpan(int i) {
 		return propertyColumnSpans[i];
@@ -1627,7 +1627,7 @@ public abstract class AbstractEntityPersister
 	protected String[][] getSubclassPropertyColumnNameClosure() {
 		return subclassPropertyColumnNameClosure;
 	}
-	
+
 	public String[][] getSubclassPropertyColumnReaderClosure() {
 		return subclassPropertyColumnReaderClosure;
 	}
@@ -1987,10 +1987,24 @@ public abstract class AbstractEntityPersister
 
 		boolean hasColumns = false;
 		for ( int i = 0; i < entityMetamodel.getPropertySpan(); i++ ) {
-			if ( includeProperty[i] && isPropertyOfTable( i, j ) ) {
+			if ( includeProperty[i] && isPropertyOfTable( i, j )
+					&& !lobProperties.contains( i ) ) {
 				// this is a property of the table, which we are updating
-				update.addColumns( getPropertyColumnNames(i), propertyColumnUpdateable[i], propertyColumnWriters[i] );
+				update.addColumns( getPropertyColumnNames(i),
+						propertyColumnUpdateable[i], propertyColumnWriters[i] );
 				hasColumns = hasColumns || getPropertyColumnSpan( i ) > 0;
+			}
+		}
+
+		// HHH-4635
+		// Oracle expects all Lob properties to be last in inserts
+		// and updates.  Insert them at the end.
+		for ( int i : lobProperties ) {
+			if ( includeProperty[i] && isPropertyOfTable( i, j ) ) {
+				// this property belongs on the table and is to be inserted
+				update.addColumns( getPropertyColumnNames(i),
+						propertyColumnUpdateable[i], propertyColumnWriters[i] );
+				hasColumns = true;
 			}
 		}
 
@@ -2058,7 +2072,8 @@ public abstract class AbstractEntityPersister
 	/**
 	 * Generate the SQL that inserts a row
 	 */
-	protected String generateInsertString(boolean identityInsert, boolean[] includeProperty, int j) {
+	protected String generateInsertString(boolean identityInsert,
+			boolean[] includeProperty, int j) {
 
 		// todo : remove the identityInsert param and variations;
 		//   identity-insert strings are now generated from generateIdentityInsertString()
@@ -2068,9 +2083,13 @@ public abstract class AbstractEntityPersister
 
 		// add normal properties
 		for ( int i = 0; i < entityMetamodel.getPropertySpan(); i++ ) {
-			if ( includeProperty[i] && isPropertyOfTable( i, j ) ) {
+
+			if ( includeProperty[i] && isPropertyOfTable( i, j )
+					&& !lobProperties.contains( i ) ) {
 				// this property belongs on the table and is to be inserted
-				insert.addColumns( getPropertyColumnNames(i), propertyColumnInsertable[i], propertyColumnWriters[i] );
+				insert.addColumns( getPropertyColumnNames(i),
+						propertyColumnInsertable[i],
+						propertyColumnWriters[i] );
 			}
 		}
 
@@ -2089,6 +2108,18 @@ public abstract class AbstractEntityPersister
 
 		if ( getFactory().getSettings().isCommentsEnabled() ) {
 			insert.setComment( "insert " + getEntityName() );
+		}
+
+		// HHH-4635
+		// Oracle expects all Lob properties to be last in inserts
+		// and updates.  Insert them at the end.
+		for ( int i : lobProperties ) {
+			if ( includeProperty[i] && isPropertyOfTable( i, j ) ) {
+				// this property belongs on the table and is to be inserted
+				insert.addColumns( getPropertyColumnNames(i),
+						propertyColumnInsertable[i],
+						propertyColumnWriters[i] );
+			}
 		}
 
 		String result = insert.toStatementString();
@@ -2157,8 +2188,9 @@ public abstract class AbstractEntityPersister
 			boolean[][] includeColumns,
 			int j,
 			PreparedStatement st,
-			SessionImplementor session) throws HibernateException, SQLException {
-		return dehydrate( id, fields, null, includeProperty, includeColumns, j, st, session, 1 );
+			SessionImplementor session,
+			boolean isUpdate) throws HibernateException, SQLException {
+		return dehydrate( id, fields, null, includeProperty, includeColumns, j, st, session, 1, isUpdate );
 	}
 
 	/**
@@ -2173,32 +2205,58 @@ public abstract class AbstractEntityPersister
 	        final int j,
 	        final PreparedStatement ps,
 	        final SessionImplementor session,
-	        int index) throws SQLException, HibernateException {
+	        int index,
+	        boolean isUpdate ) throws SQLException, HibernateException {
 
 		if ( log.isTraceEnabled() ) {
 			log.trace( "Dehydrating entity: " + MessageHelper.infoString( this, id, getFactory() ) );
 		}
 
 		for ( int i = 0; i < entityMetamodel.getPropertySpan(); i++ ) {
-			if ( includeProperty[i] && isPropertyOfTable( i, j ) ) {
+			if ( includeProperty[i] && isPropertyOfTable( i, j )
+				   && !lobProperties.contains(i)) {
 				getPropertyTypes()[i].nullSafeSet( ps, fields[i], index, includeColumns[i], session );
 				//index += getPropertyColumnSpan( i );
 				index += ArrayHelper.countTrue( includeColumns[i] ); //TODO:  this is kinda slow...
 			}
 		}
-
-		if ( rowId != null ) {
-			ps.setObject( index, rowId );
-			index += 1;
+		if ( !isUpdate ) {
+			index += dehydrateId( id, rowId, ps, session, index );
 		}
-		else if ( id != null ) {
-			getIdentifierType().nullSafeSet( ps, id, index, session );
-			index += getIdentifierColumnSpan();
+
+		// HHH-4635
+		// Oracle expects all Lob properties to be last in inserts
+		// and updates.  Insert them at the end.
+		for ( int i : lobProperties ) {
+ 			if ( includeProperty[i] && isPropertyOfTable( i, j ) ) {
+ 				getPropertyTypes()[i].nullSafeSet( ps, fields[i], index, includeColumns[i], session );
+ 				index += ArrayHelper.countTrue( includeColumns[i] ); //TODO:  this is kinda slow...
+ 			}
+ 		}
+
+		if ( isUpdate ) {
+			index += dehydrateId( id, rowId, ps, session, index );
 		}
 
 		return index;
-
 	}
+
+	private int dehydrateId(
+			final Serializable id,
+			final Object rowId,
+			final PreparedStatement ps,
+			final SessionImplementor session,
+			int index ) throws SQLException {
+ 		if ( rowId != null ) {
+ 			ps.setObject( index, rowId );
+			return 1;
+		} else if ( id != null ) {
+ 			getIdentifierType().nullSafeSet( ps, id, index, session );
+			return getIdentifierColumnSpan();
+ 		}
+		return 0;
+ 	}
+
 
 	/**
 	 * Unmarshall the fields of a persistent instance from a result set,
@@ -2356,7 +2414,7 @@ public abstract class AbstractEntityPersister
 
 		Binder binder = new Binder() {
 			public void bindValues(PreparedStatement ps) throws SQLException {
-				dehydrate( null, fields, notNull, propertyColumnInsertable, 0, ps, session );
+				dehydrate( null, fields, notNull, propertyColumnInsertable, 0, ps, session, false );
 			}
 			public Object getEntity() {
 				return object;
@@ -2448,7 +2506,7 @@ public abstract class AbstractEntityPersister
 				// Write the values of fields onto the prepared statement - we MUST use the state at the time the
 				// insert was issued (cos of foreign key constraints). Not necessarily the object's current state
 
-				dehydrate( id, fields, null, notNull, propertyColumnInsertable, j, insert, session, index );
+				dehydrate( id, fields, null, notNull, propertyColumnInsertable, j, insert, session, index, false );
 
 				if ( useBatch ) {
 					// TODO : shouldnt inserts be Expectations.NONE?
@@ -2577,7 +2635,7 @@ public abstract class AbstractEntityPersister
 
 				//Now write the values of fields onto the prepared statement
 				//-- hhh-2588:3 fix start
-				/*              
+				/*
 				 * jal HHH-2588: if this type has generated fields we cannot use the "copy of the fields"
 				 * as they were at the time this update was queued in the ActionQueue. The reason is that
 				 * the action queue can have an insert plus an update or multiple updates for the same
@@ -2605,7 +2663,7 @@ public abstract class AbstractEntityPersister
 				}
 				//-- hhh-2588:3 fix end
 
-				index = dehydrate( id, fields, rowId, includeProperty, propertyColumnUpdateable, j, update, session, index );
+				index = dehydrate( id, fields, rowId, includeProperty, propertyColumnUpdateable, j, update, session, index, true );
 
 				// Write any appropriate versioning conditional parameters
 				if ( useVersion && Versioning.OPTIMISTIC_LOCK_VERSION == entityMetamodel.getOptimisticLockMode() ) {
@@ -3300,7 +3358,7 @@ public abstract class AbstractEntityPersister
 			);
 		loaders.put( LockMode.OPTIMISTIC, createEntityLoader( LockMode.OPTIMISTIC) );
 		loaders.put( LockMode.OPTIMISTIC_FORCE_INCREMENT, createEntityLoader(LockMode.OPTIMISTIC_FORCE_INCREMENT) );
-	
+
 		loaders.put(
 				"merge",
 				new CascadeEntityLoader( this, CascadingAction.MERGE, getFactory() )
