@@ -95,6 +95,13 @@ public abstract class DomApplication {
 	/** The default poll interval time for pages containing Async objects (see {@link DelayedActivitiesManager}). */
 	private int m_defaultPollInterval = 2500;
 
+	/** When set, problem reports have a "mail" button and send mail here, */
+	private String m_problemMailAddress;
+
+	private String m_problemMailSubject;
+
+	private boolean m_showProblemTemplate;
+
 	static private DomApplication m_application;
 
 	static private int m_nextPageTag = (int) (System.nanoTime() & 0x7fffffff);
@@ -117,7 +124,7 @@ public abstract class DomApplication {
 	private int m_windowSessionTimeout = 15;
 
 	/** The default expiry time for resources, in seconds. */
-	private int m_defaultExpiryTime = 7 * 24 * 60 * 60;
+	private int m_defaultExpiryTime = 1 * 24 * 60 * 60;
 
 	private ILoginAuthenticator m_loginAuthenticator;
 
@@ -206,6 +213,8 @@ public abstract class DomApplication {
 
 	@Nonnull
 	private String m_jQueryPath;
+
+	private String m_problemFromAddress;
 
 	/**
 	 * The only constructor.
@@ -781,6 +790,35 @@ public abstract class DomApplication {
 	@Nonnull
 	public Locale getRequestLocale(HttpServletRequest request) {
 		return request.getLocale();
+	}
+
+	@Nullable
+	public synchronized String getProblemMailAddress() {
+		return m_problemMailAddress;
+	}
+
+	public synchronized void setProblemMail(@Nonnull String toAddress, @Nonnull String fromAddress, @Nonnull String subject) {
+		m_problemMailAddress = toAddress;
+		m_problemMailSubject = subject;
+		m_problemFromAddress = fromAddress;
+	}
+
+	@Nullable
+	public String getProblemFromAddress() {
+		return m_problemFromAddress;
+	}
+
+	@Nullable
+	public synchronized String getProblemMailSubject() {
+		return m_problemMailSubject;
+	}
+
+	public synchronized boolean isShowProblemTemplate() {
+		return m_showProblemTemplate;
+	}
+
+	public synchronized void setShowProblemTemplate(boolean showProblemTemplate) {
+		m_showProblemTemplate = showProblemTemplate;
 	}
 
 
