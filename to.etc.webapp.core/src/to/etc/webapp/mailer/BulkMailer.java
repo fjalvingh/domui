@@ -77,7 +77,6 @@ public class BulkMailer {
 		}
 	}
 
-
 	private synchronized void init(DataSource ds, SmtpTransport t) throws Exception {
 		if(m_ds != null)
 			throw new IllegalStateException("Already initialized");
