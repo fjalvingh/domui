@@ -165,6 +165,11 @@ public class ALink extends ATag {
 		m_moveMode = moveMode;
 	}
 
+//	@Override
+//	public String getComponentInfo() {
+//		return "ALink:" + DomUtil.calcNodeText(this);
+//	}
+
 	/**
 	 * Generate the actual link to the thing.
 	 */

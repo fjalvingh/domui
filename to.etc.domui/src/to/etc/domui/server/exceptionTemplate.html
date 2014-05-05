@@ -69,6 +69,23 @@ body {
 	max-height: 400px;
 	overflow: auto;
 }
+.listtbl {
+	background: white;
+}
+
+.listtbl TD {
+	padding: 1px 2px;
+	border-left: 1px solid #aaaaaa;
+	vertical-align: top;
+	line-height: 130%;
+}
+
+.listtbl THEAD TH {
+	font-weight: bold;
+	padding: 3px;
+	border-left: 1px solid #7c7c7c;
+	text-align: left;
+}
 
 --></style>
 <script type="text/javascript"><!--
@@ -175,21 +192,46 @@ startTrying();
 				</td>
 			</tr>
 		</table>
-		
-		
+
 		<div class="exc-subtitle">Exception stack trace:</div>
 		<div class="exc-stacktrace"><pre><%= stacktrace %>
 </pre></div>
+
+		<div class="exc-subtitle">Page parameters</div>
+		<%= util.renderParameters() %>
+		
+		<div class="exc-subtitle">Session event log leading up to this...</div>
+		<table class='listtbl'>
+			<thead>
+				<tr>
+					<th>Time</th>
+					<th>cid</th>
+					<th>Page</th>
+					<th>Message</th>
+				</tr>
+			</thead>
+		<% 
+			var llist = util.getUserLog();
+			for(var i = 0; i < llist.size(); i++) {
+				var item = llist.get(i);
+		%>
+			<tr>		
+				<td nowrap="nowrap">-<%= item.time() %></td>
+				<td nowrap="nowrap"><%= item.cid %></td>
+				<td nowrap="nowrap"><%= util.lastName(item.page) %></td>
+				<td><%= item.text %></td>
+			</tr>
+		<% } %>		
+		</table>
 		<div>If you have the <a href="http://domui.org/wiki/bin/view/Documentation/EclipsePlugin" target="_blank">DomUI Eclipse plugin</a> installed, clicking a stack trace entry should open the class in Eclipse.</div>
-		<div class="exc-error" id="linkerror"></div>
 	</div>
 	<div class="exc-bottom">
 		<img align="right" src="<%= theme %>/logo-small.png">
 		<div title="Pinging for updates in the code, so that the page can be reloaded after the problem is fixed">
 			<img id="pingi" src="" ><span>Pinging, last reload: </span><span id="pingt">?</span>
 		</div>
+		<div class="exc-error" id="linkerror"></div>
 	</div>
-	
 </body>
 </html>
 
