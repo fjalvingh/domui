@@ -590,6 +590,31 @@ public class OracleDB extends BaseDB {
 		Connection dbc = null;
 		try {
 			dbc = ds.getConnection();
+
+			//-- Drop all invalid synonyms
+			ps = dbc.prepareStatement("select owner,object_name from dba_objects where object_type = 'SYNONYM' and status = 'INVALID'");
+			rs = ps.executeQuery();
+			while(rs.next()) {
+				String sowner = rs.getString(1);
+				String name = rs.getString(2);
+
+				Statement st = null;
+				try {
+					st = dbc.createStatement();
+					if("PUBLIC".equals(sowner)) {
+						st.executeUpdate("drop public synonym " + name);
+					} else {
+						st.executeUpdate("drop synonym " + sowner + "." + name);
+					}
+				} catch(Exception x) {
+					System.out.println("Failed to drop synonym " + sowner + "." + name + ": " + x);
+				} finally {
+					FileTool.closeAll(st);
+				}
+			}
+			FileTool.closeAll(rs, ps);
+
+			//-- Recreate all
 			int ct = 0;
 			long ts = System.currentTimeMillis();
 			String objectNamesFilter = null;
@@ -613,16 +638,29 @@ public class OracleDB extends BaseDB {
 				+ " and s.synonym_name = o.object_name " //
 				+ ")" //
 			);
+
+			//-- First scan everything in a set, removing duplicate names (like for packages and package bodies, sigh).
+			Set<String> todoSet = new HashSet<String>();
 			rs = ps.executeQuery();
 			while(rs.next()) {
-				String on = rs.getString(1);
+				String res = rs.getString(1);
+				if(null != res)
+					todoSet.add(res);
+			}
+			FileTool.closeAll(rs, ps);
+
+			//-- Now create synonyms for the set.
+			for(String on : todoSet) {
 				LOG.info(owner + ": create missing synonym '" + on + "'");
 				try {
 					ps2 = dbc.prepareStatement("create public synonym \"" + on + "\" for " + owner + ".\"" + on + "\"");
 					ps2.executeUpdate();
 				} catch(Exception x) {
-					System.out.println(owner + ": error creating synonym " + on + ": " + x);
-					LOG.error(owner + ": error creating synonym " + on + ": " + x);
+					String msg = x.toString();
+					if(!msg.contains("xxORA-00955")) {					// jal do not remove this test !@!@!
+						System.out.println(owner + ": error creating synonym " + on + ": " + x);
+						LOG.error(owner + ": error creating synonym " + on + ": " + x);
+					}
 				} finally {
 					FileTool.closeAll(ps2);
 				}
