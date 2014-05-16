@@ -99,12 +99,16 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		add(m_buttonDiv);
 		m_buttonDiv.setCssClass("ui-dp-btns");
 		m_firstBtn = new ATag();
+		m_firstBtn.setTestID("firstBtn");
 		m_buttonDiv.add(m_firstBtn);
 		m_prevBtn = new ATag();
+		m_prevBtn.setTestID("prevBtn");
 		m_buttonDiv.add(m_prevBtn);
 		m_nextBtn = new ATag();
+		m_nextBtn.setTestID("nextBtn");
 		m_buttonDiv.add(m_nextBtn);
 		m_lastBtn = new ATag();
+		m_lastBtn.setTestID("lastBtn");
 		m_buttonDiv.add(m_lastBtn);
 
 		m_buttonDiv.add("\u00a0\u00a0");

@@ -218,6 +218,7 @@ public class DataTable<T> extends SelectableTabularComponent<T> implements ISele
 		if(m_multiSelectMode) {
 			TH headerCell = hc.add("");
 			headerCell.add(new Img("THEME/dspcb-on.png"));
+			headerCell.setTestID("dt_select_all");
 			headerCell.setWidth("1%"); //keep selection column with minimal width
 			headerCell.setClicked(m_headerSelectClickHandler);
 			headerCell.setCssClass("ui-clickable");
@@ -480,6 +481,7 @@ public class DataTable<T> extends SelectableTabularComponent<T> implements ISele
 		//-- 1. Add the select TH.
 		TD th = new TH();
 		th.add(new Img("THEME/dspcb-on.png"));
+		th.setTestID("dt_select_all");
 		th.setWidth("1%");
 		headerrow.add(0, th);
 		th.setClicked(m_headerSelectClickHandler);
