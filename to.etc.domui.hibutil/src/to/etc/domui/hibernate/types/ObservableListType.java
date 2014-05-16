@@ -8,8 +8,6 @@ import org.hibernate.engine.*;
 import org.hibernate.persister.collection.*;
 import org.hibernate.usertype.*;
 
-import to.etc.domui.databinding.observables.*;
-
 /**
  * A type for List<T> type properties which makes the property a ObservableList.
  *
@@ -19,7 +17,7 @@ import to.etc.domui.databinding.observables.*;
 public class ObservableListType implements UserCollectionType {
 	@Override
 	public Object instantiate(int anticipatedSize) {
-		return new ObservableList<Object>();
+		return new PersistentObservableList<Object>();
 	}
 
 	@Override
@@ -36,7 +34,7 @@ public class ObservableListType implements UserCollectionType {
 	public Iterator getElementsIterator(Object collection) {
 		if(null == collection)
 			return null;
-		ObservableList<Object> ol = (ObservableList<Object>) collection;
+		PersistentObservableList<Object> ol = (PersistentObservableList<Object>) collection;
 		return ol.iterator();
 	}
 
@@ -44,7 +42,7 @@ public class ObservableListType implements UserCollectionType {
 	public boolean contains(Object collection, Object entity) {
 		if(null == collection)
 			return false;
-		ObservableList<Object> ol = (ObservableList<Object>) collection;
+		PersistentObservableList<Object> ol = (PersistentObservableList<Object>) collection;
 		return ol.contains(entity);
 	}
 
@@ -52,14 +50,14 @@ public class ObservableListType implements UserCollectionType {
 	public Object indexOf(Object collection, Object entity) {
 		if(null == collection)
 			return null;
-		ObservableList<Object> ol = (ObservableList<Object>) collection;
+		PersistentObservableList<Object> ol = (PersistentObservableList<Object>) collection;
 		return Integer.valueOf(ol.indexOf(entity));
 	}
 
 	@Override
 	public Object replaceElements(Object original, Object target, CollectionPersister persister, Object owner, Map copyCache, SessionImplementor session) throws HibernateException {
-		ObservableList<Object> src = (ObservableList<Object>) original;
-		ObservableList<Object> dst = (ObservableList<Object>) target;
+		PersistentObservableList<Object> src = (PersistentObservableList<Object>) original;
+		PersistentObservableList<Object> dst = (PersistentObservableList<Object>) target;
 
 		//-- Update the lists with as little disturbance as necessary.
 		int nch = src.size();
