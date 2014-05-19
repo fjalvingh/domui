@@ -8,6 +8,8 @@ import org.hibernate.engine.*;
 import org.hibernate.persister.collection.*;
 import org.hibernate.usertype.*;
 
+import to.etc.domui.databinding.observables.*;
+
 /**
  * A type for List<T> type properties which makes the property a ObservableList.
  *
@@ -15,9 +17,13 @@ import org.hibernate.usertype.*;
  * Created on Jan 11, 2014
  */
 public class ObservableListType implements UserCollectionType {
+	/**
+	 * Return the basic wrapped instance.
+	 * @see org.hibernate.usertype.UserCollectionType#instantiate(int)
+	 */
 	@Override
 	public Object instantiate(int anticipatedSize) {
-		return new PersistentObservableList<Object>();
+		return new ObservableList<Object>();
 	}
 
 	@Override
@@ -27,7 +33,10 @@ public class ObservableListType implements UserCollectionType {
 
 	@Override
 	public PersistentCollection wrap(SessionImplementor session, Object collection) {
-		return new PersistentObservableList(session, (List< ? >) collection);
+		if(!(collection instanceof IObservableList))
+			throw new IllegalStateException("Expecting IObservableList but got a " + collection.getClass());
+
+		return new PersistentObservableList(session, (IObservableList< ? >) collection);
 	}
 
 	@Override
