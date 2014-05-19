@@ -1,5 +1,7 @@
 package to.etc.domui.hibernate.types;
 
+import java.util.*;
+
 import javax.annotation.*;
 
 import org.hibernate.collection.*;
@@ -30,9 +32,21 @@ public class PersistentObservableList<T> extends PersistentBag implements IObser
 		m_from = "Parameterless constructor called at " + StringTool.getLocation();
 	}
 
-	public PersistentObservableList(SessionImplementor session, IObservableList<T> list) {
-		super(session, list);
+	public PersistentObservableList(SessionImplementor session, List<T> coll) {
+		super(session);
 		m_from = "2 param constructor called at " + StringTool.getLocation();
+
+		if(coll instanceof IObservableList) {
+			bag = coll;
+		} else {
+			bag = new ObservableList();
+			Iterator iter = coll.iterator();
+			while(iter.hasNext()) {
+				bag.add(iter.next());
+			}
+		}
+		setInitialized();
+		setDirectlyAccessible(true);
 	}
 
 	public PersistentObservableList(SessionImplementor session) {

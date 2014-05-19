@@ -33,10 +33,10 @@ public class ObservableListType implements UserCollectionType {
 
 	@Override
 	public PersistentCollection wrap(SessionImplementor session, Object collection) {
-		if(!(collection instanceof IObservableList))
-			throw new IllegalStateException("Expecting IObservableList but got a " + collection.getClass());
-
-		return new PersistentObservableList(session, (IObservableList< ? >) collection);
+//		if(!(collection instanceof IObservableList))
+//			throw new IllegalStateException("Expecting IObservableList but got a " + collection.getClass());
+//
+		return new PersistentObservableList(session, (List) collection);
 	}
 
 	@Override
