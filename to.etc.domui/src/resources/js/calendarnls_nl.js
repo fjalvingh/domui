@@ -101,8 +101,12 @@ Calendar._TT["TIME_PART"] = "(Shift-)Klik of sleep om de waarde te veranderen";
 
 // date formats
 Calendar._TT["DEF_DATE_FORMAT"] = "%d-%m-%Y";
+Calendar._TT["DEF_TIME_FORMAT"] = "%H:%M";
 Calendar._TT["TT_DATE_FORMAT"] = "%a %e %b";
 Calendar._TT["DEF_DATETIME_FORMAT"] = "%d-%m-%Y %H:%M";
 
 Calendar._TT["WK"] = "wk";
 Calendar._TT["TIME"] = "Tijd:";
+
+Calendar._TT["DATE_TIME_SEPARATOR"] = " ";
+Calendar._TT["TIME_SEPARATOR"] = ":";
