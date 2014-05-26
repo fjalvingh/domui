@@ -2525,6 +2525,7 @@ public class StringTool {
 	 *
 	 * @return
 	 */
+	@Nonnull
 	static public String generateGUID() {
 		byte[] bin = new byte[18];
 		ByteArrayUtil.setInt(bin, 0, m_guidSeed); // Start with the seed

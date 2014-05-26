@@ -83,6 +83,7 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 			hc.setParent(tr);
 			Img selImg = new Img("THEME/dspcb-on.png");
 			selImg.setTitle(getSelectionColTitle() == null ? Msgs.BUNDLE.getString(Msgs.UI_MLUI_COL_TTL) : getSelectionColTitle());
+			selImg.setTestID("msdt_select_all");
 			hc.add(selImg);
 			getRowRenderer().renderHeader(this, hc);
 

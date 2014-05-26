@@ -42,6 +42,11 @@ public class RuntimeConversionException extends RuntimeException {
 		m_message = "Cannot convert object type " + (in == null ? "(null)" : in.getClass().getName()) + " to " + to + "( value=" + in + ")";
 	}
 
+	public RuntimeConversionException(Exception cause, Object in, String to) {
+		super(cause);
+		m_message = "Cannot convert object type " + (in == null ? "(null)" : in.getClass().getName()) + " to " + to + "( value=" + in + ")";
+	}
+
 	public RuntimeConversionException(String message) {
 		m_message = message;
 	}

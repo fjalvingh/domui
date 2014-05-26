@@ -295,7 +295,7 @@ public class RuntimeConversions {
 			try {
 				return Long.valueOf((String) in);
 			} catch(Exception x) {
-				x.printStackTrace();
+				throw new RuntimeConversionException(x, in, "Long");
 			}
 		}
 		throw new RuntimeConversionException(in, "Long");
