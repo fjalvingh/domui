@@ -5,7 +5,7 @@ import javax.annotation.*;
 import to.etc.webapp.query.*;
 
 /**
- * Base class for all {@link LogiContext} instance wrappers.
+ * Base class for all {@link LogiContext} class wrappers.
  *
  * @author <a href="mailto:imilovanovic@execom.eu">Igor Milovanovic</a>
  * Created on May 23, 2014
