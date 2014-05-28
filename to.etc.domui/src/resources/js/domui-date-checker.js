@@ -7,7 +7,7 @@ Acceptable input for times:
 
 For date time, only ' ' can be used for separating dates from time. 
 
-===== DATA FORMATS =====
+===== DATE FORMATS =====
 13/3/2012, 23/02/2012 -> dd/mm/yyyy format; adapted to 13-3-2012 and 23-2-2012 leading 0 may be omitted i.e. 02/03/2012 equals 2/3/2012
 13/3/13 -> dd/mm/yy format; adapted to 13-3-2013, year is considered to be 19yy if yy>29 or 20yy otherwise; leading 0 may be omitted
 13/3, 23/12 -> dd/mm format, adapted to 13-3-2012 and 23-12-2012, year is considered to be the current year; leading 0 may be omitted
@@ -62,7 +62,7 @@ $.extend(WebUI, {
 			} else if(numbereOfSpaces == 1){
 				res = WebUI.dateInputRepairDateTimeValue(val);
 			} else {
-				throw exception;
+				throw "date invalid";
 			}
 			c.value = res;
 		} catch (x) {
@@ -112,7 +112,7 @@ $.extend(WebUI, {
 	countSeparators : function(str) {
 		var count = 0;
 		for ( var i = str.length; --i >= 0;) {
-			if (WebUI.isSeparator(str.charAt(i)))
+			if (WebUI.isDateSeparator(str.charAt(i)))
 				count++;
 		}
 		return count;
@@ -121,8 +121,8 @@ $.extend(WebUI, {
 	/**
 	 * Returns T if char is anything else than letters and/or digits.
 	 */
-	isSeparator : function(c) {
-		return !((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9'));
+	isDateSeparator : function(c) {
+		return Calendar._TT["DATE_SEPARATOR"].indexOf(c) > -1;
 	},
 	
 	insertDateSeparators : function(str, fmt, separatorsCount) {
@@ -140,7 +140,7 @@ $.extend(WebUI, {
 		// dd-mm dd/mm case - ignore existing separator
 		if (separatorsCount == 1) {
 			var index = 0;
-			while (!WebUI.isSeparator(str.charAt(index))) {
+			while (!WebUI.isDateSeparator(str.charAt(index))) {
 				index++;
 				if (index > len - 1) {
 					throw "invalid state";

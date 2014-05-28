@@ -102,5 +102,6 @@ Calendar._TT["DEF_DATETIME_FORMAT"] = "%d-%m-%Y %H:%M";
 Calendar._TT["WK"] = "wk";
 Calendar._TT["TIME"] = "Tijd:";
 
-Calendar._TT["DATE_TIME_SEPARATOR"] = " ";
+Calendar._TT["DATE_SEPARATOR"] = "-/";
 Calendar._TT["TIME_SEPARATOR"] = ":";
+Calendar._TT["DATE_TIME_SEPARATOR"] = " ";
