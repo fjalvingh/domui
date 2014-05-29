@@ -53,8 +53,9 @@ $.extend(WebUI, {
 	
 		// -- Try to decode then reformat the date input
 		try {
+			val = val.trim();
 			//Remove multiple separators
-			val = val.replace(new RegExp("\\" +  Calendar._TT["DATE_TIME_SEPARATOR"] + "+"), Calendar._TT["DATE_TIME_SEPARATOR"]); 
+			val = val.replace(new RegExp("\\" +  Calendar._TT["DATE_TIME_SEPARATOR"] + "+"), Calendar._TT["DATE_TIME_SEPARATOR"]);
 			var numbereOfSpaces = val.split(Calendar._TT["DATE_TIME_SEPARATOR"]).length - 1;
 			var res;
 			if(numbereOfSpaces == 0){
