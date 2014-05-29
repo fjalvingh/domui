@@ -10,15 +10,13 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Feb 13, 2014
  */
-public abstract class BlBase<T extends IIdentifyable< ? >> implements IInstanceLogic<T> {
+public abstract class BlBase<T extends IIdentifyable< ? >> extends BcBase implements IInstanceLogic<T> {
+
 	@Nonnull
 	private final T m_instance;
 
-	@Nonnull
-	private final LogiContext m_lc;
-
 	public BlBase(@Nonnull LogiContext lc, @Nonnull T instance) {
-		m_lc = lc;
+		super(lc);
 		m_instance = instance;
 	}
 
@@ -28,14 +26,4 @@ public abstract class BlBase<T extends IIdentifyable< ? >> implements IInstanceL
 		return m_instance;
 	}
 
-	@Override
-	@Nonnull
-	public LogiContext lc() {
-		return m_lc;
-	}
-
-	@Nonnull
-	protected QDataContext dc() {
-		return m_lc.dc();
-	}
 }
