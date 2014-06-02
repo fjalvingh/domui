@@ -29,6 +29,8 @@ public class PomBuilder {
 
 	static private final String	PARAM_VERSION		= "-version=";
 
+	static private final String PARAM_SKIP_ROOT_POM = "-skipRootPom";
+
 	static private final String	PARENT_DIRECTORY		= "../";
 
 	File								m_rootPath;
@@ -63,10 +65,13 @@ public class PomBuilder {
 
 	private void	run(String[] args) throws Exception {
 		File prj = null;
+		boolean skipRootPom = false;
 		if(args.length >= 0) {
 			for(String arg : args) {
 				if(arg.startsWith(PARAM_VERSION)) {
 					m_version = arg.substring(PARAM_VERSION.length());
+				} else if(arg.startsWith(PARAM_SKIP_ROOT_POM)) {
+					skipRootPom = true;
 				} else {
 					if(prj != null) {
 						throw new IllegalStateException("prj is already defined! Invalid parameter encountered: " + arg);
@@ -95,31 +100,35 @@ public class PomBuilder {
 		}
 		generateProjectPoms(p); // And for vp itself
 
-		//-- Create root
-		File f = new File(m_rootPath, "pom.xml");
-		XmlWriter w = createMavenXml(f, "nl.itris.viewpoint", TOPNAME, TOPNAME, "pom");
+		if(skipRootPom) {
+			System.out.println("...skipping root porm.xml");
+		} else {
+			//-- Create root
+			File f = new File(m_rootPath, "pom.xml");
+			XmlWriter w = createMavenXml(f, "nl.itris.viewpoint", TOPNAME, TOPNAME, "pom");
 
-		//		w.tagendnl();				// plugin
-		//		w.tagendnl();				// plugins
+			//		w.tagendnl();				// plugin
+			//		w.tagendnl();				// plugins
 
-		//-- Skip SONAR modules
-		w.tag("properties");
-		//		w.tagfull("sonar.skippedModules", getSkippedSonarModules(p));
-		w.tagfull("sonar.includedModules", getSonarModules(p));
-		w.tagendnl();											// properties
+			//-- Skip SONAR modules
+			w.tag("properties");
+			//		w.tagfull("sonar.skippedModules", getSkippedSonarModules(p));
+			w.tagfull("sonar.includedModules", getSonarModules(p));
+			w.tagendnl();											// properties
 
 
-		w.tag("modules");
-		//		int count = 0;
-		for(Project sub : p.getFullDepList()) {
-			w.tagfull("module", sub.getRoot().getName());
-			//			if(sub.m_sourceList.size() > 0 && count++ > 4)
-			//				break;
+			w.tag("modules");
+			//		int count = 0;
+			for(Project sub : p.getFullDepList()) {
+				w.tagfull("module", sub.getRoot().getName());
+				//			if(sub.m_sourceList.size() > 0 && count++ > 4)
+				//				break;
+			}
+			w.tagfull("module", p.getRoot().getName());
+			w.tagendnl();				// Modules
+			w.tagendnl();
+			w.close();
 		}
-		w.tagfull("module", p.getRoot().getName());
-		w.tagendnl();				// Modules
-		w.tagendnl();
-		w.close();
 		System.out.println("done");
 	}
 
