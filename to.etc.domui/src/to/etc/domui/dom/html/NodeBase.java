@@ -1775,13 +1775,12 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	}
 
 	/**
-	 * EXPERIMENTAL
 	 * Method can be used to stretch height of element to take all available free space in parent container.
 	 * <UL>
-	 * <LI>NOTE: In order to stretchHeight can work, parent container needs to have height defined in some way (works out of box for all FloatingWindow based containers).</LI>
-	 * <LI>In case that stretched node needs to be added directly in (non floating) page, to define page height as 100%, use following snippet inline in page code:
-	 * <BR/><CODE>appendCreateJS("$(document).ready(function() {document.body.parentNode.style.height = '100%'; document.body.style.height = '100%';WebUI.doCustomUpdates();});");</CODE>
-	 * <BR/>Note that triggering of stretch code evaluation needs also to be added inline.
+	 * <LI>NOTE: in order to stretchHeight can work, parent container needs to have height defined in some way (works out of box for all FloatingWindow based containers).</LI>
+	 * <LI>In case that stretched node needs to be added directly in (non floating) page, to define page as stretch height applicable, call {@link UrlPage#fixStretchBody()} on it.</LI>
+	 * <LI>In case of page resizing stretch code evaluation is triggered automatically.</LI>
+	 * <LI>NOTE: if you need to trigger it due to page internal layout changes, you need to add inline javascript call to start resizing by {@link Div#getCustomUpdatesCallJS()} .
 	 * </LI>
 	 */
 	public void setStretchHeight(boolean value) {
