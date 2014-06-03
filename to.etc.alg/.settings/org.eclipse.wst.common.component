@@ -2,8 +2,5 @@
 <wb-module deploy-name="to.etc.alg">
         <wb-resource deploy-path="/" source-path="/src"/>
         <wb-resource deploy-path="/" source-path="/test"/>
-        <dependent-module archiveName="to.etc.logger.jar" deploy-path="/" handle="module:/resource/to.etc.logger/to.etc.logger">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
 </wb-module>
 </project-modules>

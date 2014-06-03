@@ -3,7 +3,6 @@
 	<name>to.etc.alg</name>
 	<comment>@key 32303036313031382D3130303020746F2E6574632E616C672F6A616C </comment>
 	<projects>
-		<project>to.etc.logger</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
