@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry exported="true" kind="lib" path="lib/slf4j-api-1.5.10.jar">
+	<classpathentry exported="true" kind="lib" path="lib/slf4j-api-1.5.10.jar" sourcepath="lib/slf4j-api-1.5.10-sources.jar">
 		<attributes>
 			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
 		</attributes>
@@ -11,5 +11,10 @@
 	<classpathentry kind="lib" path="lib/slf4j-ext-1.5.10.jar"/>
 	<classpathentry kind="lib" path="lib/logback-access-0.9.18.jar"/>
 	<classpathentry kind="lib" path="lib/logback-core-0.9.18.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/etclogger-1.0.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
