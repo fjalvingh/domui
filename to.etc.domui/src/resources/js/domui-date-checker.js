@@ -1,8 +1,13 @@
 /** WebUI helper namespace 
-Acceptable input: 
+Acceptable input for dates: 
 '/', '.' or '-' are accepted as separators; for brevity only '/' formats will be listed below:
 
+Acceptable input for times:
+':', '-', are accepted as separators;
 
+For date time, only ' ' can be used for separating dates from time. 
+
+===== DATE FORMATS =====
 13/3/2012, 23/02/2012 -> dd/mm/yyyy format; adapted to 13-3-2012 and 23-2-2012 leading 0 may be omitted i.e. 02/03/2012 equals 2/3/2012
 13/3/13 -> dd/mm/yy format; adapted to 13-3-2013, year is considered to be 19yy if yy>29 or 20yy otherwise; leading 0 may be omitted
 13/3, 23/12 -> dd/mm format, adapted to 13-3-2012 and 23-12-2012, year is considered to be the current year; leading 0 may be omitted
@@ -10,13 +15,21 @@ Acceptable input:
 05022013 -> ddmmyyyy format - adapted to 5-2-2013; leading 0 may NOT be omitted
 050213 -> ddmmyy format, adapted to 5-2-2013, year is considered to be 19yy if yy>29 or 20yy otherwise; leading 0 may NOT be omitted
 0502 -> ddmmyy format, adapted to 5-2-2012, year is considered to be the current year; leading 0 may NOT be omitted
+
+
+===== TIME FORMATS =====
+09:05	-> HH:MM format - standard time format. It'll not be adapted.
+9:05	-> H:MM format, adapted to 09:05; you always have to specify 2 digit minutes, but leading 0-s for hours may be omitted
+
+0905	-> HHMM format, adapted to 09:05.
+905		-> HMM format, adapted to 09:05; you always have to specify 2 digit minutes, but leading 0-s for hours may be omitted
 */
 var WebUI;
 if(WebUI === undefined)
     WebUI = new Object();
 
 $.extend(WebUI, {
-			
+	
 	/** *** DateInput control code *** */
 	dateInputCheck : function(evt) {
 		if (!evt) {
@@ -39,17 +52,59 @@ $.extend(WebUI, {
 		Calendar.__init();
 	
 		// -- Try to decode then reformat the date input
-		var fmt = Calendar._TT["DEF_DATE_FORMAT"];
 		try {
-			var separatorsCount = WebUI.countSeparators(val)
-			if (separatorsCount < 2) {
-				val = WebUI.insertDateSeparators(val, fmt, separatorsCount);
+			val = val.trim();
+			//Remove multiple separators
+			val = val.replace(new RegExp("\\" +  Calendar._TT["DATE_TIME_SEPARATOR"] + "+"), Calendar._TT["DATE_TIME_SEPARATOR"]);
+			var numbereOfSpaces = val.split(Calendar._TT["DATE_TIME_SEPARATOR"]).length - 1;
+			var res;
+			if(numbereOfSpaces == 0){
+				res = WebUI.dateInputRepairDateValue(val);
+			} else if(numbereOfSpaces == 1){
+				res = WebUI.dateInputRepairDateTimeValue(val);
+			} else {
+				throw "date invalid";
 			}
-			var res = Date.parseDate(val, fmt);
-			c.value = res.print(fmt);
+			c.value = res;
 		} catch (x) {
 			alert(Calendar._TT["INVALID"]);
 		}
+	},
+	
+	
+	dateInputRepairDateValue : function(val) {
+		var fmt = Calendar._TT["DEF_DATE_FORMAT"];
+		var separatorsCount = WebUI.countSeparators(val);
+		if (separatorsCount < 2) {
+			val = WebUI.insertDateSeparators(val, fmt, separatorsCount);
+		}
+		var res = Date.parseDate(val, fmt);
+		return res.print(fmt);
+	},
+	
+	dateInputRepairTimeValue : function(val) {
+		var fmt = Calendar._TT["DEF_TIME_FORMAT"];
+		var timeSeparator = Calendar._TT["TIME_SEPARATOR"];
+		if(val.indexOf(timeSeparator) < 0){
+			//add time separator before specified minutes
+			var placeForSeparator = val.length - 2;
+			val = [val.slice(0, placeForSeparator), timeSeparator, val.slice(placeForSeparator)].join('');
+		}
+		var dummyDate = new Date();
+		dummyDate.setHours(val.split(timeSeparator)[0], val.split(timeSeparator)[1], 0, 0);
+		return dummyDate.print(fmt);
+	},
+	
+	dateInputRepairDateTimeValue : function(val) {
+		var fmt = Calendar._TT["DEF_DATETIME_FORMAT"];
+		
+		var parts = val.split(Calendar._TT["DATE_TIME_SEPARATOR"]);
+		var datePart = WebUI.dateInputRepairDateValue(parts[0]);
+		var timePart = WebUI.dateInputRepairTimeValue(parts[1]);
+		val = datePart + Calendar._TT["DATE_TIME_SEPARATOR"] + timePart;
+		
+		var res = Date.parseDate(val, fmt);
+		return res.print(fmt);
 	},
 	
 	/**
@@ -58,7 +113,7 @@ $.extend(WebUI, {
 	countSeparators : function(str) {
 		var count = 0;
 		for ( var i = str.length; --i >= 0;) {
-			if (WebUI.isSeparator(str.charAt(i)))
+			if (WebUI.isDateSeparator(str.charAt(i)))
 				count++;
 		}
 		return count;
@@ -67,8 +122,8 @@ $.extend(WebUI, {
 	/**
 	 * Returns T if char is anything else than letters and/or digits.
 	 */
-	isSeparator : function(c) {
-		return !((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9'));
+	isDateSeparator : function(c) {
+		return Calendar._TT["DATE_SEPARATOR"].indexOf(c) > -1;
 	},
 	
 	insertDateSeparators : function(str, fmt, separatorsCount) {
@@ -86,7 +141,7 @@ $.extend(WebUI, {
 		// dd-mm dd/mm case - ignore existing separator
 		if (separatorsCount == 1) {
 			var index = 0;
-			while (!WebUI.isSeparator(str.charAt(index))) {
+			while (!WebUI.isDateSeparator(str.charAt(index))) {
 				index++;
 				if (index > len - 1) {
 					throw "invalid state";

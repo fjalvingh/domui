@@ -10,9 +10,7 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Feb 13, 2014
  */
-public interface IInstanceLogic<T extends IIdentifyable< ? >> extends ILogic {
-	@Nonnull
-	public LogiContext lc();
+public interface IInstanceLogic<T extends IIdentifyable< ? >> extends IClassLogic {
 
 	@Nonnull
 	public T getInstance();
