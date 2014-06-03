@@ -123,8 +123,13 @@ Calendar._TT["TIME_PART"] = "(Shift-)Click or drag to change value";
 
 // date formats
 Calendar._TT["DEF_DATE_FORMAT"] = "%Y-%m-%d";
+Calendar._TT["DEF_TIME_FORMAT"] = "%H:%M";
 Calendar._TT["TT_DATE_FORMAT"] = "%a, %b %e";
 Calendar._TT["DEF_DATETIME_FORMAT"] = "%Y-%m-%d %H:%M";
 
 Calendar._TT["WK"] = "wk";
 Calendar._TT["TIME"] = "Time:";
+
+Calendar._TT["DATE_SEPARATOR"] = "-/";
+Calendar._TT["TIME_SEPARATOR"] = ":";
+Calendar._TT["DATE_TIME_SEPARATOR"] = " ";

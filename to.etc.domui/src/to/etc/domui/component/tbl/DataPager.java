@@ -90,9 +90,12 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		Div d = new Div();
 		add(d);
 		d.setFloat(FloatType.RIGHT);
+		Div txtPnl = new Div();
+		txtPnl.setTestID("pager results label");
 		m_txt = new TextNode();
 		d.add(new VerticalSpacer(10));
-		d.add(m_txt);
+		txtPnl.add(m_txt);
+		d.add(txtPnl);
 		m_textDiv = d;
 
 		m_buttonDiv = new Div();

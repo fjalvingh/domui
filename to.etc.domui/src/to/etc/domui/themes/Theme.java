@@ -24,6 +24,8 @@ public class Theme {
 
 	static public final String BTN_CLEARLOOKUP = "THEME/btnClearLookup.png";
 
+	static public final String BTN_CONFIRM = "THEME/btnConfirm.png";
+
 	static public final String BTN_POPUPLOOKUP = "THEME/btn-popuplookup.png";
 
 	static public final String BTN_SAVE = "THEME/btnSave.png";
