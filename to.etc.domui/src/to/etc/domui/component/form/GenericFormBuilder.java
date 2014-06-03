@@ -57,6 +57,10 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 
 	abstract public void addContent(NodeBase label, NodeBase[] control, boolean editable);
 
+	public void addContent(@Nonnull NodeBase item) {
+		addContent((NodeBase) null, new NodeBase[]{item}, false);
+	}
+
 	/**
 	 * Handle placement of a list of property names, all obeying the current mode in effect.
 	 * @param editable
