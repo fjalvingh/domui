@@ -11,5 +11,6 @@
 	</classpathentry>
 	<classpathentry kind="src" path="/bin-slf4j"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/bin-junit-4.11"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/to.etc.logger"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
