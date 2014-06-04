@@ -104,7 +104,7 @@ public class UrlPage extends Div implements ILogiEventListener {
 	protected void fixStretchBody() {
 		//Since html and body are not by default 100% anymore we need to make it like this here in order to enable stretch to work.
 		//We really need this layout support in domui!).
-		appendCreateJS("$(document).ready(function() {document.body.parentNode.style.height = '100%'; document.body.style.height = '100%'; " + getCustomUpdatesCallJS() + "});");
+		appendCreateJS("$(document).ready(function() {$('body').addClass('ui-stretch-body');$('html').height('100%'); " + getCustomUpdatesCallJS() + "});");
 	}
 
 	/**

@@ -20,5 +20,6 @@
 			<attribute name="owner.project.facets" value="java"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="src" path="/to.etc.logger"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

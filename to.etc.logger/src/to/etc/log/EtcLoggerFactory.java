@@ -16,7 +16,6 @@ import org.xml.sax.*;
 
 import to.etc.log.event.*;
 import to.etc.log.handler.*;
-import to.etc.util.*;
 
 /**
  * Implements logger factory. Encapsulates definitions and configuration of loggers used.
@@ -130,7 +129,7 @@ public class EtcLoggerFactory implements ILoggerFactory {
 	private synchronized void initializeBuiltInLoggerConfig() {
 		String configXml;
 		try {
-			configXml = FileTool.readResourceAsString(this.getClass(), CONFIG_FILENAME, "utf-8");
+			configXml = LogUtil.readResourceAsString(this.getClass(), CONFIG_FILENAME, "utf-8");
 			loadConfigFromXml(configXml);
 			System.err.println(this.getClass().getName() + " is initialized by loading built-in logger configuration as " + this.getClass().getName() + " resource " + CONFIG_FILENAME);
 		} catch(Exception e) {
@@ -157,7 +156,7 @@ public class EtcLoggerFactory implements ILoggerFactory {
 		File conf = new File(configLocation, CONFIG_FILENAME);
 		String configXml = null;
 		if(conf.exists()) {
-			configXml = FileTool.readFileAsString(conf, "utf-8");
+			configXml = LogUtil.readFileAsString(conf, "utf-8");
 			if(tryLoadConfigFromXml(configLocation, configXml)) {
 				return;
 			}
@@ -213,7 +212,7 @@ public class EtcLoggerFactory implements ILoggerFactory {
 		String configXml = null;
 		if(conf.exists()) {
 			//try 1 : try persisted config
-			configXml = FileTool.readFileAsString(conf, "utf-8");
+			configXml = LogUtil.readFileAsString(conf, "utf-8");
 			if(tryLoadConfigFromXml(configLocation, configXml)) {
 				System.out.println(this.getClass().getName() + " is initialized by loading persisted logger configuration.");
 				return;
@@ -237,7 +236,7 @@ public class EtcLoggerFactory implements ILoggerFactory {
 			Document doc = db.parse(new InputSource(sr));
 			loadConfig(doc);
 		} finally {
-			FileTool.closeAll(sr);
+			sr.close();
 		}
 	}
 

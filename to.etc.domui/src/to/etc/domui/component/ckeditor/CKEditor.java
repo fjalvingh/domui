@@ -310,4 +310,11 @@ public class CKEditor extends TextArea {
 		appendJavascript("WebUI.unregisterCkEditorId('" + getActualID() + "');");
 	}
 
+	/**
+	 * Needed in cases when page layout is changed without resizing browser window.
+	 */
+	public void appendfixSizeJS() {
+		appendJavascript("WebUI.CKeditor_OnComplete('" + getActualID() + "');");
+	}
+
 }
