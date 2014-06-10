@@ -58,6 +58,16 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	abstract public void addContent(NodeBase label, NodeBase[] control, boolean editable);
 
 	/**
+	 * Add any kind of content into the next "control area". The content can be anything but none of it is "maintained"
+	 * by the formbuilder. Adding the content can be combined with the usual layout methods to force explicit placement
+	 * of the item added here.
+	 * @param item
+	 */
+	public void addContent(@Nonnull NodeBase item) {
+		addContent((NodeBase) null, new NodeBase[]{item}, false);
+	}
+
+	/**
 	 * Handle placement of a list of property names, all obeying the current mode in effect.
 	 * @param editable
 	 * @param names

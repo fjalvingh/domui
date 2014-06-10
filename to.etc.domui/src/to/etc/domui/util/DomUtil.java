@@ -1929,7 +1929,8 @@ final public class DomUtil {
 	private static void calcNodeText(@Nonnull StringBuilder sb, @Nonnull NodeContainer nc) {
 		for(NodeBase nb : nc) {
 			if(nb instanceof TextNode) {
-				if(!appendPartial(sb, ((TextNode) nb).getText()))
+				String text = ((TextNode) nb).getText();
+				if(text != null && !appendPartial(sb, text))
 					return;
 			} else {
 				if(nb instanceof NodeContainer) {

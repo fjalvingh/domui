@@ -88,7 +88,7 @@ public class JsonTypeRegistry {
 		m_classMap.put(clz, ct);
 
 		List<PropertyInfo> props = ClassUtil.calculateProperties(clz);
-		Map<String, PropertyMapping> res = new HashMap<String, PropertyMapping>();
+		Map<String, PropertyMapping> res = new TreeMap<String, PropertyMapping>();
 		for(PropertyInfo pi : props) {
 			if(IGNORESET.contains(pi.getName()))
 				continue;

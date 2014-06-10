@@ -5,7 +5,6 @@ import java.util.*;
 
 import org.junit.*;
 
-import to.etc.json.*;
 import to.etc.util.*;
 
 public class TestJson {
@@ -45,7 +44,7 @@ public class TestJson {
 
 	@Test
 	public void testRender2() throws Exception {
-		String in = "{list2:[],number2:777,number1:666,onoff:false,list1:[],string1:'World',next:{list2:[],number2:456,number1:123,onoff:false,list1:[],string1:'Hello'}}";
+		String in = "{list1:[],list2:[],next:{list1:[],list2:[],number1:123,number2:456,onoff:false,string1:'Hello'},number1:666,number2:777,onoff:false,string1:'World'}";
 		StringReader sr = new StringReader(in);
 		JsonData1 data = JSON.decode(JsonData1.class, sr);
 

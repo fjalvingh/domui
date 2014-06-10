@@ -621,6 +621,10 @@ div.ui-asc div {
 	padding: 0px;
 	margin: 0px;
 }
+/* We to ensure that body is taking whole page and we have to neutralize negative margins */
+body.ui-stretch-body {
+	height: calc(100% - 2 * <%= margins_main %>);
+}
 
 /*** Display data table ***/
 .ui-dd-table {
@@ -3046,7 +3050,6 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 }
 
 .ui-dct-item {
-	padding: 3px;
 	border: 1px solid transparent;
 }
 

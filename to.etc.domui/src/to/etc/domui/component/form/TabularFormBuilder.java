@@ -85,10 +85,10 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 	/** For columnar mode this is the "current column" we're filling in */
 	private int m_colCol;
 
-	/** For append-into, this is the separator to use. When null it defaults to a nbsp. */
+	/** For append-into, this is the separator to use. */
 	private String m_appendIntoSeparator;
 
-	private String m_appendIntoDefaultSeparator = "\u00a0";
+	private String m_appendIntoDefaultSeparator;
 
 	private enum Mode {
 		/** Add each label/input pair in their own row, two cells. */

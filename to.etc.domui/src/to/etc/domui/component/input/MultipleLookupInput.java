@@ -119,6 +119,8 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>> {
 
 	private SmallImgButton m_clearButton;
 
+	private Stack<Integer> m_updateStack = new Stack<Integer>();
+
 	/**
 	 * This renderer represents default renderer that is used for items in {@link MultipleLookupInput} control.
 	 */
@@ -163,10 +165,11 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>> {
 	};
 
 	private void addSelection() throws Exception {
+		startUpdate();
 		for(T item : m_lookupInput.getSelectedItems()) {
 			addSelection(item);
 		}
-		updateClearButtonState();
+		endUpdate();
 	}
 
 	public MultipleLookupInput(@Nonnull Class<T> clazz, String... renderColumns) {
@@ -183,8 +186,8 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>> {
 
 						@Override
 						public void clicked(@Nonnull NodeBase clickednode) throws Exception {
-							addSelection();
 							m_lookupInput.closePopup();
+							addSelection();
 						}
 					});
 					lf.addButtonItem(confirm, 800);
@@ -206,14 +209,11 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>> {
 	}
 
 	protected void clearSelection(Object object) throws Exception {
+		startUpdate();
 		m_selectionList.clear();
 		m_itemNodes.clear();
 		m_selectionContainer.removeAllChildren();
-		updateClearButtonState();
-		IValueChanged<MultipleLookupInput< ? >> ovc = (IValueChanged<MultipleLookupInput< ? >>) getOnValueChanged();
-		if(ovc != null) {
-			ovc.onValueChanged(this);
-		}
+		endUpdate();
 	}
 
 	private void addClearButton() throws Exception {
@@ -262,11 +262,40 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>> {
 			m_selectionList = new ArrayList<T>();
 		}
 		if(!m_selectionList.contains(item)) {
+			startUpdate();
 			m_selectionList.add(item);
 			final Span itemNode = createItemNode(item);
 			m_selectionContainer.add(itemNode);
 			m_itemNodes.put(item, itemNode);
+			endUpdate();
+		}
+	}
+
+	/**
+	 * Call once you want to mark start of selection update. Follow with endUpdate once whole change is done in order to trigger UI needed changes.
+	 */
+	public void startUpdate() {
+		m_updateStack.push(Integer.valueOf(m_selectionList.size()));
+	}
+
+	/**
+	 * Call to mark end selection update changes. See also startUpdate.
+	 * @throws Exception
+	 */
+	public void endUpdate() throws Exception {
+		if(m_updateStack.isEmpty()) {
+			throw new IllegalStateException("Update stack can not be empty!");
+		}
+		Integer val = m_updateStack.pop();
+		if(m_updateStack.isEmpty()) {
 			updateClearButtonState();
+			int currentSize = m_selectionList.size();
+			if(currentSize != val.intValue()) {
+				IValueChanged<MultipleLookupInput< ? >> ovc = (IValueChanged<MultipleLookupInput< ? >>) getOnValueChanged();
+				if(ovc != null) {
+					ovc.onValueChanged(MultipleLookupInput.this);
+				}
+			}
 		}
 	}
 
@@ -477,15 +506,11 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>> {
 	 * @throws Exception
 	 */
 	public void removeItem(final T item) throws Exception {
+		startUpdate();
 		NodeBase itemNode = m_itemNodes.get(item);
 		itemNode.remove();
 		m_selectionList.remove(item);
-		if(getOnValueChanged() != null) {
-			//FIXME: from some reason we can't pass items here -> some buggy generics issue is shown if we specifiy item as argumen!?
-			//getOnValueChanged().onValueChanged(item);
-			((IValueChanged<MultipleLookupInput<T>>) getOnValueChanged()).onValueChanged(MultipleLookupInput.this);
-		}
-		updateClearButtonState();
+		endUpdate();
 	}
 
 	public void setSearchImmediately(boolean searchImmediately) {
