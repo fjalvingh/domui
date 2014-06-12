@@ -84,6 +84,19 @@ public class FormData<T> {
 	}
 
 	/**
+	 *
+	 * @param c
+	 */
+	private void bindOptionals(@Nullable IControl< ? > c) throws Exception {
+		if(null == c)
+			return;
+		Object diso = builder().getDisabledPropertyInstance();
+		if(null != diso) {
+			c.bind("disabled").to(diso, builder().getDisabledProperty());
+		}
+	}
+
+	/**
 	 * Find a property relative to the current input class.
 	 *
 	 * @param name
@@ -181,6 +194,7 @@ public class FormData<T> {
 		}
 
 		r.getFormControl().bind().to(getModel().getValue(), pmm);
+		bindOptionals(r.getFormControl());
 
 		//		getBindings().add(new SimpleComponentPropertyBinding<C>(getModel(), pmm, (IControl<C>) r.getFormControl()));
 		return (IControl<C>) r.getFormControl();
@@ -269,6 +283,7 @@ public class FormData<T> {
 		if(label != null)
 			ctl.setErrorLocation(label);
 		ctl.bind().to(getModel().getValue(), pmm);
+		bindOptionals(ctl);
 		return ctl;
 	}
 
@@ -280,6 +295,7 @@ public class FormData<T> {
 		if(label != null)
 			ctl.setErrorLocation(label);
 		ctl.bind().to(getModel().getValue(), pmm);
+		bindOptionals(ctl);
 		return ctl;
 	}
 
@@ -297,6 +313,7 @@ public class FormData<T> {
 		if(label != null)
 			ctl.setErrorLocation(label);
 		ctl.bind().to(getModel().getValue(), pmm);
+		bindOptionals(ctl);
 		return ctl;
 	}
 

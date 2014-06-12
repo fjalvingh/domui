@@ -1804,7 +1804,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 	 * @param nw
 	 */
 	protected <T> void fireModified(@Nonnull String propertyName, T old, T nw) {
-		if(this instanceof IBindable) {
+		//-- jal 2014/06/12 If the control is not yet attached to the page -> we cannot bind...
+		if(this instanceof IBindable && isAttached()) {
 			IBindable b = (IBindable) this;
 			List<SimpleBinder> bindingList = b.getBindingList();
 			if(null != bindingList) {
