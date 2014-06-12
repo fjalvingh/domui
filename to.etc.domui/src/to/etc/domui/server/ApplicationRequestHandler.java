@@ -1084,7 +1084,9 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			} else {
 				wcomp.componentHandleWebAction(ctx, action);
 			}
-			page.modelToControl();
+			ConversationContext conversation = page.internalGetConversation();
+			if(null != conversation && conversation.isValid())
+				page.modelToControl();
 		} catch(ValidationException x) {
 			/*
 			 * When an action handler failed because it accessed a component which has a validation error
@@ -1107,7 +1109,12 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 					return;
 				}
 			}
-			page.modelToControl();
+			try {
+				page.modelToControl();
+			} catch(Exception xxx) {
+				System.out.println("Double exception on modelToControl: " + xxx);
+				xxx.printStackTrace();
+			}
 
 			IExceptionListener xl = ctx.getApplication().findExceptionListenerFor(x);
 			if(xl == null) // No handler?
