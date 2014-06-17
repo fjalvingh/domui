@@ -774,19 +774,21 @@ final public class DomUtil {
 	}
 
 	static public void dumpException(final Exception x) {
-		x.printStackTrace();
+		if(ExceptionClassifier.isSevereException(x)) {
+			x.printStackTrace();
 
-		Throwable next = null;
-		for(Throwable curr = x; curr != null; curr = next) {
-			next = curr.getCause();
-			if(next == curr)
-				next = null;
+			Throwable next = null;
+			for(Throwable curr = x; curr != null; curr = next) {
+				next = curr.getCause();
+				if(next == curr)
+					next = null;
 
-			if(curr instanceof SQLException) {
-				SQLException sx = (SQLException) curr;
-				while(sx.getNextException() != null) {
-					sx = sx.getNextException();
-					System.err.println("SQL NextException: " + sx);
+				if(curr instanceof SQLException) {
+					SQLException sx = (SQLException) curr;
+					while(sx.getNextException() != null) {
+						sx = sx.getNextException();
+						System.err.println("SQL NextException: " + sx);
+					}
 				}
 			}
 		}
