@@ -2896,7 +2896,7 @@ $.extend(WebUI, {
 															// ffox "print
 															// only once"
 															// bug
-		if($(url)){
+		if (url.trim() !== "") {
 			$(div).html('<iframe id="' + frmname + '" name="' + frmname + '" src="' + url + '">');
 		} else {
 			//well, this is simple element printing, so we have some size limitations
