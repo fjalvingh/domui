@@ -109,6 +109,10 @@ public class InternalResourcePart implements IBufferedPartFactory {
 
 	@Override
 	public @Nonnull Object decodeKey(@Nonnull String rurl, @Nonnull IExtendedParameterInfo param) throws Exception {
+		if("".equals(FileTool.getFileExtension(rurl))) {
+			throw new ForbiddenException(rurl);
+		}
+
 		//-- Is this an URL containing an nls'ed resource?
 		Locale loc = null;
 		int pos = rurl.lastIndexOf(".nls.");

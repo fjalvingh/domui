@@ -120,7 +120,9 @@ abstract public class AbstractContextMaker implements IContextMaker {
 			rh.handleRequest(ctx);
 			ctx.flush();
 		} catch(ThingyNotFoundException x) {
-			requestResponse.getResponse().sendError(404, x.getMessage());
+			requestResponse.getResponse().sendError(HttpServletResponse.SC_NOT_FOUND, x.getMessage());
+		} catch(ForbiddenException x) {
+			requestResponse.getResponse().sendError(HttpServletResponse.SC_FORBIDDEN, x.getMessage());
 		} catch(Exception xxx) {
 			xx = xxx;
 			throw xxx;

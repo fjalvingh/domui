@@ -28,7 +28,6 @@ import java.io.*;
 import java.util.*;
 
 import javax.annotation.*;
-import javax.servlet.http.*;
 
 import to.etc.domui.server.*;
 import to.etc.domui.trouble.*;
@@ -220,26 +219,22 @@ public class PartRequestHandler implements IFilterRequestHandler {
 	 * @throws Exception
 	 */
 	public void generate(final IBufferedPartFactory pf, final RequestContextImpl ctx, final String url) throws Exception {
-		if("".equals(FileTool.getFileExtension(url))) {
-			ctx.getRequestResponse().sendError(HttpServletResponse.SC_FORBIDDEN, "Request forbidden for directory " + url);
-		} else {
-			CachedPart cp = getCachedInstance(pf, ctx, url);
+		CachedPart cp = getCachedInstance(pf, ctx, url);
 
-			//-- Generate the part
-			OutputStream os = null;
-			if(cp.m_cacheTime > 0 && m_allowExpires) {
-				ctx.getRequestResponse().setExpiry(cp.getCacheTime());
-			}
+		//-- Generate the part
+		OutputStream os = null;
+		if(cp.m_cacheTime > 0 && m_allowExpires) {
+			ctx.getRequestResponse().setExpiry(cp.getCacheTime());
+		}
+		try {
+			os = ctx.getRequestResponse().getOutputStream(cp.getContentType(), null, cp.getSize());
+			for(byte[] data : cp.getData())
+				os.write(data);
+		} finally {
 			try {
-				os = ctx.getRequestResponse().getOutputStream(cp.getContentType(), null, cp.getSize());
-				for(byte[] data : cp.getData())
-					os.write(data);
-			} finally {
-				try {
-					if(os != null)
-						os.close();
-				} catch(Exception x) {}
-			}
+				if(os != null)
+					os.close();
+			} catch(Exception x) {}
 		}
 	}
 
