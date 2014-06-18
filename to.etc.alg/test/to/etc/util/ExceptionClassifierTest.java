@@ -21,6 +21,9 @@ public class ExceptionClassifierTest {
 
 		Assert.assertFalse("This is a known unsevere exception!", ExceptionClassifier.isSevereException(new SQLException("ORA-02292: integrity constraint")));
 		Assert.assertFalse("This is a known unsevere exception!", ExceptionClassifier.isSevereException(new SQLException("ORA-20000: Gegevens zijn gewijzigd door een andere gebruiker")));
+		//Assert.assertFalse("This is a known unsevere exception!", ExceptionClassifier.isSevereException(new SQLException("ClientAbortException:  java.net.SocketException: Connection reset")));
+		Assert.assertFalse("This is a known unsevere exception!", ExceptionClassifier.isSevereException(new SQLException("ORA-20023: tda_general.check_beperking: Combinatie <B>Elementcode:</B>:")));
+		Assert.assertFalse("This is a known unsevere exception!", ExceptionClassifier.isSevereException(new Exception("De PDA is niet toegewezen aan een persoon")));
 	}
 
 	@Test
