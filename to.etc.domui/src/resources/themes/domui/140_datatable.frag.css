@@ -102,6 +102,7 @@ div.ui-sortable {
 
 .ui-dt {
 	font-size: <%= data_tbl_font_size %>;
+	height: 100%;
 }
 
 .ui-dt-separator {
