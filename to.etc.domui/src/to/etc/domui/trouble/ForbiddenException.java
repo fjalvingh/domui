@@ -27,8 +27,8 @@ package to.etc.domui.trouble;
 /**
  * Causes a 403 error to be sent back to the browser.
  *
- * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * Created on Jun 4, 2008
+ * @author <a href="mailto:wouter.van.vliet@itris.nl">Wouter van Vliet</a>
+ * Created on Jun 18, 2014
  */
 public class ForbiddenException extends RuntimeException {
 	private String m_details;
