@@ -3083,7 +3083,20 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 }
 
 .ui-cbb-pu {
+	position: absolute;
+	max-height: 400px;
+	max-width: 800px;
+	min-width: 100%;
+	overflow-y: auto;
+	overflow-x: hidden;
+	background: white;
+	border: 1px solid #ccc;
+	border-top: none;
+	border-radius: 2px;
+	box-shadow: 0 0 3px #ccc;
+	z-index: 10;
 	display: none;
+	padding: 5px;
 }
 
 

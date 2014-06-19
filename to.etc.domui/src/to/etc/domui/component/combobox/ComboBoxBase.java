@@ -96,11 +96,11 @@ public class ComboBoxBase<T, V> extends Div implements IControl<V> {
 	@Override
 	public void createContent() throws Exception {
 		setCssClass("ui-cbb");
+		Span span = m_valueNode = new Span();
+		add(span);
 		Div d = m_popupDiv = new Div();
 		d.setCssClass("ui-cbb-pu");
 		add(d);
-		Span span = m_valueNode = new Span();
-		add(span);
 
 		//-- Append shtuff to the combo
 		List<T> list = getData();
@@ -156,6 +156,7 @@ public class ComboBoxBase<T, V> extends Div implements IControl<V> {
 		Div a = m_arrowBox = new Div();
 		add(a);
 		a.setCssClass("ui-cbb-ab");
+		appendCreateJS("new WebUI.comboBox('" + getActualID() + "');");
 
 	}
 
