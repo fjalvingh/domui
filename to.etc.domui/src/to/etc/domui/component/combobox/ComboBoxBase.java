@@ -59,6 +59,10 @@ public class ComboBoxBase<T, V> extends Div implements IControl<V> {
 
 	private Div m_popupDiv;
 
+	private Span m_valueNode;
+
+	private Div m_arrowBox;
+
 	public ComboBoxBase() {}
 
 	public ComboBoxBase(@Nonnull IListMaker<T> maker) {
@@ -95,6 +99,8 @@ public class ComboBoxBase<T, V> extends Div implements IControl<V> {
 		Div d = m_popupDiv = new Div();
 		d.setCssClass("ui-cbb-pu");
 		add(d);
+		Span span = m_valueNode = new Span();
+		add(span);
 
 		//-- Append shtuff to the combo
 		List<T> list = getData();
@@ -121,6 +127,9 @@ public class ComboBoxBase<T, V> extends Div implements IControl<V> {
 					o.setSelected(eq);
 					internalSetSelectedIndex(ix);
 					isvalidselection = true;
+
+					//-- render content value
+					renderOptionLabel(span, o);
 				}
 			}
 			ix++;
@@ -140,7 +149,14 @@ public class ComboBoxBase<T, V> extends Div implements IControl<V> {
 				internalSetSelectedIndex(0);
 			} else
 				internalSetSelectedIndex(getSelectedIndex() + 1); // Increment selected index thingy
+
+			//-- render content value
+			renderOptionLabel(span, o);
 		}
+		Div a = m_arrowBox = new Div();
+		add(a);
+		a.setCssClass("ui-cbb-ab");
+
 	}
 
 	private void internalSetSelectedIndex(int ix) {
@@ -321,6 +337,12 @@ public class ComboBoxBase<T, V> extends Div implements IControl<V> {
 		if(m_actualContentRenderer == null)
 			m_actualContentRenderer = calculateContentRenderer(o.getValue());
 		m_actualContentRenderer.renderNodeContent(this, o, o.getValue(), this);
+	}
+
+	protected void renderOptionLabel(@Nonnull NodeContainer into, @Nonnull ComboOption<T> o) throws Exception {
+		if(m_actualContentRenderer == null)
+			m_actualContentRenderer = calculateContentRenderer(o.getValue());
+		m_actualContentRenderer.renderNodeContent(this, into, o.getValue(), this);
 	}
 
 	/*--------------------------------------------------------------*/
