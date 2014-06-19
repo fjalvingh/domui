@@ -3059,6 +3059,7 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	display: inline-block;
 	position: relative;
 	height: 20px;
+	background: white;
 }
 .ui-cbb span {
 	display: block;
@@ -3093,7 +3094,7 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	border: 1px solid #ccc;
 	border-top: none;
 	border-radius: 2px;
-	box-shadow: 0 0 3px #ccc;
+	box-shadow: 0 0 8px #ccc;
 	z-index: 10;
 	display: none;
 	padding: 5px;
