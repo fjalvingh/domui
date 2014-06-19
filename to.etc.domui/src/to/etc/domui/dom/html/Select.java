@@ -197,7 +197,7 @@ public class Select extends InputNodeContainer implements IHasModifiedIndication
 	 * a faster way to set all option selected values.
 	 * @param ix
 	 */
-	protected void internalSetSelectedIndex(int ix) {
+	public void internalSetSelectedIndex(int ix) {
 		m_selectedIndex = ix;
 	}
 

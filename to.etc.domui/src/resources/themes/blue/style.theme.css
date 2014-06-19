@@ -3054,6 +3054,10 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	margin: 0px;
 }
 
+.ui-cbb2 {
+	display: inline-block;
+}
+
 /*** comboBoxBase - replacement for select control ***/
 .ui-cbb {
 	display: inline-block;
