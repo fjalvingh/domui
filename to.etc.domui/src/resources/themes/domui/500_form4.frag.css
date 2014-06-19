@@ -1,0 +1,41 @@
+/*** 500_form4 styles and repair styles for components. ***/
+.ui-f4 {
+}
+
+.ui-f4-lbl {
+	font-weight: bold;
+	font-size: <%= font_size %>;
+	white-space: nowrap;
+}
+.ui-f4-lbl-v {
+	text-align: right;
+	min-width: 150px;
+}
+.ui-f4-ctl-v {
+	padding: 0px 0px 0px 4px;
+}
+
+/*-- overrides --*/
+.ui-f4 td, .ui-f4 label {
+	vertical-align: baseline !important;
+}
+.ui-f4 td input, .ui-f4 td select {
+	vertical-align: baseline !important;
+}
+
+.ui-f4 .ui-ro {
+	border: none;
+	color: black;
+}
+.ui-f4 select {
+	text-indent: 0px;
+}
+.ui-f4 select.ui-ro {
+	-webkit-appearance: none;
+ 	-moz-appearance: none;
+ 	text-indent: 0px;
+ 	text-overflow: '';
+	appearance: none;
+	padding: 0px;
+	margin: 0px;
+}

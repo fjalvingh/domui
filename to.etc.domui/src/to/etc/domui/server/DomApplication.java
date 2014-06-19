@@ -1273,6 +1273,7 @@ public abstract class DomApplication {
 	 * @param maker
 	 * @return
 	 */
+	@Nonnull
 	public <T> List<T> getCachedList(final IListMaker<T> maker) throws Exception {
 		if(!(maker instanceof ICachedListMaker< ? >)) {
 			//-- Just make on the fly.
