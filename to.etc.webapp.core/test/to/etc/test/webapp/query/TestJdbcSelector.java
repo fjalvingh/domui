@@ -210,4 +210,8 @@ public class TestJdbcSelector {
 		}
 	}
 
+	@AfterClass
+	static public void tearDown() throws Exception {
+		m_dc.close();
+	}
 }
