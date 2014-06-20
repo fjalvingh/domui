@@ -54,7 +54,7 @@ public final class ExceptionClassifier {
 	public boolean isSevereException(@Nonnull Throwable e) {
 		List<Throwable> thrownExceptions = new ArrayList<Throwable>();
 
-		addAcceptionsToList(e, thrownExceptions);
+		addExceptionsToList(e, thrownExceptions);
 
 		boolean foundUnsevereException = false;
 		for(Throwable t : thrownExceptions) {
@@ -74,18 +74,18 @@ public final class ExceptionClassifier {
 		return foundUnsevereException ? false : true;
 	}
 
-	private void addAcceptionsToList(@Nonnull Throwable e, @Nonnull List<Throwable> thrownExceptions) {
+	private void addExceptionsToList(@Nonnull Throwable e, @Nonnull List<Throwable> thrownExceptions) {
 		thrownExceptions.add(e);
 		if(e instanceof SQLException) {
 			SQLException sqle = ((SQLException) e).getNextException();
 			if(sqle != null) {
-				addAcceptionsToList(sqle, thrownExceptions);
+				addExceptionsToList(sqle, thrownExceptions);
 			}
 		}
 
 		Throwable cause = e.getCause();
 		if(cause != null) {
-			addAcceptionsToList(cause, thrownExceptions);
+			addExceptionsToList(cause, thrownExceptions);
 		}
 	}
 }
