@@ -28,10 +28,12 @@ import java.io.*;
 import java.util.*;
 
 import javax.annotation.*;
+import javax.servlet.http.*;
 
 import to.etc.domui.server.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.resources.*;
+import to.etc.net.*;
 import to.etc.util.*;
 import to.etc.webapp.core.*;
 import to.etc.webapp.nls.*;
@@ -109,8 +111,8 @@ public class InternalResourcePart implements IBufferedPartFactory {
 
 	@Override
 	public @Nonnull Object decodeKey(@Nonnull String rurl, @Nonnull IExtendedParameterInfo param) throws Exception {
-		if("".equals(FileTool.getFileExtension(rurl))) {
-			throw new ForbiddenException(rurl);
+		if(FileTool.getFileExtension(rurl).length() == 0) {
+			throw new HttpCallException("", HttpServletResponse.SC_FORBIDDEN, "Request forbidden for directory " + rurl);
 		}
 
 		//-- Is this an URL containing an nls'ed resource?

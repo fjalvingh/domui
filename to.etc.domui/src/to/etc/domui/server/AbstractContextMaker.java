@@ -33,7 +33,7 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 
 import to.etc.domui.state.*;
-import to.etc.domui.trouble.*;
+import to.etc.net.*;
 import to.etc.webapp.nls.*;
 
 abstract public class AbstractContextMaker implements IContextMaker {
@@ -119,10 +119,8 @@ abstract public class AbstractContextMaker implements IContextMaker {
 			requestResponse.getResponse().addHeader("X-XSS-Protection", "0");		// 20130124 jal Disable IE XSS filter, to prevent the idiot thing from seeing the CID as a piece of script 8-(
 			rh.handleRequest(ctx);
 			ctx.flush();
-		} catch(ThingyNotFoundException x) {
-			requestResponse.getResponse().sendError(HttpServletResponse.SC_NOT_FOUND, x.getMessage());
-		} catch(ForbiddenException x) {
-			requestResponse.getResponse().sendError(HttpServletResponse.SC_FORBIDDEN, x.getMessage());
+		} catch(HttpCallException x) {
+			requestResponse.getResponse().sendError(x.getCode(), x.getMessage());
 		} catch(Exception xxx) {
 			xx = xxx;
 			throw xxx;
