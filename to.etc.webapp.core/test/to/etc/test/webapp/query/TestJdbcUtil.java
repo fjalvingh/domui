@@ -48,4 +48,10 @@ public class TestJdbcUtil {
 		m_dc.rollback();
 		Assert.assertTrue(exFound);
 	}
+
+	@AfterClass
+	static public void tearDown() throws Exception {
+		m_dc.close();
+	}
+
 }

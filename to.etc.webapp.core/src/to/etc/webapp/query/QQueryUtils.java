@@ -96,7 +96,7 @@ final public class QQueryUtils {
 	 * @return
 	 * @throws Exception
 	 */
-	public static <T extends IIdentifyable<Long>> int queryCount(@Nonnull QDataContext dc, @Nonnull QCriteria<T> q) throws Exception {
+	public static <K, T extends IIdentifyable<K>> int queryCount(@Nonnull QDataContext dc, @Nonnull QCriteria<T> q) throws Exception {
 		QSelection<T> rest = QSelection.create(q.getBaseClass());
 		rest.setRestrictions(q.getRestrictions());
 		rest.count("id");

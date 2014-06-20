@@ -35,5 +35,10 @@ public class TestQQueryUtils {
 		Assert.assertEquals(0, count);
 	}
 
+	@AfterClass
+	static public void tearDown() throws Exception {
+		m_dc.close();
+	}
+
 
 }
