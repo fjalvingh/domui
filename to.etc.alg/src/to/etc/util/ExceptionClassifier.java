@@ -29,7 +29,7 @@ import javax.annotation.*;
  * @author <a href="mailto:ben.schoen@itris.nl">Ben Schoen</a>
  * @since Jun 10, 2014
  */
-public final class ExceptionClassifier {
+public final class ExceptionClassifier implements IExceptionClassifier<Throwable> {
 
 	@Nullable
 	private static ExceptionClassifier m_instance;
@@ -38,7 +38,7 @@ public final class ExceptionClassifier {
 	private static final Map<String, Boolean> m_knownExceptions = new HashMap<String, Boolean>(); //Boolean.TRUE means that it is severe, Boolean.FALSE means it is not severe.
 
 	@Nonnull
-	private static final List<IExceptionClassifier> m_customExceptions = new ArrayList<IExceptionClassifier>();
+	private static final List<IExceptionClassifier<Throwable>> m_customExceptions = new ArrayList<IExceptionClassifier<Throwable>>();
 
 	@Nonnull
 	public static ExceptionClassifier getInstance() {
@@ -62,10 +62,11 @@ public final class ExceptionClassifier {
 		m_knownExceptions.put(message, severe);
 	}
 
-	public void registerCustomExceptions(@Nonnull IExceptionClassifier exceptionClassifier) {
+	public void registerCustomExceptions(@Nonnull IExceptionClassifier<Throwable> exceptionClassifier) {
 		m_customExceptions.add(exceptionClassifier);
 	}
 
+	@Override
 	@Nonnull
 	public boolean isSevereException(@Nonnull Throwable e) {
 		List<Throwable> thrownExceptions = new ArrayList<Throwable>();
@@ -86,8 +87,11 @@ public final class ExceptionClassifier {
 					foundUnsevereException = true;
 				}
 			}
-			for(IExceptionClassifier exceptionClassifier: m_customExceptions) {
-
+			for(IExceptionClassifier<Throwable> exceptionClassifier : m_customExceptions) {
+				if(exceptionClassifier.isSevereException(t)) {
+					// FIXME We only know if it is severe. When it is unsevere but found we don't know it here.......
+					return true;
+				}
 			}
 		}
 		return foundUnsevereException ? false : true;
