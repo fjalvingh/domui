@@ -93,6 +93,9 @@ public final class ExceptionClassifier {
 		}
 
 		Throwable cause = e.getCause();
+		if(cause == e) {
+			cause = null;
+		}
 		if(cause != null) {
 			addExceptionsToList(cause, thrownExceptions);
 		}
