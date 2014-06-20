@@ -35,6 +35,12 @@ public final class ExceptionClassifier {
 	private static ExceptionClassifier m_instance;
 
 	@Nonnull
+	private static final Map<String, Boolean> m_knownExceptions = new HashMap<String, Boolean>(); //Boolean.TRUE means that it is severe, Boolean.FALSE means it is not severe.
+
+	@Nonnull
+	private static final List<IExceptionClassifier> m_customExceptions = new ArrayList<IExceptionClassifier>();
+
+	@Nonnull
 	public static ExceptionClassifier getInstance() {
 		ExceptionClassifier instance = m_instance;
 		if(instance == null) {
@@ -42,9 +48,6 @@ public final class ExceptionClassifier {
 		}
 		return m_instance;
 	}
-
-	@Nonnull
-	private static final Map<String, Boolean> m_knownExceptions = new HashMap<String, Boolean>(); //Boolean.TRUE means that it is severe, Boolean.FALSE means it is not severe.
 
 	/**
 	 * By registering a known exception you make clear to this class which exception-message should be considered severe or not.
@@ -57,6 +60,10 @@ public final class ExceptionClassifier {
 	 */
 	public void registerKnownException(@Nonnull String message, @Nonnull Boolean severe) throws Exception {
 		m_knownExceptions.put(message, severe);
+	}
+
+	public void registerCustomExceptions(@Nonnull IExceptionClassifier exceptionClassifier) {
+		m_customExceptions.add(exceptionClassifier);
 	}
 
 	@Nonnull
@@ -78,6 +85,9 @@ public final class ExceptionClassifier {
 					}
 					foundUnsevereException = true;
 				}
+			}
+			for(IExceptionClassifier exceptionClassifier: m_customExceptions) {
+
 			}
 		}
 		return foundUnsevereException ? false : true;

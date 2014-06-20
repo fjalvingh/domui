@@ -18,7 +18,6 @@ public class ExceptionClassifierTest {
 		ExceptionClassifier.getInstance().registerKnownException("ORA-02292", Boolean.FALSE);
 		ExceptionClassifier.getInstance().registerKnownException("ORA-20000: Gegevens zijn gewijzigd door een andere gebruiker", Boolean.FALSE);				// Concurrency exception, shown on the screen, not severe.
 		ExceptionClassifier.getInstance().registerKnownException("ORA-20023: tda_general.check_beperking: Combinatie <B>Elementcode:</B>:", Boolean.FALSE);	// Misconfiguration of elementcode/werksoort/fonds combination, shown on screen, not severe.
-		ExceptionClassifier.getInstance().registerKnownException("De PDA is niet toegewezen aan een persoon", Boolean.FALSE);									// Thrown when PDA is reconnected to another environment, not severe.
 		ExceptionClassifier.getInstance().registerKnownException("ORA-12899", Boolean.TRUE);
 	}
 
