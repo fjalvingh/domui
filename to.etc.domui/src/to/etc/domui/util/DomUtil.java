@@ -873,7 +873,7 @@ final public class DomUtil {
 	 * @param x
 	 */
 	static public void dumpExceptionIfSevere(@Nonnull final Exception x) {
-		if(ExceptionClassifier.isSevereException(x)) {
+		if(ExceptionClassifier.getInstance().isSevereException(x)) {
 			dumpException(x);
 		}
 	}
