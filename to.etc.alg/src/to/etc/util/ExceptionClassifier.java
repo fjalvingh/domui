@@ -6,7 +6,7 @@ import java.util.*;
 import javax.annotation.*;
 
 /**
- * This determines whether an exception is severe or not.
+ * This determines whether an exception is severe or not. The users of this class will most likely use the outcome of this severity to log the exception or not.
  *
  * There are roughly two classes of exceptions:
  * <ol>
@@ -14,7 +14,7 @@ import javax.annotation.*;
  * <li>Errors from the user interface</li>
  * </ol>
  * <p>
- * The errors from services should always be logged, because no direct user interaction is available. The classes that handle these errors
+ * The errors from services are always severe, because no direct user interaction is available. The classes that handle these errors
  * will probably not use this helper class.
  * <p><p>
  * The errors from the user interface can also be divided into two types:
@@ -35,14 +35,14 @@ public final class ExceptionClassifier {
 	private static final Map<String, Boolean> m_knownExceptions = new HashMap<String, Boolean>(); //Boolean.TRUE means that it is severe, Boolean.FALSE means it is not severe.
 
 	static {
-		m_knownExceptions.put("ORA-02292: integrity constraint", Boolean.FALSE);											// Violation of integrity constraint(s), shown on screen, not severe.
+		m_knownExceptions.put("ORA-02292", Boolean.FALSE);											// Violation of integrity constraint(s), shown on screen, not severe.
 		m_knownExceptions.put("ORA-20000: Gegevens zijn gewijzigd door een andere gebruiker", Boolean.FALSE);				// Concurrency exception, shown on the screen, not severe.
 		// TODO: check and test this error message on 5.0
 		//m_severeExceptions.put("ClientAbortException:  java.net.SocketException: Connection reset", Boolean.FALSE);			// Exception when planboard is closed before it's fully loaded. Not severe.
 		m_knownExceptions.put("ORA-20023: tda_general.check_beperking: Combinatie <B>Elementcode:</B>:", Boolean.FALSE);	// Misconfiguration of elementcode/werksoort/fonds combination, shown on screen, not severe.
 		m_knownExceptions.put("De PDA is niet toegewezen aan een persoon", Boolean.FALSE);									// Thrown when PDA is reconnected to another environment, not severe.
 
-		m_knownExceptions.put("ORA-12899: value too large for column", Boolean.TRUE);
+		m_knownExceptions.put("ORA-12899", Boolean.TRUE);
 	}
 
 	@Nonnull
@@ -54,15 +54,15 @@ public final class ExceptionClassifier {
 		boolean foundUnsevereException = false;
 		for(Throwable t : thrownExceptions) {
 			String message = t.getMessage();
-			if(message != null) {
-				for(String exceptionMsg : m_knownExceptions.keySet()) {
-					if(message.startsWith(exceptionMsg)) {
-						if(m_knownExceptions.get(exceptionMsg).booleanValue()) {
-							return true;
-						} else {
-							foundUnsevereException = true;
-						}
+			if(message == null) {
+				continue;
+			}
+			for(String exceptionMsg : m_knownExceptions.keySet()) {
+				if(message.startsWith(exceptionMsg)) {
+					if(m_knownExceptions.get(exceptionMsg).booleanValue()) {
+						return true;
 					}
+					foundUnsevereException = true;
 				}
 			}
 		}

@@ -849,23 +849,32 @@ final public class DomUtil {
 	}
 
 	static public void dumpException(final Exception x) {
-		if(ExceptionClassifier.isSevereException(x)) {
-			x.printStackTrace();
+		x.printStackTrace();
 
-			Throwable next = null;
-			for(Throwable curr = x; curr != null; curr = next) {
-				next = curr.getCause();
-				if(next == curr)
-					next = null;
+		Throwable next = null;
+		for(Throwable curr = x; curr != null; curr = next) {
+			next = curr.getCause();
+			if(next == curr)
+				next = null;
 
-				if(curr instanceof SQLException) {
-					SQLException sx = (SQLException) curr;
-					while(sx.getNextException() != null) {
-						sx = sx.getNextException();
-						System.err.println("SQL NextException: " + sx);
-					}
+			if(curr instanceof SQLException) {
+				SQLException sx = (SQLException) curr;
+				while(sx.getNextException() != null) {
+					sx = sx.getNextException();
+					System.err.println("SQL NextException: " + sx);
 				}
 			}
+		}
+	}
+
+	/**
+	 * This method will first determine whether the exception is considered severe.
+	 * Based on that outcome it will dump it or not.
+	 * @param x
+	 */
+	static public void dumpExceptionIfSevere(@Nonnull final Exception x) {
+		if(ExceptionClassifier.isSevereException(x)) {
+			dumpException(x);
 		}
 	}
 
