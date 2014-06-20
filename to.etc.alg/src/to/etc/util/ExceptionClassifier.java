@@ -46,6 +46,15 @@ public final class ExceptionClassifier {
 	@Nonnull
 	private static final Map<String, Boolean> m_knownExceptions = new HashMap<String, Boolean>(); //Boolean.TRUE means that it is severe, Boolean.FALSE means it is not severe.
 
+	/**
+	 * By registering a known exception you make clear to this class which exception-message should be considered severe or not.
+	 *
+	 * The message should be as short as possible without any language specific additions if possible. <br>
+	 * E.g. registering "ORA-02292" is better than "ORA-02292: integrity constraint" because the text might be translated in another language
+	 * @param String message
+	 * @param Boolean severe
+	 * @throws Exception
+	 */
 	public void registerKnownException(@Nonnull String message, @Nonnull Boolean severe) throws Exception {
 		m_knownExceptions.put(message, severe);
 	}
