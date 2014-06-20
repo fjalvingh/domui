@@ -25,6 +25,7 @@
 package to.etc.test.webapp.qsql;
 
 import to.etc.webapp.qsql.*;
+import to.etc.webapp.query.*;
 
 /**
  * Ledger accounts from decade tables.
@@ -33,7 +34,7 @@ import to.etc.webapp.qsql.*;
  * Created on 24 Aug 2009
  */
 @QJdbcTable(table = "v_dec_grootboekrekeningen")
-public class LedgerAccount {
+public class LedgerAccount implements IIdentifyable<Long> {
 	private Long m_id;
 
 	private String m_code;
@@ -52,6 +53,7 @@ public class LedgerAccount {
 		m_typeDescription = typeDescription;
 	}
 
+	@Override
 	@QJdbcId
 	@QJdbcColumn(name = "ID", nullable = false)
 	public Long getId() {

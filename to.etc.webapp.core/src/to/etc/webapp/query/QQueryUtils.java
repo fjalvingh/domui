@@ -88,6 +88,25 @@ final public class QQueryUtils {
 		return new ProxyFactory<T>(cl, imap, resultInterface);
 	}
 
+	/**
+	 * Util that enables easier retrieving of rows count on specified QCriteria.
+	 *
+	 * @param dc
+	 * @param q
+	 * @return
+	 * @throws Exception
+	 */
+	public static <T extends IIdentifyable<Long>> int queryCount(@Nonnull QDataContext dc, @Nonnull QCriteria<T> q) throws Exception {
+		QSelection<T> rest = QSelection.create(q.getBaseClass());
+		rest.setRestrictions(q.getRestrictions());
+		rest.count("id");
+		Object[] count = dc.queryOne(rest);
+		if(count != null && count.length > 0) {
+			return ((Number) count[0]).intValue();
+		}
+		return 0;
+	}
+
 //	interface myData {
 //		@QFld(1)
 //		int count();
