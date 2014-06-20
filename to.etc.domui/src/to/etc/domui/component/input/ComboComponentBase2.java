@@ -585,6 +585,7 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 	public void setReadOnly(boolean ro) {
 		if(m_readOnly == ro)
 			return;
+		m_readOnly = ro;
 		forceRebuild();
 	}
 

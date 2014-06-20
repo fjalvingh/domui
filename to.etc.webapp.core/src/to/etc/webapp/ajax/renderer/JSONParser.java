@@ -145,6 +145,13 @@ public class JSONParser extends ReaderTokenizerBase {
 					nextToken();
 					return null;
 				}
+				if(getCopied().equals("true")) {
+					nextToken();
+					return Boolean.TRUE;
+				} else if(getCopied().equals("false")) {
+					nextToken();
+					return Boolean.FALSE;
+				}
 				throw new JSONParserException("Unexpected identifier '" + getCopied() + "'");
 			case ReaderScannerBase.T_IPADDR:
 				throw new JSONParserException("Unexpected IP address '" + getCopied() + "'");
