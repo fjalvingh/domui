@@ -2,6 +2,7 @@ package to.etc.util;
 
 import java.sql.*;
 import java.util.*;
+import java.util.Map.Entry;
 
 import javax.annotation.*;
 
@@ -94,25 +95,19 @@ public final class ExceptionClassifier implements IExceptionClassifier {
 		List<Throwable> thrownExceptions = new ArrayList<Throwable>();
 
 		addExceptionsToList(e, thrownExceptions);
+		Severity severity = Severity.UNKNOWN;
 
 		for(Throwable t : thrownExceptions) {
 			String message = t.getMessage();
 			if(message != null) {
-				for(String exceptionMsg : m_knownExceptions.keySet()) {
-					if(message.startsWith(exceptionMsg)) {
-						return m_knownExceptions.get(exceptionMsg);
-					}
+				severity = getSeverityByMessage(message);
+				if(severity != Severity.UNKNOWN) {
+					return severity;
 				}
 			}
-			for(IExceptionClassifier exceptionClassifier : m_customExceptions) {
-				Severity severity = exceptionClassifier.getExceptionSeverity(t);
-				if(severity == Severity.UNKNOWN) {
-					continue;
-				}
-				return severity;
-			}
+			severity = getSeverityForCustomExceptions(t);
 		}
-		return Severity.UNKNOWN;
+		return severity;
 	}
 
 	private void addExceptionsToList(@Nonnull Throwable e, @Nonnull List<Throwable> thrownExceptions) {
@@ -131,5 +126,37 @@ public final class ExceptionClassifier implements IExceptionClassifier {
 		if(cause != null) {
 			addExceptionsToList(cause, thrownExceptions);
 		}
+	}
+
+	@Nonnull
+	private Severity getSeverityByMessage(@Nonnull String message) {
+		for(Entry<String, Severity> entry : m_knownExceptions.entrySet()) {
+			if(message.startsWith(entry.getKey())) {
+				return entry.getValue();
+			}
+		}
+		return Severity.UNKNOWN;
+	}
+
+	@Nonnull
+	private Severity getSeverityForCustomExceptions(@Nonnull Throwable t) {
+		for(IExceptionClassifier exceptionClassifier : m_customExceptions) {
+			Severity severity = exceptionClassifier.getExceptionSeverity(t);
+			if(severity == Severity.UNKNOWN) {
+				continue;
+			}
+			return severity;
+		}
+		return Severity.UNKNOWN;
+	}
+
+	/**
+	 * Convenience method that returns true when the Throwable is found to be
+	 * classified as SEVERE or UNKNOWN. And only false when the severity is UNSEVERE.
+	 * @param throwable
+	 * @return
+	 */
+	public boolean isSevereException(@Nonnull Throwable throwable) {
+		return getExceptionSeverity(throwable) == Severity.UNSEVERE ? false : true;
 	}
 }
