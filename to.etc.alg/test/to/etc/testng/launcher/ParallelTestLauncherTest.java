@@ -19,11 +19,11 @@ public class ParallelTestLauncherTest {
 	@Test
 	public void testClassLauncher() throws Exception {
 		String[] args = new String[]{ //
-		"-root", "/home/vmijic/Data/Projects/Itris/Viewpoint/bzr/vp-split-4.4/vp-4.4", //
+		"-root", "/home/vmijic/Data/Projects/Itris/Viewpoint/bzr/vp-split-5.0/vp-5.0", //
 			"-m2.repo", "/home/vmijic/.m2", //
 			"-project", "vp-selenium-webdriver-tests", //
-			//"-skip.package", "nl.itris.vp.webdriver.vp_old_do_not_use", "nl.itris.vp.webdriver.decade", //
-			"-include.package", "nl.itris.vp.webdriver.viewpoint.tests.bae", "nl.itris.vp.webdriver.viewpoint.tests.fin", //
+			//"-skip.package", "nl.itris.vp.webdriver.vp_old_do_not_use", "nl.itris.vp.webdriver.viewpoint.tests.fin", //
+			"-include.package", "nl.itris.vp.webdriver.viewpoint.tests.bae", "nl.itris.vp.webdriver.decade", //
 			"-parallel", "CLASS", //
 			"-threads", "5", //
 			"-testng.reporter", "nl.itris.vp.webdriver.core.report.WdVpTestXMLReporter", //
@@ -60,10 +60,11 @@ public class ParallelTestLauncherTest {
 	@Test
 	public void testSuiteLauncher() throws Exception {
 		String[] args = new String[]{ //
-		"-root", "/home/vmijic/Data/Projects/Itris/Viewpoint/bzr/vp-split-4.4-webdriver/vp-4.4", //
+		"-root", "/home/vmijic/Data/Projects/Itris/Viewpoint/bzr/vp-split-5.0/vp-5.0", //
 			"-m2.repo", "/home/vmijic/.m2", //
 			"-project", "vp-selenium-webdriver-tests", //
-			"-suiteFiles", "vp-selenium-webdriver-tests/src/nl/itris/vp/webdriver/vp/wdParallelSuiteVp.xml", //
+			//"-suiteFiles", "vp-selenium-webdriver-tests/src/nl/itris/vp/webdriver/viewpoint/wdParallelSuiteVp.xml", //
+			"-suiteFiles", "vp-selenium-webdriver-tests/src/nl/itris/vp/webdriver/viewpoint/wdSuiteDecade.xml", //
 			"-threads", "5", //
 			"-testng.reporter", "nl.itris.vp.webdriver.core.report.WdVpTestXMLReporter", //
 			"-testng.reporter.root", "/home/vmijic/Data/Projects/Itris/Viewpoint/testing/tests/proba/vp-suite", //
@@ -78,5 +79,16 @@ public class ParallelTestLauncherTest {
 
 		new ParallelTestLauncher().run(args);
 	}
+
+	/*Keep this as ignored - it is not meant to be run as regular scheduled unit test, but as debug launcher until for developers -see xwiki*/
+	@Ignore
+	@Test
+	public void testFileOptionsLauncher() throws Exception {
+		String[] args = new String[]{ //
+		"-options.file", "/home/vmijic/Data/Projects/Itris/Viewpoint/bzr/vp-split-5.0/domui-5.0/to.etc.alg/test/to/etc/testng/launcher/suiteRunDecadeExample.par"};
+
+		new ParallelTestLauncher().run(args);
+	}
+
 
 }

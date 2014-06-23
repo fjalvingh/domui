@@ -78,6 +78,8 @@ public class ParallelTestLauncher implements IRunnableArgumentsProvider {
 
 	public static final String	ARG_SINGLE_REPORT			= "single.report";
 
+	public static final String ARG_OPTIONS_FILE = "options.file";
+
 	public static final String	ARG_HELP					= "help";
 
 	public static final int		DEFAULT_THREADS				= 5;
@@ -177,8 +179,12 @@ public class ParallelTestLauncher implements IRunnableArgumentsProvider {
 	}
 
 	void run(String[] args) throws Exception {
-		if(args != null && args.length == 1 && (args[0] == "/?" || args[0] == "-help")) {
+		if(args != null && args.length == 1 && ("/?".equals(args[0]) || "-help".equals(args[0]))) {
 			showHelp();
+			return;
+		}
+		if(args != null && args.length == 2 && (("-" + ARG_OPTIONS_FILE).equals(args[0]))) {
+			runFromFileOptions(args);
 			return;
 		}
 		setArgUtil(new ArgumentsUtil(args));
@@ -194,6 +200,32 @@ public class ParallelTestLauncher implements IRunnableArgumentsProvider {
 			}
 			runProject(location, reportRoot);
 		}
+	}
+
+	private void runFromFileOptions(@Nonnull String[] args) throws Exception {
+		File options = null;
+		String fileOptionsAsStr = null;
+		try {
+			options = new File(args[1]);
+			fileOptionsAsStr = FileTool.readFileAsString(options);
+		} catch(Exception ex) {
+			System.out.println("Unable to locate options file: " + args[1]);
+			return;
+		}
+
+		String[] argsFromFile = ArgumentsUtil.parseAsRunOptions(fileOptionsAsStr);
+		System.out.println("-----------------------------------------------");
+		System.out.print("Running with options from file " + args[1] + ":");
+		for(String argFromFile : argsFromFile) {
+			if(argFromFile.startsWith("-")) {
+				System.out.println("");
+			}
+			System.out.print(argFromFile);
+			System.out.print(" ");
+		}
+		System.out.println("");
+		System.out.println("-----------------------------------------------");
+		run(argsFromFile);
 	}
 
 	private void setArgUtil(@Nonnull ArgumentsUtil argumentsUtil) {

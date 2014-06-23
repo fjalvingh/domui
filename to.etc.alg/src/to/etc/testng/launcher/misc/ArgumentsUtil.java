@@ -113,4 +113,40 @@ public class ArgumentsUtil {
 			return defaultVal;
 		}
 	}
+
+	@Nonnull
+	public static String[] parseAsRunOptions(@Nonnull String fileOptionsAsStr) {
+		fileOptionsAsStr = fileOptionsAsStr.replaceAll("\r\n", " ");
+		fileOptionsAsStr = fileOptionsAsStr.replaceAll("\n", " ");
+		List<String> result = new ArrayList<String>();
+		boolean insideDoubleQuotes = false;
+		StringBuilder current = new StringBuilder();
+		for(int i = 0; i < fileOptionsAsStr.length(); i++) {
+			char nextChar = fileOptionsAsStr.charAt(i);
+			if(insideDoubleQuotes) {
+				if(nextChar == '"') {
+					insideDoubleQuotes = false;
+					result.add(current.toString().trim());
+					current.setLength(0);
+				} else {
+					current.append(nextChar);
+				}
+			} else {
+				if(nextChar == ' ') {
+					if(current.length() > 0) {
+						result.add(current.toString().trim());
+						current.setLength(0);
+					}
+				} else if(nextChar == '"' && current.length() == 0) {
+					insideDoubleQuotes = true;
+				} else {
+					current.append(nextChar);
+				}
+			}
+		}
+		if(current.length() > 0) {
+			result.add(current.toString().trim());
+		}
+		return result.toArray(new String[result.size()]);
+	}
 }
