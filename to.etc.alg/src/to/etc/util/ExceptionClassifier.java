@@ -29,7 +29,7 @@ import javax.annotation.*;
  * @author <a href="mailto:ben.schoen@itris.nl">Ben Schoen</a>
  * @since Jun 10, 2014
  */
-public final class ExceptionClassifier implements IExceptionClassifier<Throwable> {
+public final class ExceptionClassifier implements IExceptionClassifier {
 
 	@Nullable
 	private static ExceptionClassifier m_instance;
@@ -38,7 +38,7 @@ public final class ExceptionClassifier implements IExceptionClassifier<Throwable
 	private static final Map<String, Boolean> m_knownExceptions = new HashMap<String, Boolean>(); //Boolean.TRUE means that it is severe, Boolean.FALSE means it is not severe.
 
 	@Nonnull
-	private static final List<IExceptionClassifier<Throwable>> m_customExceptions = new ArrayList<IExceptionClassifier<Throwable>>();
+	private static final List<IExceptionClassifier> m_customExceptions = new ArrayList<IExceptionClassifier>();
 
 	@Nonnull
 	public static ExceptionClassifier getInstance() {
@@ -58,11 +58,11 @@ public final class ExceptionClassifier implements IExceptionClassifier<Throwable
 	 * @param Boolean severe
 	 * @throws Exception
 	 */
-	public void registerKnownException(@Nonnull String message, @Nonnull Boolean severe) throws Exception {
-		m_knownExceptions.put(message, severe);
+	public void registerKnownException(@Nonnull String message, boolean severe) throws Exception {
+		m_knownExceptions.put(message, Boolean.valueOf(severe));
 	}
 
-	public void registerCustomExceptions(@Nonnull IExceptionClassifier<Throwable> exceptionClassifier) {
+	public void registerCustomExceptions(@Nonnull IExceptionClassifier exceptionClassifier) {
 		m_customExceptions.add(exceptionClassifier);
 	}
 
@@ -76,21 +76,21 @@ public final class ExceptionClassifier implements IExceptionClassifier<Throwable
 		boolean foundUnsevereException = false;
 		for(Throwable t : thrownExceptions) {
 			String message = t.getMessage();
-			if(message == null) {
+			if(message == null) { // fixme
 				continue;
 			}
 			for(String exceptionMsg : m_knownExceptions.keySet()) {
 				if(message.startsWith(exceptionMsg)) {
-					if(m_knownExceptions.get(exceptionMsg).booleanValue()) {
-						return true;
+					if(m_knownExceptions.get(exceptionMsg).booleanValue()) { //FIXME npe oplossen
+						return m_knownExceptions.get(exceptionMsg).booleanValue();
 					}
-					foundUnsevereException = true;
 				}
 			}
-			for(IExceptionClassifier<Throwable> exceptionClassifier : m_customExceptions) {
+			for(IExceptionClassifier exceptionClassifier : m_customExceptions) {
 				if(exceptionClassifier.isSevereException(t)) {
-					// FIXME We only know if it is severe. When it is unsevere but found we don't know it here.......
 					return true;
+				} else {
+					foundUnsevereException = true;
 				}
 			}
 		}
