@@ -31,11 +31,33 @@ import javax.annotation.*;
  */
 public final class ExceptionClassifier implements IExceptionClassifier {
 
+	/**
+	 * The severity of the exception
+	 *
+	 *
+	 * @author <a href="mailto:ben.schoen@itris.nl">Ben Schoen</a>
+	 * @since Jun 23, 2014
+	 */
+	public enum Severity {
+		/**
+		 * This is a serious exception that should be handled in some way, e.g. printing to the log
+		 */
+		SEVERE,
+		/**
+		 * This exception is considered not severe and may be ignored
+		 */
+		UNSEVERE,
+		/**
+		 * This is an exception that is not classified as a known exception, either SEVERE or UNSEVERE
+		 */
+		UNKNOWN
+	}
+
 	@Nullable
 	private static ExceptionClassifier m_instance;
 
 	@Nonnull
-	private static final Map<String, Boolean> m_knownExceptions = new HashMap<String, Boolean>(); //Boolean.TRUE means that it is severe, Boolean.FALSE means it is not severe.
+	private static final Map<String, Severity> m_knownExceptions = new HashMap<String, Severity>();
 
 	@Nonnull
 	private static final List<IExceptionClassifier> m_customExceptions = new ArrayList<IExceptionClassifier>();
@@ -58,8 +80,8 @@ public final class ExceptionClassifier implements IExceptionClassifier {
 	 * @param Boolean severe
 	 * @throws Exception
 	 */
-	public void registerKnownException(@Nonnull String message, boolean severe) throws Exception {
-		m_knownExceptions.put(message, Boolean.valueOf(severe));
+	public void registerKnownException(@Nonnull String message, @Nonnull Severity severity) throws Exception {
+		m_knownExceptions.put(message, severity);
 	}
 
 	public void registerCustomExceptions(@Nonnull IExceptionClassifier exceptionClassifier) {
@@ -68,33 +90,29 @@ public final class ExceptionClassifier implements IExceptionClassifier {
 
 	@Override
 	@Nonnull
-	public boolean isSevereException(@Nonnull Throwable e) {
+	public Severity getExceptionSeverity(@Nonnull Throwable e) {
 		List<Throwable> thrownExceptions = new ArrayList<Throwable>();
 
 		addExceptionsToList(e, thrownExceptions);
 
-		boolean foundUnsevereException = false;
 		for(Throwable t : thrownExceptions) {
 			String message = t.getMessage();
-			if(message == null) { // fixme
-				continue;
-			}
-			for(String exceptionMsg : m_knownExceptions.keySet()) {
-				if(message.startsWith(exceptionMsg)) {
-					if(m_knownExceptions.get(exceptionMsg).booleanValue()) { //FIXME npe oplossen
-						return m_knownExceptions.get(exceptionMsg).booleanValue();
+			if(message != null) {
+				for(String exceptionMsg : m_knownExceptions.keySet()) {
+					if(message.startsWith(exceptionMsg)) {
+						return m_knownExceptions.get(exceptionMsg);
 					}
 				}
 			}
 			for(IExceptionClassifier exceptionClassifier : m_customExceptions) {
-				if(exceptionClassifier.isSevereException(t)) {
-					return true;
-				} else {
-					foundUnsevereException = true;
+				Severity severity = exceptionClassifier.getExceptionSeverity(t);
+				if(severity == Severity.UNKNOWN) {
+					continue;
 				}
+				return severity;
 			}
 		}
-		return foundUnsevereException ? false : true;
+		return Severity.UNKNOWN;
 	}
 
 	private void addExceptionsToList(@Nonnull Throwable e, @Nonnull List<Throwable> thrownExceptions) {

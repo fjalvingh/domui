@@ -2,6 +2,8 @@ package to.etc.util;
 
 import javax.annotation.*;
 
+import to.etc.util.ExceptionClassifier.Severity;
+
 /**
  * Throwables can be classified as severe or not severe
  *
@@ -13,5 +15,6 @@ import javax.annotation.*;
  * @since Jun 20, 2014
  */
 public interface IExceptionClassifier {
-	public boolean isSevereException(@Nonnull Throwable throwable);
+	@Nonnull
+	public Severity getExceptionSeverity(@Nonnull Throwable throwable);
 }
