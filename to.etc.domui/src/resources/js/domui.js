@@ -3120,9 +3120,9 @@ $.extend(WebUI, {
 			}else{
 				//else scroll parent to show me at top
 				var newPos = $(elem).position().top + parent.scrollTop;
-				if($.browser.msie && $.browser.version.substring(0, 1) == "8"){
+				if($.browser.msie && parseInt($.browser.version) < 11){
 					if ($(elem).height() == 0){
-						newPos = newPos - 15; //On IE8 we need this correction :¬|
+						newPos = newPos - 15; //On IE browsers older than 11 we need this correction :¬|
 					}
 				}
 				if (offset){
