@@ -102,17 +102,16 @@ public final class ExceptionClassifier implements IExceptionClassifier {
 		List<Throwable> thrownExceptions = new ArrayList<Throwable>();
 
 		addExceptionsToList(e, thrownExceptions);
-		Severity severity;
 
 		for(Throwable t : thrownExceptions) {
 			String message = t.getMessage();
 			if(message != null) {
-				severity = getSeverityByMessage(message);
+				Severity severity = getSeverityByMessage(message);
 				if(severity != Severity.UNKNOWN) {
 					return severity;
 				}
 			}
-			severity = getSeverityForCustomExceptions(t);
+			Severity severity = getSeverityForCustomExceptions(t);
 			if(severity != Severity.UNKNOWN) {
 				return severity;
 			}
@@ -130,9 +129,7 @@ public final class ExceptionClassifier implements IExceptionClassifier {
 		}
 
 		Throwable cause = e.getCause();
-		if(cause == null || cause == e) {
-			//We're done. Not possible respectively no need to dive any deeper.
-		} else {
+		if(cause != null && cause != e) {
 			addExceptionsToList(cause, thrownExceptions);
 		}
 	}
