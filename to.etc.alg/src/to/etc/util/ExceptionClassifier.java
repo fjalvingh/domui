@@ -58,10 +58,10 @@ public final class ExceptionClassifier implements IExceptionClassifier {
 	private static ExceptionClassifier m_instance;
 
 	@Nonnull
-	private static final Map<String, Severity> m_knownExceptions = new HashMap<String, Severity>();
+	private final Map<String, Severity> m_knownExceptions = new HashMap<String, Severity>();
 
 	@Nonnull
-	private static final List<IExceptionClassifier> m_customExceptions = new ArrayList<IExceptionClassifier>();
+	private final List<IExceptionClassifier> m_customExceptions = new ArrayList<IExceptionClassifier>();
 
 	@Nonnull
 	public static ExceptionClassifier getInstance() {
@@ -85,7 +85,14 @@ public final class ExceptionClassifier implements IExceptionClassifier {
 		m_knownExceptions.put(message, severity);
 	}
 
-	public void registerCustomExceptions(@Nonnull IExceptionClassifier exceptionClassifier) {
+	/**
+	 * Some exceptions do not have a fixed String like most Oracle messages. Especially messages that depend on the language of the user
+	 * are prone to be misunderstood if we would check for the Dutch translation always.
+	 *
+	 * By registering your own classifier you can make sure that this ExceptionClassifier will check these exceptions too correctly.
+	 * @param exceptionClassifier
+	 */
+	public void registerClassifier(@Nonnull IExceptionClassifier exceptionClassifier) {
 		m_customExceptions.add(exceptionClassifier);
 	}
 
@@ -95,7 +102,7 @@ public final class ExceptionClassifier implements IExceptionClassifier {
 		List<Throwable> thrownExceptions = new ArrayList<Throwable>();
 
 		addExceptionsToList(e, thrownExceptions);
-		Severity severity = Severity.UNKNOWN;
+		Severity severity;
 
 		for(Throwable t : thrownExceptions) {
 			String message = t.getMessage();
@@ -106,8 +113,11 @@ public final class ExceptionClassifier implements IExceptionClassifier {
 				}
 			}
 			severity = getSeverityForCustomExceptions(t);
+			if(severity != Severity.UNKNOWN) {
+				return severity;
+			}
 		}
-		return severity;
+		return Severity.UNKNOWN;
 	}
 
 	private void addExceptionsToList(@Nonnull Throwable e, @Nonnull List<Throwable> thrownExceptions) {
@@ -120,10 +130,9 @@ public final class ExceptionClassifier implements IExceptionClassifier {
 		}
 
 		Throwable cause = e.getCause();
-		if(cause == e) {
-			cause = null;
-		}
-		if(cause != null) {
+		if(cause == null || cause == e) {
+			//We're done. Not possible respectively no need to dive any deeper.
+		} else {
 			addExceptionsToList(cause, thrownExceptions);
 		}
 	}
@@ -142,10 +151,9 @@ public final class ExceptionClassifier implements IExceptionClassifier {
 	private Severity getSeverityForCustomExceptions(@Nonnull Throwable t) {
 		for(IExceptionClassifier exceptionClassifier : m_customExceptions) {
 			Severity severity = exceptionClassifier.getExceptionSeverity(t);
-			if(severity == Severity.UNKNOWN) {
-				continue;
+			if(severity != Severity.UNKNOWN) {
+				return severity;
 			}
-			return severity;
 		}
 		return Severity.UNKNOWN;
 	}
@@ -157,6 +165,6 @@ public final class ExceptionClassifier implements IExceptionClassifier {
 	 * @return
 	 */
 	public boolean isSevereException(@Nonnull Throwable throwable) {
-		return getExceptionSeverity(throwable) == Severity.UNSEVERE ? false : true;
+		return getExceptionSeverity(throwable) != Severity.UNSEVERE;
 	}
 }

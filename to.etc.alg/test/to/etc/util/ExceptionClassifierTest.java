@@ -37,7 +37,7 @@ public class ExceptionClassifierTest {
 		ExceptionClassifier.getInstance().registerKnownException("ORA-20023: tda_general.check_beperking: Combinatie <B>Elementcode:</B>:", Severity.UNSEVERE);	// Misconfiguration of elementcode/werksoort/fonds combination, shown on screen, not severe.
 		ExceptionClassifier.getInstance().registerKnownException("ORA-12899", Severity.SEVERE);
 
-		ExceptionClassifier.getInstance().registerCustomExceptions(new IExceptionClassifier() {
+		ExceptionClassifier.getInstance().registerClassifier(new IExceptionClassifier() {
 
 			@Override
 			public Severity getExceptionSeverity(Throwable throwable) {
