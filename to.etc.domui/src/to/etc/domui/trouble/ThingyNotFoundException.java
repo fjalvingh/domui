@@ -24,22 +24,26 @@
  */
 package to.etc.domui.trouble;
 
+import javax.servlet.http.*;
+
+import to.etc.net.*;
+
 /**
  * Causes a 404 error to be sent back to the browser.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 4, 2008
  */
-public class ThingyNotFoundException extends RuntimeException {
+public class ThingyNotFoundException extends HttpCallException {
 	private String m_details;
 
 	public ThingyNotFoundException(String message, String details) {
-		super(message);
+		super("", HttpServletResponse.SC_NOT_FOUND, message);
 		m_details = details;
 	}
 
 	public ThingyNotFoundException(String message) {
-		super(message);
+		super("", HttpServletResponse.SC_NOT_FOUND, message);
 	}
 
 	public String getDetails() {
