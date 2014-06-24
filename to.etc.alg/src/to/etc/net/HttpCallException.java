@@ -24,7 +24,9 @@
  */
 package to.etc.net;
 
-public class HttpCallException extends Exception {
+import to.etc.util.*;
+
+public class HttpCallException extends RuntimeException {
 	private int		m_code;
 
 	private String	m_url;
@@ -47,9 +49,27 @@ public class HttpCallException extends Exception {
 		sb.append(m_code);
 		sb.append(": ");
 		sb.append(m_message);
-		sb.append(" on ");
-		sb.append(m_url);
+		if(!StringTool.isBlank(m_url)) {
+			sb.append(" on ");
+			sb.append(m_url);
+		}
 		return sb.toString();
+	}
+
+	public int getCode() {
+		return m_code;
+	}
+
+	public void setCode(int code) {
+		m_code = code;
+	}
+
+	public String getUrl() {
+		return m_url;
+	}
+
+	public void setUrl(String url) {
+		m_url = url;
 	}
 
 	public String getErrorStream() {
