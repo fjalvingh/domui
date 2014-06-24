@@ -85,7 +85,7 @@ public class ParallelTestLauncherTest {
 	@Test
 	public void testFileOptionsLauncher() throws Exception {
 		String[] args = new String[]{ //
-		"-options.file", "/home/vmijic/Data/Projects/Itris/Viewpoint/bzr/vp-split-5.0/domui-5.0/to.etc.alg/test/to/etc/testng/launcher/suiteRunDecadeExample.par"};
+		"-options.file", "/home/vmijic/Data/Projects/Itris/Viewpoint/bzr/vp-split-5.0/domui-5.0/to.etc.alg/test/to/etc/testng/launcher/runLocalTip50.par"};
 
 		new ParallelTestLauncher().run(args);
 	}
