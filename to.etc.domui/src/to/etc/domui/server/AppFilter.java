@@ -117,7 +117,7 @@ public class AppFilter implements Filter {
 
 			m_contextMaker.handleRequest(rq, (HttpServletResponse) res, chain);
 		} catch(RuntimeException x) {
-			DomUtil.dumpException(x);
+			DomUtil.dumpExceptionIfSevere(x);
 			throw x;
 		} catch(ServletException x) {
 			DomUtil.dumpException(x);
