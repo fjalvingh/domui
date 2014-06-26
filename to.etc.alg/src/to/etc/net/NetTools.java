@@ -318,8 +318,6 @@ final public class NetTools {
 			r = new InputStreamReader(is, encoding);
 			Document doc = DomTools.getDocument(r, url, namespaceaware);
 			return doc;
-		} catch (UnknownHostException e){
-			throw new UnknownHostException("Unknown host: " + e.getMessage());
 		} finally {
 			try {
 				if(r != null)
