@@ -249,6 +249,15 @@ public class TestStringTool {
 
 	}
 
+	@Test
+	public void replaceNewLineChars() {
+		Assert.assertEquals("ab", StringTool.replaceNewLineChars("ab\r\n\r\n", ""));
+		Assert.assertEquals("ab", StringTool.replaceNewLineChars("ab\n\n", ""));
+		Assert.assertEquals("ab", StringTool.replaceNewLineChars("ab", ""));
+		Assert.assertEquals("ab bebeb  ", StringTool.replaceNewLineChars("ab\r\nbebeb\n\n", " "));
+		Assert.assertEquals("", StringTool.replaceNewLineChars("", ""));
+	}
+
 	private String makeText(int textLength, String text) {
 
 		m_text.setLength(0);
