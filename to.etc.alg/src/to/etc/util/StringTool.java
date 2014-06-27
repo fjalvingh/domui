@@ -2735,5 +2735,17 @@ public class StringTool {
 			return false;
 		}
 	}
+
+	/**
+	 * Replaces all end of line characters with space so that content is represented in one line.
+	 *
+	 * @param content that should be without new line characters
+	 * @param replacement for new line characters
+	 * @return given string without new line characters
+	 */
+	@Nonnull
+	public static String replaceNewLineChars(@Nonnull String content, @Nonnull String replacement) {
+		return content.replace("\r\n", replacement).replace("\r", replacement).replace("\n", replacement);
+	}
 }
 
