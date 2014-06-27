@@ -2,8 +2,8 @@ package to.etc.domui.component2.form4;
 
 import javax.annotation.*;
 
-import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.meta.*;
+import to.etc.domui.component2.controlfactory.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.webapp.annotations.*;
@@ -135,16 +135,29 @@ final public class FormBuilder {
 		resetBuilder();
 	}
 
-	public void control() throws Exception {
-		ControlBuilder builder = DomApplication.get().getControlBuilder();
-		PropertyMetaModel< ? > pmm = m_propertyMetaModel;
-		if(null == pmm)
-			throw new IllegalStateException("You must have called 'property()' before");
-		ControlFactoryResult result = builder.createControlFor(pmm, true, null);
-		NodeBase formControl = result.getFormControl();
-		addControl(formControl);
-		resetBuilder();
+	@Nonnull
+	public IControl< ? > control() throws Exception {
+		return control((Class< ? extends IControl< ? >>) null);
 	}
+
+	@Nonnull
+	public <T, C extends IControl<T>> C control(@Nullable Class<C> controlClass) throws Exception {
+		ControlCreatorRegistry builder = DomApplication.get().getControlCreatorRegistry();
+		PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) m_propertyMetaModel;
+		if(null == pmm)
+			throw new IllegalStateException("You must have called 'property(...)' before");
+		C control = builder.createControl(pmm, controlClass);
+		bindControlData(control, pmm);
+		addControl((NodeBase) control);
+		resetBuilder();
+		return control;
+	}
+
+	public <T, C extends IControl<T>> void bindControlData(@Nonnull C control, @Nonnull PropertyMetaModel<T> pmm) throws Exception {
+
+
+	}
+
 
 	@Nonnull
 	public <T> FormBuilder property(@Nonnull T instance, @GProperty String property) {
