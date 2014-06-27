@@ -22,52 +22,57 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component.controlfactory;
+package to.etc.domui.component2.controlfactory;
 
 import java.math.*;
 
 import javax.annotation.*;
 
+import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.misc.*;
+import to.etc.domui.converter.*;
 
 /**
- * This is a fallback factory; it accepts anything and shows a String edit component OR a
- * DisplayValue component for it. It hopes that the control can convert the string input
- * value to the actual type using the registered Converters. This is also the factory
- * for regular Strings.
+ * Factory which creates a Text input specialized for entering monetary amounts. This
+ * accepts properties with type=Double/double or BigDecimal, and with one of the monetary
+ * numeric presentations.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * Created on Jul 2, 2009
+ * Created on Aug 4, 2009
  */
-@SuppressWarnings("unchecked")
-public class ControlFactoryString implements PropertyControlFactory {
+public class ControlCreatorMoney implements IControlCreator {
 	/**
 	 * Accept any type using a string.
 	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel)
 	 */
 	@Override
 	public int accepts(final @Nonnull PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
-		if(controlClass != null) {
-			if(!controlClass.isAssignableFrom(Text.class) && !controlClass.isAssignableFrom(DisplayValue.class))
-				return -1;
-		}
-
-		return 1;
+		if(controlClass != null && !controlClass.isAssignableFrom(Text.class)) // This will create a Text class,
+			return -1;
+		Class<?> clz = pmm.getActualType();
+		if(clz != Double.class && clz != double.class && clz != BigDecimal.class) // Must be proper type
+			return -1;
+		if(!NumericPresentation.isMonetary(pmm.getNumericPresentation()))
+			return -1;
+		return 2;
 	}
 
+	/**
+	 * Create a Text control with the basic monetary converter, or the proper converter for the specified type.
+	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#createControl(to.etc.domui.util.IReadOnlyModel, to.etc.domui.component.meta.PropertyMetaModel, boolean)
+	 */
 	@Override
+	@SuppressWarnings({"unchecked"})
 	public @Nonnull <T> ControlFactoryResult createControl(final @Nonnull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass) {
 		Class<T> iclz = pmm.getActualType();
+
 		if(!editable) {
-			/*
-			 * FIXME EXPERIMENTAL: replace the code below (which is still fully available) with the
-			 * display-only component.
-			 */
 			DisplayValue<T> dv = new DisplayValue<T>(iclz);
-			if(pmm.getConverter() != null)
-				dv.setConverter(pmm.getConverter());
+			//			dv.setTextAlign(TextAlign.RIGHT);
+			dv.addCssClass("ui-numeric");
+			MoneyUtil.assignMonetaryConverter(pmm, editable, dv);
 			String s = pmm.getDefaultHint();
 			if(s != null)
 				dv.setTitle(s);
@@ -75,12 +80,12 @@ public class ControlFactoryString implements PropertyControlFactory {
 		}
 
 		Text<T> txt;
-
-		if(pmm.getActualType() == Double.class || pmm.getActualType() == double.class || pmm.getActualType() == BigDecimal.class) {
-			txt = (Text<T>) Text.createNumericInput((PropertyMetaModel<Double>) pmm, editable);
-		} else {
-			txt = Text.createText(iclz, pmm, editable);
-		}
+		if(pmm.getActualType() == Double.class || pmm.getActualType() == double.class) {
+			txt = (Text<T>) Text.createDoubleMoneyInput((PropertyMetaModel<Double>) pmm, editable);
+		} else if(pmm.getActualType() == BigDecimal.class) {
+			txt = (Text<T>) Text.createBDMoneyInput((PropertyMetaModel<BigDecimal>) pmm, editable);
+		} else
+				throw new IllegalStateException("Cannot handle type=" + pmm.getActualType() + " in monetary control factory");
 		return new ControlFactoryResult(txt);
 	}
 }

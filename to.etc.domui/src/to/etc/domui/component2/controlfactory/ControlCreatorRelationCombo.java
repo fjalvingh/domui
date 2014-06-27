@@ -22,65 +22,63 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component.controlfactory;
-
-import java.math.*;
+package to.etc.domui.component2.controlfactory;
 
 import javax.annotation.*;
 
+import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.misc.*;
+import to.etc.domui.util.*;
+import to.etc.util.*;
 
 /**
- * This is a fallback factory; it accepts anything and shows a String edit component OR a
- * DisplayValue component for it. It hopes that the control can convert the string input
- * value to the actual type using the registered Converters. This is also the factory
- * for regular Strings.
+ * Accepts any property defined as an UP relation (parent) and score higher if a component type
+ * hint is received.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 2, 2009
  */
 @SuppressWarnings("unchecked")
-public class ControlFactoryString implements PropertyControlFactory {
+public class ControlCreatorRelationCombo implements IControlCreator {
 	/**
-	 * Accept any type using a string.
-	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel)
+	 * Accept any UP relation; if the relation has a "comboLookup" type hint we score 10, else we score 2.
+	 *
+	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
 	public int accepts(final @Nonnull PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
-		if(controlClass != null) {
-			if(!controlClass.isAssignableFrom(Text.class) && !controlClass.isAssignableFrom(DisplayValue.class))
-				return -1;
-		}
+		if(controlClass != null && !controlClass.isAssignableFrom(ComboLookup.class))
+			return -1;
 
-		return 1;
+		if(pmm.getRelationType() != PropertyRelationType.UP)
+			return 0;
+		if(Constants.COMPONENT_COMBO.equals(pmm.getComponentTypeHint()))
+			return 10;
+		if(pmm.getComponentTypeHint() == null && Constants.COMPONENT_COMBO.equals(pmm.getClassModel().getComponentTypeHint()))
+			return 10;
+		return 2;
 	}
 
 	@Override
 	public @Nonnull <T> ControlFactoryResult createControl(final @Nonnull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass) {
-		Class<T> iclz = pmm.getActualType();
-		if(!editable) {
-			/*
-			 * FIXME EXPERIMENTAL: replace the code below (which is still fully available) with the
-			 * display-only component.
-			 */
-			DisplayValue<T> dv = new DisplayValue<T>(iclz);
-			if(pmm.getConverter() != null)
-				dv.setConverter(pmm.getConverter());
-			String s = pmm.getDefaultHint();
-			if(s != null)
-				dv.setTitle(s);
+		if(!editable && controlClass == null) {
+			DisplayValue<T> dv = new DisplayValue<T>(pmm.getActualType());
+			dv.defineFrom(pmm);
+			if(dv.getConverter() == null && dv.getRenderer() == null) {
+				INodeContentRenderer<T> r = (INodeContentRenderer<T>) MetaManager.createDefaultComboRenderer(pmm, null); // FIXME Needed?
+				dv.setRenderer(r);
+			}
 			return new ControlFactoryResult(dv);
 		}
 
-		Text<T> txt;
-
-		if(pmm.getActualType() == Double.class || pmm.getActualType() == double.class || pmm.getActualType() == BigDecimal.class) {
-			txt = (Text<T>) Text.createNumericInput((PropertyMetaModel<Double>) pmm, editable);
-		} else {
-			txt = Text.createText(iclz, pmm, editable);
+		try {
+			ComboLookup<T> co = ComboLookup.createLookup(pmm);
+			co.setDisabled(!editable);
+			return new ControlFactoryResult(co);
+		} catch(Exception x) {
+			throw WrappedException.wrap(x); // Checked exceptions are idiocy.
 		}
-		return new ControlFactoryResult(txt);
 	}
 }

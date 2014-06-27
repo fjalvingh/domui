@@ -22,65 +22,51 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component.controlfactory;
-
-import java.math.*;
+package to.etc.domui.component2.controlfactory;
 
 import javax.annotation.*;
 
+import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.misc.*;
+import to.etc.domui.server.*;
 
 /**
- * This is a fallback factory; it accepts anything and shows a String edit component OR a
- * DisplayValue component for it. It hopes that the control can convert the string input
- * value to the actual type using the registered Converters. This is also the factory
- * for regular Strings.
+ * Accepts both enum and bools and shows a combobox with the possible choices.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 2, 2009
  */
-@SuppressWarnings("unchecked")
-public class ControlFactoryString implements PropertyControlFactory {
+public class ControlCreatorEnumAndBool implements IControlCreator {
 	/**
-	 * Accept any type using a string.
-	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel)
+	 * Accept boolean, Boolean and Enum.
+	 *
+	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
 	public int accepts(final @Nonnull PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
-		if(controlClass != null) {
-			if(!controlClass.isAssignableFrom(Text.class) && !controlClass.isAssignableFrom(DisplayValue.class))
-				return -1;
-		}
-
-		return 1;
+		if(controlClass != null && !controlClass.isAssignableFrom(ComboFixed.class)) // This one only creates ComboFixed thingies
+			return -1;
+		Class< ? > iclz = pmm.getActualType();
+		return iclz == Boolean.class || iclz == Boolean.TYPE || Enum.class.isAssignableFrom(iclz) ? 2 : 0;
 	}
 
+	/**
+	 * Create and init a ComboFixed combobox.
+	 *
+	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#createControl(to.etc.domui.util.IReadOnlyModel, to.etc.domui.component.meta.PropertyMetaModel, boolean)
+	 */
 	@Override
 	public @Nonnull <T> ControlFactoryResult createControl(final @Nonnull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass) {
-		Class<T> iclz = pmm.getActualType();
-		if(!editable) {
-			/*
-			 * FIXME EXPERIMENTAL: replace the code below (which is still fully available) with the
-			 * display-only component.
-			 */
-			DisplayValue<T> dv = new DisplayValue<T>(iclz);
-			if(pmm.getConverter() != null)
-				dv.setConverter(pmm.getConverter());
-			String s = pmm.getDefaultHint();
-			if(s != null)
-				dv.setTitle(s);
+		//-- FIXME EXPERIMENTAL use a DisplayValue control to present the value instead of a horrible disabled combobox
+		if(!editable && controlClass == null) {
+			DisplayValue<T> dv = new DisplayValue<T>(pmm.getActualType());
+			dv.defineFrom(pmm);
 			return new ControlFactoryResult(dv);
 		}
 
-		Text<T> txt;
-
-		if(pmm.getActualType() == Double.class || pmm.getActualType() == double.class || pmm.getActualType() == BigDecimal.class) {
-			txt = (Text<T>) Text.createNumericInput((PropertyMetaModel<Double>) pmm, editable);
-		} else {
-			txt = Text.createText(iclz, pmm, editable);
-		}
-		return new ControlFactoryResult(txt);
+		ComboFixed<T> c = (ComboFixed<T>) DomApplication.get().getControlBuilder().createComboFor(pmm, editable);
+		return new ControlFactoryResult(c);
 	}
 }

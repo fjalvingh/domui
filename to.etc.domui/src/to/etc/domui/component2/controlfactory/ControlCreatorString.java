@@ -22,12 +22,13 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component.controlfactory;
+package to.etc.domui.component2.controlfactory;
 
 import java.math.*;
 
 import javax.annotation.*;
 
+import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.misc.*;
@@ -42,7 +43,7 @@ import to.etc.domui.component.misc.*;
  * Created on Jul 2, 2009
  */
 @SuppressWarnings("unchecked")
-public class ControlFactoryString implements PropertyControlFactory {
+public class ControlCreatorString implements IControlCreator {
 	/**
 	 * Accept any type using a string.
 	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel)
