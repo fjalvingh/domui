@@ -867,6 +867,17 @@ final public class DomUtil {
 		}
 	}
 
+	/**
+	 * This method will first determine whether the exception is considered severe.
+	 * Based on that outcome it will dump it or not.
+	 * @param x
+	 */
+	static public void dumpExceptionIfSevere(@Nonnull final Exception x) {
+		if(ExceptionClassifier.getInstance().isSevereException(x)) {
+			dumpException(x);
+		}
+	}
+
 
 	static public void dumpException(@Nonnull StringBuilder sb, final Throwable x) {
 		StringTool.strStacktrace(sb, x);

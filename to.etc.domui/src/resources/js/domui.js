@@ -693,10 +693,6 @@ $.extend(WebUI, {
 
 	log: function() {
 		$.dbg.apply(this, arguments);
-//		if (!window.console || !window.console.debug)
-//			return;
-//		window.console.debug.apply(window.console, arguments);
-//		// window.console.debug("Args: "+[].join.call(arguments,''));
 	},
 
 	/**
@@ -2909,7 +2905,7 @@ $.extend(WebUI, {
 															// ffox "print
 															// only once"
 															// bug
-		if($(url)){
+		if (url.trim() !== "") {
 			$(div).html('<iframe id="' + frmname + '" name="' + frmname + '" src="' + url + '">');
 		} else {
 			//well, this is simple element printing, so we have some size limitations
@@ -3133,9 +3129,9 @@ $.extend(WebUI, {
 			}else{
 				//else scroll parent to show me at top
 				var newPos = $(elem).position().top + parent.scrollTop;
-				if($.browser.msie && $.browser.version.substring(0, 1) == "8"){
+				if($.browser.msie && parseInt($.browser.version) < 11){
 					if ($(elem).height() == 0){
-						newPos = newPos - 15; //On IE8 we need this correction :¬|
+						newPos = newPos - 15; //On IE browsers older than 11 we need this correction :¬|
 					}
 				}
 				if (offset){
@@ -3226,7 +3222,7 @@ $.extend(WebUI, {
 				$(window).unbind('resize', editorBindings[1]);
 			}
 		} catch (ex) {
-			log('error in unregisterCkEditorId: ' + ex);
+			WebUI.log('error in unregisterCkEditorId: ' + ex);
 		}
 	},
 
@@ -3244,7 +3240,7 @@ $.extend(WebUI, {
 			try{
 				editor.resize($(parentDiv).width() - 2, $(parentDiv).height());
 			}catch (ex){
-				log('error in CKeditor_OnComplete#resizeFunction: ' + ex);
+				WebUI.log('error in CKeditor_OnComplete#resizeFunction: ' + ex);
 			}
 		};
 		WebUI._ckEditorMap[id] = [editor, resizeFunction];

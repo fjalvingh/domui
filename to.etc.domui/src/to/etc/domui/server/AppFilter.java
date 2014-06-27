@@ -117,18 +117,18 @@ public class AppFilter implements Filter {
 
 			m_contextMaker.handleRequest(rq, (HttpServletResponse) res, chain);
 		} catch(RuntimeException x) {
-			DomUtil.dumpException(x);
+			DomUtil.dumpExceptionIfSevere(x);
 			throw x;
 		} catch(ServletException x) {
-			DomUtil.dumpException(x);
+			DomUtil.dumpExceptionIfSevere(x);
 			throw x;
 		} catch(IOException x) {
 			if(x.getClass().getName().endsWith("ClientAbortException")) // Do not log these.
 				throw x;
-			DomUtil.dumpException(x);
+			DomUtil.dumpExceptionIfSevere(x);
 			throw x;
 		} catch(Exception x) {
-			DomUtil.dumpException(x);
+			DomUtil.dumpExceptionIfSevere(x);
 			throw new WrappedException(x); // checked exceptions are idiotic
 		} catch(Error x) {
 			x.printStackTrace();
