@@ -189,6 +189,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			DomUtil.USERLOG.debug("\n\n\n========= DomUI request =================\nCID=" + cid + "\nAction=" + action + "\n");
 		}
 		if(!Constants.ACMD_ASYPOLL.equals(action))
+//			System.out.println("req: " + cid + " action " + action + ", " + ctx.getParameter(Constants.PARAM_UICOMPONENT));
 			logUser(ctx, cid, clz.getName(), "Incoming request on " + cid + " action=" + action);
 
 		//-- If this is an OBITUARY just mark the window as possibly gone, then exit;
