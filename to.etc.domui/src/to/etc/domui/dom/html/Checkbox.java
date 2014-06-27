@@ -31,7 +31,7 @@ import javax.annotation.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.util.*;
 
-public class Checkbox extends NodeBase implements IControl<Boolean>, IHasModifiedIndication {
+public class Checkbox extends NodeBase implements INativeChangeListener, IControl<Boolean>, IHasModifiedIndication {
 	/** The properties bindable for this component. */
 	@Nonnull
 	static private final Set<String> BINDABLE_SET = createNameSet("value", "disabled");

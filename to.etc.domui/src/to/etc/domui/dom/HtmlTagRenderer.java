@@ -702,8 +702,8 @@ public class HtmlTagRenderer implements INodeVisitor {
 		} else if(b.getOnClickJS() != null) {
 			o.attr("onclick", b.getOnClickJS());
 		}
-		if(b instanceof IHasChangeListener && b.getSpecialAttribute("onchange") == null) {
-			IHasChangeListener inb = (IHasChangeListener) b;
+		if(b instanceof INativeChangeListener && b.getSpecialAttribute("onchange") == null) {
+			INativeChangeListener inb = (INativeChangeListener) b;
 			if(null != inb.getOnValueChanged()) {
 				o.attr("onchange", sb().append("WebUI.valuechanged(this, '").append(b.getActualID()).append("', event)").toString());
 			}
