@@ -72,7 +72,7 @@ public class ControlCreatorRelationLookup implements IControlCreator {
 		//-- 1. Define search fields from property, then class.lookup, then generic
 		List<SearchPropertyMetaModel> sp = pmm.getLookupFieldSearchProperties();		// Property override?
 		if(sp.size() == 0) {
-			sp = li.getMetaModel().getSearchProperties(); // Class level?
+			sp = li.getMetaModel().getSearchProperties();		// Class level?
 			if(sp.size() > 0)
 				li.setSearchProperties(sp);
 		}

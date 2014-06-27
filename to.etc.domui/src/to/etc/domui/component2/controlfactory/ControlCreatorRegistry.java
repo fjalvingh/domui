@@ -13,9 +13,20 @@ import to.etc.domui.dom.html.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 27, 2014
  */
-public class ControlRegistry {
+public class ControlCreatorRegistry {
 	@Nonnull
 	private List<IControlCreator> m_controlFactoryList = new ArrayList<>();
+
+	public ControlCreatorRegistry() {
+		//-- Register the default factories
+		register(new ControlCreatorDate());
+		register(new ControlCreatorEnumAndBool());
+		register(new ControlCreatorMoney());
+		register(new ControlCreatorRelationCombo());
+		register(new ControlCreatorRelationLookup());
+		register(new ControlCreatorString());
+		register(new ControlCreatorTextArea());
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Control factories for editing..						*/
@@ -24,7 +35,7 @@ public class ControlRegistry {
 	 * Register a new factory.
 	 * @param cf
 	 */
-	public synchronized void registerControlFactory(@Nonnull final IControlCreator cf) {
+	public synchronized void register(@Nonnull final IControlCreator cf) {
 		ArrayList<IControlCreator> list = new ArrayList<>(m_controlFactoryList);
 		list.add(cf);
 		m_controlFactoryList = Collections.unmodifiableList(list);
