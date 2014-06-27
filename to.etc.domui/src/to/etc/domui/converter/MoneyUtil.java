@@ -28,6 +28,8 @@ import java.math.*;
 import java.text.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
@@ -300,8 +302,12 @@ public class MoneyUtil {
 	@Deprecated
 	public static double roundValue(double value) {
 		BigDecimal bdv = BigDecimal.valueOf(value);
-		bdv = bdv.setScale(MoneyUtil.getMoneyScale(), getRoundingMode());
-		return bdv.doubleValue();
+		return roundValue(bdv).doubleValue();
+	}
+
+	@Nonnull
+	public static BigDecimal roundValue(@Nonnull BigDecimal value) {
+		return value.setScale(MoneyUtil.getMoneyScale(), getRoundingMode());
 	}
 
 	/**
@@ -315,6 +321,19 @@ public class MoneyUtil {
 	 */
 	public static boolean areValuesEqual(double value1, double value2) {
 		return (roundValue(value1) == roundValue(value2));
+	}
+
+	public static boolean areValuesEqual(@Nonnull BigDecimal value1, @Nonnull BigDecimal value2) {
+		return (roundValue(value1).equals(roundValue(value2)));
+	}
+
+	/**
+	 * Checks if specified amount is zero value, when built-in rounding mode and scale are applied.
+	 * @param value
+	 * @return
+	 */
+	public static boolean isZero(@Nonnull BigDecimal value) {
+		return (roundValue(BigDecimal.ZERO).equals(roundValue(value)));
 	}
 
 	@SuppressWarnings({"unchecked"})
