@@ -28,6 +28,7 @@ import java.util.*;
 
 import javax.annotation.*;
 
+import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
@@ -37,6 +38,13 @@ import to.etc.domui.util.*;
 import to.etc.util.*;
 import to.etc.webapp.query.*;
 
+/**
+ * Alternate version of the combobox that wraps a select instead of being one. This version properly
+ * handles "readonly" and extra buttons.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Jun 27, 2014
+ */
 public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasModifiedIndication {
 	/** The properties bindable for this component. */
 	static private final Set<String> BINDABLE_SET = createNameSet("value", "disabled", "message");
@@ -45,7 +53,8 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 
 	private V m_currentValue;
 
-	private Select m_select = new Select() {
+	@Nonnull
+	final private Select m_select = new Select() {
 		@Override
 		protected boolean internalOnUserInput(int oldindex, int nindex) {
 			return ComboComponentBase2.this.internalOnUserInput(oldindex, nindex);
@@ -81,17 +90,19 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 
 	private boolean m_readOnly;
 
+	private List<SmallImgButton> m_buttonList = Collections.EMPTY_LIST;
+
 	public ComboComponentBase2() {}
 
-	public ComboComponentBase2(IListMaker<T> maker) {
+	public ComboComponentBase2(@Nonnull IListMaker<T> maker) {
 		m_listMaker = maker;
 	}
 
-	public ComboComponentBase2(IComboDataSet<T> dataSet) {
+	public ComboComponentBase2(@Nonnull IComboDataSet<T> dataSet) {
 		m_dataSet = dataSet;
 	}
 
-	public ComboComponentBase2(QCriteria<T> query) {
+	public ComboComponentBase2(@Nonnull QCriteria<T> query) {
 		m_dataSet = new CriteriaComboDataSet<T>(query);
 	}
 
@@ -99,7 +110,7 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 		m_dataSetClass = dataSetClass;
 	}
 
-	public ComboComponentBase2(List<T> in) {
+	public ComboComponentBase2(@Nonnull List<T> in) {
 		m_data = in;
 	}
 
@@ -126,6 +137,9 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 			renderReadOnly();
 		} else {
 			renderEditable();
+		}
+		for(SmallImgButton sib : m_buttonList) {
+			add(sib);
 		}
 	}
 
@@ -269,7 +283,7 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 	 * The user selected a different option.
 	 * @see to.etc.domui.dom.html.Select#internalOnUserInput(int, int)
 	 */
-	protected boolean internalOnUserInput(int oldindex, int nindex) {
+	final protected boolean internalOnUserInput(int oldindex, int nindex) {
 		V newval;
 
 		if(nindex < 0) {
@@ -360,7 +374,7 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 		return (INodeContentRenderer<T>) MetaManager.createDefaultComboRenderer(m_propertyMetaModel, cmm);
 	}
 
-	protected void renderOptionLabel(NodeContainer o, T object) throws Exception {
+	final protected void renderOptionLabel(NodeContainer o, T object) throws Exception {
 		if(m_actualContentRenderer == null)
 			m_actualContentRenderer = calculateContentRenderer(object);
 		m_actualContentRenderer.renderNodeContent(this, o, object, this);
@@ -412,6 +426,36 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 		return Collections.EMPTY_LIST;
 		//
 		//		throw new IllegalStateException("I have no way to get data to show in my combo..");
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Code to add extra stuff after this combo.			*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Add a small image button after the combo.
+	 * @param img
+	 * @param title
+	 * @param clicked
+	 */
+	public void addExtraButton(String img, String title, final IClicked<NodeBase> click) {
+		if(m_buttonList == Collections.EMPTY_LIST)
+			m_buttonList = new ArrayList<SmallImgButton>();
+		SmallImgButton si = new SmallImgButton(img);
+		if(click != null) {
+			si.setClicked(new IClicked<SmallImgButton>() {
+				@Override
+				public void clicked(@Nonnull SmallImgButton b) throws Exception {
+					click.clicked(ComboComponentBase2.this);
+				}
+			});
+		}
+		if(title != null)
+			si.setTitle(title);
+		si.addCssClass("ui-cl2-btn");
+		m_buttonList.add(si);
+
+		if(isBuilt())
+			forceRebuild();
 	}
 
 
