@@ -1,4 +1,4 @@
-package to.etc.domui.component.form4;
+package to.etc.domui.component2.form4;
 
 import javax.annotation.*;
 
