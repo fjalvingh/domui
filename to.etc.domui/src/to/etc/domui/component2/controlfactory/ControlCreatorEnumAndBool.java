@@ -26,11 +26,9 @@ package to.etc.domui.component2.controlfactory;
 
 import javax.annotation.*;
 
-import to.etc.domui.component.controlfactory.*;
-import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
-import to.etc.domui.component.misc.*;
-import to.etc.domui.server.*;
+import to.etc.domui.component2.combo.*;
+import to.etc.domui.dom.html.*;
 
 /**
  * Accepts both enum and bools and shows a combobox with the possible choices.
@@ -45,8 +43,8 @@ public class ControlCreatorEnumAndBool implements IControlCreator {
 	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
-	public int accepts(final @Nonnull PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
-		if(controlClass != null && !controlClass.isAssignableFrom(ComboFixed.class)) // This one only creates ComboFixed thingies
+	public <T> int accepts(PropertyMetaModel<T> pmm, Class< ? extends IControl<T>> controlClass) {
+		if(controlClass != null && !controlClass.isAssignableFrom(ComboFixed2.class)) // This one only creates ComboFixed2 thingies
 			return -1;
 		Class< ? > iclz = pmm.getActualType();
 		return iclz == Boolean.class || iclz == Boolean.TYPE || Enum.class.isAssignableFrom(iclz) ? 2 : 0;
@@ -58,15 +56,9 @@ public class ControlCreatorEnumAndBool implements IControlCreator {
 	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#createControl(to.etc.domui.util.IReadOnlyModel, to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
-	public @Nonnull <T> ControlFactoryResult createControl(final @Nonnull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass) {
+	public <T, C extends IControl<T>> C createControl(@Nonnull PropertyMetaModel<T> pmm, @Nullable Class<C> controlClass) {
 		//-- FIXME EXPERIMENTAL use a DisplayValue control to present the value instead of a horrible disabled combobox
-		if(!editable && controlClass == null) {
-			DisplayValue<T> dv = new DisplayValue<T>(pmm.getActualType());
-			dv.defineFrom(pmm);
-			return new ControlFactoryResult(dv);
-		}
-
-		ComboFixed<T> c = (ComboFixed<T>) DomApplication.get().getControlBuilder().createComboFor(pmm, editable);
-		return new ControlFactoryResult(c);
+		ComboFixed2< ? > c = ComboFixed2.createEnumCombo(pmm);
+		return (C) c;
 	}
 }

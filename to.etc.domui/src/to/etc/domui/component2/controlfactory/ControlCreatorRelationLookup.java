@@ -28,9 +28,9 @@ import java.util.*;
 
 import javax.annotation.*;
 
-import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
+import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 
@@ -48,7 +48,7 @@ public class ControlCreatorRelationLookup implements IControlCreator {
 	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
-	public int accepts(final @Nonnull PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
+	public <T> int accepts(PropertyMetaModel<T> pmm, Class< ? extends IControl<T>> controlClass) {
 		if(controlClass != null && !controlClass.isAssignableFrom(LookupInput.class))
 			return -1;
 
@@ -65,10 +65,9 @@ public class ControlCreatorRelationLookup implements IControlCreator {
 	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#createControl(to.etc.domui.util.IReadOnlyModel, to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
-	public @Nonnull <T> ControlFactoryResult createControl(final @Nonnull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass) {
+	public <T, C extends IControl<T>> C createControl(@Nonnull PropertyMetaModel<T> pmm, @Nullable Class<C> controlClass) {
 		//-- We'll do a lookup thingy for sure.
-		LookupInput<T> li = editable ? new LookupInput<T>(pmm.getActualType(), pmm.getValueModel()) : new RelationLookupDisplayInput<T>(pmm.getActualType(), pmm.getValueModel());
-		li.setReadOnly(!editable);
+		LookupInput<T> li = new LookupInput<T>(pmm.getActualType(), pmm.getValueModel());
 
 		//-- 1. Define search fields from property, then class.lookup, then generic
 		List<SearchPropertyMetaModel> sp = pmm.getLookupFieldSearchProperties();		// Property override?
@@ -79,8 +78,6 @@ public class ControlCreatorRelationLookup implements IControlCreator {
 		}
 
 		//-- 2. Define keyword search properties in the same way.
-
-
 		if(pmm.getLookupSelectedRenderer() != null)
 			li.setValueRenderer((INodeContentRenderer<T>) DomApplication.get().createInstance(pmm.getLookupSelectedRenderer())); // Bloody stupid Java generic crap
 		else {
@@ -102,7 +99,7 @@ public class ControlCreatorRelationLookup implements IControlCreator {
 			li.setQueryManipulator(qm);
 		}
 
-		return new ControlFactoryResult(li);
+		return (C) li;
 	}
 }
 

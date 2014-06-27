@@ -28,11 +28,9 @@ import java.util.*;
 
 import javax.annotation.*;
 
-import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
-import to.etc.domui.component.misc.*;
-import to.etc.domui.converter.*;
+import to.etc.domui.dom.html.*;
 
 /**
  * Accepts the "java.util.Date" type only and creates a DateInput component for it.
@@ -46,7 +44,7 @@ public class ControlCreatorDate implements IControlCreator {
 	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
-	public int accepts(@Nonnull final PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
+	public <T> int accepts(PropertyMetaModel<T> pmm, Class< ? extends IControl<T>> controlClass) {
 		if(controlClass != null && !controlClass.isAssignableFrom(DateInput.class))
 			return -1;
 
@@ -57,42 +55,8 @@ public class ControlCreatorDate implements IControlCreator {
 		return 0;
 	}
 
-	@Nonnull
 	@Override
-	public <T> ControlFactoryResult createControl(@Nonnull final PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass) {
-		if(!editable && (controlClass == null || controlClass.isAssignableFrom(Text.class))) {
-			//			Text<Date> txt = new Text<Date>(Date.class);
-			//			txt.setReadOnly(true);
-			// FIXME EXPERIMENTAL Replace the TEXT control with a DisplayValue control.
-			DisplayValue<Date> txt = new DisplayValue<Date>(Date.class);
-
-			//20100208 vmijic - fixed readonly presentation for date fields.
-			Class< ? extends IConverter<Date>> cc;
-			if(pmm == null)
-				cc = DateTimeConverter.class;
-			else {
-				switch(pmm.getTemporal()){
-					default:
-						throw new IllegalStateException("Unsupported temporal metadata type: " + pmm.getTemporal());
-					case UNKNOWN:
-						/*$FALL_THROUGH$*/
-					case DATETIME:
-						cc = DateTimeConverter.class;
-						break;
-					case DATE:
-						cc = DateConverter.class;
-						break;
-					case TIME:
-						cc = TimeOnlyConverter.class;
-						break;
-				}
-			}
-
-			txt.setConverter(ConverterRegistry.getConverterInstance(cc));
-			return new ControlFactoryResult(txt);
-		}
-
-		DateInput di = DateInput.createDateInput((PropertyMetaModel<Date>) pmm, editable);
-		return new ControlFactoryResult(di);
+	public <T, C extends IControl<T>> C createControl(@Nonnull PropertyMetaModel<T> pmm, @Nullable Class<C> controlClass) {
+		return (C) DateInput.createDateInput((PropertyMetaModel<Date>) pmm, true);
 	}
 }

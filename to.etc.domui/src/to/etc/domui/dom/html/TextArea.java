@@ -29,6 +29,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.input.*;
+import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
@@ -227,5 +228,22 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 	@Nullable
 	public List<SimpleBinder> getBindingList() {
 		return m_bindingList;
+	}
+
+	@Nonnull
+	static public TextArea create(@Nonnull PropertyMetaModel< ? > pmm) {
+		TextArea ta = new TextArea();
+		String cth = pmm.getComponentTypeHint();
+		if(cth != null) {
+			String hint = cth.toLowerCase();
+			ta.setCols(MetaUtils.parseIntParam(hint, MetaUtils.COL, 80));
+			ta.setRows(MetaUtils.parseIntParam(hint, MetaUtils.ROW, 4));
+		}
+		if(pmm.isRequired())
+			ta.setMandatory(true);
+		String s = pmm.getDefaultHint();
+		if(s != null)
+			ta.setTitle(s);
+		return ta;
 	}
 }

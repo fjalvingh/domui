@@ -26,10 +26,9 @@ package to.etc.domui.component2.controlfactory;
 
 import javax.annotation.*;
 
-import to.etc.domui.component.controlfactory.*;
-import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
-import to.etc.domui.component.misc.*;
+import to.etc.domui.component2.combo.*;
+import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 
@@ -48,8 +47,8 @@ public class ControlCreatorRelationCombo implements IControlCreator {
 	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
-	public int accepts(final @Nonnull PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
-		if(controlClass != null && !controlClass.isAssignableFrom(ComboLookup.class))
+	public <T> int accepts(PropertyMetaModel<T> pmm, Class< ? extends IControl<T>> controlClass) {
+		if(controlClass != null && !controlClass.isAssignableFrom(ComboLookup2.class))
 			return -1;
 
 		if(pmm.getRelationType() != PropertyRelationType.UP)
@@ -62,23 +61,12 @@ public class ControlCreatorRelationCombo implements IControlCreator {
 	}
 
 	@Override
-	public @Nonnull <T> ControlFactoryResult createControl(final @Nonnull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass) {
-		if(!editable && controlClass == null) {
-			DisplayValue<T> dv = new DisplayValue<T>(pmm.getActualType());
-			dv.defineFrom(pmm);
-			if(dv.getConverter() == null && dv.getRenderer() == null) {
-				INodeContentRenderer<T> r = (INodeContentRenderer<T>) MetaManager.createDefaultComboRenderer(pmm, null); // FIXME Needed?
-				dv.setRenderer(r);
-			}
-			return new ControlFactoryResult(dv);
-		}
-
+	public <T, C extends IControl<T>> C createControl(@Nonnull PropertyMetaModel<T> pmm, @Nullable Class<C> controlClass) {
 		try {
-			ComboLookup<T> co = ComboLookup.createLookup(pmm);
-			co.setDisabled(!editable);
-			return new ControlFactoryResult(co);
+			ComboLookup2<T> co = ComboLookup2.createLookup(pmm);
+			return (C) co;
 		} catch(Exception x) {
-			throw WrappedException.wrap(x); // Checked exceptions are idiocy.
+			throw WrappedException.wrap(x);
 		}
 	}
 }

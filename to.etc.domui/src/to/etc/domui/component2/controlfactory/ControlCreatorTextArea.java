@@ -26,7 +26,6 @@ package to.etc.domui.component2.controlfactory;
 
 import javax.annotation.*;
 
-import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 
@@ -36,7 +35,7 @@ public class ControlCreatorTextArea implements IControlCreator {
 	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
-	public int accepts(@Nonnull PropertyMetaModel< ? > pmm, boolean editable, @Nullable Class< ? > controlClass) {
+	public <T> int accepts(PropertyMetaModel<T> pmm, Class< ? extends IControl<T>> controlClass) {
 		if(controlClass != null && !controlClass.isAssignableFrom(TextArea.class))
 			return -1;
 		String cth = pmm.getComponentTypeHint();
@@ -48,21 +47,7 @@ public class ControlCreatorTextArea implements IControlCreator {
 	}
 
 	@Override
-	public @Nonnull <T> ControlFactoryResult createControl(@Nonnull PropertyMetaModel<T> pmm, boolean editable, @Nullable Class< ? > controlClass) {
-		TextArea ta = editable ? new TextArea() : new TextDisplayArea();
-		if(!editable)
-			ta.setReadOnly(true);
-		String cth = pmm.getComponentTypeHint();
-		if(cth != null) {
-			String hint = cth.toLowerCase();
-			ta.setCols(MetaUtils.parseIntParam(hint, MetaUtils.COL, 80));
-			ta.setRows(MetaUtils.parseIntParam(hint, MetaUtils.ROW, 4));
-		}
-		if(pmm.isRequired())
-			ta.setMandatory(true);
-		String s = pmm.getDefaultHint();
-		if(s != null)
-			ta.setTitle(s);
-		return new ControlFactoryResult(ta);
+	public <T, C extends IControl<T>> C createControl(@Nonnull PropertyMetaModel<T> pmm, @Nullable Class<C> controlClass) {
+		return (C) TextArea.create(pmm);
 	}
 }

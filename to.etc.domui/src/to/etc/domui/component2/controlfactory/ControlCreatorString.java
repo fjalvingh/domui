@@ -28,10 +28,9 @@ import java.math.*;
 
 import javax.annotation.*;
 
-import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
-import to.etc.domui.component.misc.*;
+import to.etc.domui.dom.html.*;
 
 /**
  * This is a fallback factory; it accepts anything and shows a String edit component OR a
@@ -49,9 +48,9 @@ public class ControlCreatorString implements IControlCreator {
 	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel)
 	 */
 	@Override
-	public int accepts(final @Nonnull PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
+	public <T> int accepts(PropertyMetaModel<T> pmm, Class< ? extends IControl<T>> controlClass) {
 		if(controlClass != null) {
-			if(!controlClass.isAssignableFrom(Text.class) && !controlClass.isAssignableFrom(DisplayValue.class))
+			if(!controlClass.isAssignableFrom(Text.class))
 				return -1;
 		}
 
@@ -59,29 +58,16 @@ public class ControlCreatorString implements IControlCreator {
 	}
 
 	@Override
-	public @Nonnull <T> ControlFactoryResult createControl(final @Nonnull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass) {
+	public <T, C extends IControl<T>> C createControl(@Nonnull PropertyMetaModel<T> pmm, @Nullable Class<C> controlClass) {
 		Class<T> iclz = pmm.getActualType();
-		if(!editable) {
-			/*
-			 * FIXME EXPERIMENTAL: replace the code below (which is still fully available) with the
-			 * display-only component.
-			 */
-			DisplayValue<T> dv = new DisplayValue<T>(iclz);
-			if(pmm.getConverter() != null)
-				dv.setConverter(pmm.getConverter());
-			String s = pmm.getDefaultHint();
-			if(s != null)
-				dv.setTitle(s);
-			return new ControlFactoryResult(dv);
-		}
 
 		Text<T> txt;
 
 		if(pmm.getActualType() == Double.class || pmm.getActualType() == double.class || pmm.getActualType() == BigDecimal.class) {
-			txt = (Text<T>) Text.createNumericInput((PropertyMetaModel<Double>) pmm, editable);
+			txt = (Text<T>) Text.createNumericInput((PropertyMetaModel<Double>) pmm, true);
 		} else {
-			txt = Text.createText(iclz, pmm, editable);
+			txt = Text.createText(iclz, pmm, true);
 		}
-		return new ControlFactoryResult(txt);
+		return (C) txt;
 	}
 }

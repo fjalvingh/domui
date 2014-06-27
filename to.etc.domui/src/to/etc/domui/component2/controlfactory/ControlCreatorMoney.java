@@ -28,11 +28,9 @@ import java.math.*;
 
 import javax.annotation.*;
 
-import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
-import to.etc.domui.component.misc.*;
-import to.etc.domui.converter.*;
+import to.etc.domui.dom.html.*;
 
 /**
  * Factory which creates a Text input specialized for entering monetary amounts. This
@@ -48,11 +46,11 @@ public class ControlCreatorMoney implements IControlCreator {
 	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel)
 	 */
 	@Override
-	public int accepts(final @Nonnull PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
-		if(controlClass != null && !controlClass.isAssignableFrom(Text.class)) // This will create a Text class,
+	public <T> int accepts(PropertyMetaModel<T> pmm, Class< ? extends IControl<T>> controlClass) {
+		if(controlClass != null && !controlClass.isAssignableFrom(Text.class)) 		// This will create a Text class,
 			return -1;
 		Class<?> clz = pmm.getActualType();
-		if(clz != Double.class && clz != double.class && clz != BigDecimal.class) // Must be proper type
+		if(clz != Double.class && clz != double.class && clz != BigDecimal.class)	// Must be proper type
 			return -1;
 		if(!NumericPresentation.isMonetary(pmm.getNumericPresentation()))
 			return -1;
@@ -64,28 +62,14 @@ public class ControlCreatorMoney implements IControlCreator {
 	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#createControl(to.etc.domui.util.IReadOnlyModel, to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
-	@SuppressWarnings({"unchecked"})
-	public @Nonnull <T> ControlFactoryResult createControl(final @Nonnull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass) {
-		Class<T> iclz = pmm.getActualType();
-
-		if(!editable) {
-			DisplayValue<T> dv = new DisplayValue<T>(iclz);
-			//			dv.setTextAlign(TextAlign.RIGHT);
-			dv.addCssClass("ui-numeric");
-			MoneyUtil.assignMonetaryConverter(pmm, editable, dv);
-			String s = pmm.getDefaultHint();
-			if(s != null)
-				dv.setTitle(s);
-			return new ControlFactoryResult(dv);
-		}
-
+	public <T, C extends IControl<T>> C createControl(@Nonnull PropertyMetaModel<T> pmm, @Nullable Class<C> controlClass) {
 		Text<T> txt;
 		if(pmm.getActualType() == Double.class || pmm.getActualType() == double.class) {
-			txt = (Text<T>) Text.createDoubleMoneyInput((PropertyMetaModel<Double>) pmm, editable);
+			txt = (Text<T>) Text.createDoubleMoneyInput((PropertyMetaModel<Double>) pmm, true);
 		} else if(pmm.getActualType() == BigDecimal.class) {
-			txt = (Text<T>) Text.createBDMoneyInput((PropertyMetaModel<BigDecimal>) pmm, editable);
+			txt = (Text<T>) Text.createBDMoneyInput((PropertyMetaModel<BigDecimal>) pmm, true);
 		} else
 				throw new IllegalStateException("Cannot handle type=" + pmm.getActualType() + " in monetary control factory");
-		return new ControlFactoryResult(txt);
+		return (C) txt;
 	}
 }
