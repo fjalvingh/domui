@@ -72,6 +72,14 @@ final public class FormBuilder {
 		return this;
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Label control.										*/
+	/*--------------------------------------------------------------*/
+	/**
+	 *
+	 * @param label
+	 * @return
+	 */
 	@Nonnull
 	public FormBuilder label(@Nonnull String label) {
 		if(null != m_nextLabelControl)
@@ -94,6 +102,13 @@ final public class FormBuilder {
 		return this;
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Readonly, mandatory, disabled.						*/
+	/*--------------------------------------------------------------*/
+	/**
+	 *
+	 * @return
+	 */
 	@Nonnull
 	public FormBuilder readOnly() {
 		m_readOnly = Boolean.TRUE;
@@ -106,6 +121,15 @@ final public class FormBuilder {
 		return this;
 	}
 
+
+	/*--------------------------------------------------------------*/
+	/*	CODING: defining (manually created) controls.				*/
+	/*--------------------------------------------------------------*/
+	/**
+	 *
+	 * @param control
+	 * @throws Exception
+	 */
 	public void control(@Nonnull IControl< ? > control) throws Exception {
 		addControl((NodeBase) control);
 		resetBuilder();
