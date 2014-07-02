@@ -3055,11 +3055,16 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	margin: 0px;
 }
 
+/*** ComboComponentBase2: replacement for select control ***/
 .ui-cbb2 {
 	display: inline-block;
 }
+.ui-cbb2 select {
+	color: black;
+	background: white;
+}
 
-/*** comboBoxBase - replacement for select control ***/
+/*** comboBoxBase - javascript select control (incomplete)  ***/
 .ui-cbb {
 	display: inline-block;
 	position: relative;
