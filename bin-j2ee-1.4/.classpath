@@ -5,5 +5,7 @@
 			<attribute name="javadoc_location" value="jar:file:/home/jal/wsitris/bin-j2ee-1.4/javadoc.jar!/apidocs"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry exported="true" kind="lib" path="servlet-api-3.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="jsp-2.2-spec-1.0.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
