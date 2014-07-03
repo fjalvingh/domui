@@ -3,18 +3,32 @@ package to.etc.domui.component2.lookupinput;
 import java.math.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.query.*;
 
 public class DefaultStringQueryFactory<QT> implements IStringQueryFactory<QT> {
+	/**
+	 * The metamodel to use to handle the query data in this class. For Javabean data classes this is automatically
+	 * obtained using MetaManager; for meta-based data models this gets passed as a constructor argument.
+	 */
+	@Nonnull
+	final private ClassMetaModel m_queryMetaModel;
+
+	/** Contains manually added quicksearch properties. Is null if none are added. */
+	@Nullable
+	private List<SearchPropertyMetaModel> m_keywordLookupPropertyList;
+
 	@Override
 	public QCriteria<QT> createQuery(String searchString) throws Exception {
 		searchString = DomUtil.nullChecked(searchString.replace("*", "%"));
 
 		//-- Has default meta?
-		List<SearchPropertyMetaModel> spml = m_keywordLookupPropertyList == null ? getQueryMetaModel().getKeyWordSearchProperties() : getKeywordLookupPropertyList();
+		List<SearchPropertyMetaModel> keywordLookupPropertyList = m_keywordLookupPropertyList;
+		List<SearchPropertyMetaModel> spml = keywordLookupPropertyList == null ? getQueryMetaModel().getKeyWordSearchProperties() : keywordLookupPropertyList;
 		QCriteria<QT> searchQuery = (QCriteria<QT>) getQueryMetaModel().createCriteria();
 
 		QRestrictor<QT> r = searchQuery.or();
@@ -61,6 +75,11 @@ public class DefaultStringQueryFactory<QT> implements IStringQueryFactory<QT> {
 		if(ncond == 0) {
 			return null;		//no search meta data is matching minimal length condition, search is cancelled
 		}
+		return searchQuery;
 	}
 
+	@Nonnull
+	public ClassMetaModel getQueryMetaModel() {
+		return m_queryMetaModel;
+	}
 }

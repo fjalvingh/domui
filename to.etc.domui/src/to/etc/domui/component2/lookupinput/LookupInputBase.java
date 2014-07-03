@@ -42,7 +42,7 @@ import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.query.*;
 
-abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT>, IHasModifiedIndication {
+abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT>, IHasModifiedIndication, IQueryManipulator<QT> {
 	/** The properties bindable for this component. */
 	static private final Set<String> BINDABLE_SET = createNameSet("value", "disabled");
 
@@ -129,10 +129,6 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	/** Contains manually added quicksearch properties. Is null if none are added. */
 	@Nullable
 	private List<SearchPropertyMetaModel> m_keywordLookupPropertyList;
-
-	/** The search properties to use in the lookup form when created. If null uses the default attributes on the class. */
-	@Nullable
-	private List<SearchPropertyMetaModel> m_searchPropertyList;
 
 	private enum RebuildCause {
 		CLEAR, SELECT
@@ -497,7 +493,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 			return null;
 		}
 
-		searchQuery = manipulateCriteria(searchQuery);			// Manipulate if needed
+		searchQuery = adjustCriteria(searchQuery);			// Manipulate if needed
 		if(searchQuery == null) {								// Manipulate cancelled
 			return null;
 		}
@@ -506,7 +502,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	}
 
 	@Nullable
-	private QCriteria<QT> manipulateCriteria(@Nonnull QCriteria<QT> enteredCriteria) {
+	private QCriteria<QT> adjustCriteria(@Nonnull QCriteria<QT> enteredCriteria) {
 		IQueryManipulator<QT> qm = getQueryManipulator();
 		QCriteria<QT> result = enteredCriteria;
 		if(qm != null) {
@@ -941,18 +937,6 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	}
 
 	/**
-	 * Set the list of lookup properties to use for lookup in the lookup form, when shown.
-	 * @return
-	 */
-	public List<SearchPropertyMetaModel> getSearchProperties() {
-		return m_searchPropertyList;
-	}
-
-	public void setSearchProperties(List<SearchPropertyMetaModel> searchPropertyList) {
-		m_searchPropertyList = searchPropertyList;
-	}
-
-	/**
 	 * Define a property to use for quick search. When used this overrides any metadata-defined
 	 * properties.
 	 *
@@ -1040,35 +1024,12 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	}
 
 	/**
-	 * Add column specs for the full query form's result list, according to the specifications as defined by {@link BasicRowRenderer}.
-	 * @param columns
-	 */
-	public void addFormColumns(@Nonnull Object... columns) {
-		IRowRenderer<OT> rr = getActualFormRowRenderer();
-		if(rr instanceof BasicRowRenderer) {
-			((BasicRowRenderer<OT>) rr).addColumns(columns);
-		} else
-			throw new IllegalStateException("The row renderer for the form is set to something else than a BasicRowRenderer.");
-	}
-
-	/**
 	 * Define the full column spec in the format described for {@link BasicRowRenderer} for the dropdown box
 	 * showing quick search results.
 	 * @param columns
 	 */
 	public void addDropdownColumns(@Nonnull Object... columns) {
 		getDropdownRowRenderer().addColumns(columns);
-	}
-
-	/**
-	 * DO NOT USE - this sets both dropdown columns AND full lookup form columns to the column spec passed... It
-	 * is preferred to separate those.
-	 *
-	 * @param resultColumns
-	 */
-	public void setResultColumns(@Nonnull String... resultColumns) {
-		addDropdownColumns((Object[]) resultColumns);
-		addFormColumns((Object[]) resultColumns);
 	}
 
 	protected void closePopup() throws Exception {

@@ -1,9 +1,13 @@
 package to.etc.domui.component2.lookupinput;
 
+import java.util.*;
+
 import javax.annotation.*;
 
+import to.etc.domui.component.input.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.lookup.*;
+import to.etc.domui.component.meta.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
@@ -46,6 +50,30 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 	@Nullable
 	private IClickableRowRenderer<OT> m_actualFormRowRenderer;
 
+	private ITableModelFactory<QT, OT> m_modelFactory;
+
+	@Nullable
+	private IQueryManipulator<QT> m_queryManipulator;
+
+	/** The search properties to use in the lookup form when created. If null uses the default attributes on the class. */
+	@Nullable
+	private List<SearchPropertyMetaModel> m_searchPropertyList;
+
+	/**
+	 * The metamodel to use to handle the query data in this class. For Javabean data classes this is automatically
+	 * obtained using MetaManager; for meta-based data models this gets passed as a constructor argument.
+	 */
+	@Nonnull
+	final private ClassMetaModel m_queryMetaModel;
+
+	/**
+	 * The metamodel for output (display) objects.
+	 */
+	@Nonnull
+	final private ClassMetaModel m_outputMetaModel;
+
+	@Nullable
+	private ITableModel<OT> m_keySearchModel;
 
 	@Override
 	public void createContent() throws Exception {
@@ -63,10 +91,12 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 		}
 		LookupForm<QT> lf = getLookupForm();
 		if(lf == null) {
-			lf = new LookupForm<QT>(getQueryClass(), getQueryMetaModel());
+			lf = new LookupForm<QT>((Class<QT>) getQueryMetaModel().getActualClass(), getQueryMetaModel());
 			if(m_searchPropertyList != null && m_searchPropertyList.size() != 0)
 				lf.setSearchProperties(m_searchPropertyList);
 		}
+
+		ITableModel<OT> keySearchModel = m_keySearchModel;
 
 		lf.setCollapsed(keySearchModel != null && keySearchModel.getRows() > 0);
 		lf.forceRebuild(); // jal 20091002 Force rebuild to remove any state from earlier invocations of the same form. This prevents the form from coming up in "collapsed" state if it was left that way last time it was used (Lenzo).
@@ -76,7 +106,7 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 			@Override
 			public void closed(@Nonnull String closeReason) throws Exception {
 				clearGlobalMessage(Msgs.V_MISSING_SEARCH);
-				m_floater = null;
+//				m_floater = null;
 				m_result = null;
 			}
 		});
@@ -91,7 +121,7 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 		lf.setOnCancel(new IClicked<LookupForm<QT>>() {
 			@Override
 			public void clicked(@Nonnull LookupForm<QT> b) throws Exception {
-				f.closePressed();
+				closePressed();
 			}
 		});
 
@@ -104,15 +134,17 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 
 	}
 
-	private void search(LookupForm<QT> lf) throws Exception {
+	private void search(@Nonnull LookupForm<QT> lf) throws Exception {
 		QCriteria<QT> c = lf.getEnteredCriteria();
 		if(c == null)						// Some error has occured?
 			return;							// Don't do anything (errors will have been registered)
 
-		c = manipulateCriteria(c);
-		if(c == null) {
-			//in case of cancelled search by query manipulator return
-			return;
+		IQueryManipulator<QT> m = m_queryManipulator;
+		if(null != m) {
+			c = m.adjustQuery(c);
+			if(c == null) {					// Cancelled by manipulator?
+				return;
+			}
 		}
 
 		clearGlobalMessage(Msgs.V_MISSING_SEARCH);
@@ -127,6 +159,14 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 	private void setTableQuery(@Nonnull QCriteria<QT> qc) throws Exception {
 		ITableModel<OT> model = createTableModel(qc);					// Ask derived to convert the query into my output model
 		setResultModel(model);
+	}
+
+	@Nonnull
+	private ITableModel<OT> createTableModel(@Nonnull QCriteria<QT> qc) throws Exception {
+		ITableModelFactory<QT, OT> factory = m_modelFactory;
+		if(null == factory)
+			throw new IllegalStateException("Table model factory unset");
+		return factory.createTableModel(qc);
 	}
 
 	private void setResultModel(@Nonnull ITableModel<OT> model) throws Exception {
@@ -145,7 +185,7 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 
 			//-- Add the pager,
 			DataPager pg = new DataPager(m_result);
-			getFloater().add(pg);
+			add(pg);
 			dt.setTestID("resultTableLookupInput");
 		} else {
 			dt.setModel(model); // Change the model
@@ -167,7 +207,7 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 			//-- Is a form row renderer specified by the user - then use it, else create a default one.
 			actualFormRowRenderer = m_actualFormRowRenderer = getFormRowRenderer();
 			if(null == actualFormRowRenderer) {
-				actualFormRowRenderer = m_actualFormRowRenderer = new BasicRowRenderer<OT>(getOutputClass(), getOutputMetaModel());
+				actualFormRowRenderer = m_actualFormRowRenderer = new BasicRowRenderer<OT>((Class<OT>) getOutputMetaModel().getActualClass(), getOutputMetaModel());
 			}
 
 			//-- Always set a click handler on the row renderer, so we can accept the selected record.
@@ -196,6 +236,16 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 			((BasicRowRenderer<OT>) rr).addColumns(columns);
 		} else
 			throw new IllegalStateException("The row renderer for the form is set to something else than a BasicRowRenderer.");
+	}
+
+	@Nonnull
+	public ClassMetaModel getQueryMetaModel() {
+		return m_queryMetaModel;
+	}
+
+	@Nonnull
+	public ClassMetaModel getOutputMetaModel() {
+		return m_outputMetaModel;
 	}
 
 	/**
@@ -309,4 +359,15 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 		m_formRowRenderer = lookupFormRenderer;
 	}
 
+	/**
+	 * Set the list of lookup properties to use for lookup in the lookup form, when shown.
+	 * @return
+	 */
+	public List<SearchPropertyMetaModel> getSearchProperties() {
+		return m_searchPropertyList;
+	}
+
+	public void setSearchProperties(List<SearchPropertyMetaModel> searchPropertyList) {
+		m_searchPropertyList = searchPropertyList;
+	}
 }
