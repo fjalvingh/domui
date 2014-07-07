@@ -3057,6 +3057,7 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 
 .ui-cbb2 {
 	display: inline-block;
+	vertical-align: baseline;
 }
 
 /*** comboBoxBase - replacement for select control ***/
@@ -3104,7 +3105,4 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	display: none;
 	padding: 5px;
 }
-
-
-
 
