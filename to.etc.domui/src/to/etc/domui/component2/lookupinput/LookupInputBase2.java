@@ -48,6 +48,13 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 
 	static public final INodeContentRenderer<Object> DEFAULT_RENDERER = new SimpleLookupInputRenderer2<Object>();
 
+	/**
+	 * EXPERIMENTAL Factory for the lookup dialog, to be shown when the lookup button
+	 * is pressed.
+	 *
+	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+	 * Created on Jul 8, 2014
+	 */
 	public interface IPopupOpener {
 		public <A, B, L extends LookupInputBase2<A, B>> Dialog createDialog(@Nonnull L control, @Nullable ITableModel<B> initialModel);
 	}
@@ -86,8 +93,6 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 
 	@Nullable
 	private OT m_value;
-
-	private Table m_table;
 
 	private boolean m_mandatory;
 
@@ -156,6 +161,9 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	@Nullable
 	private IPopupOpener m_popupOpener;
 
+	@Nullable
+	private NodeContainer m_valueNode;
+
 	/**
 	 * This must create the table model for the output type from the query on the input type.
 	 * @param query
@@ -212,7 +220,7 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 		});
 		b.setTestID("clearButtonInputLookup");
 		b.setDisplay(DisplayType.NONE);
-		setCssClass("ui-lui");
+		setCssClass("ui-lui2");
 	}
 
 	@Nonnull
@@ -229,6 +237,18 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 		throw new IllegalStateException("Clear button is not there.");
 	}
 
+	@Nonnull
+	private NodeContainer getValueNode() {
+		NodeContainer node = m_valueNode;
+		if(node == null) {
+			Span span = new Span();
+			m_valueNode = node = span;
+			span.setCssClass("ui-lui2-vspan");
+			add(0, span);
+		}
+		return node;
+	}
+
 	@Override
 	@Nonnull
 	public Set<String> getBindableProperties() {
@@ -237,57 +257,31 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 
 	@Override
 	public void createContent() throws Exception {
-		m_table = new Table();
-		m_table.setCellSpacing("0");
-		m_table.setCellPadding("0");
-		add(m_table);
 		m_keySearch = null;
 		removeCssClass("ui-ro");
 		if(m_value == null && isAllowKeyWordSearch() && isKeyWordSearchDefined()) {
-			//Key word search rendering should be generic, no need for customization posibilities.
+			//Key word search rendering should be generic, no need for customization possibilities.
 			if(isReadOnly() || isDisabled()) {
 				renderEmptySelection();
 				addCssClass("ui-ro");
 			} else {
-				renderKeyWordSearch(m_selButton);
+				renderKeyWordSearch();
 			}
 		} else {
-			//In case of rendring selected values it is possible to use customized renderers. If no customized rendered is defined then use default one.
+			//In case of rendering selected values it is possible to use customized renderers. If no customized rendered is defined then use default one.
 			INodeContentRenderer<OT> r = getValueRenderer();
 			if(r == null)
-				r = (INodeContentRenderer<OT>) DEFAULT_RENDERER; // Prevent idiotic generics error
-			r.renderNodeContent(this, this, m_value, isReadOnly() || isDisabled() ? null : m_selButton);
+				r = (INodeContentRenderer<OT>) DEFAULT_RENDERER;
+			r.renderNodeContent(this, getValueNode(), m_value, null);
 		}
 
 		SmallImgButton clearButton = getClearButton();
 		if(!isReadOnly() && !isDisabled()) {
-			if(!getSelButton().isAttached()) { // If the above did not add the button do it now.
-				/*
-				 * jal 20090925 Bugfix: when a renderer does not add the button (as it should) we need to add it manually, but
-				 * it must be in a valid table structure! So we need to ensure that a tbody, tr and td are present to add the
-				 * node to. This fixes the problem where IE did not show the buttons because the rendered xhtml was invalid.
-				 */
-				TBody tb = m_table.getBody();
-				TR tr;
-				if(tb.getChildCount() == 0)
-					tr = tb.addRow();
-				else
-					tr = (TR) tb.getChild(0);
-
-				TD cell = tr.addCell();
-				cell.add(getSelButton());
-			}
-			getSelButton().appendAfterMe(clearButton);
-			//This code is needed for proper control alignment.
-
-// jal 20121025 temp disabled
-//			//FIXME: vmijic, not suitable for larger button images, see is this can be resolved by introducing span container for buttons.
-//			if(clearButton.getDisplay() == DisplayType.NONE) {
-//				clearButton.getParent().setMinWidth("24px");
-//			} else {
-//				clearButton.getParent().setMinWidth("58px");
-//			}
+			//-- Append the select/clear buttons
+			add(getSelButton());
+			add(clearButton);
 		}
+
 		if(m_rebuildCause == RebuildCause.CLEAR) {
 			//User clicked clear button, so we can try to set focus to input search if possible.
 			if(m_keySearch != null) {
@@ -311,23 +305,12 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 		}
 	}
 
-	private void appendParameters(@Nonnull TD cell, @Nonnull Object parameters) {
-		TD tdParameters = new TD();
-		cell.appendAfterMe(tdParameters);
-		tdParameters.setCssClass("ui-lui-btntd");
-		tdParameters.setValign(TableVAlign.TOP);
-		tdParameters.add((NodeBase) parameters); // Add the button,
-	}
-
 	/**
 	 * Render the presentation for empty/unselected input.
 	 */
 	private void renderEmptySelection() {
-		TD td = m_table.getBody().addRowAndCell();
-		td.setValign(TableVAlign.TOP);
-		td.setCssClass("ui-lui-v");
 		String txt = Msgs.BUNDLE.getString(Msgs.UI_LOOKUP_EMPTY);
-		td.add(txt);
+		getValueNode().setText(txt);
 	}
 
 
@@ -349,20 +332,11 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	}
 
 	/**
-	 * Render the "current value" display as an input box or display box with clear and select buttons.
+	 * Render the "current value" display as an input box.
 	 * @param parameters
 	 */
-	private void renderKeyWordSearch(@Nullable Object parameters) {
-		TD td = m_table.getBody().addRowAndCell();
-		td.setValign(TableVAlign.TOP);
-		td.setCssClass("ui-lui-v");
-//		td.setWidth("100%"); jal 20121025 Width should not be set but style should be used?
-		addKeySearchField(td);
-
-		//-- parameters is either the button, or null if this is a readonly version.
-		if(parameters != null) {
-			appendParameters(td, parameters);
-		}
+	private void renderKeyWordSearch() {
+		addKeySearchField(getValueNode());
 	}
 
 	private void addKeySearchField(NodeContainer parent) {
@@ -630,9 +604,9 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 
 	private void updateRoStyle() {
 		if((m_disabled || m_readOnly) && m_value != null)
-			addCssClass("ui-lui-selected-ro");
+			addCssClass("ui-lui2-selected-ro");
 		else
-			removeCssClass("ui-lui-selected-ro");
+			removeCssClass("ui-lui2-selected-ro");
 	}
 
 	/**
@@ -716,10 +690,10 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 		if(v != null) {
 			getClearButton().setDisplay(DisplayType.INLINE);
 			clearMessage();
-			setCssClass("ui-lui-selected");
+			setCssClass("ui-lui2-selected");
 		} else {
 			getClearButton().setDisplay(DisplayType.NONE);
-			setCssClass("ui-lui");
+			setCssClass("ui-lui2");
 		}
 		updateRoStyle();
 		forceRebuild();
@@ -966,32 +940,6 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	 */
 	public void addKeywordProperty(@Nonnull String name) {
 		addKeywordProperty(name, -1);
-	}
-
-	/**
-	 * Should not exist! Remove asap.
-	 * @return
-	 */
-	@Deprecated
-	@Nonnull
-	public Table getTable() {
-		if(m_table == null) {
-			throw new IllegalStateException("m_table is not created yet!");
-		}
-		return m_table;
-	}
-
-	/**
-	 * Should not exist! Remove asap.
-	 * @return
-	 */
-	@Deprecated
-	@Nonnull
-	public TBody getBody() {
-		if(m_table == null) {
-			throw new IllegalStateException("m_table is not created yet!");
-		}
-		return m_table.getBody();
 	}
 
 	public int getKeyWordSearchPopupWidth() {
