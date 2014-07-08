@@ -75,6 +75,21 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 	@Nullable
 	private ITableModel<OT> m_keySearchModel;
 
+	/** The selected value or null if no selection made (yet) */
+	@Nullable
+	private OT m_value;
+
+	/**
+	 * The handler that is called when a selection is made / unmade.
+	 */
+	@Nullable
+	private IClicked<DefaultLookupInputDialog<QT, OT>> m_onSelection;
+
+	public DefaultLookupInputDialog(@Nonnull ClassMetaModel queryMetaModel, @Nonnull ClassMetaModel outputMetaModel) {
+		m_queryMetaModel = queryMetaModel;
+		m_outputMetaModel = outputMetaModel;
+	}
+
 	@Override
 	public void createContent() throws Exception {
 		setWidth("740px");
@@ -192,7 +207,7 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 		}
 	}
 
-	protected void initSelectionModel() throws Exception {
+	private void initSelectionModel() throws Exception {
 		// DEFAULT EMPTY IMPLEMENTATION.
 	}
 
@@ -214,17 +229,37 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 			actualFormRowRenderer.setRowClicked(new ICellClicked<OT>() {
 				@Override
 				public void cellClicked(@Nonnull NodeBase tr, @Nonnull OT val) throws Exception {
-					clearGlobalMessage(Msgs.V_MISSING_SEARCH);
-					if(!getDataTable().isMultiSelectionVisible()) {
-						LookupInputBase.this.toggleFloater(null);
-					}
-					handleSetValue(val);
+					rowSelected(val);
 				}
 			});
 		}
 		return actualFormRowRenderer;
 	}
 
+	protected void rowSelected(@Nonnull OT value) throws Exception {
+		clearGlobalMessage(Msgs.V_MISSING_SEARCH);
+		close();
+		setValue(value);
+		callOnSelection();
+	}
+
+	private void callOnSelection() throws Exception {
+		IClicked<DefaultLookupInputDialog<QT, OT>> clicked = m_onSelection;
+		if(null != clicked) {
+			clicked.clicked(this);
+		}
+	}
+
+	/**
+	 * When the dialog is closed we clear the value, and send the onSelection event.
+	 * @see to.etc.domui.component.layout.FloatingDiv#onClosed(java.lang.String)
+	 */
+	@Override
+	protected void onClosed(String closeReason) throws Exception {
+		setValue(null);
+		callOnSelection();
+		super.onClosed(closeReason);
+	}
 
 	/**
 	 * Add column specs for the full query form's result list, according to the specifications as defined by {@link BasicRowRenderer}.
@@ -260,11 +295,6 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 
 	public void setLookupForm(@Nullable LookupForm<QT> externalLookupForm) {
 		m_lookupForm = externalLookupForm;
-	}
-
-
-	protected DataTable<OT> getDataTable() {
-		return m_result;
 	}
 
 	/**
@@ -369,5 +399,28 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 
 	public void setSearchProperties(List<SearchPropertyMetaModel> searchPropertyList) {
 		m_searchPropertyList = searchPropertyList;
+	}
+
+	@Nullable
+	public OT getValue() {
+		return m_value;
+	}
+
+	public void setValue(@Nullable OT value) {
+		m_value = value;
+	}
+
+	/**
+	 * The handler to call when a selection is made or the dialog is closed; if the dialog
+	 * is closed the value will be null.
+	 * @return
+	 */
+	@Nullable
+	public IClicked<DefaultLookupInputDialog<QT, OT>> getOnSelection() {
+		return m_onSelection;
+	}
+
+	public void setOnSelection(@Nullable IClicked<DefaultLookupInputDialog<QT, OT>> onSelection) {
+		m_onSelection = onSelection;
 	}
 }
