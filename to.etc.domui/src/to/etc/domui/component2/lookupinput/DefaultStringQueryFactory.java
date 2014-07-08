@@ -22,6 +22,10 @@ public class DefaultStringQueryFactory<QT> implements IStringQueryFactory<QT> {
 	@Nullable
 	private List<SearchPropertyMetaModel> m_keywordLookupPropertyList;
 
+	public DefaultStringQueryFactory(@Nonnull ClassMetaModel queryMetaModel) {
+		m_queryMetaModel = queryMetaModel;
+	}
+
 	@Override
 	public QCriteria<QT> createQuery(String searchString) throws Exception {
 		searchString = DomUtil.nullChecked(searchString.replace("*", "%"));

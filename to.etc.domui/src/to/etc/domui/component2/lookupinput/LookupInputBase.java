@@ -116,8 +116,8 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	/** Indication if the contents of this thing has been altered by the user. This merely compares any incoming value with the present value and goes "true" when those are not equal. */
 	private boolean m_modifiedByUser;
 
-	@Nonnull
-	private IStringQueryFactory<QT> m_keyWordSearchHandler = new DefaultStringQueryFactory<QT>();
+	@Nullable
+	private IStringQueryFactory<QT> m_stringQueryFactory;
 
 	@Nullable
 	private String m_keyWordSearchCssClass;
@@ -338,7 +338,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	 * @return true either when query control is manually implemented by keyWordSearchHandler, or if keyword search meta data is defined.
 	 */
 	private boolean isKeyWordSearchDefined() {
-		if(getKeyWordSearchHandler() != null) {
+		if(getStringQueryFactory() != null) {
 			return true;
 		}
 
@@ -494,7 +494,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		if(searchString == null || searchString.trim().length() == 0) {
 			return null;
 		}
-		IStringQueryFactory<QT> ksh = getKeyWordSearchHandler();
+		IStringQueryFactory<QT> ksh = getStringQueryFactory();
 		QCriteria<QT> searchQuery = ksh.createQuery(searchString);
 		if(searchQuery == null) {								// Search cancelled
 			return null;
@@ -865,12 +865,16 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	}
 
 	@Nonnull
-	public IStringQueryFactory<QT> getKeyWordSearchHandler() {
-		return m_keyWordSearchHandler;
+	public IStringQueryFactory<QT> getStringQueryFactory() {
+		IStringQueryFactory<QT> factory = m_stringQueryFactory;
+		if(null == factory) {
+			m_stringQueryFactory = factory = new DefaultStringQueryFactory<QT>(getQueryMetaModel());
+		}
+		return factory;
 	}
 
-	public void setKeyWordSearchHandler(@Nonnull IStringQueryFactory<QT> keyWordSearchManipulator) {
-		m_keyWordSearchHandler = keyWordSearchManipulator;
+	public void setStringQueryFactory(@Nonnull IStringQueryFactory<QT> keyWordSearchManipulator) {
+		m_stringQueryFactory = keyWordSearchManipulator;
 	}
 
 	@Nullable
