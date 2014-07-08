@@ -42,14 +42,14 @@ import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.query.*;
 
-abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT>, IHasModifiedIndication, IQueryManipulator<QT> {
+abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<OT>, IHasModifiedIndication, IQueryManipulator<QT> {
 	/** The properties bindable for this component. */
 	static private final Set<String> BINDABLE_SET = createNameSet("value", "disabled");
 
 	static public final INodeContentRenderer<Object> DEFAULT_RENDERER = new SimpleLookupInputRenderer<Object>();
 
 	public interface IPopupOpener {
-		public <A, B, L extends LookupInputBase<A, B>> Dialog createDialog(@Nonnull L control, @Nullable ITableModel<B> initialModel);
+		public <A, B, L extends LookupInputBase2<A, B>> Dialog createDialog(@Nonnull L control, @Nullable ITableModel<B> initialModel);
 	}
 
 	/**
@@ -181,15 +181,15 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	 * Lookup a POJO Java bean persistent class.
 	 * @param queryClass
 	 */
-	public LookupInputBase(@Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass) {
+	public LookupInputBase2(@Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass) {
 		this(queryClass, resultClass, (ClassMetaModel) null, (ClassMetaModel) null);
 	}
 
-	public LookupInputBase(@Nonnull QCriteria<QT> rootCriteria, @Nonnull Class<OT> resultClass) {
+	public LookupInputBase2(@Nonnull QCriteria<QT> rootCriteria, @Nonnull Class<OT> resultClass) {
 		this(DomUtil.nullChecked(rootCriteria.getBaseClass()), resultClass, (ClassMetaModel) null, (ClassMetaModel) null);
 	}
 
-	public LookupInputBase(@Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass, @Nullable ClassMetaModel queryMetaModel, @Nullable ClassMetaModel outputMetaModel) {
+	public LookupInputBase2(@Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass, @Nullable ClassMetaModel queryMetaModel, @Nullable ClassMetaModel outputMetaModel) {
 		m_queryClass = queryClass;
 		m_outputClass = resultClass;
 		m_queryMetaModel = queryMetaModel != null ? queryMetaModel : MetaManager.findClassMeta(queryClass);
@@ -892,7 +892,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	}
 
 	/**
-	 * Getter for property {@link LookupInput#m_allowKeyWordSearch}.
+	 * Getter for property {@link LookupInput2#m_allowKeyWordSearch}.
 	 * @return
 	 */
 	public boolean isAllowKeyWordSearch() {
@@ -900,7 +900,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	}
 
 	/**
-	 * Setter for property {@link LookupInput#m_allowKeyWordSearch}.
+	 * Setter for property {@link LookupInput2#m_allowKeyWordSearch}.
 	 * @return
 	 */
 	public void setAllowKeyWordSearch(boolean allowKeyWordSearch) {
@@ -908,7 +908,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	}
 
 	/**
-	 * Getter for keyword search hint. See {@link LookupInput#setKeySearchHint}.
+	 * Getter for keyword search hint. See {@link LookupInput2#setKeySearchHint}.
 	 * @param hint
 	 */
 	@Nullable

@@ -2,12 +2,12 @@ package to.etc.domui.component2.lookupinput;
 
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.tbl.*;
-import to.etc.domui.component2.lookupinput.LookupInputBase.IPopupOpener;
+import to.etc.domui.component2.lookupinput.LookupInputBase2.IPopupOpener;
 import to.etc.domui.dom.html.*;
 
 public class DefaultPopupOpener implements IPopupOpener {
 	@Override
-	public <A, B, L extends LookupInputBase<A, B>> Dialog createDialog(final L control, ITableModel<B> initialModel) {
+	public <A, B, L extends LookupInputBase2<A, B>> Dialog createDialog(final L control, ITableModel<B> initialModel) {
 		DefaultLookupInputDialog<A, B> dlg = new DefaultLookupInputDialog<A, B>(control.getQueryMetaModel(), control.getOutputMetaModel());
 		dlg.setOnSelection(new IClicked<DefaultLookupInputDialog<A, B>>() {
 			@Override

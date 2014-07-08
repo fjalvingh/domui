@@ -55,8 +55,8 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 1, 2008
  */
-public class LookupInput<T> extends LookupInputBase<T, T> {
-	public LookupInput(@Nonnull Class<T> lookupClass, @Nullable ClassMetaModel metaModel) {
+public class LookupInput2<T> extends LookupInputBase2<T, T> {
+	public LookupInput2(@Nonnull Class<T> lookupClass, @Nullable ClassMetaModel metaModel) {
 		super(lookupClass, lookupClass, metaModel, metaModel);
 	}
 
@@ -64,11 +64,11 @@ public class LookupInput<T> extends LookupInputBase<T, T> {
 //		super(lookupClass, lookupClass, resultColumns);
 //	}
 //
-	public LookupInput(@Nonnull Class<T> lookupClass) {
+	public LookupInput2(@Nonnull Class<T> lookupClass) {
 		super(lookupClass, lookupClass);
 	}
 
-	public LookupInput(@Nonnull QCriteria<T> rootQuery) {
+	public LookupInput2(@Nonnull QCriteria<T> rootQuery) {
 		super(rootQuery, DomUtil.nullChecked(rootQuery.getBaseClass()));
 	}
 

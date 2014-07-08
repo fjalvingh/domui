@@ -24,12 +24,11 @@
  */
 package to.etc.domui.component2.controlfactory;
 
-import java.util.*;
-
 import javax.annotation.*;
 
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
+import to.etc.domui.component2.lookupinput.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
@@ -49,14 +48,14 @@ public class ControlCreatorRelationLookup implements IControlCreator {
 	 */
 	@Override
 	public <T> int accepts(PropertyMetaModel<T> pmm, Class< ? extends IControl<T>> controlClass) {
-		if(controlClass != null && !controlClass.isAssignableFrom(LookupInput.class))
+		if(controlClass != null && !controlClass.isAssignableFrom(LookupInput2.class))
 			return -1;
 
 		if(pmm.getRelationType() != PropertyRelationType.UP)
 			return 0;
 		if(Constants.COMPONENT_LOOKUP.equals(pmm.getComponentTypeHint()))
 			return 10;
-		return 3; // Prefer a lookup above a combo if unspecified
+		return 3;												// Prefer a lookup above a combo if unspecified
 	}
 
 	/**
@@ -67,15 +66,16 @@ public class ControlCreatorRelationLookup implements IControlCreator {
 	@Override
 	public <T, C extends IControl<T>> C createControl(@Nonnull PropertyMetaModel<T> pmm, @Nullable Class<C> controlClass) {
 		//-- We'll do a lookup thingy for sure.
-		LookupInput<T> li = new LookupInput<T>(pmm.getActualType(), pmm.getValueModel());
+		LookupInput2<T> li = new LookupInput2<T>(pmm.getActualType(), pmm.getValueModel());
 
 		//-- 1. Define search fields from property, then class.lookup, then generic
-		List<SearchPropertyMetaModel> sp = pmm.getLookupFieldSearchProperties();		// Property override?
-		if(sp.size() == 0) {
-			sp = li.getMetaModel().getSearchProperties();		// Class level?
-			if(sp.size() > 0)
-				li.setSearchProperties(sp);
-		}
+// jal 2014/07/08 What to do? Fixme!
+//		List<SearchPropertyMetaModel> sp = pmm.getLookupFieldSearchProperties();		// Property override?
+//		if(sp.size() == 0) {
+//			sp = li.getMetaModel().getSearchProperties();		// Class level?
+//			if(sp.size() > 0)
+//				li.setSearchProperties(sp);
+//		}
 
 		//-- 2. Define keyword search properties in the same way.
 		if(pmm.getLookupSelectedRenderer() != null)
