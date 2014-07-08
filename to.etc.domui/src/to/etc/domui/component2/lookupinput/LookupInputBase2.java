@@ -46,7 +46,7 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	/** The properties bindable for this component. */
 	static private final Set<String> BINDABLE_SET = createNameSet("value", "disabled");
 
-	static public final INodeContentRenderer<Object> DEFAULT_RENDERER = new SimpleLookupInputRenderer<Object>();
+	static public final INodeContentRenderer<Object> DEFAULT_RENDERER = new SimpleLookupInputRenderer2<Object>();
 
 	public interface IPopupOpener {
 		public <A, B, L extends LookupInputBase2<A, B>> Dialog createDialog(@Nonnull L control, @Nullable ITableModel<B> initialModel);
