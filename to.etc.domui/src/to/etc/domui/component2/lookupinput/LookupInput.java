@@ -60,10 +60,10 @@ public class LookupInput<T> extends LookupInputBase<T, T> {
 		super(lookupClass, lookupClass, metaModel, metaModel);
 	}
 
-	public LookupInput(@Nonnull Class<T> lookupClass, @Nonnull String... resultColumns) {
-		super(lookupClass, lookupClass, resultColumns);
-	}
-
+//	public LookupInput(@Nonnull Class<T> lookupClass, @Nonnull String... resultColumns) {
+//		super(lookupClass, lookupClass, resultColumns);
+//	}
+//
 	public LookupInput(@Nonnull Class<T> lookupClass) {
 		super(lookupClass, lookupClass);
 	}

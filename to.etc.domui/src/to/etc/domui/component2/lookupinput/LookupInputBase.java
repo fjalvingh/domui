@@ -48,6 +48,10 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 
 	static public final INodeContentRenderer<Object> DEFAULT_RENDERER = new SimpleLookupInputRenderer<Object>();
 
+	public interface IPopupOpener {
+		public <A, B, L extends LookupInputBase<A, B>> Dialog createDialog(@Nonnull L control, @Nullable ITableModel<B> initialModel);
+	}
+
 	/**
 	 * The query class/type. For Java classes this usually also defines the metamodel to use; for generic meta this should
 	 * be the value record class type.
@@ -78,7 +82,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	final private SmallImgButton m_clearButton;
 
 	@Nullable
-	private FloatingWindow m_floater;
+	private Dialog m_floater;
 
 	@Nullable
 	private OT m_value;
@@ -149,6 +153,9 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 
 	private boolean m_doFocus;
 
+	@Nullable
+	private IPopupOpener m_popupOpener;
+
 	/**
 	 * This must create the table model for the output type from the query on the input type.
 	 * @param query
@@ -165,10 +172,10 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	 * @param resultClass
 	 * @param resultColumns
 	 */
-	public LookupInputBase(@Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass, @Nonnull String... resultColumns) {
-		this(queryClass, resultClass, (ClassMetaModel) null, (ClassMetaModel) null);
-		setResultColumns(resultColumns);
-	}
+//	public LookupInputBase(@Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass, @Nonnull String... resultColumns) {
+//		this(queryClass, resultClass, (ClassMetaModel) null, (ClassMetaModel) null);
+//		setResultColumns(resultColumns);
+//	}
 
 	/**
 	 * Lookup a POJO Java bean persistent class.
@@ -192,7 +199,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		b.setClicked(new IClicked<NodeBase>() {
 			@Override
 			public void clicked(@Nonnull NodeBase b) throws Exception {
-				toggleFloaterByClick();
+				openPopupWithClick();
 			}
 		});
 
@@ -403,7 +410,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 				if(keySearchModel == null) {
 					//in case of insufficient searchString data cancel search and popup clean search dialog.
 					component.setResultsCount(-1);
-					toggleFloater(null);
+					openPopup(null);
 					return;
 				}
 				if(keySearchModel.getRows() == 1) {
@@ -412,7 +419,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 				} else {
 					//in case of more results show narrow result in search popup.
 					component.setResultsCount(keySearchModel.getRows());
-					toggleFloater(keySearchModel);
+					openPopup(keySearchModel);
 				}
 			}
 		});
@@ -493,7 +500,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 			return null;
 		}
 
-		searchQuery = adjustCriteria(searchQuery);			// Manipulate if needed
+		searchQuery = adjustQuery(searchQuery);					// Manipulate if needed
 		if(searchQuery == null) {								// Manipulate cancelled
 			return null;
 		}
@@ -501,8 +508,9 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		return createTableModel(searchQuery);
 	}
 
+	@Override
 	@Nullable
-	private QCriteria<QT> adjustCriteria(@Nonnull QCriteria<QT> enteredCriteria) {
+	public QCriteria<QT> adjustQuery(@Nonnull QCriteria<QT> enteredCriteria) {
 		IQueryManipulator<QT> qm = getQueryManipulator();
 		QCriteria<QT> result = enteredCriteria;
 		if(qm != null) {
@@ -530,51 +538,49 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	 * Toggle the full search popup window.
 	 * @throws Exception
 	 */
-	private void toggleFloaterByClick() throws Exception {
+	private void openPopupWithClick() throws Exception {
+		ITableModel<OT> initialModel = null;
 		if(m_keySearch != null) {
-			toggleFloater(searchKeyWord(m_keySearch.getKeySearchValue()));
-		} else {
-			toggleFloater(null);
+			initialModel = searchKeyWord(m_keySearch.getKeySearchValue());
 		}
+		openPopup(initialModel);
 	}
 
-	/**
-	 * Show the full search window, and if a model is passed populate the search result list
-	 * with the contents of that model.
-	 *
-	 * @param keySearchModel
-	 * @throws Exception
-	 */
-	private void toggleFloater(@Nullable ITableModel<OT> keySearchModel) throws Exception {
-		if(m_floater != null) {
-			m_floater.close();
-			m_floater = null;
-			m_result = null;
+	private void closePopup() {
+		Dialog floater = m_floater;
+		if(floater == null)
 			return;
-		}
+		floater.close();
+		m_floater = null;
+	}
 
-		final FloatingWindow f = m_floater = FloatingWindow.create(this, getFormTitle() == null ? getDefaultTitle() : getFormTitle());
+	private void openPopup(@Nullable ITableModel<OT> initialModel) throws Exception {
+		if(m_floater != null)
+			throw new IllegalStateException("Trying to re-open the popup, but it's already visible");
+		IPopupOpener po = m_popupOpener;
+		if(null == po) {
+			po = createPopupOpener();
+		}
+		m_floater = po.createDialog(this, initialModel);
+	}
+
+	@Nonnull
+	private IPopupOpener createPopupOpener() {
+		return new DefaultPopupOpener();
 	}
 
 	/**
-	 * Contruct a default title for this LookupInput
+	 * Construct a default title for this LookupInput
 	 *
 	 * @return
 	 */
 	@Nonnull
-	private String getDefaultTitle() {
+	public String getDefaultTitle() {
 		String entity = getOutputMetaModel().getUserEntityName();
 		if(entity != null)
 			return Msgs.BUNDLE.formatMessage(Msgs.UI_LUI_TTL_WEN, entity);
 
 		return Msgs.BUNDLE.getString(Msgs.UI_LUI_TTL);
-	}
-
-	@Nonnull
-	public FloatingWindow getFloater() {
-		if(null != m_floater)
-			return m_floater;
-		throw new IllegalStateException("Floating search window is not currently present");
 	}
 
 	/**
@@ -737,6 +743,18 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		}
 		m_rebuildCause = value == null ? RebuildCause.CLEAR : RebuildCause.SELECT;
 	}
+
+	/**
+	 * EXPERIMENTAL This callback must be called by the popup once a selection is made.
+	 * @param value
+	 * @throws Exception
+	 */
+	public final void setDialogSelection(@Nullable OT value) throws Exception {
+		if(null == value)							// Null means: no selection made, so retain the current one
+			return;
+		handleSetValue(value);
+	}
+
 
 	/**
 	 * {@inheritDoc}
@@ -1030,12 +1048,6 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	 */
 	public void addDropdownColumns(@Nonnull Object... columns) {
 		getDropdownRowRenderer().addColumns(columns);
-	}
-
-	protected void closePopup() throws Exception {
-		if(m_floater != null) {
-			toggleFloater(null);
-		}
 	}
 
 	protected boolean isPopupShown() {

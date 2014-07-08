@@ -236,6 +236,12 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 		return actualFormRowRenderer;
 	}
 
+	/**
+	 * Called when a row is selected in the form. By default this sets the selected value
+	 * in {@link value}, closes the dialog and sends the onSelection event.
+	 * @param value
+	 * @throws Exception
+	 */
 	protected void rowSelected(@Nonnull OT value) throws Exception {
 		clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 		close();
