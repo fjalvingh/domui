@@ -33,7 +33,7 @@ public class TestJdbcSelector {
 		m_dc = new JdbcDataContext(null, dbc);
 	}
 
-	private String render(QSelection< ? > c) throws Exception {
+	private static String render(QSelection< ? > c) throws Exception {
 		QQueryRenderer r = new QQueryRenderer();
 		c.visit(r);
 		String s = r.toString();
@@ -83,24 +83,31 @@ public class TestJdbcSelector {
 		}
 	}
 
-	public <T> void testSingleSelector(@Nonnull QSelectionFunction selectFunction, @Nonnull String propertyName, @Nonnull Class<T> type) throws Exception {
+	public <T> void testSingleSelector(QSelectionFunction selectFunction, @Nonnull String propertyName, @Nonnull Class<T> type) throws Exception {
+		testSingleSelectorStatic(m_dc, selectFunction, propertyName, type, "%a");
+	}
+
+	@Nonnull
+	public static <T> Number testSingleSelectorStatic(@Nonnull QDataContext dc, @Nonnull QSelectionFunction selectFunction, @Nonnull String propertyName, @Nonnull Class<T> type,
+		@Nonnull String descriptionLikePattern) throws Exception {
 		JdbcClassMeta cm = JdbcMetaManager.getMeta(LedgerAccount.class);
 		String columnName = cm.findProperty(propertyName).getColumnName();
 
 		String sqlSelectFunction = toSqlSelectFunction(selectFunction, columnName);
 
 
-		T selectBySql = JdbcUtil.selectOne(m_dc.getConnection(), type, "select " + sqlSelectFunction + " from v_dec_grootboekrekeningen where omschrijving like ?", "%a");
+		T selectBySql = JdbcUtil.selectOne(dc.getConnection(), type, "select " + sqlSelectFunction + " from v_dec_grootboekrekeningen where omschrijving like ?", descriptionLikePattern);
 
-		QCriteria<LedgerAccount> criteria = QCriteria.create(LedgerAccount.class).like(LedgerAccount.pDESCRIPTION, "%a");
+		QCriteria<LedgerAccount> criteria = QCriteria.create(LedgerAccount.class).like(LedgerAccount.pDESCRIPTION, descriptionLikePattern);
 		QSelection<LedgerAccount> selection = QSelection.create(LedgerAccount.class);
 		selection.setRestrictions(criteria.getRestrictions());
 
 		addSelector(selection, selectFunction, propertyName);
 
-		Object[] selectResult = m_dc.queryOne(selection);
+		Object[] selectResult = dc.queryOne(selection);
 
-		Assert.assertEquals("FROM to.etc.test.webapp.qsql.LedgerAccount SELECT " + selectFunction.name().toLowerCase() + "(" + propertyName + ") WHERE description like '%a'", render(selection));
+		Assert.assertEquals("FROM to.etc.test.webapp.qsql.LedgerAccount SELECT " + selectFunction.name().toLowerCase() + "(" + propertyName + ") WHERE description like '" + descriptionLikePattern
+			+ "'", render(selection));
 
 		if(null == selectResult) {
 			throw new IllegalStateException("No result");
@@ -112,9 +119,10 @@ public class TestJdbcSelector {
 		} else {
 			throw new IllegalStateException("Unexpected non numerical type: " + selectBySql.getClass());
 		}
+		return (Number) selectBySql;
 	}
 
-	private String toSqlSelectFunction(@Nonnull QSelectionFunction selectFunction, @Nonnull String columnName) {
+	private static String toSqlSelectFunction(@Nonnull QSelectionFunction selectFunction, @Nonnull String columnName) {
 		switch(selectFunction){
 			case COUNT:
 				return "count(" + columnName + ")";
@@ -133,7 +141,7 @@ public class TestJdbcSelector {
 		}
 	}
 
-	private void addSelector(@Nonnull QSelection<LedgerAccount> selection, @Nonnull QSelectionFunction selectFunction, @Nonnull String propertyName) {
+	private static void addSelector(@Nonnull QSelection<LedgerAccount> selection, @Nonnull QSelectionFunction selectFunction, @Nonnull String propertyName) {
 		switch(selectFunction){
 			case COUNT:
 				selection.count(propertyName);
@@ -202,4 +210,8 @@ public class TestJdbcSelector {
 		}
 	}
 
+	@AfterClass
+	static public void tearDown() throws Exception {
+		m_dc.close();
+	}
 }
