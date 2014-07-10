@@ -428,6 +428,11 @@ public class ParallelTestLauncher implements IRunnableArgumentsProvider {
 		setRunnableClassPath(classpath);
 
 		for(int i = 0; i < parallelThreadsLimit; i++) {
+			if(i > 0) {
+				System.out.print("Delaying thread " + i + " for 1000ms.");
+				Thread.sleep(1000); //it is observed that if all threads hit the server at once, it makes a bit of sync delays on server
+				System.out.println("..done and continue");
+			}
 			String name = "T" + i;
 			SuiteRunner runnableJob = new SuiteRunner(this, dataProvider, name);
 			Thread thread = new Thread(runnableJob, name);

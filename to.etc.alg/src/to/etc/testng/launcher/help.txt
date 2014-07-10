@@ -9,7 +9,9 @@ mandatories:
 	-project				, one or more projects
 								(relative to [root] location, specifies project that is containing tests to run)
 
-options: 
+options:
+    -options.file			, location of a file that contains run options
+    							(if used, no other options can be used directly in command line, but in options file instead) 
 	-parallel				, CLASS | PACKAGE | TEST
 								per thread execution grouping strategy:
 									CLASS - single thread runs single class
