@@ -3018,8 +3018,10 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 }
 .ui-f4-lbl-v {
 	text-align: right;
-	min-width: 150px;
+	min-width: 155px;
+/*	height: 17px; */
 }
+
 .ui-f4-ctl-v {
 	padding: 0px 0px 0px 4px;
 }
