@@ -3117,12 +3117,15 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	display: inline-block;
 }
 .ui-lui2-selected {
-	padding: 1px;
-	margin: 0px;
+	padding: 0px 2px 0px 0px;
+	margin: 0px 2px 2px 0px;
 	display: inline-block;
-	margin-bottom: 3px;
+	vertical-align: baseline;
 }
 .ui-lui2-vspan {
+	display: inline-block;
+	height: 16px;
+	min-width: 12em;
 	white-space: nowrap;
 	background-color: #ffffff;
 

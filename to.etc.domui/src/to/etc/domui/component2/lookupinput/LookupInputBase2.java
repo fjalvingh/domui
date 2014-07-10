@@ -240,7 +240,6 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 			Span span = new Span();
 			m_valueNode = node = span;
 			span.setCssClass("ui-lui2-vspan");
-			add(0, span);
 		}
 		return node;
 	}
@@ -258,6 +257,7 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 		if(m_value == null && isAllowKeyWordSearch() && isKeyWordSearchDefined()) {
 			//Key word search rendering should be generic, no need for customization possibilities.
 			if(isReadOnly() || isDisabled()) {
+				add(0, getValueNode());
 				renderEmptySelection();
 				addCssClass("ui-ro");
 			} else {
@@ -268,7 +268,10 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 			INodeContentRenderer<OT> r = getValueRenderer();
 			if(r == null)
 				r = (INodeContentRenderer<OT>) DEFAULT_RENDERER;
-			r.renderNodeContent(this, getValueNode(), m_value, null);
+			NodeContainer valueNode = getValueNode();
+			valueNode.removeAllChildren();
+			r.renderNodeContent(this, valueNode, m_value, null);
+			add(0, valueNode);
 		}
 
 		SmallImgButton clearButton = getClearButton();
@@ -332,11 +335,10 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	 * @param parameters
 	 */
 	private void renderKeyWordSearch() {
-		addKeySearchField(getValueNode());
-	}
-
-	private void addKeySearchField(NodeContainer parent) {
+		getValueNode().remove();
 		KeyWordSearchInput<OT> ks = m_keySearch = new KeyWordSearchInput<OT>(m_keyWordSearchCssClass);
+		add(0, ks);
+
 		ks.setPopupWidth(getKeyWordSearchPopupWidth());
 		KeyWordPopupRowRenderer<OT> rr = getDropdownRowRenderer();
 		rr.setRowClicked(new ICellClicked<OT>() {
@@ -393,7 +395,6 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 				}
 			}
 		});
-		parent.add(ks);
 		if(m_keyWordSearchCssClass != null) {
 			addCssClass(m_keyWordSearchCssClass);
 		}
@@ -732,6 +733,7 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 		if(null == value)							// Null means: no selection made, so retain the current one
 			return;
 		handleSetValue(value);
+		m_floater = null;
 	}
 
 
