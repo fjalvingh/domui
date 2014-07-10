@@ -27,7 +27,6 @@ package to.etc.domui.component2.lookupinput;
 import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
-import to.etc.domui.component.tbl.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.query.*;
 
@@ -57,7 +56,7 @@ import to.etc.webapp.query.*;
  */
 public class LookupInput2<T> extends LookupInputBase2<T, T> {
 	public LookupInput2(@Nonnull Class<T> lookupClass, @Nullable ClassMetaModel metaModel) {
-		super(lookupClass, lookupClass, metaModel, metaModel);
+		super(new SameTypeModelFactory<T>(), lookupClass, lookupClass, metaModel, metaModel);
 	}
 
 //	public LookupInput(@Nonnull Class<T> lookupClass, @Nonnull String... resultColumns) {
@@ -65,11 +64,11 @@ public class LookupInput2<T> extends LookupInputBase2<T, T> {
 //	}
 //
 	public LookupInput2(@Nonnull Class<T> lookupClass) {
-		super(lookupClass, lookupClass);
+		super(new SameTypeModelFactory<T>(), lookupClass, lookupClass);
 	}
 
 	public LookupInput2(@Nonnull QCriteria<T> rootQuery) {
-		super(rootQuery, DomUtil.nullChecked(rootQuery.getBaseClass()));
+		super(new SameTypeModelFactory<T>(), rootQuery, DomUtil.nullChecked(rootQuery.getBaseClass()));
 	}
 
 	@Nonnull
@@ -80,17 +79,5 @@ public class LookupInput2<T> extends LookupInputBase2<T, T> {
 	@Nonnull
 	public ClassMetaModel getMetaModel() {
 		return getQueryMetaModel();
-	}
-
-	@Override
-	@Nonnull
-	protected ITableModel<T> createTableModel(@Nonnull QCriteria<T> query) throws Exception {
-		IQueryHandler<T> queryHandler = getQueryHandler();
-		if(queryHandler == null) {
-			QDataContextFactory src = QContextManager.getDataContextFactory(QContextManager.DEFAULT, getPage().getConversation());	// FIXME Urgent bad data context handling.
-			return new SimpleSearchModel<T>(src, query);
-		} else {
-			return new SimpleSearchModel<T>(queryHandler, query);
-		}
 	}
 }

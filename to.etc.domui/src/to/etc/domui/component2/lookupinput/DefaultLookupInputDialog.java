@@ -55,6 +55,9 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 	@Nullable
 	private IQueryManipulator<QT> m_queryManipulator;
 
+	@Nullable
+	private IQueryHandler<QT> m_queryHandler;
+
 	/** The search properties to use in the lookup form when created. If null uses the default attributes on the class. */
 	@Nullable
 	private List<SearchPropertyMetaModel> m_searchPropertyList;
@@ -85,9 +88,10 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 	@Nullable
 	private IClicked<DefaultLookupInputDialog<QT, OT>> m_onSelection;
 
-	public DefaultLookupInputDialog(@Nonnull ClassMetaModel queryMetaModel, @Nonnull ClassMetaModel outputMetaModel) {
+	public DefaultLookupInputDialog(@Nonnull ClassMetaModel queryMetaModel, @Nonnull ClassMetaModel outputMetaModel, @Nonnull ITableModelFactory<QT, OT> modelFactory) {
 		m_queryMetaModel = queryMetaModel;
 		m_outputMetaModel = outputMetaModel;
+		m_modelFactory = modelFactory;
 	}
 
 	@Override
@@ -181,7 +185,7 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 		ITableModelFactory<QT, OT> factory = m_modelFactory;
 		if(null == factory)
 			throw new IllegalStateException("Table model factory unset");
-		return factory.createTableModel(qc);
+		return factory.createTableModel(getQueryHandler(), qc);
 	}
 
 	private void setResultModel(@Nonnull ITableModel<OT> model) throws Exception {
@@ -428,5 +432,26 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 
 	public void setOnSelection(@Nullable IClicked<DefaultLookupInputDialog<QT, OT>> onSelection) {
 		m_onSelection = onSelection;
+	}
+
+	@Nullable
+	public IQueryManipulator<QT> getQueryManipulator() {
+		return m_queryManipulator;
+	}
+
+	public void setQueryManipulator(IQueryManipulator<QT> queryManipulator) {
+		m_queryManipulator = queryManipulator;
+	}
+
+	@Nonnull
+	public IQueryHandler<QT> getQueryHandler() {
+		IQueryHandler<QT> handler = m_queryHandler;
+		if(null == handler)
+			handler = new PageQueryHandler<QT>(this);
+		return handler;
+	}
+
+	public void setQueryHandler(IQueryHandler<QT> queryHandler) {
+		m_queryHandler = queryHandler;
 	}
 }

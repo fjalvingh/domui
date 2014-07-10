@@ -56,6 +56,7 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	 * Created on Jul 8, 2014
 	 */
 	public interface IPopupOpener {
+		@Nonnull
 		public <A, B, L extends LookupInputBase2<A, B>> Dialog createDialog(@Nonnull L control, @Nullable ITableModel<B> initialModel);
 	}
 
@@ -81,6 +82,8 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	 */
 	@Nonnull
 	final private ClassMetaModel m_outputMetaModel;
+
+	private ITableModelFactory<QT, OT> m_modelFactory;
 
 	@Nonnull
 	final private SmallImgButton m_selButton;
@@ -165,15 +168,6 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	private NodeContainer m_valueNode;
 
 	/**
-	 * This must create the table model for the output type from the query on the input type.
-	 * @param query
-	 * @return
-	 * @throws Exception
-	 */
-	@Nonnull
-	abstract protected ITableModel<OT> createTableModel(@Nonnull QCriteria<QT> query) throws Exception;
-
-	/**
 	 * Create a lookup control that shows the specified column set in both quick lookup mode and form lookup
 	 * mode.
 	 * @param queryClass
@@ -189,19 +183,21 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	 * Lookup a POJO Java bean persistent class.
 	 * @param queryClass
 	 */
-	public LookupInputBase2(@Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass) {
-		this(queryClass, resultClass, (ClassMetaModel) null, (ClassMetaModel) null);
+	public LookupInputBase2(@Nonnull ITableModelFactory<QT, OT> modelFactory, @Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass) {
+		this(modelFactory, queryClass, resultClass, (ClassMetaModel) null, (ClassMetaModel) null);
 	}
 
-	public LookupInputBase2(@Nonnull QCriteria<QT> rootCriteria, @Nonnull Class<OT> resultClass) {
-		this(DomUtil.nullChecked(rootCriteria.getBaseClass()), resultClass, (ClassMetaModel) null, (ClassMetaModel) null);
+	public LookupInputBase2(@Nonnull ITableModelFactory<QT, OT> modelFactory, @Nonnull QCriteria<QT> rootCriteria, @Nonnull Class<OT> resultClass) {
+		this(modelFactory, DomUtil.nullChecked(rootCriteria.getBaseClass()), resultClass, (ClassMetaModel) null, (ClassMetaModel) null);
 	}
 
-	public LookupInputBase2(@Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass, @Nullable ClassMetaModel queryMetaModel, @Nullable ClassMetaModel outputMetaModel) {
+	public LookupInputBase2(@Nonnull ITableModelFactory<QT, OT> modelFactory, @Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass, @Nullable ClassMetaModel queryMetaModel,
+		@Nullable ClassMetaModel outputMetaModel) {
 		m_queryClass = queryClass;
 		m_outputClass = resultClass;
 		m_queryMetaModel = queryMetaModel != null ? queryMetaModel : MetaManager.findClassMeta(queryClass);
 		m_outputMetaModel = outputMetaModel != null ? outputMetaModel : MetaManager.findClassMeta(resultClass);
+		m_modelFactory = modelFactory;
 		SmallImgButton b = m_selButton = new SmallImgButton(Theme.BTN_POPUPLOOKUP);
 		b.setTestID("selButtonInputLookup");
 		b.setClicked(new IClicked<NodeBase>() {
@@ -482,6 +478,14 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 		return createTableModel(searchQuery);
 	}
 
+	@Nonnull
+	private ITableModel<OT> createTableModel(@Nonnull QCriteria<QT> qc) throws Exception {
+		ITableModelFactory<QT, OT> factory = m_modelFactory;
+		if(null == factory)
+			throw new IllegalStateException("Table model factory unset");
+		return factory.createTableModel(getQueryHandler(), qc);
+	}
+
 	@Override
 	@Nullable
 	public QCriteria<QT> adjustQuery(@Nonnull QCriteria<QT> enteredCriteria) {
@@ -535,7 +539,8 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 		if(null == po) {
 			po = createPopupOpener();
 		}
-		m_floater = po.createDialog(this, initialModel);
+		Dialog floater = m_floater = po.createDialog(this, initialModel);
+		add(floater);
 	}
 
 	@Nonnull
@@ -763,13 +768,16 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	}
 
 	/**
-	 * The query handler to use, if a special one is needed. The default query handler will use the
+	 * The query handler to use. The default query handler {@link PageQueryHandler} will use the
 	 * normal conversation-associated DataContext to issue the query.
 	 * @return
 	 */
-	@Nullable
+	@Nonnull
 	public IQueryHandler<QT> getQueryHandler() {
-		return m_queryHandler;
+		IQueryHandler<QT> handler = m_queryHandler;
+		if(null == handler)
+			handler = new PageQueryHandler<QT>(this);
+		return handler;
 	}
 
 	public void setQueryHandler(@Nullable IQueryHandler<QT> queryHandler) {
@@ -1017,5 +1025,17 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 			m_keySearch.setFocus();
 		else if(!isBuilt())
 			m_doFocus = true;
+	}
+
+	@Nonnull
+	public ITableModelFactory<QT, OT> getModelFactory() {
+		ITableModelFactory<QT, OT> modelFactory = m_modelFactory;
+		if(null == modelFactory)
+			throw new IllegalStateException("The model factory is not set");
+		return modelFactory;
+	}
+
+	public void setModelFactory(@Nonnull ITableModelFactory<QT, OT> modelFactory) {
+		m_modelFactory = modelFactory;
 	}
 }
