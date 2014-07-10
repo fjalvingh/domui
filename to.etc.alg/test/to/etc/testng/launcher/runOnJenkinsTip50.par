@@ -1,10 +1,10 @@
--root /tmp/tip-5.0-wd-git
+-root /tmp/tip-5.0-wd
 -m2.repo /home/jenkins/.m2
 -project vp-selenium-webdriver-tests
 -parallel CLASS
 -threads 5
 -testng.reporter nl.itris.vp.webdriver.core.report.WdVpTestXMLReporter
--testng.reporter.root /tmp/webdriver-output/tip-5.0-wd-git
+-testng.reporter.root /tmp/webdriver-output/tip-5.0-wd
 -testng.browser firefox
 -testng.remote.hub http://gridhub.hosts.itris.nl:4444/wd/hub
 -testng.server.url http://cat.hosts.itris.nl/wd50/

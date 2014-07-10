@@ -29,6 +29,8 @@ public class PomBuilder {
 
 	static private final String	PARAM_VERSION		= "-version=";
 
+	static private final String PARAM_ROOT_POM_NAME = "-rootPomName=";
+
 	static private final String PARAM_SKIP_ROOT_POM = "-skipRootPom";
 
 	static private final String	PARENT_DIRECTORY		= "../";
@@ -66,12 +68,16 @@ public class PomBuilder {
 	private void	run(String[] args) throws Exception {
 		File prj = null;
 		boolean skipRootPom = false;
+		String rootPomName = "pom.xml";
 		if(args.length >= 0) {
 			for(String arg : args) {
 				if(arg.startsWith(PARAM_VERSION)) {
 					m_version = arg.substring(PARAM_VERSION.length());
 				} else if(arg.startsWith(PARAM_SKIP_ROOT_POM)) {
 					skipRootPom = true;
+				} else if(arg.startsWith(PARAM_ROOT_POM_NAME)) {
+					rootPomName = arg.substring(PARAM_ROOT_POM_NAME.length());
+					System.out.println("...root pom name set to " + rootPomName);
 				} else {
 					if(prj != null) {
 						throw new IllegalStateException("prj is already defined! Invalid parameter encountered: " + arg);
@@ -101,10 +107,10 @@ public class PomBuilder {
 		generateProjectPoms(p); // And for vp itself
 
 		if(skipRootPom) {
-			System.out.println("...skipping root porm.xml");
+			System.out.println("...skipping root pom.xml");
 		} else {
 			//-- Create root
-			File f = new File(m_rootPath, "pom.xml");
+			File f = new File(m_rootPath, rootPomName);
 			XmlWriter w = createMavenXml(f, "nl.itris.viewpoint", TOPNAME, TOPNAME, "pom");
 
 			//		w.tagendnl();				// plugin
