@@ -3124,10 +3124,14 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 }
 .ui-lui2-vspan {
 	display: inline-block;
-	height: 16px;
 	min-width: 12em;
 	white-space: nowrap;
 	background-color: #ffffff;
+	padding-left: 3px;
+	padding-top: 3px;
+	padding-bottom: 1px;
+	margin-bottom: 0px;
+	margin-bottom: 0px;
 
 	border-color:#ABADB3 #BFCDD9 #BFCDD9;
 	border-style: solid;
