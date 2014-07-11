@@ -80,12 +80,12 @@ public class ParallelTestLauncherTest {
 		new ParallelTestLauncher().run(args);
 	}
 
-	/*Keep this as ignored - it is not meant to be run as regular scheduled unit test, but as debug launcher until for developers -see xwiki*/
+	/*Keep this as ignored - it is not meant to be run as regular scheduled unit test, but as debug launcher until for developers -see xwiki http://wiki.hosts.itris.nl/xwiki/bin/view/Ontwikkeling/WebDriverParallelLauncher */
 	@Ignore
 	@Test
 	public void testFileOptionsLauncher() throws Exception {
 		String[] args = new String[]{ //
-			"-options.file", this.getClass().getResource("runLocalTip50.par").getFile()};
+		"-options.file", this.getClass().getResource("runLocalTip50.par").getFile(), "-threads", "4"};
 
 		new ParallelTestLauncher().run(args);
 	}
