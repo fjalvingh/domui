@@ -41,7 +41,7 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on 21 Jan 2010
  */
-public class KeyWordSearchInput<T> extends Div {
+public class SearchInput2<T> extends Div {
 
 	private int m_resultsCount = -1; //-1 states for not visible
 
@@ -51,10 +51,10 @@ public class KeyWordSearchInput<T> extends Div {
 	private Div m_pnlSearchCount;
 
 	@Nullable
-	private IValueChanged<KeyWordSearchInput<T>> m_onLookupTyping;
+	private IValueChanged<SearchInput2<T>> m_onLookupTyping;
 
 	@Nullable
-	private IValueChanged<KeyWordSearchInput<T>> m_onShowTypingResults;
+	private IValueChanged<SearchInput2<T>> m_onShowTypingResults;
 
 	@Nullable
 	public IRowRenderer<T> m_resultsHintPopupRowRenderer;
@@ -66,10 +66,10 @@ public class KeyWordSearchInput<T> extends Div {
 
 	private int m_popupWidth;
 
-	public KeyWordSearchInput() {
+	public SearchInput2() {
 	}
 
-	public KeyWordSearchInput(String m_inputCssClass) {
+	public SearchInput2(String m_inputCssClass) {
 		m_keySearch.setCssClass(m_inputCssClass);
 	}
 
@@ -93,12 +93,12 @@ public class KeyWordSearchInput<T> extends Div {
 			public void onLookupTyping(@Nonnull TextStr component, boolean done) throws Exception {
 				if(done) {
 					if(getOnShowResults() != null) {
-						getOnShowResults().onValueChanged(KeyWordSearchInput.this);
+						getOnShowResults().onValueChanged(SearchInput2.this);
 					}
 				} else {
-					IValueChanged<KeyWordSearchInput<T>> olt = getOnLookupTyping();
+					IValueChanged<SearchInput2<T>> olt = getOnLookupTyping();
 					if(olt != null) {
-						olt.onValueChanged(KeyWordSearchInput.this);
+						olt.onValueChanged(SearchInput2.this);
 					}
 				}
 			}
@@ -110,11 +110,11 @@ public class KeyWordSearchInput<T> extends Div {
 	}
 
 	@Nullable
-	public IValueChanged<KeyWordSearchInput<T>> getOnLookupTyping() {
+	public IValueChanged<SearchInput2<T>> getOnLookupTyping() {
 		return m_onLookupTyping;
 	}
 
-	public void setOnLookupTyping(@Nullable IValueChanged<KeyWordSearchInput<T>> onLookupTyping) {
+	public void setOnLookupTyping(@Nullable IValueChanged<SearchInput2<T>> onLookupTyping) {
 		m_onLookupTyping = onLookupTyping;
 	}
 
@@ -166,11 +166,11 @@ public class KeyWordSearchInput<T> extends Div {
 		}
 	}
 
-	public IValueChanged<KeyWordSearchInput<T>> getOnShowResults() {
+	public IValueChanged<SearchInput2<T>> getOnShowResults() {
 		return m_onShowTypingResults;
 	}
 
-	public void setOnShowResults(IValueChanged<KeyWordSearchInput<T>> onShowResults) {
+	public void setOnShowResults(IValueChanged<SearchInput2<T>> onShowResults) {
 		m_onShowTypingResults = onShowResults;
 	}
 
@@ -248,7 +248,7 @@ public class KeyWordSearchInput<T> extends Div {
 	}
 
 	/**
-	 * Getter for hint. See {@link KeyWordSearchInput#setHint}.
+	 * Getter for hint. See {@link SearchInput2#setHint}.
 	 * @param hint
 	 */
 	@Nullable
