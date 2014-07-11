@@ -11,5 +11,6 @@
 -testng.server.url -http://localhost:8080/ITRIS_VO02/
 -testng.username vpc
 -testng.password rhijnspoor
+-include.package1 -nl.itris.vp.webdriver.decade.tests
 -include.package nl.itris.vp.webdriver.viewpoint.tests.bae.correctionBooking
 -testng.wait.timeout 40000
