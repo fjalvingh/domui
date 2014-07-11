@@ -59,9 +59,9 @@ public class SearchInput2<T> extends Div {
 	@Nullable
 	public IRowRenderer<T> m_resultsHintPopupRowRenderer;
 
-	@Nonnull
-	final private Img m_imgWaiting = new Img("THEME/lui-keyword-wait.gif");
-
+//	@Nonnull
+//	final private Img m_imgWaiting = new Img("THEME/lui-keyword-wait.gif");
+//
 	private Div m_pnlSearchPopup;
 
 	private int m_popupWidth;
@@ -69,43 +69,44 @@ public class SearchInput2<T> extends Div {
 	public SearchInput2() {
 	}
 
-	public SearchInput2(String m_inputCssClass) {
-		m_keySearch.setCssClass(m_inputCssClass);
+	public SearchInput2(@Nullable String cssClass) {
+		if(cssClass != null)
+			m_keySearch.setCssClass(cssClass);
 	}
 
 	@Override
 	public void createContent() throws Exception {
-		//position must be set to relative to enable absoulute positioning of child elements (waiting image)
-		setPosition(PositionType.RELATIVE);
+		setCssClass("ui-srip");
 
-		m_imgWaiting.setCssClass("ui-lui-waiting");
-		m_imgWaiting.setDisplay(DisplayType.NONE);
+//		m_imgWaiting.setCssClass("ui-lui-waiting");
+//		m_imgWaiting.setDisplay(DisplayType.NONE);
 		if(m_keySearch.getCssClass() == null) {
-			m_keySearch.setCssClass("ui-lui-keyword");
+			m_keySearch.setCssClass("ui-srip-keyword");
 		}
 		m_keySearch.setMaxLength(40);
 		m_keySearch.setSize(14);
 		m_keySearch.setMarker();
 
-		m_keySearch.setOnLookupTyping(new ILookupTypingListener<TextStr>() {
+//		m_keySearch.setOnLookupTyping(new ILookupTypingListener<TextStr>() {
+//			@Override
+//			public void onLookupTyping(@Nonnull TextStr component, boolean done) throws Exception {
+//				if(done) {
+//					if(getOnShowResults() != null) {
+//						getOnShowResults().onValueChanged(SearchInput2.this);
+//					}
+//				} else {
+//					IValueChanged<SearchInput2<T>> olt = getOnLookupTyping();
+//					if(olt != null) {
+//						olt.onValueChanged(SearchInput2.this);
+//					}
+//				}
+//			}
+//		});
 
-			@Override
-			public void onLookupTyping(@Nonnull TextStr component, boolean done) throws Exception {
-				if(done) {
-					if(getOnShowResults() != null) {
-						getOnShowResults().onValueChanged(SearchInput2.this);
-					}
-				} else {
-					IValueChanged<SearchInput2<T>> olt = getOnLookupTyping();
-					if(olt != null) {
-						olt.onValueChanged(SearchInput2.this);
-					}
-				}
-			}
-		});
-
-		add(m_imgWaiting);
+//		add(m_imgWaiting);
 		add(m_keySearch);
+
+		appendCreateJS("WebUI.SearchPopup.register('" + getActualID() + "','" + m_keySearch.getActualID() + "');");
 		renderResultsCountPart();
 	}
 
@@ -148,18 +149,18 @@ public class SearchInput2<T> extends Div {
 				add(m_pnlSearchCount);
 			}
 			if(m_resultsCount == 0) {
-				m_pnlSearchCount.setCssClass("ui-lui-keyword-no-res");
+				m_pnlSearchCount.setCssClass("ui-srip-keyword-no-res");
 				m_pnlSearchCount.setText(Msgs.BUNDLE.getString(Msgs.UI_KEYWORD_SEARCH_NO_MATCH));
 			} else if(m_resultsCount == ITableModel.DEFAULT_MAX_SIZE) {
 				//usually this means that query cutoff rest data, corner case when real m_resultsCount == MAX_RESULTS is not that important
-				m_pnlSearchCount.setCssClass("ui-lui-keyword-large");
+				m_pnlSearchCount.setCssClass("ui-srip-keyword-large");
 				m_pnlSearchCount.setText(Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_LARGE_MATCH, "" + ITableModel.DEFAULT_MAX_SIZE));
 			} else {
 				if(m_resultsCount > ITableModel.DEFAULT_MAX_SIZE) {
 					//in case that query does not cutoff rest of data (JDBC queries) report actual data size, but render as to large match
-					m_pnlSearchCount.setCssClass("ui-lui-keyword-large");
+					m_pnlSearchCount.setCssClass("ui-srip-keyword-large");
 				} else {
-					m_pnlSearchCount.setCssClass("ui-lui-keyword-res");
+					m_pnlSearchCount.setCssClass("ui-srip-keyword-res");
 				}
 				m_pnlSearchCount.setText(Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_COUNT, "" + m_resultsCount));
 			}
@@ -211,7 +212,7 @@ public class SearchInput2<T> extends Div {
 		} else {
 			if(m_pnlSearchPopup == null) {
 				m_pnlSearchPopup = new Div();
-				m_pnlSearchPopup.setCssClass("ui-lui-keyword-popup");
+				m_pnlSearchPopup.setCssClass("ui-srip-keyword-popup");
 				if(getPopupWidth() > 0) {
 					m_pnlSearchPopup.setWidth(getPopupWidth() + "px");
 				}
