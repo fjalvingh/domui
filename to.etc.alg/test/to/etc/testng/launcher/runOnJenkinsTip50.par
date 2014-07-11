@@ -6,8 +6,7 @@
 -testng.reporter nl.itris.vp.webdriver.core.report.WdVpTestXMLReporter
 -testng.reporter.root /tmp/webdriver-output/tip-5.0-wd
 -testng.browser firefox
--testng.remote.hub1 http://gridhub.hosts.itris.nl:4444/wd/hub
--testng.remote.hub local
+-testng.remote.hub http://gridhub.hosts.itris.nl:4444/wd/hub
 -testng.server.url http://cat.hosts.itris.nl/wd50/
 -testng.username vpc
 -testng.password rhijnspoor
