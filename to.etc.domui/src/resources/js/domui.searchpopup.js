@@ -217,15 +217,21 @@ $.extend(WebUI.SearchPopup.prototype, {
 		//fix z-index to one saved in input node
 		if ($.browser.msie){
             //IE kills event stack (click is canceled) when z index is set during onblur event handler... So, we need to postpone it a bit...
-            window.setTimeout(function() { try { node.parentNode.style.zIndex = node.style.zIndex;} catch (e) { /*just ignore */ } }, 200);
+            window.setTimeout(function() { 
+            	try {
+            		node.parentNode.style.zIndex = node.style.zIndex;
+            	} catch (e) { 
+            		/*just ignore */ 
+            	} 
+            }, 200);
 		}else{
             //Other browsers dont suffer of this problem, and we can set z index instantly
             node.parentNode.style.zIndex = node.style.zIndex;
 		}
 	},
 
-	showLookupTypingPopupIfStillFocusedAndFixZIndex: function(id) {
-		var node = document.getElementById(id);
+	showLookupTypingPopupIfStillFocusedAndFixZIndex: function() {
+		var node = document.getElementById(this._inputid);
 		if(!node || node.tagName.toLowerCase() != 'input')
 			return;
 		var wasInFocus = node == document.activeElement;
@@ -336,7 +342,7 @@ $.extend(WebUI.SearchPopup.prototype, {
    						}
    					}
 					//handle received lookupTyping component content
-					self.showLookupTypingPopupIfStillFocusedAndFixZIndex(id);
+					self.showLookupTypingPopupIfStillFocusedAndFixZIndex();
 					WebUI.doCustomUpdates();
    				},
 

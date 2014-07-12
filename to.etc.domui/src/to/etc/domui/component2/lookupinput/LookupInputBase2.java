@@ -353,7 +353,10 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 
 			@Override
 			public void onValueChanged(@Nonnull SearchInput2<OT> component) throws Exception {
-				ITableModel<OT> keySearchModel = searchKeyWord(component.getKeySearchValue());
+				ITableModel<OT> keySearchModel = searchKeyWord(component.getValue());
+				component.showResults(keySearchModel);
+
+
 				component.showResultsHintPopup(null);
 				if(keySearchModel == null) {
 					//in case of insufficient searchString data cancel search and return.
@@ -377,7 +380,7 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 		ks.setOnShowResults(new IValueChanged<SearchInput2<OT>>() {
 			@Override
 			public void onValueChanged(@Nonnull SearchInput2<OT> component) throws Exception {
-				ITableModel<OT> keySearchModel = searchKeyWord(component.getKeySearchValue());
+				ITableModel<OT> keySearchModel = searchKeyWord(component.getValue());
 				component.showResultsHintPopup(null);
 				if(keySearchModel == null) {
 					//in case of insufficient searchString data cancel search and popup clean search dialog.
@@ -520,7 +523,7 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	private void openPopupWithClick() throws Exception {
 		ITableModel<OT> initialModel = null;
 		if(m_keySearch != null) {
-			initialModel = searchKeyWord(m_keySearch.getKeySearchValue());
+			initialModel = searchKeyWord(m_keySearch.getValue());
 		}
 		openPopup(initialModel);
 	}
@@ -689,7 +692,7 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	@Override
 	public void setValue(@Nullable OT v) {
 		SearchInput2<OT> ks = m_keySearch;
-		if(DomUtil.isEqual(m_value, v) && (ks == null || ks.getKeySearchValue() == null))
+		if(DomUtil.isEqual(m_value, v) && (ks == null || ks.getValue() == null))
 			return;
 		OT old = m_value;
 		m_value = v;

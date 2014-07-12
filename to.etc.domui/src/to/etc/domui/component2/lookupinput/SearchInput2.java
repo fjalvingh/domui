@@ -31,6 +31,7 @@ import to.etc.domui.component.layout.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 
 /**
@@ -106,7 +107,7 @@ public class SearchInput2<T> extends Div {
 //		add(m_imgWaiting);
 		add(m_keySearch);
 
-		appendCreateJS("WebUI.SearchPopup.register('" + getActualID() + "','" + m_keySearch.getActualID() + "');");
+		appendCreateJS("new WebUI.SearchPopup('" + getActualID() + "','" + m_keySearch.getActualID() + "');");
 		renderResultsCountPart();
 	}
 
@@ -120,7 +121,7 @@ public class SearchInput2<T> extends Div {
 	}
 
 	@Nullable
-	public String getKeySearchValue() {
+	public String getValue() {
 		return m_keySearch.getValue();
 	}
 
@@ -271,5 +272,12 @@ public class SearchInput2<T> extends Div {
 
 	public void setPopupWidth(int popupWidth) {
 		m_popupWidth = popupWidth;
+	}
+
+	public void webActionlookupTyping(IRequestContext ctx) throws Exception {
+		IValueChanged<SearchInput2<T>> lookupTyping = getOnLookupTyping();
+		if(null != lookupTyping)
+			lookupTyping.onValueChanged(this);
+//		System.out.println("> input: " + m_keySearch.getValue());
 	}
 }
