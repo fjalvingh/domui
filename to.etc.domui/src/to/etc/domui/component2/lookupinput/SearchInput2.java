@@ -24,10 +24,13 @@
  */
 package to.etc.domui.component2.lookupinput;
 
+import java.util.*;
+
 import javax.annotation.*;
 
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.layout.*;
+import to.etc.domui.component.meta.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
@@ -49,7 +52,7 @@ public class SearchInput2<T> extends Div {
 	@Nonnull
 	final private TextStr m_keySearch = new TextStr();
 
-	private Div m_pnlSearchCount;
+	private Div m_pnlMessage;
 
 	@Nullable
 	private IValueChanged<SearchInput2<T>> m_onLookupTyping;
@@ -63,14 +66,22 @@ public class SearchInput2<T> extends Div {
 //	@Nonnull
 //	final private Img m_imgWaiting = new Img("THEME/lui-keyword-wait.gif");
 //
+	@Nullable
+	private SelectOnePanel<T> m_selectPanel;
+
 	private Div m_pnlSearchPopup;
 
 	private int m_popupWidth;
 
-	public SearchInput2() {
+	@Nonnull
+	final private ClassMetaModel m_model;
+
+	public SearchInput2(@Nonnull ClassMetaModel classModel) {
+		m_model = classModel;
 	}
 
-	public SearchInput2(@Nullable String cssClass) {
+	public SearchInput2(@Nonnull ClassMetaModel classModel, @Nullable String cssClass) {
+		m_model = classModel;
 		if(cssClass != null)
 			m_keySearch.setCssClass(cssClass);
 	}
@@ -88,27 +99,10 @@ public class SearchInput2<T> extends Div {
 		m_keySearch.setSize(14);
 		m_keySearch.setMarker();
 
-//		m_keySearch.setOnLookupTyping(new ILookupTypingListener<TextStr>() {
-//			@Override
-//			public void onLookupTyping(@Nonnull TextStr component, boolean done) throws Exception {
-//				if(done) {
-//					if(getOnShowResults() != null) {
-//						getOnShowResults().onValueChanged(SearchInput2.this);
-//					}
-//				} else {
-//					IValueChanged<SearchInput2<T>> olt = getOnLookupTyping();
-//					if(olt != null) {
-//						olt.onValueChanged(SearchInput2.this);
-//					}
-//				}
-//			}
-//		});
-
 //		add(m_imgWaiting);
 		add(m_keySearch);
 
 		appendCreateJS("new WebUI.SearchPopup('" + getActualID() + "','" + m_keySearch.getActualID() + "');");
-//		renderResultsCountPart();
 	}
 
 	@Nullable
@@ -125,19 +119,6 @@ public class SearchInput2<T> extends Div {
 		return m_keySearch.getValue();
 	}
 
-//	/**
-//	 * Set number of results label. Use -1 for hiding label.
-//	 * @param results
-//	 */
-//	public void setResultsCount(int results) {
-//		if(results != m_resultsCount) {
-//			m_resultsCount = results;
-//			if(isBuilt()) {
-//				renderResultsCountPart();
-//			}
-//		}
-//	}
-//
 	public void showResults(@Nullable ITableModel<T> model) throws Exception {
 		if(model == null) {
 			//-- No search done- clear all presentation.
@@ -156,7 +137,7 @@ public class SearchInput2<T> extends Div {
 			}
 			openMessagePanel(Msgs.UI_KEYWORD_SEARCH_COUNT, count);
 		} else {
-			clearResult();
+			openResultsPopup(model);
 
 			//-- open selector popup
 			System.out.println("need to render " + size + " choices");
@@ -164,11 +145,21 @@ public class SearchInput2<T> extends Div {
 		}
 	}
 
+	private void openResultsPopup(@Nonnull ITableModel<T> model) throws Exception {
+		clearResult();
+
+		List<T> list = model.getItems(0, model.getRows());
+		INodeContentRenderer<T> renderer = new DefaultPopupRowRenderer<T>(m_model);
+
+		SelectOnePanel<T> pnl = m_selectPanel = new SelectOnePanel<T>(list, renderer);
+		add(pnl);
+	}
+
 	private void openMessagePanel(@Nonnull String code, String... parameters) {
 		String message = Msgs.BUNDLE.formatMessage(code, parameters);
-		Div pnl = m_pnlSearchCount;
+		Div pnl = m_pnlMessage;
 		if(pnl == null) {
-			pnl = m_pnlSearchCount = new Div();
+			pnl = m_pnlMessage = new Div();
 			add(pnl);
 		}
 		pnl.setCssClass("ui-srip-message");
@@ -176,40 +167,15 @@ public class SearchInput2<T> extends Div {
 	}
 
 	private void clearResult() {
-		Div div = m_pnlSearchCount;
+		Div div = m_pnlMessage;
 		if(null != div) {
 			div.remove();
-			m_pnlSearchCount = null;
+			m_pnlMessage = null;
 		}
-	}
-
-	private void renderResultsCountPart() {
-		if(m_resultsCount == -1 || m_resultsCount == 1) {
-			if(m_pnlSearchCount != null) {
-				removeChild(m_pnlSearchCount);
-			}
-			m_pnlSearchCount = null;
-		} else {
-			if(m_pnlSearchCount == null) {
-				m_pnlSearchCount = new Div();
-				add(m_pnlSearchCount);
-			}
-			if(m_resultsCount == 0) {
-				m_pnlSearchCount.setCssClass("ui-srip-keyword-no-res");
-				m_pnlSearchCount.setText(Msgs.BUNDLE.getString(Msgs.UI_KEYWORD_SEARCH_NO_MATCH));
-			} else if(m_resultsCount == ITableModel.DEFAULT_MAX_SIZE) {
-				//usually this means that query cutoff rest data, corner case when real m_resultsCount == MAX_RESULTS is not that important
-				m_pnlSearchCount.setCssClass("ui-srip-keyword-large");
-				m_pnlSearchCount.setText(Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_LARGE_MATCH, "" + ITableModel.DEFAULT_MAX_SIZE));
-			} else {
-				if(m_resultsCount > ITableModel.DEFAULT_MAX_SIZE) {
-					//in case that query does not cutoff rest of data (JDBC queries) report actual data size, but render as to large match
-					m_pnlSearchCount.setCssClass("ui-srip-keyword-large");
-				} else {
-					m_pnlSearchCount.setCssClass("ui-srip-keyword-res");
-				}
-				m_pnlSearchCount.setText(Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_COUNT, "" + m_resultsCount));
-			}
+		SelectOnePanel<T> panel = m_selectPanel;
+		if(null != panel) {
+			panel.remove();
+			m_selectPanel = null;
 		}
 	}
 
@@ -323,6 +289,5 @@ public class SearchInput2<T> extends Div {
 		IValueChanged<SearchInput2<T>> lookupTyping = getOnLookupTyping();
 		if(null != lookupTyping)
 			lookupTyping.onValueChanged(this);
-//		System.out.println("> input: " + m_keySearch.getValue());
 	}
 }

@@ -336,7 +336,7 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	 */
 	private void renderKeyWordSearch() {
 		getValueNode().remove();
-		SearchInput2<OT> ks = m_keySearch = new SearchInput2<OT>(m_keyWordSearchCssClass);
+		SearchInput2<OT> ks = m_keySearch = new SearchInput2<OT>(m_outputMetaModel, m_keyWordSearchCssClass);
 		add(0, ks);
 
 		ks.setPopupWidth(getKeyWordSearchPopupWidth());
