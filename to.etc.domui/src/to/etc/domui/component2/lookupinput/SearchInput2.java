@@ -108,7 +108,7 @@ public class SearchInput2<T> extends Div {
 		add(m_keySearch);
 
 		appendCreateJS("new WebUI.SearchPopup('" + getActualID() + "','" + m_keySearch.getActualID() + "');");
-		renderResultsCountPart();
+//		renderResultsCountPart();
 	}
 
 	@Nullable
@@ -125,16 +125,61 @@ public class SearchInput2<T> extends Div {
 		return m_keySearch.getValue();
 	}
 
-	/**
-	 * Set number of results label. Use -1 for hiding label.
-	 * @param results
-	 */
-	public void setResultsCount(int results) {
-		if(results != m_resultsCount) {
-			m_resultsCount = results;
-			if(isBuilt()) {
-				renderResultsCountPart();
+//	/**
+//	 * Set number of results label. Use -1 for hiding label.
+//	 * @param results
+//	 */
+//	public void setResultsCount(int results) {
+//		if(results != m_resultsCount) {
+//			m_resultsCount = results;
+//			if(isBuilt()) {
+//				renderResultsCountPart();
+//			}
+//		}
+//	}
+//
+	public void showResults(@Nullable ITableModel<T> model) throws Exception {
+		if(model == null) {
+			//-- No search done- clear all presentation.
+			clearResult();
+			return;
+		}
+
+		int size = model.getRows();
+		if(size == 0) {
+			openMessagePanel(Msgs.UI_KEYWORD_SEARCH_NO_MATCH);
+		} else if(size > 10) {
+			String count = Integer.toString(size);
+			if(model instanceof ITruncateableDataModel) {
+				if(((ITruncateableDataModel) model).isTruncated())
+					count = "> " + count;
 			}
+			openMessagePanel(Msgs.UI_KEYWORD_SEARCH_COUNT, count);
+		} else {
+			clearResult();
+
+			//-- open selector popup
+			System.out.println("need to render " + size + " choices");
+
+		}
+	}
+
+	private void openMessagePanel(@Nonnull String code, String... parameters) {
+		String message = Msgs.BUNDLE.formatMessage(code, parameters);
+		Div pnl = m_pnlSearchCount;
+		if(pnl == null) {
+			pnl = m_pnlSearchCount = new Div();
+			add(pnl);
+		}
+		pnl.setCssClass("ui-srip-message");
+		pnl.setText(message);
+	}
+
+	private void clearResult() {
+		Div div = m_pnlSearchCount;
+		if(null != div) {
+			div.remove();
+			m_pnlSearchCount = null;
 		}
 	}
 

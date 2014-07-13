@@ -355,25 +355,25 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 			public void onValueChanged(@Nonnull SearchInput2<OT> component) throws Exception {
 				ITableModel<OT> keySearchModel = searchKeyWord(component.getValue());
 				component.showResults(keySearchModel);
-
-
-				component.showResultsHintPopup(null);
-				if(keySearchModel == null) {
-					//in case of insufficient searchString data cancel search and return.
-					component.setResultsCount(-1);
-					component.setFocus(); //focus must be set manually.
-					return;
-				}
-				if(keySearchModel.getRows() == 1) {
-					//in case of single match select value.
-					handleSetValue(keySearchModel.getItems(0, 1).get(0));
-				} else {
-					//show results count info
-					component.setResultsCount(keySearchModel.getRows());
-					if((keySearchModel.getRows() > 0) && (keySearchModel.getRows() < 10)) {
-						component.showResultsHintPopup(keySearchModel);
-					}
-				}
+//
+//
+//				component.showResultsHintPopup(null);
+//				if(keySearchModel == null) {
+//					//in case of insufficient searchString data cancel search and return.
+//					component.setResultsCount(-1);
+//					component.setFocus(); //focus must be set manually.
+//					return;
+//				}
+//				if(keySearchModel.getRows() == 1) {
+//					//in case of single match select value.
+//					handleSetValue(keySearchModel.getItems(0, 1).get(0));
+//				} else {
+//					//show results count info
+//					component.setResultsCount(keySearchModel.getRows());
+//					if((keySearchModel.getRows() > 0) && (keySearchModel.getRows() < 10)) {
+//						component.showResultsHintPopup(keySearchModel);
+//					}
+//				}
 			}
 		});
 
@@ -381,21 +381,23 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 			@Override
 			public void onValueChanged(@Nonnull SearchInput2<OT> component) throws Exception {
 				ITableModel<OT> keySearchModel = searchKeyWord(component.getValue());
-				component.showResultsHintPopup(null);
-				if(keySearchModel == null) {
-					//in case of insufficient searchString data cancel search and popup clean search dialog.
-					component.setResultsCount(-1);
-					openPopup(null);
-					return;
-				}
-				if(keySearchModel.getRows() == 1) {
-					//in case of single match select value.
-					handleSetValue(keySearchModel.getItems(0, 1).get(0));
-				} else {
-					//in case of more results show narrow result in search popup.
-					component.setResultsCount(keySearchModel.getRows());
-					openPopup(keySearchModel);
-				}
+				component.showResults(keySearchModel);
+
+//				component.showResultsHintPopup(null);
+//				if(keySearchModel == null) {
+//					//in case of insufficient searchString data cancel search and popup clean search dialog.
+//					component.setResultsCount(-1);
+//					openPopup(null);
+//					return;
+//				}
+//				if(keySearchModel.getRows() == 1) {
+//					//in case of single match select value.
+//					handleSetValue(keySearchModel.getItems(0, 1).get(0));
+//				} else {
+//					//in case of more results show narrow result in search popup.
+//					component.setResultsCount(keySearchModel.getRows());
+//					openPopup(keySearchModel);
+//				}
 			}
 		});
 		if(m_keyWordSearchCssClass != null) {

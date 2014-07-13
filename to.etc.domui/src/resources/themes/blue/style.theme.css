@@ -3144,6 +3144,7 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 /*** SearchInput2: replacement for KeywordSearchInput, used in lookupInput2 but an independent component(!) ***/
 .ui-srip {
 	position: relative;
+	display: inline-block;
 }
 .ui-srip-keyword-popup{
 	position: absolute;
@@ -3167,5 +3168,20 @@ tr.uixx-keyword-popup-row {
 	cursor: pointer;
 }
 
+/*- message block, floating over the rest of the form -*/
+.ui-srip-message {
+	position: absolute;
+	top: 20px;
+	left: 0px;
+	width: auto;
+	height: auto;
+	background-color: #ff4f27;
+	border: 1px solid #ff8d60;
+	-moz-border-radius: 4px;	
+	border-radius: 4px;	
+	-webkit-border-radius: 4px;
+	padding: 5px;
+		
+}
 
 
