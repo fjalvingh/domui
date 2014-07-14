@@ -6,11 +6,9 @@
 -testng.reporter nl.itris.vp.webdriver.core.report.WdVpTestXMLReporter
 -testng.reporter.root /home/vmijic/Data/Projects/Itris/Viewpoint/testing/tests/proba/vp-suite
 -testng.browser firefox
--testng.remote.hub local
--testng.server.url1 -http://cat.hosts.itris.nl/wd50/
--testng.server.url -http://localhost:8080/ITRIS_VO02/
+-testng.remote.hub http://10.0.5.187:4444/wd/hub
+-testng.server.url http://10.0.5.187:8080/Itris_VO02/
 -testng.username vpc
 -testng.password rhijnspoor
--include.package1 -nl.itris.vp.webdriver.decade.tests
--include.package nl.itris.vp.webdriver.viewpoint.tests.bae.correctionBooking
+-include.package nl.itris.vp.webdriver.decade.tests
 -testng.wait.timeout 40000
