@@ -3146,7 +3146,7 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	position: relative;
 	display: inline-block;
 }
-.ui-srip-keyword-popup{
+.ui-srip-keyword-popup {
 	position: absolute;
 	left: 0px;
 	top: 18px;
@@ -3181,6 +3181,40 @@ tr.uixx-keyword-popup-row {
 	border-radius: 4px;	
 	-webkit-border-radius: 4px;
 	padding: 5px;
+	z-index: 1;
 }
 
+/*** SelectOnePanel (part of new combobox and lookupinput2) ***/
+.ui-ssop {
+	background-color: white;
+	position: absolute;
+	top: 18px;
+	left: 0px;
+	width: auto;
+	height: auto;
+	border: 1px solid #666;
+	-moz-border-radius: 0px 0px 4px 4px;	
+	border-radius: 0px 0px 4px 4px;
+	-webkit-border-radius: 0px 0px 4px 4px;
+	z-index: 1;
+}
+
+tr.ui-ssop-row {
+	cursor: pointer;
+}
+
+tr.ui-ssop-row:hover {
+}
+
+tr.ui-ssop-selected {
+	background-color: <%= highlight2_bg %> !important;
+}
+
+tr.ui-ssop-row {
+	cursor: pointer;
+}
+
+.ui-ssop-row td {
+	white-space: nowrap;
+}
 

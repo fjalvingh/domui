@@ -10,7 +10,7 @@ WebUI.SearchPopup = function(id, inputid) {
 		self.keypressHandler(event);
 	})
 	.keyup(function(event) {
-		self.keyUpHandler(inputid, event);
+		self.keyUpHandler(event);
 	})
 	.blur(function(event) {
 		self.hidePopup();
@@ -44,7 +44,7 @@ $.extend(WebUI.SearchPopup.prototype, {
 		if(!node || node.tagName.toLowerCase() != 'input')
 			return;
 
-		//cancel current _timerID
+//		//cancel current _timerID
 		this.cancelTimer();
 		
 		//Do not call upward handlers too, we do not want to trigger on value changed by return pressed.
@@ -100,46 +100,46 @@ $.extend(WebUI.SearchPopup.prototype, {
 		var isDownArrowKey = (keyCode == 40000 || keyCode == 40);
 		var isUpArrowKey = (keyCode == 38000 || keyCode == 38);
 		if (isDownArrowKey || isUpArrowKey) {
-			//Do not call upward handlers too, we do not want to trigger on value changed by return pressed.
-			event.cancelBubble = true;
-			if(event.stopPropagation)
-				event.stopPropagation();
-
-			//locate keyword input node
-			var selectedIndex = this._selectedIndex;
-			if(selectedIndex < 0)
-				selectedIndex = 0;
-			var trNode = $(node.parentNode).children("div.ui-srip-keyword-popup").children("div").children("table").children("tbody").children("tr:nth-child(" + selectedIndex + ")").get(0);
-			if(trNode){
-				trNode.className = "ui-keyword-popup-row";
-			}
-			var trNodes = $(node.parentNode).children("div.ui-srip-keyword-popup").children("div").children("table").children("tbody").children("tr");
-			if (trNodes.length > 0){
-				var divPopup = $(node.parentNode).children("div.ui-srip-keyword-popup").get(0);
-				if (divPopup){
-					$(divPopup).fadeIn(300);
-					//must be set due to IE bug in rendering
-					node.parentNode.style.zIndex = divPopup.style.zIndex;
-				}
-				if (isDownArrowKey){
-					selectedIndex++;
-				}else{
-					selectedIndex--;
-				}
-				if (selectedIndex > trNodes.length){
-					selectedIndex = 0;
-				}
-				if (selectedIndex < 0){
-					selectedIndex = trNodes.length;
-				}
-				trNode = $(node.parentNode).children("div.ui-srip-keyword-popup").children("div").children("table").children("tbody").children("tr:nth-child(" + selectedIndex + ")").get(0);
-				if(trNode){
-					trNode.className = "ui-keyword-popop-rowsel";
-				}
-			} else {
-				selectedIndex = 0;
-			}
-			this._selectedIndex = selectedIndex;
+//			//Do not call upward handlers too, we do not want to trigger on value changed by return pressed.
+//			event.cancelBubble = true;
+//			if(event.stopPropagation)
+//				event.stopPropagation();
+//
+//			//locate keyword input node
+//			var selectedIndex = this._selectedIndex;
+//			if(selectedIndex < 0)
+//				selectedIndex = 0;
+//			var trNode = $(node.parentNode).children("div.ui-srip-keyword-popup").children("div").children("table").children("tbody").children("tr:nth-child(" + selectedIndex + ")").get(0);
+//			if(trNode){
+//				trNode.className = "ui-keyword-popup-row";
+//			}
+//			var trNodes = $(node.parentNode).children("div.ui-srip-keyword-popup").children("div").children("table").children("tbody").children("tr");
+//			if (trNodes.length > 0){
+//				var divPopup = $(node.parentNode).children("div.ui-srip-keyword-popup").get(0);
+//				if (divPopup){
+//					$(divPopup).fadeIn(300);
+//					//must be set due to IE bug in rendering
+//					node.parentNode.style.zIndex = divPopup.style.zIndex;
+//				}
+//				if (isDownArrowKey){
+//					selectedIndex++;
+//				}else{
+//					selectedIndex--;
+//				}
+//				if (selectedIndex > trNodes.length){
+//					selectedIndex = 0;
+//				}
+//				if (selectedIndex < 0){
+//					selectedIndex = trNodes.length;
+//				}
+//				trNode = $(node.parentNode).children("div.ui-srip-keyword-popup").children("div").children("table").children("tbody").children("tr:nth-child(" + selectedIndex + ")").get(0);
+//				if(trNode){
+//					trNode.className = "ui-keyword-popop-rowsel";
+//				}
+//			} else {
+//				selectedIndex = 0;
+//			}
+//			this._selectedIndex = selectedIndex;
 		} else {
 			var self = this;
 			WebUI.SearchPopup._timerID = window.setTimeout(function() {
@@ -372,4 +372,74 @@ $.extend(WebUI.SearchPopup.prototype, {
 			error :WebUI.handleError
 		});
 	}
+});
+
+/*** SelectOnePanel ***/
+WebUI.SelectOnePanel = function(id, inputid) {
+	this._id = id;
+	this._inputid = inputid;
+	
+	var node = inputid ? $('#'+inputid) : $(document.body);
+	
+	var self = this;
+	node.keypress(function(event) {
+//		self.keypressHandler(event);
+	})
+	.keyup(function(event) {
+		self.keyUpHandler(event);
+	})
+	.blur(function(event) {
+		self.blurred();
+	});
+};
+$.extend(WebUI.SelectOnePanel.prototype, {
+	_selectedIndex: -1,
+
+	blurred: function() {
+		$('#'+this._id).fadeOut(200);
+		WebUI.scall(this._id, "blurred", {});
+	},
+	
+	keyUpHandler: function(event) {
+		var direction;
+		switch(event.which) {
+			default:
+				return;
+			
+			case 37:			// Left arrow
+			case 39:			// Right arrow
+				return;
+				
+			case 13:			// Return
+				event.cancelBubble = true;
+				if(event.stopPropagation)
+					event.stopPropagation();
+				return;
+
+			case 40:			// Down
+				direction = 1;
+				break;
+				
+			case 38:			// Up
+				direction = -1;
+				break;
+		}
+//		this.cancelTimer();
+		event.stopPropagation();
+
+		var selectedIndex = this._selectedIndex;
+		var oldIndex = selectedIndex;
+		selectedIndex += direction;
+		var trs = $('#'+this._id+" tr.ui-ssop-row");		// Find all rows
+		if(selectedIndex < 0) {
+			selectedIndex = trs.length - 1;
+		} else if(selectedIndex >= trs.length) {
+			selectedIndex = 0;
+		}
+		this._selectedIndex = selectedIndex;
+
+		$(trs[oldIndex]).removeClass("ui-ssop-selected");
+		$(trs[selectedIndex]).addClass("ui-ssop-selected");
+	},
+	
 });

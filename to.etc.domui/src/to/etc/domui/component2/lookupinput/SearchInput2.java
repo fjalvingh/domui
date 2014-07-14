@@ -120,9 +120,10 @@ public class SearchInput2<T> extends Div {
 	}
 
 	public void showResults(@Nullable ITableModel<T> model) throws Exception {
+		clearResult();
+
 		if(model == null) {
 			//-- No search done- clear all presentation.
-			clearResult();
 			return;
 		}
 
@@ -146,8 +147,6 @@ public class SearchInput2<T> extends Div {
 	}
 
 	private void openResultsPopup(@Nonnull ITableModel<T> model) throws Exception {
-		clearResult();
-
 		List<T> list = model.getItems(0, model.getRows());
 		INodeContentRenderer<T> renderer = new DefaultPopupRowRenderer<T>(m_model);
 
@@ -289,5 +288,9 @@ public class SearchInput2<T> extends Div {
 		IValueChanged<SearchInput2<T>> lookupTyping = getOnLookupTyping();
 		if(null != lookupTyping)
 			lookupTyping.onValueChanged(this);
+	}
+
+	public void webActionlookupTypingDone(IRequestContext ctx) throws Exception {
+
 	}
 }

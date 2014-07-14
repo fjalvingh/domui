@@ -13,6 +13,9 @@ import to.etc.domui.util.*;
  * shows a list of selectable items that floats connected to a parent; the items can be selected
  * with either keyboard or mouse.
  *
+ * <h2>Selecting elements</h2>
+ *
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 13, 2014
  */
@@ -39,6 +42,7 @@ public class SelectOnePanel<T> extends Div {
 		for(T item : m_itemList) {
 			renderItem(body, item);
 		}
+		appendCreateJS("new WebUI.SelectOnePanel('" + getActualID() + "');");
 	}
 
 	private void renderItem(@Nonnull TBody body, @Nonnull T item) throws Exception {

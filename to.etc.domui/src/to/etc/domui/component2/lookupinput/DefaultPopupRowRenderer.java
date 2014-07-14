@@ -15,6 +15,7 @@ public class DefaultPopupRowRenderer<T> implements INodeContentRenderer<T> {
 
 	public DefaultPopupRowRenderer(@Nonnull ClassMetaModel cmm) {
 		m_columnList = new ColumnDefList<T>((Class<T>) cmm.getActualClass(), cmm);
+		m_columnList.addDefaultColumns();
 	}
 
 	@Override
