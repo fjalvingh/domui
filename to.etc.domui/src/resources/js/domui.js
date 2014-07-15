@@ -778,7 +778,38 @@ $.extend(WebUI, {
 			fields[sel.id] = val;
 		}
 
+		//-- Handle all registered controls
+		var list = WebUI._inputFieldList;
+		for(var i = list.length; --i >= 0;) {
+			var item = list[i];
+			if(! document.getElementById(item.id)) {
+				//-- Node gone - remove input
+				list.splice(i, 1);
+			} else {
+				var data = item.control.getInputField();
+				fields[item.id] = data;
+			}
+		}
+
 		return fields;
+	},
+
+	_inputFieldList: [],
+
+	/**
+	 * This registers a non-html control as a source of input for {@link getInputFields}. The control
+	 * must have a method "getInputFields(fields: Map)" which defines the inputs to send for the control.
+	 */
+	registerInputControl: function(id, control) {
+		var list = WebUI._inputFieldList;
+		for(var i = list.length; --i >= 0;) {
+			var item = list[i];
+			if(item.id == id) {
+				item.control = control;
+				return;
+			}
+		}
+		list.push({id: id, control:control});
 	},
 
 	getPostURL : function() {

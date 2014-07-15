@@ -39,7 +39,7 @@ WebUI.SearchPopup._timerID = null;
 $.extend(WebUI.SearchPopup.prototype, {
 	_selectedIndex: -1,
 	
-/**
+	/**
 	 * Handle enter key pressed on keyPress for component with onLookupTyping listener. This needs to be executed on keyPress (was part of keyUp handling), otherwise other global return key listener (returnKeyPress handler) would fire.
 	 */
 	keypressHandler: function(event) {
@@ -408,6 +408,7 @@ WebUI.SelectOnePanel = function(id, inputid) {
 		self.blurred();
 	});
 	this.attachHovers();
+	WebUI.registerInputControl(id, this);
 };
 $.extend(WebUI.SelectOnePanel.prototype, {
 	_selectedIndex: -1,
@@ -419,6 +420,10 @@ $.extend(WebUI.SelectOnePanel.prototype, {
 	 */
 	attachHovers: function() {
 		$('#'+this._id+" tr.ui-ssop-row").bind("mouseover", $.proxy(this.mouseOverHandler, this));
+	},
+	
+	getInputField: function() {
+		return this._selectedIndex;
 	},
 
 	mouseOverHandler: function(event) {
