@@ -24,8 +24,8 @@ WebUI.SearchPopup._timerID = null;
 
 $.extend(WebUI.SearchPopup.prototype, {
 	_selectedIndex: -1,
-
-	/**
+	
+/**
 	 * Handle enter key pressed on keyPress for component with onLookupTyping listener. This needs to be executed on keyPress (was part of keyUp handling), otherwise other global return key listener (returnKeyPress handler) would fire.
 	 */
 	keypressHandler: function(event) {
@@ -391,9 +391,40 @@ WebUI.SelectOnePanel = function(id, inputid) {
 	.blur(function(event) {
 		self.blurred();
 	});
+	this.attachHovers();
 };
 $.extend(WebUI.SelectOnePanel.prototype, {
 	_selectedIndex: -1,
+
+	/**
+	 * Attach a hover function to each selection node. The hover function will highlight and
+	 * select the node hovered over. We cannot use :hover to handle that because that would
+	 * confuse the keyboard and mouse style of selecting.
+	 */
+	attachHovers: function() {
+		$('#'+this._id+" tr.ui-ssop-row").bind("mouseover", $.proxy(this.mouseOverHandler, this));
+	},
+
+	mouseOverHandler: function(event) {
+		var node = $(event.target).closest(".ui-ssop-row");
+		if(node.length == 0)
+			return;
+		var index = $(node).index();							// Find # in list
+		this.selectNode(index);									// Select the new node.
+	},
+	
+	selectNode: function(index) {
+		var trs = $('#'+this._id+" tr.ui-ssop-row");			// Find all rows
+		if(index < 0 || index > trs.length)
+			return;
+
+		var selectedIndex = this._selectedIndex;
+		if(selectedIndex >= 0 && selectedIndex < trs.length) {
+			$(trs[selectedIndex]).removeClass("ui-ssop-selected");
+		}
+		$(trs[index]).addClass("ui-ssop-selected");
+		this._selectedIndex = index;
+	},
 
 	blurred: function() {
 		$('#'+this._id).fadeOut(200);
@@ -428,7 +459,6 @@ $.extend(WebUI.SelectOnePanel.prototype, {
 		event.stopPropagation();
 
 		var selectedIndex = this._selectedIndex;
-		var oldIndex = selectedIndex;
 		selectedIndex += direction;
 		var trs = $('#'+this._id+" tr.ui-ssop-row");		// Find all rows
 		if(selectedIndex < 0) {
@@ -436,10 +466,7 @@ $.extend(WebUI.SelectOnePanel.prototype, {
 		} else if(selectedIndex >= trs.length) {
 			selectedIndex = 0;
 		}
-		this._selectedIndex = selectedIndex;
-
-		$(trs[oldIndex]).removeClass("ui-ssop-selected");
-		$(trs[selectedIndex]).addClass("ui-ssop-selected");
+		this.selectNode(selectedIndex);
 	},
 	
 });
