@@ -25,6 +25,8 @@ public class SelectOnePanel<T> extends Div {
 
 	final private INodeContentRenderer<T> m_renderer;
 
+	private int m_value;
+
 	public SelectOnePanel(@Nonnull List<T> itemList, @Nonnull INodeContentRenderer<T> renderer) {
 		m_itemList = itemList;
 		m_renderer = renderer;
@@ -56,5 +58,27 @@ public class SelectOnePanel<T> extends Div {
 		});
 		TD cell = row.addCell();
 		m_renderer.renderNodeContent(row, cell, item, null);
+	}
+
+	@Override
+	public boolean acceptRequestParameter(String[] values) throws Exception {
+		int value = -1;
+		if(values.length == 1) {
+			String s = values[0];
+			if(s != null && s.trim().length() > 0) {
+				try {
+					value = Integer.parseInt(s);
+				} catch(Exception x) {}
+			}
+		}
+
+		boolean changed = m_value != value;
+		m_value = value;
+		System.out.println("selectOnePanel: value=" + value);
+		return changed;
+	}
+
+	public int getValue() {
+		return m_value;
 	}
 }
