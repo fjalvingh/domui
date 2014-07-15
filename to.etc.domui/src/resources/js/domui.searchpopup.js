@@ -1,3 +1,14 @@
+WebUI.K_RETURN = 13;
+WebUI.K_UP = 38;
+WebUI.K_DOWN = 40;
+WebUI.K_LEFT = 37;
+WebUI.K_RIGHT = 39;
+WebUI.K_ESC = 27;
+WebUI.K_HOME = 36;
+WebUI.K_END = 35;
+WebUI.K_PGUP = 33;
+WebUI.K_PGDN = 34;
+
 /**
  * JavascriptHandler for the new, generic SearchInput2 control.
  */
@@ -9,11 +20,14 @@ WebUI.SearchPopup = function(id, inputid) {
 	$('#'+inputid).keypress(function(event) {
 		self.keypressHandler(event);
 	})
-	.keyup(function(event) {
+	.keydown(function(event) {
 		self.keyUpHandler(event);
 	})
+	.focus(function() {
+		self.handleFocus();
+	})
 	.blur(function(event) {
-		self.hidePopup();
+		self.handleBlur();
 	});
 };
 
@@ -29,24 +43,28 @@ $.extend(WebUI.SearchPopup.prototype, {
 	 * Handle enter key pressed on keyPress for component with onLookupTyping listener. This needs to be executed on keyPress (was part of keyUp handling), otherwise other global return key listener (returnKeyPress handler) would fire.
 	 */
 	keypressHandler: function(event) {
-		$.dbg('returnKeyHandler');
-		if(!event){
-			event = window.event;
-			if (!event)
+		var key = event.which;
+		console.debug("key: "+event.which);
+		switch(key) {
+			default:
 				return;
+			
+			case WebUI.K_UP:
+			case WebUI.K_DOWN:
+				console.debug('trying to stop');
+				event.preventDefault();
+				return false;
+			
+			case WebUI.K_RETURN:
+				break;
 		}
-		var keyCode = WebUI.normalizeKey(event);
-		var isReturn = (keyCode == 13000 || keyCode == 13);
-		if(! isReturn)
-			return;
-
 		var node = document.getElementById(this._inputid);
 		if(!node || node.tagName.toLowerCase() != 'input')
 			return;
 
 //		//cancel current _timerID
 		this.cancelTimer();
-		
+
 		//Do not call upward handlers too, we do not want to trigger on value changed by return pressed.
 		event.cancelBubble = true;
 		if(event.stopPropagation)
@@ -72,80 +90,65 @@ $.extend(WebUI.SearchPopup.prototype, {
 	 * This cause that fast typing would not trigger ajax for each key stroke, only when user stops typing for 500ms ajax would be called by lookupTyping function.
 	 */
 	keyUpHandler: function(event) {
-		var node = document.getElementById(this._inputid);
-		if(!node || node.tagName.toLowerCase() != 'input')
-			return;
+		console.debug("keyup: "+event.which);
+		switch(event.which) {
+			default:
+				var self = this;
+				WebUI.SearchPopup._timerID = window.setTimeout(function() {
+					self.lookupTyping();
+				}, 500);
 
-		if(!event){
-			event = window.event;
-			if (!event)
+				return true;
+				
+			case 229:										// ??
 				return;
+			
+			case WebUI.K_UP:
+			case WebUI.K_DOWN:
+				event.preventDefault();
+//				console.debug('trying to stop');
+//				event.stopPropagation();					// Do not handle up/down - it causes cursor to move to start/end of field.
+				return false;
+			
+			case WebUI.K_RETURN:
+				break;
 		}
-		var keyCode = WebUI.normalizeKey(event);
-		var isReturn = (keyCode == 13000 || keyCode == 13);
-		if (isReturn) { 										//handled by onLookupTypingReturnKeyHandler, just cancel propagation
-			event.cancelBubble = true;
-			if(event.stopPropagation)
-				event.stopPropagation();
-			return;
-		}
-
-		var isLeftArrowKey = (keyCode == 37000 || keyCode == 37);
-		var isRightArrowKey = (keyCode == 39000 || keyCode == 39);
-		if (isLeftArrowKey || isRightArrowKey){
-			//in case of left or right arrow keys do nothing
-			return;
-		}
-		this.cancelTimer();
-		var isDownArrowKey = (keyCode == 40000 || keyCode == 40);
-		var isUpArrowKey = (keyCode == 38000 || keyCode == 38);
-		if (isDownArrowKey || isUpArrowKey) {
-//			//Do not call upward handlers too, we do not want to trigger on value changed by return pressed.
+//
+//
+//		var node = document.getElementById(this._inputid);
+//		if(!node || node.tagName.toLowerCase() != 'input')
+//			return;
+//
+//		if(!event){
+//			event = window.event;
+//			if (!event)
+//				return;
+//		}
+//		var keyCode = WebUI.normalizeKey(event);
+//		var isReturn = (keyCode == 13000 || keyCode == 13);
+//		if(isReturn) { 										//handled by onLookupTypingReturnKeyHandler, just cancel propagation
 //			event.cancelBubble = true;
 //			if(event.stopPropagation)
 //				event.stopPropagation();
+//			return;
+//		}
 //
-//			//locate keyword input node
-//			var selectedIndex = this._selectedIndex;
-//			if(selectedIndex < 0)
-//				selectedIndex = 0;
-//			var trNode = $(node.parentNode).children("div.ui-srip-keyword-popup").children("div").children("table").children("tbody").children("tr:nth-child(" + selectedIndex + ")").get(0);
-//			if(trNode){
-//				trNode.className = "ui-keyword-popup-row";
-//			}
-//			var trNodes = $(node.parentNode).children("div.ui-srip-keyword-popup").children("div").children("table").children("tbody").children("tr");
-//			if (trNodes.length > 0){
-//				var divPopup = $(node.parentNode).children("div.ui-srip-keyword-popup").get(0);
-//				if (divPopup){
-//					$(divPopup).fadeIn(300);
-//					//must be set due to IE bug in rendering
-//					node.parentNode.style.zIndex = divPopup.style.zIndex;
-//				}
-//				if (isDownArrowKey){
-//					selectedIndex++;
-//				}else{
-//					selectedIndex--;
-//				}
-//				if (selectedIndex > trNodes.length){
-//					selectedIndex = 0;
-//				}
-//				if (selectedIndex < 0){
-//					selectedIndex = trNodes.length;
-//				}
-//				trNode = $(node.parentNode).children("div.ui-srip-keyword-popup").children("div").children("table").children("tbody").children("tr:nth-child(" + selectedIndex + ")").get(0);
-//				if(trNode){
-//					trNode.className = "ui-keyword-popop-rowsel";
-//				}
-//			} else {
-//				selectedIndex = 0;
-//			}
-//			this._selectedIndex = selectedIndex;
-		} else {
-			var self = this;
-			WebUI.SearchPopup._timerID = window.setTimeout(function() {
-				self.lookupTyping();
-			}, 500);
-		}
+//		var isLeftArrowKey = (keyCode == 37000 || keyCode == 37);
+//		var isRightArrowKey = (keyCode == 39000 || keyCode == 39);
+//		if (isLeftArrowKey || isRightArrowKey){
+//			//in case of left or right arrow keys do nothing
+//			return;
+//		}
+//		this.cancelTimer();
+//		var isDownArrowKey = (keyCode == 40000 || keyCode == 40);
+//		var isUpArrowKey = (keyCode == 38000 || keyCode == 38);
+//		if (isDownArrowKey || isUpArrowKey) {
+//		} else {
+//			var self = this;
+//			WebUI.SearchPopup._timerID = window.setTimeout(function() {
+//				self.lookupTyping();
+//			}, 500);
+//		}
 	},
 
 	cancelTimer: function() {
@@ -204,30 +207,43 @@ $.extend(WebUI.SearchPopup.prototype, {
 			this._selectedIndex = newIndex;
 		}
 	},
+	
+	/**
+	 * If the input is re-entered: show the last popup shown, if present.
+	 */
+	handleFocus: function() {
+		$('#'+this._id+" .ui-ssop").fadeIn(200);
+	},
 
-	//Called only from onBlur of input node that is used for lookup typing.
-	hidePopup: function() {
-		var node = document.getElementById(this._inputid);
-		if(!node || node.tagName.toLowerCase() != 'input')
-			return;
-		var divPopup = $(node.parentNode).children("div.ui-srip-keyword-popup").get();
-		if (divPopup){
-			$(divPopup).fadeOut(200);
-		}
-		//fix z-index to one saved in input node
-		if ($.browser.msie){
-            //IE kills event stack (click is canceled) when z index is set during onblur event handler... So, we need to postpone it a bit...
-            window.setTimeout(function() { 
-            	try {
-            		node.parentNode.style.zIndex = node.style.zIndex;
-            	} catch (e) { 
-            		/*just ignore */ 
-            	} 
-            }, 200);
-		}else{
-            //Other browsers dont suffer of this problem, and we can set z index instantly
-            node.parentNode.style.zIndex = node.style.zIndex;
-		}
+	/**
+	 * When the input is left remove any popup visible. 
+	 */
+	handleBlur: function() {
+		//-- 1. If we have a popup panel-> fade it out,
+		$('#'+this._id+" .ui-ssop").fadeOut(200);
+		
+		
+//		var node = document.getElementById(this._inputid);
+//		if(!node || node.tagName.toLowerCase() != 'input')
+//			return;
+//		var divPopup = $(node.parentNode).children("div.ui-srip-keyword-popup").get();
+//		if (divPopup){
+//			$(divPopup).fadeOut(200);
+//		}
+//		//fix z-index to one saved in input node
+//		if ($.browser.msie){
+//            //IE kills event stack (click is canceled) when z index is set during onblur event handler... So, we need to postpone it a bit...
+//            window.setTimeout(function() { 
+//            	try {
+//            		node.parentNode.style.zIndex = node.style.zIndex;
+//            	} catch (e) { 
+//            		/*just ignore */ 
+//            	} 
+//            }, 200);
+//		}else{
+//            //Other browsers dont suffer of this problem, and we can set z index instantly
+//            node.parentNode.style.zIndex = node.style.zIndex;
+//		}
 	},
 
 	showLookupTypingPopupIfStillFocusedAndFixZIndex: function() {
@@ -412,7 +428,7 @@ $.extend(WebUI.SelectOnePanel.prototype, {
 		var index = $(node).index();							// Find # in list
 		this.selectNode(index);									// Select the new node.
 	},
-	
+
 	selectNode: function(index) {
 		var trs = $('#'+this._id+" tr.ui-ssop-row");			// Find all rows
 		if(index < 0 || index > trs.length)
@@ -430,28 +446,28 @@ $.extend(WebUI.SelectOnePanel.prototype, {
 		$('#'+this._id).fadeOut(200);
 		WebUI.scall(this._id, "blurred", {});
 	},
-	
+
 	keyUpHandler: function(event) {
 		var direction;
 		switch(event.which) {
 			default:
 				return;
 			
-			case 37:			// Left arrow
-			case 39:			// Right arrow
+			case WebUI.K_LEFT:
+			case WebUI.K_RIGHT:
 				return;
 				
-			case 13:			// Return
+			case WebUI.K_RETURN:							// Return
 				event.cancelBubble = true;
 				if(event.stopPropagation)
 					event.stopPropagation();
 				return;
 
-			case 40:			// Down
+			case WebUI.K_DOWN:
 				direction = 1;
 				break;
 				
-			case 38:			// Up
+			case WebUI.K_UP:
 				direction = -1;
 				break;
 		}
