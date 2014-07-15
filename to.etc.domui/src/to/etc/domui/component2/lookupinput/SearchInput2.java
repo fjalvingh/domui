@@ -138,6 +138,7 @@ public class SearchInput2<T> extends Div {
 			}
 			openMessagePanel(Msgs.UI_KEYWORD_SEARCH_COUNT, count);
 		} else {
+			Thread.sleep(20000);
 			openResultsPopup(model);
 
 			//-- open selector popup

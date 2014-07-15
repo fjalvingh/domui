@@ -872,7 +872,7 @@ $.extend(WebUI, {
 		return false;						// jal 20131107 Was false, but inhibits clicking on radiobutton inside a table in Chrome.
 	},
 
-	scall : function(id, action, fields) {
+	prepareAjaxCall: function(id, action, fields) {
 		if (!fields)
 			fields = new Object();
 		// Collect all input, then create input.
@@ -881,9 +881,8 @@ $.extend(WebUI, {
 		fields.webuic = id;
 		fields["$pt"] = DomUIpageTag;
 		fields["$cid"] = DomUICID;
-		WebUI.cancelPolling();
 
-		$.ajax( {
+		return {
 			url :DomUI.getPostURL(),
 			dataType :"*",
 			data :fields,
@@ -891,7 +890,13 @@ $.extend(WebUI, {
 			type: "POST",
 			success :WebUI.handleResponse,
 			error :WebUI.handleError
-		});
+		};
+	},
+
+	scall : function(id, action, fields) {
+		var call = WebUI.prepareAjaxCall(id, action, fields);
+		WebUI.cancelPolling();
+		$.ajax(call);
 	},
 
 	jsoncall: function(id, fields) {

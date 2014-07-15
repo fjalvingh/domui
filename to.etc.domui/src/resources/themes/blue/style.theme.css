@@ -3183,6 +3183,20 @@ tr.uixx-keyword-popup-row {
 	padding: 5px;
 	z-index: 1;
 }
+.ui-srip-waiting {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 32px;
+	height: 32px;
+	background-color: white;
+}
+.ui-srip-waiting div {
+	width: 16px;
+	height: 16px;
+	background: url(lui-keyword-wait.gif) no-repeat;
+}
+
 
 /*** SelectOnePanel (part of new combobox and lookupinput2) ***/
 .ui-ssop {
