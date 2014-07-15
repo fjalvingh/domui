@@ -7,7 +7,7 @@
 -testng.reporter.root /home/vmijic/Data/Projects/Itris/Viewpoint/testing/tests/proba/vp-suite
 -testng.browser firefox
 -testng.remote.hub local
--testng.server.url -http://localhost:8080/Itris_VO02/
+-testng.server.url http://localhost:8080/Itris_VO02/
 -testng.username vpc
 -testng.password rhijnspoor
 -include.package nl.itris.vp.webdriver.viewpoint.tests.bae.correctionBooking
