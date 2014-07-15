@@ -20,6 +20,8 @@ public class DefaultPopupRowRenderer<T> implements INodeContentRenderer<T> {
 
 	@Override
 	public void renderNodeContent(NodeBase component, NodeContainer node, T instance, Object parameters) throws Exception {
+		if(null == instance)
+			return;
 		int column = 0;
 		for(final SimpleColumnDef< ? > cd : m_columnList) {
 			renderColumn(node, column++, instance, cd);
