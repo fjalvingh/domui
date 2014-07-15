@@ -78,6 +78,8 @@ public class ParallelTestLauncher implements IRunnableArgumentsProvider {
 
 	public static final String	ARG_SINGLE_REPORT			= "single.report";
 
+	public static final String ARG_OPTIONS_FILE = "options.file";
+
 	public static final String	ARG_HELP					= "help";
 
 	public static final int		DEFAULT_THREADS				= 5;
@@ -177,11 +179,13 @@ public class ParallelTestLauncher implements IRunnableArgumentsProvider {
 	}
 
 	void run(String[] args) throws Exception {
-		if(args != null && args.length == 1 && (args[0] == "/?" || args[0] == "-help")) {
+		if(args != null && args.length == 1 && ("/?".equals(args[0]) || "-help".equals(args[0]))) {
 			showHelp();
 			return;
 		}
-		setArgUtil(new ArgumentsUtil(args));
+		String[] convertedArgs = ArgumentsUtil.mergeArguments(ARG_OPTIONS_FILE, args);
+
+		setArgUtil(new ArgumentsUtil(convertedArgs));
 		File root = initializeRoot();
 		File reportRoot = initializeReporterRoot(root);
 		setRoot(root);
@@ -396,6 +400,11 @@ public class ParallelTestLauncher implements IRunnableArgumentsProvider {
 		setRunnableClassPath(classpath);
 
 		for(int i = 0; i < parallelThreadsLimit; i++) {
+			if(i > 0) {
+				System.out.println("Delaying thread " + i + " for 1000ms...");
+				Thread.sleep(1000); //EXPERIMENTING: it is observed that if all threads hit the server at once, it makes a bit of sync delays on server
+				System.out.println("...Awaken thread " + i + " and continue");
+			}
 			String name = "T" + i;
 			SuiteRunner runnableJob = new SuiteRunner(this, dataProvider, name);
 			Thread thread = new Thread(runnableJob, name);

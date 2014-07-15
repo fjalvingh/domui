@@ -1,8 +1,11 @@
 package to.etc.testng.launcher.misc;
 
+import java.io.*;
 import java.util.*;
 
 import javax.annotation.*;
+
+import to.etc.util.*;
 
 /**
  * Util library for working with specific command line arguments.
@@ -113,4 +116,128 @@ public class ArgumentsUtil {
 			return defaultVal;
 		}
 	}
+
+	@Nonnull
+	public static String[] parseAsRunOptions(@Nonnull String fileOptionsAsStr) {
+		fileOptionsAsStr = fileOptionsAsStr.replaceAll("\r\n", " ");
+		fileOptionsAsStr = fileOptionsAsStr.replaceAll("\n", " ");
+		List<String> result = new ArrayList<String>();
+		boolean insideDoubleQuotes = false;
+		StringBuilder current = new StringBuilder();
+		for(int i = 0; i < fileOptionsAsStr.length(); i++) {
+			char nextChar = fileOptionsAsStr.charAt(i);
+			if(insideDoubleQuotes) {
+				if(nextChar == '"') {
+					insideDoubleQuotes = false;
+					result.add(current.toString().trim());
+					current.setLength(0);
+				} else {
+					current.append(nextChar);
+				}
+			} else {
+				if(nextChar == ' ') {
+					if(current.length() > 0) {
+						result.add(current.toString().trim());
+						current.setLength(0);
+					}
+				} else if(nextChar == '"' && current.length() == 0) {
+					insideDoubleQuotes = true;
+				} else {
+					current.append(nextChar);
+				}
+			}
+		}
+		if(current.length() > 0) {
+			result.add(current.toString().trim());
+		}
+		return result.toArray(new String[result.size()]);
+	}
+
+	static void mergeArguments(@Nonnull List<String> nonFileArgs, @Nullable String[] argsFromOptionsFile) {
+		if(argsFromOptionsFile == null || argsFromOptionsFile.length == 0) {
+			return;
+		}
+		boolean copyParamValues = false;
+		if(nonFileArgs.size() > 0) {
+			System.out.println("-----------------------------------------------");
+			System.out.print("Running options from file are overriden :");
+			for(String arg : nonFileArgs) {
+				if(arg.startsWith("-")) {
+					System.out.println("");
+				}
+				System.out.print(arg);
+				System.out.print(" ");
+			}
+			System.out.println("");
+			System.out.println("-----------------------------------------------");
+		}
+		for(String val : argsFromOptionsFile) {
+			if(val.startsWith("-")) {
+				if(!nonFileArgs.contains(val)) {
+					nonFileArgs.add(val);
+					copyParamValues = true;
+				} else {
+					copyParamValues = false;
+				}
+			} else if(copyParamValues) {
+				nonFileArgs.add(val);
+			}
+		}
+	}
+
+	@Nonnull
+	public static String[] getRunFromFileOptions(@Nonnull String fileName) throws Exception {
+		File options = null;
+		String fileOptionsAsStr = null;
+		try {
+			options = new File(fileName);
+			fileOptionsAsStr = FileTool.readFileAsString(options);
+		} catch(Exception ex) {
+			System.out.println("Unable to locate options file: " + fileName);
+			return null;
+		}
+
+		String[] argsFromFile = ArgumentsUtil.parseAsRunOptions(fileOptionsAsStr);
+		System.out.println("-----------------------------------------------");
+		System.out.print("Running with options from file " + fileName + ":");
+		for(String argFromFile : argsFromFile) {
+			if(argFromFile.startsWith("-")) {
+				System.out.println("");
+			}
+			System.out.print(argFromFile);
+			System.out.print(" ");
+		}
+		System.out.println("");
+		System.out.println("-----------------------------------------------");
+
+		return argsFromFile;
+	}
+
+	/**
+	 * Merges arguments loaded from options file with overriden parameters defined additionally
+	 * @param argOptionsFile
+	 * @param args
+	 * @return
+	 * @throws Exception
+	 */
+	@Nonnull
+	public static String[] mergeArguments(@Nonnull String argOptionsFile, String[] args) throws Exception {
+		String[] argsFromOptionsFile = null;
+		List<String> nonFileArgs = new ArrayList<String>();
+		boolean nextIsOptionsFile = false;
+		for(String arg : args) {
+			if(nextIsOptionsFile) {
+				nextIsOptionsFile = false;
+				argsFromOptionsFile = ArgumentsUtil.getRunFromFileOptions(arg);
+			} else if(("-" + argOptionsFile).equals(arg)) {
+				nextIsOptionsFile = true;
+			} else {
+				nonFileArgs.add(arg);
+			}
+		}
+
+		mergeArguments(nonFileArgs, argsFromOptionsFile);
+		return nonFileArgs.toArray(new String[nonFileArgs.size()]);
+	}
+
 }

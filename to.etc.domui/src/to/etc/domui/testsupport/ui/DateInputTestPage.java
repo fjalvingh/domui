@@ -1,4 +1,4 @@
-package to.etc.domui.pages;
+package to.etc.domui.testsupport.ui;
 
 import java.text.*;
 import java.util.*;

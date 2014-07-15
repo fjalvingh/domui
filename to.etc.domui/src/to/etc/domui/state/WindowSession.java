@@ -349,12 +349,13 @@ final public class WindowSession {
 	 * @return
 	 */
 	public boolean handleExceptionGoto(@Nonnull final RequestContextImpl ctx, @Nonnull final Page currentpg, boolean ajax) throws Exception {
-		if(getTargetMode() == null)
+		MoveMode targetMode = getTargetMode();
+		if(targetMode == null)
 			return false;
 
-		switch(getTargetMode()){
+		switch(targetMode){
 			default:
-				throw new IllegalStateException("UIGoto." + getTargetMode() + " is invalid when calling UIGoto from an exception listener");
+				throw new IllegalStateException("UIGoto." + targetMode + " is invalid when calling UIGoto from an exception listener");
 
 			case REDIRECT:
 			case NEW:
