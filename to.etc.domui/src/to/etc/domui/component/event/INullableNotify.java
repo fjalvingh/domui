@@ -10,7 +10,7 @@ import javax.annotation.*;
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on Jun 11, 2014
  */
-public interface ICallback<T> {
+public interface INullableNotify<T> {
 
 	/**
 	 * Callback listener.
