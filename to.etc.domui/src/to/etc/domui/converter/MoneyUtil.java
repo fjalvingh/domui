@@ -319,11 +319,11 @@ public class MoneyUtil {
 	 * @param value2
 	 * @return
 	 */
-	public static boolean areValuesEqual(double value1, double value2) {
+	public static boolean areRoundedValuesEqual(double value1, double value2) {
 		return (roundValue(value1) == roundValue(value2));
 	}
 
-	public static boolean areValuesEqual(@Nonnull BigDecimal value1, @Nonnull BigDecimal value2) {
+	public static boolean areRoundedValuesEqual(@Nonnull BigDecimal value1, @Nonnull BigDecimal value2) {
 		return (roundValue(value1).equals(roundValue(value2)));
 	}
 
@@ -332,7 +332,7 @@ public class MoneyUtil {
 	 * @param value
 	 * @return
 	 */
-	public static boolean isZero(@Nonnull BigDecimal value) {
+	public static boolean isRoundedAsZero(@Nonnull BigDecimal value) {
 		return (roundValue(BigDecimal.ZERO).equals(roundValue(value)));
 	}
 
