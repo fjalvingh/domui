@@ -57,25 +57,21 @@ public class BigDecimalType implements IJdbcType, IJdbcTypeFactory {
 	 */
 	@Override
 	public void assignParameter(PreparedStatement ps, int index, JdbcPropertyMeta pm, Object value) throws Exception {
-		Double doubleValue;
+		if(value == null) {
+			ps.setNull(index, Types.DECIMAL);
+			return;
+		}
+
+		BigDecimal bigDecimalValue;
 		if(value instanceof BigDecimal) {
-			doubleValue = ((BigDecimal) value).doubleValue();
+			bigDecimalValue = ((BigDecimal) value);
 		} else if(value instanceof Double) {
-			doubleValue = (Double) value;
+			bigDecimalValue = BigDecimal.valueOf((Double) value);
 		} else {
-			doubleValue = RuntimeConversions.convertToDoubleWrapper(value);
+			bigDecimalValue = BigDecimal.valueOf(RuntimeConversions.convertToDoubleWrapper(value));
 		}
 
-		//-- If this property has a nullity value and is nullable convert to null if needed.
-		if(pm.isNullable() && pm.getActualClass().isPrimitive() && pm.getNullValue() != null) {
-			double nullValue = Double.parseDouble(pm.getNullValue());
-			if(nullValue == doubleValue.doubleValue()) {
-				ps.setNull(index, Types.DOUBLE);
-				return;
-			}
-		}
-
-		ps.setDouble(index, doubleValue.doubleValue());
+		ps.setBigDecimal(index, bigDecimalValue);
 	}
 
 	/**
@@ -83,9 +79,9 @@ public class BigDecimalType implements IJdbcType, IJdbcTypeFactory {
 	 */
 	@Override
 	public Object convertToInstance(ResultSet rs, int index) throws Exception {
-		double val = rs.getDouble(index);
+		BigDecimal val = rs.getBigDecimal(index);
 		if(rs.wasNull())
 			return null;
-		return BigDecimal.valueOf(val);
+		return val;
 	}
 }
