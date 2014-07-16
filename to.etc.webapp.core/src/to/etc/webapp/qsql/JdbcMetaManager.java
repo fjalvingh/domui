@@ -154,6 +154,7 @@ public class JdbcMetaManager {
 
 		register(new StringType());
 		register(new DoubleType());
+		register(new BigDecimalType());
 		register(new IntegerType());
 		register(new LongType());
 		register(new TimestampType());

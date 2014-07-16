@@ -579,9 +579,9 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 						if(pl.size() == 0)
 							throw new ProgrammerErrorException("Unknown/unresolvable lookup property " + spm.getPropertyName() + " on " + getQueryMetaModel());
 
-						//It is required that lookup by id is also available, for now only Long type and BigDecimal interpretated as Long (fix for 1228) are supported
-						//FIXME: see if it is possible to generalize things for all integer based types... (DomUtil.isIntegerType(pmm.getActualType()))
-						if(pl.get(0).getActualType() == Long.class || pl.get(0).getActualType() == BigDecimal.class) {
+						//It is required that lookup by id is also available, for now only integer based types and BigDecimal interpreted as Long (fix for 1228) are supported
+						PropertyMetaModel< ? > pmm = pl.get(0);
+						if(DomUtil.isIntegerType(pmm.getActualType()) || pmm.getActualType() == BigDecimal.class) {
 							if(searchString.contains("%") && !pl.get(0).isTransient()) {
 								r.add(new QPropertyComparison(QOperation.LIKE, spm.getPropertyName(), new QLiteral(searchString)));
 							} else {
@@ -595,7 +595,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 									//just ignore this since it means that it is not correct Long condition.
 								}
 							}
-						} else if(pl.get(0).getActualType().isAssignableFrom(String.class)) {
+						} else if(pmm.getActualType().isAssignableFrom(String.class)) {
 							if(spm.isIgnoreCase()) {
 								r.ilike(spm.getPropertyName(), searchString + "%");
 							} else {
