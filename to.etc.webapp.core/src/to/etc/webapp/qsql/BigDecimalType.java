@@ -62,14 +62,7 @@ public class BigDecimalType implements IJdbcType, IJdbcTypeFactory {
 			return;
 		}
 
-		BigDecimal bigDecimalValue;
-		if(value instanceof BigDecimal) {
-			bigDecimalValue = ((BigDecimal) value);
-		} else if(value instanceof Double) {
-			bigDecimalValue = BigDecimal.valueOf((Double) value);
-		} else {
-			bigDecimalValue = BigDecimal.valueOf(RuntimeConversions.convertToDoubleWrapper(value));
-		}
+		BigDecimal bigDecimalValue = RuntimeConversions.convertToBigDecimal(value);
 
 		ps.setBigDecimal(index, bigDecimalValue);
 	}
