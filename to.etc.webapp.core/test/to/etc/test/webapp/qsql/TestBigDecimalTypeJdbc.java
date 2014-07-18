@@ -1,7 +1,6 @@
 package to.etc.test.webapp.qsql;
 
 import java.math.*;
-import java.sql.*;
 import java.util.*;
 
 import javax.sql.*;
@@ -21,15 +20,19 @@ import to.etc.webapp.testsupport.*;
  * Created on Jul 18, 2014
  */
 public class TestBigDecimalTypeJdbc {
-	static private DataSource m_ds;
 
-	static private QDataContext m_dc;
+	private static DataSource m_ds = TUtilTestProperties.getRawDataSource();
 
-	@BeforeClass
-	static public void setUp() throws Exception {
-		m_ds = TUtilTestProperties.getRawDataSource();
-		Connection dbc = m_ds.getConnection();
-		m_dc = new JdbcDataContext(null, dbc);
+	private QDataContext m_dc;
+
+	@Before
+	public void setUp() throws Exception {
+		m_dc = new JdbcDataContext(null, m_ds.getConnection());
+	}
+
+	@After
+	public void tearDown() throws Exception {
+		m_dc.close();
 	}
 
 	@Test
