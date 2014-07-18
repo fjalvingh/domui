@@ -24,6 +24,7 @@
  */
 package to.etc.test.webapp.qsql;
 
+import java.math.*;
 import java.util.*;
 
 import to.etc.webapp.qsql.*;
@@ -45,6 +46,10 @@ public class DecadePaymentOrder {
 	private double m_amount;
 
 	public static final String AMOUNT = "amount";
+
+	private BigDecimal m_amount2;
+
+	public static final String AMOUNT2 = "amount2";
 
 	private String m_paymentDescription;
 
@@ -108,6 +113,16 @@ public class DecadePaymentOrder {
 	public void setAmount(double amount) {
 		this.m_amount = amount;
 	}
+
+	@QJdbcColumn(name = "bdrg", length = 15, scale = 3, nullable = true)
+	public BigDecimal getAmount2() {
+		return m_amount2;
+	}
+
+	public void setAmount2(BigDecimal amount2) {
+		this.m_amount2 = amount2;
+	}
+
 
 	@QJdbcColumn(name = "omschrijving", length = 2000, nullable = true)
 	public String getDescription() {
