@@ -19,13 +19,15 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 13, 2014
  */
-public class SelectOnePanel<T> extends Div {
+public class SelectOnePanel<T> extends Div implements IHasChangeListener {
 	@Nonnull
 	final private List<T> m_itemList;
 
 	final private INodeContentRenderer<T> m_renderer;
 
 	private int m_value;
+
+	private IValueChanged< ? > m_valueChanged;
 
 	public SelectOnePanel(@Nonnull List<T> itemList, @Nonnull INodeContentRenderer<T> renderer) {
 		m_itemList = itemList;
@@ -80,5 +82,15 @@ public class SelectOnePanel<T> extends Div {
 
 	public int getValue() {
 		return m_value;
+	}
+
+	@Override
+	public IValueChanged< ? > getOnValueChanged() {
+		return m_valueChanged;
+	}
+
+	@Override
+	public void setOnValueChanged(IValueChanged< ? > valueChanged) {
+		m_valueChanged = valueChanged;
 	}
 }

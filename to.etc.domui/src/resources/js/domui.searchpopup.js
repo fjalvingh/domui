@@ -99,6 +99,13 @@ $.extend(WebUI.SearchPopup.prototype, {
 				}, 500);
 
 				return true;
+
+			//-- The following just edit, but should not cause a keytyped event.
+			case WebUI.K_END:
+			case WebUI.K_HOME:
+			case WebUI.K_LEFT:
+			case WebUI.K_RIGHT:
+				return;
 				
 			case 229:										// ??
 				return;
