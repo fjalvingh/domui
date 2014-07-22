@@ -25,7 +25,7 @@ public class SelectOnePanel<T> extends Div implements IHasChangeListener {
 
 	final private INodeContentRenderer<T> m_renderer;
 
-	private int m_value;
+	private int m_index;
 
 	private IValueChanged< ? > m_valueChanged;
 
@@ -47,6 +47,7 @@ public class SelectOnePanel<T> extends Div implements IHasChangeListener {
 			renderItem(body, item);
 		}
 		appendCreateJS("new WebUI.SelectOnePanel('" + getActualID() + "');");
+		m_index = -1;
 	}
 
 	private void renderItem(@Nonnull TBody body, @Nonnull T item) throws Exception {
@@ -74,14 +75,22 @@ public class SelectOnePanel<T> extends Div implements IHasChangeListener {
 			}
 		}
 
-		boolean changed = m_value != value;
-		m_value = value;
-		System.out.println("selectOnePanel: value=" + value);
+		boolean changed = m_index != value;
+		m_index = value;
+		System.out.println("selectOnePanel: value=" + value + ", changed=" + changed);
 		return changed;
 	}
 
-	public int getValue() {
-		return m_value;
+	public int getIndex() {
+		return m_index;
+	}
+
+	@Nullable
+	public T getValue() {
+		int index = getIndex();
+		if(index < 0 || index >= m_itemList.size())
+			return null;
+		return m_itemList.get(index);
 	}
 
 	@Override

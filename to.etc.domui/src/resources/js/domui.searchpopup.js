@@ -106,17 +106,17 @@ $.extend(WebUI.SearchPopup.prototype, {
 			case WebUI.K_LEFT:
 			case WebUI.K_RIGHT:
 				return;
-				
+
 			case 229:										// ??
 				return;
-			
+
 			case WebUI.K_UP:
 			case WebUI.K_DOWN:
 				event.preventDefault();
 //				console.debug('trying to stop');
 //				event.stopPropagation();					// Do not handle up/down - it causes cursor to move to start/end of field.
 				return false;
-			
+
 			case WebUI.K_RETURN:
 				break;
 		}
@@ -347,52 +347,6 @@ $.extend(WebUI.SearchPopup.prototype, {
 				WebUI.doCustomUpdates();
 			};
 			$.ajax(axaj);
-//
-//			// Collect all input, then create input.
-//			var fields = new Object();
-//			WebUI.getInputFields(fields);
-//			fields.webuia = "lookupTyping";
-//			fields.webuic = this._id;
-//			fields["$pt"] = DomUIpageTag;
-//			fields["$cid"] = DomUICID;
-//			WebUI.cancelPolling();
-//			var displayWaitingTimerID = null;
-//
-//			$.ajax( {
-//				url :DomUI.getPostURL(),
-//				dataType :"*",
-//				data :fields,
-//				cache :false,
-//				type: "POST",
-//				global: false,
-//				beforeSend: function(){
-//					// Handle the local beforeSend event
-//					var parentDiv = lookupField.parentNode;
-//					if (parentDiv){
-//						displayWaitingTimerID = window.setTimeout(function() {
-//							self.displayWaiting();
-//						}, 500);
-//					}
-//   				},
-//			   	complete: function(){
-//   					// Handle the local complete event
-//					if (displayWaitingTimerID) {
-//						//handle waiting marker
-//   						window.clearTimeout(displayWaitingTimerID);
-//   						displayWaitingTimerID = null;
-//   						var parentDiv = lookupField.parentNode;
-//   						if (parentDiv) {
-//   							self.hideWaiting(parentDiv.id);
-//   						}
-//   					}
-//					//handle received lookupTyping component content
-//					self.showLookupTypingPopupIfStillFocusedAndFixZIndex();
-//					WebUI.doCustomUpdates();
-//   				},
-//
-//				success :WebUI.handleResponse,
-//				error :WebUI.handleError
-//			});
 		}
 	},
 

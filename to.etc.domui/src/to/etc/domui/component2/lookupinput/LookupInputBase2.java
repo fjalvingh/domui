@@ -336,7 +336,7 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	 */
 	private void renderKeyWordSearch() {
 		getValueNode().remove();
-		SearchInput2<OT> ks = m_keySearch = new SearchInput2<OT>(m_outputMetaModel, m_keyWordSearchCssClass);
+		SearchInput2<OT> ks = m_keySearch = new SearchInput2<OT>(m_keyWordSearchCssClass);
 		add(0, ks);
 
 		ks.setPopupWidth(getKeyWordSearchPopupWidth());
@@ -354,7 +354,7 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 			@Override
 			public void onValueChanged(@Nonnull SearchInput2<OT> component) throws Exception {
 				ITableModel<OT> keySearchModel = searchKeyWord(component.getValue());
-				component.showResults(keySearchModel);
+				showResults(keySearchModel);
 //
 //
 //				component.showResultsHintPopup(null);
@@ -381,7 +381,7 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 			@Override
 			public void onValueChanged(@Nonnull SearchInput2<OT> component) throws Exception {
 				ITableModel<OT> keySearchModel = searchKeyWord(component.getValue());
-				component.showResults(keySearchModel);
+				showResults(keySearchModel);
 
 //				component.showResultsHintPopup(null);
 //				if(keySearchModel == null) {
@@ -553,6 +553,86 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	private IPopupOpener createPopupOpener() {
 		return new DefaultPopupOpener();
 	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Showing the key typed search result.				*/
+	/*--------------------------------------------------------------*/
+	@Nullable
+	private SelectOnePanel<OT> m_selectPanel;
+
+	@Nullable
+	private Div m_pnlMessage;
+
+	public void showResults(@Nullable ITableModel<OT> model) throws Exception {
+		clearResult();
+
+		if(model == null) {
+			//-- No search done- clear all presentation.
+			return;
+		}
+
+		int size = model.getRows();
+		if(size == 0) {
+			openMessagePanel(Msgs.UI_KEYWORD_SEARCH_NO_MATCH);
+		} else if(size > 10) {
+			String count = Integer.toString(size);
+			if(model instanceof ITruncateableDataModel) {
+				if(((ITruncateableDataModel) model).isTruncated())
+					count = "> " + count;
+			}
+			openMessagePanel(Msgs.UI_KEYWORD_SEARCH_COUNT, count);
+		} else {
+			Thread.sleep(1500);
+			openResultsPopup(model);
+
+			//-- open selector popup
+			System.out.println("need to render " + size + " choices");
+
+		}
+	}
+
+	private void openResultsPopup(@Nonnull ITableModel<OT> model) throws Exception {
+		List<OT> list = model.getItems(0, model.getRows());
+		INodeContentRenderer<OT> renderer = new DefaultPopupRowRenderer<OT>(m_outputMetaModel);
+
+		SelectOnePanel<OT> pnl = m_selectPanel = new SelectOnePanel<OT>(list, renderer);
+		DomUtil.nullChecked(m_keySearch).add(pnl);
+
+		pnl.setOnValueChanged(new IValueChanged<SelectOnePanel<OT>>() {
+			@Override
+			public void onValueChanged(SelectOnePanel<OT> component) throws Exception {
+				clearResult();
+				OT selection = component.getValue();
+				if(null != selection)
+					handleSetValue(selection);
+			}
+		});
+	}
+
+	private void openMessagePanel(@Nonnull String code, String... parameters) {
+		String message = Msgs.BUNDLE.formatMessage(code, parameters);
+		Div pnl = m_pnlMessage;
+		if(pnl == null) {
+			pnl = m_pnlMessage = new Div();
+			add(pnl);
+		}
+		pnl.setCssClass("ui-srip-message");
+		pnl.setText(message);
+	}
+
+	private void clearResult() {
+		Div div = m_pnlMessage;
+		if(null != div) {
+			div.remove();
+			m_pnlMessage = null;
+		}
+		SelectOnePanel<OT> panel = m_selectPanel;
+		if(null != panel) {
+			panel.remove();
+			m_selectPanel = null;
+		}
+	}
+
 
 	/**
 	 * Construct a default title for this LookupInput

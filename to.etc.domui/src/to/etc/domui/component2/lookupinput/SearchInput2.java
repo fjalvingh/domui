@@ -24,18 +24,14 @@
  */
 package to.etc.domui.component2.lookupinput;
 
-import java.util.*;
-
 import javax.annotation.*;
 
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.layout.*;
-import to.etc.domui.component.meta.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
-import to.etc.domui.util.*;
 
 /**
  * Represents keyword search panel that is used from other components, like LookupInput.
@@ -52,8 +48,6 @@ public class SearchInput2<T> extends Div {
 	@Nonnull
 	final private TextStr m_keySearch = new TextStr();
 
-	private Div m_pnlMessage;
-
 	@Nullable
 	private IValueChanged<SearchInput2<T>> m_onLookupTyping;
 
@@ -66,22 +60,14 @@ public class SearchInput2<T> extends Div {
 //	@Nonnull
 //	final private Img m_imgWaiting = new Img("THEME/lui-keyword-wait.gif");
 //
-	@Nullable
-	private SelectOnePanel<T> m_selectPanel;
+	private int m_popupWidth;
 
 	private Div m_pnlSearchPopup;
 
-	private int m_popupWidth;
-
-	@Nonnull
-	final private ClassMetaModel m_model;
-
-	public SearchInput2(@Nonnull ClassMetaModel classModel) {
-		m_model = classModel;
+	public SearchInput2() {
 	}
 
-	public SearchInput2(@Nonnull ClassMetaModel classModel, @Nullable String cssClass) {
-		m_model = classModel;
+	public SearchInput2(@Nullable String cssClass) {
 		if(cssClass != null)
 			m_keySearch.setCssClass(cssClass);
 	}
@@ -119,65 +105,6 @@ public class SearchInput2<T> extends Div {
 		return m_keySearch.getValue();
 	}
 
-	public void showResults(@Nullable ITableModel<T> model) throws Exception {
-		clearResult();
-
-		if(model == null) {
-			//-- No search done- clear all presentation.
-			return;
-		}
-
-		int size = model.getRows();
-		if(size == 0) {
-			openMessagePanel(Msgs.UI_KEYWORD_SEARCH_NO_MATCH);
-		} else if(size > 10) {
-			String count = Integer.toString(size);
-			if(model instanceof ITruncateableDataModel) {
-				if(((ITruncateableDataModel) model).isTruncated())
-					count = "> " + count;
-			}
-			openMessagePanel(Msgs.UI_KEYWORD_SEARCH_COUNT, count);
-		} else {
-			Thread.sleep(20000);
-			openResultsPopup(model);
-
-			//-- open selector popup
-			System.out.println("need to render " + size + " choices");
-
-		}
-	}
-
-	private void openResultsPopup(@Nonnull ITableModel<T> model) throws Exception {
-		List<T> list = model.getItems(0, model.getRows());
-		INodeContentRenderer<T> renderer = new DefaultPopupRowRenderer<T>(m_model);
-
-		SelectOnePanel<T> pnl = m_selectPanel = new SelectOnePanel<T>(list, renderer);
-		add(pnl);
-	}
-
-	private void openMessagePanel(@Nonnull String code, String... parameters) {
-		String message = Msgs.BUNDLE.formatMessage(code, parameters);
-		Div pnl = m_pnlMessage;
-		if(pnl == null) {
-			pnl = m_pnlMessage = new Div();
-			add(pnl);
-		}
-		pnl.setCssClass("ui-srip-message");
-		pnl.setText(message);
-	}
-
-	private void clearResult() {
-		Div div = m_pnlMessage;
-		if(null != div) {
-			div.remove();
-			m_pnlMessage = null;
-		}
-		SelectOnePanel<T> panel = m_selectPanel;
-		if(null != panel) {
-			panel.remove();
-			m_selectPanel = null;
-		}
-	}
 
 	public IValueChanged<SearchInput2<T>> getOnShowResults() {
 		return m_onShowTypingResults;
