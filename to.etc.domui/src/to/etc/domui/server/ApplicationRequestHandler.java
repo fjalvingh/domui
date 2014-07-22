@@ -1002,8 +1002,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 					//-- Try to bind this value to the component.
 					if(nb.acceptRequestParameter(values)) { 		// Make the thingy accept the parameter(s)
 						//-- This thing has changed.
-						if(nb instanceof IControl< ? >) { 			// Can have a value changed thingy?
-							IControl< ? > ch = (IControl< ? >) nb;
+						if(nb instanceof IHasChangeListener) { 			// Can have a value changed thingy?
+							IHasChangeListener ch = (IHasChangeListener) nb;
 							if(ch.getOnValueChanged() != null) {
 								changed.add(nb);
 							}
