@@ -28,8 +28,6 @@ import javax.annotation.*;
 
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.layout.*;
-import to.etc.domui.component.tbl.*;
-import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 
@@ -41,7 +39,7 @@ import to.etc.domui.server.*;
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on 21 Jan 2010
  */
-public class SearchInput2<T> extends Div {
+public class SearchInput2 extends Div {
 
 	private int m_resultsCount = -1; //-1 states for not visible
 
@@ -49,13 +47,10 @@ public class SearchInput2<T> extends Div {
 	final private TextStr m_keySearch = new TextStr();
 
 	@Nullable
-	private IValueChanged<SearchInput2<T>> m_onLookupTyping;
+	private IValueChanged<SearchInput2> m_onLookupTyping;
 
-	@Nullable
-	private IValueChanged<SearchInput2<T>> m_onShowTypingResults;
+	private IValueChanged<SearchInput2> m_onReturn;
 
-	@Nullable
-	public IRowRenderer<T> m_resultsHintPopupRowRenderer;
 
 //	@Nonnull
 //	final private Img m_imgWaiting = new Img("THEME/lui-keyword-wait.gif");
@@ -92,26 +87,17 @@ public class SearchInput2<T> extends Div {
 	}
 
 	@Nullable
-	public IValueChanged<SearchInput2<T>> getOnLookupTyping() {
+	public IValueChanged<SearchInput2> getOnLookupTyping() {
 		return m_onLookupTyping;
 	}
 
-	public void setOnLookupTyping(@Nullable IValueChanged<SearchInput2<T>> onLookupTyping) {
+	public void setOnLookupTyping(@Nullable IValueChanged<SearchInput2> onLookupTyping) {
 		m_onLookupTyping = onLookupTyping;
 	}
 
 	@Nullable
 	public String getValue() {
 		return m_keySearch.getValue();
-	}
-
-
-	public IValueChanged<SearchInput2<T>> getOnShowResults() {
-		return m_onShowTypingResults;
-	}
-
-	public void setOnShowResults(IValueChanged<SearchInput2<T>> onShowResults) {
-		m_onShowTypingResults = onShowResults;
 	}
 
 	@Override
@@ -135,56 +121,6 @@ public class SearchInput2<T> extends Div {
 			parentWindowZIndex = 0;
 		}
 		setZIndex(parentWindowZIndex);
-	}
-
-	public void showResultsHintPopup(@Nullable final ITableModel<T> popupResults) throws Exception {
-		if(!isBuilt()) {
-			throw new IllegalStateException("Must be built already!");
-		}
-		if(popupResults == null) {
-			if(m_pnlSearchPopup != null) {
-				removeChild(m_pnlSearchPopup);
-				m_pnlSearchPopup = null;
-			}
-			fixZIndex(); //do not delete, fix for bug in IE
-			m_keySearch.setZIndex(getZIndex()); //do not delete, fix for bug in domui
-		} else {
-			if(m_pnlSearchPopup == null) {
-				m_pnlSearchPopup = new Div();
-				m_pnlSearchPopup.setCssClass("ui-srip-keyword-popup");
-				if(getPopupWidth() > 0) {
-					m_pnlSearchPopup.setWidth(getPopupWidth() + "px");
-				}
-				fixZIndex();
-				//increase Z index both for current DIV and popup DIV.
-				//20110304 vmijic - We need to do this in domui.js because bug in IE7. Code remains here commented as illustartion what is done in javascript.
-				//setZIndex(getZIndex() + 1);
-				//m_pnlSearchPopup.setZIndex(getZIndex());
-				add(m_pnlSearchPopup);
-			} else {
-				m_pnlSearchPopup.removeAllChildren();
-			}
-
-			IRowRenderer<T> rhpr = m_resultsHintPopupRowRenderer;
-			if(rhpr == null) {
-				throw new IllegalStateException("Undefined m_resultsHintPopupRowRenderer!");
-			}
-
-			DataTable<T> tbl = new DataTable<T>(popupResults, rhpr);
-			m_pnlSearchPopup.add(tbl);
-			tbl.setWidth("100%");
-			tbl.setOverflow(Overflow.HIDDEN);
-			tbl.setPosition(PositionType.RELATIVE);
-			m_pnlSearchPopup.setDisplay(DisplayType.NONE);
-		}
-	}
-
-	public IRowRenderer<T> getResultsHintPopupRowRenderer() {
-		return m_resultsHintPopupRowRenderer;
-	}
-
-	public void setResultsHintPopupRowRenderer(IRowRenderer<T> resultsHintPopupRowRenderer) {
-		m_resultsHintPopupRowRenderer = resultsHintPopupRowRenderer;
 	}
 
 	/**
@@ -213,7 +149,7 @@ public class SearchInput2<T> extends Div {
 	}
 
 	public void webActionlookupTyping(IRequestContext ctx) throws Exception {
-		IValueChanged<SearchInput2<T>> lookupTyping = getOnLookupTyping();
+		IValueChanged<SearchInput2> lookupTyping = getOnLookupTyping();
 		if(null != lookupTyping)
 			lookupTyping.onValueChanged(this);
 	}

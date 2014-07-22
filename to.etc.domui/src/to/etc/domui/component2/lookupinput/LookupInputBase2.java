@@ -116,7 +116,7 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	private INodeContentRenderer<OT> m_valueRenderer;
 
 	@Nullable
-	private SearchInput2<OT> m_keySearch;
+	private SearchInput2 m_keySearch;
 
 	@Nullable
 	private String m_keySearchHint;
@@ -336,7 +336,7 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	 */
 	private void renderKeyWordSearch() {
 		getValueNode().remove();
-		SearchInput2<OT> ks = m_keySearch = new SearchInput2<OT>(m_keyWordSearchCssClass);
+		SearchInput2 ks = m_keySearch = new SearchInput2(m_keyWordSearchCssClass);
 		add(0, ks);
 
 		ks.setPopupWidth(getKeyWordSearchPopupWidth());

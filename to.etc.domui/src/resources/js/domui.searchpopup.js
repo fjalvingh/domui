@@ -70,17 +70,8 @@ $.extend(WebUI.SearchPopup.prototype, {
 		if(event.stopPropagation)
 			event.stopPropagation();
 
-		//locate keyword input node
-		var selectedIndex = this._selectedIndex;
-		var trNode = selectedIndex < 0 ? null : $(node.parentNode).children("div.ui-srip-keyword-popup").children("div").children("table").children("tbody").children("tr:nth-child(" + selectedIndex + ")").get(0);
-		if(trNode){
-			//trigger click on row
-			this._selectedIndex = -1;
-			$(trNode).trigger('click');
-		} else {
-			//trigger lookupTypingDone when return is pressed
-			this.lookupTypingDone();
-		}
+		//-- Send a "returnPressed" event.
+		this.lookupTypingDone();
 	},
 
 	/*
