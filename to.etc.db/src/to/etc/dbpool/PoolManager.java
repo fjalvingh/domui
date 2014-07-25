@@ -535,27 +535,6 @@ final public class PoolManager {
 	}
 
 	/**
-	 * set a replacer so that some parts of the sql can be manipulated, not desirable but some unit test
-	 * cannot be set up in al reason without this or another solution that provides a way of overriding results.
-	 * @param replacer
-	 */
-	public static synchronized void setReplacer(IReplacer replacer) {
-		getInstance().m_replacer = replacer;
-	}
-
-	/**
-	 * Well here it is fetched and released so that it will only be used once and will nog linger.
-	 * @return
-	 */
-	public static synchronized IReplacer getReplacer() {
-		IReplacer replacer = getInstance().m_replacer;
-		if(replacer != null) {
-			setReplacer(null);
-		}
-		return replacer;
-	}
-
-	/**
 	 * Mark connection long living, for those connections which need
 	 * to be opened for a long time (hanging connection check will skip
 	 * this connection).
