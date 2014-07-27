@@ -345,10 +345,28 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 			}
 		});
 
+		ks.setReturnPressed(new IReturnPressed<SearchInput2>() {
+			@Override
+			public void returnPressed(SearchInput2 node) throws Exception {
+				handleSelection(node);
+			}
+		});
+
 		if(m_keyWordSearchCssClass != null) {
 			addCssClass(m_keyWordSearchCssClass);
 		}
 		ks.setHint(Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_HINT, (m_keySearchHint != null) ? m_keySearchHint : getDefaultKeySearchHint()));
+	}
+
+	private void handleSelection(@Nonnull SearchInput2 node) throws Exception {
+		SelectOnePanel<OT> sp = m_selectPanel;
+		if(sp == null)
+			return;										// Spurious, ignore
+		OT value = sp.getValue();						// Is a value selected?
+		if(null == value)
+			return;
+		clearResult();
+		handleSetValue(value);
 	}
 
 	@Nonnull
