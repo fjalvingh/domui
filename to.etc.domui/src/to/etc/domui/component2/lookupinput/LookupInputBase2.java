@@ -349,10 +349,10 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 		});
 		ks.setResultsHintPopupRowRenderer(rr);
 
-		ks.setOnLookupTyping(new IValueChanged<SearchInput2<OT>>() {
+		ks.setOnLookupTyping(new IValueChanged<SearchInput2>() {
 
 			@Override
-			public void onValueChanged(@Nonnull SearchInput2<OT> component) throws Exception {
+			public void onValueChanged(@Nonnull SearchInput2 component) throws Exception {
 				ITableModel<OT> keySearchModel = searchKeyWord(component.getValue());
 				showResults(keySearchModel);
 //
@@ -377,9 +377,9 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 			}
 		});
 
-		ks.setOnShowResults(new IValueChanged<SearchInput2<OT>>() {
+		ks.setOnShowResults(new IValueChanged<SearchInput2>() {
 			@Override
-			public void onValueChanged(@Nonnull SearchInput2<OT> component) throws Exception {
+			public void onValueChanged(@Nonnull SearchInput2 component) throws Exception {
 				ITableModel<OT> keySearchModel = searchKeyWord(component.getValue());
 				showResults(keySearchModel);
 
@@ -407,7 +407,7 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	}
 
 	@Nonnull
-	private SearchInput2<OT> getKeySearch() {
+	private SearchInput2 getKeySearch() {
 		if(null != m_keySearch)
 			return m_keySearch;
 		throw new IllegalStateException("keySearch is null");
@@ -773,7 +773,7 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	 */
 	@Override
 	public void setValue(@Nullable OT v) {
-		SearchInput2<OT> ks = m_keySearch;
+		SearchInput2 ks = m_keySearch;
 		if(DomUtil.isEqual(m_value, v) && (ks == null || ks.getValue() == null))
 			return;
 		OT old = m_value;

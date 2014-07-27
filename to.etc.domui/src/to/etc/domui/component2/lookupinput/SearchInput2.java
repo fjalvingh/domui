@@ -155,6 +155,8 @@ public class SearchInput2 extends Div {
 	}
 
 	public void webActionlookupTypingDone(IRequestContext ctx) throws Exception {
-
+		IReturnPressed< ? extends NodeBase> returnPressed = getReturnPressed();
+		if(null != returnPressed)
+			((IReturnPressed<NodeBase>) returnPressed).returnPressed(this);
 	}
 }
