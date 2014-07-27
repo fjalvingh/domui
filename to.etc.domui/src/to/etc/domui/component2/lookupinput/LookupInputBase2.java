@@ -152,10 +152,6 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	@Nullable
 	private RebuildCause m_rebuildCause;
 
-	/** The row renderer used to render rows in the quick search dropdown box showing the results of the quick search. */
-	@Nullable
-	private KeyWordPopupRowRenderer<OT> m_dropdownRowRenderer;
-
 	@Nullable
 	private QCriteria<QT> m_rootCriteria;
 
@@ -340,66 +336,15 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 		add(0, ks);
 
 		ks.setPopupWidth(getKeyWordSearchPopupWidth());
-		KeyWordPopupRowRenderer<OT> rr = getDropdownRowRenderer();
-		rr.setRowClicked(new ICellClicked<OT>() {
-			@Override
-			public void cellClicked(@Nonnull NodeBase tr, @Nonnull OT val) throws Exception {
-				handleSetValue(val);
-			}
-		});
-		ks.setResultsHintPopupRowRenderer(rr);
 
 		ks.setOnLookupTyping(new IValueChanged<SearchInput2>() {
-
 			@Override
 			public void onValueChanged(@Nonnull SearchInput2 component) throws Exception {
 				ITableModel<OT> keySearchModel = searchKeyWord(component.getValue());
 				showResults(keySearchModel);
-//
-//
-//				component.showResultsHintPopup(null);
-//				if(keySearchModel == null) {
-//					//in case of insufficient searchString data cancel search and return.
-//					component.setResultsCount(-1);
-//					component.setFocus(); //focus must be set manually.
-//					return;
-//				}
-//				if(keySearchModel.getRows() == 1) {
-//					//in case of single match select value.
-//					handleSetValue(keySearchModel.getItems(0, 1).get(0));
-//				} else {
-//					//show results count info
-//					component.setResultsCount(keySearchModel.getRows());
-//					if((keySearchModel.getRows() > 0) && (keySearchModel.getRows() < 10)) {
-//						component.showResultsHintPopup(keySearchModel);
-//					}
-//				}
 			}
 		});
 
-		ks.setOnShowResults(new IValueChanged<SearchInput2>() {
-			@Override
-			public void onValueChanged(@Nonnull SearchInput2 component) throws Exception {
-				ITableModel<OT> keySearchModel = searchKeyWord(component.getValue());
-				showResults(keySearchModel);
-
-//				component.showResultsHintPopup(null);
-//				if(keySearchModel == null) {
-//					//in case of insufficient searchString data cancel search and popup clean search dialog.
-//					component.setResultsCount(-1);
-//					openPopup(null);
-//					return;
-//				}
-//				if(keySearchModel.getRows() == 1) {
-//					//in case of single match select value.
-//					handleSetValue(keySearchModel.getItems(0, 1).get(0));
-//				} else {
-//					//in case of more results show narrow result in search popup.
-//					component.setResultsCount(keySearchModel.getRows());
-//					openPopup(keySearchModel);
-//				}
-			}
-		});
 		if(m_keyWordSearchCssClass != null) {
 			addCssClass(m_keyWordSearchCssClass);
 		}
@@ -411,19 +356,6 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 		if(null != m_keySearch)
 			return m_keySearch;
 		throw new IllegalStateException("keySearch is null");
-	}
-
-	/**
-	 * Return the special row renderer used to display the quick-search results in the small
-	 * dropdown below the quicksearch input box.
-	 * @return
-	 */
-	@Nonnull
-	private KeyWordPopupRowRenderer<OT> getDropdownRowRenderer() {
-		if(null == m_dropdownRowRenderer) {
-			m_dropdownRowRenderer = new KeyWordPopupRowRenderer<OT>(getOutputMetaModel());
-		}
-		return DomUtil.nullChecked(m_dropdownRowRenderer);
 	}
 
 	private String getDefaultKeySearchHint() {
@@ -1093,9 +1025,9 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	 * showing quick search results.
 	 * @param columns
 	 */
-	public void addDropdownColumns(@Nonnull Object... columns) {
-		getDropdownRowRenderer().addColumns(columns);
-	}
+//	public void addDropdownColumns(@Nonnull Object... columns) {
+//		getDropdownRowRenderer().addColumns(columns);
+//	}
 
 	protected boolean isPopupShown() {
 		return m_floater != null;

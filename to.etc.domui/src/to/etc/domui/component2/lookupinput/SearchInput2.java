@@ -148,12 +148,24 @@ public class SearchInput2 extends Div {
 		m_popupWidth = popupWidth;
 	}
 
+	/**
+	 * Sent regularly whenever the search box is typed in. Causes a ValueChanged event which can then do
+	 * whatever lookup is needed.
+	 * @param ctx
+	 * @throws Exception
+	 */
 	public void webActionlookupTyping(IRequestContext ctx) throws Exception {
 		IValueChanged<SearchInput2> lookupTyping = getOnLookupTyping();
 		if(null != lookupTyping)
 			lookupTyping.onValueChanged(this);
 	}
 
+	/**
+	 * Send when return is pressed in the search box. Should finalize the selected value, if
+	 * one is present.
+	 * @param ctx
+	 * @throws Exception
+	 */
 	public void webActionlookupTypingDone(IRequestContext ctx) throws Exception {
 		IReturnPressed< ? extends NodeBase> returnPressed = getReturnPressed();
 		if(null != returnPressed)
