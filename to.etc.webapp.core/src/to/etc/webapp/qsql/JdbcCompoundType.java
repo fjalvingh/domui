@@ -82,7 +82,7 @@ class JdbcCompoundType implements IJdbcType, IJdbcTypeFactory {
 	}
 
 	@Override
-	public Object convertToInstance(ResultSet rs, int index) throws Exception {
+	public Object convertToInstance(ResultSet rs, int index, JdbcPropertyMeta pmsource) throws Exception {
 		Object inst = m_compoundMeta.getDataClass().newInstance(); // Create empty instance;
 
 		boolean nonnull = false;
@@ -93,7 +93,7 @@ class JdbcCompoundType implements IJdbcType, IJdbcTypeFactory {
 			IJdbcType type = pm.getTypeConverter();
 			Object pvalue;
 			try {
-				pvalue = type.convertToInstance(rs, rix);
+				pvalue = type.convertToInstance(rs, rix, pm);
 			} catch(JdbcConversionException x) {
 				throw x;
 			} catch(Exception x) {

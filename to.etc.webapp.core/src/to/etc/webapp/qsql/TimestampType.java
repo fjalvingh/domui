@@ -51,7 +51,7 @@ public class TimestampType implements IJdbcType, IJdbcTypeFactory {
 	}
 
 	@Override
-	public Object convertToInstance(ResultSet rs, int index) throws Exception {
+	public Object convertToInstance(ResultSet rs, int index, JdbcPropertyMeta pm) throws Exception {
 		Timestamp ts = rs.getTimestamp(index);
 		if(ts == null)
 			return null;

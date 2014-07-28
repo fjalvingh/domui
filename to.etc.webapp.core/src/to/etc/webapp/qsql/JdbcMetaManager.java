@@ -160,6 +160,7 @@ public class JdbcMetaManager {
 		register(new JdbcCompoundType());
 		register(new TimestampType());
 		register(new BooleanType());
+		register(new EnumAsStringType());
 		//		register(new StringType(), String.class);
 		//		register(new IntegerType(), Integer.class, int.class);
 		//		register(new LongType(), Long.class, long.class);
