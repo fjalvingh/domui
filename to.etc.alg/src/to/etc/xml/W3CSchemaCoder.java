@@ -245,8 +245,6 @@ public class W3CSchemaCoder {
 	static public String encodeDate(final Date in, final TimeZone timezone) {
 		Calendar cal = calendar(in);
 
-		System.out.println("tzoff-in = " + in.getTimezoneOffset() + ", cal=" + cal.getTimeZone().getID());
-
 		StringBuilder sb = new StringBuilder(32);
 		int yr = cal.get(Calendar.YEAR);
 		if(yr < 0)
