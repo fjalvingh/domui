@@ -78,7 +78,7 @@ public class DoubleType implements IJdbcType, IJdbcTypeFactory {
 	 * @see to.etc.webapp.qsql.IJdbcType#convertToInstance(java.sql.ResultSet, int, to.etc.webapp.qsql.JdbcPropertyMeta)
 	 */
 	@Override
-	public Object convertToInstance(ResultSet rs, int index) throws Exception {
+	public Object convertToInstance(ResultSet rs, int index, JdbcPropertyMeta pm) throws Exception {
 		double val = rs.getDouble(index);
 		if(rs.wasNull())
 			return null;

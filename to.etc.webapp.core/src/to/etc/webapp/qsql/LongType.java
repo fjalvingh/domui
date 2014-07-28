@@ -51,7 +51,7 @@ public class LongType implements IJdbcType, IJdbcTypeFactory {
 	}
 
 	@Override
-	public Object convertToInstance(ResultSet rs, int index) throws Exception {
+	public Object convertToInstance(ResultSet rs, int index, JdbcPropertyMeta pm) throws Exception {
 		long val = rs.getLong(index);
 		if(rs.wasNull())
 			return null;

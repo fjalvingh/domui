@@ -52,7 +52,7 @@ public class BooleanType implements IJdbcType, IJdbcTypeFactory {
 	}
 
 	@Override
-	public Object convertToInstance(ResultSet rs, int index) throws Exception {
+	public Object convertToInstance(ResultSet rs, int index, JdbcPropertyMeta pm) throws Exception {
 		boolean val = rs.getBoolean(index);
 		if(rs.wasNull())
 			return null;

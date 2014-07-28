@@ -26,6 +26,8 @@ package to.etc.webapp.qsql;
 
 import java.sql.*;
 
+import javax.annotation.*;
+
 /**
  * JDBC to java type converter, used to convert column values to Java objects and v.v.
  *
@@ -47,7 +49,7 @@ interface IJdbcType {
 	 * @return
 	 * @throws Exception
 	 */
-	Object convertToInstance(ResultSet rs, int index) throws Exception;
+	Object convertToInstance(@Nonnull ResultSet rs, int index, @Nonnull JdbcPropertyMeta pm) throws Exception;
 
 	void assignParameter(PreparedStatement ps, int index, JdbcPropertyMeta pm, Object value) throws Exception;
 }

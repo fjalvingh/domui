@@ -44,7 +44,7 @@ class ClassInstanceMaker extends JdbcCompoundType implements IInstanceMaker {
 	 */
 	@Override
 	public Object make(@Nonnull QDataContext dc, @Nonnull ResultSet rs) throws Exception {
-		Object inst = convertToInstance(rs, m_startIndex);
+		Object inst = convertToInstance(rs, m_startIndex, new JdbcPropertyMeta());
 		if(inst instanceof IInitializable) {
 			((IInitializable) inst).initializeInstance(dc);
 		}

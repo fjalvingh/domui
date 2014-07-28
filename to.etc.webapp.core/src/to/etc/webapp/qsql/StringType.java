@@ -49,7 +49,7 @@ class StringType implements IJdbcType, IJdbcTypeFactory {
 	}
 
 	@Override
-	public Object convertToInstance(ResultSet rs, int index) throws Exception {
+	public Object convertToInstance(ResultSet rs, int index, JdbcPropertyMeta pm) throws Exception {
 		return rs.getString(index);
 	}
 
