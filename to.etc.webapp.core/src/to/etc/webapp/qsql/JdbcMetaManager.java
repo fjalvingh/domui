@@ -126,7 +126,7 @@ public class JdbcMetaManager {
 	//	}
 
 	static public boolean isSimpleType(Class< ? > clz) {
-		return SIMPLE.contains(clz);
+		return SIMPLE.contains(clz) || Enum.class.isAssignableFrom(clz);
 	}
 
 	static {

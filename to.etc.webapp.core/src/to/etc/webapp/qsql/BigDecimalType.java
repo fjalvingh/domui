@@ -71,7 +71,7 @@ public class BigDecimalType implements IJdbcType, IJdbcTypeFactory {
 	 * @see to.etc.webapp.qsql.IJdbcType#convertToInstance(java.sql.ResultSet, int, to.etc.webapp.qsql.JdbcPropertyMeta)
 	 */
 	@Override
-	public Object convertToInstance(ResultSet rs, int index) throws Exception {
+	public Object convertToInstance(ResultSet rs, int index, JdbcPropertyMeta pm) throws Exception {
 		BigDecimal val = rs.getBigDecimal(index);
 		if(rs.wasNull())
 			return null;
