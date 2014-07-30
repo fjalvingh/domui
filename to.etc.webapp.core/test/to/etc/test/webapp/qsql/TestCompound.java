@@ -27,21 +27,12 @@ package to.etc.test.webapp.qsql;
 import java.sql.*;
 import java.util.*;
 
-import javax.sql.*;
-
 import org.junit.*;
 
 import to.etc.webapp.qsql.*;
 import to.etc.webapp.query.*;
-import to.etc.webapp.testsupport.*;
 
-public class TestCompound {
-	static private DataSource m_ds;
-
-//	@BeforeClass
-	static public void setUp() throws Exception {
-		m_ds = TUtilTestProperties.getRawDataSource();
-	}
+public class TestCompound extends TestQsqlBase {
 
 	@Test
 	public void testCompoundSQL1() throws Exception {
@@ -59,7 +50,10 @@ public class TestCompound {
 		gc.visitCriteria(qc);
 
 		System.out.println(gc.getSQL());
-		Assert.assertEquals("select this_.admn_id,this_.docnr,this_.bedrag,this_.bankrekening,this_.bankrek_relatie,this_.vzop_id,this_.akst_id,this_.omschrijving,this_.betaalwijze,this_.periode,this_.jaar,this_.relatiecode,this_.relatie_naam,this_.valutadatum from v_dec_betaalopdrachten this_ order by this_.docnr asc", gc.getSQL());
+		Assert
+			.assertEquals(
+				"select this_.admn_id,this_.docnr,this_.bedrag,this_.bdrg,this_.bankrekening,this_.bankrek_relatie,this_.vzop_id,this_.akst_id,this_.omschrijving,this_.betaalwijze,this_.periode,this_.jaar,this_.relatiecode,this_.relatie_naam,this_.valutadatum from v_dec_betaalopdrachten this_ order by this_.docnr asc",
+				gc.getSQL());
 	}
 
 	@Test
@@ -71,7 +65,7 @@ public class TestCompound {
 		System.out.println(gc.getSQL());
 		Assert
 			.assertEquals(
-				"select this_.admn_id,this_.docnr,this_.bedrag,this_.bankrekening,this_.bankrek_relatie,this_.vzop_id,this_.akst_id,this_.omschrijving,this_.betaalwijze,this_.periode,this_.jaar,this_.relatiecode,this_.relatie_naam,this_.valutadatum from v_dec_betaalopdrachten this_ order by this_.admn_id desc,this_.docnr desc",
+				"select this_.admn_id,this_.docnr,this_.bedrag,this_.bdrg,this_.bankrekening,this_.bankrek_relatie,this_.vzop_id,this_.akst_id,this_.omschrijving,this_.betaalwijze,this_.periode,this_.jaar,this_.relatiecode,this_.relatie_naam,this_.valutadatum from v_dec_betaalopdrachten this_ order by this_.admn_id desc,this_.docnr desc",
 				gc.getSQL());
 	}
 
@@ -83,7 +77,7 @@ public class TestCompound {
 		System.out.println(gc.getSQL());
 		Assert
 			.assertEquals(
-				"select this_.admn_id,this_.docnr,this_.bedrag,this_.bankrekening,this_.bankrek_relatie,this_.vzop_id,this_.akst_id,this_.omschrijving,this_.betaalwijze,this_.periode,this_.jaar,this_.relatiecode,this_.relatie_naam,this_.valutadatum from v_dec_betaalopdrachten this_ where this_.admn_id=?",
+				"select this_.admn_id,this_.docnr,this_.bedrag,this_.bdrg,this_.bankrekening,this_.bankrek_relatie,this_.vzop_id,this_.akst_id,this_.omschrijving,this_.betaalwijze,this_.periode,this_.jaar,this_.relatiecode,this_.relatie_naam,this_.valutadatum from v_dec_betaalopdrachten this_ where this_.admn_id=?",
 				gc.getSQL());
 	}
 
@@ -97,11 +91,14 @@ public class TestCompound {
 		JdbcSQLGenerator gc = new JdbcSQLGenerator();
 		gc.visitCriteria(qc);
 		System.out.println(gc.getSQL());
-		Assert.assertEquals("select this_.admn_id,this_.docnr,this_.bedrag,this_.bankrekening,this_.bankrek_relatie,this_.vzop_id,this_.akst_id,this_.omschrijving,this_.betaalwijze,this_.periode,this_.jaar,this_.relatiecode,this_.relatie_naam,this_.valutadatum from v_dec_betaalopdrachten this_ where (this_.admn_id=? and this_.docnr=?)", gc.getSQL());
+		Assert
+			.assertEquals(
+				"select this_.admn_id,this_.docnr,this_.bedrag,this_.bdrg,this_.bankrekening,this_.bankrek_relatie,this_.vzop_id,this_.akst_id,this_.omschrijving,this_.betaalwijze,this_.periode,this_.jaar,this_.relatiecode,this_.relatie_naam,this_.valutadatum from v_dec_betaalopdrachten this_ where (this_.admn_id=? and this_.docnr=?)",
+				gc.getSQL());
 	}
 
-	static <T> List<T> exec(JdbcQuery<T> q) throws Exception {
-		Connection dbc = m_ds.getConnection();
+	private <T> List<T> exec(JdbcQuery<T> q) throws Exception {
+		Connection dbc = getDc().getConnection();
 		JdbcDataContext	jdc = new JdbcDataContext(null, dbc);
 		try {
 			q.dump();
@@ -113,7 +110,7 @@ public class TestCompound {
 		}
 	}
 
-	static <T> List<T> exec(QCriteria<T> q) throws Exception {
+	private <T> List<T> exec(QCriteria<T> q) throws Exception {
 		JdbcQuery<T> jq = JdbcQuery.create(q);
 		return exec(jq);
 	}

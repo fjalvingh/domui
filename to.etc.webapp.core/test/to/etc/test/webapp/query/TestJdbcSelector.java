@@ -1,17 +1,14 @@
 package to.etc.test.webapp.query;
 
-import java.sql.*;
 import java.util.*;
 
 import javax.annotation.*;
-import javax.sql.*;
 
 import org.junit.*;
 
 import to.etc.test.webapp.qsql.*;
 import to.etc.webapp.qsql.*;
 import to.etc.webapp.query.*;
-import to.etc.webapp.testsupport.*;
 
 /**
  * Tests rendering and querying on JDBC selectors.
@@ -20,18 +17,7 @@ import to.etc.webapp.testsupport.*;
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on May 24, 2013
  */
-public class TestJdbcSelector {
-
-	static private DataSource m_ds;
-
-	static private QDataContext m_dc;
-
-	@BeforeClass
-	static public void setUp() throws Exception {
-		m_ds = TUtilTestProperties.getRawDataSource();
-		Connection dbc = m_ds.getConnection();
-		m_dc = new JdbcDataContext(null, dbc);
-	}
+public class TestJdbcSelector extends TestQsqlBase {
 
 	private static String render(QSelection< ? > c) throws Exception {
 		QQueryRenderer r = new QQueryRenderer();
@@ -61,7 +47,7 @@ public class TestJdbcSelector {
 
 	@Test
 	public void testDistinctSelector() throws Exception {
-		List<String> selectBySql = JdbcUtil.selectSingleColumnList(m_dc.getConnection(), String.class,
+		List<String> selectBySql = JdbcUtil.selectSingleColumnList(getDc().getConnection(), String.class,
 			"select distinct(omschrijving) from v_dec_grootboekrekeningen where omschrijving like ? order by omschrijving asc", "%a");
 
 		QCriteria<LedgerAccount> criteria = QCriteria.create(LedgerAccount.class).like(LedgerAccount.pDESCRIPTION, "%a");
@@ -71,7 +57,7 @@ public class TestJdbcSelector {
 		selection.distinct(LedgerAccount.pDESCRIPTION);
 		selection.ascending(LedgerAccount.pDESCRIPTION);
 
-		List<Object[]> selectResult = m_dc.query(selection);
+		List<Object[]> selectResult = getDc().query(selection);
 
 		Assert.assertEquals("FROM to.etc.test.webapp.qsql.LedgerAccount SELECT distinct(description) WHERE description like '%a' order by description ASC", render(selection));
 
@@ -84,7 +70,7 @@ public class TestJdbcSelector {
 	}
 
 	public <T> void testSingleSelector(QSelectionFunction selectFunction, @Nonnull String propertyName, @Nonnull Class<T> type) throws Exception {
-		testSingleSelectorStatic(m_dc, selectFunction, propertyName, type, "%a");
+		testSingleSelectorStatic(getDc(), selectFunction, propertyName, type, "%a");
 	}
 
 	@Nonnull
@@ -175,7 +161,7 @@ public class TestJdbcSelector {
 		String columnName2 = cm.findProperty(propertyName2).getColumnName();
 		String sqlSelectFunction2 = toSqlSelectFunction(selectFunction2, columnName2);
 
-		JdbcAnyRecord rec = JdbcUtil.queryAnyOne(m_dc.getConnection(), "select " + sqlSelectFunction1 + " as val1, " + sqlSelectFunction2
+		JdbcAnyRecord rec = JdbcUtil.queryAnyOne(getDc().getConnection(), "select " + sqlSelectFunction1 + " as val1, " + sqlSelectFunction2
 			+ " as val2 from v_dec_grootboekrekeningen where omschrijving like ?", "%a");
 		T selectBySql1 = rec.getValue(type1, "val1");
 		D selectBySql2 = rec.getValue(type2, "val2");
@@ -187,7 +173,7 @@ public class TestJdbcSelector {
 		addSelector(selection, selectFunction1, propertyName1);
 		addSelector(selection, selectFunction2, propertyName2);
 
-		Object[] selectResult = m_dc.queryOne(selection);
+		Object[] selectResult = getDc().queryOne(selection);
 
 		Assert.assertEquals("FROM to.etc.test.webapp.qsql.LedgerAccount SELECT " + selectFunction1.name().toLowerCase() + "(" + propertyName1 + ")," + selectFunction2.name().toLowerCase() + "("
 			+ propertyName2 + ") WHERE description like '%a'", render(selection));
@@ -208,10 +194,5 @@ public class TestJdbcSelector {
 		} else {
 			throw new IllegalStateException("Unexpected non numerical type: " + selectBySql2.getClass());
 		}
-	}
-
-	@AfterClass
-	static public void tearDown() throws Exception {
-		m_dc.close();
 	}
 }
