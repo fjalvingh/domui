@@ -841,13 +841,6 @@ public abstract class DomApplication {
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/wysiwyg.rmFormat.js"), -779);
 		addHeaderContributor(HeaderContributor.loadStylesheet("$js/jquery.wysiwyg.css"), -780);
 
-		/*
-		 * FIXME LF lf Look&Feel btadic STYLE DEBUGER
-		 * STYLE DEBUGER
-		 * FOR DEVELOPMENT ONLY
-		 * REMOVE IT AFTER LOOK AND FEEL PROJECTS
-		 */
-		addHeaderContributor(HeaderContributor.loadJavascript("$js/styleDebuger.js"), 10);
 		//-- Web driver helpers
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/web-driver/fileSaver.js"), 11);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/web-driver/sharedLocatorGenerator.js"), 13);
