@@ -848,6 +848,10 @@ public abstract class DomApplication {
 		 * REMOVE IT AFTER LOOK AND FEEL PROJECTS
 		 */
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/styleDebuger.js"), 10);
+		//-- Web driver helpers
+		addHeaderContributor(HeaderContributor.loadJavascript("$js/web-driver/fileSaver.js"), 11);
+		addHeaderContributor(HeaderContributor.loadJavascript("$js/web-driver/sharedLocatorGenerator.js"), 13);
+		addHeaderContributor(HeaderContributor.loadJavascript("$js/web-driver/domuiLocatorGenerator.js"), 12);
 
 
 		/*
