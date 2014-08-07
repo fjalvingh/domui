@@ -927,8 +927,10 @@ final public class DomUtil {
 		StringBuilder sb = new StringBuilder();
 		for(int i = 0, len = id.length(); i < len; i++) {
 			char c = id.charAt(i);
-			if(Character.isLetterOrDigit(c))
-				sb.append(Character.toLowerCase(c));
+			if(c == ' ')
+				sb.append('_');
+			else if(Character.isLetterOrDigit(c) || c == '_' || c == '-')
+				sb.append(c);
 		}
 
 		return sb.toString();

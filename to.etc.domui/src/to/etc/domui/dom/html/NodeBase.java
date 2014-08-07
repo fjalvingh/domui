@@ -811,7 +811,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	}
 
 	public void setCalculcatedId(@Nonnull String calcid) {
-		m_calculatedTestIdBase = calcid;
+		m_calculatedTestIdBase = DomUtil.convertToID(calcid);
 	}
 
 	public void setCalculcatedId(@Nonnull String calcid, @Nullable String parentId) {
@@ -821,17 +821,17 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 			if(parentId != null && page != null) {
 				String nid = base + "/" + calcid;
 				if(page.isTestIDAllocated(nid)) {
-					m_calculatedTestIdBase = parentId + "_" + calcid;
+					setCalculcatedId(parentId + "_" + calcid);
 				} else {
-					m_calculatedTestIdBase = calcid;
+					setCalculcatedId(calcid);
 				}
 			} else {
-				m_calculatedTestIdBase = calcid;
+				setCalculcatedId(calcid);
 			}
 		} catch(Exception ex) {
 			//FIXME: 20130926 vmijic : for now try less intrusive error reporting in problems with generating calculated testid.
 			LOG.error("Error in setCalculcatedId", ex);
-			m_calculatedTestIdBase = "ERROR_IN_setCalculcatedId_" + calcid;
+			setCalculcatedId("ERROR_IN_setCalculcatedId_" + calcid);
 		}
 	}
 
