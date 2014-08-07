@@ -160,10 +160,7 @@ public class JdbcUtil {
 		try {
 			ps = connection.prepareStatement(select);
 			setParameters(ps, 1, params);
-			if(LOG.isDebugEnabled()) {
-				LOG.debug("selectOne: " + select);
-				logDebugParams(params);
-			}
+			logDebug("selectOne", select, params);
 			rs = ps.executeQuery();
 			if(! rs.next())
 				return null;
@@ -221,10 +218,7 @@ public class JdbcUtil {
 		try {
 			ps = connection.prepareStatement(select);
 			setParameters(ps, 1, params);
-			if(LOG.isDebugEnabled()) {
-				LOG.debug("selectSingleColumnList: " + select);
-				logDebugParams(params);
-			}
+			logDebug("selectSingleColumnList", select, params);
 			rs = ps.executeQuery();
 			List<T> list = new ArrayList<T>();
 			while(rs.next()) {
@@ -339,10 +333,7 @@ public class JdbcUtil {
 		try {
 			ps = dbc.prepareStatement(select);
 			setParameters(ps, 1, parameters);
-			if(LOG.isDebugEnabled()) {
-				LOG.debug("queryAny: " + select);
-				logDebugParams(parameters);
-			}
+			logDebug("queryAny", select, parameters);
 			rs = ps.executeQuery();
 			return queryAny(select, rs);
 		} finally {
@@ -367,10 +358,7 @@ public class JdbcUtil {
 		try {
 			ps = dbc.prepareStatement(select);
 			setParameters(ps, 1, parameters);
-			if(LOG.isDebugEnabled()) {
-				LOG.debug("queryAnyOne: " + select);
-				logDebugParams(parameters);
-			}
+			logDebug("queryAnyOne", select, parameters);
 			rs = ps.executeQuery();
 			return queryAnyOne(select, rs);
 		} finally {
@@ -418,10 +406,7 @@ public class JdbcUtil {
 		try {
 			ps = dbc.prepareStatement(sql);
 			setParameters(ps, 1, args);
-			if(LOG.isDebugEnabled()) {
-				LOG.debug("executeStatement: " + sql);
-				logDebugParams(args);
-			}
+			logDebug("executeStatement", sql, args);
 			return ps.execute();
 		} finally {
 			FileTool.closeAll(ps);
@@ -454,10 +439,7 @@ public class JdbcUtil {
 		try {
 			cs = dbc.prepareCall(sql);
 			setParameters(cs, 1, args);
-			if(LOG.isDebugEnabled()) {
-				LOG.debug("executeUpdatingCallableStatement: " + sql);
-				logDebugParams(args);
-			}
+			logDebug("executeUpdatingCallableStatement", sql, args);
 			if(cs.executeUpdate() == 1) {
 				readParameters(cs, 1, args);
 				return true;
@@ -513,10 +495,7 @@ public class JdbcUtil {
 				ps.registerOutParameter(1, calcSQLTypeFor(rtype));
 			setParameters(ps, startix, pars.toArray());
 
-			if(LOG.isDebugEnabled()) {
-				LOG.debug("oracleSpCall: " + stmt);
-				logDebugParams(pars.toArray());
-			}
+			logDebug("oracleSpCall", stmt, pars);
 			ps.execute();
 			readParameters(ps, startix, args);
 
@@ -555,10 +534,7 @@ public class JdbcUtil {
 			ps = con.prepareCall(stmt);
 			setParameters(ps, 1, pars.toArray());
 			ps.registerOutParameter(pars.size() + 1, Types.NUMERIC);
-			if(LOG.isDebugEnabled()) {
-				LOG.debug("oracleSpCallReturningBool: " + stmt);
-				logDebugParams(pars.toArray());
-			}
+			logDebug("oracleSpCallReturningBool", stmt, pars);
 			ps.execute();
 			readParameters(ps, 1, pars.toArray());
 			int res = ps.getInt(pars.size() + 1);
@@ -667,6 +643,19 @@ public class JdbcUtil {
 			return null;
 		} finally {
 			FileTool.closeAll(rs2, rs, ps);
+		}
+	}
+
+	private static void logDebug(@Nonnull String sourceMethod, @Nonnull String sql, Object[] params) {
+		if(LOG.isDebugEnabled()) {
+			LOG.debug(sourceMethod + ": " + sql);
+			logDebugParams(params);
+		}
+	}
+
+	private static void logDebug(@Nonnull String sourceMethod, @Nonnull String sql, List<Object> params) {
+		if(LOG.isDebugEnabled()) {
+			logDebug(sourceMethod, sql, params.toArray());
 		}
 	}
 

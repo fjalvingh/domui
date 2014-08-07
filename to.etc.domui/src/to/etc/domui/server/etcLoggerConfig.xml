@@ -2,6 +2,5 @@
 <config logLocation="%catalina.base%/logs">
    <handler type="stdout">
       <log level="ERROR" name="" />
-      <log level="DEBUG" name="to.etc.webapp.qsql.JdbcUtil" />
    </handler>
 </config>
