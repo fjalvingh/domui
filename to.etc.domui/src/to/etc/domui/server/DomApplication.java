@@ -842,9 +842,11 @@ public abstract class DomApplication {
 		addHeaderContributor(HeaderContributor.loadStylesheet("$js/jquery.wysiwyg.css"), -780);
 
 		//-- Web driver helpers
-		addHeaderContributor(HeaderContributor.loadJavascript("$js/web-driver/fileSaver.js"), 11);
-		addHeaderContributor(HeaderContributor.loadJavascript("$js/web-driver/sharedLocatorGenerator.js"), 13);
-		addHeaderContributor(HeaderContributor.loadJavascript("$js/web-driver/domuiLocatorGenerator.js"), 12);
+		if(inTestUiMode()) {
+			addHeaderContributor(HeaderContributor.loadJavascript("$js/web-driver/fileSaver.js"), 11);
+			addHeaderContributor(HeaderContributor.loadJavascript("$js/web-driver/sharedLocatorGenerator.js"), 13);
+			addHeaderContributor(HeaderContributor.loadJavascript("$js/web-driver/domuiLocatorGenerator.js"), 12);
+		}
 
 
 		/*
@@ -863,6 +865,13 @@ public abstract class DomApplication {
 		addHeaderContributor(HeaderContributor.loadJavascript("$ckeditor/ckeditor.js"), -760);
 	}
 
+	/**
+	 * Determines if you are in mode for testing UI.
+	 * @return
+	 */
+	public static boolean inTestUiMode() {
+		return "true".equals(DeveloperOptions.getString("domui.testui"));
+	}
 
 	/**
 	 * Call from within the onHeaderContributor call on a node to register any header
