@@ -870,7 +870,7 @@ public abstract class DomApplication {
 	 * @return
 	 */
 	public static boolean inTestUiMode() {
-		return "true".equals(DeveloperOptions.getString("domui.testui"));
+		return DeveloperOptions.getBool("domui.testui", false);
 	}
 
 	/**
