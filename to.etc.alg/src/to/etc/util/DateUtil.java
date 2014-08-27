@@ -585,5 +585,18 @@ public class DateUtil {
 			return 1;
 		}
 	};
+
+
+	/**
+	 * Returns year for Date.
+	 *
+	 * @param date
+	 * @return
+	 */
+	public static int getYear(@Nonnull Date date) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		return cal.get(Calendar.YEAR);
+	}
 }
 
