@@ -2332,7 +2332,7 @@ public class StringTool {
 				return in;
 
 			//-- Sh*t, exceeded length. Slowly determine the max. size;
-			len = nchars - (data.length - 4000);
+			len = (nchars - (data.length - 4000)) > len ? len : (nchars - (data.length - 4000));
 			for(;;) {
 				in = in.substring(0, len);
 				data = in.getBytes("UTF-8");
