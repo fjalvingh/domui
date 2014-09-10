@@ -2320,12 +2320,15 @@ public class StringTool {
 	 * @param nchars
 	 * @return
 	 */
-	static public String strOracleTruncate(String in, final int nchars) {
+	static public String strOracleTruncate(String in, int nchars) {
 		if(in == null)
 			return null;
 		int len = in.length();
-		if(len > nchars)
+		if(len > nchars) {
 			in = in.substring(0, nchars); // truncate to max size in characters.
+		} else {
+			nchars = len;
+		}
 		try {
 			byte[] data = in.getBytes("UTF-8");
 			if(data.length <= 4000)
