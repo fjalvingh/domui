@@ -165,9 +165,7 @@ public class TUtilTestProperties {
 		db = System.getProperty("TESTDB");
 		if(null != db)
 			return true;
-		Properties p = findTestProperties();
-		if(p == null)
-			return false;
+		TestProperties p = getTestProperties();
 		db = p.getProperty("database");
 		if(db != null)
 			return true;
@@ -191,6 +189,8 @@ public class TUtilTestProperties {
 		db = p.getProperty("database");
 		if(db != null)
 			return db;
+		System.out.println("Database = " + db);
+		System.err.println("Database = " + db);
 		throw new IllegalStateException("No test database specified.");
 	}
 
@@ -497,14 +497,8 @@ public class TUtilTestProperties {
 	 */
 	@Nullable
 	public static String getString(@Nonnull final String propertyName, @Nullable final String defaultValue) {
-		Properties props = findTestProperties();
-		if(props == null)
-			return defaultValue;
-
-		String s = props.getProperty(propertyName);
-		if(s != null)
-			return s;
-		return defaultValue;
+		TestProperties tp = getTestProperties();
+		return tp.getProperty(propertyName, defaultValue);
 	}
 
 }
