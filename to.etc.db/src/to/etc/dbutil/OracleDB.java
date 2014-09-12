@@ -608,9 +608,9 @@ public class OracleDB extends BaseDB {
 				try {
 					st = dbc.createStatement();
 					if("PUBLIC".equals(sowner)) {
-						st.executeUpdate("drop public synonym " + name);
+						st.executeUpdate("drop public synonym \"" + name + "\"");
 					} else {
-						st.executeUpdate("drop synonym " + sowner + "." + name);
+						st.executeUpdate("drop synonym \"" + sowner + "\".\"" + name + "\"");
 					}
 				} catch(Exception x) {
 					System.out.println("Failed to drop synonym " + sowner + "." + name + ": " + x);
