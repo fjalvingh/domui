@@ -4,7 +4,7 @@
     <libelement value="jar://$MODULE_DIR$/junit-4.11.jar!/" />
     <libelement value="jar://$MODULE_DIR$/hamcrest-core-1.3.jar!/" />
     <conelement value="org.eclipse.jst.j2ee.internal.module.container" />
-    <src_description expected_position="2" />
+    <src_description expected_position="3" />
   </component>
   <component name="NewModuleRootManager" inherit-compiler-output="false">
     <output url="file://$MODULE_DIR$/bin" />
@@ -22,7 +22,6 @@
         </SOURCES>
       </library>
     </orderEntry>
-    <orderEntry type="library" name="org.eclipse.jst.j2ee.internal.module.container" level="application" />
     <orderEntry type="module-library" exported="">
       <library name="hamcrest-core-1.3.jar">
         <CLASSES>

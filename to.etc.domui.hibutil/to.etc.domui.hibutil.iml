@@ -14,7 +14,6 @@
     <orderEntry type="module" module-name="bin-slf4j" />
     <orderEntry type="module" module-name="bin-junit-4.11" />
     <orderEntry type="jdk" jdkName="JavaSE-1.7" jdkType="JavaSDK" />
-    <orderEntry type="library" name="annotations" level="project" />
   </component>
 </module>
 

@@ -32,7 +32,7 @@
     <orderEntry type="module" module-name="lib-jericho" />
     <orderEntry type="module" module-name="bin-junit-4.11" />
     <orderEntry type="jdk" jdkName="JavaSE-1.7" jdkType="JavaSDK" />
-    <orderEntry type="library" name="annotations" level="project" />
+    <orderEntry type="module" module-name="to.etc.logger" />
   </component>
 </module>
 

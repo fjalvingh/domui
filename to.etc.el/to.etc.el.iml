@@ -9,7 +9,6 @@
     <orderEntry type="module" module-name="bin-j2ee-1.4" />
     <orderEntry type="module" module-name="to.etc.alg" />
     <orderEntry type="jdk" jdkName="JavaSE-1.7" jdkType="JavaSDK" />
-    <orderEntry type="library" name="annotations" level="project" />
   </component>
 </module>
 
