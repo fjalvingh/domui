@@ -20,6 +20,15 @@ $(window).bind('beforeunload', function() {
 		var v = $.browser.version.split(".");
 		$.browser.majorVersion = parseInt(v[0], 10);
 		$.browser.minorVersion = parseInt(v[1], 10);
+
+		//-- And like clockwork MS fucks up with IE 11: it no longer registers as msie. Fix that here.
+		if(navigator.appName == 'Netscape') {
+			var ua = navigator.userAgent;
+			if(ua.indexOf("Trident/") != -1)
+				$.browser.msie = true;
+		}
+
+
 	} catch(x) {}
 
 //	alert('bmaj='+$.browser.majorVersion+", mv="+$.browser.minorVersion);
@@ -769,7 +778,38 @@ $.extend(WebUI, {
 			fields[sel.id] = val;
 		}
 
+		//-- Handle all registered controls
+		var list = WebUI._inputFieldList;
+		for(var i = list.length; --i >= 0;) {
+			var item = list[i];
+			if(! document.getElementById(item.id)) {
+				//-- Node gone - remove input
+				list.splice(i, 1);
+			} else {
+				var data = item.control.getInputField();
+				fields[item.id] = data;
+			}
+		}
+
 		return fields;
+	},
+
+	_inputFieldList: [],
+
+	/**
+	 * This registers a non-html control as a source of input for {@link getInputFields}. The control
+	 * must have a method "getInputFields(fields: Map)" which defines the inputs to send for the control.
+	 */
+	registerInputControl: function(id, control) {
+		var list = WebUI._inputFieldList;
+		for(var i = list.length; --i >= 0;) {
+			var item = list[i];
+			if(item.id == id) {
+				item.control = control;
+				return;
+			}
+		}
+		list.push({id: id, control:control});
 	},
 
 	getPostURL : function() {
@@ -832,7 +872,7 @@ $.extend(WebUI, {
 		return false;						// jal 20131107 Was false, but inhibits clicking on radiobutton inside a table in Chrome.
 	},
 
-	scall : function(id, action, fields) {
+	prepareAjaxCall: function(id, action, fields) {
 		if (!fields)
 			fields = new Object();
 		// Collect all input, then create input.
@@ -841,9 +881,8 @@ $.extend(WebUI, {
 		fields.webuic = id;
 		fields["$pt"] = DomUIpageTag;
 		fields["$cid"] = DomUICID;
-		WebUI.cancelPolling();
 
-		$.ajax( {
+		return {
 			url :DomUI.getPostURL(),
 			dataType :"*",
 			data :fields,
@@ -851,7 +890,13 @@ $.extend(WebUI, {
 			type: "POST",
 			success :WebUI.handleResponse,
 			error :WebUI.handleError
-		});
+		};
+	},
+
+	scall : function(id, action, fields) {
+		var call = WebUI.prepareAjaxCall(id, action, fields);
+		WebUI.cancelPolling();
+		$.ajax(call);
 	},
 
 	jsoncall: function(id, fields) {
@@ -3695,7 +3740,7 @@ WebUI.bulkUpload = function(id, buttonId, url) {
 		file_queue_limit: 0,
 		file_size_limit: "100 MB",
 		button_width: 120,
-		button_height: 22,
+		button_height: 24,
 		button_placeholder_id: buttonId,
 		button_window_mode: SWFUpload.WINDOW_MODE.TRANSPARENT,
 		button_cursor: SWFUpload.CURSOR.HAND
@@ -3734,7 +3779,11 @@ WebUI.bulkUpload = function(id, buttonId, url) {
 //	ctl.bind('uploadComplete', function(event, file) {
 //		var uf = new WebUI.UploadFile(file, target);
 //	});
-	ctl.bind('fileDialogComplete', function() {
+	ctl.bind('fileDialogComplete', function(nfiles) {
+		if(0 == nfiles) {
+			return;
+		}
+
 		//-- Autostart upload on dialog completion.
 		ctl.swfupload('startUpload');
 

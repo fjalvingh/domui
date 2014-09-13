@@ -80,6 +80,7 @@ public class DateInput extends Text<Date> {
 	 */
 	public DateInput(boolean withtime) {
 		super(Date.class);
+		setCssClass("ui-di");
 		setMaxLength(10);
 		setSize(10);
 		setConverter(ConverterRegistry.getConverterInstance(DateConverter.class));
@@ -90,7 +91,6 @@ public class DateInput extends Text<Date> {
 
 	@Override
 	public void createContent() throws Exception {
-		setCssClass("ui-di");
 		m_selCalButton.setOnClickJS("WebUI.showCalendar('" + getActualID() + "'," + isWithTime() + ")");
 		setSpecialAttribute("onblur", "WebUI.dateInputCheckInput(event);");
 	}
@@ -181,7 +181,7 @@ public class DateInput extends Text<Date> {
 				len += 3;
 		}
 		setMaxLength(len);
-		setSize(len);
+		setSize(len + 1);						// jal 2014/06/27 Need one extra or the last digit does not show!!
 		setConverter(ConverterRegistry.getConverterInstance(isWithTime() ? DateTimeConverter.class : DateConverter.class));
 	}
 

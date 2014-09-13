@@ -28,6 +28,7 @@ import java.util.*;
 
 import javax.annotation.*;
 
+import to.etc.domui.component.input.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.errors.*;
@@ -139,6 +140,13 @@ final public class Page implements IQContextContainer {
 	private boolean m_renderAsXHTML;
 
 	/**
+	 * If the page has gotten it's values injected this is set to true. This prevents injecting
+	 * a value twice which causes trouble for NEW objects (it creates two separate instances of
+	 * a new object).
+	 */
+	private boolean m_injected;
+
+	/**
 	 * The stack of floating windows on top of the main canvas, in ZIndex order.
 	 */
 	private List<FloatingDiv> m_floatingWindowStack;
@@ -147,6 +155,10 @@ final public class Page implements IQContextContainer {
 	 * This gets incremented for every request that is handled.
 	 */
 	private int m_requestCounter;
+
+	/** The current handler phase in handling requests. */
+	@Nonnull
+	private PagePhase m_phase = PagePhase.NULL;
 
 	/**
 	 * Nodes that are added to a render and that are removed by the Javascript framework are added here; this
@@ -179,6 +191,33 @@ final public class Page implements IQContextContainer {
 		if(res == null)
 			throw new IllegalStateException("internal: missing domui NLS resource $js/domuinls{nls}.js");
 		addHeaderContributor(HeaderContributor.loadJavascript(res), -760);
+	}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Phase handling (debug internals)					*/
+	/*--------------------------------------------------------------*/
+
+	public void internalSetPhase(@Nonnull PagePhase phase) {
+		m_phase = phase;
+	}
+
+	public void inNull() {
+		if(m_phase == PagePhase.NULL)
+			return;
+		throw new IllegalStateException("DomUI: not allowed in state " + m_phase);
+	}
+
+	public void inRender() {
+		if(m_phase == PagePhase.FULLRENDER || m_phase == PagePhase.DELTARENDER)
+			return;
+		throw new IllegalStateException("DomUI: not allowed in state " + m_phase);
+	}
+
+	public void inBuild() {
+		if(m_phase == PagePhase.BUILD)
+			return;
+		throw new IllegalStateException("DomUI: not allowed in state " + m_phase);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -510,6 +549,29 @@ final public class Page implements IQContextContainer {
 		return (T) m_pageData.get(clz.getName());
 	}
 
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Simple component binding.							*/
+	/*--------------------------------------------------------------*/
+
+	public void modelToControl() throws Exception {
+		internalSetPhase(PagePhase.bindModelToControl);
+		try {
+			SimpleBinder.modelToControl(getBody());
+		} finally {
+			internalSetPhase(PagePhase.NULL);
+		}
+	}
+
+	public void controlToModel() throws Exception {
+		internalSetPhase(PagePhase.bindControlToModel);
+		try {
+			SimpleBinder.controlToModel(getBody());
+		} finally {
+			internalSetPhase(PagePhase.NULL);
+		}
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Handle the floating window stack.					*/
 	/*--------------------------------------------------------------*/
@@ -606,6 +668,7 @@ final public class Page implements IQContextContainer {
 	 * @throws Exception
 	 */
 	public void internalFullBuild() throws Exception {
+		m_phase = PagePhase.BUILD;
 		m_pendingBuildSet.clear();
 		buildSubTree(getBody());
 		rebuildLoop();
@@ -618,6 +681,7 @@ final public class Page implements IQContextContainer {
 	 * @throws Exception
 	 */
 	public void internalDeltaBuild() throws Exception {
+		m_phase = PagePhase.BUILD;
 		m_pendingBuildSet.clear();
 		buildChangedTree(getBody());
 //		buildSubTree(getBody());
@@ -927,9 +991,19 @@ final public class Page implements IQContextContainer {
 		return m_cc != null && !m_cc.isValid();
 	}
 
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IQContextContainer implementation.					*/
 	/*--------------------------------------------------------------*/
+
+	public boolean isInjected() {
+		return m_injected;
+	}
+
+	public void setInjected(boolean injected) {
+		m_injected = injected;
+	}
+
 
 	@Nonnull
 	@Override

@@ -24,15 +24,18 @@
  */
 package to.etc.domui.dom.html;
 
+import java.util.*;
+
 import javax.annotation.*;
 
 import to.etc.domui.component.input.*;
+import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 
-public class TextArea extends InputNodeContainer implements IControl<String>, IHasModifiedIndication, IHtmlInput {
+public class TextArea extends InputNodeContainer implements INativeChangeListener, IControl<String>, IHasModifiedIndication, IHtmlInput {
 	private int m_cols = -1;
 
 	private int m_rows = -1;
@@ -199,30 +202,48 @@ public class TextArea extends InputNodeContainer implements IControl<String>, IH
 	}
 
 	/*--------------------------------------------------------------*/
-	/*	CODING:	IBindable interface (EXPERIMENTAL)					*/
+	/*	CODING:	IBindable interface.								*/
 	/*--------------------------------------------------------------*/
 
-	/** When this is bound this contains the binder instance handling the binding. */
-	private SimpleBinder m_binder;
+	@Nullable
+	private List<SimpleBinder> m_bindingList;
 
-	/**
-	 * Return the binder for this control.
-	 * @see to.etc.domui.component.input.IBindable#bind()
-	 */
 	@Override
 	public @Nonnull IBinder bind() {
-		if(m_binder == null)
-			m_binder = new SimpleBinder(this);
-		return m_binder;
+		return bind("value");
 	}
 
-	/**
-	 * Returns T if this control is bound to some data value.
-	 *
-	 * @see to.etc.domui.component.input.IBindable#isBound()
-	 */
 	@Override
-	public boolean isBound() {
-		return m_binder != null && m_binder.isBound();
+	@Nonnull
+	public IBinder bind(@Nonnull String componentProperty) {
+		List<SimpleBinder> list = m_bindingList;
+		if(list == null)
+			list = m_bindingList = new ArrayList<SimpleBinder>(1);
+		SimpleBinder binder = new SimpleBinder(this, componentProperty);
+		list.add(binder);
+		return binder;
+	}
+
+	@Override
+	@Nullable
+	public List<SimpleBinder> getBindingList() {
+		return m_bindingList;
+	}
+
+	@Nonnull
+	static public TextArea create(@Nonnull PropertyMetaModel< ? > pmm) {
+		TextArea ta = new TextArea();
+		String cth = pmm.getComponentTypeHint();
+		if(cth != null) {
+			String hint = cth.toLowerCase();
+			ta.setCols(MetaUtils.parseIntParam(hint, MetaUtils.COL, 80));
+			ta.setRows(MetaUtils.parseIntParam(hint, MetaUtils.ROW, 4));
+		}
+		if(pmm.isRequired())
+			ta.setMandatory(true);
+		String s = pmm.getDefaultHint();
+		if(s != null)
+			ta.setTitle(s);
+		return ta;
 	}
 }

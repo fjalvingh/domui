@@ -28,7 +28,6 @@ public class SimpleForm1 extends UrlPage {
 //		fb.data(getCustomer()).addProp("firstName", "lastName", "email");
 		fb.data(getCustomer()).addProps("firstName", "lastName", "email");
 		fb.finish();
-		moveModelToControl();
 	}
 
 

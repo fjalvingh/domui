@@ -1478,6 +1478,8 @@ public class Configuration implements Serializable {
 			if ( sp.isInPrimaryKey() ) {
 				String referenceEntityName = sp.getReferencedEntityName();
 				PersistentClass classMapping = getClassMapping( referenceEntityName );
+				if(classMapping == null || classMapping.getTable() == null)
+					throw new IllegalStateException(referenceEntityName+": class mapping unknown or table not set");
 				String dependentTable = classMapping.getTable().getQuotedName();
 				if ( !isADependencyOf.containsKey( dependentTable ) ) {
 					isADependencyOf.put( dependentTable, new HashSet<FkSecondPass>() );

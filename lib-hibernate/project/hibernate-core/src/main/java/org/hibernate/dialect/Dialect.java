@@ -1998,4 +1998,15 @@ public abstract class Dialect {
 		// oddly most database in fact seem to, so true is the default.
 		return true;
 	}
+	
+	/**
+	 * HHH-4635
+	 * Oracle expects all Lob values to be last in inserts and updates.
+	 * 
+	 * @return boolean True of Lob values should be last, false if it
+	 * does not matter.
+	 */
+	public boolean forceLobAsLastValue() {
+		return false;
+	}
 }

@@ -24,118 +24,71 @@
  */
 package to.etc.domui.component.input;
 
+import java.util.*;
+
 import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
+import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
-import to.etc.domui.logic.events.*;
+import to.etc.domui.logic.*;
 import to.etc.domui.util.*;
-import to.etc.util.*;
+import to.etc.webapp.*;
+import to.etc.webapp.nls.*;
 
 /**
- * EXPERIMENTAL - DO NOT USE.
- * This is a simple binder implementation for base IControl<T> implementing controls. It handles all
- * binding chores.
+ * This is a single binding instance between a control and one of the control's properties.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 13, 2009
  */
-public class SimpleBinder implements IBinder, ILogiEventListener {
+public class SimpleBinder implements IBinder {
 	@Nonnull
-	private IControl< ? > m_control;
+	final private IBindable m_control;
+
+	@Nonnull
+	final private PropertyMetaModel< ? > m_controlProperty;
+
+	/** The instance bound to */
+	@Nullable
+	private Object m_instance;
 
 	/** If this contains whatever property-related binding this contains the property's meta model, needed to use it's value accessor. */
 	@Nullable
-	private PropertyMetaModel< ? > m_propertyModel;
-
-	/** If this is bound to some model this contains the model, */
-	@Nullable
-	private IReadOnlyModel< ? > m_model;
-
-	/** If this is bound to an object instance directly it contains the instance */
-	@Nullable
-	private Object m_instance;
+	private PropertyMetaModel< ? > m_instanceProperty;
 
 	/** If this thing is bound to some event listener... */
 	@Nullable
 	private IBindingListener< ? > m_listener;
 
-	public SimpleBinder(@Nonnull IControl< ? > control) {
+	@Nullable
+	private Object m_lastValueFromControl;
+
+	@Nullable
+	private UIMessage m_lastBindError;
+
+	public SimpleBinder(@Nonnull IBindable control, @Nonnull String controlProperty) {
 		if(control == null)
 			throw new IllegalArgumentException("The control cannot be null.");
 		m_control = control;
+		m_controlProperty = MetaManager.getPropertyMeta(control.getClass(), controlProperty);
 	}
 
-	/**
-	 * Returns T if this contains an actual binding. We are bound if property is set OR a listener is set.
-	 * @see to.etc.domui.component.input.IBinder#isBound()
-	 */
-	@Override
-	public boolean isBound() {
-		return m_propertyModel != null || m_listener != null;
+	private void checkAssigned() {
+		if(m_listener != null || m_instance != null)
+			throw new ProgrammerErrorException("This binding is already fully defined. Create a new one.");
 	}
 
-	/**
-	 * Bind to a property of the object returned by this model.
-	 * @see to.etc.domui.component.input.IBinder#to(java.lang.Class, to.etc.domui.util.IReadOnlyModel, java.lang.String)
-	 */
-	@Override
-	public <T> void to(@Nonnull Class<T> theClass, @Nonnull IReadOnlyModel<T> model, @Nonnull String property) {
-		if(theClass == null || property == null || model == null)
-			throw new IllegalArgumentException("Argument cannot be null");
-		m_listener = null;
-		m_propertyModel = MetaManager.getPropertyMeta(theClass, property);
-		m_model = model;
-		m_instance = null;
-		try {
-			moveModelToControl();
-		} catch(Exception x) {
-			throw WrappedException.wrap(x);
-		}
-	}
-
-	/**
-	 * Bind to a property on some model whose metadata is passed.
-	 * @param <T>
-	 * @param model
-	 * @param pmm
-	 */
-	@Override
-	public <T> void to(@Nonnull IReadOnlyModel<T> model, @Nonnull PropertyMetaModel< ? > pmm) {
-		if(pmm == null || model == null)
-			throw new IllegalArgumentException("Argument cannot be null");
-		m_listener = null;
-		m_propertyModel = pmm;
-		m_model = model;
-		m_instance = null;
-		try {
-			moveModelToControl();
-		} catch(Exception x) {
-			throw WrappedException.wrap(x);
-		}
-	}
-
-	/**
-	 *
-	 * @see to.etc.domui.component.input.IBinder#to(to.etc.domui.component.input.IBindingListener)
-	 */
 	@Override
 	public void to(@Nonnull IBindingListener< ? > listener) {
+		checkAssigned();
 		if(listener == null)
 			throw new IllegalArgumentException("Argument cannot be null");
-		m_propertyModel = null;
-		m_instance = null;
-		m_model = null;
 		m_listener = listener;
 	}
 
-	/**
-	 * Bind to a property of the instance specified.
-	 *
-	 * @see to.etc.domui.component.input.IBinder#to(java.lang.Object, java.lang.String)
-	 */
 	@Override
-	public void to(@Nonnull Object instance, @Nonnull String property) {
+	public <T> void to(@Nonnull T instance, @Nonnull String property) throws Exception {
 		if(instance == null || property == null)
 			throw new IllegalArgumentException("The instance in a component bind request CANNOT be null!");
 		to(instance, MetaManager.getPropertyMeta(instance.getClass(), property));
@@ -145,20 +98,18 @@ public class SimpleBinder implements IBinder, ILogiEventListener {
 	 * Bind to a propertyMetaModel and the given instance.
 	 * @param instance
 	 * @param pmm
+	 * @throws Exception
 	 */
 	@Override
-	public void to(@Nonnull Object instance, @Nonnull PropertyMetaModel< ? > pmm) {
+	public <T, V> void to(@Nonnull T instance, @Nonnull PropertyMetaModel<V> pmm) throws Exception {
+		checkAssigned();
 		if(instance == null || pmm == null)
 			throw new IllegalArgumentException("Parameters in a bind request CANNOT be null!");
-		m_listener = null;
-		m_model = null;
-		m_propertyModel = pmm;
+		m_instanceProperty = pmm;
 		m_instance = instance;
-		try {
-			moveModelToControl();
-		} catch(Exception x) {
-			throw WrappedException.wrap(x);
-		}
+
+		//-- Move the data now!
+		moveModelToControl();
 	}
 
 	/*--------------------------------------------------------------*/
@@ -167,104 +118,229 @@ public class SimpleBinder implements IBinder, ILogiEventListener {
 	/**
 	 * Move the control value to wherever it's needed. If this is a listener binding it calls the listener,
 	 * else it moves the value either to the model's value or the instance's value.
-	 * @see to.etc.domui.component.controlfactory.IModelBinding#moveControlToModel()
+	 *
+	 * This is the *hard* part of binding: it needs to handle control errors caused by bindValue() throwing
+	 * an exception.
 	 */
-	@Override
 	public void moveControlToModel() throws Exception {
-		if(m_listener != null)
-			((IBindingListener<NodeBase>) m_listener).moveControlToModel((NodeBase) m_control); // Stupid generics idiocy requires cast
-		else {
-			PropertyMetaModel<Object> propertyModel = pmm();
-			if(propertyModel.getReadOnly() == YesNoType.YES || m_control instanceof IDisplayControl)
-				return;
-			Object val = m_control.getValue();
-			Object base = getBase();
-			propertyModel.setValue(base, val);
+		NodeBase control = (NodeBase) m_control;
+		if(control instanceof IDisplayControl)
+			return;
+
+		IBindingListener< ? > listener = m_listener;
+		if(listener != null) {
+			((IBindingListener<NodeBase>) listener).moveControlToModel(control);
+			return;
 		}
-	}
 
-	@Nonnull
-	private PropertyMetaModel<Object> pmm() {
-		PropertyMetaModel<Object> propertyModel = (PropertyMetaModel<Object>) m_propertyModel;
-		if(null == propertyModel)
-			throw new IllegalStateException("Binding for a model item without a propertyModel");
-		return propertyModel;
-	}
+		PropertyMetaModel< ? > instanceProperty = m_instanceProperty;
+		if(null == instanceProperty)
+			throw new IllegalStateException("instance property cannot be null");
+		Object instance = m_instance;
+		if(null == instance)
+			throw new IllegalStateException("instance cannot be null");
 
-	@Nonnull
-	private Object getBase() throws Exception {
-		Object base = m_instance == null ? getModel().getValue() : m_instance;
-		if(null == base)
-			throw new IllegalStateException(this + ": the base object is null");
-		return base;
-	}
-
-	@Override
-	public void moveModelToControl() throws Exception {
-		if(m_listener != null)
-			((IBindingListener<NodeBase>) m_listener).moveModelToControl((NodeBase) m_control); // Stupid generics idiocy requires cast
-		else {
-			Object base = getBase();
-			IValueAccessor< ? > vac = pmm();
-			Object pval = vac.getValue(base);
-			((IControl<Object>) m_control).setValue(pval);
+		/*
+		 * Get the control's value. If the control is in error (validation/conversion) then
+		 * add the problem inside the Error collector, signaling a problem to any logic
+		 * that would run after.
+		 */
+		Object value = null;
+		UIMessage newError = null;
+		try {
+			value = m_controlProperty.getValue(m_control);
+			control.removeCssClass("ui-input-err");							// This is horrible.
+		} catch(CodeException cx) {
+			newError = UIMessage.error(cx).group(LogiErrors.G_BINDING);
+			newError.setErrorNode(control);
+			newError.setErrorLocation(control.getErrorLocation());
+			System.out.println("~~ " + control + " to " + instanceProperty + ": " + cx);
+			control.addCssClass("ui-input-err");							// As is this.
 		}
-	}
 
-	@Nonnull
-	private IReadOnlyModel< ? > getModel() {
-		if(null != m_model)
-			return m_model;
-		throw new IllegalStateException("The model cannot be null");
-	}
+		LogiErrors errorModel = control.lc().getErrorModel();
+		UIMessage oldError = m_lastBindError;
+		if(oldError != null && !oldError.equals(newError)) {
+			errorModel.clearMessage(instance, instanceProperty.getName(), oldError);
+			m_lastBindError = null;
+		}
+		if(newError != null) {
+			if(!newError.equals(oldError))
+				errorModel.addMessage(instance, instanceProperty.getName(), newError);
+			m_lastBindError = newError;
+		} else {
+			m_lastValueFromControl = value;
 
-	@Override
-	public void setControlsEnabled(boolean on) {
-		m_control.setDisabled(!on);
+			//-- QUESTION: Should we move something to the model @ error?
+			try {
+				((PropertyMetaModel<Object>) instanceProperty).setValue(m_instance, value);
+			} catch(Exception x) {
+				throw new IllegalStateException("Binding error moving " + m_controlProperty + " to " + m_instanceProperty + ": " + x, x);
+			}
+		}
 	}
 
 	/**
-	 * Handle a logic event: if the event contains a change to something we're bound to then
-	 * update that thing we're bound to.
-	 * @see to.etc.domui.logic.events.ILogiEventListener#logicEvent(to.etc.domui.logic.events.LogiEvent)
+	 *
+	 * @throws Exception
 	 */
-	@Deprecated
-	@Override
-	public void logicEvent(@Nonnull LogiEvent event) throws Exception {
-		//-- If I just have a listener pass on the event to the listener.
+	public void moveModelToControl() throws Exception {
 		IBindingListener< ? > listener = m_listener;
-		if(null != listener) {
-			if(listener instanceof ILogiEventListener) {
-				((ILogiEventListener) listener).logicEvent(event);
-			}
+		if(listener != null) {
+			((IBindingListener<NodeBase>) listener).moveModelToControl((NodeBase) m_control);
 			return;
 		}
+		PropertyMetaModel< ? > instanceProperty = m_instanceProperty;
+		if(null == instanceProperty)
+			throw new IllegalStateException("instance property cannot be null");
+		Object instance = m_instance;
+		if(null == instance)
+			throw new IllegalStateException("instance cannot be null");
+		NodeBase control = (NodeBase) m_control;
 
-		//-- Get my binding as instance:property.
-		Object base = getBase();
-		if(!event.propertyChanged(base, pmm().getName()))
-			return;
+		// FIXME We should think about exception handling here
+		Object modelValue = instanceProperty.getValue(instance);
+		if(!MetaManager.areObjectsEqual(modelValue, m_lastValueFromControl)) {
+			m_lastValueFromControl = modelValue;
+			((PropertyMetaModel<Object>) m_controlProperty).setValue(m_control, modelValue);
 
-		//-- The thing we're bound to has changed value. For now just set the new value.
-		moveModelToControl();
+			/*
+			 * jal yeah, this also suffers from "knowing" that we're accessing the control's value 8-/ We need
+			 * to think about this.
+			 *
+			 * When updated from the model: clear the control's error. This should probably call the control's validation
+			 * methods to see if the new value set obeys the control's validation (notably: mandatoryness, pattern).
+			 */
+			if(control.isAttached()) {
+				UIMessage ctlError = control.getMessage();
+				if(null != ctlError) {
+					LogiErrors errorModel = control.lc().getErrorModel();
+					errorModel.clearMessage(instance, instanceProperty, ctlError);
+					control.setMessage(null);
+				}
+			}
+		} else {
+			/*
+			 * Model has not updated the value. If the control *itself* has an error (Which can be known because the
+			 * last bind error is != null) we keep that error, otherwise we set the 1st error from the model.
+			 */
+			if(m_lastBindError == null) {
+				if(control.isAttached()) {
+					LogiErrors errorModel = control.lc().getErrorModel();
+					Set<UIMessage> e2b = errorModel.getErrorsOn(instance, instanceProperty);
+					UIMessage msg = null;
+					if(e2b.size() > 0) {
+						msg = e2b.iterator().next();
+					}
+					control.setMessage(msg);
+				}
+			}
+		}
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Handling simple binding chores.						*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * System helper method to move all bindings from control into the model (called at request start).
+	 * @param root
+	 * @throws Exception
+	 */
+	static public void controlToModel(@Nonnull NodeBase root) throws Exception {
+		DomUtil.walkTree(root, new DomUtil.IPerNode() {
+			@Override
+			public Object before(NodeBase n) throws Exception {
+				if(n instanceof IBindable) {
+					IBindable b = (IBindable) n;
+					List<SimpleBinder> list = b.getBindingList();
+					if(null != list) {
+						for(SimpleBinder sb : list)
+							sb.moveControlToModel();
+					}
+				}
+				return null;
+			}
+
+			@Override
+			public Object after(NodeBase n) throws Exception {
+				return null;
+			}
+		});
+	}
+
+	/**
+	 * System helper method to move all bindings from model to control (called at request end).
+	 * @param root
+	 * @throws Exception
+	 */
+	static public void modelToControl(@Nonnull NodeBase root) throws Exception {
+		DomUtil.walkTree(root, new DomUtil.IPerNode() {
+			@Override
+			public Object before(NodeBase n) throws Exception {
+				if(n instanceof IBindable) {
+					IBindable b = (IBindable) n;
+					List<SimpleBinder> list = b.getBindingList();
+					if(null != list) {
+						for(SimpleBinder sb : list)
+							sb.moveModelToControl();
+					}
+				}
+				return null;
+			}
+
+			@Override
+			public Object after(NodeBase n) throws Exception {
+				return null;
+			}
+		});
+	}
+
+	@Nullable
+	public static SimpleBinder findBinding(NodeBase nodeBase, String string) {
+		if(nodeBase instanceof IBindable) {
+			IBindable b = (IBindable) nodeBase;
+			List<SimpleBinder> list = b.getBindingList();
+			if(list != null) {
+				for(SimpleBinder sb : list) {
+					if(string.equals(sb.getControlProperty().getName()))
+						return sb;
+				}
+			}
+		}
+		return null;
+	}
+
+	@Nonnull
+	public PropertyMetaModel< ? > getControlProperty() {
+		return m_controlProperty;
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
+		sb.append("binding[");
 		if(m_instance != null) {
 			sb.append("i=").append(m_instance);
 		} else if(m_listener != null) {
 			sb.append("l=").append(m_listener);
-		} else if(m_model != null) {
-			sb.append("m=").append(m_model);
 		} else {
 			sb.append("?");
 		}
-		PropertyMetaModel< ? > propertyModel = m_propertyModel;
-		if(propertyModel != null) {
-			sb.append("/").append(propertyModel.getName());
+		PropertyMetaModel< ? > instanceProperty = m_instanceProperty;
+		if(instanceProperty != null) {
+			sb.append("/").append(instanceProperty.getName());
 		}
+		sb.append("]");
 		return sb.toString();
+	}
+
+	@Nullable
+	public Object getInstance() {
+		return m_instance;
+	}
+
+	@Nullable
+	public PropertyMetaModel< ? > getInstanceProperty() {
+		return m_instanceProperty;
 	}
 }

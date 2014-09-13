@@ -24,6 +24,8 @@
  */
 package to.etc.domui.dom.errors;
 
+import java.util.*;
+
 import javax.annotation.*;
 
 /**
@@ -43,4 +45,11 @@ public interface IErrorFence {
 	public void removeMessage(@Nonnull UIMessage uim);
 
 	public void clearGlobalMessages(@Nullable String code);
+
+	/**
+	 * Experimental, do not use. Return the current set of errors inside this fence.
+	 * @return
+	 */
+	@Nonnull
+	public List<UIMessage> getMessageList();
 }

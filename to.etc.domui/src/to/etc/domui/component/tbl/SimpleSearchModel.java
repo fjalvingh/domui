@@ -316,6 +316,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 		return m_sortCriteria;
 	}
 
+	@Override
 	public boolean isTruncated() {
 		return m_truncated;
 	}

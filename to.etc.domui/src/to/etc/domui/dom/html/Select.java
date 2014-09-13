@@ -41,7 +41,7 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 11, 2008
  */
-public class Select extends InputNodeContainer implements IHasModifiedIndication, IHtmlInput {
+public class Select extends InputNodeContainer implements INativeChangeListener, IHasModifiedIndication, IHtmlInput {
 	private boolean m_multiple;
 
 	private boolean m_disabled;
@@ -197,7 +197,7 @@ public class Select extends InputNodeContainer implements IHasModifiedIndication
 	 * a faster way to set all option selected values.
 	 * @param ix
 	 */
-	protected void internalSetSelectedIndex(int ix) {
+	public void internalSetSelectedIndex(int ix) {
 		m_selectedIndex = ix;
 	}
 

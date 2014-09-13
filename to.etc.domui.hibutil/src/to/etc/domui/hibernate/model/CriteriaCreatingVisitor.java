@@ -1067,7 +1067,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		if(index == -1)
 			throw new IllegalStateException("Hibernate does not know property '" + childListProperty + " in " + parentmd.getEntityName());
 		Type type = parentmd.getPropertyTypes()[index];
-		BagType bt = (BagType) type;
+		CollectionType bt = (CollectionType) type;
 		final OneToManyPersister persister = (OneToManyPersister) ((SessionFactoryImpl) m_session.getSessionFactory()).getCollectionPersister(bt.getRole());
 		String[] keyCols = persister.getKeyColumnNames();
 
