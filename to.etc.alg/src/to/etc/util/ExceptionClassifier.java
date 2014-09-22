@@ -137,7 +137,7 @@ public final class ExceptionClassifier implements IExceptionClassifier {
 	@Nonnull
 	private Severity getSeverityByMessage(@Nonnull String message) {
 		for(Entry<String, Severity> entry : m_knownExceptions.entrySet()) {
-			if(message.startsWith(entry.getKey())) {
+			if(message.contains(entry.getKey())) {
 				return entry.getValue();
 			}
 		}
