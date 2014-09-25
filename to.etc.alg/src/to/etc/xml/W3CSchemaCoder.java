@@ -445,7 +445,7 @@ public class W3CSchemaCoder {
 		int hh = p.parseFixedInt(2);
 		p.require(":");
 		int mm = p.parseFixedInt(2);
-		return new SimpleTimeZone((hh * 24 + mm) * 60 * 1000, (sign < 0 ? '-' : '+') + hh + ":" + mm);
+		return new SimpleTimeZone((hh * 60 + mm) * 60 * 1000, (sign < 0 ? '-' : '+') + hh + ":" + mm);
 	}
 
 
