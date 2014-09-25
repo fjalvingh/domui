@@ -45,6 +45,8 @@ import to.etc.webapp.*;
 import to.etc.webapp.query.*;
 
 abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT>, IHasModifiedIndication {
+
+	public static final String MAGIC_ID_MARKER = "?id?";
 	/** The properties bindable for this component. */
 	static private final Set<String> BINDABLE_SET = createNameSet("value", "disabled");
 
@@ -553,6 +555,65 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		searchString = DomUtil.nullChecked(searchString.replace("*", "%"));
 		QCriteria<QT> searchQuery;
 
+		Long magicId = getMagicString(searchString);
+		if(magicId != null) {
+			searchQuery = createTestQuery(magicId);
+		} else {
+			searchQuery = createStandardQuery(searchString);
+		}
+
+		if(searchQuery == null) {
+			return null;
+		}
+		searchQuery = manipulateCriteria(searchQuery);
+		if(searchQuery == null) {
+			//in case of cancelled search by query manipulator return
+			return null;
+		}
+
+		return createTableModel(searchQuery);
+	}
+
+	/**
+	 * Extracting object id from magic string.
+	 * @param searchString
+	 * @return
+	 */
+	@Nullable
+	private Long getMagicString(@Nonnull String searchString) {
+		if(searchString.startsWith(MAGIC_ID_MARKER) //
+			&& searchString.endsWith(MAGIC_ID_MARKER)) {
+			try {
+				int l = MAGIC_ID_MARKER.length();
+				String id = searchString.substring(l, searchString.length() - l);
+				return Long.valueOf(id.trim());
+			} catch(NumberFormatException e) {
+				return null;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Create query for filling up lookup by IIdentifyable id.</br>
+	 * Used for speeding up tests
+	 * @param searchString
+	 * @return
+	 * @throws Exception
+	 */
+	@Nullable
+	private QCriteria<QT> createTestQuery(@Nonnull Long magicId) throws Exception {
+		if(IIdentifyable.class.isAssignableFrom(m_queryClass)) {
+			QCriteria<QT> searchQuery = (QCriteria<QT>) getQueryMetaModel().createCriteria();
+			searchQuery.eq("id", magicId);
+			return searchQuery;
+		}
+		throw new RuntimeException("This instance cannot be used for filling in lookup using magic string: " + m_queryClass);
+	}
+
+	@Nullable
+	private QCriteria<QT> createStandardQuery(String searchString) throws Exception {
+		QCriteria<QT> searchQuery;
 		IKeyWordSearchQueryFactory<QT> ksh = getKeyWordSearchHandler();
 		if(ksh != null) {
 			searchQuery = ksh.createQuery(searchString);
@@ -607,17 +668,10 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 				}
 			}
 			if(ncond == 0) {
-				return null;		//no search meta data is matching minimal lenght condition, search is cancelled
+				return null;        //no search meta data is matching minimal lenght condition, search is cancelled
 			}
 		}
-
-		searchQuery = manipulateCriteria(searchQuery);
-		if(searchQuery == null) {
-			//in case of cancelled search by query manipulator return
-			return null;
-		}
-
-		return createTableModel(searchQuery);
+		return searchQuery;
 	}
 
 	@Nullable
