@@ -1538,6 +1538,12 @@ $.extend(WebUI, {
 		var keyCode = WebUI.normalizeKey(evt);
 		if (keyCode != 13000 && keyCode != 13)
 			return true;
+		// Be sure 'onblur' is executed before next action (like submit)
+		try {
+			evt.target.onblur(evt);
+		} catch (err) {
+			// Ignore any error in case that target does not support onblur...
+		}
 		WebUI.scall(evt.currentTarget ? evt.currentTarget.id : node.id, 'returnpressed');
 		return false;
 	},
