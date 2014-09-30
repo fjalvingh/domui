@@ -221,6 +221,11 @@ public class VpEventManager implements Runnable {
 		VpEventManager em;
 		if(null != tl) {
 			em = tl.get();
+			if(null == em) {
+				em = new VpEventManager();
+				em.initializeForTests();
+				tl.set(em);
+			}
 		} else {
 			em = m_instance;
 		}
@@ -254,12 +259,12 @@ public class VpEventManager implements Runnable {
 		if(null == tl) {
 			m_testInstances = tl = new ThreadLocal<VpEventManager>();
 		}
-		if(tl.get() != null)
-			return;
-
-		VpEventManager em = new VpEventManager();
-		em.initializeForTests();
-		tl.set(em);
+//		if(tl.get() != null)
+//			return;
+//
+//		VpEventManager em = new VpEventManager();
+//		em.initializeForTests();
+//		tl.set(em);
 	}
 
 	static public synchronized boolean inJUnitTestMode() {
