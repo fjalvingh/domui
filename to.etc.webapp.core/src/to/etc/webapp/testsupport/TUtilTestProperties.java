@@ -16,7 +16,6 @@ import to.etc.dbpool.*;
 import to.etc.dbutil.*;
 import to.etc.util.*;
 import to.etc.webapp.eventmanager.*;
-import to.etc.webapp.nls.*;
 
 public class TUtilTestProperties {
 	/** Will contain a description of the location for the test properties used, after {@link #getTestProperties()}. */
@@ -324,9 +323,7 @@ public class TUtilTestProperties {
 	 * By default all tests are written for Dutch locale
 	 */
 	public static void initLocale() {
-		Locale nl = new Locale("nl", "NL");
-		NlsContext.setCurrencyLocale(nl);
-		NlsContext.setLocale(nl);
+		Locale.setDefault(new Locale("nl", "NL"));
 	}
 
 	static public Connection makeRawConnection() throws Exception {
