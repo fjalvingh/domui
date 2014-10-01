@@ -30,6 +30,7 @@ import java.lang.reflect.*;
 import java.net.*;
 import java.sql.*;
 import java.util.*;
+import java.util.concurrent.*;
 
 import javax.annotation.*;
 import javax.sql.*;
@@ -198,6 +199,8 @@ public class VpEventManager implements Runnable {
 	};
 
 	private DbType m_dbtype;
+
+	private long m_lastHandled;
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Singleton init.                                  	*/
@@ -557,6 +560,10 @@ public class VpEventManager implements Runnable {
 			AppEventBase ae = list.get(i);
 //			System.out.println("EV: Handle event " + ae.getUpid() + ", " + ae.getClass().getName());
 			callListeners(ae, false, localeventset.contains(Long.valueOf(ae.getUpid()))); // Call all handlers that need delayed notification
+			synchronized(this) {
+				m_lastHandled = ae.getUpid();
+				notifyAll();
+			}
 		}
 	}
 
@@ -644,11 +651,11 @@ public class VpEventManager implements Runnable {
 	}
 
 	/**
-	 * Primitive event poster. This adds the event to the listener queue (the database) and
+	 * NOT FOR COMMON USE - Primitive event poster. This adds the event to the listener queue (the database) and
 	 * adds it to the "local" event queue *if* the event is an immediate event (an event whose
 	 * handler will be called immediately).
 	 */
-	private void sendEventMain(final Connection dbc, final AppEventBase ae, final boolean commit, final boolean isimmediate) throws Exception {
+	public long sendEventMain(final Connection dbc, final AppEventBase ae, final boolean commit, final boolean isimmediate) throws Exception {
 		ResultSet rs = null;
 		PreparedStatement ps = null;
 		OutputStream os = null;
@@ -707,6 +714,7 @@ public class VpEventManager implements Runnable {
 				dbc.commit();
 			}
 			ok = true;
+			return id;
 		} finally {
 			try {
 				if(oos != null)
@@ -950,6 +958,29 @@ public class VpEventManager implements Runnable {
 		//-- Call all local handlers immediately.
 		for(AppEventBase ae : aelist) {
 			callListeners(ae, true, true); // Call all listeners that need the event immediately. ORDER IMPORTANT: must be after sendEvent.
+		}
+	}
+
+	private synchronized long getLastHandled() {
+		return m_lastHandled;
+	}
+
+	/**
+	 * Sleep until the specified event has been handled. This waits for max. one minute.
+	 * @param value
+	 */
+	public void waitUntilHandled(long value) throws Exception {
+		if(getLastHandled() >= value)
+			return;
+		long ets = System.currentTimeMillis() + 60 * 1000;
+		for(;;) {
+			synchronized(this) {
+				if(m_lastHandled >= value)
+					return;
+				wait(10000);
+			}
+			if(System.currentTimeMillis() >= ets)
+				throw new TimeoutException();
 		}
 	}
 }
