@@ -24,12 +24,11 @@
 package org.hibernate.cfg.annotations;
 
 import java.util.Map;
-import javax.persistence.EmbeddedId;
-import javax.persistence.Id;
+
+import javax.persistence.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.hibernate.AnnotationException;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
@@ -57,6 +56,7 @@ import org.hibernate.mapping.Value;
 import org.hibernate.util.StringHelper;
 
 /**
+import org.jboss.logging.Logger;
  * @author Emmanuel Bernard
  */
 public class PropertyBinder {
@@ -260,6 +260,7 @@ public class PropertyBinder {
 		prop.setLazy( lazy );
 		prop.setCascade( cascade );
 		prop.setPropertyAccessorName( accessType.getType() );
+
 		Generated ann = property != null ?
 				property.getAnnotation( Generated.class ) :
 				null;
@@ -282,6 +283,7 @@ public class PropertyBinder {
 				prop.setGeneration( PropertyGeneration.parse( generated.toString().toLowerCase() ) );
 			}
 		}
+
 		NaturalId naturalId = property != null ?
 				property.getAnnotation( NaturalId.class ) :
 				null;
@@ -291,6 +293,11 @@ public class PropertyBinder {
 			}
 			prop.setNaturalIdentifier( true );
 		}
+
+		// HHH-4635 -- needed for dialect-specific property ordering
+		Lob lob = property != null ? property.getAnnotation( Lob.class ) : null;
+		prop.setLob( lob != null );
+
 		prop.setInsertable( insertable );
 		prop.setUpdateable( updatable );
 		OptimisticLock lockAnn = property != null ?

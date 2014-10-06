@@ -205,7 +205,6 @@ final public class PendingOperationTask implements Runnable, ILogSink {
 		m_errorWriter.println("[exception] " + msg);
 		t.printStackTrace(m_errorWriter);
 		System.err.println("[pending task exception] " + msg);
-		t.printStackTrace();
 	}
 
 	@Override
