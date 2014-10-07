@@ -269,7 +269,7 @@ public class VpEventManager implements Runnable {
 	}
 
 	private synchronized void initializeForTests() {
-
+		m_tableName = "sys_vp_events";
 	}
 
 	private void log(final String s) {
