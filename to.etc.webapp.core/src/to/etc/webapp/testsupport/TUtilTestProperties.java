@@ -311,9 +311,15 @@ public class TUtilTestProperties {
 			VpEventManager.initializeForTest();
 			DbLockKeeper.init(m_rawDS);
 
-			ConnectionPool pool = PoolManager.getPoolFrom(m_rawDS);
-			if(null != pool)
-				pool.setForceTimeout(120);
+			String defaulttimeout = DeveloperOptions.isDeveloperWorkstation() ? null : "120";
+			String poolto = TUtilTestProperties.getString("pool.timeout", defaulttimeout);
+			if(poolto != null && !StringTool.isBlank(poolto)) {
+				int timeout = Integer.parseInt(poolto.trim());
+
+				ConnectionPool pool = PoolManager.getPoolFrom(m_rawDS);
+				if(null != pool)
+					pool.setForceTimeout(timeout);
+			}
 		}
 		return m_rawDS;
 	}
