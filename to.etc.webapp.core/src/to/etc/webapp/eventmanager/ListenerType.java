@@ -32,5 +32,22 @@ package to.etc.webapp.eventmanager;
  * Created on Oct 30, 2006
  */
 public enum ListenerType {
-	DELAYED, IMMEDIATELY, LOCALLY,
+	/** A Delayed listener gets called only after an event is posted at the time that the event is read by the separate event thread. */
+	DELAYED
+
+	/**
+	 * An immediate event is passed to all listeners at the time that the postEvent call is done. This means that
+	 * on the server where the event occurs the event is also handled. This should be used when the code that fires
+	 * the event also requires the event's effects to be visible after handling the event. Examples: an edit screen
+	 * fires an event, then expects the list screen to show the changes due to the event.
+	 * <b>Important</b>: Please ensure that your event handling does not contain expensive (slow) actions,
+	 * as it directly influences the user's code!
+	 */
+	, IMMEDIATELY
+
+	/**
+	 * The event is only fired on this-server. All other servers in the cluster do not see it(!). This should only
+	 * be used in exceptional circumstances.
+	 */
+	, LOCALLY,
 }
