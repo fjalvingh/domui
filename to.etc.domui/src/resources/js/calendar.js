@@ -1412,8 +1412,13 @@ Calendar.prototype.showAtElement = function (el, opts) {
 		document.body.appendChild(cp);
 		var br = Calendar.getAbsolutePos(cp);
 		document.body.removeChild(cp);
-		br.y += window.scrollY;
-		br.x += window.scrollX;
+		if (Calendar.is_ie) {
+			br.y += document.body.scrollTop;
+			br.x += document.body.scrollLeft;
+		} else {
+			br.y += window.scrollY;
+			br.x += window.scrollX;
+		}
 		var tmp = box.x + box.width - br.x;
 		if (tmp > 0) box.x -= tmp;
 		tmp = box.y + box.height - br.y;
