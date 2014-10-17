@@ -930,7 +930,7 @@ final public class DomUtil {
 			if(c == ' ')
 				sb.append('_');
 			else if(Character.isLetterOrDigit(c) || c == '_' || c == '-')
-				sb.append(Character.toLowerCase(c));
+				sb.append(c);
 		}
 
 		return sb.toString();
