@@ -276,7 +276,6 @@ final public class PendingOperationTask implements Runnable, ILogSink {
 			x.printStackTrace(m_errorWriter);
 			m_errorWriter.println("Execution completed UNSUCCESFULLY with state=" + po.getState());
 			po.setLastError(StringTool.strTrunc(x.toString(), 250));
-			x.printStackTrace();
 		} finally {
 			//-- Call all exit listeners
 			for(IPendingOperationListener pol : m_provider.getListeners()) {
