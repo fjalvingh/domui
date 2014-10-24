@@ -60,7 +60,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	@Nonnull
 	final private String m_extension;
 	
-	static private final int HEADER_LENGTH = 2927;
+	static private final int PAGE_HEADER_BUFFER_LENGTH = 4000;
 
 	public RequestContextImpl(@Nonnull IRequestResponse rr, @Nonnull DomApplication app, @Nonnull AppSession ses) {
 		m_requestResponse = rr;
@@ -286,7 +286,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	public Writer getOutputWriter(@Nonnull String contentType, @Nullable String encoding) throws IOException {
 		StringWriter sw = m_sw;
 		if(null != sw) {
-			if(sw.getBuffer().length() > HEADER_LENGTH) {
+			if(sw.getBuffer().length() > PAGE_HEADER_BUFFER_LENGTH) {
 				System.out.println("domui warning: outputwriter reallocated after writing " + sw.getBuffer().length() + " characters of data already");
 			}
 		}
