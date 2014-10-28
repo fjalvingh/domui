@@ -30,7 +30,9 @@ import java.lang.reflect.*;
 import java.net.*;
 import java.sql.*;
 import java.util.*;
+import java.util.concurrent.*;
 
+import javax.annotation.*;
 import javax.sql.*;
 
 import org.slf4j.*;
@@ -156,7 +158,12 @@ public class VpEventManager implements Runnable {
 		}
 	};
 
-	static private final VpEventManager m_instance = new VpEventManager();
+	@Nullable
+	static private VpEventManager m_instance;
+
+	/** If initialized in test mode this contains the per-thread instances of this singleton. */
+	@Nullable
+	static private ThreadLocal<VpEventManager> m_testInstances;
 
 	private DataSource m_ds;
 
@@ -193,6 +200,8 @@ public class VpEventManager implements Runnable {
 
 	private DbType m_dbtype;
 
+	private long m_lastHandled;
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Singleton init.                                  	*/
 	/*--------------------------------------------------------------*/
@@ -206,35 +215,61 @@ public class VpEventManager implements Runnable {
 	}
 
 	/**
-	 * Get the instance. If the instance has not yet initialized
-	 * this waits until init has commenced. If init does not
-	 * complete in 60 secs this aborts.
+	 * Get the instance.
 	 *
 	 * @return
 	 */
-	static public VpEventManager getInstance() {
-		synchronized(m_instance) {
-			int tries = 0;
-			for(;;) {
-				if(m_instance.m_ds != null)
-					return m_instance;
-				if(tries++ > 3)
-					throw new IllegalStateException("Timeout waiting for VpEventManager to complete initialization [FATAL]");
-				try {
-					m_instance.wait(20000);
-				} catch(Exception x) {}
-				System.out.println("VpEventManager: Waiting for initialization");
+	static synchronized public VpEventManager getInstance() {
+		ThreadLocal<VpEventManager> tl = m_testInstances;
+		VpEventManager em;
+		if(null != tl) {
+			em = tl.get();
+			if(null == em) {
+				em = new VpEventManager();
+				em.initializeForTests();
+				tl.set(em);
 			}
+		} else {
+			em = m_instance;
+		}
+		if(null == em)
+			throw new IllegalStateException("The VpEventManager has not been initialized");
+		return em;
+	}
+
+	/**
+	 * Initialize for production mode.
+	 * @param ds
+	 * @param tableName
+	 * @throws Exception
+	 */
+	static public synchronized void initialize(final DataSource ds, final String tableName) throws Exception {
+		ThreadLocal<VpEventManager> tl = m_testInstances;
+		if(null != tl)
+			throw new IllegalStateException("The VpEventManager has already been initialized for TEST mode");
+		if(m_instance != null)
+			return;
+
+		VpEventManager em = new VpEventManager();
+		em.init(ds, tableName);
+		m_instance = em;
+	}
+
+	static public synchronized void initializeForTest() {
+		if(m_instance != null)
+			throw new IllegalStateException("The VpEventManager has already been initialized for PRODUCTION mode");
+		ThreadLocal<VpEventManager> tl = m_testInstances;
+		if(null == tl) {
+			m_testInstances = tl = new ThreadLocal<VpEventManager>();
 		}
 	}
 
-	static public void initialize(final DataSource ds, final String tableName) throws Exception {
-		synchronized(m_instance) {
-			if(m_instance.m_ds != null)
-				return; // Already initialized
-			m_instance.init(ds, tableName); // Do formal init
-			m_instance.notify();
-		}
+	static public synchronized boolean inJUnitTestMode() {
+		return m_testInstances != null;
+	}
+
+	private synchronized void initializeForTests() {
+		m_tableName = "sys_vp_events";
 	}
 
 	private void log(final String s) {
@@ -367,6 +402,9 @@ public class VpEventManager implements Runnable {
 	 * Must be called after init to actually start handling events.
 	 */
 	public synchronized void start() {
+		if(inJUnitTestMode())
+			return;
+
 		synchronized(m_instance) {
 			if(m_handlerThread != null)
 				return;
@@ -522,6 +560,10 @@ public class VpEventManager implements Runnable {
 			AppEventBase ae = list.get(i);
 //			System.out.println("EV: Handle event " + ae.getUpid() + ", " + ae.getClass().getName());
 			callListeners(ae, false, localeventset.contains(Long.valueOf(ae.getUpid()))); // Call all handlers that need delayed notification
+			synchronized(this) {
+				m_lastHandled = ae.getUpid();
+				notifyAll();
+			}
 		}
 	}
 
@@ -609,11 +651,11 @@ public class VpEventManager implements Runnable {
 	}
 
 	/**
-	 * Primitive event poster. This adds the event to the listener queue (the database) and
+	 * NOT FOR COMMON USE - Primitive event poster. This adds the event to the listener queue (the database) and
 	 * adds it to the "local" event queue *if* the event is an immediate event (an event whose
 	 * handler will be called immediately).
 	 */
-	private void sendEventMain(final Connection dbc, final AppEventBase ae, final boolean commit, final boolean isimmediate) throws Exception {
+	public long sendEventMain(final Connection dbc, final AppEventBase ae, final boolean commit, final boolean isimmediate) throws Exception {
 		ResultSet rs = null;
 		PreparedStatement ps = null;
 		OutputStream os = null;
@@ -672,6 +714,7 @@ public class VpEventManager implements Runnable {
 				dbc.commit();
 			}
 			ok = true;
+			return id;
 		} finally {
 			try {
 				if(oos != null)
@@ -847,7 +890,8 @@ public class VpEventManager implements Runnable {
 	 * @throws Exception
 	 */
 	public void postEvent(final Connection dbc, final AppEventBase ae) throws Exception {
-		sendEventMain(dbc, ae, true, true); // First save the thingy everywhere, ORDER IMPORTANT!!
+		if(!inJUnitTestMode())
+			sendEventMain(dbc, ae, true, true); // First save the thingy everywhere, ORDER IMPORTANT!!
 		callListeners(ae, true, true); // Call all listeners that need the event immediately. ORDER IMPORTANT: must be after sendEvent.
 	}
 
@@ -861,7 +905,10 @@ public class VpEventManager implements Runnable {
 	 * @throws Exception
 	 */
 	public void postDelayedEvent(final Connection dbc, final AppEventBase ae) throws Exception {
-		sendEventMain(dbc, ae, false, false); // First save the thingy everywhere, ORDER IMPORTANT!!
+		if(!inJUnitTestMode())
+			sendEventMain(dbc, ae, false, false); // First save the thingy everywhere, ORDER IMPORTANT!!
+		else
+			callListeners(ae, true, true);
 
 		/*
 		 * jal 20120911 Just sending the event to the db is not enough. The idea is to delay the events until the time that
@@ -881,8 +928,13 @@ public class VpEventManager implements Runnable {
 	 * @throws Exception
 	 */
 	public void postDelayedEvent(final Connection dbc, final List<AppEventBase> ae) throws Exception {
-		for(AppEventBase a : ae)
-			sendEventMain(dbc, a, false, false); // First save the thingy everywhere, ORDER IMPORTANT!!
+		for(AppEventBase a : ae) {
+			if(inJUnitTestMode()) {
+				callListeners(a, true, true); 			// Call all listeners that need the event immediately. ORDER IMPORTANT: must be after sendEvent.
+			} else {
+				sendEventMain(dbc, a, false, false);	// First save the thingy everywhere, ORDER IMPORTANT!!
+			}
+		}
 	}
 
 	/**
@@ -896,14 +948,39 @@ public class VpEventManager implements Runnable {
 	 * @throws Exception
 	 */
 	public void postEvent(final Connection dbc, final List< ? extends AppEventBase> aelist) throws Exception {
-		for(AppEventBase ae : aelist) {
-			sendEventMain(dbc, ae, false, true); // First save the thingy everywhere, ORDER IMPORTANT!!
+		if(!inJUnitTestMode()) {
+			for(AppEventBase ae : aelist) {
+				sendEventMain(dbc, ae, false, true); // First save the thingy everywhere, ORDER IMPORTANT!!
+			}
 		}
 		dbc.commit();
 
 		//-- Call all local handlers immediately.
 		for(AppEventBase ae : aelist) {
 			callListeners(ae, true, true); // Call all listeners that need the event immediately. ORDER IMPORTANT: must be after sendEvent.
+		}
+	}
+
+	private synchronized long getLastHandled() {
+		return m_lastHandled;
+	}
+
+	/**
+	 * Sleep until the specified event has been handled. This waits for max. one minute.
+	 * @param value
+	 */
+	public void waitUntilHandled(long value) throws Exception {
+		if(getLastHandled() >= value)
+			return;
+		long ets = System.currentTimeMillis() + 60 * 1000;
+		for(;;) {
+			synchronized(this) {
+				if(m_lastHandled >= value)
+					return;
+				wait(10000);
+			}
+			if(System.currentTimeMillis() >= ets)
+				throw new TimeoutException();
 		}
 	}
 }

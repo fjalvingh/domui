@@ -21,9 +21,8 @@ public class TUtilTestProperties {
 	/** Will contain a description of the location for the test properties used, after {@link #getTestProperties()}. */
 	static private String m_propertiesLocation;
 
-	static private Properties m_properties;
-
-	static private boolean m_checkedProperties;
+	@Nullable
+	static private TestProperties m_testProperties;
 
 	static public class DbConnectionInfo {
 		public String hostname;
@@ -47,24 +46,26 @@ public class TUtilTestProperties {
 
 	private static ConnectionPool m_connectionPool;
 
+	static {
+		initLocale();
+	}
 
 	@Nonnull
-	static public synchronized Properties getTestProperties() {
-		Properties p = findTestProperties();
-		if(null == p) {
-			System.err.println("TUtilTestProperties: no test.properties file found, using an empty one");
-			p = m_properties = new Properties();
-// jal 20140111 No not abort but try to skip tests.
-//			throw new IllegalStateException("I cannot find the proper test properties.");
+	static public synchronized TestProperties getTestProperties() {
+		TestProperties tp = m_testProperties;
+		if(null == tp) {
+			Properties p = findTestProperties();
+			if(null == p) {
+				System.err.println("TUtilTestProperties: no test.properties file found, using an empty one");
+				p = new Properties();
+			}
+			m_testProperties = tp = new TestProperties(p, null != p);
 		}
-		return p;
+		return tp;
 	}
 
 	@Nullable
-	static synchronized public Properties findTestProperties() {
-		if(m_checkedProperties)
-			return m_properties;
-		m_checkedProperties = true;
+	static private Properties findTestProperties() {
 		InputStream is = null;
 		try {
 			String env = System.getenv("VPTESTCFG");
@@ -80,27 +81,27 @@ public class TUtilTestProperties {
 				is = TUtilTestProperties.class.getResourceAsStream("/resource/test/" + testFileName);
 				if(null == is)
 					throw new IllegalStateException(testFileName + ": this test.properties file, defined by the 'testProperties' java property does not exist as a resource below /resource/test/");
-				m_properties = new Properties();
-				m_properties.load(is);
+				Properties properties = new Properties();
+				properties.load(is);
 				m_propertiesLocation = "resource /resource/test/" + testFileName + " (through testProperties system property)";
-				return m_properties;
+				return properties;
 			}
 
 			String uh = System.getProperty("user.home");
 			if(uh != null) {
 				File uhf = new File(new File(uh), ".test.properties");
 				if(uhf.exists()) {
-					m_properties = FileTool.loadProperties(uhf);
+					Properties properties = FileTool.loadProperties(uhf);
 					m_propertiesLocation = uhf + " (from user.home property)";
-					return m_properties;
+					return properties;
 				}
 			}
 
 			File src = new File("./test.properties");
 			if(src.exists()) {
-				m_properties = FileTool.loadProperties(src);
+				Properties properties = FileTool.loadProperties(src);
 				m_propertiesLocation = src.getAbsolutePath() + " (from current directory)";
-				return m_properties;
+				return properties;
 			}
 
 			//-- Try to open a resource depending on the host's name
@@ -113,10 +114,10 @@ public class TUtilTestProperties {
 					if(!name.equals("localhost")) {
 						is = TUtilTestProperties.class.getResourceAsStream(name + ".properties");
 						if(is != null) {
-							m_properties = new Properties();
+							Properties properties = new Properties();
 							m_propertiesLocation = "resource-by-hostname: " + name + ".properties";
-							m_properties.load(is);
-							return m_properties;
+							properties.load(is);
+							return properties;
 						}
 					}
 				}
@@ -136,12 +137,13 @@ public class TUtilTestProperties {
 		}
 	}
 
-	private static synchronized Properties loadProperties(@Nonnull String sysProp, String propNamen) throws Exception {
+	@Nonnull
+	private static synchronized Properties loadProperties(@Nonnull String sysProp, @Nonnull String propNamen) throws Exception {
 		File f = new File(sysProp);
 		if(f.exists()) {
-			m_properties = FileTool.loadProperties(f);
+			Properties properties = FileTool.loadProperties(f);
 			m_propertiesLocation = f + " (through environment variable " + propNamen + ")";
-			return m_properties;
+			return properties;
 		} else
 			throw new IllegalStateException(propNamen + " System property has nonexisting file " + f);
 	}
@@ -167,9 +169,7 @@ public class TUtilTestProperties {
 		db = System.getProperty("TESTDB");
 		if(null != db)
 			return true;
-		Properties p = findTestProperties();
-		if(p == null)
-			return false;
+		TestProperties p = getTestProperties();
 		db = p.getProperty("database");
 		if(db != null)
 			return true;
@@ -189,10 +189,12 @@ public class TUtilTestProperties {
 		db = System.getProperty("TESTDB");
 		if(null != db)
 			return db;
-		Properties p = getTestProperties();
+		TestProperties p = getTestProperties();
 		db = p.getProperty("database");
 		if(db != null)
 			return db;
+		System.out.println("Database = " + db);
+		System.err.println("Database = " + db);
 		throw new IllegalStateException("No test database specified.");
 	}
 
@@ -306,19 +308,28 @@ public class TUtilTestProperties {
 			}
 
 			//-- Init common infrastructure
-			try {
-				VpEventManager.initialize(m_rawDS, "vp_sys_events");
-			} catch(Exception x) {
-				x.printStackTrace();
-			}
-			VpEventManager.getInstance().start();
+			VpEventManager.initializeForTest();
 			DbLockKeeper.init(m_rawDS);
 
-			ConnectionPool pool = PoolManager.getPoolFrom(m_rawDS);
-			if(null != pool)
-				pool.setForceTimeout(120);
+			String defaulttimeout = DeveloperOptions.isDeveloperWorkstation() ? null : "120";
+			String poolto = TUtilTestProperties.getString("pool.timeout", defaulttimeout);
+			if(poolto != null && !StringTool.isBlank(poolto)) {
+				int timeout = Integer.parseInt(poolto.trim());
+
+				ConnectionPool pool = PoolManager.getPoolFrom(m_rawDS);
+				if(null != pool)
+					pool.setForceTimeout(timeout);
+			}
 		}
 		return m_rawDS;
+	}
+
+	/**
+	 * Important for locale specifics in tests</br>
+	 * By default all tests are written for Dutch locale
+	 */
+	public static void initLocale() {
+		Locale.setDefault(new Locale("nl", "NL"));
 	}
 
 	static public Connection makeRawConnection() throws Exception {
@@ -504,14 +515,8 @@ public class TUtilTestProperties {
 	 */
 	@Nullable
 	public static String getString(@Nonnull final String propertyName, @Nullable final String defaultValue) {
-		Properties props = findTestProperties();
-		if(props == null)
-			return defaultValue;
-
-		String s = props.getProperty(propertyName);
-		if(s != null)
-			return s;
-		return defaultValue;
+		TestProperties tp = getTestProperties();
+		return tp.getProperty(propertyName, defaultValue);
 	}
 
 }

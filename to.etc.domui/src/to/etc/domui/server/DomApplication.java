@@ -841,13 +841,12 @@ public abstract class DomApplication {
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/wysiwyg.rmFormat.js"), -779);
 		addHeaderContributor(HeaderContributor.loadStylesheet("$js/jquery.wysiwyg.css"), -780);
 
-		/*
-		 * FIXME LF lf Look&Feel btadic STYLE DEBUGER
-		 * STYLE DEBUGER
-		 * FOR DEVELOPMENT ONLY
-		 * REMOVE IT AFTER LOOK AND FEEL PROJECTS
-		 */
-		addHeaderContributor(HeaderContributor.loadJavascript("$js/styleDebuger.js"), 10);
+		//-- Web driver helpers
+		if(inTestUiMode()) {
+			addHeaderContributor(HeaderContributor.loadJavascript("$js/web-driver/fileSaver.js"), 11);
+			addHeaderContributor(HeaderContributor.loadJavascript("$js/web-driver/sharedLocatorGenerator.js"), 13);
+			addHeaderContributor(HeaderContributor.loadJavascript("$js/web-driver/domuiLocatorGenerator.js"), 12);
+		}
 
 
 		/*
@@ -866,6 +865,13 @@ public abstract class DomApplication {
 		addHeaderContributor(HeaderContributor.loadJavascript("$ckeditor/ckeditor.js"), -760);
 	}
 
+	/**
+	 * Determines if you are in mode for testing UI.
+	 * @return
+	 */
+	public static boolean inTestUiMode() {
+		return DeveloperOptions.getBool("domui.testui", false);
+	}
 
 	/**
 	 * Call from within the onHeaderContributor call on a node to register any header
