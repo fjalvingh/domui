@@ -31,6 +31,7 @@ import java.net.*;
 import java.sql.*;
 import java.util.*;
 
+import javax.annotation.*;
 import javax.sql.*;
 
 import org.slf4j.*;
@@ -156,7 +157,12 @@ public class VpEventManager implements Runnable {
 		}
 	};
 
-	static private final VpEventManager m_instance = new VpEventManager();
+	@Nullable
+	static private VpEventManager m_instance;
+
+	/** If initialized in test mode this contains the per-thread instances of this singleton. */
+	@Nullable
+	static private ThreadLocal<VpEventManager> m_testInstances;
 
 	private DataSource m_ds;
 
@@ -206,35 +212,62 @@ public class VpEventManager implements Runnable {
 	}
 
 	/**
-	 * Get the instance. If the instance has not yet initialized
-	 * this waits until init has commenced. If init does not
-	 * complete in 60 secs this aborts.
+	 * Get the instance.
 	 *
 	 * @return
 	 */
-	static public VpEventManager getInstance() {
-		synchronized(m_instance) {
-			int tries = 0;
-			for(;;) {
-				if(m_instance.m_ds != null)
-					return m_instance;
-				if(tries++ > 3)
-					throw new IllegalStateException("Timeout waiting for VpEventManager to complete initialization [FATAL]");
-				try {
-					m_instance.wait(20000);
-				} catch(Exception x) {}
-				System.out.println("VpEventManager: Waiting for initialization");
-			}
+	static synchronized public VpEventManager getInstance() {
+		ThreadLocal<VpEventManager> tl = m_testInstances;
+		VpEventManager em;
+		if(null != tl) {
+			em = tl.get();
+		} else {
+			em = m_instance;
 		}
+		if(null == em)
+			throw new IllegalStateException("The VpEventManager has not been initialized");
+		return em;
 	}
 
-	static public void initialize(final DataSource ds, final String tableName) throws Exception {
-		synchronized(m_instance) {
-			if(m_instance.m_ds != null)
-				return; // Already initialized
-			m_instance.init(ds, tableName); // Do formal init
-			m_instance.notify();
+	/**
+	 * Initialize for production mode.
+	 * @param ds
+	 * @param tableName
+	 * @throws Exception
+	 */
+	static public synchronized void initialize(final DataSource ds, final String tableName) throws Exception {
+		ThreadLocal<VpEventManager> tl = m_testInstances;
+		if(null != tl)
+			throw new IllegalStateException("The VpEventManager has already been initialized for TEST mode");
+		if(m_instance != null)
+			return;
+
+		VpEventManager em = new VpEventManager();
+		em.init(ds, tableName);
+		m_instance = em;
+	}
+
+	static public synchronized void initializeForTest() {
+		if(m_instance != null)
+			throw new IllegalStateException("The VpEventManager has already been initialized for PRODUCTION mode");
+		ThreadLocal<VpEventManager> tl = m_testInstances;
+		if(null == tl) {
+			m_testInstances = tl = new ThreadLocal<VpEventManager>();
 		}
+		if(tl.get() != null)
+			return;
+
+		VpEventManager em = new VpEventManager();
+		em.initializeForTests();
+		tl.set(em);
+	}
+
+	static public synchronized boolean inJUnitTestMode() {
+		return m_testInstances != null;
+	}
+
+	private synchronized void initializeForTests() {
+
 	}
 
 	private void log(final String s) {
@@ -367,6 +400,9 @@ public class VpEventManager implements Runnable {
 	 * Must be called after init to actually start handling events.
 	 */
 	public synchronized void start() {
+		if(inJUnitTestMode())
+			return;
+
 		synchronized(m_instance) {
 			if(m_handlerThread != null)
 				return;
@@ -847,7 +883,8 @@ public class VpEventManager implements Runnable {
 	 * @throws Exception
 	 */
 	public void postEvent(final Connection dbc, final AppEventBase ae) throws Exception {
-		sendEventMain(dbc, ae, true, true); // First save the thingy everywhere, ORDER IMPORTANT!!
+		if(!inJUnitTestMode())
+			sendEventMain(dbc, ae, true, true); // First save the thingy everywhere, ORDER IMPORTANT!!
 		callListeners(ae, true, true); // Call all listeners that need the event immediately. ORDER IMPORTANT: must be after sendEvent.
 	}
 
@@ -861,7 +898,10 @@ public class VpEventManager implements Runnable {
 	 * @throws Exception
 	 */
 	public void postDelayedEvent(final Connection dbc, final AppEventBase ae) throws Exception {
-		sendEventMain(dbc, ae, false, false); // First save the thingy everywhere, ORDER IMPORTANT!!
+		if(!inJUnitTestMode())
+			sendEventMain(dbc, ae, false, false); // First save the thingy everywhere, ORDER IMPORTANT!!
+		else
+			callListeners(ae, true, true);
 
 		/*
 		 * jal 20120911 Just sending the event to the db is not enough. The idea is to delay the events until the time that
@@ -881,8 +921,13 @@ public class VpEventManager implements Runnable {
 	 * @throws Exception
 	 */
 	public void postDelayedEvent(final Connection dbc, final List<AppEventBase> ae) throws Exception {
-		for(AppEventBase a : ae)
-			sendEventMain(dbc, a, false, false); // First save the thingy everywhere, ORDER IMPORTANT!!
+		for(AppEventBase a : ae) {
+			if(inJUnitTestMode()) {
+				callListeners(a, true, true); 			// Call all listeners that need the event immediately. ORDER IMPORTANT: must be after sendEvent.
+			} else {
+				sendEventMain(dbc, a, false, false);	// First save the thingy everywhere, ORDER IMPORTANT!!
+			}
+		}
 	}
 
 	/**
@@ -896,8 +941,10 @@ public class VpEventManager implements Runnable {
 	 * @throws Exception
 	 */
 	public void postEvent(final Connection dbc, final List< ? extends AppEventBase> aelist) throws Exception {
-		for(AppEventBase ae : aelist) {
-			sendEventMain(dbc, ae, false, true); // First save the thingy everywhere, ORDER IMPORTANT!!
+		if(!inJUnitTestMode()) {
+			for(AppEventBase ae : aelist) {
+				sendEventMain(dbc, ae, false, true); // First save the thingy everywhere, ORDER IMPORTANT!!
+			}
 		}
 		dbc.commit();
 
