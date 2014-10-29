@@ -22,7 +22,7 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.iocular.test.mocks;
+package to.etc.webapp.testsupport;
 
 import java.sql.*;
 import java.util.*;
@@ -32,7 +32,10 @@ import javax.annotation.*;
 import to.etc.webapp.core.*;
 import to.etc.webapp.query.*;
 
-public class DataContextMock implements QDataContext {
+/**
+ * Use this as stub for QDataContext, once you want to skip the real database but still need to provide QDataContext instance.
+ */
+public class TestDataContextStub implements QDataContext {
 	private int m_alloc = 1;
 
 	@Override
@@ -126,13 +129,13 @@ public class DataContextMock implements QDataContext {
 	@Override
 	@Nonnull
 	public <R> List<R> query(@Nonnull Class<R> resultInterface, @Nonnull QSelection< ? > sel) throws Exception {
-		throw new IllegalStateException("Mocked");
+		throw new IllegalStateException("Stubbed");
 	}
 
 	@Override
 	@Nullable
 	public <R> R queryOne(@Nonnull Class<R> resultInterface, @Nonnull QSelection< ? > sel) throws Exception {
-		throw new IllegalStateException("Mocked");
+		throw new IllegalStateException("Stubbed");
 	}
 
 	/**

@@ -1,16 +1,14 @@
-package to.etc.puzzler;
+package to.etc.pater;
 
 import java.lang.annotation.*;
 
 /**
- * PLEASE USE THE PATER VERSION INSTEAD
  * This annotation sets options for the Puzzler's JUnit test runner for those tests
  * that are in trouble when running parallel.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Apr 16, 2014
  */
-@Deprecated
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface TestConfig {

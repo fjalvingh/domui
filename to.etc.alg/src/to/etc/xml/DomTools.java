@@ -980,9 +980,15 @@ public class DomTools {
 	 */
 	static public Node nodeFindXpath(final Node node, final String xpathQuery) throws Exception {
 		String[] nodes = xpathQuery.split("/");
+		if(nodes.length == 0)
+			return null;
 		Node returnNode = nodeFind(node, nodes[0]);
+		if(returnNode == null)
+			return null;
 		for(int i = 1; i < nodes.length; i++) {
 			returnNode = nodeFind(returnNode, nodes[i]);
+			if(null == returnNode)
+				return null;
 		}
 		return returnNode;
 	}

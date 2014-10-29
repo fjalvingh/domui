@@ -37,6 +37,8 @@ import to.etc.net.*;
 import to.etc.webapp.nls.*;
 
 abstract public class AbstractContextMaker implements IContextMaker {
+	private static final String LOCALE_PARAM = "___locale";
+
 	@Override
 	abstract public void handleRequest(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull FilterChain chain) throws Exception;
 
@@ -98,9 +100,32 @@ abstract public class AbstractContextMaker implements IContextMaker {
 		}
 	}
 
+	private Locale decodeLocale(@Nonnull HttpServerRequestResponse rr, @Nonnull final RequestContextImpl ctx) throws Exception {
+		String forceloc = rr.getParameter(LOCALE_PARAM);
+		if(null != forceloc) {
+			String[] args = forceloc.split("_");
+			if(args.length >= 1) {
+				String lang = args[0];
+				String country = args.length >= 2 ? args[1] : lang.toUpperCase();
+
+				Locale loc = new Locale(lang, country);
+				rr.getRequest().getSession().setAttribute(LOCALE_PARAM, loc);
+				return loc;
+			}
+		}
+		HttpSession ses = rr.getRequest().getSession(false);
+		if(null != ses) {
+			Locale loc = (Locale) ses.getAttribute(LOCALE_PARAM);
+			if(null != loc)
+				return loc;
+		}
+
+		return ctx.getApplication().getRequestLocale(rr.getRequest());
+	}
+
 	public void execute(@Nonnull HttpServerRequestResponse requestResponse, @Nonnull final RequestContextImpl ctx, FilterChain chain) throws Exception {
 		//-- 201012 jal Set the locale for this request
-		Locale loc = ctx.getApplication().getRequestLocale(requestResponse.getRequest());
+		Locale loc = decodeLocale(requestResponse, ctx);
 		NlsContext.setLocale(loc);
 
 		List<IRequestInterceptor> il = ctx.getApplication().getInterceptorList();
