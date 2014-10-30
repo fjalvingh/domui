@@ -89,7 +89,7 @@ public class MailBuilder {
 	private int m_attindex = 1;
 
 	/**
-	 * Creates mail builder that automatically creates html header and body. To have full control over HTML content use {@link MailBuilder#createNondecoratedMailBuilder()}   
+	 * Creates mail builder that automatically creates html header and body. To have full control over HTML content use {@link MailBuilder#createNondecoratedMailBuilder()}
 	 */
 	public MailBuilder() {
 		this(true);
@@ -131,7 +131,7 @@ public class MailBuilder {
 	 */
 	public MailBuilder append(String s) {
 		m_text_sb.append(s);
-		StringTool.htmlStringize(m_html_sb, s);
+		StringTool.htmlStringizewithLF(m_html_sb, s);
 		return this;
 	}
 
