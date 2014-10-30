@@ -3,6 +3,7 @@ package to.etc.webapp.testsupport;
 import java.util.*;
 
 import javax.annotation.*;
+import javax.annotation.concurrent.*;
 
 /**
  * Accessor for test-related properties, which "knows" the ways that properties can
@@ -12,6 +13,7 @@ import javax.annotation.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Sep 11, 2014
  */
+@Immutable
 final public class TestProperties {
 	@Nonnull
 	final private Properties m_properties;
