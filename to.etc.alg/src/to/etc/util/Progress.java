@@ -118,7 +118,7 @@ public class Progress {
 	 */
 	@Nonnull
 	public List<Info> getParallels(int level) {
-		List<Info> prl = new ArrayList<>();
+		List<Info> prl = new ArrayList<Info>();
 		synchronized(m_root) {
 			if(m_parent != null)
 				throw new IllegalStateException("Only callable on root entity");
@@ -308,7 +308,6 @@ public class Progress {
 			}
 			m_totalWork = work;
 			m_extra = extra;
-			updateTree();
 		}
 	}
 
@@ -355,13 +354,13 @@ public class Progress {
 				}
 			}
 			updated();
+			updateTree();
 		}
 	}
 
 	public synchronized void setCompleted(double now, @Nullable String extra) {
 		m_extra = extra;
 		internalSetCompleted(now);
-		updateTree();
 	}
 
 	public void complete() {
@@ -384,6 +383,7 @@ public class Progress {
 					}
 				}
 			}
+
 			updateTree();
 		}
 	}

@@ -59,6 +59,8 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 
 	@Nonnull
 	final private String m_extension;
+	
+	static private final int PAGE_HEADER_BUFFER_LENGTH = 4000;
 
 	public RequestContextImpl(@Nonnull IRequestResponse rr, @Nonnull DomApplication app, @Nonnull AppSession ses) {
 		m_requestResponse = rr;
@@ -272,8 +274,6 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		return getRelativePath(p);
 	}
 
-	static private final boolean OUTPUTDEBUG = true;
-
 	/**
 	 * This returns a fully buffered output writer. Calling it twice is explicitly
 	 * allowed, but clears the data written before as it's assumed that another route
@@ -286,7 +286,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	public Writer getOutputWriter(@Nonnull String contentType, @Nullable String encoding) throws IOException {
 		StringWriter sw = m_sw;
 		if(null != sw) {
-			if(sw.getBuffer().length() > 0) {
+			if(sw.getBuffer().length() > PAGE_HEADER_BUFFER_LENGTH) {
 				System.out.println("domui warning: outputwriter reallocated after writing " + sw.getBuffer().length() + " characters of data already");
 			}
 		}
