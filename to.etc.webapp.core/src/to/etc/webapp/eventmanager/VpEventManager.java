@@ -660,7 +660,7 @@ public class VpEventManager implements Runnable {
 	 * adds it to the "local" event queue *if* the event is an immediate event (an event whose
 	 * handler will be called immediately).
 	 */
-	private long sendEventMain(@Nonnull final Connection dbc, @Nonnull final AppEventBase ae, final boolean commit, final boolean isimmediate) throws Exception {
+	public long sendEventMain(@Nonnull final Connection dbc, @Nonnull final AppEventBase ae, final boolean commit, final boolean isimmediate) throws Exception {
 		ResultSet rs = null;
 		PreparedStatement ps = null;
 		OutputStream os = null;
@@ -931,7 +931,7 @@ public class VpEventManager implements Runnable {
 	 * @param ae
 	 * @throws Exception
 	 */
-	public void postDelayedEvent(@Nonnull final Connection dbc, @Nonnull final List<AppEventBase> ae) throws Exception {
+	public void postDelayedEvent(@Nonnull final Connection dbc, @Nonnull final List< ? extends AppEventBase> ae) throws Exception {
 		for(AppEventBase a : ae) {
 			if(inJUnitTestMode()) {
 				callListeners(a, true, true); 			// Call all listeners that need the event immediately. ORDER IMPORTANT: must be after sendEvent.
