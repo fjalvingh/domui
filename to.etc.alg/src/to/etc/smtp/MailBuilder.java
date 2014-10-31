@@ -131,7 +131,7 @@ public class MailBuilder {
 	 */
 	public MailBuilder append(String s) {
 		m_text_sb.append(s);
-		StringTool.htmlStringize(m_html_sb, s);
+		StringTool.htmlStringizewithLF(m_html_sb, s);
 		return this;
 	}
 
