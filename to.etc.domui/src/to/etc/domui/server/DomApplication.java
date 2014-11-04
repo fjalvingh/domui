@@ -39,6 +39,7 @@ import to.etc.domui.component.delayed.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.layout.title.*;
 import to.etc.domui.component.lookup.*;
+import to.etc.domui.component2.controlfactory.*;
 import to.etc.domui.dom.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.header.*;
@@ -80,6 +81,10 @@ public abstract class DomApplication {
 
 	@Nonnull
 	private ControlBuilder m_controlBuilder = new ControlBuilder(this);
+
+	/** DOMUI2 */
+	@Nonnull
+	private ControlCreatorRegistry m_controlCreatorRegistry = new ControlCreatorRegistry();
 
 	private boolean m_developmentMode;
 
@@ -836,6 +841,7 @@ public abstract class DomApplication {
 		//		addHeaderContributor(HeaderContributor.loadJavascript("$js/ui.draggable.js"), -980);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery.blockUI.js"), -970);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/domui.js"), -900);
+		addHeaderContributor(HeaderContributor.loadJavascript("$js/domui.searchpopup.js"), -895);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/weekagenda.js"), -790);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery.wysiwyg.js"), -780);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/wysiwyg.rmFormat.js"), -779);
@@ -938,6 +944,15 @@ public abstract class DomApplication {
 	@Nonnull
 	final public ControlBuilder getControlBuilder() {
 		return m_controlBuilder;
+	}
+
+	/**
+	 * DOMUI2 Experimental
+	 * @return
+	 */
+	@Nonnull
+	public ControlCreatorRegistry getControlCreatorRegistry() {
+		return m_controlCreatorRegistry;
 	}
 
 	/**
@@ -1279,6 +1294,7 @@ public abstract class DomApplication {
 	 * @param maker
 	 * @return
 	 */
+	@Nonnull
 	public <T> List<T> getCachedList(final IListMaker<T> maker) throws Exception {
 		if(!(maker instanceof ICachedListMaker< ? >)) {
 			//-- Just make on the fly.

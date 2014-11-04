@@ -5,17 +5,22 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
+import to.etc.webapp.eventmanager.*;
 
 final public class LogiEventInstanceChange extends LogiEventBase {
 	@Nonnull
 	final private Object m_instance;
 
 	@Nonnull
+	final private ChangeType m_type;
+
+	@Nonnull
 	final private Map<String, LogiEventPropertyChange< ? >> m_propertyChangeMap = new HashMap<String, LogiEventPropertyChange< ? >>();
 
-	public LogiEventInstanceChange(@Nonnull String path, @Nonnull Object instance) {
+	public LogiEventInstanceChange(@Nonnull ChangeType type, @Nonnull String path, @Nonnull Object instance) {
 		super(path);
 		m_instance = instance;
+		m_type = type;
 	}
 
 	public <P> void addChange(@Nonnull LogiEventPropertyChange<P> pc) {
@@ -48,6 +53,7 @@ final public class LogiEventInstanceChange extends LogiEventBase {
 	@Override
 	void dump(@Nonnull Appendable a) throws Exception {
 		a.append(getPath());
-		a.append(" [instance ").append(MetaManager.identify(m_instance)).append(" changed: ").append(Integer.toString(m_propertyChangeMap.size())).append(" properties]\n");
+		a.append(" [instance ").append(MetaManager.identify(m_instance)).append(" ").append(m_type.toString()).append(" ").append(Integer.toString(m_propertyChangeMap.size()))
+			.append(" properties]\n");
 	}
 }

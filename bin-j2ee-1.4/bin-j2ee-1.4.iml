@@ -2,7 +2,9 @@
 <module type="JAVA_MODULE" version="4">
   <component name="EclipseModuleManager" forced_jdk="true">
     <libelement value="jar://$MODULE_DIR$/j2ee.jar!/" />
-    <src_description expected_position="2" />
+    <libelement value="jar://$MODULE_DIR$/servlet-api-3.0.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/jsp-2.2-spec-1.0.4.jar!/" />
+    <src_description expected_position="3" />
   </component>
   <component name="NewModuleRootManager" inherit-compiler-output="false">
     <output url="file://$MODULE_DIR$/bin" />
@@ -18,6 +20,24 @@
         <JAVADOC>
           <root url="jar:file://home/jal/wsitris/bin-j2ee-1.4/javadoc.jar!/apidocs" />
         </JAVADOC>
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="servlet-api-3.0.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/servlet-api-3.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="jsp-2.2-spec-1.0.4.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/jsp-2.2-spec-1.0.4.jar!/" />
+        </CLASSES>
+        <JAVADOC />
         <SOURCES />
       </library>
     </orderEntry>

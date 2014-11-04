@@ -82,6 +82,10 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 			String dsp = model().getDefaultSortProperty();
 			getColumnList().setDefaultSortColumn(dsp);
 		}
+		ColumnDef< ? > column = getSortColumn();
+		if(null != column) {
+			setSortDescending(column.getSortable() == SortableType.SORTABLE_DESC);
+		}
 
 		getColumnList().assignPercentages();				// Calculate widths
 		m_completed = true;
@@ -507,7 +511,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 		check();
 		int ix = 0;
 		for(final String s : widths) {
-			getColumn(ix++).setWidth(s);
+			getColumn(ix++).width(s);
 		}
 	}
 
@@ -518,7 +522,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	 */
 	public void setColumnWidth(final int index, final String width) {
 		check();
-		getColumn(index).setWidth(width);
+		getColumn(index).width(width);
 	}
 
 	/**
@@ -526,9 +530,9 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	 * @param index
 	 * @param renderer
 	 */
-	public <T> void setNodeRenderer(final int index, @Nullable final INodeContentRenderer<T> renderer) {
+	public <C> void setNodeRenderer(final int index, @Nullable final INodeContentRenderer<C> renderer) {
 		check();
-		((ColumnDef<T>) getColumn(index)).setContentRenderer(renderer);
+		((ColumnDef<C>) getColumn(index)).renderer(renderer);
 	}
 
 	/**
@@ -576,8 +580,8 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	 * @param cellClicked
 	 */
 	@Override
-	public <T> void setCellClicked(final int col, @Nullable final ICellClicked<T> cellClicked) {
-		((ColumnDef<T>) getColumn(col)).setCellClicked(cellClicked);
+	public void setCellClicked(final int col, @Nullable final ICellClicked<T> cellClicked) {
+		((ColumnDef<T>) getColumn(col)).cellClicked(cellClicked);
 	}
 
 	/*--------------------------------------------------------------*/

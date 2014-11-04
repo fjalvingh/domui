@@ -25,5 +25,11 @@
 package to.etc.domui.component.tbl;
 
 public interface ITruncateableDataModel {
+	/**
+	 * Return true if the result is truncated.
+	 * @return
+	 */
+	public boolean isTruncated();
+
 	public int getTruncatedCount();
 }

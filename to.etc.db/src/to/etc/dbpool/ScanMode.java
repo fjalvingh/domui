@@ -24,6 +24,6 @@
  */
 package to.etc.dbpool;
 
-enum ScanMode {
+public enum ScanMode {
 	DISABLED, ENABLED, WARNING
 }

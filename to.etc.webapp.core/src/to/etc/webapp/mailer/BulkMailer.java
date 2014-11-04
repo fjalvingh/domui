@@ -49,7 +49,7 @@ public class BulkMailer {
 		try {
 			DbLockKeeper.init(ds);
 		} catch(Exception x) {
-			x.printStackTrace();
+//			x.printStackTrace();
 		}
 		getInstance().init(ds, t);
 	}
@@ -76,7 +76,6 @@ public class BulkMailer {
 			};
 		}
 	}
-
 
 	private synchronized void init(DataSource ds, SmtpTransport t) throws Exception {
 		if(m_ds != null)

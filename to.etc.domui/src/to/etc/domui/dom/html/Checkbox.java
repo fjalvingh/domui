@@ -31,7 +31,7 @@ import javax.annotation.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.util.*;
 
-public class Checkbox extends NodeBase implements IControl<Boolean>, IHasModifiedIndication {
+public class Checkbox extends NodeBase implements INativeChangeListener, IControl<Boolean>, IHasModifiedIndication {
 	/** The properties bindable for this component. */
 	@Nonnull
 	static private final Set<String> BINDABLE_SET = createNameSet("value", "disabled");
@@ -222,30 +222,31 @@ public class Checkbox extends NodeBase implements IControl<Boolean>, IHasModifie
 
 
 	/*--------------------------------------------------------------*/
-	/*	CODING:	IBindable interface (EXPERIMENTAL)					*/
+	/*	CODING:	IBindable interface.								*/
 	/*--------------------------------------------------------------*/
 
-	/** When this is bound this contains the binder instance handling the binding. */
-	private SimpleBinder m_binder;
+	@Nullable
+	private List<SimpleBinder> m_bindingList;
 
-	/**
-	 * Return the binder for this control.
-	 * @see to.etc.domui.component.input.IBindable#bind()
-	 */
 	@Override
 	public @Nonnull IBinder bind() {
-		if(m_binder == null)
-			m_binder = new SimpleBinder(this);
-		return m_binder;
+		return bind("value");
 	}
 
-	/**
-	 * Returns T if this control is bound to some data value.
-	 *
-	 * @see to.etc.domui.component.input.IBindable#isBound()
-	 */
 	@Override
-	public boolean isBound() {
-		return m_binder != null && m_binder.isBound();
+	@Nonnull
+	public IBinder bind(@Nonnull String componentProperty) {
+		List<SimpleBinder> list = m_bindingList;
+		if(list == null)
+			list = m_bindingList = new ArrayList<SimpleBinder>(1);
+		SimpleBinder binder = new SimpleBinder(this, componentProperty);
+		list.add(binder);
+		return binder;
+	}
+
+	@Override
+	@Nullable
+	public List<SimpleBinder> getBindingList() {
+		return m_bindingList;
 	}
 }

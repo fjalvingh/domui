@@ -17,6 +17,10 @@ import to.etc.domui.databinding.observables.*;
  * Created on Jan 11, 2014
  */
 public class ObservableListType implements UserCollectionType {
+	/**
+	 * Return the basic wrapped instance.
+	 * @see org.hibernate.usertype.UserCollectionType#instantiate(int)
+	 */
 	@Override
 	public Object instantiate(int anticipatedSize) {
 		return new ObservableList<Object>();
@@ -29,14 +33,17 @@ public class ObservableListType implements UserCollectionType {
 
 	@Override
 	public PersistentCollection wrap(SessionImplementor session, Object collection) {
-		return new PersistentObservableList(session, (List< ? >) collection);
+//		if(!(collection instanceof IObservableList))
+//			throw new IllegalStateException("Expecting IObservableList but got a " + collection.getClass());
+//
+		return new PersistentObservableList(session, (List) collection);
 	}
 
 	@Override
 	public Iterator getElementsIterator(Object collection) {
 		if(null == collection)
 			return null;
-		ObservableList<Object> ol = (ObservableList<Object>) collection;
+		PersistentObservableList<Object> ol = (PersistentObservableList<Object>) collection;
 		return ol.iterator();
 	}
 
@@ -44,7 +51,7 @@ public class ObservableListType implements UserCollectionType {
 	public boolean contains(Object collection, Object entity) {
 		if(null == collection)
 			return false;
-		ObservableList<Object> ol = (ObservableList<Object>) collection;
+		PersistentObservableList<Object> ol = (PersistentObservableList<Object>) collection;
 		return ol.contains(entity);
 	}
 
@@ -52,14 +59,14 @@ public class ObservableListType implements UserCollectionType {
 	public Object indexOf(Object collection, Object entity) {
 		if(null == collection)
 			return null;
-		ObservableList<Object> ol = (ObservableList<Object>) collection;
+		PersistentObservableList<Object> ol = (PersistentObservableList<Object>) collection;
 		return Integer.valueOf(ol.indexOf(entity));
 	}
 
 	@Override
 	public Object replaceElements(Object original, Object target, CollectionPersister persister, Object owner, Map copyCache, SessionImplementor session) throws HibernateException {
-		ObservableList<Object> src = (ObservableList<Object>) original;
-		ObservableList<Object> dst = (ObservableList<Object>) target;
+		PersistentObservableList<Object> src = (PersistentObservableList<Object>) original;
+		PersistentObservableList<Object> dst = (PersistentObservableList<Object>) target;
 
 		//-- Update the lists with as little disturbance as necessary.
 		int nch = src.size();
