@@ -153,6 +153,11 @@ final public class FormBuilder {
 		return control;
 	}
 
+	public void item(@Nonnull NodeBase item) throws Exception {
+		addControl(item);
+		resetBuilder();
+	}
+
 	public <T, C extends IControl<T>> void bindControlData(@Nonnull C control, @Nonnull PropertyMetaModel<T> pmm) throws Exception {
 
 
@@ -161,6 +166,8 @@ final public class FormBuilder {
 
 	@Nonnull
 	public <T> FormBuilder property(@Nonnull T instance, @GProperty String property) {
+		if(null != m_propertyMetaModel)
+			throw new IllegalStateException("You need to end the builder pattern with a call to 'control()'");
 		m_propertyMetaModel = MetaManager.findPropertyMeta(instance.getClass(), property);
 		m_instance = instance;
 		return this;
@@ -212,6 +219,7 @@ final public class FormBuilder {
 			}
 		}
 	}
+
 
 	private void resetDirection() {
 		if(m_horizontal == m_currentDirection)
