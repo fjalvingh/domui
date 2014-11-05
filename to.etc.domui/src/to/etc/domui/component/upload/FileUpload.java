@@ -116,7 +116,7 @@ public class FileUpload extends Div implements IUploadAcceptingComponent /* impl
 			f.setMethod("POST");
 			StringBuilder sb = new StringBuilder();
 			ComponentPartRenderer.appendComponentURL(sb, UploadPart.class, this, UIContext.getRequestContext());
-			sb.append("?uniq=" + System.currentTimeMillis()); // Uniq the URL to prevent IE's stupid caching.
+			sb.append("?uniq=" + System.currentTimeMillis()); // Uniq the URL to prevent IE's caching.
 			f.setAction(sb.toString());
 
 			FileInput fi = new FileInput();

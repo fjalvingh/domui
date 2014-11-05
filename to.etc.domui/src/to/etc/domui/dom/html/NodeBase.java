@@ -1116,7 +1116,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 	@Nonnull
 	public String getComponentDataURL(@Nonnull String action, @Nullable IPageParameters pp) {
 		NodeBase nb = this;
-		return DomUtil.getAdjustedComponentUrl(this, action, pp);
+		return DomUtil.getAdjustedComponentUrl(this, "#" + action, pp);
 	}
 
 	/**
