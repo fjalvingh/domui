@@ -42,6 +42,14 @@ final public class Problem {
 		// errors.remove(this, instance, null);			INCO Must fix
 	}
 
+	public <T, P> void off(@Nonnull LogiErrors errors, @Nonnull T instance, @Nonnull PropertyMetaModel<P> property) {
+		// errors.remove(this, instance, null);			INCO Must fix
+	}
+
+	public <T, P> void off(@Nonnull LogiErrors errors, @Nonnull T instance, @Nonnull String property) {
+		// errors.remove(this, instance, null);			INCO Must fix
+	}
+
 	/**
 	 * Report this error on a specific instance only.
 	 * @param errors
@@ -67,5 +75,10 @@ final public class Problem {
 		return pi;										// Allow specialization using builder pattern.
 	}
 
+	public <T> ProblemInstance on(@Nonnull LogiErrors errors, @Nonnull T instance, @Nonnull String property) {
+		ProblemInstance pi = new ProblemInstance(this, instance, MetaManager.findPropertyMeta(instance.getClass(), property));
+		// errors.addProblem(pi);			INCO Report on model
+		return pi;										// Allow specialization using builder pattern.
+	}
 
 }
