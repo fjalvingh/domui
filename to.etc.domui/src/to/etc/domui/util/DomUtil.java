@@ -139,6 +139,16 @@ final public class DomUtil {
 		return a.equals(b);
 	}
 
+	/**
+	 * Use {@link StringTool#isEqualIgnoreCase(String, String)} please.
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	@Deprecated
+	static public final boolean isEqualIgnoreCase(@Nullable String a, @Nullable String b) {
+		return StringTool.isEqualIgnoreCase(a, b);
+	}
 
 	static public final boolean isEqual(final Object... ar) {
 		if(ar.length < 2)
