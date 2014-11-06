@@ -43,6 +43,9 @@ public class Dialog extends Window {
 	/** The button bar for the dialog. */
 	private ButtonBar m_buttonBar;
 
+	@Nullable
+	private IExecute m_onSave;
+
 	public Dialog() {}
 
 	public Dialog(boolean modal, boolean resizable, int width, int height, String title) {
@@ -202,6 +205,10 @@ public class Dialog extends Window {
 		 * remain in this dialog.
 		 */
 		try {
+			IExecute onSave = getOnSave();
+			if(null != onSave) {
+				onSave.execute();
+			}
 			callCloseHandler(RSN_SAVE);
 		} catch(Exception x) {
 			if(!onCloseException(x))
@@ -250,4 +257,15 @@ public class Dialog extends Window {
 	protected boolean onSave() throws Exception {
 		return true;
 	}
+
+	@Nullable
+	public IExecute getOnSave() {
+		return m_onSave;
+	}
+
+	public void setOnSave(@Nullable IExecute onSave) {
+		m_onSave = onSave;
+	}
+
+
 }
