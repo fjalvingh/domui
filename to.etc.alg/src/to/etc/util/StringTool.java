@@ -1230,6 +1230,26 @@ public class StringTool {
 	 *  HTML to be rendered neatly.
 	 */
 	static public void htmlStringize(final StringBuilder sb, final String is) {
+		htmlStringizeLinefeeds(sb, is, false);
+	}
+
+	/**
+	 *	Enter with a string; it returns the same string but replaces HTML
+	 *  recognised characters with their &..; equivalent. This allows parts of
+	 *  HTML to be rendered neatly.
+	 *  Linefeeds are not removed.
+	 */
+	static public void htmlStringizewithLF(final StringBuilder sb, final String is) {
+		htmlStringizeLinefeeds(sb, is, true);
+	}
+
+	/**
+	 *	Enter with a string; it returns the same string but replaces HTML
+	 *  recognised characters with their &..; equivalent. This allows parts of
+	 *  HTML to be rendered neatly.
+	 *  when linefeeds leave linefeeds in body
+	 */
+	static private void htmlStringizeLinefeeds(final StringBuilder sb, final String is, final boolean linefeeds) {
 		int len = is.length();
 		for(int i = 0; i < len; i++) {
 			char c = is.charAt(i);
@@ -1239,6 +1259,8 @@ public class StringTool {
 					break;
 				case '\n':
 					sb.append("<br>");
+					if(linefeeds)
+						sb.append(c);
 					break;
 				case '>':
 					sb.append("&gt;");
@@ -2264,12 +2286,15 @@ public class StringTool {
 	 * @param nchars
 	 * @return
 	 */
-	static public String strOracleTruncate(String in, final int nchars) {
+	static public String strOracleTruncate(String in, int nchars) {
 		if(in == null)
 			return null;
 		int len = in.length();
-		if(len > nchars)
+		if(len > nchars) {
 			in = in.substring(0, nchars); // truncate to max size in characters.
+		} else {
+			nchars = len;
+		}
 		try {
 			byte[] data = in.getBytes("UTF-8");
 			if(data.length <= 4000)

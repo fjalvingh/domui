@@ -648,12 +648,6 @@ final public class ConnectionProxy implements Connection {
 		//it is taken for a fact that this is not the right place, will have to discuss about this.
 		//only in testcase this should be possible, prefered is a factory or something like that
 		//to inject the proxy impl from outside.
-		if(getPoolID() != null && getPoolID().equals("test")) {
-			IReplacer replacer = PoolManager.getReplacer();
-			if(replacer != null) {
-				p1 = replacer.replace(p1);
-			}
-		}
 		check(p1);
 		return m_pe.proxyPrepareStatement(this, p1);
 	}
