@@ -6,6 +6,22 @@ import javax.annotation.concurrent.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.logic.*;
 
+/**
+ * EXPERIMENTAL
+ * Definition of a possible error/message. The message is uniquely identifyable by a package name combined
+ * with a message code. The package name is obtained from a class passed in when defining the problem, and
+ * is used to retrieve the resource bundle for obtaining the message's string. The bundle is hard defined
+ * as residing in the specified package with a name of "messages".
+ *
+ * <p>A problem is switched "on" or "off" on any part of a model. Any model part (model, instance, instance-property)
+ * can have any list of switched-on problems, but every Problem instance can exist only once in each of those.
+ * A problem can be reported as-is, but can also have parameters that will be used to construct the message. These
+ * parameters however are <b>not</b> part of the identity of the problem; even when parameters differ can you not
+ * report the same problem multiple times on the same model part.</p>
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Nov 7, 2014
+ */
 @Immutable
 final public class Problem {
 	final private String m_anchor;

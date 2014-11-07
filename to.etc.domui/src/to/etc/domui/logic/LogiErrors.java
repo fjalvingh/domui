@@ -8,6 +8,7 @@ import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
 
 /**
+ * DO NOT USE PENDING DELETE
  * EXPERIMENTAL Collects errors related to the model we're editing. This contains
  * both errors present in the UI state (validation errors, conversion errors) and
  * errors that are the result of running business logic.
@@ -31,6 +32,7 @@ import to.etc.domui.dom.errors.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Apr 10, 2014
  */
+@Deprecated
 final public class LogiErrors {
 	/** Group for errors coming from binding. */
 	@Nonnull
