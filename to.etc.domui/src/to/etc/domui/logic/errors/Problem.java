@@ -4,7 +4,6 @@ import javax.annotation.*;
 import javax.annotation.concurrent.*;
 
 import to.etc.domui.component.meta.*;
-import to.etc.domui.logic.*;
 
 /**
  * EXPERIMENTAL
@@ -54,16 +53,16 @@ final public class Problem {
 	 * Switch off this error: remove it from the error(s) list.
 	 * @param errors
 	 */
-	public <T> void off(@Nonnull LogiErrors errors, @Nonnull T instance) {
-		// errors.remove(this, instance, null);			INCO Must fix
+	public <T> void off(@Nonnull ProblemModel errors, @Nonnull T instance) {
+		errors.clear(this, instance, null);
 	}
 
-	public <T, P> void off(@Nonnull LogiErrors errors, @Nonnull T instance, @Nonnull PropertyMetaModel<P> property) {
-		// errors.remove(this, instance, null);			INCO Must fix
+	public <T, P> void off(@Nonnull ProblemModel errors, @Nonnull T instance, @Nonnull PropertyMetaModel<P> property) {
+		errors.clear(this, instance, property);
 	}
 
-	public <T, P> void off(@Nonnull LogiErrors errors, @Nonnull T instance, @Nonnull String property) {
-		// errors.remove(this, instance, null);			INCO Must fix
+	public <T, P> void off(@Nonnull ProblemModel errors, @Nonnull T instance, @Nonnull String property) {
+		errors.clear(this, instance, MetaManager.findPropertyMeta(instance.getClass(), property));
 	}
 
 	/**
@@ -72,9 +71,9 @@ final public class Problem {
 	 * @param instance
 	 * @return
 	 */
-	public <T> ProblemInstance on(@Nonnull LogiErrors errors, @Nonnull T instance) {
+	public <T> ProblemInstance on(@Nonnull ProblemModel errors, @Nonnull T instance) {
 		ProblemInstance pi = new ProblemInstance(this, instance);
-		// errors.addProblem(pi);			INCO Report on model
+		errors.addProblem(pi);
 		return pi;										// Allow specialization using builder pattern.
 	}
 
@@ -85,16 +84,41 @@ final public class Problem {
 	 * @param property
 	 * @return
 	 */
-	public <T, P> ProblemInstance on(@Nonnull LogiErrors errors, @Nonnull T instance, @Nonnull PropertyMetaModel<P> property) {
+	public <T, P> ProblemInstance on(@Nonnull ProblemModel errors, @Nonnull T instance, @Nonnull PropertyMetaModel<P> property) {
 		ProblemInstance pi = new ProblemInstance(this, instance, property);
-		// errors.addProblem(pi);			INCO Report on model
+		errors.addProblem(pi);
 		return pi;										// Allow specialization using builder pattern.
 	}
 
-	public <T> ProblemInstance on(@Nonnull LogiErrors errors, @Nonnull T instance, @Nonnull String property) {
+	public <T> ProblemInstance on(@Nonnull ProblemModel errors, @Nonnull T instance, @Nonnull String property) {
 		ProblemInstance pi = new ProblemInstance(this, instance, MetaManager.findPropertyMeta(instance.getClass(), property));
-		// errors.addProblem(pi);			INCO Report on model
+		errors.addProblem(pi);
 		return pi;										// Allow specialization using builder pattern.
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((m_key == null) ? 0 : m_key.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if(this == obj)
+			return true;
+		if(obj == null)
+			return false;
+		if(getClass() != obj.getClass())
+			return false;
+		Problem other = (Problem) obj;
+		if(m_key == null) {
+			if(other.m_key != null)
+				return false;
+		} else if(!m_key.equals(other.m_key))
+			return false;
+		return true;
 	}
 
 }

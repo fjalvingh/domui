@@ -5,49 +5,41 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
-import to.etc.domui.logic.*;
 
-public class LogiErrorModel {
+public class ProblemModel {
 	/**
 	 * Maps [object, property] to a set of errors. If the property is not known it is mapped as null.
 	 */
 	@Nonnull
 	private Map<Object, Map<PropertyMetaModel< ? >, Set<ProblemInstance>>> m_map = new HashMap<>();
 
-	public LogiErrorModel() {}
+	public ProblemModel() {}
 
-	public <T> void addMessage(@Nonnull T businessObject, @Nonnull ProblemInstance message) {
-		addMessage(businessObject, (PropertyMetaModel< ? >) null, message);
-	}
-
-	public <T> void addMessage(@Nonnull T businessObject, @Nonnull String property, @Nonnull ProblemInstance message) {
-		addMessage(businessObject, MetaManager.getPropertyMeta(businessObject.getClass(), property), message);
-	}
-
-	public <T, V> void addMessage(@Nonnull T businessObject, @Nullable PropertyMetaModel<V> property, @Nonnull ProblemInstance message) {
-		Map<PropertyMetaModel< ? >, Set<ProblemInstance>> mapOnProp = m_map.get(businessObject);
+	void addProblem(@Nonnull ProblemInstance message) {
+		Map<PropertyMetaModel< ? >, Set<ProblemInstance>> mapOnProp = m_map.get(message.getInstance());
 		if(mapOnProp == null) {
 			mapOnProp = new HashMap<PropertyMetaModel< ? >, Set<ProblemInstance>>();
-			m_map.put(businessObject, mapOnProp);
+			m_map.put(message.getInstance(), mapOnProp);
 		}
-		Set<ProblemInstance> messages = mapOnProp.get(property);
+		Set<ProblemInstance> messages = mapOnProp.get(message.getProperty());
 		if(messages == null) {
 			messages = new HashSet<ProblemInstance>();
-			mapOnProp.put(property, messages);
+			mapOnProp.put(message.getProperty(), messages);
 		}
 		messages.add(message);
 	}
 
-	public <T> void clearMessage(@Nonnull T businessObject, @Nonnull String property, @Nonnull ProblemInstance msg) {
-		clearMessage(businessObject, MetaManager.getPropertyMeta(businessObject.getClass(), property), msg);
-	}
-
-	public <T, V> void clearMessage(@Nonnull T businessObject, @Nullable PropertyMetaModel<V> property, @Nonnull ProblemInstance msg) {
-		Map<PropertyMetaModel< ? >, Set<ProblemInstance>> mapOnProp = m_map.get(businessObject);
+	<T, P> void clear(@Nonnull Problem problem, @Nonnull T instance, @Nullable PropertyMetaModel<P> pmm) {
+		Map<PropertyMetaModel< ? >, Set<ProblemInstance>> mapOnProp = m_map.get(instance);
 		if(mapOnProp != null) {
-			Set<ProblemInstance> messages = mapOnProp.get(property);
+			Set<ProblemInstance> messages = mapOnProp.get(pmm);
 			if(messages != null) {
-				messages.remove(msg);
+				for(ProblemInstance pi : messages) {
+					if(pi.getProblem().equals(problem)) {
+						messages.remove(pi);
+						return;
+					}
+				}
 			}
 		}
 	}
@@ -98,8 +90,8 @@ public class LogiErrorModel {
 //	}
 
 	@Nonnull
-	public ErrorSet getErrorSet() {
-		return new ErrorSet(m_map);
+	public ProblemSet getErrorSet() {
+		return new ProblemSet(m_map);
 	}
 
 }

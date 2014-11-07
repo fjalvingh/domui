@@ -23,7 +23,7 @@ public class ModelErrorHandler {
 
 	private Set<UIMessage> m_existingErrorSet;
 
-	private ErrorSet m_errorSet;
+	private ProblemSet m_errorSet;
 
 	public ModelErrorHandler(@Nonnull UrlPage root) {
 		m_rootNode = root;
