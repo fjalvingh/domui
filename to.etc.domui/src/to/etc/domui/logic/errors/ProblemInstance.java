@@ -5,6 +5,15 @@ import javax.annotation.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
 
+/**
+ * An actual occurrence of a {@link Problem} that was found to occur on some instance
+ * or some property of the model. Problem instances are reported when {@link Problem#on(ProblemModel, Object)}
+ * or one of it's alternatives is called, and are registered inside the {@link ProblemModel} that was
+ * used to call the logic.
+ *
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on Nov 8, 2014
+ */
 public class ProblemInstance {
 	static private final Object[] NONE = new Object[0];
 
@@ -15,6 +24,7 @@ public class ProblemInstance {
 	@Nullable
 	final private PropertyMetaModel< ? > m_property;
 
+	/** Any message parameters, if applicable. */
 	private Object[] m_parameters = NONE;
 
 	private MsgType m_severity = MsgType.ERROR;
