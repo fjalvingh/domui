@@ -32,6 +32,7 @@ import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
+import to.etc.domui.util.DomUtil.IPerNode;
 import to.etc.webapp.*;
 import to.etc.webapp.nls.*;
 
@@ -110,6 +111,15 @@ final public class SimpleBinder implements IBinder {
 
 		//-- Move the data now!
 		moveModelToControl();
+	}
+
+	/**
+	 * If this binding is in error: return the message describing that error.
+	 * @return
+	 */
+	@Nullable
+	public UIMessage getBindError() {
+		return m_bindError;
 	}
 
 	/*--------------------------------------------------------------*/
@@ -285,6 +295,42 @@ final public class SimpleBinder implements IBinder {
 			}
 		});
 	}
+
+	/**
+	 * Get a list of binding errors starting at (and including) the parameter node. Each
+	 * message will contain the NodeBase control that failed inside {@link UIMessage#getErrorNode()}.
+	 * @param root
+	 * @return
+	 * @throws Exception
+	 */
+	@Nonnull
+	static public List<UIMessage> getBindingErrors(@Nonnull NodeBase root) throws Exception {
+		final List<UIMessage> res = new ArrayList<>();
+		DomUtil.walkTree(root, new IPerNode() {
+			@Override
+			public Object before(NodeBase n) throws Exception {
+				if(n instanceof IBindable) {
+					IBindable b = (IBindable) n;
+					List<SimpleBinder> list = b.getBindingList();
+					if(null != list) {
+						for(SimpleBinder sb : list) {
+							UIMessage message = sb.getBindError();
+							if(null != message)
+								res.add(message);
+						}
+					}
+				}
+				return null;
+			}
+
+			@Override
+			public Object after(NodeBase n) throws Exception {
+				return null;
+			}
+		});
+		return res;
+	}
+
 
 	@Nullable
 	public static SimpleBinder findBinding(NodeBase nodeBase, String string) {
