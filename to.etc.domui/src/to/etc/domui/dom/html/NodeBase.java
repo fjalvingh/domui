@@ -1861,4 +1861,23 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 	public <T> void sendComponentMessage(@Nonnull T message) {}
 
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Soft binding support.								*/
+	/*--------------------------------------------------------------*/
+
+	@Nonnull
+	public List<UIMessage> getBindingErrors() throws Exception {
+		return SimpleBinder.getBindingErrors(this);
+	}
+
+	/**
+	 * Checks the tree starting at this component for binding errors; all of those will be reported
+	 * by sending them to the error listeners. In case of errors this will return true.
+	 * @return
+	 */
+	public boolean bindErrors() throws Exception {
+		return SimpleBinder.reportBindingErrors(this);
+	}
+
+
 }

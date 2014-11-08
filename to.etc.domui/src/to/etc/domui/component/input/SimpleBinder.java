@@ -331,6 +331,37 @@ final public class SimpleBinder implements IBinder {
 		return res;
 	}
 
+	static public boolean reportBindingErrors(@Nonnull NodeBase root) throws Exception {
+		final boolean[] silly = new boolean[1];					// Not having free variables is a joke.
+		DomUtil.walkTree(root, new IPerNode() {
+			@Override
+			public Object before(NodeBase n) throws Exception {
+				if(n instanceof IBindable) {
+					IBindable b = (IBindable) n;
+					List<SimpleBinder> list = b.getBindingList();
+					if(null != list) {
+						for(SimpleBinder sb : list) {
+							UIMessage message = sb.getBindError();
+							if(null != message) {
+								silly[0] = true;
+								n.setMessage(message);
+							} else {
+//								n.setMessage(null);				// Should not be reset: should be done by component itself
+							}
+						}
+					}
+				}
+				return null;
+			}
+
+			@Override
+			public Object after(NodeBase n) throws Exception {
+				return null;
+			}
+		});
+		return silly[0];
+	}
+
 
 	@Nullable
 	public static SimpleBinder findBinding(NodeBase nodeBase, String string) {
