@@ -161,7 +161,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 * message into the Page. When in ERROR state an input control will add an "invalidValue"
 	 * class to it's HTML class, and it may expose error labels on it.
 	 */
-	public boolean validate(boolean seterror) {
+	private boolean validate(boolean seterror) {
 		if(m_validated)
 			return m_wasvalid;
 
@@ -443,10 +443,6 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	public void setUntrimmed(boolean untrimmed) {
 		m_untrimmed = untrimmed;
 	}
-
-	//	private boolean isValidated() {
-	//		return m_validated;
-	//	}
 
 	private void setEmptyMarker(String emptyMarker) {
 		if(DomUtil.isBlank(emptyMarker)) {
