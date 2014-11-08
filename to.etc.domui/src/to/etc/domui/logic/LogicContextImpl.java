@@ -18,7 +18,7 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 15, 2012
  */
-final public class LogiContext {
+final public class LogicContextImpl implements ILogicContext {
 	@Nonnull
 	final private QDataContext m_dc;
 
@@ -45,13 +45,13 @@ final public class LogiContext {
 	 * Create and set the default data context to use.
 	 * @param dataContext
 	 */
-	public LogiContext(@Nonnull QDataContext dataContext) {
+	public LogicContextImpl(@Nonnull QDataContext dataContext) {
 		m_dataContextMap.put(QContextManager.DEFAULT, dataContext);
 		m_dc = dataContext;
 		m_injector = null;
 	}
 
-	public LogiContext(@Nonnull QDataContext dataContext, @Nonnull ILogiInjector injector) {
+	public LogicContextImpl(@Nonnull QDataContext dataContext, @Nonnull ILogiInjector injector) {
 		m_dataContextMap.put(QContextManager.DEFAULT, dataContext);
 		m_dc = dataContext;
 		m_injector = injector;
@@ -61,6 +61,7 @@ final public class LogiContext {
 	 * Return the default QDataContext.
 	 * @return
 	 */
+	@Override
 	@Nonnull
 	public QDataContext dc() {
 		return m_dc;
@@ -72,6 +73,7 @@ final public class LogiContext {
 	 * @return
 	 * @throws Exception
 	 */
+	@Override
 	@Nonnull
 	public <L> L get(@Nonnull Class<L> classClass) throws Exception {
 		ILogiInjector ij = m_injector;
@@ -83,9 +85,9 @@ final public class LogiContext {
 		if(null == logic) {
 			Constructor<L> c;
 			try {
-				c = classClass.getConstructor(LogiContext.class);
+				c = classClass.getConstructor(LogicContextImpl.class);
 			} catch(Exception x) {
-				throw new ProgrammerErrorException("Could not create an instance of " + classClass + ": constructor(LogiContext) not found");
+				throw new ProgrammerErrorException("Could not create an instance of " + classClass + ": constructor(ILogicContext) not found");
 			}
 
 			//-- Create the instance.
@@ -104,6 +106,7 @@ final public class LogiContext {
 	 * @return
 	 * @throws Exception
 	 */
+	@Override
 	@Nonnull
 	public <L extends ILogic, K, T extends IIdentifyable<K>> L get(@Nonnull Class<L> clz, @Nonnull T instance) throws Exception {
 		//-- Already exists in this context?
@@ -131,15 +134,15 @@ final public class LogiContext {
 
 		//-- Nothing there. We need to create an instance.
 		for(Constructor< ? > c : clz.getConstructors()) {
-			Class< ? >[] formalar = c.getParameterTypes();						// We only accept constructor(LogiContext, T)
+			Class< ? >[] formalar = c.getParameterTypes();						// We only accept constructor(ILogicContext, T)
 			if(formalar.length != 2)
 				continue;
-			if(!formalar[0].isAssignableFrom(LogiContext.class))
+			if(!formalar[0].isAssignableFrom(LogicContextImpl.class))
 				continue;
 			if(!formalar[1].isAssignableFrom(instance.getClass()))
 				continue;
 
-			//-- We got L(LogiContext, T). Instantiate the object using it.
+			//-- We got L(ILogicContext, T). Instantiate the object using it.
 			L ni = (L) c.newInstance(this, instance);
 			if(null == ni)
 				throw new IllegalStateException("Cobol'74 exception: no nullities defined in 2014.");
@@ -153,9 +156,10 @@ final public class LogiContext {
 			return ni;
 		}
 
-		throw new ProgrammerErrorException("Could not create an instance of " + clz + ": constructor(LogiContext, " + instance.getClass().getName() + ") not found");
+		throw new ProgrammerErrorException("Could not create an instance of " + clz + ": constructor(ILogicContext, " + instance.getClass().getName() + ") not found");
 	}
 
+	@Override
 	@Nonnull
 	public LogiErrors getErrorModel() {
 		return m_errorModel;

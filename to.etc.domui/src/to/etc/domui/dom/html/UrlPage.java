@@ -136,7 +136,7 @@ public class UrlPage extends Div {
 	@Override
 	protected void onForceRebuild() {
 		super.onForceRebuild();
-		getPage().getConversation().setAttribute(LogiContext.class.getName(), null);
+		getPage().getConversation().setAttribute(LogicContextImpl.class.getName(), null);
 	}
 
 	/**
@@ -159,17 +159,17 @@ public class UrlPage extends Div {
 	 */
 	@Override
 	@Nonnull
-	public LogiContext lc() throws Exception {
-		LogiContext lc = (LogiContext) getPage().getConversation().getAttribute(LogiContext.class.getName());
+	public ILogicContext lc() throws Exception {
+		ILogicContext lc = (ILogicContext) getPage().getConversation().getAttribute(LogicContextImpl.class.getName());
 		if(null == lc) {
-			lc = new LogiContext(getSharedContext());
-			getPage().getConversation().setAttribute(LogiContext.class.getName(), lc);
+			lc = new LogicContextImpl(getSharedContext());
+			getPage().getConversation().setAttribute(LogicContextImpl.class.getName(), lc);
 		}
 		return lc;
 	}
 
 	public void forceReloadData() throws Exception {
-		getPage().getConversation().setAttribute(LogiContext.class.getName(), null);			// Destroy any context
+		getPage().getConversation().setAttribute(LogicContextImpl.class.getName(), null);			// Destroy any context
 		QContextManager.closeSharedContexts(getPage().getConversation());			// Drop all connections
 		DomApplication.get().getInjector().injectPageValues(this, getPage().getPageParameters());	// Force reload of all parameters
 		forceRebuild();

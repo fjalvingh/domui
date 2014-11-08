@@ -1626,7 +1626,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 	 * @return
 	 */
 	@Nonnull
-	public LogiContext lc() throws Exception {
+	public ILogicContext lc() throws Exception {
 		return getPage().getBody().lc();
 	}
 

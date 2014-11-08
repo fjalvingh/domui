@@ -5,7 +5,7 @@ import javax.annotation.*;
 import to.etc.webapp.query.*;
 
 /**
- * Base class for all {@link LogiContext} class wrappers.
+ * Base class for all {@link LogicContextImpl} class wrappers.
  *
  * @author <a href="mailto:imilovanovic@execom.eu">Igor Milovanovic</a>
  * Created on May 23, 2014
@@ -13,15 +13,15 @@ import to.etc.webapp.query.*;
 public abstract class BcBase implements IClassLogic {
 
 	@Nonnull
-	private final LogiContext m_lc;
+	private final ILogicContext m_lc;
 
-	public BcBase(@Nonnull LogiContext lc) {
+	public BcBase(@Nonnull ILogicContext lc) {
 		m_lc = lc;
 	}
 
 	@Override
 	@Nonnull
-	public LogiContext lc() {
+	public ILogicContext lc() {
 		return m_lc;
 	}
 
