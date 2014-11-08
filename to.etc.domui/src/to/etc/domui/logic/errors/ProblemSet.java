@@ -5,7 +5,6 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
-import to.etc.domui.logic.*;
 
 /**
  * EXPERIMENTAL - Do not use.
@@ -25,7 +24,6 @@ final public class ProblemSet implements Iterable<ProblemInstance> {
 	ProblemSet(@Nonnull Map<Object, Map<PropertyMetaModel< ? >, Set<ProblemInstance>>> map) {
 		m_map = new HashMap<>();
 
-		List<LogicError> res = new ArrayList<>();
 		for(Map.Entry<Object, Map<PropertyMetaModel< ? >, Set<ProblemInstance>>> m1 : map.entrySet()) {
 			for(Map.Entry<PropertyMetaModel< ? >, Set<ProblemInstance>> m2 : m1.getValue().entrySet()) {
 				for(ProblemInstance m : m2.getValue()) {

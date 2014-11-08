@@ -6,6 +6,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.dom.errors.*;
+import to.etc.domui.logic.errors.*;
 import to.etc.webapp.*;
 import to.etc.webapp.query.*;
 
@@ -39,7 +40,7 @@ final public class LogicContextImpl implements ILogicContext {
 	final private List<UIMessage> m_actionMessageList = new ArrayList<>();
 
 	@Nonnull
-	final private LogiErrors m_errorModel = new LogiErrors();
+	final private ProblemModel m_errorModel = new ProblemModel();
 
 	/**
 	 * Create and set the default data context to use.
@@ -161,7 +162,7 @@ final public class LogicContextImpl implements ILogicContext {
 
 	@Override
 	@Nonnull
-	public LogiErrors getErrorModel() {
+	public ProblemModel getErrorModel() {
 		return m_errorModel;
 	}
 }

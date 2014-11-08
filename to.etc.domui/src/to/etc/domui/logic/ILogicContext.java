@@ -1,23 +1,23 @@
 package to.etc.domui.logic;
 
-import to.etc.webapp.query.IIdentifyable;
-import to.etc.webapp.query.QDataContext;
+import javax.annotation.*;
 
-import javax.annotation.Nonnull;
+import to.etc.domui.logic.errors.*;
+import to.etc.webapp.query.*;
 
 /**
  * Created by jal on 11/8/14.
  */
 public interface ILogicContext {
 	@Nonnull
-	QDataContext dc();
+	public QDataContext dc();
 
 	@Nonnull
-	<L> L get(@Nonnull Class<L> classClass) throws Exception;
+	public <L> L get(@Nonnull Class<L> classClass) throws Exception;
 
 	@Nonnull
-	<L extends ILogic, K, T extends IIdentifyable<K>> L get(@Nonnull Class<L> clz, @Nonnull T instance) throws Exception;
+	public <L extends ILogic, K, T extends IIdentifyable<K>> L get(@Nonnull Class<L> clz, @Nonnull T instance) throws Exception;
 
 	@Nonnull
-	LogiErrors getErrorModel();
+	public ProblemModel getErrorModel();
 }
