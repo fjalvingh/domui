@@ -3,7 +3,7 @@
   <component name="EclipseModuleManager" forced_jdk="true">
     <libelement value="jar://$MODULE_DIR$/picocontainer-2.14.3.jar!/" />
     <conelement value="org.eclipse.jst.j2ee.internal.module.container" />
-    <src_description expected_position="2" />
+    <src_description expected_position="3" />
   </component>
   <component name="NewModuleRootManager" inherit-compiler-output="false">
     <output url="file://$MODULE_DIR$/bin" />
@@ -23,7 +23,5 @@
         </SOURCES>
       </library>
     </orderEntry>
-    <orderEntry type="library" name="org.eclipse.jst.j2ee.internal.module.container" level="application" />
   </component>
 </module>
-

@@ -8,7 +8,7 @@
     <libelement value="jar://$MODULE_DIR$/lib/slf4j-ext-1.5.10.jar!/" />
     <libelement value="jar://$MODULE_DIR$/lib/logback-access-0.9.18.jar!/" />
     <libelement value="jar://$MODULE_DIR$/lib/logback-core-0.9.18.jar!/" />
-    <src_description expected_position="3" />
+    <src_description expected_position="4" />
   </component>
   <component name="NewModuleRootManager" inherit-compiler-output="false">
     <output url="file://$MODULE_DIR$/bin" />
@@ -82,4 +82,3 @@
     </orderEntry>
   </component>
 </module>
-

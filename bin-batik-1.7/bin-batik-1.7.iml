@@ -28,7 +28,7 @@
     <libelement value="jar://$MODULE_DIR$/lib/js.jar!/" />
     <libelement value="jar://$MODULE_DIR$/lib/pdf-transcoder.jar!/" />
     <libelement value="jar://$MODULE_DIR$/lib/xml-apis-ext.jar!/" />
-    <src_description expected_position="3" />
+    <src_description expected_position="4" />
   </component>
   <component name="NewModuleRootManager" inherit-compiler-output="false">
     <output url="file://$MODULE_DIR$/bin" />
@@ -280,4 +280,3 @@
     </orderEntry>
   </component>
 </module>
-

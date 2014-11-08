@@ -4,7 +4,7 @@
     <libelement value="jar://$MODULE_DIR$/j2ee.jar!/" />
     <libelement value="jar://$MODULE_DIR$/servlet-api-3.0.jar!/" />
     <libelement value="jar://$MODULE_DIR$/jsp-2.2-spec-1.0.4.jar!/" />
-    <src_description expected_position="3" />
+    <src_description expected_position="4" />
   </component>
   <component name="NewModuleRootManager" inherit-compiler-output="false">
     <output url="file://$MODULE_DIR$/bin" />
@@ -43,4 +43,3 @@
     </orderEntry>
   </component>
 </module>
-
