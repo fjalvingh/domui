@@ -159,14 +159,12 @@ final public class SimpleBinder implements IBinder {
 		UIMessage newError = null;
 		try {
 			value = m_controlProperty.getValue(m_control);
-			control.removeCssClass("ui-input-err");							// This is horrible.
 			m_lastValueFromControl = value;
 		} catch(CodeException cx) {
 			newError = UIMessage.error(cx);
 			newError.setErrorNode(control);
 			newError.setErrorLocation(control.getErrorLocation());
 			System.out.println("~~ " + control + " to " + instanceProperty + ": " + cx);
-			control.addCssClass("ui-input-err");							// As is this.
 		}
 		m_bindError = newError;
 		if(null == newError) {

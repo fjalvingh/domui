@@ -250,7 +250,6 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	}
 
 	private void handleValidationException(@Nullable ValidationException x) {
-		boolean wasBroadcastEnabled = isMessageBroadcastEnabled();
 		UIMessage message = null;
 		if(null != x) {
 			message = UIMessage.error(x);
@@ -259,17 +258,19 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		messageNotifier(message);
 	}
 
+	@Nullable
 	private String m_errclass;
 
 	private void messageNotifier(@Nullable UIMessage msg) {
-		if(m_errclass != null) {
-			removeCssClass(m_errclass);
+		String errclass = m_errclass;
+		if(errclass != null) {
+			removeCssClass(errclass);
 			m_errclass = null;
 			setTitle("");
 		}
 		if(null != msg) {
-			m_errclass = "ui-text-" + msg.getType().name().toLowerCase();
-			addCssClass(m_errclass);
+			errclass = m_errclass = "ui-text-" + msg.getType().name().toLowerCase();
+			addCssClass(errclass);
 			setTitle(msg.getMessage());
 		}
 	}
