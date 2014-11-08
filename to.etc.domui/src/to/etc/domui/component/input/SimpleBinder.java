@@ -31,7 +31,6 @@ import javax.annotation.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
-import to.etc.domui.logic.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.nls.*;
@@ -42,7 +41,7 @@ import to.etc.webapp.nls.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 13, 2009
  */
-public class SimpleBinder implements IBinder {
+final public class SimpleBinder implements IBinder {
 	@Nonnull
 	final private IBindable m_control;
 
@@ -64,8 +63,9 @@ public class SimpleBinder implements IBinder {
 	@Nullable
 	private Object m_lastValueFromControl;
 
+	/** If this binding is in error this contains the error. */
 	@Nullable
-	private UIMessage m_lastBindError;
+	private UIMessage m_bindError;
 
 	public SimpleBinder(@Nonnull IBindable control, @Nonnull String controlProperty) {
 		if(control == null)
@@ -150,27 +150,16 @@ public class SimpleBinder implements IBinder {
 		try {
 			value = m_controlProperty.getValue(m_control);
 			control.removeCssClass("ui-input-err");							// This is horrible.
+			m_lastValueFromControl = value;
 		} catch(CodeException cx) {
-			newError = UIMessage.error(cx).group(LogiErrors.G_BINDING);
+			newError = UIMessage.error(cx);
 			newError.setErrorNode(control);
 			newError.setErrorLocation(control.getErrorLocation());
 			System.out.println("~~ " + control + " to " + instanceProperty + ": " + cx);
 			control.addCssClass("ui-input-err");							// As is this.
 		}
-
-		LogiErrors errorModel = control.lc().getErrorModel();
-		UIMessage oldError = m_lastBindError;
-		if(oldError != null && !oldError.equals(newError)) {
-			errorModel.clearMessage(instance, instanceProperty.getName(), oldError);
-			m_lastBindError = null;
-		}
-		if(newError != null) {
-			if(!newError.equals(oldError))
-				errorModel.addMessage(instance, instanceProperty.getName(), newError);
-			m_lastBindError = newError;
-		} else {
-			m_lastValueFromControl = value;
-
+		m_bindError = newError;
+		if(null == newError) {
 			//-- QUESTION: Should we move something to the model @ error?
 			try {
 				((PropertyMetaModel<Object>) instanceProperty).setValue(m_instance, value);
@@ -201,40 +190,42 @@ public class SimpleBinder implements IBinder {
 		// FIXME We should think about exception handling here
 		Object modelValue = instanceProperty.getValue(instance);
 		if(!MetaManager.areObjectsEqual(modelValue, m_lastValueFromControl)) {
+			//-- Value in instance differs from control's
 			m_lastValueFromControl = modelValue;
 			((PropertyMetaModel<Object>) m_controlProperty).setValue(m_control, modelValue);
+			m_bindError = null;									// Let's assume binding has no trouble.
 
-			/*
-			 * jal yeah, this also suffers from "knowing" that we're accessing the control's value 8-/ We need
-			 * to think about this.
-			 *
-			 * When updated from the model: clear the control's error. This should probably call the control's validation
-			 * methods to see if the new value set obeys the control's validation (notably: mandatoryness, pattern).
-			 */
-			if(control.isAttached()) {
-				UIMessage ctlError = control.getMessage();
-				if(null != ctlError) {
-					LogiErrors errorModel = control.lc().getErrorModel();
-					errorModel.clearMessage(instance, instanceProperty, ctlError);
-					control.setMessage(null);
-				}
-			}
+//			/*
+//			 * jal yeah, this also suffers from "knowing" that we're accessing the control's value 8-/ We need
+//			 * to think about this.
+//			 *
+//			 * When updated from the model: clear the control's error. This should probably call the control's validation
+//			 * methods to see if the new value set obeys the control's validation (notably: mandatoryness, pattern).
+//			 */
+//			if(control.isAttached()) {
+//				UIMessage ctlError = control.getMessage();
+//				if(null != ctlError) {
+//					LogiErrors errorModel = control.lc().getErrorModel();
+//					errorModel.clearMessage(instance, instanceProperty, ctlError);
+//					control.setMessage(null);
+//				}
+//			}
 		} else {
-			/*
-			 * Model has not updated the value. If the control *itself* has an error (Which can be known because the
-			 * last bind error is != null) we keep that error, otherwise we set the 1st error from the model.
-			 */
-			if(m_lastBindError == null) {
-				if(control.isAttached()) {
-					LogiErrors errorModel = control.lc().getErrorModel();
-					Set<UIMessage> e2b = errorModel.getErrorsOn(instance, instanceProperty);
-					UIMessage msg = null;
-					if(e2b.size() > 0) {
-						msg = e2b.iterator().next();
-					}
-					control.setMessage(msg);
-				}
-			}
+//			/*
+//			 * Model has not updated the value. If the control *itself* has an error (Which can be known because the
+//			 * last bind error is != null) we keep that error, otherwise we set the 1st error from the model.
+//			 */
+//			if(m_bindError == null) {
+//				if(control.isAttached()) {
+//					LogiErrors errorModel = control.lc().getErrorModel();
+//					Set<UIMessage> e2b = errorModel.getErrorsOn(instance, instanceProperty);
+//					UIMessage msg = null;
+//					if(e2b.size() > 0) {
+//						msg = e2b.iterator().next();
+//					}
+//					control.setMessage(msg);
+//				}
+//			}
 		}
 	}
 
