@@ -94,6 +94,44 @@ public class MetaDuplicator<T> {
 	}
 
 	public T build() throws Exception {
+		StringBuilder sb = new StringBuilder();
+		ClassMetaModel cmm = MetaManager.findClassMeta(m_source.getClass());
+
+		T copy = (T) cmm.getClass().newInstance();
+		for(PropertyMetaModel< ? > pmm : cmm.getProperties()) {
+			copyProperty(copy, m_source, pmm, sb);
+		}
+		return copy;
+	}
+
+	private <V> void copyProperty(T copy, T source, PropertyMetaModel<V> pmm, StringBuilder sb) {
+		if(pmm.getReadOnly() == YesNoType.YES)
+			return;
+		int len = sb.length();
+		if(len > 0) {
+			sb.append('.');
+		}
+		sb.append("*");
+		String all = sb.toString();
+
+
+		if(List.class.isAssignableFrom(pmm.getActualType())) {
+			copyListProperty(copy, source, pmm, sb);
+		} else if(isUncopyable(pmm)) {
+			copyValue(copy, source, pmm, sb);
+		} else {
+
+		}
+
+		sb.setLength(len);
+	}
+
+	private boolean isUncopyable(PropertyMetaModel< ? > pmm) {
+
+	}
+
+
+	private <V> void copyListProperty(T copy, T source, PropertyMetaModel<V> pmm, StringBuilder sb) {
 
 	}
 }
