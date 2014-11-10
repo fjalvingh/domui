@@ -457,6 +457,8 @@ final public class DomUtil {
 		for(String name : ctx.getParameterNames()) {
 			if(name.equals(Constants.PARAM_CONVERSATION_ID))
 				continue;
+			if(skipset.contains(name))
+				continue;
 			String[] values = ctx.getStringArray(name);
 			for(String value : values) {
 				if(first) {
