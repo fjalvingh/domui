@@ -14,6 +14,48 @@ import to.etc.domui.component.meta.*;
  * Created on Nov 8, 2014
  */
 public class ProblemInstance {
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		Object instance = m_instance;
+		result = prime * result + ((instance == null) ? 0 : instance.hashCode());
+		Problem problem = m_problem;
+		result = prime * result + ((problem == null) ? 0 : problem.hashCode());
+		PropertyMetaModel< ? > property = m_property;
+		result = prime * result + ((property == null) ? 0 : property.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if(this == obj)
+			return true;
+		if(obj == null)
+			return false;
+		if(getClass() != obj.getClass())
+			return false;
+		ProblemInstance other = (ProblemInstance) obj;
+		Object instance = m_instance;
+		if(instance == null) {
+			if(other.m_instance != null)
+				return false;
+		} else if(!instance.equals(other.m_instance))
+			return false;
+		if(m_problem == null) {
+			if(other.m_problem != null)
+				return false;
+		} else if(!m_problem.equals(other.m_problem))
+			return false;
+		PropertyMetaModel< ? > property = m_property;
+		if(property == null) {
+			if(other.m_property != null)
+				return false;
+		} else if(!property.equals(other.m_property))
+			return false;
+		return true;
+	}
+
 	static private final Object[] NONE = new Object[0];
 
 	final private Problem m_problem;

@@ -17,7 +17,7 @@ import to.etc.domui.util.*;
  * Created on May 1, 2014
  */
 public class ProblemReporter {
-	final private NodeContainer m_rootNode;
+	final private NodeBase m_rootNode;
 
 	private Set<UIMessage> m_existingErrorSet;
 
@@ -25,7 +25,7 @@ public class ProblemReporter {
 
 	private ProblemModel m_model;
 
-	public ProblemReporter(NodeContainer root, ProblemModel model) {
+	public ProblemReporter(NodeBase root, ProblemModel model) {
 		m_rootNode = root;
 		m_model = model;
 	}

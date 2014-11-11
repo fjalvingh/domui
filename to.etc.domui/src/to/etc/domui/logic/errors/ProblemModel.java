@@ -126,4 +126,24 @@ public class ProblemModel {
 	public ProblemSet getErrorSet() {
 		return new ProblemSet(m_map);
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		for(Map<PropertyMetaModel< ? >, Set<ProblemInstance>> map : m_map.values()) {
+			for(Set<ProblemInstance> piSet : map.values()) {
+				for(ProblemInstance pi : piSet) {
+					if(sb.length() != 0)
+						sb.append('\n');
+					sb.append(pi.getProblem()).append(" @");
+					PropertyMetaModel< ? > pmm = pi.getProperty();
+					if(null != pmm) {
+						sb.append(pmm.getName()).append("/");
+					}
+					sb.append(MetaManager.identify(pi.getInstance()));
+				}
+			}
+		}
+		return sb.toString();
+	}
 }
