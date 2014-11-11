@@ -121,4 +121,8 @@ final public class Problem {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return m_key;
+	}
 }

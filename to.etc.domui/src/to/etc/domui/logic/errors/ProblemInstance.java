@@ -99,4 +99,19 @@ public class ProblemInstance {
 		m_severity = MsgType.INFO;
 		return this;
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(MetaManager.identify(m_instance));
+		PropertyMetaModel< ? > pmm = m_property;
+		if(null != pmm) {
+			sb.append(".").append(pmm.getName());
+		}
+		sb.append(' ');
+		sb.append(m_severity);
+		sb.append(' ');
+		sb.append(m_problem.toString());
+		return sb.toString();
+	}
 }

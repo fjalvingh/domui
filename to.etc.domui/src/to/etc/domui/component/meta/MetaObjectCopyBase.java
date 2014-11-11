@@ -70,7 +70,7 @@ class MetaObjectCopyBase<T> {
 		if(++m_copies > 100)
 			throw new IllegalStateException("Too many copies");
 		ClassMetaModel cmm = MetaManager.findClassMeta(source.getClass());
-		I copy = (I) cmm.getClass().newInstance();
+		I copy = (I) cmm.getActualClass().newInstance();
 		copyProperties(copy, source, sb, cmm);
 		return copy;
 	}
