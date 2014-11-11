@@ -330,8 +330,13 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 			if(converter != null) {
 				ds.setConverter(converter);
 			}
-		} else
+		} else if(contentRenderer != null) {
+			//-- No property but a content renderer -> let it take care of binding itself as we cannot.
+			X value = cd.getColumnValue(instance);
+			contentRenderer.renderNodeContent(cc.getTR(), cell, value, null);
+		} else {
 			throw new IllegalStateException("? Don't know how to render " + cd);
+		}
 	}
 
 	/**
