@@ -70,14 +70,14 @@ final public class ProblemSet implements Iterable<ProblemInstance> {
 	 * @param property
 	 * @return
 	 */
-	@Nullable
 	public Set<ProblemInstance> remove(@Nonnull Object instance, @Nullable PropertyMetaModel< ? > property) {
 		Map<PropertyMetaModel< ? >, Set<ProblemInstance>> objectMap = m_map.get(instance);
-		if(null == objectMap)
-			return null;
-		Set<ProblemInstance> set = objectMap.remove(property);
-		if(null == set)
-			return null;
-		return set.size() > 0 ? set : null;
+		if(null != objectMap) {
+			Set<ProblemInstance> set = objectMap.remove(property);
+			if(null != set)
+				return set;
+
+		}
+		return Collections.EMPTY_SET;
 	}
 }

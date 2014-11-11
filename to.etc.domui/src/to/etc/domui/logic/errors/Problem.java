@@ -4,6 +4,8 @@ import javax.annotation.*;
 import javax.annotation.concurrent.*;
 
 import to.etc.domui.component.meta.*;
+import to.etc.domui.dom.errors.*;
+import to.etc.webapp.nls.*;
 
 /**
  * EXPERIMENTAL
@@ -23,30 +25,40 @@ import to.etc.domui.component.meta.*;
  */
 @Immutable
 final public class Problem {
-	final private String m_anchor;
+	final private BundleRef m_bundle;
 
 	final private String m_code;
 
 	/** Interned unique key for this error. */
 	final private String m_key;
 
-	public Problem(Class< ? > anchor, String code) {
-		String name = anchor.getName();
-		m_anchor = name.substring(name.lastIndexOf('.') + 1);
-		m_code = code;
-		m_key = (m_anchor + "/" + m_code).intern();
-	}
+	final private MsgType m_severity;
 
-	/**
-	 * Get the problem anchor (the reference to whatever class is reporting the error).
-	 * @return
-	 */
-	public String getAnchor() {
-		return m_anchor;
+	public Problem(Class< ? > anchor, String code) {
+		m_bundle = BundleRef.create(anchor, "messages");				// All problem messages must be in a bundle called messages.
+		m_key = m_bundle.getBundleKey() + "#" + code;
+		m_code = code;
+		m_severity = MsgType.ERROR;
 	}
 
 	public String getCode() {
 		return m_code;
+	}
+
+	/**
+	 * Return a unique key for the message as "bundle name" '#' "code". The bundle name is defined as the bundle's class package + '.' + message file name without extension
+	 * @return
+	 */
+	public String getMessageKey() {
+		return m_key;
+	}
+
+	public MsgType getSeverity() {
+		return m_severity;
+	}
+
+	public BundleRef getBundle() {
+		return m_bundle;
 	}
 
 	/**
@@ -123,6 +135,6 @@ final public class Problem {
 
 	@Override
 	public String toString() {
-		return m_key;
+		return m_severity + " " + m_key;
 	}
 }

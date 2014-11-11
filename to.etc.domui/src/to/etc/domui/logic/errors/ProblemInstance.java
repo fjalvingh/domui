@@ -3,7 +3,6 @@ package to.etc.domui.logic.errors;
 import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.errors.*;
 
 /**
  * An actual occurrence of a {@link Problem} that was found to occur on some instance
@@ -26,8 +25,6 @@ public class ProblemInstance {
 
 	/** Any message parameters, if applicable. */
 	private Object[] m_parameters = NONE;
-
-	private MsgType m_severity = MsgType.ERROR;
 
 	ProblemInstance(Problem problem, Object instance, PropertyMetaModel< ? > property) {
 		m_problem = problem;
@@ -53,6 +50,10 @@ public class ProblemInstance {
 		return m_property;
 	}
 
+	public Object[] getParameters() {
+		return m_parameters;
+	}
+
 	/**
 	 * Add message parameters to the error.
 	 * @param arguments
@@ -73,33 +74,6 @@ public class ProblemInstance {
 		return this;
 	}
 
-	/**
-	 * Set the severity to warning.
-	 * @return
-	 */
-	public ProblemInstance warning() {
-		m_severity = MsgType.WARNING;
-		return this;
-	}
-
-	/**
-	 * Set the severity to error (it is that by default).
-	 * @return
-	 */
-	public ProblemInstance error() {
-		m_severity = MsgType.ERROR;
-		return this;
-	}
-
-	/**
-	 * Set the severity to info.
-	 * @return
-	 */
-	public ProblemInstance info() {
-		m_severity = MsgType.INFO;
-		return this;
-	}
-
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -108,8 +82,6 @@ public class ProblemInstance {
 		if(null != pmm) {
 			sb.append(".").append(pmm.getName());
 		}
-		sb.append(' ');
-		sb.append(m_severity);
 		sb.append(' ');
 		sb.append(m_problem.toString());
 		return sb.toString();
