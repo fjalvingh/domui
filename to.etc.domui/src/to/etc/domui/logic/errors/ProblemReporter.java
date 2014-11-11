@@ -19,11 +19,7 @@ import to.etc.domui.util.*;
 public class ProblemReporter {
 	final private NodeBase m_rootNode;
 
-	private Set<UIMessage> m_existingErrorSet;
-
-	private ProblemSet m_errorSet;
-
-	private ProblemModel m_model;
+	final private ProblemModel m_model;
 
 	public ProblemReporter(NodeBase root, ProblemModel model) {
 		m_rootNode = root;
@@ -39,6 +35,7 @@ public class ProblemReporter {
 		final Set<IErrorFence> res = new HashSet<>();
 		DomUtil.walkTree(m_rootNode, new DomUtil.IPerNode() {
 			@Override
+			@Nullable
 			public Object before(NodeBase n) throws Exception {
 				if(n instanceof NodeContainer) {
 					NodeContainer nc = (NodeContainer) n;
@@ -50,6 +47,7 @@ public class ProblemReporter {
 				return null;
 			}
 
+			@Nullable
 			@Override
 			public Object after(NodeBase n) throws Exception {
 				return null;
@@ -73,8 +71,8 @@ public class ProblemReporter {
 
 	public void report() throws Exception {
 		Set<IErrorFence> allFences = getAllFences();
-		m_existingErrorSet = getAllErrorSet(allFences);
-		m_errorSet = m_model.getErrorSet();
+		final Set<UIMessage> existingErrorSet = getAllErrorSet(allFences);
+		final ProblemSet newErrorSet = m_model.getErrorSet();
 
 		/*
 		 * All errors that can be connected to an UI element should go there. By reporting "with"
@@ -87,13 +85,15 @@ public class ProblemReporter {
 		 */
 		DomUtil.walkTree(m_rootNode, new DomUtil.IPerNode() {
 			@Override
+			@Nullable
 			public Object before(NodeBase n) throws Exception {
 				if(n instanceof IBindable) {
-					handleClaimError(n);
+					handleClaimError(existingErrorSet, newErrorSet, n);
 				}
 				return null;
 			}
 
+			@Nullable
 			@Override
 			public Object after(NodeBase n) throws Exception {
 				return null;
@@ -101,15 +101,15 @@ public class ProblemReporter {
 		});
 
 		//-- All messages that could be claimed are claimed now. Add the rest as "global" messages
-		for(ProblemInstance le : m_errorSet) {
-			if(!inExistingSet(null, le)) {
-				UIMessage ui = UIMessage.create(null, le);
+		for(ProblemInstance pi : newErrorSet) {
+			if(!inExistingSet(existingErrorSet, null, pi)) {
+				UIMessage ui = UIMessage.create(null, pi);
 				m_rootNode.addGlobalMessage(ui);
 			}
 		}
 
 		//-- Now get rid of all that was no longer reported
-		for(UIMessage old : m_existingErrorSet) {
+		for(UIMessage old : existingErrorSet) {
 			for(IErrorFence f : allFences) {
 				f.removeMessage(old);
 			}
@@ -121,7 +121,9 @@ public class ProblemReporter {
 	 */
 	static private final Comparator<ProblemInstance> C_BYSEVERITY = new Comparator<ProblemInstance>() {
 		@Override
-		public int compare(ProblemInstance a, ProblemInstance b) {
+		public int compare(@Nullable ProblemInstance a, @Nullable ProblemInstance b) {
+			if(a == null || b == null)
+				throw new IllegalStateException();
 			int rc = b.getProblem().getSeverity().getOrder() - a.getProblem().getSeverity().getOrder();
 			if(rc != 0)
 				return rc;
@@ -135,7 +137,7 @@ public class ProblemReporter {
 	 * @param errorSet
 	 * @param n
 	 */
-	private void handleClaimError(@Nonnull NodeBase n) {
+	private void handleClaimError(Set<UIMessage> existingErrorSet, ProblemSet newErrorSet, @Nonnull NodeBase n) {
 		IBindable b = (IBindable) n;
 		List<SimpleBinder> bindingList = b.getBindingList();
 		if(null == bindingList)
@@ -145,7 +147,7 @@ public class ProblemReporter {
 		List<ProblemInstance> all = new ArrayList<>();
 		List<UIMessage> bindingMessageList = new ArrayList<>();
 		for(SimpleBinder binding : bindingList) {
-			getErrorsOnBoundProperty(all, n, binding);
+			getErrorsOnBoundProperty(newErrorSet, all, n, binding);
 			UIMessage be = binding.getBindError();
 			if(null != be)
 				bindingMessageList.add(be);
@@ -162,7 +164,7 @@ public class ProblemReporter {
 		//-- Append these messages to all binding messages, making binding messages the "preferred" one to show @ the control
 		IErrorFence fence = DomUtil.getMessageFence(n);
 		for(ProblemInstance pi: all) {
-			if(! inExistingSet(n, pi)) {
+			if(!inExistingSet(existingErrorSet, n, pi)) {
 				//-- Needs to be added.
 				UIMessage ui = UIMessage.create(n, pi);
 				if(n.getMessage() == null) {
@@ -180,10 +182,10 @@ public class ProblemReporter {
 	 * @param pi
 	 * @return
 	 */
-	private boolean inExistingSet(@Nullable NodeBase node, ProblemInstance pi) {
-		for(UIMessage m : m_existingErrorSet) {
+	private boolean inExistingSet(Set<UIMessage> existingErrorSet, @Nullable NodeBase node, ProblemInstance pi) {
+		for(UIMessage m : existingErrorSet) {
 			if(m.getMessageKey().equals(pi.getProblem().getMessageKey()) && node == m.getErrorNode()) {
-				m_existingErrorSet.remove(m);
+				existingErrorSet.remove(m);
 				return true;
 			}
 		}
@@ -197,14 +199,14 @@ public class ProblemReporter {
 	 * @param n
 	 * @param binding
 	 */
-	private void getErrorsOnBoundProperty(@Nonnull List<ProblemInstance> all, @Nonnull NodeBase n, @Nonnull SimpleBinder binding) {
+	private void getErrorsOnBoundProperty(ProblemSet newErrorSet, @Nonnull List<ProblemInstance> all, @Nonnull NodeBase n, @Nonnull SimpleBinder binding) {
 		Object instance = binding.getInstance();
 		if(null == instance)								// Not an instance binding -> no errors here
 			return;
 		PropertyMetaModel< ? > property = binding.getInstanceProperty();
 		if(null == property)								// Not bound to property -> done
 			return;
-		Collection<ProblemInstance> errors = m_errorSet.remove(instance, property);	// Get and remove errors for this binding
+		Collection<ProblemInstance> errors = newErrorSet.remove(instance, property);	// Get and remove errors for this binding
 		all.addAll(errors);
 	}
 }

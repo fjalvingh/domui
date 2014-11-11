@@ -313,7 +313,7 @@ public class LogiModel {
 	private <T, P, I> boolean diffList(@Nonnull LogiEventSet les, PropertyMetaModel<P> pmm, @Nonnull T source, @Nonnull T copy, List<I> sourcel, List<I> copyl) throws Exception {
 		List<Diff<I>> dl = Diff.diffList(copyl, sourcel, new Comparator<I>() {			// What happened from COPY (old) to SOURCE (new)
 			@Override
-			public int compare(I a, I b) {
+				public int compare(@Nullable I a, @Nullable I b) {
 				return MetaManager.areObjectsEqual(a, b) ? 0 : -1;
 			}
 		});

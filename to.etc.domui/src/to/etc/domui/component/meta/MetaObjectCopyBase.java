@@ -5,6 +5,7 @@ import java.util.*;
 
 import javax.annotation.*;
 
+@DefaultNonNull
 class MetaObjectCopyBase<T> {
 	final private T m_source;
 

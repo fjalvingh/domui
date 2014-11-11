@@ -28,7 +28,7 @@ public class ProblemInstance {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if(this == obj)
 			return true;
 		if(obj == null)
@@ -88,6 +88,7 @@ public class ProblemInstance {
 		return m_instance;
 	}
 
+	@Nullable
 	public PropertyMetaModel< ? > getProperty() {
 		return m_property;
 	}

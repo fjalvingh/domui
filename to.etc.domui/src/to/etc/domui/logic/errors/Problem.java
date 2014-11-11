@@ -103,7 +103,7 @@ final public class Problem {
 	}
 
 	public <T> ProblemInstance on(@Nonnull ProblemModel errors, @Nonnull T instance, @Nonnull String property) {
-		ProblemInstance pi = new ProblemInstance(this, instance, MetaManager.findPropertyMeta(instance.getClass(), property));
+		ProblemInstance pi = new ProblemInstance(this, instance, MetaManager.getPropertyMeta(instance.getClass(), property));
 		errors.addProblem(pi);
 		return pi;										// Allow specialization using builder pattern.
 	}
@@ -117,7 +117,7 @@ final public class Problem {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if(this == obj)
 			return true;
 		if(obj == null)

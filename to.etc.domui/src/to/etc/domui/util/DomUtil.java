@@ -1474,7 +1474,7 @@ final public class DomUtil {
 		 * @return
 		 * @throws Exception
 		 */
-		public Object before(NodeBase n) throws Exception;
+		public Object before(@Nonnull NodeBase n) throws Exception;
 
 		/**
 		 * Called when all child nodes of the specified node have been traversed. When this returns a non-null
@@ -1483,7 +1483,7 @@ final public class DomUtil {
 		 * @return
 		 * @throws Exception
 		 */
-		public Object after(NodeBase n) throws Exception;
+		public Object after(@Nonnull NodeBase n) throws Exception;
 	}
 
 	/**
