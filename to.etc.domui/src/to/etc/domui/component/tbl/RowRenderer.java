@@ -306,45 +306,32 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 			cell.addCssClass(cssClass);
 		}
 
-		//-- Render the value, in whatever way
-
-		//-- Start rendering.
+		//-- Render the value, in whatever way. The value is bound to the model so that updates cause a render.
 		INodeContentRenderer<X> contentRenderer = cd.getContentRenderer();
-		if(null != contentRenderer) {
-			if(cd.isEditable()) {
+		PropertyMetaModel<X> pmm = cd.getPropertyMetaModel();
+		if(cd.isEditable()) {
+			if(null != contentRenderer)
 				throw new IllegalStateException("A column cannot be editable if you assign your own renderer to it: handle the editing inside the renderer yourself.");
-			}
-
-			//-- Using a content renderer means you need to take care of everything related to rendering yourself.
-			X colval = cd.getColumnValue(instance);
-			contentRenderer.renderNodeContent(tbl, cell, colval, instance);
-		} else if(cd.isEditable()) {
 			renderEditable(tbl, cd, cell, instance);
 		} else if(instance instanceof IObservableEntity) {
-			PropertyMetaModel<X> pmm = cd.getPropertyMetaModel();
 			if(null == pmm)
 				throw new IllegalStateException("Cannot render display value for row type of " + cd.getColumnLabel());
 			DisplaySpan<X> dv = new DisplaySpan<X>(cd.getActualClass());
 			cell.getBindingContext().unibind(instance, pmm.getName(), dv, "value");
 			cell.add(dv);
-		} else {
-			X value = cd.getColumnValue(instance);
-			PropertyMetaModel< ? > pmm = cd.getPropertyMetaModel();
-			if(pmm != null) {
-				IConverter<Object> converter = (IConverter<Object>) pmm.getConverter();
-				if(converter != null) {
-					DisplaySpan<Object> ds = new DisplaySpan<Object>(pmm.getActualType());
-					ds.setConverter(converter);
-					ds.setValue(value);
-					cell.add(ds);
-					return;
-				}
-			}
+		} else if(pmm != null) {
+			//-- Bind the property to a display control.
+			IConverter<X> converter = pmm.getConverter();
+			DisplaySpan<X> ds = new DisplaySpan<X>(pmm.getActualType());
+			ds.bind().to(instance, pmm);					// Bind value to model
+				ds.setRenderer(contentRenderer);				// Bind the display control and let it render through the content renderer, enabling binding
+			cell.add(ds);
 
-			if(null != value) {
-				cell.add(new DisplaySpan<X>(value));
+			if(converter != null) {
+				ds.setConverter(converter);
 			}
-		}
+		} else
+			throw new IllegalStateException("? Don't know how to render " + cd);
 	}
 
 	/**
