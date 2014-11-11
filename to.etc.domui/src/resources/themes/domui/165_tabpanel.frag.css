@@ -13,6 +13,12 @@
 	padding: 0;
 }
 
+.ui-tab-close-li {
+	margin: 0;
+	padding: 0;
+	white-space: nowrap;
+}
+
 .ui-tab-hdr {
 	float: left;
 	font-size: <%= font_size %>;
@@ -30,7 +36,7 @@
     list-style: none;
 }
 
-.ui-tab-hdr a {
+.ui-tab-div {
 	background: url("<%= tab_pnl_img %>") no-repeat scroll right -250px transparent;
     display: block;
     font-weight: bold;
@@ -45,11 +51,31 @@
 	vertical-align: top;	
 }
 
+.ui-tab-link {
+    display: inline-block;
+    font-weight: bold;
+    text-decoration: none;
+ 	color: <%= tab_pnl_inactive_col %>;
+	position: relative;    
+	padding: 2em;     
+	margin: -2em;
+}
+
+.ui-tab-close {
+    display: inline-block;
+    font-weight: bold;
+    text-decoration: none;
+ 	color: <%= tab_pnl_inactive_col %>;
+	position: relative;    
+	padding: 0em;     
+	margin: -0em;
+}
+
 .ui-tab-hdr li:hover {
 	background-position: left -300px;
 }
 
-.ui-tab-hdr li:hover a{
+.ui-tab-hdr li:hover div{
 	background-position: right -350px;
 	color: <%= tab_pnl_hover_inactive_col %>;
 }
@@ -59,13 +85,13 @@
 	background-position: left top;
 }
 
-.ui-tab-hdr li.ui-tab-sel a, 
-.ui-tab-hdr li.ui-tab-sel:hover a {
+.ui-tab-hdr li.ui-tab-sel div, 
+.ui-tab-hdr li.ui-tab-sel:hover div {
 	background-position: right -50px;
 	color: <%= tab_pnl_active_col %>;
 }
 
-li.ui-tab-err a {
+li.ui-tab-err div {
 	color: <%= errors_foreground %> !important;
 }
 

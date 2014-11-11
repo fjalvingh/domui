@@ -197,6 +197,7 @@ public class TabPanelBase extends Div {
 
 	private NodeContainer m_contentContainer;
 
+	private boolean m_closableTabs;
 
 	protected TabPanelBase(boolean markErrorTabs) {
 		m_markErrorTabs = markErrorTabs;
@@ -231,7 +232,7 @@ public class TabPanelBase extends Div {
 		}
 	}
 
-	protected void renderLabel(NodeContainer into, final int index, TabInstance ti) {
+	protected void renderLabel(final NodeContainer into, final int index, TabInstance ti) {
 		Li li = ti.getTab();
 		Li separator = new Li();
 		separator.setCssClass("ui-tab-ibt");
@@ -249,24 +250,71 @@ public class TabPanelBase extends Div {
 			//li.setCssClass(index == m_currentTab ? "ui-tab-lbl ui-tab-sel" : "ui-tab-lbl");
 		}
 
-		List<ATag> aTags = li.getChildren(ATag.class);
-		if(!aTags.isEmpty()) {
-			for(ATag aTag : aTags) {
-				li.removeChild(aTag);
+		List<Div> divs = li.getChildren(Div.class);
+		if(!divs.isEmpty()) {
+			for(Div div : divs) {
+				li.removeChild(div);
 			}
 		}
 
+		Div d = new Div();
+		d.setCssClass("ui-tab-div");
+		li.add(d);
+
 		ATag a = new ATag();
-		li.add(a);
+		a.setCssClass("ui-tab-link");
+		d.add(a);
+		Div dt = new Div();
+		a.add(dt);
 		if(ti.getImg() != null)
-			a.add(ti.getImg());
-		a.add(ti.getLabel()); // Append the label.
+			dt.add(ti.getImg());
+		dt.add(ti.getLabel()); // Append the label.
 		a.setClicked(new IClicked<ATag>() {
 			@Override
 			public void clicked(@Nonnull ATag b) throws Exception {
 				setCurrentTab(index);
 			}
 		});
+
+		if(index > 0 && hasCloseableTabs()) {
+			li.removeCssClass("ui-tab-li");
+			li.addCssClass("ui-tab-close-li");
+			ATag x = new ATag();
+			d.add(x);
+			Div ds = new Div();
+			x.add(ds);
+			ds.add("x");
+			x.setCssClass("ui-tab-close");
+			x.setClicked(new IClicked<ATag>() {
+				@Override
+				public void clicked(@Nonnull ATag b) throws Exception {
+					closeCurrentTab(into, index);
+				}
+
+			});
+		}
+	}
+
+	/**
+	 * Close the current tab
+	 *
+	 * @param index
+	 * @throws Exception
+	 */
+	private void closeCurrentTab(NodeContainer into, int index) throws Exception {
+
+		if(index == 0 && index == m_tablist.size())			// Can't remove the tab
+			return;
+
+		if(isBuilt()) {
+			setCurrentTab(0);
+
+			TabInstance ti = m_tablist.get(index);
+			NodeBase nb = ti.getTab();
+			nb.setDisplay(DisplayType.NONE);
+			m_tablist.remove(index);
+		}
+		renderTabPanels(into, m_contentContainer);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -441,6 +489,19 @@ public class TabPanelBase extends Div {
 		tab.setLabel(new TextNode(tabLabel));
 		tab.setImg(createIcon(tabIcon));
 		renderLabel(into, index, tab);
+	}
+
+	/**
+	 * If true all tabs except the first one can be closed. A cross is added to each tab.
+	 *
+	 * @return
+	 */
+	public boolean hasCloseableTabs() {
+		return m_closableTabs;
+	}
+
+	public void setClosableTabs(boolean closeableTabs) {
+		m_closableTabs = closeableTabs;
 	}
 
 }
