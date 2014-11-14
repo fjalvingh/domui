@@ -581,7 +581,7 @@ public abstract class DomApplication {
 	 * @return
 	 */
 	public HtmlFullRenderer findRendererFor(BrowserVersion bv, final IBrowserOutput o) {
-		boolean tm = inUiTestMode();
+		boolean tm = isUiTestMode();
 		for(IHtmlRenderFactory f : getRenderFactoryList()) {
 			HtmlFullRenderer tr = f.createFullRenderer(bv, o, tm);
 			if(tr != null)
@@ -594,7 +594,7 @@ public abstract class DomApplication {
 	}
 
 	public HtmlTagRenderer findTagRendererFor(BrowserVersion bv, final IBrowserOutput o) {
-		boolean tm = inUiTestMode();
+		boolean tm = isUiTestMode();
 		for(IHtmlRenderFactory f : getRenderFactoryList()) {
 			HtmlTagRenderer tr = f.createTagRenderer(bv, o, tm);
 			if(tr != null)
@@ -679,7 +679,7 @@ public abstract class DomApplication {
 		return m_developmentMode;
 	}
 
-	public synchronized boolean inUiTestMode() {
+	public synchronized boolean isUiTestMode() {
 		return m_uiTestMode;
 	}
 
@@ -842,7 +842,7 @@ public abstract class DomApplication {
 		addHeaderContributor(HeaderContributor.loadStylesheet("$js/jquery.wysiwyg.css"), -780);
 
 		//-- Web driver helpers
-		if(inTestUiMode()) {
+		if(isUiTestMode()) {
 			addHeaderContributor(HeaderContributor.loadJavascript("$js/web-driver/fileSaver.js"), 11);
 			addHeaderContributor(HeaderContributor.loadJavascript("$js/web-driver/sharedLocatorGenerator.js"), 13);
 			addHeaderContributor(HeaderContributor.loadJavascript("$js/web-driver/domuiLocatorGenerator.js"), 12);
@@ -863,14 +863,6 @@ public abstract class DomApplication {
 		 * FIXME Same as above, this is for loading the CKEditor.
 		 */
 		addHeaderContributor(HeaderContributor.loadJavascript("$ckeditor/ckeditor.js"), -760);
-	}
-
-	/**
-	 * Determines if you are in mode for testing UI.
-	 * @return
-	 */
-	public static boolean inTestUiMode() {
-		return DeveloperOptions.getBool("domui.testui", false);
 	}
 
 	/**
