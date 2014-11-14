@@ -40,6 +40,10 @@ public class AppEvent extends AppEventBase {
 	@Nullable
 	private ChangeType m_type;
 
+	public AppEvent() {
+		super();
+	}
+
 	public AppEvent(final ChangeType type, final long key) {
 		setKey(key);
 		setType(type);

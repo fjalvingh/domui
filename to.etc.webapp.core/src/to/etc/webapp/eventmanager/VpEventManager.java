@@ -24,7 +24,6 @@
  */
 package to.etc.webapp.eventmanager;
 
-import java.io.*;
 import java.lang.ref.*;
 import java.lang.reflect.*;
 import java.net.*;
@@ -113,7 +112,7 @@ import to.etc.util.*;
  *      UTIME       DATE not null,
  *      EVNAME      VARCHAR(80) not null,
  *      SERVER      VARCHAR(80) not null,
- *      OBJ         BLOB
+ *      OBJ         VARCHAR(4000)
  * </pre>
  * De UPID PK is monotoon stijgend gevuld vanuit de sequence RED_VP_EVENTS_SQ. Zowel tabel als
  * sequence worden door de code zelf gecreeerd. Ieder event wat wordt gegenereerd door de code
@@ -166,6 +165,9 @@ public class VpEventManager implements Runnable {
 	/** If initialized in test mode this contains the per-thread instances of this singleton. */
 	@Nullable
 	static private ThreadLocal<VpEventManager> m_testInstances;
+
+	@Nullable
+	private static IEventMarshaller m_eventMarshaller;
 
 	private DataSource m_ds;
 
@@ -243,9 +245,10 @@ public class VpEventManager implements Runnable {
 	 * Initialize for production mode.
 	 * @param ds
 	 * @param tableName
+	 * @param eventMarshaller
 	 * @throws Exception
 	 */
-	static public synchronized void initialize(final DataSource ds, final String tableName) throws Exception {
+	static public synchronized void initialize(final DataSource ds, final String tableName, @Nonnull final IEventMarshaller eventMarshaller) throws Exception {
 		ThreadLocal<VpEventManager> tl = m_testInstances;
 		if(null != tl)
 			throw new IllegalStateException("The VpEventManager has already been initialized for TEST mode");
@@ -255,6 +258,7 @@ public class VpEventManager implements Runnable {
 		VpEventManager em = new VpEventManager();
 		em.init(ds, tableName);
 		m_instance = em;
+		m_eventMarshaller = eventMarshaller;
 	}
 
 	static public synchronized void initializeForTest() {
@@ -322,12 +326,14 @@ public class VpEventManager implements Runnable {
 				default:
 					throw new IllegalStateException("Unhandled DBTYPE: " + m_dbtype);
 				case ORACLE:
-					tbl = "create table " + m_tableName + "( upid numeric(20,0) not null primary key, utime date not null, evname varchar(80) not null, server varchar(32) not null, obj blob)";
+					tbl = "create table " + m_tableName
+						+ "( upid numeric(20,0) not null primary key, utime date not null, evname varchar(80) not null, server varchar(32) not null, obj varchar2(4000 char))";
 					seq = "create sequence " + m_tableName + "_SQ start with 1 increment by 1";
 					break;
 
 				case POSTGRES:
-					tbl = "create table " + m_tableName + "( upid numeric(20,0) not null primary key, utime date not null, evname varchar(80) not null, server varchar(32) not null, obj bytea)";
+					tbl = "create table " + m_tableName
+						+ "( upid numeric(20,0) not null primary key, utime date not null, evname varchar(80) not null, server varchar(32) not null, obj varchar(4000))";
 					seq = "create sequence " + m_tableName + "_SQ start with 1 increment by 1";
 					break;
 			}
@@ -525,37 +531,31 @@ public class VpEventManager implements Runnable {
 		//        String  evname  = rs.getString(2);
 		Timestamp ts = rs.getTimestamp(3);
 		String server = rs.getString(4);
-		Blob b = rs.getBlob(5);
+		String objectString = rs.getString(5);
 
 		//-- Unserialize
-		ObjectInputStream ois = null;
 		try {
-			ois = new ObjectInputStream(b.getBinaryStream());
-			Object oo = ois.readObject();
-			if(oo == null) {
-				log("Event " + upid + " skipped: the embedded object is null");
-				return;
-			}
+			final IEventMarshaller eventMarshaller = m_eventMarshaller;
+			if(eventMarshaller != null) {
+				AppEventBase act = eventMarshaller.unmarshalEvent(objectString);
+				if(act == null) {
+					log("Event " + upid + " skipped: the embedded object is null");
+					return;
+				}
 
-			if(!(oo instanceof AppEventBase)) {
-				log("Event " + upid + ": The stored object is not an AppEvent but a " + oo.getClass().getCanonicalName());
-				return;
-			}
 
-			//-- Update the AppEvent with the data read (should not be necessary)
-			AppEventBase e = (AppEventBase) oo;
-			e.setServer(server);
-			e.setTimestamp(ts);
-			e.setUpid(upid);
-			al.add(e);
+				//-- Update the AppEvent with the data read (should not be necessary)
+				AppEventBase e = act;
+				e.setServer(server);
+				e.setTimestamp(ts);
+				e.setUpid(upid);
+				al.add(e);
+			} else {
+				// TODO handle null value
+			}
 		} catch(Exception x) {
 			log("Event " + upid + ": serialization got exception " + x);
 			//			x.printStackTrace();
-		} finally {
-			try {
-				if(ois != null)
-					ois.close();
-			} catch(Exception x) {}
 		}
 	}
 
@@ -663,8 +663,6 @@ public class VpEventManager implements Runnable {
 	public long sendEventMain(@Nonnull final Connection dbc, @Nonnull final AppEventBase ae, final boolean commit, final boolean isimmediate) throws Exception {
 		ResultSet rs = null;
 		PreparedStatement ps = null;
-		OutputStream os = null;
-		ObjectOutputStream oos = null;
 		boolean ac = dbc.getAutoCommit(); // Do not autocommit when storing a blub
 		boolean ok = false;
 		try {
@@ -692,27 +690,20 @@ public class VpEventManager implements Runnable {
 			}
 
 			//-- Store the record,
-			ps = dbc.prepareStatement("insert into " + m_tableName + "(upid,evname,utime,server,obj) values(?,?,?,?,empty_blob())");
+			ps = dbc.prepareStatement("insert into " + m_tableName + "(upid,evname,utime,server,obj) values(?,?,?,?,?)");
 			ps.setLong(1, id);
 			ps.setString(2, ae.getClass().getCanonicalName());
 			ps.setTimestamp(3, (Timestamp) ae.getTimestamp());
 			ps.setString(4, ae.getServer());
+			final IEventMarshaller eventMarshaller = m_eventMarshaller;
+			if(eventMarshaller != null) {
+				ps.setString(5, eventMarshaller.marshalEvent(ae));
+			} else {
+				throw new IllegalStateException("");
+			}
 			ps.executeUpdate();
 			ps.close();
 
-			//-- Store the lob..
-			ps = dbc.prepareStatement("select obj from " + m_tableName + " where upid=? for update of obj");
-			ps.setLong(1, id);
-			rs = ps.executeQuery();
-			if(!rs.next())
-				throw new IllegalStateException("Can't (re)find the record I just stored!?");
-			Blob b = rs.getBlob(1);
-			os = (OutputStream) callObjectMethod(b, "getBinaryOutputStream");
-			oos = new ObjectOutputStream(os);
-			oos.writeObject(ae);
-			oos.close();
-			oos = null;
-			os = null;
 			rs.close();
 			ps.close();
 			if(commit) {
@@ -722,14 +713,6 @@ public class VpEventManager implements Runnable {
 			return id;
 		} finally {
 			try {
-				if(oos != null)
-					oos.close();
-			} catch(Exception x) {}
-			try {
-				if(os != null)
-					os.close();
-			} catch(Exception x) {}
-			try {
 				if(!ok)
 					dbc.rollback();
 			} catch(Exception x) {}
@@ -737,14 +720,7 @@ public class VpEventManager implements Runnable {
 				if(ac && commit)
 					dbc.setAutoCommit(true);
 			} catch(Exception x) {}
-			try {
-				if(rs != null)
-					rs.close();
-			} catch(Exception x) {}
-			try {
-				if(ps != null)
-					ps.close();
-			} catch(Exception x) {}
+			FileTool.closeAll(rs, ps);
 		}
 	}
 
