@@ -12,12 +12,12 @@
   </component>
   <component name="NewModuleRootManager" inherit-compiler-output="false">
     <output url="file://$MODULE_DIR$/build/classes" />
+    <exclude-output />
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="org.eclipse.jst.j2ee.internal.web.container" level="application" />
     <orderEntry type="module" module-name="lib-hibernate" />
     <orderEntry type="module" module-name="to.etc.domui" />
     <orderEntry type="module" module-name="to.etc.domui.hibutil" />
@@ -43,12 +43,9 @@
       </library>
     </orderEntry>
     <orderEntry type="jdk" jdkName="JavaSE-1.7" jdkType="JavaSDK" />
-    <orderEntry type="library" name="org.eclipse.jst.server.core.container/org.eclipse.jst.server.tomcat.runtimeTarget/Apache Tomcat v7.0" level="application" />
     <orderEntry type="module" module-name="to.etc.domui.formbuilder" />
     <orderEntry type="module" module-name="bin-junit-4.11" />
-    <orderEntry type="module" module-name="to.etc.db" />
     <orderEntry type="module" module-name="bin-j2ee-1.4" />
-    <orderEntry type="library" name="annotations" level="project" />
+    <orderEntry type="module" module-name="to.etc.db" />
   </component>
 </module>
-
