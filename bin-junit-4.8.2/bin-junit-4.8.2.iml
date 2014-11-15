@@ -3,11 +3,11 @@
   <component name="EclipseModuleManager" forced_jdk="true">
     <libelement value="jar://$MODULE_DIR$/junit-4.8.2.jar!/" />
     <conelement value="org.eclipse.jst.j2ee.internal.module.container" />
-    <conelement value="org.eclipse.jst.server.core.container/org.eclipse.jst.server.tomcat.runtimeTarget/Apache Tomcat v6.0" />
-    <src_description expected_position="3" />
+    <src_description expected_position="1" />
   </component>
   <component name="NewModuleRootManager" inherit-compiler-output="false">
     <output url="file://$MODULE_DIR$/bin" />
+    <exclude-output />
     <content url="file://$MODULE_DIR$" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library" exported="">
@@ -21,6 +21,5 @@
         </SOURCES>
       </library>
     </orderEntry>
-    <orderEntry type="jdk" jdkName="JavaSE-1.7" jdkType="JavaSDK" />
   </component>
 </module>

@@ -3,10 +3,11 @@
   <component name="EclipseModuleManager" forced_jdk="true">
     <libelement value="jar://$MODULE_DIR$/picocontainer-2.14.3.jar!/" />
     <conelement value="org.eclipse.jst.j2ee.internal.module.container" />
-    <src_description expected_position="3" />
+    <src_description expected_position="1" />
   </component>
   <component name="NewModuleRootManager" inherit-compiler-output="false">
     <output url="file://$MODULE_DIR$/bin" />
+    <exclude-output />
     <content url="file://$MODULE_DIR$" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
