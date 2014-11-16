@@ -225,12 +225,29 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 	 */
 	@Override
 	final public V getValue() {
-		if(isMandatory() && m_currentValue == null) {
-			setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.MANDATORY));
-			throw new ValidationException(Msgs.MANDATORY);
-		} else
+		try {
+			validate();
 			clearMessage();
+			return m_currentValue;
+		} catch(ValidationException vx) {
+			setMessage(UIMessage.error(vx));
+			throw vx;
+		}
+	}
+
+	final public V getBindValue() {
+		validate();
 		return m_currentValue;
+	}
+
+	final public void setBindValue(V value) {
+		setValue(value);
+	}
+
+	private void validate() {
+		if(isMandatory() && m_currentValue == null) {
+			throw new ValidationException(Msgs.MANDATORY);
+		}
 	}
 
 	/**
@@ -489,7 +506,7 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 
 	@Override
 	public @Nonnull IBinder bind() {
-		return bind("value");
+		return bind("bindValue");
 	}
 
 	@Override
