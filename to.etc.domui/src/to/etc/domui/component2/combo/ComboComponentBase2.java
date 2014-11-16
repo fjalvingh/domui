@@ -595,15 +595,30 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 	/*	CODING:	Hard data binding support.							*/
 	/*--------------------------------------------------------------*/
 
+	@Nullable
+	private IValueChanged<?> m_onValueChanged;
+
 	@Override
 	public IValueChanged< ? > getOnValueChanged() {
-		return m_select.getOnValueChanged();
+		return m_onValueChanged;
 	}
 
 	@Override
 	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
-		m_select.setOnValueChanged(onValueChanged);
-
+		if(m_onValueChanged == onValueChanged)
+			return;
+		m_onValueChanged = onValueChanged;
+		if(null == onValueChanged) {
+			m_select.setOnValueChanged(null);
+		} else {
+			m_select.setOnValueChanged(new IValueChanged<Select>() {
+				@Override public void onValueChanged(@Nonnull Select component) throws Exception {
+					IValueChanged<ComboComponentBase2<T, V>> vc = (IValueChanged<ComboComponentBase2<T, V>>) m_onValueChanged;
+					if(null != vc)
+						vc.onValueChanged(ComboComponentBase2.this);
+				}
+			});
+		}
 	}
 
 	@Override
