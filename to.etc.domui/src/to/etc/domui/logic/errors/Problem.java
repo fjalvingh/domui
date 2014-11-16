@@ -1,11 +1,11 @@
 package to.etc.domui.logic.errors;
 
-import javax.annotation.*;
-import javax.annotation.concurrent.*;
-
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.webapp.nls.*;
+
+import javax.annotation.*;
+import javax.annotation.concurrent.*;
 
 /**
  * EXPERIMENTAL
@@ -24,7 +24,7 @@ import to.etc.webapp.nls.*;
  * Created on Nov 7, 2014
  */
 @Immutable
-final public class Problem {
+public class Problem {
 	final private BundleRef m_bundle;
 
 	final private String m_code;

@@ -1,12 +1,12 @@
 package to.etc.domui.component2.form4;
 
-import javax.annotation.*;
-
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component2.controlfactory.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.webapp.annotations.*;
+
+import javax.annotation.*;
 
 /**
  * Yet another attempt at a generic form builder, using the Builder pattern. The builder
@@ -121,6 +121,11 @@ final public class FormBuilder {
 		return this;
 	}
 
+	@Nonnull
+	public FormBuilder mandatory() {
+		m_mandatory = true;
+		return this;
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING: defining (manually created) controls.				*/
@@ -131,6 +136,11 @@ final public class FormBuilder {
 	 * @throws Exception
 	 */
 	public void control(@Nonnull IControl< ? > control) throws Exception {
+		if(control.isMandatory()) {
+			m_mandatory = true;
+		} else if(m_mandatory) {
+			control.setMandatory(true);
+		}
 		addControl((NodeBase) control);
 		resetBuilder();
 	}
