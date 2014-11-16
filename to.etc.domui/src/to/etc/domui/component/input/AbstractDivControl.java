@@ -24,12 +24,11 @@
  */
 package to.etc.domui.component.input;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * Abstract base class for a control that is implemented on top of a DIV. This handles most basic actions required of
@@ -98,6 +97,11 @@ abstract public class AbstractDivControl<T> extends Div implements IControl<T> {
 	@Override
 	public T getValue() {
 		validate();
+		return m_value;
+	}
+
+	@Nullable
+	protected T internalGetValue() {
 		return m_value;
 	}
 
