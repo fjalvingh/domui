@@ -137,9 +137,12 @@ final public class FormBuilder {
 	 */
 	public void control(@Nonnull IControl< ? > control) throws Exception {
 		if(control.isMandatory()) {
-			m_mandatory = true;
-		} else if(m_mandatory) {
-			control.setMandatory(true);
+			m_mandatory = Boolean.TRUE;
+		} else {
+			Boolean mand = m_mandatory;
+			if(null != mand && mand.booleanValue()) {
+				control.setMandatory(true);
+			}
 		}
 		addControl((NodeBase) control);
 		resetBuilder();
