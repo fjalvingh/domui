@@ -283,7 +283,7 @@ public class TabPanelBase extends Div {
 			d.add(x);
 			Div ds = new Div();
 			x.add(ds);
-			ds.add("x");
+			ds.add("X");
 			x.setCssClass("ui-tab-close");
 			x.setClicked(new IClicked<ATag>() {
 				@Override
@@ -307,7 +307,11 @@ public class TabPanelBase extends Div {
 			return;
 
 		if(isBuilt()) {
-			setCurrentTab(0);
+			if(index == getCurrentTab()) {
+				setCurrentTab(0);
+			} else if(index < getCurrentTab()) {
+				internalSetCurrentTab(getCurrentTab() - 1);
+			}
 
 			TabInstance ti = m_tablist.get(index);
 			NodeBase nb = ti.getTab();

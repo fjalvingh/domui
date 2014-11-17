@@ -172,3 +172,7 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	padding: 0em;     
 	margin: -0em;
 }
+
+.ui-tab-hdr li.ui-tab-close-li div.ui-tab-div a.ui-tab-close div:hover{
+	color: <%= tab_pnl_close_tab %>;
+}

@@ -71,6 +71,10 @@
 	margin: -0em;
 }
 
+.ui-tab-hdr li.ui-tab-close-li div.ui-tab-div a.ui-tab-close div:hover{
+	color: <%= tab_pnl_close_tab %>;
+}
+
 .ui-tab-hdr li:hover {
 	background-position: left -300px;
 }
