@@ -1,14 +1,13 @@
 package to.etc.domui.logic.errors;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * Experimental.
@@ -70,6 +69,8 @@ public class ProblemReporter {
 	}
 
 	public void report() throws Exception {
+		System.out.println("\n\n----- Reporting errors");
+
 		Set<IErrorFence> allFences = getAllFences();
 		final Set<UIMessage> existingErrorSet = getAllErrorSet(allFences);
 		final ProblemSet newErrorSet = m_model.getErrorSet();
@@ -82,13 +83,17 @@ public class ProblemReporter {
 		 *
 		 * A solution would be a binding map, but that will cause trouble with gc. So we use the
 		 * component tree itself to register errors.
+		 *
+		 * Beside: collect the nodes first; handling errors modifies the tree so doing it inside
+		 * IPerNode proved a bad idea 8-(
 		 */
+		final List<NodeBase> bindableNodes = new ArrayList<>();
 		DomUtil.walkTree(m_rootNode, new DomUtil.IPerNode() {
 			@Override
 			@Nullable
 			public Object before(NodeBase n) throws Exception {
 				if(n instanceof IBindable) {
-					handleClaimError(existingErrorSet, newErrorSet, n);
+					bindableNodes.add(n);
 				}
 				return null;
 			}
@@ -99,6 +104,13 @@ public class ProblemReporter {
 				return null;
 			}
 		});
+
+		//-- Now handle all
+		for(NodeBase n : bindableNodes) {
+			System.out.println(" node: "+desc(n));
+			handleClaimError(existingErrorSet, newErrorSet, n);
+		}
+
 
 		//-- All messages that could be claimed are claimed now. Add the rest as "global" messages
 		for(ProblemInstance pi : newErrorSet) {
@@ -134,7 +146,8 @@ public class ProblemReporter {
 	/**
 	 * For the component, find all bindings on it and check each for errors to be reported. If no error
 	 * is found at all the component's error state is cleared.
-	 * @param errorSet
+	 * @param existingErrorSet
+	 * @param newErrorSet
 	 * @param n
 	 */
 	private void handleClaimError(Set<UIMessage> existingErrorSet, ProblemSet newErrorSet, @Nonnull NodeBase n) {
@@ -153,8 +166,11 @@ public class ProblemReporter {
 				bindingMessageList.add(be);
 		}
 		if(all.size() == 0) {
-			if(bindingMessageList.size() == 0)
+			if(bindingMessageList.size() == 0) {
+				System.out.println("    er: "+desc(n)+" component error cleared");
 				n.setMessage(null);
+			}
+			System.out.println("    er: "+desc(n)+" 0 claimed, "+bindingMessageList.size()+" bind errors - not reporting");
 			return;
 		}
 
@@ -169,10 +185,18 @@ public class ProblemReporter {
 				UIMessage ui = UIMessage.create(n, pi);
 				if(n.getMessage() == null) {
 					n.setMessage(ui);
+					System.out.println("    er: "+desc(n)+" component set to "+ui);
 				}
 				fence.addMessage(ui);
+				System.out.println("    er: " + desc(n) + " added " + ui+" to fence");
+			} else {
+				System.out.println("    er: "+desc(n)+" existing error "+pi+" already shown");
 			}
 		}
+	}
+
+	static private String desc(NodeBase n) {
+		return "'"+n.getComponentInfo()+"' ("+n.getActualID()+")";
 	}
 
 	/**

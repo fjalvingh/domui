@@ -1240,7 +1240,13 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 		SimpleBinder binding = SimpleBinder.findBinding(this, "value");
 		if(binding != null) {
 			sb.append(" ").append(binding);
+		} else {
+			binding = SimpleBinder.findBinding(this, "bindValue");
+			if(binding != null) {
+				sb.append(" ").append(binding);
+			}
 		}
+
 		if(this instanceof NodeContainer) {
 			String txt = DomUtil.calcNodeText((NodeContainer) this);
 			if(txt.length() > 0)
@@ -1261,6 +1267,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 	@Override
 	@Nullable
 	public UIMessage setMessage(@Nullable final UIMessage msg) {
+		System.out.println("    setMessage '"+getComponentInfo() +"' ("+getActualID()+") to '"+msg+"'");
+
 		//-- If this (new) message has a LOWER severity than the EXISTING message ignore this call and return the EXISTING message
 		UIMessage old = m_message;
 		if(old == msg)
