@@ -25,7 +25,6 @@
 package to.etc.webapp.eventmanager;
 
 import java.lang.ref.*;
-import java.lang.reflect.*;
 import java.net.*;
 import java.sql.*;
 import java.util.*;
@@ -37,6 +36,7 @@ import javax.sql.*;
 import org.slf4j.*;
 
 import to.etc.util.*;
+import to.etc.webapp.testsupport.*;
 
 /**
  * <h1>Overview</h1>
@@ -166,12 +166,14 @@ public class VpEventManager implements Runnable {
 	@Nullable
 	static private ThreadLocal<VpEventManager> m_testInstances;
 
-	@Nullable
-	private static IEventMarshaller m_eventMarshaller;
-
+	@Nonnull
 	private DataSource m_ds;
 
+	@Nonnull
 	private String m_tableName;
+
+	@Nonnull
+	private IEventMarshaller m_eventMarshaller;
 
 	/** The last update ID that was encountered while scanning the set. */
 	private long m_upid = -1;
@@ -210,7 +212,10 @@ public class VpEventManager implements Runnable {
 	/*	CODING:	Singleton init.                                  	*/
 	/*--------------------------------------------------------------*/
 
-	private VpEventManager() {
+	private VpEventManager(@Nonnull final DataSource ds, @Nonnull final String tableName, @Nonnull final IEventMarshaller eventMarshaller) {
+		m_ds = ds;
+		m_tableName = tableName;
+		m_eventMarshaller = eventMarshaller;
 		try {
 			m_serverName = InetAddress.getLocalHost().getCanonicalHostName();
 		} catch(Exception x) {
@@ -229,8 +234,7 @@ public class VpEventManager implements Runnable {
 		if(null != tl) {
 			em = tl.get();
 			if(null == em) {
-				em = new VpEventManager();
-				em.initializeForTests();
+				em = initDummyEventManagerForTest();
 				tl.set(em);
 			}
 		} else {
@@ -239,6 +243,21 @@ public class VpEventManager implements Runnable {
 		if(null == em)
 			throw new IllegalStateException("The VpEventManager has not been initialized");
 		return em;
+	}
+
+	private static VpEventManager initDummyEventManagerForTest() {
+		IEventMarshaller dummyEM = new IEventMarshaller() {
+			@Override
+			public <T extends AppEventBase> T unmarshalEvent(String varchar) throws Exception {
+				return null;
+			}
+
+			@Override
+			public String marshalEvent(AppEventBase event) throws Exception {
+				return "";
+			}
+		};
+		return new VpEventManager(new TestDataSourceStub(), "sys_vp_events", dummyEM);
 	}
 
 	/**
@@ -255,10 +274,9 @@ public class VpEventManager implements Runnable {
 		if(m_instance != null)
 			return;
 
-		VpEventManager em = new VpEventManager();
-		em.init(ds, tableName);
+		VpEventManager em = new VpEventManager(ds, tableName, eventMarshaller);
+		em.init();
 		m_instance = em;
-		m_eventMarshaller = eventMarshaller;
 	}
 
 	static public synchronized void initializeForTest() {
@@ -272,10 +290,6 @@ public class VpEventManager implements Runnable {
 
 	static public synchronized boolean inJUnitTestMode() {
 		return m_testInstances != null;
-	}
-
-	private synchronized void initializeForTests() {
-		m_tableName = "sys_vp_events";
 	}
 
 	private void log(final String s) {
@@ -371,13 +385,12 @@ public class VpEventManager implements Runnable {
 	 * @param tableName
 	 * @throws Exception
 	 */
-	private synchronized void init(final DataSource ds, final String tableName) throws Exception {
-		m_tableName = tableName;
+	private synchronized void init() throws Exception {
 		Connection dbc = null;
 		ResultSet rs = null;
 		PreparedStatement ps = null;
 		try {
-			dbc = ds.getConnection();
+			dbc = m_ds.getConnection();
 			createTable(dbc); // Make sure a database table exists
 
 			//-- Get the last update #
@@ -390,20 +403,8 @@ public class VpEventManager implements Runnable {
 			m_ts_nextdelete = System.currentTimeMillis() + DELETEINTERVAL;
 			checkPendingDeletes(dbc);
 		} finally {
-			try {
-				if(rs != null)
-					rs.close();
-			} catch(Exception x) {}
-			try {
-				if(ps != null)
-					ps.close();
-			} catch(Exception x) {}
-			try {
-				if(dbc != null)
-					dbc.close();
-			} catch(Exception x) {}
+			FileTool.closeAll(rs, ps, dbc);
 		}
-		m_ds = ds;
 	}
 
 	/**
@@ -535,24 +536,19 @@ public class VpEventManager implements Runnable {
 
 		//-- Unserialize
 		try {
-			final IEventMarshaller eventMarshaller = m_eventMarshaller;
-			if(eventMarshaller != null) {
-				AppEventBase act = eventMarshaller.unmarshalEvent(objectString);
-				if(act == null) {
-					log("Event " + upid + " skipped: the embedded object is null");
-					return;
-				}
-
-
-				//-- Update the AppEvent with the data read (should not be necessary)
-				AppEventBase e = act;
-				e.setServer(server);
-				e.setTimestamp(ts);
-				e.setUpid(upid);
-				al.add(e);
-			} else {
-				// TODO handle null value
+			AppEventBase act = m_eventMarshaller.unmarshalEvent(objectString);
+			if(act == null) {
+				log("Event " + upid + " skipped: the embedded object is null");
+				return;
 			}
+
+
+			//-- Update the AppEvent with the data read (should not be necessary)
+			AppEventBase e = act;
+			e.setServer(server);
+			e.setTimestamp(ts);
+			e.setUpid(upid);
+			al.add(e);
 		} catch(Exception x) {
 			log("Event " + upid + ": serialization got exception " + x);
 			//			x.printStackTrace();
@@ -631,31 +627,6 @@ public class VpEventManager implements Runnable {
 	}
 
 	/**
-	 * Generic caller of a method using reflection. This prevents us from having
-	 * to link to the stupid Oracle driver.
-	 * @param src
-	 * @param name
-	 * @return
-	 * @throws Exception
-	 */
-	static private Object callObjectMethod(@Nonnull final Object src, @Nonnull final String name) throws SQLException {
-		try {
-			Method m = src.getClass().getMethod(name, new Class[0]);
-			return m.invoke(src, new Object[0]);
-		} catch(InvocationTargetException itx) {
-			if(itx.getCause() instanceof SQLException)
-				throw (SQLException) itx.getCause();
-			if(itx.getCause() instanceof RuntimeException)
-				throw (RuntimeException) itx.getCause();
-			throw new RuntimeException(itx.getCause());
-		} catch(RuntimeException x) {
-			throw x;
-		} catch(Exception x) {
-			throw new RuntimeException("Exception calling " + name + " on " + src + ": " + x, x);
-		}
-	}
-
-	/**
 	 * NOT FOR COMMON USE - Primitive event poster. This adds the event to the listener queue (the database) and
 	 * adds it to the "local" event queue *if* the event is an immediate event (an event whose
 	 * handler will be called immediately).
@@ -695,12 +666,7 @@ public class VpEventManager implements Runnable {
 			ps.setString(2, ae.getClass().getCanonicalName());
 			ps.setTimestamp(3, (Timestamp) ae.getTimestamp());
 			ps.setString(4, ae.getServer());
-			final IEventMarshaller eventMarshaller = m_eventMarshaller;
-			if(eventMarshaller != null) {
-				ps.setString(5, eventMarshaller.marshalEvent(ae));
-			} else {
-				throw new IllegalStateException("");
-			}
+			ps.setString(5, m_eventMarshaller.marshalEvent(ae));
 			ps.executeUpdate();
 			ps.close();
 
