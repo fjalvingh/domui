@@ -223,6 +223,11 @@ public class TabPanelBase extends Div {
 	protected void renderTabPanels(NodeContainer labelcontainer, NodeContainer contentcontainer) {
 		m_contentContainer = contentcontainer;
 		int index = 0;
+
+		if(m_tablist.isEmpty()) {
+			contentcontainer.remove();
+		}
+
 		for(TabInstance ti : m_tablist) {
 			renderLabel(labelcontainer, index, ti);
 			boolean isselected = getCurrentTab() == index;
@@ -316,21 +321,23 @@ public class TabPanelBase extends Div {
 	 */
 	private void closeCurrentTab(NodeContainer into, int index) throws Exception {
 
-		if(index == 0 && index == m_tablist.size())			// Can't remove the tab
+		if(index < 0 && index >= m_tablist.size()) {
 			return;
+		}
 
 		if(isBuilt()) {
-			if(index == getCurrentTab()) {
-				setCurrentTab(0);
-			} else if(index < getCurrentTab()) {
-				internalSetCurrentTab(getCurrentTab() - 1);
+			if(m_tablist.size() > 1) {
+				if(index == getCurrentTab()) {
+					setCurrentTab(0);
+				} else if(index < getCurrentTab()) {
+					internalSetCurrentTab(getCurrentTab() - 1);
+				}
 			}
-
 			TabInstance ti = m_tablist.get(index);
 			NodeBase nb = ti.getTab();
-			nb.setDisplay(DisplayType.NONE);
-			m_tablist.remove(index);
+			nb.remove();
 		}
+		m_tablist.remove(index);
 		renderTabPanels(into, m_contentContainer);
 	}
 
@@ -347,9 +354,18 @@ public class TabPanelBase extends Div {
 		add(content, label, false);
 	}
 
+	public void add(NodeBase content, boolean closable, String label) {
+		add(content, closable, label, false);
+	}
+
 	public void add(NodeBase content, String label, boolean lazy) {
 		TextNode tn = new TextNode(label);
 		add(content, tn, lazy);
+	}
+
+	public void add(NodeBase content, boolean closable, String label, boolean lazy) {
+		TextNode tn = new TextNode(label);
+		add(content, tn, closable, lazy);
 	}
 
 	public void add(NodeBase content, String label, String icon) {
@@ -374,13 +390,17 @@ public class TabPanelBase extends Div {
 		add(content, tablabel, false);
 	}
 
+	public void add(NodeBase content, NodeBase tablabel, boolean lazy) {
+		add(content, tablabel, false, lazy);
+	}
+
 	/**
 	 * Add a tab page with a complex label part.
 	 * @param content
 	 * @param tablabel
 	 */
-	public void add(NodeBase content, NodeBase tablabel, boolean lazy) {
-		TabInstance tabInstance = new TabInstance(tablabel, content, null, false);
+	public void add(NodeBase content, NodeBase tablabel, boolean closable, boolean lazy) {
+		TabInstance tabInstance = new TabInstance(tablabel, content, null, closable);
 		tabInstance.setLazy(lazy);
 		if(m_markErrorTabs) {
 			DomUtil.getMessageFence(this).addErrorListener(tabInstance);
