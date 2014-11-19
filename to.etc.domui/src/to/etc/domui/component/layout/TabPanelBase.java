@@ -51,12 +51,15 @@ public class TabPanelBase extends Div {
 
 		private boolean m_added;
 
+		private boolean m_closable;
+
 		private List<UIMessage> m_msgList = new ArrayList<UIMessage>();
 
-		public TabInstance(NodeBase label, NodeBase content, Img img) {
+		public TabInstance(NodeBase label, NodeBase content, Img img, boolean closable) {
 			m_label = label;
 			m_content = content;
 			m_img = img;
+			m_closable = closable;
 		}
 
 		public NodeBase getContent() {
@@ -102,6 +105,20 @@ public class TabPanelBase extends Div {
 		public void setAdded(boolean added) {
 			m_added = added;
 		}
+
+		/**
+		 * If true this tab can be closed. A cross is added.
+		 *
+		 * @return
+		 */
+		public boolean isCloseable() {
+			return m_closable;
+		}
+
+		public void setClosable(boolean closeable) {
+			m_closable = closeable;
+		}
+
 
 		@Override
 		public void errorMessageAdded(@Nonnull UIMessage m) {
@@ -197,8 +214,6 @@ public class TabPanelBase extends Div {
 
 	private NodeContainer m_contentContainer;
 
-	private boolean m_closableTabs;
-
 	protected TabPanelBase(boolean markErrorTabs) {
 		m_markErrorTabs = markErrorTabs;
 		if(markErrorTabs)
@@ -251,10 +266,8 @@ public class TabPanelBase extends Div {
 		}
 
 		List<Div> divs = li.getChildren(Div.class);
-		if(!divs.isEmpty()) {
-			for(Div div : divs) {
-				li.removeChild(div);
-			}
+		for(Div div : divs) {
+			li.removeChild(div);
 		}
 
 		Div d = new Div();
@@ -276,7 +289,7 @@ public class TabPanelBase extends Div {
 			}
 		});
 
-		if(index > 0 && hasCloseableTabs()) {
+		if(ti.isCloseable()) {
 			li.removeCssClass("ui-tab-li");
 			li.addCssClass("ui-tab-close-li");
 			ATag x = new ATag();
@@ -340,12 +353,16 @@ public class TabPanelBase extends Div {
 	}
 
 	public void add(NodeBase content, String label, String icon) {
-		add(content, label, icon, false);
+		add(content, label, false, icon, false);
 	}
 
-	public void add(NodeBase content, String label, String icon, boolean lazy) {
+	public void add(NodeBase content, String label, boolean closable, String icon) {
+		add(content, label, closable, icon, false);
+	}
+
+	public void add(NodeBase content, String label, boolean closable, String icon, boolean lazy) {
 		TextNode tn = new TextNode(label);
-		add(content, tn, icon);
+		add(content, tn, closable, icon);
 	}
 
 	/**
@@ -363,7 +380,7 @@ public class TabPanelBase extends Div {
 	 * @param tablabel
 	 */
 	public void add(NodeBase content, NodeBase tablabel, boolean lazy) {
-		TabInstance tabInstance = new TabInstance(tablabel, content, null);
+		TabInstance tabInstance = new TabInstance(tablabel, content, null, false);
 		tabInstance.setLazy(lazy);
 		if(m_markErrorTabs) {
 			DomUtil.getMessageFence(this).addErrorListener(tabInstance);
@@ -376,12 +393,12 @@ public class TabPanelBase extends Div {
 		forceRebuild();
 	}
 
-	public void add(NodeBase content, NodeBase tablabel, String icon) {
-		add(content, tablabel, icon, false);
+	public void add(NodeBase content, NodeBase tablabel, boolean closable, String icon) {
+		add(content, tablabel, closable, icon, false);
 	}
 
-	public void add(NodeBase content, NodeBase tablabel, String icon, boolean lazy) {
-		TabInstance tabInstance = new TabInstance(tablabel, content, createIcon(icon));
+	public void add(NodeBase content, NodeBase tablabel, boolean closable, String icon, boolean lazy) {
+		TabInstance tabInstance = new TabInstance(tablabel, content, createIcon(icon), closable);
 		tabInstance.setLazy(lazy);
 		if(m_markErrorTabs) {
 			DomUtil.getMessageFence(this).addErrorListener(tabInstance);
@@ -494,18 +511,4 @@ public class TabPanelBase extends Div {
 		tab.setImg(createIcon(tabIcon));
 		renderLabel(into, index, tab);
 	}
-
-	/**
-	 * If true all tabs except the first one can be closed. A cross is added to each tab.
-	 *
-	 * @return
-	 */
-	public boolean hasCloseableTabs() {
-		return m_closableTabs;
-	}
-
-	public void setClosableTabs(boolean closeableTabs) {
-		m_closableTabs = closeableTabs;
-	}
-
 }

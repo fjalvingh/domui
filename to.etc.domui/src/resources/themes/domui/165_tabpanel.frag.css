@@ -42,9 +42,9 @@
     font-weight: bold;
     padding: 9px 14px 0px 6px;
     text-decoration: none;
- 	min-height: 22px;
- 	color: <%= tab_pnl_inactive_col %>;
- 	margin-right: 0px !important;
+    min-height: 22px;
+    color: <%= tab_pnl_inactive_col %>;
+    margin-right: 0px !important;
 }
 
 .ui-tab-hdr img {
@@ -55,7 +55,7 @@
     display: inline-block;
     font-weight: bold;
     text-decoration: none;
- 	color: <%= tab_pnl_inactive_col %>;
+	color: <%= tab_pnl_inactive_col %>;
 	position: relative;    
 	padding: 2em;     
 	margin: -2em;
@@ -65,7 +65,7 @@
     display: inline-block;
     font-weight: bold;
     text-decoration: none;
- 	color: <%= tab_pnl_inactive_col %>;
+	color: <%= tab_pnl_inactive_col %>;
 	position: relative;    
 	padding: 0em;     
 	margin: -0em;
