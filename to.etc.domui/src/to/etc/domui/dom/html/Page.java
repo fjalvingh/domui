@@ -582,7 +582,7 @@ final public class Page implements IQContextContainer {
 	 * @param originalParent
 	 * @param in
 	 */
-	void internalAddFloater(@Nonnull NodeContainer originalParent, @Nonnull NodeBase in) {
+	void internalAddFloater(@Nonnull NodeContainer originalParent, @Nonnull FloatingDiv in) {
 		//-- Sanity checks.
 		if(!(in instanceof FloatingDiv))
 			throw new IllegalStateException("Floaters can only be FloatingDiv-derived, and " + in + " is not.");
@@ -617,7 +617,8 @@ final public class Page implements IQContextContainer {
 			hider.setClicked(new IClicked<NodeBase>() {
 				@Override
 				public void clicked(@Nonnull NodeBase clickednode) throws Exception {
-					window.closePressed();
+					if(window.isAutoClose())
+						window.closePressed();
 				}
 			});
 		}

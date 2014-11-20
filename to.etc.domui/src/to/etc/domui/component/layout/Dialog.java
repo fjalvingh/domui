@@ -201,7 +201,7 @@ public class Dialog extends Window {
 			return;
 
 		/*
-		 * onSave() was succesful. We will send the close reason SAVE, but if it fails with exception we'll
+		 * onSave() was successful. We will send the close reason SAVE, but if it fails with exception we'll
 		 * remain in this dialog.
 		 */
 		try {
