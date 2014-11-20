@@ -1844,10 +1844,11 @@ public abstract class DomApplication {
 	}
 
 	synchronized public void setUiTestMode() {
+		if(!m_uiTestMode) {
+			addHeaderContributor(HeaderContributor.loadJavascript("$js/web-driver/fileSaver.js"), 11);
+			addHeaderContributor(HeaderContributor.loadJavascript("$js/web-driver/sharedLocatorGenerator.js"), 13);
+			addHeaderContributor(HeaderContributor.loadJavascript("$js/web-driver/domuiLocatorGenerator.js"), 12);
+		}
 		m_uiTestMode = true;
-
-		addHeaderContributor(HeaderContributor.loadJavascript("$js/web-driver/fileSaver.js"), 11);
-		addHeaderContributor(HeaderContributor.loadJavascript("$js/web-driver/sharedLocatorGenerator.js"), 13);
-		addHeaderContributor(HeaderContributor.loadJavascript("$js/web-driver/domuiLocatorGenerator.js"), 12);
 	}
 }
