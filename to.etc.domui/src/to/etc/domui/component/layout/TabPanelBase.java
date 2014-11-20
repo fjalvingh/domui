@@ -48,6 +48,8 @@ public class TabPanelBase extends Div {
 
 		private Li m_tab;
 
+		private Li m_separator;
+
 		private boolean m_lazy;
 
 		private boolean m_added;
@@ -80,6 +82,14 @@ public class TabPanelBase extends Div {
 
 		public void setTab(Li tab) {
 			m_tab = tab;
+		}
+
+		public Li getSeparator() {
+			return m_separator;
+		}
+
+		public void setSeparator(Li separator) {
+			m_separator = separator;
 		}
 
 		public Img getImg() {
@@ -261,7 +271,8 @@ public class TabPanelBase extends Div {
 			li.setCssClass("ui-tab-li");
 			into.add(separator);
 			into.add(li);
-			ti.setTab(li); // Save for later use,
+			ti.setTab(li); 					// Save for later use,
+			ti.setSeparator(separator);		// Save for later use,
 			if(index == getCurrentTab()) {
 				li.addCssClass("ui-tab-sel");
 			} else {
@@ -321,25 +332,57 @@ public class TabPanelBase extends Div {
 	 */
 	private void closeCurrentTab(NodeContainer into, int index) throws Exception {
 
-		if(index < 0 && index >= m_tablist.size()) {
+		// Check for a silly index
+		if(index < 0 || index >= m_tablist.size()) {
 			return;
 		}
 
-		if(m_tablist.size() > 1) {
+		TabInstance ti = m_tablist.get(index);
+		NodeBase nbTab = ti.getTab();
+		nbTab.remove();
+		NodeBase nbSep = ti.getSeparator();
+		nbSep.remove();
+		NodeBase nbCon = ti.getContent();
+		nbCon.remove();
+
+		m_tablist.remove(index);
+
+		if (!m_tablist.isEmpty()) {
 			if(index == getCurrentTab()) {
-				setCurrentTab(0);
+				// Current tab is removed, select another one
+				int newCurrentTab = selectNewCurrentTab();
+				if(newCurrentTab != -1) {
+					internalSetCurrentTab(newCurrentTab);
+					TabInstance newti = m_tablist.get(newCurrentTab);
+					NodeBase newc = newti.getContent();
+					newc.setDisplay(DisplayType.BLOCK);
+					newti.getTab().addCssClass("ui-tab-sel");
+				}
 			} else if(index < getCurrentTab()) {
+				// Current tab remains active. One tabinstance removed before the current one
 				internalSetCurrentTab(getCurrentTab() - 1);
 			}
 		}
 
 		if(isBuilt()) {
-			TabInstance ti = m_tablist.get(index);
-			NodeBase nb = ti.getTab();
-			nb.remove();
-			m_tablist.remove(index);
 			renderTabPanels(into, m_contentContainer);
 		}
+	}
+
+	/**
+	 * Select the new current tab
+	 */
+	private int selectNewCurrentTab() {
+
+		int index = 0;
+		for(TabInstance ti : m_tablist) {
+			if(ti.isLazy() && !ti.isAdded()) {
+				index++;
+				continue;
+			}
+			return index;
+		}
+		return -1; // can only occur if there are only lazy tabInstances or if there are no tabInstances
 	}
 
 	/*--------------------------------------------------------------*/
@@ -419,11 +462,9 @@ public class TabPanelBase extends Div {
 	protected void onForceRebuild() {
 		super.onForceRebuild();
 
-		if(m_tablist != null) {
-			for(TabInstance ti : m_tablist) {
-				if(ti.isLazy()) {
-					ti.setAdded(false);
-				}
+		for(TabInstance ti : m_tablist) {
+			if(ti.isLazy()) {
+				ti.setAdded(false);
 			}
 		}
 	}
