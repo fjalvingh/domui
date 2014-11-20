@@ -148,9 +148,9 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
     font-weight: bold;
     padding: 9px 14px 0px 6px;
     text-decoration: none;
- 	min-height: 22px;
- 	color: <%= tab_pnl_inactive_col %>;
- 	margin-right: 0px !important;
+	min-height: 22px;
+	color: <%= tab_pnl_inactive_col %>;
+	margin-right: 0px !important;
 }
 
 .ui-tab-link {

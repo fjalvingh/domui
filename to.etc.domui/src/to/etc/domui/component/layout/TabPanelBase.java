@@ -37,6 +37,7 @@ public class TabPanelBase extends Div {
 
 	//vmijic 20090923 TabInstance can be registered as ErrorMessageListener in case when TabPanel has m_markErrorTabs set.
 	protected static class TabInstance implements IErrorMessageListener {
+
 		private NodeBase m_label;
 
 		private NodeBase m_content;
@@ -55,11 +56,10 @@ public class TabPanelBase extends Div {
 
 		private List<UIMessage> m_msgList = new ArrayList<UIMessage>();
 
-		public TabInstance(NodeBase label, NodeBase content, Img img, boolean closable) {
+		public TabInstance(NodeBase label, NodeBase content, Img img) {
 			m_label = label;
 			m_content = content;
 			m_img = img;
-			m_closable = closable;
 		}
 
 		public NodeBase getContent() {
@@ -325,20 +325,21 @@ public class TabPanelBase extends Div {
 			return;
 		}
 
-		if(isBuilt()) {
-			if(m_tablist.size() > 1) {
-				if(index == getCurrentTab()) {
-					setCurrentTab(0);
-				} else if(index < getCurrentTab()) {
-					internalSetCurrentTab(getCurrentTab() - 1);
-				}
+		if(m_tablist.size() > 1) {
+			if(index == getCurrentTab()) {
+				setCurrentTab(0);
+			} else if(index < getCurrentTab()) {
+				internalSetCurrentTab(getCurrentTab() - 1);
 			}
+		}
+
+		if(isBuilt()) {
 			TabInstance ti = m_tablist.get(index);
 			NodeBase nb = ti.getTab();
 			nb.remove();
+			m_tablist.remove(index);
+			renderTabPanels(into, m_contentContainer);
 		}
-		m_tablist.remove(index);
-		renderTabPanels(into, m_contentContainer);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -350,12 +351,25 @@ public class TabPanelBase extends Div {
 	 * @param content
 	 * @param label
 	 */
-	public void add(NodeBase content, String label) {
-		add(content, label, false);
+	public void add(TabBuilder tabBuilder) {
+		TabInstance tabInstance = tabBuilder.build();
+		addTabToPanel(tabInstance);
 	}
 
-	public void add(NodeBase content, boolean closable, String label) {
-		add(content, closable, label, false);
+	private void addTabToPanel(TabInstance tabInstance) {
+		if(m_markErrorTabs) {
+			DomUtil.getMessageFence(this).addErrorListener(tabInstance);
+		}
+		m_tablist.add(tabInstance);
+		if(!isBuilt())
+			return;
+
+		//-- Render the new thingies.
+		forceRebuild();
+	}
+
+	public void add(NodeBase content, String label) {
+		add(content, label, false);
 	}
 
 	public void add(NodeBase content, String label, boolean lazy) {
@@ -363,24 +377,14 @@ public class TabPanelBase extends Div {
 		add(content, tn, lazy);
 	}
 
-	public void add(NodeBase content, boolean closable, String label, boolean lazy) {
-		TextNode tn = new TextNode(label);
-		add(content, tn, closable, lazy);
-	}
-
 	public void add(NodeBase content, String label, String icon) {
-		add(content, label, false, icon, false);
+		add(content, label, icon, false);
 	}
 
-	public void add(NodeBase content, String label, boolean closable, String icon) {
-		add(content, label, closable, icon, false);
-	}
-
-	public void add(NodeBase content, String label, boolean closable, String icon, boolean lazy) {
+	public void add(NodeBase content, String label, String icon, boolean lazy) {
 		TextNode tn = new TextNode(label);
-		add(content, tn, closable, icon);
+		add(content, tn, icon);
 	}
-
 	/**
 	 * Add a tab page with a complex label part.
 	 * @param content
@@ -390,46 +394,25 @@ public class TabPanelBase extends Div {
 		add(content, tablabel, false);
 	}
 
-	public void add(NodeBase content, NodeBase tablabel, boolean lazy) {
-		add(content, tablabel, false, lazy);
-	}
-
 	/**
 	 * Add a tab page with a complex label part.
 	 * @param content
 	 * @param tablabel
 	 */
-	public void add(NodeBase content, NodeBase tablabel, boolean closable, boolean lazy) {
-		TabInstance tabInstance = new TabInstance(tablabel, content, null, closable);
+	public void add(NodeBase content, NodeBase tablabel, boolean lazy) {
+		TabInstance tabInstance = new TabInstance(tablabel, content, null);
 		tabInstance.setLazy(lazy);
-		if(m_markErrorTabs) {
-			DomUtil.getMessageFence(this).addErrorListener(tabInstance);
-		}
-		m_tablist.add(tabInstance);
-		if(!isBuilt())
-			return;
-
-		//-- Render the new thingies.
-		forceRebuild();
+		addTabToPanel(tabInstance);
 	}
 
-	public void add(NodeBase content, NodeBase tablabel, boolean closable, String icon) {
-		add(content, tablabel, closable, icon, false);
+	public void add(NodeBase content, NodeBase tablabel, String icon) {
+		add(content, tablabel, icon, false);
 	}
 
-	public void add(NodeBase content, NodeBase tablabel, boolean closable, String icon, boolean lazy) {
-		TabInstance tabInstance = new TabInstance(tablabel, content, createIcon(icon), closable);
+	public void add(NodeBase content, NodeBase tablabel, String icon, boolean lazy) {
+		TabInstance tabInstance = new TabInstance(tablabel, content, createIcon(icon));
 		tabInstance.setLazy(lazy);
-		if(m_markErrorTabs) {
-			DomUtil.getMessageFence(this).addErrorListener(tabInstance);
-		}
-
-		m_tablist.add(tabInstance);
-		if(!isBuilt())
-			return;
-
-		//-- Render the new thingies.
-		forceRebuild();
+		addTabToPanel(tabInstance);
 	}
 
 	@Override
@@ -445,7 +428,7 @@ public class TabPanelBase extends Div {
 		}
 	}
 
-	private Img createIcon(String icon) {
+	protected static Img createIcon(String icon) {
 		Img i = new Img();
 		i.setSrc(icon);
 		i.setCssClass("ui-tab-icon");
