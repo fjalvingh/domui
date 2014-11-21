@@ -1442,7 +1442,7 @@ $.extend(WebUI, {
 			WebUI.startPolling(WebUI._pollInterval);
 			return;
 		}
-		$.dbg("Got into error state - start "+request.responseText);
+//		$.dbg("Got into error state - start "+request.responseText);
 		if(status === "abort")
 			return;
 
@@ -1498,12 +1498,12 @@ $.extend(WebUI, {
 	},
 
 	clearErrorAsy: function() {
-		$.dbg("clear asy called");
+//		$.dbg("clear asy called");
 		if(WebUI._asyDialog) {
-			WebUI._asyDialog.remove();
+			$(WebUI._asyDialog).remove();
 		}
 		if(WebUI._asyHider) {
-			WebUI._asyHider.remove();
+			$(WebUI._asyHider).remove();
 		}
 		WebUI._asyDialog = null;
 		WebUI._asyHider = null;
