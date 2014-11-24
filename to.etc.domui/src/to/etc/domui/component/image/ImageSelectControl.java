@@ -1,10 +1,5 @@
 package to.etc.domui.component.image;
 
-import java.io.*;
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.upload.*;
@@ -19,6 +14,10 @@ import to.etc.domui.util.images.machines.*;
 import to.etc.domui.util.upload.*;
 import to.etc.util.*;
 import to.etc.webapp.nls.*;
+
+import javax.annotation.*;
+import java.io.*;
+import java.util.*;
 
 /**
  * This control allows selecting a single image as an upload. The image is
@@ -184,7 +183,7 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 			String mime = page.getMimeType();
 			if(null == mime)
 				mime = ui.getContentType();
-			m_value = new LoadedImage(oli, tli);
+			m_value = new LoadedImage(oli, tli, newUploadedImage);
 		} catch(Exception x) {
 			x.printStackTrace();
 		}
