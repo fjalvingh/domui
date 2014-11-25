@@ -1818,8 +1818,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 			List<SimpleBinder> bindingList = b.getBindingList();
 			if(null != bindingList) {
 				for(SimpleBinder sb : bindingList) {
-					PropertyMetaModel< ? > property = sb.getControlProperty();
-					if(null != property && property.getName().equals(propertyName)) {
+					IValueAccessor< ? > property = sb.getControlProperty();
+					if(property instanceof PropertyMetaModel && ((PropertyMetaModel<?>)property).getName().equals(propertyName)) {
 						try {
 							sb.moveControlToModel();
 						} catch(Exception x) {

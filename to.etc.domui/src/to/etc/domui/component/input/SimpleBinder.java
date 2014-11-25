@@ -24,17 +24,16 @@
  */
 package to.etc.domui.component.input;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
-import to.etc.domui.util.DomUtil.IPerNode;
+import to.etc.domui.util.DomUtil.*;
 import to.etc.webapp.*;
 import to.etc.webapp.nls.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * This is a single binding instance between a control and one of the control's properties.
@@ -47,7 +46,7 @@ final public class SimpleBinder implements IBinder {
 	final private IBindable m_control;
 
 	@Nonnull
-	final private PropertyMetaModel< ? > m_controlProperty;
+	final private IValueAccessor< ? > m_controlProperty;
 
 	/** The instance bound to */
 	@Nullable
@@ -368,8 +367,11 @@ final public class SimpleBinder implements IBinder {
 			List<SimpleBinder> list = b.getBindingList();
 			if(list != null) {
 				for(SimpleBinder sb : list) {
-					if(string.equals(sb.getControlProperty().getName()))
-						return sb;
+					IValueAccessor<?> property = sb.getControlProperty();
+					if(property instanceof PropertyMetaModel) {
+						if(string.equals(((PropertyMetaModel<?>) property).getName()))
+							return sb;
+					}
 				}
 			}
 		}
@@ -377,7 +379,7 @@ final public class SimpleBinder implements IBinder {
 	}
 
 	@Nonnull
-	public PropertyMetaModel< ? > getControlProperty() {
+	public IValueAccessor< ? > getControlProperty() {
 		return m_controlProperty;
 	}
 
