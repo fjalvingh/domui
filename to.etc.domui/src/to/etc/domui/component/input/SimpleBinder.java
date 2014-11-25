@@ -95,7 +95,7 @@ final public class SimpleBinder implements IBinder {
 	}
 
 	/**
-	 * Bind to a propertyMetaModel and the given instance.
+	 * Bind to a IValueAccessor and the given instance.
 	 * @param instance
 	 * @param pmm
 	 * @throws Exception
@@ -169,7 +169,7 @@ final public class SimpleBinder implements IBinder {
 		if(null == newError) {
 			//-- QUESTION: Should we move something to the model @ error?
 			try {
-				((PropertyMetaModel<Object>) instanceProperty).setValue(m_instance, value);
+				((IValueAccessor<Object>) instanceProperty).setValue(m_instance, value);
 			} catch(Exception x) {
 				throw new IllegalStateException("Binding error moving " + m_controlProperty + " to " + m_instanceProperty + ": " + x, x);
 			}
@@ -199,7 +199,7 @@ final public class SimpleBinder implements IBinder {
 		if(!MetaManager.areObjectsEqual(modelValue, m_lastValueFromControl)) {
 			//-- Value in instance differs from control's
 			m_lastValueFromControl = modelValue;
-			((PropertyMetaModel<Object>) m_controlProperty).setValue(m_control, modelValue);
+			((IValueAccessor<Object>) m_controlProperty).setValue(m_control, modelValue);
 			m_bindError = null;									// Let's assume binding has no trouble.
 
 //			/*
