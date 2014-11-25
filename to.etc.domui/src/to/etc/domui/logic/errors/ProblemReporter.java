@@ -227,7 +227,7 @@ public class ProblemReporter {
 		Object instance = binding.getInstance();
 		if(null == instance)								// Not an instance binding -> no errors here
 			return;
-		PropertyMetaModel< ? > property = binding.getInstanceProperty();
+		IValueAccessor< ? > property = binding.getInstanceProperty();
 		if(null == property)								// Not bound to property -> done
 			return;
 		Collection<ProblemInstance> errors = newErrorSet.remove(instance, property);	// Get and remove errors for this binding

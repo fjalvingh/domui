@@ -54,7 +54,7 @@ final public class SimpleBinder implements IBinder {
 
 	/** If this contains whatever property-related binding this contains the property's meta model, needed to use it's value accessor. */
 	@Nullable
-	private PropertyMetaModel< ? > m_instanceProperty;
+	private IValueAccessor< ? > m_instanceProperty;
 
 	/** If this thing is bound to some event listener... */
 	@Nullable
@@ -101,7 +101,7 @@ final public class SimpleBinder implements IBinder {
 	 * @throws Exception
 	 */
 	@Override
-	public <T, V> void to(@Nonnull T instance, @Nonnull PropertyMetaModel<V> pmm) throws Exception {
+	public <T, V> void to(@Nonnull T instance, @Nonnull IValueAccessor<V> pmm) throws Exception {
 		checkAssigned();
 		if(instance == null || pmm == null)
 			throw new IllegalArgumentException("Parameters in a bind request CANNOT be null!");
@@ -142,7 +142,7 @@ final public class SimpleBinder implements IBinder {
 			return;
 		}
 
-		PropertyMetaModel< ? > instanceProperty = m_instanceProperty;
+		IValueAccessor< ? > instanceProperty = m_instanceProperty;
 		if(null == instanceProperty)
 			throw new IllegalStateException("instance property cannot be null");
 		Object instance = m_instance;
@@ -186,7 +186,7 @@ final public class SimpleBinder implements IBinder {
 			((IBindingListener<NodeBase>) listener).moveModelToControl((NodeBase) m_control);
 			return;
 		}
-		PropertyMetaModel< ? > instanceProperty = m_instanceProperty;
+		IValueAccessor< ? > instanceProperty = m_instanceProperty;
 		if(null == instanceProperty)
 			throw new IllegalStateException("instance property cannot be null");
 		Object instance = m_instance;
@@ -394,9 +394,14 @@ final public class SimpleBinder implements IBinder {
 		} else {
 			sb.append("?");
 		}
-		PropertyMetaModel< ? > instanceProperty = m_instanceProperty;
+		IValueAccessor< ? > instanceProperty = m_instanceProperty;
 		if(instanceProperty != null) {
-			sb.append("/").append(instanceProperty.getName());
+			sb.append("/");
+			if(instanceProperty instanceof PropertyMetaModel) {
+				sb.append(((PropertyMetaModel) instanceProperty).getName());
+			} else {
+				sb.append(instanceProperty.toString());
+			}
 		}
 		sb.append("]");
 		return sb.toString();
@@ -408,7 +413,7 @@ final public class SimpleBinder implements IBinder {
 	}
 
 	@Nullable
-	public PropertyMetaModel< ? > getInstanceProperty() {
+	public IValueAccessor< ? > getInstanceProperty() {
 		return m_instanceProperty;
 	}
 }
