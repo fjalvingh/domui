@@ -477,13 +477,18 @@ public abstract class DomApplication {
 		if(m_developmentMode && DeveloperOptions.getBool("domui.traceallocations", true))
 			NodeBase.internalSetLogAllocations(true);
 		String haso = DeveloperOptions.getString("domui.testui");
+		boolean uiTestMode = false;
 		if(m_developmentMode && haso == null)
-			m_uiTestMode = true;
+			uiTestMode = true;
 		if("true".equals(haso))
-			m_uiTestMode = true;
+			uiTestMode = true;
 		haso = System.getProperty("domui.testui");
 		if("true".equals(haso))
-			m_uiTestMode = true;
+			uiTestMode = true;
+
+		if(uiTestMode) {
+			setUiTestMode();
+		}
 
 		initialize(pp);
 
@@ -846,14 +851,6 @@ public abstract class DomApplication {
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery.wysiwyg.js"), -780);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/wysiwyg.rmFormat.js"), -779);
 		addHeaderContributor(HeaderContributor.loadStylesheet("$js/jquery.wysiwyg.css"), -780);
-
-		//-- Web driver helpers
-		if(isUiTestMode()) {
-			addHeaderContributor(HeaderContributor.loadJavascript("$js/web-driver/fileSaver.js"), 11);
-			addHeaderContributor(HeaderContributor.loadJavascript("$js/web-driver/sharedLocatorGenerator.js"), 13);
-			addHeaderContributor(HeaderContributor.loadJavascript("$js/web-driver/domuiLocatorGenerator.js"), 12);
-		}
-
 
 		/*
 		 * FIXME: Delayed construction of components causes problems with components
@@ -1862,7 +1859,12 @@ public abstract class DomApplication {
 		}
 	}
 
-	synchronized public void setUiTestMode(boolean value){
-		m_uiTestMode = value;
+	synchronized public void setUiTestMode() {
+		if(!m_uiTestMode) {
+			addHeaderContributor(HeaderContributor.loadJavascript("$js/web-driver/fileSaver.js"), 11);
+			addHeaderContributor(HeaderContributor.loadJavascript("$js/web-driver/sharedLocatorGenerator.js"), 13);
+			addHeaderContributor(HeaderContributor.loadJavascript("$js/web-driver/domuiLocatorGenerator.js"), 12);
+		}
+		m_uiTestMode = true;
 	}
 }

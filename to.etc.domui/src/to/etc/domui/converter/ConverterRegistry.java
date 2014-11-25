@@ -132,6 +132,7 @@ public class ConverterRegistry {
 	 * @return
 	 * @throws Exception
 	 */
+	@Nonnull
 	static public <X, T extends IConverter<X>> String convertValueToString(Class<T> clz, X in) throws Exception {
 		if(clz == null)
 			return in == null ? "" : in.toString();

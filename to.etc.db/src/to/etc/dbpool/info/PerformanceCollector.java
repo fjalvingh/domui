@@ -37,6 +37,8 @@ public class PerformanceCollector extends PerformanceStore implements IPerforman
 
 	static private final String SQL_FETCH_TIME = "stmt-fetch-time";
 
+	static private final String SQL_TOTAL_TIME = "stmt-total-time";
+
 	static private final Comparator<StmtCount> C_BYEXEC = new Comparator<StmtCount>() {
 		public int compare(StmtCount a, StmtCount b) {
 			return b.getExecutions() - a.getExecutions();
@@ -69,8 +71,21 @@ public class PerformanceCollector extends PerformanceStore implements IPerforman
 		}
 	};
 
+	static private final Comparator<StmtCount> C_BYTOTAL_TIME = new Comparator<InfoCollectorExpenseBased.StmtCount>() {
+		@Override
+		public int compare(StmtCount a, StmtCount b) {
+			long at = a.getTotalExecuteDuration() + a.getTotalFetchDuration();
+			long bt = b.getTotalExecuteDuration() + b.getTotalFetchDuration();
+
+			long v = at - bt;
+			return v == 0 ? 0 : v < 0 ? 1 : -1;
+		}
+	};
+
+
 	public PerformanceCollector() {
 		//-- Define all store lists.
+		define(SQL_TOTAL_TIME, "SQL: total time (execute+fetch) per statement", true, 20);
 		define(SQL_EXEC_TIME, "SQL: longest statement execution time", true, 20);
 		define(SQL_EXEC_COUNT, "SQL: statements executed most", true, 20);
 		define(SQL_ROW_COUNT, "SQL: statements returning/altering largest number of rows", true, 20);
@@ -122,6 +137,16 @@ public class PerformanceCollector extends PerformanceStore implements IPerforman
 		for(int i = 0; i < max; i++) {
 			StmtCount sc = counterList.get(i);
 			addItem(SQL_EXEC_TIME, sc.getSQL(), sc.getTotalExecuteDuration(), request, sc);
+		}
+
+		//-- By total time
+		Collections.sort(counterList, C_BYTOTAL_TIME);
+		max = 20;
+		if(counterList.size() < max)
+			max = counterList.size();
+		for(int i = 0; i < max; i++) {
+			StmtCount sc = counterList.get(i);
+			addItem(SQL_TOTAL_TIME, sc.getSQL(), sc.getTotalExecuteDuration() + sc.getTotalFetchDuration(), request, sc);
 		}
 	}
 }

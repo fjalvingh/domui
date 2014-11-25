@@ -24,9 +24,13 @@
  */
 package to.etc.webapp.eventmanager;
 
+import javax.annotation.concurrent.*;
+
 /**
  * The type of change that is encapsulated in the event; a simple enum
- * of added, deleted or modified.
+ * of added, deleted or modified. <br/>
+ *
+ * <b>IMPORATNT:</b> Do not change! It's hardcoded in aud_rmn_aridu.trg trigger :(
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Sep 14, 2006
