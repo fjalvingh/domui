@@ -5,8 +5,6 @@ import java.io.*;
 import javax.annotation.*;
 import javax.annotation.concurrent.*;
 
-import to.etc.domui.component.image.*;
-
 /**
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>

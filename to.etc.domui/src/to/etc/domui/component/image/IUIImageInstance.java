@@ -4,7 +4,6 @@ import java.io.*;
 
 import javax.annotation.*;
 
-import to.etc.domui.component.image.*;
 import to.etc.domui.server.parts.*;
 
 /**

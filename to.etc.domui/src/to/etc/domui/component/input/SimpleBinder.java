@@ -24,16 +24,17 @@
  */
 package to.etc.domui.component.input;
 
+import java.util.*;
+
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
-import to.etc.domui.util.DomUtil.*;
+import to.etc.domui.util.DomUtil.IPerNode;
 import to.etc.webapp.*;
 import to.etc.webapp.nls.*;
-
-import javax.annotation.*;
-import java.util.*;
 
 /**
  * This is a single binding instance between a control and one of the control's properties.
@@ -169,7 +170,7 @@ final public class SimpleBinder implements IBinder {
 		if(null == newError) {
 			//-- QUESTION: Should we move something to the model @ error?
 			try {
-				((IValueAccessor<Object>) instanceProperty).setValue(m_instance, value);
+				((IValueAccessor<Object>) instanceProperty).setValue(instance, value);
 			} catch(Exception x) {
 				throw new IllegalStateException("Binding error moving " + m_controlProperty + " to " + m_instanceProperty + ": " + x, x);
 			}
@@ -398,7 +399,7 @@ final public class SimpleBinder implements IBinder {
 		if(instanceProperty != null) {
 			sb.append("/");
 			if(instanceProperty instanceof PropertyMetaModel) {
-				sb.append(((PropertyMetaModel) instanceProperty).getName());
+				sb.append(((PropertyMetaModel< ? >) instanceProperty).getName());
 			} else {
 				sb.append(instanceProperty.toString());
 			}

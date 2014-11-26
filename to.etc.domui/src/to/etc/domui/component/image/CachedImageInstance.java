@@ -5,7 +5,6 @@ import java.io.*;
 import javax.annotation.*;
 
 import to.etc.domui.caches.images.*;
-import to.etc.domui.component.image.*;
 import to.etc.domui.util.images.machines.*;
 
 final public class CachedImageInstance implements IUIImageInstance {

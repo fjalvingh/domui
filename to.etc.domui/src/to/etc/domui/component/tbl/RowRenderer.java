@@ -6,7 +6,6 @@ import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.component.ntbl.*;
-import to.etc.domui.component.tbl.AbstractRowRenderer.IRowRendered;
 import to.etc.domui.converter.*;
 import to.etc.domui.databinding.observables.*;
 import to.etc.domui.dom.html.*;
