@@ -408,6 +408,7 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 	public void setData(List<T> data) {
 		if(m_data != data) {
 			forceRebuild();
+			m_select.forceRebuild();
 			m_actualContentRenderer = null;
 		}
 		m_data = data;
