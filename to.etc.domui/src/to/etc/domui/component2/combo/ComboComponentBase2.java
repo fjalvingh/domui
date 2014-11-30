@@ -24,10 +24,6 @@
  */
 package to.etc.domui.component2.combo;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
@@ -38,6 +34,9 @@ import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 import to.etc.webapp.query.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * Alternate version of the combobox that wraps a select instead of being one. This version properly
@@ -454,7 +453,7 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 	 * Add a small image button after the combo.
 	 * @param img
 	 * @param title
-	 * @param clicked
+	 * @param click
 	 */
 	public void addExtraButton(String img, String title, final IClicked<NodeBase> click) {
 		if(m_buttonList == Collections.EMPTY_LIST)
