@@ -318,11 +318,16 @@ public class DataTable<T> extends SelectableTabularComponent<T> implements ISele
 	 */
 	private void handleRowClick(final TR b, final T instance, final ClickInfo clinfo) throws Exception {
 		//-- If we have a selection model: check if this is some selecting clicky.
-		if(getSelectionModel() != null) {
+		ISelectionModel<T> selectionModel = getSelectionModel();
+		if(selectionModel != null) {
 			//-- Treat clicks with ctrl or shift as selection clickies
 			if(clinfo.isControl() || clinfo.isShift()) {
 				handleSelectClicky(instance, clinfo, null);
 				return; // Do NOT fire on selection clickies.
+			} else {
+				if(! selectionModel.isMultiSelect()) {
+					handleSelectClicky(instance, clinfo, null);
+				}
 			}
 		}
 

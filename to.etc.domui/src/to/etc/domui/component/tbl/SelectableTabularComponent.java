@@ -1,8 +1,8 @@
 package to.etc.domui.component.tbl;
 
-import javax.annotation.*;
-
 import to.etc.domui.util.*;
+
+import javax.annotation.*;
 
 abstract public class SelectableTabularComponent<T> extends TabularComponentBase<T> implements ISelectionListener<T>, ISelectableTableComponent<T> {
 	abstract protected void createSelectionUI() throws Exception;
@@ -26,7 +26,7 @@ abstract public class SelectableTabularComponent<T> extends TabularComponentBase
 
 	private boolean m_showSelectionAlways = true;
 
-	private boolean m_multiSelectMode;
+	//private boolean m_multiSelectMode;
 
 	@Override
 	@Nullable
@@ -88,13 +88,13 @@ abstract public class SelectableTabularComponent<T> extends TabularComponentBase
 	 */
 	@Override
 	public void setShowSelection(boolean showSelectionAlways) throws Exception {
-		if(m_showSelectionAlways == showSelectionAlways || getModel() == null || getModel().getRows() == 0)
+		if(m_showSelectionAlways == showSelectionAlways)
 			return;
 		m_showSelectionAlways = showSelectionAlways;
 		ISelectionModel<T> sm = getSelectionModel();
 		if(sm == null)
 			throw new IllegalStateException("Selection model is empty?");
-		if(!isBuilt() || m_multiSelectMode || getSelectionModel() == null || !sm.isMultiSelect())
+		if(!isBuilt() || getSelectionModel() == null || !sm.isMultiSelect())
 			return;
 
 		createSelectionUI();

@@ -1489,7 +1489,7 @@ div.ui-sortable {
 	padding: 1px;
 }
 
-.ui-dt .mselected {
+.ui-dt .mselected, .ui-dt .selected {
 	background-color: <%= highlight2_bg %>; /* 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
 }
 /*** 145_smallimgbutton.frag.css ***/
