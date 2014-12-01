@@ -19,8 +19,18 @@ import java.io.*;
 public class DisplayImage extends AbstractDivControl<IUIImage> {
 	private boolean	m_displayEmpty;
 
-	public DisplayImage() {
+	private boolean m_thumbnail;
+
+	private Dimension m_maxSize;
+
+	public DisplayImage(@Nonnull Dimension size, boolean thumb) {
 		setCssClass("ui-dsplyima");
+		m_thumbnail = thumb;
+		m_maxSize = size;
+	}
+
+	public DisplayImage() {
+		this(Dimension.ICON, true);
 	}
 
 	@Override public void createContent() throws Exception {
@@ -48,16 +58,17 @@ public class DisplayImage extends AbstractDivControl<IUIImage> {
 		if("THUMB".equals(action)) {
 			IUIImage image = getValueSafe();
 			if(null != image)
-				renderImage(ctx, image.getThumbnail());
+				renderImage(ctx, image);
 			return;
 		}
 
 		super.componentHandleWebDataRequest(ctx, action);
 	}
 
-	private void renderImage(@Nonnull RequestContextImpl ctx, @Nonnull IUIImageInstance thumbnail) throws Exception {
-		OutputStream os = ctx.getRequestResponse().getOutputStream(thumbnail.getMimeType(), null, thumbnail.getImageSize());
-		InputStream is = thumbnail.getImage();
+	private void renderImage(@Nonnull RequestContextImpl ctx, @Nonnull IUIImage thumbnail) throws Exception {
+		IUIImageInstance ii = thumbnail.getImage(m_maxSize, m_thumbnail);
+		OutputStream os = ctx.getRequestResponse().getOutputStream(ii.getMimeType(), null, ii.getImageSize());
+		InputStream is = ii.getImage();
 		try {
 			FileTool.copyFile(os, is);
 			os.close();
@@ -74,6 +85,17 @@ public class DisplayImage extends AbstractDivControl<IUIImage> {
 		if(m_displayEmpty == displayEmpty)
 			return;
 		m_displayEmpty = displayEmpty;
+		forceRebuild();
+	}
+
+	public void setSize(@Nullable Dimension dimension) {
+		m_maxSize = dimension;
+		forceRebuild();
+	}
+
+	public void setThumbnail(@Nullable Dimension size) {
+		m_maxSize = size == null ? Dimension.ICON : size;
+		m_thumbnail = true;
 		forceRebuild();
 	}
 }

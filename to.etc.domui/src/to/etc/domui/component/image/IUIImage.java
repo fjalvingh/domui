@@ -9,9 +9,13 @@ import javax.annotation.*;
  * Created on Nov 5, 2014
  */
 public interface IUIImage {
+	/**
+	 * Return an image that fits the specified size. If size is null then the image is returned verbatim, without any resize
+	 * unless thumbnail == true; in that case size is assumed to be 16x16.
+	 * @param size
+	 * @return
+	 * @throws Exception
+	 */
 	@Nonnull
-	public IUIImageInstance getImage() throws Exception;
-
-	@Nonnull
-	public IUIImageInstance getThumbnail() throws Exception;
+	public IUIImageInstance getImage(@Nullable Dimension size, boolean thumbNail) throws Exception;
 }
