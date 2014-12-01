@@ -60,7 +60,7 @@ public class TabBuilder {
 		return this;
 	}
 
-	public TabInstance build() {
+	protected TabInstance build() {
 
 		Img image = TabPanelBase.createIcon(m_imageName);
 		TabInstance tabInstance = new TabInstance(m_label, m_content, image);

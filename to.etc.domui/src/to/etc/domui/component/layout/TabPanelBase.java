@@ -56,12 +56,16 @@ public class TabPanelBase extends Div {
 
 		private boolean m_closable;
 
+		@Nonnull
+		private final String m_id;
+
 		private List<UIMessage> m_msgList = new ArrayList<UIMessage>();
 
 		public TabInstance(NodeBase label, NodeBase content, Img img) {
 			m_label = label;
 			m_content = content;
 			m_img = img;
+			m_id = UUID.randomUUID().toString();
 		}
 
 		public NodeBase getContent() {
@@ -102,6 +106,11 @@ public class TabPanelBase extends Div {
 
 		public boolean isLazy() {
 			return m_lazy;
+		}
+
+		@Nonnull
+		public String getId() {
+			return m_id;
 		}
 
 		public void setLazy(boolean lazy) {
@@ -330,7 +339,7 @@ public class TabPanelBase extends Div {
 	 * @param index
 	 * @throws Exception
 	 */
-	private void closeCurrentTab(NodeContainer into, int index) throws Exception {
+	private void closeCurrentTab(@Nonnull final NodeContainer into, int index) throws Exception {
 
 		// Check for a silly index
 		if(index < 0 || index >= m_tablist.size()) {
@@ -382,24 +391,28 @@ public class TabPanelBase extends Div {
 			}
 			return index;
 		}
-		return -1; // can only occur if there are only lazy tabInstances or if there are no tabInstances
+		return -1; // can only occur if there are only lazy tabInstances (not added) or if there are no tabInstances
 	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Adding tabs.										*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Simple form for adding a tab which contains a text tabel.
 	 *
-	 * @param content
-	 * @param label
+	 * @param  tabBuilder
+	 *
+	 * @return id of the TabInsdtance created and added to the panel.
 	 */
-	public void add(TabBuilder tabBuilder) {
+	@Nonnull
+	public String add(@Nonnull final TabBuilder tabBuilder) {
 		TabInstance tabInstance = tabBuilder.build();
 		addTabToPanel(tabInstance);
+		return tabInstance.getId();
 	}
 
-	private void addTabToPanel(TabInstance tabInstance) {
+	private void addTabToPanel(@Nonnull final TabInstance tabInstance) {
 		if(m_markErrorTabs) {
 			DomUtil.getMessageFence(this).addErrorListener(tabInstance);
 		}
@@ -407,7 +420,6 @@ public class TabPanelBase extends Div {
 		if(!isBuilt())
 			return;
 
-		//-- Render the new thingies.
 		forceRebuild();
 	}
 
@@ -485,6 +497,19 @@ public class TabPanelBase extends Div {
 		m_currentTab = index;
 	}
 
+	public boolean setCurrentTab(String relationTabId) throws Exception {
+
+		int i = 0;
+		for(TabInstance ti : m_tablist) {
+			if(relationTabId.equalsIgnoreCase(ti.getId())) {
+				setCurrentTab(i);
+				return true;
+			}
+			i++;
+		}
+		return false;
+
+	}
 	public void setCurrentTab(int index) throws Exception {
 		//		System.out.println("Switching to tab " + index);
 		if(index == getCurrentTab() || index < 0 || index >= m_tablist.size())			// Silly index
