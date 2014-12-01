@@ -24,6 +24,8 @@
  */
 package to.etc.domui.util;
 
+import javax.annotation.*;
+
 /**
  * Transforms a given Object into another object, in an unspecified
  * way.
@@ -32,5 +34,6 @@ package to.etc.domui.util;
  * Created on Jun 18, 2008
  */
 public interface IValueTransformer<T> {
-	public T getValue(Object in) throws Exception;
+	@Nullable
+	public T getValue(@Nonnull Object in) throws Exception;
 }

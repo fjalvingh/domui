@@ -14,6 +14,7 @@
   </component>
   <component name="NewModuleRootManager" inherit-compiler-output="false">
     <output url="file://$MODULE_DIR$/bin" />
+    <exclude-output />
     <content url="file://$MODULE_DIR$" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="inheritedJdk" />
@@ -80,7 +81,6 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="org.eclipse.jst.j2ee.internal.module.container" level="application" />
     <orderEntry type="module-library" exported="">
       <library name="aopalliance.jar">
         <CLASSES>
@@ -92,4 +92,3 @@
     </orderEntry>
   </component>
 </module>
-

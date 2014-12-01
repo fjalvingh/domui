@@ -139,6 +139,16 @@ final public class DomUtil {
 		return a.equals(b);
 	}
 
+	/**
+	 * Use {@link StringTool#isEqualIgnoreCase(String, String)} please.
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	@Deprecated
+	static public final boolean isEqualIgnoreCase(@Nullable String a, @Nullable String b) {
+		return StringTool.isEqualIgnoreCase(a, b);
+	}
 
 	static public final boolean isEqual(final Object... ar) {
 		if(ar.length < 2)
@@ -1464,7 +1474,7 @@ final public class DomUtil {
 		 * @return
 		 * @throws Exception
 		 */
-		public Object before(NodeBase n) throws Exception;
+		public Object before(@Nonnull NodeBase n) throws Exception;
 
 		/**
 		 * Called when all child nodes of the specified node have been traversed. When this returns a non-null
@@ -1473,7 +1483,7 @@ final public class DomUtil {
 		 * @return
 		 * @throws Exception
 		 */
-		public Object after(NodeBase n) throws Exception;
+		public Object after(@Nonnull NodeBase n) throws Exception;
 	}
 
 	/**

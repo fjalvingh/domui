@@ -225,12 +225,29 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 	 */
 	@Override
 	final public V getValue() {
-		if(isMandatory() && m_currentValue == null) {
-			setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.MANDATORY));
-			throw new ValidationException(Msgs.MANDATORY);
-		} else
+		try {
+			validate();
 			clearMessage();
+			return m_currentValue;
+		} catch(ValidationException vx) {
+			setMessage(UIMessage.error(vx));
+			throw vx;
+		}
+	}
+
+	final public V getBindValue() {
+		validate();
 		return m_currentValue;
+	}
+
+	final public void setBindValue(V value) {
+		setValue(value);
+	}
+
+	private void validate() {
+		if(isMandatory() && m_currentValue == null) {
+			throw new ValidationException(Msgs.MANDATORY);
+		}
 	}
 
 	/**
@@ -489,7 +506,7 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 
 	@Override
 	public @Nonnull IBinder bind() {
-		return bind("value");
+		return bind("bindValue");
 	}
 
 	@Override
@@ -595,15 +612,30 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 	/*	CODING:	Hard data binding support.							*/
 	/*--------------------------------------------------------------*/
 
+	@Nullable
+	private IValueChanged<?> m_onValueChanged;
+
 	@Override
 	public IValueChanged< ? > getOnValueChanged() {
-		return m_select.getOnValueChanged();
+		return m_onValueChanged;
 	}
 
 	@Override
 	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
-		m_select.setOnValueChanged(onValueChanged);
-
+		if(m_onValueChanged == onValueChanged)
+			return;
+		m_onValueChanged = onValueChanged;
+		if(null == onValueChanged) {
+			m_select.setOnValueChanged(null);
+		} else {
+			m_select.setOnValueChanged(new IValueChanged<Select>() {
+				@Override public void onValueChanged(@Nonnull Select component) throws Exception {
+					IValueChanged<ComboComponentBase2<T, V>> vc = (IValueChanged<ComboComponentBase2<T, V>>) m_onValueChanged;
+					if(null != vc)
+						vc.onValueChanged(ComboComponentBase2.this);
+				}
+			});
+		}
 	}
 
 	@Override

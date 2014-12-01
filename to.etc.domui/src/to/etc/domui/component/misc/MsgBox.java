@@ -24,8 +24,6 @@
  */
 package to.etc.domui.component.misc;
 
-import javax.annotation.*;
-
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.layout.*;
@@ -37,6 +35,8 @@ import to.etc.domui.themes.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.bugs.*;
+
+import javax.annotation.*;
 
 public class MsgBox extends Window {
 	public interface IAnswer {
@@ -74,7 +74,7 @@ public class MsgBox extends Window {
 
 	private IInput< ? > m_oninput;
 
-	private Text< ? > m_inputControl;
+	private IControl< ? > m_inputControl;
 
 	/**
 	 * Custom dialog message text renderer.
@@ -232,7 +232,6 @@ public class MsgBox extends Window {
 	 * @param dad
 	 * @param iconSrc
 	 * @param title
-	 * @param message
 	 * @param onAnswer
 	 * @param msgRenderer
 	 */
@@ -423,6 +422,27 @@ public class MsgBox extends Window {
 	}
 
 	/**
+	 * Show any single control to get input from.
+	 * @param dad
+	 * @param prompt
+	 * @param input
+	 * @param onanswer
+	 * @param <T>
+	 * @param <C>
+	 */
+	public static <T, C extends IControl<T>> void input(NodeBase dad, String prompt, C input, IInput<T> onanswer) {
+		MsgBox box = create(dad);
+		box.setType(Type.INPUT);
+		box.setMessage(prompt);
+		box.addButton(MsgBoxButton.CONTINUE);
+		box.addButton(MsgBoxButton.CANCEL);
+		box.setCloseButton(MsgBoxButton.CANCEL);
+		box.setOninput(onanswer);
+		box.setInputControl(input);
+		box.construct();
+	}
+
+	/**
 	 * Ask a continue/cancel confirmation, and call the IClicked handler for CONTINUE only.
 	 * @param dad
 	 * @param string
@@ -601,12 +621,13 @@ public class MsgBox extends Window {
 			DomUtil.renderHtmlString(td, m_theText); // 20091206 Allow simple markup in message
 		}
 		if(m_inputControl != null) {
+			NodeBase ic = (NodeBase) m_inputControl;
 			td = b.addRowAndCell();
 			td.setCssClass("ui-mbx-input-1");
 			td = b.addCell();
 			td.setCssClass("ui-mbx-input");
-			td.add(m_inputControl);
-			m_inputControl.setFocus();
+			td.add(ic);
+			ic.setFocus();
 		}
 
 		add(m_theButtons);
@@ -723,11 +744,11 @@ public class MsgBox extends Window {
 		m_oninput = oninput;
 	}
 
-	public Text< ? > getInputControl() {
+	public IControl< ? > getInputControl() {
 		return m_inputControl;
 	}
 
-	public void setInputControl(Text< ? > inputControl) {
+	public void setInputControl(IControl< ? > inputControl) {
 		m_inputControl = inputControl;
 	}
 

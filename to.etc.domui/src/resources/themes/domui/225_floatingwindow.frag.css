@@ -4,7 +4,8 @@
 	padding: 0;
 	margin: 0;
 	/*	border: 1px solid black; */
-	background: url(<%= body_image %>) repeat-x <%= bg_color %>;
+/*	background: url(<%= body_image %>) repeat-x <%= bg_color %>;  jal 2014/11/06 replaced because dialogs on a high screen position are not well visible. */
+	background: #ddd;
 	background-position: 50px 0px;
 	border-top: none;
 	/*	overflow: hidden;	*/

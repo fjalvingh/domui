@@ -269,6 +269,28 @@ public class DbPoolUtil {
 		return ns + "ns";
 	}
 
+	/**
+	 * Return a nanotime timestamp with 2 thousands of precision max.
+	 * @param ns
+	 * @return
+	 */
+	static public String strNanoTime2(final long ns) {
+		if(ns < 1000)
+			return ns + " ns";
+
+		StringBuilder sb = new StringBuilder();
+		for(int i = 0; i < TIMESET.length; i++) {
+			if(ns >= TIMESET[i]) {
+				double u = (double) ns / TIMESET[i];
+				sb.append(String.format(Locale.US, "%.1f", Double.valueOf(u)));
+				sb.append(SUFFIXES[i]);
+				return sb.toString();
+			}
+		}
+		return ns + "ns";
+	}
+
+
 	static public String strMillis(final long ns) {
 		if(ns < 1000)
 			return ns + " ms";

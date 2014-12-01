@@ -1,7 +1,9 @@
 <table width="100%"  class="maintbl">
 	<tr>
 		<td nowrap width="1%" title="#of times this statement was executed"># exec</td>
-		<td nowrap width="1%" title="Time spent in query execute (top) and row fetching (bottom)">Execute/Fetch</td>
+		<td nowrap width="1%" title="Total time spent">Total</td>
+		<td nowrap width="1%" title="Time spent in query execute">Execute</td>
+		<td nowrap width="1%" title="Time spent in query fetching">Fetch</td>
 		<td nowrap width="1%" title="Total #of rows fetched/updated through this statement for all executions">#rows</td>
 
 		<td width="99%">Key</td>
@@ -13,8 +15,13 @@
 	<tr class="statrow <%= self.odd() %>">
 		<td nowrap width="1%" align="right" valign="top" rowspan="2"><%= DbPoolUtil.strCommad(pi.getData().getExecutions()) %></td>
 		<td nowrap width="1%" align="right" valign="top" rowspan="2">
-			<%= DbPoolUtil.strNanoTime(pi.getData().getTotalExecuteDuration()) %><br>
-			<%= DbPoolUtil.strNanoTime(pi.getData().getTotalFetchDuration()) %>
+			<%= DbPoolUtil.strNanoTime2(pi.getData().getTotalExecuteDuration() + pi.getData().getTotalFetchDuration()) %><br>
+		</td> 
+		<td nowrap width="1%" align="right" valign="top" rowspan="2">
+			<%= DbPoolUtil.strNanoTime2(pi.getData().getTotalExecuteDuration()) %><br>
+		</td> 
+		<td nowrap width="1%" align="right" valign="top" rowspan="2">
+			<%= DbPoolUtil.strNanoTime2(pi.getData().getTotalFetchDuration()) %>
 		</td> 
 		<td nowrap width="1%" align="right" valign="top" rowspan="2"><%= DbPoolUtil.strCommad(pi.getData().getRows()) %></td>
 		<td width="99%" valign="top"><%= DbPoolUtil.q(pi.getKey()) %></td>

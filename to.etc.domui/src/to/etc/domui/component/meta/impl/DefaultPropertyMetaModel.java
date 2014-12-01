@@ -144,7 +144,7 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 			throw new IllegalStateException("The 'target' object is null");
 		Method setter = m_descriptor.getSetter();
 		if(setter == null)
-			throw new IllegalAccessError("The property " + this + " is read-only.");
+			throw new IllegalAccessException("The property " + this + " is read-only.");
 		try {
 			setter.invoke(target, value);
 		} catch(InvocationTargetException itx) {

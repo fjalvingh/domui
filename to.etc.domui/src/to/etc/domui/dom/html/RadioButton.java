@@ -24,11 +24,10 @@
  */
 package to.etc.domui.dom.html;
 
-import java.util.*;
+import to.etc.domui.util.*;
 
 import javax.annotation.*;
-
-import to.etc.domui.util.*;
+import java.util.*;
 
 /**
  *
@@ -62,8 +61,8 @@ public class RadioButton<T> extends NodeBase implements IHasModifiedIndication {
 	public RadioButton(@Nonnull RadioGroup<T> g, T value) {
 		super("input");
 		m_radioGroup = g;
-		g.addButton(this);
 		m_buttonValue = value;
+		g.addButton(this);
 	}
 
 	public RadioButton(T value) {

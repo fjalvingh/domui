@@ -24,10 +24,10 @@
  */
 package to.etc.domui.component.input;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
+import to.etc.domui.util.*;
 import to.etc.webapp.annotations.*;
+
+import javax.annotation.*;
 
 /**
  * This exposes the several kinds of bindings that can be done on any control.
@@ -51,7 +51,7 @@ public interface IBinder {
 	 * @param instance
 	 * @param pmm
 	 */
-	public <T, V> void to(@Nonnull T instance, @Nonnull PropertyMetaModel<V> pmm) throws Exception;
+	public <T, V> void to(@Nonnull T instance, @Nonnull IValueAccessor<V> pmm) throws Exception;
 
 	/**
 	 * Bind the control to a listener.

@@ -34,21 +34,37 @@ import javax.annotation.*;
  * Created on Sep 14, 2006
  */
 public class AppEvent extends AppEventBase {
-	private final long m_key;
 
-	private final ChangeType m_type;
+	private long m_key;
+
+	@Nullable
+	private ChangeType m_type;
+
+	public AppEvent() {
+		super();
+	}
 
 	public AppEvent(final ChangeType type, final long key) {
-		m_type = type;
-		m_key = key;
+		setKey(key);
+		setType(type);
 	}
 
 	public long getKey() {
 		return m_key;
 	}
 
-	@Nonnull
+	public void setKey(long key) {
+		m_key = key;
+	}
+
+	@Nullable
 	public ChangeType getType() {
 		return m_type;
 	}
+
+	public void setType(@Nonnull final ChangeType type) {
+		m_type = type;
+	}
+
+
 }

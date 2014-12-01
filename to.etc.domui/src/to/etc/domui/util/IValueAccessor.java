@@ -24,6 +24,8 @@
  */
 package to.etc.domui.util;
 
+import javax.annotation.*;
+
 public interface IValueAccessor<T> extends IValueTransformer<T> {
-	public void setValue(Object target, T value) throws Exception;
+	public void setValue(@Nonnull Object target, @Nullable T value) throws Exception;
 }

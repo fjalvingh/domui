@@ -121,6 +121,11 @@ final public class FormBuilder {
 		return this;
 	}
 
+	@Nonnull
+	public FormBuilder mandatory() {
+		m_mandatory = Boolean.TRUE;
+		return this;
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING: defining (manually created) controls.				*/
@@ -131,6 +136,14 @@ final public class FormBuilder {
 	 * @throws Exception
 	 */
 	public void control(@Nonnull IControl< ? > control) throws Exception {
+		if(control.isMandatory()) {
+			m_mandatory = Boolean.TRUE;
+		} else {
+			Boolean mand = m_mandatory;
+			if(null != mand && mand.booleanValue()) {
+				control.setMandatory(true);
+			}
+		}
 		addControl((NodeBase) control);
 		resetBuilder();
 	}

@@ -31,8 +31,8 @@ import javax.annotation.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
-import to.etc.domui.logic.*;
 import to.etc.domui.util.*;
+import to.etc.domui.util.DomUtil.IPerNode;
 import to.etc.webapp.*;
 import to.etc.webapp.nls.*;
 
@@ -42,12 +42,12 @@ import to.etc.webapp.nls.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 13, 2009
  */
-public class SimpleBinder implements IBinder {
+final public class SimpleBinder implements IBinder {
 	@Nonnull
 	final private IBindable m_control;
 
 	@Nonnull
-	final private PropertyMetaModel< ? > m_controlProperty;
+	final private IValueAccessor< ? > m_controlProperty;
 
 	/** The instance bound to */
 	@Nullable
@@ -55,7 +55,7 @@ public class SimpleBinder implements IBinder {
 
 	/** If this contains whatever property-related binding this contains the property's meta model, needed to use it's value accessor. */
 	@Nullable
-	private PropertyMetaModel< ? > m_instanceProperty;
+	private IValueAccessor< ? > m_instanceProperty;
 
 	/** If this thing is bound to some event listener... */
 	@Nullable
@@ -64,8 +64,9 @@ public class SimpleBinder implements IBinder {
 	@Nullable
 	private Object m_lastValueFromControl;
 
+	/** If this binding is in error this contains the error. */
 	@Nullable
-	private UIMessage m_lastBindError;
+	private UIMessage m_bindError;
 
 	public SimpleBinder(@Nonnull IBindable control, @Nonnull String controlProperty) {
 		if(control == null)
@@ -95,13 +96,13 @@ public class SimpleBinder implements IBinder {
 	}
 
 	/**
-	 * Bind to a propertyMetaModel and the given instance.
+	 * Bind to a IValueAccessor and the given instance.
 	 * @param instance
 	 * @param pmm
 	 * @throws Exception
 	 */
 	@Override
-	public <T, V> void to(@Nonnull T instance, @Nonnull PropertyMetaModel<V> pmm) throws Exception {
+	public <T, V> void to(@Nonnull T instance, @Nonnull IValueAccessor<V> pmm) throws Exception {
 		checkAssigned();
 		if(instance == null || pmm == null)
 			throw new IllegalArgumentException("Parameters in a bind request CANNOT be null!");
@@ -110,6 +111,15 @@ public class SimpleBinder implements IBinder {
 
 		//-- Move the data now!
 		moveModelToControl();
+	}
+
+	/**
+	 * If this binding is in error: return the message describing that error.
+	 * @return
+	 */
+	@Nullable
+	public UIMessage getBindError() {
+		return m_bindError;
 	}
 
 	/*--------------------------------------------------------------*/
@@ -133,7 +143,7 @@ public class SimpleBinder implements IBinder {
 			return;
 		}
 
-		PropertyMetaModel< ? > instanceProperty = m_instanceProperty;
+		IValueAccessor< ? > instanceProperty = m_instanceProperty;
 		if(null == instanceProperty)
 			throw new IllegalStateException("instance property cannot be null");
 		Object instance = m_instance;
@@ -149,31 +159,18 @@ public class SimpleBinder implements IBinder {
 		UIMessage newError = null;
 		try {
 			value = m_controlProperty.getValue(m_control);
-			control.removeCssClass("ui-input-err");							// This is horrible.
+			m_lastValueFromControl = value;
 		} catch(CodeException cx) {
-			newError = UIMessage.error(cx).group(LogiErrors.G_BINDING);
+			newError = UIMessage.error(cx);
 			newError.setErrorNode(control);
 			newError.setErrorLocation(control.getErrorLocation());
 			System.out.println("~~ " + control + " to " + instanceProperty + ": " + cx);
-			control.addCssClass("ui-input-err");							// As is this.
 		}
-
-		LogiErrors errorModel = control.lc().getErrorModel();
-		UIMessage oldError = m_lastBindError;
-		if(oldError != null && !oldError.equals(newError)) {
-			errorModel.clearMessage(instance, instanceProperty.getName(), oldError);
-			m_lastBindError = null;
-		}
-		if(newError != null) {
-			if(!newError.equals(oldError))
-				errorModel.addMessage(instance, instanceProperty.getName(), newError);
-			m_lastBindError = newError;
-		} else {
-			m_lastValueFromControl = value;
-
+		m_bindError = newError;
+		if(null == newError) {
 			//-- QUESTION: Should we move something to the model @ error?
 			try {
-				((PropertyMetaModel<Object>) instanceProperty).setValue(m_instance, value);
+				((IValueAccessor<Object>) instanceProperty).setValue(instance, value);
 			} catch(Exception x) {
 				throw new IllegalStateException("Binding error moving " + m_controlProperty + " to " + m_instanceProperty + ": " + x, x);
 			}
@@ -190,7 +187,7 @@ public class SimpleBinder implements IBinder {
 			((IBindingListener<NodeBase>) listener).moveModelToControl((NodeBase) m_control);
 			return;
 		}
-		PropertyMetaModel< ? > instanceProperty = m_instanceProperty;
+		IValueAccessor< ? > instanceProperty = m_instanceProperty;
 		if(null == instanceProperty)
 			throw new IllegalStateException("instance property cannot be null");
 		Object instance = m_instance;
@@ -201,40 +198,42 @@ public class SimpleBinder implements IBinder {
 		// FIXME We should think about exception handling here
 		Object modelValue = instanceProperty.getValue(instance);
 		if(!MetaManager.areObjectsEqual(modelValue, m_lastValueFromControl)) {
+			//-- Value in instance differs from control's
 			m_lastValueFromControl = modelValue;
-			((PropertyMetaModel<Object>) m_controlProperty).setValue(m_control, modelValue);
+			((IValueAccessor<Object>) m_controlProperty).setValue(m_control, modelValue);
+			m_bindError = null;									// Let's assume binding has no trouble.
 
-			/*
-			 * jal yeah, this also suffers from "knowing" that we're accessing the control's value 8-/ We need
-			 * to think about this.
-			 *
-			 * When updated from the model: clear the control's error. This should probably call the control's validation
-			 * methods to see if the new value set obeys the control's validation (notably: mandatoryness, pattern).
-			 */
-			if(control.isAttached()) {
-				UIMessage ctlError = control.getMessage();
-				if(null != ctlError) {
-					LogiErrors errorModel = control.lc().getErrorModel();
-					errorModel.clearMessage(instance, instanceProperty, ctlError);
-					control.setMessage(null);
-				}
-			}
+//			/*
+//			 * jal yeah, this also suffers from "knowing" that we're accessing the control's value 8-/ We need
+//			 * to think about this.
+//			 *
+//			 * When updated from the model: clear the control's error. This should probably call the control's validation
+//			 * methods to see if the new value set obeys the control's validation (notably: mandatoryness, pattern).
+//			 */
+//			if(control.isAttached()) {
+//				UIMessage ctlError = control.getMessage();
+//				if(null != ctlError) {
+//					LogiErrors errorModel = control.lc().getErrorModel();
+//					errorModel.clearMessage(instance, instanceProperty, ctlError);
+//					control.setMessage(null);
+//				}
+//			}
 		} else {
-			/*
-			 * Model has not updated the value. If the control *itself* has an error (Which can be known because the
-			 * last bind error is != null) we keep that error, otherwise we set the 1st error from the model.
-			 */
-			if(m_lastBindError == null) {
-				if(control.isAttached()) {
-					LogiErrors errorModel = control.lc().getErrorModel();
-					Set<UIMessage> e2b = errorModel.getErrorsOn(instance, instanceProperty);
-					UIMessage msg = null;
-					if(e2b.size() > 0) {
-						msg = e2b.iterator().next();
-					}
-					control.setMessage(msg);
-				}
-			}
+//			/*
+//			 * Model has not updated the value. If the control *itself* has an error (Which can be known because the
+//			 * last bind error is != null) we keep that error, otherwise we set the 1st error from the model.
+//			 */
+//			if(m_bindError == null) {
+//				if(control.isAttached()) {
+//					LogiErrors errorModel = control.lc().getErrorModel();
+//					Set<UIMessage> e2b = errorModel.getErrorsOn(instance, instanceProperty);
+//					UIMessage msg = null;
+//					if(e2b.size() > 0) {
+//						msg = e2b.iterator().next();
+//					}
+//					control.setMessage(msg);
+//				}
+//			}
 		}
 	}
 
@@ -295,6 +294,73 @@ public class SimpleBinder implements IBinder {
 		});
 	}
 
+	/**
+	 * Get a list of binding errors starting at (and including) the parameter node. Each
+	 * message will contain the NodeBase control that failed inside {@link UIMessage#getErrorNode()}.
+	 * @param root
+	 * @return
+	 * @throws Exception
+	 */
+	@Nonnull
+	static public List<UIMessage> getBindingErrors(@Nonnull NodeBase root) throws Exception {
+		final List<UIMessage> res = new ArrayList<>();
+		DomUtil.walkTree(root, new IPerNode() {
+			@Override
+			public Object before(NodeBase n) throws Exception {
+				if(n instanceof IBindable) {
+					IBindable b = (IBindable) n;
+					List<SimpleBinder> list = b.getBindingList();
+					if(null != list) {
+						for(SimpleBinder sb : list) {
+							UIMessage message = sb.getBindError();
+							if(null != message)
+								res.add(message);
+						}
+					}
+				}
+				return null;
+			}
+
+			@Override
+			public Object after(NodeBase n) throws Exception {
+				return null;
+			}
+		});
+		return res;
+	}
+
+	static public boolean reportBindingErrors(@Nonnull NodeBase root) throws Exception {
+		final boolean[] silly = new boolean[1];					// Not having free variables is a joke.
+		DomUtil.walkTree(root, new IPerNode() {
+			@Override
+			public Object before(NodeBase n) throws Exception {
+				if(n instanceof IBindable) {
+					IBindable b = (IBindable) n;
+					List<SimpleBinder> list = b.getBindingList();
+					if(null != list) {
+						for(SimpleBinder sb : list) {
+							UIMessage message = sb.getBindError();
+							if(null != message) {
+								silly[0] = true;
+								n.setMessage(message);
+							} else {
+//								n.setMessage(null);				// Should not be reset: should be done by component itself
+							}
+						}
+					}
+				}
+				return null;
+			}
+
+			@Override
+			public Object after(NodeBase n) throws Exception {
+				return null;
+			}
+		});
+		return silly[0];
+	}
+
+
 	@Nullable
 	public static SimpleBinder findBinding(NodeBase nodeBase, String string) {
 		if(nodeBase instanceof IBindable) {
@@ -302,8 +368,11 @@ public class SimpleBinder implements IBinder {
 			List<SimpleBinder> list = b.getBindingList();
 			if(list != null) {
 				for(SimpleBinder sb : list) {
-					if(string.equals(sb.getControlProperty().getName()))
-						return sb;
+					IValueAccessor<?> property = sb.getControlProperty();
+					if(property instanceof PropertyMetaModel) {
+						if(string.equals(((PropertyMetaModel<?>) property).getName()))
+							return sb;
+					}
 				}
 			}
 		}
@@ -311,7 +380,7 @@ public class SimpleBinder implements IBinder {
 	}
 
 	@Nonnull
-	public PropertyMetaModel< ? > getControlProperty() {
+	public IValueAccessor< ? > getControlProperty() {
 		return m_controlProperty;
 	}
 
@@ -326,9 +395,14 @@ public class SimpleBinder implements IBinder {
 		} else {
 			sb.append("?");
 		}
-		PropertyMetaModel< ? > instanceProperty = m_instanceProperty;
+		IValueAccessor< ? > instanceProperty = m_instanceProperty;
 		if(instanceProperty != null) {
-			sb.append("/").append(instanceProperty.getName());
+			sb.append("/");
+			if(instanceProperty instanceof PropertyMetaModel) {
+				sb.append(((PropertyMetaModel< ? >) instanceProperty).getName());
+			} else {
+				sb.append(instanceProperty.toString());
+			}
 		}
 		sb.append("]");
 		return sb.toString();
@@ -340,7 +414,7 @@ public class SimpleBinder implements IBinder {
 	}
 
 	@Nullable
-	public PropertyMetaModel< ? > getInstanceProperty() {
+	public IValueAccessor< ? > getInstanceProperty() {
 		return m_instanceProperty;
 	}
 }

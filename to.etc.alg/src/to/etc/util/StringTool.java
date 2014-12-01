@@ -229,6 +229,14 @@ public class StringTool {
 		return a.equals(b);
 	}
 
+	static public final boolean isEqualIgnoreCase(@Nullable String a, @Nullable String b) {
+		if(a == b)
+			return true;
+		if(a == null || b == null)
+			return false;
+		return a.equalsIgnoreCase(b);
+	}
+
 	public static void stringize(@Nonnull final StringBuffer sb, @Nonnull final String s) {
 		for(int i = 0; i < s.length(); i++) {
 			char c = s.charAt(i); // Get the char to put,

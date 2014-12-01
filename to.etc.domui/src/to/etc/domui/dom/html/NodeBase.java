@@ -1240,7 +1240,13 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 		SimpleBinder binding = SimpleBinder.findBinding(this, "value");
 		if(binding != null) {
 			sb.append(" ").append(binding);
+		} else {
+			binding = SimpleBinder.findBinding(this, "bindValue");
+			if(binding != null) {
+				sb.append(" ").append(binding);
+			}
 		}
+
 		if(this instanceof NodeContainer) {
 			String txt = DomUtil.calcNodeText((NodeContainer) this);
 			if(txt.length() > 0)
@@ -1261,6 +1267,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 	@Override
 	@Nullable
 	public UIMessage setMessage(@Nullable final UIMessage msg) {
+		System.out.println("    setMessage '"+getComponentInfo() +"' ("+getActualID()+") to '"+msg+"'");
+
 		//-- If this (new) message has a LOWER severity than the EXISTING message ignore this call and return the EXISTING message
 		UIMessage old = m_message;
 		if(old == msg)
@@ -1626,7 +1634,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 	 * @return
 	 */
 	@Nonnull
-	public LogiContext lc() throws Exception {
+	public ILogicContext lc() throws Exception {
 		return getPage().getBody().lc();
 	}
 
@@ -1810,8 +1818,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 			List<SimpleBinder> bindingList = b.getBindingList();
 			if(null != bindingList) {
 				for(SimpleBinder sb : bindingList) {
-					PropertyMetaModel< ? > property = sb.getControlProperty();
-					if(null != property && property.getName().equals(propertyName)) {
+					IValueAccessor< ? > property = sb.getControlProperty();
+					if(property instanceof PropertyMetaModel && ((PropertyMetaModel<?>)property).getName().equals(propertyName)) {
 						try {
 							sb.moveControlToModel();
 						} catch(Exception x) {
@@ -1859,6 +1867,25 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 	 * @param message
 	 */
 	public <T> void sendComponentMessage(@Nonnull T message) {}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Soft binding support.								*/
+	/*--------------------------------------------------------------*/
+
+	@Nonnull
+	public List<UIMessage> getBindingErrors() throws Exception {
+		return SimpleBinder.getBindingErrors(this);
+	}
+
+	/**
+	 * Checks the tree starting at this component for binding errors; all of those will be reported
+	 * by sending them to the error listeners. In case of errors this will return true.
+	 * @return
+	 */
+	public boolean bindErrors() throws Exception {
+		return SimpleBinder.reportBindingErrors(this);
+	}
 
 
 }

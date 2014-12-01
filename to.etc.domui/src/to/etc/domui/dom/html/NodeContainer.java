@@ -28,6 +28,7 @@ import java.util.*;
 
 import javax.annotation.*;
 
+import to.etc.domui.component.layout.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.webapp.*;
@@ -373,11 +374,11 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		/*
 		 * Nodes that *must* be added to the body should delegate there immediately.
 		 */
-		if(nd instanceof IAddToBody) {
+		if(nd instanceof FloatingDiv) {
 			//-- This *must* be added to the BODY node, and this node must be attached for that to work.. Is it?
 			if(!isAttached())
 				throw new ProgrammerErrorException("The component " + nd.getClass() + " is defined as 'must be added to the body' but the node it is added to " + this + " is not yet added to the page.");
-			getPage().internalAddFloater(this, nd);
+			getPage().internalAddFloater(this, (FloatingDiv) nd);
 			return;
 		}
 
@@ -393,12 +394,12 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		/*
 		 * Nodes that *must* be added to the body should delegate there immediately.
 		 */
-		if(nd instanceof IAddToBody) {
+		if(nd instanceof FloatingDiv) {
 			//-- This *must* be added to the BODY node, and this node must be attached for that to work.. Is it?
 			if(!isAttached())
 				throw new ProgrammerErrorException("The component " + nd.getClass() + " is defined as 'must be added to the body' but the node it is added to " + this
 					+ " is not yet added to the page.");
-			getPage().internalAddFloater(this, nd);
+			getPage().internalAddFloater(this, (FloatingDiv) nd);
 			return;
 		}
 		internalAdd(index, nd);

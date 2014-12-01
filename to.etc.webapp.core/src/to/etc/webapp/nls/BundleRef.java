@@ -245,4 +245,17 @@ final public class BundleRef extends BundleBase implements IBundle {
 	public static synchronized void internalClear() {
 		m_cachedMap.clear();
 	}
+
+	/**
+	 * Returns the dotted name of the message bundle as (class package name) '.' (file-name-without-.properties). For
+	 * a bundleRef to (to.etc.domui.DomUtil.class, "messages") the name would be "to.etc.domui.messages".
+	 * @return
+	 */
+	@Nonnull
+	public String getBundleKey() {
+		String key = m_bundleKey;
+		if(null == key)
+			throw new IllegalStateException("Bundle without key");
+		return key;
+	}
 }

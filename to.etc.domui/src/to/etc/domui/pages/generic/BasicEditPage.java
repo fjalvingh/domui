@@ -99,7 +99,9 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 		if(m_formBuilder != null) {
 			NodeContainer nc = m_formBuilder.finish();
 			if(nc != null) {
-				add(nc);
+				Panel p = new Panel();
+				add(p);
+				p.add(nc);
 				if(m_bindings == null)
 					m_bindings = m_formBuilder.getBindings();
 			}
