@@ -17,17 +17,23 @@ import java.io.*;
  * Created on 12/1/14.
  */
 public class DisplayImage extends AbstractDivControl<IUIImage> {
+	private boolean	m_displayEmpty;
+
 	public DisplayImage() {
 		setCssClass("ui-dsplyima");
 	}
 
 	@Override public void createContent() throws Exception {
-		Img img = new Img();
-		add(img);
-
 		if(getValueSafe() == null) {
-			img.setSrc(DomUtil.getJavaResourceRURL(ImageSelectControl.class, "empty.png"));
+			if(m_displayEmpty) {
+				Img img = new Img();
+				add(img);
+				img.setSrc(DomUtil.getJavaResourceRURL(ImageSelectControl.class, "empty.png"));
+			}
 		} else {
+			Img img = new Img();
+			add(img);
+
 			String url = getComponentDataURL("THUMB", new PageParameters("datx", System.currentTimeMillis() + ""));
 			img.setSrc(url);
 		}
@@ -59,5 +65,15 @@ public class DisplayImage extends AbstractDivControl<IUIImage> {
 			FileTool.closeAll(os, is);
 		}
 	}
-}
 
+	public boolean isDisplayEmpty() {
+		return m_displayEmpty;
+	}
+
+	public void setDisplayEmpty(boolean displayEmpty) {
+		if(m_displayEmpty == displayEmpty)
+			return;
+		m_displayEmpty = displayEmpty;
+		forceRebuild();
+	}
+}
