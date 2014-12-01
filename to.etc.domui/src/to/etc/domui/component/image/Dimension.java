@@ -3,8 +3,10 @@ package to.etc.domui.component.image;
 import javax.annotation.*;
 
 public class Dimension {
+	@Nonnull
 	static public final Dimension ICON = new Dimension(16, 16);
 
+	@Nonnull
 	static public final Dimension BIGICON = new Dimension(32, 32);
 
 	private final int m_width;
