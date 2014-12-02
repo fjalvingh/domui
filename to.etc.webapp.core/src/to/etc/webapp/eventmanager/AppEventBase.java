@@ -24,7 +24,6 @@
  */
 package to.etc.webapp.eventmanager;
 
-import java.io.*;
 import java.util.*;
 
 /**
@@ -34,7 +33,7 @@ import java.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Sep 12, 2006
  */
-public class AppEventBase implements Serializable {
+public class AppEventBase {
 	private static final long serialVersionUID = 1L;
 
 	private long m_upid;
