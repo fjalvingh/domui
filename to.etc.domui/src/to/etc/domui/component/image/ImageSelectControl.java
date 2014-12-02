@@ -7,10 +7,7 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.parts.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
-import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
-import to.etc.domui.util.images.converters.*;
-import to.etc.domui.util.images.machines.*;
 import to.etc.domui.util.upload.*;
 import to.etc.util.*;
 import to.etc.webapp.nls.*;
@@ -113,16 +110,17 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 		if("THUMB".equals(action)) {
 			IUIImage image = m_value;
 			if(null != image)
-				renderImage(ctx, image.getThumbnail());
+				renderImage(ctx, image);
 			return;
 		}
 
 		super.componentHandleWebDataRequest(ctx, action);
 	}
 
-	private void renderImage(@Nonnull RequestContextImpl ctx, @Nonnull IUIImageInstance thumbnail) throws Exception {
-		OutputStream os = ctx.getRequestResponse().getOutputStream(thumbnail.getMimeType(), null, thumbnail.getImageSize());
-		InputStream is = thumbnail.getImage();
+	private void renderImage(@Nonnull RequestContextImpl ctx, @Nonnull IUIImage thumbnail) throws Exception {
+		IUIImageInstance ii = thumbnail.getImage(m_displayDimensions, true);
+		OutputStream os = ctx.getRequestResponse().getOutputStream(ii.getMimeType(), null, ii.getImageSize());
+		InputStream is = ii.getImage();
 		try {
 			FileTool.copyFile(os, is);
 			os.close();
@@ -159,34 +157,26 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 		cc.registerTempFile(newUploadedImage);
 
 		try {
-			ImageInfo identify = ImageMagicImageHandler.getInstance().identify(newUploadedImage);
-			if(identify.getPageCount() != 1)
-				throw new UIException(BUNDLE, "image.invalid");
-
-			OriginalImagePage page = identify.getPageList().get(0);
-			Dimension dimension = new Dimension(page.getWidth(), page.getHeight());
-
-			LoadedImageInstance oli = new LoadedImageInstance(newUploadedImage, identify.getMime(), dimension);
-
-			//-- Resize to thumbnail if bigger
-			LoadedImageInstance tli;
-			if(m_displayDimensions.contains(dimension)) {
-				tli = oli;										// Already <= thumbnail - keep as-is
-			} else {
-				//-- Resize
-				ImageSpec spec = new ImageSpec(newUploadedImage, identify);
-				ImageConverterHelper h = new ImageConverterHelper();
-				ImageSpec resized = ImageMagicImageHandler.getInstance().thumbnail(h, spec, 0, m_displayDimensions.getWidth(), m_displayDimensions.getHeight(), "image/png");
-				cc.registerTempFile(resized.getSource());
-				tli = new LoadedImageInstance(resized.getSource(), resized.getMime(), new Dimension(resized.getInfo().getPage(0).getWidth(), resized.getInfo().getPage(0).getHeight()));
-			}
-			String mime = page.getMimeType();
-			if(null == mime)
-				mime = ui.getContentType();
-			m_value = new LoadedImage(oli, tli, newUploadedImage);
+			m_value = LoadedImage.create(newUploadedImage, m_maxDimensions, null);
 		} catch(Exception x) {
 			x.printStackTrace();
 		}
+	}
+
+	@Nonnull public Dimension getDisplayDimensions() {
+		return m_displayDimensions;
+	}
+
+	public void setDisplayDimensions(@Nonnull Dimension displayDimensions) {
+		m_displayDimensions = displayDimensions;
+	}
+
+	@Nonnull public Dimension getMaxDimensions() {
+		return m_maxDimensions;
+	}
+
+	public void setMaxDimensions(@Nonnull Dimension maxDimensions) {
+		m_maxDimensions = maxDimensions;
 	}
 
 	@Override

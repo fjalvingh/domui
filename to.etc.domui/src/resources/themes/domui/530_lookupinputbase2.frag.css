@@ -1,0 +1,29 @@
+/*** LookupInputBase2: replacement for LookupInput ***/
+.ui-lui2 {
+    position: relative;
+    width: 12em;									/*	this width match with date field picker icon on IE rendering */
+    display: inline-block;
+}
+.ui-lui2-selected {
+    padding: 0px 2px 0px 0px;
+    margin: 0px 2px 2px 0px;
+    display: inline-block;
+    vertical-align: baseline;
+}
+.ui-lui2-vspan {
+    display: inline-block;
+    min-width: 12em;
+    white-space: nowrap;
+    background-color: #ffffff;
+    padding-left: 3px;
+    padding-top: 3px;
+    padding-bottom: 1px;
+    margin-bottom: 0px;
+    margin-bottom: 0px;
+
+    border-color:#ABADB3 #BFCDD9 #BFCDD9;
+    border-style: solid;
+    border-width: 1px;
+    -moz-border-radius: 2px;
+}
+
