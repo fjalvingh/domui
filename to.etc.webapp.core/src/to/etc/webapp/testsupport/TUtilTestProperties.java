@@ -312,7 +312,12 @@ public class TUtilTestProperties {
 			}
 
 			//-- Init common infrastructure
-			VpEventManager.initializeForTest();
+			try {
+				VpEventManager.initialize(m_rawDS, "vp_sys_events");
+			} catch(Exception x) {
+				x.printStackTrace();
+			}
+			VpEventManager.getInstance().start();
 			DbLockKeeper.init(m_rawDS);
 
 			ConnectionPool pool = PoolManager.getPoolFrom(m_rawDS);
