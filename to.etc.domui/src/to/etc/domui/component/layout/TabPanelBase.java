@@ -36,7 +36,7 @@ import to.etc.domui.util.*;
 public class TabPanelBase extends Div {
 
 	//vmijic 20090923 TabInstance can be registered as ErrorMessageListener in case when TabPanel has m_markErrorTabs set.
-	protected static class TabInstance implements IErrorMessageListener {
+	protected class TabInstance implements IErrorMessageListener {
 
 		private NodeBase m_label;
 
@@ -56,16 +56,14 @@ public class TabPanelBase extends Div {
 
 		private boolean m_closable;
 
-		@Nonnull
-		private final String m_id;
-
 		private List<UIMessage> m_msgList = new ArrayList<UIMessage>();
+
+		public TabInstance() {}
 
 		public TabInstance(NodeBase label, NodeBase content, Img img) {
 			m_label = label;
 			m_content = content;
 			m_img = img;
-			m_id = UUID.randomUUID().toString();
 		}
 
 		public NodeBase getContent() {
@@ -76,7 +74,7 @@ public class TabPanelBase extends Div {
 			return m_label;
 		}
 
-		public void setLabel(NodeBase label) {
+		public void label(NodeBase label) {
 			m_label = label;
 		}
 
@@ -84,7 +82,7 @@ public class TabPanelBase extends Div {
 			return m_tab;
 		}
 
-		public void setTab(Li tab) {
+		public void tab(Li tab) {
 			m_tab = tab;
 		}
 
@@ -92,7 +90,7 @@ public class TabPanelBase extends Div {
 			return m_separator;
 		}
 
-		public void setSeparator(Li separator) {
+		public void separator(Li separator) {
 			m_separator = separator;
 		}
 
@@ -100,7 +98,7 @@ public class TabPanelBase extends Div {
 			return m_img;
 		}
 
-		public void setImg(Img img) {
+		public void image(Img img) {
 			m_img = img;
 		}
 
@@ -108,12 +106,7 @@ public class TabPanelBase extends Div {
 			return m_lazy;
 		}
 
-		@Nonnull
-		public String getId() {
-			return m_id;
-		}
-
-		public void setLazy(boolean lazy) {
+		public void lazy(boolean lazy) {
 			m_lazy = lazy;
 		}
 
@@ -280,8 +273,8 @@ public class TabPanelBase extends Div {
 			li.setCssClass("ui-tab-li");
 			into.add(separator);
 			into.add(li);
-			ti.setTab(li); 					// Save for later use,
-			ti.setSeparator(separator);		// Save for later use,
+			ti.tab(li); 					// Save for later use,
+			ti.separator(separator);		// Save for later use,
 			if(index == getCurrentTab()) {
 				li.addCssClass("ui-tab-sel");
 			} else {
@@ -406,10 +399,10 @@ public class TabPanelBase extends Div {
 	 * @return id of the TabInsdtance created and added to the panel.
 	 */
 	@Nonnull
-	public String add(@Nonnull final TabBuilder tabBuilder) {
-		TabInstance tabInstance = tabBuilder.build();
+	public TabInstance add() {
+		TabInstance tabInstance = new TabInstance();
 		addTabToPanel(tabInstance);
-		return tabInstance.getId();
+		return tabInstance;
 	}
 
 	private void addTabToPanel(@Nonnull final TabInstance tabInstance) {
@@ -456,7 +449,7 @@ public class TabPanelBase extends Div {
 	 */
 	public void add(NodeBase content, NodeBase tablabel, boolean lazy) {
 		TabInstance tabInstance = new TabInstance(tablabel, content, null);
-		tabInstance.setLazy(lazy);
+		tabInstance.lazy(lazy);
 		addTabToPanel(tabInstance);
 	}
 
@@ -466,7 +459,7 @@ public class TabPanelBase extends Div {
 
 	public void add(NodeBase content, NodeBase tablabel, String icon, boolean lazy) {
 		TabInstance tabInstance = new TabInstance(tablabel, content, createIcon(icon));
-		tabInstance.setLazy(lazy);
+		tabInstance.lazy(lazy);
 		addTabToPanel(tabInstance);
 	}
 
@@ -499,14 +492,14 @@ public class TabPanelBase extends Div {
 
 	public boolean setCurrentTab(String relationTabId) throws Exception {
 
-		int i = 0;
-		for(TabInstance ti : m_tablist) {
-			if(relationTabId.equalsIgnoreCase(ti.getId())) {
-				setCurrentTab(i);
-				return true;
-			}
-			i++;
-		}
+//		int i = 0;
+//		for(TabInstance ti : m_tablist) {
+//			if(relationTabId.equalsIgnoreCase(ti.getId())) {
+//				setCurrentTab(i);
+//				return true;
+//			}
+//			i++;
+//		}
 		return false;
 
 	}
@@ -576,8 +569,8 @@ public class TabPanelBase extends Div {
 			return;
 		}
 		TabInstance tab = m_tablist.get(index);
-		tab.setLabel(new TextNode(tabLabel));
-		tab.setImg(createIcon(tabIcon));
+		tab.label(new TextNode(tabLabel));
+		tab.image(createIcon(tabIcon));
 		renderLabel(into, index, tab);
 	}
 }
