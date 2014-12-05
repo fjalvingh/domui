@@ -36,7 +36,7 @@ import to.etc.domui.util.*;
 public class TabPanelBase extends Div {
 
 	//vmijic 20090923 TabInstance can be registered as ErrorMessageListener in case when TabPanel has m_markErrorTabs set.
-	public class TabInstance implements IErrorMessageListener, ITabHandle {
+	protected static class TabInstance implements IErrorMessageListener, ITabHandle {
 
 		private NodeBase m_label;
 
@@ -58,8 +58,6 @@ public class TabPanelBase extends Div {
 
 		private List<UIMessage> m_msgList = new ArrayList<UIMessage>();
 
-		public TabInstance() {}
-
 		public TabInstance(NodeBase label, NodeBase content, Img img) {
 			m_label = label;
 			m_content = content;
@@ -68,11 +66,6 @@ public class TabPanelBase extends Div {
 
 		public NodeBase getContent() {
 			return m_content;
-		}
-
-		public TabInstance content(NodeBase content) {
-			m_content = content;
-			return this;
 		}
 
 		public NodeBase getLabel() {
@@ -384,7 +377,7 @@ public class TabPanelBase extends Div {
 				newti.getTab().addCssClass("ui-tab-sel");
 			} else if(index < getCurrentTab()) {
 				// Current tab remains active. One tabinstance removed before the current one
-				setCurrentTab(getCurrentTab() - 1);
+				internalSetCurrentTab(getCurrentTab() - 1);
 			}
 		}
 
@@ -399,7 +392,7 @@ public class TabPanelBase extends Div {
 	private int selectNewCurrentTab(int index) {
 
 		if(index == m_tablist.size()) {
-			return index--;
+			return --index;
 		}
 		return index;
 	}
@@ -413,11 +406,11 @@ public class TabPanelBase extends Div {
 	 *
 	 * @param  tabBuilder
 	 *
-	 * @return id of the TabInsdtance created and added to the panel.
+	 * @return id of the TabInstance created and added to the panel.
 	 */
 	@Nonnull
-	public ITabHandle add() {
-		TabInstance tabInstance = new TabInstance();
+	public ITabHandle add(TabBuilder tabBuilder) {
+		TabInstance tabInstance = tabBuilder.build();
 		addTabToPanel(tabInstance);
 		return tabInstance;
 	}
