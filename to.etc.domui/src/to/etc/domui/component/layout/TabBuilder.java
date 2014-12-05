@@ -11,6 +11,8 @@ import to.etc.domui.dom.html.*;
  */
 public class TabBuilder {
 
+	private TabInstance m_tabInstance;
+
 	private NodeBase m_label;
 
 	private NodeBase m_content;
@@ -25,55 +27,46 @@ public class TabBuilder {
 
 	private boolean m_closable;
 
-	public TabBuilder(final NodeBase content) {
-		m_content = content;
+	protected TabBuilder(final TabInstance tabInstance) {
+		m_tabInstance = tabInstance;
 	}
 
 	public TabBuilder label(String label) {
 		TextNode tn = new TextNode(label);
-		m_label = tn;
+		m_tabInstance.label(tn);
+		return this;
+	}
+
+	public TabBuilder content(NodeBase content) {
+		m_tabInstance.content(content);
 		return this;
 	}
 
 	public TabBuilder imageLocation(String imageLocation) {
-		m_imageLocation = imageLocation;
+		m_tabInstance.imageLocation(imageLocation);
 		return this;
 	}
 
 	public TabBuilder tab(Li tab) {
-		m_tab = tab;
+		m_tabInstance.tab(tab);
 		return this;
 	}
 
 	public TabBuilder lazy() {
-		m_lazy = true;
-		return this;
-	}
-
-	public TabBuilder added() {
-		m_added = true;
+		m_tabInstance.lazy(true);
 		return this;
 	}
 
 	public TabBuilder closable() {
-		m_closable = true;
+		m_tabInstance.closable(true);
 		return this;
 	}
 
-	protected TabInstance build() {
+	public ITabHandle build() {
 
 		Img image = TabPanelBase.createIcon(m_imageLocation);
-		TabInstance tabInstance = new TabInstance(m_label, m_content, image);
+		m_tabInstance.image(image);
 
-		if(m_lazy) {
-			tabInstance.lazy(true);
-		}
-		if(m_added) {
-			tabInstance.setAdded(true);
-		}
-		if(m_closable) {
-			tabInstance.closable(true);
-		}
-		return tabInstance;
+		return m_tabInstance;
 	}
 }

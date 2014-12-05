@@ -36,7 +36,7 @@ import to.etc.domui.util.*;
 public class TabPanelBase extends Div {
 
 	//vmijic 20090923 TabInstance can be registered as ErrorMessageListener in case when TabPanel has m_markErrorTabs set.
-	protected static class TabInstance implements IErrorMessageListener, ITabHandle {
+	public class TabInstance implements IErrorMessageListener, ITabHandle {
 
 		private NodeBase m_label;
 
@@ -58,6 +58,8 @@ public class TabPanelBase extends Div {
 
 		private List<UIMessage> m_msgList = new ArrayList<UIMessage>();
 
+		public TabInstance() {}
+
 		public TabInstance(NodeBase label, NodeBase content, Img img) {
 			m_label = label;
 			m_content = content;
@@ -66,6 +68,11 @@ public class TabPanelBase extends Div {
 
 		public NodeBase getContent() {
 			return m_content;
+		}
+
+		public TabInstance content(NodeBase content) {
+			m_content = content;
+			return this;
 		}
 
 		public NodeBase getLabel() {
@@ -409,10 +416,11 @@ public class TabPanelBase extends Div {
 	 * @return id of the TabInstance created and added to the panel.
 	 */
 	@Nonnull
-	public ITabHandle add(TabBuilder tabBuilder) {
-		TabInstance tabInstance = tabBuilder.build();
+	public TabBuilder add() {
+		TabInstance tabInstance = new TabInstance();
+		TabBuilder tabBuilder = new TabBuilder(tabInstance);
 		addTabToPanel(tabInstance);
-		return tabInstance;
+		return tabBuilder;
 	}
 
 	private void addTabToPanel(@Nonnull final TabInstance tabInstance) {
