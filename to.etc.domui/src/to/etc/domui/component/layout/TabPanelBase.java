@@ -36,7 +36,7 @@ import to.etc.domui.util.*;
 public class TabPanelBase extends Div {
 
 	//vmijic 20090923 TabInstance can be registered as ErrorMessageListener in case when TabPanel has m_markErrorTabs set.
-	protected class TabInstance implements IErrorMessageListener {
+	public class TabInstance implements IErrorMessageListener, ITabHandle {
 
 		private NodeBase m_label;
 
@@ -70,51 +70,74 @@ public class TabPanelBase extends Div {
 			return m_content;
 		}
 
+		public TabInstance content(NodeBase content) {
+			m_content = content;
+			return this;
+		}
+
 		public NodeBase getLabel() {
 			return m_label;
 		}
 
-		public void label(NodeBase label) {
+		public TabInstance label(NodeBase label) {
 			m_label = label;
+			return this;
+		}
+
+		public TabInstance label(String label) {
+			TextNode tn = new TextNode(label);
+			return label(tn);
 		}
 
 		public Li getTab() {
 			return m_tab;
 		}
 
-		public void tab(Li tab) {
+		public TabInstance tab(Li tab) {
 			m_tab = tab;
+			return this;
 		}
 
 		public Li getSeparator() {
 			return m_separator;
 		}
 
-		public void separator(Li separator) {
+		public TabInstance separator(Li separator) {
 			m_separator = separator;
+			return this;
 		}
 
 		public Img getImg() {
 			return m_img;
 		}
 
-		public void image(Img img) {
-			m_img = img;
+		public TabInstance image(Img image) {
+			m_img = image;
+			return this;
+		}
+
+		public TabInstance imageLocation(String imageLocation) {
+			Img image = new Img();
+			image.setSrc(imageLocation);
+			image.setCssClass("ui-tab-icon");
+			image.setBorder(0);
+			return image(image);
 		}
 
 		public boolean isLazy() {
 			return m_lazy;
 		}
 
-		public void lazy(boolean lazy) {
+		public TabInstance lazy(boolean lazy) {
 			m_lazy = lazy;
+			return this;
 		}
 
 		public boolean isAdded() {
 			return m_added;
 		}
 
-		public void setAdded(boolean added) {
+		protected void setAdded(boolean added) {
 			m_added = added;
 		}
 
@@ -127,8 +150,9 @@ public class TabPanelBase extends Div {
 			return m_closable;
 		}
 
-		public void setClosable(boolean closeable) {
+		public TabInstance closable(boolean closeable) {
 			m_closable = closeable;
+			return this;
 		}
 
 
@@ -336,7 +360,7 @@ public class TabPanelBase extends Div {
 
 		// Check for a silly index
 		if(index < 0 || index >= m_tablist.size()) {
-			return;
+			throw new IllegalArgumentException("Invalid index for closing a tab.");
 		}
 
 		TabInstance ti = m_tablist.get(index);
@@ -352,17 +376,15 @@ public class TabPanelBase extends Div {
 		if (!m_tablist.isEmpty()) {
 			if(index == getCurrentTab()) {
 				// Current tab is removed, select another one
-				int newCurrentTab = selectNewCurrentTab();
-				if(newCurrentTab != -1) {
-					internalSetCurrentTab(newCurrentTab);
-					TabInstance newti = m_tablist.get(newCurrentTab);
-					NodeBase newc = newti.getContent();
-					newc.setDisplay(DisplayType.BLOCK);
-					newti.getTab().addCssClass("ui-tab-sel");
-				}
+				int newCurrentTab = selectNewCurrentTab(index);
+				internalSetCurrentTab(newCurrentTab);
+				TabInstance newti = m_tablist.get(newCurrentTab);
+				NodeBase newc = newti.getContent();
+				newc.setDisplay(DisplayType.BLOCK);
+				newti.getTab().addCssClass("ui-tab-sel");
 			} else if(index < getCurrentTab()) {
 				// Current tab remains active. One tabinstance removed before the current one
-				internalSetCurrentTab(getCurrentTab() - 1);
+				setCurrentTab(getCurrentTab() - 1);
 			}
 		}
 
@@ -374,17 +396,12 @@ public class TabPanelBase extends Div {
 	/**
 	 * Select the new current tab
 	 */
-	private int selectNewCurrentTab() {
+	private int selectNewCurrentTab(int index) {
 
-		int index = 0;
-		for(TabInstance ti : m_tablist) {
-			if(ti.isLazy() && !ti.isAdded()) {
-				index++;
-				continue;
-			}
-			return index;
+		if(index == m_tablist.size()) {
+			return index--;
 		}
-		return -1; // can only occur if there are only lazy tabInstances (not added) or if there are no tabInstances
+		return index;
 	}
 
 	/*--------------------------------------------------------------*/
@@ -399,7 +416,7 @@ public class TabPanelBase extends Div {
 	 * @return id of the TabInsdtance created and added to the panel.
 	 */
 	@Nonnull
-	public TabInstance add() {
+	public ITabHandle add() {
 		TabInstance tabInstance = new TabInstance();
 		addTabToPanel(tabInstance);
 		return tabInstance;
@@ -490,17 +507,19 @@ public class TabPanelBase extends Div {
 		m_currentTab = index;
 	}
 
-	public boolean setCurrentTab(String relationTabId) throws Exception {
+	public boolean setCurrentTab(ITabHandle tabHandle) throws Exception {
 
-//		int i = 0;
-//		for(TabInstance ti : m_tablist) {
-//			if(relationTabId.equalsIgnoreCase(ti.getId())) {
-//				setCurrentTab(i);
-//				return true;
-//			}
-//			i++;
-//		}
-		return false;
+		if(!(tabHandle instanceof TabInstance))
+			throw new IllegalArgumentException("Only instance of TabInstance can be used for setting the current tab.");
+
+		TabInstance ti = (TabInstance) tabHandle;
+
+		int index = m_tablist.indexOf(ti);
+		if(index == -1) {
+			return false;
+		}
+		setCurrentTab(index);
+		return true;
 
 	}
 	public void setCurrentTab(int index) throws Exception {
