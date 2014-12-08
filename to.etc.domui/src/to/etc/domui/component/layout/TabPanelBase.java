@@ -36,15 +36,13 @@ import to.etc.domui.util.*;
 public class TabPanelBase extends Div {
 
 	//vmijic 20090923 TabInstance can be registered as ErrorMessageListener in case when TabPanel has m_markErrorTabs set.
-	public class TabInstance implements IErrorMessageListener, ITabHandle {
+	protected class TabInstance implements IErrorMessageListener, ITabHandle {
 
 		private NodeBase m_label;
 
 		private NodeBase m_content;
 
 		private Img m_img;
-
-		//		private Img m_errorInfo;
 
 		private Li m_tab;
 
@@ -70,67 +68,48 @@ public class TabPanelBase extends Div {
 			return m_content;
 		}
 
-		public TabInstance content(NodeBase content) {
+		public void setContent(@Nonnull NodeBase content) {
 			m_content = content;
-			return this;
 		}
 
 		public NodeBase getLabel() {
 			return m_label;
 		}
 
-		public TabInstance label(NodeBase label) {
+		public void setLabel(@Nonnull NodeBase label) {
 			m_label = label;
-			return this;
-		}
-
-		public TabInstance label(String label) {
-			TextNode tn = new TextNode(label);
-			return label(tn);
 		}
 
 		public Li getTab() {
 			return m_tab;
 		}
 
-		public TabInstance tab(Li tab) {
+		public void setTab(@Nonnull Li tab) {
 			m_tab = tab;
-			return this;
 		}
 
 		public Li getSeparator() {
 			return m_separator;
 		}
 
-		public TabInstance separator(Li separator) {
+		public void setSeparator(@Nonnull Li separator) {
 			m_separator = separator;
-			return this;
 		}
 
 		public Img getImg() {
 			return m_img;
 		}
 
-		public TabInstance image(Img image) {
+		public void setImage(@Nonnull Img image) {
 			m_img = image;
-			return this;
-		}
-
-		public TabInstance imageLocation(String imageLocation) {
-			Img image = new Img();
-			image.setSrc(imageLocation);
-			image.setCssClass("ui-tab-icon");
-			image.setBorder(0);
-			return image(image);
 		}
 
 		public boolean isLazy() {
 			return m_lazy;
 		}
 
-		public TabInstance lazy(boolean lazy) {
+		public void setLazy(boolean lazy) {
 			m_lazy = lazy;
-			return this;
 		}
 
 		public boolean isAdded() {
@@ -150,9 +129,8 @@ public class TabPanelBase extends Div {
 			return m_closable;
 		}
 
-		public TabInstance closable(boolean closeable) {
+		public void closable(boolean closeable) {
 			m_closable = closeable;
-			return this;
 		}
 
 
@@ -297,8 +275,8 @@ public class TabPanelBase extends Div {
 			li.setCssClass("ui-tab-li");
 			into.add(separator);
 			into.add(li);
-			ti.tab(li); 					// Save for later use,
-			ti.separator(separator);		// Save for later use,
+			ti.setTab(li); 					// Save for later use,
+			ti.setSeparator(separator);		// Save for later use,
 			if(index == getCurrentTab()) {
 				li.addCssClass("ui-tab-sel");
 			} else {
@@ -335,11 +313,10 @@ public class TabPanelBase extends Div {
 			li.removeCssClass("ui-tab-li");
 			li.addCssClass("ui-tab-close-li");
 			ATag x = new ATag();
-			d.add(x);
+			dt.add(x);
 			Div ds = new Div();
 			x.add(ds);
-			ds.add("X");
-			x.setCssClass("ui-tab-close");
+			ds.setCssClass("ui-tab-close");
 			x.setClicked(new IClicked<ATag>() {
 				@Override
 				public void clicked(@Nonnull ATag b) throws Exception {
@@ -409,11 +386,9 @@ public class TabPanelBase extends Div {
 	/*--------------------------------------------------------------*/
 
 	/**
-	 * Simple form for adding a tab which contains a text tabel.
+	 * Adding a tabInstance by use of the {@link TabBuilder}
 	 *
-	 * @param  tabBuilder
-	 *
-	 * @return id of the TabInstance created and added to the panel.
+	 * @return
 	 */
 	@Nonnull
 	public TabBuilder add() {
@@ -467,7 +442,7 @@ public class TabPanelBase extends Div {
 	 */
 	public void add(NodeBase content, NodeBase tablabel, boolean lazy) {
 		TabInstance tabInstance = new TabInstance(tablabel, content, null);
-		tabInstance.lazy(lazy);
+		tabInstance.setLazy(lazy);
 		addTabToPanel(tabInstance);
 	}
 
@@ -477,7 +452,7 @@ public class TabPanelBase extends Div {
 
 	public void add(NodeBase content, NodeBase tablabel, String icon, boolean lazy) {
 		TabInstance tabInstance = new TabInstance(tablabel, content, createIcon(icon));
-		tabInstance.lazy(lazy);
+		tabInstance.setLazy(lazy);
 		addTabToPanel(tabInstance);
 	}
 
@@ -589,8 +564,8 @@ public class TabPanelBase extends Div {
 			return;
 		}
 		TabInstance tab = m_tablist.get(index);
-		tab.label(new TextNode(tabLabel));
-		tab.image(createIcon(tabIcon));
+		tab.setLabel(new TextNode(tabLabel));
+		tab.setImage(createIcon(tabIcon));
 		renderLabel(into, index, tab);
 	}
 }

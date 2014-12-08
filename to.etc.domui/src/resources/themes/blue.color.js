@@ -98,6 +98,8 @@ data_pager_icon_size_y = 19;
 
 //-- Tab panel image
 tab_pnl_img = "tab-all-domui.png";
+tab_pnl_close = "tab-pnl-close.png";
+tab_pnl_close_hover = "tab-pnl-close-hover.png";
 /* Icon definition for DomUI icons */
 
 //label selector color

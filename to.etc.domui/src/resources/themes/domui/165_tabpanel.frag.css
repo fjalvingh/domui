@@ -63,16 +63,14 @@
 
 .ui-tab-close {
     display: inline-block;
-    font-weight: bold;
-    text-decoration: none;
-	color: <%= tab_pnl_inactive_col %>;
-	position: relative;    
-	padding: 0em;     
-	margin: -0em;
+	background-image: url("<%= tab_pnl_close %>");
+    height: 16px;
+	width: 16px;
+	margin-left: 8px;
 }
 
-.ui-tab-hdr li.ui-tab-close-li div.ui-tab-div a.ui-tab-close div:hover{
-	color: <%= tab_pnl_close_tab %>;
+.ui-tab-close:hover {
+	background-image: url("<%= tab_pnl_close_hover %>");
 }
 
 .ui-tab-hdr li:hover {

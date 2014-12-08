@@ -1,5 +1,7 @@
 package to.etc.domui.component.layout;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.layout.TabPanelBase.TabInstance;
 import to.etc.domui.dom.html.*;
 
@@ -9,16 +11,22 @@ import to.etc.domui.dom.html.*;
  * @author <a href="mailto:marc.mol@itris.nl">Marc Mol</a>
  * @since Nov 20, 2014
  */
+
 public class TabBuilder {
 
+	@Nonnull
 	private TabInstance m_tabInstance;
 
+	@Nullable
 	private NodeBase m_label;
 
+	@Nullable
 	private NodeBase m_content;
 
+	@Nullable
 	private String m_imageLocation;
 
+	@Nullable
 	private Li m_tab;
 
 	private boolean m_lazy;
@@ -27,45 +35,50 @@ public class TabBuilder {
 
 	private boolean m_closable;
 
-	protected TabBuilder(final TabInstance tabInstance) {
+	protected TabBuilder(@Nonnull final TabInstance tabInstance) {
 		m_tabInstance = tabInstance;
 	}
 
-	public TabBuilder label(String label) {
+	@Nonnull
+	public TabBuilder label(@Nonnull final String label) {
 		TextNode tn = new TextNode(label);
-		m_tabInstance.label(tn);
+		m_tabInstance.setLabel(tn);
 		return this;
 	}
 
-	public TabBuilder content(NodeBase content) {
-		m_tabInstance.content(content);
+	@Nonnull
+	public TabBuilder content(@Nonnull final NodeBase content) {
+		m_tabInstance.setContent(content);
 		return this;
 	}
 
-	public TabBuilder imageLocation(String imageLocation) {
-		m_tabInstance.imageLocation(imageLocation);
+	@Nonnull
+	public TabBuilder imageLocation(@Nonnull final String imageLocation) {
+		Img image = TabPanelBase.createIcon(imageLocation);
+		m_tabInstance.setImage(image);
 		return this;
 	}
 
-	public TabBuilder tab(Li tab) {
-		m_tabInstance.tab(tab);
+	@Nonnull
+	public TabBuilder tab(@Nonnull final Li tab) {
+		m_tabInstance.setTab(tab);
 		return this;
 	}
 
+	@Nonnull
 	public TabBuilder lazy() {
-		m_tabInstance.lazy(true);
+		m_tabInstance.setLazy(true);
 		return this;
 	}
 
+	@Nonnull
 	public TabBuilder closable() {
 		m_tabInstance.closable(true);
 		return this;
 	}
 
+	@Nonnull
 	public ITabHandle build() {
-
-		Img image = TabPanelBase.createIcon(m_imageLocation);
-		m_tabInstance.image(image);
 
 		return m_tabInstance;
 	}
