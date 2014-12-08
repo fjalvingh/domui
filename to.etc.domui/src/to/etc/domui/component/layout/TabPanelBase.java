@@ -316,7 +316,7 @@ public class TabPanelBase extends Div {
 			dt.add(x);
 			Div ds = new Div();
 			x.add(ds);
-			ds.setCssClass("ui-tab-close");
+			x.setCssClass("ui-tab-close");
 			x.setClicked(new IClicked<ATag>() {
 				@Override
 				public void clicked(@Nonnull ATag b) throws Exception {

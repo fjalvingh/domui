@@ -45,6 +45,7 @@
     min-height: 22px;
     color: <%= tab_pnl_inactive_col %>;
     margin-right: 0px !important;
+    vertical-align: middle;
 }
 
 .ui-tab-hdr img {
