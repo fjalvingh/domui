@@ -287,7 +287,7 @@ public class TabPanelBase extends Div {
 
 		List<Div> divs = li.getChildren(Div.class);
 		for(Div div : divs) {
-			li.removeChild(div);
+			div.remove();
 		}
 
 		Div d = new Div();
@@ -318,7 +318,7 @@ public class TabPanelBase extends Div {
 			x.setClicked(new IClicked<ATag>() {
 				@Override
 				public void clicked(@Nonnull ATag b) throws Exception {
-					closeCurrentTab(into, index);
+					closeTabByIndex(into, index);
 				}
 
 			});
@@ -326,12 +326,13 @@ public class TabPanelBase extends Div {
 	}
 
 	/**
-	 * Close the current tab
+	 * Close the tab with the given index.
 	 *
+	 * @param into
 	 * @param index
 	 * @throws Exception
 	 */
-	private void closeCurrentTab(@Nonnull final NodeContainer into, int index) throws Exception {
+	private void closeTabByIndex(@Nonnull final NodeContainer into, int index) throws Exception {
 
 		// Check for a silly index
 		if(index < 0 || index >= m_tablist.size()) {
