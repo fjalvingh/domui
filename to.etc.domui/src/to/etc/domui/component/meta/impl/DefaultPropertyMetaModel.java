@@ -24,17 +24,16 @@
  */
 package to.etc.domui.component.meta.impl;
 
-import java.lang.annotation.*;
-import java.lang.reflect.*;
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 import to.etc.webapp.nls.*;
+
+import javax.annotation.*;
+import java.lang.annotation.*;
+import java.lang.reflect.*;
+import java.util.*;
 
 public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> implements PropertyMetaModel<T> {
 	@Nonnull
@@ -161,6 +160,10 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 //			System.err.println("(in calling " + setter + " with input object " + target + " and value " + value + ")");
 			throw x;
 		}
+	}
+
+	@Override public boolean isReadOnly() {
+		return m_descriptor.getSetter() != null || getReadOnly() == YesNoType.YES;
 	}
 
 	/**

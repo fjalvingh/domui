@@ -630,4 +630,8 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	public IQueryManipulator<T> getQueryManipulator() {
 		return null;
 	}
+
+	@Override public boolean isReadOnly() {
+		return true;
+	}
 }

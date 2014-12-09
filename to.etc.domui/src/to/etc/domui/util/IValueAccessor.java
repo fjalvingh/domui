@@ -28,4 +28,6 @@ import javax.annotation.*;
 
 public interface IValueAccessor<T> extends IValueTransformer<T> {
 	public void setValue(@Nonnull Object target, @Nullable T value) throws Exception;
+
+	public boolean isReadOnly();
 }
