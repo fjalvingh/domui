@@ -57,8 +57,7 @@ public class ControlCreatorEnumAndBool implements IControlCreator {
 	 */
 	@Override
 	public <T, C extends IControl<T>> C createControl(@Nonnull PropertyMetaModel<T> pmm, @Nullable Class<C> controlClass) {
-		//-- FIXME EXPERIMENTAL use a DisplayValue control to present the value instead of a horrible disabled combobox
-		ComboFixed2< ? > c = ComboFixed2.createEnumCombo(pmm);
+		ComboFixed2< ? > c = ComboFixed2.createComboFor(pmm, true);
 		return (C) c;
 	}
 }

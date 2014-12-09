@@ -24,10 +24,6 @@
  */
 package to.etc.domui.component2.combo;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.misc.*;
@@ -36,6 +32,9 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * Simple combobox handling [String, Object] pairs where the string is the
@@ -262,4 +261,39 @@ public class ComboFixed2<T> extends ComboComponentBase2<ValueLabelPair<T>, T> {
 		}
 		return new ComboFixed2<T>(values);
 	}
+
+	@Nonnull
+	static public <T> ComboFixed2<T> createComboFor(PropertyMetaModel<T> pmm, boolean editable) {
+		if(pmm == null)
+			throw new IllegalArgumentException("propertyMeta cannot be null");
+		Object[] vals = pmm.getDomainValues();
+		if(vals == null || vals.length == 0)
+			throw new IllegalArgumentException("The type of property " + pmm + " (" + pmm.getActualType() + ") is not known as a fixed-size domain type");
+
+		ClassMetaModel ecmm = null;
+		List<ValueLabelPair<T>> vl = new ArrayList<ValueLabelPair<T>>();
+		for(Object o : vals) {
+			String label = pmm.getDomainValueLabel(NlsContext.getLocale(), o); // Label known to property?
+			if(label == null) {
+				if(ecmm == null)
+					ecmm = MetaManager.findClassMeta(pmm.getActualType()); // Try to get the property's type.
+				label = ecmm.getDomainLabel(NlsContext.getLocale(), o);
+				if(label == null)
+					label = o == null ? "" : o.toString();
+			}
+			vl.add(new ValueLabelPair<T>((T) o, label));
+		}
+
+		ComboFixed2<T> c = new ComboFixed2<T>(vl);
+		if(pmm.isRequired())
+			c.setMandatory(true);
+		if(!editable || pmm.getReadOnly() == YesNoType.YES)
+			c.setDisabled(true);
+		String s = pmm.getDefaultHint();
+		if(s != null)
+			c.setTitle(s);
+		return c;
+	}
+
+
 }
