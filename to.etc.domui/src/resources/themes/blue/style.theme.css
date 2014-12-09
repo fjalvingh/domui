@@ -1648,20 +1648,31 @@ div.ui-sortable {
  	margin-right: 0px !important;
 }
 
+.ui-tab-div a {
+	vertical-align: middle;
+}
+
 .ui-tab-hdr img {
 	vertical-align: top;	
 }
 
 .ui-tab-link {
     display: inline-block;
-	position: relative;    
-	padding: 2em;     
-	margin: -2em;
+    font-weight: bold;
+    text-decoration: none;
+	color: <%= tab_pnl_inactive_col %>;
 }
 
 .ui-tab-close {
     display: inline-block;
-	position: relative;    
+	background-image: url("<%= tab_pnl_close %>");
+    height: 16px;
+	width: 16px;
+	margin-left: 8px;
+}
+
+.ui-tab-close:hover {
+	background-image: url("<%= tab_pnl_close_hover %>");
 }
 
 .ui-tab-hdr li:hover {

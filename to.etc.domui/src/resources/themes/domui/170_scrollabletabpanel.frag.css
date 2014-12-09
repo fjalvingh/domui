@@ -151,7 +151,10 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	min-height: 22px;
 	color: <%= tab_pnl_inactive_col %>;
 	margin-right: 0px !important;
-    vertical-align: middle;
+}
+
+.ui-tab-div a {
+	vertical-align: middle;
 }
 
 .ui-tab-link {
@@ -159,9 +162,6 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
     font-weight: bold;
     text-decoration: none;
     color: <%= tab_pnl_inactive_col %>;
-	position: relative;    
-	padding: 2em;     
-	margin: -2em;
 }
 
 .ui-tab-close {

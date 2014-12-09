@@ -314,8 +314,6 @@ public class TabPanelBase extends Div {
 			li.addCssClass("ui-tab-close-li");
 			ATag x = new ATag();
 			dt.add(x);
-			Div ds = new Div();
-			x.add(ds);
 			x.setCssClass("ui-tab-close");
 			x.setClicked(new IClicked<ATag>() {
 				@Override
@@ -483,7 +481,7 @@ public class TabPanelBase extends Div {
 		m_currentTab = index;
 	}
 
-	public boolean setCurrentTab(ITabHandle tabHandle) throws Exception {
+	public boolean setCurrentTab(@Nonnull final ITabHandle tabHandle) throws Exception {
 
 		if(!(tabHandle instanceof TabInstance))
 			throw new IllegalArgumentException("Only instance of TabInstance can be used for setting the current tab.");

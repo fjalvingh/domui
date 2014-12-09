@@ -6,7 +6,6 @@ tabPanelOrange = {
 	sep: "#7c7c7c",
 	inactive_col: '#ffffff',
 	active_col: '#67267f',
-	close_tab: '#ff0000',
 	hover_inactive_col: '#ffffff',
 	hover_active_col: '#4272C8',
 	border: undefined,						// jal wtf is this? Without this the tabs render bad... Vladimir?
@@ -98,7 +97,6 @@ tab_pnl_top_img = currentTab.topImg;
 tab_pnl_sep_bg = currentTab.sep;
 tab_pnl_inactive_col = currentTab.inactive_col;
 tab_pnl_active_col = currentTab.active_col;
-tab_pnl_close_tab = currentTab.close_tab;
 tab_pnl_hover_inactive_col = currentTab.hover_inactive_col;
 tab_pnl_hover_active_col = currentTab.hover_active_col;
 tab_pnl_border_col = currentTab.border;
