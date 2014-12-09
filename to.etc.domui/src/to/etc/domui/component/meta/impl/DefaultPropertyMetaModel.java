@@ -163,7 +163,7 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	}
 
 	@Override public boolean isReadOnly() {
-		return m_descriptor.getSetter() != null || getReadOnly() == YesNoType.YES;
+		return m_descriptor.getSetter() == null || getReadOnly() == YesNoType.YES;
 	}
 
 	/**
