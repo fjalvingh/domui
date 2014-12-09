@@ -1643,9 +1643,9 @@ div.ui-sortable {
     font-weight: bold;
     padding: 9px 14px 0px 6px;
     text-decoration: none;
- 	min-height: 22px;
- 	color: <%= tab_pnl_inactive_col %>;
- 	margin-right: 0px !important;
+    min-height: 22px;
+    color: <%= tab_pnl_inactive_col %>;
+    margin-right: 0px !important;
 }
 
 .ui-tab-div a {
@@ -1768,21 +1768,11 @@ li.ui-tab-ibt:FIRST-CHILD {
     list-style: none;
 }
 
-.ui-stab-hdr a {
-	background: url("<%= tab_pnl_img %>") no-repeat scroll right -250px transparent;
-    display: block;
-    font-weight: bold;
-    padding: 9px 14px 0px 6px;
-    text-decoration: none;
- 	min-height: 22px;
- 	color: <%= tab_pnl_inactive_col %>;
-}
-
 .ui-stab-hdr li:hover {
 	background-position: left -300px;
 }
 
-.ui-stab-hdr li:hover a{
+.ui-stab-hdr li:hover div{
 	background-position: right -350px;
 	color: <%= tab_pnl_hover_inactive_col %>;
 }
@@ -1792,13 +1782,13 @@ li.ui-tab-ibt:FIRST-CHILD {
 	background-position: left top;
 }
 
-.ui-stab-hdr li.ui-stab-sel a, 
-.ui-stab-hdr li.ui-stab-sel:hover a {
+.ui-stab-hdr li.ui-stab-sel div, 
+.ui-stab-hdr li.ui-stab-sel:hover div {
 	background-position: right -50px;
 	color: <%= tab_pnl_active_col %>;
 }
 
-li.ui-stab-err a {
+li.ui-stab-err div {
 	color: <%= errors_foreground %> !important;
 }
 
@@ -1888,9 +1878,49 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	border-bottom: 0px;
 }
 
-.ui-stab-hdr li.ui-tab-sel a{
+.ui-stab-hdr li.ui-tab-sel div{
 	background-position: right -50px;
 	color: <%= tab_pnl_active_col %>;
+}
+
+.ui-tab-close-li {
+	margin: 0;
+	padding: 0;
+	white-space: nowrap;
+}
+
+.ui-tab-div {
+	background: url("<%= tab_pnl_img %>") no-repeat scroll right -250px transparent;
+    display: block;
+    font-weight: bold;
+    padding: 9px 14px 0px 6px;
+    text-decoration: none;
+	min-height: 22px;
+	color: <%= tab_pnl_inactive_col %>;
+	margin-right: 0px !important;
+}
+
+.ui-tab-div a {
+	vertical-align: middle;
+}
+
+.ui-tab-link {
+    display: inline-block;
+    font-weight: bold;
+    text-decoration: none;
+    color: <%= tab_pnl_inactive_col %>;
+}
+
+.ui-tab-close {
+    display: inline-block;
+	background-image: url("<%= tab_pnl_close %>");
+    height: 16px;
+	width: 16px;
+	margin-left: 8px;
+}
+
+.ui-tab-close:hover {
+	background-image: url("<%= tab_pnl_close_hover %>");
 }
 /*** 175_iohideroverlay.frag.css ***/
 /*** IO hider overlay ***/
