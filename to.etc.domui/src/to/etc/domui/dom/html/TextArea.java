@@ -24,10 +24,6 @@
  */
 package to.etc.domui.dom.html;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
@@ -35,7 +31,13 @@ import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 
+import javax.annotation.*;
+import java.util.*;
+
 public class TextArea extends InputNodeContainer implements INativeChangeListener, IControl<String>, IHasModifiedIndication, IHtmlInput {
+	/** Hint to use in property meta data to select this component. */
+	static public final String HINT = "textarea";
+
 	private int m_cols = -1;
 
 	private int m_rows = -1;
