@@ -293,7 +293,7 @@ public class TabPanelBase extends Div {
 
 	public void add(NodeBase content, String label, String icon, boolean lazy) {
 		TextNode tn = new TextNode(label);
-		add(content, tn, icon);
+		add(content, tn, icon, lazy);
 	}
 
 	/**
@@ -311,17 +311,7 @@ public class TabPanelBase extends Div {
 	 * @param tablabel
 	 */
 	public void add(NodeBase content, NodeBase tablabel, boolean lazy) {
-		TabInstance tabInstance = new TabInstance(tablabel, content, null);
-		tabInstance.setLazy(lazy);
-		if(m_markErrorTabs) {
-			DomUtil.getMessageFence(this).addErrorListener(tabInstance);
-		}
-		m_tablist.add(tabInstance);
-		if(!isBuilt())
-			return;
-
-		//-- Render the new thingies.
-		forceRebuild();
+		add(content, tablabel, null, lazy);
 	}
 
 	public void add(NodeBase content, NodeBase tablabel, String icon) {
@@ -329,7 +319,7 @@ public class TabPanelBase extends Div {
 	}
 
 	public void add(NodeBase content, NodeBase tablabel, String icon, boolean lazy) {
-		TabInstance tabInstance = new TabInstance(tablabel, content, createIcon(icon));
+		TabInstance tabInstance = new TabInstance(tablabel, content, icon == null ? null : createIcon(icon));
 		tabInstance.setLazy(lazy);
 		if(m_markErrorTabs) {
 			DomUtil.getMessageFence(this).addErrorListener(tabInstance);
