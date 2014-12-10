@@ -24,7 +24,6 @@
  */
 package to.etc.domui.component.binding;
 
-import to.etc.domui.component.input.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.annotations.*;
 
