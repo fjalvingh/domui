@@ -29,7 +29,6 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
 import javax.annotation.*;
-import java.util.*;
 
 /**
  * Mini component to display an HTML section.
@@ -83,30 +82,6 @@ public class DisplayHtml extends Div implements IDisplayControl<String>, IBindab
 		if(!m_unchecked)
 			v = HtmlUtil.removeUnsafe(v);
 		m_xtn.setText(v);
-	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	IBindable interface.								*/
-	/*--------------------------------------------------------------*/
-
-	@Nullable
-	private List<SimpleBinder> m_bindingList;
-
-	@Override
-	public @Nonnull
-	IBinder bind() {
-		return bind("value");
-	}
-
-	@Override
-	@Nonnull
-	public IBinder bind(@Nonnull String componentProperty) {
-		List<SimpleBinder> list = m_bindingList;
-		if(list == null)
-			list = m_bindingList = new ArrayList<SimpleBinder>(1);
-		SimpleBinder binder = new SimpleBinder(this, componentProperty);
-		list.add(binder);
-		return binder;
 	}
 
 	public boolean isUnchecked() {

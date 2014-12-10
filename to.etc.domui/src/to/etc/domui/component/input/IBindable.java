@@ -27,14 +27,12 @@ package to.etc.domui.component.input;
 import javax.annotation.*;
 
 /**
- * EXPERIMENTAL - DO NOT USE.
  * This defines the component as an input component that can be bound to some
  * value.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 13, 2009
  */
-@Deprecated
 public interface IBindable {
 	/**
 	 * Return the binding builder that will bind to the default "value" property.

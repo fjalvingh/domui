@@ -31,7 +31,6 @@ import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 
 import javax.annotation.*;
-import java.util.*;
 
 @Deprecated
 abstract public class SelectBasedControl<T> extends Select implements IControl<T>, IHasModifiedIndication {
@@ -175,26 +174,4 @@ abstract public class SelectBasedControl<T> extends Select implements IControl<T
 		return super.hasError();
 	}
 
-	/*--------------------------------------------------------------*/
-	/*	CODING:	IBindable interface.								*/
-	/*--------------------------------------------------------------*/
-
-	@Nullable
-	private List<SimpleBinder> m_bindingList;
-
-	@Override
-	public @Nonnull IBinder bind() {
-		return bind("value");
-	}
-
-	@Override
-	@Nonnull
-	public IBinder bind(@Nonnull String componentProperty) {
-		List<SimpleBinder> list = m_bindingList;
-		if(list == null)
-			list = m_bindingList = new ArrayList<SimpleBinder>(1);
-		SimpleBinder binder = new SimpleBinder(this, componentProperty);
-		list.add(binder);
-		return binder;
-	}
 }

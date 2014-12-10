@@ -630,29 +630,6 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		m_modifiedByUser = as;
 	}
 
-	/*--------------------------------------------------------------*/
-	/*	CODING:	IBindable interface.								*/
-	/*--------------------------------------------------------------*/
-
-	@Nullable
-	private List<SimpleBinder> m_bindingList;
-
-	@Override
-	public @Nonnull IBinder bind() {
-		return bind("bindValue");
-	}
-
-	@Override
-	@Nonnull
-	public IBinder bind(@Nonnull String componentProperty) {
-		List<SimpleBinder> list = m_bindingList;
-		if(list == null)
-			list = m_bindingList = new ArrayList<SimpleBinder>(1);
-		SimpleBinder binder = new SimpleBinder(this, componentProperty);
-		list.add(binder);
-		return binder;
-	}
-
 	/**
 	 * This adds a validator for the maximal and minimal value for an input, gotten from the property metamodel.
 	 * @param control

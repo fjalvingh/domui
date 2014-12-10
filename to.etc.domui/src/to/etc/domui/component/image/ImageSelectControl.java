@@ -1,7 +1,6 @@
 package to.etc.domui.component.image;
 
 import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.input.*;
 import to.etc.domui.component.upload.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.parts.*;
@@ -14,7 +13,6 @@ import to.etc.webapp.nls.*;
 
 import javax.annotation.*;
 import java.io.*;
-import java.util.*;
 
 /**
  * This control allows selecting a single image as an upload. The image is
@@ -241,28 +239,5 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 			return;
 		m_disabled = disabled;
 		forceRebuild();
-	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	IBindable interface.								*/
-	/*--------------------------------------------------------------*/
-
-	@Nullable
-	private List<SimpleBinder> m_bindingList;
-
-	@Override
-	public @Nonnull IBinder bind() {
-		return bind("value");
-	}
-
-	@Override
-	@Nonnull
-	public IBinder bind(@Nonnull String componentProperty) {
-		List<SimpleBinder> list = m_bindingList;
-		if(list == null)
-			list = m_bindingList = new ArrayList<SimpleBinder>(1);
-		SimpleBinder binder = new SimpleBinder(this, componentProperty);
-		list.add(binder);
-		return binder;
 	}
 }

@@ -1,11 +1,9 @@
 package to.etc.domui.component.graph;
 
-import to.etc.domui.component.input.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
 
 import javax.annotation.*;
-import java.util.*;
 
 /**
  * This is a Small button which shows a selected color, and which opens
@@ -107,29 +105,5 @@ public class ColorPickerButton extends Div implements IHasChangeListener, IContr
 	@Override
 	public void setMandatory(boolean ro) {
 		m_mandatory = ro;
-	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	IBindable interface.								*/
-	/*--------------------------------------------------------------*/
-
-	@Nullable
-	private List<SimpleBinder> m_bindingList;
-
-	@Override
-	public @Nonnull
-	IBinder bind() {
-		return bind("value");
-	}
-
-	@Override
-	@Nonnull
-	public IBinder bind(@Nonnull String componentProperty) {
-		List<SimpleBinder> list = m_bindingList;
-		if(list == null)
-			list = m_bindingList = new ArrayList<SimpleBinder>(1);
-		SimpleBinder binder = new SimpleBinder(this, componentProperty);
-		list.add(binder);
-		return binder;
 	}
 }

@@ -44,7 +44,7 @@ import java.util.*;
  */
 final public class SimpleBinder implements IBinder, IBinding {
 	@Nonnull
-	final private IBindable m_control;
+	final private NodeBase m_control;
 
 	@Nonnull
 	final private IValueAccessor< ? > m_controlProperty;
@@ -68,7 +68,7 @@ final public class SimpleBinder implements IBinder, IBinding {
 	@Nullable
 	private UIMessage m_bindError;
 
-	public SimpleBinder(@Nonnull IBindable control, @Nonnull String controlProperty) {
+	public SimpleBinder(@Nonnull NodeBase control, @Nonnull String controlProperty) {
 		if(control == null)
 			throw new IllegalArgumentException("The control cannot be null.");
 		m_control = control;

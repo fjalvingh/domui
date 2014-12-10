@@ -1916,4 +1916,21 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 		if(null != list)
 			list.remove(binding);
 	}
+
+	@Nonnull final public IBinder bind() {
+		ClassMetaModel cmm = MetaManager.findClassMeta(getClass());
+		PropertyMetaModel<?> p = cmm.findProperty("bindValue");
+		if(null != p)
+			return bind("bindValue");
+		p = cmm.findProperty("value");
+		if(null != p)
+			return bind("value");
+		throw new IllegalStateException("This control "+getClass()+" does not have a 'value' nor a 'bindValue' property");
+	}
+
+	@Nonnull final public IBinder bind(@Nonnull String componentProperty) {
+		SimpleBinder binder = new SimpleBinder(this, componentProperty);
+		addBinding(binder);
+		return binder;
+	}
 }
