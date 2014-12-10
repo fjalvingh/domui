@@ -38,15 +38,16 @@ final public class StyleBinding implements IBinding {
 	}
 
 	@Nonnull
-	public <T, P> StyleBinder to(@Nonnull T instance, @Nonnull IValueAccessor<P> property) {
+	public <T, P> StyleBinder to(@Nonnull T instance, @Nonnull IValueAccessor<P> property) throws Exception {
 		m_instance = instance;
 		m_instanceProperty = property;
 		m_component.addBinding(this);
+		moveModelToControl();
 		return m_styleBinder;
 	}
 
 	@Nonnull
-	public <T> StyleBinder	to(@Nonnull T instance, @Nonnull String property) {
+	public <T> StyleBinder	to(@Nonnull T instance, @Nonnull String property) throws Exception {
 		return to(instance, MetaManager.getPropertyMeta(instance.getClass(), property));
 	}
 
@@ -55,7 +56,7 @@ final public class StyleBinding implements IBinding {
 	 * Update the style according to the model's value.
 	 * @throws Exception
 	 */
-	@Override public void moveControlToModel() throws Exception {
+	@Override public void moveModelToControl() throws Exception {
 		Object instance = m_instance;
 		if(null == instance)
 			throw new IllegalStateException("Instance bound to is null??");
@@ -96,7 +97,7 @@ final public class StyleBinding implements IBinding {
 	 * A style binding never moves anything back to the model.
 	 * @throws Exception
 	 */
-	@Override public void moveModelToControl() throws Exception {
+	@Override public void moveControlToModel() throws Exception {
 	}
 
 	/**
