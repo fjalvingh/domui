@@ -24,6 +24,7 @@
  */
 package to.etc.domui.component.input;
 
+import to.etc.domui.component.binding.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
@@ -41,7 +42,7 @@ import java.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 13, 2009
  */
-final public class SimpleBinder implements IBinder {
+final public class SimpleBinder implements IBinder, IBinding {
 	@Nonnull
 	final private IBindable m_control;
 
@@ -252,9 +253,9 @@ final public class SimpleBinder implements IBinder {
 			public Object before(NodeBase n) throws Exception {
 				if(n instanceof IBindable) {
 					IBindable b = (IBindable) n;
-					List<SimpleBinder> list = b.getBindingList();
+					List<IBinding> list = b.getBindingList();
 					if(null != list) {
-						for(SimpleBinder sb : list)
+						for(IBinding sb : list)
 							sb.moveControlToModel();
 					}
 				}
@@ -279,9 +280,9 @@ final public class SimpleBinder implements IBinder {
 			public Object before(NodeBase n) throws Exception {
 				if(n instanceof IBindable) {
 					IBindable b = (IBindable) n;
-					List<SimpleBinder> list = b.getBindingList();
+					List<IBinding> list = b.getBindingList();
 					if(null != list) {
-						for(SimpleBinder sb : list)
+						for(IBinding sb : list)
 							sb.moveModelToControl();
 					}
 				}
@@ -310,9 +311,9 @@ final public class SimpleBinder implements IBinder {
 			public Object before(NodeBase n) throws Exception {
 				if(n instanceof IBindable) {
 					IBindable b = (IBindable) n;
-					List<SimpleBinder> list = b.getBindingList();
+					List<IBinding> list = b.getBindingList();
 					if(null != list) {
-						for(SimpleBinder sb : list) {
+						for(IBinding sb : list) {
 							UIMessage message = sb.getBindError();
 							if(null != message)
 								res.add(message);
@@ -337,9 +338,9 @@ final public class SimpleBinder implements IBinder {
 			public Object before(NodeBase n) throws Exception {
 				if(n instanceof IBindable) {
 					IBindable b = (IBindable) n;
-					List<SimpleBinder> list = b.getBindingList();
+					List<IBinding> list = b.getBindingList();
 					if(null != list) {
-						for(SimpleBinder sb : list) {
+						for(IBinding sb : list) {
 							UIMessage message = sb.getBindError();
 							if(null != message) {
 								silly[0] = true;
@@ -366,13 +367,16 @@ final public class SimpleBinder implements IBinder {
 	public static SimpleBinder findBinding(NodeBase nodeBase, String string) {
 		if(nodeBase instanceof IBindable) {
 			IBindable b = (IBindable) nodeBase;
-			List<SimpleBinder> list = b.getBindingList();
+			List<IBinding> list = b.getBindingList();
 			if(list != null) {
-				for(SimpleBinder sb : list) {
-					IValueAccessor<?> property = sb.getControlProperty();
-					if(property instanceof PropertyMetaModel) {
-						if(string.equals(((PropertyMetaModel<?>) property).getName()))
-							return sb;
+				for(IBinding sb : list) {
+					if(sb instanceof SimpleBinder) {
+						SimpleBinder sib = (SimpleBinder) sb;
+						IValueAccessor<?> property = sib.getControlProperty();
+						if(property instanceof PropertyMetaModel) {
+							if(string.equals(((PropertyMetaModel<?>) property).getName()))
+								return sib;
+						}
 					}
 				}
 			}

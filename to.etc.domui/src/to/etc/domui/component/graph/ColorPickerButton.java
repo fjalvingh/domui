@@ -1,12 +1,11 @@
 package to.etc.domui.component.graph;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.input.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * This is a Small button which shows a selected color, and which opens
@@ -132,11 +131,5 @@ public class ColorPickerButton extends Div implements IHasChangeListener, IContr
 		SimpleBinder binder = new SimpleBinder(this, componentProperty);
 		list.add(binder);
 		return binder;
-	}
-
-	@Override
-	@Nullable
-	public List<SimpleBinder> getBindingList() {
-		return m_bindingList;
 	}
 }

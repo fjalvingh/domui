@@ -520,12 +520,6 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 		return binder;
 	}
 
-	@Override
-	@Nullable
-	public List<SimpleBinder> getBindingList() {
-		return m_bindingList;
-	}
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Getters, setters and other boring crud.				*/
 	/*--------------------------------------------------------------*/

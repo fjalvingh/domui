@@ -24,16 +24,15 @@
  */
 package to.etc.domui.component.misc;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * This is a special control which can be used to display all kinds of values as a span without any formatting. It is
@@ -225,12 +224,6 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IBindabl
 		SimpleBinder binder = new SimpleBinder(this, componentProperty);
 		list.add(binder);
 		return binder;
-	}
-
-	@Override
-	@Nullable
-	public List<SimpleBinder> getBindingList() {
-		return m_bindingList;
 	}
 
 	/*--------------------------------------------------------------*/

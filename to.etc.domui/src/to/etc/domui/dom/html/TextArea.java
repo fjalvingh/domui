@@ -226,12 +226,6 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 		return binder;
 	}
 
-	@Override
-	@Nullable
-	public List<SimpleBinder> getBindingList() {
-		return m_bindingList;
-	}
-
 	@Nonnull
 	static public TextArea create(@Nonnull PropertyMetaModel< ? > pmm) {
 		TextArea ta = new TextArea();

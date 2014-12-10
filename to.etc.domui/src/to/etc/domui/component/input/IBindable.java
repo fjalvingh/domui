@@ -24,8 +24,6 @@
  */
 package to.etc.domui.component.input;
 
-import java.util.*;
-
 import javax.annotation.*;
 
 /**
@@ -36,6 +34,7 @@ import javax.annotation.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 13, 2009
  */
+@Deprecated
 public interface IBindable {
 	/**
 	 * Return the binding builder that will bind to the default "value" property.
@@ -51,11 +50,4 @@ public interface IBindable {
 	 */
 	@Nonnull
 	IBinder bind(@Nonnull String componentProperty);
-
-	/**
-	 * Internal use mostly: return the list of bindings in effect for this control, or null if nothing is bound.
-	 * @return
-	 */
-	@Nullable
-	List<SimpleBinder> getBindingList();
 }

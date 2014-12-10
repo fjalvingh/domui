@@ -1,12 +1,11 @@
 package to.etc.domui.component.input;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * Input component to select small things from a dataset. Each selected thing is shown as a
@@ -393,12 +392,6 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 		SimpleBinder binder = new SimpleBinder(this, componentProperty);
 		list.add(binder);
 		return binder;
-	}
-
-	@Override
-	@Nullable
-	public List<SimpleBinder> getBindingList() {
-		return m_bindingList;
 	}
 
 	public boolean isDefaultTooltip() {

@@ -877,12 +877,6 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 		return binder;
 	}
 
-	@Override
-	@Nullable
-	public List<SimpleBinder> getBindingList() {
-		return m_bindingList;
-	}
-
 	@Nonnull
 	public IStringQueryFactory<QT> getStringQueryFactory() {
 		IStringQueryFactory<QT> factory = m_stringQueryFactory;

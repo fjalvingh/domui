@@ -1209,12 +1209,6 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		return binder;
 	}
 
-	@Override
-	@Nullable
-	public List<SimpleBinder> getBindingList() {
-		return m_bindingList;
-	}
-
 	@Nullable
 	public IActionAllowed getIsLookupAllowed() {
 		return m_isLookupAllowed;

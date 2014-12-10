@@ -1,9 +1,5 @@
 package to.etc.domui.component.combobox;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
@@ -13,6 +9,9 @@ import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 import to.etc.webapp.query.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 public class ComboBoxBase<T, V> extends Div implements IControl<V> {
 	/** The properties bindable for this component. */
@@ -436,12 +435,6 @@ public class ComboBoxBase<T, V> extends Div implements IControl<V> {
 		SimpleBinder binder = new SimpleBinder(this, componentProperty);
 		list.add(binder);
 		return binder;
-	}
-
-	@Override
-	@Nullable
-	public List<SimpleBinder> getBindingList() {
-		return m_bindingList;
 	}
 
 	/*--------------------------------------------------------------*/

@@ -24,13 +24,12 @@
  */
 package to.etc.domui.component.misc;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.input.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * Display-only checkbox which renders better than a disabled checkbox thingy.
@@ -109,12 +108,6 @@ public class DisplayCheckbox extends Img implements IDisplayControl<Boolean>, IB
 		SimpleBinder binder = new SimpleBinder(this, componentProperty);
 		list.add(binder);
 		return binder;
-	}
-
-	@Override
-	@Nullable
-	public List<SimpleBinder> getBindingList() {
-		return m_bindingList;
 	}
 
 	/*--------------------------------------------------------------*/

@@ -24,12 +24,6 @@
  */
 package to.etc.domui.component.input;
 
-import java.math.*;
-import java.util.*;
-import java.util.regex.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.converter.*;
@@ -41,6 +35,11 @@ import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 import to.etc.webapp.nls.*;
+
+import javax.annotation.*;
+import java.math.*;
+import java.util.*;
+import java.util.regex.*;
 
 /**
  * A single-line input box. This extends the "input" tag with validation ability
@@ -652,12 +651,6 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		SimpleBinder binder = new SimpleBinder(this, componentProperty);
 		list.add(binder);
 		return binder;
-	}
-
-	@Override
-	@Nullable
-	public List<SimpleBinder> getBindingList() {
-		return m_bindingList;
 	}
 
 	/**

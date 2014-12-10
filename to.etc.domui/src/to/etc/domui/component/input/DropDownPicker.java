@@ -378,12 +378,6 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 	}
 
 	@Override
-	@Nullable
-	public List<SimpleBinder> getBindingList() {
-		return null;
-	}
-
-	@Override
 	public T getValueSafe() {
 		return DomUtil.getValueSafe(this);
 	}

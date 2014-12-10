@@ -24,15 +24,14 @@
  */
 package to.etc.domui.component.input;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 @Deprecated
 abstract public class SelectBasedControl<T> extends Select implements IControl<T>, IHasModifiedIndication {
@@ -197,11 +196,5 @@ abstract public class SelectBasedControl<T> extends Select implements IControl<T
 		SimpleBinder binder = new SimpleBinder(this, componentProperty);
 		list.add(binder);
 		return binder;
-	}
-
-	@Override
-	@Nullable
-	public List<SimpleBinder> getBindingList() {
-		return m_bindingList;
 	}
 }

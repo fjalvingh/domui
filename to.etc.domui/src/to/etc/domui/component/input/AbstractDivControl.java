@@ -166,10 +166,4 @@ abstract public class AbstractDivControl<T> extends Div implements IControl<T> {
 		list.add(binder);
 		return binder;
 	}
-
-	@Override
-	@Nullable
-	public List<SimpleBinder> getBindingList() {
-		return m_bindingList;
-	}
 }

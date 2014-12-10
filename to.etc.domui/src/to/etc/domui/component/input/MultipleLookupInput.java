@@ -1,11 +1,7 @@
 package to.etc.domui.component.input;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.input.LookupInputBase.ILookupFormModifier;
+import to.etc.domui.component.input.LookupInputBase.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.lookup.*;
 import to.etc.domui.component.meta.*;
@@ -15,6 +11,9 @@ import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.themes.*;
 import to.etc.domui.util.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * Component that is based on LookupInput, that allows multiple selection of items by adding found items into selection box.
@@ -445,12 +444,6 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>> {
 		SimpleBinder binder = new SimpleBinder(this, componentProperty);
 		list.add(binder);
 		return binder;
-	}
-
-	@Override
-	@Nullable
-	public List<SimpleBinder> getBindingList() {
-		return m_bindingList;
 	}
 
 	public INodeContentRenderer<T> getSelectedItemContentRenderer() {
