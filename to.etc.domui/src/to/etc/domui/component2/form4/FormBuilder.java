@@ -1,12 +1,12 @@
 package to.etc.domui.component2.form4;
 
-import javax.annotation.*;
-
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component2.controlfactory.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.webapp.annotations.*;
+
+import javax.annotation.*;
 
 /**
  * Yet another attempt at a generic form builder, using the Builder pattern. The builder
@@ -131,6 +131,12 @@ final public class FormBuilder {
 	/*	CODING: defining (manually created) controls.				*/
 	/*--------------------------------------------------------------*/
 	/**
+	 * Add the specified control. Since the control is manually created this code assumes that the
+	 * control is <b>properly configured</b> for it's task! This means that this code will not
+	 * make any changes to the control! Specifically: if the form item is marked as "mandatory"
+	 * but the control here is not then the control stays optional.
+	 * The reverse however is not true: if the control passed in is marked as mandatory then the
+	 * form item will be marked as such too.
 	 *
 	 * @param control
 	 * @throws Exception
@@ -138,11 +144,6 @@ final public class FormBuilder {
 	public void control(@Nonnull IControl< ? > control) throws Exception {
 		if(control.isMandatory()) {
 			m_mandatory = Boolean.TRUE;
-		} else {
-			Boolean mand = m_mandatory;
-			if(null != mand && mand.booleanValue()) {
-				control.setMandatory(true);
-			}
 		}
 		addControl((NodeBase) control);
 		resetBuilder();
@@ -363,7 +364,24 @@ final public class FormBuilder {
 				}
 			}
 		}
+
+		if(calculateMandatory()) {
+			res.addCssClass("ui-f4-mandatory");
+		}
+
 		return res;
 	}
+
+	private boolean calculateMandatory() {
+		Boolean m = m_mandatory;
+		if(null != m)
+			return m.booleanValue();						// If explicitly set: obey that
+		PropertyMetaModel<?> pmm = m_propertyMetaModel;
+		if(null != pmm) {
+			return pmm.isRequired();
+		}
+		return false;
+	}
+
 
 }
