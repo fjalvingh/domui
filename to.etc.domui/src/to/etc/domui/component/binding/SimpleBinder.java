@@ -24,16 +24,17 @@
  */
 package to.etc.domui.component.binding;
 
+import java.util.*;
+
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
-import to.etc.domui.util.DomUtil.*;
+import to.etc.domui.util.DomUtil.IPerNode;
 import to.etc.webapp.*;
 import to.etc.webapp.nls.*;
-
-import javax.annotation.*;
-import java.util.*;
 
 /**
  * This is a single binding instance between a control and one of the control's properties.
@@ -116,6 +117,7 @@ final public class SimpleBinder implements IBinder, IBinding {
 	 * If this binding is in error: return the message describing that error.
 	 * @return
 	 */
+	@Override
 	@Nullable
 	public UIMessage getBindError() {
 		return m_bindError;
@@ -131,8 +133,9 @@ final public class SimpleBinder implements IBinder, IBinding {
 	 * This is the *hard* part of binding: it needs to handle control errors caused by bindValue() throwing
 	 * an exception.
 	 */
+	@Override
 	public void moveControlToModel() throws Exception {
-		NodeBase control = (NodeBase) m_control;
+		NodeBase control = m_control;
 		if(control instanceof IDisplayControl)
 			return;
 
@@ -182,10 +185,11 @@ final public class SimpleBinder implements IBinder, IBinding {
 	 *
 	 * @throws Exception
 	 */
+	@Override
 	public void moveModelToControl() throws Exception {
 		IBindingListener< ? > listener = m_listener;
 		if(listener != null) {
-			((IBindingListener<NodeBase>) listener).moveModelToControl((NodeBase) m_control);
+			((IBindingListener<NodeBase>) listener).moveModelToControl(m_control);
 			return;
 		}
 		IValueAccessor< ? > instanceProperty = m_instanceProperty;
@@ -194,7 +198,7 @@ final public class SimpleBinder implements IBinder, IBinding {
 		Object instance = m_instance;
 		if(null == instance)
 			throw new IllegalStateException("instance cannot be null");
-		NodeBase control = (NodeBase) m_control;
+		NodeBase control = m_control;
 
 		// FIXME We should think about exception handling here
 		Object modelValue = instanceProperty.getValue(instance);
