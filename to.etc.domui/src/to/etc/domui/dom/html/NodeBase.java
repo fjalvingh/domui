@@ -31,7 +31,6 @@ import javax.annotation.*;
 import org.slf4j.*;
 
 import to.etc.domui.component.binding.*;
-import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.databinding.*;
 import to.etc.domui.databinding.observables.*;

@@ -24,7 +24,7 @@
  */
 package to.etc.domui.component.htmleditor;
 
-import to.etc.domui.component.input.*;
+import to.etc.domui.component.binding.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 

@@ -24,7 +24,7 @@
  */
 package to.etc.domui.component.misc;
 
-import to.etc.domui.component.input.*;
+import to.etc.domui.component.binding.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.html.*;

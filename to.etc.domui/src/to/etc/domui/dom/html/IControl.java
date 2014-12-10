@@ -26,7 +26,7 @@ package to.etc.domui.dom.html;
 
 import javax.annotation.*;
 
-import to.etc.domui.component.input.*;
+import to.etc.domui.component.binding.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.trouble.*;
 

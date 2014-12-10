@@ -28,7 +28,7 @@ import java.util.*;
 
 import javax.annotation.*;
 
-import to.etc.domui.component.input.*;
+import to.etc.domui.component.binding.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.errors.*;
