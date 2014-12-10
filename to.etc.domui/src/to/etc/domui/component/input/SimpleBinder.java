@@ -251,13 +251,10 @@ final public class SimpleBinder implements IBinder, IBinding {
 		DomUtil.walkTree(root, new DomUtil.IPerNode() {
 			@Override
 			public Object before(NodeBase n) throws Exception {
-				if(n instanceof IBindable) {
-					IBindable b = (IBindable) n;
-					List<IBinding> list = b.getBindingList();
-					if(null != list) {
-						for(IBinding sb : list)
-							sb.moveControlToModel();
-					}
+				List<IBinding> list = n.getBindingList();
+				if(null != list) {
+					for(IBinding sb : list)
+						sb.moveControlToModel();
 				}
 				return null;
 			}
@@ -278,13 +275,10 @@ final public class SimpleBinder implements IBinder, IBinding {
 		DomUtil.walkTree(root, new DomUtil.IPerNode() {
 			@Override
 			public Object before(NodeBase n) throws Exception {
-				if(n instanceof IBindable) {
-					IBindable b = (IBindable) n;
-					List<IBinding> list = b.getBindingList();
-					if(null != list) {
-						for(IBinding sb : list)
-							sb.moveModelToControl();
-					}
+				List<IBinding> list = n.getBindingList();
+				if(null != list) {
+					for(IBinding sb : list)
+						sb.moveModelToControl();
 				}
 				return null;
 			}
@@ -309,15 +303,12 @@ final public class SimpleBinder implements IBinder, IBinding {
 		DomUtil.walkTree(root, new IPerNode() {
 			@Override
 			public Object before(NodeBase n) throws Exception {
-				if(n instanceof IBindable) {
-					IBindable b = (IBindable) n;
-					List<IBinding> list = b.getBindingList();
-					if(null != list) {
-						for(IBinding sb : list) {
-							UIMessage message = sb.getBindError();
-							if(null != message)
-								res.add(message);
-						}
+				List<IBinding> list = n.getBindingList();
+				if(null != list) {
+					for(IBinding sb : list) {
+						UIMessage message = sb.getBindError();
+						if(null != message)
+							res.add(message);
 					}
 				}
 				return null;
@@ -336,18 +327,15 @@ final public class SimpleBinder implements IBinder, IBinding {
 		DomUtil.walkTree(root, new IPerNode() {
 			@Override
 			public Object before(NodeBase n) throws Exception {
-				if(n instanceof IBindable) {
-					IBindable b = (IBindable) n;
-					List<IBinding> list = b.getBindingList();
-					if(null != list) {
-						for(IBinding sb : list) {
-							UIMessage message = sb.getBindError();
-							if(null != message) {
-								silly[0] = true;
-								n.setMessage(message);
-							} else {
+				List<IBinding> list = n.getBindingList();
+				if(null != list) {
+					for(IBinding sb : list) {
+						UIMessage message = sb.getBindError();
+						if(null != message) {
+							silly[0] = true;
+							n.setMessage(message);
+						} else {
 //								n.setMessage(null);				// Should not be reset: should be done by component itself
-							}
 						}
 					}
 				}
@@ -365,18 +353,15 @@ final public class SimpleBinder implements IBinder, IBinding {
 
 	@Nullable
 	public static SimpleBinder findBinding(NodeBase nodeBase, String string) {
-		if(nodeBase instanceof IBindable) {
-			IBindable b = (IBindable) nodeBase;
-			List<IBinding> list = b.getBindingList();
-			if(list != null) {
-				for(IBinding sb : list) {
-					if(sb instanceof SimpleBinder) {
-						SimpleBinder sib = (SimpleBinder) sb;
-						IValueAccessor<?> property = sib.getControlProperty();
-						if(property instanceof PropertyMetaModel) {
-							if(string.equals(((PropertyMetaModel<?>) property).getName()))
-								return sib;
-						}
+		List<IBinding> list = nodeBase.getBindingList();
+		if(list != null) {
+			for(IBinding sb : list) {
+				if(sb instanceof SimpleBinder) {
+					SimpleBinder sib = (SimpleBinder) sb;
+					IValueAccessor<?> property = sib.getControlProperty();
+					if(property instanceof PropertyMetaModel) {
+						if(string.equals(((PropertyMetaModel<?>) property).getName()))
+							return sib;
 					}
 				}
 			}
