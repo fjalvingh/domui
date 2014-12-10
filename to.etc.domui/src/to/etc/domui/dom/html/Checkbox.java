@@ -28,7 +28,6 @@ import java.util.*;
 
 import javax.annotation.*;
 
-import to.etc.domui.component.input.*;
 import to.etc.domui.util.*;
 
 public class Checkbox extends NodeBase implements INativeChangeListener, IControl<Boolean>, IHasModifiedIndication {
