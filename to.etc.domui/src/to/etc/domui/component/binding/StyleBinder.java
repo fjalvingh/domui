@@ -25,4 +25,9 @@ final public class StyleBinder {
 	public StyleBinding bind(@Nonnull NodeBase component) {
 		return new StyleBinding(this, component);
 	}
+
+	@Nullable
+	public String getStyleFor(@Nullable Object value) {
+		return m_styleMap.get(value);
+	}
 }
