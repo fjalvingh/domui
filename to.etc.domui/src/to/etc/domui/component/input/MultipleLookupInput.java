@@ -213,7 +213,17 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>> {
 		m_selectionList.clear();
 		m_itemNodes.clear();
 		m_selectionContainer.removeAllChildren();
+		applyIE10Workaround();
 		endUpdate();
+	}
+
+	/**
+	 * There is a problem in Internet Explorer 10 with min and max height parameters for empty div.<br/>
+	 * The problem occurs when container have scroller (bigger than max height) and than it's cleared.
+	 */
+	protected void applyIE10Workaround() {
+		Span dummySpan = new Span();
+		m_selectionContainer.add(dummySpan);
 	}
 
 	private void addClearButton() throws Exception {
