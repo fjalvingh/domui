@@ -79,6 +79,9 @@ $.extend(WebUI, {
 			val = WebUI.insertDateSeparators(val, fmt, separatorsCount);
 		}
 		var res = Date.parseDate(val, fmt);
+		if(!WebUI.isYearInSupportedRange(res))
+			throw "date invalid - distant year";
+			
 		return res.print(fmt);
 	},
 	
@@ -176,6 +179,14 @@ $.extend(WebUI, {
 			}
 		}
 		return res;
+	},
+	
+	isYearInSupportedRange : function(date){
+		if(date.getFullYear() < Calendar._TT["MIN_YEAR"] || date.getFullYear() > Calendar._TT["MAX_YEAR"]){
+			return false;
+		} else {
+			return true;
+		}
 	}
 	
 });

@@ -116,6 +116,8 @@ Calendar._TT["DAY_FIRST"] = "Display %s first";
 // of comma-separated numbers.  The numbers are from 0 to 6: 0 means Sunday, 1
 // means Monday, etc.
 Calendar._TT["WEEKEND"] = "0,6";
+Calendar._TT["MIN_YEAR"] = "1900";
+Calendar._TT["MAX_YEAR"] = "2999";
 
 Calendar._TT["CLOSE"] = "Close";
 Calendar._TT["TODAY"] = "Today";
