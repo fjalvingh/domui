@@ -14,6 +14,9 @@ import to.etc.domui.dom.html.*;
 public class TabBuilder {
 
 	@Nonnull
+	private TabPanelBase m_tabPanelBase;
+
+	@Nonnull
 	private TabInstance m_tabInstance;
 
 	@Nullable
@@ -23,7 +26,7 @@ public class TabBuilder {
 	private NodeBase m_content;
 
 	@Nullable
-	private String m_imageLocation;
+	private String m_image;
 
 	@Nullable
 	private Li m_tab;
@@ -34,8 +37,9 @@ public class TabBuilder {
 
 	private boolean m_closable;
 
-	protected TabBuilder(@Nonnull final TabInstance tabInstance) {
+	protected TabBuilder(@Nonnull TabPanelBase tabPanelBase, @Nonnull final TabInstance tabInstance) {
 		m_tabInstance = tabInstance;
+		m_tabPanelBase = tabPanelBase;
 	}
 
 	@Nonnull
@@ -52,8 +56,7 @@ public class TabBuilder {
 	}
 
 	@Nonnull
-	public TabBuilder imageLocation(@Nonnull final String imageLocation) {
-		Img image = TabPanelBase.createIcon(imageLocation);
+	public TabBuilder image(@Nonnull final String image) {
 		m_tabInstance.setImage(image);
 		return this;
 	}
@@ -79,6 +82,7 @@ public class TabBuilder {
 	@Nonnull
 	public ITabHandle build() {
 
+		m_tabPanelBase.addTabToPanel(m_tabInstance);
 		return m_tabInstance;
 	}
 }

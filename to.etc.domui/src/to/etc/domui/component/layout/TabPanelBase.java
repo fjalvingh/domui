@@ -58,10 +58,12 @@ public class TabPanelBase extends Div {
 
 		public TabInstance() {}
 
-		public TabInstance(NodeBase label, NodeBase content, Img img) {
+		public TabInstance(NodeBase label, NodeBase content, String image) {
 			m_label = label;
 			m_content = content;
-			m_img = img;
+			if(null != image) {
+				setImage(image);
+			}
 		}
 
 		public NodeBase getContent() {
@@ -102,6 +104,11 @@ public class TabPanelBase extends Div {
 
 		public void setImage(@Nonnull Img image) {
 			m_img = image;
+		}
+
+		public void setImage(@Nonnull String image) {
+			Img img = createIcon(image);
+			m_img = img;
 		}
 
 		public boolean isLazy() {
@@ -204,6 +211,16 @@ public class TabPanelBase extends Div {
 		public boolean hasErrors() {
 			return m_msgList.size() > 0;
 		}
+
+		private Img createIcon(String icon) {
+			Img i = new Img();
+			i.setSrc(icon);
+			i.setCssClass("ui-tab-icon");
+			i.setBorder(0);
+			return i;
+		}
+
+
 	}
 
 	/**
@@ -226,6 +243,9 @@ public class TabPanelBase extends Div {
 
 	private ITabSelected m_onTabSelected;
 
+	@Nullable
+	private TabBuilder m_tabBuilder;
+
 	private NodeContainer m_contentContainer;
 
 	protected TabPanelBase(boolean markErrorTabs) {
@@ -237,10 +257,6 @@ public class TabPanelBase extends Div {
 	protected void renderTabPanels(NodeContainer labelcontainer, NodeContainer contentcontainer) {
 		m_contentContainer = contentcontainer;
 		int index = 0;
-
-		if(m_tablist.isEmpty()) {
-			contentcontainer.remove();
-		}
 
 		for(TabInstance ti : m_tablist) {
 			renderLabel(labelcontainer, index, ti);
@@ -266,7 +282,7 @@ public class TabPanelBase extends Div {
 		}
 	}
 
-	protected void renderLabel(final NodeContainer into, final int index, TabInstance ti) {
+	protected void renderLabel(final NodeContainer into, final int index, final TabInstance ti) {
 		Li li = ti.getTab();
 		Li separator = new Li();
 		separator.setCssClass("ui-tab-ibt");
@@ -318,7 +334,7 @@ public class TabPanelBase extends Div {
 			x.setClicked(new IClicked<ATag>() {
 				@Override
 				public void clicked(@Nonnull ATag b) throws Exception {
-					closeTabByIndex(into, index);
+					closeTabByIndex(into, ti);
 				}
 
 			});
@@ -332,40 +348,32 @@ public class TabPanelBase extends Div {
 	 * @param index
 	 * @throws Exception
 	 */
-	private void closeTabByIndex(@Nonnull final NodeContainer into, int index) throws Exception {
+	private void closeTabByIndex(@Nonnull final NodeContainer into, TabInstance ti) throws Exception {
+
+		int index = m_tablist.indexOf(ti);
 
 		// Check for a silly index
 		if(index < 0 || index >= m_tablist.size()) {
 			throw new IllegalArgumentException("Invalid index for closing a tab.");
 		}
 
-		TabInstance ti = m_tablist.get(index);
-		NodeBase nbTab = ti.getTab();
-		nbTab.remove();
-		NodeBase nbSep = ti.getSeparator();
-		nbSep.remove();
-		NodeBase nbCon = ti.getContent();
-		nbCon.remove();
-
-		m_tablist.remove(index);
-
 		if (!m_tablist.isEmpty()) {
 			if(index == getCurrentTab()) {
-				// Current tab is removed, select another one
-				int newCurrentTab = selectNewCurrentTab(index);
-				internalSetCurrentTab(newCurrentTab);
-				TabInstance newti = m_tablist.get(newCurrentTab);
-				NodeBase newc = newti.getContent();
-				newc.setDisplay(DisplayType.BLOCK);
-				newti.getTab().addCssClass("ui-tab-sel");
-			} else if(index < getCurrentTab()) {
-				// Current tab remains active. One tabinstance removed before the current one
-				internalSetCurrentTab(getCurrentTab() - 1);
+				int newIndex = selectNewCurrentTab(index);
+				setCurrentTab(newIndex);
+			} else {
+				m_currentTab--;
 			}
 		}
 
+		m_tablist.remove(index);
 		if(isBuilt()) {
-			renderTabPanels(into, m_contentContainer);
+			NodeBase nbTab = ti.getTab();
+			nbTab.remove();
+			NodeBase nbSep = ti.getSeparator();
+			nbSep.remove();
+			NodeBase nbCon = ti.getContent();
+			nbCon.remove();
 		}
 	}
 
@@ -374,10 +382,15 @@ public class TabPanelBase extends Div {
 	 */
 	private int selectNewCurrentTab(int index) {
 
-		if(index == m_tablist.size()) {
+		if(m_tablist.size() == 1) {
+			return 0;
+		}
+
+		if(index > 0) {
 			return --index;
 		}
-		return index;
+
+		return index++;
 	}
 
 	/*--------------------------------------------------------------*/
@@ -388,16 +401,21 @@ public class TabPanelBase extends Div {
 	 * Adding a tabInstance by use of the {@link TabBuilder}
 	 *
 	 * @return
+	 * @throws Exception
 	 */
 	@Nonnull
-	public TabBuilder add() {
-		TabInstance tabInstance = new TabInstance();
-		TabBuilder tabBuilder = new TabBuilder(tabInstance);
-		addTabToPanel(tabInstance);
-		return tabBuilder;
+	public TabBuilder tab() throws Exception {
+
+		if(null != m_tabBuilder) {
+			throw new Exception("A new tab is already created without adding it to the panel (call the build() method on the TabBuilder)");
+		}
+		m_tabBuilder = new TabBuilder(this, new TabInstance());
+		return m_tabBuilder;
 	}
 
-	private void addTabToPanel(@Nonnull final TabInstance tabInstance) {
+	void addTabToPanel(@Nonnull final TabInstance tabInstance) {
+
+		m_tabBuilder = null;
 		if(m_markErrorTabs) {
 			DomUtil.getMessageFence(this).addErrorListener(tabInstance);
 		}
@@ -450,7 +468,7 @@ public class TabPanelBase extends Div {
 	}
 
 	public void add(NodeBase content, NodeBase tablabel, String icon, boolean lazy) {
-		TabInstance tabInstance = new TabInstance(tablabel, content, createIcon(icon));
+		TabInstance tabInstance = new TabInstance(tablabel, content, icon);
 		tabInstance.setLazy(lazy);
 		addTabToPanel(tabInstance);
 	}
@@ -464,14 +482,6 @@ public class TabPanelBase extends Div {
 				ti.setAdded(false);
 			}
 		}
-	}
-
-	protected static Img createIcon(String icon) {
-		Img i = new Img();
-		i.setSrc(icon);
-		i.setCssClass("ui-tab-icon");
-		i.setBorder(0);
-		return i;
 	}
 
 	public int getCurrentTab() {
@@ -564,7 +574,7 @@ public class TabPanelBase extends Div {
 		}
 		TabInstance tab = m_tablist.get(index);
 		tab.setLabel(new TextNode(tabLabel));
-		tab.setImage(createIcon(tabIcon));
+		tab.setImage(tabIcon);
 		renderLabel(into, index, tab);
 	}
 }
