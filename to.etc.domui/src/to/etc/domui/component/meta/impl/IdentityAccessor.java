@@ -43,4 +43,8 @@ public class IdentityAccessor<T> implements IValueAccessor<T> {
 	public void setValue(Object target, T value) throws Exception {
 		throw new IllegalStateException("Can't set the value for this object.");
 	}
+
+	@Override public boolean isReadOnly() {
+		return false;
+	}
 }

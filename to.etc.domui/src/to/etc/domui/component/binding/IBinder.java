@@ -22,40 +22,40 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component.input;
+package to.etc.domui.component.binding;
 
-import java.util.*;
+import to.etc.domui.util.*;
+import to.etc.webapp.annotations.*;
 
 import javax.annotation.*;
 
 /**
- * EXPERIMENTAL - DO NOT USE.
- * This defines the component as an input component that can be bound to some
- * value.
+ * This exposes the several kinds of bindings that can be done on any control.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 13, 2009
  */
-public interface IBindable {
+public interface IBinder {
 	/**
-	 * Return the binding builder that will bind to the default "value" property.
-	 * @return
+	 * Creates a "value" property binding from the control TO the model object's property specified. If the
+	 * control does not <b>have</i> a value property this throws an exception.
+	 * @param instance
+	 * @param property
 	 */
-	@Nonnull
-	IBinder bind();
+	public <T> void to(@Nonnull T instance, @Nonnull @GProperty String property) throws Exception;
 
 	/**
-	 * Return the binding builder that will bind to the specified component property.
-	 * @param componentProperty
-	 * @return
+	 * Creates a "value" property binding from the control TO the model object's property specified. If the
+	 * control does not <b>have</i> a value property this throws an exception.
+	 *
+	 * @param instance
+	 * @param pmm
 	 */
-	@Nonnull
-	IBinder bind(@Nonnull String componentProperty);
+	public <T, V> void to(@Nonnull T instance, @Nonnull IValueAccessor<V> pmm) throws Exception;
 
 	/**
-	 * Internal use mostly: return the list of bindings in effect for this control, or null if nothing is bound.
-	 * @return
+	 * Bind the control to a listener.
+	 * @param listener
 	 */
-	@Nullable
-	List<SimpleBinder> getBindingList();
+	public void to(@Nonnull IBindingListener< ? > listener);
 }

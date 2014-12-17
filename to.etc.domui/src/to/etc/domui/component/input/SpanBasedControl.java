@@ -24,14 +24,12 @@
  */
 package to.etc.domui.component.input;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
+
+import javax.annotation.*;
 
 /**
  * DEPRECATED - one big bag full of problems.
@@ -159,32 +157,4 @@ abstract public class SpanBasedControl<T> extends Span implements IControl<T> {
 		m_onValueChanged = onValueChanged;
 	}
 
-	/*--------------------------------------------------------------*/
-	/*	CODING:	IBindable interface.								*/
-	/*--------------------------------------------------------------*/
-
-	@Nullable
-	private List<SimpleBinder> m_bindingList;
-
-	@Override
-	public @Nonnull IBinder bind() {
-		return bind("value");
-	}
-
-	@Override
-	@Nonnull
-	public IBinder bind(@Nonnull String componentProperty) {
-		List<SimpleBinder> list = m_bindingList;
-		if(list == null)
-			list = m_bindingList = new ArrayList<SimpleBinder>(1);
-		SimpleBinder binder = new SimpleBinder(this, componentProperty);
-		list.add(binder);
-		return binder;
-	}
-
-	@Override
-	@Nullable
-	public List<SimpleBinder> getBindingList() {
-		return m_bindingList;
-	}
 }

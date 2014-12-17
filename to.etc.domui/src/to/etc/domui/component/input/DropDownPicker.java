@@ -366,24 +366,6 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 	}
 
 	@Override
-	@Nonnull
-	public IBinder bind() {
-		throw new UnsupportedOperationException("bind() not supported in " + getClass().getName());
-	}
-
-	@Override
-	@Nonnull
-	public IBinder bind(@Nonnull String componentProperty) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	@Nullable
-	public List<SimpleBinder> getBindingList() {
-		return null;
-	}
-
-	@Override
 	public T getValueSafe() {
 		return DomUtil.getValueSafe(this);
 	}

@@ -24,16 +24,15 @@
  */
 package to.etc.domui.component.misc;
 
-import java.util.*;
-
-import javax.annotation.*;
-
-import to.etc.domui.component.input.*;
+import to.etc.domui.component.binding.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * This is a special control which can be used to display all kinds of values as a span without any formatting. It is
@@ -200,37 +199,6 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IBindabl
 
 	public void setEmptyString(@Nullable String emptyString) {
 		m_emptyString = emptyString;
-	}
-
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	IBindable interface.								*/
-	/*--------------------------------------------------------------*/
-
-	@Nullable
-	private List<SimpleBinder> m_bindingList;
-
-	@Override
-	public @Nonnull
-	IBinder bind() {
-		return bind("value");
-	}
-
-	@Override
-	@Nonnull
-	public IBinder bind(@Nonnull String componentProperty) {
-		List<SimpleBinder> list = m_bindingList;
-		if(list == null)
-			list = m_bindingList = new ArrayList<SimpleBinder>(1);
-		SimpleBinder binder = new SimpleBinder(this, componentProperty);
-		list.add(binder);
-		return binder;
-	}
-
-	@Override
-	@Nullable
-	public List<SimpleBinder> getBindingList() {
-		return m_bindingList;
 	}
 
 	/*--------------------------------------------------------------*/

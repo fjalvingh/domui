@@ -853,36 +853,6 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	}
 
 
-	/*--------------------------------------------------------------*/
-	/*	CODING:	IBindable interface.								*/
-	/*--------------------------------------------------------------*/
-
-	@Nullable
-	private List<SimpleBinder> m_bindingList;
-
-	@Override
-	public @Nonnull
-	IBinder bind() {
-		return bind("value");
-	}
-
-	@Override
-	@Nonnull
-	public IBinder bind(@Nonnull String componentProperty) {
-		List<SimpleBinder> list = m_bindingList;
-		if(list == null)
-			list = m_bindingList = new ArrayList<SimpleBinder>(1);
-		SimpleBinder binder = new SimpleBinder(this, componentProperty);
-		list.add(binder);
-		return binder;
-	}
-
-	@Override
-	@Nullable
-	public List<SimpleBinder> getBindingList() {
-		return m_bindingList;
-	}
-
 	@Nonnull
 	public IStringQueryFactory<QT> getStringQueryFactory() {
 		IStringQueryFactory<QT> factory = m_stringQueryFactory;

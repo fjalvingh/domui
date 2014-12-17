@@ -30,7 +30,7 @@ import javax.annotation.*;
 
 import org.slf4j.*;
 
-import to.etc.domui.component.input.*;
+import to.etc.domui.component.binding.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.databinding.*;
 import to.etc.domui.databinding.observables.*;
@@ -168,6 +168,9 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 	private String m_testFullRepeatID;
 
 	private String m_testRepeatId;
+
+	@Nullable
+	private List<IBinding> m_bindingList;
 
 	/**
 	 * This must visit the appropriate method in the node visitor. It should NOT recurse it's children.
@@ -1348,9 +1351,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 	 * This adds a message to the "global" message list. The message "percolates" upwards to the first parent that acts
 	 * as an error message fence. That component will be responsible for rendering the error message at an appropriate
 	 * location.
-	 * @param mt
-	 * @param code
-	 * @param param
+	 * @param m
 	 */
 	public UIMessage addGlobalMessage(UIMessage m) {
 		IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
@@ -1813,17 +1814,19 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 	 */
 	protected <T> void fireModified(@Nonnull String propertyName, T old, T nw) {
 		//-- jal 2014/06/12 If the control is not yet attached to the page -> we cannot bind...
-		if(this instanceof IBindable && isAttached()) {
-			IBindable b = (IBindable) this;
-			List<SimpleBinder> bindingList = b.getBindingList();
+		if(isAttached()) {
+			List<IBinding> bindingList = getBindingList();
 			if(null != bindingList) {
-				for(SimpleBinder sb : bindingList) {
-					IValueAccessor< ? > property = sb.getControlProperty();
-					if(property instanceof PropertyMetaModel && ((PropertyMetaModel<?>)property).getName().equals(propertyName)) {
-						try {
-							sb.moveControlToModel();
-						} catch(Exception x) {
-							throw WrappedException.wrap(x);
+				for(IBinding sb : bindingList) {
+					if(sb instanceof SimpleBinder) {
+						SimpleBinder sib = (SimpleBinder) sb;
+						IValueAccessor<?> property = sib.getControlProperty();
+						if(property instanceof PropertyMetaModel && ((PropertyMetaModel<?>) property).getName().equals(propertyName)) {
+							try {
+								sb.moveControlToModel();
+							} catch(Exception x) {
+								throw WrappedException.wrap(x);
+							}
 						}
 					}
 				}
@@ -1887,5 +1890,46 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 		return SimpleBinder.reportBindingErrors(this);
 	}
 
+	/**
+	 * If present, return all bindings on this node.
+	 * @return
+	 */
+	@Nullable
+	final public List<IBinding> getBindingList() {
+		return m_bindingList;
+	}
 
+	/**
+	 * Add a binding to the binding list.
+	 * @param binding
+	 */
+	public void addBinding(@Nonnull IBinding binding) {
+		List<IBinding> list = m_bindingList;
+		if(list == null)
+			list = m_bindingList = new ArrayList<>(1);
+		list.add(binding);
+	}
+
+	public void removeBinding(@Nonnull IBinding binding) {
+		List<IBinding> list = m_bindingList;
+		if(null != list)
+			list.remove(binding);
+	}
+
+	@Nonnull final public IBinder bind() {
+		ClassMetaModel cmm = MetaManager.findClassMeta(getClass());
+		PropertyMetaModel<?> p = cmm.findProperty("bindValue");
+		if(null != p)
+			return bind("bindValue");
+		p = cmm.findProperty("value");
+		if(null != p)
+			return bind("value");
+		throw new IllegalStateException("This control "+getClass()+" does not have a 'value' nor a 'bindValue' property");
+	}
+
+	@Nonnull final public IBinder bind(@Nonnull String componentProperty) {
+		SimpleBinder binder = new SimpleBinder(this, componentProperty);
+		addBinding(binder);
+		return binder;
+	}
 }

@@ -1,6 +1,6 @@
 package to.etc.domui.logic.errors;
 
-import to.etc.domui.component.input.*;
+import to.etc.domui.component.binding.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
@@ -150,19 +150,21 @@ public class ProblemReporter {
 	 * @param n
 	 */
 	private void handleClaimError(Set<UIMessage> existingErrorSet, ProblemSet newErrorSet, @Nonnull NodeBase n) {
-		IBindable b = (IBindable) n;
-		List<SimpleBinder> bindingList = b.getBindingList();
+		List<IBinding> bindingList = n.getBindingList();
 		if(null == bindingList)
 			return;
 
 		//-- Get the errors on all bindings to this component.
 		List<ProblemInstance> all = new ArrayList<>();
 		List<UIMessage> bindingMessageList = new ArrayList<>();
-		for(SimpleBinder binding : bindingList) {
-			getErrorsOnBoundProperty(newErrorSet, all, n, binding);
-			UIMessage be = binding.getBindError();
-			if(null != be)
-				bindingMessageList.add(be);
+		for(IBinding binding : bindingList) {
+			if(binding instanceof SimpleBinder) {
+				SimpleBinder sib = (SimpleBinder) binding;
+				getErrorsOnBoundProperty(newErrorSet, all, n, sib);
+				UIMessage be = binding.getBindError();
+				if(null != be)
+					bindingMessageList.add(be);
+			}
 		}
 		if(all.size() == 0) {
 			if(bindingMessageList.size() == 0) {
@@ -218,7 +220,6 @@ public class ProblemReporter {
 	/**
 	 * Get all errors reported on the (instance, property) this binding is bound to.
 	 * @param all
-	 * @param errorSet
 	 * @param n
 	 * @param binding
 	 */

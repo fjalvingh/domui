@@ -22,22 +22,30 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component.input;
+package to.etc.domui.component.binding;
 
 import javax.annotation.*;
 
-import to.etc.domui.dom.html.*;
-
 /**
- * EXPERIMENTAL - DO NOT USE.
- * This defines a control binding event interface which gets called when the control's
- * movement calls are used.
+ * This defines the component as an input component that can be bound to some
+ * value.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 13, 2009
  */
-public interface IBindingListener<T extends NodeBase> {
-	void moveControlToModel(@Nonnull T control) throws Exception;
+public interface IBindable {
+	/**
+	 * Return the binding builder that will bind to the default "value" property.
+	 * @return
+	 */
+	@Nonnull
+	IBinder bind();
 
-	void moveModelToControl(@Nonnull T control) throws Exception;
+	/**
+	 * Return the binding builder that will bind to the specified component property.
+	 * @param componentProperty
+	 * @return
+	 */
+	@Nonnull
+	IBinder bind(@Nonnull String componentProperty);
 }

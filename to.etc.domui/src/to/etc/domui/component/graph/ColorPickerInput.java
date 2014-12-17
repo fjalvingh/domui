@@ -1,12 +1,9 @@
 package to.etc.domui.component.graph;
 
-import java.util.*;
-
-import javax.annotation.*;
-
-import to.etc.domui.component.input.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
+
+import javax.annotation.*;
 
 /**
  * An input button to enter a color code, with a small div behind it showing the
@@ -73,36 +70,6 @@ public class ColorPickerInput extends Input implements IControl<String> {
 		if(v == null || v.length() == 0)
 			v = "000000";
 		return v;
-	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	IBindable interface.								*/
-	/*--------------------------------------------------------------*/
-
-	@Nullable
-	private List<SimpleBinder> m_bindingList;
-
-	@Override
-	public @Nonnull
-	IBinder bind() {
-		return bind("value");
-	}
-
-	@Override
-	@Nonnull
-	public IBinder bind(@Nonnull String componentProperty) {
-		List<SimpleBinder> list = m_bindingList;
-		if(list == null)
-			list = m_bindingList = new ArrayList<SimpleBinder>(1);
-		SimpleBinder binder = new SimpleBinder(this, componentProperty);
-		list.add(binder);
-		return binder;
-	}
-
-	@Override
-	@Nullable
-	public List<SimpleBinder> getBindingList() {
-		return m_bindingList;
 	}
 
 	@Override

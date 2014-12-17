@@ -54,4 +54,8 @@ public class SubAccessor<B, V> implements IValueAccessor<V> {
 			throw new IllegalStateException("The value is null: cannot reach a relational object.");
 		m_valueAccessor.setValue(root, value);
 	}
+
+	@Override public boolean isReadOnly() {
+		return m_valueAccessor.isReadOnly();
+	}
 }

@@ -39,3 +39,11 @@
 	padding: 0px;
 	margin: 0px;
 }
+
+label.ui-f4-mandatory {
+/*	display: inline-block; */
+	background-repeat: no-repeat;
+	background-position: left;
+	padding-left: 18px;
+	background-image: url(mandatoryField.png);
+}

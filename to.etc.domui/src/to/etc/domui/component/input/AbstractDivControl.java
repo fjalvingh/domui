@@ -28,7 +28,6 @@ import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 
 import javax.annotation.*;
-import java.util.*;
 
 /**
  * Abstract base class for a control that is implemented on top of a DIV. This handles most basic actions required of
@@ -141,35 +140,5 @@ abstract public class AbstractDivControl<T> extends Div implements IControl<T> {
 	@Override
 	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
 		m_valueChanged = onValueChanged;
-	}
-
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	IBindable interface.								*/
-	/*--------------------------------------------------------------*/
-
-	@Nullable
-	private List<SimpleBinder> m_bindingList;
-
-	@Override
-	public @Nonnull IBinder bind() {
-		return bind("value");
-	}
-
-	@Override
-	@Nonnull
-	public IBinder bind(@Nonnull String componentProperty) {
-		List<SimpleBinder> list = m_bindingList;
-		if(list == null)
-			list = m_bindingList = new ArrayList<SimpleBinder>(1);
-		SimpleBinder binder = new SimpleBinder(this, componentProperty);
-		list.add(binder);
-		return binder;
-	}
-
-	@Override
-	@Nullable
-	public List<SimpleBinder> getBindingList() {
-		return m_bindingList;
 	}
 }
