@@ -31,10 +31,6 @@ import java.util.*;
 public class SecondDurationConverter implements IConverter<Long> {
 	private static final MsDurationConverter INSTANCE = new MsDurationConverter();
 
-	static private final long DAYS = 24 * 60 * 60;
-
-	static private final long HOURS = 60 * 60;
-
 	@Override
 	public String convertObjectToString(Locale loc, Long in) throws UIException {
 		if(in == null)
