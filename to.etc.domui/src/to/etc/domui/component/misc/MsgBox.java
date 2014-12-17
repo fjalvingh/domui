@@ -621,6 +621,7 @@ public class MsgBox extends Window {
 			DomUtil.renderHtmlString(td, m_theText); // 20091206 Allow simple markup in message
 		}
 		if(m_inputControl != null) {
+			setErrorFence();
 			NodeBase ic = (NodeBase) m_inputControl;
 			td = b.addRowAndCell();
 			td.setCssClass("ui-mbx-input-1");
