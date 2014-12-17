@@ -97,6 +97,12 @@
 	color: <%= tab_pnl_active_col %>;
 }
 
+.ui-tab-hdr li.ui-tab-sel span, 
+.ui-tab-hdr li.ui-tab-sel:hover span {
+	background-position: right -50px;
+	color: <%= tab_pnl_active_col %>;
+}
+
 li.ui-tab-err div {
 	color: <%= errors_foreground %> !important;
 }

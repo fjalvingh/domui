@@ -288,7 +288,11 @@ public class TabPanelBase extends Div {
 		separator.setCssClass("ui-tab-ibt");
 		if(li == null || !li.isAttached()) {
 			li = new Li();
-			li.setCssClass("ui-tab-li");
+			if(ti.isCloseable()) {
+				li.setCssClass("ui-tab-close-li");
+			} else {
+				li.setCssClass("ui-tab-li");
+			}
 			into.add(separator);
 			into.add(li);
 			ti.setTab(li); 					// Save for later use,
@@ -308,12 +312,11 @@ public class TabPanelBase extends Div {
 
 		Div d = new Div();
 		d.setCssClass("ui-tab-div");
-		li.add(d);
 
 		ATag a = new ATag();
 		a.setCssClass("ui-tab-link");
 		d.add(a);
-		Div dt = new Div();
+		Span dt = new Span();
 		a.add(dt);
 		if(ti.getImg() != null)
 			dt.add(ti.getImg());
@@ -321,24 +324,23 @@ public class TabPanelBase extends Div {
 		a.setClicked(new IClicked<ATag>() {
 			@Override
 			public void clicked(@Nonnull ATag b) throws Exception {
-				setCurrentTab(index);
+				setCurrentTab(ti);
 			}
 		});
 
 		if(ti.isCloseable()) {
-			li.removeCssClass("ui-tab-li");
-			li.addCssClass("ui-tab-close-li");
 			ATag x = new ATag();
 			dt.add(x);
 			x.setCssClass("ui-tab-close");
 			x.setClicked(new IClicked<ATag>() {
 				@Override
 				public void clicked(@Nonnull ATag b) throws Exception {
-					closeTabByIndex(into, ti);
+					closeTab(ti);
 				}
 
 			});
 		}
+		li.add(d);
 	}
 
 	/**
@@ -348,7 +350,7 @@ public class TabPanelBase extends Div {
 	 * @param index
 	 * @throws Exception
 	 */
-	private void closeTabByIndex(@Nonnull final NodeContainer into, TabInstance ti) throws Exception {
+	private void closeTab(@Nonnull final TabInstance ti) throws Exception {
 
 		int index = m_tablist.indexOf(ti);
 
@@ -361,7 +363,7 @@ public class TabPanelBase extends Div {
 			if(index == getCurrentTab()) {
 				int newIndex = selectNewCurrentTab(index);
 				setCurrentTab(newIndex);
-			} else {
+			} else if(index < getCurrentTab()) {
 				m_currentTab--;
 			}
 		}
@@ -507,7 +509,15 @@ public class TabPanelBase extends Div {
 		return true;
 
 	}
+
+	private void setCurrentTab(@Nonnull final TabInstance ti) throws Exception {
+
+		int index = m_tablist.indexOf(ti);
+		setCurrentTab(index);
+	}
+
 	public void setCurrentTab(int index) throws Exception {
+
 		//		System.out.println("Switching to tab " + index);
 		if(index == getCurrentTab() || index < 0 || index >= m_tablist.size())			// Silly index
 			return;

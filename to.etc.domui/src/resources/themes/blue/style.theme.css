@@ -1698,6 +1698,12 @@ div.ui-sortable {
 	color: <%= tab_pnl_active_col %>;
 }
 
+.ui-tab-hdr li.ui-tab-sel span, 
+.ui-tab-hdr li.ui-tab-sel:hover span {
+	background-position: right -50px;
+	color: <%= tab_pnl_active_col %>;
+}
+
 li.ui-tab-err div {
 	color: <%= errors_foreground %> !important;
 }
@@ -1882,6 +1888,12 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 }
 
 .ui-stab-hdr li.ui-tab-sel div{
+	background-position: right -50px;
+	color: <%= tab_pnl_active_col %>;
+}
+
+.ui-stab-hdr li.ui-tab-sel span, 
+.ui-stab-hdr li.ui-tab-sel:hover span {
 	background-position: right -50px;
 	color: <%= tab_pnl_active_col %>;
 }
@@ -3119,11 +3131,10 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 }
 
 label.ui-f4-mandatory {
-	display: inline-block;
+/*	display: inline-block; */
 	background-repeat: no-repeat;
 	background-position: left;
 	padding-left: 18px;
-	height: 16px;
 	background-image: url(mandatoryField.png);
 }
 .ui-dsplyima {
