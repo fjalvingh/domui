@@ -1942,4 +1942,15 @@ public class FileTool {
 			FileTool.closeAll(reader);
 		}
 	}
+
+	static public Reader getResourceReader(Class< ? > root, String name) {
+		InputStream is = root.getResourceAsStream(name);
+		if(null == is)
+			throw new IllegalStateException("JUnit test: missing test resource with base=" + root + " and name " + name);
+		try {
+			return new InputStreamReader(is, "utf-8");
+		} catch(UnsupportedEncodingException x) {
+			throw WrappedException.wrap(x);
+		}
+	}
 }
