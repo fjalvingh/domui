@@ -242,8 +242,13 @@ jQuery.uaMatch = function( ua ) {
 		/(webkit)[ \/]([\w.]+)/.exec( ua ) ||
 		/(opera)(?:.*version|)[ \/]([\w.]+)/.exec( ua ) ||
 		/(msie) ([\w.]+)/.exec( ua ) ||
-		ua.indexOf("compatible") < 0 && /(mozilla)(?:.*? rv:([\w.]+)|)/.exec( ua ) ||
+		(ua.indexOf("compatible") < 0 && ua.indexOf("trident/7.0")<0) < 0 && /(mozilla)(?:.*? rv:([\w.]+)|)/.exec( ua ) ||
 		[];
+		if(match.length==0 && ua.indexOf("compatible")<0 && ua.indexOf("trident/7.0")>=0){ //ie11 has no msie string, above detects it as mozilla.
+			match = /(mozilla)(?:.*? rv:([\w.]+)|)/.exec( ua ) || [];
+			if(match.length>1)
+				match[1]="msie";
+		}
 
 	return {
 		browser: match[ 1 ] || "",
