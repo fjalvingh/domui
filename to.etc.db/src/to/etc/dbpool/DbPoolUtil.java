@@ -34,6 +34,46 @@ import java.util.Date;
 import javax.annotation.*;
 
 public class DbPoolUtil {
+
+	/**
+	 * Host and port POJO.
+	 */
+	public static class HostAndPort {
+		private Integer m_port;
+
+		private String m_host;
+
+		/**
+		 * Parses specified host:port
+		 *
+		 * @param hostPort Must be host:port format
+		 */
+		public HostAndPort(@Nonnull String hostPort) {
+			//-- Must be address:port format
+			int pos = hostPort.indexOf(':');
+			if(pos != -1) {
+				m_host = hostPort.substring(0, pos).trim();
+				try {
+					m_port = Integer.valueOf(hostPort.substring(pos + 1).trim());
+				} catch(Exception x) {
+					//Just keep instance undefined
+				}
+			}
+		}
+
+		public Integer getPort() {
+			return m_port;
+		}
+
+		public String getHost() {
+			return m_host;
+		}
+
+		public boolean isDefined() {
+			return (m_port != null && m_host != null && m_host.length() > 0);
+		}
+	}
+
 	private DbPoolUtil() {}
 
 	static private final String[] PRESET = {"xxxto.etc.dbpool.", "oracle.", "nl.itris.viewpoint.db.hibernate."};
