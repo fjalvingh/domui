@@ -96,16 +96,27 @@ public class Problem {
 	 * @param property
 	 * @return
 	 */
+	@Nonnull
 	public <T, P> ProblemInstance on(@Nonnull ProblemModel errors, @Nonnull T instance, @Nonnull PropertyMetaModel<P> property) {
 		ProblemInstance pi = new ProblemInstance(this, instance, property);
 		errors.addProblem(pi);
 		return pi;										// Allow specialization using builder pattern.
 	}
 
+	@Nonnull
 	public <T> ProblemInstance on(@Nonnull ProblemModel errors, @Nonnull T instance, @Nonnull String property) {
 		ProblemInstance pi = new ProblemInstance(this, instance, MetaManager.getPropertyMeta(instance.getClass(), property));
 		errors.addProblem(pi);
 		return pi;										// Allow specialization using builder pattern.
+	}
+
+	@Nonnull
+	public <T> void when(@Nonnull ProblemModel errors, @Nonnull T instance, @Nonnull String property, boolean condition) {
+		if(condition) {
+			on(errors, instance, property);
+		} else {
+			off(errors, instance, property);
+		}
 	}
 
 	@Override
