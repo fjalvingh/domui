@@ -26,6 +26,8 @@ package to.etc.xml;
 
 import java.io.*;
 
+import javax.annotation.*;
+
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 
@@ -39,11 +41,11 @@ import to.etc.util.*;
  */
 public class SAXTools {
 
-	static public void parseSAX(Reader r, String id, ContentHandler ch, ErrorHandler eh) throws Exception {
+	static public void parseSAX(@Nonnull Reader r, @Nullable String id, @Nullable ContentHandler ch, @Nullable ErrorHandler eh) throws Exception {
 		XMLReader xr = XMLReaderFactory.createXMLReader();
 		xr.setFeature("http://xml.org/sax/features/namespace-prefixes", false);
 		xr.setFeature("http://xml.org/sax/features/namespaces", true);
-	
+
 		xr.setContentHandler(ch);
 		xr.setErrorHandler(eh);
 		InputSource ips = new InputSource(r);
@@ -51,7 +53,7 @@ public class SAXTools {
 		xr.parse(ips);
 	}
 
-	static public void parseSAX(Class< ? > base, String name, ContentHandler ch, ErrorHandler eh) throws Exception {
+	static public void parseSAX(@Nonnull Class< ? > base, @Nullable String name, @Nullable ContentHandler ch, @Nullable ErrorHandler eh) throws Exception {
 		Reader r = FileTool.getResourceReader(base, name);
 		try {
 			parseSAX(r, base.getName() + "/" + name, ch, eh);
@@ -62,7 +64,7 @@ public class SAXTools {
 		}
 	}
 
-	static public void parseSAX(Class< ? > base, String name, ContentHandler ch) throws Exception {
+	static public void parseSAX(@Nonnull Class< ? > base, @Nullable String name, @Nullable ContentHandler ch) throws Exception {
 		DefaultErrorHandler deh = new DefaultErrorHandler();
 		parseSAX(base, name, ch, deh);
 		if(deh.hasErrors())
