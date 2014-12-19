@@ -39,22 +39,14 @@ public class DbPoolUtil {
 	 * Host and port POJO.
 	 */
 	public final static class HostAndPort {
-		private int m_port;
+		private final int m_port;
 
-		@Nullable
-		private String m_host;
+		@Nonnull
+		private final String m_host;
 
-		private HostAndPort(@Nonnull String hostPort) {
-			//-- Must be address:port format
-			int pos = hostPort.indexOf(':');
-			if(pos != -1) {
-				m_host = hostPort.substring(0, pos).trim();
-				try {
-					m_port = Integer.valueOf(hostPort.substring(pos + 1).trim());
-				} catch(Exception x) {
-					//Just keep instance undefined
-				}
-			}
+		private HostAndPort(@Nonnull String host, int port) {
+			m_host = host;
+			m_port = port;
 		}
 
 		/**
@@ -65,12 +57,18 @@ public class DbPoolUtil {
 		 */
 		@Nonnull
 		public static HostAndPort parse(@Nonnull String hostPort) throws SQLException {
-			HostAndPort hostAndPort = new HostAndPort(hostPort);
-			if(hostAndPort.getPort() != -1) {
-				return hostAndPort;
-			} else {
-				throw new SQLException("PL/SQL Debug handler: parameter format must be 'hostname:portnumber', it was '" + hostPort + "'. Hostname can be an ip address and is usually 127.0.0.1.");
+			//-- Must be address:port format
+			int pos = hostPort.indexOf(':');
+			if(pos != -1) {
+				String host = hostPort.substring(0, pos).trim();
+				try {
+					int port = Integer.parseInt(hostPort.substring(pos + 1).trim());
+					return new HostAndPort(host, port);
+				} catch(Exception x) {
+					//Just keep instance undefined
+				}
 			}
+			throw new SQLException("PL/SQL Debug handler: parameter format must be 'hostname:portnumber', it was '" + hostPort + "'. Hostname can be an ip address and is usually 127.0.0.1.");
 		}
 
 		public int getPort() {
@@ -79,11 +77,7 @@ public class DbPoolUtil {
 
 		@Nonnull
 		public String getHost() {
-			String host = m_host;
-			if(host == null) {
-				throw new IllegalStateException("This should not be possible, parse factory returns null in this case!");
-			}
-			return host;
+			return m_host;
 		}
 	}
 
