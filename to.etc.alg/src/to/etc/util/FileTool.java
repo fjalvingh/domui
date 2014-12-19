@@ -1943,7 +1943,8 @@ public class FileTool {
 		}
 	}
 
-	static public Reader getResourceReader(Class< ? > root, String name) {
+	@Nonnull
+	static public Reader getResourceReader(@Nonnull Class< ? > root, @Nullable String name) {
 		InputStream is = root.getResourceAsStream(name);
 		if(null == is)
 			throw new IllegalStateException("JUnit test: missing test resource with base=" + root + " and name " + name);
