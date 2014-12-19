@@ -462,36 +462,24 @@ final public class ConnectionPool {
 	}
 
 	public void addPlSqlDebugHandler(@Nonnull String plsqldebug) throws SQLException {
-		HostAndPort hostAndPort = new HostAndPort(plsqldebug);
-		if(hostAndPort.isDefined()) {
-			synchronized(this) {
-				if(m_hasPlSqlHandler)
-					return;
-				m_hasPlSqlHandler = true;
-			}
 
-			final String cmd = "begin dbms_debug_jdwp.connect_tcp('" + hostAndPort.getHost() + "'," + hostAndPort.getPort() + ");end;";
-			addListener(new IPoolEvent() {
-				@Override
-				public void connectionReleased(@Nonnull Connection dbc) throws Exception {}
+		final HostAndPort hostAndPort = HostAndPort.parse(plsqldebug);
 
-				@Override
-				public void connectionAllocated(@Nonnull Connection dbc) throws Exception {
-					PreparedStatement st = dbc.prepareStatement(cmd);
-					try {
-						st.execute();
-					} catch(Exception x) {
-						//-- Ignore any error.
-					} finally {
-						try {
-							st.close();
-						} catch(Exception x) {}
-					}
-				}
-			});
-			return;
+		synchronized(this) {
+			if(m_hasPlSqlHandler)
+				return;
+			m_hasPlSqlHandler = true;
 		}
-		throw new SQLException("PL/SQL Debug handler: parameter format must be 'hostname:portnumber', it was '" + plsqldebug + "'. Hostname can be an ip address and is usually 127.0.0.1.");
+
+		addListener(new IPoolEvent() {
+			@Override
+			public void connectionReleased(@Nonnull Connection dbc) throws Exception {}
+
+			@Override
+			public void connectionAllocated(@Nonnull Connection dbc) throws Exception {
+				DbPoolUtil.enableRemoteDebug(dbc, hostAndPort);
+			}
+		});
 	}
 
 	/*--------------------------------------------------------------*/
