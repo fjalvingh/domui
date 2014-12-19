@@ -67,20 +67,20 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 			String url = getComponentDataURL("THUMB", new PageParameters("datx", System.currentTimeMillis() + ""));
 			img.setSrc(url);
 		}
-		add(" ");
-		SmallImgButton sib = new SmallImgButton("THEME/btnClear.png", new IClicked<SmallImgButton>() {
-			@Override
-			public void clicked(SmallImgButton clickednode) throws Exception {
-				setValue(null);
-				forceRebuild();
-			}
-		});
-		add(sib);
-		sib.setTitle("Clear image (make it empty)");
 
-		add(" ");
+		if(!isDisabled() && ! isReadOnly()) {
+			add(" ");
+			SmallImgButton sib = new SmallImgButton("THEME/btnClear.png", new IClicked<SmallImgButton>() {
+				@Override
+				public void clicked(SmallImgButton clickednode) throws Exception {
+					setValue(null);
+					forceRebuild();
+				}
+			});
+			add(sib);
+			sib.setTitle("Clear image (make it empty)");
 
-		if(!isDisabled()) {
+			add(" ");
 			Form f = new Form();
 			add(f);
 			f.setCssClass("ui-szless ui-isct-form");
