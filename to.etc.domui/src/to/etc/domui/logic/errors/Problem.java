@@ -1,11 +1,11 @@
 package to.etc.domui.logic.errors;
 
+import javax.annotation.*;
+import javax.annotation.concurrent.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.webapp.nls.*;
-
-import javax.annotation.*;
-import javax.annotation.concurrent.*;
 
 /**
  * EXPERIMENTAL
@@ -110,7 +110,6 @@ public class Problem {
 		return pi;										// Allow specialization using builder pattern.
 	}
 
-	@Nonnull
 	public <T> void when(@Nonnull ProblemModel errors, @Nonnull T instance, @Nonnull String property, boolean condition) {
 		if(condition) {
 			on(errors, instance, property);
