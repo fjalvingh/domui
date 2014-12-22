@@ -247,6 +247,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 
 	public LookupInputBase(@Nonnull QCriteria<QT> rootCriteria, @Nonnull Class<OT> resultClass) {
 		this(DomUtil.nullChecked(rootCriteria.getBaseClass()), resultClass, (ClassMetaModel) null, (ClassMetaModel) null);
+		m_rootCriteria = rootCriteria;
 	}
 
 	public LookupInputBase(@Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass, @Nullable ClassMetaModel queryMetaModel, @Nullable ClassMetaModel outputMetaModel) {
@@ -748,7 +749,11 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		}
 		LookupForm<QT> lf = getLookupForm();
 		if(lf == null) {
-			lf = new LookupForm<QT>(getQueryClass(), getQueryMetaModel());
+			QCriteria<QT> rootCriteria = m_rootCriteria;
+			if(null != rootCriteria)
+				lf = new LookupForm<QT>(rootCriteria);
+			else
+				lf = new LookupForm<QT>(getQueryClass(), getQueryMetaModel());
 			if(m_searchPropertyList != null && m_searchPropertyList.size() != 0)
 				lf.setSearchProperties(m_searchPropertyList);
 		}

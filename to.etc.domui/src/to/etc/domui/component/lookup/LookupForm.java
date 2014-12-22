@@ -74,6 +74,9 @@ import to.etc.webapp.query.*;
  * Created on Jul 14, 2008
  */
 public class LookupForm<T> extends Div implements IButtonContainer {
+	@Nullable
+	private QCriteria<T> m_rootCriteria;
+
 	/** The data class we're looking for */
 	@Nonnull
 	private Class<T> m_lookupClass;
@@ -409,12 +412,18 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 * @param lookupClass
 	 */
 	public LookupForm(@Nonnull final Class<T> lookupClass, @Nullable final ClassMetaModel cmm, String... propertyList) {
+		m_rootCriteria = null;
 		m_lookupClass = lookupClass;
 		m_metaModel = cmm != null ? cmm : MetaManager.findClassMeta(lookupClass);
 		m_builder = DomApplication.get().getControlBuilder();
 		for(String prop : propertyList)
 			addProperty(prop);
 		defineDefaultButtons();
+	}
+
+	public LookupForm(@Nonnull QCriteria<T> rootCriteria, String... propertyList) {
+		this(DomUtil.nullChecked(rootCriteria.getBaseClass()), (ClassMetaModel) null, propertyList);
+		m_rootCriteria = rootCriteria;
 	}
 
 	/**
@@ -1072,6 +1081,9 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 			root = getQueryFactory().createQuery();
 		} else {
 			root = (QCriteria<T>) getMetaModel().createCriteria();
+			QCriteria<T> rootCriteria = m_rootCriteria;
+			if(null != rootCriteria)
+				root.mergeCriteria(rootCriteria);
 		}
 		boolean success = true;
 		for(Item it : m_itemList) {
@@ -1299,7 +1311,6 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 	/**
 	 * Returns if LookupForm is collapsed.
-	 * See {@link Lookuporm#m_collapsed}.
 	 *
 	 * @return
 	 */
@@ -1309,7 +1320,6 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 	/**
 	 * Use to collapse/restore LookupForm search pannel.
-	 * See {@link Lookuporm#m_collapsed}.
 	 *
 	 * @param collapsed
 	 * @throws Exception
