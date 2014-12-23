@@ -294,8 +294,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 	@Nonnull
 	final String nextUniqID() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("U");
-		int id = m_nextID++;
+		sb.append("__");								// Id MUST start with _, and use __ to ensure id does not overlap with Page#nextId
+		int id = nextIdNumber();
 		while(id != 0) {
 			int d = id % 36;
 			if(d <= 9)
@@ -306,6 +306,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 			id = id / 36;
 		}
 		return sb.toString();
+	}
+
+	private synchronized int nextIdNumber() {
+		return m_nextID++;
 	}
 
 	/**
@@ -1270,7 +1274,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 	@Override
 	@Nullable
 	public UIMessage setMessage(@Nullable final UIMessage msg) {
-		System.out.println("    setMessage '"+getComponentInfo() +"' ("+getActualID()+") to '"+msg+"'");
+		//System.out.println("    setMessage '"+getComponentInfo() +"' ("+getActualID()+") to '"+msg+"'");
 
 		//-- If this (new) message has a LOWER severity than the EXISTING message ignore this call and return the EXISTING message
 		UIMessage old = m_message;
