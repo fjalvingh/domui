@@ -121,14 +121,14 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 		lf.forceRebuild(); // jal 20091002 Force rebuild to remove any state from earlier invocations of the same form. This prevents the form from coming up in "collapsed" state if it was left that way last time it was used (Lenzo).
 
 		add(lf);
-		setOnClose(new IWindowClosed() {
-			@Override
-			public void closed(@Nonnull String closeReason) throws Exception {
-				clearGlobalMessage(Msgs.V_MISSING_SEARCH);
-//				m_floater = null;
-				m_result = null;
-			}
-		});
+		//setOnClose(new IWindowClosed() {
+		//	@Override
+		//	public void closed(@Nonnull String closeReason) throws Exception {
+		//		clearGlobalMessage(Msgs.V_MISSING_SEARCH);
+		//		m_floater = null;
+		//		m_result = null;
+		//	}
+		//});
 
 		lf.setClicked(new IClicked<LookupForm<QT>>() {
 			@Override

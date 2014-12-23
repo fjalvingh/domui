@@ -2,12 +2,15 @@ package to.etc.domui.component2.lookupinput;
 
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.tbl.*;
-import to.etc.domui.component2.lookupinput.LookupInputBase2.IPopupOpener;
+import to.etc.domui.component2.lookupinput.LookupInputBase2.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.util.*;
+
+import javax.annotation.*;
 
 public class DefaultPopupOpener implements IPopupOpener {
 	@Override
-	public <A, B, L extends LookupInputBase2<A, B>> Dialog createDialog(final L control, ITableModel<B> initialModel) {
+	public <A, B, L extends LookupInputBase2<A, B>> Dialog createDialog(final L control, ITableModel<B> initialModel, final IExecute callOnWindowClose) {
 		DefaultLookupInputDialog<A, B> dlg = new DefaultLookupInputDialog<A, B>(control.getQueryMetaModel(), control.getOutputMetaModel(), control.getModelFactory());
 		dlg.setOnSelection(new IClicked<DefaultLookupInputDialog<A, B>>() {
 			@Override
@@ -24,6 +27,11 @@ public class DefaultPopupOpener implements IPopupOpener {
 		dlg.setQueryHandler(dlg.getQueryHandler());
 		dlg.setQueryManipulator(control);
 
+		dlg.setOnClose(new IWindowClosed() {
+			@Override public void closed(@Nonnull String closeReason) throws Exception {
+				callOnWindowClose.execute();
+			}
+		});
 
 		return dlg;
 	}

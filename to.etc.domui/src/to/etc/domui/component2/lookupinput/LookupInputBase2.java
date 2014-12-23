@@ -29,6 +29,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.buttons.*;
+import to.etc.domui.component.event.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.meta.*;
@@ -57,7 +58,7 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	 */
 	public interface IPopupOpener {
 		@Nonnull
-		public <A, B, L extends LookupInputBase2<A, B>> Dialog createDialog(@Nonnull L control, @Nullable ITableModel<B> initialModel);
+		public <A, B, L extends LookupInputBase2<A, B>> Dialog createDialog(@Nonnull L control, @Nullable ITableModel<B> initialModel, @Nonnull IExecute callOnWindowClose);
 	}
 
 	/**
@@ -328,7 +329,6 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 
 	/**
 	 * Render the "current value" display as an input box.
-	 * @param parameters
 	 */
 	private void renderKeyWordSearch() {
 		getValueNode().remove();
@@ -495,7 +495,11 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 		if(null == po) {
 			po = createPopupOpener();
 		}
-		Dialog floater = m_floater = po.createDialog(this, initialModel);
+		Dialog floater = m_floater = po.createDialog(this, initialModel, new IExecute() {
+			@Override public void execute() throws Exception {
+				m_floater = null;
+			}
+		});
 		add(floater);
 	}
 
@@ -676,6 +680,18 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	/*--------------------------------------------------------------*/
 	@Nullable
 	private IValueChanged< ? > m_onValueChanged;
+
+	@Nullable
+	public OT getBindValue() {
+		if(m_value == null && isMandatory()) {
+			throw new ValidationException(Msgs.MANDATORY);
+		}
+		return m_value;
+	}
+
+	public void setBindValue(@Nullable OT value) {
+		setValue(value);
+	}
 
 	/**
 	 * {@inheritDoc}

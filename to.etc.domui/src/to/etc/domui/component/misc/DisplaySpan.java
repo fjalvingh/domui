@@ -219,12 +219,33 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IBindabl
 	 */
 	@Override
 	public void setValue(@Nullable T v) {
-		if(DomUtil.isEqual(m_value, v))
-			return;
+		if(DomUtil.isEqual(m_value, v)) {
+			INodeContentRenderer<T> cr = m_renderer;
+			if(null == cr)
+				return;
+			if(! (cr instanceof IBindableContentRenderer))
+				return;
+			IBindableContentRenderer<T> bcr = (IBindableContentRenderer<T>) cr;
+			BindablePropertiesChecker<T> checker = getPropertiesChecker(bcr.getBoundProperties());
+			if(! checker.set(v))					// If unchanged, exit.
+				return;
+		}
 		T oldvalue = m_value;
 		m_value = v;
 		forceRebuild();
 		fireModified("value", oldvalue, v);
+	}
+
+	@Nullable
+	private BindablePropertiesChecker<T> m_cachedChecker;
+
+	@Nonnull
+	private BindablePropertiesChecker<T> getPropertiesChecker(@Nonnull List<String> props) {
+		BindablePropertiesChecker<T> checker = m_cachedChecker;
+		if(null == checker) {
+			m_cachedChecker = checker = new BindablePropertiesChecker<>(props);
+		}
+		return checker;
 	}
 
 	public void defineFrom(@Nonnull PropertyMetaModel< ? > pmm) {
