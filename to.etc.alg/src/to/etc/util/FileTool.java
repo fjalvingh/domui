@@ -2090,4 +2090,16 @@ public class FileTool {
 			throw new IllegalStateException("Path " + fp + " is not a subpath of " + rp);
 		return fp.substring(rp.length());
 	}
+
+	@Nonnull
+	static public Reader getResourceReader(@Nonnull Class< ? > root, @Nullable String name) {
+		InputStream is = root.getResourceAsStream(name);
+		if(null == is)
+			throw new IllegalStateException("JUnit test: missing test resource with base=" + root + " and name " + name);
+		try {
+			return new InputStreamReader(is, "utf-8");
+		} catch(UnsupportedEncodingException x) {
+			throw WrappedException.wrap(x);
+		}
+	}
 }
