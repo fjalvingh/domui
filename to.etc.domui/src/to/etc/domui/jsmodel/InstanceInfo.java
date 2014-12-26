@@ -1,6 +1,7 @@
 package to.etc.domui.jsmodel;
 
 import to.etc.domui.component.meta.*;
+import to.etc.domui.util.*;
 
 import javax.annotation.*;
 import java.util.*;
@@ -37,7 +38,9 @@ public class InstanceInfo {
 		return m_id;
 	}
 
-	<T> void updateValue(PropertyMetaModel<T> property, @Nullable T value) {
-		m_propertyMap.put(property, value);
+	<T> boolean updateValue(PropertyMetaModel<T> property, @Nullable T value) {
+		Object oldValue = m_propertyMap.put(property, value);
+		return DomUtil.isEqual(value, oldValue);
 	}
+
 }

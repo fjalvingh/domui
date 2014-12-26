@@ -1,12 +1,10 @@
 package to.etc.domui.jsmodel;
 
 import to.etc.domui.component.meta.*;
-import to.etc.domui.jsmodel.ClassInfo.*;
 import to.etc.util.*;
 
 import javax.annotation.*;
 import java.util.*;
-import java.util.Map.*;
 
 /**
  * This handles the rendering and deltaing of a Javascript model.
@@ -21,70 +19,67 @@ public class JsModel {
 
 	final private String m_modelRoot;
 
-	final private Appendable m_output;
-
 	private final Object m_rootObject;
 
 	static private Map<Class<?>, IRenderType<?>> m_simpleTypeRendererMap = new HashMap<>();
 
 	private Map<Class<?>, ClassInfo> m_classInfoMap = new HashMap<>();
 
-	private List<InstanceInfo> m_pendingRelationRender = new ArrayList<>();
+	@Nullable
+	private Set<InstanceInfo> m_reachableSet;
 
-	public JsModel(String modelRoot, Appendable output, Object rootObject) {
+	public JsModel(String modelRoot, Object rootObject) {
 		m_modelRoot = modelRoot;
-		m_output = output;
 		m_rootObject = rootObject;
+	}
+
+
+	@Nullable public Set<InstanceInfo> getReachableSet() {
+		return m_reachableSet;
+	}
+
+	public void setReachableSet(@Nullable Set<InstanceInfo> reachableSet) {
+		m_reachableSet = reachableSet;
 	}
 
 	/**
 	 * Do an initial render of the structure. This prepares the delta-source too.
 	 * @throws Exception
 	 */
-	public void render() throws Exception {
-		m_idMap.clear();
-
-		m_output.append("function() {");
-
-		m_output.append(m_modelRoot).append(".modelReset();");
-
-		//-- Create root.
-		ClassInfo ci = getInfo(m_rootObject.getClass());
-		if(null == ci)
-			throw new IllegalStateException("The root Javascript model object is not annotated with "+JsClass.class.getName());
-		//InstanceInfo ii = createInstanceInfo(ci, m_rootObject);
-		//
-		//String name = m_rootObject.getClass().getSimpleName();
-		//m_output.append("var root=new ").append(name).append("({");
-		//renderSimpleProperties(ii);
-		//m_output.append("});\n");
-
-		collectAllInstances(m_rootObject);
-		for(InstanceInfo ii: m_instanceMap.values()) {
-			renderInstanceCreate(ii);
-		}
-
-		for(InstanceInfo ii: m_instanceMap.values()) {
-			renderRelations(ii);
-		}
-		m_output.append("\n}();\n");
+	public void renderFull(Appendable output) throws Exception {
+		JsInitialRenderer r = new JsInitialRenderer(output, this);
+		r.render();
 	}
 
-	private void collectAllInstances(Object instance) throws Exception {
-		InstanceInfo ii = m_instanceMap.get(instance);
-		if(ii != null)
-			return;                                // Already collected
+	public void renderDelta(Appendable output) throws Exception {
+		JsDeltaRenderer r = new JsDeltaRenderer(output, this, "vroot");
+		r.render();
+	}
 
-		ClassInfo ci = getInfo(instance.getClass());
-		if(ci.getIdProperty() == null)
+	Set<InstanceInfo> collectAllInstances(Object root) throws Exception {
+		Map<Object, InstanceInfo> newMap = new HashMap<>();
+		collectAllInstances(newMap, root);
+		return new HashSet<>(newMap.values());
+	}
+
+	private void collectAllInstances(Map<Object, InstanceInfo> list, Object instance) throws Exception {
+		if(list.containsKey(instance))
 			return;
 
-		ii = createInstanceInfo(ci, instance);
+		InstanceInfo ii = m_instanceMap.get(instance);
+		if(ii == null) {
+			ClassInfo ci = getInfo(instance.getClass());
+			if(ci.getIdProperty() == null)
+				return;
+
+			ii = createInstanceInfo(ci, instance);
+		}
+		list.put(instance, ii);
 
 		for(PropertyMetaModel<?> pp : ii.getClassInfo().getParentProperties()) {
 			Object val = pp.getValue(instance);
 			if(null != val)
-				collectAllInstances(val);
+				collectAllInstances(list, val);
 		}
 
 		for(PropertyMetaModel<?> cp : ii.getClassInfo().getChildProperties()) {
@@ -92,9 +87,9 @@ public class JsModel {
 			if(val != null) {
 				if(! (val instanceof List))
 					throw new IllegalStateException("Instance "+MetaManager.identify(instance)+" property "+cp.getName()+" does not return List");
-				List<Object> list = (List<Object>) val;
-				for(Object li: list) {
-					collectAllInstances(li);
+				List<Object> chlist = (List<Object>) val;
+				for(Object li: chlist) {
+					collectAllInstances(list, li);
 				}
 			}
 		}
@@ -119,138 +114,11 @@ public class JsModel {
 		return ii;
 	}
 
-	private InstanceInfo findInstance(Object instance) {
+	InstanceInfo findInstance(Object instance) {
 		InstanceInfo ii = m_instanceMap.get(instance);
 		return ii;
 	}
 
-	private void renderRelations(InstanceInfo ii) throws Exception {
-		renderChildRelations(ii);
-		renderParentRelations(ii);
-	}
-
-	private void renderParentRelations(InstanceInfo ii) throws Exception {
-		ClassInfo ci = ii.getClassInfo();
-		for(PropertyMetaModel<?> pp : ci.getParentProperties()) {
-			renderParentProperty(ii, pp);
-		}
-	}
-
-	private void renderParentProperty(InstanceInfo ii, PropertyMetaModel<?> pp) throws Exception {
-		Object value = pp.getValue(ii.getInstance());
-		if(null == value)
-			return;
-		InstanceInfo parii = findInstance(value);
-		if(null == parii) {
-			ClassInfo ci = getInfo(value.getClass());
-			if(ci.getIdProperty() != null)
-				throw new IllegalStateException("Cannot re-find instance " + MetaManager.identify(value));
-
-			//-- Idless class- create on-the-fly.
-			m_output.append("v").append(ii.getId()).append("._").append(pp.getName()).append("= new ").append(ci.getSimpleName()).append("({");
-			renderSimpleProperties(ci, value);
-			m_output.append("});\n");
-			return;
-		}
-
-		m_output.append("v").append(ii.getId()).append("._").append(pp.getName()).append("=v").append(parii.getId()).append(";\n");
-	}
-
-	private void renderChildRelations(InstanceInfo ii) throws Exception {
-		ClassInfo ci = ii.getClassInfo();
-		for(PropertyMetaModel<?> cp : ci.getChildProperties()) {
-			renderChildList(ii, cp);
-		}
-	}
-
-	private void renderChildList(InstanceInfo ii, PropertyMetaModel<?> cp) throws Exception {
-		Object value = cp.getValue(ii.getInstance());
-		if(null == value)
-			return;
-		if(! (value instanceof List)) {
-			throw new IllegalStateException("The child model is not returning List.");
-		}
-		List<Object> list = (List<Object>) value;
-
-		m_output.append("v").append(ii.getId()).append("._").append(cp.getName()).append(" = [");
-		int count = 0;
-		for(Object item: list) {
-			if(count % 10 == 9)
-				m_output.append("\n");
-			if(count++ != 0)
-				m_output.append(",");
-
-			InstanceInfo chii = findInstance(item);
-			if(null == chii) {
-				ClassInfo ci = getInfo(item.getClass());
-				if(ci.getIdProperty() != null)
-					throw new IllegalStateException("Cannot find list child instance " + MetaManager.identify(item));
-				m_output.append("new ").append(ci.getSimpleName()).append("({");
-				renderSimpleProperties(ci, item);
-				m_output.append("})");
-			} else {
-				m_output.append("v").append(chii.getId());
-			}
-
-		}
-		m_output.append("];\n");
-	}
-
-	private void renderInstanceCreate(InstanceInfo ii) throws Exception {
-		String name = ii.getClassInfo().getSimpleName();
-		m_output.append("var v").append(ii.getId()).append("=new ").append(name).append("({");
-		renderSimpleProperties(ii);
-		m_output.append("});\n");
-	}
-
-	/**
-	 * Render all primitive properties of a thing as a javascript object format fragment.
-	 * @param ii
-	 * @throws Exception
-	 */
-	private void renderSimpleProperties(InstanceInfo ii) throws Exception {
-		boolean comma = false;
-		ClassInfo ci = ii.getClassInfo();
-		for(Entry<PropertyMetaModel<?>, Simple<?>> me : ci.getSimpleProperties().entrySet()) {
-			if(comma)
-				m_output.append(',');
-			renderSimpleProperty(ii, me.getValue());
-			comma = true;
-		}
-	}
-
-	private void renderSimpleProperties(ClassInfo ci, Object instance) throws Exception {
-		boolean comma = false;
-		for(Entry<PropertyMetaModel<?>, Simple<?>> me : ci.getSimpleProperties().entrySet()) {
-			if(comma)
-				m_output.append(',');
-			renderSimpleProperty(instance, me.getValue());
-			comma = true;
-		}
-	}
-
-	private <T> void renderSimpleProperty(Object instance, Simple<T> simple) throws Exception {
-		m_output.append(simple.getProperty().getName()).append(":");
-		T value = simple.getProperty().getValue(instance);
-		if(null == value) {
-			m_output.append("null");
-			return ;
-		}
-
-		simple.getRenderer().render(m_output, value);
-	}
-
-	private <T> void renderSimpleProperty(InstanceInfo ii, Simple<T> simple) throws Exception {
-		m_output.append(simple.getProperty().getName()).append(":");
-		T value = simple.getProperty().getValue(ii.getInstance());
-		ii.updateValue(simple.getProperty(), value);
-		if(null == value) {
-			m_output.append("null");
-			return ;
-		}
-
-		simple.getRenderer().render(m_output, value);
-	}
 
 	static private Class<?>[] SIMPLETYPEAR = {Byte.class, Short.class, Character.class, Integer.class, Long.class, Boolean.class, Double.class, Float.class};
 
@@ -283,7 +151,7 @@ public class JsModel {
 	}
 
 	@Nullable
-	private ClassInfo getInfo(Class<?> clzin) {
+	ClassInfo getInfo(Class<?> clzin) {
 		ClassInfo ci = m_classInfoMap.get(clzin);
 		if(null != ci)
 			return ci;
@@ -296,5 +164,7 @@ public class JsModel {
 		return ci;
 	}
 
-
+	public Object getRootObject() {
+		return m_rootObject;
+	}
 }
