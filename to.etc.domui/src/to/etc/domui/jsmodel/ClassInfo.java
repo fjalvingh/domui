@@ -12,19 +12,45 @@ import java.util.*;
  * Created on 12/25/14.
  */
 class ClassInfo {
-	private Map<PropertyMetaModel<?>, IRenderType<?>> m_simpleProperties;
+	private String m_simpleName;
 
-	private List<PropertyMetaModel<?>> m_parentProperties;
+	static class Simple<T> {
+		private final PropertyMetaModel<T> m_property;
 
-	private List<PropertyMetaModel<?>> m_childProperties;
+		private final IRenderType<T> m_renderer;
 
-	public ClassInfo(Map<PropertyMetaModel<?>, IRenderType<?>> simpleProperties, List<PropertyMetaModel<?>> parentProperties, List<PropertyMetaModel<?>> childProperties) {
+		public Simple(PropertyMetaModel<T> property, IRenderType<T> renderer) {
+			m_property = property;
+			m_renderer = renderer;
+		}
+
+		public PropertyMetaModel<T> getProperty() {
+			return m_property;
+		}
+
+		public IRenderType<T> getRenderer() {
+			return m_renderer;
+		}
+	}
+
+	final private Map<PropertyMetaModel<?>, Simple<?>> m_simpleProperties;
+
+	final private List<PropertyMetaModel<?>> m_parentProperties;
+
+	final private List<PropertyMetaModel<?>> m_childProperties;
+
+	@Nullable
+	final private PropertyMetaModel<String> m_idProperty;
+
+	public ClassInfo(String name, Map<PropertyMetaModel<?>, Simple<?>> simpleProperties, List<PropertyMetaModel<?>> parentProperties, List<PropertyMetaModel<?>> childProperties, @Nullable PropertyMetaModel<String> idProp) {
+		m_simpleName = name;
+		m_idProperty = idProp;
 		m_simpleProperties = simpleProperties;
 		m_parentProperties = parentProperties;
 		m_childProperties = childProperties;
 	}
 
-	public Map<PropertyMetaModel<?>, IRenderType<?>> getSimpleProperties() {
+	public Map<PropertyMetaModel<?>, Simple<?>> getSimpleProperties() {
 		return m_simpleProperties;
 	}
 
@@ -37,6 +63,11 @@ class ClassInfo {
 	}
 
 	@Nullable
+	public PropertyMetaModel<String> getIdProperty() {
+		return m_idProperty;
+	}
+
+	@Nullable
 	static public ClassInfo	decode(Class<?> inclz) {
 		//-- Must be annotated with @JsClass or we'll ignore it
 		JsClass jcl = inclz.getAnnotation(JsClass.class);
@@ -44,14 +75,21 @@ class ClassInfo {
 			return null;
 
 		ClassMetaModel cmm = MetaManager.findClassMeta(inclz);
-		Map<PropertyMetaModel<?>, IRenderType<?>> simpleProps = new HashMap<>();
+		Map<PropertyMetaModel<?>, Simple<?>> simpleProps = new HashMap<>();
 		List<PropertyMetaModel<?>> childProps = new ArrayList<>();
 		List<PropertyMetaModel<?>> parentProps = new ArrayList<>();
+		PropertyMetaModel<String> idProperty = null;
 
 		for(PropertyMetaModel<?> property : cmm.getProperties()) {
+			if(property.getName().equals("id")) {
+				if(property.getActualType() != String.class)
+					throw new IllegalStateException("The class "+inclz.getName()+"'s id property must be of type String");
+				idProperty = (PropertyMetaModel<String>) property;
+			}
+
 			IRenderType<?> renderer = JsModel.findRenderer(property);
 			if(null != renderer) {
-				simpleProps.put(property, renderer);
+				simpleProps.put(property, new Simple(property, renderer));
 			} else if(List.class.isAssignableFrom(property.getActualType())) {		// Collection -> child?
 				Class<?> collectionType = MetaManager.findCollectionType(property.getGenericActualType());
 				if(null != collectionType) {
@@ -67,8 +105,13 @@ class ClassInfo {
 				}
 			}
 		}
+		//if(null == idProperty)
+		//	throw new IllegalStateException("The class "+inclz.getName()+" does not have an id property");
+		return new ClassInfo(inclz.getSimpleName(), simpleProps, parentProps, childProps, idProperty);
+	}
 
-		return new ClassInfo(simpleProps, parentProps, childProps);
+	public String getSimpleName() {
+		return m_simpleName;
 	}
 
 }
