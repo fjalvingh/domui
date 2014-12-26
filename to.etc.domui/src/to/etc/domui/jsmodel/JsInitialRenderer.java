@@ -135,7 +135,78 @@ public class JsInitialRenderer {
 		}
 	}
 
-	private void renderSimpleProperties(ClassInfo ci, Object instance) throws Exception {
+	private <T> void renderUnidentifiedProperty(InstanceInfo sourceInstance, PropertyMetaModel<T> property, Object objectValue) throws Exception {
+		Map<String, Object> valueMap = sourceInstance.getUnidentifiedPropertyValues(property);
+
+		ClassInfo ci = m_model.getInfo(objectValue.getClass());
+		m_output.append("new ").append(ci.getSimpleName()).append("({");
+		renderSimpleProperties(objectValue, valueMap, "");
+	}
+
+	private boolean renderSimpleProperties(Object instance, Map<String, Object> valueMap, String path) throws Exception {
+		ClassMetaModel cmm = MetaManager.findClassMeta(instance.getClass());
+		boolean comma = false;
+		for(PropertyMetaModel<?> pmm: cmm.getProperties()) {
+			comma = renderProperty(instance, pmm, valueMap, path, comma);
+		}
+		return comma;
+	}
+
+	private <T> boolean renderProperty(Object instance, PropertyMetaModel<T> pmm, Map<String, Object> valueMap, String path, boolean comma) throws Exception {
+		T value = pmm.getValue(instance);
+		if(null == value)
+			return comma;
+
+		IRenderType<T> renderer = JsModel.findRenderer(pmm);
+		if(null != renderer) {
+			if(comma)
+				m_output.append(',');
+			m_output.append(pmm.getName()).append(":");
+			renderer.render(m_output, value);
+			valueMap.put(pmm.getName(), value);
+			return true;
+		}
+
+		if(value instanceof List) {
+			//-- Child list properties.
+
+
+			throw new IllegalStateException("Child list of unidentified not supported");
+		}
+
+		//-- Must be a parent.
+		Class<?> pcl = value.getClass();
+		JsClass jcl = pcl.getAnnotation(JsClass.class);
+		if(null == jcl)
+			return comma;
+
+		//-- Parent class render
+		Map<String, Object> altMap = (Map<String, Object>) valueMap.get(pmm.getName());
+		if(null == altMap) {
+			altMap = new HashMap<>();
+			valueMap.put(pmm.getName(), altMap);
+		}
+
+		if(comma) {
+			m_output.append(",");
+		}
+		m_output.append("new ").append(value.getClass().getSimpleName()).append("({");
+	 	renderUnidentified(value, path, altMap);
+		m_output.append("})");
+		return true;
+	}
+
+	private <T> boolean renderUnidentified(T instance, String path, Map<String, Object> valueMap) throws Exception{
+		ClassMetaModel cmm = MetaManager.findClassMeta(instance.getClass());
+		boolean comma = false;
+		for(PropertyMetaModel<?> pmm: cmm.getProperties()) {
+			comma = renderProperty(instance, pmm, valueMap, path, comma);
+		}
+		return comma;
+	}
+
+
+	private boolean renderSimpleProperties(ClassInfo ci, Object instance) throws Exception {
 		boolean comma = false;
 		for(Entry<PropertyMetaModel<?>, Simple<?>> me : ci.getSimpleProperties().entrySet()) {
 			if(comma)
@@ -143,6 +214,7 @@ public class JsInitialRenderer {
 			renderSimpleProperty(instance, me.getValue());
 			comma = true;
 		}
+		return comma;
 	}
 
 	private <T> void renderSimpleProperty(Object instance, Simple<T> simple) throws Exception {

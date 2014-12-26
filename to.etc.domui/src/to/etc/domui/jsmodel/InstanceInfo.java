@@ -43,4 +43,17 @@ public class InstanceInfo {
 		return DomUtil.isEqual(value, oldValue);
 	}
 
+	/**
+	 * Get property value map for an "unidentified" property.
+	 * @param property
+	 * @return
+	 */
+	public <T> Map<String, Object> getUnidentifiedPropertyValues(PropertyMetaModel<T> property) {
+		Map<String, Object> valMap = (Map<String, Object>) m_propertyMap.get(property);
+		if(null == valMap) {
+			valMap = new HashMap<>();
+			m_propertyMap.put(property, valMap);
+		}
+		return valMap;
+	}
 }

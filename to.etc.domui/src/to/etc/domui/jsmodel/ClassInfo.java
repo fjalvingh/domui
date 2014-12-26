@@ -33,18 +33,21 @@ class ClassInfo {
 		}
 	}
 
-	final private Map<PropertyMetaModel<?>, Simple<?>> m_simpleProperties;
+	private Map<PropertyMetaModel<?>, Simple<?>> m_simpleProperties;
 
-	final private List<PropertyMetaModel<?>> m_parentProperties;
+	private List<PropertyMetaModel<?>> m_parentProperties;
 
-	final private List<PropertyMetaModel<?>> m_childProperties;
+	private List<PropertyMetaModel<?>> m_childProperties;
 
 	@Nullable
 	final private PropertyMetaModel<String> m_idProperty;
 
-	public ClassInfo(String name, Map<PropertyMetaModel<?>, Simple<?>> simpleProperties, List<PropertyMetaModel<?>> parentProperties, List<PropertyMetaModel<?>> childProperties, @Nullable PropertyMetaModel<String> idProp) {
+	public ClassInfo(String name, @Nullable PropertyMetaModel<String> idProp) {
 		m_simpleName = name;
 		m_idProperty = idProp;
+	}
+
+	void update(Map<PropertyMetaModel<?>, Simple<?>> simpleProperties, List<PropertyMetaModel<?>> parentProperties, List<PropertyMetaModel<?>> childProperties) {
 		m_simpleProperties = simpleProperties;
 		m_parentProperties = parentProperties;
 		m_childProperties = childProperties;

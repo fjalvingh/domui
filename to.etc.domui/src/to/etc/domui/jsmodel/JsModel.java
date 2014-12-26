@@ -1,6 +1,7 @@
 package to.etc.domui.jsmodel;
 
 import to.etc.domui.component.meta.*;
+import to.etc.domui.jsmodel.ClassInfo.*;
 import to.etc.util.*;
 
 import javax.annotation.*;
@@ -158,9 +159,41 @@ public class JsModel {
 		if(m_classInfoMap.containsKey(clzin))
 			return null;
 
-		//-- Create it
-		ci = ClassInfo.decode(clzin);
+		//-- Must be annotated with @JsClass or we'll ignore it
+		JsClass jcl = clzin.getAnnotation(JsClass.class);
+		if(null == jcl) {
+			m_classInfoMap.put(clzin, null);
+			return null;
+		}
+
+		ClassMetaModel cmm = MetaManager.findClassMeta(clzin);
+		PropertyMetaModel<String> idProp = (PropertyMetaModel<String>) cmm.findProperty("id");
+		ci = new ClassInfo(clzin.getSimpleName(), idProp);
 		m_classInfoMap.put(clzin, ci);
+
+		Map<PropertyMetaModel<?>, Simple<?>> simpleProps = new HashMap<>();
+		List<PropertyMetaModel<?>> childProps = new ArrayList<>();
+		List<PropertyMetaModel<?>> parentProps = new ArrayList<>();
+
+		for(PropertyMetaModel<?> property : cmm.getProperties()) {
+			IRenderType<?> renderer = JsModel.findRenderer(property);
+			if(null != renderer) {
+				simpleProps.put(property, new Simple(property, renderer));
+			} else if(List.class.isAssignableFrom(property.getActualType())) {		// Collection -> child?
+				Class<?> collectionType = MetaManager.findCollectionType(property.getGenericActualType());
+				if(null != collectionType) {
+					jcl = collectionType.getAnnotation(JsClass.class);
+					if(null != jcl) {
+						childProps.add(property);
+					}
+				}
+			} else {
+				jcl = property.getActualType().getAnnotation(JsClass.class);
+				if(null != jcl) {
+					parentProps.add(property);
+				}
+			}
+		}
 		return ci;
 	}
 

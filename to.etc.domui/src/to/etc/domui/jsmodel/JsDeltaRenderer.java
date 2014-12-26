@@ -1,5 +1,6 @@
 package to.etc.domui.jsmodel;
 
+import to.etc.domui.component.meta.*;
 import to.etc.domui.jsmodel.ClassInfo.*;
 
 import java.util.*;
@@ -60,9 +61,22 @@ public class JsDeltaRenderer {
 		for(Simple<?> simple: ci.getSimpleProperties().values()) {
 			done = renderPropertyDelta(simple, ii, done);
 		}
+		for(PropertyMetaModel<?> pm: ci.getParentProperties()) {
+			done = renderSimpleParent(pm, ii, done);
+		}
+
 		if(done) {
 			m_output.append("});\n");
 		}
+	}
+
+	private <T> boolean renderSimpleParent(PropertyMetaModel<T> pm, InstanceInfo ii, boolean done) {
+
+
+
+
+
+		return false;
 	}
 
 	private <T> boolean renderPropertyDelta(Simple<T> simple, InstanceInfo ii, boolean inited) throws Exception {
