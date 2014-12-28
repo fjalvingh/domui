@@ -18,7 +18,7 @@ public class InstanceInfo {
 
 	final private String m_id;
 
-	final private Map<PropertyMetaModel<?>, Object> m_propertyMap = new HashMap<>();
+	final private Map<String, Object> m_propertyMap = new HashMap<>();
 
 	public InstanceInfo(ClassInfo classInfo, Object instance, String id) {
 		m_classInfo = classInfo;
@@ -38,22 +38,26 @@ public class InstanceInfo {
 		return m_id;
 	}
 
-	<T> boolean updateValue(PropertyMetaModel<T> property, @Nullable T value) {
-		Object oldValue = m_propertyMap.put(property, value);
+	<T> boolean updateValue(PropertyMetaModel<T> property, @Nullable Object value) {
+		Object oldValue = m_propertyMap.put(property.getName(), value);
 		return DomUtil.isEqual(value, oldValue);
 	}
 
-	/**
-	 * Get property value map for an "unidentified" property.
-	 * @param property
-	 * @return
-	 */
-	public <T> Map<String, Object> getUnidentifiedPropertyValues(PropertyMetaModel<T> property) {
-		Map<String, Object> valMap = (Map<String, Object>) m_propertyMap.get(property);
-		if(null == valMap) {
-			valMap = new HashMap<>();
-			m_propertyMap.put(property, valMap);
-		}
-		return valMap;
+	public Map<String, Object> getPropertyMap() {
+		return m_propertyMap;
 	}
+
+	///**
+	// * Get property value map for an "unidentified" property.
+	// * @param property
+	// * @return
+	// */
+	//public <T> Map<String, Object> getUnidentifiedPropertyValues(PropertyMetaModel<T> property) {
+	//	Map<String, Object> valMap = (Map<String, Object>) m_propertyMap.get(property);
+	//	if(null == valMap) {
+	//		valMap = new HashMap<>();
+	//		m_propertyMap.put(property, valMap);
+	//	}
+	//	return valMap;
+	//}
 }

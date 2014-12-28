@@ -102,6 +102,8 @@ public class JsModel {
 	}
 
 	private InstanceInfo createInstanceInfo(ClassInfo ci, Object instance) throws Exception {
+		if(null == ci)
+			throw new IllegalStateException("Null classinfo?");
 		PropertyMetaModel<String> idProperty = ci.getIdProperty();
 		if(null == idProperty)
 			throw new IllegalStateException("Attempt to create instance ref for idless instance "+MetaManager.identify(instance));
@@ -174,6 +176,7 @@ public class JsModel {
 		Map<PropertyMetaModel<?>, Simple<?>> simpleProps = new HashMap<>();
 		List<PropertyMetaModel<?>> childProps = new ArrayList<>();
 		List<PropertyMetaModel<?>> parentProps = new ArrayList<>();
+		List<PropertyMetaModel<?>> valueProps = new ArrayList<>();
 
 		for(PropertyMetaModel<?> property : cmm.getProperties()) {
 			IRenderType<?> renderer = JsModel.findRenderer(property);
@@ -190,10 +193,15 @@ public class JsModel {
 			} else {
 				jcl = property.getActualType().getAnnotation(JsClass.class);
 				if(null != jcl) {
-					parentProps.add(property);
+					ClassInfo dadci = getInfo(property.getActualType());
+					if(dadci.getIdProperty() == null)
+						valueProps.add(property);
+					else
+						parentProps.add(property);
 				}
 			}
 		}
+		ci.update(simpleProps, parentProps, childProps, valueProps);
 		return ci;
 	}
 
