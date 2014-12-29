@@ -1,9 +1,10 @@
 package to.etc.domui.jsmodel;
 
-import to.etc.domui.component.meta.*;
+import java.util.*;
 
 import javax.annotation.*;
-import java.util.*;
+
+import to.etc.domui.component.meta.*;
 
 /**
  * Contains rendering data on a Javascript model class.
@@ -47,6 +48,10 @@ class ClassInfo {
 	public ClassInfo(String name, @Nullable PropertyMetaModel<String> idProp) {
 		m_simpleName = name;
 		m_idProperty = idProp;
+		m_valueProperties = Collections.EMPTY_LIST;
+		m_simpleProperties = Collections.EMPTY_MAP;
+		m_parentProperties = Collections.EMPTY_LIST;
+		m_childProperties = Collections.EMPTY_LIST;
 	}
 
 	void update(Map<PropertyMetaModel<?>, Simple<?>> simpleProperties, List<PropertyMetaModel<?>> parentProperties, List<PropertyMetaModel<?>> childProperties, List<PropertyMetaModel<?>> valueProps) {

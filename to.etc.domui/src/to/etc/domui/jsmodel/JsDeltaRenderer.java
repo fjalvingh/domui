@@ -1,10 +1,10 @@
 package to.etc.domui.jsmodel;
 
-import to.etc.domui.component.meta.*;
-import to.etc.domui.jsmodel.ClassInfo.*;
-import to.etc.domui.util.*;
-
 import java.util.*;
+
+import to.etc.domui.component.meta.*;
+import to.etc.domui.jsmodel.ClassInfo.Simple;
+import to.etc.domui.util.*;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -109,6 +109,8 @@ public class JsDeltaRenderer extends JsRenderBase {
 
 		//-- Walk all properties of this object, and check if they changed value.
 		ClassInfo valueCi = m_model.getInfo(value.getClass());
+		if(valueCi == null)
+			throw new IllegalStateException("No class info for " + value.getClass());
 		if(valueCi.getParentProperties().size() > 0)
 			throw new IllegalStateException("Value object "+valueCi+" has identifyable parent properties which is not supported");
 		if(valueCi.getChildProperties().size() > 0)
@@ -153,6 +155,9 @@ public class JsDeltaRenderer extends JsRenderBase {
 	private <T> boolean renderSimpleParent(PropertyMetaModel<T> pm, InstanceInfo ii, boolean done) throws Exception {
 		Class<T> actualType = pm.getActualType();
 		ClassInfo parentCi = m_model.getInfo(actualType);
+		if(null == parentCi)
+			throw new IllegalStateException("Cannot get class info for " + pm);
+
 		T value = pm.getValue(ii.getInstance());
 		if(parentCi.getIdProperty() != null) {
 			if(! ii.updateValue(pm, value)) {
@@ -180,7 +185,11 @@ public class JsDeltaRenderer extends JsRenderBase {
 			m_setSb.append(",");
 		}
 		m_setSb.append(simple.getProperty().getName()).append(":");
-		simple.getRenderer().render(m_setSb, value);
+		if(value == null) {
+			m_setSb.append("null");
+		} else {
+			simple.getRenderer().render(m_setSb, value);
+		}
 		return true;
 	}
 }

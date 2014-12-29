@@ -1,11 +1,12 @@
 package to.etc.domui.jsmodel;
 
-import to.etc.domui.component.meta.*;
-import to.etc.domui.jsmodel.ClassInfo.*;
-import to.etc.util.*;
+import java.util.*;
 
 import javax.annotation.*;
-import java.util.*;
+
+import to.etc.domui.component.meta.*;
+import to.etc.domui.jsmodel.ClassInfo.Simple;
+import to.etc.util.*;
 
 /**
  * This handles the rendering and deltaing of a Javascript model.
@@ -70,6 +71,10 @@ public class JsModel {
 		InstanceInfo ii = m_instanceMap.get(instance);
 		if(ii == null) {
 			ClassInfo ci = getInfo(instance.getClass());
+			if(null == ci)
+				throw new IllegalStateException("Cannot get class info for " + instance);
+
+
 			if(ci.getIdProperty() == null)
 				return;
 
@@ -98,6 +103,8 @@ public class JsModel {
 
 	private InstanceInfo createInstanceInfo(Object instance) throws Exception {
 		ClassInfo ci = getInfo(instance.getClass());
+		if(null == ci)
+			throw new IllegalStateException("Cannot get class info for " + instance);
 		return createInstanceInfo(ci, instance);
 	}
 
@@ -179,9 +186,9 @@ public class JsModel {
 		List<PropertyMetaModel<?>> valueProps = new ArrayList<>();
 
 		for(PropertyMetaModel<?> property : cmm.getProperties()) {
-			IRenderType<?> renderer = JsModel.findRenderer(property);
-			if(null != renderer) {
-				simpleProps.put(property, new Simple(property, renderer));
+			Simple< ? > simple = createSimple(property);
+			if(null != simple) {
+				simpleProps.put(property, simple);
 			} else if(List.class.isAssignableFrom(property.getActualType())) {		// Collection -> child?
 				Class<?> collectionType = MetaManager.findCollectionType(property.getGenericActualType());
 				if(null != collectionType) {
@@ -194,15 +201,25 @@ public class JsModel {
 				jcl = property.getActualType().getAnnotation(JsClass.class);
 				if(null != jcl) {
 					ClassInfo dadci = getInfo(property.getActualType());
-					if(dadci.getIdProperty() == null)
-						valueProps.add(property);
-					else
-						parentProps.add(property);
+					if(dadci != null) {
+						if(dadci.getIdProperty() == null)
+							valueProps.add(property);
+						else
+							parentProps.add(property);
+					}
 				}
 			}
 		}
 		ci.update(simpleProps, parentProps, childProps, valueProps);
 		return ci;
+	}
+
+	@Nullable
+	private <T> Simple<T> createSimple(PropertyMetaModel<T> pmm) {
+		IRenderType<T> renderer = JsModel.findRenderer(pmm);
+		if(null != renderer)
+			return new Simple<T>(pmm, renderer);
+		return null;
 	}
 
 	public Object getRootObject() {

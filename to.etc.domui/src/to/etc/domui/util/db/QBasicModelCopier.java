@@ -470,6 +470,8 @@ abstract public class QBasicModelCopier implements IModelCopier {
 		if(vtype == null)
 			throw new IllegalStateException("Unable to determine the generic TYPE of the child record in DOWN relation property "+pmm);
 		Class< ? > childclz = MetaManager.findCollectionType(vtype); // Try to get value class type.
+		if(null == childclz)
+			throw new IllegalStateException("Can't find collection type");
 
 		/*
 		 * Ohh shit. We need to do an exhaustive compare between source and target lists,

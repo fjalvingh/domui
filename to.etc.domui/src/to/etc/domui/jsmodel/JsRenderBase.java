@@ -1,9 +1,9 @@
 package to.etc.domui.jsmodel;
 
-import to.etc.domui.component.meta.*;
-import to.etc.domui.jsmodel.ClassInfo.*;
-
 import java.util.*;
+
+import to.etc.domui.component.meta.*;
+import to.etc.domui.jsmodel.ClassInfo.Simple;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -43,6 +43,8 @@ class JsRenderBase {
 
 		//-- Walk all properties of this object, and check if they changed value.
 		ClassInfo valueCi = m_model.getInfo(value.getClass());
+		if(null == valueCi)
+			throw new IllegalStateException("No clss info for " + value.getClass());
 		if(valueCi.getParentProperties().size() > 0)
 			throw new IllegalStateException("Value object "+valueCi+" has identifyable parent properties which is not supported");
 		if(valueCi.getChildProperties().size() > 0)
