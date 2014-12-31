@@ -505,19 +505,22 @@ public class PageParameters implements IPageParameters, Serializable {
 
 
 	/**
-	 * Gets the value for the specified parametername as untyped value.
-	 * It is used internaly for generic copying of params form one PageParameter to another.
+	 * Gets the value for the specified parameter name as untyped value.
+	 * It is used internally for generic copying of params form one PageParameter to another.
 	 *
 	 * @param name
 	 * @return
 	 */
-	@Nonnull
-	private Object getObject(String name) {
-		Object var = m_map.get(name);
-		if(null != var) {
-			return var;
-		}
-		throw new MissingParameterException(name);
+	@Nullable
+	public Object getObject(String name) {
+		return m_map.get(name);
+	}
+
+	public void putObject(@Nonnull String name, @Nullable Object value) {
+		if(null == value)
+			m_map.remove(name);
+		else
+			m_map.put(name, value);
 	}
 
 	/**
@@ -680,7 +683,9 @@ public class PageParameters implements IPageParameters, Serializable {
 			if(source.hasParameter(name)) {
 				source.removeParameter(name);
 			}
-			source.addParameter(name, changes.getObject(name));
+			Object object = changes.getObject(name);
+			if(null != object)
+				source.addParameter(name, object);
 		}
 	}
 
