@@ -254,6 +254,7 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 	 *
 	 * @return
 	 */
+	@Nullable
 	public String getEmptyIcon() {
 		return m_emptyIcon;
 	}
@@ -263,7 +264,7 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 	 * with THEME/ it specifies an image from the current THEME's directory.
 	 * @param src
 	 */
-	public void setEmptyIcon(String src) {
+	public void setEmptyIcon(@Nonnull String src) {
 		if(!DomUtil.isEqual(src, m_emptyIcon))
 			changed();
 		m_emptyIcon = src;
@@ -274,7 +275,7 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 	 * @param base
 	 * @param resurl
 	 */
-	public void setEmptyIcon(Class< ? > base, String resurl) {
+	public void setEmptyIcon(@Nonnull Class< ? > base, @Nonnull String resurl) {
 		String s = DomUtil.getJavaResourceRURL(base, resurl);
 		setEmptyIcon(s);
 	}
