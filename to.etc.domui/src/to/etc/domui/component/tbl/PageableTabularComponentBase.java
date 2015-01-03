@@ -30,7 +30,7 @@ import javax.annotation.*;
 
 import to.etc.domui.util.*;
 
-abstract public class TabularComponentBase<T> extends TableModelTableBase<T> implements ITableModelListener<T> {
+abstract public class PageableTabularComponentBase<T> extends TableModelTableBase<T> implements ITableModelListener<T> {
 	/** The current page #, starting at 0 */
 	private int m_currentPage;
 
@@ -43,11 +43,11 @@ abstract public class TabularComponentBase<T> extends TableModelTableBase<T> imp
 
 	abstract int getPageSize();
 
-	public TabularComponentBase(ITableModel<T> model) {
+	public PageableTabularComponentBase(ITableModel<T> model) {
 		super(model);
 	}
 
-	public TabularComponentBase() {}
+	public PageableTabularComponentBase() {}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Model/page changed listener code..					*/
