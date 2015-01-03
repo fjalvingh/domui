@@ -11,7 +11,7 @@ import java.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 1/3/15.
  */
-final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> implements ISelectionListener<T>, ISelectableTableComponent<T> {
+final public class ScrollableDataTable<T> extends PageableTabularComponentBase<T> implements ISelectionListener<T>, ISelectableTableComponent<T> {
 	private Table m_table = new Table();
 
 	private IRowRenderer<T> m_rowRenderer;

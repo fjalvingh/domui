@@ -4,7 +4,7 @@ import to.etc.domui.util.*;
 
 import javax.annotation.*;
 
-abstract public class SelectableTabularComponent<T> extends PageableTabularComponentBase<T> implements ISelectionListener<T>, ISelectableTableComponent<T> {
+abstract public class SelectableTabularComponent<T> extends TableModelTableBase<T> implements ISelectionListener<T>, ISelectableTableComponent<T> {
 	abstract protected void createSelectionUI() throws Exception;
 
 
