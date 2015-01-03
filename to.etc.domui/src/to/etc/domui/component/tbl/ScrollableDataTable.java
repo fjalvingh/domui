@@ -11,13 +11,10 @@ import java.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 1/3/15.
  */
-final public class ScrollableDataTable<T> extends PageableTabularComponentBase<T> implements ISelectionListener<T>, ISelectableTableComponent<T> {
+final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> implements ISelectionListener<T>, ISelectableTableComponent<T> {
 	private Table m_table = new Table();
 
 	private IRowRenderer<T> m_rowRenderer;
-
-	/** The size of the page */
-	private int m_pageSize;
 
 	/** If a result is visible this is the data table */
 	private TBody m_dataBody;
@@ -33,6 +30,9 @@ final public class ScrollableDataTable<T> extends PageableTabularComponentBase<T
 
 	/** When selecting, this is the last index that was used in a select click.. */
 	private int m_lastSelectionLocation = -1;
+
+	/** The last index rendered. */
+	private int m_eix = 80;
 
 	@Nonnull
 	final private IClicked<TH> m_headerSelectClickHandler = new IClicked<TH>() {
@@ -87,8 +87,6 @@ final public class ScrollableDataTable<T> extends PageableTabularComponentBase<T
 			throw new IllegalStateException("There is no row renderer assigned to the table");
 		m_rowRenderer.beforeQuery(this); // ORDER!! BEFORE CALCINDICES or any other call that materializes the result.
 
-		calcIndices(); // Calculate rows to show.
-
 		List<T> list = getPageItems(); // Data to show
 		if(list.size() == 0) {
 			setNoResults();
@@ -100,7 +98,7 @@ final public class ScrollableDataTable<T> extends PageableTabularComponentBase<T
 		//-- Render the rows.
 		ColumnContainer<T> cc = new ColumnContainer<T>(this);
 		m_visibleItemList.clear();
-		int ix = m_six;
+		int ix = 0;
 		for(T o : list) {
 			m_visibleItemList.add(o);
 			TR tr = new TR();
@@ -112,6 +110,10 @@ final public class ScrollableDataTable<T> extends PageableTabularComponentBase<T
 		}
 		if(isDisableClipboardSelection())
 			appendCreateJS(JavascriptUtil.disableSelection(this)); // Needed to prevent ctrl+click in IE doing clipboard-select, because preventDefault does not work there of course.
+	}
+
+	private List<T> getPageItems() throws Exception {
+		return getModel().getItems(0, m_eix);
 	}
 
 	@SuppressWarnings("deprecation")
@@ -329,9 +331,8 @@ final public class ScrollableDataTable<T> extends PageableTabularComponentBase<T
 			}
 			index++;
 		}
-		if(itemindex == -1) // Ignore when thingy not found
+		if(itemindex == -1) 						// Ignore when thingy not found
 			return;
-		itemindex += m_six;
 
 		//-- Is a previous location set? If not: just toggle the current and retain the location.
 		if(m_lastSelectionLocation == -1) {
@@ -472,31 +473,6 @@ final public class ScrollableDataTable<T> extends PageableTabularComponentBase<T
 	}
 
 	/*--------------------------------------------------------------*/
-	/*	CODING:	Dumbass setters and getters.						*/
-	/*--------------------------------------------------------------*/
-	/**
-	 * Return the page size: the #of records to show. If &lt;= 0 all records are shown.
-	 */
-	@Override
-	public int getPageSize() {
-		return m_pageSize;
-	}
-
-	/**
-	 * Set the page size: the #of records to show. If &lt;= 0 all records are shown.
-	 *
-	 * @param pageSize
-	 */
-	public void setPageSize(int pageSize) {
-		if(m_pageSize == pageSize)
-			return;
-		m_pageSize = pageSize;
-		forceRebuild();
-		firePageChanged();
-	}
-
-
-	/*--------------------------------------------------------------*/
 	/*	CODING:	ITableModelListener implementation					*/
 	/*--------------------------------------------------------------*/
 	/**
@@ -522,16 +498,16 @@ final public class ScrollableDataTable<T> extends PageableTabularComponentBase<T
 	public void rowAdded(@Nonnull ITableModel<T> model, int index, @Nonnull T value) throws Exception {
 		if(!isBuilt())
 			return;
-		calcIndices(); // Calculate visible nodes
-		if(index < m_six || index >= m_eix) { // Outside visible bounds
+		calcIndices(); 								// Calculate visible nodes
+		if(index < 0 || index >= m_eix) { 			// Outside visible bounds
 			firePageChanged();
 			return;
 		}
 
 		//-- What relative row?
 		setResults();
-		int rrow = index - m_six; // This is the location within the child array
-		ColumnContainer<T> cc = new ColumnContainer<T>(this);
+		int rrow = index; 							// This is the location within the child array
+		ColumnContainer<T> cc = new ColumnContainer<>(this);
 		TR tr = new TR();
 		m_dataBody.add(rrow, tr);
 		cc.setParent(tr);
@@ -539,15 +515,6 @@ final public class ScrollableDataTable<T> extends PageableTabularComponentBase<T
 		renderRow(tr, cc, index, value);
 		m_visibleItemList.add(rrow, value);
 
-		//-- Is the size not > the page size?
-		if(m_pageSize > 0 && m_dataBody.getChildCount() > m_pageSize) {
-			//-- Delete the last row.
-			m_dataBody.removeChild(m_dataBody.getChildCount() - 1); // Delete last element
-		}
-		if(m_pageSize > 0) {
-			while(m_visibleItemList.size() > m_pageSize)
-				m_visibleItemList.remove(m_visibleItemList.size() - 1);
-		}
 		handleOddEven(rrow);
 		firePageChanged();
 	}
@@ -565,37 +532,38 @@ final public class ScrollableDataTable<T> extends PageableTabularComponentBase<T
 			return;
 
 		//-- We need the indices of the OLD data, so DO NOT RECALCULATE - the model size has changed.
-		if(index < m_six || index >= m_eix) { // Outside visible bounds
-			calcIndices(); // Calculate visible nodes
+		if(index < 0 || index >= m_eix) { 			// Outside visible bounds
+			calcIndices(); 							// Calculate visible nodes
 			firePageChanged();
 			return;
 		}
-		int rrow = index - m_six; // This is the location within the child array
-		m_dataBody.removeChild(rrow); // Discard this one;
+		int rrow = index; 							// This is the location within the child array
+		m_dataBody.removeChild(rrow); 				// Discard this one;
 		m_visibleItemList.remove(rrow);
 		if(m_dataBody.getChildCount() == 0) {
-			calcIndices(); // Calculate visible nodes
+			calcIndices(); 							// Calculate visible nodes
 			setNoResults();
 			firePageChanged();
 			return;
 		}
 
 		//-- One row gone; must we add one at the end?
-		int peix = m_six + m_pageSize - 1; // Index of last element on "page"
-		if(m_pageSize > 0 && peix < m_eix && peix < getModel().getRows()) {
+		if(index < m_eix && m_eix < getModel().getRows()) {
 			ColumnContainer<T> cc = new ColumnContainer<T>(this);
 			TR tr = new TR();
 			cc.setParent(tr);
 
-			T mi = getModelItem(peix);
-			m_dataBody.add(m_pageSize - 1, tr);
-			renderRow(tr, cc, peix, mi);
-			m_visibleItemList.add(m_pageSize - 1, mi);
+			T mi = getModelItem(m_eix);
+			m_dataBody.add(m_eix-1, tr);
+			renderRow(tr, cc, m_eix-1, mi);
+			m_visibleItemList.add(m_eix - 1, mi);
 		}
-		calcIndices(); // Calculate visible nodes
+		calcIndices(); 								// Calculate visible nodes
 		handleOddEven(rrow);
 		firePageChanged();
 	}
+
+	private void calcIndices() {}
 
 	private void handleOddEven(int index) {
 		for(int ix = index; ix < m_dataBody.getChildCount(); ix++) {
@@ -620,11 +588,11 @@ final public class ScrollableDataTable<T> extends PageableTabularComponentBase<T
 	public void rowModified(@Nonnull ITableModel<T> model, int index, @Nonnull T value) throws Exception {
 		if(!isBuilt())
 			return;
-		if(index < m_six || index >= m_eix) // Outside visible bounds
+		if(index < 0 || index >= m_eix) 				// Outside visible bounds
 			return;
-		int rrow = index - m_six; // This is the location within the child array
-		TR tr = (TR) m_dataBody.getChild(rrow); // The visible row there
-		tr.removeAllChildren(); // Discard current contents.
+		int rrow = index; 								// This is the location within the child array
+		TR tr = (TR) m_dataBody.getChild(rrow); 		// The visible row there
+		tr.removeAllChildren(); 						// Discard current contents.
 		m_visibleItemList.set(rrow, value);
 
 		ColumnContainer<T> cc = new ColumnContainer<T>(this);
@@ -683,8 +651,6 @@ final public class ScrollableDataTable<T> extends PageableTabularComponentBase<T
 	 * Called when a selection cleared event fires. The underlying model has already been changed. It
 	 * tries to see if the row is currently paged in, and if so asks the row renderer to update
 	 * it's selection presentation.
-	 *
-	 * @see to.etc.domui.component.tbl.ISelectionListener#selectionCleared(java.lang.Object, boolean)
 	 */
 	@Override
 	public void selectionAllChanged() throws Exception {
