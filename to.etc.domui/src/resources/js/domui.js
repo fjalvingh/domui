@@ -3978,6 +3978,15 @@ WebUI.reactivateHiddenAccessKeys = function(windowId) {
 	});
 };
 
+WebUI.initScrollableTable = function(id) {
+	$('#'+id+" table").fixedHeaderTable({});
+	$('#'+id+" .fht-tbody").scroll(function() {
+		$.dbg("Scrolling");
+	});
+
+}
+
+
 isButtonChildOfElement = function(buttonId, windowId){
 	return $(buttonId).parents('#' + $(windowId).attr('id')).length == 0;
 };

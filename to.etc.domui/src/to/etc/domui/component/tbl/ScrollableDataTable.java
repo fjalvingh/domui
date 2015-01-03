@@ -110,6 +110,13 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 		}
 		if(isDisableClipboardSelection())
 			appendCreateJS(JavascriptUtil.disableSelection(this)); // Needed to prevent ctrl+click in IE doing clipboard-select, because preventDefault does not work there of course.
+		//StringBuilder sb = new StringBuilder();
+		//
+		//
+		//m_table.appendJQuerySelector(sb);
+		//sb.append(".fixedHeaderTable({});");
+		//appendCreateJS(sb.toString());
+		appendCreateJS("WebUI.initScrollableTable('"+getActualID()+"');");
 	}
 
 	private List<T> getPageItems() throws Exception {
@@ -554,7 +561,7 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 			cc.setParent(tr);
 
 			T mi = getModelItem(m_eix);
-			m_dataBody.add(m_eix-1, tr);
+			m_dataBody.add(m_eix - 1, tr);
 			renderRow(tr, cc, m_eix-1, mi);
 			m_visibleItemList.add(m_eix - 1, mi);
 		}
