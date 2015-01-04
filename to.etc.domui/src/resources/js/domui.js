@@ -3980,8 +3980,26 @@ WebUI.reactivateHiddenAccessKeys = function(windowId) {
 
 WebUI.initScrollableTable = function(id) {
 	$('#'+id+" table").fixedHeaderTable({});
-	$('#'+id+" .fht-tbody").scroll(function() {
-		$.dbg("Scrolling");
+	var sbody = $('#'+id+" .fht-tbody");
+	sbody.scroll(function() {
+		var bh = $(sbody).height();
+		var st = $(sbody).scrollTop()
+		var tbl = $('#'+id+" .fht-table tbody");
+		var th = tbl.height();
+		var left = tbl.height() - bh - st;
+		//$.dbg("scrolling: bodyheight="+bh+" scrolltop="+st+" tableheight="+th+" left="+left);
+
+		if(left > 100) {
+			//$.dbg("Scrolling: area left="+left);
+			return;
+		}
+
+		var lastRec = sbody.find("tr[lastRow]");
+		if(lastRec.length != 0) {
+			//$.dbg("scrolling: lastrec found");
+			return;
+		}
+		WebUI.scall(id, "LOADMORE", {});
 	});
 
 }

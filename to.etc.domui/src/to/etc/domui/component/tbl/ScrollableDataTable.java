@@ -2,6 +2,7 @@ package to.etc.domui.component.tbl;
 
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 
 import javax.annotation.*;
@@ -33,6 +34,10 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 
 	/** The last index rendered. */
 	private int m_eix = 80;
+
+	private int m_batchSize = 80;
+
+	private boolean m_allRendered;
 
 	@Nonnull
 	final private IClicked<TH> m_headerSelectClickHandler = new IClicked<TH>() {
@@ -70,6 +75,7 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 	public void createContent() throws Exception {
 		m_dataBody = null;
 		m_errorDiv = null;
+		m_allRendered = false;
 		addCssClass("ui-dt");
 
 		//-- Do we need to render multiselect checkboxes?
@@ -108,15 +114,72 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 			renderRow(tr, cc, ix, o);
 			ix++;
 		}
+		if(ix >= getModel().getRows()) {
+			renderFinalRow();
+		}
 		if(isDisableClipboardSelection())
 			appendCreateJS(JavascriptUtil.disableSelection(this)); // Needed to prevent ctrl+click in IE doing clipboard-select, because preventDefault does not work there of course.
-		//StringBuilder sb = new StringBuilder();
-		//
-		//
-		//m_table.appendJQuerySelector(sb);
-		//sb.append(".fixedHeaderTable({});");
-		//appendCreateJS(sb.toString());
 		appendCreateJS("WebUI.initScrollableTable('"+getActualID()+"');");
+	}
+
+	private void loadMoreData() throws Exception {
+		if(m_allRendered) {
+			System.err.println("domui: ScrollableDataTable got unexpected loadMoreData");
+			return;
+		}
+		int rows = getModel().getRows();
+		if(m_eix >= rows) {
+			System.err.println("domui: ScrollableDataTable got unexpected loadMoreData and allrendered is false!?");
+			return;
+		}
+
+		//-- Get the next batch
+		int six = m_eix;
+		int eix = six + m_batchSize;
+		if(eix > rows)
+			eix = rows;
+
+		List<T> list = getModel().getItems(six, eix);
+
+		//-- Render the rows.
+		ColumnContainer<T> cc = new ColumnContainer<T>(this);
+		int ix = six;
+		for(T o : list) {
+			m_visibleItemList.add(o);
+			TR tr = new TR();
+			m_dataBody.add(tr);
+			tr.setTestRepeatID("r" + ix);
+			cc.setParent(tr);
+			renderRow(tr, cc, ix, o);
+			ix++;
+		}
+		m_eix = eix;
+		if(ix >= getModel().getRows()) {
+			renderFinalRow();
+		}
+		//System.out.println("rendered till "+m_eix);
+	}
+
+	private void renderFinalRow() {
+		TBody dataBody = m_dataBody;
+		if(null == dataBody)
+			throw new IllegalStateException("No data body?");
+		int colspan = 1;
+		if(dataBody.getChildCount() > 0) {
+			TR row = dataBody.getRow(dataBody.getChildCount()-1);
+			colspan = row.getChildCount();
+			if(colspan == 0)
+				colspan = 1;
+		}
+
+		m_allRendered = true;
+		TR row = new TR();
+		dataBody.add(row);
+		TD cell = new TD();
+		row.add(cell);
+		cell.setColspan(colspan);
+		row.setSpecialAttribute("lastRow", "true");
+		cell.setText("All records loaded");
 	}
 
 	private List<T> getPageItems() throws Exception {
@@ -168,7 +231,7 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 	 * @throws Exception
 	 */
 	@Deprecated
-	void renderHeader(@Nonnull HeaderContainer<T> hc) throws Exception {
+	private void renderHeader(@Nonnull HeaderContainer<T> hc) throws Exception {
 		//-- Are we rendering a multi-selection?
 		if(m_multiSelectMode) {
 			TH headerCell = hc.add("");
@@ -258,7 +321,7 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 	 * @throws Exception
 	 */
 	@Deprecated
-	void internalRenderRow(@Nonnull final TR tr, @Nonnull ColumnContainer<T> cc, int index, @Nonnull final T value) throws Exception {
+	private void internalRenderRow(@Nonnull final TR tr, @Nonnull ColumnContainer<T> cc, int index, @Nonnull final T value) throws Exception {
 		m_rowRenderer.renderRow(this, cc, index, value);
 	}
 
@@ -689,5 +752,14 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 			cb.setReadOnly(true);
 		}
 		return cb;
+	}
+
+	@Override public void componentHandleWebAction(@Nonnull RequestContextImpl ctx, @Nonnull String action) throws Exception {
+		if("LOADMORE".equals(action)) {
+			loadMoreData();
+			return;
+		}
+
+		super.componentHandleWebAction(ctx, action);
 	}
 }
