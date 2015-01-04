@@ -3682,6 +3682,8 @@ WebUI.doCustomUpdates = function() {
 	$('[stretch=true]').doStretch();
 	$('.ui-dt, .ui-fixovfl').fixOverflow();
 	$('input[marker]').setBackgroundImageMarker();
+
+	$('.ui-dt-ovflw-tbl').floatThead('reflow');
 };
 
 WebUI.onDocumentReady = function() {
@@ -3978,7 +3980,7 @@ WebUI.reactivateHiddenAccessKeys = function(windowId) {
 	});
 };
 
-WebUI.initScrollableTable = function(id) {
+WebUI.initScrollableTableOld = function(id) {
 	$('#'+id+" table").fixedHeaderTable({});
 	var sbody = $('#'+id+" .fht-tbody");
 	sbody.scroll(function() {
@@ -4002,7 +4004,42 @@ WebUI.initScrollableTable = function(id) {
 		WebUI.scall(id, "LOADMORE", {});
 	});
 
-}
+};
+
+WebUI.initScrollableTable = function(id, tblid) {
+	var container = $('#'+id);
+	var tbl = $('#'+tblid);
+
+	tbl.floatThead({
+		scrollContainer: function() {
+			return container;
+		}
+	});
+	container.scroll(function() {
+		var bh = $(container).height();
+		var st = $(container).scrollTop()
+		var tbl = $('#'+id+" tbody");
+		var th = tbl.height();
+		var left = tbl.height() - bh - st;
+		$.dbg("scrolling: bodyheight="+bh+" scrolltop="+st+" tableheight="+th+" left="+left);
+
+		if(left > 100) {
+			//$.dbg("Scrolling: area left="+left);
+			return;
+		}
+
+		var lastRec = tbl.find("tr[lastRow]");
+		if(lastRec.length != 0) {
+			//$.dbg("scrolling: lastrec found");
+			return;
+		}
+		WebUI.scall(id, "LOADMORE", {
+
+		});
+	});
+
+};
+
 
 
 isButtonChildOfElement = function(buttonId, windowId){

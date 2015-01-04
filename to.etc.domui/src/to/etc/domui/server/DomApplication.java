@@ -24,15 +24,7 @@
  */
 package to.etc.domui.server;
 
-import java.io.*;
-import java.lang.reflect.*;
-import java.util.*;
-
-import javax.annotation.*;
-import javax.servlet.http.*;
-
 import org.slf4j.*;
-
 import to.etc.domui.ajax.*;
 import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.delayed.*;
@@ -58,6 +50,12 @@ import to.etc.domui.util.resources.*;
 import to.etc.util.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
+
+import javax.annotation.*;
+import javax.servlet.http.*;
+import java.io.*;
+import java.lang.reflect.*;
+import java.util.*;
 
 /**
  *
@@ -851,7 +849,8 @@ public abstract class DomApplication {
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery.wysiwyg.js"), -780);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/wysiwyg.rmFormat.js"), -779);
 		addHeaderContributor(HeaderContributor.loadStylesheet("$js/jquery.wysiwyg.css"), -780);
-		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery-plugins/jquery.fixedheadertable.js"), -790);
+		//addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery-plugins/jquery.fixedheadertable.js"), -790);
+		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery-plugins/jquery.floatThead.js"), -790);
 
 		/*
 		 * FIXME: Delayed construction of components causes problems with components
