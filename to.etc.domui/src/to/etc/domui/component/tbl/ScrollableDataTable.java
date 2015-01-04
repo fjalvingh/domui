@@ -1,6 +1,7 @@
 package to.etc.domui.component.tbl;
 
 import to.etc.domui.component.meta.*;
+import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
@@ -82,6 +83,7 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 		m_allRendered = false;
 		m_eix = m_batchSize;
 		addCssClass("ui-dt");
+		setOverflow(Overflow.AUTO);
 
 		//-- Do we need to render multiselect checkboxes?
 		ISelectionModel<T> sm = getSelectionModel();
@@ -777,5 +779,17 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 		}
 
 		super.componentHandleWebAction(ctx, action);
+	}
+
+	/**
+	 * The number of records to load every time new data is needed. Should be enough to provide (a bit more than) an entire page of data.
+	 * @return
+	 */
+	public int getBatchSize() {
+		return m_batchSize;
+	}
+
+	public void setBatchSize(int batchSize) {
+		m_batchSize = batchSize;
 	}
 }
