@@ -3683,7 +3683,7 @@ WebUI.doCustomUpdates = function() {
 	$('.ui-dt, .ui-fixovfl').fixOverflow();
 	$('input[marker]').setBackgroundImageMarker();
 
-	$('.ui-dt-ovflw-tbl').floatThead('reflow');
+	//$('.ui-dt-ovflw-tbl').floatThead('reflow');
 };
 
 WebUI.onDocumentReady = function() {
@@ -4004,6 +4004,23 @@ WebUI.initScrollableTableOld = function(id) {
 		WebUI.scall(id, "LOADMORE", {});
 	});
 
+};
+
+WebUI.scrollableTableReset = function(id, tblid) {
+	var tbl = $('#'+tblid);
+	var container = $('#'+id);
+	tbl.floatThead('reflow');
+
+	$.dbg('recreate');
+
+	//tbl.floatThead('destroy');
+	//tbl.floatThead({
+	//	scrollContainer: function() {
+	//		return container;
+	//	}
+	//});
+
+	container.scrollTop(0);
 };
 
 WebUI.initScrollableTable = function(id, tblid) {

@@ -13,9 +13,10 @@ import java.util.*;
  * Created on 1/3/15.
  */
 final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> implements ISelectionListener<T>, ISelectableTableComponent<T> {
-	private Table m_table = new Table();
-
 	private IRowRenderer<T> m_rowRenderer;
+
+	@Nullable
+	private Table m_dataTable;
 
 	/** If a result is visible this is the data table */
 	private TBody m_dataBody;
@@ -55,6 +56,8 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 		}
 	};
 
+	private boolean m_redrawn;
+
 
 	public ScrollableDataTable(@Nonnull ITableModel<T> m, @Nonnull IRowRenderer<T> r) {
 		super(m);
@@ -73,9 +76,11 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 
 	@Override
 	public void createContent() throws Exception {
+		m_dataTable = null;
 		m_dataBody = null;
 		m_errorDiv = null;
 		m_allRendered = false;
+		m_eix = m_batchSize;
 		addCssClass("ui-dt");
 
 		//-- Do we need to render multiselect checkboxes?
@@ -100,26 +105,24 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 		}
 
 		setResults();
-
-		//-- Render the rows.
-		ColumnContainer<T> cc = new ColumnContainer<T>(this);
-		m_visibleItemList.clear();
-		int ix = 0;
-		for(T o : list) {
-			m_visibleItemList.add(o);
-			TR tr = new TR();
-			m_dataBody.add(tr);
-			tr.setTestRepeatID("r" + ix);
-			cc.setParent(tr);
-			renderRow(tr, cc, ix, o);
-			ix++;
-		}
-		if(ix >= getModel().getRows()) {
-			renderFinalRow();
-		}
+		m_eix = 0;
+		loadMoreData();
 		if(isDisableClipboardSelection())
 			appendCreateJS(JavascriptUtil.disableSelection(this)); // Needed to prevent ctrl+click in IE doing clipboard-select, because preventDefault does not work there of course.
-		appendCreateJS("WebUI.initScrollableTable('"+getActualID()+"','"+m_table.getActualID()+"');");
+		if(m_redrawn) {
+			appendJavascript("WebUI.scrollableTableReset('" + getActualID() + "','" + tbl().getActualID() + "');");
+		} else {
+			appendCreateJS("WebUI.initScrollableTable('" + getActualID() + "','" + tbl().getActualID() + "');");
+			m_redrawn = true;
+		}
+	}
+
+	@Nonnull
+	private Table tbl() {
+		Table t = m_dataTable;
+		if(null == t)
+			throw new IllegalStateException("Access to table while unbuilt?");
+		return t;
 	}
 
 	private void loadMoreData() throws Exception {
@@ -160,6 +163,16 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 		//System.out.println("rendered till "+m_eix);
 	}
 
+	private void rerender() throws Exception {
+		if(! isBuilt() || m_dataBody == null)
+			return;
+		m_eix = 0;
+		m_dataBody.removeAllChildren();
+		m_allRendered = false;
+		loadMoreData();
+		appendJavascript("WebUI.scrollableTableReset('" + getActualID() + "','" + tbl().getActualID() + "');");
+	}
+
 	private void renderFinalRow() {
 		TBody dataBody = m_dataBody;
 		if(null == dataBody)
@@ -194,14 +207,13 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 		}
 		if(m_dataBody != null)
 			return;
-
-		m_table.removeAllChildren();
-		add(m_table);
-		m_table.setCssClass("ui-dt-ovflw-tbl");
+		Table dataTable = m_dataTable = new Table();
+		add(dataTable);
+		dataTable.setCssClass("ui-dt-ovflw-tbl");
 
 		//-- Render the header.
 		THead hd = new THead();
-		m_table.add(hd);
+		dataTable.add(hd);
 		HeaderContainer<T> hc = new HeaderContainer<T>(this);
 		TR tr = new TR();
 		tr.setCssClass("ui-dt-hdr");
@@ -218,7 +230,7 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 		}
 
 		m_dataBody = new TBody();
-		m_table.add(m_dataBody);
+		dataTable.add(m_dataBody);
 	}
 
 	/**
@@ -245,6 +257,7 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 		m_rowRenderer.renderHeader(this, hc);
 	}
 
+
 	/**
 	 * Removes any data table, and presents the "no results found" div.
 	 */
@@ -253,10 +266,12 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 		if(m_errorDiv != null)
 			return;
 
-		if(m_table != null) {
-			m_table.removeAllChildren();
-			m_table.remove();
+		Table dataTable = m_dataTable;
+		if(dataTable != null) {
+			dataTable.removeAllChildren();
+			dataTable.remove();
 			m_dataBody = null;
+			m_dataTable = null;
 		}
 
 		m_errorDiv = new Div();
@@ -455,7 +470,7 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 		if(sm == null)
 			throw new IllegalStateException("No selection model!?");
 		TR row = (TR) m_dataBody.getChild(lrow);
-		THead head = m_table.getHead();
+		THead head = tbl().getHead();
 		if(null == head)
 			throw new IllegalStateException("I've lost my head!?");
 
@@ -530,7 +545,7 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 
 	@Override
 	protected void createSelectionUI() throws Exception {
-		THead head = m_table.getHead();
+		THead head = tbl().getHead();
 		if(null == head)
 			throw new IllegalStateException("I've lost my head!?");
 
@@ -550,8 +565,8 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 	 * Called when there are sweeping changes to the model. It forces a complete re-render of the table.
 	 */
 	@Override
-	public void modelChanged(@Nullable ITableModel<T> model) {
-		forceRebuild();
+	public void modelChanged(@Nullable ITableModel<T> model) throws Exception {
+		rerender();
 		fireModelChanged(null, model);
 	}
 
@@ -672,7 +687,7 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 	}
 
 	public void setTableWidth(@Nullable String w) {
-		m_table.setTableWidth(w);
+		tbl().setTableWidth(w);
 	}
 
 	@Nonnull
