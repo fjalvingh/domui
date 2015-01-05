@@ -35,6 +35,8 @@ import javax.annotation.*;
 import javax.annotation.concurrent.*;
 import javax.sql.*;
 
+import to.etc.dbpool.DbPoolUtil.HostAndPort;
+
 
 /**
  * <h1>Working</h1>
@@ -460,46 +462,24 @@ final public class ConnectionPool {
 	}
 
 	public void addPlSqlDebugHandler(@Nonnull String plsqldebug) throws SQLException {
-		//-- Must be address:port format
-		int pos = plsqldebug.indexOf(':');
-		if(pos != -1) {
-			String host = plsqldebug.substring(0, pos);
-			int port;
-			try {
-				port = Integer.parseInt(plsqldebug.substring(pos + 1).trim());
-			} catch(Exception x) {
-				port = -1;
-			}
-			if(port != -1) {
-				synchronized(this) {
-					if(m_hasPlSqlHandler)
-						return;
-					m_hasPlSqlHandler = true;
-				}
 
-				final String cmd = "begin dbms_debug_jdwp.connect_tcp('" + host.trim() + "'," + port + ");end;";
-				addListener(new IPoolEvent() {
-					@Override
-					public void connectionReleased(@Nonnull Connection dbc) throws Exception {}
+		final HostAndPort hostAndPort = HostAndPort.parse(plsqldebug);
 
-					@Override
-					public void connectionAllocated(@Nonnull Connection dbc) throws Exception {
-						PreparedStatement st = dbc.prepareStatement(cmd);
-						try {
-							st.execute();
-						} catch(Exception x) {
-							//-- Ignore any error.
-						} finally {
-							try {
-								st.close();
-							} catch(Exception x) {}
-						}
-					}
-				});
+		synchronized(this) {
+			if(m_hasPlSqlHandler)
 				return;
-			}
+			m_hasPlSqlHandler = true;
 		}
-		throw new SQLException("PL/SQL Debug handler: parameter format must be 'hostname:portnumber', it was '" + plsqldebug + "'. Hostname can be an ip address and is usually 127.0.0.1.");
+
+		addListener(new IPoolEvent() {
+			@Override
+			public void connectionReleased(@Nonnull Connection dbc) throws Exception {}
+
+			@Override
+			public void connectionAllocated(@Nonnull Connection dbc) throws Exception {
+				DbPoolUtil.enableRemoteDebug(dbc, hostAndPort);
+			}
+		});
 	}
 
 	/*--------------------------------------------------------------*/
@@ -591,7 +571,7 @@ final public class ConnectionPool {
 				} catch(Exception x) {}
 			}
 		}
-		throw new SQLException("Cannot get new connection from database driver: " + lastx, lastx);
+		throw new SQLException("Cannot get new connection for user " + user + " from database driver: " + lastx, lastx);
 	}
 
 
