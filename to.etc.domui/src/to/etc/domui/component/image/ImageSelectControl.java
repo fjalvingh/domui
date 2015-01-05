@@ -66,10 +66,11 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 		img.setAlign(ImgAlign.LEFT);
 
 		if(m_value == null) {
-			if(null == m_emptyIcon) {
+			String emptyIcon = getEmptyIcon();
+			if(null == emptyIcon) {
 				img.setSrc(DomUtil.getJavaResourceRURL(ImageSelectControl.class, "empty.png"));
 			} else {
-				img.setSrc(getEmptyIcon());
+				img.setSrc(emptyIcon);
 			}
 		} else {
 			String url = getComponentDataURL("THUMB", new PageParameters("datx", System.currentTimeMillis() + ""));
