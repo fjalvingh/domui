@@ -1,14 +1,13 @@
 package to.etc.domui.logic;
 
-import java.lang.reflect.*;
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.logic.errors.*;
 import to.etc.webapp.*;
 import to.etc.webapp.query.*;
+
+import javax.annotation.*;
+import java.lang.reflect.*;
+import java.util.*;
 
 /**
  * This context class encapsulates instantiated business logic classes, and cache data used by those
@@ -86,7 +85,7 @@ final public class LogicContextImpl implements ILogicContext {
 		if(null == logic) {
 			Constructor<L> c;
 			try {
-				c = classClass.getConstructor(LogicContextImpl.class);
+				c = classClass.getConstructor(ILogicContext.class);
 			} catch(Exception x) {
 				throw new ProgrammerErrorException("Could not create an instance of " + classClass + ": constructor(ILogicContext) not found");
 			}
@@ -138,7 +137,7 @@ final public class LogicContextImpl implements ILogicContext {
 			Class< ? >[] formalar = c.getParameterTypes();						// We only accept constructor(ILogicContext, T)
 			if(formalar.length != 2)
 				continue;
-			if(!formalar[0].isAssignableFrom(LogicContextImpl.class))
+			if(!formalar[0].isAssignableFrom(ILogicContext.class))
 				continue;
 			if(!formalar[1].isAssignableFrom(instance.getClass()))
 				continue;
