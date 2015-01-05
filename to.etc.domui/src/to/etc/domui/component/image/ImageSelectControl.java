@@ -1,5 +1,9 @@
 package to.etc.domui.component.image;
 
+import java.io.*;
+
+import javax.annotation.*;
+
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.upload.*;
 import to.etc.domui.dom.html.*;
@@ -10,9 +14,6 @@ import to.etc.domui.util.*;
 import to.etc.domui.util.upload.*;
 import to.etc.util.*;
 import to.etc.webapp.nls.*;
-
-import javax.annotation.*;
-import java.io.*;
 
 /**
  * This control allows selecting a single image as an upload. The image is
@@ -25,6 +26,9 @@ import java.io.*;
  */
 public class ImageSelectControl extends Div implements IUploadAcceptingComponent, IControl<IUIImage> {
 	static private final BundleRef BUNDLE = BundleRef.create(ImageSelectControl.class, "messages");
+
+	@Nullable
+	private String m_emptyIcon;
 
 	@Nonnull
 	private Dimension m_displayDimensions = new Dimension(32, 32);
@@ -62,7 +66,12 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 		img.setAlign(ImgAlign.LEFT);
 
 		if(m_value == null) {
-			img.setSrc(DomUtil.getJavaResourceRURL(ImageSelectControl.class, "empty.png"));
+			String emptyIcon = getEmptyIcon();
+			if(null == emptyIcon) {
+				img.setSrc(DomUtil.getJavaResourceRURL(ImageSelectControl.class, "empty.png"));
+			} else {
+				img.setSrc(emptyIcon);
+			}
 		} else {
 			String url = getComponentDataURL("THUMB", new PageParameters("datx", System.currentTimeMillis() + ""));
 			img.setSrc(url);
@@ -239,5 +248,36 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 			return;
 		m_disabled = disabled;
 		forceRebuild();
+	}
+
+	/**
+	 * If you want to show another image then the "empty.png" image that is default shown when no image is available.
+	 *
+	 * @return
+	 */
+	@Nullable
+	public String getEmptyIcon() {
+		return m_emptyIcon;
+	}
+
+	/**
+	 * Set the source for the image to show, if no image is given, as an absolute web app path. If the name is prefixed
+	 * with THEME/ it specifies an image from the current THEME's directory.
+	 * @param src
+	 */
+	public void setEmptyIcon(@Nonnull String src) {
+		if(!DomUtil.isEqual(src, m_emptyIcon))
+			changed();
+		m_emptyIcon = src;
+	}
+
+	/**
+	 * Set the source as a Java resource based off the given class.
+	 * @param base
+	 * @param resurl
+	 */
+	public void setEmptyIcon(@Nonnull Class< ? > base, @Nonnull String resurl) {
+		String s = DomUtil.getJavaResourceRURL(base, resurl);
+		setEmptyIcon(s);
 	}
 }
