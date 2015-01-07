@@ -261,6 +261,9 @@ final public class HibernateChecker {
 	 */
 	private void checkEnumMapping(Method g) {
 		if(Enum.class.isAssignableFrom(g.getReturnType())) {		// Is type enum?
+			if(g.getAnnotation(Transient.class) != null)
+				return;
+
 			//-- If the enum has a @Type we will have to assume the type handles mapping correctly (like MappedEnumType)
 			org.hibernate.annotations.Type ht = g.getAnnotation(Type.class);
 			if(null == ht) {
