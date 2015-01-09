@@ -276,6 +276,7 @@ public class InfoCollectorExpenseBased extends InfoCollectorBase implements ISta
 		for(BatchEntry be: list) {
 			StmtCount c = findCounter(be.getStatement());
 			c.addExecutions(be.getExecCount());
+			c.incRows(be.getRowCount());
 
 			//-- Calculate a duration.
 			if(rowsLeft <= 0)

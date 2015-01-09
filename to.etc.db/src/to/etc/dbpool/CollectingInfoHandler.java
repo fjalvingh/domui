@@ -197,7 +197,7 @@ class CollectingInfoHandler implements IInfoHandler {
 		if(null != rc) {
 			//-- 1. Create a map of statements with their total execution count
 			for(int i = 0; i < rc.length; i++) {
-				String stmt = stl.size() < i ? stl.get(i) : "(unknown stmt)";
+				String stmt = i < stl.size() ? stl.get(i) : "(unknown stmt)";
 				BatchEntry be = batchMap.get(stmt);
 				if(null == be) {
 					be = new BatchEntry(stmt);
@@ -205,7 +205,12 @@ class CollectingInfoHandler implements IInfoHandler {
 					list.add(be);
 				}
 				int count = rc[i];
-				if(count >= 0) {
+				if(count == Statement.SUCCESS_NO_INFO) {	// Fuck oracle
+					totalStatements++;
+					be.add(1);
+					be.setNoRowCount();
+					totalRows += 1;
+				} else if(count >= 0) {
 					totalStatements++;
 					be.add(count);
 					totalRows += count;
