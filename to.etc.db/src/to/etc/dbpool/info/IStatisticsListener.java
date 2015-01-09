@@ -26,6 +26,8 @@ package to.etc.dbpool.info;
 
 import to.etc.dbpool.*;
 
+import java.util.*;
+
 /**
  * Listener for statistic database events.
  *
@@ -70,7 +72,7 @@ public interface IStatisticsListener {
 
 	void executePreparedUpdateExecuted(StatementProxy sp, long updateDuration, int rowcount);
 
-	void executeBatchExecuted(StatementProxy sp, long executeDuration, int[] rc);
-
 	void finish();
+
+	void executeBatchExecuted(long executeDuration, int totalStatements, int totalRows, List<BatchEntry> list);
 }

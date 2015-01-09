@@ -70,6 +70,10 @@ public class InfoCollectorExpenseBased extends InfoCollectorBase implements ISta
 			m_executions++;
 		}
 
+		void addExecutions(int count) {
+			m_executions += count;
+		}
+
 		public int getExecutions() {
 			return m_executions;
 		}
@@ -256,14 +260,34 @@ public class InfoCollectorExpenseBased extends InfoCollectorBase implements ISta
 		//		postExecuteDuration(sp, updateDuration, c);
 	}
 
-	/**
-	 * FIXME Needs explicit handling.
-	 * @see to.etc.dbpool.info.IStatisticsListener#executeBatchExecuted(to.etc.dbpool.StatementProxy, long, int[])
-	 */
-	@Override
-	public void executeBatchExecuted(StatementProxy sp, long executeDuration, int[] rc) {
-		m_nExecutes += rc == null ? 1 : rc.length;
-		m_executeDuration += executeDuration;
+
+	@Override public void executeBatchExecuted(long executeDuration, int totalStatements, int totalRows, List<BatchEntry> list) {
+		m_nExecutes += totalStatements;
+		m_nUpdatedRows += totalRows;
+
+		/*
+		 * We have no duration per-statement. The only way we can handle individual statements is by
+		 * spreading the execution time over the statements. We assign by using rowcount.
+		 */
+		double totalToGive = executeDuration;
+		double rowsLeft = totalRows;
+
+		//-- Try to assign per-statement, if applicable
+		for(BatchEntry be: list) {
+			StmtCount c = findCounter(be.getStatement());
+			c.addExecutions(be.getExecCount());
+
+			//-- Calculate a duration.
+			if(rowsLeft <= 0)
+				rowsLeft = 1.0;
+			double duration = (totalToGive / rowsLeft) * be.getRowCount();
+			duration = Math.round(duration);
+
+			rowsLeft -= be.getRowCount();
+			totalToGive -= duration;
+
+			c.addTotalExecuteDuration((long) duration);
+		}
 	}
 
 	//------ remove after here --------

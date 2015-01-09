@@ -24,11 +24,11 @@
  */
 package to.etc.dbpool;
 
-import java.sql.*;
+import to.etc.dbpool.info.*;
 
 import javax.annotation.*;
-
-import to.etc.dbpool.info.*;
+import java.sql.*;
+import java.util.*;
 
 /**
  * Class that actually collects all statistics. It accepts "primitive" events
@@ -162,12 +162,20 @@ class CollectingInfoHandler implements IInfoHandler {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Batched command sets.								*/
 	/*--------------------------------------------------------------*/
+	private Map<StatementProxy, List<String>> m_batchMap = new HashMap<>();
+
 	/**
-	 * These are not currently measured.
 	 * @see to.etc.dbpool.IInfoHandler#addBatch(to.etc.dbpool.StatementProxy, java.lang.String)
 	 */
 	@Override
-	public void addBatch(StatementProxy sp, String sql) {}
+	public void addBatch(StatementProxy sp, String sql) {
+		List<String> l = m_batchMap.get(sp);
+		if(null == l) {
+			l = new ArrayList<>();
+			m_batchMap.put(sp, l);
+		}
+		l.add(sql);
+	}
 
 	@Override
 	public void executeBatchStart(StatementProxy sp) {
@@ -177,6 +185,43 @@ class CollectingInfoHandler implements IInfoHandler {
 	@Override
 	public void executeBatchEnd(StatementProxy sp, SQLException error, int[] rc) {
 		long executeDuration = System.nanoTime() - sp.m_tsStart;
-		m_listener.executeBatchExecuted(sp, executeDuration, rc);
+
+		int totalStatements = 0;
+		int totalRows = 0;
+		Map<String, BatchEntry> batchMap = new HashMap<>();
+		List<BatchEntry> list = new ArrayList<>();
+		List<String> stl = m_batchMap.get(sp);
+		if(null == stl)
+			stl = Collections.EMPTY_LIST;
+
+		if(null != rc) {
+			//-- 1. Create a map of statements with their total execution count
+			for(int i = 0; i < rc.length; i++) {
+				String stmt = stl.size() < i ? stl.get(i) : "(unknown stmt)";
+				BatchEntry be = batchMap.get(stmt);
+				if(null == be) {
+					be = new BatchEntry(stmt);
+					batchMap.put(stmt, be);
+					list.add(be);
+				}
+				int count = rc[i];
+				if(count >= 0) {
+					totalStatements++;
+					be.add(count);
+					totalRows += count;
+				}
+			}
+
+			Collections.sort(list, new Comparator<BatchEntry>() {
+				@Override public int compare(BatchEntry a, BatchEntry b) {
+					return b.getRowCount() - a.getRowCount();
+				}
+			});
+		} else {
+			totalStatements = stl.size();
+		}
+		m_batchMap.remove(sp);
+
+		m_listener.executeBatchExecuted(executeDuration, totalStatements, totalRows, list);
 	}
 }
