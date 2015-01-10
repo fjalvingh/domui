@@ -34,6 +34,53 @@ import java.util.Date;
 import javax.annotation.*;
 
 public class DbPoolUtil {
+
+	/**
+	 * Host and port POJO.
+	 */
+	public final static class HostAndPort {
+		private final int m_port;
+
+		@Nonnull
+		private final String m_host;
+
+		private HostAndPort(@Nonnull String host, int port) {
+			m_host = host;
+			m_port = port;
+		}
+
+		/**
+		 * Returns {@link HostAndPort} for specified host:port
+		 *
+		 * @param hostPort Must be host:port format
+		 * @throws SQLException in case of wrong input format
+		 */
+		@Nonnull
+		public static HostAndPort parse(@Nonnull String hostPort) throws SQLException {
+			//-- Must be address:port format
+			int pos = hostPort.indexOf(':');
+			if(pos != -1) {
+				String host = hostPort.substring(0, pos).trim();
+				try {
+					int port = Integer.parseInt(hostPort.substring(pos + 1).trim());
+					return new HostAndPort(host, port);
+				} catch(Exception x) {
+					//Just keep instance undefined
+				}
+			}
+			throw new SQLException("PL/SQL Debug handler: parameter format must be 'hostname:portnumber', it was '" + hostPort + "'. Hostname can be an ip address and is usually 127.0.0.1.");
+		}
+
+		public int getPort() {
+			return m_port;
+		}
+
+		@Nonnull
+		public String getHost() {
+			return m_host;
+		}
+	}
+
 	private DbPoolUtil() {}
 
 	static private final String[] PRESET = {"xxxto.etc.dbpool.", "oracle.", "nl.itris.viewpoint.db.hibernate."};
@@ -591,5 +638,26 @@ public class DbPoolUtil {
 			return val;
 		val = p.getProperty("pool." + poolName.toLowerCase() + ".plsql.debug");
 		return val;
+	}
+
+	/**
+	 * Executes dbms_debug_jdwp.connect_tcp(host, port) on specified connection. That enables remote debug.
+	 *
+	 * @param con
+	 * @param hostAndPort
+	 * @throws SQLException
+	 */
+	public static void enableRemoteDebug(@Nonnull Connection con, @Nonnull HostAndPort hostAndPort) throws SQLException {
+		final String cmd = "begin dbms_debug_jdwp.connect_tcp('" + hostAndPort.getHost() + "'," + hostAndPort.getPort() + ");end;";
+		PreparedStatement st = con.prepareStatement(cmd);
+		try {
+			st.execute();
+		} catch(Exception x) {
+			//-- Ignore any error.
+		} finally {
+			try {
+				st.close();
+			} catch(Exception x) {}
+		}
 	}
 }
