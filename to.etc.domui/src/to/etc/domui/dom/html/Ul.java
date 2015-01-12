@@ -24,6 +24,8 @@
  */
 package to.etc.domui.dom.html;
 
+import javax.annotation.*;
+
 /**
  * Represents an UL node.
  *
@@ -33,6 +35,11 @@ package to.etc.domui.dom.html;
 public class Ul extends NodeContainer {
 	public Ul() {
 		super("ul");
+	}
+
+	public Ul(@Nonnull String cssClass) {
+		this();
+		setCssClass(cssClass);
 	}
 
 	@Override

@@ -24,12 +24,6 @@
  */
 package to.etc.domui.component.input;
 
-import java.math.*;
-import java.util.*;
-import java.util.regex.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.converter.*;
@@ -41,6 +35,11 @@ import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 import to.etc.webapp.nls.*;
+
+import javax.annotation.*;
+import java.math.*;
+import java.util.*;
+import java.util.regex.*;
 
 /**
  * A single-line input box. This extends the "input" tag with validation ability
@@ -75,7 +74,9 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	private boolean m_validated;
 
 	/** If validated this contains the last validation result. */
-	private boolean m_wasvalid;
+	private UIException m_validationResult;
+
+//	private boolean m_wasvalid;
 
 	/**
 	 * T when this input value is a REQUIRED value.
@@ -142,10 +143,11 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		DomUtil.setModifiedFlag(this);
 
 		//-- Handle data updates.
-		T old = m_value;
-		if(validate(false)) {
-			fireModified("value", old, m_value);
-		}
+// jal 2014/11/08 This is obviously wrong because there is no way to pass in the bind-time validation failure. Disable for now as hard binding is probably not useful.
+//		T old = m_value;
+//		if(validate(true)) {
+//			fireModified("value", old, m_value);
+//		}
 
 		return true;
 	}
@@ -157,33 +159,57 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 * 	<li>The converted value in this control is requested by a call to getValue() or</li>
 	 *	<li>Someone has called for the validation of a whole container (parent node)</li>
 	 * </ul>
-	 * If validation fails it sets this control in ERROR status, and it registers the error
-	 * message into the Page. When in ERROR state an input control will add an "invalidValue"
-	 * class to it's HTML class, and it may expose error labels on it.
+	 * If validation fails then this throws UIException containing the exact validation problem.
 	 */
-	public boolean validate(boolean seterror) {
-		if(m_validated)
-			return m_wasvalid;
+	private void validate() {
+		UIException result = m_validationResult;
+		if(m_validated) {
+			if(null == result)
+				return;
+			throw result;
+		}
+		try {
+			m_validated = true;
+			validatePrimitive();
 
+			/*
+			 * Questionable place, but: if validation works we're sure any message related to
+			 * the VALIDATION should be gone. So check here to see if the last "validation"
+			 * failure is also in the message and if so clear that message.
+			 */
+			UIMessage msg = getMessage();
+			if(result != null && msg != null) {
+				//-- Moving from invalid -> valid -check message.
+				if(result.getCode().equals(msg.getCode())) { // && result.getBundle().equals(msg.getBundle())) { // INCO Urgent: BundleRef needs equals, defining package+file as key.
+					setMessage(null);
+				}
+			}
+			m_validationResult = null;
+		} catch(ValidationException vx) {
+			m_validationResult = vx;
+			throw vx;
+		}
+	}
+
+	/**
+	 * Does all validations unconditionally, and throws the appropriate ValidationException on trouble.
+	 */
+	private void validatePrimitive() {
 		//-- 1. Get the appropriate raw value && trim
 		String raw = getRawValue();
 		if(raw != null && !m_untrimmed)
 			raw = raw.trim();
 
 		//-- Do mandatory checking && exit if value is missing.
-		m_validated = true;
-		m_wasvalid = false;
 		if(raw == null || raw.length() == 0) {
+			//-- Field is empty.
 			if(isMandatory()) {
-				handleValidationError(UIMessage.error(Msgs.BUNDLE, Msgs.MANDATORY), seterror);
-				return false;
+				throw new ValidationException(Msgs.MANDATORY);
 			}
 
 			//-- Empty field always results in null object.
 			m_value = null;
-			handleValidationError(null, seterror);
-			m_wasvalid = true;
-			return true;
+			return;
 		}
 
 		//-- If a pattern validation is present apply it to the raw string value.
@@ -191,21 +217,19 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 			if(!Pattern.matches(getValidationRegexp(), raw)) {
 				//-- We have a validation error.
 				if(getRegexpUserString() != null)
-					handleValidationError(UIMessage.error(Msgs.BUNDLE, Msgs.V_NO_RE_MATCH, getRegexpUserString()), seterror);// Input format must be {0}
+					throw new ValidationException(Msgs.V_NO_RE_MATCH, getRegexpUserString());		// Input format must be {0}
 				else
-					handleValidationError(UIMessage.error(Msgs.BUNDLE, Msgs.V_INVALID), seterror);
-				m_wasvalid = false;
-				return false;
+					throw new ValidationException(Msgs.V_INVALID);
 			}
 		}
 
 		//-- Handle conversion and validation.
-		Object converted;
 		try {
 			IConverter<T> c = m_converter;
 			if(c == null)
 				c = ConverterRegistry.findConverter(getInputClass());
 
+			Object converted;
 			if(c != null)
 				converted = c.convertStringToObject(NlsContext.getLocale(), raw);
 			else
@@ -213,42 +237,39 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 
 			for(IValueValidator< ? > vv : m_validators)
 				((IValueValidator<Object>) vv).validate(converted);
-
-			m_wasvalid = true;
+			m_value = (T) converted;
 		} catch(UIException x) {
-			handleValidationError(UIMessage.error(x.getBundle(), x.getCode(), x.getParameters()), seterror);
-			return false;
+			throw new ValidationException(x.getBundle(), x.getCode(), x.getParameters());
 		} catch(RuntimeConversionException x) {
-			handleValidationError(UIMessage.error(Msgs.BUNDLE, Msgs.NOT_VALID, raw), seterror);
-			return false;
+			throw new ValidationException(Msgs.NOT_VALID, raw);
 		} catch(Exception x) {
 			x.printStackTrace();
-			handleValidationError(UIMessage.error(Msgs.BUNDLE, Msgs.UNEXPECTED_EXCEPTION, x), seterror);
-			return false;
+			throw new ValidationException(Msgs.UNEXPECTED_EXCEPTION, x);
 		}
-
-		//-- Conversion ok. Handle any validator in the validation chain
-		m_value = (T) converted;
-		handleValidationError(null, seterror);
-		return true;
 	}
 
-	private void handleValidationError(@Nullable UIMessage message, boolean seterror) {
+	private void handleValidationException(@Nullable ValidationException x) {
+		UIMessage message = null;
+		if(null != x) {
+			message = UIMessage.error(x);
+		}
 		setMessage(message);
 		messageNotifier(message);
 	}
 
+	@Nullable
 	private String m_errclass;
 
 	private void messageNotifier(@Nullable UIMessage msg) {
-		if(m_errclass != null) {
-			removeCssClass(m_errclass);
+		String errclass = m_errclass;
+		if(errclass != null) {
+			removeCssClass(errclass);
 			m_errclass = null;
 			setTitle("");
 		}
 		if(null != msg) {
-			m_errclass = "ui-text-" + msg.getType().name().toLowerCase();
-			addCssClass(m_errclass);
+			errclass = m_errclass = "ui-text-" + msg.getType().name().toLowerCase();
+			addCssClass(errclass);
 			setTitle(msg.getMessage());
 		}
 	}
@@ -290,13 +311,38 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	}
 
 	/**
+	 * Bind-capable version of getValue(). If called (usually from binding) this will act as follows:
+	 * <ul>
+	 * 	<li>If this component has an input error: throw the ValidationException for that error</li>
+	 * 	<li>On no error this returns the value.</li>
+	 * </ul>
+	 * @return
+	 */
+	public T getBindValue() {
+		validate();												// Validate, and throw exception without UI change on trouble.
+		return m_value;
+	}
+
+	public void setBindValue(@Nullable T value) {
+		if(MetaManager.areObjectsEqual(m_value, value)) {
+			return;
+		}
+		setValue(value);
+	}
+
+
+	/**
 	 * @see to.etc.domui.dom.html.IControl#getValue()
 	 */
 	@Override
 	public T getValue() {
-		if(!validate(true))
-			throw new ValidationException(Msgs.NOT_VALID, getRawValue());
-		return m_value;
+		try {
+			validate();
+			return m_value;
+		} catch(ValidationException x) {
+			handleValidationException(x);
+			throw x;
+		}
 	}
 
 	/**
@@ -365,7 +411,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 				m_validated = false;
 			else {
 				m_validated = true;
-				m_wasvalid = true;
+				m_validationResult = null;
 			}
 		} finally {
 			fireModified("value", old, value);
@@ -411,10 +457,6 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	public void setUntrimmed(boolean untrimmed) {
 		m_untrimmed = untrimmed;
 	}
-
-	//	private boolean isValidated() {
-	//		return m_validated;
-	//	}
 
 	private void setEmptyMarker(String emptyMarker) {
 		if(DomUtil.isBlank(emptyMarker)) {
@@ -587,38 +629,6 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	public void setModified(boolean as) {
 		m_modifiedByUser = as;
 	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	IBindable interface (EXPERIMENTAL)					*/
-	/*--------------------------------------------------------------*/
-
-	/** When this is bound this contains the binder instance handling the binding. */
-	@Nullable
-	private SimpleBinder m_binder;
-
-	/**
-	 * Return the binder for this control.
-	 * @see to.etc.domui.component.input.IBindable#bind()
-	 */
-	@Override
-	@Nonnull
-	public IBinder bind() {
-		SimpleBinder binder = m_binder;
-		if(binder == null)
-			binder = m_binder = new SimpleBinder(this);
-		return binder;
-	}
-
-	/**
-	 * Returns T if this control is bound to some data value.
-	 *
-	 * @see to.etc.domui.component.input.IBindable#isBound()
-	 */
-	@Override
-	public boolean isBound() {
-		return m_binder != null && m_binder.isBound();
-	}
-
 
 	/**
 	 * This adds a validator for the maximal and minimal value for an input, gotten from the property metamodel.

@@ -29,6 +29,7 @@ import javax.annotation.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.nls.*;
 
@@ -80,8 +81,8 @@ public final class BindingMessenger {
 		m_object = object;
 	}
 
-	public void error(@Nonnull Object object, @Nonnull String property, @Nullable String message, Object... param) throws Exception {
-		error(object, property, UIMessage.error(m_bundleRef, message, param));
+	public void error(@Nonnull Object object, @Nonnull String property, @Nonnull String message, Object... param) throws Exception {
+		error(object, property, UIMessage.error(DomUtil.nullChecked(m_bundleRef), message, param));
 	}
 
 	@Nonnull
@@ -92,7 +93,8 @@ public final class BindingMessenger {
 	}
 
 	public void error(@Nonnull String property, @Nonnull String message, @Nullable Object... param) throws Exception {
-		error(getObject(), property, UIMessage.error(m_bundleRef, message, param));
+		BundleRef bundleRef = DomUtil.nullChecked(m_bundleRef);
+		error(getObject(), property, UIMessage.error(bundleRef, message, param));
 	}
 
 	/**

@@ -26,8 +26,11 @@ package to.etc.domui.component.tbl;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.webapp.query.*;
 
 public interface IQueryHandler<T> {
-	public List<T> query(QCriteria<T> q) throws Exception;
+	@Nonnull
+	public List<T> query(@Nonnull QCriteria<T> q) throws Exception;
 }

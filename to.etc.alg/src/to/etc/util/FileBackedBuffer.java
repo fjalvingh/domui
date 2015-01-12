@@ -162,6 +162,13 @@ public class FileBackedBuffer extends OutputStream {
 		m_data = NODATA;
 	}
 
+	public File asFile() throws IOException {
+		if(m_file == null) {
+			startFileWriter();
+		}
+		return m_file;
+	}
+
 	@Override
 	public void write(byte[] b, int off, int len) throws IOException {
 		if(m_fos != null) { // The file buffer is used.

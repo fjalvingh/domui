@@ -42,7 +42,6 @@ import to.etc.domui.component.misc.*;
  * Created on Jul 2, 2009
  */
 @SuppressWarnings("unchecked")
-// Hating Generics
 public class ControlFactoryString implements PropertyControlFactory {
 	/**
 	 * Accept any type using a string.

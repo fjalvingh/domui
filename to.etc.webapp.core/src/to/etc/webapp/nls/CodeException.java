@@ -27,6 +27,8 @@ package to.etc.webapp.nls;
 import java.text.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 /**
  * Base class for all code-based exceptions.
  *
@@ -34,13 +36,16 @@ import java.util.*;
  * Created on Mar 31, 2009
  */
 public class CodeException extends RuntimeException {
+	@Nonnull
 	private final BundleRef m_bundle;
 
+	@Nonnull
 	private final String m_code;
 
+	@Nonnull
 	private final Object[] m_parameters;
 
-	public CodeException(final BundleRef bundle, final String code, final Object... parameters) {
+	public CodeException(@Nonnull final BundleRef bundle, @Nonnull final String code, final Object... parameters) {
 		if(bundle == null || code == null)
 			throw new IllegalArgumentException("Bundle or code cannot be null");
 		m_bundle = bundle;
@@ -48,7 +53,7 @@ public class CodeException extends RuntimeException {
 		m_parameters = parameters;
 	}
 
-	public CodeException(final Throwable t, final BundleRef bundle, final String code, final Object... parameters) {
+	public CodeException(@Nonnull final Throwable t, @Nonnull final BundleRef bundle, @Nonnull final String code, final Object... parameters) {
 		super(t);
 		if(bundle == null || code == null)
 			throw new IllegalArgumentException("Bundle or code cannot be null");
@@ -57,14 +62,17 @@ public class CodeException extends RuntimeException {
 		m_parameters = parameters;
 	}
 
+	@Nonnull
 	public BundleRef getBundle() {
 		return m_bundle;
 	}
 
+	@Nonnull
 	public String getCode() {
 		return m_code;
 	}
 
+	@Nullable
 	public Object[] getParameters() {
 		return m_parameters;
 	}

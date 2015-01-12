@@ -416,4 +416,8 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	public IQueryManipulator<T> getQueryManipulator() {
 		return m_original.getQueryManipulator();
 	}
+
+	@Override public boolean isReadOnly() {
+		return m_original.isReadOnly();
+	}
 }

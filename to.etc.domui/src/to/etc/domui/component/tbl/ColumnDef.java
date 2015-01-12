@@ -57,7 +57,7 @@ public class ColumnDef<T> {
 	private INodeContentRenderer<T> m_contentRenderer;
 
 	@Nullable
-	private ICellClicked<T> m_cellClicked;
+	private ICellClicked< ? > m_cellClicked;
 
 	@Nullable
 	private String m_renderHint;
@@ -81,13 +81,13 @@ public class ColumnDef<T> {
 		m_actualClass = pmm.getActualType();
 		m_defList = cdl;
 		m_columnType = pmm.getActualType();
-		setColumnLabel(pmm.getDefaultLabel());
+		label(pmm.getDefaultLabel());
 		m_propertyMetaModel = pmm;
 		setSortable(pmm.getSortable());
 		setPropertyName(pmm.getName());
-		setNumericPresentation(pmm.getNumericPresentation());
+		numeric(pmm.getNumericPresentation());
 		if(pmm.getNowrap() == YesNoType.YES)
-			setNowrap(true);
+			nowrap();
 	}
 
 	@Nonnull
@@ -104,11 +104,6 @@ public class ColumnDef<T> {
 	public String getColumnLabel() {
 		return m_columnLabel;
 	}
-
-	public void setColumnLabel(@Nullable String columnLabel) {
-		label(columnLabel);
-	}
-
 
 	/**
 	 * Create an editable component bound to the column's value.
@@ -145,17 +140,9 @@ public class ColumnDef<T> {
 		return m_sortable;
 	}
 
-	public void setSortable(@Nonnull SortableType sortable) {
-		m_sortable = sortable == null ? SortableType.UNKNOWN : sortable;
-	}
-
 	@Nullable
 	public String getWidth() {
 		return m_width;
-	}
-
-	public void setWidth(@Nullable String width) {
-		width(width);
 	}
 
 	@Nullable
@@ -172,10 +159,6 @@ public class ColumnDef<T> {
 		return m_contentRenderer;
 	}
 
-	public void setContentRenderer(@Nullable INodeContentRenderer<T> contentRenderer) {
-		m_contentRenderer = contentRenderer;
-	}
-
 	/**
 	 * When set this defines the css class to set on each value cell for this column. Setting this
 	 * does NOT set a css class for the header!!
@@ -184,15 +167,6 @@ public class ColumnDef<T> {
 	@Nullable
 	public String getCssClass() {
 		return m_cssClass;
-	}
-
-	/**
-	 * When set this defines the css class to set on each value cell for this column. Setting this
-	 * does NOT set a css class for the header!!
-	 * @param cssClass
-	 */
-	public void setCssClass(@Nullable String cssClass) {
-		m_cssClass = cssClass;
 	}
 
 	/**
@@ -205,15 +179,6 @@ public class ColumnDef<T> {
 	}
 
 	/**
-	 * When set this defines the css class to set on the header of this column.
-	 *
-	 * @param headerCssClass
-	 */
-	public void setHeaderCssClass(@Nullable String headerCssClass) {
-		m_headerCssClass = headerCssClass;
-	}
-
-	/**
 	 * Seems nonsense, use width instead.
 	 * @return
 	 */
@@ -222,31 +187,13 @@ public class ColumnDef<T> {
 		return m_displayLength;
 	}
 
-	/**
-	 * Seems nonsense, use width instead.
-	 * @param displayLength
-	 * @return
-	 */
-	@Deprecated
-	public void setDisplayLength(int displayLength) {
-		m_displayLength = displayLength;
-	}
-
 	public boolean isNowrap() {
 		return m_nowrap;
 	}
 
-	public void setNowrap(boolean nowrap) {
-		m_nowrap = nowrap;
-	}
-
 	@Nullable
-	public ICellClicked<T> getCellClicked() {
+	public ICellClicked< ? > getCellClicked() {
 		return m_cellClicked;
-	}
-
-	public void setCellClicked(@Nullable ICellClicked<T> cellClicked) {
-		m_cellClicked = cellClicked;
 	}
 
 	@Nonnull
@@ -254,17 +201,9 @@ public class ColumnDef<T> {
 		return m_numericPresentation;
 	}
 
-	public void setNumericPresentation(@Nonnull NumericPresentation numericPresentation) {
-		m_numericPresentation = numericPresentation;
-	}
-
 	@Nullable
 	public TextAlign getAlign() {
 		return m_align;
-	}
-
-	public void setAlign(@Nullable TextAlign align) {
-		m_align = align;
 	}
 
 	@Nullable
@@ -272,17 +211,13 @@ public class ColumnDef<T> {
 		return m_renderHint;
 	}
 
-	public void setRenderHint(@Nullable String renderHint) {
-		m_renderHint = renderHint;
-	}
-
 	@Nullable
 	public ISortHelper getSortHelper() {
 		return m_sortHelper;
 	}
 
-	public void setSortHelper(@Nullable ISortHelper sortHelper) {
-		m_sortHelper = sortHelper;
+	public void setSortable(@Nonnull SortableType sortable) {
+		m_sortable = sortable == null ? SortableType.UNKNOWN : sortable;
 	}
 
 	@Nonnull
@@ -323,7 +258,7 @@ public class ColumnDef<T> {
 	 * @return
 	 */
 	@Nonnull
-	public ColumnDef<T> cellClicked(@Nonnull ICellClicked<T> ck) {
+	public ColumnDef<T> cellClicked(@Nullable ICellClicked< ? > ck) {
 		m_cellClicked = ck;
 		return this;
 	}
@@ -334,7 +269,7 @@ public class ColumnDef<T> {
 	 * @return
 	 */
 	@Nonnull
-	public ColumnDef<T> renderer(@Nonnull INodeContentRenderer<T> cr) {
+	public ColumnDef<T> renderer(@Nullable INodeContentRenderer<T> cr) {
 		m_contentRenderer = cr;
 		return this;
 	}

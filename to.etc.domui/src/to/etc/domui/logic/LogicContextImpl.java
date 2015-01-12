@@ -1,15 +1,13 @@
 package to.etc.domui.logic;
 
-import java.lang.reflect.*;
-import java.util.*;
-
-import javax.annotation.*;
-
-import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.errors.*;
-import to.etc.domui.logic.events.*;
+import to.etc.domui.logic.errors.*;
 import to.etc.webapp.*;
 import to.etc.webapp.query.*;
+
+import javax.annotation.*;
+import java.lang.reflect.*;
+import java.util.*;
 
 /**
  * This context class encapsulates instantiated business logic classes, and cache data used by those
@@ -20,7 +18,7 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 15, 2012
  */
-final public class LogiContext {
+final public class LogicContextImpl implements ILogicContext {
 	@Nonnull
 	final private QDataContext m_dc;
 
@@ -41,19 +39,19 @@ final public class LogiContext {
 	final private List<UIMessage> m_actionMessageList = new ArrayList<>();
 
 	@Nonnull
-	final private List<ILogiEventListener> m_eventListenerList = new ArrayList<>();
+	final private ProblemModel m_errorModel = new ProblemModel();
 
 	/**
 	 * Create and set the default data context to use.
 	 * @param dataContext
 	 */
-	public LogiContext(@Nonnull QDataContext dataContext) {
+	public LogicContextImpl(@Nonnull QDataContext dataContext) {
 		m_dataContextMap.put(QContextManager.DEFAULT, dataContext);
 		m_dc = dataContext;
 		m_injector = null;
 	}
 
-	public LogiContext(@Nonnull QDataContext dataContext, @Nonnull ILogiInjector injector) {
+	public LogicContextImpl(@Nonnull QDataContext dataContext, @Nonnull ILogiInjector injector) {
 		m_dataContextMap.put(QContextManager.DEFAULT, dataContext);
 		m_dc = dataContext;
 		m_injector = injector;
@@ -63,6 +61,7 @@ final public class LogiContext {
 	 * Return the default QDataContext.
 	 * @return
 	 */
+	@Override
 	@Nonnull
 	public QDataContext dc() {
 		return m_dc;
@@ -74,6 +73,7 @@ final public class LogiContext {
 	 * @return
 	 * @throws Exception
 	 */
+	@Override
 	@Nonnull
 	public <L> L get(@Nonnull Class<L> classClass) throws Exception {
 		ILogiInjector ij = m_injector;
@@ -85,9 +85,9 @@ final public class LogiContext {
 		if(null == logic) {
 			Constructor<L> c;
 			try {
-				c = classClass.getConstructor(LogiContext.class);
+				c = classClass.getConstructor(LogicContextImpl.class);
 			} catch(Exception x) {
-				throw new ProgrammerErrorException("Could not create an instance of " + classClass + ": constructor(LogiContext) not found");
+				throw new ProgrammerErrorException("Could not create an instance of " + classClass + ": constructor(ILogicContext) not found");
 			}
 
 			//-- Create the instance.
@@ -106,6 +106,7 @@ final public class LogiContext {
 	 * @return
 	 * @throws Exception
 	 */
+	@Override
 	@Nonnull
 	public <L extends ILogic, K, T extends IIdentifyable<K>> L get(@Nonnull Class<L> clz, @Nonnull T instance) throws Exception {
 		//-- Already exists in this context?
@@ -133,15 +134,15 @@ final public class LogiContext {
 
 		//-- Nothing there. We need to create an instance.
 		for(Constructor< ? > c : clz.getConstructors()) {
-			Class< ? >[] formalar = c.getParameterTypes();						// We only accept constructor(LogiContext, T)
+			Class< ? >[] formalar = c.getParameterTypes();						// We only accept constructor(ILogicContext, T)
 			if(formalar.length != 2)
 				continue;
-			if(!formalar[0].isAssignableFrom(LogiContext.class))
+			if(!formalar[0].isAssignableFrom(LogicContextImpl.class))
 				continue;
 			if(!formalar[1].isAssignableFrom(instance.getClass()))
 				continue;
 
-			//-- We got L(LogiContext, T). Instantiate the object using it.
+			//-- We got L(ILogicContext, T). Instantiate the object using it.
 			L ni = (L) c.newInstance(this, instance);
 			if(null == ni)
 				throw new IllegalStateException("Cobol'74 exception: no nullities defined in 2014.");
@@ -155,49 +156,12 @@ final public class LogiContext {
 			return ni;
 		}
 
-		throw new ProgrammerErrorException("Could not create an instance of " + clz + ": constructor(LogiContext, " + instance.getClass().getName() + ") not found");
+		throw new ProgrammerErrorException("Could not create an instance of " + clz + ": constructor(ILogicContext, " + instance.getClass().getName() + ") not found");
 	}
 
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Error and action error events.						*/
-	/*--------------------------------------------------------------*/
-	/**
-	 * PENDING REMOVAL
-	 * Add a message to be displayed as the result of an "action". This message type is different from a "state" message: it is caused by an action
-	 * that needs to send some message, which is related to the action only and transient. This differs from messages that represent an error in the
-	 * current state of the model. Messages like these are usually displayed as a {@link MsgBox}.
-	 * @param m
-	 */
-	@Deprecated
-	public void addActionMessage(@Nonnull UIMessage m) {
-		m_actionMessageList.add(m);
-	}
-
-	/**
-	 * PENDING REMOVAL
-	 * @param listener
-	 */
-	@Deprecated
-	public void addEventListener(@Nonnull ILogiEventListener listener) {
-		m_eventListenerList.add(listener);
-	}
-
-	/**
-	 * PENDING REMOVAL
-	 * @param listener
-	 */
-	@Deprecated
-	public void removeEventListener(@Nonnull ILogiEventListener listener) {
-		m_eventListenerList.remove(listener);
-	}
-
-	/**
-	 * PENDING REMOVAL
-	 * @param listener
-	 */
-	@Deprecated
-	private void sendEvent(@Nonnull LogiEvent event) throws Exception {
-		for(ILogiEventListener lel : m_eventListenerList)
-			lel.logicEvent(event);
+	@Override
+	@Nonnull
+	public ProblemModel getErrorModel() {
+		return m_errorModel;
 	}
 }

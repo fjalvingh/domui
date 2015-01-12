@@ -24,12 +24,11 @@
  */
 package to.etc.domui.converter;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 public class MsDurationConverter implements IConverter<Long> {
 	static private final long DAYS = 24 * 60 * 60;
@@ -56,6 +55,7 @@ public class MsDurationConverter implements IConverter<Long> {
 		ms.init(in);
 		long dur = 0;
 		ms.skipWs();
+		long pdur = 0;
 		while(!ms.eof()) {
 			int nr = scanNumber(ms);
 			if(nr == -1)
@@ -70,6 +70,8 @@ public class MsDurationConverter implements IConverter<Long> {
 				case -1:
 				case 'd':
 				case 'D':
+					if(nr >= 100000)
+						throw new ValidationException(Msgs.V_BAD_DURATION);
 					dur += nr * DAYS * 1000;
 					break;
 
@@ -96,6 +98,10 @@ public class MsDurationConverter implements IConverter<Long> {
 					break;
 
 			}
+			if(dur < pdur)
+				throw new ValidationException(Msgs.V_BAD_DURATION);
+			pdur = dur;
+
 			ms.accept();
 			ms.skipWs();
 		}

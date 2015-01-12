@@ -1,11 +1,7 @@
 package to.etc.domui.component.input;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.input.LookupInputBase.ILookupFormModifier;
+import to.etc.domui.component.input.LookupInputBase.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.lookup.*;
 import to.etc.domui.component.meta.*;
@@ -15,6 +11,9 @@ import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.themes.*;
 import to.etc.domui.util.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * Component that is based on LookupInput, that allows multiple selection of items by adding found items into selection box.
@@ -421,37 +420,6 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>> {
 	@Override
 	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
 		m_onValueChanged = onValueChanged;
-	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	IBindable interface (EXPERIMENTAL)					*/
-	/*--------------------------------------------------------------*/
-
-	/** When this is bound this contains the binder instance handling the binding. */
-	@Nullable
-	private SimpleBinder m_binder;
-
-	/**
-	 * Return the binder for this control.
-	 * @see to.etc.domui.component.input.IBindable#bind()
-	 */
-	@Override
-	@Nonnull
-	public IBinder bind() {
-		IBinder b = m_binder;
-		if(b == null)
-			b = m_binder = new SimpleBinder(this);
-		return b;
-	}
-
-	/**
-	 * Returns T if this control is bound to some data value.
-	 *
-	 * @see to.etc.domui.component.input.IBindable#isBound()
-	 */
-	@Override
-	public boolean isBound() {
-		return m_binder != null && m_binder.isBound();
 	}
 
 	public INodeContentRenderer<T> getSelectedItemContentRenderer() {

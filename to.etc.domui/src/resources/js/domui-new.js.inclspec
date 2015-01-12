@@ -1,2 +1,1 @@
-include domui_load.js
-include domuiold.js
+include domui.searchpopup.js

@@ -214,6 +214,8 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	@Nullable
 	private QCriteria<QT> m_rootCriteria;
 
+	private boolean m_doFocus;
+
 	/**
 	 * This must create the table model for the output type from the query on the input type.
 	 * @param query
@@ -245,6 +247,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 
 	public LookupInputBase(@Nonnull QCriteria<QT> rootCriteria, @Nonnull Class<OT> resultClass) {
 		this(DomUtil.nullChecked(rootCriteria.getBaseClass()), resultClass, (ClassMetaModel) null, (ClassMetaModel) null);
+		m_rootCriteria = rootCriteria;
 	}
 
 	public LookupInputBase(@Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass, @Nullable ClassMetaModel queryMetaModel, @Nullable ClassMetaModel outputMetaModel) {
@@ -746,7 +749,11 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		}
 		LookupForm<QT> lf = getLookupForm();
 		if(lf == null) {
-			lf = new LookupForm<QT>(getQueryClass(), getQueryMetaModel());
+			QCriteria<QT> rootCriteria = m_rootCriteria;
+			if(null != rootCriteria)
+				lf = new LookupForm<QT>(rootCriteria);
+			else
+				lf = new LookupForm<QT>(getQueryClass(), getQueryMetaModel());
 			if(m_searchPropertyList != null && m_searchPropertyList.size() != 0)
 				lf.setSearchProperties(m_searchPropertyList);
 		}
@@ -1180,39 +1187,6 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	@Override
 	public void setModified(boolean as) {
 		m_modifiedByUser = as;
-	}
-
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	IBindable interface (EXPERIMENTAL)					*/
-	/*--------------------------------------------------------------*/
-
-	/** When this is bound this contains the binder instance handling the binding. */
-	@Nullable
-	private SimpleBinder m_binder;
-
-	private boolean m_doFocus;
-
-	/**
-	 * Return the binder for this control.
-	 * @see to.etc.domui.component.input.IBindable#bind()
-	 */
-	@Override
-	@Nonnull
-	public IBinder bind() {
-		if(m_binder == null)
-			m_binder = new SimpleBinder(this);
-		return DomUtil.nullChecked(m_binder);
-	}
-
-	/**
-	 * Returns T if this control is bound to some data value.
-	 *
-	 * @see to.etc.domui.component.input.IBindable#isBound()
-	 */
-	@Override
-	public boolean isBound() {
-		return m_binder != null && m_binder.isBound();
 	}
 
 	@Nullable

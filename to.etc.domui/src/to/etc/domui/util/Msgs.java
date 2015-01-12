@@ -187,6 +187,9 @@ public interface Msgs {
 
 	public static final String V_TOOLARGE = "v.toolarge";
 
+	public static final String V_LOGIC_ERROR = "v.logic.error";
+
+
 	//# Server errors.
 	/** Your session with the server has expired. The page will be reloaded with original data from the server. */
 	public static final String S_EXPIRED = "s.session.expired";
@@ -353,4 +356,5 @@ public interface Msgs {
 	static public final String ICON_PROGRESSBAR = "THEME/progressbar.gif";
 
 	static public final String ICON_RESIZE = "THEME/resize.png";
+
 }

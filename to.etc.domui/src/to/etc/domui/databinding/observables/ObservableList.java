@@ -1,12 +1,11 @@
 package to.etc.domui.databinding.observables;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.databinding.*;
 import to.etc.domui.databinding.list.*;
 import to.etc.domui.databinding.list2.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * A list that generates change events for it's content, and that does <b>not allow null elements</b>. This
@@ -24,6 +23,10 @@ public class ObservableList<T> extends ListenerList<T, ListChangeEvent<T>, IList
 
 	public ObservableList(@Nonnull List<T> list) {
 		m_list = list;
+	}
+
+	public ObservableList(int size) {
+		m_list = new ArrayList<>(size);
 	}
 
 	@Override

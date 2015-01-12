@@ -39,6 +39,9 @@ public class ButtonBar extends Table implements IButtonBar, IButtonContainer {
 
 	private TBody m_body;
 
+	@Nullable
+	private TD	m_right;
+
 	@Nonnull
 	final private ButtonFactory m_factory = new ButtonFactory(this);
 
@@ -116,6 +119,21 @@ public class ButtonBar extends Table implements IButtonBar, IButtonContainer {
 	public void clearButtons() {
 		m_list.clear();
 		forceRebuild();
+	}
+
+	public TD	right() throws Exception {
+		build();
+		TD right = m_right;
+		if(null == right) {
+			m_right = right = m_body.addCell();
+		}
+		return right;
+	}
+
+
+	public TD buttonTD() throws Exception {
+		build();
+		return m_center;
 	}
 
 	@Override

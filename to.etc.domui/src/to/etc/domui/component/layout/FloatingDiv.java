@@ -37,7 +37,7 @@ import to.etc.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 18, 2011
  */
-public class FloatingDiv extends Div implements IAddToBody {
+public class FloatingDiv extends Div {
 	/** Close reason {@link IWindowClosed#closed(String)}: the dialog was closed by the close button or by pressing the hider. */
 	static public final String RSN_CLOSE = "closed";
 
@@ -52,6 +52,9 @@ public class FloatingDiv extends Div implements IAddToBody {
 	private boolean m_modal;
 
 	private boolean m_resizable;
+
+	/** When set, clicking outside the dialog will close it. */
+	private boolean m_autoClose = true;
 
 	/** A handler to call when the floating (window) is closed. This is only called if the window is closed by a user action, not when the window is closed by code (by calling {@link #close()}). */
 	@Nullable
@@ -214,6 +217,17 @@ public class FloatingDiv extends Div implements IAddToBody {
 			appendCreateJS("$('#" + getActualID() + "').resizable({minHeight: " + MINHEIGHT + ", minWidth: " + MINWIDTH + ", resize: WebUI.floatingDivResize });");
 	}
 
+	public boolean isAutoClose() {
+		return m_autoClose;
+	}
+
+	/**
+	 * When set (which is the default), clicking outside the dialog will automatically close (cancel) it.
+	 * @param autoClose
+	 */
+	public void setAutoClose(boolean autoClose) {
+		m_autoClose = autoClose;
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Close control and floater close event handling.		*/

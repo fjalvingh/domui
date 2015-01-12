@@ -25,6 +25,8 @@ public class BeforeImageInterceptor extends EmptyInterceptor {
 	@Nonnull
 	final private IBeforeImageCache m_cache;
 
+	static private final boolean DEBUG = false;
+
 	/**
 	 * Identifies a collection inside a given instance.
 	 *
@@ -110,7 +112,7 @@ public class BeforeImageInterceptor extends EmptyInterceptor {
 		if(null == instance)
 			throw new IllegalStateException("entity instance null in interceptor!?");
 
-		System.out.println("Interceptor: afterload " + MetaManager.identify(instance));
+//		System.out.println("Interceptor: afterload " + MetaManager.identify(instance));
 		try {
 			Class real = Hibernate.getClass(instance);
 
@@ -134,7 +136,7 @@ public class BeforeImageInterceptor extends EmptyInterceptor {
 	 */
 	private <T> void copyProperties(@Nonnull T dst, @Nonnull T src) throws Exception {
 		for(PropertyMetaModel< ? > pmm : MetaManager.findClassMeta(src.getClass()).getProperties()) {
-			System.out.println("   >> copy property " + pmm + " of " + src.getClass());
+//			System.out.println("   >> copy property " + pmm + " of " + src.getClass());
 			copyProperty(dst, src, pmm);
 		}
 	}
@@ -162,8 +164,6 @@ public class BeforeImageInterceptor extends EmptyInterceptor {
 				break;
 
 			case UP:
-				if(pmm.getName().equals("btwCode"))
-					System.out.println("Gotcha");
 				if(value != null)
 					value = convertParentRelation(value);
 				pmm.setValue(dst, value);
@@ -182,9 +182,16 @@ public class BeforeImageInterceptor extends EmptyInterceptor {
 		if(Hibernate.isInitialized(src)) {						// Loaded?
 			//-- Replace the instance with the before image of that instance.
 			V before = m_cache.findBeforeImage(src);
-			if(null == before)
-				throw new IllegalStateException("The 'before' image for " + MetaManager.identify(src) + " cannot be found, even though it is loaded by Hibernate!?");
-			return before;
+			if(null != before) {
+				return before;
+			}
+			/*
+			 * 20140414 jal Loads for complex sets can have delayed registration of a "loaded" entity. This means we cannot
+			 * yet register it.
+			 */
+			if(DEBUG)
+				System.err.println("The 'before' image for " + MetaManager.identify(src) + " cannot be found, even though it is loaded by Hibernate!?");
+//				throw new IllegalStateException("The 'before' image for " + MetaManager.identify(src) + " cannot be found, even though it is loaded by Hibernate!?");
 		}
 
 		/*
@@ -286,10 +293,10 @@ public class BeforeImageInterceptor extends EmptyInterceptor {
 		CollectionKey kk = new CollectionKey(collection.getRole(), collection.getKey());
 		IBeforeImageCollectionProxy mirror = m_mirrorMap.remove(kk);
 		if(null == mirror) {
-			System.out.println("CopyInterceptor: no 'mirror' collection for collection " + collection.getClass().getName() + " @" + System.identityHashCode(collection));
+//			System.out.println("CopyInterceptor: no 'mirror' collection for collection " + collection.getClass().getName() + " @" + System.identityHashCode(collection));
 			return;
 		}
-		System.out.println("CopyInterceptor: load event for " + collection.getClass().getName() + " @" + System.identityHashCode(collection));
+//		System.out.println("CopyInterceptor: load event for " + collection.getClass().getName() + " @" + System.identityHashCode(collection));
 
 		copyCollection(mirror, (Collection) collection);
 	}

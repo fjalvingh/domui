@@ -53,7 +53,7 @@ final public class UploadItem {
 
 	private boolean m_file;
 
-	UploadItem(String fieldname, String contenttype, String charset, String filename, boolean isfile) {
+	public UploadItem(String fieldname, String contenttype, String charset, String filename, boolean isfile) {
 		m_fieldName = fieldname;
 		m_contentType = contenttype;
 		m_fileName = filename;
@@ -76,7 +76,7 @@ final public class UploadItem {
 	 *
 	 * @param f
 	 */
-	void setFile(File f) {
+	public void setFile(File f) {
 		m_backingFile = f;
 	}
 

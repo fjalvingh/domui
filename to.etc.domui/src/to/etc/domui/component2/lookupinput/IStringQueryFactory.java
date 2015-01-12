@@ -22,32 +22,25 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component.input;
+package to.etc.domui.component2.lookupinput;
 
 import javax.annotation.*;
 
-/**
- * EXPERIMENTAL - DO NOT USE.
- * This defines the component as an input component that can be bound to some
- * value.
- *
- * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * Created on Oct 13, 2009
- */
-public interface IBindable {
-	/**
-	 * EXPERIMENTAL - DO NOT USE.
-	 * Return the object that is able to bind this control to some data value.
-	 * @return
-	 */
-	@Nonnull
-	IBinder bind();
+import to.etc.webapp.query.*;
 
+/**
+ * Allows manipulation of generic key word search query based on predefined searchString parameter.
+ *
+ * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
+ * Created on 14 Jan 2010
+ */
+public interface IStringQueryFactory<T> {
 	/**
-	 * EXPERIMENTAL - DO NOT USE.
-	 * If this object is actually bound to something return true.
-	 *
-	 * @return
+	 * Use to manually modify query. In case that query has to be canceled return null.
+	 * @param c
+	 * @param keyCondition
+	 * @return In case that query has to be canceled return null, otherwise return modified query.
 	 */
-	boolean isBound();
+	@Nullable
+	public QCriteria<T> createQuery(@Nonnull String searchString) throws Exception;
 }

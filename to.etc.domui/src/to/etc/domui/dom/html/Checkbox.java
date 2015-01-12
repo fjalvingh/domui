@@ -28,10 +28,9 @@ import java.util.*;
 
 import javax.annotation.*;
 
-import to.etc.domui.component.input.*;
 import to.etc.domui.util.*;
 
-public class Checkbox extends NodeBase implements IControl<Boolean>, IHasModifiedIndication {
+public class Checkbox extends NodeBase implements INativeChangeListener, IControl<Boolean>, IHasModifiedIndication {
 	/** The properties bindable for this component. */
 	@Nonnull
 	static private final Set<String> BINDABLE_SET = createNameSet("value", "disabled");
@@ -220,32 +219,4 @@ public class Checkbox extends NodeBase implements IControl<Boolean>, IHasModifie
 		m_modifiedByUser = as;
 	}
 
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	IBindable interface (EXPERIMENTAL)					*/
-	/*--------------------------------------------------------------*/
-
-	/** When this is bound this contains the binder instance handling the binding. */
-	private SimpleBinder m_binder;
-
-	/**
-	 * Return the binder for this control.
-	 * @see to.etc.domui.component.input.IBindable#bind()
-	 */
-	@Override
-	public @Nonnull IBinder bind() {
-		if(m_binder == null)
-			m_binder = new SimpleBinder(this);
-		return m_binder;
-	}
-
-	/**
-	 * Returns T if this control is bound to some data value.
-	 *
-	 * @see to.etc.domui.component.input.IBindable#isBound()
-	 */
-	@Override
-	public boolean isBound() {
-		return m_binder != null && m_binder.isBound();
-	}
 }

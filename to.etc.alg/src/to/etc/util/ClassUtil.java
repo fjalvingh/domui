@@ -550,4 +550,38 @@ final public class ClassUtil {
 		}
 		find(root.getParentFile(), srcRel, files);
 	}
+
+	/**
+	 * Retrieves a value from an object using introspection. The name is the direct
+	 * name of a method that *must* exist; it does not add a "get". If the method
+	 * does not exist this throws an exception.
+	 *
+	 * @param inst
+	 * @param name
+	 * @return
+	 */
+	static public final Object getClassValue(@Nonnull final Object inst, @Nonnull final String name) throws Exception {
+		if(inst == null)
+			throw new IllegalStateException("The input object is null");
+		Class< ? > clz = inst.getClass();
+		Method m;
+		try {
+			m = clz.getMethod(name);
+		} catch(NoSuchMethodException x) {
+			throw new IllegalStateException("Unknown method '" + name + "()' on class=" + clz);
+		}
+		try {
+			return m.invoke(inst);
+		} catch(IllegalAccessException iax) {
+			throw new IllegalStateException("Cannot call method '" + name + "()' on class=" + clz + ": " + iax);
+		} catch(InvocationTargetException itx) {
+			Throwable c = itx.getCause();
+			if(c instanceof Exception)
+				throw (Exception) c;
+			else if(c instanceof Error)
+				throw (Error) c;
+			else
+				throw itx;
+		}
+	}
 }

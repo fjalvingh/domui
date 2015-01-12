@@ -189,6 +189,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			DomUtil.USERLOG.debug("\n\n\n========= DomUI request =================\nCID=" + cid + "\nAction=" + action + "\n");
 		}
 		if(!Constants.ACMD_ASYPOLL.equals(action))
+//			System.out.println("req: " + cid + " action " + action + ", " + ctx.getParameter(Constants.PARAM_UICOMPONENT));
 			logUser(ctx, cid, clz.getName(), "Incoming request on " + cid + " action=" + action);
 
 		//-- If this is an OBITUARY just mark the window as possibly gone, then exit;
@@ -351,6 +352,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 		Page page = cm.tryToMakeOrGetPage(ctx, clz, papa, action);
 		if(page != null) {
+			page.internalSetPhase(PagePhase.BUILD);				// Tree can change at will
 			page.internalIncrementRequestCounter();
 			cm.internalSetLastPage(page);
 			if(DomUtil.USERLOG.isDebugEnabled()) {
@@ -438,6 +440,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 			if(page.getBody() instanceof IRebuildOnRefresh) { 				// Must fully refresh?
 				page.getBody().forceRebuild(); 								// Cleanout state
+				page.setInjected(false);
 				QContextManager.closeSharedContexts(page.getConversation());
 				if(DomUtil.USERLOG.isDebugEnabled())
 					DomUtil.USERLOG.debug(cid + ": IForceRefresh, cleared page data for " + page);
@@ -445,7 +448,10 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			} else {
 				logUser(ctx, cid, clz.getName(), "Full page render");
 			}
-			ctx.getApplication().getInjector().injectPageValues(page.getBody(), papa);
+			if(!page.isInjected()) {
+				ctx.getApplication().getInjector().injectPageValues(page.getBody(), papa);
+				page.setInjected(true);
+			}
 
 			/*
 			 * This is a (new) page request. We need to check rights on the page before
@@ -996,8 +1002,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 					//-- Try to bind this value to the component.
 					if(nb.acceptRequestParameter(values)) { 		// Make the thingy accept the parameter(s)
 						//-- This thing has changed.
-						if(nb instanceof IControl< ? >) { 			// Can have a value changed thingy?
-							IControl< ? > ch = (IControl< ? >) nb;
+						if(nb instanceof IHasChangeListener) { 			// Can have a value changed thingy?
+							IHasChangeListener ch = (IHasChangeListener) nb;
 							if(ch.getOnValueChanged() != null) {
 								changed.add(nb);
 							}
@@ -1016,6 +1022,9 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 		m_application.internalCallPageAction(ctx, page);
 		page.callRequestStarted();
+
+		if(!Constants.ACMD_ASYPOLL.equals(action))
+			page.controlToModel();
 
 		NodeBase wcomp = null;
 		String wid = ctx.getParameter(Constants.PARAM_UICOMPONENT);
@@ -1076,6 +1085,9 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			} else {
 				wcomp.componentHandleWebAction(ctx, action);
 			}
+			ConversationContext conversation = page.internalGetConversation();
+			if(null != conversation && conversation.isValid())
+				page.modelToControl();
 		} catch(ValidationException x) {
 			/*
 			 * When an action handler failed because it accessed a component which has a validation error
@@ -1083,9 +1095,11 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			 */
 			if(LOG.isDebugEnabled())
 				LOG.debug("rq: ignoring validation exception " + x);
+			page.modelToControl();
 		} catch(MsgException msg) {
 			MsgBox.error(page.getBody(), msg.getMessage());
 			logUser(ctx, page, "error message: " + msg.getMessage());
+			page.modelToControl();
 		} catch(Exception ex) {
 			logUser(ctx, page, "Action handler exception: " + ex);
 			Exception x = WrappedException.unwrap(ex);
@@ -1095,6 +1109,12 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 					generateAjaxRedirect(ctx, url);
 					return;
 				}
+			}
+			try {
+				page.modelToControl();
+			} catch(Exception xxx) {
+				System.out.println("Double exception on modelToControl: " + xxx);
+				xxx.printStackTrace();
 			}
 
 			IExceptionListener xl = ctx.getApplication().findExceptionListenerFor(x);

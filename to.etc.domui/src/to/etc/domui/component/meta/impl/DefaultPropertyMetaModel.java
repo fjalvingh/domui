@@ -24,17 +24,16 @@
  */
 package to.etc.domui.component.meta.impl;
 
-import java.lang.annotation.*;
-import java.lang.reflect.*;
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 import to.etc.webapp.nls.*;
+
+import javax.annotation.*;
+import java.lang.annotation.*;
+import java.lang.reflect.*;
+import java.util.*;
 
 public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> implements PropertyMetaModel<T> {
 	@Nonnull
@@ -144,12 +143,12 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 			throw new IllegalStateException("The 'target' object is null");
 		Method setter = m_descriptor.getSetter();
 		if(setter == null)
-			throw new IllegalAccessError("The property " + this + " is read-only.");
+			throw new IllegalAccessException("The property " + this + " is read-only.");
 		try {
 			setter.invoke(target, value);
 		} catch(InvocationTargetException itx) {
 			Throwable c = itx.getCause();
-			System.err.println("(in calling " + setter + " with input object " + target + " and value " + value + ")");
+//			System.err.println("(in calling " + setter + " with input object " + target + " and value " + value + ")");
 			if(c instanceof Exception) {
 				throw (Exception) c;
 			}
@@ -158,9 +157,13 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 			else
 				throw itx;
 		} catch(Exception x) {
-			System.err.println("(in calling " + setter + " with input object " + target + " and value " + value + ")");
+//			System.err.println("(in calling " + setter + " with input object " + target + " and value " + value + ")");
 			throw x;
 		}
+	}
+
+	@Override public boolean isReadOnly() {
+		return m_descriptor.getSetter() == null || getReadOnly() == YesNoType.YES;
 	}
 
 	/**
@@ -176,7 +179,7 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 		try {
 			return (T) m_descriptor.getGetter().invoke(in);
 		} catch(InvocationTargetException itx) {
-			System.err.println("(in calling " + m_descriptor.getGetter() + " with input object " + in + ")");
+//			System.err.println(itx + " (in calling " + m_descriptor.getGetter() + " with input object " + in + ")");
 			Throwable c = itx.getCause();
 			if(c instanceof Exception)
 				throw (Exception) c;
@@ -186,7 +189,7 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 				throw itx;
 		} catch(Exception x) {
 			try {
-				System.err.println("in calling " + m_descriptor.getGetter() + " with input object " + in);
+				System.err.println(x + " in calling " + m_descriptor.getGetter() + " with input object " + in);
 			} catch(Exception xx) {}
 			throw x;
 		}

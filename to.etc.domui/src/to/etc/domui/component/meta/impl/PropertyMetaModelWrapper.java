@@ -24,16 +24,15 @@
  */
 package to.etc.domui.component.meta.impl;
 
-import java.lang.reflect.*;
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.util.*;
+
+import javax.annotation.*;
+import java.lang.reflect.*;
+import java.util.*;
 
 abstract public class PropertyMetaModelWrapper<T> implements PropertyMetaModel<T> {
 	private PropertyMetaModel<T> m_parent;
@@ -176,6 +175,10 @@ abstract public class PropertyMetaModelWrapper<T> implements PropertyMetaModel<T
 	@Override
 	public @Nonnull YesNoType getReadOnly() {
 		return m_parent.getReadOnly();
+	}
+
+	@Override public boolean isReadOnly() {
+		return m_parent.isReadOnly();
 	}
 
 	@Override

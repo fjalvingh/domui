@@ -30,8 +30,8 @@ import javax.annotation.*;
 
 import org.slf4j.*;
 
-import to.etc.domui.component.controlfactory.*;
-import to.etc.domui.component.input.*;
+import to.etc.domui.component.binding.*;
+import to.etc.domui.component.meta.*;
 import to.etc.domui.databinding.*;
 import to.etc.domui.databinding.observables.*;
 import to.etc.domui.databinding.value.*;
@@ -40,7 +40,6 @@ import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.webaction.*;
 import to.etc.domui.logic.*;
-import to.etc.domui.logic.events.*;
 import to.etc.domui.parts.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
@@ -81,7 +80,7 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 18, 2007
  */
-abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IModelBinding, IObservableEntity {
+abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IObservableEntity {
 	private static final Logger LOG = LoggerFactory.getLogger(NodeBase.class);
 
 	static private boolean m_logAllocations;
@@ -169,6 +168,9 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	private String m_testFullRepeatID;
 
 	private String m_testRepeatId;
+
+	@Nullable
+	private List<IBinding> m_bindingList;
 
 	/**
 	 * This must visit the appropriate method in the node visitor. It should NOT recurse it's children.
@@ -292,8 +294,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	@Nonnull
 	final String nextUniqID() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("U");
-		int id = m_nextID++;
+		sb.append("__");								// Id MUST start with _, and use __ to ensure id does not overlap with Page#nextId
+		int id = nextIdNumber();
 		while(id != 0) {
 			int d = id % 36;
 			if(d <= 9)
@@ -304,6 +306,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 			id = id / 36;
 		}
 		return sb.toString();
+	}
+
+	private synchronized int nextIdNumber() {
+		return m_nextID++;
 	}
 
 	/**
@@ -665,6 +671,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @throws Exception
 	 */
 	final public void build() throws Exception {
+		//		Page pg = m_page;
+		//		if(pg != null)
+		//			pg.inBuild();									// jal 20131206 Test checked phase handling
+
 		if(!m_built) {
 			m_built = true;
 			boolean ok = false;
@@ -1113,7 +1123,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	@Nonnull
 	public String getComponentDataURL(@Nonnull String action, @Nullable IPageParameters pp) {
 		NodeBase nb = this;
-		return DomUtil.getAdjustedComponentUrl(this, action, pp);
+		return DomUtil.getAdjustedComponentUrl(this, "#" + action, pp);
 	}
 
 	/**
@@ -1234,13 +1244,16 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 		if(null != el) {
 			sb.append(":").append(el);
 		}
-		if(this instanceof IBindable) {
-			IBindable b = (IBindable) this;
-			if(b.isBound()) {
-				IBinder bi = b.bind();
-				sb.append(" bind(").append(bi).append(")");
+		SimpleBinder binding = SimpleBinder.findBinding(this, "value");
+		if(binding != null) {
+			sb.append(" ").append(binding);
+		} else {
+			binding = SimpleBinder.findBinding(this, "bindValue");
+			if(binding != null) {
+				sb.append(" ").append(binding);
 			}
 		}
+
 		if(this instanceof NodeContainer) {
 			String txt = DomUtil.calcNodeText((NodeContainer) this);
 			if(txt.length() > 0)
@@ -1256,13 +1269,13 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * higher than the severity of the existing one; only in that case will the error
 	 * be removed. To clear the error message call clearMessage().
 	 *
-	 * @param mt
-	 * @param code
-	 * @param param
+	 * @see to.etc.domui.dom.errors.INodeErrorDelegate#setMessage(to.etc.domui.dom.errors.UIMessage)
 	 */
 	@Override
 	@Nullable
 	public UIMessage setMessage(@Nullable final UIMessage msg) {
+		//System.out.println("    setMessage '"+getComponentInfo() +"' ("+getActualID()+") to '"+msg+"'");
+
 		//-- If this (new) message has a LOWER severity than the EXISTING message ignore this call and return the EXISTING message
 		UIMessage old = m_message;
 		if(old == msg)
@@ -1342,9 +1355,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * This adds a message to the "global" message list. The message "percolates" upwards to the first parent that acts
 	 * as an error message fence. That component will be responsible for rendering the error message at an appropriate
 	 * location.
-	 * @param mt
-	 * @param code
-	 * @param param
+	 * @param m
 	 */
 	public UIMessage addGlobalMessage(UIMessage m) {
 		IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
@@ -1597,84 +1608,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	}
 
 	/*--------------------------------------------------------------*/
-	/*	CODING:	IModelBinding implementation.						*/
-	/*--------------------------------------------------------------*/
-	/**
-	 * EXPERIMENTAL - DO NOT USE.
-	 * For non-input non-container nodes this does exactly nothing.
-	 * @see to.etc.domui.component.controlfactory.IModelBinding#moveControlToModel()
-	 */
-	@Override
-	public void moveControlToModel() throws Exception {
-		build();
-		Object v = this; // Silly: Eclipse compiler has bug - it does not allow this in instanceof because it incorrecly assumes 'this' is ALWAYS of type NodeBase - and it it not.
-		if(v instanceof IBindable) {
-			IBindable b = (IBindable) v;
-			if(b.isBound())
-				b.bind().moveControlToModel();
-		}
-	}
-
-	/**
-	 * EXPERIMENTAL - DO NOT USE.
-	 * For non-input non-container nodes this does exactly nothing.
-	 * @see to.etc.domui.component.controlfactory.IModelBinding#moveModelToControl()
-	 */
-	@Override
-	public void moveModelToControl() throws Exception {
-		//		build();		jal 20100606 Do not build: this is not a container, and if *this* implements IBindable set it's value BEFORE it is built.
-		Object v = this; // Silly: Eclipse compiler has bug - it does not allow this in instanceof because it incorrecly assumes 'this' is ALWAYS of type NodeBase - and it it not.
-		if(v instanceof IBindable) {
-			IBindable b = (IBindable) v;
-			if(b.isBound()) {
-				b.bind().moveModelToControl();
-			}
-		}
-	}
-
-	/**
-	 * EXPERIMENTAL - DO NOT USE.
-	 * For non-input non-container nodes this does exactly nothing.
-	 *
-	 * @see to.etc.domui.component.controlfactory.IModelBinding#setControlsEnabled(boolean)
-	 */
-	@Override
-	public void setControlsEnabled(boolean on) {
-		try {
-			build();
-		} catch(Exception x) {
-			throw WrappedException.wrap(x);
-		}
-		Object v = this; // Silly: Eclipse compiler has bug - it does not allow this in instanceof because it incorrecly assumes 'this' is ALWAYS of type NodeBase - and it it not.
-		if(v instanceof IBindable) {
-			IBindable b = (IBindable) v;
-			if(b.isBound())
-				b.bind().setControlsEnabled(on);
-		}
-	}
-
-	/**
-	 * EXPERIMENTAL Some logic event has occurred; this can see if it wants to do something with it. By default
-	 * this passes the event to any binding.
-	 * @param logiEvent
-	 * @return
-	 */
-	public void logicEvent(@Nonnull LogiEvent logiEvent) throws Exception {
-		Object v = this; 							// Silly: Eclipse compiler has bug - it does not allow this in instanceof because it incorrecly assumes 'this' is ALWAYS of type NodeBase - and it it not.
-		if(v instanceof IBindable) {
-			IBindable b = (IBindable) v;
-			if(b.isBound()) {
-				IBinder bind = b.bind();
-
-				if(bind instanceof ILogiEventListener) {
-					((ILogiEventListener) bind).logicEvent(logiEvent);
-				}
-			}
-		}
-	}
-
-
-	/*--------------------------------------------------------------*/
 	/*	CODING:	Miscellaneous.										*/
 	/*--------------------------------------------------------------*/
 	/**
@@ -1706,7 +1639,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @return
 	 */
 	@Nonnull
-	public LogiContext lc() throws Exception {
+	public ILogicContext lc() throws Exception {
 		return getPage().getBody().lc();
 	}
 
@@ -1884,6 +1817,26 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	 * @param nw
 	 */
 	protected <T> void fireModified(@Nonnull String propertyName, T old, T nw) {
+		//-- jal 2014/06/12 If the control is not yet attached to the page -> we cannot bind...
+		if(isAttached()) {
+			List<IBinding> bindingList = getBindingList();
+			if(null != bindingList) {
+				for(IBinding sb : bindingList) {
+					if(sb instanceof SimpleBinder) {
+						SimpleBinder sib = (SimpleBinder) sb;
+						IValueAccessor<?> property = sib.getControlProperty();
+						if(property instanceof PropertyMetaModel && ((PropertyMetaModel<?>) property).getName().equals(propertyName)) {
+							try {
+								sb.moveControlToModel();
+							} catch(Exception x) {
+								throw WrappedException.wrap(x);
+							}
+						}
+					}
+				}
+			}
+		}
+
 		ObserverSupport< ? > osupport = m_osupport;
 		if(null == osupport)					// Nothing observing?
 			return;
@@ -1910,9 +1863,77 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IM
 	@Override
 	public void setMessageBroadcastEnabled(boolean yes) {
 		if(yes) {
-			m_flags &= F_NO_MESSAGE_BROADCAST;
+			m_flags &= ~F_NO_MESSAGE_BROADCAST;
 		} else {
 			m_flags |= F_NO_MESSAGE_BROADCAST;
 		}
+	}
+
+	/**
+	 * Send any kind of message down the component tree, for whomever listens.
+	 * @param message
+	 */
+	public <T> void sendComponentMessage(@Nonnull T message) {}
+
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Soft binding support.								*/
+	/*--------------------------------------------------------------*/
+
+	@Nonnull
+	public List<UIMessage> getBindingErrors() throws Exception {
+		return SimpleBinder.getBindingErrors(this);
+	}
+
+	/**
+	 * Checks the tree starting at this component for binding errors; all of those will be reported
+	 * by sending them to the error listeners. In case of errors this will return true.
+	 * @return
+	 */
+	public boolean bindErrors() throws Exception {
+		return SimpleBinder.reportBindingErrors(this);
+	}
+
+	/**
+	 * If present, return all bindings on this node.
+	 * @return
+	 */
+	@Nullable
+	final public List<IBinding> getBindingList() {
+		return m_bindingList;
+	}
+
+	/**
+	 * Add a binding to the binding list.
+	 * @param binding
+	 */
+	public void addBinding(@Nonnull IBinding binding) {
+		List<IBinding> list = m_bindingList;
+		if(list == null)
+			list = m_bindingList = new ArrayList<>(1);
+		list.add(binding);
+	}
+
+	public void removeBinding(@Nonnull IBinding binding) {
+		List<IBinding> list = m_bindingList;
+		if(null != list)
+			list.remove(binding);
+	}
+
+	@Nonnull final public IBinder bind() {
+		ClassMetaModel cmm = MetaManager.findClassMeta(getClass());
+		PropertyMetaModel<?> p = cmm.findProperty("bindValue");
+		if(null != p)
+			return bind("bindValue");
+		p = cmm.findProperty("value");
+		if(null != p)
+			return bind("value");
+		throw new IllegalStateException("This control "+getClass()+" does not have a 'value' nor a 'bindValue' property");
+	}
+
+	@Nonnull final public IBinder bind(@Nonnull String componentProperty) {
+		SimpleBinder binder = new SimpleBinder(this, componentProperty);
+		addBinding(binder);
+		return binder;
 	}
 }

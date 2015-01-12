@@ -51,7 +51,7 @@ final public class ImageInfo implements Serializable {
 
 	public ImageInfo(String mime, String typeName, boolean convertible, @Nonnull List<OriginalImagePage> pageList) {
 		m_mime = mime;
-		m_pageList = pageList == null ? null : Collections.unmodifiableList(pageList);
+		m_pageList = Collections.unmodifiableList(pageList);
 		m_convertable = convertible;
 		m_typeName = typeName;
 	}
@@ -72,7 +72,7 @@ final public class ImageInfo implements Serializable {
 		return m_convertable;
 	}
 
-	@Nullable
+	@Nonnull
 	public List<OriginalImagePage> getPageList() {
 		return m_pageList;
 	}

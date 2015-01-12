@@ -24,16 +24,15 @@
  */
 package to.etc.domui.component.misc;
 
-import java.util.*;
-
-import javax.annotation.*;
-
-import to.etc.domui.component.input.*;
+import to.etc.domui.component.binding.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * This is a special control which can be used to display all kinds of values as a span without any formatting. It is
@@ -202,36 +201,6 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IBindabl
 		m_emptyString = emptyString;
 	}
 
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	IBindable interface (EXPERIMENTAL)					*/
-	/*--------------------------------------------------------------*/
-	/** When this is bound this contains the binder instance handling the binding. */
-	@Nullable
-	private SimpleBinder m_binder;
-
-	/**
-	 * Return the binder for this control.
-	 * @see to.etc.domui.component.input.IBindable#bind()
-	 */
-	@Override
-	@Nonnull
-	public IBinder bind() {
-		IBinder b = m_binder;
-		if(b == null)
-			b = m_binder = new SimpleBinder(this);
-		return b;
-	}
-
-	/**
-	 * Returns T if this control is bound to some data value.
-	 * @see to.etc.domui.component.input.IBindable#isBound()
-	 */
-	@Override
-	public boolean isBound() {
-		return m_binder != null && m_binder.isBound();
-	}
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IDisplayControl interface.							*/
 	/*--------------------------------------------------------------*/
@@ -250,12 +219,33 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IBindabl
 	 */
 	@Override
 	public void setValue(@Nullable T v) {
-		if(DomUtil.isEqual(m_value, v))
-			return;
+		if(DomUtil.isEqual(m_value, v)) {
+			INodeContentRenderer<T> cr = m_renderer;
+			if(null == cr)
+				return;
+			if(! (cr instanceof IBindableContentRenderer))
+				return;
+			IBindableContentRenderer<T> bcr = (IBindableContentRenderer<T>) cr;
+			BindablePropertiesChecker<T> checker = getPropertiesChecker(bcr.getBoundProperties());
+			if(! checker.set(v))					// If unchanged, exit.
+				return;
+		}
 		T oldvalue = m_value;
 		m_value = v;
 		forceRebuild();
 		fireModified("value", oldvalue, v);
+	}
+
+	@Nullable
+	private BindablePropertiesChecker<T> m_cachedChecker;
+
+	@Nonnull
+	private BindablePropertiesChecker<T> getPropertiesChecker(@Nonnull List<String> props) {
+		BindablePropertiesChecker<T> checker = m_cachedChecker;
+		if(null == checker) {
+			m_cachedChecker = checker = new BindablePropertiesChecker<>(props);
+		}
+		return checker;
 	}
 
 	public void defineFrom(@Nonnull PropertyMetaModel< ? > pmm) {

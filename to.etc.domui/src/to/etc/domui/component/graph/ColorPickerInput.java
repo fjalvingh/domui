@@ -1,10 +1,9 @@
 package to.etc.domui.component.graph;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.input.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
+
+import javax.annotation.*;
 
 /**
  * An input button to enter a color code, with a small div behind it showing the
@@ -71,36 +70,6 @@ public class ColorPickerInput extends Input implements IControl<String> {
 		if(v == null || v.length() == 0)
 			v = "000000";
 		return v;
-	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	IBindable interface (EXPERIMENTAL)					*/
-	/*--------------------------------------------------------------*/
-	/** When this is bound this contains the binder instance handling the binding. */
-	@Nullable
-	private SimpleBinder m_binder;
-
-	/**
-	 * Return the binder for this control.
-	 * @see to.etc.domui.component.input.IBindable#bind()
-	 */
-	@Override
-	@Nonnull
-	public IBinder bind() {
-		SimpleBinder binder = m_binder;
-		if(binder == null)
-			binder = m_binder = new SimpleBinder(this);
-		return binder;
-	}
-
-	/**
-	 * Returns T if this control is bound to some data value.
-	 *
-	 * @see to.etc.domui.component.input.IBindable#isBound()
-	 */
-	@Override
-	public boolean isBound() {
-		return m_binder != null && m_binder.isBound();
 	}
 
 	@Override

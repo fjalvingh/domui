@@ -36,7 +36,7 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 1, 2008
  */
-public class Input extends NodeBase implements IHasChangeListener, INodeErrorDelegate, IHtmlInput {
+public class Input extends NodeBase implements INativeChangeListener, IHasChangeListener, INodeErrorDelegate, IHtmlInput {
 	private boolean m_disabled;
 
 	private int m_maxLength;

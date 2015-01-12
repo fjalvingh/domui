@@ -34,6 +34,8 @@ import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 
+import javax.annotation.*;
+
 /**
  * Basic, mostly standard-compliant handler for rendering HTML tags.
  *
@@ -283,30 +285,22 @@ public class HtmlTagRenderer implements INodeVisitor {
 				a.append(';');
 			}
 		} else if(DomUtil.isEqual(left, right, top)) {
-			a.append("border:");
-			a.append(left);
-			a.append(';');
+			renderBorderIf(a, left);
 			a.append("border-bottom:");
 			a.append(bottom);
 			a.append(';');
 		} else if(DomUtil.isEqual(left, right, bottom)) {
-			a.append("border:");
-			a.append(left);
-			a.append(';');
+			renderBorderIf(a, left);
 			a.append("border-top:");
 			a.append(top);
 			a.append(';');
 		} else if(DomUtil.isEqual(right, top, bottom)) {
-			a.append("border:");
-			a.append(right);
-			a.append(';');
+			renderBorderIf(a, right);
 			a.append("border-left:");
 			a.append(left);
 			a.append(';');
 		} else if(DomUtil.isEqual(left, top, bottom)) {
-			a.append("border:");
-			a.append(left);
-			a.append(';');
+			renderBorderIf(a, left);
 			a.append("border-right:");
 			a.append(right);
 			a.append(';');
@@ -584,6 +578,12 @@ public class HtmlTagRenderer implements INodeVisitor {
 		return a.toString();
 	}
 
+	static private void renderBorderIf(@Nonnull Appendable a, @Nullable String border) throws IOException {
+		if(StringTool.isBlank(border))
+			return;
+		a.append("border:").append(border).append(";");
+	}
+
 	final protected IBrowserOutput o() {
 		return m_o;
 	}
@@ -702,8 +702,8 @@ public class HtmlTagRenderer implements INodeVisitor {
 		} else if(b.getOnClickJS() != null) {
 			o.attr("onclick", b.getOnClickJS());
 		}
-		if(b instanceof IHasChangeListener && b.getSpecialAttribute("onchange") == null) {
-			IHasChangeListener inb = (IHasChangeListener) b;
+		if(b instanceof INativeChangeListener && b.getSpecialAttribute("onchange") == null) {
+			INativeChangeListener inb = (INativeChangeListener) b;
 			if(null != inb.getOnValueChanged()) {
 				o.attr("onchange", sb().append("WebUI.valuechanged(this, '").append(b.getActualID()).append("', event)").toString());
 			}

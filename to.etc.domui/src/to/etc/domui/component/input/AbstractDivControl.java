@@ -24,10 +24,10 @@
  */
 package to.etc.domui.component.input;
 
-import javax.annotation.*;
-
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
+
+import javax.annotation.*;
 
 /**
  * Abstract base class for a control that is implemented on top of a DIV. This handles most basic actions required of
@@ -99,6 +99,11 @@ abstract public class AbstractDivControl<T> extends Div implements IControl<T> {
 		return m_value;
 	}
 
+	@Nullable
+	protected T internalGetValue() {
+		return m_value;
+	}
+
 	protected void validate() {
 	}
 
@@ -135,33 +140,5 @@ abstract public class AbstractDivControl<T> extends Div implements IControl<T> {
 	@Override
 	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
 		m_valueChanged = onValueChanged;
-	}
-
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	IBindable interface (EXPERIMENTAL)					*/
-	/*--------------------------------------------------------------*/
-	/** When this is bound this contains the binder instance handling the binding. */
-	private SimpleBinder m_binder;
-
-	/**
-	 * Return the binder for this control.
-	 * @see to.etc.domui.component.input.IBindable#bind()
-	 */
-	@Override
-	public @Nonnull IBinder bind() {
-		if(m_binder == null)
-			m_binder = new SimpleBinder(this);
-		return m_binder;
-	}
-
-	/**
-	 * Returns T if this control is bound to some data value.
-	 *
-	 * @see to.etc.domui.component.input.IBindable#isBound()
-	 */
-	@Override
-	public boolean isBound() {
-		return m_binder != null && m_binder.isBound();
 	}
 }

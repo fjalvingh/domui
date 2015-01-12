@@ -24,10 +24,10 @@
  */
 package to.etc.domui.util;
 
+import to.etc.domui.component.meta.*;
+
 import java.beans.*;
 import java.lang.reflect.*;
-
-import to.etc.domui.component.meta.*;
 
 /**
  * Should be unused. Pending removal.
@@ -100,4 +100,7 @@ final public class PropertyAccessor<T> implements IValueAccessor<T> {
 		}
 	}
 
+	@Override public boolean isReadOnly() {
+		return m_writem != null;
+	}
 }

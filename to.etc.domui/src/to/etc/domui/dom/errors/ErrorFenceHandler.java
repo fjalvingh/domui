@@ -145,4 +145,9 @@ public class ErrorFenceHandler implements IErrorFence {
 		for(UIMessage m : todo)
 			removeMessage(m);
 	}
+
+	@Override
+	public List<UIMessage> getMessageList() {
+		return m_messageList;
+	}
 }

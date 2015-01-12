@@ -441,7 +441,7 @@ public class MiniScanner {
 		}
 		skipWs();
 		if(m_ix < m_len) {
-			c = m_in.charAt(m_ix);
+			c = m_in.charAt(m_ix++);
 			if(Character.isDigit(c))
 				throw new IllegalStateException("invalid: # without separators.");
 		} else
@@ -461,35 +461,34 @@ public class MiniScanner {
 		init(in);
 
 		long res = 0;
-		char c = nextNumberDelimiter();
-		if(c == 1) {
-			//-- Lone #: is time in minutes,
-			return val() * 60;
-		}
-		if(c == 'D' || c == 'd') {
-			res = (long) val() * 24 * 60 * 60l;
-			c = nextNumberDelimiter();
-		}
-		if(c == ':') {
-			res = val(); // Prime with 1st #
-			c = nextNumberDelimiter(); // Must be followed by AT LEAST ONE more
-			if(c != ':' && c != 'D' && c != 'd' && c != 1)
-				throw new IllegalStateException("Missing 2nd fraction after xx:");
-			res = res * 60 + val();
-			if(c == ':') {
-				//-- It is hh:mm:ss format. Get seconds
+
+
+		for(;;) {
+
+			char c = nextNumberDelimiter();
+			if(c == 1) {
+				//-- Lone #: is time in minutes,
+				return val() * 60;
+			}
+			if(c == 'D' || c == 'd') {
+				res += (long) val() * 24 * 60 * 60l;
 				c = nextNumberDelimiter();
-				res = res * 60 + val();
-				if(c == 1)
-					return res;
-				if(c != ' ')
-					throw new IllegalStateException("Unexpected character " + c);
+			} else if(c == 'H' || c == 'h' || c == 'U' || c == 'u') {
+				res += (long) val() * 60 * 60l;
 				c = nextNumberDelimiter();
-			} else if(c == ' ' || c == 'd' || c == 'D' || c == 1)
-				res *= 60;
-			return res;
+			} else if(c == 's' || c == 'S') {
+				res += val();
+				c = nextNumberDelimiter();
+			} else if(c == 0) {
+				return res;
+			} else if(c == ':') {
+				res += val() * 60*60l;
+				c = nextNumberDelimiter();
+				c = 'S';
+			} else {
+				throw new ValidationException(Msgs.V_INVALID_DATE, "(Voorbeeld: 5d 8h)");
+			}
 		}
-		throw new IllegalStateException("Unexpected character " + c);
 	}
 
 	/*--------------------------------------------------------------*/

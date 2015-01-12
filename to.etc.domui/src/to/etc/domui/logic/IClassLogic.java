@@ -11,6 +11,6 @@ import javax.annotation.*;
 public interface IClassLogic extends ILogic {
 
 	@Nonnull
-	public LogiContext lc();
+	public ILogicContext lc();
 
 }

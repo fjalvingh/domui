@@ -24,15 +24,18 @@
  */
 package to.etc.domui.dom.html;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.input.*;
+import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 
-public class TextArea extends InputNodeContainer implements IControl<String>, IHasModifiedIndication, IHtmlInput {
+import javax.annotation.*;
+
+public class TextArea extends InputNodeContainer implements INativeChangeListener, IControl<String>, IHasModifiedIndication, IHtmlInput {
+	/** Hint to use in property meta data to select this component. */
+	static public final String HINT = "textarea";
+
 	private int m_cols = -1;
 
 	private int m_rows = -1;
@@ -198,31 +201,20 @@ public class TextArea extends InputNodeContainer implements IControl<String>, IH
 		m_modifiedByUser = as;
 	}
 
-	/*--------------------------------------------------------------*/
-	/*	CODING:	IBindable interface (EXPERIMENTAL)					*/
-	/*--------------------------------------------------------------*/
-
-	/** When this is bound this contains the binder instance handling the binding. */
-	private SimpleBinder m_binder;
-
-	/**
-	 * Return the binder for this control.
-	 * @see to.etc.domui.component.input.IBindable#bind()
-	 */
-	@Override
-	public @Nonnull IBinder bind() {
-		if(m_binder == null)
-			m_binder = new SimpleBinder(this);
-		return m_binder;
-	}
-
-	/**
-	 * Returns T if this control is bound to some data value.
-	 *
-	 * @see to.etc.domui.component.input.IBindable#isBound()
-	 */
-	@Override
-	public boolean isBound() {
-		return m_binder != null && m_binder.isBound();
+	@Nonnull
+	static public TextArea create(@Nonnull PropertyMetaModel< ? > pmm) {
+		TextArea ta = new TextArea();
+		String cth = pmm.getComponentTypeHint();
+		if(cth != null) {
+			String hint = cth.toLowerCase();
+			ta.setCols(MetaUtils.parseIntParam(hint, MetaUtils.COL, 80));
+			ta.setRows(MetaUtils.parseIntParam(hint, MetaUtils.ROW, 4));
+		}
+		if(pmm.isRequired())
+			ta.setMandatory(true);
+		String s = pmm.getDefaultHint();
+		if(s != null)
+			ta.setTitle(s);
+		return ta;
 	}
 }

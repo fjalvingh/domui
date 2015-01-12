@@ -83,9 +83,9 @@ public class DbPoolUtil {
 
 	private DbPoolUtil() {}
 
-	static private final String[] PRESET = {"xxxto.etc.dbpool.", "oracle.", "nl.itris.viewpoint.db.hibernate."};
+	static private final String[] PRESET = {"xxxto.etc.dbpool.", "xxxxoracle.", "xxxnl.itris.viewpoint.db.hibernate."};
 
-	static private final String[] ENDSET = {"xxxto.etc.domui.server.", "org.apache.tomcat"};
+	static private final String[] ENDSET = {"xxxto.etc.domui.server.", "xxxorg.apache.tomcat"};
 
 	static private boolean inSkipSet(final String[] set, final String name) {
 		for(String s : set) {

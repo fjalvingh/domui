@@ -30,7 +30,6 @@ import to.etc.domui.component.layout.*;
 import to.etc.domui.component.layout.title.*;
 import to.etc.domui.databinding.*;
 import to.etc.domui.logic.*;
-import to.etc.domui.logic.events.*;
 import to.etc.domui.server.*;
 import to.etc.webapp.query.*;
 
@@ -44,7 +43,7 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Sep 1, 2008
  */
-public class UrlPage extends Div implements ILogiEventListener {
+public class UrlPage extends Div {
 	/** The title for the page in the head's TITLE tag. */
 	private String m_pageTitle;
 
@@ -137,7 +136,7 @@ public class UrlPage extends Div implements ILogiEventListener {
 	@Override
 	protected void onForceRebuild() {
 		super.onForceRebuild();
-		getPage().getConversation().setAttribute(LogiContext.class.getName(), null);
+		getPage().getConversation().setAttribute(LogicContextImpl.class.getName(), null);
 	}
 
 	/**
@@ -160,23 +159,19 @@ public class UrlPage extends Div implements ILogiEventListener {
 	 */
 	@Override
 	@Nonnull
-	public LogiContext lc() throws Exception {
-		LogiContext lc = (LogiContext) getPage().getConversation().getAttribute(LogiContext.class.getName());
+	public ILogicContext lc() throws Exception {
+		ILogicContext lc = (ILogicContext) getPage().getConversation().getAttribute(LogicContextImpl.class.getName());
 		if(null == lc) {
-			lc = new LogiContext(getSharedContext());
-			getPage().getConversation().setAttribute(LogiContext.class.getName(), lc);
+			lc = new LogicContextImpl(getSharedContext());
+			getPage().getConversation().setAttribute(LogicContextImpl.class.getName(), lc);
 		}
 		return lc;
 	}
 
 	public void forceReloadData() throws Exception {
-		getPage().getConversation().setAttribute(LogiContext.class.getName(), null);			// Destroy any context
+		getPage().getConversation().setAttribute(LogicContextImpl.class.getName(), null);			// Destroy any context
 		QContextManager.closeSharedContexts(getPage().getConversation());			// Drop all connections
 		DomApplication.get().getInjector().injectPageValues(this, getPage().getPageParameters());	// Force reload of all parameters
 		forceRebuild();
-	}
-
-	protected void registerLogicListeners(@Nonnull final LogiContext lc) {
-		lc.addEventListener(this);									// Pass all logi events to the entire page tree.
 	}
 }

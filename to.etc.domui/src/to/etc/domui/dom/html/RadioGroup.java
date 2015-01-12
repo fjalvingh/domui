@@ -1,8 +1,8 @@
 package to.etc.domui.dom.html;
 
-import java.util.*;
-
 import to.etc.domui.component.meta.*;
+
+import java.util.*;
 
 /**
  * This is a simple marker which groups radiobuttons together. It can be used as a component too.
@@ -31,6 +31,7 @@ public class RadioGroup<T> extends Div implements IHasChangeListener {
 
 	void addButton(RadioButton<T> b) {
 		m_buttonList.add(b);
+		b.setChecked(MetaManager.areObjectsEqual(m_value, b.getButtonValue()));
 	}
 
 	void removeButton(RadioButton<T> b) {

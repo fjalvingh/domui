@@ -570,6 +570,7 @@ final public class MetaManager {
 	 * @param genericType
 	 * @return
 	 */
+	@Nullable
 	static public Class< ? > findCollectionType(Type genericType) {
 		if(genericType instanceof Class<?>) {
 			Class<?> cl = (Class<?>) genericType;

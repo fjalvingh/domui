@@ -13,7 +13,9 @@ tabPanelOrange = {
 	img: 'tab-all-domui.png',
 	topImg: 'tab-all-top-grey.png',
 	arrows: 'tab-scrl-icon.png',
-	btm_border: '0px'
+	btm_border: '0px',
+	close_icon: 'tab-pnl-close.png',
+	hover_close_icon:'tab-pnl-close-hover.png'
 };
 
 //---------------------------------------------------------
@@ -101,6 +103,10 @@ tab_pnl_border_col = currentTab.border;
 tab_pnl_active_border_col = currentTab.border_active;
 tab_pnl_arrows = currentTab.arrows;
 tab_pnl_btm_border = currentTab.btm_border;
+tab_pnl_close = currentTab.close_icon;
+tab_pnl_close_hover = currentTab.hover_close_icon;
+
+
 
 //------------------------------------------------------------
 //-- The data table's colors.

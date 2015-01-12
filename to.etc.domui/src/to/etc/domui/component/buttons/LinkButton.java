@@ -56,7 +56,7 @@ public class LinkButton extends ATag implements IActionControl {
 		setCssClass("ui-lnkb");
 	}
 
-	public LinkButton(@Nonnull final String txt, @Nonnull final String image, @Nonnull final IClicked<LinkButton> clk) {
+	public LinkButton(@Nonnull final String txt, @Nonnull final String image, @Nonnull final IClicked< ? extends NodeBase> clk) {
 		setCssClass("ui-lnkb ui-lbtn");
 		setClicked(clk);
 		m_text = txt;
@@ -74,7 +74,7 @@ public class LinkButton extends ATag implements IActionControl {
 		m_text = txt;
 	}
 
-	public LinkButton(@Nonnull final String txt, @Nonnull final IClicked<LinkButton> clk) {
+	public LinkButton(@Nonnull final String txt, @Nonnull final IClicked< ? extends NodeBase> clk) {
 		setCssClass("ui-lnkb");
 		setClicked(clk);
 		m_text = txt;

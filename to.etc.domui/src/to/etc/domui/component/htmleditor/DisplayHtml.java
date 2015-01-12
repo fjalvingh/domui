@@ -24,11 +24,11 @@
  */
 package to.etc.domui.component.htmleditor;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.input.*;
+import to.etc.domui.component.binding.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
+
+import javax.annotation.*;
 
 /**
  * Mini component to display an HTML section.
@@ -82,35 +82,6 @@ public class DisplayHtml extends Div implements IDisplayControl<String>, IBindab
 		if(!m_unchecked)
 			v = HtmlUtil.removeUnsafe(v);
 		m_xtn.setText(v);
-	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	IBindable interface (EXPERIMENTAL)					*/
-	/*--------------------------------------------------------------*/
-	/** When this is bound this contains the binder instance handling the binding. */
-	@Nullable
-	private SimpleBinder m_binder;
-
-	/**
-	 * Return the binder for this control.
-	 * @see to.etc.domui.component.input.IBindable#bind()
-	 */
-	@Override
-	@Nonnull
-	public IBinder bind() {
-		IBinder b = m_binder;
-		if(b == null)
-			b = m_binder = new SimpleBinder(this);
-		return b;
-	}
-
-	/**
-	 * Returns T if this control is bound to some data value.
-	 * @see to.etc.domui.component.input.IBindable#isBound()
-	 */
-	@Override
-	public boolean isBound() {
-		return m_binder != null && m_binder.isBound();
 	}
 
 	public boolean isUnchecked() {

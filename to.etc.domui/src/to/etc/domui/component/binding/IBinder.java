@@ -22,22 +22,40 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component.input;
+package to.etc.domui.component.binding;
+
+import to.etc.domui.util.*;
+import to.etc.webapp.annotations.*;
 
 import javax.annotation.*;
 
-import to.etc.domui.dom.html.*;
-
 /**
- * EXPERIMENTAL - DO NOT USE.
- * This defines a control binding event interface which gets called when the control's
- * movement calls are used.
+ * This exposes the several kinds of bindings that can be done on any control.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 13, 2009
  */
-public interface IBindingListener<T extends NodeBase> {
-	void moveControlToModel(@Nonnull T control) throws Exception;
+public interface IBinder {
+	/**
+	 * Creates a "value" property binding from the control TO the model object's property specified. If the
+	 * control does not <b>have</i> a value property this throws an exception.
+	 * @param instance
+	 * @param property
+	 */
+	public <T> void to(@Nonnull T instance, @Nonnull @GProperty String property) throws Exception;
 
-	void moveModelToControl(@Nonnull T control) throws Exception;
+	/**
+	 * Creates a "value" property binding from the control TO the model object's property specified. If the
+	 * control does not <b>have</i> a value property this throws an exception.
+	 *
+	 * @param instance
+	 * @param pmm
+	 */
+	public <T, V> void to(@Nonnull T instance, @Nonnull IValueAccessor<V> pmm) throws Exception;
+
+	/**
+	 * Bind the control to a listener.
+	 * @param listener
+	 */
+	public void to(@Nonnull IBindingListener< ? > listener);
 }

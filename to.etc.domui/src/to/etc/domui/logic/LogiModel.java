@@ -1,14 +1,13 @@
 package to.etc.domui.logic;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.meta.*;
 import to.etc.domui.logic.events.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.db.*;
 import to.etc.util.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * DO NOT USE. This class is retained to be reused once declarative logic is researched.
@@ -313,7 +312,7 @@ public class LogiModel {
 	private <T, P, I> boolean diffList(@Nonnull LogiEventSet les, PropertyMetaModel<P> pmm, @Nonnull T source, @Nonnull T copy, List<I> sourcel, List<I> copyl) throws Exception {
 		List<Diff<I>> dl = Diff.diffList(copyl, sourcel, new Comparator<I>() {			// What happened from COPY (old) to SOURCE (new)
 			@Override
-			public int compare(I a, I b) {
+				public int compare(@Nullable I a, @Nullable I b) {
 				return MetaManager.areObjectsEqual(a, b) ? 0 : -1;
 			}
 		});

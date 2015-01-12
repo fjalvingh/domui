@@ -1,12 +1,11 @@
 package to.etc.domui.component.input;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * Input component to select small things from a dataset. Each selected thing is shown as a
@@ -369,36 +368,6 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 
 	public void setAllowCheck(@Nullable IAllow<T> allowCheck) {
 		m_allowCheck = allowCheck;
-	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	IBindable interface (EXPERIMENTAL)					*/
-	/*--------------------------------------------------------------*/
-
-
-	/** When this is bound this contains the binder instance handling the binding. */
-	private SimpleBinder m_binder;
-
-	/**
-	 * Return the binder for this control.
-	 * @see to.etc.domui.component.input.IBindable#bind()
-	 */
-	@Override
-	@Nonnull
-	public IBinder bind() {
-		if(m_binder == null)
-			m_binder = new SimpleBinder(this);
-		return m_binder;
-	}
-
-	/**
-	 * Returns T if this control is bound to some data value.
-	 *
-	 * @see to.etc.domui.component.input.IBindable#isBound()
-	 */
-	@Override
-	public boolean isBound() {
-		return m_binder != null && m_binder.isBound();
 	}
 
 	public boolean isDefaultTooltip() {
