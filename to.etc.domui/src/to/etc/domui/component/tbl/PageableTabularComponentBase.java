@@ -24,8 +24,9 @@
  */
 package to.etc.domui.component.tbl;
 
-import javax.annotation.*;
 import java.util.*;
+
+import javax.annotation.*;
 
 abstract public class PageableTabularComponentBase<T> extends SelectableTabularComponent<T> implements ITableModelListener<T> {
 	/** The current page #, starting at 0 */
@@ -41,7 +42,8 @@ abstract public class PageableTabularComponentBase<T> extends SelectableTabularC
 
 	public PageableTabularComponentBase() {}
 
-	@Override protected void fireModelChanged(@Nullable ITableModel<T> old, @Nonnull ITableModel<T> model) {
+	@Override
+	protected void fireModelChanged(@Nullable ITableModel<T> old, @Nullable ITableModel<T> model) {
 		m_currentPage = 0;
 		super.fireModelChanged(old, model);
 	}
