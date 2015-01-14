@@ -187,7 +187,6 @@ public class XmlWriter extends IndentWriter {
 			return W3CSchemaCoder.encodeBoolean((Boolean) val);
 		}
 		return String.valueOf(val);
-
 	}
 
 	public void tag(String tn, String... attrvalueset) throws IOException {
@@ -208,12 +207,28 @@ public class XmlWriter extends IndentWriter {
 		m_tag_ar[m_tag_lvl] = tn;
 	}
 
+	public void startTag(String tn) throws IOException {
+		wraw("<" + tn);
+		m_tag_lvl++;
+		inc();
+		m_tag_ar[m_tag_lvl] = tn;
+	}
+
 	public void attr(String name, String value) throws IOException {
 		wraw(" ");
 		wraw(name);
 		wraw("=\"");
 		wraw(StringTool.xmlStringize(value));
 		wraw("\"");
+	}
+
+	public void endTag(boolean complete) throws IOException {
+		if(complete) {
+			wraw("/>");
+			m_tag_lvl--;
+		} else {
+			wraw(">");
+		}
 	}
 
 	/**
