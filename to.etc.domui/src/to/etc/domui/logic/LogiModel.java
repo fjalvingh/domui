@@ -1,14 +1,13 @@
 package to.etc.domui.logic;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.meta.*;
 import to.etc.domui.logic.events.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.db.*;
 import to.etc.util.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * DO NOT USE. This class is retained to be reused once declarative logic is researched.
