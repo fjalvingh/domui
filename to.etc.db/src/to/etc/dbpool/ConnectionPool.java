@@ -571,7 +571,7 @@ final public class ConnectionPool {
 				} catch(Exception x) {}
 			}
 		}
-		throw new SQLException("Cannot get new connection from database driver: " + lastx, lastx);
+		throw new SQLException("Cannot get new connection for user " + user + " from database driver: " + lastx, lastx);
 	}
 
 

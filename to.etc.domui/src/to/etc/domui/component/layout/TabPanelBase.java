@@ -443,7 +443,7 @@ public class TabPanelBase extends Div {
 
 	public void add(NodeBase content, String label, String icon, boolean lazy) {
 		TextNode tn = new TextNode(label);
-		add(content, tn, icon);
+		add(content, tn, icon, lazy);
 	}
 	/**
 	 * Add a tab page with a complex label part.

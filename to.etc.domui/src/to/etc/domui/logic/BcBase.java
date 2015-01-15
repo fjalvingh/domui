@@ -1,8 +1,8 @@
 package to.etc.domui.logic;
 
-import javax.annotation.*;
-
 import to.etc.webapp.query.*;
+
+import javax.annotation.*;
 
 /**
  * Base class for all {@link LogicContextImpl} class wrappers.
