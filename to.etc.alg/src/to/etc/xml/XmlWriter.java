@@ -221,6 +221,16 @@ public class XmlWriter extends IndentWriter {
 		wraw(StringTool.xmlStringize(value));
 		wraw("\"");
 	}
+	public void attr(String name, Object value) throws Exception {
+		if(null == value)
+			return;
+		wraw(" ");
+		wraw(name);
+		wraw("=\"");
+		wraw(StringTool.xmlStringize(renderValue(value)));
+		wraw("\"");
+	}
+
 
 	public void endTag(boolean complete) throws IOException {
 		if(complete) {
