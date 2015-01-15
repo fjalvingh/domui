@@ -93,11 +93,10 @@ public class StatisticsListenerMultiplexer implements IStatisticsListener {
 			ic.executePreparedUpdateExecuted(sp, updateDuration, rowcount);
 	}
 
-	@Override
-	public void executeBatchExecuted(StatementProxy sp, long executeDuration, int[] rc) {
+	@Override public void executeBatchExecuted(long executeDuration, int totalStatements, int totalRows, List<BatchEntry> list) {
 		check();
 		for(IStatisticsListener ic : m_list.values())
-			ic.executeBatchExecuted(sp, executeDuration, rc);
+			ic.executeBatchExecuted(executeDuration, totalStatements, totalRows, list);
 	}
 
 	@Override

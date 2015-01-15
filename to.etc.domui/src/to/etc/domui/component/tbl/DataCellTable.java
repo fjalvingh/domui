@@ -43,7 +43,7 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 13, 2008
  */
-public class DataCellTable<T> extends SelectableTabularComponent<T> implements ISelectionListener<T>, ISelectableTableComponent<T> {
+public class DataCellTable<T> extends PageableTabularComponentBase<T> implements ISelectionListener<T>, ISelectableTableComponent<T> {
 	private int m_rows = 3, m_columns = 3;
 
 	@Nonnull

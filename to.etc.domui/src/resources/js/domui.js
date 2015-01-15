@@ -3682,6 +3682,8 @@ WebUI.doCustomUpdates = function() {
 	$('[stretch=true]').doStretch();
 	$('.ui-dt, .ui-fixovfl').fixOverflow();
 	$('input[marker]').setBackgroundImageMarker();
+
+	//$('.ui-dt-ovflw-tbl').floatThead('reflow');
 };
 
 WebUI.onDocumentReady = function() {
@@ -3977,6 +3979,85 @@ WebUI.reactivateHiddenAccessKeys = function(windowId) {
 		$(this).attr('accesskey', accessKeyArray[accessKeyArray.length - 1]);
 	});
 };
+
+WebUI.initScrollableTableOld = function(id) {
+	$('#'+id+" table").fixedHeaderTable({});
+	var sbody = $('#'+id+" .fht-tbody");
+	sbody.scroll(function() {
+		var bh = $(sbody).height();
+		var st = $(sbody).scrollTop()
+		var tbl = $('#'+id+" .fht-table tbody");
+		var th = tbl.height();
+		var left = tbl.height() - bh - st;
+		//$.dbg("scrolling: bodyheight="+bh+" scrolltop="+st+" tableheight="+th+" left="+left);
+
+		if(left > 100) {
+			//$.dbg("Scrolling: area left="+left);
+			return;
+		}
+
+		var lastRec = sbody.find("tr[lastRow]");
+		if(lastRec.length != 0) {
+			//$.dbg("scrolling: lastrec found");
+			return;
+		}
+		WebUI.scall(id, "LOADMORE", {});
+	});
+
+};
+
+WebUI.scrollableTableReset = function(id, tblid) {
+	var tbl = $('#'+tblid);
+	var container = $('#'+id);
+	tbl.floatThead('reflow');
+
+	$.dbg('recreate');
+
+	//tbl.floatThead('destroy');
+	//tbl.floatThead({
+	//	scrollContainer: function() {
+	//		return container;
+	//	}
+	//});
+
+	container.scrollTop(0);
+};
+
+WebUI.initScrollableTable = function(id, tblid) {
+	var container = $('#'+id);
+	var tbl = $('#'+tblid);
+
+	tbl.floatThead({
+		scrollContainer: function() {
+			return container;
+		}
+	});
+	container.scroll(function() {
+		var bh = $(container).height();
+		var st = $(container).scrollTop()
+		var tbl = $('#'+id+" tbody");
+		var th = tbl.height();
+		var left = tbl.height() - bh - st;
+		$.dbg("scrolling: bodyheight="+bh+" scrolltop="+st+" tableheight="+th+" left="+left);
+
+		if(left > 100) {
+			//$.dbg("Scrolling: area left="+left);
+			return;
+		}
+
+		var lastRec = tbl.find("tr[lastRow]");
+		if(lastRec.length != 0) {
+			//$.dbg("scrolling: lastrec found");
+			return;
+		}
+		WebUI.scall(id, "LOADMORE", {
+
+		});
+	});
+
+};
+
+
 
 isButtonChildOfElement = function(buttonId, windowId){
 	return $(buttonId).parents('#' + $(windowId).attr('id')).length == 0;

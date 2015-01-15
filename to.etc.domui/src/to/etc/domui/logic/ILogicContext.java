@@ -18,6 +18,8 @@ public interface ILogicContext {
 	@Nonnull
 	public <L extends ILogic, K, T extends IIdentifyable<K>> L get(@Nonnull Class<L> clz, @Nonnull T instance) throws Exception;
 
+	public <T extends ILogic, K, V extends IIdentifyable<K>> void register(Class<?> registrationType, T logicClass, V dataClass);
+
 	@Nonnull
 	public ProblemModel getErrorModel();
 }

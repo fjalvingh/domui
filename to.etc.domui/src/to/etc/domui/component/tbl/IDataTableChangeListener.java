@@ -36,9 +36,9 @@ public interface IDataTableChangeListener {
 	/**
 	 * Called when the datatable as accepted a different model.
 	 */
-	void modelChanged(@Nonnull TabularComponentBase< ? > tbl, @Nullable ITableModel< ? > old, @Nullable ITableModel< ? > nw) throws Exception;
+	void modelChanged(@Nonnull TableModelTableBase< ? > tbl, @Nullable ITableModel< ? > old, @Nullable ITableModel< ? > nw) throws Exception;
 
-	void pageChanged(@Nonnull TabularComponentBase< ? > tbl) throws Exception;
+	void pageChanged(@Nonnull TableModelTableBase< ? > tbl) throws Exception;
 
-	void selectionUIChanged(@Nonnull TabularComponentBase< ? > tbl) throws Exception;
+	void selectionUIChanged(@Nonnull TableModelTableBase< ? > tbl) throws Exception;
 }
