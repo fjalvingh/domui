@@ -127,10 +127,41 @@ public class DefaultPageInjector implements IPageInjector {
 
 	protected PropertyInjector calculatePropertyInjector(PropertyInfo pi, Method annotatedMethod) {
 		//-- Check annotation.
-		UIUrlParameter upp = annotatedMethod.getAnnotation(UIUrlParameter.class);
+		UIUrlParameter upp = findUIUrlParameterAnnotation(annotatedMethod);
 
 		if(upp != null)
 			return createUrlAnnotationConnector(pi, upp);
+		return null;
+	}
+
+	/**
+	 * Since annotations are not inherited, we have to do the parent path search in order to be able to work also with inherited properties.
+	 *
+	 * @param annotatedMethod
+	 * @return
+	 */
+	@Nullable
+	private UIUrlParameter findUIUrlParameterAnnotation(@Nonnull Method annotatedMethod) {
+		UIUrlParameter upp = annotatedMethod.getAnnotation(UIUrlParameter.class);
+		if(upp != null) {
+			return upp;
+		}
+		if(upp == null) {
+			Class< ? > parent = annotatedMethod.getDeclaringClass().getSuperclass();
+			if(parent != null) {
+				Method superMethod;
+				try {
+					superMethod = parent.getDeclaredMethod(annotatedMethod.getName());
+					if(superMethod != null) {
+						return findUIUrlParameterAnnotation(superMethod);
+					}
+				} catch(NoSuchMethodException e) {
+					// no method
+				} catch(SecurityException e) {
+					// no method
+				}
+			}
+		}
 		return null;
 	}
 
