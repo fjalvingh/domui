@@ -2050,20 +2050,21 @@ $.extend(WebUI, {
 		if (val) {
 			var ok = false;
 			var spl = val.split(',');
-			var li = vv.lastIndexOf('.');
-			var ext;
-			if (li != -1) {
-				ext = vv.substring(li + 1, vv.length).toLowerCase();
-			}else{
-				//Allow upload of files without extensions when "*" filter is defined
-				ext = "";
-			}
-			for ( var i = 0; i < spl.length; i++) {
-				if (ext == spl[i] || "*" == spl[i]) {
+
+			vv = vv.toLowerCase();
+			for(var i = 0; i < spl.length; i++) {
+				var ext = spl[i].toLowerCase();
+				if(ext.substring(0, 1) != ".")
+					ext = "."+ext;
+				if(ext == ".*") {
+					ok = true;
+					break;
+				} else if(vv.indexOf(ext, vv.length - ext.length) !== -1) {
 					ok = true;
 					break;
 				}
 			}
+
 			if (!ok) {
 				alert(WebUI.format(WebUI._T.uploadType, ext, val));
 				return;

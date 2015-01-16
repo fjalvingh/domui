@@ -11,7 +11,7 @@ import org.w3c.dom.*;
 final public class NodeIterator implements Iterable<Node>, Iterator<Node> {
 	private final Node m_node;
 
-	private int m_index = -1;
+	private int m_index = 0;
 
 	public NodeIterator(Node node) {
 		m_node = node;
@@ -28,7 +28,7 @@ final public class NodeIterator implements Iterable<Node>, Iterator<Node> {
 	@Override public Node next() {
 		if(! hasNext())
 			return null;
-		return m_node.getChildNodes().item(++ m_index);
+		return m_node.getChildNodes().item(m_index++);
 	}
 
 	@Override public void remove() {
