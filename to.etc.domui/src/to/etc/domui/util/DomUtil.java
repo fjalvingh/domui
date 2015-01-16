@@ -545,7 +545,7 @@ final public class DomUtil {
 	 * @param pp
 	 * @return
 	 */
-	static public String createPageURL(String webAppUrl, Class< ? extends UrlPage> clz, IPageParameters pp) {
+	static public String createPageURL(@Nonnull String webAppUrl, @Nonnull Class< ? extends UrlPage> clz, @Nullable IPageParameters pp) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(webAppUrl);
 		sb.append(clz.getName());
