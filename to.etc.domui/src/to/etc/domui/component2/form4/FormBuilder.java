@@ -182,7 +182,7 @@ final public class FormBuilder {
 	public <T> FormBuilder property(@Nonnull T instance, @GProperty String property) {
 		if(null != m_propertyMetaModel)
 			throw new IllegalStateException("You need to end the builder pattern with a call to 'control()'");
-		m_propertyMetaModel = MetaManager.findPropertyMeta(instance.getClass(), property);
+		m_propertyMetaModel = MetaManager.getPropertyMeta(instance.getClass(), property);
 		m_instance = instance;
 		return this;
 	}
