@@ -584,4 +584,35 @@ final public class ClassUtil {
 				throw itx;
 		}
 	}
+
+	/**
+	 * Since annotations are not inherited, we do the extends search on super classed in order to be able to work also with annotations on inherited properties.
+	 *
+	 * @param annotatedMethod
+	 * @param annotationType
+	 * @return
+	 */
+	@Nullable
+	public static <T extends Annotation> T findAnnotationIncludingSuperClasses(@Nonnull Method annotatedMethod, @Nonnull Class<T> annotationType) {
+		T annotation = annotatedMethod.getAnnotation(annotationType);
+		if(annotation != null) {
+			return annotation;
+		}
+		Class< ? > parent = annotatedMethod.getDeclaringClass().getSuperclass();
+		if(parent != null) {
+			Method superMethod;
+			try {
+				superMethod = parent.getDeclaredMethod(annotatedMethod.getName());
+				if(superMethod != null) {
+					return findAnnotationIncludingSuperClasses(superMethod, annotationType);
+				}
+			} catch(NoSuchMethodException e) {
+				// no method
+			} catch(SecurityException e) {
+				// no method
+			}
+		}
+		return null;
+	}
+
 }
