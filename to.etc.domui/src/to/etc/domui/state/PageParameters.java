@@ -747,7 +747,9 @@ public class PageParameters implements IPageParameters, Serializable {
 	 * @return
 	 */
 	@Nonnull
-	static public PageParameters decodeParameters(@Nonnull String query) {
+	static public PageParameters decodeParameters(@Nullable String query) {
+		if(null == query)
+			return new PageParameters();
 		String[] indiar = query.split("&");
 		Map<String, List<String>> map = new HashMap<String, List<String>>();
 		for(String frag : indiar) {

@@ -70,5 +70,5 @@ public interface ITableModelListener<T> {
 	 * redraw usually.
 	 * @param model
 	 */
-	void modelChanged(@Nullable ITableModel<T> model);
+	void modelChanged(@Nullable ITableModel<T> model) throws Exception;
 }

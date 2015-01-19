@@ -1,5 +1,6 @@
 package to.etc.domui.logic;
 
+import to.etc.domui.component.meta.*;
 import java.lang.reflect.*;
 import java.util.*;
 
@@ -118,6 +119,7 @@ final public class LogicContextImpl implements ILogicContext {
 		}
 
 		/*
+		 * FIXME: We should not support unsaved instances most probably.
 		 * To support unsaved object, we try to use the identity hashcode 1st. Only if that fails we'll use the ID.
 		 */
 		int ihc = System.identityHashCode(instance);
@@ -158,6 +160,55 @@ final public class LogicContextImpl implements ILogicContext {
 		}
 
 		throw new ProgrammerErrorException("Could not create an instance of " + clz + ": constructor(ILogicContext, " + instance.getClass().getName() + ") not found");
+	}
+
+
+	/**
+	 * Register an instance of a logic implementation for a given instance, when a new instance has been created. A check
+	 * is made to ensure we do not register duplicates.
+	 *
+	 * @param registrationType
+	 * @param logicClass
+	 * @param dataClass
+	 * @param <T>
+	 * @param <K>
+	 * @param <V>
+	 */
+	@Override public <T extends ILogic, K, V extends IIdentifyable<K>> void register(Class<?> registrationType, T logicClass, V dataClass) {
+		Map<Object, ILogic> cmap = m_instanceMap.get(registrationType);
+		if(null == cmap) {
+			cmap = new HashMap<Object, ILogic>();
+			m_instanceMap.put(registrationType, cmap);
+		}
+
+		/*
+		 * FIXME: We should not support unsaved instances most probably.
+		 * To support unsaved object, we try to use the identity hashcode 1st. Only if that fails we'll use the ID.
+		 */
+		int ihc = System.identityHashCode(dataClass);
+		Object key = "ihc-" + ihc;
+		ILogic logic = cmap.get(key);
+		if(null == logic) {
+			K altkey = dataClass.getId();										// Get the ID for this instance.
+			if(null != altkey) {
+				logic = cmap.get(altkey);
+				key = altkey;
+			}
+		}
+
+		if(null != logic)
+			throw new ProgrammerErrorException("Duplicate registration of logic class "+registrationType.getName()+" for instance "+ MetaManager.identify(dataClass));
+
+		K id = dataClass.getId();
+		if(null == id)
+			throw new IllegalStateException("You cannot register an instance having a null ID");
+
+		ILogiInjector ij = m_injector;
+		if(null != ij) {
+			ij.injectMembers(logicClass);
+		}
+
+		cmap.put(id, logicClass);
 	}
 
 	@Override

@@ -1,7 +1,5 @@
 package to.etc.domui.component.tbl;
 
-import javax.annotation.*;
-
 import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.misc.*;
@@ -14,6 +12,8 @@ import to.etc.domui.util.*;
 import to.etc.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.annotations.*;
+
+import javax.annotation.*;
 
 /**
  * This is the type-safe replacement for the other row renderers which are now deprecated.
@@ -44,6 +44,9 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	@Nullable
 	private IRowButtonFactory<T> m_rowButtonFactory;
 
+	@Nullable
+	private TableModelTableBase<T> m_tableModelTable;
+
 	public RowRenderer(@Nonnull Class<T> data) {
 		this(data, MetaManager.findClassMeta(data));
 	}
@@ -68,6 +71,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	private void complete(@Nonnull TableModelTableBase<T> tbl) {
 		if(isComplete())
 			return;
+		m_tableModelTable = tbl;
 
 		//-- If we have no columns at all we use a default column list.
 		if(getColumnList().size() == 0)
@@ -95,7 +99,6 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	 * Render the header for a table, using the simple column metadata provided. This renders a rich
 	 * header, containing column labels, sort boxes and the like.
 	 *
-	 * @see to.etc.domui.component.tbl.IRowRenderer#renderHeader(to.etc.domui.component.tbl.HeaderContainer)
 	 */
 	@Override
 	public void renderHeader(@Nonnull final TableModelTableBase<T> tbl, @Nonnull final HeaderContainer<T> cc) throws Exception {
@@ -172,7 +175,10 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 		updateSortImage(scd, isSortDescending() ? "THEME/sort-desc.png" : "THEME/sort-asc.png");
 
 		//-- Tell the model to sort.
-		DataTable< ? > parent = nb.getParent(DataTable.class);
+		TableModelTableBase<T> parent = m_tableModelTable;
+		if(null == parent)
+			throw new IllegalStateException("Table not defined");
+
 		if(scd.getSortHelper() != null) {
 			//-- A sort helper is needed.
 			final IProgrammableSortableModel stm = (IProgrammableSortableModel) parent.getModel();
@@ -199,7 +205,6 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	 * for this object. This exposes the actual model that will be used during the rendering
 	 * process and allows this component to define sorting, if needed.
 	 *
-	 * @see to.etc.domui.component.tbl.IRowRenderer#beforeQuery(to.etc.domui.component.tbl.DataTable)
 	 */
 	@Override
 	public void beforeQuery(@Nonnull final TableModelTableBase<T> tbl) throws Exception {
@@ -230,7 +235,6 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	/*--------------------------------------------------------------*/
 	/**
 	 *
-	 * @see to.etc.domui.component.tbl.IRowRenderer#renderRow(to.etc.domui.component.tbl.ColumnContainer, int, java.lang.Object)
 	 */
 	@Override
 	public void renderRow(@Nonnull final TableModelTableBase<T> tbl, @Nonnull final ColumnContainer<T> cc, final int index, @Nonnull final T instance) throws Exception {

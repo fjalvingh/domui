@@ -118,6 +118,14 @@ public class Problem {
 		}
 	}
 
+	public <T> void when(@Nonnull ProblemModel errors, @Nonnull T instance, boolean condition) {
+		if(condition) {
+			on(errors, instance);
+		} else {
+			off(errors, instance);
+		}
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

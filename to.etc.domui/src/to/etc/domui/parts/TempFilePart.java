@@ -29,8 +29,10 @@ import java.sql.*;
 
 import javax.annotation.*;
 
+import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.server.parts.*;
+import to.etc.domui.state.*;
 import to.etc.domui.trouble.*;
 import to.etc.util.*;
 
@@ -73,6 +75,27 @@ public class TempFilePart implements IUnbufferedPartFactory {
 		}
 	}
 
+	public enum Disposition {
+		/** Download the attachment, do not show it. */
+		Attachment,
+
+		/** Show the file by trying to view it in the browser */
+		Inline,
+
+		/** Do content-disposition: let the browser decide what to do with the thing */
+		None;
+	}
+
+	/**
+	 * Use the version {@link #registerTempFile(java.io.File, String, to.etc.domui.parts.TempFilePart.Disposition, String)}
+	 * @param ctx
+	 * @param target
+	 * @param mime
+	 * @param type
+	 * @param name
+	 * @return
+	 */
+	@Deprecated
 	static public String registerTempFile(@Nonnull IRequestContext ctx, @Nonnull File target, @Nonnull String mime, @Nullable String type, @Nullable String name) {
 		String key = StringTool.generateGUID();
 		String pw = StringTool.generateGUID();
@@ -89,6 +112,46 @@ public class TempFilePart implements IUnbufferedPartFactory {
 	}
 
 	/**
+	 * Register a temp file that can be accessed by the browser. The file can reside anywhere but should usually be put
+	 * in temp files. Only people knowing the full name for the file, including a set of random-generated "passwords", can
+	 * access it. This returns the absolute URL to the file, including host name etc.
+	 *
+	 * @param target
+	 * @param mime
+	 * @param disp		The disposition: attachment or inline (download or view)
+	 * @param name
+	 * @return			The absolute full URL to the file.
+	 */
+	static public String registerTempFile(@Nonnull File target, @Nonnull String mime, @Nonnull Disposition disp, @Nullable String name) {
+		String key = StringTool.generateGUID();
+		String pw = StringTool.generateGUID();
+		String s = null;
+		switch(disp) {
+			default:
+				break;
+
+			case Attachment:
+				s = "attachment";
+				break;
+
+			case Inline:
+				s = "inline";
+				break;
+		}
+		if(s != null && name != null) {
+			s += "; filename="+name;
+		}
+		FileInfo fi = new FileInfo(pw, target, mime, s);
+		IRequestContext rc = UIContext.getRequestContext();
+		rc.getSession().setAttribute("tempf-" + key, fi); // Store in session context
+
+		StringBuilder sb = new StringBuilder();
+		sb.append(TempFilePart.class.getName());
+		sb.append(".part?key=").append(key).append("&passkey=").append(pw);
+		return rc.getRelativePath(sb.toString());
+	}
+
+	/**
 	 * Saves blob into temporary file, register temporary file in provided context, and returns generated download link.
 	 * @param ctx
 	 * @param blob
@@ -102,6 +165,19 @@ public class TempFilePart implements IUnbufferedPartFactory {
 		File temp = File.createTempFile("tmp", ".tmp");
 		FileTool.saveBlob(temp, blob);
 		return TempFilePart.registerTempFile(ctx, temp, mime, type, filename);
+	}
+
+	/**
+	 * Force the browser to download the specified file, by sending "location.href = (url-to-file)" to the browser.
+	 * @param sourcePage
+	 * @param target
+	 * @param mime
+	 * @param disposition
+	 * @param name
+	 */
+	public static void	createDownloadAction(@Nonnull NodeBase sourcePage, @Nonnull File target, @Nonnull String mime, @Nonnull Disposition disposition, @Nullable String name) {
+		String url = registerTempFile(target, mime, disposition, name);
+		sourcePage.appendJavascript("location.href=" + StringTool.strToJavascriptString(url, true) + ";");
 	}
 
 	@Override
