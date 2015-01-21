@@ -1,8 +1,8 @@
 package to.etc.domui.component.meta.impl;
 
-import to.etc.domui.component.meta.*;
-
 import javax.annotation.*;
+
+import to.etc.domui.component.meta.*;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -14,6 +14,7 @@ final public class PropertyValueInvalidException extends RuntimeException {
 
 	final private PropertyMetaModel<?> m_property;
 
+	@Nullable
 	final private Object m_value;
 
 	public PropertyValueInvalidException(@Nullable Object value, Object targetObject, PropertyMetaModel<?> property) {
@@ -24,7 +25,13 @@ final public class PropertyValueInvalidException extends RuntimeException {
 
 	@Override public String getMessage() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("Value of type ").append(m_value.getClass().getName()).append(" cannot be assigned to property ").append(m_property).append(" of type ").append(m_property.getActualType().getName());
+		Object value = m_value;
+		if(null != value) {
+			sb.append("Value of type ").append(value.getClass().getName());
+		} else {
+			sb.append("'null'");
+		}
+		sb.append(" cannot be assigned to property ").append(m_property).append(" of type ").append(m_property.getActualType().getName());
 		return sb.toString();
 	}
 }

@@ -49,20 +49,20 @@ final public class SimpleLookupInputRenderer2<T> implements INodeContentRenderer
 
 	final private String[] m_propertyNames;
 
-	private List<ExpandedDisplayProperty<?>> m_xpl;
+	final private List<ExpandedDisplayProperty< ? >> m_xpl;
 
 	public SimpleLookupInputRenderer2(Class<T> displayClass, String... propertyNames) {
 		m_classModel = MetaManager.findClassMeta(displayClass);
 		m_actualClass = displayClass;
 		m_propertyNames = propertyNames;
-		initRenderingModel();
+		m_xpl = initRenderingModel();
 	}
 
 	public SimpleLookupInputRenderer2(ClassMetaModel cmm, String... propertyNames) {
 		m_actualClass = (Class<T>) cmm.getActualClass();
 		m_classModel = cmm;
 		m_propertyNames = propertyNames;
-		initRenderingModel();
+		m_xpl = initRenderingModel();
 	}
 
 	private Class<T> getActualClass() {
@@ -71,8 +71,10 @@ final public class SimpleLookupInputRenderer2<T> implements INodeContentRenderer
 
 	/**
 	 * Create the rendering model from the available data.
+	 * @return
 	 */
-	private void initRenderingModel() {
+	@Nonnull
+	private List<ExpandedDisplayProperty< ? >> initRenderingModel() {
 		ClassMetaModel cmm = MetaManager.findClassMeta(getActualClass());
 		List<ExpandedDisplayProperty< ? >> xpl;
 		if(m_propertyNames.length == 0) {
@@ -92,7 +94,7 @@ final public class SimpleLookupInputRenderer2<T> implements INodeContentRenderer
 				xpl.add(ExpandedDisplayProperty.expandProperty(cmm, propname));
 			}
 		}
-		m_xpl = ExpandedDisplayProperty.flatten(xpl);
+		return ExpandedDisplayProperty.flatten(xpl);
 	}
 
 	@Override
