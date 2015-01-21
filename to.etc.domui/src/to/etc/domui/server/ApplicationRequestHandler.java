@@ -819,7 +819,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		ILoginDialogFactory ldf = m_application.getLoginDialogFactory();
 		String rurl = ldf == null ? null : ldf.getAccessDeniedURL();
 		if(rurl == null) {
-			rurl = AccessDeniedPage.class.getName() + "." + m_application.getUrlExtension();
+			rurl = DomApplication.get().getAccessDeniedPageClass().getName() + "." + m_application.getUrlExtension();
 		}
 
 		//-- Add info about the failed thingy.
