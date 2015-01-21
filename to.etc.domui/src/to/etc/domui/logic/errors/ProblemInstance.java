@@ -1,8 +1,8 @@
 package to.etc.domui.logic.errors;
 
-import javax.annotation.*;
-
 import to.etc.domui.component.meta.*;
+
+import javax.annotation.*;
 
 /**
  * An actual occurrence of a {@link Problem} that was found to occur on some instance
@@ -128,5 +128,10 @@ public class ProblemInstance {
 		sb.append(' ');
 		sb.append(m_problem.toString());
 		return sb.toString();
+	}
+
+	@Nonnull
+	public String getMessage() {
+		return getProblem().getBundle().formatMessage(getProblem().getMessageKey(), getParameters());
 	}
 }
