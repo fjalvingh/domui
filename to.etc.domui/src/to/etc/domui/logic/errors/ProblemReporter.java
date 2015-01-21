@@ -68,7 +68,7 @@ public class ProblemReporter {
 	}
 
 	public void report() throws Exception {
-		System.out.println("\n\n----- Reporting errors");
+		//System.out.println("\n\n----- Reporting errors");
 
 		Set<IErrorFence> allFences = getAllFences();
 		final Set<UIMessage> existingErrorSet = getAllErrorSet(allFences);
@@ -106,7 +106,7 @@ public class ProblemReporter {
 
 		//-- Now handle all
 		for(NodeBase n : bindableNodes) {
-			System.out.println(" node: "+desc(n));
+			//System.out.println(" node: "+desc(n));
 			handleClaimError(existingErrorSet, newErrorSet, n);
 		}
 
@@ -168,10 +168,10 @@ public class ProblemReporter {
 		}
 		if(all.size() == 0) {
 			if(bindingMessageList.size() == 0) {
-				System.out.println("    er: "+desc(n)+" component error cleared");
+				//System.out.println("    er: "+desc(n)+" component error cleared");
 				n.setMessage(null);
 			}
-			System.out.println("    er: "+desc(n)+" 0 claimed, "+bindingMessageList.size()+" bind errors - not reporting");
+			//System.out.println("    er: "+desc(n)+" 0 claimed, "+bindingMessageList.size()+" bind errors - not reporting");
 			return;
 		}
 
@@ -186,12 +186,12 @@ public class ProblemReporter {
 				UIMessage ui = UIMessage.create(n, pi);
 				if(n.getMessage() == null) {
 					n.setMessage(ui);
-					System.out.println("    er: "+desc(n)+" component set to "+ui);
+					//System.out.println("    er: "+desc(n)+" component set to "+ui);
 				}
 				fence.addMessage(ui);
-				System.out.println("    er: " + desc(n) + " added " + ui+" to fence");
+				//System.out.println("    er: " + desc(n) + " added " + ui+" to fence");
 			} else {
-				System.out.println("    er: "+desc(n)+" existing error "+pi+" already shown");
+				//System.out.println("    er: "+desc(n)+" existing error "+pi+" already shown");
 			}
 		}
 	}
