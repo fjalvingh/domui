@@ -132,6 +132,6 @@ public class ProblemInstance {
 
 	@Nonnull
 	public String getMessage() {
-		return getProblem().getBundle().formatMessage(getProblem().getMessageKey(), getParameters());
+		return getProblem().getBundle().formatMessage(getProblem().getCode(), getParameters());
 	}
 }
