@@ -319,6 +319,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 			DisplaySpan<X> dv = new DisplaySpan<X>(cd.getActualClass());
 			cell.getBindingContext().unibind(instance, pmm.getName(), dv, "value");
 			cell.add(dv);
+			applyCellAttributes(cell, cd);
 		} else if(pmm != null) {
 			//-- Bind the property to a display control.
 			IConverter<X> converter = pmm.getConverter();
@@ -330,6 +331,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 			if(converter != null) {
 				ds.setConverter(converter);
 			}
+			applyCellAttributes(cell, cd);
 		} else if(contentRenderer != null) {
 			//-- No property but a content renderer -> let it take care of binding itself as we cannot.
 			X value = cd.getColumnValue(instance);
@@ -337,6 +339,11 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 		} else {
 			throw new IllegalStateException("? Don't know how to render " + cd);
 		}
+	}
+
+	private void applyCellAttributes(NodeContainer cell, ColumnDef<?> cd) {
+		if(cd.getNumericPresentation() != null && cd.getNumericPresentation() != NumericPresentation.UNKNOWN)
+			cell.addCssClass("ui-numeric");
 	}
 
 	/**
