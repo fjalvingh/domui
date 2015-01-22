@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.misc;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.layout.*;
@@ -36,11 +38,9 @@ import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.bugs.*;
 
-import javax.annotation.*;
-
 public class MsgBox extends Window {
 	public interface IAnswer {
-		void onAnswer(MsgBoxButton result) throws Exception;
+		void onAnswer(@Nonnull MsgBoxButton result) throws Exception;
 	}
 	public interface IAnswer2 {
 		void onAnswer(Object result) throws Exception;
