@@ -24,17 +24,16 @@
  */
 package to.etc.domui.component.binding;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
-import to.etc.domui.util.DomUtil.IPerNode;
+import to.etc.domui.util.DomUtil.*;
 import to.etc.webapp.*;
 import to.etc.webapp.nls.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * This is a single binding instance between a control and one of the control's properties.
@@ -168,7 +167,7 @@ final public class SimpleBinder implements IBinder, IBinding {
 			newError = UIMessage.error(cx);
 			newError.setErrorNode(control);
 			newError.setErrorLocation(control.getErrorLocation());
-			System.out.println("~~ " + control + " to " + instanceProperty + ": " + cx);
+			//System.out.println("~~ " + control + " to " + instanceProperty + ": " + cx);
 		}
 		m_bindError = newError;
 		if(null == newError) {

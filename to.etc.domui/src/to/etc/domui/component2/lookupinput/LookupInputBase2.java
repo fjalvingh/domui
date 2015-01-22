@@ -29,7 +29,6 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.event.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.meta.*;
@@ -46,8 +45,6 @@ import to.etc.webapp.query.*;
 abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<OT>, IHasModifiedIndication, IQueryManipulator<QT> {
 	/** The properties bindable for this component. */
 	static private final Set<String> BINDABLE_SET = createNameSet("value", "disabled");
-
-	static public final INodeContentRenderer<Object> DEFAULT_RENDERER = new SimpleLookupInputRenderer2<Object>();
 
 	/**
 	 * EXPERIMENTAL Factory for the lookup dialog, to be shown when the lookup button
@@ -265,7 +262,7 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 			//In case of rendering selected values it is possible to use customized renderers. If no customized rendered is defined then use default one.
 			INodeContentRenderer<OT> r = getValueRenderer();
 			if(r == null)
-				r = (INodeContentRenderer<OT>) DEFAULT_RENDERER;
+				r = new SimpleLookupInputRenderer2<>(getOutputMetaModel());
 			NodeContainer valueNode = getValueNode();
 			valueNode.removeAllChildren();
 			r.renderNodeContent(this, valueNode, m_value, null);
@@ -1004,12 +1001,12 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 
 	/**
 	 * Define the columns to show in "display current value" mode. This actually creates a
-	 * content renderer (a {@link LookupInputPropertyRenderer}) to render the fields.
+	 * content renderer (a {@link to.etc.domui.component2.lookupinput.SimpleLookupInputRenderer2}) to render the fields.
 	 *
 	 * @param columns
 	 */
 	public void setValueColumns(String... columns) {
-		setValueRenderer(new LookupInputPropertyRenderer<OT>(getOutputClass(), columns));
+		setValueRenderer(new SimpleLookupInputRenderer2<OT>(getOutputClass(), columns));
 	}
 
 	/**
