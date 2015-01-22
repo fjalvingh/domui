@@ -231,6 +231,12 @@ final public class FormBuilder {
 					ctl.setReadOnly(true);
 				}
 			}
+			Boolean man = m_mandatory;
+			if(null != man) {
+				if(man.booleanValue()) {
+					ctl.setMandatory(true);
+				}
+			}
 		}
 	}
 
