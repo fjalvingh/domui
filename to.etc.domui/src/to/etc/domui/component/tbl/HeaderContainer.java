@@ -77,7 +77,7 @@ final public class HeaderContainer<T> {
 		m_finished = true;
 		TR tr = m_tr;
 		if(null == tr) {
-			tr = new TR();
+			m_tr = tr = new TR();
 			tr.setCssClass(m_labelCss);
 			m_head.add(tr);
 		}

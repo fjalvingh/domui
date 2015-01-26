@@ -109,6 +109,11 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	 */
 	@Override
 	public void renderHeader(@Nonnull final TableModelTableBase<T> tbl, @Nonnull final HeaderContainer<T> cc) throws Exception {
+		for(TableHeader h: m_tableHeaderBeforeList)
+			cc.addHeader(false, h);
+		for(TableHeader h: m_tableHeaderAfterList)
+			cc.addHeader(true, h);
+
 		Img[] sortImages = m_sortImages = new Img[m_columnList.size()];
 		int ix = 0;
 		final boolean sortablemodel = tbl.getModel() instanceof ISortableTableModel;
