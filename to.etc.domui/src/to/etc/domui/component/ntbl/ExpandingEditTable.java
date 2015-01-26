@@ -187,20 +187,16 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		//-- Render the header, if applicable
 		if(!isHideHeader()) {
 			THead hd = new THead();
-			HeaderContainer<T> hc = new HeaderContainer<T>(this);
-			TR tr = new TR();
-			tr.setCssClass("ui-xdt-hdr");
-			hd.add(tr);
-			hc.setParent(tr);
+			HeaderContainer<T> hc = new HeaderContainer<T>(this, hd, "ui-xdt-hdr");
 			if(!isHideIndex()) {
 				hc.add((NodeBase) null);
 			}
 
 			m_rowRenderer.renderHeader(this, hc);
-			if(tr.getChildCount() > 0)
+			if(hc.hasContent())
 				m_table.add(hd);
 
-			m_columnCount = tr.getChildCount();
+			m_columnCount = hc.row().getChildCount();
 			if(!isHideIndex())
 				m_columnCount--;
 

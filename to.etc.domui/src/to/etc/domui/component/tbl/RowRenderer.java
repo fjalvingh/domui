@@ -14,6 +14,7 @@ import to.etc.webapp.*;
 import to.etc.webapp.annotations.*;
 
 import javax.annotation.*;
+import java.util.*;
 
 /**
  * This is the type-safe replacement for the other row renderers which are now deprecated.
@@ -46,6 +47,12 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 
 	@Nullable
 	private TableModelTableBase<T> m_tableModelTable;
+
+	@Nonnull
+	private List<TableHeader> m_tableHeaderBeforeList = Collections.EMPTY_LIST;
+
+	@Nonnull
+	private List<TableHeader> m_tableHeaderAfterList = Collections.EMPTY_LIST;
 
 	public RowRenderer(@Nonnull Class<T> data) {
 		this(data, MetaManager.findClassMeta(data));
@@ -604,5 +611,16 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	@Nonnull
 	public ColumnDef<T> column() {
 		return getColumnList().column();
+	}
+
+	public void addHeaderBefore(@Nonnull TableHeader header) {
+		if(m_tableHeaderBeforeList.size() == 0)
+			m_tableHeaderBeforeList = new ArrayList<>(2);
+		m_tableHeaderBeforeList.add(header);
+	}
+	public void addHeaderAfter(@Nonnull TableHeader header) {
+		if(m_tableHeaderAfterList.size() == 0)
+			m_tableHeaderAfterList = new ArrayList<>(2);
+		m_tableHeaderAfterList.add(header);
 	}
 }

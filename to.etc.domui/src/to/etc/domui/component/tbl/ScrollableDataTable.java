@@ -216,19 +216,11 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 		//-- Render the header.
 		THead hd = new THead();
 		dataTable.add(hd);
-		HeaderContainer<T> hc = new HeaderContainer<T>(this);
-		TR tr = new TR();
-		tr.setCssClass("ui-dt-hdr");
-		hd.add(tr);
-		hc.setParent(tr);
+		HeaderContainer<T> hc = new HeaderContainer<T>(this, hd, "ui-dt-hdr");
 
 		renderHeader(hc);
 		if(!hc.hasContent()) {
 			hd.remove();
-		} else {
-			hc = null;
-			hd = null;
-			tr = null;
 		}
 
 		m_dataBody = new TBody();
