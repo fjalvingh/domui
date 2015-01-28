@@ -24,13 +24,13 @@
  */
 package to.etc.domui.dom.html;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
-
-import javax.annotation.*;
 
 public class TextArea extends InputNodeContainer implements INativeChangeListener, IControl<String>, IHasModifiedIndication, IHtmlInput {
 	/** Hint to use in property meta data to select this component. */
@@ -39,6 +39,16 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 	private int m_cols = -1;
 
 	private int m_rows = -1;
+
+	/**
+	 * This flag gets T if the validate method has been called on the current
+	 * input for a control. It gets reset when a control receives a new value
+	 * that differs from it's previous value (raw).
+	 */
+	private boolean m_validated;
+
+	/** If validated this contains the last validation result. */
+	private UIException m_validationResult;
 
 	private String m_value;
 
@@ -85,15 +95,54 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 		m_rows = rows;
 	}
 
-	public boolean validate() {
-		if(StringTool.isBlank(m_value)) {
-			if(isMandatory()) {
-				setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.MANDATORY));
-				return false;
-			}
+	/**
+	 * Bind-capable version of getValue(). If called (usually from binding) this will act as follows:
+	 * <ul>
+	 * 	<li>If this component has an input error: throw the ValidationException for that error</li>
+	 * 	<li>On no error this returns the value.</li>
+	 * </ul>
+	 * @return
+	 */
+	public String getBindValue() {
+		validate();												// Validate, and throw exception without UI change on trouble.
+		return m_value;
+	}
+
+	public void setBindValue(@Nullable String value) {
+		if(MetaManager.areObjectsEqual(m_value, value)) {
+			return;
 		}
-		clearMessage();
-		return true;
+		setValue(value);
+	}
+
+	public void validate() {
+
+		UIException result = m_validationResult;
+		if(m_validated) {
+			if(null == result)
+				return;
+			throw result;
+		}
+		try {
+			m_validated = true;
+
+			if(StringTool.isBlank(m_value)) {
+				if(isMandatory()) {
+					throw new ValidationException(Msgs.MANDATORY);
+				}
+			}
+			UIMessage msg = getMessage();
+			if(result != null && msg != null) {
+				//-- Moving from invalid -> valid -check message.
+				if(result.getCode().equals(msg.getCode())) { // && result.getBundle().equals(msg.getBundle())) { // INCO Urgent: BundleRef needs equals, defining package+file as key.
+					setMessage(null);
+				}
+			}
+			m_validationResult = null;
+		} catch(ValidationException vx) {
+			m_validationResult = vx;
+			throw vx;
+		}
 	}
 
 	/**
@@ -101,9 +150,21 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 	 */
 	@Override
 	public String getValue() {
-		if(!validate())
-			throw new ValidationException(Msgs.NOT_VALID, m_value);
-		return m_value;
+		try {
+			validate();
+			return m_value;
+		} catch(ValidationException x) {
+			handleValidationException(x);
+			throw x;
+		}
+	}
+
+	private void handleValidationException(@Nullable ValidationException x) {
+		UIMessage message = null;
+		if(null != x) {
+			message = UIMessage.error(x);
+		}
+		setMessage(message);
 	}
 
 	/**
@@ -149,6 +210,7 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 			return;
 		m_value = v;
 		setText(v);
+		m_validated = false;
 		fireModified("value", value, v);
 	}
 

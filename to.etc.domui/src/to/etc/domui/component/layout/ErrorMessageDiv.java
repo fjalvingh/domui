@@ -132,7 +132,8 @@ public class ErrorMessageDiv extends Div implements IErrorMessageListener {
 			return;
 
 		for(NodeBase b : this) {
-			if(b.getUserObject() == m) {
+			Object o = DomUtil.nullChecked(b.getUserObject());
+			if(o.equals(m)) {
 				//-- Remove this object!
 				b.remove();
 				NodeBase errorNode = m.getErrorNode();
