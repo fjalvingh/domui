@@ -2790,6 +2790,18 @@ $.extend(WebUI, {
 	    $(flexid).height(height + "px");
     },
 
+    notifySizePositionChanged: function(event, ui) {
+   	    var element = ui.helper.get(0);
+   	    if (!element){
+   	    	return;
+   	    }
+		// Send back size information to server
+		var fields = new Object();
+		fields.webuia = "notifyClientPositionAndSize";
+		fields[element.id + "_rect"] = $(element).position().left + "," + $(element).position().top + "," + $(element).width() + "," + $(element).height();
+		WebUI.scall(element.id, "notifyClientPositionAndSize", fields);
+    },
+
 	/** *************** Debug thingy - it can be used internaly for debuging javascript ;) ************** */
 	debug : function(debugId, posX, posY, debugInfoHtml) {
 		//Be aware that debugId must not start with digit when using FF! Just lost 1 hour to learn this...
@@ -3693,6 +3705,7 @@ WebUI.onDocumentReady = function() {
 };
 
 WebUI.floatingDivResize = function(ev, ui) {
+	$(ui.helper.get(0)).css('position', 'fixed');
 	$('[stretch=true]').doStretch();
 	$('.ui-dt, .ui-fixovfl').fixOverflow();
 };

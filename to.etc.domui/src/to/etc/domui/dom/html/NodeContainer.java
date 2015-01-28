@@ -28,9 +28,12 @@ import java.util.*;
 
 import javax.annotation.*;
 
+import to.etc.domui.component.event.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.errors.*;
+import to.etc.domui.server.*;
+import to.etc.domui.util.*;
 import to.etc.webapp.*;
 
 /**
@@ -62,6 +65,12 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	private IErrorFence m_errorFence;
 
 	private NodeContainer m_delegate;
+
+	@Nullable
+	private Rect m_clientBounds;
+
+	@Nullable
+	private INotify<NodeContainer> m_onSizeAndPositionChange;
 
 	/**
 	 * Create a container with the specified tag name.
@@ -822,4 +831,56 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 			child.sendComponentMessage(message);
 		}
 	}
+
+	@Nullable
+	protected Rect getClientBounds() {
+		return m_clientBounds;
+	}
+
+	protected void setClientBounds(@Nonnull Rect clientBound) {
+		m_clientBounds = clientBound;
+	}
+
+	/**
+	 * Handles {@link Constants#ACMD_NOTIFY_CLIENT_POSITION_AND_SIZE} as command from client (browser).
+	 * @see to.etc.domui.dom.html.NodeBase#componentHandleWebAction(to.etc.domui.server.RequestContextImpl, java.lang.String)
+	 */
+	@Override
+	public void componentHandleWebAction(@Nonnull RequestContextImpl ctx, @Nonnull String action) throws Exception {
+		if(Constants.ACMD_NOTIFY_CLIENT_POSITION_AND_SIZE.equals(action)) {
+			handleClientPositionAndSizeChange(ctx);
+		} else {
+			super.componentHandleWebAction(ctx, action);
+		}
+	}
+
+	private void handleClientPositionAndSizeChange(@Nonnull RequestContextImpl ctx) throws Exception {
+		String value = ctx.getParameter(getActualID() + "_rect");
+		if(value != null) {
+			String[] values = value.split(",");
+			try {
+				int left = Integer.parseInt(values[0]);
+				int top = Integer.parseInt(values[1]);
+				int width = Integer.parseInt(values[2]);
+				int height = Integer.parseInt(values[3]);
+				setClientBounds(new Rect(left, top, width + left, height + top));
+			} catch(Exception ex) {
+				throw new IllegalArgumentException("Unrecognized " + Constants.ACMD_NOTIFY_CLIENT_POSITION_AND_SIZE + " value (id='" + getActualID() + "'):" + value);
+			}
+			INotify<NodeContainer> listener = getOnSizeAndPositionChange();
+			if(listener != null) {
+				listener.onNotify(this);
+			}
+		}
+	}
+
+	@Nullable
+	protected INotify<NodeContainer> getOnSizeAndPositionChange() {
+		return m_onSizeAndPositionChange;
+	}
+
+	protected void setOnSizeAndPositionChange(@Nonnull INotify<NodeContainer> onSizeAndPositionChange) {
+		m_onSizeAndPositionChange = onSizeAndPositionChange;
+	}
 }
+
