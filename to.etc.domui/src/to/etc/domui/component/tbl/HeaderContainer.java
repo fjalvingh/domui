@@ -24,9 +24,9 @@
  */
 package to.etc.domui.component.tbl;
 
-import to.etc.domui.dom.html.*;
-
 import javax.annotation.*;
+
+import to.etc.domui.dom.html.*;
 
 /**
  * Temp thingy to create the header for a table.
@@ -88,7 +88,7 @@ final public class HeaderContainer<T> {
 	 * Adds a column to the table.
 	 * @param columnContent
 	 */
-	public TH add(NodeBase columnContent) {
+	public TH add(@Nullable NodeBase columnContent) {
 		TH td = new TH();
 		row().add(td);
 		if(columnContent != null)
@@ -96,10 +96,10 @@ final public class HeaderContainer<T> {
 		return td;
 	}
 
-	public TH add(String txt) {
+	public TH add(@Nullable String txt) {
 		if(txt != null) {
 			txt = txt.trim();
-			if(txt.length() > 0) {
+			if(txt != null && txt.length() > 0) {
 				return add(new TextNode(txt));
 			}
 		}
