@@ -115,7 +115,7 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 		setValue(value);
 	}
 
-	public void validate() {
+	private void validate() {
 
 		UIException result = m_validationResult;
 		if(m_validated) {
