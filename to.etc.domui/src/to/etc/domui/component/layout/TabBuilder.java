@@ -19,23 +19,8 @@ public class TabBuilder {
 	@Nonnull
 	private TabInstance m_tabInstance;
 
-	@Nullable
-	private NodeBase m_label;
-
-	@Nullable
-	private NodeBase m_content;
-
-	@Nullable
-	private String m_image;
-
-	@Nullable
-	private Li m_tab;
-
-	private boolean m_lazy;
-
-	private boolean m_added;
-
-	private boolean m_closable;
+	/** The position where the tab should be opened in the row of tabs. **/
+	private int m_position;
 
 	protected TabBuilder(@Nonnull TabPanelBase tabPanelBase, @Nonnull final TabInstance tabInstance) {
 		m_tabInstance = tabInstance;
@@ -73,6 +58,17 @@ public class TabBuilder {
 		return this;
 	}
 
+	/**
+	 * The position where the tab should be opened in the row of tabs.
+	 *
+	 * @return
+	 */
+	@Nonnull
+	public TabBuilder positionTab(int position) {
+		m_position = position;
+		return this;
+	}
+
 	@Nonnull
 	public TabBuilder closable() {
 		m_tabInstance.closable(true);
@@ -82,7 +78,7 @@ public class TabBuilder {
 	@Nonnull
 	public ITabHandle build() {
 
-		m_tabPanelBase.addTabToPanel(m_tabInstance);
+		m_tabPanelBase.addTabToPanel(m_tabInstance, m_position);
 		return m_tabInstance;
 	}
 }

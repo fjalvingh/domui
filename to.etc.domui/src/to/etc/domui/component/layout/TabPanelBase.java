@@ -415,13 +415,17 @@ public class TabPanelBase extends Div {
 		return m_tabBuilder;
 	}
 
-	void addTabToPanel(@Nonnull final TabInstance tabInstance) {
+	void addTabToPanel(@Nonnull final TabInstance tabInstance, int position) {
 
 		m_tabBuilder = null;
 		if(m_markErrorTabs) {
 			DomUtil.getMessageFence(this).addErrorListener(tabInstance);
 		}
-		m_tablist.add(tabInstance);
+		if(position == 0)
+			m_tablist.add(tabInstance);
+		else
+			m_tablist.add(position, tabInstance);
+
 		if(!isBuilt())
 			return;
 
@@ -462,7 +466,7 @@ public class TabPanelBase extends Div {
 	public void add(NodeBase content, NodeBase tablabel, boolean lazy) {
 		TabInstance tabInstance = new TabInstance(tablabel, content, null);
 		tabInstance.setLazy(lazy);
-		addTabToPanel(tabInstance);
+		addTabToPanel(tabInstance, 0);
 	}
 
 	public void add(NodeBase content, NodeBase tablabel, String icon) {
@@ -472,7 +476,7 @@ public class TabPanelBase extends Div {
 	public void add(NodeBase content, NodeBase tablabel, String icon, boolean lazy) {
 		TabInstance tabInstance = new TabInstance(tablabel, content, icon);
 		tabInstance.setLazy(lazy);
-		addTabToPanel(tabInstance);
+		addTabToPanel(tabInstance, 0);
 	}
 
 	@Override
