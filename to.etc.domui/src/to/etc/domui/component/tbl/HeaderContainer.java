@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.tbl;
 
+import javax.annotation.*;
+
 import to.etc.domui.dom.html.*;
 
 /**
@@ -33,39 +35,71 @@ import to.etc.domui.dom.html.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 2, 2008
  */
-public class HeaderContainer<T> {
+@DefaultNonNull
+final public class HeaderContainer<T> {
+	@Nullable
+	private final String m_labelCss;
+
 	private TableModelTableBase<T> m_table;
 
+	final private THead m_head;
+
+	@Nullable
 	private TR m_tr;
 
-	public HeaderContainer(TableModelTableBase<T> table) {
-		m_table = table;
-	}
+	private boolean m_finished;
 
-	public void setParent(TR p) {
-		m_tr = p;
+	public HeaderContainer(TableModelTableBase<T> table, THead head, @Nullable String labelRowCss) {
+		m_table = table;
+		m_head = head;
+		m_labelCss = labelRowCss;
 	}
 
 	public TableModelTableBase<T> getTable() {
 		return m_table;
 	}
 
+	public void addHeader(boolean after, @Nonnull TableHeader header) {
+		if(after) {
+			row();						// Make sure the label row is there.
+			m_head.add(header);
+		} else {
+			TR tr = m_tr;                // Already have the label row?
+			if(null == tr) {
+				m_head.add(header);        // No: just add
+			} else {
+				tr.appendBeforeMe(header);
+			}
+		}
+	}
+
+	final public TR row() {
+		m_finished = true;
+		TR tr = m_tr;
+		if(null == tr) {
+			m_tr = tr = new TR();
+			tr.setCssClass(m_labelCss);
+			m_head.add(tr);
+		}
+		return tr;
+	}
+
 	/**
 	 * Adds a column to the table.
 	 * @param columnContent
 	 */
-	public TH add(NodeBase columnContent) {
+	public TH add(@Nullable NodeBase columnContent) {
 		TH td = new TH();
-		m_tr.add(td);
+		row().add(td);
 		if(columnContent != null)
 			td.add(columnContent);
 		return td;
 	}
 
-	public TH add(String txt) {
+	public TH add(@Nullable String txt) {
 		if(txt != null) {
 			txt = txt.trim();
-			if(txt.length() > 0) {
+			if(txt != null && txt.length() > 0) {
 				return add(new TextNode(txt));
 			}
 		}
@@ -79,6 +113,7 @@ public class HeaderContainer<T> {
 	 * @return
 	 */
 	public boolean hasContent() {
-		return (m_tr != null && m_tr.getChildCount() > 0);
+		TR tr = m_tr;
+		return (tr != null && tr.getChildCount() > 0);
 	}
 }
