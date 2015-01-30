@@ -330,7 +330,7 @@ public class TabPanelBase extends Div {
 
 		if(ti.isCloseable()) {
 			ATag x = new ATag();
-			dt.add(x);
+			d.add(x);
 			x.setCssClass("ui-tab-close");
 			x.setClicked(new IClicked<ATag>() {
 				@Override
@@ -338,6 +338,15 @@ public class TabPanelBase extends Div {
 					closeTab(ti);
 				}
 
+			});
+			ATag end = new ATag();
+			d.add(end);
+			end.setCssClass("ui-tab-link");
+			end.setClicked(new IClicked<ATag>() {
+				@Override
+				public void clicked(@Nonnull ATag b) throws Exception {
+					setCurrentTab(ti);
+				}
 			});
 		}
 		li.add(d);

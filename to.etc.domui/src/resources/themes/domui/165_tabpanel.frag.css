@@ -68,9 +68,12 @@
 .ui-tab-close {
     display: inline-block;
 	background-image: url("<%= tab_pnl_close %>");
-    height: 11px;
-	width: 11px;
+    height: 100%;
+	width: 100%;
+	position: relative;    
 	margin-left: 8px;
+	padding: 2em;     
+	margin: -2em;
 }
 
 .ui-tab-close:hover {
