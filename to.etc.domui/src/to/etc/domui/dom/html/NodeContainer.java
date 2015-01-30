@@ -859,10 +859,10 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		if(value != null) {
 			String[] values = value.split(",");
 			try {
-				int left = Integer.parseInt(values[0]);
-				int top = Integer.parseInt(values[1]);
-				int width = Integer.parseInt(values[2]);
-				int height = Integer.parseInt(values[3]);
+				int left = Math.round(Float.parseFloat(values[0]));
+				int top = Math.round(Float.parseFloat(values[1]));
+				int width = Math.round(Float.parseFloat(values[2])); //when browser is zoomed, it gets decimal values for size 8-/
+				int height = Math.round(Float.parseFloat(values[3]));
 				setClientBounds(new Rect(left, top, width + left, height + top));
 			} catch(Exception ex) {
 				throw new IllegalArgumentException("Unrecognized " + Constants.ACMD_NOTIFY_CLIENT_POSITION_AND_SIZE + " value (id='" + getActualID() + "'):" + value);
