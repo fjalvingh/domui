@@ -14,6 +14,7 @@ import to.etc.webapp.*;
 import to.etc.webapp.annotations.*;
 
 import javax.annotation.*;
+import java.util.*;
 
 /**
  * This is the type-safe replacement for the other row renderers which are now deprecated.
@@ -46,6 +47,12 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 
 	@Nullable
 	private TableModelTableBase<T> m_tableModelTable;
+
+	@Nonnull
+	private List<TableHeader> m_tableHeaderBeforeList = Collections.EMPTY_LIST;
+
+	@Nonnull
+	private List<TableHeader> m_tableHeaderAfterList = Collections.EMPTY_LIST;
 
 	public RowRenderer(@Nonnull Class<T> data) {
 		this(data, MetaManager.findClassMeta(data));
@@ -102,6 +109,11 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	 */
 	@Override
 	public void renderHeader(@Nonnull final TableModelTableBase<T> tbl, @Nonnull final HeaderContainer<T> cc) throws Exception {
+		for(TableHeader h: m_tableHeaderBeforeList)
+			cc.addHeader(false, h);
+		for(TableHeader h: m_tableHeaderAfterList)
+			cc.addHeader(true, h);
+
 		Img[] sortImages = m_sortImages = new Img[m_columnList.size()];
 		int ix = 0;
 		final boolean sortablemodel = tbl.getModel() instanceof ISortableTableModel;
@@ -604,5 +616,16 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	@Nonnull
 	public ColumnDef<T> column() {
 		return getColumnList().column();
+	}
+
+	public void addHeaderBefore(@Nonnull TableHeader header) {
+		if(m_tableHeaderBeforeList.size() == 0)
+			m_tableHeaderBeforeList = new ArrayList<>(2);
+		m_tableHeaderBeforeList.add(header);
+	}
+	public void addHeaderAfter(@Nonnull TableHeader header) {
+		if(m_tableHeaderAfterList.size() == 0)
+			m_tableHeaderAfterList = new ArrayList<>(2);
+		m_tableHeaderAfterList.add(header);
 	}
 }
