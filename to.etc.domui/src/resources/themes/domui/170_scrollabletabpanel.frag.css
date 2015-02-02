@@ -176,8 +176,8 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 .ui-tab-close {
     display: inline-block;
 	background-image: url("<%= tab_pnl_close %>");
-    height: 11px;
-	width: 11px;
+    height: 100%;
+	width: 100%;
 	margin-left: 8px;
 }
 
