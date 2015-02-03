@@ -40,16 +40,6 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 
 	private int m_rows = -1;
 
-	/**
-	 * This flag gets T if the validate method has been called on the current
-	 * input for a control. It gets reset when a control receives a new value
-	 * that differs from it's previous value (raw).
-	 */
-	private boolean m_validated;
-
-	/** If validated this contains the last validation result. */
-	private UIException m_validationResult;
-
 	private String m_value;
 
 	private boolean m_disabled;
@@ -117,23 +107,23 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 
 	private void validate() {
 
-		UIException result = m_validationResult;
-		if(m_validated) {
+		UIException result = getValidationResult();
+		if(isValidated()) {
 			if(null == result)
 				return;
 			throw result;
 		}
 		try {
-			m_validated = true;
+			setValidated(true);
 			if(StringTool.isBlank(m_value)) {
 				if(isMandatory()) {
 					throw new ValidationException(Msgs.MANDATORY);
 				}
 			}
 			clearValidationFailure(result);
-			m_validationResult = null;
+			setValidationResult(null);
 		} catch(ValidationException vx) {
-			m_validationResult = vx;
+			setValidationResult(vx);
 			throw vx;
 		}
 	}
@@ -203,7 +193,7 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 			return;
 		m_value = v;
 		setText(v);
-		m_validated = false;
+		setValidated(false);
 		fireModified("value", value, v);
 	}
 

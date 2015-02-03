@@ -54,16 +54,6 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 
 	private V m_currentValue;
 
-	/**
-	 * This flag gets T if the validate method has been called on the current
-	 * input for a control. It gets reset when a control receives a new value
-	 * that differs from it's previous value (raw).
-	 */
-	private boolean m_validated;
-
-	/** If validated this contains the last validation result. */
-	private UIException m_validationResult;
-
 	@Nonnull
 	final private Select m_select = new Select() {
 		@Override
@@ -184,7 +174,7 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 	@Override
 	public void clearMessage() {
 		setMessage(null);
-		m_validated = false;
+		setValidated(false);
 	}
 
 	private void renderEditable() throws Exception {
@@ -268,27 +258,21 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 	}
 
 	private void validate() {
-		UIException result = m_validationResult;
-		if(m_validated) {
+		UIException result = getValidationResult();
+		if(isValidated()) {
 			if(null == result)
 				return;
 			throw result;
 		}
 		try {
-			m_validated = true;
+			setValidated(true);
 			if(isMandatory() && m_currentValue == null) {
 				throw new ValidationException(Msgs.MANDATORY);
 			}
-			UIMessage msg = getMessage();
-			if(result != null && msg != null) {
-				//-- Moving from invalid -> valid -check message.
-				if(result.getCode().equals(msg.getCode())) { // && result.getBundle().equals(msg.getBundle())) { // INCO Urgent: BundleRef needs equals, defining package+file as key.
-					setMessage(null);
-				}
-			}
-			m_validationResult = null;
+			clearValidationFailure(result);
+			setValidationResult(null);
 		} catch(ValidationException vx) {
-			m_validationResult = vx;
+			setValidationResult(vx);
 			throw vx;
 		}
 	}
@@ -309,7 +293,7 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 		if(MetaManager.areObjectsEqual(v, currentValue, cmm))
 			return;
 		m_currentValue = v;
-		m_validated = false;
+		setValidated(false);
 		fireModified("value", currentValue, v);
 		if(!isBuilt())
 			return;
@@ -367,7 +351,7 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 		if(MetaManager.areObjectsEqual(newval, currentValue, cmm))
 			return false;
 
-		m_validated = false;
+		setValidated(false);
 		clearMessage();
 		m_currentValue = newval;
 		fireModified("value", currentValue, newval);
