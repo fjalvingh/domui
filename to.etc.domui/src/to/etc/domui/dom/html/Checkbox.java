@@ -35,6 +35,8 @@ public class Checkbox extends NodeBase implements INativeChangeListener, IContro
 	@Nonnull
 	static private final Set<String> BINDABLE_SET = createNameSet("value", "disabled");
 
+	public static final String TYPE_HINT = "Checkbox";
+
 	private boolean m_checked;
 
 	private boolean m_disabled;

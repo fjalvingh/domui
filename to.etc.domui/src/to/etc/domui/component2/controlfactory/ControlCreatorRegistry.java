@@ -26,6 +26,7 @@ public class ControlCreatorRegistry {
 		register(new ControlCreatorRelationLookup());
 		register(new ControlCreatorString());
 		register(new ControlCreatorTextArea());
+		register(new ControlCreatorBoolean());
 	}
 
 	/*--------------------------------------------------------------*/
