@@ -313,17 +313,14 @@ public class TabPanelBase extends Div {
 		Div d = new Div();
 		d.setCssClass("ui-tab-div");
 
-		ATag a = new ATag();
-		a.setCssClass("ui-tab-link");
-		d.add(a);
 		Span dt = new Span();
-		a.add(dt);
+		d.add(dt);
 		if(ti.getImg() != null)
 			dt.add(ti.getImg());
 		dt.add(ti.getLabel()); // Append the label.
-		a.setClicked(new IClicked<ATag>() {
+		d.setClicked(new IClicked<Div>() {
 			@Override
-			public void clicked(@Nonnull ATag b) throws Exception {
+			public void clicked(@Nonnull Div b) throws Exception {
 				setCurrentTab(ti);
 			}
 		});
@@ -338,15 +335,6 @@ public class TabPanelBase extends Div {
 					closeTab(ti);
 				}
 
-			});
-			ATag end = new ATag();
-			d.add(end);
-			end.setCssClass("ui-tab-link");
-			end.setClicked(new IClicked<ATag>() {
-				@Override
-				public void clicked(@Nonnull ATag b) throws Exception {
-					setCurrentTab(ti);
-				}
 			});
 		}
 		li.add(d);
