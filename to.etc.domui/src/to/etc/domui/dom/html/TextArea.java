@@ -125,19 +125,12 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 		}
 		try {
 			m_validated = true;
-
 			if(StringTool.isBlank(m_value)) {
 				if(isMandatory()) {
 					throw new ValidationException(Msgs.MANDATORY);
 				}
 			}
-			UIMessage msg = getMessage();
-			if(result != null && msg != null) {
-				//-- Moving from invalid -> valid -check message.
-				if(result.getCode().equals(msg.getCode())) { // && result.getBundle().equals(msg.getBundle())) { // INCO Urgent: BundleRef needs equals, defining package+file as key.
-					setMessage(null);
-				}
-			}
+			clearValidationFailure(result);
 			m_validationResult = null;
 		} catch(ValidationException vx) {
 			m_validationResult = vx;

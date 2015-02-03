@@ -43,6 +43,7 @@ import to.etc.domui.logic.*;
 import to.etc.domui.parts.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
+import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.javascript.*;
 import to.etc.util.*;
@@ -169,6 +170,16 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 
 	private String m_testRepeatId;
 
+	/**
+	 * This flag gets T if the validate method has been called on the current
+	 * input for a control. It gets reset when a control receives a new value
+	 * that differs from it's previous value (raw).
+	 */
+	private boolean m_validated;
+
+	/** If validated this contains the last validation result. */
+	private UIException m_validationResult;
+
 	@Nullable
 	private List<IBinding> m_bindingList;
 
@@ -272,6 +283,23 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 
 	final public NodeContainer internalGetOldParent() {
 		return m_oldParent;
+	}
+
+	public boolean isValidated() {
+		return m_validated;
+	}
+
+	public void setValidated(boolean validated) {
+		m_validated = validated;
+	}
+
+	@Nullable
+	public UIException getValidationResult() {
+		return m_validationResult;
+	}
+
+	public void setValidationResult(@Nullable UIException validationResult) {
+		m_validationResult = validationResult;
 	}
 
 	public void internalClearDelta() {
@@ -1918,6 +1946,21 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 		List<IBinding> list = m_bindingList;
 		if(null != list)
 			list.remove(binding);
+	}
+
+	public void clearValidationFailure(UIException result) {
+		/*
+		 * Questionable place, but: if validation works we're sure any message related to
+		 * the VALIDATION should be gone. So check here to see if the last "validation"
+		 * failure is also in the message and if so clear that message.
+		 */
+		UIMessage msg = getMessage();
+		if(result != null && msg != null) {
+			//-- Moving from invalid -> valid -check message.
+			if(result.getCode().equals(msg.getCode())) { // && result.getBundle().equals(msg.getBundle())) { // INCO Urgent: BundleRef needs equals, defining package+file as key.
+				setMessage(null);
+			}
+		}
 	}
 
 	@Nonnull final public IBinder bind() {
