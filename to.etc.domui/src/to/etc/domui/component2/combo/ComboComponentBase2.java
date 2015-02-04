@@ -335,7 +335,6 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 		if(MetaManager.areObjectsEqual(newval, currentValue, cmm))
 			return false;
 
-		setValidated(false);
 		clearMessage();
 		m_currentValue = newval;
 		fireModified("value", currentValue, newval);
