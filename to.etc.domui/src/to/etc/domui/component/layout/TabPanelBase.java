@@ -313,24 +313,21 @@ public class TabPanelBase extends Div {
 		Div d = new Div();
 		d.setCssClass("ui-tab-div");
 
-		ATag a = new ATag();
-		a.setCssClass("ui-tab-link");
-		d.add(a);
 		Span dt = new Span();
-		a.add(dt);
+		d.add(dt);
 		if(ti.getImg() != null)
 			dt.add(ti.getImg());
 		dt.add(ti.getLabel()); // Append the label.
-		a.setClicked(new IClicked<ATag>() {
+		d.setClicked(new IClicked<Div>() {
 			@Override
-			public void clicked(@Nonnull ATag b) throws Exception {
+			public void clicked(@Nonnull Div b) throws Exception {
 				setCurrentTab(ti);
 			}
 		});
 
 		if(ti.isCloseable()) {
 			ATag x = new ATag();
-			dt.add(x);
+			d.add(x);
 			x.setCssClass("ui-tab-close");
 			x.setClicked(new IClicked<ATag>() {
 				@Override
@@ -415,13 +412,17 @@ public class TabPanelBase extends Div {
 		return m_tabBuilder;
 	}
 
-	void addTabToPanel(@Nonnull final TabInstance tabInstance) {
+	void addTabToPanel(@Nonnull final TabInstance tabInstance, int position) {
 
 		m_tabBuilder = null;
 		if(m_markErrorTabs) {
 			DomUtil.getMessageFence(this).addErrorListener(tabInstance);
 		}
-		m_tablist.add(tabInstance);
+		if(position == 0)
+			m_tablist.add(tabInstance);
+		else
+			m_tablist.add(position, tabInstance);
+
 		if(!isBuilt())
 			return;
 
@@ -462,7 +463,7 @@ public class TabPanelBase extends Div {
 	public void add(NodeBase content, NodeBase tablabel, boolean lazy) {
 		TabInstance tabInstance = new TabInstance(tablabel, content, null);
 		tabInstance.setLazy(lazy);
-		addTabToPanel(tabInstance);
+		addTabToPanel(tabInstance, 0);
 	}
 
 	public void add(NodeBase content, NodeBase tablabel, String icon) {
@@ -472,7 +473,7 @@ public class TabPanelBase extends Div {
 	public void add(NodeBase content, NodeBase tablabel, String icon, boolean lazy) {
 		TabInstance tabInstance = new TabInstance(tablabel, content, icon);
 		tabInstance.setLazy(lazy);
-		addTabToPanel(tabInstance);
+		addTabToPanel(tabInstance, 0);
 	}
 
 	@Override
