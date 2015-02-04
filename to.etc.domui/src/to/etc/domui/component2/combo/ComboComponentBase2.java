@@ -174,7 +174,6 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 	@Override
 	public void clearMessage() {
 		setMessage(null);
-		setValidated(false);
 	}
 
 	private void renderEditable() throws Exception {
@@ -258,22 +257,8 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 	}
 
 	private void validate() {
-		UIException result = getValidationResult();
-		if(isValidated()) {
-			if(null == result)
-				return;
-			throw result;
-		}
-		try {
-			setValidated(true);
-			if(isMandatory() && m_currentValue == null) {
-				throw new ValidationException(Msgs.MANDATORY);
-			}
-			clearValidationFailure(result);
-			setValidationResult(null);
-		} catch(ValidationException vx) {
-			setValidationResult(vx);
-			throw vx;
+		if(isMandatory() && m_currentValue == null) {
+			throw new ValidationException(Msgs.MANDATORY);
 		}
 	}
 
@@ -293,7 +278,6 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 		if(MetaManager.areObjectsEqual(v, currentValue, cmm))
 			return;
 		m_currentValue = v;
-		setValidated(false);
 		fireModified("value", currentValue, v);
 		if(!isBuilt())
 			return;
