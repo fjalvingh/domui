@@ -328,6 +328,13 @@ final public class SimpleBinder implements IBinder, IBinding {
 		return res;
 	}
 
+	/**
+	 * If the specified subtree has binding errors: report them, and return TRUE if there are
+	 * errors.
+	 * @param root
+	 * @return true if errors are present
+	 * @throws Exception
+	 */
 	static public boolean reportBindingErrors(@Nonnull NodeBase root) throws Exception {
 		final boolean[] silly = new boolean[1];					// Not having free variables is a joke.
 		DomUtil.walkTree(root, new IPerNode() {
