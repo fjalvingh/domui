@@ -167,15 +167,6 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 		renderOptionLabel(this, item);
 	}
 
-	/**
-	 * Clear message and reset validated flag, so next getValue would result with new validation check.
-	 * @see to.etc.domui.dom.html.NodeBase#clearMessage()
-	 */
-	@Override
-	public void clearMessage() {
-		setMessage(null);
-	}
-
 	private void renderEditable() throws Exception {
 		setCssClass("ui-cbb2 ui-cbb2-rw");
 		add(m_select);
@@ -236,7 +227,7 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 	final public V getValue() {
 		try {
 			validate();
-			clearMessage();
+			setMessage(null);
 			return m_currentValue;
 		} catch(ValidationException vx) {
 			setMessage(UIMessage.error(vx));

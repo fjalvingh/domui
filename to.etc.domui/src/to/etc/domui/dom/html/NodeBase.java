@@ -170,16 +170,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 
 	private String m_testRepeatId;
 
-	/**
-	 * This flag gets T if the validate method has been called on the current
-	 * input for a control. It gets reset when a control receives a new value
-	 * that differs from it's previous value (raw).
-	 */
-	private boolean m_validated;
-
-	/** If validated this contains the last validation result. */
-	private UIException m_validationResult;
-
 	@Nullable
 	private List<IBinding> m_bindingList;
 
@@ -283,23 +273,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 
 	final public NodeContainer internalGetOldParent() {
 		return m_oldParent;
-	}
-
-	public boolean isValidated() {
-		return m_validated;
-	}
-
-	public void setValidated(boolean validated) {
-		m_validated = validated;
-	}
-
-	@Nullable
-	public UIException getValidationResult() {
-		return m_validationResult;
-	}
-
-	public void setValidationResult(@Nullable UIException validationResult) {
-		m_validationResult = validationResult;
 	}
 
 	public void internalClearDelta() {

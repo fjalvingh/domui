@@ -93,6 +93,7 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 	 * </ul>
 	 * @return
 	 */
+	@Nullable
 	public String getBindValue() {
 		validate();												// Validate, and throw exception without UI change on trouble.
 		return m_value;
@@ -107,24 +108,10 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 
 	private void validate() {
 
-		UIException result = getValidationResult();
-		if(isValidated()) {
-			if(null == result)
-				return;
-			throw result;
-		}
-		try {
-			setValidated(true);
-			if(StringTool.isBlank(m_value)) {
-				if(isMandatory()) {
-					throw new ValidationException(Msgs.MANDATORY);
-				}
+		if(StringTool.isBlank(m_value)) {
+			if(isMandatory()) {
+				throw new ValidationException(Msgs.MANDATORY);
 			}
-			clearValidationFailure(result);
-			setValidationResult(null);
-		} catch(ValidationException vx) {
-			setValidationResult(vx);
-			throw vx;
 		}
 	}
 
@@ -137,17 +124,9 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 			validate();
 			return m_value;
 		} catch(ValidationException x) {
-			handleValidationException(x);
+			setMessage(UIMessage.error(x));
 			throw x;
 		}
-	}
-
-	private void handleValidationException(@Nullable ValidationException x) {
-		UIMessage message = null;
-		if(null != x) {
-			message = UIMessage.error(x);
-		}
-		setMessage(message);
 	}
 
 	/**
@@ -192,8 +171,8 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 		if(DomUtil.isEqual(v, value))
 			return;
 		m_value = v;
+		setMessage(null);
 		setText(v);
-		setValidated(false);
 		fireModified("value", value, v);
 	}
 

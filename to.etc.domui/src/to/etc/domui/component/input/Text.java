@@ -67,6 +67,16 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 
 	private T m_value;
 
+	/**
+	 * This flag gets T if the validate method has been called on the current
+	 * input for a control. It gets reset when a control receives a new value
+	 * that differs from it's previous value (raw).
+	 */
+	private boolean m_validated;
+
+	/** If validated this contains the last validation result. */
+	private UIException m_validationResult;
+
 //	private boolean m_wasvalid;
 
 	/**
@@ -130,7 +140,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		if(oldTrimmed.equals(newTrimmed)) {
 			return false;
 		}
-		setValidated(false);
+		m_validated = false;
 		DomUtil.setModifiedFlag(this);
 
 		//-- Handle data updates.
@@ -153,20 +163,31 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 * If validation fails then this throws UIException containing the exact validation problem.
 	 */
 	private void validate() {
-		UIException result = getValidationResult();
-		if(isValidated()) {
+		UIException result = m_validationResult;
+		if(m_validated) {
 			if(null == result)
 				return;
 			throw result;
 		}
 		try {
-			setValidated(true);
+			m_validated = true;
 			validatePrimitive();
 
-			clearValidationFailure(result);
-			setValidationResult(null);
+			/*
+			 * Questionable place, but: if validation works we're sure any message related to
+			 * the VALIDATION should be gone. So check here to see if the last "validation"
+			 * failure is also in the message and if so clear that message.
+			 */
+			UIMessage msg = getMessage();
+			if(result != null && msg != null) {
+				//-- Moving from invalid -> valid -check message.
+				if(result.getCode().equals(msg.getCode())) { // && result.getBundle().equals(msg.getBundle())) { // INCO Urgent: BundleRef needs equals, defining package+file as key.
+					setMessage(null);
+				}
+			}
+			m_validationResult = null;
 		} catch(ValidationException vx) {
-			setValidationResult(vx);
+			m_validationResult = vx;
 			throw vx;
 		}
 	}
@@ -332,7 +353,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	@Override
 	public void clearMessage() {
 		super.clearMessage();
-		setValidated(false);
+		m_validated = false;
 	}
 
 	/**
@@ -388,10 +409,10 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 
 			// jal 20081021 Clear validated als inputwaarde leeg is en de control is mandatory.
 			if((converted == null || converted.trim().length() == 0) && isMandatory())
-				setValidated(false);
+				m_validated = false;
 			else {
-				setValidated(true);
-				setValidationResult(null);
+				m_validated = true;
+				m_validationResult = null;
 			}
 		} finally {
 			fireModified("value", old, value);
@@ -416,7 +437,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	public void setMandatory(boolean mandatory) {
 		if(mandatory && !m_mandatory) {
 			//vmijic 20100326 - m_validated flag must be reset in case that component dynamically becomes mandatory (since it can happen that was setValue(null) while it not mandatory)
-			setValidated(false);
+			m_validated = false;
 		}
 		m_mandatory = mandatory;
 	}
