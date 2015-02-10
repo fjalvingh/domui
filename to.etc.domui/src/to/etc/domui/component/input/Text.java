@@ -173,18 +173,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 			m_validated = true;
 			validatePrimitive();
 
-			/*
-			 * Questionable place, but: if validation works we're sure any message related to
-			 * the VALIDATION should be gone. So check here to see if the last "validation"
-			 * failure is also in the message and if so clear that message.
-			 */
-			UIMessage msg = getMessage();
-			if(result != null && msg != null) {
-				//-- Moving from invalid -> valid -check message.
-				if(result.getCode().equals(msg.getCode())) { // && result.getBundle().equals(msg.getBundle())) { // INCO Urgent: BundleRef needs equals, defining package+file as key.
-					setMessage(null);
-				}
-			}
+			clearValidationFailure(result);
 			m_validationResult = null;
 		} catch(ValidationException vx) {
 			m_validationResult = vx;

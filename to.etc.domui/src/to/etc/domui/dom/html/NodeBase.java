@@ -1921,7 +1921,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 			list.remove(binding);
 	}
 
-	public void clearValidationFailure(UIException result) {
+	protected void clearValidationFailure(UIException result) {
 		/*
 		 * Questionable place, but: if validation works we're sure any message related to
 		 * the VALIDATION should be gone. So check here to see if the last "validation"
