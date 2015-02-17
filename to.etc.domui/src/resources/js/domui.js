@@ -1561,7 +1561,15 @@ $.extend(WebUI, {
 	 * for non-input keys and charcode for input.
 	 */
 	normalizeKey : function(evt) {
+        if($.browser.mozilla) {
+            if(evt.charCode > 0)
+                return evt.charCode;
+            return evt.keyCode * 1000;
+        }
+
 		if (evt.charCode != undefined) {
+            if(evt.charCode == evt.keyCode)
+                return evt.charCode;
 			if (evt.keyCode > 0)
 				return evt.keyCode * 1000; // Firefox high # for cursor crap
 			return evt.charCode;
@@ -1570,8 +1578,9 @@ $.extend(WebUI, {
 	},
 
 	isNumberKey : function(evt) {
-		var keyCode = WebUI.normalizeKey(evt);
-		//alert('keycode='+evt.keyCode+", charCode="+evt.charCode+", which="+evt.which+", norm="+keyCode);
+        //-- onKeyPress event: use keyCode
+        var keyCode = WebUI.normalizeKey(evt);
+        //$.dbg("kp: norm="+keyCode+", keyCode="+evt.keyCode+", chc="+evt.charCode+", which="+evt.which, evt);
 		return (keyCode >= 1000 || (keyCode >= 48 && keyCode <= 57) || keyCode == 45);
 	},
 
