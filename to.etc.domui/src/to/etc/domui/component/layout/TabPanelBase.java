@@ -520,9 +520,9 @@ public class TabPanelBase extends Div {
 	public void setCurrentTab(int index) throws Exception {
 
 		//		System.out.println("Switching to tab " + index);
-		if(index == getCurrentTab() || index < 0 || index >= m_tablist.size())			// Silly index
-			return;
 		if(isBuilt()) {
+			if(index == getCurrentTab() || index < 0 || index >= m_tablist.size())			// Silly index
+				return;
 			//-- We must switch the styles on the current "active" panel and the current "old" panel
 			int oldIndex = getCurrentTab();
 			TabInstance oldti = m_tablist.get(getCurrentTab());		// Get the currently active instance,
