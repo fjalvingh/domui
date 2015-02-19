@@ -80,6 +80,13 @@ public class JdbcAnyRecord {
 					else
 						set(name, new java.util.Date(ts.getTime()));
 					break;
+				case Types.CLOB:
+					Clob clob = rs.getClob(i);
+					if(clob == null)
+						set(name, NULL_VAL);
+					else
+						set(name, clob);
+					break;
 			}
 		}
 	}

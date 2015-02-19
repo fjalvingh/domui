@@ -30,6 +30,8 @@ public class Theme {
 
 	static public final String BTN_SAVE = "THEME/btnSave.png";
 
+	static public final String BTN_NEW = "THEME/btnNew.png";
+
 	static public final String DATA_EXPIRED = "THEME/dataExpired.png";
 
 	static public final String ICON_WARNING = "THEME/warning.png";
@@ -51,4 +53,7 @@ public class Theme {
 	static public final String ICON_SECURED = "THEME/secured.png";
 
 	static public final String ICON_SUCCESS = "THEME/success.png";
+
+	static public final String ICON_DSPCB_ON = "THEME/dspcb-on.png";
+
 }
