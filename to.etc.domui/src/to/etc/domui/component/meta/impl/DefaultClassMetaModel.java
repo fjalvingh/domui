@@ -461,8 +461,6 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	@Override
 	@Nonnull
 	public QCriteria< ? > createCriteria() throws Exception {
-		if(!isPersistentClass())
-			throw new IllegalStateException("This ClassMetaModel (" + this + ") is not persistent.");
 		ICriteriaTableDef< ? > tdef = getMetaTableDef();
 		if(tdef != null)
 			return QCriteria.create(tdef);
