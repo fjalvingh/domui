@@ -1515,6 +1515,7 @@ public abstract class DomApplication {
 
 	/**
 	 * Registers a set of possible rights and their names/translation bundle.
+	 *
 	 * @param bundle
 	 * @param rights
 	 */
@@ -1867,4 +1868,16 @@ public abstract class DomApplication {
 		}
 		m_uiTestMode = true;
 	}
+
+	/**
+	 * Returns the class for UrlPage that is Access Denied page handler.
+	 * Page itself is filled by default parameters, for specifics please look at default {@link AccessDeniedPage}.
+	 *
+	 * @return
+	 */
+	@Nonnull
+	public <T extends UrlPage> Class<T> getAccessDeniedPageClass() {
+		return (Class<T>) AccessDeniedPage.class;
+	}
+
 }

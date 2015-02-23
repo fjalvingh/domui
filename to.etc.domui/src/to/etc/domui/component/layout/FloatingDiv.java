@@ -26,6 +26,7 @@ package to.etc.domui.component.layout;
 
 import javax.annotation.*;
 
+import to.etc.domui.component.event.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
@@ -183,7 +184,7 @@ public class FloatingDiv extends Div {
 		if(getTestID() == null) {
 			setTestID("popup_" + getZIndex());
 		}
-		setPosition(PositionType.FIXED);
+		setPosition(PositionType.FIXED); //floaters always use FIXED position, this should not be changed
 
         if(getWidth() != null && getWidth().endsWith("%")) {
 			//when relative size is in use we don't center window horizontaly, otherwise we need to center it
@@ -194,27 +195,32 @@ public class FloatingDiv extends Div {
 				setLeft("50%");
 			}
 		} else {
-			//when relative size is in use we don't center window horizontaly, otherwise we need to center it
 			int width = DomUtil.pixelSize(getWidth());
 			if(-1 == width) {
 				StringBuilder sb = new StringBuilder();
 				appendJQuerySelector(sb);
 				sb.append(".center();");
 				appendCreateJS(sb.toString());
-				//			    throw new IllegalStateException("Bad width!");
 			} else {
-				// center floating window horizontally on screen
-				setMarginLeft("-" + width / 2 + "px");
-				setMarginTop("0px");
-				setLeft("50%");
-				setTop("5%");
-
+				int left = DomUtil.pixelSize(getLeft());
+				if(-1 == left) {
+					// center floating window horizontally on screen by default
+					setMarginLeft("-" + width / 2 + "px");
+					setLeft("50%");
+				}
+				int top = DomUtil.pixelSize(getTop());
+				if(-1 == top) {
+					// place floating window near to top of screen by default
+					setMarginTop("0px");
+					setTop("5%");
+				}
 			}
 		}
 
-		//-- If this is resizable add the resizable() thing to the create javascript.
+		//-- If this is resizable add the resizable() thing to the create javascript. This relies on jquery built in support for ui-resizeable.
 		if(isResizable())
-			appendCreateJS("$('#" + getActualID() + "').resizable({minHeight: " + MINHEIGHT + ", minWidth: " + MINWIDTH + ", resize: WebUI.floatingDivResize });");
+			appendCreateJS("$('#" + getActualID() + "').resizable({minHeight: " + MINHEIGHT + ", minWidth: " + MINWIDTH
+ + ", resize: WebUI.floatingDivResize, stop: WebUI.notifySizePositionChanged});");
 	}
 
 	public boolean isAutoClose() {
@@ -328,5 +334,24 @@ public class FloatingDiv extends Div {
 	 */
 	private void reactivateHiddenAccessKeys() {
 		appendJavascript("WebUI.reactivateHiddenAccessKeys('" + getActualID() + "');");
+	}
+
+	/**
+	 * Exposed client bounds. This gets set internally in case that floating div is dragged or resized in client (browser).
+	 * @see to.etc.domui.dom.html.NodeContainer#getClientBounds()
+	 */
+	@Override
+	public Rect getClientBounds() {
+		return super.getClientBounds();
+	}
+
+	/**
+	 * Exposed listener setter for notification on size and/or position change. This gets changed in case that floating div is dragged or resized in client (browser).
+	 * Call {@link FloatingDiv#getClientBounds()} in order to read size and position after change.
+	 * @see to.etc.domui.dom.html.NodeContainer#setOnSizeAndPositionChange()
+	 */
+	@Override
+	public final void setOnSizeAndPositionChange(@Nonnull INotify<NodeContainer> onSizeAndPositionChange) {
+		super.setOnSizeAndPositionChange(onSizeAndPositionChange);
 	}
 }

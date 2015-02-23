@@ -170,7 +170,7 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 			alignBase = DropDownPicker.this;
 		}
 
-		appendJavascript("WebUI.alignToTop('" + m_picker.getActualID() + "', '" + alignBase.getActualID() + "', " + m_offsetY + ");");
+		appendJavascript("WebUI.alignTopToBottom('" + m_picker.getActualID() + "', '" + alignBase.getActualID() + "', " + m_offsetY + ");");
 		switch(m_halign){
 			case LEFT:
 				appendJavascript("WebUI.alignToLeft('" + m_picker.getActualID() + "', '" + alignBase.getActualID() + "', " + m_offsetX + ");");

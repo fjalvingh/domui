@@ -2800,6 +2800,18 @@ $.extend(WebUI, {
 	    $(flexid).height(height + "px");
     },
 
+    notifySizePositionChanged: function(event, ui) {
+   	    var element = ui.helper.get(0);
+   	    if (!element){
+   	    	return;
+   	    }
+		// Send back size information to server
+		var fields = new Object();
+		fields.webuia = "notifyClientPositionAndSize";
+		fields[element.id + "_rect"] = $(element).position().left + "," + $(element).position().top + "," + $(element).width() + "," + $(element).height();
+		WebUI.scall(element.id, "notifyClientPositionAndSize", fields);
+    },
+
 	/** *************** Debug thingy - it can be used internaly for debuging javascript ;) ************** */
 	debug : function(debugId, posX, posY, debugInfoHtml) {
 		//Be aware that debugId must not start with digit when using FF! Just lost 1 hour to learn this...
@@ -3379,18 +3391,47 @@ $.extend(WebUI, {
 	},
 
 	//alignment methods
-	alignToTop : function (nodeId, alignToId, offsetY){
+	//sticks top of element with nodeId to bottom of element with alignToId, with extra offsetY.
+	alignTopToBottom : function (nodeId, alignToId, offsetY){
 		var alignNode = $('#' + alignToId);
-		$('#' + nodeId).css('top', $(alignNode).position().top + offsetY + $(alignNode).outerHeight(true));
+		var node = $('#' + nodeId);
+		if (node.css('position') == 'fixed'){
+			$(node).css('top', $(alignNode).offset().top - $(document).scrollTop() + offsetY + $(alignNode).outerHeight(true));
+		}else{
+			$(node).css('top', $(alignNode).position().top + offsetY + $(alignNode).outerHeight(true));
+		}
 	},
 
+	//align top of element with nodeId to top of element with alignToId, with extra offsetY
+	alignToTop : function (nodeId, alignToId, offsetY){
+		var alignNode = $('#' + alignToId);
+		var node = $('#' + nodeId);
+		var myTopPos;
+		if (node.css('position') == 'fixed'){
+			myTopPos = $(alignNode).offset().top - $(document).scrollTop() + offsetY;
+		}else{
+			myTopPos = $(alignNode).position().top + offsetY;
+		}
+		var nodeHeight = $(node).outerHeight(true);
+		if (myTopPos + nodeHeight > $(window).height()){
+			myTopPos = $(window).height() - nodeHeight;
+		}
+		$(node).css('top', myTopPos);
+	},
+
+	//align left edge of element with nodeId to left edge of element with alignToId, with extra offsetX
 	alignToLeft : function (nodeId, alignToId, offsetX){
 		var node = $('#' + nodeId);
 		var alignNode = $('#' + alignToId);
-		var myLeftPos = $(alignNode).position().left + offsetX;
-		var myRightPos = $(node).outerWidth(true) + myLeftPos;
-		if (myRightPos > $(window).width()){
-			myLeftPos = myLeftPos - myRightPos + $(window).width();
+		var myLeftPos;
+		if (node.css('position') == 'fixed'){
+			myLeftPos = $(alignNode).offset().left - $(document).scrollLeft() + offsetX;
+		}else{
+			myLeftPos = $(alignNode).position().left + offsetX;
+		}
+		var nodeWidth = $(node).outerWidth(true);
+		if (myLeftPos + nodeWidth > $(window).width()){
+			myLeftPos = $(window).width() - nodeWidth;
 			if (myLeftPos < 1){
 				myLeftPos = 1;
 			}
@@ -3398,20 +3439,32 @@ $.extend(WebUI, {
 		$(node).css('left', myLeftPos);
 	},
 
+	//align right edge of element with nodeId to right edge of element with alignToId, with extra offsetX
 	alignToRight : function (nodeId, alignToId, offsetX){
 		var node = $('#' + nodeId);
 		var alignNode = $('#' + alignToId);
-		var myLeftPos = $(alignNode).position().left + offsetX - $(node).outerWidth(true) + $(alignNode).outerWidth(true) - 3;
+		var myLeftPos;
+		if (node.css('position') == 'fixed'){
+			myLeftPos = $(alignNode).offset().left - $(document).scrollLeft() + offsetX - $(node).outerWidth(true) + $(alignNode).outerWidth(true) - 3;
+		}else{
+			myLeftPos = $(alignNode).position().left + offsetX - $(node).outerWidth(true) + $(alignNode).outerWidth(true) - 3;
+		}
 		if (myLeftPos < 1){
 			myLeftPos = 1;
 		}
 		$(node).css('left', myLeftPos);
 	},
 
+	//align horizontaly middle of element with nodeId to middle of element with alignToId, with extra offsetX
 	alignToMiddle : function (nodeId, alignToId, offsetX){
 		var node = $('#' + nodeId);
 		var alignNode = $('#' + alignToId);
-		var myLeftPos = $(alignNode).position().left + ($(alignNode).outerWidth(true) / 2) - ($(node).outerWidth(true) / 2);
+		var myLeftPos;
+		if (node.css('position') == 'fixed'){
+			myLeftPos = $(alignNode).offset().left - $(document).scrollLeft() + ($(alignNode).outerWidth(true) / 2) - ($(node).outerWidth(true) / 2);
+		}else{
+			myLeftPos = $(alignNode).position().left + ($(alignNode).outerWidth(true) / 2) - ($(node).outerWidth(true) / 2);
+		}
 		if (myLeftPos < 1){
 			myLeftPos = 1;
 		}
@@ -3705,6 +3758,7 @@ WebUI.onDocumentReady = function() {
 };
 
 WebUI.floatingDivResize = function(ev, ui) {
+	$(ui.helper.get(0)).css('position', 'fixed');
 	$('[stretch=true]').doStretch();
 	$('.ui-dt, .ui-fixovfl').fixOverflow();
 };

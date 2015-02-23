@@ -125,9 +125,9 @@ public class DefaultPageInjector implements IPageInjector {
 		return calculatePropertyInjector(pi, m);
 	}
 
-	protected PropertyInjector calculatePropertyInjector(PropertyInfo pi, Method annotatedMethod) {
-		//-- Check annotation.
-		UIUrlParameter upp = annotatedMethod.getAnnotation(UIUrlParameter.class);
+	protected PropertyInjector calculatePropertyInjector(@Nonnull PropertyInfo pi, @Nonnull Method annotatedMethod) {
+		//-- Check annotation, including super classes.
+		UIUrlParameter upp = ClassUtil.findAnnotationIncludingSuperClasses(annotatedMethod, UIUrlParameter.class);
 
 		if(upp != null)
 			return createUrlAnnotationConnector(pi, upp);

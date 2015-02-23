@@ -203,7 +203,7 @@ public class Window extends FloatingDiv {
 		}
 
 		//vmijic 20091125 - since z-index is dynamic value, correct value has to be used also in js.
-		appendCreateJS("$('#" + getActualID() + "').draggable({" + "ghosting: false, zIndex:" + getZIndex() + ", handle: '#" + m_titleBar.getActualID() + "'});");
+		appendCreateJS("$('#" + getActualID() + "').draggable({" + "ghosting: false, zIndex:" + getZIndex() + ", handle: '#" + m_titleBar.getActualID() + "', stop: WebUI.notifySizePositionChanged});");
 		delegateTo(m_content);
 	}
 

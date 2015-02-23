@@ -2102,4 +2102,30 @@ public class FileTool {
 			throw WrappedException.wrap(x);
 		}
 	}
+
+	/**
+	 * Returns the string from specified Clob.
+	 *
+	 * @param data
+	 * @return
+	 * @throws SQLException
+	 * @throws IOException
+	 */
+	@Nonnull
+	public static String readAsString(@Nonnull Clob data) throws SQLException, IOException {
+		StringBuilder sb = new StringBuilder();
+		BufferedReader br = null;
+		try {
+			Reader reader = data.getCharacterStream();
+			br = new BufferedReader(reader);
+
+			String line;
+			while(null != (line = br.readLine())) {
+				sb.append(line);
+			}
+			return sb.toString();
+		} finally {
+			FileTool.closeAll(br);
+		}
+	}
 }

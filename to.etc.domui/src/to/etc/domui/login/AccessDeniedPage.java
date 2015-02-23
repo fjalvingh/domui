@@ -24,6 +24,8 @@
  */
 package to.etc.domui.login;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.html.*;
@@ -95,17 +97,7 @@ public class AccessDeniedPage extends UrlPage {
 			co.add(new Div(Msgs.BUNDLE.formatMessage(Msgs.LOGIN_REQUIRED_RIGHTS)));
 			d = new Div();
 			co.add(d);
-			Ul ul = new Ul();
-			d.add(ul);
-			for(int i = 0; i < 99; i++) {
-				String r = getPage().getPageParameters().getString("r" + i, null);
-				if(r == null)
-					break;
-				Li li = new Li();
-				ul.add(li);
-				String desc = DomApplication.get().getRightsDescription(r);
-				li.add(desc + " (" + r + ")");
-			}
+			renderMissingRightsInfo(d);
 		}
 
 		//-- Add a link to return to the master/index page.
@@ -115,6 +107,25 @@ public class AccessDeniedPage extends UrlPage {
 			ALink link = new ALink(DomApplication.get().getRootPage(), MoveMode.NEW); // Destroy shelve.
 			d.add(link);
 			link.setText(Msgs.BUNDLE.getString(Msgs.LOGIN_TO_INDEX));
+		}
+	}
+
+	/**
+	 * Shows missing right info inside the specified container panel.
+	 *
+	 * @param d
+	 */
+	protected void renderMissingRightsInfo(@Nonnull Div d) {
+		Ul ul = new Ul();
+		d.add(ul);
+		for(int i = 0; i < 99; i++) {
+			String r = getPage().getPageParameters().getString("r" + i, null);
+			if(r == null)
+				break;
+			Li li = new Li();
+			ul.add(li);
+			String desc = DomApplication.get().getRightsDescription(r);
+			li.add(desc + " (" + r + ")");
 		}
 	}
 }
