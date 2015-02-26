@@ -173,6 +173,9 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 	@Nullable
 	private List<IBinding> m_bindingList;
 
+	@Nullable
+	private String m_overrideTitle;
+
 	/**
 	 * This must visit the appropriate method in the node visitor. It should NOT recurse it's children.
 	 * @param v
@@ -741,7 +744,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 	 *
 	 * @param title
 	 */
-	public void setTitle(final String title) {
+	public void setTitle(@Nullable final String title) {
 		if(!DomUtil.isEqual(title, m_title))
 			changed();
 		m_title = title;
@@ -751,9 +754,18 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 	 * Returns the title <i>as set</i> verbatim; if it was set using a tilde key this returns the <i>key</i> without resource bundle replacement.
 	 * @return
 	 */
+	@Nullable
 	public String getTitle() {
-		return m_title;
+		return m_overrideTitle == null ? m_title : m_overrideTitle;
 	}
+
+	public void setOverrideTitle(@Nullable String overrideTitle) {
+		if(Objects.equals(overrideTitle, m_overrideTitle))
+			return;
+		m_overrideTitle = overrideTitle;
+		changed();
+	}
+
 
 	/**
 	 * Return the click handler for this node, or null if none is associated with it.
