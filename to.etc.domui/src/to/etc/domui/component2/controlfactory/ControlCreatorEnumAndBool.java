@@ -58,6 +58,9 @@ public class ControlCreatorEnumAndBool implements IControlCreator {
 	@Override
 	public <T, C extends IControl<T>> C createControl(@Nonnull PropertyMetaModel<T> pmm, @Nullable Class<C> controlClass) {
 		ComboFixed2< ? > c = ComboFixed2.createComboFor(pmm, true);
+		if(pmm.getActualType() == boolean.class)
+			c.setMandatory(true);
+
 		return (C) c;
 	}
 }

@@ -33,19 +33,69 @@ import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
+import to.etc.webapp.*;
 
 /**
  * This renderer represents default renderer that is used for {@link LookupInput} control.
- * It can be additionally customized (before and after custom content) by setting provided {@link ICustomContentFactory} fields.
- * See {@link SimpleLookupInputRenderer2#setBeforeContent} and {@link SimpleLookupInputRenderer2#setAfterContent}.
- * Custom added content would be enveloped into separate row(s).
  *
- * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
- * Created on Feb 10, 2010
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on 10/2014
  */
-public class SimpleLookupInputRenderer2<T> implements INodeContentRenderer<T> {
+@DefaultNonNull
+final public class SimpleLookupInputRenderer2<T> implements INodeContentRenderer<T> {
+	final private Class<T> m_actualClass;
 
-	public SimpleLookupInputRenderer2() {}
+	final private ClassMetaModel m_classModel;
+
+	final private String[] m_propertyNames;
+
+	final private List<ExpandedDisplayProperty< ? >> m_xpl;
+
+	public SimpleLookupInputRenderer2(Class<T> displayClass, String... propertyNames) {
+		m_classModel = MetaManager.findClassMeta(displayClass);
+		m_actualClass = displayClass;
+		m_propertyNames = propertyNames;
+		m_xpl = initRenderingModel();
+	}
+
+	public SimpleLookupInputRenderer2(ClassMetaModel cmm, String... propertyNames) {
+		m_actualClass = (Class<T>) cmm.getActualClass();
+		m_classModel = cmm;
+		m_propertyNames = propertyNames;
+		m_xpl = initRenderingModel();
+	}
+
+	private Class<T> getActualClass() {
+		return m_actualClass;
+	}
+
+	/**
+	 * Create the rendering model from the available data.
+	 * @return
+	 */
+	@Nonnull
+	private List<ExpandedDisplayProperty< ? >> initRenderingModel() {
+		ClassMetaModel cmm = MetaManager.findClassMeta(getActualClass());
+		List<ExpandedDisplayProperty< ? >> xpl;
+		if(m_propertyNames.length == 0) {
+			//-- Has default meta?
+			List<DisplayPropertyMetaModel> l = cmm.getTableDisplayProperties();
+			if(l.size() == 0)
+				l = cmm.getComboDisplayProperties();
+			if(l.size() == 0)
+				throw new ProgrammerErrorException("The class "+getActualClass()+" has no presentation metadata (@MetaObject or @MetaCombo)");
+
+			//-- Expand the thingy: render a single line separated with BRs
+			xpl = ExpandedDisplayProperty.expandDisplayProperties(l, cmm, null);
+		} else {
+			//-- Use the specified properties and create a list for presentation.
+			xpl = new ArrayList<ExpandedDisplayProperty< ? >>();
+			for(String propname : m_propertyNames) {
+				xpl.add(ExpandedDisplayProperty.expandProperty(cmm, propname));
+			}
+		}
+		return ExpandedDisplayProperty.flatten(xpl);
+	}
 
 	@Override
 	public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable T object, @Nullable Object parameters) throws Exception {
@@ -54,35 +104,23 @@ public class SimpleLookupInputRenderer2<T> implements INodeContentRenderer<T> {
 			node.setText(txt);
 			return;
 		}
-
-		ClassMetaModel cmm = MetaManager.findClassMeta(object.getClass());
-		if(cmm != null) {
-			//-- Has default meta?
-			List<DisplayPropertyMetaModel> l = cmm.getTableDisplayProperties();
-			if(l.size() == 0)
-				l = cmm.getComboDisplayProperties();
-			if(l.size() > 0) {
-				//-- Expand the thingy: render a single line separated with BRs
-				List<ExpandedDisplayProperty< ? >> xpl = ExpandedDisplayProperty.expandDisplayProperties(l, cmm, null);
-				xpl = ExpandedDisplayProperty.flatten(xpl);
-				int c = 0;
-				int mw = 0;
-				for(ExpandedDisplayProperty< ? > xp : xpl) {
-					String val = xp.getPresentationString(object);
-					if(val == null || val.length() == 0)
-						continue;
-
-					Span vals = new Span();
-					vals.setCssClass("ui-lui2-vals");
-					node.add(vals);
-					vals.setText(val);
-				}
-				return;
-			}
+		List<ExpandedDisplayProperty<?>> xl = m_xpl;
+		if(xl == null || xl.size() == 0) {
+			node.add(String.valueOf(object));
+			return;
 		}
 
-		//-- Use toString
-		String txt = object.toString();
-		node.setText(txt);
+		int c = 0;
+		int mw = 0;
+		for(ExpandedDisplayProperty< ? > xp : xl) {
+			String val = xp.getPresentationString(object);
+			if(val == null || val.length() == 0)
+				continue;
+
+			Span vals = new Span();
+			vals.setCssClass("ui-lui2-vals");
+			node.add(vals);
+			vals.setText(val);
+		}
 	}
 }

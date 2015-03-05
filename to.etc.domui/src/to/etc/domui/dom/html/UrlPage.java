@@ -51,7 +51,7 @@ public class UrlPage extends Div {
 	private BindingContext m_bindingContext;
 
 	public UrlPage() {
-		setCssClass("ui-content");
+		setCssClass("ui-content ui-kludge");
 	}
 
 	/**
@@ -95,6 +95,14 @@ public class UrlPage extends Div {
 	 */
 	public void closeWindow() {
 		appendJavascript("window.close();");
+	}
+
+	/**
+	 * Remove the styles that cause the margin kludge to be applied to all pages.
+	 */
+	public void unkludge() {
+		removeCssClass("ui-content");
+		removeCssClass("ui-kludge");
 	}
 
 	/**

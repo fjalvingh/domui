@@ -24,6 +24,10 @@
  */
 package to.etc.domui.component2.combo;
 
+import java.util.*;
+
+import javax.annotation.*;
+
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
@@ -34,9 +38,6 @@ import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 import to.etc.webapp.query.*;
-
-import javax.annotation.*;
-import java.util.*;
 
 /**
  * Alternate version of the combobox that wraps a select instead of being one. This version properly
@@ -150,7 +151,7 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 	private void renderReadOnly() throws Exception {
 		setCssClass("ui-cbb2 ui-cbb2-ro");
 
-		//-- Append shtuff to the combo
+		//-- Append stuff to the combo
 		List<T> list = getData();
 		V raw = internalGetCurrentValue();
 		int index = findListIndexForValue(raw);
@@ -170,8 +171,8 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 		setCssClass("ui-cbb2 ui-cbb2-rw");
 		add(m_select);
 
-		//-- Append shtuff to the combo
-		List<T>	list = getData();
+		//-- Append stuff to the combo
+		List<T> list = getData();
 		V raw = internalGetCurrentValue();
 
 		//-- First loop over all values to find out if current value is part of value domain.
@@ -226,7 +227,7 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 	final public V getValue() {
 		try {
 			validate();
-			clearMessage();
+			setMessage(null);
 			return m_currentValue;
 		} catch(ValidationException vx) {
 			setMessage(UIMessage.error(vx));
@@ -240,6 +241,9 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 	}
 
 	final public void setBindValue(V value) {
+		if(MetaManager.areObjectsEqual(m_currentValue, value)) {
+			return;
+		}
 		setValue(value);
 	}
 
@@ -322,6 +326,7 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 		if(MetaManager.areObjectsEqual(newval, currentValue, cmm))
 			return false;
 
+		clearMessage();
 		m_currentValue = newval;
 		fireModified("value", currentValue, newval);
 		return true;
@@ -339,7 +344,7 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 			ClassMetaModel cmm = MetaManager.findClassMeta(newvalue.getClass());
 			List<T> data = getData();
 			for(int ix = 0; ix < data.size(); ix++) {
-				V	value = listToValue(data.get(ix));
+				V value = listToValue(data.get(ix));
 				if(MetaManager.areObjectsEqual(value, newvalue, cmm))
 					return ix;
 			}
@@ -584,7 +589,7 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 	/*--------------------------------------------------------------*/
 
 	@Nullable
-	private IValueChanged<?> m_onValueChanged;
+	private IValueChanged< ? > m_onValueChanged;
 
 	@Override
 	public IValueChanged< ? > getOnValueChanged() {
@@ -600,7 +605,8 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 			m_select.setOnValueChanged(null);
 		} else {
 			m_select.setOnValueChanged(new IValueChanged<Select>() {
-				@Override public void onValueChanged(@Nonnull Select component) throws Exception {
+				@Override
+				public void onValueChanged(@Nonnull Select component) throws Exception {
 					IValueChanged<ComboComponentBase2<T, V>> vc = (IValueChanged<ComboComponentBase2<T, V>>) m_onValueChanged;
 					if(null != vc)
 						vc.onValueChanged(ComboComponentBase2.this);

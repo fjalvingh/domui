@@ -413,6 +413,9 @@ public class RuntimeConversions {
 			return (T) convertToBigInteger(o);
 		if(to == BigDecimal.class)
 			return (T) convertToBigDecimal(o);
+		if(Enum.class.isAssignableFrom(to)) {
+			return (T) convertToEnum((Class<Enum<?>>)to, o);
+		}
 
 		if(o == null && !to.isPrimitive()) // Accept null for all non-primitives
 			return (T) o;

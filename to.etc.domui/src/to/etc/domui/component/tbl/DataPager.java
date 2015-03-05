@@ -24,16 +24,15 @@
  */
 package to.etc.domui.component.tbl;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * A pager component for a DataTable-based table. This gets attached
@@ -61,7 +60,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 
 	private Img m_truncated;
 
-	TabularComponentBase< ? > m_table;
+	PageableTabularComponentBase< ? > m_table;
 
 	private TextNode m_txt;
 
@@ -77,7 +76,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 
 	public DataPager() {}
 
-	public DataPager(final TabularComponentBase< ? > tbl) {
+	public DataPager(final PageableTabularComponentBase< ? > tbl) {
 		m_table = tbl;
 		tbl.addChangeListener(this);
 	}
@@ -244,7 +243,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 	}
 
 	@Override
-	public void selectionUIChanged(@Nonnull TabularComponentBase< ? > tbl) throws Exception {
+	public void selectionUIChanged(@Nonnull TableModelTableBase< ? > tbl) throws Exception {
 		redraw();
 		//		if(tbl instanceof DataTable) {
 		//			DataTable< ? > dt = (DataTable< ? >) tbl;
@@ -376,12 +375,12 @@ public class DataPager extends Div implements IDataTableChangeListener {
 	/*	CODING:	DataTableChangeListener implementation.				*/
 	/*--------------------------------------------------------------*/
 	@Override
-	public void modelChanged(final @Nonnull TabularComponentBase< ? > tbl, final @Nullable ITableModel< ? > old, final @Nullable ITableModel< ? > nw) throws Exception {
+	public void modelChanged(final @Nonnull TableModelTableBase< ? > tbl, final @Nullable ITableModel< ? > old, final @Nullable ITableModel< ? > nw) throws Exception {
 		redraw();
 	}
 
 	@Override
-	public void pageChanged(final @Nonnull TabularComponentBase< ? > tbl) throws Exception {
+	public void pageChanged(final @Nonnull TableModelTableBase< ? > tbl) throws Exception {
 		redraw();
 	}
 

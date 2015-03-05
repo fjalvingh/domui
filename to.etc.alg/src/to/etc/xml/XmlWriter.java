@@ -152,6 +152,43 @@ public class XmlWriter extends IndentWriter {
 		wraw("\n");
 	}
 
+	public void tag(String tn, Object... ar) throws Exception {
+		wraw("<" + tn);
+
+		List<String> avs = new ArrayList<>();
+		for(int i = 0; i < ar.length; i += 2) {
+			String attr = (String) ar[i];
+			Object val = ar[i + 1];
+			if(val != null) {
+				wraw(" ");
+				wraw(attr);
+				wraw("=\"");
+				String s = renderValue(val);
+				wraw(StringTool.xmlStringize(s));
+				wraw("\"");
+			}
+		}
+		wraw(">");
+		m_tag_lvl++;
+		inc();
+		m_tag_ar[m_tag_lvl] = tn;
+	}
+
+	private String renderValue(Object val) throws Exception {
+		if(null == val)
+			return "";
+		if(val instanceof String) {
+			return (String) val;
+		}
+		if(val instanceof Date) {
+			return W3CSchemaCoder.encodeDateTime((Date) val, null);
+		}
+		if(val instanceof Boolean) {
+			return W3CSchemaCoder.encodeBoolean((Boolean) val);
+		}
+		return String.valueOf(val);
+	}
+
 	public void tag(String tn, String... attrvalueset) throws IOException {
 		wraw("<" + tn);
 
@@ -170,12 +207,38 @@ public class XmlWriter extends IndentWriter {
 		m_tag_ar[m_tag_lvl] = tn;
 	}
 
+	public void startTag(String tn) throws IOException {
+		wraw("<" + tn);
+		m_tag_lvl++;
+		inc();
+		m_tag_ar[m_tag_lvl] = tn;
+	}
+
 	public void attr(String name, String value) throws IOException {
 		wraw(" ");
 		wraw(name);
 		wraw("=\"");
 		wraw(StringTool.xmlStringize(value));
 		wraw("\"");
+	}
+	public void attr(String name, Object value) throws Exception {
+		if(null == value)
+			return;
+		wraw(" ");
+		wraw(name);
+		wraw("=\"");
+		wraw(StringTool.xmlStringize(renderValue(value)));
+		wraw("\"");
+	}
+
+
+	public void endTag(boolean complete) throws IOException {
+		if(complete) {
+			wraw("/>");
+			m_tag_lvl--;
+		} else {
+			wraw(">");
+		}
 	}
 
 	/**

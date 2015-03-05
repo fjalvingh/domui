@@ -24,13 +24,13 @@
  */
 package to.etc.domui.dom.html;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
-
-import javax.annotation.*;
 
 public class TextArea extends InputNodeContainer implements INativeChangeListener, IControl<String>, IHasModifiedIndication, IHtmlInput {
 	/** Hint to use in property meta data to select this component. */
@@ -85,15 +85,34 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 		m_rows = rows;
 	}
 
-	public boolean validate() {
+	/**
+	 * Bind-capable version of getValue(). If called (usually from binding) this will act as follows:
+	 * <ul>
+	 * 	<li>If this component has an input error: throw the ValidationException for that error</li>
+	 * 	<li>On no error this returns the value.</li>
+	 * </ul>
+	 * @return
+	 */
+	@Nullable
+	public String getBindValue() {
+		validate();												// Validate, and throw exception without UI change on trouble.
+		return m_value;
+	}
+
+	public void setBindValue(@Nullable String value) {
+		if(MetaManager.areObjectsEqual(m_value, value)) {
+			return;
+		}
+		setValue(value);
+	}
+
+	private void validate() {
+
 		if(StringTool.isBlank(m_value)) {
 			if(isMandatory()) {
-				setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.MANDATORY));
-				return false;
+				throw new ValidationException(Msgs.MANDATORY);
 			}
 		}
-		clearMessage();
-		return true;
 	}
 
 	/**
@@ -101,9 +120,13 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 	 */
 	@Override
 	public String getValue() {
-		if(!validate())
-			throw new ValidationException(Msgs.NOT_VALID, m_value);
-		return m_value;
+		try {
+			validate();
+			return m_value;
+		} catch(ValidationException x) {
+			setMessage(UIMessage.error(x));
+			throw x;
+		}
 	}
 
 	/**
@@ -148,6 +171,7 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 		if(DomUtil.isEqual(v, value))
 			return;
 		m_value = v;
+		setMessage(null);
 		setText(v);
 		fireModified("value", value, v);
 	}

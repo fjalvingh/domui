@@ -151,11 +151,12 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 //			System.err.println("(in calling " + setter + " with input object " + target + " and value " + value + ")");
 			if(c instanceof Exception) {
 				throw (Exception) c;
-			}
-			else if(c instanceof Error)
+			} else if(c instanceof Error)
 				throw (Error) c;
 			else
 				throw itx;
+		} catch(IllegalArgumentException x) {
+			throw new PropertyValueInvalidException(value, target, this);
 		} catch(Exception x) {
 //			System.err.println("(in calling " + setter + " with input object " + target + " and value " + value + ")");
 			throw x;

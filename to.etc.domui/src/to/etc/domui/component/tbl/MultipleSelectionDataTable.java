@@ -24,12 +24,11 @@
  */
 package to.etc.domui.component.tbl;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * DataTable customized to support multiple selection functionality. Supports accmulation of selection along multiple queries.
@@ -76,11 +75,7 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 			//-- Render the header.
 			THead hd = new THead();
 			getTable().add(hd);
-			HeaderContainer<T> hc = new HeaderContainer<T>(this);
-			TR tr = new TR();
-			tr.setCssClass("ui-dt-hdr");
-			hd.add(tr);
-			hc.setParent(tr);
+			HeaderContainer<T> hc = new HeaderContainer<T>(this, hd, "ui-dt-hdr");
 			Img selImg = new Img("THEME/dspcb-on.png");
 			selImg.setTitle(getSelectionColTitle() == null ? Msgs.BUNDLE.getString(Msgs.UI_MLUI_COL_TTL) : getSelectionColTitle());
 			selImg.setTestID("msdt_select_all");
@@ -95,7 +90,7 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 
 			for(int index = 0; index < m_accumulatedRows.size(); index++) {
 				T accumulatedItem = m_accumulatedRows.get(index);
-				tr = new TR();
+				TR tr = new TR();
 				getDataBody().add(tr);
 				boolean selected = (m_accumulatedSelections.size() > index ? m_accumulatedSelections.get(index).booleanValue() : false);
 				renderAccumulatedItem(tr, cc, accumulatedItem, selected, index);
@@ -108,7 +103,7 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 
 			int ix = m_six;
 			for(T item : list) {
-				tr = new TR();
+				TR tr = new TR();
 				getDataBody().add(tr);
 				cc.setParent(tr);
 				TD selectionMarkerCell = new TD();

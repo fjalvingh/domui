@@ -24,17 +24,21 @@
  */
 package to.etc.domui.component.tbl;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.databinding.observables.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
+import javax.annotation.*;
+import java.util.*;
+
 abstract public class TableModelTableBase<T> extends Div implements ITableModelListener<T> {
 	@Nullable
 	private ITableModel<T> m_model;
+
+	@Nonnull
+	private List<IDataTableChangeListener> m_listeners = Collections.EMPTY_LIST;
+
+	private boolean m_disableClipboardSelection;
 
 	protected TableModelTableBase(@Nonnull ITableModel<T> model) {
 		m_model = model;
@@ -42,6 +46,66 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 	}
 
 	public TableModelTableBase() {}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Model/page changed listener code..					*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Add a change listener to this model. Don't forget to remove it at destruction time.
+	 */
+	public void addChangeListener(@Nonnull IDataTableChangeListener l) {
+		synchronized(this) {
+			if(m_listeners.contains(l))
+				return;
+			m_listeners = new ArrayList<IDataTableChangeListener>(m_listeners);
+			m_listeners.add(l);
+		}
+	}
+
+	/**
+	 * Remove a change listener from the model.
+	 * @see to.etc.domui.component.tbl.ITableModel#removeChangeListener(to.etc.domui.component.tbl.ITableModelListener)
+	 */
+	public void removeChangeListener(@Nonnull IDataTableChangeListener l) {
+		synchronized(this) {
+			m_listeners = new ArrayList<IDataTableChangeListener>();
+			m_listeners.remove(l);
+		}
+	}
+
+	private synchronized List<IDataTableChangeListener> getListeners() {
+		return m_listeners;
+	}
+
+	protected void fireModelChanged(@Nullable ITableModel<T> old, @Nullable ITableModel<T> nw) {
+		for(IDataTableChangeListener l : getListeners()) {
+			try {
+				l.modelChanged(this, old, nw);
+			} catch(Exception x) {
+				x.printStackTrace();
+			}
+		}
+	}
+
+	protected void firePageChanged() {
+		for(IDataTableChangeListener l : getListeners()) {
+			try {
+				l.pageChanged(this);
+			} catch(Exception x) {
+				x.printStackTrace();
+			}
+		}
+	}
+
+	protected void fireSelectionUIChanged() {
+		for(IDataTableChangeListener l : getListeners()) {
+			try {
+				l.selectionUIChanged(this);
+			} catch(Exception x) {
+				x.printStackTrace();
+			}
+		}
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Model updates.										*/
@@ -113,10 +177,6 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 			m_model.refresh();
 	}
 
-	protected void firePageChanged() {}
-
-	protected void fireModelChanged(@Nullable ITableModel<T> old, @Nonnull ITableModel<T> model) {}
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Experimental: using ObservableList as a value.		*/
 	/*--------------------------------------------------------------*/
@@ -143,4 +203,17 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 		return null;
 	}
 
+
+	public boolean isDisableClipboardSelection() {
+		return m_disableClipboardSelection;
+	}
+
+	public void setDisableClipboardSelection(boolean disableClipboardSelection) {
+		if(m_disableClipboardSelection == disableClipboardSelection)
+			return;
+		m_disableClipboardSelection = disableClipboardSelection;
+		if(isBuilt() && disableClipboardSelection) {
+			appendJavascript(JavascriptUtil.disableSelection(this)); // Needed to prevent ctrl+click in IE doing clipboard-select, because preventDefault does not work there of course.
+		}
+	}
 }

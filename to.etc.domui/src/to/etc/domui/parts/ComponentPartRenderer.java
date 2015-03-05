@@ -78,6 +78,10 @@ public class ComponentPartRenderer {
 		m_component = m_page.findNodeByID(wid);
 		if(m_component == null)
 			throw new ThingyNotFoundException("The component " + wid + " on page " + pname + " cannot be found in conversation " + cids);
+
+		CidPair cida = CidPair.decode(cids);
+		WindowSession windowSession = param.getSession().findWindowSession(cida.getWindowId());
+		param.internalSetWindowSession(windowSession);
 	}
 
 	public String[] getArgs() {

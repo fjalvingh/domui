@@ -43,6 +43,7 @@ import to.etc.domui.logic.*;
 import to.etc.domui.parts.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
+import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.javascript.*;
 import to.etc.util.*;
@@ -1918,6 +1919,21 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 		List<IBinding> list = m_bindingList;
 		if(null != list)
 			list.remove(binding);
+	}
+
+	protected void clearValidationFailure(UIException result) {
+		/*
+		 * Questionable place, but: if validation works we're sure any message related to
+		 * the VALIDATION should be gone. So check here to see if the last "validation"
+		 * failure is also in the message and if so clear that message.
+		 */
+		UIMessage msg = getMessage();
+		if(result != null && msg != null) {
+			//-- Moving from invalid -> valid -check message.
+			if(result.getCode().equals(msg.getCode())) { // && result.getBundle().equals(msg.getBundle())) { // INCO Urgent: BundleRef needs equals, defining package+file as key.
+				setMessage(null);
+			}
+		}
 	}
 
 	@Nonnull final public IBinder bind() {

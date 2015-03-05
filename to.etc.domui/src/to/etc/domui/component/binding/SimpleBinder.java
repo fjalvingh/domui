@@ -164,13 +164,16 @@ final public class SimpleBinder implements IBinder, IBinding {
 		try {
 			value = m_controlProperty.getValue(m_control);
 			m_lastValueFromControl = value;
+			m_bindError = null;
 		} catch(CodeException cx) {
 			newError = UIMessage.error(cx);
 			newError.setErrorNode(control);
 			newError.setErrorLocation(control.getErrorLocation());
-			System.out.println("~~ " + control + " to " + instanceProperty + ": " + cx);
+			if(!newError.equals(control.getMessage())) {
+				m_bindError = newError;
+			}
+			//System.out.println("~~ " + control + " to " + instanceProperty + ": " + cx);
 		}
-		m_bindError = newError;
 		if(null == newError) {
 			//-- QUESTION: Should we move something to the model @ error?
 			try {
@@ -325,6 +328,13 @@ final public class SimpleBinder implements IBinder, IBinding {
 		return res;
 	}
 
+	/**
+	 * If the specified subtree has binding errors: report them, and return TRUE if there are
+	 * errors.
+	 * @param root
+	 * @return true if errors are present
+	 * @throws Exception
+	 */
 	static public boolean reportBindingErrors(@Nonnull NodeBase root) throws Exception {
 		final boolean[] silly = new boolean[1];					// Not having free variables is a joke.
 		DomUtil.walkTree(root, new IPerNode() {

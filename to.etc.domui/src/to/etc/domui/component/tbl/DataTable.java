@@ -38,7 +38,7 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 1, 2008
  */
-public class DataTable<T> extends SelectableTabularComponent<T> implements ISelectionListener<T>, ISelectableTableComponent<T> {
+public class DataTable<T> extends PageableTabularComponentBase<T> implements ISelectionListener<T>, ISelectableTableComponent<T> {
 	private Table m_table = new Table();
 
 	private IRowRenderer<T> m_rowRenderer;
@@ -183,19 +183,11 @@ public class DataTable<T> extends SelectableTabularComponent<T> implements ISele
 		//-- Render the header.
 		THead hd = new THead();
 		m_table.add(hd);
-		HeaderContainer<T> hc = new HeaderContainer<T>(this);
-		TR tr = new TR();
-		tr.setCssClass("ui-dt-hdr");
-		hd.add(tr);
-		hc.setParent(tr);
+		HeaderContainer<T> hc = new HeaderContainer<T>(this, hd, "ui-dt-hdr");
 
 		renderHeader(hc);
 		if(!hc.hasContent()) {
 			hd.remove();
-		} else {
-			hc = null;
-			hd = null;
-			tr = null;
 		}
 
 		m_dataBody = new TBody();

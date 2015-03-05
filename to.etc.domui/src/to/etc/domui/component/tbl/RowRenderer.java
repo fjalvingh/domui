@@ -1,7 +1,5 @@
 package to.etc.domui.component.tbl;
 
-import javax.annotation.*;
-
 import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.misc.*;
@@ -14,6 +12,9 @@ import to.etc.domui.util.*;
 import to.etc.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.annotations.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * This is the type-safe replacement for the other row renderers which are now deprecated.
@@ -44,6 +45,15 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	@Nullable
 	private IRowButtonFactory<T> m_rowButtonFactory;
 
+	@Nullable
+	private TableModelTableBase<T> m_tableModelTable;
+
+	@Nonnull
+	private List<TableHeader> m_tableHeaderBeforeList = Collections.EMPTY_LIST;
+
+	@Nonnull
+	private List<TableHeader> m_tableHeaderAfterList = Collections.EMPTY_LIST;
+
 	public RowRenderer(@Nonnull Class<T> data) {
 		this(data, MetaManager.findClassMeta(data));
 	}
@@ -68,6 +78,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	private void complete(@Nonnull TableModelTableBase<T> tbl) {
 		if(isComplete())
 			return;
+		m_tableModelTable = tbl;
 
 		//-- If we have no columns at all we use a default column list.
 		if(getColumnList().size() == 0)
@@ -95,10 +106,14 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	 * Render the header for a table, using the simple column metadata provided. This renders a rich
 	 * header, containing column labels, sort boxes and the like.
 	 *
-	 * @see to.etc.domui.component.tbl.IRowRenderer#renderHeader(to.etc.domui.component.tbl.HeaderContainer)
 	 */
 	@Override
 	public void renderHeader(@Nonnull final TableModelTableBase<T> tbl, @Nonnull final HeaderContainer<T> cc) throws Exception {
+		for(TableHeader h: m_tableHeaderBeforeList)
+			cc.addHeader(false, h);
+		for(TableHeader h: m_tableHeaderAfterList)
+			cc.addHeader(true, h);
+
 		Img[] sortImages = m_sortImages = new Img[m_columnList.size()];
 		int ix = 0;
 		final boolean sortablemodel = tbl.getModel() instanceof ISortableTableModel;
@@ -172,7 +187,10 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 		updateSortImage(scd, isSortDescending() ? "THEME/sort-desc.png" : "THEME/sort-asc.png");
 
 		//-- Tell the model to sort.
-		DataTable< ? > parent = nb.getParent(DataTable.class);
+		TableModelTableBase<T> parent = m_tableModelTable;
+		if(null == parent)
+			throw new IllegalStateException("Table not defined");
+
 		if(scd.getSortHelper() != null) {
 			//-- A sort helper is needed.
 			final IProgrammableSortableModel stm = (IProgrammableSortableModel) parent.getModel();
@@ -199,7 +217,6 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	 * for this object. This exposes the actual model that will be used during the rendering
 	 * process and allows this component to define sorting, if needed.
 	 *
-	 * @see to.etc.domui.component.tbl.IRowRenderer#beforeQuery(to.etc.domui.component.tbl.DataTable)
 	 */
 	@Override
 	public void beforeQuery(@Nonnull final TableModelTableBase<T> tbl) throws Exception {
@@ -230,7 +247,6 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	/*--------------------------------------------------------------*/
 	/**
 	 *
-	 * @see to.etc.domui.component.tbl.IRowRenderer#renderRow(to.etc.domui.component.tbl.ColumnContainer, int, java.lang.Object)
 	 */
 	@Override
 	public void renderRow(@Nonnull final TableModelTableBase<T> tbl, @Nonnull final ColumnContainer<T> cc, final int index, @Nonnull final T instance) throws Exception {
@@ -315,6 +331,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 			DisplaySpan<X> dv = new DisplaySpan<X>(cd.getActualClass());
 			cell.getBindingContext().unibind(instance, pmm.getName(), dv, "value");
 			cell.add(dv);
+			applyCellAttributes(cell, cd);
 		} else if(pmm != null) {
 			//-- Bind the property to a display control.
 			IConverter<X> converter = pmm.getConverter();
@@ -326,6 +343,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 			if(converter != null) {
 				ds.setConverter(converter);
 			}
+			applyCellAttributes(cell, cd);
 		} else if(contentRenderer != null) {
 			//-- No property but a content renderer -> let it take care of binding itself as we cannot.
 			X value = cd.getColumnValue(instance);
@@ -333,6 +351,11 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 		} else {
 			throw new IllegalStateException("? Don't know how to render " + cd);
 		}
+	}
+
+	private void applyCellAttributes(NodeContainer cell, ColumnDef<?> cd) {
+		if(cd.getNumericPresentation() != null && cd.getNumericPresentation() != NumericPresentation.UNKNOWN)
+			cell.addCssClass("ui-numeric");
 	}
 
 	/**
@@ -593,5 +616,16 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	@Nonnull
 	public ColumnDef<T> column() {
 		return getColumnList().column();
+	}
+
+	public void addHeaderBefore(@Nonnull TableHeader header) {
+		if(m_tableHeaderBeforeList.size() == 0)
+			m_tableHeaderBeforeList = new ArrayList<>(2);
+		m_tableHeaderBeforeList.add(header);
+	}
+	public void addHeaderAfter(@Nonnull TableHeader header) {
+		if(m_tableHeaderAfterList.size() == 0)
+			m_tableHeaderAfterList = new ArrayList<>(2);
+		m_tableHeaderAfterList.add(header);
 	}
 }

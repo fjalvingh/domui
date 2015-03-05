@@ -182,7 +182,7 @@ final public class FormBuilder {
 	public <T> FormBuilder property(@Nonnull T instance, @GProperty String property) {
 		if(null != m_propertyMetaModel)
 			throw new IllegalStateException("You need to end the builder pattern with a call to 'control()'");
-		m_propertyMetaModel = MetaManager.findPropertyMeta(instance.getClass(), property);
+		m_propertyMetaModel = MetaManager.getPropertyMeta(instance.getClass(), property);
 		m_instance = instance;
 		return this;
 	}
@@ -225,15 +225,15 @@ final public class FormBuilder {
 				}
 			}
 
-			Boolean ro = m_readOnly;
-			if(null != ro) {
-				if(ro.booleanValue()) {
-					ctl.setReadOnly(true);
-				}
+			if(isReadOnly()) {
+				ctl.setReadOnly(true);
+			}
+
+			if(isMandatory()) {
+				ctl.setMandatory(true);
 			}
 		}
 	}
-
 
 	private void resetDirection() {
 		if(m_horizontal == m_currentDirection)
@@ -364,12 +364,29 @@ final public class FormBuilder {
 				}
 			}
 		}
-
-		if(res != null && calculateMandatory()) {
+		if(res != null && calculateMandatory() && !isReadOnly()) {
 			res.addCssClass("ui-f4-mandatory");
 		}
 
 		return res;
+	}
+
+	private boolean isReadOnly() {
+
+		Boolean ro = m_readOnly;
+		if(null != ro) {
+			return ro.booleanValue();
+		}
+		return false;
+	}
+
+	private boolean isMandatory() {
+
+		Boolean man = m_mandatory;
+		if(null != man) {
+			return man.booleanValue();
+		}
+		return false;
 	}
 
 	private boolean calculateMandatory() {
