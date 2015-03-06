@@ -65,7 +65,7 @@ public class TreeSelect<T> extends Tree<T> implements IHasChangeListener {
 	}
 
 	@Override
-	protected boolean isSelectable(T node) throws Exception {
+	public boolean isSelectable(T node) throws Exception {
 		if(getNodeSelectablePredicate() == null)
 			return true;
 		return getNodeSelectablePredicate().predicate(node);
