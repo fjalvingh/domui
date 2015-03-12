@@ -28,6 +28,7 @@ import java.util.*;
 
 import javax.annotation.*;
 
+import to.etc.domui.component.event.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
@@ -55,6 +56,8 @@ public class TabPanelBase extends Div {
 		private boolean m_closable;
 
 		private List<UIMessage> m_msgList = new ArrayList<UIMessage>();
+		@Nullable
+		private INotify<ITabHandle> m_onClose;
 
 		public TabInstance() {}
 
@@ -139,6 +142,15 @@ public class TabPanelBase extends Div {
 		public void closable(boolean closeable) {
 			m_closable = closeable;
 		}
+		
+		@Override
+		public void setOnClose(INotify<ITabHandle> notify) {
+			m_onClose = notify;
+		}
+		
+		public INotify<ITabHandle> getOnClose() {
+			return m_onClose;
+		}
 
 
 		@Override
@@ -219,8 +231,6 @@ public class TabPanelBase extends Div {
 			i.setBorder(0);
 			return i;
 		}
-
-
 	}
 
 	/**
@@ -341,38 +351,38 @@ public class TabPanelBase extends Div {
 	}
 
 	/**
-	 * Close the tab with the given index.
+	 * Close the given tab instance.
 	 *
 	 * @param into
 	 * @param index
 	 * @throws Exception
 	 */
 	private void closeTab(@Nonnull final TabInstance ti) throws Exception {
-
-		int index = m_tablist.indexOf(ti);
-
+		
 		// Check for a silly index
-		if(index < 0 || index >= m_tablist.size()) {
+		int index = m_tablist.indexOf(ti);
+		if (index < 0) {
 			throw new IllegalArgumentException("Invalid index for closing a tab.");
 		}
 
-		if (!m_tablist.isEmpty()) {
-			if(index == getCurrentTab()) {
-				int newIndex = selectNewCurrentTab(index);
-				setCurrentTab(newIndex);
-			} else if(index < getCurrentTab()) {
-				m_currentTab--;
-			}
+		if(index == getCurrentTab()) {
+			int newIndex = selectNewCurrentTab(index);
+			setCurrentTab(newIndex);
+		} 
+		if(index < getCurrentTab()) {
+			m_currentTab--;
 		}
-
+		ti.setAdded(false);
 		m_tablist.remove(index);
+		
 		if(isBuilt()) {
-			NodeBase nbTab = ti.getTab();
-			nbTab.remove();
-			NodeBase nbSep = ti.getSeparator();
-			nbSep.remove();
-			NodeBase nbCon = ti.getContent();
-			nbCon.remove();
+			ti.getTab().remove();
+			ti.getSeparator().remove();
+			ti.getContent().remove();
+		}
+		
+		if (ti.getOnClose() != null) {
+			ti.getOnClose().onNotify(ti);
 		}
 	}
 
