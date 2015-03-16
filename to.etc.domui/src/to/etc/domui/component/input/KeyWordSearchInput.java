@@ -65,6 +65,8 @@ public class KeyWordSearchInput<T> extends Div {
 
 	private int m_popupWidth;
 
+	private boolean m_absolutePopupLayoutQuirkMode;
+
 	public KeyWordSearchInput() {
 	}
 
@@ -74,8 +76,12 @@ public class KeyWordSearchInput<T> extends Div {
 
 	@Override
 	public void createContent() throws Exception {
-		//position must be set to relative to enable absoulute positioning of child elements (waiting image)
-		setPosition(PositionType.RELATIVE);
+		//position must be set to relative to enable absolute positioning of child elements (waiting image)
+		if(m_absolutePopupLayoutQuirkMode) {
+			setPosition(PositionType.ABSOLUTE);
+		} else {
+			setPosition(PositionType.RELATIVE);
+		}
 
 		m_imgWaiting.setCssClass("ui-lui-waiting");
 		m_imgWaiting.setDisplay(DisplayType.NONE);
@@ -214,6 +220,9 @@ public class KeyWordSearchInput<T> extends Div {
 				if(getPopupWidth() > 0) {
 					m_pnlSearchPopup.setWidth(getPopupWidth() + "px");
 				}
+				if(m_absolutePopupLayoutQuirkMode) {
+					m_pnlSearchPopup.setPosition(PositionType.ABSOLUTE);
+				}
 				fixZIndex();
 				//increase Z index both for current DIV and popup DIV.
 				//20110304 vmijic - We need to do this in domui.js because bug in IE7. Code remains here commented as illustartion what is done in javascript.
@@ -269,5 +278,14 @@ public class KeyWordSearchInput<T> extends Div {
 
 	public void setPopupWidth(int popupWidth) {
 		m_popupWidth = popupWidth;
+	}
+
+	/**
+	 * @See {@link LookupInputBase#m_absolutePopupLayoutQuirkMode}
+	 *
+	 * @param absolutePopupLayoutQuirkMode
+	 */
+	public void setAbsolutePopupLayoutQuirkMode(boolean absolutePopupLayoutQuirkMode) {
+		m_absolutePopupLayoutQuirkMode = absolutePopupLayoutQuirkMode;
 	}
 }

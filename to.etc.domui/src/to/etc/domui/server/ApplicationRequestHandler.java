@@ -1076,8 +1076,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				//-- Async poll request..
 				//			} else if("WEBUIDROP".equals(action)) {
 				//				handleDrop(ctx, page, wcomp);
-			} else if(wcomp == null && (Constants.ACMD_LOOKUP_TYPING.equals(action) || Constants.ACMD_LOOKUP_TYPING_DONE.equals(action))) {
-				//-- Don't do anything at all - value is already selected by some of previous ajax requests, it is safe to ignore remaineing late lookup typing events
+			} else if(wcomp == null && isSafeToIgnoreUnknownNodeOnAction(action)) {
+				//-- Don't do anything at all - it is safe to ignore late and obsoleted events
 				inhibitlog = true;
 			} else if(wcomp == null) {
 				if(!action.endsWith("?"))
@@ -1160,6 +1160,17 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			logUser(ctx, page, "Delta render failed: " + x);
 			throw x;
 		}
+	}
+
+	/**
+	 * Defines the actions that could arrive too late due to race conditions in client javascript, when target elements are already removed from DOM at server side.
+	 * It is safe to just ignore such obsoleted events, rather than giving error response.
+	 *
+	 * @param action
+	 * @return
+	 */
+	private boolean isSafeToIgnoreUnknownNodeOnAction(@Nonnull String action) {
+		return (Constants.ACMD_LOOKUP_TYPING.equals(action) || Constants.ACMD_LOOKUP_TYPING_DONE.equals(action) || Constants.ACMD_NOTIFY_CLIENT_POSITION_AND_SIZE.equals(action));
 	}
 
 	/**

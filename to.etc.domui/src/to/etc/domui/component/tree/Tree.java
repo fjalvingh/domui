@@ -487,8 +487,9 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 	 * Internal use: set or reset the 'selected' indication on the visible node.
 	 * @param node
 	 * @param selected
+	 * @throws Exception
 	 */
-	protected void markAsSelected(T node, boolean selected) {
+	protected void markAsSelected(T node, boolean selected) throws Exception {
 		VisibleNode<T> vn = m_openMap.get(node);
 		if(vn == null)
 			return;
@@ -499,6 +500,8 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 			cell.addCssClass("ui-tr-selected");
 		else
 			cell.removeCssClass("ui-tr-selected");
+		cell.removeAllChildren();
+		renderContent(cell, node);
 	}
 
 	protected boolean isSelected(T node) {

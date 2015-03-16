@@ -159,6 +159,14 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	private int m_keyWordSearchPopupWidth;
 
 	/**
+	 * SPECIAL QUIRK MODE, USUALLY YOU DO NOT NEED IT.
+	 * When T (default is F), it renders lookup input in a way that pop-up with search as you type results rolls down exceeding the boundaries of parent control.
+	 * This is useful when your LookupInput is last control in pop-up Windows, and you want to avoid scroll-bar in dialog. However, mode is not applicable in all other regular cases since
+	 * it interfere rendering of LookupInput that goes over controls bellow it.
+	 */
+	private boolean m_absolutePopupLayoutQuirkMode;
+
+	/**
 	 * By default set to true.
 	 * Set to false in cases when keyword search functionality should be disabled regardless if metadata for this feature is defined or not.
 	 */
@@ -370,6 +378,9 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 			else if(m_clearButton != null)
 				m_clearButton.setFocus();
 		}
+		if(m_absolutePopupLayoutQuirkMode) {
+			getSelButton().setMarginLeft("103px");
+		}
 	}
 
 	private void appendParameters(@Nonnull TD cell, @Nonnull Object parameters) {
@@ -429,6 +440,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	private void addKeySearchField(NodeContainer parent) {
 		KeyWordSearchInput<OT> ks = m_keySearch = new KeyWordSearchInput<OT>(m_keyWordSearchCssClass);
 		ks.setPopupWidth(getKeyWordSearchPopupWidth());
+		ks.setAbsolutePopupLayoutQuirkMode(m_absolutePopupLayoutQuirkMode);
 		KeyWordPopupRowRenderer<OT> rr = getDropdownRowRenderer();
 		rr.setRowClicked(new ICellClicked<OT>() {
 			@Override
@@ -1342,6 +1354,10 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 
 	public void setKeyWordSearchPopupWidth(int keyWordSearchPopupWidth) {
 		m_keyWordSearchPopupWidth = keyWordSearchPopupWidth;
+	}
+
+	public void setAbsolutePopupLayoutQuirkMode(boolean value) {
+		m_absolutePopupLayoutQuirkMode = value;
 	}
 
 	/**
