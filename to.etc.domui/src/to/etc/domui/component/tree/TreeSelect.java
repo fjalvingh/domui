@@ -27,8 +27,10 @@ package to.etc.domui.component.tree;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 
-public class TreeSelect<T> extends Tree<T> {
+public class TreeSelect<T> extends Tree<T> implements IHasChangeListener {
 	private T m_value;
+
+	private IValueChanged< ? > m_onValueChanged;
 
 	public TreeSelect() {}
 
@@ -40,7 +42,7 @@ public class TreeSelect<T> extends Tree<T> {
 		return m_value;
 	}
 
-	public void setValue(T value) {
+	public void setValue(T value) throws Exception {
 		if(MetaManager.areObjectsEqual(value, m_value))
 			return;
 		if(value != null && getNodeSelectablePredicate() != null) {
@@ -52,15 +54,18 @@ public class TreeSelect<T> extends Tree<T> {
 			}
 		}
 
-		if(m_value != null)
-			markAsSelected(m_value, false);
+		T oldValue = m_value;
 		m_value = value;
+		if(oldValue != null)
+			markAsSelected(oldValue, false);
 		if(value != null)
 			markAsSelected(value, true);
+
+		internalOnValueChanged();
 	}
 
 	@Override
-	protected boolean isSelectable(T node) throws Exception {
+	public boolean isSelectable(T node) throws Exception {
 		if(getNodeSelectablePredicate() == null)
 			return true;
 		return getNodeSelectablePredicate().predicate(node);
@@ -70,5 +75,20 @@ public class TreeSelect<T> extends Tree<T> {
 	protected void cellClicked(TD cell, T value) throws Exception {
 		setValue(value);
 		super.cellClicked(cell, value);
+	}
+
+	@Override
+	protected boolean isSelected(T node) {
+		return MetaManager.areObjectsEqual(node, m_value);
+	}
+
+	@Override
+	public IValueChanged< ? > getOnValueChanged() {
+		return m_onValueChanged;
+	}
+
+	@Override
+	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
+		m_onValueChanged = onValueChanged;
 	}
 }

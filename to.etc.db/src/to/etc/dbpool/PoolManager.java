@@ -557,5 +557,20 @@ final public class PoolManager {
 			return null;
 		}
 	}
+
+	/**
+	 * Try to get the unpooled datasource associated with this datasource, if that
+	 * datasource comes from the pool manager.
+	 * @param ds
+	 * @return
+	 */
+	@Nonnull
+	static public DataSource	getUnpooledFrom(@Nonnull DataSource ds) {
+		ConnectionPool cp = getPoolFrom(ds);
+		if(null == cp)
+			return ds;
+		return cp.getUnpooledDataSource();
+	}
+
 }
 
