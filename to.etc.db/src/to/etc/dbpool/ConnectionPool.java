@@ -1031,7 +1031,7 @@ final public class ConnectionPool {
 				m_pooledUsedCount--; // And one less used,
 			} else
 				m_unpooledAllocatedCount--;
-			System.out.println("DISCARD pool=" + m_id + " connection discarded to server; conns=" + m_pooledAllocatedCount + ", #unpooled=" + m_unpooledAllocatedCount);
+			//System.out.println("DISCARD pool=" + m_id + " connection discarded to server; conns=" + m_pooledAllocatedCount + ", #unpooled=" + m_unpooledAllocatedCount);
 
 			if(!m_usedSet.remove(pe)) {
 				subj = "pool(" + m_id + "): connection not in USED pool??";
