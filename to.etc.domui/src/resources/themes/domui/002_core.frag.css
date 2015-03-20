@@ -80,7 +80,7 @@ pre {
 }
 
 td {
-	padding: 1px;
+    /*	padding: 1px; jal 20150317 This messes up everything that needs perfect alignment. */
 }
 
 td input, td select, td label {
