@@ -579,6 +579,7 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 		if(!isBuilt())
 			return;
 		calcIndices(); 								// Calculate visible nodes
+		//System.out.println("dd: add@ "+index+", eix="+m_eix);
 		if(index < 0 || index >= m_eix) { 			// Outside visible bounds
 			firePageChanged();
 			return;
@@ -594,6 +595,13 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 		tr.setTestRepeatID("r" + index);
 		renderRow(tr, cc, index, value);
 		m_visibleItemList.add(rrow, value);
+
+		if(m_visibleItemList.size() > m_eix) {
+			//-- Delete the last row.
+			int delindex = m_visibleItemList.size() - 1;
+			m_visibleItemList.remove(delindex);
+			m_dataBody.removeChild(delindex);
+		}
 
 		handleOddEven(rrow);
 		firePageChanged();
@@ -620,6 +628,7 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 		int rrow = index; 							// This is the location within the child array
 		m_dataBody.removeChild(rrow); 				// Discard this one;
 		m_visibleItemList.remove(rrow);
+		//System.out.println("dd: delete index="+index);
 		if(m_dataBody.getChildCount() == 0) {
 			calcIndices(); 							// Calculate visible nodes
 			setNoResults();
@@ -628,16 +637,22 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 		}
 
 		//-- One row gone; must we add one at the end?
-		if(index < m_eix && m_eix < getModel().getRows()) {
+		if(index < m_eix && m_eix <= getModel().getRows()) {
 			ColumnContainer<T> cc = new ColumnContainer<T>(this);
 			TR tr = new TR();
 			cc.setParent(tr);
 
-			T mi = getModelItem(m_eix);
-			m_dataBody.add(m_eix - 1, tr);
+			T mi = getModelItem(m_eix-1);
+			//System.out.println("dd: Add item#"+m_eix+" @ "+(m_eix-1));
+			m_dataBody.add(m_eix-1, tr);
 			renderRow(tr, cc, m_eix-1, mi);
-			m_visibleItemList.add(m_eix - 1, mi);
+			m_visibleItemList.add(m_eix-1, mi);
 		}
+		if(m_eix < getModel().getRows() && m_eix > m_batchSize) {
+			m_eix = getModel().getRows();
+			//System.out.println("dd: decrement eix="+m_eix);
+		}
+		//System.out.println("dd: sizes "+getModel().getRows()+" "+m_dataBody.getChildCount()+", "+m_visibleItemList.size());
 		calcIndices(); 								// Calculate visible nodes
 		handleOddEven(rrow);
 		firePageChanged();
