@@ -25,7 +25,7 @@ final public class MsgBox2 extends Window {
 	private MsgBoxButton m_clickedButton;
 
 	public interface IAnswer {
-		void onAnswer(MsgBoxButton result) throws Exception;
+		void onAnswer(@Nonnull MsgBoxButton result) throws Exception;
 	}
 	public interface IAnswer2 {
 		void onAnswer(Object result) throws Exception;
