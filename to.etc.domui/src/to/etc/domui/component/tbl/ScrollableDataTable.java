@@ -14,6 +14,8 @@ import java.util.*;
  * Created on 1/3/15.
  */
 final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> implements ISelectionListener<T>, ISelectableTableComponent<T> {
+	static private final boolean DEBUG = false;
+
 	private IRowRenderer<T> m_rowRenderer;
 
 	@Nullable
@@ -35,7 +37,7 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 	private int m_lastSelectionLocation = -1;
 
 	/** The last index rendered. */
-	private int m_eix = 80;
+	private int m_nextIndexToLoad;
 
 	private int m_batchSize = 80;
 
@@ -81,9 +83,9 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 		m_dataBody = null;
 		m_errorDiv = null;
 		m_allRendered = false;
-		m_eix = m_batchSize;
 		addCssClass("ui-dt");
 		setOverflow(Overflow.AUTO);
+		m_nextIndexToLoad = 0;
 
 		//-- Do we need to render multiselect checkboxes?
 		ISelectionModel<T> sm = getSelectionModel();
@@ -100,14 +102,12 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 			throw new IllegalStateException("There is no row renderer assigned to the table");
 		m_rowRenderer.beforeQuery(this); // ORDER!! BEFORE CALCINDICES or any other call that materializes the result.
 
-		List<T> list = getPageItems(); // Data to show
-		if(list.size() == 0) {
+		if(getModel().getRows() == 0) {
 			setNoResults();
 			return;
 		}
 
 		setResults();
-		m_eix = 0;
 		loadMoreData();
 		if(isDisableClipboardSelection())
 			appendCreateJS(JavascriptUtil.disableSelection(this)); // Needed to prevent ctrl+click in IE doing clipboard-select, because preventDefault does not work there of course.
@@ -133,13 +133,13 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 			return;
 		}
 		int rows = getModel().getRows();
-		if(m_eix >= rows) {
+		if(m_nextIndexToLoad >= rows) {
 			System.err.println("domui: ScrollableDataTable got unexpected loadMoreData and allrendered is false!?");
 			return;
 		}
 
 		//-- Get the next batch
-		int six = m_eix;
+		int six = m_nextIndexToLoad;
 		int eix = six + m_batchSize;
 		if(eix > rows)
 			eix = rows;
@@ -158,17 +158,18 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 			renderRow(tr, cc, ix, o);
 			ix++;
 		}
-		m_eix = eix;
+		m_nextIndexToLoad = eix;
 		if(ix >= getModel().getRows()) {
 			renderFinalRow();
 		}
-		System.out.println("rendered till "+m_eix);
+		if(DEBUG)
+			System.out.println("rendered till "+ m_nextIndexToLoad);
 	}
 
 	private void rerender() throws Exception {
 		if(! isBuilt() || m_dataBody == null)
 			return;
-		m_eix = 0;
+		m_nextIndexToLoad = 0;
 		m_dataBody.removeAllChildren();
 		m_allRendered = false;
 		loadMoreData();
@@ -194,11 +195,11 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 		row.add(cell);
 		cell.setColspan(colspan);
 		row.setSpecialAttribute("lastRow", "true");
-		cell.setText("All records loaded");
+		//cell.setText("All records loaded");
 	}
 
 	private List<T> getPageItems() throws Exception {
-		return getModel().getItems(0, m_eix);
+		return getModel().getItems(0, m_nextIndexToLoad);
 	}
 
 	@SuppressWarnings("deprecation")
@@ -579,8 +580,9 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 		if(!isBuilt())
 			return;
 		calcIndices(); 								// Calculate visible nodes
-		System.out.println("dd: add@ "+index+", eix="+m_eix);
-		if(index < 0 || index >= m_eix) { 			// Outside visible bounds
+		if(DEBUG)
+			System.out.println("dd: add@ "+index+", eix="+ m_nextIndexToLoad);
+		if(index < 0 || index >= m_nextIndexToLoad) { 			// Outside visible bounds
 			firePageChanged();
 			return;
 		}
@@ -596,7 +598,7 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 		renderRow(tr, cc, index, value);
 		m_visibleItemList.add(rrow, value);
 
-		if(m_visibleItemList.size() > m_eix) {
+		if(m_visibleItemList.size() > m_nextIndexToLoad) {
 			//-- Delete the last row.
 			int delindex = m_visibleItemList.size() - 1;
 			m_visibleItemList.remove(delindex);
@@ -612,7 +614,7 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 	 * delete the row. This causes one less row to be shown, so we check if we have a pagesize
 	 * set; if so we add a new row at the end IF it is available.
 	 *
-	 * @see to.etc.domui.component.tbl.ITableModelListener#rowDeleted(to.etc.domui.component.tbl.ITableModel, int, java.lang.Object)
+	 * @see to.etc.domui.component.tbl.ITableModelListener#rowDeleted(to.etc.domui.component.tbl.ITableModel, int, Object)
 	 */
 	@Override
 	public void rowDeleted(@Nonnull ITableModel<T> model, int index, @Nonnull T value) throws Exception {
@@ -620,7 +622,9 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 			return;
 
 		//-- We need the indices of the OLD data, so DO NOT RECALCULATE - the model size has changed.
-		if(index < 0 || index >= m_eix) { 			// Outside visible bounds
+		if(DEBUG)
+			System.out.println("dd: delete index="+index+", eix="+ m_nextIndexToLoad);
+		if(index < 0 || index >= m_nextIndexToLoad) { 			// Outside visible bounds
 			calcIndices(); 							// Calculate visible nodes
 			firePageChanged();
 			return;
@@ -628,7 +632,6 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 		int rrow = index; 							// This is the location within the child array
 		m_dataBody.removeChild(rrow); 				// Discard this one;
 		m_visibleItemList.remove(rrow);
-		System.out.println("dd: delete index="+index);
 		if(m_dataBody.getChildCount() == 0) {
 			calcIndices(); 							// Calculate visible nodes
 			setNoResults();
@@ -637,22 +640,25 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 		}
 
 		//-- One row gone; must we add one at the end?
-		if(index < m_eix && m_eix <= getModel().getRows()) {
+		if(index < m_nextIndexToLoad && m_nextIndexToLoad <= getModel().getRows()) {
 			ColumnContainer<T> cc = new ColumnContainer<T>(this);
 			TR tr = new TR();
 			cc.setParent(tr);
 
-			T mi = getModelItem(m_eix-1);
-			System.out.println("dd: Add item#"+m_eix+" @ "+(m_eix-1));
-			m_dataBody.add(m_eix-1, tr);
-			renderRow(tr, cc, m_eix-1, mi);
-			m_visibleItemList.add(m_eix-1, mi);
+			T mi = getModelItem(m_nextIndexToLoad -1);	// Because of delete the item to show has become "visible" in the model @ the last index
+			if(DEBUG)
+				System.out.println("dd: Add item#"+ m_nextIndexToLoad +" @ "+(m_nextIndexToLoad -1));
+			m_dataBody.add(m_nextIndexToLoad -1, tr);
+			renderRow(tr, cc, m_nextIndexToLoad -1, mi);
+			m_visibleItemList.add(m_nextIndexToLoad -1, mi);
 		}
-		if(m_eix < getModel().getRows() && m_eix > m_batchSize) {
-			m_eix = getModel().getRows();
-			System.out.println("dd: decrement eix="+m_eix);
+		if(m_nextIndexToLoad > getModel().getRows()) {
+			m_nextIndexToLoad = getModel().getRows();
+			if(DEBUG)
+				System.out.println("dd: decrement size of loaded data eix="+ m_nextIndexToLoad);
 		}
-		System.out.println("dd: sizes "+getModel().getRows()+" "+m_dataBody.getChildCount()+", "+m_visibleItemList.size());
+		if(DEBUG)
+			System.out.println("dd: sizes "+getModel().getRows()+" "+m_dataBody.getChildCount()+", "+m_visibleItemList.size()+", eix="+ m_nextIndexToLoad);
 		calcIndices(); 								// Calculate visible nodes
 		handleOddEven(rrow);
 		firePageChanged();
@@ -683,7 +689,7 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 	public void rowModified(@Nonnull ITableModel<T> model, int index, @Nonnull T value) throws Exception {
 		if(!isBuilt())
 			return;
-		if(index < 0 || index >= m_eix) 				// Outside visible bounds
+		if(index < 0 || index >= m_nextIndexToLoad) 	// Outside visible bounds
 			return;
 		int rrow = index; 								// This is the location within the child array
 		TR tr = (TR) m_dataBody.getChild(rrow); 		// The visible row there
