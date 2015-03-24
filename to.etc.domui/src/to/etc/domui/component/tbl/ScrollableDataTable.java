@@ -582,7 +582,7 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 		calcIndices(); 								// Calculate visible nodes
 		if(DEBUG)
 			System.out.println("dd: add@ "+index+", eix="+ m_nextIndexToLoad);
-		if(index < 0 || index >= m_nextIndexToLoad) { 			// Outside visible bounds
+		if(index < 0 || (index >= m_nextIndexToLoad && m_nextIndexToLoad >= m_batchSize)) { 			// Outside visible bounds & no need to load more
 			firePageChanged();
 			return;
 		}
@@ -598,7 +598,11 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 		renderRow(tr, cc, index, value);
 		m_visibleItemList.add(rrow, value);
 
-		if(m_visibleItemList.size() > m_nextIndexToLoad) {
+		//-- Do we need to increase the nextIndexToLoad?
+		if(m_nextIndexToLoad < m_batchSize) {
+			if(m_visibleItemList.size() > m_nextIndexToLoad)
+				m_nextIndexToLoad = m_visibleItemList.size();
+		} else if(m_visibleItemList.size() > m_nextIndexToLoad && m_nextIndexToLoad >= m_batchSize) {
 			//-- Delete the last row.
 			int delindex = m_visibleItemList.size() - 1;
 			m_visibleItemList.remove(delindex);
