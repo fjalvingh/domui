@@ -24,6 +24,7 @@
  */
 package to.etc.domui.server;
 
+
 /**
  * Decoded version code for the user-agent string.
  * Agent strings:
@@ -60,6 +61,11 @@ public class BrowserVersion {
 	}
 
 	private void parse(String ua) {
+		if(ua.contains("Trident/7.0")) {
+			handleIE11();
+			return;
+		}
+	
 		if(ua.startsWith("Mozilla/")) {
 			decodeMozilla(ua);
 			return;
@@ -75,6 +81,11 @@ public class BrowserVersion {
 			m_browserVersion = ua.substring(pos + 1);
 		else
 			m_browserVersion = ua.substring(pos + 1, sp).trim();
+	}
+
+	private void handleIE11() {
+		m_browserName = "MSIE";
+		m_browserVersion = "11.0";
 	}
 
 	private void decodeMozilla(String ua) {
@@ -202,6 +213,5 @@ public class BrowserVersion {
 	public String toString() {
 		return "[browser " + m_browserName + ", version=" + m_browserVersion + "]";
 	}
-
 
 }
