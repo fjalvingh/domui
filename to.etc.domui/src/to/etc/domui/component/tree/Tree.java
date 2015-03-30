@@ -612,7 +612,7 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 	}
 
 	@Override
-	public void onNodeRemoved(T oldParent, int oldIndex) {
+	public void onNodeRemoved(T oldParent, int oldIndex, T deletedNode) {
 		throw new IllegalStateException("Not implemented");
 	}
 }

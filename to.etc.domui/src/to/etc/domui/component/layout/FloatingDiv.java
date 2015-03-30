@@ -124,8 +124,8 @@ public class FloatingDiv extends Div {
 			setWidth(width + "px");
 		}
 		if(height > 0) {
-			if(height < 200)
-				throw new IllegalArgumentException("The height=" + height + " is invalid: it cannot be smaller than 200.");
+			if(height < 100)
+				throw new IllegalArgumentException("The height=" + height + " is invalid: it cannot be smaller than 100.");
 			setHeight(height + "px");
 		}
 	}

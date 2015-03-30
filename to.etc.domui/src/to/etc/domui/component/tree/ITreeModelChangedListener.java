@@ -42,9 +42,11 @@ public interface ITreeModelChangedListener<T> {
 	 * Called after a node is removed in the model
 	 * @param oldParent the parent of the removed node
 	 * @param oldIndex the index of the node that was removed
+	 * @param deletedNode The node that was just deleted
+	 *
 	 * @throws Exception
 	 */
-	void onNodeRemoved(@Nullable T oldParent, int oldIndex) throws Exception;
+	void onNodeRemoved(@Nullable T oldParent, int oldIndex, T deletedNode) throws Exception;
 
 	/**
 	 * Called after a node is updated in the model.

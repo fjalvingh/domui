@@ -2,8 +2,6 @@ package to.etc.domui.component.tree;
 
 import javax.annotation.*;
 
-import to.etc.domui.logic.errors.*;
-
 @DefaultNonNull
 public interface ITreeEditModel<T> extends ITreeModel<T> {
 
@@ -12,12 +10,6 @@ public interface ITreeEditModel<T> extends ITreeModel<T> {
 	 * @throws Exception
 	 */
 	void update(T node) throws Exception;
-
-	/**
-	 * @param pm
-	 * @throws Exception
-	 */
-	void save(ProblemModel pm) throws Exception;
 
 	/**
 	 * @param node
