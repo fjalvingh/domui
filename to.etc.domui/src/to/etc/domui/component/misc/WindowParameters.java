@@ -175,7 +175,6 @@ public class WindowParameters {
 		return this;
 	}
 
-
 	static public WindowParameters createFixed(int w, int h, String name) {
 		WindowParameters p = new WindowParameters();
 		p.setSize(w, h);
@@ -204,5 +203,8 @@ public class WindowParameters {
 		p.setShowStatus(false);
 		p.setShowToolbar(false);
 		return p;
+	}
+	static public WindowParameters createResizeableScrollable(int w, int h) {
+		return createResizeableScrollable(w, h, "w"+System.nanoTime());
 	}
 }

@@ -493,7 +493,9 @@ final public class DomUtil {
 	}
 
 	/**
-	 * Returns application context part from current request.
+	 * Returns application context part from current request. Returns the webapp
+	 * context as either an empty string for the ROOT context or a string starting
+	 * without a slash and always ending in one, like "viewpoint/".
 	 * Call depends on existing of request, so it can't be used within backend threads.
 	 * @return
 	 */

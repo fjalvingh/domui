@@ -136,7 +136,7 @@ pre {
 }
 
 td {
-/*	padding: 1px; jal 20150317 This messes up everything that needs perfect alignment. */
+    /*	padding: 1px; jal 20150317 This messes up everything that needs perfect alignment. */
 }
 
 td input, td select, td label {
@@ -702,6 +702,21 @@ body.ui-stretch-body {
 }
 .ui-mbx-input {
 	padding-top: 20px;
+}
+
+.ui-mbx2-input-area {
+    padding-top: 20px;
+}
+.ui-mbx2-in-lbl {
+    vertical-align: baseline;
+    text-align: right;
+    white-space: nowrap;
+    font-weight: bold;
+    width: 1%;
+    padding-right: 10px;
+}
+.ui-mbx2-in-ctl {
+    vertical-align: baseline;
 }
 
 /*** 065_linkbutton.frag.css ***/
@@ -1614,8 +1629,14 @@ div.ui-sortable {
 /*** 165_tabpanel.frag.css ***/
 /*** The tab control, using the "sliding doors" technique as in http://www.alistapart.com/articles/slidingdoors/ ***/
 .ui-tab-c {
-	margin: 0px -<%= margins_main %> <%= margins_main %> -<%= margins_main %>;
 }
+.ui-kludge .ui-tab-c {
+    margin: 0px -<%= margins_main %> <%= margins_main %> -<%= margins_main %>;
+}
+.ui-content > .ui-tab-c {
+    margin: 0px -<%= margins_main %> <%= margins_main %> -<%= margins_main %>;
+}
+
 .ui-tab-hdr ul {
 	list-style-type: none;
 	margin: 0;
@@ -1637,7 +1658,7 @@ div.ui-sortable {
 	font-size: <%= font_size %>;
 	line-height: normal;
 	width: 100%;
-	margin: 0px 0px <%= margins_main %>;
+	/*margin: 0px 0px <%= margins_main %>;*/
 }
 
 .ui-tab-hdr li {
@@ -1674,7 +1695,7 @@ div.ui-sortable {
     text-decoration: none;
 	color: <%= tab_pnl_inactive_col %>;
 	position: relative;    
-	padding: 2em;     
+	padding: 2em;
 	margin: -2em;
 }
 

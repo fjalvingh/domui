@@ -39,7 +39,7 @@ import to.etc.webapp.core.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 25, 2008
  */
-public interface QDataContext {
+public interface QDataContext extends AutoCloseable {
 	/**
 	 * Returns the context source which created this DataContext. This context source is used to get
 	 * query listeners to execute when a query is done.

@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.buttons;
 
+import java.util.*;
+
 import javax.annotation.*;
 
 import to.etc.domui.component.menu.*;
@@ -56,6 +58,9 @@ public class DefaultButton extends Button implements IActionControl {
 	private IUIAction< ? > m_action;
 
 	private Object m_actionInstance;
+
+	@Nullable
+	private String m_disabledBecause;
 
 	/**
 	 * Create an empty button.
@@ -299,10 +304,33 @@ public class DefaultButton extends Button implements IActionControl {
 	public void setDisabled(@Nullable UIMessage rsn) {
 		if(null != rsn) {
 			setDisabled(true);
-			setTitle(rsn.getMessage());
+			setOverrideTitle(rsn.getMessage());
+			m_disabledBecause = rsn.getMessage();
 		} else {
 			setDisabled(false);
-			setTitle("");
+			setOverrideTitle(null);
+			m_disabledBecause = null;
 		}
 	}
+
+	@Nullable
+	public String getDisabledBecause() {
+		return m_disabledBecause;
+	}
+
+	public void setDisabledBecause(@Nullable String msg) {
+		if(Objects.equals(msg, m_disabledBecause)) {
+			return;
+		}
+		m_disabledBecause = msg;
+		if(null != msg) {
+			setDisabled(true);
+			setOverrideTitle(msg);
+		} else {
+			setDisabled(false);
+			setOverrideTitle(null);
+			m_disabledBecause = null;
+		}
+	}
+
 }
