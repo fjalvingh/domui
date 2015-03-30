@@ -344,7 +344,6 @@ public class TabPanelBase extends Div {
 				public void clicked(@Nonnull ATag b) throws Exception {
 					closeTab(ti);
 				}
-
 			});
 		}
 		li.add(d);
@@ -399,7 +398,7 @@ public class TabPanelBase extends Div {
 			return --index;
 		}
 
-		return index++;
+		return ++index;
 	}
 
 	/*--------------------------------------------------------------*/

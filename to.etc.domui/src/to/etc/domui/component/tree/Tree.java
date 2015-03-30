@@ -600,4 +600,19 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 	public void setNodeSelectablePredicate(INodePredicate<T> nodeSelectablePredicate) {
 		m_nodeSelectablePredicate = nodeSelectablePredicate;
 	}
+
+	@Override
+	public void onNodeAdded(T parent, int index, T node) {
+		throw new IllegalStateException("Not implemented");
+	}
+
+	@Override
+	public void onNodeUpdated(T node) {
+		throw new IllegalStateException("Not implemented");
+	}
+
+	@Override
+	public void onNodeRemoved(T oldParent, int oldIndex) {
+		throw new IllegalStateException("Not implemented");
+	}
 }

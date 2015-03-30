@@ -24,6 +24,33 @@
  */
 package to.etc.domui.component.tree;
 
+import javax.annotation.*;
+
+@DefaultNonNull
 public interface ITreeModelChangedListener<T> {
+
+	/**
+	 * Called after a node is added in the model
+	 * @param parent the parent of the added node
+	 * @param index the index of the added node
+	 * @param node the added node
+	 * @throws Exception
+	 */
+	void onNodeAdded(@Nullable T parent, int index, T node) throws Exception;
+
+	/**
+	 * Called after a node is removed in the model
+	 * @param oldParent the parent of the removed node
+	 * @param oldIndex the index of the node that was removed
+	 * @throws Exception
+	 */
+	void onNodeRemoved(@Nullable T oldParent, int oldIndex) throws Exception;
+
+	/**
+	 * Called after a node is updated in the model.
+	 * @param node the node that is updated
+	 * @throws Exception
+	 */
+	void onNodeUpdated(T node) throws Exception;
 
 }

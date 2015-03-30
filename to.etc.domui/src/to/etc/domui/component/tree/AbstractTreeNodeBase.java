@@ -65,9 +65,6 @@ public abstract class AbstractTreeNodeBase<T extends ITreeNode<T>> implements IT
 		if(m_childList == null)
 			return true;
 		return m_childList.size() != 0;
-		//		if(m_childList == null)
-		//			m_childList = loadChildren();
-		//		return m_childList.size() != 0;
 	}
 
 	@Override
