@@ -79,20 +79,35 @@ $.extend(WebUI, {
 			val = WebUI.insertDateSeparators(val, fmt, separatorsCount);
 		}
 		var res = Date.parseDate(val, fmt);
+		if(!WebUI.isYearInSupportedRange(res))
+			throw "date invalid - distant year";
+			
 		return res.print(fmt);
 	},
 	
 	dateInputRepairTimeValue : function(val) {
 		var fmt = Calendar._TT["DEF_TIME_FORMAT"];
-		var timeSeparator = Calendar._TT["TIME_SEPARATOR"];
-		if(val.indexOf(timeSeparator) < 0){
-			//add time separator before specified minutes
-			var placeForSeparator = val.length - 2;
-			val = [val.slice(0, placeForSeparator), timeSeparator, val.slice(placeForSeparator)].join('');
-		}
+		var tempSep = "~";
+		var count = WebUI.getTimeSeparatorCount(val);
+		switch(count) {
+			default:
+				throw "time has multiple separators";
+			case 0:
+				//add time separator before specified minutes
+				var placeForSeparator = val.length - 2;
+				val = [val.slice(0, placeForSeparator), tempSep, val.slice(placeForSeparator)].join('');
+			case 1:
+				var re = new RegExp("[" + Calendar._TT["TIME_SEPARATOR"] + "]","g");
+				val = val.replace(re, '~');
+			}
 		var dummyDate = new Date();
-		dummyDate.setHours(val.split(timeSeparator)[0], val.split(timeSeparator)[1], 0, 0);
+		dummyDate.setHours(val.split(tempSep)[0], val.split(tempSep)[1], 0, 0);
 		return dummyDate.print(fmt);
+	},
+	
+	getTimeSeparatorCount : function(time){
+		var supportedTimeSeparators = Calendar._TT["TIME_SEPARATOR"];
+		return (time.match(new RegExp("[" + supportedTimeSeparators + "]", "g")) || []).length;
 	},
 	
 	dateInputRepairDateTimeValue : function(val) {
@@ -176,6 +191,14 @@ $.extend(WebUI, {
 			}
 		}
 		return res;
+	},
+	
+	isYearInSupportedRange : function(date){
+		if(date.getFullYear() < Calendar._TT["MIN_YEAR"] || date.getFullYear() > Calendar._TT["MAX_YEAR"]){
+			return false;
+		} else {
+			return true;
+		}
 	}
 	
 });
