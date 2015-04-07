@@ -39,6 +39,7 @@ input, textarea, select {
 }
 textarea{
 	line-height: normal;
+	white-space: pre-wrap;
 }
 input[type=checkbox] {
 	border: 0;
