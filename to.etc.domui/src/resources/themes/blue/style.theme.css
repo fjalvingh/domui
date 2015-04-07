@@ -1295,6 +1295,7 @@ select.ui-ro, select.ui-ro:hover {
 
 TD.ui-numeric {
 	padding-right: 3px;
+	white-space: nowrap;
 }
 
 .ui-dspv.ui-numeric {
