@@ -9,6 +9,7 @@ import to.etc.domui.annotations.*;
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.util.*;
 
 /**
  * Selenium test date input check page.
@@ -34,6 +35,7 @@ public class DateInputTestPage extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
 		final DateInput di = new DateInput(isWithtime());
+		preventAlertsFromOpening();
 		add(di);
 		di.setTestID("datein");
 
@@ -72,7 +74,19 @@ public class DateInputTestPage extends UrlPage {
 		});
 		clear.setTestID("clear");
 		add(clear);
-
-
 	}
+
+	/**
+	 * Prevent alert from opening since it's presence will be indicated in result div as an error.
+	 * @return
+	 */
+	protected void preventAlertsFromOpening() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("var defaultAlert = alert;");
+		sb.append("alert = function(message){");
+		sb.append("		console.log('Alert blocked: ' + message);");
+		sb.append("}");
+		this.appendCreateJS(DomUtil.nullChecked(sb.toString()));
+	}
+
 }
