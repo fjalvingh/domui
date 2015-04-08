@@ -222,6 +222,11 @@ final public class PoolManager {
 	public ConnectionPool definePool(final String id) throws Exception {
 		String uh = System.getProperty("user.home");
 		if(uh != null) {
+			File xf = new File(uh, ".dbpool.xml");
+			if(xf.exists()) {
+				return definePool(xf, id);
+			}
+
 			File pf = new File(uh, ".dbpool.properties");
 			if(pf.exists()) {
 				return definePool(pf, id);
