@@ -54,7 +54,7 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 1, 2008
  */
-public class LookupInput2<T> extends LookupInputBase2<T, T> {
+final public class LookupInput2<T> extends LookupInputBase2<T, T> {
 	public LookupInput2(@Nonnull Class<T> lookupClass, @Nullable ClassMetaModel metaModel) {
 		super(new SameTypeModelFactory<T>(), lookupClass, lookupClass, metaModel, metaModel);
 	}

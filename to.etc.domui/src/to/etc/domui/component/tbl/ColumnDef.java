@@ -3,6 +3,7 @@ package to.etc.domui.component.tbl;
 import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
+import to.etc.domui.converter.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.util.*;
 
@@ -27,7 +28,7 @@ public class ColumnDef<T> {
 	private ISortHelper m_sortHelper;
 
 	@Nullable
-	private String m_width;
+	private String m_width = "1%";					// jal 20150408 Default to 1% width for now
 
 	@Nullable
 	private String m_propertyName;
@@ -55,6 +56,9 @@ public class ColumnDef<T> {
 
 	@Nullable
 	private INodeContentRenderer<T> m_contentRenderer;
+
+	@Nullable
+	private IConverter<T> m_converter;
 
 	@Nullable
 	private ICellClicked< ? > m_cellClicked;
@@ -103,6 +107,11 @@ public class ColumnDef<T> {
 	@Nullable
 	public String getColumnLabel() {
 		return m_columnLabel;
+	}
+
+	@Nullable
+	public IConverter<T> getConverter() {
+		return m_converter;
 	}
 
 	/**
@@ -384,6 +393,12 @@ public class ColumnDef<T> {
 	@Nonnull
 	public ColumnDef<T> width(@Nullable String w) {
 		m_width = w;
+		return this;
+	}
+
+	@Nonnull
+	public ColumnDef<T> converter(@Nullable IConverter<T> converter) {
+		m_converter = converter;
 		return this;
 	}
 

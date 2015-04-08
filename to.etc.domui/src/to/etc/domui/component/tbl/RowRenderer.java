@@ -1,5 +1,9 @@
 package to.etc.domui.component.tbl;
 
+import java.util.*;
+
+import javax.annotation.*;
+
 import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.misc.*;
@@ -12,9 +16,6 @@ import to.etc.domui.util.*;
 import to.etc.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.annotations.*;
-
-import javax.annotation.*;
-import java.util.*;
 
 /**
  * This is the type-safe replacement for the other row renderers which are now deprecated.
@@ -320,10 +321,13 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 
 		//-- Render the value, in whatever way. The value is bound to the model so that updates cause a render.
 		INodeContentRenderer<X> contentRenderer = cd.getContentRenderer();
+		IConverter<X> cellConverter = cd.getConverter();
 		PropertyMetaModel<X> pmm = cd.getPropertyMetaModel();
 		if(cd.isEditable()) {
 			if(null != contentRenderer)
 				throw new IllegalStateException("A column cannot be editable if you assign your own renderer to it: handle the editing inside the renderer yourself.");
+			if(null != cellConverter)
+				throw new IllegalStateException("A column cannot be editable if you assign a converter to it: handle the conversion inside the renderer yourself.");
 			renderEditable(tbl, cd, cell, instance);
 		} else if(instance instanceof IObservableEntity) {
 			if(null == pmm)
@@ -334,7 +338,9 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 			applyCellAttributes(cell, cd);
 		} else if(pmm != null) {
 			//-- Bind the property to a display control.
-			IConverter<X> converter = pmm.getConverter();
+			IConverter<X> converter = cellConverter;
+			if(null == converter)
+				converter = pmm.getConverter();
 			DisplaySpan<X> ds = new DisplaySpan<X>(pmm.getActualType());
 			ds.bind().to(instance, pmm);					// Bind value to model
 				ds.setRenderer(contentRenderer);				// Bind the display control and let it render through the content renderer, enabling binding
