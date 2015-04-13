@@ -3138,6 +3138,10 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	padding: 0px 0px 0px 4px;
 }
 
+.ui-f4-h {
+	padding-bottom: 10px;
+}
+
 /*-- overrides --*/
 .ui-f4 td, .ui-f4 label {
 	vertical-align: baseline !important;
