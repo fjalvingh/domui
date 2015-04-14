@@ -139,6 +139,35 @@ final public class SimpleBinder implements IBinder, IBinding {
 		if(control instanceof IDisplayControl)
 			return;
 
+
+		/*
+		 * jal 20150414 Readonly (display) and disabled controls should not bind their value
+		 * back to the model. This solves the following problem (at least for these kind of
+		 * fields): take a model that has two Text<Integer> controls: one editable bound to
+		 * property a, and one readonly bound to b.
+		 * The setter for 'a' calculates a new value for b somehow (like b = a + 12).
+		 *
+		 * When the screen renders a will be 0 and b will be 12, so the Text controls represent
+		 * that. Now when Text for a changes to 10 the following happens:
+		 * - 10 gets moved to setA(), and this calls setB(22). So property b is now 22.
+		 * - 12 gets moved to setB() from the _unchanged_ Text<> from b, so overwriting the new value.
+		 * This cause of events is clearly wrong for readonly/disabled fields, so we disable
+		 * them from updating the model.
+		 *
+		 * The general case, where both controls are editable, amounts to whom should
+		 * win in an update: if Text<b> changed due to a user and Text<A> also changed
+		 * and caused an update to b - which update is "the most important"? This is
+		 * not yet solved (but might be by letting either model or UI win in case of a
+		 * conflicting model update).
+		 */
+		if(control instanceof IControl) {
+			IControl<?> ict = (IControl<?>) control;
+			if(ict.isDisabled() || ict.isReadOnly()) {
+				return;
+			}
+		}
+
+
 		IBindingListener< ? > listener = m_listener;
 		if(listener != null) {
 			((IBindingListener<NodeBase>) listener).moveControlToModel(control);
@@ -182,6 +211,7 @@ final public class SimpleBinder implements IBinder, IBinding {
 				throw new IllegalStateException("Binding error moving " + m_controlProperty + " to " + m_instanceProperty + ": " + x, x);
 			}
 		}
+		System.out.println("binder: get " + m_control.getComponentInfo() + " value -> model " + value);
 	}
 
 	/**
@@ -205,6 +235,7 @@ final public class SimpleBinder implements IBinder, IBinding {
 
 		// FIXME We should think about exception handling here
 		Object modelValue = instanceProperty.getValue(instance);
+		System.out.println("binder: set "+control.getComponentInfo()+" value="+modelValue);
 		if(!MetaManager.areObjectsEqual(modelValue, m_lastValueFromControl)) {
 			//-- Value in instance differs from control's
 			m_lastValueFromControl = modelValue;
