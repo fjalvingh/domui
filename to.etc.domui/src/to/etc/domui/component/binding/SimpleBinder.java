@@ -211,7 +211,7 @@ final public class SimpleBinder implements IBinder, IBinding {
 				throw new IllegalStateException("Binding error moving " + m_controlProperty + " to " + m_instanceProperty + ": " + x, x);
 			}
 		}
-		System.out.println("binder: get " + m_control.getComponentInfo() + " value -> model " + value);
+		//System.out.println("binder: get " + m_control.getComponentInfo() + " value -> model " + value);
 	}
 
 	/**
@@ -235,7 +235,7 @@ final public class SimpleBinder implements IBinder, IBinding {
 
 		// FIXME We should think about exception handling here
 		Object modelValue = instanceProperty.getValue(instance);
-		System.out.println("binder: set "+control.getComponentInfo()+" value="+modelValue);
+		//System.out.println("binder: set "+control.getComponentInfo()+" value="+modelValue);
 		if(!MetaManager.areObjectsEqual(modelValue, m_lastValueFromControl)) {
 			//-- Value in instance differs from control's
 			m_lastValueFromControl = modelValue;

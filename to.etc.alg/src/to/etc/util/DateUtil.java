@@ -26,6 +26,7 @@ package to.etc.util;
 
 import java.text.*;
 import java.util.*;
+import java.util.concurrent.*;
 
 import javax.annotation.*;
 
@@ -35,12 +36,54 @@ import javax.annotation.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Feb 28, 2007
  */
-public class DateUtil {
+final public class DateUtil {
 	/** A fixed date way into the future. */
+	@Nonnull
 	static public final Date	FUTURE	= dateFor(9999, 11, 31);
 
 	private DateUtil() {
 	}
+
+	/**
+	 * Extract the time fields from a date value and return as a value
+	 * in the specified unit. Rounding will be to floor.
+	 *
+	 * @param from
+	 * @param unit
+	 * @return
+	 */
+	static public long getTime(@Nonnull Date from, @Nonnull TimeUnit unit) {
+		Calendar instance = Calendar.getInstance();
+		instance.setTime(from);
+
+		int hours = instance.get(Calendar.HOUR_OF_DAY);
+		int mins = instance.get(Calendar.MINUTE) + 60 * hours;
+		int secs = instance.get(Calendar.SECOND) + 60 * mins;
+		long millis = instance.get(Calendar.MILLISECOND) + 1000 * secs;
+
+		return unit.convert(millis, TimeUnit.MILLISECONDS);
+	}
+
+	/**
+	 * Truncate a date to be at 0:00 by ceiling the time. If the date entered
+	 * has a time > 0:00.0000 then the time is cleared and the day incremented
+	 * by one.
+	 *
+	 * @param date
+	 * @return
+	 */
+	@Nonnull
+	static public Date	truncateCeil(@Nonnull Date date) {
+		long time = getTime(date, TimeUnit.SECONDS);
+		if(time == 0)											// It's exactly 0:00, so we're precise
+			return date;
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		clearTime(cal);
+		cal.add(Calendar.DAY_OF_MONTH, 1);
+		return cal.getTime();
+	}
+
 
 	/**
 	 * Decraps the separate date / time found in the VP database into a normal date containing
