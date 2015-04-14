@@ -193,6 +193,8 @@ final public class FormBuilder {
 		m_propertyMetaModel = null;
 		m_append = false;
 		m_mandatory = null;
+		m_nextLabel = null;
+		m_nextLabelControl = null;
 	}
 
 
@@ -232,6 +234,13 @@ final public class FormBuilder {
 			if(isMandatory()) {
 				ctl.setMandatory(true);
 			}
+		}
+
+		if(control instanceof NodeBase) {			// Yecc.
+			NodeBase nb = (NodeBase) control;
+			String label = labelTextCalculated();
+			if(null != label)
+				nb.setErrorLocation(label);
 		}
 	}
 
@@ -347,14 +356,12 @@ final public class FormBuilder {
 		Label res = null;
 		String txt = m_nextLabel;
 		if(null != txt) {
-			m_nextLabel = null;
+			//m_nextLabel = null;
 			if(txt.length() != 0)					// Not "unlabeled"?
 				res = new Label(txt);
 		} else {
 			res = m_nextLabelControl;
-			if(res != null) {
-				m_nextLabelControl = null;
-			} else {
+			if(res == null) {
 				//-- Property known?
 				PropertyMetaModel< ? > pmm = m_propertyMetaModel;
 				if(null != pmm) {
@@ -369,6 +376,30 @@ final public class FormBuilder {
 		}
 
 		return res;
+	}
+
+	@Nullable
+	private String labelTextCalculated() {
+		String txt = m_nextLabel;
+		if(null != txt) {
+			if(txt.length() != 0)					// Not "unlabeled"?
+				return txt;
+			return null;
+		} else {
+			Label res = m_nextLabelControl;
+			if(res != null) {
+				return res.getTextContents();
+			} else {
+				//-- Property known?
+				PropertyMetaModel< ? > pmm = m_propertyMetaModel;
+				if(null != pmm) {
+					txt = pmm.getDefaultLabel();
+					if(txt != null && txt.length() > 0)
+						return txt;
+				}
+			}
+		}
+		return null;
 	}
 
 	private boolean isReadOnly() {

@@ -597,6 +597,24 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		}
 	}
 
+	/**
+	 * If this node contains {@link TextNode}'s only this creates the text string represented by those nodes. If
+	 * other nodes are found this returns null.
+	 * @return
+	 */
+	@Nullable
+	public String getTextContents() {
+		StringBuilder sb = new StringBuilder();
+		for(NodeBase nb: this) {
+			if(nb instanceof TextNode) {
+				TextNode tn = (TextNode) nb;
+				sb.append(tn.getText());
+			} else
+				return null;
+		}
+		return sb.toString();
+	}
+
 	@Override
 	final protected void internalShelve() throws Exception {
 		onShelve();
