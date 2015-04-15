@@ -1,8 +1,8 @@
 package to.etc.domui.dom.html;
 
-import to.etc.domui.component.meta.*;
-
 import java.util.*;
+
+import to.etc.domui.component.meta.*;
 
 /**
  * This is a simple marker which groups radiobuttons together. It can be used as a component too.
@@ -20,6 +20,8 @@ public class RadioGroup<T> extends Div implements IHasChangeListener {
 	private T m_value;
 
 	private IValueChanged< ? > m_onValueChanged;
+
+	private boolean m_immediate;
 
 	public RadioGroup() {
 		m_groupName = "g" + nextID();
@@ -67,11 +69,27 @@ public class RadioGroup<T> extends Div implements IHasChangeListener {
 
 	@Override
 	public IValueChanged< ? > getOnValueChanged() {
-		return m_onValueChanged;
+		IValueChanged< ? > vc = m_onValueChanged;
+		if(null == vc && isImmediate()) {
+			return IValueChanged.DUMMY;
+		}
+		return vc;
 	}
 
 	@Override
 	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
 		m_onValueChanged = onValueChanged;
+	}
+
+	public boolean isImmediate() {
+		return m_immediate;
+	}
+
+	public void immediate(boolean immediate) {
+		m_immediate = immediate;
+	}
+
+	public void immediate() {
+		m_immediate = true;
 	}
 }

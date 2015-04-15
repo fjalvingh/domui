@@ -84,6 +84,10 @@ final public class DateUtil {
 		return cal.getTime();
 	}
 
+	static public boolean isWeekend(@Nonnull Calendar cal) {
+		int day = cal.get(Calendar.DAY_OF_WEEK);
+		return day == Calendar.SUNDAY || day == Calendar.SATURDAY;
+	}
 
 	/**
 	 * Decraps the separate date / time found in the VP database into a normal date containing
