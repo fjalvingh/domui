@@ -241,4 +241,15 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 			ta.setTitle(s);
 		return ta;
 	}
+
+	@Override
+	public void setReadOnly(boolean readOnly) {
+		if(readOnly == isReadOnly())
+			return;
+		super.setReadOnly(readOnly);
+		if(isReadOnly())
+			addCssClass("ui-textarea-ro");
+		else
+			removeCssClass("ui-textarea-ro");
+	}
 }

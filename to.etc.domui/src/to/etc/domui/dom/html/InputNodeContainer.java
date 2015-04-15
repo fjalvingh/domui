@@ -85,7 +85,10 @@ abstract public class InputNodeContainer extends NodeContainer implements IHasCh
 	}
 
 	public void setReadOnly(boolean readOnly) {
+		if(m_readOnly == readOnly)
+			return;
 		m_readOnly = readOnly;
+		changed();
 	}
 
 	public boolean isMandatory() {

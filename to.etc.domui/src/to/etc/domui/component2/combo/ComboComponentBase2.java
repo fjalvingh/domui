@@ -615,6 +615,10 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 		}
 	}
 
+	public void immediate() {
+		m_select.immediate();
+	}
+
 	@Override
 	public void setDisabled(boolean d) {
 		m_select.setDisabled(d);

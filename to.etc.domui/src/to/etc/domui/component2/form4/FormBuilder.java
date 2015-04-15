@@ -347,6 +347,18 @@ final public class FormBuilder {
 			lbl.setForNode(control);
 	}
 
+	public void appendAfterControl(@Nonnull NodeBase what) {
+		TR tr = controlRow();
+		TD lastCell = (TD) tr.getChild(tr.getChildCount()-1);
+		lastCell.add(what);
+	}
+
+	@Nonnull
+	public NodeContainer getLastControlCell() {
+		TR tr = controlRow();
+		return (TD) tr.getChild(tr.getChildCount()-1);
+	}
+
 	/**
 	 *
 	 * @return

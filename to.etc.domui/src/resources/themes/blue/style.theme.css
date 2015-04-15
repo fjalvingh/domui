@@ -96,6 +96,10 @@ input, textarea, select {
 textarea{
 	line-height: normal;
 }
+textarea[readonly="readonly"] {
+	background-color: transparent;
+}
+
 input[type=checkbox] {
 	border: 0;
 	padding-left: 0px;
@@ -3139,7 +3143,7 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 }
 
 .ui-f4-h {
-	padding-bottom: 10px;
+	margin-bottom: 10px;
 }
 
 /*-- overrides --*/

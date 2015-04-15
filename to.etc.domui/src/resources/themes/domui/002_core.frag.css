@@ -40,6 +40,10 @@ input, textarea, select {
 textarea{
 	line-height: normal;
 }
+textarea[readonly="readonly"] {
+	background-color: transparent;
+}
+
 input[type=checkbox] {
 	border: 0;
 	padding-left: 0px;
