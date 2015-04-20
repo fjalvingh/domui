@@ -47,6 +47,8 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 	/** Indication if the contents of this thing has been altered by the user. This merely compares any incoming value with the present value and goes "true" when those are not equal. */
 	private boolean m_modifiedByUser;
 
+	private int	m_maxLength;
+
 	public TextArea() {
 		super("textarea");
 	}
@@ -239,6 +241,11 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 		String s = pmm.getDefaultHint();
 		if(s != null)
 			ta.setTitle(s);
+		int maxlen = pmm.getLength();
+		if(maxlen > 0) {
+			ta.setMaxLength(maxlen);
+		}
+
 		return ta;
 	}
 
@@ -251,5 +258,18 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 			addCssClass("ui-textarea-ro");
 		else
 			removeCssClass("ui-textarea-ro");
+	}
+
+	/**
+	 * This sets the max input length for the text area, or unlimited when &lt;= 0. This is not
+	 * a valid HTML attribute for html < 5; the handling is done in Javascript.
+	 * @return
+	 */
+	public int getMaxLength() {
+		return m_maxLength;
+	}
+
+	public void setMaxLength(int maxLength) {
+		m_maxLength = maxLength;
 	}
 }
