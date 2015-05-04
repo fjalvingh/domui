@@ -1,14 +1,15 @@
 package to.etc.domui.component.image;
 
+import java.io.*;
+import java.util.*;
+
+import javax.annotation.*;
+
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.images.converters.*;
 import to.etc.domui.util.images.machines.*;
 import to.etc.sjit.*;
 import to.etc.webapp.nls.*;
-
-import javax.annotation.*;
-import java.io.*;
-import java.util.*;
 
 /**
  * An image that was updated/loaded by the user and has not yet been stored in wherever.
@@ -65,7 +66,9 @@ final public class LoadedImage implements IUIImage {
 		m_resourceList = resourceList;
 	}
 
-	@Nonnull @Override public IUIImageInstance getImage(@Nullable Dimension size, boolean thumbNail) throws Exception {
+	@Nonnull
+	@Override
+	public IUIImageInstance getImage(@Nullable Dimension size, boolean thumbNail) throws Exception {
 		//-- Get size after resize,
 		if(size == null) {
 			size = thumbNail ? Dimension.ICON : m_dimension;
