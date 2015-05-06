@@ -92,6 +92,7 @@ public class ColumnDef<T> {
 		numeric(pmm.getNumericPresentation());
 		if(pmm.getNowrap() == YesNoType.YES)
 			nowrap();
+		converter(ConverterRegistry.findBestConverter(pmm));
 	}
 
 	@Nonnull
