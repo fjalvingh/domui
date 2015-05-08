@@ -142,12 +142,12 @@ public class TabPanelBase extends Div {
 		public void closable(boolean closeable) {
 			m_closable = closeable;
 		}
-		
+
 		@Override
 		public void setOnClose(INotify<ITabHandle> notify) {
 			m_onClose = notify;
 		}
-		
+
 		public INotify<ITabHandle> getOnClose() {
 			return m_onClose;
 		}
@@ -357,7 +357,7 @@ public class TabPanelBase extends Div {
 	 * @throws Exception
 	 */
 	private void closeTab(@Nonnull final TabInstance ti) throws Exception {
-		
+
 		// Check for a silly index
 		int index = m_tablist.indexOf(ti);
 		if (index < 0) {
@@ -367,19 +367,19 @@ public class TabPanelBase extends Div {
 		if(index == getCurrentTab()) {
 			int newIndex = selectNewCurrentTab(index);
 			setCurrentTab(newIndex);
-		} 
+		}
 		if(index < getCurrentTab()) {
 			m_currentTab--;
 		}
 		ti.setAdded(false);
 		m_tablist.remove(index);
-		
+
 		if(isBuilt()) {
 			ti.getTab().remove();
 			ti.getSeparator().remove();
 			ti.getContent().remove();
 		}
-		
+
 		if (ti.getOnClose() != null) {
 			ti.getOnClose().onNotify(ti);
 		}
