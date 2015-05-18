@@ -108,6 +108,8 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		return m_clearButton;
 	}
 
+	private DefaultButton m_searchButton;
+
 	private Table m_table;
 
 	private TBody m_tbody;
@@ -543,22 +545,22 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	}
 
 	protected void defineDefaultButtons() {
-		DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_SEARCH));
-		b.setIcon("THEME/btnFind.png");
-		b.setTestID("searchButton");
-		b.setClicked(new IClicked<NodeBase>() {
+		m_searchButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_SEARCH));
+		m_searchButton.setIcon("THEME/btnFind.png");
+		m_searchButton.setTestID("searchButton");
+		m_searchButton.setClicked(new IClicked<NodeBase>() {
 			@Override
 			public void clicked(final @Nonnull NodeBase bx) throws Exception {
 				if(m_clicker != null)
 					m_clicker.clicked(LookupForm.this);
 			}
 		});
-		addButtonItem(b, 100, ButtonMode.NORMAL);
+		addButtonItem(m_searchButton, 100, ButtonMode.NORMAL);
 
-		m_clearButton = b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CLEAR));
-		b.setIcon("THEME/btnClear.png");
-		b.setTestID("clearButton");
-		b.setClicked(new IClicked<NodeBase>() {
+		m_clearButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CLEAR));
+		m_clearButton.setIcon("THEME/btnClear.png");
+		m_clearButton.setTestID("clearButton");
+		m_clearButton.setClicked(new IClicked<NodeBase>() {
 			@Override
 			public void clicked(final @Nonnull NodeBase xb) throws Exception {
 				clearInput();
@@ -566,7 +568,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 					((IClicked<LookupForm<T>>) getOnClear()).clicked(LookupForm.this); // FIXME Another generics snafu, fix.
 			}
 		});
-		addButtonItem(b, 200, ButtonMode.NORMAL);
+		addButtonItem(m_clearButton, 200, ButtonMode.NORMAL);
 
 		//-- Collapse button thingy
 		m_collapseButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE), "THEME/btnHideLookup.png", new IClicked<DefaultButton>() {
@@ -1412,5 +1414,30 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		return m_buttonFactory;
 	}
 
+	/**
+	 * Retrieve the button for collapsing the lookup form
+	 * @return
+	 */
+	@Nullable
+	public DefaultButton getCollapseButton() {
+		return m_collapseButton;
+	}
 
+	/**
+	 * Retrieve the button for searching
+	 * @return
+	 */
+	@Nullable
+	public DefaultButton getSearchButton() {
+		return m_searchButton;
+	}
+
+	/**
+	 * Retrieve the button for adding a new item
+	 * @return
+	 */
+	@Nullable
+	public DefaultButton getAddButton() {
+		return m_newBtn;
+	}
 }
