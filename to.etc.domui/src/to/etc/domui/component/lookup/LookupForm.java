@@ -109,8 +109,6 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		return m_clearButton;
 	}
 
-	private DefaultButton m_searchButton;
-
 	private Table m_table;
 
 	private TBody m_tbody;
@@ -547,25 +545,24 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	}
 
 	protected void defineDefaultButtons() {
-		m_searchButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_SEARCH));
-		m_searchButton.setIcon("THEME/btnFind.png");
-		m_searchButton.setTestID("searchButton");
-		m_searchButton.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_SEARCH_TITLE));
-		//$("clear.search.without.actionkey")
-		m_searchButton.setClicked(new IClicked<NodeBase>() {
+		DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_SEARCH));
+		b.setIcon("THEME/btnFind.png");
+		b.setTestID("searchButton");
+		b.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_SEARCH_TITLE));
+		b.setClicked(new IClicked<NodeBase>() {
 			@Override
 			public void clicked(final @Nonnull NodeBase bx) throws Exception {
 				if(m_clicker != null)
 					m_clicker.clicked(LookupForm.this);
 			}
 		});
-		addButtonItem(m_searchButton, 100, ButtonMode.NORMAL);
+		addButtonItem(b, 100, ButtonMode.NORMAL);
 
-		m_clearButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CLEAR));
-		m_clearButton.setIcon("THEME/btnClear.png");
-		m_clearButton.setTestID("clearButton");
-		m_clearButton.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CLEAR_TITLE));
-		m_clearButton.setClicked(new IClicked<NodeBase>() {
+		m_clearButton = b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CLEAR));
+		b.setIcon("THEME/btnClear.png");
+		b.setTestID("clearButton");
+		b.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CLEAR_TITLE));
+		b.setClicked(new IClicked<NodeBase>() {
 			@Override
 			public void clicked(final @Nonnull NodeBase xb) throws Exception {
 				clearInput();
@@ -573,7 +570,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 					((IClicked<LookupForm<T>>) getOnClear()).clicked(LookupForm.this); // FIXME Another generics snafu, fix.
 			}
 		});
-		addButtonItem(m_clearButton, 200, ButtonMode.NORMAL);
+		addButtonItem(b, 200, ButtonMode.NORMAL);
 
 		//-- Collapse button thingy
 		m_collapseButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE), "THEME/btnHideLookup.png", new IClicked<DefaultButton>() {
@@ -864,9 +861,8 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 		AbstractLookupControlImpl thingy = new AbstractLookupControlImpl(lookupInstance.getInputControls()) {
 			@Override
-			public
 			@Nonnull
-			AppendCriteriaResult appendCriteria(@Nonnull QCriteria<?> crit) throws Exception {
+			public AppendCriteriaResult appendCriteria(@Nonnull QCriteria<?> crit) throws Exception {
 
 				QCriteria<?> r = QCriteria.create(childPmm.getClassModel().getActualClass());
 				AppendCriteriaResult subRes = lookupInstance.appendCriteria(r);
