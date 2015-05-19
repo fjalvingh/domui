@@ -1203,7 +1203,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 * Listener to call when the "clear" button is pressed.
 	 * @param onClear
 	 */
-	public void setOnClear(IClicked<? extends LookupForm<T>> onClear) {
+	public void setOnClear(IClicked< ? extends LookupForm<T>> onClear) {
 		m_onClear = onClear;
 	}
 
