@@ -54,7 +54,7 @@ import to.etc.webapp.query.*;
  * <p>When used as-is, this form will use the class' metadata to discover any defined search
  * properties, and then populate the form with lookup controls which allow searches on those
  * properties. This is for "default" lookup screens. For more complex screens or lookup parts
- * that have controls interact with eachother you can manually define the contents of the
+ * that have controls interact with each other you can manually define the contents of the
  * lookup form. By adding lookup items manually you <i>disable</i> the automatic discovery of
  * search options. This is proper because no form should <b>ever</b> depend on the content,
  * structure or order of metadata-defined lookup items!!! So if you want to manipulate the
@@ -93,7 +93,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 	private DefaultButton m_newBtn;
 
-	private IClicked< ? extends LookupForm<T>> m_onClear;
+	private IClicked<? extends LookupForm<T>> m_onClear;
 
 	private IClicked<LookupForm<T>> m_onCancel;
 
@@ -103,7 +103,8 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 	private DefaultButton m_clearButton;
 
-	public @Nullable
+	public
+	@Nullable
 	DefaultButton getClearButton() {
 		return m_clearButton;
 	}
@@ -131,7 +132,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	private boolean m_collapsed;
 
 	/**
-	 * Calculated by entered search criterias, T in case that exists any field resulting with {@link AppendCriteriaResult#VALID} in LookupForm fields.
+	 * Calculated by entered search criteria, T in case that exists any field resulting with {@link AppendCriteriaResult#VALID} in LookupForm fields.
 	 */
 	private boolean m_hasUserDefinedCriteria;
 
@@ -182,7 +183,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 		private String m_propertyName;
 
-		private List<PropertyMetaModel< ? >> m_propertyPath;
+		private List<PropertyMetaModel<?>> m_propertyPath;
 
 		private ILookupControlInstance m_instance;
 
@@ -212,15 +213,15 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		}
 
 		@Override
-		public List<PropertyMetaModel< ? >> getPropertyPath() {
+		public List<PropertyMetaModel<?>> getPropertyPath() {
 			return m_propertyPath;
 		}
 
-		public void setPropertyPath(List<PropertyMetaModel< ? >> propertyPath) {
+		public void setPropertyPath(List<PropertyMetaModel<?>> propertyPath) {
 			m_propertyPath = propertyPath;
 		}
 
-		public PropertyMetaModel< ? > getLastProperty() {
+		public PropertyMetaModel<?> getLastProperty() {
 			if(m_propertyPath == null || m_propertyPath.size() == 0)
 				return null;
 			return m_propertyPath.get(m_propertyPath.size() - 1);
@@ -353,7 +354,8 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 * Created on 13 Oct 2009
 	 */
 	static private class ItemBreak extends Item {
-		public ItemBreak() {}
+		public ItemBreak() {
+		}
 	}
 
 	/** The primary list of defined lookup items. */
@@ -548,6 +550,8 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		m_searchButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_SEARCH));
 		m_searchButton.setIcon("THEME/btnFind.png");
 		m_searchButton.setTestID("searchButton");
+		m_searchButton.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_SEARCH_TITLE));
+		//$("clear.search.without.actionkey")
 		m_searchButton.setClicked(new IClicked<NodeBase>() {
 			@Override
 			public void clicked(final @Nonnull NodeBase bx) throws Exception {
@@ -560,6 +564,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		m_clearButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CLEAR));
 		m_clearButton.setIcon("THEME/btnClear.png");
 		m_clearButton.setTestID("clearButton");
+		m_clearButton.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CLEAR_TITLE));
 		m_clearButton.setClicked(new IClicked<NodeBase>() {
 			@Override
 			public void clicked(final @Nonnull NodeBase xb) throws Exception {
@@ -578,6 +583,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 			}
 		});
 		m_collapseButton.setTestID("hideButton");
+		m_collapseButton.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE_TITLE));
 		addButtonItem(m_collapseButton, 300, ButtonMode.BOTH);
 	}
 
@@ -648,6 +654,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Altering/defining the lookup items.					*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * This adds all properties that are defined as "search" properties in either this control or the metadata
 	 * to the item list. The list is cleared before that!
@@ -688,7 +695,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 	/**
 	 * Add a property to look up to the list. The controls et al will be added using the factories.
-	 * @param path		The property name (or path to some PARENT property) to search on, relative to the lookup class.
+	 * @param path        The property name (or path to some PARENT property) to search on, relative to the lookup class.
 	 * @param minlen
 	 * @param ignorecase
 	 */
@@ -698,7 +705,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 	/**
 	 * Add a property to look up to the list. The controls et al will be added using the factories.
-	 * @param path		The property name (or path to some PARENT property) to search on, relative to the lookup class.
+	 * @param path        The property name (or path to some PARENT property) to search on, relative to the lookup class.
 	 * @param minlen
 	 */
 	public Item addProperty(String path, int minlen) {
@@ -707,8 +714,8 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 	/**
 	 * Add a property to look up to the list with user-specified label. The controls et al will be added using the factories.
-	 * @param path	The property name (or path to some PARENT property) to search on, relative to the lookup class.
-	 * @param label	The label text to use. Use the empty string to prevent a label from being generated. This still adds an empty cell for the label though.
+	 * @param path    The property name (or path to some PARENT property) to search on, relative to the lookup class.
+	 * @param label    The label text to use. Use the empty string to prevent a label from being generated. This still adds an empty cell for the label though.
 	 */
 	public Item addProperty(String path, String label) {
 		return addProperty(path, label, 0, null);
@@ -716,7 +723,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 	/**
 	 * Add a property to look up to the list. The controls et al will be added using the factories.
-	 * @param path	The property name (or path to some PARENT property) to search on, relative to the lookup class.
+	 * @param path    The property name (or path to some PARENT property) to search on, relative to the lookup class.
 	 */
 	public Item addProperty(String path) {
 		return addProperty(path, null, 0, null);
@@ -724,7 +731,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 	/**
 	 * Add a property manually.
-	 * @param path		The property name (or path to some PARENT property) to search on, relative to the lookup class.
+	 * @param path        The property name (or path to some PARENT property) to search on, relative to the lookup class.
 	 * @param minlen
 	 * @param ignorecase
 	 */
@@ -807,7 +814,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 * @return
 	 */
 	public Item addManualPropertyLabel(String property, ILookupControlInstance lci) {
-		PropertyMetaModel< ? > pmm = getMetaModel().findProperty(property);
+		PropertyMetaModel<?> pmm = getMetaModel().findProperty(property);
 		if(null == pmm)
 			throw new ProgrammerErrorException(property + ": undefined property for class=" + getLookupClass());
 		return addManualTextLabel(pmm.getDefaultLabel(), lci);
@@ -839,14 +846,14 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 */
 	public Item addChildPropertyLabel(String label, String propPath) {
 
-		final List<PropertyMetaModel< ? >> pl = MetaManager.parsePropertyPath(m_metaModel, propPath);
+		final List<PropertyMetaModel<?>> pl = MetaManager.parsePropertyPath(m_metaModel, propPath);
 
 		if(pl.size() != 2) {
 			throw new ProgrammerErrorException("Property path does not contain parent.child path: " + propPath);
 		}
 
-		final PropertyMetaModel< ? > parentPmm = pl.get(0);
-		final PropertyMetaModel< ? > childPmm = pl.get(1);
+		final PropertyMetaModel<?> parentPmm = pl.get(0);
+		final PropertyMetaModel<?> childPmm = pl.get(1);
 
 		SearchPropertyMetaModelImpl spmm = new SearchPropertyMetaModelImpl(m_metaModel);
 		spmm.setPropertyName(childPmm.getName());
@@ -857,15 +864,17 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 		AbstractLookupControlImpl thingy = new AbstractLookupControlImpl(lookupInstance.getInputControls()) {
 			@Override
-			public @Nonnull AppendCriteriaResult appendCriteria(@Nonnull QCriteria< ? > crit) throws Exception {
+			public
+			@Nonnull
+			AppendCriteriaResult appendCriteria(@Nonnull QCriteria<?> crit) throws Exception {
 
-				QCriteria< ? > r = QCriteria.create(childPmm.getClassModel().getActualClass());
+				QCriteria<?> r = QCriteria.create(childPmm.getClassModel().getActualClass());
 				AppendCriteriaResult subRes = lookupInstance.appendCriteria(r);
 
 				if(subRes == AppendCriteriaResult.INVALID) {
 					return subRes;
 				} else if(r.hasRestrictions()) {
-					QRestrictor< ? > exists = crit.exists(childPmm.getClassModel().getActualClass(), parentPmm.getName());
+					QRestrictor<?> exists = crit.exists(childPmm.getClassModel().getActualClass(), parentPmm.getName());
 					exists.setRestrictions(r.getRestrictions());
 					return AppendCriteriaResult.VALID;
 				} else {
@@ -904,14 +913,14 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 		//-- 1. If a property name is present but the path is unknown calculate the path
 		if(it.getPropertyPath() == null && it.getPropertyName() != null && it.getPropertyName().length() > 0) {
-			List<PropertyMetaModel< ? >> pl = MetaManager.parsePropertyPath(getMetaModel(), it.getPropertyName());
+			List<PropertyMetaModel<?>> pl = MetaManager.parsePropertyPath(getMetaModel(), it.getPropertyName());
 			if(pl.size() == 0)
 				throw new ProgrammerErrorException("Unknown/unresolvable lookup property " + it.getPropertyName() + " on class=" + getLookupClass());
 			it.setPropertyPath(pl);
 		}
 
 		//-- 2. Calculate/determine a label text if empty from metadata, else ignore
-		PropertyMetaModel< ? > pmm = MetaUtils.findLastProperty(it); // Try to get metamodel
+		PropertyMetaModel<?> pmm = MetaUtils.findLastProperty(it); // Try to get metamodel
 		if(it.getLabelText() == null) {
 			if(pmm == null)
 				it.setLabelText(it.getPropertyName()); // Last resort: default to property name if available
@@ -955,7 +964,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 			throw new IllegalStateException("No idea how to create a lookup control for " + it);
 
 		//-- Assign error locations to all input controls
-		if(!DomUtil.isBlank(it.getErrorLocation()) ) {
+		if(!DomUtil.isBlank(it.getErrorLocation())) {
 			for(NodeBase ic : it.getInstance().getInputControls())
 				ic.setErrorLocation(it.getErrorLocation());
 		}
@@ -988,7 +997,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 * and another cell containing the lookup controls. This tries all the myriad ways of
 	 * getting the label for the control.
 	 *
-	 * @param it	The fully completed item definition to add.
+	 * @param it    The fully completed item definition to add.
 	 */
 	private void addItemToTable(Item it) {
 		ILookupControlInstance qt = it.getInstance();
@@ -1009,7 +1018,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		for(NodeBase b : qt.getInputControls()) { // Add all nodes && try to find label control if unknown.
 			ccell.add(b);
 			assignCalcTestID(it, b);
-			if(labelcontrol == null && b instanceof IControl< ? >)
+			if(labelcontrol == null && b instanceof IControl<?>)
 				labelcontrol = b;
 		}
 		if(labelcontrol == null)
@@ -1046,7 +1055,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 * @return
 	 */
 	private ILookupControlInstance createControlFor(Item it) {
-		PropertyMetaModel< ? > pmm = it.getLastProperty();
+		PropertyMetaModel<?> pmm = it.getLastProperty();
 		if(pmm == null)
 			throw new IllegalStateException("property cannot be null when creating using factory.");
 		ILookupControlFactory lcf = m_builder.getLookupControlFactory(it);
@@ -1110,6 +1119,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Silly and small methods.							*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Tells all input items to clear their content, clearing all user choices from the form. After
 	 * this call, the form should return an empty QCriteria without any restrictions.
@@ -1140,6 +1150,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 				m_newBtn = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_NEW));
 				m_newBtn.setIcon("THEME/btnNew.png");
 				m_newBtn.setTestID("newButton");
+				m_newBtn.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_NEW_TITLE));
 				m_newBtn.setClicked(new IClicked<NodeBase>() {
 					@Override
 					public void clicked(final @Nonnull NodeBase xb) throws Exception {
@@ -1183,7 +1194,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 * @see to.etc.domui.dom.html.NodeBase#setClicked(to.etc.domui.dom.html.IClicked)
 	 */
 	@Override
-	public void setClicked(final @Nullable IClickBase< ? > clicked) {
+	public void setClicked(final @Nullable IClickBase<?> clicked) {
 		m_clicker = (IClicked<LookupForm<T>>) clicked;
 	}
 
@@ -1191,7 +1202,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		return m_clicker;
 	}
 
-	public IClicked< ? extends LookupForm<T>> getOnClear() {
+	public IClicked<? extends LookupForm<T>> getOnClear() {
 		return m_onClear;
 	}
 
@@ -1199,7 +1210,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 * Listener to call when the "clear" button is pressed.
 	 * @param onClear
 	 */
-	public void setOnClear(IClicked< ? extends LookupForm<T>> onClear) {
+	public void setOnClear(IClicked<? extends LookupForm<T>> onClear) {
 		m_onClear = onClear;
 	}
 
@@ -1279,11 +1290,11 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 */
 	private void createButtonRow(NodeContainer c, boolean iscollapsed) {
 		Collections.sort(m_buttonItemList, new Comparator<ButtonRowItem>() { // Sort in ascending order,
-				@Override
-				public int compare(ButtonRowItem o1, ButtonRowItem o2) {
-					return o1.getOrder() - o2.getOrder();
-				}
-			});
+			@Override
+			public int compare(ButtonRowItem o1, ButtonRowItem o2) {
+				return o1.getOrder() - o2.getOrder();
+			}
+		});
 
 		for(ButtonRowItem bi : m_buttonItemList) {
 			if((iscollapsed && (bi.getMode() == ButtonMode.BOTH || bi.getMode() == ButtonMode.COLLAPSED)) || (!iscollapsed && (bi.getMode() == ButtonMode.BOTH || bi.getMode() == ButtonMode.NORMAL))) {
@@ -1397,6 +1408,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Button container handling.							*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 *
 	 * @see to.etc.domui.component.layout.IButtonContainer#addButton(to.etc.domui.dom.html.NodeBase, int)
@@ -1414,30 +1426,4 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		return m_buttonFactory;
 	}
 
-	/**
-	 * Retrieve the button for collapsing the lookup form
-	 * @return
-	 */
-	@Nullable
-	public DefaultButton getCollapseButton() {
-		return m_collapseButton;
-	}
-
-	/**
-	 * Retrieve the button for searching
-	 * @return
-	 */
-	@Nullable
-	public DefaultButton getSearchButton() {
-		return m_searchButton;
-	}
-
-	/**
-	 * Retrieve the button for adding a new item
-	 * @return
-	 */
-	@Nullable
-	public DefaultButton getAddButton() {
-		return m_newBtn;
-	}
 }
