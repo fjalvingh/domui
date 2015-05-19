@@ -690,7 +690,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 	/**
 	 * Add a property to look up to the list. The controls et al will be added using the factories.
-	 * @param path	The property name (or path to some PARENT property) to search on, relative to the lookup class.
+	 * @param path		The property name (or path to some PARENT property) to search on, relative to the lookup class.
 	 * @param minlen
 	 * @param ignorecase
 	 */
@@ -700,7 +700,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 	/**
 	 * Add a property to look up to the list. The controls et al will be added using the factories.
-	 * @param path	The property name (or path to some PARENT property) to search on, relative to the lookup class.
+	 * @param path		The property name (or path to some PARENT property) to search on, relative to the lookup class.
 	 * @param minlen
 	 */
 	public Item addProperty(String path, int minlen) {
@@ -718,7 +718,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 	/**
 	 * Add a property to look up to the list. The controls et al will be added using the factories.
-	 * @param path    The property name (or path to some PARENT property) to search on, relative to the lookup class.
+	 * @param path	The property name (or path to some PARENT property) to search on, relative to the lookup class.
 	 */
 	public Item addProperty(String path) {
 		return addProperty(path, null, 0, null);
@@ -726,7 +726,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 	/**
 	 * Add a property manually.
-	 * @param path	The property name (or path to some PARENT property) to search on, relative to the lookup class.
+	 * @param path		The property name (or path to some PARENT property) to search on, relative to the lookup class.
 	 * @param minlen
 	 * @param ignorecase
 	 */
@@ -841,14 +841,14 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 */
 	public Item addChildPropertyLabel(String label, String propPath) {
 
-		final List<PropertyMetaModel<?>> pl = MetaManager.parsePropertyPath(m_metaModel, propPath);
+		final List<PropertyMetaModel< ? >> pl = MetaManager.parsePropertyPath(m_metaModel, propPath);
 
 		if(pl.size() != 2) {
 			throw new ProgrammerErrorException("Property path does not contain parent.child path: " + propPath);
 		}
 
-		final PropertyMetaModel<?> parentPmm = pl.get(0);
-		final PropertyMetaModel<?> childPmm = pl.get(1);
+		final PropertyMetaModel< ? > parentPmm = pl.get(0);
+		final PropertyMetaModel< ? > childPmm = pl.get(1);
 
 		SearchPropertyMetaModelImpl spmm = new SearchPropertyMetaModelImpl(m_metaModel);
 		spmm.setPropertyName(childPmm.getName());
@@ -861,13 +861,13 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 			@Override
 			public @Nonnull AppendCriteriaResult appendCriteria(@Nonnull QCriteria< ? > crit) throws Exception {
 
-				QCriteria<?> r = QCriteria.create(childPmm.getClassModel().getActualClass());
+				QCriteria< ? > r = QCriteria.create(childPmm.getClassModel().getActualClass());
 				AppendCriteriaResult subRes = lookupInstance.appendCriteria(r);
 
 				if(subRes == AppendCriteriaResult.INVALID) {
 					return subRes;
 				} else if(r.hasRestrictions()) {
-					QRestrictor<?> exists = crit.exists(childPmm.getClassModel().getActualClass(), parentPmm.getName());
+					QRestrictor< ? > exists = crit.exists(childPmm.getClassModel().getActualClass(), parentPmm.getName());
 					exists.setRestrictions(r.getRestrictions());
 					return AppendCriteriaResult.VALID;
 				} else {
@@ -906,7 +906,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 		//-- 1. If a property name is present but the path is unknown calculate the path
 		if(it.getPropertyPath() == null && it.getPropertyName() != null && it.getPropertyName().length() > 0) {
-			List<PropertyMetaModel<?>> pl = MetaManager.parsePropertyPath(getMetaModel(), it.getPropertyName());
+			List<PropertyMetaModel< ? >> pl = MetaManager.parsePropertyPath(getMetaModel(), it.getPropertyName());
 			if(pl.size() == 0)
 				throw new ProgrammerErrorException("Unknown/unresolvable lookup property " + it.getPropertyName() + " on class=" + getLookupClass());
 			it.setPropertyPath(pl);
@@ -1011,7 +1011,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		for(NodeBase b : qt.getInputControls()) { // Add all nodes && try to find label control if unknown.
 			ccell.add(b);
 			assignCalcTestID(it, b);
-			if(labelcontrol == null && b instanceof IControl<?>)
+			if(labelcontrol == null && b instanceof IControl< ? >)
 				labelcontrol = b;
 		}
 		if(labelcontrol == null)
@@ -1187,7 +1187,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 * @see to.etc.domui.dom.html.NodeBase#setClicked(to.etc.domui.dom.html.IClicked)
 	 */
 	@Override
-	public void setClicked(final @Nullable IClickBase<?> clicked) {
+	public void setClicked(final @Nullable IClickBase< ? > clicked) {
 		m_clicker = (IClicked<LookupForm<T>>) clicked;
 	}
 
@@ -1195,7 +1195,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		return m_clicker;
 	}
 
-	public IClicked<? extends LookupForm<T>> getOnClear() {
+	public IClicked< ? extends LookupForm<T>> getOnClear() {
 		return m_onClear;
 	}
 
@@ -1287,7 +1287,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 				public int compare(ButtonRowItem o1, ButtonRowItem o2) {
 					return o1.getOrder() - o2.getOrder();
 				}
-		});
+			});
 
 		for(ButtonRowItem bi : m_buttonItemList) {
 			if((iscollapsed && (bi.getMode() == ButtonMode.BOTH || bi.getMode() == ButtonMode.COLLAPSED)) || (!iscollapsed && (bi.getMode() == ButtonMode.BOTH || bi.getMode() == ButtonMode.NORMAL))) {
