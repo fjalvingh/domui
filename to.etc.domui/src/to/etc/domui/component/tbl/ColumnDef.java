@@ -3,6 +3,7 @@ package to.etc.domui.component.tbl;
 import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
+import to.etc.domui.converter.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.util.*;
 
@@ -57,6 +58,9 @@ public class ColumnDef<T> {
 	private INodeContentRenderer<T> m_contentRenderer;
 
 	@Nullable
+	private IConverter<T> m_converter;
+
+	@Nullable
 	private ICellClicked<T> m_cellClicked;
 
 	@Nullable
@@ -88,6 +92,13 @@ public class ColumnDef<T> {
 		setNumericPresentation(pmm.getNumericPresentation());
 		if(pmm.getNowrap() == YesNoType.YES)
 			setNowrap(true);
+		converter(ConverterRegistry.findBestConverter(pmm));
+	}
+
+	@Nonnull
+	private ColumnDef<T> converter(@Nullable IConverter<T> converter) {
+		m_converter = converter;
+		return this;
 	}
 
 	@Nonnull
@@ -109,6 +120,10 @@ public class ColumnDef<T> {
 		label(columnLabel);
 	}
 
+	@Nullable
+	public IConverter<T> getConverter() {
+		return m_converter;
+	}
 
 	/**
 	 * Create an editable component bound to the column's value.

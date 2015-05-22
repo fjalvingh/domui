@@ -327,7 +327,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 			X value = cd.getColumnValue(instance);
 			PropertyMetaModel< ? > pmm = cd.getPropertyMetaModel();
 			if(pmm != null) {
-				IConverter<Object> converter = (IConverter<Object>) pmm.getConverter();
+				IConverter<Object> converter = (IConverter<Object>) cd.getConverter();
 				if(converter != null) {
 					DisplaySpan<Object> ds = new DisplaySpan<Object>(pmm.getActualType());
 					ds.setConverter(converter);
