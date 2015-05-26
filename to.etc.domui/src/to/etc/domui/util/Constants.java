@@ -66,6 +66,8 @@ public class Constants {
 
 	static public final String ACMD_NOTIFY_CLIENT_POSITION_AND_SIZE = "notifyClientPositionAndSize";
 
+	static public final String ACDM_NOTIFY_PAGE = "notifyPage";
+
 	public static final String PARAM_POST_CONVERSATION_KEY = "xxxpck";
 
 	public static final String PARAM_UIACTION = "webuia";
