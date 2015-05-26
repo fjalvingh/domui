@@ -6,16 +6,15 @@ For licensing, see LICENSE.md or http://ckeditor.com/license
 body
 {
 	/* Font */
-	font-family: sans-serif, Arial, Verdana, "Trebuchet MS";
+	font-family: Verdana, Tahoma, Helvetica, sans-serif;
 	font-size: 12px;
 
 	/* Text color */
 	color: #333;
-
-	/* Remove the background color to make it transparent */
-	background-color: #fff;
-
-	margin: 20px;
+}
+table
+{
+	font-size: 12px;
 }
 
 .cke_editable
@@ -27,7 +26,7 @@ body
 blockquote
 {
 	font-style: italic;
-	font-family: Georgia, Times, "Times New Roman", serif;
+	font-family: Verdana, Tahoma, Helvetica, sans-serif;
 	padding: 2px 0;
 	border-style: solid;
 	border-color: #ccc;
