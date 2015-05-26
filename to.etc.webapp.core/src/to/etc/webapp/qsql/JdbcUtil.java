@@ -387,8 +387,7 @@ public class JdbcUtil {
 			return Types.DATE;
 		} else
 			throw new IllegalStateException("Call error: cannot get SQLType for java type=" + rt);
-	    }
-
+	}
 
 	private static void appendSPParameters(@Nonnull StringBuilder sb, @Nonnull List<Object> pars, @Nonnull Object[] args) {
 		//-- Handle parameters, and handle boolean arguments, sigh.
@@ -568,7 +567,7 @@ public class JdbcUtil {
 			return (T) ps.getBlob(index);
 		} else if(rtype == Clob.class) {
 			return (T) ps.getClob(index);
-		}else if(rtype == Date.class) {
+		} else if(rtype == Date.class) {
 			java.sql.Timestamp ts = ps.getTimestamp(index);
 			if(ts != null)
 				return (T) new java.util.Date(ts.getTime());
