@@ -259,6 +259,18 @@ public interface Msgs {
 	/** lookupform.restore key */
 	public static final String LOOKUP_FORM_RESTORE = "lookupform.restore";
 
+	/** lookupform.collapse title */
+	public static final String LOOKUP_FORM_COLLAPSE_TITLE = "lookupform.btn.collapse.title";
+
+	/** lookupform.clear title */
+	public static final String LOOKUP_FORM_CLEAR_TITLE = "lookupform.btn.clear.title";
+
+	/** lookupform.new title */
+	public static final String LOOKUP_FORM_NEW_TITLE = "lookupform.btn.new.title";
+
+	/** lookupform.search title */
+	public static final String LOOKUP_FORM_SEARCH_TITLE = "lookupform.btn.search.title";
+
 	public static final String VERBATIM = "verbatim";
 
 	//# AsyncContainer
