@@ -1964,4 +1964,9 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 		addBinding(binder);
 		return binder;
 	}
+
+	public void notifyParentOrOpenerPage(@Nullable String command) {
+		appendJavascript("try { window.parent.WebUI.notifyPage('" + command + "'); } catch (err) {}");
+		appendJavascript("try { window.opener.WebUI.notifyPage('" + command + "'); } catch (err) {}");
+	}
 }
