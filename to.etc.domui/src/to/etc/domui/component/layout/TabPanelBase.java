@@ -358,16 +358,11 @@ public class TabPanelBase extends Div {
 	 */
 	public void closeTab(@Nonnull final ITabHandle th) throws Exception {
 
-		TabInstance ti = null;
-		for(TabInstance tins : m_tablist) {
-			if(th.equals(tins)) {
-				ti = tins;
-				break;
-			}
+		if(!(th instanceof TabInstance)) {
+			throw new IllegalArgumentException("Only instance of TabInstance can be used for closing a tab.");
 		}
-		if(null == ti) {
-			throw new IllegalStateException("Tab not found in tab panel.");
-		}
+
+		TabInstance ti = (TabInstance) th;
 
 		// Check for a silly index
 		int index = m_tablist.indexOf(ti);

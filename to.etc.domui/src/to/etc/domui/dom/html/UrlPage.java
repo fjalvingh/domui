@@ -48,6 +48,7 @@ public class UrlPage extends Div {
 	/** The title for the page in the head's TITLE tag. */
 	private String m_pageTitle;
 
+	@Nullable
 	private INotifyPageEvent m_notifyPageEvent;
 
 	@Nullable
@@ -195,7 +196,7 @@ public class UrlPage extends Div {
 		}
 	}
 
-	private void handleNotifyPageCommand(final IRequestContext ctx) throws Exception {
+	private void handleNotifyPageCommand(@Nonnull final IRequestContext ctx) throws Exception {
 		String command = ctx.getParameter(getActualID() + "_command");
 		INotifyPageEvent listener = getNotifyPageEvent();
 		if(null != listener) {
@@ -203,11 +204,12 @@ public class UrlPage extends Div {
 		}
 	}
 
+	@Nullable
 	public INotifyPageEvent getNotifyPageEvent() {
 		return m_notifyPageEvent;
 	}
 
-	public void setNotifyPageEvent(INotifyPageEvent notifyPageEvent) {
+	public void setNotifyPageEvent(@Nonnull INotifyPageEvent notifyPageEvent) {
 		m_notifyPageEvent = notifyPageEvent;
 	}
 }
