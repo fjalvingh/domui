@@ -107,7 +107,7 @@ Calendar._C = null;
 
 /// detect a special case of "web browser"
 Calendar.is_ie = ( /msie/i.test(navigator.userAgent) &&
-		   !/opera/i.test(navigator.userAgent) );
+		   !/opera/i.test(navigator.userAgent) ) || !(window.ActiveXObject) && "ActiveXObject" in window;
 
 Calendar.is_ie5 = ( Calendar.is_ie && /msie 5\.0/i.test(navigator.userAgent) );
 
@@ -1413,7 +1413,8 @@ Calendar.prototype.showAtElement = function (el, opts) {
 		var br = Calendar.getAbsolutePos(cp);
 		document.body.removeChild(cp);
 		if (Calendar.is_ie) {
-			br.y += document.body.scrollTop;
+			var scrollTop = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop;
+			br.y += scrollTop;
 			br.x += document.body.scrollLeft;
 		} else {
 			br.y += window.scrollY;

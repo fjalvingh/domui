@@ -247,9 +247,7 @@ i, em {
 .ui-atl {
 	background: url(<%= bg_ttl_gradient %>) repeat-y;
 	background-color: <%= bg_ttl_end %>;
-}
-.ui-kludge .ui-atl {
-    <%= margins_neutralize %>
+	<%= margins_neutralize %>
 }
 
 .ui-atl table{

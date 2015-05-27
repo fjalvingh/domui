@@ -357,7 +357,6 @@ public class TabPanelBase extends Div {
 	 * @throws Exception
 	 */
 	public void closeTab(@Nonnull final ITabHandle th) throws Exception {
-
 		if(!(th instanceof TabInstance)) {
 			throw new IllegalArgumentException("Only instance of TabInstance can be used for closing a tab.");
 		}

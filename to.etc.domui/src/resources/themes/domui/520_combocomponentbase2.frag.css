@@ -7,10 +7,12 @@
     color: black;
     background: white;
 }
+.ui-cbb2 select:disabled {
+    background-color: inherit;
+}
 .ui-cbb2.ui-input-err select {
     background-color: #ffe5e5 !important;
 }
-
 /*** comboBoxBase - javascript select control (incomplete)  ***/
 .ui-cbb {
     display: inline-block;

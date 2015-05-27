@@ -343,7 +343,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 				converter = pmm.getConverter();
 			DisplaySpan<X> ds = new DisplaySpan<X>(pmm.getActualType());
 			ds.bind().to(instance, pmm);					// Bind value to model
-				ds.setRenderer(contentRenderer);				// Bind the display control and let it render through the content renderer, enabling binding
+				ds.setRenderer(contentRenderer);			// Bind the display control and let it render through the content renderer, enabling binding
 			cell.add(ds);
 
 			if(converter != null) {
