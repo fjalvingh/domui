@@ -100,6 +100,9 @@ public class MsGarbageHtmlTagRenderer extends HtmlTagRenderer {
 				o().attr("domjs_value", txt);
 			}
 		}
+		if(n.getMaxLength() > 0) {
+			o().attr("maxlength", n.getMaxLength());				// Not valid for html < 5, handled by Javascript
+		}
 		renderTagend(n, o());
 		o().setIndentEnabled(false); // jal 20090923 again: do not indent content (bug 627)
 		//		if(n.getRawValue() != null)
