@@ -54,7 +54,7 @@ import to.etc.webapp.query.*;
  * <p>When used as-is, this form will use the class' metadata to discover any defined search
  * properties, and then populate the form with lookup controls which allow searches on those
  * properties. This is for "default" lookup screens. For more complex screens or lookup parts
- * that have controls interact with eachother you can manually define the contents of the
+ * that have controls interact with each other you can manually define the contents of the
  * lookup form. By adding lookup items manually you <i>disable</i> the automatic discovery of
  * search options. This is proper because no form should <b>ever</b> depend on the content,
  * structure or order of metadata-defined lookup items!!! So if you want to manipulate the
@@ -129,7 +129,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	private boolean m_collapsed;
 
 	/**
-	 * Calculated by entered search criterias, T in case that exists any field resulting with {@link AppendCriteriaResult#VALID} in LookupForm fields.
+	 * Calculated by entered search criteria, T in case that exists any field resulting with {@link AppendCriteriaResult#VALID} in LookupForm fields.
 	 */
 	private boolean m_hasUserDefinedCriteria;
 
@@ -546,6 +546,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_SEARCH));
 		b.setIcon("THEME/btnFind.png");
 		b.setTestID("searchButton");
+		b.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_SEARCH_TITLE));
 		b.setClicked(new IClicked<NodeBase>() {
 			@Override
 			public void clicked(final @Nonnull NodeBase bx) throws Exception {
@@ -558,6 +559,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		m_clearButton = b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CLEAR));
 		b.setIcon("THEME/btnClear.png");
 		b.setTestID("clearButton");
+		b.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CLEAR_TITLE));
 		b.setClicked(new IClicked<NodeBase>() {
 			@Override
 			public void clicked(final @Nonnull NodeBase xb) throws Exception {
@@ -576,6 +578,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 			}
 		});
 		m_collapseButton.setTestID("hideButton");
+		m_collapseButton.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE_TITLE));
 		addButtonItem(m_collapseButton, 300, ButtonMode.BOTH);
 	}
 
@@ -646,6 +649,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Altering/defining the lookup items.					*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * This adds all properties that are defined as "search" properties in either this control or the metadata
 	 * to the item list. The list is cleared before that!
@@ -1108,6 +1112,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Silly and small methods.							*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Tells all input items to clear their content, clearing all user choices from the form. After
 	 * this call, the form should return an empty QCriteria without any restrictions.
@@ -1138,6 +1143,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 				m_newBtn = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_NEW));
 				m_newBtn.setIcon("THEME/btnNew.png");
 				m_newBtn.setTestID("newButton");
+				m_newBtn.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_NEW_TITLE));
 				m_newBtn.setClicked(new IClicked<NodeBase>() {
 					@Override
 					public void clicked(final @Nonnull NodeBase xb) throws Exception {
@@ -1395,6 +1401,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Button container handling.							*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 *
 	 * @see to.etc.domui.component.layout.IButtonContainer#addButton(to.etc.domui.dom.html.NodeBase, int)
@@ -1411,6 +1418,5 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	public ButtonFactory getButtonFactory() {
 		return m_buttonFactory;
 	}
-
 
 }

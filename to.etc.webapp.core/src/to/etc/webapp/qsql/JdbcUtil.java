@@ -27,6 +27,7 @@ package to.etc.webapp.qsql;
 import java.math.*;
 import java.sql.*;
 import java.util.*;
+import java.util.Date;
 
 import javax.annotation.*;
 
@@ -382,7 +383,9 @@ public class JdbcUtil {
 			return Types.VARCHAR;
 		else if(rt == Integer.class || rt == int.class || rt == Long.class || rt == long.class || rt == BigDecimal.class || rt == Double.class || rt == double.class)
 			return Types.NUMERIC;
-		else
+		else if(rt == Date.class) {
+			return Types.DATE;
+		} else
 			throw new IllegalStateException("Call error: cannot get SQLType for java type=" + rt);
 	}
 
@@ -564,6 +567,11 @@ public class JdbcUtil {
 			return (T) ps.getBlob(index);
 		} else if(rtype == Clob.class) {
 			return (T) ps.getClob(index);
+		} else if(rtype == Date.class) {
+			java.sql.Timestamp ts = ps.getTimestamp(index);
+			if(ts != null)
+				return (T) new java.util.Date(ts.getTime());
+			return null;
 		} else {
 			throw new IllegalStateException("Call error: cannot get out parameter for result java type=" + rtype);
 		}

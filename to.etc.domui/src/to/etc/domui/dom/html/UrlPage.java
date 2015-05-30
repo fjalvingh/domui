@@ -31,6 +31,7 @@ import to.etc.domui.component.layout.title.*;
 import to.etc.domui.databinding.*;
 import to.etc.domui.logic.*;
 import to.etc.domui.server.*;
+import to.etc.domui.util.*;
 import to.etc.webapp.query.*;
 
 
@@ -48,10 +49,13 @@ public class UrlPage extends Div {
 	private String m_pageTitle;
 
 	@Nullable
+	private INotifyPageEvent m_notifyPageEvent;
+
+	@Nullable
 	private BindingContext m_bindingContext;
 
 	public UrlPage() {
-		setCssClass("ui-content ui-kludge");
+		setCssClass("ui-content");
 	}
 
 	/**
@@ -95,14 +99,6 @@ public class UrlPage extends Div {
 	 */
 	public void closeWindow() {
 		appendJavascript("window.close();");
-	}
-
-	/**
-	 * Remove the styles that cause the margin kludge to be applied to all pages.
-	 */
-	public void unkludge() {
-		removeCssClass("ui-content");
-		removeCssClass("ui-kludge");
 	}
 
 	/**
@@ -181,5 +177,31 @@ public class UrlPage extends Div {
 		QContextManager.closeSharedContexts(getPage().getConversation());			// Drop all connections
 		DomApplication.get().getInjector().injectPageValues(this, getPage().getPageParameters());	// Force reload of all parameters
 		forceRebuild();
+	}
+
+	@Override
+	public void componentHandleWebAction(@Nonnull RequestContextImpl ctx, @Nonnull String action) throws Exception {
+		if(Constants.ACDM_NOTIFY_PAGE.equals(action)) {
+			handleNotifyPageCommand(ctx);
+		} else {
+			super.componentHandleWebAction(ctx, action);
+		}
+	}
+
+	private void handleNotifyPageCommand(@Nonnull final IRequestContext ctx) throws Exception {
+		String command = ctx.getParameter(getActualID() + "_command");
+		INotifyPageEvent listener = getNotifyPageEvent();
+		if(null != listener) {
+			listener.execute(command);
+		}
+	}
+
+	@Nullable
+	public INotifyPageEvent getNotifyPageEvent() {
+		return m_notifyPageEvent;
+	}
+
+	public void setNotifyPageEvent(@Nonnull INotifyPageEvent notifyPageEvent) {
+		m_notifyPageEvent = notifyPageEvent;
 	}
 }
