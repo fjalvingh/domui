@@ -1218,6 +1218,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 				m_cancelBtn = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL));
 				m_cancelBtn.setIcon(Theme.BTN_CANCEL);
 				m_cancelBtn.setTestID("cancelButton");
+				m_cancelBtn.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL_TITLE));
 				m_cancelBtn.setClicked(new IClicked<NodeBase>() {
 					@Override
 					public void clicked(final @Nonnull NodeBase xb) throws Exception {

@@ -166,7 +166,7 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 			if(s != null)
 				return s;
 		}
-		return getName();
+		return null;
 	}
 
 	/**
