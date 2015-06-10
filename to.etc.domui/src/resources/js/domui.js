@@ -2075,7 +2075,8 @@ $.extend(WebUI, {
 			}
 
 			if (!ok) {
-				alert(WebUI.format(WebUI._T.uploadType, ext, val));
+				var parts = vv.split('.');
+				alert(WebUI.format(WebUI._T.uploadType, (parts.length > 1) ? parts.pop() : '', val));
 				return;
 			}
 		}
