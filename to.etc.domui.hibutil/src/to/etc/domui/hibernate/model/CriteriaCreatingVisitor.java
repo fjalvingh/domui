@@ -287,7 +287,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 //						+ " is a child relation (list-of-children). Fetch is not yet supported for that because Hibernate will duplicate the master.");
 
 				case UP:
-					m_rootCriteria.setFetchMode(ms.getKey(), FetchMode.SELECT);
+					m_rootCriteria.setFetchMode(ms.getKey(), FetchMode.JOIN);
 					break;
 
 				case NONE:

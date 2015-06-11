@@ -118,6 +118,7 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	 * @see to.etc.domui.component.meta.PropertyMetaModel#getDefaultHint()
 	 */
 	@Override
+	@Nullable
 	public String getDefaultHint() {
 		return locateProperty("hint");
 	}
@@ -127,9 +128,10 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	 * @see to.etc.domui.component.meta.PropertyMetaModel#getDefaultLabel()
 	 */
 	@Override
-	public @Nonnull String getDefaultLabel() {
-		//		System.out.println("LOCATE label for " + getName());
-		return locateProperty("label");
+	@Nonnull
+	public String getDefaultLabel() {
+		String toReturn = locateProperty("label");
+		return toReturn == null? getName() : toReturn;
 	}
 
 	/**
@@ -145,6 +147,7 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	 * @param type
 	 * @return
 	 */
+	@Nullable
 	private String locateProperty(String type) {
 		Locale loc = NlsContext.getLocale();
 		StringBuilder sb = new StringBuilder();
@@ -166,7 +169,7 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 			if(s != null)
 				return s;
 		}
-		return getName();
+		return null;
 	}
 
 	/**
@@ -209,7 +212,6 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 		//
 		//		}
 		//
-
 		// TODO
 
 		return null;

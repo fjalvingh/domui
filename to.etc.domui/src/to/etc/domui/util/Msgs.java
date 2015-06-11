@@ -271,6 +271,9 @@ public interface Msgs {
 	/** lookupform.search title */
 	public static final String LOOKUP_FORM_SEARCH_TITLE = "lookupform.btn.search.title";
 
+	/** lookupform.cancel title */
+	public static final String LOOKUP_FORM_CANCEL_TITLE = "lookupform.btn.cancel.title";
+
 	public static final String VERBATIM = "verbatim";
 
 	//# AsyncContainer
