@@ -182,7 +182,11 @@ public class DateInput extends Text<Date> {
 		}
 		setMaxLength(len);
 		setSize(len + 1);						// jal 2014/06/27 Need one extra or the last digit does not show!!
-		setConverter(ConverterRegistry.getConverterInstance(isWithTime() ? DateTimeConverter.class : DateConverter.class));
+		if (isWithTime()) {
+			setConverter(ConverterRegistry.getConverterInstance(DateTimeConverter.class));
+		} else {
+			setConverter(ConverterRegistry.getConverterInstance(DateConverter.class));
+		}
 	}
 
 	public boolean isWithSeconds() {
