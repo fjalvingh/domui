@@ -15,7 +15,7 @@
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="jdk" jdkName="JavaSE-1.7" jdkType="JavaSDK" />
+    <orderEntry type="inheritedJdk" />
     <orderEntry type="module" module-name="bin-slf4j" />
     <orderEntry type="module" module-name="jsr305" />
     <orderEntry type="module" module-name="bin-junit-4.11" />

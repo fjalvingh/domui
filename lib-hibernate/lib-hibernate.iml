@@ -139,6 +139,6 @@
       </library>
     </orderEntry>
     <orderEntry type="module" module-name="bin-slf4j" />
-    <orderEntry type="jdk" jdkName="JavaSE-1.7" jdkType="JavaSDK" />
+    <orderEntry type="inheritedJdk" />
   </component>
 </module>
