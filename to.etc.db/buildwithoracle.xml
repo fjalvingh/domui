@@ -22,7 +22,7 @@
 
 	<!--Compile project-->
 	<target name="compile" depends="prepare">
-		<javac srcdir="src" destDir="bin" classpathref="project.class.path" debug="on" source="1.5" target="1.5" />
+		<javac srcdir="src" destDir="bin" classpathref="project.class.path" />
 		<copy todir="bin" >
 			<fileset dir="src" casesensitive="no">
 				<exclude name="**/*.java"/>
