@@ -2105,27 +2105,20 @@ public class FileTool {
 
 	/**
 	 * Returns the string from specified Clob.
-	 *
 	 * @param data
 	 * @return
-	 * @throws SQLException
-	 * @throws IOException
+	 * @throws SQLException 
+	 * @throws IOException 
 	 */
 	@Nonnull
-	public static String readAsString(@Nonnull Clob data) throws SQLException, IOException {
-		StringBuilder sb = new StringBuilder();
-		BufferedReader br = null;
-		try {
-			Reader reader = data.getCharacterStream();
-			br = new BufferedReader(reader);
-
-			String line;
-			while(null != (line = br.readLine())) {
-				sb.append(line);
-			}
-			return sb.toString();
-		} finally {
-			FileTool.closeAll(br);
-		}
+	public static String readAsString(@Nonnull Clob data) throws IOException, SQLException{
+	    try(Reader reader = data.getCharacterStream()) {
+	        char[] buf = new char[8192];
+	        int len;
+	        final StringBuilder sb = new StringBuilder();
+	        while((len = reader.read(buf)) > 0)
+	          sb.append(buf, 0, len);
+	        return sb.toString();
+	    }
 	}
 }
