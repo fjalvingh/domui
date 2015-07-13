@@ -131,9 +131,7 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 				break;
 			}
 		}
-		if(combo.getData().size() < combo.getSize()) {
-			combo.setSize(found ? combo.getData().size() : combo.getData().size() + 1);
-		}
+		initSelectSizeAndValue();
 		if(!found) {
 			picker.setButtonValue(null);
 		}
@@ -152,12 +150,39 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 	 * Sets data that is used for picker select options.
 	 * @param data
 	 */
-	public void setData(@Nonnull List<T> data) {
+	private void setData(@Nonnull List<T> data) {
 		if(m_data != data) {
 			m_data = data;
 			if(null != m_picker) {
 				//if picker is already created then switch it's data, otherwise data would be used when picker is creating
 				m_picker.setData(data);
+			}
+		}
+	}
+	
+	/**
+	 * Update data displayed in picker select options.
+	 * @param data
+	 * @throws Exception 
+	 */
+	public void updateData(@Nonnull List<T> data) throws Exception {
+		setData(data);
+		initSelectSizeAndValue();
+	}
+
+
+	private void initSelectSizeAndValue() throws Exception {
+		if(m_picker != null){
+			ComboLookup<T> comboLookup = ((ComboLookup<T>)m_picker.getSelectControl());
+			
+			if(isMandatory()){
+				comboLookup.setSize(getData().size());
+				//workaround: we have to set a value to avoid rendering of empty option for mandatory combo
+				if(getData().get(0) != null){ 
+					comboLookup.setValue(getData().get(0));
+				}
+			} else {
+				comboLookup.setSize(getData().size() + 1);
 			}
 		}
 	}
