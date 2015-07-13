@@ -172,18 +172,21 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 
 
 	private void initSelectSizeAndValue() throws Exception {
-		if(m_picker != null){
-			ComboLookup<T> comboLookup = ((ComboLookup<T>)m_picker.getSelectControl());
-			
-			if(isMandatory()){
-				comboLookup.setSize(getData().size());
-				//workaround: we have to set a value to avoid rendering of empty option for mandatory combo
-				if(getData().get(0) != null){ 
-					comboLookup.setValue(getData().get(0));
-				}
-			} else {
-				comboLookup.setSize(getData().size() + 1);
+		if(isMandatory()){
+			setComboSize(getData().size());
+			//workaround: we have to set a value to avoid rendering of empty option for mandatory combo
+			if(getData().get(0) != null && m_picker != null){
+				((ComboLookup<T>)m_picker.getSelectControl()).setValue(getData().get(0));;
 			}
+		} else {
+			setComboSize(getData().size() + 1);
+		}
+	}
+
+	private void setComboSize(int size) throws Exception {
+		int newSize = size > DropDownPicker.DEFAULT_COMBO_SIZE ? DropDownPicker.DEFAULT_COMBO_SIZE : size; 
+		if(m_picker != null){
+			m_picker.getSelectControl().setSize(newSize);
 		}
 	}
 
