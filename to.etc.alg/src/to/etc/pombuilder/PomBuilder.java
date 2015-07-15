@@ -334,9 +334,9 @@ public class PomBuilder {
 
 		w.tagfull("groupId", "org.apache.maven.plugins");
 		w.tagfull("artifactId", "maven-compiler-plugin");
-		w.tagfull("version", "3.0");
+		w.tagfull("version", "3.3");
 		w.tag("configuration");
-		w.tagfull("compilerId", "groovy-eclipse-compiler");
+		w.tagfull("compilerId", "eclipse");
 		w.tagfull("source", sub.getSourceVersion());
 		w.tagfull("target", sub.getSourceVersion()); // sub.m_targetVersion);
 		w.tagfull("encoding", sub.getEncoding());
@@ -344,14 +344,32 @@ public class PomBuilder {
 
 		w.tag("dependencies");
 		w.tag("dependency");
-		w.tagfull("groupId", "org.codehaus.groovy");
-		w.tagfull("artifactId", "groovy-eclipse-compiler");
-		w.tagfull("version", "2.8.0-01");
+		w.tagfull("groupId", "org.eclipse.tycho");
+		w.tagfull("artifactId", "org.eclipse.jdt.core");
+		w.tagfull("version", "3.11.0.v20150520-2033");
+		w.tag("exclusions");
+		w.tag("exclusion");
+		w.tagfull("groupId", "org.eclipse.core");
+		w.tagfull("artifactId", "resources");
+		w.tagendnl(); // exclusion
+		w.tag("exclusion");
+		w.tagfull("groupId", "org.eclipse.core");
+		w.tagfull("artifactId", "runtime");
+		w.tagendnl(); // exclusion
+		w.tag("exclusion");
+		w.tagfull("groupId", "org.eclipse.core");
+		w.tagfull("artifactId", "filesystem");
+		w.tagendnl(); // exclusion
+		w.tag("exclusion");
+		w.tagfull("groupId", "org.eclipse.core");
+		w.tagfull("artifactId", "text");
+		w.tagendnl(); // exclusion
+		w.tagendnl(); // exclusions
 		w.tagendnl(); // dependency
 		w.tag("dependency");
-		w.tagfull("groupId", "org.codehaus.groovy");
-		w.tagfull("artifactId", "groovy-eclipse-batch");
-		w.tagfull("version", "2.1.5-03");
+		w.tagfull("groupId", "org.codehaus.plexus");
+		w.tagfull("artifactId", "plexus-compiler-eclipse");
+		w.tagfull("version", "2.5");
 		w.tagendnl(); // dependency
 
 		w.tagendnl(); //dependencies
