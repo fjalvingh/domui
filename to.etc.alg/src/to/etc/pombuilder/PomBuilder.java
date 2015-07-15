@@ -343,11 +343,11 @@ public class PomBuilder {
 		w.tagendnl(); // configuration
 
 		w.tag("dependencies");
-		w.tag("dependency");
+		w.tag("dependency"); // Forcing the plexus-compiler-eclipse to use jdt 3.11
 		w.tagfull("groupId", "org.eclipse.tycho");
 		w.tagfull("artifactId", "org.eclipse.jdt.core");
 		w.tagfull("version", "3.11.0.v20150520-2033");
-		w.tag("exclusions");
+		w.tag("exclusions"); // Copy of the exclusions in plexus-compiler-eclipse pom
 		w.tag("exclusion");
 		w.tagfull("groupId", "org.eclipse.core");
 		w.tagfull("artifactId", "resources");
