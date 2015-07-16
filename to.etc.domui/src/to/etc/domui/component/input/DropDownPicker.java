@@ -19,6 +19,8 @@ import to.etc.domui.util.*;
  * Created on Nov 26, 2012
  */
 public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
+	public static final int DEFAULT_COMBO_SIZE = 8;
+
 	public enum HAlign {LEFT, MIDDLE, RIGHT};
 
 	@Nullable
@@ -30,7 +32,7 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 	@Nonnull
 	private final ComboLookup<T> m_picker;
 
-	private int m_size = 8;
+	private int m_size = DEFAULT_COMBO_SIZE;
 
 	private int m_offsetX = 0;
 
@@ -55,18 +57,18 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 	private NodeBase m_alignmentBase;
 
 	/**
-	 * DropDownPicker constructor. By default size of drop down list is 8.
+	 * DropDownPicker constructor. By default size of drop down list is DropDownPicker.DEFAULT_COMBO_SIZE.
 	 */
 	public DropDownPicker() {
 		m_picker = new ComboLookup<T>();
 	}
 
 	/**
-	 * DropDownPicker constructor. By default size of drop down list is 8.
+	 * DropDownPicker constructor. By default size of drop down list is DropDownPicker.DEFAULT_COMBO_SIZE.
 	 * @param data data for picker popup
 	 */
 	public DropDownPicker(@Nonnull List<T> data) {
-		this(data, 8);
+		this(data, DEFAULT_COMBO_SIZE);
 	}
 
 	/**
