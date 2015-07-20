@@ -445,6 +445,14 @@ final public class DateUtil {
 		cal.add(Calendar.DAY_OF_YEAR, days);
 		return new Date(cal.getTimeInMillis());
 	}
+	
+	static public Date addMonths(Date in, int months) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(in);
+		cal.add(Calendar.MONTH, months);
+		return new Date(cal.getTimeInMillis());
+	}
+
 
 	static public Date addYears(Date in, int years) {
 		Calendar cal = Calendar.getInstance();
