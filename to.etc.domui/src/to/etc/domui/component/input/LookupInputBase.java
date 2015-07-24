@@ -886,7 +886,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	 * @return
 	 */
 	@Nonnull
-	private IRowRenderer<OT> getActualFormRowRenderer() {
+	public IRowRenderer<OT> getActualFormRowRenderer() {
 		IClickableRowRenderer<OT> actualFormRowRenderer = m_actualFormRowRenderer;
 		if(null == actualFormRowRenderer) {
 			//-- Is a form row renderer specified by the user - then use it, else create a default one.
