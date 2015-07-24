@@ -164,7 +164,7 @@ public class FloatingDiv extends Div {
 	@Override
 	protected void beforeCreateContent() {
 		super.beforeCreateContent();
-		setCssClass("ui-flw");
+		addCssClass("ui-flw");
 		deactivateHiddenAccessKeys();
 
 		// jal 20121105 Removed: interferes with auto-resizing floating window.
