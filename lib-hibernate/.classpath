@@ -19,7 +19,7 @@
 			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="lib/required/javassist-3.12.0.GA.jar">
+	<classpathentry exported="true" kind="lib" path="lib/required/javassist-3.20.0-GA.jar">
 		<attributes>
 			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
 		</attributes>
