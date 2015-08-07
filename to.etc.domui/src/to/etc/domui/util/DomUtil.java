@@ -1381,7 +1381,7 @@ final public class DomUtil {
 		if(d.getCssClass() == null)
 			d.setCssClass("ui-msg ui-msg-" + m.getType().name().toLowerCase());
 		d.setUserObject(m);
-		String text = m.getErrorLocation() != null ? "<b>" + m.getErrorLocation() + "</b>" + ": " + m.getMessage() : m.getMessage();
+		String text = m.getErrorLocation() != null ? "<b>" + m.getErrorLocation() + ":</b> " + m.getMessage() : m.getMessage();
 		renderHtmlString(d, text);
 		NodeBase errorNode = m.getErrorNode();
 		if(errorNode != null) {
