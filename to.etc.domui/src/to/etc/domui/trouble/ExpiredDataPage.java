@@ -50,8 +50,16 @@ public class ExpiredDataPage extends UrlPage {
 		td.add(img);
 
 		TD co = b.addCell();
-		String txt = msg;
-		Div d = new Div(txt);
+		Div d = new Div();
+
+		msg = msg.replaceAll("%0A", "\n");
+		String[] messageSplitter = msg.split("\n");
+
+		for(String message : messageSplitter) {
+			Div inner = new Div(message);
+			d.add(inner);
+		}
+
 		co.add(d);
 		d.setCssClass("ui-acd-ttl");
 

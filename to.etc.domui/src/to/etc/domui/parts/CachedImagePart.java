@@ -42,6 +42,8 @@ import to.etc.webapp.core.*;
 
 public class CachedImagePart implements IUnbufferedPartFactory {
 
+	private static final String IDENTIFICATION_FAILED_FOR_FILE = "Identify failed for file:";
+
 	public static String PARAM_PAGE = "page";
 
 	public static String PARAM_THUMBNAIL = "thumbnail";
@@ -126,7 +128,25 @@ public class CachedImagePart implements IUnbufferedPartFactory {
 		decodeMutations(param, conversions);
 
 		//-- Get full image from the cache now;
-		FullImage fima = ImageCache.getInstance().getFullImage(ikey, conversions);
+		FullImage fima = null;
+		 try {
+		 	  fima = ImageCache.getInstance().getFullImage(ikey, conversions);
+		} catch(IllegalStateException se) {
+			if(se.getMessage().contains(IDENTIFICATION_FAILED_FOR_FILE)) {
+				StringBuilder sb = new StringBuilder(128);
+				StringBuilder message = new StringBuilder();
+				String lineSeparator = System.lineSeparator();
+
+				message.append("Helaas is het niet mogelijk dit bestand te verwerken. Controleer het bestand.").append(lineSeparator).append("Technische details: " + se.getMessage());
+				sb.append(DomUtil.createPageURL(ExpiredDataPage.class, new PageParameters(ExpiredDataPage.PARAM_ERRMSG, message)));
+
+				ApplicationRequestHandler.generateHttpRedirect(param, sb.toString(), "violation");
+				return;
+			} else {
+				throw new IllegalStateException(se.getMessage());
+			}
+		}
+
 		if(fima == null)
 			throw new ThingyNotFoundException("The image '" + rurl + "' is not known in it's factory");
 		generateImage(param, fima);
