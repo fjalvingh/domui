@@ -144,6 +144,9 @@ public class EtcLogFormatter {
 		for(StackTraceElement stack : stacktrace) {
 			sb.append("   ").append(stack.toString()).append("\n");
 		}
+		if(!checkNextExceptions) {
+			return;
+		}
 		if(t instanceof SQLException) {
 			SQLException sx = (SQLException) t;
 			int loggedNextExcptions = 0;
@@ -151,7 +154,7 @@ public class EtcLogFormatter {
 				sx = sx.getNextException();
 				loggedNextExcptions++;
 				sb.append("---------- NEXT EXCEPTION (" + loggedNextExcptions + ") ---------- " + t.getClass()).append("\n");
-				logThrowable(sb, loggedNextExcptions, t, false);
+				logThrowable(sb, loggedNextExcptions, sx, false);
 			}
 		}
 	}
