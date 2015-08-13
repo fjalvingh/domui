@@ -51,8 +51,9 @@ public class ExpiredDataPage extends UrlPage {
 
 		TD co = b.addCell();
 		Div d = new Div();
+		String txt = msg;
 
-		DomUtil.renderHtmlString(d, msg);
+		DomUtil.renderHtmlString(d, txt);
 
 		co.add(d);
 		d.setCssClass("ui-acd-ttl");
