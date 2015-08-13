@@ -144,14 +144,17 @@ public class EtcLogFormatter {
 		for(StackTraceElement stack : stacktrace) {
 			sb.append("   ").append(stack.toString()).append("\n");
 		}
+		if(!checkNextExceptions) {
+			return;
+		}
 		if(t instanceof SQLException) {
 			SQLException sx = (SQLException) t;
-			int loggedNextExcptions = 0;
+			int loggedNextExceptions = 0;
 			while(sx.getNextException() != null && sx != sx.getNextException()) {
 				sx = sx.getNextException();
-				loggedNextExcptions++;
-				sb.append("---------- NEXT EXCEPTION (" + loggedNextExcptions + ") ---------- " + t.getClass()).append("\n");
-				logThrowable(sb, loggedNextExcptions, t, false);
+				loggedNextExceptions++;
+				sb.append("---------- NEXT EXCEPTION (" + loggedNextExceptions + ") ---------- " + t.getClass()).append("\n");
+				logThrowable(sb, loggedNextExceptions, sx, false);
 			}
 		}
 	}
