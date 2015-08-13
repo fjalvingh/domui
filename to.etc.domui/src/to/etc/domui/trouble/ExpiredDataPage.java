@@ -52,7 +52,6 @@ public class ExpiredDataPage extends UrlPage {
 		TD co = b.addCell();
 		Div d = new Div();
 
-		msg = msg.replaceAll("%0A", "\n");
 		String[] messageSplitter = msg.split("\n");
 
 		for(String message : messageSplitter) {
