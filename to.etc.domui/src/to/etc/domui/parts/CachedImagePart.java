@@ -132,8 +132,9 @@ public class CachedImagePart implements IUnbufferedPartFactory {
 		 try {
 		 	  fima = ImageCache.getInstance().getFullImage(ikey, conversions);
 		} catch(IllegalStateException se) {
-			if(!StringTool.isBlank(se.getMessage()) && se.getMessage().contains(IDENTIFICATION_FAILED_FOR_FILE)) {
-				String message = "Helaas is het niet mogelijk dit bestand te verwerken. Controleer het bestand.\nTechnische details: " + se.getMessage();
+			String exceptionMessage = se.getMessage();
+			if(!StringTool.isBlank(exceptionMessage) && exceptionMessage.contains(IDENTIFICATION_FAILED_FOR_FILE)) {
+				String message = "Helaas is het niet mogelijk dit bestand te verwerken. Controleer het bestand.<br/>Technische details: " + exceptionMessage;
 				PageParameters pp = new PageParameters(ExpiredDataPage.PARAM_ERRMSG, message);
 				ApplicationRequestHandler.generateHttpRedirect(param, DomUtil.createPageURL(ExpiredDataPage.class, pp), "missing resource");
 				return;

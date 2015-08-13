@@ -52,12 +52,7 @@ public class ExpiredDataPage extends UrlPage {
 		TD co = b.addCell();
 		Div d = new Div();
 
-		String[] messageSplitter = msg.split("\n");
-
-		for(String message : messageSplitter) {
-			Div inner = new Div(message);
-			d.add(inner);
-		}
+		DomUtil.renderHtmlString(d, msg);
 
 		co.add(d);
 		d.setCssClass("ui-acd-ttl");
