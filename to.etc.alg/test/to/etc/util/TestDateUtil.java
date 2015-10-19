@@ -78,4 +78,30 @@ public class TestDateUtil {
 		Assert.assertEquals(adjustedDate, DateUtil.dateFor(2012, Calendar.JANUARY, 1, 0, 57, 50, 750));
 	}
 
+	/**
+	 * Should not generate errors for missing date-times in calendar but return next valid time
+	 * missing date-times for dutch locale are may 16th 1940 between 00:00:00 and 01:40:00 and july 1st 1937 between 00:00:00 and 00:00:27
+	 * Test method for {@link to.etc.util.DateUtil#getCalendar()}.
+	 */
+	@Test
+	public final void testMissingTime() {
+		Calendar cal = DateUtil.getCalendar();
+		DateUtil.setDate(cal, 1937, Calendar.JULY, 1);
+		DateUtil.clearTime(cal);
+		cal.setLenient(false);
+		Assert.assertEquals(cal.getTime(), DateUtil.dateFor(1937, Calendar.JULY, 1, 00, 00, 28, 0));
+
+		Calendar cal19370701 = DateUtil.getCalendar(Locale.forLanguageTag("NL"));
+		DateUtil.setDate(cal19370701, 1937, Calendar.JULY, 1);
+		DateUtil.clearTime(cal19370701);
+		cal19370701.setLenient(false);
+		Assert.assertEquals(cal19370701.getTime(), DateUtil.dateFor(1937, Calendar.JULY, 1, 00, 00, 28, 0));
+
+		Calendar cal19400516 = DateUtil.getCalendar(Locale.forLanguageTag("NL"));
+		DateUtil.setDate(cal19400516, 1940, Calendar.MAY, 16);
+		DateUtil.clearTime(cal19400516);
+		cal19400516.setLenient(false);
+		Assert.assertEquals(cal19400516.getTime(), DateUtil.dateFor(1940, Calendar.MAY, 16, 1, 40, 0, 0));
+	}
+
 }

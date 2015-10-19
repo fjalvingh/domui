@@ -445,7 +445,7 @@ final public class DateUtil {
 		cal.add(Calendar.DAY_OF_YEAR, days);
 		return new Date(cal.getTimeInMillis());
 	}
-	
+
 	static public Date addMonths(Date in, int months) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(in);
@@ -664,6 +664,30 @@ final public class DateUtil {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
 		return cal.get(Calendar.MONTH) + 1;
+	}
+
+	/**
+	 * GregorianCalendarFixDutchTime fixes missing date-time in the GregorianCalendar for dutch locale
+	 * when validating those missing date-times the next valid time will be returned instead of generating an error
+	 *
+	 * @return GregorianCalendarFixDutchTime
+	 */
+	@Nonnull
+	public static Calendar getCalendar() {
+		return new GregorianCalendarFixDutchTime(TimeZone.getDefault(), Locale.getDefault(Locale.Category.FORMAT));
+	}
+
+
+	/**
+	 * GregorianCalendarFixDutchTime fixes missing date-time in the GregorianCalendar for dutch locale
+	 * when validating those missing date-times the next valid time will be returned instead of generating an error
+	 *
+	 * @param aLocale
+	 * @return GregorianCalendarFixDutchTime
+	 */
+	@Nonnull
+	public static Calendar getCalendar(@Nonnull Locale aLocale) {
+		return new GregorianCalendarFixDutchTime(aLocale);
 	}
 
 }
