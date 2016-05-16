@@ -147,7 +147,7 @@ public class HttpServerRequestResponse implements IRequestResponse {
 	 */
 	@Override
 	@Nonnull
-	public String[] getFileParameters() {
+	public String[] getFileParameters() throws Exception {
 		if(!(m_request instanceof UploadHttpRequestWrapper))
 			return new String[0];
 		UploadHttpRequestWrapper urw = (UploadHttpRequestWrapper) m_request;
@@ -156,7 +156,7 @@ public class HttpServerRequestResponse implements IRequestResponse {
 
 	@Override
 	@Nonnull
-	public UploadItem[] getFileParameter(@Nonnull String name) {
+	public UploadItem[] getFileParameter(@Nonnull String name) throws Exception {
 		if(!(m_request instanceof UploadHttpRequestWrapper))
 			return new UploadItem[0];
 		UploadHttpRequestWrapper urw = (UploadHttpRequestWrapper) m_request;

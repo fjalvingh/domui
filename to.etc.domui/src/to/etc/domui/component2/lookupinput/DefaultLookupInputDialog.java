@@ -75,8 +75,12 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 	@Nonnull
 	final private ClassMetaModel m_outputMetaModel;
 
+	/**
+	 * Data set used for initial showing, if specified. Opens popup with hidden search panel, showing only this predefined data as default search results.
+	 * Usually used to support showing of keyword search matches.
+	 */
 	@Nullable
-	private ITableModel<OT> m_keySearchModel;
+	private ITableModel<OT> m_initialModel;
 
 	/** The selected value or null if no selection made (yet) */
 	@Nullable
@@ -98,7 +102,7 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 	public void createContent() throws Exception {
 		setWidth("740px");
 		setHeight("90%");
-		setIcon("THEME/btnFind.png");
+		setIcon("THEME/ttlFind.png");
 		setTestID(getTestID() + "_floaterWindowLookupInput");
 
 		//in case when external error message listener is set
@@ -115,9 +119,9 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 				lf.setSearchProperties(m_searchPropertyList);
 		}
 
-		ITableModel<OT> keySearchModel = m_keySearchModel;
+		ITableModel<OT> initialModel = m_initialModel;
 
-		lf.setCollapsed(keySearchModel != null && keySearchModel.getRows() > 0);
+		lf.setCollapsed(initialModel != null && initialModel.getRows() > 0);
 		lf.forceRebuild(); // jal 20091002 Force rebuild to remove any state from earlier invocations of the same form. This prevents the form from coming up in "collapsed" state if it was left that way last time it was used (Lenzo).
 
 		add(lf);
@@ -144,8 +148,8 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 			}
 		});
 
-		if(keySearchModel != null && keySearchModel.getRows() > 0) {
-			setResultModel(keySearchModel);
+		if(initialModel != null && initialModel.getRows() > 0) {
+			setResultModel(initialModel);
 		} else if(isSearchImmediately()) {
 			search(lf);
 		}
@@ -200,6 +204,10 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 			initSelectionModel();
 			if(isUseStretchedLayout()) {
 				dt.setStretchHeight(true);
+				NodeContainer delegate = getDelegate();
+				if (null != delegate && !delegate.isStretchHeight()){
+					delegate.setStretchHeight(true);
+				}
 			}
 
 			//-- Add the pager,
@@ -453,5 +461,14 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 
 	public void setQueryHandler(IQueryHandler<QT> queryHandler) {
 		m_queryHandler = queryHandler;
+	}
+
+	public void setInitialModel(@Nullable ITableModel<OT> initialModel) {
+		if (m_initialModel != initialModel) {
+			m_initialModel = initialModel;
+			if(isBuilt()) {
+				forceRebuild();
+			}
+		}
 	}
 }

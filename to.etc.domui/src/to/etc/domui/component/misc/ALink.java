@@ -291,9 +291,14 @@ public class ALink extends ATag {
 		//		forceRebuild();	jal 20100409 DONT DO THIS - IT DELETES THE LINKS CONTENT!
 	}
 
+	@Override
+	public void onAddedToPage(Page p) {
+		super.onAddedToPage(p);
+		updateStyle();
+	}
+
 	/**
 	 * Add an image to the link. The image is added just before the link text and should be an icon of max 16x16 px.
-	 * @param url
 	 */
 	public void setImage(Class< ? > resourceBase, final String name) {
 		setImage(DomUtil.getJavaResourceRURL(resourceBase, name));
@@ -308,7 +313,11 @@ public class ALink extends ATag {
 	}
 
 	private void updateStyle() {
-		setBackgroundImage(DomApplication.get().getThemedResourceRURL(m_imageUrl));
+		if(isAttached()) {
+			String imageUrl = m_imageUrl;
+			if (null != imageUrl) {
+				setBackgroundImage(getThemedResourceRURL(imageUrl));
+			}
+		}
 	}
-
 }

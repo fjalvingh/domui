@@ -28,7 +28,6 @@ import javax.annotation.*;
 
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 
@@ -138,8 +137,8 @@ public class HtmlEditor extends TextArea {
 	 * THEME/minieditor.css.
 	 * @return
 	 */
-	public String getStyleSheet() throws Exception {
-		return DomApplication.get().getThemedResourceRURL(m_styleSheet == null ? "THEME/minieditor.css" : m_styleSheet);
+	protected String getStyleSheet() throws Exception {
+		return getThemedResourceRURL(m_styleSheet == null ? "THEME/minieditor.css" : m_styleSheet);
 	}
 
 	public void setStyleSheet(String styleSheet) {

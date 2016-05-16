@@ -46,7 +46,7 @@ final class LookupFactoryString implements ILookupControlFactory {
 	}
 
 	@Override
-	public <T, X extends IControl<T>> ILookupControlInstance createControl(final @Nonnull SearchPropertyMetaModel spm, final X control) {
+	public <T, X extends IControl<T>> ILookupControlInstance<T> createControl(final @Nonnull SearchPropertyMetaModel spm, final X control) {
 		final PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) MetaUtils.getLastProperty(spm);
 		Class<T> iclz = pmm.getActualType();
 
@@ -82,7 +82,7 @@ final class LookupFactoryString implements ILookupControlFactory {
 			txt.setTitle(hint);
 
 		//-- Converter thingy is known. Now add a
-		return new AbstractLookupControlImpl(txt) {
+		return new BaseAbstractLookupControlImpl<T>(txt) {
 			@Override
 			public @Nonnull AppendCriteriaResult appendCriteria(@Nonnull QCriteria< ? > crit) throws Exception {
 				Object value = null;
@@ -106,6 +106,16 @@ final class LookupFactoryString implements ILookupControlFactory {
 					crit.eq(spm.getPropertyName(), value); // property == value
 				}
 				return AppendCriteriaResult.VALID;
+			}
+
+			@Override
+			public T getValue() {
+				return txt.getValue();
+			}
+
+			@Override
+			public void setValue(T value) {
+				txt.setValue(value);
 			}
 		};
 	}

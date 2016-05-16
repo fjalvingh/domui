@@ -24,7 +24,8 @@
  */
 package to.etc.domui.dom.html;
 
-import to.etc.domui.server.*;
+import javax.annotation.*;
+
 import to.etc.domui.util.*;
 
 /**
@@ -42,7 +43,7 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 4, 2008
  */
-public class Img extends NodeBase {
+public class Img extends NodeBase implements IActionControl {
 	private String m_alt;
 
 	private String m_src;
@@ -54,6 +55,8 @@ public class Img extends NodeBase {
 	private String m_imgHeight;
 
 	private String m_imgWidth;
+
+	private boolean m_disabled;
 
 	/**
 	 * Creates an uninitialized image.
@@ -127,7 +130,7 @@ public class Img extends NodeBase {
 	 * @return
 	 */
 	public String getSrc() {
-		return DomApplication.get().getThemedResourceRURL(m_src);
+		return m_src;
 	}
 
 	/**
@@ -136,9 +139,6 @@ public class Img extends NodeBase {
 	 * @param src
 	 */
 	public void setSrc(String src) {
-		//		if(src.startsWith("/"))							// jal 20120904 WTF?! This cannot be done, because host-relative URLs are invalid this way.
-		//			src = src.substring(1);
-		//		src = PageContext.getRequestContext().translateResourceName(src);
 		if(!DomUtil.isEqual(src, m_src))
 			changed();
 		m_src = src;
@@ -153,17 +153,6 @@ public class Img extends NodeBase {
 		String s = DomUtil.getJavaResourceRURL(base, resurl);
 		setSrc(s);
 	}
-
-	//	/**
-	//	 * Set the image source to come from the current theme.
-	//	 * @param src
-	//	 */
-	//	public void setThemeSrc(String src) {
-	//		String nw = PageContext.getRequestContext().getRelativeThemePath(src);
-	//		if(! DomUtil.isEqual(nw, m_src))
-	//			changed();
-	//		m_src = nw;
-	//	}
 
 	public ImgAlign getAlign() {
 		return m_align;
@@ -206,4 +195,35 @@ public class Img extends NodeBase {
 		changed();
 		m_imgWidth = imgWidth;
 	}
-}
+
+	@Override
+	public void setClicked(@Nullable IClickBase<?> clicked) {
+		super.setClicked(clicked);
+		if (null != clicked) {
+			addCssClass("ui-clickable");
+		}else{
+			removeCssClass("ui-clickable");
+		}
+	}
+
+	public boolean isDisabled() {
+		return m_disabled;
+	}
+
+	/**
+	 * When disabled the image renders by greying out the image.
+	 */
+	@Override
+	public void setDisabled(boolean disabled) {
+		if(m_disabled == disabled)
+			return;
+		m_disabled = disabled;
+		changed();
+	}
+
+	@Override
+	public void internalOnClicked(@Nonnull ClickInfo cli) throws Exception {
+		if(isDisabled())
+			return;
+		super.internalOnClicked(cli);
+	}}

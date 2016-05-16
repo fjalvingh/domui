@@ -41,10 +41,11 @@ abstract public class QNodeVisitorBase implements QNodeVisitor {
 		n.getExpr().visit(this);
 	}
 
-	//	public void visitBinaryNode(@Nonnull QBinaryNode n) throws Exception {
-	//		n.getLhs().visit(this);
-	//		n.getRhs().visit(this);
-	//	}
+	@Override
+	public void visitPropertyIn(@Nonnull QPropertyIn n) throws Exception {
+		n.getExpr().visit(this);
+	}
+
 	@Override
 	public void visitUnaryNode(@Nonnull QUnaryNode n) throws Exception {
 		n.getNode().visit(this);
@@ -53,6 +54,7 @@ abstract public class QNodeVisitorBase implements QNodeVisitor {
 	@Override
 	public void visitUnaryProperty(@Nonnull QUnaryProperty n) throws Exception {}
 
+	@Override
 	public void visitSqlRestriction(@Nonnull QSqlRestriction v) throws Exception {}
 
 	@Override

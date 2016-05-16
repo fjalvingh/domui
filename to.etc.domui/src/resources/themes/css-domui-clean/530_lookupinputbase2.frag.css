@@ -1,0 +1,55 @@
+/*** LookupInputBase2: replacement for LookupInput ***/
+.ui-lui2 {
+    position: relative;
+}
+.ui-lui2-selected {
+    vertical-align: baseline;
+    position: relative;
+}
+.ui-lui2-vspan {
+    display: inline-block;
+    min-width: 12em;
+    white-space: nowrap;
+    background-color: #ffffff;
+    padding-left: 3px;
+    padding-top: 3px;
+    padding-bottom: 1px;
+    padding-right: 47px;
+    margin-bottom: 0px;
+    margin-bottom: 0px;
+
+    border-color:#ABADB3 #BFCDD9 #BFCDD9;
+    border-style: solid;
+    border-width: 1px;
+    -moz-border-radius: 2px;
+
+    vertical-align: top;
+}
+.ui-lui2-selected-ro .ui-lui2-vspan,
+.ui-ro .ui-lui2-vspan{
+    background: transparent;
+    padding-right: 2px;
+}
+/*** Display buttons inside component */
+.ui-lui2 input{
+    padding-right: 20px;
+}
+.ui-lui2 button, .ui-lui2-selected button {
+    position: absolute;
+}
+/** Single button - lookup */
+.ui-lui2 button {
+    margin-left: -26px;
+    margin-top: 1px;
+}
+/** Clear button */
+.ui-lui2-selected button:nth-child(1n) {
+    margin-left: -43px;
+    margin-top: 7px;
+}
+/** Two buttons - lookup */
+.ui-lui2-selected button:nth-child(2n) {
+    margin-left: -26px;
+    margin-top: 1px;
+}
+

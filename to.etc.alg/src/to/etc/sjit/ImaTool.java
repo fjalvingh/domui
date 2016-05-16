@@ -29,6 +29,7 @@ import java.awt.image.*;
 import java.io.*;
 import java.util.*;
 
+import javax.annotation.*;
 import javax.imageio.*;
 import javax.imageio.stream.*;
 
@@ -532,20 +533,27 @@ public class ImaTool {
 
 	static public Dimension getImageDimension(File resourceFile) throws IOException {
 		ImageInputStream in = ImageIO.createImageInputStream(resourceFile);
-		try {
-			final Iterator<ImageReader> readers = ImageIO.getImageReaders(in);
-			if(readers.hasNext()) {
-				ImageReader reader = readers.next();
-				try {
-					reader.setInput(in);
-					return new Dimension(reader.getWidth(0), reader.getHeight(0));
-				} finally {
-					reader.dispose();
-				}
+		return getDimension(in);
+	}
+
+	@Nullable
+	static public Dimension getImageDimension(@Nonnull InputStream is) throws IOException {
+		try(ImageInputStream in = ImageIO.createImageInputStream(is)) {
+			return getDimension(in);
+		}
+	}
+
+	@Nullable
+	private static Dimension getDimension(ImageInputStream in) throws IOException {
+		final Iterator<ImageReader> readers = ImageIO.getImageReaders(in);
+		if(readers.hasNext()) {
+			ImageReader reader = readers.next();
+			try {
+				reader.setInput(in);
+				return new Dimension(reader.getWidth(0), reader.getHeight(0));
+			} finally {
+				reader.dispose();
 			}
-		} finally {
-			if(in != null)
-				in.close();
 		}
 		return null;
 	}

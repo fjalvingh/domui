@@ -24,6 +24,8 @@
  */
 package to.etc.webapp.query;
 
+import java.util.*;
+
 import javax.annotation.*;
 
 public class QOrder extends QOperatorNode {
@@ -72,5 +74,21 @@ public class QOrder extends QOperatorNode {
 	@Override
 	public void visit(@Nonnull QNodeVisitor v) throws Exception {
 		v.visitOrder(this);
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if(this == o)
+			return true;
+		if(o == null || getClass() != o.getClass())
+			return false;
+		QOrder qOrder = (QOrder) o;
+		return Objects.equals(m_property, qOrder.m_property) &&
+			Objects.equals(m_direction, qOrder.m_direction);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(m_property, m_direction);
 	}
 }

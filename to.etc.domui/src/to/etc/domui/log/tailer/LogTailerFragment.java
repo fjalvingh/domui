@@ -45,6 +45,8 @@ public class LogTailerFragment extends PollingDiv {
 
 	private ComboFixed<Integer> m_linesCombo;
 
+	private boolean m_noFile;
+
 	//	private Div m_debugDiv;
 
 
@@ -52,17 +54,22 @@ public class LogTailerFragment extends PollingDiv {
 		m_logpath = logpath;
 	}
 
-	private void createTask() throws Exception {
-		if(m_task != null)
-			return;
+	private boolean createTask() throws Exception {
+		if(m_task != null) {
+			throw new IllegalStateException("task already created!");
+		}
 		m_task = new LogTailerTask(m_logpath);
 		getPage().getConversation().setAttribute("xx", m_task);
-		m_task.start();
+		return m_task.start();
 	}
 
 	@Override
 	public void createContent() throws Exception {
-		createTask();
+		if (!createTask()){
+			m_noFile = true;
+			showNoFileError();
+			return;
+		}
 		createHeader();
 		add(m_lineDiv);
 		//		m_debugDiv = new Div();
@@ -70,6 +77,12 @@ public class LogTailerFragment extends PollingDiv {
 
 		updateSizes();
 		updateLines(0);
+	}
+
+	private void showNoFileError() {
+		add("Log file does not exists yet: " + m_logpath);
+		add(new BR());
+		add("Go back and try to follow log later.");
 	}
 
 	static private int[] SIZES = {32, 50, 60, 70, 80, 90, 100, 110, 120};
@@ -216,6 +229,9 @@ public class LogTailerFragment extends PollingDiv {
 
 	@Override
 	public void checkForChanges() throws Exception {
+		if (m_noFile){
+			return;
+		}
 		m_task.readFileDelta();
 		long sz = m_task.getSize();
 		int ln = m_task.getLastLine();

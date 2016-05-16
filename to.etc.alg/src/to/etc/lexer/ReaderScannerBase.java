@@ -26,6 +26,8 @@ package to.etc.lexer;
 
 import java.io.*;
 
+import to.etc.testng.launcher.runner.*;
+
 public class ReaderScannerBase extends TextReaderBase {
 	static public final int		T_EOF				= -1;
 
@@ -97,7 +99,7 @@ public class ReaderScannerBase extends TextReaderBase {
 		return new SourceLocation(this);
 	}
 
-	public void error(String msg) throws SourceErrorException {
+	public RuntimeException error(String msg) throws SourceErrorException {
 		throw new SourceErrorException(getSourceLocation(), msg);
 	}
 

@@ -24,6 +24,11 @@
  */
 package to.etc.domui.component.layout;
 
+import java.util.*;
+import java.util.stream.*;
+
+import javax.annotation.*;
+
 import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
 
@@ -49,10 +54,16 @@ public class SplitterPanel extends Div {
 
 	private int m_maxBSize = 0;
 
+	/** Specifies position of splitter in percentages when user clicks on splitter button. */
+	private int m_closableToPerc = 90;
+
+	/** Specifies initial position of splitter in percentages. Default is -1, means no customization, position is automatically set show first panel. */
+	private int m_initPosInPerc = -1;
+
 	/**
 	 * panelA, panelB and vertical/horozontal layout can not be changed after creation of splitter.
-	 * @param pannelA left/top panel
-	 * @param pannelB right/bottom panel
+	 * @param panelA left/top panel
+	 * @param panelB right/bottom panel
 	 * @param vertical T for vertical, F for horizontal layout
 	 */
 	public SplitterPanel(Div panelA, Div panelB, boolean vertical) {
@@ -105,6 +116,22 @@ public class SplitterPanel extends Div {
 		m_maxBSize = maxBSize;
 	}
 
+	public int getClosableToPerc() {
+		return m_closableToPerc;
+	}
+
+	public void setClosableToPerc(int closableToPerc) {
+		m_closableToPerc = closableToPerc;
+	}
+
+	public int getInitPosInPerc() {
+		return m_initPosInPerc;
+	}
+
+	public void setInitPosInPerc(int initPosInPerc) {
+		m_initPosInPerc = initPosInPerc;
+	}
+
 	@Override
 	public void createContent() throws Exception {
 		if(m_vertical) {
@@ -136,30 +163,32 @@ public class SplitterPanel extends Div {
 	}
 
 	public String getMakeSplitterJavascriptCall() {
-		StringBuilder params = new StringBuilder();
-		if(m_minASize > 0) {
-			params.append("minAsize:" + m_minASize + ",");
-		}
-		if(m_maxASize > 0) {
-			params.append("maxAsize:" + m_maxASize + ",");
-		}
-		if(m_minBSize > 0) {
-			params.append("minBsize:" + m_minBSize + ",");
-		}
-		if(m_maxBSize > 0) {
-			params.append("maxBsize:" + m_maxBSize + ",");
-		}
+		Map<String, String> params = new HashMap<String, String>();
+
+		addParamIfPositive(params, m_minASize, "minAsize");
+		addParamIfPositive(params, m_maxASize, "maxAsize");
+		addParamIfPositive(params, m_minBSize, "minBsize");
+		addParamIfPositive(params, m_maxBSize, "maxBsize");
+
 		if(m_vertical) {
-			params.append("splitVertical:true,");
+			params.put("splitVertical", "true");
 		} else {
-			params.append("splitHorizontal:true,");
+			params.put("splitHorizontal", "true");
 		}
-		if(getHeight() == null || getHeight().equals("100%")) {
-			//In case when it is not defined differently, we have to adjust height of splitter panel to take all available space of parent container. This can be done only using javascript.
-			return "WebUI.stretchHeight('" + getActualID() + "');$('#" + getActualID() + "').splitter({" + params.toString() + "A:$('#" + m_panelA.getActualID() + "'),B:$('#" + m_panelB.getActualID()
-				+ "'),closeableto:0});$(window).resize(function(){WebUI.stretchHeight('" + getActualID() + "');});";
-		} else {
-			return "$('#" + getActualID() + "').splitter({" + params.toString() + "A:$('#" + m_panelA.getActualID() + "'),B:$('#" + m_panelB.getActualID() + "'),closeableto:0});";
+		params.put("A", "$('#" + m_panelA.getActualID() + "')");
+		params.put("B", "$('#" + m_panelB.getActualID() + "')");
+		params.put("closeableto", m_closableToPerc + "");
+
+		addParamIfPositive(params, m_initPosInPerc, "initPos");
+
+		String paramStr = params.entrySet().stream().map(a -> "'" + a.getKey() + "':" + a.getValue()).collect(Collectors.joining(",", "{", "}"));
+
+		return "$('#" + getActualID() + "').splitter(" + paramStr + ");";
+	}
+
+	private void addParamIfPositive(@Nonnull Map<String, String> params, int value, @Nonnull String name) {
+		if(value > 0) {
+			params.put(name, value + "");
 		}
 	}
 }

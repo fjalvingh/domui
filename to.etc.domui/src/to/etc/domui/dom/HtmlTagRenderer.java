@@ -27,14 +27,14 @@ package to.etc.domui.dom;
 import java.io.*;
 import java.util.*;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.misc.*;
-import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.parts.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
-
-import javax.annotation.*;
 
 /**
  * Basic, mostly standard-compliant handler for rendering HTML tags.
@@ -231,7 +231,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 		return "#" + s;
 	}
 
-	public void appendStyle(final CssBase c, final Appendable a) throws IOException { // Bloody idiot.
+	public void appendStyle(final NodeBase c, final Appendable a) throws IOException { // Bloody idiot.
 		if(c.getBackgroundAttachment() != null) {
 			a.append("background-attachment: ");
 			switch(c.getBackgroundAttachment()){
@@ -250,13 +250,15 @@ public class HtmlTagRenderer implements INodeVisitor {
 			a.append(fixColor(c.getBackgroundColor()));
 			a.append(';');
 		}
-		if(c.getBackgroundImage() != null) {
+		String backgroundImage = c.getBackgroundImage();
+		if(backgroundImage != null) {
 			a.append("background-image:");
-			if(c.getBackgroundImage().equalsIgnoreCase("none"))
+			if(backgroundImage.equalsIgnoreCase("none"))
 				a.append("none");
 			else {
 				a.append("url(");
-				a.append(c.getBackgroundImage());
+				backgroundImage = c.getThemedResourceRURL(backgroundImage);
+				a.append(backgroundImage);
 				a.append(");");
 			}
 		}
@@ -1041,7 +1043,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 		if(n.getName() != null)
 			o().attr("name", n.getName());
 
-		renderDiRo(n, n.isDisabled(), n.isReadOnly());
+		renderDiRo(n, n.isDisabled() || n.isReadOnly(), false);				// 20151007 Radio buttons cannot be read only, sigh.
 		renderChecked(n, n.isChecked());
 
 		//-- jal 20110125 Start fixing bug# 917: the idiots in the room (IE 7, 8) do not properly handle onchange on checkbox, sigh.
@@ -1075,8 +1077,14 @@ public class HtmlTagRenderer implements INodeVisitor {
 			o().attr("align", n.getAlign().getCode());
 		if(n.getAlt() != null)
 			o().attr("alt", n.getAlt());
-		if(n.getSrc() != null)
-			o().attr("src", n.getSrc()); // 20110104 was rawAttr causing fails on & in delta????
+		String src = n.getSrc();
+		if(null != src) {
+			src = n.getThemedResourceRURL(src);
+			if(n.isDisabled() && !src.startsWith("http")) { // For now we're not supporting grey scaling of servlet images
+				src = GrayscalerPart.getURL(src);
+			}
+			o().attr("src", src); 								// 20110104 was rawAttr causing fails on & in delta????
+		}
 		if(n.getImgBorder() >= 0)
 			o().attr("border", n.getImgBorder());
 		if(n.getImgWidth() != null)
@@ -1159,16 +1167,24 @@ public class HtmlTagRenderer implements INodeVisitor {
 
 		renderDiRo(n, n.isDisabled(), n.isReadOnly());
 
-		//-- Fix for bug 627: render textarea content in attribute to prevent zillion of IE fuckups.
+		//-- Fix for bug 627: render textarea content in attribute to prevent zillion of IE bugs.
 		if(getMode() != HtmlRenderMode.FULL) {
 			String txt = n.getRawValue();
-			if(txt != null) {
-				txt = StringTool.strToJavascriptString(txt, false);
-				o().attr("domjs_value", txt); // FIXME THIS DOES NOT ALWAYS WORK
-			}
+			if(txt == null)
+				txt = "";
+			txt = StringTool.strToJavascriptString(txt, false);
+			o().attr("domjs_value", txt); // FIXME THIS DOES NOT ALWAYS WORK
 		}
+
+		/*
+		 * We use mxlength, not maxlength because chrome actually implements maxlength - but it counts it's
+		 * characters wrong.
+		 */
 		if(n.getMaxLength() > 0) {
-			o().attr("maxlength", n.getMaxLength());				// Not valid for html < 5, handled by Javascript
+			o().attr("mxlength", n.getMaxLength());					// Not valid for html < 5, handled by Javascript
+		}
+		if(n.getMaxByteLength() > 0) {
+			o().attr("maxbytes", n.getMaxByteLength());				// If byte-limited, send to Javascript too
 		}
 
 		renderTagend(n, o());

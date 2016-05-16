@@ -16,6 +16,7 @@ import to.etc.webapp.nls.*;
  * Search is done at client side for faster user experience.
  * It also allows entering of new data (not contained inside predefined list), that is why it works on-top of String based input.
  *
+ * FIXME Urgent This must implement IControl proper 8-(
  *
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on Nov 6, 2012
@@ -35,6 +36,9 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 
 	@Nullable
 	private IObjectToStringConverter<T> m_toStringConverter;
+
+	@Nullable
+	private T m_object;
 
 	@Nonnull
 	private final Class<T> m_type;
@@ -74,12 +78,13 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 		super.createContent();
 
 		DropDownPicker<T> picker = m_picker = new DropDownPicker<T>(m_data);
-		if(m_dropDownIcon != null) {
+		if(m_dropDownIcon != null && !isReadOnly()) {
 			picker.setSrc(m_dropDownIcon);
 		}
 
 		picker.setMandatory(isMandatory());
 		picker.setValue(null);
+		picker.setDisabled(isDisabled());
 		picker.setHalign(m_halign);
 		picker.setAlignmentBase(this);
 		picker.setOnBeforeShow(new INotifyEvent<DropDownPicker<T>, ComboLookup<T>>() {
@@ -95,7 +100,7 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 
 			@Override
 			public void onValueChanged(@Nonnull DropDownPicker<T> component) throws Exception {
-				T value = component.getValueSafe();
+				T value = m_object = component.getValueSafe();
 				setValue(convertObjectToString(NlsContext.getCurrencyLocale(), value));
 				IValueChanged<EditableDropDownPicker<T>> onValueChanged = (IValueChanged<EditableDropDownPicker<T>>) EditableDropDownPicker.this.getOnValueChanged();
 				if(onValueChanged != null) {
@@ -139,7 +144,6 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 
 	/**
 	 * Gets picker select options.
-	 * @param data
 	 */
 	public @Nonnull
 	List<T> getData() {
@@ -175,7 +179,7 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 		if(isMandatory()){
 			setComboSize(getData().size());
 			//workaround: we have to set a value to avoid rendering of empty option for mandatory combo
-			if(getData().get(0) != null && m_picker != null){
+			if(!getData().isEmpty() && getData().get(0) != null && m_picker != null){
 				((ComboLookup<T>)m_picker.getSelectControl()).setValue(getData().get(0));;
 			}
 		} else {
@@ -221,5 +225,14 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 
 	public void setToStringConverter(@Nullable IObjectToStringConverter<T> toStringConverter) {
 		m_toStringConverter = toStringConverter;
+	}
+
+	@Nullable
+	public T getObject() {
+		return m_object;
+	}
+
+	public void setObject(@Nullable T object) {
+		m_object = object;
 	}
 }

@@ -24,8 +24,18 @@
  */
 package to.etc.domui.util.upload;
 
-public class FileUploadSizeExceededException extends FileUploadException {
-	public FileUploadSizeExceededException(String msg) {
-		super(msg);
+import to.etc.domui.util.*;
+import to.etc.util.*;
+
+final public class FileUploadSizeExceededException extends FileUploadException {
+	private long m_maxSize;
+
+	public FileUploadSizeExceededException(long maxSize) {
+		super(Msgs.BUNDLE, Msgs.UPLOAD_TOO_LARGE, StringTool.strSize(maxSize));
+		m_maxSize = maxSize;
+	}
+
+	public long getMaxSize() {
+		return m_maxSize;
 	}
 }

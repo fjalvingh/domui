@@ -665,7 +665,7 @@ public class DomTools {
 	static public String strAttr(final Node n, final String aname) {
 		String s = getNodeAttribute(n, aname, null);
 		if(s == null)
-			throw new IllegalStateException("Missing attribute '" + aname + "' on node '" + n.getNodeName());
+			throw new IllegalStateException("Missing attribute '" + aname + "' on node '" + n.getNodeName() +"'");
 		return s;
 	}
 

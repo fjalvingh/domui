@@ -41,23 +41,13 @@ import to.etc.domui.server.*;
  */
 public class SearchInput2 extends Div {
 
-	private int m_resultsCount = -1; //-1 states for not visible
-
 	@Nonnull
 	final private TextStr m_keySearch = new TextStr();
 
 	@Nullable
 	private IValueChanged<SearchInput2> m_onLookupTyping;
 
-	private IValueChanged<SearchInput2> m_onReturn;
-
-
-//	@Nonnull
-//	final private Img m_imgWaiting = new Img("THEME/lui-keyword-wait.gif");
-//
 	private int m_popupWidth;
-
-	private Div m_pnlSearchPopup;
 
 	public SearchInput2() {
 	}
@@ -71,8 +61,6 @@ public class SearchInput2 extends Div {
 	public void createContent() throws Exception {
 		setCssClass("ui-srip");
 
-//		m_imgWaiting.setCssClass("ui-lui-waiting");
-//		m_imgWaiting.setDisplay(DisplayType.NONE);
 		if(m_keySearch.getCssClass() == null) {
 			m_keySearch.setCssClass("ui-srip-keyword");
 		}
@@ -80,7 +68,6 @@ public class SearchInput2 extends Div {
 		m_keySearch.setSize(14);
 		m_keySearch.setMarker();
 
-//		add(m_imgWaiting);
 		add(m_keySearch);
 
 		appendCreateJS("new WebUI.SearchPopup('" + getActualID() + "','" + m_keySearch.getActualID() + "');");
@@ -108,24 +95,7 @@ public class SearchInput2 extends Div {
 	}
 
 	/**
-	 * Get current window Z index and set its value to current control.
-	 */
-	private void fixZIndex() {
-		//bug fix for IE when combining relative positioning, and overlapping control with absolute positioning.
-		FloatingWindow parentFloatingWindow = findParent(FloatingWindow.class);
-		int parentWindowZIndex = 0;
-		if(parentFloatingWindow != null) {
-			parentWindowZIndex = parentFloatingWindow.getZIndex();
-		}
-		if(parentWindowZIndex < 0) {
-			parentWindowZIndex = 0;
-		}
-		setZIndex(parentWindowZIndex);
-	}
-
-	/**
 	 * Getter for hint. See {@link SearchInput2#setHint}.
-	 * @param hint
 	 */
 	@Nullable
 	public String getHint() {

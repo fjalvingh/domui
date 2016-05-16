@@ -1620,6 +1620,14 @@ public final class AnnotationBinder {
 					);
 				}
 
+				// jal 20151202 OneToOne annotations that are optional cannot be lazy, so ABORT ON THAT instead of silently creating a huge problem.
+				if(ann.optional() && ann.fetch() == FetchType.LAZY) {
+					//throw new AnnotationException(BinderHelper.getPath(propertyHolder, inferredData)
+					//		+ ": @OneOnOne annotation that is nullable (optional) cannot be fetched lazy, see https://developer.jboss.org/wiki/Someexplanationsonlazyloadingone-to-one");
+					System.err.println(BinderHelper.getPath(propertyHolder, inferredData)
+							+ ": @OneOnOne annotation that is nullable (optional) cannot be fetched lazy, see https://developer.jboss.org/wiki/Someexplanationsonlazyloadingone-to-one");
+				}
+
 				//FIXME support a proper PKJCs
 				boolean trueOneToOne = property.isAnnotationPresent( PrimaryKeyJoinColumn.class )
 						|| property.isAnnotationPresent( PrimaryKeyJoinColumns.class );

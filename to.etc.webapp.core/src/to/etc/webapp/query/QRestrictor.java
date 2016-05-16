@@ -24,6 +24,8 @@
  */
 package to.etc.webapp.query;
 
+import java.util.*;
+
 import javax.annotation.*;
 
 import to.etc.webapp.annotations.*;
@@ -51,6 +53,8 @@ abstract public class QRestrictor<T> {
 	/** Is either OR or AND, indicating how added items are to be combined. */
 	@Nonnull
 	private QOperation m_combinator;
+
+	private final Set<QSubQuery<?, ?>> m_unusedSubquerySet = new HashSet<>();
 
 	@Nullable
 	abstract public QOperatorNode getRestrictions();
@@ -294,6 +298,32 @@ abstract public class QRestrictor<T> {
 	public QRestrictor<T> ne(@Nonnull @GProperty final String property, double value) {
 		add(QRestriction.ne(property, value));
 		return this;
+	}
+
+	/**
+	 * A property must be one of a list of values.
+	 * @param property
+	 * @param inlist
+	 * @param <V>
+	 * @return
+	 */
+	@Nonnull
+	public <V> QRestrictor<T> in(@Nonnull @GProperty final String property, List<V> inlist) {
+		add(QRestriction.in(property, inlist));
+		return this;
+	}
+
+	@Nonnull
+	public <V> QRestrictor<T> in(@Nonnull @GProperty final String property, QSelection<?> selection) {
+		add(QRestriction.in(property, selection));
+		return this;
+	}
+	/**
+	 * A property must be one of a list of values.
+	 */
+	@Nonnull
+	public <V, R extends QField<R, T>> QRestrictor<T> in(@Nonnull final QField<R, V> property, @Nonnull List<V> value) {
+		return in(property.getPath(), value);
 	}
 
 	/**
@@ -593,7 +623,31 @@ abstract public class QRestrictor<T> {
 	}
 
 	public <U> QSubQuery<U, T> subquery(@Nonnull Class<U> childClass) throws Exception {
-		return new QSubQuery<U, T>(this, childClass);
+		QSubQuery<U, T> subQuery = new QSubQuery<>(this, childClass);
+		m_unusedSubquerySet.add(subQuery);
+		return subQuery;
+	}
+
+	/**
+	 * Internal method, used to be able to find QSubQueries that were allocated (using {@link #subquery(Class)} but not
+	 * properly linked back into the main query. That is, if you create a correlated subquery like (select max(date) from xxx where xxx.id=parent.id)
+	 * and you do not <i>use</i> that subquery inside the parent (select * from yyy where yyy.date = (subquery)) then
+	 * the subquery is "lost". This leads to unexpected results as the user assumes the subquery does something.
+	 * Registering all subqueries created here allows any querying visitor to implement a check: it should
+	 * remove all subqueries that it actually encounters and handles, and after that it checks to ensure that this
+	 * set is empty. If not there are subqueries left that were not joined back.
+	 *
+	 * @return
+	 */
+	public Set<QSubQuery<?, ?>> getUnusedSubquerySet() {
+		return m_unusedSubquerySet;
+	}
+
+	/**
+	 * See {@link #getUnusedSubquerySet()}
+	 * @param q
+	 */
+	public void internalUseQuery(QSubQuery<?, ?> q) {
+		m_unusedSubquerySet.remove(q);
 	}
 }
-

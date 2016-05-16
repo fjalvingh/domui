@@ -106,16 +106,16 @@ public interface IRequestContext extends IExtendedParameterInfo {
 	@Nonnull
 	public String getRelativePath(@Nonnull String rel);
 
-	/**
-	 * Creates a full path to a possibly themed resource. The path always starts with the proper webapp
-	 * context. If the name passed starts with on the predefined locations (like THEME/) it gets replaced
-	 * with the proper theme path that is current.
-	 * @since 2011/12/12
-	 *
-	 * @param in
-	 * @return
-	 */
-	public String getThemedPath(String in);
+	///**
+	// * Creates a full path to a possibly themed resource. The path always starts with the proper webapp
+	// * context. If the name passed starts with on the predefined locations (like THEME/) it gets replaced
+	// * with the proper theme path that is current.
+	// * @since 2011/12/12
+	// *
+	// * @param in
+	// * @return
+	// */
+	//public String getThemedPath(String in);
 
 	/**
 	 * Returns the buffered writer to use to generate text-based output to this context.

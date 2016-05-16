@@ -24,9 +24,9 @@
  */
 package javax.annotation;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+import static java.lang.annotation.ElementType.*;
+
+import java.lang.annotation.*;
 
 import javax.annotation.meta.TypeQualifier;
 import javax.annotation.meta.TypeQualifierValidator;
@@ -35,6 +35,7 @@ import javax.annotation.meta.When;
 @Documented
 @TypeQualifier
 @Retention(RetentionPolicy.RUNTIME)
+@Target(value={FIELD,METHOD,PARAMETER,LOCAL_VARIABLE})
 public @interface Nonnull {
     When when() default When.ALWAYS;
 

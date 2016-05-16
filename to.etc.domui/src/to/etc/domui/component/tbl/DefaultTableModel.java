@@ -42,8 +42,8 @@ public class DefaultTableModel<T> extends TableListModelBase<T> implements ITabl
 		this(new ArrayList<T>());
 	}
 
-	public DefaultTableModel(List<T> in) {
-		m_list = new ArrayList<T>(in);
+	public DefaultTableModel(Collection<T> in) {
+		m_list = new ArrayList<>(in);
 	}
 
 	/*--------------------------------------------------------------*/

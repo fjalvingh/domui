@@ -560,7 +560,7 @@ public class PageParameters implements IPageParameters, Serializable {
 			return pp;
 		}
 		paramsAsString = paramsAsString.trim();
-		//happens that params starts with ?, ant it shoule be removed
+		//happens that params starts with ?, and it should be removed
 		if(paramsAsString.startsWith("?")) {
 			paramsAsString = paramsAsString.substring(1);
 		}

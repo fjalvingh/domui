@@ -51,6 +51,11 @@ public class Checkbox extends NodeBase implements INativeChangeListener, IContro
 
 	private IValueChanged< ? > m_onValueChanged;
 
+	private boolean m_immediate;
+
+	@Nullable
+	private String m_disabledBecause;
+
 	public Checkbox() {
 		super("input");
 	}
@@ -90,6 +95,20 @@ public class Checkbox extends NodeBase implements INativeChangeListener, IContro
 		changed();
 		m_disabled = disabled;
 		fireModified("value", Boolean.valueOf(!disabled), Boolean.valueOf(disabled));
+	}
+
+	@Nullable
+	public String getDisabledBecause() {
+		return m_disabledBecause;
+	}
+
+	public void setDisabledBecause(@Nullable String msg) {
+		if(Objects.equals(msg, m_disabledBecause)) {
+			return;
+		}
+		m_disabledBecause = msg;
+		setOverrideTitle(msg);
+		setDisabled(msg != null);
 	}
 
 	/**
@@ -184,7 +203,11 @@ public class Checkbox extends NodeBase implements INativeChangeListener, IContro
 	@Deprecated
 	@Override
 	public IValueChanged< ? > getOnValueChanged() {
-		return m_onValueChanged;
+		IValueChanged< ? > vc = m_onValueChanged;
+		if(null == vc && isImmediate()) {
+			return IValueChanged.DUMMY;
+		}
+		return vc;
 	}
 
 	/**
@@ -219,6 +242,19 @@ public class Checkbox extends NodeBase implements INativeChangeListener, IContro
 	@Override
 	public void setModified(boolean as) {
 		m_modifiedByUser = as;
+	}
+
+	public boolean isImmediate() {
+		return m_immediate;
+	}
+
+
+	public void immediate(boolean immediate) {
+		m_immediate = immediate;
+	}
+
+	public void immediate() {
+		m_immediate = true;
 	}
 
 }

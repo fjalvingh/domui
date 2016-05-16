@@ -25,14 +25,18 @@
 package to.etc.domui.component.lookup;
 
 import java.util.*;
+import java.util.Map.*;
 
 import javax.annotation.*;
 
+import nl.itris.vp.components.basic.*;
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.controlfactory.*;
+import to.etc.domui.component.event.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.layout.*;
-import to.etc.domui.component.lookup.ILookupControlInstance.AppendCriteriaResult;
+import to.etc.domui.component.lookup.ILookupControlInstance.*;
+import to.etc.domui.component.lookup.filter.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.dom.css.*;
@@ -58,7 +62,7 @@ import to.etc.webapp.query.*;
  * lookup form. By adding lookup items manually you <i>disable</i> the automatic discovery of
  * search options. This is proper because no form should <b>ever</b> depend on the content,
  * structure or order of metadata-defined lookup items!!! So if you want to manipulate the
- * lookup form's contents you have to define it's layout by hand.</p>
+ * lookup form's contents you have to define its layout by hand.</p>
  * <p>Defining a form by hand is easy. To just add a property to search for to the form call
  * addProperty(String propname). This will create the default lookup input thing and label
  * for the property, as defined by metadata and factories. If you need more control you can
@@ -66,7 +70,7 @@ import to.etc.webapp.query.*;
  * and search criteria used by the form.</p>
  * <p>Each search item added will usually return a LookupForm.Item. This is a handle to the
  * created lookup control and associated data and can be used to manipulate the control or
- * it's presentation at runtime.</p>
+ * its presentation at runtime.</p>
  * <p>The constructor for this control accepts an ellipsis list of property names to quickly
  * create a lookup using user-specified properties.</p>
  *
@@ -87,7 +91,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 	private String m_title;
 
-	IClicked<LookupForm<T>> m_clicker;
+	private IClicked<LookupForm<T>> m_clicker;
 
 	private IClicked<LookupForm<T>> m_onNew;
 
@@ -102,6 +106,20 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	private DefaultButton m_collapseButton;
 
 	private DefaultButton m_clearButton;
+
+	@Nullable
+	private DefaultButton m_filterButton;
+
+	@Nonnull
+	private List<SavedFilter> m_savedFilters = Collections.EMPTY_LIST;
+
+	private boolean m_searchFilterEnabled;
+
+	@Nullable
+	private static ILookupFilterHandler m_lookupFilterHandler;
+
+	@Nullable
+	private LookupFormSavedFilterFragment m_lookupFormSavedFilterFragment;
 
 	public @Nullable
 	DefaultButton getClearButton() {
@@ -144,6 +162,39 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	private IClicked<NodeBase> m_onAfterCollapse;
 
 	private IQueryFactory<T> m_queryFactory;
+
+	private Map<String, ILookupControlInstance<?>> getFilterItems() {
+		Map<String, ILookupControlInstance<?>> filterValues = new HashMap<>();
+		for(Item item : m_itemList) {
+			String propertyName = item.getPropertyName() != null ? item.getPropertyName() : item.getLabelText();
+			filterValues.put(propertyName, item.getInstance());
+		}
+		return filterValues;
+	}
+
+	public Map<String, ?> getFilterValues() {
+		Map<String, ILookupControlInstance<?>> filterItems = getFilterItems();
+		Map<String, Object> filterValues = new HashMap<>();
+		for(Entry<String, ILookupControlInstance<?>> entry : filterItems.entrySet()) {
+			if(entry.getValue().getValue() != null) {
+				filterValues.put(entry.getKey(), entry.getValue().getValue());
+			}
+		}
+		return filterValues;
+	}
+
+	private void setSavedFilters(List<SavedFilter> savedFilters) {
+		m_savedFilters = savedFilters;
+	}
+
+	public boolean isSearchFilterEnabled() {
+		return m_searchFilterEnabled;
+	}
+
+	public void setSearchFilterEnabled(boolean searchFilterEnabled) {
+		m_searchFilterEnabled = searchFilterEnabled;
+	}
+
 	/**
 	 * This is the definition for an Item to look up. A list of these
 	 * will generate the actual lookup items on the screen, in the order
@@ -155,8 +206,57 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 * Created on Jul 31, 2009
 	 */
 	public static class Item implements SearchPropertyMetaModel {
+		@Nullable
+		private final NodeBase m_left;
+
+		@Nullable
+		private final NodeBase m_right;
+
+		private final boolean m_isEntireRow;
+
+		private final boolean m_isControl;
+
+		public Item() {
+			m_left = null;
+			m_right = null;
+			m_isEntireRow = false;
+			m_isControl = true;
+		}
+
+		public Item(@Nullable NodeBase left, @Nullable NodeBase right) {
+			m_left = left;
+			m_right = right;
+			m_isEntireRow = false;
+			m_isControl = false;
+		}
+
+		public Item(@Nullable NodeBase cell) {
+			m_left = cell;
+			m_right = null;
+			m_isEntireRow = true;
+			m_isControl = false;
+		}
+
+		@Nullable
+		public NodeBase getLeft() {
+			return m_left;
+		}
+
+		@Nullable
+		public NodeBase getRight() {
+			return m_right;
+		}
+
+		public boolean isEntireRow() {
+			return m_isEntireRow;
+		}
+
+		public boolean isControl() {
+			return m_isControl;
+		}
+
 		/**
-		 * FIXME jal 20110221 I want to discuss this because I do not understand it's treestate nature.
+		 * FIXME jal 20110221 I want to discuss this because I do not understand its treestate nature.
 		 *
 		 * Determines behavior of inputs inside one lookup field definition. Used internally to persists state of inputs that is changed in runtime.
 		 *
@@ -182,7 +282,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 		private List<PropertyMetaModel< ? >> m_propertyPath;
 
-		private ILookupControlInstance m_instance;
+		private ILookupControlInstance<?> m_instance;
 
 		private boolean m_ignoreCase = true;
 
@@ -263,11 +363,11 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 			m_errorLocation = errorLocation;
 		}
 
-		ILookupControlInstance getInstance() {
+		ILookupControlInstance<?> getInstance() {
 			return m_instance;
 		}
 
-		void setInstance(ILookupControlInstance instance) {
+		void setInstance(ILookupControlInstance<?> instance) {
 			m_instance = instance;
 		}
 
@@ -427,7 +527,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	}
 
 	/**
-	 * Return the metamodel that this class uses to get it's data from.
+	 * Return the metamodel that this class uses to get its data from.
 	 * @return
 	 */
 	@Nonnull
@@ -452,6 +552,10 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 */
 	@Override
 	public void createContent() throws Exception {
+		if(isSearchFilterEnabled()) {
+			addFilterButton();
+			loadSearchQueries();
+		}
 		//-- If a page title is present render the search block in a CaptionedPanel, else present in it;s own div.
 		Div sroot = new Div();
 		sroot.setCssClass("ui-lf-mainContent");
@@ -479,6 +583,24 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 			searchRootTableBody.add(searchRootRow);
 			TD searchRootCell = new TD();
 			searchRootCell.setValign(TableVAlign.TOP);
+			searchRootCell.setVerticalAlign(VerticalAlignType.TOP);
+			searchRootRow.add(searchRootCell);
+			searchContainer = searchRootCell;
+		}
+
+		if(isSearchFilterEnabled()) {
+			if(containsItemBreaks(m_itemList)) {
+				m_tbody.add("This is not implemented yet!");
+			}
+			Table searchRootTable = new Table();
+			searchRootTable.setCssClass("ui-lf-multi");
+			sroot.add(searchRootTable);
+			TBody searchRootTableBody = new TBody();
+			searchRootTable.add(searchRootTableBody);
+			TR searchRootRow = new TR();
+			searchRootTableBody.add(searchRootRow);
+			TD searchRootCell = new TD();
+			searchRootCell.setValign(TableVAlign.TOP);
 			searchRootRow.add(searchRootCell);
 			searchContainer = searchRootCell;
 		}
@@ -490,6 +612,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		m_tbody = new TBody();
 		m_tbody.setTestID("tableBodyLookupForm");
 		m_table.add(m_tbody);
+
 
 		//-- Start populating the lookup form with lookup items.
 		for(Item it : m_itemList) {
@@ -507,6 +630,14 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 			} else {
 				internalAddLookupItem(it);
 			}
+		}
+
+		//-- The saved filters are shown next
+		if(isSearchFilterEnabled()) {
+			if(containsItemBreaks(m_itemList)) {
+				throw new IllegalStateException("Not implemented yet. It is not possible to show the saved searched filter in combination with a split lookupform");
+			}
+			addFilterFragment(searchContainer);
 		}
 
 		//-- The button bar.
@@ -540,6 +671,70 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 					m_clicker.clicked(LookupForm.this);
 			}
 		});
+	}
+
+	private void addFilterFragment(NodeContainer searchContainer) {
+		TD anotherSearchRootCell = new TD();
+		searchContainer.appendAfterMe(anotherSearchRootCell);
+		LookupFormSavedFilterFragment div = m_lookupFormSavedFilterFragment = new LookupFormSavedFilterFragment(m_savedFilters);
+		div.onFilterClicked(new INotify<SavedFilter>() {
+			@Override
+			public void onNotify(@Nonnull SavedFilter sender) throws Exception {
+				clearInput();
+				fillSearchFields(sender);
+				if(m_clicker != null) {
+					m_clicker.clicked(LookupForm.this);
+				}
+			}
+		});
+		div.onFilterDeleted(new INotify<SavedFilter>() {
+			@Override
+			public void onNotify(@Nonnull SavedFilter sender) throws Exception {
+				deleteSavedFilter(sender);
+			}
+		});
+
+		anotherSearchRootCell.add(div);
+	}
+
+	private void loadSearchQueries() throws Exception {
+		ILookupFilterHandler lookupFilterHandler = getLookupFilterHandler();
+		final List<SavedFilter> savedFilters = lookupFilterHandler.load(getSharedContext(), getPage().getBody().getClass().getName());
+		setSavedFilters(savedFilters);
+	}
+
+	private void deleteSavedFilter(SavedFilter filter) throws Exception {
+		ILookupFilterHandler lookupFilterHandler = getLookupFilterHandler();
+		try(QDataContext unmanagedContext = QContextManager.createUnmanagedContext()) { // We create a separate context because we don't want to commit other transactions
+			lookupFilterHandler.delete(unmanagedContext, filter.getRecordId());
+			unmanagedContext.commit();
+		}
+	}
+
+	public synchronized static void setLookupFilterHandler(final @Nullable ILookupFilterHandler filterSaver) {
+		m_lookupFilterHandler = filterSaver;
+	}
+
+	@Nonnull
+	private synchronized static ILookupFilterHandler getLookupFilterHandler() {
+		ILookupFilterHandler lookupFilterHandler = m_lookupFilterHandler;
+		if(lookupFilterHandler == null) {
+			throw new IllegalStateException("There is no code to handle the saved filter.");
+		}
+		return lookupFilterHandler;
+	}
+
+	private void fillSearchFields(SavedFilter filter) throws Exception {
+		final Map<String, ILookupControlInstance<?>> formLookupFilterItems = getFilterItems();
+		final Map<String, ?> savedFilterValues = LookupFilterTranslator.deserialize(getSharedContext(), filter.getFilterValue());
+		for(Entry<String, ?> entry : savedFilterValues.entrySet()) {
+			final String property = entry.getKey();
+			final ILookupControlInstance<Object> controlInstance = (ILookupControlInstance<Object>) formLookupFilterItems.get(property);
+			if(controlInstance == null) {
+				continue; // to avoid possible NPE
+			}
+			controlInstance.setValue(entry.getValue());
+		}
 	}
 
 	protected void defineDefaultButtons() {
@@ -580,6 +775,33 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		m_collapseButton.setTestID("hideButton");
 		m_collapseButton.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE_TITLE));
 		addButtonItem(m_collapseButton, 300, ButtonMode.BOTH);
+	}
+
+	public void addFilterButton() {
+		if(m_filterButton == null) { // Only add the button if it doesn't exist already
+			m_filterButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_SAVE_SEARCH), Theme.BTN_SAVE, new IClicked<DefaultButton>() {
+				@Override
+				public void clicked(@Nonnull DefaultButton clickednode) throws Exception {
+					saveSearchQuery();
+				}
+			});
+			addButtonItem(m_filterButton, 400, ButtonMode.NORMAL);
+		}
+	}
+
+	private void saveSearchQuery() throws Exception {
+		SaveSearchFilterDialog dialog = new SaveSearchFilterDialog(DomUtil.nullChecked(m_lookupFilterHandler), getPage().getBody().getClass().getName(), getFilterValues());
+		dialog.onFilterSaved(new INotify<SavedFilter>() {
+			@Override
+			public void onNotify(@Nonnull SavedFilter sender) throws Exception {
+				m_savedFilters.add(sender);
+				if(m_lookupFormSavedFilterFragment != null) {
+					m_lookupFormSavedFilterFragment.forceRebuild();
+				}
+			}
+		});
+		dialog.modal();
+		add(dialog);
 	}
 
 	private boolean containsItemBreaks(List<Item> itemList) {
@@ -660,7 +882,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		if(list == null || list.size() == 0) {
 			list = MetaManager.calculateSearchProperties(getMetaModel()); // 20100416 jal EXPERIMENTAL
 			if(list == null || list.size() == 0)
-				throw new IllegalStateException(getMetaModel() + " has no search properties defined in it's meta data.");
+				throw new IllegalStateException(getMetaModel() + " has no search properties defined in its meta data.");
 		}
 		setSearchProperties(list);
 	}
@@ -756,7 +978,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 * Add a manually-created lookup control instance to the item list.
 	 * @return
 	 */
-	public Item addManual(ILookupControlInstance lci) {
+	public Item addManual(ILookupControlInstance<?> lci) {
 		Item it = new Item();
 		it.setInstance(lci);
 		addAndFinish(it);
@@ -781,7 +1003,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 		//-- Add the generic thingy
 		ILookupControlFactory lcf = m_builder.getLookupQueryFactory(it, control);
-		ILookupControlInstance qt = lcf.createControl(it, control);
+		ILookupControlInstance<?> qt = lcf.createControl(it, control);
 		if(qt == null || qt.getInputControls() == null || qt.getInputControls().length == 0)
 			throw new IllegalStateException("Lookup factory " + lcf + " did not link thenlookup thingy for property " + it.getPropertyName());
 		it.setInstance(qt);
@@ -793,7 +1015,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 * Add a manually-created lookup control instance with user-specified label to the item list.
 	 * @return
 	 */
-	public Item addManualTextLabel(String labelText, ILookupControlInstance lci) {
+	public Item addManualTextLabel(String labelText, ILookupControlInstance<?> lci) {
 		Item it = new Item();
 		it.setInstance(lci);
 		it.setLabelText(labelText);
@@ -803,12 +1025,12 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	}
 
 	/**
-	 * Adds a manually-defined control, and use the specified property as the source for it's default label.
+	 * Adds a manually-defined control, and use the specified property as the source for its default label.
 	 * @param property
 	 * @param lci
 	 * @return
 	 */
-	public Item addManualPropertyLabel(String property, ILookupControlInstance lci) {
+	public Item addManualPropertyLabel(String property, ILookupControlInstance<?> lci) {
 		PropertyMetaModel< ? > pmm = getMetaModel().findProperty(property);
 		if(null == pmm)
 			throw new ProgrammerErrorException(property + ": undefined property for class=" + getLookupClass());
@@ -855,7 +1077,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		spmm.setPropertyPath(pl);
 
 		ILookupControlFactory lcf = m_builder.getLookupControlFactory(spmm);
-		final ILookupControlInstance lookupInstance = lcf.createControl(spmm, null);
+		final ILookupControlInstance<?> lookupInstance = lcf.createControl(spmm, null);
 
 		AbstractLookupControlImpl thingy = new AbstractLookupControlImpl(lookupInstance.getInputControls()) {
 			@Override
@@ -934,21 +1156,44 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 	}
 
+	private void addNonControlItem(@Nonnull Item it) {
+		////-- Create left and/or right cells,
+		TR tr = new TR();
+		m_tbody.add(tr);
+		TD td = tr.addCell();
+		NodeBase itLeft = it.getLeft();
+		if(itLeft != null) {
+			td.add(itLeft);
+			if(it.isEntireRow()) {
+				td.setColspan(2);
+			}
+		}
+		NodeBase itRight = it.getRight();
+		if(itRight != null) {
+			TD tdRight = tr.addCell();
+			tdRight.add(itRight);
+		}
+	}
+
+
 	private void updateUI(@Nonnull Item it) {
 		//-- jal 20130528 This component quite sucks balls- the interface is not able to add on-the-fly.
 		if(m_tbody != null)
 			internalAddLookupItem(it);
 	}
 
-
 	/**
-	 * Create the lookup item, depending on it's kind.
+	 * Create the lookup item, depending on its kind.
 	 * @param it
 	 */
 	private void internalAddLookupItem(Item it) {
+		if(!it.isControl()) {
+			addNonControlItem(it);
+			return;
+		}
 		if(it.getInstance() == null) {
 			//-- Create everything using a control creation factory,
-			ILookupControlInstance lci = createControlFor(it);
+			ILookupControlInstance<?> lci = createControlFor(it);
 			if(lci == null)
 				return;
 			it.setInstance(lci);
@@ -993,14 +1238,14 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 * @param it	The fully completed item definition to add.
 	 */
 	private void addItemToTable(Item it) {
-		ILookupControlInstance qt = it.getInstance();
+		ILookupControlInstance<?> qt = it.getInstance();
 
 		//-- Create control && label cells,
 		TR tr = new TR();
 		m_tbody.add(tr);
 		TD lcell = new TD(); // Label cell
 		tr.add(lcell);
-		lcell.setCssClass("ui-f-lbl");
+		lcell.setCssClass("ui-f4-lbl ui-f4-lbl-v");
 
 		TD ccell = new TD(); // Control cell
 		tr.add(ccell);
@@ -1026,6 +1271,27 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		}
 	}
 
+	/**
+	 * With this method you can place a NodeBase in the left (label) column and one in the right (control) column.
+	 * If you use the left column only, you can tell whether this column should be spread across both columns.
+	 * (A colspan=2 will be added in that case)
+	 *
+	 */
+	public void addItem(@Nullable NodeBase left, @Nullable NodeBase right) {
+		Item item = new Item(left, right);
+		m_itemList.add(item);
+	}
+
+	/**
+	 * With this method you can place a NodeBase in the table where it will fill the entire row.
+	 * A colspan=2 will be added
+	 *
+	 */
+	public void addItem(@Nullable NodeBase cell) {
+		Item item = new Item(cell);
+		m_itemList.add(item);
+	}
+
 	private void assignCalcTestID(@Nonnull Item item, @Nonnull NodeBase b) {
 		if(b.getTestID() != null)
 			return;
@@ -1047,12 +1313,12 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 * @param pmm
 	 * @return
 	 */
-	private ILookupControlInstance createControlFor(Item it) {
+	private ILookupControlInstance<?> createControlFor(Item it) {
 		PropertyMetaModel< ? > pmm = it.getLastProperty();
 		if(pmm == null)
 			throw new IllegalStateException("property cannot be null when creating using factory.");
 		ILookupControlFactory lcf = m_builder.getLookupControlFactory(it);
-		ILookupControlInstance qt = lcf.createControl(it, null);
+		ILookupControlInstance<?> qt = lcf.createControl(it, null);
 		if(qt == null || qt.getInputControls() == null || qt.getInputControls().length == 0)
 			throw new IllegalStateException("Lookup factory " + lcf + " did not create a lookup thingy for property " + it.getPropertyName());
 		return qt;
@@ -1091,7 +1357,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		}
 		boolean success = true;
 		for(Item it : m_itemList) {
-			ILookupControlInstance li = it.getInstance();
+			ILookupControlInstance<?> li = it.getInstance();
 			if(li != null) { // FIXME Is it reasonable to allow null here?? Should we not abort?
 				AppendCriteriaResult res = li.appendCriteria(root);
 				if(res == AppendCriteriaResult.INVALID) {
@@ -1284,11 +1550,11 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 */
 	private void createButtonRow(NodeContainer c, boolean iscollapsed) {
 		Collections.sort(m_buttonItemList, new Comparator<ButtonRowItem>() { // Sort in ascending order,
-				@Override
-				public int compare(ButtonRowItem o1, ButtonRowItem o2) {
-					return o1.getOrder() - o2.getOrder();
-				}
-			});
+			@Override
+			public int compare(ButtonRowItem o1, ButtonRowItem o2) {
+				return o1.getOrder() - o2.getOrder();
+			}
+		});
 
 		for(ButtonRowItem bi : m_buttonItemList) {
 			if((iscollapsed && (bi.getMode() == ButtonMode.BOTH || bi.getMode() == ButtonMode.COLLAPSED)) || (!iscollapsed && (bi.getMode() == ButtonMode.BOTH || bi.getMode() == ButtonMode.NORMAL))) {
@@ -1419,5 +1685,4 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	public ButtonFactory getButtonFactory() {
 		return m_buttonFactory;
 	}
-
 }

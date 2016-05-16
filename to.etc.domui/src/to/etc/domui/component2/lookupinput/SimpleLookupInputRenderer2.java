@@ -112,6 +112,8 @@ final public class SimpleLookupInputRenderer2<T> implements INodeContentRenderer
 
 		int c = 0;
 		int mw = 0;
+		TBody tb = node.addTableForLayout();
+
 		for(ExpandedDisplayProperty< ? > xp : xl) {
 			String val = xp.getPresentationString(object);
 			if(val == null || val.length() == 0)
@@ -119,7 +121,7 @@ final public class SimpleLookupInputRenderer2<T> implements INodeContentRenderer
 
 			Span vals = new Span();
 			vals.setCssClass("ui-lui2-vals");
-			node.add(vals);
+			tb.addRowAndCell().add(vals);
 			vals.setText(val);
 		}
 	}

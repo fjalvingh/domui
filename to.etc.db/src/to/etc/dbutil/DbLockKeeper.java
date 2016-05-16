@@ -31,6 +31,8 @@ import javax.annotation.*;
 import javax.annotation.concurrent.*;
 import javax.sql.*;
 
+import to.etc.dbpool.*;
+
 @ThreadSafe
 public final class DbLockKeeper {
 
@@ -108,6 +110,7 @@ public final class DbLockKeeper {
 		ResultSet rs = null;
 		try {
 			dbc = m_dataSource.getConnection();
+			PoolManager.setLongLiving(dbc);
 			dbc.setAutoCommit(false);
 			insertLock(lockName, dbc);
 
@@ -165,6 +168,7 @@ public final class DbLockKeeper {
 		ResultSet rs = null;
 		try {
 			dbc.setAutoCommit(false);
+			PoolManager.setLongLiving(dbc);
 			insertLock(lockName, dbc);
 
 			ps = dbc.prepareStatement("select lock_name from " + TABLENAME + " where lock_name = '" + lockName + "' for update nowait");

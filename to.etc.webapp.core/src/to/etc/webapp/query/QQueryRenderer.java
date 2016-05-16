@@ -30,6 +30,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.util.*;
+import to.etc.webapp.qsql.*;
 
 /**
  * Render a QCriteria query as something more or less human-readable. This does not extend {@link QNodeVisitorBase} anymore because that
@@ -38,9 +39,8 @@ import to.etc.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 17, 2009
  */
-public class QQueryRenderer implements QNodeVisitor {
+public class QQueryRenderer extends QRenderingVisitorBase implements QNodeVisitor {
 	private StringBuilder	m_sb = new StringBuilder(128);
-	private int				m_curPrec = 0;
 
 	private int m_orderIndx;
 
@@ -66,6 +66,11 @@ public class QQueryRenderer implements QNodeVisitor {
 	protected QQueryRenderer append(String s) {
 		m_sb.append(s);
 		return this;
+	}
+
+	@Override
+	protected void appendWhere(String what) {
+		append(what);
 	}
 
 	@Override
@@ -139,92 +144,75 @@ public class QQueryRenderer implements QNodeVisitor {
 		append("(").append(n.getProperty()).append(")");
 	}
 
-	/**
-	 * Render an operator set.
-	 * @see to.etc.webapp.query.QNodeVisitorBase#visitMulti(to.etc.webapp.query.QMultiNode)
-	 */
-	@Override
-	public void visitMulti(@Nonnull QMultiNode n) throws Exception {
-		if(n.getChildren().size() == 0)
-			return;
-		if(n.getChildren().size() == 1) {				// Should not really happen
-			n.getChildren().get(0).visit(this);
-			return;
-		}
-		int oldprec = m_curPrec;
-		m_curPrec = getOperationPrecedence(n.getOperation());
-		if(oldprec > m_curPrec)
-			append("(");
-		int	ct = 0;
-		for(QOperatorNode c: n.getChildren()) {
-			if(ct++ > 0)
-				appendOperation(n.getOperation());
-
-			//-- Visit lower
-			c.visit(this);
-		}
-		if(oldprec > m_curPrec)
-			append(")");
-		m_curPrec = oldprec;
-	}
-
 	@Override
 	public void visitPropertyComparison(@Nonnull QPropertyComparison n) throws Exception {
-		int oldprec = m_curPrec;
-		m_curPrec = getOperationPrecedence(n.getOperation());
-		if(oldprec > m_curPrec)
-			append("(");
+		int oldprec = precedenceOpen(n);
 
 		append(n.getProperty());
 		appendOperation(n.getOperation());
 		n.getExpr().visit(this);
 
-		if(oldprec > m_curPrec)
-			append(")");
-		m_curPrec = oldprec;
+		precedenceClose(oldprec);
+	}
+
+	@Override
+	public void visitPropertyIn(@Nonnull QPropertyIn n) throws Exception {
+		int oldprec = precedenceOpen(n);
+
+		append(n.getProperty());
+		append(" in (");
+		m_curPrec = 0;
+
+		QOperatorNode expr = n.getExpr();
+		if(expr instanceof QLiteral) {
+			QLiteral lit = (QLiteral) expr;
+			Object value = lit.getValue();
+			if(value instanceof List) {
+				List<Object> list = (List<Object>) value;
+				int ct = 0;
+				for(Object o: list) {
+					if(ct++ > 0)
+						append(",");
+					renderValue(o);
+				}
+			} else {
+				throw new QQuerySyntaxException("Unexpected literal of type " + value + " in 'in' expression for property " + n.getProperty());
+			}
+		} else {
+			expr.visit(this);
+		}
+		append(")");
+		precedenceClose(oldprec);
 	}
 
 	@Override
 	public void visitPropertyJoinComparison(@Nonnull QPropertyJoinComparison n) throws Exception {
-		int oldprec = m_curPrec;
-		m_curPrec = getOperationPrecedence(n.getOperation());
-		if(oldprec > m_curPrec)
-			append("(");
+		int oldprec = precedenceOpen(n);
 
 		append("[parent].");
 		append(n.getParentProperty());
 		appendOperation(n.getOperation());
 		append(n.getSubProperty());
 
-		if(oldprec > m_curPrec)
-			append(")");
-		m_curPrec = oldprec;
+		precedenceClose(oldprec);
 	}
 
 
 	@Override
 	public void visitUnaryProperty(@Nonnull QUnaryProperty n) throws Exception {
-		int oldprec = m_curPrec;
-		m_curPrec = getOperationPrecedence(n.getOperation());
-		if(oldprec > m_curPrec)
-			append("(");
+		int oldprec = precedenceOpen(n);
 
 		appendOperation(n.getOperation());
 		append("(");
 		append(n.getProperty());
 		append(")");
 
-		if(oldprec > m_curPrec)
-			append(")");
-		m_curPrec = oldprec;
+		precedenceClose(oldprec);
 	}
 
 	@Override
 	public void visitBetween(@Nonnull QBetweenNode n) throws Exception {
-		int oldprec = m_curPrec;
-		m_curPrec = getOperationPrecedence(n.getOperation());
-		if(oldprec > m_curPrec)
-			append("(");
+		int oldprec = precedenceOpen(n);
 
 		append(n.getProp());
 		append(" between ");
@@ -232,9 +220,7 @@ public class QQueryRenderer implements QNodeVisitor {
 		append(" and ");
 		n.getB().visit(this);
 
-		if(oldprec > m_curPrec)
-			append(")");
-		m_curPrec = oldprec;
+		precedenceClose(oldprec);
 	}
 
 	@Override
@@ -251,13 +237,15 @@ public class QQueryRenderer implements QNodeVisitor {
 
 	@Override
 	public void visitLiteral(@Nonnull QLiteral n) throws Exception {
-		int oldprec = m_curPrec;
-		m_curPrec = getOperationPrecedence(n.getOperation());
-		if(oldprec > m_curPrec)
-			append("(");
+		int oldprec = precedenceOpen(n);
 
 		//-- Render the literal type
 		Object	val = n.getValue();
+		renderValue(val);
+		precedenceClose(oldprec);
+	}
+
+	private void renderValue(@Nullable Object val) {
 		if(val == null)
 			append("dbnull");
 		else if(val instanceof Integer) {
@@ -286,12 +274,10 @@ public class QQueryRenderer implements QNodeVisitor {
 			append(val.toString());
 			append("]");
 		}
-		if(oldprec > m_curPrec)
-			append(")");
-		m_curPrec = oldprec;
 	}
 
-	private void	appendOperation(QOperation op) {
+	@Override
+	protected void	appendOperation(QOperation op) {
 		appendOperation(renderOperation(op));
 	}
 
@@ -303,28 +289,6 @@ public class QQueryRenderer implements QNodeVisitor {
 			append(" ");
 		} else
 			append(renderOperation);
-	}
-
-	static private String	renderOperation(QOperation op) {
-		switch(op) {
-			default:
-				throw new IllegalStateException("Unexpected operation type="+op);
-			case AND:	return "and";
-			case OR:	return "or";
-			case NOT:	return "not";
-			case BETWEEN:	return "between";
-			case EQ:	return "=";
-			case NE:	return "!=";
-			case LT:	return "<";
-			case LE:	return "<=";
-			case GT:	return ">";
-			case GE:	return ">=";
-			case ILIKE:	return "ilike";
-			case LIKE:	return "like";
-			case ISNOTNULL:	return "isNotNull";
-			case ISNULL:	return "isNull";
-			case SQL:	return "SQL";
-		}
 	}
 
 	@Override
@@ -343,43 +307,6 @@ public class QQueryRenderer implements QNodeVisitor {
 		append("]");
 	}
 
-	/**
-	 * Returns the operator precedence
-	 * @param ot
-	 * @return
-	 */
-	static public int	getOperationPrecedence(final QOperation ot) {
-		switch(ot) {
-			default:
-				throw new IllegalStateException("Unknown operator "+ot);
-			case OR:
-				return 10;
-			case AND:
-				return 20;
-			case NOT:
-				return 25;
-			/*case IN: */
-			case BETWEEN: case LIKE: case ILIKE:
-				return 30;
-
-			case LT: case LE: case GT: case GE: case EQ: case NE: case ISNULL: case ISNOTNULL:
-				return 40;
-				//			case NOT:
-				//				return 50;
-				//				// ANY, ALL, SOME: 60
-				//			case CONCAT:
-				//				return 70;
-				//			case PLUS: case MINUS:
-				//				return 80;
-				//			case MULT: case DIV: case MOD:
-				//				return 90;
-				//			case UMINUS:
-				//				return 100;
-
-			case LITERAL:
-				return 100;
-		}
-	}
 
 	@Override
 	public void visitExistsSubquery(@Nonnull QExistsSubquery< ? > q) throws Exception {
@@ -424,22 +351,5 @@ public class QQueryRenderer implements QNodeVisitor {
 		QOperatorNode r = n.getRestrictions();
 		if(r != null)
 			r.visit(this);
-	}
-
-	@Override
-	public void visitUnaryNode(@Nonnull QUnaryNode n) throws Exception {
-		appendOperation(n.getOperation());
-
-		int oldprec = m_curPrec;
-		m_curPrec = getOperationPrecedence(n.getOperation());
-		if(oldprec > m_curPrec)
-			append("(");
-		int ct = 0;
-
-		//-- Visit lower
-		n.getNode().visit(this);
-		if(oldprec > m_curPrec)
-			append(")");
-		m_curPrec = oldprec;
 	}
 }

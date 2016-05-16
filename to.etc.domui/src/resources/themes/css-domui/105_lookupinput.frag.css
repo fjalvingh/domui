@@ -1,0 +1,124 @@
+/*** 105_lookupinput.frag.css ***/
+/*** LookupInput thingerydoo ***/
+.ui-lui {
+	/* background: #ffffff; */
+	padding: 0px;
+	margin: 0px;
+}
+
+.ui-lui-btntd {
+	min-width: 18px;
+	text-align: left;
+	white-space: nowrap;
+}
+
+div.ui-lui-selected-ro {
+	border: none !important;
+	margin-bottom: 0px;
+}
+
+div.ui-lui-selected-ro td {
+	padding: 0px;
+}
+	
+div.ui-lui {
+	width: 12em; /*	this width match with date field picker icon on IE rendering */
+	display: inline-block;
+}
+
+div.ui-lui > table {
+	width: 1%;
+}
+
+table.ui-lui {
+	white-space: nowrap;
+}
+
+table.ui-lui-selected {
+	width: 100%;
+	white-space: nowrap;
+	padding: 1px;
+}
+
+.ui-lui-v { /* no selection is rendered transparent without border */
+	padding: 0px;
+	margin: 0px;
+	width: 100%;
+}
+
+.ui-ro .ui-lui-v {
+	white-space: nowrap;
+}
+
+.ui-lui-v > div {
+	min-width: 104px;
+}
+
+.ui-lui-selected tbody { /*	selected value is rendered with white back and outline, on IE border is not rendred!? */
+	padding: 0px;
+	margin: 0px;
+	background-color: #ffffff;
+	width: 100%;
+	white-space: nowrap;
+}
+
+.ui-lui-selected-ro tbody {
+	background-color: <%= readonly_bg %>;
+}
+
+.ui-input-err * .ui-lui-v {
+	background-color: #ffe5e5 !important;
+}
+.ui-lui-vcell {
+	min-width: 100px;
+	width: 99%;
+	padding: 2px 5px 2px 2px;
+	vertical-align: top;
+}
+.ui-lui-btncell {
+	min-width: 38px;
+	padding-top: 2px;
+}
+
+input.ui-lui-keyword {
+	min-width: 98px;
+	width: 1%;
+	display: block;
+}
+
+img.ui-lui-waiting{
+	position:absolute;
+	top:2px;
+	right:2px;
+}
+.ui-lui-keyword-res{
+	color: black;
+}
+.ui-lui-keyword-no-res{
+	color: red;
+}
+.ui-lui-keyword-large{
+	color: red;
+}
+.ui-lui-keyword-popup{
+	position: absolute;
+	left: 0px;
+	top: 18px;
+	background-color: white;
+	border: 1px solid gray;
+	width: 402px;
+	overflow: hidden;
+	margin-bottom: 10px;
+}
+tr.ui-keyword-popop-rowsel {
+	cursor: pointer;
+	background-color: <%= highlight2_bg %> !important;
+}
+
+tr.ui-keyword-popop-rowsel:hover {
+	background-color: <%= highlight2_bg %> !important;
+}
+
+tr.ui-keyword-popup-row {
+	cursor: pointer;
+}

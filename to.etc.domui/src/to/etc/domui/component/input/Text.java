@@ -52,7 +52,7 @@ import to.etc.webapp.nls.*;
 public class Text<T> extends Input implements IControl<T>, IHasModifiedIndication, IConvertable<T> {
 	/** The properties bindable for this component. */
 	@Nonnull
-	static private final Set<String> BINDABLE_SET = createNameSet("value", "disabled", "message");
+	static private final Set<String> BINDABLE_SET = createNameSet("value", "disabled", "message", "readOnly");
 
 	/** The type of class that is expected. This is the return type of the getValue() call for a validated item */
 	private Class<T> m_inputClass;
@@ -162,7 +162,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 * </ul>
 	 * If validation fails then this throws UIException containing the exact validation problem.
 	 */
-	private void validate() {
+	private void validate(boolean clearvalidate) {
 		UIException result = m_validationResult;
 		if(m_validated) {
 			if(null == result)
@@ -173,7 +173,8 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 			m_validated = true;
 			validatePrimitive();
 
-			clearValidationFailure(result);
+			if(clearvalidate)
+				clearValidationFailure(result);				// jal 20160216 You cannot just do this: this clears the error message associated with the component!!!
 			m_validationResult = null;
 		} catch(ValidationException vx) {
 			m_validationResult = vx;
@@ -309,7 +310,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 * @return
 	 */
 	public T getBindValue() {
-		validate();												// Validate, and throw exception without UI change on trouble.
+		validate(false);												// Validate, and throw exception without UI change on trouble.
 		return m_value;
 	}
 
@@ -327,7 +328,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	@Override
 	public T getValue() {
 		try {
-			validate();
+			validate(true);
 			return m_value;
 		} catch(ValidationException x) {
 			handleValidationException(x);
@@ -643,9 +644,12 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 				d -= scale;
 			if(d < 0)
 				return;
+
 			BigDecimal bd = BigDecimal.valueOf(10);
-			bd = bd.pow(d); // 10^n, this is the EXCLUSIVE max/min value.
-			bd = bd.subtract(BigDecimal.valueOf(1)); // Inclusive now;
+			bd = bd.pow(d); 										// 10^n, this is the EXCLUSIVE max/min value.
+
+			BigDecimal fraction = BigDecimal.ONE.divide(BigDecimal.TEN.pow(scale));	// BigDecimal.pow() does not support -ve exponents, sigh.
+			bd = bd.subtract(fraction);
 			control.addValidator(new MaxMinValidator(bd.negate(), bd));
 		}
 	}
@@ -927,4 +931,10 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		renderMode();
 	};
 
+
+	public static void main(String[] args) {
+		BigDecimal fraction = BigDecimal.ONE.divide(BigDecimal.TEN.pow(0));
+
+		System.out.println("pow " + fraction);
+	}
 }

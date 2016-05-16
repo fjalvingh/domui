@@ -342,6 +342,7 @@ public class DelayedActivitiesManager implements Runnable {
 
 		Exception errorx = null;
 		try {
+			dai.checkIsPageConnected();
 			dai.callBeforeListeners();
 			dai.getActivity().run(mon);
 		} catch(Exception x) {

@@ -56,7 +56,7 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 24, 2008
  */
-public class CriteriaCreatingVisitor extends QNodeVisitorBase {
+public class CriteriaCreatingVisitor implements QNodeVisitor {
 	final private Session m_session;
 
 	/** The topmost Criteria: the one that will be returned to effect the translated query */
@@ -77,34 +77,6 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	private int m_aliasIndex;
 
 	private Class< ? > m_rootClass;
-
-	//	static private final class CritEntry {
-	//		/** Either a Criteria or a DetachedCriteria object, sigh */
-	//		private Object m_abomination;
-	//
-	//		public CritEntry(Class< ? > actualClass, Object abomination) {
-	//			//			m_actualClass = actualClass;
-	//			m_abomination = abomination;
-	//		}
-	//
-	//		/**
-	//		 * Return either the Criteria or DetachedCriteria.
-	//		 * @return
-	//		 */
-	//		public Object getAbomination() {
-	//			return m_abomination;
-	//		}
-	//	}
-
-	//	/**
-	//	 * Maps all subcriteria created for path entries, indexed by their FULL path name
-	//	 * from the root object. This prevents us from creating multiple subcriteria for
-	//	 * fields that lay after the same path reaching a parent relation.
-	//	 */
-	//	private Map<String, CritEntry> m_subCriteriaMap = new HashMap<String, CritEntry>();
-
-	//	/** The current subcriteria. */
-	//	private Object m_subCriteria;
 
 	/**
 	 * Maps parent relation dotted paths to the alias created for that path.
@@ -138,40 +110,6 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		return "a_" + (++m_aliasIndex);
 	}
 
-	//	/**
-	//	 * Get the alias for a given dotted path in the query reaching a
-	//	 * <b>parent</i> relation. If no alias exists it creates one. This
-	//	 * should NOT be called for a property path(!). The aliases for
-	//	 * all parent paths are created too, recursively.
-	//	 *
-	//	 * @param path
-	//	 * @return
-	//	 */
-	//	private String getPathAlias(String path) {
-	//		String alias = m_aliasMap.get(path); // Path is already known?
-	//		if(null != alias)
-	//			return alias;
-	//
-	//		//-- If this is a dotted path, first get the alias for the path before the last component. So for workorder.relation.btwCode get alias for workorder.relation
-	//		int index = path.lastIndexOf('.');
-	//		String aliasedpath = path;
-	//		String nextAlias = nextAlias();
-	//		if(index != -1) {
-	//			String parentalias = getPathAlias(path.substring(0, index)); // Get alias for everything before last component (workorder.relation)
-	//			aliasedpath = parentalias + path.substring(index); // Now create alias.btwCode
-	//			m_aliasMap.put(aliasedpath, nextAlias); // Also store alias for aliased path.
-	//		}
-	//
-	//		m_aliasMap.put(path, nextAlias);
-	//		if(m_currentCriteria instanceof Criteria) {
-	//			((Criteria) m_currentCriteria).createAlias(aliasedpath, nextAlias); // Crapfest
-	//		} else if(m_currentCriteria instanceof DetachedCriteria) {
-	//			((DetachedCriteria) m_currentCriteria).createAlias(aliasedpath, nextAlias);
-	//		} else
-	//			throw new IllegalStateException("Unexpected current thing: " + m_currentCriteria);
-	//		return nextAlias;
-	//	}
-
 	private void addCriterion(Criterion c) {
 		if(m_currentCriteria instanceof Criteria) {
 			((Criteria) m_currentCriteria).add(c); // Crapfest
@@ -189,42 +127,6 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		} else
 			throw new IllegalStateException("Unexpected current thing: " + m_currentCriteria);
 	}
-
-	//	private void addSubCriterion(Criterion c) {
-	//		if(m_subCriteria instanceof Criteria) {
-	//			((Criteria) m_subCriteria).add(c); // Crapfest
-	//		} else if(m_subCriteria instanceof DetachedCriteria) {
-	//			((DetachedCriteria) m_subCriteria).add(c);
-	//		} else
-	//			throw new IllegalStateException("Unexpected current thing: " + m_subCriteria);
-	//	}
-
-	//	/**
-	//	 * Create a join either on a Criteria or a DetachedCriteria. Needed because the joker that creates those
-	//	 * did not interface/baseclass them.
-	//	 * @param current
-	//	 * @param name
-	//	 * @param joinType
-	//	 * @return
-	//	 */
-	//	private Object createSubCriteria(Object current, String name, int joinType) {
-	//		if(current instanceof Criteria)
-	//			return ((Criteria) current).createCriteria(name, joinType);
-	//		else if(current instanceof DetachedCriteria)
-	//			return ((DetachedCriteria) current).createCriteria(name, joinType);
-	//		else
-	//			throw new IllegalStateException("? Unexpected criteria abomination: " + current);
-	//	}
-
-	//
-	//	private void addSubOrder(Order c) {
-	//		if(m_subCriteria instanceof Criteria) {
-	//			((Criteria) m_subCriteria).addOrder(c); // Crapfest
-	//		} else if(m_subCriteria instanceof DetachedCriteria) {
-	//			((DetachedCriteria) m_subCriteria).addOrder(c);
-	//		} else
-	//			throw new IllegalStateException("Unexpected current thing: " + m_subCriteria);
-	//	}
 
 	@Override
 	public void visitRestrictionsBase(QCriteriaQueryBase< ? > n) throws Exception {
@@ -246,13 +148,30 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 				addCriterion(m_last);
 			m_last = null;
 		}
+
+		checkSubqueriesUsed(n);
+	}
+
+	private void checkSubqueriesUsed(QCriteriaQueryBase<?> n) {
+		if(n.getUnusedSubquerySet().size() > 0) {
+			StringBuilder sb = new StringBuilder();
+			sb.append("There are ").append(n.getUnusedSubquerySet().size()).append(" subqueries that are not linked (used) in the main query!\n");
+			int i = 1;
+			for(QSubQuery<?, ?> subQuery : n.getUnusedSubquerySet()) {
+				sb.append(i).append(": ").append(subQuery.toString()).append("\n");
+				i++;
+			}
+			throw new QQuerySyntaxException(sb.toString());
+		}
 	}
 
 	@Override
 	public void visitCriteria(final QCriteria< ? > qc) throws Exception {
 		checkHibernateClass(qc.getBaseClass());
 		m_rootClass = qc.getBaseClass();
-		super.visitCriteria(qc);
+
+		visitRestrictionsBase(qc);
+		visitOrderList(qc.getOrder());
 
 		//-- 2. Handle limits and start: applicable to root criterion only
 		if(qc.getLimit() > 0)
@@ -780,6 +699,31 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		m_last = last;
 	}
 
+	@Override
+	public void visitPropertyIn(@Nonnull QPropertyIn n) throws Exception {
+		QOperatorNode rhs = n.getExpr();
+		String name = n.getProperty();
+		QLiteral lit = null;
+		if(rhs.getOperation() == QOperation.LITERAL) {
+			Object litval = ((QLiteral) rhs).getValue();
+			if(litval instanceof List) {
+				//-- If prop refers to some relation (dotted pair):
+				name = parseSubcriteria(name);
+				m_last = Restrictions.in(name, (List<Object>) litval);
+				return;
+			} else {
+				throw new QQuerySyntaxException("Unexpected value for 'in' operation: " + litval+", should be List or subquery");
+			}
+		} else if(rhs.getOperation() == QOperation.SELECTION_SUBQUERY) {
+			QSelectionSubquery qsq = (QSelectionSubquery) n.getExpr();
+			qsq.visit(this); 										// Resolve subquery
+			String fullName = parseSubcriteria(n.getProperty());	// Handle dotted pair in name
+			m_last = Subqueries.propertyIn(fullName, (DetachedCriteria) m_lastSubqueryCriteria);
+			return;
+		} else
+			throw new IllegalStateException("Unknown operands to " + n.getOperation() + ": " + name + " and " + rhs.getOperation());
+	}
+
 	private void handleLikeOperation(String name, PropertyMetaModel< ? > pmm, Object value) throws Exception {
 		//-- Check if there is a type mismatch in parameter type...
 		if(!(value instanceof String))
@@ -798,16 +742,18 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 			throw new QQuerySyntaxException("Cannot obtain Hibernate metadata for property=" + pmm + ": expecting AbstractEntityPersister, got a " + hibmd.getClass());
 		AbstractEntityPersister aep = (AbstractEntityPersister) hibmd;
 		String[] colar = getPropertyColumnNamesFromLousyMetadata(aep, name);
-		//
-		//		int ix = aep.getPropertyIndex(name);
-		//		if(ix < 0)
-		//			throw new QQuerySyntaxException("Cannot obtain Hibernate metadata for property=" + pmm + ": property index not found");
-		//		String[] colar = aep.getPropertyColumnNames(ix);
-		//		if(colar == null || colar.length != 1)
-		//			throw new QQuerySyntaxException("'Like' cannot be done on multicolumn/0column property " + pmm);
+		if(colar.length != 1)
+			throw new IllegalStateException("Attempt to do a 'like' on a multi-column property: " + pmm);
+		String columnName = colar[0];
+		int dotix = name.lastIndexOf('.');
+		if(dotix == -1) {
+			//-- We need Hibernate metadata to find the column name....
+			m_last = Restrictions.sqlRestriction("{alias}." + columnName + " like ?", value, Hibernate.STRING);
+			return;
+		}
 
-		//-- We need Hibernate metadata to find the column name....
-		m_last = Restrictions.sqlRestriction("{alias}." + colar[0] + " like ?", value, Hibernate.STRING);
+		String sql = "{" + name + "} like ?";
+		m_last = new HibernateAliasedSqlCriterion(sql, value, Hibernate.STRING);
 	}
 
 	/**
@@ -816,11 +762,17 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	 * for that PK.
 	 *
 	 * @param aep
-	 * @param name
+	 * @param compoundName
 	 * @return
 	 */
 	@Nonnull
-	private String[] getPropertyColumnNamesFromLousyMetadata(AbstractEntityPersister aep, String name) {
+	private String[] getPropertyColumnNamesFromLousyMetadata(AbstractEntityPersister aep, String compoundName) {
+		String name = compoundName;
+		int dotix = compoundName.lastIndexOf('.');
+		if(dotix != -1) {
+			name = compoundName.substring(dotix + 1);
+		}
+
 		//-- The PK property is not part of the "properties" in hibernate's idiot metadata. So first check if we're looking at that ID property.
 		if(name.equals(aep.getIdentifierPropertyName())) {
 			return aep.getIdentifierColumnNames();
@@ -1221,7 +1173,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 
 	@Override
 	public void visitSelectionColumn(QSelectionColumn n) throws Exception {
-		super.visitSelectionColumn(n);
+		n.getItem().visit(this);
 		if(m_lastProj != null)
 			m_proli.add(m_lastProj);
 	}
@@ -1282,6 +1234,7 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 	 */
 	@Override
 	public void visitSubquery(@Nonnull final QSubQuery< ? , ? > n) throws Exception {
+		n.getParent().internalUseQuery(n);
 		visitSelection(n);
 //
 //
@@ -1383,4 +1336,14 @@ public class CriteriaCreatingVisitor extends QNodeVisitorBase {
 		}
 	}
 
+	@Override
+	public void visitOrderList(@Nonnull List<QOrder> orderlist) throws Exception {
+		for(QOrder o : orderlist)
+			o.visit(this);
+	}
+
+	public void visitSelectionColumns(@Nonnull QSelection< ? > s) throws Exception {
+		for(@Nonnull QSelectionColumn col : s.getColumnList())
+			col.visit(this);
+	}
 }

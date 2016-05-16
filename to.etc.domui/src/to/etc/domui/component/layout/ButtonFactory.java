@@ -116,6 +116,8 @@ public class ButtonFactory implements IButtonBar {
 			if(se.isClose()) {
 				return addCloseButton(order);
 			}
+		}else{
+			return addCloseButton(order);
 		}
 
 		//-- Nothing worked: just add a default back button that will go back to application home if the stack is empty

@@ -61,7 +61,7 @@ public class W3CSchemaCoder {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Date/Time encoding.									*/
 	/*--------------------------------------------------------------*/
-	static private final ThreadLocal<GregorianCalendar>	m_calendar	= new ThreadLocal<GregorianCalendar>();
+	static private final ThreadLocal<GregorianCalendar> m_calendar = new ThreadLocal<GregorianCalendar>();
 
 	static private final ThreadLocal<MiniParser>		m_parser	= new ThreadLocal<MiniParser>();
 
@@ -73,7 +73,7 @@ public class W3CSchemaCoder {
 	static private GregorianCalendar calendar() {
 		GregorianCalendar c = m_calendar.get();
 		if(c == null) {
-			c = new GregorianCalendar(Locale.US);
+			c = (GregorianCalendar) DateUtil.getCalendar(Locale.US);
 			m_calendar.set(c);
 		}
 		c.setTimeZone(TimeZone.getDefault());

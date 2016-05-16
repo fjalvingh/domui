@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.layout.title;
 
+import java.util.*;
+
 import javax.annotation.*;
 
 import to.etc.domui.annotations.*;
@@ -33,6 +35,8 @@ import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.state.*;
+import to.etc.domui.themes.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 
@@ -58,6 +62,8 @@ public class AppPageTitleBar extends BasePageTitleBar {
 
 	private String m_hint;
 
+	// LFTODO Remove this horror
+	@Deprecated
 	private INodeContentRenderer<String> m_titleNodeRenderer;
 
 	private IErrorFence m_errorFence;
@@ -67,6 +73,8 @@ public class AppPageTitleBar extends BasePageTitleBar {
 	private Table m_titleTable;
 
 	private TBody m_body;
+
+	private boolean m_showBackButton;
 
 	public AppPageTitleBar(boolean catchError) {
 		m_catchError = catchError;
@@ -100,6 +108,16 @@ public class AppPageTitleBar extends BasePageTitleBar {
 		m_hint = hint;
 	}
 
+	public boolean isShowBackButton() {
+		return m_showBackButton;
+	}
+
+	@Nonnull
+	public AppPageTitleBar setShowBackButton(boolean showBackButton) {
+		m_showBackButton = showBackButton;
+		return this;
+	}
+
 	@Nonnull
 	public TBody getBody() {
 		if(null != m_body)
@@ -121,13 +139,17 @@ public class AppPageTitleBar extends BasePageTitleBar {
 		TR tr = m_body.addRow();
 		m_body.add(tr);
 
-		//-- Image...
+		//-- Back button and image icon...
+		TD td = m_body.addCell();
+		if(m_showBackButton) {
+			addBackOrCloseButton(td);
+		}
+
 		setIconURL();
 		if(DomUtil.isBlank(m_img.getSrc())) {
 			m_img.setDisplay(DisplayType.NONE);
 		}
 		m_img.setAlign(ImgAlign.LEFT);
-		TD td = m_body.addCell();
 		td.add(m_img);
 		td.setCssClass("ui-atl-i");
 
@@ -151,6 +173,42 @@ public class AppPageTitleBar extends BasePageTitleBar {
 			c.add(m_errorThingy);
 			c.setColspan(cspan);
 		}
+	}
+
+	private void addBackOrCloseButton(@Nonnull TD td) {
+		List<IShelvedEntry> ps = getPage().getConversation().getWindowSession().getShelvedPageStack();
+
+		if(ps.size() > 1) {									// Nothing to go back to (only myself is on page) -> exit
+			IShelvedEntry se = ps.get(ps.size() - 2);		// Get the page before me
+			if(se.isClose()) {
+				addCloseButton(td);
+				return;
+			}
+		} else {
+			addCloseButton(td);
+			return;
+		}
+		addBackButton(td);
+	}
+
+	private void addBackButton(@Nonnull TD td) {
+		HoverButton backButton = new HoverButton(Theme.APPBAR_BACK_ICON, new IClicked<HoverButton>() {
+			@Override
+			public void clicked(@Nonnull HoverButton clickednode) throws Exception {
+				UIGoto.back();
+			}
+		});
+		td.add(backButton);
+	}
+
+	private void addCloseButton(@Nonnull TD td) {
+		HoverButton button = new HoverButton(Theme.APPBAR_CLOSE_ICON, new IClicked<HoverButton>() {
+			@Override
+			public void clicked(@Nonnull HoverButton clickednode) throws Exception {
+				getPage().getBody().closeWindow();
+			}
+		});
+		td.add(button);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -327,19 +385,20 @@ public class AppPageTitleBar extends BasePageTitleBar {
 		return m_titleNodeRenderer;
 	}
 
-	/**
-	 * Provide setting custom title node renderer.
-	 * Parameters description for use for {@link INodeContentRenderer#renderNodeContent}:<BR/>
-	 * <UL>
-	 * <LI>NodeBase component is page title component.</LI>
-	 * <LI>NodeContainer node is TD caption cell.</LI>
-	 * <LI>String object is page caption.</LI>
-	 * <LI>Object parameters is Boolean: T for modified flag, F for not modifed.</LI>
-	 * </UL>
-	 *
-	 * @param titleNodeRenderer
-	 */
-	public void setTitleNodeRenderer(INodeContentRenderer<String> titleNodeRenderer) {
-		m_titleNodeRenderer = titleNodeRenderer;
-	}
+	// jal 20150929 Highly unwanted, pending removal
+	///**
+	// * Provide setting custom title node renderer.
+	// * Parameters description for use for {@link INodeContentRenderer#renderNodeContent}:<BR/>
+	// * <UL>
+	// * <LI>NodeBase component is page title component.</LI>
+	// * <LI>NodeContainer node is TD caption cell.</LI>
+	// * <LI>String object is page caption.</LI>
+	// * <LI>Object parameters is Boolean: T for modified flag, F for not modifed.</LI>
+	// * </UL>
+	// *
+	// * @param titleNodeRenderer
+	// */
+	//public void setTitleNodeRenderer(INodeContentRenderer<String> titleNodeRenderer) {
+	//	m_titleNodeRenderer = titleNodeRenderer;
+	//}
 }

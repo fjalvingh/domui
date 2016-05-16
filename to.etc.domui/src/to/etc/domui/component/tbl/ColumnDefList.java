@@ -116,7 +116,6 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	 *	<li>BasicRowRenderer.NOWRAP: forces a 'nowrap' on the column</li>
 	 * </ul>
 	 *
-	 * @param clz
 	 * @param cols
 	 * <X, C extends IConverter<X>, R extends INodeContentRenderer<X>>
 	 */
@@ -133,7 +132,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 		String cssclass = null;
 		Boolean nowrap = null;
 		SortableType sort = null;
-		ISortHelper sortHelper = null;
+		ISortHelper<T> sortHelper = null;
 		boolean defaultsort = false;
 		INodeContentRenderer< ? > nodeRenderer = null;
 		Class< ? > nrclass = null;
@@ -192,7 +191,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 			else if(val instanceof ICellClicked< ? >)
 				clickHandler = (ICellClicked< ? >) val;
 			else if(val instanceof ISortHelper) {
-				sortHelper = (ISortHelper) val;
+				sortHelper = (ISortHelper<T>) val;
 				if(sort == null)
 					sort = SortableType.SORTABLE_ASC;
 			} else if(val instanceof Class< ? >) {
@@ -259,7 +258,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	private <R> void internalAddProperty(final String property, final String width, final IConverter<R> conv, final Class<R> convclz,
  final String caption, final String cssclass,
 		final INodeContentRenderer< ? > nodeRenderer, final Class< ? > nrclass, final Boolean nowrap, SortableType sort, ICellClicked< ? > clickHandler, boolean defaultsort,
- ISortHelper sortHelper) {
+ ISortHelper<?> sortHelper) {
 		if(property == null)
 			throw new IllegalStateException("? property name is empty?!");
 
@@ -320,7 +319,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 
 	private <V, R> boolean defineFromExpandedItem(final String width, final IConverter<R> conv, final Class<R> convclz, final String caption, final String cssclass, final Boolean nowrap,
 		SortableType sort,
-		ICellClicked< ? > clickHandler, boolean defaultsort, ISortHelper sortHelper, final ExpandedDisplayProperty<V> xdp) {
+		ICellClicked< ? > clickHandler, boolean defaultsort, ISortHelper<?> sortHelper, final ExpandedDisplayProperty<V> xdp) {
 		if(xdp.getName() == null)
 			throw new IllegalStateException("All columns MUST have some name");
 
@@ -370,7 +369,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	}
 
 	private <V, R> void defineRendererProperty(final String property, final String width, final IConverter<R> conv, final Class<R> convclz, final String caption, final String cssclass,
-		final INodeContentRenderer< ? > nodeRenderer, final Class< ? > nrclass, final Boolean nowrap, SortableType sort, ICellClicked< ? > clickHandler, boolean defaultsort, ISortHelper sortHelper,
+		final INodeContentRenderer< ? > nodeRenderer, final Class< ? > nrclass, final Boolean nowrap, SortableType sort, ICellClicked< ? > clickHandler, boolean defaultsort, ISortHelper<?> sortHelper,
 		final PropertyMetaModel<V> pmm) {
 		final SimpleColumnDef<V> cd = new SimpleColumnDef<V>(this, pmm);
 		add(cd);
@@ -399,7 +398,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	}
 
 	private <V, R> SortableType defineClassProperty(final IConverter<R> conv, final Class<R> convclz, final INodeContentRenderer< ? > nodeRenderer, final Class< ? > nrclass, SortableType sort,
-		ICellClicked< ? > clickHandler, boolean defaultsort, ISortHelper sortHelper, SimpleColumnDef<V> cd) {
+		ICellClicked< ? > clickHandler, boolean defaultsort, ISortHelper<?> sortHelper, SimpleColumnDef<V> cd) {
 		cd.setContentRenderer((INodeContentRenderer<V>) tryRenderer(nodeRenderer, nrclass));
 		cd.setPropertyName("");
 		cd.setPresentationConverter((IConverter<V>) tryConverter(convclz, conv));

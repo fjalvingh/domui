@@ -48,6 +48,9 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 
 	private int m_timeout = -1;
 
+	@Nullable
+	private String m_testId;
+
 	/** The restrictions (where clause) in effect. */
 	@Nullable
 	private QOperatorNode m_restrictions;
@@ -466,5 +469,14 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 			m_fetchMap = new HashMap<String, QFetchStrategy>();
 		m_fetchMap.put(property, strategy);
 		return this;
+	}
+
+	@Nullable
+	public String getTestId(){
+		return m_testId;
+	}
+
+	public void setTestId(@Nonnull String testId){
+		m_testId = testId;
 	}
 }

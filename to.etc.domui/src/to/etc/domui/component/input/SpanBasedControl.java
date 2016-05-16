@@ -24,12 +24,14 @@
  */
 package to.etc.domui.component.input;
 
+import java.util.*;
+
+import javax.annotation.*;
+
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
-
-import javax.annotation.*;
 
 /**
  * DEPRECATED - one big bag full of problems.
@@ -46,6 +48,8 @@ abstract public class SpanBasedControl<T> extends Span implements IControl<T> {
 	private boolean m_readOnly;
 
 	private boolean m_disabled;
+
+	private String m_disabledBecause;
 
 	@Override
 	public boolean isMandatory() {
@@ -71,16 +75,34 @@ abstract public class SpanBasedControl<T> extends Span implements IControl<T> {
 	}
 
 	@Override
-	final public boolean isDisabled() {
+	public boolean isDisabled() {
 		return m_disabled;
 	}
 
 	@Override
-	final public void setDisabled(boolean disabled) {
+	public void setDisabled(boolean disabled) {
 		if(m_disabled == disabled)
 			return;
 		m_disabled = disabled;
 		forceRebuild();
+	}
+
+	/**
+	 * Disables a button and set a hover text as the reason for being disabled.
+	 * @return
+	 */
+	@Nullable
+	final public String getDisabledBecause() {
+		return m_disabledBecause;
+	}
+
+	final public void setDisabledBecause(@Nullable String msg) {
+		if(Objects.equals(msg, m_disabledBecause)) {
+			return;
+		}
+		m_disabledBecause = msg;
+		setOverrideTitle(msg);
+		setDisabled(msg != null);
 	}
 
 

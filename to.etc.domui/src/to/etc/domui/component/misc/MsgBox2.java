@@ -316,7 +316,8 @@ final public class MsgBox2 extends Window {
 				break;
 		}
 		m_theImage.setSrc(icon);
-		setWindowTitle(ttl);
+		if(getWindowTitle() == null)
+			setWindowTitle(ttl);
 		setTestID("msgBox");
 		m_typeSet = true;
 		return this;
@@ -439,7 +440,12 @@ final public class MsgBox2 extends Window {
 
 	@Nonnull
 	public MsgBox2 button(final String lbl, final Object selval) {
-		m_theButtons.add(new DefaultButton(lbl, new IClicked<DefaultButton>() {
+		return button(lbl, null, selval);
+	}
+
+	@Nonnull
+	public MsgBox2 button(final String lbl, final String icon, final Object selval) {
+		m_theButtons.add(new DefaultButton(lbl, icon, new IClicked<DefaultButton>() {
 			@Override
 			public void clicked(@Nonnull DefaultButton b) throws Exception {
 				answer(selval);
@@ -576,6 +582,11 @@ final public class MsgBox2 extends Window {
 			throw new IllegalStateException("You cannot combine this with other input controls as there's only one answer.");
 		_input(null, (NodeBase) control);
 		m_oninput = onanswer;					// Ordered
+		return this;
+	}
+
+	public <T> MsgBox2 icon(@Nonnull String icon){
+		m_theImage.setSrc(icon);
 		return this;
 	}
 }

@@ -42,6 +42,8 @@ public class HtmlTextScanner extends TextScanner {
 
 	private Map<String, TagInfo> m_acceptMap = DEFAULT_MAP;
 
+	static private final List<String> INLINE_ELEMENTS = new ArrayList<>();
+
 	private StringBuilder m_sb;
 
 	private String m_lastSingleTag;
@@ -81,6 +83,14 @@ public class HtmlTextScanner extends TextScanner {
 		p("br", true);
 		p("div", false);
 		p("code", false);
+
+		INLINE_ELEMENTS.add("b");
+		INLINE_ELEMENTS.add("i");
+		INLINE_ELEMENTS.add("u");
+		INLINE_ELEMENTS.add("em");
+		INLINE_ELEMENTS.add("strong");
+		INLINE_ELEMENTS.add("span");
+		INLINE_ELEMENTS.add("a");
 	}
 
 	public Map<String, TagInfo> getMap() {
@@ -139,13 +149,20 @@ public class HtmlTextScanner extends TextScanner {
 				accept();
 				if(Character.isWhitespace(c))
 					ws = true;
-				else if(c == '<')
-					break;
-				else {
-					if(ws) {
-						sb.append(' ');
+				else if(c == '<') {
+					if(isInlineElement()) {
+						// If the previous character was whitespace re-add it in case of an inline element.
+						if(ws) {
+							sb.append(' ');
+						}
 						ws = false;
 					}
+					break;
+				} else {
+					if(ws) {
+						sb.append(' ');
+					}
+					ws = false;
 					sb.append((char) c);
 				}
 			}
@@ -171,6 +188,13 @@ public class HtmlTextScanner extends TextScanner {
 			}
 			skipTag();
 		}
+	}
+
+	private boolean isInlineElement() {
+		String word = peekWord();
+		if(word == null)
+			return false;
+		return INLINE_ELEMENTS.contains(word);
 	}
 
 	/**

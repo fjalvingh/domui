@@ -1,12 +1,13 @@
 package to.etc.domui.logic.errors;
 
+import java.util.*;
+
+import javax.annotation.*;
+
 import to.etc.domui.component.binding.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
-
-import javax.annotation.*;
-import java.util.*;
 
 /**
  * Experimental.
@@ -15,6 +16,8 @@ import java.util.*;
  * Created on May 1, 2014
  */
 public class ProblemReporter {
+	static private final boolean DEBUG = false;
+
 	final private NodeBase m_rootNode;
 
 	final private ProblemModel m_model;
@@ -122,7 +125,8 @@ public class ProblemReporter {
 		//-- Now get rid of all that was no longer reported
 		for(UIMessage old : existingErrorSet) {
 			for(IErrorFence f : allFences) {
-				f.removeMessage(old);
+				if(SimpleBinder.BINDING_ERROR != old.getGroup())
+					f.removeMessage(old);
 			}
 		}
 	}
@@ -168,10 +172,12 @@ public class ProblemReporter {
 		}
 		if(all.size() == 0) {
 			if(bindingMessageList.size() == 0) {
-				//System.out.println("    er: "+desc(n)+" component error cleared");
+				if(DEBUG)
+					System.out.println("    er: "+desc(n)+" component error cleared");
 				n.setMessage(null);
 			}
-			//System.out.println("    er: "+desc(n)+" 0 claimed, "+bindingMessageList.size()+" bind errors - not reporting");
+			if(DEBUG)
+				System.out.println("    er: "+desc(n)+" 0 claimed, "+bindingMessageList.size()+" bind errors - not reporting");
 			return;
 		}
 
@@ -184,14 +190,17 @@ public class ProblemReporter {
 			if(!inExistingSet(existingErrorSet, n, pi)) {
 				//-- Needs to be added.
 				UIMessage ui = UIMessage.create(n, pi);
-				if(n.getMessage() == null) {
-					n.setMessage(ui);
-					//System.out.println("    er: "+desc(n)+" component set to "+ui);
-				}
+				//if(n.getMessage() == null) { // jal 20150721
+				n.setMessage(ui);
+				if(DEBUG)
+					System.out.println("    er: "+desc(n)+" component set to "+ui);
+				//}
 				fence.addMessage(ui);
-				//System.out.println("    er: " + desc(n) + " added " + ui+" to fence");
+				if(DEBUG)
+					System.out.println("    er: " + desc(n) + " added " + ui+" to fence");
 			} else {
-				//System.out.println("    er: "+desc(n)+" existing error "+pi+" already shown");
+				if(DEBUG)
+					System.out.println("    er: "+desc(n)+" existing error "+pi+" already shown");
 			}
 		}
 	}
@@ -209,7 +218,7 @@ public class ProblemReporter {
 	 */
 	private boolean inExistingSet(Set<UIMessage> existingErrorSet, @Nullable NodeBase node, ProblemInstance pi) {
 		for(UIMessage m : existingErrorSet) {
-			if(m.getMessageKey().equals(pi.getProblem().getMessageKey()) && node == m.getErrorNode()) {
+			if(node == m.getErrorNode() && m.getMessageKey().equals(pi.getProblem().getMessageKey()) && Arrays.equals(m.getParameters(), pi.getParameters())) {
 				existingErrorSet.remove(m);
 				return true;
 			}

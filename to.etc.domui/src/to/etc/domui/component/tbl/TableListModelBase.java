@@ -145,10 +145,14 @@ abstract public class TableListModelBase<T> extends TableModelBase<T> implements
 		fireModified(index);
 	}
 
-	public void modified(T val) throws Exception {
+	public void modified(@Nonnull T val) throws Exception {
 		int ix = getList().indexOf(val);
 		if(ix != -1)
 			fireModified(ix);
+	}
+
+	public int indexOf(@Nonnull T val) throws Exception {
+		return getList().indexOf(val);
 	}
 
 	/**

@@ -2,7 +2,7 @@
 <table width="100%" border="0" class="tbl statptbl">
 	<thead class="statpheader">
 		<tr>
-			<td colspan="5">&nbsp;</td>
+			<td colspan="8">&nbsp;</td>
 			<td colspan="1">Prepares</td>
 			<td colspan="4">Execute: query</td>
 			<td colspan="3">Execute: update</td>
@@ -13,6 +13,9 @@
 			<td title="Time spent in the database in total">DB time</td>
 			<td>URL</td>
 			<td>#conns</td>
+			<td>Phys reads</td>
+			<td>Log reads</td>
+			<td>Log writes</td>
 
 			<!-- Prepares -->
 			<td>#prepares/dur</td>
@@ -33,14 +36,28 @@
 	for(var i = list.size(); --i >= 0;) { // Walk in reverse, newest shown 1st
 		var item = list.get(i); // SessionStatisticsEntry
 		var v = item.getRequest(); // Info
+
+		var m = v.getMetric(1);									// MetricDefinitions: physical reads
+		var physrd = m == null ? "" : m.getFormattedValue();
+
+		m = v.getMetric(2);										// Logical reads
+		var logrd = m == null ? "" : m.getFormattedValue();
+
+		m = v.getMetric(3);										// Logical writes
+		var logwr = m == null ? "" : m.getFormattedValue();
+
 %>
 		<tr class="statprow <%= self.odd()%>">
-			<td><a href="#" onclick="toggleStacks('rowid_<%= item.getId() %>')"><%= DbPoolUtil.strCommad(item.getId()) %></a></td>
+			<td><a href="pool.jsp?show=sessionstat&id=<%= item.getRequestId() %>&list=stmt-exec-time"><%= DbPoolUtil.strCommad(item.getId()) %></a></td>
 			<td title="<%= DbPoolUtil.strTime(item.getTS())%>"><%= DbPoolUtil.strNanoTime(v.getDuration())%></td>
 			<td><%= DbPoolUtil.strNanoTime(v.getTotalDBTime())%></td>
 			<td><%= DbPoolUtil.q(v.getIdent()) %></td>
-			<td><%= DbPoolUtil.strCommad(v.getNConnectionAllocations()) %></td>
-			
+			<td><%= DbPoolUtil.strCommad(v.getNConnectionAllocations()) %> / <%= DbPoolUtil.strCommad(v.getMaxConcurrentConnections()) %></td>
+
+			<td><%= physrd %></td>
+			<td><%= logrd %></td>
+			<td><%= logwr %></td>
+
 			<!-- Prepares -->
 			<td><%= DbPoolUtil.strCountDur(v.getNPrepares(), v.getPrepareDuration()) %></td>
 
@@ -54,17 +71,6 @@
 			<td><%= DbPoolUtil.strCountDur(v.getNStatementUpdates(), v.getStatementUpdateDuration()) %></td>
 			<td><%= DbPoolUtil.strCommad(v.getNUpdatedRows()) %></td>
 		</tr>
-		<tr>
-			<td colspan="12"><div id="rowid_<%= item.getId() %>" style="display: none"><%
-				var slist = item.getStore().getLists();
-				for(var j = 0; j < slist.size(); j++) {
-					var l = slist.get(j);
-%>
-				<a href="pool.jsp?show=sessionstat&id=<%= item.getId() %>&list=<%= l.getKey() %>"><%= l.getKey() %></a> |
-<% } %></div></td>
-		</tr>
-		
-		
 <% } %>
 	</tbody>
 </table>

@@ -136,7 +136,7 @@ public class BulkUpload extends Div implements IUploadAcceptingComponent {
 	 * @see to.etc.domui.component.upload.IUploadAcceptingComponent#handleUploadRequest(to.etc.domui.server.RequestContextImpl, to.etc.domui.state.ConversationContext)
 	 */
 	@Override
-	public void handleUploadRequest(@Nonnull RequestContextImpl param, @Nonnull ConversationContext conversation) throws Exception {
+	public boolean handleUploadRequest(@Nonnull RequestContextImpl param, @Nonnull ConversationContext conversation) throws Exception {
 		UploadItem[] uiar = param.getFileParameter("filedata");
 		if(uiar != null) {
 			for(UploadItem ui : uiar) {
@@ -144,6 +144,7 @@ public class BulkUpload extends Div implements IUploadAcceptingComponent {
 				m_newItemList.add(ui);
 			}
 		}
+		return false;
 	}
 
 	@Override

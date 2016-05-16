@@ -24,11 +24,11 @@
  */
 package to.etc.domui.component.htmleditor;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.binding.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
-
-import javax.annotation.*;
 
 /**
  * Mini component to display an HTML section.
@@ -59,13 +59,13 @@ public class DisplayHtml extends Div implements IDisplayControl<String>, IBindab
 		switch(m_mode){
 			default:
 			case BLOCK:
-				setCssClass("ui-dhtml-blk");
+				addCssClass("ui-dhtml-blk");
 				break;
 			case INLINE:
-				setCssClass("ui-dhtml-inl");
+				addCssClass("ui-dhtml-inl");
 				break;
 			case INLINEBLOCK:
-				setCssClass("ui-dhtml-ibl");
+				addCssClass("ui-dhtml-ibl");
 				break;
 		}
 

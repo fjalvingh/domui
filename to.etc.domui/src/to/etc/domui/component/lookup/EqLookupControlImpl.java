@@ -36,24 +36,35 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Nov 19, 2009
  */
-final public class EqLookupControlImpl extends AbstractLookupControlImpl {
-	final private IControl< ? > m_control;
+final public class EqLookupControlImpl<T> extends BaseAbstractLookupControlImpl<T> {
+	final private IControl<T> m_control;
 
 	final private String m_property;
 
-	public EqLookupControlImpl(String property, IControl< ? > n) {
+	public EqLookupControlImpl(String property, IControl<T> n) {
 		super((NodeBase) n);
 		m_control = n;
 		m_property = property;
 	}
 
 	@Override
-	public @Nonnull AppendCriteriaResult appendCriteria(@Nonnull QCriteria< ? > crit) throws Exception {
+	@Nonnull
+	public AppendCriteriaResult appendCriteria(@Nonnull QCriteria<?> crit) throws Exception {
 		Object value = m_control.getValue();
 		if(value != null) {
 			crit.eq(m_property, value);
 			return AppendCriteriaResult.VALID;
 		}
 		return AppendCriteriaResult.EMPTY; // Okay but no data
+	}
+
+	@Override
+	public T getValue() {
+		return m_control.getValue();
+	}
+
+	@Override
+	public void setValue(T value) throws Exception {
+		m_control.setValue(value);
 	}
 }

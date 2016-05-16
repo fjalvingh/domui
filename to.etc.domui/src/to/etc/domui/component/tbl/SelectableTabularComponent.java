@@ -1,10 +1,14 @@
 package to.etc.domui.component.tbl;
 
-import to.etc.domui.util.*;
-
 import javax.annotation.*;
 
-abstract public class SelectableTabularComponent<T> extends TableModelTableBase<T> implements ISelectionListener<T>, ISelectableTableComponent<T> {
+import to.etc.domui.dom.html.*;
+import to.etc.domui.util.*;
+
+abstract public class SelectableTabularComponent<T> extends TableModelTableBase<T> implements ISelectionListener<T>, ISelectableTableComponent<T>, IActionControl {
+
+	private boolean m_disabled;
+
 	abstract protected void createSelectionUI() throws Exception;
 
 
@@ -100,5 +104,13 @@ abstract public class SelectableTabularComponent<T> extends TableModelTableBase<
 		createSelectionUI();
 	}
 
+	public boolean isDisabled() {
+		return m_disabled;
+	}
+
+	@Override
+	public void setDisabled(boolean disabled) {
+		m_disabled = disabled;
+	}
 
 }

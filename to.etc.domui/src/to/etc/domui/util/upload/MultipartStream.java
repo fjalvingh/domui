@@ -478,23 +478,39 @@ public class MultipartStream {
 	 *
 	 * @param output The <code>Stream</code> to write data into.
 	 *
-	 * @return the amount of data written.
+	 * @return the amount of data READ.
 	 *
 	 * @exception MalformedStreamException if the stream ends unexpectedly.
 	 * @exception IOException              if an i/o error occurs.
 	 */
 	public int readBodyData(OutputStream output) throws MalformedStreamException, IOException {
+		return readBodyData(output, Integer.MAX_VALUE);
+	}
+
+	/**
+	 * Read the body-data, but limit the written size to approximately maxSize bytes (it can exceed
+	 * maxSize by the buffer-size). This prevents server DOS attacks using big files.
+	 *
+	 * @param output
+	 * @param maxSize
+	 * @return
+	 * @throws MalformedStreamException
+	 * @throws IOException
+	 */
+	public int readBodyData(OutputStream output, int maxSize) throws MalformedStreamException, IOException {
 		boolean done = false;
 		int pad;
 		int pos;
 		int bytesRead;
 		int total = 0;
+		int loop = 0;
 		while(!done) {
-			// Is boundary token present somewere in the buffer?
+			// Is boundary token present somewhere in the buffer?
 			pos = findSeparator();
 			if(pos != -1) {
 				// Write the rest of the data before the boundary.
-				output.write(buffer, head, pos - head);
+				if(total < maxSize)
+					output.write(buffer, head, pos - head);
 				total += pos - head;
 				head = pos;
 				done = true;
@@ -507,7 +523,8 @@ public class MultipartStream {
 					pad = tail - head;
 				}
 				// Write out the data belonging to the body-data.
-				output.write(buffer, head, tail - head - pad);
+				if(total < maxSize)
+					output.write(buffer, head, tail - head - pad);
 
 				// Move the data to the beginning of the buffer.
 				total += tail - head - pad;
@@ -524,11 +541,18 @@ public class MultipartStream {
 					// The last pad amount is left in the buffer.
 					// Boundary can't be in there so write out the
 					// data you have and signal an error condition.
-					output.write(buffer, 0, pad);
+					if(total < maxSize)
+						output.write(buffer, 0, pad);
 					output.flush();
 					total += pad;
 					throw new MalformedStreamException("Stream ended unexpectedly");
 				}
+			}
+			try {
+				if(loop++ % 100 == 0)
+					Thread.sleep(100);
+			} catch(InterruptedException x) {
+				throw new RuntimeException(x);
 			}
 		}
 		output.flush();

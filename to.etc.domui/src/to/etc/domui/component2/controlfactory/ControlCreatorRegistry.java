@@ -50,7 +50,7 @@ public class ControlCreatorRegistry {
 	@Nonnull
 	public <T, C extends IControl<T>> C createControl(@Nonnull PropertyMetaModel<T> pmm, @Nullable Class<C> controlClass) {
 		IControlCreator bestcc = null;
-		int bestScore = -1;
+		int bestScore = 0;
 		for(IControlCreator cc : getControlFactoryList()) {
 			int score = cc.accepts(pmm, controlClass);
 			if(score > bestScore) {

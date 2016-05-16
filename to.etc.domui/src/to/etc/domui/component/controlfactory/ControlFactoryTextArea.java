@@ -28,11 +28,11 @@ import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.server.*;
 
 public class ControlFactoryTextArea implements PropertyControlFactory {
 	/**
 	 * Accept if the componentHint says textarea.
-	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
 	public int accepts(@Nonnull PropertyMetaModel< ? > pmm, boolean editable, @Nullable Class< ? > controlClass) {
@@ -62,6 +62,13 @@ public class ControlFactoryTextArea implements PropertyControlFactory {
 		String s = pmm.getDefaultHint();
 		if(s != null)
 			ta.setTitle(s);
+
+		int length = pmm.getLength();
+		if(length > 0) {
+			ta.setMaxLength(length);
+			ta.setMaxByteLength(DomApplication.getPlatformVarcharByteLimit());
+		}
+
 		return new ControlFactoryResult(ta);
 	}
 }

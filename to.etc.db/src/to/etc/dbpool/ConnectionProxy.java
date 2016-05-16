@@ -143,8 +143,8 @@ final public class ConnectionProxy implements Connection {
 	}
 
 	@Nonnull
-	protected IInfoHandler statsHandler() {
-		return m_pe.getPool().getManager().getInfoHandler();
+	protected IConnectionEventListener statsHandler() {
+		return m_pe.getPool().getManager().getConnectionEventListener();
 	}
 
 	public ConnectionPool getPool() {
@@ -261,11 +261,6 @@ final public class ConnectionProxy implements Connection {
 				return;
 		}
 
-// jal 20110314 Always close! Persisted connections can be reused in different threads (Decade).
-//		Thread ct = Thread.currentThread();
-//		if(getOwnerThread() != ct)
-//			throw new IllegalStateException("Connection (proxy) closed by thread that's not owning it!");
-
 		//-- Call any listeners.
 		for(IDatabaseEventListener icl : m_commitListenerList) {
 			try {
@@ -276,6 +271,8 @@ final public class ConnectionProxy implements Connection {
 		}
 		m_commitListenerList = Collections.EMPTY_LIST;
 
+		statsHandler().connectionClosed(this);
+
 		getPool().writeSpecial(this, StatementProxy.ST_CLOSE);
 
 		//-- Handle local chores locking THIS
@@ -283,12 +280,12 @@ final public class ConnectionProxy implements Connection {
 		long duration;
 		synchronized(this) {
 			if(m_state != ConnState.OPEN)
-				return; // Already invalidated or closed.
+				return;										// Already invalidated or closed.
 			m_state = ConnState.CLOSED;
 			m_detach_location = tp;
 
 			//-- Handle "long connection usage" stuff.
-			duration = tp.getTimestamp() - m_allocationTS; // Get #of ms used.
+			duration = tp.getTimestamp() - m_allocationTS;	// Get #of ms used.
 		}
 
 		/*

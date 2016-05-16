@@ -51,13 +51,16 @@ public class ControlCreatorRelationCombo implements IControlCreator {
 		if(controlClass != null && !controlClass.isAssignableFrom(ComboLookup2.class))
 			return -1;
 
-		if(pmm.getRelationType() != PropertyRelationType.UP)
-			return 0;
-		if(Constants.COMPONENT_COMBO.equals(pmm.getComponentTypeHint()))
-			return 10;
-		if(pmm.getComponentTypeHint() == null && Constants.COMPONENT_COMBO.equals(pmm.getClassModel().getComponentTypeHint()))
-			return 10;
-		return 2;
+		Class<T> actualType = pmm.getActualType();
+		ClassMetaModel cmm = MetaManager.findClassMeta(actualType);
+		if(cmm.isPersistentClass() || pmm.getRelationType() == PropertyRelationType.UP) {
+			if(Constants.COMPONENT_COMBO.equals(pmm.getComponentTypeHint()))
+				return 10;
+			if(pmm.getComponentTypeHint() == null && Constants.COMPONENT_COMBO.equals(pmm.getClassModel().getComponentTypeHint()))
+				return 10;
+			return 2;
+		}
+		return -1;
 	}
 
 	@Override

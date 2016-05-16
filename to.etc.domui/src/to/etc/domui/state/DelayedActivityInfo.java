@@ -29,6 +29,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.delayed.*;
+import to.etc.domui.server.*;
 
 public class DelayedActivityInfo {
 	final private DelayedActivitiesManager m_manager;
@@ -126,28 +127,37 @@ public class DelayedActivityInfo {
 	}
 
 	public void callBeforeListeners() throws Exception {
-		for(IAsyncListener< ? > al : m_container.getPage().getApplication().getAsyncListenerList()) {
+		for(IAsyncListener< ? > al : DomApplication.get().getAsyncListenerList()) {
 			handleListenerBefore(al);
 		}
 	}
 
 	private <T> void handleListenerBefore(IAsyncListener<T> al) throws Exception {
-		T context = (T) m_listenerDataMap.get(al);						// Any data stored by scheduler
+		T context = (T) m_listenerDataMap.get(al);// Any data stored by scheduler
 		al.onActivityStart(m_activity, context);
 	}
 
 	public void callAfterListeners() {
-		for(IAsyncListener< ? > al : m_container.getPage().getApplication().getAsyncListenerList()) {
+		for(IAsyncListener< ? > al : DomApplication.get().getAsyncListenerList()) {
 			handleListenerAfter(al);
 		}
 	}
 
 	private <T> void handleListenerAfter(IAsyncListener<T> al) {
 		try {
-			T context = (T) m_listenerDataMap.get(al);						// Any data stored by scheduler
+			T context = (T) m_listenerDataMap.get(al);// Any data stored by scheduler
 			al.onActivityEnd(m_activity, context);
 		} catch(Exception x) {
 			System.err.println("Ignored exception in IAsyncListener#onEnd: " + x);
+			x.printStackTrace();
+		}
+	}
+
+	public void checkIsPageConnected() {
+		try {
+			m_container.getPage();
+		} catch(IllegalStateException x) {
+			System.err.println("Ignored exception when container is not connected to page, something is about to fail because of " + x);
 			x.printStackTrace();
 		}
 	}

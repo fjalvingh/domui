@@ -1,0 +1,7 @@
+/*** 035_displayvalue.frag.css ***/
+/*** DisplayValue ***/
+.ui-dspv {
+	background: none repeat scroll 0 0 <%= readonly_bg %>;
+	display: block;
+	text-align: left;
+}

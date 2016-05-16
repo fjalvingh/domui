@@ -24,12 +24,13 @@
  */
 package to.etc.domui.component.buttons;
 
+import java.util.*;
+
 import javax.annotation.*;
 
 import to.etc.domui.component.menu.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.parts.*;
-import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 
 /**
@@ -52,6 +53,9 @@ public class LinkButton extends ATag implements IActionControl {
 
 	@Nullable
 	private Object m_actionInstance;
+
+	@Nullable
+	private String m_disabledBecause;
 
 	public LinkButton() {
 		setCssClass("ui-lnkb");
@@ -96,6 +100,7 @@ public class LinkButton extends ATag implements IActionControl {
 
 	@Override
 	public void createContent() throws Exception {
+		updateStyle();
 		setText(m_text);
 	}
 
@@ -128,7 +133,6 @@ public class LinkButton extends ATag implements IActionControl {
 		if(DomUtil.isEqual(url, m_imageUrl))
 			return;
 		m_imageUrl = url;
-		updateStyle();
 		forceRebuild();
 	}
 
@@ -137,11 +141,12 @@ public class LinkButton extends ATag implements IActionControl {
 	}
 
 	private void updateStyle() {
-		String image = DomApplication.get().getThemedResourceRURL(m_imageUrl);
-		if(image == null) {
+		String imageUrl = m_imageUrl;
+		if(imageUrl == null) {
 			setBackgroundImage(null);
 			setCssClass("ui-lnkb");
 		} else {
+			String image = getThemedResourceRURL(imageUrl);
 			if(isDisabled())
 				image = GrayscalerPart.getURL(image);
 			setBackgroundImage(image);
@@ -191,7 +196,6 @@ public class LinkButton extends ATag implements IActionControl {
 		if(m_disabled == disabled)
 			return;
 		m_disabled = disabled;
-		updateStyle();
 		forceRebuild();
 	}
 
@@ -200,5 +204,19 @@ public class LinkButton extends ATag implements IActionControl {
 		if(isDisabled())
 			return;
 		super.internalOnClicked(cli);
+	}
+
+	@Nullable
+	public String getDisabledBecause() {
+		return m_disabledBecause;
+	}
+
+	public void setDisabledBecause(@Nullable String msg) {
+		if(Objects.equals(msg, m_disabledBecause)) {
+			return;
+		}
+		m_disabledBecause = msg;
+		setOverrideTitle(msg);
+		setDisabled(msg != null);
 	}
 }

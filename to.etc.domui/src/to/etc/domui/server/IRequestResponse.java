@@ -71,10 +71,10 @@ public interface IRequestResponse {
 	public String[] getParameterNames();
 
 	@Nonnull
-	public String[] getFileParameters();
+	public String[] getFileParameters() throws Exception;
 
 	@Nonnull
-	public UploadItem[] getFileParameter(@Nonnull String name);
+	public UploadItem[] getFileParameter(@Nonnull String name) throws Exception;
 
 	public void setNoCache();
 

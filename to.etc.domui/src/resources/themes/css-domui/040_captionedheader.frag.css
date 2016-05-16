@@ -1,0 +1,40 @@
+/*** 040_captionedheader.frag.css ***/
+/*** CaptionedHeader ***/
+
+
+/* jal 20130305 removed, the captioned header falls over the item above it.
+
+.ui-content > .ui-chdr {
+	<%= margins_neutralize %>
+}
+*/
+.ui-chdr {
+	width: 100%;
+	margin-top: 10px;
+/*	margin-bottom: 10px; */
+	border-bottom: 2px solid <%= bg_ttl_end %>;
+}
+.ui-chdr td{
+	padding: 0;
+}
+.ui-chdr-ttl {
+	color: <%= bg_ttl_text %>;
+	background-color: <%= bg_ttl_end %>;
+	padding: 2px 10px 2px 10px;
+	white-space: nowrap;
+	-moz-border-radius: 2px 2px 0px 0px;
+	-webkit-border-radius: 2px 2px 0px 0px;
+	-khtml-border-radius: 2px 2px 0px 0px;
+	border-radius: 2px 2px 0px 0px;
+}
+.ui-chdr-ttl img {
+	padding-right: 10px;
+}
+.ui-chdr-l {
+	width: 10px;
+	margin: 0;
+}
+.ui-chdr-c {
+	width: 1%;
+	overflow: visible;
+}

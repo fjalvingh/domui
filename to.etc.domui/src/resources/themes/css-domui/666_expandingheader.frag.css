@@ -1,0 +1,28 @@
+/*** ExpandingHeader component ***/
+.ui-xphd {
+	font-family: 'Tahoma', 'Geneva', 'Verdana', sans-serif;
+	padding-top: 4px;
+}
+.ui-xphd-bar {
+	font-size: 12px;
+}
+td.ui-xphd-ttl {
+	padding-left: 4px !important;
+}
+.ui-xphd-normal .ui-xphd-bar {
+	color: #013686;
+}
+.ui-xphd-small .ui-xphd-bar {
+	color: black;
+}
+.ui-xphd-bar {
+}
+.ui-xphd-bar button {
+	padding: 0px;
+	margin: 0px;
+}
+.ui-xphd-bar td {
+	padding: 0px;
+	margin: 0px;
+	vertical-align: top;
+}

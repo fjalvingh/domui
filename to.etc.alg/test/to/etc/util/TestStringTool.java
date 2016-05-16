@@ -1,5 +1,8 @@
 package to.etc.util;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.util.*;
 
 import javax.annotation.*;
@@ -14,7 +17,7 @@ import org.junit.*;
  */
 public class TestStringTool {
 
-	private final static String	PREFIX	= "PREFIX_";
+	private final static String PREFIX = "PREFIX_";
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testRandomStringWithPrefixLongerThanLength() {
@@ -51,10 +54,24 @@ public class TestStringTool {
 			checkValidEmailAddress(emailaddress);
 		}
 
-		List<String> invalidEmailAdresses = Arrays.asList("a.b@c", "a@b..c", "a.b@.c", "a.b@..c", "@a.b", "a.@b.c", "");
+		List<String> invalidEmailAdresses = Arrays.asList("a.b@c", "a@b..c", "a.b@.c", "a.b@..c", "@a.b", "a.@b.c", ".a.b@c.d", "a b@b.c", "a @b.c", " a@b.c", "");
 		for(String emailaddress : invalidEmailAdresses) {
 			checkInValidEmailAddress(emailaddress);
 		}
+	}
+
+	@Test
+	public void isValidEmail_checkEmailLength(){
+		String localpart = StringTool.getRandomStringWithPrefix(30, "");
+		final String domainName = "domain.com";
+
+		assertTrue(StringTool.isValidEmail(localpart + "@" + domainName));
+
+		localpart = StringTool.getRandomStringWithPrefix(StringTool.MAX_EMAIL_LENGTH, "");
+		assertFalse(StringTool.isValidEmail(localpart + "@" + domainName));
+
+		localpart = StringTool.getRandomStringWithPrefix(StringTool.MAX_EMAIL_LENGTH - 1 /*@*/ - domainName.length(), "");
+		assertTrue(StringTool.isValidEmail(localpart + "@" + domainName));
 	}
 
 	private void checkValidEmailAddress(@Nullable String emailAddress) {
@@ -77,7 +94,7 @@ public class TestStringTool {
 		Assert.assertFalse(StringTool.isBlank("  bob  "));
 	}
 
-	private StringBuilder	m_text	= new StringBuilder();
+	private StringBuilder m_text = new StringBuilder();
 
 	/**
 	 * <pre>
@@ -161,6 +178,82 @@ public class TestStringTool {
 		Assert.assertNotNull("This can't be null!", textOut);
 		Assert.assertEquals("Length of m_text should be " + (StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2 - 2), StringTool.MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2 - 2,
 			textOut.getBytes("UTF8").length);
+	}
+
+	/**
+	 * Test that small strings are truncated correcly.
+	 */
+	@Test
+	public void testByteTruncate2() {
+		String text = "01234567890123456789";
+		String res = StringTool.strOracleTruncate(text, 10);
+		Assert.assertEquals("Text length must be 10 chars", 10, res.length());
+	}
+
+	@Test
+	public void testByteTruncate3() {
+		String text = makeText(2000, "a");
+		String res = StringTool.strOracleTruncate(text, 1900);
+		Assert.assertEquals("Text length must be 1900 chars", 1900, res.length());
+	}
+
+	@Test
+	public void testByteTruncate4() {
+		String text = makeText(1333, "\u20ac");					// 1333 Euro signs
+		String res = StringTool.strOracleTruncate(text, 1000);
+		Assert.assertEquals("Text length must be 1000 chars", 1000, res.length());
+	}
+
+	/**
+	 * Test the exact cutoff point, just before
+	 */
+	@Test
+	public void testByteTruncate5() {
+		String text = makeText(1333, "\u20ac");					// 1333 Euro signs
+		String res = StringTool.strOracleTruncate(text, 2000);
+		Assert.assertEquals("Text length must be 1333 chars", 1333, res.length());
+	}
+
+	/**
+	 * Test the exact cutoff point, just before
+	 */
+	@Test
+	public void testByteTruncate6() {
+		String text = makeText(1334, "\u20ac");					// 1334 Euro signs = 4002 bytes
+		String res = StringTool.strOracleTruncate(text, 2000);
+		Assert.assertEquals("Text length must be 1333 chars", 1333, res.length());
+	}
+
+	@Test
+	public void testByteTruncateSuffix1() {
+		String text = "01234567890123456789";
+		String res = StringTool.strOracleTruncate(text, 10, "...");
+		Assert.assertEquals("0123456...", res);
+	}
+
+	/**
+	 * Test exact cutoff point: string has max possible size.
+	 */
+	@Test
+	public void testByteTruncateSuffix2() {
+		String text = makeText(1333, "\u20ac");
+		String res = StringTool.strOracleTruncate(text, 2000, "...");
+		Assert.assertEquals("Truncated size must be 1333", 1333, res.length());
+
+		Assert.assertEquals(text, res);
+	}
+
+	/**
+	 * Test exact cutoff point: string has one euro character too much.
+	 */
+	@Test
+	public void testByteTruncateSuffix3() {
+		String text = makeText(1334, "\u20ac");
+		String res = StringTool.strOracleTruncate(text, 2000, "...");
+		Assert.assertEquals("Truncated size must be 1333", 1333, res.length());
+
+		String match = makeText(1330, "\u20ac") + "...";
+		Assert.assertEquals(match, res);
 	}
 
 	/**
@@ -266,4 +359,128 @@ public class TestStringTool {
 		}
 		return m_text.toString();
 	}
+
+	@Test
+	public void validateUrl_valid() {
+		assertTrue(StringTool.validateUrl("www.google.com"));
+		assertTrue(StringTool.validateUrl("74.125.206.105"));
+		assertTrue(StringTool.validateUrl("http://74.125.206.105"));
+		assertTrue(StringTool.validateUrl("http://www.google.com"));
+		assertTrue(StringTool.validateUrl("http://www.nu.nl/"));
+		assertTrue(StringTool.validateUrl("http://www.itris.nl/"));
+		assertTrue(StringTool.validateUrl("https://docs.google.com/a/itris.eu/spreadsheets/d/1GxCUI6FheVXAqI44o_zIh_CU7W-odiuJTY/edit#gid=1008896417"));
+		assertTrue(StringTool.validateUrl("http://localhost:8080/Itris_VO02/iRed/Portal/Menu/ViewPointMenuMain.jsp"));
+		assertTrue(StringTool.validateUrl("http://vfdsf:8080/fdsf/fdsf/nl/webintelligence.pdf"));
+		assertTrue(StringTool.validateUrl("http://www.opmaat.nl"));
+		assertTrue(StringTool.validateUrl("http://20-web-vp-01/viewpoint"));
+		assertTrue(StringTool.validateUrl("localhost:8080/Itris_VO02"));
+	}
+
+	@Test
+	public void validateUrl_notvalid() {
+		assertFalse(StringTool.validateUrl(null));
+		assertFalse(StringTool.validateUrl(""));
+		assertFalse(StringTool.validateUrl(StringTool.getRandomStringWithPrefix(10, "UT_")));
+		assertFalse(StringTool.validateUrl("www.goog le.com"));
+		assertFalse(StringTool.validateUrl("www.goog\\le.com"));
+		assertFalse(StringTool.validateUrl("www.goog=le.com"));
+		assertFalse(StringTool.validateUrl("http://www test test/"));
+	}
+
+	@Test
+	public void testStrOracleTruncate() throws Exception {
+		String s = FileTool.readResourceAsString(getClass(), "longMsg.txt", "utf-8");
+		String lessStr = StringTool.strOracleTruncate(s, 3997);
+		Assert.assertEquals("we get cut to proper bytes limit", 3990, lessStr.length());
+		byte[] data = lessStr.getBytes("UTF-8");
+		Assert.assertEquals("we get proper byte size", 4000, data.length);
+	}
+
+	@Test
+	public void testStrOracleTruncateWithSuffix_withCutoff() throws Exception {
+		String s = FileTool.readResourceAsString(getClass(), "longMsg.txt", "utf-8");
+		String lessStr = StringTool.strOracleTruncate(s, 4000, "...");
+		Assert.assertEquals("we get cut to proper bytes limit", 3990, lessStr.length());
+		Assert.assertEquals("we have proper suffix", "...", lessStr.substring(lessStr.length() - 3));
+		byte[] data = lessStr.getBytes("UTF-8");
+		Assert.assertEquals("we get proper byte size", 4000, data.length);
+	}
+
+	@Test
+	public void testStrOracleTruncateWithSuffix_noCutOff() throws Exception {
+		String oracleStr = StringTool.strOracleTruncate("short one", 4000, "...");
+		Assert.assertEquals("we get cut to proper bytes limit", 9, oracleStr.length());
+		Assert.assertNotEquals("we do not have suffix", "...", oracleStr.substring(oracleStr.length() - 3));
+	}
+
+	@Test
+	public void testRenderAsRawHtml_html_cutoff() throws Exception {
+		String input = "<p style=\"color:red;\">Make an appointment in the agenda!</p><br>\n"
+			+ "<p style=\"color:green;\">Maak een afspraak in de agenda!</p><br>";
+		String expected = "<p style=\"color:red;\">Make an appointment in the agenda!</p><br/>"
+			+ "<p style=\"color:green;\">Maak een afspraak in de agenda!</p>";
+		Assert.assertEquals("we get expected html out", expected, StringTool.renderAsRawHtml(input, true));
+	}
+
+	@Test
+	public void testRenderAsRawHtml_html_no_cutoff() throws Exception {
+		String input = "<p style=\"color:red;\">Make an appointment in the agenda!</p><br>\n"
+			+ "<p style=\"color:green;\">Maak een afspraak in de agenda!</p><br><br/>\n<br/>";
+		String expected = "<p style=\"color:red;\">Make an appointment in the agenda!</p><br/>"
+			+ "<p style=\"color:green;\">Maak een afspraak in de agenda!</p><br/><br/><br/>";
+		Assert.assertEquals("we get expected html out", expected, StringTool.renderAsRawHtml(input, false));
+	}
+
+	@Test
+	public void testRenderAsRawHtml_no_html_cutoff() throws Exception {
+		String input = "bla bla bla\nother bla\n\n";
+		String expected = "bla bla bla<br/>other bla";
+		Assert.assertEquals("we get expected html out", expected, StringTool.renderAsRawHtml(input, true));
+	}
+
+	@Test
+	public void testRenderAsRawHtml_no_html_no_cutoff() throws Exception {
+		String input = "bla bla bla\nother bla\n\n";
+		String expected = "bla bla bla<br/>other bla<br/><br/>";
+		Assert.assertEquals("we get expected html out", expected, StringTool.renderAsRawHtml(input, false));
+	}
+
+	@Test
+	public void testRemoveRepeatingCharacters_whenNoRepeatingChars_returnSameString() {
+		String s = "abc123 abc 123 11 aa 123456789123456789";
+		String res = StringTool.removeRepeatingCharacters(s);
+		Assert.assertEquals(s, res);
+	}
+
+	@Test
+	public void testRemoveRepeatingCharacters_whenHasRepeatingNonDigits_shortenString() {
+		String s = "abcXXXabc 123456789123456789";
+		String res = StringTool.removeRepeatingCharacters(s);
+		Assert.assertEquals("abcXabc 123456789123456789", res);
+
+		s = "abcXXXXXXabc 123456789123456789";
+		res = StringTool.removeRepeatingCharacters(s);
+		Assert.assertEquals("abcXabc 123456789123456789", res);
+
+		s = "abc123XXXXXXabc 123456789123456789";
+		res = StringTool.removeRepeatingCharacters(s);
+		Assert.assertEquals("abc123Xabc 123456789123456789", res);
+
+		s = "abcXXXXXX123abc 123456789123456789";
+		res = StringTool.removeRepeatingCharacters(s);
+		Assert.assertEquals("abcX123abc 123456789123456789", res);
+	}
+
+	@Test
+	public void testRemoveRepeatingCharacters_whenHasRepeatingDigits_dontShortenString() {
+		String s = "abc111abc 123456789123456789";
+		String res = StringTool.removeRepeatingCharacters(s);
+		Assert.assertEquals("abc111abc 123456789123456789", res);
+
+		s = "abc1111111abc 123456789123456789";
+		res = StringTool.removeRepeatingCharacters(s);
+		Assert.assertEquals("abc1111111abc 123456789123456789", res);
+	}
 }
+
+

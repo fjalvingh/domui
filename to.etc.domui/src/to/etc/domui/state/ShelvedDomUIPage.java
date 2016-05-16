@@ -6,6 +6,7 @@ import to.etc.domui.component.layout.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
+import to.etc.util.*;
 
 final public class ShelvedDomUIPage implements IShelvedEntry {
 	@Nonnull
@@ -25,11 +26,14 @@ final public class ShelvedDomUIPage implements IShelvedEntry {
 		UrlPage body = getPage().getBody();
 		if(body instanceof IBreadCrumbTitler) {
 			return ((IBreadCrumbTitler) body).getBreadcrumbName();
-		} else if(!DomUtil.isBlank(body.getPageTitle())) {
-			return body.getPageTitle();
 		} else {
-			String name = body.getClass().getName();
-			return name.substring(name.lastIndexOf('.') + 1);
+			String pageTitle = body.getPageTitle();
+			if(pageTitle != null && !StringTool.isBlank(pageTitle)) {
+				return pageTitle;
+			} else {
+				String name = body.getClass().getName();
+				return name.substring(name.lastIndexOf('.') + 1);
+			}
 		}
 	}
 

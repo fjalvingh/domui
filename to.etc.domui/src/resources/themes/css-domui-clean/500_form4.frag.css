@@ -1,0 +1,63 @@
+/*** 500_form4 styles and repair styles for components. ***/
+.ui-f4 {
+}
+.ui-f4 table {
+}
+
+.ui-f4-lbl {
+	white-space: nowrap;
+	color: #666666;
+}
+.ui-f4-lbl-v {
+	text-align: left;
+	min-width: 150px;
+	width: 150px;
+}
+.ui-f4-ctl-v {
+	padding: 0px 0px 0px 4px;
+}
+
+.ui-f4-h {
+	margin-bottom: 10px;
+}
+.ui-f4-ctl-v {
+	padding-bottom: 8px;
+}
+.ui-f4-ctl-v  textarea {
+	display: block;					/* jal 20151011 chrome textarea is two pixels at bottom too large. */
+}
+
+.ui-f4 .ui-f4-ta {
+	vertical-align: top !important;
+	padding-top: 5px;
+}
+
+/*-- overrides --*/
+.ui-f4 .ui-ro {
+	border: none;
+	color: black;
+}
+.ui-f4 select {
+	text-indent: 0px;
+}
+.ui-f4 select.ui-ro {
+	-webkit-appearance: none;
+ 	-moz-appearance: none;
+ 	text-indent: 0px;
+ 	text-overflow: '';
+	appearance: none;
+	padding: 0px;
+	margin: 0px;
+}
+/* hides the arrow down button on the select box in IE */
+.ui-f4 select.ui-ro::-ms-expand {
+	display: none;
+}
+
+label.ui-f4-mandatory {
+/*	display: inline-block; */
+	background-repeat: no-repeat;
+	background-position: left;
+	padding-left: 12px;
+	background-image: url(mandatoryField.png);
+}

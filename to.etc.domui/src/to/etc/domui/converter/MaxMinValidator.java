@@ -30,6 +30,10 @@ import to.etc.domui.dom.errors.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 
+/**
+ * This validator checks to see if a Number is between two <b>inclusive</b> bounds. Inclusive means:
+ * if the number == max or the number == min it is allowed, i.e. the range is [min..max].
+ */
 public class MaxMinValidator implements IValueValidator<Number> {
 	@Nonnull
 	private Number m_max, m_min;

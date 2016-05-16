@@ -1,14 +1,15 @@
 package to.etc.domui.component.image;
 
+import java.io.*;
+
+import javax.annotation.*;
+
 import to.etc.domui.component.input.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
-import to.etc.domui.util.*;
+import to.etc.domui.themes.*;
 import to.etc.util.*;
-
-import javax.annotation.*;
-import java.io.*;
 
 /**
  * This displays an image that is contained in an {@link to.etc.domui.component.image.IUIImage} structure.
@@ -38,7 +39,7 @@ public class DisplayImage extends AbstractDivControl<IUIImage> {
 			if(m_displayEmpty) {
 				Img img = new Img();
 				add(img);
-				img.setSrc(DomUtil.getJavaResourceRURL(ImageSelectControl.class, "empty.png"));
+				img.setSrc(Theme.ISCT_EMPTY);
 			}
 		} else {
 			Img img = new Img();

@@ -189,11 +189,11 @@ public class RuntimeConversions {
 		if(o instanceof Number)
 			return ((Number) o).intValue() != 0;
 		if(o instanceof String) {
-			try {
-				return Boolean.parseBoolean(((String) o).trim());
-			} catch(Exception e) {
-				throw new RuntimeConversionException("The string '" + o + "' cannot be converted to a boolean");
+			String trimmed = ((String) o).trim();
+			if ("Y".equalsIgnoreCase(trimmed)) {
+				return true;
 			}
+			return Boolean.parseBoolean(trimmed);
 		}
 		throw new RuntimeConversionException("Cannot convert the type \"" + o.getClass() + "\" to a boolean.");
 	}
@@ -823,6 +823,10 @@ public class RuntimeConversions {
 
 	static public boolean isSimpleType(Class< ? > clz) {
 		return clz.isPrimitive() || isNumeric(clz) || clz == String.class || isBoolean(clz);
+	}
+
+	static public boolean isEnumType(Class< ? > clz) {
+		return Enum.class.isAssignableFrom(clz);
 	}
 
 }

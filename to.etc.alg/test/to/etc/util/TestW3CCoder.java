@@ -33,4 +33,9 @@ public class TestW3CCoder {
 
 	}
 
+	@Test
+	public void testDateEncoding2() throws Exception {
+		W3CSchemaCoder.decodeDateTime("2015-09-28T00:00:00");
+	}
+
 }

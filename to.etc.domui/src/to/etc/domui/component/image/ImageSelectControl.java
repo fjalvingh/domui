@@ -4,12 +4,17 @@ import java.io.*;
 
 import javax.annotation.*;
 
+import org.slf4j.*;
+
 import to.etc.domui.component.buttons.*;
+import to.etc.domui.component.misc.*;
 import to.etc.domui.component.upload.*;
+import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.parts.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
+import to.etc.domui.themes.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.upload.*;
 import to.etc.util.*;
@@ -25,6 +30,9 @@ import to.etc.webapp.nls.*;
  * Created on Nov 5, 2014
  */
 public class ImageSelectControl extends Div implements IUploadAcceptingComponent, IControl<IUIImage> {
+
+	static private final Logger LOG = LoggerFactory.getLogger(ImageSelectControl.class);
+
 	static private final BundleRef BUNDLE = BundleRef.create(ImageSelectControl.class, "messages");
 
 	@Nullable
@@ -48,6 +56,8 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 
 	private boolean m_readOnly;
 
+	private IValueChanged< ? > m_onValueChanged;
+
 	public ImageSelectControl(@Nullable IUIImage value) {
 		m_value = value;
 	}
@@ -61,14 +71,14 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 		//-- Show as the thumbnail followed by [clear] [load another].
 		Img img = new Img();
 		add(img);
-		img.setWidth(Integer.toString(m_displayDimensions.getWidth()));
-		img.setHeight(Integer.toString(m_displayDimensions.getHeight()));
+		img.setImgWidth(Integer.toString(m_displayDimensions.getWidth()));
+		img.setImgHeight(Integer.toString(m_displayDimensions.getHeight()));
 		img.setAlign(ImgAlign.LEFT);
 
 		if(m_value == null) {
 			String emptyIcon = getEmptyIcon();
 			if(null == emptyIcon) {
-				img.setSrc(DomUtil.getJavaResourceRURL(ImageSelectControl.class, "empty.png"));
+				img.setSrc(Theme.ISCT_EMPTY);
 			} else {
 				img.setSrc(emptyIcon);
 			}
@@ -79,15 +89,16 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 
 		if(!isDisabled() && ! isReadOnly()) {
 			add(" ");
-			SmallImgButton sib = new SmallImgButton("THEME/btnClear.png", new IClicked<SmallImgButton>() {
+			HoverButton sib = new HoverButton(Theme.ISCT_ERASE, new IClicked<HoverButton>() {
 				@Override
-				public void clicked(SmallImgButton clickednode) throws Exception {
+				public void clicked(HoverButton clickednode) throws Exception {
 					setValue(null);
 					forceRebuild();
+					setImageChanged();
 				}
 			});
 			add(sib);
-			sib.setTitle("Clear image (make it empty)");
+			sib.setTitle(Msgs.BUNDLE.getString(Msgs.ISCT_EMPTY_TITLE));
 
 			add(" ");
 			Form f = new Form();
@@ -137,26 +148,32 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 	}
 
 	@Override
-	public void handleUploadRequest(RequestContextImpl param, ConversationContext conversation) throws Exception {
+	public boolean handleUploadRequest(RequestContextImpl param, ConversationContext conversation) throws Exception {
 		FileInput fi = m_input;
 		if(null == fi)
-			return;
+			return true;
 
-		UploadItem[] uiar = param.getFileParameter(fi.getActualID());
-		if(uiar != null) {
-			if(uiar.length != 1)
-				throw new IllegalStateException("Upload presented <> 1 file!?");
+		try {
+			UploadItem[] uiar = param.getFileParameter(fi.getActualID());
+			if(uiar != null) {
+				if(uiar.length != 1)
+					throw new IllegalStateException("Upload presented <> 1 file!?");
 
-			updateImage(conversation, uiar[0]);
+				updateImage(conversation, uiar[0]);
+			}
+		} catch(FileUploadException fxu) {
+			forceRebuild();
+			MessageFlare.display(this, fxu.getMessage());
+			return true;
 		}
 		forceRebuild();
-//		if(m_onValueChanged != null)
-//			((IValueChanged<FileUpload>) m_onValueChanged).onValueChanged(this);
+		setImageChanged();
+		return true;
+	}
 
-		//-- Render an optimal delta as the response,
-		param.getRequestResponse().setNoCache();
-		ApplicationRequestHandler.renderOptimalDelta(param, getPage());
-
+	private void setImageChanged() throws Exception {
+		if(m_onValueChanged != null)
+			((IValueChanged<Object>) m_onValueChanged).onValueChanged(this);
 	}
 
 	private void updateImage(@Nonnull ConversationContext cc, @Nonnull UploadItem ui) throws Exception {
@@ -166,7 +183,8 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 		try {
 			m_value = LoadedImage.create(newUploadedImage, m_maxDimensions, null);
 		} catch(Exception x) {
-			x.printStackTrace();
+			MessageFlare.display(this, MsgType.ERROR, BUNDLE.getString("image.invalid"));
+			LOG.error("File: " + newUploadedImage.getName() + " can't be uploaded. Looks like corrupted file", x);
 		}
 	}
 
@@ -199,11 +217,12 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 
 	@Override
 	public IValueChanged< ? > getOnValueChanged() {
-		return null;
+		return m_onValueChanged;
 	}
 
 	@Override
 	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
+		m_onValueChanged = onValueChanged;
 	}
 
 	@Override

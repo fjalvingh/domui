@@ -32,20 +32,31 @@ package to.etc.domui.component.tbl;
  * Created on Jun 19, 2008
  */
 public interface ISortableTableModel {
-	public void sortOn(String key, boolean descending) throws Exception;
+	/**
+	 *
+	 * @param key
+	 * @param descending
+	 * @throws Exception
+	 */
+	void sortOn(String key, boolean descending) throws Exception;
 
 	/**
+	 * DO NOT USE: Whomever uses the model should define sorting and remember it.
+	 *
 	 * If this model is currently sorted, this returns an identifier (usually a
 	 * property reference) indicating on which column the thingy is sorted. If
 	 * the model is unsorted this returns null.
 	 * @return
 	 */
-	public String getSortKey();
+	@Deprecated
+	String getSortKey();
 
 	/**
+	 * DO NOT USE: Whomever uses the model should define sorting and remember it.
 	 * If the set is a sorted set, this returns TRUE if the sort order is
 	 * descending. The return value is <b>undefined</b> for an unsorted model.
 	 * @return
 	 */
-	public boolean isSortDescending();
+	@Deprecated
+	boolean isSortDescending();
 }

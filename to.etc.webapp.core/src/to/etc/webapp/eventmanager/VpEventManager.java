@@ -27,6 +27,7 @@ package to.etc.webapp.eventmanager;
 import java.lang.ref.*;
 import java.net.*;
 import java.sql.*;
+import java.sql.Date;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -411,7 +412,7 @@ public class VpEventManager implements Runnable {
 	 * Must be called after init to actually start handling events.
 	 */
 	public synchronized void start() {
-		if(!DeveloperOptions.getBool("domui.eventmanager", true))
+		if(!DeveloperOptions.getBool("domui.eventmanager", true) || DeveloperOptions.isBackGroundDisabled())
 			return;
 		if(inJUnitTestMode())
 			return;
@@ -445,9 +446,12 @@ public class VpEventManager implements Runnable {
 		//-- We must delete...
 		PreparedStatement ps = null;
 		try {
-			ps = dbc.prepareStatement("delete from " + m_tableName + " where upid < ? or utime < ?");
+			String sql = "delete from " + m_tableName + " where upid < ? or utime < ?";
+			ps = dbc.prepareStatement(sql);
 			ps.setLong(1, deleteupid);
-			ps.setDate(2, new java.sql.Date(System.currentTimeMillis() - 10 * 60 * 1000));			// Everything older than this
+			Date offsetDate = new Date(System.currentTimeMillis() - 10 * 60 * 1000);
+			ps.setDate(2, offsetDate);			// Everything older than this
+			LOG.debug(sql + " | " + deleteupid + ", " + offsetDate);
 			ps.executeUpdate();
 			dbc.commit();
 		} finally {
@@ -471,7 +475,9 @@ public class VpEventManager implements Runnable {
 			upid = m_upid;
 		}
 		try {
-			ps = dbc.prepareStatement("select upid,evname,utime,server,obj from " + m_tableName + " where upid > ? order by upid");
+			String sql = "select upid,evname,utime,server,obj from " + m_tableName + " where upid > ? order by upid";
+			LOG.debug(sql);
+			ps = dbc.prepareStatement(sql);
 			ps.setLong(1, upid);
 			rs = ps.executeQuery();
 			while(rs.next()) {

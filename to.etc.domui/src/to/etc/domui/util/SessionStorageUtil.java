@@ -44,7 +44,9 @@ public class SessionStorageUtil {
 		 * @return
 		 */
 		@Nonnull
-		String getStorageId();
+		default String getStorageId(){
+			return this.getClass().getSimpleName();
+		}
 
 		/**
 		 * Container that contains data that is stored into session. It means that its nested controls would save current data into session storage.
@@ -52,7 +54,12 @@ public class SessionStorageUtil {
 		 * @return
 		 */
 		@Nonnull
-		NodeContainer getNodeToStore();
+		default NodeContainer getNodeToStore(){
+			if (this instanceof NodeContainer){
+				return (NodeContainer) this;
+			}
+			throw new IllegalStateException("Must be instance of NodeContainer or provide correct node container");
+		}
 
 		/**
 		 * Defines keys of controls that should be excluded from session store actions.
@@ -60,7 +67,9 @@ public class SessionStorageUtil {
 		 * @return
 		 */
 		@Nonnull
-		List<String> getIgnoredControlKeys();
+		default List<String> getIgnoredControlKeys(){
+			return Collections.EMPTY_LIST;
+		}
 
 		/**
 		 * Callback that does custom loading of stored values into custom logic controls.
@@ -68,7 +77,9 @@ public class SessionStorageUtil {
 		 * @return
 		 */
 		@Nullable
-		ICheckCallback<ControlValuePair> getCustomLoadCallback();
+		default ICheckCallback<ControlValuePair> getCustomLoadCallback(){
+			return null;
+		}
 	}
 
 	/**

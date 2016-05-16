@@ -1,0 +1,8 @@
+/*** CLEAN style sheet - reset not allowed ***/
+
+/*** Imports ***/
+/* btadic 20121102 This file was imported from 000_dateinput.frag.css. Now, when it is renamed to 340_dateinput.frag.css, 
+file will not be imported properly. For now it's moved here because here is start of generated style.
+We can create one more fragment for imports which will be loaded before this fragment.  */
+@IMPORT url("calendar-theme.css");
+

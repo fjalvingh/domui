@@ -1,0 +1,28 @@
+<style type="text/css">
+    .listsort {
+        background-color: #00424F;
+    }
+    .listsort td {
+        padding: 5px;
+    }
+    .selected {
+        background-color: #009948;
+    }
+</style>
+<div>
+    &nbsp;
+</div>
+<table class="listsort">
+    <tr>
+<%
+    var slist = item.getStore().getLists();
+    for(var j = 0; j < slist.size(); j++) {
+    var l = slist.get(j);
+    var css = "";
+    if(l.getKey() === key)
+        css = "selected";
+%>
+        <td class="<%= css %>"><a href="pool.jsp?show=sessionstat&id=<%= id %>&list=<%= l.getKey() %>" title="<%= l.getDescription() %>"><%= l.getKey() %></a></td>
+<% } %>
+    </tr>
+</table>

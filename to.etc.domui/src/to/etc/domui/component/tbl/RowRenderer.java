@@ -31,6 +31,9 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	@Nonnull
 	final private ClassMetaModel m_metaModel;
 
+	@Nullable
+	private IRowRenderHelper<T> m_helper;
+
 	/** When the definition has completed (the object is used) this is TRUE; it disables all calls that change the definition */
 	private boolean m_completed;
 
@@ -71,6 +74,11 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	private void check() {
 		if(m_completed)
 			throw new IllegalStateException("Programmer error: This object has been USED and cannot be changed anymore");
+	}
+
+	public RowRenderer<T> helper(IRowRenderHelper<T> helper) {
+		m_helper = helper;
+		return this;
 	}
 
 	/**
@@ -124,8 +132,8 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 			TH th;
 			String label = cd.getColumnLabel();
 			if(!cd.getSortable().isSortable() || !sortablemodel) {
-				//-- Just add the label, if present,
-				th = cc.add(label);
+				//-- Just add the span with label, if present. Span is needed to allow styling.
+				th = cc.add(new Span(label));
 			} else {
 				//in order to apply correct positioning, we need to wrap Span around sort indicator image and label
 				final Div cellSpan = new Div();
@@ -192,14 +200,48 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 		if(null == parent)
 			throw new IllegalStateException("Table not defined");
 
-		if(scd.getSortHelper() != null) {
-			//-- A sort helper is needed.
-			final IProgrammableSortableModel stm = (IProgrammableSortableModel) parent.getModel();
-			stm.sortOn(scd.getSortHelper(), isSortDescending());
+		resort(scd, parent);
+	}
+
+	@Nullable
+	private ITableModel<T> m_lastSortedModel;
+
+	@Nullable
+	private ColumnDef<?> m_lastSortedColumn;
+
+	@Nullable
+	private Boolean m_lastSortedDirection;
+
+	private boolean hasSortChanged(@Nonnull ColumnDef<?> newColumn, @Nonnull TableModelTableBase<T> tableComponent) {
+		if(newColumn != m_lastSortedColumn)
+			return true;
+		ITableModel<T> newModel = tableComponent.getModel();
+		if(newModel != m_lastSortedModel)
+			return true;
+		Boolean direction = m_lastSortedDirection;
+		if(direction == null)
+			return true;
+		return direction.booleanValue() != isSortDescending();
+	}
+
+	private void resort(@Nonnull ColumnDef<?> scd, TableModelTableBase<T> parent) throws Exception {
+		if(! hasSortChanged(scd, parent))
+			return;
+
+		ISortHelper<T> sortHelper = (ISortHelper<T>) scd.getSortHelper();
+		if(sortHelper != null) {
+			sortHelper.adjustSort(parent.getModel(), isSortDescending());	// Tell the helper to sort
 		} else {
 			final ISortableTableModel stm = (ISortableTableModel) parent.getModel();
-			stm.sortOn(scd.getPropertyName(), isSortDescending());
+			String propertyName = scd.getSortProperty();
+			if(null == propertyName)
+				propertyName = scd.getPropertyName();
+
+			stm.sortOn(propertyName, isSortDescending());
 		}
+		m_lastSortedDirection = Boolean.valueOf(isSortDescending());
+		m_lastSortedModel = parent.getModel();
+		m_lastSortedColumn = scd;
 	}
 
 	private void updateSortImage(@Nonnull final ColumnDef< ? > scd, @Nonnull final String img) {
@@ -223,24 +265,15 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	public void beforeQuery(@Nonnull final TableModelTableBase<T> tbl) throws Exception {
 		complete(tbl);
 		if(!(tbl.getModel() instanceof ISortableTableModel)) {
-			//			m_sortableModel = false;
 			return;
 		}
 
-		//		m_sortableModel = true;
 		ColumnDef< ? > scol = getSortColumn();
 		if(scol == null)
 			return;
 
 		//-- Tell the model to sort.
-		if(scol.getSortHelper() != null) {
-			//-- A sort helper is needed.
-			final IProgrammableSortableModel stm = (IProgrammableSortableModel) tbl.getModel();
-			stm.sortOn(scol.getSortHelper(), isSortDescending());
-		} else {
-			final ISortableTableModel stm = (ISortableTableModel) tbl.getModel();
-			stm.sortOn(scol.getPropertyName(), isSortDescending());
-		}
+		resort(scol, tbl);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -251,6 +284,10 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	 */
 	@Override
 	public void renderRow(@Nonnull final TableModelTableBase<T> tbl, @Nonnull final ColumnContainer<T> cc, final int index, @Nonnull final T instance) throws Exception {
+		IRowRenderHelper<T> helper = m_helper;
+		if(null != helper)
+			helper.setRow(instance);
+
 		for(final ColumnDef< ? > cd : m_columnList) {
 			renderColumn(tbl, cc, index, instance, cd);
 		}
@@ -332,7 +369,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 		} else if(instance instanceof IObservableEntity) {
 			if(null == pmm)
 				throw new IllegalStateException("Cannot render display value for row type of " + cd.getColumnLabel());
-			DisplaySpan<X> dv = new DisplaySpan<X>(cd.getActualClass());
+			DisplaySpan<X> dv = new DisplaySpan<X>(cd.getActualClass(), instance);
 			cell.getBindingContext().unibind(instance, pmm.getName(), dv, "value");
 			cell.add(dv);
 			applyCellAttributes(cell, cd);
@@ -341,7 +378,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 			IConverter<X> converter = cellConverter;
 			if(null == converter)
 				converter = pmm.getConverter();
-			DisplaySpan<X> ds = new DisplaySpan<X>(pmm.getActualType());
+			DisplaySpan<X> ds = new DisplaySpan<X>(pmm.getActualType(), instance);
 			ds.bind().to(instance, pmm);					// Bind value to model
 				ds.setRenderer(contentRenderer);			// Bind the display control and let it render through the content renderer, enabling binding
 			cell.add(ds);
@@ -371,8 +408,8 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	 * @param instance
 	 */
 	private <X, C extends NodeBase & IControl<X>> void renderEditable(@Nonnull TableModelTableBase<T> tbl, @Nonnull ColumnDef<X> cd, @Nonnull TD cell, @Nonnull T instance) throws Exception {
-		if(!(instance instanceof IObservableEntity))
-			throw new IllegalStateException("The instance type " + instance.getClass().getName() + "' is not an Observable entity; I need one to be able to bind to it's properties");
+		//if(!(instance instanceof IObservableEntity))
+		//	throw new IllegalStateException("The instance type " + instance.getClass().getName() + "' is not an Observable entity; I need one to be able to bind to it's properties");
 		PropertyMetaModel<X> pmm = cd.getPropertyMetaModel();
 		if(null == pmm)
 			throw new IllegalStateException("Cannot render edit value for row type");
@@ -388,8 +425,10 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 			ControlBuilder cb = DomApplication.get().getControlBuilder();
 			control = cb.createControlFor(pmm, true, null).getFormControl();
 		}
+		control.bind().to(instance, pmm);
 		cell.add(control);
-		cell.getBindingContext().joinbinding(instance, pmm.getName(), control, "value");
+		if(instance instanceof IObservableEntity)
+			cell.getBindingContext().joinbinding(instance, pmm.getName(), control, "value");
 	}
 
 	/*--------------------------------------------------------------*/

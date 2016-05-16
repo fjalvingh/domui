@@ -130,6 +130,9 @@ import to.etc.webapp.query.*;
 public class ConversationContext implements IQContextContainer {
 	static public final Logger LOG = LoggerFactory.getLogger(ConversationContext.class);
 
+	/** True when this context was destroyed because the session was invalidated. */
+	private boolean m_sessionDestroyed;
+
 	static enum ConversationState {
 		DETACHED, ATTACHED, DESTROYED
 	}
@@ -260,18 +263,27 @@ public class ConversationContext implements IQContextContainer {
 		}
 	}
 
-	void internalDestroy() throws Exception {
+	/**
+	 * @param sessionDestroyed		indicates that the HttpSession has been invalidated somehow, possibly logoout
+	 * @throws Exception
+	 */
+	void internalDestroy(boolean sessionDestroyed) throws Exception {
 		LOG.info("Destroying " + this);
-		if(m_state == ConversationState.DESTROYED)
-			throw new IllegalStateException("Wrong state for DESTROY: " + m_state);
+		if(m_state == ConversationState.DESTROYED) {
+			if(!sessionDestroyed)
+				throw new IllegalStateException("Wrong state for DESTROY: " + m_state);
+			return;
+		}
 
 		//-- Call the DESTROY handler for all attached pages, then disconnect them
 		for(Page pg : m_pageMap.values()) {
 			try {
 				pg.getBody().onDestroy();
 			} catch(Exception x) {
-				System.err.println("Exception in page " + pg.getBody() + "'s onDestroy handler: " + x);
-				x.printStackTrace();
+				if(! sessionDestroyed) {
+					System.err.println("Exception in page " + pg.getBody() + "'s onDestroy handler: " + x);
+					x.printStackTrace();
+				}
 			}
 		}
 		m_pageMap.clear();
@@ -287,23 +299,31 @@ public class ConversationContext implements IQContextContainer {
 					((IConversationStateListener) o).conversationDestroyed(this);
 					getWindowSession().getApplication().internalCallConversationDestroyed(this);
 				} catch(Exception x) {
-					x.printStackTrace();
-					LOG.error("In calling destroy listener", x);
+					if(! sessionDestroyed) {
+						x.printStackTrace();
+						LOG.error("In calling destroy listener", x);
+					}
 				}
 			}
 		}
 		getWindowSession().getApplication().internalCallConversationDestroyed(this);
 		try {
 			onDestroy();
+		} catch(Exception x) {
+			if(! sessionDestroyed)
+				throw x;
+
+			//-- Ignore trouble during session invalidate
 		} finally {
 			m_state = ConversationState.DESTROYED;
+			m_sessionDestroyed = sessionDestroyed;
 			discardTempFiles();
 		}
 	}
 
 	public void checkAttached() {
 		if(m_state != ConversationState.ATTACHED)
-			throw new IllegalStateException("Accessing conversation " + this + " in " + m_state + " invalid - only usable in ATTACHED state");
+			throw new ConversationDestroyedException(toString(), String.valueOf(m_state));
 	}
 
 	/**

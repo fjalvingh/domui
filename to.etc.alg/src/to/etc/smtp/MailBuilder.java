@@ -25,6 +25,7 @@
 package to.etc.smtp;
 
 import java.io.*;
+import java.nio.file.*;
 import java.util.*;
 
 import javax.annotation.*;
@@ -205,7 +206,7 @@ public class MailBuilder {
 		m_text_sb.append(")");
 
 		m_html_sb.append("<a href=\"");
-		m_html_sb.append(StringTool.encodeURLEncoded(url));
+		m_html_sb.append(url);
 		m_html_sb.append("\">");
 		StringTool.htmlStringize(m_html_sb, text);
 		m_html_sb.append("</a>");
@@ -246,6 +247,25 @@ public class MailBuilder {
 		//-- Create the attachment image.
 		m_attachmentList.add(new Attachment(mime, imgkey, source));
 		return this;
+	}
+	
+	/**
+	 * Add attachment to the email
+	 * @param name	Name of an attachment
+	 * @param source of attachment 
+	 * @return
+	 * @throws Exception
+	 */
+	@Nonnull
+	public MailBuilder addAttachment(@Nonnull String name, @Nonnull File source) throws Exception {
+		m_attachmentList.add(new Attachment(getMimeByFile(source), name, source));
+		return this;
+	}
+	
+	@Nonnull
+	private String getMimeByFile(@Nonnull File file) throws IOException {
+		Path path = FileSystems.getDefault().getPath(file.getPath());
+		return Files.probeContentType(path);
 	}
 
 	public MailBuilder image(String name, String mime, Attachment a) throws Exception {
@@ -337,4 +357,5 @@ public class MailBuilder {
 		m.setFrom(from);
 		send(m);
 	}
+
 }

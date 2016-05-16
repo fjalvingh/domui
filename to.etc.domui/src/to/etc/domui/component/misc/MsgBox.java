@@ -50,8 +50,22 @@ public class MsgBox extends Window {
 		void onInput(T value) throws Exception;
 	}
 
-	public static enum Type {
-		INFO, WARNING, ERROR, DIALOG, INPUT
+	public enum Type {
+		INFO, WARNING, ERROR, DIALOG, INPUT;
+
+		@Nonnull
+		static public Type from(@Nonnull MsgType messageType) {
+			switch(messageType) {
+				default:
+					return Type.INFO;
+
+				case ERROR:
+					return Type.ERROR;
+
+				case WARNING:
+					return Type.WARNING;
+			}
+		}
 	}
 
 	private Img m_theImage = new Img();
@@ -702,7 +716,16 @@ public class MsgBox extends Window {
 		String lbl = MetaManager.findEnumLabel(mbb);
 		if(lbl == null)
 			lbl = mbb.name();
-		DefaultButton btn = new DefaultButton(lbl, new IClicked<DefaultButton>() {
+
+		String icon = null;
+		if(mbb == MsgBoxButton.YES || mbb == MsgBoxButton.CONTINUE)
+			icon = "General/Images/btnValidate.png";
+		else if(mbb == MsgBoxButton.NO)
+			icon = "General/Images/btnClose.png";
+		else if(mbb == MsgBoxButton.CANCEL)
+			icon = Theme.BTN_CANCEL;
+
+		DefaultButton btn = new DefaultButton(lbl, icon, new IClicked<DefaultButton>() {
 			@Override
 			public void clicked(@Nonnull DefaultButton b) throws Exception {
 				answer(mbb);

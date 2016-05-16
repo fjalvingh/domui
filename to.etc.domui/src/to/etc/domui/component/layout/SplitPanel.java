@@ -24,6 +24,7 @@
  */
 package to.etc.domui.component.layout;
 
+import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 
 /**
@@ -48,11 +49,13 @@ public class SplitPanel extends Table {
 		m_acell.setWidth("10%");
 		m_acell.setCssClass("ui-sp-a");
 		m_acell.setValign(TableVAlign.TOP);
+		m_acell.setVerticalAlign(VerticalAlignType.TOP);
 
 		m_bcell = new TD();
 		m_bcell.setWidth("90%");
 		m_bcell.setCssClass("ui-sp-b");
 		m_bcell.setValign(TableVAlign.TOP);
+		m_bcell.setVerticalAlign(VerticalAlignType.TOP);
 	}
 
 	public SplitPanel(NodeBase a, String awidth, NodeBase b, String bwidth) {

@@ -23,7 +23,7 @@ tabPanelOrange = {
 //---------------------------------------------------------
 dataTableOrange = {
 	even_row_bg : "#E5E5E5",
-	header_bg : "#7c7c7c",
+	header_bg : "#297bc0",
 	header_bg_img : "",
 	header_text_color : "#ffffff",
 	header_btm_border : "undefined",

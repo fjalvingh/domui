@@ -131,15 +131,19 @@ public class ColumnList<T> implements Iterable<ColumnDef< ? >> {
 				ntoass++;
 				totdw += scd.getDisplayLength();
 			} else {
-				final String s = cwidth.trim();
+				String s = cwidth.trim();
 				if(s.endsWith("%")) {
 					final int w = StringTool.strToInt(s.substring(0, s.length() - 1).trim(), -1);
 					if(w == -1)
 						throw new IllegalArgumentException("Invalid width percentage: " + s + " for presentation column " + scd.getPropertyName());
 					totpct += w;
 				} else {
+					if(! s.endsWith("px")) {
+						s += "px";
+						scd.width(s);
+					}
 					//-- Should be numeric width, in pixels,
-					final int w = StringTool.strToInt(s, -1);
+					final int w = StringTool.strToInt(s.substring(0, s.length()-2).trim(), -1);
 					if(w == -1)
 						throw new IllegalArgumentException("Invalid width #pixels: " + s + " for presentation column " + scd.getPropertyName());
 					totpix += w;

@@ -62,7 +62,7 @@ public class CalcButton extends Button {
 	 * Create an empty button.
 	 */
 	public CalcButton() {
-		setThemeConfig("defaultbutton.properties");
+		setConfig("THEME/defaultbutton.properties");
 		setCssClass("ui-dbtn");
 	}
 
@@ -122,16 +122,6 @@ public class CalcButton extends Button {
 	}
 
 	/**
-	 * Set the rendering properties file to be used to render the button image. The name must
-	 * refer to a file in the current theme. This overrides the default properties file which
-	 * is 'defaultbutton.properties' in the current theme.
-	 * @param name
-	 */
-	public void setThemeConfig(final String name) {
-		setConfig(DomApplication.get().getThemedResourceRURL("THEME/" + name));
-	}
-
-	/**
 	 * Uses a resource as the base for the image.
 	 * @param resourceBase		The base location for the specified name. Name is resolved with this class as the base.
 	 * @param name				The resource's name relative to the class.
@@ -146,7 +136,7 @@ public class CalcButton extends Button {
 	 * @param name
 	 */
 	public void setIcon(final String name) {
-		m_key.setIcon(DomApplication.get().getThemedResourceRURL(name));
+		m_key.setIcon(name);
 		genURL();
 	}
 
@@ -158,8 +148,9 @@ public class CalcButton extends Button {
 	private void genURL() {
 		if(getPage() == null)							// Not attached yet?
 			return;
+
 		StringBuilder sb = new StringBuilder(128);
-		m_key.append(sb);
+		m_key.append(getPage().getBody().getThemeVariant(), sb);
 		setBackgroundImage(sb.toString());
 
 		//-- Determine image size: force it generated and use the cached copy for sizing

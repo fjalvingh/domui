@@ -155,7 +155,8 @@ abstract public class QAbstractDataContext implements QDataContext {
 		if(res.size() == 0)
 			return null;
 		if(res.size() > 1)
-			throw new IllegalStateException("The criteria-query " + q + " returns " + res.size() + " results instead of one");
+			throw new QTooManyResultsException(q, res.size());
+				//"The criteria-query " + q + " returns " + res.size() + " results instead of one");
 		return res.get(0);
 	}
 
@@ -169,7 +170,8 @@ abstract public class QAbstractDataContext implements QDataContext {
 		if(res.size() == 0)
 			return null;
 		if(res.size() > 1)
-			throw new IllegalStateException("The criteria-query " + sel + " returns " + res.size() + " results instead of one");
+			throw new QTooManyResultsException(sel, res.size());
+			//throw new IllegalStateException("The criteria-query " + sel + " returns " + res.size() + " results instead of one");
 		return res.get(0);
 	}
 

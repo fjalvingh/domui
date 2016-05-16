@@ -43,6 +43,7 @@ import to.etc.domui.logic.*;
 import to.etc.domui.parts.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
+import to.etc.domui.themes.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.javascript.*;
@@ -368,7 +369,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 	final public Page getPage() {
 		if(null != m_page)
 			return m_page;
-		throw new IllegalStateException("Not attached to a page yet. Use isAttached() to check if a node is attached or not.");
+		throw new IllegalStateException(getTag() + " with title " + getTitle() + " and id " + getActualID() + " not attached to a page yet. Use isAttached() to check if a node is attached or not.");
 	}
 
 	/**
@@ -964,6 +965,22 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 		return sb;
 	}
 
+	/**
+	 * This js general custom updates contributor callback (custom updares are triggered after any page load or ajax response handling), function gets wrapped around specified js.
+	 * @param jsCallback
+	 */
+	public void appendJsCustomUpdatesContributor(@Nonnull String jsCallback){
+		appendJavascript("WebUI.registerCustomUpdatesContributor(function(){" + jsCallback + "});");
+	}
+
+	/**
+	 * This is js CustomUpdatesContributor callback used to execute WebUI.showOverflowTextAsTitle, function that decorates title on elements selected by specified selector, under all children of an element.
+	 * NOTE: This node element needs to be added on page (has to have actualID assigned).
+	 * @param cssSelector
+	 */
+	public void appendShowOverflowTextAsTitleJs(@Nonnull String cssSelector){
+		appendJsCustomUpdatesContributor("WebUI.showOverflowTextAsTitle('" + getActualID() + "', '" + cssSelector + "')");
+	}
 
 	/**
 	 * This adds a Javascript segment to be executed when the component is (re)constructed. It
@@ -1150,6 +1167,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 			handleDrop(ctx);
 			return;
 		}
+		if(action.endsWith("?"))
+			action = action.substring(0, action.length() - 1);
 		action = "webAction" + action;
 
 		IWebActionHandler handler = ctx.getApplication().getWebActionRegistry().findActionHandler(getClass(), action);
@@ -1293,7 +1312,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 		UIMessage old = m_message;
 		if(old == msg)
 			return old;
-		m_message = msg;
 
 		if(msg != null) {
 			if(old != null) {
@@ -1311,6 +1329,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 				msg.setErrorLocation(m_errorLocation);
 			msg.setErrorNode(this);
 		}
+		m_message = msg;										// ORDERED: important!
 
 		//-- Broadcast the error through the tree
 		if(m_page != null && isMessageBroadcastEnabled()) {		// Fix for bug# 787: cannot locate error fence. Allow errors to be posted on disconnected nodes.
@@ -1703,6 +1722,16 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 	}
 
 	/**
+	 * If this node "wraps" focusable components this call should return the ID of
+	 * a HTML node that can receive focus when the component itself is focused.
+	 * @return
+	 */
+	@Nullable
+	protected String getFocusID() {
+		return getActualID();
+	}
+
+	/**
 	 * Appends the jQuery "selector" code for this node as:
 	 * {@code $('#_a01')}
 	 *
@@ -1752,6 +1781,27 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 		return false;
 	}
 
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Theme/theme variants.								*/
+	/*--------------------------------------------------------------*/
+
+	/**
+	 * This checks to see if the RURL passed is a theme-relative URL. These URLs start
+	 * with THEME/. If not the RURL is returned as-is; otherwise the URL is translated
+	 * to a path containing the current theme string:
+	 * <pre>
+	 * 	$THEME/[currentThemeString]/[name]
+	 * </pre>
+	 * where [name] is the rest of the path string after THEME/ has been removed from it.
+	 * @param path
+	 * @return
+	 */
+	@Nonnull
+	final public String getThemedResourceRURL(@Nonnull String path) {
+		IThemeVariant themeStyle = getPage().getBody().getThemeVariant();
+		return DomApplication.get().internalGetThemeManager().getThemedResourceRURL(themeStyle, path);
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Hard data binding support (EXPERIMENTAL)			*/
@@ -1882,12 +1932,26 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 		}
 	}
 
-	/**
-	 * Send any kind of message down the component tree, for whomever listens.
-	 * @param message
-	 */
-	public <T> void sendComponentMessage(@Nonnull T message) {}
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	Notifications												*/
+	/*----------------------------------------------------------------------*/
 
+	/**
+	 * Send a self-defined event through the whole page. All nodes that registered
+	 * for that event using {@link #addNotificationListener(Class, INotificationListener)} will
+	 * receive the event in their listeners.
+	 *
+	 * @param eventClass
+	 * @param <T>
+	 * @throws Exception
+	 */
+	public final <T> void notify(T eventClass) throws Exception {
+		getPage().notifyPage(eventClass);
+	}
+
+	public final <T> void addNotificationListener(Class<T> eventClass, INotificationListener<T> listener) {
+		getPage().addNotificationListener(eventClass, this, listener);
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Soft binding support.								*/

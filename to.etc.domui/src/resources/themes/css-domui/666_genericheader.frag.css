@@ -1,0 +1,40 @@
+/*** GenericHeader component ***/
+.ui-generichd {
+	padding: 5px 0px 0px;
+}
+.ui-generichd-simple {
+	font-size: 14px;
+	color: black;
+}
+.ui-generichd-blue {
+	font-size: 18px;
+	color: #4c5a6f;
+}
+.ui-generichd-header-1 {
+	font-family: <%= font_family %>;
+	font-weight: bold;
+	font-size: 16px;
+	color: black;
+}
+.ui-generichd-header-2 {
+	font-family: <%= font_family %>;
+	font-size: 16px;
+	color: #297bc0;
+	border-bottom: 1px solid #dbdbdb;
+}
+.ui-generichd-header-3 {
+	font-family: <%= font_family %>;
+	font-size: 12px;
+	color: #013686;
+	border-bottom: 1px;
+	border-bottom-style: solid;
+	border-bottom-color: #ccc;
+	margin-bottom: 5px;
+}
+.ui-generichd-header-4 {
+	font-family: <%= font_family %>;
+	font-size: 12px;
+	color: black;
+	font-weight: bold;
+}
+

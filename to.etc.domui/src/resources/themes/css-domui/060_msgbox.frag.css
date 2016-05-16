@@ -1,0 +1,32 @@
+/*** 060_msgbox.frag.css ***/
+/*** MsgBox ***/
+.ui-mbx-top {
+	height: 140px;
+}
+.ui-mbx-bb {
+	text-align: right;
+	height: 35px;
+	margin-right: 13px;
+}
+.ui-mbx-mc {
+	font-size: 13px;
+}
+.ui-mbx-input {
+	padding-top: 20px;
+}
+
+.ui-mbx2-input-area {
+    padding-top: 20px;
+}
+.ui-mbx2-in-lbl {
+    vertical-align: baseline;
+    text-align: right;
+    white-space: nowrap;
+    font-weight: bold;
+    width: 1%;
+    padding-right: 10px;
+}
+.ui-mbx2-in-ctl {
+    vertical-align: baseline;
+}
+

@@ -29,6 +29,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.event.*;
+import to.etc.domui.component.image.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.errors.*;
@@ -68,6 +69,9 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 
 	@Nullable
 	private Rect m_clientBounds;
+
+	@Nullable
+	private Dimension m_browserWindowSize;
 
 	@Nullable
 	private INotify<NodeContainer> m_onSizeAndPositionChange;
@@ -649,6 +653,25 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		return b;
 	}
 
+	@Nonnull
+	public TBody addTableForLayout(String css) {
+		Table t = new Table();
+		t.setCssClass(css);
+		t.addCssClass("ui-layout");
+		t.setCellPadding("0");
+		t.setCellSpacing("0");
+		t.setTableWidth("100%");
+		add(t);
+		TBody b = new TBody();
+		t.add(b);
+		return b;
+	}
+
+	@Nonnull
+	public TBody addTableForLayout() {
+		return addTableForLayout(null);
+	}
+
 	/**
 	 * Locate all <i>direct</i> children of this container that are instancesof [ofClass].
 	 * @param <T>
@@ -695,18 +718,6 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 			}
 		}
 	}
-
-//	/**
-//	 * EXPERIMENTAL Pass the event to all my children, but before that pass it to myself if I'm bound.
-//	 * @see to.etc.domui.dom.html.NodeBase#logicEvent(to.etc.domui.logic.events.LogiEvent)
-//	 */
-//	@Override
-//	public void logicEvent(@Nonnull LogiEvent logiEvent) throws Exception {
-//		super.logicEvent(logiEvent);					// Handle binding to myself;
-//		build(); 										// And only build it AFTER a value can have been set.
-//		for(NodeBase b : new ArrayList<NodeBase>(m_children))
-//			b.logicEvent(logiEvent);
-//	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Miscellaneous										*/
@@ -843,13 +854,6 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		return false;
 	}
 
-	@Override
-	public <T> void sendComponentMessage(T message) {
-		for(NodeBase child : this) {
-			child.sendComponentMessage(message);
-		}
-	}
-
 	@Nullable
 	protected Rect getClientBounds() {
 		return m_clientBounds;
@@ -857,6 +861,15 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 
 	protected void setClientBounds(@Nonnull Rect clientBound) {
 		m_clientBounds = clientBound;
+	}
+
+	@Nullable
+	protected Dimension getBrowserWindowSize() {
+		return m_browserWindowSize;
+	}
+
+	protected void setBrowserWindowSize(@Nonnull Dimension browserWindowSize) {
+		m_browserWindowSize = browserWindowSize;
 	}
 
 	/**
@@ -873,9 +886,10 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	}
 
 	private void handleClientPositionAndSizeChange(@Nonnull RequestContextImpl ctx) throws Exception {
-		String value = ctx.getParameter(getActualID() + "_rect");
-		if(value != null) {
-			String[] values = value.split(",");
+		String valueRect = ctx.getParameter(getActualID() + "_rect");
+		String valueBrowserWindowSize = ctx.getParameter("window_size");
+		if(null != valueRect && null != valueBrowserWindowSize) {
+			String[] values = valueRect.split(",");
 			try {
 				int left = Math.round(Float.parseFloat(values[0]));
 				int top = Math.round(Float.parseFloat(values[1]));
@@ -883,7 +897,15 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 				int height = Math.round(Float.parseFloat(values[3]));
 				setClientBounds(new Rect(left, top, width + left, height + top));
 			} catch(Exception ex) {
-				throw new IllegalArgumentException("Unrecognized " + Constants.ACMD_NOTIFY_CLIENT_POSITION_AND_SIZE + " value (id='" + getActualID() + "'):" + value);
+				throw new IllegalArgumentException("Unrecognized " + Constants.ACMD_NOTIFY_CLIENT_POSITION_AND_SIZE + " valueRect (id='" + getActualID() + "'):" + valueRect);
+			}
+			values = valueBrowserWindowSize.split(",");
+			try {
+				int width = Math.round(Float.parseFloat(values[0]));
+				int height = Math.round(Float.parseFloat(values[1]));
+				setBrowserWindowSize(new Dimension(width, height));
+			} catch(Exception ex) {
+				throw new IllegalArgumentException("Unrecognized " + Constants.ACMD_NOTIFY_CLIENT_POSITION_AND_SIZE + " valueBrowserWindowSize (id='" + getActualID() + "'):" + valueBrowserWindowSize);
 			}
 			INotify<NodeContainer> listener = getOnSizeAndPositionChange();
 			if(listener != null) {
@@ -900,5 +922,28 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	protected void setOnSizeAndPositionChange(@Nonnull INotify<NodeContainer> onSizeAndPositionChange) {
 		m_onSizeAndPositionChange = onSizeAndPositionChange;
 	}
+
+	/**
+	 * Finds all IControl and IActionControl children and set it to readonly/disabled.
+	 */
+	public void disableAllChildControlsDeep() throws Exception {
+		for(IControl<?> ctrl : getDeepChildren(IControl.class)) {
+			ctrl.setReadOnly(true);
+			ctrl.setDisabled(true);
+			if (ctrl instanceof NodeContainer){
+				DomUtil.buildTree((NodeContainer) ctrl);
+				((NodeContainer) ctrl).disableAllChildControlsDeep();
+			}
+		}
+
+		for(IActionControl ctrl : getDeepChildren(IActionControl.class)) {
+			ctrl.setDisabled(true);
+			if (ctrl instanceof NodeContainer){
+				DomUtil.buildTree((NodeContainer) ctrl);
+				((NodeContainer) ctrl).disableAllChildControlsDeep();
+			}
+		}
+	}
+
 }
 

@@ -6,6 +6,6 @@ import to.etc.domui.server.*;
 import to.etc.domui.state.*;
 
 public interface IUploadAcceptingComponent {
-	void handleUploadRequest(@Nonnull RequestContextImpl param, @Nonnull ConversationContext conversation) throws Exception;
+	boolean handleUploadRequest(@Nonnull RequestContextImpl param, @Nonnull ConversationContext conversation) throws Exception;
 
 }

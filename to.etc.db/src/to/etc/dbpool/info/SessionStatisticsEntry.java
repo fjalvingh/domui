@@ -39,19 +39,30 @@ public class SessionStatisticsEntry {
 	/** Collection timestamp (System.currentTimeMillis()) */
 	final private long m_ts;
 
-	final private InfoCollectorBase m_request;
+	final private StatisticsCollectorBase m_request;
+
+	private final String m_requestId;
 
 	private PerformanceStore m_store;
 
-	public SessionStatisticsEntry(InfoCollectorBase request, int id, PerformanceStore ps) {
+	public SessionStatisticsEntry(StatisticsCollectorBase request, String requestId, int id, PerformanceStore ps) {
+		m_requestId = requestId;
 		m_request = request;
 		m_id = id;
 		m_ts = System.currentTimeMillis();
 		m_store = ps;
 	}
 
-	public InfoCollectorBase getRequest() {
+	public String getRequestId() {
+		return m_requestId;
+	}
+
+	public StatisticsCollectorBase getRequest() {
 		return m_request;
+	}
+
+	public List<DbMetric> getMetrics() {
+		return m_request.getMetrics();
 	}
 
 	public int getId() {

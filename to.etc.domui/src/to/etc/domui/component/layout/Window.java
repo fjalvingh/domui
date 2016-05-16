@@ -171,12 +171,12 @@ public class Window extends FloatingDiv {
 
 	private void init() {
 		m_content = new Div();
-		m_content.setCssClass("ui-flw-c ui-fixovfl");
+		m_content.addCssClass("ui-flw-c ui-fixovfl");
 		//		m_content.setStretchHeight(true);
 		m_topContent = new Div();
-		m_topContent.setCssClass("ui-flw-tc");
+		m_topContent.addCssClass("ui-flw-tc");
 		m_bottomContent = new Div();
-		m_bottomContent.setCssClass("ui-flw-bc");
+		m_bottomContent.addCssClass("ui-flw-bc");
 		setErrorFence();
 		delegateTo(m_content);
 		m_content.setErrorFence(); // jal experimental
@@ -250,6 +250,7 @@ public class Window extends FloatingDiv {
 		if(m_titleIcon == null) {
 			m_titleIcon = new Img();
 			m_titleIcon.setBorder(0);
+			m_titleIcon.setCssClass("ui-flw-ttl-icon");
 			if(m_titleBar != null) {
 				//Since IE has bug that floater object is rendered under previous sibling, close button must be rendered before any other element in title bar.
 				if(m_closeButton != null && m_titleBar.getChildCount() > 0 && m_titleBar.getChild(0) == m_closeButton) {

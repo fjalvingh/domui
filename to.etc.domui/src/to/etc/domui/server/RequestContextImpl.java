@@ -266,20 +266,18 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		return sb.toString();
 	}
 
-	@Override
-	public String getThemedPath(String in) {
-		String p = getApplication().getThemedResourceRURL(in);
-		if(p == null)
-			throw new NullPointerException("?");
-		return getRelativePath(p);
-	}
-
+	//@Override
+	//public String getThemedPath(String in) {
+	//	String p = getApplication().getThemedResourceRURL(in);
+	//	if(p == null)
+	//		throw new NullPointerException("?");
+	//	return getRelativePath(p);
+	//}
+	//
 	/**
 	 * This returns a fully buffered output writer. Calling it twice is explicitly
 	 * allowed, but clears the data written before as it's assumed that another route
 	 * to output will be chosen.
-	 *
-	 * @see to.etc.domui.server.IRequestContext#getOutputWriter()
 	 */
 	@Override
 	@Nonnull
@@ -356,11 +354,11 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 * Returns the names of all file parameters.
 	 * @return
 	 */
-	public String[] getFileParameters() {
+	public String[] getFileParameters() throws Exception {
 		return m_requestResponse.getFileParameters();
 	}
 
-	public UploadItem[] getFileParameter(@Nonnull String name) {
+	public UploadItem[] getFileParameter(@Nonnull String name) throws Exception {
 		return m_requestResponse.getFileParameter(name);
 	}
 

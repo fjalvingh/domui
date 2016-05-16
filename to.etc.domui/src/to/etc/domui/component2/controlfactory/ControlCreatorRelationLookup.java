@@ -51,11 +51,14 @@ public class ControlCreatorRelationLookup implements IControlCreator {
 		if(controlClass != null && !controlClass.isAssignableFrom(LookupInput2.class))
 			return -1;
 
-		if(pmm.getRelationType() != PropertyRelationType.UP)
-			return 0;
-		if(Constants.COMPONENT_LOOKUP.equals(pmm.getComponentTypeHint()))
-			return 10;
-		return 3;												// Prefer a lookup above a combo if unspecified
+		Class<T> actualType = pmm.getActualType();
+		ClassMetaModel cmm = MetaManager.findClassMeta(actualType);
+		if(cmm.isPersistentClass() || pmm.getRelationType() == PropertyRelationType.UP) {
+			if(Constants.COMPONENT_LOOKUP.equals(pmm.getComponentTypeHint()))
+				return 10;
+			return 3;                                                // Prefer a lookup above a combo if unspecified
+		}
+		return -1;
 	}
 
 	/**

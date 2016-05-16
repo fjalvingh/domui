@@ -19,6 +19,8 @@ import to.etc.webapp.nls.*;
  */
 final public class LoadedImage implements IUIImage {
 	static private final BundleRef BUNDLE = BundleRef.create(ImageSelectControl.class, "messages");
+	@Nullable
+	private Long m_id;
 
 	@Nonnull
 	private final File m_source;
@@ -99,6 +101,17 @@ final public class LoadedImage implements IUIImage {
 			m_sizeMap.put(size, ii);
 		}
 		return ii;
+	}
+
+	@Nullable
+	@Override
+	public Long getId() {
+		return m_id;
+	}
+
+	@Override
+	public void setId(Long id) {
+		m_id = id;
 	}
 
 	@Nonnull

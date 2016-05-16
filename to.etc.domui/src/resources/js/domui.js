@@ -234,7 +234,7 @@ $(window).bind('beforeunload', function() {
 
 				if (cmd == 'eval') {
 					try {
-						var js = (cmdNode.firstChild ? cmdNode.firstChild.nodeValue : null);
+						var js = (cmdNode.firstChild ? cmdNode.textContent : null); //textContent due to AJAX 4096 limit per single node content.
 						//log('invoking "eval" command: ', js);
 						if (js)
 							$.globalEval(js);
@@ -261,6 +261,12 @@ $(window).bind('beforeunload', function() {
 					try {
 						// -- Copy attributes on this tag to the target tags
 						var dest = jq[0]; // Should be 1 element
+
+						var names = [dest.attributes.length];
+						for ( var ai = 0; ai < dest.attributes.length; ai++) {
+							names[ai] = $.trim(dest.attributes[ai].name);
+						}
+
 						var src = commands[i];
 						for ( var ai = 0, attr = ''; ai < src.attributes.length; ai++) {
 							var a = src.attributes[ai], n = $.trim(a.name), v = $.trim(a.value);
@@ -275,10 +281,6 @@ $(window).bind('beforeunload', function() {
 									alert('domjs_ eval failed: '+ex+", value="+s);
 									throw ex;
 								}
-							}
-							if (v == '---') { // drop attribute request?
-								dest.removeAttribute(n);
-								continue;
 							}
 							if (n == 'style') { // IE workaround
 								dest.style.cssText = v;
@@ -300,9 +302,17 @@ $(window).bind('beforeunload', function() {
 									dest.selectedIndex = old;
 								} else if(v == "" && ("checked" == n || "selected" == n || "disabled" == n || "readonly" == n)) {
 									$(dest).removeAttr(n);
+									removeValueFromArray(names, n);
 								} else {
 									$.attr(dest, n, v);
+									removeValueFromArray(names, n);
 								}
+							}
+						}
+						for ( var ai = 0; ai < names.length; ai++) {
+							var a = names[ai];
+							if(a == 'checked' || a == 'disabled' || a == 'title') {
+								$(dest).removeAttr(a);
 							}
 						}
 						continue;
@@ -359,6 +369,13 @@ $(window).bind('beforeunload', function() {
 			}
 			;
 
+			function removeValueFromArray(names, n) {
+				var index = names.indexOf(n);
+				if(index > -1) {
+					names.splice(index, 1);
+				}
+			}
+
 			function cleanse(els) {
 				for ( var i = 0, a = []; i < els.length; i++)
 					if (els[i].nodeType == 1)
@@ -387,8 +404,6 @@ $(window).bind('beforeunload', function() {
 			;
 
 			function fixTextNode(s) {
-				if ($.browser.msie)
-					s = s.replace(/\n/g, '\r').replace(/\s+/g, ' ');
 				return document.createTextNode(s);
 			}
 			;
@@ -624,7 +639,7 @@ $(window).bind('beforeunload', function() {
 (function ($) {
 	$.fn.doStretch = function () {
 		return this.each(function () {
-			WebUI.stretchHeight(this.id);
+			WebUI.stretchHeightOnNode(this);
 		});
 	};
 })(jQuery);
@@ -810,6 +825,18 @@ $.extend(WebUI, {
 			}
 		}
 		list.push({id: id, control:control});
+	},
+
+	findInputControl: function(id) {
+		//-- return registered component by id, if not found returns null
+		var list = WebUI._inputFieldList;
+		for(var i = list.length; --i >= 0;) {
+			var item = list[i];
+			if(item.id == id && document.getElementById(item.id)) {
+				return item.control;
+			}
+		}
+		return null;
 	},
 
 	getPostURL : function() {
@@ -1627,7 +1654,10 @@ $.extend(WebUI, {
 		var n = document.getElementById(id);
 		if(n) {
 			if($.browser.msie) {
-				setTimeout(function() { try { n.focus();} catch (e) { /*just ignore */ } }, 100); //Due to IE bug, we need to set focus on timeout :( See http://www.mkyong.com/javascript/focus-is-not-working-in-ie-solution/
+				setTimeout(function() { try {
+					$('body').focus();
+					n.focus();
+				} catch (e) { /*just ignore */ } }, 100); //Due to IE bug, we need to set focus on timeout :( See http://www.mkyong.com/javascript/focus-is-not-working-in-ie-solution/
 			} else {
 				try {
 					n.focus();
@@ -2049,16 +2079,27 @@ $.extend(WebUI, {
 		head.appendChild(scp);
 	},
 
+	/** Prevents default action to be executed if IE11 is detected */
+	preventIE11DefaultAction : function(e){
+		if((navigator.userAgent.match(/Trident\/7\./))){
+			e.preventDefault();
+		}
+	},
+
 	/** ***************** File upload stuff. **************** */
 	fileUploadChange : function(e) {
 		var tgt = e.currentTarget || e.srcElement;
 		var vv = tgt.value.toString();
 
+		if (!vv) { //IE when setting the value to empty..
+			return;
+		}
+
 		// -- Check extensions,
-		var val = tgt.getAttribute('fuallowed');
-		if (val) {
+		var allowed = tgt.getAttribute('fuallowed');
+		if (allowed) {
 			var ok = false;
-			var spl = val.split(',');
+			var spl = allowed.split(',');
 
 			vv = vv.toLowerCase();
 			for(var i = 0; i < spl.length; i++) {
@@ -2076,7 +2117,26 @@ $.extend(WebUI, {
 
 			if (!ok) {
 				var parts = vv.split('.');
-				alert(WebUI.format(WebUI._T.uploadType, (parts.length > 1) ? parts.pop() : '', val));
+				alert(WebUI.format(WebUI._T.uploadType, (parts.length > 1) ? parts.pop() : '', allowed));
+				tgt.value = "";
+				return;
+			}
+		}
+
+		if(typeof tgt.files[0] !== "undefined") {
+			var s = tgt.getAttribute('fumaxsize');
+			var maxSize = 0;
+			try {
+				maxSize = Number(s);
+			} catch(x) {
+			}
+			if(maxSize <= 0 || maxSize === NaN)
+				maxSize = 100 * 1024 * 1024;						// Default max size is 100MB
+
+			var size = tgt.files[0].size;
+			if(size > maxSize) {
+				alert(WebUI.format(WebUI._T.buplTooBig, maxSize));
+				tgt.value = "";
 				return;
 			}
 		}
@@ -2121,6 +2181,7 @@ $.extend(WebUI, {
 		// -- Target the iframe
 		form.target = "webuiif"; // Fake a new thingy,
 		form.submit(); // Force submit of the thingerydoo
+		WebUI.blockUI();									// since 20160226: block UI during upload
 	},
 
 	/**
@@ -2205,6 +2266,7 @@ $.extend(WebUI, {
 				if(! xml.loadXML(crap)) {
 					alert('ie9 in emulation mode unfixable bug: cannot parse xml');
 					window.location.href = window.location.href;
+					WebUI.unblockUI();
 					return;
 				}
 			} else {
@@ -2221,6 +2283,8 @@ $.extend(WebUI, {
 		} catch (x) {
 			alert(x);
 			throw x;
+		} finally {
+			WebUI.unblockUI();
 		}
 		/*
 		 * 20081015 jal De iframe zou verwijderd moeten worden, maar als ik dat
@@ -2694,6 +2758,10 @@ $.extend(WebUI, {
 		if (!elem){
 			return;
 		}
+		WebUI.stretchHeightOnNode(elem);
+	},
+
+	stretchHeightOnNode : function(elem) {
 		var elemHeight = $(elem).height();
 		var totHeight = 0;
 		$(elem).siblings().each(function(index, node) {
@@ -2810,6 +2878,7 @@ $.extend(WebUI, {
 		var fields = new Object();
 		fields.webuia = "notifyClientPositionAndSize";
 		fields[element.id + "_rect"] = $(element).position().left + "," + $(element).position().top + "," + $(element).width() + "," + $(element).height();
+		fields["window_size"] = window.innerWidth + "," + window.innerHeight;
 		WebUI.scall(element.id, "notifyClientPositionAndSize", fields);
     },
 
@@ -3742,20 +3811,125 @@ WebUI.colorPickerChangeEvent = function(id) {
 
 var DomUI = WebUI;
 
+WebUI._customUpdatesContributors = $.Callbacks("unique");
+
+WebUI._customUpdatesContributorsTimerID = null;
+
+/**
+ * registers function that gets called after doCustomUpdates sequence of calls ends, with 500 delay - doCustomUpdates can trigger new doCustomUpdates etc...
+ * @param contributorFunction
+ */
+WebUI.registerCustomUpdatesContributor = function(contributorFunction) {
+	WebUI._customUpdatesContributors.add(contributorFunction);
+}
+
+WebUI.unregisterCustomUpdatesContributor = function(contributorFunction) {
+	WebUI._customUpdatesContributors.remove(contributorFunction);
+}
+
 WebUI.doCustomUpdates = function() {
+	$('.floatThead-wrapper').each(
+		function (index, node){
+			$(node).attr('stretch', $(node).find('>:first-child').attr('stretch'));
+		}
+	);
 	$('[stretch=true]').doStretch();
 	$('.ui-dt, .ui-fixovfl').fixOverflow();
 	$('input[marker]').setBackgroundImageMarker();
-	$("textarea[maxlength]").bind('input propertychange', function() {
-		var maxLength = $(this).attr('maxlength');
-		var newlines = ($(this).val().match(/\n/g) || []).length;
-		if ($(this).val().length + newlines > maxLength) {
-			$(this).val($(this).val().substring(0, maxLength - newlines));
+
+	//-- Limit textarea size on paste events
+	$("textarea[mxlength], textarea[maxbytes]").unbind("input.domui").unbind("propertychange.domui").bind('input.domui propertychange.domui', function() {
+		var maxLength = Number($(this).attr('mxlength'));				// Use mxlength because Chrome improperly implements maxlength (issue 252613)
+		var maxBytes = Number($(this).attr('maxbytes'));
+		var val = $(this).val();
+        var newlines = (val.match(/\r\n/g) || []).length;				// Count the #of 2-char newlines, as they will be replaced by 1 newline character
+		if(maxBytes === NaN) {
+			if(maxLength === NaN)
+				return;
+		} else if(maxLength === NaN) {
+			maxLength = maxBytes;
+		}
+
+		if(val.length + newlines > maxLength) {
+			val = val.substring(0, maxLength - newlines);
+			$(this).val(val);
+		}
+		if(maxBytes !== NaN) {
+			var cutoff = WebUI.truncateUtfBytes(val, maxBytes);
+			if(cutoff < val.length) {
+				val = val.substring(0, cutoff);
+				$(this).val(val);
+			}
 		}
 	});
 
+	//-- Limit textarea size on key presses
+	$("textarea[mxlength], textarea[maxbytes]").unbind("keypress.domui").bind('keypress.domui', function(evt) {
+		if(evt.which == 0 || evt.which == 8)
+			return true;
+
+		//-- Is the thing too long already?
+		var maxLength = Number($(this).attr('mxlength'));
+		var maxBytes = Number($(this).attr('maxbytes'));
+		var val = $(this).val();
+		var newlines = (val.match(/\r\n/g) || []).length;				// Count the #of 2-char newlines, as they will be replaced by 1 newline character
+		if(maxBytes === NaN) {
+			if(maxLength === NaN)
+				return true;
+		} else if(maxLength === NaN) {
+			maxLength = maxBytes;
+		}
+		if(val.length - newlines >= maxLength)							// Too many chars -> not allowed
+			return false;
+		if(maxBytes !== NaN) {
+			var bytes = WebUI.utf8Length(val);
+			if(bytes >= maxBytes)
+				return false;
+		}
+		return true;
+	});
+
+	//custom updates may fire several times in sequence, se we fire custom contributors only after it gets steady for a while (500ms)
+	if (WebUI._customUpdatesContributorsTimerID) {
+		window.clearTimeout(WebUI._customUpdatesContributorsTimerID);
+	}
+	WebUI._customUpdatesContributorsTimerID = window.setTimeout(function(){ try{ WebUI._customUpdatesContributors.fire()}catch(ex) {}}, 500);
 	//$('.ui-dt-ovflw-tbl').floatThead('reflow');
 };
+
+WebUI.truncateUtfBytes = function(str, nbytes) {
+	//-- Loop characters and calculate running length
+	var bytes = 0;
+	var length = str.length;
+	for(var ix = 0; ix < length; ix++) {
+		var c = str.charCodeAt(ix);
+		if(c < 0x80)
+			bytes++;
+		else if(c < 0x800)
+			bytes += 2;
+		else
+			bytes += 3;
+		if(bytes > nbytes)
+			return ix;
+	}
+	return length;
+};
+
+WebUI.utf8Length = function(str) {
+	var bytes = 0;
+	var length = str.length;
+	for(var ix = 0; ix < length; ix++) {
+		var c = str.charCodeAt(ix);
+		if(c < 0x80)
+			bytes++;
+		else if(c < 0x800)
+			bytes += 2;
+		else
+			bytes += 3;
+	}
+	return bytes;
+};
+
 
 WebUI.onDocumentReady = function() {
 	WebUI.checkBrowser();
@@ -3809,6 +3983,20 @@ WebUI.replaceBrokenImageSrc = function(id, alternativeImage) {
 	$('img#' + id).error(function() {
 		$(this).attr("src", alternativeImage);
 	});
+};
+
+/** In tables that have special class selectors that might cause text-overflow we show full text on hover */
+WebUI.showOverflowTextAsTitle = function(id, selector) {
+	var root = $("#" + id);
+	if (root) {
+		root.find(selector).each(function () {
+			if (this.offsetWidth < this.scrollWidth) {
+				var $this = $(this);
+				$this.attr("title", $this.text());
+			}
+		});
+	}
+	return true;
 };
 
 /** Bulk upload code using swfupload */
@@ -4082,6 +4270,7 @@ WebUI.scrollableTableReset = function(id, tblid) {
 	var tbl = $('#'+tblid);
 	var container = $('#'+id);
 	tbl.floatThead('reflow');
+	WebUI.doCustomUpdates();
 
 	$.dbg('recreate');
 
@@ -4098,10 +4287,31 @@ WebUI.scrollableTableReset = function(id, tblid) {
 WebUI.initScrollableTable = function(id, tblid) {
 	var container = $('#'+id);
 	var tbl = $('#'+tblid);
+	WebUI.doCustomUpdates();
 
 	tbl.floatThead({
 		scrollContainer: function() {
 			return container;
+		},
+		getSizingRow: function($table){ // this is only called when using IE, we need any row without colspan, see http://mkoryak.github.io/floatThead/examples/row-groups/
+			var rows = $table.find('tbody tr:visible').get();
+			for (var i = 0; i < rows.length; i++){
+				var cells = $(rows[i]).find('td');
+				var isInvalidRow = false;
+				for (var i = 0; i < cells.get().length; i++){
+					if ($(cells[i]).attr('colspan') > 1){
+						isInvalidRow = true;
+					}
+				}
+				if (!isInvalidRow){
+					return cells;
+				}
+			}
+			if (rows.length > 0) {
+				return $(rows[0]).find('td'); //as fallback we just return first row cells
+			}else{
+				return null; //or nothing -> but this should not be possible since getSizingRow is called only on table with rows
+			}
 		}
 	});
 	container.scroll(function() {
@@ -4147,3 +4357,67 @@ WebUI.notifyPage = function(command) {
 	}
 };
 
+WebUI.closeOnClick = function(id) {
+	this._id = id;
+	var clickHandler = this._clickHandler = $.proxy(this.closeMenu, this);
+    $(document).click(clickHandler);
+	var keyUpHandler = this._keyUpHandler = $.proxy(this.buttonHandler, this);
+    $(document).keyup(keyUpHandler);
+	$('#' + id).data('inst', this);
+};
+
+$.extend(WebUI.closeOnClick.prototype, {
+	closeMenu: function() {
+		this.unbind();
+		WebUI.scall(this._id, "CLOSEMENU?", {});
+	},
+
+	unbind: function() {
+		$(document).unbind("click", this._clickHandler);
+		$(document).unbind("keyup", this._keyUpHandler);
+	},
+
+	markClosed: function(id) {
+		var inst = $('#' + id).data('inst');
+		if(inst) {
+			inst.unbind();
+		}
+	},
+
+	isInputTagEvent: function(event) {
+		var src = event.srcElement;
+		if(src) {
+			var tn = src.tagName.toUpperCase();
+			if(tn === 'INPUT' || tn == 'SELECT' || tn == "TEXTAREA")
+				return true;
+		}
+		return false;
+	},
+
+	buttonHandler: function(event) {
+		if (this.isInputTagEvent(event))
+			return;
+
+		if (event.which == 27) {				// escape
+			this.closeMenu();
+		}
+	}
+});
+
+DbPerformance = new Object();
+DbPerformance.post = function(id,sessionid) {
+	$(document).ready(function() {
+		setTimeout(function() {
+			$.get(DomUIappURL + "nl.itris.vp.parts.DbPerf.part?requestid=" + sessionid, function(data) {
+				//-- Insert the div as the last in the body
+				$('#' + id).html(data);
+				$(".vp-lspf").draggable({ghosting: false, zIndex: 100, handle: '.vp-lspf-ttl'});
+				$(".vp-lspf-close").click(function() {
+					$(".vp-lspf").hide();
+				});
+
+			});
+		}, 500);
+
+	})
+};

@@ -24,15 +24,16 @@
  */
 package to.etc.domui.component.meta.impl;
 
+import java.lang.reflect.*;
+import java.util.*;
+
+import javax.annotation.*;
+
 import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.util.*;
-
-import javax.annotation.*;
-import java.lang.reflect.*;
-import java.util.*;
 
 abstract public class PropertyMetaModelWrapper<T> implements PropertyMetaModel<T> {
 	private PropertyMetaModel<T> m_parent;
@@ -249,5 +250,28 @@ abstract public class PropertyMetaModelWrapper<T> implements PropertyMetaModel<T
 	@Override
 	public IQueryManipulator<T> getQueryManipulator() {
 		return m_parent.getQueryManipulator();
+	}
+
+	@Nullable
+	@Override
+	public <A> A getAnnotation(@Nonnull Class<A> annclass) {
+		return m_parent.getAnnotation(annclass);
+	}
+
+	@Nonnull
+	@Override
+	public List<Object> getAnnotations() {
+		return m_parent.getAnnotations();
+	}
+
+	@Override
+	public String[] getColumnNames() {
+		return m_parent.getColumnNames();
+	}
+
+	@Nonnull
+	@Override
+	public YesNoType getNowrap() {
+		return m_parent.getNowrap();
 	}
 }

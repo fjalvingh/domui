@@ -221,6 +221,24 @@ public class XmlWriter extends IndentWriter {
 		wraw(StringTool.xmlStringize(value));
 		wraw("\"");
 	}
+
+	/**
+	 *  Renders attribute with string value, complying to
+	 *  DOM API 5.2 Character Escaping
+	 *  http://www.w3.org/TR/2000/WD-xml-c14n-20000119.html#charescaping
+	 *
+	 * @param name
+	 * @param value
+	 * @throws IOException
+	 */
+	public void attrForDomApi(String name, String value) throws IOException {
+		wraw(" ");
+		wraw(name);
+		wraw("=\"");
+		wraw(StringTool.xmlStringizeForDomApi(value));
+		wraw("\"");
+	}
+
 	public void attr(String name, Object value) throws Exception {
 		if(null == value)
 			return;

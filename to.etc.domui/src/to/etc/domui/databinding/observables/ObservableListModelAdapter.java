@@ -9,17 +9,16 @@ import to.etc.domui.databinding.list.*;
 import to.etc.domui.databinding.list2.*;
 
 /**
- * EXPERIMENTAL This adapter creates a {@link ITableModel} from an {@link IObservableList} instance, converting the ObservableList
- * events to table events. This can be used to keep any {@link DataTable} in sync with an observable list.
+ * This adapter creates a {@link ITableModel} from an {@link IObservableList} instance. This does <b>not</b> handle
+ * events from the list: these are different in nature from the "real" model so they must be handled explicitly. Any
+ * event listener added to this model is just ignored.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Sep 4, 2013
  */
-public class ObservableListModelAdapter<T> implements ITableModel<T> {
+final public class ObservableListModelAdapter<T> implements ITableModel<T> {
 	@Nonnull
 	final private IObservableList<T> m_list;
-
-	private Map<ITableModelListener<T>, EvListener> m_lmap = new HashMap<ITableModelListener<T>, EvListener>();
 
 	public ObservableListModelAdapter(@Nonnull IObservableList<T> list) {
 		m_list = list;
@@ -43,19 +42,10 @@ public class ObservableListModelAdapter<T> implements ITableModel<T> {
 
 	@Override
 	public void addChangeListener(@Nonnull ITableModelListener<T> l) {
-		if(m_lmap.containsKey(l))
-			return;
-		EvListener el = new EvListener(l);
-		m_list.addChangeListener(el);
-		m_lmap.put(l, el);
 	}
 
 	@Override
 	public void removeChangeListener(@Nonnull ITableModelListener<T> l) {
-		EvListener el = m_lmap.remove(l);
-		if(null == el)
-			return;
-		m_list.removeChangeListener(el);
 	}
 
 	@Override

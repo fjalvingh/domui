@@ -100,7 +100,7 @@ final public class QQueryUtils {
 		QSelection<T> rest = QSelection.create(q.getBaseClass());
 		rest.setRestrictions(q.getRestrictions());
 		rest.count("id");
-		Object[] count = dc.queryOne(rest);
+		Object[] count = dc.queryOne(rest.testId(q.getTestId()));
 		if(count != null && count.length > 0) {
 			return ((Number) count[0]).intValue();
 		}

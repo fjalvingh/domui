@@ -1,0 +1,28 @@
+/*** 145_smallimgbutton.frag.css ***/
+/*** Small Image button ***/
+.ui-sib {
+	padding: 0px 1px 0px 1px;
+	margin: 0px;
+	border: 0px;
+	background: transparent;
+	vertical-align: bottom;
+	cursor: pointer;
+}
+
+.ui-sib img {
+	padding: 0px;
+	margin: 0px;
+	border: 0px;
+}
+
+.ui-sib:hover {
+	background-color: <%= header_bg %> !important;
+}
+
+.ui-sib[disabled] {
+	cursor: default;
+}
+
+.ui-sib[disabled]:hover {
+	background: none !important;
+}

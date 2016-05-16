@@ -230,22 +230,26 @@ final public class WindowSession {
 //		System.out.println("  ---- Conversation dump end -----");
 	}
 
-	void destroyWindow() {
-		destroyConversations();
+	/**
+	 * @param sessionDestroyed		indicates that the HttpSession has been invalidated somehow, possibly logoout
+	 */
+	void destroyWindow(boolean sessionDestroyed) {
+		destroyConversations(sessionDestroyed);
 		destroyDevelopmentStateFile();
 	}
 
 
 	/**
 	 * Closes all conversations. This discards all screen data and resources.
+	 * @param sessionDestroyed		indicates that the HttpSession has been invalidated somehow, possibly logoout
 	 */
-	void destroyConversations() {
+	void destroyConversations(boolean sessionDestroyed) {
 		m_attached = false;
 		for(ConversationContext cc : m_conversationMap.values()) {
 			try {
-				cc.internalDestroy();
+				cc.internalDestroy(sessionDestroyed);
 			} catch(Exception x) {
-				x.printStackTrace();
+				//x.printStackTrace();							// Not much use to log exceptions on teardown
 			}
 		}
 		m_conversationMap.clear();
@@ -273,7 +277,7 @@ final public class WindowSession {
 			LOG.error("Exception on onDetach() of destroyed conversation", x);
 		}
 		try {
-			cc.internalDestroy();
+			cc.internalDestroy(false);
 		} catch(Exception x) {
 			LOG.error("Exception in onDestroy() of destroyed conversation", x);
 		}
@@ -357,6 +361,7 @@ final public class WindowSession {
 			default:
 				throw new IllegalStateException("UIGoto." + targetMode + " is invalid when calling UIGoto from an exception listener");
 
+			case REPLACE:
 			case REDIRECT:
 			case NEW:
 			case SUB:
@@ -680,8 +685,8 @@ final public class WindowSession {
 	private void clearShelve(final int ix) {
 		//		System.out.println("CLEARING SHELVE to "+ix);
 		if(ix == 0) {
-			m_shelvedPageStack.clear(); // Quickly destroy everything.
-			destroyConversations();
+			m_shelvedPageStack.clear();					// Quickly destroy everything.
+			destroyConversations(false);
 			return;
 		} else if(ix < 0)
 			throw new IllegalStateException("?? index is invalid: " + ix);

@@ -42,7 +42,7 @@ import to.etc.dbpool.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Nov 11, 2010
  */
-public class JspPageHandler {
+final public class JspPageHandler {
 	private JspWriter m_out;
 
 	private HttpServletRequest m_request;
@@ -426,6 +426,7 @@ public class JspPageHandler {
 			b.put("pool", m_pool);
 			b.put("self", this);
 
+			m_scripter.eval("load(\"nashorn:mozilla_compat.js\")");
 			m_scripter.eval("importPackage(Packages.to.etc.dbpool)");
 		}
 		return m_scripter;
@@ -710,7 +711,11 @@ public class JspPageHandler {
 			addError("Missing id");
 			return;
 		}
-		int idnr = (int) Double.parseDouble(id);
+		SessionStatisticsEntry e = m_sessionStats.getEntry(id);
+		if(null == e) {
+			addError("Unknown request ID");
+			return;
+		}
 
 		backlink();
 		text("\u00a0\u00a0\u00a0");
@@ -718,16 +723,10 @@ public class JspPageHandler {
 		full("br");
 
 		String key = getParam("list");
-		List<SessionStatisticsEntry> entries = m_sessionStats.getRequests();
-		for(SessionStatisticsEntry e : entries) {
-			if(idnr == e.getId()) {
-				PerfList plist = e.getStore().getList(key);
-				List<PerfItem> pitems = e.getStore().getItems(key);
-				expandTemplate2("jspSessionEntry", "entry", e, "session", m_sessionStats, "plist", plist, "pitems", pitems);
-				return;
-			}
-		}
-		addError("The request " + idnr + " is not found");
-	}
+		PerfList plist = e.getStore().getList(key);
+		expandTemplate2("jspListHeader", "id", id, "plist", plist, "item", e, "key", key);
 
+		List<PerfItem> pitems = e.getStore().getItems(key);
+		expandTemplate2("jspSessionEntry", "entry", e, "session", m_sessionStats, "plist", plist, "pitems", pitems);
+	}
 }

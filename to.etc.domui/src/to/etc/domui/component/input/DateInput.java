@@ -57,9 +57,9 @@ import to.etc.util.*;
  * Created on Jul 3, 2008
  */
 public class DateInput extends Text<Date> {
-	private SmallImgButton m_selCalButton;
+	private HoverButton m_selCalButton;
 
-	private SmallImgButton m_todayButton;
+	private HoverButton m_todayButton;
 
 	private boolean m_withTime;
 
@@ -84,7 +84,7 @@ public class DateInput extends Text<Date> {
 		setMaxLength(10);
 		setSize(10);
 		setConverter(ConverterRegistry.getConverterInstance(DateConverter.class));
-		m_selCalButton = new SmallImgButton("THEME/btn-datein.png");
+		m_selCalButton = new HoverButton("THEME/btn-datein.png");
 		m_selCalButton.setCssClass("ui-di-sib");		// Allow separate styling of these buttons.
 		setWithTime(withtime);
 	}
@@ -100,9 +100,9 @@ public class DateInput extends Text<Date> {
 		appendAfterMe(m_selCalButton);
 		if(!m_hideTodayButton) {
 			if(m_todayButton == null) {
-				m_todayButton = new SmallImgButton("THEME/btnToday.png", new IClicked<SmallImgButton>() {
+				m_todayButton = new HoverButton("THEME/btnToday.png", new IClicked<HoverButton>() {
 					@Override
-					public void clicked(@Nonnull SmallImgButton b) throws Exception {
+					public void clicked(@Nonnull HoverButton b) throws Exception {
 						Date currentDate = new Date();
 						if(!m_withTime) {
 							currentDate = DateUtil.truncateDate(currentDate);
@@ -129,22 +129,6 @@ public class DateInput extends Text<Date> {
 		m_selCalButton.remove(); // Remove selection button
 		if(m_todayButton != null)
 			m_todayButton.remove();
-	}
-
-	/**
-	 * The calendar thingy requires calendar files.
-	 * FIXME See the comment in {@link Body#onHeaderContributors(Page)}
-	 *
-	 * @see to.etc.domui.dom.html.NodeBase#onHeaderContributors(to.etc.domui.dom.html.Page)
-	 */
-	@Override
-	public void onHeaderContributors(Page page) {
-	/*
-	 */
-	//		page.addHeaderContributor(HeaderContributor.loadJavascript("js/calendar.js"));
-	//		page.addHeaderContributor(HeaderContributor.loadJavascript("js/calendar-setup.js"));
-	//		Locale	loc = NlsContext.getLocale();				// FIXME Use the locale to decide on which calendar to use.
-	//		page.addHeaderContributor(HeaderContributor.loadJavascript("js/calendarnls.js"));
 	}
 
 	@Override

@@ -118,25 +118,28 @@ public class UploadParser {
 	/*	CODING:	Main parser entrypoint.								*/
 	/*--------------------------------------------------------------*/
 	public List<UploadItem> parseRequest(final HttpServletRequest ctx, final String hdrencoding) throws FileUploadException, IOException {
-		//-- Get all data from the request and pass to the main parser.
-		String ct = ctx.getContentType();
-		int requestSize = ctx.getContentLength();
+		try {
+			//-- Get all data from the request and pass to the main parser.
+			String ct = ctx.getContentType();
+			int requestSize = ctx.getContentLength();
 
-		//		ByteArrayOutputStream bos = new ByteArrayOutputStream(1 * 1024 * 1024);
-		//		InputStream tis = ctx.getInputStream();
-		//		FileTool.copyFile(bos, tis);
-		//		tis.close();
-		//		bos.close();
-		//
-		//		//-- Write data to tmpfile
-		//		byte[] data = bos.toByteArray();
-		//		FileTool.save(new File("/tmp/in.bin"), new byte[][]{data});
-		//
-		//		final InputStream sis = new ByteArrayInputStream(data);
-		final InputStream is = ctx.getInputStream();
+			//		ByteArrayOutputStream bos = new ByteArrayOutputStream(1 * 1024 * 1024);
+			//		InputStream tis = ctx.getInputStream();
+			//		FileTool.copyFile(bos, tis);
+			//		tis.close();
+			//		bos.close();
+			//
+			//		//-- Write data to tmpfile
+			//		byte[] data = bos.toByteArray();
+			//		FileTool.save(new File("/tmp/in.bin"), new byte[][]{data});
+			//
+			//		final InputStream sis = new ByteArrayInputStream(data);
+			final InputStream is = ctx.getInputStream();
 
-		return parseRequest(is, hdrencoding, ct, requestSize);
-		//		return parseRequest(ctx.getInputStream(), hdrencoding, ct, requestSize);
+			return parseRequest(is, hdrencoding, ct, requestSize);
+		} catch(EOFException ex) {
+			throw new FileUploadInterruptedException(ex);
+		}
 	}
 
 	static private String getStringHeader(final Map<String, Object> hdr, final String name) {
@@ -163,9 +166,21 @@ public class UploadParser {
 			throw new FileUploadException("Content type is not an accepted multipart type but " + contentType);
 		if(requestSize == -1)
 			throw new FileUploadException("The content length is missing or invalid");
-		if(requestSize > m_sizeMax)
-			throw new FileUploadSizeExceededException("The uploaded data exceeds the max size that can be uploaded (the max size is " + StringTool.strSize(m_sizeMax) + ", the upload is "
-				+ StringTool.strSize(requestSize) + ")");
+
+		/*
+		 * jal 20160225 The code below was disabled because it does not work with Tomcat. When the request
+		 * is not fully loaded (due to the exception being thrown) Tomcat will send the request AGAIN a
+		 * few times.
+		 *
+		 * The current solution to handle max file size is this:
+		 * 1. The Javascript tries to check the file size using the files[0] member of the input type file.
+		 * 2. If that fails we have no other choice than to read all input. While doing so the max size
+		 * for each fragment is checked. If any fragment exceeds it the exception is thrown AFTER
+		 * reading all input. This ensures that server-side handling is correct if javascript fails.
+		 */
+		//if(requestSize > m_sizeMax)
+		//	throw new FileUploadSizeExceededException(m_sizeMax, "The uploaded data exceeds the max size that can be uploaded (the max size is " + StringTool.strSize(m_sizeMax) + ", the upload is "
+		//		+ StringTool.strSize(requestSize) + ")");
 		MiniParser p = new MiniParser();
 		byte[] boundary = decodeBoundary(p, contentType);
 		if(boundary == null)
@@ -180,6 +195,7 @@ public class UploadParser {
 		if(!multi.skipPreamble()) // Something there?
 			return l;
 		boolean ok = false;
+		boolean toolarge = false;
 		try {
 			for(;;) {
 				//-- Get the headers into the scratch map
@@ -200,9 +216,10 @@ public class UploadParser {
 						while(nextSubPart) {
 							hp.parse(headermap, multi.readHeaders(), true); // Decode this-fragment's headers
 							String filename = decodeHeaderItem(headermap, CONTENT_DISPOSITION, "filename", FORM_DATA, ATTACHMENT, p);
-							if(filename != null)
-								readItem(p, l, headermap, multi, fieldname, filename);
-							else
+							if(filename != null) {
+								if(! readItem(p, l, headermap, multi, fieldname, filename))
+									toolarge = true;
+							} else
 								multi.discardBodyData(); // Not a file: ignore.
 							nextSubPart = multi.readBoundary();
 						}
@@ -210,11 +227,13 @@ public class UploadParser {
 					} else {
 						//-- Not a multithingy: get single field or file
 						String filename = decodeHeaderItem(headermap, CONTENT_DISPOSITION, "filename", FORM_DATA, ATTACHMENT, p);
-						readItem(p, l, headermap, multi, fieldname, filename);
+						if(! readItem(p, l, headermap, multi, fieldname, filename))
+							toolarge = true;
 					}
 				}
-				if(!multi.readBoundary()) // Is there more?
-				{
+				if(!multi.readBoundary()) {
+					if(toolarge)
+						throw new FileUploadSizeExceededException(m_sizeMax);
 					ok = true;
 					return l;
 				}
@@ -286,7 +305,7 @@ public class UploadParser {
 	 * @throws IOException
 	 */
 	//	@SuppressWarnings("null")
-	private void readItem(final MiniParser p, final List<UploadItem> l, final Map<String, Object> headermap, final MultipartStream multi, final String fieldname, String fn) throws IOException {
+	private boolean readItem(final MiniParser p, final List<UploadItem> l, final Map<String, Object> headermap, final MultipartStream multi, final String fieldname, String fn) throws IOException {
 		String contenttype = getStringHeader(headermap, CONTENT_TYPE);
 		String charset = null;
 		if(contenttype != null) {
@@ -319,6 +338,7 @@ public class UploadParser {
 		File resf = null;
 
 		//-- If this is a file write it to a tempfile, else write it to a byte array && convert to a string value
+		int bytesRead = -1;
 		boolean ok = false;
 		try {
 			if(fn != null) {
@@ -331,7 +351,7 @@ public class UploadParser {
 				bos = new ByteArrayOutputStream(8192);
 				os = bos;
 			}
-			multi.readBodyData(os);
+			bytesRead = multi.readBodyData(os, m_sizeMax);
 			os.close();
 			os = null;
 			ok = true;
@@ -348,6 +368,9 @@ public class UploadParser {
 			}
 		}
 
+		if(bytesRead >= m_sizeMax)
+			return false;
+
 		//-- Decode worked, and data flushed either to bytearray or file...
 		if(bos != null) {
 			byte[] data = bos.toByteArray();
@@ -357,5 +380,6 @@ public class UploadParser {
 			ui.setValue(resf);
 		}
 		l.add(ui);
+		return true;
 	}
 }

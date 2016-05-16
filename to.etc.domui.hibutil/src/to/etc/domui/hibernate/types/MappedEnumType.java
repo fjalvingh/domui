@@ -117,8 +117,16 @@ public class MappedEnumType implements UserType, ParameterizedType {
 	public void nullSafeSet(PreparedStatement st, Object value, int index) throws HibernateException, SQLException {
 		if(value == null)
 			st.setNull(index, Types.VARCHAR);
-		else
-			st.setString(index, ((IDatabaseCodeEnum) value).getCode());
+		else {
+			try {
+				st.setString(index, ((IDatabaseCodeEnum) value).getCode());
+			} catch(SQLException | HibernateException ex) {
+				//added extra info on error -> since it is hard for trace otherwise
+				System.err.println("value: >" + value + "< can not be cased to IDatabaseCodeEnum, at index: " + index);
+				System.err.println("raised at " + getClass() + ", " + this);
+				throw ex;
+			}
+		}
 	}
 
 	@Override

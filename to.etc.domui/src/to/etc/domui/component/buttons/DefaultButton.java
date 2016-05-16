@@ -53,15 +53,13 @@ import to.etc.domui.util.*;
 public class DefaultButton extends Button implements IActionControl {
 	private String m_text;
 
+	@Nullable
 	private String m_icon;
 
 	/** If this is an action-based button this contains the action. */
 	private IUIAction< ? > m_action;
 
 	private Object m_actionInstance;
-
-	@Nullable
-	private String m_disabledBecause;
 
 	/**
 	 * Create an empty button.
@@ -129,19 +127,19 @@ public class DefaultButton extends Button implements IActionControl {
 	public void createContent() throws Exception {
 		Span s = new Span();
 		add(s);
+		s.setCssClass("ui-sdbtn-w");
 		if(null != m_icon) {
-			String icon = m_icon;
-
-			if(isDisabled()) {
-				icon = GrayscalerPart.getURL(icon);
-			}
-
+			String icon = getThemedResourceRURL(m_icon);
 			Img img = new Img(icon);
 			s.add(img);
 			img.setImgBorder(0);
+			img.setDisabled(isDisabled());
 		}
+		Span txt = new Span();
+		txt.setCssClass("ui-sdbtn-txt");
+		s.add(txt);
 		if(!DomUtil.isBlank(m_text))
-			decodeAccelerator(m_text, s);
+			decodeAccelerator(m_text, txt);
 	}
 
 	/**
@@ -166,9 +164,14 @@ public class DefaultButton extends Button implements IActionControl {
 	 * Sets a (new) icon on this button. This requires an absolute image path.
 	 * @param name
 	 */
-	public void setIcon(final String name) {
+	public void setIcon(@Nullable final String name) {
 		m_icon = name;
 		forceRebuild();
+	}
+
+	@Nullable
+	public String getIcon() {
+		return m_icon;
 	}
 
 	/**
@@ -299,43 +302,6 @@ public class DefaultButton extends Button implements IActionControl {
 				action.execute(DefaultButton.this, m_actionInstance);
 			}
 		});
-	}
-
-	/**
-	 * Util for updating button enabled / disabled state depending on existence of error (reason for disabling).
-	 *
-	 * @param rsn reason to disable button. If null, button gets enabled, otherwise it gets disabled with rsn.getMessage() as title (hint)
-	 */
-	public void setDisabled(@Nullable UIMessage rsn) {
-		if(null != rsn) {
-			setDisabled(true);
-			setOverrideTitle(rsn.getMessage());
-			m_disabledBecause = rsn.getMessage();
-		} else {
-			setDisabled(false);
-			setOverrideTitle(null);
-			m_disabledBecause = null;
-		}
-	}
-
-	@Nullable
-	public String getDisabledBecause() {
-		return m_disabledBecause;
-	}
-
-	public void setDisabledBecause(@Nullable String msg) {
-		if(Objects.equals(msg, m_disabledBecause)) {
-			return;
-		}
-		m_disabledBecause = msg;
-		if(null != msg) {
-			setDisabled(true);
-			setOverrideTitle(msg);
-		} else {
-			setDisabled(false);
-			setOverrideTitle(null);
-			m_disabledBecause = null;
-		}
 	}
 
 }

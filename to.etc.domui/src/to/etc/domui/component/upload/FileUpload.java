@@ -29,6 +29,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.buttons.*;
+import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.parts.*;
@@ -66,7 +67,7 @@ import to.etc.domui.util.upload.*;
 public class FileUpload extends Div implements IUploadAcceptingComponent /* implements IHasChangeListener */ {
 	private String m_allowedExtensions;
 
-	//	private int m_maxSize;
+	private int m_maxSize;
 
 	private boolean m_mandatory;
 
@@ -121,11 +122,17 @@ public class FileUpload extends Div implements IUploadAcceptingComponent /* impl
 
 			FileInput fi = new FileInput();
 			f.add(fi);
+			// Prevent IE 11 to submit form on keypress on file input
+			fi.setSpecialAttribute("onkeypress", "WebUI.preventIE11DefaultAction(event)");
 			fi.setSpecialAttribute("onchange", "WebUI.fileUploadChange(event)");
 			fi.setDisabled(isDisabled());
 			if(null != m_allowedExtensions)
 				fi.setSpecialAttribute("fuallowed", m_allowedExtensions);
 			//			fi.setSpecialAttribute("fumaxsz", Integer.toString(m_maxSize));
+			int maxSize = getMaxSize();
+			if(maxSize <= 0)
+				maxSize = 100*1024*1024;
+			fi.setSpecialAttribute("fumaxsize", Integer.toString(maxSize));
 			m_input = fi;
 		}
 		for(final UploadItem ufi : m_files) {
@@ -290,22 +297,38 @@ public class FileUpload extends Div implements IUploadAcceptingComponent /* impl
 		forceRebuild();
 	}
 
+	public int getMaxSize() {
+		return m_maxSize;
+	}
+
+	public void setMaxSize(int maxSize) {
+		m_maxSize = maxSize;
+	}
+
 	@Override
-	public void handleUploadRequest(@Nonnull RequestContextImpl param, @Nonnull ConversationContext conversation) throws Exception {
-		UploadItem[] uiar = param.getFileParameter(getInput().getActualID());
-		if(uiar != null) {
-			for(UploadItem ui : uiar) {
-				getFiles().add(ui);
-				conversation.registerTempFile(ui.getFile());
+	public boolean handleUploadRequest(@Nonnull RequestContextImpl param, @Nonnull ConversationContext conversation) throws Exception {
+		try {
+			if(isDisabled())
+				return true;
+
+			UploadItem[] uiar = param.getFileParameter(getInput().getActualID());
+			if(uiar != null) {
+				for(UploadItem ui : uiar) {
+					getFiles().add(ui);
+					conversation.registerTempFile(ui.getFile());
+				}
 			}
+		} catch(FileUploadException fxu) {
+			MessageFlare.display(this, fxu.getMessage());
+			return true;
 		}
 		forceRebuild();
+		// We need this page reference since in onValueChanged() force rebuild might happen again
+		// and then we'll lose the page reference neede for renderOptimalDelta().
+		Page p = getPage();
 		if(m_onValueChanged != null)
 			((IValueChanged<FileUpload>) m_onValueChanged).onValueChanged(this);
-
-		//-- Render an optimal delta as the response,
-		param.getRequestResponse().setNoCache();
-		ApplicationRequestHandler.renderOptimalDelta(param, getPage());
+		return true;
 	}
 }
 

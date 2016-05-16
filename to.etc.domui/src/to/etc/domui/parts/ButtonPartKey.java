@@ -25,6 +25,7 @@
 package to.etc.domui.parts;
 
 import to.etc.domui.server.*;
+import to.etc.domui.themes.*;
 import to.etc.util.*;
 
 public class ButtonPartKey {
@@ -48,18 +49,20 @@ public class ButtonPartKey {
 		return k;
 	}
 
-	public void append(StringBuilder sb) {
+	public void append(IThemeVariant ts, StringBuilder sb) {
 		sb.append(PropBtnPart.class.getName());
 		sb.append(".part?src=");
-		sb.append(m_propfile);
+		String propfile = m_propfile;
+		sb.append(DomApplication.get().internalGetThemeManager().getThemedResourceRURL(ts, propfile));
 		if(m_text != null) {
 			sb.append("&txt=");
 			//			String text = DomUtil.replaceTilded(this, m_text);
 			StringTool.encodeURLEncoded(sb, m_text);
 		}
-		if(m_icon != null) {
+		String icon = m_icon;
+		if(icon != null) {
 			sb.append("&icon=");
-			StringTool.encodeURLEncoded(sb, m_icon);
+			StringTool.encodeURLEncoded(sb, DomApplication.get().internalGetThemeManager().getThemedResourceRURL(ts, icon));
 		}
 	}
 

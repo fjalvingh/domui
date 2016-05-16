@@ -301,28 +301,24 @@ final public class ThemeManager {
 	 * 	$THEME/[currentThemeString]/[name]
 	 * </pre>
 	 * where [name] is the rest of the path string after THEME/ has been removed from it.
+	 * @param themeStyle			The substyle/variant of the theme that the page wants to use.
 	 * @param path
 	 * @return
 	 */
-	@Nullable
-	public String getThemedResourceRURL(@Nullable String path) {
-		if(null == path)
-			return null;
-
+	@Nonnull
+	public String getThemedResourceRURL(@Nonnull IThemeVariant themeStyle, @Nonnull String path) {
 		if(path.startsWith("THEME/")) {
-			path = path.substring(6); // Strip THEME/
+			path = path.substring(6); 							// Strip THEME/
 		} else if(path.startsWith("ICON/")) {
 			throw new IllegalStateException("Bad ROOT: ICON/. Use THEME/ instead.");
 		} else
-			return path; // Not theme-relative, so return as-is.
+			return path;										// Not theme-relative, so return as-is.
 		if(path == null)
 			throw new NullPointerException();
 
 		//-- This *is* a theme URL. Do we need to replace the icon?
-		ITheme theme = getTheme(getCurrentTheme(), null);
+		ITheme theme = getTheme(getCurrentTheme()+"/"+themeStyle.getVariantName(), null);
 		String newicon = theme.translateResourceName(path);
-		return ThemeResourceFactory.PREFIX + getCurrentTheme() + "/" + newicon;
+		return ThemeResourceFactory.PREFIX + getCurrentTheme() + "/" + themeStyle.getVariantName() + "/" + newicon;
 	}
-
-
 }

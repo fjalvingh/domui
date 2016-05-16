@@ -1,11 +1,12 @@
 package to.etc.domui.databinding.observables;
 
+import java.util.*;
+
+import javax.annotation.*;
+
 import to.etc.domui.databinding.*;
 import to.etc.domui.databinding.list.*;
 import to.etc.domui.databinding.list2.*;
-
-import javax.annotation.*;
-import java.util.*;
 
 /**
  * A list that generates change events for it's content, and that does <b>not allow null elements</b>. This
@@ -17,16 +18,49 @@ import java.util.*;
 public class ObservableList<T> extends ListenerList<T, ListChangeEvent<T>, IListChangeListener<T>> implements IObservableList<T> {
 	private final List<T> m_list;
 
+	/** When set this becomes an ordered model. */
+	@Nullable
+	private Comparator<T> m_comparator;
+
+	@Nullable
+	private List<ListChange<T>> m_currentChange;
+
+	private int m_changeNestingCount;
+
 	public ObservableList() {
 		m_list = new ArrayList<T>();
 	}
 
-	public ObservableList(@Nonnull List<T> list) {
-		m_list = list;
+	public ObservableList(@Nonnull Collection<T> list) {
+		m_list = new ArrayList<>(list);
 	}
 
 	public ObservableList(int size) {
 		m_list = new ArrayList<>(size);
+	}
+
+	private List<ListChange<T>> startChange() {
+		List<ListChange<T>> currentChange = m_currentChange;
+		if(null == currentChange) {
+			m_changeNestingCount = 1;
+			m_currentChange = currentChange = new ArrayList<>();
+		} else
+			m_changeNestingCount++;
+		return currentChange;
+	}
+
+	private void finishChange() {
+		if(m_changeNestingCount <= 0)
+			throw new IllegalStateException("Unbalanced startChange/finishChange");
+		m_changeNestingCount--;
+
+		if(m_changeNestingCount == 0) {
+			List<ListChange<T>> currentChange = m_currentChange;
+			m_currentChange = null;
+			if(null == currentChange)
+				throw new IllegalStateException("Logic error: no change list");
+			fireEvent(new ListChangeEvent<>(this, currentChange));
+		}
 	}
 
 	@Override
@@ -62,13 +96,21 @@ public class ObservableList<T> extends ListenerList<T, ListChangeEvent<T>, IList
 
 	@Override
 	public boolean add(T e) {
-		int indx = size();
-		boolean res = m_list.add(e);
-
-		List<ListChange<T>> el = new ArrayList<ListChange<T>>();
-		el.add(new ListChangeAdd<T>(indx, e));
-		fireEvent(new ListChangeEvent<T>(this, el));
-		return res;
+		int index;
+		Comparator<T> comparator = m_comparator;
+		if(null == comparator) {
+			index = size();
+			m_list.add(e);
+		} else {
+			index = Collections.binarySearch(m_list, e, comparator);
+			if(index < 0)
+				index = -(index + 1);
+			m_list.add(index, e);
+		}
+		List<ListChange<T>> el = startChange();
+		el.add(new ListChangeAdd<>(index, e));
+		finishChange();
+		return true;
 	}
 
 	@Override
@@ -78,10 +120,9 @@ public class ObservableList<T> extends ListenerList<T, ListChangeEvent<T>, IList
 			return false;
 		m_list.remove(indx);
 
-		List<ListChange<T>> el = new ArrayList<ListChange<T>>();
+		List<ListChange<T>> el = startChange();
 		el.add(new ListChangeDelete<T>(indx, (T) o));
-		fireEvent(new ListChangeEvent<T>(this, el));
-
+		finishChange();
 		return true;
 	}
 
@@ -92,35 +133,41 @@ public class ObservableList<T> extends ListenerList<T, ListChangeEvent<T>, IList
 
 	@Override
 	public boolean addAll(Collection< ? extends T> c) {
-		boolean res = m_list.addAll(c);
-
-		List<ListChange<T>> el = new ArrayList<ListChange<T>>();
-		int indx = size();
-		for(T v : c) {
-			el.add(new ListChangeAdd<T>(indx++, v));
+		List<ListChange<T>> el = startChange();
+		Comparator<T> comparator = m_comparator;
+		if(null == comparator) {
+			m_list.addAll(c);
+			int indx = size();
+			for(T v : c) {
+				el.add(new ListChangeAdd<T>(indx++, v));
+			}
+		} else {
+			for(T v : c) {
+				add(v);
+			}
 		}
-		fireEvent(new ListChangeEvent<T>(this, el));
-
-		return res;
+		finishChange();
+		return c.size() > 0;
 	}
 
 	@Override
 	public boolean addAll(int index, Collection< ? extends T> c) {
+		if(m_comparator != null)
+			throw new IllegalStateException("Cannot add by index on a sorted model: the sorting order determines the insert index");
 		boolean res = m_list.addAll(index, c);
 
-		List<ListChange<T>> el = new ArrayList<ListChange<T>>();
+		List<ListChange<T>> el = startChange();
 		int indx = index;
 		for(T v : c) {
-			el.add(new ListChangeAdd<T>(indx++, v));
+			el.add(new ListChangeAdd<>(indx++, v));
 		}
-		fireEvent(new ListChangeEvent<T>(this, el));
-
+		finishChange();
 		return res;
 	}
 
 	@Override
 	public boolean removeAll(Collection< ? > c) {
-		List<ListChange<T>> el = new ArrayList<ListChange<T>>();
+		List<ListChange<T>> el = startChange();
 		boolean done = false;
 		for(Object v : c) {
 			int indx = indexOf(v);
@@ -130,13 +177,13 @@ public class ObservableList<T> extends ListenerList<T, ListChangeEvent<T>, IList
 				done = true;
 			}
 		}
-		fireEvent(new ListChangeEvent<T>(this, el));
+		finishChange();
 		return done;
 	}
 
 	@Override
 	public boolean retainAll(Collection< ? > c) {
-		List<ListChange<T>> el = new ArrayList<ListChange<T>>();
+		List<ListChange<T>> el = startChange();
 		boolean done = false;
 		for(int i = size(); --i >= 0;) {
 			T cv = m_list.get(i);
@@ -146,18 +193,18 @@ public class ObservableList<T> extends ListenerList<T, ListChangeEvent<T>, IList
 				done = true;
 			}
 		}
-		fireEvent(new ListChangeEvent<T>(this, el));
+		finishChange();
 		return done;
 	}
 
 	@Override
 	public void clear() {
-		List<ListChange<T>> el = new ArrayList<ListChange<T>>();
+		List<ListChange<T>> el = startChange();
 		for(int i = size(); --i >= 0;) {
 			T cv = m_list.get(i);
 			el.add(new ListChangeDelete<T>(i, cv));
 		}
-		fireEvent(new ListChangeEvent<T>(this, el));
+		finishChange();
 		m_list.clear();
 	}
 
@@ -179,32 +226,35 @@ public class ObservableList<T> extends ListenerList<T, ListChangeEvent<T>, IList
 
 	@Override
 	public T set(int index, T element) {
+		if(m_comparator != null)
+			throw new IllegalStateException("Cannot set by index on a sorted model: the sorting order determines the insert index");
+
 		T res = m_list.set(index, element);
 
-		List<ListChange<T>> el = new ArrayList<ListChange<T>>();
+		List<ListChange<T>> el = startChange();
 		el.add(new ListChangeModify<T>(index, res, element));
-		fireEvent(new ListChangeEvent<T>(this, el));
-
+		finishChange();
 		return res;
 	}
 
 	@Override
 	public void add(int index, T element) {
+		if(m_comparator != null)
+			throw new IllegalStateException("Cannot add by index on a sorted model: the sorting order determines the insert index");
 		m_list.add(index, element);
 
-		List<ListChange<T>> el = new ArrayList<ListChange<T>>();
+		List<ListChange<T>> el = startChange();
 		el.add(new ListChangeAdd<T>(index, element));
-		fireEvent(new ListChangeEvent<T>(this, el));
+		finishChange();
 	}
 
 	@Override
 	public T remove(int index) {
 		T res = m_list.remove(index);
 
-		List<ListChange<T>> el = new ArrayList<ListChange<T>>();
-		el.add(new ListChangeDelete<T>(index, res));
-		fireEvent(new ListChangeEvent<T>(this, el));
-
+		List<ListChange<T>> el = startChange();
+		el.add(new ListChangeDelete<>(index, res));
+		finishChange();
 		return res;
 	}
 
@@ -232,5 +282,37 @@ public class ObservableList<T> extends ListenerList<T, ListChangeEvent<T>, IList
 	@Override
 	public List<T> subList(int fromIndex, int toIndex) {
 		return m_list.subList(fromIndex, toIndex);
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Sortable handling.									*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * When set the list will be kept ordered.
+	 * @return
+	 */
+	@Nullable
+	public Comparator<T> getComparator() {
+		return m_comparator;
+	}
+
+	/**
+	 * Sets a new comparator to use. This resorts the model, if needed, causing a full model update.
+	 * @param comparator
+	 * @throws Exception
+	 */
+	public void setComparator(@Nullable Comparator<T> comparator) throws Exception {
+		if(m_comparator == comparator)
+			return;
+		m_comparator = comparator;
+		if(comparator != null) {
+			resort();
+		}
+	}
+
+	private void resort() throws Exception {
+		startChange();
+		Collections.sort(m_list, m_comparator);
+		finishChange();
 	}
 }

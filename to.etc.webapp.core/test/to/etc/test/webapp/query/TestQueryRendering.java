@@ -24,6 +24,8 @@
  */
 package to.etc.test.webapp.query;
 
+import java.util.*;
+
 import org.junit.*;
 
 import to.etc.test.webapp.qsql.*;
@@ -56,7 +58,7 @@ public class TestQueryRendering {
 		))
 		.isnotnull("lastname")
 		;
-		Assert.assertEquals("FROM to.etc.test.webapp.query.TestQueryRendering WHERE organizationID=1000L and (name='Frits' or lastname='Jalvingh' or shoeSize<43L) and isNotNull (lastname)", render(q));
+		Assert.assertEquals("FROM to.etc.test.webapp.query.TestQueryRendering WHERE organizationID=1000L and (name='Frits' or lastname='Jalvingh' or shoeSize<43L) and is not null (lastname)", render(q));
 	}
 
 	@Test
@@ -92,5 +94,20 @@ public class TestQueryRendering {
 		Assert.assertEquals("FROM to.etc.test.webapp.query.TestQueryRendering WHERE exists (select 1 from $[parent.ledgerList] where code='1210012' and date>12345L)", render(q));
 	}
 
+	@Test
+	public void testInWithLiterals() throws Exception {
+		QCriteria<TestQueryRendering> q = QCriteria.create(TestQueryRendering.class);
+		q.in("code", Arrays.asList("12", "13", "14"));
+		Assert.assertEquals("FROM to.etc.test.webapp.query.TestQueryRendering WHERE code in ('12','13','14')", render(q));
+	}
+	@Test
+	public void testInWithSubquery() throws Exception {
+		QSelection<TestQueryRendering> sel = QSelection.create(TestQueryRendering.class);
+		sel.selectProperty("id");
+		sel.gt("code", "123");
 
+		QCriteria<TestQueryRendering> q = QCriteria.create(TestQueryRendering.class);
+		q.in("code", sel);
+		Assert.assertEquals("FROM to.etc.test.webapp.query.TestQueryRendering WHERE code in ((FROM to.etc.test.webapp.query.TestQueryRendering SELECT property(id) WHERE code>'123'))", render(q));
+	}
 }

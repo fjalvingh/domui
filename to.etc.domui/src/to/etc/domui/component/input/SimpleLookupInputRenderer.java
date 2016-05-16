@@ -32,6 +32,7 @@ import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
+import to.etc.util.*;
 
 /**
  * This renderer represents default renderer that is used for {@link LookupInput} control.
@@ -131,6 +132,7 @@ public class SimpleLookupInputRenderer<T> implements INodeContentRenderer<T> {
 			if(cell.getChildCount() != 0)
 				tbl.addRow().add(cell);
 		}
+
 	}
 
 	/**

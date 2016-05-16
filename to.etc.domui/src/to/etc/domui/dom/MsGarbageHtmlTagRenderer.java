@@ -48,7 +48,7 @@ public class MsGarbageHtmlTagRenderer extends HtmlTagRenderer {
 	 */
 	@Override
 	protected void renderDisabled(NodeBase n, boolean disabled) throws IOException {
-		if(!isFullRender())
+		if(!isFullRender() && getBrowser().getMajorVersion() < 11)
 			addDelayedAttrs(n, "disabled", disabled ? "true" : "false");
 		else
 			super.renderDisabled(n, disabled);
@@ -60,7 +60,7 @@ public class MsGarbageHtmlTagRenderer extends HtmlTagRenderer {
 	 */
 	@Override
 	protected void renderReadOnly(NodeBase n, boolean readonly) throws IOException {
-		if(!isFullRender())
+		if(!isFullRender() && getBrowser().getMajorVersion() < 11)
 			addDelayedAttrs(n, "readOnly", readonly ? "true" : "false");
 		else
 			super.renderReadOnly(n, readonly);
@@ -68,7 +68,7 @@ public class MsGarbageHtmlTagRenderer extends HtmlTagRenderer {
 
 	@Override
 	protected void renderChecked(NodeBase n, boolean checked) throws IOException {
-		if(!isFullRender())
+		if(!isFullRender() && getBrowser().getMajorVersion() < 11)
 			addDelayedAttrs(n, "checked", checked ? "true" : "false");
 		else
 			super.renderChecked(n, checked);
@@ -76,7 +76,7 @@ public class MsGarbageHtmlTagRenderer extends HtmlTagRenderer {
 
 	@Override
 	protected void renderSelected(NodeBase n, boolean checked) throws IOException {
-		if(!isFullRender())
+		if(!isFullRender() && getBrowser().getMajorVersion() < 11)
 			addDelayedAttrs(n, "selected", checked ? "true" : "false");
 		else
 			super.renderSelected(n, checked);

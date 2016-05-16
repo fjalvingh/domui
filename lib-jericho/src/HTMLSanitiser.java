@@ -1,5 +1,6 @@
-import net.htmlparser.jericho.*;
 import java.util.*;
+
+import net.htmlparser.jericho.*;
 
 /**
  * Provides facilities to sanitise HTML containing unwanted or invalid tags into clean HTML.

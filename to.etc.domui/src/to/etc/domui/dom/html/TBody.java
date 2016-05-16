@@ -100,6 +100,12 @@ public class TBody extends NodeContainer implements IDropBody {
 	}
 
 	@Nonnull
+	public TD addRowAndCell(@Nonnull String cellCss) {
+		addRow();
+		return addCell(cellCss);
+	}
+
+	@Nonnull
 	public TD cell() {
 		if(null != m_currentCell)
 			return m_currentCell;

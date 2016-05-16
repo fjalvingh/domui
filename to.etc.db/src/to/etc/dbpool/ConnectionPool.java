@@ -291,6 +291,9 @@ final public class ConnectionPool {
 
 	private volatile int m_forceTimeout;
 
+	/** Per-pool attributes that can be used for extensions. */
+	final private Map<String, Object> m_attributeMap = new HashMap<>();
+
 	/**
 	 * Pool event, add listeners using
 	 *
@@ -927,6 +930,7 @@ final public class ConnectionPool {
 	 */
 	void returnToPool(PoolEntry pe, final ConnectionProxy pc) throws SQLException {
 		m_manager.removeThreadConnection(pc);
+
 		//-- Before doing anything else reset the connection outside the lock,
 		boolean ok = false;
 		try {
@@ -1095,8 +1099,7 @@ final public class ConnectionPool {
 	 * @throws SQLException
 	 */
 	ConnectionProxy getConnection(final boolean unpooled) throws SQLException {
-		IInfoHandler d = m_manager.getInfoHandler();
-		d.connectionAllocated();
+		IConnectionEventListener d = m_manager.getConnectionEventListener();
 		for(;;) {
 			PoolEntry pe = allocateConnection(unpooled);
 			Exception x = checkConnection(pe.getConnection()); // Is the connection still valid?
@@ -1105,6 +1108,7 @@ final public class ConnectionPool {
 				dbgAlloc("getConnection", dbc);
 				if(!unpooled)
 					PoolManager.getInstance().addThreadConnection(dbc);
+				d.connectionAllocated(dbc);
 				return dbc;
 			}
 
@@ -1121,8 +1125,7 @@ final public class ConnectionPool {
 	 * @return
 	 */
 	public Connection getUnpooledConnection(String username, String password) throws SQLException {
-		IInfoHandler d = m_manager.getInfoHandler();
-		d.connectionAllocated();
+		IConnectionEventListener d = m_manager.getConnectionEventListener();
 		int newid;
 		synchronized(this) {
 			newid = m_entryidgen++;
@@ -1139,6 +1142,7 @@ final public class ConnectionPool {
 
 			ConnectionProxy dbc = pe.proxyMake(); // Yes-> make the proxy and be done.
 			dbgAlloc("getUnpooledConnection", dbc);
+			d.connectionAllocated(dbc);
 			return dbc;
 		} finally {
 			//-- We need to handle accounting!!
@@ -1160,7 +1164,7 @@ final public class ConnectionPool {
 	 * the purgatory handler (the thing called when all connections are used).
 	 * @returns	T if the scan found and released "hanging" connections.
 	 */
-	public boolean scanExpiredConnections(final int scaninterval_in_secs, boolean forcedisconnects) {
+	public boolean scanExpiredConnections(final int scanIntervalInSeconds, boolean forcedisconnects) {
 		if(c().getScanMode() == ScanMode.DISABLED && !forcedisconnects)
 			return false;
 
@@ -1168,7 +1172,7 @@ final public class ConnectionPool {
 
 		//-- Discard all proxies that find themselves too old.
 		long ts = System.currentTimeMillis();
-		long ets = ts - scaninterval_in_secs * 1000; // Earliest time that's still valid
+		long ets = ts - scanIntervalInSeconds * 1000; // Earliest time that's still valid
 		HangCheckState hs = new HangCheckState(c().getScanMode(), ts, ets, forcedisconnects);
 
 		for(ConnectionProxy cpx : proxylist) {
@@ -1793,5 +1797,22 @@ final public class ConnectionPool {
 
 	synchronized void decOpenRS() {
 		m_n_open_rs--;
+	}
+
+	public synchronized void setAttribute(@Nonnull String name, @Nullable Object value) {
+		m_attributeMap.put(name, value);
+	}
+
+	public synchronized Object getAttribute(@Nonnull String name) {
+		return m_attributeMap.get(name);
+	}
+
+	public synchronized <T> T getOrCreateAttribute(@Nonnull String name, @Nonnull java.util.function.Supplier<T> supplier) {
+		T value = (T) m_attributeMap.get(name);
+		if(null == value) {
+			value = supplier.get();
+			m_attributeMap.put(name, value);
+		}
+		return value;
 	}
 }

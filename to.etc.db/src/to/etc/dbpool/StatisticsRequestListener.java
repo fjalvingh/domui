@@ -41,8 +41,10 @@ import to.etc.dbpool.info.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Feb 22, 2007
  */
-public class StatisticsRequestListener implements ServletRequestListener {
+final public class StatisticsRequestListener implements ServletRequestListener {
 	static private final int MAX_SESSION_REQUESTS = 50;
+
+	static final private boolean DEBUG = false;
 
 	/**
 	 * When set this forces an input request that has no encoding to the encoding specified. This fixes
@@ -57,20 +59,304 @@ public class StatisticsRequestListener implements ServletRequestListener {
 	 */
 	static private boolean m_encodingSet;
 
-	static private class RecursionCounter {
-		public RecursionCounter() {}
+	static private class PerThreadData {
+		public PerThreadData() {}
+
 		public int m_count;
+
+		@Nullable
+		public StatisticsCollector m_collector;
+
+		/** If we have a http session request collector it's in here. */
+		@Nullable
+		public SessionStatistics m_sessionStatistics;
+
+		@Nullable
+		public String m_id;
 	}
 
-	private final ThreadLocal<RecursionCounter> m_ctr = new ThreadLocal<RecursionCounter>();
+	static private volatile boolean m_enableSessionStatisticsForEveryone;
+
+	/**
+	 * Per session/thread the data related to performance/statistics collection for that thread.
+	 */
+	static private final ThreadLocal<PerThreadData> m_perThreadData = new ThreadLocal<PerThreadData>();
 
 	static private GlobalPerformanceStore m_globalStore;
 
-	static public interface UnclosedListener {
+	public interface UnclosedListener {
 		void unclosed(HttpServletRequest r, List<ConnectionProxy> list);
 	}
 
 	static private UnclosedListener m_unclosedListener;
+
+	static private long m_nextId;
+
+	/**
+	 * At request finish, we collect all of the statistics we gathered and add them
+	 * to the accounting outputs (the stores). We also check whether all connections
+	 * are properly closed.
+	 *
+	 * @param ev
+	 */
+	@Override
+	public void requestDestroyed(ServletRequestEvent ev) {
+		ServletRequest sr = ev.getServletRequest();
+		if(!(sr instanceof HttpServletRequest))
+			return;
+		HttpServletRequest r = (HttpServletRequest) sr;
+		PerThreadData threadData = m_perThreadData.get();
+
+		//-- Recursion control.
+		if(DEBUG) {
+			System.out.println("SRL: " + Thread.currentThread().getName() + " depth=" + (threadData == null ? "null" : threadData.m_count) + " rq=" + r.getRequestURI());
+		}
+		if(threadData == null)
+			return;
+		threadData.m_count--;
+		if(threadData.m_count != 0)
+			return;
+
+		//-- We're at the outer level... Handle the data.
+		m_perThreadData.set(null);
+
+		//-- Handle unclosed connections, if needed
+		UnclosedListener ucl = getUnclosedListener();
+		if(null != ucl) {
+			List<ConnectionProxy> uncl = PoolManager.getInstance().getThreadConnections();
+			if(uncl.size() > 0)
+				ucl.unclosed(r, uncl);
+		}
+
+		StatisticsCollector statisticsCollector = (StatisticsCollector) PoolManager.getInstance().stopCollecting(getClass().getName());
+		if(null == statisticsCollector)
+			return;
+		long duration = System.nanoTime() - statisticsCollector.getStartTS(); 		// Store duration now, before any other action.
+
+		PerformanceCollector pc = new PerformanceCollector();	// A new store for the thingy.
+		pc.saveCounters(statisticsCollector.getIdent(), statisticsCollector.getCounters());
+
+		/*
+		 * Is session-based collection on? Get the httpsession; this will abort if the session
+		 * has been destroyed (logout) at a higher level. In that case we just return.
+		 */
+		SessionStatistics sessionStatistics = threadData.m_sessionStatistics;
+
+		//-- Merge with central statistics.
+		GlobalPerformanceStore global;
+		synchronized(getClass()) {
+			global = m_globalStore;
+		}
+		if(global != null || sessionStatistics != null) {
+			//-- Pass on the criteria..
+			StatisticsCollectorBase icb = new StatisticsCollectorBase(statisticsCollector, duration); // Copy all request statistics.
+
+			//-- Merge into globals if applicable
+			if(null != global) {
+				synchronized(global.getStore()) {
+					global.getStore().merge(pc);
+					global.addRequestInfo(icb);
+				}
+			}
+
+			//-- Merge into session
+			if(null != sessionStatistics) {
+				synchronized(sessionStatistics) {
+					sessionStatistics.addRequestInfo(threadData.m_id, pc, icb);
+				}
+			}
+		}
+		statisticsCollector.reportSimple();
+	}
+
+	/**
+	 *
+	 * @see javax.servlet.ServletRequestListener#requestInitialized(javax.servlet.ServletRequestEvent)
+	 */
+	@Override
+	public void requestInitialized(ServletRequestEvent ev) {
+		ServletRequest sr = ev.getServletRequest();
+		if(!(sr instanceof HttpServletRequest))
+			return;
+		HttpServletRequest r = (HttpServletRequest) sr;
+		PerThreadData threadData = m_perThreadData.get();
+		if(DEBUG) {
+			System.out.println("SRL: " + Thread.currentThread().getName() + " depth=" + (threadData == null ? "null" : threadData.m_count) + " rq=" + r.getRequestURI());
+		}
+		if(threadData != null) {								// Handle recursion
+			threadData.m_count++;
+			return;
+		}
+		PoolManager.getInstance().clearThreadConnections();
+		threadData = new PerThreadData();
+		threadData.m_count = 1;
+		m_perThreadData.set(threadData);
+
+		updateEncoding(r);
+		checkEnableStatisticsParameter(r);
+		if(!PoolManager.getInstance().isCollectStatistics())
+			return;
+
+		//-- Make sure a global store exists.
+		synchronized(getClass()) {
+			if(m_globalStore == null) {
+				m_globalStore = new GlobalPerformanceStore();
+			}
+		}
+
+		if(m_enableSessionStatisticsForEveryone) {					// volatile
+			threadData.m_sessionStatistics = createSessionStats(r);
+		} else {
+			String val = r.getParameter("__session");
+			if(null != val) {
+				//-- Requesting to collect stats for this session?
+				if("on".equals(val) || val.startsWith("t"))
+					threadData.m_sessionStatistics = createSessionStats(r);
+				else if("off".equals(val) || val.startsWith("f"))
+					destroySessionStats(r);
+			}
+		}
+
+		threadData.m_id = nextID();
+		StatisticsCollector ic = new StatisticsCollector(r.getRequestURI(), r.getQueryString(), threadData.m_sessionStatistics != null);
+		threadData.m_collector = ic;
+		PoolManager.getInstance().startCollecting(getClass().getName(), ic);
+	}
+
+	private void checkEnableStatisticsParameter(HttpServletRequest r) {
+		String val = r.getParameter("__statistics");
+		if(null != val) {
+			val = val.toLowerCase();
+			if("on".equals(val) || val.startsWith("t"))
+				PoolManager.getInstance().setCollectStatistics(true);
+			else if("off".equals(val) || val.startsWith("f")) {
+				PoolManager.getInstance().setCollectStatistics(false);
+				destroySessionStats(r);
+				synchronized(getClass()) {
+					m_globalStore = null;
+				}
+			}
+		}
+		val = r.getParameter("__trace");								// Not shown in UI: enable session trace
+		if(null != val) {
+			val = val.toLowerCase();
+			OracleStatisticsCreator.enableSessionTrace("on".equals(val) || val.startsWith("t"));
+		}
+	}
+
+	private void updateEncoding(HttpServletRequest r) {
+		//-- If needed, force charset encoding on request, sigh.
+		String enc = r.getCharacterEncoding();
+		if(null == enc || enc.trim().length() == 0) {
+			enc = getForceEncoding();
+			if(enc != null) {
+				try {
+					r.setCharacterEncoding(enc);
+				} catch(UnsupportedEncodingException x) {
+					throw new RuntimeException(x); // Deep, deep sigh
+				}
+			}
+		}
+	}
+
+	static private synchronized String nextID() {
+		return Long.toString(nextIDNr(), 36);
+	}
+	static private long nextIDNr() {
+		return ++m_nextId;
+	}
+
+	static public void setSessionStatistics(boolean on) {
+		m_enableSessionStatisticsForEveryone = on;
+	}
+
+	/**
+	 * Get the current counts for SQL statements for the current thread, if enabled/available. These
+	 * are the statistics <b>so far</b> of course.
+	 * @return
+	 */
+	@Nullable
+	public static final StatisticsCollectorBase getThreadStatistics() {
+		PerThreadData perThreadData = m_perThreadData.get();
+		if(null == perThreadData)
+			return null;
+
+		StatisticsCollector collector = perThreadData.m_collector;
+		if(null == collector)
+			return null;
+		long duration = System.nanoTime() - collector.getStartTS(); // Store duration now, before any other action.
+		return new StatisticsCollectorBase(collector, duration);
+	}
+
+	/**
+	 * Return the unique ID for this request/response cycle which can be used to identify the metrics for
+	 * this request after it finished.
+	 * @return
+	 */
+	@Nullable
+	public static final String getRequestID() {
+		PerThreadData perThreadData = m_perThreadData.get();
+		if(null == perThreadData)
+			return null;
+		return perThreadData.m_id;
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Session-based detailed statistics collection.		*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Destroy any known session stats structure.
+	 * @param r
+	 */
+	public static void destroySessionStats(HttpServletRequest r) {
+		HttpSession hs = r.getSession(false); // Does session exist?
+		if(null == hs)
+			return;
+		synchronized(hs) {
+			hs.removeAttribute(StatisticsRequestListener.class.getName());
+		}
+	}
+
+	/**
+	 * Create a HttpSession, and add a Session Statistics block there. This will start
+	 * session statistics collection. If the block already exists nothing happens.
+	 * @param r
+	 */
+	@Nonnull
+	public static SessionStatistics createSessionStats(HttpServletRequest r) {
+		HttpSession hs = r.getSession(true); 					// Get/create session.
+		SessionStatistics ss;
+		synchronized(hs) {
+			ss = (SessionStatistics) hs.getAttribute(StatisticsRequestListener.class.getName());
+			if(null != ss)
+				return ss;
+			ss = new SessionStatistics(MAX_SESSION_REQUESTS);
+			hs.setAttribute(StatisticsRequestListener.class.getName(), ss); // Store in session.
+			return ss;
+		}
+	}
+
+	@Nullable
+	static public SessionStatistics getSessionStatistics(HttpServletRequest r) {
+		HttpSession hs = r.getSession(false); // Does session exist?
+		if(null == hs)
+			return null;
+		synchronized(hs) {
+			return (SessionStatistics) hs.getAttribute(StatisticsRequestListener.class.getName());
+		}
+	}
+
+
+	/**
+	 * Returns the current global performance store maintained by this listener. Returns null if not collecting statistics.
+	 * @return
+	 */
+	public synchronized static GlobalPerformanceStore getGlobalStore() {
+		return m_globalStore;
+	}
+
+
+
 
 	/**
 	 * Advanced horror mode: Internet Exploder, who else, does not send the charset it encoded
@@ -114,222 +400,4 @@ public class StatisticsRequestListener implements ServletRequestListener {
 		return m_unclosedListener;
 	}
 
-	public void requestDestroyed(ServletRequestEvent ev) {
-		ServletRequest sr = ev.getServletRequest();
-		if(!(sr instanceof HttpServletRequest))
-			return;
-		HttpServletRequest r = (HttpServletRequest) sr;
-		RecursionCounter rc = m_ctr.get();
-
-		if(DEBUG) {
-			System.out.println("SRL: " + Thread.currentThread().getName() + " depth=" + (rc == null ? "null" : rc.m_count) + " rq=" + r.getRequestURI());
-		}
-
-		if(rc == null)
-			return;
-		rc.m_count--;
-		if(rc.m_count != 0)
-			return;
-		m_ctr.set(null);
-
-		//-- Handle unclosed connections, if needed
-		UnclosedListener ucl = getUnclosedListener();
-		if(null != ucl) {
-			List<ConnectionProxy> uncl = PoolManager.getInstance().getThreadConnections();
-			if(uncl.size() > 0)
-				ucl.unclosed(r, uncl);
-		}
-
-		InfoCollectorExpenseBased td = (InfoCollectorExpenseBased) PoolManager.getInstance().stopCollecting(getClass().getName());
-		if(null == td)
-			return;
-		long duration = System.nanoTime() - td.getStartTS(); // Store duration now, before any other action.
-
-		PerformanceCollector pc = td.findCollector(PerformanceCollector.class);
-		if(null != pc) {
-			/*
-			 * Is session-based collection on? Get the httpsession; this will abort if the session
-			 * has been destroyed (logout) at a higher level. In that case we just return.
-			 */
-			HttpSession hs;
-			try {
-				hs = r.getSession();
-			} catch(Exception x) {
-				return;
-			}
-
-			SessionStatistics ss = null;
-			if(hs != null) {
-				synchronized(hs) {
-					ss = (SessionStatistics) hs.getAttribute(getClass().getName());
-				}
-			}
-
-			//-- Merge with central statistics.
-			GlobalPerformanceStore global;
-			synchronized(getClass()) {
-				global = m_globalStore;
-			}
-			if(global != null || ss != null) {
-				//-- Pass on the criteria..
-				InfoCollectorBase icb = new InfoCollectorBase(td, duration); // Copy all request statistics.
-
-				//-- Merge into globals if applicable
-				if(null != global) {
-					synchronized(global.getStore()) {
-						global.getStore().merge(pc);
-						global.addRequestInfo(icb);
-					}
-				}
-
-				//-- Merge into session
-				if(null != ss) {
-					synchronized(ss) {
-						ss.addRequestInfo(pc, icb);
-					}
-				}
-			}
-		}
-		td.reportSimple();
-	}
-
-	static final private boolean DEBUG = false;
-
-	/**
-	 *
-	 * @see javax.servlet.ServletRequestListener#requestInitialized(javax.servlet.ServletRequestEvent)
-	 */
-	public void requestInitialized(ServletRequestEvent ev) {
-		ServletRequest sr = ev.getServletRequest();
-		if(!(sr instanceof HttpServletRequest))
-			return;
-		HttpServletRequest r = (HttpServletRequest) sr;
-		RecursionCounter rc = m_ctr.get();
-		if(DEBUG) {
-			System.out.println("SRL: " + Thread.currentThread().getName() + " depth=" + (rc == null ? "null" : rc.m_count) + " rq=" + r.getRequestURI());
-		}
-
-//		String url = r.getRequestURI();
-//		if(!url.contains(".ui") && !url.contains(".jsp"))
-//			return;
-//		System.out.println("FLTR: " + url);
-
-		/*
-		 * Recursion handling.
-		 */
-		if(rc != null) {
-			rc.m_count++;
-			return;
-		}
-		PoolManager.getInstance().clearThreadConnections();
-
-		rc = new RecursionCounter();
-		rc.m_count = 1;
-		m_ctr.set(rc);
-
-		//-- If needed, force charset encoding on request, sigh.
-		String enc = r.getCharacterEncoding();
-		if(null == enc || enc.trim().length() == 0) {
-			enc = getForceEncoding();
-			if(enc != null) {
-				try {
-					r.setCharacterEncoding(enc);
-				} catch(UnsupportedEncodingException x) {
-					throw new RuntimeException(x); // Deep, deep sigh
-				}
-			}
-		}
-
-		/*
-		 * Action handling: check for special URL parameters influencing the working of statistics gathering.
-		 */
-		String val = r.getParameter("__statistics");
-		if(null != val) {
-			val = val.toLowerCase();
-			if("on".equals(val) || val.startsWith("t"))
-				PoolManager.getInstance().setCollectStatistics(true);
-			else if("off".equals(val) || val.startsWith("f")) {
-				PoolManager.getInstance().setCollectStatistics(false);
-				destroySessionStats(r);
-				synchronized(getClass()) {
-					m_globalStore = null;
-				}
-			}
-		}
-		if(!PoolManager.getInstance().isCollectStatistics())
-			return;
-
-		//-- Make sure a global store exists.
-		synchronized(getClass()) {
-			if(m_globalStore == null) {
-				m_globalStore = new GlobalPerformanceStore();
-			}
-		}
-
-		val = r.getParameter("__session");
-		if(null != val) {
-			//-- Requesting to collect stats for this session?
-			if("on".equals(val) || val.startsWith("t"))
-				createSessionStats(r);
-			else if("off".equals(val) || val.startsWith("f"))
-				destroySessionStats(r);
-		}
-		InfoCollectorExpenseBased ic = new InfoCollectorExpenseBased(r.getRequestURI(), r.getQueryString());
-		PerformanceCollector pc = new PerformanceCollector();
-		ic.addPerformanceCollector(pc);
-		PoolManager.getInstance().startCollecting(getClass().getName(), ic);
-	}
-
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Session-based detailed statistics collection.		*/
-	/*--------------------------------------------------------------*/
-	/**
-	 * Destroy any known session stats structure.
-	 * @param r
-	 */
-	public static void destroySessionStats(HttpServletRequest r) {
-		HttpSession hs = r.getSession(false); // Does session exist?
-		if(null == hs)
-			return;
-		synchronized(hs) {
-			hs.removeAttribute(StatisticsRequestListener.class.getName());
-		}
-	}
-
-	/**
-	 * Create a HttpSession, and add a Session Statistics block there. This will start
-	 * session statistics collection. If the block already exists nothing happens.
-	 * @param r
-	 */
-	public static void createSessionStats(HttpServletRequest r) {
-		HttpSession hs = r.getSession(true); // Get/create session.
-		SessionStatistics ss;
-		synchronized(hs) {
-			ss = (SessionStatistics) hs.getAttribute(StatisticsRequestListener.class.getName());
-			if(null != ss)
-				return;
-			ss = new SessionStatistics(MAX_SESSION_REQUESTS);
-			hs.setAttribute(StatisticsRequestListener.class.getName(), ss); // Store in session.
-		}
-	}
-
-	@Nullable
-	static public SessionStatistics getSessionStatistics(HttpServletRequest r) {
-		HttpSession hs = r.getSession(false); // Does session exist?
-		if(null == hs)
-			return null;
-		synchronized(hs) {
-			return (SessionStatistics) hs.getAttribute(StatisticsRequestListener.class.getName());
-		}
-	}
-
-
-	/**
-	 * Returns the current global performance store maintained by this listener. Returns null if not collecting statistics.
-	 * @return
-	 */
-	public synchronized static GlobalPerformanceStore getGlobalStore() {
-		return m_globalStore;
-	}
 }

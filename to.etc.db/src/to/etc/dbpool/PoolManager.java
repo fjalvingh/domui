@@ -32,8 +32,6 @@ import javax.annotation.*;
 import javax.annotation.concurrent.*;
 import javax.sql.*;
 
-import to.etc.dbpool.info.*;
-
 /**
  * Root of the database pool manager code.
  *
@@ -53,10 +51,10 @@ final public class PoolManager {
 	@GuardedBy("m_connidlock")
 	static private int m_nextconnid;
 
-	private boolean m_collectStatistics;
+	private volatile boolean m_collectStatistics;
 
 	/** Threadlocal containing the per-thread collected statistics, per request. */
-	private final ThreadLocal<IInfoHandler> m_infoHandler = new ThreadLocal<IInfoHandler>();
+	private final ThreadLocal<IConnectionEventListener> m_connectionEventListener = new ThreadLocal<IConnectionEventListener>();
 
 	/** The shared global instance of a pool manager */
 	static final private PoolManager m_instance = new PoolManager();
@@ -354,7 +352,7 @@ final public class PoolManager {
 	 * FIXME Must terminate when manager is closed.
 	 */
 	void expiredConnectionScannerLoop() {
-		System.out.println("PoolManager: expired connection scanning thread started.");
+		//System.out.println("PoolManager: expired connection scanning thread started.");
 		for(;;) {
 			try {
 				scanExpiredConnectionsOnce(m_dbpool_scaninterval);
@@ -380,15 +378,15 @@ final public class PoolManager {
 	/*--------------------------------------------------------------*/
 
 	/**
-	 * If statistics gathering is on this returns the info handler which will collate
-	 * the statistics. It returns a dummy collector when collection is off.
+	 * This returns the single per-thread connection event listener. If no
+	 * listener has been set it returns a dummy one that does nothing.
 	 */
 	@Nonnull
-	IInfoHandler getInfoHandler() {
-		IInfoHandler ih = m_infoHandler.get();
+	IConnectionEventListener getConnectionEventListener() {
+		IConnectionEventListener ih = m_connectionEventListener.get();
 		if(ih == null) {
-			ih = DummyInfoHandler.INSTANCE;
-			m_infoHandler.set(ih);
+			ih = DummyConnectionEventListener.INSTANCE;
+			m_connectionEventListener.set(ih);
 		}
 		return ih;
 	}
@@ -403,12 +401,12 @@ final public class PoolManager {
 			if(!m_collectStatistics)
 				return false;
 		}
-		IInfoHandler ih = m_infoHandler.get();
-		if(ih == null || ih instanceof DummyInfoHandler) {
-			ih = new CollectingInfoHandler(new StatisticsListenerMultiplexer());
-			m_infoHandler.set(ih);
+		IConnectionEventListener ih = m_connectionEventListener.get();
+		if(ih == null || ih instanceof DummyConnectionEventListener) {
+			ih = new CollectingConnectionEventListener(new StatisticsListenerMultiplexer());
+			m_connectionEventListener.set(ih);
 		}
-		CollectingInfoHandler cih = (CollectingInfoHandler) ih;
+		CollectingConnectionEventListener cih = (CollectingConnectionEventListener) ih;
 		StatisticsListenerMultiplexer sink = (StatisticsListenerMultiplexer) cih.getListener();
 		sink.addCollector(key, collector);
 		return true;
@@ -421,24 +419,24 @@ final public class PoolManager {
 	 * @return
 	 */
 	public IStatisticsListener stopCollecting(String key) {
-		IInfoHandler ih = m_infoHandler.get();
-		if(ih == null || !(ih instanceof CollectingInfoHandler))
+		IConnectionEventListener ih = m_connectionEventListener.get();
+		if(ih == null || !(ih instanceof CollectingConnectionEventListener))
 			return null;
 
-		CollectingInfoHandler cih = (CollectingInfoHandler) ih;
+		CollectingConnectionEventListener cih = (CollectingConnectionEventListener) ih;
 		StatisticsListenerMultiplexer sink = (StatisticsListenerMultiplexer) cih.getListener();
-		IStatisticsListener ic = sink.removeCollector(key); // Remove collector.
+		IStatisticsListener ic = sink.removeCollector(key); 	// Remove collector.
 		if(null != ic)
 			ic.finish();
 		return ic;
 	}
 
-	public synchronized void setCollectStatistics(final boolean on) {
-		m_collectStatistics = on;
+	public void setCollectStatistics(final boolean on) {
+		m_collectStatistics = on;								// volatile
 	}
 
-	public synchronized boolean isCollectStatistics() {
-		return m_collectStatistics;
+	public boolean isCollectStatistics() {
+		return m_collectStatistics;								// volatile
 	}
 
 	/**

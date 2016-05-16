@@ -7,7 +7,7 @@ import to.etc.domui.converter.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.util.*;
 
-public class ColumnDef<T> {
+final public class ColumnDef<T> {
 	@Nonnull
 	final private Class<T> m_actualClass;
 
@@ -25,7 +25,11 @@ public class ColumnDef<T> {
 	private SortableType m_sortable = SortableType.UNKNOWN;
 
 	@Nullable
-	private ISortHelper m_sortHelper;
+	private ISortHelper<?> m_sortHelper;
+
+	/** If this is a column for the entire entity, this name defines the sort property to use if the sort button is pressed */
+	@Nullable
+	private String m_sortProperty;
 
 	@Nullable
 	private String m_width = "1%";					// jal 20150408 Default to 1% width for now
@@ -71,7 +75,7 @@ public class ColumnDef<T> {
 
 	private IControlFactory<T> m_controlFactory;
 
-	public <X> ColumnDef(@Nonnull ColumnList< ? > cdl, @Nonnull Class<T> valueClass) {
+	<X> ColumnDef(@Nonnull ColumnList< ? > cdl, @Nonnull Class<T> valueClass) {
 		m_actualClass = valueClass;
 		m_columnType = valueClass;
 		m_defList = cdl;
@@ -81,7 +85,7 @@ public class ColumnDef<T> {
 	 * Create a column definition using metadata for the column.
 	 * @param pmm
 	 */
-	public ColumnDef(@Nonnull ColumnList< ? > cdl, @Nonnull PropertyMetaModel<T> pmm) {
+	ColumnDef(@Nonnull ColumnList< ? > cdl, @Nonnull PropertyMetaModel<T> pmm) {
 		m_actualClass = pmm.getActualType();
 		m_defList = cdl;
 		m_columnType = pmm.getActualType();
@@ -125,6 +129,22 @@ public class ColumnDef<T> {
 		if(m_propertyMetaModel == null)
 			throw new IllegalStateException("Cannot edit a row instance");
 		m_editable = true;
+		return this;
+	}
+
+	/**
+	 * Use to set the property name for a column that wraps the whole record
+	 * (a column defined by {@link RowRenderer#column()}. It should be set when a row has
+	 * sort defined.
+	 *
+	 * @param name
+	 * @return
+	 */
+	@Nonnull
+	public ColumnDef<T> property(@Nonnull String name) {
+		if(m_propertyName != null)
+			throw new IllegalStateException("The property name is already defined.");
+		m_propertyName = name;
 		return this;
 	}
 
@@ -222,8 +242,13 @@ public class ColumnDef<T> {
 	}
 
 	@Nullable
-	public ISortHelper getSortHelper() {
+	public ISortHelper<?> getSortHelper() {
 		return m_sortHelper;
+	}
+
+	@Nullable
+	public String getSortProperty() {
+		return m_sortProperty;
 	}
 
 	public void setSortable(@Nonnull SortableType sortable) {
@@ -379,15 +404,29 @@ public class ColumnDef<T> {
 	}
 
 	/**
-	 * Set a sort helper to be used for this column.
+	 * Set a sort helper to be used for this column. <b>Important:</b> if you just
+	 * need to sort on a property consider {@link #sort(String)} instead.
 	 * @param sh
 	 * @return
 	 */
 	@Nonnull
-	public ColumnDef<T> sort(@Nonnull ISortHelper sh) {
+	public ColumnDef<T> sort(@Nonnull ISortHelper<?> sh) {
 		m_sortHelper = sh;
 		if(m_sortable == SortableType.UNKNOWN)
 			m_sortable = SortableType.SORTABLE_ASC;
+		return this;
+	}
+
+	/**
+	 * For a column that represents the whole entity, this can specify which property of
+	 * the entity is to be used to sort on. It prevents having to use an {@link ISortHelper} for simple sorting.
+	 *
+	 * @param propertyName
+	 * @return
+	 */
+	@Nonnull
+	public ColumnDef<T> sort(@Nonnull String propertyName) {
+		m_sortProperty = propertyName;
 		return this;
 	}
 

@@ -35,6 +35,8 @@ final public class FormBuilder {
 
 	private String m_nextLabel;
 
+	private String m_errorLocation;
+
 	private Label m_nextLabelControl;
 
 	private PropertyMetaModel< ? > m_propertyMetaModel;
@@ -46,6 +48,14 @@ final public class FormBuilder {
 	private boolean m_append;
 
 	private Boolean m_readOnly;
+
+	private NodeBase m_lastAddedControl;
+
+	@Nullable
+	private String m_controlCss;
+
+	@Nullable
+	private String m_labelCss;
 
 	public FormBuilder(@Nonnull IAppender appender) {
 		m_appender = appender;
@@ -59,6 +69,13 @@ final public class FormBuilder {
 			}
 		});
 	}
+
+	@Nonnull
+	public FormBuilder append() {
+		m_append = true;
+		return this;
+	}
+
 
 	@Nonnull
 	public FormBuilder horizontal() {
@@ -97,6 +114,13 @@ final public class FormBuilder {
 	}
 
 	@Nonnull
+	public FormBuilder errorLocation(@Nonnull String errorLocation) {
+		m_errorLocation = errorLocation;
+		return this;
+	}
+
+
+	@Nonnull
 	public FormBuilder unlabeled() {
 		label("");
 		return this;
@@ -124,6 +148,12 @@ final public class FormBuilder {
 	@Nonnull
 	public FormBuilder mandatory() {
 		m_mandatory = Boolean.TRUE;
+		return this;
+	}
+
+	@Nonnull
+	public FormBuilder	mandatory(boolean yes) {
+		m_mandatory = Boolean.valueOf(yes);
 		return this;
 	}
 
@@ -167,6 +197,28 @@ final public class FormBuilder {
 		return control;
 	}
 
+	/**
+	 * Adds the specified css class to the control cell.
+	 * @param cssClass
+	 * @return
+	 */
+	@Nonnull
+	public FormBuilder cssControl(@Nonnull String cssClass) {
+		m_controlCss = cssClass;
+		return this;
+	}
+
+	/**
+	 * Adds the specified css class to the label cell.
+	 * @param cssClass
+	 * @return
+	 */
+	@Nonnull
+	public FormBuilder cssLabel(@Nonnull String cssClass) {
+		m_labelCss = cssClass;
+		return this;
+	}
+
 	public void item(@Nonnull NodeBase item) throws Exception {
 		addControl(item);
 		resetBuilder();
@@ -195,8 +247,10 @@ final public class FormBuilder {
 		m_mandatory = null;
 		m_nextLabel = null;
 		m_nextLabelControl = null;
+		m_controlCss = null;
+		m_labelCss = null;
+		m_errorLocation = null;
 	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Form building code.									*/
@@ -211,6 +265,11 @@ final public class FormBuilder {
 	private TR m_controlRow;
 
 	private void addControl(@Nonnull NodeBase control) throws Exception {
+		if (control.getClass().getSimpleName().contains("TextArea")
+			&& m_labelCss == null) {
+			m_labelCss = "ui-f4-ta";
+		}
+
 		resetDirection();
 		if(m_horizontal)
 			addHorizontal(control);
@@ -236,11 +295,14 @@ final public class FormBuilder {
 			}
 		}
 
-		if(control instanceof NodeBase) {			// Yecc.
-			NodeBase nb = (NodeBase) control;
+		m_lastAddedControl =  control;
+		if (null != m_errorLocation){
+			control.setErrorLocation(m_errorLocation);
+		}else {
 			String label = labelTextCalculated();
-			if(null != label)
-				nb.setErrorLocation(label);
+			if(null != label) {
+				control.setErrorLocation(label);
+			}
 		}
 	}
 
@@ -264,7 +326,7 @@ final public class FormBuilder {
 	}
 
 	@Nonnull
-	private TBody body() {
+	public TBody body() {
 		if(m_body == null) {
 			Table tbl = m_table = new Table();
 			m_appender.add(tbl);
@@ -283,17 +345,32 @@ final public class FormBuilder {
 		Label lbl = determineLabel();
 		if(m_append) {
 			TD cell = b.cell();
-			if(lbl != null)
+			if(lbl != null) {
+				lbl.addCssClass("ui-f4-lbl");
+				lbl.setMarginLeft("10px");
+				lbl.setMarginRight("3px");
 				cell.add(lbl);
+			}
 			cell.add(control);
+			final String controlCss = m_controlCss;
+			if(null != controlCss)
+				cell.addCssClass(controlCss);
 		} else {
 			TD labelcell = b.addRowAndCell();
 			labelcell.setCssClass("ui-f4-lbl ui-f4-lbl-v");
 			if(null != lbl)
 				labelcell.add(lbl);
+			String labelCss = m_labelCss;
+			if(labelCss != null)
+				labelcell.addCssClass(labelCss);
+
 			TD controlcell = b.addCell();
 			controlcell.setCssClass("ui-f4-ctl ui-f4-ctl-v");
 			controlcell.add(control);
+
+			final String controlCss = m_controlCss;
+			if(null != controlCss)
+				controlcell.addCssClass(controlCss);
 		}
 		if(null != lbl)
 			lbl.setForNode(control);
@@ -322,8 +399,6 @@ final public class FormBuilder {
 		TBody b = body();
 		Label lbl = determineLabel();
 		if(m_append) {
-//			if(lbl != null)
-//				labelCell().add(lbl);
 
 			TR row = controlRow();
 			TD cell;
@@ -334,29 +409,42 @@ final public class FormBuilder {
 				cell = (TD) row.getChild(row.getChildCount() - 1);
 			}
 			cell.add(control);
+
+			final String controlCss = m_controlCss;
+			if(null != controlCss)
+				cell.addCssClass(controlCss);
 		} else {
 			TD labelcell = labelRow().addCell();
 			labelcell.setCssClass("ui-f4-lbl ui-f4-lbl-h");
 			if(null != lbl)
 				labelcell.add(lbl);
+
+			String labelCss = m_labelCss;
+			if(labelCss != null)
+				labelcell.addCssClass(labelCss);
+
 			TD controlcell = controlRow().addCell();
 			controlcell.setCssClass("ui-f4-ctl ui-f4-ctl-h");
 			controlcell.add(control);
+
+			final String controlCss = m_controlCss;
+			if(null != controlCss)
+				controlcell.addCssClass(controlCss);
 		}
 		if(null != lbl)
 			lbl.setForNode(control);
 	}
 
 	public void appendAfterControl(@Nonnull NodeBase what) {
-		TR tr = controlRow();
-		TD lastCell = (TD) tr.getChild(tr.getChildCount()-1);
-		lastCell.add(what);
+		getLastControlCell().add(what);
 	}
 
 	@Nonnull
 	public NodeContainer getLastControlCell() {
-		TR tr = controlRow();
-		return (TD) tr.getChild(tr.getChildCount()-1);
+		if (m_lastAddedControl == null) {
+			throw new IllegalStateException("No controls were added yet.");
+		}
+		return m_lastAddedControl.getParent(TD.class);
 	}
 
 	/**

@@ -64,12 +64,6 @@ public class WindowParameters {
 		m_showToolbar = true;
 	}
 
-	public WindowParameters setMaximized() {
-		setWidth(-2);
-		setHeight(-2);
-		return this;
-	}
-
 	public WindowParameters setSize(int w, int h) {
 		setWidth(w);
 		setHeight(h);

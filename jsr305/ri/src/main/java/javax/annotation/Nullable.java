@@ -24,17 +24,16 @@
  */
 package javax.annotation;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+import static java.lang.annotation.ElementType.*;
 
-import javax.annotation.meta.TypeQualifierNickname;
-import javax.annotation.meta.When;
+import java.lang.annotation.*;
+
+import javax.annotation.meta.*;
 
 @Documented
 @TypeQualifierNickname
-@Nonnull(when = When.UNKNOWN)
 @Retention(RetentionPolicy.RUNTIME)
+@Target(value={FIELD,METHOD,PARAMETER,LOCAL_VARIABLE})
 public @interface Nullable {
 
 }

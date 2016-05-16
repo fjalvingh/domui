@@ -139,6 +139,9 @@ public abstract class DomApplication {
 	@Nonnull
 	private IPageInjector m_injector = new DefaultPageInjector();
 
+	@Nonnull
+	private ResourceInfoCache	m_resourceInfoCache = new ResourceInfoCache(this);
+
 	/**
 	 * Must return the "root" class of the application; the class rendered when the application's
 	 * root URL is entered without a class name.
@@ -158,6 +161,13 @@ public abstract class DomApplication {
 
 	@Nonnull
 	private List<FilterRef> m_requestHandlerList = Collections.emptyList();
+
+	/**
+	 * When > 0, TextArea components will automatically have their maxByteLength property
+	 * set to this value when they are created by a property factory. This should be set
+	 * to 4000 when a system uses Oracle <= 11.
+	 */
+	static private volatile int m_platformVarcharByteLimit;
 
 	/**
 	 * A single request filter and it's priority in the filter list.
@@ -538,7 +548,7 @@ public abstract class DomApplication {
 		}
 
 		//-- Check type && validity,
-		if(!NodeContainer.class.isAssignableFrom(clz))
+		if(!UrlPage.class.isAssignableFrom(clz))
 			throw new IllegalStateException("Class " + clz + " is not a valid page class (does not extend " + UrlPage.class.getName() + ")");
 
 		return (Class< ? extends UrlPage>) clz;
@@ -625,59 +635,6 @@ public abstract class DomApplication {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Webapp configuration								*/
 	/*--------------------------------------------------------------*/
-	//	/**
-	//	 * Returns the name of the current theme, like "blue". This returns the
-	//	 * name only, not the URL to the theme or something.
-	//	 */
-	//	@Nonnull
-	//	public synchronized String getCurrentTheme() {
-	//		return m_currentTheme;
-	//	}
-	//
-	//	/**
-	//	 * Sets a new default theme. The theme name is the name of a directory, like "blue", below the
-	//	 * "themes" map in the webapp or the root resources.
-	//	 * @param defaultTheme
-	//	 */
-	//	public synchronized void setDefaultTheme(@Nonnull final String defaultTheme) {
-	//		if(null == defaultTheme)
-	//			throw new IllegalArgumentException();
-	//		m_currentTheme = defaultTheme;
-	//	}
-	//
-	//	/**
-	//	 * Get the name of the current icon set. This must resolve to a directory "icons/[name]" in
-	//	 * either the class resources or the webapp.
-	//	 * @return
-	//	 */
-	//	@Nonnull
-	//	public synchronized String getCurrentIconSet() {
-	//		return m_currentIconSet;
-	//	}
-	//
-	//	/**
-	//	 * Set the name of the current icon set. This must resolve to a directory "icons/[name]" in
-	//	 * either the class resources or the webapp.
-	//	 *
-	//	 * @param currentIconSet
-	//	 */
-	//	public synchronized void setCurrentIconSet(@Nonnull String currentIconSet) {
-	//		if(null == currentIconSet)
-	//			throw new IllegalArgumentException();
-	//		m_currentIconSet = currentIconSet;
-	//	}
-	//
-	//	@Nonnull
-	//	public synchronized String getCurrentColorSet() {
-	//		return m_currentColorSet;
-	//	}
-	//
-	//	public synchronized void setCurrentColorSet(@Nonnull String currentColorSet) {
-	//		if(null == currentColorSet)
-	//			throw new IllegalArgumentException();
-	//		m_currentColorSet = currentColorSet;
-	//	}
-
 	/**
 	 * Returns T when running in development mode; this is defined as a mode where web.xml contains
 	 * reloadable classes.
@@ -1595,10 +1552,23 @@ public abstract class DomApplication {
 		return v == null ? right : v;
 	}
 
-	//	public AjaxRequestHandler getAjaxHandler() {
-	//		return m_ajaxHandler;
-	//	}
 
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	Assorted oddities											*/
+	/*----------------------------------------------------------------------*/
+
+	/**
+	 * When > 0, automatically created TextArea's will have their maxByteLength property
+	 * set to this value. Used to work around Oracle &lt;=11 4000 varchar2 limit.
+	 * @return
+	 */
+	public static int getPlatformVarcharByteLimit() {
+		return m_platformVarcharByteLimit;
+	}
+
+	public static void setPlatformVarcharByteLimit(int platformVarcharByteLimit) {
+		m_platformVarcharByteLimit = platformVarcharByteLimit;
+	}
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Programmable theme code.							*/
 	/*--------------------------------------------------------------*/
@@ -1622,7 +1592,7 @@ public abstract class DomApplication {
 	 * which will use it to decide on the "real" theme to use.
 	 * @param currentTheme	The theme name, valid for the current theme engine. Cannot be null nor the empty string.
 	 */
-	public void setCurrentTheme(@Nonnull String currentTheme) {
+	final public void setCurrentTheme(@Nonnull String currentTheme) {
 		m_themeManager.setCurrentTheme(currentTheme);
 	}
 
@@ -1632,7 +1602,7 @@ public abstract class DomApplication {
 	 * @return
 	 */
 	@Nonnull
-	public String getCurrentTheme() {
+	final public String getCurrentTheme() {
 		return m_themeManager.getCurrentTheme();
 	}
 
@@ -1641,33 +1611,38 @@ public abstract class DomApplication {
 	 * @return
 	 */
 	@Nonnull
-	public ITheme getTheme() {
+	final public ITheme getTheme() {
 		return m_themeManager.getTheme(getCurrentTheme(), null);
 	}
 
-	/**
-	 * Get the property map (the collection of all *.js files associated with the theme).
-	 * @return
-	 */
-	@Nonnull
-	public IScriptScope getThemeMap() {
-		return getTheme().getPropertyScope();
-	}
+	///**
+	// * Get the property map (the collection of all *.js files associated with the theme).
+	// * @return
+	// */
+	//@Nonnull
+	//public IScriptScope getThemeMap() {
+	//	return getTheme().getPropertyScope();
+	//}
+	//
+	///**
+	// * Get the current theme factory.
+	// * @return
+	// */
+	//@Nonnull
+	//public IThemeFactory getThemeFactory() {
+	//	return m_themeManager.getThemeFactory();
+	//}
 
-	/**
-	 * Get the current theme factory.
-	 * @return
-	 */
 	@Nonnull
-	public IThemeFactory getThemeFactory() {
-		return m_themeManager.getThemeFactory();
+	public ThemeManager	internalGetThemeManager() {
+		return m_themeManager;
 	}
 
 	/**
 	 * Set the factory for handling the theme.
 	 * @param themer
 	 */
-	public void setThemeFactory(@Nonnull IThemeFactory themer) {
+	final public void setThemeFactory(@Nonnull IThemeFactory themer) {
 		m_themeManager.setThemeFactory(themer);
 	}
 
@@ -1679,7 +1654,7 @@ public abstract class DomApplication {
 	 * @return
 	 * @throws Exception
 	 */
-	public ITheme getTheme(@Nonnull String themeName, @Nullable IResourceDependencyList rdl) throws Exception {
+	final public ITheme getTheme(@Nonnull String themeName, @Nullable IResourceDependencyList rdl) throws Exception {
 		return m_themeManager.getTheme(themeName, rdl);
 	}
 
@@ -1698,7 +1673,7 @@ public abstract class DomApplication {
 	 * @return
 	 * @throws Exception
 	 */
-	public String getThemeReplacedString(IResourceDependencyList rdl, String rurl) throws Exception {
+	final public String getThemeReplacedString(IResourceDependencyList rdl, String rurl) throws Exception {
 		return m_themeManager.getThemeReplacedString(rdl, rurl);
 	}
 
@@ -1715,39 +1690,18 @@ public abstract class DomApplication {
 	 * @param key
 	 * @return
 	 */
-	public String getThemeReplacedString(IResourceDependencyList rdl, String rurl, BrowserVersion bv) throws Exception {
+	final public String getThemeReplacedString(IResourceDependencyList rdl, String rurl, BrowserVersion bv) throws Exception {
 		return m_themeManager.getThemeReplacedString(rdl, rurl, bv);
 	}
 
 	/**
-	 * Return the current theme map (a readonly map), cached from the last
-	 * time. It will refresh automatically when the resource dependencies
-	 * for the theme are updated.
-	 *
-	 * @param rdl
-	 * @return
-	 * @throws Exception
-	 */
-	public IScriptScope getThemeMap(String themeName, IResourceDependencyList rdlin) throws Exception {
-		return m_themeManager.getThemeMap(themeName, rdlin);
-	}
-
-	/**
-	 * This checks to see if the RURL passed is a theme-relative URL. These URLs start
-	 * with THEME/. If not the RURL is returned as-is; otherwise the URL is translated
-	 * to a path containing the current theme string:
-	 * <pre>
-	 * 	$THEME/[currentThemeString]/[name]
-	 * </pre>
-	 * where [name] is the rest of the path string after THEME/ has been removed from it.
-	 * @param path
+	 * Get the cache that keeps things like icon sizes for themes.
 	 * @return
 	 */
-	@Nullable
-	public String getThemedResourceRURL(@Nullable String path) {
-		return m_themeManager.getThemedResourceRURL(path);
+	@Nonnull
+	public ResourceInfoCache getResourceInfoCache() {
+		return m_resourceInfoCache;
 	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	DomUI state listener handling.						*/

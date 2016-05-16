@@ -139,6 +139,7 @@ public class TempFilePart implements IUnbufferedPartFactory {
 				break;
 		}
 		if(s != null && name != null) {
+			name = name.replace(" ", "_"); // spaces are not allowed in names for filename!
 			s += "; filename="+name;
 		}
 		FileInfo fi = new FileInfo(pw, target, mime, s);

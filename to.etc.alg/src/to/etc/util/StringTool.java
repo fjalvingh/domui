@@ -43,7 +43,17 @@ import org.slf4j.*;
  */
 public class StringTool {
 
+	/**
+	 * PLEASE DO NOT USE ANYMORE - this limit will change in Oracle 12. To get the
+	 * correct limit please call DomApplication.getPlatformVarcharByteLimit() which will
+	 * return either 0 or the correct byte limit for the oracle version
+	 * used.
+	 */
+	@Deprecated
 	public static final int	MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2	= 4000;
+
+	/** According to RFC 3696 */
+	public static final int MAX_EMAIL_LENGTH = 255;
 
 	static public boolean isValidJavaIdentifier(@Nonnull final String s) {
 		int len = s.length();
@@ -154,11 +164,14 @@ public class StringTool {
 	}
 
 	static public boolean isValidEmail(@Nonnull final String em) {
+		if(em.length() > MAX_EMAIL_LENGTH){
+			return false;
+		}
 		int ix = em.indexOf('@');
 		if(ix <= 0)
 			return false;
 		String pre = em.substring(0, ix);
-		if(pre.startsWith(".") || pre.endsWith(".")) {
+		if(pre.startsWith(".") || pre.endsWith(".") || pre.contains(" ")) {
 			return false;
 		}
 		String dom = em.substring(ix + 1);
@@ -1355,6 +1368,19 @@ public class StringTool {
 	}
 
 	/**
+	 *	Converts input string to xml representation that complies to
+	 *  DOM API 5.2 Character Escaping
+	 *  http://www.w3.org/TR/2000/WD-xml-c14n-20000119.html#charescaping
+	 */
+	static public String xmlStringizeForDomApi(final String is) {
+		if(is == null)
+			return "null";
+		StringBuffer sb = new StringBuffer(is.length() + 20);
+		xmlStringizeForDomApi(sb, is);
+		return sb.toString();
+	}
+
+	/**
 	 *	Enter with a string; it returns the same string but replaces HTML
 	 *  recognised characters with their &..; equivalent. This allows parts of
 	 *  HTML to be rendered neatly.
@@ -1383,6 +1409,47 @@ public class StringTool {
 		}
 	}
 
+	/**
+	 *	Converts input string to xml representation that complies to
+	 *  DOM API 5.2 Character Escaping
+	 *  http://www.w3.org/TR/2000/WD-xml-c14n-20000119.html#charescaping
+	 *
+	 */
+	static public void xmlStringizeForDomApi(final StringBuffer sb, final String is) {
+		if(is == null) {
+			sb.append("null");
+			return;
+		}
+		for(int i = 0; i < is.length(); i++) {
+			char c = is.charAt(i);
+			switch(c){
+				case '\n':
+					sb.append("&#xA;");
+					break;
+				case '\t':
+					sb.append("&#x9;");
+					break;
+				case '\r':
+					sb.append("&#xD;");
+					break;
+				case '"':
+					sb.append("&quot;");
+					break;
+				case '>':
+					sb.append("&gt;");
+					break;
+				case '<':
+					sb.append("&lt;");
+					break;
+				case '&':
+					sb.append("&amp;");
+					break;
+				default:
+					sb.append(c);
+					break;
+			}
+		}
+	}
 
 	/**
 	 * Scans the input string for entities and replaces all entities that
@@ -1500,7 +1567,7 @@ public class StringTool {
 				char c = 0;
 				while(ix < len) {
 					c = cs.charAt(ix);
-					if(c < 32 || c == '\'' || c == '\\' || c == quotechar)
+					if(c < 32 || c == '\'' || c == '\\' || c == quotechar || c == '\u2028' || c == '\u2029')
 						break;
 					ix++;
 				}
@@ -1516,6 +1583,8 @@ public class StringTool {
 						w.append(StringTool.intToStr(c & 0xffff, 16, 4));
 						break;
 					case '\n':
+					case '\u2028'://Unicode linefeeds
+					case '\u2029':
 						w.append("\\n");
 						break;
 					case '\b':
@@ -2352,9 +2421,12 @@ public class StringTool {
 	 * @param nchars
 	 * @return
 	 */
-	static public String strOracleTruncate(String in, int nchars) {
+	static public String oldStrOracleTruncate(String in, int nchars) {
 		if(in == null)
 			return null;
+		if (nchars > 4000){
+			nchars = 4000; //can't set more than 4000 bytes in it anyways
+		}
 		int len = in.length();
 		if(len > nchars) {
 			in = in.substring(0, nchars); // truncate to max size in characters.
@@ -2373,6 +2445,144 @@ public class StringTool {
 				data = in.getBytes("UTF-8");
 				if(data.length <= 4000)
 					return in;
+				len--;
+			}
+		} catch(UnsupportedEncodingException x) {
+			throw new RuntimeException(x); // Should not ever happen. Nice shiny checked exception crap.
+		}
+	}
+
+	@Nullable
+	static public String strOracleTruncate(@Nullable String in, int nchars) {
+		return strTruncateUtf8Bytes(in, nchars, MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2);
+	}
+
+	@Nullable
+	static public String strTruncateUtf8Bytes(@Nullable String in, int nchars, int nbytes) {
+		if(null == in)
+			return null;
+		int length = in.length();
+
+		//-- Can we do a quick exit?
+		if(length <= (nbytes/3)) {					// Max UTF-8 size for 16-byte chars is 3 bytes
+			if(length > nchars) {
+				in = in.substring(0, nchars);
+			}
+			return in;
+		}
+
+		int maxlength = utf8Truncated(in, nchars, nbytes);		// Oracle <= 11g allows maximal 4000 bytes in any varchar2 column
+		if(maxlength == length)
+			return in;
+		return in.substring(0, maxlength);
+	}
+
+	static public int utf8Truncated(String in, int length, int maxbytes) {
+		if(length > in.length())
+			length = in.length();
+
+		//-- Loop characters and calculate running length
+		int bytes = 0;
+		for(int ix = 0; ix < length; ix++) {
+			char c = in.charAt(ix);
+			if(c < 0x80)
+				bytes++;
+			else if(c < 0x800)
+				bytes += 2;
+			else
+				bytes += 3;
+			if(bytes > maxbytes)
+				return ix;
+		}
+		return length;
+	}
+
+	static public int utf8Length(String in) {
+		//-- Loop characters and calculate running length
+		int length = in.length();
+		int bytes = 0;
+		for(int ix = 0; ix < length; ix++) {
+			char c = in.charAt(ix);
+			if(c < 0x80)
+				bytes++;
+			else if(c < 0x800)
+				bytes += 2;
+			else
+				bytes += 3;
+		}
+		return bytes;
+	}
+
+	static public String strOracleTruncate(String in, int nchars, String suffix) {
+		return strTruncateUtf8Bytes(in, nchars, MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2, suffix);
+	}
+
+	static public String strTruncateUtf8Bytes(String in, int nchars, int nbytes, String suffix) {
+		if(null == in)
+			return null;
+		int length = in.length();
+		int suffixLength = suffix.length();
+
+		//-- Can we do a quick exit?
+		if(length <= (nbytes/3)) {												// Max UTF-8 size for 16-byte chars is 3 bytes
+			if(length > nchars) {
+				if(nchars <= suffixLength)
+					return in.substring(0, nchars);								// Don't add a suffix if input is silly.
+
+				StringBuilder sb = new StringBuilder(nchars);
+				sb.append(in, 0, nchars - suffixLength);
+				sb.append(suffix);
+				return sb.toString();
+			}
+			return in;
+		}
+
+		int maxlength = utf8Truncated(in, nchars, nbytes);						// Oracle <= 11g allows maximal 4000 bytes in any varchar2 column
+		if(maxlength == length)
+			return in;
+
+		//-- We need to truncate..
+		int suffixBytes = utf8Length(suffix);
+		maxlength -= suffixBytes;						// Remove this many chars as there are bytes
+		StringBuilder sb = new StringBuilder(nbytes);
+		sb.append(in, 0, maxlength);
+		sb.append(suffix);
+		return sb.toString();
+	}
+
+
+	/**
+	 * Returns string that can fix into Oracle column, and in case that it has to be truncated it adds specified suffix to it, that is still
+	 * not exceding Oracle limit in total.
+	 *
+	 * @param in
+	 * @param nchars
+	 * @param suffixForTooLong
+	 * @return
+	 */
+	static public String oldStrOracleTruncate(String in, int nchars, String suffixForTooLong) {
+		if (null == suffixForTooLong || in == null){
+			return strOracleTruncate(in, nchars);
+		}
+
+		String strOracle = strOracleTruncate(in, nchars);
+		if (in.equals(strOracle)){
+			return in;
+		}
+
+		//we had cutoff, lets deal with suffix too...
+		try {
+			byte[] suffixData = suffixForTooLong.getBytes("UTF-8");
+			int suffixBytesLen = suffixData.length;
+
+			//-- Sh*t, exceeded length. Slowly determine the max. size;
+			int len = strOracle.length() - suffixForTooLong.length();
+			in = strOracle;
+			for(;;) {
+				in = in.substring(0, len);
+				byte[] data = in.getBytes("UTF-8");
+				if(data.length + suffixBytesLen <= 4000)
+					return in + suffixForTooLong;
 				len--;
 			}
 		} catch(UnsupportedEncodingException x) {
@@ -2496,7 +2706,8 @@ public class StringTool {
 
 	/**
 	 * Replaces long character sequences without space like ---- and ===== with
-	 * a way shorter version.
+	 * a way shorter version (single character).
+	 * If the chars in sequence are digits, they won't be shortened.
 	 *
 	 * @param in
 	 * @param maxlen
@@ -2511,14 +2722,19 @@ public class StringTool {
 		int count = 0;
 		for(int i = 0; i < len; i++) {
 			char c = in.charAt(i);
-			if(c == lc)
+			if(Character.isDigit(c)) {
+				sb.append(lc);
+				lc = c;
+			} else if(c == lc) {
 				count++;
-			else {
+			} else {
 				if(count < 3) {
 					while(count > 0) {
 						sb.append(lc);
 						count--;
 					}
+				} else {
+					sb.append(lc);
 				}
 				lc = c;
 				count = 1;
@@ -2782,5 +2998,46 @@ public class StringTool {
 	public static String replaceNewLineChars(@Nonnull String content, @Nonnull String replacement) {
 		return content.replace("\r\n", replacement).replace("\r", replacement).replace("\n", replacement);
 	}
+
+	private static final Pattern URL_PATTERN = Pattern.compile("\\b(?:(https?|ftp|file)://|www\\.)?([\\w-]+[\\.\\:\\-])+[\\w-]+(/[\\w- ;#,./?%&=]*)?", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+
+
+	/**
+	 * Loose checks if provided URL is valid.</br>
+	 * It allows URLs with and without http, https, ftp... online PDFs, Images, locally mapped IP addresses and IP
+	 * addresses itself.
+	 *
+	 * @param urlValue
+	 * @return
+	 */
+	public static boolean validateUrl(@Nullable String urlValue) {
+		if(urlValue == null || StringTool.isBlank(urlValue.toString())) {
+			return false;
+		}
+		return URL_PATTERN.matcher(urlValue).matches();
+	}
+
+	/**
+	 * Does some transformation of custom string to html output -> taking into account several customizations.
+	 * If input uses HTML for new line (<br> or <br/>) then it ignores rest or \n characters, otherwise converts \n to <br/>.
+	 * If removeEndingNewLines then it removes all the ending new lines too.
+	 * @param input
+	 * @return
+	 */
+	public static String renderAsRawHtml(@Nonnull String input, boolean removeEndingNewLines){
+		input = input.replace("<br>", "<br/>");
+		if (input.contains("<br/>")){
+			input = input.replace("\n", "");
+		}else {
+			input = input.replace("\n", "<br/>");
+		}
+		if (removeEndingNewLines) {
+			while(StringTool.strEndsWithIgnoreCase(input, "<br/>")) {
+				input = input.substring(0, input.length() - 5).trim();
+			}
+		}
+		return input;
+	}
+
 }
 

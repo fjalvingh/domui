@@ -1,0 +1,83 @@
+/*** 120_forms.frag.css ***/
+/*** Form basic styles ***/
+/* these are for forms having the label BEFORE the field (horizontal). */
+.ui-f-lbl {
+	text-align: right;
+	font-weight: bold;
+	font-size: <%= font_size %>;
+	vertical-align: top;
+	white-space: nowrap;
+	width: 1%;
+}
+
+.ui-f-lbl:FIRST-CHILD {
+	min-width: 150px;
+}
+
+.ui-f-in {
+	font-size: <%= font_size %>;
+	vertical-align: top; /* jal 20090818 changed from top to middle to align DateInput buttons better */
+	padding: 0px 0px 0px 4px;
+}
+
+.ui-f-in input, .ui-f-in select, .ui-f-in .wysiwyg {
+	font: inherit;
+	margin-bottom: 2px;
+	margin-right: 2px;
+}
+
+.ui-f-in .ui-di {
+	margin-right: 0px;
+}
+
+.ui-f-do {
+	font-size: <%= font_size %>;
+	vertical-align: top; /* jal 20090818 changed from top to middle to align DateInput buttons better/20100708 jal: back to top because LookupInput causes misalignment of labels after it. */
+	padding-left: 4px;
+}
+
+.ui-f-do textarea {
+	background-color: <%= readonly_bg %>;
+}
+
+/* for forms having the label ABOVE the field (vertical stacked) */
+.ui-fvs-lbl {
+	font-weight: bold;
+	font-size: <%= font_size %>;
+	padding: 2px 4px 2px 2px;
+}
+
+.ui-fvs-in {
+	font-size: <%= font_size %>;
+	vertical-align: top;
+}
+
+.ui-fvs-do { /* displayonly field */
+	font-size: <%= font_size %>;
+/*	background-color: white; jal 20121025 why? This messes up any redefinition of any background... */
+	padding: 2px 4px 2px 2px;
+}
+
+/* Display-only field */
+.ui-f-display {
+	font-size: <%= font_size %>;
+	vertical-align: top;
+	background: #eff7ff;
+}
+
+/* for forms where the label is above the edit control (vertical). */
+.ui-ro, .ui-ro:hover {
+	/*background: #eff7ff;*/
+	border:1px solid <%= readonly_border %>;
+	background-color: <%= readonly_bg %>;
+}
+input.ui-ro, input.ui-ro:hover {
+	text-align: left;
+	height: 16px !important;
+	margin: 0px !important;
+	padding: 0px !important;
+}
+
+select.ui-ro, select.ui-ro:hover {
+	border-color: <%= bevel_up %>;
+}

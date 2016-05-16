@@ -24,10 +24,7 @@
  */
 package to.etc.domui.component.lookup;
 
-import javax.annotation.*;
-
 import to.etc.domui.dom.html.*;
-import to.etc.webapp.query.*;
 
 /**
  * Abstract default implementation of a ILookupControlInstance. This merely keeps the
@@ -37,65 +34,19 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 31, 2009
  */
-abstract public class AbstractLookupControlImpl implements ILookupControlInstance {
-	private NodeBase[] m_nodes;
-
-	@Override
-	@Nonnull
-	abstract public AppendCriteriaResult appendCriteria(@Nonnull QCriteria< ? > crit) throws Exception;
+abstract public class AbstractLookupControlImpl extends BaseAbstractLookupControlImpl<Object> implements ILookupControlInstance<Object> {
 
 	public AbstractLookupControlImpl(NodeBase... nodes) {
-		m_nodes = nodes;
+		super(nodes);
 	}
 
 	@Override
-	public NodeBase[] getInputControls() {
-		return m_nodes;
+	public Object getValue() {
+		throw new IllegalStateException("This is not implemented for this control. You must do this before turning on the save filter possibility.");
 	}
 
 	@Override
-	public NodeBase getLabelControl() {
-		return null;
+	public void setValue(Object value) {
+		throw new IllegalStateException("This is not implemented for this control. You must do this before turning on the save filter possibility.");
 	}
-
-	/**
-	 * Default implementation
-	 *
-	 * @see to.etc.domui.component.lookup.ILookupControlInstance#clearInput()
-	 */
-	@Override
-	public void clearInput() {
-		boolean done = false;
-		if(m_nodes != null) {
-			for(NodeBase m_node : m_nodes) {
-				if(m_node instanceof IControl< ? >) {
-					((IControl< ? >) m_node).setValue(null);
-					done = true;
-				}
-			}
-		}
-		if(!done)
-			throw new IllegalStateException("The implementation for " + this + " needs an overridden clearInput() method");
-	}
-
-	/**
-	 * Default implementation
-	 *
-	 * @see to.etc.domui.component.lookup.ILookupControlInstance#setDisabled(Boolean))
-	 */
-	@Override
-	public void setDisabled(boolean disabled) {
-		boolean done = false;
-		if(m_nodes != null) {
-			for(NodeBase m_node : m_nodes) {
-				if(m_node instanceof IControl< ? >) {
-					((IControl< ? >) m_node).setDisabled(disabled);
-				}
-				done = true;
-			}
-		}
-		if(!done)
-			throw new IllegalStateException("The implementation for " + this + " needs an overridden setDisabled() method");
-	}
-
 }

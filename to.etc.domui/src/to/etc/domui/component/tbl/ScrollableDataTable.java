@@ -10,11 +10,15 @@ import javax.annotation.*;
 import java.util.*;
 
 /**
+ * @deprecated since there is an issue with table with calculation on various browsers.<br>
+ *     Redundant horizontal scrollbars may appear randomly. A workaround for the issue is fixing each column width.
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 1/3/15.
  */
+@Deprecated
 final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> implements ISelectionListener<T>, ISelectableTableComponent<T> {
-	static private final boolean DEBUG = false;
+	static private final boolean DEBUG = true;
 
 	private IRowRenderer<T> m_rowRenderer;
 
@@ -47,6 +51,9 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 	final private IClicked<TH> m_headerSelectClickHandler = new IClicked<TH>() {
 		@Override
 		public void clicked(@Nonnull TH clickednode) throws Exception {
+			if (isDisabled()){
+				return;
+			}
 			ISelectionModel<T> sm = getSelectionModel();
 			if(null == sm)
 				return;
@@ -172,6 +179,7 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 		m_nextIndexToLoad = 0;
 		m_dataBody.removeAllChildren();
 		m_allRendered = false;
+		m_visibleItemList.clear();
 		loadMoreData();
 		appendJavascript("WebUI.scrollableTableReset('" + getActualID() + "','" + tbl().getActualID() + "');");
 	}
@@ -180,22 +188,12 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 		TBody dataBody = m_dataBody;
 		if(null == dataBody)
 			throw new IllegalStateException("No data body?");
-		int colspan = 1;
 		if(dataBody.getChildCount() > 0) {
 			TR row = dataBody.getRow(dataBody.getChildCount()-1);
-			colspan = row.getChildCount();
-			if(colspan == 0)
-				colspan = 1;
+			row.setSpecialAttribute("lastRow", "true");
 		}
 
 		m_allRendered = true;
-		TR row = new TR();
-		dataBody.add(row);
-		TD cell = new TD();
-		row.add(cell);
-		cell.setColspan(colspan);
-		row.setSpecialAttribute("lastRow", "true");
-		//cell.setText("All records loaded");
 	}
 
 	private List<T> getPageItems() throws Exception {
@@ -600,8 +598,11 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 
 		//-- Do we need to increase the nextIndexToLoad?
 		if(m_nextIndexToLoad < m_batchSize) {
-			if(m_visibleItemList.size() > m_nextIndexToLoad)
+			if(m_visibleItemList.size() > m_nextIndexToLoad) {
 				m_nextIndexToLoad = m_visibleItemList.size();
+				if(DEBUG)
+					System.out.println("dd: nextIndexToLoad set to "+m_nextIndexToLoad);
+			}
 		} else if(m_visibleItemList.size() > m_nextIndexToLoad && m_nextIndexToLoad >= m_batchSize) {
 			//-- Delete the last row.
 			int delindex = m_visibleItemList.size() - 1;
@@ -661,6 +662,10 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 			if(DEBUG)
 				System.out.println("dd: decrement size of loaded data eix="+ m_nextIndexToLoad);
 		}
+		while(m_visibleItemList.size() > m_nextIndexToLoad) {
+			m_visibleItemList.remove(m_visibleItemList.size() - 1);
+		}
+
 		if(DEBUG)
 			System.out.println("dd: sizes "+getModel().getRows()+" "+m_dataBody.getChildCount()+", "+m_visibleItemList.size()+", eix="+ m_nextIndexToLoad);
 		calcIndices(); 								// Calculate visible nodes

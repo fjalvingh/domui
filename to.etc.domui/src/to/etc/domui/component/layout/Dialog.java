@@ -28,6 +28,7 @@ import javax.annotation.*;
 
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.themes.*;
 import to.etc.domui.util.*;
 
 /**
@@ -156,8 +157,16 @@ public class Dialog extends Window {
 	}
 
 	protected void createCancelButton() {
+		createCancelButton(Msgs.BUNDLE.getString(Msgs.EDLG_CANCEL));
+	}
+
+	protected void createCancelButton(@Nonnull String text) {
+		createCancelButton(text, Theme.BTN_CANCEL);
+	}
+
+	protected void createCancelButton(@Nonnull String text, @Nonnull String image) {
 		DefaultButton b;
-		b = getButtonBar().addButton(Msgs.BUNDLE.getString(Msgs.EDLG_CANCEL), Msgs.BTN_CANCEL, new IClicked<DefaultButton>() {
+		b = getButtonBar().addButton(text, image, new IClicked<DefaultButton>() {
 			@Override
 			public void clicked(@Nonnull DefaultButton clickednode) throws Exception {
 				buttonCancel();
@@ -166,14 +175,21 @@ public class Dialog extends Window {
 		b.setTestID("cancelButton");
 	}
 
-	protected void createSaveButton() {
-		DefaultButton b = getButtonBar().addButton(Msgs.BUNDLE.getString(Msgs.EDLG_OKAY), Msgs.BTN_SAVE, new IClicked<DefaultButton>() {
+	@Nonnull
+	protected DefaultButton createSaveButton() {
+		return createSaveButton(Msgs.BUNDLE.getString(Msgs.EDLG_OKAY), Msgs.BTN_SAVE);
+	}
+
+	@Nonnull
+	protected DefaultButton createSaveButton(String caption, String iconUrl) {
+		DefaultButton b = getButtonBar().addButton(caption, iconUrl, new IClicked<DefaultButton>() {
 			@Override
 			public void clicked(@Nonnull DefaultButton clickednode) throws Exception {
 				buttonSave();
 			}
 		});
 		b.setTestID("saveButton");
+		return b;
 	}
 
 	/**
@@ -266,6 +282,4 @@ public class Dialog extends Window {
 	public void setOnSave(@Nullable IExecute onSave) {
 		m_onSave = onSave;
 	}
-
-
 }

@@ -9,6 +9,9 @@ abstract public class UIAction<T> implements IUIAction<T> {
 
 	final private String m_icon;
 
+	@Nullable
+	private String m_disableReason;
+
 	public UIAction(String name, String title, String icon) {
 		m_name = name;
 		m_title = title;
@@ -18,7 +21,11 @@ abstract public class UIAction<T> implements IUIAction<T> {
 	@Override
 	@Nullable
 	public String getDisableReason(@Nullable T instance) throws Exception {
-		return null;
+		return m_disableReason;
+	}
+
+	public void setDisableReason(@Nullable String disableReason) {
+		m_disableReason = disableReason;
 	}
 
 	@Override

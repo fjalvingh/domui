@@ -128,6 +128,8 @@ public interface Msgs {
 
 	public static final String UI_XDT_ADD = "ui.xdt.add";
 
+	public static final String UI_XDT_CONFIRM = "ui.xdt.confirm";
+
 	public static final String UI_XDT_CANCEL = "ui.xdt.cancel";
 
 	public static final String UI_XDT_SURE = "ui.xdt.sure";
@@ -237,6 +239,16 @@ public interface Msgs {
 
 	public static final String SESSION_EXPIRED_MESSAGE = "session.expired.msg";
 
+	//# SaveSearchFilterDialog
+	/** savesearchfilter.name.exists key */
+	public static final String SAVE_SEARCH_DIALOG_NAME_EXISTS = "savesearchfilter.name.exists";
+
+	/** savesearchfilter.name.too.long key */
+	public static final String SAVE_SEARCH_DIALOG_NAME_TOO_LONG = "savesearchfilter.name.too.long";
+
+	/** savesearchfilter.name.saved */
+	public static final String SAVE_SEARCH_DIALOG_NAME_SAVED = "savesearchfilter.name.saved";
+
 	//# LookupForm
 	/** lookupform.search key */
 	public static final String LOOKUP_FORM_SEARCH = "lookupform.search";
@@ -246,6 +258,14 @@ public interface Msgs {
 
 	/** lookupform.cancel key */
 	public static final String LOOKUP_FORM_CANCEL = "lookupform.cancel";
+
+	/** lookupform.savesearch key */
+	public static final String LOOKUP_FORM_SAVE_SEARCH = "lookupform.savesearch";
+
+	/** lookupform.save.filters label */
+	String LOOKUP_FORM_SAVED_FILTERS = "lookupform.saved.filters.label";
+
+	String LOOKUP_FORM_DELETE_FILTER = "lookupform.delete.filter";
 
 	/** lookupform.confirm key */
 	public static final String LOOKUP_FORM_CONFIRM = "lookupform.confirm";
@@ -309,6 +329,9 @@ public interface Msgs {
 
 	public static final String BULKUPLD_UPLOAD_QUEUE = "bupl.upload.queue";
 
+	/*** ImageSelectControl ***/
+	public static final String ISCT_EMPTY_TITLE = "isct.empty.title";
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Available icons within the framework theme set.		*/
 	/*--------------------------------------------------------------*/
@@ -324,7 +347,7 @@ public interface Msgs {
 
 	static public final String ICON_CHECKMARK = Theme.BTN_CHECKMARK;
 
-	static public final String BTN_CLEAR = "THEME/btnClear.png";
+	static public final String BTN_CLEAR = Theme.BTN_CLEAR;
 
 	static public final String BTN_CLEAR_LOOKUP = Theme.BTN_CLEARLOOKUP;
 
@@ -372,4 +395,15 @@ public interface Msgs {
 
 	static public final String ICON_RESIZE = "THEME/resize.png";
 
+	static final String UPLOAD_TOO_LARGE = "upload.too.large";
+
+	static final String UPLOAD_DATA_ERROR = "upload.data.error";
+
+	static final String UPLOAD_INTERRUPTED = "upload.interrupted";
+
+	static final public String CONVERSATION_DESTROYED = "conversation.destroyed";
+
+	static final public String E_BINDING_FAILED = "e.binding.failed";
+
+	static final public String E_BINDING_DEFINITION = "e.binding.definition";
 }

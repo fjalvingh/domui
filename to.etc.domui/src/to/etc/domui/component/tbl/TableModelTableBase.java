@@ -24,14 +24,17 @@
  */
 package to.etc.domui.component.tbl;
 
+import java.util.*;
+
+import javax.annotation.*;
+
+import to.etc.domui.databinding.list.*;
+import to.etc.domui.databinding.list2.*;
 import to.etc.domui.databinding.observables.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
-import javax.annotation.*;
-import java.util.*;
-
-abstract public class TableModelTableBase<T> extends Div implements ITableModelListener<T> {
+abstract public class TableModelTableBase<T> extends Div implements ITableModelListener<T>, IListChangeListener<T> {
 	@Nullable
 	private ITableModel<T> m_model;
 
@@ -57,7 +60,7 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 		synchronized(this) {
 			if(m_listeners.contains(l))
 				return;
-			m_listeners = new ArrayList<IDataTableChangeListener>(m_listeners);
+			m_listeners = new ArrayList<>(m_listeners);
 			m_listeners.add(l);
 		}
 	}
@@ -68,7 +71,7 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 	 */
 	public void removeChangeListener(@Nonnull IDataTableChangeListener l) {
 		synchronized(this) {
-			m_listeners = new ArrayList<IDataTableChangeListener>();
+			m_listeners = new ArrayList<>();
 			m_listeners.remove(l);
 		}
 	}
@@ -128,17 +131,26 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 		if(model == null)
 			throw new IllegalArgumentException("Cannot set a table model to null");
 
-		ITableModel<T> itm = model; // Stupid Java Generics need cast here
-		if(m_model == itm) // If the model did not change at all begone
+		ITableModel<T> itm = model; 				// Stupid Java Generics need cast here
+		if(m_model == itm) 							// If the model did not change at all begone
 			return;
 		ITableModel<T> old = m_model;
 		if(m_model != null)
-			m_model.removeChangeListener(this); // Remove myself from listening to my old model
+			m_model.removeChangeListener(this); 	// Remove myself from listening to my old model
 		m_model = itm;
 		if(itm != null)
-			itm.addChangeListener(this); // Listen for changes on the new model
-		forceRebuild(); // Force a rebuild of all my nodes
+			itm.addChangeListener(this); 			// Listen for changes on the new model
+		forceRebuild();
+		resetState();
 		fireModelChanged(old, model);
+	}
+
+	/**
+	 * This should be overridden when setting a model requires state to be reset, like
+	 * the current page number or selected cell (x, y)
+	 */
+	@OverridingMethodsMustInvokeSuper
+	protected void resetState() {
 	}
 
 	@Nonnull
@@ -164,7 +176,6 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 	protected void onUnshelve() throws Exception {
 		super.onUnshelve();
 		if(m_model instanceof IShelvedListener) {
-			//			System.out.println("Unshelving the model: refreshing it's contents");
 			((IShelvedListener) m_model).onUnshelve();
 			forceRebuild();
 			firePageChanged();
@@ -188,9 +199,13 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 			ObservableListModelAdapter<T> oa = (ObservableListModelAdapter<T>) om;
 			if(oa.getSource() == list)							// Same list?
 				return;
+
+			//-- We're going to replace this, so remove me as a list change listener.
+			oa.getSource().removeChangeListener(this);
 		}
 		ObservableListModelAdapter<T> ma = new ObservableListModelAdapter<T>(list);
 		setModel(ma);
+		list.addChangeListener(this);
 	}
 
 	@Nullable
@@ -203,6 +218,12 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 		return null;
 	}
 
+	@Override
+	public void onRemoveFromPage(Page p) {
+		IObservableList<T> list = getList();
+		if(null != list)
+			list.removeChangeListener(this);
+	}
 
 	public boolean isDisableClipboardSelection() {
 		return m_disableClipboardSelection;
@@ -214,6 +235,45 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 		m_disableClipboardSelection = disableClipboardSelection;
 		if(isBuilt() && disableClipboardSelection) {
 			appendJavascript(JavascriptUtil.disableSelection(this)); // Needed to prevent ctrl+click in IE doing clipboard-select, because preventDefault does not work there of course.
+		}
+	}
+	/*--------------------------------------------------------------*/
+	/*	CODING:	ObservableList event handling						*/
+	/*--------------------------------------------------------------*/
+
+	/**
+	 * IListChangeListener implementation: this handles ObservableList updates and updates the UI according to them.
+	 *
+	 * @param event
+	 * @throws Exception
+	 */
+	@Override
+	public void handleChange(@Nonnull ListChangeEvent<T> event) throws Exception {
+		if(event.getChanges().size() == 1) {
+			event.visit(new IListChangeVisitor<T>() {
+				@Override
+				public void visitAdd(@Nonnull ListChangeAdd<T> l) throws Exception {
+					rowAdded(getModel(), l.getIndex(), l.getValue());
+				}
+
+				@Override
+				public void visitDelete(@Nonnull ListChangeDelete<T> l) throws Exception {
+					rowDeleted(getModel(), l.getIndex(), l.getValue());
+				}
+
+				@Override
+				public void visitModify(@Nonnull ListChangeModify<T> l) throws Exception {
+					rowModified(getModel(), l.getIndex(), l.getNewValue());
+				}
+
+				@Override
+				public void visitAssign(@Nonnull ListChangeAssign<T> assign) throws Exception {
+					forceRebuild();
+					fireModelChanged(null, getModel());
+				}
+			});
+		} else {
+			forceRebuild();
 		}
 	}
 }

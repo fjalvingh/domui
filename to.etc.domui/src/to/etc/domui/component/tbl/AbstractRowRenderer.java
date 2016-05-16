@@ -300,7 +300,6 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 	 * Render the header for a table, using the simple column metadata provided. This renders a rich
 	 * header, containing column labels, sort boxes and the like.
 	 *
-	 * @see to.etc.domui.component.tbl.IRowRenderer#renderHeader(to.etc.domui.component.tbl.HeaderContainer)
 	 */
 	@Override
 	public void renderHeader(@Nonnull final TableModelTableBase<T> tbl, @Nonnull final HeaderContainer<T> cc) throws Exception {
@@ -387,15 +386,8 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 		updateSortImage(scd, isSortDescending() ? "THEME/sort-desc.png" : "THEME/sort-asc.png");
 
 		//-- Tell the model to sort.
-		DataTable< ? > parent = nb.getParent(DataTable.class);
-		if(scd.getSortHelper() != null) {
-			//-- A sort helper is needed.
-			final IProgrammableSortableModel stm = (IProgrammableSortableModel) parent.getModel();
-			stm.sortOn(scd.getSortHelper(), isSortDescending());
-		} else {
-			final ISortableTableModel stm = (ISortableTableModel) parent.getModel();
-			stm.sortOn(scd.getPropertyName(), isSortDescending());
-		}
+		DataTable<T> parent = nb.getParent(DataTable.class);
+		sortModel(parent, scd);
 	}
 
 	private void updateSortImage(@Nonnull final SimpleColumnDef< ? > scd, @Nonnull final String img) {
@@ -415,8 +407,6 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 	 * a new page. When called the query has not yet been done and nothing is rendered
 	 * for this object. This exposes the actual model that will be used during the rendering
 	 * process and allows this component to define sorting, if needed.
-	 *
-	 * @see to.etc.domui.component.tbl.IRowRenderer#beforeQuery(to.etc.domui.component.tbl.DataTable)
 	 */
 	@Override
 	public void beforeQuery(@Nonnull final TableModelTableBase<T> tbl) throws Exception {
@@ -432,10 +422,13 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 			return;
 
 		//-- Tell the model to sort.
-		if(scol.getSortHelper() != null) {
-			//-- A sort helper is needed.
-			final IProgrammableSortableModel stm = (IProgrammableSortableModel) tbl.getModel();
-			stm.sortOn(scol.getSortHelper(), isSortDescending());
+		sortModel(tbl, scol);
+	}
+
+	private void sortModel(@Nonnull TableModelTableBase<T> tbl, SimpleColumnDef<?> scol) throws Exception {
+		ISortHelper<T> sortHelper = (ISortHelper<T>) scol.getSortHelper();
+		if(sortHelper != null) {
+			sortHelper.adjustSort(tbl.getModel(), isSortDescending());
 		} else {
 			final ISortableTableModel stm = (ISortableTableModel) tbl.getModel();
 			stm.sortOn(scol.getPropertyName(), isSortDescending());
@@ -447,7 +440,6 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 	/*--------------------------------------------------------------*/
 	/**
 	 *
-	 * @see to.etc.domui.component.tbl.IRowRenderer#renderRow(to.etc.domui.component.tbl.ColumnContainer, int, java.lang.Object)
 	 */
 	@Override
 	public void renderRow(@Nonnull final TableModelTableBase<T> tbl, @Nonnull final ColumnContainer<T> cc, final int index, @Nonnull final T instance) throws Exception {

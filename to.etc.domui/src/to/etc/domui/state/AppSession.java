@@ -67,6 +67,8 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	@Nullable
 	private Thread m_lockingThread;
 
+	private int m_exceptionRetryCount;
+
 	@Nonnull
 	private Map<String, WindowSession> m_windowMap = new HashMap<String, WindowSession>();
 
@@ -154,7 +156,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 				try {
 					wait();
 				} catch(InterruptedException ix) {
-					throw new RuntimeException("Waiting for session lock was interrupted.");
+					throw new RuntimeException("Waiting for session lock was interrupted.", ix);
 				}
 			}
 		}
@@ -190,7 +192,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 		}
 
 		for(WindowSession cm : map.values()) {
-			cm.destroyWindow();
+			cm.destroyWindow(true);
 			m_application.internalCallWindowSessionDestroyed(cm);
 		}
 	}
@@ -224,7 +226,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 			System.out.println("cm: dropping window session " + cm.getWindowID() + " due to timeout");
 			logUser(cm.getWindowID(), "cm: dropping window session " + cm.getWindowID() + " due to timeout");
 			try {
-				cm.destroyWindow();
+				cm.destroyWindow(false);
 				m_application.internalCallWindowSessionDestroyed(cm);
 			} catch(Exception x) {
 				logUser(cm.getWindowID(), "Exception in destroyConversations: " + x);
@@ -354,7 +356,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 				return; 										// Do not drop it then.
 			m_windowMap.remove(cm.getWindowID()); 				// Atomically remove the thingy.
 		}
-		cm.destroyWindow();										// Discard all of it's contents.
+		cm.destroyWindow(false);								// Discard all of it's contents.
 		m_application.internalCallWindowSessionDestroyed(cm);
 	}
 
@@ -426,6 +428,18 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 			httpSession.setAttribute(ws.getWindowID(), sw);
 			System.out.println("appSession: saved " + sw);
 		}
+	}
+
+	public synchronized int getExceptionRetryCount() {
+		return m_exceptionRetryCount;
+	}
+
+	public synchronized int incrementExceptionCount() {
+		return ++m_exceptionRetryCount;
+	}
+
+	public synchronized void clearExceptionRetryCount() {
+		m_exceptionRetryCount = 0;
 	}
 
 	/*--------------------------------------------------------------*/

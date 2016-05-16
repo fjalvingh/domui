@@ -46,7 +46,7 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 27, 2014
  */
-public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasModifiedIndication {
+public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements IControl<V>, IHasModifiedIndication {
 	/** The properties bindable for this component. */
 	static private final Set<String> BINDABLE_SET = createNameSet("value", "disabled", "message");
 
@@ -216,6 +216,13 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 		}
 	}
 
+	@Nullable
+	@Override
+	protected String getFocusID() {
+		if(m_select.isAttached())
+			return m_select.getActualID();
+		return null;
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	value setting logic.								*/
@@ -226,7 +233,7 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 	@Override
 	final public V getValue() {
 		try {
-			validate();
+			validateBindValue();
 			setMessage(null);
 			return m_currentValue;
 		} catch(ValidationException vx) {
@@ -236,7 +243,7 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 	}
 
 	final public V getBindValue() {
-		validate();
+		validateBindValue();
 		return m_currentValue;
 	}
 
@@ -247,7 +254,7 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 		setValue(value);
 	}
 
-	private void validate() {
+	private void validateBindValue() {
 		if(isMandatory() && m_currentValue == null) {
 			throw new ValidationException(Msgs.MANDATORY);
 		}
@@ -661,5 +668,11 @@ public class ComboComponentBase2<T, V> extends Div implements IControl<V>, IHasM
 	@Nonnull
 	public Set<String> getBindableProperties() {
 		return BINDABLE_SET;
+	}
+
+	@Override
+	public void setMaxWidth(String maxWidth) {
+		super.setMaxWidth(maxWidth);
+		m_select.setMaxWidth(maxWidth);
 	}
 }

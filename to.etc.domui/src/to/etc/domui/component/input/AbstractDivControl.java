@@ -24,10 +24,12 @@
  */
 package to.etc.domui.component.input;
 
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.html.*;
+import java.util.*;
 
 import javax.annotation.*;
+
+import to.etc.domui.component.meta.*;
+import to.etc.domui.dom.html.*;
 
 /**
  * Abstract base class for a control that is implemented on top of a DIV. This handles most basic actions required of
@@ -40,6 +42,8 @@ abstract public class AbstractDivControl<T> extends Div implements IControl<T> {
 	private boolean m_readOnly;
 
 	private boolean m_disabled;
+
+	private String m_disabledBecause;
 
 	private boolean m_mandatory;
 
@@ -126,6 +130,24 @@ abstract public class AbstractDivControl<T> extends Div implements IControl<T> {
 			return;
 		m_disabled = d;
 		disabledChanged();
+	}
+
+	/**
+	 * Disables a button and set a hover text as the reason for being disabled.
+	 * @return
+	 */
+	@Nullable
+	final public String getDisabledBecause() {
+		return m_disabledBecause;
+	}
+
+	final public void setDisabledBecause(@Nullable String msg) {
+		if(Objects.equals(msg, m_disabledBecause)) {
+			return;
+		}
+		m_disabledBecause = msg;
+		setOverrideTitle(msg);
+		setDisabled(msg != null);
 	}
 
 	protected void disabledChanged() {

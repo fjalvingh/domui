@@ -45,5 +45,5 @@ public interface ILookupControlFactory {
 	 */
 	<T, X extends IControl<T>> int accepts(@Nonnull SearchPropertyMetaModel pmm, X control);
 
-	<T, X extends IControl<T>> ILookupControlInstance createControl(@Nonnull SearchPropertyMetaModel spm, X control);
+	<T, X extends IControl<T>> ILookupControlInstance<?> createControl(@Nonnull SearchPropertyMetaModel spm, X control);
 }

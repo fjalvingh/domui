@@ -37,7 +37,7 @@ public class ResultSetProxy implements ResultSet {
 	/** The wrapped result set, */
 	private ResultSet m_rs;
 
-	private final IInfoHandler m_statsHandler;
+	private final IConnectionEventListener m_statsHandler;
 
 	private final ConnectionProxy m_pc;
 

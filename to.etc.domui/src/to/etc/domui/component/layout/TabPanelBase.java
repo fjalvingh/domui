@@ -296,6 +296,8 @@ public class TabPanelBase extends Div {
 		Li li = ti.getTab();
 		Li separator = new Li();
 		separator.setCssClass("ui-tab-ibt");
+		if(index == 0)
+			separator.addCssClass("ui-tab-ibt-first");
 		if(li == null || !li.isAttached()) {
 			li = new Li();
 			if(ti.isCloseable()) {

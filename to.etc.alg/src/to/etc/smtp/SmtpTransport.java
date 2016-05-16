@@ -109,6 +109,16 @@ public class SmtpTransport {
 		if(msg.getSubject() == null || msg.getSubject().trim().length() == 0)
 			throw new MailException("The 'subject' is empty in message");
 
+		if (DeveloperOptions.isDeveloperWorkstation()) {
+			String overrideTo = DeveloperOptions.getString("email.debug");
+			if(!StringTool.isBlank(overrideTo)) {
+				msg.getTo().clear();
+				msg.getTo().add(new Address(overrideTo, "email.debug"));
+			}else{
+				System.out.println("warning: You are sending emails from Developer Workstation, please consider setting email.debug in your .developer.properties !");
+			}
+		}
+
 		Socket s = null;
 		InputStream is = null;
 		OutputStream os = null;
@@ -212,19 +222,7 @@ public class SmtpTransport {
 			write(os, "QUIT\r\n");
 			cr = readLine(is);
 		} finally {
-			try {
-				if(os != null)
-					os.close();
-			} catch(Exception x) {}
-			try {
-				if(is != null)
-					is.close();
-			} catch(Exception x) {}
-			if(s != null) {
-				try {
-					s.close();
-				} catch(Exception x) {}
-			}
+			FileTool.closeAll(os, is, s);
 		}
 	}
 
@@ -271,6 +269,7 @@ public class SmtpTransport {
 				hw.partStart(true, ma.getMime());
 				hw.partHeader("Content-Location", "CID:blarf.net");
 				hw.partHeader("Content-ID", "<" + ma.getIdent() + ">");
+				hw.partHeader("Content-Disposition", "attachment; filename=\"" + ma.getIdent() + "\"");
 
 				//-- Now- encapsulate
 				InputStream is = ma.getInputStream();

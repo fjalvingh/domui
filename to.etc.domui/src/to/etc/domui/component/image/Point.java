@@ -26,4 +26,9 @@ public class Point {
 	public Point move(int dx, int dy) {
 		return new Point(m_x + dx, m_y + dy);
 	}
+
+	@Override
+	public String toString() {
+		return "(" + m_x + ", " + m_y + ")";
+	}
 }

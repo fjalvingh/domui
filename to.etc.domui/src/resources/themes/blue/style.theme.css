@@ -95,6 +95,7 @@ input, textarea, select {
 }
 textarea{
 	line-height: normal;
+	white-space: pre-wrap;
 }
 textarea[readonly="readonly"] {
 	background-color: transparent;
@@ -747,11 +748,6 @@ a.ui-lnkb-dis {
 	font-style: italic;
 	cursor: default;
 	color: gray; 
-	
-	filter: url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><filter id=\'grayscale\'><feColorMatrix type=\'matrix\' values=\'0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0\'/></filter></svg>#grayscale"); /* Firefox 3.5+ */
-	-moz-filter: grayscale(100%);
-	filter: gray; /* IE6-9 */
-    -webkit-filter: grayscale(1); /* Google Chrome & Safari 6+ */
 }
 
 a:hover.ui-lnkb-dis {
@@ -1116,6 +1112,7 @@ img.ui-lui-waiting{
 	border: 1px solid gray;
 	width: 402px;
 	overflow: hidden;
+	margin-bottom: 10px;
 }
 tr.ui-keyword-popop-rowsel {
 	cursor: pointer;
@@ -1132,7 +1129,6 @@ tr.ui-keyword-popup-row {
 /*** 110_multiplelookupinput.frag.css ***/
 /*** MultipleLookupInput thingerydoo ***/
 .ui-mli-cnt { /* selection container */
-	min-height: 20px;
 	max-height: 60px;
 	overflow: auto;
 }
@@ -1157,8 +1153,8 @@ tr.ui-keyword-popup-row {
 .ui-mli-itm img {
 	display: inline-block;
 	margin-left: 5px;
-	width: 14px;
-	height: 14px;
+	max-width: 14px;
+	max-height: 14px;
 	vertical-align: top;
 }
 /*** 105_lookupinput.frag.css ***/
@@ -1237,6 +1233,12 @@ table.ui-lf-st input.ui-ro,
 table.ui-lf-st input.ui-ro:hover {
 	text-align: left !important;
 }
+
+table.ui-lfsf-st th {
+	font-weight: bold;
+	text-align: left;
+}
+
 /*** 120_forms.frag.css ***/
 /*** Form basic styles ***/
 /* these are for forms having the label BEFORE the field (horizontal). */
@@ -1547,13 +1549,6 @@ div.ui-sortable {
 	cursor: default;
 }
 
-.ui-sib[disabled] img {
-	filter: url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><filter id=\'grayscale\'><feColorMatrix type=\'matrix\' values=\'0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0\'/></filter></svg>#grayscale"); /* Firefox 3.5+ */
-	-moz-filter: grayscale(100%);
-	filter: gray; /* IE6-9 */
-    -webkit-filter: grayscale(1); /* Google Chrome & Safari 6+ */
-}
-
 .ui-sib[disabled]:hover {
 	background: none !important;
 }
@@ -1632,14 +1627,8 @@ div.ui-sortable {
 /*** 165_tabpanel.frag.css ***/
 /*** The tab control, using the "sliding doors" technique as in http://www.alistapart.com/articles/slidingdoors/ ***/
 .ui-tab-c {
+	margin: 0px -<%= margins_main %> <%= margins_main %> -<%= margins_main %>;
 }
-.ui-kludge .ui-tab-c {
-    margin: 0px -<%= margins_main %> <%= margins_main %> -<%= margins_main %>;
-}
-.ui-content > .ui-tab-c {
-    margin: 0px -<%= margins_main %> <%= margins_main %> -<%= margins_main %>;
-}
-
 .ui-tab-hdr ul {
 	list-style-type: none;
 	margin: 0;
@@ -1661,7 +1650,7 @@ div.ui-sortable {
 	font-size: <%= font_size %>;
 	line-height: normal;
 	width: 100%;
-	/*margin: 0px 0px <%= margins_main %>;*/
+	margin: 0px 0px <%= margins_main %>;
 }
 
 .ui-tab-hdr li {
@@ -1698,7 +1687,7 @@ div.ui-sortable {
     text-decoration: none;
 	color: <%= tab_pnl_inactive_col %>;
 	position: relative;    
-	padding: 2em;
+	padding: 2em;     
 	margin: -2em;
 }
 
@@ -2518,6 +2507,10 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	font-weight: bold;
 }
 
+.ui-flw-ttl-icon {
+	margin-right: 5px;
+}
+
 .ui-flw-c {
 	padding: <%= margins_main %>;
 	margin: 0;
@@ -2586,13 +2579,6 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	vertical-align: middle;
 	height: 16px;
 }
-.ui-sdbtn[disabled] img {
-	filter: url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><filter id=\'grayscale\'><feColorMatrix type=\'matrix\' values=\'0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0\'/></filter></svg>#grayscale"); /* Firefox 3.5+ */
-	-moz-filter: grayscale(100%);
-	filter: gray; /* IE6-9 */
-    -webkit-filter: grayscale(1); /* Google Chrome & Safari 6+ */
-}
-
 .ui-sdbtn::-moz-focus-inner {
 	border: none; /* overrides extra padding in ffox */
 }
@@ -3138,21 +3124,19 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	min-width: 150px;
 }
 .ui-f4-ctl-v {
-	padding: 0px 0px 0px 4px;
+	padding: 0px 0px 8px 4px;
 }
 
 .ui-f4-h {
 	margin-bottom: 10px;
 }
 
-/*-- overrides --*/
-.ui-f4 td, .ui-f4 label {
-	vertical-align: baseline !important;
-}
-.ui-f4 td input, .ui-f4 td select {
-	vertical-align: baseline !important;
+.ui-f4 .ui-f4-ta {
+	vertical-align: top !important;
+	padding-top: 5px;
 }
 
+/*-- overrides --*/
 .ui-f4 .ui-ro {
 	border: none;
 	color: black;
@@ -3174,7 +3158,7 @@ label.ui-f4-mandatory {
 /*	display: inline-block; */
 	background-repeat: no-repeat;
 	background-position: left;
-	padding-left: 18px;
+	padding-left: 12px;
 	background-image: url(mandatoryField.png);
 }
 .ui-dsplyima {
@@ -3204,10 +3188,12 @@ label.ui-f4-mandatory {
     color: black;
     background: white;
 }
+.ui-cbb2 select:disabled {
+    background-color: inherit;
+}
 .ui-cbb2.ui-input-err select {
     background-color: #ffe5e5 !important;
 }
-
 /*** comboBoxBase - javascript select control (incomplete)  ***/
 .ui-cbb {
     display: inline-block;
@@ -3256,7 +3242,6 @@ label.ui-f4-mandatory {
 /*** LookupInputBase2: replacement for LookupInput ***/
 .ui-lui2 {
     position: relative;
-    width: 12em;									/*	this width match with date field picker icon on IE rendering */
     display: inline-block;
 }
 .ui-lui2-selected {

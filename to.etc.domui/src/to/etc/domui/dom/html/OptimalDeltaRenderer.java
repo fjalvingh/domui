@@ -232,7 +232,10 @@ public class OptimalDeltaRenderer {
 		//-- If a component has requested focus - do it.
 		focusComponent = m_page.getFocusComponent();
 		if(focusComponent != null) {
-			o().text("WebUI.focus('" + focusComponent.getActualID() + "');");
+			String focusID = focusComponent.getFocusID();
+			if(null != focusID) {
+				o().text("WebUI.focus('" + focusID + "');");
+			}
 			m_page.setFocusComponent(null);
 		}
 
@@ -263,16 +266,17 @@ public class OptimalDeltaRenderer {
 		return false;
 	}
 
-	public void renderLoadCSS(String path) throws IOException {
-		path = ctx().getThemedPath(path);
+	public void renderLoadCSS(@Nonnull String path) throws IOException {
+		String rurl = m_page.getBody().getThemedResourceRURL(path);
+		path = ctx().getRelativePath(rurl);
 		o().writeRaw("WebUI.loadStylesheet(" + StringTool.strToJavascriptString(path, false) + ");\n");
 	}
 
-	public void renderLoadJavascript(String path) throws IOException {
-		path = ctx().getThemedPath(path);
+	public void renderLoadJavascript(@Nonnull String path) throws IOException {
+		String rurl = m_page.getBody().getThemedResourceRURL(path);
+		path = ctx().getRelativePath(rurl);
 		o().writeRaw("WebUI.loadJavascript(" + StringTool.strToJavascriptString(path, false) + ");\n");
 	}
-
 
 	/**
 	 * Do a downward traverse of all nodes and annotate changes, collecting attribute changes and

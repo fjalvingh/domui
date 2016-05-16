@@ -13,7 +13,7 @@ import to.etc.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 8, 2011
  */
-public class SortableListModel<T> extends SimpleListModel<T> implements ISortableTableModel {
+public class SortableListModel<T> extends SimpleListModel<T> implements ISortableTableModel, ITruncateableDataModel {
 	/** The actual type of the class being listed. */
 	private final Class<T> m_dataClass;
 
@@ -22,6 +22,8 @@ public class SortableListModel<T> extends SimpleListModel<T> implements ISortabl
 
 	/** T if the sort order is currently descending. */
 	private boolean m_descending;
+
+	private boolean m_truncated;
 
 	public SortableListModel(Class<T> clz, List<T> list) {
 		super(list);
@@ -41,23 +43,27 @@ public class SortableListModel<T> extends SimpleListModel<T> implements ISortabl
 		if(StringTool.isEqual(key, m_sortKey) && m_descending == descending)
 			return;
 
-		m_sortKey = key;
-		m_descending = descending;
 		if(key == null) {
 			if(getComparator() != null) {
 				setComparator(null);
 				fireModelChanged();
 			}
-			return;
+		} else {
+			//-- We need the property meta model for the specified property.
+			ClassMetaModel cmm = MetaManager.findClassMeta(getDataClass());
+			Comparator<T> comp = (Comparator<T>) ConverterRegistry.getComparator(cmm, key, descending);
+			setComparator(comp);
+			fireModelChanged();
 		}
+		m_sortKey = key;
+		m_descending = descending;
+	}
 
-		//-- We need the property meta model for the specified property.
-		ClassMetaModel cmm = MetaManager.findClassMeta(getDataClass());
-
-		//		PropertyMetaModel< ? > pmm = MetaManager.getPropertyMeta(getDataClass(), key); // Will abort on bad name
-		Comparator<T> comp = (Comparator<T>) ConverterRegistry.getComparator(cmm, key, descending);
-		setComparator(comp);
-		fireModelChanged();
+	@Override
+	public void setComparator(Comparator<T> comparator) throws Exception {
+		m_sortKey = null;
+		m_descending = false;
+		super.setComparator(comparator);
 	}
 
 	@Override
@@ -68,5 +74,14 @@ public class SortableListModel<T> extends SimpleListModel<T> implements ISortabl
 	@Override
 	public boolean isSortDescending() {
 		return m_descending;
+	}
+
+	@Override
+	public boolean isTruncated() {
+		return m_truncated;
+	}
+
+	public void setTruncated(boolean tr) {
+		m_truncated = tr;
 	}
 }

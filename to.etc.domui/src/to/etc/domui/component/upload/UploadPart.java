@@ -29,6 +29,7 @@ import javax.annotation.*;
 import to.etc.domui.parts.*;
 import to.etc.domui.server.*;
 import to.etc.domui.server.parts.*;
+import to.etc.domui.trouble.*;
 
 /**
  * This thingy accepts file upload requests for a given control.
@@ -46,7 +47,17 @@ public class UploadPart implements IUnbufferedPartFactory {
 				throw new IllegalStateException("The targeted component " + r.getComponent() + " does not accept uploaded files.");
 
 			IUploadAcceptingComponent fu = (IUploadAcceptingComponent) r.getComponent();
-			fu.handleUploadRequest(param, r.getConversation());
+			boolean render = fu.handleUploadRequest(param, r.getConversation());
+
+			//-- Render an optimal delta as the response,
+			if(render) {
+				param.getRequestResponse().setNoCache();
+				ApplicationRequestHandler.renderOptimalDelta(param, r.getPage());
+			}
+		} catch(ThingyNotFoundException x) {
+			//-- Page seems to have gone in the meanwhile
+			System.err.println("domui: upload target " + rurl + " has gone while the upload commenced");
+			param.getRequestResponse().sendError(404, x.getMessage());
 		} catch(Exception x) {
 			x.printStackTrace();
 			throw x;

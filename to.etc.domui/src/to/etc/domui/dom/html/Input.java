@@ -24,6 +24,8 @@
  */
 package to.etc.domui.dom.html;
 
+import java.util.*;
+
 import javax.annotation.*;
 
 import to.etc.domui.dom.errors.*;
@@ -52,6 +54,9 @@ public class Input extends NodeBase implements INativeChangeListener, IHasChange
 	private IValueChanged< ? > m_onValueChanged;
 
 	private ILookupTypingListener< ? > m_onLookupTyping;
+
+	@Nullable
+	private String m_disabledBecause;
 
 	public Input() {
 		super("input");
@@ -84,6 +89,22 @@ public class Input extends NodeBase implements INativeChangeListener, IHasChange
 		boolean isro = m_disabled || m_readOnly;
 		if(wasro != isro)
 			updateRoStyle();
+		if(! disabled)
+			setOverrideTitle(null);
+	}
+
+	@Nullable
+	public String getDisabledBecause() {
+		return m_disabledBecause;
+	}
+
+	public void setDisabledBecause(@Nullable String msg) {
+		if(Objects.equals(msg, m_disabledBecause)) {
+			return;
+		}
+		m_disabledBecause = msg;
+		setOverrideTitle(msg);
+		setDisabled(msg != null);
 	}
 
 	public boolean isReadOnly() {
@@ -183,9 +204,6 @@ public class Input extends NodeBase implements INativeChangeListener, IHasChange
 	 * Called when the action is a TYPING event on some Input thingy. This causes the onTyping handler for
 	 * the input to be called. Typing event is triggered after time delay of 500ms after user has stopped typing.
 	 *
-	 * @param ctx
-	 * @param page
-	 * @param cid
 	 * @throws Exception
 	 */
 	private void handleLookupTyping(final IRequestContext ctx) throws Exception {
@@ -199,9 +217,6 @@ public class Input extends NodeBase implements INativeChangeListener, IHasChange
 	 * Called when the action is a TYPING DONE event on some Input thingy. This causes the onTyping handler for
 	 * the input to be called with parame done set to true. Occurs when user press return key on input with registered onTyping listener.
 	 *
-	 * @param ctx
-	 * @param page
-	 * @param cid
 	 * @throws Exception
 	 */
 	private void handleLookupTypingDone(final IRequestContext ctx) throws Exception {

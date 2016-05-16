@@ -1,8 +1,12 @@
 package to.etc.domui.component.buttons;
 
 import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
 
+/**
+ * DO NOT USE - replaced by {@link HoverButton}.
+ * jal 2015/09/28 This does not properly implement the action interface and lacks for instance "disabled".
+ */
+@Deprecated
 public class SmallHoverButton extends Button {
 	private String m_url;
 
@@ -16,7 +20,6 @@ public class SmallHoverButton extends Button {
 	/**
 	 * Create a small image button from the specified resource. The resource can come from the current
 	 * theme, or it can be an absolute image path to a web file.
-	 * @param intheme
 	 * @param rurl
 	 */
 	public SmallHoverButton(String rurl) {
@@ -36,12 +39,12 @@ public class SmallHoverButton extends Button {
 	}
 
 	/**
-	 * Set a new image using a web resource's abolute path. If the name is prefixed
+	 * Set a new image using a web resource's absolute path. If the name is prefixed
 	 * with THEME/ it specifies an image from the current THEME's directory.
 	 * @param src
 	 */
 	public void setSrc(String src) {
 		m_url = src;
-		setBackgroundImage(DomApplication.get().getThemedResourceRURL(src));
+		setBackgroundImage(src);
 	}
 }

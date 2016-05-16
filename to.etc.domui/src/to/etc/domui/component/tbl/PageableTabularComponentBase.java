@@ -44,8 +44,13 @@ abstract public class PageableTabularComponentBase<T> extends SelectableTabularC
 
 	@Override
 	protected void fireModelChanged(@Nullable ITableModel<T> old, @Nullable ITableModel<T> model) {
-		m_currentPage = 0;
+		//m_currentPage = 0;									// jal See bugzilla 7383; ask me when you have issues with sorting/paging!
 		super.fireModelChanged(old, model);
+	}
+
+	@Override
+	protected void resetState() {
+		m_currentPage = 0;
 	}
 
 	protected void calcIndices() throws Exception {
@@ -93,11 +98,18 @@ abstract public class PageableTabularComponentBase<T> extends SelectableTabularC
 		return (getModel().getRows() + pageSize - 1) / pageSize;
 	}
 
-	public int getTruncatedCount() {
+	/**
+	 * FIXME jal 20160125 Remove and replace with isTruncated property.
+	 * @return
+	 * @throws Exception
+	 */
+	public int getTruncatedCount() throws Exception {
 		ITableModel<T> tm = getModel();
 		if(tm == null || !(tm instanceof ITruncateableDataModel))
 			return 0;
 		ITruncateableDataModel t = (ITruncateableDataModel) tm;
-		return t.getTruncatedCount();
+		if(t.isTruncated())
+			return getModel().getRows();
+		return 0;
 	}
 }

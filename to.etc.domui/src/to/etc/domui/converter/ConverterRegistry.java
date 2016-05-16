@@ -405,10 +405,10 @@ public class ConverterRegistry {
 	static public final Comparator<Object> DEFAULT_COMPARATOR = new Comparator<Object>() {
 		@Override
 		public int compare(Object a, Object b) {
-			if(a == null || b == null) {
-				if(a == b)
-					return 0;
-				return a == null ? -1 : 1;
+			if(a == null) {
+				return b == null ? 0 : 1;
+			} else if(b == null) {
+				return -1;
 			}
 			if(a instanceof Comparable && b instanceof Comparable) {
 				return ((Comparable<Object>) a).compareTo(b);
@@ -506,6 +506,15 @@ public class ConverterRegistry {
 		Comparator<Number> comp = new Comparator<Number>() {
 			@Override
 			public int compare(Number a, Number b) {
+				if(null == a) {
+					if(null == b) {
+						return 0;
+					} else {
+						return -1;
+					}
+				} else if(null == b) {
+					return 1;
+				}
 				long res = a.longValue() - b.longValue();
 				if(res == 0)
 					return 0;
@@ -517,6 +526,11 @@ public class ConverterRegistry {
 		Comparator<Number> comp2 = new Comparator<Number>() {
 			@Override
 			public int compare(Number a, Number b) {
+				if(a == null) {
+					return b == null ? 0 : 1;
+				} else if(b == null) {
+					return -1;
+				}
 				double res = a.doubleValue() - b.doubleValue();
 				if(res == 0)
 					return 0;

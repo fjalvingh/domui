@@ -710,4 +710,34 @@ public class JdbcUtil {
 			return "[unknown type!]";
 		}
 	}
+
+	@Nullable
+	public static Long readLong(@Nonnull ResultSet rs, @Nonnull String colName) throws SQLException {
+		Long value = rs.getLong(colName);
+		if (rs.wasNull()){
+			return null;
+		}
+		return value;
+	}
+
+	@Nullable
+	public static Integer readInt(@Nonnull ResultSet rs, @Nonnull String colName) throws SQLException {
+		Integer value = rs.getInt(colName);
+		if (rs.wasNull()){
+			return null;
+		}
+		return value;
+	}
+
+	@Nullable
+	public static java.util.Date readDate(@Nonnull ResultSet rs, @Nonnull String colName) throws SQLException {
+		return DateUtil.sqlToUtilDate(rs.getDate(colName));
+	}
+
+	@Nullable
+	public static java.util.Date readTimestamp(@Nonnull ResultSet rs, int colIndex) throws SQLException {
+		Timestamp ts = rs.getTimestamp(colIndex);
+		return null == ts ? null : new java.util.Date(ts.getTime());
+	}
+
 }

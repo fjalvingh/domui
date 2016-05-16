@@ -58,8 +58,13 @@ final public class SimpleColumnDef<T> {
 	@Nonnull
 	private SortableType m_sortable = SortableType.UNKNOWN;
 
+	/**
+ 	 * If this column is sortable with help from outside code: this defines that helper
+	 * which will sort the main model for the table for this column. Watch out: the type
+	 * passed to the sort helper is the ROW TYPE, not this-column's type!
+	 */
 	@Nullable
-	private ISortHelper m_sortHelper;
+	private ISortHelper<?> m_sortHelper;
 
 	@Nullable
 	private String m_width;
@@ -324,12 +329,18 @@ final public class SimpleColumnDef<T> {
 		m_renderHint = renderHint;
 	}
 
+	/**
+	 * If this column is sortable with help from outside code: this defines that helper
+	 * which will sort the main model for the table for this column. Watch out: the type
+	 * passed to the sort helper is the ROW TYPE, not this-column's type!
+	 * @return
+	 */
 	@Nullable
-	public ISortHelper getSortHelper() {
+	public ISortHelper<?> getSortHelper() {
 		return m_sortHelper;
 	}
 
-	public void setSortHelper(@Nullable ISortHelper sortHelper) {
+	public void setSortHelper(@Nullable ISortHelper<?> sortHelper) {
 		m_sortHelper = sortHelper;
 	}
 
@@ -498,7 +509,7 @@ final public class SimpleColumnDef<T> {
 	 * @return
 	 */
 	@Nonnull
-	public SimpleColumnDef<T>	sort(@Nonnull ISortHelper sh) {
+	public SimpleColumnDef<T>	sort(@Nonnull ISortHelper<T> sh) {
 		m_sortHelper = sh;
 		if(m_sortable == SortableType.UNKNOWN)
 			m_sortable = SortableType.SORTABLE_ASC;

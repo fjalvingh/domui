@@ -40,7 +40,7 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 16, 2008
  */
-public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeyedTableModel<T>, ITruncateableDataModel, IProgrammableSortableModel, IShelvedListener {
+public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeyedTableModel<T>, ITruncateableDataModel, ISortableTableModel, IShelvedListener {
 	private static final Logger LOG = LoggerFactory.getLogger(SimpleSearchModel.class);
 
 	/**
@@ -68,7 +68,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 
 	/** Generalized search query. */
 	@Nullable
-	final private QCriteria<T> m_query;
+	private QCriteria<T> m_query;
 
 	@Nullable
 	private List<T> m_workResult;
@@ -81,8 +81,18 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 	@Nullable
 	private String m_sort;
 
-	/** If we sort using a helper this contains that helper. */
-	private ISortHelper m_sortHelper;
+	/**
+	 * If we sort using sortComparator this is used to identify used comparator - to prevent multiple queries when order is already set to same.
+	 */
+	@Nullable
+	private String m_sortComparatorKey;
+
+	/**
+	 * Sort using provided sort comparator. This is an alternative to sorting on sort column or criteria.
+	 * This causes more data to fetch than usual querying -> because in-memory sorting. See ITableModel#IN_MEMORY_FILTER_OR_SORT_MAX_SIZE
+	 */
+	@Nullable
+	private Comparator<T> m_sortComparator;
 
 	/** If sorting, this is T if the sort should be descending. */
 	private boolean m_desc;
@@ -92,8 +102,52 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 	/** The max. #of rows to return before truncating. */
 	private int m_maxRowCount;
 
-	/** The criteria to use when the sort spec is to be adapted during execution of a sort helper. Null if not executing a sort helper. */
-	private QCriteria< ? > m_sortCriteria;
+	public final static class SortHelper<T> implements ISortHelper<T> {
+		private final String m_columnName;
+
+		public SortHelper(String columnName) {
+			m_columnName = columnName;
+		}
+
+		@Override
+		public <M extends ITableModel<T>> void adjustSort(@Nonnull M model, boolean descending) throws Exception {
+			SimpleSearchModel<T> ssm = (SimpleSearchModel<T>) model;
+			QCriteria<T> sq = ssm.getCriteria();
+			if(descending)
+				sq.descending(m_columnName);
+			else
+				sq.ascending(m_columnName);
+			ssm.setCriteria(sq);
+		}
+	}
+
+	/**
+	 * Implementation of ISortHelper that can be used when sort is specified by sort column comparator.
+	 * @param <T>
+	 */
+	@DefaultNonNull
+	public final static class ByComparatorSortHelper<T> implements ISortHelper<T>{
+
+		private final String m_columnKey;
+
+		private final Comparator<T> m_comparator;
+
+		/**
+		 * Specify column key and comparator.
+		 * @param columnKey
+		 * @param comparator
+		 */
+		public ByComparatorSortHelper(String columnKey, Comparator<T> comparator){
+			m_columnKey = columnKey;
+			m_comparator = comparator;
+		}
+
+		@Override
+		public <M extends ITableModel<T>> void adjustSort(M model, boolean descending) throws Exception {
+			SimpleSearchModel<T> smm = (SimpleSearchModel<T>) model;
+			smm.sortOn(m_comparator, m_columnKey, descending);
+		}
+	}
 
 	/**
 	 * EXPERIMENTAL INTERFACE
@@ -201,20 +255,30 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 		long ts = System.nanoTime();
 		QDataContext dc = null;
 
-		int limit = getMaxRowCount() > 0 ? getMaxRowCount() : ITableModel.DEFAULT_MAX_SIZE;
-		limit++; // Increment by 1: if that amount is returned we know we have overflowed.
+		int queryLimit = getMaxRowCount() > 0 ? getMaxRowCount() : ITableModel.DEFAULT_MAX_SIZE;
+		QCriteria<T> query = m_query;
+		if (null != query && query.getLimit() > 0) {
+			queryLimit = query.getLimit();
+		}
+		queryLimit++; // Increment by 1: if that amount is returned we know we have overflowed.
+		int resultLimit = queryLimit;
 
+		Comparator<T> sortComparator = m_sortComparator;
+		if(null != sortComparator) {
+			//custom sort requires more data fetch for in-memory sort
+			if (queryLimit <= ITableModel.IN_MEMORY_FILTER_OR_SORT_MAX_SIZE) {
+				queryLimit = ITableModel.IN_MEMORY_FILTER_OR_SORT_MAX_SIZE + 1;
+			}
+		}
 		try {
 			IQuery<T> queryFunctor = m_queryFunctor;
 			if(queryFunctor != null) {
-				if(m_sortHelper != null)
-					throw new IllegalStateException("Implementation restriction: you cannot (currently) use an ISortHelper when using an IQuery functor to actually do the query.");
 				dc = getQueryContext(); // Allocate data context
-				m_workResult = queryFunctor.query(dc, m_sort, limit);
+				m_workResult = queryFunctor.query(dc, m_sort, queryLimit);
 			} else if(m_query != null) {
 				QCriteria<T> qc = m_query; // Get the base query,
-				if(qc.getLimit() <= 0)
-					qc.limit(limit);
+				int oldLimit = qc.getLimit();
+				qc.limit(queryLimit);
 				handleQuerySorting(qc);
 
 				if(m_queryHandler != null) {
@@ -223,6 +287,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 					dc = getQueryContext(); // Allocate data context if needed.
 					m_workResult = dc.query(qc);
 				}
+				qc.limit(oldLimit);
 			} else
 				throw new IllegalStateException("No query and no query functor- no idea how to create the result..");
 		} finally {
@@ -231,8 +296,21 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 					dc.close();
 			} catch(Exception x) {}
 		}
-
-		if(getWorkResult().size() >= limit) {
+		if (null != sortComparator){
+			if (getWorkResult().size() == queryLimit){
+				//more results than expected, we can't do in-memory sorting, for now we report into sys err, see later about reporting in UI as well
+				System.err.println("Unable to do proper in-memory sorting since query fetch more than " + (queryLimit - 1) + " rows!");
+			}
+			if (m_desc) {
+				getWorkResult().sort(Collections.reverseOrder(sortComparator));
+			}else{
+				getWorkResult().sort(sortComparator);
+			}
+			if (getWorkResult().size() > resultLimit) {
+				m_workResult = getWorkResult().subList(0, resultLimit + 1);
+			}
+		}
+		if(getWorkResult().size() >= resultLimit) {
 			getWorkResult().remove(getWorkResult().size() - 1);
 			m_truncated = true;
 		} else
@@ -243,44 +321,6 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 			LOG.debug("db: persistence framework query and materialize took " + StringTool.strNanoTime(ts));
 		}
 	}
-
-	//	protected void execQueryOLD() throws Exception {
-	//		long ts = System.nanoTime();
-	//		QCriteria<T> qc = m_query; // Get the base query,
-	//		if(qc.getLimit() <= 0)
-	//			qc.limit(ITableModel.DEFAULT_MAX_SIZE + 1);
-	//		if(m_sort != null) { // Are we sorting?
-	//			qc.getOrder().clear(); // FIXME Need to duplicate.
-	//			if(m_desc)
-	//				qc.descending(m_sort);
-	//			else
-	//				qc.ascending(m_sort);
-	//		}
-	//		if(m_sessionSource != null) {
-	//			QDataContext qs = m_sessionSource.getDataContext(); // Create/get session
-	//			m_workResult = qs.query(qc); // Execute the query.
-	//		} else if(m_queryHandler != null) {
-	//			m_workResult = m_queryHandler.query(qc);
-	//		} else if(m_contextSourceNode != null) {
-	//			QDataContext dc = QContextManager.getContext(m_contextSourceNode.getPage());
-	//			m_workResult = dc.query(qc); // Execute the query.
-	//			dc.close();
-	//		} else if(m_queryFunctor != null) {
-	//
-	//
-	//		} else
-	//			throw new IllegalStateException("No QueryHandler nor SessionSource set- don't know how to do the query");
-	//
-	//		if(m_workResult.size() > ITableModel.DEFAULT_MAX_SIZE) {
-	//			m_workResult.remove(m_workResult.size() - 1);
-	//			m_truncated = true;
-	//		} else
-	//			m_truncated = false;
-	//		if(LOG.isDebugEnabled()) {
-	//			ts = System.nanoTime() - ts;
-	//			LOG.debug("db: persistence framework query and materialize took " + StringTool.strNanoTime(ts));
-	//		}
-	//	}
 
 	protected void handleQuerySorting(QCriteria<T> qc) {
 		//-- Handle the different sort forms. Are we sorting on property name?
@@ -294,36 +334,61 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 			return;
 		}
 
-		//-- Do we have a sort helper method here?
-		if(m_sortHelper != null) {
-			qc.getOrder().clear(); // FIXME Need to duplicate.
-			try {
-				m_sortCriteria = qc; // Only allow sort criteria access when sorting.
-				m_sortHelper.adjustSort(this, m_desc);
-			} finally {
-				m_sortCriteria = null;
-			}
-			return;
-		}
-
 		//-- We're not sorting.
 	}
 
+	@Nullable
+	private List<QOrder> m_criteriaSortOrder;
+
+	/**
+	 * Return a criteria for this search which can then be manipulated for sorting. Warning: the
+	 * current implementation allows changing the root's order by ONLY(!). Once altered the
+	 * new criteria must be set using {@link #setCriteria(QCriteria)}.
+	 *
+	 * FIXME This urgently needs to duplicate the query instead of messing around with the original!
+	 * @return
+	 */
 	@Nonnull
-	public QCriteria< ? > getSortCriteria() {
-		if(m_sortCriteria == null)
-			throw new IllegalStateException("Sort criteria can be accessed during sort helper execution ONLY.");
-		return m_sortCriteria;
+	public QCriteria<T> getCriteria() {
+		QCriteria<T> query = m_query;
+		if(null == query)
+			throw new IllegalStateException("This model is not using a QCriteria query.");
+		m_criteriaSortOrder = new ArrayList<>(query.getOrder());		// Store the current query.
+		query.getOrder().clear();
+		return query;
+	}
+
+	public void setCriteria(@Nonnull QCriteria<T> query) {
+		//-- For now: if the new sort order in the query is the same as the previous one -> we do nothing to prevent duplicate queries
+		List<QOrder> oldOrder = m_criteriaSortOrder;
+		m_criteriaSortOrder = null;
+
+		if(query == m_query && oldOrder != null && oldOrder.equals(query.getOrder())) {
+			return;
+		}
+
+		//-- A new query and/or sort order has been set- send the event.
+		m_query = query;
+		if(query.getOrder().size() > 0) {
+			m_sort = null;
+			setSortComparator(null, null);
+		}
+		clear();
+		try {
+			fireModelChanged();
+		} catch(Exception x) {
+			throw WrappedException.wrap(x);						// 8-(
+		}
+	}
+
+	private void setSortComparator(@Nullable Comparator<T> sortComparator, @Nullable String sortComparatorKey) {
+		m_sortComparator = sortComparator;
+		m_sortComparatorKey = sortComparatorKey;
 	}
 
 	@Override
 	public boolean isTruncated() {
 		return m_truncated;
-	}
-
-	@Override
-	public int getTruncatedCount() {
-		return isTruncated() ? ITableModel.DEFAULT_MAX_SIZE : 0;
 	}
 
 	protected void initResult() throws Exception {
@@ -379,9 +444,6 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 		throw new IllegalStateException("Not implemented");
 	}
 
-	/**
-	 * @see to.etc.domui.component.tbl.ITableModel#getRowKey(int)
-	 */
 	@Override
 	public String getRowKey(int row) throws Exception {
 		throw new IllegalStateException("Not implemented");
@@ -406,7 +468,28 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 		clear();
 		m_desc = descending;
 		m_sort = key;
-		//		initResult();			20080730 jal lazily init,
+		setSortComparator(null, null);
+		QCriteria<T> query = m_query;
+		if (null != query){
+			query.getOrder().clear();
+		}
+		fireModelChanged();
+	}
+
+	/**
+	 * When called, this does a re-query using the specified sortComparator.
+	 */
+	public void sortOn(Comparator<T> sortComparator, String sortComparatorKey, boolean descending) throws Exception {
+		if(DomUtil.isEqual(sortComparatorKey, m_sortComparatorKey) && descending == m_desc) // Nothing changed, get lost.
+			return;
+		clear();
+		m_desc = descending;
+		m_sort = null;
+		QCriteria<T> query = m_query;
+		if (null != query){
+			query.getOrder().clear();
+		}
+		setSortComparator(sortComparator, sortComparatorKey);
 		fireModelChanged();
 	}
 
@@ -420,26 +503,6 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 	public boolean isSortDescending() {
 		return m_desc;
 	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	IProgrammableSortableModel impl.					*/
-	/*--------------------------------------------------------------*/
-	/**
-	 * Set a sorter to sort the result.
-	 * @see to.etc.domui.component.tbl.IProgrammableSortableModel#sortOn(to.etc.domui.component.tbl.ISortHelper, boolean)
-	 */
-	@Override
-	public void sortOn(ISortHelper helper, boolean descending) throws Exception {
-		if(m_sort == null && m_sortHelper == helper && m_desc == descending)
-			return;
-
-		clear();
-		m_sort = null;
-		m_sortHelper = helper;
-		m_desc = descending;
-		fireModelChanged();
-	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IShelveListener implementation.						*/

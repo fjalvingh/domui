@@ -24,6 +24,11 @@
  */
 package to.etc.domui.dom.html;
 
+import java.util.*;
+
+import javax.annotation.*;
+
+import to.etc.domui.dom.errors.*;
 import to.etc.domui.util.*;
 
 /**
@@ -33,7 +38,7 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 19, 2008
  */
-public class Button extends NodeContainer {
+public class Button extends NodeContainer implements IActionControl {
 	private boolean m_disabled;
 
 	private ButtonType m_type = ButtonType.BUTTON;
@@ -41,6 +46,9 @@ public class Button extends NodeContainer {
 	private String m_buttonValue;
 
 	private char m_accessKey;
+
+	@Nullable
+	private String m_disabledBecause;
 
 	public Button() {
 		super("button");
@@ -55,11 +63,45 @@ public class Button extends NodeContainer {
 		return m_disabled;
 	}
 
+	@Override
 	public void setDisabled(boolean disabled) {
 		if(m_disabled != disabled) {
 			changed();
 		}
 		m_disabled = disabled;
+		if(! disabled)
+			setOverrideTitle(null);
+	}
+
+	/**
+	 * Util for updating button enabled / disabled state depending on existence of error (reason for disabling).
+	 *
+	 * @param rsn reason to disable button. If null, button gets enabled, otherwise it gets disabled with rsn.getMessage() as title (hint)
+	 */
+	public void setDisabled(@Nullable UIMessage rsn) {
+		if(null != rsn) {
+			setDisabled(true);
+			setOverrideTitle(rsn.getMessage());
+			m_disabledBecause = rsn.getMessage();
+		} else {
+			setDisabled(false);
+			setOverrideTitle(null);
+			m_disabledBecause = null;
+		}
+	}
+
+	@Nullable
+	public String getDisabledBecause() {
+		return m_disabledBecause;
+	}
+
+	public void setDisabledBecause(@Nullable String msg) {
+		if(Objects.equals(msg, m_disabledBecause)) {
+			return;
+		}
+		m_disabledBecause = msg;
+		setOverrideTitle(msg);
+		setDisabled(msg != null);
 	}
 
 	public ButtonType getType() {

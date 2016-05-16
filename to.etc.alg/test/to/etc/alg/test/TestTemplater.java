@@ -52,7 +52,12 @@ public class TestTemplater {
 	@Test
 	public void testBindings() throws Exception {
 		ScriptEngineManager m = new ScriptEngineManager();
-		ScriptEngine se = m.getEngineByName("js");
+		ScriptEngine se = m.getEngineByName("JavaScript");
+		if(null == se) {
+			se = m.getEngineByName("nashorn");
+			if(null == se)
+				throw new IllegalStateException("NO JAVASCRIPT");
+		}
 
 		Bindings b = se.getBindings(ScriptContext.ENGINE_SCOPE);
 		for(String name : b.keySet()) {

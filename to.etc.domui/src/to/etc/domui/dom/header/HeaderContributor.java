@@ -46,6 +46,8 @@ import to.etc.domui.dom.html.*;
  * Created on Aug 17, 2007
  */
 abstract public class HeaderContributor {
+	private static final String GOOGLE_CHARTS = "googlecharts";
+
 	static public final Comparator<HeaderContributorEntry> C_ENTRY = new Comparator<HeaderContributorEntry>() {
 		@Override
 		public int compare(HeaderContributorEntry a, HeaderContributorEntry b) {
@@ -105,7 +107,7 @@ abstract public class HeaderContributor {
 
 	/**
 	 * Add a header contributor to add the Google Analytics blurb to every page.
-	 * @param gac
+	 * @param uacode
 	 * @return
 	 */
 	static synchronized public HeaderContributor loadGoogleAnalytics(final String uacode) {
@@ -128,4 +130,12 @@ abstract public class HeaderContributor {
 		return c;
 	}
 
+	public static synchronized HeaderContributor loadGoogleCharts() {
+		HeaderContributor hc = m_jsMap.get(GOOGLE_CHARTS);
+		if (hc == null) {
+			hc = new GoogleChartsContributor();
+			m_jsMap.put(GOOGLE_CHARTS, hc);
+		}
+		return hc;
+	}
 }

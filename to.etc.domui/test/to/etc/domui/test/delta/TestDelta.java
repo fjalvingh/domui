@@ -103,6 +103,7 @@ public class TestDelta {
 		IBrowserOutput ro = new PrettyXmlOutputWriter(sw);
 		HtmlFullRenderer hr = getFullRenderer(ro);
 
+		pg.internalFullBuild();
 		IRequestContext ctx = new TestRequestContext();
 		hr.render(ctx, pg);
 		pg.internalClearDeltaFully();

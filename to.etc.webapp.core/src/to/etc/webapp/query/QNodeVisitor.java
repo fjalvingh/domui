@@ -68,4 +68,6 @@ public interface QNodeVisitor {
 	public void visitPropertyJoinComparison(@Nonnull QPropertyJoinComparison qPropertyJoinComparison) throws Exception;
 
 	public void visitSqlRestriction(@Nonnull QSqlRestriction v) throws Exception;
+
+	void visitPropertyIn(@Nonnull QPropertyIn n) throws Exception;
 }

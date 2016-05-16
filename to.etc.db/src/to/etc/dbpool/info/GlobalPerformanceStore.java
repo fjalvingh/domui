@@ -26,7 +26,14 @@ package to.etc.dbpool.info;
 
 import java.util.*;
 
-public class GlobalPerformanceStore {
+/**
+ * This stores global statistics for database queries all through the pool for
+ * session based requests.
+ *
+ * FIXME This seems nonsense, as it only summarizes session statistics while global should
+ * mean batch and session.
+ */
+final public class GlobalPerformanceStore {
 	static private final String REQ_EXEC_TIME = "request-exec-time";
 
 	static private final String REQ_CONNALLOCS = "request-connection-allocations";
@@ -72,7 +79,7 @@ public class GlobalPerformanceStore {
 		}
 	}
 
-	public void addRequestInfo(InfoCollectorBase icb) {
+	public void addRequestInfo(StatisticsCollectorBase icb) {
 		//-- Do not register pages that do nothing with the db.
 		if(icb.getNAnything() == 0)
 			return;

@@ -24,6 +24,8 @@
  */
 package to.etc.webapp.query;
 
+import java.util.*;
+
 import javax.annotation.*;
 
 /**
@@ -175,6 +177,15 @@ public class QRestriction {
 	@Nonnull
 	static public final QUnaryProperty isnotnull(String property) {
 		return new QUnaryProperty(QOperation.ISNOTNULL, property);
+	}
+
+	@Nonnull
+	static public final <V> QPropertyIn in(String property, List<V> list) {
+		return new QPropertyIn(QOperation.IN, property, createValueNode(list));
+	}
+	@Nonnull
+	static public final <V> QPropertyIn in(String property, QSelection<V> subQuery) {
+		return new QPropertyIn(QOperation.IN, property, createValueNode(subQuery));
 	}
 
 	@Nonnull

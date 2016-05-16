@@ -75,4 +75,9 @@ public class QSubQuery<T, P> extends QSelection<T> {
 		add(new QPropertyJoinComparison(QOperation.EQ, property, property));
 		return this;
 	}
+
+	@Nonnull
+	public QRestrictor<P> getParent() {
+		return m_parent;
+	}
 }

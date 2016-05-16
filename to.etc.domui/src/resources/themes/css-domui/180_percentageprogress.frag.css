@@ -1,0 +1,19 @@
+/*** 180_percentageprogress.frag.css ***/
+/*** Percentage progress bar ***/
+.ui-pct-rlr {
+	display: inline-block;
+	width: 50px;
+	background-image: url(bg-progress.png);
+	background-position: -375px 0px;
+	background-repeat: no-repeat;
+	/*border-collapse: separate; */
+	border: 1px solid black;
+}
+<% if(browser.isIE()) { %>
+.ui-pct-rlr { /* IE 7 FIX: by repeating the display: inline in a SEPARATE css selector we force proper inline-block behaviour, see http://www.brunildo.org/test/InlineBlockLayout.html */
+	display: inline;
+}
+<% } %>
+<% if(browser.isFirefox()) { %>
+/** FIREFOX BROWSERT */
+<% } %>

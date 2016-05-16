@@ -9,6 +9,7 @@ import to.etc.domui.util.*;
 import javax.annotation.*;
 
 public class DefaultPopupOpener implements IPopupOpener {
+
 	@Override
 	public <A, B, L extends LookupInputBase2<A, B>> Dialog createDialog(final L control, ITableModel<B> initialModel, final IExecute callOnWindowClose) {
 		DefaultLookupInputDialog<A, B> dlg = new DefaultLookupInputDialog<A, B>(control.getQueryMetaModel(), control.getOutputMetaModel(), control.getModelFactory());
@@ -24,8 +25,12 @@ public class DefaultPopupOpener implements IPopupOpener {
 		String ttl = control.getDefaultTitle();
 		dlg.title(ttl);
 
-		dlg.setQueryHandler(dlg.getQueryHandler());
+		dlg.setQueryHandler(control.getQueryHandler());
 		dlg.setQueryManipulator(control);
+
+		if (null != initialModel){
+			dlg.setInitialModel(initialModel);
+		}
 
 		dlg.setOnClose(new IWindowClosed() {
 			@Override public void closed(@Nonnull String closeReason) throws Exception {

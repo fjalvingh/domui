@@ -102,11 +102,6 @@ public class TestRequestContext implements IRequestContext {
 	}
 
 	@Override
-	public String getThemedPath(String in) {
-		return "themes/" + in;
-	}
-
-	@Override
 	@Nonnull
 	public AppSession getSession() {
 		if(m_session == null)

@@ -168,16 +168,36 @@ public class Janitor implements Runnable {
 			jt.calcNextStartTime(); // Calculate next time-to-start,
 		}
 
-		synchronized(this) {
-			if(m_task_v.contains(jt)) // Already in tables?
-				throw new JanitorException(jt, "This task was ALREADY scheduled!!");
-			jt.m_key = m_tasknr++; // Assign an unique task number
-			insertOrdered(jt); // Insert into vector, ordered by execution time,
-		}
+		insertOrderedTask(jt);
 
 		return jt.m_key; // Return the ID
 	}
 
+	/**
+	 *	Add a new task to the janitor's tables, that first executes after given offset, and repeats in given interval.
+	 *	No duplicate task checking is done! The returned ID can be used to remove the task from the tables.
+	 * @param offset		offset interval in seconds, before task runs for first time
+	 * @param interval		interval in seconds
+	 * @param name			The name of the dude for info pps
+	 * @param jt			The task functor to call at time zero.
+	 */
+	public int addTask(int offset, int interval, String name, JanitorTask jt) throws Exception {
+		jt.m_j = this; // Set janitor,
+		jt.m_taskname = name;
+		jt.m_t_next = getTime() + offset * 1000;
+		jt.m_t_interval = interval;
+
+		insertOrderedTask(jt);
+
+		return jt.m_key; // Return the ID
+	}
+
+	private synchronized void insertOrderedTask(JanitorTask jt) throws JanitorException {
+		if(m_task_v.contains(jt)) // Already in tables?
+			throw new JanitorException(jt, "This task was ALREADY scheduled!!");
+		jt.m_key = m_tasknr++; // Assign an unique task number
+		insertOrdered(jt); // Insert into vector, ordered by execution time,
+	}
 
 	/**
 	 *	Adds a task to the janitor's table. The task is to start at a given
@@ -194,12 +214,8 @@ public class Janitor implements Runnable {
 		//-- Calculate the time this task has to awaken,
 		//		System.out.println("TaskAT " + name + " runs at " + attime.toString());
 		jt.setNextTime(attime);
-		synchronized(this) {
-			if(m_task_v.contains(jt)) // Already in tables?
-				throw new JanitorException(jt, "This task was ALREADY scheduled!!");
-			jt.m_key = m_tasknr++; // Assign an unique task number
-			insertOrdered(jt); // Insert into vector, ordered by execution time,
-		}
+
+		insertOrderedTask(jt);
 
 		return jt.m_key; // Return the ID
 	}

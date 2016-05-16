@@ -50,6 +50,40 @@ public final class Rect {
 		m_bottom = m_top + size.getHeight();
 	}
 
+	public Rect(@Nonnull Point pointa, @Nonnull Point pointb) {
+		m_left = pointa.getX();
+		m_top = pointa.getY();
+		m_right = pointb.getX();
+		m_bottom = pointb.getY();
+	}
+
+	/**
+	 * If needed, return a new rect where size has no negative amounts
+	 * @return
+	 */
+	@Nonnull
+	public Rect normalize() {
+		if(m_left <= m_right && m_top <= m_bottom)
+			return this;
+		int l, r;
+		if(m_left > m_right) {
+			l = m_right;
+			r = m_left;
+		} else {
+			r = m_right;
+			l = m_left;
+		}
+		int t, b;
+		if(m_top > m_bottom) {
+			t = m_bottom;
+			b = m_top;
+		} else {
+			b = m_bottom;
+			t = m_top;
+		}
+		return new Rect(l, t, r, b);
+	}
+
 	@Nonnull
 	public final Point getPosition() {
 		return new Point(m_left, m_top);
@@ -57,7 +91,49 @@ public final class Rect {
 
 	@Nonnull
 	public final Dimension getDimension() {
-		return new Dimension(m_right - m_left, m_bottom - m_top);
+		return new Dimension(getWidth(), getHeight());
 	}
 
+	public int getWidth() {
+		return m_right - m_left;
+	}
+
+	public int getHeight() {
+		return m_bottom - m_top;
+	}
+
+	/**
+	 * Move the entire rectangle.
+	 * @param shiftX
+	 * @param shiftY
+	 * @return
+	 */
+	@Nonnull
+	public Rect move(int shiftX, int shiftY) {
+		return new Rect(m_left + shiftX, m_top + shiftY, m_right + shiftX, m_bottom + shiftY);
+	}
+
+	@Override
+	public String toString() {
+		return "rect ("+m_left+", " + m_top +") to (" + m_right + ", " + m_bottom +"), dims=("+getDimension().getWidth()+", " + getDimension().getHeight()+")";
+	}
+
+	/**
+	 * Return T if this rect has any kind of intersection with the other rectangle.
+	 * @param rect
+	 * @return
+	 */
+	public boolean overlaps(@Nonnull Rect rect) {
+		Rect a = normalize();
+		Rect b = rect.normalize();
+
+		//-- can X overlap?
+		if(a.m_right < b.m_left || a.m_left >= b.m_right)
+			return false;
+
+		//-- Can Y overlap?
+		if(a.m_bottom < b.m_top || a.m_top >= b.m_bottom)
+			return false;
+		return true;
+	}
 }

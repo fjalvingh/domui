@@ -24,6 +24,8 @@
  */
 package to.etc.webapp.query;
 
+import java.util.*;
+
 import javax.annotation.*;
 
 import to.etc.webapp.annotations.*;
@@ -40,6 +42,7 @@ import to.etc.webapp.annotations.*;
  * Created on Jun 24, 2008
  */
 public class QCriteria<T> extends QCriteriaQueryBase<T> {
+
 	protected QCriteria(@Nonnull final Class<T> b) {
 		super(b);
 	}
@@ -449,6 +452,27 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 		return this;
 	}
 
+	@Nonnull
+	@Override
+	public <V> QCriteria<T> in(@Nonnull @GProperty String property, List<V> inlist) {
+		super.in(property, inlist);
+		return this;
+	}
+
+	@Nonnull
+	@Override
+	public <V> QCriteria<T> in(@Nonnull @GProperty String property, QSelection<?> selection) {
+		super.in(property, selection);
+		return this;
+	}
+
+	@Nonnull
+	@Override
+	public <V, R extends QField<R, T>> QCriteria<T> in(@Nonnull QField<R, V> property, @Nonnull List<V> value) {
+		super.in(property, value);
+		return this;
+	}
+
 	@Override
 	@Nonnull
 	public String toString() {
@@ -460,5 +484,16 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 			return "Invalid query: "+x;
 		}
 		return r.toString();
+	}
+
+	/**
+	 * Used to easily identify criteria within tests.
+	 *
+	 * @param testId
+	 * @return
+	 */
+	public QCriteria<T> testId(@Nonnull String testId){
+		setTestId(testId);
+		return this;
 	}
 }

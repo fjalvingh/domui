@@ -42,6 +42,7 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.login.*;
 import to.etc.domui.parts.*;
 import to.etc.domui.state.*;
+import to.etc.domui.themes.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.template.*;
@@ -96,11 +97,13 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		} catch(ClientDisconnectedException xxxx) {
 			throw xxxx;
 		} catch(Exception x) {
+			renderApplicationMail(ctx, x);
 			if(!m_application.isShowProblemTemplate() && !m_application.inDevelopmentMode())
 				throw x;
 
 			tryRenderOopsFrame(ctx, x);
 		} catch(Error x) {
+			renderApplicationMail(ctx, x);
 			if(!m_application.isShowProblemTemplate() && !m_application.inDevelopmentMode())
 				throw x;
 
@@ -110,6 +113,15 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			} else
 				throw x;
 		}
+	}
+
+	private void renderApplicationMail(@Nonnull final RequestContextImpl ctx, @Nonnull Throwable x) {
+		String s = x.getMessage();
+		if(s != null && s.contains("compilation") && s.contains("problem")) {
+			return;
+		}
+		ExceptionUtil util = new ExceptionUtil(ctx);
+		util.renderEmail(x);
 	}
 
 	private void tryRenderOopsFrame(@Nonnull final RequestContextImpl ctx, @Nonnull Throwable x) throws Exception {
@@ -438,8 +450,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			if(DomUtil.USERLOG.isDebugEnabled())
 				DomUtil.USERLOG.debug(cid + ": Full render of page " + page);
 
-			if(page.getBody() instanceof IRebuildOnRefresh) { 				// Must fully refresh?
-				page.getBody().forceRebuild(); 								// Cleanout state
+			if(page.getBody() instanceof IRebuildOnRefresh) {                // Must fully refresh?
+				page.getBody().forceRebuild();                                // Cleanout state
 				page.setInjected(false);
 				QContextManager.closeSharedContexts(page.getConversation());
 				if(DomUtil.USERLOG.isDebugEnabled())
@@ -475,7 +487,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 			//-- Call the 'new page added' listeners for this page, if it is still unbuilt. Fixes bug# 605
 			callNewPageBuiltListeners(page);
-			page.internalFullBuild(); 							// Cause full build
+			page.internalFullBuild();                            // Cause full build
 
 			//-- EXPERIMENTAL Handle stored messages in session
 			List<UIMessage> ml = (List<UIMessage>) cm.getAttribute(UIGoto.SINGLESHOT_MESSAGE);
@@ -526,6 +538,14 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			//-- 20100408 jal If an UIGoto was done in createContent handle that
 			if(cm.handleGoto(ctx, page, false))
 				return;
+		} catch(SessionInvalidException x) {
+			//-- Mid-air collision between logout and some other action..
+			logUser(ctx, cid, clz.getName(), "Session exception: " + x);
+			renderUserError(ctx, "The session has been invalidated; perhaps you are logged out");
+			//System.err.println("domui debug: session invalidation exception");
+		} catch(ConversationDestroyedException x) {
+			logUser(ctx, cid, clz.getName(), "Conversation exception: " + x);
+			renderUserError(ctx, "Your conversation with the server has been destroyed. Please refresh the page.");
 		} catch(Exception ex) {
 			Exception x = WrappedException.unwrap(ex);
 
@@ -536,6 +556,12 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			//-- 20100504 jal Exception in page means it's content is invalid, so force a full rebuild
 			try {
 				page.getBody().forceRebuild();
+			} catch(ConversationDestroyedException xx) {
+				logUser(ctx, cid, clz.getName(), "Conversation exception: " + xx);
+				renderUserError(ctx, "Your conversation with the server has been destroyed. Please refresh the page.");
+			} catch(SessionInvalidException xx) {
+				logUser(ctx, cid, clz.getName(), "Session exception: " + x);
+				renderUserError(ctx, "The session has been invalidated; perhaps you have logged out in another window?");
 			} catch(Exception xxx) {
 				System.err.println("Double exception in handling full page build exception");
 				System.err.println("Original exception: " + x);
@@ -555,8 +581,14 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 			IExceptionListener xl = ctx.getApplication().findExceptionListenerFor(x);
 			if(xl != null && xl.handleException(ctx, page, null, x)) {
-				if(cm.handleExceptionGoto(ctx, page, false))
+				if(cm.handleExceptionGoto(ctx, page, false)) {
+					AppSession aps = ctx.getSession();
+					if(aps.incrementExceptionCount() > 10) {
+						aps.clearExceptionRetryCount();
+						throw new RuntimeException("Loop in exception handling in a full page (new page) render", x);
+					}
 					return;
+				}
 			}
 
 			checkFullExceptionCount(page, x); // Rethrow, but clear state if page throws up too much.
@@ -567,6 +599,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		//-- Full render completed: indicate that and reset the exception count
 		page.setFullRenderCompleted(true);
 		page.setPageExceptionCount(0);
+		ctx.getSession().clearExceptionRetryCount();
 		if(m_logPerf) {
 			ts = System.nanoTime() - ts;
 			System.out.println("domui: full render took " + StringTool.strNanoTime(ts));
@@ -574,6 +607,19 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 		//-- Start any delayed actions now.
 		page.getConversation().startDelayedExecution();
+	}
+
+	/**
+	 * Try to render a terse error to the user as an
+	 * @param ctx
+	 * @param s
+	 */
+	private void renderUserError(RequestContextImpl ctx, String s) {
+		try {
+			ctx.sendError(503, "It appears this session was logged out in mid-flight");
+		} catch(Exception x) {
+			//-- Willfully ignore, nothing else we can do here.
+		}
 	}
 
 	private void logUser(@Nonnull RequestContextImpl ctx, @Nullable String cid, @Nonnull String pageName, String string) {
@@ -1281,16 +1327,19 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			HttpServletResponse resp = srr.getResponse();
 			resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);				// Fail with proper response code.
 		}
+
+		ThemeManager themeManager = ctx.getApplication().internalGetThemeManager();
+
 		Map<String, Object> dataMap = new HashMap<>();
 		dataMap.put("x", x);
 		dataMap.put("ctx", ctx);
 		dataMap.put("app", ctx.getRelativePath(""));
-		String sheet = ctx.getApplication().getThemedResourceRURL("THEME/style.theme.css");
+		String sheet = themeManager.getThemedResourceRURL(DefaultThemeVariant.INSTANCE, "THEME/style.theme.css");
 		if(null == sheet)
 			throw new IllegalStateException("Unexpected null??");
 		dataMap.put("stylesheet", sheet);
 
-		String theme = ctx.getApplication().getThemedResourceRURL("THEME/");
+		String theme = themeManager.getThemedResourceRURL(DefaultThemeVariant.INSTANCE, "THEME/");
 		dataMap.put("theme", theme);
 
 		StringBuilder sb = new StringBuilder();
@@ -1301,7 +1350,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		ExceptionUtil util = new ExceptionUtil(ctx);
 		dataMap.put("util", util);
 
-		util.renderEmail(x);
+		//util.renderEmail(x);
 
 		Writer w = ctx.getRequestResponse().getOutputWriter("text/html", "utf-8");
 		JSTemplate xt = getExceptionTemplate();
@@ -1316,7 +1365,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		if(xt == null) {
 			JSTemplateCompiler jtc = new JSTemplateCompiler();
 			if(true) {
-				File src = new File("/home/jal/git/puzzler/domui/to.etc.domui/src/to/etc/domui/server/exceptionTemplate.html");
+				File src = new File(getClass().getResource("exceptionTemplate.html").getFile());
 				Reader r = new FileReader(src);
 				try {
 					xt = jtc.compile(r, src.getAbsolutePath());

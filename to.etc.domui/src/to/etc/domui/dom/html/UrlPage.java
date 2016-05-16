@@ -31,6 +31,7 @@ import to.etc.domui.component.layout.title.*;
 import to.etc.domui.databinding.*;
 import to.etc.domui.logic.*;
 import to.etc.domui.server.*;
+import to.etc.domui.themes.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.query.*;
 
@@ -44,8 +45,10 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Sep 1, 2008
  */
+@DefaultNonNull
 public class UrlPage extends Div {
 	/** The title for the page in the head's TITLE tag. */
+	@Nullable
 	private String m_pageTitle;
 
 	@Nullable
@@ -54,8 +57,33 @@ public class UrlPage extends Div {
 	@Nullable
 	private BindingContext m_bindingContext;
 
+	private IThemeVariant m_themeVariant = DefaultThemeVariant.INSTANCE;
+
 	public UrlPage() {
-		setCssClass("ui-content");
+		setCssClass("ui-content ui-kludge");
+	}
+
+	/**
+	 * Set the style of the theme to use for the entire page. The normal style is "default", represented
+	 * by {@link DefaultThemeVariant#INSTANCE}.
+	 * @param themeVariant
+	 */
+	public final void setThemeVariant(@Nonnull IThemeVariant themeVariant) {
+		m_themeVariant = themeVariant;
+	}
+
+	public final IThemeVariant getThemeVariant() {
+		return m_themeVariant;
+	}
+
+	/**
+	 * WILL BE REMOVED IN 5.2 - do not use.
+	 * Remove the styles that cause the margin kludge to be applied to all pages.
+	 */
+	@Deprecated
+	public void unkludge() {
+		removeCssClass("ui-content");
+		removeCssClass("ui-kludge");
 	}
 
 	/**
@@ -74,6 +102,7 @@ public class UrlPage extends Div {
 	 * "title" property.
 	 * @return
 	 */
+	@Nullable
 	public String getPageTitle() {
 		return m_pageTitle;
 	}
@@ -90,7 +119,7 @@ public class UrlPage extends Div {
 	 *
 	 * @param pageTitle
 	 */
-	public void setPageTitle(String pageTitle) {
+	public void setPageTitle(@Nullable String pageTitle) {
 		m_pageTitle = pageTitle;
 	}
 
@@ -108,6 +137,17 @@ public class UrlPage extends Div {
 		//Since html and body are not by default 100% anymore we need to make it like this here in order to enable stretch to work.
 		//We really need this layout support in domui!).
 		appendCreateJS("$(document).ready(function() {$('body').addClass('ui-stretch-body');$('html').height('100%'); " + getCustomUpdatesCallJS() + "});");
+	}
+
+	/**
+	 * In case that stretch layout is used, for page that does not use default ui-content padding (unkludged),
+	 * this needs to be called for UrlPage that does not have already set height on its body.
+	 * Usual case is that UrlPage is shown inside new browser popup window - so, it is not needed for regular subclasses of {@link Window}.
+	 */
+	protected void fixStretchBodyUnkludged() {
+		//Since html and body are not by default 100% anymore we need to make it like this here in order to enable stretch to work.
+		//We really need this layout support in domui!).
+		appendCreateJS("$(document).ready(function() {$('html').height('100%');$('body').height('100%');" + getCustomUpdatesCallJS() + "});");
 	}
 
 	/**
@@ -173,10 +213,17 @@ public class UrlPage extends Div {
 	}
 
 	public void forceReloadData() throws Exception {
-		getPage().getConversation().setAttribute(LogicContextImpl.class.getName(), null);			// Destroy any context
-		QContextManager.closeSharedContexts(getPage().getConversation());			// Drop all connections
-		DomApplication.get().getInjector().injectPageValues(this, getPage().getPageParameters());	// Force reload of all parameters
+		resetAllSharedContexts();
+		DomApplication.get().getInjector().injectPageValues(this, getPage().getPageParameters());    // Force reload of all parameters
 		forceRebuild();
+	}
+
+	/**
+	 * Use this only in cases when you really want to have fresh shared context -> in order to fetch all data fresh from database.
+	 */
+	public void resetAllSharedContexts() {
+		getPage().getConversation().setAttribute(LogicContextImpl.class.getName(), null);            // Destroy any context
+		QContextManager.closeSharedContexts(getPage().getConversation());            // Drop all connections
 	}
 
 	@Override
@@ -205,3 +252,4 @@ public class UrlPage extends Div {
 		m_notifyPageEvent = notifyPageEvent;
 	}
 }
+

@@ -34,6 +34,7 @@ import to.etc.domui.component.misc.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
+import to.etc.domui.themes.*;
 import to.etc.domui.util.*;
 
 /**
@@ -489,15 +490,15 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		m_newEditor = createEditor(td, bc, instance, true);
 		m_newInstance = instance;
 
-		//-- Now add commit/cancel button in action column
-		bc.addLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_ADD), "THEME/btnConfirm.png", new IClicked<LinkButton>() {
+		//-- Now add confirm/cancel button in action column
+		bc.addLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_CONFIRM), Theme.BTN_CONFIRM, new IClicked<LinkButton>() {
 			@Override
 			public void clicked(@Nonnull LinkButton clickednode) throws Exception {
 				commitNewRow();
 			}
 		});
 
-		bc.addLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_CANCEL), "THEME/btnDelete.png", new IClicked<LinkButton>() {
+		bc.addLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_CANCEL), Theme.BTN_DELETE, new IClicked<LinkButton>() {
 			@Override
 			public void clicked(@Nonnull LinkButton clickednode) throws Exception {
 				cancelNew();

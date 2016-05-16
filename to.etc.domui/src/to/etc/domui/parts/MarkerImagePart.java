@@ -35,6 +35,7 @@ import to.etc.domui.component.input.*;
 import to.etc.domui.server.*;
 import to.etc.domui.server.parts.*;
 import to.etc.domui.state.*;
+import to.etc.domui.themes.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.resources.*;
 import to.etc.util.*;
@@ -70,7 +71,7 @@ public class MarkerImagePart implements IBufferedPartFactory {
 		InputStream is = null;
 
 		try {
-			BufferedImage bi = PartUtil.loadImage(da, da.getThemedResourceRURL(DomUtil.isBlank(sipKey.getIcon()) ? DEFAULT_ICON : sipKey.getIcon().trim()), rdl);
+			BufferedImage bi = PartUtil.loadImage(da, da.internalGetThemeManager().getThemedResourceRURL(DefaultThemeVariant.INSTANCE, DomUtil.isBlank(sipKey.getIcon()) ? DEFAULT_ICON : sipKey.getIcon().trim()), rdl);
 			is = getInputStream(drawImage(bi, sipKey));
 
 			if(is == null)
@@ -96,6 +97,11 @@ public class MarkerImagePart implements IBufferedPartFactory {
 	}
 
 	private static String getURL(String icon, String caption, String color) {
+		if(null != icon && icon.startsWith("THEME/")) {
+			System.err.println("BAD ICON SPEC: " + icon);
+			throw new IllegalStateException("BAD ICON SPEC: " + icon);
+		}
+
 		StringBuilder sb = new StringBuilder();
 		sb.append(MarkerImagePart.class.getName()).append(".part");
 		boolean paramExists = false;
@@ -106,6 +112,10 @@ public class MarkerImagePart implements IBufferedPartFactory {
 	}
 
 	private static String getURL(String icon, String caption, String color, String font, int size, String spec) {
+		if(null != icon && icon.startsWith("THEME/")) {
+			System.err.println("BAD ICON SPEC: " + icon);
+			throw new IllegalStateException("BAD ICON SPEC: " + icon);
+		}
 		StringBuilder sb = new StringBuilder();
 		sb.append(MarkerImagePart.class.getName()).append(".part");
 		boolean paramExists = false;
@@ -183,8 +193,6 @@ public class MarkerImagePart implements IBufferedPartFactory {
 	/**
 	 * Draw background image with icon and caption
 	 * @param icon
-	 * @param caption
-	 * @param captionColor
 	 * @return
 	 */
 	private BufferedImage drawImage(@Nonnull BufferedImage icon, MarkerImagePartKey key) {

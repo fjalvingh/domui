@@ -171,17 +171,6 @@ public class PomBuilder {
 		return sb.toString();
 	}
 
-	private void generateWarConfig(XmlWriter w) throws IOException {
-		w.tag("plugins");
-		w.tag("plugin");
-		w.tagfull("groupId", "org.apache.maven.plugins");
-		w.tagfull("artifactId", "maven-war-plugin");
-		w.tagfull("version", "2.1-beta-1");
-		w.tag("configuration");
-		w.tagfull("webappDirectory", "WebContent");
-		w.tagendnl();				// configuration
-	}
-
 	/**
 	 * Try to find viewpoint project in regular workspace and if project
 	 * is not found do one more try in split workspace setup.
@@ -287,7 +276,6 @@ public class PomBuilder {
 		//-- Separate source and test source paths into separate lists
 		List<String> sourceList = new ArrayList<String>();
 		List<String> testList = new ArrayList<String>();
-		boolean hastests = false;
 
 		//-- Generate source
 		if(sub.getSourceList().size() > 0) {
@@ -309,8 +297,6 @@ public class PomBuilder {
 			if(testList.size() > 0) {
 				String ms = testList.remove(0); // Remove from todo list,
 				w.tagfull("testSourceDirectory", "../../" + ms);
-
-				hastests = true;
 				if(testList.size() > 0)
 					throw new RuntimeException(sub + ": too many 'test' source paths.");
 			}
@@ -406,14 +392,14 @@ public class PomBuilder {
 		//        </configuration>
 		//      </plugin>
 
-		if(hastests) {
+		if(sub.hasTests()) {
 			w.tag("plugin");
 			w.tagfull("groupId", "org.apache.maven.plugins");
 			w.tagfull("artifactId", "maven-surefire-plugin");
 			w.tagfull("version", "2.16");
 
 			w.tag("configuration");
-			w.tagfull("argLine", "-Xmx2048m -XX:MaxPermSize=1024m -XX:-UseSplitVerifier");
+			w.tagfull("argLine", "-Xmx2048m -XX:-UseSplitVerifier");
 			w.tagendnl();
 
 			w.tag("dependencies");
@@ -425,6 +411,19 @@ public class PomBuilder {
 			w.tagendnl();
 
 			w.tagendnl(); // plugin
+
+			w.tag("plugin");
+			w.tagfull("groupId", "org.apache.maven.plugins");
+			w.tagfull("artifactId", "maven-jar-plugin");
+			w.tagfull("version", "2.6");
+			w.tag("executions");
+			w.tag("execution");
+			w.tag("goals");
+			w.tagfull("goal", "test-jar");
+			w.tagendnl(); // goals
+			w.tagendnl(); // execution
+			w.tagendnl(); // executions
+			w.tagendnl(); //plugin
 		}
 
 		generateExtraSourcesPukefest(w, sourceList);
@@ -443,7 +442,7 @@ public class PomBuilder {
 
 			//-- If this project has sources add the src jar dep
 			if(p.hasSources()) {
-				//-- Generate the 1st source dir in the usualway
+				//-- Generate the 1st source dir in the usual way
 				w.tag("dependency");
 				w.tagfull("groupId", p.m_groupId);
 				w.tagfull("artifactId", p.getSourceArtefactId());
@@ -452,8 +451,18 @@ public class PomBuilder {
 				w.tagfull("scope", "compile");
 
 				w.tagendnl();
-			}
 
+				if (p.hasTests()) {
+					w.tag("dependency");
+					w.tagfull("groupId", p.m_groupId);
+					w.tagfull("artifactId", p.getSourceArtefactId());
+					w.tagfull("version", m_version);
+					w.tagfull("type", "test-jar");
+					w.tagfull("scope", "test");
+
+					w.tagendnl();
+				}
+			}
 		}
 		w.tagendnl(); //dependencies
 
@@ -479,7 +488,7 @@ public class PomBuilder {
 	/**
 	 * If we have > 1 source directories we need to puke out EVEN MORE XML to get it to bloody compile.
 	 * @param w
-	 * @param sub
+	 * @param sourceList
 	 */
 	private void generateExtraSourcesPukefest(XmlWriter w, List<String> sourceList) throws Exception {
 		if(sourceList.size() == 0)
@@ -729,6 +738,8 @@ class Project {
 
 	private final List<Project>			m_fullDepList	= new ArrayList<Project>();
 
+	private boolean m_hasTests;
+
 	private Project(@Nonnull PomBuilder b, @Nonnull String name, @Nonnull File root, @Nonnull String baseGroup, @Nonnull String baseName, @Nonnull String encoding) {
 		m_builder = b;
 		m_root = root;
@@ -772,10 +783,13 @@ class Project {
 		for(String srcref: m_sourceList) {
 			File path = new File(m_root, srcref);
 			if(path.exists() && path.isDirectory()) {
-				int nf = countFiles(path, 3);
-				if(nf >= 3) {
-					m_hasSources = true;
-					return;
+				if(PomBuilder.isTestSources(srcref)) {
+					m_hasTests = true;
+				} else {
+					int nf = countFiles(path, 3);
+					if(nf >= 3) {
+						m_hasSources = true;
+					}
 				}
 			}
 		}
@@ -973,5 +987,9 @@ class Project {
 	@Nonnull
 	public String getProjectArtifactID() {
 		return getBaseName() + ".BasePOM";
+	}
+
+	public boolean hasTests() {
+		return m_hasTests;
 	}
 }

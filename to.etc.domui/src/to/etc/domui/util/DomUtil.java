@@ -650,6 +650,8 @@ final public class DomUtil {
 		int pos = rurl.indexOf(":/"); // http://?
 		if(pos > 0 && pos < 20)
 			return rurl;
+		if(rurl.startsWith("www."))
+			return "http://" + rurl;
 		if(rurl.startsWith("/"))
 			return rurl;
 

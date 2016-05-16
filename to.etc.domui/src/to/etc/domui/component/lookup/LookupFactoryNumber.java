@@ -48,7 +48,7 @@ import to.etc.webapp.query.*;
  */
 final class LookupFactoryNumber implements ILookupControlFactory {
 	@Override
-	public <T, X extends IControl<T>> ILookupControlInstance createControl(final @Nonnull SearchPropertyMetaModel spm, final X control) {
+	public <T, X extends IControl<T>> ILookupControlInstance<?> createControl(final @Nonnull SearchPropertyMetaModel spm, final X control) {
 		if(control != null)
 			throw new IllegalStateException();
 

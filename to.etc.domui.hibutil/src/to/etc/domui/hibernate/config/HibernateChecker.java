@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.persistence.*;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.Type;
 import org.hibernate.cfg.*;
@@ -43,6 +44,10 @@ final public class HibernateChecker {
 	private int m_badBooleans;
 
 	private int m_missingColumn;
+
+	private int m_badOneToOne;
+
+	private int m_notLazyLoadedFormula;
 
 	private Class< ? > m_currentClass;
 
@@ -122,6 +127,8 @@ final public class HibernateChecker {
 					checkEnumMapping(g);
 					checkDateMapping(g);
 					checkBooleanMapping(g);
+					checkOneToOne(g);
+					checkFormula(g);
 				}
 			}
 
@@ -151,6 +158,27 @@ final public class HibernateChecker {
 		}
 		if(m_reportProblems)
 			report();
+	}
+
+	private void checkOneToOne(Method g) {
+		OneToOne annotation = g.getAnnotation(OneToOne.class);
+		if(null == annotation)
+			return;
+		if(annotation.optional() && annotation.fetch() == FetchType.LAZY) {
+			problem(Severity.ERROR, "@OneOnOne that is optional with fetch=LAZY does eager fetching, causing big performance trouble");
+			m_badOneToOne++;
+		}
+	}
+
+	private void checkFormula(Method g) {
+		org.hibernate.annotations.Formula annotation = g.getAnnotation(org.hibernate.annotations.Formula.class);
+		if(null == annotation)
+			return;
+		javax.persistence.Basic lazyLoadingOnFormula = g.getAnnotation(javax.persistence.Basic.class);
+		if(null == lazyLoadingOnFormula || lazyLoadingOnFormula.fetch() != FetchType.LAZY) {
+			problem(Severity.ERROR, "@Formula that is not lazy loaded using @Basic(fetch=FetchType.LAZY), causing big performance trouble");
+			m_notLazyLoadedFormula++;
+		}
 	}
 
 	/**
@@ -312,6 +340,10 @@ final public class HibernateChecker {
 			System.out.println("MAPPING: " + getMissingColumn() + " properties with a missing @Column annotation");
 		if(getDomuiMetaFatals() > 0)
 			System.out.println("MAPPING: " + getDomuiMetaFatals() + " fatal DomUI metamodel errors - must be fixed now.");
+		if(getBadOneToOne() > 0)
+			System.out.println("MAPPING: " + getBadOneToOne() + " bad @OneToOne mapping errors - must be fixed now");
+		if(getNotLazyLoadedFormula() > 0)
+			System.out.println("MAPPING: " + getNotLazyLoadedFormula() + " bad @Formula lazy loading, missing @Basic(fetch=FetchType.LAZY) - must be fixed now");
 	}
 
 	public int getDomuiMetaFatals() {
@@ -352,6 +384,14 @@ final public class HibernateChecker {
 
 	public int getBadJoinColumn() {
 		return m_badJoinColumn;
+	}
+
+	public int getBadOneToOne() {
+		return m_badOneToOne;
+	}
+
+	public int getNotLazyLoadedFormula() {
+		return m_notLazyLoadedFormula;
 	}
 }
 

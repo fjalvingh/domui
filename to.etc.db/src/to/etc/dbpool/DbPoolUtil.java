@@ -156,7 +156,7 @@ public class DbPoolUtil {
 	 */
 	@Deprecated
 	static public void getFilteredStacktrace(StringBuilder sb, Throwable t) {
-		strStacktraceFiltered(sb, t, PRESET, ENDSET, 10, 4);
+		strStacktraceFiltered(sb, t, PRESET, ENDSET, 60, 4);
 	}
 
 	static public final void dumpLocation(String msg) {
@@ -572,7 +572,7 @@ public class DbPoolUtil {
 					sb.append(c);
 					break;
 				case '>':
-					sb.append("&quot;");
+					sb.append("&gt;");
 					break;
 				case '<':
 					sb.append("&lt;");
@@ -591,6 +591,50 @@ public class DbPoolUtil {
 		return sb.toString();
 	}
 
+	/**
+	 *	Returns a string representing some size, in bytes. Depending on the size
+	 *  it will be represented as KB, MB, GB or TB.
+	 */
+	public static String strSize(final long sz) {
+		final long kb = 1024;
+		final long mb = kb * 1024;
+		final long gb = mb * 1024;
+		final long tb = gb * 1024;
+
+		long div = 1;
+		String sf = "";
+		if(sz >= tb) {
+			div = tb;
+			sf = "TB";
+		} else if(sz >= gb) {
+			div = gb;
+			sf = "GB";
+		} else if(sz >= mb) {
+			div = mb;
+			sf = "MB";
+		} else if(sz >= kb) {
+			div = kb;
+			sf = "KB";
+		}
+
+		//-- Now do something,
+		StringBuffer sb = new StringBuffer(15);
+
+		if(div == 1) {
+			return sz + " bytes";
+		}
+
+		long v = (sz / div);
+		long r = (sz % div) / (div / 10);
+		sb.append(Long.toString(v));
+		if(r != 0) {
+			sb.append(".");
+			sb.append(Long.toString(r));
+		}
+		sb.append(" ");
+		sb.append(sf);
+		return sb.toString();
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	.developer.properties interface.					*/

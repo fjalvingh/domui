@@ -1,0 +1,15 @@
+/*** 400_datacelltable.frag.css ***/
+.ui-dct {
+}
+
+.ui-dct-item {
+	border: 1px solid transparent;
+}
+
+.ui-dct-selected {
+	background-color: cyan;
+	border: 1px solid black;
+}
+.ui-dct td {
+	vertical-align: top;
+}

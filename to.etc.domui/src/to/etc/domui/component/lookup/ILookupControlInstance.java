@@ -39,7 +39,8 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 31, 2009
  */
-public interface ILookupControlInstance {
+public interface ILookupControlInstance<T> {
+
 	/**
 	 * Represents result of {@link ILookupControlInstance#appendCriteria(QCriteria)}.
 	 * Can be one of values:
@@ -95,4 +96,18 @@ public interface ILookupControlInstance {
 	 * @throws Exception
 	 */
 	public AppendCriteriaResult appendCriteria(@Nonnull QCriteria< ? > crit) throws Exception;
+
+	/**
+	 * Return the value entered into this control.
+	 * This may return null.
+	 * @return
+	 */
+	@Nullable
+	T getValue();
+
+	/**
+	 * Sets the value in the control
+	 * @param value
+	 */
+	void setValue(@Nullable T value) throws Exception;
 }

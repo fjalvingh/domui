@@ -29,6 +29,7 @@ import java.util.*;
 
 import javax.annotation.*;
 
+import to.etc.domui.component.binding.*;
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.lookup.*;
@@ -41,6 +42,7 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.themes.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
+import to.etc.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.query.*;
 
@@ -93,10 +95,10 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	private LookupForm<QT> m_lookupForm;
 
 	@Nullable
-	private SmallImgButton m_selButton;
+	private HoverButton m_selButton;
 
 	@Nullable
-	private SmallImgButton m_clearButton;
+	private HoverButton m_clearButton;
 
 	@Nullable
 	private FloatingWindow m_floater;
@@ -157,6 +159,9 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	private String m_keyWordSearchCssClass;
 
 	private int m_keyWordSearchPopupWidth;
+
+	@Nullable
+	private String m_selectionCssClass;
 
 	/**
 	 * SPECIAL QUIRK MODE, USUALLY YOU DO NOT NEED IT.
@@ -263,7 +268,8 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		m_outputClass = resultClass;
 		m_queryMetaModel = queryMetaModel != null ? queryMetaModel : MetaManager.findClassMeta(queryClass);
 		m_outputMetaModel = outputMetaModel != null ? outputMetaModel : MetaManager.findClassMeta(resultClass);
-		SmallImgButton b = m_selButton = new SmallImgButton(Theme.BTN_POPUPLOOKUP);
+		HoverButton b = m_selButton = new HoverButton(Theme.BTN_HOVERPOPUPLOOKUP);
+		b.addCssClass("ui-lui-sel-btn");
 		b.setTestID("selButtonInputLookup");
 		b.setClicked(new IClicked<NodeBase>() {
 			@Override
@@ -272,27 +278,28 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 			}
 		});
 
-		b = m_clearButton = new SmallImgButton(Theme.BTN_CLEARLOOKUP, new IClicked<SmallImgButton>() {
+		b = m_clearButton = new HoverButton(Theme.BTN_HOVERCLEARLOOKUP, new IClicked<HoverButton>() {
 			@Override
 			@SuppressWarnings("synthetic-access")
-			public void clicked(@Nonnull SmallImgButton b) throws Exception {
+			public void clicked(@Nonnull HoverButton b) throws Exception {
 				handleSetValue(null);
 			}
 		});
+		b.addCssClass("ui-lui-clear-btn");
 		b.setTestID("clearButtonInputLookup");
 		b.setDisplay(DisplayType.NONE);
 		setCssClass("ui-lui");
 	}
 
 	@Nonnull
-	private SmallImgButton getSelButton() {
+	private HoverButton getSelButton() {
 		if(null != m_selButton)
 			return m_selButton;
 		throw new IllegalStateException("Selection button is not there.");
 	}
 
 	@Nonnull
-	public SmallImgButton getClearButton() {
+	public HoverButton getClearButton() {
 		if(null != m_clearButton)
 			return m_clearButton;
 		throw new IllegalStateException("Clear button is not there.");
@@ -326,9 +333,11 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 			if(r == null)
 				r = (INodeContentRenderer<OT>) DEFAULT_RENDERER; // Prevent idiotic generics error
 			r.renderNodeContent(this, this, m_value, isReadOnly() || isDisabled() ? null : m_selButton);
+
+			handleSelectionCss();
 		}
 
-		SmallImgButton clearButton = getClearButton();
+		HoverButton clearButton = getClearButton();
 		if(!isReadOnly() && !isDisabled()) {
 			if(!getSelButton().isAttached()) { // If the above did not add the button do it now.
 				/*
@@ -380,6 +389,18 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		}
 		if(m_absolutePopupLayoutQuirkMode) {
 			getSelButton().setMarginLeft("103px");
+		}
+
+	}
+
+	private void handleSelectionCss() {
+		String selectionCssClass = getSelectionCssClass();
+		if (!StringTool.isBlank(selectionCssClass)) {
+			//zilla 7548 -> if selected value txt is too large, we should be enabled to limit it, in some situations. So we use css for that.
+			//When text is cutoff by that css, we have to show entire text in hover.
+			//We use internal ui-lui-vcell style here, since it can not be provided from INodeContentRenderer itself :(
+			//Since this is internal component code too, relaying on this internal details of renderer are not too bad
+			getParent().appendShowOverflowTextAsTitleJs("." + selectionCssClass + " td.ui-lui-vcell");
 		}
 	}
 
@@ -749,7 +770,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		final FloatingWindow f = m_floater = FloatingWindow.create(this, getFormTitle() == null ? getDefaultTitle() : getFormTitle());
 		f.setWidth("740px");
 		f.setHeight("90%");
-		f.setIcon("THEME/btnFind.png");
+		f.setIcon("THEME/ttlFind.png");
 		f.setTestID(getTestID() + "_floaterWindowLookupInput");
 
 		//in case when external error message listener is set
@@ -1044,6 +1065,10 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 			getClearButton().setDisplay(DisplayType.INLINE);
 			clearMessage();
 			setCssClass("ui-lui-selected");
+			String selectionCss = getSelectionCssClass();
+			if (!StringTool.isBlank(selectionCss)){
+				addCssClass(DomUtil.nullChecked(selectionCss));
+			}
 		} else {
 			getClearButton().setDisplay(DisplayType.NONE);
 			setCssClass("ui-lui");
@@ -1062,6 +1087,13 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		if(!MetaManager.areObjectsEqual(value, m_value, null)) {
 			DomUtil.setModifiedFlag(this);
 			setValue(value);
+
+			try {
+				SimpleBinder.controlToModel(this);
+			} catch(Exception x) {
+				throw WrappedException.wrap(x);
+			}
+
 			//-- Handle onValueChanged
 			IValueChanged< ? > onValueChanged = getOnValueChanged();
 			if(onValueChanged != null) {
@@ -1226,11 +1258,25 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 
 	/**
 	 * Set custom css that would be applied only in case that component is rendering keyWordSearch.
-	 * Used for example in row inline rendering, where width and min-width should be additionaly customized.
+	 * Used for example in row inline rendering, where width and min-width should be additionally customized.
 	 * @param cssClass
 	 */
 	public void setKeyWordSearchCssClass(@Nullable String cssClass) {
 		m_keyWordSearchCssClass = cssClass;
+	}
+
+	@Nullable
+	public String getSelectionCssClass() {
+		return m_selectionCssClass;
+	}
+
+	/**
+	 * Set custom css that would be applied only in case that component is rendering selected value.
+	 * Used for example where max-width should be additionally customized.
+	 * @param cssClass
+	 */
+	public void setSelectionCssClass(@Nullable String cssClass) {
+		m_selectionCssClass = cssClass;
 	}
 
 	/**

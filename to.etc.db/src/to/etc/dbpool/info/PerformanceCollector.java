@@ -26,9 +26,7 @@ package to.etc.dbpool.info;
 
 import java.util.*;
 
-import to.etc.dbpool.info.InfoCollectorExpenseBased.StmtCount;
-
-public class PerformanceCollector extends PerformanceStore implements IPerformanceCollector {
+final public class PerformanceCollector extends PerformanceStore implements IPerformanceCollector {
 	static private final String SQL_EXEC_TIME = "stmt-exec-time";
 
 	static private final String SQL_EXEC_COUNT = "stmt-exec-count";
@@ -39,14 +37,16 @@ public class PerformanceCollector extends PerformanceStore implements IPerforman
 
 	static private final String SQL_TOTAL_TIME = "stmt-total-time";
 
-	static private final Comparator<StmtCount> C_BYEXEC = new Comparator<StmtCount>() {
-		public int compare(StmtCount a, StmtCount b) {
+	static private final Comparator<StatementStatistics> C_BYEXEC = new Comparator<StatementStatistics>() {
+		@Override
+		public int compare(StatementStatistics a, StatementStatistics b) {
 			return b.getExecutions() - a.getExecutions();
 		}
 	};
 
-	static private final Comparator<StmtCount> C_BYROWS = new Comparator<StmtCount>() {
-		public int compare(StmtCount a, StmtCount b) {
+	static private final Comparator<StatementStatistics> C_BYROWS = new Comparator<StatementStatistics>() {
+		@Override
+		public int compare(StatementStatistics a, StatementStatistics b) {
 			long r = a.getRows() - b.getRows();
 			if(r == 0)
 				return 0;
@@ -54,8 +54,9 @@ public class PerformanceCollector extends PerformanceStore implements IPerforman
 		}
 	};
 
-	static private final Comparator<StmtCount> C_BYFETCH = new Comparator<StmtCount>() {
-		public int compare(StmtCount a, StmtCount b) {
+	static private final Comparator<StatementStatistics> C_BYFETCH = new Comparator<StatementStatistics>() {
+		@Override
+		public int compare(StatementStatistics a, StatementStatistics b) {
 			long r = a.getTotalFetchDuration() - b.getTotalFetchDuration();
 			if(r == 0)
 				return 0;
@@ -63,17 +64,17 @@ public class PerformanceCollector extends PerformanceStore implements IPerforman
 		}
 	};
 
-	static private final Comparator<StmtCount> C_BYEXEC_TIME = new Comparator<InfoCollectorExpenseBased.StmtCount>() {
+	static private final Comparator<StatementStatistics> C_BYEXEC_TIME = new Comparator<StatementStatistics>() {
 		@Override
-		public int compare(StmtCount a, StmtCount b) {
+		public int compare(StatementStatistics a, StatementStatistics b) {
 			long v = a.getTotalExecuteDuration() - b.getTotalExecuteDuration();
 			return v == 0 ? 0 : v < 0 ? 1 : -1;
 		}
 	};
 
-	static private final Comparator<StmtCount> C_BYTOTAL_TIME = new Comparator<InfoCollectorExpenseBased.StmtCount>() {
+	static private final Comparator<StatementStatistics> C_BYTOTAL_TIME = new Comparator<StatementStatistics>() {
 		@Override
-		public int compare(StmtCount a, StmtCount b) {
+		public int compare(StatementStatistics a, StatementStatistics b) {
 			long at = a.getTotalExecuteDuration() + a.getTotalFetchDuration();
 			long bt = b.getTotalExecuteDuration() + b.getTotalFetchDuration();
 
@@ -99,13 +100,14 @@ public class PerformanceCollector extends PerformanceStore implements IPerforman
 	 * Save the max executed statements.
 	 * @param counterList
 	 */
-	public void saveCounters(String request, List<StmtCount> counterList) {
+	@Override
+	public void saveCounters(String request, List<StatementStatistics> counterList) {
 		Collections.sort(counterList, C_BYEXEC);
 		int max = 20;
 		if(counterList.size() < max)
 			max = counterList.size();
 		for(int i = 0; i < max; i++) {
-			StmtCount sc = counterList.get(i);
+			StatementStatistics sc = counterList.get(i);
 			addItem(SQL_EXEC_COUNT, sc.getSQL(), sc.getExecutions(), request, sc);
 		}
 
@@ -115,7 +117,7 @@ public class PerformanceCollector extends PerformanceStore implements IPerforman
 		if(counterList.size() < max)
 			max = counterList.size();
 		for(int i = 0; i < max; i++) {
-			StmtCount sc = counterList.get(i);
+			StatementStatistics sc = counterList.get(i);
 			addItem(SQL_ROW_COUNT, sc.getSQL(), sc.getRows(), request, sc);
 		}
 
@@ -125,7 +127,7 @@ public class PerformanceCollector extends PerformanceStore implements IPerforman
 		if(counterList.size() < max)
 			max = counterList.size();
 		for(int i = 0; i < max; i++) {
-			StmtCount sc = counterList.get(i);
+			StatementStatistics sc = counterList.get(i);
 			addItem(SQL_FETCH_TIME, sc.getSQL(), sc.getTotalFetchDuration(), request, sc);
 		}
 
@@ -135,7 +137,7 @@ public class PerformanceCollector extends PerformanceStore implements IPerforman
 		if(counterList.size() < max)
 			max = counterList.size();
 		for(int i = 0; i < max; i++) {
-			StmtCount sc = counterList.get(i);
+			StatementStatistics sc = counterList.get(i);
 			addItem(SQL_EXEC_TIME, sc.getSQL(), sc.getTotalExecuteDuration(), request, sc);
 		}
 
@@ -145,7 +147,7 @@ public class PerformanceCollector extends PerformanceStore implements IPerforman
 		if(counterList.size() < max)
 			max = counterList.size();
 		for(int i = 0; i < max; i++) {
-			StmtCount sc = counterList.get(i);
+			StatementStatistics sc = counterList.get(i);
 			addItem(SQL_TOTAL_TIME, sc.getSQL(), sc.getTotalExecuteDuration() + sc.getTotalFetchDuration(), request, sc);
 		}
 	}

@@ -35,21 +35,18 @@ import to.etc.domui.dom.html.*;
  * Created on Oct 17, 2008
  */
 public class SmallImgButton extends Button {
-	private Img m_image;
+	private String m_icon;
 
 	/**
 	 * Create the empty button.
 	 */
 	public SmallImgButton() {
-		m_image = new Img();
-		add(m_image);
 		setCssClass("ui-sib");
 	}
 
 	/**
 	 * Create a small image button from the specified resource. The resource can come from the current
 	 * theme, or it can be an absolute image path to a web file.
-	 * @param intheme
 	 * @param rurl
 	 */
 	public SmallImgButton(String rurl) {
@@ -68,44 +65,34 @@ public class SmallImgButton extends Button {
 		setSrc(rurl);
 	}
 
-	//	/**
-	//	 * Create a small image button from the specified resource. The resource can come from the current
-	//	 * theme, or it can be an absolute image path to a web file.
-	//	 * @param intheme
-	//	 * @param rurl
-	//	 */
-	//	public SmallImgButton(boolean intheme, String rurl, IClicked<SmallImgButton> cl) {
-	//		this();
-	//		setClicked(cl);
-	//		if(intheme)
-	//			setThemeSrc(rurl);
-	//		else
-	//			setSrc(rurl);
-	//	}
-
 	/**
 	 * Set a new image using a web resource's abolute path. If the name is prefixed
 	 * with THEME/ it specifies an image from the current THEME's directory.
 	 * @param src
 	 */
 	public void setSrc(String src) {
-		m_image.setSrc(src);
+		m_icon = src;
+		forceRebuild();
 	}
-	//
-	//	/**
-	//	 * Set a new image from the current theme.
-	//	 * @param src
-	//	 */
-	//	public void setThemeSrc(String src) {
-	//		m_image.setThemeSrc(src);
-	//	}
 
 	public String getSrc() {
-		return m_image.getSrc();
+		return m_icon;
 	}
 
 	@Override
 	public String getComponentInfo() {
-		return "ImgButton:" + m_image.getSrc();
+		return "ImgButton:" + m_icon;
+	}
+
+	@Override
+	public void createContent() throws Exception {
+		String iconUrl = m_icon;
+		if(null != iconUrl) {
+			String icon = getThemedResourceRURL(iconUrl);
+			Img img = new Img(icon);
+			add(img);
+			img.setImgBorder(0);
+			img.setDisabled(isDisabled());
+		}
 	}
 }

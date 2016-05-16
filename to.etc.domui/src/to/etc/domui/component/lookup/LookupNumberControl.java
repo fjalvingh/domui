@@ -43,7 +43,7 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on Feb 11, 2010
  */
-public class LookupNumberControl<T extends Number> extends AbstractLookupControlImpl {
+public class LookupNumberControl<T extends Number> extends BaseAbstractLookupControlImpl<String> {
 	static public final Set<QOperation> UNARY_OPS;
 
 	static public final Set<QOperation> BINARY_OPS;
@@ -319,5 +319,15 @@ public class LookupNumberControl<T extends Number> extends AbstractLookupControl
 			}
 			throw vx;
 		}
+	}
+
+	@Override
+	public String getValue() {
+		return m_input.getValue();
+	}
+
+	@Override
+	public void setValue(String value) {
+		m_input.setValue(value);
 	}
 }

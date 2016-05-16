@@ -283,6 +283,7 @@ public class FileTool {
 	 * Returns the extension of a file. The extension DOES NOT INCLUDE the . If no
 	 * extension is present then the empty string is returned ("").
 	 */
+	@Nonnull
 	static public String getFileExtension(final String fn) {
 		int s1 = fn.lastIndexOf('/');
 		int s2 = fn.lastIndexOf('\\');
@@ -320,6 +321,7 @@ public class FileTool {
 	 *	Returns the file name excluding the suffix of the name. So test.java
 	 *  returns test.
 	 */
+	@Nonnull
 	static public String fileNameSansExtension(final String fn) {
 		int slp = fn.lastIndexOf('/');
 		int t = fn.lastIndexOf('\\');

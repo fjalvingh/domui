@@ -244,7 +244,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 	 * @throws Exception
 	 */
 	protected void renderThemeCSS() throws Exception {
-		String sheet = m_ctx.getApplication().getThemedResourceRURL("THEME/style.theme.css");
+		String sheet = m_page.getBody().getThemedResourceRURL("THEME/style.theme.css");
 		if(null == sheet)
 			throw new IllegalStateException("Unexpected null??");
 
@@ -271,21 +271,27 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 	}
 
 	public void renderLoadCSS(String path) throws Exception {
+		String rurl = m_page.getBody().getThemedResourceRURL(path);
+		path = ctx().getRelativePath(rurl);
+
 		//-- render an app-relative url
 		o().tag("link");
 		o().attr("rel", "stylesheet");
 		o().attr("type", "text/css");
-		o().attr("href", ctx().getThemedPath(path));
+		o().attr("href", path);
 		o().endtag();
 		o().closetag("link");
 	}
 
 	public void renderLoadJavascript(@Nonnull String path) throws Exception {
+		if(!path.startsWith("http")) {
+			String rurl = m_page.getBody().getThemedResourceRURL(path);
+			path = ctx().getRelativePath(rurl);
+		}
+
 		//-- render an app-relative url
 		o().tag("script");
 		o().attr("language", "javascript");
-		if(!path.startsWith("http"))
-			path = ctx().getThemedPath(path);
 		o().attr("src", path);
 		o().endtag();
 		o().closetag("script");
@@ -320,7 +326,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 
 		genVar("DomUIpageTag", Integer.toString(page.getPageTag()));
 		DomApplication application = DomApplication.get();
-		String pb = DomApplication.get().getThemedResourceRURL("THEME/progressbar.gif");
+		String pb = m_page.getBody().getThemedResourceRURL("THEME/progressbar.gif");
 		if(null == pb)
 			throw new IllegalStateException("Required resource missing");
 		genVar("DomUIProgressURL", StringTool.strToJavascriptString(ctx.getRelativePath(pb), true));

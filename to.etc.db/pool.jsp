@@ -59,8 +59,6 @@ body        { font-family: "Verdana, Arial, Bitstream Vera Sans, sans"; font-siz
 .statpheader	{ background-color: #130069; }
 .statprow		{ background-color: #483B82; }
 
-
-
 </style>
 
 <script type="text/javascript">

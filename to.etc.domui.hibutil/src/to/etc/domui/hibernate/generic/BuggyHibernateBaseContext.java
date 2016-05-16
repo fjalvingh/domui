@@ -70,6 +70,8 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 
 	private boolean m_keepOriginals;
 
+	static private final boolean m_logCloses = System.getProperty("domui.trace.close") != null;
+
 	/**
 	 * Create a context, using the specified factory to create Hibernate sessions.
 	 * @param sessionMaker
@@ -140,7 +142,8 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 		if(m_session == null || m_ignoreClose)
 			return;
 
-		if(!DeveloperOptions.isDeveloperWorkstation()) {
+		boolean logCloses = m_logCloses || DeveloperOptions.isDeveloperWorkstation();
+		if(!logCloses) {
 			setConversationInvalid("DataContext has been CLOSED");
 		} else {
 			//-- Log close location when running on development

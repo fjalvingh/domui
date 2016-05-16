@@ -53,12 +53,6 @@ public class SelectOnePanel<T> extends Div implements IHasChangeListener {
 	private void renderItem(@Nonnull TBody body, @Nonnull T item) throws Exception {
 		TR row = body.addRow();
 		row.setCssClass("ui-ssop-row");
-		row.setClicked(new IClicked<NodeBase>() {
-			@Override
-			public void clicked(NodeBase clickednode) throws Exception {
-
-			}
-		});
 		TD cell = row.addCell();
 		m_renderer.renderNodeContent(row, cell, item, null);
 	}
@@ -77,7 +71,7 @@ public class SelectOnePanel<T> extends Div implements IHasChangeListener {
 
 		boolean changed = m_index != value;
 		m_index = value;
-		System.out.println("selectOnePanel: value=" + value + ", changed=" + changed);
+		//System.out.println("selectOnePanel: value=" + value + ", changed=" + changed);
 		return changed;
 	}
 

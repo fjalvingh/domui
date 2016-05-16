@@ -169,7 +169,7 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 
 	@Override
 	protected void onShelve() throws Exception {
-		QContextManager.closeSharedContexts(getPage().getConversation());
+		resetAllSharedContexts();
 	}
 
 	/**

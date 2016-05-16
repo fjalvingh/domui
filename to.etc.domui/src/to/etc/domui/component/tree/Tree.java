@@ -395,8 +395,8 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 		}
 	}
 
-	static private String branchurl() {
-		return DomApplication.get().getThemedResourceRURL("THEME/tree-branch.png");
+	private String branchurl() {
+		return getThemedResourceRURL("THEME/tree-branch.png");
 	}
 
 	/**
@@ -502,6 +502,15 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 			cell.removeCssClass("ui-tr-selected");
 		cell.removeAllChildren();
 		renderContent(cell, node);
+	}
+
+	@Nullable
+	public TR locateRowIfExpanded(T node){
+		VisibleNode<T> vn = m_openMap.get(node);
+		if (null != vn){
+			return vn.nodeRow;
+		}
+		return null;
 	}
 
 	protected boolean isSelected(T node) {

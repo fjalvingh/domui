@@ -24,6 +24,8 @@
  */
 package javax.annotation;
 
+import static java.lang.annotation.ElementType.*;
+
 import java.lang.annotation.*;
 
 import javax.annotation.meta.*;
@@ -31,5 +33,6 @@ import javax.annotation.meta.*;
 @Documented
 @TypeQualifier
 @Retention(RetentionPolicy.RUNTIME)
+@Target(value={FIELD,METHOD,PACKAGE,TYPE})
 public @interface DefaultNonNull {
 }

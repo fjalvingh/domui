@@ -77,9 +77,13 @@ Bt.attr({"class": opts.buttonClass, unselectable: "on"});
 Bt.hover(function(){$(this).addClass(opts.ghostClass);},function(){$(this).removeClass(opts.ghostClass);});
 Bt.mousedown(function(e){if(e.target != this)return;Bt.toggleClass(opts.invertClass).hide();splitTo((splitPos==opts.closeableto)?_splitPos:opts.closeableto,true);return false;});
 }		
-//reset size to default.			
-var perc=(((C.position()[opts.moving]-splitter.offset()[opts.moving])/splitter[opts.sizing]())*100+2).toFixed(1);
-splitTo(perc,false,true); 
+//reset size to default.
+if(opts.initPos!=undefined){
+	splitTo(opts.initPos, false, true);
+}else {
+	var perc = (((C.position()[opts.moving] - splitter.offset()[opts.moving]) / splitter[opts.sizing]()) * 100 + 2).toFixed(1);
+	splitTo(perc, false, true);
+}
 // resize  event handlers;
 splitter.bind("resize",function(e, size){if(e.target!=this)return;splitTo(splitPos,false,true);});
 $(window).bind("resize",function(){splitTo(splitPos,false,true);});

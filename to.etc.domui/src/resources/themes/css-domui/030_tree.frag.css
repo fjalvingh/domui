@@ -1,0 +1,38 @@
+/*** 030_tree.frag.css ***/
+/*** Tree component ***/
+.ui-tree .selected {
+	background: <%= selected_bg %> !important;
+}
+TD .ui-tree .selected:hover {
+	background: <%= selected_bg %> !important;
+}
+
+.ui-tree TD {
+	padding: 0px;
+	margin: 0px;
+	border: 0px;
+}
+
+.ui-tr-act {
+	cursor: pointer;
+}
+.ui-tr-val {
+	white-space: nowrap;
+	vertical-align: middle;
+}
+.ui-tr-val img {
+	vertical-align: middle;
+}
+td.ui-tr-sel:hover {
+	background-color: <%= highlight_bg %> !important;
+}
+td.ui-tr-sel {
+	cursor: pointer;
+}
+td.ui-tr-selected {
+	background-color: <%= bg_ttl_end %>; !important;
+}
+
+.ui-tree {
+/*	height: 100%;		jal 20111025 - setting this causes trouble if tree is not alone in div.. Fixed for OldHelp browser */
+}

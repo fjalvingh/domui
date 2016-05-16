@@ -35,7 +35,7 @@ final public class PropertyComparator<T> implements Comparator<T> {
 		try {
 			T a = m_pmm.getValue(o1);
 			T b = m_pmm.getValue(o2);
-			int res = m_valueComp.compare(a, b);
+			int res = a == null ? (b == null ? 0 : -1) : (b == null ? 1 : m_valueComp.compare(a, b));
 			return m_descending ? -res : res;
 		} catch(Exception x) {
 			throw WrappedException.wrap(x); // Checked exception are utter idiocy

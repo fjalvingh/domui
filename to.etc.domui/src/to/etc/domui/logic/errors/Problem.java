@@ -35,10 +35,14 @@ public class Problem {
 	final private MsgType m_severity;
 
 	public Problem(Class< ? > anchor, String code) {
+		this(anchor, code, MsgType.ERROR);
+	}
+
+	public Problem(Class<?> anchor, String code, MsgType type) {
 		m_bundle = BundleRef.create(anchor, "messages");				// All problem messages must be in a bundle called messages.
 		m_key = m_bundle.getBundleKey() + "#" + code;
 		m_code = code;
-		m_severity = MsgType.ERROR;
+		m_severity = type;
 	}
 
 	public String getCode() {
@@ -110,19 +114,21 @@ public class Problem {
 		return pi;										// Allow specialization using builder pattern.
 	}
 
-	public <T> void when(@Nonnull ProblemModel errors, @Nonnull T instance, @Nonnull String property, boolean condition) {
+	public <T> ProblemInstance when(@Nonnull ProblemModel errors, @Nonnull T instance, @Nonnull String property, boolean condition) {
 		if(condition) {
-			on(errors, instance, property);
+			return on(errors, instance, property);
 		} else {
 			off(errors, instance, property);
+			return new ProblemInstance(this, instance); // To prevent returning null, this returns a 'dummy' ProblemInstance which will never be used
 		}
 	}
 
-	public <T> void when(@Nonnull ProblemModel errors, @Nonnull T instance, boolean condition) {
+	public <T> ProblemInstance when(@Nonnull ProblemModel errors, @Nonnull T instance, boolean condition) {
 		if(condition) {
-			on(errors, instance);
+			return on(errors, instance);
 		} else {
 			off(errors, instance);
+			return new ProblemInstance(this, instance); // To prevent returning null, this returns a 'dummy' ProblemInstance which will never be used.
 		}
 	}
 

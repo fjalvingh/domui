@@ -73,6 +73,7 @@ public class UIContext {
 
 	static private List<IgnoredHash> m_ignoredHashList = new ArrayList<UIContext.IgnoredHash>();
 
+	@Nonnull
 	static public IRequestContext getRequestContext() {
 		IRequestContext rc = m_current.get();
 		if(rc == null)

@@ -43,11 +43,13 @@ import to.etc.webapp.nls.*;
  * Created on Oct 13, 2009
  */
 final public class SimpleBinder implements IBinder, IBinding {
+	static public final String BINDING_ERROR = "BindingError";
+
 	@Nonnull
 	final private NodeBase m_control;
 
 	@Nonnull
-	final private IValueAccessor< ? > m_controlProperty;
+	final private PropertyMetaModel< ? > m_controlProperty;
 
 	/** The instance bound to */
 	@Nullable
@@ -67,6 +69,19 @@ final public class SimpleBinder implements IBinder, IBinding {
 	/** If this binding is in error this contains the error. */
 	@Nullable
 	private UIMessage m_bindError;
+
+	final static private Map<Class<?>, Class<?>> BOXINGDISASTER = new HashMap<>();
+
+	static {
+		BOXINGDISASTER.put(long.class, Long.class);
+		BOXINGDISASTER.put(int.class, Integer.class);
+		BOXINGDISASTER.put(short.class, Short.class);
+		BOXINGDISASTER.put(char.class, Character.class);
+		BOXINGDISASTER.put(double.class, Double.class);
+		BOXINGDISASTER.put(float.class, Float.class);
+		BOXINGDISASTER.put(boolean.class, Boolean.class);
+		BOXINGDISASTER.put(byte.class, Byte.class);
+	}
 
 	public SimpleBinder(@Nonnull NodeBase control, @Nonnull String controlProperty) {
 		if(control == null)
@@ -109,8 +124,32 @@ final public class SimpleBinder implements IBinder, IBinding {
 		m_instanceProperty = pmm;
 		m_instance = instance;
 
+		//-- Check: are the types of the binding ok?
+		if(pmm instanceof PropertyMetaModel<?>) {
+			PropertyMetaModel<?> p = (PropertyMetaModel<?>) pmm;
+			Class<?> actualType = fixBoxingDisaster(p.getActualType());
+			Class<?> controlType = fixBoxingDisaster(m_controlProperty.getActualType());
+
+			/*
+			 * For properties that have a generic type the Java "architects" do type erasure, so we cannot check anything. Type safe my ...
+			 */
+			if(actualType != Object.class && controlType != Object.class) {
+				if(!actualType.isAssignableFrom(controlType))
+					throw new BindingDefinitionException(toString(), actualType.getName(), controlType.getName());
+
+				if(!controlType.isAssignableFrom(actualType))
+					throw new BindingDefinitionException(toString(), actualType.getName(), controlType.getName());
+			}
+		}
+
 		//-- Move the data now!
 		moveModelToControl();
+	}
+
+	@Nonnull
+	static private Class<?> fixBoxingDisaster(@Nonnull Class<?> clz) {
+		Class<?> newClass = BOXINGDISASTER.get(clz);
+		return newClass != null ? newClass : clz;
 	}
 
 	/**
@@ -220,27 +259,28 @@ final public class SimpleBinder implements IBinder, IBinding {
 	 */
 	@Override
 	public void moveModelToControl() throws Exception {
-		IBindingListener< ? > listener = m_listener;
-		if(listener != null) {
-			((IBindingListener<NodeBase>) listener).moveModelToControl(m_control);
-			return;
-		}
-		IValueAccessor< ? > instanceProperty = m_instanceProperty;
-		if(null == instanceProperty)
-			throw new IllegalStateException("instance property cannot be null");
-		Object instance = m_instance;
-		if(null == instance)
-			throw new IllegalStateException("instance cannot be null");
-		NodeBase control = m_control;
+		try {
+			IBindingListener<?> listener = m_listener;
+			if(listener != null) {
+				((IBindingListener<NodeBase>) listener).moveModelToControl(m_control);
+				return;
+			}
+			IValueAccessor<?> instanceProperty = m_instanceProperty;
+			if(null == instanceProperty)
+				throw new IllegalStateException("instance property cannot be null");
+			Object instance = m_instance;
+			if(null == instance)
+				throw new IllegalStateException("instance cannot be null");
+			NodeBase control = m_control;
 
-		// FIXME We should think about exception handling here
-		Object modelValue = instanceProperty.getValue(instance);
-		//System.out.println("binder: set "+control.getComponentInfo()+" value="+modelValue);
-		if(!MetaManager.areObjectsEqual(modelValue, m_lastValueFromControl)) {
-			//-- Value in instance differs from control's
-			m_lastValueFromControl = modelValue;
-			((IValueAccessor<Object>) m_controlProperty).setValue(m_control, modelValue);
-			m_bindError = null;									// Let's assume binding has no trouble.
+			// FIXME We should think about exception handling here
+			Object modelValue = instanceProperty.getValue(instance);
+			//System.out.println("binder: set "+control.getComponentInfo()+" value="+modelValue);
+			if(!MetaManager.areObjectsEqual(modelValue, m_lastValueFromControl)) {
+				//-- Value in instance differs from control's
+				m_lastValueFromControl = modelValue;
+				((IValueAccessor<Object>) m_controlProperty).setValue(m_control, modelValue);
+				m_bindError = null;                                    // Let's assume binding has no trouble.
 
 //			/*
 //			 * jal yeah, this also suffers from "knowing" that we're accessing the control's value 8-/ We need
@@ -257,7 +297,7 @@ final public class SimpleBinder implements IBinder, IBinding {
 //					control.setMessage(null);
 //				}
 //			}
-		} else {
+			} else {
 //			/*
 //			 * Model has not updated the value. If the control *itself* has an error (Which can be known because the
 //			 * last bind error is != null) we keep that error, otherwise we set the 1st error from the model.
@@ -273,6 +313,9 @@ final public class SimpleBinder implements IBinder, IBinding {
 //					control.setMessage(msg);
 //				}
 //			}
+			}
+		} catch(Exception x) {
+			throw new BindingFailureException(x, "Model->Control", this.toString());
 		}
 	}
 
@@ -373,13 +416,35 @@ final public class SimpleBinder implements IBinder, IBinding {
 			public Object before(NodeBase n) throws Exception {
 				List<IBinding> list = n.getBindingList();
 				if(null != list) {
+					List<UIMessage> bindErrorList= new ArrayList<>();
+
+					//-- Find all bindings with an error
 					for(IBinding sb : list) {
 						UIMessage message = sb.getBindError();
 						if(null != message) {
-							silly[0] = true;
-							n.setMessage(message);
-						} else {
-//								n.setMessage(null);				// Should not be reset: should be done by component itself
+							bindErrorList.add(message);
+						}
+					}
+
+					//-- If there is an error somewhere- report the 1st one on the component
+					if(bindErrorList.size() > 0) {
+						UIMessage message = bindErrorList.get(0);		// Report the first error as the binding error.
+						message.group(BINDING_ERROR);
+						silly[0] = true;
+						n.setMessage(message);
+					} else {
+						/*
+						 * jal 20160215 This binding's component does not have a binding error now. An old
+						 * comment said "should not be reset: should be done by component itself". That seems
+						 * to be wrong, though. We should not just set the component error to null here, because
+						 * an error can be put there by something else. But if the component is showing a binding
+						 * error caused by a /previous/ run of this code then that error should be removed, because
+						 * otherwise no one does! The component cannot do it because it is forbidden to play
+						 * with messages during binding.
+						 */
+						UIMessage componentMessage = n.getMessage();
+						if(componentMessage != null && BINDING_ERROR.equals(componentMessage.getGroup())) {
+							n.setMessage(null);
 						}
 					}
 				}
@@ -393,7 +458,6 @@ final public class SimpleBinder implements IBinder, IBinding {
 		});
 		return silly[0];
 	}
-
 
 	@Nullable
 	public static SimpleBinder findBinding(NodeBase nodeBase, String string) {
@@ -423,19 +487,32 @@ final public class SimpleBinder implements IBinder, IBinding {
 		StringBuilder sb = new StringBuilder();
 		sb.append("binding[");
 		if(m_instance != null) {
-			sb.append("i=").append(m_instance);
+			sb.append(m_instance);
 		} else if(m_listener != null) {
-			sb.append("l=").append(m_listener);
+			sb.append("listener ").append(m_listener);
 		} else {
 			sb.append("?");
 		}
 		IValueAccessor< ? > instanceProperty = m_instanceProperty;
 		if(instanceProperty != null) {
-			sb.append("/");
+			sb.append(".");
 			if(instanceProperty instanceof PropertyMetaModel) {
 				sb.append(((PropertyMetaModel< ? >) instanceProperty).getName());
 			} else {
 				sb.append(instanceProperty.toString());
+			}
+		}
+		NodeBase control = m_control;
+		if(null != control) {
+			sb.append(" to ");
+			sb.append(control.getClass().getSimpleName());
+			IValueAccessor<?> controlProperty = m_controlProperty;
+			if(null != controlProperty) {
+				if(controlProperty instanceof PropertyMetaModel<?>) {
+					sb.append(".").append(((PropertyMetaModel<?>) controlProperty).getName());
+				} else {
+					sb.append(controlProperty.toString());
+				}
 			}
 		}
 		sb.append("]");

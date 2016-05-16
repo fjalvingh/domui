@@ -36,7 +36,7 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 25, 2009
  */
-public class JdbcSQLGenerator extends QNodeVisitorBase {
+public class JdbcSQLGenerator extends QRenderingVisitorBase {
 	private PClassRef m_root;
 
 	private JdbcClassMeta m_rootMeta;
@@ -55,8 +55,6 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 	private StringBuilder m_order;
 
 	private int m_nextWhereIndex = 1;
-
-	private int m_curPrec = 0;
 
 	private List<IQValueSetter> m_valList = new ArrayList<IQValueSetter>();
 
@@ -245,53 +243,16 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 			if(m_order.length() > 0)
 				m_order.append(",");
 			m_order.append(getColumnRef(m_root, col));
-			switch(o.getDirection()){
-				default:
-					throw new IllegalStateException("Bad order: " + o.getDirection());
-				case ASC:
-					m_order.append(" asc");
-					break;
-				case DESC:
-					m_order.append(" desc");
-					break;
-			}
+			m_order.append(' ').append(translateOrder(o));
 		}
 	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Restrictions rendering.								*/
 	/*--------------------------------------------------------------*/
-	private void appendWhere(String s) {
-		m_where.append(s);
-	}
-
-	/**
-	 * Render an operator set.
-	 * @see to.etc.webapp.query.QNodeVisitorBase#visitMulti(to.etc.webapp.query.QMultiNode)
-	 */
 	@Override
-	public void visitMulti(@Nonnull QMultiNode n) throws Exception {
-		if(n.getChildren().size() == 0)
-			return;
-		if(n.getChildren().size() == 1) { // Should not really happen
-			n.getChildren().get(0).visit(this);
-			return;
-		}
-		int oldprec = m_curPrec;
-		m_curPrec = getOperationPrecedence(n.getOperation());
-		if(oldprec > m_curPrec)
-			appendWhere("(");
-		int ct = 0;
-		for(QOperatorNode c : n.getChildren()) {
-			if(ct++ > 0)
-				appendOperation(n.getOperation());
-
-			//-- Visit lower
-			c.visit(this);
-		}
-		if(oldprec > m_curPrec)
-			appendWhere(")");
-		m_curPrec = oldprec;
+	protected void appendWhere(String s) {
+		m_where.append(s);
 	}
 
 	@Override
@@ -306,10 +267,7 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 			return;
 		}
 
-		int oldprec = m_curPrec;
-		m_curPrec = getOperationPrecedence(n.getOperation());
-		if(oldprec > m_curPrec)
-			appendWhere("(");
+		int oldprec = precedenceOpen(n);
 
 		if(n.getOperation() == QOperation.ILIKE && m_oracle) {
 			appendWhere("upper(");
@@ -338,9 +296,39 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 			} else
 				throw new QQuerySyntaxException("Unexpected argument to " + n + ": " + n.getExpr());
 		}
-		if(oldprec > m_curPrec)
-			appendWhere(")");
-		m_curPrec = oldprec;
+		precedenceClose(oldprec);
+	}
+
+	@Override
+	public void visitPropertyIn(@Nonnull QPropertyIn n) throws Exception {
+		JdbcPropertyMeta pm = resolveProperty(n.getProperty());
+		if(pm.isCompound()) {
+			throw new QQuerySyntaxException("The " + n.getOperation() + " operation is not supported on compound property " + n.getProperty());
+		}
+		int oldprec = precedenceOpen(n);
+
+		appendWhere(getColumnRef(m_root, pm.getColumnName()));
+
+		QOperatorNode expr = n.getExpr();
+		if(expr instanceof QLiteral) {
+			QLiteral lit = (QLiteral) expr;
+			Object value = lit.getValue();
+			if(value instanceof List) {
+				List<Object> list = (List<Object>) value;
+				int ct = 0;
+				for(Object o: list) {
+					if(ct++ > 0)
+						appendWhere(",");
+
+					appendValueSetter(pm, (QLiteral) n.getExpr());
+				}
+			} else {
+				throw new QQuerySyntaxException("Unexpected literal of type " + value + " in 'in' expression for property " + n.getProperty());
+			}
+		} else {
+			expr.visit(this);
+		}
+		precedenceClose(oldprec);
 	}
 
 	/**
@@ -387,10 +375,14 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 	 * @param expr
 	 */
 	private void appendValueSetter(JdbcPropertyMeta pm, QLiteral expr) {
+		appendValueSetter(pm, expr.getValue());
+	}
+
+	private void appendValueSetter(JdbcPropertyMeta pm, Object value) {
 		appendWhere("?");
 		int index = m_nextWhereIndex++;
 		IJdbcType tc = pm.getTypeConverter();
-		ValSetter vs = new ValSetter(index, expr.getValue(), tc, pm);
+		ValSetter vs = new ValSetter(index, value, tc, pm);
 		m_valList.add(vs);
 	}
 
@@ -439,10 +431,7 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 
 	@Override
 	public void visitUnaryProperty(@Nonnull QUnaryProperty n) throws Exception {
-		int oldprec = m_curPrec;
-		m_curPrec = getOperationPrecedence(n.getOperation());
-		if(oldprec > m_curPrec)
-			appendWhere("(");
+		int oldprec = precedenceOpen(n);
 
 		if(n.getOperation() == QOperation.ISNOTNULL || n.getOperation() == QOperation.ISNULL) {
 			JdbcPropertyMeta pm = resolveProperty(n.getProperty());
@@ -455,18 +444,12 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 			appendWhere(getColumnRef(m_root, pm.getColumnName()));
 			appendWhere(")");
 		}
-
-		if(oldprec > m_curPrec)
-			appendWhere(")");
-		m_curPrec = oldprec;
+		precedenceClose(oldprec);
 	}
 
 	@Override
 	public void visitBetween(@Nonnull QBetweenNode n) throws Exception {
-		int oldprec = m_curPrec;
-		m_curPrec = getOperationPrecedence(n.getOperation());
-		if(oldprec > m_curPrec)
-			appendWhere("(");
+		int oldprec = precedenceOpen(n);
 
 		//-- Lookup the property name. For now it cannot be dotted
 		JdbcPropertyMeta pm = resolveProperty(n.getProp());
@@ -484,9 +467,7 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 		} else
 			throw new IllegalStateException("Unexpected argument to " + n + ": " + n.getB());
 
-		if(oldprec > m_curPrec)
-			appendWhere(")");
-		m_curPrec = oldprec;
+		precedenceClose(oldprec);
 	}
 
 	@Override
@@ -494,7 +475,8 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 		throw new IllegalStateException("!!! Trying to generate a naked literal!");
 	}
 
-	private void appendOperation(QOperation op) {
+	@Override
+	protected void appendOperation(QOperation op) {
 		appendOperation(renderOperation(op));
 	}
 
@@ -506,126 +488,6 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 			appendWhere(" ");
 		} else
 			appendWhere(renderOperation);
-	}
-
-	static private String renderOperation(QOperation op) {
-		switch(op){
-			default:
-				throw new IllegalStateException("Unexpected operation type=" + op);
-			case AND:
-				return "and";
-			case OR:
-				return "or";
-			case NOT:
-				return "not";
-			case BETWEEN:
-				return "between";
-			case EQ:
-				return "=";
-			case NE:
-				return "!=";
-			case LT:
-				return "<";
-			case LE:
-				return "<=";
-			case GT:
-				return ">";
-			case GE:
-				return ">=";
-			case ILIKE:
-				return "ilike";
-			case LIKE:
-				return "like";
-			case ISNOTNULL:
-				return "is not null";
-			case ISNULL:
-				return "is null";
-			case SQL:
-				return "SQL";
-		}
-	}
-
-	/**
-	 * Returns the operator precedence
-	 * @param ot
-	 * @return
-	 */
-	static public int getOperationPrecedence(final QOperation ot) {
-		switch(ot){
-			default:
-				throw new IllegalStateException("Unknown operator " + ot);
-			case OR:
-				return 10;
-			case AND:
-				return 20;
-			case NOT:
-				return 25;
-				/*case IN: */
-			case BETWEEN:
-			case LIKE:
-			case ILIKE:
-				return 30;
-
-			case LT:
-			case LE:
-			case GT:
-			case GE:
-			case EQ:
-			case NE:
-			case ISNULL:
-			case ISNOTNULL:
-				return 40;
-				//			case NOT:
-				//				return 50;
-				//				// ANY, ALL, SOME: 60
-				//			case CONCAT:
-				//				return 70;
-				//			case PLUS: case MINUS:
-				//				return 80;
-				//			case MULT: case DIV: case MOD:
-				//				return 90;
-				//			case UMINUS:
-				//				return 100;
-
-			case LITERAL:
-				return 100;
-		}
-	}
-
-	@Override
-	public void visitUnaryNode(final @Nonnull QUnaryNode n) throws Exception {
-		switch(n.getOperation()){
-			default:
-				throw new IllegalStateException("Unsupported UNARY operation: " + n.getOperation());
-			case SQL:
-				if(n.getNode() instanceof QLiteral) {
-					QLiteral l = (QLiteral) n.getNode();
-					appendWhere((String) l.getValue());
-					return;
-				}
-				break;
-			case NOT:
-				if(n.getNode() == null) {
-					return;
-				}
-				appendOperation(n.getOperation());
-				int oldprec = m_curPrec;
-				m_curPrec = getOperationPrecedence(n.getOperation());
-
-				if(oldprec > m_curPrec){
-					appendWhere("(");
-				}
-
-				n.getNode().visit(this);
-
-				if(oldprec > m_curPrec){
-					appendWhere(")");
-				}
-
-				m_curPrec = oldprec;
-				return;
-		}
-		throw new IllegalStateException("Unsupported UNARY operation: " + n.getOperation());
 	}
 
 	@Override
@@ -645,5 +507,24 @@ public class JdbcSQLGenerator extends QNodeVisitorBase {
 	@Override
 	public void visitSelectionSubquery(@Nonnull QSelectionSubquery qSelectionSubquery) throws Exception {
 		throw new IllegalStateException("Subqueries are not supported");
+	}
+
+	@Override
+	public void visitSubquery(@Nonnull QSubQuery< ? , ? > n) throws Exception {
+		throw new UnsupportedOperationException("Subqueries are not supported");
+	}
+
+	@Override
+	public void visitExistsSubquery(@Nonnull QExistsSubquery< ? > q) throws Exception {
+		throw new UnsupportedOperationException("Subqueries are not supported");
+	}
+
+	@Override
+	public void visitSelectionItem(@Nonnull QSelectionItem n) throws Exception {
+		//-- jal 20160105 This should throw an IllegalStateException!!
+	}
+	@Override
+	public void visitPropertySelection(@Nonnull QPropertySelection n) throws Exception {
+		//-- jal 20160105 This should throw an IllegalStateException!!
 	}
 }

@@ -26,6 +26,8 @@ package to.etc.dbpool.info;
 
 import java.util.*;
 
+import javax.annotation.*;
+
 /**
  * Collects statistics inside a http session, for debugging purposes. This stores most of the data for the
  * last m_maxRequest server requests.
@@ -33,7 +35,7 @@ import java.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Nov 12, 2010
  */
-public class SessionStatistics {
+final public class SessionStatistics {
 	final private int m_maxRequests;
 
 	private int m_idCounter;
@@ -59,13 +61,14 @@ public class SessionStatistics {
 	 * @param collector
 	 * @param thisrequest
 	 */
-	public void addRequestInfo(PerformanceCollector collector, InfoCollectorBase thisrequest) {
+	public void addRequestInfo(String requestId, PerformanceCollector collector, StatisticsCollectorBase thisrequest) {
 		if(thisrequest.getNAnything() == 0) // Do not store sillyness
 			return;
 
 		PerformanceStore ps = new PerformanceStore();
 		ps.merge(collector);
-		SessionStatisticsEntry sse = new SessionStatisticsEntry(thisrequest, nextID(), ps);
+		int requestNumber = nextID();
+		SessionStatisticsEntry sse = new SessionStatisticsEntry(thisrequest, requestId, requestNumber, ps);
 
 		//-- Store in table as last entry; release oldest entry if list is too big
 		synchronized(this) {
@@ -73,5 +76,14 @@ public class SessionStatistics {
 				m_entryList.remove(0); // Remove oldest entry
 			m_entryList.add(sse);
 		}
+	}
+
+	@Nullable
+	public SessionStatisticsEntry getEntry(String requestId) {
+		for(SessionStatisticsEntry e: m_entryList) {
+			if(requestId.equals(e.getRequestId()))
+				return e;
+		}
+		return null;
 	}
 }

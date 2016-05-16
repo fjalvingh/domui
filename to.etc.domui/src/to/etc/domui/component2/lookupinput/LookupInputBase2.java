@@ -28,6 +28,7 @@ import java.util.*;
 
 import javax.annotation.*;
 
+import to.etc.domui.component.binding.*;
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.layout.*;
@@ -40,6 +41,8 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.themes.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
+import to.etc.util.*;
+import to.etc.webapp.*;
 import to.etc.webapp.query.*;
 
 abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<OT>, IHasModifiedIndication, IQueryManipulator<QT> {
@@ -84,10 +87,10 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	private ITableModelFactory<QT, OT> m_modelFactory;
 
 	@Nonnull
-	final private SmallImgButton m_selButton;
+	final private HoverButton m_selButton;
 
 	@Nonnull
-	final private SmallImgButton m_clearButton;
+	final private HoverButton m_clearButton;
 
 	@Nullable
 	private Dialog m_floater;
@@ -193,7 +196,7 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 		m_queryMetaModel = queryMetaModel != null ? queryMetaModel : MetaManager.findClassMeta(queryClass);
 		m_outputMetaModel = outputMetaModel != null ? outputMetaModel : MetaManager.findClassMeta(resultClass);
 		m_modelFactory = modelFactory;
-		SmallImgButton b = m_selButton = new SmallImgButton(Theme.BTN_POPUPLOOKUP);
+		HoverButton b = m_selButton = new HoverButton(Theme.BTN_HOVERPOPUPLOOKUP);
 		b.setTestID("selButtonInputLookup");
 		b.setClicked(new IClicked<NodeBase>() {
 			@Override
@@ -202,10 +205,10 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 			}
 		});
 
-		b = m_clearButton = new SmallImgButton(Theme.BTN_CLEARLOOKUP, new IClicked<SmallImgButton>() {
+		b = m_clearButton = new HoverButton(Theme.BTN_HOVERCLEARLOOKUP, new IClicked<HoverButton>() {
 			@Override
 			@SuppressWarnings("synthetic-access")
-			public void clicked(@Nonnull SmallImgButton b) throws Exception {
+			public void clicked(@Nonnull HoverButton b) throws Exception {
 				handleSetValue(null);
 			}
 		});
@@ -215,14 +218,14 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	}
 
 	@Nonnull
-	private SmallImgButton getSelButton() {
+	private HoverButton getSelButton() {
 		if(null != m_selButton)
 			return m_selButton;
 		throw new IllegalStateException("Selection button is not there.");
 	}
 
 	@Nonnull
-	public SmallImgButton getClearButton() {
+	public HoverButton getClearButton() {
 		if(null != m_clearButton)
 			return m_clearButton;
 		throw new IllegalStateException("Clear button is not there.");
@@ -269,7 +272,7 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 			add(0, valueNode);
 		}
 
-		SmallImgButton clearButton = getClearButton();
+		HoverButton clearButton = getClearButton();
 		if(!isReadOnly() && !isDisabled()) {
 			//-- Append the select/clear buttons
 			add(getSelButton());
@@ -297,6 +300,26 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 			else if(m_clearButton != null)
 				m_clearButton.setFocus();
 		}
+	}
+
+	/**
+	 * Depending on what is present return the ID of a component that can
+	 * receive focus.
+	 * @return
+	 */
+	@Nullable
+	@Override
+	protected String getFocusID() {
+		SearchInput2 keySearch = m_keySearch;
+		if(null != keySearch && keySearch.isAttached())
+			return keySearch.getActualID();
+		HoverButton selButton = m_selButton;
+		if(null != selButton && selButton.isAttached())
+			return selButton.getActualID();
+		HoverButton clearButton = m_clearButton;
+		if(null != clearButton && clearButton.isAttached())
+			return clearButton.getActualID();
+		return null;
 	}
 
 	/**
@@ -358,13 +381,16 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 
 	private void handleSelection(@Nonnull SearchInput2 node) throws Exception {
 		SelectOnePanel<OT> sp = m_selectPanel;
-		if(sp == null)
-			return;										// Spurious, ignore
-		OT value = sp.getValue();						// Is a value selected?
-		if(null == value)
-			return;
-		clearResult();
-		handleSetValue(value);
+		if(sp != null) {
+			OT value = sp.getValue();                        // Is a value selected?
+			if(null != value) {
+				clearResult();
+				handleSetValue(value);
+				return;
+			}
+		}
+		ITableModel<OT> keySearchModel = searchKeyWord(node.getValue());
+		openPopup(keySearchModel);
 	}
 
 	@Nonnull
@@ -493,11 +519,9 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 		if(null == po) {
 			po = createPopupOpener();
 		}
-		Dialog floater = m_floater = po.createDialog(this, initialModel, new IExecute() {
-			@Override public void execute() throws Exception {
-				m_floater = null;
-			}
-		});
+		Dialog floater = m_floater = po.createDialog(this, initialModel, () -> m_floater = null);
+		floater.setCssClass("ui-lui2-dlg");
+		floater.modal();
 		add(floater);
 	}
 
@@ -534,12 +558,7 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 			}
 			openMessagePanel(Msgs.UI_KEYWORD_SEARCH_COUNT, count);
 		} else {
-			Thread.sleep(1500);
 			openResultsPopup(model);
-
-			//-- open selector popup
-			System.out.println("need to render " + size + " choices");
-
 		}
 	}
 
@@ -557,6 +576,13 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 				OT selection = component.getValue();
 				if(null != selection)
 					handleSetValue(selection);
+			}
+		});
+
+		pnl.setClicked(new IClicked<NodeBase>() {
+			@Override
+			public void clicked(@Nonnull NodeBase clickednode) throws Exception {
+				//we just need to deliver selected value here, that is why we have empty click handler
 			}
 		});
 	}
@@ -764,6 +790,13 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 		if(!MetaManager.areObjectsEqual(value, m_value, null)) {
 			DomUtil.setModifiedFlag(this);
 			setValue(value);
+
+			try {
+				SimpleBinder.controlToModel(this);
+			} catch(Exception x) {
+				throw WrappedException.wrap(x);
+			}
+
 			//-- Handle onValueChanged
 			IValueChanged< ? > onValueChanged = getOnValueChanged();
 			if(onValueChanged != null) {
@@ -781,8 +814,8 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	public final void setDialogSelection(@Nullable OT value) throws Exception {
 		if(null == value)							// Null means: no selection made, so retain the current one
 			return;
-		handleSetValue(value);
-		m_floater = null;
+		m_floater = null;							// ORDERED: see getOnValueChanged kludge
+		handleSetValue(value);						// ORDERED
 	}
 
 
@@ -912,7 +945,6 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 
 	/**
 	 * Getter for keyword search hint. See {@link LookupInput2#setKeySearchHint}.
-	 * @param hint
 	 */
 	@Nullable
 	public String getKeySearchHint() {
@@ -921,7 +953,7 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 
 	/**
 	 * Set hint to keyword search input. Usually says how search condition is resolved.
-	 * @param hint
+	 * @param keySearchHint
 	 */
 	public void setKeySearchHint(@Nullable String keySearchHint) {
 		m_keySearchHint = keySearchHint;
@@ -1059,4 +1091,17 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	public void setModelFactory(@Nonnull ITableModelFactory<QT, OT> modelFactory) {
 		m_modelFactory = modelFactory;
 	}
+
+	@Nullable
+	public IPopupOpener getPopupOpener() {
+		return m_popupOpener;
+	}
+
+	public void setPopupOpener(IPopupOpener popupOpener) {
+		if (isBuilt()){
+			throw new ProgrammerErrorException("can't set popup opener on built component!");
+		}
+		m_popupOpener = popupOpener;
+	}
+
 }

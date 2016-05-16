@@ -63,14 +63,17 @@ public class TestDataContextStub implements QDataContext {
 	}
 
 	@Override
-	public @Nonnull
-	<T> T get(@Nonnull Class<T> clz, @Nonnull Object pk) throws Exception {
+	public @Nonnull	<T> T get(@Nonnull Class<T> clz, @Nonnull Object pk) throws Exception {
 		return clz.newInstance();
 	}
 
 	@Override
 	public @Nonnull <T> T getInstance(@Nonnull Class<T> clz, @Nonnull Object pk) throws Exception {
-		throw new IllegalStateException("Cannot use this");
+
+
+
+
+		return clz.newInstance();
 	}
 
 	@Override

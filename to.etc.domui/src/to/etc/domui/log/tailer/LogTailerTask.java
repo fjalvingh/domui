@@ -39,18 +39,26 @@ public class LogTailerTask implements IConversationStateListener {
 	/** File reader used to monitor for file updates */
 	private FileReader m_fileDeltaReader;
 
+	private String m_errorMsg = null;
+
 	public LogTailerTask(@Nonnull String logpath) {
 		m_logpath = logpath;
 	}
 
-	public void start() throws Exception {
-		m_fileContentReader = new RandomAccessFile(m_logpath, "r");
+	public boolean start() throws Exception {
+		try {
+			m_fileContentReader = new RandomAccessFile(m_logpath, "r");
+		}catch(FileNotFoundException ex){
+			//file not found - logger did not log any lines yet
+			return false;
+		}
 		m_fileDeltaReader = new FileReader(m_logpath);
 		m_currentFileSize = 0;
 		m_currentLinesCount = 0;
 		m_offsetList.clear();
 		m_offsetList.add(Long.valueOf(0));					// Line 0..99 at offset 0
 		readFileDelta();
+		return true;
 	}
 
 	/*--------------------------------------------------------------*/

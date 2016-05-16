@@ -24,10 +24,13 @@
  */
 package to.etc.domui.dom.html;
 
+import java.util.*;
+
 import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
+import to.etc.domui.server.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
@@ -49,6 +52,12 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 
 	private int	m_maxLength;
 
+	/** Oracle <= 11 has a hard limit of 4000 bytes in a varchar2. TextArea's bound to an Oracle column might need this second limit observed too. This assumes UTF-8 encoding in the database too. */
+	private int m_maxByteLength;
+
+	@Nullable
+	private String m_disabledBecause;
+
 	public TextArea() {
 		super("textarea");
 	}
@@ -58,7 +67,6 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 		m_cols = cols;
 		m_rows = rows;
 	}
-
 
 	@Override
 	public void visit(INodeVisitor v) throws Exception {
@@ -164,7 +172,23 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 			return;
 		changed();
 		m_disabled = disabled;
+		if(! disabled)
+			setOverrideTitle(null);
 		fireModified("disabled", Boolean.valueOf(!disabled), Boolean.valueOf(disabled));
+	}
+
+	@Nullable
+	public String getDisabledBecause() {
+		return m_disabledBecause;
+	}
+
+	public void setDisabledBecause(@Nullable String msg) {
+		if(Objects.equals(msg, m_disabledBecause)) {
+			return;
+		}
+		m_disabledBecause = msg;
+		setOverrideTitle(msg);
+		setDisabled(msg != null);
 	}
 
 	@Override
@@ -196,6 +220,17 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 		//vmijic 20101117 - it is discovered (call 28340) that from some reason first \n is not rendered in TextArea on client side in initial page render. That cause that same \n is missing from unchanged text area input that comes through client request roundtrip and cause modified flag to be set... So as dirty fix we have to compare without that starting \n too...
 		if(flattenLineBreaksNw != null && cur != null && cur.startsWith("\n") && !flattenLineBreaksNw.startsWith("\n")) {
 			cur = cur.substring(1);
+		}
+
+		int maxLength = getMaxLength();
+		if(maxLength > 0 && nw != null && nw.length() > maxLength)				// Be very sure we are limited even if javascript does not execute.
+			nw = nw.substring(0, maxLength);
+
+		int maxBytes = getMaxByteLength();
+		if(maxBytes > 0) {
+			if(maxLength <= 0)
+				maxLength = maxBytes;
+			nw = StringTool.strTruncateUtf8Bytes(nw, maxLength, maxBytes);
 		}
 
 		if(DomUtil.isEqual(flattenLineBreaksNw, cur))
@@ -244,6 +279,7 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 		int maxlen = pmm.getLength();
 		if(maxlen > 0) {
 			ta.setMaxLength(maxlen);
+			ta.setMaxByteLength(DomApplication.getPlatformVarcharByteLimit());
 		}
 
 		return ta;
@@ -271,5 +307,20 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 
 	public void setMaxLength(int maxLength) {
 		m_maxLength = maxLength;
+	}
+
+	/**
+	 * When &gt; 0, this sets the max length in UTF-8 bytes for the text area. This is a workaround
+	 * for Oracle's 4000 byte varchar2 limit in versions &lt; 12c. When set, the text area will
+	 * first apply the limit set by maxLength; if that still delivers more bytes than set in this
+	 * property it will limit to the number of bytes here by removing characters.
+	 * @return
+	 */
+	public int getMaxByteLength() {
+		return m_maxByteLength;
+	}
+
+	public void setMaxByteLength(int maxByteLength) {
+		m_maxByteLength = maxByteLength;
 	}
 }

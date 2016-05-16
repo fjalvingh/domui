@@ -51,6 +51,7 @@ final public class PerfList {
 	private Map<String, PerfItem> m_existingMap = new HashMap<String, PerfItem>();
 
 	static private final Comparator<PerfItem> C_ASCENDING = new Comparator<PerfItem>() {
+		@Override
 		public int compare(PerfItem a, PerfItem b) {
 			long v = a.getMetric() - b.getMetric();
 			if(v == 0)
@@ -60,6 +61,7 @@ final public class PerfList {
 	};
 
 	static private final Comparator<PerfItem> C_DESCENDING = new Comparator<PerfItem>() {
+		@Override
 		public int compare(PerfItem a, PerfItem b) {
 			long v = a.getMetric() - b.getMetric();
 			if(v == 0)

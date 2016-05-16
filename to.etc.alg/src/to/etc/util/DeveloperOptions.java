@@ -63,6 +63,10 @@ public class DeveloperOptions {
 		if(s == null)
 			System.out.println("DeveloperOptions: user.home is not set??");
 		else {
+			String prevent = System.getProperty("developer.properties");
+			if ("false".equalsIgnoreCase(prevent)){
+				return;
+			}
 			File f = new File(new File(s), ".developer.properties");
 			if(!f.exists())
 				return;
@@ -167,5 +171,9 @@ public class DeveloperOptions {
 		if(m_warnedSet.add(name))
 			System.out.println("WARNING: Development-time option " + name + " changed to " + value);
 		return value;
+	}
+
+	static public boolean isBackGroundDisabled() {
+		return ! getBool("domui.background", true);				// set domui.background to false to disable background tasks
 	}
 }

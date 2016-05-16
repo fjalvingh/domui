@@ -2,12 +2,12 @@ package to.etc.domui.util.db;
 
 import java.math.*;
 import java.util.*;
-import java.util.regex.*;
 
 import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
+import to.etc.domui.util.compare.*;
 import to.etc.util.*;
 import to.etc.webapp.qsql.*;
 import to.etc.webapp.query.*;
@@ -25,6 +25,9 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 
 	@Nonnull
 	private ClassMetaModel m_cmm;
+
+	@Nullable
+	StringLikeSearchMatchUtil m_likeCompare;
 
 	private boolean m_lastResult;
 
@@ -85,11 +88,11 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 				break;
 
 			case LIKE:
-				m_lastResult = compareLike(val.toString(), lit.toString());
+				m_lastResult = getLikeCompare().compareLike(val.toString(), lit.toString());
 				return;
 
 			case ILIKE:
-				m_lastResult = compareLike(val.toString().toLowerCase(), lit.toString().toLowerCase());
+				m_lastResult = getLikeCompare().compareLike(val.toString().toLowerCase(), lit.toString().toLowerCase());
 				return;
 
 			case EQ:
@@ -124,48 +127,52 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 		}
 	}
 
-	@Nullable
-	private Map<String, Matcher> m_likeMatcher;
-
-	private boolean compareLike(@Nonnull String val, @Nonnull String match) {
-		Map<String, Matcher> map = m_likeMatcher;
-		if(null == map)
-			map = m_likeMatcher = new HashMap<String, Matcher>();
-		Matcher m = map.get(match);
-		if(null == m) {
-			//-- Convert to regexp
-			StringBuilder sb = new StringBuilder();
-			for(int i = 0; i < match.length(); i++) {
-				char c = match.charAt(i);
-				switch(c){
-					default:
-						sb.append(c);
-						break;
-					case '.':
-					case '*':
-					case '+':
-					case '\\':
-					case '?':
-					case '(':
-					case ')':
-					case '[':
-					case ']':
-					case '|':
-					case '-':
-						sb.append("\\");				// Escape
-						sb.append(c);
-						break;
-
-					case '%':
-						sb.append(".*");				// Replace % with .* meta
-						break;
-				}
-
+	@Override
+	public void visitPropertyIn(@Nonnull QPropertyIn n) throws Exception {
+		QOperatorNode rhs = n.getExpr();
+		String name = n.getProperty();
+		List<Object> valueList = null;
+		if(rhs.getOperation() == QOperation.LITERAL) {
+			Object val = ((QLiteral) rhs).getValue();
+			if(val instanceof List) {
+				valueList = (List<Object>) val;
 			}
-			m = Pattern.compile(sb.toString()).matcher("");		// What incredible idiot made this matcher() function!?
-			map.put(match, m);
 		}
-		return m.reset(val).matches();
+		if(valueList == null)
+			throw new IllegalStateException("Unknown operands to " + n.getOperation() + ": " + name + " and " + rhs.getOperation());
+
+		//-- If prop refers to some relation (dotted pair):
+		m_lastResult = false;
+		PropertyMetaModel< ? > pmm = parseSubCriteria(name);
+		Object instanceValue = pmm.getValue(m_instance);				// And the actual value inside the instance
+		if(instanceValue == null)
+			return;
+
+		//-- Loop through all values and see if any matches
+		for(Object value: valueList) {
+			if(valueMatches(instanceValue, value, n.getProperty())) {
+				m_lastResult = true;
+				return;
+			}
+		}
+		m_lastResult = false;
+	}
+
+	private boolean valueMatches(Object instanceValue, Object wantedValue, String property) {
+		//-- We need to do integral promotions on the type if they differ.
+		Class< ? > wantedType = wantedValue.getClass();
+		Class< ? > instType = instanceValue.getClass();					// Types differ?
+		if(wantedType != instType) {
+			Class< ? > endtype = getPromoted(wantedType, instType);	// If classes differ get a promoted thing.
+			if(null == endtype)
+				throw new QQuerySyntaxException("Cannot compare property " + property + " of type " + instType + " with a " + wantedType);
+
+			if(endtype != wantedType)
+				wantedValue = RuntimeConversions.convertTo(wantedValue, endtype);
+			if(endtype != instType)
+				instanceValue = RuntimeConversions.convertTo(instanceValue, endtype);
+		}
+		return instanceValue.equals(wantedValue);
 	}
 
 	/**
@@ -400,5 +407,14 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 	@Override
 	public void visitSelectionSubquery(@Nonnull QSelectionSubquery n) throws Exception {
 		throw new IllegalStateException("'subselection' has no meaning here");
+	}
+
+	@Nonnull
+	public StringLikeSearchMatchUtil getLikeCompare() {
+		StringLikeSearchMatchUtil likeCompare = m_likeCompare;
+		if (null == likeCompare){
+			likeCompare = m_likeCompare = new StringLikeSearchMatchUtil();
+		}
+		return likeCompare;
 	}
 }

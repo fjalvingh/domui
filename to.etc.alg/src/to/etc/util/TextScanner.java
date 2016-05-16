@@ -157,6 +157,19 @@ public class TextScanner {
 		return m_text.substring(six, m_ix);
 	}
 
+	/**
+	 * Provides the same functionality as #scanWord() but, after finding
+	 * the word, resets the index to the original position.
+	 * @see #scanWord()
+	 * @return
+	 */
+	public String peekWord() {
+		int six = m_ix; // Start index for word
+		String word = scanWord();
+		m_ix = six;
+		return word;
+	}
+
 	public String scanDelimited(String delimiters, int quote1, int quote2) {
 		int inq = -1;
 		if(m_ix >= m_len)

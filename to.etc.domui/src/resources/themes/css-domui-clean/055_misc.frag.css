@@ -1,0 +1,144 @@
+/*** 055_misc.frag.css ***/
+/*** Miscellaneous components styles ***/
+/* AccessDeniedPage */
+.ui-acd-ttl {}
+
+/* InfoPanel */
+.ui-ipa {
+	padding: 4px;
+	margin: 4px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border: 1px solid #d0d0d0;
+	font-style: italic;
+	vertical-align: top;
+	min-height: 48px;
+}
+
+div.ui-ipa img {
+	padding-right: 4px;
+	float: none;
+	vertical-align: top;
+}
+
+/* Explanation box */
+.ui-expl {
+	border: 2px solid #777777;
+	padding: 5px;
+	-moz-border-radius: 10px;
+	border-radius: 10px;
+	-webkit-border-radius: 10px;
+	background: url(bg-expl.png) repeat-x;
+	color: black;
+}
+
+/* AsyncContainer */
+.ui-asc {
+	text-align: center;
+}
+
+div.ui-asc div {
+	height:15px;
+}
+
+/* SplitPanel (simple version) layout thingy */
+.ui-sp,.ui-sp-c {
+	vertical-align: top;
+}
+
+/* Old Image button */
+.ui-ibtn {
+	cursor: pointer;
+}
+
+/* Message html codes: messages containing simple html (b, em, strong, i) are translated to contain spans with styles ui-txt-i, ui-txt-b etc */
+.ui-txt-i {
+	font-style: italic;
+}
+
+.ui-txt-b {
+	font-weight: bold;
+}
+
+/* For printable div used style */
+.ui-printdiv {
+	overflow: hidden;
+	width: 1px;
+	height: 1px;
+	position: absolute;
+	bottom: 0px;
+	left: 0px;
+}
+
+/* Some other generally used styles... */
+.ui-hor-divider {
+	min-width: 0px;
+	max-width: 0px;
+	width: 0px;
+	border-left: 2px dotted <%= header_bg %>; /*#6b99e8;*/
+	background-color: #e5e5e5;
+}
+
+/** Sizeless item */
+.ui-szless {
+	padding: 0px;
+	margin: 0px;
+}
+/* We to ensure that body is taking whole page and we have to neutralize negative margins */
+body.ui-stretch-body {
+	height: calc(100% - 2 * <%= margins_main %>);
+}
+
+/*** Display data table ***/
+.ui-dd-table {
+	font-size: <%= data_tbl_font_size %>;
+	margin-bottom: <%= margins_main %>;
+	border: 1px solid #aaaaaa;
+	border-left: 0px;
+}
+.ui-dd-table > TBODY > TR > TD {
+	padding: 1px 2px;
+	vertical-align: top;
+	border-left: 1px solid #aaaaaa;
+}
+<% if(browser.IE && browser.majorVersion < 9) { %>
+.ui-dd-table TR {
+	border-bottom: 1px solid #aaaaaa;
+}
+<% } else { %>
+.ui-dd-table TR:nth-child(even) {
+	background-color: rgba(255, 255, 255, 0.1);
+}
+<% } %>
+.ui-dd-table THEAD TH {
+	font-weight: bold;
+	padding: 3px;
+	border-left: 1px solid #7c7c7c;
+	background: <%= data_tbl_header_bg %>;
+	color: white;
+}
+
+/**
+*DomUI components style options 
+**/
+
+/** Removing top or bottom margin */
+.dso-remove-bottom-margin {
+	margin-bottom: 0px !important;
+}
+.dso-add-bottom-margin {
+	margin-bottom: <%= margins_main %> !important;
+}
+.dso-remove-top-margin {
+	margin-top: 0px !important;
+}
+.dso-cell-with-text-and-input {}
+
+/** Default cursor */
+.ui-cur-default {
+	cursor: default !important;
+}
+.ui-color-link {
+	color: <%= link_color %> !important;
+}

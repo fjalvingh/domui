@@ -1,5 +1,6 @@
 package to.etc.domui.parts;
 
+import java.awt.*;
 import java.awt.image.*;
 
 import javax.annotation.*;
@@ -21,18 +22,58 @@ import to.etc.util.*;
  * Created on Oct 25, 2012
  */
 public class GrayscalerPart implements IBufferedPartFactory {
+
 	static public class Key {
+
 		@Nonnull
 		final private String m_icon;
 
-		public Key(@Nonnull String icon) {
+		final private boolean m_sprite;
+
+		public Key(@Nonnull String icon, boolean isSprite) {
 			m_icon = icon;
+			m_sprite = isSprite;
 		}
 
 		@Nonnull
 		public String getIcon() {
 			return m_icon;
 		}
+
+		public boolean isSprite() {
+			return m_sprite;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((m_icon == null) ? 0 : m_icon.hashCode());
+			result = prime * result + (m_sprite ? 1231 : 1237);
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if(this == obj)
+				return true;
+			if(obj == null)
+				return false;
+			if(getClass() != obj.getClass())
+				return false;
+			final Key other = (Key) obj;
+			if(m_sprite != other.m_sprite)
+				return false;
+			if(m_icon == null) {
+				if(other.m_icon != null)
+					return false;
+			} else if(!m_icon.equals(other.m_icon)) {
+				return false;
+			}
+			return true;
+		}
+
+
 	};
 
 	@Override
@@ -41,18 +82,54 @@ public class GrayscalerPart implements IBufferedPartFactory {
 		String icon = param.getParameter("icon");
 		if(null == icon)
 			throw new IllegalStateException("Missing icon parameter");
-		return new Key(icon);
+
+		boolean isSprite = "true".equalsIgnoreCase(param.getParameter("sprite"));
+
+		return new Key(icon, isSprite);
 	}
 
 	@Override
 	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object key, @Nonnull IResourceDependencyList rdl) throws Exception {
 		Key k = (Key) key;
-		BufferedImage bi = PartUtil.loadImage(da, da.getThemedResourceRURL(k.getIcon()), rdl);
+		BufferedImage bi = PartUtil.loadImage(da, k.getIcon(), rdl);
 
-		//-- We will brute-force the conversion, since none of the known methods for grayscaling retain transparency 8-(
-		for(int y = bi.getHeight(); --y >= 0;) {
-			for(int x = bi.getWidth(); --x >= 0;) {
-				int argb = bi.getRGB(x, y);
+		if(k.isSprite())
+			bi = prepareSpriteImage(bi);
+		else
+			bi = prepareImage(bi);
+
+		ImageIO.write(bi, "png", pr.getOutputStream());
+		pr.setMime("image/png");
+		pr.setCacheTime(da.getDefaultExpiryTime());
+	}
+
+	@Nonnull
+	private BufferedImage prepareImage(@Nonnull BufferedImage image) {
+		convertToGrayscale(image);
+		return image;
+	}
+
+	@Nonnull
+	private BufferedImage prepareSpriteImage(BufferedImage image) {
+		BufferedImage sprite = new BufferedImage(image.getWidth(), 2 * image.getHeight(), BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g2 = sprite.createGraphics();
+
+		g2.drawImage(image, null, 0, 0);
+		convertToGrayscale(image);
+		g2.drawImage(image, null, 0, image.getHeight());
+
+		g2.dispose();
+		return sprite;
+	}
+
+	/**
+	 * We will brute-force the conversion, since none of the known methods for grayscaling retain transparency 8-(
+	 * @param image
+	 */
+	private void convertToGrayscale(BufferedImage image) {
+		for(int y = image.getHeight(); --y >= 0;) {
+			for(int x = image.getWidth(); --x >= 0;) {
+				int argb = image.getRGB(x, y);
 
 				//-- Calculate pixel luminance retaining transparency.
 				int a = argb & 0xff000000;
@@ -61,17 +138,9 @@ public class GrayscalerPart implements IBufferedPartFactory {
 				int b = argb & 0xff;
 				int lum = (int) (r * 0.299 + g * 0.587 + b * 0.114);
 				argb = a + (lum << 16) + (lum << 8) + (lum);
-				bi.setRGB(x, y, argb);
+				image.setRGB(x, y, argb);
 			}
 		}
-
-		//		GrayFilter filter = new GrayFilter(true, 20);
-		//		ImageProducer prod = new FilteredImageSource(bi.getSource(), filter);
-		//		Image grayImage = Toolkit.getDefaultToolkit().createImage(prod);
-		//		BufferedImage dimg = ImaTool.makeBuffered(grayImage);
-		ImageIO.write(bi, "png", pr.getOutputStream());
-		pr.setMime("image/png");
-		pr.setCacheTime(da.getDefaultExpiryTime());
 	}
 
 	/**
@@ -83,6 +152,20 @@ public class GrayscalerPart implements IBufferedPartFactory {
 	public static String getURL(@Nonnull String icon) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(GrayscalerPart.class.getName()).append(".part?icon=");
+		StringTool.encodeURLEncoded(sb, icon);
+		return sb.toString();
+	}
+
+	/**
+	 * Return the URL for a sprite containing original and grayscaled image icon.
+	 * The icon should be an application-relative path.
+	 * @param icon
+	 * @return
+	 */
+	@Nonnull
+	public static String getSpriteURL(@Nonnull String icon) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(GrayscalerPart.class.getName()).append(".part?sprite=true&icon=");
 		StringTool.encodeURLEncoded(sb, icon);
 		return sb.toString();
 	}

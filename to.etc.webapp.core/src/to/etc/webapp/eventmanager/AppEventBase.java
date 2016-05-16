@@ -34,7 +34,6 @@ import java.util.*;
  * Created on Sep 12, 2006
  */
 public class AppEventBase {
-	private static final long serialVersionUID = 1L;
 
 	private long m_upid;
 

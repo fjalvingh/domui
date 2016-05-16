@@ -29,7 +29,5 @@ public interface ITruncateableDataModel {
 	 * Return true if the result is truncated.
 	 * @return
 	 */
-	public boolean isTruncated();
-
-	public int getTruncatedCount();
+	boolean isTruncated();
 }

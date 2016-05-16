@@ -1,11 +1,11 @@
 package to.etc.domui.logic;
 
-import to.etc.domui.component.meta.*;
 import java.lang.reflect.*;
 import java.util.*;
 
 import javax.annotation.*;
 
+import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.logic.errors.*;
 import to.etc.webapp.*;
@@ -111,6 +111,9 @@ final public class LogicContextImpl implements ILogicContext {
 	@Override
 	@Nonnull
 	public <L extends ILogic, K, T extends IIdentifyable<K>> L get(@Nonnull Class<L> clz, @Nonnull T instance) throws Exception {
+		if(null == instance)
+			throw new IllegalStateException("Called with a null instance");
+
 		//-- Already exists in this context?
 		Map<Object, ILogic> cmap = m_instanceMap.get(clz);
 		if(null == cmap) {
@@ -136,25 +139,12 @@ final public class LogicContextImpl implements ILogicContext {
 			return (L) logic;
 
 		//-- Nothing there. We need to create an instance.
-		for(Constructor< ? > c : clz.getConstructors()) {
-			Class< ? >[] formalar = c.getParameterTypes();						// We only accept constructor(ILogicContext, T)
-			if(formalar.length != 2)
-				continue;
-			if(!formalar[0].isAssignableFrom(ILogicContext.class))
-				continue;
-			if(!formalar[1].isAssignableFrom(instance.getClass()))
-				continue;
+		L ni = createUsingConstructor(clz, instance);
+		if(ni == null) {
+			ni = createUsingStaticFactory(clz, instance);
+		}
 
-			//-- We got L(ILogicContext, T). Instantiate the object using it.
-			L ni = (L) c.newInstance(this, instance);
-			if(null == ni)
-				throw new IllegalStateException("Cobol'74 exception: no nullities defined in 2014.");
-
-			ILogiInjector ij = m_injector;
-			if(null != ij) {
-				ij.injectMembers(ni);
-			}
-
+		if(null != ni) {
 			cmap.put(key, ni);
 			return ni;
 		}
@@ -162,6 +152,100 @@ final public class LogicContextImpl implements ILogicContext {
 		throw new ProgrammerErrorException("Could not create an instance of " + clz + ": constructor(ILogicContext, " + instance.getClass().getName() + ") not found");
 	}
 
+	/**
+	 * Find a constructor of the signature (ILogicContext, T) where T is acceptable for the parameter passed.
+	 * @param clz
+	 * @param parameterObject
+	 * @param <T>
+	 * @return
+	 * @throws Exception
+	 */
+	@Nullable
+	private <T extends ILogic> T createUsingConstructor(@Nonnull Class<T> clz, @Nonnull Object parameterObject) throws Exception {
+		for(Constructor< ? > c : clz.getConstructors()) {
+			Class< ? >[] formalar = c.getParameterTypes();						// We only accept constructor(ILogicContext, T)
+			if(formalar.length != 2)
+				continue;
+			if(!formalar[0].isAssignableFrom(ILogicContext.class))
+				continue;
+			if(!formalar[1].isAssignableFrom(parameterObject.getClass()))
+				continue;
+
+			//-- We got L(ILogicContext, T). Instantiate the object using it.
+			T ni = (T) c.newInstance(this, parameterObject);
+			if(null == ni)
+				throw new IllegalStateException("Cobol'74 exception: no nullities defined in 2014.");
+
+			ILogiInjector ij = m_injector;
+			if(null != ij) {
+				ij.injectMembers(ni);
+			}
+			return ni;
+		}
+		return null;
+	}
+
+	@Nullable
+	private <T extends ILogic> T createUsingStaticFactory(@Nonnull Class<T> clz, @Nonnull Object parameterObject) throws Exception {
+		for(Method method : clz.getMethods()) {
+			if(Modifier.isStatic(method.getModifiers()) && Modifier.isPublic(method.getModifiers())) {
+				if(method.getName().startsWith("create")) {
+					if(clz.isAssignableFrom(method.getReturnType())) {
+						if(acceptParameters(method, parameterObject)) {
+							T ni = (T) method.invoke(null, this, parameterObject);
+							if(null == ni)
+								throw new IllegalStateException("Method " + method + " returned null instead of creating a " + clz + " from a " + parameterObject);
+							ILogiInjector ij = m_injector;
+							if(null != ij) {
+								ij.injectMembers(ni);
+							}
+							return ni;
+						}
+					}
+				}
+			}
+		}
+
+		return null;
+	}
+
+	private boolean acceptParameters(Method method, Object parameterObject) {
+		Class<?>[] formals = method.getParameterTypes();
+		if(formals.length != 2)
+			return false;
+		if(!formals[0].isAssignableFrom(ILogicContext.class))
+			return false;
+		if(!formals[1].isAssignableFrom(parameterObject.getClass()))
+			return false;
+		return true;
+	}
+
+	@Override
+	public <L extends ILogic> L get(@Nonnull Class<L> clz, @Nonnull Object reference) throws Exception {
+		//-- Already exists in this context?
+		Map<Object, ILogic> cmap = m_instanceMap.get(clz);
+		if(null == cmap) {
+			cmap = new HashMap<>();
+			m_instanceMap.put(clz, cmap);
+		}
+
+		ILogic logic = cmap.get(reference);
+		if(null != logic)
+			return (L) logic;
+
+		//-- Nothing there. We need to create an instance.
+		L ni = createUsingConstructor(clz, reference);
+		if(ni == null) {
+			ni = createUsingStaticFactory(clz, reference);
+		}
+
+		if(null != ni) {
+			cmap.put(reference, ni);
+			return ni;
+		}
+
+		throw new ProgrammerErrorException("Could not create an instance of " + clz + ": constructor/static factory (ILogicContext, " + reference.getClass().getName() + ") not found");
+	}
 
 	/**
 	 * Register an instance of a logic implementation for a given instance, when a new instance has been created. A check
@@ -177,7 +261,7 @@ final public class LogicContextImpl implements ILogicContext {
 	@Override public <T extends ILogic, K, V extends IIdentifyable<K>> void register(Class<?> registrationType, T logicClass, V dataClass) {
 		Map<Object, ILogic> cmap = m_instanceMap.get(registrationType);
 		if(null == cmap) {
-			cmap = new HashMap<Object, ILogic>();
+			cmap = new HashMap<>();
 			m_instanceMap.put(registrationType, cmap);
 		}
 

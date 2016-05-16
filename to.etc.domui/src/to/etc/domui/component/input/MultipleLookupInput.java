@@ -10,6 +10,7 @@ import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.themes.*;
+import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 
 import javax.annotation.*;
@@ -116,7 +117,9 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>> {
 
 	private String m_cssForSelectionContainer;
 
-	private SmallImgButton m_clearButton;
+	private String m_maxHeightForSelectionContainer;
+
+	private HoverButton m_clearButton;
 
 	private Stack<Integer> m_updateStack = new Stack<Integer>();
 
@@ -195,15 +198,16 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>> {
 			}
 		});
 		m_renderColumns = renderColumns;
-		m_clearButton = new SmallImgButton(Theme.BTN_CLEARLOOKUP, new IClicked<SmallImgButton>() {
+		m_clearButton = new HoverButton(Theme.BTN_HOVERMULTILOOKUKPCLEAR, new IClicked<HoverButton>() {
 			@Override
 			@SuppressWarnings("synthetic-access")
-			public void clicked(@Nonnull SmallImgButton b) throws Exception {
+			public void clicked(@Nonnull HoverButton b) throws Exception {
 				clearSelection(null);
 			}
 		});
 		m_clearButton.setTestID("clearButtonInputLookup");
 		m_clearButton.setDisplay(DisplayType.NONE);
+		m_clearButton.addCssClass("ui-lui-clear-mul-btn");
 
 	}
 
@@ -231,7 +235,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>> {
 		}
 
 		//m_lookupInput is frequently rebuilding, from this reason we need to 'insert' out button inside after every rebuild of m_lookupInput
-		List<SmallImgButton> btns = m_lookupInput.getDeepChildren(SmallImgButton.class);
+		List<HoverButton> btns = m_lookupInput.getDeepChildren(HoverButton.class);
 		if(btns.size() > 0) {
 			//we append custom clear button right after last button in inner lookup input
 			btns.get(btns.size() - 1).appendAfterMe(m_clearButton);
@@ -251,6 +255,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>> {
 			public void onValueChanged(@Nonnull LookupInput<T> component) throws Exception {
 				T item = component.getValueSafe();
 				if(item != null) {
+					DomUtil.setModifiedFlag(component);
 					addSelection(item);
 					component.setValue(null);
 					addClearButton();
@@ -264,6 +269,9 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>> {
 		});
 		renderSelection();
 		addClearButton();
+		if ((isDisabled() || isReadOnly()) && !getValueSafe().isEmpty()){
+			m_lookupInput.setDisplay(DisplayType.NONE);
+		}
 	}
 
 	public void addSelection(T item) throws Exception {
@@ -297,6 +305,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>> {
 		}
 		Integer val = m_updateStack.pop();
 		if(m_updateStack.isEmpty()) {
+			DomUtil.setModifiedFlag(this);
 			updateClearButtonState();
 			int currentSize = m_selectionList.size();
 			if(currentSize != val.intValue()) {
@@ -314,6 +323,10 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>> {
 			m_selectionContainer.setCssClass(getCssForSelectionContainer());
 		} else {
 			m_selectionContainer.setCssClass("ui-mli-cnt");
+		}
+		String maxHeightForSelectionContainer = getMaxHeightForSelectionContainer();
+		if(null != maxHeightForSelectionContainer) {
+			m_selectionContainer.setMaxHeight(maxHeightForSelectionContainer);
 		}
 		for (final T item : m_selectionList) {
 			final Span itemNode = createItemNode(item);
@@ -479,6 +492,14 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>> {
 		m_cssForSelectionContainer = cssForSelectionContainer;
 	}
 
+	public String getMaxHeightForSelectionContainer() {
+		return m_maxHeightForSelectionContainer;
+	}
+
+	public void setMaxHeightForSelectionContainer(String height) {
+		m_maxHeightForSelectionContainer = height;
+	}
+
 	/**
 	 * Remove item from selection list.
 	 * @param item
@@ -494,5 +515,18 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>> {
 
 	public void setSearchImmediately(boolean searchImmediately) {
 		m_lookupInput.setSearchImmediately(searchImmediately);
+	}
+
+	@Nullable
+	public List<T> getBindValue() {
+		List<T> val = getValue();
+		if((val == null || val.isEmpty()) && isMandatory()) {
+			throw new ValidationException(Msgs.MANDATORY);
+		}
+		return val;
+	}
+
+	public void setBindValue(@Nullable List<T> value) {
+		setValue(value);
 	}
 }

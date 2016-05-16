@@ -27,6 +27,7 @@ package to.etc.domui.component.layout;
 import javax.annotation.*;
 
 import to.etc.domui.component.event.*;
+import to.etc.domui.component.image.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
@@ -304,6 +305,19 @@ public class FloatingDiv extends Div {
 		remove();
 	}
 
+	/**
+	 * Can be called from panels that know they are inside a FloatingDiv/Window/Dialog to close
+	 * the surrounding dialog.
+	 * @param node
+	 */
+	public static void close(@Nonnull NodeBase node) {
+		while(! (node instanceof FloatingDiv)) {
+			if(node == null)
+				return;
+			node = node.getParent();
+		}
+		((FloatingDiv) node).close();
+	}
 
 	/**
 	 * Position floater into center of screen vertically.
@@ -345,6 +359,14 @@ public class FloatingDiv extends Div {
 		return super.getClientBounds();
 	}
 
+	/**
+	 * Exposed call to get browser window size. This gets set internally in case that floating div is dragged or resized in client (browser).
+	 * @see to.etc.domui.dom.html.NodeContainer#getClientBounds()
+	 */
+	@Override
+	public Dimension getBrowserWindowSize() {
+		return super.getBrowserWindowSize();
+	}
 	/**
 	 * Exposed listener setter for notification on size and/or position change. This gets changed in case that floating div is dragged or resized in client (browser).
 	 * Call {@link FloatingDiv#getClientBounds()} in order to read size and position after change.

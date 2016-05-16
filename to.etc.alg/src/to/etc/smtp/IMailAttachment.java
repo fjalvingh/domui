@@ -26,10 +26,14 @@ package to.etc.smtp;
 
 import java.io.*;
 
+import javax.annotation.*;
+
+@DefaultNonNull
 public interface IMailAttachment {
+
 	InputStream getInputStream() throws Exception;
 
-	String getMime();
+	String getMime() throws Exception;
 
 	String getIdent();
 }

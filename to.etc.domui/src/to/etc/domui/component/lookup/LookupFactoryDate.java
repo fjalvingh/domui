@@ -29,6 +29,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.input.*;
+import to.etc.domui.component.lookup.filter.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
@@ -36,8 +37,9 @@ import to.etc.util.*;
 import to.etc.webapp.query.*;
 
 final class LookupFactoryDate implements ILookupControlFactory {
+
 	@Override
-	public <T, X extends IControl<T>> ILookupControlInstance createControl(@Nonnull final SearchPropertyMetaModel spm, final X control) {
+	public <T, X extends IControl<T>> ILookupControlInstance<?> createControl(@Nonnull final SearchPropertyMetaModel spm, final X control) {
 		if(spm == null)
 			throw new IllegalStateException("? SearchPropertyModel should not be null here.");
 
@@ -56,7 +58,7 @@ final class LookupFactoryDate implements ILookupControlFactory {
 
 		final DateInput dateFrom = new DateInput();
 		dateFrom.setWithTime(withTime);
-		Span sp = new Span(Msgs.BUNDLE.getString(Msgs.UI_LOOKUP_DATE_TILL) + " ");
+		Span sp = new Span(" " + Msgs.BUNDLE.getString(Msgs.UI_LOOKUP_DATE_TILL) + " ");
 		sp.setFontWeight("BOLD");
 		final DateInput dateTo = new DateInput();
 		dateTo.setWithTime(withTime);
@@ -66,7 +68,7 @@ final class LookupFactoryDate implements ILookupControlFactory {
 			dateFrom.setTitle(hint);
 			dateTo.setTitle(hint);
 		}
-		return new AbstractLookupControlImpl(dateFrom, sp, dateTo) {
+		return new BaseAbstractLookupControlImpl<DateFromTo>(dateFrom, sp, dateTo) {
 			@Override
 			public @Nonnull AppendCriteriaResult appendCriteria(@Nonnull QCriteria< ? > crit) throws Exception {
 				if(spm == null)
@@ -120,6 +122,25 @@ final class LookupFactoryDate implements ILookupControlFactory {
 			public void clearInput() {
 				dateFrom.setValue(null);
 				dateTo.setValue(null);
+			}
+
+			@Override
+			public DateFromTo getValue() {
+				if(dateFrom.getValue() == null && dateTo.getValue() == null) {
+					return null;
+				}
+				return new DateFromTo(dateFrom.getValue(), dateTo.getValue());
+			}
+
+			@Override
+			public void setValue(DateFromTo value) throws Exception {
+				if(value == null) {
+					dateFrom.setValue(null);
+					dateTo.setValue(null);
+					return;
+				}
+				dateFrom.setValue(value.getDateFrom());
+				dateTo.setValue(value.getDateTo());
 			}
 		};
 	}

@@ -73,6 +73,8 @@ public class SimpleThemeFactory implements IThemeFactory {
 	/** A Javascript execution environment. */
 	private RhinoExecutor m_executor;
 
+	private String m_variantName;
+
 	/**
 	 * Factory constructor.
 	 */
@@ -117,11 +119,12 @@ public class SimpleThemeFactory implements IThemeFactory {
 	private SimpleTheme createTheme() throws Exception {
 		//-- Split theme name into theme/icons/color
 		String[] ar = m_themeName.split("\\/");
-		if(ar.length != 3)
+		if(ar.length != 4)
 			throw new StyleException("The theme name '" + m_themeName + "' is invalid for the factory SimpleThemeFactory: expecting theme/icon/color");
 		m_styleName = ar[0];
 		m_iconName = ar[1];
 		m_colorName = ar[2];
+		m_variantName = ar[3];
 
 		ResourceDependencyList rdl = new ResourceDependencyList();
 
@@ -132,12 +135,12 @@ public class SimpleThemeFactory implements IThemeFactory {
 
 		loadProperties("$themes/" + m_colorName + ".color.js", rdl);
 		loadProperties("$themes/" + m_iconName + ".icons.js", rdl);
-		loadProperties("$themes/" + m_styleName + "/style.props.js", rdl);
+		loadProperties("$themes/css-" + m_styleName + "/style.props.js", rdl);
 
 		List<String> searchpath = new ArrayList<String>(3);
 		searchpath.add("$themes/" + m_iconName + "-icons");			// [iconname]-icons
 		searchpath.add("$themes/" + m_colorName + "-colors");		// [iconname]-icons
-		searchpath.add("$themes/" + m_styleName);					// [style]
+		searchpath.add("$themes/css-" + m_styleName);				// [style]
 		searchpath.add("$themes/all");								// 20130327 jal The "all" folder contains stuff shared for all themes
 
 		return new SimpleTheme(m_application, m_styleName, executor(), rdl.createDependencies(), searchpath);

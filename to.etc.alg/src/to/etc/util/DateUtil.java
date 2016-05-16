@@ -25,10 +25,14 @@
 package to.etc.util;
 
 import java.text.*;
+import java.time.*;
+import java.time.format.*;
 import java.util.*;
 import java.util.concurrent.*;
 
 import javax.annotation.*;
+
+import javafx.util.converter.*;
 
 /**
  * Static date/time utiility class.
@@ -37,7 +41,17 @@ import javax.annotation.*;
  * Created on Feb 28, 2007
  */
 final public class DateUtil {
+
+	/** Date for testing within threat */
+	@Nonnull
+	private final static ThreadLocal<Calendar> m_testDate = new ThreadLocal<>();
+
+	/** System date for testing */
+	@Nullable
+	private static Calendar m_systemTestDate;
+
 	/** A fixed date way into the future. */
+
 	@Nonnull
 	static public final Date	FUTURE	= dateFor(9999, 11, 31);
 
@@ -152,8 +166,6 @@ final public class DateUtil {
 		cal.set(Calendar.MILLISECOND, 0);
 		return new Date(cal.getTimeInMillis());
 	}
-
-
 
 	static private final long	SECS	= 1000;
 
@@ -299,10 +311,7 @@ final public class DateUtil {
 		}
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(dt);
-		cal.set(Calendar.HOUR_OF_DAY, 0);
-		cal.set(Calendar.MINUTE, 0);
-		cal.set(Calendar.SECOND, 0);
-		cal.set(Calendar.MILLISECOND, 0);
+		clearTime(cal);
 		return new Date(cal.getTimeInMillis());
 	}
 
@@ -336,10 +345,7 @@ final public class DateUtil {
 	static public void truncateDate(Date dest, Date dt) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(dt);
-		cal.set(Calendar.HOUR_OF_DAY, 0);
-		cal.set(Calendar.MINUTE, 0);
-		cal.set(Calendar.SECOND, 0);
-		cal.set(Calendar.MILLISECOND, 0);
+		clearTime(cal);
 		dest.setTime(cal.getTimeInMillis());
 	}
 
@@ -561,17 +567,8 @@ final public class DateUtil {
 		Calendar endCal = Calendar.getInstance();
 		endCal.setTime(end);
 
-
-		startCal.set(Calendar.HOUR_OF_DAY, 0);
-		startCal.set(Calendar.MINUTE, 0);
-		startCal.set(Calendar.SECOND, 0);
-		startCal.set(Calendar.MILLISECOND, 0);
-
-		endCal.set(Calendar.HOUR_OF_DAY, 0);
-		endCal.set(Calendar.MINUTE, 0);
-		endCal.set(Calendar.SECOND, 0);
-		endCal.set(Calendar.MILLISECOND, 0);
-
+		clearTime(startCal);
+		clearTime(endCal);
 
 		long endL = endCal.getTimeInMillis() + endCal.getTimeZone().getOffset(endCal.getTimeInMillis());
 		long startL = startCal.getTimeInMillis() + startCal.getTimeZone().getOffset(startCal.getTimeInMillis());
@@ -591,14 +588,15 @@ final public class DateUtil {
 	}
 
 	/**
-	 * Parses <b>input</b> String to {@link Date} class, acording to <b>dateFormat</b> argument.
+	 * Parses <b>input</b> String to {@link Date} class, according to <b>dateFormat</b> argument.
 	 * @param input - input string to be parsed
 	 * @param dateFormat - to what format should the date be parsed
+	 * @param lenient - specify whether or not date/time parsing is to be lenient
 	 * @return
 	 * @throws ParseException
 	 */
 	@Nonnull
-	static public java.util.Date convertToDate(@Nonnull final String input, @Nonnull final String dateFormat) throws ParseException {
+	static public java.util.Date convertToDate(@Nonnull final String input, @Nonnull final String dateFormat, boolean lenient) throws ParseException {
 		if(StringTool.isBlank(dateFormat)) {
 			throw new IllegalArgumentException("dateFormat must not be empty");
 		}
@@ -607,7 +605,21 @@ final public class DateUtil {
 		}
 
 		final SimpleDateFormat simpleDateFormat = new SimpleDateFormat(dateFormat);
+		simpleDateFormat.setLenient(lenient);
 		return simpleDateFormat.parse(input);
+	}
+
+	/**
+	 * Parses <b>input</b> String to {@link Date} class, according to <b>dateFormat</b> argument. Lenient is true.
+	 *
+	 * @param input
+	 * @param dateFormat
+	 * @return
+	 * @throws ParseException
+	 */
+	@Nonnull
+	static public java.util.Date convertToDate(@Nonnull final String input, @Nonnull final String dateFormat) throws ParseException {
+	    return convertToDate(input, dateFormat, true);
 	}
 
 	/**
@@ -667,6 +679,77 @@ final public class DateUtil {
 	}
 
 	/**
+	 * Converts java.sql.Date to java.util.Date. Returns null if sqlDate is null.
+	 * @param sqlDate
+	 * @return
+	 */
+	public static Date sqlToUtilDate(@Nullable java.sql.Date sqlDate){
+		if (null == sqlDate){
+			return null;
+		}
+		return new Date(sqlDate.getTime());
+	}
+
+	/**
+	 * Returns format for specified date and formatter.
+	 * In case of null date returns empty string.
+	 *
+	 * @param date
+	 * @param format
+	 * @return
+	 */
+	@Nonnull
+	public static String formatSafe(@Nullable Date date, @Nonnull DateFormat format){
+		if (null == date){
+			return "";
+		}else{
+			return format.format(date);
+		}
+	}
+
+	@Nonnull
+	public synchronized static Date now() {
+
+		Calendar now = m_testDate.get();
+		if (null == now ) {
+			if (null == m_systemTestDate) {
+				return new Date();
+			}
+			now = m_systemTestDate;
+		}
+
+		Calendar cal = Calendar.getInstance();
+		setDate(cal, now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH));
+		return cal.getTime();
+	}
+
+	public static void setTestDate(@Nullable Date now) {
+		if (null == now) {
+			m_testDate.set(null);
+			return;
+		}
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(now);
+		clearTime(cal);
+		m_testDate.set(cal);
+	}
+
+	public static boolean isTestDateSet() {
+		return (null != m_testDate.get() || null != m_systemTestDate);
+	}
+
+	public synchronized static void setSystemTestDate(@Nullable Date now) {
+		if(null == now) {
+			m_systemTestDate = null;
+			return;
+		}
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(now);
+		clearTime(cal);
+		m_systemTestDate = cal;
+	}
+
+	/**
 	 * GregorianCalendarFixDutchTime fixes missing date-time in the GregorianCalendar for dutch locale
 	 * when validating those missing date-times the next valid time will be returned instead of generating an error
 	 *
@@ -676,7 +759,6 @@ final public class DateUtil {
 	public static Calendar getCalendar() {
 		return new GregorianCalendarFixDutchTime(TimeZone.getDefault(), Locale.getDefault(Locale.Category.FORMAT));
 	}
-
 
 	/**
 	 * GregorianCalendarFixDutchTime fixes missing date-time in the GregorianCalendar for dutch locale
@@ -690,5 +772,15 @@ final public class DateUtil {
 		return new GregorianCalendarFixDutchTime(aLocale);
 	}
 
+	/**
+	 * Return T if the date is a indeterminate future date. This is usually something like 2999-31-12 or even further.
+	 * @param date
+	 * @return
+	 */
+	static public boolean isFutureIndeterminate(@Nullable Date date) {
+		if(null == date)
+			return false;
+		return date.getYear() >= 2999 - 1900;				// The incredible idiot that created getYear subtracts 1900 from it.
+	}
 }
 

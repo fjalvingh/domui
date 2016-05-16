@@ -33,6 +33,7 @@ import to.etc.domui.component.layout.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.header.*;
+import to.etc.domui.logic.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
 import to.etc.domui.util.*;
@@ -777,8 +778,6 @@ final public class Page implements IQContextContainer {
 
 
 	/**
-	 * DEPRECATED: Should use {@link DomUtil#createOpenWindowJS(String, WindowParameters)}.
-	 *
 	 * Force the browser to open a new window with a user-specified URL. The new window does NOT
 	 * inherit any DomUI session data, of course, and has no WindowSession. After creation the
 	 * window cannot be manipulated by DomUI code.
@@ -787,7 +786,6 @@ final public class Page implements IQContextContainer {
 	 * 					context appended to it.
 	 * @param wp
 	 */
-	@Deprecated
 	public void openWindow(@Nonnull String windowURL, @Nullable WindowParameters wp) {
 		if(windowURL == null || windowURL.length() == 0)
 			throw new IllegalArgumentException("Empty window URL");
@@ -1073,4 +1071,61 @@ final public class Page implements IQContextContainer {
 			x.execute();
 		}
 	}
+
+
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	Notifications												*/
+	/*----------------------------------------------------------------------*/
+
+	@DefaultNonNull
+	private static class NotificationListener<T> {
+		final private Class<T> m_eventClass;
+
+		final private NodeBase m_whom;
+
+		final private INotificationListener<T> m_listener;
+
+		public NotificationListener(Class<T> eventClass, NodeBase whom, INotificationListener<T> listener) {
+			m_eventClass = eventClass;
+			m_whom = whom;
+			m_listener = listener;
+		}
+
+		public Class<T> getEventClass() {
+			return m_eventClass;
+		}
+
+		public NodeBase getWhom() {
+			return m_whom;
+		}
+
+		public INotificationListener<T> getListener() {
+			return m_listener;
+		}
+	}
+
+	private List<NotificationListener<?>> m_notificationListenerList = new ArrayList<>();
+
+	<T> void addNotificationListener(Class<T> eventType, NodeBase whom, INotificationListener<T> listener) {
+		for(NotificationListener<?> nl : m_notificationListenerList) {
+			if(nl.getWhom() == whom && nl.getEventClass() == eventType) {
+				return;
+			}
+		}
+		m_notificationListenerList.add(new NotificationListener<>(eventType, whom, listener));
+	}
+
+	<T> void notifyPage(@Nonnull T eventClass) throws Exception {
+		buildSubTree(getBody());
+
+		Class<?> clz = eventClass.getClass();
+		for(NotificationListener<?> nl : m_notificationListenerList) {
+			if(nl.getEventClass().isAssignableFrom(clz)) {
+				INotificationListener<T> listener = (INotificationListener<T>) nl.getListener();
+				listener.notify(eventClass);
+			}
+		}
+	}
+
+
 }

@@ -26,6 +26,7 @@ package to.etc.domui.util.upload;
 
 import java.util.*;
 
+import javax.annotation.*;
 import javax.servlet.http.*;
 
 import to.etc.util.*;
@@ -37,6 +38,10 @@ public class UploadHttpRequestWrapper extends HttpServletRequestWrapper {
 	private Map<String, String[]> m_formItemMap = new HashMap<String, String[]>();
 
 	private Map<String, UploadItem[]> m_fileItemMap = new HashMap<String, UploadItem[]>();
+
+	/** When set the uploaded mime parse threw an error, usually a {@link FileUploadSizeExceededException} */
+	@Nullable
+	private FileUploadException m_uploadException;
 
 	public UploadHttpRequestWrapper(HttpServletRequest req) {
 		super(req);
@@ -55,46 +60,51 @@ public class UploadHttpRequestWrapper extends HttpServletRequestWrapper {
 		UploadParser dfu = new UploadParser();
 		dfu.setSizeMax(100 * 1024 * 1024); // Max upload size
 
-		List<UploadItem> l;
+		List<UploadItem> l = null;
 		try {
+			m_uploadException = null;
 			l = dfu.parseRequest(req, req.getCharacterEncoding());
+		} catch(FileUploadException sxe) {
+			m_uploadException = sxe;
 		} catch(Exception x) {
 			x.printStackTrace();
 			throw new WrappedException(x);
 		}
 
-		Map<String, List<String>> parammap = new HashMap<String, List<String>>();
-		Map<String, List<UploadItem>> filemap = new HashMap<String, List<UploadItem>>();
-		for(int i = 0; i < l.size(); i++) {
-			UploadItem fi = l.get(i);
-			String name = fi.getName().toLowerCase();
-			if(!fi.isFile()) {
-				List<String> v = parammap.get(name);
-				if(v == null) {
-					v = new ArrayList<String>(5);
-					parammap.put(name, v);
+		if(l != null) {
+			Map<String, List<String>> parammap = new HashMap<>();
+			Map<String, List<UploadItem>> filemap = new HashMap<>();
+			for(int i = 0; i < l.size(); i++) {
+				UploadItem fi = l.get(i);
+				String name = fi.getName().toLowerCase();
+				if(!fi.isFile()) {
+					List<String> v = parammap.get(name);
+					if(v == null) {
+						v = new ArrayList<>(5);
+						parammap.put(name, v);
+					}
+					v.add(fi.getValue());
+					System.out.println("~~ form item name=" + name);
+				} else {
+					//-- This is some kind of FILE thingy..
+					//				System.out.println("~~ file item name=" + name);
+					List<UploadItem> v = filemap.get(name);
+					if(v == null) {
+						v = new ArrayList<>(5);
+						filemap.put(name, v);
+					}
+					v.add(fi);
 				}
-				v.add(fi.getValue());
-				System.out.println("~~ form item name=" + name);
-			} else {
-				//-- This is some kind of FILE thingy..
-				//				System.out.println("~~ file item name=" + name);
-				List<UploadItem> v = filemap.get(name);
-				if(v == null) {
-					v = new ArrayList<UploadItem>(5);
-					filemap.put(name, v);
-				}
-				v.add(fi);
 			}
-		}
 
-		//-- Convert all ArrayLists to array
-		for(Map.Entry<String, List<String>> me : parammap.entrySet()) {
-			m_formItemMap.put(me.getKey(), me.getValue().toArray(new String[me.getValue().size()]));
+			//-- Convert all ArrayLists to array
+			for(Map.Entry<String, List<String>> me : parammap.entrySet()) {
+				m_formItemMap.put(me.getKey(), me.getValue().toArray(new String[me.getValue().size()]));
 
-		}
-		for(Map.Entry<String, List<UploadItem>> me: filemap.entrySet()) {
-			m_fileItemMap.put(me.getKey(), me.getValue().toArray(new UploadItem[me.getValue().size()]));
+			}
+			for(Map.Entry<String, List<UploadItem>> me : filemap.entrySet()) {
+				m_fileItemMap.put(me.getKey(), me.getValue().toArray(new UploadItem[me.getValue().size()]));
+			}
 		}
 		req.setAttribute(UPLOADKEY, this);
 	}
@@ -125,11 +135,20 @@ public class UploadHttpRequestWrapper extends HttpServletRequestWrapper {
 		return m_formItemMap;
 	}
 
-	public Map<String, UploadItem[]> getFileItemMap() {
+	public Map<String, UploadItem[]> getFileItemMap() throws Exception {
+		checkUploadException();
 		return m_fileItemMap;
 	}
 
-	public UploadItem getFileItem(String name) {
+	private void checkUploadException() throws Exception {
+		FileUploadException uploadException = m_uploadException;
+		if(uploadException != null) {
+			throw uploadException;
+		}
+	}
+
+	public UploadItem getFileItem(String name) throws Exception {
+		checkUploadException();
 		UploadItem[] ar = m_fileItemMap.remove(name.toLowerCase());
 		if(ar == null)
 			return null;
@@ -141,11 +160,13 @@ public class UploadHttpRequestWrapper extends HttpServletRequestWrapper {
 		return ar[0];
 	}
 
-	public UploadItem[] getFileItems(String name) {
+	public UploadItem[] getFileItems(String name) throws Exception {
+		checkUploadException();
 		return m_fileItemMap.remove(name.toLowerCase());
 	}
 
 	public void releaseFiles() {
+		m_uploadException = null;
 		for(UploadItem[] uiar : m_fileItemMap.values()) {
 			for(UploadItem ui : uiar) {
 				try {

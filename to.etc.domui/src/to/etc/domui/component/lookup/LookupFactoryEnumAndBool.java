@@ -48,7 +48,7 @@ final class LookupFactoryEnumAndBool implements ILookupControlFactory {
 	}
 
 	@Override
-	public <T, X extends IControl<T>> ILookupControlInstance createControl(final @Nonnull SearchPropertyMetaModel spm, final X control) {
+	public <T, X extends IControl<T>> ILookupControlInstance<?> createControl(final @Nonnull SearchPropertyMetaModel spm, final X control) {
 		IControl< ? > ctlnode = control;
 		if(ctlnode == null) {
 			PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
@@ -82,6 +82,6 @@ final class LookupFactoryEnumAndBool implements ILookupControlFactory {
 			ctlnode = c;
 		}
 
-		return new EqLookupControlImpl(spm.getPropertyName(), ctlnode);
+		return new EqLookupControlImpl<>(spm.getPropertyName(), ctlnode);
 	}
 }

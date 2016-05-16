@@ -24,15 +24,16 @@
  */
 package to.etc.domui.component.tbl;
 
+import java.util.*;
+
+import javax.annotation.*;
+
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
-
-import javax.annotation.*;
-import java.util.*;
 
 /**
  * A pager component for a DataTable-based table. This gets attached
@@ -60,7 +61,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 
 	private Img m_truncated;
 
-	PageableTabularComponentBase< ? > m_table;
+	private PageableTabularComponentBase< ? > m_table;
 
 	private TextNode m_txt;
 
@@ -91,6 +92,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		d.setFloat(FloatType.RIGHT);
 		Div txtPnl = new Div();
 		txtPnl.setTestID("pager results label");
+		txtPnl.setCssClass("ui-dp-nav-pgr");
 		m_txt = new TextNode();
 		d.add(new VerticalSpacer(10));
 		txtPnl.add(m_txt);
@@ -173,37 +175,6 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		return stm.getSelectionModel();
 	}
 
-	//	private void renderSelectionExtras() {
-	//		final ISelectableTableComponent sti = getSelectableTable();
-	//		if(null == sti || m_buttonDiv == null || !sti.isMultiSelectionVisible())
-	//			return;
-	//
-	//		if(null != sti.getSelectionAllHandler()) {
-	//			SmallImgButton sb = new SmallImgButton("THEME/dpr-select-all.png");
-	//			m_buttonDiv.add(sb);
-	//			sb.setTitle(Msgs.BUNDLE.getString("ui.dpr.all"));
-	//			sb.setClicked(new IClicked<SmallImgButton>() {
-	//				@Override
-	//				public void clicked(SmallImgButton clickednode) throws Exception {
-	//					sti.getSelectionAllHandler().selectAll(sti.getModel(), sti.getSelectionModel());
-	//				}
-	//			});
-	//
-	//		}
-	//
-	//		SmallImgButton sb = new SmallImgButton("THEME/dpr-select-none.png");
-	//		m_buttonDiv.add(sb);
-	//		sb.setTitle(Msgs.BUNDLE.getString("ui.dpr.none"));
-	//		sb.setClicked(new IClicked<SmallImgButton>() {
-	//			@Override
-	//			public void clicked(SmallImgButton clickednode) throws Exception {
-	//				ISelectionModel<?> sm = getSelectionModel();
-	//				if(null != sm)
-	//					sm.clearSelection();
-	//			}
-	//		});
-	//	}
-
 	/**
 	 * Return T if the "show selection UI" button should be visible.
 	 * @return
@@ -225,42 +196,9 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		return true;
 	}
 
-	/**
-	 * Returns T if the "select all/select none" buttons should be visible.
-	 * @return
-	 */
-	private boolean isNeedExtraButtons() {
-		ISelectionModel< ? > sm = getSelectionModel();
-		if(sm == null || !m_showSelection)
-			return false;
-		if(!sm.isMultiSelect())
-			return false;
-
-		ISelectableTableComponent< ? > tc = getSelectableTable();
-		if(null == tc)
-			throw new IllegalStateException("Null selectable table?");
-		return tc.isMultiSelectionVisible();
-	}
-
 	@Override
 	public void selectionUIChanged(@Nonnull TableModelTableBase< ? > tbl) throws Exception {
 		redraw();
-		//		if(tbl instanceof DataTable) {
-		//			DataTable< ? > dt = (DataTable< ? >) tbl;
-		//			if(dt.isMultiSelectionVisible()) {
-		//				if(null != m_showSelectionBtn) {
-		//					m_showSelectionBtn.remove();
-		//					m_showSelectionBtn = null;
-		//				}
-		//			}
-		//			renderSelectionExtras();
-		//		}
-	}
-
-	private static String enc(String in) {
-		return in;
-
-		//		return in.replace("&", "&amp;");
 	}
 
 	/*--------------------------------------------------------------*/
@@ -273,11 +211,13 @@ public class DataPager extends Div implements IDataTableChangeListener {
 
 		int cp = m_table.getCurrentPage();
 		int np = m_table.getPageCount();
+		int rowsAsked = -1;
 		if(np == 0) {
 			m_txt.setText("");
 			setDisplay(DisplayType.NONE);
 		} else {
-			m_txt.setText(Msgs.BUNDLE.formatMessage(Msgs.UI_PAGER_TEXT, Integer.valueOf(cp + 1), Integer.valueOf(np), Integer.valueOf(m_table.getModel().getRows())));
+			int rows = rowsAsked = m_table.getModel().getRows();
+			m_txt.setText(Msgs.BUNDLE.formatMessage(Msgs.UI_PAGER_TEXT, Integer.valueOf(cp + 1), Integer.valueOf(np), Integer.valueOf(rows)));
 			setDisplay(DisplayType.BLOCK);
 		}
 
@@ -296,12 +236,13 @@ public class DataPager extends Div implements IDataTableChangeListener {
 			m_lastBtn.setCssClass("ui-dp-nav-l");
 			m_nextBtn.setCssClass("ui-dp-nav-n");
 		}
-		int tc = m_table.getTruncatedCount();
+		int tc = m_table.getTruncatedCount();						// FIXME jal 20160125 Should be an isTruncated property, as the count is just model.size.
 		if(tc > 0) {
 			if(m_truncated == null) {
 				m_truncated = new Img();
 				m_truncated.setSrc("THEME/nav-overflow.png");
 				m_truncated.setTitle(Msgs.BUNDLE.formatMessage(Msgs.UI_PAGER_OVER, Integer.valueOf(tc)));
+				m_truncated.setCssClass("ui-dp-nav-pgr-ovf");
 				m_textDiv.add(m_truncated);
 			}
 		} else {
@@ -310,6 +251,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 				m_truncated = null;
 			}
 		}
+		//System.err.println("DataPager: redraw() called, currentPage=" + cp + ", pageCount=" + np + ", rowsAsked=" + rowsAsked);
 		if(isShowSelection() && getSelectableTable() != null) {
 			redrawSelectionButtons();
 		}
@@ -341,16 +283,6 @@ public class DataPager extends Div implements IDataTableChangeListener {
 				m_showSelectionBtn = null;
 			}
 		}
-
-		//-- Show/hide the extras button
-		boolean needselectall = false;
-		boolean needselectnone = false;
-
-		if(isNeedExtraButtons()) {
-			needselectall = dt.getSelectionAllHandler() != null;
-			needselectnone = true;
-		}
-
 	}
 
 	public Div getButtonDiv() {
@@ -376,7 +308,9 @@ public class DataPager extends Div implements IDataTableChangeListener {
 	/*--------------------------------------------------------------*/
 	@Override
 	public void modelChanged(final @Nonnull TableModelTableBase< ? > tbl, final @Nullable ITableModel< ? > old, final @Nullable ITableModel< ? > nw) throws Exception {
-		redraw();
+		forceRebuild();										// jal See bugzilla 7383: table queries done twice
+		m_buttonDiv = null;									// Odd thing indicating that control is unbuilt, apparently
+		//redraw();
 	}
 
 	@Override

@@ -1,0 +1,11 @@
+/*** 090_buttonbar.frag.css ***/
+/*** ButtonBar component ***/
+.ui-buttonbar {
+	margin-bottom: 8px;
+}
+.ui-buttonbar button {
+	margin-bottom: 2px !important;
+}
+.ui-bb-middle {
+	padding: 0; margin: 0;
+}

@@ -36,7 +36,34 @@ import to.etc.domui.util.resources.*;
 import to.etc.util.*;
 
 /**
- * Experimental - This class collects all ".frag.css" files in the specified
+ * <p>This theme factory uses fragments to create a "theme". A DomUI theme consists of the following:
+ * <ul>
+ *	<li>A style sheet containing all css for all components.</li>
+ *	<li>A set of icons that are used by that stylesheet</li>
+ 	<li>A color definition consisting of icons and .js files that contain stylesheet resources of a given color.</li>
+ *	<li>A variant that allows addressing a separate stylesheet for the theme.</li>
+ * </ul>
+ *
+ * All of these together form a "theme instance" (an ITheme).</p>
+ *
+ * <p>A theme is identified by 4 strings, one for each components: a style name, a iconset name, a color name and a variant name.
+ * The full theme is then described as a string: style/iconset/color/variant. An example theme instance is: "domui/domui/orange/default".
+ * This four-part string is the <i>theme name</i>. This factory is used to instantiate a theme instance for a specific "theme name".</p>.
+ *
+ * <p>The first three parts of the theme name come from an application-level global setting: the string set as {@link DomApplication#setCurrentTheme(String)}.
+ * This defines the "global" theme for the application. The last part, the variant, is provided by the page itself: it allows a page to specify a different
+ * version for the master stylesheet. The use case for this is migration to different style sheets if an older one has problems; by creating pages that
+ * refer to a new sheet we can change the stylesheet without regression risk for existing pages.</p>
+ *
+ * <p>The different parts of the theme are constructed as follows:</p>
+ * <ul>
+ *	<li>A 'style name' (s) which identifies a directory with the name 'themes/css-{s}' containing *.frag.css files and some .js files.
+ *		The files in here form the master stylesheet by concatenating themselves in alphabetic order.</li>
+ *	<li>The variant name is added to the style name except if the variant is "default". So for a variant 'clean' the complete style name
+ *		would be domui-clean, and the directory for it's css files would be css-domui-clean.</li>
+ * </ul>
+ *
+ * This class collects all ".frag.css" files in the specified
  * "directory", while allowing them to be "overridden" in other parts of the
  * structure. The resulting set of .frag.css files is then run through the
  * template compiler (one by one) to create the final result. This result
@@ -49,25 +76,37 @@ import to.etc.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 5, 2011
  */
-public class FragmentedThemeFactory implements IThemeFactory {
-	static private final FragmentedThemeFactory INSTANCE = new FragmentedThemeFactory();
+@DefaultNonNull
+public class FragmentedThemeFactory {
+	static private final IThemeFactory INSTANCE = new IThemeFactory() {
+		@Nonnull
+		@Override
+		public ITheme getTheme(@Nonnull DomApplication da, @Nonnull String themeName) throws Exception {
+			FragmentedThemeFactory stf = new FragmentedThemeFactory(da, themeName);
+			return stf.createTheme();
+		}
+	};
 
-	private DomApplication m_application;
+	final private DomApplication m_application;
 
-	private String m_themeName;
+	final private String m_themeName;
 
 	private String m_stylesheet;
 
-	private List<String> m_searchList = new ArrayList<String>();
+	final private List<String> m_searchList = new ArrayList<>();
 
-	/**
-	 * Constructor to create the factory itself.
-	 */
-	protected FragmentedThemeFactory() {
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Factory code.										*/
+	/*--------------------------------------------------------------*/
+	static public IThemeFactory getInstance() {
+		return INSTANCE;
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Instance creation.									*/
+	/*--------------------------------------------------------------*/
 	/**
-	 * Constructor for an instance.
+	 * Constructor for a factory instance that will generate the ITheme.
 	 * @param da
 	 * @param themeName
 	 */
@@ -76,38 +115,6 @@ public class FragmentedThemeFactory implements IThemeFactory {
 		m_themeName = themeName;
 	}
 
-	static public FragmentedThemeFactory getInstance() {
-		return INSTANCE;
-	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Factory code.										*/
-	/*--------------------------------------------------------------*/
-	/**
-	 * Create the theme store for the specified theme input string.
-	 * @see to.etc.domui.themes.IThemeFactory#getTheme(to.etc.domui.server.DomApplication, java.lang.String)
-	 */
-	@Override
-	public @Nonnull ITheme getTheme(@Nonnull DomApplication da, @Nonnull String themeName) throws Exception {
-		FragmentedThemeFactory stf = new FragmentedThemeFactory(da, themeName);
-		try {
-			return stf.createTheme();
-		} finally {
-			try {
-				stf.close();
-			} catch(Exception x) {}
-		}
-	}
-
-	/**
-	 *
-	 */
-	protected void close() {
-	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Instance creation.									*/
-	/*--------------------------------------------------------------*/
 	@Nullable
 	private RhinoExecutor m_executor;
 
@@ -136,24 +143,24 @@ public class FragmentedThemeFactory implements IThemeFactory {
 		loadStyleInfo();
 		ResourceDependencies rd = m_rdl.createDependencies();
 
-		m_searchList.add("$themes/all");						// 20130327 jal the "all" theme dir contains stuff shared over all themes.
+		m_searchList.add("$themes/css-all");					// 20130327 jal the "all" theme dir contains stuff shared over all themes.
 		return new FragmentedThemeStore(m_application, m_stylesheet.getBytes("utf-8"), executor(), m_searchList, rd);
 	}
 
 	protected void loadStyleInfo() throws Exception {
-		//-- Split theme name into theme/icons/color
-		String[] ar = m_themeName.split("\\/");
-		if(ar.length != 3)
-			throw new StyleException("The theme name '" + m_themeName + "' is invalid for "+getClass()+": expecting theme/icon/color");
+		//-- Split theme name into css/icons/color
+		String[] ar = m_themeName.split("/");
+		if(ar.length != 4)
+			throw new StyleException("The theme name '" + m_themeName + "' is invalid for "+getClass()+": expecting styleName/icon/color/variant");
 		String styleName = ar[0];
 		String iconName = ar[1];
 		String colorName = ar[2];
+		String variant = ar[3];
 
 		loadColors(colorName);
-		loadIcons(iconName);
-		loadStyle(styleName);
+		loadIcons(iconName, variant);
+		loadStyle(styleName, variant);
 	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Stylesheet (css) theme set loading.					*/
@@ -163,33 +170,35 @@ public class FragmentedThemeFactory implements IThemeFactory {
 	 * folder <b>must</b> contain a "style.props.js" property file and contains multiple xxxx.frag.css
 	 * files.
 	 * @param styleName
+	 * @param variant
 	 * @throws Exception
 	 */
-	protected void loadStyle(String styleName) throws Exception {
+	protected void loadStyle(String styleName, String variant) throws Exception {
+		if(! variant.equals(DefaultThemeVariant.INSTANCE.getVariantName()))
+			styleName += "-" + variant;
+
 		loadClear();
 		setInheritence("internalInheritStyle");
-		internalInheritStyle(styleName); // Use that same name to load this set.
+		internalInheritStyle(styleName); 						// Use that same name to load this set.
 
 		//-- Now load all stylesheet fragments (.frag.css)
 		StringBuilder sb = new StringBuilder(65536);
 		executor().put("browser", BrowserVersion.parseUserAgent("Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0; .NET CLR 2.0.50727)"));
-//		executor().put("util", new ThemeCssUtils(executor().));
 		getFragments(sb, m_inheritanceStack, ".frag.css", Check.CHECK, m_rdl);
 		m_stylesheet = sb.toString();
 	}
 
 	public void internalInheritStyle(String styleName) throws Exception {
-		String dirname = normalizeName("themes/" + styleName);
+		String dirname = normalizeName("themes/css-" + styleName);
 
 		//-- If already loaded- abort;
 		if(m_inheritanceStack.contains(dirname))
 			throw new StyleException(m_themeName + ": style set '" + styleName + "' is used before (cyclic loop in styles, or double inheritance)");
 		m_inheritanceStack.add(0, dirname);
-		m_searchList.add(0, dirname); // Style sets are part of the search path
+		m_searchList.add(0, dirname); 							// Style sets are part of the search path
 
 		//-- The style.props.js file is mandatory at least;
 		loadScript("$" + dirname + "/style.props.js");
-
 	}
 
 	/*--------------------------------------------------------------*/
@@ -204,35 +213,26 @@ public class FragmentedThemeFactory implements IThemeFactory {
 	 *
 	 * <p>Icon sets consist of a set of property file fragments too.</p>
 	 *
+	 *
+	 * @param variant
 	 * @param iconName
 	 * @throws Exception
 	 */
-	protected void loadIcons(String iconName) throws Exception {
+	protected void loadIcons(String iconName, String variant) throws Exception {
 		loadClear();
 		setInheritence("internalInheritIcon");
-		internalInheritIcon(iconName); // Use that same name to load this set.
+
+		if(! DefaultThemeVariant.INSTANCE.getVariantName().equals(variant)) {
+			String dirname = normalizeName("themes/" + iconName + "-icons-" + variant);
+			if(m_inheritanceStack.contains(dirname))
+				throw new StyleException(m_themeName + ": icon variant set '" + dirname + "' is used before (cyclic loop in styles, or double inheritance)");
+			m_inheritanceStack.add(0, dirname);
+			m_searchList.add(0, dirname);
+		}
+		internalInheritIcon(iconName);						// Use that same name to load this set.
 
 		//-- An icon set can have fragmented properties too - so load those.
 		loadFragments("iconset:" + iconName, ".props.js", "icon.props.js");
-	}
-
-	/**
-	 * Menu theme. Theme consists of theme images and icon.props.js file and they are mandatory for each theme.
-	 * @param themeName
-	 * @throws Exception
-	 */
-	protected void loadMenuThemeIcons(String themeName) throws Exception {
-		loadClear();
-		setInheritence("internalInheritIcon");
-		String dirname = normalizeName("themes/menu-icons/themes/" + themeName + "-icons");
-		if(m_inheritanceStack.contains(dirname))
-			throw new StyleException("Menu theme: " + themeName + "' is used before (cyclic loop in styles, or double inheritance)");
-		m_inheritanceStack.add(0, dirname);
-		m_searchList.add(0, dirname);
-
-		loadScript("$" + dirname + "/icon.props.js");
-
-		loadFragments("iconset:" + themeName, ".props.js", "icon.props.js");
 	}
 
 	/**
@@ -247,7 +247,7 @@ public class FragmentedThemeFactory implements IThemeFactory {
 		if(m_inheritanceStack.contains(dirname))
 			throw new StyleException(m_themeName + ": icon set '" + iconName + "' is used before (cyclic loop in styles, or double inheritance)");
 		m_inheritanceStack.add(0, dirname);
-		m_searchList.add(0, dirname); // Icon sets are part of the search path
+		m_searchList.add(0, dirname); 							// Icon sets are part of the search path
 
 		//-- The icon.props.js file is mandatory at least;
 		loadScript("$" + dirname + "/icon.props.js");
@@ -266,7 +266,7 @@ public class FragmentedThemeFactory implements IThemeFactory {
 	protected void loadColors(String colorName) throws Exception {
 		loadClear();
 		setInheritence("internalInheritColor");
-		internalInheritColor(colorName); // Use that same name to load this set.
+		internalInheritColor(colorName); 						// Use that same name to load this set.
 	}
 
 	/**
@@ -316,31 +316,6 @@ public class FragmentedThemeFactory implements IThemeFactory {
 	private void setInheritence(String methodname) throws Exception {
 		executor().put("collector", this);
 		executor().eval(Object.class, "function inherit(s) { collector." + methodname + "(s); }", "internal");
-	}
-
-	/**
-	 * Load a property set from the given directory name.
-	 *
-	 * Load a specific theme's style properties. Core part of inherit('') command.
-	 * @param dirname
-	 * @throws Exception
-	 */
-	private void loadProperties(String dirname, String filename) throws Exception {
-		if(dirname.startsWith("/"))
-			dirname = dirname.substring(1);
-		if(dirname.endsWith("/"))
-			dirname = dirname.substring(0, dirname.length() - 1);
-		if(dirname.startsWith("$"))
-			dirname = dirname.substring(1);
-
-		//-- If already loaded- abort;
-		if(m_inheritanceStack.contains(dirname))
-			throw new StyleException(m_themeName + ": inherited set '" + dirname + "' is used before (cyclic loop in styles, or double inheritance)");
-		m_inheritanceStack.add(0, dirname); // Insert BEFORE the others (this is a base class for 'm)
-
-		//-- Load the .props.js file which must exist as either resource or webfile.
-		String pname = "$" + dirname + "/" + filename;
-		loadScript(pname);
 	}
 
 	/**
@@ -402,12 +377,8 @@ public class FragmentedThemeFactory implements IThemeFactory {
 	}
 
 	/*--------------------------------------------------------------*/
-	/*	CODING:	Stylesheet Properties file loader thingy			*/
-	/*--------------------------------------------------------------*/
-	/*--------------------------------------------------------------*/
 	/*	CODING:	Fragment collector.									*/
 	/*--------------------------------------------------------------*/
-
 	/**
 	 * The type of fragment expansion/check to do.
 	 *
@@ -415,17 +386,13 @@ public class FragmentedThemeFactory implements IThemeFactory {
 	 * Created on Jan 7, 2011
 	 */
 
-	static public enum Check {
+	private enum Check {
 		/** Do not check at all: just concatenate the fragments. */
 		NONE
 
 		/** Try to expand every fragment by calling the template expander, but use original source as result, not the expanded template */
 		, CHECK
-
-		/** Expand the fragment and use the result in the append operation. */
-		, EXPAND
 	}
-
 
 	/**
 	 * This code collects "fragments" of files and connects them to form a
@@ -455,7 +422,7 @@ public class FragmentedThemeFactory implements IThemeFactory {
 			count++;
 		}
 		ts = System.nanoTime() - ts;
-		System.out.println("css: loading " + directory + "+: loaded " + count + " fragments took " + StringTool.strNanoTime(ts));
+		System.out.println("css: theme '" + m_themeName + "' loading " + directory + "+: loaded " + count + " fragments took " + StringTool.strNanoTime(ts));
 	}
 
 	/**
@@ -480,7 +447,6 @@ public class FragmentedThemeFactory implements IThemeFactory {
 			String source = FileTool.readStreamAsString(is, "utf-8");
 			RhinoTemplateCompiler rtc = new RhinoTemplateCompiler();
 			RhinoTemplate tmpl = rtc.compile(new StringReader(source), fullPathName);
-			StringBuilder sb = target;
 			switch(loadType){
 				default:
 					throw new IllegalStateException("Bad?");
@@ -489,10 +455,7 @@ public class FragmentedThemeFactory implements IThemeFactory {
 					return;
 				case CHECK:
 					target.append(source);
-					sb = new StringBuilder();
-					//$FALL-THROUGH$
-				case EXPAND:
-					tmpl.execute(sb, executor().newScope());
+					tmpl.execute(new StringBuilder(), executor().newScope());
 					return;
 			}
 		} finally {

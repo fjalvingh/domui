@@ -46,7 +46,7 @@ final class LookupFactoryRelationCombo implements ILookupControlFactory {
 
 	@Override
 	@SuppressWarnings({"unchecked"})
-	public <T, X extends IControl<T>> ILookupControlInstance createControl(final @Nonnull SearchPropertyMetaModel spm, final X control) {
+	public <T, X extends IControl<T>> ILookupControlInstance<?> createControl(final @Nonnull SearchPropertyMetaModel spm, final X control) {
 		IControl< ? > input = control;
 		if(input == null) {
 			final PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
@@ -88,6 +88,6 @@ final class LookupFactoryRelationCombo implements ILookupControlFactory {
 			//				co.setTitle(hint);
 			//			input = co;
 		}
-		return new EqLookupControlImpl(spm.getPropertyName(), input);
+		return new EqLookupControlImpl<>(spm.getPropertyName(), input);
 	}
 }

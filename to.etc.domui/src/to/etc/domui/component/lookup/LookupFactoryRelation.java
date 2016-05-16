@@ -41,7 +41,7 @@ final class LookupFactoryRelation implements ILookupControlFactory {
 	}
 
 	@Override
-	public <T, X extends IControl<T>> ILookupControlInstance createControl(final @Nonnull SearchPropertyMetaModel spm, final X control) {
+	public <T, X extends IControl<T>> ILookupControlInstance<?> createControl(final @Nonnull SearchPropertyMetaModel spm, final X control) {
 		final PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
 		IControl< ? > input = control;
 		if(input == null) {
@@ -50,6 +50,6 @@ final class LookupFactoryRelation implements ILookupControlFactory {
 			l.setHint(hint);
 			input = l;
 		}
-		return new EqLookupControlImpl(spm.getPropertyName(), input);
+		return new EqLookupControlImpl<>(spm.getPropertyName(), input);
 	}
 }
