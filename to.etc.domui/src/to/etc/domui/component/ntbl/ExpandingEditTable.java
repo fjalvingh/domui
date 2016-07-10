@@ -275,7 +275,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	}
 
 	private void createIndexNode(@Nonnull TD td, final int index, boolean collapsed) {
-		Div d = new Div(Integer.toString(index + 1));
+		Div d = new MsgDiv(Integer.toString(index + 1));
 		td.add(d);
 		if(isEnableExpandItems()) {
 			d.setCssClass(collapsed ? "ui-xdt-ix ui-xdt-clp" : "ui-xdt-ix ui-xdt-exp");
@@ -467,7 +467,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		//-- Create row superstructure.
 		if(!isHideIndex()) {
 			TD td = tr.addCell();
-			Div d = new Div("*");
+			Div d = new MsgDiv("*");
 			td.add(d);
 			d.setCssClass("ui-xdt-ix");
 

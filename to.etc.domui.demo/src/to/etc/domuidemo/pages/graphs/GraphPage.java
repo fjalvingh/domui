@@ -16,7 +16,7 @@ import to.etc.webapp.query.*;
 public class GraphPage extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
-		Div	d	= new Div("Dynamische images: deze worden op de server gegenereerd via een factory");
+		Div	d	= new MsgDiv("Dynamische images: deze worden op de server gegenereerd via een factory");
 		add(d);
 		DynaIma		di	= new DynaIma();
 		add(di);

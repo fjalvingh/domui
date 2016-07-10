@@ -54,6 +54,6 @@ public class DemoDateInput extends UrlPage {
 	}
 
 	protected void addChange(Date value) {
-		add(new Div("Selected is: " + value));
+		add(new MsgDiv("Selected is: " + value));
 	}
 }

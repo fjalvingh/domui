@@ -23,7 +23,7 @@ public class DemoDragDrop extends UrlPage {
 		m_diva.setDropHandler(DROP_HANDLER);
 
 		add(new VerticalSpacer(10));
-		add(new Div("Select your pet and drag it to the window above. Deselect by dragging it down again."));
+		add(new MsgDiv("Select your pet and drag it to the window above. Deselect by dragging it down again."));
 		m_divb = new Div();
 		add(m_divb);
 		m_divb.setHeight("200px");

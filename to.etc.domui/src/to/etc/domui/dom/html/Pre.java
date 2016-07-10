@@ -6,7 +6,8 @@ public class Pre extends Div {
 	}
 
 	public Pre(String txt) {
-		super(txt);
+		super();
+		setText(txt);
 	}
 
 	@Override

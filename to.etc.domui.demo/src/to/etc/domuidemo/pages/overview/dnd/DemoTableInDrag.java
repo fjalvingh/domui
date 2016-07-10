@@ -54,7 +54,7 @@ public class DemoTableInDrag extends UrlPage {
 
 		//-- Create the drop table
 		dropdiv.setBorder(1, "green", "solid");
-		dropdiv.add(new Div("Drop your crud here."));
+		dropdiv.add(new MsgDiv("Drop your crud here."));
 		Table	droptbl = new Table();
 		dropdiv.add(droptbl);
 		droptbl.setTableWidth("100%");

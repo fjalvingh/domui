@@ -29,7 +29,7 @@ public class DemoRadioButton extends UrlPage {
 		g.setOnValueChanged(new IValueChanged<RadioGroup<Gender>>() {
 			@Override
 			public void onValueChanged(RadioGroup<Gender> component) throws Exception {
-				DemoRadioButton.this.add(new Div("Selected a " + component.getValue()));
+				DemoRadioButton.this.add(new MsgDiv("Selected a " + component.getValue()));
 			}
 		});
 

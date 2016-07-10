@@ -49,8 +49,8 @@ public class DataAccessViolationPage extends UrlPage {
 
 		TD co = b.addCell();
 		String txt = msg;
-		Div d = new Div(txt);
+		Div d = new Div("ui-acd-ttl");
+		d.setText(txt);
 		co.add(d);
-		d.setCssClass("ui-acd-ttl");
 	}
 }

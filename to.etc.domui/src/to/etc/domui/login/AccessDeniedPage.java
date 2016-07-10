@@ -24,8 +24,6 @@
  */
 package to.etc.domui.login;
 
-import javax.annotation.*;
-
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.html.*;
@@ -33,6 +31,8 @@ import to.etc.domui.server.*;
 import to.etc.domui.state.*;
 import to.etc.domui.themes.*;
 import to.etc.domui.util.*;
+
+import javax.annotation.*;
 
 /**
  * Shows access denied info.
@@ -80,12 +80,14 @@ public class AccessDeniedPage extends UrlPage {
 
 		TD co = b.addCell();
 		String txt = Msgs.BUNDLE.formatMessage(Msgs.LOGIN_ACCESS_DENIED, pageName);
-		Div d = new Div(txt);
+		Div d = new Div("ui-acd-ttl");
 		co.add(d);
-		d.setCssClass("ui-acd-ttl");
+		d.setText(txt);
 
 		if(getPage().getPageParameters().hasParameter(PARAM_REFUSAL_MSG)) {
-			co.add(new Div(Msgs.BUNDLE.formatMessage(Msgs.LOGIN_REFUSAL_REASON)));
+			d = new Div();
+			co.add(d);
+			d.setText(Msgs.BUNDLE.formatMessage(Msgs.LOGIN_REFUSAL_REASON));
 			d = new Div();
 			co.add(d);
 			Ul ul = new Ul();
@@ -94,7 +96,9 @@ public class AccessDeniedPage extends UrlPage {
 			ul.add(li);
 			li.add(getPage().getPageParameters().getString(PARAM_REFUSAL_MSG));
 		} else {
-			co.add(new Div(Msgs.BUNDLE.formatMessage(Msgs.LOGIN_REQUIRED_RIGHTS)));
+			d = new Div();
+			d.setText(Msgs.BUNDLE.formatMessage(Msgs.LOGIN_REQUIRED_RIGHTS));
+			co.add(d);
 			d = new Div();
 			co.add(d);
 			renderMissingRightsInfo(d);

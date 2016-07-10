@@ -24,11 +24,11 @@
  */
 package to.etc.domui.dom.html;
 
-import javax.annotation.*;
-
 import to.etc.domui.dom.css.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
+
+import javax.annotation.*;
 
 public class Div extends NodeContainer implements IDropTargetable, IDraggable, IDropBody {
 	private IReturnPressed< ? extends NodeBase> m_returnPressed;
@@ -43,9 +43,9 @@ public class Div extends NodeContainer implements IDropTargetable, IDraggable, I
 		super("div");
 	}
 
-	public Div(String txt) {
+	public Div(String css) {
 		this();
-		setText(txt);
+		setCssClass(css);
 	}
 
 	public Div(NodeBase... children) {

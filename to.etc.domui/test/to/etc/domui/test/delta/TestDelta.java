@@ -24,17 +24,16 @@
  */
 package to.etc.domui.test.delta;
 
-import static org.junit.Assert.assertEquals;
-
-import java.io.*;
-
 import org.junit.*;
-
 import to.etc.domui.dom.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.test.*;
 import to.etc.domui.testsupport.*;
+
+import java.io.*;
+
+import static org.junit.Assert.*;
 
 public class TestDelta {
 	private Page createPage() throws Exception {
@@ -152,8 +151,8 @@ public class TestDelta {
 		up.add(root);
 		Div popin = new Div();
 		root.add(popin);
-		popin.add(new Div("Fixed content"));
-		Div content = new Div("Blabla");
+		popin.add(new MsgDiv("Fixed content"));
+		Div content = new MsgDiv("Blabla");
 		popin.add(content);
 		System.out.println("root=" + root.getActualID() + ", popin=" + popin.getActualID() + ", content=" + content.getActualID());
 

@@ -7,7 +7,8 @@ import to.etc.domui.dom.html.*;
 public class DemoAsyncContainer extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
-		Div d = new Div("The content will be calculated in a separate thread");
+		Div d = new Div();
+		d.setText("The content will be calculated in a separate thread");
 		add(d);
 
 		DefaultButton sb = new DefaultButton("Calculate", new IClicked<DefaultButton>() {
@@ -33,7 +34,9 @@ public class DemoAsyncContainer extends UrlPage {
 						return null;
 					}
 				}
-				return new Div("De actie is afgerond!!!! Wat een mooi resultaat: 42");
+				Div d = new Div();
+				d.setText("De actie is afgerond!!!! Wat een mooi resultaat: 42");
+				return d;
 			}
 		};
 

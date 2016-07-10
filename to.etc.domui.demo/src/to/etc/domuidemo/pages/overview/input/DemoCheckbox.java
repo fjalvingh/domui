@@ -18,7 +18,9 @@ public class DemoCheckbox extends UrlPage {
 		cb.setOnValueChanged(new IValueChanged<Checkbox>() {
 			@Override
 			public void onValueChanged(Checkbox component) throws Exception {
-				DemoCheckbox.this.add(new Div("Value changed to " + component.getValue()));
+				Div d = new Div();
+				d.setText("Value changed to " + component.getValue());
+				DemoCheckbox.this.add(d);
 			}
 		});
 	}

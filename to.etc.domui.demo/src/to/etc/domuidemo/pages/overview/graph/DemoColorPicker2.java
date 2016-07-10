@@ -23,7 +23,7 @@ public class DemoColorPicker2 extends UrlPage {
 				int color = new Random().nextInt(0x1000000);
 				String nw = StringTool.intToStr(color, 16, 6);
 				cp.setValue(nw);
-				add(new Div("Old color=" + old + ", new color=" + nw));
+				add(new MsgDiv("Old color=" + old + ", new color=" + nw));
 			}
 		}));
 	}

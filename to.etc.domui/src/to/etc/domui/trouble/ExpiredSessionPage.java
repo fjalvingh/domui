@@ -58,7 +58,7 @@ public class ExpiredSessionPage extends UrlPage {
 
 		TD co = b.addCell();
 		String txt = msg;
-		Div d = new Div(txt);
+		Div d = new MsgDiv(txt);
 		co.add(d);
 		d.setCssClass("ui-acd-ttl");
 

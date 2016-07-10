@@ -13,7 +13,7 @@ public class IeCheckBoxInTable extends UrlPage {
 		cb2.setClicked(new IClicked<Checkbox>() {
 			@Override
 			public void clicked(Checkbox clickednode) throws Exception {
-				IeCheckBoxInTable.this.add(new Div("Checkbox-only: " + clickednode.isChecked()));
+				IeCheckBoxInTable.this.add(new MsgDiv("Checkbox-only: " + clickednode.isChecked()));
 			}
 		});
 
@@ -48,11 +48,11 @@ public class IeCheckBoxInTable extends UrlPage {
 
 	protected void tdClicked(Checkbox cb) {
 		cb.setValue(!cb.getValue());
-		add(new Div("tdclicked " + cb.getValue()));
+		add(new MsgDiv("tdclicked " + cb.getValue()));
 	}
 
 	protected void checkClicked(Checkbox cb) {
-		add(new Div("checkbox clicked " + cb.getValue()));
+		add(new MsgDiv("checkbox clicked " + cb.getValue()));
 	}
 
 }

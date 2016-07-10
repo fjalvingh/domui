@@ -31,11 +31,11 @@ public class IeCheckBoxInTable2 extends UrlPage {
 
 	protected void tdClicked(Checkbox cb) {
 		cb.setValue(!cb.getValue());
-		add(new Div("tdclicked " + cb.getValue()));
+		add(new MsgDiv("tdclicked " + cb.getValue()));
 	}
 
 	protected void checkClicked(Checkbox cb) {
-		add(new Div("checkbox clicked " + cb.getValue()));
+		add(new MsgDiv("checkbox clicked " + cb.getValue()));
 	}
 
 }

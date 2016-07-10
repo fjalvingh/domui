@@ -14,7 +14,9 @@ public class Click2HandlerPage extends UrlPage {
 			@Override
 			public void clicked(Div node, ClickInfo i) throws Exception {
 				String s = "Click: x=" + i.getPageX() + ", y=" + i.getPageY() + ", shift=" + i.isShift() + ", ctrl=" + i.isControl() + ", alt=" + i.isAlt();
-				Click2HandlerPage.this.add(new Div(s));
+				Div d = new Div();
+				d.setText(s);
+				Click2HandlerPage.this.add(d);
 			}
 		});
 		appendCreateJS("$('#" + d.getActualID() + "').disableSelection();");
