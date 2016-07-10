@@ -108,8 +108,8 @@ input[type=checkbox] {
 }
 
 input[type=file] {
-	border: 0 !important;
 	padding: 0px !important;
+	cursor: pointer;
 }
 input[type=file]::-ms-value {
 	border-color:<%= bevel_up %> <%= bevel_down %> <%= bevel_down %>;
@@ -119,6 +119,9 @@ input[type=file]::-ms-value {
 }
 input[type=file]::-ms-browse {
 	border: 0;
+}
+input[type=file]::-webkit-file-upload-button {
+	cursor: pointer;
 }
 
 input[type="text"], input[type="password"] {
@@ -1055,7 +1058,7 @@ table.ui-lui-selected {
 }
 
 .ui-lui-v > div {
-	width: 104px;
+	min-width: 104px;
 }
 
 .ui-lui-selected tbody { /*	selected value is rendered with white back and outline, on IE border is not rendred!? */
@@ -1080,7 +1083,7 @@ table.ui-lui-selected {
 	vertical-align: top;
 }
 .ui-lui-btncell {
-	min-width: 41px;
+	min-width: 38px;
 	padding-top: 2px;
 }
 
@@ -1233,12 +1236,6 @@ table.ui-lf-st input.ui-ro,
 table.ui-lf-st input.ui-ro:hover {
 	text-align: left !important;
 }
-
-table.ui-lfsf-st th {
-	font-weight: bold;
-	text-align: left;
-}
-
 /*** 120_forms.frag.css ***/
 /*** Form basic styles ***/
 /* these are for forms having the label BEFORE the field (horizontal). */
@@ -1265,6 +1262,10 @@ table.ui-lfsf-st th {
 	font: inherit;
 	margin-bottom: 2px;
 	margin-right: 2px;
+}
+
+.ui-f-in .ui-di {
+	margin-right: 0px;
 }
 
 .ui-f-do {
@@ -1513,7 +1514,7 @@ div.ui-sortable {
 
 .ui-dt {
 	font-size: <%= data_tbl_font_size %>;
-	height: 100%;
+/*	height: 100%; jal 20150717: this cannot work: all tables now overflow whatever they are contained in. */
 }
 
 .ui-dt-separator {
@@ -1547,6 +1548,13 @@ div.ui-sortable {
 
 .ui-sib[disabled] {
 	cursor: default;
+}
+
+.ui-sib[disabled] img {
+	filter: url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><filter id=\'grayscale\'><feColorMatrix type=\'matrix\' values=\'0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0\'/></filter></svg>#grayscale"); /* Firefox 3.5+ */
+	-moz-filter: grayscale(100%);
+	filter: gray; /* IE6-9 */
+    -webkit-filter: grayscale(1); /* Google Chrome & Safari 6+ */
 }
 
 .ui-sib[disabled]:hover {
@@ -2576,13 +2584,14 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 
 .ui-sdbtn img {
 	padding-right: 3px;
+	padding-top: 1px;
 	vertical-align: middle;
 	height: 16px;
 }
 .ui-sdbtn::-moz-focus-inner {
 	border: none; /* overrides extra padding in ffox */
 }
-.ui-sdbtn span {
+.ui-sdbtn-w {
 	position: relative;
 	display: block;
 	min-width: 94px;
@@ -2595,11 +2604,14 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	text-align: left;
 	background: transparent url(<%= button_img %>) no-repeat left top;
 }
+.ui-sdbtn-txt {
+	vertical-align: middle;
+}
 
 .ui-sdbtn:hover, .ui-sdbtn:focus {
 	background-position: right -150px;
 }
-.ui-sdbtn:hover span, .ui-sdbtn:focus span {
+.ui-sdbtn:hover .ui-sdbtn-w, .ui-sdbtn:focus .ui-sdbtn-w {
 	background-position: left -100px;
 }
 
@@ -2607,7 +2619,7 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 .ui-sdbtn[disabled], .ui-sdbtn[disabled]:hover, .ui-sdbtn[disabled]:focus {
 	background-position: right -250px;
 }
-.ui-sdbtn[disabled] span, .ui-sdbtn[disabled]:hover span, .ui-sdbtn[disabled]:focus span {
+.ui-sdbtn[disabled] .ui-sdbtn-w, .ui-sdbtn[disabled]:hover .ui-sdbtn-w, .ui-sdbtn[disabled]:focus .ui-sdbtn-w {
 	background-position: left -200px;
 }
 
@@ -2643,7 +2655,7 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 .ui-sdbtn-mini::-moz-focus-inner {
 	border: none; /* overrides extra padding in ffox */
 }
-.ui-sdbtn-mini span {
+.ui-sdbtn-mini .ui-sdbtn-w {
 	position: relative;
 	display: block;
 	white-space: nowrap;
@@ -2657,7 +2669,7 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 
 @media screen and (-webkit-min-device-pixel-ratio:0) {
 	/* Safari and Google Chrome only - fix margins */
-	.ui-sdbtn-mini span {
+	.ui-sdbtn-mini .ui-sdbtn-w {
 		margin-top: -1px;
 	}
 }
@@ -3118,13 +3130,26 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	font-weight: bold;
 	font-size: <%= font_size %>;
 	white-space: nowrap;
+	padding-top: 2px;
 }
 .ui-f4-lbl-v {
 	text-align: right;
 	min-width: 150px;
+	width: 150px;
 }
 .ui-f4-ctl-v {
-	padding: 0px 0px 8px 4px;
+	padding-left: 4px;
+	line-height: 14px;
+	padding-top: 2px;
+	vertical-align: top;
+}
+
+.ui-f4-ctl-v input, .ui-f4-ctl-v select {
+	margin-bottom: 0px;
+	margin-top: 0px;
+}
+.ui-f4-ctl-v input[type="checkbox"] {
+	vertical-align: middle;
 }
 
 .ui-f4-h {
@@ -3133,10 +3158,15 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 
 .ui-f4 .ui-f4-ta {
 	vertical-align: top !important;
-	padding-top: 5px;
 }
 
 /*-- overrides --*/
+.ui-f4 label{
+	vertical-align: baseline !important;
+	display: inline-block;
+	padding-top: 4px;
+}
+
 .ui-f4 .ui-ro {
 	border: none;
 	color: black;
@@ -3153,6 +3183,13 @@ div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
 	padding: 0px;
 	margin: 0px;
 }
+.ui-f4 .ui-wdi {
+	padding-top: 2px;
+}
+/* hides the arrow down button on the select box in IE */
+.ui-f4 select.ui-ro::-ms-expand {
+	display: none;
+}
 
 label.ui-f4-mandatory {
 /*	display: inline-block; */
@@ -3160,6 +3197,20 @@ label.ui-f4-mandatory {
 	background-position: left;
 	padding-left: 12px;
 	background-image: url(mandatoryField.png);
+}
+
+/* Text area */
+.ui-ta {
+	display: inline-block;
+}
+.ui-ta textarea {
+	padding-top: 2px;
+	vertical-align: top;
+	margin: 0px;
+}
+.ui-ta button {
+	position: absolute;
+	margin-top: 1px;
 }
 .ui-dsplyima {
     display: inline-block;
@@ -3242,13 +3293,9 @@ label.ui-f4-mandatory {
 /*** LookupInputBase2: replacement for LookupInput ***/
 .ui-lui2 {
     position: relative;
-    display: inline-block;
 }
 .ui-lui2-selected {
-    padding: 0px 2px 0px 0px;
-    margin: 0px 2px 2px 0px;
-    display: inline-block;
-    vertical-align: baseline;
+    position: relative;
 }
 .ui-lui2-vspan {
     display: inline-block;
@@ -3256,8 +3303,9 @@ label.ui-f4-mandatory {
     white-space: nowrap;
     background-color: #ffffff;
     padding-left: 3px;
-    padding-top: 3px;
+    padding-top: 1px;
     padding-bottom: 1px;
+    padding-right: 35px;
     margin-bottom: 0px;
     margin-bottom: 0px;
 
@@ -3265,6 +3313,17 @@ label.ui-f4-mandatory {
     border-style: solid;
     border-width: 1px;
     -moz-border-radius: 2px;
+
+    vertical-align: top;
+}
+.ui-lui2-selected-ro .ui-lui2-vspan,
+.ui-ro .ui-lui2-vspan{
+    background: transparent;
+    padding-right: 2px;
+}
+.ui-lui2 button, .ui-lui2-selected button {
+    vertical-align: top;
+    margin-top: 1px;
 }
 
 /*** SearchInput2: replacement for KeywordSearchInput, used in lookupInput2 but an independent component(!) ***/
@@ -3355,6 +3414,141 @@ tr.ui-ssop-row {
 .ui-ssop-row td {
     white-space: nowrap;
 }
+/*** ExpandingHeader component ***/
+.ui-xphd {
+	font-family: 'Tahoma', 'Geneva', 'Verdana', sans-serif;
+	padding-top: 4px;
+}
+.ui-xphd-bar {
+	font-size: 12px;
+}
+td.ui-xphd-ttl {
+	padding-left: 4px !important;
+}
+.ui-xphd-normal .ui-xphd-bar {
+	color: #013686;
+}
+.ui-xphd-small .ui-xphd-bar {
+	color: black;
+}
+.ui-xphd-bar {
+}
+.ui-xphd-bar button {
+	padding: 0px;
+	margin: 0px;
+}
+.ui-xphd-bar td {
+	padding: 0px;
+	margin: 0px;
+	vertical-align: top;
+}
+/*** GenericHeader component ***/
+.ui-generichd {
+	padding: 5px 0px 0px;
+}
+.ui-generichd-simple {
+	font-size: 14px;
+	color: black;
+}
+.ui-generichd-blue {
+	font-size: 18px;
+	color: #4c5a6f;
+}
+.ui-generichd-header-1 {
+	font-family: <%= font_family %>;
+	font-weight: bold;
+	font-size: 16px;
+	color: black;
+}
+.ui-generichd-header-2 {
+	font-family: <%= font_family %>;
+	font-size: 16px;
+	color: #297bc0;
+	border-bottom: 1px solid #dbdbdb;
+}
+.ui-generichd-header-3 {
+	font-family: <%= font_family %>;
+	font-size: 12px;
+	color: #013686;
+	border-bottom: 1px;
+	border-bottom-style: solid;
+	border-bottom-color: #ccc;
+	margin-bottom: 5px;
+}
+.ui-generichd-header-4 {
+	font-family: <%= font_family %>;
+	font-size: 12px;
+	color: black;
+	font-weight: bold;
+}
+
+/*** HamburgerMenu fragment ***/
+.ui-hmbrg-menu {
+	position: absolute;
+	right: 0px;
+	z-index: 100;
+	width: auto;
+	background: white;
+	border: 2px groove #8c8c8c;
+	font-size: 11px;
+	color: black;
+}
+.ui-hmbrg-item {
+	border: 1px solid white;
+	padding: 2px 5px;
+}
+.ui-hmbrg-item:hover {
+	background-color: #fff4d3;
+	border: 1px solid #ffde7f;
+	cursor: pointer;
+}
+.ui-hmbrg-disabled {
+	border: 1px solid white;
+	padding: 2px 5px;
+	color: grey;
+}
+.ui-hmbrg-disabled:hover {
+	background-color: white;
+	border: 1px solid white;
+	cursor: auto;
+}
+/*** Hoverbutton ***/
+.ui-hvrbtn {
+	border: none;
+	background-color: transparent;
+	cursor: pointer;
+	padding: 0;
+	background-repeat: no-repeat;
+	outline: none;
+	overflow: visible;
+	margin-right: 4px;
+	vertical-align: top;
+}
+/* Get rid of any outline and border */
+.ui-hvrbtn:focus {
+	border: none;
+	outline: none;
+}
+.ui-hvrbtn button::-moz-focus-inner {
+	border: 0;
+}
+:focus {
+	outline: none;
+}
+::-moz-focus-inner {
+	border: 0;
+}
+
+/* Generate classes for hover buttons from 10 to 64 pixels in size. */
+<% for(var i = 10; i <= 64; i++) { %>
+
+.ui-hvrbtn-<%= i %>:hover {
+	background-position: -<%= i %>px 0px;
+}
+.ui-hvrbtn-<%= i %>[disabled="disabled"] {
+	background-position: -<%= 2*i %>px 0px;
+}
+<% } %>
 .fht-table,
 .fht-table thead,
 .fht-table tfoot,
