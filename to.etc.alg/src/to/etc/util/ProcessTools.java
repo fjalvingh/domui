@@ -84,6 +84,13 @@ final public class ProcessTools {
 	}
 
 	@Nonnull
+	public ProcessTools add(String... args) {
+		for(String s: args)
+			m_builder.command().add(s);
+		return this;
+	}
+
+	@Nonnull
 	public ProcessTools setCommand(@Nonnull List<String> cmd) {
 		m_builder.command(cmd);
 		return this;
