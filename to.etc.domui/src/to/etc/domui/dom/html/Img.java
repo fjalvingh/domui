@@ -24,9 +24,10 @@
  */
 package to.etc.domui.dom.html;
 
-import javax.annotation.*;
-
 import to.etc.domui.util.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * The base tag for an Image.
@@ -57,6 +58,8 @@ public class Img extends NodeBase implements IActionControl {
 	private String m_imgWidth;
 
 	private boolean m_disabled;
+
+	private String m_useMap;
 
 	/**
 	 * Creates an uninitialized image.
@@ -226,4 +229,16 @@ public class Img extends NodeBase implements IActionControl {
 		if(isDisabled())
 			return;
 		super.internalOnClicked(cli);
-	}}
+	}
+
+	public String getUseMap() {
+		return m_useMap;
+	}
+
+	public void setUseMap(String useMap) {
+		if(Objects.equals(m_useMap, useMap))
+			return;
+		m_useMap = useMap;
+		changed();
+	}
+}
