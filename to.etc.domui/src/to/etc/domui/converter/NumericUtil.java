@@ -136,12 +136,15 @@ public class NumericUtil {
 
 
 	/**
+	 * DEPRECATED: This method wrongly assumes the scale of the number parsed - use {@link #parseNumber(Class, String, int)}.
+	 *
 	 * Parse any supported numeric wrapper type. In case that any specific scale must be used, use other method {@link NumericUtil#parseNumber(Class, String, int, NumericPresentation)}
 	 * @param <T>
 	 * @param type	In case of decimal types, it uses scale defined by DEFAULT_FRACTION_DIGITS.
 	 * @param input
 	 * @return
 	 */
+	@Deprecated
 	@Nullable
 	static public <T> T parseNumber(Class<T> type, String input) {
 		if(Integer.class == type || int.class == type || Long.class == type || long.class == type) {
@@ -150,6 +153,23 @@ public class NumericUtil {
 			return parseNumber(type, input, DEFAULT_FRACTION_DIGITS, NumericPresentation.NUMBER);
 		}
 	}
+
+	/**
+	 * Parse any supported numeric wrapper type. In case that any specific scale must be used, use other method {@link NumericUtil#parseNumber(Class, String, int, NumericPresentation)}
+	 * @param <T>
+	 * @param type	In case of decimal types, it uses scale defined by DEFAULT_FRACTION_DIGITS.
+	 * @param input
+	 * @return
+	 */
+	@Nullable
+	static public <T> T parseNumber(Class<T> type, String input, int scale) {
+		if(Integer.class == type || int.class == type || Long.class == type || long.class == type) {
+			return parseNumber(type, input, 0, NumericPresentation.NUMBER);
+		} else {
+			return parseNumber(type, input, scale, NumericPresentation.NUMBER);
+		}
+	}
+
 
 	/**
 	 * Parse any supported numeric wrapper type.

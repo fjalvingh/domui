@@ -24,8 +24,6 @@
  */
 package to.etc.domui.component.tbl;
 
-import javax.annotation.*;
-
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.ntbl.*;
 import to.etc.domui.converter.*;
@@ -33,6 +31,8 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.nls.*;
+
+import javax.annotation.*;
 
 /**
  * Base class for the old and new row renderers, handling most presentation. The configuration is
@@ -288,8 +288,8 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 	 * @param cellClicked
 	 */
 	@Override
-	public void setCellClicked(final int col, @Nullable final ICellClicked<T> cellClicked) {
-		((SimpleColumnDef<T>) getColumn(col)).setCellClicked(cellClicked);
+	public <V> void setCellClicked(final int col, @Nullable final ICellClicked<V> cellClicked) {
+		((SimpleColumnDef<V>) getColumn(col)).setCellClicked(cellClicked);
 	}
 
 

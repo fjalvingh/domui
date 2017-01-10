@@ -24,13 +24,11 @@
  */
 package to.etc.domui.dom.html;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import org.slf4j.*;
-
 import to.etc.domui.component.binding.*;
+import to.etc.domui.component.event.*;
+import to.etc.domui.component.image.*;
+import to.etc.domui.component.layout.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.databinding.*;
 import to.etc.domui.databinding.observables.*;
@@ -38,6 +36,7 @@ import to.etc.domui.databinding.value.*;
 import to.etc.domui.dom.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
+import to.etc.domui.dom.html.Page.*;
 import to.etc.domui.dom.webaction.*;
 import to.etc.domui.logic.*;
 import to.etc.domui.parts.*;
@@ -50,6 +49,9 @@ import to.etc.domui.util.javascript.*;
 import to.etc.util.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * Base node for all non-container html dom nodes.
@@ -177,6 +179,14 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 	@Nullable
 	private String m_overrideTitle;
 
+	@Nullable
+	private INotify<NodeBase> m_onSizeAndPositionChange;
+
+	@Nullable
+	private Rect m_clientBounds;
+
+	@Nullable
+	private Dimension m_browserWindowSize;
 	/**
 	 * This must visit the appropriate method in the node visitor. It should NOT recurse it's children.
 	 * @param v
@@ -408,6 +418,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 
 	void internalOnAddedToPage(final Page p) {
 		onAddedToPage(p);
+		List<NotificationListener<?>> list = m_notificationListenerList;
+		if(null != list) {
+			list.forEach(a -> p.addNotificationListener(a));
+		}
 		StringBuilder appendJS = m_appendJS;
 		if(appendJS != null) {
 			getPage().appendJS(appendJS);
@@ -1045,7 +1059,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 	 * server's data store. It must do that by adding the needed Javascript to the buffer
 	 * passed.
 	 *
-	 * @param sb
 	 * @throws Exception
 	 */
 	protected void renderJavascriptState(@Nonnull JavascriptStmt b) throws Exception {
@@ -1131,10 +1144,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 	 */
 	@Nullable
 	public String getSpecialAttribute(@Nonnull final String name) {
-		if(m_specialAttributes != null) {
-			for(int i = 0; i < m_specialAttributes.size(); i += 2) {
-				if(m_specialAttributes.get(i).equals(name))
-					return m_specialAttributes.get(i + 1);
+		List<String> attributes = m_specialAttributes;
+		if(attributes != null) {
+			for(int i = 0; i < attributes.size(); i += 2) {
+				if(attributes.get(i).equals(name))
+					return attributes.get(i + 1);
 			}
 		}
 		return null;
@@ -1158,6 +1172,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 
 	/**
 	 * Default handling for webui AJAX actions to a component.
+	 * Handles {@link Constants#ACMD_NOTIFY_CLIENT_POSITION_AND_SIZE} as command from client (browser).
 	 * @param ctx
 	 * @param action
 	 * @throws Exception
@@ -1165,6 +1180,9 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 	public void componentHandleWebAction(@Nonnull final RequestContextImpl ctx, @Nonnull String action) throws Exception {
 		if("WEBUIDROP".equals(action)) {
 			handleDrop(ctx);
+			return;
+		} else if(Constants.ACMD_NOTIFY_CLIENT_POSITION_AND_SIZE.equals(action)) {
+			handleClientPositionAndSizeChange(ctx);
 			return;
 		}
 		if(action.endsWith("?"))
@@ -1950,8 +1968,20 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 	}
 
 	public final <T> void addNotificationListener(Class<T> eventClass, INotificationListener<T> listener) {
-		getPage().addNotificationListener(eventClass, this, listener);
+		NotificationListener<T> nl = new Page.NotificationListener<>(eventClass, this, listener);
+		if(isAttached())
+			getPage().addNotificationListener(nl);
+		else {
+			List<NotificationListener<?>> list = m_notificationListenerList;
+			if(null == list) {
+				list = m_notificationListenerList = new ArrayList<>(4);
 	}
+			list.add(nl);
+		}
+	}
+
+	@Nullable
+	private List<NotificationListener<?>> m_notificationListenerList;
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Soft binding support.								*/
@@ -2032,5 +2062,210 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 	public void notifyParentOrOpenerPage(@Nullable String command) {
 		appendJavascript("try { window.parent.WebUI.notifyPage('" + command + "'); } catch (err) {}");
 		appendJavascript("try { window.opener.WebUI.notifyPage('" + command + "'); } catch (err) {}");
+	}
+
+	private enum AlignmentType {Top, TopToBottom, Left, Right, Middle};
+
+	/**
+	 * Adds javascript that aligns node top to top of specified node, with applying y offset.
+	 * 
+	 * @param node
+	 * @param yOffset
+	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
+	 */
+	public void alignToTop(@Nonnull NodeBase node, int yOffset, boolean appendAsCreateJs){
+		alignToTop(node, yOffset, appendAsCreateJs, false);
+	}
+
+	/**
+	 * Adds javascript that aligns node top to top of specified node, with applying y offset.
+	 * 
+	 * @param node
+	 * @param yOffset
+	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
+	 * @param addServerPositionCallback When T, it also causes server round-trip once position is calculated to store calculate top position. This in needed as workaround for fact that, once node update is re-rendered it looses top value inside style attribute. 
+	 */
+	public void alignToTop(@Nonnull NodeBase node, int yOffset, boolean appendAsCreateJs, boolean addServerPositionCallback){
+		alignTo(AlignmentType.Top, "WebUI.alignToTop", node, yOffset, appendAsCreateJs, addServerPositionCallback);
+	}
+	
+	/**
+	 * Adds javascript that aligns node top to bottom of specified node, with applying y offset.
+	 * 
+	 * @param node
+	 * @param yOffset
+	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
+	 */
+	public void alignTopToBottom(@Nonnull NodeBase node, int yOffset, boolean appendAsCreateJs){
+		alignTopToBottom(node, yOffset, appendAsCreateJs, false);
+	}
+
+	/**
+	 * Adds javascript that aligns node top to bottom of specified node, with applying y offset.
+	 * 
+	 * @param node
+	 * @param yOffset
+	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
+	 * @param addServerPositionCallback When T, it also causes server round-trip once position is calculated to store calculate top position. This in needed as workaround for fact that, once node update is re-rendered it looses top value inside style attribute. 
+	 */
+	public void alignTopToBottom(@Nonnull NodeBase node, int yOffset, boolean appendAsCreateJs, boolean addServerPositionCallback){
+		alignTo(AlignmentType.TopToBottom, "WebUI.alignTopToBottom", node, yOffset, appendAsCreateJs, addServerPositionCallback);
+	}
+	
+	/**
+	 * Adds javascript that aligns node left to left position of specified node, with applying offset.
+	 * 
+	 * @param node
+	 * @param xOffset
+	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
+	 */
+	public void alignToLeft(@Nonnull NodeBase node, int xOffset, boolean appendAsCreateJs){
+		alignToLeft(node, xOffset, appendAsCreateJs, false);
+	}
+
+	/**
+	 * Adds javascript that aligns node left to left position of specified node, with applying offset.
+	 * 
+	 * @param node
+	 * @param xOffset
+	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
+	 * @param addServerPositionCallback When T, it also causes server round-trip once position is calculated to store calculate left position. This in needed as workaround for fact that, once node update is re-rendered it looses left value inside style attribute. 
+	 */
+	public void alignToLeft(@Nonnull NodeBase node, int xOffset, boolean appendAsCreateJs, boolean addServerPositionCallback){
+		alignTo(AlignmentType.Left, "WebUI.alignToLeft", node, xOffset, appendAsCreateJs, addServerPositionCallback);
+	}
+	
+	/**
+	 * Adds javascript that aligns node right to right position of specified node, with applying offset.
+	 * 
+	 * @param node
+	 * @param xOffset
+	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
+	 */
+	public void alignToRight(@Nonnull NodeBase node, int xOffset, boolean appendAsCreateJs){
+		alignToRight(node, xOffset, appendAsCreateJs, false);
+	}
+
+	/**
+	 * Adds javascript that aligns node right to right position of specified node, with applying offset.
+	 * 
+	 * @param node
+	 * @param xOffset
+	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
+	 * @param addServerPositionCallback When T, it also causes server round-trip once position is calculated to store calculate left position. This in needed as workaround for fact that, once node update is re-rendered it looses left value inside style attribute. 
+	 */
+	public void alignToRight(@Nonnull NodeBase node, int xOffset, boolean appendAsCreateJs, boolean addServerPositionCallback){
+		alignTo(AlignmentType.Right, "WebUI.alignToRight", node, xOffset, appendAsCreateJs, addServerPositionCallback);
+	}
+	
+	/**
+	 * Adds javascript that aligns node horizontal middle to middle position of specified node, with applying offset.
+	 * 
+	 * @param node
+	 * @param xOffset
+	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
+	 */
+	public void alignToMiddle(@Nonnull NodeBase node, int xOffset, boolean appendAsCreateJs){
+		alignToMiddle(node, xOffset, appendAsCreateJs, false);
+	}
+
+	/**
+	 * Adds javascript that aligns node horizontal middle to middle position of specified node, with applying offset.
+	 * 
+	 * @param node
+	 * @param xOffset
+	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
+	 * @param addServerPositionCallback When T, it also causes server round-trip once position is calculated to store calculate left position. This in needed as workaround for fact that, once node update is re-rendered it looses left value inside style attribute. 
+	 */
+	public void alignToMiddle(@Nonnull NodeBase node, int xOffset, boolean appendAsCreateJs, boolean addServerPositionCallback){
+		alignTo(AlignmentType.Middle, "WebUI.alignToMiddle", node, xOffset, appendAsCreateJs, addServerPositionCallback);
+	}
+	
+	private void alignTo(final @Nonnull AlignmentType alignment, @Nonnull String jsFunction, @Nonnull NodeBase node, int offset, boolean appendAsCreateJs, boolean addServerPositionCallback){
+		setPosition(PositionType.ABSOLUTE);
+		String id = getActualID();
+		String callbackParam = addServerPositionCallback ? "true" : "false";
+		String js = jsFunction + "('" + id + "', '" + node.getActualID() + "', " + offset + ", " + callbackParam + ");";
+		if (appendAsCreateJs){
+			appendCreateJS(js);
+		}else{
+			appendJavascript(js);
+		}
+		if (addServerPositionCallback){
+			setOnSizeAndPositionChange(new INotify<NodeBase>(){
+	
+				@Override
+				public void onNotify(NodeBase sender) throws Exception {
+					Rect clientBounds = getClientBounds();
+					if (null != clientBounds){
+						switch (alignment){
+							case Top: 
+							case TopToBottom: 
+								setTop(clientBounds.getTop());
+								break;
+							default: //other are horizontal alignments, so we set left position
+								setLeft(clientBounds.getLeft());
+								break;
+						}
+					}
+				}
+			});
+		}
+	}
+	
+	@Nullable
+	protected Rect getClientBounds() {
+		return m_clientBounds;
+	}
+
+	protected void setClientBounds(@Nonnull Rect clientBound) {
+		m_clientBounds = clientBound;
+	}
+
+	@Nullable
+	protected Dimension getBrowserWindowSize() {
+		return m_browserWindowSize;
+	}
+
+	protected void setBrowserWindowSize(@Nonnull Dimension browserWindowSize) {
+		m_browserWindowSize = browserWindowSize;
+	}
+
+	@Nullable
+	protected INotify<NodeBase> getOnSizeAndPositionChange() {
+		return m_onSizeAndPositionChange;
+	}
+
+	protected void setOnSizeAndPositionChange(@Nonnull INotify<NodeBase> onSizeAndPositionChange) {
+		m_onSizeAndPositionChange = onSizeAndPositionChange;
+	}
+
+	private void handleClientPositionAndSizeChange(@Nonnull RequestContextImpl ctx) throws Exception {
+		String valueRect = ctx.getParameter(getActualID() + "_rect");
+		String valueBrowserWindowSize = ctx.getParameter("window_size");
+		if(null != valueRect && null != valueBrowserWindowSize) {
+			String[] values = valueRect.split(",");
+			try {
+				int left = Math.round(Float.parseFloat(values[0]));
+				int top = Math.round(Float.parseFloat(values[1]));
+				int width = Math.round(Float.parseFloat(values[2])); //when browser is zoomed, it gets decimal values for size 8-/
+				int height = Math.round(Float.parseFloat(values[3]));
+				setClientBounds(new Rect(left, top, width + left, height + top));
+			} catch(Exception ex) {
+				throw new IllegalArgumentException("Unrecognized " + Constants.ACMD_NOTIFY_CLIENT_POSITION_AND_SIZE + " valueRect (id='" + getActualID() + "'):" + valueRect, ex);
+			}
+			values = valueBrowserWindowSize.split(",");
+			try {
+				int width = Math.round(Float.parseFloat(values[0]));
+				int height = Math.round(Float.parseFloat(values[1]));
+				setBrowserWindowSize(new Dimension(width, height));
+			} catch(Exception ex) {
+				throw new IllegalArgumentException("Unrecognized " + Constants.ACMD_NOTIFY_CLIENT_POSITION_AND_SIZE + " valueBrowserWindowSize (id='" + getActualID() + "'):" + valueBrowserWindowSize, ex);
+			}
+			INotify<NodeBase> listener = getOnSizeAndPositionChange();
+			if(listener != null) {
+				listener.onNotify(this);
+			}
+		}
 	}
 }

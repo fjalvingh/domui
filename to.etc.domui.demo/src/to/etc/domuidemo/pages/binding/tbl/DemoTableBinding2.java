@@ -1,14 +1,14 @@
 package to.etc.domuidemo.pages.binding.tbl;
 
 import to.etc.domui.component.input.*;
-import to.etc.domui.component.meta.*;
 import to.etc.domui.component.tbl.*;
-import to.etc.domui.component.tbl.IControlFactory;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 import to.etc.domuidemo.db.*;
 import to.etc.domuidemo.pages.*;
 import to.etc.webapp.query.*;
+
+import javax.annotation.*;
 
 public class DemoTableBinding2 extends WikiExplanationPage {
 	@Override
@@ -30,9 +30,8 @@ public class DemoTableBinding2 extends WikiExplanationPage {
 			}
 		};
 
-		rr.column(Employee.class, "reportsTo").label("Manager").editable().factory(new IControlFactory<Employee>() {
-			@Override
-			public IControl<Employee> createControl(PropertyMetaModel<Employee> pmm) throws Exception {
+		rr.column(Employee.class, "reportsTo").label("Manager").editable().factory(new IRowControlFactory<Employee>() {
+			@Nonnull @Override public IControl<?> createControl(@Nonnull Employee rowInstance) throws Exception {
 				LookupInput<Employee> li = new LookupInput<Employee>(Employee.class);
 				li.setValueRenderer(contentRenderer);
 				return li;

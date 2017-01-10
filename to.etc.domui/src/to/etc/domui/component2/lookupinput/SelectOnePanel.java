@@ -25,7 +25,11 @@ public class SelectOnePanel<T> extends Div implements IHasChangeListener {
 
 	final private INodeContentRenderer<T> m_renderer;
 
-	private int m_index;
+	/** This is the currently selected value in the javascript component. It just shows which row is highlighted. A selection is only made on onClick */
+	private int m_currentSelection;
+
+	/** This is the current "value" which is set by a real selection (click) */
+	private int m_currentValue;
 
 	private IValueChanged< ? > m_valueChanged;
 
@@ -47,7 +51,8 @@ public class SelectOnePanel<T> extends Div implements IHasChangeListener {
 			renderItem(body, item);
 		}
 		appendCreateJS("new WebUI.SelectOnePanel('" + getActualID() + "');");
-		m_index = -1;
+		m_currentSelection = -1;
+		m_currentValue = -1;
 	}
 
 	private void renderItem(@Nonnull TBody body, @Nonnull T item) throws Exception {
@@ -60,6 +65,7 @@ public class SelectOnePanel<T> extends Div implements IHasChangeListener {
 	@Override
 	public boolean acceptRequestParameter(String[] values) throws Exception {
 		int value = -1;
+		//System.out.println(".... acceptParam " + Arrays.toString(values) + " index=" + m_currentSelection);
 		if(values.length == 1) {
 			String s = values[0];
 			if(s != null && s.trim().length() > 0) {
@@ -69,14 +75,29 @@ public class SelectOnePanel<T> extends Div implements IHasChangeListener {
 			}
 		}
 
-		boolean changed = m_index != value;
-		m_index = value;
+		/*
+		 * 20160512 jal This only sets the current selection, it is not allowed to fire a
+		 * value change event! Value changes happen all the time; only when a click event
+		 * is received has the real value of the component changed!
+		 */
+		m_currentSelection = value;
 		//System.out.println("selectOnePanel: value=" + value + ", changed=" + changed);
-		return changed;
+		return false;
+	}
+
+	@Override
+	public void internalOnClicked(@Nonnull ClickInfo cli) throws Exception {
+		//-- We have a click. Has the value changed?
+		if(m_currentValue != m_currentSelection) {
+			m_currentValue = m_currentSelection;					// The selected one becomes the value
+			internalOnValueChanged();
+		}
+
+		super.internalOnClicked(cli);
 	}
 
 	public int getIndex() {
-		return m_index;
+		return m_currentValue;
 	}
 
 	@Nullable

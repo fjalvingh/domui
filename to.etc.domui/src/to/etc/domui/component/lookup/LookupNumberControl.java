@@ -52,6 +52,8 @@ public class LookupNumberControl<T extends Number> extends BaseAbstractLookupCon
 
 	final private Text<String> m_input;
 
+	private final int m_scale;
+
 	private MiniScanner m_s;
 
 	private Class<T> m_valueType;
@@ -88,11 +90,11 @@ public class LookupNumberControl<T extends Number> extends BaseAbstractLookupCon
 		BINARY_OPS.add(QOperation.ILIKE);
 	}
 
-	public LookupNumberControl(final Class<T> valueType, Text<String> node, String propertyName, Number minValue, Number maxValue, boolean monetary) {
-		this(valueType, node, propertyName, minValue, maxValue, monetary, true);
+	public LookupNumberControl(final Class<T> valueType, Text<String> node, String propertyName, Number minValue, Number maxValue, boolean monetary, int scale) {
+		this(valueType, node, propertyName, minValue, maxValue, monetary, true, scale);
 	}
 
-	public LookupNumberControl(final Class<T> valueType, Text<String> node, String propertyName, Number minValue, Number maxValue, boolean monetary, boolean allowLike) {
+	public LookupNumberControl(final Class<T> valueType, Text<String> node, String propertyName, Number minValue, Number maxValue, boolean monetary, boolean allowLike, int scale) {
 		super(node);
 		m_input = node;
 		m_valueType = valueType;
@@ -101,6 +103,7 @@ public class LookupNumberControl<T extends Number> extends BaseAbstractLookupCon
 		m_maxValue = maxValue;
 		m_monetary = monetary;
 		m_allowLike = allowLike;
+		m_scale = scale;
 	}
 
 	/**
@@ -298,7 +301,7 @@ public class LookupNumberControl<T extends Number> extends BaseAbstractLookupCon
 			if(isMonetary())
 				return MoneyUtil.parseMoney(m_valueType, in);
 			else {
-				return NumericUtil.parseNumber(m_valueType, in);
+				return NumericUtil.parseNumber(m_valueType, in, m_scale);
 			}
 		} catch(ValidationException vx) {
 			/*

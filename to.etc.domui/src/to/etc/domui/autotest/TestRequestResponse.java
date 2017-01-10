@@ -299,6 +299,10 @@ public class TestRequestResponse implements IRequestResponse {
 		return null;
 	}
 
+	@Nonnull @Override public String getHostURL() {
+		return "http://www.test.nl/";
+	}
+
 	@Override
 	@Nullable
 	public String getRemoteUser() {

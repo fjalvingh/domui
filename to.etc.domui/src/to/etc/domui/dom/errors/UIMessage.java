@@ -24,15 +24,14 @@
  */
 package to.etc.domui.dom.errors;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.dom.html.*;
 import to.etc.domui.logic.errors.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * A single error message for a component. The message consists of a message code and optional
@@ -170,6 +169,18 @@ public class UIMessage {
 
 	public void setErrorLocation(String errorLocation) {
 		m_errorLocation = errorLocation;
+	}
+
+	/**
+	 * Chaining setter for setErrorLocation.
+	 *
+	 * @param errorLocation
+	 * @return
+	 */
+	@Nonnull
+	public UIMessage location(@Nullable String errorLocation){
+		m_errorLocation = errorLocation;
+		return this;
 	}
 
 	/**

@@ -227,6 +227,9 @@ public interface Msgs {
 
 	public static final String DATA_EXPIRED_REFRESH = "expired.data.refresh";
 
+	// AsyncDialogTask
+	public static final String ASYD_COMPLETED = "async.dialog.completed";
+
 	//# Access denied
 	public static final String DATA_ACCESS_VIOLATION_TITLE = "data.access.violation.title";
 

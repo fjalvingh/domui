@@ -35,6 +35,8 @@ import to.etc.domui.util.js.*;
 import to.etc.domui.util.resources.*;
 import to.etc.util.*;
 
+import static to.etc.domui.util.DomUtil.nullChecked;
+
 /**
  * <p>This theme factory uses fragments to create a "theme". A DomUI theme consists of the following:
  * <ul>
@@ -91,6 +93,7 @@ public class FragmentedThemeFactory {
 
 	final private String m_themeName;
 
+	@Nullable
 	private String m_stylesheet;
 
 	final private List<String> m_searchList = new ArrayList<>();
@@ -144,7 +147,7 @@ public class FragmentedThemeFactory {
 		ResourceDependencies rd = m_rdl.createDependencies();
 
 		m_searchList.add("$themes/css-all");					// 20130327 jal the "all" theme dir contains stuff shared over all themes.
-		return new FragmentedThemeStore(m_application, m_stylesheet.getBytes("utf-8"), executor(), m_searchList, rd);
+		return new FragmentedThemeStore(m_application, nullChecked(m_stylesheet).getBytes("utf-8"), executor(), m_searchList, rd);
 	}
 
 	protected void loadStyleInfo() throws Exception {
@@ -546,8 +549,9 @@ public class FragmentedThemeFactory {
 		return m_application;
 	}
 
+	@Nullable
 	protected String getStylesheet() {
-		return m_stylesheet;
+		return nullChecked(m_stylesheet);
 	}
 
 	protected List<String> getSearchList() {

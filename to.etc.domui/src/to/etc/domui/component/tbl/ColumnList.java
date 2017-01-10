@@ -16,15 +16,15 @@ import to.etc.webapp.annotations.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 3, 2014
  */
-public class ColumnList<T> implements Iterable<ColumnDef< ? >> {
+public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 	@Nonnull
 	final private ClassMetaModel m_metaModel;
 
 	@Nonnull
-	final private List<ColumnDef< ? >> m_columnList = new ArrayList<ColumnDef< ? >>();
+	final private List<ColumnDef< T, ? >> m_columnList = new ArrayList<ColumnDef< T, ? >>();
 
 	@Nullable
-	private ColumnDef< ? > m_sortColumn;
+	private ColumnDef< T, ? > m_sortColumn;
 
 	private boolean m_sortDescending;
 
@@ -41,7 +41,7 @@ public class ColumnList<T> implements Iterable<ColumnDef< ? >> {
 		return m_columnList.size();
 	}
 
-	public void add(@Nonnull ColumnDef< ? > cd) {
+	public void add(@Nonnull ColumnDef< T, ? > cd) {
 		if(null == cd)
 			throw new IllegalArgumentException("Cannot be null");
 		m_columnList.add(cd);
@@ -53,7 +53,7 @@ public class ColumnList<T> implements Iterable<ColumnDef< ? >> {
 	}
 
 	@Nonnull
-	public ColumnDef< ? > get(int ix) {
+	public ColumnDef< T, ? > get(int ix) {
 		if(ix < 0 || ix >= m_columnList.size())
 			throw new IndexOutOfBoundsException("Column " + ix + " does not exist");
 		return m_columnList.get(ix);
@@ -67,7 +67,7 @@ public class ColumnList<T> implements Iterable<ColumnDef< ? >> {
 		if(null == sort) {
 			m_sortColumn = null;
 		} else {
-			for(final ColumnDef< ? > scd : m_columnList) {
+			for(final ColumnDef< T, ? > scd : m_columnList) {
 				if(DomUtil.isEqual(scd.getPropertyName(), sort)) {
 					setSortColumn(scd, scd.getSortable());
 					break;
@@ -76,12 +76,12 @@ public class ColumnList<T> implements Iterable<ColumnDef< ? >> {
 		}
 	}
 
-	public void setSortColumn(@Nullable ColumnDef< ? > cd, @Nullable SortableType type) {
+	public void setSortColumn(@Nullable ColumnDef< T, ? > cd, @Nullable SortableType type) {
 		m_sortColumn = cd;
 		m_sortDescending = type == SortableType.SORTABLE_DESC;
 	}
 
-	public void setSortColumn(@Nullable ColumnDef< ? > cd) {
+	public void setSortColumn(@Nullable ColumnDef< T, ? > cd) {
 		m_sortColumn = cd;
 	}
 
@@ -101,8 +101,8 @@ public class ColumnList<T> implements Iterable<ColumnDef< ? >> {
 	}
 
 	@Nonnull
-	private <V> ColumnDef<V> addExpandedDisplayProp(@Nonnull ExpandedDisplayProperty<V> xdp) {
-		ColumnDef<V> scd = new ColumnDef<V>(this, xdp);
+	private <V> ColumnDef<T, V> addExpandedDisplayProp(@Nonnull ExpandedDisplayProperty<V> xdp) {
+		ColumnDef<T, V> scd = new ColumnDef<T, V>(this, xdp);
 		if(scd.getNumericPresentation() != null && scd.getNumericPresentation() != NumericPresentation.UNKNOWN) {
 			scd.css("ui-numeric");
 			scd.cssHeader("ui-numeric");
@@ -125,7 +125,7 @@ public class ColumnList<T> implements Iterable<ColumnDef< ? >> {
 		int totpix = 0;
 		int ntoass = 0; // #columns that need a width
 		int totdw = 0; // Total display width of all unassigned columns.
-		for(final ColumnDef< ? > scd : m_columnList) {
+		for(final ColumnDef<T, ? > scd : m_columnList) {
 			String cwidth = scd.getWidth();
 			if(cwidth == null || cwidth.length() == 0) {
 				ntoass++;
@@ -161,7 +161,7 @@ public class ColumnList<T> implements Iterable<ColumnDef< ? >> {
 			}
 
 			//-- Reassign the percentage left over all unassigned columns. Do it streaming, to ensure we reach 100%
-			for(final ColumnDef< ? > scd : m_columnList) {
+			for(final ColumnDef<T, ? > scd : m_columnList) {
 				String width = scd.getWidth();
 				if(width == null || width.length() == 0) {
 					//-- Calculate a size factor, then use it to assign
@@ -181,20 +181,20 @@ public class ColumnList<T> implements Iterable<ColumnDef< ? >> {
 	 */
 	@Override
 	@Nonnull
-	public Iterator<ColumnDef< ? >> iterator() {
+	public Iterator<ColumnDef<T, ? >> iterator() {
 		return m_columnList.iterator();
 	}
 
-	public int indexOf(@Nonnull ColumnDef< ? > scd) {
+	public int indexOf(@Nonnull ColumnDef<T, ? > scd) {
 		return m_columnList.indexOf(scd);
 	}
 
 	@Nullable
-	public ColumnDef< ? > getSortColumn() {
+	public ColumnDef<T, ? > getSortColumn() {
 		return m_sortColumn;
 	}
 
-	protected void updateDefaultSort(@Nonnull ColumnDef< ? > scd) {
+	protected void updateDefaultSort(@Nonnull ColumnDef<T, ? > scd) {
 		if(m_sortColumn == scd)
 			m_sortDescending = scd.getSortable() == SortableType.SORTABLE_DESC;
 	}
@@ -219,14 +219,14 @@ public class ColumnList<T> implements Iterable<ColumnDef< ? >> {
 	 * @return
 	 */
 	@Nonnull
-	public <V> ColumnDef<V> column(@Nonnull Class<V> type, @Nonnull @GProperty String property) {
+	public <V> ColumnDef<T, V> column(@Nonnull Class<V> type, @Nonnull @GProperty String property) {
 		PropertyMetaModel<V> pmm = (PropertyMetaModel<V>) model().getProperty(property);
 		return createColumnDef(pmm);
 	}
 
 	@Nonnull
-	private <V> ColumnDef<V> createColumnDef(@Nonnull PropertyMetaModel<V> pmm) {
-		ColumnDef<V> scd = new ColumnDef<V>(this, pmm);
+	private <V> ColumnDef<T, V> createColumnDef(@Nonnull PropertyMetaModel<V> pmm) {
+		ColumnDef<T, V> scd = new ColumnDef<T, V>(this, pmm);
 		scd.nowrap();
 		add(scd);
 		return scd;
@@ -239,7 +239,7 @@ public class ColumnList<T> implements Iterable<ColumnDef< ? >> {
 	 * @return
 	 */
 	@Nonnull
-	public ColumnDef< ? > column(@Nonnull @GProperty String property) {
+	public ColumnDef<T, ? > column(@Nonnull @GProperty String property) {
 		PropertyMetaModel< ? > pmm = model().getProperty(property);			// Get the appropriate model
 		return createColumnDef(pmm);
 	}
@@ -249,8 +249,8 @@ public class ColumnList<T> implements Iterable<ColumnDef< ? >> {
 	 * @return
 	 */
 	@Nonnull
-	public ColumnDef<T> column() {
-		ColumnDef<T> scd = new ColumnDef<T>(this, m_actualClass);
+	public ColumnDef<T, T> column() {
+		ColumnDef<T, T> scd = new ColumnDef<T, T>(this, m_actualClass);
 		add(scd);
 		scd.nowrap();
 		return scd;

@@ -1969,6 +1969,13 @@ final public class DomUtil {
 		}
 	}
 
+	public static void time(@Nonnull String what, @Nonnull IExecute exec) throws Exception {
+		long ts = System.nanoTime();
+		exec.execute();
+		ts = System.nanoTime() - ts;
+		System.out.println(what + " took " + StringTool.strNanoTime(ts));
+	}
+
 	private static boolean appendPartial(@Nonnull StringBuilder sb, @Nonnull String text) {
 		int todo = 400 - sb.length();
 		if(todo >= text.length()) {

@@ -24,9 +24,8 @@
  */
 package to.etc.domui.component.tbl;
 
-import java.util.*;
-
 import javax.annotation.*;
+import java.util.*;
 
 abstract public class PageableTabularComponentBase<T> extends SelectableTabularComponent<T> implements ITableModelListener<T> {
 	/** The current page #, starting at 0 */
@@ -34,7 +33,7 @@ abstract public class PageableTabularComponentBase<T> extends SelectableTabularC
 
 	protected int m_six, m_eix;
 
-	abstract int getPageSize();
+	abstract protected int getPageSize();
 
 	public PageableTabularComponentBase(ITableModel<T> model) {
 		super(model);

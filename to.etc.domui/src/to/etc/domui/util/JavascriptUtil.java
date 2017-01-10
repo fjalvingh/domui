@@ -16,7 +16,9 @@ final public class JavascriptUtil {
 	 * @return
 	 */
 	static public String	disableSelection(NodeBase nb) {
-		return "$('#" + nb.getActualID() + "').disableSelection();";
+		return "WebUI.disableSelect('" + nb.getActualID() + "');";
+
+		//return "$('#" + nb.getActualID() + "').disableSelection();";
 	}
 
 	/**
@@ -25,7 +27,8 @@ final public class JavascriptUtil {
 	 * @return
 	 */
 	static public String enableSelection(NodeBase nb) {
-		return "$('#" + nb.getActualID() + "').enableSelection();";
+		return "WebUI.enableSelect('" + nb.getActualID() + "');";
+		//return "$('#" + nb.getActualID() + "').enableSelection();";
 	}
 
 	static public void setThreePanelHeight(@Nonnull JavascriptStmt statement, @Nullable NodeBase top, @Nonnull NodeBase middle, @Nullable NodeBase bottom) throws Exception {

@@ -1,11 +1,10 @@
 package to.etc.domui.server;
 
-import java.io.*;
+import to.etc.domui.util.upload.*;
 
 import javax.annotation.*;
 import javax.servlet.http.*;
-
-import to.etc.domui.util.upload.*;
+import java.io.*;
 
 /**
  *
@@ -60,6 +59,9 @@ public interface IRequestResponse {
 	 */
 	@Nonnull
 	public String getApplicationURL();
+
+	@Nonnull
+	String getHostURL();
 
 	@Nonnull
 	public String[] getParameters(@Nonnull String name);

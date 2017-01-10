@@ -24,11 +24,6 @@
  */
 package to.etc.domui.state;
 
-import java.io.*;
-import java.security.*;
-import java.util.*;
-import javax.annotation.*;
-
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.server.*;
@@ -36,6 +31,11 @@ import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 import to.etc.webapp.query.*;
+
+import javax.annotation.*;
+import java.io.*;
+import java.security.*;
+import java.util.*;
 
 /**
  * Encapsulates parameters for a page. All parameters must be presentable in URL form,
@@ -262,6 +262,12 @@ public class PageParameters implements IPageParameters, Serializable {
 				if(key == null)
 					throw new IllegalStateException("The instance of " + o.getClass() + " passed has a null primary key");
 				keyval = CompoundKeyConverter.INSTANCE.marshal(key);
+			}
+		}else if (o instanceof Date){
+			//-- Special handling for Date url parameters
+			IConverter<Date> dateConv = ConverterRegistry.findURLConverter(Date.class);
+			if (null != dateConv){
+				keyval = dateConv.convertObjectToString(Locale.getDefault(), (Date) o);
 			}
 		}
 

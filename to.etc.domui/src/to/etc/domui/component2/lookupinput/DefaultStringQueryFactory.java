@@ -7,9 +7,22 @@ import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
 import to.etc.domui.util.*;
+import to.etc.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.query.*;
 
+/**
+ * This is the default query generator which calculates QCriteria for a quick search
+ * done in {@link LookupInputBase2}. It uses the search properties to create a query
+ * by taking the entered string, and creating an "or" of "like" operations for each
+ * property we search on.
+ * <p>For instance a search string 'Utr' could result in something like:</p>
+ * <pre>
+ *     streetname like 'UTR%' or cityname like 'UTR%'
+ * </pre>
+ *
+ * @param <QT>
+ */
 public class DefaultStringQueryFactory<QT> implements IStringQueryFactory<QT> {
 	/**
 	 * The metamodel to use to handle the query data in this class. For Javabean data classes this is automatically
@@ -29,6 +42,19 @@ public class DefaultStringQueryFactory<QT> implements IStringQueryFactory<QT> {
 	@Override
 	public QCriteria<QT> createQuery(String searchString) throws Exception {
 		searchString = DomUtil.nullChecked(searchString.replace("*", "%"));
+		if(searchString.startsWith("$$") && searchString.length() > 2) {
+			String idString = searchString.substring(2);
+			PropertyMetaModel<?> primaryKey = getQueryMetaModel().getPrimaryKey();
+			if(null != primaryKey) {
+				Class<?> pkType = primaryKey.getActualType();
+				Object pk = RuntimeConversions.convertTo(idString, pkType);
+				if(null != pk) {
+					QCriteria<QT> searchQuery = (QCriteria<QT>) getQueryMetaModel().createCriteria();
+					searchQuery.eq(primaryKey.getName(), pk);
+					return searchQuery;
+				}
+			}
+		}
 
 		//-- Has default meta?
 		List<SearchPropertyMetaModel> keywordLookupPropertyList = m_keywordLookupPropertyList;
@@ -49,23 +75,25 @@ public class DefaultStringQueryFactory<QT> implements IStringQueryFactory<QT> {
 					if(pl.size() == 0)
 						throw new ProgrammerErrorException("Unknown/unresolvable lookup property " + spm.getPropertyName() + " on " + getQueryMetaModel());
 
-					//It is required that lookup by id is also available, for now only Long type and BigDecimal interpretated as Long (fix for 1228) are supported
+					//It is required that lookup by id is also available, for now only Long type and BigDecimal interpreted as Long (fix for 1228) are supported
 					//FIXME: see if it is possible to generalize things for all integer based types... (DomUtil.isIntegerType(pmm.getActualType()))
-					if(pl.get(0).getActualType() == Long.class || pl.get(0).getActualType() == BigDecimal.class) {
-						if(searchString.contains("%") && !pl.get(0).isTransient()) {
+					PropertyMetaModel<?> lastProperty = pl.get(pl.size() - 1);
+
+					if(lastProperty.getActualType() == Long.class || lastProperty.getActualType() == BigDecimal.class) {
+						if(searchString.contains("%") && !lastProperty.isTransient()) {
 							r.add(new QPropertyComparison(QOperation.LIKE, spm.getPropertyName(), new QLiteral(searchString)));
 						} else {
 							try {
-								Long val = Long.valueOf(searchString);
-								if(val != null) {
-									r.eq(spm.getPropertyName(), val.longValue());
+								Object value = RuntimeConversions.convertTo(searchString, lastProperty.getActualType());
+								if(null != value) {
+									r.eq(spm.getPropertyName(), value);
 									ncond++;
 								}
-							} catch(NumberFormatException ex) {
+							} catch(Exception ex) {
 								//just ignore this since it means that it is not correct Long condition.
 							}
 						}
-					} else if(pl.get(0).getActualType().isAssignableFrom(String.class)) {
+					} else if(lastProperty.getActualType().isAssignableFrom(String.class)) {
 						if(spm.isIgnoreCase()) {
 							r.ilike(spm.getPropertyName(), searchString + "%");
 						} else {

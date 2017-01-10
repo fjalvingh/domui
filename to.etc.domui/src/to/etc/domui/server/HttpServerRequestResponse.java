@@ -1,13 +1,12 @@
 package to.etc.domui.server;
 
-import java.io.*;
-
-import javax.annotation.*;
-import javax.servlet.http.*;
-
 import to.etc.domui.util.upload.*;
 import to.etc.net.*;
 import to.etc.webapp.core.*;
+
+import javax.annotation.*;
+import javax.servlet.http.*;
+import java.io.*;
 
 public class HttpServerRequestResponse implements IRequestResponse {
 	@Nonnull
@@ -112,6 +111,12 @@ public class HttpServerRequestResponse implements IRequestResponse {
 	@Nonnull
 	public String getApplicationURL() {
 		return NetTools.getApplicationURL(getRequest());
+	}
+
+	@Override
+	@Nonnull
+	public String getHostURL() {
+		return NetTools.getHostURL(getRequest());
 	}
 
 	/**

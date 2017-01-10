@@ -24,15 +24,15 @@
  */
 package to.etc.domui.component.meta.impl;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
+
+import javax.annotation.*;
+import javax.annotation.concurrent.*;
+import java.util.*;
 
 /**
  * This is a DomUI class metamodel info record that only contains data. It can be constructed by
@@ -55,10 +55,15 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	@Nonnull
 	final private BundleRef m_classBundle;
 
-	/** An immutable list of all properties of this class. This list differs from m_propertyMap: the map contains all calculated properties too. */
+	/** An immutable list of all properties of this class. */
 	private List<PropertyMetaModel< ? >> m_rootProperties;
 
-	private final Map<String, PropertyMetaModel< ? >> m_propertyMap = new HashMap<String, PropertyMetaModel< ? >>();
+	/** All undotted properties, set at initialization time, */
+	@Nonnull
+	private Map<String, PropertyMetaModel< ? >> m_simplePropertyMap = Collections.EMPTY_MAP;
+
+	@Nonnull
+	final private Map<String, PropertyMetaModel< ? >> m_dottedPropertyMap = new HashMap<>();
 
 	/**
 	 * When this object type is defined in an UP relation somewhere, this is a hint on what
@@ -121,6 +126,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 
 	private String m_defaultSortProperty;
 
+	@Nullable
 	private SortableType m_defaultSortDirection;
 
 	private PropertyMetaModel< ? > m_primaryKey;
@@ -133,11 +139,14 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		m_classBundle = BundleRef.create(metaClass, m_classNameOnly);
 	}
 
-	synchronized void setClassProperties(List<PropertyMetaModel< ? >> reslist) {
+	@GuardedBy("MetaManager.class")
+	void setClassProperties(List<PropertyMetaModel< ? >> reslist) {
 		m_rootProperties = Collections.unmodifiableList(reslist);
+		Map<String, PropertyMetaModel<?>> propMap = new HashMap<>();		// Set all undotted properties
 		for(PropertyMetaModel< ? > pmm : reslist) {
-			m_propertyMap.put(pmm.getName(), pmm);
+			propMap.put(pmm.getName(), pmm);
 		}
+		m_simplePropertyMap = Collections.unmodifiableMap(propMap);			// Save,
 	}
 
 	/*--------------------------------------------------------------*/
@@ -209,13 +218,34 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 */
 	@Override
 	@Nullable
-	public synchronized PropertyMetaModel< ? > findProperty(@Nonnull final String name) {
-		PropertyMetaModel< ? > pmm = m_propertyMap.get(name);
+	public PropertyMetaModel< ? > findProperty(@Nonnull final String name) {
+		if(name.indexOf('.') == -1)						// No dot?
+			return findSimpleProperty(name);			// Find it without lock
+
+		/*
+		 * We need to check the dotted map, and we need to prevent deadlocking the system when multiple classes are
+		  * initializing.
+		 */
+		PropertyMetaModel< ? > pmm;
+		synchronized(this) {
+			pmm = m_dottedPropertyMap.get(name);
 		if(pmm != null)
 			return pmm;
+		}
+
+		//-- Create a compound property outside the lock; this prevents deadlock at the costs of running several copies at the same time.
 		pmm = MetaManager.internalCalculateDottedPath(this, name);
-		if(pmm != null)
-			m_propertyMap.put(name, pmm); // Save resolved path's property info
+		if(pmm != null) {
+			/*
+			 * Now resolve the possible multiple resolutions of the same dotted path, by checking if some other thread "stored first".
+			 */
+			synchronized(this) {
+				PropertyMetaModel<?> racePmm = m_dottedPropertyMap.get(name);        // Was a path stored in the meanwhile?
+				if(null != racePmm)
+					return racePmm;                                                    // Yes-> the earlier thread won, use it's result
+				m_dottedPropertyMap.put(name, pmm);                // We won ;)
+			}
+		}
 		return pmm;
 	}
 
@@ -228,10 +258,15 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		return pmm;
 	}
 
+	/**
+	 * Not synchronized because the simple map is initialized when the ClassMetaModel is created and after that it's immutable.
+	 * @param name
+	 * @return
+	 */
 	@Override
 	@Nullable
-	public synchronized PropertyMetaModel< ? > findSimpleProperty(@Nonnull final String name) {
-		return m_propertyMap.get(name);
+	public PropertyMetaModel< ? > findSimpleProperty(@Nonnull final String name) {
+		return m_simplePropertyMap.get(name);
 	}
 
 	@Override
@@ -341,11 +376,11 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	}
 
 	@Override
-	public @Nonnull SortableType getDefaultSortDirection() {
+	public @Nullable SortableType getDefaultSortDirection() {
 		return m_defaultSortDirection;
 	}
 
-	public void setDefaultSortDirection(final SortableType defaultSortDirection) {
+	public void setDefaultSortDirection(@Nullable final SortableType defaultSortDirection) {
 		m_defaultSortDirection = defaultSortDirection;
 	}
 

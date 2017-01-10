@@ -66,7 +66,7 @@ public class SmallImgButton extends Button {
 	}
 
 	/**
-	 * Set a new image using a web resource's abolute path. If the name is prefixed
+	 * Set a new image using a web resource's absolute path. If the name is prefixed
 	 * with THEME/ it specifies an image from the current THEME's directory.
 	 * @param src
 	 */

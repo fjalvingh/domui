@@ -72,9 +72,9 @@ public class TreeSelect<T> extends Tree<T> implements IHasChangeListener {
 	}
 
 	@Override
-	protected void cellClicked(TD cell, T value) throws Exception {
+	protected void cellClicked(TD cell, T value, ClickInfo clinfo) throws Exception {
 		setValue(value);
-		super.cellClicked(cell, value);
+		super.cellClicked(cell, value, clinfo);
 	}
 
 	@Override

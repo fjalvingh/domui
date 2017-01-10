@@ -36,10 +36,16 @@ $(window).bind('beforeunload', function() {
 
 ( function($) {
 	$.fn.center = function() {
-		if(this.css("position") != "fixed")
+		if(this.css("position") != "fixed") {
 			this.css("position", "absolute");
-		this.css("top", Math.max(0, ( ($(window).height() - this.outerHeight()) / 2) + $(window).scrollTop()) + "px");
-		this.css("left", Math.max(0, ( ($(window).width() - this.outerWidth()) / 2) + $(window).scrollLeft()) + "px");
+			this.css("top", Math.max(0, ( ($(window).height() - this.outerHeight()) / 2) + $(window).scrollTop()) + "px");
+			this.css("left", Math.max(0, ( ($(window).width() - this.outerWidth()) / 2) + $(window).scrollLeft()) + "px");
+		} else {
+			//-- For fixed: do not include scroll.
+			this.css("top", Math.max(0, ( ($(window).height() - this.outerHeight()) / 2)) + "px");
+			this.css("left", Math.max(0, ( ($(window).width() - this.outerWidth()) / 2)) + "px");
+		}
+
 		return this;
 	};
 
@@ -281,6 +287,10 @@ $(window).bind('beforeunload', function() {
 									alert('domjs_ eval failed: '+ex+", value="+s);
 									throw ex;
 								}
+							}
+							if (v == '---') { // drop attribute request?
+								dest.removeAttribute(n);
+								continue;
 							}
 							if (n == 'style') { // IE workaround
 								dest.style.cssText = v;
@@ -1680,6 +1690,46 @@ $.extend(WebUI, {
 		WebUI.dateInputRepairValueIn(c);
 	},
 
+	dateInputRepairValueIn : function(c) {
+		if(!c)
+			return;
+		var val = c.value;
+
+		if(!val || val.length == 0) // Nothing to see here, please move on.
+			return;
+		Calendar.__init();
+
+		// -- 20130425 jal if this is a date+time thing the value will hold space-separated time, so make sure to split it;
+		var pos = val.indexOf(' ');
+		var timeval = null;
+		if(pos != -1) {
+			// -- Split into trimmed time part and val = only date
+			timeval = $.trim(val.substring(pos + 1));
+			val = $.trim(val.substring(0, pos));
+		}
+
+		// -- Try to decode then reformat the date input
+		var fmt = Calendar._TT["DEF_DATE_FORMAT"];
+		try {
+			var separatorsCount = WebUI.countSeparators(val);
+			if(separatorsCount < 2) {
+				val = WebUI.insertDateSeparators(val, fmt, separatorsCount);
+				var res = Date.parseDate(val, fmt);
+				c.value = res.print(fmt);
+			} else {
+				try{
+					var resultOfConversion = WebUI.parsingOfFormat(val, fmt);
+					var res = Date.parseDate(resultOfConversion, fmt);
+					c.value = res.print(fmt);
+				}catch(x){
+					Date.parseDate(val, fmt);
+				}
+			}
+		} catch(x) {
+			alert(Calendar._TT["INVALID"]);
+		}
+	},
+
 	/**
 	 * Function that checks is format valid after check that input has separators.
 	 */
@@ -2640,6 +2690,7 @@ $.extend(WebUI, {
 	},
 
 	/**
+	 * @deprecated This is incorrect! Use disableSelect below!
 	 * Disable selection on the given element.
 	 */
 	disableSelection : function(node) {
@@ -2649,6 +2700,22 @@ $.extend(WebUI, {
 		node.unselectable = "on";
 		node.style.MozUserSelect = "none";
 		node.style.cursor = "default";
+	},
+
+	disableSelect: function(id) {
+		if($.browser.msie) {
+			$('#' + id).disableSelection();
+		} else {
+			$('#' + id).addClass("ui-selection-disable");
+		}
+	},
+
+	enableSelect: function(id) {
+		if($.browser.msie) {
+			$('#' + id).enableSelection();
+		} else {
+			$('#' + id).removeClass("ui-selection-disable");
+		}
 	},
 
 	checkBrowser: function() {
@@ -2869,8 +2936,8 @@ $.extend(WebUI, {
 	    $(flexid).height(height + "px");
     },
 
-    notifySizePositionChanged: function(event, ui) {
-   	    var element = ui.helper.get(0);
+    notifySizePositionChangedOnId: function(elemId) {
+		var element = document.getElementById(elemId);
    	    if (!element){
    	    	return;
    	    }
@@ -2880,6 +2947,14 @@ $.extend(WebUI, {
 		fields[element.id + "_rect"] = $(element).position().left + "," + $(element).position().top + "," + $(element).width() + "," + $(element).height();
 		fields["window_size"] = window.innerWidth + "," + window.innerHeight;
 		WebUI.scall(element.id, "notifyClientPositionAndSize", fields);
+    },
+
+    notifySizePositionChanged: function(event, ui) {
+   	    var element = ui.helper.get(0);
+   	    if (!element){
+   	    	return;
+   	    }
+   	    WebUI.notifySizePositionChangedOnId(element.id);
     },
 
 	/** *************** Debug thingy - it can be used internaly for debuging javascript ;) ************** */
@@ -3462,18 +3537,23 @@ $.extend(WebUI, {
 
 	//alignment methods
 	//sticks top of element with nodeId to bottom of element with alignToId, with extra offsetY.
-	alignTopToBottom : function (nodeId, alignToId, offsetY){
+	alignTopToBottom : function (nodeId, alignToId, offsetY, doCallback){
 		var alignNode = $('#' + alignToId);
 		var node = $('#' + nodeId);
+		var myTopPos;
 		if (node.css('position') == 'fixed'){
-			$(node).css('top', $(alignNode).offset().top - $(document).scrollTop() + offsetY + $(alignNode).outerHeight(true));
+			myTopPos = $(alignNode).offset().top - $(document).scrollTop() + offsetY + $(alignNode).outerHeight(true);
 		}else{
-			$(node).css('top', $(alignNode).position().top + offsetY + $(alignNode).outerHeight(true));
+			myTopPos = $(alignNode).position().top + offsetY + $(alignNode).outerHeight(true);
+		}
+		$(node).css('top', myTopPos);
+		if (doCallback){
+			WebUI.notifySizePositionChangedOnId(nodeId);
 		}
 	},
 
 	//align top of element with nodeId to top of element with alignToId, with extra offsetY
-	alignToTop : function (nodeId, alignToId, offsetY){
+	alignToTop : function (nodeId, alignToId, offsetY, doCallback){
 		var alignNode = $('#' + alignToId);
 		var node = $('#' + nodeId);
 		var myTopPos;
@@ -3487,10 +3567,13 @@ $.extend(WebUI, {
 			myTopPos = $(window).height() - nodeHeight;
 		}
 		$(node).css('top', myTopPos);
+		if (doCallback){
+			WebUI.notifySizePositionChangedOnId(nodeId);
+		}
 	},
 
 	//align left edge of element with nodeId to left edge of element with alignToId, with extra offsetX
-	alignToLeft : function (nodeId, alignToId, offsetX){
+	alignToLeft : function (nodeId, alignToId, offsetX, doCallback){
 		var node = $('#' + nodeId);
 		var alignNode = $('#' + alignToId);
 		var myLeftPos;
@@ -3507,10 +3590,13 @@ $.extend(WebUI, {
 			}
 		}
 		$(node).css('left', myLeftPos);
+		if (doCallback){
+			WebUI.notifySizePositionChangedOnId(nodeId);
+		}
 	},
 
 	//align right edge of element with nodeId to right edge of element with alignToId, with extra offsetX
-	alignToRight : function (nodeId, alignToId, offsetX){
+	alignToRight : function (nodeId, alignToId, offsetX, doCallback){
 		var node = $('#' + nodeId);
 		var alignNode = $('#' + alignToId);
 		var myLeftPos;
@@ -3523,10 +3609,13 @@ $.extend(WebUI, {
 			myLeftPos = 1;
 		}
 		$(node).css('left', myLeftPos);
+		if (doCallback){
+			WebUI.notifySizePositionChangedOnId(nodeId);
+		}
 	},
 
 	//align horizontaly middle of element with nodeId to middle of element with alignToId, with extra offsetX
-	alignToMiddle : function (nodeId, alignToId, offsetX){
+	alignToMiddle : function (nodeId, alignToId, offsetX, doCallback){
 		var node = $('#' + nodeId);
 		var alignNode = $('#' + alignToId);
 		var myLeftPos;
@@ -3539,6 +3628,9 @@ $.extend(WebUI, {
 			myLeftPos = 1;
 		}
 		$(node).css('left', myLeftPos);
+		if (doCallback){
+			WebUI.notifySizePositionChangedOnId(nodeId);
+		}
 	}
 });
 

@@ -38,7 +38,7 @@ import to.etc.domui.dom.html.*;
 @DefaultNonNull
 final public class HeaderContainer<T> {
 	@Nullable
-	private final String m_labelCss;
+	private final String m_headerRowCSS;
 
 	private TableModelTableBase<T> m_table;
 
@@ -49,10 +49,10 @@ final public class HeaderContainer<T> {
 
 	private boolean m_finished;
 
-	public HeaderContainer(TableModelTableBase<T> table, THead head, @Nullable String labelRowCss) {
+	public HeaderContainer(TableModelTableBase<T> table, THead head, @Nullable String headerRowCSS) {
 		m_table = table;
 		m_head = head;
-		m_labelCss = labelRowCss;
+		m_headerRowCSS = headerRowCSS;
 	}
 
 	public TableModelTableBase<T> getTable() {
@@ -61,31 +61,36 @@ final public class HeaderContainer<T> {
 
 	public void addHeader(boolean after, @Nonnull TableHeader header) {
 		if(after) {
-			row();						// Make sure the label row is there.
+			row();							// Make sure the label row is there.
 			m_head.add(header);
 		} else {
-			TR tr = m_tr;                // Already have the label row?
+			TR tr = m_tr;					// Already have the label row?
 			if(null == tr) {
-				m_head.add(header);        // No: just add
+				m_head.add(header);			// No: just add
 			} else {
 				tr.appendBeforeMe(header);
 			}
 		}
+		header.addCssClass("ui-dt-hdr-extra");
 	}
 
+	/**
+	 * Return the main header row. Create it if it does not yet exist.
+	 * @return
+	 */
 	final public TR row() {
 		m_finished = true;
 		TR tr = m_tr;
 		if(null == tr) {
 			m_tr = tr = new TR();
-			tr.setCssClass(m_labelCss);
+			tr.setCssClass(m_headerRowCSS);
 			m_head.add(tr);
 		}
 		return tr;
 	}
 
 	/**
-	 * Adds a column to the table.
+	 * Adds a column header to the table.
 	 * @param columnContent
 	 */
 	public TH add(@Nullable NodeBase columnContent) {

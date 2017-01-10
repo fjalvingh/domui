@@ -45,6 +45,8 @@ public class StringLikeSearchMatchUtil {
 					case ']':
 					case '|':
 					case '-':
+					case '{':
+					case '}':
 						sb.append("\\");				// Escape
 						sb.append(c);
 						break;
@@ -60,5 +62,4 @@ public class StringLikeSearchMatchUtil {
 		}
 		return m.reset(val).matches();
 	}
-
 }

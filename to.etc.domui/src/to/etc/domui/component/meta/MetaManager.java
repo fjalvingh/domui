@@ -50,6 +50,13 @@ import to.etc.webapp.query.*;
  * Created on Jun 16, 2008
  */
 final public class MetaManager {
+
+	/**
+	 * Used for lazy loaded formula fields as handler
+	 */
+	@Nonnull
+	private static final String pFIELDHANDLER = "fieldHandler";
+
 	static private List<IClassMetaModelFactory> m_modelList = new ArrayList<IClassMetaModelFactory>();
 
 	/**
@@ -555,7 +562,9 @@ final public class MetaManager {
 					throw new MetaModelException(Msgs.BUNDLE, Msgs.MM_UNKNOWN_COLLECTION_TYPE, compoundName, name, vtype);
 				cmm = nextmm;
 			} else {
-				cmm = MetaManager.findClassMeta(pmm.getActualType());
+				cmm = pmm.getValueModel();
+				if(null == cmm)
+					cmm = MetaManager.findClassMeta(pmm.getActualType());
 			}
 			res.add(pmm);
 		}
@@ -826,7 +835,9 @@ final public class MetaManager {
 		Locale loc = NlsContext.getLocale();
 		String v = pmm.getDomainValueLabel(loc, value);
 		if(v == null) {
-			ClassMetaModel cmm = MetaManager.findClassMeta(pmm.getActualType());
+			ClassMetaModel cmm = pmm.getValueModel();
+			if(null == cmm)
+				cmm = MetaManager.findClassMeta(pmm.getActualType());
 			v = cmm.getDomainLabel(loc, value);
 			if(v == null) {
 				if(value.getClass() != cmm.getActualClass()) {
@@ -1000,6 +1011,7 @@ final public class MetaManager {
 			if((!opmm.isPrimaryKey() || copyPK) && //
 				(!opmm.isTransient() || copyTransient) && //
 				(!"tcn".equalsIgnoreCase(opmm.getName()) || copyTCN) && //
+				!pFIELDHANDLER.equals(opmm.getName()) && //
 				opmm.getReadOnly() != YesNoType.YES && //
 				(ignoreList.size() == 0 || !ignoreList.contains(opmm.getName()))) {
 				try {

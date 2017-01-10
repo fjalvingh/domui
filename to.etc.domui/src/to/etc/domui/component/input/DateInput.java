@@ -163,6 +163,7 @@ public class DateInput extends Text<Date> {
 			len += 6;
 			if(isWithSeconds())
 				len += 3;
+			setSpecialAttribute("withtime", "true");
 		}
 		setMaxLength(len);
 		setSize(len + 1);						// jal 2014/06/27 Need one extra or the last digit does not show!!

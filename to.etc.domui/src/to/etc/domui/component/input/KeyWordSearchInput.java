@@ -70,8 +70,8 @@ public class KeyWordSearchInput<T> extends Div {
 	public KeyWordSearchInput() {
 	}
 
-	public KeyWordSearchInput(String m_inputCssClass) {
-		m_keySearch.setCssClass(m_inputCssClass);
+	public KeyWordSearchInput(String inputCssClass) {
+		m_keySearch.setCssClass(inputCssClass);
 	}
 
 	@Override
@@ -257,7 +257,6 @@ public class KeyWordSearchInput<T> extends Div {
 
 	/**
 	 * Getter for hint. See {@link KeyWordSearchInput#setHint}.
-	 * @param hint
 	 */
 	@Nullable
 	public String getHint() {

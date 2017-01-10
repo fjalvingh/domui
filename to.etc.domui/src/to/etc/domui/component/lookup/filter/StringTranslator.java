@@ -16,9 +16,12 @@ import to.etc.xml.*;
 @DefaultNonNull
 final class StringTranslator implements ITranslator<String> {
 
+	@Nullable
 	@Override
 	public String deserialize(QDataContext dc, Node node) throws Exception {
 		Node valueNode = DomTools.nodeFind(node, VALUE);
+		if(null == valueNode)
+			return null;
 		return DomTools.textFrom(valueNode);
 	}
 

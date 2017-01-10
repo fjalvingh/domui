@@ -145,6 +145,7 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 		if(setter == null)
 			throw new IllegalAccessException("The property " + this + " is read-only.");
 		try {
+			setter.setAccessible(true);
 			setter.invoke(target, value);
 		} catch(InvocationTargetException itx) {
 			Throwable c = itx.getCause();
@@ -178,6 +179,7 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 		if(in == null)
 			throw new IllegalStateException("The 'input' object is null (getter method=" + m_descriptor.getGetter() + ")");
 		try {
+			m_descriptor.getGetter().setAccessible(true);
 			return (T) m_descriptor.getGetter().invoke(in);
 		} catch(InvocationTargetException itx) {
 //			System.err.println(itx + " (in calling " + m_descriptor.getGetter() + " with input object " + in + ")");

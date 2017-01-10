@@ -110,7 +110,7 @@ public class Dialog extends Window {
 	/**
 	 * Define the button bar to be on the bottom. Must be called before the button bar
 	 * is created or used.
-	 * @param ontop
+	 * @param onbottom
 	 */
 	public void setButtonsOnBottom(boolean onbottom) {
 		if(m_buttonBar != null)
@@ -120,7 +120,7 @@ public class Dialog extends Window {
 
 	/**
 	 * Create the button bar if it does not already exists.
-	 * @param ontop
+	 * @param onbottom
 	 */
 	private void createButtonBar(boolean onbottom) {
 		if(m_buttonBar != null)

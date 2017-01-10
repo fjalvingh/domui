@@ -24,15 +24,14 @@
  */
 package to.etc.domui.component.tbl;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * POC for a datatable based on the live dom code.
@@ -71,6 +70,9 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 
 	/** This will control the display of readonly checkboxes, in case the items are 'not acceptable' but selection is enabled. */
 	private boolean m_displayReadonlySelection = true;
+
+	/** When T, the header of the table is always shown, even if the list of results is empty. */
+	private boolean m_showHeaderAlways;
 
 	@Nonnull
 	final private IClicked<TH> m_headerSelectClickHandler = new IClicked<TH>() {
@@ -125,6 +127,16 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 	 */
 	protected void setDataBody(@Nonnull TBody dataBody) {
 		m_dataBody = dataBody;
+		updateBodyClipboardSelection();
+	}
+
+	protected void updateBodyClipboardSelection() {
+		TBody dataBody = m_dataBody;
+		if(null == dataBody)
+			return;
+		if(isDisableClipboardSelection()) {
+			appendJavascript(JavascriptUtil.disableSelection(dataBody));
+		}
 	}
 
 	@Nonnull
@@ -207,12 +219,13 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 
 		m_dataBody = new TBody();
 		m_table.add(m_dataBody);
+		updateBodyClipboardSelection();
 	}
 
 	/**
 	 * DO NOT OVERRIDE - INTERNAL ONLY - DEPRECATED FOR EXTERNAL USE!!
 	 *
-	 * Renders the table header. If we're in multiselect mode the first column will be
+	 * Renders the table header. If we're in multi select mode the first column will be
 	 * added as a checkbox column. The rest of the columns is delegated to the row
 	 * renderer in use.
 	 *
@@ -233,21 +246,48 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 		m_rowRenderer.renderHeader(this, hc);
 	}
 
+	private void setNoResults() throws Exception {
+		if(m_showHeaderAlways)
+			setNoResultsWithHeader();
+		else
+			setNoResultsWithoutHeader();
+	}
+
 	/**
-	 * Removes any data table, and presents the "no results found" div.
+	 * Shows an empty data table including header, followed by the no results div.
 	 */
-	private void setNoResults() {
+	private void setNoResultsWithHeader() throws Exception {
 		m_visibleItemList.clear();
-		m_ml.add("setNoResults visibleList cleared");
+		ml("setNoResults visibleList cleared");
 		if(m_errorDiv != null)
 			return;
 
 		if(m_table != null) {
 			m_table.removeAllChildren();
-			m_table.remove();
-			m_dataBody = null;
+		} else {
+			add(m_table = new Table());
+		}
+		m_dataBody = null;
+
+		//-- Render the header.
+		if(! m_table.isAttached())
+			add(m_table);
+		THead hd = new THead();
+		m_table.add(hd);
+		HeaderContainer<T> hc = new HeaderContainer<>(this, hd, "ui-dt-hdr");
+
+		renderHeader(hc);
+		if(!hc.hasContent()) {
+			hd.remove();
 		}
 
+		m_dataBody = new TBody();
+		m_table.add(m_dataBody);
+		updateBodyClipboardSelection();
+		renderNoResultsMessage();
+	}
+
+	private void renderNoResultsMessage() {
 		m_errorDiv = new Div();
 		m_errorDiv.setCssClass("ui-dt-nores");
 
@@ -258,7 +298,24 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 			m_errorDiv.add(emptyMessage);
 		}
 		add(m_errorDiv);
-		return;
+	}
+
+	/**
+	 * Removes any data table, and presents the "no results found" div.
+	 */
+	private void setNoResultsWithoutHeader() throws Exception {
+		m_visibleItemList.clear();
+		ml("setNoResults visibleList cleared");
+		if(m_errorDiv != null)
+			return;
+
+		if(m_table != null) {
+			m_table.removeAllChildren();
+			m_table.remove();
+			m_dataBody = null;
+		}
+
+		renderNoResultsMessage();
 	}
 
 	public void setEmptyMessage(@Nullable String message) {
@@ -299,6 +356,8 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 				}
 			});
 			cc.getTR().addCssClass("ui-rowsel");
+		} else {
+			cc.getTR().addCssClass("ui-dt-row-nosel");
 		}
 
 		if(sm != null) {
@@ -315,6 +374,9 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 				TD td = cc.add(cb);
 				if(cb.isReadOnly()) {
 					td.addCssClass("ui-cur-default");
+				}else{
+					//it very annoying to target small check box, so we also allow click in cell outside to perform check/uncheck
+					hookCheckboxClickToCellToo(td, cb);
 				}
 
 				cb.setChecked(issel);
@@ -323,6 +385,17 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 		internalRenderRow(tr, cc, index, value);
 	}
 
+	private void hookCheckboxClickToCellToo(TD td, Checkbox cb) {
+		td.setClicked((IClicked2<TD>)(node, clinfo) -> {
+			if (!cb.isDisabled()){
+				IClickBase<?> clickHandler = cb.getClicked();
+				if (null != clickHandler && clickHandler instanceof IClicked2){
+					cb.setChecked(!cb.isChecked());
+					((IClicked2<Checkbox>) clickHandler).clicked(cb, clinfo);
+				}
+			}
+		});
+	}
 	/**
 	 * Must exist for CheckBoxDataTable; remove asap AND DO NOT USE AGAIN - internal interfaces should remain hidden.
 	 * @param tr
@@ -528,9 +601,12 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 			TD td = new TD();
 			tr.add(0, td);
 
-			Checkbox cb = createSelectionCheckbox(instance, getSelectionModel());
+			final Checkbox cb = createSelectionCheckbox(instance, getSelectionModel());
 			if(cb.isReadOnly()) {
 				td.addCssClass("ui-cur-default");
+			}else{
+				//it very annoying to target small check box, so we also allow click in cell outside to perform check/uncheck
+				hookCheckboxClickToCellToo(td, cb);
 			}
 			td.add(cb);
 			cb.setChecked(false);
@@ -603,37 +679,64 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 	 */
 	@Override
 	public void rowAdded(@Nonnull ITableModel<T> model, int index, @Nonnull T value) throws Exception {
-		if(!isBuilt())
-			return;
-		calcIndices(); // Calculate visible nodes
-		if(index < m_six || index >= m_eix) { // Outside visible bounds
+		try {
+			if(!isBuilt())
+				return;
+			calcIndices(); // Calculate visible nodes
+			if(index < m_six || index >= m_eix) { // Outside visible bounds
+				firePageChanged();
+				return;
+			}
+
+			//-- What relative row?
+			setResults();
+			int rrow = index - m_six; // This is the location within the child array
+			ml("rowAdded before anything: rrow=" + rrow +" index=" + index);
+			ColumnContainer<T> cc = new ColumnContainer<T>(this);
+			TR tr = new TR();
+			m_dataBody.add(rrow, tr);
+			cc.setParent(tr);
+			tr.setTestRepeatID("r" + index);
+			renderRow(tr, cc, index, value);
+			m_visibleItemList.add(rrow, value);
+			ml("rowAdded after adds: rrow=" + rrow + ", index=" + index);
+
+			//-- Is the size not > the page size?
+			if(m_pageSize > 0 && m_dataBody.getChildCount() > m_pageSize) {
+				//-- Delete the last row.
+				int lastChildIndex = m_dataBody.getChildCount() - 1;
+				ml("rowAdded removing last BODY row at " + lastChildIndex);
+				m_dataBody.removeChild(lastChildIndex); // Delete last element
+			}
+			if(m_pageSize > 0) {
+				while(m_visibleItemList.size() > m_pageSize) {
+					int lastChildIndex = m_visibleItemList.size() - 1;
+					ml("rowAdded removing last VISIBLE row at " + lastChildIndex);
+					m_visibleItemList.remove(lastChildIndex);
+				}
+				ml("rowAdded after pgsz delete visibleSz=" + m_visibleItemList.size());
+			}
+			handleOddEven(rrow);
 			firePageChanged();
-			return;
+		} catch(Exception x) {
+			System.err.println("Last DataTable actions:\n" + m_ml.getData());
+			throw x;
 		}
+	}
 
-		//-- What relative row?
-		setResults();
-		int rrow = index - m_six; // This is the location within the child array
-		ColumnContainer<T> cc = new ColumnContainer<T>(this);
-		TR tr = new TR();
-		m_dataBody.add(rrow, tr);
-		cc.setParent(tr);
-		tr.setTestRepeatID("r" + index);
-		renderRow(tr, cc, index, value);
-		m_visibleItemList.add(rrow, value);
-		m_ml.add("rowAdded: rrow=" + rrow + ", index=" + index + ", visibleSz after=" + m_visibleItemList.size() + ", databodysz=" + m_dataBody.getChildCount());
-
-		//-- Is the size not > the page size?
-		if(m_pageSize > 0 && m_dataBody.getChildCount() > m_pageSize) {
-			//-- Delete the last row.
-			m_dataBody.removeChild(m_dataBody.getChildCount() - 1); // Delete last element
+	private void ml(String rest) {
+		try {
+			TBody dataBody = m_dataBody;
+			int sz = dataBody == null ? -1 : dataBody.getChildCount();
+			m_ml.add(rest + ": six=" + m_six + ", eix=" + m_eix + ", visibleSz=" + m_visibleItemList.size() + ", bodySz=" + sz + ", modelSz=" + getModel().getRows());
+		} catch(Exception x) {
+			m_ml.add("Exception adding to log stack: " + x);
 		}
 		if(m_pageSize > 0) {
 			while(m_visibleItemList.size() > m_pageSize)
 				m_visibleItemList.remove(m_visibleItemList.size() - 1);
 			m_ml.add("rowAdded[2]: after pgsz delete visibleSz=" + m_visibleItemList.size());
 		}
-		handleOddEven(rrow);
 		firePageChanged();
 	}
 
@@ -657,8 +760,7 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 				return;
 			}
 			int rrow = index - m_six;                                // This is the location within the child array
-			m_ml.add(
-				"rowDeleted[1] index=" + index + ", rrow=" + rrow + ", six=" + m_six + ", eix=" + m_eix + ", databodysz=" + m_dataBody.getChildCount() + ", visibleCount=" + m_visibleItemList.size());
+			ml("rowDeleted before, index=" + index +", rrow=" + rrow);
 			m_dataBody.removeChild(rrow);
 			m_visibleItemList.remove(rrow);
 			if(m_dataBody.getChildCount() == 0) {
@@ -671,8 +773,7 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 			//-- One row gone; must we add one at the end?
 			int peix = m_six + m_pageSize - 1;                        // Index of last element on "page"
 			if(m_pageSize > 0 && peix < m_eix && peix < getModel().getRows()) {
-				m_ml.add("rowDeleted[2] index=" + index + ", rrow=" + rrow + ", six=" + m_six + ", eix=" + m_eix + ", databodysz=" + m_dataBody.getChildCount() + ", visibleCount=" + m_visibleItemList
-					.size() + ", peix=" + peix);
+				ml("rowDelete grow page: peix=" + peix + ", rrow=" + rrow);
 				ColumnContainer<T> cc = new ColumnContainer<T>(this);
 				TR tr = new TR();
 				cc.setParent(tr);
@@ -686,7 +787,11 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 			handleOddEven(rrow);
 			firePageChanged();
 		} catch(IndexOutOfBoundsException x) {
+			System.err.println("Last DataTable actions:\n" + m_ml.getData());
 			throw new RuntimeException("Bug 7153 rowDelete index error " + x.getMessage() + "\n" + m_ml.getData(), x);
+		} catch(Exception x) {
+			System.err.println("Last DataTable actions:\n" + m_ml.getData());
+			throw x;
 		}
 	}
 
@@ -715,15 +820,20 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 			return;
 		if(index < m_six || index >= m_eix) // Outside visible bounds
 			return;
-		int rrow = index - m_six; // This is the location within the child array
-		TR tr = (TR) m_dataBody.getChild(rrow); // The visible row there
-		tr.removeAllChildren(); // Discard current contents.
-		m_visibleItemList.set(rrow, value);
-		m_ml.add("rowModified: index=" + index + ", m_six=" + m_six + ", m_eix=" + m_eix + ", rrow=" + rrow);
+		try {
+			int rrow = index - m_six; // This is the location within the child array
+			TR tr = (TR) m_dataBody.getChild(rrow); // The visible row there
+			tr.removeAllChildren(); // Discard current contents.
+			m_visibleItemList.set(rrow, value);
+			ml("rowModified: index=" + index + ", rrow=" + rrow);
 
-		ColumnContainer<T> cc = new ColumnContainer<T>(this);
-		cc.setParent(tr);
-		renderRow(tr, cc, index, value);
+			ColumnContainer<T> cc = new ColumnContainer<T>(this);
+			cc.setParent(tr);
+			renderRow(tr, cc, index, value);
+		} catch(Exception x) {
+			System.err.println("Last DataTable actions:\n" + m_ml.getData());
+			throw x;
+		}
 	}
 
 	public void setTableWidth(@Nullable String w) {
@@ -745,7 +855,7 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 	@Override
 	protected void onForceRebuild() {
 		m_visibleItemList.clear();
-		m_ml.add("onForceRebuild, visiblesz cleared");
+		ml("onForceRebuild, visiblesz cleared");
 		m_lastSelectionLocation = -1;
 		super.onForceRebuild();
 	}
@@ -778,8 +888,6 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 	 * Called when a selection cleared event fires. The underlying model has already been changed. It
 	 * tries to see if the row is currently paged in, and if so asks the row renderer to update
 	 * it's selection presentation.
-	 *
-	 * @see to.etc.domui.component.tbl.ISelectionListener#selectionCleared(java.lang.Object, boolean)
 	 */
 	@Override
 	public void selectionAllChanged() throws Exception {
@@ -822,5 +930,21 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 			return;
 		m_displayReadonlySelection = displayReadonlySelection;
 		forceRebuild();
+	}
+
+	/**
+	 * When T, the header of the table is always shown, even if the list of results is empty.
+	 * @return
+	 */
+	public boolean isShowHeaderAlways() {
+		return m_showHeaderAlways;
+	}
+
+	/**
+	 * When T, the header of the table is always shown, even if the list of results is empty.
+	 * @param showHeaderAlways
+	 */
+	public void setShowHeaderAlways(boolean showHeaderAlways) {
+		m_showHeaderAlways = showHeaderAlways;
 	}
 }

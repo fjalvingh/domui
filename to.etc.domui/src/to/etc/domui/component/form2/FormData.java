@@ -29,6 +29,7 @@ import javax.annotation.*;
 import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.misc.*;
+import to.etc.domui.converter.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.annotations.*;
@@ -253,6 +254,9 @@ public class FormData<T> {
 	public <T> IControl< ? > addDisplayProp(@Nonnull @GProperty final String name, @Nonnull String label) throws Exception {
 		PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) resolveProperty(name);
 		DisplayValue<T> dv = new DisplayValue<T>(pmm.getActualType());
+		IConverter<T> converter = pmm.getConverter();
+		if(null != converter)
+			dv.setConverter(converter);
 		builder().addControl(label, null, new NodeBase[]{dv}, false, false, pmm);
 
 		if(label != null) {

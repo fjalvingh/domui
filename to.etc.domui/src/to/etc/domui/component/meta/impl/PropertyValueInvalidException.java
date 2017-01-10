@@ -1,8 +1,8 @@
 package to.etc.domui.component.meta.impl;
 
-import javax.annotation.*;
-
 import to.etc.domui.component.meta.*;
+
+import javax.annotation.*;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -27,7 +27,7 @@ final public class PropertyValueInvalidException extends RuntimeException {
 		StringBuilder sb = new StringBuilder();
 		Object value = m_value;
 		if(null != value) {
-			sb.append("Value of type ").append(value.getClass().getName());
+			sb.append("Value of type ").append(value.getClass().getName()).append(">").append(m_value).append("<");
 		} else {
 			sb.append("'null'");
 		}

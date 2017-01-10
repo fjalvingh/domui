@@ -37,6 +37,7 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.ConversationContext.ConversationState;
 import to.etc.domui.util.*;
+import to.etc.net.*;
 import to.etc.util.*;
 
 /**
@@ -392,9 +393,9 @@ final public class WindowSession {
 			String tu = m_targetURL;
 			if(null == tu)
 				throw new IllegalStateException("No URL in redirect?");
-			if(tu.startsWith("/"))
-				tu = tu.substring(1);
-			if(tu.indexOf(':') == -1) {
+			if(tu.startsWith("/")) {
+				tu = ctx.getRequestResponse().getHostURL() + tu.substring(1);
+			} else if(tu.indexOf(':') == -1) {
 				tu = ctx.getRelativePath(tu); 				// Make absolute.
 			}
 			logUser(ctx, currentpg, "GOTO redirect to " + tu);

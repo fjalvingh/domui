@@ -17,6 +17,7 @@ import to.etc.xml.*;
 @DefaultNonNull
 final class IIdentifyableTranslator implements ITranslator<IIdentifyable<?>> {
 
+	@Nullable
 	@Override
 	public IIdentifyable<?> deserialize(QDataContext dc, Node node) throws Exception {
 		Node valueNode = DomTools.nodeFind(node, VALUE);

@@ -233,10 +233,20 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 		if(m_disableClipboardSelection == disableClipboardSelection)
 			return;
 		m_disableClipboardSelection = disableClipboardSelection;
-		if(isBuilt() && disableClipboardSelection) {
-			appendJavascript(JavascriptUtil.disableSelection(this)); // Needed to prevent ctrl+click in IE doing clipboard-select, because preventDefault does not work there of course.
+		if(isBuilt()) {
+			if(disableClipboardSelection)
+				appendJavascript(JavascriptUtil.disableSelection(this)); // Needed to prevent ctrl+click in IE doing clipboard-select, because preventDefault does not work there of course.
+			else
+				appendJavascript(JavascriptUtil.enableSelection(this)); // Needed to prevent ctrl+click in IE doing clipboard-select, because preventDefault does not work there of course.
 		}
+
+		// Does not work on IE11, as usual: it does not disable selection using shift + click 8-(
+		//if(disableClipboardSelection)
+		//	addCssClass("ui-dt-disable-selection");
+		//else
+		//	removeCssClass("ui-dt-disable-selection");
 	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	ObservableList event handling						*/
 	/*--------------------------------------------------------------*/

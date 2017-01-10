@@ -2,7 +2,6 @@ package to.etc.domui.component.tbl;
 
 import javax.annotation.*;
 
-import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 
 /**
@@ -11,7 +10,7 @@ import to.etc.domui.dom.html.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 3, 2014
  */
-public interface IControlFactory<V> {
+public interface IRowControlFactory<R> {
 	@Nonnull
-	public IControl<V> createControl(@Nullable PropertyMetaModel<V> pmm) throws Exception;
+	IControl<?> createControl(@Nonnull R rowInstance) throws Exception;
 }

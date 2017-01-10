@@ -24,6 +24,7 @@
  */
 package to.etc.domui.converter;
 
+import java.math.*;
 import java.util.*;
 
 import to.etc.domui.component.meta.*;
@@ -37,19 +38,28 @@ import to.etc.domui.util.*;
  * Created on Mar 19, 2010
  */
 public class NumberConverter<T extends Number> implements IConverter<T> {
+	private final IConverter<? extends Number> m_converter;
+
 	private NumericPresentation m_presentation;
 
 	private int m_scale;
 
 	private Class<T> m_actualType;
 
+
 	public NumberConverter(Class<T> actualType, NumericPresentation presentation, int scale) {
 		m_actualType = actualType;
 		m_presentation = presentation;
 		m_scale = scale;
 		if(NumericPresentation.isMonetary(presentation)) {
-			throw new IllegalArgumentException("Not possible to create valid NumberConverter for monetary presentation:" + presentation.name()
-				+ ". Plase use any of Money converter classes (use MoneyConverterFactory to get one).");
+			if(actualType == BigDecimal.class)
+				m_converter = MoneyConverterFactory.createBigDecimalMoneyConverters(presentation);
+			else if(actualType == Double.class || actualType == double.class)
+				m_converter = MoneyConverterFactory.createDoubleMoneyConverters(presentation);
+			else
+				m_converter = null;
+		} else {
+			m_converter = null;
 		}
 		if(DomUtil.isIntegerType(m_actualType) && scale != 0) {
 			throw new IllegalArgumentException("Not possible to create valid NumberConverter for int types if scale is != 0, scale:" + m_scale);
@@ -58,11 +68,17 @@ public class NumberConverter<T extends Number> implements IConverter<T> {
 
 	@Override
 	public String convertObjectToString(Locale loc, T in) throws UIException {
+		IConverter<T> converter = (IConverter<T>) m_converter;
+		if(null != converter)
+			return converter.convertObjectToString(loc, in);
 		return NumericUtil.renderNumber(in, m_presentation, m_scale);
 	}
 
 	@Override
 	public T convertStringToObject(Locale loc, String in) throws UIException {
+		IConverter<T> converter = (IConverter<T>) m_converter;
+		if(null != converter)
+			return converter.convertStringToObject(loc, in);
 		return NumericUtil.parseNumber(m_actualType, in, m_scale, m_presentation);
 	}
 

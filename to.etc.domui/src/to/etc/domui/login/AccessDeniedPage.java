@@ -24,6 +24,8 @@
  */
 package to.etc.domui.login;
 
+import javax.annotation.*;
+
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.html.*;
@@ -31,8 +33,6 @@ import to.etc.domui.server.*;
 import to.etc.domui.state.*;
 import to.etc.domui.themes.*;
 import to.etc.domui.util.*;
-
-import javax.annotation.*;
 
 /**
  * Shows access denied info.

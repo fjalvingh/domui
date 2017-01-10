@@ -24,16 +24,11 @@
  */
 package to.etc.domui.dom.html;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.binding.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.header.*;
-import to.etc.domui.logic.*;
 import to.etc.domui.server.*;
 import to.etc.domui.state.*;
 import to.etc.domui.util.*;
@@ -41,6 +36,9 @@ import to.etc.domui.util.javascript.*;
 import to.etc.webapp.core.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * This is the main owner of all nodes; this represents all that is needed for a
@@ -1078,7 +1076,7 @@ final public class Page implements IQContextContainer {
 	/*----------------------------------------------------------------------*/
 
 	@DefaultNonNull
-	private static class NotificationListener<T> {
+	public static class NotificationListener<T> {
 		final private Class<T> m_eventClass;
 
 		final private NodeBase m_whom;
@@ -1106,13 +1104,13 @@ final public class Page implements IQContextContainer {
 
 	private List<NotificationListener<?>> m_notificationListenerList = new ArrayList<>();
 
-	<T> void addNotificationListener(Class<T> eventType, NodeBase whom, INotificationListener<T> listener) {
+	<T> void addNotificationListener(NotificationListener<T> newl) {
 		for(NotificationListener<?> nl : m_notificationListenerList) {
-			if(nl.getWhom() == whom && nl.getEventClass() == eventType) {
+			if(nl.getWhom() == newl.getWhom() && nl.getEventClass() == newl.getEventClass()) {
 				return;
 			}
 		}
-		m_notificationListenerList.add(new NotificationListener<>(eventType, whom, listener));
+		m_notificationListenerList.add(newl);
 	}
 
 	<T> void notifyPage(@Nonnull T eventClass) throws Exception {

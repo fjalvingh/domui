@@ -658,6 +658,21 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 				return null;
 			}
 		} else {
+			searchString = DomUtil.nullChecked(searchString.replace("*", "%"));
+			if(searchString.startsWith("$$") && searchString.length() > 2) {
+				String idString = searchString.substring(2);
+				PropertyMetaModel<?> primaryKey = getQueryMetaModel().getPrimaryKey();
+				if(null != primaryKey) {
+					Class<?> pkType = primaryKey.getActualType();
+					Object pk = RuntimeConversions.convertTo(idString, pkType);
+					if(null != pk) {
+						searchQuery = (QCriteria<QT>) getQueryMetaModel().createCriteria();
+						searchQuery.eq(primaryKey.getName(), pk);
+						return searchQuery;
+					}
+				}
+			}
+
 			//-- Has default meta?
 			List<SearchPropertyMetaModel> spml = m_keywordLookupPropertyList == null ? getQueryMetaModel().getKeyWordSearchProperties() : getKeywordLookupPropertyList();
 			searchQuery = (QCriteria<QT>) getQueryMetaModel().createCriteria();
@@ -677,18 +692,18 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 							throw new ProgrammerErrorException("Unknown/unresolvable lookup property " + spm.getPropertyName() + " on " + getQueryMetaModel());
 
 						//It is required that lookup by id is also available, for now only integer based types and BigDecimal interpreted as Long (fix for 1228) are supported
-						PropertyMetaModel< ? > pmm = pl.get(0);
+						PropertyMetaModel< ? > pmm = pl.get(pl.size() - 1);
 						if(DomUtil.isIntegerType(pmm.getActualType()) || pmm.getActualType() == BigDecimal.class) {
-							if(searchString.contains("%") && !pl.get(0).isTransient()) {
+							if(searchString.contains("%") && !pmm.isTransient()) {
 								r.add(new QPropertyComparison(QOperation.LIKE, spm.getPropertyName(), new QLiteral(searchString)));
 							} else {
 								try {
-									Long val = Long.valueOf(searchString);
-									if(val != null) {
-										r.eq(spm.getPropertyName(), val.longValue());
+									Object value = RuntimeConversions.convertTo(searchString, pmm.getActualType());
+									if(null != value) {
+										r.eq(spm.getPropertyName(), value);
 										ncond++;
 									}
-								} catch(NumberFormatException ex) {
+								} catch(Exception ex) {
 									//just ignore this since it means that it is not correct Long condition.
 								}
 							}

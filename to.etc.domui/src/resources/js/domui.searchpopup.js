@@ -145,13 +145,18 @@ $.extend(WebUI.SearchPopup.prototype, {
 	 */
 	handleBlur: function() {
 		//-- 1. If we have a popup panel-> fade it out,
-		$('#' + this._id + " .ui-ssop").fadeOut(200);
+		var selectOnePanel = $('#' + this._id + " .ui-ssop");
+		selectOnePanel.fadeOut(200);
+		// var comp = selectOnePanel.data('component');
+		// if(comp)
+		// 	comp.handleBlur();
+
 		//-- 2. If we have a message-> fade it out,
 
 		var parentNode = document.getElementById(this._id).parentNode;
 		$('#' + parentNode.id + " .ui-srip-message").fadeOut(200);
 
-		//following is needed to fix situations when lookups are under each oter -> inputs get over previous popups
+		//following is needed to fix situations when lookups are under each other -> inputs get over previous popups
 		var node = document.getElementById(this._inputid);
 		if(!node || node.tagName.toLowerCase() != 'input')
 			return;		//fix z-index to one saved in input node
@@ -224,7 +229,7 @@ $.extend(WebUI.SearchPopup.prototype, {
 
 	lookupTyping : function() {
 		var lookupField = document.getElementById(this._id);
-		//check for exsistence, since it is delayed action component can be removed when action is executed.
+		//check for existence, since it is delayed action component can be removed when action is executed.
 		if (lookupField){
 			var self = this;
 
@@ -276,6 +281,13 @@ $.extend(WebUI.SearchPopup.prototype, {
 WebUI.SelectOnePanel = function(id, inputid) {
 	this._id = id;
 	this._inputid = inputid;
+	this._selectedIndex = -1;
+
+	// var self = this;
+	// $('#'+id).on('click', function() {
+	// 	self._selected = true;
+	// 	console.log("click event on selectOnePanel");
+	// });
 	
 	var node = inputid ? $('#'+inputid) : $(document.body);
 	
@@ -288,8 +300,6 @@ WebUI.SelectOnePanel = function(id, inputid) {
 };
 
 $.extend(WebUI.SelectOnePanel.prototype, {
-	_selectedIndex: -1,
-
 	/**
 	 * Attach a hover function to each selection node. The hover function will highlight and
 	 * select the node hovered over. We cannot use :hover to handle that because that would
@@ -298,7 +308,7 @@ $.extend(WebUI.SelectOnePanel.prototype, {
 	attachHovers: function() {
 		$('#'+this._id+" tr.ui-ssop-row").bind("mouseover", $.proxy(this.mouseOverHandler, this));
 	},
-	
+
 	getInputField: function() {
 		return this._selectedIndex;
 	},

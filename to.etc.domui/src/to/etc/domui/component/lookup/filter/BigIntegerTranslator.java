@@ -18,6 +18,7 @@ import to.etc.xml.*;
 @DefaultNonNull
 final class BigIntegerTranslator implements ITranslator<BigInteger> {
 
+	@Nullable
 	@Override
 	public BigInteger deserialize(QDataContext dc, Node node) throws Exception {
 		Node valueNode = DomTools.nodeFind(node, VALUE);

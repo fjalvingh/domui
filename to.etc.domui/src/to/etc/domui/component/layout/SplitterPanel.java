@@ -162,6 +162,7 @@ public class SplitterPanel extends Div {
 		getPage().addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery.splitter.js"), 100);
 	}
 
+	@Nonnull
 	public String getMakeSplitterJavascriptCall() {
 		Map<String, String> params = new HashMap<String, String>();
 
@@ -184,6 +185,11 @@ public class SplitterPanel extends Div {
 		String paramStr = params.entrySet().stream().map(a -> "'" + a.getKey() + "':" + a.getValue()).collect(Collectors.joining(",", "{", "}"));
 
 		return "$('#" + getActualID() + "').splitter(" + paramStr + ");";
+	}
+
+	@Nonnull
+	public String resizeSplitterJavascriptCall() {
+		return "$('#" + getActualID() + "').trigger(\"resize\");";
 	}
 
 	private void addParamIfPositive(@Nonnull Map<String, String> params, int value, @Nonnull String name) {

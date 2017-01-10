@@ -1,15 +1,14 @@
 package to.etc.domui.logic;
 
-import java.lang.reflect.*;
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.logic.errors.*;
 import to.etc.webapp.*;
 import to.etc.webapp.query.*;
+
+import javax.annotation.*;
+import java.lang.reflect.*;
+import java.util.*;
 
 /**
  * This context class encapsulates instantiated business logic classes, and cache data used by those
@@ -80,7 +79,9 @@ final public class LogicContextImpl implements ILogicContext {
 	public <L> L get(@Nonnull Class<L> classClass) throws Exception {
 		ILogiInjector ij = m_injector;
 		if(null != ij) {
-			return ij.getInstance(classClass);
+			try {
+				return ij.getInstance(classClass);
+			} catch(Exception x) {}
 		}
 
 		L logic = (L) m_classMap.get(classClass);

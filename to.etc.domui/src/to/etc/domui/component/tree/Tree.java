@@ -448,16 +448,31 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 			if(isSelected(value))
 				cell.addCssClass("ui-tr-selected");
 
-			cell.setClicked(new IClicked<TD>() {
+			cell.setClicked(new IClicked2<TD>() {
 				@Override
-				public void clicked(@Nonnull TD b) throws Exception {
-					cellClicked(cell, value);
+				public void clicked(@Nonnull TD node, @Nonnull ClickInfo clinfo) throws Exception {
+					cellClicked(cell, value, clinfo);
 				}
 			});
 		}
+		updateSelectable(cell, value);
 	}
 
-	protected void cellClicked(final TD cell, final T value) throws Exception {
+	private void updateSelectable(@Nonnull TD cell, @Nonnull T value) throws Exception {
+		INodePredicate<T> predicate = m_nodeSelectablePredicate;
+		if(null != predicate) {
+			boolean isSelectable = predicate.predicate(value);
+			if(isSelectable) {
+				cell.addCssClass("ui-tr-selectable");
+				cell.removeCssClass("ui-tr-unselectable");
+			} else {
+				cell.addCssClass("ui-tr-unselectable");
+				cell.removeCssClass("ui-tr-selectable");
+			}
+		}
+	}
+
+	protected void cellClicked(@Nonnull final TD cell, @Nonnull final T value, @Nonnull ClickInfo clinfo) throws Exception {
 		if(getCellClicked() != null)
 			((ICellClicked<Object>) getCellClicked()).cellClicked(cell, value);
 	}
@@ -475,7 +490,7 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 	}
 
 
-	protected boolean isSelectable(T node) throws Exception {
+	protected boolean isSelectable(@Nonnull T node) throws Exception {
 		if(getCellClicked() == null)
 			return false;
 		if(m_nodeSelectablePredicate == null)
@@ -490,6 +505,9 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 	 * @throws Exception
 	 */
 	protected void markAsSelected(T node, boolean selected) throws Exception {
+		if(null != node)
+			expandNode(node);
+
 		VisibleNode<T> vn = m_openMap.get(node);
 		if(vn == null)
 			return;
@@ -513,7 +531,7 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 		return null;
 	}
 
-	protected boolean isSelected(T node) {
+	protected boolean isSelected(@Nonnull T node) {
 		return false;
 	}
 

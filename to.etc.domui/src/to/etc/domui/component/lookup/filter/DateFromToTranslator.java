@@ -26,6 +26,7 @@ final class DateFromToTranslator implements ITranslator<DateFromTo> {
 
 	private final SimpleDateFormat m_simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
 
+	@Nullable
 	@Override
 	public DateFromTo deserialize(QDataContext dc, Node node) throws Exception {
 

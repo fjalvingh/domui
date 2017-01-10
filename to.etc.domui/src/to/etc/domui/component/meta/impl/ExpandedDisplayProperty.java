@@ -327,7 +327,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 
 	@Override
 	public ClassMetaModel getValueModel() {
-		return null;
+		return MetaManager.findClassMeta(getActualType());
 	}
 
 	/**

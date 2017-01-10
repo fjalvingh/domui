@@ -648,23 +648,6 @@ public abstract class DomApplication {
 		return m_uiTestMode;
 	}
 
-	/**
-	 * When &gt; 0, we're running in development mode AND the user has not DISABLED automatic page reload
-	 * using the "domui.autorefresh=false" line in developer.properties. When T, the server will force
-	 * a regular poll callback for all pages, and will refresh them automatically if that fails (indicating
-	 * they changed).
-	 * The effect of this being true are:
-	 * <ul>
-	 *	<li>Every page will immediately enable polling.</li>
-	 *	<li>The "session expired" and "page lost" types of workstation errors are disabled, causing the workstation to refresh without any message.</li>
-	 * </ul>
-	 *
-	 * @return
-	 */
-	public int getAutoRefreshPollInterval() {
-		return m_autoRefreshPollInterval;
-	}
-
 	public void setAutoRefreshPollInterval(int autoRefreshPollInterval) {
 		m_autoRefreshPollInterval = autoRefreshPollInterval;
 	}
@@ -676,7 +659,7 @@ public abstract class DomApplication {
 	 * refresh time in milliseconds.
 	 * @return
 	 */
-	public synchronized int getAutoRefreshInterval() {
+	public synchronized int getAutoRefreshPollInterval() {
 		return m_autoRefreshPollInterval;
 	}
 

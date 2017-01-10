@@ -24,14 +24,13 @@
  */
 package to.etc.domui.converter;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.meta.*;
 import to.etc.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.nls.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * A repository of Converter instances.
@@ -63,6 +62,7 @@ public class ConverterRegistry {
 		register(new BooleanConverterFactory()); // last-resort: Accepts generic boolean without metadata (yes, no texts only)
 		registerURLConverter(Boolean.class, BooleanConverter.getInstance());
 		registerURLConverter(boolean.class, BooleanConverter.getInstance());
+		registerURLConverter(Date.class, DateUrlParamConverter.getInstance());
 	}
 
 	/**

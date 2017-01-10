@@ -23,6 +23,7 @@ import to.etc.webapp.nls.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Nov 7, 2014
  */
+@DefaultNonNull
 @Immutable
 public class Problem {
 	final private BundleRef m_bundle;
@@ -34,15 +35,36 @@ public class Problem {
 
 	final private MsgType m_severity;
 
+	/** When set, this same problem can be reported multiple times on a single target. */
+	final private boolean m_repeatable;
+
 	public Problem(Class< ? > anchor, String code) {
-		this(anchor, code, MsgType.ERROR);
+		this(anchor, code, MsgType.ERROR, false);
 	}
 
-	public Problem(Class<?> anchor, String code, MsgType type) {
+	protected Problem(Class<?> anchor, String code, MsgType type, boolean repeatable) {
 		m_bundle = BundleRef.create(anchor, "messages");				// All problem messages must be in a bundle called messages.
 		m_key = m_bundle.getBundleKey() + "#" + code;
 		m_code = code;
 		m_severity = type;
+		m_repeatable = repeatable;
+	}
+
+	static public Problem warning(Class<?> anchor, String code) {
+		return new Problem(anchor, code, MsgType.WARNING, false);
+	}
+	static public Problem warningList(Class<?> anchor, String code) {
+		return new Problem(anchor, code, MsgType.WARNING, true);
+	}
+	static public Problem error(Class<?> anchor, String code) {
+		return new Problem(anchor, code, MsgType.ERROR, false);
+	}
+	static public Problem errorList(Class<?> anchor, String code) {
+		return new Problem(anchor, code, MsgType.ERROR, true);
+	}
+
+	public boolean isRepeatable() {
+		return m_repeatable;
 	}
 
 	public String getCode() {
@@ -88,6 +110,7 @@ public class Problem {
 	 * @return
 	 */
 	public <T> ProblemInstance on(@Nonnull ProblemModel errors, @Nonnull T instance) {
+		//System.out.println("error " + toString());
 		ProblemInstance pi = new ProblemInstance(this, instance);
 		errors.addProblem(pi);
 		return pi;										// Allow specialization using builder pattern.

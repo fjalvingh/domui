@@ -95,4 +95,11 @@ public class THead extends NodeContainer {
 		th.setText(text);
 		return th;
 	}
+	public TH addHeader(NodeBase node) {
+		TR tr = getRow();
+		TH th = new TH();
+		tr.add(th);
+		th.add(node);
+		return th;
+	}
 }

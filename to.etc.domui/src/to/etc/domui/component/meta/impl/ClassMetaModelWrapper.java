@@ -125,7 +125,7 @@ public class ClassMetaModelWrapper implements ClassMetaModel {
 	}
 
 	@Override
-	public @Nonnull SortableType getDefaultSortDirection() {
+	public @Nullable SortableType getDefaultSortDirection() {
 		return m_parent.getDefaultSortDirection();
 	}
 

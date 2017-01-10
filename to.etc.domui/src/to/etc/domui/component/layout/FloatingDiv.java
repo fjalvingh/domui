@@ -188,7 +188,7 @@ public class FloatingDiv extends Div {
 		setPosition(PositionType.FIXED); //floaters always use FIXED position, this should not be changed
 
         if(getWidth() != null && getWidth().endsWith("%")) {
-			//when relative size is in use we don't center window horizontaly, otherwise we need to center it
+			//when relative size is in use we don't center window horizontally, otherwise we need to center it
 			int widthPerc = DomUtil.percentSize(getWidth());
 			if(widthPerc != -1) {
 				// center floating window horizontally on screen
@@ -221,7 +221,7 @@ public class FloatingDiv extends Div {
 		//-- If this is resizable add the resizable() thing to the create javascript. This relies on jquery built in support for ui-resizeable.
 		if(isResizable())
 			appendCreateJS("$('#" + getActualID() + "').resizable({minHeight: " + MINHEIGHT + ", minWidth: " + MINWIDTH
- + ", resize: WebUI.floatingDivResize, stop: WebUI.notifySizePositionChanged});");
+				 + ", resize: WebUI.floatingDivResize, stop: WebUI.notifySizePositionChanged});");
 	}
 
 	public boolean isAutoClose() {
@@ -370,10 +370,10 @@ public class FloatingDiv extends Div {
 	/**
 	 * Exposed listener setter for notification on size and/or position change. This gets changed in case that floating div is dragged or resized in client (browser).
 	 * Call {@link FloatingDiv#getClientBounds()} in order to read size and position after change.
-	 * @see to.etc.domui.dom.html.NodeContainer#setOnSizeAndPositionChange()
+	 * @see to.etc.domui.dom.html.NodeBase#setOnSizeAndPositionChange()
 	 */
 	@Override
-	public final void setOnSizeAndPositionChange(@Nonnull INotify<NodeContainer> onSizeAndPositionChange) {
+	public final void setOnSizeAndPositionChange(@Nonnull INotify<NodeBase> onSizeAndPositionChange) {
 		super.setOnSizeAndPositionChange(onSizeAndPositionChange);
 	}
 }

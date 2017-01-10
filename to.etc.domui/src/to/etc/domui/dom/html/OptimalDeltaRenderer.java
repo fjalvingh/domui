@@ -410,6 +410,7 @@ public class OptimalDeltaRenderer {
 				o().setIndentEnabled(true);
 				return;
 			} else {
+				o().setIndentEnabled(false);
 				o().tag("replaceContent");
 				o().attr("select", "#" + ni.node.getActualID());
 				m_html.setTagless(false);

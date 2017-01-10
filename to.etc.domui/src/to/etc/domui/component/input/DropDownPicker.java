@@ -11,6 +11,9 @@ import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
+import javax.annotation.*;
+import java.util.*;
+
 /**
  * Control that behaves as {@link SmallImgButton} that has built in click handler that popups select list with predefined data to choose from.
  *
@@ -172,16 +175,16 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 			alignBase = DropDownPicker.this;
 		}
 
-		appendJavascript("WebUI.alignTopToBottom('" + m_picker.getActualID() + "', '" + alignBase.getActualID() + "', " + m_offsetY + ");");
+		m_picker.alignTopToBottom(alignBase, m_offsetY, false);
 		switch(m_halign){
 			case LEFT:
-				appendJavascript("WebUI.alignToLeft('" + m_picker.getActualID() + "', '" + alignBase.getActualID() + "', " + m_offsetX + ");");
+				m_picker.alignToLeft(alignBase, m_offsetX, false);
 				break;
 			case RIGHT:
-				appendJavascript("WebUI.alignToRight('" + m_picker.getActualID() + "', '" + alignBase.getActualID() + "', " + m_offsetX + ");");
+				m_picker.alignToRight(alignBase, m_offsetX, false);
 				break;
 			case MIDDLE:
-				appendJavascript("WebUI.alignToMiddle('" + m_picker.getActualID() + "', '" + alignBase.getActualID() + "', " + m_offsetX + ");");
+				m_picker.alignToMiddle(alignBase, m_offsetX, false);
 				break;
 			default:
 				throw new IllegalStateException("Unknown horizontal alignment? Found : " + m_halign);

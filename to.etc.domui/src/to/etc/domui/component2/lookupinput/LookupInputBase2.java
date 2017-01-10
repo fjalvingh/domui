@@ -24,12 +24,9 @@
  */
 package to.etc.domui.component2.lookupinput;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.binding.*;
 import to.etc.domui.component.buttons.*;
+import to.etc.domui.component.event.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.meta.*;
@@ -45,9 +42,16 @@ import to.etc.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.query.*;
 
+import javax.annotation.*;
+import java.util.*;
+
 abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<OT>, IHasModifiedIndication, IQueryManipulator<QT> {
 	/** The properties bindable for this component. */
 	static private final Set<String> BINDABLE_SET = createNameSet("value", "disabled");
+
+	/** If set, the complete title for the popup window shown when the 'find' button is pressed. */
+	@Nullable
+	private String m_defaultTitle;
 
 	/**
 	 * EXPERIMENTAL Factory for the lookup dialog, to be shown when the lookup button
@@ -105,6 +109,9 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	private boolean m_disabled;
 
 	@Nullable
+	private String m_disabledBecause;
+
+	@Nullable
 	private IQueryManipulator<QT> m_queryManipulator;
 
 	@Nullable
@@ -146,6 +153,9 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	private enum RebuildCause {
 		CLEAR, SELECT
 	};
+
+	@Nullable
+	private INotify<Dialog> m_onPopupOpen;
 
 	/**
 	 * When we trigger forceRebuild, we can specify reason for this, and use this later to resolve focus after content is re-rendered.
@@ -513,8 +523,9 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	}
 
 	private void openPopup(@Nullable ITableModel<OT> initialModel) throws Exception {
-		if(m_floater != null)
-			throw new IllegalStateException("Trying to re-open the popup, but it's already visible");
+		if(m_floater != null) {
+			return;
+		}
 		IPopupOpener po = m_popupOpener;
 		if(null == po) {
 			po = createPopupOpener();
@@ -523,6 +534,18 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 		floater.setCssClass("ui-lui2-dlg");
 		floater.modal();
 		add(floater);
+		INotify<Dialog> onPopupOpen = m_onPopupOpen;
+		if(null != onPopupOpen)
+			onPopupOpen.onNotify(floater);
+	}
+
+	@Nullable
+	public INotify<Dialog> getOnPopupOpen() {
+		return m_onPopupOpen;
+	}
+
+	public void setOnPopupOpen(@Nullable INotify<Dialog> onPopupOpen) {
+		m_onPopupOpen = onPopupOpen;
 	}
 
 	@Nonnull
@@ -619,11 +642,18 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	 */
 	@Nonnull
 	public String getDefaultTitle() {
+		String popupTitle = m_defaultTitle;
+		if(null != popupTitle)
+			return popupTitle;
 		String entity = getOutputMetaModel().getUserEntityName();
 		if(entity != null)
 			return Msgs.BUNDLE.formatMessage(Msgs.UI_LUI_TTL_WEN, entity);
 
 		return Msgs.BUNDLE.getString(Msgs.UI_LUI_TTL);
+	}
+
+	public void setDefaultTitle(@Nullable String defaultTitle) {
+		m_defaultTitle = defaultTitle;
 	}
 
 	/**
@@ -697,6 +727,20 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 		updateRoStyle();
 		forceRebuild();
 		fireModified("disabled", Boolean.valueOf(!disabled), Boolean.valueOf(disabled));
+	}
+
+	@Nullable
+	public String getDisabledBecause() {
+		return m_disabledBecause;
+	}
+
+	public void setDisabledBecause(@Nullable String msg) {
+		if(Objects.equals(msg, m_disabledBecause)) {
+			return;
+		}
+		m_disabledBecause = msg;
+		setOverrideTitle(msg);
+		setDisabled(msg != null);
 	}
 
 	/*--------------------------------------------------------------*/

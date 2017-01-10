@@ -24,16 +24,15 @@
  */
 package to.etc.domui.component.meta;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.lookup.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 public interface ClassMetaModel {
 	/**
@@ -220,7 +219,7 @@ public interface ClassMetaModel {
 	 * initially.
 	 * @return
 	 */
-	@Nonnull
+	@Nullable
 	SortableType getDefaultSortDirection();
 
 	/**

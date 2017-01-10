@@ -16,6 +16,7 @@ import to.etc.xml.*;
 @DefaultNonNull
 final class IntegerTranslator implements ITranslator<Integer> {
 
+	@Nullable
 	@Override
 	public Integer deserialize(QDataContext dc, Node node) throws Exception {
 		Node valueNode = DomTools.nodeFind(node, VALUE);

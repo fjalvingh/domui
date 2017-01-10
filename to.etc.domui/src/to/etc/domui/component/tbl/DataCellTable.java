@@ -24,14 +24,13 @@
  */
 package to.etc.domui.component.tbl;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * A table-related component which shows all "rows" in a single cell instead of
@@ -92,7 +91,7 @@ public class DataCellTable<T> extends PageableTabularComponentBase<T> implements
 	}
 
 	@Override
-	int getPageSize() {
+	protected int getPageSize() {
 		return m_columns * m_rows;
 	}
 

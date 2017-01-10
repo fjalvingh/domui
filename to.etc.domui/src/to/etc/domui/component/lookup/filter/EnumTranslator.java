@@ -20,9 +20,12 @@ class EnumTranslator<T extends Enum<T>> implements ITranslator<T> {
 	private static final String CLASS = "class";
 
 	@Override
+	@Nullable
 	public T deserialize(QDataContext dc, Node node) throws Exception {
 		Node valueNode = DomTools.nodeFind(node, VALUE);
 		String value = DomTools.textFrom(valueNode);
+		if(null == value)
+			return null;
 		String className = DomTools.strAttr(valueNode, CLASS);
 		return createEnumValue(className, value);
 	}

@@ -149,10 +149,25 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 
 		if(m_result == null) {
 			// Create a table
-			m_result = new DataTable<T>(model, getRowRenderer());
+			IRowRenderer<T> renderer = getRowRenderer();
+
+			//-- jal 20091111 It is required that any search result has clickable rows. If no row click handler is set set one to call onNew.
+			if(renderer instanceof IClickableRowRenderer< ? >) { // Silly ? is needed even though cast cant do anything with it. Idiots.
+				IClickableRowRenderer<T> arrh = (IClickableRowRenderer<T>) renderer;
+				if(arrh.getRowClicked() == null) {
+					arrh.setRowClicked(new ICellClicked<T>() {
+						@Override
+						public void cellClicked(@Nonnull NodeBase tr, @Nonnull T val) throws Exception {
+							onSelect(val);
+						}
+					});
+				}
+			}
+
+			m_result = new DataTable<T>(model, renderer);
 
 			add(m_result);
-			m_result.setPageSize(20);
+			m_result.setPageSize(35);
 			m_result.setTableWidth("100%");
 			m_result.setTestID("resultBasicVpListPage");
 

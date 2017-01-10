@@ -24,12 +24,13 @@
  */
 package to.etc.domui.component.misc;
 
-import java.math.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
+import to.etc.domui.util.*;
+import to.etc.webapp.nls.*;
+
+import javax.annotation.*;
+import java.math.*;
 
 /**
  * PLEASE LOOK IN THE CONTROL CLASS YOU WANT TO CREATE FOR MORE METHODS!
@@ -304,6 +305,19 @@ final public class UIControlUtil {
 			hexString = "#" + hexString;
 		}
 		return hexString;
+	}
+
+	/**
+	 * Returns resource text, but with excluded action key (exclamation mark symbol).
+	 * That enables to reuse button captions on link buttons i.e. 
+	 *   
+	 * @param bundle
+	 * @param key
+	 * @return
+	 */
+	@Nonnull 
+	public static String removeActionKeyStr(@Nonnull BundleRef bundle, @Nonnull String key) {
+		return DomUtil.nullChecked(bundle.getString(key).replace("!", ""));
 	}
 
 }

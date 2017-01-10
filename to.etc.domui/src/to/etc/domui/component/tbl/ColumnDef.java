@@ -1,13 +1,13 @@
 package to.etc.domui.component.tbl;
 
-import javax.annotation.*;
-
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.util.*;
 
-final public class ColumnDef<T> {
+import javax.annotation.*;
+
+final public class ColumnDef<I, T> {
 	@Nonnull
 	final private Class<T> m_actualClass;
 
@@ -16,7 +16,7 @@ final public class ColumnDef<T> {
 	private String m_columnLabel;
 
 	@Nonnull
-	final private ColumnList< ? > m_defList;
+	final private ColumnList<I> m_defList;
 
 	@Nonnull
 	final private Class<T> m_columnType;
@@ -73,9 +73,9 @@ final public class ColumnDef<T> {
 	/** @since 2014/1/2 T when this should create an editable component bound to the column's value. */
 	private boolean m_editable;
 
-	private IControlFactory<T> m_controlFactory;
+	private IRowControlFactory<I> m_controlFactory;
 
-	<X> ColumnDef(@Nonnull ColumnList< ? > cdl, @Nonnull Class<T> valueClass) {
+	<X> ColumnDef(@Nonnull ColumnList<I> cdl, @Nonnull Class<T> valueClass) {
 		m_actualClass = valueClass;
 		m_columnType = valueClass;
 		m_defList = cdl;
@@ -85,7 +85,7 @@ final public class ColumnDef<T> {
 	 * Create a column definition using metadata for the column.
 	 * @param pmm
 	 */
-	ColumnDef(@Nonnull ColumnList< ? > cdl, @Nonnull PropertyMetaModel<T> pmm) {
+	ColumnDef(@Nonnull ColumnList<I> cdl, @Nonnull PropertyMetaModel<T> pmm) {
 		m_actualClass = pmm.getActualType();
 		m_defList = cdl;
 		m_columnType = pmm.getActualType();
@@ -125,7 +125,7 @@ final public class ColumnDef<T> {
 	 * @return
 	 */
 	@Nonnull
-	public ColumnDef<T> editable() {
+	public ColumnDef<I, T> editable() {
 		if(m_propertyMetaModel == null)
 			throw new IllegalStateException("Cannot edit a row instance");
 		m_editable = true;
@@ -141,7 +141,7 @@ final public class ColumnDef<T> {
 	 * @return
 	 */
 	@Nonnull
-	public ColumnDef<T> property(@Nonnull String name) {
+	public ColumnDef<I, T> property(@Nonnull String name) {
 		if(m_propertyName != null)
 			throw new IllegalStateException("The property name is already defined.");
 		m_propertyName = name;
@@ -152,7 +152,7 @@ final public class ColumnDef<T> {
 		return m_editable;
 	}
 
-	<R> T getColumnValue(@Nonnull R instance) throws Exception {
+	public <R> T getColumnValue(@Nonnull R instance) throws Exception {
 		PropertyMetaModel<T> pmm = m_propertyMetaModel;
 		if(pmm == null)
 			return (T) instance;
@@ -271,7 +271,7 @@ final public class ColumnDef<T> {
 	 * @return
 	 */
 	@Nonnull
-	public ColumnDef<T> label(@Nullable String columnLabel) {
+	public ColumnDef<I, T> label(@Nullable String columnLabel) {
 		m_columnLabel = columnLabel;
 		return this;
 	}
@@ -282,7 +282,7 @@ final public class ColumnDef<T> {
 	 * @return
 	 */
 	@Nonnull
-	public ColumnDef<T> align(@Nonnull TextAlign align) {
+	public ColumnDef<I, T> align(@Nonnull TextAlign align) {
 		m_align = align;
 		return this;
 	}
@@ -293,7 +293,7 @@ final public class ColumnDef<T> {
 	 * @return
 	 */
 	@Nonnull
-	public ColumnDef<T> cellClicked(@Nullable ICellClicked< ? > ck) {
+	public ColumnDef<I, T> cellClicked(@Nullable ICellClicked< ? > ck) {
 		m_cellClicked = ck;
 		return this;
 	}
@@ -304,7 +304,7 @@ final public class ColumnDef<T> {
 	 * @return
 	 */
 	@Nonnull
-	public ColumnDef<T> renderer(@Nullable INodeContentRenderer<T> cr) {
+	public ColumnDef<I, T> renderer(@Nullable INodeContentRenderer<T> cr) {
 		m_contentRenderer = cr;
 		return this;
 	}
@@ -315,7 +315,7 @@ final public class ColumnDef<T> {
 	 * @return
 	 */
 	@Nonnull
-	public ColumnDef<T> css(@Nonnull String css) {
+	public ColumnDef<I, T> css(@Nonnull String css) {
 		m_cssClass = css;
 		return this;
 	}
@@ -326,7 +326,7 @@ final public class ColumnDef<T> {
 	 * @return
 	 */
 	@Nonnull
-	public ColumnDef<T> cssHeader(@Nonnull String css) {
+	public ColumnDef<I, T> cssHeader(@Nonnull String css) {
 		m_headerCssClass = css;
 		return this;
 	}
@@ -336,7 +336,7 @@ final public class ColumnDef<T> {
 	 * @return
 	 */
 	@Nonnull
-	public ColumnDef<T> wrap() {
+	public ColumnDef<I, T> wrap() {
 		m_nowrap = false;
 		return this;
 	}
@@ -346,7 +346,7 @@ final public class ColumnDef<T> {
 	 * @return
 	 */
 	@Nonnull
-	public ColumnDef<T> nowrap() {
+	public ColumnDef<I, T> nowrap() {
 		m_nowrap = true;
 		return this;
 	}
@@ -357,7 +357,7 @@ final public class ColumnDef<T> {
 	 * @return
 	 */
 	@Nonnull
-	public ColumnDef<T> numeric(@Nonnull NumericPresentation np) {
+	public ColumnDef<I, T> numeric(@Nonnull NumericPresentation np) {
 		m_numericPresentation = np;
 		return this;
 	}
@@ -368,7 +368,7 @@ final public class ColumnDef<T> {
 	 * @return
 	 */
 	@Nonnull
-	public ColumnDef<T> hint(@Nonnull String hint) {
+	public ColumnDef<I, T> hint(@Nonnull String hint) {
 		m_renderHint = hint;
 		return this;
 	}
@@ -378,7 +378,7 @@ final public class ColumnDef<T> {
 	 * @return
 	 */
 	@Nonnull
-	public ColumnDef<T> ascending() {
+	public ColumnDef<I, T> ascending() {
 		setSortable(SortableType.SORTABLE_ASC);
 		return this;
 	}
@@ -388,7 +388,7 @@ final public class ColumnDef<T> {
 	 * @return
 	 */
 	@Nonnull
-	public ColumnDef<T> descending() {
+	public ColumnDef<I, T> descending() {
 		setSortable(SortableType.SORTABLE_DESC);
 		return this;
 	}
@@ -398,7 +398,7 @@ final public class ColumnDef<T> {
 	 * @return
 	 */
 	@Nonnull
-	public ColumnDef<T> sortdefault() {
+	public ColumnDef<I, T> sortdefault() {
 		m_defList.setSortColumn(this);
 		return this;
 	}
@@ -410,7 +410,7 @@ final public class ColumnDef<T> {
 	 * @return
 	 */
 	@Nonnull
-	public ColumnDef<T> sort(@Nonnull ISortHelper<?> sh) {
+	public ColumnDef<I, T> sort(@Nonnull ISortHelper<?> sh) {
 		m_sortHelper = sh;
 		if(m_sortable == SortableType.UNKNOWN)
 			m_sortable = SortableType.SORTABLE_ASC;
@@ -425,19 +425,19 @@ final public class ColumnDef<T> {
 	 * @return
 	 */
 	@Nonnull
-	public ColumnDef<T> sort(@Nonnull String propertyName) {
+	public ColumnDef<I, T> sort(@Nonnull String propertyName) {
 		m_sortProperty = propertyName;
 		return this;
 	}
 
 	@Nonnull
-	public ColumnDef<T> width(@Nullable String w) {
+	public ColumnDef<I, T> width(@Nullable String w) {
 		m_width = w;
 		return this;
 	}
 
 	@Nonnull
-	public ColumnDef<T> converter(@Nullable IConverter<T> converter) {
+	public ColumnDef<I, T> converter(@Nullable IConverter<T> converter) {
 		m_converter = converter;
 		return this;
 	}
@@ -448,7 +448,7 @@ final public class ColumnDef<T> {
 	 * @return
 	 */
 	@Nonnull
-	public ColumnDef<T> factory(@Nonnull IControlFactory<T> factory) {
+	public ColumnDef<I, T> factory(@Nonnull IRowControlFactory<I> factory) {
 		m_controlFactory = factory;
 		return this;
 	}
@@ -459,7 +459,7 @@ final public class ColumnDef<T> {
 	 * @return
 	 */
 	@Nullable
-	public IControlFactory<T> getControlFactory() {
+	public IRowControlFactory<I> getControlFactory() {
 		return m_controlFactory;
 	}
 }

@@ -1,9 +1,5 @@
 package to.etc.domui.component2.lookupinput;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.lookup.*;
@@ -13,6 +9,9 @@ import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.query.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 	@Nullable
@@ -100,8 +99,10 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 
 	@Override
 	public void createContent() throws Exception {
-		setWidth("740px");
-		setHeight("90%");
+		if(getWidth() == null)
+			setWidth("740px");
+		if(getHeight() == null)
+			setHeight("90%");
 		setIcon("THEME/ttlFind.png");
 		setTestID(getTestID() + "_floaterWindowLookupInput");
 

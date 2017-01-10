@@ -35,8 +35,7 @@ import to.etc.webapp.query.*;
 public interface IKeyWordSearchQueryFactory<T> {
 	/**
 	 * Use to manually modify query. In case that query has to be canceled return null.
-	 * @param c
-	 * @param keyCondition
+	 * @param searchString
 	 * @return In case that query has to be canceled return null, otherwise return modified query.
 	 */
 	QCriteria<T> createQuery(String searchString) throws Exception;

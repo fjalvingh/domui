@@ -113,7 +113,7 @@ final class LookupFactoryNumber2 implements ILookupControlFactory {
 
 		//-- FIXME Generic bounds violation due to it's gross definition, ignored.
 		//-- FIXME jal 20110415 Vladimir- transient here is wrong because transient usually means querying is impossible at all.
-		return new LookupNumberControl<>((Class<Number>) pmm.getActualType(), numText, spm.getPropertyName(), Double.valueOf(-minmax.doubleValue()), minmax, monetary, !pmm.isTransient());
+		return new LookupNumberControl<>((Class<Number>) pmm.getActualType(), numText, spm.getPropertyName(), Double.valueOf(-minmax.doubleValue()), minmax, monetary, !pmm.isTransient(), pmm.getScale());
 	}
 
 	static private double calcMaxValue(PropertyMetaModel< ? > pmm) {

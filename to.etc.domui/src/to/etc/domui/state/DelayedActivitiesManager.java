@@ -24,13 +24,13 @@
  */
 package to.etc.domui.state;
 
-import java.util.*;
-
-import javax.annotation.*;
-
+import org.slf4j.*;
 import to.etc.domui.component.delayed.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * This helper class does all of the handling for delayed activities for
@@ -41,6 +41,7 @@ import to.etc.domui.util.*;
  * Created on Oct 7, 2008
  */
 public class DelayedActivitiesManager implements Runnable {
+	private static final Logger LOG = LoggerFactory.getLogger(DelayedActivitiesManager.class);
 	//	private ConversationContext			m_conversation;
 	private Thread m_executorThread;
 
@@ -346,8 +347,12 @@ public class DelayedActivitiesManager implements Runnable {
 			dai.callBeforeListeners();
 			dai.getActivity().run(mon);
 		} catch(Exception x) {
-			if(!(x instanceof InterruptedException))
+			if(!(x instanceof InterruptedException)) {
 				errorx = x;
+				if (LOG.isDebugEnabled()) {
+					LOG.debug("Exception in async activity", x);
+				}
+			}
 		} finally {
 			dai.callAfterListeners();
 		}

@@ -393,7 +393,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		if(pollinterval > 0) {
 			o().writeRaw("WebUI.startPolling(" + pollinterval + ");");
 		}
-		int autorefresh = application.getAutoRefreshInterval();
+		int autorefresh = application.getAutoRefreshPollInterval();
 		if(autorefresh > 0) {
 			o().writeRaw("WebUI.setHideExpired();");
 		}

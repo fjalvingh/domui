@@ -28,6 +28,7 @@ public interface ITranslator<T> {
 
 	String CLASS = "class";
 
+	@Nullable
 	T deserialize(@Nonnull QDataContext dc, @Nonnull Node node) throws Exception;
 
 	boolean serialize(@Nonnull XmlWriter writer, @Nonnull Object o) throws Exception;

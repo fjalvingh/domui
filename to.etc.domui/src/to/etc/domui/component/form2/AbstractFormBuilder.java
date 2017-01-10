@@ -173,7 +173,7 @@ abstract public class AbstractFormBuilder {
 		m_allowedRight = r;
 	}
 
-	@Nonnull
+	@Nullable
 	public AllowedRight getRight() {
 		return m_allowedRight;
 	}

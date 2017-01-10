@@ -24,11 +24,13 @@
  */
 package to.etc.domui.converter;
 
-import javax.annotation.*;
-
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
+import to.etc.webapp.nls.*;
+
+import javax.annotation.*;
+import java.text.*;
 
 /**
  * This validator checks to see if a Number is between two <b>inclusive</b> bounds. Inclusive means:
@@ -93,7 +95,7 @@ public class MaxMinValidator implements IValueValidator<Number> {
 		if(msg != null) {
 			throw new ValidationException(msg.getBundle(), msg.getCode(), msg.getParameters());
 		} else {
-			throw new ValidationException(code, val.toString());
+			throw new ValidationException(code, NumberFormat.getInstance(NlsContext.getLocale()).format(val));
 		}
 	}
 }

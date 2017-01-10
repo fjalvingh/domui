@@ -24,10 +24,6 @@
  */
 package to.etc.domui.component.upload;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.errors.*;
@@ -38,6 +34,9 @@ import to.etc.domui.state.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.upload.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * Represents a file upload thingy which handles ajaxy uploads. The basic model
@@ -64,7 +63,7 @@ import to.etc.domui.util.upload.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 13, 2008
  */
-public class FileUpload extends Div implements IUploadAcceptingComponent /* implements IHasChangeListener */ {
+public class FileUpload extends Div implements IUploadAcceptingComponent, IControl<UploadItem> /* implements IHasChangeListener */ {
 	private String m_allowedExtensions;
 
 	private int m_maxSize;
@@ -80,6 +79,8 @@ public class FileUpload extends Div implements IUploadAcceptingComponent /* impl
 	private IValueChanged< ? > m_onValueChanged;
 
 	private boolean m_disabled;
+
+	private boolean m_readOnly;
 
 	public FileUpload() {}
 
@@ -125,7 +126,7 @@ public class FileUpload extends Div implements IUploadAcceptingComponent /* impl
 			// Prevent IE 11 to submit form on keypress on file input
 			fi.setSpecialAttribute("onkeypress", "WebUI.preventIE11DefaultAction(event)");
 			fi.setSpecialAttribute("onchange", "WebUI.fileUploadChange(event)");
-			fi.setDisabled(isDisabled());
+			fi.setDisabled(isDisabled() || isReadOnly());
 			if(null != m_allowedExtensions)
 				fi.setSpecialAttribute("fuallowed", m_allowedExtensions);
 			//			fi.setSpecialAttribute("fumaxsz", Integer.toString(m_maxSize));
@@ -140,7 +141,7 @@ public class FileUpload extends Div implements IUploadAcceptingComponent /* impl
 			TD td = b.addCell();
 			td.setText(ufi.getRemoteFileName() + " (" + ufi.getContentType() + ")");
 			td = b.addCell();
-			if(!isDisabled()) {
+			if(!isDisabled() && ! isReadOnly()) {
 				td.add(new DefaultButton(Msgs.BUNDLE.getString("upld.delete"), "THEME/btnDelete.png", new IClicked<DefaultButton>() {
 					@Override
 					public void clicked(@Nonnull DefaultButton bx) throws Exception {
@@ -176,6 +177,7 @@ public class FileUpload extends Div implements IUploadAcceptingComponent /* impl
 		return m_files;
 	}
 
+	@Override
 	@Nullable
 	public UploadItem getValue() {
 		if(m_maxFiles != 1)
@@ -192,6 +194,19 @@ public class FileUpload extends Div implements IUploadAcceptingComponent /* impl
 		return m_files.get(0);
 	}
 
+	@Override public void setValue(@Nullable UploadItem v) {
+		if(null == v) {
+			clear();
+			return;
+		}
+		if(m_files.size() > 1 || m_files.get(0) != v) {
+			clear();
+			m_files.add(v);
+			forceRebuild();
+		}
+	}
+
+	@Override
 	@Nullable
 	public UploadItem getValueSafe() {
 		if(m_maxFiles != 1)
@@ -226,6 +241,9 @@ public class FileUpload extends Div implements IUploadAcceptingComponent /* impl
 		forceRebuild();
 	}
 
+	public void clear() {
+		removeAllUploads();
+	}
 
 	/**
 	 * Return the space separated list of allowed file extensions.
@@ -258,6 +276,7 @@ public class FileUpload extends Div implements IUploadAcceptingComponent /* impl
 	/**
 	 * T if at least 1 file needs to be uploaded.
 	 */
+	@Override
 	public boolean isMandatory() {
 		return m_mandatory;
 	}
@@ -266,6 +285,7 @@ public class FileUpload extends Div implements IUploadAcceptingComponent /* impl
 	 * Set to T if at least one file needs to have been uploaded.
 	 * @param required
 	 */
+	@Override
 	public void setMandatory(boolean required) {
 		m_mandatory = required;
 	}
@@ -278,18 +298,22 @@ public class FileUpload extends Div implements IUploadAcceptingComponent /* impl
 		m_maxFiles = maxFiles;
 	}
 
+	@Override
 	public IValueChanged< ? > getOnValueChanged() {
 		return m_onValueChanged;
 	}
 
+	@Override
 	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}
 
+	@Override
 	public boolean isDisabled() {
 		return m_disabled;
 	}
 
+	@Override
 	public void setDisabled(boolean disabled) {
 		if(m_disabled == disabled)
 			return;
@@ -329,6 +353,17 @@ public class FileUpload extends Div implements IUploadAcceptingComponent /* impl
 		if(m_onValueChanged != null)
 			((IValueChanged<FileUpload>) m_onValueChanged).onValueChanged(this);
 		return true;
+	}
+
+	@Override public boolean isReadOnly() {
+		return m_readOnly;
+	}
+
+	@Override public void setReadOnly(boolean readOnly) {
+		if(m_readOnly == readOnly)
+			return;
+		m_readOnly = readOnly;
+		forceRebuild();
 	}
 }
 

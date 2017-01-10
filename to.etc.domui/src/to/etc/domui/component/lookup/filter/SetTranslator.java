@@ -20,6 +20,7 @@ import to.etc.xml.*;
 @DefaultNonNull
 final class SetTranslator implements ITranslator<Set<?>> {
 
+	@Nullable
 	@Override
 	public Set<?> deserialize(QDataContext dc, Node node) throws Exception {
 		Set<Object> set = new HashSet<>();

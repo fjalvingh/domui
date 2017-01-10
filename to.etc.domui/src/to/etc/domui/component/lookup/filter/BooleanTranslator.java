@@ -16,6 +16,7 @@ import to.etc.xml.*;
 @DefaultNonNull
 class BooleanTranslator implements ITranslator<Boolean> {
 
+	@Nullable
 	@Override
 	public Boolean deserialize(QDataContext dc, Node node) throws Exception {
 		Node valueNode = DomTools.nodeFind(node, VALUE);

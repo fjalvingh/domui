@@ -24,18 +24,14 @@
  */
 package to.etc.domui.dom.html;
 
-import java.util.*;
-
-import javax.annotation.*;
-
-import to.etc.domui.component.event.*;
-import to.etc.domui.component.image.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.errors.*;
-import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * Base node for tags that can contain other nodes.
@@ -67,14 +63,6 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 
 	private NodeContainer m_delegate;
 
-	@Nullable
-	private Rect m_clientBounds;
-
-	@Nullable
-	private Dimension m_browserWindowSize;
-
-	@Nullable
-	private INotify<NodeContainer> m_onSizeAndPositionChange;
 
 	/**
 	 * Create a container with the specified tag name.
@@ -638,7 +626,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	/*--------------------------------------------------------------*/
 	/**
 	 * Utility method to add a table; it returns the TBody.
-	 * @param cssclass	When not null this is set as the css class for the TABLE tag.
+	 * @param headers	When not null this is set as the css class for the TABLE tag.
 	 * @return
 	 */
 	public TBody addTable(String... headers) {
@@ -852,75 +840,6 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		}
 
 		return false;
-	}
-
-	@Nullable
-	protected Rect getClientBounds() {
-		return m_clientBounds;
-	}
-
-	protected void setClientBounds(@Nonnull Rect clientBound) {
-		m_clientBounds = clientBound;
-	}
-
-	@Nullable
-	protected Dimension getBrowserWindowSize() {
-		return m_browserWindowSize;
-	}
-
-	protected void setBrowserWindowSize(@Nonnull Dimension browserWindowSize) {
-		m_browserWindowSize = browserWindowSize;
-	}
-
-	/**
-	 * Handles {@link Constants#ACMD_NOTIFY_CLIENT_POSITION_AND_SIZE} as command from client (browser).
-	 * @see to.etc.domui.dom.html.NodeBase#componentHandleWebAction(to.etc.domui.server.RequestContextImpl, java.lang.String)
-	 */
-	@Override
-	public void componentHandleWebAction(@Nonnull RequestContextImpl ctx, @Nonnull String action) throws Exception {
-		if(Constants.ACMD_NOTIFY_CLIENT_POSITION_AND_SIZE.equals(action)) {
-			handleClientPositionAndSizeChange(ctx);
-		} else {
-			super.componentHandleWebAction(ctx, action);
-		}
-	}
-
-	private void handleClientPositionAndSizeChange(@Nonnull RequestContextImpl ctx) throws Exception {
-		String valueRect = ctx.getParameter(getActualID() + "_rect");
-		String valueBrowserWindowSize = ctx.getParameter("window_size");
-		if(null != valueRect && null != valueBrowserWindowSize) {
-			String[] values = valueRect.split(",");
-			try {
-				int left = Math.round(Float.parseFloat(values[0]));
-				int top = Math.round(Float.parseFloat(values[1]));
-				int width = Math.round(Float.parseFloat(values[2])); //when browser is zoomed, it gets decimal values for size 8-/
-				int height = Math.round(Float.parseFloat(values[3]));
-				setClientBounds(new Rect(left, top, width + left, height + top));
-			} catch(Exception ex) {
-				throw new IllegalArgumentException("Unrecognized " + Constants.ACMD_NOTIFY_CLIENT_POSITION_AND_SIZE + " valueRect (id='" + getActualID() + "'):" + valueRect);
-			}
-			values = valueBrowserWindowSize.split(",");
-			try {
-				int width = Math.round(Float.parseFloat(values[0]));
-				int height = Math.round(Float.parseFloat(values[1]));
-				setBrowserWindowSize(new Dimension(width, height));
-			} catch(Exception ex) {
-				throw new IllegalArgumentException("Unrecognized " + Constants.ACMD_NOTIFY_CLIENT_POSITION_AND_SIZE + " valueBrowserWindowSize (id='" + getActualID() + "'):" + valueBrowserWindowSize);
-			}
-			INotify<NodeContainer> listener = getOnSizeAndPositionChange();
-			if(listener != null) {
-				listener.onNotify(this);
-			}
-		}
-	}
-
-	@Nullable
-	protected INotify<NodeContainer> getOnSizeAndPositionChange() {
-		return m_onSizeAndPositionChange;
-	}
-
-	protected void setOnSizeAndPositionChange(@Nonnull INotify<NodeContainer> onSizeAndPositionChange) {
-		m_onSizeAndPositionChange = onSizeAndPositionChange;
 	}
 
 	/**

@@ -108,6 +108,10 @@ abstract public class AbstractDivControl<T> extends Div implements IControl<T> {
 		return m_value;
 	}
 
+	protected void internalSetValue(@Nullable T value) {
+		m_value = value;
+	}
+
 	protected void validate() {
 	}
 
@@ -116,6 +120,10 @@ abstract public class AbstractDivControl<T> extends Div implements IControl<T> {
 		if(MetaManager.areObjectsEqual(v, m_value))
 			return;
 		m_value = v;
+		onValueSet(v);
+	}
+
+	protected void onValueSet(@Nullable T value) {
 		forceRebuild();
 	}
 

@@ -54,6 +54,10 @@ public class Caption extends Div {
 		m_caption = ttl;
 	}
 
+	public Caption(String ttl, boolean isFirst) {
+		this(ttl);
+		setFirst(isFirst);
+	}
 	public String getCaption() {
 		return m_caption;
 	}
