@@ -11,6 +11,9 @@ import java.lang.annotation.*;
 import java.lang.reflect.*;
 
 /**
+ * If a property has an UIUrlParameter annotation and it's type refers to some JPA/Hibernate/QJdbc entity
+ * then this will create an injector that injects the looked up entity by it's PK.
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 12-2-17.
  */
