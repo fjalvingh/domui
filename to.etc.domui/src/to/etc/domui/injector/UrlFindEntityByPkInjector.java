@@ -24,15 +24,14 @@
  */
 package to.etc.domui.injector;
 
-import java.lang.reflect.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.meta.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.state.*;
 import to.etc.webapp.query.*;
+
+import javax.annotation.*;
+import java.lang.reflect.*;
 
 /**
  * This property injector takes the named URL parameter as a string. It does a lookup of the entity specified
@@ -44,18 +43,21 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 19, 2008
  */
-public class UrlEntityInjector extends PropertyInjector {
+public class UrlFindEntityByPkInjector extends PropertyInjector {
 	final private String m_name;
 
 	final private boolean m_mandatory;
 
 	final private Class< ? > m_entityClass;
 
-	public UrlEntityInjector(final Method propertySetter, final String name, final boolean mandatory, final Class< ? > enityClass) {
+	private final PropertyMetaModel<?> m_pkMetaPmm;
+
+	public UrlFindEntityByPkInjector(final Method propertySetter, final String name, final boolean mandatory, final Class<?> enityClass, PropertyMetaModel<?> pkMetaPmm) {
 		super(propertySetter);
 		m_name = name;
 		m_mandatory = mandatory;
 		m_entityClass = enityClass;
+		m_pkMetaPmm = pkMetaPmm;
 	}
 
 	protected String getParameterName() {
@@ -100,32 +102,19 @@ public class UrlEntityInjector extends PropertyInjector {
 		return "NEW".equals(value);
 	}
 
-	protected Object getKeyInstance(QDataContext dc, final UrlPage page, String pv) throws Exception {
-		//-- Try to find the PK for this entity
-		ClassMetaModel cmm = MetaManager.findClassMeta(m_entityClass); // Locatish
-		PropertyMetaModel< ? > pmm = cmm.getPrimaryKey(); // Find it's PK;
-		if(pmm == null)
-			throw new RuntimeException("Cannot find the primary key property for entity class '" + m_entityClass + "' for URL parameter=" + m_name + " of page=" + page.getClass() + ": ");
-
+	protected Object getKeyInstance(QDataContext dc, final UrlPage page, String pkValue) throws Exception {
 		// if the parametervalue has no value and the type of the key is Number, we treet it like no parameter was filled in
 		// the mandatorycheck will be done some later
-		if(Number.class.isAssignableFrom(pmm.getActualType()) && pv != null && pv.length() == 0)
+		if(Number.class.isAssignableFrom(m_pkMetaPmm.getActualType()) && pkValue != null && pkValue.length() == 0)
 			return null;
 
 		//-- Convert the URL's value to the TYPE of the primary key, using URL converters.
-		Object pk = CompoundKeyConverter.INSTANCE.unmarshal(dc, pmm.getActualType(), pv);
-		//		Object pk = ConverterRegistry.convertURLStringToValue(pmm.getActualType(), pv);
+		Object pk = CompoundKeyConverter.INSTANCE.unmarshal(dc, m_pkMetaPmm.getActualType(), pkValue);
 		if(pk == null)
-			throw new RuntimeException("URL parameter value='" + pv + "' converted to Null primary key value for entity class '" + m_entityClass + "' for URL parameter=" + m_name + " of page="
+			throw new RuntimeException("URL parameter value='" + pkValue + "' converted to Null primary key value for entity class '" + m_entityClass + "' for URL parameter=" + m_name + " of page="
 				+ page.getClass() + ": ");
 		return pk;
 	}
-
-	//	final protected Object loadInstance(final UrlPage page, String pv) throws Exception {
-	//		QDataContext dc = QContextManager.getContext(page.getPage());
-	//		Object pk = getKeyInstance(dc, page, pv);
-	//		return dc.find(m_entityClass, pk);
-	//	}
 
 	@Override
 	public void inject(@Nonnull final UrlPage page, @Nonnull final IPageParameters papa) throws Exception {
@@ -148,7 +137,6 @@ public class UrlEntityInjector extends PropertyInjector {
 				return;
 			} else {
 				value = dc.find(m_entityClass, pk);
-				//			value = loadInstance(page, pv);
 				if(value == null && m_mandatory) {
 					throw new QNotFoundException(m_entityClass, pk);
 				}

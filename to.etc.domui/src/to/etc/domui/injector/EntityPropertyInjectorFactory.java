@@ -1,10 +1,13 @@
 package to.etc.domui.injector;
 
 import to.etc.domui.annotations.*;
+import to.etc.domui.component.meta.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
+import to.etc.webapp.qsql.*;
 
 import javax.annotation.*;
+import java.lang.annotation.*;
 import java.lang.reflect.*;
 
 /**
@@ -30,11 +33,35 @@ final public class EntityPropertyInjectorFactory implements IPagePropertyFactory
 			ent = getter.getReturnType();
 		}
 
-		//-- Entity lookup.
-		return createEntityInjector(propertyInfo, name, upp.mandatory(), ent);
+		if(! isValidEntity(ent))
+			return null;
+
+		//-- Try to find the PK for this entity
+		ClassMetaModel cmm = MetaManager.findClassMeta(ent);
+		PropertyMetaModel< ? > pmm = cmm.getPrimaryKey(); 					// Find it's PK;
+		if(pmm == null)
+			return null;
+
+		return new UrlFindEntityByPkInjector(propertyInfo.getSetter(), name, upp.mandatory(), ent, pmm);
 	}
 
-	protected PropertyInjector createEntityInjector(PropertyInfo pi, String name, boolean mandatory, Class< ? > entityType) {
-		return new UrlEntityInjector(pi.getSetter(), name, mandatory, entityType);
+	private boolean isValidEntity(Class<?> clz) {
+		if(clz.getAnnotation(QJdbcTable.class) != null)
+			return true;
+
+		for(Annotation annotation : clz.getAnnotations()) {
+			if(isValidEntity(annotation.annotationType().getName())) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean isValidEntity(String name) {
+		if("javax.persistence.Entity".equals(name))
+			return true;
+		if("javax.persistence.Table".equals(name))
+			return true;
+		return false;
 	}
 }
