@@ -24,13 +24,12 @@
  */
 package to.etc.domui.injector;
 
-import java.lang.reflect.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.state.*;
+
+import javax.annotation.*;
+import java.lang.reflect.*;
 
 /**
  * This property injector contains the name of an URL parameter plus the property to set from it. At
@@ -41,7 +40,7 @@ import to.etc.domui.state.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 19, 2008
  */
-public class UrlParameterInjector extends PropertyInjector {
+final public class UrlParameterInjector extends PropertyInjector {
 	final private String m_name;
 
 	final private boolean m_mandatory;
@@ -54,7 +53,6 @@ public class UrlParameterInjector extends PropertyInjector {
 
 	/**
 	 * Effects the actual injection of an URL parameter to a value.
-	 * @see to.etc.domui.state.PageMaker.PropertyInjector#inject(to.etc.domui.server.RequestContextImpl, to.etc.domui.state.PageParameters)
 	 */
 	@Override
 	public void inject(@Nonnull final UrlPage page, final @Nonnull IPageParameters papa) throws Exception {

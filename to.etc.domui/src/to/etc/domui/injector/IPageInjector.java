@@ -22,10 +22,14 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.state;
+package to.etc.domui.injector;
 
 import to.etc.domui.dom.html.*;
+import to.etc.domui.state.*;
 
+import javax.annotation.*;
+
+@DefaultNonNull
 public interface IPageInjector {
 	void injectPageValues(final UrlPage page, final IPageParameters papa) throws Exception;
 }

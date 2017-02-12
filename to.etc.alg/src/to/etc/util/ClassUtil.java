@@ -456,7 +456,9 @@ final public class ClassUtil {
 				result.add(u);
 			}
 		}
-		findUrlsFor(result, loader.getParent());
+		ClassLoader parent = loader.getParent();
+		if(null != parent)
+			findUrlsFor(result, parent);
 	}
 
 	@Nullable

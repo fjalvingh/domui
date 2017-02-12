@@ -24,11 +24,13 @@
  */
 package to.etc.domui.injector;
 
-import java.util.*;
-
 import to.etc.domui.dom.html.*;
 import to.etc.domui.state.*;
 
+import javax.annotation.*;
+import java.util.*;
+
+@DefaultNonNull
 final class PageInjector {
 	final private List<PropertyInjector> m_propInjectorList;
 

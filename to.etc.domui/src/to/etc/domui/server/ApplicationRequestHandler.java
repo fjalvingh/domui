@@ -52,6 +52,8 @@ import to.etc.webapp.ajax.renderer.json.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
 
+import static to.etc.domui.util.DomUtil.nullChecked;
+
 /**
  * Main handler for DomUI page requests. This handles all requests that target or come
  * from a DomUI page.
@@ -461,7 +463,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				logUser(ctx, cid, clz.getName(), "Full page render");
 			}
 			if(!page.isInjected()) {
-				ctx.getApplication().getInjector().injectPageValues(page.getBody(), papa);
+				ctx.getApplication().getInjector().injectPageValues(page.getBody(), nullChecked(papa));
 				page.setInjected(true);
 			}
 

@@ -24,17 +24,13 @@
  */
 package to.etc.domui.injector;
 
-import java.lang.reflect.*;
-import java.math.*;
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.annotations.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.state.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
+
+import javax.annotation.*;
+import javax.annotation.concurrent.*;
+import java.util.*;
 
 /**
  * This is the default DomUI page injector. It is responsible for providing (injecting) values into
@@ -47,136 +43,67 @@ import to.etc.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 23, 2009
  */
-public class DefaultPageInjector implements IPageInjector {
-	private Set<String> m_ucs = new HashSet<String>();
-
+@DefaultNonNull
+final public class DefaultPageInjector implements IPageInjector {
 	/**
-	 * Maps UrlPage classnames to their PageInjectors. We use names instead of the Class instances
+	 * Maps UrlPage class names to their PageInjectors. We use names instead of the Class instances
 	 * to allow for class reloading.
 	 */
 	private Map<String, PageInjector> m_injectorMap = new HashMap<String, PageInjector>();
 
 	public DefaultPageInjector() {
-		m_ucs.add(String.class.getName());
-		m_ucs.add(Byte.class.getName());
-		m_ucs.add(Byte.TYPE.getName());
-		m_ucs.add(Character.class.getName());
-		m_ucs.add(Character.TYPE.getName());
-		m_ucs.add(Short.class.getName());
-		m_ucs.add(Short.TYPE.getName());
-		m_ucs.add(Integer.class.getName());
-		m_ucs.add(Integer.TYPE.getName());
-		m_ucs.add(Long.class.getName());
-		m_ucs.add(Long.TYPE.getName());
-		m_ucs.add(Float.class.getName());
-		m_ucs.add(Float.TYPE.getName());
-		m_ucs.add(Double.class.getName());
-		m_ucs.add(Double.TYPE.getName());
-		m_ucs.add(Date.class.getName());
-		m_ucs.add(BigDecimal.class.getName());
-		m_ucs.add(BigInteger.class.getName());
-		m_ucs.add(Boolean.class.getName());
-		m_ucs.add(Boolean.TYPE.getName());
-		//		UCS.add(Byte.class.toString());
-		//		UCS.add(Byte.class.toString());
-		//		UCS.add(Byte.class.toString());
-		//		UCS.add(Byte.class.toString());
-		//		UCS.add(Byte.class.toString());
-		//		UCS.add(Byte.class.toString());
-		//
+		registerPageInjector(0, new DefaultPageInjectorFactory());
+
 	}
 
-	/**
-	 * Checks all properties of a page and returns a list of Injectors to use to inject values into
-	 * those properties, if needed.
-	 *
-	 * @param page
-	 * @return
-	 */
-	private List<PropertyInjector> calculateInjectorList(final Class< ? extends UrlPage> page) {
-		List<PropertyInfo> pilist = ClassUtil.getProperties(page);
-		List<PropertyInjector> ilist = Collections.EMPTY_LIST;
-		for(PropertyInfo pi : pilist) {
-			PropertyInjector pij = calculateInjector(pi);
-			if(pij != null) {
-				if(ilist.size() == 0)
-					ilist = new ArrayList<PropertyInjector>();
-				ilist.add(pij);
-			}
+	final public PageInjector calculateInjectors(Class<? extends UrlPage> page) {
+		Map<String, PropertyInjector> propInjectorMap = new HashMap<>();
+		for(IPageInjectorCalculator injector : getPageInjectorList()) {
+			injector.calculatePageInjectors(propInjectorMap, page);
 		}
-		return ilist;
+		return new PageInjector(page, new ArrayList<>(propInjectorMap.values()));
 	}
 
+	@DefaultNonNull
+	static final private class InjectorReference {
+		final private int m_priority;
 
-	/**
-	 * Tries to find an injector to inject a value for the specified property.
-	 *
-	 * @param pi
-	 * @return
-	 */
-	@Nullable
-	protected PropertyInjector calculateInjector(final PropertyInfo pi) {
-		if(pi.getSetter() == null) // Read-only property?
-			return null; // Be gone;
-		Method m = pi.getGetter();
-//		if(m == null)
-//			m = pi.getSetter();
+		final private IPageInjectorCalculator m_pageInjector;
 
-		return calculatePropertyInjector(pi, m);
-	}
-
-	protected PropertyInjector calculatePropertyInjector(@Nonnull PropertyInfo pi, @Nonnull Method annotatedMethod) {
-		//-- Check annotation, including super classes.
-		UIUrlParameter upp = ClassUtil.findAnnotationIncludingSuperClasses(annotatedMethod, UIUrlParameter.class);
-
-		if(upp != null)
-			return createUrlAnnotationConnector(pi, upp);
-		return null;
-	}
-
-	protected PropertyInjector createUrlAnnotationConnector(final PropertyInfo pi, UIUrlParameter upp) {
-		String name = upp.name() == Constants.NONE ? pi.getName() : upp.name();
-		Class< ? > ent = upp.entity();
-		if(ent == Object.class) {
-			//-- Use getter's type.
-			ent = pi.getGetter().getReturnType();
+		public InjectorReference(int priority, IPageInjectorCalculator pageInjector) {
+			m_priority = priority;
+			m_pageInjector = pageInjector;
 		}
 
-		/*
-		 * Entity auto-discovery: if entity is specified we're always certain we have an entity. If not,
-		 * we check the property type; if that is in a supported conversion class we assume a normal value.
-		 */
-		if(upp.entity() == Object.class) {
-			//-- Can be entity or literal.
-			if(upp.name() == Constants.NONE || // If no name is set this is NEVER an entity,
-				m_ucs.contains(ent.getName()) ||
-				RuntimeConversions.isSimpleType(pi.getActualType()) ||
-				RuntimeConversions.isEnumType(pi.getActualType())) {
-				return createParameterInjector(pi, name, upp.mandatory());
-			}
+		public int getPriority() {
+			return m_priority;
 		}
 
-		//-- Entity lookup.
-		return createEntityInjector(pi, name, upp.mandatory(), ent);
+		public IPageInjectorCalculator getPageInjector() {
+			return m_pageInjector;
+		}
 	}
 
-	protected PropertyInjector createParameterInjector(PropertyInfo pi, String name, boolean mandatory) {
-		return new UrlParameterInjector(pi.getSetter(), name, mandatory);
+	@GuardedBy("this")
+	private List<InjectorReference> m_pageInjectorOrderList = Collections.emptyList();
+
+	@GuardedBy("this")
+	private List<IPageInjectorCalculator> m_pageInjectorList = Collections.emptyList();
+
+	public synchronized void registerPageInjector(int urgency, IPageInjectorCalculator injector) {
+		ArrayList<InjectorReference> list = new ArrayList<>(m_pageInjectorOrderList);
+		list.add(new InjectorReference(urgency, injector));
+		Collections.sort(list, (a, b) -> b.getPriority() - a.getPriority());
+		m_pageInjectorOrderList = list;
+
+		List<IPageInjectorCalculator> res = new ArrayList<>(list.size());
+		list.forEach(item -> res.add(item.getPageInjector()));
+		m_pageInjectorList = Collections.unmodifiableList(res);
 	}
 
-	protected PropertyInjector createEntityInjector(PropertyInfo pi, String name, boolean mandatory, Class< ? > entityType) {
-		return new UrlEntityInjector(pi.getSetter(), name, mandatory, entityType);
-	}
-
-	/**
-	 * Fully recalculates the page injectors to use for the specified page. This explicitly does not
-	 * use the injector cache.
-	 * @param page
-	 * @return
-	 */
-	protected PageInjector calculatePageInjector(final Class< ? extends UrlPage> page) {
-		List<PropertyInjector> pil = calculateInjectorList(page);
-		return new PageInjector(page, pil);
+	@Nonnull
+	private synchronized List<IPageInjectorCalculator> getPageInjectorList() {
+		return m_pageInjectorList;
 	}
 
 	/**
@@ -193,7 +120,7 @@ public class DefaultPageInjector implements IPageInjector {
 				return pij;
 		}
 
-		pij = calculatePageInjector(page);
+		pij = calculateInjectors(page);
 		m_injectorMap.put(cn, pij);
 		return pij;
 	}
@@ -201,10 +128,6 @@ public class DefaultPageInjector implements IPageInjector {
 	/**
 	 * This scans the page for properties that are to be injected. It scans for properties on the Page's UrlPage class
 	 * and injects any stuff it finds. This version only handles the @UIUrlParameter annotation.
-	 *
-	 * @param page
-	 * @param papa
-	 * @see to.etc.domui.state.IPageInjector#injectPageValues(to.etc.domui.dom.html.UrlPage, to.etc.domui.state.PageParameters)
 	 */
 	@Override
 	public void injectPageValues(final UrlPage page, final IPageParameters papa) throws Exception {
