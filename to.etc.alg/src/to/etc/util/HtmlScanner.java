@@ -422,7 +422,7 @@ public class HtmlScanner {
 	}
 
 	static private boolean isTagChar(char c) {
-		return Character.isLetterOrDigit(c) || c == ':' || c == '.' || c == '_' || c == '/';
+		return Character.isLetterOrDigit(c) || c == ':' || c == '.' || c == '_' || c == '/' || c == '!';
 	}
 
 	static private boolean isAttrValueChar(char c) {

@@ -40,4 +40,32 @@ abstract public class QOperatorNode extends QNodeBase {
 	}
 
 	abstract public QOperatorNode dup();
+
+	/**
+	 * This removes all and/or constructs that have no real children.
+	 * @param node
+	 */
+	static public void prune(@Nullable QOperatorNode node) {
+		if(null == node)
+			return;
+		if(node.getOperation() != QOperation.AND && node.getOperation() != QOperation.OR)
+			return;
+
+		//-- Prune all children of me
+		QMultiNode mn = (QMultiNode) node;
+		for(QOperatorNode child : mn.getChildren()) {
+			prune(child);
+		}
+
+		//-- Now remove all children that have no children
+		for(int i = mn.getChildren().size(); --i >= 0;) {
+			QOperatorNode child = mn.getChildren().get(i);
+			if(child instanceof QMultiNode) {
+				QMultiNode chn = (QMultiNode) child;
+				if(chn.getChildren().size() == 0) {
+					mn.getChildren().remove(i);
+				}
+			}
+		}
+	}
 }

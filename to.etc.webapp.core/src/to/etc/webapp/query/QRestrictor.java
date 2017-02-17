@@ -575,6 +575,8 @@ abstract public class QRestrictor<T> {
 	 * Add a restriction in bare SQL, with JDBC parameters inside the string (specified as '?'). This
 	 * is implementation-dependent. The first ? in the string corresponds to params[0]. Parameters are
 	 * not allowed to be null (i.e. the type is @Nonnull Object[@Nonnull] or something).
+	 * Alternatively parameters can be given as ":nnn" where nnn is the 1-based index in the params array.
+	 *
 	 * @param sql
 	 * @param params
 	 * @return

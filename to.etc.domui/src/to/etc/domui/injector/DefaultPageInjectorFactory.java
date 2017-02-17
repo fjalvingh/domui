@@ -64,7 +64,8 @@ public class DefaultPageInjectorFactory implements IPageInjectorCalculator {
 		for(PropertyInfo pi : propertyList) {
 			if(! registrationMap.containsKey(pi.getName())) {
 				PropertyInjector pij = calculateInjector(pi);
-				registrationMap.put(pi.getName(), pij);
+				if(null != pij)
+					registrationMap.put(pi.getName(), pij);
 			}
 		}
 	}

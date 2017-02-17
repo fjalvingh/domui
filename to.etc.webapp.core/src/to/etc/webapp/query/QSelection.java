@@ -504,7 +504,7 @@ public class QSelection<T> extends QCriteriaQueryBase<T> {
 		return r.toString();
 	}
 
-	public QSelection<T> testId(String testId) {
+	public QSelection<T> testId(@Nullable String testId) {
 		setTestId(testId);
 		return this;
 	}

@@ -38,6 +38,7 @@ import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.dom.webaction.*;
 import to.etc.domui.injector.*;
+import to.etc.domui.injector.IPageInjector;
 import to.etc.domui.login.*;
 import to.etc.domui.parts.*;
 import to.etc.domui.server.parts.*;

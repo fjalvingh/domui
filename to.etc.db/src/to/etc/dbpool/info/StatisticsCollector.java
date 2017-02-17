@@ -24,9 +24,9 @@
  */
 package to.etc.dbpool.info;
 
-import java.util.*;
-
 import to.etc.dbpool.*;
+
+import java.util.*;
 
 /**
  * This collects per-statement execution time and collects statement counts per statement.
@@ -105,14 +105,16 @@ final public class StatisticsCollector extends StatisticsCollectorBase implement
 			m_maxConcurrentConnections = m_currentOpenConnections;
 
 		if(m_collectOraclePerformanceData) {
-			//m_disabled = true;									// Disable temp to get insight in what these calls themselves cost.
-			try {
-				OracleStatisticsCreator c = OracleStatisticsCreator.get(proxy);
-				c.enableConnectionStatistics(proxy, "pxy" + proxy.getId());
-			} catch(Exception x) {
-				System.err.println("dbpool: oracle db statistics init failed " + x);
-			} finally {
-				m_disabled = false;
+			IConnectionStatisticsFactory collector = proxy.getPool().getConnectionStatisticsFactory();
+			if(null != collector) {
+				//m_disabled = true;									// Disable temp to get insight in what these calls themselves cost.
+				try {
+					collector.startConnectionStatistics(proxy);
+				} catch(Exception x) {
+					System.err.println("dbpool: db statistics init failed " + x);
+				} finally {
+					m_disabled = false;
+				}
 			}
 		}
 	}
@@ -124,10 +126,13 @@ final public class StatisticsCollector extends StatisticsCollectorBase implement
 
 		if(! m_collectOraclePerformanceData)
 			return;
+
+		IConnectionStatisticsFactory collector = proxy.getPool().getConnectionStatisticsFactory();
+		if(null == collector)
+			return;
 		//m_disabled = true;
 		try {
-			OracleStatisticsCreator c = OracleStatisticsCreator.get(proxy);
-			List<DbMetric> list = c.disableConnectionStatistics(proxy, "pxy" + proxy.getId());
+			List<DbMetric> list = collector.finishConnectionStatistics(proxy);
 			mergeMetrics(list);
 		} catch(Exception x) {
 			System.err.println("dbpool: oracle db statistics gather failed " + x);

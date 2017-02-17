@@ -24,127 +24,33 @@
  */
 package org.hibernate.impl;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Reader;
-import java.io.Serializable;
-import java.io.ByteArrayOutputStream;
-import java.io.ByteArrayInputStream;
-import java.sql.Blob;
-import java.sql.Clob;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.sql.DataSource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.hibernate.CacheMode;
-import org.hibernate.ConnectionReleaseMode;
-import org.hibernate.Criteria;
-import org.hibernate.EntityMode;
-import org.hibernate.Filter;
-import org.hibernate.FlushMode;
-import org.hibernate.HibernateException;
-import org.hibernate.Interceptor;
-import org.hibernate.LobHelper;
-import org.hibernate.LockMode;
-import org.hibernate.MappingException;
-import org.hibernate.ObjectDeletedException;
-import org.hibernate.Query;
-import org.hibernate.QueryException;
-import org.hibernate.ReplicationMode;
-import org.hibernate.SQLQuery;
-import org.hibernate.ScrollMode;
-import org.hibernate.ScrollableResults;
-import org.hibernate.Session;
-import org.hibernate.SessionException;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
-import org.hibernate.TransientObjectException;
+import org.hibernate.*;
 import org.hibernate.TypeHelper;
-import org.hibernate.UnresolvableObjectException;
-import org.hibernate.UnknownProfileException;
-import org.hibernate.EntityNameResolver;
-import org.hibernate.LockOptions;
-import org.hibernate.collection.PersistentCollection;
-import org.hibernate.engine.ActionQueue;
-import org.hibernate.engine.CollectionEntry;
-import org.hibernate.engine.EntityEntry;
-import org.hibernate.engine.EntityKey;
-import org.hibernate.engine.NonFlushedChanges;
-import org.hibernate.engine.PersistenceContext;
-import org.hibernate.engine.QueryParameters;
-import org.hibernate.engine.StatefulPersistenceContext;
-import org.hibernate.engine.Status;
-import org.hibernate.engine.LoadQueryInfluencers;
-import org.hibernate.engine.jdbc.LobCreationContext;
-import org.hibernate.engine.jdbc.LobCreator;
-import org.hibernate.engine.query.FilterQueryPlan;
-import org.hibernate.engine.query.HQLQueryPlan;
-import org.hibernate.engine.query.NativeSQLQueryPlan;
-import org.hibernate.engine.query.sql.NativeSQLQuerySpecification;
-import org.hibernate.event.AutoFlushEvent;
-import org.hibernate.event.AutoFlushEventListener;
-import org.hibernate.event.DeleteEvent;
-import org.hibernate.event.DeleteEventListener;
-import org.hibernate.event.DirtyCheckEvent;
-import org.hibernate.event.DirtyCheckEventListener;
-import org.hibernate.event.EventListeners;
-import org.hibernate.event.EventSource;
-import org.hibernate.event.EvictEvent;
-import org.hibernate.event.EvictEventListener;
-import org.hibernate.event.FlushEvent;
-import org.hibernate.event.FlushEventListener;
-import org.hibernate.event.InitializeCollectionEvent;
-import org.hibernate.event.InitializeCollectionEventListener;
-import org.hibernate.event.LoadEvent;
-import org.hibernate.event.LoadEventListener;
-import org.hibernate.event.LoadEventListener.LoadType;
-import org.hibernate.event.LockEvent;
-import org.hibernate.event.LockEventListener;
-import org.hibernate.event.MergeEvent;
-import org.hibernate.event.MergeEventListener;
-import org.hibernate.event.PersistEvent;
-import org.hibernate.event.PersistEventListener;
-import org.hibernate.event.RefreshEvent;
-import org.hibernate.event.RefreshEventListener;
-import org.hibernate.event.ReplicateEvent;
-import org.hibernate.event.ReplicateEventListener;
-import org.hibernate.event.SaveOrUpdateEvent;
-import org.hibernate.event.SaveOrUpdateEventListener;
-import org.hibernate.exception.JDBCExceptionHelper;
-import org.hibernate.jdbc.Batcher;
-import org.hibernate.jdbc.JDBCContext;
-import org.hibernate.jdbc.Work;
-import org.hibernate.loader.criteria.CriteriaLoader;
-import org.hibernate.loader.custom.CustomLoader;
-import org.hibernate.loader.custom.CustomQuery;
-import org.hibernate.persister.collection.CollectionPersister;
-import org.hibernate.persister.entity.EntityPersister;
-import org.hibernate.persister.entity.OuterJoinLoadable;
-import org.hibernate.pretty.MessageHelper;
-import org.hibernate.proxy.HibernateProxy;
-import org.hibernate.proxy.LazyInitializer;
-import org.hibernate.stat.SessionStatistics;
-import org.hibernate.stat.SessionStatisticsImpl;
-import org.hibernate.type.Type;
-import org.hibernate.type.SerializationException;
-import org.hibernate.util.ArrayHelper;
-import org.hibernate.util.CollectionHelper;
-import org.hibernate.util.StringHelper;
+import org.hibernate.collection.*;
+import org.hibernate.engine.*;
+import org.hibernate.engine.jdbc.*;
+import org.hibernate.engine.query.*;
+import org.hibernate.engine.query.sql.*;
+import org.hibernate.event.*;
+import org.hibernate.event.LoadEventListener.*;
+import org.hibernate.exception.*;
+import org.hibernate.jdbc.*;
+import org.hibernate.loader.criteria.*;
+import org.hibernate.loader.custom.*;
+import org.hibernate.persister.collection.*;
+import org.hibernate.persister.entity.*;
+import org.hibernate.pretty.*;
+import org.hibernate.proxy.*;
+import org.hibernate.stat.*;
+import org.hibernate.type.*;
+import org.hibernate.util.*;
+import org.slf4j.*;
+
+import javax.sql.*;
+import java.io.*;
+import java.sql.*;
+import java.util.*;
+import java.util.Collections;
 
 
 /**
@@ -156,7 +62,7 @@ import org.hibernate.util.StringHelper;
  * @author Gavin King
  */
 public final class SessionImpl extends AbstractSessionImpl 
-		implements EventSource, org.hibernate.classic.Session, JDBCContext.Context, LobCreationContext {
+		implements EventSource, org.hibernate.classic.Session, JDBCContext.Context, LobCreationContext, XXDebugData {
 
 	// todo : need to find a clean way to handle the "event source" role
 	// a seperate classs responsible for generating/dispatching events just duplicates most of the Session methods...
@@ -191,6 +97,20 @@ public final class SessionImpl extends AbstractSessionImpl
 
 	private transient EntityNameResolver entityNameResolver = new CoordinatingEntityNameResolver();
 
+
+	/*** debug ***/
+	final private transient int m_id;
+
+	private static int m_nextId;
+
+	private Exception m_allocationPoint;
+
+	private Exception m_closePoint;
+
+	static private synchronized int nextID() {
+		return ++m_nextId;
+	}
+
 	/**
 	 * Constructor used in building "child sessions".
 	 *
@@ -199,6 +119,7 @@ public final class SessionImpl extends AbstractSessionImpl
 	 */
 	private SessionImpl(SessionImpl parent, EntityMode entityMode) {
 		super( parent.factory );
+		m_id = nextID();
 		this.rootSession = parent;
 		this.timestamp = parent.timestamp;
 		this.jdbcContext = parent.jdbcContext;
@@ -217,7 +138,32 @@ public final class SessionImpl extends AbstractSessionImpl
 			factory.getStatisticsImplementor().openSession();
 		}
 
+		initLogging();
+
 		log.debug( "opened session [" + entityMode + "]" );
+	}
+
+	private void initLogging() {
+		if(Hibernate.DEBUGLOGGING) {
+			try {
+				throw new Exception("Dump location");
+			} catch(Exception x) {
+				m_allocationPoint = x;
+//				System.out.println("h> Allocated hibernate session " + m_id);
+			}
+		}
+	}
+
+	public Exception getAllocationPoint() {
+		return m_allocationPoint;
+	}
+
+	public Exception getClosePoint() {
+		return m_closePoint;
+	}
+
+	public int getId() {
+		return m_id;
 	}
 
 	/**
@@ -248,6 +194,7 @@ public final class SessionImpl extends AbstractSessionImpl
 			final DataSource perSessionDS
 			) {
 		super( factory );
+		m_id = nextID();
 		this.rootSession = null;
 		this.timestamp = timestamp;
 		this.entityMode = entityMode;
@@ -265,6 +212,7 @@ public final class SessionImpl extends AbstractSessionImpl
 		if ( factory.getStatistics().isStatisticsEnabled() ) {
 			factory.getStatisticsImplementor().openSession();
 		}
+		initLogging();
 
 		if ( log.isDebugEnabled() ) {
 			log.debug( "opened session at timestamp: " + timestamp );
@@ -300,6 +248,8 @@ public final class SessionImpl extends AbstractSessionImpl
 	}
 
 	public void clear() {
+//		if(Hibernate.DEBUGLOGGING)
+//			System.out.println("h> session clear " + m_id);
 		errorIfClosed();
 		checkTransactionSynchStatus();
 		persistenceContext.clear();
@@ -320,6 +270,19 @@ public final class SessionImpl extends AbstractSessionImpl
 	}
 
 	public Connection close() throws HibernateException {
+		if(Hibernate.DEBUGLOGGING) {
+//			System.out.println("h> session closed " + m_id);
+			if(m_closePoint != null) {
+//				System.out.println("h> was closed before " + m_id);
+			} else {
+				try {
+					throw new Exception("Location dump");
+				} catch(Exception x) {
+					m_closePoint = x;
+				}
+			}
+		}
+
 		log.trace( "closing session" );
 		if ( isClosed() ) {
 			throw new SessionException( "Session was already closed" );

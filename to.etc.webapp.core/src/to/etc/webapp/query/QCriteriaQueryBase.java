@@ -24,12 +24,11 @@
  */
 package to.etc.webapp.query;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.webapp.*;
 import to.etc.webapp.annotations.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * Base class representing most of the query structure, just not the public interface part.
@@ -476,7 +475,7 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 		return m_testId;
 	}
 
-	public void setTestId(@Nonnull String testId){
+	public void setTestId(@Nullable String testId){
 		m_testId = testId;
 	}
 }

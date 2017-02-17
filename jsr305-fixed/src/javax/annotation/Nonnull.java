@@ -1,5 +1,5 @@
 /*
- * DomUI Java User Interface library
+ * DomUI Java User Interface - shared code
  * Copyright (c) 2010 by Frits Jalvingh, Itris B.V.
  *
  * This library is free software; you can redistribute it and/or
@@ -22,10 +22,12 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.state;
+package javax.annotation;
 
-import to.etc.domui.dom.html.*;
+import java.lang.annotation.*;
 
-public interface IPageInjector {
-	void injectPageValues(final UrlPage page, final IPageParameters papa) throws Exception;
+@Documented
+@Retention(RetentionPolicy.CLASS)
+@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE})
+public @interface Nonnull {
 }

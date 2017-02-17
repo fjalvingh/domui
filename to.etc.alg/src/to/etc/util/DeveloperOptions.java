@@ -70,7 +70,6 @@ public class DeveloperOptions {
 			File f = new File(new File(s), ".developer.properties");
 			if(!f.exists())
 				return;
-			m_isdeveloper = true;
 
 			InputStream is = null;
 			try {
@@ -79,6 +78,7 @@ public class DeveloperOptions {
 				p.load(is);
 				m_p = p;
 				System.out.println("WARNING: " + f + " used for DEVELOPMENT-TIME OPTIONS!!");
+				m_isdeveloper = DeveloperOptions.getBool("developer.workstation", true);
 			} catch(Exception x) {
 				System.out.println("DeveloperOptions: exception while reading " + f + ": " + x);
 			} finally {

@@ -41,6 +41,8 @@ public class ReaderTokenizerBase extends ReaderScannerBase {
 
 	private boolean m_keepQuotes;
 
+	private boolean m_scanUndottedNumbers;
+
 	//	private StringBuffer	m_sb = new StringBuffer();
 
 	private int		m_lastToken	= T_EOF;
@@ -189,6 +191,8 @@ public class ReaderTokenizerBase extends ReaderScannerBase {
 				case '7':
 				case '8':
 				case '9':
+					if(m_scanUndottedNumbers)
+						return scanUndottedNumber();
 					return scanNumber(); // Scan a number OR an IP address
 
 				case '/':
@@ -230,5 +234,9 @@ public class ReaderTokenizerBase extends ReaderScannerBase {
 					break;
 			}
 		}
+	}
+
+	public void setScanUndottedNumbers(boolean scanUndottedNumbers) {
+		m_scanUndottedNumbers = scanUndottedNumbers;
 	}
 }

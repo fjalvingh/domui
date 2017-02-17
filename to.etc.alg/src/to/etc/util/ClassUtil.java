@@ -90,6 +90,10 @@ final public class ClassUtil {
 		try {
 			return clz.getMethod(name, param);
 		} catch(Exception x) {
+		}
+		try {
+			return clz.getDeclaredMethod(name, param);
+		} catch(Exception x) {
 			return null;
 		}
 	}
@@ -103,7 +107,7 @@ final public class ClassUtil {
 	 * @return
 	 */
 	@Nullable
-	static public Method findMethod(@Nonnull final Class< ? > clz, @Nonnull final String name, @Nonnull final Object[] param) {
+	static public Method findMethod(@Nonnull final Class< ? > clz, @Nonnull final String name, @Nonnull final Object... param) {
 		boolean hard = false;
 		Class< ? >[] par = new Class< ? >[param.length];
 		for(int i = param.length; --i >= 0;) {
@@ -446,7 +450,7 @@ final public class ClassUtil {
 	 * Checks to see what kind of classloader this is, and add all paths to my list.
 	 * @param loader
 	 */
-	static private void findUrlsFor(@Nonnull List<URL> result, @Nonnull ClassLoader loader) {
+	static private void findUrlsFor(@Nonnull List<URL> result, @Nullable ClassLoader loader) {
 		//		System.out.println(".. loader="+loader);
 		if(loader == null)
 			return;

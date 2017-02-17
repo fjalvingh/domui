@@ -445,7 +445,8 @@ final public class DateUtil {
 		return new Date(cal.getTimeInMillis());
 	}
 
-	static public Date addDays(Date in, int days) {
+	@Nonnull
+	static public Date addDays(@Nonnull Date in, int days) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(in);
 		cal.add(Calendar.DAY_OF_YEAR, days);

@@ -1,12 +1,26 @@
 package to.etc.file;
 
-import java.io.*;
-import java.security.*;
-import java.util.*;
+import to.etc.function.FunctionEx;
+import to.etc.util.FileTool;
+import to.etc.util.WrappedException;
 
-import javax.annotation.*;
-
-import to.etc.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Contains a "directory contents" snapshot consisting of all files and directories in the target
@@ -17,22 +31,24 @@ import to.etc.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Nov 16, 2013
  */
-public class DirectoryInventory implements Serializable {
+final public class DirectoryInventory implements Serializable {
 	private static final long serialVersionUID = 42328462L;
 
-	static private final class InvEntry implements Serializable {
-		@Nonnull
-		final public String m_name;
-
-		final public long m_lastModified;
-
-		final public int m_size;
+	static public final class InvEntry implements Serializable {
+		private static final long serialVersionUID = 423284312L;
 
 		@Nonnull
-		final public byte[] m_md5hash;
+		private final String m_name;
+
+		private final long m_lastModified;
+
+		private final int m_size;
+
+		@Nonnull
+		private final byte[] m_md5hash;
 
 		@Nullable
-		final public InvEntry[] m_children;
+		private final InvEntry[] m_children;
 
 		public InvEntry(@Nonnull String name, int size, long lastModified, @Nonnull byte[] md5hash) {
 			m_name = name;
@@ -51,7 +67,43 @@ public class DirectoryInventory implements Serializable {
 		}
 
 		public boolean isDirectory() {
-			return null != m_children;
+			return null != getChildren();
+		}
+
+		@Nonnull public String getName() {
+			return m_name;
+		}
+
+		public long getLastModified() {
+			return m_lastModified;
+		}
+
+		public int getSize() {
+			return m_size;
+		}
+
+		@Nonnull public byte[] getMd5hash() {
+			return m_md5hash;
+		}
+
+		@Nullable public InvEntry[] getChildren() {
+			return m_children;
+		}
+
+		@Nullable
+		public <R> R visit(@Nonnull FunctionEx<InvEntry, R> consumer) throws Exception {
+			R val = consumer.apply(this);
+			if(null != val)
+				return val;
+			InvEntry[] children = m_children;
+			if(null != children) {
+				for(InvEntry child : children) {
+					val = child.visit(consumer);
+					if(null != val)
+						return val;
+				}
+			}
+			return null;
 		}
 	}
 
@@ -66,7 +118,7 @@ public class DirectoryInventory implements Serializable {
 
 	private long m_creationTime;
 
-	public DirectoryInventory(long currentTimeMillis) {
+	private DirectoryInventory(long currentTimeMillis) {
 		m_creationTime = currentTimeMillis;
 	}
 
@@ -93,17 +145,17 @@ public class DirectoryInventory implements Serializable {
 		DirectoryInventory de = new DirectoryInventory(System.currentTimeMillis());
 		de.m_root = de.scanDirectory(src);
 		ts = System.nanoTime() - ts;
-		System.out.println(".. inventory of " + src + " took " + StringTool.strNanoTime(ts) + " for " + de.m_numFiles + " files in " + de.m_numDirectories + " dirs");
+//		System.out.println(".. inventory of " + src + " took " + StringTool.strNanoTime(ts) + " for " + de.m_numFiles + " files in " + de.m_numDirectories + " dirs");
 		return de;
 	}
 
 	private static final Comparator<InvEntry> C_ORDER = new Comparator<InvEntry>() {
 		@Override
 		public int compare(InvEntry a, InvEntry b) {
-			int res = a.m_name.compareTo(b.m_name);
+			int res = a.getName().compareTo(b.getName());
 			if(res != 0)
 				return res;
-			return compareArrays(a.m_md5hash, b.m_md5hash);
+			return compareArrays(a.getMd5hash(), b.getMd5hash());
 		}
 	};
 
@@ -142,8 +194,8 @@ public class DirectoryInventory implements Serializable {
 		MessageDigest dig = MessageDigest.getInstance("md5");
 		for(int i = 0; i < ar.length; i++) {
 			InvEntry ie = ar[i];
-			dig.update(ie.m_name.getBytes("UTF-8"));
-			dig.update(ie.m_md5hash);
+			dig.update(ie.getName().getBytes("UTF-8"));
+			dig.update(ie.getMd5hash());
 		}
 		byte[] dirhash = dig.digest();
 		return new InvEntry(src.getName(), 0, 0, dirhash, ar);
@@ -307,7 +359,7 @@ public class DirectoryInventory implements Serializable {
 	 */
 	private void handleCompare(@Nonnull StringBuilder sb, @Nonnull IDeltaListener listener, @Nonnull InvEntry src, @Nonnull InvEntry dst) throws Exception {
 		//-- If both directory hash entries are equal this dir has no changes
-		if(Arrays.equals(src.m_md5hash, dst.m_md5hash))
+		if(Arrays.equals(src.getMd5hash(), dst.getMd5hash()))
 			return;
 
 		int len = sb.length();
@@ -317,22 +369,22 @@ public class DirectoryInventory implements Serializable {
 		}
 
 		Map<String, InvEntry> dstmap = new HashMap<String, InvEntry>();
-		for(InvEntry de : dst.m_children)
-			dstmap.put(de.m_name, de);
-		for(InvEntry se : src.m_children) {
+		for(InvEntry de : dst.getChildren())
+			dstmap.put(de.getName(), de);
+		for(InvEntry se : src.getChildren()) {
 			sb.setLength(len);
-			sb.append(se.m_name);								// Make a full path name
+			sb.append(se.getName());								// Make a full path name
 			String path = sb.toString();
-			InvEntry de = dstmap.remove(se.m_name);				// If there is a dest with that name remove it,
+			InvEntry de = dstmap.remove(se.getName());				// If there is a dest with that name remove it,
 			if(null != de) {
 				compareEntries(sb, se, de, listener);
 			} else {
 				//-- Source is there, dest is not -> delete of "src"
 				if(!se.isDirectory()) {
-					listener.fileDeleted(path, se.m_lastModified, se.m_md5hash);
+					listener.fileDeleted(path, se.getLastModified(), se.getMd5hash());
 				} else {
 					//-- depth-1st traversal to send delete event for everything.
-					handleTreeDelete(listener, sb, se.m_children);
+					handleTreeDelete(listener, sb, se.getChildren());
 				}
 			}
 		}
@@ -340,13 +392,13 @@ public class DirectoryInventory implements Serializable {
 		//-- All left in the map exists in dst but not in src so has been added
 		for(InvEntry ie : dstmap.values()) {
 			sb.setLength(len);
-			sb.append(ie.m_name);								// Make a full path name
+			sb.append(ie.getName());								// Make a full path name
 			String path = sb.toString();
 
 			if(ie.isDirectory()) {
-				handleTreeAdd(listener, sb, ie.m_children);
+				handleTreeAdd(listener, sb, ie.getChildren());
 			} else {
-				listener.fileAdded(path, ie.m_lastModified, ie.m_md5hash);
+				listener.fileAdded(path, ie.getLastModified(), ie.getMd5hash());
 			}
 		}
 	}
@@ -360,11 +412,11 @@ public class DirectoryInventory implements Serializable {
 		}
 		for(InvEntry ie : children) {
 			sb.setLength(len);
-			sb.append(ie.m_name);
+			sb.append(ie.getName());
 			if(ie.isDirectory()) {
-				handleTreeAdd(listener, sb, ie.m_children);				// Recurse into dir
+				handleTreeAdd(listener, sb, ie.getChildren());				// Recurse into dir
 			} else {
-				listener.fileAdded(sb.toString(), ie.m_lastModified, ie.m_md5hash);
+				listener.fileAdded(sb.toString(), ie.getLastModified(), ie.getMd5hash());
 			}
 		}
 	}
@@ -384,11 +436,11 @@ public class DirectoryInventory implements Serializable {
 		}
 		for(InvEntry ie : children) {
 			sb.setLength(len);
-			sb.append(ie.m_name);
+			sb.append(ie.getName());
 			if(ie.isDirectory()) {
-				handleTreeDelete(listener, sb, ie.m_children);	// Recurse into dir
+				handleTreeDelete(listener, sb, ie.getChildren());	// Recurse into dir
 			} else {
-				listener.fileDeleted(sb.toString(), ie.m_lastModified, ie.m_md5hash);
+				listener.fileDeleted(sb.toString(), ie.getLastModified(), ie.getMd5hash());
 			}
 		}
 		listener.directoryDeleted(name);
@@ -397,8 +449,6 @@ public class DirectoryInventory implements Serializable {
 	/**
 	 * Compare same-named entries.
 	 * @param sb
-	 * @param de
-	 * @param de2
 	 * @param listener
 	 */
 	private void compareEntries(@Nonnull StringBuilder sb, @Nonnull InvEntry src, @Nonnull InvEntry dst, @Nonnull IDeltaListener listener) throws Exception {
@@ -406,22 +456,31 @@ public class DirectoryInventory implements Serializable {
 			handleCompare(sb, listener, src, dst);
 		} else if(src.isDirectory()) {
 			//-- Directory changed to file...
-			handleTreeDelete(listener, sb, src.m_children);		// send delete event for all in src tree
-			listener.fileAdded(sb.toString(), dst.m_lastModified, dst.m_md5hash);
+			handleTreeDelete(listener, sb, src.getChildren());		// send delete event for all in src tree
+			listener.fileAdded(sb.toString(), dst.getLastModified(), dst.getMd5hash());
 		} else if(dst.isDirectory()) {
 			//-- File replaced by directory
-			listener.fileDeleted(sb.toString(), src.m_lastModified, src.m_md5hash);
-			handleTreeAdd(listener, sb, dst.m_children);
+			listener.fileDeleted(sb.toString(), src.getLastModified(), src.getMd5hash());
+			handleTreeAdd(listener, sb, dst.getChildren());
 		} else {
 			//-- Both are files.
-			if(!Arrays.equals(src.m_md5hash, dst.m_md5hash)) {
-				listener.fileModified(sb.toString(), src.m_lastModified, dst.m_lastModified, src.m_md5hash, dst.m_md5hash);
+			if(!Arrays.equals(src.getMd5hash(), dst.getMd5hash())) {
+				listener.fileModified(sb.toString(), src.getLastModified(), dst.getLastModified(), src.getMd5hash(), dst.getMd5hash());
 			}
 		}
 	}
 
+	/**
+	 * Visits all entries.
+	 * @param consumer
+	 * @throws Exception
+	 */
+	@Nullable
+	public <R> R visit(@Nonnull FunctionEx<InvEntry, R> consumer) throws Exception {
+		return m_root.visit(consumer);
+	}
 
-	public static void main(String[] args) throws Exception {
+	public static void main(@Nonnull String[] args) throws Exception {
 		DirectoryInventory a = DirectoryInventory.create(new File("/home/jal/bzr/puzzler-split/domui/to.etc.domui/src"));
 		DirectoryInventory b = DirectoryInventory.create(new File("/home/jal/bzr/puzzler-split/domui/to.etc.domui/src"));
 		List<DeltaRecord> res = a.compareTo(b);
@@ -433,7 +492,6 @@ public class DirectoryInventory implements Serializable {
 		for(DeltaRecord dr : res) {
 			System.out.println(dr.getType() + ": " + dr.getPath());
 		}
-
 	}
 
 	public int getNumFiles() {

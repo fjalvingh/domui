@@ -37,8 +37,8 @@ final class PageInjector {
 	final private Class< ? extends UrlPage> m_pageClass;
 
 	public PageInjector(final Class< ? extends UrlPage> pageClass, final List<PropertyInjector> propInjectorList) {
-		m_pageClass = pageClass;
-		m_propInjectorList = propInjectorList;
+		m_pageClass = Objects.requireNonNull(pageClass);
+		m_propInjectorList = Objects.requireNonNull(propInjectorList);
 	}
 
 	public Class< ? extends UrlPage> getPageClass() {

@@ -23,69 +23,17 @@
  */
 package org.hibernate;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
-import java.io.ByteArrayOutputStream;
-import java.sql.Blob;
-import java.sql.Clob;
-import java.util.Iterator;
-import java.util.Properties;
+import org.hibernate.collection.*;
+import org.hibernate.engine.*;
+import org.hibernate.engine.jdbc.*;
+import org.hibernate.intercept.*;
+import org.hibernate.proxy.*;
+import org.hibernate.type.*;
+import org.hibernate.usertype.*;
 
-import org.hibernate.collection.PersistentCollection;
-import org.hibernate.engine.HibernateIterator;
-import org.hibernate.engine.SessionFactoryImplementor;
-import org.hibernate.engine.SessionImplementor;
-import org.hibernate.engine.jdbc.NonContextualLobCreator;
-import org.hibernate.engine.jdbc.LobCreationContext;
-import org.hibernate.engine.jdbc.LobCreator;
-import org.hibernate.engine.jdbc.StreamUtils;
-import org.hibernate.intercept.FieldInterceptionHelper;
-import org.hibernate.intercept.FieldInterceptor;
-import org.hibernate.proxy.HibernateProxy;
-import org.hibernate.proxy.LazyInitializer;
-import org.hibernate.type.CharacterArrayClobType;
-import org.hibernate.type.MaterializedBlobType;
-import org.hibernate.type.AnyType;
-import org.hibernate.type.BigDecimalType;
-import org.hibernate.type.BigIntegerType;
-import org.hibernate.type.BinaryType;
-import org.hibernate.type.BlobType;
-import org.hibernate.type.BooleanType;
-import org.hibernate.type.ByteType;
-import org.hibernate.type.CalendarDateType;
-import org.hibernate.type.CalendarType;
-import org.hibernate.type.CharacterType;
-import org.hibernate.type.ClassType;
-import org.hibernate.type.ClobType;
-import org.hibernate.type.CurrencyType;
-import org.hibernate.type.DateType;
-import org.hibernate.type.DoubleType;
-import org.hibernate.type.FloatType;
-import org.hibernate.type.IntegerType;
-import org.hibernate.type.LocaleType;
-import org.hibernate.type.LongType;
-import org.hibernate.type.ManyToOneType;
-import org.hibernate.type.ObjectType;
-import org.hibernate.type.PrimitiveCharacterArrayClobType;
-import org.hibernate.type.SerializableType;
-import org.hibernate.type.ShortType;
-import org.hibernate.type.StringType;
-import org.hibernate.type.TextType;
-import org.hibernate.type.TimeType;
-import org.hibernate.type.TimeZoneType;
-import org.hibernate.type.TimestampType;
-import org.hibernate.type.TrueFalseType;
-import org.hibernate.type.Type;
-import org.hibernate.type.TypeFactory;
-import org.hibernate.type.WrappedMaterializedBlobType;
-import org.hibernate.type.YesNoType;
-import org.hibernate.type.CharArrayType;
-import org.hibernate.type.WrapperBinaryType;
-import org.hibernate.type.CharacterArrayType;
-import org.hibernate.type.ImageType;
-import org.hibernate.type.MaterializedClobType;
-import org.hibernate.usertype.CompositeUserType;
+import java.io.*;
+import java.sql.*;
+import java.util.*;
 
 /**
  * <ul>
@@ -679,4 +627,17 @@ public final class Hibernate {
 		
 	}
 
+	static public final boolean DEBUGLOGGING = true;
+
+	/*** Debug class info ***/
+	static private ThreadLocal<Boolean> m_logSession = new ThreadLocal<>();
+
+	static public void setLogSession(boolean on) {
+		m_logSession.set(Boolean.valueOf(on));
+	}
+
+	static public boolean isLogSession() {
+		Boolean bool = m_logSession.get();
+		return bool != null && bool.booleanValue();
+	}
 }

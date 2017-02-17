@@ -59,9 +59,13 @@ final public class DbConnectionInfo {
 					String sid = b.substring(pos + 1).trim();
 					b = b.substring(0, pos);
 					pos = b.indexOf(':');
-					int port = Integer.parseInt(b.substring(pos + 1).trim());
-					String hostname = b.substring(0, pos);
-					return new DbConnectionInfo(hostname, port, sid, userid, password);
+					if(pos != -1) {
+						int port = Integer.parseInt(b.substring(pos + 1).trim());
+						String hostname = b.substring(0, pos);
+						return new DbConnectionInfo(hostname, port, sid, userid, password);
+					} else {
+						return new DbConnectionInfo(b, -1, sid, userid, password);
+					}
 				}
 			}
 		}

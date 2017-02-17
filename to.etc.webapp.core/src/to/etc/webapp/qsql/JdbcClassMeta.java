@@ -184,7 +184,10 @@ public class JdbcClassMeta {
 
 		if(!pm.isTransient() && !pm.isCompound() && pm.getColumnName() == null)
 			throw new IllegalStateException(m_dataClass + ": property " + pi.getName() + " has no name for it's JDBC column name");
-		pm.setTypeConverter(JdbcMetaManager.createConverter(pm));
+
+		if (null == pm.getTypeConverter()) {
+			pm.setTypeConverter(JdbcMetaManager.createConverter(pm));
+		}
 		return pm;
 	}
 

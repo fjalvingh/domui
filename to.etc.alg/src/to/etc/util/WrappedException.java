@@ -24,7 +24,7 @@
  */
 package to.etc.util;
 
-import java.lang.reflect.*;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Helper class for managing the checked exception idiocy rampant

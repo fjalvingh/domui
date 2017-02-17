@@ -24,10 +24,9 @@
  */
 package to.etc.util;
 
+import javax.annotation.*;
 import java.io.*;
 import java.util.*;
-
-import javax.annotation.*;
 
 /**
  * Helper code to spawn processes and capture their output.
@@ -37,7 +36,7 @@ import javax.annotation.*;
  */
 final public class ProcessTools {
 	public interface IFollow {
-		public void newData(boolean stderr, char[] data, int length);
+		public void newData(boolean stderr, @Nonnull char[] data, int length);
 	}
 
 	@Nonnull
@@ -114,20 +113,40 @@ final public class ProcessTools {
 		return this;
 	}
 
+	@Nonnull
+	public Map<String, String> env() {
+		return m_builder.environment();
+	}
+
+	@Nonnull
+	public ProcessTools envStrip(@Nonnull String... names) {
+		for(String name : names) {
+			env().remove(name);
+		}
+		return this;
+	}
+
 	public int run() throws Exception {
 		Writer stdout = m_stdout;
 		Writer stderr = m_stderr;
-		if(null == stdout || null == stderr)
-			throw new IllegalStateException("Either stdout or stderr not redirected");
+		if(null == stdout)
+			throw new IllegalStateException("Stdout not redirected");
+		if(null == stderr) {
+			m_builder.redirectErrorStream(true);
+		}
 		Process pr = m_builder.start();
 
 		StreamReaderThread outr = new StreamReaderThread(stdout, "stdout", pr.getInputStream(), null, m_follow, m_flush);
-		StreamReaderThread errr = new StreamReaderThread(stderr, "stderr", pr.getErrorStream(), null, m_follow, m_flush);
 		outr.start();
-		errr.start();
+		StreamReaderThread errr = null;
+		if(stderr != null) {
+			errr = new StreamReaderThread(stderr, "stderr", pr.getErrorStream(), null, m_follow, m_flush);
+			errr.start();
+		}
 		int rc = pr.waitFor();
 		outr.join();
-		errr.join();
+		if(null != errr)
+			errr.join();
 		return rc;
 
 
@@ -187,7 +206,7 @@ final public class ProcessTools {
 				encoding = System.getProperty("file.encoding");
 			try {
 				m_reader = new InputStreamReader(is, encoding);
-			} catch(UnsupportedEncodingException x) // Fuck James Gosling with his stupid checked exceptions crap
+			} catch(UnsupportedEncodingException x)
 			{
 				throw new IllegalStateException("Unsupported encoding " + encoding);
 			}
@@ -202,7 +221,7 @@ final public class ProcessTools {
 			try {
 				int szrd;
 				IFollow follow = m_follow;
-				while(0 < (szrd = m_reader.read(m_buf))) {
+				while(0 <= (szrd = m_reader.read(m_buf))) {
 					//					System.out.println("dbg: writing "+szrd+" chars to the stream");
 					m_w.write(m_buf, 0, szrd);
 					if(m_flush) {

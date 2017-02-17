@@ -285,7 +285,8 @@ public class DomTools {
 	 *	Gets the text part contained in a node... All text parts are obtained and
 	 *  concatenated with a single space.
 	 */
-	static public String textFrom(final Node n) {
+	@Nullable
+	static public String textFrom(@Nonnull final Node n) {
 		StringBuffer sb = new StringBuffer();
 		NodeList nl = n.getChildNodes();
 		for(int i = 0; i < nl.getLength(); i++) {
@@ -649,7 +650,7 @@ public class DomTools {
 	 * @param defval	the value to return if the attribute is not present,
 	 * @return			a string containing the attribute's value or the default.
 	 */
-	static public String getNodeAttribute(final Node n, final String aname, final String defval) {
+	static public String getNodeAttribute(@Nonnull final Node n, @Nonnull final String aname, @Nullable final String defval) {
 		if(n.hasAttributes()) {
 			Node idn = n.getAttributes().getNamedItem(aname);
 			if(idn != null)
@@ -662,7 +663,8 @@ public class DomTools {
 		return getNodeAttribute(n, aname, def);
 	}
 
-	static public String strAttr(final Node n, final String aname) {
+	@Nonnull
+	static public String strAttr(@Nonnull final Node n, @Nonnull final String aname) {
 		String s = getNodeAttribute(n, aname, null);
 		if(s == null)
 			throw new IllegalStateException("Missing attribute '" + aname + "' on node '" + n.getNodeName() +"'");

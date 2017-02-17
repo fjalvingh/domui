@@ -24,16 +24,14 @@
  */
 package to.etc.net;
 
-import java.io.*;
-import java.net.*;
+import org.w3c.dom.*;
+import to.etc.util.*;
+import to.etc.xml.*;
 
 import javax.annotation.*;
 import javax.servlet.http.*;
-
-import org.w3c.dom.*;
-
-import to.etc.util.*;
-import to.etc.xml.*;
+import java.io.*;
+import java.net.*;
 
 /**
  * Utilities for net access.
@@ -410,7 +408,7 @@ final public class NetTools {
 		}
 	}
 
-	static private HttpCallException handleHttpError(String url, HttpURLConnection huc) throws Exception {
+	static public HttpCallException handleHttpError(String url, HttpURLConnection huc) throws Exception {
 		HttpCallException hcx = new HttpCallException(url, huc.getResponseCode(), huc.getResponseMessage());
 		return hcx;
 	}

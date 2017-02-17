@@ -24,9 +24,8 @@
  */
 package to.etc.dbpool.info;
 
-import java.util.*;
-
 import javax.annotation.*;
+import java.util.*;
 
 /**
  * Base class containing just count and overall time stuff.
@@ -167,7 +166,10 @@ public class StatisticsCollectorBase {
 	}
 
 	public List<DbMetric> getMetrics() {
-		ArrayList<DbMetric> list = new ArrayList<>(m_metricMap.values());
+		Map<MetricsDefinition, DbMetric> map = m_metricMap;
+		if(null == map)
+			return Collections.EMPTY_LIST;
+		ArrayList<DbMetric> list = new ArrayList<>(map.values());
 
 		Collections.sort(list, (a, b) -> {
 			int res = - Integer.compare(a.getDefinition().getOrder(), b.getDefinition().getOrder());
@@ -180,10 +182,11 @@ public class StatisticsCollectorBase {
 
 	@Nullable
 	public DbMetric getMetric(int id) {
-		if(m_metricMap == null)
+		Map<MetricsDefinition, DbMetric> map = m_metricMap;
+		if(map == null)
 			return null;
 
-		for(DbMetric metric : m_metricMap.values()) {
+		for(DbMetric metric : map.values()) {
 			if(metric.getDefinition().getId() == id)
 				return metric;
 		}

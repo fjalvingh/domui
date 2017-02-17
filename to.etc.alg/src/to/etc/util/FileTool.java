@@ -926,6 +926,7 @@ public class FileTool {
 	 * @return
 	 * @throws Exception
 	 */
+	@Nonnull
 	static public Properties loadProperties(final File f) throws Exception {
 		InputStream is = new FileInputStream(f);
 		try {
@@ -1202,6 +1203,18 @@ public class FileTool {
 				try {
 					is.close();
 				} catch(Exception x) {}
+		}
+	}
+
+	static public void zipAppend(ZipOutputStream zos, String fileName, File f) throws IOException {
+		try(InputStream is = new FileInputStream(f)) {
+			//-- Write this file.
+			ZipEntry ze = new ZipEntry(fileName);
+			ze.setTime(f.lastModified());
+			zos.putNextEntry(ze);
+
+			//-- Copy
+			FileTool.copyFile(zos, is);
 		}
 	}
 
@@ -2080,17 +2093,25 @@ public class FileTool {
 	/**
 	 * Calculate the relative path of file in the root passed.
 	 * @param root
-	 * @param file
+	 * @param other
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
-	public static String getRelativePath(@Nonnull File root, @Nonnull File file) throws Exception {
-		String rp = root.getCanonicalPath() + File.separator;
-		String fp = file.getCanonicalPath();
-		if(!fp.startsWith(rp))
-			throw new IllegalStateException("Path " + fp + " is not a subpath of " + rp);
-		return fp.substring(rp.length());
+	@Nullable
+	static public String getRelativePath(@Nonnull File root, @Nonnull File other) {
+		try {
+			String modroot = root.toString().replace('\\', '/');
+			String inroot = other.toString().replace('\\', '/');
+			if(modroot.equals(inroot))
+				return "";
+
+			if(!inroot.startsWith(modroot + "/"))
+				return null;
+			return inroot.substring(modroot.length()+1);
+		} catch(Exception x) {
+			x.printStackTrace();
+			return null;
+		}
 	}
 
 	@Nonnull

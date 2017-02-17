@@ -358,4 +358,17 @@ public class MailBuilder {
 		send(m);
 	}
 
+	public static void main(String[] args) throws Exception {
+		MailBuilder mb = new MailBuilder();
+		mb.initialize("Hello, world");
+		mb.append("Test message with").b("html").append("markup").nl();
+
+		Address from = new Address("puzzler@etc.to");
+		Address to = new Address("jal@etc.to");
+
+		SmtpTransport tp = new SmtpTransport("127.0.0.1", 2500);
+
+		mb.send(tp, from, to);
+
+	}
 }

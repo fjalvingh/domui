@@ -1,20 +1,18 @@
 package to.etc.webapp.mailer;
 
-import java.io.*;
-import java.sql.*;
-
-import javax.annotation.*;
-import javax.sql.*;
-
 import org.slf4j.*;
-
 import to.etc.dbpool.*;
 import to.etc.dbutil.*;
-import to.etc.dbutil.DbLockKeeper.LockHandle;
+import to.etc.dbutil.DbLockKeeper.*;
 import to.etc.smtp.*;
 import to.etc.util.*;
 import to.etc.webapp.pendingoperations.*;
 import to.etc.webapp.query.*;
+
+import javax.annotation.*;
+import javax.sql.*;
+import java.io.*;
+import java.sql.*;
 
 /**
  * Bulk mailer storing messages into the database for repeated delivery.
@@ -86,7 +84,8 @@ public class BulkMailer {
 		createTables();
 
 		//-- Register with the task executor
-		PollingWorkerQueue.getInstance().registerProvider(new PollTaskProvider());
+		if(DeveloperOptions.getBool("domui.mailer", ! DeveloperOptions.isDeveloperWorkstation()))
+			PollingWorkerQueue.getInstance().registerProvider(new PollTaskProvider());
 	}
 
 	/**
@@ -450,6 +449,7 @@ public class BulkMailer {
 			m_transport.send(m, new ByteArrayInputStream(lastbody));
 			return null;
 		} catch(Exception x) {
+			x.printStackTrace();
 			return x.toString();
 		}
 	}
@@ -477,6 +477,8 @@ public class BulkMailer {
 				m.setHtmlBody("<h1>Hello, world</h1>\n");
 
 				getInstance().store(m);
+
+				Thread.sleep(60000);
 			}
 		} catch(Exception x) {
 			x.printStackTrace();

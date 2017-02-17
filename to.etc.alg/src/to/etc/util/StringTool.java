@@ -376,7 +376,7 @@ public class StringTool {
 	 *	Takes a java string, without quotes, and replaces all escape sequences
 	 *	in there with their actual character representation.
 	 */
-	public static void parseString(@Nonnull final StringBuffer sb, @Nonnull final String s) {
+	public static void parseString(@Nonnull final StringBuilder sb, @Nonnull final String s) {
 		int i = 0;
 
 		while(i < s.length()) {
@@ -1401,6 +1401,12 @@ public class StringTool {
 					break;
 				case '&':
 					sb.append("&amp;");
+					break;
+				case '"':
+					sb.append("&quot;");
+					break;
+				case '\'':
+					sb.append("&apos;");
 					break;
 				default:
 					sb.append(c);
@@ -2632,7 +2638,7 @@ public class StringTool {
 	}
 
 	/**
-	 * Case-sensitive replace of all occurences of [old] with [new].
+	 * Case-sensitive replace of all occurrences of [old] with [new].
 	 * @param src
 	 * @param old
 	 * @param nw
@@ -2723,31 +2729,37 @@ public class StringTool {
 		for(int i = 0; i < len; i++) {
 			char c = in.charAt(i);
 			if(Character.isDigit(c)) {
-				sb.append(lc);
+				addRepeatingCharacterOnce(sb, lc, count);
 				lc = c;
+				count = 1;
 			} else if(c == lc) {
 				count++;
 			} else {
-				if(count < 3) {
-					while(count > 0) {
-						sb.append(lc);
-						count--;
-					}
-				} else {
-					sb.append(lc);
-				}
+				addRepeatingCharacterOnce(sb, lc, count);
 				lc = c;
 				count = 1;
 			}
 		}
-		if(count < 3) {
+		addRepeatingCharacterOnce(sb, lc, count);
+
+		return sb.toString();
+	}
+
+	/**
+	 *
+	 * @param sb
+	 * @param lc	last character
+	 * @param count	repeat count of last character
+	 */
+	private static void addRepeatingCharacterOnce(StringBuilder sb, char lc, int count) {
+		if(count < 3) {  //repeated less then 3, eg ee oo like in eet ook, just add unchanged
 			while(count > 0) {
 				sb.append(lc);
 				count--;
 			}
+		} else {      //just 1 entry if repeated more than 2.
+			sb.append(lc);
 		}
-
-		return sb.toString();
 	}
 
 	/**

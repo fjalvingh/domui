@@ -26,8 +26,6 @@ package to.etc.lexer;
 
 import java.io.*;
 
-import to.etc.testng.launcher.runner.*;
-
 public class ReaderScannerBase extends TextReaderBase {
 	static public final int		T_EOF				= -1;
 
@@ -160,6 +158,43 @@ public class ReaderScannerBase extends TextReaderBase {
 		if(keepquotes)
 			append(qc);
 		accept();
+	}
+
+	public int scanUndottedNumber() throws IOException {
+		int c = LA(); // Get current numeral
+		append(c); // Add 1st digit
+		accept();
+		int c2 = LA();
+		int base = 10;
+		if(c == '0') {
+			if(c2 == 'x' || c2 == 'X') // Hex #?
+			{
+				base = 16;
+				append(c2);
+				accept();
+			} else
+				base = 8;
+		}
+
+		for(;;) {
+			c = LA();
+			if(c == -1)
+				break;
+			if(c >= '0' && c <= '9') {
+				copy();
+			} else {
+				if(base <= 10)
+					break;
+			}
+
+			if(base > 10) {
+				if((c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f'))
+					copy();
+				else
+					break;
+			}
+		}
+		return T_NUMBER;
 	}
 
 	public int scanNumber() throws IOException {

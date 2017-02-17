@@ -62,6 +62,7 @@ public interface QDataContext extends AutoCloseable {
 	 * This will close and fully discard all resources belonging to this context, provided ignoreClose is
 	 * not true. A closed context cannot be reused anymore and should be discarded.
 	 */
+	@Override
 	void close();
 
 	/**

@@ -24,39 +24,21 @@
  */
 package org.hibernate.engine;
 
-import java.io.IOException;
-import java.io.InvalidObjectException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.collections.map.ReferenceMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.hibernate.AssertionFailure;
-import org.hibernate.Hibernate;
-import org.hibernate.HibernateException;
-import org.hibernate.LockMode;
-import org.hibernate.MappingException;
-import org.hibernate.NonUniqueObjectException;
-import org.hibernate.PersistentObjectException;
-import org.hibernate.TransientObjectException;
-import org.hibernate.engine.loading.LoadContexts;
-import org.hibernate.pretty.MessageHelper;
-import org.hibernate.collection.PersistentCollection;
-import org.hibernate.persister.collection.CollectionPersister;
-import org.hibernate.persister.entity.EntityPersister;
-import org.hibernate.proxy.HibernateProxy;
-import org.hibernate.proxy.LazyInitializer;
-import org.hibernate.tuple.ElementWrapper;
+import org.apache.commons.collections.map.*;
+import org.hibernate.*;
+import org.hibernate.collection.*;
+import org.hibernate.engine.loading.*;
+import org.hibernate.persister.collection.*;
+import org.hibernate.persister.entity.*;
+import org.hibernate.pretty.*;
+import org.hibernate.proxy.*;
+import org.hibernate.tuple.*;
 import org.hibernate.util.IdentityMap;
-import org.hibernate.util.MarkerObject;
+import org.hibernate.util.*;
+import org.slf4j.*;
+
+import java.io.*;
+import java.util.*;
 
 /**
  * A <tt>PersistenceContext</tt> represents the state of persistent "stuff" which

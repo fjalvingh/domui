@@ -36,6 +36,7 @@ import javax.annotation.concurrent.*;
 import javax.sql.*;
 
 import to.etc.dbpool.DbPoolUtil.HostAndPort;
+import to.etc.dbpool.info.*;
 
 
 /**
@@ -294,6 +295,9 @@ final public class ConnectionPool {
 	/** Per-pool attributes that can be used for extensions. */
 	final private Map<String, Object> m_attributeMap = new HashMap<>();
 
+	@Nullable
+	private IConnectionStatisticsFactory m_connectionStatisticsFactory;
+
 	/**
 	 * Pool event, add listeners using
 	 *
@@ -428,6 +432,16 @@ final public class ConnectionPool {
 
 			//-- Get database type.
 			m_dbType = DbPoolUtil.getDbTypeByDriverName(md.getDriverName());
+			IConnectionStatisticsFactory connectionStatisticsFactory = null;
+			switch(m_dbType) {
+				default:
+					break;
+
+				case ORACLE:
+					connectionStatisticsFactory = new OracleConnectionStatisticsFactory();
+					break;
+			}
+			m_connectionStatisticsFactory = connectionStatisticsFactory;
 
 			//-- Define a check string if needed.
 			if(c().isCheckConnection()) {
@@ -1814,5 +1828,9 @@ final public class ConnectionPool {
 			m_attributeMap.put(name, value);
 		}
 		return value;
+	}
+
+	@Nullable public IConnectionStatisticsFactory getConnectionStatisticsFactory() {
+		return m_connectionStatisticsFactory;
 	}
 }

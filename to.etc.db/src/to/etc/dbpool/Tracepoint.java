@@ -35,12 +35,19 @@ final public class Tracepoint {
 
 	final private StackTraceElement[] m_elements;
 
+	final private RuntimeException m_asException;
+
 	final private String m_sql;
 
-	public Tracepoint(long ts, StackTraceElement[] elements, String sql) {
-		m_elements = elements;
+	private Tracepoint(long ts, RuntimeException x, String sql) {
+		m_elements = x.getStackTrace();
+		m_asException = x;
 		m_timestamp = ts;
 		m_sql = sql;
+	}
+
+	public RuntimeException getException() {
+		return m_asException;
 	}
 
 	public String getSql() {
@@ -62,9 +69,9 @@ final public class Tracepoint {
 	static Tracepoint create(String sql) {
 		try {
 			throw new RuntimeException();
-		} catch(Exception x) {
+		} catch(RuntimeException x) {
 			StackTraceElement[] se = x.getStackTrace();
-			return new Tracepoint(System.currentTimeMillis(), se, sql);
+			return new Tracepoint(System.currentTimeMillis(), x, sql);
 		}
 	}
 }

@@ -27,6 +27,8 @@ package to.etc.dbpool;
 import java.sql.*;
 import java.util.logging.*;
 
+import javax.annotation.*;
+
 /**
  *	Encapsulates a java.sql.Statement for NEMA purposes. This class implements
  *  all of the Statement interfaces, and merely routes all calls to the original
@@ -46,7 +48,10 @@ public class StatementProxy implements Statement {
 	/** The current SQL statement set into this dude */
 	private String m_sql_str;
 
-	private String m_close_rsn;
+	private String m_closeReason;
+
+	@Nullable
+	private Tracepoint m_closeLocation;
 
 	private Tracepoint m_allocationLocation;
 
@@ -102,7 +107,7 @@ public class StatementProxy implements Statement {
 		if(m_st == null)
 			return; // Was already closed!
 
-		m_close_rsn = "Normal close call";
+		m_closeReason = "Normal close call";
 		try {
 			m_st.close();
 		} finally {
@@ -135,7 +140,8 @@ public class StatementProxy implements Statement {
 	 */
 	public void closedByConnection() throws SQLException {
 		if(m_st != null) {
-			m_close_rsn = "Closed because connection was closed";
+			m_closeReason = "Closed because connection was closed";
+			m_closeLocation = m_c.getCloseLocation();
 			StringBuilder sb = new StringBuilder(512);
 			sb.append("---- Statement forced CLOSED because connection is closed ----\n");
 			appendQuery(sb);
@@ -194,8 +200,10 @@ public class StatementProxy implements Statement {
 	 * been closed.
 	 */
 	public Statement getRealStatement() {
-		if(m_st == null)
-			throw new IllegalStateException("This statement has been CLOSED: " + m_close_rsn);
+		if(m_st == null) {
+			Tracepoint closeLocation = m_closeLocation;
+			throw new IllegalStateException("This statement has been CLOSED: " + m_closeReason, closeLocation == null ? null : closeLocation.getException());
+		}
 		return m_st;
 	}
 

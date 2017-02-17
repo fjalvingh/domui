@@ -94,6 +94,7 @@ final public class BundleRef extends BundleBase implements IBundle {
 	 * @param name Name of the bundle file (minus the ".properties" extension). Case is important!!!
 	 * @return
 	 */
+	@Nonnull
 	static public synchronized BundleRef create(@Nonnull final Class< ? > clz, @Nonnull final String name) {
 		Map<String, BundleRef> refMap = m_cachedMap.get(clz);
 		if(refMap == null) {

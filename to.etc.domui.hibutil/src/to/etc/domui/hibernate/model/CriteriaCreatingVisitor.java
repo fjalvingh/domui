@@ -133,6 +133,8 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 		QOperatorNode r = n.getRestrictions();
 		if(r == null)
 			return;
+		QOperatorNode.prune(r);
+
 		if(r.getOperation() == QOperation.AND) {
 			QMultiNode mn = (QMultiNode) r;
 			for(QOperatorNode qtn : mn.getChildren()) {

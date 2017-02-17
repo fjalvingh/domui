@@ -17,7 +17,7 @@ import org.junit.*;
  */
 public class TestStringTool {
 
-	private final static String PREFIX = "PREFIX_";
+	private final static String	PREFIX	= "PREFIX_";
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testRandomStringWithPrefixLongerThanLength() {
@@ -482,5 +482,3 @@ public class TestStringTool {
 		Assert.assertEquals("abc1111111abc 123456789123456789", res);
 	}
 }
-
-

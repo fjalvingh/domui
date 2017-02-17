@@ -79,11 +79,13 @@ public class JdbcQuery<T> {
 			int rownum = 0;
 			while(rs.next()) {
 				if(rownum >= m_start) {
-					if(m_limit > 0 && res.size() >= m_limit)
-						break;
-
-					if(res.size() > 10000)
+					if(m_limit > 0) {
+						if(res.size() >= m_limit) {
+							break;
+						}
+					} else if(res.size() > 10000) {
 						throw new IllegalStateException("Your query result has > 10.000 rows. I aborted to prevent OOM.\nThe query was:\n" + m_sql);
+					}
 
 					if(m_rowMaker.size() == 1) {
 						res.add(m_rowMaker.get(0).make(dc, rs));

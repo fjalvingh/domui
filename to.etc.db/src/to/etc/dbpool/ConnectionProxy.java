@@ -68,7 +68,7 @@ final public class ConnectionProxy implements Connection {
 	/** This connection's state. Only connections in state OPEN are usable; all others abort immediately on use. In addition, only in state OPEN will this be the PoolEntry's proxy. */
 	private ConnState m_state = ConnState.OPEN;
 
-	private Tracepoint m_detach_location;
+	private Tracepoint m_closeLocation;
 
 	/*--------------- Debug and trace info ----------------*/
 	/** The location etc denoting the allocation point for this connection. */
@@ -282,7 +282,7 @@ final public class ConnectionProxy implements Connection {
 			if(m_state != ConnState.OPEN)
 				return;										// Already invalidated or closed.
 			m_state = ConnState.CLOSED;
-			m_detach_location = tp;
+			m_closeLocation = tp;
 
 			//-- Handle "long connection usage" stuff.
 			duration = tp.getTimestamp() - m_allocationTS;	// Get #of ms used.
@@ -310,7 +310,7 @@ final public class ConnectionProxy implements Connection {
 			if(m_state != ConnState.OPEN)
 				return; // Already invalidated or closed.
 			m_state = ConnState.INVALIDATED;
-			m_detach_location = tp;
+			m_closeLocation = tp;
 		}
 
 		/*
@@ -384,10 +384,15 @@ final public class ConnectionProxy implements Connection {
 		synchronized(this) {
 			if(null != m_tracePointList)
 				res.addAll(m_tracePointList);
-			if(null != m_detach_location)
-				res.add(m_detach_location);
+			if(null != m_closeLocation)
+				res.add(m_closeLocation);
 		}
 		return res;
+	}
+
+	@Nullable
+	public Tracepoint getCloseLocation() {
+		return m_closeLocation;
 	}
 
 	/**

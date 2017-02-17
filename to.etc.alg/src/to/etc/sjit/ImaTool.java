@@ -24,16 +24,15 @@
  */
 package to.etc.sjit;
 
-import java.awt.*;
-import java.awt.image.*;
-import java.io.*;
-import java.util.*;
+import to.etc.util.*;
 
 import javax.annotation.*;
 import javax.imageio.*;
 import javax.imageio.stream.*;
-
-import to.etc.util.*;
+import java.awt.*;
+import java.awt.image.*;
+import java.io.*;
+import java.util.*;
 
 /**
  * This static utility class has a lot of image-related helper functions.

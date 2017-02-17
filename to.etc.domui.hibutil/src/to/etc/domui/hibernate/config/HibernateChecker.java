@@ -1,23 +1,22 @@
 package to.etc.domui.hibernate.config;
 
-import java.lang.reflect.*;
-import java.util.*;
-import java.util.List;
-import java.util.Map;
-
-import javax.persistence.*;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.OneToOne;
-
 import org.hibernate.annotations.Type;
 import org.hibernate.cfg.*;
 import org.hibernate.mapping.*;
 import org.hibernate.property.*;
-
 import to.etc.domui.component.meta.*;
 import to.etc.domui.hibernate.types.*;
 import to.etc.util.*;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.*;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import java.lang.reflect.*;
+import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This class attempts to check/correct common hibernate errors that it itself is too stupid to check for.
@@ -258,6 +257,13 @@ final public class HibernateChecker {
 				problem(Severity.ERROR, "@JoinColumn found on @OneToMany - not allowed. Use mappedBy");
 				m_badJoinColumn++;
 			}
+		}
+
+		ManyToOne m21 = g.getAnnotation(ManyToOne.class);
+		if(null != m21) {
+			if(m21.fetch() == FetchType.EAGER)
+				problem(Severity.ERROR, "@ManyToOne has fetch eager");
+			m_badOneToMany++;
 		}
 	}
 

@@ -24,16 +24,12 @@
  */
 package org.hibernate.proxy;
 
-import java.io.Serializable;
+import org.hibernate.*;
+import org.hibernate.engine.*;
+import org.hibernate.impl.*;
+import org.hibernate.persister.entity.*;
 
-import org.hibernate.AssertionFailure;
-import org.hibernate.HibernateException;
-import org.hibernate.LazyInitializationException;
-import org.hibernate.TransientObjectException;
-import org.hibernate.SessionException;
-import org.hibernate.engine.EntityKey;
-import org.hibernate.engine.SessionImplementor;
-import org.hibernate.persister.entity.EntityPersister;
+import java.io.*;
 
 /**
  * Convenience base class for lazy initialization handlers.  Centralizes the basic plumbing of doing lazy
@@ -51,6 +47,11 @@ public abstract class AbstractLazyInitializer implements LazyInitializer {
 	private boolean unwrap;
 	private transient SessionImplementor session;
 	private Boolean readOnlyBeforeAttachedToSession;
+
+	private transient SessionImplementor m_lastSession;
+
+	private Exception m_lastUnsetLocation;
+	private Exception m_lastSetLocation;
 
 	/**
 	 * For serialization from the non-pojo initializers (HHH-3309)
@@ -127,7 +128,16 @@ public abstract class AbstractLazyInitializer implements LazyInitializer {
 			}
 			else {
 				// s != null
+				if(Hibernate.DEBUGLOGGING) {
+					try {
+						throw new Exception("Lazy proxy session set");
+					} catch(Exception x) {
+						m_lastSetLocation = x;
+					}
+				}
+
 				session = s;
+				m_lastSession = s;
 				if ( readOnlyBeforeAttachedToSession == null ) {
 					// use the default read-only/modifiable setting
 					final EntityPersister persister = s.getFactory().getEntityPersister( entityName );
@@ -156,6 +166,14 @@ public abstract class AbstractLazyInitializer implements LazyInitializer {
 		session = null;
 		readOnly = false;
 		readOnlyBeforeAttachedToSession = null;
+
+		if(Hibernate.DEBUGLOGGING) {
+			try {
+				throw new Exception("Location Dump");
+			} catch(Exception x) {
+				m_lastUnsetLocation = x;
+			}
+		}
 	}
 
 	/**
@@ -164,13 +182,13 @@ public abstract class AbstractLazyInitializer implements LazyInitializer {
 	public final void initialize() throws HibernateException {
 		if (!initialized) {
 			if ( session==null ) {
-				throw new LazyInitializationException("could not initialize proxy - no Session");
+				throw new LazyInitializationException(createReason("could not initialize proxy - no Session"));
 			}
 			else if ( !session.isOpen() ) {
-				throw new LazyInitializationException("could not initialize proxy - the owning Session was closed");
+				throw new LazyInitializationException(createReason("could not initialize proxy - the owning Session was closed"));
 			}
 			else if ( !session.isConnected() ) {
-				throw new LazyInitializationException("could not initialize proxy - the owning Session is disconnected");
+				throw new LazyInitializationException(createReason("could not initialize proxy - the owning Session is disconnected"));
 			}
 			else {
 				target = session.immediateLoad(entityName, id);
@@ -181,6 +199,61 @@ public abstract class AbstractLazyInitializer implements LazyInitializer {
 		else {
 			checkTargetState();
 		}
+	}
+
+	private String createReason(String in) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(in);
+
+		if(Hibernate.DEBUGLOGGING) {
+			sb.append("\nOriginal session: ");
+			SessionImplementor session = m_lastSession;
+			if(null == m_lastSession) {
+				sb.append("No last session known - never set?");
+			} else {
+				if(session instanceof XXDebugData) {
+					XXDebugData dd = (XXDebugData) session;
+					sb.append("id=" + dd.getId()).append("\n");
+
+					Exception alloc = dd.getAllocationPoint();
+					if(null != alloc) {
+						sb.append("\nSession allocated at ");
+						strStack(sb, alloc);
+					}
+					Exception closed = dd.getClosePoint();
+					if(null != closed) {
+						sb.append("\nSession closed at ");
+						strStack(sb, closed);
+					}
+				} else {
+					sb.append(String.valueOf(session)).append( "(no XXDebugData)");
+				}
+			}
+
+			Exception location = m_lastSetLocation;
+			if(null != location) {
+				sb.append("\nLast set: ");
+				strStack(sb, location);
+			}
+
+			location = m_lastUnsetLocation;
+			if(null != location) {
+				sb.append("\nLast cleared: ");
+				strStack(sb, location);
+			}
+		}
+
+		return sb.toString();
+	}
+
+	static void strStack(StringBuilder sb, Throwable t) {
+		StringWriter sw = new StringWriter();
+		PrintWriter pw = new PrintWriter(sw);
+		t.printStackTrace(pw);
+		pw.close();
+//		sw.close();
+		sb.append(sw.getBuffer());
+
 	}
 
 	private void checkTargetState() {

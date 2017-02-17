@@ -28,6 +28,8 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
+import javax.annotation.DefaultNonNull;
+
 import to.etc.util.*;
 
 /**
@@ -36,13 +38,14 @@ import to.etc.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 16, 2006
  */
+@DefaultNonNull
 public class SmtpTransport {
 	static private boolean		DEBUG		= DeveloperOptions.getBool("smtp.debug", false);
 
 	private String					m_myhostname;
 
 	/** The address of the SMTP server. */
-	private InetAddress				m_server;
+	private final InetAddress			m_server;
 
 	/** The smtp port number, defaults to 25 */
 	private int						m_port	= 25;
@@ -182,9 +185,9 @@ public class SmtpTransport {
 				throw new MailException(m_server + ": the server did not accept the 'from' address '" + msg.getFrom().getEmail() + "'");
 
 			//-- Send all recipients.
-			sendAddressList(is, os, "RCPT TO: ", msg.getTo());
-			sendAddressList(is, os, "RCPT TO: ", msg.getBcc());
-			sendAddressList(is, os, "RCPT TO: ", msg.getCc());
+			sendAddressList(is, os, "RCPT TO:", msg.getTo());
+			sendAddressList(is, os, "RCPT TO:", msg.getBcc());
+			sendAddressList(is, os, "RCPT TO:", msg.getCc());
 
 			//-- Start to write the data
 			write(os, "DATA\r\n");
@@ -330,8 +333,8 @@ public class SmtpTransport {
 	}
 
 	private void writeAddress(OutputStream os, Address a) throws Exception {
-		if(a.getName() != null) {
-			write(os, a.getName() + " ");
+		if(! StringTool.isBlank(a.getName())) {
+			write(os, "\"" + a.getName() + "\" ");
 		}
 		write(os, "<" + a.getEmail() + ">");
 	}
@@ -388,16 +391,18 @@ public class SmtpTransport {
 	}
 
 	static public void main(String[] args) {
+		String mailTo = "yourmail@itris.nl";
+		String imagePath = "/home/path";
 		try {
-			SmtpTransport t = new SmtpTransport("localhost");
-
-			Message m = new Message();
-			m.addTo(new Address("jal@etc.to"));
-			m.setSubject("Test for SMTP sender");
-			m.setBody("This is a body of work");
-			m.setFrom(new Address("jal@etc.to"));
-
-			t.send(m);
+			MailBuilder mb = new MailBuilder();
+			mb.initialize("Run mailBuilder");
+			mb.appendText("Hello, this is the mailBuilder (4)");
+			mb.appendHTML("<p>This is <b>HTML</b> text</p>");
+			
+			//add attachment?
+			mb.image("image.jpg", new File(imagePath), "image/jpeg");
+			
+			mb.send(new SmtpTransport("localhost"), new Address("itris@info.nl", "itris@info.nl"), new Address(mailTo, mailTo));
 		} catch(Exception x) {
 			x.printStackTrace();
 		}

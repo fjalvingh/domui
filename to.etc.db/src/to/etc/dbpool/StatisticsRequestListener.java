@@ -24,14 +24,13 @@
  */
 package to.etc.dbpool;
 
-import java.io.*;
-import java.util.*;
+import to.etc.dbpool.info.*;
 
 import javax.annotation.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
-
-import to.etc.dbpool.info.*;
+import java.io.*;
+import java.util.*;
 
 /**
  * This listener can be used to collect statistics for the database pool
@@ -214,6 +213,8 @@ final public class StatisticsRequestListener implements ServletRequestListener {
 					threadData.m_sessionStatistics = createSessionStats(r);
 				else if("off".equals(val) || val.startsWith("f"))
 					destroySessionStats(r);
+			} else {
+				threadData.m_sessionStatistics = getSessionStatistics(r);
 			}
 		}
 
