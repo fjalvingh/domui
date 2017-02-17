@@ -24,15 +24,21 @@
  */
 package to.etc.domui.themes;
 
-import java.io.*;
+import to.etc.domui.server.BrowserVersion;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.IExtendedParameterInfo;
+import to.etc.domui.server.parts.IBufferedPartFactory;
+import to.etc.domui.server.parts.IUrlPart;
+import to.etc.domui.server.parts.PartResponse;
+import to.etc.domui.util.resources.IResourceDependencyList;
+import to.etc.util.FileTool;
+import to.etc.webapp.core.ServerTools;
 
-import javax.annotation.*;
-
-import to.etc.domui.server.*;
-import to.etc.domui.server.parts.*;
-import to.etc.domui.util.resources.*;
-import to.etc.util.*;
-import to.etc.webapp.core.*;
+import javax.annotation.DefaultNonNull;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 
 /**
  * This accepts all urls in the format *.theme.xxx. It generates string resources that
@@ -42,8 +48,9 @@ import to.etc.webapp.core.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Sep 1, 2009
  */
-public class ThemePartFactory implements IBufferedPartFactory, IUrlPart {
-	static private class Key {
+@DefaultNonNull
+final public class ThemePartFactory implements IBufferedPartFactory, IUrlPart {
+	static private final class Key {
 		private String m_rurl;
 
 		private String m_browserID;
@@ -59,14 +66,11 @@ public class ThemePartFactory implements IBufferedPartFactory, IUrlPart {
 			m_iv = iv;
 		}
 
-		//		public String getBrowserID() {
-		//			return m_browserID;
-		//		}
-
 		@Override
 		public String toString() {
 			return "[themed:" + m_rurl + ", browser=" + m_bv + "]";
 		}
+
 		public BrowserVersion getBrowserVersion() {
 			return m_bv;
 		}
@@ -90,7 +94,7 @@ public class ThemePartFactory implements IBufferedPartFactory, IUrlPart {
 		}
 
 		@Override
-		public boolean equals(Object obj) {
+		public boolean equals(@Nullable Object obj) {
 			if(this == obj)
 				return true;
 			if(obj == null)
@@ -112,9 +116,14 @@ public class ThemePartFactory implements IBufferedPartFactory, IUrlPart {
 				return false;
 			return true;
 		}
-	};
+	}
 
-
+	/**
+	 * Accept all resources that have a ".theme." string as a suffix in their
+	 * last part, like style.theme.css
+	 * @param rurl
+	 * @return
+	 */
 	@Override
 	public boolean accepts(@Nonnull String rurl) {
 		int dot1 = rurl.lastIndexOf('.');
@@ -128,20 +137,6 @@ public class ThemePartFactory implements IBufferedPartFactory, IUrlPart {
 
 	@Override
 	public @Nonnull Object decodeKey(@Nonnull String rurl, @Nonnull IExtendedParameterInfo param) throws Exception {
-//		String rand = param.getParameter("rand");
-//		int rndom = 0;
-//		if(null != rand) {
-//			RequestContextImpl rcx = (RequestContextImpl) param;
-//			IServerSession ses = (rcx.getServerSession(true));
-//			if(null != ses) {
-//				Integer r = (Integer) ses.getAttribute("random-theme");
-//				if(null == r) {
-//					rndom = (int) (Math.random() * 20);
-//					ses.setAttribute("random-theme", Integer.valueOf(rndom));
-//				}
-//			}
-//		}
-//
 		String iv = param.getParameter("iv");
 		int val = 0;
 		if(null != iv)

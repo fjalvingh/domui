@@ -128,6 +128,7 @@ public class ComboFixed2<T> extends ComboComponentBase2<ValueLabelPair<T>, T> {
 				l.add(new ValueLabelPair<T>(v, label));
 			}
 		}
+		Collections.sort(l, (a, b) -> a.getLabel().compareToIgnoreCase(b.getLabel()));
 		return new ComboFixed2<T>(l);
 	}
 

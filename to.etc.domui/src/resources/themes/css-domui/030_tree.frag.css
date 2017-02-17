@@ -36,3 +36,9 @@ td.ui-tr-selected {
 .ui-tree {
 /*	height: 100%;		jal 20111025 - setting this causes trouble if tree is not alone in div.. Fixed for OldHelp browser */
 }
+
+.ui-tr-selectable {
+}
+.ui-tr-unselectable {
+	color: #666;
+}

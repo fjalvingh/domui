@@ -80,7 +80,8 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 
 	/**
 	 * The metamodel to use to handle the query data in this class. For Javabean data classes this is automatically
-	 * obtained using MetaManager; for meta-based data models this gets passed as a constructor argument.
+	 * obtained using MetaManager; for meta-based data models this
+	 * gets passed as a constructor argument.
 	 */
 	@Nonnull
 	final private ClassMetaModel m_queryMetaModel;

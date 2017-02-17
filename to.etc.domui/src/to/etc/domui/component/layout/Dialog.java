@@ -24,12 +24,12 @@
  */
 package to.etc.domui.component.layout;
 
-import javax.annotation.*;
-
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.themes.*;
 import to.etc.domui.util.*;
+
+import javax.annotation.*;
 
 /**
  * A base class for retrieving any kind of input from a user.

@@ -187,6 +187,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 
 	@Nullable
 	private Dimension m_browserWindowSize;
+
 	/**
 	 * This must visit the appropriate method in the node visitor. It should NOT recurse it's children.
 	 * @param v
@@ -1059,6 +1060,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 	 * server's data store. It must do that by adding the needed Javascript to the buffer
 	 * passed.
 	 *
+	 * @param b
 	 * @throws Exception
 	 */
 	protected void renderJavascriptState(@Nonnull JavascriptStmt b) throws Exception {
@@ -1975,7 +1977,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 			List<NotificationListener<?>> list = m_notificationListenerList;
 			if(null == list) {
 				list = m_notificationListenerList = new ArrayList<>(4);
-	}
+			}
 			list.add(nl);
 		}
 	}

@@ -1,9 +1,5 @@
 package to.etc.domui.component.input;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.event.*;
 import to.etc.domui.component.layout.*;

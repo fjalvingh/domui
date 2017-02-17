@@ -1053,7 +1053,7 @@ public abstract class DomApplication {
 
 	/**
 	 * Quickly determines if a given resource exists. Enter with the full resource path, like $js/xxx, THEME/xxx and the like; it
-	 * mirrors the logic of {@link #getApplicationResourceByName(String)}.
+	 * mirrors the logic of {@link #getAppFileOrResource(String)}.
 	 * @param name
 	 * @return
 	 * @throws Exception
@@ -1078,30 +1078,6 @@ public abstract class DomApplication {
 		}
 		return k.booleanValue();
 	}
-
-	//	/**
-	//	 * Cached version to locate an application resource.
-	//	 * @param name
-	//	 * @return
-	//	 * @throws Exception
-	//	 */
-	//	private IResourceRef internalFindCachedResource(@Nonnull String name) throws Exception {
-	//		IResourceRef ref;
-	//		synchronized(this) {
-	//			ref = m_resourceSet.get(name);
-	//			if(ref != null)
-	//				return ref;
-	//		}
-	//
-	//		//-- Determine existence out-of-lock (single init is unimportant). Only cache if
-	//		ref = internalFindResource(name);
-	//		if(!inDevelopmentMode() || ref instanceof IModifyableResource) {
-	//			synchronized(this) {
-	//				m_resourceSet.put(name, ref);
-	//			}
-	//		}
-	//		return ref;
-	//	}
 
 	/**
 	 * UNCACHED version to locate a resource, using the registered resource factories.
@@ -1420,7 +1396,6 @@ public abstract class DomApplication {
 	 *
 	 * @param ci
 	 * @param page
-	 * @param nlix
 	 */
 	public String handleNotLoggedInException(RequestContextImpl ci, Page page, NotLoggedInException x) {
 		ILoginDialogFactory ldf = ci.getApplication().getLoginDialogFactory();
@@ -1558,21 +1533,26 @@ public abstract class DomApplication {
 	/** The theme manager where theme calls are delegated to. */
 	final private ThemeManager m_themeManager = new ThemeManager(this);
 
+	/** Global properties for all themes */
+	final private Map<String, String> m_themeApplicationProperties = new HashMap<>();
 
 	/**
 	 * This method can be overridden to add extra stuff to the theme map, after
 	 * it has been loaded from properties or whatnot.
-	 * @param themeMap
 	 */
 	@OverridingMethodsMustInvokeSuper
 	public void augmentThemeMap(@Nonnull IScriptScope ss) throws Exception {
 		ss.put("util", new ThemeCssUtils(ss));
 		ss.eval(Object.class, "function url(x) { return util.url(x);};", "internal");
+
+		m_themeApplicationProperties.forEach((key, value) -> ss.put(key, value));
 	}
 
 	/**
-	 * Sets the current theme string. This string is used as a "parameter" for the theme factory
-	 * which will use it to decide on the "real" theme to use.
+	 * Sets the current theme string. This will become part of all themed resource URLs
+	 * and is interpreted by the theme factory to resolve resources. The string is used
+	 * as a "parameter" for the theme factory which will use it to decide on the "real"
+	 * theme to use.
 	 * @param currentTheme	The theme name, valid for the current theme engine. Cannot be null nor the empty string.
 	 */
 	final public void setCurrentTheme(@Nonnull String currentTheme) {
@@ -1590,6 +1570,20 @@ public abstract class DomApplication {
 	}
 
 	/**
+	 * Set a property for all themes.
+	 * @param name
+	 * @param value
+	 */
+	final public void setThemeProperty(@Nonnull String name, @Nullable String value) {
+		m_themeApplicationProperties.put(name, value);
+	}
+
+	@Nullable
+	final public String getThemeProperty(@Nonnull String name) {
+		return m_themeApplicationProperties.get(name);
+	}
+
+	/**
 	 * Return the current theme itself.
 	 * @return
 	 */
@@ -1597,24 +1591,6 @@ public abstract class DomApplication {
 	final public ITheme getTheme() {
 		return m_themeManager.getTheme(getCurrentTheme(), null);
 	}
-
-	///**
-	// * Get the property map (the collection of all *.js files associated with the theme).
-	// * @return
-	// */
-	//@Nonnull
-	//public IScriptScope getThemeMap() {
-	//	return getTheme().getPropertyScope();
-	//}
-	//
-	///**
-	// * Get the current theme factory.
-	// * @return
-	// */
-	//@Nonnull
-	//public IThemeFactory getThemeFactory() {
-	//	return m_themeManager.getThemeFactory();
-	//}
 
 	@Nonnull
 	public ThemeManager	internalGetThemeManager() {

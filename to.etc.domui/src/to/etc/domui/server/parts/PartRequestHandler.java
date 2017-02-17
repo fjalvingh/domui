@@ -24,19 +24,23 @@
  */
 package to.etc.domui.server.parts;
 
-import java.io.*;
-import java.util.*;
-
-import javax.annotation.*;
-
-import to.etc.domui.server.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.IFilterRequestHandler;
+import to.etc.domui.server.IRequestContext;
+import to.etc.domui.server.RequestContextImpl;
+import to.etc.domui.trouble.ThingyNotFoundException;
+import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.LRUHashMap;
-import to.etc.domui.util.resources.*;
-import to.etc.util.*;
+import to.etc.domui.util.resources.ResourceDependencyList;
+import to.etc.util.ByteBufferOutputStream;
+import to.etc.util.DeveloperOptions;
 
-public class PartRequestHandler implements IFilterRequestHandler {
+import javax.annotation.Nonnull;
+import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
+
+final public class PartRequestHandler implements IFilterRequestHandler {
 	@Nonnull
 	private final DomApplication m_application;
 
@@ -55,7 +59,7 @@ public class PartRequestHandler implements IFilterRequestHandler {
 			}
 		};
 
-		m_cache = new LRUHashMap<Object, CachedPart>(sc, 16 * 1024 * 1024); // Accept 16MB of resources FIXME Must be parameterized
+		m_cache = new LRUHashMap<>(sc, 16 * 1024 * 1024); // Accept 16MB of resources FIXME Must be parameterized
 
 		m_allowExpires = DeveloperOptions.getBool("domui.expires", true);
 	}

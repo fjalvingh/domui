@@ -85,6 +85,6 @@ label.ui-f4-mandatory {
 	margin: 0px;
 }
 .ui-ta button {
-	position: absolute;
+	position: relative;
 	margin-top: 1px;
 }

@@ -24,14 +24,14 @@
  */
 package to.etc.domui.component.layout;
 
-import javax.annotation.*;
-
 import to.etc.domui.component.event.*;
 import to.etc.domui.component.image.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
+
+import javax.annotation.*;
 
 /**
  * The base class for all floating thingeries (new style).

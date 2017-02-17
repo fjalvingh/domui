@@ -27,6 +27,7 @@ package to.etc.domui.dom.html;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.converter.*;
 import to.etc.domui.dom.errors.*;
+import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.*;
 
@@ -62,7 +63,6 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	private IErrorFence m_errorFence;
 
 	private NodeContainer m_delegate;
-
 
 	/**
 	 * Create a container with the specified tag name.
@@ -849,7 +849,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		for(IControl<?> ctrl : getDeepChildren(IControl.class)) {
 			ctrl.setReadOnly(true);
 			ctrl.setDisabled(true);
-			if (ctrl instanceof NodeContainer){
+			if(ctrl instanceof NodeContainer) {
 				DomUtil.buildTree((NodeContainer) ctrl);
 				((NodeContainer) ctrl).disableAllChildControlsDeep();
 			}
@@ -857,7 +857,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 
 		for(IActionControl ctrl : getDeepChildren(IActionControl.class)) {
 			ctrl.setDisabled(true);
-			if (ctrl instanceof NodeContainer){
+			if(ctrl instanceof NodeContainer) {
 				DomUtil.buildTree((NodeContainer) ctrl);
 				((NodeContainer) ctrl).disableAllChildControlsDeep();
 			}

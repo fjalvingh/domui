@@ -233,7 +233,6 @@ final public class ThemeManager {
 	 * The result is returned as a string.
 	 *
 	 * @param rdl
-	 * @param key
 	 * @return
 	 */
 	public String getThemeReplacedString(@Nonnull IResourceDependencyList rdl, @Nonnull String rurl, @Nullable BrowserVersion bv) throws Exception {

@@ -24,19 +24,37 @@
  */
 package to.etc.domui.component.misc;
 
-import javax.annotation.*;
+import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.buttons.LinkButton;
+import to.etc.domui.component.input.Text;
+import to.etc.domui.component.layout.IWindowClosed;
+import to.etc.domui.component.layout.Window;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.dom.css.Overflow;
+import to.etc.domui.dom.css.VerticalAlignType;
+import to.etc.domui.dom.errors.MsgType;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.dom.html.Button;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.Img;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.TR;
+import to.etc.domui.dom.html.Table;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.themes.Theme;
+import to.etc.domui.trouble.UIMsgException;
+import to.etc.domui.trouble.ValidationException;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.INodeContentRenderer;
+import to.etc.domui.util.Msgs;
+import to.etc.domui.util.bugs.Bug;
 
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.layout.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.themes.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
-import to.etc.domui.util.bugs.*;
+import javax.annotation.Nonnull;
 
 public class MsgBox extends Window {
 	public interface IAnswer {
@@ -719,9 +737,9 @@ public class MsgBox extends Window {
 
 		String icon = null;
 		if(mbb == MsgBoxButton.YES || mbb == MsgBoxButton.CONTINUE)
-			icon = "General/Images/btnValidate.png";
+			icon = Theme.BTN_CONFIRM;
 		else if(mbb == MsgBoxButton.NO)
-			icon = "General/Images/btnClose.png";
+			icon = Theme.BTN_CANCEL;
 		else if(mbb == MsgBoxButton.CANCEL)
 			icon = Theme.BTN_CANCEL;
 

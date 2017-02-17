@@ -5,7 +5,7 @@ div.ui-dt {
 	position: relative;
 }
 
-div.ui-dt table td {
+div.ui-dt > table td {
 	border: 0;
 	margin: 0;
 	padding: 0px 3px;
@@ -13,11 +13,11 @@ div.ui-dt table td {
 	height: 19px;
 	vertical-align: middle;
 }
-div.ui-dt table td * {
+div.ui-dt > table td * {
 	vertical-align: middle;
 }
 
-div.ui-dt table {
+div.ui-dt > table {
 	padding: 0px;
 	margin: 0px;
 	border-collapse: collapse;

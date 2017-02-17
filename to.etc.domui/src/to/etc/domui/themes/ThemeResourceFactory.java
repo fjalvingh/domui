@@ -24,11 +24,13 @@
  */
 package to.etc.domui.themes;
 
-import javax.annotation.*;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.trouble.ThingyNotFoundException;
+import to.etc.domui.util.resources.IResourceDependencyList;
+import to.etc.domui.util.resources.IResourceFactory;
+import to.etc.domui.util.resources.IResourceRef;
 
-import to.etc.domui.server.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.resources.*;
+import javax.annotation.Nonnull;
 
 /**
  * This handles resource references that start with $THEME; indicating resources
@@ -41,7 +43,7 @@ import to.etc.domui.util.resources.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Apr 27, 2011
  */
-public class ThemeResourceFactory implements IResourceFactory {
+final public class ThemeResourceFactory implements IResourceFactory {
 	static public final String PREFIX = "$THEME/";
 
 	@Override

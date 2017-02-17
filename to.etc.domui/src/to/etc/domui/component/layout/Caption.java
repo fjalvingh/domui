@@ -24,11 +24,11 @@
  */
 package to.etc.domui.component.layout;
 
-import java.util.*;
-
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
+
+import java.util.*;
 
 public class Caption extends Div {
 
@@ -58,6 +58,7 @@ public class Caption extends Div {
 		this(ttl);
 		setFirst(isFirst);
 	}
+
 	public String getCaption() {
 		return m_caption;
 	}

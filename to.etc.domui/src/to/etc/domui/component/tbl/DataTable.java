@@ -74,6 +74,9 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 	/** When T, the header of the table is always shown, even if the list of results is empty. */
 	private boolean m_showHeaderAlways;
 
+	/** When T, rows are not highlighted when table has no selection callbacks on rows. */
+	private boolean m_preventRowHighlight;
+
 	@Nonnull
 	final private IClicked<TH> m_headerSelectClickHandler = new IClicked<TH>() {
 		@Override
@@ -190,9 +193,9 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 			renderRow(tr, cc, ix, o);
 			ix++;
 		}
-		m_ml.add("createContent clear visibleList after render sz=" + m_visibleItemList.size());
-		if(isDisableClipboardSelection())
-			appendCreateJS(JavascriptUtil.disableSelection(this)); // Needed to prevent ctrl+click in IE doing clipboard-select, because preventDefault does not work there of course.
+		ml("createContent rebuilt visibleList after render");
+		//if(isDisableClipboardSelection())
+		//	appendCreateJS(JavascriptUtil.disableSelection(this)); // Needed to prevent ctrl+click in IE doing clipboard-select, because preventDefault does not work there of course.
 	}
 
 	@SuppressWarnings("deprecation")
@@ -210,7 +213,7 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 		//-- Render the header.
 		THead hd = new THead();
 		m_table.add(hd);
-		HeaderContainer<T> hc = new HeaderContainer<T>(this, hd, "ui-dt-hdr");
+		HeaderContainer<T> hc = new HeaderContainer<>(this, hd, "ui-dt-hdr");
 
 		renderHeader(hc);
 		if(!hc.hasContent()) {
@@ -356,7 +359,7 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 				}
 			});
 			cc.getTR().addCssClass("ui-rowsel");
-		} else {
+		} else if(!m_preventRowHighlight){
 			cc.getTR().addCssClass("ui-dt-row-nosel");
 		}
 
@@ -396,6 +399,7 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 			}
 		});
 	}
+
 	/**
 	 * Must exist for CheckBoxDataTable; remove asap AND DO NOT USE AGAIN - internal interfaces should remain hidden.
 	 * @param tr
@@ -654,7 +658,6 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 		firePageChanged();
 	}
 
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	ITableModelListener implementation					*/
 	/*--------------------------------------------------------------*/
@@ -732,12 +735,6 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 		} catch(Exception x) {
 			m_ml.add("Exception adding to log stack: " + x);
 		}
-		if(m_pageSize > 0) {
-			while(m_visibleItemList.size() > m_pageSize)
-				m_visibleItemList.remove(m_visibleItemList.size() - 1);
-			m_ml.add("rowAdded[2]: after pgsz delete visibleSz=" + m_visibleItemList.size());
-		}
-		firePageChanged();
 	}
 
 	/**
@@ -947,4 +944,18 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 	public void setShowHeaderAlways(boolean showHeaderAlways) {
 		m_showHeaderAlways = showHeaderAlways;
 	}
+
+	public boolean isPreventRowHighlight() {
+		return m_preventRowHighlight;
+	}
+
+	/**
+	 * When T, rows are not highlighted when table has no selection callbacks on rows.
+	 *
+	 * @param preventRowHighlight
+	 */
+	public void setPreventRowHighlight(boolean preventRowHighlight) {
+		m_preventRowHighlight = preventRowHighlight;
+	}
+
 }

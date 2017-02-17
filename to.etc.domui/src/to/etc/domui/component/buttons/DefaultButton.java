@@ -303,5 +303,4 @@ public class DefaultButton extends Button implements IActionControl {
 			}
 		});
 	}
-
 }

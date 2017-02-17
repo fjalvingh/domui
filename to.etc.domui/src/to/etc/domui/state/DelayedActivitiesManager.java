@@ -42,6 +42,7 @@ import java.util.*;
  */
 public class DelayedActivitiesManager implements Runnable {
 	private static final Logger LOG = LoggerFactory.getLogger(DelayedActivitiesManager.class);
+
 	//	private ConversationContext			m_conversation;
 	private Thread m_executorThread;
 

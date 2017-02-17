@@ -51,7 +51,8 @@ textarea {
 	padding: 6px 5px 5px 5px;
 }
 textarea[readonly="readonly"] {
-	background-color: transparent;
+	border: none;
+	background-color: #eeeeee;
 }
 
 input[type=checkbox] {
@@ -73,12 +74,22 @@ input[type=file]::-ms-browse {
 }
 input.ui-ro, input.ui-ro:hover {
 	text-align: left;
-	margin: 0px !important;
-	padding: 0px !important;
+ 	margin: 0px !important;
+	padding: 2px !important;
 	border-color: #aaaaaa;
 }
+input[type='text'].ui-ro {
+	border: none;
+	background-color: #eeeeee;
+	padding-left: 2px;
+}
 
-select.ui-ro, select.ui-ro:hover, input.ui-ro, input.ui-ro:hover, input.ui-ro:focus, select.ui-ro:focus, textarea.ui-ro:focus {
+textarea.ui-textarea-ro:focus {
+	border: none;
+	outline: none;
+}
+
+select.ui-ro, select.ui-ro:hover, input.ui-ro, input.ui-ro:hover, input.ui-ro:focus, select.ui-ro:focus {
 	border-color: #aaaaaa;
 }
 
@@ -101,6 +112,13 @@ pre {
 }
 .ui-clickable {
 	cursor: pointer;
+}
+.ui-selection-disable {
+	-ms-user-select: none; /* IE 10+ */
+	-moz-user-select: -moz-none;
+	-khtml-user-select: none;
+	-webkit-user-select: none;
+	user-select: none;
 }
 code {
 	white-space: pre;

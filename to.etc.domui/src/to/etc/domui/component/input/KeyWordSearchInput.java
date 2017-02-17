@@ -24,13 +24,13 @@
  */
 package to.etc.domui.component.input;
 
-import javax.annotation.*;
-
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
+
+import javax.annotation.*;
 
 /**
  * Represents keyword search panel that is used from other components, like LookupInput.

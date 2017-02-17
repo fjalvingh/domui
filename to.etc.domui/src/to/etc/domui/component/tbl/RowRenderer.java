@@ -62,6 +62,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	public interface IRowRendered<T> {
 		void rowRendered(@Nonnull TR row, @Nonnull T instance);
 	}
+
 	public RowRenderer(@Nonnull Class<T> data) {
 		this(data, MetaManager.findClassMeta(data));
 	}
@@ -438,7 +439,6 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Setters and getters.								*/
 	/*--------------------------------------------------------------*/
-
 
 	/**
 	 *

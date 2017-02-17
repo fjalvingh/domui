@@ -24,15 +24,14 @@
  */
 package to.etc.domui.component.meta.impl;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * This class can be used as a "proxy class" or "delegate class" to another ClassMetaModel

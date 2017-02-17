@@ -2938,9 +2938,9 @@ $.extend(WebUI, {
 
     notifySizePositionChangedOnId: function(elemId) {
 		var element = document.getElementById(elemId);
-   	    if (!element){
-   	    	return;
-   	    }
+		if (!element){
+			return;
+		}
 		// Send back size information to server
 		var fields = new Object();
 		fields.webuia = "notifyClientPositionAndSize";

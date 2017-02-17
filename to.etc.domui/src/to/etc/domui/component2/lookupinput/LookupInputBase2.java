@@ -534,6 +534,7 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 		floater.setCssClass("ui-lui2-dlg");
 		floater.modal();
 		add(floater);
+
 		INotify<Dialog> onPopupOpen = m_onPopupOpen;
 		if(null != onPopupOpen)
 			onPopupOpen.onNotify(floater);
@@ -645,6 +646,7 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 		String popupTitle = m_defaultTitle;
 		if(null != popupTitle)
 			return popupTitle;
+
 		String entity = getOutputMetaModel().getUserEntityName();
 		if(entity != null)
 			return Msgs.BUNDLE.formatMessage(Msgs.UI_LUI_TTL_WEN, entity);

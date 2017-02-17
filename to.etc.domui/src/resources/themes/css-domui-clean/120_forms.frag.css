@@ -65,9 +65,10 @@
 	background: #eff7ff;
 }
 
-/* for forms where the label is above the edit control (vertical). */
+/* for forms where the label is above the edit control (vertical).
+  jal: 20160622 deleted due to bugzilla 7991: this creates boxes around anything ro'ish. Specify presentation per component, not globally.
 .ui-ro, .ui-ro:hover {
-	/*background: #eff7ff;*/
 	border:1px solid <%= readonly_border %>;
 	background-color: <%= readonly_bg %>;
 }
+*/

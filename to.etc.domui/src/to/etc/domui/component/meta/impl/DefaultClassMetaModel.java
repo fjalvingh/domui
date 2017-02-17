@@ -229,8 +229,8 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		PropertyMetaModel< ? > pmm;
 		synchronized(this) {
 			pmm = m_dottedPropertyMap.get(name);
-		if(pmm != null)
-			return pmm;
+			if(pmm != null)
+				return pmm;
 		}
 
 		//-- Create a compound property outside the lock; this prevents deadlock at the costs of running several copies at the same time.

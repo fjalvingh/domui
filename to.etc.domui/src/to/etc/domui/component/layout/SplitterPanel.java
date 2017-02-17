@@ -24,13 +24,12 @@
  */
 package to.etc.domui.component.layout;
 
-import java.util.*;
-import java.util.stream.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
+
+import javax.annotation.*;
+import java.util.*;
+import java.util.stream.*;
 
 /**
  * Splitter control is just wrapper DIV around javascript baset splitter implementation based on

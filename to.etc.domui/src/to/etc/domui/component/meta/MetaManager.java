@@ -50,7 +50,6 @@ import to.etc.webapp.query.*;
  * Created on Jun 16, 2008
  */
 final public class MetaManager {
-
 	/**
 	 * Used for lazy loaded formula fields as handler
 	 */
@@ -157,29 +156,6 @@ final public class MetaManager {
 			throw new IllegalStateException("Circular reference in " + msg + ": " + sb.toString());
 		}
 	}
-
-	//	/**
-	//	 * Walk all factories and let one of them create the class model for this thingy. If all fail abort.
-	//	 * @param ref
-	//	 * @param modelList
-	//	 */
-	//	private static void initializeModel(@Nonnull MRef ref, @Nonnull Object theThingy, @Nonnull List<IClassMetaModelFactory> modelList) {
-	//		if(ref.getClassModel() != null)
-	//			throw new IllegalStateException("Class model already initialized!?"); // Cannot happen.
-	//
-	//		IClassMetaModelFactory best = findModelFactory(theThingy, modelList);
-	//
-	//		//-- Acceptable. Let it create the model.
-	//		ClassMetaModel cmm = best.createModel(theThingy);
-	//		if(cmm == null)
-	//			throw new IllegalStateException("The IClassModelFactory " + best + " did not create a ClassMetaModel for '" + theThingy + "' (which is a " + theThingy.getClass() + ")");
-	//		ref.setClassModel(cmm); // Marks as initialized.
-	//
-	//		//-- Now check all property fields (display properties, search properties)
-	//		ExpandedDisplayProperty.expandDisplayProperties(cmm.getComboDisplayProperties(), cmm, null);
-	//		ExpandedDisplayProperty.expandDisplayProperties(cmm.getLookupSelectedProperties(), cmm, null);
-	//		ExpandedDisplayProperty.expandDisplayProperties(cmm.getTableDisplayProperties(), cmm, null);
-	//	}
 
 	/**
 	 * We need to find a factory that knows how to deliver this metadata.
@@ -488,17 +464,17 @@ final public class MetaManager {
 	}
 
 	static public PropertyMetaModel< ? > internalCalculateDottedPath(ClassMetaModel cmm, String name) {
-		int pos = name.indexOf('.'); // Dotted name?
+		int pos = name.indexOf('.'); 							// Dotted name?
 		if(pos == -1)
-			return cmm.findSimpleProperty(name); // Use normal resolution directly on the class.
+			return cmm.findSimpleProperty(name); 				// Use normal resolution directly on the class.
 
 		//-- We must create a synthetic property.
 		int ix = 0;
 		int len = name.length();
-		ClassMetaModel ccmm = cmm; // Current class meta-model for property reached
+		ClassMetaModel ccmm = cmm; 								// Current class meta-model for property reached
 		List<PropertyMetaModel< ? >> acl = new ArrayList<PropertyMetaModel< ? >>(10);
 		for(;;) {
-			String sub = name.substring(ix, pos); // Get path component,
+			String sub = name.substring(ix, pos); 				// Get path component,
 			ix = pos + 1;
 
 			PropertyMetaModel< ? > pmm = ccmm.findSimpleProperty(sub); // Find base property,

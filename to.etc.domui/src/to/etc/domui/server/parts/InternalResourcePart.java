@@ -24,19 +24,21 @@
  */
 package to.etc.domui.server.parts;
 
-import java.io.*;
-import java.util.*;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.IExtendedParameterInfo;
+import to.etc.domui.trouble.ThingyNotFoundException;
+import to.etc.domui.util.resources.IResourceDependencyList;
+import to.etc.domui.util.resources.IResourceRef;
+import to.etc.domui.util.resources.ResourceDependencyList;
+import to.etc.net.HttpCallException;
+import to.etc.util.FileTool;
+import to.etc.webapp.core.ServerTools;
+import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.*;
-import javax.servlet.http.*;
-
-import to.etc.domui.server.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.resources.*;
-import to.etc.net.*;
-import to.etc.util.*;
-import to.etc.webapp.core.*;
-import to.etc.webapp.nls.*;
+import javax.annotation.Nonnull;
+import javax.servlet.http.HttpServletResponse;
+import java.io.InputStream;
+import java.util.Locale;
 
 /**
  * This part handler handles all internal resource requests; this are requests where the URL starts
@@ -53,7 +55,7 @@ import to.etc.webapp.nls.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Nov 11, 2009
  */
-public class InternalResourcePart implements IBufferedPartFactory {
+final public class InternalResourcePart implements IBufferedPartFactory {
 	private static class ResKey {
 		private Locale m_loc;
 
@@ -122,7 +124,7 @@ public class InternalResourcePart implements IBufferedPartFactory {
 			loc = NlsContext.getLocale();
 			rurl = rurl.substring(0, pos) + rurl.substring(pos + 5);
 		}
-		if(rurl.endsWith(".class") /* || rurl.endsWith(".java") */)
+		if(rurl.endsWith(".class"))
 			throw new ThingyNotFoundException(rurl);
 
 		//-- Create the key.
@@ -138,7 +140,6 @@ public class InternalResourcePart implements IBufferedPartFactory {
 	 * flag in $HOME/.developer.properties: domui.expires=false. In addition, resources generated from the webapp do
 	 * not get an expires header when the server runs in DEBUG mode.
 	 *
-	 * @see to.etc.domui.server.parts.IBufferedPartFactory#generate(to.etc.domui.server.parts.PartResponse, to.etc.domui.server.DomApplication, java.lang.Object, to.etc.domui.util.resources.ResourceDependencyList)
 	 */
 	@Override
 	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object inkey, @Nonnull IResourceDependencyList rdl) throws Exception {

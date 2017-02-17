@@ -1,0 +1,3426 @@
+/*
+ * DomUI "blue" stylesheet.
+ * File represents composition of fragments that are defining default style for each component.
+ */
+/*** Imports ***/
+/* btadic 20121102 This file was imported from 000_dateinput.frag.css. Now, when it is renamed to 340_dateinput.frag.css, 
+file will not be imported properly. For now it's moved here because here is start of generated style.
+We can create one more fragment for imports which will be loaded before this fragment.  */
+@IMPORT url("calendar-theme.css");
+
+/*** 000_areset.frag.css - reset script ***/
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+	outline: none;
+}
+
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-spacing: 0;
+	border-collapse: collapse;
+}
+/*** 002_core.frag.css ***/
+/*** Core style ***/
+/* Body style */
+body, html {
+<% if(typeof body_image != 'undefined') { %>
+	background: url(<%= body_image %>) repeat-x;
+<% } %>
+	background-color: <%= bg_color %>;
+/*	height: 100%; */ /* vmijic - changed to 100% (was 90%). Is here a reason for 90%? We have problem with splitter otherwise... */
+}
+
+/** jal: do not put this in the reset script! Using it here inherits the spec to all lower elements by default. */
+body {
+	font-family: <%= font_family %>;
+	font-size: <%= font_size %>;
+}
+
+/*** Input related components ***/
+button img {
+	vertical-align: bottom;
+}
+
+button {
+	vertical-align: bottom;
+}
+
+input, textarea, select {
+	margin: 0px 2px 2px 0px;
+	padding: 0px 2px 0px 2px;	
+	font-size: <%= font_size %>;
+	font: inherit;
+	border-color:<%= bevel_up %> <%= bevel_down %> <%= bevel_down %>;
+	border-style:solid;
+	border-width:1px;
+	-moz-border-radius: 2px;	
+	border-radius: 2px;	
+	-webkit-border-radius: 2px;
+	line-height: 17px;  /* jal 20150121 Experimental: Ie 10 (what else) does not render descenders of letters in input box. */
+}
+textarea{
+	line-height: normal;
+	white-space: pre-wrap;
+}
+textarea[readonly="readonly"] {
+	background-color: transparent;
+}
+
+input[type=checkbox] {
+	border: 0;
+	padding-left: 0px;
+	padding-top: 2px;
+}
+
+input[type=file] {
+	border: 0 !important;
+	padding: 0px !important;
+}
+input[type=file]::-ms-value {
+	border-color:<%= bevel_up %> <%= bevel_down %> <%= bevel_down %>;
+	border-style:solid;
+	border-width:1px;
+	padding: 0;
+}
+input[type=file]::-ms-browse {
+	border: 0;
+}
+
+input[type="text"], input[type="password"] {
+	height: 16px;
+}
+
+input:hover, textarea:hover, select:hover {
+	border-color:<%= bevel_hover_up %> <%= bevel_hover_down %> <%= bevel_hover_down %> <%= bevel_hover_up %>;
+}
+
+select {
+	background-color:#FFFFFF;
+	height: 18px;
+}
+
+/*** HTML entities ***/
+pre {
+	font-family: <%= fixed_font_family %>;
+	font-size: <%= fixed_font_size %>;
+}
+
+td {
+    /*	padding: 1px; jal 20150317 This messes up everything that needs perfect alignment. */
+}
+
+td input, td select, td label {
+	vertical-align: top;
+} 
+
+div {
+	vertical-align: top;
+}
+
+.ui-content {
+	padding: <%= margins_main %> <%= margins_main %> 0px <%= margins_main %>;	/* Jal 20121214 bottom margin causes scrollbars with auto-height calculations. */
+}
+.ui-clickable {
+	cursor: pointer;
+}
+
+
+/*** HTML formatting ***/
+p {
+	margin: 5px 0px;
+	display: block;
+}
+h1, h2, h3, h4, h5 {
+	margin: 10px 0px 5px 0px;
+}
+h1 {
+	font-size: 150%;
+	font-weight: bold;
+	border-bottom: 1px solid #777;
+}
+h2 {
+	font-size: 130%;
+	font-weight: bold;
+}
+h3 {
+	font-size: 110%;
+	font-weight: bold;
+}
+h4 {
+	font-style: italic;
+}
+ul {
+	list-style-type: disc;
+	list-style-position: outside;
+	padding: 0px 20px;
+}
+ol {
+	list-style-type: decimal;
+	list-style-position: outside;
+	padding: 0px 20px;
+}
+li {
+	margin: 4px 4px;
+	padding: 3px 0px;
+}
+code {
+	white-space: pre;
+	font-family: <%= fixed_font_family %>;
+	font-size: 11px;
+	background-color: #ddd;
+	display: block;
+	border: 1px dotted #000;
+	padding: 4px;
+}
+b, strong {
+	font-weight: bold;
+}
+i, em {
+	font-style: italic;
+}
+
+/*** 005_oddchars.frag.css ***/
+/*** Select special chars ***/
+.ui-oddchars {
+	padding: 10px;
+}
+
+.ui-oddchars-tbl2 {
+	margin-top: 15px;
+}
+
+.ui-oddchars-c {
+	border: 1px solid black;
+	width: 2em;
+	height: 2em;
+	text-align: center;
+}
+
+.ui-oddchars-c:hover {
+	background-color: #ffe1bf;
+}
+
+.ui-oddchars-dt {
+	border: 1px solid black;
+	text-align: center;
+}
+
+.ui-oddchars-dt:hover {
+	background-color: #ffe1bf;
+}
+/*** 010_apptitle.frag.css ***/
+/*** App Title bar ***/
+.ui-atl {
+	background: url(<%= bg_ttl_gradient %>) repeat-y;
+	background-color: <%= bg_ttl_end %>;
+	<%= margins_neutralize %>
+}
+
+.ui-atl table{
+	width: 100%;
+}
+
+.ui-atl-bb {
+	white-space: nowrap;
+	width: 90%;
+	text-align: right;
+	vertical-align: middle;
+}
+
+.ui-atl-i {
+	padding: 0px;
+}
+
+.ui-atl-i img {
+	display: none;
+}
+
+.ui-atl-t {
+	width: 10%;
+	height: 40px;
+	white-space: nowrap;
+	color: <%= bg_ttl_text %>;
+	font-weight: bold;
+	font-size: <%= hdr_font_size %>;
+	padding-left: 9px;
+	vertical-align: middle;
+}
+
+/*** 015_splitterbar.frag.css ***/
+/*** SplitterPanel. These style names are required by jquery.splitter.js ***/
+.splitbarV {
+	float: left;
+	width: 6px;
+	height: 100%;
+	line-height: 0px;
+	font-size: 0px;
+	border-left: solid 1px white;
+	border-right: solid 1px white;
+	background: #cbe1fb url(panev.gif) 0% 50%;
+}
+
+.splitbuttonV {
+	margin-top: -41px;
+	margin-left: -4px;
+	top: 50%;
+	position: relative;
+	height: 83px;
+	width: 10px;
+	background: transparent url(panevc.gif) 10px 50%;
+}
+
+.splitbuttonV.invert {
+	margin-left: 0px;
+	background: transparent url(panevc.gif) 0px 50%;
+}
+
+.splitbarV.working,.splitbarH.working,.splitbuttonV.working,.splitbuttonH.working
+	{
+	-moz-opacity: .50;
+	filter: alpha(opacity = 50);
+	opacity: .50;
+}
+
+.splitbarH {
+	height: 6px;
+	text-align: left;
+	line-height: 0px;
+	font-size: 0px;
+	border-top: solid 1px white;
+	border-bottom: solid 1px white;
+	background: #cbe1fb url(paneh.gif) 50% 0%;
+}
+
+.splitbuttonH {
+	margin-left: -41px;
+	left: 50%;
+	position: relative;
+	height: 10px !important;
+	width: 83px;
+	background: transparent url(panehc.gif) 50% 0px;
+}
+
+.splitbuttonH.invert {
+	margin-top: -4px;
+	background: transparent url(panehc.gif) 50% -10px;
+}
+
+/* SplitterPanel stuff that is not dependant on jquery.splitter.js */
+.ui-splt-vert { /* vertical splitter */
+	height: 100%;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+}
+
+.ui-splt-horz { /* horizontal splitter */
+/*	height: 100%; */
+/*	width: 100%; */
+	width: auto;
+}
+
+.ui-splt-left {
+	float: left;
+	height: 100%;
+	border-top: solid 1px white;
+	overflow: auto;
+	position: relative;
+}
+
+.ui-splt-right {
+	float: right;
+	height: 100%;
+	overflow: auto;
+	position: relative;
+}
+
+.ui-splt-top {
+	width: auto;
+	overflow: auto;
+	position: relative;
+}
+
+.ui-splt-bottom {
+	width: 100%;
+	overflow: auto;
+	height: 100%;
+	position: relative;
+}
+/*** 020_bugindicator.frag.css ***/
+/*** Bug indicator UI ***/
+.ui-bug-ind {
+	background-color: red;
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	width: 80px;
+	height: 43px;
+	border: 2px solid black;
+}
+.ui-bug-count {
+	font-size: 25px;
+	font-weight: bold;
+	color: yellow;
+}
+.ui-bug-msg {
+	font-size: 12px;
+}
+.ui-bug-stk {
+	white-space: pre;
+	font-family: <%= fixed_font_family %>;
+	font-size: 8px;
+}
+/*** 025_displaycheckbox.frag.css ***/
+/*** DisplayCheckbox ***/
+.ui-dspcb {
+	border: none;
+	width: 18px;
+	height: 18px;
+}
+/*** 030_tree.frag.css ***/
+/*** Tree component ***/
+.ui-tree .selected {
+	background: <%= selected_bg %> !important;
+}
+TD .ui-tree .selected:hover {
+	background: <%= selected_bg %> !important;
+}
+
+.ui-tree TD {
+	padding: 0px;
+	margin: 0px;
+	border: 0px;
+}
+
+.ui-tr-act {
+	cursor: pointer;
+}
+.ui-tr-val {
+	white-space: nowrap;
+	vertical-align: middle;
+}
+.ui-tr-val img {
+	vertical-align: middle;
+}
+td.ui-tr-sel:hover {
+	background-color: <%= highlight_bg %> !important;
+}
+td.ui-tr-sel {
+	cursor: pointer;
+}
+td.ui-tr-selected {
+	background-color: <%= bg_ttl_end %>; !important;
+}
+
+.ui-tree {
+/*	height: 100%;		jal 20111025 - setting this causes trouble if tree is not alone in div.. Fixed for OldHelp browser */
+}
+/*** 035_displayvalue.frag.css ***/
+/*** DisplayValue ***/
+.ui-dspv {
+	background: none repeat scroll 0 0 <%= readonly_bg %>;
+	display: block;
+	text-align: left;
+}
+/*** 040_captionedheader.frag.css ***/
+/*** CaptionedHeader ***/
+
+
+/* jal 20130305 removed, the captioned header falls over the item above it.
+
+.ui-content > .ui-chdr {
+	<%= margins_neutralize %>
+}
+*/
+.ui-chdr {
+	width: 100%;
+	margin-top: 10px;
+/*	margin-bottom: 10px; */
+	border-bottom: 2px solid <%= bg_ttl_end %>;
+}
+.ui-chdr td{
+	padding: 0;
+}
+.ui-chdr-ttl {
+	color: <%= bg_ttl_text %>;
+	background-color: <%= bg_ttl_end %>;
+	padding: 2px 10px 2px 10px;
+	white-space: nowrap;
+	-moz-border-radius: 2px 2px 0px 0px;
+	-webkit-border-radius: 2px 2px 0px 0px;
+	-khtml-border-radius: 2px 2px 0px 0px;
+	border-radius: 2px 2px 0px 0px;
+}
+.ui-chdr-ttl img {
+	padding-right: 10px;
+}
+.ui-chdr-l {
+	width: 10px;
+	margin: 0;
+}
+.ui-chdr-c {
+	width: 1%;
+	overflow: visible;
+}
+/*** 045_errormessagediv.frag.css ***/
+/*** ErrorMessageDiv helper for components that handle their error display ***/
+.ui-emd {
+	background-color: <%= errors_background %>;
+	color: <%= errors_foreground %>;
+	border-color: 1px solid <%= errors_border %>;
+}
+.ui-emd-msg {
+	background-repeat: no-repeat;
+	background-position: 10px;
+	padding-left: 24px;
+	background-size: 11px 11px;
+}
+.ui-emd-info {
+	background-image: url(mini-info.png);
+	background-color: <%= info_bg %>;
+	color: <%= info_fg %>;
+	border-color: 1px solid <%= info_border %>;
+}
+.ui-emd-error {
+	background-image: url(mini-error.png);
+}
+.ui-emd-warning {
+	background-image: url(mini-warning.png);
+	background-color: <%= warnings_background %>;
+	color: <%= warnings_foreground %>;
+}
+
+/*** 050_popinpanel.frag ***/
+/*** Pop-in panel ***/
+div.ui-popin {
+	z-index: 20;
+	border: 1px dotted #333333;
+	background-color: #b8e59d;
+	margin-top: 15px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+}
+
+.ui-popin-ttl {
+	position: relative;
+	top: -10px;
+	left: 15px;
+	border: 1px solid black;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	background-color: #6af218;
+	padding: 3px;
+	font-weight: bold;
+}
+/*** 055_misc.frag.css ***/
+/*** Miscellaneous components styles ***/
+/* AccessDeniedPage */
+.ui-acd-ttl {}
+
+/* InfoPanel */
+.ui-ipa {
+	padding: 4px;
+	margin: 4px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border: 1px solid #d0d0d0;
+	font-style: italic;
+	vertical-align: top;
+	min-height: 48px;
+}
+
+div.ui-ipa img {
+	padding-right: 4px;
+	float: none;
+	vertical-align: top;
+}
+
+/* Explanation box */
+.ui-expl {
+	border: 2px solid #777777;
+	padding: 5px;
+	-moz-border-radius: 10px;
+	border-radius: 10px;
+	-webkit-border-radius: 10px;
+	background: url(bg-expl.png) repeat-x;
+	color: black;
+}
+
+/* AsyncContainer */
+.ui-asc {
+	text-align: center;
+}
+
+div.ui-asc div {
+	height:15px;
+}
+
+/* SplitPanel (simple version) layout thingy */
+.ui-sp,.ui-sp-c {
+	vertical-align: top;
+}
+
+/* Old Image button */
+.ui-ibtn {
+	cursor: pointer;
+}
+
+/* Message html codes: messages containing simple html (b, em, strong, i) are translated to contain spans with styles ui-txt-i, ui-txt-b etc */
+.ui-txt-i {
+	font-style: italic;
+}
+
+.ui-txt-b {
+	font-weight: bold;
+}
+
+/* For printable div used style */
+.ui-printdiv {
+	overflow: hidden;
+	width: 1px;
+	height: 1px;
+	position: absolute;
+	bottom: 0px;
+	left: 0px;
+}
+
+/* Some other generally used styles... */
+.ui-hor-divider {
+	min-width: 0px;
+	max-width: 0px;
+	width: 0px;
+	border-left: 2px dotted <%= header_bg %>; /*#6b99e8;*/
+	background-color: #e5e5e5;
+}
+
+/** Sizeless item */
+.ui-szless {
+	padding: 0px;
+	margin: 0px;
+}
+/* We to ensure that body is taking whole page and we have to neutralize negative margins */
+body.ui-stretch-body {
+	height: calc(100% - 2 * <%= margins_main %>);
+}
+
+/*** Display data table ***/
+.ui-dd-table {
+	font-size: <%= data_tbl_font_size %>;
+	margin-bottom: <%= margins_main %>;
+	border: 1px solid #aaaaaa;
+	border-left: 0px;
+}
+.ui-dd-table > TBODY > TR > TD {
+	padding: 1px 2px;
+	vertical-align: top;
+	border-left: 1px solid #aaaaaa;
+}
+<% if(browser.IE && browser.majorVersion < 9) { %>
+.ui-dd-table TR {
+	border-bottom: 1px solid #aaaaaa;
+}
+<% } else { %>
+.ui-dd-table TR:nth-child(even) {
+	background-color: rgba(255, 255, 255, 0.1);
+}
+<% } %>
+.ui-dd-table THEAD TH {
+	font-weight: bold;
+	padding: 3px;
+	border-left: 1px solid #7c7c7c;
+	background: <%= data_tbl_header_bg %>;
+	color: white;
+}
+
+/**
+*DomUI components style options 
+**/
+
+/** Removing top or bottom margin */
+.dso-remove-bottom-margin {
+	margin-bottom: 0px !important;
+}
+.dso-add-bottom-margin {
+	margin-bottom: <%= margins_main %> !important;
+}
+.dso-remove-top-margin {
+	margin-top: 0px !important;
+}
+.dso-cell-with-text-and-input {}
+
+/** Default cursor */
+.ui-cur-default {
+	cursor: default !important;
+}
+/*** 060_msgbox.frag.css ***/
+/*** MsgBox ***/
+.ui-mbx-top {
+	height: 140px;
+}
+.ui-mbx-bb {
+	text-align: right;
+	height: 35px;
+	margin-right: 13px;
+}
+.ui-mbx-mc {
+	font-size: 13px;
+}
+.ui-mbx-input {
+	padding-top: 20px;
+}
+
+.ui-mbx2-input-area {
+    padding-top: 20px;
+}
+.ui-mbx2-in-lbl {
+    vertical-align: baseline;
+    text-align: right;
+    white-space: nowrap;
+    font-weight: bold;
+    width: 1%;
+    padding-right: 10px;
+}
+.ui-mbx2-in-ctl {
+    vertical-align: baseline;
+}
+
+/*** 065_linkbutton.frag.css ***/
+/*** LinkButton component. ***/
+.ui-lbtn {
+	display: inline-block;
+	background-repeat: no-repeat;
+	background-position: left;
+	padding-left: 18px;
+	font-size: <%= font_size %>;
+	height: 16px;
+}
+.ui-lnkb {
+}
+
+a.ui-lnkb {
+	cursor: pointer;
+}
+
+a:hover.ui-lnkb {
+	text-decoration: underline !important;
+}
+
+a.ui-lnkb-dis {
+	text-decoration: none !important;
+	font-style: italic;
+	cursor: default;
+	color: gray; 
+}
+
+a:hover.ui-lnkb-dis {
+	text-decoration: none !important;
+}
+/*** 070_alink.frag.css ***/
+/*** ALink component. ***/
+.ui-alnk {
+}
+
+.ui-alnk-i {
+	background-repeat: no-repeat;
+	background-position: left;
+	padding-left: 18px;
+}
+/*** 075_draganddrop.frag.css ***/
+/*** Drag and drop ***/
+.ui-drgbl {
+	cursor: move;
+}
+.ui-drp-hover {
+	border: 2px solid yellow;
+	background-color: green;
+}
+.ui-drp-ins {
+	font-size: x-small;
+	font-variant: small-caps;
+	background: url(dnd-separator.png) repeat-x center;
+	text-align: center;
+}
+/*** 080_listshuttle.frag.css ***/
+/*** List Shuttle ***/
+.ui-sh {
+	width: 100%;
+}
+table .ui-sh {
+	width: 100%;
+}
+.ui-sh td {
+	padding: 0px;
+}
+.ui-sh-sc {
+	width: 40%;
+	vertical-align: top;
+}
+.ui-sh-tc {
+	width: 40%;
+	vertical-align: top;
+}
+.ui-sh-tcd, .ui-sh-scd {
+	border: 1px solid #aaaaaa;
+}
+.ui-sh-bc {
+	width: 1%;
+	vertical-align: middle;
+}
+.ui-sh-oc {
+	vertical-align: middle;
+}
+.ui-sh-oc table, .ui-sh-bc table {
+	margin: <%= margins_main %>;
+}
+.ui-sh-sc .selected, .ui-sh-tc .selected {
+	background-color: <%= selected_bg %>;
+}
+.ui-sh button, .ui-sh button:hover, .ui-sh button:focus {
+	background-position: right -250px;
+	padding: 0 7px 0 0;
+	margin: 2px;
+}
+.ui-sh button span, .ui-sh button:hover span, .ui-sh button:focus span{
+	background-position: left -200px;
+	min-width: 0px;
+	width: 19px;
+}
+.ui-sh button img {
+	padding-right: 0px;
+	padding-left: 2px;
+}
+/*** 085_breadcrumb.frag.css ***/
+/*** BreadCrumb ***/
+.ui-brc {
+	padding: 0; margin: 0;
+}
+.ui-brc-left {
+	padding: 0; margin: 0;
+	background-image: url(bg-rounded-left.png);
+	width: 19px;
+	height: 36px;
+}
+.ui-brc-right {
+	padding: 0; margin: 0;
+	background-image: url(bg-rounded-right.png);
+	width: 29px;
+	height: 36px;
+}
+.ui-brc-middle {
+	padding: 0; margin: 0;
+	background: url(bg-rounded-middle.png) repeat-x;
+	height: 36px;
+}
+a.ui-brc-l, a.ui-brc-l:hover a.ui-brc-l :VISITED, a.ui-brc-l:ACTIVE {
+	color: #ffff99;
+	font-weight: bolder;
+	text-decoration: none;
+}
+.ui-brc-c {
+	color: white;
+	font-weight: bolder;
+}
+/*** 090_buttonbar.frag.css ***/
+/*** ButtonBar component ***/
+.ui-buttonbar {
+	margin-bottom: 8px;
+}
+.ui-buttonbar button {
+	margin-bottom: 2px !important;
+}
+.ui-bb-middle {
+	padding: 0; margin: 0;
+}
+/*** 095_monthpanel.frag.css ***/
+/*** MonthPanel ***/
+.ui-mp {
+/*	background-color: #eeeeee; */
+	font-size: 13px;
+}
+.ui-mp-mn {
+	background-color: #82b4f8;
+	text-align: center;
+	font-weight: bold;
+	font-variant: small-caps;
+}
+
+.ui-mp-top {
+	background: url(<%= caption_separator %>) repeat-x;
+	font-weight: bold;
+	font-style: italic;
+}
+
+.ui-mp-w {
+	background-color: #bed6f8;
+	font-weight: bold;
+	font-style: italic;
+}
+.ui-mp-top TD {
+	width: 1.8em;
+}
+.ui-mp-d, .ui-mp-xd {
+	text-align: right;
+}
+.ui-mp-xd {
+	color: #777777;
+}
+TD.ui-mp-ch:hover {
+	background-color: #ffe1bf !important;
+}
+.ui-mp-mrk {
+	background-color: yellow;
+}
+/*** 100_calendar.frag.css ***/
+/*** Calendar schedule ***/
+.ui-wa {
+	
+}
+
+.ui-wa-hd {
+	font-size: 10px;
+	font-weight: bold;
+	vertical-align: top;
+	text-align: center;
+	background-color: #eeeeee;
+	height: 20px;
+}
+
+div.ui-wa-bg {
+	position: relative;
+	top: 0px;
+	left: 0px;
+	clear: both;
+	z-index: 10;
+	width: 100%;
+	height: 100%;
+	padding: 0;
+	margin: 0;
+}
+div.ui-wa-f {
+	z-index: 20;
+	background-color: transparent;
+}
+
+/* IMPORTANT: this color together with "cellspacing=1" creates the lines between the cells!!!! */
+table.ui-wa-bgtbl {
+	background-color: #cccccc;
+	font-size: 10px;
+}
+
+.ui-wa-gt {
+	background-color: #eeeeee;
+	text-align: right;
+	white-space: nowrap;
+}
+
+.ui-wa-hour {
+	font-size: 13px;
+	font-weight: bold;
+	vertical-align: top;
+}
+
+.ui-wa-min {
+	font-size: 10px;
+	font-weight: bold;
+	vertical-align: top;
+}
+
+.ui-wa-cell {
+	background-color: #ffffff;
+}
+
+/* schedule item */
+.ui-wa-it {
+	overflow: hidden;
+	border: 1px solid black;
+	background-color: #00ffcc;
+	font-size: 10px;
+}
+
+.ui-wa-img {
+	float: left;
+	padding-right: 10px;
+}
+
+.ui-wa-ity {
+	font-variant: small-caps;
+	font-size: 10px;
+}
+
+.ui-wa-nm {
+	font-weight: bolder;
+}
+
+.ui-wa-dt {
+	font-size: 10px;
+}
+
+.ui-wa-tm {
+	font-size: 7px;
+	color: blue;
+	margin-left: 5px;
+}
+
+.ui-wa-nt {
+	background-color: #ff4d00;
+}
+/*** 105_lookupinput.frag.css ***/
+/*** LookupInput thingerydoo ***/
+.ui-lui {
+	/* background: #ffffff; */
+	padding: 0px;
+	margin: 0px;
+}
+
+.ui-lui-btntd {
+	min-width: 18px;
+	text-align: left;
+	white-space: nowrap;
+}
+
+div.ui-lui-selected-ro {
+	border: none !important;
+	margin-bottom: 0px;
+}
+
+div.ui-lui-selected-ro td {
+	padding: 0px;
+}
+	
+div.ui-lui {
+	width: 12em; /*	this width match with date field picker icon on IE rendering */
+	display: inline-block;
+}
+
+div.ui-lui > table {
+	width: 1%;
+}
+
+table.ui-lui {
+	white-space: nowrap;
+}
+
+table.ui-lui-selected {
+	width: 100%;
+	white-space: nowrap;
+	padding: 1px;
+}
+
+.ui-lui-v { /* no selection is rendered transparent without border */
+	padding: 0px;
+	margin: 0px;
+	width: 100%;
+}
+
+.ui-ro .ui-lui-v {
+	white-space: nowrap;
+}
+
+.ui-lui-v > div {
+	width: 104px;
+}
+
+.ui-lui-selected tbody { /*	selected value is rendered with white back and outline, on IE border is not rendred!? */
+	padding: 0px;
+	margin: 0px;
+	background-color: #ffffff;
+	width: 100%;
+	white-space: nowrap;
+}
+
+.ui-lui-selected-ro tbody {
+	background-color: <%= readonly_bg %>;
+}
+
+.ui-input-err * .ui-lui-v {
+	background-color: #ffe5e5 !important;
+}
+.ui-lui-vcell {
+	min-width: 100px;
+	width: 99%;
+	padding: 2px 5px 2px 2px;
+	vertical-align: top;
+}
+.ui-lui-btncell {
+	min-width: 41px;
+	padding-top: 2px;
+}
+
+input.ui-lui-keyword {
+	min-width: 98px;
+	width: 1%;
+	display: block;
+}
+
+img.ui-lui-waiting{
+	position:absolute;
+	top:2px;
+	right:2px;
+}
+.ui-lui-keyword-res{
+	color: black;
+}
+.ui-lui-keyword-no-res{
+	color: red;
+}
+.ui-lui-keyword-large{
+	color: red;
+}
+.ui-lui-keyword-popup{
+	position: absolute;
+	left: 0px;
+	top: 18px;
+	background-color: white;
+	border: 1px solid gray;
+	width: 402px;
+	overflow: hidden;
+	margin-bottom: 10px;
+}
+tr.ui-keyword-popop-rowsel {
+	cursor: pointer;
+	background-color: <%= highlight2_bg %> !important;
+}
+
+tr.ui-keyword-popop-rowsel:hover {
+	background-color: <%= highlight2_bg %> !important;
+}
+
+tr.ui-keyword-popup-row {
+	cursor: pointer;
+}
+/*** 110_multiplelookupinput.frag.css ***/
+/*** MultipleLookupInput thingerydoo ***/
+.ui-mli-cnt { /* selection container */
+	max-height: 60px;
+	overflow: auto;
+}
+
+.ui-mli-itm { /* selected items */
+	display: inline;
+	float: left;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border: 1px solid <%= multiple_lookup_label_color %>;
+	margin: 1px;
+	padding: 2px;
+	padding-bottom: 0px;
+	background-color: <%= multiple_lookup_label_border %>;
+}
+
+.ui-mli-itm label {
+	vertical-align: middle;
+}
+
+.ui-mli-itm img {
+	display: inline-block;
+	margin-left: 5px;
+	max-width: 14px;
+	max-height: 14px;
+	vertical-align: top;
+}
+/*** 105_lookupinput.frag.css ***/
+/*** LookupInput thingerydoo ***/
+.ui-lui {
+	/* background: #ffffff; */
+	padding: 0px;
+	margin: 0px;
+}
+
+div.ui-lui-selected{
+	border-color:#ABADB3 #BFCDD9 #BFCDD9;
+	display: inline-block;
+	border-style:solid;
+	border-width:1px;
+	-moz-border-radius: 2px;
+	margin-bottom: 3px;
+}
+
+div.ui-lui-selected-ro {
+	border: <%= readonly_border %> solid 1px; /* same border color as one used for ui-dspv fields */
+}
+	
+
+table.ui-lui {
+	width: 12em; /*	this width match with date field picker icon on IE rendering */
+	white-space: nowrap;
+}
+
+div.ui-lui td{
+	vertical-align: top;
+}
+
+
+.ui-input-err * .ui-lui-v {
+	background-color: #ffe5e5 !important;
+}
+.ui-lui-vcell {
+	width: 99%;
+}
+
+/*** LookupForm ***/
+.ui-lf-coll {
+	padding-bottom: 10px;
+}
+
+/*** Button bar ***/
+div.ui-lf-ebb {
+	margin-top		: 8px;
+	padding-bottom	: 8px;
+}
+
+div.ui-lf-ebb button {
+	margin-bottom: 2px !important;
+}
+
+/*** Layout for table with input data in two, or more, rows ***/
+table.ui-lf-multi > tbody > tr > td {
+	padding-left			: 100px;
+	white-space				: nowrap;
+}
+
+table.ui-lf-multi > tbody > tr > td:first-child {
+	width					: 1%;
+	padding-left			: 0px;
+}
+
+/*** Standard table with inputs style - prompt and input cells table kind ***/
+table.ui-lf-st tr > td.ui-f-lbl:first-child,
+.ui-lf-multi table tr > td.ui-f-lbl:first-child {
+	min-width: 150px;
+	width: 1%;
+}
+
+table.ui-lf-st input.ui-ro,
+table.ui-lf-st input.ui-ro:hover {
+	text-align: left !important;
+}
+
+table.ui-lfsf-st th {
+	font-weight: bold;
+	text-align: left;
+}
+
+/*** 120_forms.frag.css ***/
+/*** Form basic styles ***/
+/* these are for forms having the label BEFORE the field (horizontal). */
+.ui-f-lbl {
+	text-align: right;
+	font-weight: bold;
+	font-size: <%= font_size %>;
+	vertical-align: top;
+	white-space: nowrap;
+	width: 1%;
+}
+
+.ui-f-lbl:FIRST-CHILD {
+	min-width: 150px;
+}
+
+.ui-f-in {
+	font-size: <%= font_size %>;
+	vertical-align: top; /* jal 20090818 changed from top to middle to align DateInput buttons better */
+	padding: 0px 0px 0px 4px;
+}
+
+.ui-f-in input, .ui-f-in select, .ui-f-in .wysiwyg {
+	font: inherit;
+	margin-bottom: 2px;
+	margin-right: 2px;
+}
+
+.ui-f-do {
+	font-size: <%= font_size %>;
+	vertical-align: top; /* jal 20090818 changed from top to middle to align DateInput buttons better/20100708 jal: back to top because LookupInput causes misalignment of labels after it. */
+	padding-left: 4px;
+}
+
+.ui-f-do textarea {
+	background-color: <%= readonly_bg %>;
+}
+
+/* for forms having the label ABOVE the field (vertical stacked) */
+.ui-fvs-lbl {
+	font-weight: bold;
+	font-size: <%= font_size %>;
+	padding: 2px 4px 2px 2px;
+}
+
+.ui-fvs-in {
+	font-size: <%= font_size %>;
+	vertical-align: top;
+}
+
+.ui-fvs-do { /* displayonly field */
+	font-size: <%= font_size %>;
+/*	background-color: white; jal 20121025 why? This messes up any redefinition of any background... */
+	padding: 2px 4px 2px 2px;
+}
+
+/* Display-only field */
+.ui-f-display {
+	font-size: <%= font_size %>;
+	vertical-align: top;
+	background: #eff7ff;
+}
+
+/* for forms where the label is above the edit control (vertical). */
+.ui-ro, .ui-ro:hover {
+	/*background: #eff7ff;*/
+	border:1px solid <%= readonly_border %>;
+	background-color: <%= readonly_bg %>;
+}
+input.ui-ro, input.ui-ro:hover {
+	text-align: left;
+	height: 16px !important;
+	margin: 0px !important;
+	padding: 0px !important;
+}
+
+select.ui-ro, select.ui-ro:hover {
+	border-color: <%= bevel_up %>;
+}
+/*** 125_numeric.frag.css ***/
+/*** Typed presentation for fields containing numerics ***/
+.ui-numeric {
+	text-align: right !important;
+}
+
+TD.ui-numeric {
+	padding-right: 3px;
+	white-space: nowrap;
+}
+
+.ui-dspv.ui-numeric {
+	text-align: left !important;
+}
+/*** 130_imagebutton.frag.css ***/
+/*** Image Button ***/
+.ui-ib {
+/*	width: 124px; 20110118 jal make the image scale the button automatically; fixes decade bug# 1029.
+	height: 24px; */
+	border: none;
+	background: none;
+	cursor: pointer;
+	padding: 0px;
+	/* 20110118 jal IE7 idiot fix for button width blunder. */
+	width: 0;
+	overflow: visible;
+}
+/* 20110118 jal IE7 idiot fix for button width blunder. */
+.ui-ib[class] {
+	width: auto;
+}
+td .ui-ib[class] {
+}
+/* end fix */
+
+.ui-ib:hover {
+	background: #cccccc;
+}
+/*** 135_expandingtable.frag.css ***/
+/*** ExpandingTable ***/
+.ui-xdt {
+	overflow: auto;
+}
+
+.ui-xdt TH {
+	text-align: left;
+}
+
+.ui-xdt-hdr {
+	/* default domui table header style is still to be defined */
+}
+
+.ui-xdt-ix {
+	cursor: pointer;
+	background-repeat: no-repeat;
+	background-position: 0px -4px;
+	padding-left: 18px;
+	font-size: <%= font_size %>;
+	color: #1700ee;
+	text-decoration: underline !important;
+}
+div:hover.ui-xdt-clp {
+	background-image: url(xdt-collapsed.png);
+}
+div:hover.ui-xdt-exp {
+	background-image: url(xdt-expanded.png);
+}
+
+.ui-xdt-edt {
+	background-color: <%= data_tbl_expanding_row_bg %>;
+	/*width: 99%;  */
+	vertical-align: top;
+	border: 1px solid #bababa;
+	margin: 2px 5px 5px 2px;
+	
+	-moz-box-shadow: 2px 2px 10px #AAA;
+	-webkit-box-shadow: 2px 2px 10px #AAA;
+	box-shadow: 2px 2px 10px #AAA;
+	border-bottom: 1px solid #BABABA;
+	border-right: 1px solid #BABABA;
+	filter: progid:DXImageTransform.Microsoft.Shadow(color='#BABABA', Direction=135, Strength=7);
+}
+
+.ui-xdt-edt td{
+	padding-left: 2px;
+}
+
+.ui-xdt-nores {
+	padding: 10px 0px 10px 0px;
+	font-style: italic;
+}
+/*** 140_datatable.frag.css ***/
+/*** DataTable default style ***/
+div.ui-dt {
+	overflow: auto;
+	position: relative;
+}
+
+div.ui-dt table td{
+	border: 0;
+	margin: 0;
+	padding: 0px 3px;
+	border-left: 1px solid #bababa; /* gray so it is theme invariant */
+	height: 19px;
+	vertical-align: middle;
+}
+div.ui-dt table td * {
+	vertical-align: middle;
+}
+
+div.ui-dt table{
+	overflow: auto;
+	position: relative;
+	border-right: 1px solid #bababa;
+	border-bottom: 1px solid #bababa;
+	border-spacing: 2px;
+}
+
+.ui-dt th, .ui-dt-hdr {
+	padding: 0px 3px;
+	border-left: none !important;
+	background: <%=	data_tbl_header_bg %>;
+	background-image: url(<%= data_tbl_header_bg_img %>);
+	color: <%= data_tbl_header_text_color %>;
+	border-bottom: 1px solid <%= data_tbl_header_btm_border %>;
+	text-align: left;
+	font-weight: bold;
+	height: 18px;
+	vertical-align: middle;
+}
+
+.ui-dt th:FIRST-CHILD, .ui-dt-hdr:FIRST-CHILD {
+	border-left: 1px solid <%= data_tbl_header_btm_border %> !important;
+}
+
+.ui-dt th:LAST-CHILD, .ui-dt-hdr:LAST-CHILD {
+	border-right: 1px solid <%= data_tbl_header_btm_border %>;
+}
+
+.ui-dt tbody tr > td.ui-f-lbl:first-child {
+	min-width: 150px;
+	margin-left: 10px;
+}
+
+.ui-dt-nores {
+	padding: 0px 0px 10px 0px;
+	font-style: italic;
+}
+
+.ui-odd {
+}
+
+.ui-even {
+	background: <%= data_tbl_even_row_bg %>;
+}
+
+tr.ui-rowsel {
+	cursor: pointer;
+}
+
+tr.ui-rowsel:hover {
+	background-color: <%= highlight_bg %> !important;
+}
+
+td.ui-cellsel {
+	cursor: pointer;
+	color: <%= link_color %>;
+}
+
+td.ui-cellsel:hover {
+	text-decoration: underline;
+	background-color: <%= data_tbl_cell_highlight_bg %> !important;
+	color: <%= data_tbl_cell_highlight_link_color_bg %>;
+}
+
+th.ui-sortable {
+	cursor: pointer;
+}
+
+div.ui-sortable {
+	position: relative;
+}
+
+.ui-sortable img {
+	top: -3px;
+	position: absolute;
+	border: 0px;
+}
+
+.ui-sortable span {
+	margin-left: 10px;
+}
+
+.ui-dt {
+	font-size: <%= data_tbl_font_size %>;
+	height: 100%;
+}
+
+.ui-dt-separator {
+	background: url(bg-horiz-separator.png) repeat-x center;
+	padding: 1px;
+}
+
+.ui-dt .mselected, .ui-dt .selected {
+	background-color: <%= highlight2_bg %>; /* 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
+}
+/*** 145_smallimgbutton.frag.css ***/
+/*** Small Image button ***/
+.ui-sib {
+	padding: 0px 1px 0px 1px;
+	margin: 0px;
+	border: 0px;
+	background: transparent;
+	vertical-align: bottom;
+	cursor: pointer;
+}
+
+.ui-sib img {
+	padding: 0px;
+	margin: 0px;
+	border: 0px;
+}
+
+.ui-sib:hover {
+	background-color: <%= header_bg %> !important;
+}
+
+.ui-sib[disabled] {
+	cursor: default;
+}
+
+.ui-sib[disabled]:hover {
+	background: none !important;
+}
+/*** 150_caption.frag.css ***/
+/*** Caption ***/
+.ui-cptn {
+	font-weight: bold;
+	background: <%= header_bg %>;
+	color: <%= bg_ttl_text %>;
+	<%= margins_neutralize %>
+	margin-top: 0px;
+}
+
+.ui-cptn table {
+	height: 21px;
+}
+
+.ui-cptn div {
+	padding-top: 13px;
+	padding-bottom: 5px;
+	font-size: large;
+}
+
+.ui-cptn .ui-cptn-ttl {
+	width: 1%;
+	padding-left: 5px;
+}
+
+.ui-cptn .ui-cptn-btn {
+	text-align: right;
+	vertical-align: bottom;
+	padding-left: 5px;
+	padding-bottom: 2px;
+}
+
+.ui-cptn-first{}
+/*** 155_captionedpanel.frag.css ***/
+/*** CaptionedPanel ***/
+.ui-pnl-outer {
+	background-color: white;
+}
+
+.ui-pnl-caption {
+	padding: 2px 4px 2px 4px;
+	font-weight: bold;
+	font-size: 120%;
+	color: <%= bg_ttl_text %>;
+	background: <%= header_bg %>;
+}
+
+.ui-pnl-cont {
+	position: relative;
+	padding: 5px;
+	border: 1px solid <%= header_bg %>;
+}
+/*** 160_errorpanel.frag.css ***/
+/*** ErrorPanel - a CaptionedPanel used to display errors in the page ***/
+.ui-err-outer { /*	background-color: #ffe5e5; */
+	background-color: white;
+	padding: 1px;
+	border: 1px solid <%= errors_background %>;
+	margin-bottom: 5px;
+}
+
+.ui-err-caption {
+	border: 1px solid <%= errors_background %>;
+	padding: 2px 4px 2px 4px;
+	font-weight: bold;
+	background: url(bg-errors.png) repeat-x bottom;
+}
+
+.ui-input-err, .ui-input-err textarea {
+	background-color: <%= errors_input_background %> !important;
+}
+
+/*** 165_tabpanel.frag.css ***/
+/*** The tab control, using the "sliding doors" technique as in http://www.alistapart.com/articles/slidingdoors/ ***/
+.ui-tab-c {
+	margin: 0px -<%= margins_main %> <%= margins_main %> -<%= margins_main %>;
+}
+.ui-tab-hdr ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+.ui-tab-li {
+	margin: 0;
+	padding: 0;
+}
+
+.ui-tab-close-li {
+	margin: 0;
+	padding: 0;
+	white-space: nowrap;
+}
+
+.ui-tab-hdr {
+	float: left;
+	font-size: <%= font_size %>;
+	line-height: normal;
+	width: 100%;
+	margin: 0px 0px <%= margins_main %>;
+}
+
+.ui-tab-hdr li {
+    background: url("<%= tab_pnl_img %>") no-repeat scroll left -200px transparent;
+    float: left;
+    margin: 0;
+    padding: 0 0 0 8px;
+    cursor: pointer;
+    list-style: none;
+}
+
+.ui-tab-div {
+	background: url("<%= tab_pnl_img %>") no-repeat scroll right -250px transparent;
+    display: block;
+    font-weight: bold;
+    padding: 9px 14px 0px 6px;
+    text-decoration: none;
+    min-height: 22px;
+    color: <%= tab_pnl_inactive_col %>;
+    margin-right: 0px !important;
+}
+
+.ui-tab-div a {
+	vertical-align: middle;
+}
+
+.ui-tab-hdr img {
+	vertical-align: top;	
+}
+
+.ui-tab-link {
+    display: inline-block;
+    font-weight: bold;
+    text-decoration: none;
+	color: <%= tab_pnl_inactive_col %>;
+	position: relative;    
+	padding: 2em;     
+	margin: -2em;
+}
+
+.ui-tab-close {
+    display: inline-block;
+	background-image: url("<%= tab_pnl_close %>");
+    height: 11px;
+	width: 11px;
+	margin-left: 8px;
+}
+
+.ui-tab-close:hover {
+	background-image: url("<%= tab_pnl_close_hover %>");
+}
+
+.ui-tab-hdr li:hover {
+	background-position: left -300px;
+}
+
+.ui-tab-hdr li:hover div{
+	background-position: right -350px;
+	color: <%= tab_pnl_hover_inactive_col %>;
+}
+
+.ui-tab-hdr li.ui-tab-sel, 
+.ui-tab-hdr li.ui-tab-sel:hover {
+	background-position: left top;
+}
+
+.ui-tab-hdr li.ui-tab-sel div, 
+.ui-tab-hdr li.ui-tab-sel:hover div {
+	background-position: right -50px;
+	color: <%= tab_pnl_active_col %>;
+}
+
+.ui-tab-hdr li.ui-tab-sel span, 
+.ui-tab-hdr li.ui-tab-sel:hover span {
+	background-position: right -50px;
+	color: <%= tab_pnl_active_col %>;
+}
+
+li.ui-tab-err div {
+	color: <%= errors_foreground %> !important;
+}
+
+.ui-tab-icon {
+	padding-right: 5px;
+}
+
+.ui-tab-tabbar {
+	margin: 0px;
+	padding: 0px;
+}
+
+.ui-tab-pag {
+	border-top: 1px solid black;
+}
+
+.ui-tab-ibte {
+	height: 31px;
+	background: <%= tab_pnl_sep_bg %>;
+	overflow: hidden;
+}
+
+li.ui-tab-ibt {
+	background: <%= tab_pnl_sep_bg %>;
+	height: 31px;
+	width: 3px;
+	padding: 0px;
+	margin: 0px;
+}
+
+div.ui-tab-hdr li, div.ui-tab-ibte {
+	border-bottom: <%= tab_pnl_btm_border %> solid #727272;
+}
+
+div.ui-tab-hdr li.ui-tab-sel {
+	border-bottom: 0px;
+}
+
+li.ui-tab-ibt:FIRST-CHILD {
+	width: 10px;
+}
+
+.ui-tab-pg {
+	padding: 0px 10px;
+}
+
+.ui-tab-pg .ui-buttonbar, .ui-tab-pg .ui-szless {
+	margin-left: 0px;
+}
+/*** 170_scrollabletabpanel.frag.css ***/
+/*** ScrollableTabPanel ***/
+.ui-stab-c {
+	margin: 0px -<%= margins_main %> <%= margins_main %> -<%= margins_main %>;
+}
+
+.ui-stab-hdr {
+	float: left;
+	font-size: <%= font_size %>;
+	line-height: normal;
+	margin: 9px 0px 10px;
+	height: 32px;
+}
+
+.ui-stab-hdr li {
+    background: url("<%= tab_pnl_img %>") no-repeat scroll left -200px transparent;
+    float: left;
+    margin: 0;
+    padding: 0 0 0 8px;
+    cursor: pointer;
+    list-style: none;
+}
+
+.ui-stab-hdr li:hover {
+	background-position: left -300px;
+}
+
+.ui-stab-hdr li:hover div{
+	background-position: right -350px;
+	color: <%= tab_pnl_hover_inactive_col %>;
+}
+
+.ui-stab-hdr li.ui-stab-sel, 
+.ui-stab-hdr li.ui-stab-sel:hover {
+	background-position: left top;
+}
+
+.ui-stab-hdr li.ui-stab-sel div, 
+.ui-stab-hdr li.ui-stab-sel:hover div {
+	background-position: right -50px;
+	color: <%= tab_pnl_active_col %>;
+}
+
+li.ui-stab-err div {
+	color: <%= errors_foreground %> !important;
+}
+
+.ui-stab-icon {
+	padding-right: 5px;
+}
+
+.ui-stab-tabbar {
+	margin: 0px;
+	padding: 0px;
+}
+
+.ui-stab-pag {
+	border-top: 1px solid black;
+}
+
+.ui-stab-ibte {
+	height: 31px;
+	background: <%= tab_pnl_sep_bg %>;
+	overflow: hidden;
+}
+
+li.ui-tab-ibt {
+	background: <%= tab_pnl_sep_bg %>;
+	height: 31px;
+	width: 3px;
+	padding: 0px;
+	margin: 0px;
+}
+
+li.ui-stab-ibt:FIRST-CHILD {
+	width: 10px;
+}
+
+.ui-stab-pg {
+	padding: 0px 10px;
+}
+
+.ui-stab-pg .ui-buttonbar, .ui-stab-pg .ui-szless {
+	margin-left: 0px;
+}
+
+.ui-stab-scrl-left {
+	background: url(<%= tab_pnl_arrows %>) no-repeat transparent center;
+	background-position: 0px 0px;
+	background-color: <%= tab_pnl_sep_bg %>;
+	border:0 none;
+	margin:0;
+	display:block;
+	width: 15px;
+	height: 31px;
+	margin: 0px 0px <%= margins_main %>;
+}
+
+.ui-stab-scrl-left:hover {
+	background-position: -15px 0px;
+	cursor: pointer;
+}
+
+.ui-stab-scrl-right {
+	background: url(<%= tab_pnl_arrows %>) no-repeat transparent center;
+	background-position: 0px -31px;
+	background-color: <%= tab_pnl_sep_bg %>;
+	border:0 none;
+	margin:0;
+	display:block;
+	width: 15px;
+	height: 31px;
+}
+
+.ui-stab-scrl-right:hover {
+	background-position: -15px -31px;
+	cursor: pointer;
+}
+
+.ui-stab-dis {
+	background: <%= tab_pnl_sep_bg %>;
+	cursor: default !important;
+}
+
+div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-tab-ibte {
+	border-bottom: <%= tab_pnl_btm_border %> solid #727272;
+}
+
+.ui-stab-hdr li.ui-tab-sel {
+	background-position: left top;
+	border-bottom: 0px;
+}
+
+.ui-stab-hdr li.ui-tab-sel div{
+	background-position: right -50px;
+	color: <%= tab_pnl_active_col %>;
+}
+
+.ui-stab-hdr li.ui-tab-sel span, 
+.ui-stab-hdr li.ui-tab-sel:hover span {
+	background-position: right -50px;
+	color: <%= tab_pnl_active_col %>;
+}
+
+.ui-tab-close-li {
+	margin: 0;
+	padding: 0;
+	white-space: nowrap;
+}
+
+.ui-tab-div {
+	background: url("<%= tab_pnl_img %>") no-repeat scroll right -250px transparent;
+    display: block;
+    font-weight: bold;
+    padding: 9px 14px 0px 6px;
+    text-decoration: none;
+	min-height: 22px;
+	color: <%= tab_pnl_inactive_col %>;
+	margin-right: 0px !important;
+}
+
+.ui-tab-div a {
+	vertical-align: middle;
+}
+
+.ui-tab-link {
+    display: inline-block;
+    font-weight: bold;
+    text-decoration: none;
+    color: <%= tab_pnl_inactive_col %>;
+	position: relative;    
+	padding: 2em;     
+	margin: -2em;
+}
+
+.ui-tab-close {
+    display: inline-block;
+	background-image: url("<%= tab_pnl_close %>");
+    height: 11px;
+	width: 11px;
+	margin-left: 8px;
+}
+
+.ui-tab-close:hover {
+	background-image: url("<%= tab_pnl_close_hover %>");
+}
+/*** 175_iohideroverlay.frag.css ***/
+/*** IO hider overlay ***/
+.ui-io-blk {
+	height: 100%;
+	width: 100%;
+	opacity: 0.0;
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	filter:alpha(opacity=0);
+	z-index: 1000;
+}
+.ui-io-blk2 {
+	height: 100%;
+	width: 100%;
+	opacity: 0.5;
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	background: black url(<%= io_blk_wait %>) no-repeat center center; 
+	filter:alpha(opacity=50);
+	z-index: 1000;
+}
+/*** 180_percentageprogress.frag.css ***/
+/*** Percentage progress bar ***/
+.ui-pct-rlr {
+	display: inline-block;
+	width: 50px;
+	background-image: url(bg-progress.png);
+	background-position: -375px 0px;
+	background-repeat: no-repeat;
+	/*border-collapse: separate; */
+	border: 1px solid black;
+}
+<% if(browser.isIE()) { %>
+.ui-pct-rlr { /* IE 7 FIX: by repeating the display: inline in a SEPARATE css selector we force proper inline-block behaviour, see http://www.brunildo.org/test/InlineBlockLayout.html */
+	display: inline;
+}
+<% } %>
+<% if(browser.isFirefox()) { %>
+/** FIREFOX BROWSERT */
+<% } %>
+/*** 185_displayhtml.frag.css ***/
+/*** DisplayHtml ***/
+.ui-dhtml-blk {
+	display: block;
+}
+.ui-dhtml-inl {
+	display: inline;
+}
+.ui-dhtml-ibl {
+	display: inline-block;
+}
+<% if(browser.isIE()) { %>
+.ui-dhtml-ibl { /* IE 7 FIX: by repeating the display: inline in a SEPARATE css selector we force proper inline-block behaviour, see http://www.brunildo.org/test/InlineBlockLayout.html */
+	display: inline;
+}
+<% } %>
+/*** 190_searchinput.frag.css ***/
+/*** Search Input ***/
+.ui-qsi {
+	display: inline-block;
+	position: relative;
+}
+<% if(browser.isIE()) { %>
+.ui-qsi {  /* IE 7 FIX: by repeating the display: inline in a SEPARATE css selector we force proper inline-block behaviour, see http://www.brunildo.org/test/InlineBlockLayout.html */
+	display: inline;
+}
+<% } %>
+/*** 195_helperclasses.frag.css ***/
+/*** Helper classes ***/
+.no-wrap{
+	white-space: nowrap;
+    overflow: hidden;
+}
+.ui-clickable {
+	cursor: pointer;
+}
+.ui-sup {
+	font-size: xx-small;
+	vertical-align: top;
+}
+.ui-sub {
+	font-size: xx-small;
+	vertical-align: bottom;
+}
+.ui-pre {
+	white-space: pre;
+}
+.ui-nowrap {
+	white-space: nowrap;
+}
+/*** 200_devmode.frag.css ***/
+/*** Development mode popup ***/
+.ui-ipt {
+	z-index: 200;
+	position: absolute;
+	top: 20px;
+	left: 80px;
+	width: 500px;
+	height: 200px;
+	background-color: #04001f;
+	border: 4px solid black;
+}
+.ui-ipt-ttl {
+	background-color: #24001f;
+	font-size: large;
+	color: orange;
+}
+.ui-ipt-list {
+	overflow: auto;
+	height: 170px;
+}
+.ui-ipt-item {
+	background-color: #201c3d;
+	padding: 3px;
+	border-bottom: 1px dotted #444444;
+	color: white;
+	white-space: nowrap;
+}
+.ui-ipt-btn {
+	cursor: crosshair;
+}
+/*** 205_colorpicker.frag.css ***/
+/*** Color picker ***/
+.colorpicker {
+	width: 356px;
+	height: 176px;
+	overflow: hidden;
+	position: absolute;
+	background: url(colorpicker_background.png);
+	display: none;
+}
+.colorpicker_color {
+	width: 150px;
+	height: 150px;
+	left: 14px;
+	top: 13px;
+	position: absolute;
+	background: #f00;
+	overflow: hidden;
+	cursor: crosshair;
+}
+.colorpicker_color div {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 150px;
+	height: 150px;
+	background: url(colorpicker_overlay.png);
+}
+.colorpicker_color div div {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 11px;
+	height: 11px;
+	overflow: hidden;
+	background: url(colorpicker_select.gif);
+	margin: -5px 0 0 -5px;
+}
+.colorpicker_hue {
+	position: absolute;
+	top: 13px;
+	left: 171px;
+	width: 35px;
+	height: 150px;
+	cursor: n-resize;
+}
+.colorpicker_hue div {
+	position: absolute;
+	width: 35px;
+	height: 9px;
+	overflow: hidden;
+	background: url(colorpicker_indic.gif) left top;
+	margin: -4px 0 0 0;
+	left: 0px;
+}
+.colorpicker_new_color {
+	position: absolute;
+	width: 60px;
+	height: 30px;
+	left: 213px;
+	top: 13px;
+	background: #f00;
+}
+.colorpicker_current_color {
+	position: absolute;
+	width: 60px;
+	height: 30px;
+	left: 283px;
+	top: 13px;
+	background: #f00;
+}
+.colorpicker input {
+	background-color: transparent;
+	border: 1px solid transparent;
+	position: absolute;
+	font-size: 10px;
+	color: #898989;
+	top: 4px;
+	right: 11px;
+	text-align: right;
+	margin: 0;
+	padding: 0;
+	height: 11px;
+}
+.colorpicker_hex {
+	position: absolute;
+	width: 72px;
+	height: 22px;
+	background: url(colorpicker_hex.png) top;
+	left: 212px;
+	top: 142px;
+}
+.colorpicker_hex input {
+	right: 6px;
+}
+.colorpicker_field {
+	height: 22px;
+	width: 62px;
+	background-position: top;
+	position: absolute;
+}
+.colorpicker_field span {
+	position: absolute;
+	width: 12px;
+	height: 22px;
+	overflow: hidden;
+	top: 0;
+	right: 0;
+	cursor: n-resize;
+}
+.colorpicker_rgb_r {
+	background-image: url(colorpicker_rgb_r.png);
+	top: 52px;
+	left: 212px;
+}
+.colorpicker_rgb_g {
+	background-image: url(colorpicker_rgb_g.png);
+	top: 82px;
+	left: 212px;
+}
+.colorpicker_rgb_b {
+	background-image: url(colorpicker_rgb_b.png);
+	top: 112px;
+	left: 212px;
+}
+.colorpicker_hsb_h {
+	background-image: url(colorpicker_hsb_h.png);
+	top: 52px;
+	left: 282px;
+}
+.colorpicker_hsb_s {
+	background-image: url(colorpicker_hsb_s.png);
+	top: 82px;
+	left: 282px;
+}
+.colorpicker_hsb_b {
+	background-image: url(colorpicker_hsb_b.png);
+	top: 112px;
+	left: 282px;
+}
+.colorpicker_submit {
+	position: absolute;
+	width: 22px;
+	height: 22px;
+	background: url(colorpicker_submit.png) top;
+	left: 322px;
+	top: 142px;
+	overflow: hidden;
+}
+.colorpicker_focus {
+	background-position: center;
+}
+.colorpicker_hex.colorpicker_focus {
+	background-position: bottom;
+}
+.colorpicker_submit.colorpicker_focus {
+	background-position: bottom;
+}
+.colorpicker_slider {
+	background-position: bottom;
+}
+
+/* ColorPickerButton */
+.ui-cpbt-btn {
+	position: relative;
+	background: url(colorpicker-select.png) transparent;
+	height: 36px;
+	width: 36px;
+	left: 0;
+	top: 0;
+}
+.ui-cpbt-btn div {
+	position: absolute;
+	background: url(colorpicker-select.png) center center transparent;
+	height: 28px;
+	width: 28px;
+	left: 4px;
+	top: 4px;
+}
+
+/*** ColorPickerInput ***/
+.ui-cpin {
+}
+.ui-cpin-div {
+        display: inline-block;
+        margin-top: 5px;
+        border: 1px solid grey;
+        height: 11px;
+        width: 20px;
+}
+/*** 210_popupmenu.frag.css ***/
+/*** Popup menu ***/
+.ui-pmnu {
+	display: none;
+	width: auto;
+	background-color: #444;
+	border: 1px dotted black;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	overflow: hidden;
+}
+.ui-pmnu-items {
+	padding: 4px 0px;
+}
+.ui-pmnu-disabled {
+	color: #999;
+}
+.ui-pmnu-enabled {
+	color: white;
+	cursor: pointer;
+}
+
+.ui-pmnu-ttl {
+	padding: 4px;
+	font-style: italic;
+	background-color: #222;
+	color: #eeffee;
+}
+.ui-pmnu-action {
+	padding: 4px;
+	padding-left: 20px;
+	background-repeat: no-repeat;
+	background-position: 2px 4px;
+}
+.ui-pmnu-action img {
+	padding-left: 5px;
+}
+
+.ui-pmnu-action:hover {
+	background-color: #ff9436;
+}
+.ui-pmnu-subsel {
+	background-color: #ff9436;
+}
+
+/*** Submenu's ***/
+.ui-pmnu-sm {
+	float: left;
+	width: auto;
+	padding-bottom: 100%;
+	margin-bottom: -100%;
+}
+.ui-pmnu-sm1 {
+	background-color: #666;
+}
+.ui-pmnu-sm2 {
+	background-color: #888;
+}
+.ui-pmnu-sm3 {
+	background-color: #aaa;
+}
+
+/*** 215_layout.frag.css ***/
+/*** Layout styles ***/
+/* jquery-layout css. */
+.ui-blap {
+	height: 100%;
+	margin: 0 auto;
+	width: 100%;
+	min-width: 500px;
+}
+
+/*	PANES & CONTENT-DIVs */
+.ui-layout-pane { /* all 'panes' */
+	background:	#FFF; 
+	border:		1px solid #BBB;
+	/* DO NOT add scrolling (or padding) to 'panes' that have a content-div,
+	   otherwise you may get double-scrollbars - on the pane AND on the content-div
+	*/
+	padding:	10px; 
+	overflow:	auto;
+}
+/* (scrolling) content-div inside pane allows for fixed header(s) and/or footer(s) */
+.ui-layout-content {
+	padding:	10px;
+	position:	relative; /* contain floated or positioned elements */
+	overflow:	auto; /* add scrolling to content-div */
+}
+
+/* RESIZER-BARS */
+.ui-layout-resizer	{ /* all 'resizer-bars' */
+	background:		#DDD;
+	border:			1px solid #BBB;
+	border-width:	0;
+}
+.ui-layout-resizer-drag {		/* REAL resizer while resize in progress */
+}
+.ui-layout-resizer-hover	{	/* affects both open and closed states */
+}
+/* NOTE: It looks best when 'hover' and 'dragging' are set to the same color,
+	otherwise color shifts while dragging when bar can't keep up with mouse */
+.ui-layout-resizer-open-hover ,	/* hover-color to 'resize' */
+.ui-layout-resizer-dragging {	/* resizer beging 'dragging' */
+	background: #C4E1A4;
+}
+.ui-layout-resizer-dragging {	/* CLONED resizer being dragged */
+	border-left:  1px solid #BBB;
+	border-right: 1px solid #BBB;
+}
+/* NOTE: Add a 'dragging-limit' color to provide visual feedback when resizer hits min/max size limits */
+.ui-layout-resizer-dragging-limit {	/* CLONED resizer at min or max size-limit */
+	background: #E1A4A4; /* red */
+}
+
+.ui-layout-resizer-closed-hover	{ /* hover-color to 'slide open' */
+	background: #EBD5AA;
+}
+.ui-layout-resizer-sliding {	/* resizer when pane is 'slid open' */
+	opacity: .10; /* show only a slight shadow */
+	filter:  alpha(opacity=10);
+}
+.ui-layout-resizer-sliding-hover {	/* sliding resizer - hover */
+	opacity: 1.00; /* on-hover, show the resizer-bar normally */
+	filter:  alpha(opacity=100);
+}
+/* sliding resizer - add 'outside-border' to resizer on-hover 
+ * this sample illustrates how to target specific panes and states */
+.ui-layout-resizer-north-sliding-hover	{ border-bottom-width:	1px; }
+.ui-layout-resizer-south-sliding-hover	{ border-top-width:		1px; }
+.ui-layout-resizer-west-sliding-hover	{ border-right-width:	1px; }
+.ui-layout-resizer-east-sliding-hover	{ border-left-width:	1px; }
+
+/* TOGGLER-BUTTONS */
+.ui-layout-toggler {
+	border: 1px solid #BBB; /* match pane-border */
+	background-color: #BBB;
+}
+.ui-layout-resizer-hover .ui-layout-toggler {
+	opacity: .60;
+	filter:  alpha(opacity=60);
+}
+.ui-layout-toggler-hover , /* need when NOT resizable */
+.ui-layout-resizer-hover .ui-layout-toggler-hover { /* need specificity when IS resizable */
+	background-color: #FC6;
+	opacity: 1.00;
+	filter:  alpha(opacity=100);
+}
+.ui-layout-toggler-north ,
+.ui-layout-toggler-south {
+	border-width: 0 1px; /* left/right borders */
+}
+.ui-layout-toggler-west ,
+.ui-layout-toggler-east {
+	border-width: 1px 0; /* top/bottom borders */
+}
+/* hide the toggler-button when the pane is 'slid open' */
+.ui-layout-resizer-sliding  ui-layout-toggler {
+	display: none;
+}
+/* style the text we put INSIDE the togglers */
+.ui-layout-toggler .content {
+	color:			#666;
+	font-size:		12px;
+	font-weight:	bold;
+	width:			100%;
+	padding-bottom:	0.35ex; /* to 'vertically center' text inside text-span */
+}
+/*** 220_resizable.frag.css ***/
+/*** jquery.ui resizable and floatingDiv styles. ***/
+.ui-resizable-se {
+	bottom: 1px;
+	right: 1px;
+	cursor: se-resize;
+	height: 12px;
+	width: 12px;
+}
+.ui-resizable-e {
+	top: 0px;
+	right: -5px;
+	cursor: e-resize;
+	height: 100%;
+	width: 7px;
+}
+.ui-resizable-s {
+	bottom: -5px;
+	cursor: s-resize;
+	height: 7px;
+	left: 0px;
+	width: 100%;
+}
+.ui-resizable-handle {
+	display: block;
+	font-size: 0.1px;
+	position: absolute;
+	z-index: 99999;
+	
+}
+.ui-icon-gripsmall-diagonal-se {
+	width: 16px;
+	height: 16px;
+	background: url(resize.png) no-repeat;
+}
+/*** 225_floatingwindow.frag.css ***/
+/*** Window and FloatingDiv styles. ***/
+.ui-flw {
+	padding: 0;
+	margin: 0;
+	/*	border: 1px solid black; */
+/*	background: url(<%= body_image %>) repeat-x <%= bg_color %>;  jal 2014/11/06 replaced because dialogs on a high screen position are not well visible. */
+	background: #ddd;
+	background-position: 50px 0px;
+	border-top: none;
+	/*	overflow: hidden;	*/
+/*	top: 5%;
+	left: 50%; */
+}
+
+.ui-flw-ttl {
+	height: 22px;
+	padding: 3px 2px 3px 3px;
+	background: url(<%= bg_ttl_gradient %>) repeat-y;
+	background-color: <%= bg_ttl_end %>;
+	color: <%= bg_ttl_text %>;
+	border-bottom: 1px solid #eeeeee;
+	font-size: 140%;
+	font-weight: bold;
+}
+
+.ui-flw-ttl-icon {
+	margin-right: 5px;
+}
+
+.ui-flw-c {
+	padding: <%= margins_main %>;
+	margin: 0;
+	overflow: auto;
+}
+.ui-flw-tc {
+	width: 100%;
+	height: 0px;
+}
+.ui-flw-tc .ui-buttonbar {
+	margin: <%= margins_main %>;
+	margin-bottom: 0px;
+}
+
+.ui-flw-bc {
+	width: 100%;
+}
+
+.ui-flw-bc .ui-bb-middle {
+	padding: 0px <%= margins_main %> <%= margins_main %> <%= margins_main %>;
+	text-align: right;
+}
+
+.ui-flw-hider {
+	height: 100%;
+	width: 100%;
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	background-color: black;
+	opacity: 0.3;
+	filter:alpha(opacity=30);
+}
+
+.ui-flw-btn-close {
+	padding: 0px;
+}
+
+.ui-flw .ui-emd {
+	<%= margins_neutralize %>
+}
+/*** 230_defaultbutton.frag.css ***/
+/*** New default button, uses sliding doors and a single bg image ***/
+.ui-sdbtn {
+	height: <%= button_height %>px;
+	position: relative;
+	border: 0;
+	padding: 0 10px 0 0;
+	margin: 0 4px 0 0;
+	vertical-align: top;
+	cursor: pointer;
+	overflow: visible; /* remove extra padding in IE */
+	background: transparent url(<%= button_img %>) no-repeat right -50px;
+	outline: none;
+	font: inherit;
+}
+
+@-moz-document url-prefix() { /** btadic 20120711 Firefox is adding strange left padding to the buttons **/
+	.ui-sdbtn {
+		margin-left: -2px;
+	}
+}
+
+.ui-sdbtn img {
+	padding-right: 3px;
+	vertical-align: middle;
+	height: 16px;
+}
+.ui-sdbtn::-moz-focus-inner {
+	border: none; /* overrides extra padding in ffox */
+}
+.ui-sdbtn span {
+	position: relative;
+	display: block;
+	min-width: 94px;
+	white-space: nowrap;
+	height: <%= button_height %>px;
+	padding: 3px 0 0 6px;
+	color: white;
+	font-weight: bold;
+	vertical-align: middle;
+	text-align: left;
+	background: transparent url(<%= button_img %>) no-repeat left top;
+}
+
+.ui-sdbtn:hover, .ui-sdbtn:focus {
+	background-position: right -150px;
+}
+.ui-sdbtn:hover span, .ui-sdbtn:focus span {
+	background-position: left -100px;
+}
+
+/* support for disabled attribute */
+.ui-sdbtn[disabled], .ui-sdbtn[disabled]:hover, .ui-sdbtn[disabled]:focus {
+	background-position: right -250px;
+}
+.ui-sdbtn[disabled] span, .ui-sdbtn[disabled]:hover span, .ui-sdbtn[disabled]:focus span {
+	background-position: left -200px;
+}
+
+/*** DefaultButton in 'mini' mode ***/
+.ui-sdbtn-mini {
+	height: 16px;
+	position: relative;
+	top:1px;
+	border: 0;
+	padding: 0 8px 0 0;
+	margin: 0 4px 0 0;
+	vertical-align: top;
+	cursor: pointer;
+	overflow: visible; /* remove extra padding in IE */
+	background: transparent url(<%= button_img %>) no-repeat -7px -4px;
+	outline: none;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
+	-webkit-border-radius: 2px;
+}
+
+@-moz-document url-prefix() { /** btadic 20120711 Firefox is adding strange left padding to the buttons **/
+	.ui-sdbtn-mini {
+		margin-left: -2px;
+	}
+}
+
+.ui-sdbtn-mini img {
+	padding-right: 3px;
+	vertical-align: middle;
+	height: 16px;
+}
+.ui-sdbtn-mini::-moz-focus-inner {
+	border: none; /* overrides extra padding in ffox */
+}
+.ui-sdbtn-mini span {
+	position: relative;
+	display: block;
+	white-space: nowrap;
+	height: 16px;
+	padding: 0 0 0 6px;
+	color: white;
+	font-weight: bold;
+	vertical-align: middle;
+	text-align: left;
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+	/* Safari and Google Chrome only - fix margins */
+	.ui-sdbtn-mini span {
+		margin-top: -1px;
+	}
+}
+.ui-sdbtn-mini:hover, .ui-sdbtn-mini:focus {
+	background-position: -7px -104px;
+}
+
+/* support for disabled attribute */
+.ui-sdbtn-mini[disabled], .ui-sdbtn-mini[disabled]:hover, .ui-sdbtn-mini[disabled]:focus {
+	background-position: -7px -204px;
+}
+/*** 235_flare.frag.css ***/
+/*** Flare component. ***/
+.ui-flare {
+	position: absolute;
+	z-index: 9999;
+	top: 100px;
+	left: 100px;
+	width: auto;
+	height: auto;	
+	padding: 15px;
+}
+.ui-flare-error {
+	background: <%= errors_background %>;
+	color: <%= errors_foreground %>;
+	border: 1px solid <%= errors_border %>;
+}
+.ui-flare-info {
+	background: <%= info_bg %>;
+	color: <%= info_fg %>;
+	border: 1px solid <%= info_border %>;
+}
+.ui-flare-warning {
+	background: <%= warnings_background %>;
+	color: <%= warnings_foreground %>;
+	border: 1px solid <%= warnings_border %>;
+}
+.ui-flare-msg {
+	opacity: 0.9;
+	position: absolute;
+	bottom: 10px;
+	right: 10px;
+	top: auto;
+	left: auto;
+}
+.ui-flare-msg img {
+	margin-right: 20px;
+}
+.ui-flare-msg div {
+	font-weight: normal;
+ 	text-align: left;	
+ 	min-width: 400px;
+}
+.ui-flare-msg div div {
+	font-size: 14pt;
+	
+}
+/*** 240_labelselector.frag.css ***/
+/*** LabelSelector component ***/
+.ui-lsel {
+	display: inline-block;
+	background: white;
+	margin-right: 2px;
+	margin-bottom: 2px;
+	border-color: <%= bevel_up %> <%= bevel_down %> <%= bevel_down %>;
+	border-style: solid;
+	border-width: 1px;
+}
+.ui-lsel-item {
+	display: inline-block;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border: 1px solid <%= multiple_lookup_label_color %>;
+	margin: 1px;
+	padding: 2px;
+	background-color: <%= multiple_lookup_label_border %>;
+}
+.ui-lsel-btn {
+	display: inline-block;
+	margin-left: 5px;
+	width: 14px;
+	height: 14px;
+	background-image: url(btnClose.png);
+	background-size: 14px 14px;
+}
+
+.ui-lsel img {
+	padding-left: 5px;
+	padding-bottom: 2px;
+	vertical-align: middle;
+}
+.ui-lsel input {
+	border: none;
+	outline: none;
+	vertical-align: top;
+	height: 18px;
+	margin: 0px 0px 0px 2px;
+	padding: 0px;
+	display: inline-block;
+}
+.ui-lui-keyword-no-res {
+	display: inline-block;
+	margin: 4px;
+}
+
+/*** 250_BulkUploadButton component ***/
+.ui-bupb {
+}
+.ui-bupb .swfupload {
+	position: absolute;
+	z-index: 1;
+	vertical-align: top;
+}
+/*** 250_BulkUpload component ***/
+.ui-bupl {
+}
+.ui-bupl-wrp {
+	width: 360px;
+	background-color: white;
+	padding: 1px;
+	border: 1px solid <%= header_bg %>;
+}
+.ui-bupl-ttl {
+/*	border: 1px solid <%= header_bg %>; */
+	padding: 2px 4px 2px 4px;
+	font-weight: bold;
+	background: url(bg-header.png.svg) repeat-x;
+}
+.ui-bupl-legend {
+	color: black;
+}
+
+.ui-bupl .swfupload {
+	position: absolute;
+	z-index: 1;
+	vertical-align: top;
+}
+<% var buplround = 5; %>
+.ui-bupl-queue {
+	width: 354px;
+	min-height: 40px;
+	height: auto;
+	max-height: 400px;
+	overflow: auto;
+}
+/* BulkUpload: single queued file progress indicator. */
+.ui-bupl-file {
+	width: 350px;
+	overflow: hidden;
+}
+.ui-bupl-inner {
+	margin: 5px;
+	padding: 4px;
+	overflow: hidden;
+}
+.ui-bupl-pending {
+	border: 1px solid #888;
+	background-color: #bbb;
+}
+.ui-bupl-running {
+	border: 1px solid #DDF0DD;
+	background-color: #EBFFEB;
+}
+.ui-bupl-complete {
+	border: 1px solid #cde0cd;
+	background-color: #dbefdb;
+}
+.ui-bupl-error {
+	border: 1px solid #ff4900;
+	background-color: #ffebeb;	
+}
+.ui-bupl-name {
+	font-size: 12px;
+	color: #000;
+	width: 300px;
+	height: 14px;
+	text-align: left;
+	white-space: nowrap;
+	overflow: hidden;
+}
+.ui-bupl-cancl {
+	font-size: 0;
+	display: block;
+	height: 14px;
+	width: 14px;
+	background-image: url(bupl-cancel.png);
+	background-repeat: no-repeat;
+	background-position: -14px 0px;
+	float: right;
+}
+.ui-bupl-cancl:hover {
+	background-position: 0px 0px;
+}
+.ui-bupl-stat {
+	margin-top: 2px;
+	width: 300px;
+	font-size: 10px;
+	text-align: left;
+	white-space: nowrap;
+}
+
+.ui-bupl-perc {
+	font-size: 0;
+	width: 0%;
+	height: 2px;
+	background-color: blue;
+	margin-top: 2px;
+}
+.ui-idlg-pnl {}
+
+.ui-idlg-pnl label {
+	width: 1%;
+	min-width: 150px;
+	font-weight: bold;
+	display: inline-block;
+	text-align: right;
+}
+
+.ui-idlg-pnl input {
+	vertical-align: top;
+}
+/*** 255_datapager.frag.css ***/
+/*** Result table pager ***/
+.ui-dp {
+	margin-top: 2px;
+	margin-left: 4px;
+	padding: 0px;
+}
+.ui-dp-btns {
+	margin-left: -9px;	
+}
+
+.ui-dp-btns a{
+	height: <%= data_pager_icon_size_y %>px;
+	width: <%= data_pager_icon_size_x %>px;
+	display: inline-block;
+	padding: 0px;
+	margin-left: -3px;
+	outline: 0; 				/* btadic 20120712: Removing dotted border form focused button */
+	background-repeat: no-repeat;
+	background: url(<%= data_pager_icons %>);
+}
+
+.ui-dp-btns a.ui-dp-nav-f {
+	background-position: 0px 0px;
+}
+.ui-dp-btns a.ui-dp-nav-f:HOVER {
+	background-position: 0px <%= -data_pager_icon_size_y %>px;
+}
+.ui-dp-btns a.ui-dp-nav-f-dis {
+	background-position: 0px <%= -2 * data_pager_icon_size_y %>px;
+}
+
+.ui-dp-btns a.ui-dp-nav-p {
+	background-position: <%= -1 * data_pager_icon_size_x %>px <%= 0 * data_pager_icon_size_y %>px;
+}
+.ui-dp-btns a.ui-dp-nav-p:HOVER {
+	background-position: <%= -1 * data_pager_icon_size_x %>px <%= -1 * data_pager_icon_size_y %>px;
+}
+.ui-dp-btns a.ui-dp-nav-p-dis {
+	background-position: <%= -1 * data_pager_icon_size_x %>px <%= -2 * data_pager_icon_size_y %>px;
+}
+
+.ui-dp-btns a.ui-dp-nav-n {
+	background-position: <%= -2 * data_pager_icon_size_x %>px <%= 0 * data_pager_icon_size_y %>px;
+}
+.ui-dp-btns a.ui-dp-nav-n:HOVER {
+	background-position: <%= -2 * data_pager_icon_size_x %>px <%= -1 * data_pager_icon_size_y %>px;
+}
+.ui-dp-btns a.ui-dp-nav-n-dis {
+	background-position: <%= -2 * data_pager_icon_size_x %>px <%= -2 * data_pager_icon_size_y %>px;
+}
+
+.ui-dp-btns a.ui-dp-nav-l {
+	background-position: <%= -3 * data_pager_icon_size_x %>px <%= 0 * data_pager_icon_size_y %>px;
+}
+.ui-dp-btns a.ui-dp-nav-l:HOVER {
+	background-position: <%= -3 * data_pager_icon_size_x %>px <%= -1 * data_pager_icon_size_y %>px;
+}
+.ui-dp-btns a.ui-dp-nav-l-dis {
+	background-position: <%= -3 * data_pager_icon_size_x %>px <%= -2 * data_pager_icon_size_y %>px;
+}
+/*** 250_smallhoverbutton.frag.css ***/
+/*** Small Hover Button ***/
+.ui-smhb {
+	width: 16px;
+	height: 16px;
+	border: none;
+	background-color: transparent;
+	cursor: pointer;
+	padding: 0;
+	margin: 3px;
+}
+
+.ui-smhb:hover {
+	background-position: 0px -16px;
+}
+/*** 340_dateinput.frag.css ***/
+/*** Date input ***/
+.ui-di-sib {
+	vertical-align: top;
+	padding: 0px 1px 0px 1px;
+	margin: 0px;
+	border: 0px;
+	background: transparent;
+	cursor: pointer;
+}
+
+.ui-di-sib img {
+	padding: 0px;
+	margin: 0px;
+	border: 0px;
+}
+
+.ui-di-sib:hover {
+	background-color: <%= data_tbl_header_bg %> !important;
+}
+/*** MessageLine ***/
+.ui-msgln {
+	padding: 4px 0px;
+}
+.ui-msgln img {
+	float: left;
+}
+.ui-msgln-txt {
+	padding-left: 4px;
+}
+/*** 350_logtailer.frag.css ***/
+/*** Log tailer fragment ***/
+.ui-tlf-line {
+	font-family: Consolas, Liberation Mono, Courier, monospace;
+}
+.ui-tlf-lnr {
+	font: inherit;
+	width: 50px;
+	text-align: right;
+	background-color: #ccc;
+}
+.ui-tlf-l {
+	font: inherit;
+}
+.ui-tlf-hdr {
+	height: 2em;
+	background-color: #ff9436;
+}
+.ui-tlf-hdr img {
+}
+.ui-tlf-hdr input[type="checkbox"] {
+	vertical-align: middle;
+}
+
+.ui-tlf-btn {
+	display: inline-block;
+	width: 360px;
+}
+
+.ui-tlf-sz {
+	display: inline-block;
+	width: 140px;
+}
+.ui-tlf-sz span {
+	font-weight: bold;
+}
+/*** Asy IO failure dialog ***/
+.ui-ioe-asy {
+	position: absolute;
+	top: 100px;
+	left: 300px;
+	width: 400px;
+	height: auto;
+	border: 1px solid red;
+	background-color: #ffaaaa;
+	z-index: 2000;
+
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+}
+.ui-ioe-ttl {
+	padding: 5px;
+	background-color: red;
+	font-weight: bold;
+}
+.ui-ioe-msg {
+	padding: 5px;
+}
+.ui-ioe-msg2 {
+	padding: 5px;
+	font-size: larger;
+	font-weight: bold;
+}
+.ui-ioe-img {
+	display: inline-block;
+	width: 32px;
+	height: 32px;
+	background-image: url(data:image/gif;base64,R0lGODlhIAAgAPYAAP///w5gGvr7+uPs5NTi1tbj2O707/z8/Pb59rvSv3Sjek6KV1eQYI60lNjl2vT39cnby1WPXhFiHSpyNOHr4+vx7KPCp6rHr/L285C1lSZwMUGBSr3TwN/q4dvn3YGrh0aFTzN4PTd7QazIsH2pgxtoJi51OK7Jsl+VZ+zy7YyzkixzNhlnJLDKtChxM8rczSJtLRdmIjF3PIqykMXYyEiGUR9rKnuogpe6nZa5myRuL5K3l7nRvTt9Rb/Uwpm8nkyJVdrm26jGrcPXxszdz87e0WOXajB2OpS4mYWui3mmgIavjBVkIcHWxLLMtoOtiZu9oHCgd3KhebjPu93o32ibcLbOubTNt3+qhdDg0oiwjmGWaD1/RsfZyeXt5vj6+PD18efv6DV6P2qccWaabunw6nelfgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAkKAAAAIf4aQ3JlYXRlZCB3aXRoIGFqYXhsb2FkLmluZm8AIf8LTkVUU0NBUEUyLjADAQAAACwAAAAAIAAgAAAH/oAAgoOEhYaHiImKi4yNjQeGCCkCjoYpBDQFKYMCHDMElYQeKgw1DA1BkAg5QAmhghUfKxK0Jh8VBwcOPBWFFR0PiQIJILTGGwmQALmEKUtGTgiIDxYhxrUW0ocEGyUKBogIFyLXEiEnlIcVz9GIBwQMLNcMRMrqHsGJBiMLGjYuC4RgeFXoAAYPLVSQ2OEDHMFBCCBkIJGBwwAD6Rwx45QggoYSAF+8cmDBAoVBAxSUu5GvUYUnE0zscEhgQbkFvRxRMEJLQc4CDMoxyNkIA5QaC0YMBGCgwQRjLnBkbGSACBGHyxwo2GBiA4mTDwtS4HAigQOMYQ89eGEhBy97mYk2uoOAQsYEED82xSVigcZSdSRgGAMyJC6HGi42ZEPUAUUMYyFGKEOAQRtTEiVoRaGCqIKCzLRA+AAgoAiSJCdyYlABg0kJKUQLdtSgo8eMAbqMwCjRwwK4d0ZqGJkytdCDBDM+WOhwQJwMY0Y8CDrgoUkBy4gEVKiQD4GQI7RKRCcENxQB3bwt/E1LmsYMJSbZFxJggLujQAAh+QQJCgAAACwAAAAAIAAgAAAH/oAAgoOEgwcVVFQpB4WNjo4PEEkoKEsvD4+ZjQI0RhoSEhpGEAKapgAVSxOgoBNJFaeFBg4EFQJBRkysoEZBsYIHDg0oDFhNREa7EiW9vwADJKsSOihOSdKgLq+CFRWMjwI8G7sTGTwoMKA2W0OlqUkDmQhCIcokFUVaDAwzBAjcUaI4yCTAyjhWK3JgQpAiBYJvAG4FKZWJgpJPEmAwgOBM3osnDCIoSIChYyMMBYYQCUKg1j+ThDA4MbIAhQVbMAsdGBKhBKgNJyDGQgDBAgGKD35gK0ECk7MORkIogAXgAY6lTTt6iCKDRDwAB5r0lMBiQwuhpxB0MUoRgAEnnVVq3syJFgDKIQQM5NQk4IAADA/q7nXLAQkUf6ceOOR7ZcGKI1GyCB6UwgKJESUfVVCQTsIRKE4dHbDSo0SNJhWjsJqAJHPEtmBHmJDAZUomDDhEMIGxIEGpAwWECCnQtoOSCEu+asYRRcoVvQA8SDGxIgoVQhVqmTqAgQJOsDx6gOrBY7LJISBAgRhivmOFHCFzUB2MvUiR+fQHBwIAIfkECQoAAAAsAAAAACAAIAAAB/6AAIKDhIUAB4aJiokHFUVdQQ+Lk4YHDksLNUYjFZSeABRPKxISJUAtkgcPGAieDwMFAwgCPkBMpBI6HwMYRBY4Jw4CixhOClsKPBUtXLilUQQnWyImGwovX4m0CyUlOgwJTRHOLk8XESW4LgpUiQYNOrgmOUEqR6QsEU4ZJs4SCxwQFUqRBAYuDRkMVLBghMGHLhWWxHO2ocWwQghOcIkhgQkIJ4gOKMQA4AGUe7hYAPFxsVAFFQt6RMgxQFEXFDbkfeigCEGFJi2GVBBoCMMVIz1CbLhBpJUhBBhCEu1ZwIkQHhSmCsJAQIiQAi09IZilrcmWEDKMQPhUSFW2QbYGVGggpUGLU7YAPEBxYmBQBRLpSim4y5YGil2DEFjg0m2DhbCfKnBoSqgCDiNGLNTEO+lACg8OOnEeTdoTBgNaSw86QADJEh+SKKUg4CU1oQ5RNMAACLnQgxw1lFCYBGEDKRNQYitKoQBGhCKTgmyBUeLj3QcUhg4ScEUKFNGKHjiJknkzAAwjoiQhQNQnSUoIKATpO8jBuCM53qsmVIBBiSM46LefIAZcoB57AxaCQXaEJUhaIAAh+QQJCgAAACwAAAAAIAAgAAAH/oAAgoOEhQcCB4WKi4yCBgRTTRSJjZWFDxdbG0BLBJSWlQdEDCUSEmIZFaCKCGAIgggtYqYSJVEOAhVFEEEPlgMtGRdBAghOIrS2BQQqDAtRLSmNFSobGj1JHQceYzC1GxYvWEemJRFTr4tFC7Q1CQAITQoLDBYePDW0EhpJqosvNZiY2mBF0IEKHSg8ENCihz5bHhhVUGCihIkoBBg1WVDKlIkZ/hQdeKHCyJImvhYN0NIjhgQYKDikW3TQQYWZigQ4yGGEgQIhQVLgXLUIQ5AuV3AsyXBlwCcwHQYMtXQAgoIeLkwAQeJvAI4tRloYIAqgAgkX+jZcACBgCoiXtgwyEiWQTx8MBfAshBjogywBhw/JADhAA8WEIwqCkA0SgYU+HUkEpeDRAAeRqY0e5GhpCgaDIYMQpDDwiaiHHQt6bIhyZSxZRge7OJlCAMNrUAdKK6pQIIxuRohAdViyQIEnS0GQJMA86MAVLqcspGyUYIEK17B9RNAB5MpMASlsEwJGRIClFC1ICAkp4EUDCyEFBQeFoMKDTwZUHInQ5fftQQ9YUANG/1VCAQcviFcgcP4tWGAgACH5BAkKAAAALAAAAAAgACAAAAf+gACCg4SFhoeIiQAYQURBD4qRhQ88UREKPBiSkgcFRjASMFFFB4OlmwgPpwc+GxKvQDwCAAgdRUGaiQcOFxZEkAcvESUSJQxdAgYJCgxRIxWJHVg9MlEQpRU/QGILFhUIQ1s6oQtWkIdDNa89FucVHBZN0Bg/Mq8SKzPQhgdEwxIbTpwTdAqAgRxH7rl4MgBRCgsoIjToULAQAh4LSjApAUJILn4ViNAYUNFQBQsMNkTYQVHRgZKHBFR4YYUHgQEYYG4CmWDHEgsEEBR6uXMQghYoTGgQoYDAqQdELFjZt7ODEWKvTGRIAWCXAjEgLgyUBKHHvWJGOnSFsECCCxXJXHcScXWvRBQqgjwkqcFgitCdA6KMeyUGSS4BHXy8MFCUVoIqXEKASFKg4AEBOhEdMBAEQgsoP1oEmdWYEAICOaKgUGDBQc7ShYJgEfEKxgIhcQ8d6PDCS2YEFjYwuSeKAGlDHT4sQEK1kAEtg++BsHK8EIEtExSoPZRiSfRXNaZUJ1Thwo1MhAS8Bs7lrA4jpBI9+Jb+BVBBQZ70sFFCQwTcpT0AkROlCFAADlEYocAJze0kgH0OmFKBAwVQ8FFpAqgC24YcdhgIACH5BAkKAAAALAAAAAAgACAAAAf+gACCg4SFhoeIiYIHD1+Kj4cYL0JTFAKQmAddRj1AOQOYkA9QJhIlW0QHgweqkAeXgw8WMqZGBKoHFC9EFa2IBl1XQbACRWYgDBYVAAcESgsRM0G+hQIJWyBJHoMIDlMQvQApSLQSG0IYiBgNExILPtSFFAolEhIrWsuHCC0RPQq3ElVoUIoFF2UCr1jo8kARAghSNtTAQgDWoQMIMFhM9IDAFR4OGobKxOrBg40jESEIcuXECwOEDmCogCAlAAEQonDpkQwmswpCZjQRGWrAk3amUEAQhGAIChkfQI0kgKKevR4nBhFQEAGKvlBBolhlAoIHtwJdpI5MIQSIDhjKIj50KBTP1QMPFqJE2VGkps1BAgb4GNGiCwECFVCmPBAkw4IeIG4wfFS3UAoLG+xJCJFkrkAeBPwCAFNg14AvBaLA0CwhwpDKN4cwyFCGGYUfDLiAUJCgSVXWC5rAZoxkCoYDFTBrnmDkwo0VmmFEIaDoQIqGOH9rlpGhRZUjOiZEuJAilAAeNVhLgIHFwZAdCpJM+QpJQJMITFjrmEGzQocK6aQUhBIuaBYDCC0Q9RcADzRhhAklwACCCp4tGMsLGUShxAUdKFZIIAAh+QQJCgAAACwAAAAAIAAgAAAH/oAAgoOEhYaHiImKi4wCFR0pB4yTggUZChYVlIwIFhsaKBCSm4mdIiULNKMAGBQUD4wYYbCDBElGUJqCFRZSCk4pigZXWjwYgwgUBRUCggddDDAuRkTNiARGRwpBig8jIRISNTwIiQMqEUgDis8MLiZRRauGAg4cQdaJBk4kT8aLBwTMS/SAwgBapBIq7DaAgoGBACBOqiAkSpQfHlY9cABB16YHToDAkLABioFBA3ZEaSIxUYUMLsKViEJlUIoTOwi0RGTgBzgJLpR4ZFWhHKkDL6L0EIGixTFDAXcaegDhRw4eQwUJoOBjxBUCJxcJEIAgRQWEg+qpWMBlQ5Qr0mEPpSiSoGPLCkh6lAinwQiNfIQqjDBSg0GODhAP0EARrnGIHBUOgPFSFAACDhFGlthgIVghBFNqxGgsQQMWBzRUGMEUpAKUnxJ0KOkAdQgD0hJWLJlixESJElxUELHQo/GED7QNeXhigonMBRYyyCC9oAUHIy5KwAAyIi4hBEOicJkQIgKUISR0kBZhYcAUKSiMWKCQCMPwGTmmuJqxgvSGFghgQEAXBETGDgYVpFDOAzwssFduUhAwSEALpWDBFhvUoMAQaC0kiH1XcNCBUYoEAgAh+QQJCgAAACwAAAAAIAAgAAAH/oAAgoOEhYaHiImKi4wAB18HjZIADwQ+HZGTi0FPKFAVmotEKCEfA4QPBg+Nj5mCFRZPPBiDFS0NLaCKAh0+A64CKRS0ggJDDCYMCQiKBhZbLcSICE5cEhsXq4kPTTtEzIkHBQoRJASuiBgV2ooIlgTshQcCCAIH6Lv26Q4+Vl0UAkIdejAESwQgKHZ4wLfoAAYMAQEIIBJlhQQJJUTk0NXInYUcPkClsNDjoskIRBgiCoJFxJEtHBAM+ODC5EUuHFQaOjBkwUUxPwxUaGDCpgQQTSI2JGBERwkQQh48uBKhhEkYChaySjEiCooMDu51QFJjAgwZDKZIa1SBSJcO4eB4nVCBRYUFHwUqKGV0z9CDCgVOfNgSBQeBvYUEVOigNxGCF1GOlIDBRUuHaUR2KMjwDVEKHEdsApkCjtABB1gkH1FQQGWFJzpsirBQIUUQAlRWCfDh8+ICHqUJVchQ9CKTDSOCXJCC4kMTDAiGVMW4wEfwQQg4MNDBRMLqJiMWwJBgIsqLBx1UbDCxYYnWQ7aiRGBAggMBmia5WDCAoICFJRYQcJ1pFRDAQRMO2KZEbBf1AIUBACBQAQWNLSLAhZHA0kN3JUTAQzwCRVjAEkBwwYAFFIRoCC9XXBCSToQEAgA7);
+}
+.ui-cbis {
+	display: inline;
+}
+/*** 400_datacelltable.frag.css ***/
+.ui-dct {
+}
+
+.ui-dct-item {
+	border: 1px solid transparent;
+}
+
+.ui-dct-selected {
+	background-color: cyan;
+	border: 1px solid black;
+}
+.ui-dct td {
+	vertical-align: top;
+}
+/*** 410_sizedpanel ***/
+.ui-szdp {
+	background: <%= bg_color %>;
+}
+
+.ui-panel {
+	background-color: <%= bg_color %>; 
+}
+/*** 420_caption2 ***/
+.ui-cptn2 {
+} 
+
+/*-- alg substyle --*/
+.ui-cptn2-alg {
+	font-size: large;
+	background: <%= header_bg %>;
+	color: <%= bg_ttl_text %>;
+	margin-top: 0px;
+}
+
+
+/*-- pnl substyle --*/
+.ui-cptn2-pnl {
+	font-size: large;
+	background: <%= header_bg %>;
+	color: <%= bg_ttl_text %>;
+	margin-top: 0px;
+}
+/*** ContentPanel ***/
+.ui-cpnl {
+	padding: 10px 0px 0px 10px;
+}
+/*** Panel ***/
+.ui-spnl {
+	background-color: white; 
+}
+/*** 500_form4 styles and repair styles for components. ***/
+.ui-f4 {
+}
+
+.ui-f4-lbl {
+	font-weight: bold;
+	font-size: <%= font_size %>;
+	white-space: nowrap;
+}
+.ui-f4-lbl-v {
+	text-align: right;
+	min-width: 150px;
+}
+.ui-f4-ctl-v {
+	padding: 0px 0px 8px 4px;
+}
+
+.ui-f4-h {
+	margin-bottom: 10px;
+}
+
+.ui-f4 .ui-f4-ta {
+	vertical-align: top !important;
+	padding-top: 5px;
+}
+
+/*-- overrides --*/
+.ui-f4 .ui-ro {
+	border: none;
+	color: black;
+}
+.ui-f4 select {
+	text-indent: 0px;
+}
+.ui-f4 select.ui-ro {
+	-webkit-appearance: none;
+ 	-moz-appearance: none;
+ 	text-indent: 0px;
+ 	text-overflow: '';
+	appearance: none;
+	padding: 0px;
+	margin: 0px;
+}
+
+label.ui-f4-mandatory {
+/*	display: inline-block; */
+	background-repeat: no-repeat;
+	background-position: left;
+	padding-left: 12px;
+	background-image: url(mandatoryField.png);
+}
+.ui-dsplyima {
+    display: inline-block;
+}
+.ui-dsplyima img {
+    border: none;
+}
+
+
+.ui-isct {
+	white-space: nowrap;
+	display: inline-block;
+}
+.ui-isct-form input, .ui-isct .ui-sib {
+	vertical-align: baseline;
+}
+.ui-isct-form {
+	display: inline-block;
+}
+/*** ComboComponentBase2: replacement for select control ***/
+.ui-cbb2 {
+    display: inline-block;
+    vertical-align: baseline;
+}
+.ui-cbb2 select {
+    color: black;
+    background: white;
+}
+.ui-cbb2 select:disabled {
+    background-color: inherit;
+}
+.ui-cbb2.ui-input-err select {
+    background-color: #ffe5e5 !important;
+}
+/*** comboBoxBase - javascript select control (incomplete)  ***/
+.ui-cbb {
+    display: inline-block;
+    position: relative;
+    height: 20px;
+    background: white;
+}
+.ui-cbb span {
+    display: block;
+    padding: 2px 20px 2px 4px;
+    border-color:<%= bevel_up %> <%= bevel_down %> <%= bevel_down %>;
+    border-style:solid;
+    border-width:1px;
+    border-radius: 2px;
+    box-sizing: border-box;
+}
+
+.ui-cbb-ab {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: url(data:image/png;base64,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)
+    center no-repeat;
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+    z-index: 1;
+}
+
+.ui-cbb-pu {
+    position: absolute;
+    max-height: 400px;
+    max-width: 800px;
+    min-width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: white;
+    border: 1px solid #ccc;
+    border-top: none;
+    border-radius: 2px;
+    box-shadow: 0 0 8px #ccc;
+    z-index: 10;
+    display: none;
+    padding: 5px;
+}
+/*** LookupInputBase2: replacement for LookupInput ***/
+.ui-lui2 {
+    position: relative;
+    display: inline-block;
+}
+.ui-lui2-selected {
+    padding: 0px 2px 0px 0px;
+    margin: 0px 2px 2px 0px;
+    display: inline-block;
+    vertical-align: baseline;
+}
+.ui-lui2-vspan {
+    display: inline-block;
+    min-width: 12em;
+    white-space: nowrap;
+    background-color: #ffffff;
+    padding-left: 3px;
+    padding-top: 3px;
+    padding-bottom: 1px;
+    margin-bottom: 0px;
+    margin-bottom: 0px;
+
+    border-color:#ABADB3 #BFCDD9 #BFCDD9;
+    border-style: solid;
+    border-width: 1px;
+    -moz-border-radius: 2px;
+}
+
+/*** SearchInput2: replacement for KeywordSearchInput, used in lookupInput2 but an independent component(!) ***/
+.ui-srip {
+    position: relative;
+    display: inline-block;
+}
+.ui-srip-keyword-popup {
+    position: absolute;
+    left: 0px;
+    top: 18px;
+    background-color: white;
+    border: 1px solid gray;
+    width: 402px;
+    overflow: hidden;
+}
+tr.uixx-keyword-popop-rowsel {
+    cursor: pointer;
+    background-color: <%= highlight2_bg %> !important;
+}
+
+tr.uixx-keyword-popop-rowsel:hover {
+    background-color: <%= highlight2_bg %> !important;
+}
+
+tr.uixx-keyword-popup-row {
+    cursor: pointer;
+}
+
+/*- message block, floating over the rest of the form -*/
+.ui-srip-message {
+    position: absolute;
+    top: 20px;
+    left: 0px;
+    width: auto;
+    height: auto;
+    background-color: #ff4f27;
+    border: 1px solid #ff8d60;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    -webkit-border-radius: 4px;
+    padding: 5px;
+    z-index: 1;
+}
+.ui-srip-waiting {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 32px;
+    height: 32px;
+    background-color: white;
+}
+.ui-srip-waiting div {
+    width: 16px;
+    height: 16px;
+    background: url(lui-keyword-wait.gif) no-repeat;
+}
+/*** SelectOnePanel (part of new combobox and lookupinput2) ***/
+.ui-ssop {
+    background-color: white;
+    position: absolute;
+    top: 18px;
+    left: 0px;
+    width: auto;
+    height: auto;
+    border: 1px solid #666;
+    -moz-border-radius: 0px 0px 4px 4px;
+    border-radius: 0px 0px 4px 4px;
+    -webkit-border-radius: 0px 0px 4px 4px;
+    z-index: 1;
+}
+
+tr.ui-ssop-row {
+    cursor: pointer;
+}
+
+tr.ui-ssop-row:hover {
+}
+
+tr.ui-ssop-selected {
+    background-color: <%= highlight2_bg %> !important;
+}
+
+tr.ui-ssop-row {
+    cursor: pointer;
+}
+
+.ui-ssop-row td {
+    white-space: nowrap;
+}
+.fht-table,
+.fht-table thead,
+.fht-table tfoot,
+.fht-table tbody,
+.fht-table tr,
+.fht-table th,
+.fht-table td {
+    /* position */
+    margin: 0;
+
+    /* size */
+    padding: 0;
+
+    /* text */
+    font-size: 100%;
+    font: inherit;
+    vertical-align: top;
+}
+
+.fht-table {
+    /* appearance */
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+/* @end */
+
+/* @group Content */
+
+.fht-table-wrapper,
+.fht-table-wrapper .fht-thead,
+.fht-table-wrapper .fht-tfoot,
+.fht-table-wrapper .fht-fixed-column .fht-tbody,
+.fht-table-wrapper .fht-fixed-body .fht-tbody,
+.fht-table-wrapper .fht-tbody {
+    /* appearance */
+    overflow: hidden;
+
+    /* position */
+    position: relative;
+}
+
+.fht-table-wrapper .fht-fixed-body .fht-tbody,
+.fht-table-wrapper .fht-tbody {
+    /* appearance */
+    overflow: auto;
+}
+
+.fht-table-wrapper .fht-table .fht-cell {
+    /* appearance */
+    overflow: hidden;
+
+    /* size */
+    height: 1px;
+}
+
+.fht-table-wrapper .fht-fixed-column,
+.fht-table-wrapper .fht-fixed-body {
+    /* position */
+    top: 0;
+    left: 0;
+    position: absolute;
+}
+
+.fht-table-wrapper .fht-fixed-column {
+    /* position */
+    z-index: 1;
+}
+
