@@ -29,7 +29,6 @@ import java.util.Map.*;
 
 import javax.annotation.*;
 
-import nl.itris.vp.components.basic.*;
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.event.*;

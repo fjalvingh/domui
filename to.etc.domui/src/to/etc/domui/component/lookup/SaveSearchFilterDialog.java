@@ -1,4 +1,4 @@
-package nl.itris.vp.components.basic;
+package to.etc.domui.component.lookup;
 
 import java.util.*;
 
