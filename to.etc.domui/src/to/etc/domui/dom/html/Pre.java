@@ -5,8 +5,8 @@ public class Pre extends Div {
 		internalSetTag("pre");
 	}
 
-	public Pre(String txt) {
-		super(txt);
+	public Pre(String cssClass) {
+		super(cssClass);
 	}
 
 	@Override

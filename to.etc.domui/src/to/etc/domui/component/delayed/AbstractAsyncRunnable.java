@@ -1,10 +1,14 @@
 package to.etc.domui.component.delayed;
 
-import javax.annotation.*;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.Pre;
+import to.etc.domui.util.Msgs;
+import to.etc.util.StringTool;
 
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 abstract public class AbstractAsyncRunnable implements IAsyncRunnable {
 	@Nonnull
@@ -22,13 +26,13 @@ abstract public class AbstractAsyncRunnable implements IAsyncRunnable {
 		if(errorException != null) {
 			StringBuilder sb = new StringBuilder(8192);
 			StringTool.strStacktrace(sb, errorException);
-			addNode(new Pre(sb.toString()));
+			addNode(new Pre().add(sb.toString()));
 			return;
 		}
 
 		//-- If there is no result- either we were cancelled OR there are no results..
 		if(cancelled) {
-			addNode(new Pre(Msgs.BUNDLE.getString(Msgs.ASYNC_CONTAINER_CANCELLED_MSG)));
+			addNode(new Pre().add(Msgs.BUNDLE.getString(Msgs.ASYNC_CONTAINER_CANCELLED_MSG)));
 			return;
 		}
 		onCompleted();

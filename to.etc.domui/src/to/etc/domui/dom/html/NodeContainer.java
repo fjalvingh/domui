@@ -24,15 +24,23 @@
  */
 package to.etc.domui.dom.html;
 
-import to.etc.domui.component.layout.*;
-import to.etc.domui.converter.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.server.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.*;
+import to.etc.domui.component.layout.FloatingDiv;
+import to.etc.domui.converter.ConverterRegistry;
+import to.etc.domui.converter.IConverter;
+import to.etc.domui.dom.errors.ErrorFenceHandler;
+import to.etc.domui.dom.errors.IErrorFence;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.util.DomUtil;
+import to.etc.webapp.ProgrammerErrorException;
 
-import javax.annotation.*;
-import java.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.ConcurrentModificationException;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Base node for tags that can contain other nodes.
@@ -362,8 +370,10 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * Add the child at the end of the list.
 	 * @param nd
 	 */
-	final public void add(@Nonnull final NodeBase nd) {
+	@Nonnull
+	final public NodeContainer add(@Nonnull final NodeBase nd) {
 		add(Integer.MAX_VALUE, nd);
+		return this;
 	}
 
 	/**
@@ -432,9 +442,11 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * Add a #text node.
 	 * @param txt
 	 */
-	final public void add(@Nullable final String txt) {
+	@Nonnull
+	final public NodeContainer add(@Nullable final String txt) {
 		if(txt != null && txt.length() > 0)
 			add(new TextNode(txt));
+		return this;
 	}
 
 	/**
