@@ -24,17 +24,21 @@
  */
 package to.etc.domui.component.form2;
 
-import javax.annotation.*;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.TR;
 
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.html.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class HorizontalFormBuilder extends TableFormBuilder {
 	private TR m_labelRow;
 
 	private TR m_editRow;
 
-	static private enum TableMode {
+	private enum TableMode {
 		perRow, perForm
 	}
 

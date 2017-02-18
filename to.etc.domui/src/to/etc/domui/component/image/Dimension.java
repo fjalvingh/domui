@@ -1,10 +1,7 @@
 package to.etc.domui.component.image;
 
-import to.etc.domui.jsmodel.*;
+import javax.annotation.Nonnull;
 
-import javax.annotation.*;
-
-@JsClass
 public class Dimension {
 	@Nonnull
 	static public final Dimension ICON = new Dimension(16, 16);

@@ -1,10 +1,7 @@
 package to.etc.domui.component.image;
 
-import to.etc.domui.jsmodel.*;
+import javax.annotation.Nonnull;
 
-import javax.annotation.*;
-
-@JsClass
 public class Point {
 	private final int m_x;
 
