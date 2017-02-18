@@ -24,23 +24,41 @@
  */
 package to.etc.domui.component.input;
 
-import java.math.*;
-import java.util.*;
-import java.util.regex.*;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.MetaUtils;
+import to.etc.domui.component.meta.NumericPresentation;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.PropertyMetaValidator;
+import to.etc.domui.component.meta.impl.MetaPropertyValidatorImpl;
+import to.etc.domui.converter.ConverterRegistry;
+import to.etc.domui.converter.IConvertable;
+import to.etc.domui.converter.IConverter;
+import to.etc.domui.converter.IValueValidator;
+import to.etc.domui.converter.MaxMinValidator;
+import to.etc.domui.converter.MoneyUtil;
+import to.etc.domui.converter.NumericUtil;
+import to.etc.domui.converter.ValidatorRegistry;
+import to.etc.domui.dom.css.TextAlign;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.IHasModifiedIndication;
+import to.etc.domui.dom.html.Input;
+import to.etc.domui.parts.MarkerImagePart;
+import to.etc.domui.trouble.UIException;
+import to.etc.domui.trouble.ValidationException;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.Msgs;
+import to.etc.util.RuntimeConversionException;
+import to.etc.util.RuntimeConversions;
+import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.meta.impl.*;
-import to.etc.domui.converter.*;
-import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.parts.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
-import to.etc.webapp.nls.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * A single-line input box. This extends the "input" tag with validation ability
@@ -50,10 +68,6 @@ import to.etc.webapp.nls.*;
  * Created on Jun 11, 2008
  */
 public class Text<T> extends Input implements IControl<T>, IHasModifiedIndication, IConvertable<T> {
-	/** The properties bindable for this component. */
-	@Nonnull
-	static private final Set<String> BINDABLE_SET = createNameSet("value", "disabled", "message", "readOnly");
-
 	/** The type of class that is expected. This is the return type of the getValue() call for a validated item */
 	private Class<T> m_inputClass;
 
@@ -119,12 +133,6 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		else if(DomUtil.isIntegerType(inputClass))
 			nm = NumberMode.DIGITS;
 		setNumberMode(nm);
-	}
-
-	@Override
-	@Nonnull
-	public Set<String> getBindableProperties() {
-		return BINDABLE_SET;
 	}
 
 	/**
@@ -372,40 +380,35 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 */
 	@Override
 	public void setValue(@Nullable T value) {
-		T old = m_value;
 		m_value = value;
+		String converted;
 		try {
-			String converted;
-			try {
-				IConverter<T> c = m_converter;
-				if(c == null)
-					c = ConverterRegistry.findConverter(getInputClass());
+			IConverter<T> c = m_converter;
+			if(c == null)
+				c = ConverterRegistry.findConverter(getInputClass());
 
-				if(c != null)
-					converted = c.convertObjectToString(NlsContext.getLocale(), value);
-				else
-					converted = RuntimeConversions.convertTo(value, String.class);
-			} catch(UIException x) {
-				setMessage(UIMessage.error(x.getBundle(), x.getCode(), x.getParameters()));
-				return;
-			} catch(Exception x) {
-				x.printStackTrace();
-				setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.UNEXPECTED_EXCEPTION, x));
-				return;
-			}
-			setRawValue(converted == null ? "" : converted); // jal 20090821 If set to null for empty the value attribute will not be renderered, it must render a value as empty string
+			if(c != null)
+				converted = c.convertObjectToString(NlsContext.getLocale(), value);
+			else
+				converted = RuntimeConversions.convertTo(value, String.class);
+		} catch(UIException x) {
+			setMessage(UIMessage.error(x.getBundle(), x.getCode(), x.getParameters()));
+			return;
+		} catch(Exception x) {
+			x.printStackTrace();
+			setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.UNEXPECTED_EXCEPTION, x));
+			return;
+		}
+		setRawValue(converted == null ? "" : converted); // jal 20090821 If set to null for empty the value attribute will not be renderered, it must render a value as empty string
 
-			clearMessage();
+		clearMessage();
 
-			// jal 20081021 Clear validated als inputwaarde leeg is en de control is mandatory.
-			if((converted == null || converted.trim().length() == 0) && isMandatory())
-				m_validated = false;
-			else {
-				m_validated = true;
-				m_validationResult = null;
-			}
-		} finally {
-			fireModified("value", old, value);
+		// jal 20081021 Clear validated als inputwaarde leeg is en de control is mandatory.
+		if((converted == null || converted.trim().length() == 0) && isMandatory())
+			m_validated = false;
+		else {
+			m_validated = true;
+			m_validationResult = null;
 		}
 	}
 

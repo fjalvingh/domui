@@ -1,13 +1,22 @@
 package to.etc.domuidemo.db;
 
-import javax.annotation.*;
-import javax.persistence.*;
+import to.etc.domui.databinding.observables.IObservableList;
+import to.etc.domui.databinding.observables.ObservableList;
 
-import to.etc.domui.databinding.observables.*;
+import javax.annotation.Nonnull;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 
 @Entity
 @Table(name = "Album")
-public class Album extends DbRecordBase<Long> implements IObservableEntity {
+public class Album extends DbRecordBase<Long> {
 	private Long m_id;
 
 	private String m_title;
@@ -26,9 +35,7 @@ public class Album extends DbRecordBase<Long> implements IObservableEntity {
 	}
 
 	public void setId(Long id) {
-		Long oldv = getId();
 		m_id = id;
-		firePropertyChange("id", oldv, id);
 	}
 
 	@Column(name = "Title", length = 160, nullable = false)
@@ -37,9 +44,7 @@ public class Album extends DbRecordBase<Long> implements IObservableEntity {
 	}
 
 	public void setTitle(String name) {
-		String oldv = getTitle();
 		m_title = name;
-		firePropertyChange("title", oldv, name);
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -49,9 +54,7 @@ public class Album extends DbRecordBase<Long> implements IObservableEntity {
 	}
 
 	public void setArtist(Artist primaryArtist) {
-		Artist oldv = getArtist();
 		m_artist = primaryArtist;
-		firePropertyChange("artist", oldv, primaryArtist);
 	}
 
 	@Nonnull

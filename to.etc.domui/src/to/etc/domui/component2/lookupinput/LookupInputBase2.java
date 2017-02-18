@@ -46,9 +46,6 @@ import javax.annotation.*;
 import java.util.*;
 
 abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<OT>, IHasModifiedIndication, IQueryManipulator<QT> {
-	/** The properties bindable for this component. */
-	static private final Set<String> BINDABLE_SET = createNameSet("value", "disabled");
-
 	/** If set, the complete title for the popup window shown when the 'find' button is pressed. */
 	@Nullable
 	private String m_defaultTitle;
@@ -250,12 +247,6 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 			span.setCssClass("ui-lui2-vspan");
 		}
 		return node;
-	}
-
-	@Override
-	@Nonnull
-	public Set<String> getBindableProperties() {
-		return BINDABLE_SET;
 	}
 
 	@Override
@@ -728,7 +719,6 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 		m_disabled = disabled;
 		updateRoStyle();
 		forceRebuild();
-		fireModified("disabled", Boolean.valueOf(!disabled), Boolean.valueOf(disabled));
 	}
 
 	@Nullable
@@ -824,7 +814,6 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 		}
 		updateRoStyle();
 		forceRebuild();
-		fireModified("value", old, v);
 	}
 
 	/**

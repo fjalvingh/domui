@@ -219,15 +219,15 @@ public class BindingContext {
 	 * @param control
 	 */
 	public <T> void bindMessage(@Nonnull T instance, @Nonnull String property, @Nonnull NodeBase control) {
-		Map<String, ErrorBinding> map = getInstanceErrorMap(instance);
-		ErrorBinding eb = map.remove(property);
-		if(null != eb) {
-			eb.dispose();
-		}
-
-		IObservableValue<UIMessage> uimo = (IObservableValue<UIMessage>) control.observableValue("message");
-		eb = new ErrorBinding(this, uimo);
-		map.put(property, eb);
+//		Map<String, ErrorBinding> map = getInstanceErrorMap(instance);
+//		ErrorBinding eb = map.remove(property);
+//		if(null != eb) {
+//			eb.dispose();
+//		}
+//
+//		IObservableValue<UIMessage> uimo = (IObservableValue<UIMessage>) control.observableValue("message");
+//		eb = new ErrorBinding(this, uimo);
+//		map.put(property, eb);
 	}
 
 	@Nonnull

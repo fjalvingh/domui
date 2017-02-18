@@ -24,14 +24,7 @@
  */
 package to.etc.domui.dom.html;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 abstract public class InputNodeContainer extends NodeContainer implements IHasChangeListener {
-	/** The properties bindable for this component. */
-	static private final Set<String> BINDABLE_SET = createNameSet("value", "disabled");
-
 	private IValueChanged< ? > m_onValueChanged;
 
 	private boolean m_readOnly;
@@ -45,12 +38,6 @@ abstract public class InputNodeContainer extends NodeContainer implements IHasCh
 
 	public InputNodeContainer(String tag) {
 		super(tag);
-	}
-
-	@Override
-	@Nonnull
-	public Set<String> getBindableProperties() {
-		return BINDABLE_SET;
 	}
 
 	/**

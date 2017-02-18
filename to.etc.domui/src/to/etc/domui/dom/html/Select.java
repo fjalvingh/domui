@@ -24,14 +24,16 @@
  */
 package to.etc.domui.dom.html;
 
-import java.util.*;
+import to.etc.domui.component.buttons.SmallImgButton;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.server.RequestContextImpl;
+import to.etc.domui.util.DomUtil;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.server.*;
-import to.etc.domui.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * INCOMPLETE A full-coded select box: this is unsuitable for large amount of options.
@@ -110,7 +112,6 @@ public class Select extends InputNodeContainer implements INativeChangeListener,
 			removeCssClass("ui-ro");
 		}
 		changed();
-		fireModified("disabled", Boolean.valueOf(!disabled), Boolean.valueOf(disabled));
 	}
 
 	/**
@@ -220,7 +221,7 @@ public class Select extends InputNodeContainer implements INativeChangeListener,
 	 * Add a small image button after the combo.
 	 * @param img
 	 * @param title
-	 * @param clicked
+	 * @param click
 	 */
 	public void addExtraButton(String img, String title, final IClicked<NodeBase> click) {
 		if(m_buttonList == Collections.EMPTY_LIST)

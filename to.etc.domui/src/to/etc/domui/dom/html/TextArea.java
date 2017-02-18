@@ -24,16 +24,19 @@
  */
 package to.etc.domui.dom.html;
 
-import java.util.*;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.MetaUtils;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.trouble.ValidationException;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.Msgs;
+import to.etc.util.StringTool;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.server.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Objects;
 
 public class TextArea extends InputNodeContainer implements INativeChangeListener, IControl<String>, IHasModifiedIndication, IHtmlInput {
 	/** Hint to use in property meta data to select this component. */
@@ -174,7 +177,6 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 		m_disabled = disabled;
 		if(! disabled)
 			setOverrideTitle(null);
-		fireModified("disabled", Boolean.valueOf(!disabled), Boolean.valueOf(disabled));
 	}
 
 	@Nullable
@@ -199,7 +201,6 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 		m_value = v;
 		setMessage(null);
 		setText(v);
-		fireModified("value", value, v);
 	}
 
 	@Override

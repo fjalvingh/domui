@@ -1,15 +1,20 @@
 package to.etc.domuidemo.db;
 
-import java.math.*;
-
-import javax.persistence.*;
-import to.etc.domui.databinding.observables.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "InvoiceLine")
 @SequenceGenerator(name = "sq", sequenceName = "invoiceline_sq")
 //@MetaObject(defaultColumns = {@MetaDisplayProperty(name = "name")})
-public class InvoiceLine extends DbRecordBase<Long> implements IObservableEntity {
+public class InvoiceLine extends DbRecordBase<Long> {
 	private Long m_id;
 
 	private Invoice m_invoice;
@@ -31,7 +36,6 @@ public class InvoiceLine extends DbRecordBase<Long> implements IObservableEntity
 	public void setId(Long id) {
 		Long oldv = getId();
 		m_id = id;
-		firePropertyChange("id", oldv, id);
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -43,7 +47,6 @@ public class InvoiceLine extends DbRecordBase<Long> implements IObservableEntity
 	public void setInvoice(Invoice invoice) {
 		Invoice oldv = getInvoice();
 		m_invoice = invoice;
-		firePropertyChange("invoice", oldv, invoice);
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -55,7 +58,6 @@ public class InvoiceLine extends DbRecordBase<Long> implements IObservableEntity
 	public void setTrack(Track track) {
 		Track oldv = getTrack();
 		m_track = track;
-		firePropertyChange("track", oldv, track);
 	}
 
 	@Column(name = "UnitPrice", precision = 10, scale = 2, nullable = false)
@@ -66,7 +68,6 @@ public class InvoiceLine extends DbRecordBase<Long> implements IObservableEntity
 	public void setUnitPrice(BigDecimal unitPrice) {
 		BigDecimal oldv = getUnitPrice();
 		m_unitPrice = unitPrice;
-		firePropertyChange("unitPrice", oldv, unitPrice);
 	}
 
 	@Column(name = "Quantity", precision = 10, scale = 0, nullable = false)
@@ -77,6 +78,5 @@ public class InvoiceLine extends DbRecordBase<Long> implements IObservableEntity
 	public void setQuantity(int quantity) {
 		Integer oldv = Integer.valueOf(getQuantity());
 		m_quantity = quantity;
-		firePropertyChange("quantity", oldv, Integer.valueOf(quantity));
 	}
 }

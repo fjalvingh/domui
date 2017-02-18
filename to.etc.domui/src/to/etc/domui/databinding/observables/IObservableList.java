@@ -18,26 +18,26 @@ import to.etc.domui.databinding.list2.*;
 public interface IObservableList<T> extends List<T>, IObservable<T, ListChangeEvent<T>, IListChangeListener<T>> {
 	@Override
 	@Nonnull
-	public Iterator<T> iterator();
+	Iterator<T> iterator();
 
 	@Override
-	public boolean add(T item);
+	boolean add(T item);
 
 	@Override
 	@Nonnull
-	public T get(int index);
+	T get(int index);
 
 	@Override
 	@Nullable
-	public T set(int index, T element);
+	T set(int index, T element);
 
 	@Override
-	public void add(int index, T element);
+	void add(int index, T element);
 
 	@Override
-	public T remove(int index);
+	T remove(int index);
 
 	@Nonnull
 	@Override
-	public List<T> subList(int fromIndex, int toIndex);
+	List<T> subList(int fromIndex, int toIndex);
 }

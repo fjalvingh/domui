@@ -24,12 +24,13 @@
  */
 package to.etc.domui.component.misc;
 
-import to.etc.domui.component.binding.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
+import to.etc.domui.component.binding.IBindable;
+import to.etc.domui.dom.html.IDisplayControl;
+import to.etc.domui.dom.html.IValueChanged;
+import to.etc.domui.dom.html.Img;
+import to.etc.domui.util.DomUtil;
 
-import javax.annotation.*;
-import java.util.*;
+import javax.annotation.Nullable;
 
 /**
  * Display-only checkbox which renders better than a disabled checkbox thingy.
@@ -38,21 +39,11 @@ import java.util.*;
  * Created on Apr 9, 2010
  */
 public class DisplayCheckbox extends Img implements IDisplayControl<Boolean>, IBindable {
-	/** The properties bindable for this component. */
-	@Nonnull
-	static private final Set<String> BINDABLE_SET = createNameSet("value");
-
 	private Boolean m_value;
 
 	public DisplayCheckbox() {
 		setCssClass("ui-dspcb");
 		setSrc("THEME/dspcb-off.png");
-	}
-
-	@Override
-	@Nonnull
-	public Set<String> getBindableProperties() {
-		return BINDABLE_SET;
 	}
 
 	/**

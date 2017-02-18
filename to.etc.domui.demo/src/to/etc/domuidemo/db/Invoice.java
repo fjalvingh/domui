@@ -1,16 +1,25 @@
 package to.etc.domuidemo.db;
 
-import java.math.*;
-import java.util.*;
-
-import javax.persistence.*;
-import to.etc.domui.databinding.observables.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "Invoice")
 @SequenceGenerator(name = "sq", sequenceName = "invoice_sq")
 //@MetaObject(defaultColumns = {@MetaDisplayProperty(name = "name")})
-public class Invoice extends DbRecordBase<Long> implements IObservableEntity {
+public class Invoice extends DbRecordBase<Long> {
 	private Long m_id;
 
 	private Customer m_customer;
@@ -41,9 +50,7 @@ public class Invoice extends DbRecordBase<Long> implements IObservableEntity {
 	}
 
 	public void setId(Long id) {
-		Long oldv = getId();
 		m_id = id;
-		firePropertyChange("id", oldv, id);
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -53,9 +60,7 @@ public class Invoice extends DbRecordBase<Long> implements IObservableEntity {
 	}
 
 	public void setCustomer(Customer customer) {
-		Customer oldv = getCustomer();
 		m_customer = customer;
-		firePropertyChange("customer", oldv, customer);
 	}
 
 	@Column(name = "InvoiceDate", nullable = false)
@@ -65,9 +70,7 @@ public class Invoice extends DbRecordBase<Long> implements IObservableEntity {
 	}
 
 	public void setInvoiceDate(Date invoiceDate) {
-		Date oldv = getInvoiceDate();
 		m_invoiceDate = invoiceDate;
-		firePropertyChange("invoiceDate", oldv, invoiceDate);
 	}
 
 	@Column(name = "BillingAddress", length = 70, nullable = true)
@@ -76,9 +79,7 @@ public class Invoice extends DbRecordBase<Long> implements IObservableEntity {
 	}
 
 	public void setBillingAddress(String billingAddress) {
-		String oldv = getBillingAddress();
 		m_billingAddress = billingAddress;
-		firePropertyChange("billingAddress", oldv, billingAddress);
 	}
 
 	@Column(name = "BillingCity", length = 40, nullable = true)
@@ -87,9 +88,7 @@ public class Invoice extends DbRecordBase<Long> implements IObservableEntity {
 	}
 
 	public void setBillingCity(String billingCity) {
-		String oldv = getBillingCity();
 		m_billingCity = billingCity;
-		firePropertyChange("billingCity", oldv, billingCity);
 	}
 
 	@Column(name = "BillingState", length = 40, nullable = true)
@@ -98,9 +97,7 @@ public class Invoice extends DbRecordBase<Long> implements IObservableEntity {
 	}
 
 	public void setBillingState(String billingState) {
-		String oldv = getBillingState();
 		m_billingState = billingState;
-		firePropertyChange("billingState", oldv, billingState);
 	}
 
 	@Column(name = "BillingCountry", length = 40, nullable = true)
@@ -109,9 +106,7 @@ public class Invoice extends DbRecordBase<Long> implements IObservableEntity {
 	}
 
 	public void setBillingCountry(String billingCountry) {
-		String oldv = getBillingCountry();
 		m_billingCountry = billingCountry;
-		firePropertyChange("billingCountry", oldv, billingCountry);
 	}
 
 	@Column(name = "BillingPostalCode", length = 10, nullable = true)
@@ -120,9 +115,7 @@ public class Invoice extends DbRecordBase<Long> implements IObservableEntity {
 	}
 
 	public void setBillingPostalCode(String billingPostalCode) {
-		String oldv = getBillingPostalCode();
 		m_billingPostalCode = billingPostalCode;
-		firePropertyChange("billingPostalCode", oldv, billingPostalCode);
 	}
 
 	@Column(name = "Total", precision = 10, scale = 2, nullable = false)
@@ -131,9 +124,7 @@ public class Invoice extends DbRecordBase<Long> implements IObservableEntity {
 	}
 
 	public void setTotal(BigDecimal total) {
-		BigDecimal oldv = getTotal();
 		m_total = total;
-		firePropertyChange("total", oldv, total);
 	}
 
 	@OneToMany(mappedBy = "invoice")

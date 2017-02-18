@@ -24,11 +24,15 @@
  */
 package to.etc.domui.databinding.observables;
 
-import javax.annotation.*;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.databinding.ListenerList;
+import to.etc.domui.databinding.value.IObservableValue;
+import to.etc.domui.databinding.value.IValueChangeListener;
+import to.etc.domui.databinding.value.ValueChangeEvent;
+import to.etc.domui.databinding.value.ValueDiff;
 
-import to.etc.domui.component.meta.*;
-import to.etc.domui.databinding.*;
-import to.etc.domui.databinding.value.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Just some observable value container. This is meant to be used directly.

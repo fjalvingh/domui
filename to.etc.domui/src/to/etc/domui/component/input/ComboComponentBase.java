@@ -24,23 +24,30 @@
  */
 package to.etc.domui.component.input;
 
-import java.util.*;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.IHasModifiedIndication;
+import to.etc.domui.dom.html.Select;
+import to.etc.domui.dom.html.SelectOption;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.trouble.ValidationException;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.IComboDataSet;
+import to.etc.domui.util.IListMaker;
+import to.etc.domui.util.INodeContentRenderer;
+import to.etc.domui.util.IValueTransformer;
+import to.etc.domui.util.Msgs;
+import to.etc.util.WrappedException;
+import to.etc.webapp.query.QCriteria;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
-import to.etc.webapp.query.*;
+import javax.annotation.Nullable;
+import java.util.Collections;
+import java.util.List;
 
 public class ComboComponentBase<T, V> extends Select implements IControl<V>, IHasModifiedIndication {
-	/** The properties bindable for this component. */
-	static private final Set<String> BINDABLE_SET = createNameSet("value", "disabled", "message");
-
 	private String m_emptyText;
 
 	private V m_currentValue;
@@ -191,7 +198,6 @@ public class ComboComponentBase<T, V> extends Select implements IControl<V>, IHa
 		if(MetaManager.areObjectsEqual(v, currentValue, cmm))
 			return;
 		m_currentValue = v;
-		fireModified("value", currentValue, v);
 		if(!isBuilt())
 			return;
 
@@ -244,7 +250,6 @@ public class ComboComponentBase<T, V> extends Select implements IControl<V>, IHa
 			return false;
 
 		m_currentValue = newval;
-		fireModified("value", currentValue, newval);
 		return true;
 	}
 
@@ -467,17 +472,4 @@ public class ComboComponentBase<T, V> extends Select implements IControl<V>, IHa
 		super.setMandatory(mandatory); // Switch flag
 		forceRebuild(); // The "empty option" might have changed
 	}
-
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Hard data binding support.							*/
-	/*--------------------------------------------------------------*/
-
-	@Override
-	@Nonnull
-	public Set<String> getBindableProperties() {
-		return BINDABLE_SET;
-	}
-
-
 }

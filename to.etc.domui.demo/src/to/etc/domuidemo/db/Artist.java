@@ -1,21 +1,23 @@
 package to.etc.domuidemo.db;
 
-import java.util.*;
+import org.hibernate.annotations.Index;
+import to.etc.domui.component.meta.MetaDisplayProperty;
+import to.etc.domui.component.meta.MetaObject;
 
-import javax.persistence.*;
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-
-import org.hibernate.annotations.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.databinding.observables.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "Artist")
 @SequenceGenerator(name = "sq", sequenceName = "artist_sq")
 @MetaObject(defaultColumns = {@MetaDisplayProperty(name = "name")})
-public class Artist extends DbRecordBase<Long> implements IObservableEntity {
+public class Artist extends DbRecordBase<Long> {
 	private Long m_id;
 
 	private String m_name;
@@ -31,9 +33,7 @@ public class Artist extends DbRecordBase<Long> implements IObservableEntity {
 	}
 
 	public void setId(Long id) {
-		Long oldv = getId();
 		m_id = id;
-		firePropertyChange("id", oldv, id);
 	}
 
 	@Column(length = 120, nullable = false, unique = true)
@@ -43,9 +43,7 @@ public class Artist extends DbRecordBase<Long> implements IObservableEntity {
 	}
 
 	public void setName(String name) {
-		String oldv = getName();
 		m_name = name;
-		firePropertyChange("name", oldv, name);
 	}
 
 	@OneToMany(mappedBy = "artist")

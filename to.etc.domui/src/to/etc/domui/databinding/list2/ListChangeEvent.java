@@ -1,12 +1,11 @@
 package to.etc.domui.databinding.list2;
 
-import java.util.*;
+import to.etc.domui.databinding.ObservableEvent;
+import to.etc.domui.databinding.list.ListChange;
+import to.etc.domui.databinding.observables.IObservableList;
 
-import javax.annotation.*;
-
-import to.etc.domui.databinding.*;
-import to.etc.domui.databinding.list.*;
-import to.etc.domui.databinding.observables.*;
+import javax.annotation.Nonnull;
+import java.util.List;
 
 public class ListChangeEvent<T> extends ObservableEvent<T, ListChangeEvent<T>, IListChangeListener<T>> {
 	@Nonnull

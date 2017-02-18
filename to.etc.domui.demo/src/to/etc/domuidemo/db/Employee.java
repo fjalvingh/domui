@@ -1,17 +1,26 @@
 package to.etc.domuidemo.db;
 
-import java.util.*;
+import to.etc.domui.component.meta.MetaDisplayProperty;
+import to.etc.domui.component.meta.MetaObject;
+import to.etc.domui.component.meta.MetaSearch;
 
-import javax.persistence.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.databinding.observables.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import java.util.Date;
 
 @Entity
 @Table(name = "Employee")
 @SequenceGenerator(name = "sq", sequenceName = "employee_sq")
 @MetaObject(defaultColumns = {@MetaDisplayProperty(name = "firstName"), @MetaDisplayProperty(name = "lastName")})
-public class Employee extends DbRecordBase<Long> implements IObservableEntity {
+public class Employee extends DbRecordBase<Long> {
 	private Long m_id;
 
 	private String m_firstName;
@@ -51,9 +60,7 @@ public class Employee extends DbRecordBase<Long> implements IObservableEntity {
 	}
 
 	public void setId(Long id) {
-		Long oldv = getId();
 		m_id = id;
-		firePropertyChange("id", oldv, id);
 	}
 
 	@Column(name = "FirstName", length = 20, nullable = false)
@@ -63,9 +70,7 @@ public class Employee extends DbRecordBase<Long> implements IObservableEntity {
 
 	@MetaSearch(order = 2)
 	public void setFirstName(String firstName) {
-		String oldv = getFirstName();
 		m_firstName = firstName;
-		firePropertyChange("firstName", oldv, firstName);
 	}
 
 	@MetaSearch(order = 1)
@@ -75,9 +80,7 @@ public class Employee extends DbRecordBase<Long> implements IObservableEntity {
 	}
 
 	public void setLastName(String lastName) {
-		String oldv = getLastName();
 		m_lastName = lastName;
-		firePropertyChange("lastName", oldv, lastName);
 	}
 
 	@Column(name = "Address", length = 70, nullable = true)
@@ -86,9 +89,7 @@ public class Employee extends DbRecordBase<Long> implements IObservableEntity {
 	}
 
 	public void setAddress(String address) {
-		String oldv = getAddress();
 		m_address = address;
-		firePropertyChange("address", oldv, address);
 	}
 
 	@Column(name = "City", length = 40, nullable = true)
@@ -97,9 +98,7 @@ public class Employee extends DbRecordBase<Long> implements IObservableEntity {
 	}
 
 	public void setCity(String city) {
-		String oldv = getCity();
 		m_city = city;
-		firePropertyChange("city", oldv, city);
 	}
 
 	@Column(name = "State", length = 40, nullable = true)
@@ -108,9 +107,7 @@ public class Employee extends DbRecordBase<Long> implements IObservableEntity {
 	}
 
 	public void setState(String state) {
-		String oldv = getState();
 		m_state = state;
-		firePropertyChange("state", oldv, state);
 	}
 
 	@Column(name = "Country", length = 40, nullable = true)
@@ -119,9 +116,7 @@ public class Employee extends DbRecordBase<Long> implements IObservableEntity {
 	}
 
 	public void setCountry(String country) {
-		String oldv = getCountry();
 		m_Country = country;
-		firePropertyChange("country", oldv, country);
 	}
 
 	@Column(name = "PostalCode", length = 10, nullable = true)
@@ -130,9 +125,7 @@ public class Employee extends DbRecordBase<Long> implements IObservableEntity {
 	}
 
 	public void setPostalCode(String postalCode) {
-		String oldv = getPostalCode();
 		m_postalCode = postalCode;
-		firePropertyChange("postalCode", oldv, postalCode);
 	}
 
 	@Column(name = "Phone", length = 24, nullable = true)
@@ -141,9 +134,7 @@ public class Employee extends DbRecordBase<Long> implements IObservableEntity {
 	}
 
 	public void setPhone(String phone) {
-		String oldv = getPhone();
 		m_phone = phone;
-		firePropertyChange("phone", oldv, phone);
 	}
 
 	@Column(name = "Fax", length = 24, nullable = true)
@@ -152,9 +143,7 @@ public class Employee extends DbRecordBase<Long> implements IObservableEntity {
 	}
 
 	public void setFax(String fax) {
-		String oldv = getFax();
 		m_fax = fax;
-		firePropertyChange("fax", oldv, fax);
 	}
 
 	@Column(name = "Email", length = 60, nullable = false)
@@ -163,9 +152,7 @@ public class Employee extends DbRecordBase<Long> implements IObservableEntity {
 	}
 
 	public void setEmail(String email) {
-		String oldv = getEmail();
 		m_email = email;
-		firePropertyChange("email", oldv, email);
 	}
 
 	@Column(name = "Title", length = 30, nullable = true)
@@ -174,9 +161,7 @@ public class Employee extends DbRecordBase<Long> implements IObservableEntity {
 	}
 
 	public void setTitle(String title) {
-		String oldv = getTitle();
 		m_title = title;
-		firePropertyChange("title", oldv, title);
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY, optional = true)
@@ -186,9 +171,7 @@ public class Employee extends DbRecordBase<Long> implements IObservableEntity {
 	}
 
 	public void setReportsTo(Employee reportsTo) {
-		Employee oldv = getReportsTo();
 		m_reportsTo = reportsTo;
-		firePropertyChange("reportsTo", oldv, reportsTo);
 	}
 
 	@Column(name = "BirthDate", nullable = true)
@@ -198,9 +181,7 @@ public class Employee extends DbRecordBase<Long> implements IObservableEntity {
 	}
 
 	public void setBirthDate(Date birthDate) {
-		Date oldv = getBirthDate();
 		m_birthDate = birthDate;
-		firePropertyChange("birthDate", oldv, birthDate);
 	}
 
 	@Column(name = "HireDate", nullable = true)
@@ -210,8 +191,6 @@ public class Employee extends DbRecordBase<Long> implements IObservableEntity {
 	}
 
 	public void setDateHired(Date dateHired) {
-		Date oldv = getDateHired();
 		m_dateHired = dateHired;
-		firePropertyChange("dateHired", oldv, dateHired);
 	}
 }

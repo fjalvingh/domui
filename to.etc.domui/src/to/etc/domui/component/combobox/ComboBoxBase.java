@@ -14,9 +14,6 @@ import javax.annotation.*;
 import java.util.*;
 
 public class ComboBoxBase<T, V> extends Div implements IControl<V> {
-	/** The properties bindable for this component. */
-	static private final Set<String> BINDABLE_SET = createNameSet("value", "disabled", "message");
-
 	private boolean m_mandatory;
 
 	private boolean m_disabled;
@@ -212,7 +209,6 @@ public class ComboBoxBase<T, V> extends Div implements IControl<V> {
 		if(MetaManager.areObjectsEqual(v, currentValue, cmm))
 			return;
 		m_currentValue = v;
-		fireModified("value", currentValue, v);
 		if(!isBuilt())
 			return;
 
@@ -264,7 +260,6 @@ public class ComboBoxBase<T, V> extends Div implements IControl<V> {
 			return false;
 
 		m_currentValue = newval;
-		fireModified("value", currentValue, newval);
 		return true;
 	}
 
@@ -501,12 +496,6 @@ public class ComboBoxBase<T, V> extends Div implements IControl<V> {
 			return;
 		m_mandatory = mandatory;
 		forceRebuild(); 								// The "empty option" might have changed
-	}
-
-	@Override
-	@Nonnull
-	public Set<String> getBindableProperties() {
-		return BINDABLE_SET;
 	}
 
 	@Override

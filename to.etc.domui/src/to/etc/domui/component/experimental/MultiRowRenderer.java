@@ -1,22 +1,48 @@
 package to.etc.domui.component.experimental;
 
-import java.util.*;
+import to.etc.domui.component.controlfactory.ControlBuilder;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.NumericPresentation;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.SortableType;
+import to.etc.domui.component.misc.DisplaySpan;
+import to.etc.domui.component.ntbl.IRowButtonFactory;
+import to.etc.domui.component.tbl.ColumnContainer;
+import to.etc.domui.component.tbl.ColumnDef;
+import to.etc.domui.component.tbl.ColumnList;
+import to.etc.domui.component.tbl.HeaderContainer;
+import to.etc.domui.component.tbl.ICellClicked;
+import to.etc.domui.component.tbl.IClickableRowRenderer;
+import to.etc.domui.component.tbl.IRowControlFactory;
+import to.etc.domui.component.tbl.IRowRenderHelper;
+import to.etc.domui.component.tbl.ISortHelper;
+import to.etc.domui.component.tbl.ISortableTableModel;
+import to.etc.domui.component.tbl.ITableModel;
+import to.etc.domui.component.tbl.TableHeader;
+import to.etc.domui.component.tbl.TableModelTableBase;
+import to.etc.domui.converter.ConverterRegistry;
+import to.etc.domui.converter.IConverter;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.Img;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.Span;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.TH;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.util.INodeContentRenderer;
+import to.etc.util.StringTool;
+import to.etc.webapp.ProgrammerErrorException;
+import to.etc.webapp.annotations.GProperty;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.controlfactory.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.misc.*;
-import to.etc.domui.component.ntbl.*;
-import to.etc.domui.component.tbl.*;
-import to.etc.domui.converter.*;
-import to.etc.domui.databinding.observables.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
-import to.etc.webapp.*;
-import to.etc.webapp.annotations.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * This is the type-safe replacement for the other row renderers which are now deprecated.
@@ -353,13 +379,6 @@ final public class MultiRowRenderer<T> implements IClickableRowRenderer<T> {
 			if(null != cellConverter)
 				throw new IllegalStateException("A column cannot be editable if you assign a converter to it: handle the conversion inside the renderer yourself.");
 			renderEditable(tbl, cd, cell, instance);
-		} else if(instance instanceof IObservableEntity) {
-			if(null == pmm)
-				throw new IllegalStateException("Cannot render display value for row type of " + cd.getColumnLabel());
-			DisplaySpan<X> dv = new DisplaySpan<X>(cd.getActualClass(), instance);
-			cell.getBindingContext().unibind(instance, pmm.getName(), dv, "value");
-			cell.add(dv);
-			applyCellAttributes(cell, cd);
 		} else if(pmm != null) {
 			//-- Bind the property to a display control.
 			IConverter<X> converter = cellConverter;
@@ -396,8 +415,6 @@ final public class MultiRowRenderer<T> implements IClickableRowRenderer<T> {
 	 * @param instance
 	 */
 	private <X, C extends NodeBase & IControl<X>> void renderEditable(@Nonnull TableModelTableBase<T> tbl, @Nonnull ColumnDef<T, X> cd, @Nonnull TD cell, @Nonnull T instance) throws Exception {
-		//if(!(instance instanceof IObservableEntity))
-		//	throw new IllegalStateException("The instance type " + instance.getClass().getName() + "' is not an Observable entity; I need one to be able to bind to it's properties");
 		PropertyMetaModel<X> pmm = cd.getPropertyMetaModel();
 		if(null == pmm)
 			throw new IllegalStateException("Cannot render edit value for row type");
@@ -415,8 +432,6 @@ final public class MultiRowRenderer<T> implements IClickableRowRenderer<T> {
 		}
 		control.bind().to(instance, pmm);
 		cell.add(control);
-		if(instance instanceof IObservableEntity)
-			cell.getBindingContext().joinbinding(instance, pmm.getName(), control, "value");
 	}
 
 	/*--------------------------------------------------------------*/

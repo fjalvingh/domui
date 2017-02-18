@@ -49,8 +49,6 @@ import to.etc.webapp.query.*;
 abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT>, IHasModifiedIndication {
 
 	public static final String MAGIC_ID_MARKER = "?id?";
-	/** The properties bindable for this component. */
-	static private final Set<String> BINDABLE_SET = createNameSet("value", "disabled");
 
 	static public final INodeContentRenderer<Object> DEFAULT_RENDERER = new SimpleLookupInputRenderer<Object>();
 
@@ -304,12 +302,6 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		if(null != m_clearButton)
 			return m_clearButton;
 		throw new IllegalStateException("Clear button is not there.");
-	}
-
-	@Override
-	@Nonnull
-	public Set<String> getBindableProperties() {
-		return BINDABLE_SET;
 	}
 
 	@Override
@@ -1017,7 +1009,6 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		m_disabled = disabled;
 		updateRoStyle();
 		forceRebuild();
-		fireModified("disabled", Boolean.valueOf(!disabled), Boolean.valueOf(disabled));
 	}
 
 	/*--------------------------------------------------------------*/
@@ -1091,7 +1082,6 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		}
 		updateRoStyle();
 		forceRebuild();
-		fireModified("value", old, v);
 	}
 
 	/**

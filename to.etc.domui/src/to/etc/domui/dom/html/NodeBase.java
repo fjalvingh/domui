@@ -30,9 +30,6 @@ import to.etc.domui.component.event.*;
 import to.etc.domui.component.image.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.meta.*;
-import to.etc.domui.databinding.*;
-import to.etc.domui.databinding.observables.*;
-import to.etc.domui.databinding.value.*;
 import to.etc.domui.dom.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
@@ -46,7 +43,6 @@ import to.etc.domui.themes.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.javascript.*;
-import to.etc.util.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
 
@@ -84,7 +80,7 @@ import java.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 18, 2007
  */
-abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IObservableEntity {
+abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	private static final Logger LOG = LoggerFactory.getLogger(NodeBase.class);
 
 	static private boolean m_logAllocations;
@@ -1361,7 +1357,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 		}
 
 		//-- Fire a change event
-		fireModified("message", old, msg);
 		return msg;
 	}
 
@@ -1678,15 +1673,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 	}
 
 	/**
-	 * EXPERIMENTAL Get the binding context for the page/module.
-	 * @return
-	 */
-	@Nonnull
-	public BindingContext getBindingContext() {
-		return getParent().getBindingContext();
-	}
-
-	/**
 	 * Get the context.
 	 * @return
 	 */
@@ -1823,62 +1809,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 		return DomApplication.get().internalGetThemeManager().getThemedResourceRURL(themeStyle, path);
 	}
 
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Hard data binding support (EXPERIMENTAL)			*/
-	/*--------------------------------------------------------------*/
-	@Nullable
-	private ComponentObserverSupport< ? > m_osupport;
-
-	/**
-	 * Returns a set of property names for this control that are bindable (can be bound to). Any attempt
-	 * to bind to a property that is not in this set will throw a {@link PropertyNotObservableException}.
-	 * Subclasses are expected to override this method to return their set of bindable properties. By
-	 * default the set is empty.
-	 * @return
-	 */
-	@Nonnull
-	public Set<String> getBindableProperties() {
-		return Collections.EMPTY_SET;
-	}
-
-	/**
-	 * Returns T if the property passed can be bound to (is {@link IObservable}.
-	 * @param property
-	 * @return
-	 */
-	public boolean isBindableProperty(@Nonnull String property) {
-		return getBindableProperties().contains(property);
-	}
-
-	/**
-	 * Return the {@link ObserverSupport} implementation to use to handle data binding for DomUI
-	 * components. This lazily initializes, and only allocates the support structures if binding
-	 * is really used.
-	 * @return
-	 */
-	@Nonnull
-	public ObserverSupport< ? > getObserverSupport() {
-		ComponentObserverSupport< ? > osupport = m_osupport;
-		if(null == osupport) {
-			osupport = m_osupport = new ComponentObserverSupport<NodeBase>(this);
-		}
-		return osupport;
-	}
-
-	/**
-	 * Return an observable for the specified property, <b>if that property can be observed</b>; if
-	 * not this will throw {@link PropertyNotObservableException}.
-	 * @see to.etc.domui.databinding.observables.IObservableEntity#observableValue(java.lang.String)
-	 * @throws PropertyNotObservableException if the property is not observable.
-	 */
-	@Override
-	@Nonnull
-	public IObservableValue< ? > observableValue(@Nonnull String property) {
-		if(! isBindableProperty(property))
-			throw new PropertyNotObservableException(getClass(), property);
-		return getObserverSupport().observableValue(property);
-	}
-
 	/**
 	 * Create a name set for properties.
 	 * @param names
@@ -1891,39 +1821,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate, IO
 			res.add(name);
 		res.add("message");
 		return res;
-	}
-
-	/**
-	 * Fire a "value changed" event for a property on this object, if they are observed.
-	 * @param propertyName
-	 * @param old
-	 * @param nw
-	 */
-	protected <T> void fireModified(@Nonnull String propertyName, T old, T nw) {
-		//-- jal 2014/06/12 If the control is not yet attached to the page -> we cannot bind...
-		if(isAttached()) {
-			List<IBinding> bindingList = getBindingList();
-			if(null != bindingList) {
-				for(IBinding sb : bindingList) {
-					if(sb instanceof SimpleBinder) {
-						SimpleBinder sib = (SimpleBinder) sb;
-						IValueAccessor<?> property = sib.getControlProperty();
-						if(property instanceof PropertyMetaModel && ((PropertyMetaModel<?>) property).getName().equals(propertyName)) {
-							try {
-								sb.moveControlToModel();
-							} catch(Exception x) {
-								throw WrappedException.wrap(x);
-							}
-						}
-					}
-				}
-			}
-		}
-
-		ObserverSupport< ? > osupport = m_osupport;
-		if(null == osupport)					// Nothing observing?
-			return;
-		osupport.fireModified(propertyName, old, nw);
 	}
 
 	/**

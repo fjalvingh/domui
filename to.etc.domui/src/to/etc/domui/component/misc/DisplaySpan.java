@@ -24,16 +24,23 @@
  */
 package to.etc.domui.component.misc;
 
-import java.util.*;
+import to.etc.domui.component.binding.IBindable;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.converter.ConverterRegistry;
+import to.etc.domui.converter.IConvertable;
+import to.etc.domui.converter.IConverter;
+import to.etc.domui.dom.html.IDisplayControl;
+import to.etc.domui.dom.html.IValueChanged;
+import to.etc.domui.dom.html.Span;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.INodeContentRenderer;
+import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.binding.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.converter.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.nls.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Set;
 
 /**
  * This is a special control which can be used to display all kinds of values as a span without any formatting. It is
@@ -237,7 +244,6 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IBindabl
 		T oldvalue = m_value;
 		m_value = v;
 		forceRebuild();
-		fireModified("value", oldvalue, v);
 	}
 
 	public void defineFrom(@Nonnull PropertyMetaModel< ? > pmm) {
@@ -247,13 +253,6 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IBindabl
 
 		// FIXME Define more fully.
 	}
-
-	@Override
-	@Nonnull
-	public Set<String> getBindableProperties() {
-		return BINDABLE_SET;
-	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IControl implementation.							*/

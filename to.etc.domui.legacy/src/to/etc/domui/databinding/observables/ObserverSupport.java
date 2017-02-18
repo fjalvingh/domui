@@ -24,13 +24,19 @@
  */
 package to.etc.domui.databinding.observables;
 
-import java.beans.*;
-import java.util.*;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.databinding.IObservable;
+import to.etc.domui.databinding.IPropertyChangeNotifier;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.databinding.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.beans.PropertyChangeSupport;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Like {@link PropertyChangeSupport}, this class handles the {@link IObservable} support for DomUI for

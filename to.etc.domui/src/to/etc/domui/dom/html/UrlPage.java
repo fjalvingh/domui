@@ -24,16 +24,24 @@
  */
 package to.etc.domui.dom.html;
 
-import javax.annotation.*;
+import to.etc.domui.component.layout.BreadCrumb;
+import to.etc.domui.component.layout.Window;
+import to.etc.domui.component.layout.title.AppPageTitleBar;
+import to.etc.domui.logic.ILogicContext;
+import to.etc.domui.logic.LogicContextImpl;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.IRequestContext;
+import to.etc.domui.server.RequestContextImpl;
+import to.etc.domui.themes.DefaultThemeVariant;
+import to.etc.domui.themes.IThemeVariant;
+import to.etc.domui.util.Constants;
+import to.etc.webapp.query.QContextManager;
+import to.etc.webapp.query.QDataContext;
+import to.etc.webapp.query.QDataContextFactory;
 
-import to.etc.domui.component.layout.*;
-import to.etc.domui.component.layout.title.*;
-import to.etc.domui.databinding.*;
-import to.etc.domui.logic.*;
-import to.etc.domui.server.*;
-import to.etc.domui.themes.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.query.*;
+import javax.annotation.DefaultNonNull;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 
 /**
@@ -53,9 +61,6 @@ public class UrlPage extends Div {
 
 	@Nullable
 	private INotifyPageEvent m_notifyPageEvent;
-
-	@Nullable
-	private BindingContext m_bindingContext;
 
 	private IThemeVariant m_themeVariant = DefaultThemeVariant.INSTANCE;
 
@@ -181,20 +186,6 @@ public class UrlPage extends Div {
 	protected void onForceRebuild() {
 		super.onForceRebuild();
 		getPage().getConversation().setAttribute(LogicContextImpl.class.getName(), null);
-	}
-
-	/**
-	 * EXPERIMENTAL Get the binding context for the page/module.
-	 * @return
-	 */
-	@Override
-	@Nonnull
-	public BindingContext getBindingContext() {
-		BindingContext bc = m_bindingContext;
-		if(null == bc) {
-			bc = m_bindingContext = new BindingContext();
-		}
-		return bc;
 	}
 
 	/**
