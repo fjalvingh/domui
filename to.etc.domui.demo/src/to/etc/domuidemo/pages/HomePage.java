@@ -5,7 +5,6 @@ import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.ImgAlign;
 import to.etc.domuidemo.pages.basic.DemoTextArea;
 import to.etc.domuidemo.pages.binding.tbl.DemoObservableListPage;
-import to.etc.domuidemo.pages.formbuilder.SimpleForm1;
 import to.etc.domuidemo.pages.graphs.GraphPage;
 import to.etc.domuidemo.pages.overview.agenda.DemoWeekAgenda;
 import to.etc.domuidemo.pages.overview.buttons.DemoDefaultButton;
@@ -127,7 +126,6 @@ public class HomePage extends MenuPage {
 		addLink(DemoLookupForm.class, "Using a lookupform to generalize search pages");
 		addLink(DemoLookupForm2.class, "LookupForm with LookupInput for a many-to-one relation, and search-as-you-type");
 
-		addLink(SimpleForm1.class, "The FormBuilder - very simple edit page");
 		addLink(FormDesigner.class, "Form designer - work in progress");
 
 		addCaption("Special components");
