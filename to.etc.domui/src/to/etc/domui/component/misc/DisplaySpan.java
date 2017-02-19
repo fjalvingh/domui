@@ -40,7 +40,6 @@ import to.etc.webapp.nls.NlsContext;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Set;
 
 /**
  * This is a special control which can be used to display all kinds of values as a span without any formatting. It is
@@ -52,10 +51,6 @@ import java.util.Set;
  * Created on Feb 15, 2010
  */
 public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IBindable, IConvertable<T> {
-	/** The properties bindable for this component. */
-	@Nonnull
-	static private final Set<String> BINDABLE_SET = createNameSet("value");
-
 	@Nonnull
 	private Class<T> m_valueClass;
 

@@ -151,9 +151,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	static private final byte F_BUNDLEUSED = 0x04;
 
-	/** When set, this means setMessage() will not broadcast the message to a message fence. This gets set for hard binding, so that code can decide when/how to show errors. */
-	static private final byte F_NO_MESSAGE_BROADCAST = 0x08;
-
 	private byte m_flags;
 
 	private StackTraceElement[] m_allocationTracepoint;
@@ -1348,7 +1345,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		m_message = msg;										// ORDERED: important!
 
 		//-- Broadcast the error through the tree
-		if(m_page != null && isMessageBroadcastEnabled()) {		// Fix for bug# 787: cannot locate error fence. Allow errors to be posted on disconnected nodes.
+		if(m_page != null) {									// Fix for bug# 787: cannot locate error fence. Allow errors to be posted on disconnected nodes.
 			IErrorFence fence = DomUtil.getMessageFence(this);	// Get the fence that'll handle the message by looking UPWARDS in the tree
 			if(null != old)
 				fence.removeMessage(old);
@@ -1807,46 +1804,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	final public String getThemedResourceRURL(@Nonnull String path) {
 		IThemeVariant themeStyle = getPage().getBody().getThemeVariant();
 		return DomApplication.get().internalGetThemeManager().getThemedResourceRURL(themeStyle, path);
-	}
-
-	/**
-	 * Create a name set for properties.
-	 * @param names
-	 * @return
-	 */
-	@Nonnull
-	static protected Set<String> createNameSet(@Nonnull String... names) {
-		Set<String> res = new HashSet<String>(names.length);
-		for(String name : names)
-			res.add(name);
-		res.add("message");
-		return res;
-	}
-
-	/**
-	 * When set, this means setMessage() will not broadcast the message to a message
-	 * fence. This gets set for hard binding, so that code can decide when/how to show
-	 * errors. It defaults to true.
-	 * @return
-	 */
-	public boolean isMessageBroadcastEnabled() {
-		return (m_flags & F_NO_MESSAGE_BROADCAST) == 0;
-	}
-
-	/**
-	 * When set, this means setMessage() will not broadcast the message to a message
-	 * fence. This gets set for hard binding, so that code can decide when/how to show
-	 * errors. It defaults to true.
-	 *
-	 * @see to.etc.domui.dom.errors.INodeErrorDelegate#setMessageBroadcastEnabled(boolean)
-	 */
-	@Override
-	public void setMessageBroadcastEnabled(boolean yes) {
-		if(yes) {
-			m_flags &= ~F_NO_MESSAGE_BROADCAST;
-		} else {
-			m_flags |= F_NO_MESSAGE_BROADCAST;
-		}
 	}
 
 	/*----------------------------------------------------------------------*/

@@ -30,7 +30,6 @@ import javax.annotation.*;
 /**
  * FIXME Bad name
  *
- *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Sep 22, 2009
  */
@@ -41,7 +40,7 @@ public interface INodeErrorDelegate {
 	 * higher than the severity of the existing one; only in that case will the error
 	 * be removed. To clear the error message call clearMessage().
 	 *
-	 * @param message
+	 * @param msg
 	 */
 	UIMessage setMessage(@Nullable UIMessage msg);
 
@@ -53,13 +52,4 @@ public interface INodeErrorDelegate {
 
 	@Nullable
 	UIMessage getMessage();
-
-	/**
-	 * When set, this means setMessage() will not broadcast the message to a message
-	 * fence. This gets set for hard binding, so that code can decide when/how to show
-	 * errors. It defaults to true.
-	 *
-	 * @param yes
-	 */
-	public void setMessageBroadcastEnabled(boolean yes);
 }
