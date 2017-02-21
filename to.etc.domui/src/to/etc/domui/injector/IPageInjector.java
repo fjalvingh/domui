@@ -31,5 +31,7 @@ import javax.annotation.*;
 
 @DefaultNonNull
 public interface IPageInjector {
+	void registerFactory(int urgency, IPagePropertyFactory injector);
+
 	void injectPageValues(final UrlPage page, final IPageParameters papa) throws Exception;
 }
