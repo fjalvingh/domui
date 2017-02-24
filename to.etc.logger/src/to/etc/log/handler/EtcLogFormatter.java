@@ -1,13 +1,15 @@
 package to.etc.log.handler;
 
-import java.sql.*;
-import java.text.*;
+import org.slf4j.MDC;
+import org.slf4j.Marker;
+import org.slf4j.helpers.FormattingTuple;
+import org.slf4j.helpers.MessageFormatter;
+import to.etc.log.event.EtcLogEvent;
 
-import javax.annotation.*;
-
-import org.slf4j.*;
-
-import to.etc.log.event.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 
 /**
  * Formats logger event.
@@ -106,13 +108,15 @@ public class EtcLogFormatter {
 	private static void handleMsg(@Nonnull EtcLogEvent event, @Nonnull StringBuilder sb) {
 		Object[] args = event.getArgs();
 		if(args != null && args.length > 0) {
+			FormattingTuple tuple;
 			if(args.length == 1) {
-				sb.append(org.slf4j.helpers.MessageFormatter.format(event.getMsg(), args));
+				tuple = MessageFormatter.format(event.getMsg(), args);
 			} else if(args.length == 2) {
-				sb.append(org.slf4j.helpers.MessageFormatter.format(event.getMsg(), args[0], args[1]));
+				tuple = org.slf4j.helpers.MessageFormatter.format(event.getMsg(), args[0], args[1]);
 			} else {
-				sb.append(org.slf4j.helpers.MessageFormatter.arrayFormat(event.getMsg(), args));
+				tuple = org.slf4j.helpers.MessageFormatter.arrayFormat(event.getMsg(), args);
 			}
+			sb.append(tuple.getMessage());
 		} else {
 			sb.append(event.getMsg());
 		}
