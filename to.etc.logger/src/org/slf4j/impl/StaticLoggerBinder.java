@@ -38,7 +38,7 @@ public class StaticLoggerBinder implements LoggerFactoryBinder {
 	 */
 	// To avoid constant folding by the compiler,  
 	// this field must *not* be final  
-	public static String			REQUESTED_API_VERSION	= "1.5.10";						// !final  
+	public static String			REQUESTED_API_VERSION	= "1.7.23";						// !final
 
 	private static final String		loggerFactoryClassStr	= EtcLoggerFactory.class.getName();
 
