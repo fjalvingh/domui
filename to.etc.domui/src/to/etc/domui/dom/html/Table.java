@@ -111,6 +111,16 @@ public class Table extends NodeContainer {
 		}
 	}
 
+	public TH addHeader(final NodeBase header) {
+		THead h = getHead();
+		return h.addHeader(header);
+	}
+
+	public TH addHeader(String text) {
+		THead h = getHead();
+		return h.addHeader(text);
+	}
+
 	/**
 	 * Forbid some often made node errors in table's content model.
 	 * @see to.etc.domui.dom.html.NodeContainer#canContain(to.etc.domui.dom.html.NodeBase)
