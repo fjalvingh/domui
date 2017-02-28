@@ -1,12 +1,21 @@
 package to.etc.domui.component2.form4;
 
-import javax.annotation.*;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component2.controlfactory.ControlCreatorRegistry;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.Label;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.TR;
+import to.etc.domui.dom.html.Table;
+import to.etc.domui.server.DomApplication;
+import to.etc.webapp.annotations.GProperty;
 
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component2.controlfactory.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.webapp.annotations.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Yet another attempt at a generic form builder, using the Builder pattern. The builder
@@ -180,8 +189,8 @@ final public class FormBuilder {
 	}
 
 	@Nonnull
-	public IControl< ? > control() throws Exception {
-		return control((Class< ? extends IControl< ? >>) null);
+	public <T> IControl<T> control() throws Exception {
+		return control((Class< ? extends IControl< T >>) null);
 	}
 
 	@Nonnull
