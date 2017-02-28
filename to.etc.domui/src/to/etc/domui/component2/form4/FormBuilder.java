@@ -189,7 +189,7 @@ final public class FormBuilder {
 	}
 
 	@Nonnull
-	public <T> IControl<T> control() throws Exception {
+	public <T> IControl<?> control() throws Exception {
 		return control((Class< ? extends IControl< T >>) null);
 	}
 
