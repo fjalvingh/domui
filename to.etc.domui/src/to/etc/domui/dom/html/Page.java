@@ -556,7 +556,7 @@ final public class Page implements IQContextContainer {
 	public void modelToControl() throws Exception {
 		internalSetPhase(PagePhase.bindModelToControl);
 		try {
-			DefaultBindingHandler.modelToControl(getBody());
+			OldBindingHandler.modelToControl(getBody());
 		} finally {
 			internalSetPhase(PagePhase.NULL);
 		}
@@ -565,7 +565,7 @@ final public class Page implements IQContextContainer {
 	public void controlToModel() throws Exception {
 		internalSetPhase(PagePhase.bindControlToModel);
 		try {
-			DefaultBindingHandler.controlToModel(getBody());
+			OldBindingHandler.controlToModel(getBody());
 		} finally {
 			internalSetPhase(PagePhase.NULL);
 		}

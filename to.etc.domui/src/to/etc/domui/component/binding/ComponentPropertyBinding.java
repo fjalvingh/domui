@@ -148,6 +148,72 @@ final public class ComponentPropertyBinding implements IBinder, IBinding {
 		moveModelToControl();
 	}
 
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	Accessing the binding's data.								*/
+	/*----------------------------------------------------------------------*/
+	/**
+	 * If this binding is in error: return the message describing that error.
+	 * @return
+	 */
+	@Override
+	@Nullable
+	public UIMessage getBindError() {
+		return m_bindError;
+	}
+
+	@Nonnull
+	public IValueAccessor< ? > getControlProperty() {
+		return m_controlProperty;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("binding[");
+		if(m_instance != null) {
+			sb.append(m_instance);
+		} else if(m_listener != null) {
+			sb.append("listener ").append(m_listener);
+		} else {
+			sb.append("?");
+		}
+		IValueAccessor< ? > instanceProperty = m_instanceProperty;
+		if(instanceProperty != null) {
+			sb.append(".");
+			if(instanceProperty instanceof PropertyMetaModel) {
+				sb.append(((PropertyMetaModel< ? >) instanceProperty).getName());
+			} else {
+				sb.append(instanceProperty.toString());
+			}
+		}
+		NodeBase control = m_control;
+		if(null != control) {
+			sb.append(" to ");
+			sb.append(control.getClass().getSimpleName());
+			IValueAccessor<?> controlProperty = m_controlProperty;
+			if(null != controlProperty) {
+				if(controlProperty instanceof PropertyMetaModel<?>) {
+					sb.append(".").append(((PropertyMetaModel<?>) controlProperty).getName());
+				} else {
+					sb.append(controlProperty.toString());
+				}
+			}
+		}
+		sb.append("]");
+		return sb.toString();
+	}
+
+	@Nullable
+	public Object getInstance() {
+		return m_instance;
+	}
+
+	@Nullable
+	public IValueAccessor< ? > getInstanceProperty() {
+		return m_instanceProperty;
+	}
+
+
 	/**
 	 * Map value types of primitive type to their boxed (wrapped) types.
 	 * @param clz
@@ -159,15 +225,6 @@ final public class ComponentPropertyBinding implements IBinder, IBinding {
 		return newClass != null ? newClass : clz;
 	}
 
-	/**
-	 * If this binding is in error: return the message describing that error.
-	 * @return
-	 */
-	@Override
-	@Nullable
-	public UIMessage getBindError() {
-		return m_bindError;
-	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IModelBinding interface implementation.				*/
@@ -184,7 +241,6 @@ final public class ComponentPropertyBinding implements IBinder, IBinding {
 		NodeBase control = m_control;
 		if(control instanceof IDisplayControl)
 			return;
-
 
 		/*
 		 * jal 20150414 Readonly (display) and disabled controls should not bind their value
@@ -297,55 +353,4 @@ final public class ComponentPropertyBinding implements IBinder, IBinding {
 	/*	CODING:	Handling simple binding chores.						*/
 	/*--------------------------------------------------------------*/
 
-	@Nonnull
-	public IValueAccessor< ? > getControlProperty() {
-		return m_controlProperty;
-	}
-
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("binding[");
-		if(m_instance != null) {
-			sb.append(m_instance);
-		} else if(m_listener != null) {
-			sb.append("listener ").append(m_listener);
-		} else {
-			sb.append("?");
-		}
-		IValueAccessor< ? > instanceProperty = m_instanceProperty;
-		if(instanceProperty != null) {
-			sb.append(".");
-			if(instanceProperty instanceof PropertyMetaModel) {
-				sb.append(((PropertyMetaModel< ? >) instanceProperty).getName());
-			} else {
-				sb.append(instanceProperty.toString());
-			}
-		}
-		NodeBase control = m_control;
-		if(null != control) {
-			sb.append(" to ");
-			sb.append(control.getClass().getSimpleName());
-			IValueAccessor<?> controlProperty = m_controlProperty;
-			if(null != controlProperty) {
-				if(controlProperty instanceof PropertyMetaModel<?>) {
-					sb.append(".").append(((PropertyMetaModel<?>) controlProperty).getName());
-				} else {
-					sb.append(controlProperty.toString());
-				}
-			}
-		}
-		sb.append("]");
-		return sb.toString();
-	}
-
-	@Nullable
-	public Object getInstance() {
-		return m_instance;
-	}
-
-	@Nullable
-	public IValueAccessor< ? > getInstanceProperty() {
-		return m_instanceProperty;
-	}
 }

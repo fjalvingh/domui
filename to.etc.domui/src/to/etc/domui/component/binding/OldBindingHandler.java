@@ -17,7 +17,7 @@ import java.util.List;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  *         Created on 12-3-17.
  */
-public class DefaultBindingHandler {
+public class OldBindingHandler {
 	static public final String BINDING_ERROR = "BindingError";
 
 	/**

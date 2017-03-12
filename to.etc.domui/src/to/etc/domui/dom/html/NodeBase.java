@@ -1289,11 +1289,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		if(null != el) {
 			sb.append(":").append(el);
 		}
-		ComponentPropertyBinding binding = DefaultBindingHandler.findBinding(this, "value");
+		ComponentPropertyBinding binding = OldBindingHandler.findBinding(this, "value");
 		if(binding != null) {
 			sb.append(" ").append(binding);
 		} else {
-			binding = DefaultBindingHandler.findBinding(this, "bindValue");
+			binding = OldBindingHandler.findBinding(this, "bindValue");
 			if(binding != null) {
 				sb.append(" ").append(binding);
 			}
@@ -1845,7 +1845,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	@Nonnull
 	public List<UIMessage> getBindingErrors() throws Exception {
-		return DefaultBindingHandler.getBindingErrors(this);
+		return OldBindingHandler.getBindingErrors(this);
 	}
 
 	/**
@@ -1854,7 +1854,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @return
 	 */
 	public boolean bindErrors() throws Exception {
-		return DefaultBindingHandler.reportBindingErrors(this);
+		return OldBindingHandler.reportBindingErrors(this);
 	}
 
 	/**

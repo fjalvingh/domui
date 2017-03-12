@@ -125,7 +125,7 @@ public class ProblemReporter {
 		//-- Now get rid of all that was no longer reported
 		for(UIMessage old : existingErrorSet) {
 			for(IErrorFence f : allFences) {
-				if(DefaultBindingHandler.BINDING_ERROR != old.getGroup())
+				if(OldBindingHandler.BINDING_ERROR != old.getGroup())
 					f.removeMessage(old);
 			}
 		}
