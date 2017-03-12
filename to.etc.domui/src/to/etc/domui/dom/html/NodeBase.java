@@ -1289,7 +1289,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		if(null != el) {
 			sb.append(":").append(el);
 		}
-		SimpleBinder binding = DefaultBindingHandler.findBinding(this, "value");
+		ComponentPropertyBinding binding = DefaultBindingHandler.findBinding(this, "value");
 		if(binding != null) {
 			sb.append(" ").append(binding);
 		} else {
@@ -1910,7 +1910,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	}
 
 	@Nonnull final public IBinder bind(@Nonnull String componentProperty) {
-		SimpleBinder binder = new SimpleBinder(this, componentProperty);
+		ComponentPropertyBinding binder = new ComponentPropertyBinding(this, componentProperty);
 		addBinding(binder);
 		return binder;
 	}

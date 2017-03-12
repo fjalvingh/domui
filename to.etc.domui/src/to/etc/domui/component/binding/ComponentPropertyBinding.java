@@ -40,13 +40,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This is a single binding instance between a control and one of the control's properties.
+ * This binds a control property to some model property.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 13, 2009
  */
-final public class SimpleBinder implements IBinder, IBinding {
-
+final public class ComponentPropertyBinding implements IBinder, IBinding {
 	@Nonnull
 	final private NodeBase m_control;
 
@@ -86,7 +85,7 @@ final public class SimpleBinder implements IBinder, IBinding {
 		BOXINGDISASTER.put(byte.class, Byte.class);
 	}
 
-	public SimpleBinder(@Nonnull NodeBase control, @Nonnull String controlProperty) {
+	public ComponentPropertyBinding(@Nonnull NodeBase control, @Nonnull String controlProperty) {
 		if(control == null)
 			throw new IllegalArgumentException("The control cannot be null.");
 		m_control = control;
