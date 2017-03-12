@@ -24,17 +24,20 @@
  */
 package to.etc.domui.component.binding;
 
-import java.util.*;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.IDisplayControl;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.util.IValueAccessor;
+import to.etc.webapp.ProgrammerErrorException;
+import to.etc.webapp.nls.CodeException;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
-import to.etc.domui.util.DomUtil.IPerNode;
-import to.etc.webapp.*;
-import to.etc.webapp.nls.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This is a single binding instance between a control and one of the control's properties.
@@ -43,7 +46,6 @@ import to.etc.webapp.nls.*;
  * Created on Oct 13, 2009
  */
 final public class SimpleBinder implements IBinder, IBinding {
-	static public final String BINDING_ERROR = "BindingError";
 
 	@Nonnull
 	final private NodeBase m_control;
@@ -70,6 +72,7 @@ final public class SimpleBinder implements IBinder, IBinding {
 	@Nullable
 	private UIMessage m_bindError;
 
+	/** Map value types of primitive type to their boxed (wrapped) types. */
 	final static private Map<Class<?>, Class<?>> BOXINGDISASTER = new HashMap<>();
 
 	static {
@@ -146,6 +149,11 @@ final public class SimpleBinder implements IBinder, IBinding {
 		moveModelToControl();
 	}
 
+	/**
+	 * Map value types of primitive type to their boxed (wrapped) types.
+	 * @param clz
+	 * @return
+	 */
 	@Nonnull
 	static private Class<?> fixBoxingDisaster(@Nonnull Class<?> clz) {
 		Class<?> newClass = BOXINGDISASTER.get(clz);
@@ -205,7 +213,6 @@ final public class SimpleBinder implements IBinder, IBinding {
 				return;
 			}
 		}
-
 
 		IBindingListener< ? > listener = m_listener;
 		if(listener != null) {
@@ -281,38 +288,6 @@ final public class SimpleBinder implements IBinder, IBinding {
 				m_lastValueFromControl = modelValue;
 				((IValueAccessor<Object>) m_controlProperty).setValue(m_control, modelValue);
 				m_bindError = null;                                    // Let's assume binding has no trouble.
-
-//			/*
-//			 * jal yeah, this also suffers from "knowing" that we're accessing the control's value 8-/ We need
-//			 * to think about this.
-//			 *
-//			 * When updated from the model: clear the control's error. This should probably call the control's validation
-//			 * methods to see if the new value set obeys the control's validation (notably: mandatoryness, pattern).
-//			 */
-//			if(control.isAttached()) {
-//				UIMessage ctlError = control.getMessage();
-//				if(null != ctlError) {
-//					LogiErrors errorModel = control.lc().getErrorModel();
-//					errorModel.clearMessage(instance, instanceProperty, ctlError);
-//					control.setMessage(null);
-//				}
-//			}
-			} else {
-//			/*
-//			 * Model has not updated the value. If the control *itself* has an error (Which can be known because the
-//			 * last bind error is != null) we keep that error, otherwise we set the 1st error from the model.
-//			 */
-//			if(m_bindError == null) {
-//				if(control.isAttached()) {
-//					LogiErrors errorModel = control.lc().getErrorModel();
-//					Set<UIMessage> e2b = errorModel.getErrorsOn(instance, instanceProperty);
-//					UIMessage msg = null;
-//					if(e2b.size() > 0) {
-//						msg = e2b.iterator().next();
-//					}
-//					control.setMessage(msg);
-//				}
-//			}
 			}
 		} catch(Exception x) {
 			throw new BindingFailureException(x, "Model->Control", this.toString());
@@ -322,160 +297,6 @@ final public class SimpleBinder implements IBinder, IBinding {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Handling simple binding chores.						*/
 	/*--------------------------------------------------------------*/
-	/**
-	 * System helper method to move all bindings from control into the model (called at request start).
-	 * @param root
-	 * @throws Exception
-	 */
-	static public void controlToModel(@Nonnull NodeBase root) throws Exception {
-		DomUtil.walkTree(root, new DomUtil.IPerNode() {
-			@Override
-			public Object before(NodeBase n) throws Exception {
-				List<IBinding> list = n.getBindingList();
-				if(null != list) {
-					for(IBinding sb : list)
-						sb.moveControlToModel();
-				}
-				return null;
-			}
-
-			@Override
-			public Object after(NodeBase n) throws Exception {
-				return null;
-			}
-		});
-	}
-
-	/**
-	 * System helper method to move all bindings from model to control (called at request end).
-	 * @param root
-	 * @throws Exception
-	 */
-	static public void modelToControl(@Nonnull NodeBase root) throws Exception {
-		DomUtil.walkTree(root, new DomUtil.IPerNode() {
-			@Override
-			public Object before(NodeBase n) throws Exception {
-				List<IBinding> list = n.getBindingList();
-				if(null != list) {
-					for(IBinding sb : list)
-						sb.moveModelToControl();
-				}
-				return null;
-			}
-
-			@Override
-			public Object after(NodeBase n) throws Exception {
-				return null;
-			}
-		});
-	}
-
-	/**
-	 * Get a list of binding errors starting at (and including) the parameter node. Each
-	 * message will contain the NodeBase control that failed inside {@link UIMessage#getErrorNode()}.
-	 * @param root
-	 * @return
-	 * @throws Exception
-	 */
-	@Nonnull
-	static public List<UIMessage> getBindingErrors(@Nonnull NodeBase root) throws Exception {
-		final List<UIMessage> res = new ArrayList<>();
-		DomUtil.walkTree(root, new IPerNode() {
-			@Override
-			public Object before(NodeBase n) throws Exception {
-				List<IBinding> list = n.getBindingList();
-				if(null != list) {
-					for(IBinding sb : list) {
-						UIMessage message = sb.getBindError();
-						if(null != message)
-							res.add(message);
-					}
-				}
-				return null;
-			}
-
-			@Override
-			public Object after(NodeBase n) throws Exception {
-				return null;
-			}
-		});
-		return res;
-	}
-
-	/**
-	 * If the specified subtree has binding errors: report them, and return TRUE if there are
-	 * errors.
-	 * @param root
-	 * @return true if errors are present
-	 * @throws Exception
-	 */
-	static public boolean reportBindingErrors(@Nonnull NodeBase root) throws Exception {
-		final boolean[] silly = new boolean[1];					// Not having free variables is a joke.
-		DomUtil.walkTree(root, new IPerNode() {
-			@Override
-			public Object before(NodeBase n) throws Exception {
-				List<IBinding> list = n.getBindingList();
-				if(null != list) {
-					List<UIMessage> bindErrorList= new ArrayList<>();
-
-					//-- Find all bindings with an error
-					for(IBinding sb : list) {
-						UIMessage message = sb.getBindError();
-						if(null != message) {
-							bindErrorList.add(message);
-						}
-					}
-
-					//-- If there is an error somewhere- report the 1st one on the component
-					if(bindErrorList.size() > 0) {
-						UIMessage message = bindErrorList.get(0);		// Report the first error as the binding error.
-						message.group(BINDING_ERROR);
-						silly[0] = true;
-						n.setMessage(message);
-					} else {
-						/*
-						 * jal 20160215 This binding's component does not have a binding error now. An old
-						 * comment said "should not be reset: should be done by component itself". That seems
-						 * to be wrong, though. We should not just set the component error to null here, because
-						 * an error can be put there by something else. But if the component is showing a binding
-						 * error caused by a /previous/ run of this code then that error should be removed, because
-						 * otherwise no one does! The component cannot do it because it is forbidden to play
-						 * with messages during binding.
-						 */
-						UIMessage componentMessage = n.getMessage();
-						if(componentMessage != null && BINDING_ERROR.equals(componentMessage.getGroup())) {
-							n.setMessage(null);
-						}
-					}
-				}
-				return null;
-			}
-
-			@Override
-			public Object after(NodeBase n) throws Exception {
-				return null;
-			}
-		});
-		return silly[0];
-	}
-
-	@Nullable
-	public static SimpleBinder findBinding(NodeBase nodeBase, String string) {
-		List<IBinding> list = nodeBase.getBindingList();
-		if(list != null) {
-			for(IBinding sb : list) {
-				if(sb instanceof SimpleBinder) {
-					SimpleBinder sib = (SimpleBinder) sb;
-					IValueAccessor<?> property = sib.getControlProperty();
-					if(property instanceof PropertyMetaModel) {
-						if(string.equals(((PropertyMetaModel<?>) property).getName()))
-							return sib;
-					}
-				}
-			}
-		}
-		return null;
-	}
 
 	@Nonnull
 	public IValueAccessor< ? > getControlProperty() {

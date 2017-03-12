@@ -1095,7 +1095,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 			setValue(value);
 
 			try {
-				SimpleBinder.controlToModel(this);
+				DefaultBindingHandler.controlToModel(this);
 			} catch(Exception x) {
 				throw WrappedException.wrap(x);
 			}
