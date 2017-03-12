@@ -12,7 +12,8 @@ import javax.annotation.*;
  * Created on 12/10/14.
  */
 public interface IBinding {
-	public void moveControlToModel() throws Exception;
+	@Nullable
+	BindingPair<?, ?> moveControlToModel() throws Exception;
 
 	public void moveModelToControl() throws Exception;
 

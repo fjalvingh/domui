@@ -237,10 +237,10 @@ final public class ComponentPropertyBinding implements IBinder, IBinding {
 	 * an exception.
 	 */
 	@Override
-	public void moveControlToModel() throws Exception {
+	public BindingPair<?, ?> moveControlToModel() throws Exception {
 		NodeBase control = m_control;
 		if(control instanceof IDisplayControl)
-			return;
+			return null;
 
 		/*
 		 * jal 20150414 Readonly (display) and disabled controls should not bind their value
@@ -265,21 +265,21 @@ final public class ComponentPropertyBinding implements IBinder, IBinding {
 		if(control instanceof IControl) {
 			IControl<?> ict = (IControl<?>) control;
 			if(ict.isDisabled() || ict.isReadOnly()) {
-				return;
+				return null;
 			}
 		}
 
 		IBindingListener< ? > listener = m_listener;
 		if(listener != null) {
 			((IBindingListener<NodeBase>) listener).moveControlToModel(control);
-			return;
+			return null;
 		}
 
 		IValueAccessor< ? > instanceProperty = m_instanceProperty;
 		if(null == instanceProperty)
 			throw new IllegalStateException("instance property cannot be null");
 		if(instanceProperty.isReadOnly())
-			return;
+			return null;
 		Object instance = m_instance;
 		if(null == instance)
 			throw new IllegalStateException("instance cannot be null");

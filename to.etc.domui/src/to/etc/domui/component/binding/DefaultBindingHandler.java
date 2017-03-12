@@ -16,20 +16,6 @@ import java.util.List;
 public class DefaultBindingHandler {
 	private final NodeBase m_rootNode;
 
-	static public class BindingPair<CV, PV> {
-		private final IBinding m_binding;
-
-		private final CV m_controlValue;
-
-		private final PV m_propertyValue;
-
-		public BindingPair(IBinding binding, CV controlValue, PV propertyValue) {
-			m_binding = binding;
-			m_controlValue = controlValue;
-			m_propertyValue = propertyValue;
-		}
-	}
-
 	public DefaultBindingHandler(NodeBase rootNode) {
 		m_rootNode = rootNode;
 	}
