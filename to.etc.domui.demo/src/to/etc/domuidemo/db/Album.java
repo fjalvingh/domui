@@ -13,6 +13,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "Album")
@@ -24,7 +26,7 @@ public class Album extends DbRecordBase<Long> {
 	private Artist m_artist;
 
 	@Nonnull
-	private IObservableList<Track> m_trackList = new ObservableList<Track>();
+	private List<Track> m_trackList = new ArrayList<Track>();
 
 	@Override
 	@Id
@@ -59,11 +61,11 @@ public class Album extends DbRecordBase<Long> {
 
 	@Nonnull
 	@OneToMany(mappedBy = "album", fetch = FetchType.LAZY)
-	public IObservableList<Track> getTrackList() {
+	public List<Track> getTrackList() {
 		return m_trackList;
 	}
 
-	public void setTrackList(@Nonnull IObservableList<Track> trackList) {
+	public void setTrackList(@Nonnull List<Track> trackList) {
 		m_trackList = trackList;
 	}
 }
