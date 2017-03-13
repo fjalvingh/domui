@@ -16,4 +16,11 @@ public class BindingPair<CV, PV> {
 		m_controlValue = controlValue;
 		m_propertyValue = propertyValue;
 	}
+
+	/**
+	 * Move the "control" value to the "property".
+	 */
+	public void moveControlToModel() {
+		m_binding.setModelValue(m_controlValue);
+	}
 }

@@ -225,6 +225,27 @@ final public class ComponentPropertyBinding implements IBinder, IBinding {
 		return newClass != null ? newClass : clz;
 	}
 
+	/**
+	 *
+	 * @param value
+	 * @param <T>
+	 */
+	@Override public <T> void setModelValue(T value) {
+		IValueAccessor< ? > instanceProperty = m_instanceProperty;
+		if(null == instanceProperty)
+			throw new IllegalStateException("instance property cannot be null");
+		if(instanceProperty.isReadOnly())
+			throw new IllegalStateException(instanceProperty + ": You cannot set this read-only property");
+		Object instance = m_instance;
+		if(null == instance)
+			throw new IllegalStateException("instance cannot be null");
+
+		try {
+			((IValueAccessor<T>) instanceProperty).setValue(instance, value);
+		} catch(Exception x) {
+			throw new BindingFailureException(x, "->model", this + ": Binding error moving " + value + " to " + m_instanceProperty);
+		}
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IModelBinding interface implementation.				*/
@@ -289,11 +310,11 @@ final public class ComponentPropertyBinding implements IBinder, IBinding {
 		 * add the problem inside the Error collector, signaling a problem to any logic
 		 * that would run after.
 		 */
-		Object value = null;
+		Object controlValue = null;
 		UIMessage newError = null;
 		try {
-			value = m_controlProperty.getValue(m_control);
-			m_lastValueFromControl = value;
+			controlValue = m_controlProperty.getValue(m_control);
+			m_lastValueFromControl = controlValue;
 			m_bindError = null;
 		} catch(CodeException cx) {
 			newError = UIMessage.error(cx);
@@ -304,15 +325,28 @@ final public class ComponentPropertyBinding implements IBinder, IBinding {
 			}
 			//System.out.println("~~ " + control + " to " + instanceProperty + ": " + cx);
 		}
-		if(null == newError) {
-			//-- QUESTION: Should we move something to the model @ error?
-			try {
-				((IValueAccessor<Object>) instanceProperty).setValue(instance, value);
-			} catch(Exception x) {
-				throw new IllegalStateException("Binding error moving " + m_controlProperty + " to " + m_instanceProperty + ": " + x, x);
-			}
+
+		//-- When in error we cannot set anything anyway, so exit.
+		if(null != newError) {
+			return null;
 		}
-		//System.out.println("binder: get " + m_control.getComponentInfo() + " value -> model " + value);
+
+		//-- Get the property's value & compare with control value to see if something needs to change
+		Object propertyValue = ((IValueAccessor<Object>) instanceProperty).getValue(instance);
+		if(MetaManager.areObjectsEqual(propertyValue, controlValue))
+			return null;
+
+		return new BindingPair<>(this, controlValue, propertyValue);
+//
+//		if(null == newError) {
+//			//-- QUESTION: Should we move something to the model @ error?
+//			try {
+//				((IValueAccessor<Object>) instanceProperty).setValue(instance, controlValue);
+//			} catch(Exception x) {
+//				throw new IllegalStateException("Binding error moving " + m_controlProperty + " to " + m_instanceProperty + ": " + x, x);
+//			}
+//		}
+//		//System.out.println("binder: get " + m_control.getComponentInfo() + " value -> model " + value);
 	}
 
 	/**

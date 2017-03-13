@@ -15,8 +15,15 @@ public interface IBinding {
 	@Nullable
 	BindingPair<?, ?> moveControlToModel() throws Exception;
 
-	public void moveModelToControl() throws Exception;
+	void moveModelToControl() throws Exception;
 
 	@Nullable
-	public UIMessage getBindError();
+	UIMessage getBindError();
+
+	/**
+	 * Put the specified value into the bound model property.
+	 * @param value
+	 * @param <T>
+	 */
+	<T> void setModelValue(T value);
 }

@@ -29,8 +29,10 @@ public class DefaultBindingHandler {
 		if(pairs.size() == 0)
 			return;
 
-
-
+		//-- We now know all bindings that changed values, and the list is in the proper order. Move all data.
+		for(BindingPair<?, ?> pair : pairs) {
+			pair.moveControlToModel();
+		}
 	}
 
 	/**
@@ -46,16 +48,19 @@ public class DefaultBindingHandler {
 		List<BindingPair<?, ?>> result = new ArrayList<>();
 
 		DomUtil.walkTree(m_rootNode, new DomUtil.IPerNode() {
+			@Nullable
 			@Override
 			public Object before(NodeBase n) throws Exception {
+				return null;
 			}
 
 			@Override
+			@Nullable
 			public Object after(NodeBase n) throws Exception {
 				List<IBinding> list = n.getBindingList();
 				if(null != list) {
 					for(IBinding sb : list) {
-						BindingPair<?, ?> pair = checkBindingDelta(n, sb);
+						BindingPair<?, ?> pair = sb.moveControlToModel();
 						if(null != pair)
 							result.add(pair);
 					}
@@ -64,23 +69,6 @@ public class DefaultBindingHandler {
 			}
 		});
 		return result;
-	}
-
-	/**
-	 * For the binding, check if the binding's property and control value
-	 * are different, if so return a Pair describing both values.
-	 *
-	 * @param n
-	 * @param sb
-	 * @return
-	 */
-	@Nullable
-	private BindingPair<?, ?> checkBindingDelta(NodeBase n, IBinding sb) {
-
-
-
-
-
 	}
 
 
