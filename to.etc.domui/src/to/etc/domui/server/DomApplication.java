@@ -26,6 +26,9 @@ package to.etc.domui.server;
 
 import org.slf4j.*;
 import to.etc.domui.ajax.*;
+import to.etc.domui.component.binding.DefaultBindingHandler;
+import to.etc.domui.component.binding.IBindingHandler;
+import to.etc.domui.component.binding.IBindingHandlerFactory;
 import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.delayed.*;
 import to.etc.domui.component.layout.*;
@@ -150,6 +153,12 @@ public abstract class DomApplication {
 	 */
 	@Nullable
 	abstract public Class< ? extends UrlPage> getRootPage();
+
+	/**
+	 * Used to handle soft binding: moving data from controls -> model and vice versa.
+	 */
+	@Nonnull
+	private IBindingHandlerFactory	m_bindingHandlerFactory = DefaultBindingHandler.FACTORY;
 
 	/**
 	 * Render factories for different browser versions.
@@ -770,6 +779,18 @@ public abstract class DomApplication {
 		m_showProblemTemplate = showProblemTemplate;
 	}
 
+	@Nonnull public IBindingHandlerFactory getBindingHandlerFactory() {
+		return m_bindingHandlerFactory;
+	}
+
+	public void setBindingHandlerFactory(@Nonnull IBindingHandlerFactory bindingHandlerFactory) {
+		m_bindingHandlerFactory = bindingHandlerFactory;
+	}
+
+	@Nonnull
+	public IBindingHandler	getBindingHandler(@Nonnull NodeBase node) {
+		return getBindingHandlerFactory().getBindingHandler(node);
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Global header contributors.							*/

@@ -13,7 +13,7 @@ import javax.annotation.*;
  */
 public interface IBinding {
 	@Nullable
-	BindingPair<?, ?> moveControlToModel() throws Exception;
+	BindingPair<?, ?> getBindingDifference() throws Exception;
 
 	void moveModelToControl() throws Exception;
 

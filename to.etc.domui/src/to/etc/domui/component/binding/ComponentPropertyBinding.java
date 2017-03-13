@@ -258,7 +258,7 @@ final public class ComponentPropertyBinding implements IBinder, IBinding {
 	 * an exception.
 	 */
 	@Override
-	public BindingPair<?, ?> moveControlToModel() throws Exception {
+	public BindingPair<?, ?> getBindingDifference() throws Exception {
 		NodeBase control = m_control;
 		if(control instanceof IDisplayControl)
 			return null;

@@ -3,6 +3,7 @@ package to.etc.domui.component.binding;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.server.DomApplication;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IValueAccessor;
 
@@ -17,8 +18,10 @@ import java.util.List;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  *         Created on 12-3-17.
  */
-public class OldBindingHandler {
+final public class OldBindingHandler {
 	static public final String BINDING_ERROR = "BindingError";
+
+	private OldBindingHandler() {}
 
 	/**
 	 * System helper method to move all bindings from control into the model (called at request start).
@@ -26,22 +29,7 @@ public class OldBindingHandler {
 	 * @throws Exception
 	 */
 	static public void controlToModel(@Nonnull NodeBase root) throws Exception {
-		DomUtil.walkTree(root, new DomUtil.IPerNode() {
-			@Override
-			public Object before(NodeBase n) throws Exception {
-				List<IBinding> list = n.getBindingList();
-				if(null != list) {
-					for(IBinding sb : list)
-						sb.moveControlToModel();
-				}
-				return null;
-			}
-
-			@Override
-			public Object after(NodeBase n) throws Exception {
-				return null;
-			}
-		});
+		DomApplication.get().getBindingHandler(root).controlToModel();
 	}
 
 	/**
@@ -50,22 +38,7 @@ public class OldBindingHandler {
 	 * @throws Exception
 	 */
 	static public void modelToControl(@Nonnull NodeBase root) throws Exception {
-		DomUtil.walkTree(root, new DomUtil.IPerNode() {
-			@Override
-			public Object before(NodeBase n) throws Exception {
-				List<IBinding> list = n.getBindingList();
-				if(null != list) {
-					for(IBinding sb : list)
-						sb.moveModelToControl();
-				}
-				return null;
-			}
-
-			@Override
-			public Object after(NodeBase n) throws Exception {
-				return null;
-			}
-		});
+		DomApplication.get().getBindingHandler(root).modelToControl();
 	}
 
 	/**

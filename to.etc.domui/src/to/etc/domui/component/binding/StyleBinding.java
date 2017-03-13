@@ -97,7 +97,13 @@ final public class StyleBinding implements IBinding {
 	 * A style binding never moves anything back to the model.
 	 * @throws Exception
 	 */
-	@Override public void moveControlToModel() throws Exception {
+	@Nullable
+	@Override public BindingPair<?, ?> getBindingDifference() throws Exception {
+		return null;
+	}
+
+	@Override public <T> void setModelValue(T value) {
+		throw new IllegalStateException("A style binding cannot move data to the model!");
 	}
 
 	/**

@@ -4,6 +4,7 @@ import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.util.DomUtil;
 
 import javax.annotation.DefaultNonNull;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +14,13 @@ import java.util.List;
  *         Created on 12-3-17.
  */
 @DefaultNonNull
-public class DefaultBindingHandler {
+public class DefaultBindingHandler implements IBindingHandler {
+	static public final IBindingHandlerFactory	FACTORY = new IBindingHandlerFactory() {
+		@Nonnull @Override public IBindingHandler getBindingHandler(@Nonnull NodeBase node) {
+			return new DefaultBindingHandler(node);
+		}
+	};
+
 	private final NodeBase m_rootNode;
 
 	public DefaultBindingHandler(NodeBase rootNode) {
@@ -21,9 +28,12 @@ public class DefaultBindingHandler {
 	}
 
 	/**
-	 * System helper method to move all bindings from control into the model (called at request start).
+	 * System helper method to move all bindings from control into the model (called at request start). This
+	 * detects all bindings that changed, and then moves them in the correct order.
+	 *
 	 * @throws Exception
 	 */
+	@Override
 	public void controlToModel() throws Exception {
 		List<BindingPair<?, ?>> pairs = collectChangedBindings();
 		if(pairs.size() == 0)
@@ -60,7 +70,7 @@ public class DefaultBindingHandler {
 				List<IBinding> list = n.getBindingList();
 				if(null != list) {
 					for(IBinding sb : list) {
-						BindingPair<?, ?> pair = sb.moveControlToModel();
+						BindingPair<?, ?> pair = sb.getBindingDifference();
 						if(null != pair)
 							result.add(pair);
 					}
@@ -71,5 +81,32 @@ public class DefaultBindingHandler {
 		return result;
 	}
 
+	/**
+	 * Move all bindings from model to control (called at request end). We move data from parent nodes
+	 * before the data for it's children is moved. This should allow components to use binding internally
+	 * too.
+	 *
+	 * @throws Exception
+	 */
+	@Override
+	public void modelToControl() throws Exception {
+		DomUtil.walkTree(m_rootNode, new DomUtil.IPerNode() {
+			@Override
+			@Nullable
+			public Object before(NodeBase n) throws Exception {
+				List<IBinding> list = n.getBindingList();
+				if(null != list) {
+					for(IBinding sb : list)
+						sb.moveModelToControl();
+				}
+				return null;
+			}
 
+			@Override
+			@Nullable
+			public Object after(NodeBase n) throws Exception {
+				return null;
+			}
+		});
+	}
 }
