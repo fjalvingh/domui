@@ -1,9 +1,12 @@
 package to.etc.domui.test.binding.order1;
 
+import javax.annotation.DefaultNonNull;
+
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  *         Created on 13-3-17.
  */
+@DefaultNonNull
 final public class City {
 	private final Country m_country;
 

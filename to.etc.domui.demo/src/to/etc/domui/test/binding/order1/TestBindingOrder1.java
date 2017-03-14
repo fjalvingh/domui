@@ -39,6 +39,8 @@ public class TestBindingOrder1 extends UrlPage {
 		List<City> cities = new ArrayList<>();
 		m_countryList.forEach(country -> cities.addAll(country.getCities()));
 		ComboLookup2<City> cil = new ComboLookup2<>(cities);
+		cil.immediate();
+		cl.immediate();
 
 		FormBuilder fb = new FormBuilder(this);
 		fb.property(this, "country").label("Country").control(cl);
@@ -54,7 +56,7 @@ public class TestBindingOrder1 extends UrlPage {
 		City city = getCity();
 		if(country == null) {
 			m_city = null;
-		} else if(city.getCountry() != country) {
+		} else if(city != null && city.getCountry() != country) {
 			m_city = country.getCities().get(0);
 		}
 	}
