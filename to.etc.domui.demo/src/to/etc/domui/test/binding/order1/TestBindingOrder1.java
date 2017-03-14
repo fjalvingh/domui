@@ -56,7 +56,7 @@ public class TestBindingOrder1 extends UrlPage {
 		City city = getCity();
 		if(country == null) {
 			m_city = null;
-		} else if(city != null && city.getCountry() != country) {
+		} else if(city == null || city.getCountry() != country) {
 			m_city = country.getCities().get(0);
 		}
 	}
