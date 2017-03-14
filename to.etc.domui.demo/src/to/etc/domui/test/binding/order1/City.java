@@ -21,4 +21,8 @@ final public class City {
 	public String getName() {
 		return m_name;
 	}
+
+	@Override public String toString() {
+		return m_name;
+	}
 }

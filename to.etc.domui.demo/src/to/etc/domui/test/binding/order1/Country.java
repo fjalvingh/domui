@@ -23,4 +23,8 @@ public class Country {
 	public List<City> getCities() {
 		return m_cities;
 	}
+
+	@Override public String toString() {
+		return m_name;
+	}
 }
