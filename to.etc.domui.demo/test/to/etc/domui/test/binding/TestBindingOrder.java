@@ -10,6 +10,11 @@ import to.etc.domui.webdriver.core.AbstractWebDriverTest;
  *         Created on 15-3-17.
  */
 public class TestBindingOrder extends AbstractWebDriverTest {
+
+	/**
+	 * https://etc.to/confluence/display/DOM/Tests%3A+data+binding
+	 * @throws Exception
+	 */
 	@Test
 	public void testBinding1() throws Exception {
 		wd().openScreen(TestBindingOrder1.class);
