@@ -24,11 +24,10 @@
  */
 package to.etc.webapp.qsql;
 
-import java.util.*;
+import to.etc.webapp.query.*;
 
 import javax.annotation.*;
-
-import to.etc.webapp.query.*;
+import java.util.*;
 
 /**
  * Generate a SQL query from a QCriteria selection using the poor man's JDBC code.
@@ -156,6 +155,8 @@ public class JdbcSQLGenerator extends QRenderingVisitorBase {
 					append("(distinct ");
 					append(cm.findProperty(n.getProperty()).getColumnName());
 					append(")");
+				} else if (n.getFunction().equals(QSelectionFunction.PROPERTY)) {
+					append(cm.findProperty(n.getProperty()).getColumnName());
 				} else {
 					append(n.getFunction().name().toLowerCase());
 					append("(");
