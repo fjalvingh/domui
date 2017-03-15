@@ -4,6 +4,7 @@ import to.etc.pater.OnTestFailure;
 import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
 
+import javax.annotation.DefaultNonNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.lang.reflect.Method;
@@ -11,6 +12,7 @@ import java.lang.reflect.Method;
 /**
  * Abstract base class for Selenium JUnit tests.
  */
+@DefaultNonNull
 abstract public class AbstractWebDriverTest {
 	@Nullable
 	private WebDriverConnector m_wd;
@@ -30,6 +32,10 @@ abstract public class AbstractWebDriverTest {
 			}
 		}
 		return wd;
+	}
+
+	protected WebDriverCommandBuilder c() {
+		return wd().cmd();
 	}
 
 	@Nonnull

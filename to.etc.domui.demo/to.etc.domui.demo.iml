@@ -25,7 +25,7 @@
       </configuration>
     </facet>
   </component>
-  <component name="NewModuleRootManager" inherit-compiler-output="false">
+  <component name="NewModuleRootManager">
     <output url="file://$MODULE_DIR$/build/classes" />
     <exclude-output />
     <content url="file://$MODULE_DIR$">
@@ -62,5 +62,7 @@
     <orderEntry type="module" module-name="bin-junit-4.11" />
     <orderEntry type="module" module-name="bin-j2ee-1.4" />
     <orderEntry type="module" module-name="to.etc.db" />
+    <orderEntry type="module" module-name="lib-selenium" />
+    <orderEntry type="module" module-name="to.etc.domui.selenium" />
   </component>
 </module>

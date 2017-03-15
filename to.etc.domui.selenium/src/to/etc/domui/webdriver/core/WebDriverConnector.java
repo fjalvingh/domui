@@ -129,9 +129,11 @@ final public class WebDriverConnector {
 	 * Walk all known WebDriver instances and close them.
 	 */
 	static private void destroyWebDrivers() {
+		System.out.println("destroyWebDriver called");
 		for(WebDriverConnector wd : m_webDriverConnectorList) {
 			try {
-				if(wd.m_closed) {
+				if(! wd.m_closed) {
+					System.out.println("Destroying " + wd);
 					wd.m_closed = true;
 					wd.m_driver.quit();
 				}
@@ -273,6 +275,12 @@ final public class WebDriverConnector {
 	final public By byId(@Nonnull String testid) {
 		return By.cssSelector("*[testid='" + testid + "']");
 	}
+
+	@Nonnull
+	final public By byId(@Nonnull String testid, @Nonnull String elementType) {
+		return By.cssSelector("*[testid='" + testid + "'] " + elementType);
+	}
+
 
 	/**
 	 * Create a full locator using any supported expression.
@@ -580,131 +588,6 @@ final public class WebDriverConnector {
 	/*	CODING:	Value getters and setters.							*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * Get <b>all</b> of the options in a &lt;select&gt; tag with either their text (presentation) or value (data to send in request) node. The
-	 * resulting set is a sorted set.
-	 * @param testid
-	 * @param value
-	 * @return
-	 */
-	@Nonnull
-	final public TreeSet<String> selectGetOptionSet(@Nonnull String testid, boolean value) {
-		return selectGetOptionSet(byId(testid), value);
-	}
-
-	/**
-	 * Get <b>all</b> of the options in a &lt;select&gt; tag with either their text (presentation) or value (data to send in request) node. The
-	 * resulting set is a sorted set.
-	 *
-	 * @param locator
-	 * @param value
-	 * @return
-	 */
-	@Nonnull
-	final public TreeSet<String> selectGetOptionSet(@Nonnull By locator, boolean value) {
-		on(locator);
-		WebElement elem = driver().findElement(locator);
-		List<WebElement> options = new Select(elem).getOptions();
-		TreeSet<String> optionList = new TreeSet<String>();				// Ordered set.
-
-		for(WebElement option : options) {
-			optionList.add(value ? option.getAttribute("value") : option.getText());
-		}
-		return optionList;
-	}
-
-	/**
-	 * Get <b>all</b> options of a &lt;select&gt; tag with either their text (presentation) or value (data to send in request)
-	 * as a comma-separated string. No attempt is made to quote comma's in either value or text. The order of the items in the
-	 * string is alphabetically sorted.
-	 *
-	 * @param locator
-	 * @param value
-	 * @return
-	 */
-	@Nonnull
-	final public String selectGetOptionsString(@Nonnull By locator, boolean value) {
-		StringBuilder sb = new StringBuilder(128);
-		int count = 0;
-		for(String s : selectGetOptionSet(locator, value)) {
-			if(count++ > 0)
-				sb.append(',');
-			sb.append(s);
-		}
-		return sb.toString();
-	}
-
-	/**
-	 * Get <b>all</b> options of a &lt;select&gt; tag with either their text (presentation) or value (data to send in request)
-	 * as a comma-separated string. No attempt is made to quote comma's in either value or text. The order of the items in the
-	 * string is alphabetically sorted.
-	 * @param testid
-	 * @param value
-	 * @return
-	 */
-	@Nonnull
-	final public String selectGetOptionsString(@Nonnull String testid, boolean value) {
-		return selectGetOptionsString(byId(testid), value);
-	}
-
-	/**
-	 * Get the currently selected item's label text from a select.
-	 * @param testid
-	 * @return
-	 */
-	@Nullable
-	final public String selectGetSelectedLabel(@Nonnull String testid) {
-		return selectGetSelected(byId(testid), false);
-	}
-
-	/**
-	 * Get the currently selected item's value (not the visible label, but the value reported to the server) from a select.
-	 * @param testid
-	 * @return
-	 */
-	@Nullable
-	final public String selectGetSelectedValue(@Nonnull String testid) {
-		return selectGetSelected(byId(testid), true);
-	}
-
-	/**
-	 * Get the currently selected value either as text or as the value item from a select item.
-	 * @param locator
-	 * @param byvalue
-	 * @return
-	 */
-	@Nonnull
-	final public String selectGetSelected(@Nonnull By locator, boolean byvalue) {
-		on(locator);
-		WebElement elem = driver().findElement(locator);
-		WebElement option = new Select(elem).getFirstSelectedOption();
-		if(null == option) {
-			return "";
-		}
-		if(byvalue)
-			return option.getAttribute("value");
-		else
-			return option.getText();
-	}
-
-	@Nonnull
-	final private String getSelectOptionContaining(@Nonnull String testid, @Nonnull String optionContainsText) {
-		return getSelectOptionContaining(byId(testid), optionContainsText);
-	}
-
-	@Nonnull
-	final private String getSelectOptionContaining(@Nonnull By locator, @Nonnull String optionContainsText) {
-		waitForElementPresent(locator);
-		Set<String> options = selectGetOptionSet(locator, false);
-
-		for(String option : options) {
-			if(option.toLowerCase().contains(optionContainsText.toLowerCase())) {
-				return option;
-			}
-		}
-		throw new IllegalStateException("Unable to select option [" + optionContainsText + "] in select locator: " + locator);
-	}
-
-	/**
 	 * Get the value for a given input thing; this returns the value for the "value=" attribute.
 	 * @param testid
 	 * @return
@@ -839,9 +722,7 @@ final public class WebDriverConnector {
 	 * @return
 	 */
 	public void select(@Nonnull By locator, @Nonnull String value) throws Exception {
-		on(locator);
-		WebElement elem = driver().findElement(locator);
-		List<WebElement> options = new Select(elem).getOptions();
+		List<WebElement> options = getSelectElementOptions(locator);
 		WebElement toSelectOption = null;
 		for(WebElement option : options) {
 			String text = option.getText();
@@ -880,9 +761,7 @@ final public class WebDriverConnector {
 	 * @return
 	 */
 	public void selectContaining(@Nonnull By locator, @Nonnull String value) throws Exception {
-		on(locator);
-		WebElement elem = driver().findElement(locator);
-		List<WebElement> options = new Select(elem).getOptions();
+		List<WebElement> options = getSelectElementOptions(locator);
 		WebElement toSelectOption = null;
 		value = value.toLowerCase();
 		int found = 0;
@@ -923,6 +802,18 @@ final public class WebDriverConnector {
 		handleAfterCommandCallback();
 	}
 
+	private List<WebElement> getSelectElementOptions(@Nonnull By locator) {
+		Select selectElement = getSelectElement(locator);
+		return selectElement.getOptions();
+	}
+
+	@Nonnull private Select getSelectElement(@Nonnull By locator) {
+		on(locator);
+		WebElement elem = driver().findElement(locator);
+		WebElement select = elem.findElement(By.tagName("select"));
+		return new Select(select);
+	}
+
 	/**
 	 * Locate the option that at least contains the specified text in its presentation string, case-independent compared.
 	 * @param locator
@@ -932,6 +823,128 @@ final public class WebDriverConnector {
 	public void selectOptionContainingText(@Nonnull By locator, @Nonnull String optionContainsText) throws Exception {
 		String option = getSelectOptionContaining(locator, optionContainsText);
 		select(locator, option);
+	}
+
+	/**
+	 * Get <b>all</b> of the options in a &lt;select&gt; tag with either their text (presentation) or value (data to send in request) node. The
+	 * resulting set is a sorted set.
+	 * @param testid
+	 * @param value
+	 * @return
+	 */
+	@Nonnull
+	final public TreeSet<String> selectGetOptionSet(@Nonnull String testid, boolean value) {
+		return selectGetOptionSet(byId(testid), value);
+	}
+
+	/**
+	 * Get <b>all</b> of the options in a &lt;select&gt; tag with either their text (presentation) or value (data to send in request) node. The
+	 * resulting set is a sorted set.
+	 *
+	 * @param locator
+	 * @param value
+	 * @return
+	 */
+	@Nonnull
+	final public TreeSet<String> selectGetOptionSet(@Nonnull By locator, boolean value) {
+		List<WebElement> options = getSelectElementOptions(locator);
+		TreeSet<String> optionList = new TreeSet<String>();				// Ordered set.
+
+		for(WebElement option : options) {
+			optionList.add(value ? option.getAttribute("value") : option.getText());
+		}
+		return optionList;
+	}
+
+	/**
+	 * Get <b>all</b> options of a &lt;select&gt; tag with either their text (presentation) or value (data to send in request)
+	 * as a comma-separated string. No attempt is made to quote comma's in either value or text. The order of the items in the
+	 * string is alphabetically sorted.
+	 *
+	 * @param locator
+	 * @param value
+	 * @return
+	 */
+	@Nonnull
+	final public String selectGetOptionsString(@Nonnull By locator, boolean value) {
+		StringBuilder sb = new StringBuilder(128);
+		int count = 0;
+		for(String s : selectGetOptionSet(locator, value)) {
+			if(count++ > 0)
+				sb.append(',');
+			sb.append(s);
+		}
+		return sb.toString();
+	}
+
+	/**
+	 * Get <b>all</b> options of a &lt;select&gt; tag with either their text (presentation) or value (data to send in request)
+	 * as a comma-separated string. No attempt is made to quote comma's in either value or text. The order of the items in the
+	 * string is alphabetically sorted.
+	 * @param testid
+	 * @param value
+	 * @return
+	 */
+	@Nonnull
+	final public String selectGetOptionsString(@Nonnull String testid, boolean value) {
+		return selectGetOptionsString(byId(testid), value);
+	}
+
+	/**
+	 * Get the currently selected item's label text from a select.
+	 * @param testid
+	 * @return
+	 */
+	@Nullable
+	final public String selectGetSelectedLabel(@Nonnull String testid) {
+		return selectGetSelected(byId(testid), false);
+	}
+
+	/**
+	 * Get the currently selected item's value (not the visible label, but the value reported to the server) from a select.
+	 * @param testid
+	 * @return
+	 */
+	@Nullable
+	final public String selectGetSelectedValue(@Nonnull String testid) {
+		return selectGetSelected(byId(testid), true);
+	}
+
+	/**
+	 * Get the currently selected value either as text or as the value item from a select item.
+	 * @param locator
+	 * @param byvalue
+	 * @return
+	 */
+	@Nonnull
+	final public String selectGetSelected(@Nonnull By locator, boolean byvalue) {
+		Select selectElement = getSelectElement(locator);
+		WebElement option = selectElement.getFirstSelectedOption();
+		if(null == option) {
+			return "";
+		}
+		if(byvalue)
+			return option.getAttribute("value");
+		else
+			return option.getText();
+	}
+
+	@Nonnull
+	final private String getSelectOptionContaining(@Nonnull String testid, @Nonnull String optionContainsText) {
+		return getSelectOptionContaining(byId(testid), optionContainsText);
+	}
+
+	@Nonnull
+	final private String getSelectOptionContaining(@Nonnull By locator, @Nonnull String optionContainsText) {
+		waitForElementPresent(locator);
+		Set<String> options = selectGetOptionSet(locator, false);
+
+		for(String option : options) {
+			if(option.toLowerCase().contains(optionContainsText.toLowerCase())) {
+				return option;
+			}
+		}
+		throw new IllegalStateException("Unable to select option [" + optionContainsText + "] in select locator: " + locator);
 	}
 
 
@@ -1096,11 +1109,12 @@ final public class WebDriverConnector {
 		m_driver.navigate().to(sb.toString());
 
 		ExpectedCondition<WebElement> xdomui = ExpectedConditions.presenceOfElementLocated(locator("body[id='_1'], #loginPageBody"));
+
 		WebElement we = wait(xdomui);
 
 		String id = DomUtil.nullChecked(we).getAttribute("id");
-		if("_1".equals(id)) // Was DomUI body?
-			return this; // done
+		if("_1".equals(id)) 						// If this is a domUI body then be done
+			return this;
 
 		doLogin();
 
@@ -1114,8 +1128,6 @@ final public class WebDriverConnector {
 		String login = TUtilTestProperties.getViewpointLoginName();
 		TestProperties p = TUtilTestProperties.getTestProperties();
 		String password = p.getProperty("webdriver.loginpassword");
-		if(null == password)
-			password = "rhijnspoor";
 
 		//-- We have the login screen. Enter credentials.
 		cmd().type(login).on(locator("#given_username"));

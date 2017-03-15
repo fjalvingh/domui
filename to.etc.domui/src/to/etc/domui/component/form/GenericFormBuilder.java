@@ -24,15 +24,24 @@
  */
 package to.etc.domui.component.form;
 
-import javax.annotation.*;
+import to.etc.domui.component.controlfactory.ControlFactoryResult;
+import to.etc.domui.component.controlfactory.DisplayOnlyPropertyBinding;
+import to.etc.domui.component.controlfactory.IModelBinding;
+import to.etc.domui.component.controlfactory.SimpleComponentPropertyBinding;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.YesNoType;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.IDisplayControl;
+import to.etc.domui.dom.html.Label;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.util.IReadOnlyModel;
+import to.etc.webapp.query.QField;
 
-import to.etc.domui.component.controlfactory.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.query.*;
+import javax.annotation.Nonnull;
 
 /**
+ * Deprecated: use {@link to.etc.domui.component2.form4.FormBuilder}.
  * Encapsulates basic actions that can be done with all form builder implementations,
  * and delegates the actual parts that require layout decisions to the actual
  * implementation.
@@ -40,6 +49,7 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 13, 2009
  */
+@Deprecated
 abstract public class GenericFormBuilder extends FormBuilderBase {
 	/**
 	 * This is the actual workhorse doing the per-builder actual placement and layouting of a {control, label} pair.

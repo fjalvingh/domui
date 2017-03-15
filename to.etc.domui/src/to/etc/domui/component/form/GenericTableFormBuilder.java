@@ -24,18 +24,26 @@
  */
 package to.etc.domui.component.form;
 
-import javax.annotation.*;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.TR;
+import to.etc.domui.dom.html.Table;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.IReadOnlyModel;
 
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
+ * Deprecated: use {@link to.etc.domui.component2.form4.FormBuilder}.
  * This explicitly makes forms that are represented by some kind of table. It contains
  * basic table manipulation code and stuff.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 13, 2009
  */
+@Deprecated
 abstract public class GenericTableFormBuilder extends GenericFormBuilder {
 	private Table m_parentTable;
 

@@ -304,15 +304,17 @@ final public class FormBuilder {
 			}
 		}
 
+		String label = labelTextCalculated();
 		m_lastAddedControl =  control;
 		if (null != m_errorLocation){
 			control.setErrorLocation(m_errorLocation);
-		}else {
-			String label = labelTextCalculated();
+		} else {
 			if(null != label) {
 				control.setErrorLocation(label);
 			}
 		}
+		if(null != label)
+			control.setCalculcatedId(label.toLowerCase());
 	}
 
 	private void resetDirection() {
