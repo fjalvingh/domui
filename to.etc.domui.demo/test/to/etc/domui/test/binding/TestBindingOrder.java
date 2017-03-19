@@ -37,7 +37,5 @@ public class TestBindingOrder extends AbstractWebDriverTest {
 		wd().select("city", "Amsterdam");
 		city = wd().selectGetSelectedLabel("country");
 		Assert.assertEquals("Netherlands", city);
-
-		Thread.sleep(10000);
 	}
 }
