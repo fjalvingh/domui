@@ -25,5 +25,5 @@ public interface IBinding {
 	 * @param value
 	 * @param <T>
 	 */
-	<T> void setModelValue(T value);
+	<T> void setModelValue(@Nullable T value);
 }

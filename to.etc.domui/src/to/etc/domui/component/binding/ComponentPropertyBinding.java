@@ -34,6 +34,7 @@ import to.etc.domui.util.IValueAccessor;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.nls.CodeException;
 
+import javax.annotation.DefaultNonNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -45,6 +46,7 @@ import java.util.Map;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 13, 2009
  */
+@DefaultNonNull
 final public class ComponentPropertyBinding implements IBinding {
 	@Nonnull
 	final private NodeBase m_control;
@@ -65,7 +67,13 @@ final public class ComponentPropertyBinding implements IBinding {
 	private IBindingListener< ? > m_listener;
 
 	@Nullable
-	private Object m_lastValueFromControl;
+	private IBindingConverter<?, ?> m_converter;
+
+	/**
+	 * The last value read from the control. If a converter is present, this value is converted to a MODEL value.
+	 */
+	@Nullable
+	private Object m_lastValueFromControlAsModelValue;
 
 	/** If this binding is in error this contains the error. */
 	@Nullable
@@ -97,6 +105,16 @@ final public class ComponentPropertyBinding implements IBinding {
 			throw new ProgrammerErrorException("This binding is already fully defined. Create a new one.");
 	}
 
+	@Nonnull
+	public ComponentPropertyBinding convert(@Nullable IBindingConverter<?, ?> converter) {
+		checkAssigned();
+		if(m_converter != null) {
+			throw new ProgrammerErrorException("This binding already has a converter specified");
+		}
+		m_converter = converter;
+		return this;
+	}
+
 	public void to(@Nonnull IBindingListener< ? > listener) {
 		checkAssigned();
 		if(listener == null)
@@ -124,7 +142,7 @@ final public class ComponentPropertyBinding implements IBinding {
 		m_instance = instance;
 
 		//-- Check: are the types of the binding ok?
-		if(pmm instanceof PropertyMetaModel<?>) {
+		if(pmm instanceof PropertyMetaModel<?> && m_converter == null) {
 			PropertyMetaModel<?> p = (PropertyMetaModel<?>) pmm;
 			Class<?> actualType = fixBoxingDisaster(p.getActualType());
 			Class<?> controlType = fixBoxingDisaster(m_controlProperty.getActualType());
@@ -227,7 +245,7 @@ final public class ComponentPropertyBinding implements IBinding {
 	 * @param value
 	 * @param <T>
 	 */
-	@Override public <T> void setModelValue(T value) {
+	@Override public <T> void setModelValue(@Nullable T value) {
 		IValueAccessor< ? > instanceProperty = m_instanceProperty;
 		if(null == instanceProperty)
 			throw new IllegalStateException("instance property cannot be null");
@@ -255,6 +273,7 @@ final public class ComponentPropertyBinding implements IBinding {
 	 * an exception.
 	 */
 	@Override
+	@Nullable
 	public BindingValuePair<?, ?> getBindingDifference() throws Exception {
 		NodeBase control = m_control;
 		if(control instanceof IDisplayControl)
@@ -311,7 +330,11 @@ final public class ComponentPropertyBinding implements IBinding {
 		UIMessage newError = null;
 		try {
 			controlValue = m_controlProperty.getValue(m_control);
-			m_lastValueFromControl = controlValue;
+			IBindingConverter<?, ?> converter = m_converter;
+			if(converter != null) {
+				controlValue = ((IBindingConverter<Object, Object>)converter).controlToModel(controlValue);
+			}
+			m_lastValueFromControlAsModelValue = controlValue;
 			m_bindError = null;
 		} catch(CodeException cx) {
 			newError = UIMessage.error(cx);
@@ -334,16 +357,6 @@ final public class ComponentPropertyBinding implements IBinding {
 			return null;
 
 		return new BindingValuePair<>(this, controlValue, propertyValue);
-//
-//		if(null == newError) {
-//			//-- QUESTION: Should we move something to the model @ error?
-//			try {
-//				((IValueAccessor<Object>) instanceProperty).setValue(instance, controlValue);
-//			} catch(Exception x) {
-//				throw new IllegalStateException("Binding error moving " + m_controlProperty + " to " + m_instanceProperty + ": " + x, x);
-//			}
-//		}
-//		//System.out.println("binder: get " + m_control.getComponentInfo() + " value -> model " + value);
 	}
 
 	/**
@@ -364,14 +377,19 @@ final public class ComponentPropertyBinding implements IBinding {
 			Object instance = m_instance;
 			if(null == instance)
 				throw new IllegalStateException("instance cannot be null");
-			NodeBase control = m_control;
 
 			// FIXME We should think about exception handling here
 			Object modelValue = instanceProperty.getValue(instance);
 			//System.out.println("binder: set "+control.getComponentInfo()+" value="+modelValue);
-			if(!MetaManager.areObjectsEqual(modelValue, m_lastValueFromControl)) {
+			if(!MetaManager.areObjectsEqual(modelValue, m_lastValueFromControlAsModelValue)) {
 				//-- Value in instance differs from control's
-				m_lastValueFromControl = modelValue;
+				m_lastValueFromControlAsModelValue = modelValue;
+
+				IBindingConverter<?, ?> converter = m_converter;
+				if(null != converter) {
+					modelValue = ((IBindingConverter<Object, Object>) converter).modelToControl(modelValue);
+				}
+
 				((IValueAccessor<Object>) m_controlProperty).setValue(m_control, modelValue);
 				m_bindError = null;                                    // Let's assume binding has no trouble.
 			}
@@ -379,9 +397,4 @@ final public class ComponentPropertyBinding implements IBinding {
 			throw new BindingFailureException(x, "Model->Control", this.toString());
 		}
 	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Handling simple binding chores.						*/
-	/*--------------------------------------------------------------*/
-
 }
