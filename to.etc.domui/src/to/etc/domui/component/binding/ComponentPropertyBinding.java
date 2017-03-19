@@ -45,7 +45,7 @@ import java.util.Map;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 13, 2009
  */
-final public class ComponentPropertyBinding implements IBinder, IBinding {
+final public class ComponentPropertyBinding implements IBinding {
 	@Nonnull
 	final private NodeBase m_control;
 
@@ -97,7 +97,6 @@ final public class ComponentPropertyBinding implements IBinder, IBinding {
 			throw new ProgrammerErrorException("This binding is already fully defined. Create a new one.");
 	}
 
-	@Override
 	public void to(@Nonnull IBindingListener< ? > listener) {
 		checkAssigned();
 		if(listener == null)
@@ -105,7 +104,6 @@ final public class ComponentPropertyBinding implements IBinder, IBinding {
 		m_listener = listener;
 	}
 
-	@Override
 	public <T> void to(@Nonnull T instance, @Nonnull String property) throws Exception {
 		if(instance == null || property == null)
 			throw new IllegalArgumentException("The instance in a component bind request CANNOT be null!");
@@ -118,7 +116,6 @@ final public class ComponentPropertyBinding implements IBinder, IBinding {
 	 * @param pmm
 	 * @throws Exception
 	 */
-	@Override
 	public <T, V> void to(@Nonnull T instance, @Nonnull IValueAccessor<V> pmm) throws Exception {
 		checkAssigned();
 		if(instance == null || pmm == null)
@@ -258,7 +255,7 @@ final public class ComponentPropertyBinding implements IBinder, IBinding {
 	 * an exception.
 	 */
 	@Override
-	public BindingPair<?, ?> getBindingDifference() throws Exception {
+	public BindingValuePair<?, ?> getBindingDifference() throws Exception {
 		NodeBase control = m_control;
 		if(control instanceof IDisplayControl)
 			return null;
@@ -336,7 +333,7 @@ final public class ComponentPropertyBinding implements IBinder, IBinding {
 		if(MetaManager.areObjectsEqual(propertyValue, controlValue))
 			return null;
 
-		return new BindingPair<>(this, controlValue, propertyValue);
+		return new BindingValuePair<>(this, controlValue, propertyValue);
 //
 //		if(null == newError) {
 //			//-- QUESTION: Should we move something to the model @ error?

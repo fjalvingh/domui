@@ -1,13 +1,25 @@
 package to.etc.domui.logic.errors;
 
-import java.util.*;
+import to.etc.domui.component.binding.ComponentPropertyBinding;
+import to.etc.domui.component.binding.IBinding;
+import to.etc.domui.component.binding.OldBindingHandler;
+import to.etc.domui.dom.errors.IErrorFence;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.IValueAccessor;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.binding.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Experimental.
@@ -94,9 +106,9 @@ public class ProblemReporter {
 			@Override
 			@Nullable
 			public Object before(NodeBase n) throws Exception {
-				if(n instanceof IBindable) {
+				List<IBinding> bindingList = n.getBindingList();
+				if(null != bindingList && bindingList.size() > 0)
 					bindableNodes.add(n);
-				}
 				return null;
 			}
 

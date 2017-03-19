@@ -24,7 +24,6 @@
  */
 package to.etc.domui.component.misc;
 
-import to.etc.domui.component.binding.IBindable;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
@@ -50,7 +49,7 @@ import javax.annotation.Nullable;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Feb 15, 2010
  */
-public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IBindable, IConvertable<T> {
+public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvertable<T> {
 	@Nonnull
 	private Class<T> m_valueClass;
 

@@ -98,7 +98,7 @@ final public class StyleBinding implements IBinding {
 	 * @throws Exception
 	 */
 	@Nullable
-	@Override public BindingPair<?, ?> getBindingDifference() throws Exception {
+	@Override public BindingValuePair<?, ?> getBindingDifference() throws Exception {
 		return null;
 	}
 

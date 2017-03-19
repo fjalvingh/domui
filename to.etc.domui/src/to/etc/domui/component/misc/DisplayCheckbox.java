@@ -24,7 +24,6 @@
  */
 package to.etc.domui.component.misc;
 
-import to.etc.domui.component.binding.IBindable;
 import to.etc.domui.dom.html.IDisplayControl;
 import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.Img;
@@ -38,7 +37,7 @@ import javax.annotation.Nullable;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Apr 9, 2010
  */
-public class DisplayCheckbox extends Img implements IDisplayControl<Boolean>, IBindable {
+public class DisplayCheckbox extends Img implements IDisplayControl<Boolean> {
 	private Boolean m_value;
 
 	public DisplayCheckbox() {

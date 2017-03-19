@@ -291,7 +291,7 @@ final public class FormBuilder {
 			if(null != pmm) {
 				Object instance = m_instance;
 				if(null != instance) {
-					ctl.bind().to(instance, pmm);
+					((NodeBase) ctl).bind().to(instance, pmm);
 				}
 			}
 
