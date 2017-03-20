@@ -164,7 +164,7 @@ startTrying();
 
 --></script>
 </head>
-<body>
+<body id="_1">
 	<div class="exc-top">
 		<div class="exc-title">Whoops: an exception occurred...</div>
 		<div id="ping"></div>
@@ -179,11 +179,11 @@ startTrying();
 			</tr>
 			<tr>
 				<td class="exc-tbl-lbl">Exception type</td>
-				<td class="exc-tbl-v"><%= x.getClass().getName() %></td>
+				<td class="exc-tbl-v exc-exception-type"><%= x.getClass().getName() %></td>
 			</tr>
 			<tr>
 				<td class="exc-tbl-lbl">Message</td>
-				<td class="exc-tbl-v"><pre><%= x.getMessage() %>
+				<td class="exc-tbl-v exc-exception-message"><pre><%= x.getMessage() %>
 </pre></td>
 			</tr>
 			<tr>

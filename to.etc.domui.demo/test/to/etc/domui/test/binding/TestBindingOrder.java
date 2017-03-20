@@ -2,6 +2,8 @@ package to.etc.domui.test.binding;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.openqa.selenium.By;
+import to.etc.domui.test.binding.order1.BindingTypeForm1;
 import to.etc.domui.test.binding.order1.TestBindingOrder1;
 import to.etc.domui.webdriver.core.AbstractWebDriverTest;
 
@@ -12,6 +14,7 @@ import to.etc.domui.webdriver.core.AbstractWebDriverTest;
 public class TestBindingOrder extends AbstractWebDriverTest {
 
 	/**
+	 * Two bindings that influence each order should work.
 	 * https://etc.to/confluence/display/DOM/Tests%3A+data+binding
 	 * @throws Exception
 	 */
@@ -37,5 +40,17 @@ public class TestBindingOrder extends AbstractWebDriverTest {
 		wd().select("city", "Amsterdam");
 		city = wd().selectGetSelectedLabel("country");
 		Assert.assertEquals("Netherlands", city);
+	}
+
+
+	/**
+	 * Binding between property and control of different type must result in an error.
+	 * @throws Exception
+	 */
+	@Test
+	public void testBindingTypes1() throws Exception {
+		wd().openScreen(BindingTypeForm1.class);
+		String text = wd().getHtmlText(By.cssSelector(".exc-exception-type"));
+		wd().assertTrue("Should have thrown an exception", text.contains("BindingDefinitionException"));
 	}
 }
