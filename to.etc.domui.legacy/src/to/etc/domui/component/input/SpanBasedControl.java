@@ -24,14 +24,16 @@
  */
 package to.etc.domui.component.input;
 
-import java.util.*;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.IValueChanged;
+import to.etc.domui.dom.html.Span;
+import to.etc.domui.trouble.ValidationException;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.Msgs;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
+import javax.annotation.Nullable;
+import java.util.Objects;
 
 /**
  * DEPRECATED - one big bag full of problems.
