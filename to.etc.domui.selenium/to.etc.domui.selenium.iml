@@ -15,5 +15,6 @@
     <orderEntry type="module" module-name="to.etc.domui" />
     <orderEntry type="module" module-name="bin-junit-4.11" />
     <orderEntry type="module" module-name="to.etc.pater" />
+    <orderEntry type="module" module-name="bin-htmlunit-webdriver" />
   </component>
 </module>

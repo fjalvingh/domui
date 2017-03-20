@@ -1,22 +1,24 @@
 package to.etc.domui.webdriver.core;
 
+import org.openqa.selenium.Capabilities;
 import org.openqa.selenium.UnexpectedAlertBehaviour;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
+import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import to.etc.util.StringTool;
 import to.etc.webapp.testsupport.TUtilTestProperties;
 import to.etc.webapp.testsupport.TestProperties;
 
 import javax.annotation.DefaultNonNull;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.net.URL;
 import java.util.Locale;
@@ -33,38 +35,51 @@ final class WebDriverFactory {
 	/**
 	 * Allocate a WebDriver instance with the specified characteristics.
 	 */
-	public static WebDriver allocateInstance(BrowserModel browser, @Nullable String hubUrl, @Nullable Locale lang) throws Exception {
+	public static WebDriver allocateInstance(WebDriverType type, BrowserModel browser, @Nullable String hubUrl, @Nullable Locale lang) throws Exception {
 		if(lang == null) {
 			lang = nullChecked(Locale.ENGLISH);
 		}
-		if(isLocal(hubUrl)) {
-			return allocateLocalInstance(browser, lang);
-		} else {
-			return allocateRemoteInstance(browser, hubUrl, lang);
+		switch(type) {
+			default:
+				throw new IllegalStateException("? unhandled driver type");
+
+			case HTMLUNIT:
+				return allocateHtmlUnitInstance(browser, lang);
+
+			case LOCAL:
+				return allocateLocalInstance(browser, lang);
+
+			case REMOTE:
+				return allocateRemoteInstance(browser, nullChecked(hubUrl), lang);
 		}
 	}
 
-	private static boolean isLocal(@Nullable String hubUrl) {
-		return StringTool.isBlank(hubUrl) || "local".equals(hubUrl);
+	private static WebDriver allocateHtmlUnitInstance(BrowserModel browser, Locale lang) throws Exception {
+		Capabilities capabilities = calculateCapabilities(browser, lang);
+		return new HtmlUnitDriver(capabilities);
 	}
 
-	private static WebDriver allocateRemoteInstance(BrowserModel browser, @Nullable String hubUrl, Locale lang) throws Exception {
+	private static WebDriver allocateRemoteInstance(BrowserModel browser, @Nonnull String hubUrl, Locale lang) throws Exception {
+		return new RemoteWebDriver(new URL(hubUrl), calculateCapabilities(browser, lang));
+	}
+
+	private static Capabilities calculateCapabilities(BrowserModel browser, Locale lang) throws Exception {
 		switch(browser){
 			default:
-				throw new IllegalStateException("Unsupported browser type " + browser.getCode() + " for local test execution");
+				throw new IllegalStateException("Unsupported browser type " + browser.getCode());
 
 			case FIREFOX:
-				return new RemoteWebDriver(new URL(hubUrl), getFirefoxCapabilities(lang));
+				return getFirefoxCapabilities(lang);
 
 			case CHROME:
-				return new RemoteWebDriver(new URL(hubUrl), getChromeCapabilities(lang));
+				return getChromeCapabilities(lang);
 
 			case IE:
 			case IE9:
 			case IE10:
 			case IE11:
 			case EDGE:
-				return new RemoteWebDriver(new URL(hubUrl), getIECapabilities(browser, lang));
+				return getIECapabilities(browser, lang);
 		}
 	}
 

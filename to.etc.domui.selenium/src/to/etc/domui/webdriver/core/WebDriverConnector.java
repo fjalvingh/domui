@@ -89,7 +89,8 @@ final public class WebDriverConnector {
 	@Nonnull
 	final private String m_applicationURL;
 
-	final private boolean m_local;
+	@Nonnull
+	private final WebDriverType m_driverType;
 
 	@Nonnull
 	final private BrowserModel m_kind;
@@ -101,11 +102,11 @@ final public class WebDriverConnector {
 	@Nullable
 	private IExecute m_afterCommandCallback;
 
-	private WebDriverConnector(@Nonnull WebDriver driver, @Nonnull BrowserModel kind, @Nonnull String webapp, boolean local) {
+	private WebDriverConnector(@Nonnull WebDriver driver, @Nonnull BrowserModel kind, @Nonnull String webapp, @Nonnull WebDriverType driverType) {
 		m_driver = driver;
 		m_kind = kind;
 		m_applicationURL = webapp;
-		m_local = local;
+		m_driverType = driverType;
 		m_waitTimeout = readWaitTimeout(m_waitTimeout);
 	}
 
@@ -168,22 +169,31 @@ final public class WebDriverConnector {
 		if(!appURL.endsWith("/"))
 			appURL += "/";
 		String hub = p.getProperty("webdriver.hub");
-		if(null == hub)
-			hub = "local";
 		String brw = p.getProperty("webdriver.browser");
 		if(null == brw)
 			brw = "chrome";
 		BrowserModel browserModel = BrowserModel.get(brw);
 
-		boolean local = hub.toLowerCase().equals("local");
-		WebDriver wp = WebDriverFactory.allocateInstance(browserModel, hub, null);
+		WebDriverType webDriverType = getDriverType(hub);
 
-		final WebDriverConnector tu = new WebDriverConnector(wp, browserModel, appURL, local);
+		WebDriver wp = WebDriverFactory.allocateInstance(webDriverType, browserModel, hub, null);
+
+		final WebDriverConnector tu = new WebDriverConnector(wp, browserModel, appURL, webDriverType);
 		initializeAfterCommandListener(tu);
 		m_webDriverConnectorList.add(tu);
 		m_webDriverThreadLocal.set(tu);
 		return tu;
 	}
+
+	@Nonnull
+	private static WebDriverType getDriverType(@Nullable String hubUrl) {
+		if(null == hubUrl || hubUrl.trim().length() == 0)
+			return WebDriverType.HTMLUNIT;
+		if("local".equals(hubUrl.trim()))
+			return WebDriverType.LOCAL;
+		return WebDriverType.REMOTE;
+	}
+
 
 	/**
 	 * Called after every screen action, this checks whether the DomUI "waiting" backdrop is present and waits for it
@@ -228,8 +238,8 @@ final public class WebDriverConnector {
 		m_nextInterval = -1;
 	}
 
-	public boolean isLocal() {
-		return m_local;
+	@Nonnull public WebDriverType getDriverType() {
+		return m_driverType;
 	}
 
 	@Nonnull
@@ -982,7 +992,7 @@ final public class WebDriverConnector {
 	public boolean screenshot(@Nonnull File screenshotFile) throws IOException {
 		WebDriver ad = driver();
 
-		if(ad instanceof RemoteWebDriver && !isLocal()) {
+		if(ad instanceof RemoteWebDriver && getDriverType() == WebDriverType.REMOTE) {
 			//for remote drivers we need to do augmenter thingy, for local we must not
 			ad = new Augmenter().augment(driver());
 		}

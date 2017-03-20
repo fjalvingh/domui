@@ -131,6 +131,4 @@ public class TestBindingOrder extends AbstractWebDriverTest {
 		result = wd().getValue("integer");
 		wd().assertEquals(result, "");
 	}
-
-
 }
