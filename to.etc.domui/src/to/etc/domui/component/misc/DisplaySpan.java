@@ -24,6 +24,7 @@
  */
 package to.etc.domui.component.misc;
 
+import to.etc.domui.component.input.ITypedControl;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
@@ -49,7 +50,7 @@ import javax.annotation.Nullable;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Feb 15, 2010
  */
-public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvertable<T> {
+public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvertable<T>, ITypedControl<T> {
 	@Nonnull
 	private Class<T> m_valueClass;
 
@@ -87,8 +88,7 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 		m_rendererParameters = null;
 	}
 
-	@Nonnull
-	public Class<T> getValueClass() {
+	@Nonnull @Override public Class<T> getActualType() {
 		return m_valueClass;
 	}
 
@@ -127,7 +127,7 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 		}
 
 		//-- Getting slightly desperate here... Is there a "default converter" that we can use?
-		IConverter<T> c = ConverterRegistry.findConverter(getValueClass()); // This version does return null if nothing is found, not a toString converter.
+		IConverter<T> c = ConverterRegistry.findConverter(getActualType()); // This version does return null if nothing is found, not a toString converter.
 		if(c != null) {
 			String converted = c.convertObjectToString(NlsContext.getLocale(), val);
 			setString(converted);

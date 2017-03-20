@@ -24,6 +24,7 @@
  */
 package to.etc.domui.component.binding;
 
+import to.etc.domui.component.input.ITypedControl;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.dom.errors.UIMessage;
@@ -147,6 +148,14 @@ final public class ComponentPropertyBinding implements IBinding {
 			Class<?> actualType = fixBoxingDisaster(p.getActualType());
 			Class<?> controlType = fixBoxingDisaster(m_controlProperty.getActualType());
 
+			if(controlType == Object.class) {
+				//-- Type erasure, deep, deep sigh. Can the control tell us the actual type contained?
+				if(m_control instanceof ITypedControl) {
+					ITypedControl<?> typedControl = (ITypedControl<?>) m_control;
+					controlType = typedControl.getActualType();
+				}
+			}
+
 			/*
 			 * For properties that have a generic type the Java "architects" do type erasure, so we cannot check anything. Type safe my ...
 			 */
@@ -258,7 +267,9 @@ final public class ComponentPropertyBinding implements IBinding {
 		try {
 			((IValueAccessor<T>) instanceProperty).setValue(instance, value);
 		} catch(Exception x) {
-			throw new BindingFailureException(x, "->model", this + ": Binding error moving " + value + " to " + m_instanceProperty);
+			if(value == null)
+				throw new BindingFailureException(x, "->model", this + ": Binding error moving null to " + m_instanceProperty);
+			throw new BindingFailureException(x, "->model", this + ": Binding error moving " + value + " (a " + value.getClass().getName() + ") to " + m_instanceProperty);
 		}
 	}
 

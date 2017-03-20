@@ -39,7 +39,7 @@ final class LookupFactoryString implements ILookupControlFactory {
 			if(!(control instanceof Text< ? >))
 				return -1;
 			Text< ? > t = (Text< ? >) control;
-			if(t.getInputClass() != String.class)
+			if(t.getActualType() != String.class)
 				return -1;
 		}
 		return 1; // Accept all properties (will fail on incompatible ones @ input time)

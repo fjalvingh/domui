@@ -54,7 +54,7 @@ final class LookupFactoryNumber2 implements ILookupControlFactory {
 			if(!(control instanceof Text< ? >))
 				return -1;
 			Text< ? > t = (Text< ? >) control;
-			if(t.getInputClass() != String.class)
+			if(t.getActualType() != String.class)
 				return -1;
 		}
 

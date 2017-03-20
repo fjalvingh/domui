@@ -24,14 +24,20 @@
  */
 package to.etc.domui.component.controlfactory;
 
-import java.util.*;
+import to.etc.domui.component.input.IQueryManipulator;
+import to.etc.domui.component.input.LookupInput;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.PropertyRelationType;
+import to.etc.domui.component.meta.SearchPropertyMetaModel;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.util.Constants;
+import to.etc.domui.util.INodeContentRenderer;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.server.*;
-import to.etc.domui.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.List;
 
 /**
  * Accepts any UP (parent) relation and scores 3, preferring this above the combobox-based
@@ -43,8 +49,6 @@ import to.etc.domui.util.*;
 public class ControlFactoryRelationLookup implements PropertyControlFactory {
 	/**
 	 * Accept any UP relation.
-	 *
-	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
 	public int accepts(final @Nonnull PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
@@ -60,8 +64,6 @@ public class ControlFactoryRelationLookup implements PropertyControlFactory {
 
 	/**
 	 * Create the lookup thingy.
-	 *
-	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#createControl(to.etc.domui.util.IReadOnlyModel, to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
 	public @Nonnull <T> ControlFactoryResult createControl(final @Nonnull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass) {
