@@ -24,15 +24,21 @@
  */
 package to.etc.domui.component.form;
 
-import java.util.*;
+import to.etc.domui.component.controlfactory.ModelBindings;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.Label;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.TR;
+import to.etc.domui.server.IControlLabelFactory;
+import to.etc.domui.util.IReadOnlyModel;
 
-import to.etc.domui.component.controlfactory.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.domui.util.*;
+import java.util.Arrays;
 
 /**
+ * Deprecated: use {@link to.etc.domui.component2.form4.FormBuilder}.
  * This is a helper class to generate tabular forms. It lays out the form by creating
  * a table and adding labels and input controls in separate table cells in a row. If
  * nothing else is done this creates a form in the layout of:
@@ -78,6 +84,7 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 19, 2008
  */
+@Deprecated
 public class TabularFormBuilder extends GenericTableFormBuilder {
 	//	/** For columnar mode this is the "next row" where we add a column */
 	//	private int m_colRow;

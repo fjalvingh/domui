@@ -24,11 +24,10 @@
  */
 package to.etc.domui.dom.html;
 
-import javax.annotation.*;
+import to.etc.domui.dom.errors.INodeErrorDelegate;
+import to.etc.domui.trouble.ValidationException;
 
-import to.etc.domui.component.binding.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.trouble.*;
+import javax.annotation.Nullable;
 
 /**
  * Something to control a control: some input or control comnponent in a generic way. This
@@ -37,7 +36,7 @@ import to.etc.domui.trouble.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 6, 2009
  */
-public interface IControl<T> extends IActionControl, IHasChangeListener, INodeErrorDelegate, IBindable {
+public interface IControl<T> extends IActionControl, IHasChangeListener, INodeErrorDelegate {
 	/**
 	 * Set a new value into this control. Setting a value to null means the control holds no value. This
 	 * value is converted to a presentable form using any (implicitly) defined converters; it will not

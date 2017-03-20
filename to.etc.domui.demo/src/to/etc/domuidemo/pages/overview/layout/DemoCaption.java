@@ -14,7 +14,7 @@ public class DemoCaption extends UrlPage {
 		//-- It can have buttons too
 		Caption ch = new Caption("With buttons");
 		add(ch);
-		ch.addButton("img/btnSmileyWink.png", "Press me to smile", new IClicked() {
+		ch.addButton("img/btnSmileyWink.png", "Press me to smile", new IClicked<NodeBase>() {
 			@Override
 			public void clicked(NodeBase clickednode) throws Exception {
 				MsgBox.message(DemoCaption.this, MsgBox.Type.INFO, "Button pressed");

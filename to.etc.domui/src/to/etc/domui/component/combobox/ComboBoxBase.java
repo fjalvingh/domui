@@ -285,10 +285,6 @@ public class ComboBoxBase<T, V> extends Div implements IControl<V> {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * @see to.etc.domui.component.input.SelectBasedControl#findListValueByIndex(int)
-	 */
 	private V findListValueByIndex(int ix) {
 		try {
 			List<T> data = getData();

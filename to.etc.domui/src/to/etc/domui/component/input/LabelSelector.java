@@ -15,7 +15,7 @@ import java.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 6, 2011
  */
-public class LabelSelector<T> extends Div implements IControl<List<T>> {
+public class LabelSelector<T> extends Div implements IControl<List<T>>, ITypedControl<T> {
 
 	private static final int MAX_LABELS_IN_TOOLTIP = 10;
 
@@ -378,4 +378,7 @@ public class LabelSelector<T> extends Div implements IControl<List<T>> {
 		m_defaultTooltip = defaultTooltip;
 	}
 
+	@Nonnull @Override public Class<T> getActualType() {
+		return m_actualClass;
+	}
 }

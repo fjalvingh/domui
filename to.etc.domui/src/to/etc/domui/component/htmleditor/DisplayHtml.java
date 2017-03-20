@@ -24,11 +24,14 @@
  */
 package to.etc.domui.component.htmleditor;
 
-import javax.annotation.*;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IDisplayControl;
+import to.etc.domui.dom.html.IValueChanged;
+import to.etc.domui.dom.html.XmlTextNode;
+import to.etc.domui.util.HtmlUtil;
 
-import to.etc.domui.component.binding.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Mini component to display an HTML section.
@@ -36,7 +39,7 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Mar 16, 2010
  */
-public class DisplayHtml extends Div implements IDisplayControl<String>, IBindable {
+public class DisplayHtml extends Div implements IDisplayControl<String> {
 	@Nonnull
 	final private XmlTextNode m_xtn = new XmlTextNode();
 

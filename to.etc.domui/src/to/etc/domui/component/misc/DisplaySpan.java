@@ -24,7 +24,7 @@
  */
 package to.etc.domui.component.misc;
 
-import to.etc.domui.component.binding.IBindable;
+import to.etc.domui.component.input.ITypedControl;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
@@ -50,7 +50,7 @@ import javax.annotation.Nullable;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Feb 15, 2010
  */
-public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IBindable, IConvertable<T> {
+public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvertable<T>, ITypedControl<T> {
 	@Nonnull
 	private Class<T> m_valueClass;
 
@@ -68,28 +68,25 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IBindabl
 	@Nullable
 	private String m_emptyString;
 
-	/** Used in special mode, when DisplaySpan is bound as row renderer. Parameters object is passed in to assigned renderer representing instance record */
-	@Nullable
-	private final Object m_rendererParameters;
-
 	public DisplaySpan(@Nonnull Class<T> valueClass) {
 		this(valueClass, null);
 	}
 
-	public DisplaySpan(@Nonnull Class<T> valueClass, @Nullable Object rendererParameters) {
+	/**
+	 * @param valueClass
+	 * @param value
+	 */
+	public DisplaySpan(@Nonnull Class<T> valueClass, @Nullable T value) {
 		m_valueClass = valueClass;
-		m_rendererParameters = rendererParameters;
-
+		m_value = value;
 	}
 
 	public DisplaySpan(@Nonnull T literal) {
 		m_valueClass = (Class<T>) literal.getClass();
 		m_value = literal;
-		m_rendererParameters = null;
 	}
 
-	@Nonnull
-	public Class<T> getValueClass() {
+	@Nonnull @Override public Class<T> getActualType() {
 		return m_valueClass;
 	}
 
@@ -121,14 +118,14 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IBindabl
 		//-- If a node renderer is set ask it to render content inside me. It is required to render proper info.
 		INodeContentRenderer<T> renderer = getRenderer();
 		if(renderer != null) {
-			renderer.renderNodeContent(this, this, val, m_rendererParameters); // Ask node renderer.
+			renderer.renderNodeContent(this, this, val, null); // Ask node renderer.
 			if(getChildCount() == 0 && m_emptyString != null)
 				add(m_emptyString);
 			return;
 		}
 
 		//-- Getting slightly desperate here... Is there a "default converter" that we can use?
-		IConverter<T> c = ConverterRegistry.findConverter(getValueClass()); // This version does return null if nothing is found, not a toString converter.
+		IConverter<T> c = ConverterRegistry.findConverter(getActualType()); // This version does return null if nothing is found, not a toString converter.
 		if(c != null) {
 			String converted = c.convertObjectToString(NlsContext.getLocale(), val);
 			setString(converted);

@@ -46,7 +46,7 @@ import to.etc.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.query.*;
 
-abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT>, IHasModifiedIndication {
+abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT>, ITypedControl<OT>, IHasModifiedIndication {
 
 	public static final String MAGIC_ID_MARKER = "?id?";
 
@@ -1095,7 +1095,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 			setValue(value);
 
 			try {
-				SimpleBinder.controlToModel(this);
+				OldBindingHandler.controlToModel(this);
 			} catch(Exception x) {
 				throw WrappedException.wrap(x);
 			}
@@ -1451,6 +1451,10 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 
 	@Nonnull
 	public Class<OT> getOutputClass() {
+		return m_outputClass;
+	}
+
+	@Nonnull @Override public Class<OT> getActualType() {
 		return m_outputClass;
 	}
 

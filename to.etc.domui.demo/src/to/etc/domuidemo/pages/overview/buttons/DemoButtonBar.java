@@ -17,21 +17,25 @@ public class DemoButtonBar extends UrlPage {
 		bb.addButton(new TextNode("Buttonbar (the back button is special):"));
 
 		bb.addButton("Complaint", "img/btnComplaint.gif", new IClicked<DefaultButton>() {
+			@Override
 			public void clicked(final DefaultButton b) throws Exception {
 				MsgBox.message(d, MsgBox.Type.INFO, "Button pressed: Failed");
 			}
 		});
 		bb.addButton("New", "img/btnBaby.png", new IClicked<DefaultButton>() {
+			@Override
 			public void clicked(final DefaultButton b) throws Exception {
 				MsgBox.message(d, MsgBox.Type.INFO, "Button pressed: New");
 			}
 		});
 		bb.addButton("Retrying", "img/btnReload.gif", new IClicked<DefaultButton>() {
+			@Override
 			public void clicked(final DefaultButton b) throws Exception {
 				MsgBox.message(d, MsgBox.Type.INFO, "Button pressed: Retrying");
 			}
 		});
 		bb.addButton("Completed", "img/btnSmileySmiley.gif", new IClicked<DefaultButton>() {
+			@Override
 			public void clicked(final DefaultButton b) throws Exception {
 				MsgBox.message(d, MsgBox.Type.INFO, "Button pressed: Completed");
 			}

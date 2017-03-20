@@ -374,10 +374,6 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * @see to.etc.domui.component.input.SelectBasedControl#findListValueByIndex(int)
-	 */
 	private V findListValueByIndex(int ix) {
 		try {
 			List<T> data = getData();

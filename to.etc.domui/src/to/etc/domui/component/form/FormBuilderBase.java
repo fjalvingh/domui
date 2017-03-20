@@ -35,11 +35,13 @@ import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 
 /**
+ * Deprecated: use {@link to.etc.domui.component2.form4.FormBuilder}.
  * Base class for form builder engines.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 13, 2009
  */
+@Deprecated
 public class FormBuilderBase {
 	static protected final Logger LOG = LoggerFactory.getLogger(FormBuilderBase.class);
 

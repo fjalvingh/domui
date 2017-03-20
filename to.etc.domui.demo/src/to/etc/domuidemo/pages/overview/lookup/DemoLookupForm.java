@@ -25,6 +25,8 @@ public class DemoLookupForm extends UrlPage {
 
 	protected void search(LookupForm<Invoice> lf) throws Exception {
 		QCriteria<Invoice> query = lf.getEnteredCriteria(); // Get query entered
+		if(null == query)
+			return;
 		SimpleSearchModel<Invoice> ssm = new SimpleSearchModel<Invoice>(this, query);
 		setQuery(ssm);
 	}

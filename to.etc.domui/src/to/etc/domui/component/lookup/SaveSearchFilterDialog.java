@@ -8,7 +8,6 @@ import to.etc.domui.component.binding.*;
 import to.etc.domui.component.event.*;
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.layout.*;
-import to.etc.domui.component.lookup.*;
 import to.etc.domui.component.lookup.filter.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.component2.form4.*;
@@ -83,7 +82,7 @@ public final class SaveSearchFilterDialog extends Dialog {
 		clearGlobalMessage();
 
 		// Check required field
-		boolean hasBindingErrors = SimpleBinder.reportBindingErrors(this);
+		boolean hasBindingErrors = OldBindingHandler.reportBindingErrors(this);
 		if(hasBindingErrors) {
 			return false;
 		}

@@ -24,30 +24,55 @@
  */
 package to.etc.domui.dom.html;
 
-import org.slf4j.*;
-import to.etc.domui.component.binding.*;
-import to.etc.domui.component.event.*;
-import to.etc.domui.component.image.*;
-import to.etc.domui.component.layout.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.*;
-import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.html.Page.*;
-import to.etc.domui.dom.webaction.*;
-import to.etc.domui.logic.*;
-import to.etc.domui.parts.*;
-import to.etc.domui.server.*;
-import to.etc.domui.state.*;
-import to.etc.domui.themes.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
-import to.etc.domui.util.javascript.*;
-import to.etc.webapp.nls.*;
-import to.etc.webapp.query.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import to.etc.domui.component.binding.ComponentPropertyBinding;
+import to.etc.domui.component.binding.IBinding;
+import to.etc.domui.component.binding.OldBindingHandler;
+import to.etc.domui.component.event.INotify;
+import to.etc.domui.component.image.Dimension;
+import to.etc.domui.component.layout.Rect;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.dom.HtmlTagRenderer;
+import to.etc.domui.dom.css.CssBase;
+import to.etc.domui.dom.css.PositionType;
+import to.etc.domui.dom.errors.IErrorFence;
+import to.etc.domui.dom.errors.INodeErrorDelegate;
+import to.etc.domui.dom.errors.MsgType;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.dom.html.Page.NotificationListener;
+import to.etc.domui.dom.webaction.IWebActionHandler;
+import to.etc.domui.logic.ILogicContext;
+import to.etc.domui.parts.IComponentJsonProvider;
+import to.etc.domui.parts.IComponentUrlDataProvider;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.RequestContextImpl;
+import to.etc.domui.state.IPageParameters;
+import to.etc.domui.themes.IThemeVariant;
+import to.etc.domui.trouble.UIException;
+import to.etc.domui.util.Constants;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.DropEvent;
+import to.etc.domui.util.IDragArea;
+import to.etc.domui.util.IDragHandler;
+import to.etc.domui.util.IDraggable;
+import to.etc.domui.util.IDropHandler;
+import to.etc.domui.util.IDropTargetable;
+import to.etc.domui.util.javascript.JavascriptStmt;
+import to.etc.webapp.nls.BundleStack;
+import to.etc.webapp.nls.IBundle;
+import to.etc.webapp.query.QDataContext;
+import to.etc.webapp.query.QDataContextFactory;
 
-import javax.annotation.*;
-import java.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.StringTokenizer;
 
 /**
  * Base node for all non-container html dom nodes.
@@ -1289,11 +1314,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		if(null != el) {
 			sb.append(":").append(el);
 		}
-		SimpleBinder binding = SimpleBinder.findBinding(this, "value");
+		ComponentPropertyBinding binding = OldBindingHandler.findBinding(this, "value");
 		if(binding != null) {
 			sb.append(" ").append(binding);
 		} else {
-			binding = SimpleBinder.findBinding(this, "bindValue");
+			binding = OldBindingHandler.findBinding(this, "bindValue");
 			if(binding != null) {
 				sb.append(" ").append(binding);
 			}
@@ -1845,7 +1870,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	@Nonnull
 	public List<UIMessage> getBindingErrors() throws Exception {
-		return SimpleBinder.getBindingErrors(this);
+		return OldBindingHandler.getBindingErrors(this);
 	}
 
 	/**
@@ -1854,7 +1879,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @return
 	 */
 	public boolean bindErrors() throws Exception {
-		return SimpleBinder.reportBindingErrors(this);
+		return OldBindingHandler.reportBindingErrors(this);
 	}
 
 	/**
@@ -1870,19 +1895,44 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * Add a binding to the binding list.
 	 * @param binding
 	 */
-	public void addBinding(@Nonnull IBinding binding) {
+	final public void addBinding(@Nonnull IBinding binding) {
 		List<IBinding> list = m_bindingList;
 		if(list == null)
 			list = m_bindingList = new ArrayList<>(1);
 		list.add(binding);
 	}
 
-	public void removeBinding(@Nonnull IBinding binding) {
+	final public void removeBinding(@Nonnull IBinding binding) {
 		List<IBinding> list = m_bindingList;
 		if(null != list)
 			list.remove(binding);
 	}
 
+	@Nonnull final public ComponentPropertyBinding bind() {
+		ClassMetaModel cmm = MetaManager.findClassMeta(getClass());
+		PropertyMetaModel<?> p = cmm.findProperty("bindValue");
+		if(null != p)
+			return bind("bindValue");
+		p = cmm.findProperty("value");
+		if(null != p)
+			return bind("value");
+		throw new IllegalStateException("This control (" + getClass() + ") does not have a 'value' nor a 'bindValue' property");
+	}
+
+	@Nonnull final public ComponentPropertyBinding bind(@Nonnull String componentProperty) {
+		ComponentPropertyBinding binder = new ComponentPropertyBinding(this, componentProperty);
+		addBinding(binder);
+		return binder;
+	}
+
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	Misc														*/
+	/*----------------------------------------------------------------------*/
+
+	/**
+	 * FIXME Should not exist?
+	 * @param result
+	 */
 	protected void clearValidationFailure(UIException result) {
 		/*
 		 * Questionable place, but: if validation works we're sure any message related to
@@ -1896,23 +1946,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 				setMessage(null);
 			}
 		}
-	}
-
-	@Nonnull final public IBinder bind() {
-		ClassMetaModel cmm = MetaManager.findClassMeta(getClass());
-		PropertyMetaModel<?> p = cmm.findProperty("bindValue");
-		if(null != p)
-			return bind("bindValue");
-		p = cmm.findProperty("value");
-		if(null != p)
-			return bind("value");
-		throw new IllegalStateException("This control "+getClass()+" does not have a 'value' nor a 'bindValue' property");
-	}
-
-	@Nonnull final public IBinder bind(@Nonnull String componentProperty) {
-		SimpleBinder binder = new SimpleBinder(this, componentProperty);
-		addBinding(binder);
-		return binder;
 	}
 
 	public void notifyParentOrOpenerPage(@Nullable String command) {

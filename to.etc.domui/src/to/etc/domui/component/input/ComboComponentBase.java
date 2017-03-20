@@ -277,7 +277,6 @@ public class ComboComponentBase<T, V> extends Select implements IControl<V>, IHa
 
 	/**
 	 * {@inheritDoc}
-	 * @see to.etc.domui.component.input.SelectBasedControl#findListValueByIndex(int)
 	 */
 	private V findListValueByIndex(int ix) {
 		try {

@@ -1,27 +1,36 @@
 package to.etc.domuidemo;
 
-import java.io.*;
+import to.etc.dbpool.ConnectionPool;
+import to.etc.dbpool.PoolManager;
+import to.etc.domui.caches.images.ImageCache;
+import to.etc.domui.component.layout.BreadCrumb;
+import to.etc.domui.dom.errors.IExceptionListener;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.dom.header.HeaderContributor;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.Page;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.server.ConfigParameters;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.IRequestContext;
+import to.etc.domui.themes.FragmentedThemeFactory;
+import to.etc.domui.themes.SimpleThemeFactory;
+import to.etc.domui.trouble.UIException;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.INewPageInstantiated;
+import to.etc.domui.util.Msgs;
+import to.etc.domuidemo.components.SourceBreadCrumb;
+import to.etc.domuidemo.db.DBInitialize;
+import to.etc.domuidemo.db.DbUtil;
+import to.etc.domuidemo.pages.HomePage;
+import to.etc.domuidemo.sourceviewer.SourcePage;
+import to.etc.formbuilder.pages.FormDesigner;
+import to.etc.util.DeveloperOptions;
+import to.etc.webapp.query.QContextManager;
 
-import javax.annotation.*;
-import javax.servlet.*;
-
-import to.etc.dbpool.*;
-import to.etc.domui.caches.images.*;
-import to.etc.domui.component.layout.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.header.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.domui.themes.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
-import to.etc.domuidemo.components.*;
-import to.etc.domuidemo.db.*;
-import to.etc.domuidemo.pages.*;
-import to.etc.domuidemo.sourceviewer.*;
-import to.etc.formbuilder.pages.*;
-import to.etc.util.*;
-import to.etc.webapp.query.*;
+import javax.annotation.Nonnull;
+import javax.servlet.UnavailableException;
+import java.io.File;
 
 public class Application extends DomApplication {
 	private boolean m_hibinit;
@@ -37,7 +46,7 @@ public class Application extends DomApplication {
 	protected void initialize(final ConfigParameters pp) throws Exception {
 		ImageCache.initialize(32 * 1024 * 1024, 5l * 1024 * 1024 * 1024, new File("/tmp/imagecache"));
 
-		String newtheme = DeveloperOptions.getString("domuidemo.simpletheme", null);
+		String newtheme = DeveloperOptions.getString("domuidemo.simpletheme");
 		if(null != newtheme) {
 			//-- Set the SIMPLE theme provider with the specified theme set.
 			setThemeFactory(SimpleThemeFactory.INSTANCE);
@@ -70,7 +79,8 @@ public class Application extends DomApplication {
 					return false;
 
 				x.printStackTrace();
-				source.addGlobalMessage(UIMessage.error(Msgs.BUNDLE, Msgs.UNEXPECTED_EXCEPTION, x.toString()));
+				if(null != source)
+					source.addGlobalMessage(UIMessage.error(Msgs.BUNDLE, Msgs.UNEXPECTED_EXCEPTION, x.toString()));
 				return true;
 			}
 		});

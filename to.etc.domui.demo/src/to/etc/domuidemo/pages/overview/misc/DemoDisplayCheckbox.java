@@ -12,13 +12,13 @@ public class DemoDisplayCheckbox extends UrlPage {
 		Label l = new Label("DisplayCheckbox checked");
 		d.add(l);
 		DisplayCheckbox dcc = new DisplayCheckbox();
-		dcc.setValue(true);
+		dcc.setValue(Boolean.TRUE);
 		d.add(dcc);
 
 		l = new Label(" and unchecked");
 		d.add(l);
 		DisplayCheckbox dcu = new DisplayCheckbox();
-		dcu.setValue(false);
+		dcu.setValue(Boolean.FALSE);
 		d.add(dcu);
 	}
 }

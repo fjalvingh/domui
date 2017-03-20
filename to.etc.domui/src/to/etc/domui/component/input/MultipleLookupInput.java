@@ -23,7 +23,7 @@ import java.util.*;
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on 13 Oct 2011
  */
-public class MultipleLookupInput<T> extends Div implements IControl<List<T>> {
+public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, ITypedControl<T> {
 
 
 	/**
@@ -166,14 +166,6 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>> {
 		}
 	};
 
-	private void addSelection() throws Exception {
-		startUpdate();
-		for(T item : m_lookupInput.getSelectedItems()) {
-			addSelection(item);
-		}
-		endUpdate();
-	}
-
 	public MultipleLookupInput(@Nonnull Class<T> clazz, String... renderColumns) {
 		m_lookupInput = new MultiLookupInput(clazz, renderColumns);
 		m_lookupInput.setLookupFormInitialization(new ILookupFormModifier<T>() {
@@ -209,6 +201,18 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>> {
 		m_clearButton.setDisplay(DisplayType.NONE);
 		m_clearButton.addCssClass("ui-lui-clear-mul-btn");
 
+	}
+
+	private void addSelection() throws Exception {
+		startUpdate();
+		for(T item : m_lookupInput.getSelectedItems()) {
+			addSelection(item);
+		}
+		endUpdate();
+	}
+
+	@Nonnull @Override public Class<T> getActualType() {
+		return m_lookupInput.getActualType();
 	}
 
 	protected void clearSelection(Object object) throws Exception {

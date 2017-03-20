@@ -45,7 +45,7 @@ import to.etc.webapp.query.*;
 import javax.annotation.*;
 import java.util.*;
 
-abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<OT>, IHasModifiedIndication, IQueryManipulator<QT> {
+abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<OT>, ITypedControl<OT>, IHasModifiedIndication, IQueryManipulator<QT> {
 	/** If set, the complete title for the popup window shown when the 'find' button is pressed. */
 	@Nullable
 	private String m_defaultTitle;
@@ -827,7 +827,7 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 			setValue(value);
 
 			try {
-				SimpleBinder.controlToModel(this);
+				OldBindingHandler.controlToModel(this);
 			} catch(Exception x) {
 				throw WrappedException.wrap(x);
 			}
@@ -1048,6 +1048,10 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 
 	@Nonnull
 	public Class<OT> getOutputClass() {
+		return m_outputClass;
+	}
+
+	@Nonnull @Override public Class<OT> getActualType() {
 		return m_outputClass;
 	}
 

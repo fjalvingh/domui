@@ -12,10 +12,18 @@ import javax.annotation.*;
  * Created on 12/10/14.
  */
 public interface IBinding {
-	public void moveControlToModel() throws Exception;
+	@Nullable
+	BindingValuePair<?, ?> getBindingDifference() throws Exception;
 
-	public void moveModelToControl() throws Exception;
+	void moveModelToControl() throws Exception;
 
 	@Nullable
-	public UIMessage getBindError();
+	UIMessage getBindError();
+
+	/**
+	 * Put the specified value into the bound model property.
+	 * @param value
+	 * @param <T>
+	 */
+	<T> void setModelValue(@Nullable T value);
 }

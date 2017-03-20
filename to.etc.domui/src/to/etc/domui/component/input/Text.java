@@ -67,8 +67,9 @@ import java.util.regex.Pattern;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 11, 2008
  */
-public class Text<T> extends Input implements IControl<T>, IHasModifiedIndication, IConvertable<T> {
+public class Text<T> extends Input implements IControl<T>, IHasModifiedIndication, IConvertable<T>, ITypedControl<T> {
 	/** The type of class that is expected. This is the return type of the getValue() call for a validated item */
+	@Nonnull
 	private Class<T> m_inputClass;
 
 	/**
@@ -110,7 +111,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 */
 	private String m_emptyMarker;
 
-	public static enum NumberMode {
+	public enum NumberMode {
 		NONE, DIGITS, FLOAT,
 	}
 
@@ -124,7 +125,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 
 	private String m_regexpUserString;
 
-	public Text(Class<T> inputClass) {
+	public Text(@Nonnull Class<T> inputClass) {
 		m_inputClass = inputClass;
 
 		NumberMode nm = NumberMode.NONE;
@@ -226,7 +227,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		try {
 			IConverter<T> c = m_converter;
 			if(c == null)
-				c = ConverterRegistry.findConverter(getInputClass());
+				c = ConverterRegistry.findConverter(getActualType());
 
 			Object converted;
 			if(c != null)
@@ -277,7 +278,9 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 * Returns the datatype of the value of this control, as passed in the constructor.
 	 * @return
 	 */
-	public Class<T> getInputClass() {
+	@Override
+	@Nonnull
+	public Class<T> getActualType() {
 		return m_inputClass;
 	}
 
@@ -385,7 +388,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		try {
 			IConverter<T> c = m_converter;
 			if(c == null)
-				c = ConverterRegistry.findConverter(getInputClass());
+				c = ConverterRegistry.findConverter(getActualType());
 
 			if(c != null)
 				converted = c.convertObjectToString(NlsContext.getLocale(), value);

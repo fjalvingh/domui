@@ -1,13 +1,25 @@
 package to.etc.domui.logic.errors;
 
-import java.util.*;
+import to.etc.domui.component.binding.ComponentPropertyBinding;
+import to.etc.domui.component.binding.IBinding;
+import to.etc.domui.component.binding.OldBindingHandler;
+import to.etc.domui.dom.errors.IErrorFence;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.IValueAccessor;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.binding.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Experimental.
@@ -94,9 +106,9 @@ public class ProblemReporter {
 			@Override
 			@Nullable
 			public Object before(NodeBase n) throws Exception {
-				if(n instanceof IBindable) {
+				List<IBinding> bindingList = n.getBindingList();
+				if(null != bindingList && bindingList.size() > 0)
 					bindableNodes.add(n);
-				}
 				return null;
 			}
 
@@ -125,7 +137,7 @@ public class ProblemReporter {
 		//-- Now get rid of all that was no longer reported
 		for(UIMessage old : existingErrorSet) {
 			for(IErrorFence f : allFences) {
-				if(SimpleBinder.BINDING_ERROR != old.getGroup())
+				if(OldBindingHandler.BINDING_ERROR != old.getGroup())
 					f.removeMessage(old);
 			}
 		}
@@ -162,8 +174,8 @@ public class ProblemReporter {
 		List<ProblemInstance> all = new ArrayList<>();
 		List<UIMessage> bindingMessageList = new ArrayList<>();
 		for(IBinding binding : bindingList) {
-			if(binding instanceof SimpleBinder) {
-				SimpleBinder sib = (SimpleBinder) binding;
+			if(binding instanceof ComponentPropertyBinding) {
+				ComponentPropertyBinding sib = (ComponentPropertyBinding) binding;
 				getErrorsOnBoundProperty(newErrorSet, all, n, sib);
 				UIMessage be = binding.getBindError();
 				if(null != be)
@@ -232,7 +244,7 @@ public class ProblemReporter {
 	 * @param n
 	 * @param binding
 	 */
-	private void getErrorsOnBoundProperty(ProblemSet newErrorSet, @Nonnull List<ProblemInstance> all, @Nonnull NodeBase n, @Nonnull SimpleBinder binding) {
+	private void getErrorsOnBoundProperty(ProblemSet newErrorSet, @Nonnull List<ProblemInstance> all, @Nonnull NodeBase n, @Nonnull ComponentPropertyBinding binding) {
 		Object instance = binding.getInstance();
 		if(null == instance)								// Not an instance binding -> no errors here
 			return;
