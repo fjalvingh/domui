@@ -64,5 +64,7 @@
     <orderEntry type="module" module-name="to.etc.db" />
     <orderEntry type="module" module-name="lib-selenium" />
     <orderEntry type="module" module-name="to.etc.domui.selenium" />
+    <orderEntry type="module" module-name="to.etc.domui.legacy" />
+    <orderEntry type="module" module-name="to.etc.syntaxer" />
   </component>
 </module>

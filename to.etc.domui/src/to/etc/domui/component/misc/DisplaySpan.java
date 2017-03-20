@@ -68,24 +68,22 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 	@Nullable
 	private String m_emptyString;
 
-	/** Used in special mode, when DisplaySpan is bound as row renderer. Parameters object is passed in to assigned renderer representing instance record */
-	@Nullable
-	private final Object m_rendererParameters;
-
 	public DisplaySpan(@Nonnull Class<T> valueClass) {
 		this(valueClass, null);
 	}
 
-	public DisplaySpan(@Nonnull Class<T> valueClass, @Nullable Object rendererParameters) {
+	/**
+	 * @param valueClass
+	 * @param value
+	 */
+	public DisplaySpan(@Nonnull Class<T> valueClass, @Nullable T value) {
 		m_valueClass = valueClass;
-		m_rendererParameters = rendererParameters;
-
+		m_value = value;
 	}
 
 	public DisplaySpan(@Nonnull T literal) {
 		m_valueClass = (Class<T>) literal.getClass();
 		m_value = literal;
-		m_rendererParameters = null;
 	}
 
 	@Nonnull @Override public Class<T> getActualType() {
@@ -120,7 +118,7 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 		//-- If a node renderer is set ask it to render content inside me. It is required to render proper info.
 		INodeContentRenderer<T> renderer = getRenderer();
 		if(renderer != null) {
-			renderer.renderNodeContent(this, this, val, m_rendererParameters); // Ask node renderer.
+			renderer.renderNodeContent(this, this, val, null); // Ask node renderer.
 			if(getChildCount() == 0 && m_emptyString != null)
 				add(m_emptyString);
 			return;

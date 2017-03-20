@@ -1,16 +1,36 @@
 package to.etc.domuidemo.pages.overview.agenda;
 
-import java.util.*;
+import to.etc.domui.component.agenda.BasicScheduleHoliday;
+import to.etc.domui.component.agenda.BasicScheduleItem;
+import to.etc.domui.component.agenda.BasicScheduleModel;
+import to.etc.domui.component.agenda.BasicScheduleWorkHour;
+import to.etc.domui.component.agenda.DefaultScheduleItemRenderer;
+import to.etc.domui.component.agenda.INewAppointment;
+import to.etc.domui.component.agenda.MonthPanel;
+import to.etc.domui.component.agenda.ScheduleItem;
+import to.etc.domui.component.agenda.ScheduleWorkHour;
+import to.etc.domui.component.agenda.WeekAgendaComponent;
+import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.form.TabularFormBuilder;
+import to.etc.domui.component.input.DateInput;
+import to.etc.domui.component.input.Text;
+import to.etc.domui.component.layout.FloatingWindow;
+import to.etc.domui.component.layout.SplitPanel;
+import to.etc.domui.converter.SecondDurationConverter;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.INodeContentRenderer;
+import to.etc.util.DateUtil;
+import to.etc.util.StringTool;
 
-import to.etc.domui.component.agenda.*;
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.form.*;
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.layout.*;
-import to.etc.domui.converter.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 public class DemoWeekAgenda extends UrlPage {
 	BasicScheduleModel<ScheduleItem>	m_model;
@@ -214,7 +234,9 @@ public class DemoWeekAgenda extends UrlPage {
 			public void clicked(DefaultButton bx) throws Exception {
 				Calendar cal = Calendar.getInstance();
 				cal.setTime(di.getValue());
-				cal.add(Calendar.SECOND, dc.getValue().intValue());
+				Long value = dc.getValue();
+				if(null != value)
+					cal.add(Calendar.SECOND, value.intValue());
 				m_model.addItem(new BasicScheduleItem(newID(), di.getValue(), cal.getTime(), "Prive", sub.getValue(), null, "img/cal/exercise.png"));
 				floater.close();
 			}

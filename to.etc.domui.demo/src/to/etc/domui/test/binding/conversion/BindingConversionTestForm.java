@@ -15,10 +15,15 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
+ * This form contains a binding between a Text&lt;String&gt; and an Integer
+ * property. It uses an {@link IBindingConverter} to convert the types. When
+ * conversion fails it should act as if validation failed.
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  *         Created on 19-3-17.
  */
 public class BindingConversionTestForm extends UrlPage {
+	@Nullable
 	private Integer m_value;
 
 	private Div m_div;
@@ -62,9 +67,12 @@ public class BindingConversionTestForm extends UrlPage {
 			return;
 		Integer value = getValue();
 		m_div.removeAllChildren();
-		m_div.add(new DisplayValue<Integer>(getValue()));
+		DisplayValue<Integer> nd = new DisplayValue<>(Integer.class, getValue());
+		nd.setTestID("result");
+		m_div.add(nd);
 	}
 
+	@Nullable
 	public Integer getValue() {
 		return m_value;
 	}

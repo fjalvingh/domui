@@ -385,9 +385,25 @@ final public class MultiRowRenderer<T> implements IClickableRowRenderer<T> {
 			if(null == converter) {
 				converter  = ConverterRegistry.findBestConverter(pmm);
 			}
-			DisplaySpan<X> ds = new DisplaySpan<X>(pmm.getActualType(), instance);
+			DisplaySpan<X> ds = new DisplaySpan<X>(pmm.getActualType());
 			ds.bind().to(instance, pmm);					// Bind value to model
-				ds.setRenderer(contentRenderer);			// Bind the display control and let it render through the content renderer, enabling binding
+			if(null != contentRenderer) {
+				// Bind the display control and let it render through the content renderer, enabling binding
+				ds.setRenderer(new INodeContentRenderer<X>() {
+					/**
+					 * Wrap the renderer so we can pass the "instance" to it.
+					 * @param component
+					 * @param node
+					 * @param object				The nullable item we're rendering.
+					 * @param parameters
+					 * @throws Exception
+					 */
+					@Override
+					public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable X object, @Nullable Object parameters) throws Exception {
+						contentRenderer.renderNodeContent(component, node, object, instance);
+					}
+				});
+			}
 			cell.add(ds);
 
 			if(converter != null) {

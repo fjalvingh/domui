@@ -30,7 +30,7 @@ public class IeCheckBoxInTable2 extends UrlPage {
 	}
 
 	protected void tdClicked(Checkbox cb) {
-		cb.setValue(!cb.getValue());
+		cb.setValue(Boolean.valueOf(!cb.getValue().booleanValue()));
 		add(new MsgDiv("tdclicked " + cb.getValue()));
 	}
 

@@ -13,6 +13,7 @@ public class MediaType extends DbRecordBase<Long> {
 
 	private String m_name;
 
+	@Override
 	@Id
 	@SequenceGenerator(name = "sq", sequenceName = "track_sq")
 	@Column(name = "MediaTypeId", precision = 20, nullable = false)

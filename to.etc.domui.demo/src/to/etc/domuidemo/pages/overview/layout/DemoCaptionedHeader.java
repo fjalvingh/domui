@@ -14,7 +14,7 @@ public class DemoCaptionedHeader extends UrlPage {
 		//-- It can have buttons too
 		CaptionedHeader ch = new CaptionedHeader("With buttons");
 		add(ch);
-		ch.addButton("img/btnSmileyWink.png", "Press me to smile", new IClicked() {
+		ch.addButton("img/btnSmileyWink.png", "Press me to smile", new IClicked<NodeBase>() {
 			@Override
 			public void clicked(NodeBase clickednode) throws Exception {
 				MsgBox.message(DemoCaptionedHeader.this, MsgBox.Type.INFO, "Button pressed");

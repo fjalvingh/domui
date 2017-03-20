@@ -38,6 +38,7 @@ public class Track extends DbRecordBase<Long> {
 
 	private BigDecimal m_unitPrice;
 
+	@Override
 	@Id
 	@SequenceGenerator(name = "sq", sequenceName = "track_sq")
 	@Column(name = "TrackId", precision = 20, nullable = false)

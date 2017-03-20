@@ -1,9 +1,13 @@
 package to.etc.domuidemo.pages.overview.tree;
 
-import java.io.*;
-import java.util.*;
+import to.etc.domui.component.tree.ITreeModel;
+import to.etc.domui.component.tree.ITreeModelChangedListener;
 
-import to.etc.domui.component.tree.*;
+import java.io.File;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This implements a lazily-loaded file system tree model. It returns the content of the file
@@ -66,7 +70,7 @@ public class DemoTreeModel implements ITreeModel<File> {
 	}
 
 	@Override
-	public void addChangeListener(ITreeModelChangedListener l) {
+	public void addChangeListener(ITreeModelChangedListener<File> l) {
 	}
 
 	@Override
@@ -83,7 +87,7 @@ public class DemoTreeModel implements ITreeModel<File> {
 	}
 	@Override
 	public File getParent(File child) throws Exception {
-		if(child == m_root.getBase())
+		if(child == m_root.getBase() || child == null)
 			return null;
 		return getLink(child.getParentFile()).getBase();
 	}
@@ -104,7 +108,7 @@ public class DemoTreeModel implements ITreeModel<File> {
 	}
 
 	@Override
-	public void removeChangeListener(ITreeModelChangedListener l) {
+	public void removeChangeListener(ITreeModelChangedListener<File> l) {
 	}
 
 	@Override

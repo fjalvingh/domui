@@ -114,6 +114,7 @@ public class DemoDragDrop extends UrlPage {
 			m_divb.add(context.getDraggedNode());
 			((IDraggable) context.getDraggedNode()).setDragHandler(DRAG_HANDLER);
 		}
+		@Override
 		public DropMode getDragMode() {
 			return DropMode.ROW;
 		}

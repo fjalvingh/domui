@@ -16,6 +16,7 @@ public class Genre extends DbRecordBase<Long> {
 	@Id
 	@SequenceGenerator(name = "sq", sequenceName = "genre_sq")
 	@Column(name = "GenreId", precision = 20, nullable = false)
+	@Override
 	public Long getId() {
 		return m_id;
 	}

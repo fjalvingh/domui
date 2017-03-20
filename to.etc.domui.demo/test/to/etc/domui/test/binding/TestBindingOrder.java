@@ -3,6 +3,7 @@ package to.etc.domui.test.binding;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openqa.selenium.By;
+import to.etc.domui.test.binding.conversion.BindingConversionTestForm;
 import to.etc.domui.test.binding.order1.BindingTypeForm1;
 import to.etc.domui.test.binding.order1.TestBindingOrder1;
 import to.etc.domui.webdriver.core.AbstractWebDriverTest;
@@ -53,4 +54,22 @@ public class TestBindingOrder extends AbstractWebDriverTest {
 		String text = wd().getHtmlText(By.cssSelector(".exc-exception-type"));
 		wd().assertTrue("Should have thrown an exception", text.contains("BindingDefinitionException"));
 	}
+
+
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	BindingConversionTestForm									*/
+	/*----------------------------------------------------------------------*/
+
+	/**
+	 * When we just press "click" without entering anything we should have an empty "value".
+	 * @throws Exception
+	 */
+	@Test
+	public void testBindingConverter1() throws Exception {
+		wd().openScreen(BindingConversionTestForm.class);
+		wd().cmd().click().on("button_click");
+		String result = wd().getHtmlText("result");
+		wd().assertEquals(result, "");
+	}
+
 }
