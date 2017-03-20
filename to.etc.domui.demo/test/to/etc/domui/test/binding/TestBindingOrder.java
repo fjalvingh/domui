@@ -61,7 +61,9 @@ public class TestBindingOrder extends AbstractWebDriverTest {
 	/*----------------------------------------------------------------------*/
 
 	/**
-	 * When we just press "click" without entering anything we should have an empty "value".
+	 * When we just press "click" without entering anything we should have an empty "value". This caused a NPE
+	 * before.
+	 *
 	 * @throws Exception
 	 */
 	@Test
@@ -71,5 +73,64 @@ public class TestBindingOrder extends AbstractWebDriverTest {
 		String result = wd().getHtmlText("result");
 		wd().assertEquals(result, "");
 	}
+
+	/**
+	 * Enter 123 must properly get a new value 123 after binding.
+	 * @throws Exception
+	 */
+	@Test
+	public void testBindingConverter2() throws Exception {
+		wd().openScreen(BindingConversionTestForm.class);
+		wd().cmd().type("123").on("integer");
+		wd().cmd().click().on("button_click");
+		String result = wd().getHtmlText("result");
+		wd().assertEquals(result, "123");
+	}
+
+	/**
+	 * Enter 123abc must cause a binding error.
+	 * @throws Exception
+	 */
+	@Test
+	public void testBindingConverter3() throws Exception {
+		wd().openScreen(BindingConversionTestForm.class);
+		wd().cmd().type("123abc").on("integer");
+		wd().cmd().click().on("button_click");
+		String result = wd().getHtmlText(By.className("ui-msg-error"));
+		wd().assertTrue("There must be an error message", result.contains("123abc"));
+		System.out.println(">> " + result);
+	}
+
+	/**
+	 * When logic moves a new value to the property the control must show that value.
+	 * @throws Exception
+	 */
+	@Test
+	public void testBindingConverter4() throws Exception {
+		wd().openScreen(BindingConversionTestForm.class);
+		wd().cmd().click().on("button_setvalue");
+		String result = wd().getValue("integer");
+		wd().assertEquals(result, "987");
+	}
+
+	/**
+	 * When logic moves null as a value to the property the control must clear itself.
+	 * @throws Exception
+	 */
+	@Test
+	public void testBindingConverter5() throws Exception {
+		wd().openScreen(BindingConversionTestForm.class);
+
+		//-- First enter 123
+		wd().cmd().type("123").on("integer");
+		wd().cmd().click().on("button_click");
+		String result = wd().getHtmlText("result");
+		wd().assertEquals(result, "123");
+		wd().cmd().click().on("button_setnull");
+
+		result = wd().getValue("integer");
+		wd().assertEquals(result, "");
+	}
+
 
 }

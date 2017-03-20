@@ -59,6 +59,20 @@ public class BindingConversionTestForm extends UrlPage {
 			}
 		});
 		add(db);
+
+		db = new DefaultButton("setvalue", new IClicked<DefaultButton>() {
+			@Override public void clicked(@Nonnull DefaultButton clickednode) throws Exception {
+				setValue(Integer.valueOf(987));
+			}
+		});
+		add(db);
+
+		db = new DefaultButton("setnull", new IClicked<DefaultButton>() {
+			@Override public void clicked(@Nonnull DefaultButton clickednode) throws Exception {
+				setValue(null);
+			}
+		});
+		add(db);
 		add(m_div = new Div());
 	}
 
