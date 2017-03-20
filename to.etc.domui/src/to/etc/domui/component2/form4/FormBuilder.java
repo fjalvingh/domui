@@ -1,5 +1,6 @@
 package to.etc.domui.component2.form4;
 
+import to.etc.domui.component.binding.IBindingConverter;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component2.controlfactory.ControlCreatorRegistry;
@@ -65,6 +66,9 @@ final public class FormBuilder {
 
 	@Nullable
 	private String m_labelCss;
+
+	@Nullable
+	private IBindingConverter<?, ?> m_bindingConverter;
 
 	public FormBuilder(@Nonnull IAppender appender) {
 		m_appender = appender;
@@ -206,6 +210,12 @@ final public class FormBuilder {
 		return control;
 	}
 
+	@Nonnull
+	public FormBuilder converter(@Nonnull IBindingConverter<?, ?> converter) {
+		m_bindingConverter = converter;
+		return this;
+	}
+
 	/**
 	 * Adds the specified css class to the control cell.
 	 * @param cssClass
@@ -259,6 +269,7 @@ final public class FormBuilder {
 		m_controlCss = null;
 		m_labelCss = null;
 		m_errorLocation = null;
+		m_bindingConverter = null;
 	}
 
 	/*--------------------------------------------------------------*/
@@ -291,7 +302,7 @@ final public class FormBuilder {
 			if(null != pmm) {
 				Object instance = m_instance;
 				if(null != instance) {
-					((NodeBase) ctl).bind().to(instance, pmm);
+					((NodeBase) ctl).bind().convert(m_bindingConverter).to(instance, pmm);
 				}
 			}
 
