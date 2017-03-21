@@ -93,6 +93,7 @@
         <to.etc.webapp.core.version>1.0</to.etc.webapp.core.version>
         <to.etc.domui.version>1.0</to.etc.domui.version>
         <to.etc.domui.hibutil.version>1.0</to.etc.domui.hibutil.version>
+        <to.etc.domui.formbuilder.version>1.0</to.etc.domui.formbuilder.version>
         <to.etc.domui.legacy.version>1.0</to.etc.domui.legacy.version>
         <to.etc.syntaxer.version>1.0</to.etc.syntaxer.version>
 
@@ -376,6 +377,11 @@
                 <groupId>to.etc</groupId>
                 <artifactId>to.etc.syntaxer</artifactId>
                 <version>${to.etc.syntaxer.version}-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>to.etc</groupId>
+                <artifactId>to.etc.domui.formbuilder</artifactId>
+                <version>${to.etc.domui.formbuilder.version}-SNAPSHOT</version>
             </dependency>
 
             <dependency>

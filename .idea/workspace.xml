@@ -2,162 +2,36 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e781144e-a5c5-44a3-9c85-28f8112b7477" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/META-INF/MANIFEST.MF" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/actionscript.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/ada95.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/antlr.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/apacheconf.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/apdl.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/applescript.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/asp.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/aspect-j.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/assembly-macro32.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/assembly-mcs51.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/assembly-parrot.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/assembly-r2000.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/assembly-x86.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/awk.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/b.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/batch.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/bbj.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/bcel.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/bibtex.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/c.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/catalog" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/chill.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/cil.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/cobol.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/coldfusion.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/cplusplus.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/csharp.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/css.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/cvs-commit.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/d.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/doxygen.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/dsssl.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/eiffel.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/embperl.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/erlang.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/factor.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/fortran.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/freemarker.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/gettext.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/groovy.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/haskell.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/hex.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/html.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/i4gl.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/icon.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/idl.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/inform.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/ini.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/inno-setup.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/interlis.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/io.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/java.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/javascript.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/jcl.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/jhtml.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/jmk.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/jsp.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/latex.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/lilypond.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/lisp.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/lotos.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/lua.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/mail.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/makefile.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/maple.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/ml.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/modula3.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/moin.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/mqsc.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/netrexx.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/nqc.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/nsis2.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/objective-c.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/objectrexx.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/occam.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/omnimark.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/pascal.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/patch.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/perl.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/php.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/pike.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/pl-sql.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/pl1.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/pop11.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/postscript.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/povray.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/powerdynamo.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/progress.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/prolog.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/props.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/psp.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/ptl.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/pvwave.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/pyrex.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/python.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/rebol.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/redcode.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/relax-ng-compact.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/rest.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/rhtml.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/rib.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/rpmspec.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/rtf.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/ruby.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/rview.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/sas.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/scheme.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/sdl_pr.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/sgml.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/shellscript.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/shtml.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/smalltalk.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/smi-mib.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/splus.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/sqr.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/squidconf.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/ssharp.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/svn-commit.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/swig.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/tcl.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/tex.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/texinfo.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/text.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/tpl.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/tsql.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/uscript.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/vbscript.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/velocity.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/verilog.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/vhdl.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/xml.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/xsl.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/zpt.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/to/etc/syntaxer/CharIndexedSegment.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/to/etc/syntaxer/Colorizer.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/to/etc/syntaxer/HandlerBase.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/to/etc/syntaxer/HtmlColorizer.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/to/etc/syntaxer/KeywordMap.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/to/etc/syntaxer/ParserRule.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/to/etc/syntaxer/ParserRuleSet.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/to/etc/syntaxer/SyntaxStyle.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/to/etc/syntaxer/SyntaxUtilities.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/to/etc/syntaxer/Token.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/to/etc/syntaxer/TokenHandler.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/to/etc/syntaxer/TokenMarker.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/to/etc/syntaxer/XModeHandler.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/to/etc/syntaxer/XmlException.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/to/etc/syntaxer/XmlHandler.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/to/etc/syntaxer/XmlParser.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/to/etc/syntaxer/xmode.dtd" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.formbuilder/src/META-INF/MANIFEST.MF" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.formbuilder/src/to/etc/formbuilder/pages/AutoComponent.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.formbuilder/src/to/etc/formbuilder/pages/AutoLayout.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.formbuilder/src/to/etc/formbuilder/pages/ColorPropertyEditor.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.formbuilder/src/to/etc/formbuilder/pages/ColorPropertyEditorFactory.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.formbuilder/src/to/etc/formbuilder/pages/ComboPropertyEditor.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.formbuilder/src/to/etc/formbuilder/pages/ComboPropertyEditorFactory.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.formbuilder/src/to/etc/formbuilder/pages/ComponentInstance.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.formbuilder/src/to/etc/formbuilder/pages/ComponentPanel.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.formbuilder/src/to/etc/formbuilder/pages/DefaultPropertyEditor.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.formbuilder/src/to/etc/formbuilder/pages/DefaultPropertyEditorFactory.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.formbuilder/src/to/etc/formbuilder/pages/FormComponentRegistry.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.formbuilder/src/to/etc/formbuilder/pages/FormDesigner.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.formbuilder/src/to/etc/formbuilder/pages/IFbComponent.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.formbuilder/src/to/etc/formbuilder/pages/IFbLayout.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.formbuilder/src/to/etc/formbuilder/pages/IPropertyEditor.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.formbuilder/src/to/etc/formbuilder/pages/IPropertyEditorFactory.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.formbuilder/src/to/etc/formbuilder/pages/JsonComponentInfo.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.formbuilder/src/to/etc/formbuilder/pages/LayoutInstance.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.formbuilder/src/to/etc/formbuilder/pages/PageContainer.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.formbuilder/src/to/etc/formbuilder/pages/PaintPanel.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.formbuilder/src/to/etc/formbuilder/pages/PnlComponent.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.formbuilder/src/to/etc/formbuilder/pages/PropertyDefinition.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.formbuilder/src/to/etc/formbuilder/pages/PropertyPanel.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.formbuilder/src/to/etc/formbuilder/pages/autoComponent.png" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/parent/pom.xml" afterPath="$PROJECT_DIR$/parent/pom.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/to.etc.domui.demo/to.etc.domui.demo.iml" afterPath="$PROJECT_DIR$/to.etc.domui.demo/to.etc.domui.demo.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/to.etc.syntaxer/to.etc.syntaxer.iml" afterPath="$PROJECT_DIR$/to.etc.syntaxer/to.etc.syntaxer.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/to.etc.domui.demo/pom.xml" afterPath="$PROJECT_DIR$/to.etc.domui.demo/pom.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/to.etc.domui.formbuilder/to.etc.domui.formbuilder.iml" afterPath="$PROJECT_DIR$/to.etc.domui.formbuilder/to.etc.domui.formbuilder.iml" />
     </list>
     <ignored path="domui-public.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -204,38 +78,28 @@
           <file leaf-file-name="pom.xml" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/pom.xml">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="784">
-                  <caret line="49" column="14" lean-forward="false" selection-start-line="49" selection-start-column="14" selection-end-line="49" selection-end-column="14" />
-                  <folding />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="pom.xml" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/to.etc.domui.demo/pom.xml">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="656">
-                  <caret line="41" column="48" lean-forward="false" selection-start-line="41" selection-start-column="48" selection-end-line="41" selection-end-column="48" />
+                <state relative-caret-position="752">
+                  <caret line="47" column="40" lean-forward="false" selection-start-line="47" selection-start-column="40" selection-end-line="47" selection-end-column="40" />
                   <folding />
                 </state>
               </provider>
             </entry>
           </file>
           <file leaf-file-name="pom.xml" pinned="false" current-in-tab="true">
-            <entry file="file://$PROJECT_DIR$/to.etc.syntaxer/pom.xml">
+            <entry file="file://$PROJECT_DIR$/to.etc.domui.demo/pom.xml">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="720">
-                  <caret line="45" column="0" lean-forward="false" selection-start-line="45" selection-start-column="0" selection-end-line="45" selection-end-column="0" />
+                <state relative-caret-position="384">
+                  <caret line="84" column="0" lean-forward="false" selection-start-line="84" selection-start-column="0" selection-end-line="84" selection-end-column="0" />
                   <folding />
                 </state>
               </provider>
             </entry>
           </file>
           <file leaf-file-name="pom.xml" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/to.etc.webapp.core/pom.xml">
+            <entry file="file://$PROJECT_DIR$/to.etc.domui.formbuilder/pom.xml">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="672">
-                  <caret line="48" column="20" lean-forward="false" selection-start-line="48" selection-start-column="20" selection-end-line="48" selection-end-column="20" />
+                <state relative-caret-position="766">
+                  <caret line="56" column="0" lean-forward="true" selection-start-line="56" selection-start-column="0" selection-end-line="56" selection-end-column="0" />
                   <folding />
                 </state>
               </provider>
@@ -246,16 +110,6 @@
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="752">
                   <caret line="50" column="50" lean-forward="false" selection-start-line="50" selection-start-column="50" selection-end-line="50" selection-end-column="50" />
-                  <folding />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="pom.xml" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/to.etc.domui.legacy/pom.xml">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="840">
-                  <caret line="63" column="19" lean-forward="false" selection-start-line="63" selection-start-column="19" selection-end-line="63" selection-end-column="19" />
                   <folding />
                 </state>
               </provider>
@@ -274,8 +128,8 @@
           <file leaf-file-name="pom.xml" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/parent/pom.xml">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="299">
-                  <caret line="73" column="33" lean-forward="true" selection-start-line="73" selection-start-column="33" selection-end-line="73" selection-end-column="33" />
+                <state relative-caret-position="715">
+                  <caret line="98" column="0" lean-forward="true" selection-start-line="98" selection-start-column="0" selection-end-line="98" selection-end-column="0" />
                   <folding />
                 </state>
               </provider>
@@ -289,7 +143,7 @@
             <entry file="file://$PROJECT_DIR$/parent/pom.xml">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="416">
-                  <caret line="325" column="0" lean-forward="true" selection-start-line="320" selection-start-column="0" selection-end-line="325" selection-end-column="0" />
+                  <caret line="385" column="0" lean-forward="true" selection-start-line="380" selection-start-column="0" selection-end-line="385" selection-end-column="0" />
                   <folding />
                 </state>
               </provider>
@@ -324,6 +178,7 @@
       <replace>.domui.hibutil</replace>
       <replace>.legacy</replace>
       <replace>.syntaxer</replace>
+      <replace>.domui.formbuilder</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -351,10 +206,11 @@
         <option value="$PROJECT_DIR$/to.etc.domui/pom.xml" />
         <option value="$PROJECT_DIR$/to.etc.domui.hibutil/pom.xml" />
         <option value="$PROJECT_DIR$/to.etc.domui.legacy/pom.xml" />
-        <option value="$PROJECT_DIR$/to.etc.domui.demo/pom.xml" />
+        <option value="$PROJECT_DIR$/to.etc.syntaxer/pom.xml" />
+        <option value="$PROJECT_DIR$/to.etc.domui.formbuilder/pom.xml" />
         <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/parent/pom.xml" />
-        <option value="$PROJECT_DIR$/to.etc.syntaxer/pom.xml" />
+        <option value="$PROJECT_DIR$/to.etc.domui.demo/pom.xml" />
       </list>
     </option>
   </component>
@@ -409,21 +265,11 @@
               <option name="myItemId" value="" />
               <option name="myItemType" value="" />
             </PATH_ELEMENT>
-            <PATH_ELEMENT USER_OBJECT="to.etc.syntaxer">
+            <PATH_ELEMENT USER_OBJECT="to.etc.domui.formbuilder">
               <option name="myItemId" value="" />
               <option name="myItemType" value="" />
             </PATH_ELEMENT>
-            <PATH_ELEMENT USER_OBJECT="to.etc.syntaxer">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT USER_OBJECT="Root">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT USER_OBJECT="to.etc.domui.hibutil">
+            <PATH_ELEMENT USER_OBJECT="to.etc.domui.formbuilder">
               <option name="myItemId" value="" />
               <option name="myItemType" value="" />
             </PATH_ELEMENT>
@@ -796,12 +642,12 @@
       <workItem from="1479306860534" duration="268000" />
       <workItem from="1490115576366" duration="417000" />
       <workItem from="1490116050817" duration="1318000" />
-      <workItem from="1490120660582" duration="10655000" />
+      <workItem from="1490120660582" duration="11089000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="13016000" />
+    <option name="totallyTimeSpent" value="13450000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1969" y="24" width="1855" height="2136" extended-state="4" />
@@ -1005,14 +851,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/to.etc.domui.legacy/pom.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="840">
-          <caret line="63" column="19" lean-forward="false" selection-start-line="63" selection-start-column="19" selection-end-line="63" selection-end-column="19" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/to.etc.domui/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="752">
@@ -1029,34 +867,50 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/to.etc.domui.demo/pom.xml">
+    <entry file="file://$PROJECT_DIR$/to.etc.syntaxer/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="656">
-          <caret line="41" column="48" lean-forward="false" selection-start-line="41" selection-start-column="48" selection-end-line="41" selection-end-column="48" />
+        <state relative-caret-position="688">
+          <caret line="43" column="21" lean-forward="true" selection-start-line="43" selection-start-column="21" selection-end-line="43" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/to.etc.domui.legacy/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="728">
+          <caret line="56" column="0" lean-forward="true" selection-start-line="52" selection-start-column="0" selection-end-line="56" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/to.etc.domui.formbuilder/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="766">
+          <caret line="56" column="0" lean-forward="true" selection-start-line="56" selection-start-column="0" selection-end-line="56" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="784">
-          <caret line="49" column="14" lean-forward="false" selection-start-line="49" selection-start-column="14" selection-end-line="49" selection-end-column="14" />
+        <state relative-caret-position="752">
+          <caret line="47" column="40" lean-forward="false" selection-start-line="47" selection-start-column="40" selection-end-line="47" selection-end-column="40" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/parent/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="299">
-          <caret line="73" column="33" lean-forward="true" selection-start-line="73" selection-start-column="33" selection-end-line="73" selection-end-column="33" />
+        <state relative-caret-position="715">
+          <caret line="98" column="0" lean-forward="true" selection-start-line="98" selection-start-column="0" selection-end-line="98" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/to.etc.syntaxer/pom.xml">
+    <entry file="file://$PROJECT_DIR$/to.etc.domui.demo/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="720">
-          <caret line="45" column="0" lean-forward="false" selection-start-line="45" selection-start-column="0" selection-end-line="45" selection-end-column="0" />
+        <state relative-caret-position="384">
+          <caret line="84" column="0" lean-forward="false" selection-start-line="84" selection-start-column="0" selection-end-line="84" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -1116,11 +970,12 @@
       </state>
       <state key="ModuleStructureConfigurable.UI">
         <settings>
-          <last-edited>to.etc.syntaxer</last-edited>
+          <last-edited>to.etc.domui.formbuilder</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>
                 <option value="0.35172415" />
+                <option value="0.6" />
               </list>
             </option>
           </splitter-proportions>

@@ -45,6 +45,7 @@
         <module>to.etc.domui</module>
         <module>to.etc.domui.hibutil</module>
         <module>to.etc.domui.legacy</module>
+        <module>to.etc.domui.formbuilder</module>
         <module>to.etc.domui.demo</module>
 
     </modules>
