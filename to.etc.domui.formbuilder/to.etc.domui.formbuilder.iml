@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="JAVA_MODULE" version="4">
-  <component name="NewModuleRootManager" inherit-compiler-output="false">
+  <component name="NewModuleRootManager">
     <output url="file://$MODULE_DIR$/bin" />
     <exclude-output />
     <content url="file://$MODULE_DIR$">
@@ -11,6 +11,6 @@
     <orderEntry type="module" module-name="to.etc.alg" />
     <orderEntry type="module" module-name="to.etc.domui" />
     <orderEntry type="module" module-name="jsr305" />
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="JavaSE-1.8" jdkType="JavaSDK" />
   </component>
 </module>
