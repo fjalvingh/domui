@@ -2,98 +2,269 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e781144e-a5c5-44a3-9c85-28f8112b7477" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/BetterSQLException.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/CallableStatementProxy.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/CollectingConnectionEventListener.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/ConnState.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/ConnectionPool.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/ConnectionProxy.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/DataSourceImpl.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/DbPoolUtil.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/DbType.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/DummyConnectionEventListener.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/HangCheckState.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/IConnectionEventListener.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/IDatabaseEventListener.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/IPoolMessageHandler.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/IPrinter.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/IStatisticsListener.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/InvalidProxyException.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/PoolConfig.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/PoolConfigSource.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/PoolEntry.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/PoolManager.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/PoolResourceFactory.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/PoolStats.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/PreparedStatementProxy.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/PropertiesSource.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/ResultSetProxy.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/ScanMode.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/StatementProxy.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/StatisticsListenerMultiplexer.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/StatisticsRequestListener.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/StmtType.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/StringPrinter.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/ThreadConfig.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/Tracepoint.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/UnpooledDataSourceImpl.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/XmlSource.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/info/BatchEntry.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/info/DbMetric.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/info/GlobalPerformanceStore.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/info/IConnectionStatisticsFactory.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/info/IMetricValueTranslator.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/info/IPerformanceCollector.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/info/JsTemplater.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/info/JspPageHandler.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/info/MetricsDefinition.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/info/OracleConnectionStatisticsFactory.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/info/OracleStatisticsCreator.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/info/PerfItem.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/info/PerfList.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/info/PerformanceCollector.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/info/PerformanceStore.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/info/SessionStatistics.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/info/SessionStatisticsEntry.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/info/StatementStatistics.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/info/StatisticsCollector.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/info/StatisticsCollectorBase.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/info/TranslatedMetric.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/info/jspGlobalOverview.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/info/jspHangingEntry.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/info/jspHangingOverview.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/info/jspListHeader.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/info/jspMessage.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/info/jspPerfList.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/info/jspPoolEntry.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/info/jspPoolOverview.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/info/jspSessionEntry.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/info/jspSessionList.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/info/jspUsedEntry.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/info/jspUsedOverview.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/info/perf-request-connection-allocations.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/info/perf-request-exec-time.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/info/perf-requestDetails.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbpool/info/perf-stmt-stmtcount.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbreplay/DbReplay.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbreplay/EofException.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbreplay/IReplayer.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbreplay/ReplayExecutor.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbreplay/ReplayRecord.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbreplay/SpeedyReplayer.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbreplay/TimeBasedReplayer.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbutil/BaseDB.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbutil/DbConnectionInfo.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbutil/DbLockKeeper.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbutil/GenericDB.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbutil/MysqlDB.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbutil/OracleDB.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbutil/PostgresDB.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/src/to/etc/dbutil/UnknownDB.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.db/test/to/etc/dbpool/TestBetterSQLException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/META-INF/MANIFEST.MF" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/BindingScope.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/Builder.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/Configurator.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/Container.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/IocException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/container/BasicContainer.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/container/BuildPlan.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/container/FailedAlternative.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/container/IocContainerException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/container/MethodInvoker.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/container/StaticComponentRef.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/def/AbstractBuildPlan.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/def/BasicContainerBuilder.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/def/BuildPlanFailedException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/def/BuildPlanForConstructor.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/def/BuildPlanForContainerParameter.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/def/BuildPlanForStaticFactory.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/def/ComponentBuilder.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/def/ComponentDef.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/def/ComponentPropertyDef.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/def/ComponentPropertyMode.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/def/ComponentRef.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/def/ContainerDefinition.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/def/CreateMethod.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/def/ISelfDef.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/def/InstanceDef.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/def/IocCircularException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/def/IocConfigurationException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/def/IocUnresolvedParameterException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/def/MethodCallBuilder.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/def/MethodParameterSpec.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/def/PropertyInjector.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/util/ClassUtil.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/web/BasicWebConfigurator.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/web/DefaultWebConfigurator.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/web/Iocular.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/web/Keys.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/web/WebApplicationListener.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/web/WebConfiguration.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/iocular/web/WebConfigurator.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/ProgrammerErrorException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/ajax/comet/CometContext.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/ajax/comet/Continuation.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/ajax/comet/ContinuationImpl.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/ajax/comet/GenericCometServlet.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/ajax/eventmanager/AjaxEventFilter.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/ajax/eventmanager/AjaxEventFilterFactory.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/ajax/eventmanager/AjaxEventManager.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/ajax/eventmanager/AjaxFilterSelection.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/ajax/eventmanager/EventCometContext.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/ajax/eventmanager/QueuedEvent.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/ajax/renderer/ClassMemberRenderer.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/ajax/renderer/ClassRenderer.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/ajax/renderer/ItemRenderer.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/ajax/renderer/JSONParser.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/ajax/renderer/JSONParserException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/ajax/renderer/ObjectRenderer.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/ajax/renderer/RenderMethodException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/ajax/renderer/RenderRegistry.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/ajax/renderer/StructuredWriter.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/ajax/renderer/Unrenderable.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/ajax/renderer/json/JSONArrayRenderer.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/ajax/renderer/json/JSONItemRenderer.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/ajax/renderer/json/JSONRegistry.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/ajax/renderer/json/JSONRenderer.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/ajax/renderer/json/JSONStructuredWriter.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/ajax/renderer/xml/TostringRenderer.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/ajax/renderer/xml/XMLStructuredWriter.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/ajax/renderer/xml/XmlItemRenderer.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/ajax/renderer/xml/XmlRegistry.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/ajax/renderer/xml/XmlRenderer.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/annotations/GProperty.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/annotations/GdbBool.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/annotations/GdbChildren.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/annotations/GdbColumn.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/annotations/GdbDate.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/annotations/GdbEnum.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/annotations/GdbFetch.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/annotations/GdbId.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/annotations/GdbParent.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/annotations/GdbTable.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/annotations/GdbVersion.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/core/IRunnable.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/core/ServerTools.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/core/ServiceException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/core/SlfSimpleLayout.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/eventmanager/AppEvent.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/eventmanager/AppEventBase.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/eventmanager/AppEventListener.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/eventmanager/ChangeType.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/eventmanager/IEventMarshaller.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/eventmanager/ListenerType.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/eventmanager/VpEventManager.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/mailer/BulkMailer.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/mailer/ITextLinkRenderer.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/mailer/LinkedText.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/mailer/MailHelper.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/mailer/TextLinkInfo.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/mailer/bulkmailer-oracle.sql" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/mailer/bulkmailer-postgres.sql" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/mailer/bulkmailer.sql" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/nls/BundleBase.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/nls/BundleRef.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/nls/BundleStack.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/nls/CodeException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/nls/IBundle.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/nls/NlsCachingMessageProvider.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/nls/NlsCodeTable.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/nls/NlsContext.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/nls/NlsMessageProvider.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/nls/NlsMessageProviderList.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/pendingoperations/IPendingJob.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/pendingoperations/IPendingOperationExecutor.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/pendingoperations/IPendingOperationExecutor2.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/pendingoperations/IPendingOperationListener.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/pendingoperations/IPollQueueTaskProvider.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/pendingoperations/PendingJobExecutor.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/pendingoperations/PendingJobProgressInfo.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/pendingoperations/PendingOperation.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/pendingoperations/PendingOperationSerializationException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/pendingoperations/PendingOperationState.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/pendingoperations/PendingOperationTask.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/pendingoperations/PendingOperationTaskProvider.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/pendingoperations/PolledActionQueue.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/pendingoperations/PollingWorkerQueue.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/BigDecimalType.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/BooleanType.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/BooleanYNType.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/BundleStatement.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/ClassInstanceMaker.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/DoubleType.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/EnumAsStringType.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/IInitializable.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/IInstanceMaker.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/IJdbcType.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/IJdbcTypeFactory.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/ILongIdentifyable.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/IQValueSetter.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/IntegerType.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/JdbcAnyRecord.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/JdbcClassMeta.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/JdbcCompoundType.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/JdbcConversionException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/JdbcDataContext.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/JdbcInOutParam.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/JdbcMetaManager.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/JdbcOutParam.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/JdbcPropertyMeta.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/JdbcQuery.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/JdbcQueryExecutor.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/JdbcSQLGenerator.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/JdbcUtil.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/LikeSetter.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/LongType.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/PClassRef.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/QJdbcColumn.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/QJdbcCompound.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/QJdbcId.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/QJdbcTable.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/QQuerySyntaxException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/SQLBundle.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/SelectorColumnsResultMaker.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/StringType.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/TimestampType.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/qsql/ValSetter.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/DefaultBeforeImageCache.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/IBeforeImageCache.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/ICriteriaTableDef.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/IIdentifyable.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/IQContextContainer.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/IQContextFactorySquared.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/IQDataContextListener.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/IQDataContextSource.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/IQueryExecutor.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/IQueryExecutorFactory.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/IQueryListener.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/IRestrictor.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QAbstractDataContext.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QBetweenNode.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QBrace.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QConcurrentUpdateException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QConstraintViolationException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QContextContainer.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QContextManager.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QCriteria.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QCriteriaQueryBase.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QDataContext.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QDataContextFactory.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QDbException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QDuplicateKeyException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QEventListenerSet.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QExistsSubquery.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QFetchStrategy.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QField.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QFieldBoolean.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QFieldDouble.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QFieldLong.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QFld.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QJoiner.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QList.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QLiteral.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QMultiNode.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QMultiSelection.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QNodeBase.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QNodeVisitor.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QNodeVisitorBase.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QNotFoundException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QOperation.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QOperation.properties" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QOperatorNode.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QOrder.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QPropertyComparison.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QPropertyIn.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QPropertyJoinComparison.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QPropertySelection.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QQueryExecutorRegistry.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QQueryRenderer.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QQueryTimeoutException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QQueryUtils.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QRenderingVisitorBase.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QRestriction.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QRestrictor.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QRestrictorImpl.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QSelection.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QSelectionColumn.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QSelectionFunction.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QSelectionItem.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QSelectionSubquery.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QSortOrderDirection.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QSqlRestriction.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QSubQuery.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QTooManyResultsException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QUnaryNode.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/QUnaryProperty.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/messages.properties" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/query/messages_en.properties" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/testsupport/TUtilTestProperties.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/testsupport/TestDataContextMock.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/testsupport/TestDataContextStub.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/testsupport/TestDataSourceStub.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/testsupport/TestLogSink.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/src/to/etc/webapp/testsupport/TestProperties.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/test/to/etc/iocular/test/TestBasicConfigs.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/test/to/etc/iocular/test/mocks/DbUtilMock.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/test/to/etc/iocular/test/mocks/PageMock.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/test/to/etc/iocular/test/mocks/PlannerMock.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/test/to/etc/iocular/test/mocks/VpUserContextMock.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/test/to/etc/test/webapp/qsql/DecadePaymentOrder.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/test/to/etc/test/webapp/qsql/DecadePaymentOrderPK.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/test/to/etc/test/webapp/qsql/LedgerAccount.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/test/to/etc/test/webapp/qsql/TestBasic.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/test/to/etc/test/webapp/qsql/TestBigDecimalTypeJdbc.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/test/to/etc/test/webapp/qsql/TestCompound.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/test/to/etc/test/webapp/qsql/TestQsqlBase.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/test/to/etc/test/webapp/query/TestJdbcSelector.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/test/to/etc/test/webapp/query/TestJdbcUtil.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/test/to/etc/test/webapp/query/TestQQueryUtils.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.webapp.core/test/to/etc/test/webapp/query/TestQueryRendering.java" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/parent/pom.xml" afterPath="$PROJECT_DIR$/parent/pom.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/to.etc.db/to.etc.db.iml" afterPath="$PROJECT_DIR$/to.etc.db/to.etc.db.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/to.etc.webapp.core/to.etc.webapp.core.iml" afterPath="$PROJECT_DIR$/to.etc.webapp.core/to.etc.webapp.core.iml" />
     </list>
     <ignored path="domui-public.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -149,13 +320,13 @@
             <state relative-caret-position="272">
               <caret line="17" column="20" lean-forward="false" selection-start-line="17" selection-start-column="20" selection-end-line="17" selection-end-column="20" />
               <folding>
-                <marker date="1490126354742" expanded="true" signature="1357:2119" ph="..." />
-                <marker date="1490126354742" expanded="true" signature="1375:2102" ph="..." />
-                <marker date="1490126354742" expanded="true" signature="1396:2083" ph="..." />
-                <marker date="1490126354742" expanded="true" signature="1640:1913" ph="..." />
-                <marker date="1490126354742" expanded="true" signature="1672:1883" ph="..." />
-                <marker date="1490126354742" expanded="true" signature="1706:1850" ph="..." />
-                <marker date="1490126354742" expanded="true" signature="1945:2061" ph="..." />
+                <marker date="1490127000007" expanded="true" signature="1401:2163" ph="..." />
+                <marker date="1490127000007" expanded="true" signature="1419:2146" ph="..." />
+                <marker date="1490127000007" expanded="true" signature="1440:2127" ph="..." />
+                <marker date="1490127000007" expanded="true" signature="1684:1957" ph="..." />
+                <marker date="1490127000007" expanded="true" signature="1716:1927" ph="..." />
+                <marker date="1490127000007" expanded="true" signature="1750:1894" ph="..." />
+                <marker date="1490127000007" expanded="true" signature="1989:2105" ph="..." />
               </folding>
             </state>
           </provider>
@@ -175,17 +346,27 @@
         <entry file="file://$PROJECT_DIR$/to.etc.alg/pom.xml">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="832">
-              <caret line="52" column="0" lean-forward="true" selection-start-line="48" selection-start-column="0" selection-end-line="52" selection-end-column="0" />
+              <caret line="52" column="0" lean-forward="false" selection-start-line="48" selection-start-column="0" selection-end-line="52" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="pom.xml" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/to.etc.db/pom.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="848">
+              <caret line="53" column="0" lean-forward="false" selection-start-line="53" selection-start-column="0" selection-end-line="53" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
       <file leaf-file-name="pom.xml" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/to.etc.db/pom.xml">
+        <entry file="file://$PROJECT_DIR$/to.etc.webapp.core/pom.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="640">
-              <caret line="40" column="0" lean-forward="false" selection-start-line="40" selection-start-column="0" selection-end-line="40" selection-end-column="0" />
+            <state relative-caret-position="1056">
+              <caret line="66" column="21" lean-forward="true" selection-start-line="66" selection-start-column="21" selection-end-line="66" selection-end-column="21" />
               <folding />
             </state>
           </provider>
@@ -210,6 +391,7 @@
     </findStrings>
     <replaceStrings>
       <replace>.db</replace>
+      <replace>.webapp.core</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -233,6 +415,7 @@
         <option value="$PROJECT_DIR$/jsr305/pom.xml" />
         <option value="$PROJECT_DIR$/to.etc.alg/pom.xml" />
         <option value="$PROJECT_DIR$/to.etc.db/pom.xml" />
+        <option value="$PROJECT_DIR$/to.etc.webapp.core/pom.xml" />
       </list>
     </option>
   </component>
@@ -287,6 +470,20 @@
               <option name="myItemId" value="" />
               <option name="myItemType" value="" />
             </PATH_ELEMENT>
+            <PATH_ELEMENT USER_OBJECT="to.etc.webapp.core">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT USER_OBJECT="to.etc.webapp.core">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT USER_OBJECT="Root">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
             <PATH_ELEMENT USER_OBJECT="to.etc.logger">
               <option name="myItemId" value="" />
               <option name="myItemType" value="" />
@@ -310,20 +507,6 @@
               <option name="myItemType" value="" />
             </PATH_ELEMENT>
             <PATH_ELEMENT USER_OBJECT="src">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT USER_OBJECT="Root">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT USER_OBJECT="to.etc.db">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT USER_OBJECT="to.etc.db">
               <option name="myItemId" value="" />
               <option name="myItemType" value="" />
             </PATH_ELEMENT>
@@ -696,12 +879,12 @@
       <workItem from="1479306860534" duration="268000" />
       <workItem from="1490115576366" duration="417000" />
       <workItem from="1490116050817" duration="1318000" />
-      <workItem from="1490120660582" duration="5459000" />
+      <workItem from="1490120660582" duration="6338000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="7820000" />
+    <option name="totallyTimeSpent" value="8699000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1969" y="24" width="1855" height="2136" extended-state="4" />
@@ -785,13 +968,13 @@
         <state relative-caret-position="336">
           <caret line="21" column="18" lean-forward="true" selection-start-line="21" selection-start-column="18" selection-end-line="21" selection-end-column="18" />
           <folding>
-            <marker date="1490126354742" expanded="true" signature="1357:2119" ph="..." />
-            <marker date="1490126354742" expanded="true" signature="1375:2102" ph="..." />
-            <marker date="1490126354742" expanded="true" signature="1396:2083" ph="..." />
-            <marker date="1490126354742" expanded="true" signature="1640:1913" ph="..." />
-            <marker date="1490126354742" expanded="true" signature="1672:1883" ph="..." />
-            <marker date="1490126354742" expanded="true" signature="1706:1850" ph="..." />
-            <marker date="1490126354742" expanded="true" signature="1945:2061" ph="..." />
+            <marker date="1490127000007" expanded="true" signature="1401:2163" ph="..." />
+            <marker date="1490127000007" expanded="true" signature="1419:2146" ph="..." />
+            <marker date="1490127000007" expanded="true" signature="1440:2127" ph="..." />
+            <marker date="1490127000007" expanded="true" signature="1684:1957" ph="..." />
+            <marker date="1490127000007" expanded="true" signature="1716:1927" ph="..." />
+            <marker date="1490127000007" expanded="true" signature="1750:1894" ph="..." />
+            <marker date="1490127000007" expanded="true" signature="1989:2105" ph="..." />
           </folding>
         </state>
       </provider>
@@ -878,13 +1061,13 @@
         <state relative-caret-position="272">
           <caret line="17" column="20" lean-forward="false" selection-start-line="17" selection-start-column="20" selection-end-line="17" selection-end-column="20" />
           <folding>
-            <marker date="1490126354742" expanded="true" signature="1357:2119" ph="..." />
-            <marker date="1490126354742" expanded="true" signature="1375:2102" ph="..." />
-            <marker date="1490126354742" expanded="true" signature="1396:2083" ph="..." />
-            <marker date="1490126354742" expanded="true" signature="1640:1913" ph="..." />
-            <marker date="1490126354742" expanded="true" signature="1672:1883" ph="..." />
-            <marker date="1490126354742" expanded="true" signature="1706:1850" ph="..." />
-            <marker date="1490126354742" expanded="true" signature="1945:2061" ph="..." />
+            <marker date="1490127000007" expanded="true" signature="1401:2163" ph="..." />
+            <marker date="1490127000007" expanded="true" signature="1419:2146" ph="..." />
+            <marker date="1490127000007" expanded="true" signature="1440:2127" ph="..." />
+            <marker date="1490127000007" expanded="true" signature="1684:1957" ph="..." />
+            <marker date="1490127000007" expanded="true" signature="1716:1927" ph="..." />
+            <marker date="1490127000007" expanded="true" signature="1750:1894" ph="..." />
+            <marker date="1490127000007" expanded="true" signature="1989:2105" ph="..." />
           </folding>
         </state>
       </provider>
@@ -916,15 +1099,23 @@
     <entry file="file://$PROJECT_DIR$/to.etc.alg/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="832">
-          <caret line="52" column="0" lean-forward="true" selection-start-line="48" selection-start-column="0" selection-end-line="52" selection-end-column="0" />
+          <caret line="52" column="0" lean-forward="false" selection-start-line="48" selection-start-column="0" selection-end-line="52" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/to.etc.db/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="640">
-          <caret line="40" column="0" lean-forward="false" selection-start-line="40" selection-start-column="0" selection-end-line="40" selection-end-column="0" />
+        <state relative-caret-position="848">
+          <caret line="53" column="0" lean-forward="false" selection-start-line="53" selection-start-column="0" selection-end-line="53" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/to.etc.webapp.core/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1056">
+          <caret line="66" column="21" lean-forward="true" selection-start-line="66" selection-start-column="21" selection-end-line="66" selection-end-column="21" />
           <folding />
         </state>
       </provider>
@@ -984,7 +1175,7 @@
       </state>
       <state key="ModuleStructureConfigurable.UI">
         <settings>
-          <last-edited>to.etc.db</last-edited>
+          <last-edited>to.etc.webapp.core</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>

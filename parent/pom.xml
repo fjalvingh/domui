@@ -80,6 +80,9 @@
     <!-- own -->
     <to.etc.logger.version>1.0</to.etc.logger.version>
     <to.etc.jsr305.version>1.0</to.etc.jsr305.version>
+    <to.etc.alg.version>1.0</to.etc.alg.version>
+    <to.etc.db.version>1.0</to.etc.db.version>
+    <to.etc.webapp.core.version>1.0</to.etc.webapp.core.version>
 
   </properties>
 
@@ -233,6 +236,21 @@
         <groupId>to.etc</groupId>
         <artifactId>to.etc.jsr305</artifactId>
         <version>${to.etc.jsr305.version}-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>to.etc</groupId>
+        <artifactId>to.etc.alg</artifactId>
+        <version>${to.etc.alg.version}-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>to.etc</groupId>
+        <artifactId>to.etc.db</artifactId>
+        <version>${to.etc.db.version}-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>to.etc</groupId>
+        <artifactId>to.etc.webapp.core</artifactId>
+        <version>${to.etc.webapp.core.version}-SNAPSHOT</version>
       </dependency>
       
     </dependencies>
