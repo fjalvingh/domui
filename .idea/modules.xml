@@ -8,6 +8,7 @@
       <module fileurl="file://$PROJECT_DIR$/bin-junit-4.11/bin-junit-4.11.iml" filepath="$PROJECT_DIR$/bin-junit-4.11/bin-junit-4.11.iml" />
       <module fileurl="file://$PROJECT_DIR$/bin-junit-4.8.2/bin-junit-4.8.2.iml" filepath="$PROJECT_DIR$/bin-junit-4.8.2/bin-junit-4.8.2.iml" />
       <module fileurl="file://$PROJECT_DIR$/bin-slf4j/bin-slf4j.iml" filepath="$PROJECT_DIR$/bin-slf4j/bin-slf4j.iml" />
+      <module fileurl="file://$PROJECT_DIR$/domui.iml" filepath="$PROJECT_DIR$/domui.iml" />
       <module fileurl="file://$PROJECT_DIR$/domui-public.iml" filepath="$PROJECT_DIR$/domui-public.iml" />
       <module fileurl="file://$PROJECT_DIR$/jsr305/jsr305.iml" filepath="$PROJECT_DIR$/jsr305/jsr305.iml" />
       <module fileurl="file://$PROJECT_DIR$/lib-hibernate/lib-hibernate.iml" filepath="$PROJECT_DIR$/lib-hibernate/lib-hibernate.iml" />
@@ -21,6 +22,7 @@
       <module fileurl="file://$PROJECT_DIR$/to.etc.domui.formbuilder/to.etc.domui.formbuilder.iml" filepath="$PROJECT_DIR$/to.etc.domui.formbuilder/to.etc.domui.formbuilder.iml" />
       <module fileurl="file://$PROJECT_DIR$/to.etc.domui.hibutil/to.etc.domui.hibutil.iml" filepath="$PROJECT_DIR$/to.etc.domui.hibutil/to.etc.domui.hibutil.iml" />
       <module fileurl="file://$PROJECT_DIR$/to.etc.domui.legacy/to.etc.domui.legacy.iml" filepath="$PROJECT_DIR$/to.etc.domui.legacy/to.etc.domui.legacy.iml" />
+      <module fileurl="file://$PROJECT_DIR$/parent/to.etc.domui.parent.iml" filepath="$PROJECT_DIR$/parent/to.etc.domui.parent.iml" />
       <module fileurl="file://$PROJECT_DIR$/to.etc.domui.selenium/to.etc.domui.selenium.iml" filepath="$PROJECT_DIR$/to.etc.domui.selenium/to.etc.domui.selenium.iml" />
       <module fileurl="file://$PROJECT_DIR$/to.etc.el/to.etc.el.iml" filepath="$PROJECT_DIR$/to.etc.el/to.etc.el.iml" />
       <module fileurl="file://$PROJECT_DIR$/to.etc.logger/to.etc.logger.iml" filepath="$PROJECT_DIR$/to.etc.logger/to.etc.logger.iml" />
