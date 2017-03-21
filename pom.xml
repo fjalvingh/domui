@@ -39,6 +39,7 @@
         <module>jsr305</module>
         <module>to.etc.logger</module>
         <module>to.etc.alg</module>
+        <module>to.etc.db</module>
         
     </modules>
 
