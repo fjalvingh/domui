@@ -18,6 +18,7 @@ to.etc.domui/.refactorings
 to.etc.domui/src/resources/themes/blue/style.theme.css.bak
 *.bak
 */maven
+out
 
 to.etc.domui.demo/derby.log
 RemoteSystemsTempFiles
