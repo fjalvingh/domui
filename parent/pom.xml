@@ -354,6 +354,17 @@
                 <version>${to.etc.domui.version}-SNAPSHOT</version>
             </dependency>
             <dependency>
+                <groupId>to.etc</groupId>
+                <artifactId>to.etc.domui.hibutil</artifactId>
+                <version>${to.etc.domui.hibutil.version}-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>to.etc</groupId>
+                <artifactId>to.etc.domui.legacy</artifactId>
+                <version>${to.etc.domui.legacy.version}-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
                 <groupId>jcharts</groupId>
                 <artifactId>jcharts</artifactId>
                 <version>${jcharts.version}</version>
