@@ -1,519 +1,527 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
+    <parent>
+        <groupId>to.etc</groupId>
+        <artifactId>domui</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
     <groupId>to.etc</groupId>
-    <artifactId>domui</artifactId>
-    <version>1.0-SNAPSHOT</version>
-  </parent>
+    <artifactId>to.etc.domui.parent</artifactId>
+    <packaging>pom</packaging>
 
-  <groupId>to.etc</groupId>
-  <artifactId>to.etc.domui.parent</artifactId>
-  <packaging>pom</packaging>
+    <name>DomUI Maven Parent</name>
+    <description>Parent to all DomUI projects</description>
+    <inceptionYear>2017</inceptionYear>
 
-  <name>DomUI Maven Parent</name>
-  <description>Parent to all DomUI projects</description>
-  <inceptionYear>2017</inceptionYear>
+    <url>./parent/</url>
+    <distributionManagement>
+        <site>
+            <id>maven</id>
+            <url>./parent/</url>
+        </site>
+    </distributionManagement>
 
-  <url>./parent/</url>
-  <distributionManagement>
-    <site>
-      <id>maven</id>
-      <url>./parent/</url>
-    </site>
-  </distributionManagement>
+    <properties>
+        <to.etc.alg.version>1.0</to.etc.alg.version>
 
-  <properties>
-    <to.etc.alg.version>1.0</to.etc.alg.version>
+        <!-- JDK properties -->
+        <source.jdk.version>1.8</source.jdk.version>
+        <target.jdk.version>1.8</target.jdk.version>
 
-    <!-- JDK properties -->
-    <source.jdk.version>1.8</source.jdk.version>
-    <target.jdk.version>1.8</target.jdk.version>
+        <!-- Plugin versions -->
+        <maven-javadoc-plugin.version>2.10.4</maven-javadoc-plugin.version>
+        <maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
+        <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
+        <maven-war-plugin.version>3.0.0</maven-war-plugin.version>
+        <maven-install-plugin.version>2.5.2</maven-install-plugin.version>
+        <maven-checkstyle-plugin.version>2.17</maven-checkstyle-plugin.version>
+        <maven-pmd-plugin.version>3.6</maven-pmd-plugin.version>
+        <maven-enforcer-plugin.version>1.4.1</maven-enforcer-plugin.version>
+        <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
+        <findbugs-maven-plugin.version>3.0.4</findbugs-maven-plugin.version>
+        <appassembler-maven-plugin.version>1.10</appassembler-maven-plugin.version>
+        <jshint-maven-plugin.version>1.6.0</jshint-maven-plugin.version>
+        <minify-maven-plugin.version>1.7.4</minify-maven-plugin.version>
+        <enunciate-maven-plugin.version>2.6.0</enunciate-maven-plugin.version>
+        <maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
+        <maven-pldoc-plugin.version>3.0.13</maven-pldoc-plugin.version>
+        <maven-eclipse-lifecycle-mapping-plugin.version>1.0.0</maven-eclipse-lifecycle-mapping-plugin.version>
 
-    <!-- Plugin versions -->
-    <maven-javadoc-plugin.version>2.10.4</maven-javadoc-plugin.version>
-    <maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
-    <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
-    <maven-war-plugin.version>3.0.0</maven-war-plugin.version>
-    <maven-install-plugin.version>2.5.2</maven-install-plugin.version>
-    <maven-checkstyle-plugin.version>2.17</maven-checkstyle-plugin.version>
-    <maven-pmd-plugin.version>3.6</maven-pmd-plugin.version>
-    <maven-enforcer-plugin.version>1.4.1</maven-enforcer-plugin.version>
-    <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
-    <findbugs-maven-plugin.version>3.0.4</findbugs-maven-plugin.version>
-    <appassembler-maven-plugin.version>1.10</appassembler-maven-plugin.version>
-    <jshint-maven-plugin.version>1.6.0</jshint-maven-plugin.version>
-    <minify-maven-plugin.version>1.7.4</minify-maven-plugin.version>
-    <enunciate-maven-plugin.version>2.6.0</enunciate-maven-plugin.version>
-    <maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
-    <maven-pldoc-plugin.version>3.0.13</maven-pldoc-plugin.version>
-    <maven-eclipse-lifecycle-mapping-plugin.version>1.0.0</maven-eclipse-lifecycle-mapping-plugin.version>
+        <org.slf4j.version>1.7.23</org.slf4j.version>
+        <cglib.version>2.2</cglib.version>
+        <bouncycastle.version>1.56</bouncycastle.version>
+        <commons-codec.version>1.10</commons-codec.version>
+        <commons-configuration.version>1.10</commons-configuration.version>
+        <commons-fileupload.version>1.3.2</commons-fileupload.version>
+        <commons-io.version>2.5</commons-io.version>
+        <commons-jcs.version>1.3</commons-jcs.version>
+        <commons-lang3.version>3.5</commons-lang3.version>
 
-    <org.slf4j.version>1.7.23</org.slf4j.version>
-    <cglib.version>2.2</cglib.version>
-    <bouncycastle.version>1.56</bouncycastle.version>
-    <commons-codec.version>1.10</commons-codec.version>
-    <commons-configuration.version>1.10</commons-configuration.version>
-    <commons-fileupload.version>1.3.2</commons-fileupload.version>
-    <commons-io.version>2.5</commons-io.version>
-    <commons-jcs.version>1.3</commons-jcs.version>
-    <commons-lang3.version>3.5</commons-lang3.version>
-    
-    <javax.servlet.version>2.5</javax.servlet.version>
-    <javax.el.version>1.1</javax.el.version>
-    <javax.servlet.jsp.version>2.0</javax.servlet.jsp.version>
-    
-    <rhino.version>1.7.7</rhino.version>
-    <jcharts.version>0.7.5</jcharts.version>
-    <batik.version>1.7</batik.version>
-    <jericho.version>3.4</jericho.version>
-    
-    <xml-apis.version>2.0.2</xml-apis.version>
-    <com.ibm.icu.version>58.2</com.ibm.icu.version>
-    <com.google.code.findbugs.version>3.0.1</com.google.code.findbugs.version>
+        <javax.servlet.version>2.5</javax.servlet.version>
+        <javax.el.version>1.1</javax.el.version>
+        <javax.servlet.jsp.version>2.0</javax.servlet.jsp.version>
 
-    <!-- Test dependencies -->
-    <junit.version>4.12</junit.version>
+        <rhino.version>1.7.7</rhino.version>
+        <jcharts.version>0.7.5</jcharts.version>
+        <batik.version>1.7</batik.version>
+        <jericho.version>3.4</jericho.version>
+        <hibernate.core.version>3.6.10.Final</hibernate.core.version>
 
-    <!-- Versions needed for dependency convergence-->
-    <commons-beanutils.version>1.9.3</commons-beanutils.version>
-    <commons-collections.version>3.2.2</commons-collections.version>
-    <commons-digester.version>2.1</commons-digester.version>
-    <commons-lang.version>2.6</commons-lang.version>
-    <commons-logging.version>1.2</commons-logging.version>
-    
-    <!-- own -->
-    <to.etc.logger.version>1.0</to.etc.logger.version>
-    <to.etc.jsr305.version>1.0</to.etc.jsr305.version>
-    <to.etc.alg.version>1.0</to.etc.alg.version>
-    <to.etc.db.version>1.0</to.etc.db.version>
-    <to.etc.webapp.core.version>1.0</to.etc.webapp.core.version>
-    <to.etc.domui.version>1.0</to.etc.domui.version>
+        <xml-apis.version>2.0.2</xml-apis.version>
+        <com.ibm.icu.version>58.2</com.ibm.icu.version>
+        <com.google.code.findbugs.version>3.0.1</com.google.code.findbugs.version>
 
-  </properties>
+        <!-- Test dependencies -->
+        <junit.version>4.12</junit.version>
 
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-servlets</artifactId>
-        <version>${jetty.version}</version>
-      </dependency>
+        <!-- Versions needed for dependency convergence-->
+        <commons-beanutils.version>1.9.3</commons-beanutils.version>
+        <commons-collections.version>3.2.2</commons-collections.version>
+        <commons-digester.version>2.1</commons-digester.version>
+        <commons-lang.version>2.6</commons-lang.version>
+        <commons-logging.version>1.2</commons-logging.version>
 
-      <dependency>
-        <groupId>cglib</groupId>
-        <artifactId>cglib</artifactId>
-        <version>${cglib.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>asm</groupId>
-            <artifactId>asm</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>com.google.code.findbugs</groupId>
-        <artifactId>jsr305</artifactId>
-        <version>${com.google.code.findbugs.version}</version>
-      </dependency>
+        <!-- own -->
+        <to.etc.logger.version>1.0</to.etc.logger.version>
+        <to.etc.jsr305.version>1.0</to.etc.jsr305.version>
+        <to.etc.alg.version>1.0</to.etc.alg.version>
+        <to.etc.db.version>1.0</to.etc.db.version>
+        <to.etc.webapp.core.version>1.0</to.etc.webapp.core.version>
+        <to.etc.domui.version>1.0</to.etc.domui.version>
 
-      <dependency>
-        <groupId>org.bouncycastle</groupId>
-        <artifactId>bcprov-jdk15on</artifactId>
-        <version>${bouncycastle.version}</version>
-      </dependency>
+    </properties>
 
-      <dependency>
-        <groupId>commons-codec</groupId>
-        <artifactId>commons-codec</artifactId>
-        <version>${commons-codec.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>commons-configuration</groupId>
-        <artifactId>commons-configuration</artifactId>
-        <version>${commons-configuration.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>commons-fileupload</groupId>
-        <artifactId>commons-fileupload</artifactId>
-        <version>${commons-fileupload.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>commons-io</groupId>
-        <artifactId>commons-io</artifactId>
-        <version>${commons-io.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-lang3</artifactId>
-        <version>${commons-lang3.version}</version>
-      </dependency>
-<!--      <dependency>
-        <groupId>javax.servlet</groupId>
-        <artifactId>javax.servlet-api</artifactId>
-        <version>${javax.servlet.version}</version>
-      </dependency>
--->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-servlets</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
 
-      <!-- https://mvnrepository.com/artifact/javax.servlet/servlet-api -->
-      <dependency>
-        <groupId>javax.servlet</groupId>
-        <artifactId>servlet-api</artifactId>
-        <version>${javax.servlet.version}</version>
-      </dependency>
+            <dependency>
+                <groupId>cglib</groupId>
+                <artifactId>cglib</artifactId>
+                <version>${cglib.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>asm</groupId>
+                        <artifactId>asm</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.google.code.findbugs</groupId>
+                <artifactId>jsr305</artifactId>
+                <version>${com.google.code.findbugs.version}</version>
+            </dependency>
 
-      <dependency>
-        <groupId>javax.el</groupId>
-        <artifactId>el-api</artifactId>
-        <version>${javax.el.version}</version>
-      </dependency>
-        <dependency>
-            <groupId>javax.servlet.jsp</groupId>
-            <artifactId>jsp-api</artifactId>
-            <version>${javax.servlet.jsp.version}</version>
-        </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk15on</artifactId>
+                <version>${bouncycastle.version}</version>
+            </dependency>
 
-        <dependency>
-            <groupId>org.mozilla</groupId>
-            <artifactId>rhino</artifactId>
-            <version>${rhino.version}</version>
-        </dependency>
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>${commons-codec.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-configuration</groupId>
+                <artifactId>commons-configuration</artifactId>
+                <version>${commons-configuration.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-fileupload</groupId>
+                <artifactId>commons-fileupload</artifactId>
+                <version>${commons-fileupload.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons-io.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
+            </dependency>
+            <!--      <dependency>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>javax.servlet-api</artifactId>
+                    <version>${javax.servlet.version}</version>
+                  </dependency>
+            -->
 
-      <dependency>
-        <groupId>xml-apis</groupId>
-        <artifactId>xml-apis</artifactId>
-        <version>${xml-apis.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-validator</artifactId>
-        <version>${hibernate-validator.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.ibm.icu</groupId>
-        <artifactId>icu4j</artifactId>
-        <version>${com.ibm.icu.version}</version>
-      </dependency>
+            <!-- https://mvnrepository.com/artifact/javax.servlet/servlet-api -->
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>servlet-api</artifactId>
+                <version>${javax.servlet.version}</version>
+            </dependency>
 
-      <!-- Logging -->
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-        <version>${org.slf4j.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-log4j12</artifactId>
-        <version>${org.slf4j.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>ch.qos.logback</groupId>
-        <artifactId>logback-classic</artifactId>
-        <version>${ch.qos.logback.version}</version>
-      </dependency>
+            <dependency>
+                <groupId>javax.el</groupId>
+                <artifactId>el-api</artifactId>
+                <version>${javax.el.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.servlet.jsp</groupId>
+                <artifactId>jsp-api</artifactId>
+                <version>${javax.servlet.jsp.version}</version>
+            </dependency>
 
-      <!-- Test dependencies -->
-      <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>${junit.version}</version>
-        <scope>test</scope>
-      </dependency>
+            <dependency>
+                <groupId>org.mozilla</groupId>
+                <artifactId>rhino</artifactId>
+                <version>${rhino.version}</version>
+            </dependency>
 
-      <!-- Versions needed for dependency convergence-->
-      <dependency>
-        <groupId>commons-beanutils</groupId>
-        <artifactId>commons-beanutils</artifactId>
-        <version>${commons-beanutils.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>commons-collections</groupId>
-        <artifactId>commons-collections</artifactId>
-        <version>${commons-collections.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>commons-digester</groupId>
-        <artifactId>commons-digester</artifactId>
-        <version>${commons-digester.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>commons-lang</groupId>
-        <artifactId>commons-lang</artifactId>
-        <version>${commons-lang.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>commons-logging</groupId>
-        <artifactId>commons-logging</artifactId>
-        <version>${commons-logging.version}</version>
-      </dependency>
+            <dependency>
+                <groupId>xml-apis</groupId>
+                <artifactId>xml-apis</artifactId>
+                <version>${xml-apis.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-validator</artifactId>
+                <version>${hibernate-validator.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.ibm.icu</groupId>
+                <artifactId>icu4j</artifactId>
+                <version>${com.ibm.icu.version}</version>
+            </dependency>
 
-      <!-- Apache Batik -->
-      <dependency>
-        <groupId>org.apache.xmlgraphics</groupId>
-        <artifactId>batik-awt-util</artifactId>
-        <version>${batik.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.xmlgraphics</groupId>
-        <artifactId>batik-bridge</artifactId>
-        <version>${batik.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.xmlgraphics</groupId>
-        <artifactId>batik-css</artifactId>
-        <version>${batik.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.xmlgraphics</groupId>
-        <artifactId>batik-dom</artifactId>
-        <version>${batik.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.xmlgraphics</groupId>
-        <artifactId>batik-gvt</artifactId>
-        <version>${batik.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.xmlgraphics</groupId>
-        <artifactId>batik-parser</artifactId>
-        <version>${batik.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.xmlgraphics</groupId>
-        <artifactId>batik-script</artifactId>
-        <version>${batik.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.xmlgraphics</groupId>
-        <artifactId>batik-svg-dom</artifactId>
-        <version>${batik.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.xmlgraphics</groupId>
-        <artifactId>batik-transcoder</artifactId>
-        <version>${batik.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.xmlgraphics</groupId>
-        <artifactId>batik-util</artifactId>
-        <version>${batik.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.xmlgraphics</groupId>
-        <artifactId>batik-xml</artifactId>
-        <version>${batik.version}</version>
-      </dependency>
+            <!-- Logging -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${org.slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>${org.slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${ch.qos.logback.version}</version>
+            </dependency>
 
-      <!-- https://mvnrepository.com/artifact/net.htmlparser.jericho/jericho-html -->
-      <dependency>
-        <groupId>net.htmlparser.jericho</groupId>
-        <artifactId>jericho-html</artifactId>
-        <version>${jericho.version}</version>
-      </dependency>
+            <!-- Test dependencies -->
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
 
+            <!-- Versions needed for dependency convergence-->
+            <dependency>
+                <groupId>commons-beanutils</groupId>
+                <artifactId>commons-beanutils</artifactId>
+                <version>${commons-beanutils.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-collections</groupId>
+                <artifactId>commons-collections</artifactId>
+                <version>${commons-collections.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-digester</groupId>
+                <artifactId>commons-digester</artifactId>
+                <version>${commons-digester.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-lang</groupId>
+                <artifactId>commons-lang</artifactId>
+                <version>${commons-lang.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-logging</groupId>
+                <artifactId>commons-logging</artifactId>
+                <version>${commons-logging.version}</version>
+            </dependency>
 
-      <!-- Own -->
-      <dependency>
-        <groupId>to.etc</groupId>
-        <artifactId>to.etc.logger</artifactId>
-        <version>${to.etc.logger.version}-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>to.etc</groupId>
-        <artifactId>to.etc.jsr305</artifactId>
-        <version>${to.etc.jsr305.version}-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>to.etc</groupId>
-        <artifactId>to.etc.alg</artifactId>
-        <version>${to.etc.alg.version}-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>to.etc</groupId>
-        <artifactId>to.etc.db</artifactId>
-        <version>${to.etc.db.version}-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>to.etc</groupId>
-        <artifactId>to.etc.webapp.core</artifactId>
-        <version>${to.etc.webapp.core.version}-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>to.etc</groupId>
-        <artifactId>to.etc.domui</artifactId>
-        <version>${to.etc.domui.version}-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>jcharts</groupId>
-        <artifactId>jcharts</artifactId>
-        <version>${jcharts.version}</version>
-      </dependency>
+            <!-- Apache Batik -->
+            <dependency>
+                <groupId>org.apache.xmlgraphics</groupId>
+                <artifactId>batik-awt-util</artifactId>
+                <version>${batik.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.xmlgraphics</groupId>
+                <artifactId>batik-bridge</artifactId>
+                <version>${batik.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.xmlgraphics</groupId>
+                <artifactId>batik-css</artifactId>
+                <version>${batik.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.xmlgraphics</groupId>
+                <artifactId>batik-dom</artifactId>
+                <version>${batik.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.xmlgraphics</groupId>
+                <artifactId>batik-gvt</artifactId>
+                <version>${batik.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.xmlgraphics</groupId>
+                <artifactId>batik-parser</artifactId>
+                <version>${batik.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.xmlgraphics</groupId>
+                <artifactId>batik-script</artifactId>
+                <version>${batik.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.xmlgraphics</groupId>
+                <artifactId>batik-svg-dom</artifactId>
+                <version>${batik.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.xmlgraphics</groupId>
+                <artifactId>batik-transcoder</artifactId>
+                <version>${batik.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.xmlgraphics</groupId>
+                <artifactId>batik-util</artifactId>
+                <version>${batik.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.xmlgraphics</groupId>
+                <artifactId>batik-xml</artifactId>
+                <version>${batik.version}</version>
+            </dependency>
 
-    </dependencies>
-  </dependencyManagement>
+            <!-- https://mvnrepository.com/artifact/net.htmlparser.jericho/jericho-html -->
+            <dependency>
+                <groupId>net.htmlparser.jericho</groupId>
+                <artifactId>jericho-html</artifactId>
+                <version>${jericho.version}</version>
+            </dependency>
 
-  <developers>
-    <developer>
-      <id>jal</id>
-      <name>Frits Jalvingh</name>
-      <email>jal@etc.to</email>
-      <organization>etc.to</organization>
-      <organizationUrl>https://etc.to/</organizationUrl>
-      <roles>
-        <role>architect</role>
-        <role>developer</role>
-      </roles>
-      <timezone>+1</timezone>
-    </developer>
-  </developers>
+            <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-core -->
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-core</artifactId>
+                <version>${hibernate.core.version}</version>
+            </dependency>
 
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>${maven-javadoc-plugin.version}</version>
-        <reportSets>
-          <reportSet>
-            <id>javadoc</id>
-            <reports>
-              <report>javadoc</report>
-            </reports>
-            <configuration>
-              <additionalparam>-Xdoclint:none</additionalparam>
-              <stylesheetfile>javadoc/stylesheet.css</stylesheetfile>
-            </configuration>
-          </reportSet>
-        </reportSets>
-      </plugin>
+            <!-- Own -->
+            <dependency>
+                <groupId>to.etc</groupId>
+                <artifactId>to.etc.logger</artifactId>
+                <version>${to.etc.logger.version}-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>to.etc</groupId>
+                <artifactId>to.etc.jsr305</artifactId>
+                <version>${to.etc.jsr305.version}-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>to.etc</groupId>
+                <artifactId>to.etc.alg</artifactId>
+                <version>${to.etc.alg.version}-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>to.etc</groupId>
+                <artifactId>to.etc.db</artifactId>
+                <version>${to.etc.db.version}-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>to.etc</groupId>
+                <artifactId>to.etc.webapp.core</artifactId>
+                <version>${to.etc.webapp.core.version}-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>to.etc</groupId>
+                <artifactId>to.etc.domui</artifactId>
+                <version>${to.etc.domui.version}-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>jcharts</groupId>
+                <artifactId>jcharts</artifactId>
+                <version>${jcharts.version}</version>
+            </dependency>
 
-	<plugin>
-	    <groupId>org.apache.maven.plugins</groupId>
-	    <artifactId>maven-compiler-plugin</artifactId>
-	    <version>3.1</version>
-	    <configuration>
-		<source>1.8</source>
-		<target>1.8</target>
-	    </configuration>
-	</plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-pmd-plugin</artifactId>
-        <version>${maven-pmd-plugin.version}</version>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>findbugs-maven-plugin</artifactId>
-        <version>${findbugs-maven-plugin.version}</version>
-        <configuration>
-          <effort>Max</effort>
-          <threshold>Low</threshold>
-          <xmlOutput>true</xmlOutput>
-        </configuration>
-      </plugin>
-    </plugins>
-  </reporting>
-  <build>
-    <plugins>
-<!--
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-enforcer-plugin</artifactId>
-        <version>${maven-enforcer-plugin.version}</version>
-        <configuration>
-          <rules>
-            <DependencyConvergence/>
-          </rules>
-        </configuration>
-        <executions>
-          <execution>
-            <id>enforce</id>
-            <goals>
-              <goal>enforce</goal>
-            </goals>
-            <phase>validate</phase>
-          </execution>
-        </executions>
-      </plugin>
--->
-      <!-- <plugin> -->
-      <!--   <groupId>org.codehaus.mojo</groupId> -->
-      <!--   <artifactId>findbugs-maven-plugin</artifactId> -->
-      <!--   <version>${findbugs-maven-plugin.version}</version> -->
-      <!--   <configuration> -->
-      <!--     <effort>Max</effort> -->
-      <!--     <threshold>Low</threshold> -->
-      <!--     <xmlOutput>true</xmlOutput> -->
-      <!--   </configuration> -->
-      <!--   <executions> -->
-      <!--     <execution> -->
-      <!--       <goals> -->
-      <!--         <goal>check</goal> -->
-      <!--       </goals> -->
-      <!--     </execution> -->
-      <!--   </executions> -->
-      <!-- </plugin> -->
-    </plugins>
+        </dependencies>
+    </dependencyManagement>
 
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-dependency-plugin</artifactId>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <version>${maven-compiler-plugin.version}</version>
-          <configuration>
-            <source>${source.jdk.version}</source>
-            <target>${target.jdk.version}</target>
-            <compilerArgs>
-              <arg>-Xlint:all</arg>
-              <!--              <arg>-Werror</arg> -->
-            </compilerArgs>
-            <showWarnings>true</showWarnings>
-            <showDeprecation>true</showDeprecation>
-          </configuration>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-source-plugin</artifactId>
-          <version>${maven-source-plugin.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-war-plugin</artifactId>
-          <version>${maven-war-plugin.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-install-plugin</artifactId>
-          <version>${maven-install-plugin.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-javadoc-plugin</artifactId>
-          <version>${maven-javadoc-plugin.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>appassembler-maven-plugin</artifactId>
-          <version>${appassembler-maven-plugin.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.eclipse.jetty</groupId>
-          <artifactId>jetty-maven-plugin</artifactId>
-          <version>${jetty.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>com.webcohesion.enunciate</groupId>
-          <artifactId>enunciate-maven-plugin</artifactId>
-          <version>${enunciate-maven-plugin.version}</version>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-  </build>
+    <developers>
+        <developer>
+            <id>jal</id>
+            <name>Frits Jalvingh</name>
+            <email>jal@etc.to</email>
+            <organization>etc.to</organization>
+            <organizationUrl>https://etc.to/</organizationUrl>
+            <roles>
+                <role>architect</role>
+                <role>developer</role>
+            </roles>
+            <timezone>+1</timezone>
+        </developer>
+    </developers>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${maven-javadoc-plugin.version}</version>
+                <reportSets>
+                    <reportSet>
+                        <id>javadoc</id>
+                        <reports>
+                            <report>javadoc</report>
+                        </reports>
+                        <configuration>
+                            <additionalparam>-Xdoclint:none</additionalparam>
+                            <stylesheetfile>javadoc/stylesheet.css</stylesheetfile>
+                        </configuration>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>${maven-pmd-plugin.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>${findbugs-maven-plugin.version}</version>
+                <configuration>
+                    <effort>Max</effort>
+                    <threshold>Low</threshold>
+                    <xmlOutput>true</xmlOutput>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
+    <build>
+        <plugins>
+            <!--
+                  <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>${maven-enforcer-plugin.version}</version>
+                    <configuration>
+                      <rules>
+                        <DependencyConvergence/>
+                      </rules>
+                    </configuration>
+                    <executions>
+                      <execution>
+                        <id>enforce</id>
+                        <goals>
+                          <goal>enforce</goal>
+                        </goals>
+                        <phase>validate</phase>
+                      </execution>
+                    </executions>
+                  </plugin>
+            -->
+            <!-- <plugin> -->
+            <!--   <groupId>org.codehaus.mojo</groupId> -->
+            <!--   <artifactId>findbugs-maven-plugin</artifactId> -->
+            <!--   <version>${findbugs-maven-plugin.version}</version> -->
+            <!--   <configuration> -->
+            <!--     <effort>Max</effort> -->
+            <!--     <threshold>Low</threshold> -->
+            <!--     <xmlOutput>true</xmlOutput> -->
+            <!--   </configuration> -->
+            <!--   <executions> -->
+            <!--     <execution> -->
+            <!--       <goals> -->
+            <!--         <goal>check</goal> -->
+            <!--       </goals> -->
+            <!--     </execution> -->
+            <!--   </executions> -->
+            <!-- </plugin> -->
+        </plugins>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven-compiler-plugin.version}</version>
+                    <configuration>
+                        <source>${source.jdk.version}</source>
+                        <target>${target.jdk.version}</target>
+                        <compilerArgs>
+                            <arg>-Xlint:all</arg>
+                            <!--              <arg>-Werror</arg> -->
+                        </compilerArgs>
+                        <showWarnings>true</showWarnings>
+                        <showDeprecation>true</showDeprecation>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>${maven-source-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-war-plugin</artifactId>
+                    <version>${maven-war-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>${maven-install-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>${maven-javadoc-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>appassembler-maven-plugin</artifactId>
+                    <version>${appassembler-maven-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.eclipse.jetty</groupId>
+                    <artifactId>jetty-maven-plugin</artifactId>
+                    <version>${jetty.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>com.webcohesion.enunciate</groupId>
+                    <artifactId>enunciate-maven-plugin</artifactId>
+                    <version>${enunciate-maven-plugin.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 
 </project>
 
