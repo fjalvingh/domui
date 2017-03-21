@@ -2,37 +2,279 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e781144e-a5c5-44a3-9c85-28f8112b7477" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/to.etc.syntaxer/lib/gnu-regexp-1.1.4.jar" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/domui.iml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/parent/to.etc.domui.parent.iml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/to.etc.logger/pom.xml" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.logger/src/META-INF/MANIFEST.MF" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.logger/src/org/slf4j/impl/StaticLoggerBinder.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.logger/src/org/slf4j/impl/StaticMDCBinder.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.logger/src/org/slf4j/impl/StaticMarkerBinder.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.logger/src/to/etc/log/EtcLogger.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.logger/src/to/etc/log/EtcLoggerFactory.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.logger/src/to/etc/log/EtcMDCAdapter.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.logger/src/to/etc/log/EtcMarkerFactory.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.logger/src/to/etc/log/Level.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.logger/src/to/etc/log/LogUtil.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.logger/src/to/etc/log/etcLoggerConfig.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.logger/src/to/etc/log/event/EtcLogEvent.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.logger/src/to/etc/log/handler/EtcLogFormat.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.logger/src/to/etc/log/handler/EtcLogFormatter.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.logger/src/to/etc/log/handler/FileLogHandler.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.logger/src/to/etc/log/handler/ILogHandler.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.logger/src/to/etc/log/handler/LogFilter.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.logger/src/to/etc/log/handler/LogFilterType.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.logger/src/to/etc/log/handler/LogHandlerRegistry.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.logger/src/to/etc/log/handler/LogMatcher.java" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/compiler.xml" afterPath="$PROJECT_DIR$/.idea/compiler.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/encodings.xml" afterPath="$PROJECT_DIR$/.idea/encodings.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules.xml" afterPath="$PROJECT_DIR$/.idea/modules.xml" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/jsr305/ri/src/main/java/edu/umd/cs/findbugs/annotations/SuppressWarnings.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/jsr305/ri/src/main/java/javax/annotation/CheckForNull.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/jsr305/ri/src/main/java/javax/annotation/DefaultNonNull.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/jsr305/ri/src/main/java/javax/annotation/Nonnegative.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/jsr305/ri/src/main/java/javax/annotation/Nonnull.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/jsr305/ri/src/main/java/javax/annotation/Nullable.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/jsr305/ri/src/main/java/javax/annotation/OverridingMethodsMustInvokeSuper.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/jsr305/ri/src/main/java/javax/annotation/RegEx.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/jsr305/ri/src/main/java/javax/annotation/Syntax.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/jsr305/ri/src/main/java/javax/annotation/WillClose.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/jsr305/ri/src/main/java/javax/annotation/WillCloseWhenClosed.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/jsr305/ri/src/main/java/javax/annotation/WillNotClose.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/jsr305/ri/src/main/java/javax/annotation/concurrent/GuardedBy.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/jsr305/ri/src/main/java/javax/annotation/concurrent/Immutable.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/jsr305/ri/src/main/java/javax/annotation/concurrent/NotThreadSafe.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/jsr305/ri/src/main/java/javax/annotation/concurrent/ThreadSafe.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/jsr305/ri/src/main/java/javax/annotation/meta/Exclusive.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/jsr305/ri/src/main/java/javax/annotation/meta/Exhaustive.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/jsr305/ri/src/main/java/javax/annotation/meta/TypeQualifier.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/jsr305/ri/src/main/java/javax/annotation/meta/TypeQualifierDefault.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/jsr305/ri/src/main/java/javax/annotation/meta/TypeQualifierNickname.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/jsr305/ri/src/main/java/javax/annotation/meta/TypeQualifierValidator.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/jsr305/ri/src/main/java/javax/annotation/meta/When.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/jsr305/src/.keep" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/jsr305/src/META-INF/MANIFEST.MF" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/HTMLlat1.ent" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/HTMLspecial.ent" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/HTMLsymbol.ent" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/META-INF/MANIFEST.MF" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/csv/CSVRecordReader.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/csv/FieldNotFoundException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/csv/InputWrapper.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/csv/iInputField.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/csv/iRecordReader.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/event/local/ILocalEventListener.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/event/local/LocalEventManager.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/file/DirWalker.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/file/DirectoryInventory.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/function/ConsumerEx.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/function/FunctionEx.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/function/Lambda.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/function/SupplierEx.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/json/AbstractJsonArrayType.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/json/IJsonTypeFactory.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/json/ITypeMapping.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/json/JSON.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/json/JsonArrayFactory.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/json/JsonArrayType.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/json/JsonBooleanFactory.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/json/JsonClassType.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/json/JsonCollectionType.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/json/JsonEnumFactory.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/json/JsonIntFactory.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/json/JsonListFactory.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/json/JsonLongFactory.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/json/JsonParseException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/json/JsonReader.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/json/JsonSetFactory.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/json/JsonStringFactory.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/json/JsonTypeRegistry.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/json/JsonUtcDateFactory.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/json/JsonWriter.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/json/PropertyMapping.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/lexer/HtmlTextScanner.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/lexer/LexerToken.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/lexer/ReaderScannerBase.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/lexer/ReaderTokenizerBase.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/lexer/SourceErrorException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/lexer/SourceLocation.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/lexer/TextReaderBase.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/lexer/TextTokenizerBase.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/net/HttpCallException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/net/MultipartFile.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/net/MultipartPoster.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/net/MultipartSendListener.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/net/NetTools.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/pombuilder/PomBuilder.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/puzzler/GroupAutomatedTestProject.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/puzzler/GroupExternalDependency.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/puzzler/GroupKPlusVServer.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/puzzler/GroupRunsInMinutes.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/puzzler/GroupRunsInSeconds.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/puzzler/GroupRunsSlow.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/puzzler/GroupSelenium.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/puzzler/GroupWoningnetServer.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/puzzler/GroupWosServer.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/puzzler/TestConfig.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/sjit/AnimGifDecoder.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/sjit/AnimGifEncoder.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/sjit/BColorQuantizer.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/sjit/BellFilter.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/sjit/BoxFilter.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/sjit/ColorQuantize.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/sjit/GifHandlerBase.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/sjit/GifImaMeta.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/sjit/GifIndexedHandler.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/sjit/HermiteFilter.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/sjit/ImaTool.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/sjit/ImageSubsampler.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/sjit/Lanczos3Filter.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/sjit/MitchellFilter.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/sjit/ResamplerFilter.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/sjit/SlowSampler.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/sjit/SplineFilter.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/sjit/TooManyColorsException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/sjit/TriangleFilter.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/smtp/Address.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/smtp/EmailOutputStream.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/smtp/IMailAttachment.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/smtp/MailBuilder.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/smtp/MailException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/smtp/Message.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/smtp/MimeWriter.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/smtp/QuotedPrintableOutputStream.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/smtp/SmtpTransport.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/telnet/ExtendedPrintWriter.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/telnet/ITelnetClientEvent.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/telnet/ITelnetCommandHandler.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/telnet/TelnetPrintWriter.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/telnet/TelnetServer.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/telnet/TelnetSession.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/telnet/TelnetStateThing.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/telnet/TelnetSysoutMirrorStream.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/telnet/TelnetWriter.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/template/ExpReader.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/template/IJSTemplateContext.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/template/JSLocationMapping.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/template/JSTemplate.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/template/JSTemplateCompiler.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/template/JSTemplateError.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/template/ServletTplExpander.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/template/TplCallback.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/template/TplException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/template/TplExpander.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/testng/launcher/ParallelTestLauncher.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/testng/launcher/collector/ArtefactsCollector.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/testng/launcher/collector/ClassTestArtefactsCollector.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/testng/launcher/collector/IArtefactMatcher.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/testng/launcher/collector/ITestArtefactsCollector.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/testng/launcher/collector/PackageTestArtefactsCollector.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/testng/launcher/help.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/testng/launcher/misc/ArgumentsUtil.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/testng/launcher/misc/ReportFixer.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/testng/launcher/misc/XmlHelper.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/testng/launcher/runner/IRunnableArgumentsProvider.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/testng/launcher/runner/IRunnablePairProvider.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/testng/launcher/runner/RunnableDataProvider.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/testng/launcher/runner/RunnablePair.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/testng/launcher/runner/SuiteRunner.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/tuples/Tuple2.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/tuples/Tuple3.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/tuples/Tuple4.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/ArrayIterator.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/Base64OutputStream.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/BoolVector.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/ByteArrayUtil.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/ByteBufferInputStream.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/ByteBufferOutputStream.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/CalculationUtil.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/CancelledException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/CharReader.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/ClassInfo.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/ClassPathScanner.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/ClassUtil.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/ClassUtilCached.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/CmdStringDecoder.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/CompoundInputStream.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/ConfigFile.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/ConfigSource.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/ConfigSourceWrapper.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/CopyingReader.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/DateUtil.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/DbConnectionInfo.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/DeveloperOptions.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/Diff.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/ExceptionClassifier.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/FileBackedBuffer.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/FileContentInfo.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/FileIterator.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/FileTool.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/FutureImpl.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/FutureValueNB.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/GIS.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/GregorianCalendarFixDutchTime.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/HtmlEntity.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/HtmlEntityTables.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/HtmlScanner.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/IDirectoryDelta.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/IExceptionClassifier.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/IListable.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/ILogSink.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/IMappable.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/IProgressListener.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/IPropertyAccessor.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/IndentWriter.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/IntHashMap.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/IntTokenizer.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/InvalidVersionNumberException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/LRUHashMap.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/LineIterator.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/Lorem.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/Lorem.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/MemoryLogSink.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/NullOutputStream.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/Pair.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/PathSplitter.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/ProcessTools.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/Progress.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/PropertyInfo.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/RotatingLogfile.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/RuntimeConversionException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/RuntimeConversions.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/SecurityUtils.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/SizeCountingOutputStream.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/SmallIntSet.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/Soundex.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/StandardLogfile.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/StringInputStream.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/StringTool.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/TeeStream.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/TeeWriter.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/TextScanner.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/VersionNumber.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/WrappedDatabaseInputStream.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/WrappedException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/util/WrapperCache.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/xml/AttrSelector.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/xml/DOMDecoder.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/xml/DOMDecoderBase.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/xml/DOMNodeIterator.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/xml/DOMWriter.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/xml/DefaultErrorHandler.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/xml/DomPath.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/xml/DomTools.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/xml/ElementSelector.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/xml/IndexedSelector.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/xml/MimeUtil.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/xml/NSDomTools.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/xml/NodeIterator.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/xml/NodeListIterator.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/xml/PathExpression.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/xml/PathSelector.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/xml/RootSelector.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/xml/SAXTools.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/xml/TextSelector.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/xml/W3CEncodingException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/xml/W3CSchemaCoder.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/xml/XMLNameSpaces.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/src/to/etc/xml/XmlWriter.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/test/to/etc/alg/test/TestTemplater.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/test/to/etc/alg/test/template1.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/test/to/etc/alg/test/template2.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/test/to/etc/json/JsonData1.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/test/to/etc/json/JsonEnum1.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/test/to/etc/json/TestJson.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/test/to/etc/testng/launcher/ParallelTestLauncherTest.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/test/to/etc/testng/launcher/misc/ArgumentsUtilTest.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/test/to/etc/testng/launcher/misc/optionsFile.res" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/test/to/etc/testng/launcher/runLocalTip50.par" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/test/to/etc/testng/launcher/runOnJenkinsTip50.par" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/test/to/etc/testng/launcher/suiteRunDecadeExample.par" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/test/to/etc/util/ExceptionClassifierTest.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/test/to/etc/util/TestDateUtil.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/test/to/etc/util/TestDiff.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/test/to/etc/util/TestStringTool.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/test/to/etc/util/TestW3CCoder.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/test/to/etc/util/codertest1.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.alg/test/to/etc/util/longMsg.txt" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/jsr305/jsr305.iml" afterPath="$PROJECT_DIR$/jsr305/jsr305.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/parent/pom.xml" afterPath="$PROJECT_DIR$/parent/pom.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/to.etc.logger/to.etc.logger.iml" afterPath="$PROJECT_DIR$/to.etc.logger/to.etc.logger.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/to.etc.alg/to.etc.alg.iml" afterPath="$PROJECT_DIR$/to.etc.alg/to.etc.alg.iml" />
     </list>
     <ignored path="domui-public.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -88,22 +330,43 @@
             <state relative-caret-position="272">
               <caret line="17" column="20" lean-forward="false" selection-start-line="17" selection-start-column="20" selection-end-line="17" selection-end-column="20" />
               <folding>
-                <marker date="1490122148038" expanded="true" signature="1245:2007" ph="..." />
-                <marker date="1490122148038" expanded="true" signature="1284:1971" ph="..." />
-                <marker date="1490122148038" expanded="true" signature="1528:1801" ph="..." />
-                <marker date="1490122148038" expanded="true" signature="1560:1771" ph="..." />
-                <marker date="1490122148038" expanded="true" signature="1594:1738" ph="..." />
-                <marker date="1490122148038" expanded="true" signature="1833:1949" ph="..." />
+                <marker date="1490124486932" expanded="true" signature="1322:2084" ph="..." />
+                <marker date="1490124486932" expanded="true" signature="1340:2067" ph="..." />
+                <marker date="1490124486932" expanded="true" signature="1361:2048" ph="..." />
+                <marker date="1490124486932" expanded="true" signature="1605:1878" ph="..." />
+                <marker date="1490124486932" expanded="true" signature="1637:1848" ph="..." />
+                <marker date="1490124486932" expanded="true" signature="1671:1815" ph="..." />
+                <marker date="1490124486932" expanded="true" signature="1910:2026" ph="..." />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="pom.xml" pinned="false" current-in-tab="true">
+      <file leaf-file-name="pom.xml" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/to.etc.logger/pom.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="576">
-              <caret line="36" column="0" lean-forward="false" selection-start-line="36" selection-start-column="0" selection-end-line="36" selection-end-column="0" />
+            <state relative-caret-position="784">
+              <caret line="49" column="0" lean-forward="false" selection-start-line="49" selection-start-column="0" selection-end-line="49" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="pom.xml" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/to.etc.alg/pom.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="816">
+              <caret line="51" column="15" lean-forward="false" selection-start-line="51" selection-start-column="15" selection-end-line="51" selection-end-column="15" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="pom.xml" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/jsr305/pom.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="48">
+              <caret line="3" column="0" lean-forward="false" selection-start-line="3" selection-start-column="0" selection-end-line="3" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -134,6 +397,8 @@
       <list>
         <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/to.etc.logger/pom.xml" />
+        <option value="$PROJECT_DIR$/jsr305/pom.xml" />
+        <option value="$PROJECT_DIR$/to.etc.alg/pom.xml" />
       </list>
     </option>
   </component>
@@ -188,6 +453,16 @@
               <option name="myItemId" value="" />
               <option name="myItemType" value="" />
             </PATH_ELEMENT>
+            <PATH_ELEMENT USER_OBJECT="External Dependencies">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT USER_OBJECT="Root">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
             <PATH_ELEMENT USER_OBJECT="to.etc.logger">
               <option name="myItemId" value="" />
               <option name="myItemType" value="" />
@@ -211,38 +486,6 @@
               <option name="myItemType" value="" />
             </PATH_ELEMENT>
             <PATH_ELEMENT USER_OBJECT="src">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT USER_OBJECT="Root">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT USER_OBJECT="bin-slf4j">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT USER_OBJECT="bin-slf4j">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT USER_OBJECT="Root">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT USER_OBJECT="bin-slf4j">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT USER_OBJECT="bin-slf4j">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT USER_OBJECT="lib">
               <option name="myItemId" value="" />
               <option name="myItemType" value="" />
             </PATH_ELEMENT>
@@ -615,15 +858,16 @@
       <workItem from="1479306860534" duration="268000" />
       <workItem from="1490115576366" duration="417000" />
       <workItem from="1490116050817" duration="1318000" />
-      <workItem from="1490120660582" duration="2622000" />
+      <workItem from="1490120660582" duration="4552000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="4983000" />
+    <option name="totallyTimeSpent" value="6913000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1969" y="24" width="1855" height="2136" extended-state="4" />
+    <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -639,7 +883,7 @@
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Run with VisualVM" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25815368" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25815368" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Web" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="ANTLR Preview" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -703,12 +947,13 @@
         <state relative-caret-position="336">
           <caret line="21" column="18" lean-forward="true" selection-start-line="21" selection-start-column="18" selection-end-line="21" selection-end-column="18" />
           <folding>
-            <marker date="1490122148038" expanded="true" signature="1245:2007" ph="..." />
-            <marker date="1490122148038" expanded="true" signature="1284:1971" ph="..." />
-            <marker date="1490122148038" expanded="true" signature="1528:1801" ph="..." />
-            <marker date="1490122148038" expanded="true" signature="1560:1771" ph="..." />
-            <marker date="1490122148038" expanded="true" signature="1594:1738" ph="..." />
-            <marker date="1490122148038" expanded="true" signature="1833:1949" ph="..." />
+            <marker date="1490124486932" expanded="true" signature="1322:2084" ph="..." />
+            <marker date="1490124486932" expanded="true" signature="1340:2067" ph="..." />
+            <marker date="1490124486932" expanded="true" signature="1361:2048" ph="..." />
+            <marker date="1490124486932" expanded="true" signature="1605:1878" ph="..." />
+            <marker date="1490124486932" expanded="true" signature="1637:1848" ph="..." />
+            <marker date="1490124486932" expanded="true" signature="1671:1815" ph="..." />
+            <marker date="1490124486932" expanded="true" signature="1910:2026" ph="..." />
           </folding>
         </state>
       </provider>
@@ -795,20 +1040,45 @@
         <state relative-caret-position="272">
           <caret line="17" column="20" lean-forward="false" selection-start-line="17" selection-start-column="20" selection-end-line="17" selection-end-column="20" />
           <folding>
-            <marker date="1490122148038" expanded="true" signature="1245:2007" ph="..." />
-            <marker date="1490122148038" expanded="true" signature="1284:1971" ph="..." />
-            <marker date="1490122148038" expanded="true" signature="1528:1801" ph="..." />
-            <marker date="1490122148038" expanded="true" signature="1560:1771" ph="..." />
-            <marker date="1490122148038" expanded="true" signature="1594:1738" ph="..." />
-            <marker date="1490122148038" expanded="true" signature="1833:1949" ph="..." />
+            <marker date="1490124486932" expanded="true" signature="1322:2084" ph="..." />
+            <marker date="1490124486932" expanded="true" signature="1340:2067" ph="..." />
+            <marker date="1490124486932" expanded="true" signature="1361:2048" ph="..." />
+            <marker date="1490124486932" expanded="true" signature="1605:1878" ph="..." />
+            <marker date="1490124486932" expanded="true" signature="1637:1848" ph="..." />
+            <marker date="1490124486932" expanded="true" signature="1671:1815" ph="..." />
+            <marker date="1490124486932" expanded="true" signature="1910:2026" ph="..." />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/to.etc.logger/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="576">
-          <caret line="36" column="0" lean-forward="false" selection-start-line="36" selection-start-column="0" selection-end-line="36" selection-end-column="0" />
+        <state relative-caret-position="784">
+          <caret line="49" column="0" lean-forward="false" selection-start-line="49" selection-start-column="0" selection-end-line="49" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/jsr305/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="48">
+          <caret line="3" column="0" lean-forward="false" selection-start-line="3" selection-start-column="0" selection-end-line="3" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$MAVEN_REPOSITORY$/javax/el/el-api/1.1/el-api-1.1.pom">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/to.etc.alg/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="816">
+          <caret line="51" column="15" lean-forward="false" selection-start-line="51" selection-start-column="15" selection-end-line="51" selection-end-column="15" />
           <folding />
         </state>
       </provider>
@@ -868,7 +1138,7 @@
       </state>
       <state key="ModuleStructureConfigurable.UI">
         <settings>
-          <last-edited>to.etc.logger</last-edited>
+          <last-edited>jsr305</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>
