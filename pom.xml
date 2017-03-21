@@ -41,6 +41,7 @@
         <module>to.etc.alg</module>
         <module>to.etc.db</module>
         <module>to.etc.webapp.core</module>
+        <module>to.etc.domui</module>
         
     </modules>
 
