@@ -2,54 +2,22 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e781144e-a5c5-44a3-9c85-28f8112b7477" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/META-INF/MANIFEST.MF" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/domui/hibernate/beforeimages/BeforeImageInterceptor.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/domui/hibernate/beforeimages/BeforeImageListProxy.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/domui/hibernate/beforeimages/BeforeImageSetProxy.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/domui/hibernate/beforeimages/CopyCollectionEventListener.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/domui/hibernate/beforeimages/CreateBeforeImagePostLoadListener.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/domui/hibernate/beforeimages/IBeforeImageCollectionProxy.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/domui/hibernate/beforeimages/QBeforeCollectionNotLoadedException.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/domui/hibernate/config/HibernateChecker.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/domui/hibernate/config/HibernateConfigurator.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/domui/hibernate/config/SillyHibernateConnectionProvider.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/domui/hibernate/config/hibernate.cfg.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/domui/hibernate/generic/AbstractHibernateContextFactory.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/domui/hibernate/generic/BuggyHibernateBaseContext.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/domui/hibernate/generic/HibernateDataContextFactory.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/domui/hibernate/generic/HibernateLongSessionContext.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/domui/hibernate/generic/HibernateLongSessionContextFactory.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/domui/hibernate/generic/HibernateQDataContext.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/domui/hibernate/generic/HibernateQueryExecutor.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/domui/hibernate/generic/HibernateReattachingContextFactory.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/domui/hibernate/generic/HibernateReattachingDataContext.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/domui/hibernate/generic/HibernateSessionMaker.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/domui/hibernate/model/CriteriaCreatingVisitor.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/domui/hibernate/model/GenericHibernateHandler.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/domui/hibernate/model/HibernateAliasedSqlCriterion.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/domui/hibernate/model/HibernateModelCopier.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/domui/hibernate/testsupport/TUtilHibutil.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/domui/hibernate/types/BooleanPrimitiveYNType.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/domui/hibernate/types/Enum5Type.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/domui/hibernate/types/IDatabaseCodeEnum.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/domui/hibernate/types/MappedEnumType.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/domui/hibernate/types/ObservableListType.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/domui/hibernate/types/PersistentObservableList.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/test/webapp/query/qfield/QFieldCompileTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/test/webapp/query/qfield/QFieldRunTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/test/webapp/query/qfield/QTestBank.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/test/webapp/query/qfield/QTestBankAccount.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/test/webapp/query/qfield/QTestBankAccountRoot.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/test/webapp/query/qfield/QTestBankRoot.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/test/webapp/query/qfield/QTestRelation.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/test/webapp/query/qfield/QTestRelationRoot.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/test/webapp/query/qfield/TestBank.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/test/webapp/query/qfield/TestBankAccount.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/to/etc/test/webapp/query/qfield/TestRelation.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.legacy/src/to/etc/domui/component/input/SelectBasedControl.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.legacy/src/to/etc/domui/component/input/SpanBasedControl.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.legacy/src/to/etc/domui/jsmodel/ClassInfo.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.legacy/src/to/etc/domui/jsmodel/IRenderType.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.legacy/src/to/etc/domui/jsmodel/InstanceInfo.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.legacy/src/to/etc/domui/jsmodel/JsClass.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.legacy/src/to/etc/domui/jsmodel/JsDeltaRenderer.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.legacy/src/to/etc/domui/jsmodel/JsInitialRenderer.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.legacy/src/to/etc/domui/jsmodel/JsModel.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.legacy/src/to/etc/domui/jsmodel/JsRenderBase.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.legacy/src/to/etc/domui/jsmodel/package-info.java" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/parent/pom.xml" afterPath="$PROJECT_DIR$/parent/pom.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/to.etc.domui.hibutil.iml" afterPath="$PROJECT_DIR$/to.etc.domui.hibutil/to.etc.domui.hibutil.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/to.etc.domui.legacy/to.etc.domui.legacy.iml" afterPath="$PROJECT_DIR$/to.etc.domui.legacy/to.etc.domui.legacy.iml" />
     </list>
     <ignored path="domui-public.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -93,6 +61,16 @@
               </provider>
             </entry>
           </file>
+          <file leaf-file-name="pom.xml" pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/pom.xml">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="752">
+                  <caret line="47" column="14" lean-forward="true" selection-start-line="47" selection-start-column="14" selection-end-line="47" selection-end-column="14" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
           <file leaf-file-name="pom.xml" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/to.etc.webapp.core/pom.xml">
               <provider selected="true" editor-type-id="text-editor">
@@ -106,18 +84,28 @@
           <file leaf-file-name="pom.xml" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/to.etc.domui/pom.xml">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="880">
-                  <caret line="72" column="20" lean-forward="false" selection-start-line="72" selection-start-column="20" selection-end-line="72" selection-end-column="20" />
+                <state relative-caret-position="752">
+                  <caret line="50" column="50" lean-forward="true" selection-start-line="50" selection-start-column="50" selection-end-line="50" selection-end-column="50" />
                   <folding />
                 </state>
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="pom.xml" pinned="false" current-in-tab="true">
+          <file leaf-file-name="pom.xml" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/to.etc.domui.hibutil/pom.xml">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="736">
                   <caret line="61" column="0" lean-forward="false" selection-start-line="61" selection-start-column="0" selection-end-line="61" selection-end-column="0" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="pom.xml" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/to.etc.domui.legacy/pom.xml">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="840">
+                  <caret line="63" column="19" lean-forward="true" selection-start-line="63" selection-start-column="19" selection-end-line="63" selection-end-column="19" />
                   <folding />
                 </state>
               </provider>
@@ -136,8 +124,8 @@
           <file leaf-file-name="pom.xml" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/parent/pom.xml">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="251">
-                  <caret line="70" column="44" lean-forward="false" selection-start-line="70" selection-start-column="44" selection-end-line="70" selection-end-column="44" />
+                <state relative-caret-position="651">
+                  <caret line="95" column="0" lean-forward="true" selection-start-line="95" selection-start-column="0" selection-end-line="95" selection-end-column="0" />
                   <folding />
                 </state>
               </provider>
@@ -150,8 +138,8 @@
           <file leaf-file-name="pom.xml" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/parent/pom.xml">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="352">
-                  <caret line="320" column="25" lean-forward="false" selection-start-line="320" selection-start-column="25" selection-end-line="320" selection-end-column="25" />
+                <state relative-caret-position="416">
+                  <caret line="326" column="41" lean-forward="false" selection-start-line="326" selection-start-column="41" selection-end-line="326" selection-end-column="41" />
                   <folding />
                 </state>
               </provider>
@@ -176,12 +164,14 @@
       <find>servlet-ap</find>
       <find>servlet-api</find>
       <find>.alg</find>
+      <find>.hibutil</find>
     </findStrings>
     <replaceStrings>
       <replace>.db</replace>
       <replace>.webapp.core</replace>
       <replace>.domui</replace>
       <replace>.domui.hibutil</replace>
+      <replace>.legacy</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -200,7 +190,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/to.etc.logger/pom.xml" />
         <option value="$PROJECT_DIR$/jsr305/pom.xml" />
         <option value="$PROJECT_DIR$/to.etc.domui/src/main/java/to/etc/domui/server/WrappedHttpServetResponse.java" />
@@ -208,8 +197,10 @@
         <option value="$PROJECT_DIR$/to.etc.db/pom.xml" />
         <option value="$PROJECT_DIR$/to.etc.webapp.core/pom.xml" />
         <option value="$PROJECT_DIR$/to.etc.domui/pom.xml" />
-        <option value="$PROJECT_DIR$/parent/pom.xml" />
         <option value="$PROJECT_DIR$/to.etc.domui.hibutil/pom.xml" />
+        <option value="$PROJECT_DIR$/to.etc.domui.legacy/pom.xml" />
+        <option value="$PROJECT_DIR$/parent/pom.xml" />
+        <option value="$PROJECT_DIR$/pom.xml" />
       </list>
     </option>
   </component>
@@ -264,11 +255,25 @@
               <option name="myItemId" value="" />
               <option name="myItemType" value="" />
             </PATH_ELEMENT>
-            <PATH_ELEMENT USER_OBJECT="lib-hibernate">
+            <PATH_ELEMENT USER_OBJECT="to.etc.domui.legacy">
               <option name="myItemId" value="" />
               <option name="myItemType" value="" />
             </PATH_ELEMENT>
-            <PATH_ELEMENT USER_OBJECT="lib-hibernate">
+            <PATH_ELEMENT USER_OBJECT="to.etc.domui.legacy">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT USER_OBJECT="Root">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT USER_OBJECT="domui">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT USER_OBJECT="domui">
               <option name="myItemId" value="" />
               <option name="myItemType" value="" />
             </PATH_ELEMENT>
@@ -641,12 +646,12 @@
       <workItem from="1479306860534" duration="268000" />
       <workItem from="1490115576366" duration="417000" />
       <workItem from="1490116050817" duration="1318000" />
-      <workItem from="1490120660582" duration="9285000" />
+      <workItem from="1490120660582" duration="9615000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="11646000" />
+    <option name="totallyTimeSpent" value="11976000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1969" y="24" width="1855" height="2136" extended-state="4" />
@@ -802,14 +807,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pom.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/to.etc.domui/src/main/java/to/etc/domui/util/HtmlUtil.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="144">
@@ -858,26 +855,42 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/to.etc.domui/pom.xml">
+    <entry file="file://$PROJECT_DIR$/to.etc.domui.hibutil/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="880">
-          <caret line="72" column="20" lean-forward="false" selection-start-line="72" selection-start-column="20" selection-end-line="72" selection-end-column="20" />
+        <state relative-caret-position="736">
+          <caret line="61" column="0" lean-forward="false" selection-start-line="61" selection-start-column="0" selection-end-line="61" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/to.etc.domui.legacy/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="840">
+          <caret line="63" column="19" lean-forward="true" selection-start-line="63" selection-start-column="19" selection-end-line="63" selection-end-column="19" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/parent/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="251">
-          <caret line="70" column="44" lean-forward="false" selection-start-line="70" selection-start-column="44" selection-end-line="70" selection-end-column="44" />
+        <state relative-caret-position="651">
+          <caret line="95" column="0" lean-forward="true" selection-start-line="95" selection-start-column="0" selection-end-line="95" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/to.etc.domui.hibutil/pom.xml">
+    <entry file="file://$PROJECT_DIR$/to.etc.domui/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="736">
-          <caret line="61" column="0" lean-forward="false" selection-start-line="61" selection-start-column="0" selection-end-line="61" selection-end-column="0" />
+        <state relative-caret-position="752">
+          <caret line="50" column="50" lean-forward="true" selection-start-line="50" selection-start-column="50" selection-end-line="50" selection-end-column="50" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="752">
+          <caret line="47" column="14" lean-forward="true" selection-start-line="47" selection-start-column="14" selection-end-line="47" selection-end-column="14" />
           <folding />
         </state>
       </provider>
@@ -937,7 +950,7 @@
       </state>
       <state key="ModuleStructureConfigurable.UI">
         <settings>
-          <last-edited>to.etc.domui.hibutil</last-edited>
+          <last-edited>to.etc.domui.legacy</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>

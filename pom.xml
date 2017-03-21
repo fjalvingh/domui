@@ -43,7 +43,8 @@
         <module>to.etc.webapp.core</module>
         <module>to.etc.domui</module>
         <module>to.etc.domui.hibutil</module>
-        
+        <module>to.etc.domui.legacy</module>
+
     </modules>
 
     <reporting>

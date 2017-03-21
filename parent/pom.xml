@@ -91,6 +91,8 @@
         <to.etc.db.version>1.0</to.etc.db.version>
         <to.etc.webapp.core.version>1.0</to.etc.webapp.core.version>
         <to.etc.domui.version>1.0</to.etc.domui.version>
+        <to.etc.domui.hibutil.version>1.0</to.etc.domui.hibutil.version>
+        <to.etc.domui.legacy.version>1.0</to.etc.domui.legacy.version>
 
     </properties>
 
