@@ -69,6 +69,7 @@
         <batik.version>1.7</batik.version>
         <jericho.version>3.4</jericho.version>
         <hibernate.core.version>3.6.10.Final</hibernate.core.version>
+        <gnu.regexp.version>1.1.4</gnu.regexp.version>
 
         <xml-apis.version>2.0.2</xml-apis.version>
         <com.ibm.icu.version>58.2</com.ibm.icu.version>
@@ -93,6 +94,7 @@
         <to.etc.domui.version>1.0</to.etc.domui.version>
         <to.etc.domui.hibutil.version>1.0</to.etc.domui.hibutil.version>
         <to.etc.domui.legacy.version>1.0</to.etc.domui.legacy.version>
+        <to.etc.syntaxer.version>1.0</to.etc.syntaxer.version>
 
     </properties>
 
@@ -315,6 +317,13 @@
                 <version>${jericho.version}</version>
             </dependency>
 
+            <!-- https://mvnrepository.com/artifact/gnu-regexp/gnu-regexp -->
+            <dependency>
+                <groupId>gnu-regexp</groupId>
+                <artifactId>gnu-regexp</artifactId>
+                <version>${gnu.regexp.version}</version>
+            </dependency>
+
             <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-core -->
             <dependency>
                 <groupId>org.hibernate</groupId>
@@ -362,6 +371,11 @@
                 <groupId>to.etc</groupId>
                 <artifactId>to.etc.domui.legacy</artifactId>
                 <version>${to.etc.domui.legacy.version}-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>to.etc</groupId>
+                <artifactId>to.etc.syntaxer</artifactId>
+                <version>${to.etc.syntaxer.version}-SNAPSHOT</version>
             </dependency>
 
             <dependency>

@@ -2,324 +2,162 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e781144e-a5c5-44a3-9c85-28f8112b7477" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/META-INF/MANIFEST.MF" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/WEB-INF/lib/.keep" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/WEB-INF/pool.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/WEB-INF/web.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/css/style.css" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/fd/css/formbuilder.css" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/fd/css/gridbackground.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/fd/img/.keep" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/fd/js/formbuilder.js" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/fd/js/layouts.js" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/btnBaby.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/btnComplaint.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/btnReload.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/btnSmileyGrin.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/btnSmileyQuestion.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/btnSmileySad.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/btnSmileySing.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/btnSmileySmiley.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/btnSmileyTongue.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/btnSmileyWink.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/cal/christmas-bell.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/cal/exercise.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/chinook-schema-1.1.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/dancing1.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/dancing2.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/dancing3.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/dancing4.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/dragndrop/drag1.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/dragndrop/drag10.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/dragndrop/drag11.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/dragndrop/drag12.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/dragndrop/drag13.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/dragndrop/drag14.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/dragndrop/drag15.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/dragndrop/drag2.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/dragndrop/drag3.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/dragndrop/drag4.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/dragndrop/drag5.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/dragndrop/drag6.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/dragndrop/drag7.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/dragndrop/drag8.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/dragndrop/drag9.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/dragndrop/dragt0.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/dragndrop/dragt1.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/dragndrop/dragt10.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/dragndrop/dragt2.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/dragndrop/dragt3.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/dragndrop/dragt4.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/dragndrop/dragt5.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/dragndrop/dragt6.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/dragndrop/dragt7.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/dragndrop/dragt8.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/dragndrop/dragt9.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/import.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/java.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/img/live.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/WebContent/test.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/META-INF/MANIFEST.MF" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/hibernate-create.cfg.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/hibernate.cfg.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/actionscript.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/ada95.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/antlr.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/apacheconf.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/apdl.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/applescript.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/asp.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/aspect-j.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/assembly-macro32.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/assembly-mcs51.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/assembly-parrot.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/assembly-r2000.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/assembly-x86.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/awk.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/b.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/batch.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/bbj.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/bcel.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/bibtex.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/c.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/catalog" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/chill.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/cil.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/cobol.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/coldfusion.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/cplusplus.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/csharp.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/css.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/cvs-commit.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/d.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/doxygen.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/dsssl.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/eiffel.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/embperl.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/erlang.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/factor.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/fortran.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/freemarker.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/gettext.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/groovy.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/haskell.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/hex.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/html.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/i4gl.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/icon.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/idl.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/inform.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/ini.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/inno-setup.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/interlis.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/io.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/java.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/javascript.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/jcl.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/jhtml.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/jmk.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/jsp.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/latex.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/lilypond.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/lisp.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/lotos.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/lua.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/mail.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/makefile.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/maple.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/ml.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/modula3.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/moin.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/mqsc.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/netrexx.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/nqc.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/nsis2.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/objective-c.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/objectrexx.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/occam.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/omnimark.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/pascal.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/patch.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/perl.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/php.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/pike.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/pl-sql.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/pl1.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/pop11.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/postscript.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/povray.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/powerdynamo.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/progress.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/prolog.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/props.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/psp.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/ptl.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/pvwave.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/pyrex.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/python.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/rebol.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/redcode.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/relax-ng-compact.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/rest.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/rhtml.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/rib.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/rpmspec.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/rtf.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/ruby.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/rview.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/sas.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/scheme.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/sdl_pr.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/sgml.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/shellscript.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/shtml.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/smalltalk.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/smi-mib.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/splus.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/sqr.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/squidconf.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/ssharp.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/svn-commit.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/swig.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/tcl.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/tex.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/texinfo.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/text.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/tpl.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/tsql.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/uscript.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/vbscript.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/velocity.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/verilog.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/vhdl.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/xml.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/xsl.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/modes/zpt.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/resources/database/CreateDB.sql" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domui/fd/.keep" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domui/test/binding/conversion/BindingConversionTestForm.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domui/test/binding/order1/BindingTypeForm1.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domui/test/binding/order1/City.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domui/test/binding/order1/Country.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domui/test/binding/order1/TestBindingOrder1.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/Application.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/Test.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/components/SourceBreadCrumb.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/db/Album.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/db/Artist.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/db/Artist.properties" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/db/Customer.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/db/DBInitialize.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/db/DbRecordBase.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/db/DbUtil.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/db/Employee.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/db/Genre.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/db/Invoice.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/db/Invoice.properties" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/db/InvoiceLine.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/db/Invoice_nl.properties" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/db/MediaType.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/db/Track.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/BasicOverviewPage.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/HomePage.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/Lorem.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/MenuPage.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/MiniPage.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/OldHome.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/TableMenuPage.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/WikiExplanationPage.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/WikiFragment.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/basic/CaptionsDemoPage.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/basic/DemoTextArea.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/basic/HelloWorld.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/basic/WikiDemo.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/binding/tbl/DemoObservableListPage.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/binding/tbl/DemoTableBinding1.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/binding/tbl/DemoTableBinding2.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/dbtable/SimplestDbTable.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/graphs/GraphPage.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/graphs/GraphSource.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/BadPage.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/DatabaseSchemaExpl.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/agenda/DemoWeekAgenda.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/buttons/DemoButtonBar.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/buttons/DemoDefaultButton.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/buttons/DemoLinkButton.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/buttons/DemoSmallImageButton.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/delayed/DemoAsyncContainer.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/delayed/DemoPollingDiv.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/delayed/SillyClock.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/dnd/DemoDragDrop.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/dnd/DemoTableInDrag.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/dynaima/.keep" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/fasthtml/.keep" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/form/.keep" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/graph/DemoColorPicker.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/graph/DemoColorPicker2.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/htmleditor/DemoCKEditor.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/htmleditor/DemoDisplayHtml.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/htmleditor/DemoHtmlEditor.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/input/DemoBulkUpload.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/input/DemoCheckbox.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/input/DemoComboFixed.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/input/DemoDateInput.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/input/DemoFileUpload.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/input/DemoHiddenText.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/input/DemoRadioButton.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/input/DemoText.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/input/DemoTextStr.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/layout/DemoAppTitle.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/layout/DemoBreadCrumb.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/layout/DemoCaption.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/layout/DemoCaptionedHeader.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/layout/DemoCaptionedPanel.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/layout/DemoFloatingWindow.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/layout/DemoMessageLine.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/layout/DemoScrollableTabPanel.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/layout/DemoSplitterPanel.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/layout/DemoTabPanel.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/layout/DemoVerticalSpacer.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/lookup/DemoLookupForm.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/lookup/DemoLookupForm2.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/menu/DemoPopupMenu.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/meta/.keep" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/misc/DemoALink.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/misc/DemoDisplayCheckbox.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/misc/DemoDisplayValue.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/misc/DemoInfoPanel.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/misc/DemoMsgBox.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/tbl/DemoDataPager.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/tbl/DemoDataTable.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/tbl/DemoDataTable2.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/tbl/DemoRowRenderer1.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/tbl/DemoRowRenderer2.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/tbl/DemoSortableListTable.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/tbl/DemoTableModel.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/tbl/DemoTableSelect.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/tbl/FileModel.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/tree/DemoTree.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/overview/tree/DemoTreeModel.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/special/.keep" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/test/Click2HandlerPage.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/test/IeCheckBoxInTable.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/test/IeCheckBoxInTable2.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/test/IeTableBugPage.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/pages/test/ImageEntitiesTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/sourceviewer/HtmlTokenHandler.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/sourceviewer/SourceFile.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/sourceviewer/SourceLocator.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/src/to/etc/domuidemo/sourceviewer/SourcePage.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/test/to/etc/domui/test/binding/TestBindingOrder.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/test/to/etc/domui/test/db/InitTestDB.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/test/to/etc/domui/test/db/TestBeforeImages.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/test/to/etc/domui/test/db/TestObservableCollections.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/test/to/etc/domui/test/db/TestQCriteria.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/test/to/etc/domui/test/db/pool.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.domui.demo/web/WEB-INF/web.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/META-INF/MANIFEST.MF" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/actionscript.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/ada95.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/antlr.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/apacheconf.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/apdl.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/applescript.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/asp.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/aspect-j.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/assembly-macro32.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/assembly-mcs51.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/assembly-parrot.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/assembly-r2000.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/assembly-x86.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/awk.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/b.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/batch.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/bbj.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/bcel.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/bibtex.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/c.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/catalog" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/chill.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/cil.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/cobol.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/coldfusion.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/cplusplus.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/csharp.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/css.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/cvs-commit.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/d.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/doxygen.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/dsssl.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/eiffel.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/embperl.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/erlang.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/factor.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/fortran.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/freemarker.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/gettext.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/groovy.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/haskell.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/hex.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/html.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/i4gl.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/icon.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/idl.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/inform.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/ini.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/inno-setup.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/interlis.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/io.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/java.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/javascript.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/jcl.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/jhtml.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/jmk.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/jsp.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/latex.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/lilypond.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/lisp.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/lotos.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/lua.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/mail.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/makefile.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/maple.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/ml.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/modula3.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/moin.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/mqsc.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/netrexx.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/nqc.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/nsis2.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/objective-c.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/objectrexx.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/occam.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/omnimark.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/pascal.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/patch.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/perl.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/php.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/pike.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/pl-sql.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/pl1.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/pop11.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/postscript.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/povray.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/powerdynamo.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/progress.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/prolog.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/props.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/psp.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/ptl.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/pvwave.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/pyrex.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/python.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/rebol.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/redcode.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/relax-ng-compact.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/rest.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/rhtml.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/rib.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/rpmspec.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/rtf.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/ruby.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/rview.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/sas.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/scheme.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/sdl_pr.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/sgml.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/shellscript.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/shtml.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/smalltalk.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/smi-mib.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/splus.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/sqr.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/squidconf.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/ssharp.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/svn-commit.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/swig.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/tcl.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/tex.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/texinfo.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/text.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/tpl.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/tsql.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/uscript.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/vbscript.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/velocity.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/verilog.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/vhdl.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/xml.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/xsl.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/modes/zpt.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/to/etc/syntaxer/CharIndexedSegment.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/to/etc/syntaxer/Colorizer.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/to/etc/syntaxer/HandlerBase.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/to/etc/syntaxer/HtmlColorizer.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/to/etc/syntaxer/KeywordMap.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/to/etc/syntaxer/ParserRule.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/to/etc/syntaxer/ParserRuleSet.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/to/etc/syntaxer/SyntaxStyle.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/to/etc/syntaxer/SyntaxUtilities.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/to/etc/syntaxer/Token.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/to/etc/syntaxer/TokenHandler.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/to/etc/syntaxer/TokenMarker.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/to/etc/syntaxer/XModeHandler.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/to/etc/syntaxer/XmlException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/to/etc/syntaxer/XmlHandler.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/to/etc/syntaxer/XmlParser.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/to.etc.syntaxer/src/to/etc/syntaxer/xmode.dtd" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/parent/pom.xml" afterPath="$PROJECT_DIR$/parent/pom.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/to.etc.domui.demo/to.etc.domui.demo.iml" afterPath="$PROJECT_DIR$/to.etc.domui.demo/to.etc.domui.demo.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/to.etc.syntaxer/to.etc.syntaxer.iml" afterPath="$PROJECT_DIR$/to.etc.syntaxer/to.etc.syntaxer.iml" />
     </list>
     <ignored path="domui-public.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -366,18 +204,28 @@
           <file leaf-file-name="pom.xml" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/pom.xml">
               <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="784">
+                  <caret line="49" column="14" lean-forward="false" selection-start-line="49" selection-start-column="14" selection-end-line="49" selection-end-column="14" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="pom.xml" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/to.etc.domui.demo/pom.xml">
+              <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="656">
-                  <caret line="41" column="34" lean-forward="false" selection-start-line="41" selection-start-column="34" selection-end-line="41" selection-end-column="34" />
+                  <caret line="41" column="48" lean-forward="false" selection-start-line="41" selection-start-column="48" selection-end-line="41" selection-end-column="48" />
                   <folding />
                 </state>
               </provider>
             </entry>
           </file>
           <file leaf-file-name="pom.xml" pinned="false" current-in-tab="true">
-            <entry file="file://$PROJECT_DIR$/to.etc.domui.demo/pom.xml">
+            <entry file="file://$PROJECT_DIR$/to.etc.syntaxer/pom.xml">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="656">
-                  <caret line="41" column="48" lean-forward="false" selection-start-line="41" selection-start-column="48" selection-end-line="41" selection-end-column="48" />
+                <state relative-caret-position="720">
+                  <caret line="45" column="0" lean-forward="false" selection-start-line="45" selection-start-column="0" selection-end-line="45" selection-end-column="0" />
                   <folding />
                 </state>
               </provider>
@@ -426,8 +274,8 @@
           <file leaf-file-name="pom.xml" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/parent/pom.xml">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="651">
-                  <caret line="95" column="0" lean-forward="false" selection-start-line="95" selection-start-column="0" selection-end-line="95" selection-end-column="0" />
+                <state relative-caret-position="299">
+                  <caret line="73" column="33" lean-forward="true" selection-start-line="73" selection-start-column="33" selection-end-line="73" selection-end-column="33" />
                   <folding />
                 </state>
               </provider>
@@ -440,8 +288,8 @@
           <file leaf-file-name="pom.xml" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/parent/pom.xml">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="656">
-                  <caret line="365" column="0" lean-forward="false" selection-start-line="365" selection-start-column="0" selection-end-line="365" selection-end-column="0" />
+                <state relative-caret-position="416">
+                  <caret line="325" column="0" lean-forward="true" selection-start-line="320" selection-start-column="0" selection-end-line="325" selection-end-column="0" />
                   <folding />
                 </state>
               </provider>
@@ -465,9 +313,9 @@
       <find>servlet-a</find>
       <find>servlet-ap</find>
       <find>servlet-api</find>
-      <find>.alg</find>
       <find>.hibutil</find>
       <find>.domui</find>
+      <find>.alg</find>
     </findStrings>
     <replaceStrings>
       <replace>.db</replace>
@@ -475,6 +323,7 @@
       <replace>.domui</replace>
       <replace>.domui.hibutil</replace>
       <replace>.legacy</replace>
+      <replace>.syntaxer</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -502,9 +351,10 @@
         <option value="$PROJECT_DIR$/to.etc.domui/pom.xml" />
         <option value="$PROJECT_DIR$/to.etc.domui.hibutil/pom.xml" />
         <option value="$PROJECT_DIR$/to.etc.domui.legacy/pom.xml" />
+        <option value="$PROJECT_DIR$/to.etc.domui.demo/pom.xml" />
         <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/parent/pom.xml" />
-        <option value="$PROJECT_DIR$/to.etc.domui.demo/pom.xml" />
+        <option value="$PROJECT_DIR$/to.etc.syntaxer/pom.xml" />
       </list>
     </option>
   </component>
@@ -559,7 +409,11 @@
               <option name="myItemId" value="" />
               <option name="myItemType" value="" />
             </PATH_ELEMENT>
-            <PATH_ELEMENT USER_OBJECT="to.etc.domui.hibutil">
+            <PATH_ELEMENT USER_OBJECT="to.etc.syntaxer">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT USER_OBJECT="to.etc.syntaxer">
               <option name="myItemId" value="" />
               <option name="myItemType" value="" />
             </PATH_ELEMENT>
@@ -569,11 +423,7 @@
               <option name="myItemId" value="" />
               <option name="myItemType" value="" />
             </PATH_ELEMENT>
-            <PATH_ELEMENT USER_OBJECT="to.etc.domui.demo">
-              <option name="myItemId" value="" />
-              <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT USER_OBJECT="to.etc.domui.demo">
+            <PATH_ELEMENT USER_OBJECT="to.etc.domui.hibutil">
               <option name="myItemId" value="" />
               <option name="myItemType" value="" />
             </PATH_ELEMENT>
@@ -946,15 +796,16 @@
       <workItem from="1479306860534" duration="268000" />
       <workItem from="1490115576366" duration="417000" />
       <workItem from="1490116050817" duration="1318000" />
-      <workItem from="1490120660582" duration="10276000" />
+      <workItem from="1490120660582" duration="10655000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="12637000" />
+    <option name="totallyTimeSpent" value="13016000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1969" y="24" width="1855" height="2136" extended-state="4" />
+    <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Tool Output" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -976,7 +827,7 @@
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Run with VisualVM" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25815368" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25815368" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Web" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -1170,14 +1021,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/parent/pom.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="651">
-          <caret line="95" column="0" lean-forward="false" selection-start-line="95" selection-start-column="0" selection-end-line="95" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/to.etc.webapp.core/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="672">
@@ -1186,18 +1029,34 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pom.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="656">
-          <caret line="41" column="34" lean-forward="false" selection-start-line="41" selection-start-column="34" selection-end-line="41" selection-end-column="34" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/to.etc.domui.demo/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="656">
           <caret line="41" column="48" lean-forward="false" selection-start-line="41" selection-start-column="48" selection-end-line="41" selection-end-column="48" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="784">
+          <caret line="49" column="14" lean-forward="false" selection-start-line="49" selection-start-column="14" selection-end-line="49" selection-end-column="14" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/parent/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="299">
+          <caret line="73" column="33" lean-forward="true" selection-start-line="73" selection-start-column="33" selection-end-line="73" selection-end-column="33" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/to.etc.syntaxer/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="720">
+          <caret line="45" column="0" lean-forward="false" selection-start-line="45" selection-start-column="0" selection-end-line="45" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -1257,12 +1116,11 @@
       </state>
       <state key="ModuleStructureConfigurable.UI">
         <settings>
-          <last-edited>to.etc.domui.demo</last-edited>
+          <last-edited>to.etc.syntaxer</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>
                 <option value="0.35172415" />
-                <option value="0.6" />
               </list>
             </option>
           </splitter-proportions>
