@@ -118,23 +118,13 @@ public class TestNumberConverter {
 	 * Test INVALID conversions.
 	 */
 	public <T extends Number> void testNumericPresentation(NumericPresentation np, int scale, Class<T> classType) {
-		if(NumericPresentation.isMonetary(np)) {
-			try {
-				NumericUtil.createNumberConverter(classType, np, scale);
-			} catch(IllegalArgumentException e) {
-				//This is expected exception!
-				return;
+		try {
+			NumericUtil.createNumberConverter(BigDecimal.class, np, scale);
+		} catch(IllegalArgumentException e) {
+			if(DomUtil.isIntegerType(classType) && scale != 0) {
+				return; //expected -> not possible to create NumberConverter on int types with scale other than 0.
 			}
-			Assert.fail("Should not be possible to make instance of NumberConverter using monetary presentation!");
-		} else {
-			try {
-				NumericUtil.createNumberConverter(BigDecimal.class, np, scale);
-			} catch(IllegalArgumentException e) {
-				if(DomUtil.isIntegerType(classType) && scale != 0) {
-					return; //expected -> not possible to create NumberConverter on int types with scale other than 0.
-				}
-				Assert.fail("Should be possible to make instance of NumberConverter using non-monetary presentation!");
-			}
+			Assert.fail("Should be possible to make instance of NumberConverter using non-monetary presentation!");
 		}
 	}
 
@@ -435,17 +425,21 @@ public class TestNumberConverter {
 
 	@Test
 	public void testConversionsFromResourceFiles() throws IOException {
-		URL url = this.getClass().getResource("test_number_cont_data1.resource");
-		File testRes1 = new File(url.getFile());
-		testResourceFile(testRes1);
+		InputStream is = getClass().getResourceAsStream("test_number_cont_data1.resource");
+		if(null == is)
+			throw new IllegalStateException("Missing resource");
+		try {
+			testResourceFile(is);
+		} finally {
+			is.close();
+		}
 	}
 
-	private void testResourceFile(File file) throws IOException {
+	private void testResourceFile(InputStream fi) throws IOException {
 		String linebuf = null;
 		BufferedReader br = null;
 		try {
 			//Open the file that is the first
-			FileInputStream fi = new FileInputStream(file);
 			DataInputStream in = new DataInputStream(fi);
 			br = new BufferedReader(new InputStreamReader(in));
 			NumericPresentation np = NumericPresentation.NUMBER;

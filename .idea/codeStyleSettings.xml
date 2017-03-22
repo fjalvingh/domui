@@ -25,6 +25,9 @@
         <JSCodeStyleSettings>
           <option name="SPACE_BEFORE_FUNCTION_LEFT_PARENTH" value="false" />
         </JSCodeStyleSettings>
+        <MarkdownNavigatorCodeStyleSettings>
+          <option name="RIGHT_MARGIN" value="72" />
+        </MarkdownNavigatorCodeStyleSettings>
         <SqlCodeStyleSettings>
           <option name="NEW_LINE_BEFORE_FROM" value="false" />
           <option name="NEW_LINE_BEFORE_JOIN" value="false" />
