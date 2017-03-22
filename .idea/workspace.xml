@@ -2,13 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e781144e-a5c5-44a3-9c85-28f8112b7477" name="Default" comment="">
-      <change type="MOVED" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/src/main/java/to/etc/domui/hibernate/config/hibernate.cfg.xml" afterPath="$PROJECT_DIR$/to.etc.domui.hibutil/src/main/resources/to/etc/domui/hibernate/config/hibernate.cfg.xml" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/to.etc.domui/src/main/java/to/etc/domui/server/etcLoggerConfig.xml" afterPath="$PROJECT_DIR$/to.etc.domui/src/main/resources/to/etc/domui/server/etcLoggerConfig.xml" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/to.etc.domui/src/main/java/to/etc/domui/server/exceptionTemplate.html" afterPath="$PROJECT_DIR$/to.etc.domui/src/main/resources/to/etc/domui/server/exceptionTemplate.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/parent/pom.xml" afterPath="$PROJECT_DIR$/parent/pom.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/to.etc.domui.demo/pom.xml" afterPath="$PROJECT_DIR$/to.etc.domui.demo/pom.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/to.etc.domui.hibutil/pom.xml" afterPath="$PROJECT_DIR$/to.etc.domui.hibutil/pom.xml" />
     </list>
     <ignored path="domui-public.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -73,8 +67,8 @@
       <file leaf-file-name="pom.xml" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/to.etc.domui.demo/pom.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="546">
-              <caret line="221" column="32" lean-forward="true" selection-start-line="221" selection-start-column="32" selection-end-line="221" selection-end-column="32" />
+            <state relative-caret-position="482">
+              <caret line="217" column="56" lean-forward="true" selection-start-line="217" selection-start-column="56" selection-end-line="217" selection-end-column="56" />
               <folding />
             </state>
           </provider>
@@ -810,7 +804,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="29820000" />
+    <option name="totallyTimeSpent" value="29975000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1745" y="-4" width="1855" height="1204" extended-state="6" />
@@ -1269,8 +1263,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/to.etc.domui.demo/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="546">
-          <caret line="221" column="32" lean-forward="true" selection-start-line="221" selection-start-column="32" selection-end-line="221" selection-end-column="32" />
+        <state relative-caret-position="482">
+          <caret line="217" column="56" lean-forward="true" selection-start-line="217" selection-start-column="56" selection-end-line="217" selection-end-column="56" />
           <folding />
         </state>
       </provider>

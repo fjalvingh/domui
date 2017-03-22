@@ -215,6 +215,7 @@
                         </baseResource>
                         <webInfIncludeJarPattern>^$</webInfIncludeJarPattern>
                         <containerIncludeJarPattern>^$</containerIncludeJarPattern>
+                        <contextPath>/demo</contextPath>
                     </webApp>
                     <httpConnector>
                         <port>${jetty.http.port}</port>
