@@ -9,10 +9,12 @@ import to.etc.domui.test.binding.order1.TestBindingOrder1;
 import to.etc.domui.webdriver.core.AbstractWebDriverTest;
 
 /**
+ * Integration Test to check for binding order being obeyed.
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  *         Created on 15-3-17.
  */
-public class TestWdBindingOrder extends AbstractWebDriverTest {
+public class ITTestBindingOrder extends AbstractWebDriverTest {
 
 	/**
 	 * Two bindings that influence each order should work.

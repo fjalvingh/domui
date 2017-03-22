@@ -28,9 +28,10 @@ final public class TestProperties {
 	@Nullable
 	public String getProperty(@Nonnull String key) {
 		String value = System.getProperty(key);
-		if(null != value)
-			return value;
-		return m_properties.getProperty(key);
+		if(null == value)
+			value = m_properties.getProperty(key);
+		//System.out.println("$$$$ test: property " + key + " value " + value);
+		return value;
 	}
 
 	@Nullable

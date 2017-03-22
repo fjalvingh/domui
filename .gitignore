@@ -20,6 +20,7 @@ to.etc.domui/src/resources/themes/blue/style.theme.css.bak
 */maven
 out
 target
+*.log
 
 
 to.etc.domui.demo/derby.log

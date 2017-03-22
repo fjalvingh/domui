@@ -226,6 +226,7 @@
                 </configuration>
 
                 <!-- Want to use this for integration tests. -->
+                <!-- See http://maven.apache.org/surefire/maven-failsafe-plugin/usage.html -->
                 <executions>
                     <execution>
                         <id>start-jetty</id>
