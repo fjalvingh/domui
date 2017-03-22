@@ -5,11 +5,10 @@
     <parent>
         <groupId>to.etc.domui</groupId>
         <artifactId>to.etc.domui.parent</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0</version>
         <relativePath>../parent</relativePath>
     </parent>
 
-    <groupId>to.etc.domui</groupId>
     <artifactId>to.etc.domui.demo</artifactId>
     <packaging>war</packaging>
 
