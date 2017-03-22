@@ -19,6 +19,9 @@ to.etc.domui/src/resources/themes/blue/style.theme.css.bak
 *.bak
 */maven
 *.versionsBackup
+*.releaseBackup
+release.properties
+
 out
 target
 *.log
