@@ -34,21 +34,6 @@ import java.lang.annotation.Target;
  * a qualifier nickname. Applying a nickname annotation X to a element Y should
  * be interpreted as having the same meaning as applying all of annotations of X
  * (other than QualifierNickname) to Y.
- *
- * <p>
- * Thus, you might define a qualifier SocialSecurityNumber as follows:
- * </p>
- *
- *
- * <code>
- @Documented
- @TypeQualifierNickname @Pattern("[0-9]{3}-[0-9]{2}-[0-9]{4}")
- @Retention(RetentionPolicy.RUNTIME)
- public @interface SocialSecurityNumber {
- }
- </code>
- *
- *
  */
 @Documented
 @Target(ElementType.ANNOTATION_TYPE)
