@@ -3,16 +3,16 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>to.etc</groupId>
+        <groupId>to.etc.domui</groupId>
         <artifactId>domui</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>to.etc</groupId>
+    <groupId>to.etc.domui</groupId>
     <artifactId>to.etc.domui.parent</artifactId>
     <packaging>pom</packaging>
 
-    <name>DomUI Maven Parent</name>
+    <name>domui :: parent</name>
     <description>Parent to all DomUI projects</description>
     <inceptionYear>2017</inceptionYear>
 
@@ -362,62 +362,62 @@
 
             <!-- Own -->
             <dependency>
-                <groupId>to.etc</groupId>
+                <groupId>to.etc.domui</groupId>
                 <artifactId>to.etc.logger</artifactId>
                 <version>${to.etc.logger.version}-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>to.etc</groupId>
+                <groupId>to.etc.domui</groupId>
                 <artifactId>to.etc.jsr305</artifactId>
                 <version>${to.etc.jsr305.version}-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>to.etc</groupId>
+                <groupId>to.etc.domui</groupId>
                 <artifactId>to.etc.alg</artifactId>
                 <version>${to.etc.alg.version}-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>to.etc</groupId>
+                <groupId>to.etc.domui</groupId>
                 <artifactId>to.etc.db</artifactId>
                 <version>${to.etc.db.version}-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>to.etc</groupId>
+                <groupId>to.etc.domui</groupId>
                 <artifactId>to.etc.webapp.core</artifactId>
                 <version>${to.etc.webapp.core.version}-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>to.etc</groupId>
+                <groupId>to.etc.domui</groupId>
                 <artifactId>to.etc.domui</artifactId>
                 <version>${to.etc.domui.version}-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>to.etc</groupId>
+                <groupId>to.etc.domui</groupId>
                 <artifactId>to.etc.pater</artifactId>
                 <version>${to.etc.pater.version}-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>to.etc</groupId>
+                <groupId>to.etc.domui</groupId>
                 <artifactId>to.etc.domui.hibutil</artifactId>
                 <version>${to.etc.domui.hibutil.version}-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>to.etc</groupId>
+                <groupId>to.etc.domui</groupId>
                 <artifactId>to.etc.domui.legacy</artifactId>
                 <version>${to.etc.domui.legacy.version}-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>to.etc</groupId>
+                <groupId>to.etc.domui</groupId>
                 <artifactId>to.etc.syntaxer</artifactId>
                 <version>${to.etc.syntaxer.version}-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>to.etc</groupId>
+                <groupId>to.etc.domui</groupId>
                 <artifactId>to.etc.domui.formbuilder</artifactId>
                 <version>${to.etc.domui.formbuilder.version}-SNAPSHOT</version>
             </dependency>
             <dependency>
-                <groupId>to.etc</groupId>
+                <groupId>to.etc.domui</groupId>
                 <artifactId>to.etc.domui.selenium</artifactId>
                 <version>${to.etc.domui.selenium.version}-SNAPSHOT</version>
             </dependency>
