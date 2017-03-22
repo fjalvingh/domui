@@ -10,6 +10,7 @@ import javax.annotation.*;
 import javax.annotation.concurrent.*;
 import javax.sql.*;
 
+import org.junit.Assume;
 import org.junit.internal.*;
 
 import to.etc.dbpool.*;
@@ -203,8 +204,10 @@ public class TUtilTestProperties {
 	 * is unconfigured.
 	 */
 	static public final void assumeDatabase() {
-		if(!hasDbConfig())
+		if(!hasDbConfig()) {
+			Assume.assumeFalse("The database is not available", true);
 			throw new AssumptionViolatedException("The database is not available");
+		}
 //		Assume.assumeTrue(hasDbConfig());
 	}
 

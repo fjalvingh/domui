@@ -17,7 +17,7 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on May 24, 2013
  */
-public class TestJdbcSelector extends TestQsqlBase {
+public class TestDbJdbcSelector extends TestQsqlBase {
 
 	private static String render(QSelection< ? > c) throws Exception {
 		QQueryRenderer r = new QQueryRenderer();

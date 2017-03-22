@@ -29,10 +29,13 @@ import java.util.*;
 
 import org.junit.*;
 
+import org.junit.experimental.categories.Category;
+import to.etc.puzzler.GroupUsesDatabase;
 import to.etc.webapp.qsql.*;
 import to.etc.webapp.query.*;
 
-public class TestCompound extends TestQsqlBase {
+@Category(GroupUsesDatabase.class)
+public class TestDbCompound extends TestQsqlBase {
 
 	@Test
 	public void testCompoundSQL1() throws Exception {

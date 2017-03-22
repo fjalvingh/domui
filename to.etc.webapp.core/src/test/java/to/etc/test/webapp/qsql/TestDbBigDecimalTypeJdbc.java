@@ -16,7 +16,7 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on Jul 18, 2014
  */
-public class TestBigDecimalTypeJdbc extends TestQsqlBase {
+public class TestDbBigDecimalTypeJdbc extends TestQsqlBase {
 
 	@Test
 	public void testBigDecimalTypeMappingNonnull() throws Exception {

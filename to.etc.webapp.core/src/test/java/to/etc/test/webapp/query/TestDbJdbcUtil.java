@@ -5,7 +5,7 @@ import org.junit.*;
 import to.etc.test.webapp.qsql.*;
 import to.etc.webapp.qsql.*;
 
-public class TestJdbcUtil extends TestQsqlBase {
+public class TestDbJdbcUtil extends TestQsqlBase {
 
 	@Test
 	public void testUpdatingCallableStatement() throws Exception {
