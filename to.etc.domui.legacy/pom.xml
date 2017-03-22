@@ -5,12 +5,12 @@
     <parent>
         <groupId>to.etc.domui</groupId>
         <artifactId>to.etc.domui.parent</artifactId>
-        <version>1.0</version>
+        <version>1.1-SNAPSHOT</version>
         <relativePath>../parent</relativePath>
     </parent>
 
     <artifactId>to.etc.domui.legacy</artifactId>
-    <packaging>jar</packaging>
+    <version>1.1-SNAPSHOT</version>
 
     <name>domui :: domui-legacy</name>
     <description>Legacy / deprecated DomUI code</description>
