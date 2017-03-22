@@ -643,6 +643,19 @@
                 </configuration>
             </plugin>
 
+            <!-- Needed to disable release profile from release plugin, see http://central.sonatype.org/pages/apache-maven.html -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.3</version>
+                <configuration>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <useReleaseProfile>false</useReleaseProfile>
+                    <releaseProfiles>release</releaseProfiles>
+                    <goals>deploy</goals>
+                </configuration>
+            </plugin>
+
             <!--
                   <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
