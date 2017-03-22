@@ -70,6 +70,7 @@
         <jericho.version>3.4</jericho.version>
         <hibernate.core.version>3.6.10.Final</hibernate.core.version>
         <gnu.regexp.version>1.1.4</gnu.regexp.version>
+        <jetty.version>9.3.8.v20160314</jetty.version>
 
         <xml-apis.version>2.0.2</xml-apis.version>
         <com.ibm.icu.version>58.2</com.ibm.icu.version>

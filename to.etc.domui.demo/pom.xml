@@ -11,7 +11,7 @@
 
     <groupId>to.etc</groupId>
     <artifactId>to.etc.domui.demo</artifactId>
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
 
     <name>etc.to.domui.demo</name>
     <description>The DomUI user interface library :: demo webapp and test web code</description>
@@ -148,6 +148,11 @@
             <artifactId>jericho-html</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlets</artifactId>
+        </dependency>
+
         <!-- Test dependencies  -->
         <dependency>
             <groupId>junit</groupId>
@@ -155,4 +160,44 @@
             <scope>compile</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <finalName>demo</finalName>
+        <plugins>
+            <plugin>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <overlays>
+                        <overlay>
+                            <groupId>to.etc</groupId>
+                            <artifactId>to.etc.domui.demo.web</artifactId>
+                        </overlay>
+                    </overlays>
+                    <webResources>
+                        <resource>
+                            <directory>src/main/webapp</directory>
+                            <filtering>true</filtering>
+                            <includes>
+                                <include>index.html</include>
+                            </includes>
+                        </resource>
+                    </webResources>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-maven-plugin</artifactId>
+                <configuration>
+                    <scanIntervalSeconds>5</scanIntervalSeconds>
+                    <webApp>
+                        <baseResource implementation="org.eclipse.jetty.util.resource.ResourceCollection">
+                            <resourcesAsCSV>${basedir}/../../shared/web/src/main/webapp,${basedir}/src/main/webapp</resourcesAsCSV>
+                        </baseResource>
+                        <webInfIncludeJarPattern>^$</webInfIncludeJarPattern>
+                        <containerIncludeJarPattern>^$</containerIncludeJarPattern>
+                    </webApp>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
