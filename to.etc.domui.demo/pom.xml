@@ -25,6 +25,10 @@
         </site>
     </distributionManagement>
 
+    <properties>
+        <jetty.http.port>8088</jetty.http.port>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -152,9 +156,14 @@
             <artifactId>jericho-html</artifactId>
         </dependency>
 
+        <!--<dependency>-->
+            <!--<groupId>org.eclipse.jetty</groupId>-->
+            <!--<artifactId>jetty-servlets</artifactId>-->
+        <!--</dependency>-->
+
         <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-servlets</artifactId>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derby</artifactId>
         </dependency>
 
         <dependency>
@@ -201,11 +210,15 @@
                     <scanIntervalSeconds>5</scanIntervalSeconds>
                     <webApp>
                         <baseResource implementation="org.eclipse.jetty.util.resource.ResourceCollection">
-                            <resourcesAsCSV>${basedir}/../../shared/web/src/main/webapp,${basedir}/src/main/webapp</resourcesAsCSV>
+                            <!--<resourcesAsCSV>${basedir}/../../shared/web/src/main/webapp,${basedir}/src/main/webapp</resourcesAsCSV>-->
+                            <resourcesAsCSV>${basedir}/src/main/webapp</resourcesAsCSV>
                         </baseResource>
                         <webInfIncludeJarPattern>^$</webInfIncludeJarPattern>
                         <containerIncludeJarPattern>^$</containerIncludeJarPattern>
                     </webApp>
+                    <httpConnector>
+                        <port>${jetty.http.port}</port>
+                    </httpConnector>
                 </configuration>
             </plugin>
         </plugins>

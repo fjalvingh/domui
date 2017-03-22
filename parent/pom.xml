@@ -69,9 +69,11 @@
         <batik.version>1.7</batik.version>
         <jericho.version>3.4</jericho.version>
         <hibernate.core.version>3.6.10.Final</hibernate.core.version>
+        <javassist.version>3.20.0-GA</javassist.version>
         <gnu.regexp.version>1.1.4</gnu.regexp.version>
         <jetty.version>9.3.8.v20160314</jetty.version>
         <selenium.version>3.3.1</selenium.version>
+        <derby.version>10.13.1.1</derby.version>
 
         <xml-apis.version>2.0.2</xml-apis.version>
         <com.ibm.icu.version>58.2</com.ibm.icu.version>
@@ -336,10 +338,24 @@
                 <version>${hibernate.core.version}</version>
             </dependency>
 
+            <!-- https://mvnrepository.com/artifact/org.javassist/javassist -->
+            <dependency>
+                <groupId>org.javassist</groupId>
+                <artifactId>javassist</artifactId>
+                <version>${javassist.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.seleniumhq.selenium</groupId>
                 <artifactId>selenium-java</artifactId>
                 <version>${selenium.version}</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.apache.derby/derby -->
+            <dependency>
+                <groupId>org.apache.derby</groupId>
+                <artifactId>derby</artifactId>
+                <version>${derby.version}</version>
             </dependency>
 
             <!-- Own -->
