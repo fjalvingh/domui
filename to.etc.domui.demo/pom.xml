@@ -203,11 +203,14 @@
                     </webResources>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-maven-plugin</artifactId>
                 <configuration>
                     <scanIntervalSeconds>5</scanIntervalSeconds>
+                    <stopPort>8089</stopPort>
+                    <stopKey>furkelheim</stopKey>
                     <webApp>
                         <baseResource implementation="org.eclipse.jetty.util.resource.ResourceCollection">
                             <!--<resourcesAsCSV>${basedir}/../../shared/web/src/main/webapp,${basedir}/src/main/webapp</resourcesAsCSV>-->
@@ -221,6 +224,30 @@
                         <port>${jetty.http.port}</port>
                     </httpConnector>
                 </configuration>
+
+                <!-- Want to use this for integration tests. -->
+                <executions>
+                    <execution>
+                        <id>start-jetty</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+                        <configuration>
+                            <scanIntervalSeconds>0</scanIntervalSeconds>
+                            <daemon>true</daemon> <!-- IntelliJ marks this as error but it is valid, see http://stackoverflow.com/questions/34996128/maven-jetty-plugin-daemon-element-not-allowed-here -->
+                            <stopPort>8089</stopPort>
+                            <stopKey>furkelheim</stopKey>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>stop-jetty</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
