@@ -24,6 +24,34 @@
         <url>https://etc.to/</url>
     </organization>
 
+    <licenses>
+        <license>
+            <name>GNU Lesser General Public License, version 2.1</name>
+            <url>https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html</url>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:https://github.com/fjalvingh/domui</connection>
+        <developerConnection>scm:git:git@gitlab.com:fjalvingh/domui</developerConnection>
+        <url>https://gitlab.com/fjalvingh/domui/</url>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>jal</id>
+            <name>Frits Jalvingh</name>
+            <email>jal@etc.to</email>
+            <organization>etc.to</organization>
+            <organizationUrl>https://etc.to/</organizationUrl>
+            <roles>
+                <role>architect</role>
+                <role>developer</role>
+            </roles>
+            <timezone>+1</timezone>
+        </developer>
+    </developers>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
