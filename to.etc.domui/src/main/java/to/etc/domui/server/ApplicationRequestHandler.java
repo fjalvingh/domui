@@ -1366,8 +1366,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		JSTemplate xt = m_exceptionTemplate;
 		if(xt == null) {
 			JSTemplateCompiler jtc = new JSTemplateCompiler();
-			if(true) {
-				File src = new File(getClass().getResource("exceptionTemplate.html").getFile());
+			File src = new File(getClass().getResource("exceptionTemplate.html").getFile());
+			if(src.exists() && src.isFile()) {
 				Reader r = new FileReader(src);
 				try {
 					xt = jtc.compile(r, src.getAbsolutePath());
