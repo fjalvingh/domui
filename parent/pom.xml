@@ -99,6 +99,7 @@
         <to.etc.domui.legacy.version>1.0</to.etc.domui.legacy.version>
         <to.etc.syntaxer.version>1.0</to.etc.syntaxer.version>
         <to.etc.domui.selenium.version>1.0</to.etc.domui.selenium.version>
+        <to.etc.pater.version>1.0</to.etc.pater.version>
 
     </properties>
 
@@ -374,6 +375,11 @@
             </dependency>
             <dependency>
                 <groupId>to.etc</groupId>
+                <artifactId>to.etc.pater</artifactId>
+                <version>${to.etc.pater.version}-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>to.etc</groupId>
                 <artifactId>to.etc.domui.hibutil</artifactId>
                 <version>${to.etc.domui.hibutil.version}-SNAPSHOT</version>
             </dependency>
@@ -495,6 +501,7 @@
 <!--                    <excludedGroups>to.etc.puzzler.GroupUsesDatabase</excludedGroups> -->
                     <excludes>
                         <exclude>**/*Db*.java</exclude>
+                        <exclude>**/*Wd*.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>

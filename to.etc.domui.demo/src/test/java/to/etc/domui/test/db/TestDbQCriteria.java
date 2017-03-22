@@ -8,7 +8,7 @@ import org.junit.*;
 import to.etc.domuidemo.db.*;
 import to.etc.webapp.query.*;
 
-public class TestQCriteria {
+public class TestDbQCriteria {
 	/** The dc used for each test. Created and deleted by setup fixure */
 	private QDataContext m_dc;
 

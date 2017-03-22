@@ -19,7 +19,7 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 15, 2014
  */
-public class TestBeforeImages {
+public class TestDbBeforeImages {
 	private QDataContext m_dc;
 
 	@BeforeClass

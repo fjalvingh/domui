@@ -72,6 +72,10 @@
         </dependency>
         <dependency>
             <groupId>to.etc</groupId>
+            <artifactId>to.etc.domui.selenium</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>to.etc</groupId>
             <artifactId>to.etc.domui.legacy</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
@@ -153,6 +157,11 @@
             <artifactId>jetty-servlets</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-java</artifactId>
+        </dependency>
+
         <!-- Test dependencies  -->
         <dependency>
             <groupId>junit</groupId>
@@ -167,12 +176,13 @@
             <plugin>
                 <artifactId>maven-war-plugin</artifactId>
                 <configuration>
-                    <overlays>
+<!---                    <overlays>
                         <overlay>
                             <groupId>to.etc</groupId>
                             <artifactId>to.etc.domui.demo.web</artifactId>
                         </overlay>
                     </overlays>
+-->
                     <webResources>
                         <resource>
                             <directory>src/main/webapp</directory>

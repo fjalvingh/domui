@@ -9,7 +9,7 @@ import to.etc.domuidemo.db.*;
 import to.etc.util.*;
 import to.etc.webapp.query.*;
 
-public class TestObservableCollections {
+public class TestDbObservableCollections {
 	@BeforeClass
 	static public void beforeClass() throws Exception {
 		InitTestDB.require();

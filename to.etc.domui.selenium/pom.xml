@@ -28,6 +28,10 @@
     <dependencies>
         <dependency>
             <groupId>to.etc</groupId>
+            <artifactId>to.etc.pater</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>to.etc</groupId>
             <artifactId>to.etc.domui</artifactId>
         </dependency>
 
