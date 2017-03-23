@@ -152,7 +152,7 @@ final public class ComponentPropertyBinding implements IBinding {
 				//-- Type erasure, deep, deep sigh. Can the control tell us the actual type contained?
 				if(m_control instanceof ITypedControl) {
 					ITypedControl<?> typedControl = (ITypedControl<?>) m_control;
-					controlType = typedControl.getActualType();
+					controlType = fixBoxingDisaster(typedControl.getActualType());
 				}
 			}
 
