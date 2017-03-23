@@ -12,11 +12,6 @@
     <url>./</url>
 
     <distributionManagement>
-        <site>
-            <id>maven</id>
-            <name>maven</name>
-            <url>./</url>
-        </site>
         <snapshotRepository>
             <id>ossrh</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
