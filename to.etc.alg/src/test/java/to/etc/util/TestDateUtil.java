@@ -85,6 +85,11 @@ public class TestDateUtil {
 	 */
 	@Test
 	public final void testMissingTime() {
+		TimeZone zone = TimeZone.getDefault();
+		if(! zone.getID().equals("Europe/Amsterdam")) {
+			TimeZone.setDefault(TimeZone.getTimeZone("Europe/Amsterdam"));
+		}
+
 		Calendar cal = DateUtil.getCalendar();
 		DateUtil.setDate(cal, 1937, Calendar.JULY, 1);
 		DateUtil.clearTime(cal);
@@ -102,6 +107,8 @@ public class TestDateUtil {
 		DateUtil.clearTime(cal19400516);
 		cal19400516.setLenient(false);
 		Assert.assertEquals(cal19400516.getTime(), DateUtil.dateFor(1940, Calendar.MAY, 16, 1, 40, 0, 0));
+
+		TimeZone.setDefault(zone);
 	}
 
 }

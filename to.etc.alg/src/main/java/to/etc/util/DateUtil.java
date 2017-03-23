@@ -758,7 +758,11 @@ final public class DateUtil {
 	 */
 	@Nonnull
 	public static Calendar getCalendar() {
-		return new GregorianCalendarFixDutchTime(TimeZone.getDefault(), Locale.getDefault(Locale.Category.FORMAT));
+		TimeZone zone = TimeZone.getDefault();
+		String id = zone.getID();
+		if(id.equals("Europe/Amsterdam"))
+			return new GregorianCalendarFixDutchTime(zone, Locale.getDefault(Locale.Category.FORMAT));
+		return new GregorianCalendar(zone, Locale.getDefault(Locale.Category.FORMAT));
 	}
 
 	/**
