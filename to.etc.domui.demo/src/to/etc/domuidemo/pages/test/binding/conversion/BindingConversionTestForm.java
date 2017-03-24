@@ -1,4 +1,4 @@
-package to.etc.domui.test.binding.conversion;
+package to.etc.domuidemo.pages.test.binding.conversion;
 
 import to.etc.domui.component.binding.IBindingConverter;
 import to.etc.domui.component.buttons.DefaultButton;

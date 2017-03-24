@@ -1,4 +1,4 @@
-package to.etc.domui.test.binding.order1;
+package to.etc.domuidemo.pages.test.binding.order1;
 
 import to.etc.domui.component2.combo.ComboLookup2;
 import to.etc.domui.component2.form4.FormBuilder;

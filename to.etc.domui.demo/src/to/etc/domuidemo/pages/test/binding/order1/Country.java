@@ -1,4 +1,4 @@
-package to.etc.domui.test.binding.order1;
+package to.etc.domuidemo.pages.test.binding.order1;
 
 import javax.annotation.DefaultNonNull;
 import java.util.ArrayList;

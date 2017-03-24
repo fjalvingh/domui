@@ -5,13 +5,13 @@
     <deployment>
       <artifact name="to.etc.domui.demo:Web exploded">
         <settings>
-          <option name="CONTEXT_PATH" value="/domui" />
+          <option name="CONTEXT_PATH" value="/demo" />
         </settings>
       </artifact>
     </deployment>
     <server-settings>
       <option name="BASE_DIRECTORY_NAME" value="Unnamed_domui" />
-      <option name="HTTP_PORT" value="8082" />
+      <option name="HTTP_PORT" value="8088" />
     </server-settings>
     <predefined_log_file id="Tomcat" enabled="true" />
     <predefined_log_file id="Tomcat Catalina" enabled="true" />
