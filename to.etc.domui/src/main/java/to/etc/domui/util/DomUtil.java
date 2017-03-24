@@ -52,6 +52,8 @@ import to.etc.webapp.query.*;
 final public class DomUtil {
 	static public final Logger USERLOG = LoggerFactory.getLogger("to.etc.domui.userAction");
 
+	static public final String DOCROOT = "https://etc.to/confluence/";
+
 	static private int m_guidSeed;
 
 	private DomUtil() {}

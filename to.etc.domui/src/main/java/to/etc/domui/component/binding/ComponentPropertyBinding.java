@@ -31,6 +31,7 @@ import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IDisplayControl;
 import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IValueAccessor;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.nls.CodeException;
@@ -97,6 +98,8 @@ final public class ComponentPropertyBinding implements IBinding {
 	public ComponentPropertyBinding(@Nonnull NodeBase control, @Nonnull String controlProperty) {
 		if(control == null)
 			throw new IllegalArgumentException("The control cannot be null.");
+		if(controlProperty.contains("."))
+			throw new ProgrammerErrorException("You cannot bind a Control property dotted path, see "+ DomUtil.DOCROOT+"x/GYA-/");
 		m_control = control;
 		m_controlProperty = MetaManager.getPropertyMeta(control.getClass(), controlProperty);
 	}

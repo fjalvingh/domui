@@ -1,11 +1,12 @@
-package to.etc.domui.test.binding;
+package to.etc.domuidemo.pages.test.binding;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.openqa.selenium.By;
-import to.etc.domui.test.binding.conversion.BindingConversionTestForm;
-import to.etc.domui.test.binding.order1.BindingTypeForm1;
-import to.etc.domui.test.binding.order1.TestBindingOrder1;
+import to.etc.domuidemo.pages.test.binding.conversion.BindingConversionTestForm;
+import to.etc.domuidemo.pages.test.binding.order1.BindingTypeForm1;
+import to.etc.domuidemo.pages.test.binding.order1.DoNotBindControlDottedTestPage;
+import to.etc.domuidemo.pages.test.binding.order1.TestBindingOrder1;
 import to.etc.domui.webdriver.core.AbstractWebDriverTest;
 
 /**
@@ -133,4 +134,15 @@ public class ITTestBindingOrder extends AbstractWebDriverTest {
 		result = wd().getValue("integer");
 		wd().assertEquals(result, "");
 	}
+
+	/**
+	 * See https://etc.to/confluence/x/GYA-/
+	 */
+	@Test
+	public void testDoNotBindDottedControlPath() throws Exception {
+		wd().openScreen(DoNotBindControlDottedTestPage.class);
+		String text = wd().getHtmlText(By.cssSelector(".exc-exception-type"));
+		wd().assertTrue("Should have thrown an exception", text.contains("ProgrammerErrorException"));
+	}
+
 }

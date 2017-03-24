@@ -1919,6 +1919,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		throw new IllegalStateException("This control (" + getClass() + ") does not have a 'value' nor a 'bindValue' property");
 	}
 
+
 	@Nonnull final public ComponentPropertyBinding bind(@Nonnull String componentProperty) {
 		ComponentPropertyBinding binder = new ComponentPropertyBinding(this, componentProperty);
 		addBinding(binder);
