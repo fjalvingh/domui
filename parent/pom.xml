@@ -8,11 +8,11 @@
     <parent>
         <groupId>to.etc.domui</groupId>
         <artifactId>domui</artifactId>
-        <version>1.1-SNAPSHOT</version>
+        <version>1.1</version>
     </parent>
 
     <artifactId>to.etc.domui.parent</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.1</version>
     <packaging>pom</packaging>
 
     <name>domui :: parent</name>
@@ -365,73 +365,73 @@
             <dependency>
                 <groupId>to.etc.domui</groupId>
                 <artifactId>to.etc.logger</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>1.1</version>
                 <!--<version>${to.etc.logger.version}-SNAPSHOT</version>-->
             </dependency>
             <dependency>
                 <groupId>to.etc.domui</groupId>
                 <artifactId>to.etc.jsr305</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>1.1</version>
                 <!--<version>${to.etc.jsr305.version}-SNAPSHOT</version>-->
             </dependency>
             <dependency>
                 <groupId>to.etc.domui</groupId>
                 <artifactId>to.etc.alg</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>1.1</version>
                 <!--<version>${to.etc.alg.version}-SNAPSHOT</version>-->
             </dependency>
             <dependency>
                 <groupId>to.etc.domui</groupId>
                 <artifactId>to.etc.db</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>1.1</version>
                 <!--<version>${to.etc.db.version}-SNAPSHOT</version>-->
             </dependency>
             <dependency>
                 <groupId>to.etc.domui</groupId>
                 <artifactId>to.etc.webapp.core</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>1.1</version>
                 <!--<version>${to.etc.webapp.core.version}-SNAPSHOT</version>-->
             </dependency>
             <dependency>
                 <groupId>to.etc.domui</groupId>
                 <artifactId>to.etc.domui</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>1.1</version>
                 <!--<version>${to.etc.domui.version}-SNAPSHOT</version>-->
             </dependency>
             <dependency>
                 <groupId>to.etc.domui</groupId>
                 <artifactId>to.etc.pater</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>1.1</version>
                 <!--<version>${to.etc.pater.version}-SNAPSHOT</version>-->
             </dependency>
             <dependency>
                 <groupId>to.etc.domui</groupId>
                 <artifactId>to.etc.domui.hibutil</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>1.1</version>
                 <!--<version>${to.etc.domui.hibutil.version}-SNAPSHOT</version>-->
             </dependency>
             <dependency>
                 <groupId>to.etc.domui</groupId>
                 <artifactId>to.etc.domui.legacy</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>1.1</version>
                 <!--<version>${to.etc.domui.legacy.version}-SNAPSHOT</version>-->
             </dependency>
             <dependency>
                 <groupId>to.etc.domui</groupId>
                 <artifactId>to.etc.syntaxer</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>1.1</version>
                 <!--<version>${to.etc.syntaxer.version}-SNAPSHOT</version>-->
             </dependency>
             <dependency>
                 <groupId>to.etc.domui</groupId>
                 <artifactId>to.etc.domui.formbuilder</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>1.1</version>
                 <!--<version>${to.etc.domui.formbuilder.version}-SNAPSHOT</version>-->
             </dependency>
             <dependency>
                 <groupId>to.etc.domui</groupId>
                 <artifactId>to.etc.domui.selenium</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>1.1</version>
                 <!--<version>${to.etc.domui.selenium.version}-SNAPSHOT</version>-->
             </dependency>
 
@@ -756,4 +756,8 @@
         </pluginManagement>
     </build>
 
+
+  <scm>
+    <tag>domui-1.1</tag>
+  </scm>
 </project>
