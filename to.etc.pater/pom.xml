@@ -4,12 +4,12 @@
     <parent>
         <groupId>to.etc.domui</groupId>
         <artifactId>to.etc.domui.parent</artifactId>
-        <version>1.1</version>
+        <version>1.2-SNAPSHOT</version>
         <relativePath>../parent</relativePath>
     </parent>
 
     <artifactId>to.etc.pater</artifactId>
-    <version>1.1</version>
+    <version>1.2-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>domui :: pater</name>
