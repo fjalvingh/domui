@@ -9,11 +9,7 @@
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="to.etc.alg" />
-    <orderEntry type="module" module-name="to.etc.domui" />
     <orderEntry type="module" module-name="lib-hibernate" />
-    <orderEntry type="module" module-name="jsr305" />
-    <orderEntry type="module" module-name="to.etc.db" />
     <orderEntry type="module" module-name="bin-slf4j" />
     <orderEntry type="module" module-name="bin-junit-4.11" />
     <orderEntry type="inheritedJdk" />

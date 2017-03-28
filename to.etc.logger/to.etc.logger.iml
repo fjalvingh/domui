@@ -19,7 +19,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="module" module-name="bin-slf4j" />
-    <orderEntry type="module" module-name="jsr305" />
     <orderEntry type="module" module-name="bin-junit-4.11" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.23" level="project" />
     <orderEntry type="library" name="Maven: commons-io:commons-io:2.5" level="project" />

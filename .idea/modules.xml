@@ -9,7 +9,6 @@
       <module fileurl="file://$PROJECT_DIR$/bin-junit-4.8.2/bin-junit-4.8.2.iml" filepath="$PROJECT_DIR$/bin-junit-4.8.2/bin-junit-4.8.2.iml" />
       <module fileurl="file://$PROJECT_DIR$/bin-slf4j/bin-slf4j.iml" filepath="$PROJECT_DIR$/bin-slf4j/bin-slf4j.iml" />
       <module fileurl="file://$PROJECT_DIR$/domui.iml" filepath="$PROJECT_DIR$/domui.iml" />
-      <module fileurl="file://$PROJECT_DIR$/domui-public.iml" filepath="$PROJECT_DIR$/domui-public.iml" />
       <module fileurl="file://$PROJECT_DIR$/jsr305/jsr305.iml" filepath="$PROJECT_DIR$/jsr305/jsr305.iml" group="Others" />
       <module fileurl="file://$PROJECT_DIR$/lib-hibernate/lib-hibernate.iml" filepath="$PROJECT_DIR$/lib-hibernate/lib-hibernate.iml" group="Others" />
       <module fileurl="file://$PROJECT_DIR$/lib-jericho/lib-jericho.iml" filepath="$PROJECT_DIR$/lib-jericho/lib-jericho.iml" group="Others" />

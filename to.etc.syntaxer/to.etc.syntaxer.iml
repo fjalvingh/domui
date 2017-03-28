@@ -15,7 +15,6 @@
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="to.etc.alg" />
     <orderEntry type="module-library">
       <library name="gnu-regexp-1.1.4.jar">
         <CLASSES>

@@ -20,7 +20,6 @@
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="bin-j2ee-1.4" />
-    <orderEntry type="module" module-name="to.etc.alg" />
     <orderEntry type="module-library" exported="">
       <library name="jCharts-0.7.5.jar">
         <CLASSES>
@@ -30,14 +29,11 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module" module-name="jsr305" />
-    <orderEntry type="module" module-name="to.etc.webapp.core" exported="" />
     <orderEntry type="module" module-name="bin-batik-1.7" />
     <orderEntry type="module" module-name="bin-slf4j" />
     <orderEntry type="module" module-name="lib-jericho" />
     <orderEntry type="module" module-name="bin-junit-4.11" />
     <orderEntry type="inheritedJdk" />
-    <orderEntry type="module" module-name="to.etc.logger" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.23" level="project" />
     <orderEntry type="library" name="Maven: javax.servlet:servlet-api:2.5" level="project" />
     <orderEntry type="library" name="Maven: javax.el:el-api:1.1" level="project" />

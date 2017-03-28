@@ -11,10 +11,7 @@
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="bin-j2ee-1.4" />
-    <orderEntry type="module" module-name="to.etc.alg" />
-    <orderEntry type="module" module-name="to.etc.db" />
     <orderEntry type="module" module-name="bin-slf4j" />
-    <orderEntry type="module" module-name="jsr305" />
     <orderEntry type="module" module-name="bin-junit-4.11" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.23" level="project" />
