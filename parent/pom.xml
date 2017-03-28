@@ -529,9 +529,11 @@
                                 <goals>
                                     <goal>sign</goal>
                                 </goals>
+<!--
                                 <configuration>
                                     <keyname>10816133</keyname>
                                 </configuration>
+-->
                             </execution>
                         </executions>
                     </plugin>
