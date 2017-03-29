@@ -1,6 +1,22 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <!--
+        It will forever be
+        A source of complete amazement to me
+        That a tool, as flexible as a lead door
+        Is loved by developer, architect, and even more
+        While I, the poor sod maintaining this build
+        Just hope that Maven would get killed.
+
+        Writing XML, in copious amounts
+        Something that even a machine astounds
+        Like spells from the Necronomicon - albeit less sweet
+        And with the same effects, often sh*t...
+
+        Humane people don't let people write XML.
+    -->
+
     <groupId>to.etc.domui</groupId>
     <artifactId>domui</artifactId>
     <version>1.2-SNAPSHOT</version>
