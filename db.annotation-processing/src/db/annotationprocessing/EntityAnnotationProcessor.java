@@ -140,20 +140,20 @@ public class EntityAnnotationProcessor extends AbstractProcessor {
 						}
 					}
 				}
-				//stupid trick, eclipse will not compile ;(
-				File f = new File(jf.toUri());
-				File dest = new File(f.getAbsolutePath().replace('\\', '/').replace("/.apt_generated/", "/src/"));
-				dest.getParentFile().mkdirs();
-				if(!f.renameTo(dest)) {
-					messager.printMessage(Kind.ERROR, "cannot move file " + f + " to src folder in " + getClass(), classElement);
-				}
-
-				f = new File(jf2.toUri());
-				dest = new File(f.getAbsolutePath().replace('\\', '/').replace("/.apt_generated/", "/src/"));
-				dest.getParentFile().mkdirs();
-				if(!f.renameTo(dest)) {
-					messager.printMessage(Kind.ERROR, "cannot move file " + f + " to src folder in " + getClass(), classElement);
-				}
+//				//stupid trick, eclipse will not compile ;(
+//				File f = new File(jf.toUri());
+//				File dest = new File(f.getAbsolutePath().replace('\\', '/').replace("/.apt_generated/", "/src/"));
+//				dest.getParentFile().mkdirs();
+//				if(!f.renameTo(dest)) {
+//					messager.printMessage(Kind.ERROR, "cannot move file " + f + " to src folder in " + getClass(), classElement);
+//				}
+//
+//				f = new File(jf2.toUri());
+//				dest = new File(f.getAbsolutePath().replace('\\', '/').replace("/.apt_generated/", "/src/"));
+//				dest.getParentFile().mkdirs();
+//				if(!f.renameTo(dest)) {
+//					messager.printMessage(Kind.ERROR, "cannot move file " + f + " to src folder in " + getClass(), classElement);
+//				}
 			}
 		}
 		return false;

@@ -1,0 +1,106 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>to.etc.domui</groupId>
+    <artifactId>domui</artifactId>
+    <version>1.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>domui</name>
+    <description>The DomUI User Interface library</description>
+
+    <url>./</url>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+
+    <organization>
+        <name>etc.to</name>
+        <url>https://etc.to/</url>
+    </organization>
+
+    <licenses>
+        <license>
+            <name>GNU Lesser General Public License, version 2.1</name>
+            <url>https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html</url>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:https://github.com/fjalvingh/domui</connection>
+        <developerConnection>scm:git:git@github.com:fjalvingh/domui</developerConnection>
+        <url>https://github.com/fjalvingh/domui/</url>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>jal</id>
+            <name>Frits Jalvingh</name>
+            <email>jal@etc.to</email>
+            <organization>etc.to</organization>
+            <organizationUrl>https://etc.to/</organizationUrl>
+            <roles>
+                <role>architect</role>
+                <role>developer</role>
+            </roles>
+            <timezone>+1</timezone>
+        </developer>
+    </developers>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven-project-info-reports-plugin.version>2.8.1</maven-project-info-reports-plugin.version>
+    </properties>
+
+    <prerequisites>
+        <maven>3.0.5</maven>
+    </prerequisites>
+
+    <modules>
+        <module>parent</module>
+        <module>jsr305</module>
+        <module>to.etc.logger</module>
+        <module>to.etc.alg</module>
+        <module>to.etc.db</module>
+        <module>to.etc.pater</module>
+        <module>to.etc.syntaxer</module>
+        <module>to.etc.webapp.core</module>
+        <module>to.etc.domui</module>
+        <module>to.etc.domui.hibutil</module>
+        <module>to.etc.domui.legacy</module>
+        <module>to.etc.domui.formbuilder</module>
+        <module>to.etc.domui.selenium</module>
+        <module>to.etc.domui.demo</module>
+
+    </modules>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>${maven-project-info-reports-plugin.version}</version>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>index</report>
+                            <report>dependencies</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+                <configuration>
+                    <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
+</project>

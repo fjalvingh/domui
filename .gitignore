@@ -18,10 +18,19 @@ to.etc.domui/.refactorings
 to.etc.domui/src/resources/themes/blue/style.theme.css.bak
 *.bak
 */maven
+*.versionsBackup
+*.releaseBackup
+release.properties
+
+out
+target
+*.log
+
 
 to.etc.domui.demo/derby.log
 RemoteSystemsTempFiles
 
+.idea
 .idea/workspace.xml
 .idea/tasks.xml
 .idea/dataSources.ids

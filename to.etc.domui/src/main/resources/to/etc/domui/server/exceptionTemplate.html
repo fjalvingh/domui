@@ -1,0 +1,238 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<link rel="stylesheet" type="text/css" href="<%= stylesheet %>"></link>
+	<script type="text/javascript" src="$js/jquery.js"></script>
+<style type="text/css"><!--
+body, html {
+}
+body {
+}
+.exc-top {
+	position: absolute;
+	top: 0px;
+	height: 55px;
+	left: 0px;
+	right: 0px;
+	background: url(<%= theme %>exc-bugs-ttl.png) repeat-x;
+	padding: 15px;
+}
+.exc-left {
+	position: absolute;
+	right: 0px;
+	left: 0px;
+	top: 55px;
+	bottom: 50px;
+	background: white;
+	overflow: auto;
+	padding: 5px;
+}
+.exc-bottom {
+	position: absolute;
+	left: 0px;
+	right: 0px;
+	bottom: 0px;
+	height: 50px;
+}
+#ping {
+	position: absolute;
+	right: 0px;
+	top: 10px;
+	width: auto;
+	bottom:10px;
+}
+
+.exc-title {
+	display: inline;
+	font-size: 20px;
+	font-weight: bold;
+	color: black;
+	padding: 5px 10px;
+	background-color: #ff9e95;
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	border-radius: 10px;
+	border: 1px dotted red;
+}
+
+.exc-tbl-lbl {
+	min-width: 120px;
+	font-weight: bolder;
+}
+.exc-subtitle {
+	font-size: 12px;
+	font-weight: bold;
+	font-style: italic;
+}
+.exc-stacktrace {
+	max-height: 400px;
+	overflow: auto;
+}
+.listtbl {
+	background: white;
+}
+
+.listtbl TD {
+	padding: 1px 2px;
+	border-left: 1px solid #aaaaaa;
+	vertical-align: top;
+	line-height: 130%;
+}
+
+.listtbl THEAD TH {
+	font-weight: bold;
+	padding: 3px;
+	border-left: 1px solid #7c7c7c;
+	text-align: left;
+}
+
+--></style>
+<script type="text/javascript"><!--
+var theme = "<%= theme %>";
+
+function linkClicked(trace) {
+	jsonCall({element:trace}, function(resp) {
+		var message = resp.message;
+		if(message != undefined && message != "") {
+			alert(message);
+		}
+	});
+}
+
+function startTrying() {
+	setTimeout(function() {
+		tryReload();
+	}, 500);
+}
+pingpong = false;
+lastTry = 0;
+
+function tryReload() {
+	$.ajax({
+		type: "GET",
+		url:"to.etc.domui.parts.OpenStacktracePart.part",
+		data: {check: "one"},
+		dataType: "json",
+		success: function(resp) {
+			var restart = true;
+			try {
+				pingpong = ! pingpong;
+				var last = resp.reload;
+				var ping = $("#ping");
+
+				var im = theme + (pingpong ? "exc-connect-1.png" : "exc-connect-2.png");
+				$("#pingi").attr("src", im);
+				$("#pingt").html(""+last);
+				
+				if(lastTry == 0) {
+					lastTry = last;
+				} else if(last > lastTry) {
+					lastTry = last;
+					window.location.href = window.location.href;
+					restart = false;
+				}
+			} finally {
+				if(restart)
+					startTrying();
+			}
+		},
+		error: function(text, status, xdr) {
+			startTrying();
+		}
+	});
+}
+
+function jsonCall(fields, sfn) {
+	try {
+		$.ajax({
+			type: "GET",
+			url:"to.etc.domui.parts.OpenStacktracePart.part",
+			data: fields,
+			dataType: "json",
+			success: sfn,
+			error: function(text, status, xdr) {
+				alert("Cannot connect to server");
+			}
+		});
+	} catch(x) {
+		$("#exc-error").html("Error: "+status);
+	}
+}
+
+startTrying();
+
+--></script>
+</head>
+<body id="_1">
+	<div class="exc-top">
+		<div class="exc-title">Whoops: an exception occurred...</div>
+		<div id="ping"></div>
+	</div>
+	<div class="exc-left">
+		<div class="exc-subtitle">Page and exception info</div>
+		<table cellspacing="1" cellpadding="1" border="0">
+			<tr>
+				<td class="exc-tbl-lbl">URL</td>
+				<td class="exc-tbl-v"><%= ctx.getRequestResponse().getRequestURI() %>
+				</td>
+			</tr>
+			<tr>
+				<td class="exc-tbl-lbl">Exception type</td>
+				<td class="exc-tbl-v exc-exception-type"><%= x.getClass().getName() %></td>
+			</tr>
+			<tr>
+				<td class="exc-tbl-lbl">Message</td>
+				<td class="exc-tbl-v exc-exception-message"><pre><%= x.getMessage() %>
+</pre></td>
+			</tr>
+			<tr>
+				<td class="exc-tbl-lbl"></td>
+				<td class="exc-tbl-v">
+				</td>
+			</tr>
+		</table>
+
+		<div class="exc-subtitle">Exception stack trace:</div>
+		<div class="exc-stacktrace"><pre><%= stacktrace %>
+</pre></div>
+
+		<div class="exc-subtitle">Page parameters</div>
+		<%= util.renderParameters() %>
+		
+		<div class="exc-subtitle">Session event log leading up to this...</div>
+		<table class='listtbl'>
+			<thead>
+				<tr>
+					<th>Time</th>
+					<th>cid</th>
+					<th>Page</th>
+					<th>Message</th>
+				</tr>
+			</thead>
+		<% 
+			var llist = util.getUserLog();
+			for(var i = 0; i < llist.size(); i++) {
+				var item = llist.get(i);
+		%>
+			<tr>		
+				<td nowrap="nowrap">-<%= item.time() %></td>
+				<td nowrap="nowrap"><%= item.cid %></td>
+				<td nowrap="nowrap"><%= util.lastName(item.page) %></td>
+				<td><%= item.text %></td>
+			</tr>
+		<% } %>		
+		</table>
+		<div>If you have the <a href="http://domui.org/wiki/bin/view/Documentation/EclipsePlugin" target="_blank">DomUI Eclipse plugin</a> installed, clicking a stack trace entry should open the class in Eclipse.</div>
+	</div>
+	<div class="exc-bottom">
+		<img align="right" src="<%= theme %>/logo-small.png">
+		<div title="Pinging for updates in the code, so that the page can be reloaded after the problem is fixed">
+			<img id="pingi" src="" ><span>Pinging, last reload: </span><span id="pingt">?</span>
+		</div>
+		<div class="exc-error" id="linkerror"></div>
+	</div>
+</body>
+</html>
+
+
