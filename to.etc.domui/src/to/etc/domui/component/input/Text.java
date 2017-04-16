@@ -91,8 +91,6 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	/** If validated this contains the last validation result. */
 	private UIException m_validationResult;
 
-//	private boolean m_wasvalid;
-
 	/**
 	 * T when this input value is a REQUIRED value.
 	 */
@@ -104,13 +102,12 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 */
 	private boolean m_untrimmed;
 
-
 	/**
 	 * @see Text#getEmptyMarker()
 	 */
 	private String m_emptyMarker;
 
-	public static enum NumberMode {
+	public enum NumberMode {
 		NONE, DIGITS, FLOAT,
 	}
 
@@ -123,6 +120,8 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	private String m_validationRegexp;
 
 	private String m_regexpUserString;
+
+	private String m_placeHolder;
 
 	public Text(Class<T> inputClass) {
 		m_inputClass = inputClass;
