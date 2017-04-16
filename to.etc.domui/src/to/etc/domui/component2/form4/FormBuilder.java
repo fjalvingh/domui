@@ -1,12 +1,12 @@
 package to.etc.domui.component2.form4;
 
-import javax.annotation.*;
-
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component2.controlfactory.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.webapp.annotations.*;
+
+import javax.annotation.*;
 
 /**
  * Yet another attempt at a generic form builder, using the Builder pattern. The builder
@@ -62,12 +62,7 @@ final public class FormBuilder {
 	}
 
 	public FormBuilder(@Nonnull final NodeContainer nb) {
-		this(new IAppender() {
-			@Override
-			public void add(NodeBase formNode) {
-				nb.add(formNode);
-			}
-		});
+		this(nb::add);
 	}
 
 	@Nonnull
