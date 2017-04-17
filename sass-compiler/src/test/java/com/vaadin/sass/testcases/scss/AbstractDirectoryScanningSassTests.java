@@ -16,26 +16,16 @@
 
 package com.vaadin.sass.testcases.scss;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import com.vaadin.sass.internal.*;
+import com.vaadin.sass.internal.handler.*;
+import com.vaadin.sass.testcases.scss.SassTestRunner.*;
+import org.apache.commons.io.*;
+import org.junit.*;
+import org.w3c.css.sac.*;
 
-import org.apache.commons.io.IOUtils;
-import org.junit.Assert;
-import org.w3c.css.sac.CSSException;
-import org.w3c.css.sac.CSSParseException;
-
-import com.vaadin.sass.internal.ScssStylesheet;
-import com.vaadin.sass.internal.handler.SCSSDocumentHandler;
-import com.vaadin.sass.internal.handler.SCSSDocumentHandlerImpl;
-import com.vaadin.sass.internal.handler.SCSSErrorHandler;
-import com.vaadin.sass.testcases.scss.SassTestRunner.FactoryTest;
+import java.io.*;
+import java.net.*;
+import java.util.*;
 
 public abstract class AbstractDirectoryScanningSassTests {
 
@@ -89,18 +79,21 @@ public abstract class AbstractDirectoryScanningSassTests {
         SCSSErrorHandler errorHandler = new SCSSErrorHandler() {
             @Override
             public void error(CSSParseException arg0) throws CSSException {
+                arg0.printStackTrace();
                 super.error(arg0);
                 Assert.fail(arg0.getMessage());
             }
 
             @Override
             public void fatalError(CSSParseException arg0) throws CSSException {
+                arg0.printStackTrace();
                 super.error(arg0);
                 Assert.fail(arg0.getMessage());
             }
 
             @Override
             public void traverseError(Exception e) {
+                e.printStackTrace();
                 super.traverseError(e);
                 Assert.fail(e.getMessage());
             }

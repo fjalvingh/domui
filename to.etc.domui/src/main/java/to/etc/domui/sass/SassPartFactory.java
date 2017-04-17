@@ -111,7 +111,9 @@ final public class SassPartFactory implements IBufferedPartFactory, IUrlPart {
 				return null;
 			}
 			try {
-				return new InputSource(new InputStreamReader(ref.getInputStream(), "utf-8"));
+				InputSource inputSource = new InputSource(new InputStreamReader(ref.getInputStream(), "utf-8"));
+				inputSource.setURI(identifier);
+				return inputSource;
 			} catch(Exception x) {
 				throw WrappedException.wrap(x);
 			}
