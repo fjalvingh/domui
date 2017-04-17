@@ -24,11 +24,6 @@
  */
 package to.etc.domui.themes.fragmented;
 
-import java.io.*;
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.server.*;
 import to.etc.domui.themes.*;
 import to.etc.domui.trouble.*;
@@ -36,7 +31,11 @@ import to.etc.domui.util.js.*;
 import to.etc.domui.util.resources.*;
 import to.etc.util.*;
 
-import static to.etc.domui.util.DomUtil.nullChecked;
+import javax.annotation.*;
+import java.io.*;
+import java.util.*;
+
+import static to.etc.domui.util.DomUtil.*;
 
 /**
  * <p>This theme factory uses fragments to create a "theme". A DomUI theme consists of the following:
@@ -348,7 +347,6 @@ public class FragmentedThemeFactory {
 
 	/**
 	 * Walks the inheritance stack, and loads all fragments present there as properties too.
-	 * @param rx
 	 * @throws Exception
 	 */
 	private void loadFragments(String setname, String fragmentSuffix, String ignoreName) throws Exception {
