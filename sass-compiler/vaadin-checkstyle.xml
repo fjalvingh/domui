@@ -85,11 +85,11 @@
 	</module>
 
 	<!-- Checks for Headers -->
-	<!-- See http://checkstyle.sf.net/config_header.html -->
-	<module name="Header">
-		<property name="headerFile" value="header" />
-		<property name="fileExtensions" value="java" />
-	</module>
+	<!--&lt;!&ndash; See http://checkstyle.sf.net/config_header.html &ndash;&gt;-->
+	<!--<module name="Header">-->
+		<!--<property name="headerFile" value="header" />-->
+		<!--<property name="fileExtensions" value="java" />-->
+	<!--</module>-->
 
 	<module name="TreeWalker">
 		<property name="severity" value="warning" />
