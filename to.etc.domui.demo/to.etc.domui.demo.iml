@@ -58,9 +58,7 @@
     <orderEntry type="module" module-name="bin-j2ee-1.4" />
     <orderEntry type="module" module-name="to.etc.db" />
     <orderEntry type="module" module-name="lib-selenium" />
-    <orderEntry type="module" module-name="to.etc.domui.selenium" />
     <orderEntry type="module" module-name="to.etc.domui.legacy" />
-    <orderEntry type="module" module-name="to.etc.syntaxer" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.23" level="project" />
     <orderEntry type="library" name="Maven: javax.servlet:servlet-api:2.5" level="project" />
     <orderEntry type="library" name="Maven: javax.el:el-api:1.1" level="project" />
@@ -82,10 +80,8 @@
     <orderEntry type="library" name="Maven: org.hibernate.javax.persistence:hibernate-jpa-2.0-api:1.0.1.Final" level="project" />
     <orderEntry type="library" name="Maven: javax.transaction:jta:1.1" level="project" />
     <orderEntry type="library" name="Maven: org.javassist:javassist:3.20.0-GA" level="project" />
-    <orderEntry type="module" module-name="to.etc.domui.selenium" />
     <orderEntry type="module" module-name="to.etc.pater" />
     <orderEntry type="library" name="Maven: to.etc.domui:to.etc.domui.legacy:1.0-SNAPSHOT" level="project" />
-    <orderEntry type="module" module-name="to.etc.syntaxer" />
     <orderEntry type="library" name="Maven: gnu-regexp:gnu-regexp:1.1.4" level="project" />
     <orderEntry type="module" module-name="to.etc.domui.formbuilder" />
     <orderEntry type="library" name="Maven: org.mozilla:rhino:1.7.7" level="project" />
@@ -152,5 +148,6 @@
     <orderEntry type="library" name="Maven: org.eclipse.jetty.websocket:websocket-api:9.2.20.v20161216" level="project" />
     <orderEntry type="library" name="Maven: junit:junit:4.12" level="project" />
     <orderEntry type="library" name="Maven: org.hamcrest:hamcrest-core:1.3" level="project" />
+    <orderEntry type="module" module-name="to.etc.syntaxer" />
   </component>
 </module>

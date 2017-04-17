@@ -188,12 +188,17 @@ final public class FormBuilder {
 	}
 
 	@Nonnull
-	public <T> IControl<?> control() throws Exception {
-		return control((Class< ? extends IControl< T >>) null);
+	public IControl< ? > control() throws Exception {
+		return controlMain(null);
 	}
 
 	@Nonnull
 	public <T, C extends IControl<T>> C control(@Nullable Class<C> controlClass) throws Exception {
+		return controlMain(controlClass);
+	}
+
+	@Nonnull
+	private  <T, C extends IControl<T>> C controlMain(@Nullable Class<C> controlClass) throws Exception {
 		ControlCreatorRegistry builder = DomApplication.get().getControlCreatorRegistry();
 		PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) m_propertyMetaModel;
 		if(null == pmm)
