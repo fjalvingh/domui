@@ -3,7 +3,9 @@ package to.etc.domui.sass;
 import com.vaadin.sass.internal.*;
 import com.vaadin.sass.internal.ScssContext.*;
 import com.vaadin.sass.internal.handler.*;
+import com.vaadin.sass.internal.parser.*;
 import com.vaadin.sass.internal.resolver.*;
+import com.vaadin.sass.internal.visitor.*;
 import org.w3c.css.sac.*;
 import to.etc.domui.server.*;
 import to.etc.domui.server.parts.*;
@@ -40,7 +42,7 @@ final public class SassPartFactory implements IBufferedPartFactory, IUrlPart {
 
 		//-- Define resolvers
 		ScssStylesheet parent = new ScssStylesheet();
-		parent.addResolver(new WebAppresolver(rdl));
+		parent.addResolver(new WebAppResolver(rdl));
 		parent.setCharset("utf-8");
 
 		// Parse stylesheet
@@ -50,11 +52,14 @@ final public class SassPartFactory implements IBufferedPartFactory, IUrlPart {
 		}
 
 		// Compile scss -> css
-		scss.compile(UrlMode.RELATIVE);
+		compile(scss, UrlMode.RELATIVE);
 
 		if(errorHandler.hasError()) {
 			throw new RuntimeException("SASS compilation failed: " + errorHandler.toString());
 		}
+		String s = errorHandler.toString();
+		if(s != null && s.length() > 0)
+			System.err.println("SASS error on " + rurl + ":\n" + s);
 
 		pr.setMime("text/css");
 		try(OutputStream outputStream = pr.getOutputStream()) {
@@ -64,11 +69,36 @@ final public class SassPartFactory implements IBufferedPartFactory, IUrlPart {
 		}
 	}
 
-	final private class WebAppresolver implements ScssStylesheetResolver {
+	/**
+	 * Alternative to the compile method from the sass code, this should allow
+	 * adding variables into the compilation context so that theme compilation
+	 * can be done with it.
+	 *
+	 * @param scss
+	 * @param urlMode
+	 * @throws Exception
+	 */
+	private void compile(ScssStylesheet scss, UrlMode urlMode) throws Exception {
+		ScssContext context = new ScssContext(urlMode);
+
+		LexicalUnitImpl lxu = LexicalUnitImpl.createIdent(0, 0, "#abc");
+
+		Variable var = new Variable("inputColor", lxu);
+		context.addVariable(var);
+
+		scss.traverse(context);
+		ExtendNodeHandler.modifyTree(context, scss);
+	}
+
+	/**
+	 * Resolves sass resources using DomUI's resolution mechanisms, and tracks
+	 * the resources used for auto recompile.
+	 */
+	final private class WebAppResolver implements ScssStylesheetResolver {
 		@Nonnull
 		private final IResourceDependencyList m_dependencyList;
 
-		public WebAppresolver(IResourceDependencyList dependencyList) {
+		public WebAppResolver(IResourceDependencyList dependencyList) {
 			m_dependencyList = dependencyList;
 		}
 
