@@ -24,19 +24,17 @@
  */
 package to.etc.domui.server;
 
-import java.io.*;
-import java.util.*;
-
-import javax.annotation.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
-
 import org.slf4j.*;
-
 import to.etc.domui.util.*;
 import to.etc.log.*;
 import to.etc.net.*;
 import to.etc.util.*;
+
+import javax.annotation.*;
+import javax.servlet.*;
+import javax.servlet.http.*;
+import java.io.*;
+import java.util.*;
 
 /**
  * Base filter which accepts requests to the dom windows. This accepts all URLs that end with a special
@@ -58,6 +56,7 @@ public class AppFilter implements Filter {
 
 	@Nullable
 	static private IRequestResponseWrapper m_ioWrapper;
+
 	/**
 	 * If a reloader is needed for debug/development pps this will hold the reloader.
 	 */
@@ -133,11 +132,6 @@ public class AppFilter implements Filter {
 		} catch(Error x) {
 			x.printStackTrace();
 			throw x;
-			//		} finally {
-			//			System.out.println("U: " + ((HttpServletRequest) req).getRequestURL());
-			//			for(Cookie c : ((HttpServletRequest) req).getCookies()) {
-			//				System.out.println("  i: " + c.getName() + ", v=" + c.getValue() + ", a=" + c.getMaxAge());
-			//			}
 		}
 	}
 
