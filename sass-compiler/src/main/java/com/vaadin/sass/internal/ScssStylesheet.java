@@ -187,8 +187,8 @@ public class ScssStylesheet extends Node {
         for (ScssStylesheetResolver resolver : getResolvers()) {
             InputSource source = resolver.resolve(parentStylesheet, identifier);
             if (source != null) {
-                File f = new File(source.getURI());
-                setFile(f);
+                //File f = new File(source.getURI());
+                //setFile(f);
                 return source;
             }
         }

@@ -44,6 +44,7 @@ import to.etc.domui.injector.*;
 import to.etc.domui.injector.IPageInjector;
 import to.etc.domui.login.*;
 import to.etc.domui.parts.*;
+import to.etc.domui.sass.*;
 import to.etc.domui.server.parts.*;
 import to.etc.domui.state.*;
 import to.etc.domui.themes.*;
@@ -316,8 +317,9 @@ public abstract class DomApplication {
 	}
 
 	protected void registerPartFactories() {
-		registerUrlPart(new ThemePartFactory(), 100); // convert *.theme.* as a JSTemplate.
-		registerUrlPart(new SvgPartFactory(), 100); // Converts .svg.png to png.
+		registerUrlPart(new SassPartFactory(), 100); 			// Support .scss SASS stylesheets
+		registerUrlPart(new ThemePartFactory(), 100);			// convert *.theme.* as a JSTemplate.
+		registerUrlPart(new SvgPartFactory(), 100); 				// Converts .svg.png to png.
 	}
 
 	static private synchronized void setCurrentApplication(DomApplication da) {
