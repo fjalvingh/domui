@@ -29,6 +29,10 @@ import to.etc.domui.server.parts.PartRequestHandler;
 
 import javax.annotation.Nonnull;
 
+/**
+ * This handles all requests starting with $xxxx. These indicate resource requests. See
+ * {@link InternalResourcePart} for details.
+ */
 final public class ResourceRequestHandler implements IFilterRequestHandler {
 	private PartRequestHandler m_prh;
 

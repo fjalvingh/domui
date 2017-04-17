@@ -148,7 +148,7 @@ final public class ThemePartFactory implements IBufferedPartFactory, IUrlPart {
 	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object k, @Nonnull IResourceDependencyList rdl) throws Exception {
 		Key key = (Key) k;
 
-		if(!da.inDevelopmentMode()) { // Not gotten from WebContent or not in DEBUG mode? Then we may cache!
+		if(!da.inDevelopmentMode()) { 					// Not gotten from WebContent or not in DEBUG mode? Then we may cache!
 			pr.setCacheTime(da.getDefaultExpiryTime());
 		}
 		String content = da.getThemeReplacedString(rdl, key.getRurl(), key.getBrowserVersion());
