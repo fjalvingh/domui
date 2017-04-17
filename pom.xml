@@ -90,7 +90,8 @@
         <module>to.etc.db</module>
         <module>to.etc.pater</module>
         <module>to.etc.syntaxer</module>
-        <module>to.etc.webapp.core</module>
+	<module>to.etc.webapp.core</module>
+	<module>sass-compiler</module>
         <module>to.etc.domui</module>
         <module>to.etc.domui.hibutil</module>
         <module>to.etc.domui.legacy</module>

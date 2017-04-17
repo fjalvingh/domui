@@ -1,0 +1,54 @@
+/*
+*supports:
+* 1. standard arithmetic operations (+, -, *, /, %)
+* 2. / is treated as css operator, unless one of its operands is variable or there is another binary arithmetic operator
+*limits:
+* 1. space between add and minus operator and their following operand is mandatory. e.g. "1 + 2" is valid, "1+2" is not
+*/
+
+$div: 10px;
+.foo {
+    font: 10px/8px; // Plain CSS, no division
+    font: $div/2; // Uses a variable, does division
+    margin-left: 5px + 8px/2px; //Uses +, does division
+}
+
+.foo{
+	size: 5 % 2; // modular
+	size-px: 15px % 4;
+}
+
+$mul: 2*4;       //valid multiply in variable
+$mul1: 2 * 4;	//valid multiply in variable
+.foo{
+	bar: $mul;
+	bar: $mul1;
+	bar: 3*4;	//valid multiply in declaration
+}
+
+.foo {
+    bar: 2 +3;  //'+' is regarded as an unary operator, because no space between '+' and '3'
+    bar: 2+ 3;	//valid add expression
+    bar: 2 + 3; //beautiful valid add expression
+}
+
+.foo {
+	bar: 2 -3; //'-' is regarded as an unary operator, because no space between '-' and '3'
+	bar: 2 - 3; //beautiful valid minus expression
+	bar: 2- 3; //valid minus expression
+}
+
+.foo {
+	bar: 2 + 3 * 4; // combinations
+}
+
+.foo {
+	bar: (2 + 3) * 4;
+	$tmp: 2 + 3;
+	bar: -$tmp * 4;
+}
+
+$a: 1;
+.x {
+    a: -($a + 1);
+}

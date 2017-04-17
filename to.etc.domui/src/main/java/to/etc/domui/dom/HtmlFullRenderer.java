@@ -24,16 +24,15 @@
  */
 package to.etc.domui.dom;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.javascript.*;
 import to.etc.util.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * Visits the node tree in such a way that a valid html document is generated.
@@ -220,6 +219,10 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 			n.getPage().setFocusComponent(n);
 	}
 
+	/**
+	 * Render the page's doctype.
+	 * @throws Exception
+	 */
 	protected void renderPageHeader() throws Exception {
 		if(isXml()) {
 			o().writeRaw("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/xhtml1-transitional.dtd\">\n" //
@@ -230,8 +233,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		} else {
 			o().writeRaw(
 				"<!DOCTYPE html>"
-//				"<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n" //
-			+ 	"<html>\n"					// 
+			+ 	"<html>\n"					//
 			+ "<head>\n"					//
 			+ 	"<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n"	//
 			);
@@ -301,6 +303,12 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		o().writeRaw("var " + name + "=" + val + ";\n");
 	}
 
+	/**
+	 * Main entrypoint: render the whole page.
+	 * @param ctx
+	 * @param page
+	 * @throws Exception
+	 */
 	public void render(IRequestContext ctx, Page page) throws Exception {
 		m_ctx = ctx;
 		m_page = page;
