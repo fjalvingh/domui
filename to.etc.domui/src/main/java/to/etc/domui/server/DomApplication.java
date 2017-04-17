@@ -1797,11 +1797,20 @@ public abstract class DomApplication {
 
 	synchronized public void setUiTestMode() {
 		if(!m_uiTestMode) {
-			addHeaderContributor(HeaderContributor.loadJavascript("$js/web-driver/fileSaver.js"), 11);
-			addHeaderContributor(HeaderContributor.loadJavascript("$js/web-driver/sharedLocatorGenerator.js"), 13);
-			addHeaderContributor(HeaderContributor.loadJavascript("$js/web-driver/domuiLocatorGenerator.js"), 12);
+			appendUITestingContributors();
 		}
 		m_uiTestMode = true;
+	}
+
+	/**
+	 * Override this to add specific page {@link HeaderContributor}s to a page when
+	 * we're in UI testing mode (Selenium testing mode).
+	 * @since 1.2
+	 */
+	protected void appendUITestingContributors() {
+		//addHeaderContributor(HeaderContributor.loadJavascript("$js/web-driver/fileSaver.js"), 11);
+		//addHeaderContributor(HeaderContributor.loadJavascript("$js/web-driver/sharedLocatorGenerator.js"), 13);
+		//addHeaderContributor(HeaderContributor.loadJavascript("$js/web-driver/domuiLocatorGenerator.js"), 12);
 	}
 
 	/**

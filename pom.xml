@@ -1,9 +1,25 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <!--
+        It will forever be
+        A source of complete amazement to me
+        That a tool, as flexible as a lead door
+        Is loved by developer, architect, and even more
+        While I, the poor sod maintaining this build
+        Just hope that Maven would get killed.
+
+        Writing XML, in copious amounts
+        Something that even a machine astounds
+        Like spells from the Necronomicon - albeit less sweet
+        And with the same effects, often sh*t...
+
+        Humane people don't let people write XML.
+    -->
+
     <groupId>to.etc.domui</groupId>
     <artifactId>domui</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>domui</name>
@@ -38,7 +54,8 @@
         <connection>scm:git:https://github.com/fjalvingh/domui</connection>
         <developerConnection>scm:git:git@github.com:fjalvingh/domui</developerConnection>
         <url>https://github.com/fjalvingh/domui/</url>
-    </scm>
+      <tag>HEAD</tag>
+  </scm>
 
     <developers>
         <developer>
@@ -83,6 +100,116 @@
 	<module>to.etc.dbcompare</module>
 
     </modules>
+
+    <build>
+        <plugins>
+            <!-- experiment: try to make release work. What a buttfest. -->
+            <!-- Needed to disable release profile from release plugin, see http://central.sonatype.org/pages/apache-maven.html -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.3</version>
+                <configuration>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <useReleaseProfile>true</useReleaseProfile>
+                    <releaseProfiles>release</releaseProfiles>
+                    <goals>deploy</goals>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.9.1</version>
+
+                <!-- deep, deep sigh: http://blog.joda.org/2014/02/turning-off-doclint-in-jdk-8-javadoc.html -->
+                <configuration>
+                    <additionalparam>-Xdoclint:none</additionalparam>
+                </configuration>
+
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>release-sign-artifacts</id>
+            <activation>
+                <property>
+                    <name>release</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.5</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <!--
+                                                                <configuration>
+                                                                    <keyname>10816133</keyname>
+                                                                </configuration>
+                                -->
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <!-- see http://central.sonatype.org/pages/apache-maven.html -->
+                    <!-- Create source and javadoc jars, required for repository publishing. -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>2.2.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>2.9.1</version>
+
+                        <!-- deep, deep sigh: http://blog.joda.org/2014/02/turning-off-doclint-in-jdk-8-javadoc.html -->
+                        <configuration>
+                            <additionalparam>-Xdoclint:none</additionalparam>
+                        </configuration>
+
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
     <reporting>
         <plugins>

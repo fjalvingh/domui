@@ -8,11 +8,11 @@
     <parent>
         <groupId>to.etc.domui</groupId>
         <artifactId>domui</artifactId>
-        <version>1.1-SNAPSHOT</version>
+        <version>1.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>to.etc.domui.parent</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>domui :: parent</name>
@@ -365,73 +365,73 @@
             <dependency>
                 <groupId>to.etc.domui</groupId>
                 <artifactId>to.etc.logger</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>1.2-SNAPSHOT</version>
                 <!--<version>${to.etc.logger.version}-SNAPSHOT</version>-->
             </dependency>
             <dependency>
                 <groupId>to.etc.domui</groupId>
                 <artifactId>to.etc.jsr305</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>1.2-SNAPSHOT</version>
                 <!--<version>${to.etc.jsr305.version}-SNAPSHOT</version>-->
             </dependency>
             <dependency>
                 <groupId>to.etc.domui</groupId>
                 <artifactId>to.etc.alg</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>1.2-SNAPSHOT</version>
                 <!--<version>${to.etc.alg.version}-SNAPSHOT</version>-->
             </dependency>
             <dependency>
                 <groupId>to.etc.domui</groupId>
                 <artifactId>to.etc.db</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>1.2-SNAPSHOT</version>
                 <!--<version>${to.etc.db.version}-SNAPSHOT</version>-->
             </dependency>
             <dependency>
                 <groupId>to.etc.domui</groupId>
                 <artifactId>to.etc.webapp.core</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>1.2-SNAPSHOT</version>
                 <!--<version>${to.etc.webapp.core.version}-SNAPSHOT</version>-->
             </dependency>
             <dependency>
                 <groupId>to.etc.domui</groupId>
                 <artifactId>to.etc.domui</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>1.2-SNAPSHOT</version>
                 <!--<version>${to.etc.domui.version}-SNAPSHOT</version>-->
             </dependency>
             <dependency>
                 <groupId>to.etc.domui</groupId>
                 <artifactId>to.etc.pater</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>1.2-SNAPSHOT</version>
                 <!--<version>${to.etc.pater.version}-SNAPSHOT</version>-->
             </dependency>
             <dependency>
                 <groupId>to.etc.domui</groupId>
                 <artifactId>to.etc.domui.hibutil</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>1.2-SNAPSHOT</version>
                 <!--<version>${to.etc.domui.hibutil.version}-SNAPSHOT</version>-->
             </dependency>
             <dependency>
                 <groupId>to.etc.domui</groupId>
                 <artifactId>to.etc.domui.legacy</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>1.2-SNAPSHOT</version>
                 <!--<version>${to.etc.domui.legacy.version}-SNAPSHOT</version>-->
             </dependency>
             <dependency>
                 <groupId>to.etc.domui</groupId>
                 <artifactId>to.etc.syntaxer</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>1.2-SNAPSHOT</version>
                 <!--<version>${to.etc.syntaxer.version}-SNAPSHOT</version>-->
             </dependency>
             <dependency>
                 <groupId>to.etc.domui</groupId>
                 <artifactId>to.etc.domui.formbuilder</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>1.2-SNAPSHOT</version>
                 <!--<version>${to.etc.domui.formbuilder.version}-SNAPSHOT</version>-->
             </dependency>
             <dependency>
                 <groupId>to.etc.domui</groupId>
                 <artifactId>to.etc.domui.selenium</artifactId>
-                <version>1.1-SNAPSHOT</version>
+                <version>1.2-SNAPSHOT</version>
                 <!--<version>${to.etc.domui.selenium.version}-SNAPSHOT</version>-->
             </dependency>
 
@@ -507,76 +507,6 @@
     </reporting>
 
     <!-- Create a special profile to sign jars for release. -->
-    <profiles>
-        <profile>
-            <id>release-sign-artifacts</id>
-            <activation>
-                <property>
-                    <name>release</name>
-                    <value>true</value>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.5</version>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                                <configuration>
-                                    <keyname>10816133</keyname>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-
-                    <!-- see http://central.sonatype.org/pages/apache-maven.html -->
-                    <!-- Create source and javadoc jars, required for repository publishing. -->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <version>2.2.1</version>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <goals>
-                                    <goal>jar-no-fork</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>2.9.1</version>
-
-                        <!-- deep, deep sigh: http://blog.joda.org/2014/02/turning-off-doclint-in-jdk-8-javadoc.html -->
-                        <configuration>
-                            <additionalparam>-Xdoclint:none</additionalparam>
-                        </configuration>
-
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
-
     <build>
         <plugins>
             <!-- (jal) generate jars for test classes. -->
@@ -639,20 +569,7 @@
                 <configuration>
                     <serverId>ossrh</serverId>
                     <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
-                </configuration>
-            </plugin>
-
-            <!-- Needed to disable release profile from release plugin, see http://central.sonatype.org/pages/apache-maven.html -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>2.5.3</version>
-                <configuration>
-                    <autoVersionSubmodules>true</autoVersionSubmodules>
-                    <useReleaseProfile>false</useReleaseProfile>
-                    <releaseProfiles>release</releaseProfiles>
-                    <goals>deploy</goals>
+                    <autoReleaseAfterClose>false</autoReleaseAfterClose>
                 </configuration>
             </plugin>
 
@@ -755,5 +672,4 @@
             </plugins>
         </pluginManagement>
     </build>
-
 </project>
