@@ -22,16 +22,16 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.themes;
-
-import java.io.*;
-import java.util.*;
-
-import javax.annotation.*;
+package to.etc.domui.themes.fragmented;
 
 import to.etc.domui.server.*;
+import to.etc.domui.themes.*;
 import to.etc.domui.util.js.*;
 import to.etc.domui.util.resources.*;
+
+import javax.annotation.*;
+import java.io.*;
+import java.util.*;
 
 /**
  * This contains the results for a fragmented theme.

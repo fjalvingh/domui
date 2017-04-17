@@ -48,6 +48,7 @@ import to.etc.domui.sass.*;
 import to.etc.domui.server.parts.*;
 import to.etc.domui.state.*;
 import to.etc.domui.themes.*;
+import to.etc.domui.themes.simple.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
 import to.etc.domui.util.js.*;

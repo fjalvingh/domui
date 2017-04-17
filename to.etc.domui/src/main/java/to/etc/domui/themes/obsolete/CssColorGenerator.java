@@ -1,4 +1,6 @@
-package to.etc.domui.themes;
+package to.etc.domui.themes.obsolete;
+
+import to.etc.domui.themes.*;
 
 /**
  * Utility class to generate all kinds of colors.

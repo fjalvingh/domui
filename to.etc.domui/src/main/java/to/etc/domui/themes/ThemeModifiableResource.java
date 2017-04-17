@@ -34,7 +34,7 @@ import to.etc.domui.util.resources.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 10, 2011
  */
-final public class ThemeModifyableResource implements IIsModified {
+final public class ThemeModifiableResource implements IIsModified {
 	/** The dependency list that is checked only every [m_interval] milliseconds. */
 	final private ResourceDependencies m_wrappedDependencies;
 
@@ -51,7 +51,7 @@ final public class ThemeModifyableResource implements IIsModified {
 	 * @param rdl		The resource list to wrap
 	 * @param interval	The max age of the test, in milliseconds.
 	 */
-	public ThemeModifyableResource(final ResourceDependencies rdl, int interval) {
+	public ThemeModifiableResource(final ResourceDependencies rdl, int interval) {
 		m_wrappedDependencies = rdl;
 		m_interval = interval;
 	}

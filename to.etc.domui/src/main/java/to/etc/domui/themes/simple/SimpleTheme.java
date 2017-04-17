@@ -22,17 +22,17 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.themes;
+package to.etc.domui.themes.simple;
 
-import java.io.*;
-import java.util.*;
+import to.etc.domui.server.*;
+import to.etc.domui.themes.*;
+import to.etc.domui.util.js.*;
+import to.etc.domui.util.resources.*;
 
 import javax.annotation.*;
 import javax.annotation.concurrent.*;
-
-import to.etc.domui.server.*;
-import to.etc.domui.util.js.*;
-import to.etc.domui.util.resources.*;
+import java.io.*;
+import java.util.*;
 
 /**
  * The result of a "simple" theme. It only contains the properties map for colors
