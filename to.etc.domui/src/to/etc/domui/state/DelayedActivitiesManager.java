@@ -397,11 +397,12 @@ public class DelayedActivitiesManager implements Runnable {
 			applyToTree(das);
 
 		//-- Handle PollThingy callbacks.
-		for(NodeContainer nc : m_pollSet) {
-			((IPolledForUpdate) nc).checkForChanges();
+		for(NodeContainer nc : new HashSet<>(m_pollSet)) {
+			if(nc.isAttached()) {
+				((IPolledForUpdate) nc).checkForChanges();
+			}
 		}
 	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Polled UI node handling.							*/
