@@ -24,19 +24,18 @@
  */
 package to.etc.domui.component.ckeditor;
 
-import javax.annotation.*;
-
 import to.etc.domui.component.htmleditor.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.misc.*;
-import to.etc.domui.component.misc.MsgBox.IAnswer;
-import to.etc.domui.component.misc.MsgBox.Type;
+import to.etc.domui.component.misc.MsgBox.*;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 import to.etc.webapp.nls.*;
+
+import javax.annotation.*;
 
 /**
  * This represents a CKEditor instance.
@@ -289,6 +288,10 @@ public class CKEditor extends TextArea {
 
 	@Override
 	public boolean acceptRequestParameter(@Nonnull String[] values) throws Exception {
+		if(isDisabled()) {
+			return false;
+		}
+
 		for(int i = 0; i < values.length; i++) {
 			String s = values[i];
 			StringBuilder sb = new StringBuilder();
