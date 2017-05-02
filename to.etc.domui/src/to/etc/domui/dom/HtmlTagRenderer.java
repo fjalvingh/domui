@@ -74,23 +74,12 @@ public class HtmlTagRenderer implements INodeVisitor {
 		return m_tagless;
 	}
 
-	//	public boolean isNewNode() {
-	//		return m_isNewNode;
-	//	}
-	//	public void setNewNode(final boolean newNode) {
-	//		m_isNewNode = newNode;
-	//	}
-
 	/**
 	 * When T this only renders attributes but no tags and tag-ends.
 	 */
 	public void setTagless(final boolean tagless) {
 		m_tagless = tagless;
 	}
-
-	//	public boolean isUpdating() {
-	//		return m_updating;
-	//	}
 
 	public void setRenderMode(final HtmlRenderMode rm) {
 		m_mode = rm;
@@ -100,10 +89,6 @@ public class HtmlTagRenderer implements INodeVisitor {
 		return m_mode;
 	}
 
-	//	public void setUpdating(final boolean updating) {
-	//		m_updating = updating;
-	//	}
-
 	protected boolean isFullRender() {
 		return m_mode == HtmlRenderMode.FULL;
 	}
@@ -112,15 +97,8 @@ public class HtmlTagRenderer implements INodeVisitor {
 		return m_mode == HtmlRenderMode.ATTR;
 	}
 
-	//	private boolean	isAddsRender() {
-	//		return m_mode == HtmlRenderMode.ADDS;
-	//	}
-	//	private boolean	isReplaceRender() {
-	//		return m_mode == HtmlRenderMode.REPL;
-	//	}
-
 	/**
-	 * Return the cleared scratchbuffer.
+	 * Return the cleared scratch buffer.
 	 * @return
 	 */
 	protected StringBuilder sb() {
@@ -936,6 +914,9 @@ public class HtmlTagRenderer implements INodeVisitor {
 			o().attr("size", n.getSize());
 		if(n.getRawValue() != null)
 			o().attr("value", n.getRawValue());
+		String s = n.getPlaceHolder();
+		if(null != s)
+			o().attr("placeholder", s);
 		String transformScript = "";
 		if(n.getTransform() != null) {
 			switch(n.getTransform()){
