@@ -24,12 +24,12 @@
  */
 package to.etc.domui.component.htmleditor;
 
-import javax.annotation.*;
-
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
+
+import javax.annotation.*;
 
 /**
  * This is a small but very fast html editor. It shows way faster than
@@ -188,6 +188,9 @@ public class HtmlEditor extends TextArea {
 
 	@Override
 	public boolean acceptRequestParameter(@Nonnull String[] values) throws Exception {
+		if(isDisabled()) {
+			return false;
+		}
 		setDisplay(DisplayType.NONE);
 		for(int i = 0; i < values.length; i++) {
 			String s = values[i];
