@@ -1,0 +1,9 @@
+branches:
+  except:
+  - domui-1.0
+
+jdk:
+  - oraclejdk8
+
+language: java
+
