@@ -24,12 +24,11 @@
  */
 package to.etc.domui.dom.html;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.util.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * The HTML Button tag.
@@ -57,6 +56,20 @@ public class Button extends NodeContainer implements IActionControl {
 	@Override
 	public void visit(INodeVisitor v) throws Exception {
 		v.visitButton(this);
+	}
+
+	/**
+	 * Do not call click handler when the button is disabled. This prevents a malicious user from clicking a disabled
+	 * button and still having an effect.
+	 *
+	 * @param cli
+	 * @throws Exception
+	 */
+	@Override public void internalOnClicked(@Nonnull ClickInfo cli) throws Exception {
+		if(isDisabled()) {						// Disabled buttons should never click, even if browser lies about it
+			return;
+		}
+		super.internalOnClicked(cli);
 	}
 
 	public boolean isDisabled() {
