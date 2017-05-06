@@ -25,5 +25,5 @@
 package to.etc.domui.util;
 
 public interface IReadOnlyModel<T> {
-	public T getValue() throws Exception;
+	T getValue() throws Exception;
 }
