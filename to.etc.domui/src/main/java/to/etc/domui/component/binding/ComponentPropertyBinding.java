@@ -298,6 +298,7 @@ final public class ComponentPropertyBinding implements IBinding {
 		return newClass != null ? newClass : clz;
 	}
 
+	@Nullable
 	private Object getValueFromModel() throws Exception {
 		Object modelValue;
 		IReadOnlyModel<?> getter = m_getter;
