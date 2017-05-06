@@ -1,36 +1,20 @@
 package to.etc.domui.component.tbl;
 
-import to.etc.domui.component.controlfactory.ControlBuilder;
-import to.etc.domui.component.meta.ClassMetaModel;
-import to.etc.domui.component.meta.MetaManager;
-import to.etc.domui.component.meta.NumericPresentation;
-import to.etc.domui.component.meta.PropertyMetaModel;
-import to.etc.domui.component.meta.SortableType;
-import to.etc.domui.component.misc.DisplaySpan;
-import to.etc.domui.component.ntbl.IRowButtonFactory;
-import to.etc.domui.converter.ConverterRegistry;
-import to.etc.domui.converter.IConverter;
-import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
-import to.etc.domui.dom.html.IControl;
-import to.etc.domui.dom.html.Img;
-import to.etc.domui.dom.html.NodeBase;
-import to.etc.domui.dom.html.NodeContainer;
-import to.etc.domui.dom.html.Span;
-import to.etc.domui.dom.html.TD;
-import to.etc.domui.dom.html.TH;
-import to.etc.domui.dom.html.TR;
-import to.etc.domui.server.DomApplication;
-import to.etc.domui.util.INodeContentRenderer;
-import to.etc.util.StringTool;
-import to.etc.webapp.ProgrammerErrorException;
-import to.etc.webapp.annotations.GProperty;
+import kotlin.reflect.*;
+import to.etc.domui.component.controlfactory.*;
+import to.etc.domui.component.meta.*;
+import to.etc.domui.component.misc.*;
+import to.etc.domui.component.ntbl.*;
+import to.etc.domui.converter.*;
+import to.etc.domui.dom.html.*;
+import to.etc.domui.server.*;
+import to.etc.domui.util.*;
+import to.etc.util.*;
+import to.etc.webapp.*;
+import to.etc.webapp.annotations.*;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * This is the type-safe replacement for the other row renderers which are now deprecated.
@@ -681,6 +665,19 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	public ColumnDef<T, ? > column(@Nonnull String property) {
 		return getColumnList().column(property);
 	}
+
+	public <F> ColumnDef<T, F> column(@Nonnull KProperty1<T, F> property) {
+		return getColumnList().column(property);
+	}
+
+	public <A, B> ColumnDef<T, B> column(@Nonnull KProperty1<T, A> property1, @Nonnull KProperty1<A, B> property2) {
+		return getColumnList().column(property1, property2);
+	}
+
+	//public ColumnDef<T, ?> column(@Nonnull KProperty1<?, ?> property1, @Nonnull KProperty1<?, ?> property2) {
+	//	throw new IllegalStateException();
+	//	//return getColumnList().column(property1, property2);
+	//}
 
 	/**
 	 * Add a column which gets referred the row element instead of a column element. This is normally used together with

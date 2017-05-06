@@ -24,15 +24,14 @@
  */
 package to.etc.domui.component.tbl;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.databinding.list.*;
 import to.etc.domui.databinding.list2.*;
 import to.etc.domui.databinding.observables.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 abstract public class TableModelTableBase<T> extends Div implements ITableModelListener<T>, IListChangeListener<T> {
 	@Nullable
@@ -192,7 +191,7 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 	/*	CODING:	Experimental: using ObservableList as a value.		*/
 	/*--------------------------------------------------------------*/
 
-	public void setList(@Nonnull IObservableList<T> list) {
+	public void setList(@Nullable IObservableList<T> list) {
 		ITableModel<T> om = m_model;
 		if(om instanceof ObservableListModelAdapter< ? >) {
 			//-- Check if this is the same list, wrapped already.
@@ -203,9 +202,11 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 			//-- We're going to replace this, so remove me as a list change listener.
 			oa.getSource().removeChangeListener(this);
 		}
-		ObservableListModelAdapter<T> ma = new ObservableListModelAdapter<T>(list);
-		setModel(ma);
-		list.addChangeListener(this);
+		if(null != list) {
+			ObservableListModelAdapter<T> ma = new ObservableListModelAdapter<T>(list);
+			setModel(ma);
+			list.addChangeListener(this);
+		}
 	}
 
 	@Nullable
