@@ -1,0 +1,110 @@
+<component name="ArtifactManager">
+  <artifact type="exploded-war" name="to.etc.domui.demo:Web exploded">
+    <output-path>$PROJECT_DIR$/out/artifacts/to_etc_domui_demo_Web_exploded</output-path>
+    <root id="root">
+      <element id="javaee-facet-resources" facet="to.etc.domui.demo/web/Web" />
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="classes">
+          <element id="module-output" name="to.etc.domui.demo" />
+          <element id="module-output" name="to.etc.syntaxer" />
+          <element id="module-output" name="to.etc.alg" />
+          <element id="module-output" name="bin-j2ee-1.4" />
+          <element id="module-output" name="jsr305" />
+          <element id="module-output" name="bin-slf4j" />
+          <element id="module-output" name="bin-junit-4.11" />
+          <element id="module-output" name="to.etc.logger" />
+          <element id="module-output" name="to.etc.domui.legacy" />
+          <element id="module-output" name="to.etc.domui" />
+          <element id="module-output" name="to.etc.webapp.core" />
+          <element id="module-output" name="to.etc.db" />
+          <element id="module-output" name="bin-batik-1.7" />
+          <element id="module-output" name="lib-jericho" />
+          <element id="module-output" name="to.etc.domui.hibutil" />
+          <element id="module-output" name="lib-hibernate" />
+          <element id="module-output" name="to.etc.domui.selenium" />
+          <element id="module-output" name="lib-selenium" />
+          <element id="module-output" name="to.etc.pater" />
+          <element id="module-output" name="bin-htmlunit-webdriver" />
+          <element id="module-output" name="to.etc.domui.formbuilder" />
+        </element>
+        <element id="directory" name="lib">
+          <element id="library" level="module" name="j2ee.jar" module-name="bin-j2ee-1.4" />
+          <element id="library" level="module" name="servlet-api-3.0.jar" module-name="bin-j2ee-1.4" />
+          <element id="library" level="module" name="jsp-2.2-spec-1.0.4.jar" module-name="bin-j2ee-1.4" />
+          <element id="file-copy" path="$PROJECT_DIR$/bin-slf4j/lib/jcl-over-slf4j-1.7.23.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/bin-slf4j/lib/jul-to-slf4j-1.7.23.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/bin-slf4j/lib/log4j-over-slf4j-1.7.23.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/bin-slf4j/lib/slf4j-api-1.7.23.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/bin-slf4j/lib/slf4j-ext-1.7.23.jar" />
+          <element id="library" level="module" name="junit-4.11.jar" module-name="bin-junit-4.11" />
+          <element id="library" level="module" name="hamcrest-core-1.3.jar" module-name="bin-junit-4.11" />
+          <element id="library" level="module" name="gnu-regexp-1.1.4.jar" module-name="to.etc.syntaxer" />
+          <element id="library" level="module" name="jCharts-0.7.5.jar" module-name="to.etc.domui" />
+          <element id="library" level="module" name="batik-anim.jar" module-name="bin-batik-1.7" />
+          <element id="library" level="module" name="batik-awt-util.jar" module-name="bin-batik-1.7" />
+          <element id="library" level="module" name="batik-bridge.jar" module-name="bin-batik-1.7" />
+          <element id="library" level="module" name="batik-codec.jar" module-name="bin-batik-1.7" />
+          <element id="library" level="module" name="batik-css.jar" module-name="bin-batik-1.7" />
+          <element id="library" level="module" name="batik-dom.jar" module-name="bin-batik-1.7" />
+          <element id="library" level="module" name="batik-ext.jar" module-name="bin-batik-1.7" />
+          <element id="library" level="module" name="batik-extension.jar" module-name="bin-batik-1.7" />
+          <element id="library" level="module" name="batik-gui-util.jar" module-name="bin-batik-1.7" />
+          <element id="library" level="module" name="batik-gvt.jar" module-name="bin-batik-1.7" />
+          <element id="library" level="module" name="batik-parser.jar" module-name="bin-batik-1.7" />
+          <element id="library" level="module" name="batik-rasterizer.jar" module-name="bin-batik-1.7" />
+          <element id="library" level="module" name="batik-script.jar" module-name="bin-batik-1.7" />
+          <element id="library" level="module" name="batik-slideshow.jar" module-name="bin-batik-1.7" />
+          <element id="library" level="module" name="batik-squiggle.jar" module-name="bin-batik-1.7" />
+          <element id="library" level="module" name="batik-svg-dom.jar" module-name="bin-batik-1.7" />
+          <element id="library" level="module" name="batik-svggen.jar" module-name="bin-batik-1.7" />
+          <element id="library" level="module" name="batik-svgpp.jar" module-name="bin-batik-1.7" />
+          <element id="library" level="module" name="batik-swing.jar" module-name="bin-batik-1.7" />
+          <element id="library" level="module" name="batik-transcoder.jar" module-name="bin-batik-1.7" />
+          <element id="library" level="module" name="batik-ttf2svg.jar" module-name="bin-batik-1.7" />
+          <element id="library" level="module" name="batik-util.jar" module-name="bin-batik-1.7" />
+          <element id="library" level="module" name="batik-xml.jar" module-name="bin-batik-1.7" />
+          <element id="library" level="module" name="batik.jar" module-name="bin-batik-1.7" />
+          <element id="library" level="module" name="js.jar" module-name="bin-batik-1.7" />
+          <element id="library" level="module" name="pdf-transcoder.jar" module-name="bin-batik-1.7" />
+          <element id="library" level="module" name="xml-apis-ext.jar" module-name="bin-batik-1.7" />
+          <element id="library" level="module" name="antlr-2.7.6.jar" module-name="lib-hibernate" />
+          <element id="library" level="module" name="commons-collections-3.1.jar" module-name="lib-hibernate" />
+          <element id="library" level="module" name="dom4j-1.6.1.jar" module-name="lib-hibernate" />
+          <element id="library" level="module" name="javassist-3.20.0-GA.jar" module-name="lib-hibernate" />
+          <element id="library" level="module" name="jta-1.1.jar" module-name="lib-hibernate" />
+          <element id="library" level="module" name="hibernate-jpa-2.0-api-1.0.1.Final.jar" module-name="lib-hibernate" />
+          <element id="library" level="module" name="validation-api-1.0.0.GA.jar" module-name="lib-hibernate" />
+          <element id="library" level="module" name="ant-1.6.5.jar" module-name="lib-hibernate" />
+          <element id="library" level="module" name="cglib-2.2.jar" module-name="lib-hibernate" />
+          <element id="library" level="module" name="asm-3.1.jar" module-name="lib-hibernate" />
+          <element id="library" level="module" name="jboss-jacc-api_JDK4-1.1.0.jar" module-name="lib-hibernate" />
+          <element id="library" level="module" name="hibernate-validator-4.1.0.Final.jar" module-name="lib-hibernate" />
+          <element id="file-copy" path="$PROJECT_DIR$/lib-selenium/lib/htmlunit-core-js-2.23.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/lib-selenium/lib/commons-codec-1.10.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/lib-selenium/lib/htmlunit-2.24.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/lib-selenium/lib/commons-io-2.5.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/lib-selenium/lib/guava-21.0.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/lib-selenium/lib/httpclient-4.5.2.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/lib-selenium/lib/cssparser-0.9.21.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/lib-selenium/lib/commons-lang3-3.5.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/lib-selenium/lib/httpcore-4.4.4.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/lib-selenium/lib/commons-logging-1.2.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/lib-selenium/lib/httpmime-4.5.2.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/lib-selenium/lib/commons-exec-1.3.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/lib-selenium/lib/cglib-nodep-3.2.4.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/lib-selenium/lib/htmlunit-driver-2.24.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/lib-selenium/lib/gson-2.8.0.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/lib-selenium/lib/neko-htmlunit-2.24.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/lib-selenium/lib/phantomjsdriver-1.4.0.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/lib-selenium/lib/websocket-api-9.2.20.v20161216.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/lib-selenium/lib/websocket-client-9.2.20.v20161216.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/lib-selenium/lib/websocket-common-9.2.20.v20161216.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/lib-selenium/client-combined-3.3.1-nodeps.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/bin-htmlunit-webdriver/htmlunit-driver-2.25-with-dependencies.jar" />
+          <element id="library" level="module" name="gnu-regexp-1.1.4.jar" module-name="to.etc.domui.demo" />
+          <element id="library" level="module" name="derby.jar" module-name="to.etc.domui.demo" />
+        </element>
+      </element>
+    </root>
+  </artifact>
+</component>
