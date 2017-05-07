@@ -39,7 +39,7 @@ public class DemoObservableListPage extends UrlPage {
 
 		rr.setRowClicked(new ICellClicked<Artist>() {
 			@Override
-			public void cellClicked(NodeBase tr, Artist rowval) throws Exception {
+			public void cellClicked(Artist rowval) throws Exception {
 				clickedOne(rowval);
 			}
 		});

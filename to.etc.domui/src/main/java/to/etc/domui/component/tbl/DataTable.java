@@ -26,7 +26,6 @@ package to.etc.domui.component.tbl;
 
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.misc.*;
-import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
@@ -440,7 +439,7 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 		//-- If this has a click handler- fire it.
 		ICellClicked< ? > rowClicked = m_rowRenderer.getRowClicked();
 		if(null != rowClicked)
-			((ICellClicked<T>) rowClicked).cellClicked(b, instance);
+			((ICellClicked<T>) rowClicked).cellClicked(instance);
 	}
 
 	/**
@@ -457,7 +456,20 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 		if(null != sm) {
 			checkbox.setChecked(sm.isSelected(instance));
 		}
+	}
 
+	/**
+	 * If the specified item is on-screen, this returns the row index inside TBody for that item.
+	 * It returns -1 if the thing is not found.
+	 * @param item
+	 * @return
+	 */
+	protected int findRowIndex(T item) {
+		for(int i = m_visibleItemList.size(); --i >= 0;) {
+			if(item == m_visibleItemList.get(i))
+				return i;
+		}
+		return -1;
 	}
 
 	/**

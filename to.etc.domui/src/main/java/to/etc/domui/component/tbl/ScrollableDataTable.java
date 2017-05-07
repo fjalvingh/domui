@@ -361,7 +361,7 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 		//-- If this has a click handler- fire it.
 		ICellClicked< ? > rowClicked = m_rowRenderer.getRowClicked();
 		if(null != rowClicked)
-			((ICellClicked<T>) rowClicked).cellClicked(b, instance);
+			((ICellClicked<T>) rowClicked).cellClicked(instance);
 	}
 
 	/**

@@ -125,7 +125,7 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 				public void clicked(final @Nonnull TR b) throws Exception {
 					ICellClicked< ? > rowClicked = getRowClicked();
 					if(null != rowClicked)
-						((ICellClicked<T>) rowClicked).cellClicked(b, instance);
+						((ICellClicked<T>) rowClicked).cellClicked(instance);
 				}
 			});
 			cc.getTR().addCssClass("ui-keyword-popup-row");

@@ -357,7 +357,7 @@ final public class MultiRowRenderer<T> implements IClickableRowRenderer<T> {
 				public void clicked(final @Nonnull TD b) throws Exception {
 					ICellClicked<Object> clicked = (ICellClicked<Object>) cd.getCellClicked();
 					if(null != clicked)
-						clicked.cellClicked(b, instance);
+						clicked.cellClicked(instance);
 				}
 			});
 			cell.addCssClass("ui-cellsel");

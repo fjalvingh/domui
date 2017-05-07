@@ -190,8 +190,8 @@ public class MultipleSelectionLookup<T> extends AbstractFloatingLookup<T> {
 
 			rr.setRowClicked(new ICellClicked<T>() {
 				@Override
-				public void cellClicked(@Nonnull NodeBase tr, @Nonnull T val) throws Exception {
-					m_queryResultTable.handleRowClicked(tr, val);
+				public void cellClicked(@Nonnull T val) throws Exception {
+					m_queryResultTable.handleRowClicked(val);
 				}
 			});
 

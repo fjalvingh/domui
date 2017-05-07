@@ -189,7 +189,7 @@ public class SimpleLookup<T> extends AbstractFloatingLookup<T> {
 
 			rr.setRowClicked(new ICellClicked<T>() {
 				@Override
-				public void cellClicked(@Nonnull NodeBase tr, @Nonnull T val) throws Exception {
+				public void cellClicked(@Nonnull T val) throws Exception {
 					clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 					close();
 					if(getOnValueSelected() != null) {

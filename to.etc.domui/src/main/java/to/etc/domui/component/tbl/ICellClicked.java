@@ -24,10 +24,8 @@
  */
 package to.etc.domui.component.tbl;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
+import javax.annotation.Nonnull;
 
 public interface ICellClicked<T> {
-	public void cellClicked(@Nonnull NodeBase tr, @Nonnull T rowval) throws Exception;
+	void cellClicked(@Nonnull T rowval) throws Exception;
 }
