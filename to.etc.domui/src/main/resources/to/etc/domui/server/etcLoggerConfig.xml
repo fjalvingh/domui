@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config logLocation="%user.home%/logs">
+   <handler type="stdout">
+      <log level="ERROR" name="" />
+   </handler>
+</config>
