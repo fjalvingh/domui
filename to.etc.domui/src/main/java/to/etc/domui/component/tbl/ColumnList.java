@@ -254,6 +254,14 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 		return createColumnDef(pmm);
 	}
 
+	public <A, B, C> ColumnDef<T, C> column(@Nonnull KProperty1<T, A> property1, @Nonnull KProperty1<A, B> property2, KProperty1<B, C> property3) {
+		PropertyMetaModel<C> pmm = (PropertyMetaModel<C>) model().getProperty(property1.getName()
+			+ "." + property2.getName()
+			+ "." + property3.getName()
+		);
+		return createColumnDef(pmm);
+	}
+
 
 	/**
 	 * Add a column which gets referred the row element instead of a column element. This is normally used together with

@@ -22,6 +22,7 @@ import java.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Feb 11, 2013
  */
+@DefaultNonNull
 final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	/** The class whose instances we'll render in this table. */
 	@Nonnull
@@ -595,6 +596,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	 * @param index
 	 * @return
 	 */
+	@Nullable
 	public INodeContentRenderer< ? > getNodeRenderer(final int index) {
 		return getColumn(index).getContentRenderer();
 	}
@@ -672,6 +674,9 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 
 	public <A, B> ColumnDef<T, B> column(@Nonnull KProperty1<T, A> property1, @Nonnull KProperty1<A, B> property2) {
 		return getColumnList().column(property1, property2);
+	}
+	public <A, B, C> ColumnDef<T, C> column(@Nonnull KProperty1<T, A> property1, @Nonnull KProperty1<A, B> property2, @Nonnull KProperty1<B, C> property3) {
+		return getColumnList().column(property1, property2, property3);
 	}
 
 	//public ColumnDef<T, ?> column(@Nonnull KProperty1<?, ?> property1, @Nonnull KProperty1<?, ?> property2) {
