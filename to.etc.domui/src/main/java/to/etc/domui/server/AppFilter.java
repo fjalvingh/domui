@@ -96,11 +96,13 @@ public class AppFilter implements Filter {
 
 
 			String userid = m_loginDeterminator.getLoginData(rq);
-			if(null != userid)
+			if(null != userid) {
 				m_clientRegistry.registerRequest(rq, userid);
-
-			MDC.put(to.etc.log.EtcMDCAdapter.SESSION, rq.getSession().getId());
-			MDC.put(to.etc.log.EtcMDCAdapter.LOGINID, userid);
+				MDC.put(to.etc.log.EtcMDCAdapter.LOGINID, userid);
+			}
+			String id = rq.getSession().getId();
+			if(null != id)
+				MDC.put(to.etc.log.EtcMDCAdapter.SESSION, id);
 			//LOG.info(MarkerFactory.getMarker("request-uri"), rq.getRequestURI()); -- useful for developer controlled debugging
 			rq.setCharacterEncoding("UTF-8"); // FIXME jal 20080804 Encoding of input was incorrect?
 			//			DomUtil.dumpRequest(rq);
