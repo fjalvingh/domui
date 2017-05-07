@@ -2,8 +2,8 @@ package to.etc.dbcompare;
 
 import java.util.*;
 
-import to.etc.dbcompare.db.*;
-import to.etc.dbcompare.db.Package;
+import to.etc.dbutil.schema.*;
+import to.etc.dbutil.schema.Package;
 import to.etc.util.*;
 
 /**
@@ -13,28 +13,28 @@ import to.etc.util.*;
  * Created on Dec 22, 2006
  */
 abstract public class AbstractSchemaComparator {
-	private Schema	m_src;
+	private DbSchema m_src;
 
-	private Schema	m_dest;
+	private DbSchema m_dest;
 
-	public AbstractSchemaComparator(Schema src, Schema dest) {
+	public AbstractSchemaComparator(DbSchema src, DbSchema dest) {
 		m_src = src;
 		m_dest = dest;
 	}
 
 	public void run() throws Exception {
 		//-- 1. Compare all tables.
-		Set<Table> desttables = new HashSet<Table>(m_dest.getTableMap().values()); // All dest tables that must be found.
-		for(Table st : m_src.getTableMap().values()) {
+		Set<DbTable> desttables = new HashSet<DbTable>(m_dest.getTables()); // All dest tables that must be found.
+		for(DbTable st : m_src.getTables()) {
 			//-- Find matching target table,
-			Table dt = m_dest.findTable(st.getName());
+			DbTable dt = m_dest.findTable(st.getName());
 			if(dt != null)
 				desttables.remove(dt); // Table used,
 			doCompareTables(st, dt); // Handle table compare logic
 		}
 
 		//-- 2. Call doCompareTables for all DELETED tables
-		for(Table dt : desttables)
+		for(DbTable dt : desttables)
 			doCompareTables(null, dt);
 		doCompareIndexes();
 
@@ -44,7 +44,7 @@ abstract public class AbstractSchemaComparator {
 
 	}
 
-	private boolean doCompareTables(Table st, Table dt) throws Exception {
+	private boolean doCompareTables(DbTable st, DbTable dt) throws Exception {
 		boolean changed = false;
 
 		//-- Compare base table characteristics
@@ -57,9 +57,9 @@ abstract public class AbstractSchemaComparator {
 		}
 
 		//-- Walk the table's fields,
-		Set<Column> colset = new HashSet<Column>(dt.getColumnMap().values());
-		for(Column sc : st.getColumnMap().values()) {
-			Column dc = dt.findColumn(sc.getName());
+		Set<DbColumn> colset = new HashSet<DbColumn>(dt.getColumnMap().values());
+		for(DbColumn sc : st.getColumnMap().values()) {
+			DbColumn dc = dt.findColumn(sc.getName());
 			if(dc != null)
 				colset.remove(dc);
 			if(doCompareColumns(st, dt, sc, dc))
@@ -67,7 +67,7 @@ abstract public class AbstractSchemaComparator {
 		}
 		if(colset.size() != 0)
 			changed = true;
-		for(Column dc : colset) {
+		for(DbColumn dc : colset) {
 			if(doCompareColumns(st, dt, null, dc))
 				changed = true;
 		}
@@ -82,7 +82,7 @@ abstract public class AbstractSchemaComparator {
 		return changed;
 	}
 
-	private boolean doComparePK(Table st, Table dt) throws Exception {
+	private boolean doComparePK(DbTable st, DbTable dt) throws Exception {
 		if(st.getPrimaryKey() == null && dt.getPrimaryKey() == null)
 			return false;
 
@@ -97,11 +97,11 @@ abstract public class AbstractSchemaComparator {
 		//-- Both have a PK; compare PK columns and order.
 		boolean changed = false;
 		int ix = 0;
-		PrimaryKey spk = st.getPrimaryKey();
-		PrimaryKey dpk = dt.getPrimaryKey();
+		DbPrimaryKey spk = st.getPrimaryKey();
+		DbPrimaryKey dpk = dt.getPrimaryKey();
 		while(ix < spk.getColumnList().size()) {
-			Column sc = spk.getColumnList().get(ix);
-			Column dc = ix >= dpk.getColumnList().size() ? null : dpk.getColumnList().get(ix);
+			DbColumn sc = spk.getColumnList().get(ix);
+			DbColumn dc = ix >= dpk.getColumnList().size() ? null : dpk.getColumnList().get(ix);
 
 			//-- Compare column by name.
 			if(dc == null) {
@@ -118,7 +118,7 @@ abstract public class AbstractSchemaComparator {
 			ix++;
 		}
 		while(ix < dpk.getColumnList().size()) {
-			Column dc = dpk.getColumnList().get(ix);
+			DbColumn dc = dpk.getColumnList().get(ix);
 			changed = true;
 			primaryKeyFieldDeleted(dt, ix, dc);
 		}
@@ -129,22 +129,22 @@ abstract public class AbstractSchemaComparator {
 
 
 	/** Set when column type has changed */
-	static public final int	csTYPE			= 0x0001;
+	static public final int csTYPE = 0x0001;
 
-	static public final int	csCOMMENT		= 0x0002;
+	static public final int csCOMMENT = 0x0002;
 
-	static public final int	csPLATFORMTYPE	= 0x0004;
+	static public final int csPLATFORMTYPE = 0x0004;
 
-	static public final int	csPRECISION		= 0x0008;
+	static public final int csPRECISION = 0x0008;
 
-	static public final int	csSCALE			= 0x0010;
+	static public final int csSCALE = 0x0010;
 
-	static public final int	csSQLTYPE		= 0x0020;
+	static public final int csSQLTYPE = 0x0020;
 
-	static public final int	csNULLABLE		= 0x0040;
+	static public final int csNULLABLE = 0x0040;
 
 
-	private boolean doCompareColumns(Table st, Table dt, Column sc, Column dc) throws Exception {
+	private boolean doCompareColumns(DbTable st, DbTable dt, DbColumn sc, DbColumn dc) throws Exception {
 		boolean changed = false;
 		int flag = 0;
 		if(sc != null && dc != null) {
@@ -182,10 +182,10 @@ abstract public class AbstractSchemaComparator {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Handle changed relations.							*/
 	/*--------------------------------------------------------------*/
-	protected boolean doCompareRelations(Table st, Table dt) throws Exception {
-		List<Relation> dallrel = new ArrayList<Relation>(dt.getParentRelationList());
+	protected boolean doCompareRelations(DbTable st, DbTable dt) throws Exception {
+		List<DbRelation> dallrel = new ArrayList<DbRelation>(dt.getParentRelationList());
 		dallrel.addAll(dt.getChildRelationList());
-		List<Relation> sallrel = new ArrayList<Relation>(st.getParentRelationList());
+		List<DbRelation> sallrel = new ArrayList<DbRelation>(st.getParentRelationList());
 		sallrel.addAll(st.getChildRelationList());
 
 		/*
@@ -196,15 +196,15 @@ abstract public class AbstractSchemaComparator {
 		 * equality (find relations that have equal matched columns). If this
 		 * cannot be found the rest is a full delta.
 		 */
-		List<Relation> slist = new ArrayList<Relation>();
-		List<Relation> dlist = new ArrayList<Relation>();
+		List<DbRelation> slist = new ArrayList<DbRelation>();
+		List<DbRelation> dlist = new ArrayList<DbRelation>();
 
 		//-- Pair by name, and remove all matched from the sets.
-		for(Iterator<Relation> it = sallrel.iterator(); it.hasNext();) {
-			Relation sr = it.next();
+		for(Iterator<DbRelation> it = sallrel.iterator(); it.hasNext();) {
+			DbRelation sr = it.next();
 			if(sr.getName() == null)
 				continue; // Source is unnamed-> skip.
-			Relation dr = findRelationByName(dallrel, sr.getName());
+			DbRelation dr = findRelationByName(dallrel, sr.getName());
 			if(dr == null)
 				continue;
 
@@ -218,9 +218,9 @@ abstract public class AbstractSchemaComparator {
 		/*
 		 * Part 2. What's left is relations unmatched by name. Try to find with full column equality.
 		 */
-		for(Iterator<Relation> it = sallrel.iterator(); it.hasNext();) {
-			Relation sr = it.next();
-			Relation dr = findRelationByColumns(dallrel, sr);
+		for(Iterator<DbRelation> it = sallrel.iterator(); it.hasNext();) {
+			DbRelation sr = it.next();
+			DbRelation dr = findRelationByColumns(dallrel, sr);
 			if(dr != null) {
 				//-- We have a matching src and dest relation. Add them and remove from todo
 				slist.add(sr);
@@ -235,7 +235,7 @@ abstract public class AbstractSchemaComparator {
 		}
 
 		//-- Whatever's left in "dest" is not present in src...
-		for(Relation r : dallrel) {
+		for(DbRelation r : dallrel) {
 			slist.add(null);
 			dlist.add(r);
 		}
@@ -245,8 +245,8 @@ abstract public class AbstractSchemaComparator {
 			throw new IllegalStateException("!!!!! Delta lists differ in size!?");
 		boolean changed = true;
 		for(int i = 0; i < slist.size(); i++) {
-			Relation sr = slist.get(i);
-			Relation dr = dlist.get(i);
+			DbRelation sr = slist.get(i);
+			DbRelation dr = dlist.get(i);
 			if(sr == null)
 				relationDeleted(st, dt, dr);
 			else if(dr == null)
@@ -266,8 +266,8 @@ abstract public class AbstractSchemaComparator {
 	 * @param name
 	 * @return
 	 */
-	private Relation findRelationByName(Collection<Relation> list, String name) {
-		for(Relation r : list) {
+	private DbRelation findRelationByName(Collection<DbRelation> list, String name) {
+		for(DbRelation r : list) {
 			if(name.equals(r.getName()))
 				return r;
 		}
@@ -281,8 +281,8 @@ abstract public class AbstractSchemaComparator {
 	 * @param sr
 	 * @return
 	 */
-	protected Relation findRelationByColumns(List<Relation> list, Relation sr) {
-		for(Relation dr : list) {
+	protected DbRelation findRelationByColumns(List<DbRelation> list, DbRelation sr) {
+		for(DbRelation dr : list) {
 			//-- Relations must be to the same tables as child and parent.
 			if(!dr.getParent().getName().equals(sr.getParent().getName()))
 				continue;
@@ -323,7 +323,7 @@ abstract public class AbstractSchemaComparator {
 	 * @return
 	 * @throws Exception
 	 */
-	private boolean doCompareRelation(Table st, Table dt, Relation sr, Relation dr) throws Exception {
+	private boolean doCompareRelation(DbTable st, DbTable dt, DbRelation sr, DbRelation dr) throws Exception {
 		boolean changed = false;
 
 		/*
@@ -464,10 +464,10 @@ abstract public class AbstractSchemaComparator {
 	 * Compare full index definitions.
 	 */
 	private boolean doCompareIndexes() throws Exception {
-		Set<Index> doneset = new HashSet<Index>(m_dest.getIndexMap().values());
+		Set<DbIndex> doneset = new HashSet<DbIndex>(m_dest.getIndexMap().values());
 		boolean changed = false;
-		for(Index six : m_src.getIndexMap().values()) {
-			Index dix = m_dest.findIndex(six.getName());
+		for(DbIndex six : m_src.getIndexMap().values()) {
+			DbIndex dix = m_dest.findIndex(six.getName());
 			if(dix == null)
 				indexAdded(six.getTable(), six);
 			else {
@@ -490,7 +490,7 @@ abstract public class AbstractSchemaComparator {
 				}
 			}
 		}
-		for(Index ix : doneset)
+		for(DbIndex ix : doneset)
 			indexDeleted(ix);
 		return changed;
 	}
@@ -565,37 +565,37 @@ abstract public class AbstractSchemaComparator {
 		return -1;
 	}
 
-	abstract public void tableAdded(Table st) throws Exception;
+	abstract public void tableAdded(DbTable st) throws Exception;
 
-	abstract public void tableDeleted(Table dt) throws Exception;
+	abstract public void tableDeleted(DbTable dt) throws Exception;
 
-	abstract public void primaryKeyAdded(Table dt, PrimaryKey pk) throws Exception;
+	abstract public void primaryKeyAdded(DbTable dt, DbPrimaryKey pk) throws Exception;
 
-	abstract public void primaryKeyDeleted(Table dt, PrimaryKey oldpk) throws Exception;
+	abstract public void primaryKeyDeleted(DbTable dt, DbPrimaryKey oldpk) throws Exception;
 
-	abstract public void primaryKeyFieldAdded(Table dt, int ix, Column sc) throws Exception;
+	abstract public void primaryKeyFieldAdded(DbTable dt, int ix, DbColumn sc) throws Exception;
 
-	abstract public void primaryKeyFieldDeleted(Table dt, int ix, Column dc) throws Exception;
+	abstract public void primaryKeyFieldDeleted(DbTable dt, int ix, DbColumn dc) throws Exception;
 
-	abstract public void primaryKeyFieldChanged(Table dt, int ix, Column oldc, Column newc) throws Exception;
+	abstract public void primaryKeyFieldChanged(DbTable dt, int ix, DbColumn oldc, DbColumn newc) throws Exception;
 
-	abstract public void primaryKeyChanged(Table oldt, Table newt, PrimaryKey oldpk, PrimaryKey newpk) throws Exception;
+	abstract public void primaryKeyChanged(DbTable oldt, DbTable newt, DbPrimaryKey oldpk, DbPrimaryKey newpk) throws Exception;
 
-	abstract public void columnChanged(Table dt, Column newc, Column oldc, int flag) throws Exception;
+	abstract public void columnChanged(DbTable dt, DbColumn newc, DbColumn oldc, int flag) throws Exception;
 
-	abstract public void columnDeleted(Table dt, Column dc) throws Exception;
+	abstract public void columnDeleted(DbTable dt, DbColumn dc) throws Exception;
 
-	abstract public void columnAdded(Table dt, Column sc) throws Exception;
+	abstract public void columnAdded(DbTable dt, DbColumn sc) throws Exception;
 
-	abstract public void relationDeleted(Table st, Table dt, Relation rel) throws Exception;
+	abstract public void relationDeleted(DbTable st, DbTable dt, DbRelation rel) throws Exception;
 
-	abstract public void relationAdded(Table st, Table dt, Relation newrel) throws Exception;
+	abstract public void relationAdded(DbTable st, DbTable dt, DbRelation newrel) throws Exception;
 
-	abstract public void relationNameChanged(Table st, Table dt, Relation sr, Relation dr, String newname) throws Exception;
+	abstract public void relationNameChanged(DbTable st, DbTable dt, DbRelation sr, DbRelation dr, String newname) throws Exception;
 
-	abstract public void relationTablesChanged(Table st, Table dt, Relation sr, Relation dr) throws Exception;
+	abstract public void relationTablesChanged(DbTable st, DbTable dt, DbRelation sr, DbRelation dr) throws Exception;
 
-	abstract public void relationColumnsChanged(Table st, Table dt, Relation sr, Relation dr) throws Exception;
+	abstract public void relationColumnsChanged(DbTable st, DbTable dt, DbRelation sr, DbRelation dr) throws Exception;
 
 	abstract public void viewAdded(DbView v) throws Exception;
 
@@ -617,11 +617,11 @@ abstract public class AbstractSchemaComparator {
 
 	abstract public void triggerChanged(Trigger oldt, Trigger newt) throws Exception;
 
-	abstract public void indexAdded(Table dt, Index newix) throws Exception;
+	abstract public void indexAdded(DbTable dt, DbIndex newix) throws Exception;
 
-	abstract public void indexDeleted(Index oldix) throws Exception;
+	abstract public void indexDeleted(DbIndex oldix) throws Exception;
 
-	abstract public void indexTableChanged(Index oldix, Index newix) throws Exception;
+	abstract public void indexTableChanged(DbIndex oldix, DbIndex newix) throws Exception;
 
-	abstract public void indexChanged(Index six, Index dix, boolean uniquechanged, List<ColumnChange> colchanges) throws Exception;
+	abstract public void indexChanged(DbIndex six, DbIndex dix, boolean uniquechanged, List<ColumnChange> colchanges) throws Exception;
 }

@@ -1,16 +1,15 @@
-package to.etc.dbcompare.db;
+package to.etc.dbutil.schema;
 
 import java.io.*;
 
-public class CheckConstraint implements Serializable {
-	private String	m_name;
+public class DbCheckConstraint implements Serializable {
+	private String m_name;
 
-	private String	m_text;
+	private String m_text;
 
-	public CheckConstraint() {
-	}
+	public DbCheckConstraint() {}
 
-	public CheckConstraint(String name, String text) {
+	public DbCheckConstraint(String name, String text) {
 		m_name = name;
 		m_text = text;
 	}

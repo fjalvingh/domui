@@ -1,11 +1,11 @@
-package to.etc.dbcompare.db;
+package to.etc.dbutil.schema;
 
 import java.io.*;
 
 public class SpecialIndex implements Serializable {
-	private String	m_name;
+	private String m_name;
 
-	private String	m_ddl;
+	private String m_ddl;
 
 	public SpecialIndex(String name, String ddl) {
 		m_name = name;

@@ -1,14 +1,13 @@
-package to.etc.dbcompare.db;
+package to.etc.dbutil.schema;
 
 import java.io.*;
 
 public class Trigger implements Serializable {
-	private String	m_name;
+	private String m_name;
 
-	private String	m_code;
+	private String m_code;
 
-	public Trigger() {
-	}
+	public Trigger() {}
 
 	public Trigger(String name, String code) {
 		m_name = name;

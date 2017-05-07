@@ -1,15 +1,15 @@
 package to.etc.dbcompare;
 
-import to.etc.dbcompare.db.*;
+import to.etc.dbutil.schema.*;
 
 public class ColumnChange {
-	private ChangeType	m_changeType;
+	private ChangeType m_changeType;
 
-	private int			m_fromIndex;
+	private int m_fromIndex;
 
-	private int			m_toIndex;
+	private int m_toIndex;
 
-	private IndexColumn	m_column;
+	private IndexColumn m_column;
 
 	public ColumnChange(ChangeType changeType, IndexColumn column, int fromIndex, int toIndex) {
 		m_changeType = changeType;

@@ -2,8 +2,8 @@ package to.etc.dbcompare;
 
 import java.io.*;
 
-import to.etc.dbcompare.db.*;
 import to.etc.dbcompare.generator.*;
+import to.etc.dbutil.schema.*;
 
 public class CompareDB {
 	/**
@@ -17,54 +17,10 @@ public class CompareDB {
 		}
 	}
 
-	/**
-	 * tries to load a serialized planset. Returns null if load fails.
-	 * @param src
-	 * @return
-	 */
-	private Schema loadSchema(File src) {
-		ObjectInputStream ois = null;
-		try {
-			ois = new ObjectInputStream(new FileInputStream(src));
-			Schema s = (Schema) ois.readObject();
-			System.out.println("Schema loaded from " + src);
-			return s;
-		} catch(Exception x) {
-			System.out.println("Loading schema failed: " + x);
-			return null;
-		} finally {
-			try {
-				if(ois != null)
-					ois.close();
-			} catch(Exception x) {}
-		}
-	}
-
-	private void saveSchema(File dst, Schema ps) throws Exception {
-		ObjectOutputStream oos = null;
-		try {
-			oos = new ObjectOutputStream(new FileOutputStream(dst));
-			oos.writeObject(ps);
-		} catch(Exception x) {
-			System.out.println("Saving schema failed: " + x);
-		} finally {
-			try {
-				if(oos != null)
-					oos.close();
-			} catch(Exception x) {}
-		}
-	}
-
 	private Database initDb(String poolid, String schema) throws Exception {
 		//-- 1. Try to load an earlier schema,
 		File sf = new File(poolid + "-" + schema + ".ser");
-		Schema s = loadSchema(sf);
-		if(s != null)
-			return new Database(poolid, s);
-		Database d = new Database(poolid);
-		d.reverse(schema);
-		saveSchema(sf, d.getSchema());
-		return d;
+		return Database.loadSchema(poolid, schema, sf);
 	}
 
 	/**

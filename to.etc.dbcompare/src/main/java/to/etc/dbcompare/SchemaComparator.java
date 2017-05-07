@@ -2,133 +2,104 @@ package to.etc.dbcompare;
 
 import java.util.*;
 
-import to.etc.dbcompare.db.*;
-import to.etc.dbcompare.db.Package;
+import to.etc.dbutil.schema.*;
+import to.etc.dbutil.schema.Package;
 
 public class SchemaComparator extends AbstractSchemaComparator {
-	public SchemaComparator(Schema src, Schema dest) {
+	public SchemaComparator(DbSchema src, DbSchema dest) {
 		super(src, dest);
 	}
 
 	@Override
-	public void columnAdded(Table dt, Column sc) throws Exception {
-	}
+	public void columnAdded(DbTable dt, DbColumn sc) throws Exception {}
 
 	@Override
-	public void columnChanged(Table dt, Column sc, Column dc, int flag) throws Exception {
-	}
+	public void columnChanged(DbTable dt, DbColumn sc, DbColumn dc, int flag) throws Exception {}
 
 	@Override
-	public void columnDeleted(Table dt, Column dc) throws Exception {
-	}
+	public void columnDeleted(DbTable dt, DbColumn dc) throws Exception {}
 
 	@Override
-	public void primaryKeyAdded(Table dt, PrimaryKey pk) throws Exception {
-	}
+	public void primaryKeyAdded(DbTable dt, DbPrimaryKey pk) throws Exception {}
 
 	@Override
-	public void primaryKeyDeleted(Table dt, PrimaryKey oldpk) throws Exception {
-	}
+	public void primaryKeyDeleted(DbTable dt, DbPrimaryKey oldpk) throws Exception {}
 
 	@Override
-	public void primaryKeyFieldAdded(Table dt, int ix, Column sc) throws Exception {
-	}
+	public void primaryKeyFieldAdded(DbTable dt, int ix, DbColumn sc) throws Exception {}
 
 	@Override
-	public void primaryKeyFieldChanged(Table dt, int ix, Column oldc, Column newc) throws Exception {
-	}
+	public void primaryKeyFieldChanged(DbTable dt, int ix, DbColumn oldc, DbColumn newc) throws Exception {}
 
 	@Override
-	public void primaryKeyFieldDeleted(Table dt, int ix, Column dc) throws Exception {
-	}
+	public void primaryKeyFieldDeleted(DbTable dt, int ix, DbColumn dc) throws Exception {}
 
 	@Override
-	public void primaryKeyChanged(Table oldt, Table newt, PrimaryKey oldpk, PrimaryKey newpk) throws Exception {
-	}
+	public void primaryKeyChanged(DbTable oldt, DbTable newt, DbPrimaryKey oldpk, DbPrimaryKey newpk) throws Exception {}
 
 	@Override
-	public void tableAdded(Table st) throws Exception {
-	}
+	public void tableAdded(DbTable st) throws Exception {}
 
 	@Override
-	public void tableDeleted(Table dt) throws Exception {
-	}
+	public void tableDeleted(DbTable dt) throws Exception {}
 
 	@Override
-	public void relationAdded(Table st, Table dt, Relation newrel) throws Exception {
-	}
+	public void relationAdded(DbTable st, DbTable dt, DbRelation newrel) throws Exception {}
 
 	@Override
-	public void relationColumnsChanged(Table st, Table dt, Relation sr, Relation dr) throws Exception {
-	}
+	public void relationColumnsChanged(DbTable st, DbTable dt, DbRelation sr, DbRelation dr) throws Exception {}
 
 	@Override
-	public void relationDeleted(Table st, Table dt, Relation rel) throws Exception {
-	}
+	public void relationDeleted(DbTable st, DbTable dt, DbRelation rel) throws Exception {}
 
 	@Override
-	public void relationNameChanged(Table st, Table dt, Relation sr, Relation dr, String newname) throws Exception {
-	}
+	public void relationNameChanged(DbTable st, DbTable dt, DbRelation sr, DbRelation dr, String newname) throws Exception {}
 
 	@Override
-	public void relationTablesChanged(Table st, Table dt, Relation sr, Relation dr) throws Exception {
-	}
+	public void relationTablesChanged(DbTable st, DbTable dt, DbRelation sr, DbRelation dr) throws Exception {}
 
 	@Override
-	public void viewAdded(DbView v) throws Exception {
-	}
+	public void viewAdded(DbView v) throws Exception {}
 
 	@Override
-	public void viewChanged(DbView oldview, DbView newview) throws Exception {
-	}
+	public void viewChanged(DbView oldview, DbView newview) throws Exception {}
 
 	@Override
-	public void viewDeleted(DbView v) throws Exception {
-	}
+	public void viewDeleted(DbView v) throws Exception {}
 
 	@Override
-	public void packageAdded(Package p) throws Exception {
-	}
+	public void packageAdded(Package p) throws Exception {}
 
 	@Override
-	public void packageBodyChanged(Package oldp, Package newp) throws Exception {
-	}
+	public void packageBodyChanged(Package oldp, Package newp) throws Exception {}
 
 	@Override
-	public void packageDefinitionChanged(Package oldp, Package newp) throws Exception {
-	}
+	public void packageDefinitionChanged(Package oldp, Package newp) throws Exception {}
 
 	@Override
-	public void packageDeleted(Package p) throws Exception {
-	}
+	public void packageDeleted(Package p) throws Exception {}
 
 	@Override
-	public void triggerAdded(Trigger newt) throws Exception {
-	}
+	public void triggerAdded(Trigger newt) throws Exception {}
 
 	@Override
-	public void triggerChanged(Trigger oldt, Trigger newt) throws Exception {
-	}
+	public void triggerChanged(Trigger oldt, Trigger newt) throws Exception {}
 
 	@Override
-	public void triggerDeleted(Trigger oldt) throws Exception {
-	}
+	public void triggerDeleted(Trigger oldt) throws Exception {}
 
 	@Override
-	public void indexAdded(Table dt, Index newix) throws Exception {
-	}
+	public void indexAdded(DbTable dt, DbIndex newix) throws Exception {}
 
 	@Override
-	public void indexChanged(Index six, Index dix, boolean uniquechanged, List<ColumnChange> colchanges) throws Exception {
+	public void indexChanged(DbIndex six, DbIndex dix, boolean uniquechanged, List<ColumnChange> colchanges) throws Exception {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void indexDeleted(Index oldix) throws Exception {
-	}
+	public void indexDeleted(DbIndex oldix) throws Exception {}
 
 	@Override
-	public void indexTableChanged(Index oldix, Index newix) throws Exception {
-	}
+	public void indexTableChanged(DbIndex oldix, DbIndex newix) throws Exception {}
 }

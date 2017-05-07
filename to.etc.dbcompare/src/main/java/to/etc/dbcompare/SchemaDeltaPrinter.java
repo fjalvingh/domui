@@ -1,89 +1,84 @@
 package to.etc.dbcompare;
 
-import to.etc.dbcompare.db.*;
+import to.etc.dbutil.schema.*;
 
 public class SchemaDeltaPrinter extends SchemaComparator {
-	public SchemaDeltaPrinter(Schema src, Schema dest) {
+	public SchemaDeltaPrinter(DbSchema src, DbSchema dest) {
 		super(src, dest);
 	}
 
 	@Override
-	public void columnAdded(Table dt, Column sc) throws Exception {
+	public void columnAdded(DbTable dt, DbColumn sc) throws Exception {
 		System.out.println("alter " + dt.getName() + " add " + sc.getName());
 	}
 
 	@Override
-	public void columnChanged(Table dt, Column sc, Column dc, int flag) throws Exception {
+	public void columnChanged(DbTable dt, DbColumn sc, DbColumn dc, int flag) throws Exception {
 		System.out.println("column changed: " + dt.getName() + "." + sc.getName() + ": flags=" + Integer.toHexString(flag));
 	}
 
 	@Override
-	public void columnDeleted(Table dt, Column dc) throws Exception {
+	public void columnDeleted(DbTable dt, DbColumn dc) throws Exception {
 		System.out.println("alter table " + dt.getName() + " drop column " + dc.getName() + " cascade constraints;");
 	}
 
 	@Override
-	public void primaryKeyAdded(Table dt, PrimaryKey pk) throws Exception {
-	}
+	public void primaryKeyAdded(DbTable dt, DbPrimaryKey pk) throws Exception {}
 
 	@Override
-	public void primaryKeyDeleted(Table dt, PrimaryKey oldpk) throws Exception {
-	}
+	public void primaryKeyDeleted(DbTable dt, DbPrimaryKey oldpk) throws Exception {}
 
 	@Override
-	public void primaryKeyFieldAdded(Table dt, int ix, Column sc) throws Exception {
-	}
+	public void primaryKeyFieldAdded(DbTable dt, int ix, DbColumn sc) throws Exception {}
 
 	@Override
-	public void primaryKeyFieldChanged(Table dt, int ix, Column oldc, Column newc) throws Exception {
-	}
+	public void primaryKeyFieldChanged(DbTable dt, int ix, DbColumn oldc, DbColumn newc) throws Exception {}
 
 	@Override
-	public void primaryKeyChanged(Table oldt, Table newt, PrimaryKey oldpk, PrimaryKey newpk) throws Exception {
+	public void primaryKeyChanged(DbTable oldt, DbTable newt, DbPrimaryKey oldpk, DbPrimaryKey newpk) throws Exception {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void primaryKeyFieldDeleted(Table dt, int ix, Column dc) throws Exception {
-	}
+	public void primaryKeyFieldDeleted(DbTable dt, int ix, DbColumn dc) throws Exception {}
 
 	@Override
-	public void tableAdded(Table st) throws Exception {
+	public void tableAdded(DbTable st) throws Exception {
 		System.out.println("create table " + st.getName());
 	}
 
 	@Override
-	public void tableDeleted(Table dt) throws Exception {
+	public void tableDeleted(DbTable dt) throws Exception {
 		System.out.println("drop table " + dt.getName() + " cascade constraints;");
 	}
 
 	@Override
-	public void relationAdded(Table st, Table dt, Relation newrel) throws Exception {
+	public void relationAdded(DbTable st, DbTable dt, DbRelation newrel) throws Exception {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void relationColumnsChanged(Table st, Table dt, Relation sr, Relation dr) throws Exception {
+	public void relationColumnsChanged(DbTable st, DbTable dt, DbRelation sr, DbRelation dr) throws Exception {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void relationDeleted(Table st, Table dt, Relation rel) throws Exception {
+	public void relationDeleted(DbTable st, DbTable dt, DbRelation rel) throws Exception {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void relationNameChanged(Table st, Table dt, Relation sr, Relation dr, String newname) throws Exception {
+	public void relationNameChanged(DbTable st, DbTable dt, DbRelation sr, DbRelation dr, String newname) throws Exception {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public void relationTablesChanged(Table st, Table dt, Relation sr, Relation dr) throws Exception {
+	public void relationTablesChanged(DbTable st, DbTable dt, DbRelation sr, DbRelation dr) throws Exception {
 		// TODO Auto-generated method stub
 
 	}

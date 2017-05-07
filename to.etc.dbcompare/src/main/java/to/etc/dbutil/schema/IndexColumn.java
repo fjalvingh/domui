@@ -1,22 +1,22 @@
-package to.etc.dbcompare.db;
+package to.etc.dbutil.schema;
 
 import java.io.*;
 
 public class IndexColumn implements Serializable {
-	private Column	m_column;
+	private DbColumn m_column;
 
-	private boolean	m_descending;
+	private boolean m_descending;
 
-	public IndexColumn(Column column, boolean descending) {
+	public IndexColumn(DbColumn column, boolean descending) {
 		m_column = column;
 		m_descending = descending;
 	}
 
-	public Column getColumn() {
+	public DbColumn getColumn() {
 		return m_column;
 	}
 
-	public void setColumn(Column column) {
+	public void setColumn(DbColumn column) {
 		m_column = column;
 	}
 

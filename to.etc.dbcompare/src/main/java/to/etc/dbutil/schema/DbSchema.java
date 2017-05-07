@@ -1,56 +1,74 @@
-package to.etc.dbcompare.db;
+package to.etc.dbutil.schema;
 
 import java.io.*;
 import java.util.*;
 
+import javax.annotation.*;
+
+import to.etc.dbutil.reverse.*;
+
 /**
  * A database (schema) definition.
- * 
+ *
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 22, 2006
  */
-public class Schema implements Serializable {
-	private String						m_name;
+public class DbSchema implements Serializable {
+	transient private Reverser m_reverser;
 
-	private Map<String, Table>			m_tableMap			= new HashMap<String, Table>();
+	private String m_name;
 
-	private Map<String, Index>			m_indexMap			= new HashMap<String, Index>();
+	private Map<String, DbTable> m_tableMap = new HashMap<String, DbTable>();
 
-	private Map<String, DbView>			m_viewMap			= new HashMap<String, DbView>();
+	private Map<String, DbIndex> m_indexMap = new HashMap<String, DbIndex>();
 
-	private Map<String, Procedure>		m_procedureMap		= new HashMap<String, Procedure>();
+	private Map<String, DbView> m_viewMap = new HashMap<String, DbView>();
 
-	private Map<String, Package>		m_packageMap		= new HashMap<String, Package>();
+	private Map<String, Procedure> m_procedureMap = new HashMap<String, Procedure>();
 
-	private Map<String, Trigger>		m_triggerMap		= new HashMap<String, Trigger>();
+	private Map<String, Package> m_packageMap = new HashMap<String, Package>();
 
-	private Map<String, SpecialIndex>	m_specialIndexMap	= new HashMap<String, SpecialIndex>();
+	private Map<String, Trigger> m_triggerMap = new HashMap<String, Trigger>();
 
-	public Schema(String name) {
+	private Map<String, SpecialIndex> m_specialIndexMap = new HashMap<String, SpecialIndex>();
+
+	public DbSchema(Reverser r, String name) {
 		m_name = name;
+		m_reverser = r;
+	}
+
+	public void setReverser(Reverser r) {
+		m_reverser = r;
+	}
+
+	@Nonnull
+	public Reverser getReverser() {
+		if(null != m_reverser)
+			return m_reverser;
+		throw new IllegalStateException("Missing reverser.");
 	}
 
 	public String getName() {
 		return m_name;
 	}
 
-	public Table createTable(String name) {
-		Table t = new Table(this, name);
+	public DbTable createTable(String name) {
+		DbTable t = new DbTable(this, name);
 		m_tableMap.put(name, t);
 		return t;
 	}
 
-	public Map<String, Table> getTableMap() {
-		return m_tableMap;
+	public List<DbTable> getTables() {
+		return new ArrayList<DbTable>(m_tableMap.values());
 	}
 
-	public Table findTable(String name) {
+	public DbTable findTable(String name) {
 		return m_tableMap.get(name);
 	}
 
-	public Table getTable(String name) {
-		Table t = findTable(name);
+	public DbTable getTable(String name) {
+		DbTable t = findTable(name);
 		if(t == null)
 			throw new IllegalStateException("No table '" + name + "'");
 		return t;
@@ -104,15 +122,15 @@ public class Schema implements Serializable {
 		return m_triggerMap;
 	}
 
-	public Map<String, Index> getIndexMap() {
+	public Map<String, DbIndex> getIndexMap() {
 		return m_indexMap;
 	}
 
-	public void addIndex(Index ix) {
+	public void addIndex(DbIndex ix) {
 		m_indexMap.put(ix.getName(), ix);
 	}
 
-	public Index findIndex(String name) {
+	public DbIndex findIndex(String name) {
 		return m_indexMap.get(name);
 	}
 

@@ -1,4 +1,4 @@
-package to.etc.dbcompare.db;
+package to.etc.dbutil.schema;
 
 import java.io.*;
 
@@ -9,9 +9,9 @@ import java.io.*;
  * Created on Nov 14, 2007
  */
 public class DbView implements Serializable {
-	private String	m_name;
+	private String m_name;
 
-	private String	m_sql;
+	private String m_sql;
 
 	public DbView(String name, String sql) {
 		m_name = name;

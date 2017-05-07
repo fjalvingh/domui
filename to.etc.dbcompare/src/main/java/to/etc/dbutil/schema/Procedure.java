@@ -1,4 +1,4 @@
-package to.etc.dbcompare.db;
+package to.etc.dbutil.schema;
 
 import java.io.*;
 
@@ -9,12 +9,11 @@ import java.io.*;
  * Created on Nov 14, 2007
  */
 public class Procedure implements Serializable {
-	private String	m_name;
+	private String m_name;
 
-	private String	m_code;
+	private String m_code;
 
-	public Procedure() {
-	}
+	public Procedure() {}
 
 	public Procedure(String name, String code) {
 		m_name = name;

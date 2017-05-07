@@ -41,6 +41,10 @@
             <groupId>to.etc.domui</groupId>
             <artifactId>to.etc.db</artifactId>
         </dependency>
+        <dependency>
+            <groupId>to.etc.domui</groupId>
+            <artifactId>to.etc.webapp.core</artifactId>
+        </dependency>
 
         <!-- Test dependencies  -->
         <dependency>

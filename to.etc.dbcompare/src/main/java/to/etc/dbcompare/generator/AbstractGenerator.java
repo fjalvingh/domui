@@ -4,8 +4,8 @@ import static to.etc.dbcompare.AbstractSchemaComparator.*;
 
 import java.util.*;
 
-import to.etc.dbcompare.db.*;
-import to.etc.dbcompare.db.Package;
+import to.etc.dbutil.schema.*;
+import to.etc.dbutil.schema.Package;
 
 /**
  * Abstract thingy which is able to generate the appropriate SQL for schema creation.
@@ -17,7 +17,7 @@ import to.etc.dbcompare.db.Package;
 abstract public class AbstractGenerator {
 	abstract public String getIdent();
 
-	private Map<ColumnType, TypeMapping>	m_mapmap	= new HashMap<ColumnType, TypeMapping>();
+	private Map<ColumnType, TypeMapping> m_mapmap = new HashMap<ColumnType, TypeMapping>();
 
 	protected void registerMapping(ColumnType t, TypeMapping m) {
 		m_mapmap.put(t, m);
@@ -88,38 +88,39 @@ abstract public class AbstractGenerator {
 		return ";";
 	}
 
-	final public String renderColumnType(Column c, boolean rest) throws Exception {
+	final public String renderColumnType(DbColumn c, boolean rest) throws Exception {
 		StringBuilder sb = new StringBuilder();
 		renderColumnType(sb, c, rest);
 		return sb.toString();
 	}
 
-	static private final TypeMapping	BASE	= new TypeMapping() {
-													public void renderType(Appendable sb, Column c) throws Exception {
-														ColumnType ct = c.getType();
-														if(c.getPlatformTypeName() != null)
-															sb.append(c.getPlatformTypeName());
-														else {
-															sb.append(ct.getName());
-														}
-														if(ct.isPrecision() && c.getPrecision() >= 0) {
-															sb.append("(");
-															sb.append(Integer.toString(c.getPrecision()));
-															if(ct.isScale() && c.getScale() >= 0) {
-																sb.append(',');
-																sb.append(Integer.toString(c.getScale()));
-															}
-															sb.append(')');
-														}
-													}
-												};
+	static private final TypeMapping BASE = new TypeMapping() {
+		@Override
+		public void renderType(Appendable sb, DbColumn c) throws Exception {
+			ColumnType ct = c.getType();
+			if(c.getPlatformTypeName() != null)
+				sb.append(c.getPlatformTypeName());
+			else {
+				sb.append(ct.getName());
+			}
+			if(ct.isPrecision() && c.getPrecision() >= 0) {
+				sb.append("(");
+				sb.append(Integer.toString(c.getPrecision()));
+				if(ct.isScale() && c.getScale() >= 0) {
+					sb.append(',');
+					sb.append(Integer.toString(c.getScale()));
+				}
+				sb.append(')');
+			}
+		}
+	};
 
-	public TypeMapping getTypeMapping(Column c) {
+	public TypeMapping getTypeMapping(DbColumn c) {
 		TypeMapping m = m_mapmap.get(c.getType());
 		return m == null ? BASE : m;
 	}
 
-	public void renderColumnType(Appendable sb, Column c, boolean rest) throws Exception {
+	public void renderColumnType(Appendable sb, DbColumn c, boolean rest) throws Exception {
 		TypeMapping m = getTypeMapping(c);
 		m.renderType(sb, c);
 		if(!c.isNullable() && rest)
@@ -127,7 +128,7 @@ abstract public class AbstractGenerator {
 	}
 
 
-	public void renderAddColumn(Appendable sb, Table dt, Column sc) throws Exception {
+	public void renderAddColumn(Appendable sb, DbTable dt, DbColumn sc) throws Exception {
 		sb.append("alter table ");
 		renderTableName(sb, dt.getName());
 		sb.append("\n\tadd ");
@@ -137,12 +138,12 @@ abstract public class AbstractGenerator {
 		sb.append(getStatementDelimiter() + "\n");
 	}
 
-	public void renderColumnDrop(List<String> l, Table dt, Column dc) throws Exception {
+	public void renderColumnDrop(List<String> l, DbTable dt, DbColumn dc) throws Exception {
 		//-- Create "drop"
 		l.add("alter table " + dt.getName() + "\n\tdrop column " + dc.getName() + getStatementDelimiter() + "\n");
 	}
 
-	public void renderColumnComment(List<String> sl, Column sc) {
+	public void renderColumnComment(List<String> sl, DbColumn sc) {
 		if(sc.getComment() != null && sc.getComment().length() > 0) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("comment on column ");
@@ -156,7 +157,7 @@ abstract public class AbstractGenerator {
 		}
 	}
 
-	public void renderTableComment(List<String> sl, Table sc) {
+	public void renderTableComment(List<String> sl, DbTable sc) {
 		if(sc.getComments() != null && sc.getComments().length() > 0) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("comment on table ");
@@ -169,7 +170,7 @@ abstract public class AbstractGenerator {
 	}
 
 
-	public void columnChanged(List<String> l, Table dt, Column newc, Column oldc, int flag) throws Exception {
+	public void columnChanged(List<String> l, DbTable dt, DbColumn newc, DbColumn oldc, int flag) throws Exception {
 		StringBuilder sb = new StringBuilder();
 
 		//-- What changes can I support?
@@ -233,7 +234,7 @@ abstract public class AbstractGenerator {
 			renderColumnComment(l, newc);
 	}
 
-	public void addTable(List<String> l, Table st) throws Exception {
+	public void addTable(List<String> l, DbTable st) throws Exception {
 		StringBuilder sb = new StringBuilder(512);
 		sb.append("create table ");
 		sb.append(st.getName());
@@ -241,8 +242,8 @@ abstract public class AbstractGenerator {
 
 		//-- Create the PK field 1st *if* the table has a single PK.
 		boolean needcomma = false;
-		PrimaryKey pk = st.getPrimaryKey();
-		Column ignorec = null;
+		DbPrimaryKey pk = st.getPrimaryKey();
+		DbColumn ignorec = null;
 		if(pk != null && pk.getColumnList().size() == 1) {
 			//-- Dump PK column,
 			ignorec = pk.getColumnList().get(0);
@@ -253,7 +254,7 @@ abstract public class AbstractGenerator {
 		}
 
 		//-- Render all other columns,
-		for(Column c : st.getColumnList()) {
+		for(DbColumn c : st.getColumnList()) {
 			if(c == ignorec)
 				continue;
 			if(needcomma)
@@ -276,7 +277,7 @@ abstract public class AbstractGenerator {
 			}
 			sb.append("primary key(");
 			boolean fst = true;
-			for(Column c : pk.getColumnList()) {
+			for(DbColumn c : pk.getColumnList()) {
 				if(!fst)
 					sb.append(',');
 				else
@@ -292,18 +293,18 @@ abstract public class AbstractGenerator {
 
 		//-- Table comments,
 		renderTableComment(l, st);
-		for(Column sc : st.getColumnList()) {
+		for(DbColumn sc : st.getColumnList()) {
 			renderColumnComment(l, sc);
 		}
 	}
 
-	private void renderCreateColumn(StringBuilder sb, Column c) throws Exception {
+	private void renderCreateColumn(StringBuilder sb, DbColumn c) throws Exception {
 		sb.append(c.getName());
 		sb.append(" ");
 		renderColumnType(sb, c, true);
 	}
 
-	public void renderDropTable(List<String> l, Table dt) {
+	public void renderDropTable(List<String> l, DbTable dt) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("drop table ");
 		sb.append(dt.getName());
@@ -312,7 +313,7 @@ abstract public class AbstractGenerator {
 
 	}
 
-	public void renderCreatePK(List<String> l, PrimaryKey pk) throws Exception {
+	public void renderCreatePK(List<String> l, DbPrimaryKey pk) throws Exception {
 		StringBuilder a = new StringBuilder();
 		a.append("alter table ");
 		renderTableName(a, pk.getTable().getName());
@@ -324,7 +325,7 @@ abstract public class AbstractGenerator {
 		}
 		a.append("primary key(");
 		boolean comma = false;
-		for(Column c : pk.getColumnList()) {
+		for(DbColumn c : pk.getColumnList()) {
 			if(comma)
 				a.append(',');
 			else
@@ -335,7 +336,7 @@ abstract public class AbstractGenerator {
 		l.add(a.toString());
 	}
 
-	public void renderDropPK(List<String> l, PrimaryKey pk) throws Exception {
+	public void renderDropPK(List<String> l, DbPrimaryKey pk) throws Exception {
 		StringBuilder a = new StringBuilder();
 		a.append("alter table ");
 		renderTableName(a, pk.getTable().getName());
@@ -354,7 +355,7 @@ abstract public class AbstractGenerator {
 	/*	CODING:	Relation delta.										*/
 	/*--------------------------------------------------------------*/
 
-	public void renderDropRelation(List<String> l, Table dt, Relation sr) throws Exception {
+	public void renderDropRelation(List<String> l, DbTable dt, DbRelation sr) throws Exception {
 		StringBuilder a = new StringBuilder(512);
 		a.append("alter table ");
 		renderTableName(a, dt.getName());
@@ -364,7 +365,7 @@ abstract public class AbstractGenerator {
 		l.add(a.toString());
 	}
 
-	public void renderAddRelation(List<String> l, Table dt, Relation dr) throws Exception {
+	public void renderAddRelation(List<String> l, DbTable dt, DbRelation dr) throws Exception {
 		StringBuilder a = new StringBuilder(512);
 		a.append("alter table ");
 		renderTableName(a, dt.getName());
@@ -463,7 +464,7 @@ abstract public class AbstractGenerator {
 		l.add(a.toString());
 	}
 
-	public void renderDropIndex(List<String> l, Index ix) throws Exception {
+	public void renderDropIndex(List<String> l, DbIndex ix) throws Exception {
 		StringBuilder a = new StringBuilder();
 		a.append("drop index ");
 		a.append(ix.getName());
@@ -471,7 +472,7 @@ abstract public class AbstractGenerator {
 		l.add(a.toString());
 	}
 
-	public void renderCreateIndex(List<String> l, Index ix) throws Exception {
+	public void renderCreateIndex(List<String> l, DbIndex ix) throws Exception {
 		StringBuilder a = new StringBuilder();
 		a.append("create ");
 		if(ix.isUnique())

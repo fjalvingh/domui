@@ -1,4 +1,4 @@
-package to.etc.dbcompare.db;
+package to.etc.dbutil.schema;
 
 import java.io.*;
 import java.sql.*;
@@ -11,37 +11,45 @@ import java.util.*;
  * Created on Dec 22, 2006
  */
 public class ColumnType implements Serializable {
-	static private Map<String, ColumnType>	m_typeMap	= new HashMap<String, ColumnType>();
+	static private Map<String, ColumnType> m_typeMap = new HashMap<String, ColumnType>();
 
-	static public final ColumnType			FLOAT		= new ColumnType("float", "fl", Types.FLOAT, false, false);
+	static public final ColumnType FLOAT = new ColumnType("float", "fl", Types.FLOAT, false, false);
 
-	static public final ColumnType			NUMBER		= new ColumnType("number", "n", Types.NUMERIC, true, true);
+	static public final ColumnType DOUBLE = new ColumnType("double", "dbl", Types.DOUBLE, false, false);
 
-	static public final ColumnType			VARCHAR		= new ColumnType("varchar", "v", Types.VARCHAR, true, false);
+	static public final ColumnType NUMBER = new ColumnType("number", "n", Types.NUMERIC, true, true);
 
-	static public final ColumnType			CHAR		= new ColumnType("char", "c", Types.CHAR, true, false);
+	static public final ColumnType VARCHAR = new ColumnType("varchar", "v", Types.VARCHAR, true, false);
 
-	static public final ColumnType			BOOLEAN		= new ColumnType("boolean", "bl", Types.BOOLEAN, false, false);
+	static public final ColumnType CHAR = new ColumnType("char", "c", Types.CHAR, true, false);
 
-	static public final ColumnType			CLOB		= new ColumnType("text", "txt", Types.CLOB, false, false);
+	static public final ColumnType BOOLEAN = new ColumnType("boolean", "bl", Types.BOOLEAN, false, false);
 
-	static public final ColumnType			BLOB		= new ColumnType("binary", "bin", Types.BLOB, false, false);
+	static public final ColumnType CLOB = new ColumnType("text", "txt", Types.CLOB, false, false);
 
-	static public final ColumnType			TIMESTAMP	= new ColumnType("timestamp", "ts", Types.TIMESTAMP, false, false);
+	static public final ColumnType BLOB = new ColumnType("blob", "blob", Types.BLOB, false, false);
 
-	static public final ColumnType			TIME		= new ColumnType("time", "time", Types.TIME, false, false);
+	static public final ColumnType TIMESTAMP = new ColumnType("timestamp", "ts", Types.TIMESTAMP, false, false);
 
-	static public final ColumnType			DATE		= new ColumnType("d", "date", Types.DATE, false, false);
+	static public final ColumnType TIME = new ColumnType("time", "time", Types.TIME, false, false);
 
-	private int								m_sqlType;
+	static public final ColumnType DATE = new ColumnType("d", "date", Types.DATE, false, false);
 
-	private String							m_name;
+	static public final ColumnType BIGINT = new ColumnType("bi", "bigint", Types.BIGINT, false, false);
 
-	private String							m_code;
+	static public final ColumnType INTEGER = new ColumnType("int", "integer", Types.INTEGER, false, false);
 
-	private boolean							m_precision;
+	static public final ColumnType BINARY = new ColumnType("binary", "binary", Types.BINARY, false, false);
 
-	private boolean							m_scale;
+	private int m_sqlType;
+
+	private String m_name;
+
+	private String m_code;
+
+	private boolean m_precision;
+
+	private boolean m_scale;
 
 	protected ColumnType(String name, String code, int sqlType, boolean precision, boolean scale) {
 		m_sqlType = sqlType;

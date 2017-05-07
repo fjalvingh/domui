@@ -3,40 +3,40 @@ package to.etc.dbcompare;
 import java.io.*;
 import java.util.*;
 
-import to.etc.dbcompare.db.*;
-import to.etc.dbcompare.db.Package;
 import to.etc.dbcompare.generator.*;
+import to.etc.dbutil.schema.*;
+import to.etc.dbutil.schema.Package;
 
 public class AlteringSchemaComparator extends AbstractSchemaComparator {
-	private AbstractGenerator	m_g;
+	private AbstractGenerator m_g;
 
-	private Set<String>			m_deletedTableSet	= new HashSet<String>();
+	private Set<String> m_deletedTableSet = new HashSet<String>();
 
-	private List<String>		m_tableChanges		= new ArrayList<String>();
+	private List<String> m_tableChanges = new ArrayList<String>();
 
-	private List<String>		m_relationDrops		= new ArrayList<String>();
+	private List<String> m_relationDrops = new ArrayList<String>();
 
-	private List<String>		m_relationAdds		= new ArrayList<String>();
+	private List<String> m_relationAdds = new ArrayList<String>();
 
-	private List<String>		m_columnAdds		= new ArrayList<String>();
+	private List<String> m_columnAdds = new ArrayList<String>();
 
-	private List<String>		m_columnDels		= new ArrayList<String>();
+	private List<String> m_columnDels = new ArrayList<String>();
 
-	private List<String>		m_columnMods		= new ArrayList<String>();
+	private List<String> m_columnMods = new ArrayList<String>();
 
-	private List<String>		m_pkMods			= new ArrayList<String>();
+	private List<String> m_pkMods = new ArrayList<String>();
 
-	private List<String>		m_viewMods			= new ArrayList<String>();
+	private List<String> m_viewMods = new ArrayList<String>();
 
-	private List<String>		m_packageMods		= new ArrayList<String>();
+	private List<String> m_packageMods = new ArrayList<String>();
 
-	private List<String>		m_triggerMods		= new ArrayList<String>();
+	private List<String> m_triggerMods = new ArrayList<String>();
 
-	private List<String>		m_indexAdds			= new ArrayList<String>();
+	private List<String> m_indexAdds = new ArrayList<String>();
 
-	private List<String>		m_indexDels			= new ArrayList<String>();
+	private List<String> m_indexDels = new ArrayList<String>();
 
-	public AlteringSchemaComparator(Schema src, Schema dest, AbstractGenerator g) {
+	public AlteringSchemaComparator(DbSchema src, DbSchema dest, AbstractGenerator g) {
 		super(src, dest);
 		m_g = g;
 	}
@@ -54,7 +54,7 @@ public class AlteringSchemaComparator extends AbstractSchemaComparator {
 	}
 
 	@Override
-	public void columnAdded(Table dt, Column sc) throws Exception {
+	public void columnAdded(DbTable dt, DbColumn sc) throws Exception {
 		StringBuilder sb = new StringBuilder();
 		m_g.renderAddColumn(sb, dt, sc);
 		m_columnAdds.add(sb.toString());
@@ -64,24 +64,24 @@ public class AlteringSchemaComparator extends AbstractSchemaComparator {
 	}
 
 	@Override
-	public void columnChanged(Table dt, Column newc, Column oldc, int flag) throws Exception {
+	public void columnChanged(DbTable dt, DbColumn newc, DbColumn oldc, int flag) throws Exception {
 		m_g.columnChanged(m_columnMods, dt, newc, oldc, flag);
 	}
 
 	@Override
-	public void columnDeleted(Table dt, Column dc) throws Exception {
+	public void columnDeleted(DbTable dt, DbColumn dc) throws Exception {
 		if(m_deletedTableSet.contains(dt.getName()))
 			return;
 		m_g.renderColumnDrop(m_columnDels, dt, dc);
 	}
 
 	@Override
-	public void tableAdded(Table st) throws Exception {
+	public void tableAdded(DbTable st) throws Exception {
 		m_g.addTable(m_tableChanges, st);
 	}
 
 	@Override
-	public void tableDeleted(Table dt) throws Exception {
+	public void tableDeleted(DbTable dt) throws Exception {
 		m_g.renderDropTable(m_tableChanges, dt);
 		m_deletedTableSet.add(dt.getName());
 	}
@@ -167,35 +167,35 @@ public class AlteringSchemaComparator extends AbstractSchemaComparator {
 	/*  CODING: Primary keys.                                       */
 	/*--------------------------------------------------------------*/
 	@Override
-	public void primaryKeyFieldAdded(Table dt, int ix, Column sc) throws Exception {
+	public void primaryKeyFieldAdded(DbTable dt, int ix, DbColumn sc) throws Exception {
 		//-- does not need an implementation;
 	}
 
 	@Override
-	public void primaryKeyFieldChanged(Table dt, int ix, Column oldc, Column newc) throws Exception {
+	public void primaryKeyFieldChanged(DbTable dt, int ix, DbColumn oldc, DbColumn newc) throws Exception {
 		//-- does not need an implementation;
 	}
 
 	@Override
-	public void primaryKeyFieldDeleted(Table dt, int ix, Column dc) throws Exception {
+	public void primaryKeyFieldDeleted(DbTable dt, int ix, DbColumn dc) throws Exception {
 		//-- does not need an implementation;
 	}
 
 	@Override
-	public void primaryKeyChanged(Table oldt, Table newt, PrimaryKey oldpk, PrimaryKey newpk) throws Exception {
+	public void primaryKeyChanged(DbTable oldt, DbTable newt, DbPrimaryKey oldpk, DbPrimaryKey newpk) throws Exception {
 		//-- Create a primary key constraint.
 		m_g.renderDropPK(m_pkMods, oldpk);
 		m_g.renderCreatePK(m_pkMods, newpk);
 	}
 
 	@Override
-	public void primaryKeyAdded(Table dt, PrimaryKey pk) throws Exception {
+	public void primaryKeyAdded(DbTable dt, DbPrimaryKey pk) throws Exception {
 		m_g.renderCreatePK(m_pkMods, pk);
 	}
 
 
 	@Override
-	public void primaryKeyDeleted(Table dt, PrimaryKey oldpk) throws Exception {
+	public void primaryKeyDeleted(DbTable dt, DbPrimaryKey oldpk) throws Exception {
 		m_g.renderDropPK(m_pkMods, oldpk);
 	}
 
@@ -204,29 +204,29 @@ public class AlteringSchemaComparator extends AbstractSchemaComparator {
 	/*	CODING:	Relations.                                       	*/
 	/*--------------------------------------------------------------*/
 	@Override
-	public void relationAdded(Table st, Table dt, Relation newrel) throws Exception {
+	public void relationAdded(DbTable st, DbTable dt, DbRelation newrel) throws Exception {
 		m_g.renderAddRelation(m_relationAdds, dt, newrel);
 	}
 
 	@Override
-	public void relationColumnsChanged(Table st, Table dt, Relation sr, Relation dr) throws Exception {
+	public void relationColumnsChanged(DbTable st, DbTable dt, DbRelation sr, DbRelation dr) throws Exception {
 		m_g.renderDropRelation(m_relationDrops, dt, dr);
 		m_g.renderAddRelation(m_relationAdds, dt, dr);
 	}
 
 	@Override
-	public void relationDeleted(Table st, Table dt, Relation rel) throws Exception {
+	public void relationDeleted(DbTable st, DbTable dt, DbRelation rel) throws Exception {
 		m_g.renderDropRelation(m_relationDrops, dt, rel);
 	}
 
 	@Override
-	public void relationNameChanged(Table st, Table dt, Relation sr, Relation dr, String newname) throws Exception {
+	public void relationNameChanged(DbTable st, DbTable dt, DbRelation sr, DbRelation dr, String newname) throws Exception {
 		m_g.renderDropRelation(m_relationDrops, dt, dr);
 		m_g.renderAddRelation(m_relationAdds, dt, dr);
 	}
 
 	@Override
-	public void relationTablesChanged(Table st, Table dt, Relation sr, Relation dr) throws Exception {
+	public void relationTablesChanged(DbTable st, DbTable dt, DbRelation sr, DbRelation dr) throws Exception {
 		m_g.renderDropRelation(m_relationDrops, dt, dr);
 		m_g.renderAddRelation(m_relationAdds, dt, dr);
 	}
@@ -300,23 +300,23 @@ public class AlteringSchemaComparator extends AbstractSchemaComparator {
 	/*	CODING:	Indexes.											*/
 	/*--------------------------------------------------------------*/
 	@Override
-	public void indexAdded(Table dt, Index newix) throws Exception {
+	public void indexAdded(DbTable dt, DbIndex newix) throws Exception {
 		m_g.renderCreateIndex(m_indexAdds, newix);
 	}
 
 	@Override
-	public void indexChanged(Index six, Index dix, boolean uniquechanged, List<ColumnChange> colchanges) throws Exception {
+	public void indexChanged(DbIndex six, DbIndex dix, boolean uniquechanged, List<ColumnChange> colchanges) throws Exception {
 		m_g.renderDropIndex(m_indexDels, dix);
 		m_g.renderCreateIndex(m_indexAdds, dix);
 	}
 
 	@Override
-	public void indexDeleted(Index oldix) throws Exception {
+	public void indexDeleted(DbIndex oldix) throws Exception {
 		m_g.renderDropIndex(m_indexDels, oldix);
 	}
 
 	@Override
-	public void indexTableChanged(Index oldix, Index newix) throws Exception {
+	public void indexTableChanged(DbIndex oldix, DbIndex newix) throws Exception {
 		m_g.renderDropIndex(m_indexDels, oldix);
 		m_g.renderCreateIndex(m_indexAdds, newix);
 	}

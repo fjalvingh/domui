@@ -1,4 +1,4 @@
-package to.etc.dbcompare.db;
+package to.etc.dbutil.schema;
 
 import java.io.*;
 import java.util.*;
@@ -9,16 +9,16 @@ import java.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 22, 2006
  */
-public class Index implements Serializable {
-	private Table				m_table;
+public class DbIndex implements Serializable {
+	private DbTable m_table;
 
-	private List<IndexColumn>	m_columnList	= new ArrayList<IndexColumn>();
+	private List<IndexColumn> m_columnList = new ArrayList<IndexColumn>();
 
-	private boolean				m_unique;
+	private boolean m_unique;
 
-	private String				m_name;
+	private String m_name;
 
-	private String				m_tablespace;
+	private String m_tablespace;
 
 	public String getTablespace() {
 		return m_tablespace;
@@ -28,7 +28,7 @@ public class Index implements Serializable {
 		m_tablespace = tablespace;
 	}
 
-	public void setTable(Table table) {
+	public void setTable(DbTable table) {
 		m_table = table;
 	}
 
@@ -44,7 +44,7 @@ public class Index implements Serializable {
 		m_name = name;
 	}
 
-	public Index(Table table, String name, boolean unique) {
+	public DbIndex(DbTable table, String name, boolean unique) {
 		m_table = table;
 		m_name = name;
 		m_unique = unique;
@@ -58,7 +58,7 @@ public class Index implements Serializable {
 		return m_name;
 	}
 
-	public Table getTable() {
+	public DbTable getTable() {
 		return m_table;
 	}
 
@@ -66,7 +66,7 @@ public class Index implements Serializable {
 		return m_unique;
 	}
 
-	public void addColumn(Column c, boolean desc) {
+	public void addColumn(DbColumn c, boolean desc) {
 		m_columnList.add(new IndexColumn(c, desc));
 	}
 }

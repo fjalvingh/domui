@@ -1,19 +1,20 @@
 package to.etc.dbcompare.generator;
 
-import to.etc.dbcompare.db.*;
+import to.etc.dbutil.schema.*;
 
 public class SimpleMapping implements TypeMapping {
-	private String	m_name;
+	private String m_name;
 
 	public SimpleMapping(String n) {
 		m_name = n;
 	}
 
-	public String getTypeName(Column c) {
+	public String getTypeName(DbColumn c) {
 		return m_name;
 	}
 
-	public void renderType(Appendable sb, Column c) throws Exception {
+	@Override
+	public void renderType(Appendable sb, DbColumn c) throws Exception {
 		sb.append(getTypeName(c));
 		ColumnType ct = c.getType();
 		if(ct.isPrecision()) {

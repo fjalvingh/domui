@@ -4,7 +4,7 @@ import java.sql.*;
 import java.util.*;
 
 public class GeneratorRegistry {
-	static private List<GeneratorFactory>	m_factories	= new ArrayList<GeneratorFactory>();
+	static private List<GeneratorFactory> m_factories = new ArrayList<GeneratorFactory>();
 
 	static public void register(GeneratorFactory f) {
 		m_factories.add(f);
@@ -26,6 +26,7 @@ public class GeneratorRegistry {
 		 * Oracle Generator
 		 */
 		register(new GeneratorFactory() {
+			@Override
 			public AbstractGenerator createGenerator(Connection dbc) throws Exception {
 				DatabaseMetaData dmd = dbc.getMetaData();
 				if(dmd.getDatabaseProductName().toLowerCase().contains("oracle"))
@@ -33,6 +34,7 @@ public class GeneratorRegistry {
 				return null;
 			}
 
+			@Override
 			public AbstractGenerator createGenerator(String id) throws Exception {
 				if(id.startsWith("oracle"))
 					return new OracleGenerator();
@@ -43,6 +45,7 @@ public class GeneratorRegistry {
 		 * Postgresql Generator
 		 */
 		register(new GeneratorFactory() {
+			@Override
 			public AbstractGenerator createGenerator(Connection dbc) throws Exception {
 				DatabaseMetaData dmd = dbc.getMetaData();
 				if(dmd.getDatabaseProductName().toLowerCase().contains("postgres"))
@@ -50,6 +53,7 @@ public class GeneratorRegistry {
 				return null;
 			}
 
+			@Override
 			public AbstractGenerator createGenerator(String id) throws Exception {
 				if(id.startsWith("postgres"))
 					return new PostgresGenerator();
