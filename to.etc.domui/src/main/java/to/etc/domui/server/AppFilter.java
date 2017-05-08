@@ -94,7 +94,6 @@ public class AppFilter implements Filter {
 				response = ww.getWrappedResponse(response);
 			}
 
-
 			String userid = m_loginDeterminator.getLoginData(rq);
 			if(null != userid) {
 				m_clientRegistry.registerRequest(rq, userid);
@@ -116,11 +115,8 @@ public class AppFilter implements Filter {
 			//			NlsContext.setLocale(new Locale("nl", "NL"));
 			initContext(req);
 
-			m_contextMaker.handleRequest(rq, (HttpServletResponse) res, chain);
-		} catch(RuntimeException x) {
-			DomUtil.dumpExceptionIfSevere(x);
-			throw x;
-		} catch(ServletException x) {
+			m_contextMaker.handleRequest(rq, response, chain);
+		} catch(RuntimeException | ServletException x) {
 			DomUtil.dumpExceptionIfSevere(x);
 			throw x;
 		} catch(IOException x) {
