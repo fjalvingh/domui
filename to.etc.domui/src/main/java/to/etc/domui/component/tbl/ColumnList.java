@@ -1,14 +1,14 @@
 package to.etc.domui.component.tbl;
 
-import java.util.*;
-
-import javax.annotation.*;
-
+import kotlin.reflect.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 import to.etc.webapp.annotations.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * A list of columns defined in a new-style row renderer.
@@ -243,6 +243,25 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 		PropertyMetaModel< ? > pmm = model().getProperty(property);			// Get the appropriate model
 		return createColumnDef(pmm);
 	}
+
+	public <F> ColumnDef<T, F> column(@Nonnull KProperty1<T, F> property) {
+		PropertyMetaModel<F> pmm = (PropertyMetaModel<F>) model().getProperty(property.getName());
+		return createColumnDef(pmm);
+	}
+
+	public <A, B> ColumnDef<T, B> column(@Nonnull KProperty1<T, A> property1, @Nonnull KProperty1<A, B> property2) {
+		PropertyMetaModel<B> pmm = (PropertyMetaModel<B>) model().getProperty(property1.getName() + "." + property2.getName());
+		return createColumnDef(pmm);
+	}
+
+	public <A, B, C> ColumnDef<T, C> column(@Nonnull KProperty1<T, A> property1, @Nonnull KProperty1<A, B> property2, KProperty1<B, C> property3) {
+		PropertyMetaModel<C> pmm = (PropertyMetaModel<C>) model().getProperty(property1.getName()
+			+ "." + property2.getName()
+			+ "." + property3.getName()
+		);
+		return createColumnDef(pmm);
+	}
+
 
 	/**
 	 * Add a column which gets referred the row element instead of a column element. This is normally used together with

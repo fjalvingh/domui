@@ -31,8 +31,7 @@ import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IDisplayControl;
 import to.etc.domui.dom.html.NodeBase;
-import to.etc.domui.util.DomUtil;
-import to.etc.domui.util.IValueAccessor;
+import to.etc.domui.util.*;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.nls.CodeException;
 
@@ -95,6 +94,12 @@ final public class ComponentPropertyBinding implements IBinding {
 		BOXINGDISASTER.put(byte.class, Byte.class);
 	}
 
+	@Nullable
+	private IWriteOnlyModel<?> m_setter;
+
+	@Nullable
+	private IReadOnlyModel<?> m_getter;
+
 	public ComponentPropertyBinding(@Nonnull NodeBase control, @Nonnull String controlProperty) {
 		if(control == null)
 			throw new IllegalArgumentException("The control cannot be null.");
@@ -105,6 +110,10 @@ final public class ComponentPropertyBinding implements IBinding {
 	}
 
 	private void checkAssigned() {
+		if(m_listener != null || m_instance != null || m_setter != null || m_getter != null)
+			throw new ProgrammerErrorException("This binding is already fully defined. Create a new one.");
+	}
+	private void checkNonSetterAssigned() {
 		if(m_listener != null || m_instance != null)
 			throw new ProgrammerErrorException("This binding is already fully defined. Create a new one.");
 	}
@@ -133,6 +142,41 @@ final public class ComponentPropertyBinding implements IBinding {
 	}
 
 	/**
+	 * Define a setter method for this binding, which gets called when the component value changes.
+	 *
+	 * @param writer
+	 * @param <T>
+	 * @return
+	 * @throws Exception
+	 */
+	public <T> ComponentPropertyBinding set(IWriteOnlyModel<T> writer) {
+		checkNonSetterAssigned();
+		if(m_setter != null)
+			throw new ProgrammerErrorException("This binding already as a setter defined through a 'set' call");
+		m_setter = writer;
+		return this;
+	}
+
+	/**
+	 * Define a getter method for this binding, which get called to get the current value from the
+	 * model object when it's time to move the model back to the control.
+	 *
+	 * @param reader
+	 * @param <T>
+	 * @return
+	 * @throws Exception
+	 */
+	public <T> ComponentPropertyBinding get(IReadOnlyModel<T> reader) throws Exception {
+		checkNonSetterAssigned();
+		if(m_getter != null)
+			throw new ProgrammerErrorException("This binding already as a getter defined through a 'get' call");
+		m_getter = reader;
+		moveModelToControl();							// Immediately initialize the control's value
+		return this;
+	}
+
+
+	/**
 	 * Bind to a IValueAccessor and the given instance.
 	 * @param instance
 	 * @param pmm
@@ -155,7 +199,7 @@ final public class ComponentPropertyBinding implements IBinding {
 				//-- Type erasure, deep, deep sigh. Can the control tell us the actual type contained?
 				if(m_control instanceof ITypedControl) {
 					ITypedControl<?> typedControl = (ITypedControl<?>) m_control;
-					controlType = typedControl.getActualType();
+					controlType = fixBoxingDisaster(typedControl.getActualType());
 				}
 			}
 
@@ -201,6 +245,8 @@ final public class ComponentPropertyBinding implements IBinding {
 			sb.append(m_instance);
 		} else if(m_listener != null) {
 			sb.append("listener ").append(m_listener);
+		} else if(m_setter != null || m_getter != null) {
+			sb.append("get/set lambda");
 		} else {
 			sb.append("?");
 		}
@@ -252,12 +298,44 @@ final public class ComponentPropertyBinding implements IBinding {
 		return newClass != null ? newClass : clz;
 	}
 
+	@Nullable
+	private Object getValueFromModel() throws Exception {
+		Object modelValue;
+		IReadOnlyModel<?> getter = m_getter;
+		if(null != getter) {
+			modelValue = getter.getValue();
+		} else {
+			IValueAccessor<?> instanceProperty = m_instanceProperty;
+			if(null == instanceProperty)
+				throw new IllegalStateException("instance property cannot be null");
+			Object instance = m_instance;
+			if(null == instance)
+				throw new IllegalStateException("instance cannot be null");
+			modelValue = instanceProperty.getValue(instance);
+		}
+		return modelValue;
+	}
+
 	/**
 	 *
 	 * @param value
 	 * @param <T>
 	 */
 	@Override public <T> void setModelValue(@Nullable T value) {
+		IWriteOnlyModel<T> setter = (IWriteOnlyModel<T>) m_setter;
+		if(m_getter != null || setter != null) {
+			if(setter != null) {
+				try {
+					setter.getValue(value);
+				} catch(Exception x) {
+					if(value == null)
+						throw new BindingFailureException(x, "->model", this + ": Binding error moving null to the binding's 'set' lambda");
+					throw new BindingFailureException(x, "->model", this + ": Binding error moving " + value + " (a " + value.getClass().getName() + ") to the binding's 'set' lambda");
+				}
+			}
+			return;
+		}
+
 		IValueAccessor< ? > instanceProperty = m_instanceProperty;
 		if(null == instanceProperty)
 			throw new IllegalStateException("instance property cannot be null");
@@ -280,8 +358,9 @@ final public class ComponentPropertyBinding implements IBinding {
 	/*	CODING:	IModelBinding interface implementation.				*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * Move the control value to wherever it's needed. If this is a listener binding it calls the listener,
-	 * else it moves the value either to the model's value or the instance's value.
+	 * Calculate the list of changes made to controls, as part one of the controlToModel
+	 * process. Each control whose value changed will be registered in a list of
+	 * {@link BindingValuePair} instances which will also contain any error message.
 	 *
 	 * This is the *hard* part of binding: it needs to handle control errors caused by bindValue() throwing
 	 * an exception.
@@ -326,15 +405,6 @@ final public class ComponentPropertyBinding implements IBinding {
 			return null;
 		}
 
-		IValueAccessor< ? > instanceProperty = m_instanceProperty;
-		if(null == instanceProperty)
-			throw new IllegalStateException("instance property cannot be null");
-		if(instanceProperty.isReadOnly())
-			return null;
-		Object instance = m_instance;
-		if(null == instance)
-			throw new IllegalStateException("instance cannot be null");
-
 		/*
 		 * Get the control's value. If the control is in error (validation/conversion) then
 		 * add the problem inside the Error collector, signaling a problem to any logic
@@ -365,8 +435,7 @@ final public class ComponentPropertyBinding implements IBinding {
 			return null;
 		}
 
-		//-- Get the property's value & compare with control value to see if something needs to change
-		Object propertyValue = ((IValueAccessor<Object>) instanceProperty).getValue(instance);
+		Object propertyValue = getValueFromModel();
 		if(MetaManager.areObjectsEqual(propertyValue, controlValue))
 			return null;
 
@@ -385,15 +454,9 @@ final public class ComponentPropertyBinding implements IBinding {
 				((IBindingListener<NodeBase>) listener).moveModelToControl(m_control);
 				return;
 			}
-			IValueAccessor<?> instanceProperty = m_instanceProperty;
-			if(null == instanceProperty)
-				throw new IllegalStateException("instance property cannot be null");
-			Object instance = m_instance;
-			if(null == instance)
-				throw new IllegalStateException("instance cannot be null");
+			Object modelValue = getValueFromModel();
 
 			// FIXME We should think about exception handling here
-			Object modelValue = instanceProperty.getValue(instance);
 			//System.out.println("binder: set "+control.getComponentInfo()+" value="+modelValue);
 			if(!MetaManager.areObjectsEqual(modelValue, m_lastValueFromControlAsModelValue)) {
 				//-- Value in instance differs from control's
@@ -411,4 +474,5 @@ final public class ComponentPropertyBinding implements IBinding {
 			throw new BindingFailureException(x, "Model->Control", this.toString());
 		}
 	}
+
 }

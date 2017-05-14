@@ -24,14 +24,20 @@
  */
 package to.etc.domui.component.tree;
 
-import javax.annotation.*;
+import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.layout.ButtonBar;
+import to.etc.domui.component.layout.FloatingWindow;
+import to.etc.domui.component.layout.IWindowClosed;
+import to.etc.domui.component.tbl.ICellClicked;
+import to.etc.domui.dom.css.Overflow;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClickBase;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.util.INodeContentRenderer;
+import to.etc.domui.util.Msgs;
 
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.layout.*;
-import to.etc.domui.component.tbl.*;
-import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * A popup window that shows a tree and lets the user select one entry from it. It shows a tree with
@@ -42,14 +48,14 @@ import to.etc.domui.util.*;
  * Created on Dec 10, 2010
  */
 public class TreeSelectionWindow<T> extends FloatingWindow implements ICellClicked<T> {
-	private Tree<T> m_tree;
+	private TreeSelect<T> m_tree;
 
 	private T	m_selected;
 
 	@Nonnull
 	private ITreeModel<T>	m_model;
 
-	private NodeBase		m_selectedNode;
+//	private NodeBase		m_selectedNode;
 
 	private long m_lastClickTS;
 
@@ -92,7 +98,7 @@ public class TreeSelectionWindow<T> extends FloatingWindow implements ICellClick
 		add(fixed);
 		fixed.setHeight("300px");
 		fixed.setOverflow(Overflow.AUTO);
-		m_tree = new Tree<T>();
+		m_tree = new TreeSelect<>();
 		fixed.add(m_tree);
 		m_tree.setModel(m_model);
 		m_tree.setContentRenderer(m_contentRenderer);
@@ -102,7 +108,6 @@ public class TreeSelectionWindow<T> extends FloatingWindow implements ICellClick
 	protected void cancel() throws Exception {
 		close();
 		m_selected = null;
-		m_selectedNode = null;
 
 		if(getCancelClicked() != null) {
 			((IClicked<TreeSelectionWindow<T>>) getCancelClicked()).clicked(this);
@@ -126,10 +131,10 @@ public class TreeSelectionWindow<T> extends FloatingWindow implements ICellClick
 
 	/**
 	 * Internally called when tree node is clicked. Handles selection events.
-	 * @see to.etc.domui.component.tbl.ICellClicked#cellClicked(to.etc.domui.dom.html.NodeBase, java.lang.Object)
+	 * @see ICellClicked#cellClicked(Object)
 	 */
 	@Override
-	final public void cellClicked(@Nonnull NodeBase tr, @Nonnull T rowval) throws Exception {
+	final public void cellClicked(@Nonnull T rowval) throws Exception {
 		long ts = System.currentTimeMillis();
 		if(m_selected == rowval) {
 			//-- Reselect...
@@ -141,17 +146,8 @@ public class TreeSelectionWindow<T> extends FloatingWindow implements ICellClick
 			}
 		}
 
-		if(m_selectedNode != null) {
-			m_selectedNode.removeCssClass("selected");
-			m_selected = null;
-			m_selectedNode = null;
-		}
 		m_lastClickTS = ts;
-		m_selectedNode = tr;
 		m_selected = rowval;
-		tr.addCssClass("selected");
-
-
 	}
 
 	/**

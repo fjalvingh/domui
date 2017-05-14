@@ -157,7 +157,7 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 				if(arrh.getRowClicked() == null) {
 					arrh.setRowClicked(new ICellClicked<T>() {
 						@Override
-						public void cellClicked(@Nonnull NodeBase tr, @Nonnull T val) throws Exception {
+						public void cellClicked(@Nonnull T val) throws Exception {
 							onSelect(val);
 						}
 					});
@@ -213,7 +213,7 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 			if(arrh.getRowClicked() == null) {
 				arrh.setRowClicked(new ICellClicked<T>() {
 					@Override
-					public void cellClicked(@Nonnull NodeBase tr, @Nonnull T val) throws Exception {
+					public void cellClicked(@Nonnull T val) throws Exception {
 						onSelect(val);
 					}
 				});

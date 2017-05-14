@@ -1,12 +1,11 @@
 package to.etc.domui.component2.lookupinput;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.combobox.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * A panel that is meant as a dropdown for a {@link SearchInput2} or {@link ComboBoxBase}. It

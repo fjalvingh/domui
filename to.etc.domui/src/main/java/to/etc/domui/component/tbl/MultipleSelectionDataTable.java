@@ -128,7 +128,7 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 						public void clicked(@Nonnull TR b, @Nonnull ClickInfo clinfo) throws Exception {
 							ICellClicked< ? > rowClicked = getRowRenderer().getRowClicked();
 							if(null != rowClicked)
-								((ICellClicked<T>) rowClicked).cellClicked(therow, theitem);
+								((ICellClicked<T>) rowClicked).cellClicked(theitem);
 						}
 					});
 					cc.getTR().addCssClass("ui-rowsel");
@@ -199,7 +199,7 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 				public void clicked(@Nonnull TR b, @Nonnull ClickInfo clinfo) throws Exception {
 					ICellClicked< ? > rowClicked = getRowRenderer().getRowClicked();
 					if(null != rowClicked)
-						((ICellClicked<T>) rowClicked).cellClicked(therow, theitem);
+						((ICellClicked<T>) rowClicked).cellClicked(theitem);
 				}
 			});
 			cc.getTR().addCssClass("ui-rowsel");
@@ -260,7 +260,12 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 		}
 	}
 
-	public void handleRowClicked(NodeBase tr, T val) throws Exception {
+	public void handleRowClicked(T val) throws Exception {
+		int index = findRowIndex(val);
+		if(index < 0)
+			return;
+		NodeBase tr = getDataBody().getChild(index);
+
 		if(tr instanceof TR) {
 			if(tr.getUserObject() instanceof Checkbox) {
 				Checkbox ckb = (Checkbox) tr.getUserObject();

@@ -22,7 +22,7 @@ public class DemoDataTable2 extends UrlPage {
 
 		brr.setRowClicked(new ICellClicked<Album>() {
 			@Override
-			public void cellClicked(NodeBase tr, Album rowval) throws Exception {
+			public void cellClicked(Album rowval) throws Exception {
 				MsgBox.message(DemoDataTable2.this, MsgBox.Type.INFO, "You selected: " + MetaManager.identify(rowval));
 			}
 		});

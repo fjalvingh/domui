@@ -15,7 +15,7 @@ import to.etc.domui.webdriver.core.AbstractWebDriverTest;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  *         Created on 15-3-17.
  */
-public class ITTestBindingOrder extends AbstractWebDriverTest {
+final public class ITTestBindingOrder extends AbstractWebDriverTest {
 
 	/**
 	 * Two bindings that influence each order should work.

@@ -30,6 +30,5 @@ package to.etc.domui.util;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on May 6, 2013
  */
-public interface IReadWriteModel<T> extends IReadOnlyModel<T> {
-	public void setValue(T value) throws Exception;
+public interface IReadWriteModel<T> extends IReadOnlyModel<T>, IWriteOnlyModel<T> {
 }

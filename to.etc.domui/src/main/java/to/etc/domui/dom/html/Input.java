@@ -177,6 +177,9 @@ public class Input extends NodeBase implements INativeChangeListener, IHasChange
 	 */
 	@Override
 	public boolean acceptRequestParameter(@Nonnull String[] values) {
+		if(isDisabled()) {
+			return false;
+		}
 		String prev = m_rawValue;
 		if(values == null || values.length != 1)
 			m_rawValue = null;

@@ -458,7 +458,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		KeyWordPopupRowRenderer<OT> rr = getDropdownRowRenderer();
 		rr.setRowClicked(new ICellClicked<OT>() {
 			@Override
-			public void cellClicked(@Nonnull NodeBase tr, @Nonnull OT val) throws Exception {
+			public void cellClicked(@Nonnull OT val) throws Exception {
 				handleSetValue(val);
 			}
 		});
@@ -927,7 +927,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 			//-- Always set a click handler on the row renderer, so we can accept the selected record.
 			actualFormRowRenderer.setRowClicked(new ICellClicked<OT>() {
 				@Override
-				public void cellClicked(@Nonnull NodeBase tr, @Nonnull OT val) throws Exception {
+				public void cellClicked(@Nonnull OT val) throws Exception {
 					getFloater().clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 					if(!getDataTable().isMultiSelectionVisible()) {
 						LookupInputBase.this.toggleFloater(null);

@@ -246,7 +246,7 @@ public class SearchInput<T> extends Div {
 		}
 		rr.setRowClicked(new ICellClicked<T>() {
 			@Override
-			public void cellClicked(@Nonnull NodeBase tr, @Nonnull T val) throws Exception {
+			public void cellClicked(@Nonnull T val) throws Exception {
 				handleSelectValueFromPopup(val);
 			}
 		});

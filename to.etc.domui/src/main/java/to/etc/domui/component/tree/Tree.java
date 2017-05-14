@@ -24,15 +24,28 @@
  */
 package to.etc.domui.component.tree;
 
-import java.util.*;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.tbl.ICellClicked;
+import to.etc.domui.dom.html.ClickInfo;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.IClicked2;
+import to.etc.domui.dom.html.Img;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.TR;
+import to.etc.domui.dom.html.Table;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.util.INodeContentRenderer;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.tbl.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.domui.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 	private ITreeModel<T> m_model;
@@ -474,7 +487,7 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 
 	protected void cellClicked(@Nonnull final TD cell, @Nonnull final T value, @Nonnull ClickInfo clinfo) throws Exception {
 		if(getCellClicked() != null)
-			((ICellClicked<Object>) getCellClicked()).cellClicked(cell, value);
+			((ICellClicked<Object>) getCellClicked()).cellClicked(value);
 	}
 
 	/**

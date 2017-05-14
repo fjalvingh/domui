@@ -326,6 +326,10 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 	 * @see to.etc.domui.dom.html.Select#internalOnUserInput(int, int)
 	 */
 	final protected boolean internalOnUserInput(int oldindex, int nindex) {
+		if(isDisabled()) {
+			return false;
+		}
+
 		V newval;
 
 		if(nindex < 0) {

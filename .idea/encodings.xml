@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/jsr305" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/parent" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/to.etc.alg" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/to.etc.db" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/to.etc.domui" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/to.etc.domui.demo" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/to.etc.domui.formbuilder" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/to.etc.domui.hibutil" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/to.etc.domui.legacy" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/to.etc.domui.selenium" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/to.etc.logger" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/to.etc.pater" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/to.etc.syntaxer" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/to.etc.webapp.core" charset="UTF-8" />
+    <file url="PROJECT" charset="UTF-8" />
+  </component>
+</project>

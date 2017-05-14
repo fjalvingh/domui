@@ -241,7 +241,7 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 			//-- Always set a click handler on the row renderer, so we can accept the selected record.
 			actualFormRowRenderer.setRowClicked(new ICellClicked<OT>() {
 				@Override
-				public void cellClicked(@Nonnull NodeBase tr, @Nonnull OT val) throws Exception {
+				public void cellClicked(@Nonnull OT val) throws Exception {
 					rowSelected(val);
 				}
 			});

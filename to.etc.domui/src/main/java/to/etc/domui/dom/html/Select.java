@@ -158,6 +158,9 @@ public class Select extends InputNodeContainer implements INativeChangeListener,
 
 	@Override
 	final public boolean acceptRequestParameter(@Nonnull String[] values) throws Exception {
+		if(isDisabled()) {                                // Never accept data from request in disabled control.
+			return false;
+		}
 		String in = values[0];
 		SelectOption selo = (SelectOption) getPage().findNodeByID(in);
 		int nindex = selo == null ? -1 : findChildIndex(selo);

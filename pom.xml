@@ -97,9 +97,8 @@
         <module>to.etc.domui.legacy</module>
         <module>to.etc.domui.formbuilder</module>
         <module>to.etc.domui.selenium</module>
-	<module>to.etc.domui.demo</module>
-	<module>to.etc.dbcompare</module>
-
+        <module>to.etc.domui.demo</module>
+        <module>to.etc.dbcompare</module>
     </modules>
 
     <build>

@@ -44,11 +44,10 @@ public class BindingConversionTestForm extends UrlPage {
 				throw new ValidationException(Msgs.BUNDLE, Msgs.NOT_VALID, value);
 			}
 		}
-	};
+	}
 
 	@Override public void createContent() throws Exception {
 		FormBuilder fb = new FormBuilder(this);
-
 		Text<String> control = new Text<>(String.class);
 
 		fb.property(this, "value").label("Integer").converter(new TestConverter()).control(control);

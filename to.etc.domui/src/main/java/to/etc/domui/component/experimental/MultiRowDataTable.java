@@ -24,15 +24,42 @@
  */
 package to.etc.domui.component.experimental;
 
-import java.util.*;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.misc.MiniLogger;
+import to.etc.domui.component.tbl.ColumnContainer;
+import to.etc.domui.component.tbl.HeaderContainer;
+import to.etc.domui.component.tbl.IAcceptable;
+import to.etc.domui.component.tbl.ICellClicked;
+import to.etc.domui.component.tbl.IRowRenderer;
+import to.etc.domui.component.tbl.ISelectableTableComponent;
+import to.etc.domui.component.tbl.ISelectionListener;
+import to.etc.domui.component.tbl.ISelectionModel;
+import to.etc.domui.component.tbl.ITableModel;
+import to.etc.domui.component.tbl.ITableModelListener;
+import to.etc.domui.component.tbl.PageableTabularComponentBase;
+import to.etc.domui.dom.html.Checkbox;
+import to.etc.domui.dom.html.ClickInfo;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClickBase;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.IClicked2;
+import to.etc.domui.dom.html.Img;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.TH;
+import to.etc.domui.dom.html.THead;
+import to.etc.domui.dom.html.TR;
+import to.etc.domui.dom.html.Table;
+import to.etc.domui.dom.html.TextNode;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.JavascriptUtil;
+import to.etc.domui.util.Msgs;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.misc.*;
-import to.etc.domui.component.tbl.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * POC for a datatable based on the live dom code.
@@ -396,7 +423,7 @@ final public class MultiRowDataTable<T> extends PageableTabularComponentBase<T> 
 		//-- If this has a click handler- fire it.
 		ICellClicked< ? > rowClicked = m_rowRenderer.getRowClicked();
 		if(null != rowClicked)
-			((ICellClicked<T>) rowClicked).cellClicked(b, instance);
+			((ICellClicked<T>) rowClicked).cellClicked(instance);
 	}
 
 	/**
