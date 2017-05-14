@@ -1608,16 +1608,6 @@ public abstract class DomApplication {
 		return m_themeApplicationProperties.get(name);
 	}
 
-	/**
-	 * Return the current theme itself.
-	 * FIXME This should be in the user's AppSession, so that it can change per user.
-	 * @return
-	 */
-	@Nonnull
-	final public ITheme getTheme() {
-		return m_themeManager.getTheme(getCurrentTheme(), null);
-	}
-
 	@Nonnull
 	public ThemeManager	internalGetThemeManager() {
 		return m_themeManager;

@@ -48,8 +48,8 @@ final public class SassTheme implements ITheme {
 		return name;
 	}
 
-	@Nonnull @Override public String getStyleSheetName(IThemeVariant themeVariant) {
-		return ThemeResourceFactory.PREFIX + m_themeName + "/" + themeVariant.getVariantName() + "/style.scss";
+	@Nonnull @Override public String getStyleSheetName() {
+		return ThemeResourceFactory.PREFIX + m_themeName + "/style.scss";
 	}
 
 	@Nonnull

@@ -64,10 +64,9 @@ public interface ITheme {
 	/**
 	 * Returns the name for this theme's stylesheet.
 	 * @return
-	 * @param themeVariant
 	 */
 	@Nonnull
-	String getStyleSheetName(IThemeVariant themeVariant);
+	String getStyleSheetName();
 
 }
 

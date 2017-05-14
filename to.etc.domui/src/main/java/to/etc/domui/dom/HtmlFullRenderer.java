@@ -30,6 +30,7 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.themes.*;
 import to.etc.domui.util.javascript.*;
+import to.etc.domui.util.resources.*;
 import to.etc.util.*;
 
 import javax.annotation.*;
@@ -247,8 +248,10 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 	 * @throws Exception
 	 */
 	protected void renderThemeCSS() throws Exception {
-		ITheme theme = DomApplication.get().getTheme();
-		String sheet = theme.getStyleSheetName(m_page.getBody().getThemeVariant());
+		String currentTheme = DomApplication.get().getCurrentTheme();
+		IThemeVariant variant = m_page.getBody().getThemeVariant();
+		ITheme theme = DomApplication.get().getTheme(currentTheme + "/" + variant.getVariantName(), ResourceDependencyList.NULL);
+		String sheet = theme.getStyleSheetName();
 
 		//String sheet = m_page.getBody().getThemedResourceRURL("THEME/style.theme.css");
 		//if(null == sheet)
