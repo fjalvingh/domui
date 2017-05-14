@@ -50,12 +50,19 @@ public class FragmentedThemeStore implements ITheme {
 
 	final private IScriptScope m_propertyScope;
 
-	public FragmentedThemeStore(DomApplication app, byte[] tbytes, IScriptScope themeProperties, List<String> themeInheritanceStack, ResourceDependencies deps) {
+	private final String m_themeName;
+
+	public FragmentedThemeStore(DomApplication app, String themeName, byte[] tbytes, IScriptScope themeProperties, List<String> themeInheritanceStack, ResourceDependencies deps) {
 		m_app = app;
 		m_propertyScope = themeProperties;
 		m_themeInheritanceStack = themeInheritanceStack;
 		m_dependencies = deps;
 		m_styleSheetBytes = tbytes;
+		m_themeName = themeName;
+	}
+
+	@Nonnull @Override public String getStyleSheetName(IThemeVariant themeVariant) {
+		return ThemeResourceFactory.PREFIX + m_themeName + "/" + themeVariant.getVariantName() + "/style.theme.css";
 	}
 
 	private byte[] getStyleSheetBytes() {
@@ -87,7 +94,6 @@ public class FragmentedThemeStore implements ITheme {
 			throw new StyleException("The 'icon' mapping for '" + name + "' results in an exception: " + name);
 		}
 	}
-
 
 	/**
 	 * Return a resource reference within this theme.

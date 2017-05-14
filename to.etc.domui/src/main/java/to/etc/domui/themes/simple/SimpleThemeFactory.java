@@ -144,7 +144,7 @@ public class SimpleThemeFactory implements IThemeFactory {
 		searchpath.add("$themes/css-" + m_styleName);				// [style]
 		searchpath.add("$themes/all");								// 20130327 jal The "all" folder contains stuff shared for all themes
 
-		return new SimpleTheme(m_application, m_styleName, executor(), rdl.createDependencies(), searchpath);
+		return new SimpleTheme(m_application, m_themeName, m_styleName, executor(), rdl.createDependencies(), searchpath);
 	}
 
 	/**

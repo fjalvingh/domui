@@ -147,7 +147,7 @@ public class FragmentedThemeFactory {
 		ResourceDependencies rd = m_rdl.createDependencies();
 
 		m_searchList.add("$themes/css-all");					// 20130327 jal the "all" theme dir contains stuff shared over all themes.
-		return new FragmentedThemeStore(m_application, nullChecked(m_stylesheet).getBytes("utf-8"), executor(), m_searchList, rd);
+		return new FragmentedThemeStore(m_application, m_themeName, nullChecked(m_stylesheet).getBytes("utf-8"), executor(), m_searchList, rd);
 	}
 
 	protected void loadStyleInfo() throws Exception {

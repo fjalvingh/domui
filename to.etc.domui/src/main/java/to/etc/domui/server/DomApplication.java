@@ -1610,6 +1610,7 @@ public abstract class DomApplication {
 
 	/**
 	 * Return the current theme itself.
+	 * FIXME This should be in the user's AppSession, so that it can change per user.
 	 * @return
 	 */
 	@Nonnull

@@ -46,6 +46,8 @@ public final class SimpleTheme implements ITheme {
 	@Nonnull
 	final private DomApplication m_da;
 
+	private final String m_themeName;
+
 	@Nonnull
 	final private String m_styleName;
 
@@ -58,12 +60,18 @@ public final class SimpleTheme implements ITheme {
 	@Nonnull
 	final private List<String> m_searchpath;
 
-	public SimpleTheme(@Nonnull DomApplication da, @Nonnull String styleName, @Nonnull IScriptScope themeProperties, @Nonnull ResourceDependencies rd, @Nonnull List<String> searchpath) {
+	public SimpleTheme(@Nonnull DomApplication da, String themeName, @Nonnull String styleName, @Nonnull IScriptScope themeProperties, @Nonnull ResourceDependencies rd,
+		@Nonnull List<String> searchpath) {
 		m_da = da;
+		m_themeName = themeName;
 		m_styleName = styleName;
 		m_propertyScope = themeProperties;
 		m_rd = rd;
 		m_searchpath = searchpath;
+	}
+
+	@Nonnull @Override public String getStyleSheetName(IThemeVariant themeVariant) {
+		return ThemeResourceFactory.PREFIX + m_themeName + "/" + themeVariant.getVariantName() + "/style.theme.css";
 	}
 
 	@Nonnull

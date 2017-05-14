@@ -28,6 +28,7 @@ import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
+import to.etc.domui.themes.*;
 import to.etc.domui.util.javascript.*;
 import to.etc.util.*;
 
@@ -246,9 +247,12 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 	 * @throws Exception
 	 */
 	protected void renderThemeCSS() throws Exception {
-		String sheet = m_page.getBody().getThemedResourceRURL("THEME/style.theme.css");
-		if(null == sheet)
-			throw new IllegalStateException("Unexpected null??");
+		ITheme theme = DomApplication.get().getTheme();
+		String sheet = theme.getStyleSheetName(m_page.getBody().getThemeVariant());
+
+		//String sheet = m_page.getBody().getThemedResourceRURL("THEME/style.theme.css");
+		//if(null == sheet)
+		//	throw new IllegalStateException("Unexpected null??");
 
 		//-- Render style fragments part.
 		o().writeRaw("<link rel=\"stylesheet\" type=\"text/css\" href=\"");

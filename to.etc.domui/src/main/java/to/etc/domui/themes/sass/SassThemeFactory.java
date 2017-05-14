@@ -6,6 +6,8 @@ import to.etc.domui.themes.*;
 import javax.annotation.*;
 
 /**
+ * Sass based theming engine.
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 17-4-17.
  */
@@ -41,9 +43,6 @@ public class SassThemeFactory {
 
 		//-- Get all fragments.
 
-
-
 		return null;
 	}
-
 }
