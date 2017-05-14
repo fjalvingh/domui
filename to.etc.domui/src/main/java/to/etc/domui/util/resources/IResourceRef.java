@@ -24,9 +24,8 @@
  */
 package to.etc.domui.util.resources;
 
-import java.io.*;
-
 import javax.annotation.*;
+import java.io.*;
 
 /**
  * A reference to some stream resource which can be read to create something else, and which is
@@ -37,6 +36,16 @@ import javax.annotation.*;
  * Created on Oct 19, 2009
  */
 public interface IResourceRef {
+	IResourceRef NONEXISTENT = new IResourceRef() {
+		@Override public boolean exists() {
+			return false;
+		}
+
+		@Nullable @Override public InputStream getInputStream() throws Exception {
+			return null;
+		}
+	};
+
 	/**
 	 * Return T if this resource actually exists.
 	 * @return

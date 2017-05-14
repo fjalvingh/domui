@@ -41,7 +41,10 @@ public class SassThemeFactory {
 		String colorName = ar[2];
 		String variant = ar[3];
 
-		//-- Get all fragments.
+		//-- Get the scss file for the color.
+
+
+
 
 		return null;
 	}
