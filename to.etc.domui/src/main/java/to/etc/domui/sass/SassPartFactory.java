@@ -105,11 +105,17 @@ final public class SassPartFactory implements IBufferedPartFactory, IUrlPart {
 		@Override public InputSource resolve(ScssStylesheet parentStylesheet, String identifier) {
 			DomApplication app = DomApplication.get();
 
-			IResourceRef ref = app.getAppFileOrResource(identifier);
-			m_dependencyList.add(ref);
-			if(!ref.exists()) {
-				return null;
+			IResourceRef ref;
+			try {
+				ref = app.getResource(identifier, m_dependencyList);
+				m_dependencyList.add(ref);
+				if(!ref.exists()) {
+					return null;
+				}
+			} catch(Exception x) {
+				throw WrappedException.wrap(x);
 			}
+
 			try {
 				InputSource inputSource = new InputSource(new InputStreamReader(ref.getInputStream(), "utf-8"));
 				inputSource.setURI(identifier);
