@@ -13,8 +13,8 @@ body, html {
 
 /** jal: do not put this in the reset script! Using it here inherits the spec to all lower elements by default. */
 body {
-  font-family: <%= font_family %>;
-  font-size: <%= font_size %>;
+  font-family: $font-family;
+  font-size: $font-size;
 }
 
 /*** Input related components ***/
@@ -29,9 +29,9 @@ button {
 input, textarea, select {
   margin: 0px 2px 2px 0px;
   padding: 0px 2px 0px 2px;
-  font-size: <%= font_size %>;
+  font-size: $font-size;
   font: inherit;
-  border-color:<%= bevel_up %> <%= bevel_down %> <%= bevel_down %>;
+  border-color: $bevel_up $bevel_down $bevel_down;
   border-style:solid;
   border-width:1px;
   -moz-border-radius: 2px;
@@ -58,7 +58,7 @@ input[type=file] {
   cursor: pointer;
 }
 input[type=file]::-ms-value {
-  border-color:<%= bevel_up %> <%= bevel_down %> <%= bevel_down %>;
+  border-color: $bevel_up $bevel_down $bevel_down;
   border-style:solid;
   border-width:1px;
   padding: 0;
@@ -75,7 +75,7 @@ input[type="text"], input[type="password"] {
 }
 
 input:hover, textarea:hover, select:hover {
-  border-color:<%= bevel_hover_up %> <%= bevel_hover_down %> <%= bevel_hover_down %> <%= bevel_hover_up %>;
+  border-color: $bevel_hover_up $bevel_hover_down $bevel_hover_down $bevel_hover_up;
 }
 
 select {
@@ -85,8 +85,8 @@ select {
 
 /*** HTML entities ***/
 pre {
-  font-family: <%= fixed_font_family %>;
-  font-size: <%= fixed_font_size %>;
+  font-family: $fixed_font_family;
+  font-size: $fixed_font_size;
 }
 
 td {
@@ -102,8 +102,8 @@ div {
 }
 
 .ui-content {
-  padding: <%= margins_main %> <%= margins_main %> 0px <%= margins_main %>;	/* Jal 20121214 bottom margin causes scrollbars with auto-height calculations. */
 }
+
 .ui-clickable {
   cursor: pointer;
 }
@@ -155,7 +155,7 @@ li {
 }
 code {
   white-space: pre;
-  font-family: <%= fixed_font_family %>;
+  font-family: $fixed_font_family;
   font-size: 11px;
   background-color: #ddd;
   display: block;
