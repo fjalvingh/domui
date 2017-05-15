@@ -118,6 +118,7 @@ final class ScssDomuiResolver implements ScssStylesheetResolver {
 			if(!ref.exists()) {
 				return null;
 			}
+			deplist.add(ref);
 			return ref;
 		} catch(Exception x) {
 			return null;
