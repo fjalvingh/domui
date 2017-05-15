@@ -85,11 +85,11 @@ final public class SassThemeFactory {
 			}
 
 			@Nonnull @Override public <T> List<T> getProperties(@Nonnull Class<T> filterClass) {
-				return null;
+				return Collections.EMPTY_LIST;
 			}
 
 			@Nonnull @Override public IScriptScope addObjectProperty(@Nonnull String name) {
-				return null;
+				return this;
 			}
 
 			@Nullable @Override public <T> T eval(@Nonnull Class<T> targetType, @Nonnull Reader r, @Nonnull String sourceFileNameIndicator) throws Exception {
@@ -101,7 +101,7 @@ final public class SassThemeFactory {
 			}
 
 			@Nonnull @Override public IScriptScope newScope() {
-				return null;
+				return this;
 			}
 
 			@Nullable @Override public <T> T getAdapter(@Nonnull Class<T> clz) {

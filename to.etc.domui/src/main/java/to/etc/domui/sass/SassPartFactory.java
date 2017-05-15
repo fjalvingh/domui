@@ -4,22 +4,22 @@ import com.vaadin.sass.internal.*;
 import com.vaadin.sass.internal.ScssContext.*;
 import com.vaadin.sass.internal.handler.*;
 import com.vaadin.sass.internal.parser.*;
-import com.vaadin.sass.internal.resolver.*;
 import com.vaadin.sass.internal.visitor.*;
-import org.w3c.css.sac.*;
 import to.etc.domui.server.*;
 import to.etc.domui.server.parts.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.resources.*;
-import to.etc.util.*;
 
 import javax.annotation.*;
 import java.io.*;
 
 /**
+ * This Web part accepts requests ending in .scss, and compiles them into a .css stylesheet on-the-fly.
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 17-4-17.
  */
+@DefaultNonNull
 final public class SassPartFactory implements IBufferedPartFactory, IUrlPart {
 	/**
 	 * Accepts .scss resources as sass stylesheets, and passes them through the
@@ -37,12 +37,22 @@ final public class SassPartFactory implements IBufferedPartFactory, IUrlPart {
 	@Override public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object key, @Nonnull IResourceDependencyList rdl) throws Exception {
 		String rurl = (String) key;
 
-		CapturingErrorHandler errorHandler = new CapturingErrorHandler();
+		SassCapturingErrorHandler errorHandler = new SassCapturingErrorHandler();
 		//errorHandler.setWarningsAreErrors(true);
 
-		//-- Define resolvers
+		/*
+		 * Define resolvers: these resolve "filenames" in the scss to resources in the webapp.
+		 */
+		String basePath;
+		int pos = rurl.lastIndexOf('/');
+		if(pos == -1) {
+			basePath = "";
+		} else {
+			basePath = rurl.substring(pos + 1);
+		}
+
 		ScssStylesheet parent = new ScssStylesheet();
-		parent.addResolver(new WebAppResolver(rdl));
+		parent.addResolver(new ScssDomuiResolver(rdl, basePath));
 		parent.setCharset("utf-8");
 
 		// Parse stylesheet
@@ -55,7 +65,7 @@ final public class SassPartFactory implements IBufferedPartFactory, IUrlPart {
 		compile(scss, UrlMode.RELATIVE);
 
 		if(errorHandler.hasError()) {
-			throw new RuntimeException("SASS compilation failed: " + errorHandler.toString());
+			throw new RuntimeException("SASS compilation failed:\n" + errorHandler.toString());
 		}
 		String s = errorHandler.toString();
 		if(s != null && s.length() > 0)
@@ -90,83 +100,4 @@ final public class SassPartFactory implements IBufferedPartFactory, IUrlPart {
 		ExtendNodeHandler.modifyTree(context, scss);
 	}
 
-	/**
-	 * Resolves sass resources using DomUI's resolution mechanisms, and tracks
-	 * the resources used for auto recompile.
-	 */
-	final private class WebAppResolver implements ScssStylesheetResolver {
-		@Nonnull
-		private final IResourceDependencyList m_dependencyList;
-
-		public WebAppResolver(IResourceDependencyList dependencyList) {
-			m_dependencyList = dependencyList;
-		}
-
-		@Override public InputSource resolve(ScssStylesheet parentStylesheet, String identifier) {
-			DomApplication app = DomApplication.get();
-
-			IResourceRef ref;
-			try {
-				ref = app.getResource(identifier, m_dependencyList);
-				m_dependencyList.add(ref);
-				if(!ref.exists()) {
-					return null;
-				}
-			} catch(Exception x) {
-				throw WrappedException.wrap(x);
-			}
-
-			try {
-				InputSource inputSource = new InputSource(new InputStreamReader(ref.getInputStream(), "utf-8"));
-				inputSource.setURI(identifier);
-				return inputSource;
-			} catch(Exception x) {
-				throw WrappedException.wrap(x);
-			}
-		}
-	}
-
-	/**
-	 * Captures all messages in a string.
-	 */
-	final private class CapturingErrorHandler extends SCSSErrorHandler {
-		final private StringBuilder m_sb = new StringBuilder();
-
-		private boolean m_hasError;
-
-		@Override public void warning(CSSParseException e) throws CSSException {
-			render("warning", e);
-		}
-
-		private void render(String type, CSSParseException e) {
-			m_sb.append(e.getURI())
-			.append("(")
-			.append(e.getLineNumber())
-			.append(':')
-			.append(e.getColumnNumber())
-			.append(") ")
-			.append(type)
-			.append(": ")
-			.append(e.getMessage())
-			.append("\n");
-		}
-
-		@Override public void error(CSSParseException e) throws CSSException {
-			m_hasError = true;
-			render("error", e);
-		}
-
-		@Override public void fatalError(CSSParseException e) throws CSSException {
-			m_hasError = true;
-			render("fatal error", e);
-		}
-
-		public boolean hasError() {
-			return m_hasError;
-		}
-
-		@Override public String toString() {
-			return m_sb.toString();
-		}
-	}
 }

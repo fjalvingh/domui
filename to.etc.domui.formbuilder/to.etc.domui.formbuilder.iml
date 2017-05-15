@@ -8,15 +8,8 @@
       <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
+    <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="to.etc.alg" />
-    <orderEntry type="module" module-name="to.etc.domui" />
-    <orderEntry type="jdk" jdkName="JavaSE-1.8" jdkType="JavaSDK" />
-    <orderEntry type="module" module-name="to.etc.logger" />
-    <orderEntry type="module" module-name="to.etc.domui" />
-    <orderEntry type="module" module-name="to.etc.alg" />
-    <orderEntry type="module" module-name="to.etc.db" />
-    <orderEntry type="module" module-name="to.etc.webapp.core" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.23" level="project" />
     <orderEntry type="library" name="Maven: javax.servlet:servlet-api:2.5" level="project" />
     <orderEntry type="module" module-name="to.etc.logger" />

@@ -8,20 +8,8 @@
       <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
+    <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="to.etc.alg" />
-    <orderEntry type="module-library">
-      <library name="gnu-regexp-1.1.4.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/gnu-regexp-1.1.4.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="jdk" jdkName="JavaSE-1.8" jdkType="JavaSDK" />
-    <orderEntry type="module" module-name="to.etc.alg" />
-    <orderEntry type="module" module-name="to.etc.logger" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.23" level="project" />
     <orderEntry type="module" module-name="to.etc.alg" />
     <orderEntry type="library" name="Maven: javax.servlet:servlet-api:2.5" level="project" />

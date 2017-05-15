@@ -9,15 +9,6 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="to.etc.alg" />
-    <orderEntry type="module" module-name="to.etc.domui" />
-    <orderEntry type="module" module-name="to.etc.pater" />
-    <orderEntry type="module" module-name="to.etc.pater" />
-    <orderEntry type="module" module-name="to.etc.domui" />
-    <orderEntry type="module" module-name="to.etc.alg" />
-    <orderEntry type="module" module-name="to.etc.db" />
-    <orderEntry type="module" module-name="to.etc.webapp.core" />
-    <orderEntry type="module" module-name="to.etc.logger" />
     <orderEntry type="module" module-name="to.etc.pater" />
     <orderEntry type="module" module-name="to.etc.domui" />
     <orderEntry type="library" name="Maven: org.jetbrains.kotlin:kotlin-stdlib:1.1.1" level="project" />
