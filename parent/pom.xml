@@ -595,45 +595,6 @@
                     <autoReleaseAfterClose>false</autoReleaseAfterClose>
                 </configuration>
             </plugin>
-
-            <!--
-                  <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-enforcer-plugin</artifactId>
-                    <version>${maven-enforcer-plugin.version}</version>
-                    <configuration>
-                      <rules>
-                        <DependencyConvergence />
-                      </rules>
-                    </configuration>
-                    <executions>
-                      <execution>
-                        <id>enforce</id>
-                        <goals>
-                          <goal>enforce</goal>
-                        </goals>
-                        <phase>validate</phase>
-                      </execution>
-                    </executions>
-                  </plugin>
-            -->
-            <!-- <plugin> -->
-            <!--   <groupId>org.codehaus.mojo</groupId> -->
-            <!--   <artifactId>findbugs-maven-plugin</artifactId> -->
-            <!--   <version>${findbugs-maven-plugin.version}</version> -->
-            <!--   <configuration> -->
-            <!--     <effort>Max</effort> -->
-            <!--     <threshold>Low</threshold> -->
-            <!--     <xmlOutput>true</xmlOutput> -->
-            <!--   </configuration> -->
-            <!--   <executions> -->
-            <!--     <execution> -->
-            <!--       <goals> -->
-            <!--         <goal>check</goal> -->
-            <!--       </goals> -->
-            <!--     </execution> -->
-            <!--   </executions> -->
-            <!-- </plugin> -->
         </plugins>
 
         <pluginManagement>
