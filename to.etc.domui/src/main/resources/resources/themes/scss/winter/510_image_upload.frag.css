@@ -1,0 +1,11 @@
+
+.ui-isct {
+	white-space: nowrap;
+	display: inline-block;
+}
+.ui-isct-form input, .ui-isct .ui-sib {
+	vertical-align: baseline;
+}
+.ui-isct-form {
+	display: inline-block;
+}

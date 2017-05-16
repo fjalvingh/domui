@@ -3,9 +3,25 @@
 
 @import 'reset';
 @import 'core';
+@import 'misc';
 @import 'oddcharacters';
 @import 'floatingWindow';
 @import 'msgbox';
 @import 'tabPanel';
 
 @import 'appTitle';
+
+/** Complex components **/
+@import "tree";
+
+/** Input components **/
+@import 'displayvalue';
+@import 'displayCheckbox';
+
+
+/** Panels and headers **/
+@import "captionedHeader";
+@import "errorMessageDiv";
+
+@import "popInPanel";
+

@@ -1,0 +1,23 @@
+/*** 195_helperclasses.frag.css ***/
+/*** Helper classes ***/
+.no-wrap{
+	white-space: nowrap;
+    overflow: hidden;
+}
+.ui-clickable {
+	cursor: pointer;
+}
+.ui-sup {
+	font-size: xx-small;
+	vertical-align: top;
+}
+.ui-sub {
+	font-size: xx-small;
+	vertical-align: bottom;
+}
+.ui-pre {
+	white-space: pre;
+}
+.ui-nowrap {
+	white-space: nowrap;
+}

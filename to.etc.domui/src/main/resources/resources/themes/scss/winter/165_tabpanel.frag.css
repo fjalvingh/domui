@@ -1,0 +1,93 @@
+/*** 165_tabpanel.frag.css ***/
+.ui-tab-c {
+}
+.ui-tab-pg{
+	padding: 10px;
+}
+.ui-tab-hdr ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+li.ui-tab-li, li.ui-tab-close-li {
+	margin: 0;
+	padding: 0;
+	border: 1px solid #777;
+	height: 25px;
+	white-space: nowrap;
+}
+li.ui-tab-li:hover:not(.ui-tab-sel), li.ui-tab-close-li:hover:not(.ui-tab-sel){
+	background-color: #aaaaaa;
+}
+
+.ui-tab-hdr {
+	float: left;
+	font-family: 'Tahoma', 'Geneva', 'Verdana', sans-serif;
+	font-size: 11px;
+	color: black;
+	background: #f1f1f1;
+	line-height: normal;
+	width: 100%;
+}
+.ui-tab-hdr li {
+	float: left;
+	margin: 0;
+	padding: 0 0 0 0px;
+	cursor: pointer;
+	list-style: none;
+}
+
+.ui-tab-div {
+	display: block;
+	padding: 6px 6px 0px 6px;
+	text-decoration: none;
+	min-height: 17px;
+	color: black;
+	margin-right: 0px !important;
+}
+li.ui-tab-sel {
+	border-bottom: 1px solid white !important;
+	background-color: white;
+}
+
+.ui-tab-ibte {
+	height: 26px;
+	background: #f1f1f1;
+	overflow: hidden;
+	border-bottom: 1px #777 solid;
+}
+.ui-tab-ibt {
+	height: 26px;
+	border-bottom: 1px #777 solid;
+	width: 2px;
+}
+.ui-tab-ibt.ui-tab-ibt-first {
+	height: 26px;
+	border-bottom: 1px #777 solid;
+	width: 7px;
+}
+.ui-tab-li span {
+	display: inline-block;
+	min-width: 50px;
+}
+
+/*** Close button ***/
+.ui-tab-close-li span {
+	display: inline-block;
+	min-width: 50px;
+}
+.ui-tab-close-div a {
+	vertical-align: middle;
+}
+.ui-tab-close {
+	display: inline-block;
+	background-image: url(22x11_tab-pnl-close.png);
+	background-repeat: no-repeat;
+	height: 11px;
+	width: 11px;
+	margin-left: 8px;
+}
+
+.ui-tab-close:hover {
+	background-position: -11px 0px;
+}

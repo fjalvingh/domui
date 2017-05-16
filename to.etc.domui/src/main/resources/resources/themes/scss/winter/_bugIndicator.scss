@@ -1,0 +1,25 @@
+@import 'variables';
+
+/*** Bug indicator UI ***/
+.ui-bug-ind {
+  background-color: red;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 80px;
+  height: 43px;
+  border: 2px solid black;
+}
+.ui-bug-count {
+  font-size: 25px;
+  font-weight: bold;
+  color: yellow;
+}
+.ui-bug-msg {
+  font-size: 12px;
+}
+.ui-bug-stk {
+  white-space: pre;
+  font-family: $fixed_font_family;
+  font-size: 8px;
+}

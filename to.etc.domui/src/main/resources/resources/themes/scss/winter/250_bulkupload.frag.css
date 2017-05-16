@@ -1,0 +1,95 @@
+/*** 250_BulkUpload component ***/
+.ui-bupl {
+}
+.ui-bupl-wrp {
+	width: 360px;
+	background-color: white;
+	padding: 1px;
+	border: 1px solid <%= header_bg %>;
+}
+.ui-bupl-ttl {
+/*	border: 1px solid <%= header_bg %>; */
+	padding: 2px 4px 2px 4px;
+	font-weight: bold;
+	background: url(bg-header.png.svg) repeat-x;
+}
+.ui-bupl-legend {
+	color: black;
+}
+
+.ui-bupl .swfupload {
+	position: absolute;
+	z-index: 1;
+	vertical-align: top;
+}
+<% var buplround = 5; %>
+.ui-bupl-queue {
+	width: 354px;
+	min-height: 40px;
+	height: auto;
+	max-height: 400px;
+	overflow: auto;
+}
+/* BulkUpload: single queued file progress indicator. */
+.ui-bupl-file {
+	width: 350px;
+	overflow: hidden;
+}
+.ui-bupl-inner {
+	margin: 5px;
+	padding: 4px;
+	overflow: hidden;
+}
+.ui-bupl-pending {
+	border: 1px solid #888;
+	background-color: #bbb;
+}
+.ui-bupl-running {
+	border: 1px solid #DDF0DD;
+	background-color: #EBFFEB;
+}
+.ui-bupl-complete {
+	border: 1px solid #cde0cd;
+	background-color: #dbefdb;
+}
+.ui-bupl-error {
+	border: 1px solid #ff4900;
+	background-color: #ffebeb;	
+}
+.ui-bupl-name {
+	font-size: 12px;
+	color: #000;
+	width: 300px;
+	height: 14px;
+	text-align: left;
+	white-space: nowrap;
+	overflow: hidden;
+}
+.ui-bupl-cancl {
+	font-size: 0;
+	display: block;
+	height: 14px;
+	width: 14px;
+	background-image: url(bupl-cancel.png);
+	background-repeat: no-repeat;
+	background-position: -14px 0px;
+	float: right;
+}
+.ui-bupl-cancl:hover {
+	background-position: 0px 0px;
+}
+.ui-bupl-stat {
+	margin-top: 2px;
+	width: 300px;
+	font-size: 10px;
+	text-align: left;
+	white-space: nowrap;
+}
+
+.ui-bupl-perc {
+	font-size: 0;
+	width: 0%;
+	height: 2px;
+	background-color: blue;
+	margin-top: 2px;
+}

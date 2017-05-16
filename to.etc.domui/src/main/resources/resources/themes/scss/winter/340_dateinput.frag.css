@@ -1,0 +1,23 @@
+/*** 340_dateinput.frag.css ***/
+/*** Date input ***/
+.ui-di-sib {
+	vertical-align: top;
+	padding: 0;
+	margin: 0px;
+	border: 0px;
+	background: transparent;
+	cursor: pointer;
+}
+
+.ui-di-sib img {
+	padding: 0px;
+	margin: 0px;
+	border: 0px;
+}
+.ui-di.ui-ro {
+	color: black;
+}
+
+.ui-di-sib:hover {
+	background-color: <%= data_tbl_header_bg %> !important;
+}

@@ -1,0 +1,94 @@
+/*** 100_calendar.frag.css ***/
+/*** Calendar schedule ***/
+.ui-wa {
+	
+}
+
+.ui-wa-hd {
+	font-size: 10px;
+	font-weight: bold;
+	vertical-align: top;
+	text-align: center;
+	background-color: #eeeeee;
+	height: 20px;
+}
+
+div.ui-wa-bg {
+	position: relative;
+	top: 0px;
+	left: 0px;
+	clear: both;
+	z-index: 10;
+	width: 100%;
+	height: 100%;
+	padding: 0;
+	margin: 0;
+}
+div.ui-wa-f {
+	z-index: 20;
+	background-color: transparent;
+}
+
+/* IMPORTANT: this color together with "cellspacing=1" creates the lines between the cells!!!! */
+table.ui-wa-bgtbl {
+	background-color: #cccccc;
+	font-size: 10px;
+}
+
+.ui-wa-gt {
+	background-color: #eeeeee;
+	text-align: right;
+	white-space: nowrap;
+}
+
+.ui-wa-hour {
+	font-size: 13px;
+	font-weight: bold;
+	vertical-align: top;
+}
+
+.ui-wa-min {
+	font-size: 10px;
+	font-weight: bold;
+	vertical-align: top;
+}
+
+.ui-wa-cell {
+	background-color: #ffffff;
+}
+
+/* schedule item */
+.ui-wa-it {
+	overflow: hidden;
+	border: 1px solid black;
+	background-color: #00ffcc;
+	font-size: 10px;
+}
+
+.ui-wa-img {
+	float: left;
+	padding-right: 10px;
+}
+
+.ui-wa-ity {
+	font-variant: small-caps;
+	font-size: 10px;
+}
+
+.ui-wa-nm {
+	font-weight: bolder;
+}
+
+.ui-wa-dt {
+	font-size: 10px;
+}
+
+.ui-wa-tm {
+	font-size: 7px;
+	color: blue;
+	margin-left: 5px;
+}
+
+.ui-wa-nt {
+	background-color: #ff4d00;
+}

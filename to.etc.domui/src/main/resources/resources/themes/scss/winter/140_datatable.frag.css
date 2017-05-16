@@ -1,0 +1,118 @@
+/*** 140_datatable.frag.css ***/
+/*** DataTable default style ***/
+div.ui-dt {
+	overflow: auto;
+	position: relative;
+}
+
+div.ui-dt > table td {
+	border: 0;
+	margin: 0;
+	padding: 0px 3px;
+	border-left: 1px solid #bababa; /* gray so it is theme invariant */
+	height: 19px;
+	vertical-align: middle;
+}
+div.ui-dt > table td * {
+	vertical-align: middle;
+}
+
+div.ui-dt > table {
+	padding: 0px;
+	margin: 0px;
+	border-collapse: collapse;
+	overflow: auto;
+	position: relative;
+	border-right: 1px solid #bababa;
+	border-bottom: 1px solid #bababa;
+	border-spacing: 2px;
+}
+
+.ui-dt th, .ui-dt-hdr {
+	padding: 0px 3px;
+	border-left: none !important;
+	background: <%=	data_tbl_header_bg %>;
+	background-image: url(<%= data_tbl_header_bg_img %>);
+	color: <%= data_tbl_header_text_color %>;
+	border-bottom: 1px solid <%= data_tbl_header_btm_border %>;
+	text-align: left;
+	font-weight: bold;
+	height: 18px;
+	vertical-align: middle;
+}
+
+.ui-dt th:FIRST-CHILD, .ui-dt-hdr:FIRST-CHILD {
+	border-left: 1px solid <%= data_tbl_header_btm_border %> !important;
+}
+
+.ui-dt th:LAST-CHILD, .ui-dt-hdr:LAST-CHILD {
+	border-right: 1px solid <%= data_tbl_header_btm_border %>;
+}
+
+.ui-dt tbody tr > td.ui-f-lbl:first-child {
+	min-width: 150px;
+	margin-left: 10px;
+}
+
+.ui-dt-nores {
+	padding: 0px 0px 10px 0px;
+	font-style: italic;
+}
+
+.ui-odd {
+}
+
+.ui-even {
+	background: <%= data_tbl_even_row_bg %>;
+}
+
+tr.ui-rowsel {
+	cursor: pointer;
+}
+
+tr.ui-rowsel:hover {
+	background-color: <%= highlight_bg %> !important;
+}
+
+td.ui-cellsel {
+	cursor: pointer;
+	color: <%= link_color %>;
+}
+
+td.ui-cellsel:hover {
+	text-decoration: underline;
+	background-color: <%= data_tbl_cell_highlight_bg %> !important;
+	color: <%= data_tbl_cell_highlight_link_color_bg %>;
+}
+
+th.ui-sortable {
+	cursor: pointer;
+}
+
+div.ui-sortable {
+	position: relative;
+}
+
+.ui-sortable img {
+	top: -3px;
+	position: absolute;
+	border: 0px;
+}
+
+.ui-sortable span {
+	margin-left: 10px;
+}
+
+.ui-dt {
+	font-size: <%= data_tbl_font_size %>;
+/*	height: 100%; jal 20150717: this cannot work: all tables now overflow whatever they are contained in. */
+}
+
+.ui-dt-separator {
+	background: url(bg-horiz-separator.png) repeat-x center;
+	padding: 1px;
+}
+
+.ui-dt .mselected, .ui-dt .selected {
+	background-color: <%= highlight2_bg %>; /* 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
+}

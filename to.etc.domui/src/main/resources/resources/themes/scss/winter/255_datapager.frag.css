@@ -1,0 +1,61 @@
+/*** 255_datapager.frag.css ***/
+/*** Result table pager ***/
+.ui-dp {
+	margin-top: 2px;
+	margin-left: 4px;
+	padding: 0px;
+}
+.ui-dp-btns {
+	margin-left: -9px;	
+}
+
+.ui-dp-btns a{
+	height: <%= data_pager_icon_size_y %>px;
+	width: <%= data_pager_icon_size_x %>px;
+	display: inline-block;
+	padding: 0px;
+	margin-left: -3px;
+	outline: 0; 				/* btadic 20120712: Removing dotted border form focused button */
+	background-repeat: no-repeat;
+	background: url(<%= data_pager_icons %>);
+}
+
+.ui-dp-btns a.ui-dp-nav-f {
+	background-position: 0px 0px;
+}
+.ui-dp-btns a.ui-dp-nav-f:HOVER {
+	background-position: 0px <%= -data_pager_icon_size_y %>px;
+}
+.ui-dp-btns a.ui-dp-nav-f-dis {
+	background-position: 0px <%= -2 * data_pager_icon_size_y %>px;
+}
+
+.ui-dp-btns a.ui-dp-nav-p {
+	background-position: <%= -1 * data_pager_icon_size_x %>px <%= 0 * data_pager_icon_size_y %>px;
+}
+.ui-dp-btns a.ui-dp-nav-p:HOVER {
+	background-position: <%= -1 * data_pager_icon_size_x %>px <%= -1 * data_pager_icon_size_y %>px;
+}
+.ui-dp-btns a.ui-dp-nav-p-dis {
+	background-position: <%= -1 * data_pager_icon_size_x %>px <%= -2 * data_pager_icon_size_y %>px;
+}
+
+.ui-dp-btns a.ui-dp-nav-n {
+	background-position: <%= -2 * data_pager_icon_size_x %>px <%= 0 * data_pager_icon_size_y %>px;
+}
+.ui-dp-btns a.ui-dp-nav-n:HOVER {
+	background-position: <%= -2 * data_pager_icon_size_x %>px <%= -1 * data_pager_icon_size_y %>px;
+}
+.ui-dp-btns a.ui-dp-nav-n-dis {
+	background-position: <%= -2 * data_pager_icon_size_x %>px <%= -2 * data_pager_icon_size_y %>px;
+}
+
+.ui-dp-btns a.ui-dp-nav-l {
+	background-position: <%= -3 * data_pager_icon_size_x %>px <%= 0 * data_pager_icon_size_y %>px;
+}
+.ui-dp-btns a.ui-dp-nav-l:HOVER {
+	background-position: <%= -3 * data_pager_icon_size_x %>px <%= -1 * data_pager_icon_size_y %>px;
+}
+.ui-dp-btns a.ui-dp-nav-l-dis {
+	background-position: <%= -3 * data_pager_icon_size_x %>px <%= -2 * data_pager_icon_size_y %>px;
+}
