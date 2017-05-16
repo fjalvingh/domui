@@ -1070,6 +1070,9 @@ public class HtmlTagRenderer implements INodeVisitor {
 			o().attr("border", n.getImgBorder());
 		if(n.getImgWidth() != null)
 			o().attr("width", n.getImgWidth());
+		String useMap = n.getUseMap();
+		if(null != useMap)
+			o().attr("usemap", "#" + useMap);
 		if(n.getImgHeight() != null)
 			o().attr("height", n.getImgHeight());
 		renderTagend(n, o());

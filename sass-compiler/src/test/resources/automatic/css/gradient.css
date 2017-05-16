@@ -1,0 +1,17 @@
+	.top-gradient {
+		background: -moz-linear-gradient(
+				top, 
+				#d8dce1 0, 
+				white 1em, 
+				white 100%);
+		background: -webkit-linear-gradient(
+				top,  
+				#d8dce1 0,
+				white 1em,
+				white 100%);
+		background: linear-gradient(
+				to bottom,  
+				#d8dce1 0%,
+				white 5%,
+				white 100%);
+	}

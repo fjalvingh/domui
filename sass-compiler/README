@@ -1,0 +1,85 @@
+A pure Java implementation of the http://sass-lang.com compiler
+
+This project has previously a part of the Vaadin Framework
+
+Roadmap
+=======
+Sass Compiler 1.0 
+* Compatibility with sass-lang compiler 3.2.12
+
+Sass Compiler 1.1
+* Compatibility with sass-lang compiler 3.3.0
+
+Import the project into Eclipse
+=============================
+
+To get the project working in Eclipse you need to install the M2E connector
+for JavaCC, found at (update site):
+http://objectledge.github.com/maven-extensions/connectors/updates/development
+
+After that you can import the project into Eclipse as a standard Maven
+project
+
+Building the project
+====================
+Running
+
+  mvn package
+
+will compile the project and run all tests
+
+
+Tests
+=====
+There is an extensive test suite consisting of source scss input and expected 
+css output imported from the sass-lang project. Today the features required by
+the tests in src/test/resources/sasslang are fully implemented while the
+tests in src/test/resources/sasslangbroken are currently expected to fail.
+When reaching 1.0 the sasslangbroken package should no longer exist.
+
+Contributing
+=============
+Your contributions are more than welcome. Please read
+https://vaadin.com/contribute for more information on practicalities.
+Because we are using Gerrit we cannot accept pull requests in GitHub.
+
+Changes
+=======
+
+Version 0.9.12
+--------------
+It is now possible to specify how URLs appearing in an imported scss style
+sheet are interpreted. The supported modes are absolute, mixed and
+relative. For example, suppose that a root style sheet styles.scss imports
+common/base.scss and base.scss contains the property definition
+
+background-image: url(image.png);
+
+In absolute mode the url will appear as url(image.png) also in the CSS
+output. In relative and mixed mode it will be output as url(common/image.png).
+The difference between mixed and relative mode is that in the mixed mode
+a url is only modified if it appears in a property, whereas in the relative
+mode the modification also takes place e.g. in variable definitions and
+default values of mixin or function parameters.
+
+Absolute mode can be used for compatibility with the sass-lang compiler.
+For compiling the themes provided with Vaadin mixed or relative mode should
+be used. Mixed mode is the default and was used in previous versions of
+the compiler. For instructions on specifying the url mode from the command
+line, run SassCompiler with no parameters.
+
+License
+=======
+
+Copyright 2012 Vaadin Ltd.
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+this file except in compliance with the License. You may obtain a copy of the
+License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed
+under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+CONDITIONS OF ANY KIND, either express or implied. See the License for the
+specific language governing permissions and limitations under the License.

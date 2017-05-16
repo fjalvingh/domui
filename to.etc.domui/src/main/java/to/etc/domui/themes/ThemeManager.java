@@ -179,7 +179,7 @@ final public class ThemeManager {
 				throw new IllegalStateException("Theme factory returned null!?");
 			ResourceDependencies deps = null;
 			if(m_application.inDevelopmentMode()) {
-				ThemeModifyableResource tmr = new ThemeModifyableResource(theme.getDependencies(), 3000);
+				ThemeModifiableResource tmr = new ThemeModifiableResource(theme.getDependencies(), 3000);
 				deps = new ResourceDependencies(new IIsModified[]{tmr});
 			}
 			tr = new ThemeRef(theme, deps);

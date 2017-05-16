@@ -1,0 +1,26 @@
+@mixin media-settings {
+	@media screen { 
+		.v-view {
+        	overflow: visible;
+		}  
+		@content;
+	}
+}
+
+@include media-settings {
+  	.details {
+		font: {
+			size : 1pt;
+			weight: bold;
+		}
+	}
+	
+	width:100%;
+}
+
+
+@media screen and (max-width: 480px) {
+  .abc {
+    background: red;
+  }
+}

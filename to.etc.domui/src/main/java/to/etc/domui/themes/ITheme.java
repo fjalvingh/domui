@@ -24,10 +24,10 @@
  */
 package to.etc.domui.themes;
 
-import javax.annotation.*;
-
 import to.etc.domui.util.js.*;
 import to.etc.domui.util.resources.*;
+
+import javax.annotation.*;
 
 /**
  * A theme.
@@ -60,5 +60,13 @@ public interface ITheme {
 
 	@Nonnull
 	String translateResourceName(@Nonnull String name);
+
+	/**
+	 * Returns the name for this theme's stylesheet.
+	 * @return
+	 */
+	@Nonnull
+	String getStyleSheetName();
+
 }
 

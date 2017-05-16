@@ -84,6 +84,12 @@
             <artifactId>jcharts</artifactId>
         </dependency>
 
+        <!-- EXPERIMENTAL: sass support -->
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-sass-compiler</artifactId>
+        </dependency>
+
         <!-- Batik -->
         <dependency>
             <groupId>org.apache.xmlgraphics</groupId>

@@ -24,16 +24,17 @@
  */
 package to.etc.domui.dom;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
+import to.etc.domui.themes.*;
 import to.etc.domui.util.javascript.*;
+import to.etc.domui.util.resources.*;
 import to.etc.util.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * Visits the node tree in such a way that a valid html document is generated.
@@ -220,6 +221,10 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 			n.getPage().setFocusComponent(n);
 	}
 
+	/**
+	 * Render the page's doctype.
+	 * @throws Exception
+	 */
 	protected void renderPageHeader() throws Exception {
 		if(isXml()) {
 			o().writeRaw("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/xhtml1-transitional.dtd\">\n" //
@@ -230,8 +235,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		} else {
 			o().writeRaw(
 				"<!DOCTYPE html>"
-//				"<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n" //
-			+ 	"<html>\n"					// 
+			+ 	"<html>\n"					//
 			+ "<head>\n"					//
 			+ 	"<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n"	//
 			);
@@ -244,9 +248,14 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 	 * @throws Exception
 	 */
 	protected void renderThemeCSS() throws Exception {
-		String sheet = m_page.getBody().getThemedResourceRURL("THEME/style.theme.css");
-		if(null == sheet)
-			throw new IllegalStateException("Unexpected null??");
+		String currentTheme = DomApplication.get().getCurrentTheme();
+		IThemeVariant variant = m_page.getBody().getThemeVariant();
+		ITheme theme = DomApplication.get().getTheme(currentTheme + "/" + variant.getVariantName(), ResourceDependencyList.NULL);
+		String sheet = theme.getStyleSheetName();
+
+		//String sheet = m_page.getBody().getThemedResourceRURL("THEME/style.theme.css");
+		//if(null == sheet)
+		//	throw new IllegalStateException("Unexpected null??");
 
 		//-- Render style fragments part.
 		o().writeRaw("<link rel=\"stylesheet\" type=\"text/css\" href=\"");
@@ -301,6 +310,12 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		o().writeRaw("var " + name + "=" + val + ";\n");
 	}
 
+	/**
+	 * Main entrypoint: render the whole page.
+	 * @param ctx
+	 * @param page
+	 * @throws Exception
+	 */
 	public void render(IRequestContext ctx, Page page) throws Exception {
 		m_ctx = ctx;
 		m_page = page;

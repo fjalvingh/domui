@@ -1,0 +1,3043 @@
+/*
+ * Copyright 2000-2013 Vaadin Ltd.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
+/* -*-java-extended-*-
+ * Copyright (c) 1999 World Wide Web Consortium
+ * (Massachusetts Institute of Technology, Institut National de Recherche
+ *  en Informatique et en Automatique, Keio University).
+ * All Rights Reserved. http://www.w3.org/Consortium/Legal/
+ *
+ * $Id: Parser.jj,v 1.15 2000/10/27 21:09:37 plehegar Exp $
+ */
+
+options {
+    IGNORE_CASE  = true;
+    STATIC = false;
+    USER_CHAR_STREAM = true;
+    /* DEBUG_TOKEN_MANAGER = true;
+       DEBUG_PARSER = true; */
+}
+
+PARSER_BEGIN(Parser)
+
+package com.vaadin.sass.internal.parser;
+
+import java.io.*;
+import java.net.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.w3c.css.sac.ConditionFactory;
+import org.w3c.css.sac.Condition;
+import org.w3c.css.sac.SelectorFactory;
+import org.w3c.css.sac.SelectorList;
+import org.w3c.css.sac.DocumentHandler;
+import org.w3c.css.sac.InputSource;
+import org.w3c.css.sac.ErrorHandler;
+import org.w3c.css.sac.CSSException;
+import org.w3c.css.sac.CSSParseException;
+import org.w3c.css.sac.Locator;
+import org.w3c.css.sac.LexicalUnit;
+
+import org.w3c.flute.parser.selectors.SelectorFactoryImpl;
+import org.w3c.flute.parser.selectors.ConditionFactoryImpl;
+
+import org.w3c.flute.util.Encoding;
+
+import com.vaadin.sass.internal.handler.*;
+
+import com.vaadin.sass.internal.tree.*;
+
+import com.vaadin.sass.internal.selector.*;
+
+/**
+ * A CSS2 parser
+ *
+ * @author Philippe Le H�garet
+ * @version $Revision: 1.15 $
+ */
+public class Parser implements org.w3c.css.sac.Parser {
+
+    // replaces all \t, \n, etc with this StringBuffer.
+    static final StringBuilder SPACE = new StringBuilder(" ");
+
+    // the document handler for the parser
+    protected SCSSDocumentHandlerImpl documentHandler;
+    // the error handler for the parser
+    protected ErrorHandler errorHandler;
+    // the input source for the parser
+    protected InputSource source;
+
+    protected ConditionFactory conditionFactory;
+    protected SelectorFactory selectorFactory;
+
+    // temporary place holder for pseudo-element ...
+    private PseudoElementSelector pseudoElt;
+    
+    /**
+     * Creates a new Parser
+     */
+    public Parser() {
+	this((CharStream) null);
+    }
+
+    /**
+     * @@TODO
+     * @exception CSSException Not yet implemented
+     */    
+    public void setLocale(Locale locale) throws CSSException {
+	throw new CSSException(CSSException.SAC_NOT_SUPPORTED_ERR);
+    }
+    
+    public InputSource getInputSource(){
+        return source;
+    }
+
+    /**
+     * Set the document handler for this parser
+     */    
+    public void setDocumentHandler(DocumentHandler handler) {
+	this.documentHandler = (SCSSDocumentHandlerImpl) handler;
+    }
+
+    public void setSelectorFactory(SelectorFactory selectorFactory) {
+	this.selectorFactory = selectorFactory;
+    }
+
+    public void setConditionFactory(ConditionFactory conditionFactory) {
+	this.conditionFactory = conditionFactory;
+    }
+
+    /**
+     * Set the error handler for this parser
+     */    
+    public void setErrorHandler(ErrorHandler error) {
+	this.errorHandler = error;
+    }
+    
+    /**
+     * Main parse methods
+     *
+     * @param source the source of the style sheet.
+     * @exception IOException the source can't be parsed.
+     * @exception CSSException the source is not CSS valid.
+     */
+    public void parseStyleSheet(InputSource source) 
+	    throws CSSException, IOException {
+	this.source = source;
+	ReInit(getCharStreamWithLurk(source));
+	if (selectorFactory == null) {
+	    selectorFactory = new SelectorFactoryImpl();
+	}
+	if (conditionFactory == null) {
+	    conditionFactory = new ConditionFactoryImpl();
+	}
+
+	parserUnit();
+    }
+
+    /**
+     * Convenient method for URIs.
+     *
+     * @param systemId the fully resolved URI of the style sheet.
+     * @exception IOException the source can't be parsed.
+     * @exception CSSException the source is not CSS valid.
+     */    
+    public void parseStyleSheet(String systemId) 
+	    throws CSSException, IOException {
+	parseStyleSheet(new InputSource(systemId));
+    }
+
+    /**
+     * This method parses only one rule (style rule or at-rule, except @charset).
+     *
+     * @param source the source of the rule.
+     * @exception IOException the source can't be parsed.
+     * @exception CSSException the source is not CSS valid.
+     */    
+    // TODO required by original parser but not used by Vaadin?
+    public void parseRule(InputSource source) 
+	    throws CSSException, IOException {
+	this.source = source;
+	ReInit(getCharStreamWithLurk(source));
+
+	if (selectorFactory == null) {
+	    selectorFactory = new SelectorFactoryImpl();
+	}
+	if (conditionFactory == null) {
+	    conditionFactory = new ConditionFactoryImpl();
+	}
+	_parseRule();
+    }
+
+    /**
+     * This method parses a style declaration (including the surrounding curly
+     * braces).
+     *
+     * @param source the source of the style declaration.
+     * @exception IOException the source can't be parsed.
+     * @exception CSSException the source is not CSS valid.
+     */
+    public void parseStyleDeclaration(InputSource source) 
+	    throws CSSException, IOException {
+	this.source = source;
+	ReInit(getCharStreamWithLurk(source));
+
+	if (selectorFactory == null) {
+	    selectorFactory = new SelectorFactoryImpl();
+	}
+	if (conditionFactory == null) {
+	    conditionFactory = new ConditionFactoryImpl();
+	}
+	_parseDeclarationBlock();
+    }
+
+    /**
+     * This methods returns "http://www.w3.org/TR/REC-CSS2".
+     * @return the string "http://www.w3.org/TR/REC-CSS2".
+     */    
+    public String getParserVersion() {
+	return "http://www.w3.org/TR/REC-CSS2";
+    }
+
+    /**
+     * Parse methods used by DOM Level 2 implementation.
+     */    
+    public void parseImportRule(InputSource source) 
+	    throws CSSException, IOException {
+	this.source = source;
+	ReInit(getCharStreamWithLurk(source));
+
+	if (selectorFactory == null) {
+	    selectorFactory = new SelectorFactoryImpl();
+	}
+	if (conditionFactory == null) {
+	    conditionFactory = new ConditionFactoryImpl();
+	}
+	_parseImportRule();
+    }
+
+    public void parseMediaRule(InputSource source) 
+	    throws CSSException, IOException {
+	this.source = source;
+	ReInit(getCharStreamWithLurk(source));
+
+	if (selectorFactory == null) {
+	    selectorFactory = new SelectorFactoryImpl();
+	}
+	if (conditionFactory == null) {
+	    conditionFactory = new ConditionFactoryImpl();
+	}
+	_parseMediaRule();
+    }
+
+    public SelectorList parseSelectors(InputSource source) 
+        throws CSSException, IOException {
+        // We don't use the org.w3c.css.sac.Selector interface (not easily extended to
+        // SCSS syntax), so don't even try wrapping com.vaadin.sass.selector.Selectors 
+        // into org.w3c.css.sac.Selector. Why do we implement org.w3c.css.sac.Parser at
+        // all?
+        return null;
+    }
+    
+    public List<Selector> parseSCSSSelectors( InputSource source ) 
+        throws CSSException, IOException {
+        this.source = source;
+        ReInit(getCharStreamWithLurk(source));
+        return _parseSelectors();
+    }
+
+    public LexicalUnit parsePropertyValue(InputSource source) 
+	    throws CSSException, IOException {
+        // We don't use the org.w3c.css.sac.Selector interface (not easily extended to
+        // SCSS syntax), so don't even try wrapping com.vaadin.sass.selector.Selectors 
+        // into org.w3c.css.sac.Selector. Why do we implement org.w3c.css.sac.Parser at
+        // all?
+        return null;
+    }
+
+    public boolean parsePriority(InputSource source) 
+	    throws CSSException, IOException {
+	this.source = source;
+	ReInit(getCharStreamWithLurk(source));
+
+	return prio();
+    }
+
+    /**
+     * Convert the source into a Reader. Used only by DOM Level 2 parser methods.
+     */    
+    private Reader getReader(InputSource source) throws IOException {
+	if (source.getCharacterStream() != null) {
+	    return source.getCharacterStream();
+	} else if (source.getByteStream() != null) {
+	    // My DOM level 2 implementation doesn't use this case.
+	    if (source.getEncoding() == null) {
+		// unknown encoding, use ASCII as default.
+		return new InputStreamReader(source.getByteStream(), "ASCII");
+	    } else {
+		return new InputStreamReader(source.getByteStream(), 
+					     source.getEncoding());
+	    }
+	} else {
+	    // systemId
+	    // @@TODO
+	    throw new CSSException("not yet implemented");
+	}
+    }
+
+    /**
+     * Convert the source into a CharStream with encoding informations.
+     * The encoding can be found in the InputSource or in the CSS document.
+     * Since this method marks the reader and make a reset after looking for
+     * the charset declaration, you'll find the charset declaration into the
+     * stream.  
+     */
+    private CharStream getCharStreamWithLurk(InputSource source)
+	    throws CSSException, IOException {
+	if (source.getCharacterStream() != null) {
+	    // all encoding are supposed to be resolved by the user
+	    // return the reader
+	    return new Generic_CharStream(source.getCharacterStream(), 1, 1);
+	} else if (source.getByteStream() == null) {
+	    // @@CONTINUE ME. see also getReader() with systemId
+	    try {
+		source.setByteStream(new URL(source.getURI()).openStream());
+	    } catch (Exception e) {
+		try {
+		    source.setByteStream(new FileInputStream(source.getURI()));
+		} catch (IOException ex) {
+		    throw new CSSException("invalid url ?");
+		}
+	    }
+	}
+	//use UTF-8 as the default encoding.
+	String encoding = source.getEncoding();
+	InputStream input = source.getByteStream();
+	if (!input.markSupported()) {
+            // If mark is not supported, wrap it in a stream which supports mark
+            input = new BufferedInputStream(input);
+            source.setByteStream(input);
+        }
+        // Mark either the original stream or the wrapped stream
+        input.mark(100);
+	if(encoding == null){
+	    encoding = "ASCII";
+	
+	    char c = ' ';
+
+	    c = (char) input.read();
+
+	    if (c == '@') {
+	        // hum, is it a charset ?
+	        int size   = 100;
+	        byte[] buf = new byte[size];
+	        input.read(buf, 0, 7);
+	        String keyword = new String(buf, 0, 7);
+	        if (keyword.equals("charset")) {
+	            // Yes, this is the charset declaration !
+
+	            // here I don't use the right declaration : white space are ' '.
+	            while ((c = (char) input.read()) == ' ') {
+		        // find the first quote
+		    }
+		    char endChar = c;
+		    int i = 0;
+
+		    if ((endChar != '"') && (endChar != '\'')) {
+		        // hum this is not a quote.
+		        throw new CSSException("invalid charset declaration");
+		    }
+
+		    while ((c = (char) input.read()) != endChar) {
+		        buf[i++] = (byte) c;
+		        if (i == size) {
+		            byte[] old = buf;
+			    buf = new byte[size + 100];
+			    System.arraycopy(old, 0, buf, 0, size);
+			    size += 100;
+		        }
+		    }
+    		    while ((c = (char) input.read()) == ' ') {
+    		        // find the next relevant character
+    		    }
+		    if (c != ';') {
+		        // no semi colon at the end ?
+		        throw new CSSException("invalid charset declaration: "
+					   + "missing semi colon");
+		    }
+		    encoding = new String(buf, 0, i);
+		    if (source.getEncoding() != null) {
+		        // compare the two encoding informations.
+		        // For example, I don't accept to have ASCII and after UTF-8.
+		        // Is it really good ? That is the question.
+		        if (!encoding.equals(source.getEncoding())) {
+		            throw new CSSException("invalid encoding information.");
+		        }
+		    }
+	        } // else no charset declaration available
+	    }
+	}
+	// ok set the real encoding of this source.
+	source.setEncoding(encoding);
+	// set the real reader of this source.
+	source.setCharacterStream(new InputStreamReader(source.getByteStream(),
+                                             Encoding.getJavaEncoding(encoding)));
+	// reset the stream (leave the charset declaration in the stream).
+	input.reset();
+
+	return new Generic_CharStream(source.getCharacterStream(), 1, 1);
+    }
+
+    private LocatorImpl currentLocator;
+    private Locator getLocator() {
+	if (currentLocator == null) {
+	    currentLocator = new LocatorImpl(this);
+	    return currentLocator;
+	}
+	return currentLocator.reInit(this);
+    }
+    private LocatorImpl getLocator(Token save) {
+	if (currentLocator == null) {
+	    currentLocator = new LocatorImpl(this, save);
+	    return currentLocator;
+	}
+	return currentLocator.reInit(this, save);
+    }
+
+    private void reportError(Locator l, Exception e) {
+	if (errorHandler != null) {
+	    if (e instanceof ParseException) {
+		// construct a clean error message.
+		ParseException pe = (ParseException) e;
+		if (pe.specialConstructor) {
+		    StringBuffer errorM = new StringBuffer();
+		    if (pe.currentToken != null) {
+			errorM.append("encountered \"")
+			    .append(pe.currentToken.next);
+		    }
+		    errorM.append('"');
+		    if (pe.expectedTokenSequences.length != 0) {
+			errorM.append(". Was expecting one of: ");
+			for (int i = 0; i < pe.expectedTokenSequences.length; i++) {
+			    for (int j = 0; j < pe.expectedTokenSequences[i].length; j++) {
+				int kind = pe.expectedTokenSequences[i][j];
+				if (kind != S) {
+				    errorM.append(pe.tokenImage[kind]);
+				    errorM.append(' ');
+				}
+			    }
+			}
+		    }
+		    errorHandler.error(new CSSParseException(errorM.toString(), 
+							     l, e));
+		} else {
+		    errorHandler.error(new CSSParseException(e.getMessage(), 
+							     l, e));
+		}
+	    } else if (e == null) {
+		errorHandler.error(new CSSParseException("error", l, null));
+	    } else {
+		errorHandler.error(new CSSParseException(e.getMessage(), l, e));
+	    }
+	}
+    }
+
+    private void reportWarningSkipText(Locator l, String text) {
+	if (errorHandler != null && text  != null) {
+	    errorHandler.warning(new CSSParseException("Skipping: " + text, l));
+	}
+    }
+}
+
+PARSER_END(Parser)
+
+/*
+ * The tokenizer 
+ */
+
+<DEFAULT,ELSE_STATE, PARSE_FUNCTIONNAME_WHITESPACE_ALLOWED_STATE>
+TOKEN :
+{
+    < S : ( [ " ", "\t" , "\n" , "\r", "\f" ] )+ > 
+	{ image = Parser.SPACE; }
+}
+
+/*
+ * for fixing #11638: Ending an imported SCSS file with a comment causes an error in the Sass.
+ * now the single line comment is parsed as special token, before, they were simply skipped.
+ * solution got from http://www.engr.mun.ca/~theo/JavaCC-FAQ/javacc-faq-moz.htm#tth_sEc3.15
+ */
+<DEFAULT>
+SPECIAL_TOKEN : {
+< SINGLE_LINE_COMMENT: "//"(~["\n","\r"])* ("\n"|"\r"|"\r\n")? > }
+
+<DEFAULT>
+MORE :
+{
+  <"/**" ~["/"]> { input_stream.backup(1); } : IN_FORMAL_COMMENT
+|
+  "/*" : IN_MULTI_LINE_COMMENT
+}
+<IN_FORMAL_COMMENT>
+SPECIAL_TOKEN :
+{
+  <FORMAL_COMMENT: "*/" > : DEFAULT
+}
+
+<IN_MULTI_LINE_COMMENT>
+SKIP :
+{
+  <MULTI_LINE_COMMENT: "*/" > : DEFAULT
+}
+
+<IN_FORMAL_COMMENT,IN_MULTI_LINE_COMMENT>
+MORE :
+{
+  < ~[] >
+}
+
+<DEFAULT>
+TOKEN :
+{
+  < CDO : "<!--" >
+  | < CDC : "-->" >
+  | < RBRACE : "}">
+  | < DASHMATCH : "|=" >
+  | < PREFIXMATCH : "^=" >
+  | < SUFFIXMATCH : "$=" >
+  | < SUBSTRINGMATCH : "*=" >
+  | < INCLUDES  : "~=" >
+  | < EQ        : "=" >
+  | < PLUS      : "+" >
+  | < MINUS     : "-" >
+  | < COMMA     : "," >
+  | < SEMICOLON : ";" >
+  | < PRECEDES  : ">" >
+  | < SIBLING   : "~" >
+  | < SUCCEEDS : "<" >
+  | < DIV       : "/" >
+  | < LBRACKET  : "[" >
+  | < RBRACKET  : "]" >
+  | < ANY       : "*" >
+  | < MOD       : "%" >
+  | < PARENT    : "&" >
+  | < DOT       : "." >
+  | < ELLIPSIS  : "..." >
+  | < LPARAN    : "(" >
+  | < RPARAN    : ")">
+  | < COMPARE   : "==" >
+  | < NOT_EQ : "!=" >
+  | < GTE : ">=" >
+  | < LTE: "<=" >
+  | < AND: "and" >
+  | < OR: "or" >
+  | < NOT: "not" >
+}
+
+<DEFAULT>
+TOKEN :
+{
+  < COLON     : ":" >
+}
+
+< DEFAULT, PARSE_FUNCTIONNAME_WHITESPACE_ALLOWED_STATE >
+TOKEN :
+{
+    < START_INTERPOLATION : "#{" > : DEFAULT
+}
+
+<DEFAULT>
+TOKEN : /* basic tokens */
+{ 
+    < NONASCII    : ["\200"-"\377"] >
+  | < #H          : ["0"-"9", "a"-"f"] >
+  | < #UNICODE    : "\\" <H> ( <H> )? /* I can't say {1,6} */
+                         ( <H> )? ( <H> )?
+                         ( <H> )? ( <H> )? 
+                    ( [ " ", "\t" , "\n" , "\r", "\f" ] )? >
+  | < #ESCAPE     : <UNICODE> | ( "\\" [ " "-"~","\200"-"\377" ] ) >
+  | < #NMSTART    : ("-")?[ "a"-"z","_"] | <NONASCII> | <ESCAPE> >
+  | < #NMCHAR	  : ["a"-"z", "0"-"9", "-", "_"] | <NONASCII> | <ESCAPE> >
+  | < #STRINGCHAR : [ "\t"," ","!","#","$","%","&","("-"~" ] 
+                    | "\\\n" | "\\\r\n" | "\\\r" | "\\\f"
+                    | <NONASCII> | <ESCAPE> >
+  | < #D          : ["0"-"9"] >
+  | < #NAME       : ( <NMCHAR> )+ >
+ 
+}
+
+<DEFAULT>
+TOKEN :
+{
+    <TO         : "to">
+    |<THROUGH   : "through">
+    |<EACH_IN        : "in">
+    |<FROM      : "from">
+}
+
+/* DERECTIVES */
+<DEFAULT>
+TOKEN :
+{
+    <MIXIN_SYM          : "@mixin"> : PARSE_FUNCTIONNAME_WHITESPACE_ALLOWED_STATE
+  | <INCLUDE_SYM        : "@include"> : PARSE_FUNCTIONNAME_WHITESPACE_ALLOWED_STATE
+  | <FUNCTION_SYM       : "@function"> : PARSE_FUNCTIONNAME_WHITESPACE_ALLOWED_STATE
+  | <RETURN_SYM         : "@return">
+  | <DEBUG_SYM          : "@debug">
+  | <WARN_SYM           : "@warn">
+  | <FOR_SYM            : "@for">
+  | <EACH_SYM           : "@each">
+  | <WHILE_SYM          : "@while">
+  | <IF_SYM             : "@if">
+  | <ELSE_SYM           : "@else"> : ELSE_STATE
+  | <ELSEIF_SYM         : "@elseif">
+  | <EXTEND_SYM         : "@extend">
+  | <MOZ_DOCUMENT_SYM   : "@-moz-document">
+  | <SUPPORTS_SYM       : "@supports">
+  | <CONTENT_SYM        : "@content">
+}
+
+<ELSE_STATE>
+TOKEN:
+{
+    <IF                   : "if"> : DEFAULT
+}
+
+<DEFAULT, ELSE_STATE>
+TOKEN:
+{
+    < LBRACE : "{" > : DEFAULT
+    
+}
+
+< DEFAULT >
+TOKEN:
+{
+  < MICROSOFT_RULE : "filter"|"-ms-filter" > 
+}
+
+<DEFAULT>
+TOKEN:
+{
+        < GUARDED_SYM : "!" ( <S> )? "default">
+}
+
+<DEFAULT>
+TOKEN :
+{
+  < STRING      : ( "\"" ( <STRINGCHAR> | "'" )* "\"" ) | 
+                  ( "'" ( <STRINGCHAR> | "\"" )* "'" ) >
+  | < NUMBER	  : ( <D> )+ | ( <D> )* "." ( <D> )+ > 
+  | < #_URL       : [ "!","#","$","%","&","*"-"~" ] | <NONASCII> | <ESCAPE> >
+  | < #_URL_FIRST       : [ "!","#","%","&","*"-"~" ] | <NONASCII> | <ESCAPE> >
+  | < #_URL_STRING       : <STRING> | <_URL_FIRST> ( <_URL> )* >
+  | < URL         : "url(" ( <S> )*
+                    ( <_URL_STRING> ) ( <S> )* ")" >
+}
+
+<DEFAULT, PARSE_FUNCTIONNAME_WHITESPACE_ALLOWED_STATE>
+TOKEN:
+{
+   < IDENT         : <NMSTART> ( <NMCHAR> )* > : DEFAULT
+}
+
+<DEFAULT, PARSE_FUNCTIONNAME_WHITESPACE_ALLOWED_STATE>
+TOKEN:
+{
+	< VARIABLE : "$" <IDENT>> : DEFAULT
+}
+
+<DEFAULT>
+TOKEN :
+{
+   < PERCENTAGE : <NUMBER> "%" >
+ | < PT : <NUMBER> "pt" >
+ | < MM : <NUMBER> "mm" >
+ | < CM : <NUMBER> "cm" >
+ | < PC : <NUMBER> "pc" >
+ | < IN : <NUMBER> "in" >
+ | < PX : <NUMBER> "px" >
+ | < EMS : <NUMBER> "em" >
+ | < LEM : <NUMBER> "lem" >
+ | < REM : <NUMBER> "rem" >
+ | < EXS : <NUMBER> "ex" >
+ | < DEG : <NUMBER> "deg" >
+ | < RAD : <NUMBER> "rad" >
+ | < GRAD : <NUMBER> "grad" >
+ | < MS : <NUMBER> "ms" >
+ | < SECOND  : <NUMBER> "s" >
+ | < HZ : <NUMBER> "Hz" >
+ | < KHZ : <NUMBER> "kHz" >
+ | < DIMEN  : <NUMBER> <IDENT> >
+}
+
+<DEFAULT>
+TOKEN :
+{
+  < HASH : "#" (<NAME>)? >
+}
+
+/* RESERVED ATRULE WORDS */
+<DEFAULT>
+TOKEN : 
+{
+    < IMPORT_SYM   : "@import">
+  | < MEDIA_SYM    : "@media" >
+  | < CHARSET_SYM  : "@charset" >
+  | < PAGE_SYM     : "@page"  >
+  | < FONT_FACE_SYM: "@font-face" >
+  | < KEY_FRAME_SYM: "@keyframes" | "@-moz-keyframes" | "@-o-keyframes" | "@-webkit-keyframes" | "@-ms-keyframes">
+  | < ATKEYWORD    : "@" <IDENT> >
+}
+
+<DEFAULT>
+TOKEN :
+{
+ < IMPORTANT_SYM : "!" ( <S> )? "important" >
+}
+
+<DEFAULT>
+TOKEN :
+{
+    < #RANGE0 : <H> <H> <H> <H>  <H> >
+    | < #RANGE1 : <H> <H> <H> <H> <H> ( "?" )? >
+    | < #RANGE2 : <H> <H> <H> <H> ( "?" )? ( "?" )? >
+    | < #RANGE3 : <H> <H> <H> ( "?" )? ( "?" )? ( "?" )? >
+    | < #RANGE4 : <H> <H> ( "?" )? ( "?" )? ( "?" )? ( "?" )? >
+    | < #RANGE5 : <H> ( "?" )? ( "?" )? ( "?" )? ( "?" )? ( "?" )? >
+    | < #RANGE6 : "?" ( "?" )? ( "?" )? ( "?" )? ( "?" )? ( "?" )? >
+    | < #RANGE  : <RANGE0> | <RANGE1> | <RANGE2> 
+                  | <RANGE3> | <RANGE4> | <RANGE5> | <RANGE6> >
+    | < #UNI    : <H> ( <H> )? ( <H> )? ( <H> )? ( <H> )? ( <H> )? >
+    | < UNICODERANGE : "U+" <RANGE>
+                        | "U+" <UNI> "-" <UNI> >
+}
+
+<DEFAULT>
+TOKEN :
+{
+   < NOT_FUNCTION : "not" (< S >)* "(" >
+ | < FUNCTION : <IDENT> "(" >
+}
+
+<PARSE_FUNCTIONNAME_WHITESPACE_ALLOWED_STATE>
+TOKEN :
+{
+    <FUNCTION_WITH_WS : <NMSTART> ( <NMCHAR> )* (<S>)* "(" > : DEFAULT
+}
+
+<DEFAULT, IN_MULTI_LINE_COMMENT>
+TOKEN :
+{ /* avoid token manager error */
+    < UNKNOWN : ~[] >
+}
+
+/*
+ * The grammar of CSS2
+ */
+
+/**
+ * The main entry for the parser.
+ *
+ * @exception ParseException exception during the parse
+ */
+void parserUnit() :
+{}
+{
+    try {
+	{ documentHandler.startDocument(source); }
+	( charset() )?
+	( <S> comments()
+	 | ignoreStatement() )*
+	topLevelDeclaration()
+	<EOF>
+    } finally {
+	documentHandler.endDocument(source);
+    }
+}
+
+void charset() :
+{ Token n; }
+{  
+    try {
+        <CHARSET_SYM> ( <S> )* n=<STRING> ( <S> )* (";" | acceptMissingSemicolon(EOF))
+    } catch (ParseException e) {
+        reportError(getLocator(e.currentToken.next), e);
+    skipStatement();
+    // reportWarningSkipText(getLocator(), skipStatement());
+    } catch (Exception e) {
+        reportError(getLocator(), e);
+    skipStatement();
+    // reportWarningSkipText(getLocator(), skipStatement());
+    }
+}
+
+void topLevelDeclaration() :
+{String ret; 
+ Locator l;
+}
+{
+  ( 
+     ( importDeclaration() | debuggingDirective() | mixinDirective() | functionDirective() | controlDirective() | includeDirective() | styleRule() | media() 
+             | page() | fontFace() | keyframes() | variable()
+      | { l = getLocator(); } ret=skipStatement() 
+      {
+	  if ((ret == null) || (ret.length() == 0)) {
+	      return; 
+	  }
+	  if (ret.charAt(0) == '@') {
+	      documentHandler.unrecognizedRule(ret);
+	  } else {
+	      reportWarningSkipText(l, ret);
+	  }
+      }
+      )
+    ( ignoreStatement() ( <S> )* )* )*
+}
+
+void ignoreStatement() :
+{}
+{
+   <CDO> | <CDC> | atRuleDeclaration()
+}
+
+/**
+ * The import statement
+ *
+ * @exception ParseException exception during the parse
+ */
+void importDeclaration() :
+{Token n;
+ String uri;
+ MediaListImpl ml = new MediaListImpl();
+ boolean isURL = false;
+}
+{
+ try {
+  <IMPORT_SYM> 
+       ( <S> )* ( n=<STRING> { uri = convertStringIndex(n.image, 1, 
+							n.image.length() -1); }
+		  | n=<URL> 
+	   {
+	       isURL=true;	      
+	       uri = n.image.substring(4, n.image.length()-1).trim();
+	       if ((uri.charAt(0) == '"')
+		   || (uri.charAt(0) == '\'')) {
+		   uri = uri.substring(1, uri.length()-1);
+	       }
+	   }
+		  )
+       ( <S> )* mediaStatement(ml) (";" | acceptMissingSemicolon(RBRACE, EOF))
+       ( <S> )*
+	   {
+	       if (ml.getLength() == 0) {
+		   // see section 6.3 of the CSS2 recommandation.
+		   ml.addItem("all");
+	       }
+	       documentHandler.importStyle(uri, ml, isURL);
+	   }
+ } catch (ParseException e) {
+     reportError(getLocator(), e);
+     skipStatement();
+     // reportWarningSkipText(getLocator(), skipStatement());
+ }
+}
+
+/**
+ * @exception ParseException exception during the parse
+ */
+void keyframes() :
+{
+    Token n;
+    ArrayList<SassListItem> items = new ArrayList<SassListItem>();
+    Interpolation i;
+    boolean start = false;
+    String keyframeName = null;
+}
+{
+ try {
+  n=<KEY_FRAME_SYM> ( <S> )* {keyframeName = n.image;}
+  (n = ident() {items.add(new StringItem(n.image)); } | i = interpolation() { items.add(i); })+(<S>)*
+   {
+      start = true;
+      StringInterpolationSequence animationName = new StringInterpolationSequence(items);
+      documentHandler.startKeyFrames(keyframeName, animationName);
+   }
+   <LBRACE> ( <S> )* ( keyframeSelector() | contentDirective() )* <RBRACE> ( <S> )*
+ } catch (ParseException e) {
+     reportError(getLocator(), e);
+     skipStatement();
+ } finally {
+     if (start) {
+         documentHandler.endKeyFrames();
+     }
+ }
+}
+
+void keyframeSelector():
+{
+    Token n;
+    String selector = "";
+    boolean start = false;
+}
+{
+    try{
+        (n = <FROM> | n = <TO> | n = <PERCENTAGE>){selector += n.image;} (<S>)*
+        (<COMMA> (<S>)* (n = <FROM> | n = <TO> | n = <PERCENTAGE>) {selector += (", " + n.image);} (<S>)* )*
+          <LBRACE> (<S>)*
+        {
+          start = true;
+          documentHandler.startKeyframeSelector(selector);
+         }
+        ( ifContentStatement() )*
+        <RBRACE> (<S>)*
+    }
+    catch (ThrowedParseException e) {
+        if (errorHandler != null) {
+            LocatorImpl li = new LocatorImpl(this,
+                                             e.e.currentToken.next.beginLine,
+                                             e.e.currentToken.next.beginColumn-1);
+            reportError(li, e.e);
+        }
+    } catch (ParseException e) {
+        reportError(getLocator(), e);
+        skipStatement();
+        // reportWarningSkipText(getLocator(), skipStatement());
+    } catch (TokenMgrError e) {
+        reportWarningSkipText(getLocator(), skipStatement());
+    } finally {
+        if (start) {
+            documentHandler.endKeyframeSelector();
+        }
+    }
+}
+
+/**
+ * @exception ParseException exception during the parse
+ */
+/* see http://www.w3.org/TR/css3-mediaqueries/ */
+void media() :
+{ 
+    boolean start = false;
+    String ret;
+    MediaListImpl ml = new MediaListImpl(); 
+}
+{
+ try {
+  <MEDIA_SYM> ( <S> )*
+   mediaStatement(ml)
+   { start = true; documentHandler.startMedia(ml); }
+   <LBRACE> ( <S> )* ( mediaDirective() )*	<RBRACE> ( <S> )*
+ } catch (ParseException e) {
+     reportError(getLocator(), e);
+     skipStatement();
+     // reportWarningSkipText(getLocator(), skipStatement());
+ } finally {
+     if (start) {
+     documentHandler.endMedia(ml);
+     }
+ }
+}
+
+void mediaDirective() :
+{}
+{
+  debuggingDirective() | LOOKAHEAD(2) styleRule() | skipUnknownRule() | contentDirective()
+}
+
+void mediaStatement(MediaListImpl ml) :
+{
+  Token t;
+}
+{
+    {
+      t = getToken(1);
+      // loop over comma separated parts, add each to ml
+      while ((t.kind != LBRACE) && (t.kind != EOF) && (t.kind != SEMICOLON)) {
+        StringBuffer s = new StringBuffer();
+        s.append(getToken(0).image);
+        while ((t.kind != COMMA) && (t.kind != LBRACE) && (t.kind != EOF) && (t.kind != SEMICOLON)) {
+	      s.append(t.image);
+	      getNextToken();
+          t = getToken(1);
+        }
+        if (t.kind == COMMA) {
+          // skip the comma and the token before it that is still the active token
+          getNextToken();
+          getNextToken();
+          t = getToken(1);
+        }
+        String str = s.toString().trim();
+        if (str.length() > 0) {
+          ml.addItem(str);
+        }
+      }
+    }
+}
+
+/**
+ * @exception ParseException exception during the parse
+ */
+String medium() : /* tv, projection, screen, ... */
+{Token n;}
+{
+    n=ident() { return convertIdent(n.image); }
+}
+
+/**
+ * @exception ParseException exception during the parse
+ */
+void page() :
+{
+ boolean start = false;
+ Token n = null;
+ String page = null;
+ String pseudo = null;
+}
+{
+ try {
+  <PAGE_SYM> ( <S> )* ( n=ident() ( <S> )* )?
+  ( pseudo=pseudo_page() )? 
+      {
+	  if (n != null) {
+	      page = convertIdent(n.image);
+	  }
+      }
+  <LBRACE> (<S>)* 
+      {
+	  start = true;
+	  documentHandler.startPage(page, pseudo);
+      }
+     ( declaration() )? ( ";" ( <S> )* ( declaration() )? )* 
+     <RBRACE> (<S>)*
+ } catch (ParseException e) {
+     if (errorHandler != null) {
+	 LocatorImpl li = new LocatorImpl(this,
+					  e.currentToken.next.beginLine,
+					  e.currentToken.next.beginColumn-1);
+	 reportError(li, e);
+	 skipStatement();
+	 // reportWarningSkipText(li, skipStatement());
+     } else {
+	 skipStatement();
+     }
+ } finally {
+     if (start) {
+	 documentHandler.endPage(page, pseudo);
+     }
+ }
+}
+
+String pseudo_page() :
+{ Token n; }
+{
+    ":" n=ident() ( <S> )* { return convertIdent(n.image); }
+}
+
+void fontFace() :
+{
+    boolean start = false;
+}
+{
+ try {
+  <FONT_FACE_SYM> ( <S> )*
+     <LBRACE> (<S>)*
+      { start = true; documentHandler.startFontFace(); }
+     ( declaration() | controlDirective() )? ( ";" ( <S> )* ( declaration() | controlDirective() )? )*
+     <RBRACE> (<S>)*
+ } catch (ParseException e) {
+     reportError(getLocator(), e);
+     skipStatement();
+     // reportWarningSkipText(getLocator(), skipStatement());
+ } finally {
+     if (start) {
+	 documentHandler.endFontFace();
+     }
+ }
+}
+
+/**
+ * @exception ParseException exception during the parse
+ */
+void atRuleDeclaration() :
+{Token n;
+ String ret;
+}
+{
+ n=<ATKEYWORD>
+    {
+	ret=skipStatement();
+	if ((ret != null) && (ret.charAt(0) == '@')) {
+	    documentHandler.unrecognizedRule(ret);
+	} else {
+	    reportWarningSkipText(getLocator(), ret);
+	}
+    }
+}
+
+void skipUnknownRule() :
+{ Token n;}
+{
+ ( n=<ATKEYWORD>
+| n=<CDO>
+| n=<CHARSET_SYM>
+| n=<COMMA>
+| n=<DASHMATCH>
+| n=<FONT_FACE_SYM>
+| n=<FUNCTION>
+| n=<NOT_FUNCTION>
+| n=<IMPORTANT_SYM>
+| n=<IMPORT_SYM>
+| n=<INCLUDES>
+| n=<LBRACE>
+| n=<MEDIA_SYM>
+| n=<NONASCII>
+| n=<NUMBER>
+| n=<PAGE_SYM>
+| n=<PERCENTAGE>
+| n=<STRING>
+| n=<UNICODERANGE>
+| n=<URL>
+| n=";"
+| n="-"
+| n=<UNKNOWN>
+   ) {
+     String ret;
+     Locator loc = getLocator();
+     ret=skipStatement();
+     if ((ret != null) && (n.image.charAt(0) == '@')) {
+	 documentHandler.unrecognizedRule(ret);
+     } else {
+     reportWarningSkipText(loc, ret);
+     }
+ }
+}
+
+/**
+ * @exception ParseException exception during the parse
+ */
+Combinator combinator() :
+{
+Combinator connector = Combinator.DESCENDANT;
+}
+{
+    (connector = combinatorChar()
+     | <S>  (connector = combinatorChar())?) { return connector; }
+}
+
+/**to refactor combinator and reuse in selector().*/
+Combinator combinatorChar() :
+{Token t;}
+{
+    (t = <PLUS> (<S>)* { return Combinator.SIBLING; })
+    | (t = <PRECEDES> (<S>)* { return Combinator.CHILD; } )
+    | (t = <SIBLING> (<S>)* { return Combinator.GENERAL_SIBLING; } ) 
+}
+
+void microsoftExtension() :
+{
+  ArrayList<SassListItem> items = new ArrayList<SassListItem>();
+  boolean lastIsSpace = true;
+  Interpolation i;
+  Token n;
+  String name = "";
+  String s;
+}
+
+{
+  // This is not really taking the syntax of filter rules into account
+  n = < MICROSOFT_RULE > (< S >)* { name = n.image; }
+    < COLON >
+    ((n = ident() { items.add(new StringItem(n.image)); lastIsSpace = false; })
+    | (n = < NUMBER > { items.add(new StringItem(n.image)); lastIsSpace = false; })
+    | (n = < STRING > { items.add(new StringItem(n.image)); lastIsSpace = false; })
+    | (n = < COMMA > { items.add(new StringItem(n.image)); lastIsSpace = false; })
+    | (i = interpolation() { items.add(i); lastIsSpace = false; })
+    | (n = < COLON > { items.add(new StringItem(n.image)); lastIsSpace = false; })
+    | (n = < NOT_FUNCTION > { items.add(new StringItem(n.image)); lastIsSpace = false; })
+    | (n = < FUNCTION > { items.add(new StringItem(n.image)); lastIsSpace = false; })
+    | (n = < RPARAN > { items.add(new StringItem(n.image)); lastIsSpace = false; })
+    | (n = < EQ > { items.add(new StringItem(n.image)); lastIsSpace = false; })
+    | (n = < DOT > { items.add(new StringItem(n.image)); lastIsSpace = false; })
+    | (n = < S > { if(!lastIsSpace) { items.add(new StringItem(n.image)); } lastIsSpace = true;}) 
+    )+
+    < SEMICOLON >
+    (< S >)*
+    {
+        StringInterpolationSequence value = new StringInterpolationSequence(items);
+        documentHandler.microsoftDirective(name, value);
+    }
+}
+
+StringInterpolationSequence property() :
+{
+    StringInterpolationSequence sis;
+}
+{
+    sis = ident_interpolation_seq() ( <S> )* { return sis; }
+}
+
+String identString() :
+{
+    Token t;
+}
+{
+    t = propertyIdent() (<S>)* { return t.image; }
+}
+
+Token propertyIdent() :
+{
+    Token t;
+}
+{
+    ( t = "-" | t = < IDENT> | t = <AND> | t = <OR> | t = <NOT> | t = <EACH_IN> | t = <THROUGH>)
+    { return t; }
+}
+
+String variableName() :
+{Token n;}
+{
+    n=<VARIABLE> (<S>)* {return convertIdent(n.image.substring(1));}
+}
+
+String functionName() :
+{Token n;}
+{
+    n=<FUNCTION> ( <S> )* {return convertIdent(n.image.substring(0, n.image.length()-1));}
+}
+
+String functionNameWithWhitespace() :
+{Token n;}
+{
+    n=<FUNCTION_WITH_WS> ( <S> )* {return convertIdent(n.image.substring(0, n.image.length()-1).trim());}
+}
+
+/**
+ * @exception ParseException exception during the parse
+ */
+void styleRule() :
+{
+    boolean start = false;
+    List<Selector> l = null;
+    Token save;
+    Locator loc;
+}
+{
+ try {
+     l=selectorList() { save = token; } <LBRACE> (<S>)*
+     {
+	 start = true;
+	 documentHandler.startSelector(l);
+     }
+     // a CSS import here will not work
+     ( ifContentStatement() | importDeclaration() )*
+     <RBRACE> (<S>)*
+ } catch (ThrowedParseException e) {
+     if (errorHandler != null) {
+	 LocatorImpl li = new LocatorImpl(this,
+					  e.e.currentToken.next.beginLine,
+					  e.e.currentToken.next.beginColumn-1);
+	 reportError(li, e.e);
+     }
+ } catch (ParseException e) {
+     reportError(getLocator(), e);
+     skipStatement();
+     // reportWarningSkipText(getLocator(), skipStatement());
+ } catch (TokenMgrError e) {
+     reportWarningSkipText(getLocator(), skipStatement());
+ } finally {
+     if (start) {
+	 documentHandler.endSelector();
+     }
+ }
+}
+
+List<Selector> selectorList() :
+{
+    List<Selector> selectors = new  ArrayList<Selector>();
+    Selector selector;
+}
+{
+ selector=selector() ( <COMMA> (<S>)* { selectors.add(selector); } 
+                       selector=selector() )* 
+  { selectors.add(selector); 
+    return selectors;
+  }
+}
+
+Selector selector() :
+{
+  Selector selector;
+  SimpleSelectorSequence seq;
+  Combinator comb = null;
+}
+{
+  (comb=combinatorChar())? seq=simple_selector_sequence() { selector = (comb==null) ? new Selector(seq) : new Selector(comb,seq); } 
+  (LOOKAHEAD(2) comb=combinator() seq=simple_selector_sequence() { selector = selector.createNested(comb,seq); } )*
+  (<S>)*
+  {
+    return selector;
+  }
+}
+
+
+SimpleSelectorSequence simple_selector_sequence() :
+{
+  SimpleSelector simple = null;
+  ArrayList<SimpleSelector> list = new ArrayList<SimpleSelector>();
+}
+{
+  ((simple=simple_nontype_selector() { list.add(simple); })+
+   | simple=type_selector() { list.add(simple); } (simple=simple_nontype_selector() { list.add(simple); })*)
+  {
+    return new SimpleSelectorSequence(list);
+  }
+}
+
+
+SimpleSelector simple_nontype_selector() :
+{
+  SimpleSelector s;
+}
+{
+  ( s=class_selector()
+  | s=placeholder_selector()
+  | s=id_selector()
+  | s=pseudo_selector()
+  | s=attribute_selector() )
+  { return s; }
+}
+
+
+StringInterpolationSequence ident_interpolation_seq() :
+{
+  Token t;
+  List<SassListItem> items = new ArrayList<SassListItem>();
+  Interpolation interp;
+}
+{
+  (t=propertyIdent() {items.add(new StringItem(t.image));} | interp=interpolation() {items.add(interp);})+
+  {
+    return new StringInterpolationSequence(items);
+  }
+}
+
+
+SimpleSelector class_selector() :
+{
+  StringInterpolationSequence s;
+}
+{
+  "." s=ident_interpolation_seq() { return new ClassSelector(s); }
+}
+
+
+SimpleSelector placeholder_selector() :
+{
+  StringInterpolationSequence s;
+}
+{
+  "%" s=ident_interpolation_seq() { return new PlaceholderSelector(s); }
+}
+
+
+TypeSelector type_selector() :
+{
+  StringInterpolationSequence s;
+}
+{
+  s=ident_interpolation_seq() { return new TypeSelector(s); }
+  | "*" { return UniversalSelector.it; }
+  | "&" { return ParentSelector.it; }
+}
+
+
+/**
+ * @exception ParseException exception during the parse
+ */
+AttributeSelector attribute_selector():
+{
+    int cases = 0;
+    StringInterpolationSequence att = null;
+    Token val = null;
+    StringInterpolationSequence attValue = null;
+    AttributeSelector.MatchRelation matchRelation = null;
+}
+{
+  "[" ( <S> )* att=ident_interpolation_seq() ( <S> )*
+      ( ( "="           { matchRelation = AttributeSelector.MatchRelation.EQUALS; }
+      | <INCLUDES>  { matchRelation = AttributeSelector.MatchRelation.INCLUDES; }
+      | <DASHMATCH> { matchRelation = AttributeSelector.MatchRelation.DASHMATCH; }
+      | <PREFIXMATCH> { matchRelation = AttributeSelector.MatchRelation.PREFIXMATCH; }
+      | <SUFFIXMATCH> { matchRelation = AttributeSelector.MatchRelation.SUFFIXMATCH; }
+      | <SUBSTRINGMATCH> { matchRelation = AttributeSelector.MatchRelation.SUBSTRINGMATCH; } ) ( <S> )*
+    ( attValue=ident_interpolation_seq()
+      | val=<STRING> { attValue = new StringInterpolationSequence(val.image); }
+    )
+    ( <S> )* )?
+  "]"
+  {
+      return new AttributeSelector(att,matchRelation,attValue);
+  }
+}
+
+
+SimpleSelector pseudo_selector():
+{
+    Token n;
+    StringInterpolationSequence id;
+    String s;
+    Token t;
+    String arg = null;
+    Selector sel;
+}
+{
+    ":" (
+        (":" id=ident_interpolation_seq())
+            { return new PseudoElementSelector(id); }
+        | (id=ident_interpolation_seq())
+            { return new PseudoClassSelector(id); }
+        | ( t=<NOT_FUNCTION> sel=selector() <RPARAN> )
+            { s = t.image;
+              s = s.substring(0, s.length() - 1);
+              id = new StringInterpolationSequence(s);
+              return new PseudoClassSelector(id, sel.toString()); }
+        | ( s=functionName() arg=pseudo_params() <RPARAN> )
+            { return new PseudoClassSelector(new StringInterpolationSequence(s),arg); }
+    )
+}
+
+String pseudo_params():
+{
+  String params = "";
+  Token t;
+}
+{
+    (
+        ( t = <NUMBER> | t = <DIMEN> | t = <PLUS> | t = <MINUS> | t = <IDENT> ) { params = params + t.image; }
+        ( t = <S> { params = params + t.image; } )*
+    )*
+    {
+        return params;
+    }
+}
+
+IdSelector id_selector() :
+{
+  ArrayList<SassListItem> items = new ArrayList<SassListItem>();
+  ArrayList<SassListItem> iis;
+  Token t;
+}
+{
+  ( t=<HASH> { items.add(new StringItem(t.image.substring(1))); }
+    (iis = identInterpolationString() {items.addAll(iis); })?
+  )
+  {
+    return new IdSelector(new StringInterpolationSequence(items));
+  }
+}
+
+void variable() :
+{
+    String name;
+    SassList l = null;
+    boolean guarded = false;
+    String raw;
+}
+{
+    try{
+        name = variableName()
+        ":" ( <S> )* l=expressionList() ( guarded=guarded() )? semicolonTerminator()
+        //raw=skipStatementUntilSemiColon()
+        {
+            documentHandler.variable(name, l.flatten(), guarded);
+        }
+    } catch (JumpException e) {
+        skipAfterExpression();
+    } catch (NumberFormatException e) {
+        if (errorHandler != null) {
+            errorHandler.error(new CSSParseException("Invalid number "
+                               + e.getMessage(), getLocator(), e));
+        }
+        reportWarningSkipText(getLocator(), skipAfterExpression());
+    } catch (ParseException e) {
+        if (errorHandler != null) {
+            if (e.currentToken != null) {
+                LocatorImpl li = new LocatorImpl(this,
+                              e.currentToken.next.beginLine,
+                              e.currentToken.next.beginColumn-1);
+                reportError(li, e);
+            } else {
+                reportError(getLocator(), e);
+            }
+            skipAfterExpression();
+        } else {
+        skipAfterExpression();
+        }
+    }
+}
+
+SassList expressionList():
+{
+    // Nonempty parenthesized lists are not supported yet.
+    List<SassListItem> primaryList = new ArrayList<SassListItem>();
+    int line = token.beginLine;
+    int column = token.beginColumn;
+    SassList subList;
+}
+{
+    subList = expressionSubList(){ primaryList.add(subList); }
+    ( <COMMA> (<S>)* subList = expressionSubList(){ primaryList.add(subList); })*
+    {
+        SassList result = new SassList(SassList.Separator.COMMA, primaryList);
+        result.setSourcePosition(line, column);
+        return result;
+    }
+}
+
+SassList expressionSubList():
+{
+    // Nonempty parenthesized lists are not supported yet.
+    SassListItem item;
+    List<SassListItem> list = new ArrayList<SassListItem>();
+    int line = token.beginLine;
+    int column = token.beginColumn;
+}
+{
+    LOOKAHEAD(3)"(" (<S>)* ")" (<S>)*
+    {
+        return new SassList(SassList.Separator.SPACE);
+    }
+    | (LOOKAHEAD(2) item = expr(){ list.add(item); })+
+    {
+        SassList result = new SassList(SassList.Separator.SPACE, list);
+        result.setSourcePosition(line, column);
+        return result;
+    }
+}
+
+void controlDirective() :
+{}
+{
+  ifDirective() | eachDirective() | forDirective() | whileDirective()
+}
+
+void ifContentStatement() :
+{}
+{
+    contentDirective() | includeDirective() | media() | extendDirective() | styleRuleOrDeclarationOrNestedProperties()
+    | keyframes() | variable() | controlDirective() | atRuleDeclaration() | microsoftExtension()
+}
+
+void ifDirective() :
+{
+  SassList list;
+  SassListItem evaluator = null;
+}
+{
+  < IF_SYM >(< S >)*
+  ( list = expressionSubList() { evaluator = list.flatten(); }  )
+  < LBRACE >(< S >)*    
+  { documentHandler.startIfElseDirective();
+    documentHandler.ifDirective(evaluator);
+   }
+  ( ifContentStatement() | fontFace() )*
+  < RBRACE >(< S >)*
+  (elseDirective())*
+  { documentHandler.endIfElseDirective(); }
+}
+
+void elseDirective() :
+{
+  SassList list;
+  SassListItem evaluator = null;
+}
+{
+  (<ELSEIF_SYM>(< S >)* list = expressionSubList() { evaluator = list.flatten(); }
+  | < ELSE_SYM >(< S >)*
+  ( < IF > (< S >)* ( list = expressionSubList() { evaluator = list.flatten(); } ) )?)
+  < LBRACE >(< S >)*
+  { if(evaluator != null){ documentHandler.ifDirective(evaluator); }
+    else{ documentHandler.elseDirective(); }  
+  }
+  ( ifContentStatement() | fontFace() )*
+  < RBRACE >(< S >)*
+}
+
+void eachDirective() :
+{
+    Token var;
+    SassList list = null;
+}
+{
+    < EACH_SYM >
+    (< S >)*
+    var = < VARIABLE > (< S >)* < EACH_IN > (< S >)*
+    list = expressionList() { documentHandler.startEachDirective(var.image, list.flatten()); }
+    < LBRACE >(< S >)*
+    ( ifContentStatement() )*
+    < RBRACE >(< S >)*
+    { documentHandler.endEachDirective(); }
+}
+
+void mixinDirective() :
+{
+    String name;
+    ArrayList<Variable> args = null;
+    boolean hasVariableArgs = false;
+}
+{
+    <MIXIN_SYM>
+    (<S>)*
+    (   name = identString() // Interpolation is not allowed in a @mixin.
+       |(name = functionNameWithWhitespace() args = arglist()
+          (<ELLIPSIS> {hasVariableArgs = true;} (<S>)*)? <RPARAN> (<S>)*)
+    )
+    <LBRACE> (<S>)*
+    {documentHandler.startMixinDirective(name, args, hasVariableArgs);}
+    ( ifContentStatement() | fontFace() | page())*
+    <RBRACE>(<S>)*
+    {documentHandler.endMixinDirective();}
+}
+
+void functionDirective() :
+{
+    String name;
+    ArrayList<Variable> args = null;
+    boolean hasVariableArgs = false;
+}
+{
+    <FUNCTION_SYM>
+    (<S>)*
+    ( name = functionNameWithWhitespace() args = arglist() (<ELLIPSIS> {hasVariableArgs = true;} (<S>)*)? <RPARAN> (<S>)*)
+    <LBRACE> (<S>)*
+    {documentHandler.startFunctionDirective(name, args, hasVariableArgs);} 
+    ( functionBlockStatement() )* 
+    <RBRACE>(<S>)*
+    {documentHandler.endFunctionDirective();}
+}
+
+void functionBlockStatement() :
+{}
+{
+    variable() | functionControlDirective() | returnDirective() | debuggingDirective()
+}
+
+void functionControlDirective() :
+{}
+{
+  functionIfDirective() | functionEachDirective() | functionForDirective() | functionWhileDirective()
+}
+
+void functionIfDirective() :
+{
+  SassList list;
+  SassListItem condition;
+}
+{
+  < IF_SYM >(< S >)*
+  ( list = expressionSubList() {condition = list.flatten(); } )
+  < LBRACE >(< S >)*    
+  { documentHandler.startIfElseDirective();
+    documentHandler.ifDirective(condition);
+   }
+  ( functionBlockStatement() )*
+  < RBRACE >(< S >)*
+  (functionElseDirective())*
+  { documentHandler.endIfElseDirective(); }
+}
+
+void functionElseDirective() :
+{
+  SassList list;
+  SassListItem condition = null;
+}
+{
+  (<ELSEIF_SYM>(< S >)* list = expressionSubList() { condition = list.flatten(); }
+  | < ELSE_SYM >(< S >)* 
+  ( < IF >(< S >)* ( list = expressionSubList() { condition = list.flatten(); } ) )?)
+  < LBRACE >(< S >)*
+  { if(condition != null){ documentHandler.ifDirective(condition); }
+    else{ documentHandler.elseDirective(); }  
+  }
+  ( functionBlockStatement() )*
+  < RBRACE >(< S >)*
+}
+
+void functionEachDirective() :
+{
+    Token var;
+    SassList list = null;
+}
+{
+    < EACH_SYM >
+    (< S >)*
+    var = < VARIABLE > (< S >)* < EACH_IN > (< S >)*
+    list = expressionList() { documentHandler.startEachDirective(var.image, list.flatten()); }
+    < LBRACE >(< S >)*
+    ( functionBlockStatement() )*
+    < RBRACE >(< S >)*
+    { documentHandler.endEachDirective();}
+}
+
+void functionForDirective() :
+{
+  String var;
+  SassListItem from;
+  SassListItem to;
+}
+{
+  <FOR_SYM> (<S>)*
+  var = variableName() <FROM> (<S>)* from = numericExpr()
+  (
+    ( <TO> (<S>)* to = numericExpr()
+      { documentHandler.startForDirective(var, from, to, true); }
+    )
+    | ( <THROUGH> (<S>)* to = numericExpr()
+      { documentHandler.startForDirective(var, from, to, false); }
+    )
+  )
+  < LBRACE >(< S >)*    
+  ( functionBlockStatement() )*
+  < RBRACE >(< S >)*
+  { documentHandler.endForDirective(); }
+}
+
+void functionWhileDirective() :
+{
+  SassList list;
+  SassListItem evaluator;
+}
+{
+  < WHILE_SYM >(< S >)*
+  ( list = expressionSubList() { evaluator = list.flatten(); }  )
+  < LBRACE >(< S >)*    
+  { documentHandler.startWhileDirective(evaluator); }
+  ( functionBlockStatement() )*
+  < RBRACE >(< S >)*
+  { documentHandler.endWhileDirective(); }
+}
+
+ArrayList<Variable> arglist() :
+{
+    ArrayList<Variable> args = new ArrayList<Variable>();
+    Variable arg;
+    boolean hasOptionalArguments = false;
+}
+{
+    (   arg=mixinArg()
+        (   <COMMA> (<S>)* { hasOptionalArguments = checkMixinForOptionalArguments(arg,
+                                              hasOptionalArguments); args.add(arg); }
+            arg=mixinArg()
+        )*
+        { hasOptionalArguments = checkMixinForOptionalArguments(arg, hasOptionalArguments); args.add(arg); }
+    )?
+    {
+        return args;
+    }
+}
+
+JAVACODE
+// This method is used for checking whether the argument list of a mixin is legal. No required
+// arguments should come after an optional argument. An argument is optional if it has a
+// default value.
+boolean checkMixinForOptionalArguments(Variable arg, boolean hasOptionalArguments){
+    boolean argumentHasDefaultValue = (arg.getExpr() != null);
+    if(argumentHasDefaultValue){
+        return true;
+    }
+    else if(hasOptionalArguments){
+        throw new ParseException("Sass Error: Required argument $"+ arg.getName() +" must come "
+                                  +  "before any optional arguments.");
+    }
+    else{
+        return false;
+    }
+}
+
+Variable mixinArg() :
+{
+    String name;
+    SassList l = null;
+}
+{
+    name=variableName() (< COLON > (< S >)* {l = expressionSubList();} )?
+    {
+        SassListItem argItem = (l == null ? null : l.flatten());
+        Variable arg = new Variable(name, argItem);
+        return arg;
+    }
+}
+
+ArrayList<Variable> argValuelist() :
+{
+    ArrayList<Variable> args = new ArrayList<Variable>();
+    Variable current;
+}
+{
+    (current = argValueListItem(){ args.add(current); }
+      ( <COMMA> (<S>)* current = argValueListItem(){ args.add(current); } )*
+    )?
+    {return args;}
+}
+
+Variable argValueListItem():
+{
+    LexicalUnitImpl unit;
+    String name = null;
+    SassList value = null;
+}
+{
+    (LOOKAHEAD(3) // the lookahead is needed because both variableName and term can match a variable
+    (name = variableName() (<COLON> (< S >)*) ( value = expressionSubList() ))
+    | ( value = expressionSubList() ) )
+    {
+        SassListItem flattenedValue = value.flatten();
+        return new Variable(name, flattenedValue);
+    }
+}
+
+void returnDirective() :
+{
+    SassList expr;
+}
+{
+    (<RETURN_SYM> (<S>)* expr = expressionList() semicolonTerminator())
+    { documentHandler.returnDirective(expr.flatten()); }
+}
+
+void includeDirective() :
+{
+    String name;
+    ArrayList<Variable> args=null;
+    boolean hasVariableArgs = false;
+}
+{
+    <INCLUDE_SYM>
+    (<S>)*
+    // Interpolation is not allowed in an @include.
+    (name = identString() | name = variableName(){ name = "$"+name;} 
+     | (name = functionNameWithWhitespace() args = argValuelist()) ((<ELLIPSIS>){hasVariableArgs = true;}
+         (<S>)*)? <RPARAN>(<S>)*)
+    {documentHandler.startInclude(name, args, hasVariableArgs);}
+    (includeDirectiveBlockContents() | semicolonTerminator())
+    {documentHandler.endInclude();}
+}
+
+void semicolonTerminator():
+{}
+{
+    (";"(<S>)*)+ | acceptMissingSemicolon(RBRACE, EOF)
+}
+
+JAVACODE
+void acceptMissingSemicolon(Integer... acceptedTerminators) throws ParseException {
+    Token next = getToken(1);
+    ArrayList<Integer> terminators = new ArrayList<Integer>(Arrays.asList(acceptedTerminators));
+    if (!terminators.contains(next.kind)){
+        String message = "encountered \"" + next.image + "\". Was expecting one of \";\"";
+        for(int term : acceptedTerminators){
+            message += ", " + tokenImage[term];
+        }
+        ParseException e = new ParseException(message);
+        throw e;
+    }
+}
+
+void includeDirectiveBlockContents():
+{}
+{
+ <LBRACE> (<S>)*
+ (styleRuleOrDeclarationOrNestedProperties() | keyframeSelector() | controlDirective())*
+ <RBRACE> (<S>)* 
+}
+
+Interpolation interpolation() :
+{
+    Token n;
+    int line, column;
+    SassListItem expression;
+}
+{
+    n = < START_INTERPOLATION> { line = n.beginLine; column = n.beginColumn; } expression = expr() <RBRACE>
+    {
+        return new Interpolation(expression, line, column);
+    }
+}
+
+void debuggingDirective() :
+{}
+{
+  debugDirective() | warnDirective()
+}
+
+void debugDirective() :
+{}
+{
+    <DEBUG_SYM>
+    {
+        // could use StringInterpolationSequence but that would require a new parser state 
+        String content = skipStatementUntil(new int[] {SEMICOLON,RBRACE,EOF});
+        documentHandler.debugDirective(content);
+    }
+    ( (";" (<S>)*) | acceptMissingSemicolon(RBRACE, EOF))
+}
+
+void warnDirective() :
+{}
+{
+    <WARN_SYM>
+    { 
+        // could use StringInterpolationSequence but that would require a new parser state 
+        String content = skipStatementUntil(new int[] {SEMICOLON,RBRACE,EOF});
+        documentHandler.warnDirective(content);
+    }
+    ( (";" (<S>)*) | acceptMissingSemicolon(RBRACE, EOF))
+}
+
+void forDirective() :
+{
+  String var;
+  SassListItem from;
+  SassListItem to;
+}
+{
+  <FOR_SYM> (<S>)*
+  var = variableName() <FROM> (<S>)* from = numericExpr()
+  (
+    ( <TO> (<S>)* to = numericExpr()
+      { documentHandler.startForDirective(var, from, to, true); }
+    )
+    | ( <THROUGH> (<S>)* to = numericExpr()
+      { documentHandler.startForDirective(var, from, to, false); }
+    )
+  )
+  < LBRACE >(< S >)*    
+  ( ifContentStatement() | fontFace() )*
+  < RBRACE >(< S >)*
+  { documentHandler.endForDirective(); }
+}
+
+void whileDirective() :
+{
+  SassList list;
+  SassListItem evaluator;
+}
+{
+  < WHILE_SYM >(< S >)*
+  ( list = expressionSubList() { evaluator = list.flatten(); }  )
+  < LBRACE >(< S >)*    
+  { documentHandler.startWhileDirective(evaluator); }
+  ( ifContentStatement() | fontFace() )*
+  < RBRACE >(< S >)*
+  { documentHandler.endWhileDirective(); }
+}
+
+void extendDirective() : 
+{
+    boolean optional = false;
+    List<Selector> list;
+}
+{
+    <EXTEND_SYM>
+    (<S>)*
+    list = selectorList()
+    ("!optional" {optional=true;} )?
+    {documentHandler.extendDirective(list,optional);}
+    semicolonTerminator()
+}
+
+void contentDirective() : 
+{}
+{
+    <CONTENT_SYM>
+    (<S>)*
+    ( (";" (<S>)*) | acceptMissingSemicolon(RBRACE, EOF))
+    {documentHandler.contentDirective();}
+}
+
+JAVACODE
+Node importDirective(){
+    return null;
+}
+
+JAVACODE
+Node charsetDirective(){
+    return null;
+}
+
+JAVACODE
+Node mozDocumentDirective(){
+    return null;
+}
+
+JAVACODE
+Node supportsDirective(){
+    return null;
+}
+
+
+void nestedProperties():
+{StringInterpolationSequence name;
+LexicalUnit exp;}
+{
+    name=property()
+    ":" ( <S> )* 
+    <LBRACE> (<S>)*
+    {
+      documentHandler.startNestedProperties(name);
+    }
+    ( declaration() )? ( ";" ( <S> )* ( declaration() )? )*
+    <RBRACE>
+    {
+      documentHandler.endNestedProperties(name);
+    }
+    (<S>)*
+}
+/**
+ * @exception ParseException exception during the parse
+ */
+void styleRuleOrDeclarationOrNestedProperties() :
+{
+}
+{
+  try {
+    // differentiate between the colon of a pseudo and the colon of nested properties and the colon of a simple property
+    // first check if it is a normal styleRule, if not check if it is declarationOrNestedProperties(), if still fails, most likely, it is
+    // is styleRule with pseudo selector with contains functions. have to do it in this way, because both the styleRule and declarationOrNestedProperties()
+    // have 'skipStatementUntilXXX', which cannot be LOOKAHEAD properly.
+      ( debuggingDirective() | LOOKAHEAD(selectorList()<LBRACE>) styleRule() | LOOKAHEAD(3)declarationOrNestedProperties() | styleRule())
+  } catch (JumpException e) {
+     skipAfterExpression();
+     // reportWarningSkipText(getLocator(), skipAfterExpression());
+  } catch (ParseException e) {
+     if (errorHandler != null) {
+         if (e.currentToken != null) {
+             LocatorImpl li = new LocatorImpl(this,
+                                              e.currentToken.next.beginLine,
+                                              e.currentToken.next.beginColumn-1);
+             reportError(li, e);
+         } else {
+             reportError(getLocator(), e);
+         }
+         skipAfterExpression();
+         /*
+         LocatorImpl loc = (LocatorImpl) getLocator();
+         loc.column--;
+         reportWarningSkipText(loc, skipAfterExpression());
+         */
+     } else {
+         skipAfterExpression();
+     }
+  }
+}
+/**
+ * @exception ParseException exception during the parse
+ */
+void declarationOrNestedProperties() :
+{ boolean important = false;
+  String s = "";
+  StringInterpolationSequence name;
+  SassListItem exp;
+  String comment = null;
+}
+{
+ try {
+     ( <ANY> { s = "*"; })?
+     name=property()
+     ":" ( <S> )* 
+     (exp=expressionList() ( important=prio() )?
+     {
+         if(!"".equals(s)){
+             StringInterpolationSequence temp = new StringInterpolationSequence(s);
+             name = temp.append(name);
+         }
+         exp = ((SassList) exp).flatten();
+         Token next = getToken(1);
+         if(next.kind == SEMICOLON || next.kind == RBRACE){
+             while(next.kind == SEMICOLON){
+                 skipStatement();
+                 next = getToken(1);
+             }
+             //only add special token kept for sprites '/**'
+             if(token.specialToken!=null && token.specialToken!=null && token.specialToken.image.startsWith("/**")){
+                 documentHandler.property(name, exp, important, token.specialToken.image);
+             }else{
+                 documentHandler.property(name, exp, important, null);
+             }
+         }
+     }
+     |<LBRACE> (<S>)*
+     {
+         documentHandler.startNestedProperties(name);
+     }
+     ( declaration() )? ( ";" ( <S> )* ( declaration() )? )*
+     <RBRACE>(<S>)*
+     {
+         documentHandler.endNestedProperties(name);
+     }
+     )
+     
+ } catch (JumpException e) {
+     skipAfterExpression();
+     // reportWarningSkipText(getLocator(), skipAfterExpression());
+ } catch (NumberFormatException e) {
+     if (errorHandler != null) {
+         errorHandler.error(new CSSParseException("Invalid number " 
+                                                  + e.getMessage(),
+                                                  getLocator(), 
+                                                  e));
+     }
+     reportWarningSkipText(getLocator(), skipAfterExpression());
+ } catch (ParseException e) {
+     if (errorHandler != null) {
+         if (e.currentToken != null) {
+             LocatorImpl li = new LocatorImpl(this,
+                                              e.currentToken.next.beginLine,
+                                              e.currentToken.next.beginColumn-1);
+             reportError(li, e);
+         } else {
+             reportError(getLocator(), e);
+         }
+         skipAfterExpression();
+         /*
+         LocatorImpl loc = (LocatorImpl) getLocator();
+         loc.column--;
+         reportWarningSkipText(loc, skipAfterExpression());
+         */
+     } else {
+         skipAfterExpression();
+     }
+ }
+}
+
+/**
+ * @exception ParseException exception during the parse
+ */
+void declaration() :
+{ boolean important = false;
+  StringInterpolationSequence name;
+  SassListItem exp;
+}
+{
+ try {
+     name=property()
+     ":" ( <S> )* exp=expressionList() ( important=prio() )?
+     {
+        exp = ((SassList) exp).flatten();
+        documentHandler.property(name, exp, important);
+     }
+ } catch (JumpException e) {
+     skipAfterExpression();
+     // reportWarningSkipText(getLocator(), skipAfterExpression());
+ } catch (NumberFormatException e) {
+     if (errorHandler != null) {
+	 errorHandler.error(new CSSParseException("Invalid number " 
+						  + e.getMessage(),
+						  getLocator(), 
+						  e));
+     }
+     reportWarningSkipText(getLocator(), skipAfterExpression());
+ } catch (ParseException e) {
+     if (errorHandler != null) {
+	 if (e.currentToken != null) {
+	     LocatorImpl li = new LocatorImpl(this,
+					      e.currentToken.next.beginLine,
+					      e.currentToken.next.beginColumn-1);
+	     reportError(li, e);
+	 } else {
+	     reportError(getLocator(), e);
+	 }
+	 skipAfterExpression();
+	 /*
+	 LocatorImpl loc = (LocatorImpl) getLocator();
+	 loc.column--;
+	 reportWarningSkipText(loc, skipAfterExpression());
+	 */
+     } else {
+	 skipAfterExpression();
+     }
+ }
+}
+
+/**
+ * @exception ParseException exception during the parse
+ */
+boolean prio() :
+{}
+{
+  <IMPORTANT_SYM> ( <S> )* { return true; }
+}
+
+boolean guarded() :
+{}
+{
+    <GUARDED_SYM> (<S>)* {return true;}
+}
+
+/**
+ * @exception ParseException exception during the parse
+ */
+List<SassListItem> operator() :
+{
+    LexicalUnitImpl unit;
+    List<SassListItem> list;
+    boolean spaceAfter = false;
+    Token n;
+}
+{
+    /* (comments copied from basic_arithmetics.scss)
+    *supports:
+    * 1. standard arithmetic operations (+, -, *, /, %)
+    * 2. / is treated as css operator, unless one of its operands is variable or there is another binary arithmetic operator
+    *limits:
+    * 1. cannot mix arithmetic and css operations, e.g. "margin: 1px + 3px 2px" will fail
+    * 2. space between add and minus operator and their following operand is mandatory. e.g. "1 + 2" is valid, "1+2" is not
+    * 3. parenthesis is not supported now.
+    */
+
+    list = nonCommaOperator(){ return list; }
+    | n="," 
+          {unit = LexicalUnitImpl.createComma(n.beginLine, n.beginColumn); } 
+      ( <S> {spaceAfter = true;} )* 
+      {
+          return createList(unit, spaceAfter);
+      }
+}
+
+JAVACODE
+List<SassListItem> createList(SassListItem item, boolean spaceAfter) {
+   if (spaceAfter){
+      ArrayList<SassListItem> result = new ArrayList<SassListItem>();
+      result.add(item);
+      result.add(LexicalUnitImpl.createSpace(item.getLineNumber(), item.getColumnNumber()));
+      return result;
+   } else {
+      return Collections.<SassListItem>singletonList(item);
+   }
+}
+
+SassListItem expr():
+{
+    Token n;
+    List<SassListItem> list = new ArrayList<SassListItem>();
+    List<SassListItem> items;
+}
+{
+    addExpressionTerm(list)
+    (LOOKAHEAD(2)( items = arithmeticOrBooleanOperator(){list.addAll(items);} addExpressionTerm(list) ))*
+    {
+        return SassExpression.createExpression(list);
+    }
+}
+
+void addExpressionTerm(List<SassListItem> items):
+{
+    char op = ' ';
+    SassListItem term;
+    List<SassListItem> terms;
+}
+{
+    ( LOOKAHEAD(2) terms = term(){ items.addAll(terms); }
+        | ( op = unaryOperator() )?
+          term = parenthesizedExpression(op) {items.add(term); }
+    )
+}
+
+SassListItem parenthesizedExpression(char op):
+{
+    SassList list;
+}
+{
+    ("(" (<S>)* list = expressionList() ")" (<S>)*)
+   {
+       SassListItem result = list.flatten();
+       if(op == '-'){
+           result = SassExpression.createExpression(
+              LexicalUnitImpl.createNumber(token.beginLine, token.beginColumn, -1),
+              LexicalUnitImpl.createMultiply(token.beginLine, token.beginColumn),
+              result);
+       }
+       return result;
+   } 
+}
+
+/**
+ * @exception ParseException exception during the parse
+ */
+List<SassListItem> arithmeticOrBooleanOperator() :
+{
+    List<SassListItem> result;
+}
+{
+    ( result = nonCommaOperator() | result = booleanOperator() )
+    { return result; }
+}
+
+List<SassListItem> booleanOperator() :
+{
+  Token n = null;
+  boolean spaceAfter = false;
+  LexicalUnitImpl operator;
+}
+{
+(
+    (n = < COMPARE > { operator = LexicalUnitImpl.createEquals(n.beginLine, n.beginColumn); }
+    |n = < SUCCEEDS > { operator = LexicalUnitImpl.createLessThan(n.beginLine, n.beginColumn); }
+    |n = < GTE > { operator = LexicalUnitImpl.createGreaterThanOrEqualTo(n.beginLine, n.beginColumn);  }
+    |n = < PRECEDES > { operator = LexicalUnitImpl.createGreaterThan(n.beginLine, n.beginColumn); }
+    |n = < LTE > { operator = LexicalUnitImpl.createLessThanOrEqualTo(n.beginLine, n.beginColumn); }
+    |n = < NOT_EQ > { operator = LexicalUnitImpl.createNotEqual(n.beginLine, n.beginColumn); } 
+    |n = < AND > { operator = LexicalUnitImpl.createAnd(n.beginLine, n.beginColumn); }
+    |n = < OR > { operator = LexicalUnitImpl.createOr(n.beginLine, n.beginColumn); }
+    ) (<S> {spaceAfter = true; })* 
+){
+    return createList(operator, spaceAfter);
+ }
+}
+
+/**
+ * @exception ParseException exception during the parse
+ */
+List<SassListItem> nonCommaOperator() :
+{
+    Token n;
+    LexicalUnitImpl unit;
+    boolean spaceAfter = false;
+}
+{
+    /* (comments copied from basic_arithmetics.scss)
+     *supports:
+     * 1. standard arithmetic operations (+, -, *, /, %)
+     * 2. / is treated as css operator, unless one of its operands is variable or there is another binary arithmetic operator
+     *limits:
+     * 1. space between add and minus operator and their following operand is mandatory. e.g. "1 + 2" is valid, "1+2" is not
+     * 2. parenthesis is not supported now.
+     */
+    ( n="/" ( <S> {spaceAfter = true;} )*
+         { unit = LexicalUnitImpl.createSlash(n.beginLine, n.beginColumn); }
+     | n="*" ( <S> {spaceAfter = true;} )*
+         { unit =  LexicalUnitImpl.createMultiply(n.beginLine, n.beginColumn); }
+     | n="%" ( <S> {spaceAfter = true;} )*
+         { unit = LexicalUnitImpl.createModulo(n.beginLine, n.beginColumn); }
+     /*
+      * for '+', since it can be either a binary operator or an unary operator,
+      * which is ambiguous. To avoid this, the binary operator '+' always has
+      * a space before the following term. so '2+3' is not a valid binary expression,
+      * but '2 + 3' is. The same for '-' operator.
+     */
+
+     | n="+" ( <S> {spaceAfter = true;} )+
+         { unit = LexicalUnitImpl.createAdd(n.beginLine, n.beginColumn); }
+     | n="-" ( <S> {spaceAfter = true;} )+
+         { unit = LexicalUnitImpl.createMinus(n.beginLine, n.beginColumn); }
+    )
+    {
+      return createList(unit, spaceAfter);
+    }
+}
+
+/**
+ * @exception ParseException exception during the parse
+ */
+SassListItem numericExpr() :
+{
+    List<SassListItem> current;
+    List<SassListItem> res = new ArrayList<SassListItem>();
+}
+{
+    current=numericTerm(){ res.addAll(current); }
+    ( LOOKAHEAD(2) current=nonCommaOperator() { res.addAll(current); } current=numericTerm() { res.addAll(current); })*
+  { return SassExpression.createExpression(res); }
+}
+
+/**
+ * @exception ParseException exception during the parse
+ */
+char unaryOperator() :
+{}
+{
+  "-" { return '-'; }
+| "+" { return '+'; }
+}
+
+/**
+ * @exception ParseException exception during the parse
+ */
+List<SassListItem> term() :
+{
+  List<SassListItem> res;
+  char op = ' ';
+}
+{
+  ( LOOKAHEAD(2) op = unaryOperator() )?
+  ( res = nonVariableTerm(op) | res = variableTerm(op) )
+  {
+    return res;
+  }
+}
+
+/**
+ * @exception ParseException exception during the parse
+ */
+List<SassListItem> numericTerm() :
+{
+  SassListItem current;
+  List<SassListItem> res;
+  Token n = null;
+  char op = ' ';
+}
+{
+  ( op = unaryOperator() )?
+  (  ( res = numberTerm(op) )
+   | ( current = function(op) { res = createList(current, false); } ( <S> )* )
+   | res = variableTerm(op) 
+   | current = parenthesizedNumericExpr(op) { res = createList(current, false); }
+  )
+      {
+	      return res;
+      }
+}
+
+SassListItem parenthesizedNumericExpr(char op):
+{
+    SassListItem result;
+}
+{
+    ("(" (<S>)* result = numericExpr() ")" (<S>)*)
+   {
+       if(op == '-'){
+           result = SassExpression.createExpression(
+              LexicalUnitImpl.createNumber(token.beginLine, token.beginColumn, -1),
+              LexicalUnitImpl.createMultiply(token.beginLine, token.beginColumn),
+              result);
+       }
+       return result;
+   } 
+}
+
+List<SassListItem> variableTerm(char op) :
+{
+    boolean spaceAfter = false;
+    Token n;
+    SassListItem result = null;
+    String varName = "";
+}
+{
+    // variableName() is not used here because we need to recognize whether there is whitespace after the name.
+    n = <VARIABLE> (<S> {spaceAfter = true;})*
+    {
+        varName = convertIdent(n.image.substring(1));
+        result = LexicalUnitImpl.createVariable(n.beginLine, n.beginColumn, varName);
+        
+        if (op == '-') {
+            result = SassExpression.createExpression(
+              LexicalUnitImpl.createNumber(n.beginLine, n.beginColumn, -1),
+              LexicalUnitImpl.createMultiply(n.beginLine, n.beginColumn),
+              result
+              );
+        }
+
+        return createList(result, spaceAfter);
+    }
+}
+
+List<SassListItem> nonVariableTerm(char op) :
+{
+    SassListItem current = null;
+    List<SassListItem> result = null;
+}
+{
+    ( result = numberTerm(op)
+    | ( current = function(op) { result = createList(current, false); } ( <S> )* )
+    | result = stringTerm(op)
+    )
+    { return result; }
+}
+
+List<SassListItem> numberTerm(char op) :
+{
+    boolean spaceAfter = false;
+    Token n = null;
+    LexicalUnitImpl result = null;
+    String s = "";
+}
+{
+    (n=<NUMBER>
+	{ result = LexicalUnitImpl.createNumber(n.beginLine, n.beginColumn, number(op, n, 0)); }
+    | n=<PERCENTAGE>
+	{ result = LexicalUnitImpl.createPercentage(n.beginLine, n.beginColumn, number(op, n, 1)); }
+    | n=<PT>
+	{ result = LexicalUnitImpl.createPT(n.beginLine, n.beginColumn, number(op, n, 2)); }
+    | n=<CM>
+	{ result = LexicalUnitImpl.createCM(n.beginLine, n.beginColumn, number(op, n, 2)); }
+    | n=<MM>
+	{ result = LexicalUnitImpl.createMM(n.beginLine, n.beginColumn, number(op, n, 2)); }
+    | n=<PC>
+	{ result = LexicalUnitImpl.createPC(n.beginLine, n.beginColumn, number(op, n, 2)); }
+    | n=<IN>
+	{ result = LexicalUnitImpl.createIN(n.beginLine, n.beginColumn, number(op, n, 2)); }
+    | n=<PX>
+	{ result = LexicalUnitImpl.createPX(n.beginLine, n.beginColumn, number(op, n, 2)); }
+    | n=<EMS>
+	{ result = LexicalUnitImpl.createEMS(n.beginLine, n.beginColumn, number(op, n, 2)); }
+    | n=<LEM>
+        { result = LexicalUnitImpl.createLEM(n.beginLine, n.beginColumn, number(op, n, 3)); }
+    | n=<REM>       
+        { result = LexicalUnitImpl.createREM(n.beginLine, n.beginColumn, number(op, n, 3)); }
+    | n=<EXS>
+	{ result = LexicalUnitImpl.createEXS(n.beginLine, n.beginColumn, number(op, n, 2)); }
+    | n=<DEG>
+	{ result = LexicalUnitImpl.createDEG(n.beginLine, n.beginColumn, number(op, n, 3)); }
+    | n=<RAD>
+	{ result = LexicalUnitImpl.createRAD(n.beginLine, n.beginColumn, number(op, n, 3)); }
+    | n=<GRAD>
+	{ result = LexicalUnitImpl.createGRAD(n.beginLine, n.beginColumn, number(op, n, 4)); }
+    | n=<SECOND>
+	{ result = LexicalUnitImpl.createS(n.beginLine, n.beginColumn, number(op, n, 1)); }
+    | n=<MS>
+	{ result = LexicalUnitImpl.createMS(n.beginLine, n.beginColumn, number(op, n, 2)); }
+    | n=<HZ>
+	{ result = LexicalUnitImpl.createHZ(n.beginLine, n.beginColumn, number(op, n, 2)); }
+    | n=<KHZ>
+	{ result = LexicalUnitImpl.createKHZ(n.beginLine, n.beginColumn, number(op, n, 3)); }
+    | n=<DIMEN>
+	{
+	    s = n.image;
+	    int i = 0;
+	    while (i < s.length() 
+		   && (Character.isDigit(s.charAt(i)) || (s.charAt(i) == '.'))) {
+		i++;
+	    }
+
+	    result = LexicalUnitImpl.createDimen(n.beginLine, n.beginColumn, 
+						 number(op,n,s.length()-i), s.substring(i));
+	}) ( <S> { spaceAfter = true; } )*
+	{
+        return createList(result, spaceAfter);
+	}
+}
+
+ArrayList<SassListItem> identInterpolationString() :
+{
+    Token n;
+    String s = "";
+    ArrayList<SassListItem> items = new ArrayList<SassListItem>();
+    Interpolation interp;
+}
+{
+    (   (n = <OR> | n = <AND> | n = <NOT> | n = <FROM> | n= <THROUGH> | n= <TO> | n = <EACH_IN>
+         | n = <MICROSOFT_RULE>) { items.add(new StringItem(convertIdent(n.image))); }
+      | (LOOKAHEAD(1) ( n = <IDENT> {items.add(new StringItem(convertIdent(n.image))); }
+          | interp = interpolation() {items.add(interp); } | n = "-" {items.add(new StringItem(convertIdent(n.image))); }) )+
+    )
+    {
+        return items;
+    }
+}
+
+Token ident() :
+{
+    Token n;
+}
+{
+    ( n = <IDENT> | n = <OR> | n = <AND> | n = <NOT> | n = <FROM> | n = <THROUGH> |
+      n = <TO> | n = <EACH_IN> )
+    { return n; }
+}
+
+List<SassListItem> stringTerm(char op) :
+{
+    boolean spaceAfter = false;
+    int beginLine = getToken(1).beginLine, beginColumn = getToken(1).beginColumn;
+    Token n = null;
+    LexicalUnitImpl result = null;
+    ArrayList<SassListItem> iis;
+    String s = "";
+}
+{
+    ( n=<STRING>
+	{
+	  s = convertStringIndex(n.image, 1, n.image.length() -1);
+	  if (op != ' ') { s = "" + op + s; }
+	  result = LexicalUnitImpl.createString(n.beginLine, n.beginColumn, s);}
+  | (< DOT >{ s="."; })?(iis = identInterpolationString()){
+        if(op != ' ') { s = "" + op + s; }
+        if(!"".equals(s)) { iis.add(0, new StringItem(s)); }
+        StringInterpolationSequence sis = new StringInterpolationSequence(iis);
+	    if ("inherit".equals(sis.toString())) {
+	        result = LexicalUnitImpl.createInherit(beginLine, beginColumn);
+	    } else {
+	        result = LexicalUnitImpl.createIdent(beginLine, beginColumn, sis);
+	    }
+
+    // TODO fix this - no prev
+	  /* /
+         Auto correction code used in the CSS Validator but must not
+          be used by a conformant CSS2 parser.
+	 * Common error :
+	 * H1 {
+	 *   color : black
+	 *   background : white
+	 * }
+	 *
+	Token t = getToken(1);
+	Token semicolon = new Token();
+	semicolon.kind = SEMICOLON;
+	semicolon.image = ";";
+	if (t.kind == COLON) {
+	    // @@SEEME. (generate a warning?)
+	    // @@SEEME if expression is a single ident, 
+	       generate an error ?
+	    rejectToken(semicolon);
+	    
+	    result = prev;
+	}
+	/ */
+    }
+	| result=hexcolor()	
+        | result=url()
+	| result=unicode()
+         ) ( <S> {spaceAfter = true; })*
+    {
+        return createList(result, spaceAfter);
+    }
+}
+
+/**
+ * Handle all CSS2 functions.
+ * @exception ParseException exception during the parse
+ */
+LexicalUnitImpl function(char operator) :
+{Token n;
+ List<Variable> items = null;
+ boolean hasVariableArguments = false;
+ ActualArgumentList params;
+}
+{
+    ( n=<FUNCTION> | n=<NOT_FUNCTION> ) ( <S> )*  
+    {
+        String fname = convertIdent(n.image);
+        if ("filename(".equals(fname)) {
+            String body = skipStatementUntilSemiColon();
+            String fileName = source.getURI();
+            String currentDir = System.getProperty("user.dir");
+            if (fileName.startsWith(currentDir.replace("\\", "/"))) {
+                fileName = fileName.substring(currentDir.length());
+            }
+            return LexicalUnitImpl.createIdent(n.beginLine, n.beginColumn, fileName);
+        } else if("expression(".equals(fname)){
+            String body = skipStatementUntilSemiColon();
+            return LexicalUnitImpl.createIdent(n.beginLine, n.beginColumn, fname+body);
+        }
+    }
+    ( items = argValuelist() (<ELLIPSIS> {hasVariableArguments = true; } (<S>)*)?){
+        params = new ActualArgumentList(SassList.Separator.COMMA, items, hasVariableArguments);
+    }
+    ")"
+    {
+        if (operator != ' ') {
+        throw new CSSParseException("invalid operator before a function.", 
+                    getLocator());
+        }            
+        String f = convertIdent(n.image);
+        // f contains the opening parenthesis of the function call
+        return LexicalUnitImpl.createFunction(n.beginLine, n.beginColumn, f.substring(0, f.length() -1), params);
+    }
+}
+
+LexicalUnitImpl unicode() :
+{ Token n;
+}
+{
+  n=<UNICODERANGE>
+ {
+     List<SassListItem> params = new ArrayList<SassListItem>();
+     String s = n.image.substring(2);
+     int index = s.indexOf('-');
+     if (index == -1) {
+	 params.add(LexicalUnitImpl.createInteger(n.beginLine, n.beginColumn, Integer.parseInt(s, 16)));
+     } else {
+	 String s1 = s.substring(0, index);
+	 String s2 = s.substring(index);
+
+	 params.add(LexicalUnitImpl.createInteger(n.beginLine, n.beginColumn, Integer.parseInt(s1, 16)));
+	 params.add(LexicalUnitImpl.createInteger(n.beginLine, n.beginColumn, Integer.parseInt(s2, 16)));
+     }
+
+     return LexicalUnitImpl.createUnicodeRange(n.beginLine, n.beginColumn, new SassList(SassList.Separator.COMMA, params));
+ }
+}
+
+LexicalUnitImpl url() :
+{ Token n;
+}
+{
+  n=<URL>
+ {
+   String urlname = n.image.substring(4, n.image.length()-1).trim();
+   return LexicalUnitImpl.createURL(n.beginLine, n.beginColumn, urlname); 
+ }
+}
+
+/**
+ * @exception ParseException exception during the parse
+ */
+LexicalUnitImpl hexcolor() :
+{Token n; 
+}
+{
+ n=<HASH>
+ {
+     int r;
+     LexicalUnitImpl first, params = null;
+     String s = n.image.substring(1);
+     
+     if(s.length()!=3 && s.length()!=6) {
+	 first = null;
+	 throw new CSSParseException("invalid hexadecimal notation for RGB: " + s, 
+				     getLocator());
+     }
+     return LexicalUnitImpl.createIdent(n.beginLine, n.beginColumn, n.image);
+ }
+}
+
+JAVACODE
+float number(char operator, Token n, int lengthUnit) {
+    String image  = n.image;
+    float f = 0;
+
+    if (lengthUnit != 0) {
+	image = image.substring(0, image.length() - lengthUnit);
+    }
+    f = Float.valueOf(image).floatValue();
+    return (operator == '-')? -f: f;
+}
+
+JAVACODE
+String skipStatementUntilSemiColon(){
+    int[] semicolon = {SEMICOLON};
+    return skipStatementUntil(semicolon);
+}
+
+JAVACODE
+String skipStatementUntilLeftBrace(){
+    int[] lBrace = {LBRACE};
+    return skipStatementUntil(lBrace);
+}
+
+JAVACODE
+String skipStatementUntilMatchingRightParan(){
+    int[] leftTokens = {LPARAN, FUNCTION, NOT_FUNCTION}; // a FUNCTION also contains "("
+    int[] rightTokens = {RPARAN};
+    StringBuffer s = new StringBuffer();
+    int difference = 1;
+    Token tok;
+    while(difference != 0){
+        tok = getToken(1);
+        if(tok.kind == EOF) {
+            return null;
+        }
+        for(int sym : leftTokens){
+            if(tok.kind == sym){
+                difference++;
+            }
+        }
+        for(int sym : rightTokens){
+            if(tok.kind == sym){
+                difference--;
+            }
+        }
+        if(difference != 0){
+            if (tok.image != null) {
+                s.append(tok.image);
+            }
+            getNextToken();
+        }
+    }
+    return s.toString().trim();
+}
+
+JAVACODE
+String skipStatementUntil(int[] symbols){
+    StringBuffer s = new StringBuffer();
+    boolean found = false;
+    Token tok;
+    while(!found){
+        tok = getToken(1);
+        for(int sym : symbols){
+            if(tok.kind == sym){
+                found = true;
+                break;
+            }
+        }
+        if(tok.kind == EOF) {
+            break;
+        }
+        if(!found){
+            if (tok.image != null) {
+                s.append(tok.image);
+            }
+            getNextToken();
+        }
+    }
+    return found ? s.toString().trim() : null;
+}
+
+
+JAVACODE
+String skipStatement() {
+    StringBuffer s = new StringBuffer();
+    Token tok = getToken(0);
+    if (tok.image != null) {
+        s.append(tok.image);    
+    }
+    while (true) {
+        tok = getToken(1);
+        if (tok.kind == EOF) {
+            return null;
+        } 
+        s.append(tok.image);
+        if (tok.kind == LBRACE) {
+            getNextToken();
+            s.append(skip_to_matching_brace());
+            getNextToken();
+            tok = getToken(1);
+            break;
+        } else if (tok.kind == RBRACE) {
+            getNextToken();
+            tok = getToken(1);
+            break;
+        } else if (tok.kind == SEMICOLON) {
+            getNextToken();
+            tok = getToken(1);
+            break;
+        }
+        getNextToken();
+    }
+    
+    // skip white space
+    while (true) {
+        if (tok.kind != S) {
+            break;
+        }
+        tok = getNextToken();
+        tok = getToken(1);
+    }
+
+    return s.toString().trim();
+}
+
+JAVACODE
+String skip_to_matching_brace() {
+    StringBuffer s = new StringBuffer();
+    Token tok;
+    int nesting = 1;
+    while (true) {
+        tok = getToken(1);
+        if (tok.kind == EOF) {
+            break;
+        }
+        s.append(tok.image);
+        if (tok.kind == LBRACE) {
+            nesting++;
+        } else if (tok.kind == RBRACE) {
+            nesting--;
+            if (nesting == 0) {
+                break;
+            }
+        }
+        getNextToken();
+    }
+    return s.toString();
+}
+
+/*
+ * Here I handle all CSS2 unicode character stuffs.
+ * I convert all \XXXXXX character into a single character.
+ * Don't forget that the parser has recognize the token before.
+ * (So IDENT won't contain newline and stuffs like this).
+ */
+JAVACODE
+String convertStringIndex(String s, int start, int len) {
+    StringBuffer buf = new StringBuffer(len);
+    int index = start;
+
+    while (index < len) {
+	char c = s.charAt(index);
+	if (c == '\\') {
+	    if (++index < len) {
+		c = s.charAt(index);
+		switch (c) {
+		case '0': case '1': case '2': case '3': case '4':
+		case '5': case '6': case '7': case '8': case '9':
+		case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
+		case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
+		    buf.append('\\');
+		    while (index < len) {
+			buf.append(s.charAt(index++));
+		    }
+		    break;
+		case '\n':
+		case '\f':
+		    break;
+		case '\r':
+		    if (index + 1 < len) {
+			if (s.charAt(index + 1) == '\n') {
+			    index ++;
+			}
+		    }
+		    break;
+		default:
+		    buf.append(c);
+		}
+	    } else {
+		throw new CSSParseException("invalid string " + s, getLocator());
+	    }
+	} else {
+	    buf.append(c);
+	}
+	index++;
+    }
+
+    return buf.toString();
+}
+
+JAVACODE
+String convertIdent(String s) {
+    return convertStringIndex(s, 0, s.length());
+}
+
+JAVACODE
+String convertString(String s) {
+    return convertStringIndex(s, 0, s.length());
+}
+
+JAVACODE
+void comments(){
+	/*keeps only the multiple line comments, single line comments are skipped*/
+    if (token.specialToken != null && token.specialToken.image!=null && token.specialToken.image.startsWith("/*")){
+        Token tmp_t = token.specialToken;
+        while (tmp_t.specialToken != null) tmp_t = tmp_t.specialToken;
+        while (tmp_t != null) {
+            documentHandler.comment(tmp_t.image);
+            tmp_t = tmp_t.next;
+        }
+    }
+} 
+
+/*
+ * @@HACK
+ * I can't insert a token into the tokens flow.
+ * It's jj_consume_token implementation dependant! :-(
+ */
+JAVACODE
+void rejectToken(Token t) {
+    Token fakeToken = new Token();
+    t.next = token;
+    fakeToken.next = t;
+    token = fakeToken;
+}
+
+/**
+ * skip after an expression
+ */
+JAVACODE
+String skipAfterExpression() {
+    Token t = getToken(1);
+    StringBuffer s = new StringBuffer();
+    s.append(getToken(0).image);
+    
+    while ((t.kind != RBRACE) && (t.kind != SEMICOLON) && (t.kind != EOF)) {
+	s.append(t.image);
+	getNextToken();
+	t = getToken(1);
+    }
+    
+    return s.toString();
+}
+
+/**
+ * The following functions are useful for a DOM CSS implementation only and are
+ * not part of the general CSS2 parser.
+ */
+// TODO required by original parser but not used by Vaadin?
+void _parseRule() :
+{String ret = null;
+}
+{
+	( <S> )*
+	   ( importDeclaration() | debuggingDirective() | styleRule() | media() | page() | fontFace() | ret=skipStatement() 
+		{
+		    if ((ret == null) || (ret.length() == 0)) {
+			return; 
+		    }
+		    if (ret.charAt(0) == '@') {
+			documentHandler.unrecognizedRule(ret);
+		    } else {
+			throw new CSSParseException("unrecognize rule: " + ret,
+						    getLocator());
+		    }
+		}
+	  )
+}
+
+void _parseImportRule() :
+{
+}
+{
+    ( <S> )* importDeclaration()
+}
+
+void _parseMediaRule() :
+{
+}
+{
+    ( <S> )* media()
+}
+
+void _parseDeclarationBlock() :
+{
+}
+{
+    ( <S> )*
+	( declaration() )? ( ";" ( <S> )* ( declaration() )? )* 
+ }
+
+List<Selector> _parseSelectors() :
+{ List<Selector> p = null;
+}
+{
+    try {
+	( <S> )* p = selectorList()
+	{ return p; }
+    } catch (ThrowedParseException e) {
+	throw (ParseException) e.e.fillInStackTrace();
+    }
+}
+
+/*
+ * Local Variables:
+ * compile-command: javacc Parser.jj & javac Parser.java
+ * End:
+ */

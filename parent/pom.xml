@@ -82,6 +82,8 @@
         <com.ibm.icu.version>58.2</com.ibm.icu.version>
         <com.google.code.findbugs.version>3.0.1</com.google.code.findbugs.version>
 
+        <vaadin.sass.compiler.version>1.0.0-SNAPSHOT</vaadin.sass.compiler.version>
+
         <!-- Test dependencies -->
         <junit.version>4.12</junit.version>
 
@@ -240,6 +242,13 @@
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
                 <version>${ch.qos.logback.version}</version>
+            </dependency>
+
+            <!-- EXPERIMENTAL: sass support -->
+            <dependency>
+                <groupId>com.vaadin</groupId>
+                <artifactId>vaadin-sass-compiler</artifactId>
+                <version>${vaadin.sass.compiler.version}</version>
             </dependency>
 
             <!-- Test dependencies -->
