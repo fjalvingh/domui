@@ -1,5 +1,6 @@
-/*** 175_iohideroverlay.frag.css ***/
 /*** IO hider overlay ***/
+@import "variables";
+
 .ui-io-blk {
 	height: 100%;
 	width: 100%;
@@ -17,7 +18,7 @@
 	position: fixed;
 	top: 0px;
 	left: 0px;
-	background: black url(<%= io_blk_wait %>) no-repeat center center; 
+	background: black url($io_blk_wait) no-repeat center center;
 	filter:alpha(opacity=50);
 	z-index: 1000;
 }
