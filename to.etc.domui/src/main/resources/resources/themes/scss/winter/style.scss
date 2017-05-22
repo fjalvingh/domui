@@ -3,6 +3,7 @@
 
 @import 'reset';
 @import 'core';
+@import "helperclasses";
 @import "ioHiderOverlay";
 
 @import 'misc';
@@ -20,7 +21,12 @@
 @import "linkButton";
 @import "alink";
 @import "imagebutton";
+@import "defaultbutton";
 @import "smallimgbutton";
+@import "percentageprogress";
+@import "displayhtml";
+@import "searchinput";
+@import "colorpicker";
 
 /** Complex components **/
 @import "datatable";
@@ -48,6 +54,12 @@
 @import "errorpanel";
 @import "tabpanel";
 @import "scrollabletabpanel";
+@import "popupmenu";
+@imporT "flare";
 
+/** Special **/
+@import "devmode";
+@import "layout";
+@import "resizable";
 
 @import "popInPanel";

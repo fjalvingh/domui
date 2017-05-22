@@ -28,8 +28,7 @@
 /* RESIZER-BARS */
 .ui-layout-resizer	{ /* all 'resizer-bars' */
 	background:		#DDD;
-	border:			1px solid #BBB;
-	border-width:	0;
+	border: 0 solid #BBB;
 }
 .ui-layout-resizer-drag {		/* REAL resizer while resize in progress */
 }

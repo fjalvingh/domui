@@ -1,7 +1,8 @@
-/*** 230_defaultbutton.frag.css ***/
 /*** New default button, uses sliding doors and a single bg image ***/
+@import "variables";
+
 .ui-sdbtn {
-	height: <%= button_height %>px;
+	height: $button_height;
 	position: relative;
 	border: 0;
 	padding: 0 10px 0 0;
@@ -9,7 +10,7 @@
 	vertical-align: top;
 	cursor: pointer;
 	overflow: visible; /* remove extra padding in IE */
-	background: transparent url(<%= button_img %>) no-repeat right -50px;
+	background: transparent url($button_img) no-repeat right -50px;
 	outline: none;
 }
 
@@ -33,13 +34,13 @@
 	display: block;
 	min-width: 94px;
 	white-space: nowrap;
-	height: <%= button_height %>px;
+	height: $button_height;
 	padding: 3px 0 0 6px;
 	color: white;
 	font-size: 11px;
 	vertical-align: middle;
 	text-align: left;
-	background: transparent url(<%= button_img %>) no-repeat left top;
+	background: transparent url($button_img) no-repeat left top;
 }
 .ui-sdbtn-txt {
 	vertical-align: middle;
@@ -71,7 +72,7 @@
 	vertical-align: top;
 	cursor: pointer;
 	overflow: visible; /* remove extra padding in IE */
-	background: transparent url(<%= button_img %>) no-repeat -7px -4px;
+	background: transparent url($button_img) no-repeat -7px -4px;
 	outline: none;
 	-moz-border-radius: 2px;
 	border-radius: 2px;
