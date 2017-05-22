@@ -1,5 +1,6 @@
-/*** 340_dateinput.frag.css ***/
 /*** Date input ***/
+@import "variables";
+
 .ui-di-sib {
 	vertical-align: top;
 	padding: 0;
@@ -19,5 +20,5 @@
 }
 
 .ui-di-sib:hover {
-	background-color: <%= data_tbl_header_bg %> !important;
+	background-color: $data_tbl_header_bg !important;
 }

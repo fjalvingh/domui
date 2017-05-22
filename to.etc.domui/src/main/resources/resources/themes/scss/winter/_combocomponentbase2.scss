@@ -1,4 +1,5 @@
 /*** ComboComponentBase2: replacement for select control ***/
+@import "variables";
 .ui-cbb2 {
     display: inline-block;
     vertical-align: baseline;
@@ -23,9 +24,8 @@
 .ui-cbb span {
     display: block;
     padding: 2px 20px 2px 4px;
-    border-color:<%= bevel_up %> <%= bevel_down %> <%= bevel_down %>;
-    border-style:solid;
-    border-width:1px;
+    border: 1px solid $bevel_down;
+    border-top-color: $bevel_up;
     border-radius: 2px;
     box-sizing: border-box;
 }

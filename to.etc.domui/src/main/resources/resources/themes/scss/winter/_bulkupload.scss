@@ -1,11 +1,13 @@
 /*** 250_BulkUpload component ***/
+@import "variables";
+
 .ui-bupl {
 }
 .ui-bupl-wrp {
 	width: 360px;
 	background-color: white;
 	padding: 1px;
-	border: 1px solid <%= header_bg %>;
+	border: 1px solid $header_bg;
 }
 .ui-bupl-ttl {
 /*	border: 1px solid <%= header_bg %>; */
@@ -54,7 +56,7 @@
 }
 .ui-bupl-error {
 	border: 1px solid #ff4900;
-	background-color: #ffebeb;	
+	background-color: #ffebeb;
 }
 .ui-bupl-name {
 	font-size: 12px;
@@ -70,9 +72,7 @@
 	display: block;
 	height: 14px;
 	width: 14px;
-	background-image: url(bupl-cancel.png);
-	background-repeat: no-repeat;
-	background-position: -14px 0px;
+	background: url(bupl-cancel.png) no-repeat -14px 0px;
 	float: right;
 }
 .ui-bupl-cancl:hover {

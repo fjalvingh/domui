@@ -56,8 +56,6 @@
 
 label.ui-f4-mandatory {
 /*	display: inline-block; */
-	background-repeat: no-repeat;
-	background-position: left;
 	padding-left: 12px;
-	background-image: url(mandatoryField.png);
+	background: url(mandatoryField.png) no-repeat left;
 }

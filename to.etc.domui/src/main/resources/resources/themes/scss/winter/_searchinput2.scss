@@ -1,4 +1,6 @@
 /*** SearchInput2: replacement for KeywordSearchInput, used in lookupInput2 but an independent component(!) ***/
+@import "variables";
+
 .ui-srip {
     position: relative;
     display: inline-block;
@@ -17,11 +19,11 @@
 }
 tr.uixx-keyword-popop-rowsel {
     cursor: pointer;
-    background-color: <%= highlight2_bg %> !important;
+    background-color: $highlight2_bg !important;
 }
 
 tr.uixx-keyword-popop-rowsel:hover {
-    background-color: <%= highlight2_bg %> !important;
+    background-color: $highlight2_bg !important;
 }
 
 tr.uixx-keyword-popup-row {

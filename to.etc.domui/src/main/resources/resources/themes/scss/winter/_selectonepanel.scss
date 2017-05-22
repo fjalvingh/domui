@@ -1,4 +1,6 @@
 /*** SelectOnePanel (part of new combobox and lookupinput2) ***/
+@import "variables";
+
 .ui-ssop {
     background-color: white;
     position: absolute;
@@ -21,7 +23,7 @@ tr.ui-ssop-row:hover {
 }
 
 tr.ui-ssop-selected {
-    background-color: <%= highlight2_bg %> !important;
+    background-color: $highlight2_bg !important;
 }
 
 tr.ui-ssop-row {
