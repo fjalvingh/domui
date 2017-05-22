@@ -9,7 +9,6 @@ $hdr_font_size: 14px;
 /** colors **/
 $link_color: #2200cc;	// dark blue
 
-
 $bevel_up: #ABADB3;
 $bevel_down: #BFCDD9;
 $bevel_hover_up: #5794BF;
@@ -61,4 +60,9 @@ $data_tbl_header_btm_border: undefined;
 
 /** Misc **/
 $io_blk_wait: "io-blk-wait.gif";			/* Icon definition for DomUI icons */
+
+
+//multiple lookup labels
+$multiple_lookup_label_color: #ffa21e;
+$multiple_lookup_label_border: #fff2ab;
 

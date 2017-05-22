@@ -1,5 +1,6 @@
 /*** 105_lookupinput.frag.css ***/
-/*** LookupInput thingerydoo ***/
+@import "variables";
+
 .ui-lui {
 	/* background: #ffffff; */
 	padding: 0px;
@@ -7,18 +8,17 @@
 }
 
 div.ui-lui-selected{
-	border-color:#ABADB3 #BFCDD9 #BFCDD9;
 	display: inline-block;
-	border-style:solid;
-	border-width:1px;
+	border: 1px solid #BFCDD9;
+	border-top-color: #ABADB3;
 	-moz-border-radius: 2px;
 	margin-bottom: 3px;
 }
 
 div.ui-lui-selected-ro {
-	border: <%= readonly_border %> solid 1px; /* same border color as one used for ui-dspv fields */
+	border: $readonly_border solid 1px; /* same border color as one used for ui-dspv fields */
 }
-	
+
 
 table.ui-lui {
 	width: 12em; /*	this width match with date field picker icon on IE rendering */

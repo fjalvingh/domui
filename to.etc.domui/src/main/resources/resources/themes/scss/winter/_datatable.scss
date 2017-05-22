@@ -1,5 +1,6 @@
 /*** 140_datatable.frag.css ***/
-/*** DataTable default style ***/
+@import "variables";
+
 div.ui-dt {
 	overflow: auto;
 	position: relative;
@@ -31,10 +32,9 @@ div.ui-dt > table {
 .ui-dt th, .ui-dt-hdr {
 	padding: 0px 3px;
 	border-left: none !important;
-	background: <%=	data_tbl_header_bg %>;
-	background-image: url(<%= data_tbl_header_bg_img %>);
-	color: <%= data_tbl_header_text_color %>;
-	border-bottom: 1px solid <%= data_tbl_header_btm_border %>;
+	background: url($data_tbl_header_bg_img);
+	color: $data_tbl_header_text_color;
+	border-bottom: 1px solid $data_tbl_header_btm_border;
 	text-align: left;
 	font-weight: bold;
 	height: 18px;
@@ -42,11 +42,11 @@ div.ui-dt > table {
 }
 
 .ui-dt th:FIRST-CHILD, .ui-dt-hdr:FIRST-CHILD {
-	border-left: 1px solid <%= data_tbl_header_btm_border %> !important;
+	border-left: 1px solid $data_tbl_header_btm_border !important;
 }
 
 .ui-dt th:LAST-CHILD, .ui-dt-hdr:LAST-CHILD {
-	border-right: 1px solid <%= data_tbl_header_btm_border %>;
+	border-right: 1px solid $data_tbl_header_btm_border;
 }
 
 .ui-dt tbody tr > td.ui-f-lbl:first-child {
@@ -63,7 +63,7 @@ div.ui-dt > table {
 }
 
 .ui-even {
-	background: <%= data_tbl_even_row_bg %>;
+	background: $data_tbl_even_row_bg;
 }
 
 tr.ui-rowsel {
@@ -71,18 +71,18 @@ tr.ui-rowsel {
 }
 
 tr.ui-rowsel:hover {
-	background-color: <%= highlight_bg %> !important;
+	background-color: $highlight_bg !important;
 }
 
 td.ui-cellsel {
 	cursor: pointer;
-	color: <%= link_color %>;
+	color: $link_color;
 }
 
 td.ui-cellsel:hover {
 	text-decoration: underline;
-	background-color: <%= data_tbl_cell_highlight_bg %> !important;
-	color: <%= data_tbl_cell_highlight_link_color_bg %>;
+	background-color: $data_tbl_cell_highlight_bg !important;
+	color: $data_tbl_cell_highlight_link_color_bg;
 }
 
 th.ui-sortable {
@@ -104,7 +104,7 @@ div.ui-sortable {
 }
 
 .ui-dt {
-	font-size: <%= data_tbl_font_size %>;
+	font-size: $data_tbl_font_size;
 /*	height: 100%; jal 20150717: this cannot work: all tables now overflow whatever they are contained in. */
 }
 
@@ -114,5 +114,5 @@ div.ui-sortable {
 }
 
 .ui-dt .mselected, .ui-dt .selected {
-	background-color: <%= highlight2_bg %>; /* 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
+	background-color: $highlight2_bg; /* 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
 }

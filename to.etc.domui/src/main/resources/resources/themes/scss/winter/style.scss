@@ -13,21 +13,36 @@
 
 @import 'appTitle';
 
+/** Core presentation helpers **/
+@import "numeric";
+
 /** Basic components **/
 @import "linkButton";
 @import "alink";
+@import "imagebutton";
+@import "smallimgbutton";
 
 /** Complex components **/
+@import "datatable";
 @import "tree";
 
 /** Input components **/
 @import 'displayvalue';
 @import 'displayCheckbox';
 @import "lookupInput";
+@import "multiplelookupinput";
+@import "calendar";
+
+/** Multicomponents **/
+@import "lookupform";
+@import "forms";
 
 /** Panels and headers **/
 @import "captionedHeader";
 @import "errorMessageDiv";
 @import "buttonBar";
+@import "breadcrumb";
+@import "caption";
+
 
 @import "popInPanel";
