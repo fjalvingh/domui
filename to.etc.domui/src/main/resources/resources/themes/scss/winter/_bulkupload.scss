@@ -24,7 +24,8 @@
 	z-index: 1;
 	vertical-align: top;
 }
-<% var buplround = 5; %>
+$buplround: 5;
+
 .ui-bupl-queue {
 	width: 354px;
 	min-height: 40px;

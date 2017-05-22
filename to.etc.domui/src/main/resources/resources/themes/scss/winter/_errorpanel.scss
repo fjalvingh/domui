@@ -1,7 +1,7 @@
 /*** 160_errorpanel.frag.css ***/
 @import "variables";
 
-/ui-err-outer { /*	background-color: #ffe5e5; */
+.ui-err-outer { /*	background-color: #ffe5e5; */
 	background-color: white;
 	padding: 1px;
 	border: 1px solid $errors_background;

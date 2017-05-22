@@ -24,10 +24,10 @@
 
 /* Generate classes for hover buttons from 10 to 64 pixels in size. */
 @for $i from 10 to 64 {
-	.ui-hvrbtn-$i:hover, .ui-hvrbtn-$i:focus {
-		background-position: - $i px 0px;
+	.ui-hvrbtn-#{$i}:hover, .ui-hvrbtn-#{$i}:focus {
+		background-position: #{-$i}px 0px;
 	}
-	.ui-hvrbtn-$i[disabled="disabled"] {
-		background-position: -2*$i px 0px;
+	.ui-hvrbtn-#{$i}[disabled="disabled"] {
+		background-position: #{-2*$i}px 0px;
 	}
 }
