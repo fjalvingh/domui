@@ -1,5 +1,6 @@
 /*** 135_expandingtable.frag.css ***/
-/*** ExpandingTable ***/
+@import "variables";
+
 .ui-xdt {
 	overflow: auto;
 }
@@ -14,10 +15,9 @@
 
 .ui-xdt-ix {
 	cursor: pointer;
-	background-repeat: no-repeat;
-	background-position: 0px -4px;
+	background: no-repeat 0px -4px;
 	padding-left: 18px;
-	font-size: <%= font_size %>;
+	font-size: $font_size;
 	color: #1700ee;
 	text-decoration: underline !important;
 }
@@ -29,7 +29,7 @@ div:hover.ui-xdt-exp {
 }
 
 .ui-xdt-edt {
-	background-color: <%= data_tbl_expanding_row_bg %>;
+	background-color: $data_tbl_expanding_row_bg;
 	/*width: 99%;  */
 	vertical-align: top;
 	border: 1px solid #bababa;

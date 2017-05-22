@@ -25,6 +25,7 @@
 /** Complex components **/
 @import "datatable";
 @import "tree";
+@import "expandingtable";
 
 /** Input components **/
 @import 'displayvalue';
@@ -43,6 +44,10 @@
 @import "buttonBar";
 @import "breadcrumb";
 @import "caption";
+@import "captionedpanel";
+@import "errorpanel";
+@import "tabpanel";
+@import "scrollabletabpanel";
 
 
 @import "popInPanel";
