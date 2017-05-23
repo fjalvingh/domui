@@ -100,5 +100,4 @@ final public class SassPartFactory implements IBufferedPartFactory, IUrlPart {
 		scss.traverse(context);
 		ExtendNodeHandler.modifyTree(context, scss);
 	}
-
 }

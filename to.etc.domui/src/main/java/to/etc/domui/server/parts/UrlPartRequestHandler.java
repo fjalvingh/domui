@@ -1,8 +1,8 @@
-package to.etc.domui.server;
+package to.etc.domui.server.parts;
+
+import to.etc.domui.server.*;
 
 import javax.annotation.*;
-
-import to.etc.domui.server.parts.*;
 
 /**
  * This is a request handler for <i>DomUI Parts</i> that need to react
@@ -11,7 +11,7 @@ import to.etc.domui.server.parts.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Mar 26, 2012
  */
-final class UrlPartRequestHandler implements IFilterRequestHandler {
+public final class UrlPartRequestHandler implements IFilterRequestHandler {
 	@Nonnull
 	final private IUrlPart m_factory;
 

@@ -380,7 +380,7 @@ public abstract class DomApplication {
 	 * @param fh
 	 */
 	public synchronized void addRequestHandler(@Nonnull IFilterRequestHandler fh, int priority) {
-		m_requestHandlerList = new ArrayList<FilterRef>(m_requestHandlerList);
+		m_requestHandlerList = new ArrayList<>(m_requestHandlerList);
 		m_requestHandlerList.add(new FilterRef(fh, priority));
 		Collections.sort(m_requestHandlerList, C_HANDLER_DESCPRIO);			// Leave the list ordered by descending priority.
 	}

@@ -34,11 +34,11 @@ import javax.annotation.*;
  */
 public interface IParameterInfo {
 	@Nullable
-	public String getParameter(@Nonnull String name);
+	String getParameter(@Nonnull String name);
 
 	@Nonnull
-	public String[] getParameters(@Nonnull String name);
+	String[] getParameters(@Nonnull String name);
 
 	@Nonnull
-	public String[] getParameterNames();
+	String[] getParameterNames();
 }
