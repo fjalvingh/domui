@@ -11,15 +11,16 @@ import javax.annotation.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Mar 26, 2012
  */
+@DefaultNonNull
 public final class UrlPartRequestHandler implements IFilterRequestHandler {
 	@Nonnull
 	final private IUrlPart m_factory;
 
 	@Nonnull
-	final private PartRequestHandler m_partHandler;
+	final private PartService m_partService;
 
-	public UrlPartRequestHandler(PartRequestHandler partRequestHandler, @Nonnull IUrlPart factory) {
-		m_partHandler = partRequestHandler;
+	public UrlPartRequestHandler(PartService partService, @Nonnull IUrlPart factory) {
+		m_partService = partService;
 		m_factory = factory;
 	}
 
@@ -34,6 +35,7 @@ public final class UrlPartRequestHandler implements IFilterRequestHandler {
 
 	@Override
 	public void handleRequest(@Nonnull RequestContextImpl ctx) throws Exception {
-		m_partHandler.renderUrlPart(m_factory, ctx);
+		String input = ctx.getInputPath();
+		m_partService.renderUrlPart(m_factory, ctx, input);
 	}
 }

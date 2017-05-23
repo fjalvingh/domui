@@ -72,7 +72,10 @@ public abstract class DomApplication {
 	static public final Logger LOG = LoggerFactory.getLogger(DomApplication.class);
 
 	@Nonnull
-	private final PartRequestHandler m_partHandler = new PartRequestHandler(this);
+	private final PartService m_partService = new PartService(this);
+
+	@Nonnull
+	private final PartRequestHandler m_partHandler = new PartRequestHandler(m_partService);
 
 	@Nonnull
 	private Set<IAppSessionListener> m_appSessionListeners = new HashSet<IAppSessionListener>();
@@ -302,7 +305,7 @@ public abstract class DomApplication {
 
 		//-- Register default request handlers.
 		addRequestHandler(new ApplicationRequestHandler(this), 100);			// .ui and related
-		addRequestHandler(new ResourceRequestHandler(this, m_partHandler), 0);	// $xxxx resources are a last resort
+		addRequestHandler(new ResourceRequestHandler(this, m_partService), 0);	// $xxxx resources are a last resort
 		addRequestHandler(new AjaxRequestHandler(this), 20);					// .xaja ajax calls.
 		addRequestHandler(getPartRequestHandler(), 80);
 	}
@@ -406,7 +409,7 @@ public abstract class DomApplication {
 	 * @param priority		The priority of handling. Keep it low for little-used factories.
 	 */
 	public void registerUrlPart(@Nonnull IUrlPart factory, int priority) {
-		addRequestHandler(new UrlPartRequestHandler(getPartRequestHandler(), factory), priority);		// Add a request handler for this part factory.
+		addRequestHandler(new UrlPartRequestHandler(m_partService, factory), priority);		// Add a request handler for this part factory.
 	}
 
 	/**

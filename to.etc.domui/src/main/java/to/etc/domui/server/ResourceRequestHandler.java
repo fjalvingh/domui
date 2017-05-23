@@ -24,23 +24,23 @@
  */
 package to.etc.domui.server;
 
-import to.etc.domui.server.parts.InternalResourcePart;
-import to.etc.domui.server.parts.PartRequestHandler;
+import to.etc.domui.server.parts.*;
 
-import javax.annotation.Nonnull;
+import javax.annotation.*;
 
 /**
  * This handles all requests starting with $xxxx. These indicate resource requests. See
  * {@link InternalResourcePart} for details.
  */
+@DefaultNonNull
 final public class ResourceRequestHandler implements IFilterRequestHandler {
-	private PartRequestHandler m_prh;
+	private final PartService m_partService;
 
 	@Nonnull
 	final private InternalResourcePart m_rp = new InternalResourcePart();
 
-	public ResourceRequestHandler(@Nonnull DomApplication app, @Nonnull PartRequestHandler prh) {
-		m_prh = prh;
+	public ResourceRequestHandler(@Nonnull DomApplication app, @Nonnull PartService partService) {
+		m_partService = partService;
 	}
 
 	@Override
@@ -55,6 +55,6 @@ final public class ResourceRequestHandler implements IFilterRequestHandler {
 	 */
 	@Override
 	public void handleRequest(@Nonnull RequestContextImpl ctx) throws Exception {
-		m_prh.generate(m_rp, ctx, ctx.getInputPath());
+		m_partService.generate(m_rp, ctx, ctx.getInputPath());
 	}
 }
