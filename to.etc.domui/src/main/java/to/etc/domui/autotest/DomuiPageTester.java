@@ -441,16 +441,14 @@ public class DomuiPageTester implements IDomUITestInfo {
 
 		List<IRequestInterceptor> il = ctx.getApplication().getInterceptorList();
 		Exception xx = null;
-		IFilterRequestHandler rh = null;
 		try {
 			UIContext.internalSet(ctx);
 			AbstractContextMaker.callInterceptorsBegin(il, ctx);
-			rh = ctx.getApplication().findRequestHandler(ctx);
-			if(rh == null) {
+			boolean handled = ctx.getApplication().callRequestHandler(ctx);
+			if(! handled) {
 				//-- Non-DomUI request.
 				throw new IllegalStateException("Test DomUI request not a DomUI URL: " + ctx.getRequestResponse().getRequestURI());
 			}
-			rh.handleRequest(ctx);
 			ctx.flush();
 			rr.flush();
 
