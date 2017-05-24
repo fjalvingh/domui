@@ -29,7 +29,7 @@ import javax.annotation.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.resources.*;
 
-public interface IBufferedPartFactory extends IPartFactory {
+public interface IBufferedPartFactory<K> extends IPartFactory {
 	/**
 	 * Decode the input and create a KEY for the request. This key must be hashable, and forms
 	 * the key for the cache to retrieve an already generated copy.
@@ -38,7 +38,7 @@ public interface IBufferedPartFactory extends IPartFactory {
 	 * @throws Exception
 	 */
 	@Nonnull
-	Object decodeKey(@Nonnull String rurl, @Nonnull IExtendedParameterInfo param) throws Exception;
+	K decodeKey(@Nonnull IExtendedParameterInfo param) throws Exception;
 
 	/**
 	 * This must generate the output for the resource. That output will be put into the cache and re-rendered
@@ -54,5 +54,5 @@ public interface IBufferedPartFactory extends IPartFactory {
 	 * @return
 	 * @throws Exception
 	 */
-	void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object key, @Nonnull IResourceDependencyList rdl) throws Exception;
+	void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull K key, @Nonnull IResourceDependencyList rdl) throws Exception;
 }

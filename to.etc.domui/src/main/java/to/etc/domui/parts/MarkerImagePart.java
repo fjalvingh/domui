@@ -48,14 +48,14 @@ import to.etc.util.*;
  * @author <a href="mailto:btadic@execom.eu">Bojan Tadic</a>
  * Created on Nov 1, 2011
  */
-public class MarkerImagePart implements IBufferedPartFactory {
+public class MarkerImagePart implements IBufferedPartFactory<MarkerImagePartKey> {
 
 	private static final String DEFAULT_ICON = "THEME/icon-search.png";
 
 	private static final Color DEFAULT_COLOR = Color.GRAY;
 
 	@Override
-	public @Nonnull Object decodeKey(@Nonnull String rurl, @Nonnull IExtendedParameterInfo param) throws Exception {
+	public @Nonnull MarkerImagePartKey decodeKey(@Nonnull IExtendedParameterInfo param) throws Exception {
 		MarkerImagePartKey key = MarkerImagePartKey.decode(param);
 		return key;
 	}
@@ -65,9 +65,7 @@ public class MarkerImagePart implements IBufferedPartFactory {
 	 * @see to.etc.domui.server.parts.IBufferedPartFactory#generate(to.etc.domui.server.parts.PartResponse, to.etc.domui.server.DomApplication, java.lang.Object, to.etc.domui.util.resources.IResourceDependencyList)
 	 */
 	@Override
-	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object key, @Nonnull IResourceDependencyList rdl) throws Exception {
-		MarkerImagePartKey sipKey = (MarkerImagePartKey) key;
-
+	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull MarkerImagePartKey sipKey, @Nonnull IResourceDependencyList rdl) throws Exception {
 		InputStream is = null;
 
 		try {

@@ -20,7 +20,7 @@ import java.io.*;
  * Created on 17-4-17.
  */
 @DefaultNonNull
-final public class SassPartFactory implements IBufferedPartFactory {
+final public class SassPartFactory implements IBufferedPartFactory<String> {
 	/**
 	 * Accepts .scss resources as sass stylesheets, and passes them through the
 	 * sass compiler, returning the result as a normal .css stylesheet.
@@ -31,11 +31,11 @@ final public class SassPartFactory implements IBufferedPartFactory {
 		}
 	};
 
-	@Nonnull @Override public Object decodeKey(@Nonnull String rurl, @Nonnull IExtendedParameterInfo param) throws Exception {
-		return rurl;
+	@Nonnull @Override public String decodeKey(@Nonnull IExtendedParameterInfo param) throws Exception {
+		return param.getInputPath();
 	}
 
-	@Override public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object key, @Nonnull IResourceDependencyList rdl) throws Exception {
+	@Override public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull String key, @Nonnull IResourceDependencyList rdl) throws Exception {
 		String rurl = (String) key;
 
 		SassCapturingErrorHandler errorHandler = new SassCapturingErrorHandler();

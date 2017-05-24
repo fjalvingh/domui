@@ -31,6 +31,7 @@ import to.etc.domui.server.IParameterInfo;
 import to.etc.domui.server.parts.IBufferedPartFactory;
 import to.etc.domui.server.parts.IUrlMatcher;
 import to.etc.domui.server.parts.PartResponse;
+import to.etc.domui.themes.ThemePartFactory.Key;
 import to.etc.domui.util.resources.IResourceDependencyList;
 import to.etc.util.FileTool;
 import to.etc.webapp.core.ServerTools;
@@ -50,7 +51,7 @@ import java.io.PrintWriter;
  * Created on Sep 1, 2009
  */
 @DefaultNonNull
-final public class ThemePartFactory implements IBufferedPartFactory {
+final public class ThemePartFactory implements IBufferedPartFactory<Key> {
 	/**
 	 * Accept all resources that have a ".theme." string as a suffix in their
 	 * last part, like style.theme.css
@@ -69,7 +70,7 @@ final public class ThemePartFactory implements IBufferedPartFactory {
 	};
 
 
-	static private final class Key {
+	static public final class Key {
 		private String m_rurl;
 
 		private String m_browserID;
@@ -138,18 +139,16 @@ final public class ThemePartFactory implements IBufferedPartFactory {
 	}
 
 	@Override
-	public @Nonnull Object decodeKey(@Nonnull String rurl, @Nonnull IExtendedParameterInfo param) throws Exception {
+	public @Nonnull Key decodeKey(@Nonnull IExtendedParameterInfo param) throws Exception {
 		String iv = param.getParameter("iv");
 		int val = 0;
 		if(null != iv)
 			val = Integer.parseInt(iv);
-		return new Key(param.getBrowserVersion(), rurl, val);
+		return new Key(param.getBrowserVersion(), param.getInputPath(), val);
 	}
 
 	@Override
-	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object k, @Nonnull IResourceDependencyList rdl) throws Exception {
-		Key key = (Key) k;
-
+	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Key key, @Nonnull IResourceDependencyList rdl) throws Exception {
 		if(!da.inDevelopmentMode()) { 					// Not gotten from WebContent or not in DEBUG mode? Then we may cache!
 			pr.setCacheTime(da.getDefaultExpiryTime());
 		}

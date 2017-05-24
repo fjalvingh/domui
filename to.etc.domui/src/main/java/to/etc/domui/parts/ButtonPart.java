@@ -38,8 +38,8 @@ import to.etc.domui.util.resources.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
 @Deprecated
-public class ButtonPart implements IBufferedPartFactory {
-	static class ButtonPartKey {
+public class ButtonPart implements IBufferedPartFactory<ButtonPart.ButtonPartKey> {
+	static public final class ButtonPartKey {
 		String m_image;
 
 		String m_icon;
@@ -123,7 +123,7 @@ public class ButtonPart implements IBufferedPartFactory {
 	}
 
 	@Override
-	public @Nonnull Object decodeKey(final @Nonnull String rurl, final @Nonnull IExtendedParameterInfo info) throws Exception {
+	public @Nonnull ButtonPartKey decodeKey(@Nonnull IExtendedParameterInfo info) throws Exception {
 		ButtonPartKey k = new ButtonPartKey();
 		k.m_image = info.getParameter("img");
 		k.m_text = info.getParameter("txt");
@@ -140,7 +140,7 @@ public class ButtonPart implements IBufferedPartFactory {
 	}
 
 	@Override
-	public void generate(@Nonnull final PartResponse pr, @Nonnull final DomApplication da, @Nonnull final Object key, @Nonnull final IResourceDependencyList rdl) throws Exception {
+	public void generate(@Nonnull final PartResponse pr, @Nonnull final DomApplication da, @Nonnull final ButtonPartKey key, @Nonnull final IResourceDependencyList rdl) throws Exception {
 		if(true)
 			throw new IllegalStateException("DO NOT USE ANYMORE - REPLACED WITH PropBtnPart.part");
 		//		ButtonPartKey k = (ButtonPartKey) key;

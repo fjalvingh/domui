@@ -26,6 +26,7 @@ package to.etc.domui.server.parts;
 
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.IExtendedParameterInfo;
+import to.etc.domui.server.parts.InternalResourcePart.ResKey;
 import to.etc.domui.trouble.ThingyNotFoundException;
 import to.etc.domui.util.resources.IResourceDependencyList;
 import to.etc.domui.util.resources.IResourceRef;
@@ -55,8 +56,8 @@ import java.util.Locale;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Nov 11, 2009
  */
-final public class InternalResourcePart implements IBufferedPartFactory {
-	private static class ResKey {
+final public class InternalResourcePart implements IBufferedPartFactory<ResKey> {
+	public static class ResKey {
 		private Locale m_loc;
 
 		private String m_rurl;
@@ -112,7 +113,8 @@ final public class InternalResourcePart implements IBufferedPartFactory {
 	}
 
 	@Override
-	public @Nonnull Object decodeKey(@Nonnull String rurl, @Nonnull IExtendedParameterInfo param) throws Exception {
+	public @Nonnull ResKey decodeKey(@Nonnull IExtendedParameterInfo param) throws Exception {
+		String rurl = param.getInputPath();
 		if(FileTool.getFileExtension(rurl).length() == 0) {
 			throw new HttpCallException("", HttpServletResponse.SC_FORBIDDEN, "Request forbidden for directory " + rurl);
 		}
@@ -142,9 +144,7 @@ final public class InternalResourcePart implements IBufferedPartFactory {
 	 *
 	 */
 	@Override
-	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object inkey, @Nonnull IResourceDependencyList rdl) throws Exception {
-		ResKey k = (ResKey) inkey;
-
+	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull ResKey k, @Nonnull IResourceDependencyList rdl) throws Exception {
 		//-- 1. Locate the resource
 		IResourceRef ires;
 		if(k.getLoc() != null)

@@ -6,6 +6,7 @@ import java.awt.image.*;
 import javax.annotation.*;
 import javax.imageio.*;
 
+import to.etc.domui.parts.GrayscalerPart.Key;
 import to.etc.domui.server.*;
 import to.etc.domui.server.parts.*;
 import to.etc.domui.util.resources.*;
@@ -21,9 +22,9 @@ import to.etc.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 25, 2012
  */
-public class GrayscalerPart implements IBufferedPartFactory {
+public class GrayscalerPart implements IBufferedPartFactory<Key> {
 
-	static public class Key {
+	static public final class Key {
 
 		@Nonnull
 		final private String m_icon;
@@ -78,7 +79,7 @@ public class GrayscalerPart implements IBufferedPartFactory {
 
 	@Override
 	@Nonnull
-	public Object decodeKey(@Nonnull String rurl, @Nonnull IExtendedParameterInfo param) throws Exception {
+	public Key decodeKey(@Nonnull IExtendedParameterInfo param) throws Exception {
 		String icon = param.getParameter("icon");
 		if(null == icon)
 			throw new IllegalStateException("Missing icon parameter");
@@ -89,8 +90,7 @@ public class GrayscalerPart implements IBufferedPartFactory {
 	}
 
 	@Override
-	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object key, @Nonnull IResourceDependencyList rdl) throws Exception {
-		Key k = (Key) key;
+	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Key k, @Nonnull IResourceDependencyList rdl) throws Exception {
 		BufferedImage bi = PartUtil.loadImage(da, k.getIcon(), rdl);
 
 		if(k.isSprite())

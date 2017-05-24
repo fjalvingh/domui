@@ -55,9 +55,9 @@ public class PartService {
 	private static class PartExecutionReference {
 		private final IPartFactory m_factory;
 
-		private final IParameterInfo m_info;
+		private final IExtendedParameterInfo m_info;
 
-		public PartExecutionReference(IPartFactory factory, IParameterInfo info) {
+		public PartExecutionReference(IPartFactory factory, IExtendedParameterInfo info) {
 			m_factory = factory;
 			m_info = info;
 		}
@@ -66,7 +66,7 @@ public class PartService {
 			return m_factory;
 		}
 
-		public IParameterInfo getInfo() {
+		public IExtendedParameterInfo getInfo() {
 			return m_info;
 		}
 	}
@@ -106,7 +106,7 @@ public class PartService {
 			IUnbufferedPartFactory upf = (IUnbufferedPartFactory) factory;
 			upf.generate(getApplication(), executionReference.getInfo().getInputPath(), ctx);
 		} else if(factory instanceof IBufferedPartFactory) {
-			generate((IBufferedPartFactory) factory, ctx, executionReference.getInfo().getInputPath());
+			generate((IBufferedPartFactory<?>) factory, ctx, executionReference.getInfo());
 		} else
 			throw new IllegalStateException("??Internal: don't know how to handle part factory " + factory);
 		return true;
@@ -132,7 +132,7 @@ public class PartService {
 	//}
 
 	@Nullable
-	private PartExecutionReference findPart(IParameterInfo parameters) {
+	private PartExecutionReference findPart(IExtendedParameterInfo parameters) {
 		PartExecutionReference ref = checkClassBasedPart(parameters);
 		if(null != ref)
 			return ref;
@@ -141,7 +141,7 @@ public class PartService {
 	}
 
 	@Nullable
-	private PartExecutionReference checkUrlPart(IParameterInfo parameter) {
+	private PartExecutionReference checkUrlPart(IExtendedParameterInfo parameter) {
 		for(MatcherFactoryPair pair : getMatcherList()) {
 			if(pair.getMatcher().accepts(parameter)) {
 				return new PartExecutionReference(pair.getFactory(), parameter);
@@ -183,7 +183,7 @@ public class PartService {
 			throw new ThingyNotFoundException("The part factory '" + segment + "' cannot be located.");
 		}
 
-		IParameterInfo infoProxy = new ParameterInfoProxy(parameters) {
+		IExtendedParameterInfo infoProxy = new ParameterInfoProxy(parameters) {
 			@Nonnull @Override public String getInputPath() {
 				return rest;
 			}
@@ -234,11 +234,10 @@ public class PartService {
 	 * Helper which handles possible cached buffered parts.
 	 * @param pf
 	 * @param ctx
-	 * @param url
 	 * @throws Exception
 	 */
-	public void generate(final IBufferedPartFactory pf, final RequestContextImpl ctx, final String url) throws Exception {
-		PartData cp = getCachedInstance(pf, ctx, url);
+	private <K> void generate(IBufferedPartFactory<K> pf, RequestContextImpl ctx, IExtendedParameterInfo parameters) throws Exception {
+		PartData cp = getCachedInstance2(pf, parameters);
 
 		//-- Generate the part
 		OutputStream os = null;
@@ -257,15 +256,15 @@ public class PartService {
 		}
 	}
 
-	public PartData getCachedInstance(final IBufferedPartFactory pf, final RequestContextImpl ctx, final String url) throws Exception {
+	private <K> PartData getCachedInstance2(final IBufferedPartFactory<K> pf, final IExtendedParameterInfo parameters) throws Exception {
 		//-- Convert the data to a key object, then lookup;
-		Object key = pf.decodeKey(url, ctx);
+		K key = pf.decodeKey(parameters);
 		if(key == null)
-			throw new ThingyNotFoundException("Cannot get resource for " + pf + " with rurl=" + url);
+			throw new ThingyNotFoundException("Cannot get resource for " + pf + " with rurl=" + parameters.getInputPath());
 		return getCachedInstance(pf, key);
 	}
 
-	public PartData getCachedInstance(final IBufferedPartFactory pf, Object key) throws Exception {
+	private <K> PartData getCachedInstance(final IBufferedPartFactory<K> pf, K key) throws Exception {
 		/*
 		 * Lookup. This part *is* thread-safe but it has a race condition: it may cause multiple
 		 * instances of the SAME resource to be generated at the same time and inserted at the
