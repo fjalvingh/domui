@@ -28,12 +28,12 @@ import javax.annotation.*;
 
 public interface IFilterRequestHandler {
 	/**
-	 * Must check if this filter accepts this URL as fast as possible, and return true if it does.
-	 * @param ri
+	 * Handles the request if this decides that it knows how to, in which case it returns
+	 * true. If this does not know how to handle the request return false.
+	 *
+	 * @param ctx
 	 * @return
 	 * @throws Exception
 	 */
-	boolean accepts(@Nonnull IRequestContext ri) throws Exception;
-
-	void handleRequest(@Nonnull RequestContextImpl ctx) throws Exception;
+	boolean handleRequest(@Nonnull RequestContextImpl ctx) throws Exception;
 }

@@ -134,12 +134,14 @@ abstract public class AbstractContextMaker implements IContextMaker {
 		try {
 			UIContext.internalSet(ctx);
 			callInterceptorsBegin(il, ctx);
-			rh = ctx.getApplication().findRequestHandler(ctx);
-			if(rh == null) {
+
+			boolean handled = ctx.getApplication().callRequestHandler(ctx);
+			if(! handled) {
 				//-- Non-DomUI request.
 				handleDoFilter(chain, requestResponse.getRequest(), requestResponse.getResponse());
 				return;
 			}
+
 			requestResponse.getResponse().addHeader("X-UA-Compatible", "IE=edge");	// 20110329 jal Force to highest supported mode for DomUI code.
 			requestResponse.getResponse().addHeader("X-XSS-Protection", "0");		// 20130124 jal Disable IE XSS filter, to prevent the idiot thing from seeing the CID as a piece of script 8-(
 			rh.handleRequest(ctx);

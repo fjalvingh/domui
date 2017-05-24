@@ -34,13 +34,11 @@ public interface IBufferedPartFactory extends IPartFactory {
 	 * Decode the input and create a KEY for the request. This key must be hashable, and forms
 	 * the key for the cache to retrieve an already generated copy.
 	 *
-	 * @param ctx
-	 * @param rurl
 	 * @return
 	 * @throws Exception
 	 */
 	@Nonnull
-	public Object decodeKey(@Nonnull String rurl, @Nonnull IExtendedParameterInfo param) throws Exception;
+	Object decodeKey(@Nonnull String rurl, @Nonnull IExtendedParameterInfo param) throws Exception;
 
 	/**
 	 * This must generate the output for the resource. That output will be put into the cache and re-rendered
@@ -56,5 +54,5 @@ public interface IBufferedPartFactory extends IPartFactory {
 	 * @return
 	 * @throws Exception
 	 */
-	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object key, @Nonnull IResourceDependencyList rdl) throws Exception;
+	void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object key, @Nonnull IResourceDependencyList rdl) throws Exception;
 }

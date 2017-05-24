@@ -389,17 +389,18 @@ public abstract class DomApplication {
 	}
 
 	/**
-	 * Find a request handler by locating the highest-scoring request handler in the chain.
+	 * Ask all request handlers to try to execute the request. If none managed this returns false.
 	 * @param ctx
 	 * @return
 	 */
 	@Nullable
-	public IFilterRequestHandler findRequestHandler(@Nonnull final IRequestContext ctx) throws Exception {
+	public boolean callRequestHandler(@Nonnull final RequestContextImpl ctx) throws Exception {
 		for(FilterRef h : getRequestHandlerList()) {
-			if(h.getHandler().accepts(ctx))
-				return h.getHandler();
+			boolean worked = h.getHandler().handleRequest(ctx);
+			if(worked)
+				return true;
 		}
-		return null;
+		return false;
 	}
 
 	/**

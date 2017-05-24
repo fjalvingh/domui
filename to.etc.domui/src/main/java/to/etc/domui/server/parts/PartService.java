@@ -17,6 +17,9 @@ import java.util.*;
  */
 @DefaultNonNull
 public class PartService {
+
+	public static final String PART_SUFFIX = ".part";
+
 	private final DomApplication m_application;
 
 	private final boolean m_allowExpires;
@@ -24,17 +27,46 @@ public class PartService {
 	@Nonnull
 	private final LRUHashMap<Object, CachedPart> m_cache;
 
+	private static class MatcherFactoryPair {
+		private final IPartFactory m_factory;
+
+		private final IUrlMatcher m_matcher;
+
+		public MatcherFactoryPair(IPartFactory factory, IUrlMatcher matcher) {
+			m_factory = factory;
+			m_matcher = matcher;
+		}
+
+		public IPartFactory getFactory() {
+			return m_factory;
+		}
+
+		public IUrlMatcher getMatcher() {
+			return m_matcher;
+		}
+	}
+
+	private List<MatcherFactoryPair> m_urlMatcherList = new ArrayList<>();
+
 	public PartService(DomApplication application) {
 		m_application = application;
-		LRUHashMap.SizeCalculator<CachedPart> sc = new LRUHashMap.SizeCalculator<CachedPart>() {
-			@Override
-			public int getObjectSize(@Nullable final CachedPart item) {
-				return item == null ? 4 : item.m_size + 32;
-			}
-		};
 
-		m_cache = new LRUHashMap<>(sc, 16 * 1024 * 1024); 			// Accept 16MB of resources FIXME Must be parameterized
+		m_cache = new LRUHashMap<>(item -> item == null ? 4 : item.m_size + 32, 16 * 1024 * 1024); 			// Accept 16MB of resources FIXME Must be parameterized
 		m_allowExpires = DeveloperOptions.getBool("domui.expires", true);
+	}
+
+	/**
+	 * Register a part which gets called when the specified matcher matches.
+	 * @param matcher
+	 * @param factory
+	 */
+	public synchronized void registerPart(IUrlMatcher matcher, IPartFactory factory) {
+		m_urlMatcherList = new ArrayList<>(m_urlMatcherList);
+		m_urlMatcherList.add(new MatcherFactoryPair(factory, matcher));
+	}
+
+	private synchronized List<MatcherFactoryPair> getMatcherList() {
+		return m_urlMatcherList;
 	}
 
 	public void renderUrlPart(IPartFactory part, RequestContextImpl ctx, @Nonnull String inputPath) throws Exception {
@@ -42,6 +74,77 @@ public class PartService {
 		if(pr == null)
 			throw new ThingyNotFoundException("No renderer for " + part);
 		pr.render(ctx, inputPath);
+	}
+
+	/**
+	 * Detect whether this is an URL part, and if so render it.
+	 * @param ctx
+	 */
+	public boolean render(RequestContextImpl ctx) {
+
+
+
+
+	}
+
+	/**
+	 *
+	 * @param parameters
+	 */
+	public void findPart(IParameterInfo parameters) {
+		//-- 1. Is it a classname.part type url?
+
+
+
+
+	}
+
+
+	@Nullable
+	private IPartFactory checkUrlPart(IParameterInfo parameter) {
+		for(MatcherFactoryPair pair : getMatcherList()) {
+			if(pair.getMatcher().accepts(parameter)) {
+				return pair.getFactory();
+			}
+		}
+
+		return null;							// No matches
+	}
+
+	/**
+	 * Checks whether the request is for a classname-based part, and if so returns the
+	 * salient details.
+	 * A class based part request has a classname followed by .part in the first section
+	 * of the URL. The class must exist and also implement {@link IPartFactory} or
+	 * a 404 exception is thrown.
+	 *
+	 * @param in
+	 * @return
+	 */
+	@Nullable
+	private IPartFactory checkClassBasedPart(String in) {
+		String rest;
+		String segment;
+		int pos = in.indexOf('/');
+		if(pos < 0) {
+			segment = in;
+			rest = "";
+		} else {
+			segment = in.substring(0, pos);
+			rest = in.substring(pos + 1);
+		}
+
+		//-- Is this an actual .part?
+		if(! segment.endsWith(PART_SUFFIX))				// If it's not ending in .part we're done
+			return null;
+		segment = segment.substring(0, segment.length() - PART_SUFFIX.length());	// Remove .part to get the class name
+
+		//-- We are sure that this is a part, so the class must exist and be valid.
+		IPartFactory factory = getPartFactoryByClassName(segment);
+		if(null == factory) {
+			throw new ThingyNotFoundException("The part factory '" + segment + "' cannot be located.");
+		}
+		return factory;
 	}
 
 	/*--------------------------------------------------------------*/

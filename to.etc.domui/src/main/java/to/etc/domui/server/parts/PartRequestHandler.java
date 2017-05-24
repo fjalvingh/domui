@@ -67,7 +67,13 @@ final public class PartRequestHandler implements IFilterRequestHandler {
 	 * @see to.etc.domui.server.IFilterRequestHandler#handleRequest(to.etc.domui.server.RequestContextImpl)
 	 */
 	@Override
-	public void handleRequest(@Nonnull final RequestContextImpl ctx) throws Exception {
+	public boolean handleRequest(@Nonnull final RequestContextImpl ctx) throws Exception {
+
+
+
+
+
+
 		String input = ctx.getInputPath();
 		//		dumpHeaders(ctx);
 		boolean part = false;

@@ -86,6 +86,9 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	@Override
 	public void handleRequest(@Nonnull final RequestContextImpl ctx) throws Exception {
 		ctx.getRequestResponse().setNoCache();					// All replies may not be cached at all!!
+		ctx.getRequestResponse().addHeader("X-UA-Compatible", "IE=edge");	// 20110329 jal Force to highest supported mode for DomUI code.
+		ctx.getRequestResponse().addHeader("X-XSS-Protection", "0");		// 20130124 jal Disable IE XSS filter, to prevent the idiot thing from seeing the CID as a piece of script 8-(
+
 		handleMain(ctx);
 		ctx.getSession().dump();
 	}
