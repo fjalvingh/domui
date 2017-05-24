@@ -31,13 +31,25 @@ import javax.annotation.*;
 import to.etc.domui.server.*;
 import to.etc.util.*;
 
-public class ParameterInfoImpl implements IParameterInfo {
-	private Map<String, String[]> m_parameterMap = new HashMap<String, String[]>();
+/**
+ * This represents the parameters for simple web-like requests that would be sufficient to run most Parts.
+ */
+@DefaultNonNull
+final public class ParameterInfoImpl implements IParameterInfo {
+	final private Map<String, String[]> m_parameterMap = new HashMap<String, String[]>();
 
-	public ParameterInfoImpl(String in) {
-		String[] arg = in.split("&");
+	final private String m_rurl;
+
+	/**
+	 *
+	 * @param rurl			A relative URL, if applicable, or the empty string if not.
+	 * @param queryString   A string in URL encoded format, which will be split into parameters
+	 */
+	public ParameterInfoImpl(String rurl, String queryString) {
+		m_rurl = rurl;
+		String[] arg = queryString.split("&");
 		if(arg == null || arg.length == 0)
-			arg = new String[]{in};
+			arg = new String[]{queryString};
 		for(String s : arg) {
 			int pos = s.indexOf('=');
 			if(pos != -1) {
@@ -48,6 +60,10 @@ public class ParameterInfoImpl implements IParameterInfo {
 				add(name, value);
 			}
 		}
+	}
+
+	public ParameterInfoImpl(String in) {
+		this("", in);
 	}
 
 	private void add(String name, String value) {
@@ -63,6 +79,7 @@ public class ParameterInfoImpl implements IParameterInfo {
 		m_parameterMap.put(name, v);
 	}
 
+	@Nullable
 	@Override
 	public String getParameter(@Nonnull String name) {
 		String[] v = m_parameterMap.get(name);
@@ -82,5 +99,9 @@ public class ParameterInfoImpl implements IParameterInfo {
 	public String[] getParameters(@Nonnull String name) {
 		String[] res = m_parameterMap.get(name);
 		return res == null ? new String[0] : res;
+	}
+
+	@Nonnull @Override public String getInputPath() {
+		return m_rurl;
 	}
 }

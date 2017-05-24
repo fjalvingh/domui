@@ -41,4 +41,12 @@ public interface IParameterInfo {
 
 	@Nonnull
 	String[] getParameterNames();
+
+	/**
+	 * Get the (remaining) part of the input path as part of a parameter. It is the empty string if
+	 * there's nothing like that.
+	 * @return
+	 */
+	@Nonnull
+	String getInputPath();
 }
