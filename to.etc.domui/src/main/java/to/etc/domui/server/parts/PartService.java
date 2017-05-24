@@ -96,14 +96,20 @@ public class PartService {
 	 * Detect whether this is an URL part, and if so render it.
 	 * @param ctx
 	 */
-	public boolean render(RequestContextImpl ctx) {
+	public boolean render(RequestContextImpl ctx) throws Exception {
 		PartExecutionReference executionReference = findPart(ctx);
 		if(executionReference == null)
 			return false;
 
-
-
-
+		IPartFactory factory = executionReference.getFactory();
+		if(factory instanceof IUnbufferedPartFactory) {
+			IUnbufferedPartFactory upf = (IUnbufferedPartFactory) factory;
+			upf.generate(getApplication(), executionReference.getInfo().getInputPath(), ctx);
+		} else if(factory instanceof IBufferedPartFactory) {
+			generate((IBufferedPartFactory) factory, ctx, executionReference.getInfo().getInputPath());
+		} else
+			throw new IllegalStateException("??Internal: don't know how to handle part factory " + factory);
+		return true;
 	}
 
 	/**
@@ -176,18 +182,6 @@ public class PartService {
 	/*--------------------------------------------------------------*/
 	private final Map<String, IPartFactory> m_partByClassMap = new HashMap<>();
 
-	///**
-	// * Returns a thingy which knows how to render the part.
-	// */
-	//@Nullable
-	//public synchronized IPartRenderer findPartRenderer(final String name) {
-	//	IPartFactory factory = getPartFactoryByClassName(name);
-	//	if(null == factory)
-	//		return null;
-	//	IPartRenderer pr = createPartRenderer(factory);
-	//	return pr;
-	//}
-
 	/**
 	 * Returns a thingy which knows how to render the part.
 	 */
@@ -216,26 +210,6 @@ public class PartService {
 		} catch(Exception x) {
 			throw new IllegalStateException("Cannot instantiate PartFactory '" + fc + "': " + x, x);
 		}
-	}
-
-	private IPartRenderer createPartRenderer(final IPartFactory pf) {
-		if(pf instanceof IUnbufferedPartFactory) {
-			return new IPartRenderer() {
-				@Override
-				public void render(final RequestContextImpl ctx, final String rest) throws Exception {
-					IUnbufferedPartFactory upf = (IUnbufferedPartFactory) pf;
-					upf.generate(getApplication(), rest, ctx);
-				}
-			};
-		} else if(pf instanceof IBufferedPartFactory) {
-			return new IPartRenderer() {
-				@Override
-				public void render(final RequestContextImpl ctx, final String rest) throws Exception {
-					generate((IBufferedPartFactory) pf, ctx, rest); // Delegate internally
-				}
-			};
-		} else
-			throw new IllegalStateException("??Internal: don't know how to handle part factory " + pf);
 	}
 
 	/*--------------------------------------------------------------*/
