@@ -307,7 +307,7 @@ public abstract class DomApplication {
 		addRequestHandler(new ApplicationRequestHandler(this), 100);			// .ui and related
 		addRequestHandler(new ResourceRequestHandler(this, m_partService), 0);	// $xxxx resources are a last resort
 		addRequestHandler(new AjaxRequestHandler(this), 20);					// .xaja ajax calls.
-		addRequestHandler(getPartRequestHandler(), 80);
+		addRequestHandler(m_partHandler, 80);
 	}
 
 	protected void registerControlFactories() {
@@ -422,8 +422,8 @@ public abstract class DomApplication {
 	}
 
 	@Nonnull
-	public PartRequestHandler getPartRequestHandler() {
-		return m_partHandler;
+	public PartService getPartService() {
+		return m_partService;
 	}
 
 	/**
