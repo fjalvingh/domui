@@ -26,7 +26,7 @@ public class PartService {
 	private final boolean m_allowExpires;
 
 	@Nonnull
-	private final LRUHashMap<Object, CachedPart> m_cache;
+	private final LRUHashMap<Object, PartData> m_cache;
 
 	/**
 	 * Registers URL matchers connected to parts.
@@ -112,12 +112,27 @@ public class PartService {
 		return true;
 	}
 
-	/**
-	 *
-	 * @param parameters
-	 */
+	///**
+	// *
+	// * @return		 null if no part handled the specified parameters
+	// */
+	//@Nullable
+	//public PartData	getPartData(IParameterInfo parameters) {
+	//	PartExecutionReference executionReference = findPart(parameters);
+	//	if(executionReference == null)
+	//		return null;
+	//
+	//	IPartFactory factory = executionReference.getFactory();
+	//	if(factory instanceof IBufferedPartFactory) {
+	//		IBufferedPartFactory pf = (IBufferedPartFactory) factory;
+	//		generate(pf, ctx, executionReference.getInfo().getInputPath());
+	//	} else
+	//		throw new IllegalStateException("getPartData() can only be called for Buffered parts; the part " + factory + " is not");
+	//
+	//}
+
 	@Nullable
-	public PartExecutionReference findPart(IParameterInfo parameters) {
+	private PartExecutionReference findPart(IParameterInfo parameters) {
 		PartExecutionReference ref = checkClassBasedPart(parameters);
 		if(null != ref)
 			return ref;
@@ -223,7 +238,7 @@ public class PartService {
 	 * @throws Exception
 	 */
 	public void generate(final IBufferedPartFactory pf, final RequestContextImpl ctx, final String url) throws Exception {
-		CachedPart cp = getCachedInstance(pf, ctx, url);
+		PartData cp = getCachedInstance(pf, ctx, url);
 
 		//-- Generate the part
 		OutputStream os = null;
@@ -242,7 +257,7 @@ public class PartService {
 		}
 	}
 
-	public CachedPart getCachedInstance(final IBufferedPartFactory pf, final RequestContextImpl ctx, final String url) throws Exception {
+	public PartData getCachedInstance(final IBufferedPartFactory pf, final RequestContextImpl ctx, final String url) throws Exception {
 		//-- Convert the data to a key object, then lookup;
 		Object key = pf.decodeKey(url, ctx);
 		if(key == null)
@@ -250,7 +265,7 @@ public class PartService {
 		return getCachedInstance(pf, key);
 	}
 
-	public CachedPart getCachedInstance(final IBufferedPartFactory pf, Object key) throws Exception {
+	public PartData getCachedInstance(final IBufferedPartFactory pf, Object key) throws Exception {
 		/*
 		 * Lookup. This part *is* thread-safe but it has a race condition: it may cause multiple
 		 * instances of the SAME resource to be generated at the same time and inserted at the
@@ -258,7 +273,7 @@ public class PartService {
 		 * small problem will be accepted; it will not cause problems since only the last instance
 		 * will be kept and stored.
 		 */
-		CachedPart cp;
+		PartData cp;
 		synchronized(m_cache) {
 			cp = m_cache.get(key); // Already exists here?
 		}
@@ -289,7 +304,7 @@ public class PartService {
 		if(mime == null)
 			throw new IllegalStateException("The part " + pf + " did not set a MIME type, key=" + key);
 		os.close();
-		cp = new CachedPart(os.getBuffers(), os.getSize(), pr.getCacheTime(), mime, rdl.createDependencies(), pr.getExtra());
+		cp = new PartData(os.getBuffers(), os.getSize(), pr.getCacheTime(), mime, rdl.createDependencies(), pr.getExtra());
 		synchronized(m_cache) {
 			m_cache.put(key, cp); // Store (may be done multiple times due to race condition)
 		}

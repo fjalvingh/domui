@@ -29,13 +29,14 @@ import javax.annotation.concurrent.*;
 import to.etc.domui.util.resources.*;
 
 /**
- * Contains a cached instance of some part rendering.
+ * Contains a cached instance of some part rendering as created by
+ * a buffered part.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 4, 2008
  */
 @Immutable
-final public class CachedPart {
+final public class PartData {
 	private final byte[][] m_data;
 
 	final int m_size;
@@ -49,7 +50,7 @@ final public class CachedPart {
 
 	final Object m_extra;
 
-	public CachedPart(byte[][] data, int size, int cacheTime, String contentType, ResourceDependencies dependencies, Object extra) {
+	public PartData(byte[][] data, int size, int cacheTime, String contentType, ResourceDependencies dependencies, Object extra) {
 		m_data = data;
 		m_size = size;
 		m_cacheTime = cacheTime;
