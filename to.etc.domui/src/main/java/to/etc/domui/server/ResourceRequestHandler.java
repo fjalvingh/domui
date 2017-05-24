@@ -43,18 +43,17 @@ final public class ResourceRequestHandler implements IFilterRequestHandler {
 		m_partService = partService;
 	}
 
-	@Override
-	public boolean accepts(@Nonnull IRequestContext ri) throws Exception {
-		return ri.getInputPath().startsWith("$");
-	}
-
 	/**
 	 * Handles requests for $ resources. It just delegates to a special part.
 	 *
 	 * @see to.etc.domui.server.IFilterRequestHandler#handleRequest(to.etc.domui.server.RequestContextImpl)
 	 */
 	@Override
-	public void handleRequest(@Nonnull RequestContextImpl ctx) throws Exception {
+	public boolean handleRequest(@Nonnull RequestContextImpl ctx) throws Exception {
+		if(! ctx.getInputPath().startsWith("$"))
+			return false;
+
 		m_partService.generate(m_rp, ctx, ctx.getInputPath());
+		return true;
 	}
 }

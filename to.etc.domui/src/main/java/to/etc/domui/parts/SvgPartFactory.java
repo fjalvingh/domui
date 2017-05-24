@@ -41,7 +41,12 @@ import to.etc.domui.util.resources.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 31, 2009
  */
-public class SvgPartFactory implements IBufferedPartFactory, IUrlPart {
+public class SvgPartFactory implements IBufferedPartFactory {
+	static public final IUrlMatcher MATCHER = new IUrlMatcher() {
+		@Override public boolean accepts(@Nonnull IParameterInfo parameters) {
+			return parameters.getInputPath().endsWith(".png.svg");		}
+	};
+
 	static private class SvgKey {
 		private String m_rurl;
 
@@ -95,12 +100,6 @@ public class SvgPartFactory implements IBufferedPartFactory, IUrlPart {
 				return false;
 			return true;
 		}
-	}
-
-
-	@Override
-	public boolean accepts(@Nonnull String rurl) {
-		return rurl.endsWith(".png.svg");
 	}
 
 	@Override

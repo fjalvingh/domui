@@ -321,9 +321,9 @@ public abstract class DomApplication {
 	}
 
 	protected void registerPartFactories() {
-		registerUrlPart(new SassPartFactory(), 100); 			// Support .scss SASS stylesheets
-		registerUrlPart(new ThemePartFactory(), 100);			// convert *.theme.* as a JSTemplate.
-		registerUrlPart(new SvgPartFactory(), 100); 				// Converts .svg.png to png.
+		registerUrlPart(new SassPartFactory(), SassPartFactory.MATCHER); 			// Support .scss SASS stylesheets
+		registerUrlPart(new ThemePartFactory(), ThemePartFactory.MATCHER);			// convert *.theme.* as a JSTemplate.
+		registerUrlPart(new SvgPartFactory(), SvgPartFactory.MATCHER); 				// Converts .svg.png to png.
 	}
 
 	static private synchronized void setCurrentApplication(DomApplication da) {
@@ -393,7 +393,6 @@ public abstract class DomApplication {
 	 * @param ctx
 	 * @return
 	 */
-	@Nullable
 	public boolean callRequestHandler(@Nonnull final RequestContextImpl ctx) throws Exception {
 		for(FilterRef h : getRequestHandlerList()) {
 			boolean worked = h.getHandler().handleRequest(ctx);
@@ -407,19 +406,9 @@ public abstract class DomApplication {
 	 * Add a part that reacts on some part of the input URL instead of [classname].part.
 	 *
 	 * @param factory
-	 * @param priority		The priority of handling. Keep it low for little-used factories.
 	 */
-	public void registerUrlPart(@Nonnull IUrlPart factory, int priority) {
-		addRequestHandler(new UrlPartRequestHandler(m_partService, factory), priority);		// Add a request handler for this part factory.
-	}
-
-	/**
-	 * Add a part that reacts on some part of the input URL instead of [classname].part, with a priority of 10.
-	 *
-	 * @param factory
-	 */
-	public void registerUrlPart(@Nonnull IUrlPart factory) {
-		registerUrlPart(factory, 10);
+	public void registerUrlPart(@Nonnull IPartFactory factory, IUrlMatcher matcher) {
+		m_partService.registerPart(matcher, factory);
 	}
 
 	@Nonnull
@@ -439,7 +428,6 @@ public abstract class DomApplication {
 
 	/**
 	 * Called when the session is bound to the HTTPSession. This calls all session listeners.
-	 * @param sess
 	 */
 	void registerSession(@Nonnull final AppSession aps) {
 		for(IAppSessionListener l : getAppSessionListeners()) {

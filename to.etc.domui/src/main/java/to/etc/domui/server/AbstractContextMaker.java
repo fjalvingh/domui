@@ -130,22 +130,20 @@ abstract public class AbstractContextMaker implements IContextMaker {
 
 		List<IRequestInterceptor> il = ctx.getApplication().getInterceptorList();
 		Exception xx = null;
-		IFilterRequestHandler rh = null;
 		try {
 			UIContext.internalSet(ctx);
 			callInterceptorsBegin(il, ctx);
 
 			boolean handled = ctx.getApplication().callRequestHandler(ctx);
-			if(! handled) {
+			if(handled) {
+				ctx.flush();
+			} else {
 				//-- Non-DomUI request.
 				handleDoFilter(chain, requestResponse.getRequest(), requestResponse.getResponse());
-				return;
 			}
 
-			requestResponse.getResponse().addHeader("X-UA-Compatible", "IE=edge");	// 20110329 jal Force to highest supported mode for DomUI code.
-			requestResponse.getResponse().addHeader("X-XSS-Protection", "0");		// 20130124 jal Disable IE XSS filter, to prevent the idiot thing from seeing the CID as a piece of script 8-(
-			rh.handleRequest(ctx);
-			ctx.flush();
+			//requestResponse.getResponse().addHeader("X-UA-Compatible", "IE=edge");	// 20110329 jal Force to highest supported mode for DomUI code.
+			//requestResponse.getResponse().addHeader("X-XSS-Protection", "0");		// 20130124 jal Disable IE XSS filter, to prevent the idiot thing from seeing the CID as a piece of script 8-(
 		} catch(HttpCallException x) {
 			requestResponse.getResponse().sendError(x.getCode(), x.getMessage());
 		} catch(Exception xxx) {

@@ -78,19 +78,21 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 * Accept .obit, the defined DomUI extension (.ui by default) and the empty URL if a home page is set in {@link DomApplication}.
 	 * @see to.etc.domui.server.IFilterRequestHandler#accepts(to.etc.domui.server.IRequestContext)
 	 */
-	@Override
-	public boolean accepts(@Nonnull IRequestContext ctx) throws Exception {
+	private boolean accepts(@Nonnull IRequestContext ctx) throws Exception {
 		return m_application.getUrlExtension().equals(ctx.getExtension()) || ctx.getExtension().equals("obit") || (m_application.getRootPage() != null && ctx.getInputPath().length() == 0);
 	}
 
 	@Override
-	public void handleRequest(@Nonnull final RequestContextImpl ctx) throws Exception {
+	public boolean handleRequest(@Nonnull final RequestContextImpl ctx) throws Exception {
+		if(! accepts(ctx))
+			return false;
 		ctx.getRequestResponse().setNoCache();					// All replies may not be cached at all!!
 		ctx.getRequestResponse().addHeader("X-UA-Compatible", "IE=edge");	// 20110329 jal Force to highest supported mode for DomUI code.
 		ctx.getRequestResponse().addHeader("X-XSS-Protection", "0");		// 20130124 jal Disable IE XSS filter, to prevent the idiot thing from seeing the CID as a piece of script 8-(
 
 		handleMain(ctx);
 		ctx.getSession().dump();
+		return true;
 	}
 
 	private void handleMain(@Nonnull final RequestContextImpl ctx) throws Exception {

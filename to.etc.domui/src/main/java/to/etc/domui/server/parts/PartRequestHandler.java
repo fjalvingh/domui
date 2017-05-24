@@ -38,69 +38,12 @@ final public class PartRequestHandler implements IFilterRequestHandler {
 	}
 
 	/**
-	 * Accept urls that end in .part or that have a first segment containing .part. The part before the ".part" must be a
-	 * valid class name containing an {@link IPartFactory}.
-	 * @see to.etc.domui.server.IFilterRequestHandler#accepts(to.etc.domui.server.IRequestContext)
-	 */
-	@Override
-	public boolean accepts(@Nonnull IRequestContext ri) throws Exception {
-		String in = ri.getInputPath();
-		if(in.endsWith(".part"))
-			return true;
-		int pos = in.indexOf('/'); // First component
-		if(pos < 0)
-			return false;
-		String seg = in.substring(0, pos);
-		return seg.endsWith(".part");
-	}
-
-	//	static private void dumpHeaders(RequestContextImpl ctx) {
-	//		for(Enumeration<String> e = ctx.getRequest().getHeaderNames(); e.hasMoreElements();) {
-	//			String name = e.nextElement();
-	//			System.out.println("  hdr " + name + ": " + ctx.getRequest().getHeader(name));
-	//		}
-	//	}
-
-	/**
 	 * Entrypoint for when the class name is inside the URL (direct entry).
 	 *
 	 * @see to.etc.domui.server.IFilterRequestHandler#handleRequest(to.etc.domui.server.RequestContextImpl)
 	 */
 	@Override
 	public boolean handleRequest(@Nonnull final RequestContextImpl ctx) throws Exception {
-
-
-
-
-
-
-		String input = ctx.getInputPath();
-		//		dumpHeaders(ctx);
-		boolean part = false;
-		if(input.endsWith(".part")) {
-			input = input.substring(0, input.length() - 5); // Strip ".part" off the name
-			part = true;
-		}
-		int pos = input.indexOf('/'); // First path component is the factory name,
-		String fname, rest;
-		if(pos == -1) {
-			fname = input;
-			rest = "";
-		} else {
-			fname = input.substring(0, pos);
-			rest = input.substring(pos + 1);
-		}
-		if(fname.endsWith(".part")) {
-			fname = fname.substring(0, fname.length() - 5);
-			part = true;
-		}
-
-		if(!part)
-			throw new ThingyNotFoundException("Not a part: " + input);
-
-		IPartFactory factory = m_partService.getPartFactoryByClassName(fname);
-		if(factory == null)
-			throw new ThingyNotFoundException("The part factory '" + fname + "' cannot be located.");
-		m_partService.renderUrlPart(factory, ctx, rest);
+		return m_partService.render(ctx);
 	}
 }

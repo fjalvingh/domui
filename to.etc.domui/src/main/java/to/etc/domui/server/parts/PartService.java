@@ -1,5 +1,6 @@
 package to.etc.domui.server.parts;
 
+import to.etc.domui.parts.ParameterInfoProxy;
 import to.etc.domui.server.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
@@ -27,6 +28,9 @@ public class PartService {
 	@Nonnull
 	private final LRUHashMap<Object, CachedPart> m_cache;
 
+	/**
+	 * Registers URL matchers connected to parts.
+	 */
 	private static class MatcherFactoryPair {
 		private final IPartFactory m_factory;
 
@@ -47,6 +51,25 @@ public class PartService {
 	}
 
 	private List<MatcherFactoryPair> m_urlMatcherList = new ArrayList<>();
+
+	private static class PartExecutionReference {
+		private final IPartFactory m_factory;
+
+		private final IParameterInfo m_info;
+
+		public PartExecutionReference(IPartFactory factory, IParameterInfo info) {
+			m_factory = factory;
+			m_info = info;
+		}
+
+		public IPartFactory getFactory() {
+			return m_factory;
+		}
+
+		public IParameterInfo getInfo() {
+			return m_info;
+		}
+	}
 
 	public PartService(DomApplication application) {
 		m_application = application;
@@ -69,18 +92,14 @@ public class PartService {
 		return m_urlMatcherList;
 	}
 
-	public void renderUrlPart(IPartFactory part, RequestContextImpl ctx, @Nonnull String inputPath) throws Exception {
-		IPartRenderer pr = createPartRenderer(part);
-		if(pr == null)
-			throw new ThingyNotFoundException("No renderer for " + part);
-		pr.render(ctx, inputPath);
-	}
-
 	/**
 	 * Detect whether this is an URL part, and if so render it.
 	 * @param ctx
 	 */
 	public boolean render(RequestContextImpl ctx) {
+		PartExecutionReference executionReference = findPart(ctx);
+		if(executionReference == null)
+			return false;
 
 
 
@@ -91,20 +110,20 @@ public class PartService {
 	 *
 	 * @param parameters
 	 */
-	public void findPart(IParameterInfo parameters) {
-		//-- 1. Is it a classname.part type url?
+	@Nullable
+	public PartExecutionReference findPart(IParameterInfo parameters) {
+		PartExecutionReference ref = checkClassBasedPart(parameters);
+		if(null != ref)
+			return ref;
 
-
-
-
+		return checkUrlPart(parameters);
 	}
 
-
 	@Nullable
-	private IPartFactory checkUrlPart(IParameterInfo parameter) {
+	private PartExecutionReference checkUrlPart(IParameterInfo parameter) {
 		for(MatcherFactoryPair pair : getMatcherList()) {
 			if(pair.getMatcher().accepts(parameter)) {
-				return pair.getFactory();
+				return new PartExecutionReference(pair.getFactory(), parameter);
 			}
 		}
 
@@ -117,12 +136,10 @@ public class PartService {
 	 * A class based part request has a classname followed by .part in the first section
 	 * of the URL. The class must exist and also implement {@link IPartFactory} or
 	 * a 404 exception is thrown.
-	 *
-	 * @param in
-	 * @return
 	 */
 	@Nullable
-	private IPartFactory checkClassBasedPart(String in) {
+	private PartExecutionReference checkClassBasedPart(IParameterInfo parameters) {
+		String in = parameters.getInputPath();
 		String rest;
 		String segment;
 		int pos = in.indexOf('/');
@@ -144,7 +161,14 @@ public class PartService {
 		if(null == factory) {
 			throw new ThingyNotFoundException("The part factory '" + segment + "' cannot be located.");
 		}
-		return factory;
+
+		IParameterInfo infoProxy = new ParameterInfoProxy(parameters) {
+			@Nonnull @Override public String getInputPath() {
+				return rest;
+			}
+		};
+
+		return new PartExecutionReference(factory, infoProxy);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -152,17 +176,17 @@ public class PartService {
 	/*--------------------------------------------------------------*/
 	private final Map<String, IPartFactory> m_partByClassMap = new HashMap<>();
 
-	/**
-	 * Returns a thingy which knows how to render the part.
-	 */
-	@Nullable
-	public synchronized IPartRenderer findPartRenderer(final String name) {
-		IPartFactory factory = getPartFactoryByClassName(name);
-		if(null == factory)
-			return null;
-		IPartRenderer pr = createPartRenderer(factory);
-		return pr;
-	}
+	///**
+	// * Returns a thingy which knows how to render the part.
+	// */
+	//@Nullable
+	//public synchronized IPartRenderer findPartRenderer(final String name) {
+	//	IPartFactory factory = getPartFactoryByClassName(name);
+	//	if(null == factory)
+	//		return null;
+	//	IPartRenderer pr = createPartRenderer(factory);
+	//	return pr;
+	//}
 
 	/**
 	 * Returns a thingy which knows how to render the part.
@@ -214,7 +238,7 @@ public class PartService {
 			throw new IllegalStateException("??Internal: don't know how to handle part factory " + pf);
 	}
 
-		/*--------------------------------------------------------------*/
+	/*--------------------------------------------------------------*/
 	/*	CODING:	Buffered parts cache and code.						*/
 	/*--------------------------------------------------------------*/
 	/**

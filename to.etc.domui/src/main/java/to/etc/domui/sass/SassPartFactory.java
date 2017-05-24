@@ -20,15 +20,16 @@ import java.io.*;
  * Created on 17-4-17.
  */
 @DefaultNonNull
-final public class SassPartFactory implements IBufferedPartFactory, IUrlPart {
+final public class SassPartFactory implements IBufferedPartFactory {
 	/**
 	 * Accepts .scss resources as sass stylesheets, and passes them through the
 	 * sass compiler, returning the result as a normal .css stylesheet.
 	 */
-	@Override
-	public boolean accepts(@Nonnull String rurl) {
-		return rurl.endsWith(".scss");
-	}
+	static public final IUrlMatcher MATCHER = new IUrlMatcher() {
+		@Override public boolean accepts(@Nonnull IParameterInfo parameters) {
+			return parameters.getInputPath().endsWith(".scss");
+		}
+	};
 
 	@Nonnull @Override public Object decodeKey(@Nonnull String rurl, @Nonnull IExtendedParameterInfo param) throws Exception {
 		return rurl;

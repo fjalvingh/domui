@@ -61,11 +61,6 @@ public class AjaxRequestHandler implements IFilterRequestHandler {
 		m_callHandler = new RpcCallHandler();
 	}
 
-	@Override
-	public boolean accepts(@Nonnull IRequestContext ctx) throws Exception {
-		return ctx.getExtension().equals("xaja");
-	}
-
 	public DomApplication getApplication() {
 		return m_application;
 	}
@@ -169,13 +164,17 @@ public class AjaxRequestHandler implements IFilterRequestHandler {
 	 * @see to.etc.domui.server.IFilterRequestHandler#handleRequest(to.etc.domui.server.RequestContextImpl)
 	 */
 	@Override
-	public void handleRequest(final @Nonnull RequestContextImpl ctx) throws Exception {
+	public boolean handleRequest(final @Nonnull RequestContextImpl ctx) throws Exception {
+		if(! ctx.getExtension().equals("xaja"))
+			return false;
+
 		AjaxRequestContext ax = new AjaxRequestContext(this, m_callHandler, ctx);
 		String rurl = ctx.getInputPath();
 		boolean ok = false;
 		try {
 			ax.execute(rurl);
 			ok = true;
+			return true;
 		} finally {
 			try {
 				requestCompleted(ctx);
