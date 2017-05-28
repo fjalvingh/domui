@@ -24,18 +24,17 @@
  */
 package to.etc.domui.parts;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.server.*;
 import to.etc.util.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * This represents the parameters for simple web-like requests that would be sufficient to run most Parts.
  */
 @DefaultNonNull
-final public class ParameterInfoImpl implements IParameterInfo {
+public class ParameterInfoImpl implements IParameterInfo {
 	final private Map<String, String[]> m_parameterMap = new HashMap<String, String[]>();
 
 	final private String m_rurl;
