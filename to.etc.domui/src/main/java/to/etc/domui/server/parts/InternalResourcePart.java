@@ -24,8 +24,7 @@
  */
 package to.etc.domui.server.parts;
 
-import to.etc.domui.server.DomApplication;
-import to.etc.domui.server.IExtendedParameterInfo;
+import to.etc.domui.server.*;
 import to.etc.domui.server.parts.InternalResourcePart.ResKey;
 import to.etc.domui.trouble.ThingyNotFoundException;
 import to.etc.domui.util.resources.IResourceDependencyList;
@@ -57,6 +56,12 @@ import java.util.Locale;
  * Created on Nov 11, 2009
  */
 final public class InternalResourcePart implements IBufferedPartFactory<ResKey> {
+	static public final IUrlMatcher MATCHER = new IUrlMatcher() {
+		@Override public boolean accepts(@Nonnull IParameterInfo parameters) {
+			return parameters.getInputPath().startsWith("$");
+		}
+	};
+
 	public static class ResKey {
 		private Locale m_loc;
 

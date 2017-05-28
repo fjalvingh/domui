@@ -305,7 +305,6 @@ public abstract class DomApplication {
 
 		//-- Register default request handlers.
 		addRequestHandler(new ApplicationRequestHandler(this), 100);			// .ui and related
-		addRequestHandler(new ResourceRequestHandler(this, m_partService), 0);	// $xxxx resources are a last resort
 		addRequestHandler(new AjaxRequestHandler(this), 20);					// .xaja ajax calls.
 		addRequestHandler(m_partHandler, 80);
 	}
@@ -321,6 +320,7 @@ public abstract class DomApplication {
 	}
 
 	protected void registerPartFactories() {
+		registerUrlPart(new InternalResourcePart(), InternalResourcePart.MATCHER);
 		registerUrlPart(new SassPartFactory(), SassPartFactory.MATCHER); 			// Support .scss SASS stylesheets
 		registerUrlPart(new ThemePartFactory(), ThemePartFactory.MATCHER);			// convert *.theme.* as a JSTemplate.
 		registerUrlPart(new SvgPartFactory(), SvgPartFactory.MATCHER); 				// Converts .svg.png to png.

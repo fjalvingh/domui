@@ -112,25 +112,6 @@ public class PartService {
 		return true;
 	}
 
-	///**
-	// *
-	// * @return		 null if no part handled the specified parameters
-	// */
-	//@Nullable
-	//public PartData	getPartData(IParameterInfo parameters) {
-	//	PartExecutionReference executionReference = findPart(parameters);
-	//	if(executionReference == null)
-	//		return null;
-	//
-	//	IPartFactory factory = executionReference.getFactory();
-	//	if(factory instanceof IBufferedPartFactory) {
-	//		IBufferedPartFactory pf = (IBufferedPartFactory) factory;
-	//		generate(pf, ctx, executionReference.getInfo().getInputPath());
-	//	} else
-	//		throw new IllegalStateException("getPartData() can only be called for Buffered parts; the part " + factory + " is not");
-	//
-	//}
-
 	@Nullable
 	private PartExecutionReference findPart(IExtendedParameterInfo parameters) {
 		PartExecutionReference ref = checkClassBasedPart(parameters);
