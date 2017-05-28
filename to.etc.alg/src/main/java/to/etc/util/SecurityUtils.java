@@ -24,10 +24,9 @@
  */
 package to.etc.util;
 
+import javax.annotation.*;
 import java.security.*;
 import java.security.spec.*;
-
-import javax.annotation.*;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -158,13 +157,28 @@ public class SecurityUtils {
 	 * Returns the MD5 hash for the data passed.
 	 */
 	static public byte[] md5Hash(byte[] data) {
-		MessageDigest md = null;
+		MessageDigest md;
 		try {
 			md = MessageDigest.getInstance("MD5");
 		} catch(NoSuchAlgorithmException x) {
 			throw new RuntimeException("MISSING MANDATORY SECURITY DIGEST PROVIDER MD5: " + x.getMessage());
 		}
 		md.update(data);
+		return md.digest();
+	}
+
+	/**
+	 * Returns the MD5 hash for the data passed.
+	 */
+	static public byte[] md5Hash(byte[][] data) {
+		MessageDigest md;
+		try {
+			md = MessageDigest.getInstance("MD5");
+		} catch(NoSuchAlgorithmException x) {
+			throw new RuntimeException("MISSING MANDATORY SECURITY DIGEST PROVIDER MD5: " + x.getMessage());
+		}
+		for(byte[] buf : data)
+			md.update(buf);
 		return md.digest();
 	}
 

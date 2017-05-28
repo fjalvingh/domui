@@ -74,7 +74,7 @@ public class PartService {
 	public PartService(DomApplication application) {
 		m_application = application;
 
-		m_cache = new LRUHashMap<>(item -> item == null ? 4 : item.m_size + 32, 16 * 1024 * 1024); 			// Accept 16MB of resources FIXME Must be parameterized
+		m_cache = new LRUHashMap<>(item -> item == null ? 4 : item.getSize() + 32, 16 * 1024 * 1024); 			// Accept 16MB of resources FIXME Must be parameterized
 		m_allowExpires = DeveloperOptions.getBool("domui.expires", true);
 	}
 
@@ -110,6 +110,29 @@ public class PartService {
 		} else
 			throw new IllegalStateException("??Internal: don't know how to handle part factory " + factory);
 		return true;
+	}
+
+	/**
+	 * Get the data for a part identified by the specified parameters. If the part
+	 * has not yet been generated it will be generated and then cached.
+	 *
+	 * @param parameters
+	 * @return
+	 * @throws Exception
+	 */
+	public PartData getData(IExtendedParameterInfo parameters) throws Exception {
+		PartExecutionReference executionReference = findPart(parameters);
+		if(executionReference == null)
+			throw new ThingyNotFoundException("No part found for " + parameters);
+
+		IPartFactory factory = executionReference.getFactory();
+		if(factory instanceof IBufferedPartFactory) {
+			IBufferedPartFactory<?> bf = (IBufferedPartFactory<?>) factory;
+			PartData cp = getCachedInstance2(bf, parameters);
+			return cp;
+		} else {
+			throw new UnsupportedOperationException("You can only get data for a Buffered part, and " + factory + " is not buffered");
+		}
 	}
 
 	@Nullable
@@ -222,7 +245,7 @@ public class PartService {
 
 		//-- Generate the part
 		OutputStream os = null;
-		if(cp.m_cacheTime > 0 && m_allowExpires) {
+		if(cp.getCacheTime() > 0 && m_allowExpires) {
 			ctx.getRequestResponse().setExpiry(cp.getCacheTime());
 		}
 		try {
@@ -265,8 +288,8 @@ public class PartService {
 		 * VP colors are changed.
 		 */
 		if(cp != null /* && m_application.inDevelopmentMode() */) {
-			if(cp.m_dependencies != null) {
-				if(cp.m_dependencies.isModified()) {
+			if(cp.getDependencies() != null) {
+				if(cp.getDependencies().isModified()) {
 					System.out.println("parts: part " + key + " has changed. Reloading..");
 					cp = null;
 				}

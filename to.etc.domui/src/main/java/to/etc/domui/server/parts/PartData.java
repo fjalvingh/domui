@@ -24,9 +24,8 @@
  */
 package to.etc.domui.server.parts;
 
-import javax.annotation.concurrent.*;
-
 import to.etc.domui.util.resources.*;
+import to.etc.util.*;
 
 /**
  * Contains a cached instance of some part rendering as created by
@@ -35,20 +34,22 @@ import to.etc.domui.util.resources.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 4, 2008
  */
-@Immutable
 final public class PartData {
 	private final byte[][] m_data;
 
-	final int m_size;
+	final private int m_size;
 
-	final ResourceDependencies m_dependencies;
+	final private ResourceDependencies m_dependencies;
 
 	private final String m_contentType;
 
 	/** The time a response may be cached locally, in seconds */
-	final int m_cacheTime;
+	final private int m_cacheTime;
 
-	final Object m_extra;
+	final private Object m_extra;
+
+	/** The content hash, or null if as yet uncalculated. */
+	private byte[] m_hash;
 
 	public PartData(byte[][] data, int size, int cacheTime, String contentType, ResourceDependencies dependencies, Object extra) {
 		m_data = data;
@@ -81,5 +82,17 @@ final public class PartData {
 
 	public Object getExtra() {
 		return m_extra;
+	}
+
+	/**
+	 * Return the hash of the content.
+	 * @return
+	 */
+	public byte[] getHash() {
+		byte[] hash = m_hash;
+		if(null == hash) {
+			hash = m_hash = SecurityUtils.md5Hash(m_data);
+		}
+		return hash;
 	}
 }
