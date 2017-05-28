@@ -245,7 +245,7 @@ public class PartService {
 		return getCachedInstance(pf, key);
 	}
 
-	private <K> PartData getCachedInstance(final IBufferedPartFactory<K> pf, K key) throws Exception {
+	public <K> PartData getCachedInstance(final IBufferedPartFactory<K> pf, K key) throws Exception {
 		/*
 		 * Lookup. This part *is* thread-safe but it has a race condition: it may cause multiple
 		 * instances of the SAME resource to be generated at the same time and inserted at the
