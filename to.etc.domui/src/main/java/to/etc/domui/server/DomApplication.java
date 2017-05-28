@@ -320,10 +320,10 @@ public abstract class DomApplication {
 	}
 
 	protected void registerPartFactories() {
-		registerUrlPart(new InternalResourcePart(), InternalResourcePart.MATCHER);
 		registerUrlPart(new SassPartFactory(), SassPartFactory.MATCHER); 			// Support .scss SASS stylesheets
 		registerUrlPart(new ThemePartFactory(), ThemePartFactory.MATCHER);			// convert *.theme.* as a JSTemplate.
 		registerUrlPart(new SvgPartFactory(), SvgPartFactory.MATCHER); 				// Converts .svg.png to png.
+		registerUrlPart(new InternalResourcePart(), InternalResourcePart.MATCHER);
 	}
 
 	static private synchronized void setCurrentApplication(DomApplication da) {

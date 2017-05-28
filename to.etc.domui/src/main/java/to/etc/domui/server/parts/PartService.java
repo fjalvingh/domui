@@ -299,7 +299,7 @@ public class PartService {
 			return cp;
 
 		//-- We're going to (re)create the part
-		ResourceDependencyList rdl = new ResourceDependencyList(); // Fix bug# 852: allow resource change checking in production also.
+		ResourceDependencyList rdl = new ResourceDependencyList();	// Fix bug# 852: allow resource change checking in production also.
 		ByteBufferOutputStream os = new ByteBufferOutputStream();
 		PartResponse pr = new PartResponse(os);
 		pf.generate(pr, m_application, key, rdl);
@@ -309,7 +309,7 @@ public class PartService {
 		os.close();
 		cp = new PartData(os.getBuffers(), os.getSize(), pr.getCacheTime(), mime, rdl.createDependencies(), pr.getExtra());
 		synchronized(m_cache) {
-			m_cache.put(key, cp); // Store (may be done multiple times due to race condition)
+			m_cache.put(key, cp); 								// Store (may be done multiple times due to race condition)
 		}
 		return cp;
 	}
