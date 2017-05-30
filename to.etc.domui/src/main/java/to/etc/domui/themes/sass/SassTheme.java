@@ -59,7 +59,7 @@ final public class SassTheme implements ITheme {
 		PartData data = DomApplication.get().getPartService().getData(pi);
 		String hash = StringTool.toHex(data.getHash());
 
-		return css + "?_hash=" + hash;
+		return css + "?$hash=" + hash;
 	}
 
 	@Nonnull

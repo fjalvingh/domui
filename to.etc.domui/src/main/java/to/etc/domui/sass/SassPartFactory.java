@@ -5,6 +5,7 @@ import com.vaadin.sass.internal.ScssContext.*;
 import com.vaadin.sass.internal.handler.*;
 import com.vaadin.sass.internal.parser.*;
 import com.vaadin.sass.internal.visitor.*;
+import to.etc.domui.parts.ParameterInfoImpl;
 import to.etc.domui.server.*;
 import to.etc.domui.server.parts.*;
 import to.etc.domui.trouble.*;
@@ -20,7 +21,7 @@ import java.io.*;
  * Created on 17-4-17.
  */
 @DefaultNonNull
-final public class SassPartFactory implements IBufferedPartFactory<String> {
+public class SassPartFactory implements IBufferedPartFactory<ParameterInfoImpl> {
 	/**
 	 * Accepts .scss resources as sass stylesheets, and passes them through the
 	 * sass compiler, returning the result as a normal .css stylesheet.
@@ -31,19 +32,19 @@ final public class SassPartFactory implements IBufferedPartFactory<String> {
 		}
 	};
 
-	@Nonnull @Override public String decodeKey(@Nonnull IExtendedParameterInfo param) throws Exception {
-		return param.getInputPath();
+	@Nonnull @Override public ParameterInfoImpl decodeKey(@Nonnull IExtendedParameterInfo param) throws Exception {
+		ParameterInfoImpl ppi = new ParameterInfoImpl(param, name -> ! name.startsWith("$"));	// Ignore DomUI system parameters
+		return ppi;
 	}
 
-	@Override public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull String key, @Nonnull IResourceDependencyList rdl) throws Exception {
-		String rurl = (String) key;
-
+	@Override public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull ParameterInfoImpl params, @Nonnull IResourceDependencyList rdl) throws Exception {
 		SassCapturingErrorHandler errorHandler = new SassCapturingErrorHandler();
 		//errorHandler.setWarningsAreErrors(true);
 
 		/*
 		 * Define resolvers: these resolve "filenames" in the scss to resources in the webapp.
 		 */
+		String rurl = params.getInputPath();
 		String basePath;
 		int pos = rurl.lastIndexOf('/');
 		if(pos == -1) {
@@ -53,7 +54,7 @@ final public class SassPartFactory implements IBufferedPartFactory<String> {
 		}
 
 		ScssStylesheet parent = new ScssStylesheet();
-		parent.addResolver(new ScssDomuiResolver(rdl, basePath));
+		parent.addResolver(new ScssDomuiResolver(rdl, basePath, params));
 		parent.setCharset("utf-8");
 
 		// Parse stylesheet
