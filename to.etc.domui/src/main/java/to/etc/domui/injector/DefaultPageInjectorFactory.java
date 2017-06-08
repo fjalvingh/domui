@@ -78,8 +78,6 @@ public class DefaultPageInjectorFactory implements IPageInjectorCalculator {
 	 */
 	@Nullable
 	protected PropertyInjector calculateInjector(final PropertyInfo pi) {
-		if(pi.getSetter() == null)					// Read-only property?
-			return null; 							// Be gone;
 		for(IPagePropertyFactory factory : getFactoryList()) {
 			PropertyInjector injector = factory.calculateInjector(pi);
 			if(null != injector)

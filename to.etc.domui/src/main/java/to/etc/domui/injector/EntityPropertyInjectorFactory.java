@@ -4,6 +4,7 @@ import to.etc.domui.annotations.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
+import to.etc.webapp.*;
 import to.etc.webapp.qsql.*;
 
 import javax.annotation.*;
@@ -21,19 +22,25 @@ import java.lang.reflect.*;
 final public class EntityPropertyInjectorFactory implements IPagePropertyFactory {
 	@Nullable @Override public PropertyInjector calculateInjector(PropertyInfo propertyInfo) {
 		Method getter = propertyInfo.getGetter();
-		if(null == getter)
-			return null;
-
-		//-- Check annotation, including super classes.
-		UIUrlParameter upp = ClassUtil.findAnnotationIncludingSuperClasses(getter, UIUrlParameter.class);
+		UIUrlParameter upp = null;
+		if(null != getter) {
+			upp = ClassUtil.findAnnotationIncludingSuperClasses(getter, UIUrlParameter.class);
+		}
+		Method setter = propertyInfo.getSetter();
+		if(null != setter && upp == null) {
+			upp = ClassUtil.findAnnotationIncludingSuperClasses(setter, UIUrlParameter.class);
+		}
 		if(null == upp)
 			return null;
+
+		if(null == setter)
+			throw new ProgrammerErrorException(UIUrlParameter.class.getSimpleName() + " annotation cannot be used on a setterless property (is the setter private?)");
 
 		String name = upp.name() == Constants.NONE ? propertyInfo.getName() : upp.name();
 		Class< ? > ent = upp.entity();
 		if(ent == Object.class) {
 			//-- Use getter's type.
-			ent = getter.getReturnType();
+			ent = propertyInfo.getActualType();
 		}
 
 		if(! isValidEntity(ent))
