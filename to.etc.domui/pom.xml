@@ -88,6 +88,12 @@
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-sass-compiler</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>rhino</groupId>
+                    <artifactId>js</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- Batik -->
