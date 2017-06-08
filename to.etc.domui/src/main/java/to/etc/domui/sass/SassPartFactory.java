@@ -5,6 +5,7 @@ import com.vaadin.sass.internal.ScssContext.*;
 import com.vaadin.sass.internal.handler.*;
 import com.vaadin.sass.internal.parser.*;
 import com.vaadin.sass.internal.visitor.*;
+import to.etc.domui.parts.ParameterInfoImpl;
 import to.etc.domui.server.*;
 import to.etc.domui.server.parts.*;
 import to.etc.domui.trouble.*;
@@ -20,29 +21,30 @@ import java.io.*;
  * Created on 17-4-17.
  */
 @DefaultNonNull
-final public class SassPartFactory implements IBufferedPartFactory, IUrlPart {
+public class SassPartFactory implements IBufferedPartFactory<ParameterInfoImpl> {
 	/**
 	 * Accepts .scss resources as sass stylesheets, and passes them through the
 	 * sass compiler, returning the result as a normal .css stylesheet.
 	 */
-	@Override
-	public boolean accepts(@Nonnull String rurl) {
-		return rurl.endsWith(".scss");
+	static public final IUrlMatcher MATCHER = new IUrlMatcher() {
+		@Override public boolean accepts(@Nonnull IParameterInfo parameters) {
+			return parameters.getInputPath().endsWith(".scss");
+		}
+	};
+
+	@Nonnull @Override public ParameterInfoImpl decodeKey(@Nonnull IExtendedParameterInfo param) throws Exception {
+		ParameterInfoImpl ppi = new ParameterInfoImpl(param, name -> ! name.startsWith("$"));	// Ignore DomUI system parameters
+		return ppi;
 	}
 
-	@Nonnull @Override public Object decodeKey(@Nonnull String rurl, @Nonnull IExtendedParameterInfo param) throws Exception {
-		return rurl;
-	}
-
-	@Override public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object key, @Nonnull IResourceDependencyList rdl) throws Exception {
-		String rurl = (String) key;
-
+	@Override public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull ParameterInfoImpl params, @Nonnull IResourceDependencyList rdl) throws Exception {
 		SassCapturingErrorHandler errorHandler = new SassCapturingErrorHandler();
 		//errorHandler.setWarningsAreErrors(true);
 
 		/*
 		 * Define resolvers: these resolve "filenames" in the scss to resources in the webapp.
 		 */
+		String rurl = params.getInputPath();
 		String basePath;
 		int pos = rurl.lastIndexOf('/');
 		if(pos == -1) {
@@ -52,7 +54,7 @@ final public class SassPartFactory implements IBufferedPartFactory, IUrlPart {
 		}
 
 		ScssStylesheet parent = new ScssStylesheet();
-		parent.addResolver(new ScssDomuiResolver(rdl, basePath));
+		parent.addResolver(new ScssDomuiResolver(rdl, basePath, params));
 		parent.setCharset("utf-8");
 
 		// Parse stylesheet
@@ -100,5 +102,4 @@ final public class SassPartFactory implements IBufferedPartFactory, IUrlPart {
 		scss.traverse(context);
 		ExtendNodeHandler.modifyTree(context, scss);
 	}
-
 }

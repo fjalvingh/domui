@@ -1,0 +1,30 @@
+/*** Development mode popup ***/
+.ui-ipt {
+	z-index: 200;
+	position: absolute;
+	top: 20px;
+	left: 80px;
+	width: 500px;
+	height: 200px;
+	background-color: #04001f;
+	border: 4px solid black;
+}
+.ui-ipt-ttl {
+	background-color: #24001f;
+	font-size: large;
+	color: orange;
+}
+.ui-ipt-list {
+	overflow: auto;
+	height: 170px;
+}
+.ui-ipt-item {
+	background-color: #201c3d;
+	padding: 3px;
+	border-bottom: 1px dotted #444444;
+	color: white;
+	white-space: nowrap;
+}
+.ui-ipt-btn {
+	cursor: crosshair;
+}

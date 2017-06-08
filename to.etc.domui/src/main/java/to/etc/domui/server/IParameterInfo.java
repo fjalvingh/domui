@@ -34,11 +34,19 @@ import javax.annotation.*;
  */
 public interface IParameterInfo {
 	@Nullable
-	public String getParameter(@Nonnull String name);
+	String getParameter(@Nonnull String name);
 
 	@Nonnull
-	public String[] getParameters(@Nonnull String name);
+	String[] getParameters(@Nonnull String name);
 
 	@Nonnull
-	public String[] getParameterNames();
+	String[] getParameterNames();
+
+	/**
+	 * Get the (remaining) part of the input path as part of a parameter. It is the empty string if
+	 * there's nothing like that.
+	 * @return
+	 */
+	@Nonnull
+	String getInputPath();
 }

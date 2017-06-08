@@ -154,9 +154,9 @@ public class CalcButton extends Button {
 		setBackgroundImage(sb.toString());
 
 		//-- Determine image size: force it generated and use the cached copy for sizing
-		PartRequestHandler ph = DomApplication.get().getPartRequestHandler();
+		PartService ph = DomApplication.get().getPartService();
 		try {
-			CachedPart ci = ph.getCachedInstance(PropBtnPart.INSTANCE, m_key);
+			PartData ci = ph.getCachedInstance(PropBtnPart.INSTANCE, m_key);
 			Dimension d = (Dimension) ci.getExtra();
 			setWidth(d.width + "px");
 			setHeight(d.height + "px");

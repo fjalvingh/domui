@@ -1,0 +1,35 @@
+/*** 110_multiplelookupinput.frag.css ***/
+@import "variables";
+
+.ui-mli-cnt { /* selection container */
+	max-height: 60px;
+	overflow: auto;
+}
+
+.ui-mli-itm { /* selected items */
+	display: inline;
+	float: left;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border: 1px solid $multiple_lookup_label_color;
+	margin: 1px;
+	padding: 2px 2px 0px;
+	background-color: $multiple_lookup_label_border;
+}
+
+.ui-mli-itm label {
+	vertical-align: middle;
+}
+
+.ui-mli-itm img {
+	display: inline-block;
+	margin-left: 5px;
+	max-width: 14px;
+	max-height: 14px;
+	vertical-align: top;
+}
+
+.ui-lui-clear-mul-btn {
+	margin: 5px 2px;
+}

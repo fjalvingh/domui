@@ -27,9 +27,11 @@ package to.etc.domui.themes;
 import to.etc.domui.server.BrowserVersion;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.IExtendedParameterInfo;
+import to.etc.domui.server.IParameterInfo;
 import to.etc.domui.server.parts.IBufferedPartFactory;
-import to.etc.domui.server.parts.IUrlPart;
+import to.etc.domui.server.parts.IUrlMatcher;
 import to.etc.domui.server.parts.PartResponse;
+import to.etc.domui.themes.ThemePartFactory.Key;
 import to.etc.domui.util.resources.IResourceDependencyList;
 import to.etc.util.FileTool;
 import to.etc.webapp.core.ServerTools;
@@ -49,8 +51,26 @@ import java.io.PrintWriter;
  * Created on Sep 1, 2009
  */
 @DefaultNonNull
-final public class ThemePartFactory implements IBufferedPartFactory, IUrlPart {
-	static private final class Key {
+final public class ThemePartFactory implements IBufferedPartFactory<Key> {
+	/**
+	 * Accept all resources that have a ".theme." string as a suffix in their
+	 * last part, like style.theme.css
+	 */
+	static public final IUrlMatcher	MATCHER = new IUrlMatcher() {
+		@Override public boolean accepts(@Nonnull IParameterInfo parameters) {
+			String rurl = parameters.getInputPath();
+			int dot1 = rurl.lastIndexOf('.');
+			if(dot1 == -1)
+				return false;
+			int dot2 = rurl.lastIndexOf('.', dot1 - 1);
+			if(dot2 == -1)
+				return false;
+			return rurl.substring(dot2 + 1, dot1).equals("theme");
+		}
+	};
+
+
+	static public final class Key {
 		private String m_rurl;
 
 		private String m_browserID;
@@ -118,36 +138,17 @@ final public class ThemePartFactory implements IBufferedPartFactory, IUrlPart {
 		}
 	}
 
-	/**
-	 * Accept all resources that have a ".theme." string as a suffix in their
-	 * last part, like style.theme.css
-	 * @param rurl
-	 * @return
-	 */
 	@Override
-	public boolean accepts(@Nonnull String rurl) {
-		int dot1 = rurl.lastIndexOf('.');
-		if(dot1 == -1)
-			return false;
-		int dot2 = rurl.lastIndexOf('.', dot1 - 1);
-		if(dot2 == -1)
-			return false;
-		return rurl.substring(dot2 + 1, dot1).equals("theme");
-	}
-
-	@Override
-	public @Nonnull Object decodeKey(@Nonnull String rurl, @Nonnull IExtendedParameterInfo param) throws Exception {
+	public @Nonnull Key decodeKey(@Nonnull IExtendedParameterInfo param) throws Exception {
 		String iv = param.getParameter("iv");
 		int val = 0;
 		if(null != iv)
 			val = Integer.parseInt(iv);
-		return new Key(param.getBrowserVersion(), rurl, val);
+		return new Key(param.getBrowserVersion(), param.getInputPath(), val);
 	}
 
 	@Override
-	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object k, @Nonnull IResourceDependencyList rdl) throws Exception {
-		Key key = (Key) k;
-
+	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Key key, @Nonnull IResourceDependencyList rdl) throws Exception {
 		if(!da.inDevelopmentMode()) { 					// Not gotten from WebContent or not in DEBUG mode? Then we may cache!
 			pr.setCacheTime(da.getDefaultExpiryTime());
 		}

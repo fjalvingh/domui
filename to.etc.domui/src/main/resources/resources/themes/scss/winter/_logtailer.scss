@@ -1,0 +1,35 @@
+/*** Log tailer fragment ***/
+.ui-tlf-line {
+	font-family: Consolas, Liberation Mono, Courier, monospace;
+}
+.ui-tlf-lnr {
+	font: inherit;
+	width: 50px;
+	text-align: right;
+	background-color: #ccc;
+}
+.ui-tlf-l {
+	font: inherit;
+}
+.ui-tlf-hdr {
+	height: 2em;
+	background-color: #ff9436;
+}
+.ui-tlf-hdr img {
+}
+.ui-tlf-hdr input[type="checkbox"] {
+	vertical-align: middle;
+}
+
+.ui-tlf-btn {
+	display: inline-block;
+	width: 360px;
+}
+
+.ui-tlf-sz {
+	display: inline-block;
+	width: 140px;
+}
+.ui-tlf-sz span {
+	font-weight: bold;
+}

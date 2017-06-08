@@ -1,0 +1,53 @@
+/*** 135_expandingtable.frag.css ***/
+@import "variables";
+
+.ui-xdt {
+	overflow: auto;
+}
+
+.ui-xdt TH {
+	text-align: left;
+}
+
+.ui-xdt-hdr {
+	/* default domui table header style is still to be defined */
+}
+
+.ui-xdt-ix {
+	cursor: pointer;
+	background: no-repeat 0px -4px;
+	padding-left: 18px;
+	font-size: $font_size;
+	color: #1700ee;
+	text-decoration: underline !important;
+}
+div:hover.ui-xdt-clp {
+	background-image: url(xdt-collapsed.png);
+}
+div:hover.ui-xdt-exp {
+	background-image: url(xdt-expanded.png);
+}
+
+.ui-xdt-edt {
+	background-color: $data_tbl_expanding_row_bg;
+	/*width: 99%;  */
+	vertical-align: top;
+	border: 1px solid #bababa;
+	margin: 2px 5px 5px 2px;
+	
+	-moz-box-shadow: 2px 2px 10px #AAA;
+	-webkit-box-shadow: 2px 2px 10px #AAA;
+	box-shadow: 2px 2px 10px #AAA;
+	border-bottom: 1px solid #BABABA;
+	border-right: 1px solid #BABABA;
+	filter: progid:DXImageTransform.Microsoft.Shadow(color='#BABABA', Direction=135, Strength=7);
+}
+
+.ui-xdt-edt td{
+	padding-left: 2px;
+}
+
+.ui-xdt-nores {
+	padding: 10px 0px 10px 0px;
+	font-style: italic;
+}

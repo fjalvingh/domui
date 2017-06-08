@@ -1,0 +1,14 @@
+/*** 125_numeric.frag.css ***/
+/*** Typed presentation for fields containing numerics ***/
+.ui-numeric {
+	text-align: right !important;
+}
+
+TD.ui-numeric {
+	padding-right: 3px;
+	white-space: nowrap;
+}
+
+.ui-dspv.ui-numeric {
+	text-align: left !important;
+}

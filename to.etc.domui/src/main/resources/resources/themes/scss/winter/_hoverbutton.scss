@@ -1,0 +1,33 @@
+/*** Hoverbutton ***/
+.ui-hvrbtn {
+	border: none;
+	cursor: pointer;
+	padding: 0;
+	background: transparent no-repeat;
+	outline: none;
+	overflow: visible;
+}
+/* Get rid of any outline and border */
+.ui-hvrbtn:focus {
+	border: none;
+	outline: none;
+}
+.ui-hvrbtn button::-moz-focus-inner {
+	border: 0;
+}
+:focus {
+	outline: none;
+}
+::-moz-focus-inner {
+	border: 0;
+}
+
+/* Generate classes for hover buttons from 10 to 64 pixels in size. */
+@for $i from 10 to 64 {
+	.ui-hvrbtn-#{$i}:hover, .ui-hvrbtn-#{$i}:focus {
+		background-position: #{-$i}px 0px;
+	}
+	.ui-hvrbtn-#{$i}[disabled="disabled"] {
+		background-position: #{-2*$i}px 0px;
+	}
+}

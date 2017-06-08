@@ -1,0 +1,187 @@
+/*** 170_scrollabletabpanel.frag.css ***/
+@import "variables";
+
+.ui-stab-c {
+/*	margin: 0px -<%= margins_main %> <%= margins_main %> -<%= margins_main %>; */
+}
+
+.ui-stab-hdr {
+	float: left;
+	font-size: $font_size;
+	line-height: normal;
+	margin: 9px 0px 10px;
+	height: 32px;
+}
+
+.ui-stab-hdr li {
+    background: url($tab_pnl_img) no-repeat scroll left -200px transparent;
+    float: left;
+    margin: 0;
+    padding: 0 0 0 8px;
+    cursor: pointer;
+    list-style: none;
+}
+
+.ui-stab-hdr li:hover {
+	background-position: left -300px;
+}
+
+.ui-stab-hdr li:hover div{
+	background-position: right -350px;
+	color: $tab_pnl_hover_inactive_col;
+}
+
+.ui-stab-hdr li.ui-stab-sel, 
+.ui-stab-hdr li.ui-stab-sel:hover {
+	background-position: left top;
+}
+
+.ui-stab-hdr li.ui-stab-sel div, 
+.ui-stab-hdr li.ui-stab-sel:hover div {
+	background-position: right -50px;
+	color: $tab_pnl_active_col;
+}
+
+li.ui-stab-err div {
+	color: $errors_foreground !important;
+}
+
+.ui-stab-icon {
+	padding-right: 5px;
+}
+
+.ui-stab-tabbar {
+	margin: 0px;
+	padding: 0px;
+}
+
+.ui-stab-pag {
+	border-top: 1px solid black;
+}
+
+.ui-stab-ibte {
+	height: 31px;
+	background: $tab_pnl_sep_bg;
+	overflow: hidden;
+}
+
+li.ui-stab-ibt {
+	background: $tab_pnl_sep_bg;
+	height: 31px;
+	width: 3px;
+	padding: 0px;
+	margin: 0px;
+}
+
+li.ui-stab-ibt:FIRST-CHILD {
+	width: 10px;
+}
+
+.ui-stab-pg {
+	padding: 0px 10px;
+}
+
+.ui-stab-pg .ui-buttonbar, .ui-stab-pg .ui-szless {
+	margin-left: 0px;
+}
+
+.ui-stab-scrl-left {
+	background: url($tab_pnl_arrows) no-repeat transparent center;
+	background-position: 0px 0px;
+	background-color: $tab_pnl_sep_bg;
+	border:0 none;
+	margin:0;
+	display:block;
+	width: 15px;
+	height: 31px;
+/*?	margin: 0px 0px <%= margins_main %>; */
+}
+
+.ui-stab-scrl-left:hover {
+	background-position: -15px 0px;
+	cursor: pointer;
+}
+
+.ui-stab-scrl-right {
+	background: url($tab_pnl_arrows) no-repeat transparent center;
+	background-position: 0px -31px;
+	background-color: $tab_pnl_sep_bg;
+	border:0 none;
+	margin:0;
+	display:block;
+	width: 15px;
+	height: 31px;
+}
+
+.ui-stab-scrl-right:hover {
+	background-position: -15px -31px;
+	cursor: pointer;
+}
+
+.ui-stab-dis {
+	background: $tab_pnl_sep_bg;
+	cursor: default !important;
+}
+
+div.ui-stab-hdr li, .ui-stab-scrl-right, .ui-stab-scrl-left, div.ui-stab-ibte {
+	border-bottom: $tab_pnl_btm_border solid #727272;
+}
+
+.ui-stab-hdr li.ui-tab-sel {
+	background-position: left top;
+	border-bottom: 0px;
+}
+
+.ui-stab-hdr li.ui-tab-sel div{
+	background-position: right -50px;
+	color: $tab_pnl_active_col;
+}
+
+.ui-stab-hdr li.ui-tab-sel span, 
+.ui-stab-hdr li.ui-tab-sel:hover span {
+	background-position: right -50px;
+	color: $tab_pnl_active_col;
+}
+
+.ui-stab-close-li {
+	margin: 0;
+	padding: 0;
+	white-space: nowrap;
+}
+
+.ui-stab-div {
+	background: url($tab_pnl_img) no-repeat scroll right -250px transparent;
+    display: block;
+    font-weight: bold;
+    padding: 9px 14px 0px 6px;
+    text-decoration: none;
+	min-height: 22px;
+	color: $tab_pnl_inactive_col;
+	margin-right: 0px !important;
+}
+
+.ui-stab-div a {
+	vertical-align: middle;
+}
+
+.ui-stab-link {
+    display: inline-block;
+    font-weight: bold;
+    text-decoration: none;
+    color: $tab_pnl_inactive_col;
+	position: relative;    
+	padding: 2em;     
+	margin: -2em;
+}
+
+.ui-stab-close {
+    display: inline-block;
+	background-image: url($tab_pnl_close);
+    height: 11px;
+	width: 11px;
+	margin-left: 8px;
+}
+
+.ui-stab-close:hover {
+	background-image: url($tab_pnl_close_hover);
+}

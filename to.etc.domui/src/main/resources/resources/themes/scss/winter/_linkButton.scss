@@ -1,0 +1,31 @@
+/*** LinkButton component. ***/
+@import "variables";
+
+.ui-lbtn {
+	display: inline-block;
+	background: no-repeat left;
+	padding-left: 18px;
+	font-size: $font_size;
+	height: 16px;
+}
+.ui-lnkb {
+}
+
+a.ui-lnkb {
+	cursor: pointer;
+}
+
+a:hover.ui-lnkb {
+	text-decoration: underline !important;
+}
+
+a.ui-lnkb-dis {
+	text-decoration: none !important;
+	font-style: italic;
+	cursor: default;
+	color: gray; 
+}
+
+a:hover.ui-lnkb-dis {
+	text-decoration: none !important;
+}

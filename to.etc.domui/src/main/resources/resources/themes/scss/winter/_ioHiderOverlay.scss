@@ -1,0 +1,24 @@
+/*** IO hider overlay ***/
+@import "variables";
+
+.ui-io-blk {
+	height: 100%;
+	width: 100%;
+	opacity: 0.0;
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	filter:alpha(opacity=0);
+	z-index: 1000;
+}
+.ui-io-blk2 {
+	height: 100%;
+	width: 100%;
+	opacity: 0.5;
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	background: black url($io_blk_wait) no-repeat center center;
+	filter:alpha(opacity=50);
+	z-index: 1000;
+}

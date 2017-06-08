@@ -33,7 +33,7 @@ import to.etc.domui.server.parts.*;
 import to.etc.domui.util.resources.*;
 import to.etc.util.*;
 
-public class FileTypePart implements IBufferedPartFactory {
+public class FileTypePart implements IBufferedPartFactory<String> {
 	static private final String PREFIX = "$filetype$";
 
 	/**
@@ -41,13 +41,13 @@ public class FileTypePart implements IBufferedPartFactory {
 	 * the resource name preceded with a prefix to make it unique.
 	 */
 	@Override
-	public @Nonnull Object decodeKey(@Nonnull String rurl, @Nonnull IExtendedParameterInfo param) throws Exception {
-		return PREFIX + rurl;
+	public @Nonnull String decodeKey(@Nonnull IExtendedParameterInfo param) throws Exception {
+		return PREFIX + param.getInputPath();
 	}
 
 	@Override
-	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object key, @Nonnull IResourceDependencyList rdl) throws Exception {
-		String ext = ((String) key).substring(PREFIX.length()).toLowerCase();
+	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull String key, @Nonnull IResourceDependencyList rdl) throws Exception {
+		String ext = key.substring(PREFIX.length()).toLowerCase();
 
 		//-- Can we locate a filetype of that type in the web resources?
 		if(ext.length() == 0)

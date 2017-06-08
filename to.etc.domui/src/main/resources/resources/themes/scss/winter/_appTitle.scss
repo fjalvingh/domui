@@ -1,0 +1,39 @@
+/*** App Title bar ***/
+@import 'variables';
+
+.ui-atl {
+  background: $bg_ttl_end url($bg_ttl_gradient) repeat-y;
+}
+
+.ui-atl table{
+  width: 100%;
+}
+
+.ui-atl-bb {
+  white-space: nowrap;
+  width: 90%;
+  text-align: right;
+  vertical-align: middle;
+}
+
+.ui-atl-i {
+  padding: 0px;
+}
+.ui-atl-i .ui-hvrbtn {
+  margin: 7px;
+}
+
+.ui-atl-i img {
+  display: none;
+}
+
+.ui-atl-t {
+  width: 10%;
+  height: 40px;
+  white-space: nowrap;
+  color: $bg_ttl_text;
+  font-weight: bold;
+  font-size: $hdr_font_size;
+  padding-left: 9px;
+  vertical-align: middle;
+}

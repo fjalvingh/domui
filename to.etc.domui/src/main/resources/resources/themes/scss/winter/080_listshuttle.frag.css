@@ -1,0 +1,49 @@
+/*** 080_listshuttle.frag.css ***/
+/*** List Shuttle ***/
+.ui-sh {
+	width: 100%;
+}
+table .ui-sh {
+	width: 100%;
+}
+.ui-sh td {
+	padding: 0px;
+}
+.ui-sh-sc {
+	width: 40%;
+	vertical-align: top;
+}
+.ui-sh-tc {
+	width: 40%;
+	vertical-align: top;
+}
+.ui-sh-tcd, .ui-sh-scd {
+	border: 1px solid #aaaaaa;
+}
+.ui-sh-bc {
+	width: 1%;
+	vertical-align: middle;
+}
+.ui-sh-oc {
+	vertical-align: middle;
+}
+.ui-sh-oc table, .ui-sh-bc table {
+	margin: <%= margins_main %>;
+}
+.ui-sh-sc .selected, .ui-sh-tc .selected {
+	background-color: <%= selected_bg %>;
+}
+.ui-sh button, .ui-sh button:hover, .ui-sh button:focus {
+	background-position: right -250px;
+	padding: 0 7px 0 0;
+	margin: 2px;
+}
+.ui-sh button span, .ui-sh button:hover span, .ui-sh button:focus span{
+	background-position: left -200px;
+	min-width: 0px;
+	width: 19px;
+}
+.ui-sh button img {
+	padding-right: 0px;
+	padding-left: 2px;
+}

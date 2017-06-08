@@ -24,20 +24,32 @@
  */
 package to.etc.domui.parts;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.server.*;
 import to.etc.util.*;
 
-public class ParameterInfoImpl implements IParameterInfo {
-	private Map<String, String[]> m_parameterMap = new HashMap<String, String[]>();
+import javax.annotation.*;
+import java.util.*;
+import java.util.function.Predicate;
 
-	public ParameterInfoImpl(String in) {
-		String[] arg = in.split("&");
+/**
+ * This represents the parameters for simple web-like requests that would be sufficient to run most Parts.
+ */
+@DefaultNonNull
+public class ParameterInfoImpl implements IParameterInfo {
+	final private Map<String, List<String>> m_parameterMap = new HashMap<>();
+
+	final private String m_rurl;
+
+	/**
+	 *
+	 * @param rurl			A relative URL, if applicable, or the empty string if not.
+	 * @param queryString   A string in URL encoded format, which will be split into parameters
+	 */
+	public ParameterInfoImpl(String rurl, String queryString) {
+		m_rurl = rurl;
+		String[] arg = queryString.split("&");
 		if(arg == null || arg.length == 0)
-			arg = new String[]{in};
+			arg = new String[]{queryString};
 		for(String s : arg) {
 			int pos = s.indexOf('=');
 			if(pos != -1) {
@@ -50,25 +62,47 @@ public class ParameterInfoImpl implements IParameterInfo {
 		}
 	}
 
-	private void add(String name, String value) {
-		String[] v = m_parameterMap.get(name);
-		if(v == null) {
-			v = new String[]{value};
-		} else {
-			String[] nw = new String[v.length + 1];
-			System.arraycopy(v, 0, nw, 0, v.length);
-			nw[v.length] = value;
-			v = nw;
-		}
-		m_parameterMap.put(name, v);
+	public ParameterInfoImpl(String in) {
+		this("", in);
 	}
 
+	/**
+	 * Copy parameters from another.
+	 * @param param
+	 */
+	public ParameterInfoImpl(IParameterInfo param, Predicate<String> copyPredicate) {
+		m_rurl = param.getInputPath();
+		for(String name : param.getParameterNames()) {
+			if(copyPredicate.test(name)) {
+				List<String> parameters = new ArrayList<>(Arrays.asList(param.getParameters(name)));
+				m_parameterMap.put(name, parameters);
+			}
+		}
+	}
+	public ParameterInfoImpl(IParameterInfo param) {
+		m_rurl = param.getInputPath();
+		for(String name : param.getParameterNames()) {
+			List<String> parameters = new ArrayList<>(Arrays.asList(param.getParameters(name)));
+			m_parameterMap.put(name, parameters);
+		}
+	}
+
+	private void add(String name, String value) {
+		List<String> v = m_parameterMap.get(name);
+		if(v == null) {
+			v = new ArrayList<>();
+			m_parameterMap.put(name, v);
+		}
+		v.add(value);
+	}
+
+	@Nullable
 	@Override
 	public String getParameter(@Nonnull String name) {
-		String[] v = m_parameterMap.get(name);
-		if(v == null || v.length != 1)
+		List<String> v = m_parameterMap.get(name);
+		if(v == null || v.size() != 1)
 			return null;
-		return v[0];
+		return v.get(0);
 	}
 
 	@Override
@@ -80,7 +114,25 @@ public class ParameterInfoImpl implements IParameterInfo {
 	@Override
 	@Nonnull
 	public String[] getParameters(@Nonnull String name) {
-		String[] res = m_parameterMap.get(name);
-		return res == null ? new String[0] : res;
+		List<String> res = m_parameterMap.get(name);
+		return res == null ? new String[0] : res.toArray(new String[res.size()]);
+	}
+
+	@Nonnull @Override public String getInputPath() {
+		return m_rurl;
+	}
+
+	@Override public boolean equals(@Nullable Object o) {
+		if(this == o)
+			return true;
+		if(o == null || getClass() != o.getClass())
+			return false;
+		ParameterInfoImpl that = (ParameterInfoImpl) o;
+		return Objects.equals(m_parameterMap, that.m_parameterMap) &&
+			Objects.equals(m_rurl, that.m_rurl);
+	}
+
+	@Override public int hashCode() {
+		return Objects.hash(m_parameterMap, m_rurl);
 	}
 }

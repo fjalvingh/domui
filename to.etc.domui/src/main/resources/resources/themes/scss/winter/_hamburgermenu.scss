@@ -1,0 +1,30 @@
+/*** HamburgerMenu fragment ***/
+.ui-hmbrg-menu {
+	position: absolute;
+	right: 0px;
+	z-index: 100;
+	width: auto;
+	background: white;
+	border: 2px groove #8c8c8c;
+	font-size: 11px;
+	color: black;
+}
+.ui-hmbrg-item {
+	border: 1px solid white;
+	padding: 2px 5px;
+}
+.ui-hmbrg-item:hover {
+	background-color: #fff4d3;
+	border: 1px solid #ffde7f;
+	cursor: pointer;
+}
+.ui-hmbrg-disabled {
+	border: 1px solid white;
+	padding: 2px 5px;
+	color: grey;
+}
+.ui-hmbrg-disabled:hover {
+	background-color: white;
+	border: 1px solid white;
+	cursor: auto;
+}

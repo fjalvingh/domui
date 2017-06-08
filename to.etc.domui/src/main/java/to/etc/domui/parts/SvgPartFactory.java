@@ -31,6 +31,7 @@ import javax.annotation.*;
 import org.apache.batik.transcoder.*;
 import org.apache.batik.transcoder.image.*;
 
+import to.etc.domui.parts.SvgPartFactory.SvgKey;
 import to.etc.domui.server.*;
 import to.etc.domui.server.parts.*;
 import to.etc.domui.util.resources.*;
@@ -41,8 +42,13 @@ import to.etc.domui.util.resources.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 31, 2009
  */
-public class SvgPartFactory implements IBufferedPartFactory, IUrlPart {
-	static private class SvgKey {
+public class SvgPartFactory implements IBufferedPartFactory<SvgKey> {
+	static public final IUrlMatcher MATCHER = new IUrlMatcher() {
+		@Override public boolean accepts(@Nonnull IParameterInfo parameters) {
+			return parameters.getInputPath().endsWith(".png.svg");		}
+	};
+
+	static public final class SvgKey {
 		private String m_rurl;
 
 		private int m_width, m_height;
@@ -97,23 +103,15 @@ public class SvgPartFactory implements IBufferedPartFactory, IUrlPart {
 		}
 	}
 
-
 	@Override
-	public boolean accepts(@Nonnull String rurl) {
-		return rurl.endsWith(".png.svg");
-	}
-
-	@Override
-	public @Nonnull Object decodeKey(@Nonnull String rurl, @Nonnull IExtendedParameterInfo param) throws Exception {
+	public @Nonnull SvgKey decodeKey(@Nonnull IExtendedParameterInfo param) throws Exception {
 		int width = PartUtil.getInt(param, "w", -1);
 		int height = PartUtil.getInt(param, "h", -1);
-		return new SvgKey(rurl, width, height);
+		return new SvgKey(param.getInputPath(), width, height);
 	}
 
 	@Override
-	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object key, @Nonnull IResourceDependencyList rdl) throws Exception {
-		SvgKey k = (SvgKey) key;
-
+	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull SvgKey k, @Nonnull IResourceDependencyList rdl) throws Exception {
 		//-- 1. Get the input as a theme-replaced resource
 		String svg = da.getThemeReplacedString(rdl, k.getRurl());
 

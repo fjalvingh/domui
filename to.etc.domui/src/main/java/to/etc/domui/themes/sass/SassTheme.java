@@ -1,9 +1,13 @@
 package to.etc.domui.themes.sass;
 
+import to.etc.domui.parts.*;
 import to.etc.domui.server.*;
+import to.etc.domui.server.parts.*;
+import to.etc.domui.state.*;
 import to.etc.domui.themes.*;
 import to.etc.domui.util.js.*;
 import to.etc.domui.util.resources.*;
+import to.etc.util.*;
 
 import javax.annotation.*;
 import java.util.*;
@@ -48,8 +52,14 @@ final public class SassTheme implements ITheme {
 		return name;
 	}
 
-	@Nonnull @Override public String getStyleSheetName() {
-		return ThemeResourceFactory.PREFIX + m_themeName + "/style.scss";
+	@Nonnull @Override public String getStyleSheetName() throws Exception {
+		BrowserVersion version = UIContext.getRequestContext().getBrowserVersion();	// FIXME Fugly!!
+		String css = ThemeResourceFactory.PREFIX + m_themeName + "/style.scss";
+		ExtendedParameterInfoImpl pi = new ExtendedParameterInfoImpl(version, css, "");
+		PartData data = DomApplication.get().getPartService().getData(pi);
+		String hash = StringTool.toHex(data.getHash());
+
+		return css + "?$hash=" + hash;
 	}
 
 	@Nonnull

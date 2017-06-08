@@ -1,0 +1,39 @@
+/*** 095_monthpanel.frag.css ***/
+/*** MonthPanel ***/
+.ui-mp {
+/*	background-color: #eeeeee; */
+	font-size: 13px;
+}
+.ui-mp-mn {
+	background-color: #82b4f8;
+	text-align: center;
+	font-weight: bold;
+	font-variant: small-caps;
+}
+
+.ui-mp-top {
+	background: url(<%= caption_separator %>) repeat-x;
+	font-weight: bold;
+	font-style: italic;
+}
+
+.ui-mp-w {
+	background-color: #bed6f8;
+	font-weight: bold;
+	font-style: italic;
+}
+.ui-mp-top TD {
+	width: 1.8em;
+}
+.ui-mp-d, .ui-mp-xd {
+	text-align: right;
+}
+.ui-mp-xd {
+	color: #777777;
+}
+TD.ui-mp-ch:hover {
+	background-color: #ffe1bf !important;
+}
+.ui-mp-mrk {
+	background-color: yellow;
+}

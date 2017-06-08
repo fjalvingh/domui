@@ -86,6 +86,7 @@ public interface IRequestContext extends IExtendedParameterInfo {
 	 * URL "http://localhost/demo/css/style.css" this will return "css/style.css".
 	 * @return
 	 */
+	@Override
 	@Nonnull
 	public String getInputPath();
 

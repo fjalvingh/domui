@@ -1,0 +1,60 @@
+/*** Popup menu ***/
+.ui-pmnu {
+	display: none;
+	width: auto;
+	background-color: #444;
+	border: 1px dotted black;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	overflow: hidden;
+}
+.ui-pmnu-items {
+	padding: 4px 0px;
+}
+.ui-pmnu-disabled {
+	color: #999;
+}
+.ui-pmnu-enabled {
+	color: white;
+	cursor: pointer;
+}
+
+.ui-pmnu-ttl {
+	padding: 4px;
+	font-style: italic;
+	background-color: #222;
+	color: #eeffee;
+}
+.ui-pmnu-action {
+	padding: 4px 4px 4px 20px;
+	background: no-repeat 2px 4px;
+}
+.ui-pmnu-action img {
+	padding-left: 5px;
+}
+
+.ui-pmnu-action:hover {
+	background-color: #ff9436;
+}
+.ui-pmnu-subsel {
+	background-color: #ff9436;
+}
+
+/*** Submenu's ***/
+.ui-pmnu-sm {
+	float: left;
+	width: auto;
+	padding-bottom: 100%;
+	margin-bottom: -100%;
+}
+.ui-pmnu-sm1 {
+	background-color: #666;
+}
+.ui-pmnu-sm2 {
+	background-color: #888;
+}
+.ui-pmnu-sm3 {
+	background-color: #aaa;
+}
+

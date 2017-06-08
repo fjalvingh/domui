@@ -1,0 +1,47 @@
+/*** Flare component. ***/
+@import "variables";
+
+.ui-flare {
+	position: absolute;
+	z-index: 9999;
+	top: 100px;
+	left: 100px;
+	width: auto;
+	height: auto;
+	padding: 15px;
+}
+.ui-flare-error {
+	background: $errors_background;
+	color: $errors_foreground;
+	border: 1px solid $errors_border;
+}
+.ui-flare-info {
+	background: $info_bg;
+	color: $info_fg;
+	border: 1px solid $info_border;
+}
+.ui-flare-warning {
+	background: $warnings_background;
+	color: $warnings_foreground;
+	border: 1px solid $warnings_border;
+}
+.ui-flare-msg {
+	opacity: 0.9;
+	position: absolute;
+	bottom: 10px;
+	right: 10px;
+	top: auto;
+	left: auto;
+}
+.ui-flare-msg img {
+	margin-right: 20px;
+}
+.ui-flare-msg div {
+	font-weight: normal;
+ 	text-align: left;
+ 	min-width: 400px;
+}
+.ui-flare-msg div div {
+	font-size: 14pt;
+	
+}

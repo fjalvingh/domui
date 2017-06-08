@@ -72,7 +72,10 @@ public abstract class DomApplication {
 	static public final Logger LOG = LoggerFactory.getLogger(DomApplication.class);
 
 	@Nonnull
-	private final PartRequestHandler m_partHandler = new PartRequestHandler(this);
+	private final PartService m_partService = new PartService(this);
+
+	@Nonnull
+	private final PartRequestHandler m_partHandler = new PartRequestHandler(m_partService);
 
 	@Nonnull
 	private Set<IAppSessionListener> m_appSessionListeners = new HashSet<IAppSessionListener>();
@@ -302,9 +305,8 @@ public abstract class DomApplication {
 
 		//-- Register default request handlers.
 		addRequestHandler(new ApplicationRequestHandler(this), 100);			// .ui and related
-		addRequestHandler(new ResourceRequestHandler(this, m_partHandler), 0);	// $xxxx resources are a last resort
 		addRequestHandler(new AjaxRequestHandler(this), 20);					// .xaja ajax calls.
-		addRequestHandler(getPartRequestHandler(), 80);
+		addRequestHandler(m_partHandler, 80);
 	}
 
 	protected void registerControlFactories() {
@@ -318,9 +320,10 @@ public abstract class DomApplication {
 	}
 
 	protected void registerPartFactories() {
-		registerUrlPart(new SassPartFactory(), 100); 			// Support .scss SASS stylesheets
-		registerUrlPart(new ThemePartFactory(), 100);			// convert *.theme.* as a JSTemplate.
-		registerUrlPart(new SvgPartFactory(), 100); 				// Converts .svg.png to png.
+		registerUrlPart(new SassPartFactory(), SassPartFactory.MATCHER); 			// Support .scss SASS stylesheets
+		registerUrlPart(new ThemePartFactory(), ThemePartFactory.MATCHER);			// convert *.theme.* as a JSTemplate.
+		registerUrlPart(new SvgPartFactory(), SvgPartFactory.MATCHER); 				// Converts .svg.png to png.
+		registerUrlPart(new InternalResourcePart(), InternalResourcePart.MATCHER);
 	}
 
 	static private synchronized void setCurrentApplication(DomApplication da) {
@@ -380,47 +383,37 @@ public abstract class DomApplication {
 	 * @param fh
 	 */
 	public synchronized void addRequestHandler(@Nonnull IFilterRequestHandler fh, int priority) {
-		m_requestHandlerList = new ArrayList<FilterRef>(m_requestHandlerList);
+		m_requestHandlerList = new ArrayList<>(m_requestHandlerList);
 		m_requestHandlerList.add(new FilterRef(fh, priority));
 		Collections.sort(m_requestHandlerList, C_HANDLER_DESCPRIO);			// Leave the list ordered by descending priority.
 	}
 
 	/**
-	 * Find a request handler by locating the highest-scoring request handler in the chain.
+	 * Ask all request handlers to try to execute the request. If none managed this returns false.
 	 * @param ctx
 	 * @return
 	 */
-	@Nullable
-	public IFilterRequestHandler findRequestHandler(@Nonnull final IRequestContext ctx) throws Exception {
+	public boolean callRequestHandler(@Nonnull final RequestContextImpl ctx) throws Exception {
 		for(FilterRef h : getRequestHandlerList()) {
-			if(h.getHandler().accepts(ctx))
-				return h.getHandler();
+			boolean worked = h.getHandler().handleRequest(ctx);
+			if(worked)
+				return true;
 		}
-		return null;
+		return false;
 	}
 
 	/**
 	 * Add a part that reacts on some part of the input URL instead of [classname].part.
 	 *
 	 * @param factory
-	 * @param priority		The priority of handling. Keep it low for little-used factories.
 	 */
-	public void registerUrlPart(@Nonnull IUrlPart factory, int priority) {
-		addRequestHandler(new UrlPartRequestHandler(getPartRequestHandler(), factory), priority);		// Add a request handler for this part factory.
-	}
-
-	/**
-	 * Add a part that reacts on some part of the input URL instead of [classname].part, with a priority of 10.
-	 *
-	 * @param factory
-	 */
-	public void registerUrlPart(@Nonnull IUrlPart factory) {
-		registerUrlPart(factory, 10);
+	public void registerUrlPart(@Nonnull IPartFactory factory, IUrlMatcher matcher) {
+		m_partService.registerPart(matcher, factory);
 	}
 
 	@Nonnull
-	public PartRequestHandler getPartRequestHandler() {
-		return m_partHandler;
+	public PartService getPartService() {
+		return m_partService;
 	}
 
 	/**
@@ -435,7 +428,6 @@ public abstract class DomApplication {
 
 	/**
 	 * Called when the session is bound to the HTTPSession. This calls all session listeners.
-	 * @param sess
 	 */
 	void registerSession(@Nonnull final AppSession aps) {
 		for(IAppSessionListener l : getAppSessionListeners()) {

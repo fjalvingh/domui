@@ -66,7 +66,7 @@ public interface ITheme {
 	 * @return
 	 */
 	@Nonnull
-	String getStyleSheetName();
+	String getStyleSheetName() throws Exception;
 
 }
 

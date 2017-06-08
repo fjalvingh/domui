@@ -43,25 +43,22 @@ import to.etc.domui.util.resources.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 21, 2008
  */
-public class PropBtnPart implements IBufferedPartFactory {
+public class PropBtnPart implements IBufferedPartFactory<ButtonPartKey> {
 	static public final PropBtnPart INSTANCE = new PropBtnPart();
 
 	/**
 	 * Decode the parameters for this button thingy.
-	 * @see to.etc.domui.server.parts.IBufferedPartFactory#decodeKey(java.lang.String, to.etc.domui.server.IParameterInfo)
 	 */
 	@Override
-	public @Nonnull Object decodeKey(@Nonnull String rurl, @Nonnull IExtendedParameterInfo info) throws Exception {
+	public @Nonnull ButtonPartKey decodeKey(@Nonnull IExtendedParameterInfo info) throws Exception {
 		return ButtonPartKey.decode(info);
 	}
 
 	/**
-	 * Generate the button class.
-	 * @see to.etc.domui.server.parts.IBufferedPartFactory#generate(java.io.OutputStream, to.etc.domui.server.DomApplication, java.lang.Object)
+	 * Generate the button data.
 	 */
 	@Override
-	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Object key, @Nonnull IResourceDependencyList rdl) throws Exception {
-		ButtonPartKey k = (ButtonPartKey) key;
+	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull ButtonPartKey k, @Nonnull IResourceDependencyList rdl) throws Exception {
 		Properties p = PartUtil.loadProperties(da, k.getPropFile(), rdl);
 //		if(p == null)
 //			throw new ThingyNotFoundException("The button property file '" + k.m_propfile + "' was not found.");
