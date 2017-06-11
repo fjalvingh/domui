@@ -76,7 +76,7 @@ public class DemoTableModel extends UrlPage {
 			}
 
 			@Override
-			public ICellClicked< ? > getRowClicked() {
+			public ICellClicked<File> getRowClicked() {
 				return null;
 			}
 		};

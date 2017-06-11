@@ -42,7 +42,7 @@ import to.etc.webapp.nls.*;
  */
 final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 	@Nullable
-	private ICellClicked< ? > m_rowClicked;
+	private ICellClicked<T> m_rowClicked;
 
 	/** When the definition has completed (the object is used) this is TRUE; it disables all calls that change the definition */
 	private boolean m_completed;
@@ -76,7 +76,7 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 	 */
 	@Override
 	@Nullable
-	public ICellClicked< ? > getRowClicked() {
+	public ICellClicked<T> getRowClicked() {
 		return m_rowClicked;
 	}
 
@@ -84,7 +84,7 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 	 * When set each row will be selectable (will react when the mouse hovers over it), and when clicked will call this handler.
 	 * @param rowClicked
 	 */
-	void setRowClicked(@Nonnull final ICellClicked< ? > rowClicked) {
+	void setRowClicked(@Nonnull final ICellClicked<T> rowClicked) {
 		m_rowClicked = rowClicked;
 	}
 

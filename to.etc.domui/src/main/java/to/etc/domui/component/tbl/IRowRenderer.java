@@ -51,5 +51,5 @@ public interface IRowRenderer<T> {
 	 * @return
 	 */
 	@Nullable
-	ICellClicked< ? > getRowClicked();
+	ICellClicked<T> getRowClicked();
 }
