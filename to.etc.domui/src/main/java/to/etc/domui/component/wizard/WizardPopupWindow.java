@@ -56,12 +56,12 @@ public class WizardPopupWindow extends Window {
 
 	/**
 	 * WizardPopupWindow's (i.e. 'wizard's') constructor. Setup the wizard is easy. First, provide a valid String title. Next,
-	 * provide the steps that the wizard has to display by adding a HashMap with step labels (to create those labels, one can use
+	 * provide the steps that the wizard has to display by adding a Map with step labels (to create those labels, one can use
 	 * the static method createWizardStepLabels in this class), and by adding an implementation of {@link IWizardPopupStep}.
 	 * @param wizardTitle
 	 * @param steps
 	 */
-	public WizardPopupWindow(@Nonnull String wizardTitle, @Nonnull LinkedHashMap<HashMap<String, String>, IWizardPopupStep> steps) {
+	public WizardPopupWindow(@Nonnull String wizardTitle, @Nonnull Map<Map<String, String>, IWizardPopupStep> steps) {
 		super(true, true, 1280, 800, wizardTitle);
 		setupWizard(steps);
 	}
@@ -70,11 +70,11 @@ public class WizardPopupWindow extends Window {
 	 * This setups the wizard with the values provided in the constructor.
 	 * @param steps
 	 */
-	private void setupWizard(@Nonnull LinkedHashMap<HashMap<String, String>, IWizardPopupStep> steps) {
+	private void setupWizard(@Nonnull Map<Map<String, String>, IWizardPopupStep> steps) {
 		if(steps.size() <= 0) {
 			throw new IllegalStateException("At least one phase must be defined!");
 		}
-		for(HashMap<String, String> step : steps.keySet()) {
+		for(Map<String, String> step : steps.keySet()) {
 			m_steps.add(new WizardPopupStep(step.get(STEP_LABEL_NAME), steps.get(step), step.get(STEP_LABEL_BACK), step.get(STEP_LABEL_NEXT), step.get(STEP_LABEL_CANCEL), step.get(STEP_LABEL_END)));
 		}
 		m_currentStep = m_steps.get(0);
@@ -163,8 +163,8 @@ public class WizardPopupWindow extends Window {
 	 * Create list of available wizard actions (e.g. next button, end button).
 	 * @return
 	 */
-	private HashMap<WizardPopupStepActions, IUIAction<Void>> getActions() {
-		HashMap<WizardPopupStepActions, IUIAction<Void>> actions = new HashMap<>();
+	private Map<WizardPopupStepActions, IUIAction<Void>> getActions() {
+		Map<WizardPopupStepActions, IUIAction<Void>> actions = new HashMap<>();
 		for(WizardPopupStepActions action : WizardPopupStepActions.values()) {
 			actions.put(action, action.getAction(this));
 		}
@@ -181,8 +181,8 @@ public class WizardPopupWindow extends Window {
 	 * @param endButtonLabel
 	 * @return
 	 */
-	public static HashMap<String, String> createWizardStepLabels(@Nonnull String titleLabel, @Nullable String cancelButtonLabel, @Nullable String backButtonLabel, @Nullable String nextButtonLabel, @Nullable String endButtonLabel) {
-		HashMap<String, String> buttonLabels = new HashMap<>();
+	public static Map<String, String> createWizardStepLabels(@Nonnull String titleLabel, @Nullable String cancelButtonLabel, @Nullable String backButtonLabel, @Nullable String nextButtonLabel, @Nullable String endButtonLabel) {
+		Map<String, String> buttonLabels = new HashMap<>();
 		buttonLabels.put(STEP_LABEL_NAME, titleLabel);
 		buttonLabels.put(STEP_LABEL_CANCEL, null == cancelButtonLabel ? DEFAULT_CANCEL_BUTTON_LABEL : cancelButtonLabel);
 		buttonLabels.put(STEP_LABEL_BACK, null == backButtonLabel ? DEFAULT_BACK_BUTTON_LABEL : backButtonLabel);

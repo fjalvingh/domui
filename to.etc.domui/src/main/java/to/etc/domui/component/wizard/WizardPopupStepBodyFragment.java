@@ -23,7 +23,7 @@ public class WizardPopupStepBodyFragment extends Div {
 
 	private String m_endButtonName;
 
-	private HashMap<WizardPopupStepActions, IUIAction<Void>> m_actions;
+	private Map<WizardPopupStepActions, IUIAction<Void>> m_actions;
 
 	private boolean m_isFirst;
 
@@ -31,7 +31,7 @@ public class WizardPopupStepBodyFragment extends Div {
 
 	private IWizardPopupStep m_body;
 
-	WizardPopupStepBodyFragment(@Nonnull WizardPopupStep step, @Nonnull HashMap<WizardPopupStepActions, IUIAction<Void>> actions, boolean isFirstStep, boolean isLastStep) {
+	WizardPopupStepBodyFragment(@Nonnull WizardPopupStep step, @Nonnull Map<WizardPopupStepActions, IUIAction<Void>> actions, boolean isFirstStep, boolean isLastStep) {
 		m_previousButtonName = step.getPreviousButtonName();
 		m_cancelButtonName = step.getCancelButtonName();
 		m_nextButtonName = step.getNextButtonName();
