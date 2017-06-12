@@ -309,6 +309,7 @@ public class JdbcSQLGenerator extends QRenderingVisitorBase {
 		int oldprec = precedenceOpen(n);
 
 		appendWhere(getColumnRef(m_root, pm.getColumnName()));
+		appendWhere(" in (");
 
 		QOperatorNode expr = n.getExpr();
 		if(expr instanceof QLiteral) {
@@ -329,6 +330,7 @@ public class JdbcSQLGenerator extends QRenderingVisitorBase {
 		} else {
 			expr.visit(this);
 		}
+		appendWhere(")");
 		precedenceClose(oldprec);
 	}
 
