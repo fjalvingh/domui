@@ -1,0 +1,34 @@
+/** Generic Wizard Component **/
+div.wizard-navbar {
+    position: absolute;
+    width: 100%;
+    top: 28px;
+    left: 0;
+    display: flex;
+}
+
+div.wizard-body {
+    margin-top: 40px;
+    font-size: larger;
+}
+
+div.steps-list-container {
+    position: relative;
+    height: 40px;
+    width: 100%;
+    display: flex;
+    background-color: white;
+    justify-content: space-around;
+    align-items: center;
+}
+
+div.steps-list-item {
+    flex: 1;
+    font-size: large;
+}
+
+div.button-container {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
