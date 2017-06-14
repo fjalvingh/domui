@@ -322,7 +322,7 @@ public class JdbcSQLGenerator extends QRenderingVisitorBase {
 					if(ct++ > 0)
 						appendWhere(",");
 
-					appendValueSetter(pm, (QLiteral) n.getExpr());
+					appendValueSetter(pm, o);
 				}
 			} else {
 				throw new QQuerySyntaxException("Unexpected literal of type " + value + " in 'in' expression for property " + n.getProperty());
