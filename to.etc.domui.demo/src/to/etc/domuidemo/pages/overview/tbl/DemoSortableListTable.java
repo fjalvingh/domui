@@ -5,9 +5,9 @@ import java.util.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.component.tbl.*;
+import to.etc.domui.derbydata.db.Invoice;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
-import to.etc.domuidemo.db.*;
 import to.etc.webapp.query.*;
 
 public class DemoSortableListTable extends UrlPage {
@@ -37,7 +37,7 @@ public class DemoSortableListTable extends UrlPage {
 			, "billingCity", SortableType.SORTABLE_ASC					//
 			, "total", SortableType.SORTABLE_ASC						//
 		);
-		DataTable<Invoice> dt = new DataTable<Invoice>(model, rr);
+		DataTable<Invoice> dt = new DataTable<>(model, rr);
 		add(dt);
 		dt.setPageSize(25);
 		add(new DataPager(dt));

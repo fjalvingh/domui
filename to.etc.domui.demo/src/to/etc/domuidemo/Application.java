@@ -4,6 +4,7 @@ import to.etc.dbpool.ConnectionPool;
 import to.etc.dbpool.PoolManager;
 import to.etc.domui.caches.images.ImageCache;
 import to.etc.domui.component.layout.BreadCrumb;
+import to.etc.domui.derbydata.init.TestDB;
 import to.etc.domui.dom.errors.IExceptionListener;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.header.HeaderContributor;
@@ -20,13 +21,10 @@ import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.INewPageInstantiated;
 import to.etc.domui.util.Msgs;
 import to.etc.domuidemo.components.SourceBreadCrumb;
-import to.etc.domuidemo.db.DBInitialize;
-import to.etc.domuidemo.db.DbUtil;
 import to.etc.domuidemo.pages.HomePage;
 import to.etc.domuidemo.sourceviewer.SourcePage;
 import to.etc.formbuilder.pages.FormDesigner;
 import to.etc.util.DeveloperOptions;
-import to.etc.webapp.query.QContextManager;
 
 import javax.annotation.Nonnull;
 import javax.servlet.UnavailableException;
@@ -173,24 +171,7 @@ public class Application extends DomApplication {
 	 * @throws Exception
 	 */
 	private void initDatabase() throws Exception {
-		String poolid = DeveloperOptions.getString("domuidemo.poolid"); // Is a poolid defined in .developer.proeprties? Then use that,
-		ConnectionPool p;
-		if(poolid != null) {
-			//-- Local configuration. Init using local.
-			System.out.println("** WARNING: Using local database configuration, pool=" + poolid);
-			p = PoolManager.getInstance().initializePool(poolid);
-		} else {
-			//-- Must have a proper database file in web-inf
-			File pf = getAppFile("WEB-INF/pool.xml");
-			if(!pf.exists())
-				throw new UnavailableException("Missing file WEB-INF/pool.xml containing the database to use");
-			p = PoolManager.getInstance().initializePool(pf, "demo");
-		}
-		DBInitialize.fillDatabase(p.getUnpooledDataSource());
-		DbUtil.initialize(p.getPooledDataSource());
-
-		//-- Tell the generic layer how to create default DataContext's.
-		QContextManager.setImplementation(QContextManager.DEFAULT, DbUtil.getContextSource()); // Prime factory with connection source
+		TestDB.initialize();
 	}
 
 	synchronized void waitForInit() throws Exception {
@@ -208,15 +189,9 @@ public class Application extends DomApplication {
 
 	static public void main(String[] args) {
 		try {
-			File pf = new File("WebContent/WEB-INF/pool.xml");
-			if(!pf.exists())
-				throw new UnavailableException("Missing file WEB-INF/pool.xml containing the database to use");
-			ConnectionPool p = PoolManager.getInstance().initializePool(pf, "demo");
-			System.out.println("Got a db");
-			DBInitialize.fillDatabase(p.getUnpooledDataSource());
+			TestDB.initialize();
 		} catch(Exception x) {
 			x.printStackTrace();
 		}
-
 	}
 }

@@ -1,4 +1,4 @@
-package to.etc.domuidemo.db;
+package to.etc.domui.derbydata.db;
 
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.webapp.query.IIdentifyable;

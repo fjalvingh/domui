@@ -2,8 +2,8 @@ package to.etc.domuidemo.pages.overview.lookup;
 
 import to.etc.domui.component.lookup.*;
 import to.etc.domui.component.tbl.*;
+import to.etc.domui.derbydata.db.Invoice;
 import to.etc.domui.dom.html.*;
-import to.etc.domuidemo.db.*;
 import to.etc.webapp.query.*;
 
 public class DemoLookupForm extends UrlPage {

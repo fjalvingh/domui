@@ -39,24 +39,6 @@
     <orderEntry type="module" module-name="to.etc.webapp.core" />
     <orderEntry type="module" module-name="jsr305" />
     <orderEntry type="module" module-name="to.etc.alg" />
-    <orderEntry type="module-library">
-      <library name="gnu-regexp-1.1.4.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/gnu-regexp-1.1.4.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library name="derby.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/derby.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
     <orderEntry type="jdk" jdkName="JavaSE-1.8" jdkType="JavaSDK" />
     <orderEntry type="module" module-name="to.etc.domui.formbuilder" />
     <orderEntry type="module" module-name="bin-junit-4.11" />
@@ -66,5 +48,6 @@
     <orderEntry type="module" module-name="to.etc.domui.selenium" />
     <orderEntry type="module" module-name="to.etc.domui.legacy" />
     <orderEntry type="module" module-name="to.etc.syntaxer" />
+    <orderEntry type="module" module-name="to.etc.domui.derbydata" />
   </component>
 </module>

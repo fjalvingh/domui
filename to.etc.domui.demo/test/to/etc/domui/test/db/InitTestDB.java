@@ -6,7 +6,8 @@ import java.net.*;
 import javax.sql.*;
 
 import to.etc.dbpool.*;
-import to.etc.domuidemo.db.*;
+import to.etc.domui.derbydata.init.DBInitialize;
+import to.etc.domui.derbydata.init.DbUtil;
 import to.etc.util.*;
 import to.etc.webapp.query.*;
 
