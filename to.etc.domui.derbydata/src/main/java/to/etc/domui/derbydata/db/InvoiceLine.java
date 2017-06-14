@@ -1,4 +1,4 @@
-package to.etc.domuidemo.db;
+package to.etc.domui.derbydata.db;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

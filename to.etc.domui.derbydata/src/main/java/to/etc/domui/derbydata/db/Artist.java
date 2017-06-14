@@ -1,4 +1,4 @@
-package to.etc.domuidemo.db;
+package to.etc.domui.derbydata.db;
 
 import org.hibernate.annotations.Index;
 import to.etc.domui.component.meta.MetaDisplayProperty;

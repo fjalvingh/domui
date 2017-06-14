@@ -1,8 +1,8 @@
 package to.etc.domuidemo.pages.overview.tbl;
 
 import to.etc.domui.component.tbl.*;
+import to.etc.domui.derbydata.db.Album;
 import to.etc.domui.dom.html.*;
-import to.etc.domuidemo.db.*;
 import to.etc.webapp.query.*;
 
 public class DemoDataTable extends UrlPage {

@@ -5,7 +5,11 @@ import java.util.*;
 
 import org.junit.*;
 
-import to.etc.domuidemo.db.*;
+import to.etc.domui.derbydata.db.Artist;
+import to.etc.domui.derbydata.db.Customer;
+import to.etc.domui.derbydata.db.Employee;
+import to.etc.domui.derbydata.db.Invoice;
+import to.etc.domui.derbydata.db.InvoiceLine;
 import to.etc.webapp.query.*;
 
 public class TestDbQCriteria {
