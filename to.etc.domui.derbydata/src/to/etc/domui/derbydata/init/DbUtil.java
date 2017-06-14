@@ -1,4 +1,4 @@
-package to.etc.domuidemo.db;
+package to.etc.domui.derbydata.init;
 
 import java.io.*;
 
@@ -7,6 +7,15 @@ import javax.sql.*;
 import org.hibernate.*;
 
 import to.etc.dbpool.*;
+import to.etc.domui.derbydata.db.Album;
+import to.etc.domui.derbydata.db.Artist;
+import to.etc.domui.derbydata.db.Customer;
+import to.etc.domui.derbydata.db.Employee;
+import to.etc.domui.derbydata.db.Genre;
+import to.etc.domui.derbydata.db.Invoice;
+import to.etc.domui.derbydata.db.InvoiceLine;
+import to.etc.domui.derbydata.db.MediaType;
+import to.etc.domui.derbydata.db.Track;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.hibernate.config.*;
 import to.etc.domui.hibernate.generic.*;

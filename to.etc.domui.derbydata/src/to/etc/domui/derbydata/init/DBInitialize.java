@@ -1,4 +1,4 @@
-package to.etc.domuidemo.db;
+package to.etc.domui.derbydata.init;
 
 import java.io.*;
 import java.sql.*;

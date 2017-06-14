@@ -7,9 +7,11 @@ import javax.annotation.*;
 import org.hibernate.*;
 import org.junit.*;
 
+import to.etc.domui.derbydata.db.Album;
+import to.etc.domui.derbydata.db.Artist;
+import to.etc.domui.derbydata.db.Track;
 import to.etc.domui.hibernate.beforeimages.*;
 import to.etc.domui.hibernate.generic.*;
-import to.etc.domuidemo.db.*;
 import to.etc.util.*;
 import to.etc.webapp.query.*;
 

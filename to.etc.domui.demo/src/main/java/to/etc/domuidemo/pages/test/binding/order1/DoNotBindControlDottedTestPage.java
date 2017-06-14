@@ -1,8 +1,8 @@
 package to.etc.domuidemo.pages.test.binding.order1;
 
 import to.etc.domui.component.input.LookupInput;
+import to.etc.domui.derbydata.db.Customer;
 import to.etc.domui.dom.html.UrlPage;
-import to.etc.domuidemo.db.Customer;
 import to.etc.webapp.query.QCriteria;
 
 

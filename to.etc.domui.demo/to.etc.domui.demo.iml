@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" type="JAVA_MODULE" version="4">
+<module type="JAVA_MODULE" version="4">
   <component name="EclipseModuleManager">
     <libelement value="jar://$MODULE_DIR$/lib/gnu-regexp-1.1.4.jar!/" />
     <libelement value="jar://$MODULE_DIR$/lib/derby.jar!/" />
@@ -44,24 +44,6 @@
     <orderEntry type="module" module-name="to.etc.webapp.core" />
     <orderEntry type="module" module-name="jsr305" />
     <orderEntry type="module" module-name="to.etc.alg" />
-    <orderEntry type="module-library">
-      <library name="gnu-regexp-1.1.4.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/gnu-regexp-1.1.4.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library name="derby.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/derby.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
     <orderEntry type="jdk" jdkName="JavaSE-1.8" jdkType="JavaSDK" />
     <orderEntry type="module" module-name="to.etc.domui.formbuilder" />
     <orderEntry type="module" module-name="bin-junit-4.11" />
@@ -71,96 +53,6 @@
     <orderEntry type="module" module-name="to.etc.domui.selenium" />
     <orderEntry type="module" module-name="to.etc.domui.legacy" />
     <orderEntry type="module" module-name="to.etc.syntaxer" />
-    <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.23" level="project" />
-    <orderEntry type="library" name="Maven: javax.servlet:servlet-api:2.5" level="project" />
-    <orderEntry type="library" name="Maven: javax.el:el-api:1.1" level="project" />
-    <orderEntry type="library" name="Maven: javax.servlet.jsp:jsp-api:2.0" level="project" />
-    <orderEntry type="module" module-name="to.etc.logger" />
-    <orderEntry type="library" name="Maven: commons-io:commons-io:2.5" level="project" />
-    <orderEntry type="library" name="Maven: com.google.code.findbugs:jsr305:3.0.1" level="project" />
-    <orderEntry type="module" module-name="jsr305" />
-    <orderEntry type="module" module-name="to.etc.alg" />
-    <orderEntry type="module" module-name="to.etc.db" />
-    <orderEntry type="module" module-name="to.etc.webapp.core" />
-    <orderEntry type="module" module-name="to.etc.domui" />
-    <orderEntry type="module" module-name="to.etc.domui.hibutil" />
-    <orderEntry type="library" name="Maven: org.hibernate:hibernate-core:3.6.10.Final" level="project" />
-    <orderEntry type="library" name="Maven: antlr:antlr:2.7.6" level="project" />
-    <orderEntry type="library" name="Maven: commons-collections:commons-collections:3.2.2" level="project" />
-    <orderEntry type="library" name="Maven: dom4j:dom4j:1.6.1" level="project" />
-    <orderEntry type="library" name="Maven: org.hibernate:hibernate-commons-annotations:3.2.0.Final" level="project" />
-    <orderEntry type="library" name="Maven: org.hibernate.javax.persistence:hibernate-jpa-2.0-api:1.0.1.Final" level="project" />
-    <orderEntry type="library" name="Maven: javax.transaction:jta:1.1" level="project" />
-    <orderEntry type="library" name="Maven: org.javassist:javassist:3.20.0-GA" level="project" />
-    <orderEntry type="module" module-name="to.etc.domui.selenium" />
-    <orderEntry type="module" module-name="to.etc.pater" />
-    <orderEntry type="library" name="Maven: to.etc.domui:to.etc.domui.legacy:1.0-SNAPSHOT" level="project" />
-    <orderEntry type="module" module-name="to.etc.syntaxer" />
-    <orderEntry type="library" name="Maven: gnu-regexp:gnu-regexp:1.1.4" level="project" />
-    <orderEntry type="module" module-name="to.etc.domui.formbuilder" />
-    <orderEntry type="library" name="Maven: org.mozilla:rhino:1.7.7" level="project" />
-    <orderEntry type="library" name="Maven: jcharts:jcharts:0.7.5" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-awt-util:1.7" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-bridge:1.7" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-anim:1.7" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-ext:1.7" level="project" />
-    <orderEntry type="library" name="Maven: xalan:xalan:2.6.0" level="project" />
-    <orderEntry type="library" name="Maven: xml-apis:xml-apis:1.0.b2" level="project" />
-    <orderEntry type="library" name="Maven: xml-apis:xml-apis-ext:1.3.04" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-css:1.7" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-dom:1.7" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-gvt:1.7" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-parser:1.7" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-script:1.7" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-js:1.7" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-svg-dom:1.7" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-transcoder:1.7" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:fop:0.94" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:xmlgraphics-commons:1.2" level="project" />
-    <orderEntry type="library" name="Maven: commons-logging:commons-logging:1.2" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.avalon.framework:avalon-framework-api:4.3.1" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.avalon.framework:avalon-framework-impl:4.3.1" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-svggen:1.7" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-util:1.7" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.xmlgraphics:batik-xml:1.7" level="project" />
-    <orderEntry type="library" name="Maven: net.htmlparser.jericho:jericho-html:3.4" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.derby:derby:10.13.1.1" level="project" />
-    <orderEntry type="library" name="Maven: org.seleniumhq.selenium:selenium-java:3.3.1" level="project" />
-    <orderEntry type="library" name="Maven: org.seleniumhq.selenium:selenium-chrome-driver:3.3.1" level="project" />
-    <orderEntry type="library" name="Maven: org.seleniumhq.selenium:selenium-remote-driver:3.3.1" level="project" />
-    <orderEntry type="library" name="Maven: org.seleniumhq.selenium:selenium-api:3.3.1" level="project" />
-    <orderEntry type="library" name="Maven: cglib:cglib-nodep:3.2.4" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.commons:commons-exec:1.3" level="project" />
-    <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.8.0" level="project" />
-    <orderEntry type="library" name="Maven: com.google.guava:guava:21.0" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpclient:4.5.2" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpcore:4.4.4" level="project" />
-    <orderEntry type="library" name="Maven: net.java.dev.jna:jna-platform:4.1.0" level="project" />
-    <orderEntry type="library" name="Maven: net.java.dev.jna:jna:4.1.0" level="project" />
-    <orderEntry type="library" name="Maven: org.seleniumhq.selenium:selenium-edge-driver:3.3.1" level="project" />
-    <orderEntry type="library" name="Maven: org.seleniumhq.selenium:selenium-firefox-driver:3.3.1" level="project" />
-    <orderEntry type="library" name="Maven: org.seleniumhq.selenium:selenium-ie-driver:3.3.1" level="project" />
-    <orderEntry type="library" name="Maven: org.seleniumhq.selenium:selenium-opera-driver:3.3.1" level="project" />
-    <orderEntry type="library" name="Maven: org.seleniumhq.selenium:selenium-safari-driver:3.3.1" level="project" />
-    <orderEntry type="library" name="Maven: com.codeborne:phantomjsdriver:1.4.0" level="project" />
-    <orderEntry type="library" name="Maven: org.seleniumhq.selenium:htmlunit-driver:2.24" level="project" />
-    <orderEntry type="library" name="Maven: org.seleniumhq.selenium:selenium-support:3.3.1" level="project" />
-    <orderEntry type="library" name="Maven: org.hamcrest:hamcrest-library:1.3" level="project" />
-    <orderEntry type="library" name="Maven: net.sourceforge.htmlunit:htmlunit:2.24" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.commons:commons-lang3:3.5" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpmime:4.5.2" level="project" />
-    <orderEntry type="library" name="Maven: commons-codec:commons-codec:1.10" level="project" />
-    <orderEntry type="library" name="Maven: net.sourceforge.htmlunit:htmlunit-core-js:2.23" level="project" />
-    <orderEntry type="library" name="Maven: net.sourceforge.htmlunit:neko-htmlunit:2.24" level="project" />
-    <orderEntry type="library" name="Maven: xerces:xercesImpl:2.11.0" level="project" />
-    <orderEntry type="library" name="Maven: net.sourceforge.cssparser:cssparser:0.9.21" level="project" />
-    <orderEntry type="library" name="Maven: org.w3c.css:sac:1.3" level="project" />
-    <orderEntry type="library" name="Maven: org.eclipse.jetty.websocket:websocket-client:9.2.20.v20161216" level="project" />
-    <orderEntry type="library" name="Maven: org.eclipse.jetty:jetty-util:9.2.20.v20161216" level="project" />
-    <orderEntry type="library" name="Maven: org.eclipse.jetty:jetty-io:9.2.20.v20161216" level="project" />
-    <orderEntry type="library" name="Maven: org.eclipse.jetty.websocket:websocket-common:9.2.20.v20161216" level="project" />
-    <orderEntry type="library" name="Maven: org.eclipse.jetty.websocket:websocket-api:9.2.20.v20161216" level="project" />
-    <orderEntry type="library" name="Maven: junit:junit:4.12" level="project" />
-    <orderEntry type="library" name="Maven: org.hamcrest:hamcrest-core:1.3" level="project" />
+    <orderEntry type="module" module-name="to.etc.domui.derbydata" />
   </component>
 </module>
