@@ -5,6 +5,7 @@ import java.util.*;
 
 import org.junit.*;
 
+import to.etc.domui.derbydata.db.Album;
 import to.etc.domui.derbydata.db.Artist;
 import to.etc.domui.derbydata.db.Customer;
 import to.etc.domui.derbydata.db.Employee;
@@ -386,6 +387,19 @@ public class TestDbQCriteria {
 		for(MyData md : ires) {
 			System.out.println("val=" + md.sum() + ", customer=" + md.dude());
 		}
+	}
+
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	"in" query													*/
+	/*----------------------------------------------------------------------*/
+
+	@Test
+	public void testInQuery1() throws Exception {
+		QCriteria<Album> q = QCriteria.create(Album.class)
+			.in("title", Arrays.asList("Led Zeppelin I", "Led Zeppelin II", "Led Zeppelin III"))
+			;
+		List<Album> ires = dc().query(q);
+		Assert.assertEquals(3, ires.size());
 	}
 
 
