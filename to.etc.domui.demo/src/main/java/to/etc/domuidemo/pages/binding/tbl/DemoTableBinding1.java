@@ -3,7 +3,8 @@ package to.etc.domuidemo.pages.binding.tbl;
 import javax.annotation.*;
 
 import to.etc.domui.component.tbl.*;
-import to.etc.domuidemo.db.*;
+import to.etc.domui.derbydata.db.Artist;
+import to.etc.domui.dom.html.*;
 import to.etc.domuidemo.pages.*;
 import to.etc.webapp.query.*;
 
