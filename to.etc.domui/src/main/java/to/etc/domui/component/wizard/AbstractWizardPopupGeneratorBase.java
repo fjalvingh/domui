@@ -122,7 +122,7 @@ public abstract class AbstractWizardPopupGeneratorBase {
 	 * @param icon
 	 * @return
 	 */
-	public AbstractWizardPopupGeneratorBase setValidIcon(@Nonnull String icon) {
+	protected AbstractWizardPopupGeneratorBase setValidIcon(@Nonnull String icon) {
 		m_validIcon = icon;
 		return this;
 	}
@@ -171,7 +171,7 @@ public abstract class AbstractWizardPopupGeneratorBase {
 	 * Set the wizard's title.
 	 * @param title
 	 */
-	public void setWizardTitle(@Nonnull String title) {
+	protected void setWizardTitle(@Nonnull String title) {
 		m_wizardTitle = title;
 	}
 
@@ -180,7 +180,7 @@ public abstract class AbstractWizardPopupGeneratorBase {
 	 * @param stepTitle
 	 * @param step
 	 */
-	public AbstractWizardPopupGeneratorBase addStep(@Nonnull String stepTitle, @Nonnull AbstractWizardPopupStepBase step) {
+	protected AbstractWizardPopupGeneratorBase addStep(@Nonnull String stepTitle, @Nonnull AbstractWizardPopupStepBase step) {
 		isStepTitleInStepsMap(stepTitle);
 		step.setStepTitle(stepTitle);
 		m_stepTitle = stepTitle;
@@ -209,7 +209,7 @@ public abstract class AbstractWizardPopupGeneratorBase {
 	 * @param stepLabels
 	 * @param step
 	 */
-	public void removeStep(@Nonnull Map<String, String> stepLabels, @Nonnull AbstractWizardPopupStepBase step) {
+	void removeStep(@Nonnull Map<String, String> stepLabels, @Nonnull AbstractWizardPopupStepBase step) {
 		if(m_steps.containsKey(stepLabels) && m_steps.containsValue(step)) {
 			if(!m_steps.remove(stepLabels, step)) {
 				throw new IllegalStateException("Cannot delete step from step map!");

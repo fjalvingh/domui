@@ -11,12 +11,11 @@ div.ui-gwiz-steps-hor {
 
 div.ui-gwiz-steps-ver {
     position: absolute;
-    top: 40px;
+    top: 30px;
     right: 0px;
     bottom: 10px;
-    left: 10px;
-    float: left;
-    width: 18%;
+    left: 20px;
+    width: 190px;
     border-right: 1px solid rgba(0, 0, 0, 0.3);
 }
 
@@ -54,12 +53,9 @@ div.ui-gwiz-steps-list-container-hor {
 }
 
 div.ui-gwiz-steps-list-container-ver {
-    position: relative;
-    height: 100%;
-    float: left;
-    background-color: white;
-    justify-content: space-around;
-    align-items: center;
+    position: absolute;
+    top: 10px;
+    bottom: 0px;
 }
 
 div.ui-gwiz-steps-list-item-hor {
@@ -73,6 +69,7 @@ div.ui-gwiz-steps-list-item-hor {
 div.ui-gwiz-steps-list-item-ver {
     font-size: 13px;
     margin-bottom: 30px;
+    padding-top: 3px;
     padding-left: 30px;
 }
 
@@ -88,7 +85,7 @@ div.ui-gwiz-steps-list-item-inactive {
 div.ui-gwiz-body-footer-hor {
     border-top: 1px solid rgba(0, 0, 0, 0.3);
     position: absolute;
-    right: 15px;
+    right: 0px;
     left: 0px;
     bottom: 0px;
     height: 40px;
@@ -97,11 +94,12 @@ div.ui-gwiz-body-footer-hor {
 
 div.ui-gwiz-body-footer-ver {
     border-top: 1px solid rgba(0, 0, 0, 0.3);
+    border-left: 1px solid rgba(0, 0, 0, 0.3);
     background-color: white;
     z-index: 9999999;
     position: absolute;
     bottom: 30px;
-    left: 20%;
+    left: 210px;
     float: right;
     right: 0px;
     bottom: 1px;
@@ -179,9 +177,13 @@ div.ui-gwiz-body-container-hor {
 
 div.ui-gwiz-body-container-ver {
     position: absolute;
-    top: 40px;
-    left: 0px;
+    top: 30px;
+    padding-top: 10px;
+    left: 15px;
     right: 0px;
     bottom: 40px;
     overflow: auto;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-bottom: 5px;
 }

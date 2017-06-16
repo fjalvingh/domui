@@ -12,7 +12,7 @@ import java.util.*;
  * Created on 2-6-17.
  */
 @DefaultNonNull
-public class WizardPopupStepNavbarFragment extends Div {
+class WizardPopupStepNavbarFragment extends Div {
 
 	private static final BundleRef BUNDLE = BundleRef.create(WizardPopupStepNavbarFragment.class, "messages");
 

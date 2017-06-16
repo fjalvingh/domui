@@ -14,7 +14,7 @@ import java.util.*;
  * Created on 2-6-17.
  */
 @DefaultNonNull
-public class WizardPopupWindow extends Window {
+class WizardPopupWindow extends Window {
 
 	private static final BundleRef BUNDLE = BundleRef.create(WizardPopupWindow.class, "messages");
 
@@ -38,11 +38,11 @@ public class WizardPopupWindow extends Window {
 		return m_steps;
 	}
 
-	public AbstractWizardPopupStepBase getCurrentStep() {
+	private AbstractWizardPopupStepBase getCurrentStep() {
 		return m_currentStep;
 	}
 
-	public void setCurrentStep(@Nonnull AbstractWizardPopupStepBase step) {
+	private void setCurrentStep(@Nonnull AbstractWizardPopupStepBase step) {
 		m_currentStep = step;
 	}
 
@@ -55,7 +55,7 @@ public class WizardPopupWindow extends Window {
 	 * @param steps
 	 * @param horizontal
 	 */
-	public WizardPopupWindow(@Nonnull String wizardTitle, @Nonnull Map<Map<String, String>, AbstractWizardPopupStepBase> steps, @Nullable Map<String, String> icons, boolean horizontal) {
+	WizardPopupWindow(@Nonnull String wizardTitle, @Nonnull Map<Map<String, String>, AbstractWizardPopupStepBase> steps, @Nullable Map<String, String> icons, boolean horizontal) {
 		super(true, true, 1024, 768, wizardTitle);
 		m_icons = icons;
 		m_horizontal = horizontal;
@@ -84,7 +84,7 @@ public class WizardPopupWindow extends Window {
 	/**
 	 * This refreshes the div that holds the wizard's navbar.
 	 */
-	public void refreshNavbarContainer() {
+	private void refreshNavbarContainer() {
 		Div navbar = buildNavbar();
 		Div stepsContainer = buildStepsContainer();
 		navbar.add(stepsContainer);
@@ -95,7 +95,7 @@ public class WizardPopupWindow extends Window {
 	 * This refreshes the div that holds the body of the current step.
 	 * @throws Exception
 	 */
-	public void refreshBodyContainer() throws Exception {
+	private void refreshBodyContainer() throws Exception {
 		if(null == m_currentStepBody) {
 			m_currentStepBody = new Div();
 		}
@@ -324,7 +324,7 @@ public class WizardPopupWindow extends Window {
 	 * Returns the previous step.
 	 * @return
 	 */
-	public AbstractWizardPopupStepBase getPreviousStep() {
+	AbstractWizardPopupStepBase getPreviousStep() {
 		return switchStep(true);
 	}
 
@@ -332,7 +332,7 @@ public class WizardPopupWindow extends Window {
 	 * Returns the next step.
 	 * @return
 	 */
-	public AbstractWizardPopupStepBase getNextStep() {
+	AbstractWizardPopupStepBase getNextStep() {
 		return switchStep(false);
 	}
 
@@ -341,7 +341,7 @@ public class WizardPopupWindow extends Window {
 	 * @param back
 	 * @return
 	 */
-	AbstractWizardPopupStepBase switchStep(boolean back) {
+	private AbstractWizardPopupStepBase switchStep(boolean back) {
 		List<AbstractWizardPopupStepBase> steps = getStepsList();
 		int currentIndex = steps.indexOf(getCurrentStep());
 		if(currentIndex >= 0 && currentIndex < steps.size()) {

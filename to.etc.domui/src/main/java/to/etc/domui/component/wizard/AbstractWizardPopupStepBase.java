@@ -15,7 +15,7 @@ import java.util.*;
 @DefaultNonNull
 public abstract class AbstractWizardPopupStepBase extends Div {
 
-	public static final String IS_VALID = "disabled";
+	static final String IS_VALID = "disabled";
 
 	// This is needed for binding purposes
 	private boolean m_disabled;
@@ -30,21 +30,12 @@ public abstract class AbstractWizardPopupStepBase extends Div {
 		m_wizard = wizard;
 	}
 
-	public void setStepTitle(@Nonnull String title) {
+	void setStepTitle(@Nonnull String title) {
 		m_stepTitle = title;
 	}
 
-	public String getStepTitle() {
+	String getStepTitle() {
 		return m_stepTitle;
-	}
-
-	/**
-	 * Returns this Div
-	 * @return
-	 * @throws Exception
-	 */
-	public Div getDiv() throws Exception {
-		return this;
 	}
 
 	/**
@@ -88,7 +79,7 @@ public abstract class AbstractWizardPopupStepBase extends Div {
 	 * @param key
 	 * @param value
 	 */
-	public void addToStorage(@Nonnull String key, @Nonnull WizardPopupStepStorageType<?> value) {
+	protected void addToStorage(@Nonnull String key, @Nonnull WizardPopupStepStorageType<?> value) {
 		if(m_storage.containsKey(key)) {
 			throw new IllegalStateException("Key already exists in step storage!");
 		}

@@ -11,12 +11,12 @@ import javax.annotation.*;
 import java.util.*;
 
 /**
- * Holds the fragment for the body of a {@link WizardPopupWindow} step {@link WizardPopupStep}
+ * Holds the fragment for the body of a {@link WizardPopupWindow} step.
  * @author <a href="mailto:yoeri.nijs@itris.nl">Yoeri Nijs</a>
  * Created on 2-6-17.
  */
 @DefaultNonNull
-public class WizardPopupStepBodyFragment extends Div {
+class WizardPopupStepBodyFragment extends Div {
 
 	private static final BundleRef BUNDLE = BundleRef.create(WizardPopupWindow.class, "messages");
 
@@ -74,7 +74,8 @@ public class WizardPopupStepBodyFragment extends Div {
 		Div stepBodyContainer = new Div();
 		stepBodyContainer.setCssClass("ui-gwiz-body-container" + m_layout);
 
-		Div stepBody = m_step;
+		Div stepBody = new Div();
+		stepBody.add(m_step);
 		stepBody.setCssClass("ui-gwiz-body" + m_layout);
 
 		stepBodyContainer.add(stepBody);
@@ -133,7 +134,7 @@ public class WizardPopupStepBodyFragment extends Div {
 		ButtonBar rightButtonBar = new ButtonBar();
 		rightButtonBar.setPosition(PositionType.ABSOLUTE);
 		rightButtonBar.setTop("8px");
-		rightButtonBar.setRight("5px");
+		rightButtonBar.setRight("0px");
 		rightButtonBar.setFloat(FloatType.RIGHT);
 		rightButtonBar.setWidth("50%");
 		rightButtonBar.setTextAlign(TextAlign.RIGHT);
