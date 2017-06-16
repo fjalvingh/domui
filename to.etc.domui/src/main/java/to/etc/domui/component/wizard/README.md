@@ -22,8 +22,8 @@ Next, add a custom constructor, like the following. Of course, you can add more 
 The setupWizard method is responsible for creating and customizing the wizard. You should implement it. The method can look like this:
 
 ```
-	@Override
-	protected void setupWizard() {
+    @Override
+    protected void setupWizard() {
         addStep("First step"), new BulkBriefSelectCaseType(m_model.getAllCaseTypeList())).set();
         addStep("Second step"), new BulkBriefSelectCases(m_model)).nextButton("Are you really sure?").set();
         addStep("Third step", new BulkBriefTest()).backButton("Get me outta here!").nextButton("Okay").set();
@@ -35,10 +35,10 @@ The setupWizard method is responsible for creating and customizing the wizard. Y
         setEndIcon(Theme.BTN_CONFIRM);
         setNextIcon(Theme.BTN_MOVE_RIGHT);
         initWizard(true);
-	}
+    }
 ```
 
-As is shown, various variables can be set up. First, add the name of the step. Next, you can add some custom labels for each step buttons in a building pattern way. Currently, nextButton, endButton, cancelButton, and backButton are supported. Then, you can select icons that the wizard needs to display for the various buttons. This is optional. Finally, add a class that extends AbstractWizardStepBase. This class is the step's body.
+As is shown, various variables can be set up. First, add the name of the step. Next, you can add some custom labels for each step buttons in a building pattern way. Currently, nextButton, endButton, cancelButton, and backButton are supported. Then, you can select button icons that the wizard could display. This is optional. Finally, add a class that extends AbstractWizardStepBase. This class is the step's body.
 
 > **Important:** At the end of the setup, you should initialize the wizard with the initWizard method. When set to true, the wizard will be displayed horizontally. Otherwise, a vertical wizard will be initialized.
 
