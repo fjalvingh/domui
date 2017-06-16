@@ -18,51 +18,48 @@ public class WizardPopupWindow extends Window {
 
 	private static final BundleRef BUNDLE = BundleRef.create(WizardPopupWindow.class, "messages");
 
-	private static final String DEFAULT_NEXT_BUTTON_LABEL = BUNDLE.getString("wizardstep.default.nextbutton");
+	private Map<Map<String, String>, AbstractWizardPopupStepBase> m_steps = new LinkedHashMap<>();
 
-	private static final String DEFAULT_CANCEL_BUTTON_LABEL = BUNDLE.getString("wizardstep.default.cancelbutton");
-
-	private static final String DEFAULT_END_BUTTON_LABEL = BUNDLE.getString("wizardstep.default.endbutton");
-
-	private static final String DEFAULT_BACK_BUTTON_LABEL = BUNDLE.getString("wizardstep.default.backbutton");
-
-	private static final String STEP_LABEL_NAME = "name";
-
-	private static final String STEP_LABEL_CANCEL = "cancel";
-
-	private static final String STEP_LABEL_BACK = "back";
-
-	private static final String STEP_LABEL_NEXT = "next";
-
-	private static final String STEP_LABEL_END = "end";
-
-	private final ArrayList<WizardPopupStep> m_steps = new ArrayList<>();
-
-	private WizardPopupStep m_currentStep;
+	private AbstractWizardPopupStepBase m_currentStep;
 
 	private Div m_currentStepBody;
 
-	public WizardPopupStep getCurrentStep() {
-		return m_currentStep;
-	}
+	private Div m_currentStepsContainer;
 
-	public void setCurrentStep(@Nonnull WizardPopupStep step) {
-		m_currentStep = step;
-	}
+	private Div m_currentNavbar;
 
-	public ArrayList<WizardPopupStep> getSteps() {
+	private final boolean m_horizontal;
+
+	private final Map<String, String> m_icons;
+
+	private final String m_layout;
+
+	public Map<Map<String, String>, AbstractWizardPopupStepBase> getSteps() {
 		return m_steps;
 	}
 
+	public AbstractWizardPopupStepBase getCurrentStep() {
+		return m_currentStep;
+	}
+
+	public void setCurrentStep(@Nonnull AbstractWizardPopupStepBase step) {
+		m_currentStep = step;
+	}
+
 	/**
-	 * WizardPopupWindow's (i.e. 'wizard's') constructor. Setup the wizard is easy. First, provide a valid String title. Next,
-	 * provide the steps that the wizard has to display by adding a Map with step labels (to create those labels, one can use
-	 * the static method createWizardStepLabels in this class), and by adding an implementation of {@link IWizardPopupStep}.
+	 * Setup the wizard is easy. First, provide a valid String title. Next, provide the steps that the wizard has to display by adding
+	 * a Map with step labels (to create those labels, one can use the static method createWizardStepLabels in this class), and by adding
+	 * an implementation of {@link AbstractWizardPopupStepBase}. Finally, set horizontal to true if you want a wizard with a horizontal
+	 * navbar.
 	 * @param wizardTitle
 	 * @param steps
+	 * @param horizontal
 	 */
-	public WizardPopupWindow(@Nonnull String wizardTitle, @Nonnull Map<Map<String, String>, IWizardPopupStep> steps) {
-		super(true, true, 1280, 800, wizardTitle);
+	public WizardPopupWindow(@Nonnull String wizardTitle, @Nonnull Map<Map<String, String>, AbstractWizardPopupStepBase> steps, @Nullable Map<String, String> icons, boolean horizontal) {
+		super(true, true, 1024, 768, wizardTitle);
+		m_icons = icons;
+		m_horizontal = horizontal;
+		m_layout = m_horizontal ? BUNDLE.getString("layout.style.horizontal") : BUNDLE.getString("layout.style.vertical");
 		setupWizard(steps);
 	}
 
@@ -70,14 +67,12 @@ public class WizardPopupWindow extends Window {
 	 * This setups the wizard with the values provided in the constructor.
 	 * @param steps
 	 */
-	private void setupWizard(@Nonnull Map<Map<String, String>, IWizardPopupStep> steps) {
+	private void setupWizard(@Nonnull Map<Map<String, String>, AbstractWizardPopupStepBase> steps) {
 		if(steps.size() <= 0) {
-			throw new IllegalStateException("At least one phase must be defined!");
+			throw new IllegalStateException("At least one step must be defined!");
 		}
-		for(Map<String, String> step : steps.keySet()) {
-			m_steps.add(new WizardPopupStep(step.get(STEP_LABEL_NAME), steps.get(step), step.get(STEP_LABEL_BACK), step.get(STEP_LABEL_NEXT), step.get(STEP_LABEL_CANCEL), step.get(STEP_LABEL_END)));
-		}
-		m_currentStep = m_steps.get(0);
+		m_steps = steps;
+		m_currentStep = getStepsList().get(0);
 	}
 
 	@Override
@@ -105,8 +100,21 @@ public class WizardPopupWindow extends Window {
 			m_currentStepBody = new Div();
 		}
 		m_currentStepBody.removeAllChildren();
-		m_currentStepBody.add(new WizardPopupStepBodyFragment(m_currentStep, getActions(), isFirstStep(), isLastStep()));
+		m_currentStepBody.add(new WizardPopupStepBodyFragment(m_currentStep, getCurrentStepLabels(), getActions(), isFirstStep(), isLastStep(), m_layout, m_icons));
 		add(m_currentStepBody);
+	}
+
+	/**
+	 * Returns the map of labels for the current step. Throws an exception if it is unable to do that.
+	 * @return
+	 */
+	private Map<String, String> getCurrentStepLabels() {
+		for(Map.Entry<Map<String, String>, AbstractWizardPopupStepBase> step : getSteps().entrySet()) {
+			if(step.getValue().equals(m_currentStep)) {
+				return step.getKey();
+			}
+		}
+		throw new IllegalStateException("Cannot get current step labels. Do not use an AbstractWizardPopupStepBase instance more than once.");
 	}
 
 	/**
@@ -114,7 +122,8 @@ public class WizardPopupWindow extends Window {
 	 * @return
 	 */
 	private boolean isFirstStep() {
-		return m_steps.indexOf(m_currentStep) == 0;
+		List<AbstractWizardPopupStepBase> steps = getStepsList();
+		return steps.indexOf(m_currentStep) == 0;
 	}
 
 	/**
@@ -122,7 +131,8 @@ public class WizardPopupWindow extends Window {
 	 * @return
 	 */
 	private boolean isLastStep() {
-		return m_steps.indexOf(m_currentStep) + 1 == m_steps.size();
+		List<AbstractWizardPopupStepBase> steps = getStepsList();
+		return steps.indexOf(m_currentStep) + 1 == steps.size();
 	}
 
 	/**
@@ -130,9 +140,12 @@ public class WizardPopupWindow extends Window {
 	 * @return
 	 */
 	private Div buildNavbar() {
-		Div navbar = new Div();
-		navbar.setCssClass("wizard-navbar");
-		return navbar;
+		Div navbar = m_currentNavbar;
+		if(null == navbar) {
+			navbar = new Div();
+			navbar.setCssClass("ui-gwiz-steps" + m_layout);
+		}
+		return m_currentNavbar = navbar;
 	}
 
 	/**
@@ -141,53 +154,199 @@ public class WizardPopupWindow extends Window {
 	 * @return
 	 */
 	private Div buildStepsContainer() {
-		Div phasesContainer = new Div();
-		phasesContainer.setCssClass("steps-list-container");
-
-		Iterator<WizardPopupStep> itr = m_steps.iterator();
-		while(itr.hasNext()) {
-			WizardPopupStep phase = itr.next();
-			if(phase.equals(m_currentStep)) {
-				phasesContainer.add(new WizardPopupStepNavbarFragment(phase, true));
-			} else {
-				phasesContainer.add(new WizardPopupStepNavbarFragment(phase, false));
-			}
-			if(itr.hasNext()) {
-				phasesContainer.add(">");
-			}
+		Div stepsContainer = m_currentStepsContainer;
+		if(null == stepsContainer) {
+			stepsContainer = new Div();
+			stepsContainer.setCssClass("ui-gwiz-steps-list-container" + m_layout);
+		} else {
+			stepsContainer.removeAllChildren();
 		}
-		return phasesContainer;
+
+		int counter = 0;
+		for(AbstractWizardPopupStepBase step : m_steps.values()) {
+			int stepNumber = counter + 1;
+			int currentStepNumber = getStepsList().indexOf(m_currentStep) + 1;
+			stepsContainer.add(new WizardPopupStepNavbarFragment(step.getStepTitle(), step.equals(m_currentStep), m_layout, m_icons, currentStepNumber, stepNumber, m_steps.values().size() + 1));
+			counter++;
+		}
+		return m_currentStepsContainer = stepsContainer;
 	}
 
 	/**
 	 * Create list of available wizard actions (e.g. next button, end button).
 	 * @return
 	 */
-	private Map<WizardPopupStepActions, IUIAction<Void>> getActions() {
-		Map<WizardPopupStepActions, IUIAction<Void>> actions = new HashMap<>();
-		for(WizardPopupStepActions action : WizardPopupStepActions.values()) {
-			actions.put(action, action.getAction(this));
-		}
+	private Map<String, IUIAction<Void>> getActions() {
+		Map<String, IUIAction<Void>> actions = new HashMap<>();
+		actions.put(BUNDLE.getString("action.indicator.cancel"), cancelStep());
+		actions.put(BUNDLE.getString("action.indicator.next"), toNextStep());
+		actions.put(BUNDLE.getString("action.indicator.back"), toPreviousStep());
 		return actions;
 	}
 
 	/**
-	 * With this, one can create wizard step labels. Only the step title label is mandatory.
-	 * If other labels are not provided, the default labels will be used.
-	 * @param titleLabel
-	 * @param cancelButtonLabel
-	 * @param backButtonLabel
-	 * @param nextButtonLabel
-	 * @param endButtonLabel
+	 * Action for cancel button.
 	 * @return
 	 */
-	public static Map<String, String> createWizardStepLabels(@Nonnull String titleLabel, @Nullable String cancelButtonLabel, @Nullable String backButtonLabel, @Nullable String nextButtonLabel, @Nullable String endButtonLabel) {
-		Map<String, String> buttonLabels = new HashMap<>();
-		buttonLabels.put(STEP_LABEL_NAME, titleLabel);
-		buttonLabels.put(STEP_LABEL_CANCEL, null == cancelButtonLabel ? DEFAULT_CANCEL_BUTTON_LABEL : cancelButtonLabel);
-		buttonLabels.put(STEP_LABEL_BACK, null == backButtonLabel ? DEFAULT_BACK_BUTTON_LABEL : backButtonLabel);
-		buttonLabels.put(STEP_LABEL_NEXT, null == nextButtonLabel ? DEFAULT_NEXT_BUTTON_LABEL : nextButtonLabel);
-		buttonLabels.put(STEP_LABEL_END, null == endButtonLabel ? DEFAULT_END_BUTTON_LABEL : endButtonLabel);
-		return buttonLabels;
+	private IUIAction<Void> cancelStep() {
+		return new IUIAction<Void>() {
+			@Nullable
+			@Override
+			public String getDisableReason(@Nullable Void instance) throws Exception {
+				return null;
+			}
+
+			@Nonnull
+			@Override
+			public String getName(@Nullable Void instance) throws Exception {
+				return "cancelStep";
+			}
+
+			@Nullable
+			@Override
+			public String getTitle(@Nullable Void instance) throws Exception {
+				return null;
+			}
+
+			@Nullable
+			@Override
+			public String getIcon(@Nullable Void instance) throws Exception {
+				return null;
+			}
+
+			@Override
+			public void execute(@Nonnull NodeBase component, @Nullable Void instance) throws Exception {
+				closePressed();
+			}
+		};
+	}
+
+	/**
+	 * Action for next button.
+	 * @return
+	 */
+	private IUIAction<Void> toNextStep() {
+		return new IUIAction<Void>() {
+			@Nullable
+			@Override
+			public String getDisableReason(@Nullable Void instance) throws Exception {
+				return null;
+			}
+
+			@Nonnull
+			@Override
+			public String getName(@Nullable Void instance) throws Exception {
+				return "nextStep";
+			}
+
+			@Nullable
+			@Override
+			public String getTitle(@Nullable Void instance) throws Exception {
+				return null;
+			}
+
+			@Nullable
+			@Override
+			public String getIcon(@Nullable Void instance) throws Exception {
+				return null;
+			}
+
+			@Override
+			public void execute(@Nonnull NodeBase component, @Nullable Void instance) throws Exception {
+				List<AbstractWizardPopupStepBase> steps = getStepsList();
+				if(!m_currentStep.isDisabled()) {
+					int nextStep = steps.indexOf(m_currentStep) + 1;
+					if(nextStep > 0 && nextStep < steps.size()) {
+						setCurrentStep(steps.get(nextStep));
+						refreshNavbarContainer();
+						refreshBodyContainer();
+					}
+				}
+			}
+		};
+	}
+
+	/**
+	 * Action for previous button.
+	 * @return
+	 */
+	private IUIAction<Void> toPreviousStep() {
+		return new IUIAction<Void>() {
+			@Nullable
+			@Override
+			public String getDisableReason(@Nullable Void instance) throws Exception {
+				return null;
+			}
+
+			@Nonnull
+			@Override
+			public String getName(@Nullable Void instance) throws Exception {
+				return "previousStep";
+			}
+
+			@Nullable
+			@Override
+			public String getTitle(@Nullable Void instance) throws Exception {
+				return null;
+			}
+
+			@Nullable
+			@Override
+			public String getIcon(@Nullable Void instance) throws Exception {
+				return null;
+			}
+
+			@Override
+			public void execute(@Nonnull NodeBase component, @Nullable Void instance) throws Exception {
+				List<AbstractWizardPopupStepBase> steps = getStepsList();
+				int previousStepIndex = getStepsList().indexOf(m_currentStep) - 1;
+				if(previousStepIndex >= 0 && previousStepIndex < steps.size()) {
+					AbstractWizardPopupStepBase previousStep = steps.get(previousStepIndex);
+					setCurrentStep(previousStep);
+					refreshNavbarContainer();
+					refreshBodyContainer();
+				}
+			}
+		};
+	}
+
+	/**
+	 * Returns a list of all {@link AbstractWizardPopupStepBase}.
+	 * @return
+	 */
+	private List<AbstractWizardPopupStepBase> getStepsList() {
+		List<AbstractWizardPopupStepBase> steps = new ArrayList<>();
+		steps.addAll(getSteps().values());
+		return steps;
+	}
+
+	/**
+	 * Returns the previous step.
+	 * @return
+	 */
+	public AbstractWizardPopupStepBase getPreviousStep() {
+		return switchStep(true);
+	}
+
+	/**
+	 * Returns the next step.
+	 * @return
+	 */
+	public AbstractWizardPopupStepBase getNextStep() {
+		return switchStep(false);
+	}
+
+	/**
+	 * Returns the previous or the next step. Throws an exception when step is not found.
+	 * @param back
+	 * @return
+	 */
+	AbstractWizardPopupStepBase switchStep(boolean back) {
+		List<AbstractWizardPopupStepBase> steps = getStepsList();
+		int currentIndex = steps.indexOf(getCurrentStep());
+		if(currentIndex >= 0 && currentIndex < steps.size()) {
+			return back ? steps.get(currentIndex - 1) : steps.get(currentIndex + 1);
+		}
+		throw new IllegalStateException("You are trying to get a step that does not exist!");
 	}
 }
