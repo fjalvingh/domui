@@ -9,7 +9,7 @@ A generic wizard component that can be opened in a DomUI Window. Some parameters
 
 # Instantiate a custom wizard
 
-First, create a class that is responsible for creating and customizing the wizard. For instance, a class that holds a wizard to send something in bulk.
+First, create a class that extends AbstractWizardPopupGeneratorBase, that is responsible for creating and customizing the wizard. For instance, a class that holds a wizard to send something in bulk.
 
 Next, add a custom constructor, like the following. Of course, you can add more variables if needed.
   
