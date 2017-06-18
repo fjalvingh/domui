@@ -1,3 +1,4 @@
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -5,7 +6,6 @@
     <artifactId>domui</artifactId>
     <version>1.1</version>
     <packaging>pom</packaging>
-
     <name>domui</name>
     <description>The DomUI User Interface library</description>
 
@@ -81,6 +81,7 @@
         <module>to.etc.domui.formbuilder</module>
         <module>to.etc.domui.selenium</module>
         <module>to.etc.domui.demo</module>
+        <module>archetypes</module>
 
     </modules>
 

@@ -1,0 +1,8 @@
+<project>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>to.etc.domui</groupId>
+    <artifactId>domui-hello</artifactId>
+    <version>1.1-SNAPSHOT</version>
+    <name>DomUI :: archetype :: hello</name>
+    <url>http://maven.apache.org</url>
+</project>
