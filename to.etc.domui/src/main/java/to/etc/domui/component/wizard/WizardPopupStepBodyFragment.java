@@ -77,6 +77,7 @@ class WizardPopupStepBodyFragment extends Div {
 		Div stepBody = new Div();
 		stepBody.add(m_step);
 		stepBody.setCssClass("ui-gwiz-body" + m_layout);
+		stepBody.setPadding(m_step.getHorizontalBodyPadding());
 
 		stepBodyContainer.add(stepBody);
 		add(stepBodyContainer);

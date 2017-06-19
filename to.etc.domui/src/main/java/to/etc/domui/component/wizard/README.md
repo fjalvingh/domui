@@ -68,3 +68,13 @@ Next, in the next fase, you could retrieve the value like this:
 # Disable next button when step is invalid
 
 This wizard component can check whether a certain step is valid or not before going to the next step. In order to do that, simply extend the isDisabled() method from the AbstractWizardPopupStepBase.
+
+# Disable step body padding
+
+On default, the step body has a padding of 10px. However, in some cases, one might want to change the padding. To do so, just add the following in the class' constructor that extends WizardPopupStepBodyBase:
+
+```
+    setBodyPadding("5", false);
+```
+
+The first argument defines the padding. When set to true, a relative padding will be added. When set to false, the default padding in pixels is used.

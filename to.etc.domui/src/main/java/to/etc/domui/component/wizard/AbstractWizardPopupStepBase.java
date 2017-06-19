@@ -26,6 +26,8 @@ public abstract class AbstractWizardPopupStepBase extends Div {
 
 	private WizardPopupWindow m_wizard;
 
+	private String m_horizontalBodyPadding = "10px";
+
 	public void setWizard(@Nonnull WizardPopupWindow wizard) {
 		m_wizard = wizard;
 	}
@@ -36,6 +38,27 @@ public abstract class AbstractWizardPopupStepBase extends Div {
 
 	String getStepTitle() {
 		return m_stepTitle;
+	}
+
+	/**
+	 * This can be used to change the default body padding for a step,
+	 * if needed. Absolute and relative body padding can be added.
+	 * @param padding
+	 * @param relative
+	 */
+	public void setHorizontalBodyPadding(String padding, boolean relative) {
+		if(padding.contains("px") || padding.contains("%")) {
+			throw new IllegalStateException("Just add padding without 'px' or '%'!");
+		}
+		if(relative) {
+			m_horizontalBodyPadding = padding + "%";
+			return;
+		}
+		m_horizontalBodyPadding = padding + "px";
+	}
+
+	public String getHorizontalBodyPadding() {
+		return m_horizontalBodyPadding;
 	}
 
 	/**
