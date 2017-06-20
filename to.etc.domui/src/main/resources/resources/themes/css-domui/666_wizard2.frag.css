@@ -1,0 +1,27 @@
+/*** Wizard2 example ***/
+.ui-wzdl-page {
+    clear: both;
+    min-height: 300px;
+}
+
+.ui-wznf-next {
+    display: inline-block;
+    float: left;
+    padding: 10px;
+}
+.ui-wznf-prev {
+    display: inline-block;
+    float: left;
+    padding: 10px;
+}
+.ui-wznf-curr {
+    display: inline-block;
+    float: left;
+    background-color: red;
+    padding: 10px;
+}
+.ui-wznf-sep {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+}

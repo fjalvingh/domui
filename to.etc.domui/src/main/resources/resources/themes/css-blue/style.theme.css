@@ -3626,3 +3626,7 @@ td.ui-xphd-ttl {
     z-index: 1;
 }
 
+/*** Wizard2 example ***/
+.ui-wzdl-page {
+	min-height: 300px;
+}
