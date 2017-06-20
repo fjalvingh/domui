@@ -1,0 +1,188 @@
+/** Generic Wizard Component **/
+div.ui-gwiz-steps-hor {
+    margin: -10px -10px 10px -10px;
+    top: 0px;
+    right: 0px;
+    bottom: 28px;
+    left: 0px;
+    display: flex;
+    z-index: 9999;
+}
+
+div.ui-gwiz-steps-ver {
+    position: absolute;
+    top: 30px;
+    right: 0px;
+    bottom: 10px;
+    left: 20px;
+    width: 190px;
+    border-right: 1px solid rgba(0, 0, 0, 0.3);
+}
+
+div.ui-gwiz-body-hor {
+    top: 28px;
+    right: 0px;
+    bottom: 0px;
+    left: 0px;
+    font-size: larger;
+    min-height: 630px;
+}
+
+div.ui-gwiz-body-ver {
+    width: 80%;
+    top: 28px;
+    right: 0px;
+    bottom: 0px;
+    left: 0px;
+    font-size: larger;
+    min-height: 670px;
+    float: right;
+}
+
+div.ui-gwiz-steps-list-container-hor {
+    position: absolute;
+    height: 40px;
+    width: 100%;
+    display: flex;
+    background: linear-gradient(#fbfbfb, #e5e4e5);
+    border-bottom: 1px solid #aaa;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 9999;
+}
+
+div.ui-gwiz-steps-list-container-ver {
+    position: absolute;
+    top: 10px;
+    bottom: 0px;
+}
+
+div.ui-gwiz-steps-list-item-hor {
+    float: right;
+    flex: 1;
+    font-size: 13px;
+    margin-left: 10px;
+    margin-top: 2px;
+}
+
+div.ui-gwiz-steps-list-item-ver {
+    font-size: 13px;
+    margin-bottom: 30px;
+    padding-top: 3px;
+    padding-left: 30px;
+}
+
+div.ui-gwiz-steps-list-item-active {
+    font-weight: bold;
+}
+
+div.ui-gwiz-steps-list-item-inactive {
+    font-weight: normal;
+    opacity: 0.3;
+}
+
+div.ui-gwiz-body-footer-hor {
+    border-top: 1px solid rgba(0, 0, 0, 0.3);
+    position: absolute;
+    right: 0px;
+    left: 0px;
+    bottom: 0px;
+    height: 40px;
+    background-color: white;
+}
+
+div.ui-gwiz-body-footer-ver {
+    border-top: 1px solid rgba(0, 0, 0, 0.3);
+    border-left: 1px solid rgba(0, 0, 0, 0.3);
+    background-color: white;
+    z-index: 9999999;
+    position: absolute;
+    bottom: 30px;
+    left: 210px;
+    float: right;
+    right: 0px;
+    bottom: 1px;
+    height: 40px;
+}
+
+div.ui-gwiz-steps-list-item-number-active {
+    float: left;
+    border-radius: 50%;
+    width: 9px;
+    height: 9px;
+    padding: 5px;
+    background: #013686;
+    text-align: center;
+    font-size: 10px;
+    color: white;
+}
+
+div.ui-gwiz-steps-list-item-number-inactive {
+    float: left;
+    border-radius: 50%;
+    width: 9px;
+    height: 9px;
+    padding: 5px;
+    background: black;
+    text-align: center;
+    font-size: 10px;
+    color: white;
+    opacity: 0.3;
+}
+
+div.ui-gwiz-steps-list-item-number-completed {
+    float: left;
+    border-radius: 50%;
+    width: 9px;
+    height: 9px;
+    padding: 5px;
+    background: green;
+    text-align: center;
+    font-size: 10px;
+    color: white;
+}
+
+div.ui-gwiz-steps-list-item-icon-completed {
+    font-size: 10px;
+    text-align: center;
+    float: left;
+}
+
+div.ui-gwiz-buttonbar-left {
+    position: absolute;
+    bottom: 10px;
+    float: left;
+    width: 50%;
+    text-align: left;
+}
+
+div.ui-gwiz-buttonbar-right {
+    position: absolute;
+    bottom: 10px;
+    right: 5px;
+    float: right;
+    width: 50%;
+    text-align: right;
+}
+
+div.ui-gwiz-body-container-hor {
+    position: absolute;
+    top: 70px;
+    left: 0px;
+    right: 0px;
+    bottom: 40px;
+    overflow: auto;
+}
+
+div.ui-gwiz-body-container-ver {
+    position: absolute;
+    top: 30px;
+    padding-top: 10px;
+    left: 15px;
+    right: 0px;
+    bottom: 40px;
+    overflow: auto;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-bottom: 5px;
+}
