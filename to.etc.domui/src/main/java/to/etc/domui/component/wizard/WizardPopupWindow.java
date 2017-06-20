@@ -257,6 +257,8 @@ class WizardPopupWindow extends Window {
 				if(!m_currentStep.isDisabled()) {
 					int nextStep = steps.indexOf(m_currentStep) + 1;
 					if(nextStep > 0 && nextStep < steps.size()) {
+						m_currentStep.executeWhenValid();
+						m_currentStep.addToStorage();
 						setCurrentStep(steps.get(nextStep));
 						refreshNavbarContainer();
 						refreshBodyContainer();
