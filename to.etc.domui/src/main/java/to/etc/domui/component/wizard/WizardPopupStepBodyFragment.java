@@ -93,7 +93,7 @@ class WizardPopupStepBodyFragment extends Div {
 		}
 
 		ButtonBar leftButtonBar = new ButtonBar();
-		leftButtonBar.setPosition(PositionType.ABSOLUTE);
+		leftButtonBar.setPosition(PositionType.RELATIVE);
 		leftButtonBar.setTop("8px");
 		leftButtonBar.setLeft("5px");
 		leftButtonBar.setFloat(FloatType.LEFT);
@@ -133,9 +133,8 @@ class WizardPopupStepBodyFragment extends Div {
 		nextEndButton.bind("disabled").to(m_step, AbstractWizardPopupStepBase.IS_VALID);
 
 		ButtonBar rightButtonBar = new ButtonBar();
-		rightButtonBar.setPosition(PositionType.ABSOLUTE);
+		rightButtonBar.setPosition(PositionType.RELATIVE);
 		rightButtonBar.setTop("8px");
-		rightButtonBar.setRight("0px");
 		rightButtonBar.setFloat(FloatType.RIGHT);
 		rightButtonBar.setWidth("50%");
 		rightButtonBar.setTextAlign(TextAlign.RIGHT);
