@@ -39,6 +39,19 @@ public abstract class AbstractWizardPopupStepBase extends Div {
 	String getStepTitle() {
 		return m_stepTitle;
 	}
+	
+	/**
+	 * This must be implemented to add something to the step's storage
+	 * when the step is valid and the user is going to the next step.
+	 */
+	public abstract void addToStorage();
+
+	/**
+	 * This must be implemented to execute something when the step is valid
+	 * and the user is going to the next step.
+	 * @throws Exception
+	 */
+	public abstract void executeWhenValid() throws Exception;
 
 	/**
 	 * This can be used to change the default body padding for a step,
