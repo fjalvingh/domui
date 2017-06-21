@@ -1,7 +1,25 @@
-/*** Wizard2 example ***/
-.ui-wzdl-page {
+/*** Wizard2/3 example ***/
+.ui-wzdl-step {
     clear: both;
     min-height: 300px;
+}
+.ui-wzdl-bbcontainer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+.ui-wzdl-bbleft {
+    position: absolute;
+    left: 5px;
+    width: 50%;
+    text-align: left;
+    float: left;
+}
+.ui-wzdl-bbright {
+    width: 50%;
+    text-align: right;
+    float: right;
 }
 
 .ui-wznf-next {
