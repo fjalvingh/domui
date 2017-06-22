@@ -11,14 +11,16 @@ import java.util.*;
  */
 class WizardNavigatorFragment extends Div {
 
-	//static final String CURRENT = "currentStep";
+	static final String CURRENT = "currentStep";
 
 	/** The step currently shown as "current" */
-	private WizardStep m_currentStep;
+	@Nullable
+	private AbstractWizardStep m_currentStep;
 
-	private final WizardDialog m_wizard;
+	@Nonnull
+	private final AbstractWizardDialog m_wizard;
 
-	WizardNavigatorFragment(WizardDialog wizard) {
+	WizardNavigatorFragment(AbstractWizardDialog wizard) {
 		m_wizard = wizard;
 	}
 
@@ -28,8 +30,8 @@ class WizardNavigatorFragment extends Div {
 		area.setCssClass("ui-wznf-area");
 		add(area);
 
-		WizardStep current = m_currentStep = m_wizard.getCurrentStep();
-		List<WizardStep> stepList = m_wizard.getStepList();
+		AbstractWizardStep current = m_currentStep = m_wizard.getCurrentStep();
+		List<AbstractWizardStep> stepList = m_wizard.getStepList();
 		int currentPageIndex = stepList.indexOf(current);
 		for(int stepNumber = 0; stepNumber < stepList.size(); stepNumber++) {
 			if(stepNumber != 0) {
@@ -37,7 +39,7 @@ class WizardNavigatorFragment extends Div {
 				seperator.setCssClass("ui-wznf-sep");
 				area.add(seperator);
 			}
-			WizardStep step = stepList.get(stepNumber);
+			AbstractWizardStep step = stepList.get(stepNumber);
 			if(stepNumber < currentPageIndex) {
 				renderAsPast(area, step);
 			} else if(stepNumber == currentPageIndex) {
@@ -48,32 +50,33 @@ class WizardNavigatorFragment extends Div {
 		}
 	}
 
-	private void renderAsFuture(@Nonnull Div area, @Nonnull WizardStep step) {
+	private void renderAsFuture(@Nonnull Div area, @Nonnull AbstractWizardStep step) {
 		Div cont = new Div();
 		cont.setCssClass("ui-wznf-next");
 		area.add(cont);
 		cont.add(new Span(step.getStepLabel()));
 	}
 
-	private void renderAsCurrent(@Nonnull Div area, @Nonnull WizardStep step) {
+	private void renderAsCurrent(@Nonnull Div area, @Nonnull AbstractWizardStep step) {
 		Div cont = new Div();
 		cont.setCssClass("ui-wznf-curr");
 		area.add(cont);
 		cont.add(new Span(step.getStepLabel()));
 	}
 
-	private void renderAsPast(@Nonnull Div area, @Nonnull WizardStep step) {
+	private void renderAsPast(@Nonnull Div area, @Nonnull AbstractWizardStep step) {
 		Div cont = new Div();
 		cont.setCssClass("ui-wznf-prev");
 		area.add(cont);
 		cont.add(new Span(step.getStepLabel()));
 	}
 
-	public WizardStep getCurrentStep() throws Exception {
+	@Nullable
+	public AbstractWizardStep getCurrentStep() throws Exception {
 		return m_currentStep;
 	}
 
-	public void setCurrentStep(@Nonnull WizardStep currentStep) {
+	public void setCurrentStep(@Nonnull AbstractWizardStep currentStep) {
 		m_currentStep = currentStep;
 		forceRebuild();
 	}

@@ -9,7 +9,7 @@ import javax.annotation.*;
  * Created on 21-6-17.
  */
 @DefaultNonNull
-public abstract class WizardStep extends Div {
+public abstract class AbstractWizardStep extends Div {
 
 	static final String VALID = "disabled";
 
@@ -26,7 +26,7 @@ public abstract class WizardStep extends Div {
 
 	private boolean m_finishButton;
 
-	public WizardStep(@Nonnull String stepLabel) {
+	public AbstractWizardStep(@Nonnull String stepLabel) {
 		m_stepLabel = stepLabel;
 	}
 
@@ -43,7 +43,7 @@ public abstract class WizardStep extends Div {
 		return m_disabled;
 	}
 
-	protected void setDisabled(boolean disabled) {
+	public void setDisabled(boolean disabled) {
 		m_disabled = disabled;
 	}
 
@@ -51,7 +51,7 @@ public abstract class WizardStep extends Div {
 		return m_cancelButton;
 	}
 
-	protected WizardStep setCancelButton() {
+	protected AbstractWizardStep setCancelButton() {
 		m_cancelButton = true;
 		return this;
 	}
@@ -60,7 +60,7 @@ public abstract class WizardStep extends Div {
 		return m_prevButton;
 	}
 
-	protected WizardStep setPrevButton() {
+	protected AbstractWizardStep setPrevButton() {
 		m_prevButton = true;
 		return this;
 	}
@@ -69,7 +69,7 @@ public abstract class WizardStep extends Div {
 		return m_nextButton;
 	}
 
-	protected WizardStep setNextButton() {
+	protected AbstractWizardStep setNextButton() {
 		m_nextButton = true;
 		return this;
 	}
@@ -78,7 +78,7 @@ public abstract class WizardStep extends Div {
 		return m_finishButton;
 	}
 
-	protected WizardStep setFinishButton() {
+	protected AbstractWizardStep setFinishButton() {
 		m_finishButton = true;
 		return this;
 	}

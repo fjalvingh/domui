@@ -7,16 +7,20 @@ import to.etc.domui.dom.html.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 20-6-17.
  */
-public class MyWizardDialog extends to.etc.domui.component.wizard3.WizardDialog {
-	@Override protected void createPages() throws Exception {
+public class MyWizardDialog extends AbstractWizardDialog {
+	@Override protected void createSteps() throws Exception {
 		title("My first Wizard");
-		setTwoButtonBars();
 		addStep(new PageOne());
 		addStep(new PageTwo());
 	}
+
+	@Override
+	protected void addCssClassButtons() throws Exception {
+		addCssClassCancelButton("ui-wzdl-align-left");
+	}
 }
 
-class PageOne extends WizardStep {
+class PageOne extends AbstractWizardStep {
 	public PageOne() {
 		super("Select object");
 	}
@@ -26,7 +30,7 @@ class PageOne extends WizardStep {
 	}
 }
 
-class PageTwo extends WizardStep {
+class PageTwo extends AbstractWizardStep {
 	public PageTwo() {
 		super("Insert somewhere ;)");
 		setCancelButton();
