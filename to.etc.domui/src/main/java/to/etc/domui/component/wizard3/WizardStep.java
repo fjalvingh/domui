@@ -1,8 +1,8 @@
 package to.etc.domui.component.wizard3;
 
-import javax.annotation.*;
-
 import to.etc.domui.dom.html.*;
+
+import javax.annotation.*;
 
 /**
  * @author <a href="mailto:yoeri.nijs@itris.nl">Yoeri Nijs</a>
@@ -26,7 +26,7 @@ public abstract class WizardStep extends Div {
 
 	private boolean m_finishButton;
 
-	public WizardStep(String stepLabel) {
+	public WizardStep(@Nonnull String stepLabel) {
 		m_stepLabel = stepLabel;
 	}
 

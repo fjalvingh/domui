@@ -1,5 +1,6 @@
 /*** Wizard2/3 example ***/
 .ui-wzdl-step {
+    margin-top: 28px;
     clear: both;
     min-height: 300px;
 }
@@ -40,6 +41,21 @@
 }
 .ui-wznf-sep {
     display: inline-block;
+    float: left;
+    background-color: black;
     width: 10px;
-    height: 10px;
+    height: 100%;
 }
+.ui-wznf-area {
+    position: absolute;
+    left: 0;
+    top: 28px;
+    right: 0;
+}
+
+/*** for demo purposes ***/
+.ui-wzdl-align-left {
+    position: absolute;
+    left: 10px;
+}
+
