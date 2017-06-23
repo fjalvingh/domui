@@ -16,7 +16,7 @@ import java.util.*;
  * Created on 21-6-17.
  */
 @DefaultNonNull
-public abstract class AbstractWizardDialog extends Dialog {
+public abstract class AbstractWizardDialog extends Window {
 
 	private static final BundleRef BUNDLE = BundleRef.create(AbstractWizardDialog.class, "messages");
 
@@ -38,7 +38,8 @@ public abstract class AbstractWizardDialog extends Dialog {
 	@Nullable
 	private WizardNavigatorFragment m_navigator;
 
-	private final ButtonBar m_buttonBar = (ButtonBar) getButtonBar();
+	@Nullable
+	private ButtonBar m_buttonBar;
 
 	@Nullable
 	private DefaultButton m_cancelButton;
@@ -79,11 +80,30 @@ public abstract class AbstractWizardDialog extends Dialog {
 
 		setWizardStep(0);
 
+		//Div area = getBottomContent();
+		//String height = area.getHeight();
+		//if(null == height) {
+		//	area.setHeight("34px");
+		//}
+		//area.add(getButtonBar());        <---- dit deel komt uit Dialog:129
+
+		add(getButtonBar());            // <---- Dit commenten en hierboven uncommenten om verschil te zien
+
 		getNavigator().bind(WizardNavigatorFragment.CURRENT).to(this, CURRENT);
 	}
 
+	private ButtonBar getButtonBar() throws Exception {
+		ButtonBar bb = m_buttonBar;
+		if(null == bb) {
+			bb = m_buttonBar = new ButtonBar();
+		}
+		return bb;
+	}
+
 	private void setButtonBar() throws Exception {
-		m_buttonBar.clearButtons();
+		if(getButtonBar().getChildCount() > 0) {
+			getButtonBar().clearButtons();
+		}
 		boolean hasDefaultButtonBar = true;
 		if(getCurrentStep().hasCancelButton()) {
 			addCancelButton();
@@ -110,38 +130,35 @@ public abstract class AbstractWizardDialog extends Dialog {
 		addCssClassButtons();
 	}
 
-	private void addCancelButton() {
-		m_cancelButton = new DefaultButton(BUNDLE.getString("wizardstep.default.cancelbutton"), Theme.BTN_CANCEL, click -> closePressed());
-		m_buttonBar.addButton(m_cancelButton);
+	private void addCancelButton() throws Exception {
+		DefaultButton cancelButton = m_cancelButton = new DefaultButton(BUNDLE.getString("wizardstep.default.cancelbutton"), Theme.BTN_CANCEL, click -> closePressed());
+		getButtonBar().addButton(cancelButton);
 	}
 
-	private void addPrevButton() {
-		DefaultButton prevButton = m_prevButton = new DefaultButton(BUNDLE.getString("wizardstep.default.prevbutton"), Theme.BTN_MOVE_LEFT, click -> prevStep());
+	private void addPrevButton() throws Exception {
+		DefaultButton prevButton = m_prevButton = new DefaultButton(BUNDLE.getString("wizardstep.default.prevbutton"), "THEME/btnBack.png", click -> prevStep());
 		prevButton.setDisabled(isFirstStep());
-		m_buttonBar.addButton(prevButton);
+		getButtonBar().addButton(prevButton);
 	}
 
 	private void addNextButton() throws Exception {
-		DefaultButton nextButton = m_nextButton = new DefaultButton(BUNDLE.getString("wizardstep.default.nextbutton"), Theme.BTN_MOVE_RIGHT, click -> {
-			getCurrentStep().onCompleted();
-			nextStep();
-		});
-		if(isLastStep()) {
-			nextButton.setDisabled(true);
-		} else {
-			nextButton.bind("disabled").to(getCurrentStep(), AbstractWizardStep.VALID);
+		if(!isLastStep()) {
+			DefaultButton nextButton = m_nextButton = new DefaultButton(BUNDLE.getString("wizardstep.default.nextbutton"), "THEME/btnNext.png", click -> {
+				getCurrentStep().onCompleted();
+				nextStep();
+			});
+			nextButton.bind("disabled").to(this, "currentStep.disabled");
+			getButtonBar().addButton(nextButton);
 		}
-		m_buttonBar.addButton(nextButton);
 	}
 
 	private void addFinishButton() throws Exception {
-		m_finishButton = new DefaultButton(BUNDLE.getString("wizardstep.default.finishbutton"), Theme.BTN_CONFIRM, click -> {
-			getCurrentStep().onCompleted();
-			closePressed();
-		});
 		if(isLastStep()) {
-			DomUtil.nullChecked(m_finishButton).bind("disabled").to(getCurrentStep(), AbstractWizardStep.VALID);
-			m_buttonBar.addButton(DomUtil.nullChecked(getFinishButton()));
+			DefaultButton finishButton = m_finishButton = new DefaultButton(BUNDLE.getString("wizardstep.default.finishbutton"), Theme.BTN_CONFIRM, click -> {
+				getCurrentStep().onCompleted();
+				closePressed();
+			});
+			getButtonBar().addButton(finishButton);
 		}
 	}
 
