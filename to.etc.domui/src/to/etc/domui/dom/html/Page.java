@@ -684,7 +684,6 @@ final public class Page implements IQContextContainer {
 		m_phase = PagePhase.BUILD;
 		m_pendingBuildSet.clear();
 		buildChangedTree(getBody());
-//		buildSubTree(getBody());
 		rebuildLoop();
 	}
 
@@ -694,13 +693,16 @@ final public class Page implements IQContextContainer {
 	 */
 	private void rebuildLoop() throws Exception {
 		int tries = 0;
+		modelToControl();
 		while(m_pendingBuildSet.size() > 0) {
 			if(tries++ > 10)
 				throw new IllegalStateException("Internal: building the tree failed after " + tries + " attempts: the tree keeps changing every build....");
 			NodeBase[] todo = m_pendingBuildSet.toArray(new NodeBase[m_pendingBuildSet.size()]); // Dup todolist,
 			m_pendingBuildSet.clear();
-			for(NodeBase nd : todo)
+			for(NodeBase nd : todo) {
 				buildSubTree(nd);
+				modelToControl();
+			}
 		}
 	}
 
