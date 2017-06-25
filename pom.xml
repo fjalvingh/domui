@@ -77,6 +77,7 @@
         <module>to.etc.webapp.core</module>
         <module>to.etc.domui</module>
         <module>to.etc.domui.hibutil</module>
+        <module>to.etc.domui.derbydata</module>
         <module>to.etc.domui.legacy</module>
         <module>to.etc.domui.formbuilder</module>
         <module>to.etc.domui.selenium</module>
