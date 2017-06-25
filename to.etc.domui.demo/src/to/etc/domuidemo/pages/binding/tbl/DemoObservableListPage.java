@@ -9,8 +9,9 @@ import to.etc.domui.component.layout.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.databinding.observables.*;
+import to.etc.domui.derbydata.db.Album;
+import to.etc.domui.derbydata.db.Artist;
 import to.etc.domui.dom.html.*;
-import to.etc.domuidemo.db.*;
 import to.etc.util.*;
 import to.etc.webapp.query.*;
 

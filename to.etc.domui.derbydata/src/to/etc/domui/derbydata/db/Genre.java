@@ -1,4 +1,4 @@
-package to.etc.domuidemo.db;
+package to.etc.domui.derbydata.db;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -7,16 +7,16 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "MediaType")
-public class MediaType extends DbRecordBase<Long> {
+@Table(name = "Genre")
+public class Genre extends DbRecordBase<Long> {
 	private Long m_id;
 
 	private String m_name;
 
-	@Override
 	@Id
-	@SequenceGenerator(name = "sq", sequenceName = "track_sq")
-	@Column(name = "MediaTypeId", precision = 20, nullable = false)
+	@SequenceGenerator(name = "sq", sequenceName = "genre_sq")
+	@Column(name = "GenreId", precision = 20, nullable = false)
+	@Override
 	public Long getId() {
 		return m_id;
 	}

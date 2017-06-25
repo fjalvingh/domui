@@ -18,6 +18,7 @@
       <module fileurl="file://$PROJECT_DIR$/to.etc.db/to.etc.db.iml" filepath="$PROJECT_DIR$/to.etc.db/to.etc.db.iml" group="Others" />
       <module fileurl="file://$PROJECT_DIR$/to.etc.domui/to.etc.domui.iml" filepath="$PROJECT_DIR$/to.etc.domui/to.etc.domui.iml" />
       <module fileurl="file://$PROJECT_DIR$/to.etc.domui.demo/to.etc.domui.demo.iml" filepath="$PROJECT_DIR$/to.etc.domui.demo/to.etc.domui.demo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/to.etc.domui.derbydata/to.etc.domui.derbydata.iml" filepath="$PROJECT_DIR$/to.etc.domui.derbydata/to.etc.domui.derbydata.iml" />
       <module fileurl="file://$PROJECT_DIR$/to.etc.domui.formbuilder/to.etc.domui.formbuilder.iml" filepath="$PROJECT_DIR$/to.etc.domui.formbuilder/to.etc.domui.formbuilder.iml" group="Others" />
       <module fileurl="file://$PROJECT_DIR$/to.etc.domui.hibutil/to.etc.domui.hibutil.iml" filepath="$PROJECT_DIR$/to.etc.domui.hibutil/to.etc.domui.hibutil.iml" group="Others" />
       <module fileurl="file://$PROJECT_DIR$/to.etc.domui.legacy/to.etc.domui.legacy.iml" filepath="$PROJECT_DIR$/to.etc.domui.legacy/to.etc.domui.legacy.iml" group="Others" />

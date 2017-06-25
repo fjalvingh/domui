@@ -4,8 +4,9 @@ import java.util.*;
 
 import org.junit.*;
 
+import to.etc.domui.derbydata.db.Album;
+import to.etc.domui.derbydata.db.Artist;
 import to.etc.domui.hibernate.types.*;
-import to.etc.domuidemo.db.*;
 import to.etc.util.*;
 import to.etc.webapp.query.*;
 

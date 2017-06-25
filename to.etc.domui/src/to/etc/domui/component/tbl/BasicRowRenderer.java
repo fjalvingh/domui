@@ -131,7 +131,7 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IClic
 			addDefaultColumns();
 
 		//-- Is there a default sort thingy? Is that column present?
-		if(m_sortColumnName != null)
+		if(m_sortColumnName != null && null == getColumnList().getSortColumn())
 			getColumnList().setDefaultSortColumn(m_sortColumnName);
 
 		getColumnList().assignPercentages();				// Calculate widths
