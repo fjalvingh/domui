@@ -93,6 +93,10 @@
             <groupId>to.etc.domui</groupId>
             <artifactId>to.etc.domui.formbuilder</artifactId>
         </dependency>
+        <dependency>
+            <groupId>to.etc.domui</groupId>
+            <artifactId>to.etc.domui.derbydata</artifactId>
+        </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.mozilla/rhino -->
         <dependency>
