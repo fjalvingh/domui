@@ -7,19 +7,6 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="jsr305" />
-        <module name="to.etc.alg" />
-        <module name="to.etc.db" />
-        <module name="to.etc.domui" />
-        <module name="to.etc.domui.demo" />
-        <module name="to.etc.domui.formbuilder" />
-        <module name="to.etc.domui.hibutil" />
-        <module name="to.etc.domui.legacy" />
-        <module name="to.etc.domui.selenium" />
-        <module name="to.etc.logger" />
-        <module name="to.etc.pater" />
-        <module name="to.etc.syntaxer" />
-        <module name="to.etc.webapp.core" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>

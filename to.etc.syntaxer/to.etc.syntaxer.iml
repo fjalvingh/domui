@@ -19,7 +19,7 @@
     <orderEntry type="module-library">
       <library name="gnu-regexp-1.1.4.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/gnu-regexp-1.1.4.jar!/" />
+          <root url="jar://$MODULE_DIR$/gnu-regexp-1.1.4.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

@@ -18,6 +18,8 @@ import to.etc.webapp.annotations.GProperty;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import javax.annotation.*;
+
 /**
  * Yet another attempt at a generic form builder, using the Builder pattern. The builder
  * starts in vertical mode - call horizontal() to move horizontally.
@@ -75,12 +77,7 @@ final public class FormBuilder {
 	}
 
 	public FormBuilder(@Nonnull final NodeContainer nb) {
-		this(new IAppender() {
-			@Override
-			public void add(NodeBase formNode) {
-				nb.add(formNode);
-			}
-		});
+		this(nb::add);
 	}
 
 	@Nonnull

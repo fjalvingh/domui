@@ -205,6 +205,10 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 
 	@Override
 	public boolean acceptRequestParameter(@Nonnull String[] values) throws Exception {
+		if(isDisabled()) {
+			return false;
+		}
+
 		String nw = (values == null || values.length != 1) ? null : values[0];
 		//fixes problem when no data is entered on form and modified flag is raised
 		if(nw != null && nw.length() == 0)

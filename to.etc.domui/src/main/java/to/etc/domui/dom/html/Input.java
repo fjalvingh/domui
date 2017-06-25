@@ -24,13 +24,12 @@
  */
 package to.etc.domui.dom.html;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.server.*;
 import to.etc.domui.util.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * The "input" tag as a base class. This one only handles classic, non-image inputs.
@@ -57,6 +56,9 @@ public class Input extends NodeBase implements INativeChangeListener, IHasChange
 
 	@Nullable
 	private String m_disabledBecause;
+
+	@Nullable
+	private String m_placeHolder;
 
 	public Input() {
 		super("input");
@@ -175,6 +177,9 @@ public class Input extends NodeBase implements INativeChangeListener, IHasChange
 	 */
 	@Override
 	public boolean acceptRequestParameter(@Nonnull String[] values) {
+		if(isDisabled()) {
+			return false;
+		}
 		String prev = m_rawValue;
 		if(values == null || values.length != 1)
 			m_rawValue = null;
@@ -250,4 +255,18 @@ public class Input extends NodeBase implements INativeChangeListener, IHasChange
 		m_onLookupTyping = onLookupTyping;
 	}
 
+	/**
+	 * Sets the placeholder attribute.
+	 * @return
+	 */
+	@Nullable public String getPlaceHolder() {
+		return m_placeHolder;
+	}
+
+	public void setPlaceHolder(@Nullable String placeHolder) {
+		if(Objects.equals(placeHolder, m_placeHolder))
+			return;
+		m_placeHolder = placeHolder;
+		changed();
+	}
 }

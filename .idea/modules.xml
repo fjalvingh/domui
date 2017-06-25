@@ -19,18 +19,16 @@
       <module fileurl="file://$PROJECT_DIR$/to.etc.db/to.etc.db.iml" filepath="$PROJECT_DIR$/to.etc.db/to.etc.db.iml" group="Others" />
       <module fileurl="file://$PROJECT_DIR$/to.etc.domui/to.etc.domui.iml" filepath="$PROJECT_DIR$/to.etc.domui/to.etc.domui.iml" />
       <module fileurl="file://$PROJECT_DIR$/to.etc.domui.demo/to.etc.domui.demo.iml" filepath="$PROJECT_DIR$/to.etc.domui.demo/to.etc.domui.demo.iml" />
-      <module fileurl="file://$PROJECT_DIR$/to.etc.domui.derbydata/to.etc.domui.derbydata.iml" filepath="$PROJECT_DIR$/to.etc.domui.derbydata/to.etc.domui.derbydata.iml" />
-      <module fileurl="file://$PROJECT_DIR$/to.etc.domui.derbydata/to.etc.domui.derbydata.iml" filepath="$PROJECT_DIR$/to.etc.domui.derbydata/to.etc.domui.derbydata.iml" />
-      <module fileurl="file://$PROJECT_DIR$/to.etc.domui.formbuilder/to.etc.domui.formbuilder.iml" filepath="$PROJECT_DIR$/to.etc.domui.formbuilder/to.etc.domui.formbuilder.iml" group="Others" />
-      <module fileurl="file://$PROJECT_DIR$/to.etc.domui.hibutil/to.etc.domui.hibutil.iml" filepath="$PROJECT_DIR$/to.etc.domui.hibutil/to.etc.domui.hibutil.iml" group="Others" />
-      <module fileurl="file://$PROJECT_DIR$/to.etc.domui.legacy/to.etc.domui.legacy.iml" filepath="$PROJECT_DIR$/to.etc.domui.legacy/to.etc.domui.legacy.iml" group="Others" />
-      <module fileurl="file://$PROJECT_DIR$/parent/to.etc.domui.parent.iml" filepath="$PROJECT_DIR$/parent/to.etc.domui.parent.iml" />
-      <module fileurl="file://$PROJECT_DIR$/to.etc.domui.selenium/to.etc.domui.selenium.iml" filepath="$PROJECT_DIR$/to.etc.domui.selenium/to.etc.domui.selenium.iml" group="Others" />
-      <module fileurl="file://$PROJECT_DIR$/to.etc.el/to.etc.el.iml" filepath="$PROJECT_DIR$/to.etc.el/to.etc.el.iml" group="Others" />
-      <module fileurl="file://$PROJECT_DIR$/to.etc.logger/to.etc.logger.iml" filepath="$PROJECT_DIR$/to.etc.logger/to.etc.logger.iml" group="Others" />
-      <module fileurl="file://$PROJECT_DIR$/to.etc.pater/to.etc.pater.iml" filepath="$PROJECT_DIR$/to.etc.pater/to.etc.pater.iml" group="Others" />
-      <module fileurl="file://$PROJECT_DIR$/to.etc.syntaxer/to.etc.syntaxer.iml" filepath="$PROJECT_DIR$/to.etc.syntaxer/to.etc.syntaxer.iml" group="Others" />
-      <module fileurl="file://$PROJECT_DIR$/to.etc.webapp.core/to.etc.webapp.core.iml" filepath="$PROJECT_DIR$/to.etc.webapp.core/to.etc.webapp.core.iml" group="Others" />
+        <module fileurl="file://$PROJECT_DIR$/to.etc.domui.derbydata/to.etc.domui.derbydata.iml" filepath="$PROJECT_DIR$/to.etc.domui.derbydata/to.etc.domui.derbydata.iml" />
+      <module fileurl="file://$PROJECT_DIR$/to.etc.domui.formbuilder/to.etc.domui.formbuilder.iml" filepath="$PROJECT_DIR$/to.etc.domui.formbuilder/to.etc.domui.formbuilder.iml" />
+      <module fileurl="file://$PROJECT_DIR$/to.etc.domui.hibutil/to.etc.domui.hibutil.iml" filepath="$PROJECT_DIR$/to.etc.domui.hibutil/to.etc.domui.hibutil.iml" />
+      <module fileurl="file://$PROJECT_DIR$/to.etc.domui.legacy/to.etc.domui.legacy.iml" filepath="$PROJECT_DIR$/to.etc.domui.legacy/to.etc.domui.legacy.iml" />
+      <module fileurl="file://$PROJECT_DIR$/to.etc.domui.selenium/to.etc.domui.selenium.iml" filepath="$PROJECT_DIR$/to.etc.domui.selenium/to.etc.domui.selenium.iml" />
+      <module fileurl="file://$PROJECT_DIR$/to.etc.el/to.etc.el.iml" filepath="$PROJECT_DIR$/to.etc.el/to.etc.el.iml" />
+      <module fileurl="file://$PROJECT_DIR$/to.etc.logger/to.etc.logger.iml" filepath="$PROJECT_DIR$/to.etc.logger/to.etc.logger.iml" />
+      <module fileurl="file://$PROJECT_DIR$/to.etc.pater/to.etc.pater.iml" filepath="$PROJECT_DIR$/to.etc.pater/to.etc.pater.iml" />
+      <module fileurl="file://$PROJECT_DIR$/to.etc.syntaxer/to.etc.syntaxer.iml" filepath="$PROJECT_DIR$/to.etc.syntaxer/to.etc.syntaxer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/to.etc.webapp.core/to.etc.webapp.core.iml" filepath="$PROJECT_DIR$/to.etc.webapp.core/to.etc.webapp.core.iml" />
     </modules>
   </component>
 </project>

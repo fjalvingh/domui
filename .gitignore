@@ -38,4 +38,5 @@ RemoteSystemsTempFiles
 .idea/dataSources.xml
 .idea/.name
 .idea/misc.xml
+*.iml
 
