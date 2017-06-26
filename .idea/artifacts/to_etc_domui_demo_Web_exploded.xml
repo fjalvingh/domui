@@ -26,6 +26,7 @@
           <element id="module-output" name="to.etc.pater" />
           <element id="module-output" name="bin-htmlunit-webdriver" />
           <element id="module-output" name="to.etc.domui.formbuilder" />
+          <element id="module-output" name="to.etc.domui.derbydata" />
         </element>
         <element id="directory" name="lib">
           <element id="library" level="module" name="j2ee.jar" module-name="bin-j2ee-1.4" />
@@ -103,6 +104,7 @@
           <element id="file-copy" path="$PROJECT_DIR$/bin-htmlunit-webdriver/htmlunit-driver-2.25-with-dependencies.jar" />
           <element id="library" level="module" name="gnu-regexp-1.1.4.jar" module-name="to.etc.domui.demo" />
           <element id="library" level="module" name="derby.jar" module-name="to.etc.domui.demo" />
+          <element id="file-copy" path="$PROJECT_DIR$/to.etc.domui.derbydata/derby.jar" />
         </element>
       </element>
     </root>

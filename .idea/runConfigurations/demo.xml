@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="demo" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Local" APPLICATION_SERVER_NAME="Tomcat 8.0.23" ALTERNATIVE_JRE_ENABLED="false">
     <option name="OPEN_IN_BROWSER" value="false" />
-    <option name="OPEN_IN_BROWSER_URL" value="http://localhost:8080/demo/" />
+    <option name="OPEN_IN_BROWSER_URL" value="http://localhost:8088/demo/" />
     <option name="UPDATING_POLICY" value="restart-server" />
     <deployment>
       <artifact name="to.etc.domui.demo:Web exploded">
@@ -12,6 +12,7 @@
     </deployment>
     <server-settings>
       <option name="BASE_DIRECTORY_NAME" value="Unnamed_domui" />
+      <option name="HTTP_PORT" value="8088" />
     </server-settings>
     <predefined_log_file id="Tomcat" enabled="true" />
     <predefined_log_file id="Tomcat Catalina" enabled="true" />
