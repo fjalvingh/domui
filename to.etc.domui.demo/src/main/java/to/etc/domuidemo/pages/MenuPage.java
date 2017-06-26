@@ -1,12 +1,12 @@
 package to.etc.domuidemo.pages;
 
-import javax.annotation.*;
-
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.state.*;
 import to.etc.domuidemo.sourceviewer.*;
+
+import javax.annotation.*;
 
 public class MenuPage extends UrlPage {
 	final private ContentPanel m_cp = new ContentPanel();
@@ -45,5 +45,6 @@ public class MenuPage extends UrlPage {
 		link2.setTitle("View sourcefile");
 		if(nw)
 			d.add(new Img("img/aniNew.gif"));
+		link2.setNewWindowParameters(WindowParameters.createFixed(1024, 768, "source"));
 	}
 }
