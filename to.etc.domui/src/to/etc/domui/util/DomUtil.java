@@ -1534,7 +1534,7 @@ final public class DomUtil {
 		if(root instanceof NodeContainer) {
 			NodeContainer nc = (NodeContainer) root;
 			for(NodeBase ch : nc.internalGetChildren()) {
-				v = walkTree(ch, handler);
+				v = walkTreeUndelegated(ch, handler);
 				if(v != null)
 					return v;
 			}
