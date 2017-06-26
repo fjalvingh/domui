@@ -1,10 +1,9 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="demo" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Local" APPLICATION_SERVER_NAME="Tomcat 8.0.23" ALTERNATIVE_JRE_ENABLED="false">
     <option name="OPEN_IN_BROWSER" value="false" />
-    <option name="OPEN_IN_BROWSER_URL" value="http://localhost:8088/demo/" />
     <option name="UPDATING_POLICY" value="restart-server" />
     <deployment>
-      <artifact name="to.etc.domui.demo:Web exploded">
+      <artifact name="to.etc.domui.demo:war exploded">
         <settings>
           <option name="CONTEXT_PATH" value="/demo" />
         </settings>
@@ -103,7 +102,9 @@
       </SHUTDOWN>
     </ConfigurationWrapper>
     <method>
-      <option name="BuildArtifacts" enabled="true" />
+      <option name="BuildArtifacts" enabled="true">
+        <artifact name="to.etc.domui.demo:war exploded" />
+      </option>
     </method>
   </configuration>
 </component>
