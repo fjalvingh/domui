@@ -131,7 +131,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	/**
 	 * Used by delta-builder.
 	 */
-	final List<NodeBase> internalGetChildren() {
+	final public List<NodeBase> internalGetChildren() {
 		return m_children;
 	}
 
