@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="demo" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Local" APPLICATION_SERVER_NAME="Tomcat 8.0.23" ALTERNATIVE_JRE_ENABLED="false">
     <option name="OPEN_IN_BROWSER" value="false" />
-    <option name="UPDATING_POLICY" value="restart-server" />
+    <option name="SHOW_DIALOG_ON_UPDATE" value="false" />
     <deployment>
       <artifact name="to.etc.domui.demo:war exploded">
         <settings>
