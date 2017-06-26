@@ -1480,7 +1480,7 @@ final public class DomUtil {
 		 * @return
 		 * @throws Exception
 		 */
-		public Object before(@Nonnull NodeBase n) throws Exception;
+		Object before(@Nonnull NodeBase n) throws Exception;
 
 		/**
 		 * Called when all child nodes of the specified node have been traversed. When this returns a non-null
@@ -1489,7 +1489,7 @@ final public class DomUtil {
 		 * @return
 		 * @throws Exception
 		 */
-		public Object after(@Nonnull NodeBase n) throws Exception;
+		Object after(@Nonnull NodeBase n) throws Exception;
 	}
 
 	/**
@@ -1511,6 +1511,29 @@ final public class DomUtil {
 			NodeContainer nc = (NodeContainer) root;
 			for(int i = 0, len = nc.getChildCount(); i < len; i++) {
 				NodeBase ch = nc.getChild(i);
+				v = walkTree(ch, handler);
+				if(v != null)
+					return v;
+			}
+		}
+		return handler.after(root);
+	}
+
+	/**
+	 * This walks the tree, but ignores delegation to make sure that all nodes
+	 * are reached.
+	 */
+	static public Object walkTreeUndelegated(NodeBase root, IPerNode handler) throws Exception {
+		if(root == null)
+			return null;
+		Object v = handler.before(root);
+		if(v == IPerNode.SKIP)
+			return null;
+		if(v != null)
+			return v;
+		if(root instanceof NodeContainer) {
+			NodeContainer nc = (NodeContainer) root;
+			for(NodeBase ch : nc.internalGetChildren()) {
 				v = walkTree(ch, handler);
 				if(v != null)
 					return v;
