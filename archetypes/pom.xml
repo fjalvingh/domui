@@ -3,7 +3,7 @@
 
     <groupId>to.etc.domui</groupId>
     <artifactId>domui-archetypes</artifactId>
-    <version>1.1</version>
+    <version>1.2-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>DomUI :: archetypes</name>
     <description>Archetypes for quick setup of a DomUI project</description>
