@@ -1,4 +1,4 @@
-package to.etc.domui.component.wizard3;
+package to.etc.domui.component.wizard;
 
 import to.etc.domui.dom.html.*;
 
@@ -34,17 +34,21 @@ class WizardNavigatorFragment extends Div {
 		List<AbstractWizardStep> stepList = m_wizard.getStepList();
 		int currentPageIndex = stepList.indexOf(current);
 		for(int stepNumber = 0; stepNumber < stepList.size(); stepNumber++) {
-			if(stepNumber != 0) {
-				Div seperator = new Div();
-				seperator.setCssClass("ui-wznf-sep");
-				area.add(seperator);
-			}
+			Div seperator = new Div();
+			seperator.add(String.valueOf(stepNumber + 1));
+
 			AbstractWizardStep step = stepList.get(stepNumber);
 			if(stepNumber < currentPageIndex) {
+				seperator.setCssClass("ui-wznf-sep-past");
+				area.add(seperator);
 				renderAsPast(area, step);
 			} else if(stepNumber == currentPageIndex) {
+				seperator.setCssClass("ui-wznf-sep");
+				area.add(seperator);
 				renderAsCurrent(area, step);
 			} else {
+				seperator.setCssClass("ui-wznf-sep");
+				area.add(seperator);
 				renderAsFuture(area, step);
 			}
 		}

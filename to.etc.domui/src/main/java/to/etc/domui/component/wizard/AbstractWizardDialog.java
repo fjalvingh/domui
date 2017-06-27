@@ -1,4 +1,4 @@
-package to.etc.domui.component.wizard3;
+package to.etc.domui.component.wizard;
 
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.layout.*;
@@ -12,11 +12,12 @@ import javax.annotation.*;
 import java.util.*;
 
 /**
+ * The wizard dialog component. Simply, extend this dialog and implement all necessary methods.
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a, <a href="mailto:yoeri.nijs@itris.nl">Yoeri Nijs</a>
  * Created on 21-6-17.
  */
 @DefaultNonNull
-public abstract class AbstractWizardDialog extends Window {
+public abstract class AbstractWizardDialog extends Dialog {
 
 	private static final BundleRef BUNDLE = BundleRef.create(AbstractWizardDialog.class, "messages");
 
@@ -37,9 +38,6 @@ public abstract class AbstractWizardDialog extends Window {
 
 	@Nullable
 	private WizardNavigatorFragment m_navigator;
-
-	@Nullable
-	private ButtonBar m_buttonBar;
 
 	@Nullable
 	private DefaultButton m_cancelButton;
@@ -80,29 +78,18 @@ public abstract class AbstractWizardDialog extends Window {
 
 		setWizardStep(0);
 
-		//Div area = getBottomContent();
-		//String height = area.getHeight();
-		//if(null == height) {
-		//	area.setHeight("34px");
-		//}
-		//area.add(getButtonBar());        <---- dit deel komt uit Dialog:129
-
-		add(getButtonBar());            // <---- Dit commenten en hierboven uncommenten om verschil te zien
-
 		getNavigator().bind(WizardNavigatorFragment.CURRENT).to(this, CURRENT);
 	}
 
-	private ButtonBar getButtonBar() throws Exception {
-		ButtonBar bb = m_buttonBar;
-		if(null == bb) {
-			bb = m_buttonBar = new ButtonBar();
-		}
-		return bb;
-	}
-
+	/**
+	 * Creates the button bar. Will setup a default button bar
+	 * if wizard steps do not have explicit buttons.
+	 * @throws Exception
+	 */
 	private void setButtonBar() throws Exception {
-		if(getButtonBar().getChildCount() > 0) {
-			getButtonBar().clearButtons();
+		ButtonBar bb = (ButtonBar) getButtonBar();
+		if(bb.getChildCount() > 0) {
+			bb.clearButtons();
 		}
 		boolean hasDefaultButtonBar = true;
 		if(getCurrentStep().hasCancelButton()) {
@@ -131,34 +118,32 @@ public abstract class AbstractWizardDialog extends Window {
 	}
 
 	private void addCancelButton() throws Exception {
-		DefaultButton cancelButton = m_cancelButton = new DefaultButton(BUNDLE.getString("wizardstep.default.cancelbutton"), Theme.BTN_CANCEL, click -> closePressed());
-		getButtonBar().addButton(cancelButton);
+		m_cancelButton = getButtonBar().addButton(BUNDLE.getString("wizardstep.default.cancelbutton"), Theme.BTN_CANCEL, click -> closePressed());
 	}
 
 	private void addPrevButton() throws Exception {
-		DefaultButton prevButton = m_prevButton = new DefaultButton(BUNDLE.getString("wizardstep.default.prevbutton"), "THEME/btnBack.png", click -> prevStep());
+		DefaultButton prevButton = m_prevButton = getButtonBar().addButton(BUNDLE.getString("wizardstep.default.prevbutton"), "THEME/btnBack.png", click -> prevStep());
 		prevButton.setDisabled(isFirstStep());
-		getButtonBar().addButton(prevButton);
 	}
 
 	private void addNextButton() throws Exception {
 		if(!isLastStep()) {
-			DefaultButton nextButton = m_nextButton = new DefaultButton(BUNDLE.getString("wizardstep.default.nextbutton"), "THEME/btnNext.png", click -> {
-				getCurrentStep().onCompleted();
-				nextStep();
+			DefaultButton nextButton = m_nextButton = getButtonBar().addButton(BUNDLE.getString("wizardstep.default.nextbutton"), "THEME/btnNext.png", click -> {
+				if(getCurrentStep().onCompleted()) {
+					nextStep();
+				}
 			});
 			nextButton.bind("disabled").to(this, "currentStep.disabled");
-			getButtonBar().addButton(nextButton);
 		}
 	}
 
 	private void addFinishButton() throws Exception {
 		if(isLastStep()) {
-			DefaultButton finishButton = m_finishButton = new DefaultButton(BUNDLE.getString("wizardstep.default.finishbutton"), Theme.BTN_CONFIRM, click -> {
-				getCurrentStep().onCompleted();
-				closePressed();
+			m_finishButton = getButtonBar().addButton(BUNDLE.getString("wizardstep.default.finishbutton"), Theme.BTN_CONFIRM, click -> {
+				if(getCurrentStep().onCompleted()) {
+					closePressed();
+				}
 			});
-			getButtonBar().addButton(finishButton);
 		}
 	}
 
@@ -200,6 +185,7 @@ public abstract class AbstractWizardDialog extends Window {
 			m_currentStep = null;
 		}
 		currentStep = m_stepList.get(index);
+		currentStep.onReturn();
 		m_stepDiv.add(currentStep);
 		m_currentStep = currentStep;
 		setButtonBar();
@@ -225,7 +211,7 @@ public abstract class AbstractWizardDialog extends Window {
 		return currentStep;
 	}
 
-	public void setCurrentStep(AbstractWizardStep abstractWizardStep) {
+	public void setCurrentStep(@Nullable AbstractWizardStep abstractWizardStep) {
 		m_currentStep = abstractWizardStep;
 	}
 

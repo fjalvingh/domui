@@ -1,4 +1,4 @@
-package to.etc.domui.component.wizard3;
+package to.etc.domui.component.wizard;
 
 import to.etc.domui.dom.html.*;
 
@@ -37,11 +37,22 @@ public abstract class AbstractWizardStep extends Div {
 	@Override
 	public abstract void createContent() throws Exception;
 
-	protected void onCompleted() throws Exception {}
-
-	public boolean isDisabled() {
-		return m_disabled;
+	/**
+	 * This fires when the user goes to the next step. If onCompleted returns
+	 * false, the user stays on the current step instead of moving forward.
+	 * @return
+	 * @throws Exception
+	 */
+	protected boolean onCompleted() throws Exception {
+		return true;
 	}
+
+	/**
+	 * If this is set to true, the next button will be disabled.
+	 * @return
+	 * @throws Exception
+	 */
+	public abstract boolean isDisabled() throws Exception;
 
 	public void setDisabled(boolean disabled) {
 		m_disabled = disabled;
@@ -82,4 +93,6 @@ public abstract class AbstractWizardStep extends Div {
 		m_finishButton = true;
 		return this;
 	}
+
+	protected void onReturn() {}
 }
