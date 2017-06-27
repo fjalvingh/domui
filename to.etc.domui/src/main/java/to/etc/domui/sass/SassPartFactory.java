@@ -10,6 +10,7 @@ import to.etc.domui.server.*;
 import to.etc.domui.server.parts.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.resources.*;
+import to.etc.util.*;
 
 import javax.annotation.*;
 import java.io.*;
@@ -38,6 +39,7 @@ public class SassPartFactory implements IBufferedPartFactory<ParameterInfoImpl> 
 	}
 
 	@Override public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull ParameterInfoImpl params, @Nonnull IResourceDependencyList rdl) throws Exception {
+		long ts = System.nanoTime();
 		SassCapturingErrorHandler errorHandler = new SassCapturingErrorHandler();
 		//errorHandler.setWarningsAreErrors(true);
 
@@ -79,6 +81,8 @@ public class SassPartFactory implements IBufferedPartFactory<ParameterInfoImpl> 
 			scss.write(osw, ! DomApplication.get().inDevelopmentMode());
 			osw.close();
 		}
+		ts = System.nanoTime() - ts;
+		System.out.println("sass: script render took " + StringTool.strNanoTime(ts));
 
 	}
 

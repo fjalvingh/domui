@@ -41,7 +41,7 @@ final public class TestDB {
 					pool = PoolManager.getInstance().definePool(
 						"demo"
 						, "org.hsqldb.jdbcDriver"
-						, "jdbc:hsqldb:/tmp/demoDb"
+						, "jdbc:hsqldb:file:/tmp/demoDb"
 						, "sa"
 						, ""
 						, null

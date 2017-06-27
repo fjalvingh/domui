@@ -1611,6 +1611,7 @@ public abstract class DomApplication {
 	 */
 	final public void setThemeFactory(@Nonnull IThemeFactory themer) {
 		m_themeManager.setThemeFactory(themer);
+		m_themeManager.setCurrentTheme(themer.getDefaultThemeName());
 	}
 
 	/**
