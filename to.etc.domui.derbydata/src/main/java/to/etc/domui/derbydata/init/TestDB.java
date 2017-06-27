@@ -28,14 +28,26 @@ final public class TestDB {
 				System.out.println("** WARNING: Using local database configuration, pool=" + poolid);
 				pool = PoolManager.getInstance().initializePool(poolid);
 			} else {
-				pool = PoolManager.getInstance().definePool(
-					"demo"
-					, "org.apache.derby.jdbc.EmbeddedDriver"
-					, "jdbc:derby:/tmp/demoDb;create=true"
-					, ""
-					, ""
-					, null
-				);
+				if(false) {
+					pool = PoolManager.getInstance().definePool(
+						"demo"
+						, "org.apache.derby.jdbc.EmbeddedDriver"
+						, "jdbc:derby:/tmp/demoDb;create=true"
+						, ""
+						, ""
+						, null
+					);
+				} else {
+					pool = PoolManager.getInstance().definePool(
+						"demo"
+						, "org.hsqldb.jdbcDriver"
+						, "jdbc:hsqldb:/tmp/demoDb"
+						, "sa"
+						, ""
+						, null
+					);
+				}
+
 				pool.initialize();
 			}
 			DBInitialize.fillDatabase(pool.getUnpooledDataSource());

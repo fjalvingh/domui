@@ -76,7 +76,7 @@
         <gnu.regexp.version>1.1.4</gnu.regexp.version>
         <jetty.version>9.3.8.v20160314</jetty.version>
         <selenium.version>3.3.1</selenium.version>
-        <derby.version>10.13.1.1</derby.version>
+        <hsqldb.version>2.4.0</hsqldb.version>
 
         <xml-apis.version>2.0.2</xml-apis.version>
         <com.ibm.icu.version>58.2</com.ibm.icu.version>
@@ -377,11 +377,11 @@
                 <version>${selenium.version}</version>
             </dependency>
 
-            <!-- https://mvnrepository.com/artifact/org.apache.derby/derby -->
+            <!-- https://mvnrepository.com/artifact/org.hsqldb/hsqldb -->
             <dependency>
-                <groupId>org.apache.derby</groupId>
-                <artifactId>derby</artifactId>
-                <version>${derby.version}</version>
+                <groupId>org.hsqldb</groupId>
+                <artifactId>hsqldb</artifactId>
+                <version>${hsqldb.version}</version>
             </dependency>
 
             <!-- Own -->
