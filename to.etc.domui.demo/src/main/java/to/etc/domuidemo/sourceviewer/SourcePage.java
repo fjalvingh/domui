@@ -1,18 +1,16 @@
 package to.etc.domuidemo.sourceviewer;
 
-import java.io.*;
-import java.util.*;
-
-import javax.swing.text.*;
-
 import to.etc.domui.annotations.*;
 import to.etc.domui.component.layout.*;
 import to.etc.domui.component.misc.*;
-import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.syntaxer.*;
 import to.etc.syntaxer.TokenMarker.*;
 import to.etc.util.*;
+
+import javax.swing.text.*;
+import java.io.*;
+import java.util.*;
 
 /**
  * This page will attempt to show the source code for a given Java class or other resource. It is
@@ -68,8 +66,7 @@ public class SourcePage extends UrlPage {
 		m_th.setImportList(m_importList);
 		Div scrolldiv = new Div();
 		add(scrolldiv);
-		scrolldiv.setHeight("600px");
-		scrolldiv.setOverflow(Overflow.AUTO);
+		scrolldiv.addCssClass("dm-srcp-scrl");
 
 		TBody tb = scrolldiv.addTable();
 
@@ -110,8 +107,9 @@ public class SourcePage extends UrlPage {
 
 	private LineContext appendLine(TBody tb, int linenr, String line, LineContext lc) {
 		TD td = tb.addRowAndCell();
+		td.setCssClass("dm-srcp-lnr");
 		td.setText(Integer.toString(linenr));
-		td = tb.addCell();
+		td = tb.addCell("dm-srcp-txt");
 		m_th.setTarget(td);
 
 		m_seg.array = line.toCharArray();
