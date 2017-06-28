@@ -47,7 +47,7 @@ class WizardNavigatorFragment extends Div {
 				area.add(seperator);
 				renderAsCurrent(area, step);
 			} else {
-				seperator.setCssClass("ui-wznf-sep");
+				seperator.setCssClass("ui-wznf-sep-next");
 				area.add(seperator);
 				renderAsFuture(area, step);
 			}

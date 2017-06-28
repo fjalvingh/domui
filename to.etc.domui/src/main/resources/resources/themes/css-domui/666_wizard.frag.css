@@ -64,6 +64,20 @@
     color: white;
     margin: 6px -5px 0 6px;
 }
+.ui-wznf-sep-next {
+    display: inline-block;
+    float: left;
+    border-radius: 50%;
+    width: 9px;
+    height: 9px;
+    padding: 5px;
+    background: black;
+    text-align: center;
+    font-size: 10px;
+    color: white;
+    margin: 6px -5px 0 6px;
+    opacity: 0.2;
+}
 .ui-wznf-area {
     position: absolute;
     left: 0;
@@ -72,11 +86,6 @@
     background: linear-gradient(#fbfbfb, #e5e4e5);
     border-bottom: 1px solid #aaa;
     z-index: 99999;
-}
-
-.ui-wzdl-align-left {
-    position: absolute;
-    left: 10px;
 }
 
 /*For demo purposes*/
