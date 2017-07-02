@@ -1,5 +1,10 @@
 package to.etc.domui.derbydata.db;
 
+import to.etc.domui.component.meta.MetaDisplayProperty;
+import to.etc.domui.component.meta.MetaObject;
+import to.etc.domui.component.meta.MetaSearchItem;
+import to.etc.domui.converter.MsDurationConverter;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -16,6 +21,17 @@ import java.math.BigDecimal;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Apr 20, 2010
  */
+@MetaObject(defaultColumns = {
+	@MetaDisplayProperty(name="name", displayLength = 80)
+	, @MetaDisplayProperty(name = "milliseconds", converterClass = MsDurationConverter.class)
+	, @MetaDisplayProperty(name = "album.title", displayLength = 40)
+	, @MetaDisplayProperty(name = "album.artist.name", displayLength = 40)
+}, searchProperties = {
+	@MetaSearchItem(name = "name")
+	, @MetaSearchItem(name = "album")
+	, @MetaSearchItem(name = "album.artist")
+}
+)
 @Entity
 @Table(name = "Track")
 public class Track extends DbRecordBase<Long> {

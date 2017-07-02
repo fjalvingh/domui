@@ -5,6 +5,12 @@ import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.Para;
 import to.etc.domui.util.DomUtil;
 import to.etc.domuidemo.ComponentListPage;
+import to.etc.domuidemo.pages.cddb.CdCollection;
+import to.etc.domuidemo.pages.test.binding.buildorder.BuildOrderPage;
+import to.etc.domuidemo.pages.test.binding.conversion.BindingConversionTestForm;
+import to.etc.domuidemo.pages.test.binding.order1.BindingTypeForm1;
+import to.etc.domuidemo.pages.test.binding.order1.DoNotBindControlDottedTestPage;
+import to.etc.domuidemo.pages.test.binding.order1.TestBindingOrder1;
 
 public class HomePage extends MenuPage {
 	public HomePage() {
@@ -34,6 +40,14 @@ public class HomePage extends MenuPage {
 		d.add(" to get a window showing the Java source code for the screen in question. In this window you can click the underlined class names to go to their sources too.");
 
 		addCaption("Demo apps");
+		addLink(CdCollection.class, "Tracks for sale");
+
+		addCaption("JUnit/Selenium Test pages");
+		addLink(BuildOrderPage.class, "Build order should not influence values used by bindings");
+		addLink(BindingConversionTestForm.class, "Converting bindings should convert and properly send conversion errors as binding errors");
+		addLink(TestBindingOrder1.class, "Bindings that depend on each other should work");
+		addLink(BindingTypeForm1.class, "Binding between different types must show an error");
+		addLink(DoNotBindControlDottedTestPage.class, "Binding a generic control's value as a dotted path (value.id) should throw an exception");
 
 		addCaption("Detailed examples and wiki page");
 		addLink(ComponentListPage.class, "Component overview page");
