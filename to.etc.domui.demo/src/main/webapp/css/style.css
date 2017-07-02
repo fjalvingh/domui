@@ -128,3 +128,10 @@ pre.code {
 	right: 550px;
 	padding: 5px;
 }
+
+/*** Explanation blurb ***/
+.dm-expl {
+	padding: 10px 20px;
+	background: #aaaaaa;
+}
+

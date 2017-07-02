@@ -756,6 +756,11 @@ public class HtmlTagRenderer implements INodeVisitor {
 		renderTagend(n, m_o);
 	}
 
+	@Override public void visitP(Para n) throws Exception {
+		basicNodeRender(n, m_o);
+		renderTagend(n, m_o);
+	}
+
 	@Override
 	public void visitTBody(final TBody n) throws Exception {
 		basicNodeRender(n, m_o);

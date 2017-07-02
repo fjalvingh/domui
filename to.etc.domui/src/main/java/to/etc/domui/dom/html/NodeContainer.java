@@ -875,6 +875,5 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 			}
 		}
 	}
-
 }
 

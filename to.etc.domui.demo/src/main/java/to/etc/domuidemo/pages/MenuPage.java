@@ -9,21 +9,18 @@ import to.etc.domuidemo.sourceviewer.*;
 import javax.annotation.*;
 
 public class MenuPage extends UrlPage {
-	final private ContentPanel m_cp = new ContentPanel();
+	@Nullable
+	private ContentPanel m_cp;
 
 	public MenuPage(@Nonnull String pageTitle) {
 		setPageTitle(pageTitle);
 	}
 
-	@Override
-	protected void createFrame() throws Exception {
-		add(m_cp);
-		delegateTo(m_cp);
-	}
-
 	final protected void addCaption(@Nonnull String txt) {
-		m_cp.add(new VerticalSpacer(10));
-		m_cp.add(new CaptionedHeader(txt));
+		add(new VerticalSpacer(10));
+		add(new CaptionedHeader(txt));
+		m_cp = new ContentPanel();
+		add(m_cp);
 	}
 
 	final protected void addLink(@Nonnull Class< ? extends UrlPage> clz, @Nonnull String text) {
