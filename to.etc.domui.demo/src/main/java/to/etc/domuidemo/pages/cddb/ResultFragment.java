@@ -52,7 +52,7 @@ public class ResultFragment<T> extends Div {
 			}
 			table = m_table = new DataTable<>(model, rowRenderer);
 			add(table);
-			table.setPageSize(25);
+			table.setPageSize(20);
 			add(new DataPager(table));
 		} else {
 			table.setModel(model);
