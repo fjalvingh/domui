@@ -29,7 +29,11 @@ public class MenuPage extends UrlPage {
 
 	final protected void addLink(@Nonnull Class< ? extends UrlPage> clz, @Nonnull String text, boolean nw) {
 		Div d = new Div();
-		m_cp.add(d);
+		NodeContainer cp = m_cp;
+		if(null == cp) {
+			cp = this;
+		}
+		cp.add(d);
 		ALink link = new ALink(clz);
 		d.add(link);
 		link.setText(text);
