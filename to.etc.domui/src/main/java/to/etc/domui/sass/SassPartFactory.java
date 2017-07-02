@@ -56,8 +56,10 @@ public class SassPartFactory implements IBufferedPartFactory<ParameterInfoImpl> 
 		}
 
 		ScssStylesheet parent = new ScssStylesheet();
-		parent.addResolver(new ScssDomuiResolver(rdl, basePath, params));
+		ScssDomuiResolver resolver = new ScssDomuiResolver(rdl, basePath, params);
+		parent.addResolver(resolver);
 		parent.setCharset("utf-8");
+		parent.setFile(new File(rurl));				// jal 20170702 So bad, but there is no other reliable way to present parentage
 
 		// Parse stylesheet
 		ScssStylesheet scss = ScssStylesheet.get(rurl, parent, new SCSSDocumentHandlerImpl(), errorHandler);
@@ -83,7 +85,7 @@ public class SassPartFactory implements IBufferedPartFactory<ParameterInfoImpl> 
 		}
 		ts = System.nanoTime() - ts;
 		System.out.println("sass: script render took " + StringTool.strNanoTime(ts));
-
+		resolver.close();
 	}
 
 	/**
