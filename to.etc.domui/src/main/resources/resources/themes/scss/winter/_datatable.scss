@@ -1,5 +1,8 @@
 /*** 140_datatable.frag.css ***/
 /*** DataTable default style ***/
+@import "_variables";
+@import "_color";
+
 div.ui-dt {
 	overflow: auto;
 	position: relative;
@@ -17,15 +20,13 @@ div.ui-dt > table > tr > td {
 div.ui-dt > table {
 	overflow: auto;
 	position: relative;
-	/*border-right: none; ???*/
-	/*border-bottom: none; ??? */
 	border-collapse: collapse;
 	border-spacing: 2px;
 	width: 100%;
 	border: 1px solid #bdbdbd;
 
-	margin: 0px;
-	padding: 0px;
+	margin: 0;
+	padding: 0;
 }
 .ui-dt tbody tr {
 	height: 30px;
@@ -40,7 +41,7 @@ div.ui-dt > table {
 	vertical-align: middle;
 	font-weight: normal;
 
-	background: #297bc0;
+	background: $data_tbl_header_bg;
 	border-left: none !important;
 	border-right: none;
 	border-bottom: none;
