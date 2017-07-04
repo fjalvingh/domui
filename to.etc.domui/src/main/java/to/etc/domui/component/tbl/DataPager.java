@@ -24,16 +24,23 @@
  */
 package to.etc.domui.component.tbl;
 
-import java.util.*;
+import to.etc.domui.component.buttons.SmallImgButton;
+import to.etc.domui.dom.css.DisplayType;
+import to.etc.domui.dom.html.ATag;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.Img;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.Span;
+import to.etc.domui.dom.html.TextNode;
+import to.etc.domui.util.Msgs;
+import to.etc.webapp.nls.BundleRef;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.misc.*;
-import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.nls.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A pager component for a DataTable-based table. This gets attached
@@ -65,7 +72,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 
 	private TextNode m_txt;
 
-	private Div m_textDiv;
+	private NodeContainer m_textDiv;
 
 	/** When set (default) this shows selection details when a table has a selectable model. */
 	private boolean m_showSelection = true;
@@ -87,20 +94,23 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		setCssClass("ui-dp");
 
 		//-- The text part: message
-		Div d = new Div();
-		add(d);
-		d.setFloat(FloatType.RIGHT);
-		Div txtPnl = new Div();
+		Div textPartRight = new Div();
+		m_textDiv = textPartRight;
+		add(textPartRight);
+		textPartRight.setCssClass("ui-dp-txt");
+
+		Span txtPnl = new Span();
 		txtPnl.setTestID("pager results label");
 		txtPnl.setCssClass("ui-dp-nav-pgr");
+
+		//textPartRight.add(new VerticalSpacer(10));
 		m_txt = new TextNode();
-		d.add(new VerticalSpacer(10));
 		txtPnl.add(m_txt);
-		d.add(txtPnl);
-		m_textDiv = d;
+		textPartRight.add(txtPnl);
 
 		m_buttonDiv = new Div();
 		add(m_buttonDiv);
+
 		m_buttonDiv.setCssClass("ui-dp-btns");
 		m_firstBtn = new ATag();
 		m_firstBtn.setTestID("firstBtn");
