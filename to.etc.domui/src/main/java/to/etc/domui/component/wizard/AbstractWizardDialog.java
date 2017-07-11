@@ -26,6 +26,8 @@ public abstract class AbstractWizardDialog extends Dialog {
 	public static final String CURRENT = "currentStep";
 
 	private final List<AbstractWizardStep> m_stepList = new ArrayList<>();
+	
+	private final List<AbstractWizardStep> m_visitedStepList = new ArrayList<>();
 
 	@Nullable
 	private AbstractWizardStep m_currentStep;
@@ -185,6 +187,11 @@ public abstract class AbstractWizardDialog extends Dialog {
 			m_currentStep = null;
 		}
 		currentStep = m_stepList.get(index);
+		if(m_visitedStepList.contains(currentStep)) {
+			currentStep.onReturn();
+		} else {
+			m_visitedStepList.add(currentStep);
+		}
 		currentStep.onReturn();
 		m_stepDiv.add(currentStep);
 		m_currentStep = currentStep;
