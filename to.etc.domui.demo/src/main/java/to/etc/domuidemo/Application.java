@@ -1,36 +1,23 @@
 package to.etc.domuidemo;
 
-import to.etc.dbpool.ConnectionPool;
-import to.etc.dbpool.PoolManager;
-import to.etc.domui.caches.images.ImageCache;
-import to.etc.domui.component.layout.BreadCrumb;
-import to.etc.domui.dom.errors.IExceptionListener;
-import to.etc.domui.dom.errors.UIMessage;
-import to.etc.domui.dom.header.HeaderContributor;
-import to.etc.domui.dom.html.NodeBase;
-import to.etc.domui.dom.html.Page;
-import to.etc.domui.dom.html.UrlPage;
-import to.etc.domui.server.ConfigParameters;
-import to.etc.domui.server.DomApplication;
-import to.etc.domui.server.IRequestContext;
-import to.etc.domui.themes.fragmented.FragmentedThemeFactory;
-import to.etc.domui.themes.simple.SimpleThemeFactory;
-import to.etc.domui.trouble.UIException;
-import to.etc.domui.util.DomUtil;
-import to.etc.domui.util.INewPageInstantiated;
-import to.etc.domui.util.Msgs;
-import to.etc.domuidemo.components.SourceBreadCrumb;
-import to.etc.domuidemo.db.DBInitialize;
-import to.etc.domuidemo.db.DbUtil;
-import to.etc.domuidemo.pages.HomePage;
-import to.etc.domuidemo.sourceviewer.SourcePage;
-import to.etc.formbuilder.pages.FormDesigner;
-import to.etc.util.DeveloperOptions;
-import to.etc.webapp.query.QContextManager;
+import to.etc.domui.caches.images.*;
+import to.etc.domui.component.layout.*;
+import to.etc.domui.derbydata.init.*;
+import to.etc.domui.dom.errors.*;
+import to.etc.domui.dom.header.*;
+import to.etc.domui.dom.html.*;
+import to.etc.domui.server.*;
+import to.etc.domui.themes.sass.*;
+import to.etc.domui.trouble.*;
+import to.etc.domui.util.*;
+import to.etc.domuidemo.components.*;
+import to.etc.domuidemo.pages.*;
+import to.etc.domuidemo.sourceviewer.*;
+import to.etc.formbuilder.pages.*;
 
-import javax.annotation.Nonnull;
-import javax.servlet.UnavailableException;
-import java.io.File;
+import javax.annotation.*;
+import javax.servlet.*;
+import java.io.*;
 
 public class Application extends DomApplication {
 	private boolean m_hibinit;
@@ -46,16 +33,19 @@ public class Application extends DomApplication {
 	protected void initialize(final ConfigParameters pp) throws Exception {
 		ImageCache.initialize(32 * 1024 * 1024, 5l * 1024 * 1024 * 1024, new File("/tmp/imagecache"));
 
-		String newtheme = DeveloperOptions.getString("domuidemo.simpletheme");
-		if(null != newtheme) {
-			//-- Set the SIMPLE theme provider with the specified theme set.
-			setThemeFactory(SimpleThemeFactory.INSTANCE);
-			setCurrentTheme(newtheme);
-		} else {
-			setThemeFactory(FragmentedThemeFactory.getInstance());
-			String stylename = DeveloperOptions.getString("domuidemo.theme", "domui/domui/orange");		// Default to DomUI's native fragmented theme
-			setCurrentTheme(stylename);
-		}
+		setThemeFactory(SassThemeFactory.INSTANCE);
+		//
+		//
+		//String newtheme = DeveloperOptions.getString("domuidemo.simpletheme");
+		//if(null != newtheme) {
+		//	//-- Set the SIMPLE theme provider with the specified theme set.
+		//	setThemeFactory(SimpleThemeFactory.INSTANCE);
+		//	setCurrentTheme(newtheme);
+		//} else {
+		//	setThemeFactory(FragmentedThemeFactory.getInstance());
+		//	String stylename = DeveloperOptions.getString("domuidemo.theme", "domui/domui/orange");        // Default to DomUI's native fragmented theme
+		//	setCurrentTheme(stylename);
+		//}
 
 		//-- Append the default style sheet.
 		addHeaderContributor(HeaderContributor.loadStylesheet("css/style.css"), 1000); // Add default stylesheet for the app
@@ -106,7 +96,8 @@ public class Application extends DomApplication {
 			}
 
 			@Override
-			public void newPageCreated(@Nonnull UrlPage body) throws Exception {}
+			public void newPageCreated(@Nonnull UrlPage body) throws Exception {
+			}
 		});
 	}
 
@@ -127,7 +118,7 @@ public class Application extends DomApplication {
 	//	}
 
 	@Override
-	public Class< ? extends UrlPage> getRootPage() {
+	public Class<? extends UrlPage> getRootPage() {
 		return HomePage.class;
 	}
 
@@ -165,6 +156,7 @@ public class Application extends DomApplication {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Initializing and populating the demo database		*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Initialize the database. This code uses the embedded Derby database but the same logic
 	 * as shown here can be used to open any database. In addition, this code will see if the
@@ -173,29 +165,12 @@ public class Application extends DomApplication {
 	 * @throws Exception
 	 */
 	private void initDatabase() throws Exception {
-		String poolid = DeveloperOptions.getString("domuidemo.poolid"); // Is a poolid defined in .developer.proeprties? Then use that,
-		ConnectionPool p;
-		if(poolid != null) {
-			//-- Local configuration. Init using local.
-			System.out.println("** WARNING: Using local database configuration, pool=" + poolid);
-			p = PoolManager.getInstance().initializePool(poolid);
-		} else {
-			//-- Must have a proper database file in web-inf
-			File pf = getAppFile("WEB-INF/pool.xml");
-			if(!pf.exists())
-				throw new UnavailableException("Missing file WEB-INF/pool.xml containing the database to use");
-			p = PoolManager.getInstance().initializePool(pf, "demo");
-		}
-		DBInitialize.fillDatabase(p.getUnpooledDataSource());
-		DbUtil.initialize(p.getPooledDataSource());
-
-		//-- Tell the generic layer how to create default DataContext's.
-		QContextManager.setImplementation(QContextManager.DEFAULT, DbUtil.getContextSource()); // Prime factory with connection source
+		TestDB.initialize();
 	}
 
 	synchronized void waitForInit() throws Exception {
 		int tries = 10;
-		for(;;) {
+		for(; ; ) {
 			if(m_hibinit)
 				return;
 			if(m_hibabort != null)
@@ -208,15 +183,9 @@ public class Application extends DomApplication {
 
 	static public void main(String[] args) {
 		try {
-			File pf = new File("WebContent/WEB-INF/pool.xml");
-			if(!pf.exists())
-				throw new UnavailableException("Missing file WEB-INF/pool.xml containing the database to use");
-			ConnectionPool p = PoolManager.getInstance().initializePool(pf, "demo");
-			System.out.println("Got a db");
-			DBInitialize.fillDatabase(p.getUnpooledDataSource());
+			TestDB.initialize();
 		} catch(Exception x) {
 			x.printStackTrace();
 		}
-
 	}
 }

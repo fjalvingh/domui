@@ -1,14 +1,14 @@
 package to.etc.domuidemo.pages.test.binding.order1;
 
 import to.etc.domui.component.input.LookupInput;
+import to.etc.domui.derbydata.db.Customer;
 import to.etc.domui.dom.html.UrlPage;
-import to.etc.domuidemo.db.Customer;
 import to.etc.webapp.query.QCriteria;
 
 
 /**
  * Test for bug #2: cannot bind a control property with a dotted path. Opening
- * thig form must throw a {@link to.etc.domui.component.binding.BindingFailureException}
+ * this form must throw a {@link to.etc.domui.component.binding.BindingFailureException}
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 24-3-17.

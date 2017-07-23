@@ -87,6 +87,10 @@ public class FragmentedThemeFactory {
 			FragmentedThemeFactory stf = new FragmentedThemeFactory(da, themeName);
 			return stf.createTheme();
 		}
+
+		@Nonnull @Override public String getDefaultThemeName() {
+			return "domui/orange/domui";
+		}
 	};
 
 	final private DomApplication m_application;

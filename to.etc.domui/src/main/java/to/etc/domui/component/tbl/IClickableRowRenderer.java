@@ -13,7 +13,7 @@ public interface IClickableRowRenderer<T> extends IRowRenderer<T> {
 	 * Set (or clear) the handler to be called when the row is clicked.
 	 * @param rowClicked
 	 */
-	<V> void setRowClicked(@Nullable final ICellClicked<V> rowClicked);
+	void setRowClicked(@Nullable final ICellClicked<T> rowClicked);
 
 	/**
 	 * Set (or clear) the handler to be called when a specific cell in the row is clicked.

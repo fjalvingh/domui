@@ -24,12 +24,18 @@
  */
 package to.etc.domui.component.misc;
 
-import javax.annotation.*;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.Img;
+import to.etc.domui.dom.html.ImgAlign;
+import to.etc.domui.dom.html.XmlTextNode;
 
-import to.etc.domui.dom.html.*;
+import javax.annotation.Nullable;
 
 public class Explanation extends Div {
 	private final XmlTextNode m_text = new XmlTextNode();
+
+	public Explanation() {
+	}
 
 	public Explanation(final String txt) {
 		setCssClass("ui-expl");
@@ -40,8 +46,8 @@ public class Explanation extends Div {
 	public void createContent() throws Exception {
 		Img i = new Img("THEME/big-info.png");
 		i.setAlign(ImgAlign.LEFT);
-		add(i);
-		add(m_text);
+		add(0, i);
+		add(1, m_text);
 	}
 
 	@Override

@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css?family=Fira+Mono|Josefin+Sans:400,400i,600,600i&subset=latin-ext');
+
 @import 'color';
 @import 'variables';
 @import 'parameters';
@@ -39,6 +41,7 @@
 
 /** Complex components **/
 @import "datatable";
+@import "datapager";
 @import "scrollableTable";
 @import "tree";
 @import "expandingtable";

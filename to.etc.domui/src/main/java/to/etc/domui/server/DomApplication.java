@@ -70,6 +70,7 @@ import java.util.*;
  */
 public abstract class DomApplication {
 	static public final Logger LOG = LoggerFactory.getLogger(DomApplication.class);
+	static public final Logger LOGRES = LoggerFactory.getLogger("to.etc.domui.resources");
 
 	@Nonnull
 	private final PartService m_partService = new PartService(this);
@@ -998,6 +999,9 @@ public abstract class DomApplication {
 
 		for(IResourceFactory rf : getResourceFactories()) {
 			int score = rf.accept(name);
+			if(LOGRES.isDebugEnabled()) {
+				LOGRES.debug("    rf " + rf.getClass().getSimpleName() + " " + score);
+			}
 			if(score > bestscore) {
 				bestscore = score;
 				best = rf;
@@ -1611,6 +1615,7 @@ public abstract class DomApplication {
 	 */
 	final public void setThemeFactory(@Nonnull IThemeFactory themer) {
 		m_themeManager.setThemeFactory(themer);
+		m_themeManager.setCurrentTheme(themer.getDefaultThemeName());
 	}
 
 	/**

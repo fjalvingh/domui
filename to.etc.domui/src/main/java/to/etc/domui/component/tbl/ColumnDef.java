@@ -22,7 +22,7 @@ final public class ColumnDef<I, T> {
 	final private Class<T> m_columnType;
 
 	@Nonnull
-	private SortableType m_sortable = SortableType.UNKNOWN;
+	private SortableType m_sortable = SortableType.SORTABLE_ASC;
 
 	@Nullable
 	private ISortHelper<?> m_sortHelper;
@@ -91,7 +91,12 @@ final public class ColumnDef<I, T> {
 		m_columnType = pmm.getActualType();
 		label(pmm.getDefaultLabel());
 		m_propertyMetaModel = pmm;
-		setSortable(pmm.getSortable());
+		SortableType sortable = pmm.getSortable();
+		// By default try to sort ascending if sorting is unknown. Use UNSORTABLE to prevent this.
+		if(sortable == SortableType.UNKNOWN) {
+			sortable = SortableType.SORTABLE_ASC;
+		}
+		setSortable(sortable);
 		setPropertyName(pmm.getName());
 		numeric(pmm.getNumericPresentation());
 		if(pmm.getNowrap() == YesNoType.YES)

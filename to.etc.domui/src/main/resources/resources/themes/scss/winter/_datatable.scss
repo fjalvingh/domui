@@ -1,48 +1,56 @@
 /*** 140_datatable.frag.css ***/
-@import "variables";
+/*** DataTable default style ***/
+@import "_variables";
+@import "_color";
 
 div.ui-dt {
 	overflow: auto;
 	position: relative;
 }
 
-div.ui-dt > table td {
+div.ui-dt > table > tr > td {
 	border: 0;
 	margin: 0;
 	padding: 0px 3px;
-	border-left: 1px solid #bababa; /* gray so it is theme invariant */
+	border-left: none;
 	height: 19px;
-	vertical-align: middle;
-}
-div.ui-dt > table td * {
 	vertical-align: middle;
 }
 
 div.ui-dt > table {
-	padding: 0px;
-	margin: 0px;
-	border-collapse: collapse;
 	overflow: auto;
 	position: relative;
-	border-right: 1px solid #bababa;
-	border-bottom: 1px solid #bababa;
+	border-collapse: collapse;
 	border-spacing: 2px;
+	width: 100%;
+	border: 1px solid #bdbdbd;
+
+	margin: 0;
+	padding: 0;
+}
+.ui-dt tbody tr {
+	height: 30px;
+	border-bottom: 1px solid #ebebeb;
 }
 
 .ui-dt th, .ui-dt-hdr {
 	padding: 0px 3px;
-	border-left: none !important;
-	background: url($data_tbl_header_bg_img);
-	color: $data_tbl_header_text_color;
-	border-bottom: 1px solid $data_tbl_header_btm_border;
+	color: white;
 	text-align: left;
-	font-weight: bold;
-	height: 18px;
+	height: 22px;
 	vertical-align: middle;
+	font-weight: normal;
+
+	background: $data_tbl_header_bg;
+	border-left: none !important;
+	border-right: none;
+	border-bottom: none;
+	border-right: none;
 }
 
 .ui-dt th:FIRST-CHILD, .ui-dt-hdr:FIRST-CHILD {
 	border-left: 1px solid $data_tbl_header_btm_border !important;
+	border-top: 1px solid $data_tbl_header_btm_border !important;
 }
 
 .ui-dt th:LAST-CHILD, .ui-dt-hdr:LAST-CHILD {
@@ -63,15 +71,18 @@ div.ui-dt > table {
 }
 
 .ui-even {
-	background: $data_tbl_even_row_bg;
+	background: transparent;
 }
 
 tr.ui-rowsel {
 	cursor: pointer;
 }
-
 tr.ui-rowsel:hover {
-	background-color: $highlight_bg !important;
+	/*	border: 1px solid #ffd55a !important; */
+	outline: 1px solid #ffd55a;
+	outline-offset: -1px;
+	background-color: #fff4d3 !important;
+	border-bottom: 1px solid transparent;
 }
 
 td.ui-cellsel {
@@ -105,11 +116,11 @@ div.ui-sortable {
 
 .ui-dt {
 	font-size: $data_tbl_font_size;
-/*	height: 100%; jal 20150717: this cannot work: all tables now overflow whatever they are contained in. */
+	/*	height: 100%; jal 20150717: this cannot work: all tables now overflow whatever they are contained in. */
 }
 
 .ui-dt-separator {
-	background: url(bg-horiz-separator.png) repeat-x center;
+	background: url('hr-blue.png') no-repeat;
 	padding: 1px;
 }
 

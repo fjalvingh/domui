@@ -71,7 +71,7 @@ final public class MultiRowRenderer<T> implements IClickableRowRenderer<T> {
 	private Img[] m_sortImages;
 
 	@Nullable
-	private ICellClicked< ? > m_rowClicked;
+	private ICellClicked<T> m_rowClicked;
 
 	@Nullable
 	private IRowButtonFactory<T> m_rowButtonFactory;
@@ -613,7 +613,7 @@ final public class MultiRowRenderer<T> implements IClickableRowRenderer<T> {
 	 */
 	@Override
 	@Nullable
-	public ICellClicked< ? > getRowClicked() {
+	public ICellClicked<T> getRowClicked() {
 		return m_rowClicked;
 	}
 
@@ -622,7 +622,7 @@ final public class MultiRowRenderer<T> implements IClickableRowRenderer<T> {
 	 * @param rowClicked
 	 */
 	@Override
-	public <V> void setRowClicked(@Nullable final ICellClicked<V> rowClicked) {
+	public void setRowClicked(@Nullable final ICellClicked<T> rowClicked) {
 		m_rowClicked = rowClicked;
 	}
 

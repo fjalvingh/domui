@@ -87,6 +87,10 @@ public class SimpleThemeFactory implements IThemeFactory {
 		m_themeName = themeName;
 	}
 
+	@Nonnull @Override public String getDefaultThemeName() {
+		return "blue/blue/blue";
+	}
+
 	@Override
 	public @Nonnull ITheme getTheme(@Nonnull DomApplication da, @Nonnull String themeName) throws Exception {
 		SimpleThemeFactory stf = new SimpleThemeFactory(da, themeName);

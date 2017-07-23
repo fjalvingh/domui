@@ -45,6 +45,10 @@ final public class SassThemeFactory {
 			SassThemeFactory stf = new SassThemeFactory(da, themeName);
 			return stf.createTheme();
 		}
+
+		@Nonnull @Override public String getDefaultThemeName() {
+			return "winter/default/default";
+		}
 	};
 
 	private final DomApplication m_application;

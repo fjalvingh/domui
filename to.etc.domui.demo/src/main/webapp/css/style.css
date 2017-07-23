@@ -2,7 +2,6 @@
 	border-bottom: 1px dotted #333;
 	background-color: #ddd;
 	padding: 4px 8px 4px 8px;
-	margin: -10px -10px 10px -10px;
 }
 .d-sbc * {
 	font-size: 18px;
@@ -24,6 +23,27 @@
 }
 
 /******** Syntax highlighting for patch renderer ***********/
+.dm-srcp-scrl {
+	position: absolute;
+	top: 30px;
+	bottom: 0px;
+	left: 0px;
+	right: 0px;
+	overflow: auto;
+	font-family: 'Fira Mono';
+	font-size: 12px;
+}
+.dm-srcp-lnr {
+	width: 4em;
+	background: #ccc;
+	text-align: right;
+	font-style: italic;
+	padding-right: 4px;
+}
+.dm-srcp-txt {
+	padding-left: 5px;
+}
+
 pre.code {
 	font-family: Bitstream Vera Mono, Consolas, Courier, monospace;
 	font-size: small;
@@ -108,3 +128,10 @@ pre.code {
 	right: 550px;
 	padding: 5px;
 }
+
+/*** Explanation blurb ***/
+.dm-expl {
+	padding: 10px 20px;
+	background: #aaaaaa;
+}
+

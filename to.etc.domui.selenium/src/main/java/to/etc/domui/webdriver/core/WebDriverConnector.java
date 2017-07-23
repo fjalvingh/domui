@@ -683,7 +683,7 @@ final public class WebDriverConnector {
 	 * @param locator
 	 * @return
 	 */
-	@Nonnull
+	@Nullable
 	public String findAttribute(@Nonnull By locator, @Nonnull String attribute) {
 		return driver().findElement(locator).getAttribute(attribute);
 	}
@@ -693,7 +693,7 @@ final public class WebDriverConnector {
 	 * @param testid
 	 * @return
 	 */
-	@Nonnull
+	@Nullable
 	public String findAttribute(@Nonnull String testid, @Nonnull String attribute) {
 		return findAttribute(byId(testid), attribute);
 	}

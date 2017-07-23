@@ -2,15 +2,22 @@
 @import "variables";
 
 .ui-dp {
-	margin-top: 2px;
+	margin-top: 8px;
 	margin-left: 4px;
-	padding: 0px;
+	padding: 0;
+}
+.ui-dp-txt {
+	float: right;
+}
+.ui-dp-txt img {
+	vertical-align: bottom;
+	padding-left: 8px;
 }
 .ui-dp-btns {
 	margin-left: -9px;
 }
 
-.ui-dp-btns a{
+.ui-dp-btns a {
 	height: $data_pager_icon_size_y;
 	width: $data_pager_icon_size_x;
 	display: inline-block;
@@ -18,6 +25,11 @@
 	margin-left: -3px;
 	outline: 0; 				/* btadic 20120712: Removing dotted border form focused button */
 	background: url($data_pager_icons) no-repeat;
+}
+.ui-dp-nav-prg {
+}
+
+.ui-dp-nav-pgr-ovf {
 }
 
 .ui-dp-btns a.ui-dp-nav-f {

@@ -309,6 +309,7 @@ public class JdbcSQLGenerator extends QRenderingVisitorBase {
 		int oldprec = precedenceOpen(n);
 
 		appendWhere(getColumnRef(m_root, pm.getColumnName()));
+		appendWhere(" in (");
 
 		QOperatorNode expr = n.getExpr();
 		if(expr instanceof QLiteral) {
@@ -321,7 +322,7 @@ public class JdbcSQLGenerator extends QRenderingVisitorBase {
 					if(ct++ > 0)
 						appendWhere(",");
 
-					appendValueSetter(pm, (QLiteral) n.getExpr());
+					appendValueSetter(pm, o);
 				}
 			} else {
 				throw new QQuerySyntaxException("Unexpected literal of type " + value + " in 'in' expression for property " + n.getProperty());
@@ -329,6 +330,7 @@ public class JdbcSQLGenerator extends QRenderingVisitorBase {
 		} else {
 			expr.visit(this);
 		}
+		appendWhere(")");
 		precedenceClose(oldprec);
 	}
 
