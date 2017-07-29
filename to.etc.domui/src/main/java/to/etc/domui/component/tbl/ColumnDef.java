@@ -32,7 +32,7 @@ final public class ColumnDef<I, T> {
 	private String m_sortProperty;
 
 	@Nullable
-	private String m_width = "1%";					// jal 20150408 Default to 1% width for now
+	private String m_width; // = "1%";					// jal 20150408 Default to 1% width for now
 
 	@Nullable
 	private String m_propertyName;
