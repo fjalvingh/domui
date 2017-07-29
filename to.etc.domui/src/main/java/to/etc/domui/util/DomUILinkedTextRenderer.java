@@ -1,14 +1,18 @@
 package to.etc.domui.util;
 
-import javax.annotation.*;
+import to.etc.domui.component.misc.ALink;
+import to.etc.domui.dom.html.BR;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.state.PageParameters;
+import to.etc.domui.state.UIContext;
+import to.etc.util.WrappedException;
+import to.etc.webapp.mailer.ITextLinkRenderer;
+import to.etc.webapp.mailer.TextLinkInfo;
+import to.etc.webapp.query.IIdentifyable;
 
-import to.etc.domui.component.misc.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.domui.state.*;
-import to.etc.util.*;
-import to.etc.webapp.mailer.*;
-import to.etc.webapp.query.*;
+import javax.annotation.Nonnull;
 
 /**
  * Helps with rendering a log message as DomUI linked text. Uses TextLinkInfo as factory
@@ -36,7 +40,7 @@ final public class DomUILinkedTextRenderer implements ITextLinkRenderer {
 			query = null;
 		} else {
 			page = rurl.substring(0, pos);
-			query = rurl.substring(pos);
+			query = rurl.substring(pos + 1);
 		}
 
 		ALink link;
@@ -59,21 +63,10 @@ final public class DomUILinkedTextRenderer implements ITextLinkRenderer {
 				throw new IllegalStateException("Class " + clz + " is not a DomUI class");
 			Class< ? extends UrlPage> pageClz = (Class< ? extends UrlPage>) clz;
 
+
 			PageParameters pp = new PageParameters();
 			if(null != query) {
-				String[] ar = query.substring(1).split("&");
-				for(String param : ar) {
-					String name, val;
-					pos = param.indexOf('=');
-					if(pos != -1) {
-						name = param.substring(0, pos);
-						val = param.substring(pos + 1);
-					} else {
-						name = param;
-						val = "";
-					}
-					pp.addParameter(name, val);
-				}
+				pp = PageParameters.decodeParameters(query);
 			}
 			link = new ALink(pageClz, pp);
 		}
