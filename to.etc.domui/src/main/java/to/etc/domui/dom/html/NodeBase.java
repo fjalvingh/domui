@@ -485,11 +485,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		String cssClass = getCssClass();
 		if(cssClass == null)
 			return false;
-		StringTokenizer st = new StringTokenizer(cssClass, " \t");
+		String[] split = cssClass.split("\\s+");
 		StringBuilder sb = new StringBuilder(cssClass.length());
 		boolean fnd = false;
-		while(st.hasMoreTokens()) {
-			String s = st.nextToken();
+		for(String s: split) {
 			if(name.equals(s)) {
 				fnd = true;
 			} else {
@@ -509,18 +508,34 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * contains class names this one is added separated by space.
 	 * @param name
 	 */
-	final public void addCssClass(@Nonnull final String name) {
-		if(getCssClass() == null) {
-			setCssClass(name);
+	final public void addCssClass(@Nonnull final String nameList) {
+		String cssClass = getCssClass();
+		if(cssClass == null) {
+			setCssClass(nameList);
 			return;
 		}
-		StringTokenizer st = new StringTokenizer(getCssClass(), " \t");
-		while(st.hasMoreTokens()) {
-			String s = st.nextToken();
-			if(name.equals(s)) // Already present?
-				return;
+
+		String[] names = nameList.split("\\s+");
+
+		String[] split = cssClass.split("\\s+");
+		for(String s: split) {
+			for(int i = 0; i < names.length; i++) {
+				String name = names[i];
+				if(s.equals(name)) {
+					names[i] = null;				// Already there
+				}
+			}
 		}
-		setCssClass(getCssClass() + " " + name);
+		StringBuilder sb = new StringBuilder(cssClass);
+		for(int i = 0; i < names.length; i++) {
+			String name = names[i];
+			if(null != name) {
+				if(sb.length() > 0)
+					sb.append(' ');
+				sb.append(name);
+			}
+		}
+		setCssClass(sb.toString());
 	}
 
 	/**
