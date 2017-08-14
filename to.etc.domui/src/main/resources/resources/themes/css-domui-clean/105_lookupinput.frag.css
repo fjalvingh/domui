@@ -14,8 +14,9 @@
 .ui-lui-btntd .ui-lui-sel-btn {
 	position: absolute;
 	vertical-align: top;
-	margin-left: -26px;
+	margin-left: -27px;
 	margin-top: 1px;
+	border-right: 1px solid #aaa;
 }
 
 div.ui-lui-selected-ro {
