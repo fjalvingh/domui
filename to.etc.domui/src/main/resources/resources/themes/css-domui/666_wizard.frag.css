@@ -1,96 +1,228 @@
 .ui-wzdl-step {
-    margin-top: 32px;
-    clear: both;
-    min-height: 300px;
+	position: absolute;
+	top: 62px;
+	bottom: 36px;
+	left: 0;
+	right: 0;
+	overflow-x: hidden;
+	overflow-y: auto;
+	padding: 10px;
+	min-height: 300px;
 }
 .ui-wzdl-bbcontainer {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
 }
 .ui-wzdl-bbleft {
-    position: absolute;
-    left: 5px;
-    width: 50%;
-    text-align: left;
-    float: left;
+	position: absolute;
+	left: 5px;
+	width: 50%;
+	text-align: left;
+	float: left;
 }
 .ui-wzdl-bbright {
-    width: 50%;
-    text-align: right;
-    float: right;
+	width: 50%;
+	text-align: right;
+	float: right;
 }
 
 .ui-wznf-next {
-    display: inline-block;
-    float: left;
-    padding: 10px;
+	display: inline-block;
+	float: left;
+	padding: 10px;
 }
 .ui-wznf-prev {
-    display: inline-block;
-    float: left;
-    padding: 10px;
+	display: inline-block;
+	float: left;
+	padding: 10px;
 }
 .ui-wznf-curr {
-    display: inline-block;
-    float: left;
-    padding: 10px;
-    font-weight: bold;
+	display: inline-block;
+	float: left;
+	padding: 10px;
+	font-weight: bold;
 }
-.ui-wznf-sep {
-    display: inline-block;
-    float: left;
-    border-radius: 50%;
-    width: 9px;
-    height: 9px;
-    padding: 5px;
-    background: #013686;
-    text-align: center;
-    font-size: 10px;
-    color: white;
-    margin: 6px -5px 0 6px;
+
+/* Browser specific styles. Due to IE problems, some alternative styles must be presented. For this, some known browser hacks will be used.
+   See: http://browserhacks.com */
+
+/* IE 10+ */
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+	.ui-wznf-sep {
+		display: inline-block;
+		float: left;
+		border-radius: 50%;
+		width: 9px;
+		height: 9px;
+		padding: 4px 5px 6px 5px;
+		background: #013686;
+		text-align: center;
+		font-size: 10px;
+		color: white;
+		margin: 6px -5px 0 6px;
+	}
+	.ui-wznf-sep-past {
+		/*It is quite easy to use an icon instead of the step number for past steps with custom css. For instance, */
+		/*override the current style with the block below:*/
+
+		/*display: inline-block;*/
+		/*float: left;*/
+		/*width: 20px;*/
+		/*height: 20px;*/
+		/*padding: 4px;*/
+		/*text-align: center;*/
+		/*margin: 5px -14px 0 6px;*/
+		/*background: url(../../../../themes/vp-icons-clean/Default/20x20_done.png) no-repeat; !*** Using background instead of content due to IE compatibility ***!*/
+		/*text-indent: 100%;*/
+		/*white-space: nowrap;*/
+		/*overflow: hidden;*/
+
+		display: inline-block;
+		float: left;
+		width: 20px;
+		height: 20px;
+		padding: 4px;
+		text-align: center;
+		margin: 5px -14px 0 6px;
+		color: white;
+	}
+	.ui-wznf-sep-next {
+		display: inline-block;
+		float: left;
+		border-radius: 50%;
+		width: 9px;
+		height: 9px;
+		padding: 4px 5px 6px 5px;
+		background: black;
+		text-align: center;
+		font-size: 10px;
+		color: white;
+		margin: 6px -5px 0 6px;
+		opacity: 0.2;
+	}
 }
-.ui-wznf-sep-past {
-    display: inline-block;
-    float: left;
-    border-radius: 50%;
-    width: 9px;
-    height: 9px;
-    padding: 5px;
-    background: darkgreen;
-    text-align: center;
-    font-size: 10px;
-    color: white;
-    margin: 6px -5px 0 6px;
+
+/* Firefox 3+ */
+@-moz-document url-prefix() {
+	.ui-wznf-sep {
+		display: inline-block;
+		float: left;
+		border-radius: 50%;
+		width: 9px;
+		height: 9px;
+		padding: 5px;
+		background: #013686;
+		text-align: center;
+		font-size: 10px;
+		color: white;
+		margin: 6px -5px 0 6px;
+	}
+	.ui-wznf-sep-past {
+		/*It is quite easy to use an icon instead of the step number for past steps with custom css. For instance, */
+		/*override the current style with the block below:*/
+
+		/*display: inline-block;*/
+		/*float: left;*/
+		/*width: 20px;*/
+		/*height: 20px;*/
+		/*padding: 4px;*/
+		/*text-align: center;*/
+		/*margin: 1px -10px 0 6px;*/
+		/*content: url(../../../../themes/vp-icons-clean/Default/20x20_done.png);*/
+
+		display: inline-block;
+		float: left;
+		border-radius: 50%;
+		width: 9px;
+		height: 9px;
+		padding: 5px;
+		background: darkgreen;
+		text-align: center;
+		font-size: 10px;
+		color: white;
+		margin: 6px -5px 0 6px;
+	}
+	.ui-wznf-sep-next {
+		display: inline-block;
+		float: left;
+		border-radius: 50%;
+		width: 9px;
+		height: 9px;
+		padding: 5px;
+		background: black;
+		text-align: center;
+		font-size: 10px;
+		color: white;
+		margin: 6px -5px 0 6px;
+		opacity: 0.2;
+	}
 }
-.ui-wznf-sep-next {
-    display: inline-block;
-    float: left;
-    border-radius: 50%;
-    width: 9px;
-    height: 9px;
-    padding: 5px;
-    background: black;
-    text-align: center;
-    font-size: 10px;
-    color: white;
-    margin: 6px -5px 0 6px;
-    opacity: 0.2;
+
+/* Chrome 28+, Safari 9+, IE/Edge 12+, Opera 14+ */
+@supports (-webkit-appearance:none) {
+	.ui-wznf-sep {
+		display: inline-block;
+		float: left;
+		border-radius: 50%;
+		width: 9px;
+		height: 9px;
+		padding: 5px;
+		background: #013686;
+		text-align: center;
+		font-size: 10px;
+		color: white;
+		margin: 6px -5px 0 6px;
+	}
+	.ui-wznf-sep-past {
+		/*It is quite easy to use an icon instead of the step number for past steps with custom css. For instance, */
+		/*override the current style with the block below:*/
+
+		/*display: inline-block;*/
+		/*float: left;*/
+		/*width: 20px;*/
+		/*height: 20px;*/
+		/*padding: 4px;*/
+		/*text-align: center;*/
+		/*margin: 1px -10px 0 6px;*/
+		/*content: url(../../../../themes/vp-icons-clean/Default/20x20_done.png);*/
+
+		display: inline-block;
+		float: left;
+		border-radius: 50%;
+		width: 9px;
+		height: 9px;
+		padding: 5px;
+		background: darkgreen;
+		text-align: center;
+		font-size: 10px;
+		color: white;
+		margin: 6px -5px 0 6px;
+	}
+	.ui-wznf-sep-next {
+		display: inline-block;
+		float: left;
+		border-radius: 50%;
+		width: 9px;
+		height: 9px;
+		padding: 5px;
+		background: black;
+		text-align: center;
+		font-size: 10px;
+		color: white;
+		margin: 6px -5px 0 6px;
+		opacity: 0.2;
+	}
 }
+
 .ui-wznf-area {
-    position: absolute;
-    left: 0;
-    top: 28px;
-    right: 0;
-    background: linear-gradient(#fbfbfb, #e5e4e5);
-    border-bottom: 1px solid #aaa;
-    z-index: 99999;
+	position: absolute;
+	left: 0;
+	top: 28px;
+	right: 0;
+	background: linear-gradient(#fbfbfb, #e5e4e5);
+	border-top: 1px solid #aaa;
+	border-bottom: 1px solid #aaa;
+	z-index: 99999;
 }
-
-/*For demo purposes*/
-.ui-wzdl-align-left {
-    position: absolute;
-    left: 10px;
-}
-
