@@ -190,8 +190,9 @@ public class TabPanelBase extends Div {
 			ti.getContent().remove();
 		}
 
-		if (ti.getOnClose() != null) {
-			ti.getOnClose().onNotify(ti);
+		INotify<ITabHandle> getOnClose = ti.getOnClose();
+		if(getOnClose != null) {
+			getOnClose.onNotify(ti);
 		}
 	}
 
