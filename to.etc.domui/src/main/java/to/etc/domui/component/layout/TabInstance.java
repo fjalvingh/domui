@@ -36,7 +36,7 @@ public class TabInstance implements IErrorMessageListener, ITabHandle {
 
 	private boolean m_closable;
 
-	private List<UIMessage> m_msgList = new ArrayList<UIMessage>();
+	private final List<UIMessage> m_msgList = new ArrayList<UIMessage>();
 
 	@Nullable
 	private INotify<ITabHandle> m_onClose;
