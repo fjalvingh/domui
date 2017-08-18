@@ -1,6 +1,7 @@
 package to.etc.domui.component.misc;
 
 import org.junit.*;
+
 import to.etc.domui.component.layout.*;
 import to.etc.domui.dom.html.*;
 

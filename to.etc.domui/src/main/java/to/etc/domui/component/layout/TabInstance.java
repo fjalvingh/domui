@@ -3,7 +3,6 @@ package to.etc.domui.component.layout;
 import to.etc.domui.component.event.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
 
 import javax.annotation.*;
 import java.util.*;
@@ -42,7 +41,9 @@ public class TabInstance implements IErrorMessageListener, ITabHandle {
 	@Nullable
 	private INotify<ITabHandle> m_onClose;
 
-	public TabInstance() {}
+	public TabInstance() {
+		this(null, null, null);
+	}
 
 	public TabInstance(@Nullable NodeBase label, @Nullable NodeBase content, @Nullable String image) {
 		m_label = label;
@@ -52,40 +53,45 @@ public class TabInstance implements IErrorMessageListener, ITabHandle {
 		}
 	}
 
+	@Nullable
 	public NodeBase getContent() {
-		return DomUtil.nullChecked(m_content, "Content not provided!");
+		return m_content;
 	}
 
 	public void setContent(@Nonnull NodeBase content) {
 		m_content = content;
 	}
 
+	@Nullable
 	public NodeBase getLabel() {
-		return DomUtil.nullChecked(m_label, "Label not provided!");
+		return m_label;
 	}
 
 	public void setLabel(@Nonnull NodeBase label) {
 		m_label = label;
 	}
 
+	@Nullable
 	public Li getTab() {
-		return DomUtil.nullChecked(m_tab, "Tab not provided!");
+		return m_tab;
 	}
 
 	public void setTab(@Nonnull Li tab) {
 		m_tab = tab;
 	}
 
+	@Nullable
 	public Li getSeparator() {
-		return DomUtil.nullChecked(m_separator, "Separator not provided!");
+		return m_separator;
 	}
 
 	public void setSeparator(@Nonnull Li separator) {
 		m_separator = separator;
 	}
 
+	@Nullable
 	public Img getImg() {
-		return DomUtil.nullChecked(m_img, "Image not provided!");
+		return m_img;
 	}
 
 	public void setImage(@Nonnull Img image) {
@@ -177,11 +183,13 @@ public class TabInstance implements IErrorMessageListener, ITabHandle {
 	}
 
 	private void adjustUI() {
-		if(hasErrors()) {
-			getTab().addCssClass("ui-tab-err");
-			//FIXME: this code can not work since there is refresh problem (error image is added only after refresh in browser is pressed)
-			//is this same 'HTML rendering already done for visited node' bug in framework?
-			//for now error image is set through css
+		Li tab = getTab();
+		if(tab != null) {
+			if(hasErrors()) {
+				tab.addCssClass("ui-tab-err");
+				//FIXME: this code can not work since there is refresh problem (error image is added only after refresh in browser is pressed)
+				//is this same 'HTML rendering already done for visited node' bug in framework?
+				//for now error image is set through css
 			/*
 			if(m_errorInfo == null) {
 				m_errorInfo = new Img("THEME/mini-error.png");
@@ -191,10 +199,10 @@ public class TabInstance implements IErrorMessageListener, ITabHandle {
 				}
 			}
 			*/
-		} else {
-			getTab().removeCssClass("ui-tab-err");
-			//FIXME: this code can not work since there is refresh problem (error image is added only after refresh in browser is pressed)
-			//is this same 'HTML rendering already done for visited node' bug in framework?
+			} else {
+				tab.removeCssClass("ui-tab-err");
+				//FIXME: this code can not work since there is refresh problem (error image is added only after refresh in browser is pressed)
+				//is this same 'HTML rendering already done for visited node' bug in framework?
 			/*
 			if(m_errorInfo != null) {
 				if(m_tab.getChildCount() > 0 && m_tab.getChild(0) instanceof ATag) {
@@ -203,6 +211,7 @@ public class TabInstance implements IErrorMessageListener, ITabHandle {
 				m_errorInfo = null;
 			}
 			*/
+			}
 		}
 	}
 

@@ -33,6 +33,7 @@ import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
+import to.etc.util.*;
 
 public class TabPanelBase extends Div {
 
@@ -76,19 +77,23 @@ public class TabPanelBase extends Div {
 			boolean isselected = getCurrentTab() == index;
 			//-- Add the body to the tab's main div, except if it is lazy.
 			NodeBase content = ti.getContent();
-			content.addCssClass("ui-tab-pg");
-			content.setClear(ClearType.BOTH);
+			if(content != null) {
+				content.addCssClass("ui-tab-pg");
+				content.setClear(ClearType.BOTH);
+			}
 
 			if(!ti.isLazy() || isselected) {
 				ti.setAdded(true);
-				contentcontainer.add(content);
-				if(isselected) {
-					content.setDisplay(DisplayType.BLOCK);
-					if(content instanceof IDisplayedListener) {
-						((IDisplayedListener) content).onDisplayStateChanged(false);
+				if(content != null) {
+					contentcontainer.add(content);
+					if(isselected) {
+						content.setDisplay(DisplayType.BLOCK);
+						if(content instanceof IDisplayedListener) {
+							((IDisplayedListener) content).onDisplayStateChanged(false);
+						}
+					} else {
+						content.setDisplay(DisplayType.NONE);
 					}
-				} else {
-					content.setDisplay(DisplayType.NONE);
 				}
 			}
 			index++;
@@ -130,26 +135,19 @@ public class TabPanelBase extends Div {
 
 		Span dt = new Span();
 		d.add(dt);
-		if(ti.getImg() != null)
-			dt.add(ti.getImg());
-		dt.add(ti.getLabel()); // Append the label.
-		d.setClicked(new IClicked<Div>() {
-			@Override
-			public void clicked(@Nonnull Div b) throws Exception {
-				setCurrentTab(ti);
-			}
-		});
+		Img img = ti.getImg();
+		if(img != null)
+			dt.add(img);
+		NodeBase label = ti.getLabel();
+		if(label != null)
+			dt.add(label);
+		d.setClicked((IClicked<Div>) b -> setCurrentTab(ti));
 
 		if(ti.isCloseable()) {
 			ATag x = new ATag();
 			d.add(x);
 			x.setCssClass("ui-tab-close");
-			x.setClicked(new IClicked<ATag>() {
-				@Override
-				public void clicked(@Nonnull ATag b) throws Exception {
-					closeTab(ti);
-				}
-			});
+			x.setClicked((IClicked<ATag>) b -> closeTab(ti));
 		}
 		li.add(d);
 	}
@@ -185,9 +183,18 @@ public class TabPanelBase extends Div {
 		m_tablist.remove(index);
 
 		if(isBuilt()) {
-			ti.getTab().remove();
-			ti.getSeparator().remove();
-			ti.getContent().remove();
+			Li tab = ti.getTab();
+			if(tab != null)
+				tab.remove();
+
+			Li seperator = ti.getSeparator();
+			if(seperator != null)
+				seperator.remove();
+
+			NodeBase nb = ti.getContent();
+			if(nb != null) {
+				nb.remove();
+			}
 		}
 
 		INotify<ITabHandle> getOnClose = ti.getOnClose();
@@ -348,18 +355,26 @@ public class TabPanelBase extends Div {
 			TabInstance oldti = m_tablist.get(getCurrentTab());		// Get the currently active instance,
 			TabInstance newti = m_tablist.get(index);
 			NodeBase oldc = oldti.getContent();
-			oldc.setDisplay(DisplayType.NONE);		// Switch displays on content
-			NodeBase newc = newti.getContent();
+			if(null != oldc)
+				oldc.setDisplay(DisplayType.NONE);		// Switch displays on content
 
-			//-- Add the new thing if it was lazy.
-			if(newti.isLazy() && !newti.isAdded()) {
-				m_contentContainer.add(newc);
-				newti.setAdded(true);
+			NodeBase newc = newti.getContent();
+			if(null != newc) {
+				if(newti.isLazy() && !newti.isAdded()) {    // Add the new thing if it was lazy.
+					m_contentContainer.add(newc);
+					newti.setAdded(true);
+				}
+				newc.setDisplay(DisplayType.BLOCK);
 			}
 
-			newc.setDisplay(DisplayType.BLOCK);
-			oldti.getTab().removeCssClass("ui-tab-sel"); 			// Remove selected indicator
-			newti.getTab().addCssClass("ui-tab-sel");
+			Li oldtab = oldti.getTab();
+			if(null != oldtab)
+				oldtab.removeCssClass("ui-tab-sel"); 			// Remove selected indicator
+
+			Li newtab = newti.getTab();
+			if(null != newtab)
+				newtab.addCssClass("ui-tab-sel");
+
 			if(m_onTabSelected != null) {
 				m_onTabSelected.onTabSelected(this, oldIndex, index);
 			}
