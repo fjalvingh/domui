@@ -3,6 +3,7 @@ package to.etc.domui.component.layout;
 import to.etc.domui.component.event.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
+import to.etc.domui.util.*;
 
 import javax.annotation.*;
 import java.util.*;
@@ -12,16 +13,22 @@ import java.util.*;
  * vmijic 20090923 TabInstance can be registered as ErrorMessageListener in case when TabPanel has m_markErrorTabs set.
  * Created on 18-8-17.
  */
-public class TabInstance implements IErrorMessageListener, ITabHandle{
+@DefaultNonNull
+public class TabInstance implements IErrorMessageListener, ITabHandle {
 
+	@Nullable
 	private NodeBase m_label;
 
+	@Nullable
 	private NodeBase m_content;
 
+	@Nullable
 	private Img m_img;
 
+	@Nullable
 	private Li m_tab;
 
+	@Nullable
 	private Li m_separator;
 
 	private boolean m_lazy;
@@ -31,12 +38,13 @@ public class TabInstance implements IErrorMessageListener, ITabHandle{
 	private boolean m_closable;
 
 	private List<UIMessage> m_msgList = new ArrayList<UIMessage>();
+
 	@Nullable
 	private INotify<ITabHandle> m_onClose;
 
 	public TabInstance() {}
 
-	public TabInstance(NodeBase label, NodeBase content, String image) {
+	public TabInstance(@Nullable NodeBase label, @Nullable NodeBase content, @Nullable String image) {
 		m_label = label;
 		m_content = content;
 		if(null != image) {
@@ -45,7 +53,7 @@ public class TabInstance implements IErrorMessageListener, ITabHandle{
 	}
 
 	public NodeBase getContent() {
-		return m_content;
+		return DomUtil.nullChecked(m_content, "Content not provided!");
 	}
 
 	public void setContent(@Nonnull NodeBase content) {
@@ -53,7 +61,7 @@ public class TabInstance implements IErrorMessageListener, ITabHandle{
 	}
 
 	public NodeBase getLabel() {
-		return m_label;
+		return DomUtil.nullChecked(m_label, "Label not provided!");
 	}
 
 	public void setLabel(@Nonnull NodeBase label) {
@@ -61,7 +69,7 @@ public class TabInstance implements IErrorMessageListener, ITabHandle{
 	}
 
 	public Li getTab() {
-		return m_tab;
+		return DomUtil.nullChecked(m_tab, "Tab not provided!");
 	}
 
 	public void setTab(@Nonnull Li tab) {
@@ -69,7 +77,7 @@ public class TabInstance implements IErrorMessageListener, ITabHandle{
 	}
 
 	public Li getSeparator() {
-		return m_separator;
+		return DomUtil.nullChecked(m_separator, "Separator not provided!");
 	}
 
 	public void setSeparator(@Nonnull Li separator) {
@@ -77,7 +85,7 @@ public class TabInstance implements IErrorMessageListener, ITabHandle{
 	}
 
 	public Img getImg() {
-		return m_img;
+		return DomUtil.nullChecked(m_img, "Image not provided!");
 	}
 
 	public void setImage(@Nonnull Img image) {
@@ -122,14 +130,14 @@ public class TabInstance implements IErrorMessageListener, ITabHandle{
 	}
 
 	@Override
-	public void setOnClose(INotify<ITabHandle> notify) {
+	public void setOnClose(@Nullable INotify<ITabHandle> notify) {
 		m_onClose = notify;
 	}
 
+	@Nullable
 	public INotify<ITabHandle> getOnClose() {
 		return m_onClose;
 	}
-
 
 	@Override
 	public void errorMessageAdded(@Nonnull UIMessage m) {
@@ -170,7 +178,7 @@ public class TabInstance implements IErrorMessageListener, ITabHandle{
 
 	private void adjustUI() {
 		if(hasErrors()) {
-			m_tab.addCssClass("ui-tab-err");
+			getTab().addCssClass("ui-tab-err");
 			//FIXME: this code can not work since there is refresh problem (error image is added only after refresh in browser is pressed)
 			//is this same 'HTML rendering already done for visited node' bug in framework?
 			//for now error image is set through css
@@ -184,7 +192,7 @@ public class TabInstance implements IErrorMessageListener, ITabHandle{
 			}
 			*/
 		} else {
-			m_tab.removeCssClass("ui-tab-err");
+			getTab().removeCssClass("ui-tab-err");
 			//FIXME: this code can not work since there is refresh problem (error image is added only after refresh in browser is pressed)
 			//is this same 'HTML rendering already done for visited node' bug in framework?
 			/*
