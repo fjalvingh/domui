@@ -58,7 +58,7 @@ public class TabInstance implements IErrorMessageListener, ITabHandle {
 		return m_content;
 	}
 
-	public void setContent(@Nonnull NodeBase content) {
+	public void setContent(NodeBase content) {
 		m_content = content;
 	}
 
@@ -67,7 +67,7 @@ public class TabInstance implements IErrorMessageListener, ITabHandle {
 		return m_label;
 	}
 
-	public void setLabel(@Nonnull NodeBase label) {
+	public void setLabel(NodeBase label) {
 		m_label = label;
 	}
 
@@ -76,7 +76,7 @@ public class TabInstance implements IErrorMessageListener, ITabHandle {
 		return m_tab;
 	}
 
-	public void setTab(@Nonnull Li tab) {
+	public void setTab(Li tab) {
 		m_tab = tab;
 	}
 
@@ -85,7 +85,7 @@ public class TabInstance implements IErrorMessageListener, ITabHandle {
 		return m_separator;
 	}
 
-	public void setSeparator(@Nonnull Li separator) {
+	public void setSeparator(Li separator) {
 		m_separator = separator;
 	}
 
@@ -94,11 +94,11 @@ public class TabInstance implements IErrorMessageListener, ITabHandle {
 		return m_img;
 	}
 
-	public void setImage(@Nonnull Img image) {
+	public void setImage(Img image) {
 		m_img = image;
 	}
 
-	public void setImage(@Nonnull String image) {
+	public void setImage(String image) {
 		if(image.isEmpty()) {
 			return; // If string is empty, we do not have to create an image.
 		}
@@ -146,7 +146,7 @@ public class TabInstance implements IErrorMessageListener, ITabHandle {
 	}
 
 	@Override
-	public void errorMessageAdded(@Nonnull UIMessage m) {
+	public void errorMessageAdded(UIMessage m) {
 		if(isPartOfContent(m.getErrorNode())) {
 			if(m_msgList.contains(m))
 				return;
@@ -156,7 +156,7 @@ public class TabInstance implements IErrorMessageListener, ITabHandle {
 	}
 
 	@Override
-	public void errorMessageRemoved(@Nonnull UIMessage m) {
+	public void errorMessageRemoved(UIMessage m) {
 		if(isPartOfContent(m.getErrorNode())) {
 			if(!m_msgList.remove(m))
 				return;
@@ -185,32 +185,11 @@ public class TabInstance implements IErrorMessageListener, ITabHandle {
 	private void adjustUI() {
 		Li tab = getTab();
 		if(tab != null) {
+			final String errorCssClass = "ui-tab-err";
 			if(hasErrors()) {
-				tab.addCssClass("ui-tab-err");
-				//FIXME: this code can not work since there is refresh problem (error image is added only after refresh in browser is pressed)
-				//is this same 'HTML rendering already done for visited node' bug in framework?
-				//for now error image is set through css
-			/*
-			if(m_errorInfo == null) {
-				m_errorInfo = new Img("THEME/mini-error.png");
-				m_errorInfo.setTitle("Tab contain errors.");
-				if(m_tab.getChildCount() > 0 && m_tab.getChild(0) instanceof ATag) {
-					((ATag) m_tab.getChild(0)).add(m_errorInfo);
-				}
-			}
-			*/
+				tab.addCssClass(errorCssClass);
 			} else {
-				tab.removeCssClass("ui-tab-err");
-				//FIXME: this code can not work since there is refresh problem (error image is added only after refresh in browser is pressed)
-				//is this same 'HTML rendering already done for visited node' bug in framework?
-			/*
-			if(m_errorInfo != null) {
-				if(m_tab.getChildCount() > 0 && m_tab.getChild(0) instanceof ATag) {
-					((ATag) m_tab.getChild(0)).removeChild(m_errorInfo);
-				}
-				m_errorInfo = null;
-			}
-			*/
+				tab.removeCssClass(errorCssClass);
 			}
 		}
 	}
