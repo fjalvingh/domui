@@ -73,8 +73,8 @@
 		/*height: 20px;*/
 		/*padding: 4px;*/
 		/*text-align: center;*/
-		/*margin: 5px -14px 0 6px;*/
-		/*background: url(../../../../themes/vp-icons-clean/Default/20x20_done.png) no-repeat; !*** Using background instead of content due to IE compatibility ***!*/
+		/*margin: 5px -13px 0 6px;*/
+		/*background: url(../../../../themes/vp-icons-clean/Default/20x20_success.png) no-repeat; !*** Using background instead of content due to IE compatibility ***!*/
 		/*text-indent: 100%;*/
 		/*white-space: nowrap;*/
 		/*overflow: hidden;*/
@@ -85,7 +85,7 @@
 		height: 20px;
 		padding: 4px;
 		text-align: center;
-		margin: 5px -14px 0 6px;
+		margin: 5px -13px 0 6px;
 		color: white;
 	}
 	.ui-wznf-sep-next {
@@ -112,12 +112,12 @@
 		border-radius: 50%;
 		width: 9px;
 		height: 9px;
-		padding: 5px;
+		padding: 3px 5px 6px 5px;
 		background: #013686;
 		text-align: center;
 		font-size: 10px;
 		color: white;
-		margin: 6px -5px 0 6px;
+		margin: 8px -5px 0 6px;
 	}
 	.ui-wznf-sep-past {
 		/*It is quite easy to use an icon instead of the step number for past steps with custom css. For instance, */
@@ -129,8 +129,11 @@
 		/*height: 20px;*/
 		/*padding: 4px;*/
 		/*text-align: center;*/
-		/*margin: 1px -10px 0 6px;*/
-		/*content: url(../../../../themes/vp-icons-clean/Default/20x20_done.png);*/
+		/*margin: 6px -15px 0 6px;*/
+		/*background: url(../../../../themes/vp-icons-clean/Default/20x20_success.png);*/
+		/*text-indent: -9999px;*/
+		/*white-space: nowrap;*/
+		/*overflow: hidden;*/
 
 		display: inline-block;
 		float: left;
@@ -150,12 +153,12 @@
 		border-radius: 50%;
 		width: 9px;
 		height: 9px;
-		padding: 5px;
+		padding: 3px 5px 6px 5px;
 		background: black;
 		text-align: center;
 		font-size: 10px;
 		color: white;
-		margin: 6px -5px 0 6px;
+		margin: 8px -5px 0 6px;
 		opacity: 0.2;
 	}
 }
@@ -168,7 +171,7 @@
 		border-radius: 50%;
 		width: 9px;
 		height: 9px;
-		padding: 5px;
+		padding: 3px 5px 6px 5px;
 		background: #013686;
 		text-align: center;
 		font-size: 10px;
@@ -186,7 +189,7 @@
 		/*padding: 4px;*/
 		/*text-align: center;*/
 		/*margin: 1px -10px 0 6px;*/
-		/*content: url(../../../../themes/vp-icons-clean/Default/20x20_done.png);*/
+		/*content: url(../../../../themes/vp-icons-clean/Default/20x20_success.png);*/
 
 		display: inline-block;
 		float: left;
@@ -206,7 +209,7 @@
 		border-radius: 50%;
 		width: 9px;
 		height: 9px;
-		padding: 5px;
+		padding: 3px 5px 6px 5px;
 		background: black;
 		text-align: center;
 		font-size: 10px;
