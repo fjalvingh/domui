@@ -24,11 +24,16 @@
  */
 package to.etc.domui.dom.html;
 
-import to.etc.domui.dom.css.*;
-import to.etc.domui.server.*;
-import to.etc.domui.util.*;
+import to.etc.domui.server.RequestContextImpl;
+import to.etc.domui.util.IDragHandler;
+import to.etc.domui.util.IDraggable;
+import to.etc.domui.util.IDropBody;
+import to.etc.domui.util.IDropHandler;
+import to.etc.domui.util.IDropTargetable;
+import to.etc.domui.util.MiniTableBuilder;
+import to.etc.domui.util.UIDragDropUtil;
 
-import javax.annotation.*;
+import javax.annotation.Nonnull;
 
 public class Div extends NodeContainer implements IDropTargetable, IDraggable, IDropBody {
 	private IReturnPressed< ? extends NodeBase> m_returnPressed;
@@ -178,42 +183,42 @@ public class Div extends NodeContainer implements IDropTargetable, IDraggable, I
 		return m_dropMode;
 	}
 
-	/**
-	 * Effect: hide this div by adjusting it's height, ending as a display: none.
-	 * Additional callback javascript is executed after animation is done. @See {@link Div#getCustomUpdatesCallJS()} callback.
-	 */
-	public void slideUp() {
-		if(internalSetDisplay(DisplayType.NONE))
-			appendJavascript("$('#" + getActualID() + "').slideUp({complete: function() {" + getCustomUpdatesCallJS() + "}});");
-	}
-
-	/**
-	 * Redisplay a display: slideDown thing slowly.
-	 * Additional callback javascript is executed after animation is done. @See {@link Div#getCustomUpdatesCallJS()} callback.
-	 */
-	public void slideDown() {
-		if(internalSetDisplay(DisplayType.BLOCK))
-			appendJavascript("$('#" + getActualID() + "').slideDown({complete: function() {" + getCustomUpdatesCallJS() + "}});");
-	}
-
-	/**
-	 * Effect: hide this div by fading out.
-	 * Additional callback javascript is executed after animation is done. @See {@link Div#getCustomUpdatesCallJS()} callback.
-	 */
-	public void fadeOut() {
-		if(internalSetDisplay(DisplayType.NONE))
-			appendJavascript("$('#" + getActualID() + "').fadeOut({complete: function() {" + getCustomUpdatesCallJS() + "}});");
-	}
-
-	/**
-	 * Redisplay a display: fadeIn thing slowly.
-	 * Additional callback javascript is executed after animation is done. @See {@link Div#getCustomUpdatesCallJS()} callback.
-	 */
-	public void fadeIn() {
-		if(internalSetDisplay(DisplayType.BLOCK))
-			appendJavascript("$('#" + getActualID() + "').fadeIn({complete: function() {" + getCustomUpdatesCallJS() + "}});");
-	}
-
+	///**
+	// * Effect: hide this div by adjusting it's height, ending as a display: none.
+	// * Additional callback javascript is executed after animation is done. @See {@link Div#getCustomUpdatesCallJS()} callback.
+	// */
+	//public void slideUp() {
+	//	if(internalSetDisplay(DisplayType.NONE))
+	//		appendJavascript("$('#" + getActualID() + "').slideUp({complete: function() {" + getCustomUpdatesCallJS() + "}});");
+	//}
+	//
+	///**
+	// * Redisplay a display: slideDown thing slowly.
+	// * Additional callback javascript is executed after animation is done. @See {@link Div#getCustomUpdatesCallJS()} callback.
+	// */
+	//public void slideDown() {
+	//	if(internalSetDisplay(DisplayType.BLOCK))
+	//		appendJavascript("$('#" + getActualID() + "').slideDown({complete: function() {" + getCustomUpdatesCallJS() + "}});");
+	//}
+	//
+	///**
+	// * Effect: hide this div by fading out.
+	// * Additional callback javascript is executed after animation is done. @See {@link Div#getCustomUpdatesCallJS()} callback.
+	// */
+	//public void fadeOut() {
+	//	if(internalSetDisplay(DisplayType.NONE))
+	//		appendJavascript("$('#" + getActualID() + "').fadeOut({complete: function() {" + getCustomUpdatesCallJS() + "}});");
+	//}
+	//
+	///**
+	// * Redisplay a display: fadeIn thing slowly.
+	// * Additional callback javascript is executed after animation is done. @See {@link Div#getCustomUpdatesCallJS()} callback.
+	// */
+	//public void fadeIn() {
+	//	if(internalSetDisplay(DisplayType.BLOCK))
+	//		appendJavascript("$('#" + getActualID() + "').fadeIn({complete: function() {" + getCustomUpdatesCallJS() + "}});");
+	//}
+	//
 	/**
 	 * Returns Domui internal javascript call: <I>WebUI.doCustomUpdates();</I>
 	 * @return

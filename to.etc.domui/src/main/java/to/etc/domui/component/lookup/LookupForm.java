@@ -38,6 +38,7 @@ import to.etc.domui.component.lookup.ILookupControlInstance.*;
 import to.etc.domui.component.lookup.filter.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
+import to.etc.domui.dom.Animations;
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
@@ -820,7 +821,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		if((m_content.getDisplay() == DisplayType.NONE))
 			return;
 
-		m_content.slideUp();
+		Animations.slideUp(m_content);
 		m_collapsedPanel = new Div();
 		m_collapsedPanel.setCssClass("ui-lf-coll");
 		add(m_collapsedPanel);
