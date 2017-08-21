@@ -600,6 +600,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 			checkFullExceptionCount(page, x); // Rethrow, but clear state if page throws up too much.
 		} finally {
+			page.callAfterRenderListeners();
 			page.internalClearDeltaFully();
 		}
 

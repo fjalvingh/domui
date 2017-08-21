@@ -172,6 +172,9 @@ final public class Page implements IQContextContainer {
 	@Nonnull
 	private List<IExecute> m_beforeRequestListenerList = Collections.EMPTY_LIST;
 
+	@Nonnull
+	private List<IExecute> m_afterRenderList = Collections.EMPTY_LIST;
+
 	public Page(@Nonnull final UrlPage pageContent) throws Exception {
 		m_pageTag = DomApplication.internalNextPageTag(); // Unique page ID.
 		m_rootContent = pageContent;
@@ -1072,6 +1075,21 @@ final public class Page implements IQContextContainer {
 		}
 	}
 
+	public void addAfterRenderListener(@Nonnull IExecute x) {
+		if(m_afterRenderList == Collections.EMPTY_LIST)
+			m_afterRenderList = new ArrayList<>();
+		m_afterRenderList.add(x);
+	}
+
+	public void removeAfterRenderListener(@Nonnull IExecute x) {
+		m_afterRenderList.remove(x);
+	}
+
+	public void callAfterRenderListeners() throws Exception {
+		for(IExecute listener : new ArrayList<>(m_afterRenderList)) {
+			listener.execute();
+		}
+	}
 
 	/*----------------------------------------------------------------------*/
 	/*	CODING:	Notifications												*/
@@ -1126,6 +1144,4 @@ final public class Page implements IQContextContainer {
 			}
 		}
 	}
-
-
 }
