@@ -79,6 +79,21 @@ final public class DomUtil {
 	}
 
 	/**
+	 * Does explicit non null check for parameter passed in as nullable but expected to be non null.
+	 * In case of null, it throws IllegalStateException with provided exceptionMsg.
+	 *
+	 * @param in
+	 * @param exceptionMsg
+	 * @return
+	 */
+	@Nonnull
+	static public <T> T nullChecked(@Nullable T in, @Nonnull String exceptionMsg) {
+		if(null == in)
+			throw new IllegalStateException(exceptionMsg);
+		return in;
+	}
+
+	/**
 	 * Don not use.
 	 * We are not sure that it's checked before. This is a potential null pointer access.
 	 * Adding this mean that we didn't want to introduce risk but we are marking this as a bad part of code.
