@@ -272,25 +272,25 @@ final public class FormBuilder {
 	 * Disables the next component with the specified disable message.
 	 */
 	@Nonnull
-	public FormBuilder disableMessage(@Nullable String message) {
+	public FormBuilder disabledBecause(@Nullable String message) {
 		m_disabledMessage = message;
 		return this;
 	}
 
 	@Nonnull
-	public <I> FormBuilder disableMessage(@Nonnull I instance, @Nonnull String property) {
+	public <I> FormBuilder disabledBecause(@Nonnull I instance, @Nonnull String property) {
 		m_disabledMessageOnce = createRef(instance, property, String.class);
 		return this;
 	}
 
 	@Nonnull
-	public <I> FormBuilder disableMessageAll(@Nonnull I instance, @Nonnull String property) {
+	public <I> FormBuilder disabledBecauseAll(@Nonnull I instance, @Nonnull String property) {
 		m_disabledMessageGlobal = createRef(instance, property, String.class);
 		return this;
 	}
 
 	@Nonnull
-	public FormBuilder disableMessageAll() {
+	public FormBuilder disabledBecause() {
 		m_disabledMessageGlobal = null;
 		return this;
 	}
