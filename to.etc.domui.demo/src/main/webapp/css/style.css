@@ -3,9 +3,11 @@
 	background-color: #ddd;
 	padding: 4px 8px 4px 8px;
 }
+
 .d-sbc * {
 	font-size: 18px;
 }
+
 .d-sbc-logo {
 	position: fixed;
 	top: 0px;
@@ -18,7 +20,7 @@
 	padding-bottom: 8px;
 }
 
-.home-page .ui-cptn{
+.home-page .ui-cptn {
 	margin-top: 10px;
 }
 
@@ -33,6 +35,7 @@
 	font-family: 'Fira Mono';
 	font-size: 12px;
 }
+
 .dm-srcp-lnr {
 	width: 4em;
 	background: #ccc;
@@ -40,6 +43,7 @@
 	font-style: italic;
 	padding-right: 4px;
 }
+
 .dm-srcp-txt {
 	padding-left: 5px;
 }
@@ -49,28 +53,35 @@ pre.code {
 	font-size: small;
 	height: 500px;
 	overflow: scroll;
-	
-/*	margin-top: 0px; */
+
+	/*	margin-top: 0px; */
 }
+
 .s-line {
 	margin: 0px;
 	padding: 0px;
 }
+
 .s-diffstart {
 	background-color: #ccca8f;
 }
+
 .s-diffold, .s-diffmin {
 	background-color: #ffded6;
 }
+
 .s-diffnew, .s-diffplus {
 	background-color: #ebffd7;
 }
+
 .s-diffline {
 	background-color: #b8dfff;
 }
+
 .s-diffchar {
 	color: red;
 }
+
 .s-diffnone {
 }
 
@@ -78,35 +89,43 @@ pre.code {
 	color: #006121;
 	font-style: italic;
 }
+
 .s-comment2 {
 	color: #003842;
 	font-style: italic;
 }
+
 .s-comment3 {
 	color: #003842;
 	font-style: italic;
 }
+
 .s-operator {
 	color: black;
 }
+
 .s-function {
 	color: #000fd4;
 }
+
 .s-keyword1 {
 	color: #fb8d00;
 	font-weight: bold;
 }
+
 .s-keyword2 {
 	color: #86002f;
 	font-weight: bold;
-}	
+}
 
 .s-literal1 {
 	color: #00afaf;
 }
+
 .s-literal2 {
 	color: #00afaf;
 }
+
 .s-digit {
 	color: #842900;
 }
@@ -117,9 +136,10 @@ pre.code {
 	width: 550px;
 	top: 0px;
 	bottom: 0px;
-	right: 0px;	
+	right: 0px;
 	border-left: 2px dotted gray;
 }
+
 .ui-demo-content {
 	position: absolute;
 	top: 0px;
@@ -138,4 +158,7 @@ pre.code {
 /*** Tree2 demo page ***/
 .dm-tree2-icon {
 	color: #d18100;
+	height: 100%;
+	float: left;
+	width: 35px;
 }

@@ -21,7 +21,7 @@ final public class Tree2Node<V> extends Li {
 	final private V m_value;
 
 	/** Container for the expand/collapse button and its rendition */
-	final private Div m_foldingIcon = new Div("ui-tree2-icon");
+	final private Div m_foldingIcon = new Div("ui-tree2-foldicon");
 
 	final private ATag m_content;
 
