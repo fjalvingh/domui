@@ -174,10 +174,10 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 				Ul childUl = renderList(li);
 				li.add(childUl);
 				li.setChildRoot(childUl);
-				li.getIcon().setClicked((IClicked<NodeContainer>) bxx -> collapseNode(item, true));
+				li.setFoldingClicked((IClicked<NodeContainer>) bxx -> collapseNode(item, true));
 			} else {
 				li.setType(last ? TreeNodeType.CLOSED_LAST : TreeNodeType.CLOSED);
-				li.getIcon().setClicked((IClicked<NodeContainer>) bxx -> expandNode(item, true));
+				li.setFoldingClicked((IClicked<NodeContainer>) bxx -> expandNode(item, true));
 			}
 		}
 		return li;
@@ -228,14 +228,14 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 					vn.setType(last ? TreeNodeType.LEAF_LAST : TreeNodeType.LEAF);
 					vn.setExpanded(false); 				// Cannot expand
 					vn.setUnExpandable(true);
-					vn.getIcon().setClicked(null);		// Make sure Click handler is discarded
+					vn.setFoldingClicked(null);		// Make sure Click handler is discarded
 				} else {
 					/*
 					 * An unexpanded non-leaf node: change its icon to "closeable" and change the click handler.
 					 */
 					vn.setType(last ? TreeNodeType.OPENED_LAST : TreeNodeType.OPENED);
 					//img.addCssClass("ui-tree2-act");
-					vn.getIcon().setClicked((IClicked<NodeContainer>) bxx -> collapseNode(pathValue, true));
+					vn.setFoldingClicked((IClicked<NodeContainer>) bxx -> collapseNode(pathValue, true));
 					Ul childUl = renderList(vn);
 					vn.setChildRoot(childUl);
 					vn.add(childUl);
@@ -269,7 +269,7 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 
 		vn.setType(last ? TreeNodeType.CLOSED_LAST : TreeNodeType.CLOSED);
 		//img.addCssClass("ui-tree2-act");
-		vn.getIcon().setClicked((IClicked<NodeContainer>) bxx -> expandNode(item, true));
+		vn.setFoldingClicked((IClicked<NodeContainer>) bxx -> expandNode(item, true));
 
 		Ul ul = vn.getChildRoot();
 		if(null == ul)

@@ -1,7 +1,10 @@
 package to.etc.domui.component.tree2;
 
 import to.etc.domui.dom.html.ATag;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.Li;
+import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Ul;
 
 import javax.annotation.DefaultNonNull;
@@ -17,7 +20,8 @@ import java.util.Objects;
 final public class Tree2Node<V> extends Li {
 	final private V m_value;
 
-	final private TreeIcon m_icon = new TreeIcon();
+	/** Container for the expand/collapse button and its rendition */
+	final private Div m_expansionIcon = new Div("ui-tree2-icon");
 
 	final private ATag m_content;
 
@@ -40,7 +44,7 @@ final public class Tree2Node<V> extends Li {
 
 	@Override public void createContent() throws Exception {
 		updateCssClass();
-		add(m_icon);
+		add(m_expansionIcon);
 		add(m_content);
 		Ul childRoot = m_childRoot;
 		if(null != childRoot)
@@ -69,8 +73,8 @@ final public class Tree2Node<V> extends Li {
 		);
 	}
 
-	public TreeIcon getIcon() {
-		return m_icon;
+	public void setFoldingClicked(@Nullable IClicked<? extends NodeBase> clicked) {
+		m_expansionIcon.setClicked(clicked);
 	}
 
 	void internalSetSelected(boolean selected) {
