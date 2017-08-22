@@ -28,9 +28,9 @@ final public class Tree2Node<V> extends Li {
 
 	private boolean m_selected;
 
-	public boolean expanded;
+	private boolean m_expanded;
 
-	public boolean unexpandable;
+	private boolean m_unExpandable;
 
 	public Tree2Node(V item) {
 		m_value = item;
@@ -91,5 +91,21 @@ final public class Tree2Node<V> extends Li {
 
 	public V getValue() {
 		return m_value;
+	}
+
+	boolean isExpanded() {
+		return m_expanded;
+	}
+
+	void setExpanded(boolean expanded) {
+		this.m_expanded = expanded;
+	}
+
+	boolean isUnExpandable() {
+		return m_unExpandable;
+	}
+
+	void setUnExpandable(boolean unExpandable) {
+		this.m_unExpandable = unExpandable;
 	}
 }

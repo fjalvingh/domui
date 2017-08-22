@@ -103,12 +103,12 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 		if(isShowRoot()) {
 			Ul ul = m_rootDisplayNode = new Ul("ui-tree2-rootlist");
 			Tree2Node<T> n = getTree2Node(root);		// Pre-create the node
-			n.expanded = true;							// and set it to expanded
+			n.setExpanded(true);							// and set it to expanded
 			renderItem(ul, root, true);
 		} else {
 			//-- Render the root thingy && create the 1st visibleNode
 			Tree2Node<T> n = getTree2Node(root);
-			n.expanded = true;
+			n.setExpanded(true);
 			m_rootDisplayNode = renderList(n);
 		}
 
@@ -158,10 +158,10 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 		//-- Render content cell data
 		renderContent(li.getContent(), item);
 
-		if(!getModel().hasChildren(item) || li.unexpandable) {
+		if(!getModel().hasChildren(item) || li.isUnExpandable()) {
 			li.setType(last ? TreeNodeType.LEAF_LAST : TreeNodeType.LEAF);
-			li.unexpandable = true;
-			li.expanded = false;
+			li.setUnExpandable(true);
+			li.setExpanded(false);
 		} else {
 			//img.setCssClass("ui-tree2-act");
 			boolean expanded = isExpanded(item); // Expanded?
@@ -209,7 +209,7 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 		//-- The thing is visible. We need to re-render where needed.
 		for(final T pathValue : path) {
 			Tree2Node<T> vn = getTree2Node(pathValue);
-			vn.expanded = true;
+			vn.setExpanded(true);
 
 			if(vn.getChildRoot() == null && vn.isAttached() /* if root is not visible skip */) {
 				/*
@@ -226,8 +226,8 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 					 * a leaf and change it's image.
 					 */
 					vn.setType(last ? TreeNodeType.LEAF_LAST : TreeNodeType.LEAF);
-					vn.expanded = false; 				// Cannot expand
-					vn.unexpandable = true;
+					vn.setExpanded(false); 				// Cannot expand
+					vn.setUnExpandable(true);
 					vn.getIcon().setClicked(null);		// Make sure Click handler is discarded
 				} else {
 					/*
@@ -254,13 +254,13 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 	 */
 	public void collapseNode(final T item, boolean animate) throws Exception {
 		Tree2Node<T> vn = m_openMap.get(item);
-		if(vn == null || !vn.expanded)
+		if(vn == null || !vn.isExpanded())
 			return;
 
 		//-- We have a node... We must discard all Tree2Nodes after this node;
 		removeAllChildrenFromMap(vn);
 		getModel().collapseChildren(item);
-		vn.expanded = false;
+		vn.setExpanded(false);
 
 		//-- Collapse the node. Get the base of the presentation,
 
@@ -310,7 +310,7 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 				throw new IllegalStateException("?? Element " + ix + " of parent=" + vnbase.getValue() + " is null???");
 			m_openMap.remove(vn.getValue());
 			removeAllChildrenFromMap(vn);
-			if(vn.expanded)
+			if(vn.isExpanded())
 				getModel().collapseChildren(vn.getValue());
 			ix++;
 		}
@@ -404,7 +404,7 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 		Tree2Node<T> vn = m_openMap.get(node);
 		if(vn == null)
 			return false;
-		return vn.expanded;
+		return vn.isExpanded();
 	}
 
 
