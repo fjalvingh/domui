@@ -24,7 +24,11 @@
  */
 package to.etc.domui.component.buttons;
 
-import to.etc.domui.dom.html.*;
+import to.etc.domui.component.misc.FaIcon;
+import to.etc.domui.dom.html.Button;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.Img;
+import to.etc.domui.util.DomUtil;
 
 /**
  * A Button tag containing a single, usually small, image. The image is a normal image
@@ -88,11 +92,18 @@ public class SmallImgButton extends Button {
 	public void createContent() throws Exception {
 		String iconUrl = m_icon;
 		if(null != iconUrl) {
-			String icon = getThemedResourceRURL(iconUrl);
-			Img img = new Img(icon);
-			add(img);
-			img.setImgBorder(0);
-			img.setDisabled(isDisabled());
+			//-- Does the URL contain a dot? That indicates a resource somehow.
+			if(DomUtil.isIconName(iconUrl)) {
+				FaIcon icon = new FaIcon(iconUrl);
+				icon.addCssClass("ui-sib-icon");
+				add(icon);
+			} else {
+				String icon = getThemedResourceRURL(iconUrl);
+				Img img = new Img(icon);
+				add(img);
+				img.setImgBorder(0);
+				img.setDisabled(isDisabled());
+			}
 		}
 	}
 }

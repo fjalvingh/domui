@@ -25,6 +25,7 @@
 package to.etc.domui.component.buttons;
 
 import to.etc.domui.component.menu.IUIAction;
+import to.etc.domui.component.misc.FaIcon;
 import to.etc.domui.dom.html.Button;
 import to.etc.domui.dom.html.IActionControl;
 import to.etc.domui.dom.html.IClicked;
@@ -72,7 +73,6 @@ public class DefaultButton extends Button implements IActionControl {
 
 	/**
 	 * Create a button with a text.
-	 * @param txt
 	 */
 	public DefaultButton(final String txt) {
 		this();
@@ -81,7 +81,6 @@ public class DefaultButton extends Button implements IActionControl {
 
 	/**
 	 * Create a {@link IUIAction} based button.
-	 * @param txt
 	 */
 	public DefaultButton(final IUIAction<?> action) throws Exception {
 		this();
@@ -91,7 +90,6 @@ public class DefaultButton extends Button implements IActionControl {
 
 	/**
 	 * Create a {@link IUIAction} based button.
-	 * @param txt
 	 */
 	public <T> DefaultButton(final T instance, final IUIAction<T> action) throws Exception {
 		this();
@@ -103,8 +101,6 @@ public class DefaultButton extends Button implements IActionControl {
 
 	/**
 	 * Create a button with a text and an icon.
-	 * @param txt
-	 * @param icon
 	 */
 	public DefaultButton(final String txt, final String icon) {
 		this();
@@ -130,12 +126,20 @@ public class DefaultButton extends Button implements IActionControl {
 		Span s = new Span();
 		add(s);
 		s.setCssClass("ui-sdbtn-w");
-		if(null != m_icon) {
-			String icon = getThemedResourceRURL(m_icon);
-			Img img = new Img(icon);
-			s.add(img);
-			img.setImgBorder(0);
-			img.setDisabled(isDisabled());
+		String iconUrl = m_icon;
+		if(null != iconUrl) {
+			//-- Does the URL contain a dot? That indicates a resource somehow.
+			if(DomUtil.isIconName(iconUrl)) {
+				FaIcon icon = new FaIcon(iconUrl);
+				icon.addCssClass("ui-sdbtn-icon");
+				s.add(icon);
+			} else {
+				String icon = getThemedResourceRURL(iconUrl);
+				Img img = new Img(icon);
+				s.add(img);
+				img.setImgBorder(0);
+				img.setDisabled(isDisabled());
+			}
 		}
 		Span txt = new Span();
 		txt.setCssClass("ui-sdbtn-txt");

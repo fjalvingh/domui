@@ -26,6 +26,9 @@
 	vertical-align: middle;
 	height: 16px;
 }
+.ui-sdbtn-icon {
+	font-size: 14px !important;
+}
 .ui-sdbtn::-moz-focus-inner {
 	border: none; /* overrides extra padding in ffox */
 }
@@ -37,7 +40,7 @@
 	height: $button_height;
 	padding: 3px 0 0 6px;
 	color: white;
-	font-size: 11px;
+	//font-size: 11px;
 	vertical-align: middle;
 	text-align: left;
 	background: transparent url($button_img) no-repeat left top;

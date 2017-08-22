@@ -1462,6 +1462,18 @@ final public class DomUtil {
 		}
 	}
 
+	/**
+	 * Checks whether the icon name specified is not a resource (.png, .gif et al) but an icon name like
+	 * an FontAwesome icon name.
+	 */
+	public static boolean isIconName(String iconUrl) {
+		if(iconUrl.contains("."))
+			return false;
+		if(iconUrl.contains("/"))
+			return false;
+		return iconUrl.startsWith("fa-");
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Tree walking helpers.								*/
 	/*--------------------------------------------------------------*/
