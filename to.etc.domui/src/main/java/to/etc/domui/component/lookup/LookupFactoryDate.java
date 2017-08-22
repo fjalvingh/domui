@@ -24,10 +24,6 @@
  */
 package to.etc.domui.component.lookup;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.lookup.filter.*;
 import to.etc.domui.component.meta.*;
@@ -35,6 +31,9 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 import to.etc.webapp.query.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 final class LookupFactoryDate implements ILookupControlFactory {
 
@@ -59,7 +58,7 @@ final class LookupFactoryDate implements ILookupControlFactory {
 		final DateInput dateFrom = new DateInput();
 		dateFrom.setWithTime(withTime);
 		Span sp = new Span(" " + Msgs.BUNDLE.getString(Msgs.UI_LOOKUP_DATE_TILL) + " ");
-		sp.setFontWeight("BOLD");
+		sp.setCssClass("ui-lfd-datetill");
 		final DateInput dateTo = new DateInput();
 		dateTo.setWithTime(withTime);
 
