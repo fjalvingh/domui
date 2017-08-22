@@ -37,6 +37,7 @@ import to.etc.domui.dom.html.ClickInfo;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IClicked2;
+import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.Ul;
 import to.etc.domui.server.DomApplication;
@@ -50,18 +51,24 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Replacement for the Tree component, not using tables.
+ * This is a Tree component. It uses the {@link ITreeModel} to represent the tree's data, and is
+ * a replacement for the old Tree component. Improvements are:
+ * <ul>
+ *     <li>The new tree does not use tables. This prevents odd browser rendering behavior.</li>
+ *     <li>The code has been greatly cleaned up.</li>
+ *     <li>The component uses jquery effects to slide up and down expanded nodes.</li>
+ * </ul>
  */
 public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 	private ITreeModel<T> m_model;
 
 	private boolean m_showRoot;
 
-	private Ul m_rootTable;
+	private Ul m_rootDisplayNode;
 
 	private boolean m_expandRoot;
 
-	private Map<Object, VisibleNode<T>> m_openMap = new HashMap<Object, VisibleNode<T>>();
+	private Map<Object, Tree2Node<T>> m_openMap = new HashMap<>();
 
 	/** The specified ComboRenderer used. */
 	private INodeContentRenderer< ? > m_contentRenderer;
@@ -75,36 +82,6 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 	private ICellClicked<T> m_cellClicked;
 
 	private INodePredicate<T> m_nodeSelectablePredicate;
-
-	/**
-	 * Represents the internal visible state of the tree.
-	 *
-	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
-	 * Created on Oct 20, 2008
-	 */
-	static private class VisibleNode<V> {
-		final V data;
-
-		/** The first row of the node's data. */
-		Tree2Node<V> nodeRow;
-
-		//ATag content;
-		//
-		//TreeIcon icon;
-		//
-		//Ul childRoot;
-
-		/** If this is an expanded node this contains the expanded children's nodes. */
-		VisibleNode<V>[] childNodes;
-
-		boolean expanded;
-
-		boolean unexpandable;
-
-		public VisibleNode(V data) {
-			this.data = data;
-		}
-	}
 
 	public Tree2() {
 		setCssClass("ui-tree2");
@@ -124,15 +101,15 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 		T root = getModel().getRoot();
 
 		if(isShowRoot()) {
-			Ul ul = m_rootTable = new Ul("ui-tree2-rootlist");
-			VisibleNode<T> n = getVisibleNode(root);
-			n.expanded = true;
-			renderItem(ul, n, true);
+			Ul ul = m_rootDisplayNode = new Ul("ui-tree2-rootlist");
+			Tree2Node<T> n = getTree2Node(root);		// Pre-create the node
+			n.expanded = true;							// and set it to expanded
+			renderItem(ul, root, true);
 		} else {
 			//-- Render the root thingy && create the 1st visibleNode
-			VisibleNode<T> n = getVisibleNode(root);
+			Tree2Node<T> n = getTree2Node(root);
 			n.expanded = true;
-			m_rootTable = renderList(root, n);
+			m_rootDisplayNode = renderList(n);
 		}
 
 		if(m_expandRoot) {
@@ -141,55 +118,50 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 				expandNode(v);
 			}
 		}
-		add(m_rootTable);
+		add(m_rootDisplayNode);
 	}
 
 	/**
 	 * Get or create a thingy for a visible node.
 	 */
-	private VisibleNode<T> getVisibleNode(T base) {
-		VisibleNode<T> n = m_openMap.get(base);
+	private Tree2Node<T> getTree2Node(T base) {
+		Tree2Node<T> n = m_openMap.get(base);
 		if(n == null) {
-			n = new VisibleNode<T>(base);
+			n = new Tree2Node<>(base);
 			m_openMap.put(base, n);
 		}
 		return n;
 	}
 
-	private Ul renderList(T parentValue, VisibleNode<T> parentInfo) throws Exception {
+	private Ul renderList(Tree2Node<T> parent) throws Exception {
+		T parentValue = parent.getValue();
 		Ul ul = new Ul("ui-tree2-list");
+		parent.setChildRoot(ul);
 
 		int len = getModel().getChildCount(parentValue); // #of items in this thingy.
 		if(len == 0) {
 			throw new IllegalStateException("Implement 'expanding node having 0 children': parentValue=" + parentValue);
 		}
 
-		//-- Render each child && assign their VisibleNode thingy.
-		VisibleNode<T>[] vnar = new VisibleNode[len];
+		//-- Render each child && assign their Tree2Node thingy.
 		for(int i = 0; i < len; i++) {
 			final T item = getModel().getChild(parentValue, i); // Get ith child
-			VisibleNode<T> chvn = getVisibleNode(item);
-			vnar[i] = chvn;
-			renderItem(ul, chvn, i == (len - 1));
+			renderItem(ul, item, i == (len - 1));
 		}
-		parentInfo.childNodes = vnar;
 		return ul;
 	}
 
-	private void renderItem(Ul parentNode, VisibleNode<T> chvn, boolean last) throws Exception {
-		final T item = chvn.data;
-
-		Tree2Node<T> li = new Tree2Node<>(item);
-		parentNode.add(li);
-		chvn.nodeRow = li;
+	private Tree2Node<T> renderItem(Ul parentNode, T item, boolean last) throws Exception {
+		Tree2Node<T> li = getTree2Node(item);			// Get/create the node
+		parentNode.add(li);								// Add the UI node
 
 		//-- Render content cell data
 		renderContent(li.getContent(), item);
 
-		if(!getModel().hasChildren(item) || chvn.unexpandable) {
+		if(!getModel().hasChildren(item) || li.unexpandable) {
 			li.setType(last ? TreeNodeType.LEAF_LAST : TreeNodeType.LEAF);
-			chvn.unexpandable = true;
-			chvn.expanded = false;
+			li.unexpandable = true;
+			li.expanded = false;
 		} else {
 			//img.setCssClass("ui-tree2-act");
 			boolean expanded = isExpanded(item); // Expanded?
@@ -199,7 +171,7 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 				 * a separate cell.
 				 */
 				li.setType(last ? TreeNodeType.OPENED_LAST : TreeNodeType.OPENED);
-				Ul childUl = renderList(item, chvn);
+				Ul childUl = renderList(li);
 				li.add(childUl);
 				li.setChildRoot(childUl);
 				li.getIcon().setClicked((IClicked<NodeContainer>) bxx -> collapseNode(item, true));
@@ -208,6 +180,7 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 				li.getIcon().setClicked((IClicked<NodeContainer>) bxx -> expandNode(item, true));
 			}
 		}
+		return li;
 	}
 
 	public void expandNode(T item) throws Exception {
@@ -235,38 +208,37 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 
 		//-- The thing is visible. We need to re-render where needed.
 		for(final T pathValue : path) {
-			VisibleNode<T> vn = getVisibleNode(pathValue);
+			Tree2Node<T> vn = getTree2Node(pathValue);
 			vn.expanded = true;
 
-			if(vn.childNodes == null && vn.nodeRow != null /* if root is not visible skip */) {
+			if(vn.getChildRoot() == null && vn.isAttached() /* if root is not visible skip */) {
 				/*
 				 * Not currently visibly expanded.. Do the in-table expansion of this node by replacing
 				 * it's TR image with a 'collapse' image OR a LEAF image if we determine here the thing
 				 * is a lazy leaf.
 				 */
-				Tree2Node<T> row = vn.nodeRow;
-				int rowix = row.getParent().findChildIndex(row); // Row's index in it's parent
-				boolean last = row.getParent().getChildCount() == rowix + 1;
+				int rowix = vn.getParent().findChildIndex(vn); // Row's index in it's parent
+				boolean last = vn.getParent().getChildCount() == rowix + 1;
 				int len = getModel().getChildCount(pathValue);
 				if(len == 0) {
 					/*
 					 * This node was lazily-unexpandable: hasChildren has returned T but the #of children is 0. Make it
 					 * a leaf and change it's image.
 					 */
-					row.setType(last ? TreeNodeType.LEAF_LAST : TreeNodeType.LEAF);
+					vn.setType(last ? TreeNodeType.LEAF_LAST : TreeNodeType.LEAF);
 					vn.expanded = false; 				// Cannot expand
 					vn.unexpandable = true;
-					row.getIcon().setClicked(null);		// Make sure Click handler is discarded
+					vn.getIcon().setClicked(null);		// Make sure Click handler is discarded
 				} else {
 					/*
 					 * An unexpanded non-leaf node: change its icon to "closeable" and change the click handler.
 					 */
-					row.setType(last ? TreeNodeType.OPENED_LAST : TreeNodeType.OPENED);
+					vn.setType(last ? TreeNodeType.OPENED_LAST : TreeNodeType.OPENED);
 					//img.addCssClass("ui-tree2-act");
-					row.getIcon().setClicked((IClicked<NodeContainer>) bxx -> collapseNode(pathValue, true));
-					Ul childUl = renderList(item, vn);
-					row.setChildRoot(childUl);
-					row.add(childUl);
+					vn.getIcon().setClicked((IClicked<NodeContainer>) bxx -> collapseNode(pathValue, true));
+					Ul childUl = renderList(vn);
+					vn.setChildRoot(childUl);
+					vn.add(childUl);
 
 					if(animate) {
 						Animations.slideDown(childUl);
@@ -281,27 +253,25 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 	 * Force the specified node to collapse. This also collapses all nodes after it, of course.
 	 */
 	public void collapseNode(final T item, boolean animate) throws Exception {
-		VisibleNode<T> vn = m_openMap.get(item);
+		Tree2Node<T> vn = m_openMap.get(item);
 		if(vn == null || !vn.expanded)
 			return;
 
-		//-- We have a node... We must discard all VisibleNodes after this node;
-		dropCrud(vn);
+		//-- We have a node... We must discard all Tree2Nodes after this node;
+		removeAllChildrenFromMap(vn);
 		getModel().collapseChildren(item);
 		vn.expanded = false;
-		vn.childNodes = null;
 
 		//-- Collapse the node. Get the base of the presentation,
-		Tree2Node<T> row = vn.nodeRow;
 
-		int rowix = row.getParent().findChildIndex(row); // Row's index in it's parent
-		boolean last = row.getParent().getChildCount() == rowix + 1;
+		int rowix = vn.getParent().findChildIndex(vn); // Row's index in it's parent
+		boolean last = vn.getParent().getChildCount() == rowix + 1;
 
-		row.setType(last ? TreeNodeType.CLOSED_LAST : TreeNodeType.CLOSED);
+		vn.setType(last ? TreeNodeType.CLOSED_LAST : TreeNodeType.CLOSED);
 		//img.addCssClass("ui-tree2-act");
-		row.getIcon().setClicked((IClicked<NodeContainer>) bxx -> expandNode(item, true));
+		vn.getIcon().setClicked((IClicked<NodeContainer>) bxx -> expandNode(item, true));
 
-		Ul ul = row.getChildRoot();
+		Ul ul = vn.getChildRoot();
 		if(null == ul)
 			return;
 
@@ -310,7 +280,7 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 		} else {
 			ul.remove();
 		}
-		row.setChildRoot(null);
+		vn.setChildRoot(null);
 	}
 
 	public void collapseAll() throws Exception {
@@ -329,17 +299,19 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 			expandNode(item);
 	}
 
-	private void dropCrud(VisibleNode<T> vnbase) throws Exception {
-		if(vnbase.childNodes == null)
+	private void removeAllChildrenFromMap(Tree2Node<T> vnbase) throws Exception {
+		Ul childRoot = vnbase.getChildRoot();
+		if(childRoot == null)
 			return;
 		int ix = 0;
-		for(VisibleNode<T> vn : vnbase.childNodes) {
+		for(NodeBase nodeBase : childRoot) {
+			Tree2Node<T> vn = (Tree2Node<T>) nodeBase;
 			if(vn == null)
-				throw new IllegalStateException("?? Element " + ix + " of parent=" + vnbase.data + " is null???");
-			m_openMap.remove(vn.data);
-			dropCrud(vn);
+				throw new IllegalStateException("?? Element " + ix + " of parent=" + vnbase.getValue() + " is null???");
+			m_openMap.remove(vn.getValue());
+			removeAllChildrenFromMap(vn);
 			if(vn.expanded)
-				getModel().collapseChildren(vn.data);
+				getModel().collapseChildren(vn.getValue());
 			ix++;
 		}
 	}
@@ -353,13 +325,14 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 	 * root element is always the 1st element in the treepath
 	 */
 	public List<T> getTreePath(T item) throws Exception {
-		List<T> path = new ArrayList<T>();
+		List<T> path = new ArrayList<>();
 		addParentPath(path, item);
 		return path;
 	}
 
 	private void addParentPath(List<T> path, T item) throws Exception {
 		T parent = getModel().getParent(item);
+
 		/*
 		 * jal 20081127 The explicit compare with the root node is needed because we allow the root
 		 * node to be null. In that case the path to the item MUST start with null (representing the
@@ -428,7 +401,7 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 	 * Returns T if this node is currently expanded (opened).
 	 */
 	public boolean isExpanded(T node) {
-		VisibleNode<T> vn = m_openMap.get(node);
+		Tree2Node<T> vn = m_openMap.get(node);
 		if(vn == null)
 			return false;
 		return vn.expanded;
@@ -450,23 +423,20 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 		if(null != nodeValue)
 			expandNode(nodeValue);
 
-		VisibleNode<T> vn = m_openMap.get(nodeValue);
+		Tree2Node<T> vn = m_openMap.get(nodeValue);
 		if(vn == null)
 			return;
-		Tree2Node<T> row = vn.nodeRow;
-		if(row == null)
-			return;
-		row.internalSetSelected(selected);
-		ATag content = row.getContent();
+		vn.internalSetSelected(selected);
+		ATag content = vn.getContent();
 		content.removeAllChildren();
 		renderContent(content, nodeValue);
 	}
 
 	@Nullable
 	public Tree2Node<T> locateRowIfExpanded(T node){
-		VisibleNode<T> vn = m_openMap.get(node);
+		Tree2Node<T> vn = m_openMap.get(node);
 		if (null != vn){
-			return vn.nodeRow;
+			return vn;
 		}
 		return null;
 	}
@@ -568,7 +538,7 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 	}
 
 	@Override
-	public void onNodeAdded(T parent, int index, T node) {
+	public void onNodeAdded(@Nullable T parent, int index, T node) {
 		throw new IllegalStateException("Not implemented");
 	}
 
@@ -578,7 +548,7 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 	}
 
 	@Override
-	public void onNodeRemoved(T oldParent, int oldIndex, T deletedNode) {
+	public void onNodeRemoved(@Nullable T oldParent, int oldIndex, T deletedNode) {
 		throw new IllegalStateException("Not implemented");
 	}
 }

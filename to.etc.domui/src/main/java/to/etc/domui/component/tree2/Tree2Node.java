@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 import java.util.Objects;
 
 /**
+ * Visible counterpart of a tree node.
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 21-8-17.
  */
@@ -26,6 +27,10 @@ final public class Tree2Node<V> extends Li {
 	private TreeNodeType m_treeNodeType = TreeNodeType.LEAF;
 
 	private boolean m_selected;
+
+	public boolean expanded;
+
+	public boolean unexpandable;
 
 	public Tree2Node(V item) {
 		m_value = item;
@@ -82,5 +87,9 @@ final public class Tree2Node<V> extends Li {
 
 	public void setChildRoot(@Nullable Ul childRoot) {
 		m_childRoot = childRoot;
+	}
+
+	public V getValue() {
+		return m_value;
 	}
 }
