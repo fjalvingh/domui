@@ -1,5 +1,6 @@
 package to.etc.domuidemo.pages.overview.tree2;
 
+import to.etc.domui.component.misc.FaIcon;
 import to.etc.domui.component.tree2.Tree2;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
@@ -25,6 +26,9 @@ public class Tree2DemoPage extends UrlPage {
 				if(null == object)
 					return;
 
+				FaIcon icon = new FaIcon(object.getIcon());
+				node.add(icon);
+				icon.addCssClass("dm-tree2-icon fa-2x");
 				node.add(object.getText());
 			}
 		});

@@ -104,7 +104,7 @@ public class DemoNode {
 
 	public String getIcon() {
 		if(m_album != null) {
-			return "fa-music";
+			return "fa-th-list";
 		} else if(m_artist != null) {
 			return "fa-group";
 		} else if(m_track != null) {
