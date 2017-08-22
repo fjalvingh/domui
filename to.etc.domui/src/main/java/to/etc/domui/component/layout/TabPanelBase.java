@@ -187,9 +187,9 @@ public class TabPanelBase extends Div {
 			if(tab != null)
 				tab.remove();
 
-			Li seperator = ti.getSeparator();
-			if(seperator != null)
-				seperator.remove();
+			Li separator = ti.getSeparator();
+			if(separator != null)
+				separator.remove();
 
 			NodeBase nb = ti.getContent();
 			if(nb != null) {

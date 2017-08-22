@@ -64,6 +64,8 @@ final public class DomUtil {
 	}
 
 	/**
+	 * Use Objects.requireNonNull.
+	 *
 	 * NULL CHECKING BELONGS IN THE LANGUAGE, NOT IN ANNOTATIONS, damnit! This fine idiocy is needed to
 	 * handle null checking because the pathetic losers that make up the Java JSR board are so incredible
 	 * stupid it boggles the mind. Java == cobol 8-(
@@ -71,25 +73,11 @@ final public class DomUtil {
 	 * @param in
 	 * @return
 	 */
+	@Deprecated
 	@Nonnull
 	static public <T> T nullChecked(@Nullable T in) {
 		if(null == in)
 			throw new IllegalStateException("Unexpected thingy is null: " + in);
-		return in;
-	}
-
-	/**
-	 * Does explicit non null check for parameter passed in as nullable but expected to be non null.
-	 * In case of null, it throws IllegalStateException with provided exceptionMsg.
-	 *
-	 * @param in
-	 * @param exceptionMsg
-	 * @return
-	 */
-	@Nonnull
-	static public <T> T nullChecked(@Nullable T in, @Nonnull String exceptionMsg) {
-		if(null == in)
-			throw new IllegalStateException(exceptionMsg);
 		return in;
 	}
 
