@@ -248,7 +248,6 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 		}
 	}
 
-
 	/**
 	 * Force the specified node to collapse. This also collapses all nodes after it, of course.
 	 */
