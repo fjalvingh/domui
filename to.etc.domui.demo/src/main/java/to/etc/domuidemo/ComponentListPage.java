@@ -40,6 +40,7 @@ import to.etc.domuidemo.pages.overview.misc.DemoALink;
 import to.etc.domuidemo.pages.overview.misc.DemoDisplayCheckbox;
 import to.etc.domuidemo.pages.overview.misc.DemoDisplayValue;
 import to.etc.domuidemo.pages.overview.tree.DemoTree;
+import to.etc.domuidemo.pages.overview.tree2.Tree2DemoPage;
 import to.etc.formbuilder.pages.FormDesigner;
 
 /**
@@ -94,7 +95,8 @@ public class ComponentListPage extends MenuPage {
 		addLink(TableMenuPage.class, "Data tables, row renderers and ITableModels.");
 
 		addCaption("Trees");
-		addLink(DemoTree.class, "The tree component - file system tree, lazily loaded, and file type icons");
+		addLink(Tree2DemoPage.class, "The tree2 component");
+		addLink(DemoTree.class, "The old tree component - file system tree, lazily loaded, and file type icons");
 
 		addCaption("Drag and drop");
 		addLink(DemoDragDrop.class, "Drag and drop - Petstore (DIV dropmode)");

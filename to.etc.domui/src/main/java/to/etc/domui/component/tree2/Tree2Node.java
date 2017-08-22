@@ -21,7 +21,7 @@ final public class Tree2Node<V> extends Li {
 	final private V m_value;
 
 	/** Container for the expand/collapse button and its rendition */
-	final private Div m_expansionIcon = new Div("ui-tree2-icon");
+	final private Div m_foldingIcon = new Div("ui-tree2-icon");
 
 	final private ATag m_content;
 
@@ -44,22 +44,22 @@ final public class Tree2Node<V> extends Li {
 
 	@Override public void createContent() throws Exception {
 		updateCssClass();
-		add(m_expansionIcon);
+		add(m_foldingIcon);
 		add(m_content);
 		Ul childRoot = m_childRoot;
 		if(null != childRoot)
 			add(childRoot);
 	}
 
-	public ATag getContent() {
+	ATag getContent() {
 		return m_content;
 	}
 
-	public TreeNodeType getType() {
+	TreeNodeType getType() {
 		return m_treeNodeType;
 	}
 
-	public void setType(TreeNodeType treeNodeType) {
+	void setType(TreeNodeType treeNodeType) {
 		if(Objects.equals(treeNodeType, m_treeNodeType))
 			return;
 		m_treeNodeType = treeNodeType;
@@ -73,8 +73,8 @@ final public class Tree2Node<V> extends Li {
 		);
 	}
 
-	public void setFoldingClicked(@Nullable IClicked<? extends NodeBase> clicked) {
-		m_expansionIcon.setClicked(clicked);
+	void setFoldingClicked(@Nullable IClicked<? extends NodeBase> clicked) {
+		m_foldingIcon.setClicked(clicked);
 	}
 
 	void internalSetSelected(boolean selected) {
@@ -85,11 +85,11 @@ final public class Tree2Node<V> extends Li {
 			m_content.removeCssClass("ui-tree2-selected");
 	}
 
-	@Nullable public Ul getChildRoot() {
+	@Nullable Ul getChildRoot() {
 		return m_childRoot;
 	}
 
-	public void setChildRoot(@Nullable Ul childRoot) {
+	void setChildRoot(@Nullable Ul childRoot) {
 		m_childRoot = childRoot;
 	}
 
