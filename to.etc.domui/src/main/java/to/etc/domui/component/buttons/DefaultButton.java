@@ -24,15 +24,17 @@
  */
 package to.etc.domui.component.buttons;
 
-import java.util.*;
+import to.etc.domui.component.menu.IUIAction;
+import to.etc.domui.dom.html.Button;
+import to.etc.domui.dom.html.IActionControl;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.Img;
+import to.etc.domui.dom.html.Span;
+import to.etc.domui.dom.html.Underline;
+import to.etc.domui.util.DomUtil;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.menu.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.parts.*;
-import to.etc.domui.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * The default button for DomUI renders a sliding doors button that can
@@ -57,7 +59,7 @@ public class DefaultButton extends Button implements IActionControl {
 	private String m_icon;
 
 	/** If this is an action-based button this contains the action. */
-	private IUIAction< ? > m_action;
+	private IUIAction<?> m_action;
 
 	private Object m_actionInstance;
 
@@ -81,7 +83,7 @@ public class DefaultButton extends Button implements IActionControl {
 	 * Create a {@link IUIAction} based button.
 	 * @param txt
 	 */
-	public DefaultButton(final IUIAction< ? > action) throws Exception {
+	public DefaultButton(final IUIAction<?> action) throws Exception {
 		this();
 		m_action = action;
 		actionRefresh();
@@ -146,17 +148,17 @@ public class DefaultButton extends Button implements IActionControl {
 	 * Define this as a "mini" button, usable to be added inside a table row.
 	 * @return
 	 */
-	public DefaultButton	mini() {
+	public DefaultButton mini() {
 		setCssClass("ui-sdbtn-mini");
 		return this;
 	}
 
 	/**
 	 * Uses a resource as the base for the image.
-	 * @param resourceBase		The base location for the specified name. Name is resolved with this class as the base.
-	 * @param name				The resource's name relative to the class.
+	 * @param resourceBase        The base location for the specified name. Name is resolved with this class as the base.
+	 * @param name                The resource's name relative to the class.
 	 */
-	public void setIconImage(final Class< ? > resourceBase, final String name) {
+	public void setIconImage(final Class<?> resourceBase, final String name) {
 		setIcon(DomUtil.getJavaResourceRURL(resourceBase, name));
 	}
 
@@ -275,7 +277,7 @@ public class DefaultButton extends Button implements IActionControl {
 	 * @return
 	 */
 	@Nullable
-	public IUIAction< ? > getAction() {
+	public IUIAction<?> getAction() {
 		return m_action;
 	}
 
@@ -288,7 +290,7 @@ public class DefaultButton extends Button implements IActionControl {
 			return;
 		String dt = action.getDisableReason(m_actionInstance);
 		if(null == dt) {
-			dt = action.getTitle(m_actionInstance);		// The default tooltip or remove it if not present
+			dt = action.getTitle(m_actionInstance);        // The default tooltip or remove it if not present
 			setDisabled(false);
 		} else {
 			setDisabled(true);
