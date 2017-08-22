@@ -1,5 +1,6 @@
 package to.etc.domui.component2.form4;
 
+import to.etc.domui.component.binding.BindReference;
 import to.etc.domui.component.binding.IBindingConverter;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
@@ -13,6 +14,8 @@ import to.etc.domui.dom.html.TD;
 import to.etc.domui.dom.html.TR;
 import to.etc.domui.dom.html.Table;
 import to.etc.domui.server.DomApplication;
+import to.etc.domui.util.DomUtil;
+import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.annotations.GProperty;
 
 import javax.annotation.Nonnull;
@@ -57,7 +60,36 @@ final public class FormBuilder {
 
 	private boolean m_append;
 
+	/** ReadOnly as set directly in the Builder */
 	private Boolean m_readOnly;
+
+	/** When set, the next control's readOnly property will be bound to this reference, after which it will be cleared */
+	@Nullable
+	private BindReference<?, Boolean> m_readOnlyOnce;
+
+	/** While set, all controls added will have their readOnly property bound to this reference unless otherwise specified */
+	@Nullable
+	private BindReference<?, Boolean> m_readOnlyGlobal;
+
+	/** When set, disable the next component with the specified message. */
+	@Nullable
+	private String m_disabledMessage;
+
+	@Nullable
+	private BindReference<?, String> m_disabledMessageOnce;
+
+	@Nullable
+	private BindReference<?, String> m_disabledMessageGlobal;
+
+	/** disabled as set directly in the Builder */
+	private Boolean m_disabled;
+
+	@Nullable
+	private BindReference<?, Boolean> m_disabledOnce;
+
+	@Nullable
+	private BindReference<?, Boolean> m_disabledGlobal;
+
 
 	private NodeBase m_lastAddedControl;
 
@@ -95,6 +127,15 @@ final public class FormBuilder {
 	public FormBuilder vertical() {
 		m_horizontal = false;
 		return this;
+	}
+
+	static private <I, V> BindReference<I, V> createRef(@Nonnull I instance, @Nonnull String property, @Nonnull Class<V> type) {
+		PropertyMetaModel<?> pmm = MetaManager.getPropertyMeta(instance.getClass(), property);
+		if(DomUtil.normalizePrimitivesToBoxedTypes(pmm.getActualType()) != DomUtil.normalizePrimitivesToBoxedTypes(type)) {
+			throw new ProgrammerErrorException(pmm + " must be of type " + type.getName());
+		}
+		return new BindReference<>(instance, (PropertyMetaModel<V>) pmm);
+
 	}
 
 	/*--------------------------------------------------------------*/
@@ -147,9 +188,110 @@ final public class FormBuilder {
 		return this;
 	}
 
+	/**
+	 * Force the next component to have the specified value for readOnly.
+	 */
 	@Nonnull
 	public FormBuilder readOnly(boolean ro) {
 		m_readOnly = Boolean.valueOf(ro);
+		return this;
+	}
+
+
+	/**
+	 * Bind only the next component to the specified boolean property. See
+	 */
+	@Nonnull
+	public <I> FormBuilder readOnly(@Nonnull I instance, @Nonnull String property) {
+		m_readOnlyOnce = createRef(instance, property, Boolean.class);
+		return this;
+	}
+
+	/**
+	 * By default bind all next components' readOnly property to the specified Boolean property. This binding
+	 * takes effect except if a more detailed readOnly binding is specified.
+	 */
+	@Nonnull
+	public <I> FormBuilder readOnlyAll(@Nonnull I instance, @Nonnull String property) {
+		m_readOnlyGlobal = createRef(instance, property, Boolean.class);
+		return this;
+	}
+
+	/**
+	 * Clear the global "read only" binding as set by {@link #readOnlyAll(Object, String)}, so that components
+	 * after this are no longer bound to the previously set property.
+	 */
+	@Nonnull
+	public FormBuilder readOnlyAll() {
+		m_readOnlyGlobal = null;
+		return this;
+	}
+
+	@Nonnull
+	public FormBuilder disabled() {
+		m_disabled = Boolean.TRUE;
+		return this;
+	}
+
+	/**
+	 * Force the next component to have the specified value for disabled.
+	 */
+	@Nonnull
+	public FormBuilder disabled(boolean ro) {
+		m_disabled = Boolean.valueOf(ro);
+		return this;
+	}
+
+	@Nonnull
+	public <I> FormBuilder disabled(@Nonnull I instance, @Nonnull String property) {
+		m_disabledOnce = createRef(instance, property, Boolean.class);
+		return this;
+	}
+
+	/**
+	 * By default bind all next components' disabled property to the specified Boolean property. This binding
+	 * takes effect except if a more detailed binding is specified.
+	 */
+	@Nonnull
+	public <I> FormBuilder disabledAll(@Nonnull I instance, @Nonnull String property) {
+		m_disabledGlobal = createRef(instance, property, Boolean.class);
+		return this;
+	}
+
+	/**
+	 * Clear the global "disabled" binding as set by {@link #disabledAll(Object, String)}, so that components
+	 * after this are no longer bound to the previously set property.
+	 */
+	@Nonnull
+	public FormBuilder disabledAll() {
+		m_disabledGlobal = null;
+		return this;
+	}
+
+	/**
+	 * Disables the next component with the specified disable message.
+	 */
+	@Nonnull
+	public FormBuilder disableMessage(@Nullable String message) {
+		m_disabledMessage = message;
+		return this;
+	}
+
+	@Nonnull
+	public <I> FormBuilder disableMessage(@Nonnull I instance, @Nonnull String property) {
+		m_disabledMessageOnce = createRef(instance, property, String.class);
+		return this;
+	}
+
+	@Nonnull
+	public <I> FormBuilder disableMessageAll(@Nonnull I instance, @Nonnull String property) {
+		m_disabledMessageGlobal = createRef(instance, property, String.class);
+		return this;
+	}
+
+	@Nonnull
+	public FormBuilder disableMessageAll() {
+		m_disabledMessageGlobal = null;
 		return this;
 	}
 
@@ -204,7 +346,6 @@ final public class FormBuilder {
 		if(null == pmm)
 			throw new IllegalStateException("You must have called 'property(...)' before");
 		C control = builder.createControl(pmm, controlClass);
-		bindControlData(control, pmm);
 		addControl((NodeBase) control);
 		resetBuilder();
 		return control;
@@ -243,12 +384,6 @@ final public class FormBuilder {
 		resetBuilder();
 	}
 
-	public <T, C extends IControl<T>> void bindControlData(@Nonnull C control, @Nonnull PropertyMetaModel<T> pmm) throws Exception {
-
-
-	}
-
-
 	@Nonnull
 	public <T> FormBuilder property(@Nonnull T instance, @GProperty String property) {
 		if(null != m_propertyMetaModel)
@@ -260,6 +395,11 @@ final public class FormBuilder {
 
 	private void resetBuilder() {
 		m_readOnly = null;
+		m_readOnlyOnce = null;
+		m_disabled = null;
+		m_disabledOnce = null;
+		m_disabledMessage = null;
+		m_disabledMessageOnce = null;
 		m_instance = null;
 		m_propertyMetaModel = null;
 		m_append = false;
@@ -306,8 +446,39 @@ final public class FormBuilder {
 				}
 			}
 
-			if(isReadOnly()) {
-				ctl.setReadOnly(true);
+			//-- Do all the readOnly chores
+			Boolean readOnly = m_readOnly;
+			BindReference<?, Boolean> roOnce = m_readOnlyOnce;
+			BindReference<?, Boolean> roGlob = m_readOnlyGlobal;
+			if(null != readOnly) {
+				ctl.setReadOnly(readOnly.booleanValue());
+			} else if(roOnce != null) {
+				control.bind("readOnly").to(roOnce);
+			} else if(roGlob != null) {
+				control.bind("readOnly").to(roGlob);
+			}
+
+			//-- Same for disabled - prefer message above the boolean disabled.
+			String diMsg = m_disabledMessage;
+			BindReference<?, String> diMsgOnce = m_disabledMessageOnce;
+			BindReference<?, String> diMsgGlob = m_disabledMessageGlobal;
+			Boolean di = m_disabled;
+			BindReference<?, Boolean> diOnce = m_disabledOnce;
+			BindReference<?, Boolean> diGlob = m_disabledGlobal;
+
+			if(diMsg != null) {
+				//ctl.setDisabledBecause(diMsg);			// FIXME
+				ctl.setDisabled(true);
+			} else if(diMsgOnce != null) {
+				control.bind("disabledBecause").to(diMsgOnce);
+			} else if(diMsgGlob != null) {
+				control.bind("disabledBecause").to(diMsgGlob);
+			} else if(di != null) {
+				ctl.setDisabled(di.booleanValue());
+			} else if(diOnce != null) {
+				control.bind("disabled").to(diOnce);
+			} else if(diGlob != null) {
+				control.bind("disabled").to(diGlob);
 			}
 
 			if(isMandatory()) {
@@ -525,7 +696,6 @@ final public class FormBuilder {
 	}
 
 	private boolean isReadOnly() {
-
 		Boolean ro = m_readOnly;
 		if(null != ro) {
 			return ro.booleanValue();

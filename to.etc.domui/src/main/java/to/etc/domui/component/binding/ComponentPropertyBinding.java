@@ -31,15 +31,16 @@ import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IDisplayControl;
 import to.etc.domui.dom.html.NodeBase;
-import to.etc.domui.util.*;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.IReadOnlyModel;
+import to.etc.domui.util.IValueAccessor;
+import to.etc.domui.util.IWriteOnlyModel;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.nls.CodeException;
 
 import javax.annotation.DefaultNonNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * This binds a control property to some model property.
@@ -80,20 +81,6 @@ final public class ComponentPropertyBinding implements IBinding {
 	@Nullable
 	private UIMessage m_bindError;
 
-	/** Map value types of primitive type to their boxed (wrapped) types. */
-	final static private Map<Class<?>, Class<?>> BOXINGDISASTER = new HashMap<>();
-
-	static {
-		BOXINGDISASTER.put(long.class, Long.class);
-		BOXINGDISASTER.put(int.class, Integer.class);
-		BOXINGDISASTER.put(short.class, Short.class);
-		BOXINGDISASTER.put(char.class, Character.class);
-		BOXINGDISASTER.put(double.class, Double.class);
-		BOXINGDISASTER.put(float.class, Float.class);
-		BOXINGDISASTER.put(boolean.class, Boolean.class);
-		BOXINGDISASTER.put(byte.class, Byte.class);
-	}
-
 	@Nullable
 	private IWriteOnlyModel<?> m_setter;
 
@@ -133,6 +120,11 @@ final public class ComponentPropertyBinding implements IBinding {
 		if(listener == null)
 			throw new IllegalArgumentException("Argument cannot be null");
 		m_listener = listener;
+	}
+
+	public void to(@Nonnull BindReference<?, ?> ref) throws Exception {
+		checkAssigned();
+		to(ref.getInstance(), ref.getProperty());
 	}
 
 	public <T> void to(@Nonnull T instance, @Nonnull String property) throws Exception {
@@ -192,14 +184,14 @@ final public class ComponentPropertyBinding implements IBinding {
 		//-- Check: are the types of the binding ok?
 		if(pmm instanceof PropertyMetaModel<?> && m_converter == null) {
 			PropertyMetaModel<?> p = (PropertyMetaModel<?>) pmm;
-			Class<?> actualType = fixBoxingDisaster(p.getActualType());
-			Class<?> controlType = fixBoxingDisaster(m_controlProperty.getActualType());
+			Class<?> actualType = DomUtil.normalizePrimitivesToBoxedTypes(p.getActualType());
+			Class<?> controlType = DomUtil.normalizePrimitivesToBoxedTypes(m_controlProperty.getActualType());
 
 			if(controlType == Object.class) {
 				//-- Type erasure, deep, deep sigh. Can the control tell us the actual type contained?
 				if(m_control instanceof ITypedControl) {
 					ITypedControl<?> typedControl = (ITypedControl<?>) m_control;
-					controlType = fixBoxingDisaster(typedControl.getActualType());
+					controlType = DomUtil.normalizePrimitivesToBoxedTypes(typedControl.getActualType());
 				}
 			}
 
@@ -286,17 +278,6 @@ final public class ComponentPropertyBinding implements IBinding {
 		return m_instanceProperty;
 	}
 
-
-	/**
-	 * Map value types of primitive type to their boxed (wrapped) types.
-	 * @param clz
-	 * @return
-	 */
-	@Nonnull
-	static private Class<?> fixBoxingDisaster(@Nonnull Class<?> clz) {
-		Class<?> newClass = BOXINGDISASTER.get(clz);
-		return newClass != null ? newClass : clz;
-	}
 
 	@Nullable
 	private Object getValueFromModel() throws Exception {

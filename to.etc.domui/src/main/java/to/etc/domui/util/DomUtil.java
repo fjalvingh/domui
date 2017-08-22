@@ -56,11 +56,34 @@ final public class DomUtil {
 
 	static private int m_guidSeed;
 
-	private DomUtil() {}
+	/** Map value types of primitive type to their boxed (wrapped) types. */
+	final static private Map<Class<?>, Class<?>> BOXINGDISASTER = new HashMap<>();
 
 	static {
+		BOXINGDISASTER.put(long.class, Long.class);
+		BOXINGDISASTER.put(int.class, Integer.class);
+		BOXINGDISASTER.put(short.class, Short.class);
+		BOXINGDISASTER.put(char.class, Character.class);
+		BOXINGDISASTER.put(double.class, Double.class);
+		BOXINGDISASTER.put(float.class, Float.class);
+		BOXINGDISASTER.put(boolean.class, Boolean.class);
+		BOXINGDISASTER.put(byte.class, Byte.class);
+
 		long val = System.currentTimeMillis() / 1000 / 60;
 		m_guidSeed = (int) val;
+	}
+
+	private DomUtil() {}
+
+	/**
+	 * Map value types of primitive type to their boxed (wrapped) types.
+	 * @param clz
+	 * @return
+	 */
+	@Nonnull
+	static public Class<?> normalizePrimitivesToBoxedTypes(@Nonnull Class<?> clz) {
+		Class<?> newClass = BOXINGDISASTER.get(clz);
+		return newClass != null ? newClass : clz;
 	}
 
 	/**
