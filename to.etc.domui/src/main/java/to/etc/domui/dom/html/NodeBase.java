@@ -827,10 +827,20 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	/**
 	 * Set a click handler for this node. This will be attached to the Javascript "onclick" handler for
-	 * this node and will fire when the node is clicked.
+	 * this node and will fire when the node is clicked. If more information around the click is needed
+	 * use {@link #setClicked2(IClicked2)}.
 	 * @param clicked
 	 */
-	public void setClicked(@Nullable final IClickBase< ? > clicked) {
+	public void setClicked(@Nullable final IClicked< ? > clicked) {
+		m_clicked = clicked;
+	}
+
+	/**
+	 * Set an advanced click handler for this node, which gets passed a {@link ClickInfo}
+	 * structure containing the location of the click and the other modifier buttons pressed
+	 * at click time. Only one of setClicked / setClicked2 can be active at any one time.
+	 */
+	public void setClicked2(IClicked2<?> clicked) {
 		m_clicked = clicked;
 	}
 

@@ -335,7 +335,7 @@ final public class MultiRowDataTable<T> extends PageableTabularComponentBase<T> 
 		ISelectionModel<T> sm = getSelectionModel();
 		if(m_rowRenderer.getRowClicked() != null || null != sm) {
 			//-- Add a click handler to select or pass the rowclicked event.
-			cc.getTR().setClicked(new IClicked2<TR>() {
+			cc.getTR().setClicked2(new IClicked2<TR>() {
 				@Override
 				@SuppressWarnings({"synthetic-access"})
 				public void clicked(@Nonnull TR b, @Nonnull ClickInfo clinfo) throws Exception {
@@ -373,7 +373,7 @@ final public class MultiRowDataTable<T> extends PageableTabularComponentBase<T> 
 	}
 
 	private void hookCheckboxClickToCellToo(TD td, Checkbox cb) {
-		td.setClicked((IClicked2<TD>)(node, clinfo) -> {
+		td.setClicked2((IClicked2<TD>)(node, clinfo) -> {
 			if (!cb.isDisabled()){
 				IClickBase<?> clickHandler = cb.getClicked();
 				if (null != clickHandler && clickHandler instanceof IClicked2){
@@ -893,7 +893,7 @@ final public class MultiRowDataTable<T> extends PageableTabularComponentBase<T> 
 			selectable = ((IAcceptable<T>) selectionModel).acceptable(rowInstance);
 		}
 		if(selectable) {
-			cb.setClicked(new IClicked2<Checkbox>() {
+			cb.setClicked2(new IClicked2<Checkbox>() {
 				@Override
 				public void clicked(@Nonnull Checkbox clickednode, @Nonnull ClickInfo info) throws Exception {
 					selectionCheckboxClicked(rowInstance, clickednode.isChecked(), info, clickednode);

@@ -1453,7 +1453,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 * @see to.etc.domui.dom.html.NodeBase#setClicked(to.etc.domui.dom.html.IClicked)
 	 */
 	@Override
-	public void setClicked(final @Nullable IClickBase< ? > clicked) {
+	public void setClicked(final @Nullable IClicked< ? > clicked) {
 		m_clicker = (IClicked<LookupForm<T>>) clicked;
 	}
 

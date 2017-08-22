@@ -33,6 +33,7 @@ import to.etc.domui.dom.css.Overflow;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClickBase;
 import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.IClicked2;
 import to.etc.domui.util.INodeContentRenderer;
 import to.etc.domui.util.Msgs;
 
@@ -173,7 +174,11 @@ public class TreeSelectionWindow<T> extends FloatingWindow implements ICellClick
 	}
 
 	@Override
-	public void setClicked(@Nullable IClickBase< ? > clicked) {
+	public void setClicked(@Nullable IClicked< ? > clicked) {
+		m_clicked = clicked;
+	}
+
+	@Override public void setClicked2(IClicked2<?> clicked) {
 		m_clicked = clicked;
 	}
 

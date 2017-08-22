@@ -10,7 +10,7 @@ public class Click2HandlerPage extends UrlPage {
 		d.setHeight("200px");
 		d.setBorder(1, "red", "dotted");
 		d.add("Click me");
-		d.setClicked(new IClicked2<Div>() {
+		d.setClicked2(new IClicked2<Div>() {
 			@Override
 			public void clicked(Div node, ClickInfo i) throws Exception {
 				String s = "Click: x=" + i.getPageX() + ", y=" + i.getPageY() + ", shift=" + i.isShift() + ", ctrl=" + i.isControl() + ", alt=" + i.isAlt();

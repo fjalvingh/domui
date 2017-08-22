@@ -122,7 +122,7 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 					//-- Add a click handler to select or pass the rowclicked event.
 					final TR therow = tr;
 					final T theitem = item;
-					cc.getTR().setClicked(new IClicked2<TR>() {
+					cc.getTR().setClicked2(new IClicked2<TR>() {
 						@Override
 						@SuppressWarnings({"synthetic-access"})
 						public void clicked(@Nonnull TR b, @Nonnull ClickInfo clinfo) throws Exception {
@@ -193,7 +193,7 @@ public class MultipleSelectionDataTable<T> extends DataTable<T> {
 			//-- Add a click handler to select or pass the rowclicked event.
 			final TR therow = tr;
 			final T theitem = item;
-			cc.getTR().setClicked(new IClicked2<TR>() {
+			cc.getTR().setClicked2(new IClicked2<TR>() {
 				@Override
 				@SuppressWarnings({"synthetic-access"})
 				public void clicked(@Nonnull TR b, @Nonnull ClickInfo clinfo) throws Exception {

@@ -367,7 +367,7 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 			if(isSelected(value))
 				cell.addCssClass("ui-tree2-selected");
 
-			cell.setClicked(new IClicked2<NodeContainer>() {
+			cell.setClicked2(new IClicked2<NodeContainer>() {
 				@Override
 				public void clicked(@Nonnull NodeContainer node, @Nonnull ClickInfo clinfo) throws Exception {
 					cellClicked(value, clinfo);

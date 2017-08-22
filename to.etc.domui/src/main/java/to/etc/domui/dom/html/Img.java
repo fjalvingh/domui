@@ -24,10 +24,11 @@
  */
 package to.etc.domui.dom.html;
 
-import to.etc.domui.util.*;
+import to.etc.domui.util.DomUtil;
 
-import javax.annotation.*;
-import java.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Objects;
 
 /**
  * The base tag for an Image.
@@ -84,7 +85,7 @@ public class Img extends NodeBase implements IActionControl {
 	 * with THEME/ it specifies an image from the current THEME's directory.
 	 * @param src
 	 */
-	public Img(Class< ? > base, String src) {
+	public Img(Class<?> base, String src) {
 		this();
 		setSrc(base, src);
 		setImgBorder(0);
@@ -152,7 +153,7 @@ public class Img extends NodeBase implements IActionControl {
 	 * @param base
 	 * @param resurl
 	 */
-	public void setSrc(Class< ? > base, String resurl) {
+	public void setSrc(Class<?> base, String resurl) {
 		String s = DomUtil.getJavaResourceRURL(base, resurl);
 		setSrc(s);
 	}
@@ -200,11 +201,20 @@ public class Img extends NodeBase implements IActionControl {
 	}
 
 	@Override
-	public void setClicked(@Nullable IClickBase<?> clicked) {
+	public void setClicked(@Nullable IClicked<?> clicked) {
 		super.setClicked(clicked);
-		if (null != clicked) {
+		if(null != clicked) {
 			addCssClass("ui-clickable");
-		}else{
+		} else {
+			removeCssClass("ui-clickable");
+		}
+	}
+
+	@Override public void setClicked2(IClicked2<?> clicked) {
+		super.setClicked2(clicked);
+		if(null != clicked) {
+			addCssClass("ui-clickable");
+		} else {
 			removeCssClass("ui-clickable");
 		}
 	}
