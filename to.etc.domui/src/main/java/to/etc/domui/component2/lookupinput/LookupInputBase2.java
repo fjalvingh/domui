@@ -804,13 +804,13 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 			return;
 		OT old = m_value;
 		m_value = v;
+		getClearButton().setDisplay(DisplayType.INLINE);
+		setCssClass("ui-lui2-selected");
 		if(v != null) {
-			getClearButton().setDisplay(DisplayType.INLINE);
+			getClearButton().setDisabled(false);
 			clearMessage();
-			setCssClass("ui-lui2-selected");
 		} else {
-			getClearButton().setDisplay(DisplayType.NONE);
-			setCssClass("ui-lui2");
+			getClearButton().setDisabled(true);
 		}
 		updateRoStyle();
 		forceRebuild();
