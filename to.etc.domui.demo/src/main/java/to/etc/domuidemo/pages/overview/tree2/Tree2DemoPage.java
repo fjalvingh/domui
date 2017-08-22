@@ -28,7 +28,7 @@ public class Tree2DemoPage extends UrlPage {
 
 				FaIcon icon = new FaIcon(object.getIcon());
 				node.add(icon);
-				icon.addCssClass("dm-tree2-icon fa-2x");
+				icon.addCssClass("dm-tree2-icon");
 				node.add(object.getText());
 			}
 		});

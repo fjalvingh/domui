@@ -160,5 +160,6 @@ pre.code {
 	color: #d18100;
 	height: 100%;
 	float: left;
-	width: 35px;
+	padding-right: 5px;
+	/*width: 35px;*/
 }

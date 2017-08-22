@@ -16,28 +16,28 @@ li.ui-tree2-item {
 	vertical-align: top;
 	display: inline-block;
 	width: 32px;
-	height: 36px;
+	height: 10px;
 	padding: 0;
 	margin: 0;
 	cursor: pointer;
 }
 
 .ui-tree2-leaf > .ui-tree2-foldicon, .ui-tree2-leaf-last > .ui-tree2-foldicon {
-	background: url(bg-tree-leaf.png) 0px -16px no-repeat;
+	background: url(bg-tree-leaf.png) 0px -31px no-repeat;
 }
 .ui-tree2-closed > .ui-tree2-foldicon {
-	background: url(bg-tree-closed.png) 0px -16px no-repeat;
+	background: url(bg-tree-closed.png) 0px -31px no-repeat;
 }
 .ui-tree2-closed-last > .ui-tree2-foldicon {
-	background: url(bg-tree-closed.png) 0px -16px no-repeat;
+	background: url(bg-tree-closed.png) 0px -31px no-repeat;
 }
 
 .ui-tree2-opened > .ui-tree2-foldicon {
-	background: url(bg-tree-opened.png) 0px -17px no-repeat;
+	background: url(bg-tree-opened.png) 0px -32px no-repeat;
 }
 .xxui-tree2-opened > .ui-tree2-foldicon:before {
 	content: '';
-	background: url(bg-tree-open-cont.png) 0 -16px repeat-y;
+	background: url(bg-tree-open-cont.png) 0 -31px repeat-y;
 	display: inline-block;
 	left: 0px;
 	position: absolute;
@@ -47,7 +47,7 @@ li.ui-tree2-item {
 }
 
 .ui-tree2-opened-last > .ui-tree2-foldicon {
-	background: url(bg-tree-opened.png) 0px -17px no-repeat;
+	background: url(bg-tree-opened.png) 0px -32px no-repeat;
 }
 
 .ui-tree2-val {
