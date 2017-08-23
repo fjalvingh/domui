@@ -81,13 +81,12 @@ $tab_pnl_sep_bg: #7c7c7c;
 $tab_pnl_arrows: url(tab-scrl-icon.png);
 
 //-- Buttons
-$button_img: "defaultButton.png";
-$button-disabled-color: #666666;
-$button-top-color: #3498db;
-$button-bottom-color: #2980b9;
-$button-focus-top-color: #3cb0fd;
-$button-focus-bot-color: #3498db;
+$button-top-color: #f69231;
+$button-bottom-color: #f6ac3d;
+$button-focus-top-color: #f6c381;
+$button-focus-bot-color: #f69231;
 $button-focus-glow-color: rgba($button-focus-top-color, .7);
+$button-disabled-color: #999999;
 $button_height: 24px;
 $button-font-size: 15px;
 $button-icon-fontsize: 15px;
