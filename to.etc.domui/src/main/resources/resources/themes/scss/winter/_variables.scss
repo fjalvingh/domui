@@ -80,8 +80,17 @@ $tab_pnl_close_hover: "tab-pnl-close-hover.png";
 $tab_pnl_sep_bg: #7c7c7c;
 $tab_pnl_arrows: url(tab-scrl-icon.png);
 
+//-- Buttons
 $button_img: "defaultButton.png";
+$button-disabled-color: #666666;
+$button-top-color: #3498db;
+$button-bottom-color: #2980b9;
+$button-focus-top-color: #3cb0fd;
+$button-focus-bot-color: #3498db;
+$button-focus-glow-color: rgba($button-focus-top-color, .7);
 $button_height: 24px;
+$button-font-size: 15px;
+$button-icon-fontsize: 15px;
 
 /*** Data Pager buttons ***/
 $data_pager_icons: "data-pager-icons.png";

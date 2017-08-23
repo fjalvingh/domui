@@ -23,7 +23,7 @@ import java.util.Map;
  * Resolves sass resources using DomUI's resolution mechanisms, and tracks
  * the resources used for auto recompile.
  */
-final class ScssDomuiResolver implements ScssStylesheetResolver {
+final class SassDomuiResolver implements ScssStylesheetResolver {
 	@Nonnull
 	private final IResourceDependencyList m_dependencyList;
 
@@ -56,7 +56,7 @@ final class ScssDomuiResolver implements ScssStylesheetResolver {
 
 	final private Map<String, Line> m_map = new HashMap<>();
 
-	public ScssDomuiResolver(@Nonnull IResourceDependencyList dependencyList, @Nonnull String basePath, @Nonnull ParameterInfoImpl params) {
+	public SassDomuiResolver(@Nonnull IResourceDependencyList dependencyList, @Nonnull String basePath, @Nonnull ParameterInfoImpl params) {
 		m_dependencyList = dependencyList;
 		m_params = params;
 	}

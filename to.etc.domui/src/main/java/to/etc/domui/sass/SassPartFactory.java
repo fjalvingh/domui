@@ -56,7 +56,7 @@ public class SassPartFactory implements IBufferedPartFactory<ParameterInfoImpl> 
 		}
 
 		ScssStylesheet parent = new ScssStylesheet();
-		ScssDomuiResolver resolver = new ScssDomuiResolver(rdl, basePath, params);
+		SassDomuiResolver resolver = new SassDomuiResolver(rdl, basePath, params);
 		parent.addResolver(resolver);
 		parent.setCharset("utf-8");
 		parent.setFile(new File(rurl));				// jal 20170702 So bad, but there is no other reliable way to present parentage
