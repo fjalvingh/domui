@@ -236,14 +236,10 @@ public class ClasspathInventory {
 	 * If found this returns the current timestamp and reference that can be
 	 * checked later on for changes on this resource's source.
 	 *
-	 * @param u
-	 * @param rel
-	 * @return
-	 * @throws URISyntaxException
 	 */
 	private IModifyableResource checkForFile(File f, String rel) {
-		if(f.getName().toLowerCase().endsWith(".jar")) // Skip all .jar files for now
-			return null;
+		if(f.getName().toLowerCase().endsWith(".jar"))
+			return null; ///checkJarContents(f, rel);
 		if(!f.exists() || !f.isDirectory()) // Must be a dir here,
 			return null;
 

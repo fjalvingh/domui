@@ -24,15 +24,18 @@
  */
 package to.etc.domui.server.reloader;
 
-import java.net.*;
-import java.util.*;
-import java.util.regex.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.util.resources.ResourceTimestamp;
+import to.etc.util.ClassUtil;
+import to.etc.util.StringTool;
 
-import org.slf4j.*;
-
-import to.etc.domui.server.*;
-import to.etc.domui.util.resources.*;
-import to.etc.util.*;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
+import java.util.regex.Pattern;
 
 /**
  * This class handles loading classes in such a way that when their source .class
@@ -108,8 +111,6 @@ final public class Reloader {
 
 	/**
 	 * Create a reloader which handles the specified classes.
-	 * @param paths
-	 * @param patternsWatchOnly, these patterns will be only watched not really reloaded. It makes sure the reloader kicks in. Bundles and MetaData will be reloaded.
 	 */
 	public Reloader(String paths, String pathsWatchOnly) {
 		//		m_loadSpecList.add(new LoadSpec(Pattern.compile("to.etc.domui.*"), false)); // Never accept internal classes!! jal 20090817 Removed, handled in ReloadingClassloader instead.
