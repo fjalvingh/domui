@@ -1,8 +1,15 @@
 package to.etc.domui.component.headers;
 
-import javax.annotation.*;
+import to.etc.domui.component.buttons.SmallImgButton;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.NodeBase;
 
-import to.etc.domui.dom.html.*;
+import javax.annotation.DefaultNonNull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -29,6 +36,11 @@ public class GenericHeader extends Div {
 
 	final private Type m_type;
 
+	private List<SmallImgButton> m_btns = Collections.EMPTY_LIST;
+
+	@Nullable
+	private Div m_buttonPart;
+
 	public GenericHeader(Type type, String text) {
 		m_type = type;
 		m_text = text;
@@ -42,5 +54,40 @@ public class GenericHeader extends Div {
 	public void createContent() throws Exception {
 		setCssClass("ui-generichd ui-generichd-" + m_type.name().toLowerCase().replace('_', '-'));
 		add(m_text);
+		m_buttonPart = null;
+		renderButtons();
+	}
+
+	private void renderButtons() {
+		if(m_btns.size() == 0)
+			return;
+		Div part = m_buttonPart = new Div("ui-generichd-btns") ;
+		add(part);
+		for(SmallImgButton btn : m_btns) {
+			part.add(btn);
+		}
+	}
+
+	public void addButton(String image, String hint, IClicked<NodeBase> handler) {
+		SmallImgButton ib = new SmallImgButton(image);
+		ib.setClicked(handler);
+		internallyAddButton(ib, hint);
+	}
+
+	public void addButton(String image, String hint, String onClickJs) {
+		SmallImgButton ib = new SmallImgButton(image);
+		ib.setOnClickJS(onClickJs);
+		internallyAddButton(ib, hint);
+	}
+
+	private void internallyAddButton(SmallImgButton ib, String hint) {
+		if(m_btns == Collections.EMPTY_LIST) {
+			m_btns = new ArrayList<>();
+		}
+		ib.setTitle(hint);
+		m_btns.add(ib);
+		if(isBuilt() && m_buttonPart != null) {
+			m_buttonPart.add(ib);
+		}
 	}
 }

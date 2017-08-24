@@ -24,12 +24,18 @@
  */
 package to.etc.domui.component.layout;
 
-import javax.annotation.*;
+import to.etc.domui.dom.css.DisplayType;
+import to.etc.domui.dom.errors.IErrorFence;
+import to.etc.domui.dom.errors.IErrorMessageListener;
+import to.etc.domui.dom.errors.MsgType;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.Page;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.Msgs;
 
-import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
+import javax.annotation.Nonnull;
 
 /**
  * This is a CaptionedPanel which captures and displays errors for the tree
@@ -55,6 +61,7 @@ public class ErrorPanel extends CaptionedPanel implements IErrorMessageListener 
 		super(Msgs.BUNDLE.getString(Msgs.UI_ERROR_HEADER), new Div());
 		setDisplay(DisplayType.NONE);
 		getTitleContainer().setCssClass("ui-err-caption");
+		getContent().setCssClass("ui-err-cont");
 		setCssClass("ui-err-outer");
 	}
 

@@ -25,6 +25,7 @@
 package to.etc.domui.component.htmleditor;
 
 import to.etc.domui.dom.css.*;
+import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 import to.etc.util.*;
@@ -121,6 +122,8 @@ public class HtmlEditor extends TextArea {
 
 		appendCreateJS(sb);
 		//		appendCreateJS("$(\"#" + getActualID() + "\").wysiwyg({css:'/ui/$themes/blue/style.theme.css'});");
+
+		handleError();
 	}
 
 	static private void disable(StringBuilder sb, String what) {
@@ -214,5 +217,20 @@ public class HtmlEditor extends TextArea {
 			}
 		}
 		return super.acceptRequestParameter(values);
+	}
+
+	@Nullable @Override public UIMessage setMessage(@Nullable UIMessage msg) {
+		UIMessage uiMessage = super.setMessage(msg);
+		handleError();
+		return uiMessage;
+	}
+
+	private void handleError() {
+		UIMessage message = getMessage();
+		if(null == message) {
+			appendJavascript("$('#" + getActualID() + "-wysiwyg-iframe').removeClass('ui-input-err');");
+		} else {
+			appendJavascript("$('#" + getActualID() + "-wysiwyg-iframe').addClass('ui-input-err');");
+		}
 	}
 }

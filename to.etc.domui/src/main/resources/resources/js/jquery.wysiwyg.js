@@ -1529,6 +1529,7 @@
 			}
 
 			$(self.editorDoc.body).addClass("wysiwyg");
+
 			if(self.options.events && self.options.events.save) {
 				saveHandler = self.options.events.save;
 
