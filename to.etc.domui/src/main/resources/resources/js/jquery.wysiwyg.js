@@ -1256,6 +1256,9 @@
 			this.editor.attr("tabindex", $(element).attr("tabindex"));
 
 			this.element = $("<div/>").addClass("wysiwyg");
+			if(element.className) {
+				this.editor.addClass(element.className);
+			}
 
 			if(!this.options.iFrameClass) {
 				this.element.css({
@@ -1529,6 +1532,7 @@
 			}
 
 			$(self.editorDoc.body).addClass("wysiwyg");
+			$(self.editorDoc.body).addClass(self.original.className);
 
 			if(self.options.events && self.options.events.save) {
 				saveHandler = self.options.events.save;
