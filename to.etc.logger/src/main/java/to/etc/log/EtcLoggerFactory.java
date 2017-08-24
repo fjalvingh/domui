@@ -1,21 +1,32 @@
 package to.etc.log;
 
-import java.io.*;
-import java.text.*;
-import java.util.*;
+import org.slf4j.ILoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import to.etc.log.event.EtcLogEvent;
+import to.etc.log.handler.ILogHandler;
+import to.etc.log.handler.LogHandlerRegistry;
 
-import javax.annotation.*;
-import javax.xml.parsers.*;
-import javax.xml.transform.*;
-import javax.xml.transform.dom.*;
-import javax.xml.transform.stream.*;
-
-import org.slf4j.*;
-import org.w3c.dom.*;
-import org.xml.sax.*;
-
-import to.etc.log.event.*;
-import to.etc.log.handler.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.File;
+import java.io.StringReader;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Implements logger factory. Encapsulates definitions and configuration of loggers used.
@@ -30,45 +41,45 @@ public class EtcLoggerFactory implements ILoggerFactory {
 	 * The unique instance of this class.
 	 */
 	@Nonnull
-	private static final EtcLoggerFactory				SINGLETON;
+	private static final EtcLoggerFactory SINGLETON;
 
 	@Nonnull
-	private static final ThreadLocal<SimpleDateFormat>	DATEFORMATTER	= new ThreadLocal<SimpleDateFormat>() {
-																			@Override
-																			protected SimpleDateFormat initialValue() {
-																				return new SimpleDateFormat("yyMMdd");
-																			}
-																		};
+	private static final ThreadLocal<SimpleDateFormat> DATEFORMATTER = new ThreadLocal<SimpleDateFormat>() {
+		@Override
+		protected SimpleDateFormat initialValue() {
+			return new SimpleDateFormat("yyMMdd");
+		}
+	};
 
 	/** Root dir for logger configuration. */
 	@Nullable
-	private File										m_configDir;
+	private File m_configDir;
 
 	/** Log dir where all logger are doing output. */
 	@Nullable
-	private File										m_logDir;
+	private File m_logDir;
 
 	/** logLocation stored value inside config file. */
 	@Nullable
-	private String										m_logDirOriginalConfigured;
+	private String m_logDirOriginalConfigured;
 
 	/** Contains loaded Logger instances. */
 	@Nonnull
-	private final Map<String, EtcLogger>				LOGGERS			= new HashMap<String, EtcLogger>();
+	private final Map<String, EtcLogger> LOGGERS = new HashMap<String, EtcLogger>();
 
 	/** Contains handler instances - logger instances behavior definition. */
 	@Nonnull
-	private List<ILogHandler>							m_handlers		= new ArrayList<ILogHandler>();
+	private List<ILogHandler> m_handlers = new ArrayList<ILogHandler>();
 
 	@Nonnull
-	private Object										m_handlersLock	= new Object();
+	private Object m_handlersLock = new Object();
 
 	/** Default general log level */
 	@Nonnull
-	private static final Level							DEFAULT_LEVEL	= Level.ERROR;
+	private static final Level DEFAULT_LEVEL = Level.ERROR;
 
 	/** Name of logger factory configuration file */
-	public static final String							CONFIG_FILENAME	= "etcLoggerConfig.xml";
+	public static final String CONFIG_FILENAME = "etcLoggerConfig.xml";
 
 
 	/**
@@ -131,10 +142,14 @@ public class EtcLoggerFactory implements ILoggerFactory {
 		try {
 			configXml = LogUtil.readResourceAsString(this.getClass(), CONFIG_FILENAME, "utf-8");
 			loadConfigFromXml(configXml);
-			System.err.println(this.getClass().getName() + " is initialized by loading built-in logger configuration as " + this.getClass().getName() + " resource " + CONFIG_FILENAME);
+			System.err.println(
+				this.getClass().getName() + " is initialized by loading built-in logger configuration as " + this
+					.getClass().getName() + " resource " + CONFIG_FILENAME);
 		} catch(Exception e) {
 			//this should not happen -> we load design time created resource - it must be valid
-			System.err.println("Built-in logger config is invalid! Check class " + this.getClass().getName() + " resource " + CONFIG_FILENAME);
+			System.err.println(
+				"Built-in logger config is invalid! Check class " + this.getClass().getName() + " resource "
+					+ CONFIG_FILENAME);
 			e.printStackTrace();
 		}
 	}
@@ -207,20 +222,23 @@ public class EtcLoggerFactory implements ILoggerFactory {
 	 */
 	public synchronized void initialize(@Nonnull File configLocation, @Nonnull String defaultConfig) throws Exception {
 		m_configDir = configLocation;
-		System.out.println(this.getClass().getName() + " logger configuration location set to " + configLocation.getAbsolutePath());
+		System.out.println(
+			this.getClass().getName() + " logger configuration location set to " + configLocation.getAbsolutePath());
 		File conf = new File(configLocation, CONFIG_FILENAME);
 		String configXml = null;
 		if(conf.exists()) {
 			//try 1 : try persisted config
 			configXml = LogUtil.readFileAsString(conf, "utf-8");
 			if(tryLoadConfigFromXml(configLocation, configXml)) {
-				System.out.println(this.getClass().getName() + " is initialized by loading persisted logger configuration.");
+				System.out
+					.println(this.getClass().getName() + " is initialized by loading persisted logger configuration.");
 				return;
 			}
 		}
 		//try 2 : try defaultConfig
 		if(tryLoadConfigFromXml(configLocation, defaultConfig)) {
-			System.out.println(this.getClass().getName() + " is initialized by loading application specific default configuration.");
+			System.out.println(
+				this.getClass().getName() + " is initialized by loading application specific default configuration.");
 			return;
 		}
 		//try 3 : try built-in config
@@ -252,7 +270,7 @@ public class EtcLoggerFactory implements ILoggerFactory {
 	}
 
 	/**
-	 * Saves configuration of logger factory. Uses same root location as specified during {@link EtcLoggerFactory#loadConfig(File)}.
+	 * Saves configuration of logger factory. Uses same root location as specified during .
 	 * @throws Exception
 	 */
 	public void saveConfig() throws Exception {
@@ -340,15 +358,18 @@ public class EtcLoggerFactory implements ILoggerFactory {
 								if(part == null) {
 									throw new Exception("Empty part!");
 								}
-								logLocation = logLocation.substring(0, posStart) + part + logLocation.substring(posEnd + 1);
+								logLocation =
+									logLocation.substring(0, posStart) + part + logLocation.substring(posEnd + 1);
 								checkNext = true;
 							}
 						}
 					} while(checkNext);
 					logLocation = logLocation.replace("/", File.separator);
 				} catch(Exception ex) {
-					System.out.println("Etc logger - problem in resolving logger configuration location from loaded default config: " + m_logDirOriginalConfigured + ".\nUsing default location: "
-						+ logLocation);
+					System.out.println(
+						"Etc logger - problem in resolving logger configuration location from loaded default config: "
+							+ m_logDirOriginalConfigured + ".\nUsing default location: "
+							+ logLocation);
 				}
 				m_logDir = new File(logLocation);
 				m_logDir.mkdirs();
@@ -363,7 +384,7 @@ public class EtcLoggerFactory implements ILoggerFactory {
 			ILogHandler handler = LogHandlerRegistry.getSingleton().createDefaultHandler(m_configDir, DEFAULT_LEVEL);
 			loadedHandlers.add(handler);
 		}
-		synchronized(m_handlersLock){
+		synchronized(m_handlersLock) {
 			m_handlers = loadedHandlers;
 		}
 		recalculateLoggers();
@@ -400,7 +421,7 @@ public class EtcLoggerFactory implements ILoggerFactory {
 
 	@Nonnull
 	private List<ILogHandler> getHandlers() {
-		synchronized(m_handlersLock){
+		synchronized(m_handlersLock) {
 			return m_handlers;
 		}
 	}
