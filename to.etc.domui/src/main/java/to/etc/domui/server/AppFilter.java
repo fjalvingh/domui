@@ -44,7 +44,10 @@ import java.util.*;
  * Created on May 22, 2008
  */
 public class AppFilter implements Filter {
+
 	static final Logger LOG = LoggerFactory.getLogger(AppFilter.class);
+
+	public static final String LOGCONFIG_NAME = "etclogger.config.xml";
 
 	private ConfigParameters m_config;
 
@@ -186,10 +189,7 @@ public class AppFilter implements Filter {
 	public synchronized void init(final FilterConfig config) throws ServletException {
 		File approot = new File(config.getServletContext().getRealPath("/"));
 
-		//FIXME: this uses Viewpoint specific location (%approot%/Private) and needs to be fixed later.
-		File logConfigLocation = new File(approot, "Private" + File.separator + "etcLog");
-
-		initLogConfig(logConfigLocation, config.getInitParameter("logpath"));
+		initLogConfig(approot, config.getInitParameter("logpath"));
 
 		try {
 			m_logRequest = DeveloperOptions.getBool("domui.logurl", false);
@@ -241,21 +241,41 @@ public class AppFilter implements Filter {
 		}
 	}
 
-	static public void initLogConfig(@Nullable File writableConfigLocation, @Nullable String logConfig) throws Error {
+	static public void initLogConfig(@Nullable File appRoot, String logConfig) throws Error {
 		try {
-			if(null == writableConfigLocation) {
-				File f = FileTool.getTmpDir();
-				writableConfigLocation = new File(f, "etclogger.config");
+			if(null == appRoot) {
+				appRoot = new File(System.getProperty("user.home"));
+			} else {
+				appRoot = new File(appRoot, "WEB-INF");
 			}
-			writableConfigLocation.mkdirs();
 
-			//-- 2. Try to load the "writable" one, if present.
+			if(logConfig == null) {
+				logConfig = LOGCONFIG_NAME;
+			}
+
+			//-- Resolve path(s)
+			File configFile = null;
+			if(logConfig.startsWith(File.separator)) {
+				//-- Absolute path - obey
+				configFile = new File(logConfig);
+			} else {
+				configFile = new File(appRoot, logConfig);
+			}
+
+			//-- Does this exist?
+			if(configFile.isDirectory()) {
+				configFile = new File(configFile, LOGCONFIG_NAME);
+			}
+
+			File configFolder = configFile.getParentFile();
+
+			//-- Load the config, if present, or use the default config
 			String xmlContent = null;
-			if(writableConfigLocation.exists() && writableConfigLocation.isFile()) {
+			if(configFile.exists() && configFile.isFile()) {
 				try {
-					xmlContent = FileTool.readFileAsString(writableConfigLocation);
+					xmlContent = FileTool.readFileAsString(configFile);
 				} catch(Exception x) {
-					System.err.println("etclog: failed to read " + writableConfigLocation);
+					System.err.println("etclog: failed to read " + configFile);
 				}
 			}
 
@@ -273,15 +293,7 @@ public class AppFilter implements Filter {
 					throw new IllegalStateException("no logger configuration found at all");
 			}
 
-			EtcLoggerFactory.getSingleton().initialize(writableConfigLocation, xmlContent);
-//
-//			//-- logger config location should always exist (FIXME: check if under LINUX it needs to be created in some special way to have write rights for tomcat user)
-//			if(logConfigXml != null && EtcLoggerFactory.getSingleton().tryLoadConfigFromXml(writableConfigLocation, logConfigXml)) {
-//				LOG.info(EtcLoggerFactory.getSingleton().getClass().getName() + " is initialized by loading specific logger configuration from xml:\n" + logConfigXml);
-//			} else {
-//				//-- If 'special' logger config does not exists or fails to load, we try to use standard way of initializing logger
-//				String defaultConfigXml = readDefaultLoggerConfig();
-//			}
+			EtcLoggerFactory.getSingleton().initialize(configFile, xmlContent);
 		} catch(Exception x) {
 			x.printStackTrace();
 			throw WrappedException.wrap(x);
