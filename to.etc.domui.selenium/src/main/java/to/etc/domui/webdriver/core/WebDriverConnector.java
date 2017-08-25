@@ -168,7 +168,7 @@ final public class WebDriverConnector {
 			throw new IllegalStateException("The webdriver.url parameter is not present in (a) test properties file");
 		if(!appURL.endsWith("/"))
 			appURL += "/";
-		String hub = p.getProperty("webdriver.hub");
+		String hub = p.getProperty("webdriver.hub", "phantomjs");		// FIXME Do this differently, later
 		String brw = p.getProperty("webdriver.browser");
 		if(null == brw)
 			brw = "chrome";
@@ -189,6 +189,8 @@ final public class WebDriverConnector {
 	private static WebDriverType getDriverType(@Nullable String hubUrl) {
 		if(null == hubUrl || hubUrl.trim().length() == 0)
 			return WebDriverType.HTMLUNIT;
+		if("phantomjs".equalsIgnoreCase(hubUrl))
+			return WebDriverType.PHANTOMJS;
 		if("local".equals(hubUrl.trim()))
 			return WebDriverType.LOCAL;
 		return WebDriverType.REMOTE;

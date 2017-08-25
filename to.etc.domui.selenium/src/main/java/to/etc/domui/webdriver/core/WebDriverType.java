@@ -5,5 +5,5 @@ package to.etc.domui.webdriver.core;
  *         Created on 20-3-17.
  */
 public enum WebDriverType {
-	LOCAL, HTMLUNIT, REMOTE
+	LOCAL, HTMLUNIT, REMOTE, PHANTOMJS
 }

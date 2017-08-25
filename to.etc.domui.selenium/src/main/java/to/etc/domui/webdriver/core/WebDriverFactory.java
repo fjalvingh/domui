@@ -9,6 +9,7 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
+import org.openqa.selenium.phantomjs.PhantomJSDriver;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -43,6 +44,9 @@ final class WebDriverFactory {
 			default:
 				throw new IllegalStateException("? unhandled driver type");
 
+			case PHANTOMJS:
+				return allocatePhantomjsInstance(browser, lang);
+
 			case HTMLUNIT:
 				return allocateHtmlUnitInstance(browser, lang);
 
@@ -54,6 +58,12 @@ final class WebDriverFactory {
 		}
 	}
 
+	private static WebDriver allocatePhantomjsInstance(BrowserModel browser, Locale lang) throws Exception {
+		DesiredCapabilities capabilities = calculateCapabilities(browser, lang);
+		capabilities.setCapability(CapabilityType.TAKES_SCREENSHOT, "true");
+		return new PhantomJSDriver(capabilities);
+	}
+
 	private static WebDriver allocateHtmlUnitInstance(BrowserModel browser, Locale lang) throws Exception {
 		Capabilities capabilities = calculateCapabilities(browser, lang);
 		return new HtmlUnitDriver(capabilities);
@@ -63,7 +73,7 @@ final class WebDriverFactory {
 		return new RemoteWebDriver(new URL(hubUrl), calculateCapabilities(browser, lang));
 	}
 
-	private static Capabilities calculateCapabilities(BrowserModel browser, Locale lang) throws Exception {
+	private static DesiredCapabilities calculateCapabilities(BrowserModel browser, Locale lang) throws Exception {
 		switch(browser){
 			default:
 				throw new IllegalStateException("Unsupported browser type " + browser.getCode());
