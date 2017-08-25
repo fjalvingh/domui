@@ -2,10 +2,14 @@ package to.etc.domui.test.componenterrors;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import to.etc.domui.webdriver.core.AbstractWebDriverTest;
+import to.etc.domui.webdriver.core.ScreenInspector;
 import to.etc.domuidemo.pages.test.componenterrors.HtmlEditorTestPage;
 
-import java.io.File;
+import javax.annotation.Nonnull;
+import java.awt.image.BufferedImage;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -19,20 +23,54 @@ public class ITHtmlEditorComponentTest extends AbstractWebDriverTest {
 	 * @throws Exception
 	 */
 	@Test
-	public void testBinding1() throws Exception {
-		try {
-			wd().openScreen(HtmlEditorTestPage.class);
+	public void testShowBindingError() throws Exception {
+		wd().openScreen(HtmlEditorTestPage.class);
 
-			// Pressing validate should make the 2nd editor be with an error background
-			wd().cmd().click().on("button_validate");
-		} catch(Exception x) {
-			x.printStackTrace();
-		}
-		File out = File.createTempFile("test-ss-", ".png");
-		boolean screenshot = wd().screenshot(out);
-		Assert.assertTrue("Could not make screenshot", screenshot);
+		// Pressing validate should make the 2nd editor be with an error background
+		wd().cmd().click().on("button_validate");
 
-		System.out.println("Screenshot is " + out);
+		ScreenInspector inspector = wd().screenInspector();
+		if(null == inspector)
+			return;
+		WebElement two = findEditorElement("two");
+		BufferedImage bi = inspector.elementScreenshot(two);
+		//ImageIO.write(bi, "png", new File("/tmp/test.png"));
+		Assert.assertTrue("The background of the control should be red because it is in error", isReddish(bi));
+
+		//-- Reload the screen, and it should remain red
+		wd().refresh();
+
+		inspector = wd().screenInspector();
+		if(null == inspector)
+			throw new IllegalStateException();
+		two = findEditorElement("two");
+		bi = inspector.elementScreenshot(two);
+		//ImageIO.write(bi, "png", new File("/tmp/test.png"));
+		Assert.assertTrue("The background of the control should be red because it is in error after screen refresh", isReddish(bi));
+	}
+
+	private boolean isReddish(BufferedImage bi) {
+		int[][] ints = ScreenInspector.getMostUsedColors(bi, 10);
+		int pixel = ints[0][0];
+		int b = pixel & 0xff;
+		pixel = pixel >> 8;
+		int g = pixel & 0xff;
+		pixel = pixel >> 8;
+		int r = pixel & 0xff;
+
+		return r > 0xf0 && b < 0xf0 && g < 0xf0;
+	}
+
+	@Nonnull
+	private WebElement findEditorElement(String testid) {
+		WebElement two = wd().findElement(testid);
+		if(null == two)
+			throw new IllegalStateException("Cannot find element with testid " + testid);
+		String id = two.getAttribute("id");
+		WebElement lay = wd().findElement(By.id(id + "-wysiwyg-iframe"));
+		if(null == lay)
+			throw new IllegalStateException("Cannot find the htmleditor's iframe for testid=" + testid);
+		return lay;
 	}
 
 }

@@ -43,6 +43,8 @@ import to.etc.webapp.testsupport.TestProperties;
 import javax.annotation.DefaultNonNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -71,6 +73,8 @@ final public class WebDriverConnector {
 	static private ThreadLocal<WebDriverConnector> m_webDriverThreadLocal = new ThreadLocal<WebDriverConnector>();
 
 	final private WebDriver m_driver;
+
+	final private boolean m_canTakeScreenshot;
 
 	/** When T, exit registration has been done, to ensure things are released when the JVM exits. */
 	static private boolean m_jvmExitHandlerRegistered;
@@ -102,12 +106,17 @@ final public class WebDriverConnector {
 	@Nullable
 	private IExecute m_afterCommandCallback;
 
-	private WebDriverConnector(@Nonnull WebDriver driver, @Nonnull BrowserModel kind, @Nonnull String webapp, @Nonnull WebDriverType driverType) {
+	private WebDriverConnector(@Nonnull WebDriver driver, @Nonnull BrowserModel kind, @Nonnull String webapp, @Nonnull WebDriverType driverType, boolean canTakeScreenshot) {
 		m_driver = driver;
 		m_kind = kind;
 		m_applicationURL = webapp;
 		m_driverType = driverType;
 		m_waitTimeout = readWaitTimeout(m_waitTimeout);
+		m_canTakeScreenshot = canTakeScreenshot;
+	}
+
+	public boolean canTakeScreenshot() {
+		return m_canTakeScreenshot;
 	}
 
 	/**
@@ -175,10 +184,11 @@ final public class WebDriverConnector {
 		BrowserModel browserModel = BrowserModel.get(brw);
 
 		WebDriverType webDriverType = getDriverType(hub);
+		boolean canTakeScreenshot = webDriverType == WebDriverType.PHANTOMJS || webDriverType == WebDriverType.LOCAL || webDriverType == WebDriverType.REMOTE;
 
 		WebDriver wp = WebDriverFactory.allocateInstance(webDriverType, browserModel, hub, null);
 
-		final WebDriverConnector tu = new WebDriverConnector(wp, browserModel, appURL, webDriverType);
+		final WebDriverConnector tu = new WebDriverConnector(wp, browserModel, appURL, webDriverType, canTakeScreenshot);
 		initializeAfterCommandListener(tu);
 		m_webDriverConnectorList.add(tu);
 		m_webDriverThreadLocal.set(tu);
@@ -1011,6 +1021,30 @@ final public class WebDriverConnector {
 		return false;
 	}
 
+	/**
+	 * Returns a ScreenInspector: something to play with the actual screen bitmap.
+	 * @return
+	 */
+	@Nullable
+	public ScreenInspector screenInspector() throws Exception {
+		if(! canTakeScreenshot())
+			return null;
+
+		File tmpFile = null;
+		try {
+			tmpFile = File.createTempFile("webdriver-ss-", ".png");
+			if(! screenshot(tmpFile))
+				throw new IllegalStateException("Failed to create a screenshot");
+
+			//-- Load as a bufferedImage
+			BufferedImage bi = ImageIO.read(tmpFile);
+			return new ScreenInspector(this, bi);
+		} finally {
+			if(null != tmpFile) {
+				tmpFile.delete();
+			}
+		}
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Out-of-bound talking with the same server session.	*/
@@ -1132,6 +1166,18 @@ final public class WebDriverConnector {
 
 		xdomui = ExpectedConditions.presenceOfElementLocated(locator("body[id='_1']"));
 		we = wait(xdomui);
+		waitForNoneOfElementsPresent(By.className("ui-io-blk"), By.className("ui-io-blk2"));
+		return this;
+	}
+
+	/**
+	 * Cause the browser screen to refresh.
+	 * @return
+	 */
+	public WebDriverConnector refresh() throws Exception {
+		driver().navigate().refresh();
+		ExpectedCondition<WebElement> xdomui = ExpectedConditions.presenceOfElementLocated(locator("body[id='_1']"));
+		WebElement we = wait(xdomui);
 		waitForNoneOfElementsPresent(By.className("ui-io-blk"), By.className("ui-io-blk2"));
 		return this;
 	}
@@ -1655,6 +1701,17 @@ final public class WebDriverConnector {
 		return driver().findElements(locator);
 	}
 
+	@Nullable
+	public WebElement findElement(By locator) {
+		return driver().findElement(locator);
+	}
+
+	@Nullable
+	public WebElement findElement(String testid) {
+		return driver().findElement(byId(testid));
+	}
+
+
 	static public void onTestFailure(@Nonnull WebDriverConnector wd, @Nullable Method failedMethod) throws Exception {
 		//-- Make a screenshot
 		System.out.println("@onTestFailure: attempting to create a screenshot");
@@ -1976,7 +2033,6 @@ final public class WebDriverConnector {
 			}
 		});
 	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Assertion helpers.									*/
