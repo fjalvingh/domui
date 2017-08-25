@@ -55,6 +55,12 @@ public class HtmlEditor extends TextArea {
 
 	private String m_updateValueJS;
 
+	public HtmlEditor() {}
+
+	public HtmlEditor(int cols, int rows) {
+		super(cols, rows);
+	}
+
 	@Override
 	public void createContent() throws Exception {
 		StringBuilder sb = new StringBuilder();
