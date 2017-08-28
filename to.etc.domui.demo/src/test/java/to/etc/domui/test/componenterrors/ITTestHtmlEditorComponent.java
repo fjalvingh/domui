@@ -15,7 +15,7 @@ import java.awt.image.BufferedImage;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 25-8-17.
  */
-public class ITHtmlEditorComponentTest extends AbstractWebDriverTest {
+public class ITTestHtmlEditorComponent extends AbstractWebDriverTest {
 	/**
 	 * The page contains 2 mandatory html editors. The 1st one with a text, the second without,
 	 * plus a validate button to check data.
