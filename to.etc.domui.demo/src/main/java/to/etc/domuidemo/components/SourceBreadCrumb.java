@@ -17,19 +17,37 @@ import to.etc.domui.state.PageParameters;
 import to.etc.domui.state.ShelvedDomUIPage;
 import to.etc.domui.state.UIContext;
 import to.etc.domui.state.WindowSession;
-import to.etc.domuidemo.GitOptions;
 import to.etc.domuidemo.sourceviewer.SourcePage;
 
 import javax.annotation.Nonnull;
 import java.util.List;
 
 final public class SourceBreadCrumb extends Div {
+	private final Div m_crumb = new Div("d-sbc-crumb");
+
 	@Override
 	public void createContent() throws Exception {
 		setCssClass("d-sbc");
-		WindowSession cm = UIContext.getRequestContext().getWindowSession();
+
+		if(!hasSuper(getPage().getBody(), "WikiExplanationPage")) {
+			//-- Add logo.
+			Div right = new Div();
+			add(right);
+			right.setCssClass("d-sbc-logo");
+			ATag at = new ATag();
+			right.add(at);
+			at.setHref("http://www.domui.org/");
+			at.setTarget("_blank");
+
+			Img img = new Img("img/logo-small.png");
+			at.add(img);
+			img.setImgBorder(0);
+		}
+
+		add(m_crumb);
 
 		//-- Get the application's main page as the base;
+		WindowSession cm = UIContext.getRequestContext().getWindowSession();
 		int ct = 0;
 		List<IShelvedEntry> stack = cm.getShelvedPageStack();
 		if(stack.size() == 0) {
@@ -48,21 +66,6 @@ final public class SourceBreadCrumb extends Div {
 		}
 		setDisplay(null);
 
-		if(!hasSuper(getPage().getBody(), "WikiExplanationPage")) {
-			//-- Add logo.
-			Div right = new Div();
-			add(right);
-			right.setCssClass("d-sbc-logo");
-			ATag at = new ATag();
-			right.add(at);
-			at.setHref("http://www.domui.org/");
-			at.setTarget("_blank");
-
-			Img img = new Img("img/logo-small.png");
-			at.add(img);
-			img.setImgBorder(0);
-		}
-
 		for(int i = 0; i < stack.size(); i++) {
 			boolean last = i + 1 >= stack.size();
 			ShelvedDomUIPage p = (ShelvedDomUIPage) stack.get(i);
@@ -71,20 +74,6 @@ final public class SourceBreadCrumb extends Div {
 			ttl = ttl.substring(ttl.lastIndexOf('.') + 1);
 			addPageLink(ct, p.getPage().getBody().getClass(), p.getPage().getPageParameters(), ttl, last);
 			ct++;
-		}
-
-		Div commits = new Div("d-sbc-commits");
-		add(commits);
-
-		if(GitOptions.hasProperties()) {
-			commits.add(new Span("d-sbc-lbl", "commit"));
-			commits.add(new Span("d-sbc-val", GitOptions.getCommit()));
-
-			commits.add(new Span("d-sbc-lbl", " on "));
-			commits.add(new Span("d-sbc-val", GitOptions.getCommitDate()));
-
-			commits.add(new Span("d-sbc-lbl", " at "));
-			commits.add(new Span("d-sbc-val", GitOptions.getCommitDate()));
 		}
 	}
 
@@ -119,16 +108,16 @@ final public class SourceBreadCrumb extends Div {
 			sep.add(new TextNode(" \u00bb "));
 		}
 
-		add(stgt);
+		m_crumb.add(stgt);
 		stgt.setText(ttl);
 
 		ALink l = new ALink(SourcePage.class, new PageParameters("name", class1.getName().replace('.', '/') + ".java"));
-		add(l);
+		m_crumb.add(l);
 		l.setNewWindowParameters(WindowParameters.createFixed(1024, 768, "src"));
 		Img img = new Img("img/java.png");
 		l.add(img);
 		l.setTitle("Show the source file");
 
-		add("\u00a0\u00a0");
+		m_crumb.add("\u00a0\u00a0");
 	}
 }

@@ -1,10 +1,13 @@
 package to.etc.domuidemo.pages;
 
 import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.HTag;
 import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.Para;
+import to.etc.domui.dom.html.Span;
 import to.etc.domui.util.DomUtil;
 import to.etc.domuidemo.ComponentListPage;
+import to.etc.domuidemo.GitOptions;
 import to.etc.domuidemo.pages.cddb.CdCollection;
 import to.etc.domuidemo.pages.test.binding.buildorder.BuildOrderPage;
 import to.etc.domuidemo.pages.test.binding.conversion.BindingConversionTestForm;
@@ -29,8 +32,11 @@ public class HomePage extends MenuPage {
 			+ "Which means that the code is quite verbose sometimes. That is not how it usually is, of course, " //
 			+ "it is done that way to make 'how it works' as clear as possible."
 			;
+		Div panel = new Div("dm-expl-panel");
+		add(panel);
+		panel.add(new HTag(1, "Welcome"));
 		Div ip = new Div("dm-expl");
-		add(ip);
+		panel.add(ip);
 		Div d = new Div();
 		ip.add(d);
 
@@ -55,5 +61,21 @@ public class HomePage extends MenuPage {
 
 		addCaption("Detailed examples and wiki page");
 		addLink(ComponentListPage.class, "Component overview page");
+
+
+
+		Div commits = new Div("d-git-commits");
+		add(commits);
+
+		if(GitOptions.hasProperties()) {
+			commits.add(new Span("d-git-lbl", "commit"));
+			commits.add(new Span("d-git-val", GitOptions.getCommit()));
+
+			commits.add(new Span("d-git-lbl", " on "));
+			commits.add(new Span("d-git-val", GitOptions.getCommitDate()));
+
+			commits.add(new Span("d-git-lbl", " at "));
+			commits.add(new Span("d-git-val", GitOptions.getCommitDate()));
+		}
 	}
 }

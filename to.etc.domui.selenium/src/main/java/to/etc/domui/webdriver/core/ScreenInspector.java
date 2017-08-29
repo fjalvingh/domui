@@ -93,11 +93,11 @@ final public class ScreenInspector {
 			}
 		}
 
-		for(int i = 0; i < histogram.length; i++) {
-			if(histogram[i] > 0) {
-				System.out.println("$$ " + Integer.toString(i, 16) + "   " + histogram[i]);
-			}
-		}
+		//for(int i = 0; i < histogram.length; i++) {
+		//	if(histogram[i] > 0) {
+		//		System.out.println("$$ " + Integer.toString(i, 16) + "   " + histogram[i]);
+		//	}
+		//}
 
 		//-- Now get the largest #of colors.
 		int[] indexArray = new int[max];
@@ -129,6 +129,4 @@ final public class ScreenInspector {
 			}
 		}
 	}
-
-
 }

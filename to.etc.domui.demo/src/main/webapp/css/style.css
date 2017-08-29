@@ -1,36 +1,66 @@
 .d-sbc {
-	border-bottom: 1px dotted #333;
-	background-color: #ddd;
+	background-color: #24292e;
+	color: rgba(255,255,255,0.75);
 	padding: 4px 8px 4px 8px;
+	height: 50px;
 }
 
-.d-sbc * {
-	font-size: 18px;
+.d-sbc-crumb {
+	position: absolute;
+	top: 20px;
+	left: 200px;
+	height: 20px;
+	right: 0px;
+
+	font-size: 16px;
 }
 
 .d-sbc-logo {
-	position: fixed;
-	top: 13px;
-	right: 10px;
+	position: absolute;
+	top: 4px;
+	left: 10px;
+	height: 40px;
+	width: 190px;
+}
+.d-sbc-l {
+	text-decoration: none;
+	color: #E16600;
 }
 
 .d-expl {
-	font-family: Arial, Helvetica, sans-serif;
+	font-family: 'Lato', Arial, Helvetica, sans-serif;
 	font-size: 14px;
 	padding-bottom: 8px;
 }
 
-.d-sbc-commits {
-	float: right;
-	font-size: 7px;
-}
-.d-sbc-lbl, .d-sbc-val {
+.d-git-commits {
+	position: absolute;
+	left: 0px;
+	right: 0px;
+	bottom: 0px;
+	height: 14px;
+	font-size: 9px;
 	font-family: "Arial", "Helvetica", Sans-Serif;
+	text-align: right;
+}
+.d-git-lbl, .d-git-val {
 	font-size: 9px;
 }
 
 .home-page .ui-cptn {
 	margin-top: 10px;
+}
+.dm-content-links {
+	margin: 0px 20px;
+}
+
+.dm-expl-panel {
+	width: 500px;
+	margin: 20px;
+}
+
+.dm-expl {
+	/*background: #aaaaaa;*/
 }
 
 /******** Syntax highlighting for patch renderer ***********/
@@ -158,11 +188,6 @@ pre.code {
 	padding: 5px;
 }
 
-/*** Explanation blurb ***/
-.dm-expl {
-	padding: 10px 20px;
-	background: #aaaaaa;
-}
 
 /*** Tree2 demo page ***/
 .dm-tree2-icon {
