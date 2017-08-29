@@ -82,21 +82,21 @@ public abstract class AbstractDirectoryScanningSassTests {
             @Override
             public void error(CSSParseException arg0) throws CSSException {
                 System.err.println(arg0.getMessage());
-                arg0.printStackTrace();
+                //arg0.printStackTrace();
                 super.error(arg0);
                 Assert.fail(arg0.getMessage());
             }
 
             @Override
             public void fatalError(CSSParseException arg0) throws CSSException {
-                arg0.printStackTrace();
+                //arg0.printStackTrace();
                 super.error(arg0);
                 Assert.fail(arg0.getMessage());
             }
 
             @Override
             public void traverseError(Exception e) {
-                e.printStackTrace();
+                //e.printStackTrace();
                 super.traverseError(e);
                 Assert.fail(e.getMessage());
             }

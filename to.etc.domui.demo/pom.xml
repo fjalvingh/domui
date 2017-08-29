@@ -191,6 +191,14 @@
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-maven-plugin</artifactId>
                 <configuration>
+                    <!-- Enable TestUI mode on the server to make Selenium tests run. -->
+                    <systemProperties>
+                        <systemProperty>
+                            <name>domui.testui</name>
+                            <value>true</value>
+                        </systemProperty>
+                    </systemProperties>
+
                     <scanIntervalSeconds>5</scanIntervalSeconds>
                     <stopPort>8089</stopPort>
                     <stopKey>furkelheim</stopKey>

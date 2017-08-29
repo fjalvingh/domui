@@ -497,6 +497,7 @@ public abstract class DomApplication {
 		if("true".equals(haso))
 			uiTestMode = true;
 		haso = System.getProperty("domui.testui");
+		System.out.println("TEST TEST: domui.testui = " + haso);
 		if("true".equals(haso))
 			uiTestMode = true;
 
