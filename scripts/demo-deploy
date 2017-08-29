@@ -1,0 +1,9 @@
+#!/bin/bash
+echo "Demo Deploy"
+set
+echo "Parameters $*"
+echo "id file"
+md5sum ~/deployment_id_ecdsa
+
+
+

@@ -1,9 +1,19 @@
 branches:
   except:
   - domui-1.0
-
 jdk:
-  - oraclejdk8
+- oraclejdk8
 
 language: java
+
+deploy:
+  provider: script
+  script: scripts/demo-deploy $DEPLOY_KEY
+  on:
+    branch: master
+
+before_install:
+- openssl aes-256-cbc -K $encrypted_6430b1f3fcb1_key -iv $encrypted_6430b1f3fcb1_iv
+  -in scripts/deployment_id_ecdsa.enc -out ~/deployment_id_ecdsa -d
+
 
