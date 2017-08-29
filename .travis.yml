@@ -9,6 +9,10 @@ language: java
 install: true
 script: mvn -q clean install
 
+cache:
+  directories:
+  - $HOME/.m2
+
 deploy:
   provider: script
   script: scripts/demo-deploy $DEPLOY_KEY

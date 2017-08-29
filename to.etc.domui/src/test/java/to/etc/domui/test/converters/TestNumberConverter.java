@@ -72,9 +72,9 @@ public class TestNumberConverter {
 	 * @param out
 	 */
 	public <T extends Number> void good(IConverter<T> nc, String in, String out) {
-		System.out.print("good\t");
-		System.out.print(in + "\t");
-		System.out.println(out);
+		//System.out.print("good\t");
+		//System.out.print(in + "\t");
+		//System.out.println(out);
 		T object = nc.convertStringToObject(NlsContext.getLocale(), in);
 		String converted = nc.convertObjectToString(NlsContext.getLocale(), object);
 		Assert.assertEquals(out, converted);
@@ -87,8 +87,8 @@ public class TestNumberConverter {
 	public <T extends Number> void bad(IConverter<T> nc, String in, boolean monetary) {
 		String badAsConverted = null;
 		try {
-			System.out.print("bad \t");
-			System.out.println(in);
+			//System.out.print("bad \t");
+			//System.out.println(in);
 			T object = nc.convertStringToObject(NlsContext.getLocale(), in);
 			badAsConverted = nc.convertObjectToString(NlsContext.getLocale(), object);
 		} catch(ValidationException vx) {
@@ -107,7 +107,7 @@ public class TestNumberConverter {
 	 */
 	public void testBadConversions(NumericPresentation np, int scale, String[] badFormats) {
 		IConverter<BigDecimal> nc = NumericUtil.createNumberConverter(BigDecimal.class, np, scale);
-		System.out.println("Testen van ONgeldige bedrag invoer-formaten(" + np.name() + ", scale = " + scale + "):");
+		//System.out.println("Testen van ONgeldige bedrag invoer-formaten(" + np.name() + ", scale = " + scale + "):");
 		boolean monetary = NumericPresentation.isMonetary(np);
 		for(String badFormat : badFormats) {
 			bad(nc, badFormat, monetary); // Only euro sign is bad
@@ -200,7 +200,7 @@ public class TestNumberConverter {
 			}
 		}
 		boolean truncateTrailingZero = NumericPresentation.isStripTrailingZeros(np);
-		System.out.println("SETTINGS: classType=" + classType.getName() + ", NP=" + np.name() + ", scale=" + scale);
+		//System.out.println("SETTINGS: classType=" + classType.getName() + ", NP=" + np.name() + ", scale=" + scale);
 		if(DomUtil.isIntegerType(classType)) {
 			bad(nc, "", false); // Empty string is not allowed for Int types
 		} else {
@@ -307,7 +307,7 @@ public class TestNumberConverter {
 			}
 		}
 		boolean truncateTrailingZero = NumericPresentation.isStripTrailingZeros(np);
-		System.out.println("SETTINGS: classType=" + classType.getName() + ", NP=" + np.name() + ", scale=" + scale);
+		//System.out.println("SETTINGS: classType=" + classType.getName() + ", NP=" + np.name() + ", scale=" + scale);
 		if(DomUtil.isIntegerType(classType)) {
 			bad(nc, "", false); // Empty string is not allowed for Int types
 		} else {
