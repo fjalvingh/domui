@@ -15,5 +15,7 @@ fi
 
 echo "Copy successfully executed"
 
+ssh -p 222 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/deployment_id_ecdsa deployer@monge.etc.to /usr/local/bin/deploy-domui-war
+
 exit 0
 
