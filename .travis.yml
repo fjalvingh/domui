@@ -6,6 +6,9 @@ jdk:
 
 language: java
 
+install: true
+script: mvn -q clean install
+
 deploy:
   provider: script
   script: scripts/demo-deploy $DEPLOY_KEY

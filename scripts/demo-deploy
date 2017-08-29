@@ -5,5 +5,14 @@ echo "Parameters $*"
 echo "id file"
 md5sum ~/deployment_id_ecdsa
 
+# Actual attempt at deployment
+scp -i ~/deployment_id_ecdsa $TRAVIS_BUILD_DIR/to.etc.domui.demo/target/demo.war deployer@monge.etc.to:
+if [ $? != 0 ]; then
+  echo "Build result demo.war could not be copied to deployment server"
+  exit 10
+fi
 
+echo "Copy successfully executed"
+
+exit 0
 
