@@ -105,8 +105,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			throw xxxx;
 		} catch(Exception x) {
 			renderApplicationMail(ctx, x);
-			if(!m_application.isShowProblemTemplate() && !m_application.inDevelopmentMode())
-				throw x;
+			//if(!m_application.isShowProblemTemplate() && !m_application.inDevelopmentMode())
+			//	throw x;
 
 			tryRenderOopsFrame(ctx, x);
 		} catch(Error x) {
