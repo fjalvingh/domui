@@ -1789,6 +1789,7 @@ public abstract class DomApplication {
 	synchronized public void setUiTestMode() {
 		if(!m_uiTestMode) {
 			appendUITestingContributors();
+			System.out.println("DOMUI: UI Test mode set, testid identifiers will be added automatically");
 		}
 		m_uiTestMode = true;
 	}

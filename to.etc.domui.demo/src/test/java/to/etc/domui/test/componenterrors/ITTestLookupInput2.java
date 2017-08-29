@@ -59,17 +59,4 @@ public class ITTestLookupInput2 extends AbstractWebDriverTest {
 
 		return r > 0xf0 && b < 0xf0 && g < 0xf0;
 	}
-
-	@Nonnull
-	private WebElement findEditorElement(String testid) {
-		WebElement two = wd().findElement(testid);
-		if(null == two)
-			throw new IllegalStateException("Cannot find element with testid " + testid);
-		String id = two.getAttribute("id");
-		WebElement lay = wd().findElement(By.id(id + "-wysiwyg-iframe"));
-		if(null == lay)
-			throw new IllegalStateException("Cannot find the htmleditor's iframe for testid=" + testid);
-		return lay;
-	}
-
 }

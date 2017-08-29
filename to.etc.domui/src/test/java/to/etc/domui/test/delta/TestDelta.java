@@ -66,13 +66,13 @@ public class TestDelta {
 
 		//-- At this time NO node may be dirty, as all is rendered
 		p.getBody().visit(new DirtyNodeChecker());
-		System.out.println("Rendered: " + full);
+		//System.out.println("Rendered: " + full);
 
 		//-- Now delete a single node
 		p.getBody().getChild(5).remove();
 
 		String render = getDeltaRenderText(p);
-		System.out.println("\n\n---- Render after remove node 5 in child list ----\n" + render);
+		//System.out.println("\n\n---- Render after remove node 5 in child list ----\n" + render);
 		p.getBody().visit(new DirtyNodeChecker());
 
 		assertEquals(render, "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" + "<delta>\n" + "  <remove select=\"#_C\"/>\n" + "  <eval>WebUI.cancelPolling();</eval>\n" + "</delta>\n");
@@ -80,7 +80,7 @@ public class TestDelta {
 		//-- Remove another node
 		p.getBody().getChild(1).remove();
 		render = getDeltaRenderText(p);
-		System.out.println("\n\n---- Render after remove node 1 in child list ----\n" + render);
+		//System.out.println("\n\n---- Render after remove node 1 in child list ----\n" + render);
 		p.getBody().visit(new DirtyNodeChecker());
 	}
 
@@ -136,7 +136,7 @@ public class TestDelta {
 		getIntDiv(p).add(5, d);
 
 		String render = getDeltaRenderText(p);
-		System.out.println("\n\n---- Render after adding node@5 in child list ----\n" + render);
+		//System.out.println("\n\n---- Render after adding node@5 in child list ----\n" + render);
 	}
 
 	/**
@@ -154,15 +154,15 @@ public class TestDelta {
 		popin.add(new MsgDiv("Fixed content"));
 		Div content = new MsgDiv("Blabla");
 		popin.add(content);
-		System.out.println("root=" + root.getActualID() + ", popin=" + popin.getActualID() + ", content=" + content.getActualID());
+		//System.out.println("root=" + root.getActualID() + ", popin=" + popin.getActualID() + ", content=" + content.getActualID());
 
 		//-- Render 1: full render.
 		getFullRenderText(p);
-		for(String s : p.internalNodeMap().keySet())
-			System.out.println("INITIAL key=" + s);
+		//for(String s : p.internalNodeMap().keySet())
+		//	System.out.println("INITIAL key=" + s);
 
 		//-- 2nd phase: remove the inner content (but keep its instances), then delta; this fills the old state.
-		System.out.println("------- step 2: remove popin ---------");
+		//System.out.println("------- step 2: remove popin ---------");
 		popin.remove();
 		//		for(String s: p.internalNodeMap().keySet())
 		//			System.out.println("AFTER popin REMOVE key="+s);
@@ -172,13 +172,13 @@ public class TestDelta {
 		getDeltaRenderText(p);
 
 		//-- 3rd phase: add the popin, then remove it's contents;
-		System.out.println("------- step 3: add popin, then remove contents ---------");
+		//System.out.println("------- step 3: add popin, then remove contents ---------");
 		root.add(popin); // Add back,
 		content.remove(); // and AFTER THAT remove it's contents - this fucks up the state,
 		getDeltaRenderText(p);
 
 		//-- At this point we would have stale pointers in content. Now do zhe loop again,
-		System.out.println("------- step 4: add back contents and die ---------");
+		//System.out.println("------- step 4: add back contents and die ---------");
 		popin.add(content);
 		getDeltaRenderText(p);
 	}

@@ -72,8 +72,8 @@ public class SCSSErrorHandler implements ErrorHandler {
     }
 
     private void log(Exception e) {
-        Logger.getLogger(SCSSDocumentHandlerImpl.class.getName()).log(
-                Level.SEVERE, e.getMessage(), e);
+        //Logger.getLogger(SCSSDocumentHandlerImpl.class.getName()).log(
+        //        Level.SEVERE, e.getMessage(), e);
     }
 
     private void severe(String msg) {
@@ -82,8 +82,10 @@ public class SCSSErrorHandler implements ErrorHandler {
     }
 
     private void severe(String msg, Exception e) {
+        //Logger.getLogger(SCSSDocumentHandlerImpl.class.getName()).log(
+        //        Level.SEVERE, msg, e);
         Logger.getLogger(SCSSDocumentHandlerImpl.class.getName()).log(
-                Level.SEVERE, msg, e);
+            Level.SEVERE, msg);
     }
 
     private void warn(String msg) {

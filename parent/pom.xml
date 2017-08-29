@@ -583,6 +583,7 @@
                 <configuration>
                     <systemPropertyVariables>
                         <webdriver.url>http://localhost:${jetty.http.port}/demo/</webdriver.url>
+                        <domui.testui>true</domui.testui>
                     </systemPropertyVariables>
                 </configuration>
 
