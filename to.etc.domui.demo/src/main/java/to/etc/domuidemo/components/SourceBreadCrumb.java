@@ -1,17 +1,29 @@
 package to.etc.domuidemo.components;
 
-import java.util.*;
+import to.etc.domui.component.misc.ALink;
+import to.etc.domui.component.misc.WindowParameters;
+import to.etc.domui.dom.css.DisplayType;
+import to.etc.domui.dom.html.ATag;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.Img;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.Span;
+import to.etc.domui.dom.html.TextNode;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.state.IPageParameters;
+import to.etc.domui.state.IShelvedEntry;
+import to.etc.domui.state.PageParameters;
+import to.etc.domui.state.ShelvedDomUIPage;
+import to.etc.domui.state.UIContext;
+import to.etc.domui.state.WindowSession;
+import to.etc.domuidemo.GitOptions;
+import to.etc.domuidemo.sourceviewer.SourcePage;
 
-import javax.annotation.*;
+import javax.annotation.Nonnull;
+import java.util.List;
 
-import to.etc.domui.component.misc.*;
-import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.domui.state.*;
-import to.etc.domuidemo.sourceviewer.*;
-
-public class SourceBreadCrumb extends Div {
+final public class SourceBreadCrumb extends Div {
 	@Override
 	public void createContent() throws Exception {
 		setCssClass("d-sbc");
@@ -59,6 +71,20 @@ public class SourceBreadCrumb extends Div {
 			ttl = ttl.substring(ttl.lastIndexOf('.') + 1);
 			addPageLink(ct, p.getPage().getBody().getClass(), p.getPage().getPageParameters(), ttl, last);
 			ct++;
+		}
+
+		Div commits = new Div("d-sbc-commits");
+		add(commits);
+
+		if(GitOptions.hasProperties()) {
+			commits.add(new Span("d-sbc-lbl", "commit"));
+			commits.add(new Span("d-sbc-val", GitOptions.getCommit()));
+
+			commits.add(new Span("d-sbc-lbl", " on "));
+			commits.add(new Span("d-sbc-val", GitOptions.getCommitDate()));
+
+			commits.add(new Span("d-sbc-lbl", " at "));
+			commits.add(new Span("d-sbc-val", GitOptions.getCommitDate()));
 		}
 	}
 

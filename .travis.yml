@@ -1,13 +1,14 @@
 branches:
   except:
   - domui-1.0
+
 jdk:
 - oraclejdk8
 
 language: java
 
 install: true
-script: mvn -q clean install -Dmaven.test.skip=true
+script: mvn -q clean install -Dmaven.test.skip=false
 
 cache:
   directories:
