@@ -14,6 +14,7 @@ cache:
   - $HOME/.m2
 
 deploy:
+  skip_cleanup: true
   provider: script
   script: scripts/demo-deploy $DEPLOY_KEY
   on:
