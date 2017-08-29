@@ -43,7 +43,7 @@ public class ITTestLookupInput2 extends AbstractWebDriverTest {
 		inspector = wd().screenInspector();
 		if(null == inspector)
 			throw new IllegalStateException();
-		bi = inspector.elementScreenshot("two");
+		bi = inspector.elementScreenshot("one");
 		//ImageIO.write(bi, "png", new File("/tmp/test.png"));
 		Assert.assertTrue("The background of the control should be red because it is in error after screen refresh", isReddish(bi));
 	}

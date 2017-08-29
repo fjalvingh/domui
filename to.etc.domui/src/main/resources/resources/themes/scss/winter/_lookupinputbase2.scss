@@ -33,6 +33,9 @@
 .ui-lui2 input {
     padding-right: 20px;
 }
+.ui-lui2.ui-input-err input {
+    background-color: #ffe5e5 !important;
+}
 .ui-lui2 button, .ui-lui2-selected button {
     position: absolute;
 }
