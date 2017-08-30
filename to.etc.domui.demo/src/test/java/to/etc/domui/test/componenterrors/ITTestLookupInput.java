@@ -31,7 +31,7 @@ public class ITTestLookupInput extends AbstractWebDriverTest {
 			return;
 		BufferedImage bi = inspector.elementScreenshot("one");
 		//ImageIO.write(bi, "png", new File("/tmp/test.png"));
-		Assert.assertTrue("The background of the control should be red because it is in error", isReddish(bi));
+		Assert.assertTrue("The background of the control should be red because it is in error", TestHelper.isReddish(bi));
 
 		//-- Reload the screen, and it should remain red
 		wd().refresh();
@@ -41,18 +41,6 @@ public class ITTestLookupInput extends AbstractWebDriverTest {
 			throw new IllegalStateException();
 		bi = inspector.elementScreenshot("one");
 		//ImageIO.write(bi, "png", new File("/tmp/test.png"));
-		Assert.assertTrue("The background of the control should be red because it is in error after screen refresh", isReddish(bi));
-	}
-
-	private boolean isReddish(BufferedImage bi) {
-		int[][] ints = ScreenInspector.getMostUsedColors(bi, 10);
-		int pixel = ints[0][0];
-		int b = pixel & 0xff;
-		pixel = pixel >> 8;
-		int g = pixel & 0xff;
-		pixel = pixel >> 8;
-		int r = pixel & 0xff;
-
-		return r > 0xf0 && b < 0xf0 && g < 0xf0;
+		Assert.assertTrue("The background of the control should be red because it is in error after screen refresh", TestHelper.isReddish(bi));
 	}
 }
