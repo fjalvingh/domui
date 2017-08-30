@@ -43,6 +43,10 @@ public class Album extends DbRecordBase<Long> {
 		m_id = id;
 	}
 
+	/**
+	 * IMPORTANT: Keep SearchPropertyType.BOTH or JUnit tests will fail.
+	 * @return
+	 */
 	@MetaSearch(order = 1, searchType = SearchPropertyType.BOTH)
 	@Column(name = "Title", length = 160, nullable = false)
 	public String getTitle() {

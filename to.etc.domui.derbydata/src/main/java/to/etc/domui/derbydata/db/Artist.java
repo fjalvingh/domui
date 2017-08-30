@@ -38,6 +38,10 @@ public class Artist extends DbRecordBase<Long> {
 		m_id = id;
 	}
 
+	/**
+	 * IMPORTANT: Keep SearchPropertyType.SEARCH_FIELD or JUnit tests will fail.
+	 * @return
+	 */
 	@MetaSearch(order = 1, searchType = SearchPropertyType.SEARCH_FIELD)
 	@Column(length = 120, nullable = false, unique = true)
 	@Index(name = "Name")
