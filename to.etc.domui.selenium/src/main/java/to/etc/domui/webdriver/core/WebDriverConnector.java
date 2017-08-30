@@ -1,5 +1,6 @@
 package to.etc.domui.webdriver.core;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
@@ -1145,14 +1146,11 @@ final public class WebDriverConnector {
 	 */
 	@Nonnull
 	public WebDriverConnector openScreen(@Nonnull Class< ? extends UrlPage> clz, Object... parameters) throws Exception {
-		StringBuilder sb = new StringBuilder();
-		sb.append(m_applicationURL);
-		sb.append(clz.getName());
-		sb.append(".ui");
-		PageParameters pp = new PageParameters(parameters);
-		pp.addParameter("___locale", "nl_NL"); // Force Server locale to Dutch
-		DomUtil.addUrlParameters(sb, pp, true);
-		m_driver.navigate().to(sb.toString());
+		m_lastTestClass = null;
+		m_lastTestPage = null;
+
+		String sb = calculatePageURL(clz, parameters);
+		m_driver.navigate().to(sb);
 
 		ExpectedCondition<WebElement> xdomui = ExpectedConditions.presenceOfElementLocated(locator("body[id='_1'], #loginPageBody"));
 
@@ -1169,6 +1167,53 @@ final public class WebDriverConnector {
 		waitForNoneOfElementsPresent(By.className("ui-io-blk"), By.className("ui-io-blk2"));
 		return this;
 	}
+
+	@Nullable
+	private Class<?> m_lastTestClass;
+
+	@Nullable
+	private String m_lastTestPage;
+
+	@Nonnull
+	public WebDriverConnector openScreenIf(@Nonnull Object testClass, @Nonnull Class< ? extends UrlPage> clz, Object... parameters) throws Exception {
+		String sb = calculatePageURL(clz, parameters);
+		if(m_lastTestClass == testClass.getClass() && sb.equals(m_lastTestPage)) {
+			//-- Already open
+			return this;
+		}
+		m_lastTestClass = null;
+		m_lastTestPage = null;
+
+		m_driver.navigate().to(sb);
+
+		ExpectedCondition<WebElement> xdomui = ExpectedConditions.presenceOfElementLocated(locator("body[id='_1'], #loginPageBody"));
+
+		WebElement we = wait(xdomui);
+
+		String id = DomUtil.nullChecked(we).getAttribute("id");
+		if(!"_1".equals(id)) {							// If this is a domUI body then be done
+			doLogin();
+
+			xdomui = ExpectedConditions.presenceOfElementLocated(locator("body[id='_1']"));
+			we = wait(xdomui);
+			waitForNoneOfElementsPresent(By.className("ui-io-blk"), By.className("ui-io-blk2"));
+		}
+		m_lastTestClass = testClass.getClass();
+		m_lastTestPage = sb;
+		return this;
+	}
+
+	@NotNull private String calculatePageURL(@Nonnull Class<? extends UrlPage> clz, Object[] parameters) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(m_applicationURL);
+		sb.append(clz.getName());
+		sb.append(".ui");
+		PageParameters pp = new PageParameters(parameters);
+		pp.addParameter("___locale", "nl_NL"); // Force Server locale to Dutch
+		DomUtil.addUrlParameters(sb, pp, true);
+		return sb.toString();
+	}
+
 
 	/**
 	 * Cause the browser screen to refresh.
@@ -1711,6 +1756,21 @@ final public class WebDriverConnector {
 		return driver().findElement(byId(testid));
 	}
 
+	@Nonnull
+	public WebElement getElement(String testId) {
+		WebElement element = findElement(testId);
+		if(null == element)
+			throw new ElementNotFoundException("testID " + testId);
+		return element;
+	}
+
+	@Nonnull
+	public WebElement getElement(By by) {
+		WebElement element = findElement(by);
+		if(null == element)
+			throw new ElementNotFoundException("testID " + by.toString());
+		return element;
+	}
 
 	static public void onTestFailure(@Nonnull WebDriverConnector wd, @Nullable Method failedMethod) throws Exception {
 		//-- Make a screenshot
