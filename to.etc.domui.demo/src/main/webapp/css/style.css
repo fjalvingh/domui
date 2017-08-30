@@ -7,7 +7,7 @@
 
 .d-sbc-crumb {
 	position: absolute;
-	top: 20px;
+	top: 16px;
 	left: 200px;
 	height: 20px;
 	right: 0px;
@@ -43,6 +43,7 @@
 	font-family: "Arial", "Helvetica", Sans-Serif;
 	text-align: right;
 }
+
 .d-git-lbl, .d-git-val {
 	font-size: 9px;
 }
@@ -59,8 +60,22 @@
 	margin: 20px;
 }
 
+.dm-src-icon {
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	background: url(../img/java-icon.png) no-repeat;
+}
+
 .dm-expl {
 	/*background: #aaaaaa;*/
+}
+
+.dm-centerpnl {
+	width: 980px;
+	height: auto;
+	padding: 20px;
+	margin: 0 auto;
 }
 
 /******** Syntax highlighting for patch renderer ***********/

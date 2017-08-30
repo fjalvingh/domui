@@ -30,6 +30,7 @@ import java.util.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.misc.*;
+import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.parts.*;
 import to.etc.domui.server.*;
@@ -694,6 +695,22 @@ public class HtmlTagRenderer implements INodeVisitor {
 		}
 	}
 
+	private void setInlineIndent(NodeBase nb) {
+		DisplayType display = nb.getDisplay();
+		if(null == display)
+			return;
+		switch(display) {
+			default:
+				return;
+
+			case INLINE:
+			case INLINE_BLOCK:
+			case INLINE_TABLE:
+				o().setIndentEnabled(false);
+				break;
+		}
+	}
+
 	/**
 	 * Special thingy; this can actually be a BODY instead of a DIV; in that case we render some extra
 	 * arguments...
@@ -701,6 +718,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 	 */
 	@Override
 	public void visitDiv(final Div n) throws Exception {
+		setInlineIndent(n);
 		basicNodeRender(n, m_o);
 		if(n.getTag().equals("body")) {
 			o().attr("onunload", "WebUI.unloaded()");
@@ -1105,6 +1123,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 
 	@Override
 	public void visitLabel(final Label n) throws Exception {
+		o().setIndentEnabled(false); // 20170830 jal
 		basicNodeRender(n, o());
 		if(n.getFor() != null)
 			o().attr("for", n.getFor());
@@ -1113,6 +1132,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 
 	@Override
 	public void visitSelect(final Select n) throws Exception {
+		o().setIndentEnabled(false); // 20170830 jal
 		basicNodeRender(n, o());
 		if(n.isMultiple())
 			o().attr("multiple", "multiple");

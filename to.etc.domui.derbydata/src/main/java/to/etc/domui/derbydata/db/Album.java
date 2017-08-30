@@ -1,5 +1,10 @@
 package to.etc.domui.derbydata.db;
 
+import to.etc.domui.component.meta.MetaDisplayProperty;
+import to.etc.domui.component.meta.MetaObject;
+import to.etc.domui.component.meta.MetaSearch;
+import to.etc.domui.component.meta.SearchPropertyType;
+
 import javax.annotation.Nonnull;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -15,6 +20,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "Album")
+@MetaObject(defaultColumns = {@MetaDisplayProperty(name = "title")}, defaultSortColumn = "name")
 public class Album extends DbRecordBase<Long> {
 	private Long m_id;
 
@@ -37,6 +43,7 @@ public class Album extends DbRecordBase<Long> {
 		m_id = id;
 	}
 
+	@MetaSearch(order = 1, searchType = SearchPropertyType.BOTH)
 	@Column(name = "Title", length = 160, nullable = false)
 	public String getTitle() {
 		return m_title;

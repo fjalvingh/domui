@@ -89,7 +89,6 @@ final public class SourceBreadCrumb extends Div {
 		}
 	}
 
-
 	private void addPageLink(int ct, Class< ? extends UrlPage> class1, IPageParameters pageParameters, String ttl, boolean last) {
 		//-- Create a LINK or a SPAN
 		NodeContainer stgt;
@@ -103,7 +102,7 @@ final public class SourceBreadCrumb extends Div {
 		if(ct > 0) {
 			//-- Append the marker,
 			Span sep = new Span();
-			add(sep);
+			m_crumb.add(sep);
 			sep.setCssClass("d-sbc-m");
 			sep.add(new TextNode(" \u00bb "));
 		}
@@ -111,13 +110,17 @@ final public class SourceBreadCrumb extends Div {
 		m_crumb.add(stgt);
 		stgt.setText(ttl);
 
-		ALink l = new ALink(SourcePage.class, new PageParameters("name", class1.getName().replace('.', '/') + ".java"));
-		m_crumb.add(l);
-		l.setNewWindowParameters(WindowParameters.createFixed(1024, 768, "src"));
-		Img img = new Img("img/java.png");
-		l.add(img);
-		l.setTitle("Show the source file");
+		if(last) {
+			ALink l = new ALink(SourcePage.class, new PageParameters("name", class1.getName().replace('.', '/') + ".java"));
+			m_crumb.add(l);
+			l.setNewWindowParameters(WindowParameters.createFixed(1024, 768, "src"));
 
-		m_crumb.add("\u00a0\u00a0");
+			//Img img = new Img("img/java.png");
+			SourceIcon img = new SourceIcon();
+			l.add(img);
+			l.setTitle("Show the source file");
+		}
+
+		//m_crumb.add("\u00a0\u00a0");
 	}
 }

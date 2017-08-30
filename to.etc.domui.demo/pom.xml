@@ -201,6 +201,7 @@
                 </executions>
 
                 <configuration>
+                    <dateFormatTimeZone>${user.timezone}</dateFormatTimeZone>
                     <generateGitPropertiesFile>true</generateGitPropertiesFile>
                     <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
                 </configuration>

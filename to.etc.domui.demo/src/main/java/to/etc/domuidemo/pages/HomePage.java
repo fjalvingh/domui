@@ -2,12 +2,12 @@ package to.etc.domuidemo.pages;
 
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.HTag;
-import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.Para;
 import to.etc.domui.dom.html.Span;
 import to.etc.domui.util.DomUtil;
 import to.etc.domuidemo.ComponentListPage;
 import to.etc.domuidemo.GitOptions;
+import to.etc.domuidemo.components.SourceIcon;
 import to.etc.domuidemo.pages.cddb.CdCollection;
 import to.etc.domuidemo.pages.test.binding.buildorder.BuildOrderPage;
 import to.etc.domuidemo.pages.test.binding.conversion.BindingConversionTestForm;
@@ -43,8 +43,8 @@ public class HomePage extends MenuPage {
 		Para para = new Para();
 		DomUtil.renderHtmlString(para, text);
 		d.add(para);
-		d.add("At any time, you can press the Java icon ");
-		d.add(new Img("img/java.png"));
+		d.add("At any time, you can press the following icon ");
+		d.add(new SourceIcon());
 		d.add(" to get a window showing the Java source code for the screen in question. In this window you can click the underlined class names to go to their sources too.");
 
 		addCaption("Demo apps");
@@ -61,8 +61,6 @@ public class HomePage extends MenuPage {
 
 		addCaption("Detailed examples and wiki page");
 		addLink(ComponentListPage.class, "Component overview page");
-
-
 
 		Div commits = new Div("d-git-commits");
 		add(commits);

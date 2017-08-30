@@ -1,12 +1,16 @@
 package to.etc.domuidemo.pages;
 
-import to.etc.domui.component.layout.*;
-import to.etc.domui.component.misc.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.state.*;
-import to.etc.domuidemo.sourceviewer.*;
+import to.etc.domui.component.layout.CaptionedHeader;
+import to.etc.domui.component.layout.ContentPanel;
+import to.etc.domui.component.misc.ALink;
+import to.etc.domui.component.misc.VerticalSpacer;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.HTag;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.UrlPage;
 
-import javax.annotation.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class MenuPage extends UrlPage {
 	@Nullable
@@ -44,15 +48,5 @@ public class MenuPage extends UrlPage {
 		ALink link = new ALink(clz);
 		d.add(link);
 		link.setText(text);
-
-		ALink link2 = new ALink(SourcePage.class, new PageParameters("name", clz.getName().replace('.', '/') + ".java"));
-		d.add("\u00a0");
-		d.add(link2);
-		Img si = new Img("img/java.png");
-		link2.add(si);
-		link2.setTitle("View sourcefile");
-		if(nw)
-			d.add(new Img("img/aniNew.gif"));
-		link2.setNewWindowParameters(WindowParameters.createFixed(1024, 768, "source"));
 	}
 }

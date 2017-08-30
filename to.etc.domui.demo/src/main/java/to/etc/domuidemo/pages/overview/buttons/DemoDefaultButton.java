@@ -1,40 +1,35 @@
 package to.etc.domuidemo.pages.overview.buttons;
 
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.misc.*;
-import to.etc.domui.dom.html.*;
+import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.misc.MsgBox;
+import to.etc.domui.component.misc.MsgBox.Type;
+import to.etc.domui.component.misc.VerticalSpacer;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domuidemo.components.CenterPanel;
 
 public class DemoDefaultButton extends UrlPage {
 
 	@Override
 	public void createContent() throws Exception {
-		final Div d1 = new Div();
-		add(d1);
-		d1.add(new BR());
+		CenterPanel cp = new CenterPanel();
+		add(cp);
 
-		d1.add("Please press ");
-		DefaultButton db = new DefaultButton("Defaultbutton");
-		d1.add(db);
-		db.setClicked(new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(DefaultButton clickednode) throws Exception {
-				MsgBox.message(d1, MsgBox.Type.INFO, "Button pressed");
-			}
-		});
-		d1.add(" and see what happens.");
+		cp.add("This is the default button, called DefaultButton: ");
+		DefaultButton db = new DefaultButton("DefaultButton");
+		cp.add(db);
+		db.setClicked(clickednode -> MsgBox.message(this, Type.INFO, "Button pressed"));
+		cp.add(" Click it to see it work.");
 
-		final Div d2 = new Div();
-		add(d2);
-		d2.add(new VerticalSpacer(40));
-		d2.add("An image added to the button. Please press ");
-		DefaultButton db2 = new DefaultButton("N!ice", "img/btnSmileyWink.png", new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(DefaultButton clickednode) throws Exception {
-				MsgBox.message(d2, MsgBox.Type.WARNING, "The java-icon is added to the button<br/><br/>" + "you can  aslo use the key-accelerator [i] to activate the button.<br/><br/>"
-					+ "(the MsgBox uses also an accelerator C)");
-			}
-		});
-		d2.add(db2);
-		d1.add(" and see what happens.");
+		cp.add(new VerticalSpacer(40));
+		cp.add("You can easily add an icon and an accelerator to a button: ");
+		DefaultButton db2 = new DefaultButton("N!ice", "img/btnSmileyWink.png", n -> MsgBox.message(this, Type.WARNING,
+			"you can also use the accelerator [I] to activate the button.<br/><br/>"
+			+ "(the Message Box uses also an accelerator, C)"));
+		cp.add(db2);
+
+		cp.add(new VerticalSpacer(40));
+		cp.add("Like all Action Items, buttons can be disabled: ");
+		DefaultButton di = new DefaultButton("click me to disable me", b -> b.setDisabled(true));
+		cp.add(di);
 	}
 }

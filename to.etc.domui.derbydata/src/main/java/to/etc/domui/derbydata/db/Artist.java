@@ -3,6 +3,8 @@ package to.etc.domui.derbydata.db;
 import org.hibernate.annotations.Index;
 import to.etc.domui.component.meta.MetaDisplayProperty;
 import to.etc.domui.component.meta.MetaObject;
+import to.etc.domui.component.meta.MetaSearch;
+import to.etc.domui.component.meta.SearchPropertyType;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -16,7 +18,7 @@ import java.util.List;
 @Entity
 @Table(name = "Artist")
 @SequenceGenerator(name = "sq", sequenceName = "artist_sq")
-@MetaObject(defaultColumns = {@MetaDisplayProperty(name = "name")})
+@MetaObject(defaultColumns = {@MetaDisplayProperty(name = "name")}, defaultSortColumn = "name")
 public class Artist extends DbRecordBase<Long> {
 	private Long m_id;
 
@@ -36,6 +38,7 @@ public class Artist extends DbRecordBase<Long> {
 		m_id = id;
 	}
 
+	@MetaSearch(order = 1, searchType = SearchPropertyType.SEARCH_FIELD)
 	@Column(length = 120, nullable = false, unique = true)
 	@Index(name = "Name")
 	public String getName() {

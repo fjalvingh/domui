@@ -76,17 +76,6 @@ public class Application extends DomApplication {
 			}
 		});
 
-		//		addExceptionListener(ConstraintViolationException.class, new IExceptionListener() {
-		//			public boolean handleException(final IRequestContext ctx, final Page pg, final NodeBase source, final Throwable x) throws Exception {
-		//				ConstraintViolationException e = (ConstraintViolationException) x;
-		//				x.printStackTrace();
-		//				String msg = DaoConstraintMessage.getConstraintMessage(DbUtil.getContext(pg), e.getConstraintName()).getUserMessage().replaceAll("<br />", "\\\n");
-		//				source.addGlobalMessage(UIMessage.error(Msgs.BUNDLE, Msgs.UNEXPECTED_EXCEPTION, msg));
-		//				return true;
-		//			}
-		//		});
-
-
 		/*
 		 * Add a new page listener. Every new page automatically gets a Breadcrumb injected @ it's start
 		 */
@@ -110,13 +99,8 @@ public class Application extends DomApplication {
 			return;
 
 		//-- Insert a shelve breadcrumb.
-		p.add(0, new SourceBreadCrumb());
+		p.add(0, new PageHeader());
 	}
-
-
-	//	public VpContextCache getContextCache() {
-	//		return m_contextCache;
-	//	}
 
 	@Override
 	public Class<? extends UrlPage> getRootPage() {
@@ -131,22 +115,6 @@ public class Application extends DomApplication {
 				notifyAll();
 			}
 
-//			//-- Initialize context cache && register interceptor
-//			m_contextCache.initialize();
-//			VP.internalInitialize(m_contextCache);
-//			addInterceptor(new IRequestInterceptor() {
-//				public void before(final IRequestContext rc) throws Exception {
-//					RequestContextImpl rci = (RequestContextImpl) rc;
-//					VpUserContext uc = getContextCache().associate(rci.getRequest());
-//					if(uc == null)
-//						throw new IllegalStateException("No logged-in user!!!");
-//					VP.internalInitialize(uc);
-//				}
-//
-//				public void after(final IRequestContext rc, final Exception x) throws Exception {
-//					VP.internalInitialize((VpUserContext) null);
-//				}
-//			});
 		} catch(Exception x) {
 			x.printStackTrace();
 			throw new UnavailableException("Cannot init database: " + x);
@@ -167,19 +135,6 @@ public class Application extends DomApplication {
 	 */
 	private void initDatabase() throws Exception {
 		TestDB.initialize();
-	}
-
-	synchronized void waitForInit() throws Exception {
-		int tries = 10;
-		for(; ; ) {
-			if(m_hibinit)
-				return;
-			if(m_hibabort != null)
-				throw new IllegalStateException("Hibernate initialization failed: " + m_hibabort);
-			if(--tries <= 0)
-				throw new IllegalStateException("Parallel Hibernate init took too long.");
-			wait(10000);
-		}
 	}
 
 	static public void main(String[] args) {
