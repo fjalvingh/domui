@@ -62,4 +62,15 @@ public class ITTestLookupInput2Layout extends AbstractWebDriverTest {
 
 		Assert.assertEquals("Label and control for TWO must be on same Y", label.getLocation().getY(), two.getLocation().getY());
 	}
+
+	@Test
+	public void labelMustBeAlignedFontTwo() throws Exception {
+		WebElement two = wd().getElement("two");
+		String id = two.getAttribute("id");
+		WebElement label = wd().getElement(By.cssSelector("label[for='" + id + "']"));
+
+
+		Assert.assertEquals("Label and control for TWO must be on same Y", label.getLocation().getY(), two.getLocation().getY());
+	}
+
 }
