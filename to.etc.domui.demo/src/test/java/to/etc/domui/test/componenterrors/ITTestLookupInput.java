@@ -56,7 +56,7 @@ public class ITTestLookupInput extends AbstractWebDriverTest {
 
 		//-- Both one and two must use only one line
 		WebElement one = wd().getElement("one");
-		Assert.assertTrue("Control one must span one line", one.getSize().height < 25);
+		Assert.assertTrue("Control one must span one line, it now uses " + one.getSize().height + "px", one.getSize().height < 25);
 
 		WebElement two = wd().getElement("two");
 		Assert.assertTrue("Control two must span one line", two.getSize().height < 25);
