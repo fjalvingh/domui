@@ -25,4 +25,5 @@ before_install:
 - openssl aes-256-cbc -K $encrypted_6430b1f3fcb1_key -iv $encrypted_6430b1f3fcb1_iv
   -in scripts/deployment_id_ecdsa.enc -out ~/deployment_id_ecdsa -d
 
-
+after_failure:
+  script: scripts/deploy-test-reports.sh
