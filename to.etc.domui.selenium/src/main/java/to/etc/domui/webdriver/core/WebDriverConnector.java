@@ -215,8 +215,6 @@ final public class WebDriverConnector {
 	/**
 	 * Called after every screen action, this checks whether the DomUI "waiting" backdrop is present and waits for it
 	 * to be gone.
-	 *
-	 * @param tu
 	 */
 	private static void initializeAfterCommandListener(final @Nonnull WebDriverConnector tu) {
 		tu.setAfterCommandCallback(new IExecute() {
@@ -295,8 +293,6 @@ final public class WebDriverConnector {
 	/*--------------------------------------------------------------*/
 	/**
 	 * Create the locator for a given testid.
-	 * @param testid
-	 * @return
 	 */
 	@Nonnull
 	final public By byId(@Nonnull String testid) {
@@ -311,8 +307,6 @@ final public class WebDriverConnector {
 
 	/**
 	 * Create a full locator using any supported expression.
-	 * @param locator
-	 * @return
 	 */
 	@Nonnull
 	final public By locator(@Nonnull String locator) {
@@ -349,8 +343,6 @@ final public class WebDriverConnector {
 	/*--------------------------------------------------------------*/
 	/**
 	 * Wait for the given element to appear.
-	 * @param locator
-	 * @return
 	 */
 	public void wait(@Nonnull By locator) {
 		WebDriverWait wait = new WebDriverWait(driver(), getWaitTimeout(), getWaitInterval());
@@ -368,8 +360,6 @@ final public class WebDriverConnector {
 
 	/**
 	 * Waits until the element is present.
-	 * @param testid
-	 * @return
 	 */
 	public void wait(@Nonnull String testid) {
 		wait(byId(testid));
@@ -472,8 +462,6 @@ final public class WebDriverConnector {
 	/**
 	 * Clicks on specified occurrence of element located by locator.
 	 *
-	 * @param locator
-	 * @param index
 	 * @throws Exception
 	 */
 	public void clickInstance(@Nonnull final By locator, final int index, final Keys... optionalKeys) throws Exception {

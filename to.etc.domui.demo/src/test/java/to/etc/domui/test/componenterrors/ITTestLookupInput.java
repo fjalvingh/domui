@@ -11,7 +11,6 @@ import to.etc.domuidemo.pages.test.componenterrors.LookupInputTestPage;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.Properties;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -57,13 +56,13 @@ public class ITTestLookupInput extends AbstractWebDriverTest {
 	public void testInitialLayout() throws Exception {
 		wd().openScreen(LookupInputTestPage.class);
 
-		Properties properties = System.getProperties();
-		properties.forEach((k, v) -> System.out.println("    " + k + " = " + v));
+		//Properties properties = System.getProperties();
+		//properties.forEach((k, v) -> System.out.println("    " + k + " = " + v));
 
 
 		//-- Both one and two must use only one line
 		WebElement one = wd().getElement("one");
-		Assert.assertTrue("Control one must span one line, it now uses " + one.getSize().height + "px", one.getSize().height < 2);
+		Assert.assertTrue("Control one must span one line, it now uses " + one.getSize().height + "px", one.getSize().height < 25);
 
 		ScreenInspector screenInspector = wd().screenInspector();
 		if(null != screenInspector) {

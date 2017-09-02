@@ -1,6 +1,7 @@
 package to.etc.domui.webdriver.core;
 
 import org.openqa.selenium.Capabilities;
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.UnexpectedAlertBehaviour;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -63,7 +64,9 @@ final class WebDriverFactory {
 	private static WebDriver allocatePhantomjsInstance(Locale lang) throws Exception {
 		DesiredCapabilities capabilities = calculateCapabilities(BrowserModel.PHANTOMJS, lang);
 		capabilities.setCapability(CapabilityType.TAKES_SCREENSHOT, "true");
-		return new PhantomJSDriver(capabilities);
+		PhantomJSDriver wd = new PhantomJSDriver(capabilities);
+		wd.manage().window().setSize(new Dimension(1280, 1024));
+		return wd;
 	}
 
 	private static WebDriver allocateHtmlUnitInstance(BrowserModel browser, Locale lang) throws Exception {
