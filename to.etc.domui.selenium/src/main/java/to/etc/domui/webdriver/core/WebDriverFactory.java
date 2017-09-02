@@ -11,6 +11,7 @@ import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
+import org.openqa.selenium.phantomjs.PhantomJSDriverService;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -65,6 +66,7 @@ final class WebDriverFactory {
 		DesiredCapabilities capabilities = calculateCapabilities(BrowserModel.PHANTOMJS, lang);
 		capabilities.setCapability(CapabilityType.TAKES_SCREENSHOT, "true");
 		PhantomJSDriver wd = new PhantomJSDriver(capabilities);
+
 		wd.manage().window().setSize(new Dimension(1280, 1024));
 		return wd;
 	}
@@ -87,6 +89,8 @@ final class WebDriverFactory {
 				return getFirefoxCapabilities(lang);
 
 			case PHANTOMJS:
+				return getPhantomCapabilities(lang);
+
 			case CHROME:
 				return getChromeCapabilities(lang);
 
@@ -170,4 +174,19 @@ final class WebDriverFactory {
 		capabilities.setCapability(ChromeOptions.CAPABILITY, options);
 		return capabilities;
 	}
+
+	private static DesiredCapabilities getPhantomCapabilities(Locale lang) {
+		//
+		//ChromeOptions options = new ChromeOptions();
+		//options.addArguments("test-type"); 					// This gets rid of the message "You are using an unsupported command-line flag: --ignore-certificate-errors. Stability and security will suffer."
+		//options.addArguments("lang=" + lang.getLanguage().toLowerCase());
+		//options.addArguments("intl.accept_languages=" + lang.getLanguage().toLowerCase());
+
+		DesiredCapabilities capabilities = DesiredCapabilities.phantomjs();
+		capabilities.setCapability(PhantomJSDriverService.PHANTOMJS_PAGE_CUSTOMHEADERS_PREFIX + "Accept-Language", lang.toString());
+		capabilities.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.IGNORE);
+		return capabilities;
+	}
+
+
 }
