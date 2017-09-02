@@ -501,6 +501,7 @@
                             <report>javadoc</report>
                         </reports>
                         <configuration>
+                            <quiet>true</quiet>
                             <additionalparam>-Xdoclint:none</additionalparam>
                             <stylesheetfile>javadoc/stylesheet.css</stylesheetfile>
                         </configuration>

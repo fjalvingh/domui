@@ -8,7 +8,10 @@ import to.etc.domui.webdriver.core.AbstractWebDriverTest;
 import to.etc.domui.webdriver.core.ScreenInspector;
 import to.etc.domuidemo.pages.test.componenterrors.LookupInputTestPage;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.util.Properties;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -54,9 +57,19 @@ public class ITTestLookupInput extends AbstractWebDriverTest {
 	public void testInitialLayout() throws Exception {
 		wd().openScreen(LookupInputTestPage.class);
 
+		Properties properties = System.getProperties();
+		properties.forEach((k, v) -> System.out.println("    " + k + " = " + v));
+
+
 		//-- Both one and two must use only one line
 		WebElement one = wd().getElement("one");
-		Assert.assertTrue("Control one must span one line, it now uses " + one.getSize().height + "px", one.getSize().height < 25);
+		Assert.assertTrue("Control one must span one line, it now uses " + one.getSize().height + "px", one.getSize().height < 2);
+
+		ScreenInspector screenInspector = wd().screenInspector();
+		if(null != screenInspector) {
+			BufferedImage bi = screenInspector.elementScreenshot(one);
+			ImageIO.write(bi, "png", new File("/tmp/input-1.png"));
+		}
 
 		WebElement two = wd().getElement("two");
 		Assert.assertTrue("Control two must span one line", two.getSize().height < 25);
