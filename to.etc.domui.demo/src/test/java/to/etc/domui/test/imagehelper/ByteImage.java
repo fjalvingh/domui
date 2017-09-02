@@ -54,7 +54,11 @@ public class ByteImage implements Image {
 				int g = p & 0xff;
 				p >>= 8;
 				int r = p & 0xff;
-
+				p >>= 8;
+				int a = p & 0xff;
+				if(a == 0) {
+					r = g = b = 255;
+				}
 				int av = (r + g + b) / 3;
 				ti.m_data[--offset] = (byte) av;
 			}
@@ -129,7 +133,7 @@ public class ByteImage implements Image {
 		//-- Detect bottom border
 		offset = calculateXYOffset(0, m_height - 1);
 		y = m_height;
-		while(y > 0) {
+		while(y > startY) {
 			int count = countLinePixels(offset, m_width, 0, 220);
 			if(count < linePxCount)
 				break;
@@ -154,7 +158,7 @@ public class ByteImage implements Image {
 
 		offset = calculateXYOffset(m_width -1, 0);
 		x = m_width;
-		while(x > 0) {
+		while(x > startX) {
 			int count = countColumnPixels(offset, m_height, 0, 220);
 			if(count < colPxCount)
 				break;

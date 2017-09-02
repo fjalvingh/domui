@@ -6,7 +6,9 @@ import to.etc.domui.webdriver.core.AbstractWebDriverTest;
 import to.etc.domui.webdriver.core.ScreenInspector;
 import to.etc.domuidemo.pages.test.componenterrors.LookupInput2TestPage;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.File;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -40,7 +42,7 @@ public class ITTestLookupInput2 extends AbstractWebDriverTest {
 		if(null == inspector)
 			throw new IllegalStateException();
 		bi = inspector.elementScreenshot("one");
-		//ImageIO.write(bi, "png", new File("/tmp/test.png"));
+		ImageIO.write(bi, "png", new File("/tmp/test.png"));
 		Assert.assertTrue("The background of the control should be red because it is in error after screen refresh", TestHelper.isReddish(bi));
 	}
 }

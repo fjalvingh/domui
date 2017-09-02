@@ -23,8 +23,13 @@ import to.etc.webapp.testsupport.TestProperties;
 import javax.annotation.DefaultNonNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import static to.etc.domui.util.DomUtil.nullChecked;
 
@@ -65,7 +70,44 @@ final class WebDriverFactory {
 	private static WebDriver allocatePhantomjsInstance(Locale lang) throws Exception {
 		DesiredCapabilities capabilities = calculateCapabilities(BrowserModel.PHANTOMJS, lang);
 		capabilities.setCapability(CapabilityType.TAKES_SCREENSHOT, "true");
-		PhantomJSDriver wd = new PhantomJSDriver(capabilities);
+
+		PhantomJSDriver wd;
+		if(false) {
+			wd = new PhantomJSDriver(capabilities);
+		} else {
+			/*
+			 * We must have anti-aliasing off for better testing. This should work for unices where Phantomjs has been
+			 * compiled with FontConfig support..
+			 */
+			//-- 1. Make a temp directory which will contain our fonts.conf
+			String tmp = System.getProperty("java.io.tmpdir");
+			if(tmp == null) {
+				tmp = "/tmp";
+			}
+			File dir = new File(tmp + File.separator + "/_phantomjs-config/fontconfig");
+			dir.mkdirs();
+			if(! dir.exists()) {
+				throw new IOException("Can't create fontconfig directory to override phantomjs font settings at " + dir);
+			}
+
+			File conf = new File(dir, "fonts.conf");
+			String text = "<match target=\"font\">\n"
+				+ "<edit mode=\"assign\" name=\"antialias\">\n"
+				+ "<bool>false</bool>\n"
+				+ "</edit>\n"
+				+ "</match>";
+			try(FileOutputStream fos = new FileOutputStream(conf)) {
+				fos.write(text.getBytes("UTF-8"));
+			}
+
+			//-- Set the XDG_CONFIG_HOME envvar; this is used by fontconfig as one of its locations
+
+			Map<String, String> env = new HashMap<>();
+			env.put("XDG_CONFIG_HOME", dir.getParentFile().getAbsolutePath());
+
+			PhantomJSDriverService service = MyPhantomDriverService.createDefaultService(capabilities, env);
+			wd = new PhantomJSDriver(service, capabilities);
+		}
 
 		wd.manage().window().setSize(new Dimension(1280, 1024));
 		return wd;
