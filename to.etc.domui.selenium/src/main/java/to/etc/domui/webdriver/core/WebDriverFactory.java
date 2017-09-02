@@ -40,12 +40,14 @@ final class WebDriverFactory {
 		if(lang == null) {
 			lang = nullChecked(Locale.ENGLISH);
 		}
+
+		if(browser == BrowserModel.PHANTOMJS) {
+			return allocatePhantomjsInstance(lang);
+		}
+
 		switch(type) {
 			default:
 				throw new IllegalStateException("? unhandled driver type");
-
-			case PHANTOMJS:
-				return allocatePhantomjsInstance(browser, lang);
 
 			case HTMLUNIT:
 				return allocateHtmlUnitInstance(browser, lang);
@@ -58,8 +60,8 @@ final class WebDriverFactory {
 		}
 	}
 
-	private static WebDriver allocatePhantomjsInstance(BrowserModel browser, Locale lang) throws Exception {
-		DesiredCapabilities capabilities = calculateCapabilities(browser, lang);
+	private static WebDriver allocatePhantomjsInstance(Locale lang) throws Exception {
+		DesiredCapabilities capabilities = calculateCapabilities(BrowserModel.PHANTOMJS, lang);
 		capabilities.setCapability(CapabilityType.TAKES_SCREENSHOT, "true");
 		return new PhantomJSDriver(capabilities);
 	}
@@ -81,6 +83,7 @@ final class WebDriverFactory {
 			case FIREFOX:
 				return getFirefoxCapabilities(lang);
 
+			case PHANTOMJS:
 			case CHROME:
 				return getChromeCapabilities(lang);
 

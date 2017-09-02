@@ -55,6 +55,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
@@ -178,16 +179,21 @@ final public class WebDriverConnector {
 			throw new IllegalStateException("The webdriver.url parameter is not present in (a) test properties file");
 		if(!appURL.endsWith("/"))
 			appURL += "/";
-		String hub = p.getProperty("webdriver.hub", "phantomjs");		// FIXME Do this differently, later
-		String brw = p.getProperty("webdriver.browser");
-		if(null == brw)
-			brw = "chrome";
-		BrowserModel browserModel = BrowserModel.get(brw);
 
-		WebDriverType webDriverType = getDriverType(hub);
-		boolean canTakeScreenshot = webDriverType == WebDriverType.PHANTOMJS || webDriverType == WebDriverType.LOCAL || webDriverType == WebDriverType.REMOTE;
+		/*
+		 * webdriver spec is browser@destination. If the @destination is missing
+		 * we assume local.
+		 */
+		String ws = Objects.requireNonNull(p.getProperty("webdriver.hub", "phantomjs"));
+		String[] frag = ws.split("@");
+		String browserName = frag[0];
+		String remote = frag.length > 1 ? frag[1] : "local";
 
-		WebDriver wp = WebDriverFactory.allocateInstance(webDriverType, browserModel, hub, null);
+		BrowserModel browserModel = BrowserModel.get(browserName);
+		WebDriverType webDriverType = getDriverType(remote);
+		boolean canTakeScreenshot = browserModel == BrowserModel.PHANTOMJS || webDriverType == WebDriverType.LOCAL || webDriverType == WebDriverType.REMOTE;
+
+		WebDriver wp = WebDriverFactory.allocateInstance(webDriverType, browserModel, remote, null);
 
 		final WebDriverConnector tu = new WebDriverConnector(wp, browserModel, appURL, webDriverType, canTakeScreenshot);
 		initializeAfterCommandListener(tu);
@@ -199,9 +205,7 @@ final public class WebDriverConnector {
 	@Nonnull
 	private static WebDriverType getDriverType(@Nullable String hubUrl) {
 		if(null == hubUrl || hubUrl.trim().length() == 0)
-			return WebDriverType.HTMLUNIT;
-		if("phantomjs".equalsIgnoreCase(hubUrl))
-			return WebDriverType.PHANTOMJS;
+			return WebDriverType.HTMLUNIT;					// Used as a target because it can emulate multiple browser types
 		if("local".equals(hubUrl.trim()))
 			return WebDriverType.LOCAL;
 		return WebDriverType.REMOTE;
