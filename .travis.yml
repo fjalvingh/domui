@@ -26,4 +26,5 @@ before_install:
   -in scripts/deployment_id_ecdsa.enc -out ~/deployment_id_ecdsa -d
 
 after_failure:
-  script: scripts/deploy-test-reports.sh
+  - echo $( pwd )
+  - scripts/deploy-test-reports.sh
