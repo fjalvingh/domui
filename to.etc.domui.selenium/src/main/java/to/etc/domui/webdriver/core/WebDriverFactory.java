@@ -40,7 +40,7 @@ final class WebDriverFactory {
 	 */
 	public static WebDriver allocateInstance(WebDriverType type, BrowserModel browser, @Nullable String hubUrl, @Nullable Locale lang) throws Exception {
 		if(lang == null) {
-			lang = nullChecked(Locale.ENGLISH);
+			lang = nullChecked(new Locale("nl", "NL"));
 		}
 
 		if(browser == BrowserModel.PHANTOMJS) {
@@ -183,7 +183,8 @@ final class WebDriverFactory {
 		//options.addArguments("intl.accept_languages=" + lang.getLanguage().toLowerCase());
 
 		DesiredCapabilities capabilities = DesiredCapabilities.phantomjs();
-		capabilities.setCapability(PhantomJSDriverService.PHANTOMJS_PAGE_CUSTOMHEADERS_PREFIX + "Accept-Language", lang.toString());
+		String value = lang.getLanguage().toLowerCase();
+		capabilities.setCapability(PhantomJSDriverService.PHANTOMJS_PAGE_CUSTOMHEADERS_PREFIX + "Accept-Language", value);
 		capabilities.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.IGNORE);
 		return capabilities;
 	}
