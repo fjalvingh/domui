@@ -40,7 +40,7 @@ final class WebDriverFactory {
 	 */
 	public static WebDriver allocateInstance(WebDriverType type, BrowserModel browser, @Nullable String hubUrl, @Nullable Locale lang) throws Exception {
 		if(lang == null) {
-			lang = nullChecked(new Locale("nl", "NL"));
+			lang = nullChecked(Locale.US);
 		}
 
 		if(browser == BrowserModel.PHANTOMJS) {
