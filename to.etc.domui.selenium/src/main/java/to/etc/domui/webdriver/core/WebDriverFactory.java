@@ -36,8 +36,7 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 /**
  * Factory to create raw WebDriver instances.
  */
-@DefaultNonNull
-final class WebDriverFactory {
+@DefaultNonNull final class WebDriverFactory {
 	private static Logger LOG = LoggerFactory.getLogger(WebDriverFactory.class);
 
 	/**
@@ -52,7 +51,7 @@ final class WebDriverFactory {
 			return allocatePhantomjsInstance(lang);
 		}
 
-		switch(type) {
+		switch(type){
 			default:
 				throw new IllegalStateException("? unhandled driver type");
 
@@ -86,7 +85,7 @@ final class WebDriverFactory {
 			}
 			File dir = new File(tmp + File.separator + "/_phantomjs-config/fontconfig");
 			dir.mkdirs();
-			if(! dir.exists()) {
+			if(!dir.exists()) {
 				throw new IOException("Can't create fontconfig directory to override phantomjs font settings at " + dir);
 			}
 
@@ -208,7 +207,8 @@ final class WebDriverFactory {
 
 	private static DesiredCapabilities getChromeCapabilities(Locale lang) {
 		ChromeOptions options = new ChromeOptions();
-		options.addArguments("test-type"); 					// This gets rid of the message "You are using an unsupported command-line flag: --ignore-certificate-errors. Stability and security will suffer."
+		options.addArguments(
+			"test-type");                    // This gets rid of the message "You are using an unsupported command-line flag: --ignore-certificate-errors. Stability and security will suffer."
 		options.addArguments("lang=" + lang.getLanguage().toLowerCase());
 		options.addArguments("intl.accept_languages=" + lang.getLanguage().toLowerCase());
 		DesiredCapabilities capabilities = DesiredCapabilities.chrome();

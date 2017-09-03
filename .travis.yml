@@ -1,3 +1,9 @@
+dist: trusty
+sudo: false
+
+addons:
+  chrome: stable
+
 branches:
   except:
   - domui-1.0
