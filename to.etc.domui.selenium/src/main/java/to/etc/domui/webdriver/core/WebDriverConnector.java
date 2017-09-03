@@ -107,6 +107,10 @@ final public class WebDriverConnector {
 	@Nullable
 	private IExecute m_afterCommandCallback;
 
+	/** The default viewport size. */
+	@Nonnull
+	private Dimension m_viewportSize = new Dimension(1280, 1024);
+
 	private WebDriverConnector(@Nonnull WebDriver driver, @Nonnull BrowserModel kind, @Nonnull String webapp, @Nonnull WebDriverType driverType, boolean canTakeScreenshot) {
 		m_driver = driver;
 		m_kind = kind;
@@ -257,7 +261,7 @@ final public class WebDriverConnector {
 	}
 
 	@Nonnull
-	protected WebDriver driver() {
+	public WebDriver driver() {
 		WebDriver d = m_driver;
 		if(null == d)
 			throw new IllegalStateException("no webdriver connected");
@@ -964,6 +968,7 @@ final public class WebDriverConnector {
 	 */
 	public void setSize(@Nonnull Dimension dimension) {
 		driver().manage().window().setSize(dimension);
+		m_viewportSize = dimension;
 	}
 
 	/**
@@ -1136,8 +1141,11 @@ final public class WebDriverConnector {
 		m_lastTestClass = null;
 		m_lastTestPage = null;
 
+		checkSize();
+
 		String sb = calculatePageURL(locale, clz, parameters);
 		m_driver.navigate().to(sb);
+		checkSize();
 
 		ExpectedCondition<WebElement> xdomui = ExpectedConditions.presenceOfElementLocated(locator("body[id='_1'], #loginPageBody"));
 
@@ -1153,6 +1161,16 @@ final public class WebDriverConnector {
 		we = wait(xdomui);
 		waitForNoneOfElementsPresent(By.className("ui-io-blk"), By.className("ui-io-blk2"));
 		return this;
+	}
+
+	/**
+	 * Called for Chrome, which resizes the viewpoint without question 8-(
+	 */
+	private void checkSize() {
+		Dimension size = getSize();
+		if(size.height == m_viewportSize.height && size.width == m_viewportSize.width)
+			return;
+		driver().manage().window().setSize(m_viewportSize);
 	}
 
 	@Nullable
@@ -1171,7 +1189,13 @@ final public class WebDriverConnector {
 		m_lastTestClass = null;
 		m_lastTestPage = null;
 
+		checkSize();
+		Dimension size = getSize();
+
 		m_driver.navigate().to(sb);
+		checkSize();
+
+		size = getSize();
 
 		ExpectedCondition<WebElement> xdomui = ExpectedConditions.presenceOfElementLocated(locator("body[id='_1'], #loginPageBody"));
 
@@ -1187,6 +1211,7 @@ final public class WebDriverConnector {
 		}
 		m_lastTestClass = testClass.getClass();
 		m_lastTestPage = sb;
+		size = getSize();
 		return this;
 	}
 

@@ -5,7 +5,6 @@ import org.openqa.selenium.Capabilities;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.UnexpectedAlertBehaviour;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.chrome.ChromeDriverService.Builder;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -206,7 +205,8 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		builder.usingAnyFreePort();
 		builder.withEnvironment(env);
 		ChromeDriverService service = builder.build();
-		ChromeDriver chromeDriver = new ChromeDriver(service, dc);
+		MyChromeDriver chromeDriver = new MyChromeDriver(service, dc);
+
 		chromeDriver.manage().window().setSize(new Dimension(1280, 1024));
 		return chromeDriver;
 	}

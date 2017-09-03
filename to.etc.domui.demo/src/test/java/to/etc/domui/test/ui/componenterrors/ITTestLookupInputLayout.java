@@ -6,7 +6,11 @@ import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import to.etc.domui.webdriver.core.AbstractWebDriverTest;
+import to.etc.domui.webdriver.core.ChromeExtender;
+import to.etc.domui.webdriver.core.MyChromeDriver;
 import to.etc.domuidemo.pages.test.componenterrors.LookupInputTestPage;
+
+import java.io.File;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -62,4 +66,12 @@ public class ITTestLookupInputLayout extends AbstractWebDriverTest {
 
 		Assert.assertEquals("Label and control for TWO must be on same Y", label.getLocation().getY(), two.getLocation().getY());
 	}
+
+
+	@Test
+	public void testChromeExtension() throws Exception {
+		ChromeExtender xx = new ChromeExtender( (MyChromeDriver) wd().driver());
+		xx.takeScreenshot(new File("/tmp/screen.png"));
+	}
+
 }

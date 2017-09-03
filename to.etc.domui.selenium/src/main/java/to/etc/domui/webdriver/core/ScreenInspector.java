@@ -50,7 +50,10 @@ final public class ScreenInspector {
 					height = m_image.getHeight() - sy;
 					truncated = true;
 				}
-				System.err.println("WARNING: snapshot of " + lay + " has been truncated because part of it is off-screen");
+				if(truncated) {
+					Dimension screen = m_wd.getSize();
+					System.err.println("WARNING: snapshot of " + lay + " has been truncated because part of it is off-screen (screen size is " + screen.width + "x" + screen.height + ")");
+				}
 
 				return m_image.getSubimage(location.getX(), location.getY(), width, height);
 			}
