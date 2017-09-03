@@ -158,20 +158,8 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 				return new FirefoxDriver(getFirefoxCapabilities(lang));
 
 			case CHROME:
-				DesiredCapabilities dc = getChromeCapabilities(lang);
-				TestProperties tp = TUtilTestProperties.getTestProperties();
-				String chromeBinariesLocation = tp.getProperty("webdriver.chrome.driver", "/usr/bin/google-chrome");
-				System.setProperty("webdriver.chromedriver", chromeBinariesLocation);
-				dc.setCapability("chrome.binary", chromeBinariesLocation);
-				return new ChromeDriver(dc);
-
 			case CHROME_HEADLESS:
-				dc = getChromeHeadlessCapabilities(lang);
-				tp = TUtilTestProperties.getTestProperties();
-				chromeBinariesLocation = tp.getProperty("webdriver.chrome.driver", "/usr/bin/google-chrome");
-				System.setProperty("webdriver.chromedriver", chromeBinariesLocation);
-				dc.setCapability("chrome.binary", chromeBinariesLocation);
-				return new ChromeDriver(dc);
+				return allocateChromeInstance(browser, lang);
 
 			case IE:
 			case IE9:
@@ -181,6 +169,29 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 				return new InternetExplorerDriver(getIECapabilities(browser, lang));
 		}
 	}
+
+	private static WebDriver allocateChromeInstance(BrowserModel model, Locale lang) {
+		DesiredCapabilities dc;
+		switch(model) {
+			default:
+				throw new IllegalStateException("Unsupported browser type " + model.getCode() + " for local execution");
+
+			case CHROME:
+				dc = getChromeCapabilities(lang);
+				break;
+
+			case CHROME_HEADLESS:
+				dc = getChromeHeadlessCapabilities(lang);
+				break;
+		}
+
+		TestProperties tp = TUtilTestProperties.getTestProperties();
+		String chromeBinariesLocation = tp.getProperty("webdriver.chrome.driver", "/usr/bin/google-chrome");
+		System.setProperty("webdriver.chromedriver", chromeBinariesLocation);
+		dc.setCapability("chrome.binary", chromeBinariesLocation);
+		return new ChromeDriver(dc);
+	}
+
 
 	private static DesiredCapabilities getIECapabilities(BrowserModel browser, Locale lang) {
 		LOG.warn("Language for IE is still not supported! Language found: [" + lang.getLanguage() + "]");
@@ -241,17 +252,12 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 			"test-type");                    // This gets rid of the message "You are using an unsupported command-line flag: --ignore-certificate-errors. Stability and security will suffer."
 		options.addArguments("lang=" + lang.getLanguage().toLowerCase());
 		options.addArguments("intl.accept_languages=" + lang.getLanguage().toLowerCase());
+
 		return options;
 	}
 
 
 	private static DesiredCapabilities getPhantomCapabilities(Locale lang) {
-		//
-		//ChromeOptions options = new ChromeOptions();
-		//options.addArguments("test-type"); 					// This gets rid of the message "You are using an unsupported command-line flag: --ignore-certificate-errors. Stability and security will suffer."
-		//options.addArguments("lang=" + lang.getLanguage().toLowerCase());
-		//options.addArguments("intl.accept_languages=" + lang.getLanguage().toLowerCase());
-
 		DesiredCapabilities capabilities = DesiredCapabilities.phantomjs();
 		String value = lang.getLanguage().toLowerCase();
 		capabilities.setCapability(PhantomJSDriverService.PHANTOMJS_PAGE_CUSTOMHEADERS_PREFIX + "Accept-Language", value);
