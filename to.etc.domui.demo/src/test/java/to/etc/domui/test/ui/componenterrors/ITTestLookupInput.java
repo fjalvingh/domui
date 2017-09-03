@@ -64,11 +64,6 @@ public class ITTestLookupInput extends AbstractWebDriverTest {
 		WebElement one = wd().getElement("one");
 		Assert.assertTrue("Control one must span one line, it now uses " + one.getSize().height + "px", one.getSize().height < 25);
 
-		ScreenInspector screenInspector = wd().screenInspector();
-		if(null != screenInspector) {
-			BufferedImage bi = screenInspector.elementScreenshot(one);
-			ImageIO.write(bi, "png", new File("/tmp/input-1.png"));
-		}
 
 		WebElement two = wd().getElement("two");
 		Assert.assertTrue("Control two must span one line", two.getSize().height < 25);
@@ -78,5 +73,11 @@ public class ITTestLookupInput extends AbstractWebDriverTest {
 
 		//-- Two MUST have an input
 		Assert.assertTrue("Two must have 'input' because it HAS QuickSearch", two.findElements(By.tagName("input")).size() == 1);
+
+		ScreenInspector screenInspector = wd().screenInspector();
+		if(null != screenInspector) {
+			BufferedImage bi = screenInspector.elementScreenshot(two);
+			ImageIO.write(bi, "png", new File("/tmp/input-2.png"));
+		}
 	}
 }
