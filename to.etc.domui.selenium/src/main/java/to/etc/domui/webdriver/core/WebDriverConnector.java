@@ -10,16 +10,12 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.NoSuchWindowException;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.UnhandledAlertException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.remote.Augmenter;
-import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.FluentWait;
@@ -44,7 +40,6 @@ import to.etc.webapp.testsupport.TestProperties;
 import javax.annotation.DefaultNonNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -76,8 +71,6 @@ final public class WebDriverConnector {
 	static private ThreadLocal<WebDriverConnector> m_webDriverThreadLocal = new ThreadLocal<WebDriverConnector>();
 
 	final private WebDriver m_driver;
-
-	final private boolean m_canTakeScreenshot;
 
 	/** When T, exit registration has been done, to ensure things are released when the JVM exits. */
 	static private boolean m_jvmExitHandlerRegistered;
@@ -111,17 +104,20 @@ final public class WebDriverConnector {
 	@Nonnull
 	private Dimension m_viewportSize = new Dimension(1280, 1024);
 
-	private WebDriverConnector(@Nonnull WebDriver driver, @Nonnull BrowserModel kind, @Nonnull String webapp, @Nonnull WebDriverType driverType, boolean canTakeScreenshot) {
+	@Nullable
+	private final IWebdriverScreenshotHelper m_screenshotHelper;
+
+	private WebDriverConnector(@Nonnull WebDriver driver, @Nonnull BrowserModel kind, @Nonnull String webapp, @Nonnull WebDriverType driverType, @Nullable IWebdriverScreenshotHelper helper) {
 		m_driver = driver;
 		m_kind = kind;
 		m_applicationURL = webapp;
 		m_driverType = driverType;
 		m_waitTimeout = readWaitTimeout(m_waitTimeout);
-		m_canTakeScreenshot = canTakeScreenshot;
+		m_screenshotHelper = helper;
 	}
 
 	public boolean canTakeScreenshot() {
-		return m_canTakeScreenshot;
+		return m_screenshotHelper != null;
 	}
 
 	/**
@@ -198,7 +194,9 @@ final public class WebDriverConnector {
 
 		WebDriver wp = WebDriverFactory.allocateInstance(webDriverType, browserModel, remote, null);
 
-		final WebDriverConnector tu = new WebDriverConnector(wp, browserModel, appURL, webDriverType, canTakeScreenshot);
+		IWebdriverScreenshotHelper sshelper = WebDriverFactory.getScreenshotHelper(webDriverType, browserModel);
+
+		final WebDriverConnector tu = new WebDriverConnector(wp, browserModel, appURL, webDriverType, sshelper);
 		initializeAfterCommandListener(tu);
 		m_webDriverConnectorList.add(tu);
 		m_webDriverThreadLocal.set(tu);
@@ -213,7 +211,6 @@ final public class WebDriverConnector {
 			return WebDriverType.LOCAL;
 		return WebDriverType.REMOTE;
 	}
-
 
 	/**
 	 * Called after every screen action, this checks whether the DomUI "waiting" backdrop is present and waits for it
@@ -987,24 +984,12 @@ final public class WebDriverConnector {
 	 * @return T if the screenshot was made.
 	 * @throws IOException
 	 */
-	public boolean screenshot(@Nonnull File screenshotFile) throws IOException {
-		WebDriver ad = driver();
+	public boolean screenshot(@Nonnull File screenshotFile) throws Exception {
+		IWebdriverScreenshotHelper helper = m_screenshotHelper;
+		if(null == helper)
+			return false;
 
-		if(ad instanceof RemoteWebDriver && getDriverType() == WebDriverType.REMOTE) {
-			//for remote drivers we need to do augmenter thingy, for local we must not
-			ad = new Augmenter().augment(driver());
-		}
-
-		if(ad instanceof TakesScreenshot) {
-			File f = ((TakesScreenshot) ad).getScreenshotAs(OutputType.FILE);
-			try {
-				FileTool.copyFile(screenshotFile, f);
-			} finally {
-				FileTool.closeAll(f);
-			}
-			return true;
-		}
-		return false;
+		return helper.createScreenshot(this, screenshotFile);
 	}
 
 	/**
@@ -1013,23 +998,14 @@ final public class WebDriverConnector {
 	 */
 	@Nullable
 	public ScreenInspector screenInspector() throws Exception {
-		if(!canTakeScreenshot())
+		IWebdriverScreenshotHelper helper = m_screenshotHelper;
+		if(null == helper)
 			return null;
 
-		File tmpFile = null;
-		try {
-			tmpFile = File.createTempFile("webdriver-ss-", ".png");
-			if(!screenshot(tmpFile))
-				throw new IllegalStateException("Failed to create a screenshot");
-
-			//-- Load as a bufferedImage
-			BufferedImage bi = ImageIO.read(tmpFile);
-			return new ScreenInspector(this, bi);
-		} finally {
-			if(null != tmpFile) {
-				tmpFile.delete();
-			}
-		}
+		BufferedImage bi = helper.createScreenshot(this);
+		if(null == bi)
+			return null;
+		return new ScreenInspector(this, bi);
 	}
 
 	/*--------------------------------------------------------------*/

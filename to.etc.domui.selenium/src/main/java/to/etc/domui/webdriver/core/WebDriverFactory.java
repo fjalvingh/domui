@@ -284,4 +284,24 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 	}
 
 
+	@Nullable
+	public static IWebdriverScreenshotHelper getScreenshotHelper(WebDriverType webDriverType, BrowserModel browserModel) {
+		switch(webDriverType) {
+			default:
+				break;
+
+			case HTMLUNIT:
+				//-- HTMLUNIT does not render, so it cannot create screenshots.
+				return null;
+		}
+
+		switch(browserModel) {
+			default:
+				return new DefaultScreenshotHelper();
+
+			case CHROME:
+			case CHROME_HEADLESS:
+				return new ChromeScreenshotHelper();
+		}
+	}
 }
