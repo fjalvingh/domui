@@ -183,7 +183,7 @@ final public class WebDriverConnector {
 		 * webdriver spec is browser@destination. If the @destination is missing
 		 * we assume local.
 		 */
-		String ws = Objects.requireNonNull(p.getProperty("webdriver.hub", "phantomjs"));
+		String ws = Objects.requireNonNull(p.getProperty("webdriver.hub", "chrome"));
 		String[] frag = ws.split("@");
 		String browserName = frag[0];
 		String remote = frag.length > 1 ? frag[1] : "local";

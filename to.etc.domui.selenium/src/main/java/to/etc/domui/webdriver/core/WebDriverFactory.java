@@ -1,5 +1,6 @@
 package to.etc.domui.webdriver.core;
 
+import org.jetbrains.annotations.NotNull;
 import org.openqa.selenium.Capabilities;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.UnexpectedAlertBehaviour;
@@ -135,6 +136,10 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 			case CHROME:
 				return getChromeCapabilities(lang);
 
+			case CHROME_HEADLESS:
+				return getChromeHeadlessCapabilities(lang);
+
+
 			case IE:
 			case IE9:
 			case IE10:
@@ -156,6 +161,14 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 				DesiredCapabilities dc = getChromeCapabilities(lang);
 				TestProperties tp = TUtilTestProperties.getTestProperties();
 				String chromeBinariesLocation = tp.getProperty("webdriver.chrome.driver", "/usr/bin/google-chrome");
+				System.setProperty("webdriver.chromedriver", chromeBinariesLocation);
+				dc.setCapability("chrome.binary", chromeBinariesLocation);
+				return new ChromeDriver(dc);
+
+			case CHROME_HEADLESS:
+				dc = getChromeHeadlessCapabilities(lang);
+				tp = TUtilTestProperties.getTestProperties();
+				chromeBinariesLocation = tp.getProperty("webdriver.chrome.driver", "/usr/bin/google-chrome");
 				System.setProperty("webdriver.chromedriver", chromeBinariesLocation);
 				dc.setCapability("chrome.binary", chromeBinariesLocation);
 				return new ChromeDriver(dc);
@@ -206,16 +219,31 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 	}
 
 	private static DesiredCapabilities getChromeCapabilities(Locale lang) {
-		ChromeOptions options = new ChromeOptions();
-		options.addArguments(
-			"test-type");                    // This gets rid of the message "You are using an unsupported command-line flag: --ignore-certificate-errors. Stability and security will suffer."
-		options.addArguments("lang=" + lang.getLanguage().toLowerCase());
-		options.addArguments("intl.accept_languages=" + lang.getLanguage().toLowerCase());
+		ChromeOptions options = getCommonChromeOptions(lang);
 		DesiredCapabilities capabilities = DesiredCapabilities.chrome();
 		capabilities.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.IGNORE);
 		capabilities.setCapability(ChromeOptions.CAPABILITY, options);
 		return capabilities;
 	}
+
+	private static DesiredCapabilities getChromeHeadlessCapabilities(Locale lang) {
+		ChromeOptions options = getCommonChromeOptions(lang);
+		options.addArguments("--headless");
+		DesiredCapabilities capabilities = DesiredCapabilities.chrome();
+		capabilities.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.IGNORE);
+		capabilities.setCapability(ChromeOptions.CAPABILITY, options);
+		return capabilities;
+	}
+
+	@NotNull private static ChromeOptions getCommonChromeOptions(Locale lang) {
+		ChromeOptions options = new ChromeOptions();
+		options.addArguments(
+			"test-type");                    // This gets rid of the message "You are using an unsupported command-line flag: --ignore-certificate-errors. Stability and security will suffer."
+		options.addArguments("lang=" + lang.getLanguage().toLowerCase());
+		options.addArguments("intl.accept_languages=" + lang.getLanguage().toLowerCase());
+		return options;
+	}
+
 
 	private static DesiredCapabilities getPhantomCapabilities(Locale lang) {
 		//
