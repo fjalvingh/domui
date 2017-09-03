@@ -206,7 +206,9 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		builder.usingAnyFreePort();
 		builder.withEnvironment(env);
 		ChromeDriverService service = builder.build();
-		return new ChromeDriver(service, dc);
+		ChromeDriver chromeDriver = new ChromeDriver(service, dc);
+		chromeDriver.manage().window().setSize(new Dimension(1280, 1024));
+		return chromeDriver;
 	}
 
 	private static DesiredCapabilities getIECapabilities(BrowserModel browser, Locale lang) {

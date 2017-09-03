@@ -1,4 +1,4 @@
-package to.etc.domui.test.componenterrors;
+package to.etc.domui.test.ui.componenterrors;
 
 import to.etc.domui.webdriver.core.ScreenInspector;
 

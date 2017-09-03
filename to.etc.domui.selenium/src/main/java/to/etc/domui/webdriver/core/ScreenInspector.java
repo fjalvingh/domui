@@ -31,7 +31,32 @@ final public class ScreenInspector {
 	public BufferedImage elementScreenshot(WebElement lay) {
 		Point location = lay.getLocation();
 		Dimension size = lay.getSize();
-		return m_image.getSubimage(location.getX(), location.getY(), size.width, size.height);
+
+		//-- Check dimensions to prevent looking outside the window
+		int sx = location.x;
+		int sy = location.y;
+		int width = size.width;
+		int height = size.height;
+		int ex = location.getX() + width;
+		int ey = location.getY() + height;
+		if(ey > 0 && ex > 0) {
+			if(sx < m_image.getWidth() && sy < m_image.getHeight()) {
+				boolean truncated = false;
+				if(sx + width > m_image.getWidth()) {
+					width = m_image.getWidth() - sx;
+					truncated = true;
+				}
+				if(sy + height > m_image.getHeight()) {
+					height = m_image.getHeight() - sy;
+					truncated = true;
+				}
+				System.err.println("WARNING: snapshot of " + lay + " has been truncated because part of it is off-screen");
+
+				return m_image.getSubimage(location.getX(), location.getY(), width, height);
+			}
+		}
+
+		throw new IllegalStateException("CANNOT TAKE SCREENSHOT: object(" + sx + "," + sy + " to " +ex + "," + ey + " is not within the screen boundaries (" + m_image.getWidth() +"x" + m_image.getHeight());
 	}
 
 	/**

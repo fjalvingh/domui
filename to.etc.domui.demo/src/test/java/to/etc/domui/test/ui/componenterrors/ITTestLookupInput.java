@@ -1,4 +1,4 @@
-package to.etc.domui.test.componenterrors;
+package to.etc.domui.test.ui.componenterrors;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -78,6 +78,7 @@ public class ITTestLookupInput extends AbstractWebDriverTest {
 
 		//-- Two MUST have an input
 		Assert.assertTrue("Two must have 'input' because it HAS QuickSearch", two.findElements(By.tagName("input")).size() == 1);
+		snapshot();
 	}
 
 }

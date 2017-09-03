@@ -100,7 +100,7 @@ abstract public class AbstractWebDriverTest {
 		}
 
 		if(null == failure) {
-			System.out.println("snapshot taken as " + out);
+			System.out.println("snapshot taken as " + out + " (" + out.getAbsolutePath() + ")");
 		} else {
 			System.err.println("Failed to take a screenshot");
 			failure.printStackTrace();
