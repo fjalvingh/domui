@@ -4,6 +4,9 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
 /**
+ * This rule causes a screenshot to be written to test output when a
+ * test fails.
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 2-9-17.
  */

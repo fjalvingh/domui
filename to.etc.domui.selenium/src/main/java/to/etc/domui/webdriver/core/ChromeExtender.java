@@ -6,6 +6,9 @@ import org.openqa.selenium.remote.Response;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -14,6 +17,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * This class uses the new commands implemented in Chrome 59 to access the developer tools
+ * directly, and implements a method to create a full screenshot of a Chrome page.
+ *
+ * See <a href="https://stackoverflow.com/questions/45199076/take-full-page-screen-shot-in-chrome-with-selenium/46025126">this Stackoverflow article for the details</a>.
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 3-9-17.
  */
@@ -25,7 +33,20 @@ public class ChromeExtender {
 		m_wd = wd;
 	}
 
+	public BufferedImage takeScreenshot() throws Exception {
+		byte[] bytes = getScreenshotBytes();
+		return ImageIO.read(new ByteArrayInputStream(bytes));
+	}
+
 	public void takeScreenshot(@Nonnull File output) throws Exception {
+		byte[] bytes = getScreenshotBytes();
+
+		try(FileOutputStream fos = new FileOutputStream(output)) {
+			fos.write(bytes);
+		}
+	}
+
+	private byte[] getScreenshotBytes() throws IOException {
 		Object visibleSize = evaluate("({x:0,y:0,width:window.innerWidth,height:window.innerHeight})");
 		Long visibleW = jsonValue(visibleSize, "result.value.width", Long.class);
 		Long visibleH = jsonValue(visibleSize, "result.value.height", Long.class);
@@ -42,11 +63,7 @@ public class ChromeExtender {
 		send("Emulation.setVisibleSize", ImmutableMap.of("x", Long.valueOf(0), "y", Long.valueOf(0), "width", visibleW, "height", visibleH));
 
 		String image = jsonValue(value, "data", String.class);
-		byte[] bytes = Base64.getDecoder().decode(image);
-
-		try(FileOutputStream fos = new FileOutputStream(output)) {
-			fos.write(bytes);
-		}
+		return Base64.getDecoder().decode(image);
 	}
 
 	@Nonnull
