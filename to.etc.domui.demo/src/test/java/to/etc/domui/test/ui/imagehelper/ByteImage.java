@@ -1,12 +1,17 @@
 package to.etc.domui.test.ui.imagehelper;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 31-8-17.
  */
 public class ByteImage implements Image {
+	final private ByteImage m_parentImage;
+
 	private int m_parentStartOffset;
 
 	private int m_rootWidth;
@@ -23,6 +28,7 @@ public class ByteImage implements Image {
 		m_data = new byte[width * height];
 		m_rootWidth = width;
 		m_parentStartOffset = 0;
+		m_parentImage = null;
 	}
 
 	public ByteImage(int width, int height, byte[] data) {
@@ -31,14 +37,26 @@ public class ByteImage implements Image {
 		m_data = data;
 		m_rootWidth = width;
 		m_parentStartOffset = 0;
+		m_parentImage = null;
 	}
 
-	private ByteImage(int parentStartOffset, int rootWidth, int width, int height, byte[] data) {
+	private ByteImage(ByteImage parentImage, int parentStartOffset, int rootWidth, int width, int height, byte[] data) {
 		m_parentStartOffset = parentStartOffset;
 		m_rootWidth = rootWidth;
 		m_width = width;
 		m_height = height;
 		m_data = data;
+		m_parentImage = parentImage;
+	}
+
+	/**
+	 * Get the (x, y) location of this image in the topmost parent
+	 * @return
+	 */
+	public Point getRootLocation() {
+		int y = m_parentStartOffset / m_rootWidth;
+		int x = m_parentStartOffset % m_rootWidth;
+		return new Point(x, y);
 	}
 
 	static public ByteImage create(BufferedImage si) {
@@ -69,7 +87,6 @@ public class ByteImage implements Image {
 	public void save(BufferedImage to) {
 		int offset = calculateXYOffset(0, m_height);
 		int stride = m_rootWidth - m_width;
-		int rows = 0;
 		for(int y = m_height; --y >= 0;) {
 			offset -= stride;
 			for(int x = m_width; --x >= 0;) {
@@ -78,9 +95,7 @@ public class ByteImage implements Image {
 				int rgb = (p << 16) | (p << 8) | p;
 				to.setRGB(x, y, rgb | 0xff000000);
 			}
-			rows++;
 		}
-		System.out.println("" + rows);
 	}
 
 	public BufferedImage save() {
@@ -112,7 +127,7 @@ public class ByteImage implements Image {
 			throw new IllegalStateException("Bad range: y = " + y + " and ey = " + ey);
 
 		int offset = calculateXYOffset(x, y);
-		return new ByteImage(offset, m_rootWidth, ex - x, ey - y, m_data);
+		return new ByteImage(this, offset, m_rootWidth, ex - x, ey - y, m_data);
 	}
 
 	public ByteImage stripBorder() {
@@ -202,6 +217,74 @@ public class ByteImage implements Image {
 			offset += m_rootWidth;
 		}
 		return count;
+	}
+
+	public List<int[]> findVerticalRectangles() {
+		int x = 0;
+
+		int offset = m_parentStartOffset;
+		boolean inwhite = false;
+
+		List<int[]> res = new ArrayList<>();
+
+		int startDarkX = -1;
+ 		while(x < m_width) {
+			int pixels = countColumnPixels(offset, m_height, 200, 255);		// Count whitish pixels
+			if(pixels >= m_height) {
+				//-- This is a WHITE line
+				if(startDarkX != -1) {
+					//-- We now have a boundary.
+					res.add(new int[] {startDarkX, x - 1});
+					startDarkX = -1;
+				}
+			} else {
+				//-- this is a CHARACTER line
+				if(startDarkX == -1) {
+					startDarkX = x;
+				}
+			}
+
+			x++;
+			offset++;
+		}
+
+		if(startDarkX != -1) {
+			res.add(new int[] {startDarkX, x - 1});
+		}
+
+		return res;
+	}
+
+
+	public int[] findFontBaselines() {
+		List<int[]> vr = findVerticalRectangles();
+
+		//-- detect top border
+		int y = 0;
+		int offset = calculateXYOffset(0, 0);
+		int linePxCount = vr.size() * 2;
+		while(y < m_height) {
+			int count = countLinePixels(offset, m_width, 0, 80);
+			if(count > linePxCount)
+				break;
+			offset += m_rootWidth;
+			y++;
+		}
+		int startY = y;
+
+		//-- Detect bottom border
+		offset = calculateXYOffset(0, m_height - 1);
+		y = m_height - 1;
+		while(y >= startY) {
+			int count = countLinePixels(offset, m_width, 0, 80);
+			if(count > linePxCount)
+				break;
+			y--;
+			offset -= m_rootWidth;
+		}
+
+		int endY = y;
+		return new int[] {startY, endY};
 	}
 
 
