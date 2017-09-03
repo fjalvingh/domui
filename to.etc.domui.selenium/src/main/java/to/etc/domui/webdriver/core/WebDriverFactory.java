@@ -6,6 +6,8 @@ import org.openqa.selenium.Dimension;
 import org.openqa.selenium.UnexpectedAlertBehaviour;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeDriverService;
+import org.openqa.selenium.chrome.ChromeDriverService.Builder;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
@@ -79,29 +81,9 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 			 * We must have anti-aliasing off for better testing. This should work for unices where Phantomjs has been
 			 * compiled with FontConfig support..
 			 */
-			//-- 1. Make a temp directory which will contain our fonts.conf
-			String tmp = System.getProperty("java.io.tmpdir");
-			if(tmp == null) {
-				tmp = "/tmp";
-			}
-			File dir = new File(tmp + File.separator + "/_phantomjs-config/fontconfig");
-			dir.mkdirs();
-			if(!dir.exists()) {
-				throw new IOException("Can't create fontconfig directory to override phantomjs font settings at " + dir);
-			}
-
-			File conf = new File(dir, "fonts.conf");
-			String text = "<match target=\"font\">\n"
-				+ "<edit mode=\"assign\" name=\"antialias\">\n"
-				+ "<bool>false</bool>\n"
-				+ "</edit>\n"
-				+ "</match>";
-			try(FileOutputStream fos = new FileOutputStream(conf)) {
-				fos.write(text.getBytes("UTF-8"));
-			}
 
 			//-- Set the XDG_CONFIG_HOME envvar; this is used by fontconfig as one of its locations
-
+			File dir = createFontConfigFile();
 			Map<String, String> env = new HashMap<>();
 			env.put("XDG_CONFIG_HOME", dir.getParentFile().getAbsolutePath());
 
@@ -111,6 +93,31 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 
 		wd.manage().window().setSize(new Dimension(1280, 1024));
 		return wd;
+	}
+
+	@Nonnull private static File createFontConfigFile() throws IOException {
+		//-- 1. Make a temp directory which will contain our fonts.conf
+		String tmp = System.getProperty("java.io.tmpdir");
+		if(tmp == null) {
+			tmp = "/tmp";
+		}
+		File dir = new File(tmp + File.separator + "/_phantomjs-config/fontconfig");
+		dir.mkdirs();
+		if(!dir.exists()) {
+			throw new IOException("Can't create fontconfig directory to override phantomjs font settings at " + dir);
+		}
+
+		File conf = new File(dir, "fonts.conf");
+		String text = "<match target=\"font\">\n"
+			+ "<edit mode=\"assign\" name=\"antialias\">\n"
+			+ "<bool>false</bool>\n"
+			+ "</edit>\n"
+			+ "</match>";
+		try(FileOutputStream fos = new FileOutputStream(conf)) {
+			fos.write(text.getBytes("UTF-8"));
+		}
+
+		return dir;
 	}
 
 	private static WebDriver allocateHtmlUnitInstance(BrowserModel browser, Locale lang) throws Exception {
@@ -149,7 +156,7 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		}
 	}
 
-	private static WebDriver allocateLocalInstance(BrowserModel browser, Locale lang) {
+	private static WebDriver allocateLocalInstance(BrowserModel browser, Locale lang) throws IOException {
 		switch(browser){
 			default:
 				throw new IllegalStateException("Unsupported browser type " + browser.getCode() + " for HUB test execution");
@@ -170,7 +177,7 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		}
 	}
 
-	private static WebDriver allocateChromeInstance(BrowserModel model, Locale lang) {
+	private static WebDriver allocateChromeInstance(BrowserModel model, Locale lang) throws IOException {
 		DesiredCapabilities dc;
 		switch(model) {
 			default:
@@ -189,9 +196,18 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		String chromeBinariesLocation = tp.getProperty("webdriver.chrome.driver", "/usr/bin/google-chrome");
 		System.setProperty("webdriver.chromedriver", chromeBinariesLocation);
 		dc.setCapability("chrome.binary", chromeBinariesLocation);
-		return new ChromeDriver(dc);
-	}
 
+		//-- Set the XDG_CONFIG_HOME envvar; this is used by fontconfig as one of its locations
+		File dir = createFontConfigFile();
+		Map<String, String> env = new HashMap<>();
+		env.put("XDG_CONFIG_HOME", dir.getParentFile().getAbsolutePath());
+
+		Builder builder = new Builder();
+		builder.usingAnyFreePort();
+		builder.withEnvironment(env);
+		ChromeDriverService service = builder.build();
+		return new ChromeDriver(service, dc);
+	}
 
 	private static DesiredCapabilities getIECapabilities(BrowserModel browser, Locale lang) {
 		LOG.warn("Language for IE is still not supported! Language found: [" + lang.getLanguage() + "]");
