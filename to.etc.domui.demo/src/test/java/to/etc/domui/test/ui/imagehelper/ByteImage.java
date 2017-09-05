@@ -256,7 +256,7 @@ public class ByteImage implements Image {
 	}
 
 
-	public int[] findFontBaselines() {
+	public int[] findFontBaselinesOld() {
 		List<int[]> vr = findVerticalRectangles();
 
 		//-- detect top border
@@ -285,6 +285,90 @@ public class ByteImage implements Image {
 
 		int endY = y;
 		return new int[] {startY, endY};
+	}
+
+	public int[] findFontBaselines() {
+		int[][] histogram = getHistogram(4);
+		System.out.println("Most used color: " + Integer.toString(histogram[0][0]) + ", " + histogram[0][1] + " times");
+		System.out.println("Second used color: " + Integer.toString(histogram[1][0]) + ", " + histogram[1][1] + " times");
+
+		List<int[]> vr = findVerticalRectangles();
+
+		//-- detect top border
+		int y = 0;
+		int offset = calculateXYOffset(0, 0);
+		int linePxCount = vr.size() * 2;
+		while(y < m_height) {
+			int count = countLinePixels(offset, m_width, 0, 80);
+			if(count > linePxCount)
+				break;
+			offset += m_rootWidth;
+			y++;
+		}
+		int startY = y;
+
+		//-- Detect bottom border
+		offset = calculateXYOffset(0, m_height - 1);
+		y = m_height - 1;
+		while(y >= startY) {
+			int count = countLinePixels(offset, m_width, 0, 80);
+			if(count > linePxCount)
+				break;
+			y--;
+			offset -= m_rootWidth;
+		}
+
+		int endY = y;
+		return new int[] {startY, endY};
+	}
+
+
+
+
+
+
+
+	/**
+	 * Find the most often used "colors".
+	 */
+	public int[][] getHistogram(int max) {
+		int[] histogram = new int[256];						// Collects histogram per color
+		int offset = m_parentStartOffset;
+		int stride = m_rootWidth - m_width;
+		for(int y = m_height; --y >= 0;) {
+			int eoff = offset + m_width;
+			while(offset < eoff) {
+				int color = m_data[offset++] & 0xff;
+				histogram[color]++;
+			}
+			offset += stride;
+		}
+
+		//-- Now sort
+		//-- Now get the largest #of colors.
+		int[] indexArray = new int[max];
+		for(int i = 0; i < histogram.length; i++) {
+			insertBucket(histogram, i, indexArray);
+		}
+
+		int[][] result = new int[max][2];
+		for(int i = 0; i < indexArray.length; i++) {
+			int color = indexArray[i];
+			result[i][0] = color;
+			result[i][1] = histogram[indexArray[i]];
+		}
+		return result;
+	}
+
+	private static void insertBucket(int[] histogram, int bucketIndex, int[] indexArray) {
+		int cur = histogram[bucketIndex];
+		for(int i = 0; i < indexArray.length; i++) {
+			if(cur > histogram[indexArray[i]]) {
+				System.arraycopy(indexArray, i, indexArray, i+1, indexArray.length - i - 1);
+				indexArray[i] = bucketIndex;
+				return;
+			}
+		}
 	}
 
 

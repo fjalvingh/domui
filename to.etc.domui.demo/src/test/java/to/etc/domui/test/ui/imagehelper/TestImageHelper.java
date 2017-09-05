@@ -39,9 +39,9 @@ public class TestImageHelper {
 		graphics.drawLine(0, ey, srcBi.getWidth()-1, ey);
 		graphics.dispose();
 
+		ImageIO.write(srcBi, "png", new File(baseName + "-baseline.png"));
 		Assert.assertEquals("Baseline should be correct", 11, ey);
 
-		ImageIO.write(srcBi, "png", new File(baseName + "-baseline.png"));
 	}
 
 	@Test
@@ -69,9 +69,9 @@ public class TestImageHelper {
 		graphics.drawLine(0, ey, srcBi.getWidth()-1, ey);
 		graphics.dispose();
 
-		Assert.assertEquals("Baseline should be correct", 11, ey);
-
 		ImageIO.write(srcBi, "png", new File(baseName + "-baseline.png"));
+		Assert.assertEquals("Baseline should be correct", 13, ey);
+
 	}
 
 
