@@ -74,4 +74,5 @@ public class ITTestLookupInputLayout extends AbstractWebDriverTest {
 		xx.takeScreenshot(new File("/tmp/screen.png"));
 	}
 
+
 }

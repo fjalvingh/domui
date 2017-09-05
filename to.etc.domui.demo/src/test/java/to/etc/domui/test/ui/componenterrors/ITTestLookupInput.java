@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+import to.etc.domui.test.ui.imagehelper.ImageHelper;
 import to.etc.domui.webdriver.core.AbstractWebDriverTest;
 import to.etc.domui.webdriver.core.ScreenInspector;
 import to.etc.domuidemo.pages.test.componenterrors.LookupInputTestPage;
@@ -64,7 +65,6 @@ public class ITTestLookupInput extends AbstractWebDriverTest {
 		WebElement one = wd().getElement("one");
 		Assert.assertTrue("Control one must span one line, it now uses " + one.getSize().height + "px", one.getSize().height < 25);
 
-
 		WebElement two = wd().getElement("two");
 		Assert.assertTrue("Control two must span one line", two.getSize().height < 25);
 
@@ -82,5 +82,9 @@ public class ITTestLookupInput extends AbstractWebDriverTest {
 			ImageIO.write(bi, "png", new File("/tmp/input-2.png"));
 		}
 
+		WebElement input = wd().getElement(By.cssSelector("#" + two.getAttribute("id") + " input"));
+		WebElement label = wd().getElement(By.cssSelector("label[for='" + two.getAttribute("id")+"']"));
+
+		ImageHelper.checkBaseLine("/tmp/testInitialLayout", wd(), By.id(label.getAttribute("id")), By.id(input.getAttribute("id")), By.id("_A"));
 	}
 }

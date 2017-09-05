@@ -292,6 +292,7 @@ public class ByteImage implements Image {
 		System.out.println("Most used color: " + Integer.toString(histogram[0][0]) + ", " + histogram[0][1] + " times");
 		System.out.println("Second used color: " + Integer.toString(histogram[1][0]) + ", " + histogram[1][1] + " times");
 
+		int fontColor = histogram[1][0];
 		List<int[]> vr = findVerticalRectangles();
 
 		//-- detect top border
@@ -299,7 +300,7 @@ public class ByteImage implements Image {
 		int offset = calculateXYOffset(0, 0);
 		int linePxCount = vr.size() * 2;
 		while(y < m_height) {
-			int count = countLinePixels(offset, m_width, 0, 80);
+			int count = countLinePixels(offset, m_width, fontColor, fontColor + 1);
 			if(count > linePxCount)
 				break;
 			offset += m_rootWidth;
@@ -311,7 +312,7 @@ public class ByteImage implements Image {
 		offset = calculateXYOffset(0, m_height - 1);
 		y = m_height - 1;
 		while(y >= startY) {
-			int count = countLinePixels(offset, m_width, 0, 80);
+			int count = countLinePixels(offset, m_width, fontColor, fontColor + 1);
 			if(count > linePxCount)
 				break;
 			y--;

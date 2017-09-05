@@ -71,8 +71,9 @@ public class TestImageHelper {
 
 		ImageIO.write(srcBi, "png", new File(baseName + "-baseline.png"));
 		Assert.assertEquals("Baseline should be correct", 13, ey);
-
 	}
+
+
 
 
 }
