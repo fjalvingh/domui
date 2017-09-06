@@ -76,6 +76,8 @@ public class ITTestLookupInput extends AbstractWebDriverTest {
 
 		wd().cmd().type("aaaaaaaaa").on(By.cssSelector("#" + two.getAttribute("id") + " input"));
 
+		Thread.sleep(1000);				// IMPORTANT: wait for the popup to finish
+
 		ScreenInspector screenInspector = wd().screenInspector();
 		if(null != screenInspector) {
 			BufferedImage bi = screenInspector.elementScreenshot(two);
