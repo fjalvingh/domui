@@ -53,6 +53,25 @@ public class ITTestLookupInput extends AbstractWebDriverTest {
 		Assert.assertTrue("The background of the control should be red because it is in error after screen refresh", TestHelper.isReddish(bi));
 	}
 
+	/**
+	 * Bug: when a LookupInput.value is bound and the input is mandatory, clicking the lookup
+	 * button will put the component in error state.
+	 * @throws Exception
+	 */
+	@Test
+	public void testBindingShouldNotThrowErrorOnLookup() throws Exception {
+		wd().openScreen(LookupInputTestPage.class);
+
+		wd().cmd().click().on("one-lookup");
+		Thread.sleep(1000);
+
+		//-- The lookup cannot be in error state.
+		WebElement one = wd().getElement("one");
+		String aClass = one.getAttribute("class");
+		Assert.assertFalse("The input control should not be in error state", aClass.contains("ui-input-err"));
+
+	}
+
 	@Test
 	public void testInitialLayout() throws Exception {
 		wd().openScreen(LookupInputTestPage.class);
