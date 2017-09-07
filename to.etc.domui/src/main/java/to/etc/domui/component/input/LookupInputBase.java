@@ -319,7 +319,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 				renderKeyWordSearch(m_selButton);
 			}
 		} else {
-			//In case of rendring selected values it is possible to use customized renderers. If no customized rendered is defined then use default one.
+			//In case of rendering selected values it is possible to use customized renderers. If no customized rendered is defined then use default one.
 			INodeContentRenderer<OT> r = getValueRenderer();
 			if(r == null)
 				r = (INodeContentRenderer<OT>) DEFAULT_RENDERER; // Prevent idiotic generics error

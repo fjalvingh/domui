@@ -134,7 +134,6 @@ public class Application extends DomApplication {
 		}
 	}
 
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Initializing and populating the demo database		*/
 	/*--------------------------------------------------------------*/

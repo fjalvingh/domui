@@ -17,6 +17,14 @@ table.ui-f4 td {
 .ui-f4-lbl-v label {
 	display: block;					// Chrome aligns the label on the td baseline without this, causing 1px diff
 	height: 100%;
+
+	/*
+	 * The edit control associated with the label often has a border around it. This border then
+	 * offsets the text inside the control by one pixel. There is also extra room inside the border.
+	 * To support controls with this we add default padding on top of all labels, so that their
+	 * baseline drops 2 pixels.
+	 */
+	padding-top: 2px;
 }
 
 .ui-f4-ctl-v {
