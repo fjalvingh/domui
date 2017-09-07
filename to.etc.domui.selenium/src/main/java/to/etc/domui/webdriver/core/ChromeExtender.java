@@ -60,7 +60,6 @@ public class ChromeExtender {
 		Long cw = jsonValue(contentSize, "contentSize.width", Long.class);
 		Long ch = jsonValue(contentSize, "contentSize.height", Long.class);
 
-
 		if(false) {
 			send("Emulation.setVisibleSize", ImmutableMap.of("width", cw, "height", ch));
 			send("Emulation.forceViewport", ImmutableMap.of("x", Long.valueOf(0), "y", Long.valueOf(0), "scale", Long.valueOf(1)));

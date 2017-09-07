@@ -73,6 +73,4 @@ public class ITTestLookupInputLayout extends AbstractWebDriverTest {
 		ChromeExtender xx = new ChromeExtender( (MyChromeDriver) wd().driver());
 		xx.takeScreenshot(new File("/tmp/screen.png"));
 	}
-
-
 }

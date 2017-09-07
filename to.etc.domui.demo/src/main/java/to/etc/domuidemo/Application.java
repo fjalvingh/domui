@@ -92,6 +92,18 @@ public class Application extends DomApplication {
 		});
 	}
 
+	@Override public void addDefaultErrorComponent(NodeContainer page) {
+		ErrorPanel panel = new ErrorPanel();
+		for(int i = 0; i < page.getChildCount(); i++) {
+			NodeBase child = page.getChild(i);
+			if(child instanceof PageHeader) {
+				page.add(i + 1, panel);
+				return;
+			}
+		}
+		page.add(0, panel);
+	}
+
 	void onNewPage(final UrlPage p) throws Exception {
 		if(p instanceof SourcePage || p instanceof FormDesigner)
 			return;
