@@ -58,7 +58,6 @@ public class Application extends DomApplication {
 			addHeaderContributor(HeaderContributor.loadGoogleAnalytics(uacode), 0);
 		}
 
-		//-- Parallel initialization can run into tomcat synchronisation/classloader issues, so disable it by default.
 		slowInit();
 
 		/*
