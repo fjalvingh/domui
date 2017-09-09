@@ -91,6 +91,9 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		}
 
 		wd.manage().window().setSize(new Dimension(1280, 1024));
+		String browserName = wd.getCapabilities().getBrowserName();
+		String version = wd.getCapabilities().getVersion();
+		System.out.println("wd: allocated " + browserName + " " + version);
 		return wd;
 	}
 
@@ -161,7 +164,7 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 				throw new IllegalStateException("Unsupported browser type " + browser.getCode() + " for HUB test execution");
 
 			case FIREFOX:
-				return new FirefoxDriver(getFirefoxCapabilities(lang));
+				return allocateFirefoxDriver(lang);
 
 			case CHROME:
 			case CHROME_HEADLESS:
@@ -172,8 +175,24 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 			case IE10:
 			case IE11:
 			case EDGE:
-				return new InternetExplorerDriver(getIECapabilities(browser, lang));
+				return allocateIEDriver(browser, lang);
 		}
+	}
+
+	@NotNull private static WebDriver allocateIEDriver(BrowserModel browser, Locale lang) {
+		InternetExplorerDriver wd = new InternetExplorerDriver(getIECapabilities(browser, lang));
+		String browserName = wd.getCapabilities().getBrowserName();
+		String version = wd.getCapabilities().getVersion();
+		System.out.println("wd: allocated " + browserName + " " + version);
+		return wd;
+	}
+
+	@NotNull private static WebDriver allocateFirefoxDriver(Locale lang) {
+		FirefoxDriver wd = new FirefoxDriver(getFirefoxCapabilities(lang));
+		String browserName = wd.getCapabilities().getBrowserName();
+		String version = wd.getCapabilities().getVersion();
+		System.out.println("wd: allocated " + browserName + " " + version);
+		return wd;
 	}
 
 	private static WebDriver allocateChromeInstance(BrowserModel model, Locale lang) throws IOException {
@@ -208,6 +227,11 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		MyChromeDriver chromeDriver = new MyChromeDriver(service, dc);
 
 		chromeDriver.manage().window().setSize(new Dimension(1280, 1024));
+
+		String browserName = chromeDriver.getCapabilities().getBrowserName();
+		String version = chromeDriver.getCapabilities().getVersion();
+		System.out.println("wd: allocated " + browserName + " " + version);
+
 		return chromeDriver;
 	}
 
