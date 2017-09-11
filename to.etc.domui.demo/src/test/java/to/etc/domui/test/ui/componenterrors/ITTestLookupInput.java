@@ -82,10 +82,10 @@ public class ITTestLookupInput extends AbstractWebDriverTest {
 
 		//-- Both one and two must use only one line
 		WebElement one = wd().getElement("one");
-		Assert.assertTrue("Control one must span one line, it now uses " + one.getSize().height + "px", one.getSize().height < 25);
+		Assert.assertTrue("Control one must span one line, it now uses " + one.getSize().height + "px", one.getSize().height < 30);
 
 		WebElement two = wd().getElement("two");
-		Assert.assertTrue("Control two must span one line", two.getSize().height < 25);
+		Assert.assertTrue("Control two must span one line (" + two.getSize().height + ")", two.getSize().height < 30);
 
 		//-- One must not contain an input
 		Assert.assertTrue("One cannot have 'input' because it has no QuickSearch", one.findElements(By.tagName("input")).size() == 0);
