@@ -1,4 +1,12 @@
 /*** 500_form4 styles and repair styles for components. ***/
+@import "_variables";
+
+/*
+ * Links to documents describing some of the issues
+ * Aligning baselines of label and input
+ * - https://stackoverflow.com/questions/3098831/aligning-the-baseline-of-field-labels-with-the-baseline-of-text-in-text-inputs
+ */
+
 .ui-f4 {
 }
 table.ui-f4 td {
@@ -15,16 +23,18 @@ table.ui-f4 td {
 	width: 150px;
 }
 .ui-f4-lbl-v label {
-	display: block;					// Chrome aligns the label on the td baseline without this, causing 1px diff
-	height: 100%;
+	display: block;						// Chrome aligns the label on the td baseline without this, causing 1px diff
+	vertical-align: bottom;
+	line-height: $form-line-height;		// Important: this defines where the baseline is! Mirror the same setting on input.
+	padding-top: 1px;					// Inputs have 1px border; mirror that here so that the tops align
+}
 
-	/*
-	 * The edit control associated with the label often has a border around it. This border then
-	 * offsets the text inside the control by one pixel. There is also extra room inside the border.
-	 * To support controls with this we add default padding on top of all labels, so that their
-	 * baseline drops 2 pixels.
-	 */
-	padding-top: 2px;
+.ui-f4-ctl-v input {
+	line-height: $form-line-height;
+}
+.ui-f4-ctl-v .ui-lui-val-txt {
+	padding-top: 1px;					// Non-input values need top padding
+	line-height: $form-line-height;		// And the same height to align
 }
 
 .ui-f4-ctl-v {
