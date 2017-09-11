@@ -29,9 +29,12 @@ table.ui-f4 td {
 	padding-top: 1px;					// Inputs have 1px border; mirror that here so that the tops align
 }
 
-.ui-f4-ctl-v input {
-	line-height: $form-line-height;
+.ui-f4-ctl-v {
+	input, textarea {
+		line-height: $form-line-height;
+	}
 }
+
 .ui-f4-ctl-v .ui-lui-val-txt {
 	padding-top: 1px;					// Non-input values need top padding
 	line-height: $form-line-height;		// And the same height to align
@@ -51,10 +54,10 @@ table.ui-f4 td {
 	display: block;					/* jal 20151011 chrome textarea is two pixels at bottom too large. */
 }
 
-.ui-f4 .ui-f4-ta {
-	vertical-align: top !important;
-	padding-top: 5px;
-}
+//.ui-f4 .ui-f4-ta {				jal 20170911 No longer needed
+//	vertical-align: top !important;
+//	padding-top: 5px;
+//}
 
 /*-- overrides --*/
 .ui-f4 .ui-ro {
