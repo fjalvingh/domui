@@ -1,4 +1,12 @@
 /*** 500_form4 styles and repair styles for components. ***/
+@import "_variables";
+
+/*
+ * Links to documents describing some of the issues
+ * Aligning baselines of label and input
+ * - https://stackoverflow.com/questions/3098831/aligning-the-baseline-of-field-labels-with-the-baseline-of-text-in-text-inputs
+ */
+
 .ui-f4 {
 }
 table.ui-f4 td {
@@ -15,8 +23,21 @@ table.ui-f4 td {
 	width: 150px;
 }
 .ui-f4-lbl-v label {
-	display: block;					// Chrome aligns the label on the td baseline without this, causing 1px diff
-	height: 100%;
+	display: block;						// Chrome aligns the label on the td baseline without this, causing 1px diff
+	vertical-align: bottom;
+	line-height: $form-line-height;		// Important: this defines where the baseline is! Mirror the same setting on input.
+	padding-top: 1px;					// Inputs have 1px border; mirror that here so that the tops align
+}
+
+.ui-f4-ctl-v {
+	input, textarea {
+		line-height: $form-line-height;
+	}
+}
+
+.ui-f4-ctl-v .ui-lui-val-txt {
+	padding-top: 1px;					// Non-input values need top padding
+	line-height: $form-line-height;		// And the same height to align
 }
 
 .ui-f4-ctl-v {
@@ -33,10 +54,10 @@ table.ui-f4 td {
 	display: block;					/* jal 20151011 chrome textarea is two pixels at bottom too large. */
 }
 
-.ui-f4 .ui-f4-ta {
-	vertical-align: top !important;
-	padding-top: 5px;
-}
+//.ui-f4 .ui-f4-ta {				jal 20170911 No longer needed
+//	vertical-align: top !important;
+//	padding-top: 5px;
+//}
 
 /*-- overrides --*/
 .ui-f4 .ui-ro {

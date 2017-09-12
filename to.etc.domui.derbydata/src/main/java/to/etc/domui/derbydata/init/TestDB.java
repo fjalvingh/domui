@@ -7,6 +7,7 @@ import to.etc.webapp.query.QContextManager;
 
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
+import java.io.File;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -20,6 +21,17 @@ final public class TestDB {
 	}
 
 	static public synchronized ConnectionPool getPool() throws Exception {
+		System.getProperties().forEach((k, v) -> System.out.println("  " + k + " = " + v));
+
+		String path = "/tmp/demoDb";
+		if(System.getProperty("maven.home") != null || System.getProperty("failsafe.test.class.path") != null) {
+			File tmp = File.createTempFile("testdb", ".domui");
+			tmp.delete();
+			tmp.mkdirs();
+			path = tmp.getAbsolutePath();
+		}
+		System.out.println("Database path is " + path);
+
 		ConnectionPool pool = m_pool;
 		if(null == pool) {
 			String poolid = DeveloperOptions.getString("domuidemo.poolid"); // Is a poolid defined in .developer.proeprties? Then use that,
@@ -28,25 +40,14 @@ final public class TestDB {
 				System.out.println("** WARNING: Using local database configuration, pool=" + poolid);
 				pool = PoolManager.getInstance().initializePool(poolid);
 			} else {
-				if(false) {
-					pool = PoolManager.getInstance().definePool(
-						"demo"
-						, "org.apache.derby.jdbc.EmbeddedDriver"
-						, "jdbc:derby:/tmp/demoDb;create=true"
-						, ""
-						, ""
-						, null
-					);
-				} else {
-					pool = PoolManager.getInstance().definePool(
-						"demo"
-						, "org.hsqldb.jdbcDriver"
-						, "jdbc:hsqldb:file:/tmp/demoDb"
-						, "sa"
-						, ""
-						, null
-					);
-				}
+				pool = PoolManager.getInstance().definePool(
+					"demo"
+					, "org.hsqldb.jdbcDriver"
+					, "jdbc:hsqldb:file:" + path
+					, "sa"
+					, ""
+					, null
+				);
 
 				pool.initialize();
 			}

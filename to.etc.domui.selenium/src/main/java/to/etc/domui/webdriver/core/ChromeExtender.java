@@ -35,6 +35,11 @@ public class ChromeExtender {
 
 	public BufferedImage takeScreenshot() throws Exception {
 		byte[] bytes = getScreenshotBytes();
+
+		File out = new File("/tmp/out-full.png");
+		try(FileOutputStream fos = new FileOutputStream(out)) {
+			fos.write(bytes);
+		}
 		return ImageIO.read(new ByteArrayInputStream(bytes));
 	}
 
@@ -55,11 +60,18 @@ public class ChromeExtender {
 		Long cw = jsonValue(contentSize, "contentSize.width", Long.class);
 		Long ch = jsonValue(contentSize, "contentSize.height", Long.class);
 
-		send("Emulation.setVisibleSize", ImmutableMap.of("width", cw, "height", ch));
-		send("Emulation.forceViewport", ImmutableMap.of("x", Long.valueOf(0), "y", Long.valueOf(0), "scale", Long.valueOf(1)));
+		if(false) {
+			send("Emulation.setVisibleSize", ImmutableMap.of("width", cw, "height", ch));
+			send("Emulation.forceViewport", ImmutableMap.of("x", Long.valueOf(0), "y", Long.valueOf(0), "scale", Long.valueOf(1)));
+		} else {
+			send("Emulation.setDeviceMetricsOverride",
+				ImmutableMap.of("width", cw, "height", ch, "deviceScaleFactor", Long.valueOf(1), "mobile", Boolean.FALSE, "fitWindow", Boolean.FALSE)
+			);
+			send("Emulation.setVisibleSize", ImmutableMap.of("width", cw, "height", ch));
+		}
 		Object value = send("Page.captureScreenshot", ImmutableMap.of("format", "png", "fromSurface", Boolean.TRUE));
 
-		send("Emulation.resetViewport", ImmutableMap.of());
+		//send("Emulation.resetViewport", ImmutableMap.of());
 		send("Emulation.setVisibleSize", ImmutableMap.of("x", Long.valueOf(0), "y", Long.valueOf(0), "width", visibleW, "height", visibleH));
 
 		String image = jsonValue(value, "data", String.class);
