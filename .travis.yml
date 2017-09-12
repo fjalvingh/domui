@@ -28,7 +28,7 @@ deploy:
     branch: master
 
 before_install:
-  script: scripts/beforeInstall
+- scripts/beforeInstall
 
 after_failure:
   - echo $( pwd )
