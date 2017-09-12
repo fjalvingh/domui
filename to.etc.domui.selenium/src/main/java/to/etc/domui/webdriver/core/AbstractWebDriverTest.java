@@ -27,6 +27,8 @@ abstract public class AbstractWebDriverTest {
 	@Nullable
 	private WebDriverConnector m_wd;
 
+	private int m_screenShotCount;
+
 	/**
 	 * Get the webdriver to use for tests.
 	 * @return
@@ -63,6 +65,20 @@ abstract public class AbstractWebDriverTest {
 	@OnTestFailure
 	public void onTestFailure(Method failedMethod) throws Exception {
 		WebDriverConnector.onTestFailure(wd(), failedMethod);
+	}
+
+	@Nonnull
+	public File getSnapshotName() {
+		return getSnapshotName(Integer.toString(m_screenShotCount++));
+	}
+
+	@Nonnull
+	public File getSnapshotName(String baseName) {
+		File testReportDir = findTestReportDir();
+		String testName = m_testName.getMethodName();
+		String reportName = getClass().getSimpleName() + "_" + testName + "-" + baseName + ".png";
+		m_screenShotCount++;
+		return new File(testReportDir, reportName);
 	}
 
 	/**

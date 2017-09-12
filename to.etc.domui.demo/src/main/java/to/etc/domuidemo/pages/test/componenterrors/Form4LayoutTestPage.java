@@ -29,7 +29,7 @@ public class Form4LayoutTestPage extends UrlPage {
 
 	private String m_text = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaargh";
 
-	private String m_memo = "bbbbbbbbbbbbbbbbbbbbbbbbrgh\nabbabbabba";
+	private String m_memo = "bbbbbbbbbbbbbbbbbbbbbbbbrgh";
 
 	private Date m_date = new Date();
 

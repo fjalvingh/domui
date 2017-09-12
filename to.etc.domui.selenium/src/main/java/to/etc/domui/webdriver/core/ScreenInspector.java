@@ -6,7 +6,9 @@ import org.openqa.selenium.Point;
 import org.openqa.selenium.WebElement;
 
 import javax.annotation.DefaultNonNull;
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.File;
 
 /**
  * Handles bitmap lookup of components on the test browser's window.
@@ -60,6 +62,15 @@ final public class ScreenInspector {
 		}
 
 		throw new IllegalStateException("CANNOT TAKE SCREENSHOT: object(" + sx + "," + sy + " to " +ex + "," + ey + " is not within the screen boundaries (" + m_image.getWidth() +"x" + m_image.getHeight());
+	}
+
+	public void save(File target) {
+		try {
+			ImageIO.write(m_image, "png", target);
+			System.out.println("ScreenInspector: screen snapshot saved as " + target);
+		} catch(Exception x) {
+			System.err.println("ScreenInspector: failed to save screen to " + target + ": " + x);
+		}
 	}
 
 	/**

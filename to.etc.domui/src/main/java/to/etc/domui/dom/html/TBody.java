@@ -24,9 +24,9 @@
  */
 package to.etc.domui.dom.html;
 
-import javax.annotation.*;
+import to.etc.domui.util.IDropBody;
 
-import to.etc.domui.util.*;
+import javax.annotation.Nonnull;
 
 public class TBody extends NodeContainer implements IDropBody {
 	//	private IDropHandler			m_dropHandler;
@@ -73,6 +73,13 @@ public class TBody extends NodeContainer implements IDropBody {
 	@Nonnull
 	public TR addRow() {
 		m_currentRow = new TR();
+		add(m_currentRow);
+		return m_currentRow;
+	}
+
+	@Nonnull
+	public TR addRow(String rowCss) {
+		m_currentRow = new TR(rowCss);
 		add(m_currentRow);
 		return m_currentRow;
 	}
