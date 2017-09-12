@@ -565,6 +565,8 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 		int size = model.getRows();
 		if(size == 0) {
 			openMessagePanel(Msgs.UI_KEYWORD_SEARCH_NO_MATCH);
+		} else if (size == 1){ //in case of single match select value
+			handleSetValue(model.getItems(0, 1).get(0));
 		} else if(size > 10) {
 			String count = Integer.toString(size);
 			if(model instanceof ITruncateableDataModel) {
