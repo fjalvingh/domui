@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ "$TRAVIS_SECURE_ENV_VARS" != "true" ]; then
+  echo "Pull request build: no access to credentials, skipping war publishing"
+  exit 0
+fi
+
 # Actual attempt at deployment
 chmod og=- ~/deployment_id_ecdsa
 scp -P 222 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/deployment_id_ecdsa $TRAVIS_BUILD_DIR/to.etc.domui.demo/target/demo.war deployer@monge.etc.to:

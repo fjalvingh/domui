@@ -1,4 +1,4 @@
-package to.etc.domui.test.imagehelper;
+package to.etc.domui.test.ui.imagehelper;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

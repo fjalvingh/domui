@@ -10,16 +10,12 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.NoSuchWindowException;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.UnhandledAlertException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.remote.Augmenter;
-import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.FluentWait;
@@ -44,7 +40,6 @@ import to.etc.webapp.testsupport.TestProperties;
 import javax.annotation.DefaultNonNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -55,6 +50,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
@@ -75,8 +72,6 @@ final public class WebDriverConnector {
 
 	final private WebDriver m_driver;
 
-	final private boolean m_canTakeScreenshot;
-
 	/** When T, exit registration has been done, to ensure things are released when the JVM exits. */
 	static private boolean m_jvmExitHandlerRegistered;
 
@@ -91,14 +86,12 @@ final public class WebDriverConnector {
 	private int m_nextInterval = -1;
 
 	/** The base of the application URL, to which page names will be appended. */
-	@Nonnull
-	final private String m_applicationURL;
+	@Nonnull final private String m_applicationURL;
 
 	@Nonnull
 	private final WebDriverType m_driverType;
 
-	@Nonnull
-	final private BrowserModel m_kind;
+	@Nonnull final private BrowserModel m_kind;
 
 	private boolean m_inhibitAfter;
 
@@ -107,17 +100,24 @@ final public class WebDriverConnector {
 	@Nullable
 	private IExecute m_afterCommandCallback;
 
-	private WebDriverConnector(@Nonnull WebDriver driver, @Nonnull BrowserModel kind, @Nonnull String webapp, @Nonnull WebDriverType driverType, boolean canTakeScreenshot) {
+	/** The default viewport size. */
+	@Nonnull
+	private Dimension m_viewportSize = new Dimension(1280, 1024);
+
+	@Nullable
+	private final IWebdriverScreenshotHelper m_screenshotHelper;
+
+	private WebDriverConnector(@Nonnull WebDriver driver, @Nonnull BrowserModel kind, @Nonnull String webapp, @Nonnull WebDriverType driverType, @Nullable IWebdriverScreenshotHelper helper) {
 		m_driver = driver;
 		m_kind = kind;
 		m_applicationURL = webapp;
 		m_driverType = driverType;
 		m_waitTimeout = readWaitTimeout(m_waitTimeout);
-		m_canTakeScreenshot = canTakeScreenshot;
+		m_screenshotHelper = helper;
 	}
 
 	public boolean canTakeScreenshot() {
-		return m_canTakeScreenshot;
+		return m_screenshotHelper != null;
 	}
 
 	/**
@@ -143,7 +143,7 @@ final public class WebDriverConnector {
 		System.out.println("destroyWebDriver called");
 		for(WebDriverConnector wd : m_webDriverConnectorList) {
 			try {
-				if(! wd.m_closed) {
+				if(!wd.m_closed) {
 					System.out.println("Destroying " + wd);
 					wd.m_closed = true;
 					wd.m_driver.quit();
@@ -165,7 +165,7 @@ final public class WebDriverConnector {
 		//-- Do we have a driver for this thread?
 		WebDriverConnector wd = m_webDriverThreadLocal.get();
 		if(null != wd) {
-			if(! wd.m_closed)
+			if(!wd.m_closed)
 				return wd;
 		}
 		initLogging();
@@ -178,18 +178,25 @@ final public class WebDriverConnector {
 			throw new IllegalStateException("The webdriver.url parameter is not present in (a) test properties file");
 		if(!appURL.endsWith("/"))
 			appURL += "/";
-		String hub = p.getProperty("webdriver.hub", "phantomjs");		// FIXME Do this differently, later
-		String brw = p.getProperty("webdriver.browser");
-		if(null == brw)
-			brw = "chrome";
-		BrowserModel browserModel = BrowserModel.get(brw);
 
-		WebDriverType webDriverType = getDriverType(hub);
-		boolean canTakeScreenshot = webDriverType == WebDriverType.PHANTOMJS || webDriverType == WebDriverType.LOCAL || webDriverType == WebDriverType.REMOTE;
+		/*
+		 * webdriver spec is browser@destination. If the @destination is missing
+		 * we assume local.
+		 */
+		String ws = Objects.requireNonNull(p.getProperty("webdriver.hub", "chrome"));
+		String[] frag = ws.split("@");
+		String browserName = frag[0];
+		String remote = frag.length > 1 ? frag[1] : "local";
 
-		WebDriver wp = WebDriverFactory.allocateInstance(webDriverType, browserModel, hub, null);
+		BrowserModel browserModel = BrowserModel.get(browserName);
+		WebDriverType webDriverType = getDriverType(remote);
+		boolean canTakeScreenshot = browserModel == BrowserModel.PHANTOMJS || webDriverType == WebDriverType.LOCAL || webDriverType == WebDriverType.REMOTE;
 
-		final WebDriverConnector tu = new WebDriverConnector(wp, browserModel, appURL, webDriverType, canTakeScreenshot);
+		WebDriver wp = WebDriverFactory.allocateInstance(webDriverType, browserModel, remote, null);
+
+		IWebdriverScreenshotHelper sshelper = WebDriverFactory.getScreenshotHelper(webDriverType, browserModel);
+
+		final WebDriverConnector tu = new WebDriverConnector(wp, browserModel, appURL, webDriverType, sshelper);
 		initializeAfterCommandListener(tu);
 		m_webDriverConnectorList.add(tu);
 		m_webDriverThreadLocal.set(tu);
@@ -199,20 +206,15 @@ final public class WebDriverConnector {
 	@Nonnull
 	private static WebDriverType getDriverType(@Nullable String hubUrl) {
 		if(null == hubUrl || hubUrl.trim().length() == 0)
-			return WebDriverType.HTMLUNIT;
-		if("phantomjs".equalsIgnoreCase(hubUrl))
-			return WebDriverType.PHANTOMJS;
+			return WebDriverType.HTMLUNIT;                    // Used as a target because it can emulate multiple browser types
 		if("local".equals(hubUrl.trim()))
 			return WebDriverType.LOCAL;
 		return WebDriverType.REMOTE;
 	}
 
-
 	/**
 	 * Called after every screen action, this checks whether the DomUI "waiting" backdrop is present and waits for it
 	 * to be gone.
-	 *
-	 * @param tu
 	 */
 	private static void initializeAfterCommandListener(final @Nonnull WebDriverConnector tu) {
 		tu.setAfterCommandCallback(new IExecute() {
@@ -256,7 +258,7 @@ final public class WebDriverConnector {
 	}
 
 	@Nonnull
-	protected WebDriver driver() {
+	public WebDriver driver() {
 		WebDriver d = m_driver;
 		if(null == d)
 			throw new IllegalStateException("no webdriver connected");
@@ -289,29 +291,23 @@ final public class WebDriverConnector {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Locators.											*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Create the locator for a given testid.
-	 * @param testid
-	 * @return
 	 */
-	@Nonnull
-	final public By byId(@Nonnull String testid) {
+	@Nonnull final public By byId(@Nonnull String testid) {
 		return By.cssSelector("*[testid='" + testid + "']");
 	}
 
-	@Nonnull
-	final public By byId(@Nonnull String testid, @Nonnull String elementType) {
+	@Nonnull final public By byId(@Nonnull String testid, @Nonnull String elementType) {
 		return By.cssSelector("*[testid='" + testid + "'] " + elementType);
 	}
 
 
 	/**
 	 * Create a full locator using any supported expression.
-	 * @param locator
-	 * @return
 	 */
-	@Nonnull
-	final public By locator(@Nonnull String locator) {
+	@Nonnull final public By locator(@Nonnull String locator) {
 		if(locator.startsWith("//")) {
 			return By.xpath(locator);
 		} else if(locator.startsWith("#")) {
@@ -324,6 +320,7 @@ final public class WebDriverConnector {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Getting multiple nodes..							*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Returns the number of nodes matching the css.
 	 */
@@ -343,10 +340,9 @@ final public class WebDriverConnector {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Waiting.											*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Wait for the given element to appear.
-	 * @param locator
-	 * @return
 	 */
 	public void wait(@Nonnull By locator) {
 		WebDriverWait wait = new WebDriverWait(driver(), getWaitTimeout(), getWaitInterval());
@@ -356,16 +352,14 @@ final public class WebDriverConnector {
 	@Nullable
 	public WebElement wait(@Nonnull ExpectedCondition<WebElement> exc) {
 		Wait<WebDriver> wait = new FluentWait<>(driver())
-				.withTimeout(getWaitTimeout(), TimeUnit.SECONDS)
-				.pollingEvery(getWaitInterval(), TimeUnit.MILLISECONDS).ignoring(NoSuchElementException.class);
+			.withTimeout(getWaitTimeout(), TimeUnit.SECONDS)
+			.pollingEvery(getWaitInterval(), TimeUnit.MILLISECONDS).ignoring(NoSuchElementException.class);
 
 		return wait.until(exc);
 	}
 
 	/**
 	 * Waits until the element is present.
-	 * @param testid
-	 * @return
 	 */
 	public void wait(@Nonnull String testid) {
 		wait(byId(testid));
@@ -426,12 +420,12 @@ final public class WebDriverConnector {
 		try {
 			waitForElementClickable(locator);
 			clickNoWait(locator, withKeys);
-		}catch(WebDriverException ex){
+		} catch(WebDriverException ex) {
 			String msg = ex.getLocalizedMessage();
-			if (null != msg && msg.contains("Other element would receive the click") && msg.contains("ui-io-blk")){
+			if(null != msg && msg.contains("Other element would receive the click") && msg.contains("ui-io-blk")) {
 				handleAfterCommandCallback();
 				internalClickNoRetry(locator, withKeys);
-			}else{
+			} else {
 				throw ex;
 			}
 		}
@@ -456,7 +450,7 @@ final public class WebDriverConnector {
 				builder.keyDown(key);
 			}
 			builder.click(elem);
-			for(int i = withKeys.length; --i >= 0;) {
+			for(int i = withKeys.length; --i >= 0; ) {
 				builder.keyUp(withKeys[i]);
 			}
 			builder.build().perform();
@@ -468,8 +462,6 @@ final public class WebDriverConnector {
 	/**
 	 * Clicks on specified occurrence of element located by locator.
 	 *
-	 * @param locator
-	 * @param index
 	 * @throws Exception
 	 */
 	public void clickInstance(@Nonnull final By locator, final int index, final Keys... optionalKeys) throws Exception {
@@ -492,6 +484,7 @@ final public class WebDriverConnector {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Check methods.										*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Returns T if the specified element is present.
 	 * @param locator
@@ -610,13 +603,13 @@ final public class WebDriverConnector {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Value getters and setters.							*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Get the value for a given input thing; this returns the value for the "value=" attribute.
 	 * @param testid
 	 * @return
 	 */
-	@Nullable
-	final public String getValue(@Nonnull String testid) {
+	@Nullable final public String getValue(@Nonnull String testid) {
 		return getValue(byId(testid));
 	}
 
@@ -625,8 +618,7 @@ final public class WebDriverConnector {
 	 * @param locator
 	 * @return
 	 */
-	@Nullable
-	final public String getValue(@Nonnull By locator) {
+	@Nullable final public String getValue(@Nonnull By locator) {
 		WebElement elem = driver().findElement(locator);
 		return elem.getAttribute("value");
 	}
@@ -636,8 +628,7 @@ final public class WebDriverConnector {
 	 * @param testid
 	 * @return
 	 */
-	@Nonnull
-	final public String getHtmlText(@Nonnull String testid) {
+	@Nonnull final public String getHtmlText(@Nonnull String testid) {
 		return getHtmlText(byId(testid));
 	}
 
@@ -646,8 +637,7 @@ final public class WebDriverConnector {
 	 * @param locator
 	 * @return
 	 */
-	@Nonnull
-	final public String getHtmlText(@Nonnull By locator) {
+	@Nonnull final public String getHtmlText(@Nonnull By locator) {
 		WebElement elem = driver().findElement(locator);
 		return elem.getText();
 	}
@@ -714,6 +704,7 @@ final public class WebDriverConnector {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Setting values.										*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Set a (new) selected value in a select (combobox). The value can either be the
 	 * literal label for the combo (the string presented on screen) or the string can
@@ -797,7 +788,7 @@ final public class WebDriverConnector {
 					toSelectOption = option;
 					found++;
 				}
-			} else if(value.startsWith("id=")) {				// We allow id, but it is questionable: it is a literal match.
+			} else if(value.startsWith("id=")) {                // We allow id, but it is questionable: it is a literal match.
 				if(value.substring(3).equals(option.getAttribute("id"))) {
 					toSelectOption = option;
 					found++;
@@ -820,7 +811,7 @@ final public class WebDriverConnector {
 		if(toSelectOption == null)
 			throw new IllegalStateException("option [" + value + "] not contained in select [" + locator + "]");
 		if(found > 1)
-			throw new IllegalStateException("Multiple options contain the value ["+value+"] in select ["+locator+"]");
+			throw new IllegalStateException("Multiple options contain the value [" + value + "] in select [" + locator + "]");
 		toSelectOption.click();
 		handleAfterCommandCallback();
 	}
@@ -855,8 +846,7 @@ final public class WebDriverConnector {
 	 * @param value
 	 * @return
 	 */
-	@Nonnull
-	final public TreeSet<String> selectGetOptionSet(@Nonnull String testid, boolean value) {
+	@Nonnull final public TreeSet<String> selectGetOptionSet(@Nonnull String testid, boolean value) {
 		return selectGetOptionSet(byId(testid), value);
 	}
 
@@ -868,10 +858,9 @@ final public class WebDriverConnector {
 	 * @param value
 	 * @return
 	 */
-	@Nonnull
-	final public TreeSet<String> selectGetOptionSet(@Nonnull By locator, boolean value) {
+	@Nonnull final public TreeSet<String> selectGetOptionSet(@Nonnull By locator, boolean value) {
 		List<WebElement> options = getSelectElementOptions(locator);
-		TreeSet<String> optionList = new TreeSet<String>();				// Ordered set.
+		TreeSet<String> optionList = new TreeSet<String>();                // Ordered set.
 
 		for(WebElement option : options) {
 			optionList.add(value ? option.getAttribute("value") : option.getText());
@@ -888,8 +877,7 @@ final public class WebDriverConnector {
 	 * @param value
 	 * @return
 	 */
-	@Nonnull
-	final public String selectGetOptionsString(@Nonnull By locator, boolean value) {
+	@Nonnull final public String selectGetOptionsString(@Nonnull By locator, boolean value) {
 		StringBuilder sb = new StringBuilder(128);
 		int count = 0;
 		for(String s : selectGetOptionSet(locator, value)) {
@@ -908,8 +896,7 @@ final public class WebDriverConnector {
 	 * @param value
 	 * @return
 	 */
-	@Nonnull
-	final public String selectGetOptionsString(@Nonnull String testid, boolean value) {
+	@Nonnull final public String selectGetOptionsString(@Nonnull String testid, boolean value) {
 		return selectGetOptionsString(byId(testid), value);
 	}
 
@@ -918,8 +905,7 @@ final public class WebDriverConnector {
 	 * @param testid
 	 * @return
 	 */
-	@Nullable
-	final public String selectGetSelectedLabel(@Nonnull String testid) {
+	@Nullable final public String selectGetSelectedLabel(@Nonnull String testid) {
 		return selectGetSelected(byId(testid), false);
 	}
 
@@ -928,8 +914,7 @@ final public class WebDriverConnector {
 	 * @param testid
 	 * @return
 	 */
-	@Nullable
-	final public String selectGetSelectedValue(@Nonnull String testid) {
+	@Nullable final public String selectGetSelectedValue(@Nonnull String testid) {
 		return selectGetSelected(byId(testid), true);
 	}
 
@@ -939,8 +924,7 @@ final public class WebDriverConnector {
 	 * @param byvalue
 	 * @return
 	 */
-	@Nonnull
-	final public String selectGetSelected(@Nonnull By locator, boolean byvalue) {
+	@Nonnull final public String selectGetSelected(@Nonnull By locator, boolean byvalue) {
 		Select selectElement = getSelectElement(locator);
 		WebElement option = selectElement.getFirstSelectedOption();
 		if(null == option) {
@@ -952,13 +936,11 @@ final public class WebDriverConnector {
 			return option.getText();
 	}
 
-	@Nonnull
-	final private String getSelectOptionContaining(@Nonnull String testid, @Nonnull String optionContainsText) {
+	@Nonnull final private String getSelectOptionContaining(@Nonnull String testid, @Nonnull String optionContainsText) {
 		return getSelectOptionContaining(byId(testid), optionContainsText);
 	}
 
-	@Nonnull
-	final private String getSelectOptionContaining(@Nonnull By locator, @Nonnull String optionContainsText) {
+	@Nonnull final private String getSelectOptionContaining(@Nonnull By locator, @Nonnull String optionContainsText) {
 		waitForElementPresent(locator);
 		Set<String> options = selectGetOptionSet(locator, false);
 
@@ -969,7 +951,6 @@ final public class WebDriverConnector {
 		}
 		throw new IllegalStateException("Unable to select option [" + optionContainsText + "] in select locator: " + locator);
 	}
-
 
 
 	/**
@@ -984,6 +965,7 @@ final public class WebDriverConnector {
 	 */
 	public void setSize(@Nonnull Dimension dimension) {
 		driver().manage().window().setSize(dimension);
+		m_viewportSize = dimension;
 	}
 
 	/**
@@ -1002,24 +984,12 @@ final public class WebDriverConnector {
 	 * @return T if the screenshot was made.
 	 * @throws IOException
 	 */
-	public boolean screenshot(@Nonnull File screenshotFile) throws IOException {
-		WebDriver ad = driver();
+	public boolean screenshot(@Nonnull File screenshotFile) throws Exception {
+		IWebdriverScreenshotHelper helper = m_screenshotHelper;
+		if(null == helper)
+			return false;
 
-		if(ad instanceof RemoteWebDriver && getDriverType() == WebDriverType.REMOTE) {
-			//for remote drivers we need to do augmenter thingy, for local we must not
-			ad = new Augmenter().augment(driver());
-		}
-
-		if(ad instanceof TakesScreenshot) {
-			File f = ((TakesScreenshot) ad).getScreenshotAs(OutputType.FILE);
-			try {
-				FileTool.copyFile(screenshotFile, f);
-			} finally {
-				FileTool.closeAll(f);
-			}
-			return true;
-		}
-		return false;
+		return helper.createScreenshot(this, screenshotFile);
 	}
 
 	/**
@@ -1028,28 +998,20 @@ final public class WebDriverConnector {
 	 */
 	@Nullable
 	public ScreenInspector screenInspector() throws Exception {
-		if(! canTakeScreenshot())
+		IWebdriverScreenshotHelper helper = m_screenshotHelper;
+		if(null == helper)
 			return null;
 
-		File tmpFile = null;
-		try {
-			tmpFile = File.createTempFile("webdriver-ss-", ".png");
-			if(! screenshot(tmpFile))
-				throw new IllegalStateException("Failed to create a screenshot");
-
-			//-- Load as a bufferedImage
-			BufferedImage bi = ImageIO.read(tmpFile);
-			return new ScreenInspector(this, bi);
-		} finally {
-			if(null != tmpFile) {
-				tmpFile.delete();
-			}
-		}
+		BufferedImage bi = helper.createScreenshot(this);
+		if(null == bi)
+			return null;
+		return new ScreenInspector(this, bi);
 	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Out-of-bound talking with the same server session.	*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * This obtains a list of session cookies that should be used to talk with the
 	 * remote server using the same session.
@@ -1120,11 +1082,13 @@ final public class WebDriverConnector {
 			try {
 				if(r != null)
 					r.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(huc != null)
 					huc.disconnect();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
@@ -1136,6 +1100,10 @@ final public class WebDriverConnector {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	DomUI screen(s).									*/
 	/*--------------------------------------------------------------*/
+	@Nonnull
+	public WebDriverConnector openScreen(@Nonnull Class< ? extends UrlPage> clz, Object... parameters) throws Exception {
+		return openScreen(null, clz, parameters);
+	}
 
 	/**
 	 * Open the specified screen, and wait for it to be fully loaded.
@@ -1145,12 +1113,15 @@ final public class WebDriverConnector {
 	 * @throws Exception
 	 */
 	@Nonnull
-	public WebDriverConnector openScreen(@Nonnull Class< ? extends UrlPage> clz, Object... parameters) throws Exception {
+	public WebDriverConnector openScreen(@Nullable Locale locale, @Nonnull Class< ? extends UrlPage> clz, Object... parameters) throws Exception {
 		m_lastTestClass = null;
 		m_lastTestPage = null;
 
-		String sb = calculatePageURL(clz, parameters);
+		checkSize();
+
+		String sb = calculatePageURL(locale, clz, parameters);
 		m_driver.navigate().to(sb);
+		checkSize();
 
 		ExpectedCondition<WebElement> xdomui = ExpectedConditions.presenceOfElementLocated(locator("body[id='_1'], #loginPageBody"));
 
@@ -1168,6 +1139,16 @@ final public class WebDriverConnector {
 		return this;
 	}
 
+	/**
+	 * Called for Chrome, which resizes the viewpoint without question 8-(
+	 */
+	private void checkSize() {
+		Dimension size = getSize();
+		if(size.height == m_viewportSize.height && size.width == m_viewportSize.width)
+			return;
+		driver().manage().window().setSize(m_viewportSize);
+	}
+
 	@Nullable
 	private Class<?> m_lastTestClass;
 
@@ -1176,7 +1157,7 @@ final public class WebDriverConnector {
 
 	@Nonnull
 	public WebDriverConnector openScreenIf(@Nonnull Object testClass, @Nonnull Class< ? extends UrlPage> clz, Object... parameters) throws Exception {
-		String sb = calculatePageURL(clz, parameters);
+		String sb = calculatePageURL(null, clz, parameters);
 		if(m_lastTestClass == testClass.getClass() && sb.equals(m_lastTestPage)) {
 			//-- Already open
 			return this;
@@ -1184,7 +1165,13 @@ final public class WebDriverConnector {
 		m_lastTestClass = null;
 		m_lastTestPage = null;
 
+		checkSize();
+		Dimension size = getSize();
+
 		m_driver.navigate().to(sb);
+		checkSize();
+
+		size = getSize();
 
 		ExpectedCondition<WebElement> xdomui = ExpectedConditions.presenceOfElementLocated(locator("body[id='_1'], #loginPageBody"));
 
@@ -1200,16 +1187,19 @@ final public class WebDriverConnector {
 		}
 		m_lastTestClass = testClass.getClass();
 		m_lastTestPage = sb;
+		size = getSize();
 		return this;
 	}
 
-	@NotNull private String calculatePageURL(@Nonnull Class<? extends UrlPage> clz, Object[] parameters) {
+	@NotNull private String calculatePageURL(@Nullable Locale locale, @Nonnull Class<? extends UrlPage> clz, Object[] parameters) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(m_applicationURL);
 		sb.append(clz.getName());
 		sb.append(".ui");
 		PageParameters pp = new PageParameters(parameters);
-		pp.addParameter("___locale", "nl_NL"); // Force Server locale to Dutch
+		if(null != locale) {
+			pp.addParameter("___locale", locale.toString());
+		}
 		DomUtil.addUrlParameters(sb, pp, true);
 		return sb.toString();
 	}

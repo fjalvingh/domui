@@ -1,3 +1,9 @@
+dist: trusty
+sudo: false
+
+addons:
+  chrome: stable
+
 branches:
   except:
   - domui-1.0
@@ -22,7 +28,8 @@ deploy:
     branch: master
 
 before_install:
-- openssl aes-256-cbc -K $encrypted_6430b1f3fcb1_key -iv $encrypted_6430b1f3fcb1_iv
-  -in scripts/deployment_id_ecdsa.enc -out ~/deployment_id_ecdsa -d
+- scripts/beforeInstall
 
-
+after_failure:
+  - echo $( pwd )
+  - scripts/deploy-test-reports.sh
