@@ -1,16 +1,10 @@
 package to.etc.domui.test.db;
 
-import java.io.*;
-import java.net.*;
-
-import javax.sql.*;
-
-import to.etc.dbpool.*;
-import to.etc.domui.derbydata.init.DBInitialize;
 import to.etc.domui.derbydata.init.DbUtil;
 import to.etc.domui.derbydata.init.TestDB;
-import to.etc.util.*;
-import to.etc.webapp.query.*;
+import to.etc.webapp.query.QDataContext;
+
+import javax.sql.DataSource;
 
 
 final public class InitTestDB {
@@ -18,7 +12,8 @@ final public class InitTestDB {
 
 	static private QDataContext m_currentDc;
 
-	private InitTestDB() {}
+	private InitTestDB() {
+	}
 
 	/**
 	 * Require a database: this creates the Derby database if needed, then initializes the Hibernate

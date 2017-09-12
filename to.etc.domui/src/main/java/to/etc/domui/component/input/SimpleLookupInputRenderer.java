@@ -114,9 +114,9 @@ public class SimpleLookupInputRenderer<T> implements INodeContentRenderer<T> {
 		tbl.add(r);
 		TD td = new TD();
 		r.add(td);
-		td.setValign(TableVAlign.TOP);
+		td.setValign(TableVAlign.TOP);					// FIXUI Should not be here but in CSS
 		td.setCssClass("ui-lui-v");
-		td.add(txt);
+		td.add(new Span("ui-lui-val-txt", txt));
 			//-- parameters is either the button, or null if this is a readonly version.
 		if(parameters != null) {
 			td = new TD();
