@@ -1,26 +1,40 @@
 package to.etc.domui.log;
 
-import java.util.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.controlfactory.ModelBindings;
+import to.etc.domui.component.form.TabularFormBuilder;
+import to.etc.domui.component.layout.ButtonBar;
+import to.etc.domui.component.misc.MessageFlare;
+import to.etc.domui.component.misc.UIControlUtil;
+import to.etc.domui.dom.css.FontStyle;
+import to.etc.domui.dom.errors.MsgType;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.IUserInputModifiedFence;
+import to.etc.domui.dom.html.Label;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.log.data.Filter;
+import to.etc.domui.log.data.Handler;
+import to.etc.domui.log.data.HandlerType;
+import to.etc.domui.log.data.LoggerRootDef;
+import to.etc.domui.log.data.Matcher;
+import to.etc.domui.state.UIGoto;
+import to.etc.domui.util.Msgs;
+import to.etc.log.EtcLoggerFactory;
+import to.etc.log.Level;
+import to.etc.log.handler.EtcLogFormat;
+import to.etc.log.handler.LogFilterType;
+import to.etc.webapp.nls.BundleRef;
 
-import javax.annotation.*;
-import javax.xml.parsers.*;
-
-import org.w3c.dom.*;
-
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.controlfactory.*;
-import to.etc.domui.component.form.*;
-import to.etc.domui.component.layout.*;
-import to.etc.domui.component.misc.*;
-import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.log.data.*;
-import to.etc.domui.state.*;
-import to.etc.domui.util.*;
-import to.etc.log.*;
-import to.etc.log.handler.*;
-import to.etc.webapp.nls.*;
+import javax.annotation.Nonnull;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class LoggerConfigPage extends UrlPage implements IUserInputModifiedFence {
 	static final BundleRef BUNDLE = Msgs.BUNDLE;
@@ -131,7 +145,7 @@ public class LoggerConfigPage extends UrlPage implements IUserInputModifiedFence
 	}
 
 	private void addRootConfigPart() throws Exception {
-		m_rootDef = new LoggerRootDef(EtcLoggerFactory.getSingleton().getRootDir(), EtcLoggerFactory.getSingleton().logDirOriginalAsConfigured(), EtcLoggerFactory.getSingleton().getLogDir());
+		m_rootDef = new LoggerRootDef(EtcLoggerFactory.getSingleton().getLogDir(), EtcLoggerFactory.getSingleton().logDirOriginalAsConfigured(), EtcLoggerFactory.getSingleton().getLogDir());
 		TabularFormBuilder tbl = new TabularFormBuilder(m_rootDef);
 		tbl.addProps(LoggerRootDef.pROOTDIR, LoggerRootDef.pLOGDIR);
 		if(!m_rootDef.getLogDir().equals(m_rootDef.getLogDirAbsolute())) {

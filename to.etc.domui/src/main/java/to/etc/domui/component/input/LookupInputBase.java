@@ -269,7 +269,6 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		m_outputMetaModel = outputMetaModel != null ? outputMetaModel : MetaManager.findClassMeta(resultClass);
 		HoverButton b = m_selButton = new HoverButton(Theme.BTN_HOVERPOPUPLOOKUP);
 		b.addCssClass("ui-lui-sel-btn");
-		b.setTestID("selButtonInputLookup");
 		b.setClicked(new IClicked<NodeBase>() {
 			@Override
 			public void clicked(@Nonnull NodeBase b) throws Exception {
@@ -285,7 +284,6 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 			}
 		});
 		b.addCssClass("ui-lui-clear-btn");
-		b.setTestID("clearButtonInputLookup");
 		b.setDisplay(DisplayType.NONE);
 		setCssClass("ui-lui");
 	}
@@ -321,7 +319,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 				renderKeyWordSearch(m_selButton);
 			}
 		} else {
-			//In case of rendring selected values it is possible to use customized renderers. If no customized rendered is defined then use default one.
+			//In case of rendering selected values it is possible to use customized renderers. If no customized rendered is defined then use default one.
 			INodeContentRenderer<OT> r = getValueRenderer();
 			if(r == null)
 				r = (INodeContentRenderer<OT>) DEFAULT_RENDERER; // Prevent idiotic generics error
@@ -350,6 +348,9 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 			}
 			getSelButton().appendAfterMe(clearButton);
 			//This code is needed for proper control alignment.
+
+			getSelButton().setTestID(calcTestID() + "-lookup");
+			getClearButton().setTestID(calcTestID() + "-clear");
 
 // jal 20121025 temp disabled
 //			//FIXME: vmijic, not suitable for larger button images, see is this can be resolved by introducing span container for buttons.
@@ -1016,6 +1017,18 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	/*--------------------------------------------------------------*/
 	@Nullable
 	private IValueChanged< ? > m_onValueChanged;
+
+	@Nullable
+	public OT getBindValue() {
+		if(m_value == null && isMandatory()) {
+			throw new ValidationException(Msgs.MANDATORY);
+		}
+		return m_value;
+	}
+
+	public void setBindValue(@Nullable OT value) {
+		setValue(value);
+	}
 
 	/**
 	 * {@inheritDoc}

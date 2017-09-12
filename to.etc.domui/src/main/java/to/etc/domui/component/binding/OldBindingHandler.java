@@ -51,7 +51,7 @@ final public class OldBindingHandler {
 	@Nonnull
 	static public List<UIMessage> getBindingErrors(@Nonnull NodeBase root) throws Exception {
 		final List<UIMessage> res = new ArrayList<>();
-		DomUtil.walkTree(root, new DomUtil.IPerNode() {
+		DomUtil.walkTreeUndelegated(root, new DomUtil.IPerNode() {
 			@Override
 			public Object before(NodeBase n) throws Exception {
 				List<IBinding> list = n.getBindingList();
@@ -82,7 +82,7 @@ final public class OldBindingHandler {
 	 */
 	static public boolean reportBindingErrors(@Nonnull NodeBase root) throws Exception {
 		final boolean[] silly = new boolean[1];					// Not having free variables is a joke.
-		DomUtil.walkTree(root, new DomUtil.IPerNode() {
+		DomUtil.walkTreeUndelegated(root, new DomUtil.IPerNode() {
 			@Override
 			public Object before(NodeBase n) throws Exception {
 				List<IBinding> list = n.getBindingList();

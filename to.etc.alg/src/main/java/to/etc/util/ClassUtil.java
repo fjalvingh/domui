@@ -154,6 +154,8 @@ final public class ClassUtil {
 		public Info() {
 		}
 
+		public boolean isPrivate;
+
 		public Method		getter;
 
 		public List<Method>	setterList	= new ArrayList<Method>();
@@ -195,64 +197,28 @@ final public class ClassUtil {
 	 */
 	@Nonnull
 	static public List<PropertyInfo> calculateProperties(@Nonnull final Class< ? > cl) {
+		return calculateProperties(cl, true);
+	}
+
+	/**
+	 * DO NOT USE - uncached calculation of a class's properties.
+	 * @param cl
+	 * @return
+	 */
+	@Nonnull
+	static public List<PropertyInfo> calculateProperties(@Nonnull final Class< ? > cl, boolean publicOnly) {
 		Map<String, Info> map = new HashMap<String, Info>();
 
-		StringBuilder sb = new StringBuilder(40);
+		//-- First handle private properties
+		if(! publicOnly) {
+			for(Method m : cl.getDeclaredMethods()) {
+				checkPropertyMethod(map, m, publicOnly);
+			}
+		}
+
+		//-- And let those be overridden by public ones
 		for(Method m : cl.getMethods()) {
-			//-- Check if this is a valid getter,
-			int mod = m.getModifiers();
-			if(!Modifier.isPublic(mod) || Modifier.isStatic(mod))
-				continue;
-			String name = m.getName();
-			boolean setter = false;
-			sb.setLength(0);
-			if(name.startsWith("get")) {
-				sb.append(name, 3, name.length());
-			} else if(name.startsWith("is")) {
-				sb.append(name, 2, name.length());
-			} else if(name.startsWith("set")) {
-				sb.append(name, 3, name.length());
-				setter = true;
-			} else
-				continue;
-			if(sb.length() == 0) // just "is", "get" or "set".
-				continue;
-
-			//-- Check parameters
-			Class< ? >[] param = m.getParameterTypes();
-			if(setter) {
-				if(param.length != 1)
-					continue;
-			} else {
-				if(param.length != 0)
-					continue;
-			}
-
-			//-- Construct name.
-			if(sb.length() == 1)
-				sb.setCharAt(0, Character.toLowerCase(sb.charAt(0)));
-			else {
-				if(!Character.isUpperCase(sb.charAt(1))) {
-					sb.setCharAt(0, Character.toLowerCase(sb.charAt(0)));
-				}
-			}
-			name = sb.toString();
-			Info i = map.get(name);
-			if(i == null) {
-				i = new Info();
-				map.put(name, i);
-			}
-			if(setter)
-				i.setterList.add(m);
-			else {
-				//-- The stupid generics impl will generate Object-returning property methods also, but we need the actual typed one..
-				if(i.getter == null)
-					i.getter = m;
-				else {
-					if(i.getter.getReturnType().isAssignableFrom(m.getReturnType()))
-						i.getter = m;
-				}
-			}
+			checkPropertyMethod(map, m, publicOnly);
 		}
 
 		//-- Construct actual list
@@ -273,6 +239,73 @@ final public class ClassUtil {
 			res.add(new PropertyInfo(name, i.getter, setter));
 		}
 		return res;
+	}
+
+	private static void checkPropertyMethod(Map<String, Info> map, Method m, boolean publicOnly) {
+		//-- Check if this is a valid getter,
+		int mod = m.getModifiers();
+		if(Modifier.isStatic(mod) || (publicOnly && !Modifier.isPublic(mod)) )
+			return;
+		String name = m.getName();
+		boolean setter = false;
+		StringBuilder sb = new StringBuilder(40);
+		if(name.startsWith("get")) {
+			sb.append(name, 3, name.length());
+		} else if(name.startsWith("is")) {
+			sb.append(name, 2, name.length());
+		} else if(name.startsWith("set")) {
+			sb.append(name, 3, name.length());
+			setter = true;
+		} else
+			return;
+		if(sb.length() == 0) // just "is", "get" or "set".
+			return;
+
+		//-- Check parameters
+		Class< ? >[] param = m.getParameterTypes();
+		if(setter) {
+			if(param.length != 1)
+				return;
+		} else {
+			if(param.length != 0)
+				return;
+		}
+
+		//-- Construct name.
+		if(sb.length() == 1)
+			sb.setCharAt(0, Character.toLowerCase(sb.charAt(0)));
+		else {
+			if(!Character.isUpperCase(sb.charAt(1))) {
+				sb.setCharAt(0, Character.toLowerCase(sb.charAt(0)));
+			}
+		}
+
+		boolean pvt = Modifier.isPrivate(mod);
+		name = sb.toString();
+		Info i = map.get(name);
+		if(i == null) {
+			i = new Info();
+			map.put(name, i);
+		}
+		if(pvt) {
+			i.isPrivate = true;
+		} else if(i.isPrivate) {
+			i.isPrivate = false;
+			i.getter = null;
+			i.setterList.clear();
+		}
+
+		if(setter)
+			i.setterList.add(m);
+		else {
+			//-- The stupid generics impl will generate Object-returning property methods also, but we need the actual typed one..
+			if(i.getter == null)
+				i.getter = m;
+			else {
+				if(i.getter.getReturnType().isAssignableFrom(m.getReturnType()))
+					i.getter = m;
+			}
+		}
 	}
 
 	@Nonnull

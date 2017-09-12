@@ -1,0 +1,21 @@
+#!/bin/bash
+
+if [ "$TRAVIS_SECURE_ENV_VARS" != "true" ]; then
+  echo "Pull request build: no access to credentials, skipping war publishing"
+  exit 0
+fi
+
+# Actual attempt at deployment
+chmod og=- ~/deployment_id_ecdsa
+scp -P 222 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/deployment_id_ecdsa $TRAVIS_BUILD_DIR/to.etc.domui.demo/target/demo.war deployer@monge.etc.to:
+if [ $? != 0 ]; then
+  echo "Build result demo.war could not be copied to deployment server"
+  exit 10
+fi
+
+echo "Copy successfully executed"
+
+ssh -p 222 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/deployment_id_ecdsa deployer@monge.etc.to /usr/local/bin/deploy-domui-war
+
+exit 0
+

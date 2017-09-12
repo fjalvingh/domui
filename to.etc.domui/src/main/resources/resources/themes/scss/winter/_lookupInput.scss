@@ -12,10 +12,11 @@
 	white-space: nowrap;
 	position: relative;
 }
+
 .ui-lui-btntd .ui-lui-sel-btn {
 	position: absolute;
 	vertical-align: top;
-	margin-left: -26px;
+	margin-left: -27px;
 	margin-top: 1px;
 }
 
@@ -27,7 +28,7 @@ div.ui-lui-selected-ro {
 div.ui-lui-selected-ro td {
 	padding: 0px;
 }
-	
+
 div.ui-lui {
 	width: 12em; /*	this width match with date field picker icon on IE rendering */
 	display: inline-block;
@@ -51,6 +52,18 @@ table.ui-lui-selected {
 	padding: 0px;
 	margin: 0px;
 	width: 100%;
+	min-width: 100px;
+	white-space: pre;
+}
+
+/*
+ * Add a 2 pixel padding on top so that the "no selection" text takes the same relative position
+ * as the text in an "input" box. This ensures that form label and control's text baseline are
+ * at the same height.
+ */
+.ui-lui-val-txt {
+	display: inline-block;
+	padding: 2px 0 0 0;
 }
 
 .ui-ro .ui-lui-v {
@@ -78,6 +91,7 @@ table.ui-lui-selected {
 	margin-top: -2px;
 	margin-left: 13px;
 }
+
 .ui-lui-selected .ui-lui-clear-btn {
 	position: absolute;
 	margin-top: 4px;
@@ -87,12 +101,14 @@ table.ui-lui-selected {
 .ui-input-err * .ui-lui-v {
 	background-color: #ffe5e5 !important;
 }
+
 .ui-lui-vcell {
 	min-width: 100px;
 	width: 99%;
 	padding: 2px 5px 2px 2px;
 	vertical-align: top;
 }
+
 .ui-lui-btncell {
 	min-width: 38px;
 	padding-top: 2px;
@@ -106,21 +122,25 @@ input.ui-lui-keyword {
 	padding-right: 20px;
 }
 
-img.ui-lui-waiting{
-	position:absolute;
-	top:2px;
-	right:2px;
+img.ui-lui-waiting {
+	position: absolute;
+	top: 2px;
+	right: 2px;
 }
-.ui-lui-keyword-res{
+
+.ui-lui-keyword-res {
 	color: black;
 }
-.ui-lui-keyword-no-res{
+
+.ui-lui-keyword-no-res {
 	color: red;
 }
-.ui-lui-keyword-large{
+
+.ui-lui-keyword-large {
 	color: red;
 }
-.ui-lui-keyword-popup{
+
+.ui-lui-keyword-popup {
 	position: absolute;
 	left: 0px;
 	top: 18px;
@@ -130,6 +150,7 @@ img.ui-lui-waiting{
 	overflow: hidden;
 	margin-bottom: 10px;
 }
+
 tr.ui-keyword-popop-rowsel {
 	cursor: pointer;
 	background-color: $highlight2_bg !important;

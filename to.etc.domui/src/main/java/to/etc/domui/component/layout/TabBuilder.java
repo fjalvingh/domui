@@ -2,7 +2,6 @@ package to.etc.domui.component.layout;
 
 import javax.annotation.*;
 
-import to.etc.domui.component.layout.TabPanelBase.TabInstance;
 import to.etc.domui.dom.html.*;
 
 /**

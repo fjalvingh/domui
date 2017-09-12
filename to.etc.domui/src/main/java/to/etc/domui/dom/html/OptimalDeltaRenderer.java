@@ -24,15 +24,26 @@
  */
 package to.etc.domui.dom.html;
 
-import java.io.*;
-import java.util.*;
+import to.etc.domui.dom.HtmlFullRenderer;
+import to.etc.domui.dom.HtmlRenderMode;
+import to.etc.domui.dom.HtmlTagRenderer;
+import to.etc.domui.dom.IBrowserOutput;
+import to.etc.domui.dom.IHtmlDeltaAttributeRenderer;
+import to.etc.domui.dom.header.HeaderContributor;
+import to.etc.domui.dom.header.HeaderContributorEntry;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.IRequestContext;
+import to.etc.util.IndentWriter;
+import to.etc.util.StringTool;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.*;
-import to.etc.domui.dom.header.*;
-import to.etc.domui.server.*;
-import to.etc.util.*;
+import javax.annotation.Nonnull;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>This class is used to calculate a delta between the "old" and "new" presentations
@@ -295,6 +306,7 @@ public class OptimalDeltaRenderer {
 		//-- At this point we have a CHANGE tree which we can render immediately
 		renderDeletes(root);
 		renderRest(root);
+		page.callAfterRenderListeners();
 		page.internalClearDeltaFully();
 	}
 

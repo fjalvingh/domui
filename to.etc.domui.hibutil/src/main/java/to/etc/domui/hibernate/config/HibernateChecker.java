@@ -56,6 +56,8 @@ final public class HibernateChecker {
 
 	final private boolean m_observableCollections;
 
+	private int m_badManyToOne;
+
 	private static enum Severity {
 		INFO, WARNING, ERROR, MUSTFIXNOW
 	}
@@ -261,9 +263,10 @@ final public class HibernateChecker {
 
 		ManyToOne m21 = g.getAnnotation(ManyToOne.class);
 		if(null != m21) {
-			if(m21.fetch() == FetchType.EAGER)
+			if(m21.fetch() == FetchType.EAGER) {
 				problem(Severity.ERROR, "@ManyToOne has fetch eager");
-			m_badOneToMany++;
+				m_badManyToOne++;
+			}
 		}
 	}
 
@@ -328,6 +331,8 @@ final public class HibernateChecker {
 	public void report() {
 		if(getBadOneToMany() > 0)
 			System.out.println("MAPPING: " + getBadOneToMany() + " bad @OneToMany mappings with missing mappedBy");
+		if(getBadManyToOne() > 0)
+			System.out.println("MAPPING: " + getBadManyToOne() + " bad @ManyToOne mappings (fetch eager)");
 		if(getBadChildType() > 0)
 			System.out.println("MAPPING: " + getBadChildType() + " bad @OneToMany mappings with non-List<T> type");
 		if(getBadJoinColumn() > 0)
@@ -378,6 +383,10 @@ final public class HibernateChecker {
 
 	public int getBadOneToMany() {
 		return m_badOneToMany;
+	}
+
+	public int getBadManyToOne() {
+		return m_badManyToOne;
 	}
 
 	public int getBadChildType() {

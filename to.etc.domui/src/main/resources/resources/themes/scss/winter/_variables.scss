@@ -1,8 +1,9 @@
 $body-image: "";
 $bg_color: #ffffff;
 
-$font-family: 'Verdana, Tahoma, Arial, Bitstream Vera, Helvetica, sans-serif';
-$font-size: 12px;
+$font-family: 'Arial', 'Helvetica', sans-serif;
+//$font-family: 'Lato', 'Arial', 'Helvetica', sans-serif;
+$font-size: 14px;
 $fixed_font_family: 'Courier New, Courier, monospace';
 $fixed_font_size: 11px;
 $hdr_font_size: 14px;
@@ -45,6 +46,8 @@ $info_border: #4075db;
 $header_bg: #7c7c7c;
 $main_color: #43b761; 				//Main green
 
+$common-hdr-color-1: #aeaeae;
+
 /** data table? **/
 $data_tbl_selected_bg: #bed6f8;	// blue
 $data_tbl_even_row_bg: #E5E5E5; //greyish
@@ -78,11 +81,23 @@ $tab_pnl_close_hover: "tab-pnl-close-hover.png";
 $tab_pnl_sep_bg: #7c7c7c;
 $tab_pnl_arrows: url(tab-scrl-icon.png);
 
-$button_img: "defaultButton.png";
+//-- Buttons
+$button-top-color: #f69231;
+$button-bottom-color: #f6ac3d;
+$button-focus-top-color: #f6c381;
+$button-focus-bot-color: #f69231;
+$button-focus-glow-color: rgba($button-focus-top-color, .7);
+$button-disabled-color: #999999;
 $button_height: 24px;
+$button-font-size: 15px;
+$button-icon-fontsize: 15px;
 
 /*** Data Pager buttons ***/
 $data_pager_icons: "data-pager-icons.png";
 $data_pager_icon_size_x: 32px;
 $data_pager_icon_size_y: 19px;
+
+/*** Form baseline alignment ***/
+$form-line-height:	1.5em;
+
 

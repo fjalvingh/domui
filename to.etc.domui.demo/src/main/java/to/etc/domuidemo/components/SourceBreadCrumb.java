@@ -1,23 +1,53 @@
 package to.etc.domuidemo.components;
 
-import java.util.*;
+import to.etc.domui.component.misc.ALink;
+import to.etc.domui.component.misc.WindowParameters;
+import to.etc.domui.dom.css.DisplayType;
+import to.etc.domui.dom.html.ATag;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.Img;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.Span;
+import to.etc.domui.dom.html.TextNode;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.state.IPageParameters;
+import to.etc.domui.state.IShelvedEntry;
+import to.etc.domui.state.PageParameters;
+import to.etc.domui.state.ShelvedDomUIPage;
+import to.etc.domui.state.UIContext;
+import to.etc.domui.state.WindowSession;
+import to.etc.domuidemo.sourceviewer.SourcePage;
 
-import javax.annotation.*;
+import javax.annotation.Nonnull;
+import java.util.List;
 
-import to.etc.domui.component.misc.*;
-import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.domui.state.*;
-import to.etc.domuidemo.sourceviewer.*;
+final public class SourceBreadCrumb extends Div {
+	private final Div m_crumb = new Div("d-sbc-crumb");
 
-public class SourceBreadCrumb extends Div {
 	@Override
 	public void createContent() throws Exception {
 		setCssClass("d-sbc");
-		WindowSession cm = UIContext.getRequestContext().getWindowSession();
+
+		if(!hasSuper(getPage().getBody(), "WikiExplanationPage")) {
+			//-- Add logo.
+			Div right = new Div();
+			add(right);
+			right.setCssClass("d-sbc-logo");
+			ATag at = new ATag();
+			right.add(at);
+			at.setHref("http://www.domui.org/");
+			at.setTarget("_blank");
+
+			Img img = new Img("img/logo-small.png");
+			at.add(img);
+			img.setImgBorder(0);
+		}
+
+		add(m_crumb);
 
 		//-- Get the application's main page as the base;
+		WindowSession cm = UIContext.getRequestContext().getWindowSession();
 		int ct = 0;
 		List<IShelvedEntry> stack = cm.getShelvedPageStack();
 		if(stack.size() == 0) {
@@ -35,21 +65,6 @@ public class SourceBreadCrumb extends Div {
 			}
 		}
 		setDisplay(null);
-
-		if(!hasSuper(getPage().getBody(), "WikiExplanationPage")) {
-			//-- Add logo.
-			Div right = new Div();
-			add(right);
-			right.setCssClass("d-sbc-logo");
-			ATag at = new ATag();
-			right.add(at);
-			at.setHref("http://www.domui.org/");
-			at.setTarget("_blank");
-
-			Img img = new Img("img/logo-small.png");
-			at.add(img);
-			img.setImgBorder(0);
-		}
 
 		for(int i = 0; i < stack.size(); i++) {
 			boolean last = i + 1 >= stack.size();
@@ -74,7 +89,6 @@ public class SourceBreadCrumb extends Div {
 		}
 	}
 
-
 	private void addPageLink(int ct, Class< ? extends UrlPage> class1, IPageParameters pageParameters, String ttl, boolean last) {
 		//-- Create a LINK or a SPAN
 		NodeContainer stgt;
@@ -88,21 +102,25 @@ public class SourceBreadCrumb extends Div {
 		if(ct > 0) {
 			//-- Append the marker,
 			Span sep = new Span();
-			add(sep);
+			m_crumb.add(sep);
 			sep.setCssClass("d-sbc-m");
 			sep.add(new TextNode(" \u00bb "));
 		}
 
-		add(stgt);
+		m_crumb.add(stgt);
 		stgt.setText(ttl);
 
-		ALink l = new ALink(SourcePage.class, new PageParameters("name", class1.getName().replace('.', '/') + ".java"));
-		add(l);
-		l.setNewWindowParameters(WindowParameters.createFixed(1024, 768, "src"));
-		Img img = new Img("img/java.png");
-		l.add(img);
-		l.setTitle("Show the source file");
+		if(last) {
+			ALink l = new ALink(SourcePage.class, new PageParameters("name", class1.getName().replace('.', '/') + ".java"));
+			m_crumb.add(l);
+			l.setNewWindowParameters(WindowParameters.createFixed(1024, 768, "src"));
 
-		add("\u00a0\u00a0");
+			//Img img = new Img("img/java.png");
+			SourceIcon img = new SourceIcon();
+			l.add(img);
+			l.setTitle("Show the source file");
+		}
+
+		//m_crumb.add("\u00a0\u00a0");
 	}
 }

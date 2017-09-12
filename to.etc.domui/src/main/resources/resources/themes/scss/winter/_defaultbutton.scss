@@ -1,17 +1,47 @@
 /*** New default button, uses sliding doors and a single bg image ***/
 @import "variables";
 
+/** See http://css3buttongenerator.com/ for inspiration */
 .ui-sdbtn {
-	height: $button_height;
-	position: relative;
+	background: $button-top-color;
+	background-image: -webkit-linear-gradient(top, $button-top-color, $button-bottom-color);
+	background-image: -moz-linear-gradient(top, $button-top-color, $button-bottom-color);
+	background-image: -ms-linear-gradient(top, $button-top-color, $button-bottom-color);
+	background-image: -o-linear-gradient(top, $button-top-color, $button-bottom-color);
+	background-image: linear-gradient(to bottom, $button-top-color, $button-bottom-color);
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 3px;
+	font-family: $font-family;
+	color: #ffffff;
+	font-size: $button-font-size;
+	padding: 5px 10px 5px 10px;
+	text-decoration: none;
 	border: 0;
-	padding: 0 10px 0 0;
-	margin: 0 4px 0 0;
-	vertical-align: top;
+
 	cursor: pointer;
 	overflow: visible; /* remove extra padding in IE */
-	background: transparent url($button_img) no-repeat right -50px;
 	outline: none;
+	vertical-align: top;
+	transition: all 0.4s ease-in-out;
+
+	//height: $button_height;
+	//position: relative;
+	//border: 0;
+	//padding: 0 10px 0 0;
+	//margin: 0 4px 0 0;
+	//background: transparent url($button_img) no-repeat right -50px;
+}
+
+.ui-sdbtn:hover, .ui-sdbtn:focus {
+	background: #3cb0fd;
+	background-image: -webkit-linear-gradient(top, $button-focus-top-color, $button-focus-bot-color);
+	background-image: -moz-linear-gradient(top, $button-focus-top-color, $button-focus-bot-color);
+	background-image: -ms-linear-gradient(top, $button-focus-top-color, $button-focus-bot-color);
+	background-image: -o-linear-gradient(top, $button-focus-top-color, $button-focus-bot-color);
+	background-image: linear-gradient(to bottom, $button-focus-top-color, $button-focus-bot-color);
+	text-decoration: none;
+	box-shadow: 0 5px 15px $button-focus-glow-color;
 }
 
 @-moz-document url-prefix() { /** btadic 20120711 Firefox is adding strange left padding to the buttons **/
@@ -26,40 +56,26 @@
 	vertical-align: middle;
 	height: 16px;
 }
+.ui-sdbtn-icon {
+	font-size: $button-icon-fontsize !important;
+	padding-right: 3px;
+}
 .ui-sdbtn::-moz-focus-inner {
 	border: none; /* overrides extra padding in ffox */
-}
-.ui-sdbtn-w {
-	position: relative;
-	display: block;
-	min-width: 94px;
-	white-space: nowrap;
-	height: $button_height;
-	padding: 3px 0 0 6px;
-	color: white;
-	font-size: 11px;
-	vertical-align: middle;
-	text-align: left;
-	background: transparent url($button_img) no-repeat left top;
 }
 .ui-sdbtn-txt {
 	vertical-align: middle;
 }
 
-.ui-sdbtn:hover, .ui-sdbtn:focus {
-	background-position: right -150px;
-}
-.ui-sdbtn:hover .ui-sdbtn-w, .ui-sdbtn:focus .ui-sdbtn-w {
-	background-position: left -100px;
-}
-
 /* support for disabled attribute */
 .ui-sdbtn[disabled], .ui-sdbtn[disabled]:hover, .ui-sdbtn[disabled]:focus {
-	background-position: right -250px;
+	background: $button-disabled-color;
+	box-shadow: none;
+	cursor: not-allowed;
 }
-.ui-sdbtn[disabled] .ui-sdbtn-w, .ui-sdbtn[disabled]:hover .ui-sdbtn-w, .ui-sdbtn[disabled]:focus .ui-sdbtn-w {
-	background-position: left -200px;
-}
+//.ui-sdbtn[disabled], .ui-sdbtn[disabled]:hover .ui-sdbtn-w, .ui-sdbtn[disabled]:focus .ui-sdbtn-w {
+//	background: $button-disabled-color;
+//}
 
 /*** DefaultButton in 'mini' mode ***/
 .ui-sdbtn-mini {
@@ -117,5 +133,10 @@
 
 /* support for disabled attribute */
 .ui-sdbtn-mini[disabled], .ui-sdbtn-mini[disabled]:hover, .ui-sdbtn-mini[disabled]:focus {
-	background-position: -7px -204px;
+	background: $button-disabled-color;
+}
+
+/** placement in button bar **/
+.ui-buttonbar .ui-sdbtn {
+	margin-right: 10px;
 }

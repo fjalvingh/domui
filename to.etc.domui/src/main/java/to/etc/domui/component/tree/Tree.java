@@ -69,7 +69,7 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 
 	private PropertyMetaModel< ? > m_propertyMetaModel;
 
-	private ICellClicked< ? > m_cellClicked;
+	private ICellClicked<T> m_cellClicked;
 
 	private INodePredicate<T> m_nodeSelectablePredicate;
 
@@ -461,7 +461,7 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 			if(isSelected(value))
 				cell.addCssClass("ui-tr-selected");
 
-			cell.setClicked(new IClicked2<TD>() {
+			cell.setClicked2(new IClicked2<TD>() {
 				@Override
 				public void clicked(@Nonnull TD node, @Nonnull ClickInfo clinfo) throws Exception {
 					cellClicked(cell, value, clinfo);
@@ -617,11 +617,11 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 		m_contentRendererClass = contentRendererClass;
 	}
 
-	public ICellClicked< ? > getCellClicked() {
+	public ICellClicked<T> getCellClicked() {
 		return m_cellClicked;
 	}
 
-	public void setCellClicked(ICellClicked< ? > cellClicked) {
+	public void setCellClicked(ICellClicked<T> cellClicked) {
 		m_cellClicked = cellClicked;
 	}
 

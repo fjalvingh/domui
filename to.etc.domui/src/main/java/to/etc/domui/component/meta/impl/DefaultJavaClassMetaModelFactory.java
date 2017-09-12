@@ -53,10 +53,6 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 		return 1;
 	}
 
-	/**
-	 *
-	 * @see to.etc.domui.component.meta.IClassMetaModelFactory#createModel(java.lang.Object)
-	 */
 	@Override
 	@Nonnull
 	public ClassMetaModel createModel(@Nonnull List<Runnable> init, @Nonnull Object theThingy) {
@@ -75,7 +71,7 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 		 * BeanInfo bi = Introspector.getBeanInfo(m_metaClass);
 		 * PropertyDescriptor[] ar = bi.getPropertyDescriptors();
 		 */
-		List<PropertyInfo> pilist = ClassUtil.getProperties(colli.getTypeClass());
+		List<PropertyInfo> pilist = ClassUtil.calculateProperties(colli.getTypeClass(), false);
 		createPropertyMetas(colli, pilist);
 
 		decodeProperties(colli); // Phase 1: decode primitive properties.

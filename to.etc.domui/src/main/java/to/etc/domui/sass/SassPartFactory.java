@@ -10,6 +10,7 @@ import to.etc.domui.server.*;
 import to.etc.domui.server.parts.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.resources.*;
+import to.etc.util.*;
 
 import javax.annotation.*;
 import java.io.*;
@@ -38,6 +39,7 @@ public class SassPartFactory implements IBufferedPartFactory<ParameterInfoImpl> 
 	}
 
 	@Override public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull ParameterInfoImpl params, @Nonnull IResourceDependencyList rdl) throws Exception {
+		long ts = System.nanoTime();
 		SassCapturingErrorHandler errorHandler = new SassCapturingErrorHandler();
 		//errorHandler.setWarningsAreErrors(true);
 
@@ -54,8 +56,10 @@ public class SassPartFactory implements IBufferedPartFactory<ParameterInfoImpl> 
 		}
 
 		ScssStylesheet parent = new ScssStylesheet();
-		parent.addResolver(new ScssDomuiResolver(rdl, basePath, params));
+		SassDomuiResolver resolver = new SassDomuiResolver(rdl, basePath, params);
+		parent.addResolver(resolver);
 		parent.setCharset("utf-8");
+		parent.setFile(new File(rurl));				// jal 20170702 So bad, but there is no other reliable way to present parentage
 
 		// Parse stylesheet
 		ScssStylesheet scss = ScssStylesheet.get(rurl, parent, new SCSSDocumentHandlerImpl(), errorHandler);
@@ -79,7 +83,9 @@ public class SassPartFactory implements IBufferedPartFactory<ParameterInfoImpl> 
 			scss.write(osw, ! DomApplication.get().inDevelopmentMode());
 			osw.close();
 		}
-
+		ts = System.nanoTime() - ts;
+		System.out.println("sass: script render took " + StringTool.strNanoTime(ts));
+		resolver.close();
 	}
 
 	/**

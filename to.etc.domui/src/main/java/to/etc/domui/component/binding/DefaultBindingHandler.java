@@ -57,7 +57,7 @@ public class DefaultBindingHandler implements IBindingHandler {
 	private List<BindingValuePair<?, ?>>  collectChangedBindings() throws Exception {
 		List<BindingValuePair<?, ?>> result = new ArrayList<>();
 
-		DomUtil.walkTree(m_rootNode, new DomUtil.IPerNode() {
+		DomUtil.walkTreeUndelegated(m_rootNode, new DomUtil.IPerNode() {
 			@Nullable
 			@Override
 			public Object before(NodeBase n) throws Exception {
@@ -90,7 +90,7 @@ public class DefaultBindingHandler implements IBindingHandler {
 	 */
 	@Override
 	public void modelToControl() throws Exception {
-		DomUtil.walkTree(m_rootNode, new DomUtil.IPerNode() {
+		DomUtil.walkTreeUndelegated(m_rootNode, new DomUtil.IPerNode() {
 			@Override
 			@Nullable
 			public Object before(NodeBase n) throws Exception {

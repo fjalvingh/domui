@@ -7,7 +7,7 @@
 	margin: 0px;
 }
 
-div.ui-lui-selected{
+div.ui-lui-selected {
 	display: inline-block;
 	border: 1px solid #BFCDD9;
 	border-top-color: #ABADB3;
@@ -19,20 +19,19 @@ div.ui-lui-selected-ro {
 	border: $readonly_border solid 1px; /* same border color as one used for ui-dspv fields */
 }
 
-
 table.ui-lui {
 	width: 12em; /*	this width match with date field picker icon on IE rendering */
 	white-space: nowrap;
 }
 
-div.ui-lui td{
+div.ui-lui td {
 	vertical-align: top;
 }
-
 
 .ui-input-err * .ui-lui-v {
 	background-color: #ffe5e5 !important;
 }
+
 .ui-lui-vcell {
 	width: 99%;
 }
@@ -44,23 +43,24 @@ div.ui-lui td{
 
 /*** Button bar ***/
 div.ui-lf-ebb {
-	margin-top		: 8px;
-	padding-bottom	: 8px;
+	margin-top: 8px;
+	padding-bottom: 8px;
 }
 
 div.ui-lf-ebb button {
 	margin-bottom: 2px !important;
+	margin-right: 10px;
 }
 
 /*** Layout for table with input data in two, or more, rows ***/
 table.ui-lf-multi > tbody > tr > td {
-	padding-left			: 100px;
-	white-space				: nowrap;
+	padding-left: 100px;
+	white-space: nowrap;
 }
 
 table.ui-lf-multi > tbody > tr > td:first-child {
-	width					: 1px;
-	padding-left			: 0px !important;
+	width: 1px;
+	padding-left: 0px !important;
 }
 
 /*** Standard table with inputs style - prompt and input cells table kind ***/

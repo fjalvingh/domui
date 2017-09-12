@@ -33,205 +33,9 @@ import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
+import to.etc.util.*;
 
 public class TabPanelBase extends Div {
-
-	//vmijic 20090923 TabInstance can be registered as ErrorMessageListener in case when TabPanel has m_markErrorTabs set.
-	protected class TabInstance implements IErrorMessageListener, ITabHandle {
-
-		private NodeBase m_label;
-
-		private NodeBase m_content;
-
-		private Img m_img;
-
-		private Li m_tab;
-
-		private Li m_separator;
-
-		private boolean m_lazy;
-
-		private boolean m_added;
-
-		private boolean m_closable;
-
-		private List<UIMessage> m_msgList = new ArrayList<UIMessage>();
-		@Nullable
-		private INotify<ITabHandle> m_onClose;
-
-		public TabInstance() {}
-
-		public TabInstance(NodeBase label, NodeBase content, String image) {
-			m_label = label;
-			m_content = content;
-			if(null != image) {
-				setImage(image);
-			}
-		}
-
-		public NodeBase getContent() {
-			return m_content;
-		}
-
-		public void setContent(@Nonnull NodeBase content) {
-			m_content = content;
-		}
-
-		public NodeBase getLabel() {
-			return m_label;
-		}
-
-		public void setLabel(@Nonnull NodeBase label) {
-			m_label = label;
-		}
-
-		public Li getTab() {
-			return m_tab;
-		}
-
-		public void setTab(@Nonnull Li tab) {
-			m_tab = tab;
-		}
-
-		public Li getSeparator() {
-			return m_separator;
-		}
-
-		public void setSeparator(@Nonnull Li separator) {
-			m_separator = separator;
-		}
-
-		public Img getImg() {
-			return m_img;
-		}
-
-		public void setImage(@Nonnull Img image) {
-			m_img = image;
-		}
-
-		public void setImage(@Nonnull String image) {
-			Img img = createIcon(image);
-			m_img = img;
-		}
-
-		public boolean isLazy() {
-			return m_lazy;
-		}
-
-		public void setLazy(boolean lazy) {
-			m_lazy = lazy;
-		}
-
-		public boolean isAdded() {
-			return m_added;
-		}
-
-		protected void setAdded(boolean added) {
-			m_added = added;
-		}
-
-		/**
-		 * If true this tab can be closed. A cross is added.
-		 *
-		 * @return
-		 */
-		public boolean isCloseable() {
-			return m_closable;
-		}
-
-		public void closable(boolean closeable) {
-			m_closable = closeable;
-		}
-
-		@Override
-		public void setOnClose(INotify<ITabHandle> notify) {
-			m_onClose = notify;
-		}
-
-		public INotify<ITabHandle> getOnClose() {
-			return m_onClose;
-		}
-
-
-		@Override
-		public void errorMessageAdded(@Nonnull UIMessage m) {
-			if(isPartOfContent(m.getErrorNode())) {
-				if(m_msgList.contains(m))
-					return;
-				m_msgList.add(m);
-				adjustUI();
-			}
-		}
-
-		@Override
-		public void errorMessageRemoved(@Nonnull UIMessage m) {
-			if(isPartOfContent(m.getErrorNode())) {
-				if(!m_msgList.remove(m))
-					return;
-				adjustUI();
-			}
-		}
-
-		/**
-		 * Returns T if the node passed - or any of it's parents - is part of this content area.
-		 *
-		 * @param errorNode
-		 * @return
-		 */
-		final private boolean isPartOfContent(@Nullable NodeBase errorNode) {
-			while(errorNode != null) {
-				if(errorNode == m_content) {
-					return true;
-				}
-				if(!errorNode.hasParent())
-					return false;
-				errorNode = errorNode.getParent();
-			}
-			return false;
-		}
-
-		private void adjustUI() {
-			if(hasErrors()) {
-				m_tab.addCssClass("ui-tab-err");
-				//FIXME: this code can not work since there is refresh problem (error image is added only after refresh in browser is pressed)
-				//is this same 'HTML rendering already done for visited node' bug in framework?
-				//for now error image is set through css
-				/*
-				if(m_errorInfo == null) {
-					m_errorInfo = new Img("THEME/mini-error.png");
-					m_errorInfo.setTitle("Tab contain errors.");
-					if(m_tab.getChildCount() > 0 && m_tab.getChild(0) instanceof ATag) {
-						((ATag) m_tab.getChild(0)).add(m_errorInfo);
-					}
-				}
-				*/
-			} else {
-				m_tab.removeCssClass("ui-tab-err");
-				//FIXME: this code can not work since there is refresh problem (error image is added only after refresh in browser is pressed)
-				//is this same 'HTML rendering already done for visited node' bug in framework?
-				/*
-				if(m_errorInfo != null) {
-					if(m_tab.getChildCount() > 0 && m_tab.getChild(0) instanceof ATag) {
-						((ATag) m_tab.getChild(0)).removeChild(m_errorInfo);
-					}
-					m_errorInfo = null;
-				}
-				*/
-			}
-		}
-
-		public boolean hasErrors() {
-			return m_msgList.size() > 0;
-		}
-
-		private Img createIcon(String icon) {
-			Img i = new Img();
-			i.setSrc(icon);
-			i.setCssClass("ui-tab-icon");
-			i.setBorder(0);
-			return i;
-		}
-	}
 
 	/**
 	 * Represents on tab selected event listener.
@@ -273,19 +77,23 @@ public class TabPanelBase extends Div {
 			boolean isselected = getCurrentTab() == index;
 			//-- Add the body to the tab's main div, except if it is lazy.
 			NodeBase content = ti.getContent();
-			content.addCssClass("ui-tab-pg");
-			content.setClear(ClearType.BOTH);
+			if(content != null) {
+				content.addCssClass("ui-tab-pg");
+				content.setClear(ClearType.BOTH);
+			}
 
 			if(!ti.isLazy() || isselected) {
 				ti.setAdded(true);
-				contentcontainer.add(content);
-				if(isselected) {
-					content.setDisplay(DisplayType.BLOCK);
-					if(content instanceof IDisplayedListener) {
-						((IDisplayedListener) content).onDisplayStateChanged(false);
+				if(content != null) {
+					contentcontainer.add(content);
+					if(isselected) {
+						content.setDisplay(DisplayType.BLOCK);
+						if(content instanceof IDisplayedListener) {
+							((IDisplayedListener) content).onDisplayStateChanged(false);
+						}
+					} else {
+						content.setDisplay(DisplayType.NONE);
 					}
-				} else {
-					content.setDisplay(DisplayType.NONE);
 				}
 			}
 			index++;
@@ -327,26 +135,19 @@ public class TabPanelBase extends Div {
 
 		Span dt = new Span();
 		d.add(dt);
-		if(ti.getImg() != null)
-			dt.add(ti.getImg());
-		dt.add(ti.getLabel()); // Append the label.
-		d.setClicked(new IClicked<Div>() {
-			@Override
-			public void clicked(@Nonnull Div b) throws Exception {
-				setCurrentTab(ti);
-			}
-		});
+		Img img = ti.getImg();
+		if(img != null)
+			dt.add(img);
+		NodeBase label = ti.getLabel();
+		if(label != null)
+			dt.add(label);
+		d.setClicked((IClicked<Div>) b -> setCurrentTab(ti));
 
 		if(ti.isCloseable()) {
 			ATag x = new ATag();
 			d.add(x);
 			x.setCssClass("ui-tab-close");
-			x.setClicked(new IClicked<ATag>() {
-				@Override
-				public void clicked(@Nonnull ATag b) throws Exception {
-					closeTab(ti);
-				}
-			});
+			x.setClicked((IClicked<ATag>) b -> closeTab(ti));
 		}
 		li.add(d);
 	}
@@ -382,13 +183,23 @@ public class TabPanelBase extends Div {
 		m_tablist.remove(index);
 
 		if(isBuilt()) {
-			ti.getTab().remove();
-			ti.getSeparator().remove();
-			ti.getContent().remove();
+			Li tab = ti.getTab();
+			if(tab != null)
+				tab.remove();
+
+			Li separator = ti.getSeparator();
+			if(separator != null)
+				separator.remove();
+
+			NodeBase nb = ti.getContent();
+			if(nb != null) {
+				nb.remove();
+			}
 		}
 
-		if (ti.getOnClose() != null) {
-			ti.getOnClose().onNotify(ti);
+		INotify<ITabHandle> getOnClose = ti.getOnClose();
+		if(getOnClose != null) {
+			getOnClose.onNotify(ti);
 		}
 	}
 
@@ -544,18 +355,26 @@ public class TabPanelBase extends Div {
 			TabInstance oldti = m_tablist.get(getCurrentTab());		// Get the currently active instance,
 			TabInstance newti = m_tablist.get(index);
 			NodeBase oldc = oldti.getContent();
-			oldc.setDisplay(DisplayType.NONE);		// Switch displays on content
-			NodeBase newc = newti.getContent();
+			if(null != oldc)
+				oldc.setDisplay(DisplayType.NONE);		// Switch displays on content
 
-			//-- Add the new thing if it was lazy.
-			if(newti.isLazy() && !newti.isAdded()) {
-				m_contentContainer.add(newc);
-				newti.setAdded(true);
+			NodeBase newc = newti.getContent();
+			if(null != newc) {
+				if(newti.isLazy() && !newti.isAdded()) {    // Add the new thing if it was lazy.
+					m_contentContainer.add(newc);
+					newti.setAdded(true);
+				}
+				newc.setDisplay(DisplayType.BLOCK);
 			}
 
-			newc.setDisplay(DisplayType.BLOCK);
-			oldti.getTab().removeCssClass("ui-tab-sel"); 			// Remove selected indicator
-			newti.getTab().addCssClass("ui-tab-sel");
+			Li oldtab = oldti.getTab();
+			if(null != oldtab)
+				oldtab.removeCssClass("ui-tab-sel"); 			// Remove selected indicator
+
+			Li newtab = newti.getTab();
+			if(null != newtab)
+				newtab.addCssClass("ui-tab-sel");
+
 			if(m_onTabSelected != null) {
 				m_onTabSelected.onTabSelected(this, oldIndex, index);
 			}
@@ -603,5 +422,13 @@ public class TabPanelBase extends Div {
 		tab.setLabel(new TextNode(tabLabel));
 		tab.setImage(tabIcon);
 		renderLabel(into, index, tab);
+	}
+
+	public TabInstance getCurrentTabInstance() {
+		int currentTabIndex = getCurrentTab();
+		if(currentTabIndex == -1) {
+			throw new IllegalStateException("There is no tab created!");
+		}
+		return m_tablist.get(currentTabIndex);
 	}
 }

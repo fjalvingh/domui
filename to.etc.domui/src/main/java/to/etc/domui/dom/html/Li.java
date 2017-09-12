@@ -28,6 +28,11 @@ public class Li extends NodeContainer {
 	public Li() {
 		super("li");
 	}
+	public Li(String cssClass) {
+		super("li");
+		setCssClass(cssClass);
+	}
+
 
 	@Override
 	public void visit(INodeVisitor v) throws Exception {

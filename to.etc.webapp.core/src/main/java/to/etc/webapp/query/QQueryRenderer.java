@@ -24,13 +24,14 @@
  */
 package to.etc.webapp.query;
 
-import java.math.*;
-import java.util.*;
+import to.etc.util.StringTool;
+import to.etc.webapp.qsql.QQuerySyntaxException;
 
-import javax.annotation.*;
-
-import to.etc.util.*;
-import to.etc.webapp.qsql.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.List;
 
 /**
  * Render a QCriteria query as something more or less human-readable. This does not extend {@link QNodeVisitorBase} anymore because that
@@ -310,13 +311,13 @@ public class QQueryRenderer extends QRenderingVisitorBase implements QNodeVisito
 
 	@Override
 	public void visitExistsSubquery(@Nonnull QExistsSubquery< ? > q) throws Exception {
-		append("exists (select 1 from $[parent." + q.getParentProperty() + "] where ");
-		if(q.getRestrictions() == null)
-			append("MISSING WHERE - invalid exists subquery)");
-		else {
+		append("exists (select 1 from $[parent." + q.getParentProperty() + "]");
+
+		if(q.getRestrictions() != null) {
+			append(" where ");
 			q.getRestrictions().visit(this);
-			append(")");
 		}
+		append(")");
 	}
 
 	@Override

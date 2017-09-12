@@ -24,10 +24,10 @@
  */
 package to.etc.domui.dom.html;
 
-import java.util.*;
+import to.etc.domui.component.input.Text;
+import to.etc.domui.component.misc.LiteralXhtml;
 
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.misc.*;
+import java.util.List;
 
 public class NodeVisitorBase implements INodeVisitor {
 
@@ -73,6 +73,10 @@ public class NodeVisitorBase implements INodeVisitor {
 
 	@Override
 	public void visitPre(Pre n) throws Exception {
+		sub(n);
+	}
+
+	@Override public void visitP(Para n) throws Exception {
 		sub(n);
 	}
 

@@ -293,7 +293,7 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 		ISelectionModel<T> sm = getSelectionModel();
 		if(m_rowRenderer.getRowClicked() != null || null != sm) {
 			//-- Add a click handler to select or pass the rowclicked event.
-			cc.getTR().setClicked(new IClicked2<TR>() {
+			cc.getTR().setClicked2(new IClicked2<TR>() {
 				@Override
 				@SuppressWarnings({"synthetic-access"})
 				public void clicked(@Nonnull TR b, @Nonnull ClickInfo clinfo) throws Exception {
@@ -782,7 +782,7 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 			selectable = ((IAcceptable<T>) selectionModel).acceptable(rowInstance);
 		}
 		if(selectable) {
-			cb.setClicked(new IClicked2<Checkbox>() {
+			cb.setClicked2(new IClicked2<Checkbox>() {
 				@Override
 				public void clicked(@Nonnull Checkbox clickednode, @Nonnull ClickInfo info) throws Exception {
 					selectionCheckboxClicked(rowInstance, clickednode.isChecked(), info, clickednode);

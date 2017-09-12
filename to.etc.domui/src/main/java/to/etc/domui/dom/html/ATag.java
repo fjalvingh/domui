@@ -35,6 +35,12 @@ public class ATag extends NodeContainer {
 		super("a");
 	}
 
+	public ATag(String css) {
+		super("a");
+		setCssClass(css);
+	}
+
+
 	@Override
 	public void visit(INodeVisitor v) throws Exception {
 		v.visitA(this);

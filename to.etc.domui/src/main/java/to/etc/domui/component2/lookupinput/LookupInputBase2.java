@@ -802,14 +802,13 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 		SearchInput2 ks = m_keySearch;
 		if(DomUtil.isEqual(m_value, v) && (ks == null || ks.getValue() == null))
 			return;
-		OT old = m_value;
 		m_value = v;
 		if(v != null) {
-			getClearButton().setDisplay(DisplayType.INLINE);
-			clearMessage();
+			getClearButton().setDisabled(false);
 			setCssClass("ui-lui2-selected");
+			clearMessage();
 		} else {
-			getClearButton().setDisplay(DisplayType.NONE);
+			getClearButton().setDisabled(true);
 			setCssClass("ui-lui2");
 		}
 		updateRoStyle();

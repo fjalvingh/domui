@@ -24,9 +24,9 @@
  */
 package to.etc.domui.themes;
 
-import javax.annotation.*;
-
 import to.etc.domui.server.*;
+
+import javax.annotation.*;
 
 /**
  * Factory which will create a theme instance from it's source files.
@@ -46,4 +46,7 @@ public interface IThemeFactory {
 	 */
 	@Nonnull
 	ITheme getTheme(@Nonnull DomApplication da, @Nonnull String themeName) throws Exception;
+
+	@Nonnull
+	String getDefaultThemeName();
 }

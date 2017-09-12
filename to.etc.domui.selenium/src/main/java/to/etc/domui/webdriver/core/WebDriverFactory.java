@@ -1,14 +1,19 @@
 package to.etc.domui.webdriver.core;
 
+import org.jetbrains.annotations.NotNull;
 import org.openqa.selenium.Capabilities;
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.UnexpectedAlertBehaviour;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeDriverService;
+import org.openqa.selenium.chrome.ChromeDriverService.Builder;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
+import org.openqa.selenium.phantomjs.PhantomJSDriver;
+import org.openqa.selenium.phantomjs.PhantomJSDriverService;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -20,16 +25,20 @@ import to.etc.webapp.testsupport.TestProperties;
 import javax.annotation.DefaultNonNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import static to.etc.domui.util.DomUtil.nullChecked;
 
 /**
  * Factory to create raw WebDriver instances.
  */
-@DefaultNonNull
-final class WebDriverFactory {
+@DefaultNonNull final class WebDriverFactory {
 	private static Logger LOG = LoggerFactory.getLogger(WebDriverFactory.class);
 
 	/**
@@ -37,9 +46,14 @@ final class WebDriverFactory {
 	 */
 	public static WebDriver allocateInstance(WebDriverType type, BrowserModel browser, @Nullable String hubUrl, @Nullable Locale lang) throws Exception {
 		if(lang == null) {
-			lang = nullChecked(Locale.ENGLISH);
+			lang = nullChecked(Locale.US);
 		}
-		switch(type) {
+
+		if(browser == BrowserModel.PHANTOMJS) {
+			return allocatePhantomjsInstance(lang);
+		}
+
+		switch(type){
 			default:
 				throw new IllegalStateException("? unhandled driver type");
 
@@ -54,6 +68,60 @@ final class WebDriverFactory {
 		}
 	}
 
+	private static WebDriver allocatePhantomjsInstance(Locale lang) throws Exception {
+		DesiredCapabilities capabilities = calculateCapabilities(BrowserModel.PHANTOMJS, lang);
+		capabilities.setCapability(CapabilityType.TAKES_SCREENSHOT, "true");
+
+		PhantomJSDriver wd;
+		if(false) {
+			wd = new PhantomJSDriver(capabilities);
+		} else {
+			/*
+			 * We must have anti-aliasing off for better testing. This should work for unices where Phantomjs has been
+			 * compiled with FontConfig support..
+			 */
+
+			//-- Set the XDG_CONFIG_HOME envvar; this is used by fontconfig as one of its locations
+			File dir = createFontConfigFile();
+			Map<String, String> env = new HashMap<>();
+			env.put("XDG_CONFIG_HOME", dir.getParentFile().getAbsolutePath());
+
+			PhantomJSDriverService service = MyPhantomDriverService.createDefaultService(capabilities, env);
+			wd = new PhantomJSDriver(service, capabilities);
+		}
+
+		wd.manage().window().setSize(new Dimension(1280, 1024));
+		String browserName = wd.getCapabilities().getBrowserName();
+		String version = wd.getCapabilities().getVersion();
+		System.out.println("wd: allocated " + browserName + " " + version);
+		return wd;
+	}
+
+	@Nonnull private static File createFontConfigFile() throws IOException {
+		//-- 1. Make a temp directory which will contain our fonts.conf
+		String tmp = System.getProperty("java.io.tmpdir");
+		if(tmp == null) {
+			tmp = "/tmp";
+		}
+		File dir = new File(tmp + File.separator + "/_phantomjs-config/fontconfig");
+		dir.mkdirs();
+		if(!dir.exists()) {
+			throw new IOException("Can't create fontconfig directory to override phantomjs font settings at " + dir);
+		}
+
+		File conf = new File(dir, "fonts.conf");
+		String text = "<match target=\"font\">\n"
+			+ "<edit mode=\"assign\" name=\"antialias\">\n"
+			+ "<bool>false</bool>\n"
+			+ "</edit>\n"
+			+ "</match>";
+		try(FileOutputStream fos = new FileOutputStream(conf)) {
+			fos.write(text.getBytes("UTF-8"));
+		}
+
+		return dir;
+	}
+
 	private static WebDriver allocateHtmlUnitInstance(BrowserModel browser, Locale lang) throws Exception {
 		Capabilities capabilities = calculateCapabilities(browser, lang);
 		return new HtmlUnitDriver(capabilities);
@@ -63,7 +131,7 @@ final class WebDriverFactory {
 		return new RemoteWebDriver(new URL(hubUrl), calculateCapabilities(browser, lang));
 	}
 
-	private static Capabilities calculateCapabilities(BrowserModel browser, Locale lang) throws Exception {
+	private static DesiredCapabilities calculateCapabilities(BrowserModel browser, Locale lang) throws Exception {
 		switch(browser){
 			default:
 				throw new IllegalStateException("Unsupported browser type " + browser.getCode());
@@ -71,8 +139,15 @@ final class WebDriverFactory {
 			case FIREFOX:
 				return getFirefoxCapabilities(lang);
 
+			case PHANTOMJS:
+				return getPhantomCapabilities(lang);
+
 			case CHROME:
 				return getChromeCapabilities(lang);
+
+			case CHROME_HEADLESS:
+				return getChromeHeadlessCapabilities(lang);
+
 
 			case IE:
 			case IE9:
@@ -83,29 +158,81 @@ final class WebDriverFactory {
 		}
 	}
 
-	private static WebDriver allocateLocalInstance(BrowserModel browser, Locale lang) {
+	private static WebDriver allocateLocalInstance(BrowserModel browser, Locale lang) throws IOException {
 		switch(browser){
 			default:
 				throw new IllegalStateException("Unsupported browser type " + browser.getCode() + " for HUB test execution");
 
 			case FIREFOX:
-				return new FirefoxDriver(getFirefoxCapabilities(lang));
+				return allocateFirefoxDriver(lang);
 
 			case CHROME:
-				DesiredCapabilities dc = getChromeCapabilities(lang);
-				TestProperties tp = TUtilTestProperties.getTestProperties();
-				String chromeBinariesLocation = tp.getProperty("webdriver.chrome.driver", "/usr/bin/google-chrome");
-				System.setProperty("webdriver.chromedriver", chromeBinariesLocation);
-				dc.setCapability("chrome.binary", chromeBinariesLocation);
-				return new ChromeDriver(dc);
+			case CHROME_HEADLESS:
+				return allocateChromeInstance(browser, lang);
 
 			case IE:
 			case IE9:
 			case IE10:
 			case IE11:
 			case EDGE:
-				return new InternetExplorerDriver(getIECapabilities(browser, lang));
+				return allocateIEDriver(browser, lang);
 		}
+	}
+
+	@NotNull private static WebDriver allocateIEDriver(BrowserModel browser, Locale lang) {
+		InternetExplorerDriver wd = new InternetExplorerDriver(getIECapabilities(browser, lang));
+		String browserName = wd.getCapabilities().getBrowserName();
+		String version = wd.getCapabilities().getVersion();
+		System.out.println("wd: allocated " + browserName + " " + version);
+		return wd;
+	}
+
+	@NotNull private static WebDriver allocateFirefoxDriver(Locale lang) {
+		FirefoxDriver wd = new FirefoxDriver(getFirefoxCapabilities(lang));
+		String browserName = wd.getCapabilities().getBrowserName();
+		String version = wd.getCapabilities().getVersion();
+		System.out.println("wd: allocated " + browserName + " " + version);
+		return wd;
+	}
+
+	private static WebDriver allocateChromeInstance(BrowserModel model, Locale lang) throws IOException {
+		DesiredCapabilities dc;
+		switch(model) {
+			default:
+				throw new IllegalStateException("Unsupported browser type " + model.getCode() + " for local execution");
+
+			case CHROME:
+				dc = getChromeCapabilities(lang);
+				break;
+
+			case CHROME_HEADLESS:
+				dc = getChromeHeadlessCapabilities(lang);
+				break;
+		}
+
+		TestProperties tp = TUtilTestProperties.getTestProperties();
+		String chromeBinariesLocation = tp.getProperty("webdriver.chrome.driver", "/usr/bin/google-chrome");
+		System.setProperty("webdriver.chromedriver", chromeBinariesLocation);
+		dc.setCapability("chrome.binary", chromeBinariesLocation);
+
+		//-- Set the XDG_CONFIG_HOME envvar; this is used by fontconfig as one of its locations
+		File dir = createFontConfigFile();
+		Map<String, String> env = new HashMap<>();
+		env.put("XDG_CONFIG_HOME", dir.getParentFile().getAbsolutePath());
+
+		Builder builder = new Builder();
+		builder.usingAnyFreePort();
+		builder.withEnvironment(env);
+		ChromeDriverService service = builder.build();
+		MyChromeDriver chromeDriver = new MyChromeDriver(service, dc);
+
+		chromeDriver.manage().window().setSize(new Dimension(1280, 1024));
+
+		String browserName = chromeDriver.getCapabilities().getBrowserName();
+		String version = chromeDriver.getCapabilities().getVersion();
+		System.out.println("wd: allocated " + browserName + " " + version);
+
+		return chromeDriver;
 	}
 
 	private static DesiredCapabilities getIECapabilities(BrowserModel browser, Locale lang) {
@@ -145,13 +272,60 @@ final class WebDriverFactory {
 	}
 
 	private static DesiredCapabilities getChromeCapabilities(Locale lang) {
-		ChromeOptions options = new ChromeOptions();
-		options.addArguments("test-type"); 					// This gets rid of the message "You are using an unsupported command-line flag: --ignore-certificate-errors. Stability and security will suffer."
-		options.addArguments("lang=" + lang.getLanguage().toLowerCase());
-		options.addArguments("intl.accept_languages=" + lang.getLanguage().toLowerCase());
+		ChromeOptions options = getCommonChromeOptions(lang);
 		DesiredCapabilities capabilities = DesiredCapabilities.chrome();
 		capabilities.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.IGNORE);
 		capabilities.setCapability(ChromeOptions.CAPABILITY, options);
 		return capabilities;
+	}
+
+	private static DesiredCapabilities getChromeHeadlessCapabilities(Locale lang) {
+		ChromeOptions options = getCommonChromeOptions(lang);
+		options.addArguments("--headless");
+		DesiredCapabilities capabilities = DesiredCapabilities.chrome();
+		capabilities.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.IGNORE);
+		capabilities.setCapability(ChromeOptions.CAPABILITY, options);
+		return capabilities;
+	}
+
+	@NotNull private static ChromeOptions getCommonChromeOptions(Locale lang) {
+		ChromeOptions options = new ChromeOptions();
+		options.addArguments(
+			"test-type");                    // This gets rid of the message "You are using an unsupported command-line flag: --ignore-certificate-errors. Stability and security will suffer."
+		options.addArguments("lang=" + lang.getLanguage().toLowerCase());
+		options.addArguments("intl.accept_languages=" + lang.getLanguage().toLowerCase());
+
+		return options;
+	}
+
+
+	private static DesiredCapabilities getPhantomCapabilities(Locale lang) {
+		DesiredCapabilities capabilities = DesiredCapabilities.phantomjs();
+		String value = lang.getLanguage().toLowerCase();
+		capabilities.setCapability(PhantomJSDriverService.PHANTOMJS_PAGE_CUSTOMHEADERS_PREFIX + "Accept-Language", value);
+		capabilities.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.IGNORE);
+		return capabilities;
+	}
+
+
+	@Nullable
+	public static IWebdriverScreenshotHelper getScreenshotHelper(WebDriverType webDriverType, BrowserModel browserModel) {
+		switch(webDriverType) {
+			default:
+				break;
+
+			case HTMLUNIT:
+				//-- HTMLUNIT does not render, so it cannot create screenshots.
+				return null;
+		}
+
+		switch(browserModel) {
+			default:
+				return new DefaultScreenshotHelper();
+
+			case CHROME:
+			case CHROME_HEADLESS:
+				return new ChromeScreenshotHelper();
+		}
 	}
 }

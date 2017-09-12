@@ -485,11 +485,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		String cssClass = getCssClass();
 		if(cssClass == null)
 			return false;
-		StringTokenizer st = new StringTokenizer(cssClass, " \t");
+		String[] split = cssClass.split("\\s+");
 		StringBuilder sb = new StringBuilder(cssClass.length());
 		boolean fnd = false;
-		while(st.hasMoreTokens()) {
-			String s = st.nextToken();
+		for(String s: split) {
 			if(name.equals(s)) {
 				fnd = true;
 			} else {
@@ -509,18 +508,34 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * contains class names this one is added separated by space.
 	 * @param name
 	 */
-	final public void addCssClass(@Nonnull final String name) {
-		if(getCssClass() == null) {
-			setCssClass(name);
+	final public void addCssClass(@Nonnull final String nameList) {
+		String cssClass = getCssClass();
+		if(cssClass == null) {
+			setCssClass(nameList);
 			return;
 		}
-		StringTokenizer st = new StringTokenizer(getCssClass(), " \t");
-		while(st.hasMoreTokens()) {
-			String s = st.nextToken();
-			if(name.equals(s)) // Already present?
-				return;
+
+		String[] names = nameList.split("\\s+");
+
+		String[] split = cssClass.split("\\s+");
+		for(String s: split) {
+			for(int i = 0; i < names.length; i++) {
+				String name = names[i];
+				if(s.equals(name)) {
+					names[i] = null;				// Already there
+				}
+			}
 		}
-		setCssClass(getCssClass() + " " + name);
+		StringBuilder sb = new StringBuilder(cssClass);
+		for(int i = 0; i < names.length; i++) {
+			String name = names[i];
+			if(null != name) {
+				if(sb.length() > 0)
+					sb.append(' ');
+				sb.append(name);
+			}
+		}
+		setCssClass(sb.toString());
 	}
 
 	/**
@@ -812,10 +827,20 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	/**
 	 * Set a click handler for this node. This will be attached to the Javascript "onclick" handler for
-	 * this node and will fire when the node is clicked.
+	 * this node and will fire when the node is clicked. If more information around the click is needed
+	 * use {@link #setClicked2(IClicked2)}.
 	 * @param clicked
 	 */
-	public void setClicked(@Nullable final IClickBase< ? > clicked) {
+	public void setClicked(@Nullable final IClicked< ? > clicked) {
+		m_clicked = clicked;
+	}
+
+	/**
+	 * Set an advanced click handler for this node, which gets passed a {@link ClickInfo}
+	 * structure containing the location of the click and the other modifier buttons pressed
+	 * at click time. Only one of setClicked / setClicked2 can be active at any one time.
+	 */
+	public void setClicked2(IClicked2<?> clicked) {
 		m_clicked = clicked;
 	}
 

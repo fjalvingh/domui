@@ -105,8 +105,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			throw xxxx;
 		} catch(Exception x) {
 			renderApplicationMail(ctx, x);
-			if(!m_application.isShowProblemTemplate() && !m_application.inDevelopmentMode())
-				throw x;
+			//if(!m_application.isShowProblemTemplate() && !m_application.inDevelopmentMode())
+			//	throw x;
 
 			tryRenderOopsFrame(ctx, x);
 		} catch(Error x) {
@@ -600,6 +600,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 			checkFullExceptionCount(page, x); // Rethrow, but clear state if page throws up too much.
 		} finally {
+			page.callAfterRenderListeners();
 			page.internalClearDeltaFully();
 		}
 

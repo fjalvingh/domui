@@ -24,7 +24,7 @@
  */
 package to.etc.domui.dom.css;
 
-import to.etc.domui.util.*;
+import to.etc.domui.util.DomUtil;
 
 /**
  * Base class for all remote DOM nodes containing only CSS properties && change management for those.

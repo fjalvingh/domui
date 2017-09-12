@@ -75,6 +75,10 @@
         </dependency>
         <dependency>
             <groupId>to.etc.domui</groupId>
+            <artifactId>to.etc.domui.derbydata</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>to.etc.domui</groupId>
             <artifactId>to.etc.domui.selenium</artifactId>
         </dependency>
         <dependency>
@@ -114,11 +118,6 @@
         <!--</dependency>-->
 
         <dependency>
-            <groupId>org.apache.derby</groupId>
-            <artifactId>derby</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-java</artifactId>
         </dependency>
@@ -134,6 +133,34 @@
     <build>
         <finalName>demo</finalName>
         <plugins>
+            <!--
+                The demo app requires the java source files to be reachable as resources, to allow
+                for "show source".
+            -->
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.0.2</version>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <!-- here the phase you need -->
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/classes</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/java</directory>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <artifactId>maven-war-plugin</artifactId>
                 <configuration>
@@ -157,9 +184,37 @@
             </plugin>
 
             <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <version>2.2.1</version>
+                <executions>
+                    <execution>
+                        <id>get-the-git-infos</id>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+                <configuration>
+                    <dateFormatTimeZone>${user.timezone}</dateFormatTimeZone>
+                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                    <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+                </configuration>
+            </plugin>
+
+            <plugin>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-maven-plugin</artifactId>
                 <configuration>
+                    <!-- Enable TestUI mode on the server to make Selenium tests run. -->
+                    <systemProperties>
+                        <systemProperty>
+                            <name>domui.testui</name>
+                            <value>true</value>
+                        </systemProperty>
+                    </systemProperties>
+
                     <scanIntervalSeconds>5</scanIntervalSeconds>
                     <stopPort>8089</stopPort>
                     <stopKey>furkelheim</stopKey>

@@ -157,6 +157,28 @@ public class TextScanner {
 		return m_text.substring(six, m_ix);
 	}
 
+	public interface IWord {
+		boolean isWordChar(char c);
+	}
+
+	/**
+	 * Scans for a generic "word", which is defined as a sequence of
+	 * characters starting with a letter, followed by letters and/or
+	 * digits and the special characters '$' and '_'.
+	 * @return The scanned string, or null if no string found here.
+	 */
+	public String scanWord(IWord predicate) {
+		int six = m_ix; // Start index for word
+		while(m_ix < m_len) {
+			char c = m_text.charAt(m_ix);
+			if(! predicate.isWordChar(c)) {
+				break;
+			}
+			m_ix++;
+		}
+		return m_text.substring(six, m_ix);
+	}
+
 	/**
 	 * Provides the same functionality as #scanWord() but, after finding
 	 * the word, resets the index to the original position.

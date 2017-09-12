@@ -24,15 +24,21 @@
  */
 package to.etc.domui.server.reloader;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import org.slf4j.Logger;
+import to.etc.domui.util.resources.ClasspathInventory;
+import to.etc.domui.util.resources.IModifyableResource;
+import to.etc.domui.util.resources.ResourceTimestamp;
 
-import javax.annotation.*;
-
-import org.slf4j.*;
-
-import to.etc.domui.util.resources.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.File;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.ResourceBundle;
+import java.util.Set;
 
 /**
  * The classloader used by the reloader. Classes matching the include
@@ -56,6 +62,8 @@ public class ReloadingClassLoader extends URLClassLoader {
 
 	private ClassLoader m_rootLoader;
 
+	final private ClasspathInventory m_classInventory;
+
 	/**
 	 * The list of files used in constructing these classes.
 	 */
@@ -70,6 +78,7 @@ public class ReloadingClassLoader extends URLClassLoader {
 		m_reloader = r;
 		m_id = nextID();
 		m_rootLoader = getClass().getClassLoader();
+		m_classInventory = ClasspathInventory.create(getClass().getClassLoader());
 		LOG.debug("ReloadingClassLoader: new instance " + this + " created");
 	}
 
@@ -94,7 +103,7 @@ public class ReloadingClassLoader extends URLClassLoader {
 
 	private void addWatchFor(Class< ? > clz) {
 
-		IModifyableResource rt = ClasspathInventory.getInstance().findClassSource(clz);
+		IModifyableResource rt = m_classInventory.findClassSource(clz);
 		if(rt == null) {
 			LOG.info("Cannot find source file for class=" + clz + "; changes to this class are not tracked");
 			return;

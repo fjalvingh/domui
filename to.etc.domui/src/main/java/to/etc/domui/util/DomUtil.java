@@ -56,14 +56,39 @@ final public class DomUtil {
 
 	static private int m_guidSeed;
 
-	private DomUtil() {}
+	/** Map value types of primitive type to their boxed (wrapped) types. */
+	final static private Map<Class<?>, Class<?>> BOXINGDISASTER = new HashMap<>();
 
 	static {
+		BOXINGDISASTER.put(long.class, Long.class);
+		BOXINGDISASTER.put(int.class, Integer.class);
+		BOXINGDISASTER.put(short.class, Short.class);
+		BOXINGDISASTER.put(char.class, Character.class);
+		BOXINGDISASTER.put(double.class, Double.class);
+		BOXINGDISASTER.put(float.class, Float.class);
+		BOXINGDISASTER.put(boolean.class, Boolean.class);
+		BOXINGDISASTER.put(byte.class, Byte.class);
+
 		long val = System.currentTimeMillis() / 1000 / 60;
 		m_guidSeed = (int) val;
 	}
 
+	private DomUtil() {}
+
 	/**
+	 * Map value types of primitive type to their boxed (wrapped) types.
+	 * @param clz
+	 * @return
+	 */
+	@Nonnull
+	static public Class<?> normalizePrimitivesToBoxedTypes(@Nonnull Class<?> clz) {
+		Class<?> newClass = BOXINGDISASTER.get(clz);
+		return newClass != null ? newClass : clz;
+	}
+
+	/**
+	 * Use Objects.requireNonNull.
+	 *
 	 * NULL CHECKING BELONGS IN THE LANGUAGE, NOT IN ANNOTATIONS, damnit! This fine idiocy is needed to
 	 * handle null checking because the pathetic losers that make up the Java JSR board are so incredible
 	 * stupid it boggles the mind. Java == cobol 8-(
@@ -71,6 +96,7 @@ final public class DomUtil {
 	 * @param in
 	 * @return
 	 */
+	@Deprecated
 	@Nonnull
 	static public <T> T nullChecked(@Nullable T in) {
 		if(null == in)
@@ -1459,6 +1485,18 @@ final public class DomUtil {
 		}
 	}
 
+	/**
+	 * Checks whether the icon name specified is not a resource (.png, .gif et al) but an icon name like
+	 * an FontAwesome icon name.
+	 */
+	public static boolean isIconName(String iconUrl) {
+		if(iconUrl.contains("."))
+			return false;
+		if(iconUrl.contains("/"))
+			return false;
+		return iconUrl.startsWith("fa-");
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Tree walking helpers.								*/
 	/*--------------------------------------------------------------*/
@@ -1482,7 +1520,7 @@ final public class DomUtil {
 		 * @return
 		 * @throws Exception
 		 */
-		public Object before(@Nonnull NodeBase n) throws Exception;
+		Object before(@Nonnull NodeBase n) throws Exception;
 
 		/**
 		 * Called when all child nodes of the specified node have been traversed. When this returns a non-null
@@ -1491,7 +1529,7 @@ final public class DomUtil {
 		 * @return
 		 * @throws Exception
 		 */
-		public Object after(@Nonnull NodeBase n) throws Exception;
+		Object after(@Nonnull NodeBase n) throws Exception;
 	}
 
 	/**
@@ -1514,6 +1552,29 @@ final public class DomUtil {
 			for(int i = 0, len = nc.getChildCount(); i < len; i++) {
 				NodeBase ch = nc.getChild(i);
 				v = walkTree(ch, handler);
+				if(v != null)
+					return v;
+			}
+		}
+		return handler.after(root);
+	}
+
+	/**
+	 * This walks the tree, but ignores delegation to make sure that all nodes
+	 * are reached.
+	 */
+	static public Object walkTreeUndelegated(NodeBase root, IPerNode handler) throws Exception {
+		if(root == null)
+			return null;
+		Object v = handler.before(root);
+		if(v == IPerNode.SKIP)
+			return null;
+		if(v != null)
+			return v;
+		if(root instanceof NodeContainer) {
+			NodeContainer nc = (NodeContainer) root;
+			for(NodeBase ch : new ArrayList<>(nc.internalGetChildren())) {
+				v = walkTreeUndelegated(ch, handler);
 				if(v != null)
 					return v;
 			}

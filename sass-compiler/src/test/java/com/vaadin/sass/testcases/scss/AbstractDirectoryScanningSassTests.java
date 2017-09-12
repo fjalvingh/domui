@@ -26,6 +26,8 @@ import org.w3c.css.sac.*;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public abstract class AbstractDirectoryScanningSassTests {
 
@@ -79,21 +81,22 @@ public abstract class AbstractDirectoryScanningSassTests {
         SCSSErrorHandler errorHandler = new SCSSErrorHandler() {
             @Override
             public void error(CSSParseException arg0) throws CSSException {
-                arg0.printStackTrace();
+                System.err.println(arg0.getMessage());
+                //arg0.printStackTrace();
                 super.error(arg0);
                 Assert.fail(arg0.getMessage());
             }
 
             @Override
             public void fatalError(CSSParseException arg0) throws CSSException {
-                arg0.printStackTrace();
+                //arg0.printStackTrace();
                 super.error(arg0);
                 Assert.fail(arg0.getMessage());
             }
 
             @Override
             public void traverseError(Exception e) {
-                e.printStackTrace();
+                //e.printStackTrace();
                 super.traverseError(e);
                 Assert.fail(e.getMessage());
             }
@@ -102,6 +105,16 @@ public abstract class AbstractDirectoryScanningSassTests {
             public void traverseError(String message) {
                 super.traverseError(message);
                 Assert.fail(message);
+            }
+
+            @Override public void warning(CSSParseException e) throws CSSException {
+                warn("Warning when parsing file \n" + e.getURI() + " on line "
+                    + e.getLineNumber() + ", column " + e.getColumnNumber());
+            }
+
+            private void warn(String msg) {
+                Logger.getLogger(SCSSDocumentHandlerImpl.class.getName()).log(
+                    Level.WARNING, msg);
             }
         };
 

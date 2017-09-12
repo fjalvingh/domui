@@ -24,11 +24,11 @@
  */
 package to.etc.domui.component.lookup;
 
-import javax.annotation.*;
-
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.dom.html.*;
+
+import javax.annotation.*;
 
 final class LookupFactoryRelation implements ILookupControlFactory {
 	@Override
@@ -47,7 +47,8 @@ final class LookupFactoryRelation implements ILookupControlFactory {
 		if(input == null) {
 			final LookupInput<Object> l = new LookupInput<Object>((Class<Object>) pmm.getActualType()); // Create a lookup thing for this one
 			String hint = MetaUtils.findHintText(spm);
-			l.setHint(hint);
+			if(null != hint)
+				l.setHint(hint);
 			input = l;
 		}
 		return new EqLookupControlImpl<>(spm.getPropertyName(), input);
