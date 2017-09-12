@@ -16,7 +16,6 @@ import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 
 /**
@@ -99,10 +98,9 @@ abstract public class AbstractLayoutTest extends AbstractWebDriverTest {
 		graphics.drawLine(0, relTwo, biAll.getWidth()-1, relTwo);
 		graphics.dispose();
 
-		File output = new File("/tmp/xxx-baseline.png");
-		ImageIO.write(biAll, "png", output);
+		ImageIO.write(biAll, "png", getSnapshotName("baseline"));
 
-		Assert.fail("The baseline for the first element is " + ImageHelper.distance(blOneAbs, blTwoAbs) + " the second - see " + output);
+		Assert.fail("The baseline for the first element is " + ImageHelper.distance(blOneAbs, blTwoAbs) + " the second");
 	}
 
 	/**
