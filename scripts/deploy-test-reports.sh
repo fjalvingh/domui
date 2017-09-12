@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ "$TRAVIS_SECURE_ENV_VARS" != "true" ]; then
+  echo "Pull request build: no access to credentials, skipping test reports publishing"
+  exit 0
+fi
+
 # Fix perms
 chmod og=- ~/deployment_id_ecdsa
 
