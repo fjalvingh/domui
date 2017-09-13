@@ -9,7 +9,7 @@
 
 .ui-f4 {
 }
-table.ui-f4 td {
+table.ui-f4 td.ui-lui-v {
 	vertical-align: top;
 }
 
@@ -17,14 +17,14 @@ table.ui-f4 td {
 	white-space: nowrap;
 	color: #666666;
 }
-.ui-f4-lbl-v {
+td.ui-f4-lbl-v {
 	text-align: left;
 	min-width: 150px;
 	width: 150px;
+	vertical-align: top;
 }
 .ui-f4-lbl-v label {
 	display: block;						// Chrome aligns the label on the td baseline without this, causing 1px diff
-	vertical-align: bottom;
 	line-height: $form-line-height;		// Important: this defines where the baseline is! Mirror the same setting on input.
 	padding-top: 1px;					// Inputs have 1px border; mirror that here so that the tops align
 }
@@ -32,6 +32,8 @@ table.ui-f4 td {
 .ui-f4-ctl-v {
 	input, textarea {
 		line-height: $form-line-height;
+		padding: 0;
+		margin: 0;
 	}
 }
 

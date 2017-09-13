@@ -1,41 +1,3 @@
-/*** 105_lookupinput.frag.css ***/
-@import "variables";
-
-.ui-lui {
-	/* background: #ffffff; */
-	padding: 0px;
-	margin: 0px;
-}
-
-div.ui-lui-selected {
-	display: inline-block;
-	border: 1px solid #BFCDD9;
-	border-top-color: #ABADB3;
-	-moz-border-radius: 2px;
-	margin-bottom: 3px;
-}
-
-div.ui-lui-selected-ro {
-	border: $readonly_border solid 1px; /* same border color as one used for ui-dspv fields */
-}
-
-table.ui-lui {
-	width: 12em; /*	this width match with date field picker icon on IE rendering */
-	white-space: nowrap;
-}
-
-div.ui-lui td {
-	vertical-align: top;
-}
-
-.ui-input-err * .ui-lui-v {
-	background-color: #ffe5e5 !important;
-}
-
-.ui-lui-vcell {
-	width: 99%;
-}
-
 /*** LookupForm ***/
 .ui-lf-coll {
 	padding-bottom: 10px;
@@ -74,3 +36,4 @@ table.ui-lf-st input.ui-ro,
 table.ui-lf-st input.ui-ro:hover {
 	text-align: left !important;
 }
+

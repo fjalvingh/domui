@@ -10,17 +10,28 @@
 .ui-lui-btntd {
 	text-align: left;
 	white-space: nowrap;
-	position: relative;
+	vertical-align: middle;
+	border: 1px solid $bevel_down;
+	border-top: 1px solid $bevel_up;
+	border-left: none;
+	padding: 0px 4px;
+	width: 20px;
 }
 
 .ui-lui-btntd .ui-lui-sel-btn {
-	position: absolute;
-	vertical-align: top;
-	margin-left: -27px;
-	margin-top: 1px;
+	vertical-align: middle;
+}
+
+div.ui-lui-selected {
+	display: inline-block;
+	border: 1px solid #BFCDD9;
+	border-top-color: #ABADB3;
+	-moz-border-radius: 2px;
+	//margin-bottom: 3px;
 }
 
 div.ui-lui-selected-ro {
+	//border: $readonly_border solid 1px; /* same border color as one used for ui-dspv fields */
 	border: none !important;
 	margin-bottom: 0px;
 }
@@ -38,15 +49,15 @@ div.ui-lui > table {
 	width: 1%;
 }
 
-table.ui-lui {
-	white-space: nowrap;
-}
-
-table.ui-lui-selected {
-	width: 100%;
-	white-space: nowrap;
-	padding: 1px;
-}
+//table.ui-lui {  jal 20170913 These seem to be unused, .ui-lui is on the enapsulating div
+//	white-space: nowrap;
+//}
+//
+//table.ui-lui-selected {
+//	width: 100%;
+//	white-space: nowrap;
+//	padding: 1px;
+//}
 
 .ui-lui-v { /* no selection is rendered transparent without border */
 	padding: 0px;
@@ -70,9 +81,9 @@ table.ui-lui-selected {
 	white-space: nowrap;
 }
 
-.ui-lui-v > div {
-	min-width: 104px;
-}
+//.ui-lui-v > div { 20170913 makes input have trailing space
+//	min-width: 104px;
+//}
 
 .ui-lui-selected tbody { /*	selected value is rendered with white back and outline, on IE border is not rendred!? */
 	padding: 0px;
