@@ -47,11 +47,17 @@ table.ui-f4 td {
 .ui-f4-h {
 	margin-bottom: 10px;
 }
+
+.ui-f4-ctl {
+	textarea {
+		font-family: $font-family;
+		font-size: $font-size;
+		display: block;					/* jal 20151011 chrome textarea is two pixels at bottom too large. */
+	}
+}
+
 .ui-f4-ctl-v {
 	padding-bottom: 8px;
-}
-.ui-f4-ctl-v  textarea {
-	display: block;					/* jal 20151011 chrome textarea is two pixels at bottom too large. */
 }
 
 //.ui-f4 .ui-f4-ta {				jal 20170911 No longer needed

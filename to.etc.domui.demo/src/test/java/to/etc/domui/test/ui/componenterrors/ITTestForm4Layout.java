@@ -2,6 +2,7 @@ package to.etc.domui.test.ui.componenterrors;
 
 import org.junit.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import to.etc.domuidemo.pages.test.componenterrors.Form4LayoutTestPage;
 
 /**
@@ -54,6 +55,13 @@ public class ITTestForm4Layout extends AbstractLayoutTest {
 	@Test
 	public void testTextArea1() throws Exception {
 		checkBaseLine("memo", "");
+	}
+
+	@Test
+	public void testTextArea2() throws Exception {
+		WebElement memo = wd().getElement("memo");
+		String s = memo.getCssValue("font-family");
+		System.out.println("font-size = " + s);
 	}
 
 
