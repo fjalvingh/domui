@@ -3,6 +3,7 @@ package to.etc.domui.test.ui.componenterrors;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Assume;
+import org.junit.Before;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import to.etc.domui.test.ui.imagehelper.ImageHelper;
@@ -17,6 +18,7 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * The static and ThreadLocal idiocy is needed because of JUnit's horrible behavior
@@ -37,6 +39,11 @@ abstract public class AbstractLayoutTest extends AbstractWebDriverTest {
 			System.out.println("AbstractLayoutTest: releasing inspector");
 		}
 		m_inspector.set(null);
+	}
+
+	@Before
+	public void setUpForm() throws Exception {
+		si();
 	}
 
 	protected final ScreenInspector si() throws Exception {
@@ -99,6 +106,12 @@ abstract public class AbstractLayoutTest extends AbstractWebDriverTest {
 		graphics.dispose();
 
 		ImageIO.write(biAll, "png", getSnapshotName("baseline"));
+
+		//-- Dump properties for label and control
+		Map<String, String> styles = wd().getComputedStyles(label, a -> ! a.startsWith("-"));
+		System.out.println("label styles = " + styles);
+		styles = wd().getComputedStyles(comp, a -> ! a.startsWith("-"));
+		System.out.println("comp styles = " + styles);
 
 		Assert.fail("The baseline for the first element is " + ImageHelper.distance(blOneAbs, blTwoAbs) + " the second");
 	}

@@ -51,10 +51,13 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 /**
@@ -2294,5 +2297,37 @@ final public class WebDriverConnector {
 				fail("Alert message '" + amsg + "' does not contain the string '" + msg + "'");
 			}
 		}
+	}
+
+	@Nonnull
+	public Map<String, String> getComputedStyles(@Nonnull WebElement element, Predicate<String> filter) {
+		JavascriptExecutor executor = (JavascriptExecutor) driver();
+		String script = "var s = '';" +
+			"var o = getComputedStyle(arguments[0]);" +
+			"for(var i = 0; i < o.length; i++){" +
+			"s += '~~~~' + o[i] + '``' + o.getPropertyValue(o[i]);}" +
+			"return s;";
+		String result = (String) executor.executeScript(script, element);
+
+		Map<String, String> res = new TreeMap<>();
+		String[] pairs = result.split("~~~~");
+		for(String pair : pairs) {
+			if(pair.length() != 0) {
+				String[] split = pair.split("``");
+				if(split.length > 2 || split.length == 0) {
+					System.err.println("Failed to split '" + pair + "'");
+				} else if(filter.test(split[0])) {
+					res.put(split[0], split.length == 1 ? "" : split[1]);
+				}
+			}
+		}
+		//System.out.println(res);
+		return res;
+
+	}
+	@Nonnull
+	public Map<String, String> getComputedStyles(@Nonnull WebElement element) {
+		return getComputedStyles(element, a -> true);
+
 	}
 }

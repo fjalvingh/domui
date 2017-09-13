@@ -5,6 +5,8 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import to.etc.domuidemo.pages.test.componenterrors.Form4LayoutTestPage;
 
+import java.util.Map;
+
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 12-9-17.
@@ -60,10 +62,7 @@ public class ITTestForm4Layout extends AbstractLayoutTest {
 	@Test
 	public void testTextArea2() throws Exception {
 		WebElement memo = wd().getElement("memo");
-		String s = memo.getCssValue("font-family");
-		System.out.println("font-size = " + s);
+		Map<String, String> styles = wd().getComputedStyles(memo, a -> ! a.startsWith("-"));
+		System.out.println("styles = " + styles);
 	}
-
-
-
 }
