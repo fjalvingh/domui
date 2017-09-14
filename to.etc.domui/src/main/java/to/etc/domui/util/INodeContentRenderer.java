@@ -24,10 +24,18 @@
  */
 package to.etc.domui.util;
 
-import javax.annotation.*;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
 
-import to.etc.domui.dom.html.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
+/**
+ * Deprecated, please use {@link IRenderIntoOpt} or {@link IRenderInto}.
+ * @since 1.0
+ * @param <T>
+ */
+@Deprecated
 public interface INodeContentRenderer<T> {
 	/**
 	 * Render the content for a node. You should add whatever is needed to render the value of "object" to the "node" parameter, as either text
