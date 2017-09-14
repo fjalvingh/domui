@@ -19,7 +19,7 @@
 	width: 20px;
 }
 
-.ui-lui-btntd .ui-lui-sel-btn {
+.ui-lui-btntd {
 	vertical-align: middle;
 }
 
@@ -30,6 +30,11 @@
 	button {
 		margin: 4px;
 	}
+}
+.ui-lui-empty {
+	border: 1px solid $bevel_down;
+	white-space: nowrap;
+	padding: 3px 0px 2px 0px;
 }
 
 .ui-lui-selected .ui-lui-sel-btn {

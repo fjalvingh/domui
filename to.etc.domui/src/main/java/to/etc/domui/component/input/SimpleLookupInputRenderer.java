@@ -24,26 +24,20 @@
  */
 package to.etc.domui.component.input;
 
-import to.etc.domui.component.meta.ClassMetaModel;
-import to.etc.domui.component.meta.MetaManager;
-import to.etc.domui.component.meta.impl.DisplayPropertyMetaModel;
-import to.etc.domui.component.meta.impl.ExpandedDisplayProperty;
-import to.etc.domui.dom.html.NodeContainer;
-import to.etc.domui.dom.html.Span;
-import to.etc.domui.dom.html.TBody;
-import to.etc.domui.dom.html.TD;
-import to.etc.domui.dom.html.TR;
-import to.etc.domui.dom.html.TableVAlign;
-import to.etc.domui.util.IRenderInto;
-import to.etc.domui.util.Msgs;
+import to.etc.domui.component.meta.*;
+import to.etc.domui.component.meta.impl.*;
+import to.etc.domui.dom.html.*;
+import to.etc.domui.util.*;
+import to.etc.webapp.*;
 
-import javax.annotation.Nonnull;
-import java.util.List;
+import javax.annotation.*;
+import java.util.*;
 
 /**
- * This renderer represents default renderer that is used for {@link LookupInput} control.
+ * This renderer represents default renderer that is used for {@link LookupInput}. It can also be
+ * configured to show specific properties.
  *
- * It can be additionaly customized (before and after custom content),
+ * It can be customized (before and after custom content),
  * see {@link SimpleLookupInputRenderer#setBeforeRenderer(IRenderInto)} and {@link SimpleLookupInputRenderer#setAfterRenderer(IRenderInto)}.
  * Custom added content would be enveloped into separate row(s).
  *
@@ -51,95 +45,103 @@ import java.util.List;
  * Created on Feb 10, 2010
  */
 public class SimpleLookupInputRenderer<T> implements IRenderInto<T> {
-	public SimpleLookupInputRenderer() {}
+	/** The type that it should render. */
+	@Nullable
+	final private Class<T> m_actualClass;
+
+	@Nullable
+	final private String[] m_propertyNames;
+
+	@Nullable
+	private List<ExpandedDisplayProperty< ? >> m_xpl;
 
 	private IRenderInto<T> m_beforeRenderer;
 
 	private IRenderInto<T> m_afterRenderer;
 
+	public SimpleLookupInputRenderer() {
+		m_actualClass = null;
+		m_propertyNames = null;
+	}
+
+	public SimpleLookupInputRenderer(@Nonnull Class<T> clz, @Nonnull String... colset) {
+		m_actualClass = clz;
+		m_propertyNames = colset;
+
+		ClassMetaModel cmm = MetaManager.findClassMeta(clz);
+		List<ExpandedDisplayProperty< ? >> xpl;
+		if(m_propertyNames.length == 0) {
+			//-- Has default meta?
+			List<DisplayPropertyMetaModel> l = cmm.getTableDisplayProperties();
+			if(l.size() == 0)
+				l = cmm.getComboDisplayProperties();
+			if(l.size() == 0)
+				throw new ProgrammerErrorException("The class " + clz.getName() + " has no presentation metadata (@MetaObject or @MetaCombo)");
+
+			//-- Expand the thingy: render a single line separated with BRs
+			xpl = ExpandedDisplayProperty.expandDisplayProperties(l, cmm, null);
+		} else {
+			//-- Use the specified properties and create a list for presentation.
+			xpl = new ArrayList<>();
+			for(String propname : m_propertyNames) {
+				xpl.add(ExpandedDisplayProperty.expandProperty(cmm, propname));
+			}
+		}
+		m_xpl = ExpandedDisplayProperty.flatten(xpl);
+	}
+
 	@Override
 	public void render(@Nonnull NodeContainer node, @Nonnull T object) throws Exception {
-		String txt;
-		TBody tbl = ((LookupInput< ? >) node).getBody();
-		if(getBeforeRenderer() != null) {
-			TD cell = new TD();
-			getBeforeRenderer().render(cell, object);
+		TBody tb = node.addTableForLayout("ui-lui-vtab");
+		IRenderInto<T> beforeRenderer = getBeforeRenderer();
+		if(beforeRenderer != null) {
+			TD cell = tb.addRowAndCell("ui-lui-vcell");
+			beforeRenderer.render(cell, object);
 			if(cell.getChildCount() != 0)
-				tbl.addRow().add(cell);
+				tb.addRow().add(cell);
 		}
 
-		if(object != null) {
-			ClassMetaModel cmm = MetaManager.findClassMeta(object.getClass());
-			if(cmm != null) {
-				//-- Has default meta?
-				List<DisplayPropertyMetaModel> l = cmm.getTableDisplayProperties();
-				if(l.size() == 0)
-					l = cmm.getComboDisplayProperties();
-				if(l.size() > 0) {
-					//-- Expand the thingy: render a single line separated with BRs
-					List<ExpandedDisplayProperty< ? >> xpl = ExpandedDisplayProperty.expandDisplayProperties(l, cmm, null);
-					xpl = ExpandedDisplayProperty.flatten(xpl);
-						//						node.add(tbl);
-					tbl.setCssClass("ui-lui-v");
-					int c = 0;
-					int mw = 0;
-					for(ExpandedDisplayProperty< ? > xp : xpl) {
-						String val = xp.getPresentationString(object);
-						if(val == null || val.length() == 0)
-							continue;
-						TR tr = new TR();
-						tbl.add(tr);
-						TD td = new TD(); // Value thingy.
-						tr.add(td);
-						td.setCssClass("ui-lui-vcell");
-						td.setValign(TableVAlign.TOP);
-						td.add(val);
-						int len = val.length();
-						if(len > mw)
-							mw = len;
-							td = new TD();
-						tr.add(td);
-						td.setValign(TableVAlign.TOP);
-						td.setCssClass("ui-lui-btncell");
-						td.setWidth("1%");
-						//if(c++ == 0 && parameters != null) {
-						//	td.add((NodeBase) parameters); // Add the button,
-						//}
-					}
-					mw += 4;
-					if(mw > 40)
-						mw = 40;
-					tbl.setWidth(mw + "em");
-					return;
+		ClassMetaModel cmm = MetaManager.findClassMeta(object.getClass());
+		List<DisplayPropertyMetaModel> l = cmm.getTableDisplayProperties();
+		if(l.size() == 0)
+			l = cmm.getComboDisplayProperties();
+		if(l.size() > 0) {
+			List<ExpandedDisplayProperty< ? >> xpl = ExpandedDisplayProperty.expandDisplayProperties(l, cmm, null);
+			xpl = ExpandedDisplayProperty.flatten(xpl);
+			renderModelValue(object, tb, xpl);
+			return;
+		}
+
+		//-- Render as a text
+		String txt = object.toString();
+		TD td = tb.addRowAndCell("ui-lui-val-txt");
+		td.add(new Span("ui-lui-val", txt));
+
+		IRenderInto<T> afterRenderer = getAfterRenderer();
+		if(afterRenderer != null) {
+			TD cell = tb.addRowAndCell("ui-lui-vcell");
+			afterRenderer.render(cell, object);
+		}
+	}
+
+	private void renderModelValue(@Nonnull T object, TBody tb, List<ExpandedDisplayProperty< ? >> xpl) throws Exception {
+		int c = 0;
+		int mw = 0;
+		for(ExpandedDisplayProperty< ? > xp : xpl) {
+			String val = xp.getPresentationString(object);
+			if(val != null && val.length() != 0) {
+				TD td = tb.addRowAndCell("ui-lui-vcell");
+				td.add(val);
+				int len = val.length();
+				if(len > mw) {
+					mw = len;
 				}
 			}
-			txt = object.toString();
-		} else
-			txt = Msgs.BUNDLE.getString(Msgs.UI_LOOKUP_EMPTY);
-		TR r = new TR();
-		tbl.add(r);
-		TD td = new TD();
-		r.add(td);
-		td.setValign(TableVAlign.TOP);					// FIXUI Should not be here but in CSS
-		td.setCssClass("ui-lui-v");
-		td.add(new Span("ui-lui-val-txt", txt));
-
-		////-- parameters is either the button, or null if this is a readonly version.
-		//if(parameters != null) {
-		//	td = new TD();
-		//	r.add(td);
-		//	td.setValign(TableVAlign.TOP);
-		//	td.setWidth("1%");
-		//	td.add((NodeBase) parameters); // Add the button,
-		//}
-		//
-		//if(getAfterRenderer() != null) {
-		//	TD cell = new TD();
-		//	getAfterRenderer().renderNodeContent(component, cell, object, parameters);
-		//	if(cell.getChildCount() != 0)
-		//		tbl.addRow().add(cell);
-		//}
-
+		}
+		mw += 4;
+		if(mw > 40)
+			mw = 40;
+		tb.setWidth(mw + "em");
 	}
 
 	/**
