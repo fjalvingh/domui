@@ -449,7 +449,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	}
 
 	@Override
-	public Class< ? extends INodeContentRenderer< ? >> getComboNodeRenderer() {
+	public Class< ? extends IRenderInto< ? >> getComboNodeRenderer() {
 		return m_propertyMeta == null ? null : m_propertyMeta.getComboNodeRenderer();
 	}
 
@@ -503,7 +503,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	}
 
 	@Override
-	public Class< ? extends INodeContentRenderer< ? >> getLookupSelectedRenderer() {
+	public Class< ? extends IRenderInto< ? >> getLookupSelectedRenderer() {
 		return m_propertyMeta == null ? null : m_propertyMeta.getLookupSelectedRenderer();
 	}
 

@@ -268,11 +268,11 @@ final public class MetaManager {
 		return false;
 	}
 
-	static private INodeContentRenderer< ? > createComboLabelRenderer(Class< ? extends ILabelStringRenderer< ? >> lsr) {
+	static private IRenderInto< ? > createComboLabelRenderer(Class< ? extends ILabelStringRenderer< ? >> lsr) {
 		final ILabelStringRenderer<Object> lr = (ILabelStringRenderer<Object>) DomApplication.get().createInstance(lsr);
-		return new INodeContentRenderer<Object>() {
+		return new IRenderInto<Object>() {
 			@Override
-			public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable Object object, @Nullable Object parameters) {
+			public void render(@Nonnull NodeContainer node, @Nonnull Object object) {
 				String text = lr.getLabelFor(object);
 				if(text != null)
 					node.add(text);
@@ -284,9 +284,9 @@ final public class MetaManager {
 		return list != null && list.size() > 0;
 	}
 
-	static private INodeContentRenderer< ? > TOSTRING_RENDERER = new INodeContentRenderer<Object>() {
+	static private IRenderInto< ? > TOSTRING_RENDERER = new IRenderInto<Object>() {
 		@Override
-		public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable Object object, @Nullable Object parameters) {
+		public void render( @Nonnull NodeContainer node, @Nullable Object object) {
 			if(object != null)
 				node.add(object.toString());
 		}
@@ -305,7 +305,7 @@ final public class MetaManager {
 	 * @return
 	 */
 	@Nonnull
-	static public INodeContentRenderer< ? > createDefaultComboRenderer(@Nullable PropertyMetaModel< ? > pmm, @Nullable ClassMetaModel cmm) {
+	static public IRenderInto< ? > createDefaultComboRenderer(@Nullable PropertyMetaModel< ? > pmm, @Nullable ClassMetaModel cmm) {
 		//-- Property-level metadata is the 1st choice
 		if(pmm != null) {
 			cmm = MetaManager.findClassMeta(pmm.getActualType()); // Always use property's class model.

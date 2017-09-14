@@ -62,7 +62,7 @@ public @interface MetaObject {
 	 * button to start searching. When you use this the data in {@link #properties()} is ignored.
 	 * @return
 	 */
-	Class< ? extends INodeContentRenderer< ? >> selectedRenderer() default UndefinedLabelStringRenderer.class;
+	Class< ? extends IRenderInto< ? >> selectedRenderer() default UndefinedLabelStringRenderer.class;
 
 	/**
 	 * The list of properties that should be shown in the "display part" of a control like {@link LookupInput}

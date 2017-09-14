@@ -65,7 +65,7 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	 */
 	private Class< ? extends ILabelStringRenderer< ? >> m_comboLabelRenderer;
 
-	private Class< ? extends INodeContentRenderer< ? >> m_comboNodeRenderer;
+	private Class< ? extends IRenderInto< ? >> m_comboNodeRenderer;
 
 	@Nonnull
 	private List<DisplayPropertyMetaModel> m_comboDisplayProperties = Collections.EMPTY_LIST;
@@ -78,7 +78,7 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	 * Default renderer which renders a lookup field's "field" contents; this is a table which must be filled with
 	 * data pertaining to the looked-up item as a single element on the "edit" screen.
 	 */
-	private Class< ? extends INodeContentRenderer< ? >> m_lookupFieldRenderer;
+	private Class< ? extends IRenderInto< ? >> m_lookupFieldRenderer;
 
 	/**
 	 * The default properties to show in a lookup field's instance display.
@@ -319,11 +319,11 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 
 	@Nullable
 	@Override
-	public Class< ? extends INodeContentRenderer< ? >> getComboNodeRenderer() {
+	public Class< ? extends IRenderInto< ? >> getComboNodeRenderer() {
 		return m_comboNodeRenderer;
 	}
 
-	public void setComboNodeRenderer(@Nullable final Class< ? extends INodeContentRenderer< ? >> comboNodeRenderer) {
+	public void setComboNodeRenderer(@Nullable final Class< ? extends IRenderInto< ? >> comboNodeRenderer) {
 		m_comboNodeRenderer = comboNodeRenderer;
 	}
 
@@ -336,11 +336,11 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Class< ? extends INodeContentRenderer< ? >> getLookupSelectedRenderer() {
+	public Class< ? extends IRenderInto< ? >> getLookupSelectedRenderer() {
 		return m_lookupFieldRenderer;
 	}
 
-	public void setLookupSelectedRenderer(final Class< ? extends INodeContentRenderer< ? >> lookupFieldRenderer) {
+	public void setLookupSelectedRenderer(final Class< ? extends IRenderInto< ? >> lookupFieldRenderer) {
 		m_lookupFieldRenderer = lookupFieldRenderer;
 	}
 

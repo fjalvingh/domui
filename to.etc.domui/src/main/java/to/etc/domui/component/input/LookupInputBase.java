@@ -129,7 +129,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	 * The content renderer to use to render the current value.
 	 */
 	@Nullable
-	private INodeContentRenderer<OT> m_valueRenderer;
+	private IRenderInto<OT> m_valueRenderer;
 
 	@Nullable
 	private IErrorMessageListener m_customErrorMessageListener;
@@ -310,28 +310,28 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		add(m_table);
 		m_keySearch = null;
 		removeCssClass("ui-ro");
-		if(m_value == null && isAllowKeyWordSearch() && isKeyWordSearchDefined()) {
-			//Key word search rendering should be generic, no need for customization posibilities.
-			if(isReadOnly() || isDisabled()) {
-				renderEmptySelection();
-				addCssClass("ui-ro");
+		OT value = m_value;
+		if(value == null) {
+			if(isAllowKeyWordSearch() && isKeyWordSearchDefined()){
+				//Key word search rendering should be generic, no need for customization possibilities.
+				if(isReadOnly() || isDisabled()) {
+					renderEmptySelection();
+					addCssClass("ui-ro");
+				} else {
+					renderKeyWordSearch(m_selButton);
+				}
 			} else {
-				renderKeyWordSearch(m_selButton);
+				//-- Render "no selection"
+				Span span = new Span("ui-lui-empty", Msgs.BUNDLE.getString(Msgs.UI_LOOKUP_EMPTY));
+				add(span);
 			}
 		} else {
-			/*
-			 * jal 20170914 this is really bad, and a good example of how we should not
-			 * do things. Responsibility to render key components of the control is
-			 * delegated to code that is responsible for rendering the value, and
-			 * which is designed to be changeable by the user. This means that
-			 * changing the layout, now, causes a big issue because all custom
-			 * renderers "do something" with the buttons that we cannot foresee.
-			 */
-			//In case of rendering selected values it is possible to use customized renderers. If no customized rendered is defined then use default one.
-			INodeContentRenderer<OT> r = getValueRenderer();
+			//-- Nonnull render
+			IRenderInto<OT> r = getValueRenderer();
 			if(r == null)
-				r = (INodeContentRenderer<OT>) DEFAULT_RENDERER; // Prevent idiotic generics error
-			r.renderNodeContent(this, this, m_value, isReadOnly() || isDisabled() ? null : m_selButton);
+				r = (IRenderInto<OT>) DEFAULT_RENDERER; // Prevent idiotic generics error
+			r.render(this, value);
+			//r.render(this, m_value, isReadOnly() || isDisabled() ? null : m_selButton);
 
 			handleSelectionCss();
 		}
@@ -1509,11 +1509,11 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	 * @return
 	 */
 	@Nullable
-	public INodeContentRenderer<OT> getValueRenderer() {
+	public IRenderInto<OT> getValueRenderer() {
 		return m_valueRenderer;
 	}
 
-	public void setValueRenderer(@Nullable INodeContentRenderer<OT> contentRenderer) {
+	public void setValueRenderer(@Nullable IRenderInto<OT> contentRenderer) {
 		m_valueRenderer = contentRenderer;
 	}
 

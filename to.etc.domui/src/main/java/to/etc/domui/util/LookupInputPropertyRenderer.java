@@ -24,33 +24,36 @@
  */
 package to.etc.domui.util;
 
-import java.util.*;
+import to.etc.domui.component.input.LookupInput;
+import to.etc.domui.component.input.SimpleLookupInputRenderer;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.impl.DisplayPropertyMetaModel;
+import to.etc.domui.component.meta.impl.ExpandedDisplayProperty;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.TR;
+import to.etc.domui.dom.html.TableVAlign;
+import to.etc.webapp.ProgrammerErrorException;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.meta.impl.*;
-import to.etc.domui.dom.html.*;
-import to.etc.webapp.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Configurable renderer for a LookupInput's "display selected value" field. This is a customizable
  * replacement for {@link SimpleLookupInputRenderer} which can define the fields to show explicitly,
  * instead of using metadata only.
  *
- * <p>This renderer represents default renderer that is used for {@link LookupInput} control.
- * It can be additionaly customized (before and after custom content) by setting provided {@link ICustomContentFactory} fields.
- * See {@link LookupInputPropertyRenderer#setBeforeContent} and {@link LookupInputPropertyRenderer#setAfterContent}.
- * Custom added content would be enveloped into separate row(s).</p>
- *
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on Feb 10, 2010
  */
-public class LookupInputPropertyRenderer<T> implements INodeContentRenderer<T> {
-	private INodeContentRenderer<T> m_beforeRenderer;
+public class LookupInputPropertyRenderer<T> implements IRenderInto<T> {
+	private IRenderInto<T> m_beforeRenderer;
 
-	private INodeContentRenderer<T> m_afterRenderer;
+	private IRenderInto<T> m_afterRenderer;
 
 	/** The type that it should render. */
 	@Nonnull
@@ -95,12 +98,12 @@ public class LookupInputPropertyRenderer<T> implements INodeContentRenderer<T> {
 	}
 
 	@Override
-	public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable T object, @Nullable Object parameters) throws Exception {
+	public void render(@Nonnull NodeContainer node, @Nonnull T object) throws Exception {
 		String txt;
 		TBody tbl = ((LookupInput< ? >) node).getBody();
 		if(getBeforeRenderer() != null) {
 			TD cell = new TD();
-			getBeforeRenderer().renderNodeContent(component, cell, object, parameters);
+			getBeforeRenderer().render(cell, object);
 			if(cell.getChildCount() != 0)
 				tbl.addRow().add(cell);
 		}
@@ -115,14 +118,14 @@ public class LookupInputPropertyRenderer<T> implements INodeContentRenderer<T> {
 			td.setCssClass("ui-lui-v");
 			td.add(txt);
 
-			//-- parameters is either the button, or null if this is a readonly version.
-			if(parameters != null) {
-				td = new TD();
-				r.add(td);
-				td.setValign(TableVAlign.TOP);
-				td.setWidth("1%");
-				td.add((NodeBase) parameters); // Add the button,
-			}
+			////-- parameters is either the button, or null if this is a readonly version.
+			//if(parameters != null) {
+			//	td = new TD();
+			//	r.add(td);
+			//	td.setValign(TableVAlign.TOP);
+			//	td.setWidth("1%");
+			//	td.add((NodeBase) parameters); // Add the button,
+			//}
 		} else {
 			tbl.setCssClass("ui-lui-v");
 			int c = 0;
@@ -150,9 +153,9 @@ public class LookupInputPropertyRenderer<T> implements INodeContentRenderer<T> {
 				td.setValign(TableVAlign.TOP);
 				td.setCssClass("ui-lui-btncell");
 				td.setWidth("1%");
-				if(c++ == 0 && parameters != null) {
-					td.add((NodeBase) parameters); // Add the button,
-				}
+				//if(c++ == 0 && parameters != null) {
+				//	td.add((NodeBase) parameters); // Add the button,
+				//}
 			}
 			mw += 4;
 			if(mw > 40)
@@ -162,7 +165,7 @@ public class LookupInputPropertyRenderer<T> implements INodeContentRenderer<T> {
 
 		if(getAfterRenderer() != null) {
 			TD cell = new TD();
-			getAfterRenderer().renderNodeContent(component, cell, object, parameters);
+			getAfterRenderer().render(cell, object);
 			if(cell.getChildCount() != 0)
 				tbl.addRow().add(cell);
 		}
@@ -171,30 +174,28 @@ public class LookupInputPropertyRenderer<T> implements INodeContentRenderer<T> {
 	/**
 	 * Enables inserting of custom content that would be enveloped into additionaly added row that is inserted before rows that are part of builtin content.
 	 */
-	public INodeContentRenderer<T> getBeforeRenderer() {
+	public IRenderInto<T> getBeforeRenderer() {
 		return m_beforeRenderer;
 	}
 
 	/**
 	 * Enables inserting of custom content that would be enveloped into additionaly added row that is inserted before rows that are part of builtin content.
-	 * @param afterContent
 	 */
-	public void setBeforeRenderer(INodeContentRenderer<T> beforeContent) {
+	public void setBeforeRenderer(IRenderInto<T> beforeContent) {
 		m_beforeRenderer = beforeContent;
 	}
 
 	/**
 	 * Enables appending of custom content that would be enveloped into additionaly added row <i>after</i> the actual data.
 	 */
-	public INodeContentRenderer<T> getAfterRenderer() {
+	public IRenderInto<T> getAfterRenderer() {
 		return m_afterRenderer;
 	}
 
 	/**
 	 * Enables appending of custom content that would be enveloped into additionaly added row <i>after</i> the actual data.
-	 * @param afterContent
 	 */
-	public void setAfterRenderer(INodeContentRenderer<T> afterContent) {
+	public void setAfterRenderer(IRenderInto<T> afterContent) {
 		m_afterRenderer = afterContent;
 	}
 

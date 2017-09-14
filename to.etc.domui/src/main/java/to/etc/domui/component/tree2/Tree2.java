@@ -42,6 +42,7 @@ import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.Ul;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.util.INodeContentRenderer;
+import to.etc.domui.util.IRenderInto;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -354,7 +355,13 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 		if(val == null)
 			throw new IllegalStateException("Cannot calculate content renderer for null value");
 		ClassMetaModel cmm = MetaManager.findClassMeta(val.getClass());
-		return MetaManager.createDefaultComboRenderer(m_propertyMetaModel, cmm);
+		IRenderInto<Object> rr = (IRenderInto<Object>) MetaManager.createDefaultComboRenderer(m_propertyMetaModel, cmm);
+		return new INodeContentRenderer<Object>() {
+			@Override public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable Object object, @Nullable Object parameters) throws Exception {
+				if(null != object)
+					rr.render(node, object);
+			}
+		};
 	}
 
 	private void renderContent(final NodeContainer cell, final T value) throws Exception {

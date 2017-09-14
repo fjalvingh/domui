@@ -31,5 +31,5 @@ package to.etc.domui.util;
  * Created on Jul 13, 2008
  */
 public interface ILabelStringRenderer<T> {
-	public String getLabelFor(T object);
+	String getLabelFor(T object);
 }
