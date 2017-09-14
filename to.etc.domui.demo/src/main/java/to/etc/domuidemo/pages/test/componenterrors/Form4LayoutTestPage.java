@@ -11,6 +11,7 @@ import to.etc.domui.derbydata.db.Artist;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.TextArea;
 import to.etc.domui.dom.html.UrlPage;
+import to.etc.webapp.query.QCriteria;
 
 import java.util.Date;
 
@@ -23,6 +24,8 @@ public class Form4LayoutTestPage extends UrlPage {
 
 	private Album m_album;
 
+	private Album m_album3;
+
 	private Artist m_artist2;
 
 	private Album m_album2;
@@ -34,6 +37,9 @@ public class Form4LayoutTestPage extends UrlPage {
 	private Date m_date = new Date();
 
 	@Override public void createContent() throws Exception {
+		QCriteria<Album> q = QCriteria.create(Album.class).eq("title", "Angel Dust");
+		m_album3 = getSharedContext().queryOne(q);
+
 		FormBuilder fb = new FormBuilder(this);
 
 		//-- LookupInput
@@ -47,6 +53,11 @@ public class Form4LayoutTestPage extends UrlPage {
 		li2.setTestID("two");
 		li2.setMandatory(true);
 		fb.property(this, "album").control(li2);
+
+		LookupInput<Album> li7 = new LookupInput<>(Album.class);
+		li7.setTestID("seven");
+		li7.setMandatory(true);
+		fb.property(this, "album3").control(li7);
 
 		//-- LookupInput2
 		LookupInput2<Artist> li3 = new LookupInput2<>(Artist.class);
@@ -139,5 +150,14 @@ public class Form4LayoutTestPage extends UrlPage {
 
 	public void setMemo(String memo) {
 		m_memo = memo;
+	}
+
+	@MetaProperty(required = YesNoType.YES)
+	public Album getAlbum3() {
+		return m_album3;
+	}
+
+	public void setAlbum3(Album album3) {
+		m_album3 = album3;
 	}
 }

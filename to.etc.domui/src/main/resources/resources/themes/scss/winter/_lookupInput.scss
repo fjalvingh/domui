@@ -7,6 +7,7 @@
 	margin: 0px;
 }
 
+// The single "lookup" button td for an open quicksearch
 .ui-lui-btntd {
 	text-align: left;
 	white-space: nowrap;
@@ -20,6 +21,21 @@
 
 .ui-lui-btntd .ui-lui-sel-btn {
 	vertical-align: middle;
+}
+
+// The single td containing 2 buttons to lookup and clear, sigh.
+.ui-lui-btncell {
+	min-width: 38px;
+
+	button {
+		margin: 4px;
+	}
+}
+
+.ui-lui-selected .ui-lui-sel-btn {
+}
+
+.ui-lui-selected .ui-lui-clear-btn {
 }
 
 div.ui-lui-selected {
@@ -97,18 +113,6 @@ div.ui-lui > table {
 	background-color: $readonly_bg;
 }
 
-.ui-lui-selected .ui-lui-sel-btn {
-	position: absolute;
-	margin-top: -2px;
-	margin-left: 13px;
-}
-
-.ui-lui-selected .ui-lui-clear-btn {
-	position: absolute;
-	margin-top: 4px;
-	margin-left: -2px;
-}
-
 .ui-input-err * .ui-lui-v {
 	background-color: #ffe5e5 !important;
 }
@@ -118,12 +122,6 @@ div.ui-lui > table {
 	width: 99%;
 	padding: 2px 5px 2px 2px;
 	vertical-align: top;
-}
-
-.ui-lui-btncell {
-	min-width: 38px;
-	padding-top: 2px;
-	position: relative;
 }
 
 input.ui-lui-keyword {

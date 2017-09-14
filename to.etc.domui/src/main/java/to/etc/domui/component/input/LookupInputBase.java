@@ -50,7 +50,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 
 	public static final String MAGIC_ID_MARKER = "?id?";
 
-	static public final INodeContentRenderer<Object> DEFAULT_RENDERER = new SimpleLookupInputRenderer<Object>();
+	static public final IRenderInto<Object> DEFAULT_RENDERER = new SimpleLookupInputRenderer<Object>();
 
 	/**
 	 * Interface provides assess to used lookup form initialization method.
@@ -319,6 +319,14 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 				renderKeyWordSearch(m_selButton);
 			}
 		} else {
+			/*
+			 * jal 20170914 this is really bad, and a good example of how we should not
+			 * do things. Responsibility to render key components of the control is
+			 * delegated to code that is responsible for rendering the value, and
+			 * which is designed to be changeable by the user. This means that
+			 * changing the layout, now, causes a big issue because all custom
+			 * renderers "do something" with the buttons that we cannot foresee.
+			 */
 			//In case of rendering selected values it is possible to use customized renderers. If no customized rendered is defined then use default one.
 			INodeContentRenderer<OT> r = getValueRenderer();
 			if(r == null)

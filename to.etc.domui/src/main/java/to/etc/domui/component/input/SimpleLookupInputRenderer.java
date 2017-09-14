@@ -24,40 +24,46 @@
  */
 package to.etc.domui.component.input;
 
-import java.util.*;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.impl.DisplayPropertyMetaModel;
+import to.etc.domui.component.meta.impl.ExpandedDisplayProperty;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.Span;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.TR;
+import to.etc.domui.dom.html.TableVAlign;
+import to.etc.domui.util.IRenderInto;
+import to.etc.domui.util.Msgs;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.meta.impl.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
+import javax.annotation.Nonnull;
+import java.util.List;
 
 /**
  * This renderer represents default renderer that is used for {@link LookupInput} control.
- * It can be additionaly customized (before and after custom content) by setting provided {@link ICustomContentFactory} fields.
- * See {@link SimpleLookupInputRenderer#setBeforeContent} and {@link SimpleLookupInputRenderer#setAfterContent}.
+ *
+ * It can be additionaly customized (before and after custom content),
+ * see {@link SimpleLookupInputRenderer#setBeforeRenderer(IRenderInto)} and {@link SimpleLookupInputRenderer#setAfterRenderer(IRenderInto)}.
  * Custom added content would be enveloped into separate row(s).
  *
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on Feb 10, 2010
  */
-public class SimpleLookupInputRenderer<T> implements INodeContentRenderer<T> {
-
+public class SimpleLookupInputRenderer<T> implements IRenderInto<T> {
 	public SimpleLookupInputRenderer() {}
 
-	private INodeContentRenderer<T> m_beforeRenderer;
+	private IRenderInto<T> m_beforeRenderer;
 
-	private INodeContentRenderer<T> m_afterRenderer;
+	private IRenderInto<T> m_afterRenderer;
 
 	@Override
-	public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable T object, @Nullable Object parameters) throws Exception {
+	public void render(@Nonnull NodeContainer node, @Nonnull T object) throws Exception {
 		String txt;
 		TBody tbl = ((LookupInput< ? >) node).getBody();
 		if(getBeforeRenderer() != null) {
 			TD cell = new TD();
-			getBeforeRenderer().renderNodeContent(component, cell, object, parameters);
+			getBeforeRenderer().render(cell, object);
 			if(cell.getChildCount() != 0)
 				tbl.addRow().add(cell);
 		}
@@ -96,9 +102,9 @@ public class SimpleLookupInputRenderer<T> implements INodeContentRenderer<T> {
 						td.setValign(TableVAlign.TOP);
 						td.setCssClass("ui-lui-btncell");
 						td.setWidth("1%");
-						if(c++ == 0 && parameters != null) {
-							td.add((NodeBase) parameters); // Add the button,
-						}
+						//if(c++ == 0 && parameters != null) {
+						//	td.add((NodeBase) parameters); // Add the button,
+						//}
 					}
 					mw += 4;
 					if(mw > 40)
@@ -117,51 +123,50 @@ public class SimpleLookupInputRenderer<T> implements INodeContentRenderer<T> {
 		td.setValign(TableVAlign.TOP);					// FIXUI Should not be here but in CSS
 		td.setCssClass("ui-lui-v");
 		td.add(new Span("ui-lui-val-txt", txt));
-			//-- parameters is either the button, or null if this is a readonly version.
-		if(parameters != null) {
-			td = new TD();
-			r.add(td);
-			td.setValign(TableVAlign.TOP);
-			td.setWidth("1%");
-			td.add((NodeBase) parameters); // Add the button,
-		}
 
-		if(getAfterRenderer() != null) {
-			TD cell = new TD();
-			getAfterRenderer().renderNodeContent(component, cell, object, parameters);
-			if(cell.getChildCount() != 0)
-				tbl.addRow().add(cell);
-		}
+		////-- parameters is either the button, or null if this is a readonly version.
+		//if(parameters != null) {
+		//	td = new TD();
+		//	r.add(td);
+		//	td.setValign(TableVAlign.TOP);
+		//	td.setWidth("1%");
+		//	td.add((NodeBase) parameters); // Add the button,
+		//}
+		//
+		//if(getAfterRenderer() != null) {
+		//	TD cell = new TD();
+		//	getAfterRenderer().renderNodeContent(component, cell, object, parameters);
+		//	if(cell.getChildCount() != 0)
+		//		tbl.addRow().add(cell);
+		//}
 
 	}
 
 	/**
 	 * Enables inserting of custom content that would be enveloped into additionaly added row that is inserted before rows that are part of builtin content.
 	 */
-	public INodeContentRenderer<T> getBeforeRenderer() {
+	public IRenderInto<T> getBeforeRenderer() {
 		return m_beforeRenderer;
 	}
 
 	/**
 	 * Enables inserting of custom content that would be enveloped into additionaly added row that is inserted before rows that are part of builtin content.
-	 * @param afterContent
 	 */
-	public void setBeforeRenderer(INodeContentRenderer<T> beforeContent) {
+	public void setBeforeRenderer(IRenderInto<T> beforeContent) {
 		m_beforeRenderer = beforeContent;
 	}
 
 	/**
 	 * Enables appending of custom content that would be enveloped into additionaly added row <i>after</i> the actual data.
 	 */
-	public INodeContentRenderer<T> getAfterRenderer() {
+	public IRenderInto<T> getAfterRenderer() {
 		return m_afterRenderer;
 	}
 
 	/**
 	 * Enables appending of custom content that would be enveloped into additionaly added row <i>after</i> the actual data.
-	 * @param afterContent
 	 */
-	public void setAfterRenderer(INodeContentRenderer<T> afterContent) {
+	public void setAfterRenderer(IRenderInto<T> afterContent) {
 		m_afterRenderer = afterContent;
 	}
 }
