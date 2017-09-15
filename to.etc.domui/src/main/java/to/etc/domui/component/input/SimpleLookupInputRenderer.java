@@ -70,7 +70,7 @@ public class SimpleLookupInputRenderer<T> implements IRenderInto<T> {
 
 		ClassMetaModel cmm = MetaManager.findClassMeta(clz);
 		List<ExpandedDisplayProperty< ? >> xpl;
-		if(m_propertyNames.length == 0) {
+		if(colset.length == 0) {
 			//-- Has default meta?
 			List<DisplayPropertyMetaModel> l = cmm.getTableDisplayProperties();
 			if(l.size() == 0)
@@ -83,7 +83,7 @@ public class SimpleLookupInputRenderer<T> implements IRenderInto<T> {
 		} else {
 			//-- Use the specified properties and create a list for presentation.
 			xpl = new ArrayList<>();
-			for(String propname : m_propertyNames) {
+			for(String propname : colset) {
 				xpl.add(ExpandedDisplayProperty.expandProperty(cmm, propname));
 			}
 		}
@@ -101,21 +101,25 @@ public class SimpleLookupInputRenderer<T> implements IRenderInto<T> {
 				tb.addRow().add(cell);
 		}
 
-		ClassMetaModel cmm = MetaManager.findClassMeta(object.getClass());
-		List<DisplayPropertyMetaModel> l = cmm.getTableDisplayProperties();
-		if(l.size() == 0)
-			l = cmm.getComboDisplayProperties();
-		if(l.size() > 0) {
-			List<ExpandedDisplayProperty< ? >> xpl = ExpandedDisplayProperty.expandDisplayProperties(l, cmm, null);
-			xpl = ExpandedDisplayProperty.flatten(xpl);
+		List<ExpandedDisplayProperty<?>> xpl = m_xpl;
+		if(xpl != null) {
 			renderModelValue(object, tb, xpl);
-			return;
+		} else {
+			ClassMetaModel cmm = MetaManager.findClassMeta(object.getClass());
+			List<DisplayPropertyMetaModel> l = cmm.getTableDisplayProperties();
+			if(l.size() == 0)
+				l = cmm.getComboDisplayProperties();
+			if(l.size() > 0) {
+				xpl = ExpandedDisplayProperty.expandDisplayProperties(l, cmm, null);
+				xpl = ExpandedDisplayProperty.flatten(xpl);
+				renderModelValue(object, tb, xpl);
+			} else {
+				//-- Render as a text
+				String txt = object.toString();
+				TD td = tb.addRowAndCell("ui-lui-val-txt");
+				td.add(new Span("ui-lui-val", txt));
+			}
 		}
-
-		//-- Render as a text
-		String txt = object.toString();
-		TD td = tb.addRowAndCell("ui-lui-val-txt");
-		td.add(new Span("ui-lui-val", txt));
 
 		IRenderInto<T> afterRenderer = getAfterRenderer();
 		if(afterRenderer != null) {

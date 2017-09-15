@@ -1,6 +1,8 @@
 package to.etc.domuidemo.pages.test.componenterrors;
 
 import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.headers.GenericHeader;
+import to.etc.domui.component.headers.GenericHeader.Type;
 import to.etc.domui.component.input.LookupInput;
 import to.etc.domui.component.meta.MetaProperty;
 import to.etc.domui.component.meta.YesNoType;
@@ -26,6 +28,8 @@ public class Form4LayoutTestPage extends UrlPage {
 
 	private Album m_album3;
 
+	private Album m_album4;
+
 	private Artist m_artist2;
 
 	private Album m_album2;
@@ -38,8 +42,9 @@ public class Form4LayoutTestPage extends UrlPage {
 
 	@Override public void createContent() throws Exception {
 		QCriteria<Album> q = QCriteria.create(Album.class).eq("title", "Angel Dust");
-		m_album3 = getSharedContext().queryOne(q);
+		m_album4 = m_album3 = getSharedContext().queryOne(q);
 
+		add(new GenericHeader(Type.BLUE, "LookupInput variants"));
 		FormBuilder fb = new FormBuilder(this);
 
 		//-- LookupInput
@@ -59,7 +64,15 @@ public class Form4LayoutTestPage extends UrlPage {
 		li7.setMandatory(true);
 		fb.property(this, "album3").control(li7);
 
+		LookupInput<Album> li8 = new LookupInput<>(Album.class);
+		li8.setValueColumns("title", "artist.name");
+		li8.setTestID("eight");
+		li8.setMandatory(true);
+		fb.property(this, "album4").control(li8);
+
 		//-- LookupInput2
+		add(new GenericHeader(Type.BLUE, "LookupInput2 variants"));
+		fb = new FormBuilder(this);
 		LookupInput2<Artist> li3 = new LookupInput2<>(Artist.class);
 		li3.setTestID("three");
 		li3.setMandatory(true);
@@ -159,5 +172,14 @@ public class Form4LayoutTestPage extends UrlPage {
 
 	public void setAlbum3(Album album3) {
 		m_album3 = album3;
+	}
+
+	@MetaProperty(required = YesNoType.YES)
+	public Album getAlbum4() {
+		return m_album4;
+	}
+
+	public void setAlbum4(Album album4) {
+		m_album4 = album4;
 	}
 }

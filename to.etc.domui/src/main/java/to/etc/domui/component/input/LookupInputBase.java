@@ -52,7 +52,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 
 	public static final String MAGIC_ID_MARKER = "?id?";
 
-	static public final IRenderInto<Object> DEFAULT_RENDERER = new SimpleLookupInputRenderer<Object>();
+	static public final IRenderInto<Object> DEFAULT_RENDERER = new SimpleLookupInputRenderer<>();
 
 	/**
 	 * Interface provides assess to used lookup form initialization method.
@@ -378,10 +378,14 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		//-- Lookup button is always there
 		TR tr = m_table.getBody().getRow(0);
 		TD cell = tr.addCell("ui-lui-btntd");
-		cell.add(getSelButton());
+		Div d = new Div("ui-lui-btn-c");
+		cell.add(d);
+		d.add(getSelButton());
 
 		cell = tr.addCell("ui-lui-btntd");
-		cell.add(getClearButton());
+		d = new Div("ui-lui-btn-c");
+		cell.add(d);
+		d.add(getClearButton());
 		getClearButton().setDisabled(m_value == null);
 
 		getSelButton().setTestID(calcTestID() + "-lookup");
@@ -1089,14 +1093,14 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		if(v != null) {
 			getClearButton().setDisabled(false);
 			clearMessage();
-			setCssClass("ui-lui-selected");
+			addCssClass("ui-lui-selected");
 			String selectionCss = getSelectionCssClass();
 			if (!StringTool.isBlank(selectionCss)){
 				addCssClass(DomUtil.nullChecked(selectionCss));
 			}
 		} else {
 			getClearButton().setDisabled(true);
-			setCssClass("ui-lui");
+			removeCssClass("ui-lui-selected");
 		}
 		updateRoStyle();
 		forceRebuild();
