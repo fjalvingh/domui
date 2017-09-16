@@ -24,17 +24,33 @@
  */
 package to.etc.domui.component.agenda;
 
-import java.text.*;
-import java.util.*;
+import to.etc.domui.dom.css.DisplayType;
+import to.etc.domui.dom.css.Overflow;
+import to.etc.domui.dom.css.PositionType;
+import to.etc.domui.dom.html.BR;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.Img;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.Span;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.TR;
+import to.etc.domui.dom.html.Table;
+import to.etc.domui.dom.html.TableVAlign;
+import to.etc.domui.server.RequestContextImpl;
+import to.etc.domui.util.DomUtil;
+import to.etc.util.DateUtil;
+import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
-import to.etc.webapp.nls.*;
+import javax.annotation.Nonnull;
+import java.text.DateFormat;
+import java.text.DateFormatSymbols;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class WeekAgendaComponent<T extends ScheduleItem> extends Div implements ScheduleModelChangedListener<T> {
 	/** The model to use, */
@@ -398,7 +414,7 @@ public class WeekAgendaComponent<T extends ScheduleItem> extends Div implements 
 				m_actualItemRenderer = new DefaultScheduleItemRenderer<T>(); // Use default renderer
 		}
 
-		m_actualItemRenderer.renderNodeContent(this, sidiv, si, null);
+		m_actualItemRenderer.render(this, sidiv, si);
 		sidiv.setSpecialAttribute("startDate", renderDate(si.getStart()));
 		sidiv.setSpecialAttribute("endDate", renderDate(si.getEnd()));
 		//		sidiv.setSpecialAttribute("startDate", Long.toString(si.getStart().getTime()));

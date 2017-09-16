@@ -1,18 +1,35 @@
 package to.etc.domui.component.misc;
 
-import java.util.*;
+import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.layout.IWindowClosed;
+import to.etc.domui.component.layout.Window;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.dom.css.Overflow;
+import to.etc.domui.dom.css.VerticalAlignType;
+import to.etc.domui.dom.html.Button;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.Img;
+import to.etc.domui.dom.html.Label;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.TR;
+import to.etc.domui.dom.html.Table;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.themes.Theme;
+import to.etc.domui.trouble.ValidationException;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.IRenderInto;
+import to.etc.domui.util.Msgs;
+import to.etc.domui.util.bugs.Bug;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.layout.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.themes.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
-import to.etc.domui.util.bugs.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Easier to use MsgBox using Builder pattern.
@@ -94,7 +111,7 @@ final public class MsgBox2 extends Window {
 	/**
 	 * Custom dialog message text renderer.
 	 */
-	private INodeContentRenderer<String> m_dataRenderer;
+	private IRenderInto<String> m_dataRenderer;
 
 	private NodeContainer m_content;
 
@@ -187,10 +204,10 @@ final public class MsgBox2 extends Window {
 
 		td = row.addCell("ui-mbx-mc");
 		NodeContainer content = m_content;
-		INodeContentRenderer<String> renderer = m_dataRenderer;
+		IRenderInto<String> renderer = m_dataRenderer;
 		if(null != renderer) {
 			try {
-				renderer.renderNodeContent(this, td, m_theText, null);
+				renderer.render(td, m_theText);
 			} catch(Exception ex) {
 				Bug.bug(ex);
 			}
@@ -455,7 +472,7 @@ final public class MsgBox2 extends Window {
 	}
 
 	@Nonnull
-	public MsgBox2 renderer(INodeContentRenderer<String> cr) {
+	public MsgBox2 renderer(IRenderInto<String> cr) {
 		m_dataRenderer = cr;
 		return this;
 	}

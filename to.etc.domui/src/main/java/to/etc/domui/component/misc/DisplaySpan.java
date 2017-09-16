@@ -35,7 +35,6 @@ import to.etc.domui.dom.html.IDisplayControl;
 import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.Span;
 import to.etc.domui.util.DomUtil;
-import to.etc.domui.util.INodeContentRenderer;
 import to.etc.domui.util.IRenderInto;
 import to.etc.webapp.nls.NlsContext;
 
@@ -63,7 +62,7 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 	private IConverter<T> m_converter;
 
 	@Nullable
-	private INodeContentRenderer<T> m_renderer;
+	private IRenderInto<T> m_renderer;
 
 	/** The string to display when the field is empty. */
 	@Nullable
@@ -117,9 +116,9 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 		}
 
 		//-- If a node renderer is set ask it to render content inside me. It is required to render proper info.
-		INodeContentRenderer<T> renderer = getRenderer();
+		IRenderInto<T> renderer = getRenderer();
 		if(renderer != null) {
-			renderer.renderNodeContent(this, this, val, null); // Ask node renderer.
+			renderer.render(this, val); // Ask node renderer.
 			if(getChildCount() == 0 && m_emptyString != null)
 				add(m_emptyString);
 			return;
@@ -191,11 +190,11 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 	 * @return
 	 */
 	@Nullable
-	public INodeContentRenderer<T> getRenderer() {
+	public IRenderInto<T> getRenderer() {
 		return m_renderer;
 	}
 
-	public void setRenderer(@Nullable INodeContentRenderer<T> renderer) {
+	public void setRenderer(@Nullable IRenderInto<T> renderer) {
 		if(m_renderer == renderer)
 			return;
 		if(m_converter != null && renderer != null)

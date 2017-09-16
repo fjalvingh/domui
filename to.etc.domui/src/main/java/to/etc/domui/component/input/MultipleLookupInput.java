@@ -110,7 +110,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 
 	private final MultiLookupInput m_lookupInput;
 	private Div m_selectionContainer;
-	private INodeContentRenderer<T> m_selectedItemRenderer;
+	private IRenderInto<T> m_selectedItemRenderer;
 	private String[] m_renderColumns;
 
 	private String m_cssForSelectedItems;
@@ -126,12 +126,9 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 	/**
 	 * This renderer represents default renderer that is used for items in {@link MultipleLookupInput} control.
 	 */
-	final private INodeContentRenderer<T> DEFAULT_RENDERER = new INodeContentRenderer<T>() {
+	final private IRenderInto<T> DEFAULT_RENDERER = new IRenderInto<T>() {
 		@Override
-		public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable T object, @Nullable Object parameters) throws Exception {
-			if(node == null || !(node instanceof Label)) {
-				throw new IllegalArgumentException("Expected Label but found: " + node);
-			}
+		public void render(@Nonnull NodeContainer node, @Nonnull T object) throws Exception {
 			if(object != null) {
 				ClassMetaModel cmm = MetaManager.findClassMeta(object.getClass());
 				if(cmm != null) {
@@ -364,10 +361,10 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 
 
 		//In case of rendring selected values it is possible to use customized renderers. If no customized rendered is defined then use default one.
-		INodeContentRenderer<T> r = getSelectedItemContentRenderer();
+		IRenderInto<T> r = getSelectedItemContentRenderer();
 		if(r == null)
 			r = DEFAULT_RENDERER; // Prevent idiotic generics error
-		r.renderNodeContent(this, itemText, item, null);
+		r.render(itemText, item);
 		return itemNode;
 	}
 
@@ -449,11 +446,11 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 		m_onValueChanged = onValueChanged;
 	}
 
-	public INodeContentRenderer<T> getSelectedItemContentRenderer() {
+	public IRenderInto<T> getSelectedItemContentRenderer() {
 		return m_selectedItemRenderer;
 	}
 
-	public void setSelectedItemContentRenderer(INodeContentRenderer<T> render) {
+	public void setSelectedItemContentRenderer(IRenderInto<T> render) {
 		if(m_selectedItemRenderer != render) {
 			m_selectedItemRenderer = render;
 			if(isBuilt()) {

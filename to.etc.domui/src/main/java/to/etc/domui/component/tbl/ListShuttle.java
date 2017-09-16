@@ -24,16 +24,24 @@
  */
 package to.etc.domui.component.tbl;
 
-import java.util.*;
+import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.dom.css.Overflow;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.TR;
+import to.etc.domui.dom.html.Table;
+import to.etc.domui.dom.html.TableVAlign;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.util.IRenderInto;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.domui.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.List;
 
 /**
  * The ListShuttle component contains a SOURCE list and a TARGET list, and allows the user to
@@ -68,13 +76,13 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 
 	//	private ITableModelListener<Object>		m_targetChangeListener;
 
-	private Class< ? extends INodeContentRenderer< ? >> m_sourceRendererClass;
+	private Class< ? extends IRenderInto< ? >> m_sourceRendererClass;
 
-	private Class< ? extends INodeContentRenderer< ? >> m_targetRendererClass;
+	private Class< ? extends IRenderInto< ? >> m_targetRendererClass;
 
-	private INodeContentRenderer<Object> m_sourceRenderer;
+	private IRenderInto<Object> m_sourceRenderer;
 
-	private INodeContentRenderer<Object> m_targetRenderer;
+	private IRenderInto<Object> m_targetRenderer;
 
 	static private final int INNERHEIGHT = 400;
 
@@ -218,13 +226,13 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 
 		List<Object> list = m_sourceModel.getItems(0, count);
 
-		INodeContentRenderer<Object> r = null;
+		IRenderInto<Object> r = null;
 		for(int i = 0; i < count; i++) {
 			TD td = m_sourceBody.addRowAndCell();
 			Object value = list.get(i);
 			if(r == null)
 				r = calculateSourceRenderer(value);
-			r.renderNodeContent(this, td, value, null);
+			r.render(td, value);
 
 			td.setClicked(C_CLICK);
 		}
@@ -247,13 +255,13 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 			return;
 
 		List<Object> list = m_targetModel.getItems(0, count);
-		INodeContentRenderer<Object> r = null;
+		IRenderInto<Object> r = null;
 		for(int i = 0; i < count; i++) {
 			TD td = m_targetBody.addRowAndCell();
 			Object value = list.get(i);
 			if(r == null)
 				r = calculateTargetRenderer(value);
-			r.renderNodeContent(this, td, value, null);
+			r.render(td, value);
 			td.setClicked(C_CLICK);
 		}
 	}
@@ -262,28 +270,28 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 		return isOrderable() && getModel() instanceof IMovableShuttleModel< ? , ? >;
 	}
 
-	private INodeContentRenderer<Object> calculateSourceRenderer(final Object val) {
+	private IRenderInto<Object> calculateSourceRenderer(final Object val) {
 		if(m_sourceRenderer != null)
 			return m_sourceRenderer;
 		if(m_sourceRendererClass != null)
-			return (INodeContentRenderer<Object>) DomApplication.get().createInstance(m_sourceRendererClass);
+			return (IRenderInto<Object>) DomApplication.get().createInstance(m_sourceRendererClass);
 
 		if(val == null)
 			throw new IllegalStateException("Cannot calculate content renderer for null value");
 		ClassMetaModel cmm = MetaManager.findClassMeta(val.getClass());
-		return (INodeContentRenderer<Object>) MetaManager.createDefaultComboRenderer(null /* m_propertyMetaModel */, cmm);
+		return (IRenderInto<Object>) MetaManager.createDefaultComboRenderer(null /* m_propertyMetaModel */, cmm);
 	}
 
-	private INodeContentRenderer<Object> calculateTargetRenderer(final Object val) {
+	private IRenderInto<Object> calculateTargetRenderer(final Object val) {
 		if(m_targetRenderer != null)
 			return m_targetRenderer;
 		if(m_targetRendererClass != null)
-			return (INodeContentRenderer<Object>) DomApplication.get().createInstance(m_targetRendererClass);
+			return (IRenderInto<Object>) DomApplication.get().createInstance(m_targetRendererClass);
 
 		if(val == null)
 			throw new IllegalStateException("Cannot calculate content renderer for null value");
 		ClassMetaModel cmm = MetaManager.findClassMeta(val.getClass());
-		return (INodeContentRenderer<Object>) MetaManager.createDefaultComboRenderer(null /* m_propertyMetaModel */, cmm);
+		return (IRenderInto<Object>) MetaManager.createDefaultComboRenderer(null /* m_propertyMetaModel */, cmm);
 	}
 
 	/**
@@ -445,8 +453,8 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 		TD td = new TD();
 		tr.add(td);
 		td.setClicked(C_CLICK);
-		INodeContentRenderer<Object> r = issrc ? calculateSourceRenderer(value) : calculateTargetRenderer(value);
-		r.renderNodeContent(this, td, value, null);
+		IRenderInto<Object> r = issrc ? calculateSourceRenderer(value) : calculateTargetRenderer(value);
+		r.render(td, value);
 		b.add(index, tr);
 	}
 
@@ -466,27 +474,27 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 		TR tr = (TR) b.getChild(index);
 		TD td = (TD) tr.getChild(0);
 		td.removeAllChildren(); // Clear it's contents,
-		INodeContentRenderer<Object> r = issrc ? calculateSourceRenderer(value) : calculateTargetRenderer(value);
-		r.renderNodeContent(this, td, value, null);
+		IRenderInto<Object> r = issrc ? calculateSourceRenderer(value) : calculateTargetRenderer(value);
+		r.render(td, value);
 	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Simple Setters and getters.							*/
 	/*--------------------------------------------------------------*/
 
-	public INodeContentRenderer<Object> getSourceRenderer() {
+	public IRenderInto<Object> getSourceRenderer() {
 		return m_sourceRenderer;
 	}
 
-	public void setSourceRenderer(final INodeContentRenderer<Object> sourceRenderer) {
+	public void setSourceRenderer(final IRenderInto<Object> sourceRenderer) {
 		m_sourceRenderer = sourceRenderer;
 	}
 
-	public INodeContentRenderer<Object> getTargetRenderer() {
+	public IRenderInto<Object> getTargetRenderer() {
 		return m_targetRenderer;
 	}
 
-	public void setTargetRenderer(final INodeContentRenderer<Object> targetRenderer) {
+	public void setTargetRenderer(final IRenderInto<Object> targetRenderer) {
 		m_targetRenderer = targetRenderer;
 	}
 
@@ -498,19 +506,19 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 		return m_orderable;
 	}
 
-	public Class< ? extends INodeContentRenderer< ? >> getSourceRendererClass() {
+	public Class< ? extends IRenderInto< ? >> getSourceRendererClass() {
 		return m_sourceRendererClass;
 	}
 
-	public void setSourceRendererClass(final Class< ? extends INodeContentRenderer< ? >> sourceRendererClass) {
+	public void setSourceRendererClass(final Class< ? extends IRenderInto< ? >> sourceRendererClass) {
 		m_sourceRendererClass = sourceRendererClass;
 	}
 
-	public Class< ? extends INodeContentRenderer< ? >> getTargetRendererClass() {
+	public Class< ? extends IRenderInto< ? >> getTargetRendererClass() {
 		return m_targetRendererClass;
 	}
 
-	public void setTargetRendererClass(final Class< ? extends INodeContentRenderer< ? >> targetRendererClass) {
+	public void setTargetRendererClass(final Class< ? extends IRenderInto< ? >> targetRendererClass) {
 		m_targetRendererClass = targetRendererClass;
 	}
 

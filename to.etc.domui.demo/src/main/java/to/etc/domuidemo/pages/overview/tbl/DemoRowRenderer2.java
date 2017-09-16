@@ -14,11 +14,9 @@ public class DemoRowRenderer2 extends UrlPage {
 		QCriteria<Album> q = QCriteria.create(Album.class);
 		SimpleSearchModel<Album> ssm = new SimpleSearchModel<Album>(this, q);
 
-		INodeContentRenderer<String>	ncr = new INodeContentRenderer<String>() {
+		IRenderInto<String>	ncr = new IRenderInto<String>() {
 			@Override
-			public void renderNodeContent(NodeBase component, NodeContainer node, String value, Object parameters) throws Exception {
-				if(null == value)
-					return;
+			public void render(NodeContainer node, String value) throws Exception {
 				String inside = value.toLowerCase();
 				if(inside.contains("import")) {
 					node.add(new Img("img/import.png"));

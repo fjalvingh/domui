@@ -168,9 +168,10 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 		cell = cc.add((NodeBase) null); // Add the new row
 		cell.add(wrapDiv); // Add no-wrap div
 
-		INodeContentRenderer< ? > contentRenderer = cd.getContentRenderer();
+		IRenderInto< ? > contentRenderer = cd.getContentRenderer();
 		if(null != contentRenderer) {
-			((INodeContentRenderer<Object>) contentRenderer).renderNodeContent(tbl, wrapDiv, colval, instance); // %&*(%&^%*&%&( generics require casting here
+			((IRenderInto<Object>) contentRenderer).renderOpt(wrapDiv, colval);
+			//((IRenderInto<Object>) contentRenderer).render(tbl, wrapDiv, colval, instance);
 		} else {
 			String s;
 			if(colval == null)
@@ -178,7 +179,7 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 			else {
 				IObjectToStringConverter<X> presentationConverter = cd.getPresentationConverter();
 				if(presentationConverter != null)
-					s = ((IConverter<X>) presentationConverter).convertObjectToString(NlsContext.getLocale(), colval);
+					s = presentationConverter.convertObjectToString(NlsContext.getLocale(), colval);
 				else
 					s = String.valueOf(colval);
 			}

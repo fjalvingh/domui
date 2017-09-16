@@ -118,7 +118,7 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	 * The content renderer to use to render the current value.
 	 */
 	@Nullable
-	private INodeContentRenderer<OT> m_valueRenderer;
+	private IRenderInto<OT> m_valueRenderer;
 
 	@Nullable
 	private SearchInput2 m_keySearch;
@@ -252,12 +252,12 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 			}
 		} else {
 			//In case of rendering selected values it is possible to use customized renderers. If no customized rendered is defined then use default one.
-			INodeContentRenderer<OT> r = getValueRenderer();
+			IRenderInto<OT> r = getValueRenderer();
 			if(r == null)
 				r = new SimpleLookupInputRenderer2<>(getOutputMetaModel());
 			NodeContainer valueNode = getValueNode();
 			valueNode.removeAllChildren();
-			r.renderNodeContent(this, valueNode, m_value, null);
+			r.renderOpt(valueNode, m_value);
 			add(0, valueNode);
 		}
 
@@ -569,7 +569,7 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 
 	private void openResultsPopup(@Nonnull ITableModel<OT> model) throws Exception {
 		List<OT> list = model.getItems(0, model.getRows());
-		INodeContentRenderer<OT> renderer = new DefaultPopupRowRenderer<OT>(m_outputMetaModel);
+		IRenderInto<OT> renderer = new DefaultPopupRowRenderer<OT>(m_outputMetaModel);
 
 		SelectOnePanel<OT> pnl = m_selectPanel = new SelectOnePanel<OT>(list, renderer);
 		DomUtil.nullChecked(m_keySearch).add(pnl);
@@ -1074,18 +1074,17 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	 * @return
 	 */
 	@Nullable
-	public INodeContentRenderer<OT> getValueRenderer() {
+	public IRenderInto<OT> getValueRenderer() {
 		return m_valueRenderer;
 	}
 
-	public void setValueRenderer(@Nullable INodeContentRenderer<OT> contentRenderer) {
+	public void setValueRenderer(@Nullable IRenderInto<OT> contentRenderer) {
 		m_valueRenderer = contentRenderer;
 	}
 
 	/**
 	 * Define the full column spec in the format described for {@link BasicRowRenderer} for the dropdown box
 	 * showing quick search results.
-	 * @param columns
 	 */
 //	public void addDropdownColumns(@Nonnull Object... columns) {
 //		getDropdownRowRenderer().addColumns(columns);

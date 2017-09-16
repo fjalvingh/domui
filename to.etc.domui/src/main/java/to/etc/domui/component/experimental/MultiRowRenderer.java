@@ -33,7 +33,7 @@ import to.etc.domui.dom.html.Span;
 import to.etc.domui.dom.html.TD;
 import to.etc.domui.dom.html.TH;
 import to.etc.domui.server.DomApplication;
-import to.etc.domui.util.INodeContentRenderer;
+import to.etc.domui.util.IRenderInto;
 import to.etc.util.StringTool;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.annotations.GProperty;
@@ -370,7 +370,7 @@ final public class MultiRowRenderer<T> implements IClickableRowRenderer<T> {
 		}
 
 		//-- Render the value, in whatever way. The value is bound to the model so that updates cause a render.
-		INodeContentRenderer<X> contentRenderer = cd.getContentRenderer();
+		IRenderInto<X> contentRenderer = cd.getContentRenderer();
 		IConverter<X> cellConverter = cd.getConverter();
 		PropertyMetaModel<X> pmm = cd.getPropertyMetaModel();
 		if(cd.isEditable()) {
@@ -389,18 +389,10 @@ final public class MultiRowRenderer<T> implements IClickableRowRenderer<T> {
 			ds.bind().to(instance, pmm);					// Bind value to model
 			if(null != contentRenderer) {
 				// Bind the display control and let it render through the content renderer, enabling binding
-				ds.setRenderer(new INodeContentRenderer<X>() {
-					/**
-					 * Wrap the renderer so we can pass the "instance" to it.
-					 * @param component
-					 * @param node
-					 * @param object				The nullable item we're rendering.
-					 * @param parameters
-					 * @throws Exception
-					 */
+				ds.setRenderer(new IRenderInto<X>() {
 					@Override
-					public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable X object, @Nullable Object parameters) throws Exception {
-						contentRenderer.renderNodeContent(component, node, object, instance);
+					public void render(@Nonnull NodeContainer node, @Nullable X object) throws Exception {
+						contentRenderer.renderOpt(node, object); //, instance);
 					}
 				});
 			}
@@ -413,7 +405,7 @@ final public class MultiRowRenderer<T> implements IClickableRowRenderer<T> {
 		} else if(contentRenderer != null) {
 			//-- No property but a content renderer -> let it take care of binding itself as we cannot.
 			X value = cd.getColumnValue(instance);
-			contentRenderer.renderNodeContent(cc.getTR(), cell, value, null);
+			contentRenderer.render(cell, value);
 		} else {
 			throw new IllegalStateException("? Don't know how to render " + cd);
 		}
@@ -592,7 +584,7 @@ final public class MultiRowRenderer<T> implements IClickableRowRenderer<T> {
 	 * @param index
 	 * @param renderer
 	 */
-	public <C> void setNodeRenderer(final int index, @Nullable final INodeContentRenderer<C> renderer) {
+	public <C> void setNodeRenderer(final int index, @Nullable final IRenderInto<C> renderer) {
 		check();
 		((ColumnDef<T, C>) getColumn(index)).renderer(renderer);
 	}
@@ -602,7 +594,7 @@ final public class MultiRowRenderer<T> implements IClickableRowRenderer<T> {
 	 * @param index
 	 * @return
 	 */
-	public INodeContentRenderer< ? > getNodeRenderer(final int index) {
+	public IRenderInto< ? > getNodeRenderer(final int index) {
 		return getColumn(index).getContentRenderer();
 	}
 

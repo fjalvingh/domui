@@ -1,20 +1,27 @@
 package to.etc.domui.log;
 
-import java.util.*;
+import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.buttons.LinkButton;
+import to.etc.domui.component.layout.ButtonBar;
+import to.etc.domui.component.ntbl.ExpandingEditTable;
+import to.etc.domui.component.ntbl.IRowEditorEvent;
+import to.etc.domui.component.ntbl.IRowEditorFactory;
+import to.etc.domui.component.tbl.BasicRowRenderer;
+import to.etc.domui.component.tbl.SimpleListModel;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.log.data.Handler;
+import to.etc.domui.log.data.HandlerType;
+import to.etc.domui.log.tailer.ServerLogPage;
+import to.etc.domui.util.IRenderInto;
+import to.etc.domui.util.Msgs;
+import to.etc.log.EtcLoggerFactory;
+import to.etc.log.handler.EtcLogFormat;
+import to.etc.webapp.nls.BundleRef;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.layout.*;
-import to.etc.domui.component.ntbl.*;
-import to.etc.domui.component.tbl.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.log.data.*;
-import to.etc.domui.log.tailer.*;
-import to.etc.domui.util.*;
-import to.etc.log.*;
-import to.etc.log.handler.*;
-import to.etc.webapp.nls.*;
+import javax.annotation.Nonnull;
+import java.util.List;
 
 public class ConfigPart extends Div {
 	protected static final BundleRef BUNDLE = Msgs.BUNDLE;
@@ -44,10 +51,9 @@ public class ConfigPart extends Div {
 		m_model = new SimpleListModel<Handler>(m_handlers);
 
 		BasicRowRenderer<Handler> rr = new BasicRowRenderer<Handler>(Handler.class, m_cols);
-		rr.addColumns("", "^follow", "%10", new INodeContentRenderer<Handler>(){
-
+		rr.addColumns("", "^follow", "%10", new IRenderInto<Handler>(){
 			@Override
-			public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable final Handler handler, @Nullable Object parameters) throws Exception {
+			public void render(@Nonnull NodeContainer node, @Nonnull final Handler handler) throws Exception {
 				if (handler != null && handler.getType() == HandlerType.FILE){
 					node.add(new LinkButton("follow", new IClicked<LinkButton>(){
 						@Override
