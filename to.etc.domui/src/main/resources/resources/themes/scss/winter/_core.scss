@@ -1,5 +1,13 @@
 @import 'variables';
 
+//-- Everything uses border-box model
+html {
+	box-sizing: border-box;
+}
+*, *:after, *:before {
+	box-sizing: inherit;
+}
+
 body, html {
 	background: $body-image $bg_color repeat-x;
 }
