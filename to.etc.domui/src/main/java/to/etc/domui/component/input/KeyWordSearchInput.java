@@ -76,6 +76,7 @@ public class KeyWordSearchInput<T> extends Div {
 
 	@Override
 	public void createContent() throws Exception {
+		setCssClass("ui-lui-kwsi");
 		//position must be set to relative to enable absolute positioning of child elements (waiting image)
 		if(m_absolutePopupLayoutQuirkMode) {
 			setPosition(PositionType.ABSOLUTE);
@@ -153,20 +154,20 @@ public class KeyWordSearchInput<T> extends Div {
 				add(m_pnlSearchCount);
 			}
 			if(m_resultsCount == 0) {
-				m_pnlSearchCount.setCssClass("ui-lui-keyword-no-res");
+				m_pnlSearchCount.setCssClass("ui-lui-popup ui-lui-result-none");
 				m_pnlSearchCount.setText(Msgs.BUNDLE.getString(Msgs.UI_KEYWORD_SEARCH_NO_MATCH));
 			} else if(m_resultsCount == ITableModel.DEFAULT_MAX_SIZE) {
 				//usually this means that query cutoff rest data, corner case when real m_resultsCount == MAX_RESULTS is not that important
-				m_pnlSearchCount.setCssClass("ui-lui-keyword-large");
-				m_pnlSearchCount.setText(Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_LARGE_MATCH, "" + ITableModel.DEFAULT_MAX_SIZE));
+				m_pnlSearchCount.setCssClass("ui-lui-popup ui-lui-result-large");
+				m_pnlSearchCount.setText(Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_LARGE_MATCH, Integer.toString(ITableModel.DEFAULT_MAX_SIZE)));
 			} else {
 				if(m_resultsCount > ITableModel.DEFAULT_MAX_SIZE) {
 					//in case that query does not cutoff rest of data (JDBC queries) report actual data size, but render as to large match
-					m_pnlSearchCount.setCssClass("ui-lui-keyword-large");
+					m_pnlSearchCount.setCssClass("ui-lui-popup ui-lui-result-large");
 				} else {
-					m_pnlSearchCount.setCssClass("ui-lui-keyword-res");
+					m_pnlSearchCount.setCssClass("ui-lui-popup ui-lui-result-count");
 				}
-				m_pnlSearchCount.setText(Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_COUNT, "" + m_resultsCount));
+				m_pnlSearchCount.setText(Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_COUNT, Integer.toString(m_resultsCount)));
 			}
 		}
 	}

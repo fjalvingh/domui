@@ -149,7 +149,7 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 
 	private enum RebuildCause {
 		CLEAR, SELECT
-	};
+	}
 
 	@Nullable
 	private INotify<Dialog> m_onPopupOpen;
@@ -170,18 +170,6 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 
 	@Nullable
 	private NodeContainer m_valueNode;
-
-	/**
-	 * Create a lookup control that shows the specified column set in both quick lookup mode and form lookup
-	 * mode.
-	 * @param queryClass
-	 * @param resultClass
-	 * @param resultColumns
-	 */
-//	public LookupInputBase(@Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass, @Nonnull String... resultColumns) {
-//		this(queryClass, resultClass, (ClassMetaModel) null, (ClassMetaModel) null);
-//		setResultColumns(resultColumns);
-//	}
 
 	/**
 	 * Lookup a POJO Java bean persistent class.

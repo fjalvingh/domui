@@ -8,6 +8,14 @@ $lui-min-width: 160px;
 	padding: 0px;
 	margin: 0px;
 }
+div.ui-lui {
+	width: 12em; /*	this width match with date field picker icon on IE rendering */
+	display: inline-block;
+}
+
+//div.ui-lui > table { jal 20170916 do not address table.
+//	width: 1%;
+//}
 
 .ui-lui-selected-ro tbody {
 	background-color: $readonly_bg;
@@ -55,21 +63,12 @@ $lui-min-width: 160px;
 		margin: 4px;
 	}
 }
+
 .ui-lui-empty {
 	border: 1px solid $bevel_down;
 	white-space: nowrap;
 	padding: 2px 0px 2px 0px;
 	min-width: $lui-min-width;
-}
-
-.ui-lui-selected .ui-lui-sel-btn {
-}
-
-.ui-lui-selected .ui-lui-clear-btn {
-}
-
-div.ui-lui-selected {
-	display: inline-block;
 }
 
 div.ui-lui-selected-ro {
@@ -82,14 +81,6 @@ div.ui-lui-selected-ro td {
 	padding: 0px;
 }
 
-div.ui-lui {
-	width: 12em; /*	this width match with date field picker icon on IE rendering */
-	display: inline-block;
-}
-
-div.ui-lui > table {
-	width: 1%;
-}
 
 /*
  * Add a 2 pixel padding on top so that the "no selection" text takes the same relative position
@@ -120,28 +111,35 @@ div.ui-lui > table {
 	vertical-align: top;
 }
 
+/** Keyword part: the input when there is no selection **/
 input.ui-lui-keyword {
 	//display: block;
 	min-width: $lui-min-width;
 	border-radius: 0;					// Make this square, as the icons have difficulty being rounded.
 }
-
 img.ui-lui-waiting {
 	position: absolute;
 	top: 2px;
 	right: 2px;
 }
 
-.ui-lui-keyword-res {
-	color: black;
+/* The small popup showing the result count or the no results message */
+.ui-lui-popup {
+	position: absolute;
+	top: 20px;
+	left: 0px;
+	width: auto;
+	border-radius: 4px;
+	padding: 5px;
+	z-index: 1;
 }
-
-.ui-lui-keyword-no-res {
-	color: red;
+.ui-lui-result-none, .ui-lui-result-large {
+	background-color: #ff4f27;
+	border: 1px solid #ff8d60;
 }
-
-.ui-lui-keyword-large {
-	color: red;
+.ui-lui-result-count {
+	background-color: #d4ee9f;
+	border: 1px solid #a5c663;
 }
 
 .ui-lui-keyword-popup {
