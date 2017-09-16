@@ -134,12 +134,12 @@ img.ui-lui-waiting {
 	z-index: 1;
 }
 .ui-lui-result-none, .ui-lui-result-large {
-	background-color: #ff4f27;
-	border: 1px solid #ff8d60;
+	background-color: $lui-warning-color;
+	border: 1px solid $lui-warning-color-border;
 }
 .ui-lui-result-count {
-	background-color: #d4ee9f;
-	border: 1px solid #a5c663;
+	background-color: $lui-result-color;
+	border: 1px solid $lui-result-color-border;
 }
 
 .ui-lui-keyword-popup {
