@@ -453,16 +453,15 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 		IRenderInto<Object> rr = (IRenderInto<Object>) MetaManager.createDefaultComboRenderer(m_propertyMetaModel, cmm);
 		return new IRenderInto<Object>() {
 			@Override public void render(@Nonnull NodeContainer node, @Nullable Object object) throws Exception {
-				if(null != object)
-					rr.render(node, object);
+				rr.renderOpt(node, object);
 			}
 		};
 	}
 
-	private void renderContent(final TD cell, final T value) throws Exception {
+	private void renderContent(@Nonnull TD cell, @Nullable T value) throws Exception {
 		if(m_actualContentRenderer == null)
 			m_actualContentRenderer = (IRenderInto<T>) calculateContentRenderer(value);
-		m_actualContentRenderer.render(cell, value);
+		m_actualContentRenderer.renderOpt(cell, value);
 
 		if(isSelectable(value)) {
 			cell.addCssClass("ui-tr-sel");
@@ -472,14 +471,17 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 			cell.setClicked2(new IClicked2<TD>() {
 				@Override
 				public void clicked(@Nonnull TD node, @Nonnull ClickInfo clinfo) throws Exception {
-					cellClicked(cell, value, clinfo);
+					// FIXME This means null root nodes cannot be clicked
+					if(null != value) {
+						cellClicked(cell, value, clinfo);
+					}
 				}
 			});
 		}
 		updateSelectable(cell, value);
 	}
 
-	private void updateSelectable(@Nonnull TD cell, @Nonnull T value) throws Exception {
+	private void updateSelectable(@Nonnull TD cell, @Nullable T value) throws Exception {
 		INodePredicate<T> predicate = m_nodeSelectablePredicate;
 		if(null != predicate) {
 			boolean isSelectable = predicate.predicate(value);
@@ -511,7 +513,7 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 	}
 
 
-	protected boolean isSelectable(@Nonnull T node) throws Exception {
+	protected boolean isSelectable(@Nullable T node) throws Exception {
 		if(getCellClicked() == null)
 			return false;
 		if(m_nodeSelectablePredicate == null)
@@ -552,7 +554,7 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 		return null;
 	}
 
-	protected boolean isSelected(@Nonnull T node) {
+	protected boolean isSelected(@Nullable T node) {
 		return false;
 	}
 

@@ -405,7 +405,7 @@ final public class MultiRowRenderer<T> implements IClickableRowRenderer<T> {
 		} else if(contentRenderer != null) {
 			//-- No property but a content renderer -> let it take care of binding itself as we cannot.
 			X value = cd.getColumnValue(instance);
-			contentRenderer.render(cell, value);
+			contentRenderer.renderOpt(cell, value);
 		} else {
 			throw new IllegalStateException("? Don't know how to render " + cd);
 		}

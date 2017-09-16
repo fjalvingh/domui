@@ -326,20 +326,16 @@ public class ComboBoxBase<T, V> extends Div implements IControl<V> {
 
 	protected void renderOptionLabel(@Nonnull ComboOption<T> o) throws Exception {
 		T value = o.getValue();
-		if(null != value) {
-			if(m_actualContentRenderer == null)
-				m_actualContentRenderer = calculateContentRenderer(value);
-			m_actualContentRenderer.render(o, value);
-		}
+		if(m_actualContentRenderer == null)
+			m_actualContentRenderer = calculateContentRenderer(value);
+		m_actualContentRenderer.renderOpt(o, value);
 	}
 
 	protected void renderOptionLabel(@Nonnull NodeContainer into, @Nonnull ComboOption<T> o) throws Exception {
 		T value = o.getValue();
-		if(null == value)
-			return;
 		if(m_actualContentRenderer == null)
 			m_actualContentRenderer = calculateContentRenderer(value);
-		m_actualContentRenderer.render(into, value);
+		m_actualContentRenderer.renderOpt(into, value);
 	}
 
 	/*--------------------------------------------------------------*/

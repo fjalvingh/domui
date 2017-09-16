@@ -643,7 +643,7 @@ public class MsgBox extends Window {
 		NodeContainer content = m_content;
 		if(getDataRenderer() != null) {
 			try {
-				getDataRenderer().render(td, m_theText);
+				getDataRenderer().renderOpt(td, m_theText);
 			} catch(Exception ex) {
 				Bug.bug(ex);
 			}

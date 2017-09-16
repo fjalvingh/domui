@@ -337,7 +337,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 		add(m_selectionContainer);
 	}
 
-	private Span createItemNode(final T item) throws Exception {
+	private Span createItemNode(@Nonnull final T item) throws Exception {
 		final Span itemNode = new Span();
 		Label itemText = new Label();
 		if(getCssForSelectedItems() != null) {

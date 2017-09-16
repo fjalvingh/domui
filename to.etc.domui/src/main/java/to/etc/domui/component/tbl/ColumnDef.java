@@ -157,6 +157,7 @@ final public class ColumnDef<I, T> {
 		return m_editable;
 	}
 
+	@Nullable
 	public <R> T getColumnValue(@Nonnull R instance) throws Exception {
 		PropertyMetaModel<T> pmm = m_propertyMetaModel;
 		if(pmm == null)

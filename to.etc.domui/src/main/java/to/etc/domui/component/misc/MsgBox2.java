@@ -207,7 +207,7 @@ final public class MsgBox2 extends Window {
 		IRenderInto<String> renderer = m_dataRenderer;
 		if(null != renderer) {
 			try {
-				renderer.render(td, m_theText);
+				renderer.renderOpt(td, m_theText);
 			} catch(Exception ex) {
 				Bug.bug(ex);
 			}

@@ -241,7 +241,7 @@ public class LabelSelector<T> extends Div implements IControl<List<T>>, ITypedCo
 	}
 
 
-	private Span createLabel(final T lbl) throws Exception {
+	private Span createLabel(@Nonnull final T lbl) throws Exception {
 		final Span d = new Span();
 		m_divMap.put(lbl, d);
 		d.setCssClass("ui-lsel-item");

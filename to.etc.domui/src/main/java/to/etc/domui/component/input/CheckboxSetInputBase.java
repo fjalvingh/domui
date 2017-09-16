@@ -5,7 +5,6 @@ import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.dom.html.Checkbox;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IValueChanged;
-import to.etc.domui.dom.html.SelectOption;
 import to.etc.domui.util.IRenderInto;
 
 import javax.annotation.Nonnull;
@@ -112,11 +111,11 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 		return (IRenderInto<T>) MetaManager.createDefaultComboRenderer(null, cmm);
 	}
 
-	protected void renderOptionLabel(SelectOption o, T object) throws Exception {
-		if(m_actualContentRenderer == null)
-			m_actualContentRenderer = calculateContentRenderer(object);
-		m_actualContentRenderer.render(o, object);
-	}
+	//protected void renderOptionLabel(@Nonnull SelectOption o, @Nonnull T object) throws Exception {
+	//	if(m_actualContentRenderer == null)
+	//		m_actualContentRenderer = calculateContentRenderer(object);
+	//	m_actualContentRenderer.render(o, object);
+	//}
 
 	@Override
 	public Set<V> getValue() {

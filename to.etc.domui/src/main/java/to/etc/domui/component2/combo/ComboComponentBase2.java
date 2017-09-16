@@ -416,7 +416,7 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 		return (IRenderInto<T>) MetaManager.createDefaultComboRenderer(m_propertyMetaModel, cmm);
 	}
 
-	final protected void renderOptionLabel(NodeContainer o, T object) throws Exception {
+	final protected void renderOptionLabel(@Nonnull NodeContainer o, @Nonnull T object) throws Exception {
 		if(m_actualContentRenderer == null)
 			m_actualContentRenderer = calculateContentRenderer(object);
 		m_actualContentRenderer.render( o, object);
