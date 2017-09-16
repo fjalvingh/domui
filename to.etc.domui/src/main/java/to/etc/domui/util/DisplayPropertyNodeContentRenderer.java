@@ -26,11 +26,9 @@ package to.etc.domui.util;
 
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.impl.ExpandedDisplayProperty;
-import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 
 /**
@@ -41,7 +39,7 @@ import java.util.List;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Nov 21, 2008
  */
-public class DisplayPropertyNodeContentRenderer implements INodeContentRenderer<Object>, IRenderInto<Object> {
+public class DisplayPropertyNodeContentRenderer implements IRenderInto<Object> {
 	//	private ClassMetaModel m_targetClassModel;
 
 	private List<ExpandedDisplayProperty< ? >> m_list;
@@ -57,12 +55,6 @@ public class DisplayPropertyNodeContentRenderer implements INodeContentRenderer<
 		if(m_flat != null)
 			return;
 		m_flat = ExpandedDisplayProperty.flatten(m_list);
-	}
-
-	@Override
-	public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable Object object, @Nullable Object parameters) throws Exception {
-		if(null != object)
-			render(node, object);
 	}
 
 	@Override public void render(@Nonnull NodeContainer node, @Nonnull Object object) throws Exception {

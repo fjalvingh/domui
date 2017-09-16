@@ -36,6 +36,7 @@ import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.Span;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.INodeContentRenderer;
+import to.etc.domui.util.IRenderInto;
 import to.etc.webapp.nls.NlsContext;
 
 import javax.annotation.Nonnull;
@@ -147,8 +148,8 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 		 * In utter desperation try to create an INodeContentRenderer from the class meta data; this
 		 * will create a toString renderer if all else fails..
 		 */
-		INodeContentRenderer<T> ncr = (INodeContentRenderer<T>) MetaManager.createDefaultComboRenderer(null, cmm);
-		ncr.renderNodeContent(this, this, val, null);
+		IRenderInto<T> ncr = (IRenderInto<T>) MetaManager.createDefaultComboRenderer(null, cmm);
+		ncr.render( this, val);
 		if(getChildCount() == 0 && m_emptyString != null)
 			setText(m_emptyString);
 	}

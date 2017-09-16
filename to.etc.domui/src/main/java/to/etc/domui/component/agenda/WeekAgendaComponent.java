@@ -63,7 +63,11 @@ public class WeekAgendaComponent<T extends ScheduleItem> extends Div implements 
 
 	private NodeContainer m_itemBase;
 
-	private INodeContentRenderer<T> m_itemRenderer;
+	public interface IItemRenderer<T extends ScheduleItem> {
+		void render(WeekAgendaComponent<T> component, NodeContainer target, T object) throws Exception;
+	}
+
+	private IItemRenderer<T> m_itemRenderer;
 
 	//	private StringBuilder			m_sb = new StringBuilder();
 
@@ -71,7 +75,7 @@ public class WeekAgendaComponent<T extends ScheduleItem> extends Div implements 
 
 	private Map<String, Div> m_renderMap = new HashMap<String, Div>();
 
-	private INodeContentRenderer<T> m_actualItemRenderer;
+	private IItemRenderer<T> m_actualItemRenderer;
 
 	private INewAppointment m_newAppointmentListener;
 
@@ -641,11 +645,11 @@ public class WeekAgendaComponent<T extends ScheduleItem> extends Div implements 
 		return m_end;
 	}
 
-	public INodeContentRenderer<T> getItemRenderer() {
+	public IItemRenderer<T> getItemRenderer() {
 		return m_itemRenderer;
 	}
 
-	public void setItemRenderer(INodeContentRenderer<T> itemRenderer) {
+	public void setItemRenderer(IItemRenderer<T> itemRenderer) {
 		m_itemRenderer = itemRenderer;
 	}
 

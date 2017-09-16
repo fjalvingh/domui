@@ -24,16 +24,23 @@
  */
 package to.etc.domui.component2.lookupinput;
 
-import java.util.*;
+import to.etc.domui.component.input.LookupInput;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.impl.DisplayPropertyMetaModel;
+import to.etc.domui.component.meta.impl.ExpandedDisplayProperty;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.Span;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.util.IRenderInto;
+import to.etc.domui.util.Msgs;
+import to.etc.webapp.ProgrammerErrorException;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.meta.impl.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.*;
+import javax.annotation.DefaultNonNull;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This renderer represents default renderer that is used for {@link LookupInput} control.
@@ -42,7 +49,7 @@ import to.etc.webapp.*;
  * Created on 10/2014
  */
 @DefaultNonNull
-final public class SimpleLookupInputRenderer2<T> implements INodeContentRenderer<T> {
+final public class SimpleLookupInputRenderer2<T> implements IRenderInto<T> {
 	final private Class<T> m_actualClass;
 
 	final private ClassMetaModel m_classModel;
@@ -98,12 +105,17 @@ final public class SimpleLookupInputRenderer2<T> implements INodeContentRenderer
 	}
 
 	@Override
-	public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable T object, @Nullable Object parameters) throws Exception {
+	public void renderOpt(@Nonnull NodeContainer node, @Nullable T object) throws Exception {
 		if(null == object) {
 			String txt = Msgs.BUNDLE.getString(Msgs.UI_LOOKUP_EMPTY);
 			node.setText(txt);
 			return;
 		}
+		render(node, object);
+	}
+
+	@Override
+	public void render(@Nonnull NodeContainer node, @Nonnull T object) throws Exception {
 		List<ExpandedDisplayProperty<?>> xl = m_xpl;
 		if(xl == null || xl.size() == 0) {
 			node.add(String.valueOf(object));

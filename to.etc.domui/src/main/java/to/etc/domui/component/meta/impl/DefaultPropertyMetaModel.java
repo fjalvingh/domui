@@ -65,7 +65,7 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	 */
 	private Class< ? extends ILabelStringRenderer< ? >> m_comboLabelRenderer;
 
-	private Class< ? extends IRenderInto< ? >> m_comboNodeRenderer;
+	private Class< ? extends IRenderInto<T>> m_comboNodeRenderer;
 
 	@Nonnull
 	private List<DisplayPropertyMetaModel> m_comboDisplayProperties = Collections.EMPTY_LIST;
@@ -78,7 +78,7 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	 * Default renderer which renders a lookup field's "field" contents; this is a table which must be filled with
 	 * data pertaining to the looked-up item as a single element on the "edit" screen.
 	 */
-	private Class< ? extends IRenderInto< ? >> m_lookupFieldRenderer;
+	private Class< ? extends IRenderInto<T>> m_lookupFieldRenderer;
 
 	/**
 	 * The default properties to show in a lookup field's instance display.
@@ -319,11 +319,11 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 
 	@Nullable
 	@Override
-	public Class< ? extends IRenderInto< ? >> getComboNodeRenderer() {
+	public Class< ? extends IRenderInto<T>> getComboNodeRenderer() {
 		return m_comboNodeRenderer;
 	}
 
-	public void setComboNodeRenderer(@Nullable final Class< ? extends IRenderInto< ? >> comboNodeRenderer) {
+	public void setComboNodeRenderer(@Nullable final Class< ? extends IRenderInto<T>> comboNodeRenderer) {
 		m_comboNodeRenderer = comboNodeRenderer;
 	}
 
@@ -336,11 +336,11 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Class< ? extends IRenderInto< ? >> getLookupSelectedRenderer() {
+	public Class< ? extends IRenderInto<T>> getLookupSelectedRenderer() {
 		return m_lookupFieldRenderer;
 	}
 
-	public void setLookupSelectedRenderer(final Class< ? extends IRenderInto< ? >> lookupFieldRenderer) {
+	public void setLookupSelectedRenderer(final Class< ? extends IRenderInto<T>> lookupFieldRenderer) {
 		m_lookupFieldRenderer = lookupFieldRenderer;
 	}
 

@@ -118,7 +118,7 @@ public class SimpleRowRenderer<T> extends AbstractRowRenderer<T> implements ICli
 		for(final ExpandedDisplayProperty< ? > xdp : xdpl) {
 			if(xdp instanceof ExpandedDisplayPropertyList) {
 				//-- Flatten: call for subs recursively.
-				final ExpandedDisplayPropertyList xdl = (ExpandedDisplayPropertyList) xdp;
+				final ExpandedDisplayPropertyList<?> xdl = (ExpandedDisplayPropertyList<?>) xdp;
 				addColumns(xdl.getChildren(), widths);
 				continue;
 			}

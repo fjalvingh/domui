@@ -105,7 +105,7 @@ abstract public class PropertyMetaModelWrapper<T> implements PropertyMetaModel<T
 	}
 
 	@Override
-	public Class< ? extends IRenderInto< ? >> getComboNodeRenderer() {
+	public Class< ? extends IRenderInto<T>> getComboNodeRenderer() {
 		return m_parent.getComboNodeRenderer();
 	}
 
@@ -165,7 +165,7 @@ abstract public class PropertyMetaModelWrapper<T> implements PropertyMetaModel<T
 	}
 
 	@Override
-	public Class< ? extends IRenderInto< ? >> getLookupSelectedRenderer() {
+	public Class< ? extends IRenderInto<T>> getLookupSelectedRenderer() {
 		return m_parent.getLookupSelectedRenderer();
 	}
 

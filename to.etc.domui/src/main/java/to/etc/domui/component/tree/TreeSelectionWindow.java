@@ -34,7 +34,7 @@ import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClickBase;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IClicked2;
-import to.etc.domui.util.INodeContentRenderer;
+import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.Msgs;
 
 import javax.annotation.Nonnull;
@@ -64,7 +64,7 @@ public class TreeSelectionWindow<T> extends FloatingWindow implements ICellClick
 
 	private IClickBase< ? > m_cancelClicked;
 
-	private INodeContentRenderer<T> m_contentRenderer;
+	private IRenderInto<T> m_contentRenderer;
 
 	public TreeSelectionWindow(boolean modal, String txt, @Nonnull ITreeModel<T> model) {
 		super(modal, txt);
@@ -190,11 +190,11 @@ public class TreeSelectionWindow<T> extends FloatingWindow implements ICellClick
 		m_cancelClicked = cancelClicked;
 	}
 
-	public INodeContentRenderer<T> getContentRenderer() {
+	public IRenderInto<T> getContentRenderer() {
 		return m_contentRenderer;
 	}
 
-	public void setContentRenderer(INodeContentRenderer<T> contentRenderer) {
+	public void setContentRenderer(IRenderInto<T> contentRenderer) {
 		m_contentRenderer = contentRenderer;
 	}
 }

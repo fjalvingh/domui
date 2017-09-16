@@ -1,16 +1,24 @@
 package to.etc.domui.component.tbl;
 
-import java.util.*;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.NumericPresentation;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.SortableType;
+import to.etc.domui.component.meta.impl.DisplayPropertyMetaModel;
+import to.etc.domui.component.meta.impl.ExpandedDisplayProperty;
+import to.etc.domui.converter.ConverterRegistry;
+import to.etc.domui.converter.IConverter;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.IRenderInto;
+import to.etc.util.StringTool;
+import to.etc.webapp.annotations.GProperty;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.meta.impl.*;
-import to.etc.domui.converter.*;
-import to.etc.domui.server.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
-import to.etc.webapp.annotations.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * A list of {@link SimpleColumnDef} columns used to define characteristics of columns in any
@@ -134,7 +142,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 		SortableType sort = null;
 		ISortHelper<T> sortHelper = null;
 		boolean defaultsort = false;
-		INodeContentRenderer< ? > nodeRenderer = null;
+		IRenderInto< ? > nodeRenderer = null;
 		Class< ? > nrclass = null;
 		ICellClicked< ? > clickHandler = null;
 
@@ -186,8 +194,8 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 				}
 			} else if(val instanceof IConverter< ? >)
 				conv = (IConverter<R>) val;
-			else if(val instanceof INodeContentRenderer< ? >)
-				nodeRenderer = (INodeContentRenderer< ? >) val;
+			else if(val instanceof IRenderInto< ? >)
+				nodeRenderer = (IRenderInto< ? >) val;
 			else if(val instanceof ICellClicked< ? >)
 				clickHandler = (ICellClicked< ? >) val;
 			else if(val instanceof ISortHelper) {
@@ -196,7 +204,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 					sort = SortableType.SORTABLE_ASC;
 			} else if(val instanceof Class< ? >) {
 				final Class<R> c = (Class<R>) val;
-				if(INodeContentRenderer.class.isAssignableFrom(c))
+				if(IRenderInto.class.isAssignableFrom(c))
 					nrclass = c;
 				else if(IConverter.class.isAssignableFrom(c))
 					convclz = c;
@@ -210,7 +218,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 		internalAddProperty(property, width, conv, convclz, caption, cssclass, nodeRenderer, nrclass, nowrap, sort, clickHandler, defaultsort, sortHelper);
 	}
 
-	static private INodeContentRenderer< ? > tryRenderer(final INodeContentRenderer< ? > nodeRenderer, final Class< ? > nrclass) {
+	static private IRenderInto< ? > tryRenderer(final IRenderInto< ? > nodeRenderer, final Class< ? > nrclass) {
 		if(nodeRenderer != null) {
 			if(nrclass != null)
 				throw new IllegalArgumentException("Both a NodeContentRenderer instance AND a class specified: " + nodeRenderer + " + " + nrclass);
@@ -218,18 +226,9 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 		}
 		if(nrclass == null)
 			return null;
-		return (INodeContentRenderer< ? >) DomApplication.get().createInstance(nrclass);
+		return (IRenderInto< ? >) DomApplication.get().createInstance(nrclass);
 	}
 
-	/**
-	 *
-	 * @param <X>
-	 * @param <R>
-	 * @param cclz
-	 * @param ins
-	 * @return
-	 * <X, T extends IConverter<X>>
-	 */
 	@SuppressWarnings("unchecked")
 	static private <R> IConverter<R> tryConverter(final Class<R> cclz, final IConverter<R> ins) {
 		if(cclz != null) {
@@ -242,22 +241,10 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 
 	/**
 	 * Internal worker to add a field using the specified optional modifiers.
-	 * @param property
-	 * @param width
-	 * @param conv
-	 * @param convclz
-	 * @param caption
-	 * @param cssclass
-	 * @param nodeRenderer
-	 * @param nrclass
-	 * @param clickHandler
-	 * <X, C extends IConverter<X>, R extends INodeContentRenderer<X>>
-	 * @param sortHelper
-	 * @param defaultsort
 	 */
 	private <R> void internalAddProperty(final String property, final String width, final IConverter<R> conv, final Class<R> convclz,
  final String caption, final String cssclass,
-		final INodeContentRenderer< ? > nodeRenderer, final Class< ? > nrclass, final Boolean nowrap, SortableType sort, ICellClicked< ? > clickHandler, boolean defaultsort,
+		final IRenderInto< ? > nodeRenderer, final Class< ? > nrclass, final Boolean nowrap, SortableType sort, ICellClicked< ? > clickHandler, boolean defaultsort,
  ISortHelper<?> sortHelper) {
 		if(property == null)
 			throw new IllegalStateException("? property name is empty?!");
@@ -286,7 +273,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 			throw new IllegalArgumentException("Undefined property path: '" + property + "' in classModel=" + m_metaModel);
 
 		//-- If a NodeRenderer is present we always use that, so property expansion is unwanted.
-		final INodeContentRenderer< ? > ncr = tryRenderer(nodeRenderer, nrclass);
+		final IRenderInto< ? > ncr = tryRenderer(nodeRenderer, nrclass);
 		if(ncr != null) {
 			defineRendererProperty(property, width, conv, convclz, caption, cssclass, nodeRenderer, nrclass, nowrap, sort, clickHandler, defaultsort, sortHelper, pmm);
 			return;
@@ -369,13 +356,13 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	}
 
 	private <V, R> void defineRendererProperty(final String property, final String width, final IConverter<R> conv, final Class<R> convclz, final String caption, final String cssclass,
-		final INodeContentRenderer< ? > nodeRenderer, final Class< ? > nrclass, final Boolean nowrap, SortableType sort, ICellClicked< ? > clickHandler, boolean defaultsort, ISortHelper<?> sortHelper,
+		final IRenderInto< ? > nodeRenderer, final Class< ? > nrclass, final Boolean nowrap, SortableType sort, ICellClicked< ? > clickHandler, boolean defaultsort, ISortHelper<?> sortHelper,
 		final PropertyMetaModel<V> pmm) {
 		final SimpleColumnDef<V> cd = new SimpleColumnDef<V>(this, pmm);
 		add(cd);
 		cd.setValueTransformer(pmm);
 		cd.setColumnLabel(caption == null ? pmm.getDefaultLabel() : caption);
-		cd.setContentRenderer((INodeContentRenderer<V>) tryRenderer(nodeRenderer, nrclass));
+		cd.setContentRenderer((IRenderInto<V>) tryRenderer(nodeRenderer, nrclass));
 		cd.setPropertyName(property);
 		cd.setPresentationConverter((IConverter<V>) tryConverter(convclz, conv)); // FIXME Not used as per the definition on content renderers??
 		cd.setWidth(width);
@@ -397,9 +384,9 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 		}
 	}
 
-	private <V, R> SortableType defineClassProperty(final IConverter<R> conv, final Class<R> convclz, final INodeContentRenderer< ? > nodeRenderer, final Class< ? > nrclass, SortableType sort,
+	private <V, R> SortableType defineClassProperty(final IConverter<R> conv, final Class<R> convclz, final IRenderInto< ? > nodeRenderer, final Class< ? > nrclass, SortableType sort,
 		ICellClicked< ? > clickHandler, boolean defaultsort, ISortHelper<?> sortHelper, SimpleColumnDef<V> cd) {
-		cd.setContentRenderer((INodeContentRenderer<V>) tryRenderer(nodeRenderer, nrclass));
+		cd.setContentRenderer((IRenderInto<V>) tryRenderer(nodeRenderer, nrclass));
 		cd.setPropertyName("");
 		cd.setPresentationConverter((IConverter<V>) tryConverter(convclz, conv));
 

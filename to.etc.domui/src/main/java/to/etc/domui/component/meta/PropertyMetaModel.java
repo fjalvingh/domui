@@ -239,7 +239,7 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * @return
 	 */
 	@Nullable
-	Class< ? extends IRenderInto< ? >> getComboNodeRenderer();
+	Class< ? extends IRenderInto<T>> getComboNodeRenderer();
 
 	/**
 	 * For a relation, this is the list of properties that should be shown. This
@@ -280,7 +280,7 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * @return
 	 */
 	@Nullable
-	Class< ? extends IRenderInto< ? >> getLookupSelectedRenderer();
+	Class< ? extends IRenderInto<T>> getLookupSelectedRenderer();
 
 	/**
 	 * When this class is to be selected as a parent in an UP relation using an InputLookup
@@ -289,7 +289,7 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * @return
 	 */
 	@Nonnull
-	public List<DisplayPropertyMetaModel> getLookupSelectedProperties();
+	List<DisplayPropertyMetaModel> getLookupSelectedProperties();
 
 	/**
 	 * When used in a {@link LookupInput} field, this fields are used to show the result of a Search in the DataTable.

@@ -24,13 +24,20 @@
  */
 package to.etc.domui.component.tbl;
 
-import javax.annotation.*;
+import to.etc.domui.component.meta.NumericPresentation;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.SortableType;
+import to.etc.domui.component.meta.YesNoType;
+import to.etc.domui.component.meta.impl.ExpandedDisplayProperty;
+import to.etc.domui.converter.ConverterRegistry;
+import to.etc.domui.converter.IConverter;
+import to.etc.domui.converter.IObjectToStringConverter;
+import to.etc.domui.dom.css.TextAlign;
+import to.etc.domui.util.IRenderInto;
+import to.etc.domui.util.IValueTransformer;
 
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.meta.impl.*;
-import to.etc.domui.converter.*;
-import to.etc.domui.dom.css.*;
-import to.etc.domui.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Contains data for rendering a column in a data table.
@@ -99,7 +106,7 @@ final public class SimpleColumnDef<T> {
 	private TextAlign m_align;
 
 	@Nullable
-	private INodeContentRenderer<T> m_contentRenderer;
+	private IRenderInto<T> m_contentRenderer;
 
 	@Nullable
 	private ICellClicked<T> m_cellClicked;
@@ -220,11 +227,11 @@ final public class SimpleColumnDef<T> {
 	}
 
 	@Nullable
-	public INodeContentRenderer<T> getContentRenderer() {
+	public IRenderInto<T> getContentRenderer() {
 		return m_contentRenderer;
 	}
 
-	public void setContentRenderer(@Nullable INodeContentRenderer<T> contentRenderer) {
+	public void setContentRenderer(@Nullable IRenderInto<T> contentRenderer) {
 		m_contentRenderer = contentRenderer;
 	}
 
@@ -393,7 +400,7 @@ final public class SimpleColumnDef<T> {
 	 * @return
 	 */
 	@Nonnull
-	public SimpleColumnDef<T> renderer(@Nonnull INodeContentRenderer<T> cr) {
+	public SimpleColumnDef<T> renderer(@Nonnull IRenderInto<T> cr) {
 		m_contentRenderer = cr;
 		return this;
 	}

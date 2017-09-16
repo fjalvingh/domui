@@ -169,7 +169,7 @@ abstract public class AbstractPropertyMetaModel<T> implements PropertyMetaModel<
 
 	@Nullable
 	@Override
-	public Class<? extends IRenderInto<?>> getComboNodeRenderer() {
+	public Class<? extends IRenderInto<T>> getComboNodeRenderer() {
 		return null;
 	}
 
@@ -198,7 +198,7 @@ abstract public class AbstractPropertyMetaModel<T> implements PropertyMetaModel<
 
 	@Nullable
 	@Override
-	public Class<? extends IRenderInto<?>> getLookupSelectedRenderer() {
+	public Class<? extends IRenderInto<T>> getLookupSelectedRenderer() {
 		return null;
 	}
 

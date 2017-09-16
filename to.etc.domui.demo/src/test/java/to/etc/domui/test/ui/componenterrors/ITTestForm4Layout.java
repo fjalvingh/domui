@@ -19,7 +19,7 @@ public class ITTestForm4Layout extends AbstractLayoutTest {
 	protected void initializeScreen() throws Exception {
 		wd().openScreenIf(this, Form4LayoutTestPage.class);
 		wd().cmd().type("aaaaaaaaa").on("two", "input");
-		wd().wait(By.className("ui-lui-keyword-no-res"));
+		wd().wait(By.className("ui-lui-popup"));
 		wd().cmd().type("aaaaaaaaa").on("three", "input");
 		wd().cmd().type("aaaaaaaaa").on("four", "input");
 	}
