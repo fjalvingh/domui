@@ -16,5 +16,11 @@ if [ $? != 0 ]; then
 	echo "Failed to copy reports"
 fi
 
+scp -P 222 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/deployment_id_ecdsa /tmp/website/* deployer@monge.etc.to:/var/www/domui
+
+if [ $? != 0 ]; then
+	echo "Failed to copy reports"
+fi
+
 exit 0
 
