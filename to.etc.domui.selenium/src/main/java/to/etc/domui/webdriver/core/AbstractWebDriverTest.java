@@ -169,5 +169,9 @@ abstract public class AbstractWebDriverTest {
 		return image;
 	}
 
+	@Attachment(value = "{1}", type="text/plain")
+	public String allureText(String data, String description) {
+		return data;
+	}
 
 }

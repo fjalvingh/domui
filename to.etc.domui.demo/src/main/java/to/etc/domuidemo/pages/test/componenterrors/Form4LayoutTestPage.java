@@ -84,7 +84,7 @@ public class Form4LayoutTestPage extends UrlPage {
 		fb.property(this, "album2").control(li4);
 
 		//-- Text<String>
-		IControl<?> text = fb.property(this, "text").control();
+		IControl<?> text = fb.property(this, "text").label("text zzzzzzzz").control();
 		text.setTestID("five");
 
 		IControl<?> date = fb.property(this, "date").control();

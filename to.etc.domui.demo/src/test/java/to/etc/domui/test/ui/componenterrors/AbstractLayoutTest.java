@@ -18,6 +18,8 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * The static and ThreadLocal idiocy is needed because of JUnit's horrible behavior
@@ -68,54 +70,63 @@ abstract public class AbstractLayoutTest extends AbstractWebDriverTest {
 		si();											// Make sure screen is open
 		WebDriverConnector wd = wd();
 		WebElement comp = wd.getElement(wd.byId(testID, componentInputCSS));
-		WebElement all = getParentTR(comp, "ui-f4-row");
-		if(null == all) {
+		WebElement row = getParentTR(comp, "ui-f4-row");
+		if(null == row) {
 			Assert.assertNotNull("The form's parent row cannot be located for testid " + testID);
 			return;
 		}
 
-		WebElement label = all.findElement(By.tagName("label"));
+		WebElement label = row.findElement(By.tagName("label"));
 
-		BufferedImage ssOne = si().elementScreenshot(comp);
-		int blOne = ImageHelper.findBaseLine(ssOne);
-		saveBi(ssOne, blOne, "label-screenshot", "The label");
+		BufferedImage ssComponent = si().elementScreenshot(comp);
+		int blComp = ImageHelper.findBaseLine(ssComponent);
+		saveBi(ssComponent, blComp, "label-screenshot", "The component");
 
-		int blOneAbs = comp.getLocation().y + blOne;
+		int blCompAbs = comp.getLocation().y + blComp;
 
-		BufferedImage ssTwo = si().elementScreenshot(label);
-		int blTwo = ImageHelper.findBaseLine(ssTwo);
-		int blTwoAbs = label.getLocation().y + blTwo;
+		BufferedImage ssLabel = si().elementScreenshot(label);
+		int blLabel = ImageHelper.findBaseLine(ssLabel);
+		int blLabelAbs = label.getLocation().y + blLabel;
 
-		saveBi(ssTwo, blTwo, "component-screenshot", "The component");
+		saveBi(ssLabel, blLabel, "component-screenshot", "The label");
 
-		if(blOneAbs == blTwoAbs)
+		if(blCompAbs == blLabelAbs)
 			return;
 
 		//-- Create an image showing the problemfamiliar
-		BufferedImage biAll = si().elementScreenshot(all);
-		int relOne = all.getLocation().y - comp.getLocation().y + blOne;
-		int relTwo = all.getLocation().y - label.getLocation().y + blTwo;
+		BufferedImage biRow = si().elementScreenshot(row);
+		int relComp = row.getLocation().y - comp.getLocation().y + blComp;
+		int relLabel = row.getLocation().y - label.getLocation().y + blLabel;
 
-		Graphics2D graphics = (Graphics2D) biAll.getGraphics();
+		Graphics2D graphics = (Graphics2D) biRow.getGraphics();
 		graphics.setStroke(new BasicStroke(1));
 		graphics.setColor(Color.RED);
-		graphics.drawLine(0, relOne, biAll.getWidth()-1, relOne);
+		graphics.drawLine(0, relComp, biRow.getWidth()-1, relComp);
 
 		graphics.setColor(Color.GREEN);
-		graphics.drawLine(0, relTwo, biAll.getWidth()-1, relTwo);
+		graphics.drawLine(0, relLabel, biRow.getWidth()-1, relLabel);
 		graphics.dispose();
 
-		saveImage(biAll, "baseline", "The baseline between both elements");
+		saveImage(biRow, "baseline", "The baseline between both elements");
 
 		//ImageIO.write(biAll, "png", getSnapshotName("baseline"));
 
 		//-- Dump properties for label and control
-		Map<String, String> styles = wd().getComputedStyles(label, a -> ! a.startsWith("-"));
-		System.out.println("label styles = " + styles);
-		styles = wd().getComputedStyles(comp, a -> ! a.startsWith("-"));
-		System.out.println("comp styles = " + styles);
+		Map<String, String> labelStyles = wd().getComputedStyles(label, a -> ! a.startsWith("-"));
+		System.out.println("label styles = " + labelStyles);
+		Map<String, String> compStyles = wd().getComputedStyles(comp, a -> ! a.startsWith("-"));
+		System.out.println("comp styles = " + compStyles);
 
-		Assert.fail("The baseline for the first element is " + ImageHelper.distance(blOneAbs, blTwoAbs) + " the second");
+		StringBuilder sb = new StringBuilder();
+		Set<String> names = new TreeSet<>(compStyles.keySet());
+		names.addAll(labelStyles.keySet());
+		sb.append(String.format("%-20s %-40s %-40s\n", "css property", "label value", "component value"));
+		names.forEach(name -> {
+			sb.append(String.format("%-20s %-40s %-40s\n", name, labelStyles.get(name), compStyles.get(name)));
+		});
+		allureText(sb.toString(), "computed css styles");
+
+		Assert.fail("The baseline for the first element is " + ImageHelper.distance(blCompAbs, blLabelAbs) + " the second");
 	}
 
 	/**
