@@ -3,14 +3,20 @@ package to.etc.domui.webdriver.core;
 import org.junit.Rule;
 import org.junit.rules.TestName;
 import org.openqa.selenium.UnhandledAlertException;
+import ru.yandex.qatools.allure.annotations.Attachment;
 import to.etc.pater.OnTestFailure;
+import to.etc.util.FileTool;
 import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
 
 import javax.annotation.DefaultNonNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.lang.reflect.Method;
 
 /**
@@ -67,13 +73,13 @@ abstract public class AbstractWebDriverTest {
 		WebDriverConnector.onTestFailure(wd(), failedMethod);
 	}
 
-	@Nonnull
-	public File getSnapshotName() {
-		return getSnapshotName(Integer.toString(m_screenShotCount++));
-	}
+	//@Nonnull
+	//public File getSnapshotName() {
+	//	return getSnapshotName(Integer.toString(m_screenShotCount++));
+	//}
 
 	@Nonnull
-	public File getSnapshotName(String baseName) {
+	private File getSnapshotName(String baseName) {
 		File testReportDir = findTestReportDir();
 		String testName = m_testName.getMethodName();
 		String reportName = getClass().getSimpleName() + "_" + testName + "-" + baseName + ".png";
@@ -81,10 +87,25 @@ abstract public class AbstractWebDriverTest {
 		return new File(testReportDir, reportName);
 	}
 
+	public void saveImage(BufferedImage bi, String baseName, String description) {
+		try {
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			ImageIO.write(bi, "png", bos);
+			byte[] bytes = bos.toByteArray();
+			allureAttachment(bytes, description);
+			File file = getSnapshotName(baseName);
+			try(FileOutputStream fos = new FileOutputStream(file)) {
+				fos.write(bytes);
+			}
+		} catch(Exception x) {
+			System.err.println("AbstractWebDriverTest: failed to save image " + baseName + ": " + x);
+		}
+	}
+
 	/**
 	 * Creates a snapshot of the current screen inside the failsafe directory.
 	 */
-	public void snapshot() {
+	public void snapshot(String description) {
 		File testReportDir = findTestReportDir();
 		String testName = m_testName.getMethodName();
 		String reportName = getClass().getSimpleName() + "_" + testName + ".png";
@@ -117,6 +138,12 @@ abstract public class AbstractWebDriverTest {
 
 		if(null == failure) {
 			System.out.println("snapshot taken as " + out + " (" + out.getAbsolutePath() + ")");
+			try {
+				byte[] bytes = FileTool.readFileAsByteArray(out);
+				allureAttachment(bytes, description);
+			} catch(Exception x) {
+			}
+
 		} else {
 			System.err.println("Failed to take a screenshot");
 			failure.printStackTrace();
@@ -136,5 +163,11 @@ abstract public class AbstractWebDriverTest {
 		f.mkdirs();
 		return f;
 	}
+
+	@Attachment(value = "{method} {1}", type = "image/png")
+	public byte[] allureAttachment(byte[] image, String description) {
+		return image;
+	}
+
 
 }

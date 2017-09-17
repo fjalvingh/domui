@@ -97,6 +97,10 @@ final public class ScreenInspector {
 		return elementScreenshot(element);
 	}
 
+	public BufferedImage getScreenImage() {
+		return m_image;
+	}
+
 	/**
 	 * Get a color histogram for the most used colors.
 	 * @param bi

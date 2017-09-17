@@ -14,7 +14,6 @@ import to.etc.domui.webdriver.core.WebDriverConnector;
 import javax.annotation.DefaultNonNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -56,7 +55,8 @@ abstract public class AbstractLayoutTest extends AbstractWebDriverTest {
 				Assume.assumeTrue("Cannot take screenshots", false);
 				throw new IllegalStateException();								// Satisfy nullchecking
 			} else {
-				si.save(getSnapshotName());
+				saveImage(si.getScreenImage(), "screenInspector", "Inspected screen");
+				//si.save(getSnapshotName());
 			}
 			m_inspector.set(si);
 
@@ -78,7 +78,7 @@ abstract public class AbstractLayoutTest extends AbstractWebDriverTest {
 
 		BufferedImage ssOne = si().elementScreenshot(comp);
 		int blOne = ImageHelper.findBaseLine(ssOne);
-		saveBi(ssOne, blOne, "test-one.png");
+		saveBi(ssOne, blOne, "label-screenshot", "The label");
 
 		int blOneAbs = comp.getLocation().y + blOne;
 
@@ -86,7 +86,7 @@ abstract public class AbstractLayoutTest extends AbstractWebDriverTest {
 		int blTwo = ImageHelper.findBaseLine(ssTwo);
 		int blTwoAbs = label.getLocation().y + blTwo;
 
-		saveBi(ssTwo, blTwo, "test-two.png");
+		saveBi(ssTwo, blTwo, "component-screenshot", "The component");
 
 		if(blOneAbs == blTwoAbs)
 			return;
@@ -105,7 +105,9 @@ abstract public class AbstractLayoutTest extends AbstractWebDriverTest {
 		graphics.drawLine(0, relTwo, biAll.getWidth()-1, relTwo);
 		graphics.dispose();
 
-		ImageIO.write(biAll, "png", getSnapshotName("baseline"));
+		saveImage(biAll, "baseline", "The baseline between both elements");
+
+		//ImageIO.write(biAll, "png", getSnapshotName("baseline"));
 
 		//-- Dump properties for label and control
 		Map<String, String> styles = wd().getComputedStyles(label, a -> ! a.startsWith("-"));
@@ -144,12 +146,14 @@ abstract public class AbstractLayoutTest extends AbstractWebDriverTest {
 		}
 	}
 
-	private void saveBi(BufferedImage biAll, int relOne, String baseName) throws IOException {
+	private void saveBi(BufferedImage biAll, int relOne, String baseName, String desc) throws IOException {
 		Graphics2D graphics = (Graphics2D) biAll.getGraphics();
 		graphics.setStroke(new BasicStroke(1));
 		graphics.setColor(Color.RED);
 		graphics.drawLine(0, relOne, biAll.getWidth()-1, relOne);
-		ImageIO.write(biAll, "png", getSnapshotName(baseName));
+		saveImage(biAll, baseName, desc);
+
+		//ImageIO.write(biAll, "png", getSnapshotName(baseName));
 	}
 
 

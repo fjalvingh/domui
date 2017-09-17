@@ -18,6 +18,6 @@ public class JUnitOnFailedRule extends TestWatcher {
 	}
 
 	@Override protected void failed(Throwable e, Description description) {
-		m_testBase.snapshot();
+		m_testBase.snapshot("Screen after test failure");
 	}
 }
