@@ -16,8 +16,6 @@
     <description>DerbyDB test database for testing and demo purposes</description>
     <inceptionYear>2017</inceptionYear>
 
-    <url>./to.etc.domui.derbydata</url>
-
     <dependencies>
         <!-- https://mvnrepository.com/artifact/org.hsqldb/hsqldb -->
         <dependency>

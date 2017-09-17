@@ -12,7 +12,6 @@
         <name>Vaadin</name>
         <url>http://vaadin.com/</url>
     </organization>
-    <url>http://vaadin.com/</url>
     <description>
         A pure Java implementation of the http://sass-lang.com compiler
     </description>

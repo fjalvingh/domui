@@ -25,6 +25,8 @@
     <name>domui</name>
     <description>The DomUI User Interface library</description>
 
+    <url>https://domui.org/maven/domui/</url>
+
     <distributionManagement>
         <snapshotRepository>
             <id>ossrh</id>

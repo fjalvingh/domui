@@ -16,8 +16,6 @@
     <description>The DomUI user interface library :: main codebase</description>
     <inceptionYear>2017</inceptionYear>
 
-    <url>./to.etc.domui</url>
-
     <dependencies>
         <!-- Kotlin -->
         <dependency>

@@ -16,8 +16,6 @@
     <description>DomUI / QCriteria Hibernate interface layer</description>
     <inceptionYear>2017</inceptionYear>
 
-    <url>./to.etc.domui.hibutil</url>
-
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>

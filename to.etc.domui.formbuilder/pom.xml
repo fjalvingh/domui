@@ -16,7 +16,6 @@
     <description>domui :: formbuilder</description>
     <inceptionYear>2017</inceptionYear>
 
-    <url>./to.etc.domui.formbuilder</url>
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>
