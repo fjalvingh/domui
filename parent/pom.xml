@@ -19,14 +19,6 @@
     <description>Parent to all DomUI projects</description>
     <inceptionYear>2017</inceptionYear>
 
-    <url>./parent/</url>
-    <distributionManagement>
-        <site>
-            <id>maven</id>
-            <url>./parent/</url>
-        </site>
-    </distributionManagement>
-
     <properties>
         <!-- JDK properties -->
         <source.jdk.version>1.8</source.jdk.version>
@@ -86,6 +78,9 @@
 
         <!-- Test dependencies -->
         <junit.version>4.12</junit.version>
+        <allure.version>1.5.4</allure.version>
+        <allure.maven.version>2.6</allure.maven.version>
+        <aspectj.version>1.8.10</aspectj.version>
 
         <!-- Versions needed for dependency convergence-->
         <commons-beanutils.version>1.9.3</commons-beanutils.version>
@@ -111,6 +106,14 @@
         <!-- config -->
         <jetty.http.port>8088</jetty.http.port>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>ru.yandex.qatools.allure</groupId>
+            <artifactId>allure-junit-adaptor</artifactId>
+            <version>${allure.version}</version>
+        </dependency>
+    </dependencies>
 
     <dependencyManagement>
         <dependencies>
@@ -469,7 +472,6 @@
                 <artifactId>jcharts</artifactId>
                 <version>${jcharts.version}</version>
             </dependency>
-
         </dependencies>
     </dependencyManagement>
 
@@ -490,6 +492,12 @@
 
     <reporting>
         <plugins>
+            <plugin>
+                <groupId>ru.yandex.qatools.allure</groupId>
+                <artifactId>allure-maven-plugin</artifactId>
+                <version>${allure.maven.version}</version>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
@@ -518,11 +526,14 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
+
+            <!--
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
                 <version>${maven-pmd-plugin.version}</version>
             </plugin>
+
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>
@@ -533,12 +544,19 @@
                     <xmlOutput>true</xmlOutput>
                 </configuration>
             </plugin>
+            -->
         </plugins>
     </reporting>
 
     <!-- Create a special profile to sign jars for release. -->
     <build>
         <plugins>
+            <plugin>
+                <groupId>io.qameta.allure</groupId>
+                <artifactId>allure-maven</artifactId>
+                <version>2.8</version>
+            </plugin>
+
             <!-- (jal) generate jars for test classes. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -557,14 +575,33 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.19.1</version>
+                <version>2.20</version>
                 <configuration>
+                    <!-- Allure reports -->
+                    <argLine>
+                        -javaagent:${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar
+                    </argLine>
+                    <properties>
+                        <property>
+                            <name>listener</name>
+                            <value>ru.yandex.qatools.allure.junit.AllureRunListener</value>
+                        </property>
+                    </properties>
+
 <!-- The complete and utter idiots that wrote Surefire cause a failure if this class cannot be found. -->
 <!--                    <excludedGroups>to.etc.puzzler.GroupUsesDatabase</excludedGroups> -->
                     <excludes>
                         <exclude>**/*Db*.java</exclude>
                     </excludes>
                 </configuration>
+
+                <dependencies>
+                    <dependency>
+                        <groupId>org.aspectj</groupId>
+                        <artifactId>aspectjweaver</artifactId>
+                        <version>${aspectj.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
 
             <!-- failsafe is used to do selenium/jetty integration tests (jal). By default tests with a class name starting with IT or ending with IT are integration tests. -->
@@ -572,10 +609,21 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.19.1</version>
+                <version>2.20</version>
 
                 <!-- jal: pass webdriver.url to JUnit tests needing that -->
                 <configuration>
+                    <!-- Allure reports -->
+                    <argLine>
+                        -javaagent:${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar
+                    </argLine>
+                    <properties>
+                        <property>
+                            <name>listener</name>
+                            <value>ru.yandex.qatools.allure.junit.AllureRunListener</value>
+                        </property>
+                    </properties>
+
                     <systemPropertyVariables>
                         <webdriver.url>http://localhost:${jetty.http.port}/demo/</webdriver.url>
                         <domui.testui>true</domui.testui>
@@ -590,6 +638,27 @@
                         </goals>
                     </execution>
                 </executions>
+
+                <dependencies>
+                    <dependency>
+                        <groupId>org.aspectj</groupId>
+                        <artifactId>aspectjweaver</artifactId>
+                        <version>${aspectj.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.6</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.wagon</groupId>
+                        <artifactId>wagon-ssh</artifactId>
+                        <version>2.0</version>
+                    </dependency>
+                </dependencies>
             </plugin>
 
             <plugin>

@@ -16,12 +16,6 @@
     <inceptionYear>2017</inceptionYear>
 
     <url>./to.etc.domui.legacy</url>
-    <distributionManagement>
-        <site>
-            <id>maven</id>
-            <url>./to.etc.domui.legacy/</url>
-        </site>
-    </distributionManagement>
 
     <dependencies>
         <dependency>

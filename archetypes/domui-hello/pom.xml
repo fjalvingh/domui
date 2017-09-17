@@ -5,4 +5,12 @@
     <version>1.2-SNAPSHOT</version>
     <name>DomUI :: archetype :: hello</name>
     <url>http://maven.apache.org</url>
+
+    <distributionManagement>
+        <site>
+            <id>website</id>
+            <url>file:///tmp/website/hello</url>
+        </site>
+    </distributionManagement>
+
 </project>

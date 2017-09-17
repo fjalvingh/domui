@@ -17,13 +17,6 @@
     <inceptionYear>2017</inceptionYear>
 
     <url>./to.etc.pater</url>
-    <distributionManagement>
-        <site>
-            <id>maven</id>
-            <url>./to.etc.pater/</url>
-        </site>
-    </distributionManagement>
-
     <dependencies>
 
         <!-- Test dependencies  -->

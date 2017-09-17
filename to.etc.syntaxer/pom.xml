@@ -17,13 +17,6 @@
     <inceptionYear>2017</inceptionYear>
 
     <url>./to.etc.syntaxer</url>
-    <distributionManagement>
-        <site>
-            <id>maven</id>
-            <url>./to.etc.syntaxer/</url>
-        </site>
-    </distributionManagement>
-
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>

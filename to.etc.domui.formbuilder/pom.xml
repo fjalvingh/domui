@@ -17,13 +17,6 @@
     <inceptionYear>2017</inceptionYear>
 
     <url>./to.etc.domui.formbuilder</url>
-    <distributionManagement>
-        <site>
-            <id>maven</id>
-            <url>./to.etc.domui.formbuilder/</url>
-        </site>
-    </distributionManagement>
-
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>

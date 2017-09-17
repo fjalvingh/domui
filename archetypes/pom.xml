@@ -8,6 +8,13 @@
     <name>DomUI :: archetypes</name>
     <description>Archetypes for quick setup of a DomUI project</description>
 
+    <distributionManagement>
+        <site>
+            <id>website</id>
+            <url>file:///tmp/website/archetypes</url>
+        </site>
+    </distributionManagement>
+
     <modules>
         <module>domui-hello</module>
     </modules>

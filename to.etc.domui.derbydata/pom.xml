@@ -17,12 +17,6 @@
     <inceptionYear>2017</inceptionYear>
 
     <url>./to.etc.domui.derbydata</url>
-    <distributionManagement>
-        <site>
-            <id>maven</id>
-            <url>./to.etc.domui.derbydata/</url>
-        </site>
-    </distributionManagement>
 
     <dependencies>
         <!-- https://mvnrepository.com/artifact/org.hsqldb/hsqldb -->

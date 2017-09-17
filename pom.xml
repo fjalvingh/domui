@@ -25,8 +25,6 @@
     <name>domui</name>
     <description>The DomUI User Interface library</description>
 
-    <url>./</url>
-
     <distributionManagement>
         <snapshotRepository>
             <id>ossrh</id>
@@ -36,6 +34,10 @@
             <id>ossrh</id>
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
+        <site>
+            <id>website</id>
+            <url>file:///tmp/website</url>
+        </site>
     </distributionManagement>
 
     <organization>
@@ -113,6 +115,19 @@
                     <releaseProfiles>release</releaseProfiles>
                     <goals>deploy</goals>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.6</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.wagon</groupId>
+                        <artifactId>wagon-ssh</artifactId>
+                        <version>2.0</version>
+                    </dependency>
+                </dependencies>
             </plugin>
 
             <plugin>
