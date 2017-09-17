@@ -23,7 +23,7 @@ scp -P 222 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/depl
 if [ $? != 0 ]; then
 	echo "Failed to copy reports"
 fi
-ssh -p 222 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/deployment_id_ecdsa "cd /var/www/domui; tar xzf website.tgz"
+ssh -p 222 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/deployment_id_ecdsa deployer@monge.etc.to "cd /var/www/domui; tar xzf website.tgz"
 
 
 exit 0
