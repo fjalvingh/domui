@@ -75,6 +75,11 @@ div.ui-lui {
 	background: -webkit-linear-gradient(top, #f2f9fe 0%,#d6f0fd 100%); /* Chrome10-25,Safari5.1-6 */
 	background: linear-gradient(to bottom, #f2f9fe 0%,#d6f0fd 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
 }
+.ui-lui.ui-input-err {
+	.ui-lui-empty, .ui-lui-v, .ui-lui-keyword {
+		background: $errors_input_background;
+	}
+}
 
 div.ui-lui-selected-ro {
 	//border: $readonly_border solid 1px; /* same border color as one used for ui-dspv fields */

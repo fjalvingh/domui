@@ -90,8 +90,8 @@ abstract public class AbstractLayoutTest extends AbstractWebDriverTest {
 
 		saveBi(ssLabel, blLabel, "label-screenshot", "The label");
 
-		//if(blCompAbs == blLabelAbs)
-		//	return;
+		if(blCompAbs == blLabelAbs)
+			return;
 
 		//-- Create an image showing the problemfamiliar
 		BufferedImage biRow = si().elementScreenshot(row);
