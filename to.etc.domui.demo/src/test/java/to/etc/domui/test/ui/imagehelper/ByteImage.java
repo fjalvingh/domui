@@ -3,6 +3,8 @@ package to.etc.domui.test.ui.imagehelper;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -255,42 +257,12 @@ public class ByteImage implements Image {
 		return res;
 	}
 
-
 	public int[] findFontBaselinesOld() {
-		List<int[]> vr = findVerticalRectangles();
-
-		//-- detect top border
-		int y = 0;
-		int offset = calculateXYOffset(0, 0);
-		int linePxCount = vr.size() * 2;
-		while(y < m_height) {
-			int count = countLinePixels(offset, m_width, 0, 80);
-			if(count > linePxCount)
-				break;
-			offset += m_rootWidth;
-			y++;
-		}
-		int startY = y;
-
-		//-- Detect bottom border
-		offset = calculateXYOffset(0, m_height - 1);
-		y = m_height - 1;
-		while(y >= startY) {
-			int count = countLinePixels(offset, m_width, 0, 80);
-			if(count > linePxCount)
-				break;
-			y--;
-			offset -= m_rootWidth;
-		}
-
-		int endY = y;
-		return new int[] {startY, endY};
-	}
-
-	public int[] findFontBaselines() {
-		int[][] histogram = getHistogram(4);
+		int[][] histogram = getHistogram(20);
 		System.out.println("Most used color: " + Integer.toString(histogram[0][0]) + ", " + histogram[0][1] + " times");
 		System.out.println("Second used color: " + Integer.toString(histogram[1][0]) + ", " + histogram[1][1] + " times");
+
+		getHistogramBuckets(20);
 
 		int fontColor = histogram[1][0];
 		List<int[]> vr = findVerticalRectangles();
@@ -324,10 +296,42 @@ public class ByteImage implements Image {
 	}
 
 
+	public int[] findFontBaselines() {
+		List<ColorBucket> buckets = getHistogramBuckets(20);
+		if(buckets.size() < 2) {
+			return new int[] {0, 0};
+		}
+		ColorBucket fontColor = buckets.get(1);
+		System.out.println("fontBaseLines: using color " + fontColor.m_lower + " .. " + fontColor.m_higher + " as font color");
+		List<int[]> vr = findVerticalRectangles();
 
+		//-- detect top border
+		int y = 0;
+		int offset = calculateXYOffset(0, 0);
+		int linePxCount = vr.size() * 2;
+		while(y < m_height) {
+			int count = countLinePixels(offset, m_width, fontColor.m_lower, fontColor.m_higher);
+			if(count > linePxCount)
+				break;
+			offset += m_rootWidth;
+			y++;
+		}
+		int startY = y;
 
+		//-- Detect bottom border
+		offset = calculateXYOffset(0, m_height - 1);
+		y = m_height - 1;
+		while(y >= startY) {
+			int count = countLinePixels(offset, m_width, fontColor.m_lower, fontColor.m_higher);
+			if(count > linePxCount)
+				break;
+			y--;
+			offset -= m_rootWidth;
+		}
 
-
+		int endY = y;
+		return new int[] {startY, endY};
+	}
 
 	/**
 	 * Find the most often used "colors".
@@ -348,6 +352,7 @@ public class ByteImage implements Image {
 		//-- Now sort
 		//-- Now get the largest #of colors.
 		int[] indexArray = new int[max];
+		Arrays.fill(indexArray, -1);
 		for(int i = 0; i < histogram.length; i++) {
 			insertBucket(histogram, i, indexArray);
 		}
@@ -355,16 +360,70 @@ public class ByteImage implements Image {
 		int[][] result = new int[max][2];
 		for(int i = 0; i < indexArray.length; i++) {
 			int color = indexArray[i];
-			result[i][0] = color;
-			result[i][1] = histogram[indexArray[i]];
+			if(color != -1) {
+				result[i][0] = color;
+				result[i][1] = histogram[color];
+				//System.out.println("     " + color + " : " + histogram[indexArray[i]]);
+			}
 		}
 		return result;
 	}
 
+	static public class ColorBucket {
+		private int m_lower;
+
+		private int m_higher;
+
+		private int m_count;
+	}
+
+	public List<ColorBucket> getHistogramBuckets(int spread) {
+		int[][] histogram = getHistogram(40);
+		List<ColorBucket> res = new ArrayList<>();
+		for(int[] ints : histogram) {
+			ColorBucket closest = findClosest(res, ints[0], spread);
+			closest.m_count += ints[1];
+		}
+		Collections.sort(res, (a, b) -> - Integer.compare(a.m_count, b.m_count));
+
+		for(ColorBucket re : res) {
+			System.out.println("    " + re.m_count + " for " + re.m_lower + " .. " + re.m_higher);
+		}
+
+		return res;
+	}
+
+	private ColorBucket findClosest(List<ColorBucket> res, int color, int spread) {
+		ColorBucket best = null;
+		for(ColorBucket re : res) {
+			if(color >= re.m_higher - spread && color < re.m_lower + spread) {
+				best = re;
+			}
+		}
+
+		if(best != null) {
+			if(best.m_higher <= color) {
+				best.m_higher = color + 1;
+			}
+			if(best.m_lower > color) {
+				best.m_lower = color;
+			}
+			return best;
+		}
+		best = new ColorBucket();
+		best.m_lower = color;
+		best.m_higher = color + 1;
+		res.add(best);
+		return best;
+	}
+
+
 	private static void insertBucket(int[] histogram, int bucketIndex, int[] indexArray) {
 		int cur = histogram[bucketIndex];
+		if(cur == 0)
+			return;
 		for(int i = 0; i < indexArray.length; i++) {
-			if(cur > histogram[indexArray[i]]) {
+			if(indexArray[i] == -1 || cur > histogram[indexArray[i]]) {
 				System.arraycopy(indexArray, i, indexArray, i+1, indexArray.length - i - 1);
 				indexArray[i] = bucketIndex;
 				return;

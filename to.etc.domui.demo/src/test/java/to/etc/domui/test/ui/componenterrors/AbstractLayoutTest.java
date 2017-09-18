@@ -80,7 +80,7 @@ abstract public class AbstractLayoutTest extends AbstractWebDriverTest {
 
 		BufferedImage ssComponent = si().elementScreenshot(comp);
 		int blComp = ImageHelper.findBaseLine(ssComponent);
-		saveBi(ssComponent, blComp, "label-screenshot", "The component");
+		saveBi(ssComponent, blComp, "component-screenshot", "The component");
 
 		int blCompAbs = comp.getLocation().y + blComp;
 
@@ -88,23 +88,23 @@ abstract public class AbstractLayoutTest extends AbstractWebDriverTest {
 		int blLabel = ImageHelper.findBaseLine(ssLabel);
 		int blLabelAbs = label.getLocation().y + blLabel;
 
-		saveBi(ssLabel, blLabel, "component-screenshot", "The label");
+		saveBi(ssLabel, blLabel, "label-screenshot", "The label");
 
-		if(blCompAbs == blLabelAbs)
-			return;
+		//if(blCompAbs == blLabelAbs)
+		//	return;
 
 		//-- Create an image showing the problemfamiliar
 		BufferedImage biRow = si().elementScreenshot(row);
-		int relComp = row.getLocation().y - comp.getLocation().y + blComp;
-		int relLabel = row.getLocation().y - label.getLocation().y + blLabel;
+		int relComp = blCompAbs - row.getLocation().y;
+		int relLabel = blLabelAbs - row.getLocation().y;
 
 		Graphics2D graphics = (Graphics2D) biRow.getGraphics();
 		graphics.setStroke(new BasicStroke(1));
 		graphics.setColor(Color.RED);
-		graphics.drawLine(0, relComp, biRow.getWidth()-1, relComp);
+		graphics.drawLine(label.getSize().width, relComp, biRow.getWidth()-1, relComp);
 
 		graphics.setColor(Color.GREEN);
-		graphics.drawLine(0, relLabel, biRow.getWidth()-1, relLabel);
+		graphics.drawLine(0, relLabel, label.getSize().width, relLabel);
 		graphics.dispose();
 
 		saveImage(biRow, "baseline", "The baseline between both elements");
