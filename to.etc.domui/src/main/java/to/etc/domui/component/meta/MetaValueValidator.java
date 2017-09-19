@@ -26,14 +26,21 @@ package to.etc.domui.component.meta;
 
 import to.etc.domui.converter.*;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 /**
  * Annotation to define a parameterized value validator.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 24, 2008
  */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.ANNOTATION_TYPE)
 public @interface MetaValueValidator {
-	public Class< ? extends IValueValidator< ? >> validator();
+	Class< ? extends IValueValidator< ? >> validator();
 
-	public String[] parameters() default {};
+	String[] parameters() default {};
 }
