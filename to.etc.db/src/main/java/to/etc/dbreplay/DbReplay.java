@@ -1,12 +1,25 @@
 package to.etc.dbreplay;
 
-import java.io.*;
-import java.text.*;
-import java.util.*;
+import to.etc.dbpool.ConnectionPool;
+import to.etc.dbpool.DbPoolUtil;
+import to.etc.dbpool.PoolManager;
 
-import javax.annotation.*;
-
-import to.etc.dbpool.*;
+import javax.annotation.Nullable;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * This utility will replay a database logfile, for performance evaluation purposes.
@@ -126,7 +139,7 @@ public class DbReplay {
 
 		//-- Input distributor loop.
 		m_startTime = System.currentTimeMillis();
-		for(;;) {
+		for(; ; ) {
 			ReplayRecord rr = ReplayRecord.readRecord(this);
 			if(null == rr)
 				break;
@@ -163,7 +176,7 @@ public class DbReplay {
 						throw new IllegalArgumentException("Missing file name after -poolfile");
 					m_poolFile = new File(args[argc++]);
 					if(!m_poolFile.exists() || !m_poolFile.isFile())
-						throw new IllegalArgumentException(m_poolFile+": file not found");
+						throw new IllegalArgumentException(m_poolFile + ": file not found");
 				} else if("-dump".equals(s)) {
 					m_runType = XType.DUMP;
 				} else if("-schema".equals(s)) {
@@ -254,15 +267,16 @@ public class DbReplay {
 		System.out.println("Usage: DbReplay [options] filename poolID");
 		System.out.println("Options are:\n" //
 			+ "-poolfile|-pf [filename]: The name of the pool.properties defining the database connection.\n" //
-				+ "-schema [name]: set the 'current schema' before starting the tests (useful to run test logged in as a different user). For instance when running as a user 'TEST' when tables in schema VIEWPOINT are needed\n" //
+			+ "-schema [name]: set the 'current schema' before starting the tests (useful to run test logged in as a different user). For instance when running as a user 'TEST' when tables in schema VIEWPOINT are needed\n"
+			//
 			+ "-db [userid:password@host/sid]: shorthand to connect to this specific database.\n" //
 			+ "-driver|-dp [path]: path to the Oracle driver .jar file, if not present on the classpath\n" //
-				+ "\n** replay options **\n" //
-				+ "-maxwait [milliseconds]: set the max time to wait between successive statements to a #of milliseconds. This ignores the real times that statements were sent to the database.\n"
-				+ "-log: create a log of statements in dbreplay.log\n" //
-				+ "-speedy: run using the 'speedy' replayer\n" //
-				+ "\nSpeedy executor options:\n"
-				+ "-perwait n: schedule this many SQL commands per 'maxwait' period. Example: -maxwait 1 -perwait 10 will try to execute 10 SQL statements every millisecond\n"
+			+ "\n** replay options **\n" //
+			+ "-maxwait [milliseconds]: set the max time to wait between successive statements to a #of milliseconds. This ignores the real times that statements were sent to the database.\n"
+			+ "-log: create a log of statements in dbreplay.log\n" //
+			+ "-speedy: run using the 'speedy' replayer\n" //
+			+ "\nSpeedy executor options:\n"
+			+ "-perwait n: schedule this many SQL commands per 'maxwait' period. Example: -maxwait 1 -perwait 10 will try to execute 10 SQL statements every millisecond\n"
 		);
 	}
 
@@ -394,6 +408,7 @@ public class DbReplay {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Execution framework.								*/
 	/*--------------------------------------------------------------*/
+
 	/** List of all registered executors. */
 	private List<ReplayExecutor> m_executorList = new ArrayList<ReplayExecutor>(100);
 
@@ -478,7 +493,7 @@ public class DbReplay {
 	public void queueIdle(ReplayRecord rr) throws Exception {
 		ReplayExecutor r = null;
 		int tries = 20;
-		for(;;) {
+		for(; ; ) {
 			synchronized(m_idleExecutorList) {
 				if(m_idleExecutorList.size() > 0) {
 					r = m_idleExecutorList.iterator().next();
@@ -515,7 +530,7 @@ public class DbReplay {
 
 		//-- Wait for all of them, max 30 secs.
 		long ets = System.currentTimeMillis() + 30 * 1000; // Allow max. 30 seconds startup time.
-		for(;;) {
+		for(; ; ) {
 			long ts = System.currentTimeMillis();
 			if(ts >= ets) {
 				//-- Failed to start!!! Abort.
@@ -545,7 +560,7 @@ public class DbReplay {
 		long ets = System.currentTimeMillis() + timeout;
 		long lmt = 0;
 		int lastrunning = -1;
-		for(;;) {
+		for(; ; ) {
 			long ts = System.currentTimeMillis();
 
 			if(ts >= ets) {
@@ -572,7 +587,7 @@ public class DbReplay {
 	private void waitForReady() throws Exception {
 		long ets = System.currentTimeMillis() + 30 * 1000; // Allow max. 30 seconds startup time.
 		long lmt = 0;
-		for(;;) {
+		for(; ; ) {
 			long ts = System.currentTimeMillis();
 			if(ts >= ets) {
 				//-- Failed to start!!! Abort.
@@ -649,6 +664,7 @@ public class DbReplay {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Status handling thread.								*/
 	/*--------------------------------------------------------------*/
+
 	/** The next time a status is to be run. */
 	private int m_statusLines;
 
