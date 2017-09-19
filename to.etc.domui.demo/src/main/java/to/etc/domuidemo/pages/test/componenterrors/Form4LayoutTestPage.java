@@ -34,6 +34,10 @@ public class Form4LayoutTestPage extends UrlPage {
 
 	private Album m_album2;
 
+	private Album m_album22;
+
+	private Album m_album23;
+
 	private String m_text = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaargh";
 
 	private String m_memo = "bbbbbbbbbbbbbbbbbbbbbbbbrgh";
@@ -42,7 +46,7 @@ public class Form4LayoutTestPage extends UrlPage {
 
 	@Override public void createContent() throws Exception {
 		QCriteria<Album> q = QCriteria.create(Album.class).eq("title", "Angel Dust");
-		m_album4 = m_album3 = getSharedContext().queryOne(q);
+		m_album4 = m_album3 = m_album22 = m_album23 = getSharedContext().queryOne(q);
 
 		add(new GenericHeader(Type.BLUE, "LookupInput variants"));
 		FormBuilder fb = new FormBuilder(this);
@@ -73,7 +77,8 @@ public class Form4LayoutTestPage extends UrlPage {
 		//-- LookupInput2
 		add(new GenericHeader(Type.BLUE, "LookupInput2 variants"));
 		fb = new FormBuilder(this);
-		LookupInput2<Artist> li3 = new LookupInput2<>(Artist.class);
+
+		LookupInput2<Artist> li3 = new LookupInput2<>(Artist.class);			// Should not have input
 		li3.setTestID("three");
 		li3.setMandatory(true);
 		fb.property(this, "artist2").control(li3);
@@ -82,6 +87,20 @@ public class Form4LayoutTestPage extends UrlPage {
 		li4.setTestID("four");
 		li4.setMandatory(true);
 		fb.property(this, "album2").control(li4);
+
+		LookupInput2<Album> li22 = new LookupInput2<>(Album.class);
+		li22.setTestID("l22");
+		li22.setMandatory(true);
+		fb.property(this, "album22").control(li22);
+
+		//LookupInput<Album> li23 = new LookupInput2<>(Album.class);
+		//li23.setValueColumns("title", "artist.name");
+		//li23.setTestID("l23");
+		//li23.setMandatory(true);
+		//fb.property(this, "album4").control(li23);
+
+		add(new GenericHeader(Type.BLUE, "Text inputs"));
+		fb = new FormBuilder(this);
 
 		//-- Text<String>
 		IControl<?> text = fb.property(this, "text").label("text zzzzzzzz").control();
@@ -181,5 +200,23 @@ public class Form4LayoutTestPage extends UrlPage {
 
 	public void setAlbum4(Album album4) {
 		m_album4 = album4;
+	}
+
+	@MetaProperty(required = YesNoType.YES)
+	public Album getAlbum22() {
+		return m_album22;
+	}
+
+	public void setAlbum22(Album album22) {
+		m_album22 = album22;
+	}
+
+	@MetaProperty(required = YesNoType.YES)
+	public Album getAlbum23() {
+		return m_album23;
+	}
+
+	public void setAlbum23(Album album23) {
+		m_album23 = album23;
 	}
 }
