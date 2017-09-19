@@ -362,22 +362,22 @@ public class DbReplay {
 	public int readInt() throws Exception {
 		int v = m_bis.read();
 		if(v == -1)
-			throw new EOFException();
+			throw new EofException();
 		int r = v << 24;
 
 		v = m_bis.read();
 		if(v == -1)
-			throw new EOFException();
+			throw new EofException();
 		r |= v << 16;
 
 		v = m_bis.read();
 		if(v == -1)
-			throw new EOFException();
+			throw new EofException();
 		r |= v << 8;
 
 		v = m_bis.read();
 		if(v == -1)
-			throw new EOFException();
+			throw new EofException();
 		r |= v;
 
 		m_fileOffset += 4;
@@ -387,7 +387,7 @@ public class DbReplay {
 	public int readByte() throws Exception {
 		int b = m_bis.read();
 		if(-1 == b)
-			throw new EOFException();
+			throw new EofException();
 		return b;
 	}
 
