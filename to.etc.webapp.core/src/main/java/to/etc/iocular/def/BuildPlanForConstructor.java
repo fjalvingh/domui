@@ -27,7 +27,7 @@ package to.etc.iocular.def;
 import java.io.*;
 import java.lang.reflect.*;
 
-import to.etc.iocular.container.*;
+import to.etc.iocular.ioccontainer.*;
 import to.etc.util.*;
 
 /**

@@ -1,12 +1,14 @@
 package to.etc.dbreplay;
 
-import java.io.*;
-import java.math.*;
-import java.sql.*;
+import to.etc.dbpool.ConnectionPool;
+import to.etc.dbpool.StatementProxy;
 
-import javax.annotation.*;
-
-import to.etc.dbpool.*;
+import javax.annotation.Nonnull;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.Timestamp;
 
 /**
  * Contains the decoded "image" from the binary record log file.
@@ -20,7 +22,7 @@ class ReplayRecord {
 			long magic = r.readLong();
 			if(magic != ConnectionPool.STMT_START_MAGIC)
 				throw new IOException("Invalid/missing record start marker");
-		} catch(EOFException x) {
+		} catch(EofException x) {
 			return null;
 		}
 		ReplayRecord rr = new ReplayRecord();
@@ -117,7 +119,7 @@ class ReplayRecord {
 				throw new IOException("assign: unexpected parameter type: " + m_parameterType[index]);
 
 			case '0':
-				ps.setString(index+1, null);
+				ps.setString(index + 1, null);
 				break;
 
 			case 'i':

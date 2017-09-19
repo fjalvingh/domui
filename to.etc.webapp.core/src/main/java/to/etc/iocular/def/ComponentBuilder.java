@@ -29,7 +29,7 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import to.etc.iocular.*;
-import to.etc.iocular.container.*;
+import to.etc.iocular.ioccontainer.*;
 import to.etc.iocular.util.ClassUtil;
 import to.etc.util.*;
 
