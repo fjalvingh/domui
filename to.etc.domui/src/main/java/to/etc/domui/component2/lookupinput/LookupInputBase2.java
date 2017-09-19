@@ -241,14 +241,18 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	public void createContent() throws Exception {
 		m_keySearch = null;
 		removeCssClass("ui-ro");
-		if(m_value == null && isAllowKeyWordSearch() && isKeyWordSearchDefined()) {
-			//Key word search rendering should be generic, no need for customization possibilities.
-			if(isReadOnly() || isDisabled()) {
-				add(0, getValueNode());
-				renderEmptySelection();
-				addCssClass("ui-ro");
+		OT value = m_value;
+		if(value == null) {
+			if(isAllowKeyWordSearch() && isKeyWordSearchDefined()) {
+				if(isReadOnly() || isDisabled()) {
+					add(0, getValueNode());
+					renderEmptySelection();
+					addCssClass("ui-ro");
+				} else {
+					renderKeyWordSearch();
+				}
 			} else {
-				renderKeyWordSearch();
+				renderEmptySelection();
 			}
 		} else {
 			//In case of rendering selected values it is possible to use customized renderers. If no customized rendered is defined then use default one.
@@ -257,7 +261,7 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 				r = new SimpleLookupInputRenderer2<>(getOutputMetaModel());
 			NodeContainer valueNode = getValueNode();
 			valueNode.removeAllChildren();
-			r.renderOpt(valueNode, m_value);
+			r.renderOpt(valueNode, value);
 			add(0, valueNode);
 		}
 
@@ -327,10 +331,6 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	 * @return true either when query control is manually implemented by keyWordSearchHandler, or if keyword search meta data is defined.
 	 */
 	private boolean isKeyWordSearchDefined() {
-		if(getStringQueryFactory() != null) {
-			return true;
-		}
-
 		if(m_keywordLookupPropertyList != null)
 			return true;
 		List<SearchPropertyMetaModel> spml = getQueryMetaModel().getKeyWordSearchProperties();

@@ -93,11 +93,11 @@ public class Form4LayoutTestPage extends UrlPage {
 		li22.setMandatory(true);
 		fb.property(this, "album22").control(li22);
 
-		//LookupInput<Album> li23 = new LookupInput2<>(Album.class);
-		//li23.setValueColumns("title", "artist.name");
-		//li23.setTestID("l23");
-		//li23.setMandatory(true);
-		//fb.property(this, "album4").control(li23);
+		LookupInput2<Album> li23 = new LookupInput2<>(Album.class);
+		li23.setValueColumns("title", "artist.name");
+		li23.setTestID("l23");
+		li23.setMandatory(true);
+		fb.property(this, "album23").control(li23);
 
 		add(new GenericHeader(Type.BLUE, "Text inputs"));
 		fb = new FormBuilder(this);
