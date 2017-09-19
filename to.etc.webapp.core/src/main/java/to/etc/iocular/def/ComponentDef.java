@@ -25,7 +25,7 @@
 package to.etc.iocular.def;
 
 import to.etc.iocular.*;
-import to.etc.iocular.container.*;
+import to.etc.iocular.ioccontainer.*;
 
 final public class ComponentDef implements ISelfDef {
 	/** All names this component was registered with; the 1st one is the primary. For an unnamed item this is the empty array. */

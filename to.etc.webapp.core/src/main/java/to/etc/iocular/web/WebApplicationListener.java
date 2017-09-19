@@ -25,14 +25,21 @@
 package to.etc.iocular.web;
 
 
-import javax.servlet.*;
-import javax.servlet.http.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import to.etc.iocular.Container;
+import to.etc.iocular.ioccontainer.BasicContainer;
+import to.etc.iocular.util.ClassUtil;
 
-import org.slf4j.*;
-
-import to.etc.iocular.*;
-import to.etc.iocular.container.*;
-import to.etc.iocular.util.*;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+import javax.servlet.ServletRequestEvent;
+import javax.servlet.ServletRequestListener;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpSessionEvent;
+import javax.servlet.http.HttpSessionListener;
 
 /**
  * <p>This listener must be registered as a 'listener' entry in web.xml for

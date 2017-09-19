@@ -22,30 +22,20 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.iocular.container;
+package to.etc.iocular.ioccontainer;
 
-import java.io.*;
+import to.etc.iocular.*;
 
-import to.etc.util.*;
+public class IocContainerException extends IocException {
+	private BasicContainer m_c;
 
-/**
- * A single alternative in a failure that was tried.
- *
- * @author jal
- * Created on Mar 28, 2007
- */
-public class FailedAlternative {
-	private String m_failureString;
-
-	public FailedAlternative(String failureString) {
-		m_failureString = failureString;
+	public IocContainerException(BasicContainer c, String why) {
+		super(why);
+		m_c = c;
 	}
 
-	public String getFailureString() {
-		return m_failureString;
-	}
-
-	public void dump(IndentWriter iw) throws IOException {
-		iw.println(m_failureString);
+	@Override
+	public String getMessage() {
+		return super.getMessage() + " (container " + m_c.getIdent() + ")";
 	}
 }
