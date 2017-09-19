@@ -18,7 +18,11 @@ echo "ChromeDriver version"
 chromedriver -v
 
 # Install some fonts
+echo "Installing fonts"
 mkdir -p ~/.fonts
 cp buildResources/fonts/* ~/.fonts
-fc-cache
+fc-cache -v
+echo "Fonts in .fonts:"
+ls -l ~/.fonts
+
 
