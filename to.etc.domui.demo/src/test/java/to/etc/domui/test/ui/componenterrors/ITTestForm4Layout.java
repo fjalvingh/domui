@@ -20,7 +20,6 @@ public class ITTestForm4Layout extends AbstractLayoutTest {
 		wd().openScreenIf(this, Form4LayoutTestPage.class);
 		wd().cmd().type("aaaaaaaaa").on("two", "input");
 		wd().wait(By.className("ui-lui-popup"));
-		wd().cmd().type("aaaaaaaaa").on("three", "input");
 		wd().cmd().type("aaaaaaaaa").on("four", "input");
 	}
 
@@ -36,7 +35,7 @@ public class ITTestForm4Layout extends AbstractLayoutTest {
 
 	@Test
 	public void testLookup3Baseline() throws Exception {
-		checkBaseLine("three", "input");
+		checkBaseLine("three", "span");
 	}
 
 	@Test
