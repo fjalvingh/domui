@@ -1,6 +1,7 @@
 package to.etc.domui.test.ui.componenterrors;
 
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.By;
@@ -70,6 +71,8 @@ public class ITTestLookupInputLayout extends AbstractWebDriverTest {
 
 	@Test
 	public void testChromeExtension() throws Exception {
+		Assume.assumeTrue("Test only valid when running chrome", wd().driver() instanceof MyChromeDriver);
+
 		ChromeExtender xx = new ChromeExtender( (MyChromeDriver) wd().driver());
 		xx.takeScreenshot(new File("/tmp/screen.png"));
 	}

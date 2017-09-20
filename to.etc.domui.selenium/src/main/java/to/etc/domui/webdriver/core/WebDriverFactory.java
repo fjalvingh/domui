@@ -9,6 +9,7 @@ import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.chrome.ChromeDriverService.Builder;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
@@ -187,12 +188,71 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		return wd;
 	}
 
-	@NotNull private static WebDriver allocateFirefoxDriver(Locale lang) {
+	@NotNull private static WebDriver allocateFirefoxDriver(Locale lang) throws IOException {
+		FirefoxOptions fo = new FirefoxOptions();
+
+		////-- Set the XDG_CONFIG_HOME envvar; this is used by fontconfig as one of its locations
+		//File dir = createFontConfigFile();
+		//FirefoxBinary ffb = new FirefoxBinary();
+		//ffb.setEnvironmentProperty("XDG_CONFIG_HOME", dir.getParentFile().getAbsolutePath());
+		//FirefoxOptions ffo = new FirefoxOptions(getFirefoxCapabilities(lang));
+		//ffo.setBinary(ffb);
+		//FirefoxDriver wd = new FirefoxDriver(ffo);
+
+		replaceDotFonts();
+
 		FirefoxDriver wd = new FirefoxDriver(getFirefoxCapabilities(lang));
 		String browserName = wd.getCapabilities().getBrowserName();
 		String version = wd.getCapabilities().getVersion();
 		System.out.println("wd: allocated " + browserName + " " + version);
 		return wd;
+	}
+
+	static private boolean m_dotFontChecked;
+
+	private static synchronized void replaceDotFonts() throws IOException {
+		if(m_dotFontChecked)
+			return;
+
+		File home = new File(System.getProperty("user.home"));
+		final File dotfont = new File(home, ".fonts.conf");
+		final File dotbackup = new File(home, "fonts.conf.backup");
+		if(! dotbackup.exists()) {
+			if(dotfont.exists()) {
+				if(! dotfont.renameTo(dotbackup)) {
+					throw new IOException("Cannot rename " + dotfont + " to " + dotbackup);
+				}
+			}
+		}
+
+		//-- Now write a new .fonts.conf
+		String text = "<match target=\"font\">\n"
+			+ "<edit mode=\"assign\" name=\"antialias\">\n"
+			+ "<bool>false</bool>\n"
+			+ "</edit>\n"
+			+ "</match>";
+		try(FileOutputStream fos = new FileOutputStream(dotfont)) {
+			fos.write(text.getBytes("UTF-8"));
+		}
+
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override public void run() {
+				try {
+					if(!dotfont.delete()) {
+						System.err.println("FAILED TO DELETE " + dotfont);
+					}
+					if(dotbackup.exists()) {
+						if(! dotbackup.renameTo(dotfont)) {
+							System.err.println("FAILED TO RENAME " + dotbackup + " back to " + dotfont);
+						}
+					}
+
+				} catch(Exception x) {
+					x.printStackTrace();
+				}
+			}
+		});
+		m_dotFontChecked = true;
 	}
 
 	private static WebDriver allocateChromeInstance(BrowserModel model, Locale lang) throws IOException {
