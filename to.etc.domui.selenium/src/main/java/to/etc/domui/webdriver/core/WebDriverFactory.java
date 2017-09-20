@@ -267,7 +267,9 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		profile.setPreference("intl.accept_languages", lang.getLanguage().toLowerCase());
 		DesiredCapabilities capabilities = DesiredCapabilities.firefox();
 		capabilities.setCapability(FirefoxDriver.PROFILE, profile);
-		capabilities.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.IGNORE);
+
+		//-- Not supported anymore, see https://github.com/mozilla/geckodriver/issues/617
+		//capabilities.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.IGNORE);
 		return capabilities;
 	}
 
