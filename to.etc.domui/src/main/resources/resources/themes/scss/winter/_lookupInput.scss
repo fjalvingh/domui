@@ -76,7 +76,7 @@ div.ui-lui {
 	background: linear-gradient(to bottom, #f2f9fe 0%,#d6f0fd 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
 }
 .ui-lui.ui-input-err {
-	.ui-lui-empty, .ui-lui-v, .ui-lui-keyword {
+	.ui-lui-empty, .ui-lui-v, .ui-lui-keyword, .ui-srip-keyword {
 		background: $errors_input_background;
 	}
 }
