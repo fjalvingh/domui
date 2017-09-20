@@ -44,7 +44,7 @@ import java.util.*;
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on Feb 10, 2010
  */
-public class SimpleLookupInputRenderer<T> implements IRenderInto<T> {
+/* final */ public class SimpleLookupInputRenderer<T> implements IRenderInto<T> {
 	/** The type that it should render. */
 	@Nullable
 	final private Class<T> m_actualClass;
@@ -53,7 +53,7 @@ public class SimpleLookupInputRenderer<T> implements IRenderInto<T> {
 	final private String[] m_propertyNames;
 
 	@Nullable
-	private List<ExpandedDisplayProperty< ? >> m_xpl;
+	final private List<ExpandedDisplayProperty< ? >> m_xpl;
 
 	private IRenderInto<T> m_beforeRenderer;
 
@@ -62,13 +62,23 @@ public class SimpleLookupInputRenderer<T> implements IRenderInto<T> {
 	public SimpleLookupInputRenderer() {
 		m_actualClass = null;
 		m_propertyNames = null;
+		m_xpl = null;
+	}
+
+	public SimpleLookupInputRenderer(ClassMetaModel cmm, String... propertyNames) {
+		m_actualClass = (Class<T>) cmm.getActualClass();
+		m_propertyNames = propertyNames;
+		m_xpl = initRenderingModel(cmm, propertyNames);
 	}
 
 	public SimpleLookupInputRenderer(@Nonnull Class<T> clz, @Nonnull String... colset) {
 		m_actualClass = clz;
 		m_propertyNames = colset;
-
 		ClassMetaModel cmm = MetaManager.findClassMeta(clz);
+		m_xpl = initRenderingModel(cmm, colset);
+	}
+
+	private List<ExpandedDisplayProperty<?>> initRenderingModel(ClassMetaModel cmm, @Nonnull String[] colset) {
 		List<ExpandedDisplayProperty< ? >> xpl;
 		if(colset.length == 0) {
 			//-- Has default meta?
@@ -76,7 +86,7 @@ public class SimpleLookupInputRenderer<T> implements IRenderInto<T> {
 			if(l.size() == 0)
 				l = cmm.getComboDisplayProperties();
 			if(l.size() == 0)
-				throw new ProgrammerErrorException("The class " + clz.getName() + " has no presentation metadata (@MetaObject or @MetaCombo)");
+				throw new ProgrammerErrorException("The class " + cmm + " has no presentation metadata (@MetaObject or @MetaCombo)");
 
 			//-- Expand the thingy: render a single line separated with BRs
 			xpl = ExpandedDisplayProperty.expandDisplayProperties(l, cmm, null);
@@ -87,7 +97,7 @@ public class SimpleLookupInputRenderer<T> implements IRenderInto<T> {
 				xpl.add(ExpandedDisplayProperty.expandProperty(cmm, propname));
 			}
 		}
-		m_xpl = ExpandedDisplayProperty.flatten(xpl);
+		return ExpandedDisplayProperty.flatten(xpl);
 	}
 
 	@Override

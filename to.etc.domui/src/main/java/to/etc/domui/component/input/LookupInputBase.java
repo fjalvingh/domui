@@ -52,8 +52,6 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 
 	public static final String MAGIC_ID_MARKER = "?id?";
 
-	static public final IRenderInto<Object> DEFAULT_RENDERER = new SimpleLookupInputRenderer<>();
-
 	/**
 	 * Interface provides assess to used lookup form initialization method.
 	 *
@@ -333,10 +331,8 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 
 			IRenderInto<OT> r = getValueRenderer();
 			if(r == null)
-				r = (IRenderInto<OT>) DEFAULT_RENDERER; // Prevent idiotic generics error
+				r = new SimpleLookupInputRenderer<>(getOutputMetaModel());
 			r.render(td, value);
-			//r.render(this, m_value, isReadOnly() || isDisabled() ? null : m_selButton);
-
 			handleSelectionCss();
 		}
 
