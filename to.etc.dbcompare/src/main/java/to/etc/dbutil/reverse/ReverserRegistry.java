@@ -1,11 +1,12 @@
 package to.etc.dbutil.reverse;
 
-import java.sql.*;
-import java.util.*;
+import to.etc.util.FileTool;
 
-import javax.sql.*;
-
-import to.etc.util.*;
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ReverserRegistry {
 	static private List<ReverserFactory> m_factories = new ArrayList<ReverserFactory>();
@@ -57,7 +58,5 @@ public class ReverserRegistry {
 				return null;
 			}
 		});
-
-
 	}
 }

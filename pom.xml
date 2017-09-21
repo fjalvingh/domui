@@ -97,6 +97,7 @@
         <module>to.etc.domui.demo</module>
         <module>to.etc.dbcompare</module>
         <module>archetypes</module>
+        <module>utilities</module>
     </modules>
 
     <build>
