@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -16,7 +17,7 @@ abstract public class AbstractGenerator {
 
 	abstract protected Connection createConnection() throws Exception;
 
-	protected abstract void loadSchemas() throws Exception;
+	protected abstract void loadSchemas(List<String> schemaSet) throws Exception;
 
 	protected Connection dbc() throws Exception {
 		Connection dbc = m_dbc;

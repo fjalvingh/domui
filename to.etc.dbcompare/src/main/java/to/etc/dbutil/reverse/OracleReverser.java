@@ -62,11 +62,11 @@ public class OracleReverser extends JDBCReverser {
 	 * @see to.etc.dbutil.reverse.JDBCReverser#reverseColumns()
 	 */
 	@Override
-	public void reverseColumns(@Nonnull Connection dbc, @Nonnull DbSchema schema) throws Exception {
+	public void reverseColumns(@Nonnull Connection dbc, @Nonnull Set<DbSchema> schema) throws Exception {
 		columnScanner(dbc, schema, null);
 	}
 
-	private void columnScanner(@Nonnull Connection dbc, @Nonnull DbSchema schema, @Nullable String tablename) throws Exception {
+	private void columnScanner(@Nonnull Connection dbc, @Nonnull Set<DbSchema> schemaSet, @Nullable String tablename) throws Exception {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		List<DbColumn> columnList = new ArrayList<DbColumn>();
@@ -75,32 +75,42 @@ public class OracleReverser extends JDBCReverser {
 		try {
 			String extrawhere = tablename == null ? "" : " and c.table_name=?";
 			ps = dbc.prepareStatement(
-				"select c.table_name,c.column_name,c.data_type,c.data_precision,c.data_scale,c.nullable,c.column_id,c.char_length,c.char_used, r.comments"
-					+ " from all_tab_columns c left outer join all_col_comments r" + " on c.owner=r.owner and c.table_name=r.table_name and c.column_name=r.column_name"
-					+ " where c.owner=? "+extrawhere+" order by c.table_name, c.column_id");
-			ps.setString(1, schema.getName().toUpperCase());
+				"select c.owner, c.table_name,c.column_name,c.data_type,c.data_precision,c.data_scale,c.nullable,c.column_id,c.char_length,c.char_used, r.comments"
+					+ " from all_tab_columns c left outer join all_col_comments r"
+					+ " on c.owner=r.owner and c.table_name=r.table_name and c.column_name=r.column_name"
+					+ " where 1=1 "+extrawhere+" order by c.table_name, c.column_id"
+			);
 			if(null != tablename)
 				ps.setString(2, tablename);
 			rs = ps.executeQuery();
 			String last = "";
 			DbTable t = null;
 			while(rs.next()) {
-				String tn = rs.getString(1);
-				String cn = rs.getString(2);
-				String typename = rs.getString(3);
-				int precision = rs.getInt(4);
+				int i = 1;
+				String schn = rs.getString(i++);
+				DbSchema schema = findSchema(schemaSet, schn);
+				if(null == schema)
+					continue;
+
+				String tn = rs.getString(i++);
+				String cn = rs.getString(i++);
+				String typename = rs.getString(i++);
+				int precision = rs.getInt(i++);
 				if(rs.wasNull())
 					precision = -1;
-				int scale = rs.getInt(5);
+				int scale = rs.getInt(i++);
 				if(rs.wasNull())
 					scale = -1;
-				String s = rs.getString(6);
+				String s = rs.getString(i++);
 				boolean nullable = s == null || s.equalsIgnoreCase("Y");
-				int charlen = rs.getInt(8);
+
+				i++;
+
+				int charlen = rs.getInt(i++);
 				if(rs.wasNull())
 					charlen = -1;
-				s = rs.getString(9);
-				String remark = rs.getString(10);
+				s = rs.getString(i++);
+				String remark = rs.getString(i++);
 
 				if(!last.equals(tn)) {
 					//-- New table. Lookkitup
@@ -154,9 +164,11 @@ public class OracleReverser extends JDBCReverser {
 
 	@Override
 	public void reverseColumns(Connection dbc, DbTable t) throws Exception {
-		columnScanner(dbc, t.getSchema(), t.getName());
+		DbSchema schema = t.getSchema();
+		Set<DbSchema> set = new HashSet<>();
+		set.add(schema);
+		columnScanner(dbc, set, t.getName());
 	}
-
 
 	static private Map<String, Integer> m_typeMap = new HashMap<String, Integer>();
 
@@ -717,11 +729,9 @@ public class OracleReverser extends JDBCReverser {
 	/**
 	 * And of course getIndexInfo() in Oracle does not work either. Fine
 	 * piece of work.
-	 *
-	 * @see to.etc.dbutil.reverse.JDBCReverser#reverseIndexes()
 	 */
 	@Override
-	public void reverseIndexes(@Nonnull Connection dbc, @Nonnull DbSchema schema) throws Exception {
+	public void reverseIndexes(@Nonnull Connection dbc, @Nonnull Set<DbSchema> schemaSet) throws Exception {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		PreparedStatement ps3 = null;
@@ -733,16 +743,23 @@ public class OracleReverser extends JDBCReverser {
 		try {
 			ps2 = dbc.prepareStatement("select dbms_metadata.get_ddl('INDEX', ?) from dual");
 			ps3 = dbc.prepareStatement("select column_name, descend from all_ind_columns where index_owner=? and index_name=? order by column_position");
-			ps = dbc.prepareStatement("select index_name,index_type,table_name,uniqueness,tablespace_name from all_indexes where owner=?");
-			ps.setString(1, schema.getName().toUpperCase());
+
+			ps = dbc.prepareStatement("select owner,index_name,index_type,table_name,uniqueness,tablespace_name from all_indexes");
 			rs = ps.executeQuery();
 			while(rs.next()) {
-				String name = rs.getString(1);
-				String type = rs.getString(2);
-				String tn = rs.getString(3);
-				String s = rs.getString(4);
+				int i = 1;
+
+				String owner = rs.getString(i++);
+				DbSchema schema = findSchema(schemaSet, owner);
+				if(null == schema)
+					continue;
+
+				String name = rs.getString(i++);
+				String type = rs.getString(i++);
+				String tn = rs.getString(i++);
+				String s = rs.getString(i++);
 				boolean unique = s != null && s.equalsIgnoreCase("UNIQUE");
-				String tsn = rs.getString(5);
+				String tsn = rs.getString(i++);
 				DbTable it = schema.findTable(tn);
 
 				if("NORMAL".equalsIgnoreCase(type)) {

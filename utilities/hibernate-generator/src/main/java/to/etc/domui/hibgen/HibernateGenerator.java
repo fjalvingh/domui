@@ -66,7 +66,7 @@ public class HibernateGenerator {
 
 		try {
 			generator.createConnection();
-			generator.loadSchemas();
+			generator.loadSchemas(m_schemaSet);
 
 
 

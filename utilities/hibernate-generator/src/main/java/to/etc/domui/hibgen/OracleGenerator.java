@@ -1,14 +1,12 @@
 package to.etc.domui.hibgen;
 
-import to.etc.dbutil.reverse.OracleReverser;
 import to.etc.dbutil.reverse.Reverser;
-import to.etc.dbutil.reverse.ReverserFactory;
 import to.etc.dbutil.reverse.ReverserRegistry;
 import to.etc.util.DbConnectionInfo;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -38,7 +36,8 @@ public class OracleGenerator extends AbstractGenerator {
 		return connection;
 	}
 
-	@Override protected void loadSchemas() throws Exception {
+	@Override protected void loadSchemas(List<String> schemaSet) throws Exception {
 		Reverser reverser = ReverserRegistry.findReverser(getFakeDatasource());
+		reverser.loadSchemaSet(schemaSet, false);
 	}
 }
