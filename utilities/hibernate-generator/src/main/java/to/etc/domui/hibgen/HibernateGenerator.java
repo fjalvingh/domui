@@ -64,10 +64,11 @@ public class HibernateGenerator {
 				break;
 		}
 
-		try {
-			generator.createConnection();
-			generator.loadSchemas(m_schemaSet);
+		generator.setPackageName(m_packageName);
+		generator.setSourceDirectory(m_targetDirectory);
 
+		try {
+			generator.generate(m_schemaSet);
 
 
 		} finally {

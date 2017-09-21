@@ -58,8 +58,6 @@ public class OracleReverser extends JDBCReverser {
 
 	/**
 	 * Override column reverser because crap oracle driver does not properly return column lengths.
-	 *
-	 * @see to.etc.dbutil.reverse.JDBCReverser#reverseColumns()
 	 */
 	@Override
 	public void reverseColumns(@Nonnull Connection dbc, @Nonnull Set<DbSchema> schema) throws Exception {

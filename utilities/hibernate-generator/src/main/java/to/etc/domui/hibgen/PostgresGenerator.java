@@ -2,12 +2,14 @@ package to.etc.domui.hibgen;
 
 import to.etc.dbutil.reverse.Reverser;
 import to.etc.dbutil.reverse.ReverserRegistry;
+import to.etc.dbutil.schema.DbSchema;
 import to.etc.util.DbConnectionInfo;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -38,9 +40,9 @@ public class PostgresGenerator extends AbstractGenerator {
 		return connection;
 	}
 
-	@Override protected void loadSchemas(List<String> schemaSet) throws Exception {
+	@Override protected Set<DbSchema> loadSchemas(List<String> schemaSet) throws Exception {
 		Reverser reverser = ReverserRegistry.findReverser(getFakeDatasource());
-		reverser.loadSchemaSet(schemaSet, false);
+		return reverser.loadSchemaSet(schemaSet, false);
 	}
 
 }
