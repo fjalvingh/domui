@@ -89,7 +89,7 @@ public class JDBCReverser implements Reverser {
 				reverseProcedures(dbc, schema);
 				reversePackages(dbc, schema);
 				reverseTriggers(dbc, schema);
-				reverseConstraints(dbc, schema);
+				reverseConstraints(dbc, schemaSet);
 
 				afterLoad(dbc, schema);
 			}
@@ -131,7 +131,7 @@ public class JDBCReverser implements Reverser {
 //				reverseProcedures(dbc, schema);
 //				reversePackages(dbc, schema);
 //				reverseTriggers(dbc, schema);
-//				reverseConstraints(dbc, schema);
+				reverseConstraints(dbc, schemaSet);
 //
 //				afterLoad(dbc, schema);
 			}
@@ -561,7 +561,9 @@ public class JDBCReverser implements Reverser {
 
 	public void reversePackages(@Nonnull Connection dbc, @Nonnull DbSchema schema) throws Exception {}
 
-	public void reverseConstraints(@Nonnull Connection dbc, @Nonnull DbSchema schema) throws Exception {}
+	public void reverseConstraints(@Nonnull Connection dbc, @Nonnull Set<DbSchema> schema) throws Exception {
+
+	}
 
 	@Override
 	public boolean typeHasPrecision(@Nonnull DbColumn column) {

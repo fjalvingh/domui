@@ -663,21 +663,27 @@ public class OracleReverser extends JDBCReverser {
 	}
 
 	@Override
-	public void reverseConstraints(@Nonnull Connection dbc, @Nonnull DbSchema schema) throws Exception {
+	public void reverseConstraints(@Nonnull Connection dbc, @Nonnull Set<DbSchema> schemaSet) throws Exception {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			ps = dbc.prepareStatement(
-				"select constraint_name,constraint_type,table_name,search_condition,generated,index_name" + " from all_constraints where owner=? and constraint_type in ('U', 'C')");
-			ps.setString(1, schema.getName().toUpperCase());
+				"select owner,constraint_name,constraint_type,table_name,search_condition,generated,index_name" + " from all_constraints where constraint_type in ('U', 'C')");
 			rs = ps.executeQuery();
 			while(rs.next()) {
-				String cn = rs.getString(1);
-				String type = rs.getString(2);
-				String tn = rs.getString(3);
-				String srch = rs.getString(4);
-				String s = rs.getString(5);
-				String ixnm = rs.getString(6);
+				int i = 1;
+
+				String owner= rs.getString(i++);
+				DbSchema schema = findSchema(schemaSet, owner);
+				if(null == schema)
+					continue;
+
+				String cn = rs.getString(i++);
+				String type = rs.getString(i++);
+				String tn = rs.getString(i++);
+				String srch = rs.getString(i++);
+				String s = rs.getString(i++);
+				String ixnm = rs.getString(i++);
 				boolean generated = s != null && s.equalsIgnoreCase("GENERATED NAME");
 				if(cn.startsWith("BIN$") || tn.startsWith("BIN$"))
 					continue;
