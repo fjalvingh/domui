@@ -38,6 +38,8 @@ public class JDBCReverser implements Reverser {
 
 	private DatabaseMetaData m_dmd;
 
+	private Set<DbSchema> m_schemaSet = new HashSet<>();
+
 	public JDBCReverser(DataSource dbc, DatabaseMetaData dmd) {
 		m_ds = dbc;
 		m_dmd = dmd;
@@ -68,7 +70,8 @@ public class JDBCReverser implements Reverser {
 
 			DbSchema schema = new DbSchema(this, name);
 			m_dmd = dbc.getMetaData();
-			Set<DbSchema> schemaSet = new HashSet<>();
+			Set<DbSchema> schemaSet = m_schemaSet;
+			schemaSet.clear();
 			schemaSet.add(schema);
 			reverseTables(dbc, schemaSet);
 
@@ -80,8 +83,8 @@ public class JDBCReverser implements Reverser {
 				}
 //				msg("Loaded " + ncols + " columns");
 				reverseIndexes(dbc, schemaSet);
-				reversePrimaryKeys(dbc, schema);
-				reverseRelations(dbc, schema);
+				reversePrimaryKeys(dbc, schemaSet);
+				reverseRelations(dbc, schemaSet);
 				reverseViews(dbc, schema);
 				reverseProcedures(dbc, schema);
 				reversePackages(dbc, schema);
@@ -101,7 +104,7 @@ public class JDBCReverser implements Reverser {
 			m_dmd = dbc.getMetaData();
 
 			//-- Create the set of schema's
-			Set<DbSchema> schemaSet = new HashSet<>();
+			Set<DbSchema> schemaSet = m_schemaSet = new HashSet<>();
 			for(String schemaName : schemaNames) {
 				String name = translateSchemaName(dbc, schemaName);
 				if(name == null)
@@ -122,8 +125,8 @@ public class JDBCReverser implements Reverser {
 
 				msg("Loaded " + ncols + " columns");
 				reverseIndexes(dbc, schemaSet);
-//				reversePrimaryKeys(dbc, schema);
-//				reverseRelations(dbc, schema);
+				reversePrimaryKeys(dbc, schemaSet);
+				reverseRelations(dbc, schemaSet);
 //				reverseViews(dbc, schema);
 //				reverseProcedures(dbc, schema);
 //				reversePackages(dbc, schema);
@@ -155,14 +158,18 @@ public class JDBCReverser implements Reverser {
 		}
 	}
 
-	public void reversePrimaryKeys(@Nonnull Connection dbc, @Nonnull DbSchema schema) throws Exception {
-		for(DbTable t : schema.getTables())
-			reversePrimaryKey(dbc, t);
+	public void reversePrimaryKeys(@Nonnull Connection dbc, @Nonnull Set<DbSchema> schemaSet) throws Exception {
+		for(DbSchema schema : schemaSet) {
+			for(DbTable t : schema.getTables())
+				reversePrimaryKey(dbc, t);
+		}
 	}
 
-	public void reverseRelations(@Nonnull Connection dbc, @Nonnull DbSchema schema) throws Exception {
-		for(DbTable t : schema.getTables())
-			reverseRelations(dbc, t);
+	public void reverseRelations(@Nonnull Connection dbc, @Nonnull Set<DbSchema> schemaSet) throws Exception {
+		for(DbSchema schema : schemaSet) {
+			for(DbTable t : schema.getTables())
+				reverseRelations(dbc, t);
+		}
 	}
 
 	public void reverseColumns(@Nonnull Connection dbc, @Nonnull Set<DbSchema> schemaSet) throws Exception {
@@ -197,6 +204,11 @@ public class JDBCReverser implements Reverser {
 	protected DbSchema findSchema(Set<DbSchema> schemaSet, String name) {
 		Optional<DbSchema> first = schemaSet.stream().filter(s -> s.getName().equalsIgnoreCase(name)).findFirst();
 		return first.isPresent() ? first.get() : null;
+	}
+
+	@Nullable
+	protected DbSchema findSchema(String name) {
+		return findSchema(m_schemaSet, name);
 	}
 
 	protected void reverseTables(@Nonnull Connection dbc, @Nonnull Set<DbSchema> schemaSet) throws Exception {
@@ -398,6 +410,20 @@ public class JDBCReverser implements Reverser {
 			int lastord = -1;
 			DbRelation rel = null;
 			while(rs.next()) {
+				String fkSchemaName = rs.getString("FKTABLE_SCHEM");
+				String pkSchemaName = rs.getString("PKTABLE_SCHEM");
+
+				DbSchema fkSchema = findSchema(fkSchemaName);
+				DbSchema pkSchema = findSchema(pkSchemaName);
+				if(null == pkSchema) {
+					log("Missing schema '" + pkSchemaName + " for table " + t);
+					continue;
+				}
+				if(null == fkSchema) {
+					log("Missing schema '" + fkSchemaName + " for table " + t);
+					continue;
+				}
+
 				String fktname = rs.getString("FKTABLE_NAME");
 				String pktname = rs.getString("PKTABLE_NAME");
 				String fkcname = rs.getString("FKCOLUMN_NAME");
@@ -410,7 +436,7 @@ public class JDBCReverser implements Reverser {
 					throw new IllegalStateException("JDBC driver trouble: getExportedKeys returned key from table " + pktname + " while asking for table " + t.getName());
 
 				//-- Find FK table and column and PK column referred to
-				DbTable fkt = t.getSchema().getTable(fktname);
+				DbTable fkt = fkSchema.getTable(fktname);
 				DbColumn fkc = fkt.getColumn(fkcname);
 				DbColumn pkc = t.getColumn(pkcname);
 
