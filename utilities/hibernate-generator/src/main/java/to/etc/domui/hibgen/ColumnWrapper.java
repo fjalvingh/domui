@@ -1,8 +1,13 @@
 package to.etc.domui.hibgen;
 
+import com.github.javaparser.ast.Modifier;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
+import com.github.javaparser.ast.expr.SimpleName;
+import com.github.javaparser.ast.stmt.BlockStmt;
+import com.github.javaparser.ast.stmt.ReturnStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.type.PrimitiveType.Primitive;
@@ -20,6 +25,7 @@ import java.sql.ResultSet;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -411,5 +417,82 @@ public class ColumnWrapper {
 
 	public boolean isTransient() {
 		return m_transient;
+	}
+
+	public void renderField() {
+		FieldDeclaration fd = getFieldDeclaration();
+		String baseFieldName = ClassWrapper.calculatePropertyNameFromColumnName(getColumnName());
+		String fieldPrefix = g().getFieldPrefix();
+		if(null != fieldPrefix) {
+			baseFieldName = fieldPrefix + baseFieldName;
+		}
+
+		String propertyName = getPropertyName();
+		if(null == propertyName) {
+			System.out.println("??");
+		}
+		if(propertyName.equalsIgnoreCase("opentopublic")) {
+			System.out.println("GOTCHA");
+		}
+
+		if(fd == null) {
+			Type type = getPropertyType();
+			g().info(this+ ": new field " + type);
+			fd = m_classWrapper.getRootType().addField(type, baseFieldName, Modifier.PRIVATE);
+			setFieldDeclaration(fd);
+			setVariableDeclaration(fd.getVariable(0));
+		} else {
+			if(g().isForceRenameFields()) {
+				String s = getVariableDeclaration().getName().asString();
+				if(! s.equals(baseFieldName)) {
+					getVariableDeclaration().setName(baseFieldName);
+				}
+			}
+		}
+
+		//String baseFieldName = calculatePropertyNameFromColumnName(dbColumn.getColumnName());
+		//FieldDeclaration fd = findFieldDeclaration(baseFieldName);
+		//if(null != fd) {
+		//	fd.remove();
+		//}
+
+		//FieldDeclaration fieldDeclaration = m_rootType.addField(String.class, "m_" + baseFieldName, Modifier.PRIVATE);
+
+		//m_unit.addType(fd);
+	}
+
+	public void renderGetter() {
+		String prefix = "get";
+		if(getPropertyType().asString().contains("boolean")) {
+			prefix = "is";
+		}
+		String getterName = prefix + AbstractGenerator.capitalizeFirst(getPropertyName());
+
+		MethodDeclaration getter = getGetter();
+		if(null == getter) {
+			EnumSet<Modifier> modifiers = EnumSet.of(Modifier.PUBLIC);
+			MethodDeclaration method = new MethodDeclaration(modifiers, getPropertyType(), getterName);
+			modifiers.add(Modifier.STATIC);
+			method.setModifiers(modifiers);
+			ClassOrInterfaceDeclaration rootType = m_classWrapper.getRootType();
+			rootType.addMember(method);
+
+			BlockStmt block = new BlockStmt();
+			method.setBody(block);
+
+			//FieldAccessExpr field = new FieldAccessExpr(new ThisExpr(), getVariableDeclaration().getName().asString());
+			//ReturnStmt rs = new ReturnStmt(field);
+			ReturnStmt rs = new ReturnStmt(new com.github.javaparser.ast.expr.NameExpr(getVariableDeclaration().getName().asString()));
+
+			block.addStatement(rs);
+			//// add a statement do the method body
+			//NameExpr clazz = new NameExpr("System");
+			//FieldAccessExpr field = new FieldAccessExpr(clazz, "out");
+			//MethodCallExpr call = new MethodCallExpr(field, "println");
+			//call.addArgument(new StringLiteralExpr("Hello World!"));
+			//block.addStatement(call);
+		} else if(g().isForceRenameMethods()) {
+			getter.setName(new SimpleName(getterName));
+		}
 	}
 }

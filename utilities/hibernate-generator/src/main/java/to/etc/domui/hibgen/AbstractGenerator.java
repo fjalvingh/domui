@@ -69,6 +69,8 @@ abstract public class AbstractGenerator {
 
 	private boolean m_forceRenameFields = true;
 
+	private boolean m_forceRenameMethods = true;
+
 	abstract protected Connection createConnection() throws Exception;
 
 	protected abstract Set<DbSchema> loadSchemas(List<String> schemaSet) throws Exception;
@@ -229,6 +231,13 @@ abstract public class AbstractGenerator {
 			return in.toUpperCase();
 		return in.substring(0, 1).toUpperCase() + in.substring(1).toLowerCase();
 	}
+
+	static String capitalizeFirst(String in) {
+		if(in.length() == 1)
+			return in.toUpperCase();
+		return in.substring(0, 1).toUpperCase() + in.substring(1);
+	}
+
 
 	/**
 	 * Split a table name on underscores. If it has no underscores but it uses camelcase then split on each hump.
@@ -512,5 +521,9 @@ abstract public class AbstractGenerator {
 	@Nullable
 	public ClassWrapper getWrapper(DbTable parent) {
 		return m_byTableMap.get(parent);
+	}
+
+	public boolean isForceRenameMethods() {
+		return m_forceRenameMethods;
 	}
 }

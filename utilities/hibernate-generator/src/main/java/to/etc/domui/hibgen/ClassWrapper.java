@@ -1,7 +1,6 @@
 package to.etc.domui.hibgen;
 
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
@@ -99,6 +98,10 @@ class ClassWrapper {
 			rootType = o.get();
 		}
 		m_rootType = rootType;
+	}
+
+	public ClassOrInterfaceDeclaration getRootType() {
+		return m_rootType;
 	}
 
 	private void error(String msg) {
@@ -435,8 +438,11 @@ class ClassWrapper {
 			error(dbColumn + ": unknown type '" + dbColumn.getColumn().getTypeString() + "' (" + dbColumn.getColumn().getSqlType() + "), not generated");
 			return;
 		}
+		if(dbColumn.isTransient()) {
+			return;
+		}
 
-		renderField(dbColumn);
+		dbColumn.renderField();
 
 		renderGetter(dbColumn);
 		//renderSetter(dbColumn);
@@ -458,7 +464,7 @@ class ClassWrapper {
 		return null;
 	}
 
-	private String calculatePropertyNameFromColumnName(String columnName) {
+	static String calculatePropertyNameFromColumnName(String columnName) {
 		List<String> strings = AbstractGenerator.splitName(columnName);
 		StringBuilder sb = new StringBuilder();
 		sb.append(strings.remove(0).toLowerCase());						// First one is lowercase
@@ -466,58 +472,8 @@ class ClassWrapper {
 		return sb.toString();
 	}
 
- 	private void renderField(ColumnWrapper cw) {
-		FieldDeclaration fd = cw.getFieldDeclaration();
-		String baseFieldName = calculatePropertyNameFromColumnName(cw.getColumnName());
-		String fieldPrefix = m_generator.getFieldPrefix();
-		if(null != fieldPrefix) {
-			baseFieldName = fieldPrefix + baseFieldName;
-		}
-
-		String propertyName = cw.getPropertyName();
-		if(null == propertyName) {
-			System.out.println("??");
-		}
-		if(propertyName.equalsIgnoreCase("opentopublic")) {
-			System.out.println("GOTCHA");
-		}
-
-		if(fd == null) {
-			Type type = cw.getPropertyType();
-			g().info(cw + ": new field " + type);
-			fd = m_rootType.addField(type, baseFieldName, Modifier.PRIVATE);
-			cw.setFieldDeclaration(fd);
-		} else {
-			if(m_generator.isForceRenameFields()) {
-				String s = cw.getVariableDeclaration().getName().asString();
-				if(! s.equals(baseFieldName)) {
-					cw.getVariableDeclaration().setName(baseFieldName);
-				}
-			}
-		}
-
-		//String baseFieldName = calculatePropertyNameFromColumnName(dbColumn.getColumnName());
-		//FieldDeclaration fd = findFieldDeclaration(baseFieldName);
-		//if(null != fd) {
-		//	fd.remove();
-		//}
-
-		//FieldDeclaration fieldDeclaration = m_rootType.addField(String.class, "m_" + baseFieldName, Modifier.PRIVATE);
-
-		//m_unit.addType(fd);
-	}
-
-	///**
-	// * Tries to calculate a proper Java type for the specified column.
-	// * @param column
-	// * @return
-	// */
-	//public Type calculateColumnType(DbColumn column) {
-	//
-	//}
-
 	private void renderGetter(ColumnWrapper dbColumn) {
-		//String methodName = calculateMethodName("get", dbColumn.getName());
+		dbColumn.renderGetter();
 	}
 
 	private String calculateMethodName(String get, String name) {
