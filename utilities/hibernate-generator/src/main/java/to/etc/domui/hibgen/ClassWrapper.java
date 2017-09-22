@@ -4,25 +4,30 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
+import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.expr.MemberValuePair;
-import com.github.javaparser.ast.expr.Name;
 import com.github.javaparser.ast.expr.NormalAnnotationExpr;
 import com.github.javaparser.ast.expr.StringLiteralExpr;
+import com.github.javaparser.ast.type.Type;
+import com.github.javaparser.ast.type.VoidType;
 import to.etc.dbutil.schema.DbColumn;
 import to.etc.dbutil.schema.DbTable;
 
 import javax.annotation.Nullable;
+import java.beans.Introspector;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -45,6 +50,7 @@ class ClassWrapper {
 
 	private DbTable m_table;
 
+	/** Mapped by lowercase property name */
 	private Map<String, ColumnWrapper> m_byPropNameMap = new HashMap<>();
 
 	private Map<String, ColumnWrapper> m_byColNameMap = new HashMap<>();
@@ -68,12 +74,13 @@ class ClassWrapper {
 		m_rootType = rootType;
 	}
 
-	public ClassWrapper(AbstractGenerator generator, String packageName, String className, CompilationUnit cu) {
+	public ClassWrapper(AbstractGenerator generator, String packageName, String className, CompilationUnit cu, DbTable tbl) {
 		m_generator = generator;
 		m_simpleName = className;
 		m_fullClassName = packageName + "." + className;
 		m_unit = cu;
 		m_file = null;
+		m_table = tbl;
 
 		ClassOrInterfaceDeclaration rootType = null;
 		Optional<ClassOrInterfaceDeclaration> o = m_unit.getClassByName(getSimpleName());
@@ -139,14 +146,51 @@ class ClassWrapper {
 		for(BodyDeclaration<?> d : m_rootType.getMembers()) {
 			if(d instanceof FieldDeclaration) {
 				handleFieldDeclaration((FieldDeclaration) d);
+			} else if(d instanceof MethodDeclaration) {
+				MethodDeclaration md = (MethodDeclaration) d;
+				handleMethodDeclaration(md);
 			}
-
-
-
-
 		}
+	}
 
+	private void handleMethodDeclaration(MethodDeclaration md) {
+		String name = md.getName().asString();
 
+		//-- We're only interested in getter/setters of a property.
+		Type type;
+		String propertyName;
+		boolean isSetter = false;
+		if(name.startsWith("get") || name.startsWith("is")) {
+			if(md.getParameters().size() != 0)
+				return;
+			type = md.getType();
+			if(type.equals(new VoidType()))
+				return;
+			int len = name.startsWith("is") ? 2 : 3;
+			propertyName = name.substring(len).toLowerCase();
+		} else if(name.startsWith("set")) {
+			if(md.getParameters().size() != 1)
+				return;
+			type = md.getParameter(0).getType();
+			isSetter = true;
+			propertyName = name.substring(3).toLowerCase();
+		} else
+			return;
+
+		//-- Decode a property name
+		ColumnWrapper cw = m_byPropNameMap.computeIfAbsent(propertyName.toLowerCase(), k -> new ColumnWrapper());
+		cw.setPropertyType(type);
+		cw.setPropertyName(Introspector.decapitalize(propertyName));
+		if(isSetter)
+			cw.setSetter(md);
+		else
+			cw.setGetter(md);
+
+		for(AnnotationExpr annotationExpr : md.getAnnotations()) {
+			if(annotationExpr instanceof NormalAnnotationExpr) {
+				handleFieldAnnotation(cw, (NormalAnnotationExpr) annotationExpr);
+			}
+		}
 	}
 
 	private void handleFieldDeclaration(FieldDeclaration d) {
@@ -162,6 +206,8 @@ class ClassWrapper {
 			ColumnWrapper cw = m_byPropNameMap.computeIfAbsent(fieldName.toLowerCase(), a -> new ColumnWrapper().setFieldName(a));
 			cw.setFieldDeclarator(d, vd);
 			list.add(cw);
+
+			cw.setPropertyName(fieldName);
 		}
 
 		for(AnnotationExpr annotationExpr : d.getAnnotations()) {
@@ -174,7 +220,7 @@ class ClassWrapper {
 	}
 
 	private void handleFieldAnnotation(ColumnWrapper columnWrapper, NormalAnnotationExpr annotationExpr) {
-		Name name = annotationExpr.getName();
+		String name = annotationExpr.getName().asString();
 		if(name.equals("Column")) {
 			String columnName = null;
 			int length = -1;
@@ -189,10 +235,10 @@ class ClassWrapper {
 
 			if(columnName != null && columnName.length() > 0) {
 				m_byColNameMap.put(columnName, columnWrapper);
+				columnWrapper.setColumnName(columnName);
 			}
 		}
 	}
-
 
 	private void handleTableAnnotation(AnnotationExpr tableAnn) {
 		if(! (tableAnn instanceof NormalAnnotationExpr)) {
@@ -249,9 +295,27 @@ class ClassWrapper {
 		DbTable table = m_table;
 		if(table == null)
 			return;
+
+		//-- 1. Find all properties referring to table columns that no longer exist.
+		Set<String> columnNameSet = table.getColumnList().stream().map(c -> c.getName().toLowerCase()).collect(Collectors.toSet());
+
+		for(ColumnWrapper cw : m_byColNameMap.values()) {
+			String columnName = cw.getColumnName();
+			if(null == columnName)
+				throw new IllegalStateException("Missing column name " + cw);
+			if(! columnNameSet.contains(columnName.toLowerCase())) {
+				//-- Deleted thingy.
+				deleteColumn(cw);
+			}
+		}
+
 		for(DbColumn dbColumn : m_table.getColumnList()) {
 			renderColumnProperty(dbColumn);
 		}
+	}
+
+	private void deleteColumn(ColumnWrapper cw) {
+		System.out.println(getClassName() + ": column " + cw.getColumnName() + " deleted, deleting property " + cw.getPropertyName());
 	}
 
 	private void renderColumnProperty(DbColumn dbColumn) {
@@ -299,9 +363,6 @@ class ClassWrapper {
 
 	private void renderGetter(DbColumn dbColumn) {
 		String methodName = calculateMethodName("get", dbColumn.getName());
-
-
-
 	}
 
 	private String calculateMethodName(String get, String name) {

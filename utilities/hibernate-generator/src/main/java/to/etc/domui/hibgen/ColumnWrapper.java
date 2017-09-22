@@ -3,6 +3,7 @@ package to.etc.domui.hibgen;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
+import com.github.javaparser.ast.type.Type;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -19,6 +20,11 @@ public class ColumnWrapper {
 
 	private VariableDeclarator m_variableDeclaration;
 
+	private Type m_propertyType;
+
+	private String m_propertyName;
+
+
 	public ColumnWrapper setFieldName(String a) {
 		//m_fieldName = a;
 		return this;
@@ -28,5 +34,61 @@ public class ColumnWrapper {
 		m_fieldDeclaration = d;
 		m_variableDeclaration = vd;
 
+	}
+
+	public String getColumnName() {
+		return m_columnName;
+	}
+
+	public void setColumnName(String columnName) {
+		m_columnName = columnName;
+	}
+
+	public FieldDeclaration getFieldDeclaration() {
+		return m_fieldDeclaration;
+	}
+
+	public void setFieldDeclaration(FieldDeclaration fieldDeclaration) {
+		m_fieldDeclaration = fieldDeclaration;
+	}
+
+	public MethodDeclaration getSetter() {
+		return m_setter;
+	}
+
+	public void setSetter(MethodDeclaration setter) {
+		m_setter = setter;
+	}
+
+	public MethodDeclaration getGetter() {
+		return m_getter;
+	}
+
+	public void setGetter(MethodDeclaration getter) {
+		m_getter = getter;
+	}
+
+	public VariableDeclarator getVariableDeclaration() {
+		return m_variableDeclaration;
+	}
+
+	public void setVariableDeclaration(VariableDeclarator variableDeclaration) {
+		m_variableDeclaration = variableDeclaration;
+	}
+
+	public void setPropertyType(Type propertyType) {
+		m_propertyType = propertyType;
+	}
+
+	public Type getPropertyType() {
+		return m_propertyType;
+	}
+
+	public void setPropertyName(String propertyName) {
+		m_propertyName = propertyName;
+	}
+
+	public String getPropertyName() {
+		return m_propertyName;
 	}
 }

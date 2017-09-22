@@ -149,7 +149,7 @@ abstract public class AbstractGenerator {
 
 		CompilationUnit cu = createCompilationUnit(packageName, className, tbl);
 
-		ClassWrapper wrapper = new ClassWrapper(this, packageName, className, cu);
+		ClassWrapper wrapper = new ClassWrapper(this, packageName, className, cu, tbl);
 
 		m_byTableMap.put(tbl, wrapper);
 		String fullName = packageName + "." + className;
