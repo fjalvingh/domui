@@ -49,6 +49,8 @@ public class ColumnWrapper {
 
 	private List<String> m_valueSet;
 
+	private boolean m_transient;
+
 	public ColumnWrapper(ClassWrapper cw) {
 		m_classWrapper = cw;
 	}
@@ -146,6 +148,7 @@ public class ColumnWrapper {
 
 	public void setColumn(DbColumn column) {
 		m_column = column;
+		m_columnName = column.getName();
 	}
 
 
@@ -400,5 +403,13 @@ public class ColumnWrapper {
 			}
 		}
 		return m_classWrapper + " " + sb.toString();
+	}
+
+	public void setTransient(boolean aTransient) {
+		m_transient = aTransient;
+	}
+
+	public boolean isTransient() {
+		return m_transient;
 	}
 }

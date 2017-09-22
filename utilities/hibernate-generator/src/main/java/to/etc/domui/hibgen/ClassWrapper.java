@@ -160,6 +160,7 @@ class ClassWrapper {
 				handleMethodDeclaration(md);
 			}
 		}
+
 	}
 
 	private void handleMethodDeclaration(MethodDeclaration md) {
@@ -186,6 +187,10 @@ class ClassWrapper {
 		} else
 			return;
 
+		if("opentopublic".equalsIgnoreCase(propertyName)) {
+			System.out.println("GOTCHA");
+		}
+
 		//-- Decode a property name
 		ColumnWrapper cw = m_byPropNameMap.computeIfAbsent(propertyName.toLowerCase(), k -> new ColumnWrapper(this));
 		cw.setPropertyType(type);
@@ -197,7 +202,7 @@ class ClassWrapper {
 
 		for(AnnotationExpr annotationExpr : md.getAnnotations()) {
 			if(annotationExpr instanceof NormalAnnotationExpr) {
-				handleFieldAnnotation(cw, (NormalAnnotationExpr) annotationExpr);
+				handleDatabaseAnnotation(cw, (NormalAnnotationExpr) annotationExpr);
 			}
 		}
 	}
@@ -212,6 +217,10 @@ class ClassWrapper {
 					fieldName = fieldName.substring(fieldPrefix.length());
 				}
 			}
+
+			if("opentopublic".equals(fieldName)) {
+				System.out.println("GOTCHA");
+			}
 			ColumnWrapper cw = m_byPropNameMap.computeIfAbsent(fieldName.toLowerCase(), a -> new ColumnWrapper(this).setFieldName(a));
 			cw.setFieldDeclarator(d, vd);
 			list.add(cw);
@@ -223,14 +232,20 @@ class ClassWrapper {
 		for(AnnotationExpr annotationExpr : d.getAnnotations()) {
 			if(annotationExpr instanceof NormalAnnotationExpr) {
 				for(ColumnWrapper columnWrapper : list) {
-					handleFieldAnnotation(columnWrapper, (NormalAnnotationExpr) annotationExpr);
+					handleDatabaseAnnotation(columnWrapper, (NormalAnnotationExpr) annotationExpr);
 				}
 			}
 		}
 	}
 
-	private void handleFieldAnnotation(ColumnWrapper columnWrapper, NormalAnnotationExpr annotationExpr) {
+	private void handleDatabaseAnnotation(ColumnWrapper columnWrapper, NormalAnnotationExpr annotationExpr) {
 		String name = annotationExpr.getName().asString();
+
+		if(name.equals("Transient")) {
+			columnWrapper.setTransient(true);
+			return;
+		}
+
 		if(name.equals("Column")) {
 			String columnName = null;
 			int length = -1;
@@ -244,7 +259,7 @@ class ClassWrapper {
 			}
 
 			if(columnName != null && columnName.length() > 0) {
-				m_byColNameMap.put(columnName, columnWrapper);
+				m_byColNameMap.put(columnName.toLowerCase(), columnWrapper);
 				columnWrapper.setColumnName(columnName);
 			}
 		} else if(name.equals("JoinColumn")) {
@@ -258,7 +273,7 @@ class ClassWrapper {
 			}
 
 			if(columnName != null && columnName.length() > 0) {
-				m_byColNameMap.put(columnName, columnWrapper);
+				m_byColNameMap.put(columnName.toLowerCase(), columnWrapper);
 				columnWrapper.setColumnName(columnName);
 			}
 		}
@@ -321,11 +336,29 @@ class ClassWrapper {
 		if(table == null)
 			return;
 
-		//-- 2. Create wrappers for all columns that do not have one, yet
+
+		//-- Check all properties not added as columns: without @Column annotation
+		for(ColumnWrapper cw : m_byPropNameMap.values()) {
+			if(cw.isTransient())
+				continue;
+
+			if(cw.getColumn() == null) {
+				if(cw.getPropertyName().equals("opentopublic")) {
+					System.out.println("GOTCHA");
+				}
+
+				DbColumn column = m_table.findColumn(cw.getPropertyName().toLowerCase());
+				if(null != column) {
+					cw.setColumn(column);
+					m_byColNameMap.put(column.getName().toLowerCase(), cw);
+				}
+			}
+		}
+
+		//-- 2. Create NEW wrappers for all columns that do not have one, yet
 		for(DbColumn dbColumn : m_table.getColumnList()) {
 			ColumnWrapper cw = m_byColNameMap.computeIfAbsent(dbColumn.getName().toLowerCase(), a -> {
 				ColumnWrapper nw = new ColumnWrapper(this, dbColumn);
-
 
 				List<String> strings = AbstractGenerator.splitName(dbColumn.getName());
 				StringBuilder sb = new StringBuilder();
@@ -335,10 +368,11 @@ class ClassWrapper {
 				return nw;
 			});
 			cw.setColumn(dbColumn);
+			String propertyName = calculatePropertyNameFromColumnName(dbColumn.getName());
+			m_byPropNameMap.put(propertyName.toLowerCase(), cw);
+			cw.setPropertyName(propertyName);
 		}
 	}
-
-
 
 	/**
 	 * Render all basic table properties.
@@ -363,6 +397,10 @@ class ClassWrapper {
 
 		//-- 3. Generate all wrappers.
 		for(ColumnWrapper cw : m_byColNameMap.values()) {
+			if("opentopublic".equalsIgnoreCase(cw.getPropertyName())) {
+				System.out.println("GOTCHA");
+			}
+
 			if(cw.getColumn() != null) {
 				renderColumnProperty(cw);
 			}
@@ -434,6 +472,14 @@ class ClassWrapper {
 		String fieldPrefix = m_generator.getFieldPrefix();
 		if(null != fieldPrefix) {
 			baseFieldName = fieldPrefix + baseFieldName;
+		}
+
+		String propertyName = cw.getPropertyName();
+		if(null == propertyName) {
+			System.out.println("??");
+		}
+		if(propertyName.equalsIgnoreCase("opentopublic")) {
+			System.out.println("GOTCHA");
 		}
 
 		if(fd == null) {
