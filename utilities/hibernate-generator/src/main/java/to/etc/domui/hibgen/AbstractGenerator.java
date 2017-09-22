@@ -77,10 +77,34 @@ abstract public class AbstractGenerator {
 		createConnection();								// Fast test whether db can be opened
 		m_schemaSet = loadSchemas(schemaSet);
 		loadJavaSources();
-
 		matchTablesAndSources();
+		fixMissingPrimaryKeys();
+		matchColumns();
+		calculateColumnTypes();
+
 		generateProperties();
 		renderOutput();
+	}
+
+	private void fixMissingPrimaryKeys() {
+		for(DbTable dbTable : getAllTables()) {
+			if(dbTable.getPrimaryKey() == null) {
+				//-- Do we have some thingy called "id"?
+				error(dbTable + " has no primary key");
+			}
+		}
+	}
+
+	private void matchColumns() {
+		for(ClassWrapper classWrapper : m_byTableMap.values()) {
+			classWrapper.matchColumns();
+		}
+	}
+
+	private void calculateColumnTypes() throws Exception {
+		for(ClassWrapper classWrapper : m_byTableMap.values()) {
+			classWrapper.calculateColumnTypes(dbc());
+		}
 	}
 
 	private void renderOutput() throws IOException {
@@ -420,10 +444,6 @@ abstract public class AbstractGenerator {
 		return file;
 	}
 
-	static protected void info(String s) {
-		System.out.println(s);
-	}
-
 	@Nullable
 	private DbSchema getDefaultSchema() {
 		if(m_schemaSet.size() == 1) {
@@ -446,8 +466,6 @@ abstract public class AbstractGenerator {
 	protected boolean isExplicitSchema() {
 		return m_schemaSet.size() > 1;
 	}
-
-
 
 	/**
 	 *
@@ -477,5 +495,22 @@ abstract public class AbstractGenerator {
 
 	public boolean isForceRenameFields() {
 		return m_forceRenameFields;
+	}
+
+	protected void info(String s) {
+		System.out.println(s);
+	}
+
+	protected void error(String s) {
+		System.out.println("error: " + s);
+	}
+
+	protected void warning(String s) {
+		System.out.println("warning: " + s);
+	}
+
+	@Nullable
+	public ClassWrapper getWrapper(DbTable parent) {
+		return m_byTableMap.get(parent);
 	}
 }

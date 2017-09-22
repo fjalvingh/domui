@@ -384,6 +384,8 @@ public class JDBCReverser implements Reverser {
 				for(DbColumn c : pkl)
 					if(c != null)
 						pk.addColumn(c);
+			} else {
+				t.setPrimaryKey(null);
 			}
 		} finally {
 			try {

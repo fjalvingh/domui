@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +41,8 @@ import java.util.stream.Collectors;
  */
 class ClassWrapper {
 	private final AbstractGenerator m_generator;
+
+	private final boolean m_isNew;
 
 	private final File m_file;
 
@@ -76,6 +79,7 @@ class ClassWrapper {
 			rootType = o.get();
 		}
 		m_rootType = rootType;
+		m_isNew = false;
 	}
 
 	public ClassWrapper(AbstractGenerator generator, String packageName, String className, CompilationUnit cu, DbTable tbl) {
@@ -85,6 +89,7 @@ class ClassWrapper {
 		m_unit = cu;
 		m_file = null;
 		m_table = tbl;
+		m_isNew = true;
 
 		ClassOrInterfaceDeclaration rootType = null;
 		Optional<ClassOrInterfaceDeclaration> o = m_unit.getClassByName(getSimpleName());
@@ -171,18 +176,18 @@ class ClassWrapper {
 			if(type.equals(new VoidType()))
 				return;
 			int len = name.startsWith("is") ? 2 : 3;
-			propertyName = name.substring(len).toLowerCase();
+			propertyName = name.substring(len);
 		} else if(name.startsWith("set")) {
 			if(md.getParameters().size() != 1)
 				return;
 			type = md.getParameter(0).getType();
 			isSetter = true;
-			propertyName = name.substring(3).toLowerCase();
+			propertyName = name.substring(3);
 		} else
 			return;
 
 		//-- Decode a property name
-		ColumnWrapper cw = m_byPropNameMap.computeIfAbsent(propertyName.toLowerCase(), k -> new ColumnWrapper());
+		ColumnWrapper cw = m_byPropNameMap.computeIfAbsent(propertyName.toLowerCase(), k -> new ColumnWrapper(this));
 		cw.setPropertyType(type);
 		cw.setPropertyName(Introspector.decapitalize(propertyName));
 		if(isSetter)
@@ -207,11 +212,12 @@ class ClassWrapper {
 					fieldName = fieldName.substring(fieldPrefix.length());
 				}
 			}
-			ColumnWrapper cw = m_byPropNameMap.computeIfAbsent(fieldName.toLowerCase(), a -> new ColumnWrapper().setFieldName(a));
+			ColumnWrapper cw = m_byPropNameMap.computeIfAbsent(fieldName.toLowerCase(), a -> new ColumnWrapper(this).setFieldName(a));
 			cw.setFieldDeclarator(d, vd);
 			list.add(cw);
 
 			cw.setPropertyName(fieldName);
+			cw.setPropertyType(vd.getType());
 		}
 
 		for(AnnotationExpr annotationExpr : d.getAnnotations()) {
@@ -241,7 +247,22 @@ class ClassWrapper {
 				m_byColNameMap.put(columnName, columnWrapper);
 				columnWrapper.setColumnName(columnName);
 			}
+		} else if(name.equals("JoinColumn")) {
+			String columnName = null;
+			int length = -1;
+			for(MemberValuePair pair : annotationExpr.getPairs()) {
+				String prop = pair.getName().asString();
+				if(prop.equals("name")) {
+					columnName = resolveConstant(pair.getValue());
+				}
+			}
+
+			if(columnName != null && columnName.length() > 0) {
+				m_byColNameMap.put(columnName, columnWrapper);
+				columnWrapper.setColumnName(columnName);
+			}
 		}
+
 	}
 
 	private void handleTableAnnotation(AnnotationExpr tableAnn) {
@@ -293,6 +314,33 @@ class ClassWrapper {
 	}
 
 	/**
+	 * Make sure that all DbColumns have a ColumnWrapper.
+	 */
+	public void matchColumns() {
+		DbTable table = m_table;
+		if(table == null)
+			return;
+
+		//-- 2. Create wrappers for all columns that do not have one, yet
+		for(DbColumn dbColumn : m_table.getColumnList()) {
+			ColumnWrapper cw = m_byColNameMap.computeIfAbsent(dbColumn.getName().toLowerCase(), a -> {
+				ColumnWrapper nw = new ColumnWrapper(this, dbColumn);
+
+
+				List<String> strings = AbstractGenerator.splitName(dbColumn.getName());
+				StringBuilder sb = new StringBuilder();
+				sb.append(strings.remove(0).toLowerCase());
+				strings.forEach(seg -> sb.append(AbstractGenerator.capitalize(seg)));
+
+				return nw;
+			});
+			cw.setColumn(dbColumn);
+		}
+	}
+
+
+
+	/**
 	 * Render all basic table properties.
 	 */
 	public void renderProperties() {
@@ -313,22 +361,6 @@ class ClassWrapper {
 			}
 		}
 
-		//-- 2. Create wrappers for all columns that do not have one, yet
-		for(DbColumn dbColumn : m_table.getColumnList()) {
-			ColumnWrapper cw = m_byColNameMap.computeIfAbsent(dbColumn.getName().toLowerCase(), a -> {
-				ColumnWrapper nw = new ColumnWrapper(dbColumn);
-
-
-				List<String> strings = AbstractGenerator.splitName(dbColumn.getName());
-				StringBuilder sb = new StringBuilder();
-				sb.append(strings.remove(0).toLowerCase());
-				strings.forEach(seg -> sb.append(AbstractGenerator.capitalize(seg)));
-
-				return nw;
-			});
-			cw.setColumn(dbColumn);
-		}
-
 		//-- 3. Generate all wrappers.
 		for(ColumnWrapper cw : m_byColNameMap.values()) {
 			if(cw.getColumn() != null) {
@@ -338,7 +370,7 @@ class ClassWrapper {
 	}
 
 	private void deleteColumn(ColumnWrapper cw) {
-		System.out.println(getClassName() + ": column " + cw.getColumnName() + " deleted, deleting property " + cw.getPropertyName());
+		g().info(getClassName() + ": column " + cw.getColumnName() + " deleted, deleting property " + cw.getPropertyName());
 
 		FieldDeclaration fieldDeclaration = cw.getFieldDeclaration();
 		if(fieldDeclaration != null) {
@@ -361,6 +393,11 @@ class ClassWrapper {
 	}
 
 	private void renderColumnProperty(ColumnWrapper dbColumn) {
+		if(dbColumn.getPropertyType() == null) {
+			error(dbColumn + ": unknown type '" + dbColumn.getColumn().getTypeString() + "' (" + dbColumn.getColumn().getSqlType() + "), not generated");
+			return;
+		}
+
 		renderField(dbColumn);
 
 		renderGetter(dbColumn);
@@ -400,7 +437,9 @@ class ClassWrapper {
 		}
 
 		if(fd == null) {
-			fd = m_rootType.addField(String.class, baseFieldName, Modifier.PRIVATE);
+			Type type = cw.getPropertyType();
+			g().info(cw + ": new field " + type);
+			fd = m_rootType.addField(type, baseFieldName, Modifier.PRIVATE);
 			cw.setFieldDeclaration(fd);
 		} else {
 			if(m_generator.isForceRenameFields()) {
@@ -410,8 +449,6 @@ class ClassWrapper {
 				}
 			}
 		}
-
-
 
 		//String baseFieldName = calculatePropertyNameFromColumnName(dbColumn.getColumnName());
 		//FieldDeclaration fd = findFieldDeclaration(baseFieldName);
@@ -423,6 +460,15 @@ class ClassWrapper {
 
 		//m_unit.addType(fd);
 	}
+
+	///**
+	// * Tries to calculate a proper Java type for the specified column.
+	// * @param column
+	// * @return
+	// */
+	//public Type calculateColumnType(DbColumn column) {
+	//
+	//}
 
 	private void renderGetter(ColumnWrapper dbColumn) {
 		//String methodName = calculateMethodName("get", dbColumn.getName());
@@ -491,5 +537,40 @@ class ClassWrapper {
 		}
 		//System.out.println("---------------------");
 		//System.out.println(m_unit.toString());
+	}
+
+
+	/**
+	 * For all columns that are "new", calculate a column type.
+	 * @param dbc
+	 */
+	public void calculateColumnTypes(Connection dbc) throws Exception {
+		for(ColumnWrapper cw : m_byColNameMap.values()) {
+			if(cw.isNew()) {
+				cw.calculateColumnType(dbc);
+			}
+		}
+	}
+
+	AbstractGenerator g() {
+		return m_generator;
+	}
+
+	public boolean isNew() {
+		return m_isNew;
+	}
+
+	@Override public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(getSimpleName());
+		DbTable table = m_table;
+		if(null != table) {
+			sb.append(":").append(table.getSchema().getName()).append(".").append(table.getName());
+		}
+		if(isNew()) {
+			sb.append("(new)");
+		}
+
+		return sb.toString();
 	}
 }
