@@ -4,12 +4,15 @@ import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.type.Type;
+import to.etc.dbutil.schema.DbColumn;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 21-9-17.
  */
 public class ColumnWrapper {
+	private DbColumn m_column;
+
 	private String m_columnName;
 
 	private FieldDeclaration m_fieldDeclaration;
@@ -24,6 +27,13 @@ public class ColumnWrapper {
 
 	private String m_propertyName;
 
+	public ColumnWrapper() {
+	}
+
+	public ColumnWrapper(DbColumn column) {
+		m_column = column;
+		m_columnName = column.getName();
+	}
 
 	public ColumnWrapper setFieldName(String a) {
 		//m_fieldName = a;
@@ -90,5 +100,13 @@ public class ColumnWrapper {
 
 	public String getPropertyName() {
 		return m_propertyName;
+	}
+
+	public DbColumn getColumn() {
+		return m_column;
+	}
+
+	public void setColumn(DbColumn column) {
+		m_column = column;
 	}
 }

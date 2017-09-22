@@ -1,6 +1,8 @@
 package to.etc.domui.hibgen;
 
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.Modifier;
+import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
@@ -21,6 +23,9 @@ import to.etc.dbutil.schema.DbTable;
 import javax.annotation.Nullable;
 import java.beans.Introspector;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,7 +59,6 @@ class ClassWrapper {
 	private Map<String, ColumnWrapper> m_byPropNameMap = new HashMap<>();
 
 	private Map<String, ColumnWrapper> m_byColNameMap = new HashMap<>();
-
 
 	public ClassWrapper(AbstractGenerator generator, File file, CompilationUnit unit) {
 		m_generator = generator;
@@ -99,7 +103,7 @@ class ClassWrapper {
 
 	private File getOutputFile() {
 		String name = m_fullClassName.replace('.', File.separatorChar) + ".java";
-		return new File(m_generator.getSourceDirectory(), name);
+		return new File(m_generator.getOutputDirectory(), name);
 	}
 
 	public String calculateClassName() {
@@ -309,16 +313,54 @@ class ClassWrapper {
 			}
 		}
 
+		//-- 2. Create wrappers for all columns that do not have one, yet
 		for(DbColumn dbColumn : m_table.getColumnList()) {
-			renderColumnProperty(dbColumn);
+			ColumnWrapper cw = m_byColNameMap.computeIfAbsent(dbColumn.getName().toLowerCase(), a -> {
+				ColumnWrapper nw = new ColumnWrapper(dbColumn);
+
+
+				List<String> strings = AbstractGenerator.splitName(dbColumn.getName());
+				StringBuilder sb = new StringBuilder();
+				sb.append(strings.remove(0).toLowerCase());
+				strings.forEach(seg -> sb.append(AbstractGenerator.capitalize(seg)));
+
+				return nw;
+			});
+			cw.setColumn(dbColumn);
+		}
+
+		//-- 3. Generate all wrappers.
+		for(ColumnWrapper cw : m_byColNameMap.values()) {
+			if(cw.getColumn() != null) {
+				renderColumnProperty(cw);
+			}
 		}
 	}
 
 	private void deleteColumn(ColumnWrapper cw) {
 		System.out.println(getClassName() + ": column " + cw.getColumnName() + " deleted, deleting property " + cw.getPropertyName());
+
+		FieldDeclaration fieldDeclaration = cw.getFieldDeclaration();
+		if(fieldDeclaration != null) {
+			if(fieldDeclaration.getVariables().size() == 1) {
+				fieldDeclaration.remove();
+			} else {
+				cw.getVariableDeclaration().remove();
+			}
+		}
+
+		MethodDeclaration getter = cw.getGetter();
+		if(null != getter) {
+			getter.remove();
+		}
+
+		MethodDeclaration setter = cw.getSetter();
+		if(null != setter) {
+			setter.remove();
+		}
 	}
 
-	private void renderColumnProperty(DbColumn dbColumn) {
+	private void renderColumnProperty(ColumnWrapper dbColumn) {
 		renderField(dbColumn);
 
 		renderGetter(dbColumn);
@@ -341,28 +383,49 @@ class ClassWrapper {
 		return null;
 	}
 
-	private void renderField(DbColumn dbColumn) {
-		List<String> strings = AbstractGenerator.splitName(dbColumn.getName());
+	private String calculatePropertyNameFromColumnName(String columnName) {
+		List<String> strings = AbstractGenerator.splitName(columnName);
 		StringBuilder sb = new StringBuilder();
-		//sb.append("m_");
-		sb.append(strings.remove(0).toLowerCase());
-		strings.forEach(a -> sb.append(AbstractGenerator.capitalize(a)));
+		sb.append(strings.remove(0).toLowerCase());						// First one is lowercase
+		strings.forEach(a -> sb.append(AbstractGenerator.capitalize(a)));		// Rest is camelcased
+		return sb.toString();
+	}
 
-		String baseFieldName = sb.toString();
-		FieldDeclaration fd = findFieldDeclaration(baseFieldName);
-		if(null != fd) {
-			fd.remove();
+ 	private void renderField(ColumnWrapper cw) {
+		FieldDeclaration fd = cw.getFieldDeclaration();
+		String baseFieldName = calculatePropertyNameFromColumnName(cw.getColumnName());
+		String fieldPrefix = m_generator.getFieldPrefix();
+		if(null != fieldPrefix) {
+			baseFieldName = fieldPrefix + baseFieldName;
 		}
 
-		//com.github.javaparser.ast.type.Type type = new ClassOrInterfaceType("String");
-		//FieldDeclaration fd = new FieldDeclaration(EnumSet.of(Modifier.PRIVATE), type, fieldName);
-		m_rootType.addField(String.class, "m_" + baseFieldName, com.github.javaparser.ast.Modifier.PRIVATE);
+		if(fd == null) {
+			fd = m_rootType.addField(String.class, baseFieldName, Modifier.PRIVATE);
+			cw.setFieldDeclaration(fd);
+		} else {
+			if(m_generator.isForceRenameFields()) {
+				String s = cw.getVariableDeclaration().getName().asString();
+				if(! s.equals(baseFieldName)) {
+					cw.getVariableDeclaration().setName(baseFieldName);
+				}
+			}
+		}
+
+
+
+		//String baseFieldName = calculatePropertyNameFromColumnName(dbColumn.getColumnName());
+		//FieldDeclaration fd = findFieldDeclaration(baseFieldName);
+		//if(null != fd) {
+		//	fd.remove();
+		//}
+
+		//FieldDeclaration fieldDeclaration = m_rootType.addField(String.class, "m_" + baseFieldName, Modifier.PRIVATE);
 
 		//m_unit.addType(fd);
 	}
 
-	private void renderGetter(DbColumn dbColumn) {
-		String methodName = calculateMethodName("get", dbColumn.getName());
+	private void renderGetter(ColumnWrapper dbColumn) {
+		//String methodName = calculateMethodName("get", dbColumn.getName());
 	}
 
 	private String calculateMethodName(String get, String name) {
@@ -373,9 +436,60 @@ class ClassWrapper {
 		return sb.toString();
 	}
 
+	static private int compareName(String a, String b) {
+		if(isIdName(a)) {
+			if(isIdName(b)) {
+				return a.compareTo(b);
+			} else {
+				return -1;
+			}
+		} else if(isIdName(b)) {
+			return 1;
+		} else {
+			return a.compareToIgnoreCase(b);
+		}
+	}
 
-	public void print() {
-		System.out.println("---------------------");
-		System.out.println(m_unit.toString());
+	static private boolean isIdName(String name) {
+		return name.equalsIgnoreCase("id") || name.equalsIgnoreCase("m_id") || name.equalsIgnoreCase("getid") || name.equalsIgnoreCase("setid");
+	}
+
+	public void order() {
+		NodeList<BodyDeclaration<?>> members = m_rootType.getMembers();
+		members.sort((a, b) -> {
+			if(a instanceof FieldDeclaration) {
+				if(b instanceof FieldDeclaration) {
+					FieldDeclaration fa = (FieldDeclaration) a;
+					FieldDeclaration fb = (FieldDeclaration) b;
+					return compareName(fa.getVariables().get(0).getName().asString(), fb.getVariables().get(0).getName().asString());
+				} else {
+					return -1;			// field < method
+				}
+			} else if(b instanceof FieldDeclaration) {
+				return 1;
+			}
+
+			if(a instanceof MethodDeclaration) {
+				if(b instanceof MethodDeclaration) {
+					MethodDeclaration fa = (MethodDeclaration) a;
+					MethodDeclaration fb = (MethodDeclaration) b;
+					return compareName(fa.getName().asString(), fb.getName().asString());
+				} else
+					return 1;
+			} else if(b instanceof MethodDeclaration) {
+				return -1;
+			}
+			return 0;
+		});
+	}
+
+	public void print() throws IOException {
+		File outputFile = getOutputFile();
+		outputFile.getParentFile().mkdirs();
+		try(Writer w = new FileWriter(outputFile)) {
+			w.write(m_unit.toString());
+		}
+		//System.out.println("---------------------");
+		//System.out.println(m_unit.toString());
 	}
 }

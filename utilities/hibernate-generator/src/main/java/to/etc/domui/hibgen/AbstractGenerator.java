@@ -67,6 +67,8 @@ abstract public class AbstractGenerator {
 
 	private boolean m_addSchemaNameToClassName = true;
 
+	private boolean m_forceRenameFields = true;
+
 	abstract protected Connection createConnection() throws Exception;
 
 	protected abstract Set<DbSchema> loadSchemas(List<String> schemaSet) throws Exception;
@@ -78,17 +80,15 @@ abstract public class AbstractGenerator {
 
 		matchTablesAndSources();
 		generateProperties();
-
-
 		renderOutput();
 	}
 
-	private void renderOutput() {
+	private void renderOutput() throws IOException {
 		for(DbTable dbTable : getAllTables()) {
 			ClassWrapper wrapper = m_byTableMap.get(dbTable);
 			if(null != wrapper) {
-				if(dbTable.getName().equals("definition"))
-					wrapper.print();
+				wrapper.order();
+				wrapper.print();
 			}
 		}
 	}
@@ -414,6 +414,12 @@ abstract public class AbstractGenerator {
 		return m_sourceDirectory;
 	}
 
+	public File getOutputDirectory() {
+		File file = new File("/tmp/gen");
+		file.mkdirs();
+		return file;
+	}
+
 	static protected void info(String s) {
 		System.out.println(s);
 	}
@@ -467,5 +473,9 @@ abstract public class AbstractGenerator {
 
 	public String getFieldPrefix() {
 		return m_fieldPrefix;
+	}
+
+	public boolean isForceRenameFields() {
+		return m_forceRenameFields;
 	}
 }
