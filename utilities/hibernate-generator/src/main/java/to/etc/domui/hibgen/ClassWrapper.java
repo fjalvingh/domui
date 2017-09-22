@@ -18,6 +18,7 @@ import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.VoidType;
 import to.etc.dbutil.schema.DbColumn;
 import to.etc.dbutil.schema.DbTable;
+import to.etc.domui.hibgen.ColumnWrapper.RelationType;
 
 import javax.annotation.Nullable;
 import java.beans.Introspector;
@@ -362,11 +363,12 @@ class ClassWrapper {
 		for(DbColumn dbColumn : m_table.getColumnList()) {
 			ColumnWrapper cw = m_byColNameMap.computeIfAbsent(dbColumn.getName().toLowerCase(), a -> {
 				ColumnWrapper nw = new ColumnWrapper(this, dbColumn);
+				nw.setNew(true);
 
-				List<String> strings = AbstractGenerator.splitName(dbColumn.getName());
-				StringBuilder sb = new StringBuilder();
-				sb.append(strings.remove(0).toLowerCase());
-				strings.forEach(seg -> sb.append(AbstractGenerator.capitalize(seg)));
+				//List<String> strings = AbstractGenerator.splitName(dbColumn.getName());
+				//StringBuilder sb = new StringBuilder();
+				//sb.append(strings.remove(0).toLowerCase());
+				//strings.forEach(seg -> sb.append(AbstractGenerator.capitalize(seg)));
 
 				return nw;
 			});
@@ -465,11 +467,12 @@ class ClassWrapper {
 	}
 
 	static String calculatePropertyNameFromColumnName(String columnName) {
-		List<String> strings = AbstractGenerator.splitName(columnName);
-		StringBuilder sb = new StringBuilder();
-		sb.append(strings.remove(0).toLowerCase());						// First one is lowercase
-		strings.forEach(a -> sb.append(AbstractGenerator.capitalize(a)));		// Rest is camelcased
-		return sb.toString();
+		return AbstractGenerator.camelCase(columnName);
+		//List<String> strings = AbstractGenerator.splitName(columnName);
+		//StringBuilder sb = new StringBuilder();
+		//sb.append(strings.remove(0).toLowerCase());						// First one is lowercase
+		//strings.forEach(a -> sb.append(AbstractGenerator.capitalize(a)));		// Rest is camelcased
+		//return sb.toString();
 	}
 
 	private void renderGetter(ColumnWrapper dbColumn) {
@@ -558,6 +561,10 @@ class ClassWrapper {
 		return m_generator;
 	}
 
+	public CompilationUnit getUnit() {
+		return m_unit;
+	}
+
 	public boolean isNew() {
 		return m_isNew;
 	}
@@ -574,5 +581,37 @@ class ClassWrapper {
 		}
 
 		return sb.toString();
+	}
+
+	static private String calculateClassBasedParentName(String parentClassName) {
+		String name = AbstractGenerator.finalName(parentClassName);
+		String newName = AbstractGenerator.camelCase(name);
+		return newName;
+	}
+
+	/**
+	 * Walk all (new) relations, and try to assign a more reasonable property name than the column name.
+	 */
+	public void calculateRelationNames() {
+		Map<String, List<ColumnWrapper>> dupList = m_byPropNameMap.values()
+			.stream()
+			.filter(cw -> cw.isNew() && cw.getRelationType() == RelationType.manyToOne)
+			.collect(Collectors.groupingBy(cw -> calculateClassBasedParentName(cw.getParentClass().getClassName()), Collectors.toList()));
+
+		//-- For all properties without duplicates: use the parent class type
+		dupList.forEach((name, list) -> {
+			if(list.size() == 1) {
+				ColumnWrapper w = list.get(0);
+				m_byPropNameMap.remove(w.getPropertyName());
+				w.setPropertyName(name);
+				m_byPropNameMap.put(name.toLowerCase(), w);
+			} else if(list.size() > 1) {
+				list.forEach(cw -> {
+					m_byPropNameMap.remove(cw.getPropertyName());
+					cw.recalculatePropertyNameFromParentRelation();
+					m_byPropNameMap.put(cw.getPropertyName().toLowerCase(), cw);
+				});
+			}
+		});
 	}
 }

@@ -1,10 +1,15 @@
 package to.etc.domui.hibgen;
 
 import com.github.javaparser.ast.Modifier;
+import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
+import com.github.javaparser.ast.expr.AnnotationExpr;
+import com.github.javaparser.ast.expr.MemberValuePair;
+import com.github.javaparser.ast.expr.Name;
+import com.github.javaparser.ast.expr.NormalAnnotationExpr;
 import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ReturnStmt;
@@ -35,7 +40,19 @@ import java.util.Set;
  * Created on 21-9-17.
  */
 public class ColumnWrapper {
+	/** The parent class wrapper for a recognized parent relation */
+	private ClassWrapper m_parentClass;
+
+	enum RelationType {
+		oneToMany
+		, manyToOne
+		, none
+	}
+
+
 	final private ClassWrapper m_classWrapper;
+
+	private RelationType m_relationType = RelationType.none;
 
 	private DbColumn m_column;
 
@@ -57,6 +74,14 @@ public class ColumnWrapper {
 
 	private boolean m_transient;
 
+	private boolean m_setPrecisionField;
+
+	private boolean m_setScaleField;
+
+	private boolean m_setLengthField;
+
+	private boolean m_new;
+
 	public ColumnWrapper(ClassWrapper cw) {
 		m_classWrapper = cw;
 	}
@@ -72,11 +97,11 @@ public class ColumnWrapper {
 	}
 
 	/**
-	 * T if calculations for type etc need to be issued.
+	 * T if this has source code.
 	 * @return
 	 */
-	public boolean isNew() {
-		return (m_fieldDeclaration == null || m_getter == null || m_setter == null) && m_column != null;
+	public boolean hasSource() {
+		return m_fieldDeclaration != null || m_getter != null || m_setter != null;
 	}
 
 	public ColumnWrapper setFieldName(String a) {
@@ -140,8 +165,8 @@ public class ColumnWrapper {
 		return m_propertyType;
 	}
 
-	public void setPropertyName(String propertyName) {
-		m_propertyName = propertyName;
+	public void setPropertyName(String calculatedPropertyName) {
+		m_propertyName = calculatedPropertyName;
 	}
 
 	public String getPropertyName() {
@@ -238,7 +263,7 @@ public class ColumnWrapper {
 			case Types.SMALLINT:
 			case Types.TINYINT:
 				if(column.getScale() > 0 || column.getPrecision() < 0) {
-					setPropertyType(new ClassOrInterfaceType("BigDecimal"));
+					setPropertyType(new ClassOrInterfaceType("java.math.BigDecimal"));
 				} else {
 					if(column.getPrecision() < 10) {
 						if(nullable) {
@@ -253,9 +278,11 @@ public class ColumnWrapper {
 							setPropertyType(new PrimitiveType(Primitive.INT));
 						}
 					} else {
-						setPropertyType(new ClassOrInterfaceType("BigInteger"));
+						setPropertyType(new ClassOrInterfaceType("java.math.BigInteger"));
 					}
 				}
+				m_setPrecisionField = true;
+				m_setScaleField = true;
 				return true;
 
 			case Types.VARCHAR:
@@ -263,6 +290,7 @@ public class ColumnWrapper {
 			case Types.CHAR:
 			case Types.NVARCHAR:
 			case Types.NCHAR:
+				m_setLengthField = true;
 				setPropertyType(new ClassOrInterfaceType("String"));
 				return true;
 
@@ -273,7 +301,6 @@ public class ColumnWrapper {
 				return true;
 		}
 	}
-
 
 	/**
 	 * Try to get the type for the related object.
@@ -290,6 +317,39 @@ public class ColumnWrapper {
 
 		ClassOrInterfaceType referent = new ClassOrInterfaceType(parentClass.getClassName());
 		setPropertyType(referent);
+		m_relationType = RelationType.manyToOne;
+		m_parentClass = parentClass;
+	}
+
+	public void recalculatePropertyNameFromParentRelation() {
+		String name = m_column.getName();
+		String parentClassName = m_parentClass.getSimpleName();
+
+		//-- 1. Splittable name?
+		List<String> segs = AbstractGenerator.splitName(m_column.getName());
+		if(segs.size() > 1) {
+			for(int i = segs.size(); --i >= 0;) {
+				if(segs.get(i).equalsIgnoreCase("id") || segs.get(i).equalsIgnoreCase(parentClassName)) {
+					segs.remove(i);
+				}
+			}
+
+			segs.addAll(AbstractGenerator.splitName(parentClassName));
+			setPropertyName(AbstractGenerator.camelCase(segs));
+			return;
+		}
+
+		//-- Not splittable. Remove any "id" before or after
+		if(name.toLowerCase().startsWith("id"))
+			name = name.substring(2);
+		if(name.toLowerCase().endsWith("id"))
+			name = name.substring(0, name.length() - 2);
+
+		int pana = name.toLowerCase().indexOf(parentClassName.toLowerCase());
+		if(pana >= 0) {
+			name = name.substring(0, pana) + name.substring(pana + parentClassName.length());
+		}
+		setPropertyName(AbstractGenerator.camelCase(name));
 	}
 
 	private DbRelation isFkOf() {
@@ -421,11 +481,7 @@ public class ColumnWrapper {
 
 	public void renderField() {
 		FieldDeclaration fd = getFieldDeclaration();
-		String baseFieldName = ClassWrapper.calculatePropertyNameFromColumnName(getColumnName());
 		String fieldPrefix = g().getFieldPrefix();
-		if(null != fieldPrefix) {
-			baseFieldName = fieldPrefix + baseFieldName;
-		}
 
 		String propertyName = getPropertyName();
 		if(null == propertyName) {
@@ -437,12 +493,21 @@ public class ColumnWrapper {
 
 		if(fd == null) {
 			Type type = getPropertyType();
+			type = importIf(type);
 			g().info(this+ ": new field " + type);
-			fd = m_classWrapper.getRootType().addField(type, baseFieldName, Modifier.PRIVATE);
+
+			String fieldName = fieldPrefix == null ? getPropertyName() : fieldPrefix + getPropertyName();
+
+			fd = m_classWrapper.getRootType().addField(type, fieldName, Modifier.PRIVATE);
 			setFieldDeclaration(fd);
 			setVariableDeclaration(fd.getVariable(0));
 		} else {
-			if(g().isForceRenameFields()) {
+			if(g().isForceRenameFields() && getRelationType() == RelationType.none) {
+				String baseFieldName = ClassWrapper.calculatePropertyNameFromColumnName(getColumnName());
+				if(null != fieldPrefix) {
+					baseFieldName = fieldPrefix + baseFieldName;
+				}
+
 				String s = getVariableDeclaration().getName().asString();
 				if(! s.equals(baseFieldName)) {
 					getVariableDeclaration().setName(baseFieldName);
@@ -461,9 +526,37 @@ public class ColumnWrapper {
 		//m_unit.addType(fd);
 	}
 
+	private Type importIf(Type type) {
+		String name = type.asString();
+		String s = AbstractGenerator.packageName(name);
+		if(s == null) {
+			return type;
+		}
+		if("java.lang".equals(s)) {
+			return type;
+		}
+
+		m_classWrapper.getUnit().addImport(name);
+
+		return new ClassOrInterfaceType(AbstractGenerator.finalName(name));
+	}
+
+	private void importIf(String name) {
+		String s = AbstractGenerator.packageName(name);
+		if(s == null) {
+			return;
+		}
+		if("java.lang".equals(s)) {
+			return;
+		}
+
+		m_classWrapper.getUnit().addImport(name);
+	}
+
 	public void renderGetter() {
 		String prefix = "get";
-		if(getPropertyType().asString().contains("boolean")) {
+		Type propertyType = getPropertyType();
+		if(propertyType.asString().equalsIgnoreCase("boolean")) {
 			prefix = "is";
 		}
 		String getterName = prefix + AbstractGenerator.capitalizeFirst(getPropertyName());
@@ -471,20 +564,22 @@ public class ColumnWrapper {
 		MethodDeclaration getter = getGetter();
 		if(null == getter) {
 			EnumSet<Modifier> modifiers = EnumSet.of(Modifier.PUBLIC);
-			MethodDeclaration method = new MethodDeclaration(modifiers, getPropertyType(), getterName);
-			modifiers.add(Modifier.STATIC);
-			method.setModifiers(modifiers);
+			propertyType = importIf(propertyType);
+			getter = new MethodDeclaration(modifiers, propertyType, getterName);
+			getter.setModifiers(modifiers);
 			ClassOrInterfaceDeclaration rootType = m_classWrapper.getRootType();
-			rootType.addMember(method);
+			rootType.addMember(getter);
 
 			BlockStmt block = new BlockStmt();
-			method.setBody(block);
+			getter.setBody(block);
 
 			//FieldAccessExpr field = new FieldAccessExpr(new ThisExpr(), getVariableDeclaration().getName().asString());
 			//ReturnStmt rs = new ReturnStmt(field);
 			ReturnStmt rs = new ReturnStmt(new com.github.javaparser.ast.expr.NameExpr(getVariableDeclaration().getName().asString()));
 
 			block.addStatement(rs);
+			setGetter(getter);
+
 			//// add a statement do the method body
 			//NameExpr clazz = new NameExpr("System");
 			//FieldAccessExpr field = new FieldAccessExpr(clazz, "out");
@@ -494,5 +589,52 @@ public class ColumnWrapper {
 		} else if(g().isForceRenameMethods()) {
 			getter.setName(new SimpleName(getterName));
 		}
+		NormalAnnotationExpr ca = createOrFindAnnotation(getter, "javax.persistence.Column");
+		ca.addPair("name", "\"" + m_column.getName() + "\"");
+		if(m_setLengthField && m_column.getPrecision() > 0) {
+			ca.addPair("length", Integer.toString(m_column.getPrecision()));
+		}
+		if(m_setPrecisionField && m_column.getPrecision() > 0) {
+			ca.addPair("precision", Integer.toString(m_column.getPrecision()));
+		}
+		if(m_setScaleField && m_column.getScale() > 0) {
+			ca.addPair("scale", Integer.toString(m_column.getScale()));
+		}
+		ca.addPair("nullable", Boolean.toString(m_column.isNullable()));
+	}
+
+	private NormalAnnotationExpr createOrFindAnnotation(MethodDeclaration getter, String fullAnnotationName) {
+		String name = AbstractGenerator.finalName(fullAnnotationName);
+		m_classWrapper.getUnit().addImport(fullAnnotationName);
+
+		for(AnnotationExpr annotationExpr : getter.getAnnotations()) {
+			String annName = annotationExpr.getName().asString();
+			if(annName.equals(fullAnnotationName) || name.equals(annName)) {
+				return (NormalAnnotationExpr) annotationExpr;
+			}
+		}
+
+		String pkg = AbstractGenerator.packageName(fullAnnotationName);
+		NodeList<MemberValuePair> nodes = NodeList.nodeList();
+		//Name nm = new Name(new Name(pkg), name);
+		NormalAnnotationExpr ax = new NormalAnnotationExpr(new Name(name), nodes);
+		getter.addAnnotation(ax);
+		return ax;
+	}
+
+	public void setNew(boolean aNew) {
+		m_new = aNew;
+	}
+
+	public boolean isNew() {
+		return m_new;
+	}
+
+	public RelationType getRelationType() {
+		return m_relationType;
+	}
+
+	public ClassWrapper getParentClass() {
+		return m_parentClass;
 	}
 }

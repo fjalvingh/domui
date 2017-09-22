@@ -83,9 +83,16 @@ abstract public class AbstractGenerator {
 		fixMissingPrimaryKeys();
 		matchColumns();
 		calculateColumnTypes();
+		calculateRelationNames();
 
 		generateProperties();
 		renderOutput();
+	}
+
+	private void calculateRelationNames() {
+		for(ClassWrapper classWrapper : m_byTableMap.values()) {
+			classWrapper.calculateRelationNames();
+		}
 	}
 
 	private void fixMissingPrimaryKeys() {
@@ -236,6 +243,33 @@ abstract public class AbstractGenerator {
 		if(in.length() == 1)
 			return in.toUpperCase();
 		return in.substring(0, 1).toUpperCase() + in.substring(1);
+	}
+
+	static String finalName(String name) {
+		int i = name.lastIndexOf('.');
+		if(i < 0)
+			return name;
+		return name.substring(i + 1);
+	}
+
+	@Nullable
+	static String packageName(String name) {
+		int i = name.lastIndexOf('.');
+		if(i < 0)
+			return null;
+		return name.substring(0, i);
+	}
+
+	static String camelCase(String name) {
+		List<String> strings = splitName(name);
+		return camelCase(strings);
+	}
+
+	static String camelCase(List<String> strings) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(strings.remove(0).toLowerCase());
+		strings.forEach(seg -> sb.append(AbstractGenerator.capitalize(seg)));
+		return sb.toString();
 	}
 
 

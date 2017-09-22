@@ -1,12 +1,19 @@
 package to.etc.dbutil.schema;
 
-import java.io.*;
-import java.math.*;
-import java.sql.*;
+import to.etc.dbutil.reverse.Reverser;
 
-import javax.annotation.*;
-
-import to.etc.dbutil.reverse.*;
+import javax.annotation.Nonnull;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.sql.Blob;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.sql.Types;
 
 public class DbColumn implements Serializable {
 	private DbTable m_table;
