@@ -7,10 +7,12 @@ import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.AnnotationExpr;
+import com.github.javaparser.ast.expr.BooleanLiteralExpr;
 import com.github.javaparser.ast.expr.MemberValuePair;
 import com.github.javaparser.ast.expr.Name;
 import com.github.javaparser.ast.expr.NormalAnnotationExpr;
 import com.github.javaparser.ast.expr.SimpleName;
+import com.github.javaparser.ast.expr.StringLiteralExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ReturnStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
@@ -624,27 +626,47 @@ public class ColumnWrapper {
 		} else if(g().isForceRenameMethods()) {
 			getter.setName(new SimpleName(getterName));
 		}
-		NormalAnnotationExpr ca = createOrFindAnnotation(getter, "javax.persistence.Column");
-		ca.addPair("name", "\"" + m_column.getName() + "\"");
-		if(m_setLengthField && m_column.getPrecision() > 0) {
-			ca.addPair("length", Integer.toString(m_column.getPrecision()));
-		}
-		if(m_setPrecisionField && m_column.getPrecision() > 0) {
-			ca.addPair("precision", Integer.toString(m_column.getPrecision()));
-		}
-		if(m_setScaleField && m_column.getScale() > 0) {
-			ca.addPair("scale", Integer.toString(m_column.getScale()));
-		}
-		ca.addPair("nullable", Boolean.toString(m_column.isNullable()));
 
 		if(getRelationType() == RelationType.manyToOne) {
+			/*
+			 * We need JoinColumn and ManyToOne
+			 */
 			NormalAnnotationExpr m2o = createOrFindAnnotation(getter, "javax.persistence.ManyToOne");
 			MemberValuePair fetch = findAnnotationPair(m2o, "fetch");
 			if(null == fetch) {
 				importIf("javax.persistent.FetchType");
 				m2o.addPair("fetch", "FetchType.LAZY");
 			}
+
+			MemberValuePair p = findAnnotationPair(m2o, "optional");
+			if(null == p) {
+				m2o.addPair("optional", Boolean.toString(m_column.isNullable()));
+			} else {
+				p.setValue(new BooleanLiteralExpr(m_column.isNullable()));
+			}
+
+			NormalAnnotationExpr na = createOrFindAnnotation(getter, "javax.persistence.JoinColumn");
+			p = findAnnotationPair(na, "name");
+			if(null == p) {
+				na.addPair("name", "\"" + m_column.getName() + "\"");
+			} else {
+				p.setValue(new StringLiteralExpr(m_column.getName()));
+			}
+		} else {
+			NormalAnnotationExpr ca = createOrFindAnnotation(getter, "javax.persistence.Column");
+			ca.addPair("name", "\"" + m_column.getName() + "\"");
+			if(m_setLengthField && m_column.getPrecision() > 0) {
+				ca.addPair("length", Integer.toString(m_column.getPrecision()));
+			}
+			if(m_setPrecisionField && m_column.getPrecision() > 0) {
+				ca.addPair("precision", Integer.toString(m_column.getPrecision()));
+			}
+			if(m_setScaleField && m_column.getScale() > 0) {
+				ca.addPair("scale", Integer.toString(m_column.getScale()));
+			}
+			ca.addPair("nullable", Boolean.toString(m_column.isNullable()));
 		}
+
 		ExtraType extraType = getExtraType();
 		if(null != extraType) {
 			String hibernateType = getTypeNameFor(extraType);
