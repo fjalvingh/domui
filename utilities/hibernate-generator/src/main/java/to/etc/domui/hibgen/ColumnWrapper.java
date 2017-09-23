@@ -46,9 +46,6 @@ import java.util.Set;
  * Created on 21-9-17.
  */
 public class ColumnWrapper {
-	/** The parent class wrapper for a recognized parent relation */
-	private ClassWrapper m_parentClass;
-
 	enum RelationType {
 		oneToMany
 		, manyToOne
@@ -63,6 +60,14 @@ public class ColumnWrapper {
 		TemporalTimestamp
 	}
 
+	private ColumnWrapper m_childsParentProperty;
+
+	/** The parent class wrapper for a recognized parent relation */
+	private ClassWrapper m_parentClass;
+
+	private String m_setMappedByPropertyName;
+
+
 	final private ClassWrapper m_classWrapper;
 
 	private RelationType m_relationType = RelationType.none;
@@ -71,7 +76,7 @@ public class ColumnWrapper {
 
 	private DbColumn m_column;
 
-	private String m_columnName;
+	private String m_javaColumnName;
 
 	private FieldDeclaration m_fieldDeclaration;
 
@@ -97,6 +102,8 @@ public class ColumnWrapper {
 
 	private boolean m_new;
 
+	private ColumnWrapper m_parentListProperty;
+
 	public ColumnWrapper(ClassWrapper cw) {
 		m_classWrapper = cw;
 	}
@@ -104,7 +111,7 @@ public class ColumnWrapper {
 	public ColumnWrapper(ClassWrapper cw, DbColumn column) {
 		m_classWrapper = cw;
 		m_column = column;
-		m_columnName = column.getName();
+		m_javaColumnName = column.getName();
 	}
 
 	private AbstractGenerator g() {
@@ -125,12 +132,12 @@ public class ColumnWrapper {
 
 	}
 
-	public String getColumnName() {
-		return m_columnName;
+	public String getJavaColumnName() {
+		return m_javaColumnName;
 	}
 
 	public void setJavaColumnName(String columnName) {
-		m_columnName = columnName;
+		m_javaColumnName = columnName;
 	}
 
 	public FieldDeclaration getFieldDeclaration() {
@@ -189,7 +196,7 @@ public class ColumnWrapper {
 
 	public void setColumn(DbColumn column) {
 		m_column = column;
-		m_columnName = column.getName();
+		m_javaColumnName = column.getName();
 	}
 
 	/**
@@ -198,7 +205,7 @@ public class ColumnWrapper {
 	 */
 	public boolean isPrimaryKey() {
 		if(null == m_column)
-			throw new IllegalStateException("??? No column");
+			return false;
 		DbPrimaryKey primaryKey = m_column.getTable().getPrimaryKey();
 		if(null == primaryKey)
 			return false;
@@ -342,9 +349,31 @@ public class ColumnWrapper {
 
 		ClassOrInterfaceType referent = new ClassOrInterfaceType(parentClass.getClassName());
 		setPropertyType(referent);
-		m_relationType = RelationType.manyToOne;
+		setManyToOne(parentClass);
+	}
+
+	public void setManyToOne(ClassWrapper parentClass) {
+		setRelationType(RelationType.manyToOne);
 		m_parentClass = parentClass;
 	}
+	public void setManyToOne() {
+		setRelationType(RelationType.manyToOne);
+	}
+
+
+	public void setOneToMany(String mappedBy) {
+		setRelationType(RelationType.oneToMany);
+		m_setMappedByPropertyName = mappedBy;
+	}
+
+	public void setOneToMany(ColumnWrapper childProperty) {
+		if(null == childProperty)
+			throw new IllegalStateException();
+		setRelationType(RelationType.oneToMany);
+		m_setMappedByPropertyName = childProperty.getPropertyName();
+		m_childsParentProperty = childProperty;
+	}
+
 
 	public void recalculatePropertyNameFromParentRelation() {
 		String name = m_column.getName();
@@ -487,6 +516,24 @@ public class ColumnWrapper {
 		}
 	}
 
+	/**
+	 * For this ManyToOne property, try to locate the inverse OneToMany property.
+	 */
+	public void locateOrGenerateListProperty() {
+		if(getRelationType() != RelationType.manyToOne)
+			throw new IllegalStateException();
+		ClassWrapper parentClass = m_parentClass;
+		if(null == parentClass)
+			throw new IllegalStateException(this + ": Missing parent class for ManyToOne property " + this);
+
+		ColumnWrapper cw = parentClass.findColumnByMappedBy(getPropertyName());
+		if(cw == null) {
+			cw = parentClass.createListProperty(this);
+		}
+		m_parentListProperty = cw;
+	}
+
+
 
 	static private final Set<String> VALID_BOOLEAN_CHAR_SET = new HashSet<>(Arrays.asList("y", "n", "t", "f", "true", "false", "0", "1"));
 	static private final Set<String> TRUEFALSESET = new HashSet<>(Arrays.asList("t", "f", "true", "false"));
@@ -548,7 +595,7 @@ public class ColumnWrapper {
 		if(null == propertyName) {
 			System.out.println("??");
 		}
-		if(propertyName.equalsIgnoreCase("opentopublic")) {
+		if(propertyName.equalsIgnoreCase("DefinitionProductpartlist")) {
 			System.out.println("GOTCHA");
 		}
 
@@ -564,7 +611,7 @@ public class ColumnWrapper {
 			setVariableDeclaration(fd.getVariable(0));
 		} else {
 			if(g().isForceRenameFields() && getRelationType() == RelationType.none) {
-				String baseFieldName = ClassWrapper.calculatePropertyNameFromColumnName(getColumnName());
+				String baseFieldName = ClassWrapper.calculatePropertyNameFromColumnName(getJavaColumnName());
 				if(null != fieldPrefix) {
 					baseFieldName = fieldPrefix + baseFieldName;
 				}
@@ -623,11 +670,28 @@ public class ColumnWrapper {
 
 
 	public void renderGetter() throws Exception {
+		if(getPropertyName().equals("type")) {
+			System.out.println("GOTCHA");
+		}
+
 		MethodDeclaration getter = renderGetterMethod();
 
 		if(getRelationType() == RelationType.manyToOne) {
 			renderManyToOneAnnotations(getter);
+		} else if(getRelationType() == RelationType.oneToMany) {
+			NormalAnnotationExpr ca = createOrFindAnnotation(getter, "javax.persistence.OneToMany");
+			importIf("javax.persistence.FetchType");
+			addPairIfMissing(ca, "fetch", "FetchType.LAZY");
+			ColumnWrapper cpp = m_childsParentProperty;
+			if(null == cpp)
+				throw new IllegalStateException(this + ": child's property (mappedBy) not set");
+			setPair(ca, "mappedBy", cpp.getPropertyName(), true);
+			//setPair(ca, "fetch", "FetchType.LAZY", false);
+
 		} else {
+			if(m_column == null)
+				throw new IllegalStateException(this + ": no column?");
+
 			if(isPrimaryKey()) {
 				renderIdAnnotations(getter);
 			}
@@ -855,11 +919,57 @@ public class ColumnWrapper {
 		return m_relationType;
 	}
 
+	private void setRelationType(RelationType relationType) {
+		m_relationType = relationType;
+	}
+
 	public ClassWrapper getParentClass() {
 		return m_parentClass;
+	}
+
+	public void setParentClass(ClassWrapper parentClass) {
+		m_parentClass = parentClass;
 	}
 
 	public ExtraType getExtraType() {
 		return m_extraType;
 	}
+
+	public void setSetMappedByPropertyName(String setMappedByPropertyName) {
+		m_setMappedByPropertyName = setMappedByPropertyName;
+	}
+
+	public String getSetMappedByPropertyName() {
+		return m_setMappedByPropertyName;
+	}
+
+	public ClassWrapper getClassWrapper() {
+		return m_classWrapper;
+	}
+
+	public void setChildsParentProperty(ColumnWrapper childsParentProperty) {
+		m_childsParentProperty = childsParentProperty;
+	}
+
+	public ColumnWrapper getChildsParentProperty() {
+		return m_childsParentProperty;
+	}
+
+	public void resolveManyToOne() {
+		if(getRelationType() != RelationType.manyToOne)
+			return;
+
+		ClassOrInterfaceType ct = (ClassOrInterfaceType) getPropertyType();
+		String parentClassName = ct.getName().asString();
+		parentClassName = m_classWrapper.tryResolveFullName(parentClassName);
+
+		ClassWrapper parentClass = g().findClassWrapper(m_classWrapper.getPackageName(), parentClassName);
+		if(null == parentClass) {
+			m_classWrapper.error(this + ": cannot locate class " + parentClass + " inside parsed entities");
+			return;
+		} else {
+			m_parentClass = parentClass;
+		}
+	}
+
 }

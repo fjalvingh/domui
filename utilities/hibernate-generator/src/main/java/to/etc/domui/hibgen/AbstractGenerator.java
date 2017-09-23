@@ -81,13 +81,33 @@ abstract public class AbstractGenerator {
 		matchTablesAndSources();
 		fixMissingPrimaryKeys();
 		matchColumns();
+		findManyToOneClasses();
 		removeUnusedProperties();
+
 		renamePrimaryKeys();
 		calculateColumnTypes();
 		calculateRelationNames();
 
+		generateOneToManyProperties();
+
 		generateProperties();
 		renderOutput();
+	}
+
+	private void findManyToOneClasses() {
+		for(ClassWrapper classWrapper : m_byTableMap.values()) {
+			classWrapper.resolveManyToOne();
+		}
+	}
+
+	private void generateOneToManyProperties() {
+		for(ClassWrapper classWrapper : m_byTableMap.values()) {
+			classWrapper.resolveMappedBy();
+		}
+
+		for(ClassWrapper classWrapper : m_byTableMap.values()) {
+			classWrapper.generateOneToManyProperties();
+		}
 	}
 
 	private void renamePrimaryKeys() {
@@ -204,9 +224,9 @@ abstract public class AbstractGenerator {
 		m_byTableMap.put(tbl, wrapper);
 		String fullName = packageName + "." + className;
 		m_byClassnameMap.put(fullName, wrapper);
-
-		System.out.println("Created new class " + fullName);
-		System.out.println(cu.toString());
+		//
+		//System.out.println("Created new class " + fullName);
+		//System.out.println(cu.toString());
 	}
 
 	private CompilationUnit createCompilationUnit(String packageName, String className, DbTable tbl) {
@@ -405,7 +425,10 @@ abstract public class AbstractGenerator {
 	}
 
 	void error(File file, String msg) {
-		System.err.println(file.toString() + ": " + msg);
+		System.err.println("error " + file.toString() + ": " + msg);
+	}
+	public void info(File file, String msg) {
+		System.err.println("info " + file.toString() + ": " + msg);
 	}
 
 
@@ -599,4 +622,39 @@ abstract public class AbstractGenerator {
 	public boolean isAppendSchemaName() {
 		return m_appendSchemaName || m_schemaSet.size() > 1;
 	}
+
+	/**
+	 * Try to find a class wrapper by resolving the specified className in the scope of the
+	 * package provided.
+	 *
+	 * @return
+	 */
+	public ClassWrapper findClassWrapper(String packageName, String className) {
+		String matchName = className;
+		if(! className.contains("."))
+			matchName = packageName + "." + className;
+
+		List<ClassWrapper> partialList = new ArrayList<>();
+		for(ClassWrapper cw : m_byClassnameMap.values()) {
+			if(cw.getClassName().equals(matchName)) {
+				return cw;
+			}
+
+			if(! className.contains(".")) {						// Unqualified?
+				if(cw.getClassName().endsWith("." + className)) {
+					partialList.add(cw);						// Partial match
+				}
+			}
+		}
+
+		if(partialList.size() == 0) {
+			return null;
+		} else if(partialList.size() == 1) {
+			return partialList.get(0);
+		}
+		error("Cannot resolve class name for class '" + className + "' relative to package '" + packageName + "'");
+		return null;
+	}
+
+
 }

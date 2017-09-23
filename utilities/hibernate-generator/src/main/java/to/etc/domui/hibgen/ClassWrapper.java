@@ -1,6 +1,8 @@
 package to.etc.domui.hibgen;
 
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.ImportDeclaration;
+import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
@@ -16,6 +18,7 @@ import com.github.javaparser.ast.expr.MemberValuePair;
 import com.github.javaparser.ast.expr.Name;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.NormalAnnotationExpr;
+import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.expr.StringLiteralExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
@@ -69,6 +72,8 @@ class ClassWrapper {
 
 	private List<ColumnWrapper> m_allColumnWrappers = new ArrayList<>();
 
+	private List<ColumnWrapper> m_deletedColumns = new ArrayList<>();
+
 	public ClassWrapper(AbstractGenerator generator, File file, CompilationUnit unit) {
 		m_generator = generator;
 		m_file = file;
@@ -111,10 +116,15 @@ class ClassWrapper {
 		return m_rootType;
 	}
 
-	private void error(String msg) {
+	void error(String msg) {
 		m_errors++;
 		m_generator.error(getOutputFile(), msg);
 	}
+
+	void info(String msg) {
+		m_generator.info(getOutputFile(), msg);
+	}
+
 
 	private File getOutputFile() {
 		String name = m_fullClassName.replace('.', File.separatorChar) + ".java";
@@ -134,6 +144,13 @@ class ClassWrapper {
 
 	public String getSimpleName() {
 		return m_simpleName;
+	}
+
+	public String getPackageName() {
+		int pos = m_fullClassName.lastIndexOf('.');
+		if(pos < 0)
+			return "";
+		return m_fullClassName.substring(0, pos);
 	}
 
 	/**
@@ -170,7 +187,6 @@ class ClassWrapper {
 				handleMethodDeclaration(md);
 			}
 		}
-
 	}
 
 	private void handleMethodDeclaration(MethodDeclaration md) {
@@ -234,6 +250,20 @@ class ClassWrapper {
 		return null;
 	}
 
+	@Nullable
+	protected ColumnWrapper findDeletedProperty(String name) {
+		for(ColumnWrapper cw : m_deletedColumns) {
+			String propertyName = cw.getPropertyName();
+			if(null != propertyName) {
+				if(propertyName.equalsIgnoreCase(name)) {
+					return cw;
+				}
+			}
+		}
+		return null;
+	}
+
+
 	private void handleFieldDeclaration(FieldDeclaration d) {
 		List<ColumnWrapper> list = new ArrayList<>();
 		for(VariableDeclarator vd : d.getVariables()) {
@@ -245,18 +275,22 @@ class ClassWrapper {
 				}
 			}
 
-			if("opentopublic".equals(fieldName)) {
-				System.out.println("GOTCHA");
+			if(d.getModifiers().contains(Modifier.STATIC) || d.getModifiers().contains(Modifier.FINAL)) {
+				//- Skip
+			} else {
+				if("opentopublic".equals(fieldName)) {
+					System.out.println("GOTCHA");
+				}
+				ColumnWrapper cw = findColumnByPropertyName(fieldName);
+				if(null == cw) {
+					cw = new ColumnWrapper(this);
+					m_allColumnWrappers.add(cw);
+					cw.setPropertyName(fieldName);
+				}
+				cw.setFieldDeclarator(d, vd);
+				list.add(cw);
+				cw.setPropertyType(vd.getType());
 			}
-			ColumnWrapper cw = findColumnByPropertyName(fieldName);
-			if(null == cw) {
-				cw = new ColumnWrapper(this);
-				m_allColumnWrappers.add(cw);
-				cw.setPropertyName(fieldName);
-			}
-			cw.setFieldDeclarator(d, vd);
-			list.add(cw);
-			cw.setPropertyType(vd.getType());
 		}
 
 		for(AnnotationExpr annotationExpr : d.getAnnotations()) {
@@ -269,6 +303,10 @@ class ClassWrapper {
 	}
 
 	private void handleDatabaseAnnotation(ColumnWrapper columnWrapper, NormalAnnotationExpr annotationExpr) {
+		if("type".equalsIgnoreCase(columnWrapper.getPropertyName())) {
+			System.out.println("GOTCHA");
+		}
+
 		String name = annotationExpr.getName().asString();
 
 		if(name.equals("Transient")) {
@@ -294,7 +332,6 @@ class ClassWrapper {
 			}
 		} else if(name.equals("JoinColumn")) {
 			String columnName = null;
-			int length = -1;
 			for(MemberValuePair pair : annotationExpr.getPairs()) {
 				String prop = pair.getName().asString();
 				if(prop.equals("name")) {
@@ -306,8 +343,28 @@ class ClassWrapper {
 				//m_byColNameMap.put(columnName.toLowerCase(), columnWrapper);
 				columnWrapper.setJavaColumnName(columnName);
 			}
-		}
+		} else if(name.equals("OneToMany")) {
+			String mappedBy = null;
+			int length = -1;
+			for(MemberValuePair pair : annotationExpr.getPairs()) {
+				String prop = pair.getName().asString();
+				if(prop.equals("mappedBy")) {
+					mappedBy = resolveConstant(pair.getValue());
+				}
+			}
+			if(null != mappedBy) {
+				columnWrapper.setOneToMany(mappedBy);
+			}
+		} else if(name.equals("ManyToOne")) {
+			//-- Find the parent class
+			Type propertyType = columnWrapper.getPropertyType();
 
+			if(! (propertyType instanceof ClassOrInterfaceType)) {
+				error("ManyToOne on primitive");
+			} else {
+				columnWrapper.setManyToOne();
+			}
+		}
 	}
 
 	private void handleTableAnnotation(AnnotationExpr tableAnn) {
@@ -371,16 +428,25 @@ class ClassWrapper {
 		for(ColumnWrapper cw : m_allColumnWrappers) { // byPropName
 			if(cw.isTransient())
 				continue;
+			if("numberlistid".equals(cw.getJavaColumnName())) {
+				System.out.println("GOTCHA");
+			}
 
 			if(cw.getColumn() == null) {
-				if("opentopublic".equals(cw.getPropertyName())) {
-					System.out.println("GOTCHA");
-				}
 
-				DbColumn column = m_table.findColumn(cw.getPropertyName().toLowerCase());
-				if(null != column) {
-					cw.setColumn(column);
-					//m_byColNameMap.put(column.getName().toLowerCase(), cw);
+				//-- First try by @Column/@JoinColumn name annotation
+				String javaName = cw.getJavaColumnName();
+				if(javaName != null) {
+					DbColumn column = m_table.findColumn(javaName.toLowerCase());
+					if(null != column) {
+						cw.setColumn(column);
+					}
+				} else {
+					DbColumn column = m_table.findColumn(cw.getPropertyName().toLowerCase());
+					if(null != column) {
+						cw.setColumn(column);
+						//m_byColNameMap.put(column.getName().toLowerCase(), cw);
+					}
 				}
 			}
 		}
@@ -392,6 +458,10 @@ class ClassWrapper {
 				cw = new ColumnWrapper(this, dbColumn);
 				m_allColumnWrappers.add(cw);
 				cw.setNew(true);
+
+				String propertyName = calculatePropertyNameFromColumnName(dbColumn.getName());
+				//m_byPropNameMap.put(propertyName.toLowerCase(), cw);
+				cw.setPropertyName(propertyName);
 			}
 
 			//List<String> strings = AbstractGenerator.splitName(dbColumn.getName());
@@ -400,9 +470,6 @@ class ClassWrapper {
 			//strings.forEach(seg -> sb.append(AbstractGenerator.capitalize(seg)));
 
 			cw.setColumn(dbColumn);
-			String propertyName = calculatePropertyNameFromColumnName(dbColumn.getName());
-			//m_byPropNameMap.put(propertyName.toLowerCase(), cw);
-			cw.setPropertyName(propertyName);
 		}
 	}
 
@@ -436,7 +503,7 @@ class ClassWrapper {
 
 		for(ColumnWrapper cw : m_allColumnWrappers) {
 			if(! cw.isTransient()) {
-				if(cw.getColumn() == null) {					// Not associated with a column -> obsoleted.
+				if(cw.getColumn() == null && cw.getRelationType() != RelationType.oneToMany) {
 					deleteList.add(cw);
 				}
 			}
@@ -444,11 +511,8 @@ class ClassWrapper {
 
 		for(ColumnWrapper cw : deleteList) {
 			deleteColumn(cw);
-			String columnName = cw.getColumnName();
 		}
-		m_allColumnWrappers.removeAll(deleteList);
 	}
-
 
 	/**
 	 * Render all basic table properties.
@@ -461,13 +525,11 @@ class ClassWrapper {
 		renderClassAnnotations();
 
 		for(ColumnWrapper cw : m_allColumnWrappers) {
-			if("opentopublic".equalsIgnoreCase(cw.getPropertyName())) {
+			if("DefinitionProductpartlist".equalsIgnoreCase(cw.getPropertyName())) {
 				System.out.println("GOTCHA");
 			}
 
-			if(cw.getColumn() != null) {
-				renderColumnProperty(cw);
-			}
+			renderColumnProperty(cw);
 		}
 	}
 
@@ -483,7 +545,7 @@ class ClassWrapper {
 	}
 
 	private void deleteColumn(ColumnWrapper cw) {
-		g().info(getClassName() + ": column " + cw.getColumnName() + " deleted, deleting property " + cw.getPropertyName());
+		g().info(getClassName() + ": column " + cw.getJavaColumnName() + " deleted, deleting property " + cw.getPropertyName());
 
 		FieldDeclaration fieldDeclaration = cw.getFieldDeclaration();
 		if(fieldDeclaration != null) {
@@ -503,6 +565,11 @@ class ClassWrapper {
 		if(null != setter) {
 			setter.remove();
 		}
+
+		if(m_allColumnWrappers.remove(cw)) {
+			m_deletedColumns.add(cw);
+		}
+
 	}
 
 	private void renderColumnProperty(ColumnWrapper dbColumn) throws Exception {
@@ -515,7 +582,6 @@ class ClassWrapper {
 		}
 
 		dbColumn.renderField();
-
 		dbColumn.renderGetter();
 		dbColumn.renderSetter();
 		//renderSetter(dbColumn);
@@ -711,7 +777,13 @@ class ClassWrapper {
 	}
 
 	protected Type importIf(Type type) {
-		String name = type.asString();
+		String name;
+		if(type instanceof ClassOrInterfaceType) {
+			ClassOrInterfaceType ct = (ClassOrInterfaceType) type;
+			name = ct.getName().asString();
+		} else {
+			name = type.asString();
+		}
 		String s = AbstractGenerator.packageName(name);
 		if(s == null) {
 			return type;
@@ -720,6 +792,7 @@ class ClassWrapper {
 			return type;
 		}
 
+		System.out.println(name);
 		getUnit().addImport(name);
 
 		return new ClassOrInterfaceType(AbstractGenerator.finalName(name));
@@ -735,7 +808,6 @@ class ClassWrapper {
 		}
 		getUnit().addImport(name);
 	}
-
 
 	/**
 	 * For all columns that are "new", calculate a column type.
@@ -785,6 +857,10 @@ class ClassWrapper {
 	 * Walk all (new) relations, and try to assign a more reasonable property name than the column name.
 	 */
 	public void calculateRelationNames() {
+		if(getSimpleName().equalsIgnoreCase("Definitionnumberlist")) {
+			System.out.println("GOTCHA");
+		}
+
 		Map<String, List<ColumnWrapper>> dupList = m_allColumnWrappers
 			.stream()
 			.filter(cw -> cw.isNew() && cw.getRelationType() == RelationType.manyToOne)
@@ -808,6 +884,143 @@ class ClassWrapper {
 			if(cw.isPrimaryKey()) {
 				cw.setPropertyName(pkName);
 			}
+		}
+	}
+
+	/**
+	 * Walk this class, and find all parent properties. For each parent property, try to find or create
+	 * the inverse list property.
+	 */
+	public void generateOneToManyProperties() {
+		for(ColumnWrapper cw : m_allColumnWrappers) {
+			if(cw.isTransient() || cw.getRelationType() != RelationType.manyToOne)
+				continue;
+
+			cw.locateOrGenerateListProperty();
+		}
+	}
+
+	@Nullable
+	public ColumnWrapper findColumnByMappedBy(String propertyName) {
+		for(ColumnWrapper cw : m_allColumnWrappers) {
+			if(cw.isTransient() || cw.getRelationType() != RelationType.oneToMany)
+				continue;
+			if(propertyName.equals(cw.getSetMappedByPropertyName())) {
+				return cw;
+			}
+		}
+		return null;
+	}
+
+	public ColumnWrapper createColumnWrapper() {
+		ColumnWrapper cw = new ColumnWrapper(this);
+		m_allColumnWrappers.add(cw);
+		return cw;
+	}
+
+	public ColumnWrapper createListProperty(ColumnWrapper childsParentProperty) {
+		ColumnWrapper cw = createColumnWrapper();
+
+		//-- Type is List<T> where T is this-property's type.
+		importIf("java.util.List");
+
+		ClassWrapper childClass = childsParentProperty.getClassWrapper();
+		ClassOrInterfaceType ct = new ClassOrInterfaceType(childClass.getClassName());
+		Type childType = importIf(ct);
+
+		ClassOrInterfaceType lt = new ClassOrInterfaceType(null, new SimpleName("List"), NodeList.nodeList(childType));
+		cw.setPropertyType(lt);
+
+		//-- Calculate a simplistic property name provisionally. This step can create duplicate property names.
+		String childName = childsParentProperty.getClassWrapper().getSimpleName();
+		String name = AbstractGenerator.camelCase(childName) + "List";
+		cw.setPropertyName(name);
+		cw.setOneToMany(childsParentProperty);
+
+		return cw;
+	}
+
+	/**
+	 * All properties with a mappedBy are resolved to find the property belonging to that mappedBy.
+	 */
+	public void resolveMappedBy() {
+		for(ColumnWrapper cw : new ArrayList<>(m_allColumnWrappers)) {
+			resolveMappedBy(cw);
+		}
+	}
+
+	private void resolveMappedBy(ColumnWrapper cw) {
+		String mappedBy = cw.getSetMappedByPropertyName();
+		if(null == mappedBy)
+			return;
+
+		if("numberlist".equalsIgnoreCase(mappedBy)) {
+			System.out.println("GOTCHA");
+		}
+
+		//-- Find the class referred to
+		Type propertyType = cw.getPropertyType();
+		if(propertyType instanceof ClassOrInterfaceType) {
+			ClassOrInterfaceType ct = (ClassOrInterfaceType) propertyType;
+
+			String s = ct.getName().asString();
+			if("List".equals(s)) {
+				Type containerType = ct.getTypeArguments().get().get(0);
+				String childName = containerType.asString();
+				childName = tryResolveFullName(childName);
+
+				ClassWrapper childClass = g().findClassWrapper(getPackageName(), childName);
+				if(null == childClass) {
+					error(this + ": cannot locate class " + childClass + " inside parsed entities");
+					return;
+				}
+
+				ColumnWrapper childColumn = childClass.findColumnByPropertyName(mappedBy);
+				if(null != childColumn) {
+					cw.setChildsParentProperty(childColumn);
+				} else {
+					childColumn = childClass.findDeletedProperty(mappedBy);
+					if(null == childColumn) {
+						error(this + ": cannot find mappedBy property '" + mappedBy + "' in child class " + childClass);
+					} else {
+						info(this  + ": child property '" + mappedBy + "' deleted from " + childClass + ", deleting OneToMany");
+
+						deleteColumn(cw);
+					}
+				}
+				return;
+			}
+		}
+		error(this + ": @OneToMany reference but property type is not correct (List<T>, but it is " + propertyType + ")");
+	}
+
+	/**
+	 * If the name is dotted this just returns immediately because it's already qualified. If
+	 * not this walks all imports trying to find the import that gets this class. When found
+	 * it will return the qualified name; if not the name is returned unaltered.
+	 */
+	String tryResolveFullName(String className) {
+		if(className.contains("."))
+			return className;
+
+		for(ImportDeclaration id : getUnit().getImports()) {
+			String name = id.getName().asString();
+			int pos = name.lastIndexOf('.');
+			if(pos > 0) {
+				if(className.equals(name.substring(pos + 1))) {
+					return name;
+				}
+			}
+		}
+		return className;
+	}
+
+	/**
+	 * Try to resolve the ManyToOne class.
+	 */
+	public void resolveManyToOne() {
+		for(ColumnWrapper cw : m_allColumnWrappers) {
+			cw.resolveManyToOne();
 		}
 	}
 }
