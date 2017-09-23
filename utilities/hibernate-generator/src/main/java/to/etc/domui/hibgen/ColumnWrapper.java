@@ -5,11 +5,15 @@ import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.AnnotationExpr;
+import com.github.javaparser.ast.expr.AssignExpr;
+import com.github.javaparser.ast.expr.AssignExpr.Operator;
 import com.github.javaparser.ast.expr.BooleanLiteralExpr;
 import com.github.javaparser.ast.expr.MemberValuePair;
 import com.github.javaparser.ast.expr.Name;
+import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.NormalAnnotationExpr;
 import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.expr.StringLiteralExpr;
@@ -19,6 +23,7 @@ import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.type.PrimitiveType.Primitive;
 import com.github.javaparser.ast.type.Type;
+import com.github.javaparser.ast.type.VoidType;
 import to.etc.dbutil.schema.DbColumn;
 import to.etc.dbutil.schema.DbPrimaryKey;
 import to.etc.dbutil.schema.DbRelation;
@@ -588,6 +593,42 @@ public class ColumnWrapper {
 		}
 
 		m_classWrapper.getUnit().addImport(name);
+	}
+
+	public void renderSetter() {
+		String prefix = "set";
+		Type propertyType = getPropertyType();
+		String methodName = prefix + AbstractGenerator.capitalizeFirst(getPropertyName());
+
+		MethodDeclaration setter = getSetter();
+		if(null == setter) {
+			EnumSet<Modifier> modifiers = EnumSet.of(Modifier.PUBLIC);
+			propertyType = importIf(propertyType);
+			setter = new MethodDeclaration(modifiers, new VoidType(), methodName);
+			setter.setModifiers(modifiers);
+
+			Parameter param = new Parameter(propertyType, "value");
+			setter.addParameter(param);
+
+			ClassOrInterfaceDeclaration rootType = m_classWrapper.getRootType();
+			rootType.addMember(setter);
+
+			BlockStmt block = new BlockStmt();
+			setter.setBody(block);
+
+			AssignExpr ax = new AssignExpr(new NameExpr(m_variableDeclaration.getName().asString()), new NameExpr("value"), Operator.ASSIGN);
+			block.addStatement(ax);
+			setSetter(setter);
+
+			//// add a statement do the method body
+			//NameExpr clazz = new NameExpr("System");
+			//FieldAccessExpr field = new FieldAccessExpr(clazz, "out");
+			//MethodCallExpr call = new MethodCallExpr(field, "println");
+			//call.addArgument(new StringLiteralExpr("Hello World!"));
+			//block.addStatement(call);
+		} else if(g().isForceRenameMethods()) {
+			setter.setName(new SimpleName(methodName));
+		}
 	}
 
 	public void renderGetter() {

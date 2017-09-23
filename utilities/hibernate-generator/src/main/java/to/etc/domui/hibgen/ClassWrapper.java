@@ -446,7 +446,8 @@ class ClassWrapper {
 
 		dbColumn.renderField();
 
-		renderGetter(dbColumn);
+		dbColumn.renderGetter();
+		dbColumn.renderSetter();
 		//renderSetter(dbColumn);
 	}
 
@@ -475,16 +476,45 @@ class ClassWrapper {
 		//return sb.toString();
 	}
 
-	private void renderGetter(ColumnWrapper dbColumn) {
-		dbColumn.renderGetter();
-	}
-
 	private String calculateMethodName(String get, String name) {
 		List<String> strings = AbstractGenerator.splitName(name);
 		StringBuilder sb = new StringBuilder();
 		sb.append(get);
 		strings.forEach(a -> sb.append(AbstractGenerator.capitalize(a)));
 		return sb.toString();
+	}
+
+	/**
+	 * Compare method names and orders them as follows:
+	 * <ul>
+	 *     <li>Try to keep the "id" property on top</li>
+	 *     <li>Order getters/setters alphabetically by property name</li>
+	 *     <li>Keep getters and setters together, with getter before setter</li>
+	 * </ul>
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	static private int compareNameOld(String a, String b) {
+		if(isIdName(a)) {
+			if(isIdName(b)) {
+				return a.compareTo(b);
+			} else {
+				return -1;
+			}
+		} else if(isIdName(b)) {
+			return 1;
+		} else if(isGetOrSet(a) && isGetOrSet(b)) {
+			String aname = propName(a);
+			String bname = propName(b);
+			int res = aname.compareToIgnoreCase(b);
+			if(res != 0) {
+				return res;
+			}
+			return a.compareToIgnoreCase(b);
+		} else {
+			return a.compareToIgnoreCase(b);
+		}
 	}
 
 	static private int compareName(String a, String b) {
@@ -496,8 +526,37 @@ class ClassWrapper {
 			}
 		} else if(isIdName(b)) {
 			return 1;
+		} else if(isGetOrSet(a)) {
+			if(isGetOrSet(b)) {
+				String aname = propName(a);
+				String bname = propName(b);
+				int res = aname.compareToIgnoreCase(bname);
+				if(res != 0) {
+					return res;
+				}
+				return a.compareToIgnoreCase(b);
+			} else {
+				return -1;
+			}
+		} else if(isGetOrSet(b)) {
+			return 1;
 		} else {
 			return a.compareToIgnoreCase(b);
+		}
+	}
+
+
+	static private boolean isGetOrSet(String name) {
+		return name.startsWith("get") || name.startsWith("set") || name.startsWith("is") || name.startsWith("has") || name.startsWith("can");
+	}
+
+	static private String propName(String name) {
+		if(name.startsWith("get") || name.startsWith("set") || name.startsWith("has") || name.startsWith("can")) {
+			return name.substring(3);
+		} else if(name.startsWith("is")) {
+			return name.substring(2);
+		} else {
+			return name;
 		}
 	}
 
