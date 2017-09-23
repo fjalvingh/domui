@@ -49,10 +49,19 @@ public class ColumnWrapper {
 		, none
 	}
 
+	enum ExtraType {
+		YesNo,
+		TrueFalse,
+		OneZero,
+		TemporalDate,
+		TemporalTimestamp
+	}
 
 	final private ClassWrapper m_classWrapper;
 
 	private RelationType m_relationType = RelationType.none;
+
+	private ExtraType m_extraType;
 
 	private DbColumn m_column;
 
@@ -407,32 +416,68 @@ public class ColumnWrapper {
 					}
 				}
 			}
-			if(res.size() == 0)
-				return false;
-
 			//-- Got a reasonably-sized list of results... Create an enum?
 			if(codeenum) {
 				return false;
 			}
 
+			if(res.size() < 2) {
+				if(g().isMapOneCharVarcharToBoolean() && m_column.getPrecision() == 1) {
+					assignBooleanType(ExtraType.YesNo);
+					return true;
+				}
+			}
+
 			//-- Check for boolean type values
 			if(res.size() == 2) {
 				if(VALID_BOOLEAN_CHAR_SET.contains(res.get(0).toLowerCase()) && VALID_BOOLEAN_CHAR_SET.contains(res.get(1).toLowerCase())) {
-					if(m_column.isNullable()) {
-						setPropertyType(new ClassOrInterfaceType("Boolean"));
-					} else {
-						setPropertyType(new PrimitiveType(Primitive.BOOLEAN));
+					ExtraType xt = null;
+					if(YESNOSET.contains(res.get(0).toLowerCase()) && YESNOSET.contains(res.get(1).toLowerCase())) {
+						xt = ExtraType.YesNo;
+					} else if(TRUEFALSESET.contains(res.get(0).toLowerCase()) && TRUEFALSESET.contains(res.get(1).toLowerCase())) {
+						xt = ExtraType.TrueFalse;
+					} else if(ONEZEROSET.contains(res.get(0).toLowerCase()) && ONEZEROSET.contains(res.get(1).toLowerCase())) {
+						xt = ExtraType.OneZero;
 					}
+					assignBooleanType(xt);
+					setValueSet(res);
+					return true;
 				}
-				setValueSet(res);
-				return true;
 			}
 
 			return false;
 		}
 	}
 
+	private void assignBooleanType(ExtraType extra) {
+		//-- Make boolean.
+		if(m_column.isNullable()) {
+			setPropertyType(new ClassOrInterfaceType("Boolean"));
+		} else {
+			setPropertyType(new PrimitiveType(Primitive.BOOLEAN));
+		}
+
+		//-- Apply the default boolean type annotation
+		m_extraType = extra;
+
+		//-- If the property name starts with "is" then remove that,
+		String name = getPropertyName();
+		if(name.startsWith("is") && name.length() > 2) {
+			name = name.substring(2);
+			if(Character.isUpperCase(name.charAt(0)) && name.length() > 1 && ! Character.isUpperCase(name.charAt(1))) {
+				name = name.substring(0, 1).toLowerCase() + name.substring(1);
+			}
+			setPropertyName(name);
+		}
+	}
+
+
 	static private final Set<String> VALID_BOOLEAN_CHAR_SET = new HashSet<>(Arrays.asList("y", "n", "t", "f", "true", "false", "0", "1"));
+	static private final Set<String> TRUEFALSESET = new HashSet<>(Arrays.asList("t", "f", "true", "false"));
+	static private final Set<String> ONEZEROSET = new HashSet<>(Arrays.asList("0", "1"));
+
+	static private final Set<String> YESNOSET = new HashSet<>(Arrays.asList("y", "n"));
+
 
 	static private boolean isValidJavaIdent(String name) {
 		if(name == null || name.length() == 0)
@@ -514,16 +559,6 @@ public class ColumnWrapper {
 				}
 			}
 		}
-
-		//String baseFieldName = calculatePropertyNameFromColumnName(dbColumn.getColumnName());
-		//FieldDeclaration fd = findFieldDeclaration(baseFieldName);
-		//if(null != fd) {
-		//	fd.remove();
-		//}
-
-		//FieldDeclaration fieldDeclaration = m_rootType.addField(String.class, "m_" + baseFieldName, Modifier.PRIVATE);
-
-		//m_unit.addType(fd);
 	}
 
 	private Type importIf(Type type) {
@@ -601,6 +636,72 @@ public class ColumnWrapper {
 			ca.addPair("scale", Integer.toString(m_column.getScale()));
 		}
 		ca.addPair("nullable", Boolean.toString(m_column.isNullable()));
+
+		if(getRelationType() == RelationType.manyToOne) {
+			NormalAnnotationExpr m2o = createOrFindAnnotation(getter, "javax.persistence.ManyToOne");
+			MemberValuePair fetch = findAnnotationPair(m2o, "fetch");
+			if(null == fetch) {
+				importIf("javax.persistent.FetchType");
+				m2o.addPair("fetch", "FetchType.LAZY");
+			}
+		}
+		ExtraType extraType = getExtraType();
+		if(null != extraType) {
+			String hibernateType = getTypeNameFor(extraType);
+			if(null != hibernateType) {
+				NormalAnnotationExpr type = createOrFindAnnotation(getter, "org.hibernate.annotations.Type");
+				MemberValuePair typeValue = findAnnotationPair(type, "type");
+				if(null == typeValue) {
+					type.addPair("type", "\"" + hibernateType + "\"");
+				}
+			} else {
+				switch(extraType) {
+					default:
+						break;
+
+					case TemporalDate:
+						NormalAnnotationExpr na = createOrFindAnnotation(getter, "javax.persistence.Temporal");
+						if(findAnnotationPair(na, "value") == null) {
+							na.addPair("value", "TemporalType.DATE");
+						}
+						break;
+					case TemporalTimestamp:
+						na = createOrFindAnnotation(getter, "javax.persistence.Temporal");
+						if(findAnnotationPair(na, "value") == null) {
+							na.addPair("value", "TemporalType.TIMESTAMP");
+						}
+						break;
+				}
+
+			}
+		}
+
+
+	}
+
+	static private String getTypeNameFor(ExtraType type) {
+		switch(type) {
+			default:
+				return null;
+
+			case OneZero:
+				return "one_zero";
+
+			case TrueFalse:
+				return "true_false";
+
+			case YesNo:
+				return "yes_no";
+		}
+	}
+
+	private MemberValuePair findAnnotationPair(NormalAnnotationExpr nx, String name) {
+		for(MemberValuePair mvp : nx.getPairs()) {
+			if(mvp.getName().asString().equals(name)) {
+				return mvp;
+			}
+		}
+		return null;
 	}
 
 	private NormalAnnotationExpr createOrFindAnnotation(MethodDeclaration getter, String fullAnnotationName) {
@@ -636,5 +737,9 @@ public class ColumnWrapper {
 
 	public ClassWrapper getParentClass() {
 		return m_parentClass;
+	}
+
+	public ExtraType getExtraType() {
+		return m_extraType;
 	}
 }
