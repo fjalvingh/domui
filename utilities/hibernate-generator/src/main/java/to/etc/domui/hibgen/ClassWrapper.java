@@ -33,7 +33,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.sql.Connection;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -63,10 +62,12 @@ class ClassWrapper {
 
 	private DbTable m_table;
 
-	/** Mapped by lowercase property name */
-	private Map<String, ColumnWrapper> m_byPropNameMap = new HashMap<>();
+	///** Mapped by lowercase property name */
+	//private Map<String, ColumnWrapper> m_byPropNameMap = new HashMap<>();
+	//
+	//private Map<String, ColumnWrapper> m_byColNameMap = new HashMap<>();
 
-	private Map<String, ColumnWrapper> m_byColNameMap = new HashMap<>();
+	private List<ColumnWrapper> m_allColumnWrappers = new ArrayList<>();
 
 	public ClassWrapper(AbstractGenerator generator, File file, CompilationUnit unit) {
 		m_generator = generator;
@@ -201,9 +202,13 @@ class ClassWrapper {
 		}
 
 		//-- Decode a property name
-		ColumnWrapper cw = m_byPropNameMap.computeIfAbsent(propertyName.toLowerCase(), k -> new ColumnWrapper(this));
+		ColumnWrapper cw = findColumnByPropertyName(propertyName);
+		if(null == cw) {
+			cw = new ColumnWrapper(this);
+			m_allColumnWrappers.add(cw);
+			cw.setPropertyName(Introspector.decapitalize(propertyName));
+		}
 		cw.setPropertyType(type);
-		cw.setPropertyName(Introspector.decapitalize(propertyName));
 		if(isSetter)
 			cw.setSetter(md);
 		else
@@ -214,6 +219,19 @@ class ClassWrapper {
 				handleDatabaseAnnotation(cw, (NormalAnnotationExpr) annotationExpr);
 			}
 		}
+	}
+
+	@Nullable
+	protected ColumnWrapper findColumnByPropertyName(String name) {
+		for(ColumnWrapper cw : m_allColumnWrappers) {
+			String propertyName = cw.getPropertyName();
+			if(null != propertyName) {
+				if(propertyName.equalsIgnoreCase(name)) {
+					return cw;
+				}
+			}
+		}
+		return null;
 	}
 
 	private void handleFieldDeclaration(FieldDeclaration d) {
@@ -230,11 +248,14 @@ class ClassWrapper {
 			if("opentopublic".equals(fieldName)) {
 				System.out.println("GOTCHA");
 			}
-			ColumnWrapper cw = m_byPropNameMap.computeIfAbsent(fieldName.toLowerCase(), a -> new ColumnWrapper(this).setFieldName(a));
+			ColumnWrapper cw = findColumnByPropertyName(fieldName);
+			if(null == cw) {
+				cw = new ColumnWrapper(this);
+				m_allColumnWrappers.add(cw);
+				cw.setPropertyName(fieldName);
+			}
 			cw.setFieldDeclarator(d, vd);
 			list.add(cw);
-
-			cw.setPropertyName(fieldName);
 			cw.setPropertyType(vd.getType());
 		}
 
@@ -268,8 +289,8 @@ class ClassWrapper {
 			}
 
 			if(columnName != null && columnName.length() > 0) {
-				m_byColNameMap.put(columnName.toLowerCase(), columnWrapper);
-				columnWrapper.setColumnName(columnName);
+				//m_byColNameMap.put(columnName.toLowerCase(), columnWrapper);
+				columnWrapper.setJavaColumnName(columnName);
 			}
 		} else if(name.equals("JoinColumn")) {
 			String columnName = null;
@@ -282,8 +303,8 @@ class ClassWrapper {
 			}
 
 			if(columnName != null && columnName.length() > 0) {
-				m_byColNameMap.put(columnName.toLowerCase(), columnWrapper);
-				columnWrapper.setColumnName(columnName);
+				//m_byColNameMap.put(columnName.toLowerCase(), columnWrapper);
+				columnWrapper.setJavaColumnName(columnName);
 			}
 		}
 
@@ -347,41 +368,56 @@ class ClassWrapper {
 
 
 		//-- Check all properties not added as columns: without @Column annotation
-		for(ColumnWrapper cw : m_byPropNameMap.values()) {
+		for(ColumnWrapper cw : m_allColumnWrappers) { // byPropName
 			if(cw.isTransient())
 				continue;
 
 			if(cw.getColumn() == null) {
-				if(cw.getPropertyName().equals("opentopublic")) {
+				if("opentopublic".equals(cw.getPropertyName())) {
 					System.out.println("GOTCHA");
 				}
 
 				DbColumn column = m_table.findColumn(cw.getPropertyName().toLowerCase());
 				if(null != column) {
 					cw.setColumn(column);
-					m_byColNameMap.put(column.getName().toLowerCase(), cw);
+					//m_byColNameMap.put(column.getName().toLowerCase(), cw);
 				}
 			}
 		}
 
 		//-- 2. Create NEW wrappers for all columns that do not have one, yet
 		for(DbColumn dbColumn : m_table.getColumnList()) {
-			ColumnWrapper cw = m_byColNameMap.computeIfAbsent(dbColumn.getName().toLowerCase(), a -> {
-				ColumnWrapper nw = new ColumnWrapper(this, dbColumn);
-				nw.setNew(true);
+			ColumnWrapper cw = findColumnByColumnName(dbColumn.getName());
+			if(cw == null) {
+				cw = new ColumnWrapper(this, dbColumn);
+				m_allColumnWrappers.add(cw);
+				cw.setNew(true);
+			}
 
-				//List<String> strings = AbstractGenerator.splitName(dbColumn.getName());
-				//StringBuilder sb = new StringBuilder();
-				//sb.append(strings.remove(0).toLowerCase());
-				//strings.forEach(seg -> sb.append(AbstractGenerator.capitalize(seg)));
+			//List<String> strings = AbstractGenerator.splitName(dbColumn.getName());
+			//StringBuilder sb = new StringBuilder();
+			//sb.append(strings.remove(0).toLowerCase());
+			//strings.forEach(seg -> sb.append(AbstractGenerator.capitalize(seg)));
 
-				return nw;
-			});
 			cw.setColumn(dbColumn);
 			String propertyName = calculatePropertyNameFromColumnName(dbColumn.getName());
-			m_byPropNameMap.put(propertyName.toLowerCase(), cw);
+			//m_byPropNameMap.put(propertyName.toLowerCase(), cw);
 			cw.setPropertyName(propertyName);
 		}
+	}
+
+	@Nullable
+	private ColumnWrapper findColumnByColumnName(String name) {
+		for(ColumnWrapper cw : m_allColumnWrappers) {
+			DbColumn column = cw.getColumn();
+			if(column != null) {
+				if(name.equalsIgnoreCase(column.getName())) {
+					return cw;
+				}
+			}
+		}
+		return null;
+
 	}
 
 
@@ -398,7 +434,7 @@ class ClassWrapper {
 
 		List<ColumnWrapper> deleteList = new ArrayList<>();
 
-		for(ColumnWrapper cw : m_byColNameMap.values()) {
+		for(ColumnWrapper cw : m_allColumnWrappers) {
 			if(! cw.isTransient()) {
 				if(cw.getColumn() == null) {					// Not associated with a column -> obsoleted.
 					deleteList.add(cw);
@@ -409,10 +445,8 @@ class ClassWrapper {
 		for(ColumnWrapper cw : deleteList) {
 			deleteColumn(cw);
 			String columnName = cw.getColumnName();
-			if(null != columnName)
-				m_byColNameMap.remove(columnName);
-			m_byPropNameMap.remove(cw.getPropertyName());
 		}
+		m_allColumnWrappers.removeAll(deleteList);
 	}
 
 
@@ -426,7 +460,7 @@ class ClassWrapper {
 
 		renderClassAnnotations();
 
-		for(ColumnWrapper cw : m_byColNameMap.values()) {
+		for(ColumnWrapper cw : m_allColumnWrappers) {
 			if("opentopublic".equalsIgnoreCase(cw.getPropertyName())) {
 				System.out.println("GOTCHA");
 			}
@@ -708,7 +742,7 @@ class ClassWrapper {
 	 * @param dbc
 	 */
 	public void calculateColumnTypes(Connection dbc) throws Exception {
-		for(ColumnWrapper cw : m_byColNameMap.values()) {
+		for(ColumnWrapper cw : m_allColumnWrappers) {
 			if(cw.isNew()) {
 				cw.calculateColumnType(dbc);
 			}
@@ -751,7 +785,7 @@ class ClassWrapper {
 	 * Walk all (new) relations, and try to assign a more reasonable property name than the column name.
 	 */
 	public void calculateRelationNames() {
-		Map<String, List<ColumnWrapper>> dupList = m_byPropNameMap.values()
+		Map<String, List<ColumnWrapper>> dupList = m_allColumnWrappers
 			.stream()
 			.filter(cw -> cw.isNew() && cw.getRelationType() == RelationType.manyToOne)
 			.collect(Collectors.groupingBy(cw -> calculateClassBasedParentName(cw.getParentClass().getClassName()), Collectors.toList()));
@@ -760,21 +794,17 @@ class ClassWrapper {
 		dupList.forEach((name, list) -> {
 			if(list.size() == 1) {
 				ColumnWrapper w = list.get(0);
-				m_byPropNameMap.remove(w.getPropertyName());
 				w.setPropertyName(name);
-				m_byPropNameMap.put(name.toLowerCase(), w);
 			} else if(list.size() > 1) {
 				list.forEach(cw -> {
-					m_byPropNameMap.remove(cw.getPropertyName());
 					cw.recalculatePropertyNameFromParentRelation();
-					m_byPropNameMap.put(cw.getPropertyName().toLowerCase(), cw);
 				});
 			}
 		});
 	}
 
 	public void renamePrimaryKeys(String pkName) {
-		for(ColumnWrapper cw : m_byColNameMap.values()) {
+		for(ColumnWrapper cw : m_allColumnWrappers) {
 			if(cw.isPrimaryKey()) {
 				cw.setPropertyName(pkName);
 			}

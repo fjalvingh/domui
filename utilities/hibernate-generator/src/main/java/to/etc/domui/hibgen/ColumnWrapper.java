@@ -119,11 +119,6 @@ public class ColumnWrapper {
 		return m_fieldDeclaration != null || m_getter != null || m_setter != null;
 	}
 
-	public ColumnWrapper setFieldName(String a) {
-		//m_fieldName = a;
-		return this;
-	}
-
 	public void setFieldDeclarator(FieldDeclaration d, VariableDeclarator vd) {
 		m_fieldDeclaration = d;
 		m_variableDeclaration = vd;
@@ -134,7 +129,7 @@ public class ColumnWrapper {
 		return m_columnName;
 	}
 
-	public void setColumnName(String columnName) {
+	public void setJavaColumnName(String columnName) {
 		m_columnName = columnName;
 	}
 
@@ -643,15 +638,15 @@ public class ColumnWrapper {
 			NormalAnnotationExpr ca = createOrFindAnnotation(getter, "javax.persistence.Column");
 			ca.addPair("name", "\"" + m_column.getName() + "\"");
 			if(m_setLengthField && m_column.getPrecision() > 0) {
-				ca.addPair("length", Integer.toString(m_column.getPrecision()));
+				setPair(ca, "length", Integer.toString(m_column.getPrecision()), false);
 			}
 			if(m_setPrecisionField && m_column.getPrecision() > 0) {
-				ca.addPair("precision", Integer.toString(m_column.getPrecision()));
+				setPair(ca, "precision", Integer.toString(m_column.getPrecision()), false);
 			}
 			if(m_setScaleField && m_column.getScale() > 0) {
-				ca.addPair("scale", Integer.toString(m_column.getScale()));
+				setPair(ca, "scale", Integer.toString(m_column.getScale()), false);
 			}
-			ca.addPair("nullable", Boolean.toString(m_column.isNullable()));
+			setPair(ca, "nullable", Boolean.toString(m_column.isNullable()), false);
 		}
 
 		renderExtraTypeAnnotations(getter);
