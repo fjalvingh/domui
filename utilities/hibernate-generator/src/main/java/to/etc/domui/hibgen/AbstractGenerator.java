@@ -62,6 +62,11 @@ abstract public class AbstractGenerator {
 
 	private boolean m_mapOneCharVarcharToBoolean = true;
 
+	private String m_forcePKIdentifier = "id";
+
+	/** Postgres: when T, a Hibernate sequence identifier generator is used instead of the @Generated(GenerationType.IDENTIFIER) for an autoincrement column. */
+	private boolean m_replaceSerialWithSequence = true;
+
 	abstract protected Connection createConnection() throws Exception;
 
 	protected abstract Set<DbSchema> loadSchemas(List<String> schemaSet) throws Exception;
@@ -73,11 +78,22 @@ abstract public class AbstractGenerator {
 		matchTablesAndSources();
 		fixMissingPrimaryKeys();
 		matchColumns();
+		removeUnusedProperties();
+		renamePrimaryKeys();
 		calculateColumnTypes();
 		calculateRelationNames();
 
 		generateProperties();
 		renderOutput();
+	}
+
+	private void renamePrimaryKeys() {
+		String pkName = getForcePKIdentifier();
+		if(null == pkName)
+			return;
+		for(ClassWrapper classWrapper : m_byTableMap.values()) {
+			classWrapper.renamePrimaryKeys(pkName);
+		}
 	}
 
 	private void calculateRelationNames() {
@@ -94,6 +110,13 @@ abstract public class AbstractGenerator {
 			}
 		}
 	}
+
+	private void removeUnusedProperties() {
+		for(ClassWrapper classWrapper : m_byTableMap.values()) {
+			classWrapper.removeUnusedProperties();
+		}
+	}
+
 
 	private void matchColumns() {
 		for(ClassWrapper classWrapper : m_byTableMap.values()) {
@@ -117,7 +140,7 @@ abstract public class AbstractGenerator {
 		}
 	}
 
-	private void generateProperties() {
+	private void generateProperties() throws Exception {
 		for(DbTable dbTable : getAllTables()) {
 			ClassWrapper wrapper = m_byTableMap.get(dbTable);
 			if(null != wrapper) {
@@ -555,4 +578,20 @@ abstract public class AbstractGenerator {
 	public boolean isMapOneCharVarcharToBoolean() {
 		return m_mapOneCharVarcharToBoolean;
 	}
+
+	public boolean isReplaceSerialWithSequence() {
+		return m_replaceSerialWithSequence;
+	}
+
+	@Nullable
+	public String getForcePKIdentifier() {
+		return m_forcePKIdentifier;
+	}
+
+	@Nullable
+	protected String getIdColumnSequence(DbColumn column) throws Exception {
+		return null;
+	}
+
+
 }

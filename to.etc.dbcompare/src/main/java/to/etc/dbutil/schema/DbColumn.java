@@ -16,6 +16,8 @@ import java.sql.Timestamp;
 import java.sql.Types;
 
 public class DbColumn implements Serializable {
+	private final Boolean m_autoIncrement;
+
 	private DbTable m_table;
 
 	private String m_name;
@@ -34,13 +36,14 @@ public class DbColumn implements Serializable {
 
 	private String m_platformTypeName;
 
-	public DbColumn(DbTable table, String name, ColumnType type, int precision, int scale, boolean nullable) {
+	public DbColumn(DbTable table, String name, ColumnType type, int precision, int scale, boolean nullable, Boolean autoIncrement) {
 		m_table = table;
 		m_name = name;
 		m_type = type;
 		m_precision = precision;
 		m_scale = scale;
 		m_nullable = nullable;
+		m_autoIncrement = autoIncrement;
 	}
 
 	@Nonnull
@@ -302,6 +305,10 @@ public class DbColumn implements Serializable {
 		} else
 			sb.append(" not null");
 		return sb.toString();
+	}
+
+	public Boolean isAutoIncrement() {
+		return m_autoIncrement;
 	}
 
 	@Override

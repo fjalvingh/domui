@@ -379,10 +379,11 @@ class ClassWrapper {
 		}
 	}
 
+
 	/**
-	 * Render all basic table properties.
+	 * Remove all non-transient properties that have no column associated with it (meaning they have been deleted).
 	 */
-	public void renderProperties() {
+	public void removeUnusedProperties() {
 		DbTable table = m_table;
 		if(table == null)
 			return;
@@ -390,17 +391,34 @@ class ClassWrapper {
 		//-- 1. Find all properties referring to table columns that no longer exist.
 		Set<String> columnNameSet = table.getColumnList().stream().map(c -> c.getName().toLowerCase()).collect(Collectors.toSet());
 
+		List<ColumnWrapper> deleteList = new ArrayList<>();
+
 		for(ColumnWrapper cw : m_byColNameMap.values()) {
-			String columnName = cw.getColumnName();
-			if(null == columnName)
-				throw new IllegalStateException("Missing column name " + cw);
-			if(! columnNameSet.contains(columnName.toLowerCase())) {
-				//-- Deleted thingy.
-				deleteColumn(cw);
+			if(! cw.isTransient()) {
+				if(cw.getColumn() == null) {					// Not associated with a column -> obsoleted.
+					deleteList.add(cw);
+				}
 			}
 		}
 
-		//-- 3. Generate all wrappers.
+		for(ColumnWrapper cw : deleteList) {
+			deleteColumn(cw);
+			String columnName = cw.getColumnName();
+			if(null != columnName)
+				m_byColNameMap.remove(columnName);
+			m_byPropNameMap.remove(cw.getPropertyName());
+		}
+	}
+
+
+	/**
+	 * Render all basic table properties.
+	 */
+	public void renderProperties() throws Exception {
+		DbTable table = m_table;
+		if(table == null)
+			return;
+
 		for(ColumnWrapper cw : m_byColNameMap.values()) {
 			if("opentopublic".equalsIgnoreCase(cw.getPropertyName())) {
 				System.out.println("GOTCHA");
@@ -435,7 +453,7 @@ class ClassWrapper {
 		}
 	}
 
-	private void renderColumnProperty(ColumnWrapper dbColumn) {
+	private void renderColumnProperty(ColumnWrapper dbColumn) throws Exception {
 		if(dbColumn.getPropertyType() == null) {
 			error(dbColumn + ": unknown type '" + dbColumn.getColumn().getTypeString() + "' (" + dbColumn.getColumn().getSqlType() + "), not generated");
 			return;
@@ -469,11 +487,6 @@ class ClassWrapper {
 
 	static String calculatePropertyNameFromColumnName(String columnName) {
 		return AbstractGenerator.camelCase(columnName);
-		//List<String> strings = AbstractGenerator.splitName(columnName);
-		//StringBuilder sb = new StringBuilder();
-		//sb.append(strings.remove(0).toLowerCase());						// First one is lowercase
-		//strings.forEach(a -> sb.append(AbstractGenerator.capitalize(a)));		// Rest is camelcased
-		//return sb.toString();
 	}
 
 	private String calculateMethodName(String get, String name) {
@@ -491,32 +504,7 @@ class ClassWrapper {
 	 *     <li>Order getters/setters alphabetically by property name</li>
 	 *     <li>Keep getters and setters together, with getter before setter</li>
 	 * </ul>
-	 * @param a
-	 * @param b
-	 * @return
 	 */
-	static private int compareNameOld(String a, String b) {
-		if(isIdName(a)) {
-			if(isIdName(b)) {
-				return a.compareTo(b);
-			} else {
-				return -1;
-			}
-		} else if(isIdName(b)) {
-			return 1;
-		} else if(isGetOrSet(a) && isGetOrSet(b)) {
-			String aname = propName(a);
-			String bname = propName(b);
-			int res = aname.compareToIgnoreCase(b);
-			if(res != 0) {
-				return res;
-			}
-			return a.compareToIgnoreCase(b);
-		} else {
-			return a.compareToIgnoreCase(b);
-		}
-	}
-
 	static private int compareName(String a, String b) {
 		if(isIdName(a)) {
 			if(isIdName(b)) {
@@ -564,6 +552,12 @@ class ClassWrapper {
 		return name.equalsIgnoreCase("id") || name.equalsIgnoreCase("m_id") || name.equalsIgnoreCase("getid") || name.equalsIgnoreCase("setid");
 	}
 
+	/**
+	 * Sort fields before methods; fields by ascending name/; methods by "property name" if getter/setter, or just
+	 * alphabetically if not. The net effect is that getters/setters for a property are kept together and
+	 * are ordered by property name.
+	 * The exception is the ID property which is always sorted first.
+	 */
 	public void order() {
 		NodeList<BodyDeclaration<?>> members = m_rootType.getMembers();
 		members.sort((a, b) -> {
@@ -599,8 +593,6 @@ class ClassWrapper {
 		try(Writer w = new FileWriter(outputFile)) {
 			w.write(m_unit.toString());
 		}
-		//System.out.println("---------------------");
-		//System.out.println(m_unit.toString());
 	}
 
 
@@ -672,5 +664,13 @@ class ClassWrapper {
 				});
 			}
 		});
+	}
+
+	public void renamePrimaryKeys(String pkName) {
+		for(ColumnWrapper cw : m_byColNameMap.values()) {
+			if(cw.isPrimaryKey()) {
+				cw.setPropertyName(pkName);
+			}
+		}
 	}
 }

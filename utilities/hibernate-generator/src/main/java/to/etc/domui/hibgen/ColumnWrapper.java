@@ -11,6 +11,7 @@ import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.expr.AssignExpr.Operator;
 import com.github.javaparser.ast.expr.BooleanLiteralExpr;
+import com.github.javaparser.ast.expr.MarkerAnnotationExpr;
 import com.github.javaparser.ast.expr.MemberValuePair;
 import com.github.javaparser.ast.expr.Name;
 import com.github.javaparser.ast.expr.NameExpr;
@@ -198,6 +199,19 @@ public class ColumnWrapper {
 		m_columnName = column.getName();
 	}
 
+	/**
+	 * Returns T if this is a singular PK field for the object.
+	 * @return
+	 */
+	public boolean isPrimaryKey() {
+		if(null == m_column)
+			throw new IllegalStateException("??? No column");
+		DbPrimaryKey primaryKey = m_column.getTable().getPrimaryKey();
+		if(null == primaryKey)
+			return false;
+		return primaryKey.getColumnList().contains(m_column) && primaryKey.getColumnList().size() == 1;
+	}
+
 
 	public void calculateColumnType(Connection dbc) throws Exception {
 		DbColumn column = m_column;
@@ -314,6 +328,8 @@ public class ColumnWrapper {
 			case Types.TIMESTAMP:
 			case Types.TIMESTAMP_WITH_TIMEZONE:
 				setPropertyType(new ClassOrInterfaceType("java.util.Date"));
+
+				m_extraType = sqltype == Types.DATE ? ExtraType.TemporalDate : ExtraType.TemporalTimestamp;
 				return true;
 		}
 	}
@@ -631,69 +647,20 @@ public class ColumnWrapper {
 		}
 	}
 
-	public void renderGetter() {
-		String prefix = "get";
-		Type propertyType = getPropertyType();
-		if(propertyType.asString().equalsIgnoreCase("boolean")) {
-			prefix = "is";
-		}
-		String getterName = prefix + AbstractGenerator.capitalizeFirst(getPropertyName());
 
-		MethodDeclaration getter = getGetter();
-		if(null == getter) {
-			EnumSet<Modifier> modifiers = EnumSet.of(Modifier.PUBLIC);
-			propertyType = importIf(propertyType);
-			getter = new MethodDeclaration(modifiers, propertyType, getterName);
-			getter.setModifiers(modifiers);
-			ClassOrInterfaceDeclaration rootType = m_classWrapper.getRootType();
-			rootType.addMember(getter);
-
-			BlockStmt block = new BlockStmt();
-			getter.setBody(block);
-
-			//FieldAccessExpr field = new FieldAccessExpr(new ThisExpr(), getVariableDeclaration().getName().asString());
-			//ReturnStmt rs = new ReturnStmt(field);
-			ReturnStmt rs = new ReturnStmt(new com.github.javaparser.ast.expr.NameExpr(getVariableDeclaration().getName().asString()));
-
-			block.addStatement(rs);
-			setGetter(getter);
-
-			//// add a statement do the method body
-			//NameExpr clazz = new NameExpr("System");
-			//FieldAccessExpr field = new FieldAccessExpr(clazz, "out");
-			//MethodCallExpr call = new MethodCallExpr(field, "println");
-			//call.addArgument(new StringLiteralExpr("Hello World!"));
-			//block.addStatement(call);
-		} else if(g().isForceRenameMethods()) {
-			getter.setName(new SimpleName(getterName));
-		}
+	public void renderGetter() throws Exception {
+		MethodDeclaration getter = renderGetterMethod();
 
 		if(getRelationType() == RelationType.manyToOne) {
-			/*
-			 * We need JoinColumn and ManyToOne
-			 */
-			NormalAnnotationExpr m2o = createOrFindAnnotation(getter, "javax.persistence.ManyToOne");
-			MemberValuePair fetch = findAnnotationPair(m2o, "fetch");
-			if(null == fetch) {
-				importIf("javax.persistent.FetchType");
-				m2o.addPair("fetch", "FetchType.LAZY");
-			}
-
-			MemberValuePair p = findAnnotationPair(m2o, "optional");
-			if(null == p) {
-				m2o.addPair("optional", Boolean.toString(m_column.isNullable()));
-			} else {
-				p.setValue(new BooleanLiteralExpr(m_column.isNullable()));
-			}
-
-			NormalAnnotationExpr na = createOrFindAnnotation(getter, "javax.persistence.JoinColumn");
-			p = findAnnotationPair(na, "name");
-			if(null == p) {
-				na.addPair("name", "\"" + m_column.getName() + "\"");
-			} else {
-				p.setValue(new StringLiteralExpr(m_column.getName()));
-			}
+			renderManyToOneAnnotations(getter);
 		} else {
+			if(isPrimaryKey()) {
+				renderIdAnnotations(getter);
+			}
+
+			/*
+			 * Normal column annotation
+			 */
 			NormalAnnotationExpr ca = createOrFindAnnotation(getter, "javax.persistence.Column");
 			ca.addPair("name", "\"" + m_column.getName() + "\"");
 			if(m_setLengthField && m_column.getPrecision() > 0) {
@@ -708,38 +675,169 @@ public class ColumnWrapper {
 			ca.addPair("nullable", Boolean.toString(m_column.isNullable()));
 		}
 
-		ExtraType extraType = getExtraType();
-		if(null != extraType) {
-			String hibernateType = getTypeNameFor(extraType);
-			if(null != hibernateType) {
-				NormalAnnotationExpr type = createOrFindAnnotation(getter, "org.hibernate.annotations.Type");
-				MemberValuePair typeValue = findAnnotationPair(type, "type");
-				if(null == typeValue) {
-					type.addPair("type", "\"" + hibernateType + "\"");
-				}
-			} else {
-				switch(extraType) {
-					default:
-						break;
+		renderExtraTypeAnnotations(getter);
+	}
 
-					case TemporalDate:
-						NormalAnnotationExpr na = createOrFindAnnotation(getter, "javax.persistence.Temporal");
-						if(findAnnotationPair(na, "value") == null) {
-							na.addPair("value", "TemporalType.DATE");
-						}
-						break;
-					case TemporalTimestamp:
-						na = createOrFindAnnotation(getter, "javax.persistence.Temporal");
-						if(findAnnotationPair(na, "value") == null) {
-							na.addPair("value", "TemporalType.TIMESTAMP");
-						}
-						break;
-				}
+	/**
+	 * Render the id annotation and anything related to it.
+	 * @param getter
+	 */
+	private void renderIdAnnotations(MethodDeclaration getter) throws Exception {
+		Boolean aic = m_column.isAutoIncrement();
+		if(aic != null && aic.booleanValue()) {
+			if(g().isReplaceSerialWithSequence()) {
+				String idSequence = g().getIdColumnSequence(m_column);
+				if(null != idSequence) {
+					//-- Render a sequence: @SequenceGenerator(name = "sq", sequenceName = "definition.definitioncomment_id_seq")
+					NormalAnnotationExpr ca = createOrFindAnnotation(getter, "javax.persistence.SequenceGenerator");
+					addPairIfMissing(ca, "name", "\"sq\"");
+					setPair(ca, "sequenceName", idSequence, true);
 
+					//-- And its reference: @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sq")
+					ca = createOrFindAnnotation(getter, "javax.persistence.GeneratedValue");
+					importIf("javax.persistence.GenerationType");
+					addPairIfMissing(ca, "strategy", "GenerationType.SEQUENCE");
+					addPairIfMissing(ca, "generator", "\"sq\"");
+					renderIdAnnotation(getter);
+					return;
+				}
 			}
+
+			NormalAnnotationExpr ca = createOrFindAnnotation(getter, "javax.persistence.GeneratedValue");
+			MemberValuePair p = findAnnotationPair(ca, "strategy");
+			if(null == p) {
+				importIf("javax.persistence.GenerationType");
+				ca.addPair("strategy", "GenerationType.IDENTITY");
+			}
+			renderIdAnnotation(getter);
+			return;
 		}
 
+		g().warning(this + ": no identifier generator known");
+		renderIdAnnotation(getter);
+	}
 
+	private void setPair(NormalAnnotationExpr ca, String name, String value, boolean quoted) {
+		MemberValuePair p = findAnnotationPair(ca, name);
+		if(null == p) {
+			ca.addPair(name, quoted ? "\"" + value + "\"" : value);
+		} else {
+			p.setValue(quoted ? new StringLiteralExpr(value) : new NameExpr(value));
+		}
+	}
+
+	private void addPairIfMissing(NormalAnnotationExpr ca, String name, String value) {
+		MemberValuePair pair = findAnnotationPair(ca, name);
+		if(null != pair)
+			return;
+		ca.addPair(name, value);
+	}
+
+	private void renderIdAnnotation(MethodDeclaration getter) {
+		createOrFindMarkerAnnotation(getter, "javax.persistence.Id");
+	}
+
+	private void renderExtraTypeAnnotations(MethodDeclaration getter) {
+		ExtraType extraType = getExtraType();
+		if(null == extraType) {
+			return;
+		}
+
+		String hibernateType = getTypeNameFor(extraType);
+		if(null != hibernateType) {
+			NormalAnnotationExpr type = createOrFindAnnotation(getter, "org.hibernate.annotations.Type");
+			MemberValuePair typeValue = findAnnotationPair(type, "type");
+			if(null == typeValue) {
+				type.addPair("type", "\"" + hibernateType + "\"");
+			}
+		} else {
+			switch(extraType) {
+				default:
+					break;
+
+				case TemporalDate:
+					NormalAnnotationExpr na = createOrFindAnnotation(getter, "javax.persistence.Temporal");
+					if(findAnnotationPair(na, "value") == null) {
+						na.addPair("value", "TemporalType.DATE");
+					}
+					break;
+				case TemporalTimestamp:
+					na = createOrFindAnnotation(getter, "javax.persistence.Temporal");
+					if(findAnnotationPair(na, "value") == null) {
+						na.addPair("value", "TemporalType.TIMESTAMP");
+					}
+					break;
+			}
+		}
+	}
+
+	private void renderManyToOneAnnotations(MethodDeclaration getter) {
+		/*
+		 * We need JoinColumn and ManyToOne
+		 */
+		NormalAnnotationExpr m2o = createOrFindAnnotation(getter, "javax.persistence.ManyToOne");
+		MemberValuePair fetch = findAnnotationPair(m2o, "fetch");
+		if(null == fetch) {
+			importIf("javax.persistent.FetchType");
+			m2o.addPair("fetch", "FetchType.LAZY");
+		}
+
+		MemberValuePair p = findAnnotationPair(m2o, "optional");
+		if(null == p) {
+			m2o.addPair("optional", Boolean.toString(m_column.isNullable()));
+		} else {
+			p.setValue(new BooleanLiteralExpr(m_column.isNullable()));
+		}
+
+		NormalAnnotationExpr na = createOrFindAnnotation(getter, "javax.persistence.JoinColumn");
+		p = findAnnotationPair(na, "name");
+		if(null == p) {
+			na.addPair("name", "\"" + m_column.getName() + "\"");
+		} else {
+			p.setValue(new StringLiteralExpr(m_column.getName()));
+		}
+	}
+
+	/**
+	 * Render the get method only.
+	 * @return
+	 */
+	private MethodDeclaration renderGetterMethod() {
+		String prefix = "get";
+		Type propertyType = getPropertyType();
+		if(propertyType.asString().equalsIgnoreCase("boolean")) {
+			prefix = "is";
+		}
+		String getterName = prefix + AbstractGenerator.capitalizeFirst(getPropertyName());
+		MethodDeclaration getter = getGetter();
+		if(null == getter) {
+			EnumSet<Modifier> modifiers = EnumSet.of(Modifier.PUBLIC);
+			propertyType = importIf(propertyType);
+			getter = new MethodDeclaration(modifiers, propertyType, getterName);
+			getter.setModifiers(modifiers);
+			ClassOrInterfaceDeclaration rootType = m_classWrapper.getRootType();
+			rootType.addMember(getter);
+
+			BlockStmt block = new BlockStmt();
+			getter.setBody(block);
+
+			//FieldAccessExpr field = new FieldAccessExpr(new ThisExpr(), getVariableDeclaration().getName().asString());
+			//ReturnStmt rs = new ReturnStmt(field);
+			ReturnStmt rs = new ReturnStmt(new NameExpr(getVariableDeclaration().getName().asString()));
+
+			block.addStatement(rs);
+			setGetter(getter);
+
+			//// add a statement do the method body
+			//NameExpr clazz = new NameExpr("System");
+			//FieldAccessExpr field = new FieldAccessExpr(clazz, "out");
+			//MethodCallExpr call = new MethodCallExpr(field, "println");
+			//call.addArgument(new StringLiteralExpr("Hello World!"));
+			//block.addStatement(call);
+		} else if(g().isForceRenameMethods()) {
+			getter.setName(new SimpleName(getterName));
+		}
+		return getter;
 	}
 
 	static private String getTypeNameFor(ExtraType type) {
@@ -785,6 +883,26 @@ public class ColumnWrapper {
 		getter.addAnnotation(ax);
 		return ax;
 	}
+
+	private MarkerAnnotationExpr createOrFindMarkerAnnotation(MethodDeclaration getter, String fullAnnotationName) {
+		String name = AbstractGenerator.finalName(fullAnnotationName);
+		m_classWrapper.getUnit().addImport(fullAnnotationName);
+
+		for(AnnotationExpr annotationExpr : getter.getAnnotations()) {
+			String annName = annotationExpr.getName().asString();
+			if(annName.equals(fullAnnotationName) || name.equals(annName)) {
+				return (MarkerAnnotationExpr) annotationExpr;
+			}
+		}
+
+		String pkg = AbstractGenerator.packageName(fullAnnotationName);
+		NodeList<MemberValuePair> nodes = NodeList.nodeList();
+		//Name nm = new Name(new Name(pkg), name);
+		MarkerAnnotationExpr ax = new MarkerAnnotationExpr(new Name(name));
+		getter.addAnnotation(ax);
+		return ax;
+	}
+
 
 	public void setNew(boolean aNew) {
 		m_new = aNew;

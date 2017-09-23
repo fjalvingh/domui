@@ -270,13 +270,16 @@ public class JDBCReverser implements Reverser {
 				int nulla = rs.getInt("NULLABLE");
 				if(nulla == DatabaseMetaData.columnNullableUnknown)
 					throw new IllegalStateException("JDBC driver does not know nullability of " + t.getName() + "." + name);
+				String autoi = rs.getString("IS_AUTOINCREMENT");
+				Boolean autoIncrement = autoi == null ? null : "yes".equalsIgnoreCase(autoi) ? Boolean.TRUE : Boolean.FALSE;
+
 				ColumnType ct = decodeColumnType(daty, typename);
 				if(ct == null) {
 					log("Unknown type: SQLType " + daty + " (" + typename + ") in " + t.getName() + "." + name);
 					continue;
 				}
 
-				DbColumn c = new DbColumn(t, name, ct, prec, scale, nulla == DatabaseMetaData.columnNullable);
+				DbColumn c = new DbColumn(t, name, ct, prec, scale, nulla == DatabaseMetaData.columnNullable, autoIncrement);
 				if(null != columnMap.put(name, c))
 					throw new IllegalStateException("Duplicate column name '" + name + "' in table " + t.getName());
 				columnList.add(c);
