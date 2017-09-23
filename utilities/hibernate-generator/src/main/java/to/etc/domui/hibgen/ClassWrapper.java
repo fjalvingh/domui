@@ -11,12 +11,17 @@ import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.IntegerLiteralExpr;
+import com.github.javaparser.ast.expr.MarkerAnnotationExpr;
 import com.github.javaparser.ast.expr.MemberValuePair;
+import com.github.javaparser.ast.expr.Name;
+import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.NormalAnnotationExpr;
 import com.github.javaparser.ast.expr.StringLiteralExpr;
+import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.VoidType;
 import to.etc.dbutil.schema.DbColumn;
+import to.etc.dbutil.schema.DbSchema;
 import to.etc.dbutil.schema.DbTable;
 import to.etc.domui.hibgen.ColumnWrapper.RelationType;
 
@@ -419,6 +424,8 @@ class ClassWrapper {
 		if(table == null)
 			return;
 
+		renderClassAnnotations();
+
 		for(ColumnWrapper cw : m_byColNameMap.values()) {
 			if("opentopublic".equalsIgnoreCase(cw.getPropertyName())) {
 				System.out.println("GOTCHA");
@@ -427,6 +434,17 @@ class ClassWrapper {
 			if(cw.getColumn() != null) {
 				renderColumnProperty(cw);
 			}
+		}
+	}
+
+	private void renderClassAnnotations() {
+		ClassOrInterfaceDeclaration rootType = getRootType();
+		createOrFindMarkerAnnotation(rootType, "javax.persistence.Entity");
+		NormalAnnotationExpr a = createOrFindAnnotation(rootType, "javax.persistence.Table");
+		setPair(a, "name", m_table.getName(), true);
+		DbSchema schema = m_table.getSchema();
+		if(g().isAppendSchemaName()) {
+			setPair(a,"schema", schema.getName(), true);
 		}
 	}
 
@@ -593,6 +611,95 @@ class ClassWrapper {
 		try(Writer w = new FileWriter(outputFile)) {
 			w.write(m_unit.toString());
 		}
+	}
+
+	static protected MemberValuePair findAnnotationPair(NormalAnnotationExpr nx, String name) {
+		for(MemberValuePair mvp : nx.getPairs()) {
+			if(mvp.getName().asString().equals(name)) {
+				return mvp;
+			}
+		}
+		return null;
+	}
+
+	protected NormalAnnotationExpr createOrFindAnnotation(BodyDeclaration<?> getter, String fullAnnotationName) {
+		String name = AbstractGenerator.finalName(fullAnnotationName);
+		getUnit().addImport(fullAnnotationName);
+
+		for(AnnotationExpr annotationExpr : getter.getAnnotations()) {
+			String annName = annotationExpr.getName().asString();
+			if(annName.equals(fullAnnotationName) || name.equals(annName)) {
+				return (NormalAnnotationExpr) annotationExpr;
+			}
+		}
+
+		String pkg = AbstractGenerator.packageName(fullAnnotationName);
+		NodeList<MemberValuePair> nodes = NodeList.nodeList();
+		//Name nm = new Name(new Name(pkg), name);
+		NormalAnnotationExpr ax = new NormalAnnotationExpr(new Name(name), nodes);
+		getter.addAnnotation(ax);
+		return ax;
+	}
+
+	protected MarkerAnnotationExpr createOrFindMarkerAnnotation(BodyDeclaration<?> getter, String fullAnnotationName) {
+		String name = AbstractGenerator.finalName(fullAnnotationName);
+		getUnit().addImport(fullAnnotationName);
+
+		for(AnnotationExpr annotationExpr : getter.getAnnotations()) {
+			String annName = annotationExpr.getName().asString();
+			if(annName.equals(fullAnnotationName) || name.equals(annName)) {
+				return (MarkerAnnotationExpr) annotationExpr;
+			}
+		}
+
+		String pkg = AbstractGenerator.packageName(fullAnnotationName);
+		NodeList<MemberValuePair> nodes = NodeList.nodeList();
+		//Name nm = new Name(new Name(pkg), name);
+		MarkerAnnotationExpr ax = new MarkerAnnotationExpr(new Name(name));
+		getter.addAnnotation(ax);
+		return ax;
+	}
+
+	private void setPair(NormalAnnotationExpr ca, String name, String value, boolean quoted) {
+		MemberValuePair p = findAnnotationPair(ca, name);
+		if(null == p) {
+			ca.addPair(name, quoted ? "\"" + value + "\"" : value);
+		} else {
+			p.setValue(quoted ? new StringLiteralExpr(value) : new NameExpr(value));
+		}
+	}
+
+	private void addPairIfMissing(NormalAnnotationExpr ca, String name, String value) {
+		MemberValuePair pair = findAnnotationPair(ca, name);
+		if(null != pair)
+			return;
+		ca.addPair(name, value);
+	}
+
+	protected Type importIf(Type type) {
+		String name = type.asString();
+		String s = AbstractGenerator.packageName(name);
+		if(s == null) {
+			return type;
+		}
+		if("java.lang".equals(s)) {
+			return type;
+		}
+
+		getUnit().addImport(name);
+
+		return new ClassOrInterfaceType(AbstractGenerator.finalName(name));
+	}
+
+	protected void importIf(String name) {
+		String s = AbstractGenerator.packageName(name);
+		if(s == null) {
+			return;
+		}
+		if("java.lang".equals(s)) {
+			return;
+		}
+		getUnit().addImport(name);
 	}
 
 

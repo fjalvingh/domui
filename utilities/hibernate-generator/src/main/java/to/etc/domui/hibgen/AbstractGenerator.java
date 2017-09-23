@@ -67,6 +67,9 @@ abstract public class AbstractGenerator {
 	/** Postgres: when T, a Hibernate sequence identifier generator is used instead of the @Generated(GenerationType.IDENTIFIER) for an autoincrement column. */
 	private boolean m_replaceSerialWithSequence = true;
 
+	/** When T this always appends a schema name. */
+	private boolean m_appendSchemaName;
+
 	abstract protected Connection createConnection() throws Exception;
 
 	protected abstract Set<DbSchema> loadSchemas(List<String> schemaSet) throws Exception;
@@ -593,5 +596,7 @@ abstract public class AbstractGenerator {
 		return null;
 	}
 
-
+	public boolean isAppendSchemaName() {
+		return m_appendSchemaName || m_schemaSet.size() > 1;
+	}
 }

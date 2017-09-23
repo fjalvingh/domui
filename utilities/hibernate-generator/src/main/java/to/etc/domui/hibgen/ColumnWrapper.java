@@ -1,19 +1,17 @@
 package to.etc.domui.hibgen;
 
 import com.github.javaparser.ast.Modifier;
-import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.VariableDeclarator;
-import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.expr.AssignExpr.Operator;
 import com.github.javaparser.ast.expr.BooleanLiteralExpr;
 import com.github.javaparser.ast.expr.MarkerAnnotationExpr;
 import com.github.javaparser.ast.expr.MemberValuePair;
-import com.github.javaparser.ast.expr.Name;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.NormalAnnotationExpr;
 import com.github.javaparser.ast.expr.SimpleName;
@@ -585,30 +583,11 @@ public class ColumnWrapper {
 	}
 
 	private Type importIf(Type type) {
-		String name = type.asString();
-		String s = AbstractGenerator.packageName(name);
-		if(s == null) {
-			return type;
-		}
-		if("java.lang".equals(s)) {
-			return type;
-		}
-
-		m_classWrapper.getUnit().addImport(name);
-
-		return new ClassOrInterfaceType(AbstractGenerator.finalName(name));
+		return m_classWrapper.importIf(type);
 	}
 
 	private void importIf(String name) {
-		String s = AbstractGenerator.packageName(name);
-		if(s == null) {
-			return;
-		}
-		if("java.lang".equals(s)) {
-			return;
-		}
-
-		m_classWrapper.getUnit().addImport(name);
+		m_classWrapper.importIf(name);
 	}
 
 	public void renderSetter() {
@@ -856,51 +835,16 @@ public class ColumnWrapper {
 		}
 	}
 
-	private MemberValuePair findAnnotationPair(NormalAnnotationExpr nx, String name) {
-		for(MemberValuePair mvp : nx.getPairs()) {
-			if(mvp.getName().asString().equals(name)) {
-				return mvp;
-			}
-		}
-		return null;
+	static protected MemberValuePair findAnnotationPair(NormalAnnotationExpr nx, String name) {
+		return ClassWrapper.findAnnotationPair(nx, name);
 	}
 
-	private NormalAnnotationExpr createOrFindAnnotation(MethodDeclaration getter, String fullAnnotationName) {
-		String name = AbstractGenerator.finalName(fullAnnotationName);
-		m_classWrapper.getUnit().addImport(fullAnnotationName);
-
-		for(AnnotationExpr annotationExpr : getter.getAnnotations()) {
-			String annName = annotationExpr.getName().asString();
-			if(annName.equals(fullAnnotationName) || name.equals(annName)) {
-				return (NormalAnnotationExpr) annotationExpr;
-			}
-		}
-
-		String pkg = AbstractGenerator.packageName(fullAnnotationName);
-		NodeList<MemberValuePair> nodes = NodeList.nodeList();
-		//Name nm = new Name(new Name(pkg), name);
-		NormalAnnotationExpr ax = new NormalAnnotationExpr(new Name(name), nodes);
-		getter.addAnnotation(ax);
-		return ax;
+	protected NormalAnnotationExpr createOrFindAnnotation(BodyDeclaration<?> getter, String fullAnnotationName) {
+		return m_classWrapper.createOrFindAnnotation(getter, fullAnnotationName);
 	}
 
-	private MarkerAnnotationExpr createOrFindMarkerAnnotation(MethodDeclaration getter, String fullAnnotationName) {
-		String name = AbstractGenerator.finalName(fullAnnotationName);
-		m_classWrapper.getUnit().addImport(fullAnnotationName);
-
-		for(AnnotationExpr annotationExpr : getter.getAnnotations()) {
-			String annName = annotationExpr.getName().asString();
-			if(annName.equals(fullAnnotationName) || name.equals(annName)) {
-				return (MarkerAnnotationExpr) annotationExpr;
-			}
-		}
-
-		String pkg = AbstractGenerator.packageName(fullAnnotationName);
-		NodeList<MemberValuePair> nodes = NodeList.nodeList();
-		//Name nm = new Name(new Name(pkg), name);
-		MarkerAnnotationExpr ax = new MarkerAnnotationExpr(new Name(name));
-		getter.addAnnotation(ax);
-		return ax;
+	protected MarkerAnnotationExpr createOrFindMarkerAnnotation(BodyDeclaration<?> getter, String fullAnnotationName) {
+		return m_classWrapper.createOrFindMarkerAnnotation(getter, fullAnnotationName);
 	}
 
 
