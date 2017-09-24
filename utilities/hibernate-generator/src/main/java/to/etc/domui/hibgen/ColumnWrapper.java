@@ -987,7 +987,7 @@ public class ColumnWrapper {
 
 	/**
 	 * Called when this property name is a duplicate because the default name is [childClassName]List, and there
-	 * are multiple relations to the same child. This relalculates the name by trying to include the child
+	 * are multiple relations to the same child. This recalculates the name by trying to include the child
 	 * property name in the name - which will have been made unique by {@link ClassWrapper#calculateRelationNames()}.
 	 *
 	 */

@@ -130,6 +130,8 @@ abstract public class AbstractGenerator {
 		generateOneToManyProperties();
 		resolveOneToManyDuplicates();
 
+		m_classWrapperList.forEach(w -> w.removeBaseClassColumns());
+
 		loadNlsPropertyFiles();
 
 		m_classWrapperList.forEach(w -> w.handleClassDefinition());

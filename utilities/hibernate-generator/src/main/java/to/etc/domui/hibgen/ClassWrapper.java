@@ -542,6 +542,9 @@ class ClassWrapper {
 					return cw;
 				}
 			}
+			if(name.equals(cw.getJavaColumnName())) {
+				return cw;
+			}
 		}
 		return null;
 
@@ -1242,6 +1245,17 @@ class ClassWrapper {
 		m_useBaseClass = baseClass;
 	}
 
+	public boolean isBaseClassColumn(ColumnWrapper cw) {
+		ClassWrapper useBaseClass = m_useBaseClass;
+		if(useBaseClass == null)
+			return false;
+		String columnName = cw.getJavaColumnName();
+		if(null == columnName) {
+			columnName = cw.getPropertyName();			// If there is no column name the name of the column is, by definition, the property name
+		}
+		return useBaseClass.findColumnByColumnName(columnName) != null;
+	}
+
 	/**
 	 * This adjusts the class's definition. If the class extends a base class then the "extends baseclass" will be added,
 	 * and if the identifyable option is set it also adds IIdentifyable&lt;T>.
@@ -1269,6 +1283,19 @@ class ClassWrapper {
 			}
 		}
 	}
+
+	public void removeBaseClassColumns() {
+		List<ColumnWrapper> list = new ArrayList<>();
+
+		for(ColumnWrapper cw : m_allColumnWrappers) {
+			if(isBaseClassColumn(cw)) {
+				list.add(cw);
+			}
+		}
+
+		list.forEach(w -> deleteColumn(w));
+	}
+
 
 	/**
 	 * If the PK for this class is a primitive then fix its type to become a wrapper.
