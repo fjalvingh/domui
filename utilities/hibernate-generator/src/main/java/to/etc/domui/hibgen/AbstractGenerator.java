@@ -90,9 +90,16 @@ abstract public class AbstractGenerator {
 		calculateRelationNames();
 
 		generateOneToManyProperties();
+		resolveOneToManyDuplicates();
 
 		generateProperties();
 		renderOutput();
+	}
+
+	private void resolveOneToManyDuplicates() {
+		for(ClassWrapper classWrapper : m_byTableMap.values()) {
+			classWrapper.resolveDuplicateOneToManyProperties();
+		}
 	}
 
 	private void findManyToOneClasses() {

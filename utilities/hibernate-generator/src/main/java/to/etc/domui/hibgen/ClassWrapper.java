@@ -879,6 +879,29 @@ class ClassWrapper {
 		});
 	}
 
+	/**
+	 * When a class has two relations to the same other class then the oneToMany
+	 * relations will have gotten the same property name. Fix that here.
+	 */
+	public void resolveDuplicateOneToManyProperties() {
+		if(getSimpleName().equalsIgnoreCase("Definitionnumberlist")) {
+			System.out.println("GOTCHA");
+		}
+
+		Map<String, List<ColumnWrapper>> dupList = m_allColumnWrappers
+			.stream()
+			.filter(cw -> cw.getRelationType() == RelationType.oneToMany)
+			.collect(Collectors.groupingBy(cw -> cw.getPropertyName(), Collectors.toList()));
+
+		//-- Fix all duplicates
+		dupList.forEach((name, list) -> {
+			if(list.size() > 1) {
+				list.forEach(cw -> cw.recalculateOneToManyName());
+			}
+		});
+	}
+
+
 	public void renamePrimaryKeys(String pkName) {
 		for(ColumnWrapper cw : m_allColumnWrappers) {
 			if(cw.isPrimaryKey()) {
@@ -1023,4 +1046,5 @@ class ClassWrapper {
 			cw.resolveManyToOne();
 		}
 	}
+
 }

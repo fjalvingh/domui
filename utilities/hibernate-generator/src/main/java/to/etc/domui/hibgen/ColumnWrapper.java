@@ -971,4 +971,30 @@ public class ColumnWrapper {
 			m_parentClass = parentClass;
 		}
 	}
+
+	/**
+	 * Called when this property name is a duplicate because the default name is [childClassName]List, and there
+	 * are multiple relations to the same child. This relalculates the name by trying to include the child
+	 * property name in the name - which will have been made unique by {@link ClassWrapper#calculateRelationNames()}.
+	 *
+	 */
+	public void recalculateOneToManyName() {
+		ColumnWrapper childProperty = getChildsParentProperty();
+		if(null == childProperty) {
+			throw new IllegalStateException(toString() + ": missing oneToMany child prop");
+		}
+		String childPropertyName = childProperty.getPropertyName();
+		String myClass = m_classWrapper.getSimpleName();
+
+		//-- Is my name contained in the child - if so remove that
+		int index = childPropertyName.toLowerCase().indexOf(myClass.toLowerCase());
+		if(index >= 0) {
+			childPropertyName = childPropertyName.substring(0, index) + childPropertyName.substring(index + myClass.length());
+		}
+
+		String childClass = childProperty.getClassWrapper().getSimpleName();
+		setPropertyName(childPropertyName + childClass + "List");
+	}
+
+
 }
