@@ -851,16 +851,15 @@ class ClassWrapper {
 		}
 	}
 
-	private void backupTarget(File outputFile) {
-		if(! outputFile.exists())
-			return;
-
+	private void backupTarget(File outputFile) throws IOException {
 		String newName = outputFile.getName() + ".old";
 		File backupFile = new File(outputFile.getParentFile(), newName);
 		if(backupFile.exists())
 			return;
 
-		if(!outputFile.renameTo(backupFile)) {
+		if(! outputFile.exists()) {
+			backupFile.createNewFile();
+		} else if(!outputFile.renameTo(backupFile)) {
 			throw new RuntimeException("cannot rename " + outputFile + " to " + backupFile);
 		}
 	}
@@ -1154,7 +1153,7 @@ class ClassWrapper {
 
 				ClassWrapper childClass = g().findClassWrapper(getPackageName(), childName);
 				if(null == childClass) {
-					error(this + ": cannot locate class " + childName + " inside parsed entities");
+					error(this + ": cannot locate child class " + childName);
 					return;
 				}
 
@@ -1465,7 +1464,7 @@ class ClassWrapper {
 		ColumnWrapper pkProperty = m_primaryKey;
 		if(null == pkProperty) {
 			//-- we need to create a new class and a new property.
-			String pkClassName = getClassName() + "Id";
+			String pkClassName = getSimpleName() + "Id";
 			ClassWrapper pkWrapper = g().findClassWrapper(ClassWrapperType.embeddableClass, getPackageName(), pkClassName);
 			if(null == pkWrapper) {
 				pkWrapper = g().createWrapper(getPackageName(), pkClassName);

@@ -275,11 +275,19 @@ abstract public class AbstractGenerator {
 	}
 
 	private void renderOutput() throws Exception {
-		for(ClassWrapper wrapper : getTableClasses()) {
-			wrapper.order();
-			wrapper.print();
+		for(ClassWrapper wrapper : m_wrapperList) {
+			switch(wrapper.getType()){
+				case embeddableClass:
+					wrapper.order();
+					wrapper.print();
+					break;
 
-			wrapper.writeNlsPropertyFiles();
+				case tableClass:
+					wrapper.order();
+					wrapper.print();
+					wrapper.writeNlsPropertyFiles();
+					break;
+			}
 		}
 	}
 
@@ -532,6 +540,9 @@ abstract public class AbstractGenerator {
 		if(oldFile.exists() && oldFile.isFile()) {
 			file = oldFile;
 		}
+		if(file.length() == 0)
+			return;
+
 		info("Loading " + oldFile);
 		try {
 			CompilationUnit parse = JavaParser.parse(file);
