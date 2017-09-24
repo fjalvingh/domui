@@ -111,13 +111,12 @@ abstract public class AbstractGenerator {
 		m_schemaSet = loadSchemas(schemaSet);
 		loadJavaSources();
 		matchTablesAndSources();
-		fixMissingPrimaryKeys();
 		matchColumns();
 
 		assignComplexPrimaryKeys();
 
-		findManyToOneClasses();
 		removeUnusedProperties();
+		findManyToOneClasses();
 		removePropertyNameConstants();
 
 		if(m_destroyConstructors) {
@@ -256,15 +255,6 @@ abstract public class AbstractGenerator {
 		}
 	}
 
-	private void fixMissingPrimaryKeys() {
-		for(DbTable dbTable : getAllTables()) {
-			if(dbTable.getPrimaryKey() == null) {
-				//-- Do we have some thingy called "id"?
-				error(dbTable + " has no primary key");
-			}
-		}
-	}
-
 	private void removeUnusedProperties() {
 		for(ClassWrapper classWrapper : getTableClasses()) {
 			classWrapper.removeUnusedProperties();
@@ -323,7 +313,16 @@ abstract public class AbstractGenerator {
 
 		for(ClassWrapper classWrapper : deleteSet) {
 			warning(classWrapper + ": table deleted, this class should be removed");
-			m_wrapperList.remove(classWrapper);
+			classWrapper.setType(ClassWrapperType.deleted);
+			//m_wrapperList.remove(classWrapper);
+		}
+
+		//-- Do the same for all unassigned
+		for(ClassWrapper classWrapper : m_wrapperList) {
+			if(classWrapper.getType() == ClassWrapperType.unknown) {
+				warning(classWrapper + ": class use unknown, skipping");
+				classWrapper.setType(ClassWrapperType.deleted);
+			}
 		}
 	}
 

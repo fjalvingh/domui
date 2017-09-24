@@ -178,7 +178,7 @@ class ClassWrapper {
 	}
 
 	protected void setType(ClassWrapperType type) {
-		if(m_type != ClassWrapperType.unknown)
+		if(m_type != ClassWrapperType.unknown && type != ClassWrapperType.deleted)
 			throw new IllegalStateException(this + ": trying to change class type from " + m_type + " to " + type);
 		m_type = type;
 	}
@@ -1154,7 +1154,7 @@ class ClassWrapper {
 
 				ClassWrapper childClass = g().findClassWrapper(getPackageName(), childName);
 				if(null == childClass) {
-					error(this + ": cannot locate class " + childClass + " inside parsed entities");
+					error(this + ": cannot locate class " + childName + " inside parsed entities");
 					return;
 				}
 

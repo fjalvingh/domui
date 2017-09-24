@@ -8,5 +8,5 @@ public enum ClassWrapperType {
 	tableClass
 	, baseClass
 	, embeddableClass
-	, unknown
+	, deleted, unknown
 }

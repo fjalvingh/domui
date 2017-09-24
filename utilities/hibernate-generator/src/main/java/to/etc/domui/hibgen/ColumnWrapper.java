@@ -1010,7 +1010,7 @@ public class ColumnWrapper {
 
 		ClassWrapper parentClass = g().findClassWrapper(m_classWrapper.getPackageName(), parentClassName);
 		if(null == parentClass) {
-			m_classWrapper.error(this + ": cannot locate class " + parentClass + " inside parsed entities");
+			m_classWrapper.error(this + ": cannot locate class " + parentClassName + " inside parsed entities");
 			return;
 		} else {
 			m_parentClass = parentClass;
