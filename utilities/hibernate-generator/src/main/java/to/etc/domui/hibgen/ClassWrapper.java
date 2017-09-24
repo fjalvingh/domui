@@ -4,6 +4,7 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.PackageDeclaration;
 import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
@@ -30,6 +31,7 @@ import to.etc.dbutil.schema.DbColumn;
 import to.etc.dbutil.schema.DbPrimaryKey;
 import to.etc.dbutil.schema.DbSchema;
 import to.etc.dbutil.schema.DbTable;
+import to.etc.domui.hibgen.ColumnWrapper.ColumnType;
 import to.etc.domui.hibgen.ColumnWrapper.RelationType;
 import to.etc.webapp.query.IIdentifyable;
 
@@ -76,6 +78,8 @@ class ClassWrapper {
 
 	private int m_errors;
 
+	private ClassWrapperType m_type = ClassWrapperType.unknown;
+
 	private DbTable m_table;
 
 	///** Mapped by lowercase property name */
@@ -89,11 +93,21 @@ class ClassWrapper {
 
 	private Map<String, SortedProperties> m_propertyByKeyMap = new HashMap<>();
 
-	private boolean m_baseClass;
+	private boolean m_primaryKeyRecalculated;
+
+	@Nullable
+	private ColumnWrapper m_primaryKey;
+
+	@Nullable
+	private ClassWrapper m_primaryKeyEmbeddable;
+
+	//private boolean m_baseClass;
 
 	/** When set this class should use the specified base class as it's base class. */
 	@Nullable
 	private ClassWrapper m_useBaseClass;
+
+	//private boolean m_embeddableClass;
 
 	public ClassWrapper(AbstractGenerator generator, File file, CompilationUnit unit) {
 		m_generator = generator;
@@ -114,27 +128,59 @@ class ClassWrapper {
 		m_isNew = false;
 	}
 
-	public ClassWrapper(AbstractGenerator generator, String packageName, String className, CompilationUnit cu, DbTable tbl) {
+	//public ClassWrapper(AbstractGenerator generator, String packageName, String className, CompilationUnit cu, DbTable tbl) {
+	//	m_generator = generator;
+	//	m_simpleName = className;
+	//	m_fullClassName = packageName + "." + className;
+	//	m_unit = cu;
+	//	m_file = null;
+	//	m_table = tbl;
+	//	m_isNew = true;
+	//
+	//	ClassOrInterfaceDeclaration rootType = null;
+	//	Optional<ClassOrInterfaceDeclaration> o = m_unit.getClassByName(getSimpleName());
+	//	if(! o.isPresent()) {
+	//		error("Cannot locate class type");
+	//	} else {
+	//		rootType = o.get();
+	//	}
+	//	m_rootType = rootType;
+	//	m_type = ClassWrapperType.tableClass;
+	//}
+
+	private ClassWrapper(AbstractGenerator generator, String packageName, String className, CompilationUnit cu, ClassOrInterfaceDeclaration rootType) {
 		m_generator = generator;
 		m_simpleName = className;
 		m_fullClassName = packageName + "." + className;
 		m_unit = cu;
 		m_file = null;
-		m_table = tbl;
 		m_isNew = true;
-
-		ClassOrInterfaceDeclaration rootType = null;
-		Optional<ClassOrInterfaceDeclaration> o = m_unit.getClassByName(getSimpleName());
-		if(! o.isPresent()) {
-			error("Cannot locate class type");
-		} else {
-			rootType = o.get();
-		}
+		m_type = ClassWrapperType.unknown;
 		m_rootType = rootType;
+	}
+
+	static ClassWrapper create(AbstractGenerator g, String packageName, String className) {
+		CompilationUnit cu = new CompilationUnit();
+		cu.setPackageDeclaration(new PackageDeclaration(Name.parse(packageName)));
+
+		// create the type declaration
+		ClassOrInterfaceDeclaration type = cu.addClass(className);
+		return new ClassWrapper(g, packageName, className, cu, type);
 	}
 
 	public ClassOrInterfaceDeclaration getRootType() {
 		return m_rootType;
+	}
+
+	protected void setTable(DbTable table) {
+		m_table = table;
+		m_type = ClassWrapperType.tableClass;
+	}
+
+	protected void setType(ClassWrapperType type) {
+		if(m_type != ClassWrapperType.unknown)
+			throw new IllegalStateException(this + ": trying to change class type from " + m_type + " to " + type);
+		m_type = type;
 	}
 
 	void error(String msg) {
@@ -148,6 +194,8 @@ class ClassWrapper {
 
 	@Nullable
 	public ColumnWrapper getPrimaryKey() {
+		if(m_table == null)
+			throw new IllegalStateException(this + ": no table");
 		DbPrimaryKey primaryKey = m_table.getPrimaryKey();
 		if(primaryKey == null)
 			return null;
@@ -224,7 +272,6 @@ class ClassWrapper {
 		}
 	}
 
-
 	/**
 	 * Scan the class and try to find its mapped table or other related data.
 	 */
@@ -237,9 +284,12 @@ class ClassWrapper {
 		for(AnnotationExpr annotationExpr : rootType.getAnnotations()) {
 			String name = annotationExpr.getName().asString();
 			if("Table".equals(name)) {
+				//m_type = ClassWrapperType.tableClass;
 				handleTableAnnotation(annotationExpr);
 			} else if("MappedSuperclass".equals(name)) {
-				m_baseClass = true;
+				m_type = ClassWrapperType.baseClass;
+			} else if("Embeddable".equals(name)) {
+				m_type = ClassWrapperType.embeddableClass;
 			}
 		}
 
@@ -326,7 +376,6 @@ class ClassWrapper {
 		return null;
 	}
 
-
 	private void handleFieldDeclaration(FieldDeclaration d) {
 		List<ColumnWrapper> list = new ArrayList<>();
 		for(VariableDeclarator vd : d.getVariables()) {
@@ -372,6 +421,17 @@ class ClassWrapper {
 
 		if(name.equals("Transient")) {
 			columnWrapper.setTransient(true);
+			return;
+		} else if("Id".equals(name)) {
+			if(m_primaryKey != null)
+				error("Duplicate @Id annotation");
+			m_primaryKey = columnWrapper;
+			return;
+		} else if("EmbeddedId".equals(name)) {
+			if(m_primaryKey != null)
+				error("Duplicate @Id annotation");
+			m_primaryKey = columnWrapper;
+			columnWrapper.setType(ColumnType.compoundKey);
 			return;
 		}
 
@@ -455,9 +515,9 @@ class ClassWrapper {
 		if(null == table) {
 			error("Database table " + tableName + " in schema " + schemaName + " not found");
 		} else {
-			System.out.println("  - " + table);
+			m_table = table;
+			m_type = ClassWrapperType.tableClass;
 		}
-		m_table = table;
 	}
 
 	private String resolveConstant(Expression value) {
@@ -573,14 +633,19 @@ class ClassWrapper {
 			if(cw.getPropertyName().equals("fullName")) {
 				System.out.println("GOTCHA");
 			}
+
 			if(! cw.isTransient()) {
 				if(cw.getColumn() == null && cw.getRelationType() != RelationType.oneToMany) {
-					deleteList.add(cw);
+					if(cw != m_primaryKey) {					// Embeddable pk's should remain, please.
+						deleteList.add(cw);
+					}
 				}
 			}
 		}
 
 		for(ColumnWrapper cw : deleteList) {
+			g().info(getClassName() + ": column " + cw.getJavaColumnName() + " deleted, deleting property " + cw.getPropertyName());
+
 			deleteColumn(cw);
 		}
 	}
@@ -617,8 +682,6 @@ class ClassWrapper {
 	}
 
 	private void deleteColumn(ColumnWrapper cw) {
-		g().info(getClassName() + ": column " + cw.getJavaColumnName() + " deleted, deleting property " + cw.getPropertyName());
-
 		FieldDeclaration fieldDeclaration = cw.getFieldDeclaration();
 		if(fieldDeclaration != null) {
 			if(fieldDeclaration.getVariables().size() == 1) {
@@ -882,7 +945,7 @@ class ClassWrapper {
 			return type;
 		}
 
-		System.out.println(name);
+		//System.out.println(name);
 		getUnit().addImport(name);
 
 		ClassOrInterfaceType nw = new ClassOrInterfaceType(AbstractGenerator.finalName(name));
@@ -1221,12 +1284,8 @@ class ClassWrapper {
 		return g().getTableConfig(m_table);
 	}
 
-	/**
-	 * T when this is not a real entity class but a mapped SuperClass.
-	 * @return
-	 */
-	public boolean isBaseClass() {
-		return m_baseClass;
+	public ClassWrapperType getType() {
+		return m_type;
 	}
 
 	/*----------------------------------------------------------------------*/
@@ -1244,7 +1303,7 @@ class ClassWrapper {
 	 * @return
 	 */
 	public boolean baseClassMatchesTable(ClassWrapper other) {
-		if(! isBaseClass())
+		if(m_type != ClassWrapperType.baseClass)
 			throw new IllegalStateException(this + ": should be a base class");
 
 		for(ColumnWrapper cw : m_allColumnWrappers) {
@@ -1364,5 +1423,65 @@ class ClassWrapper {
 		}, null);
 		list.forEach(n -> n.remove());
 
+	}
+
+	/**
+	 * Check to see whether this class requires or has a complex primary key.
+	 */
+	public void checkAssignComplexPK() {
+		if(m_primaryKeyRecalculated)
+			return;
+		DbTable table = m_table;
+		if(null == table)
+			return;
+
+		DbPrimaryKey primaryKey = table.getPrimaryKey();
+		if(null == primaryKey) {
+			error("No primary key. The code generated for this table will not work.");
+			return;
+		}
+
+		if(primaryKey.getColumnList().size() == 1) {
+			String fieldName = primaryKey.getColumnList().get(0).getName();
+			ColumnWrapper column = findColumnByColumnName(fieldName);
+			if(null == column) {
+				error("Cannot locate property for primary key column " + fieldName);
+				return;
+			}
+			m_primaryKey = column;
+			return;
+		}
+
+		//-- We need a compound key from all of the columns that are part of the PK
+		List<ColumnWrapper> list = new ArrayList<>();
+		for(DbColumn dbColumn : primaryKey.getColumnList()) {
+			ColumnWrapper property = findColumnByColumnName(dbColumn.getName());
+			if(property == null) {
+				error("Cannot locate property for primary key column " + dbColumn.getName());
+				return;
+			}
+		}
+
+		ColumnWrapper pkProperty = m_primaryKey;
+		if(null == pkProperty) {
+			//-- we need to create a new class and a new property.
+			String pkClassName = getClassName() + "Id";
+			ClassWrapper pkWrapper = g().findClassWrapper(ClassWrapperType.embeddableClass, getPackageName(), pkClassName);
+			if(null == pkWrapper) {
+				pkWrapper = g().createWrapper(getPackageName(), pkClassName);
+				pkWrapper.setType(ClassWrapperType.embeddableClass);
+			}
+
+			pkProperty = new ColumnWrapper(this);
+			pkProperty.setPropertyName("id");
+			pkProperty.setJavaColumnName("id");
+			pkProperty.setNew(true);
+			pkProperty.setPropertyType(new ClassOrInterfaceType(pkWrapper.getClassName()));
+			pkProperty.setType(ColumnType.compoundKey);
+			m_primaryKey = pkProperty;
+			m_allColumnWrappers.add(pkProperty);
+
+		}
+		m_primaryKeyRecalculated = true;
 	}
 }

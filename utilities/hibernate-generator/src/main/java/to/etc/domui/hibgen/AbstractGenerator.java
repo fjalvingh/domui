@@ -3,8 +3,6 @@ package to.etc.domui.hibgen;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.PackageDeclaration;
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
-import com.github.javaparser.ast.expr.Name;
 import com.sun.org.apache.xerces.internal.dom.DocumentImpl;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -41,6 +39,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -59,7 +58,7 @@ abstract public class AbstractGenerator {
 
 	private String m_fieldPrefix = "m_";
 
-	private List<ClassWrapper> m_classWrapperList = new ArrayList<>();
+	private List<ClassWrapper> m_wrapperList = new ArrayList<>();
 
 	private boolean m_addIdentifyable = true;
 
@@ -100,8 +99,6 @@ abstract public class AbstractGenerator {
 
 	private Node m_configRoot;
 
-	private List<ClassWrapper> m_baseClassList = new ArrayList<>();
-
 	abstract protected Connection createConnection() throws Exception;
 
 	protected abstract Set<DbSchema> loadSchemas(List<String> schemaSet) throws Exception;
@@ -117,20 +114,22 @@ abstract public class AbstractGenerator {
 		fixMissingPrimaryKeys();
 		matchColumns();
 
+		assignComplexPrimaryKeys();
+
 		findManyToOneClasses();
 		removeUnusedProperties();
 		removePropertyNameConstants();
 
 		if(m_destroyConstructors) {
-			m_classWrapperList.forEach(cw -> cw.destroyConstructors());
+			getTableClasses().forEach(cw -> cw.destroyConstructors());
 		}
 
 		if(isForceRenameFields()) {
-			m_classWrapperList.forEach(w -> w.renameFieldName());
+			getTableClasses().forEach(w -> w.renameFieldName());
 		}
 
 		renamePrimaryKeys();
-		m_classWrapperList.forEach(w -> w.fixPkNullity());
+		getTableClasses().forEach(w -> w.fixPkNullity());
 		calculateColumnTypes();
 
 		assignBaseClasses();
@@ -140,11 +139,11 @@ abstract public class AbstractGenerator {
 		generateOneToManyProperties();
 		resolveOneToManyDuplicates();
 
-		m_classWrapperList.forEach(w -> w.removeBaseClassColumns());
+		getTableClasses().forEach(w -> w.removeBaseClassColumns());
 
 		loadNlsPropertyFiles();
 
-		m_classWrapperList.forEach(w -> w.handleClassDefinition());
+		getTableClasses().forEach(w -> w.handleClassDefinition());
 
 		generateProperties();
 		renderOutput();
@@ -152,14 +151,29 @@ abstract public class AbstractGenerator {
 		saveUserConfig();
 	}
 
+	protected List<ClassWrapper> getTableClasses() {
+		return m_wrapperList.stream().filter(a -> a.getType() == ClassWrapperType.tableClass).collect(Collectors.toList());
+	}
+
+	protected List<ClassWrapper> getBaseClasses() {
+		return m_wrapperList.stream().filter(a -> a.getType() == ClassWrapperType.baseClass).collect(Collectors.toList());
+	}
+	protected List<ClassWrapper> getEmbeddableClasses() {
+		return m_wrapperList.stream().filter(a -> a.getType() == ClassWrapperType.embeddableClass).collect(Collectors.toList());
+	}
+
+	private void assignComplexPrimaryKeys() {
+		getTableClasses().forEach(w -> w.checkAssignComplexPK());
+	}
+
 	/**
 	 * For every data class, check whether it could be served by having a base class.
 	 */
 	private void assignBaseClasses() {
-		if(m_baseClassList.size() == 0 || isSkipBaseClasses())
+		if(getBaseClasses().size() == 0 || isSkipBaseClasses())
 			return;
 
-		for(ClassWrapper cw : m_classWrapperList) {
+		for(ClassWrapper cw : getTableClasses()) {
 			ClassWrapper baseClass = findBaseClassFor(cw);
 			if(null != baseClass) {
 				cw.assignBaseClass(baseClass);
@@ -194,35 +208,35 @@ abstract public class AbstractGenerator {
 		if(m_skipBundles)
 			return;
 
-		for(ClassWrapper classWrapper : m_classWrapperList) {
+		for(ClassWrapper classWrapper : getTableClasses()) {
 			classWrapper.loadNlsPropertyFiles();
 		}
 	}
 
 	private void removePropertyNameConstants() {
-		for(ClassWrapper classWrapper : m_classWrapperList) {
+		for(ClassWrapper classWrapper : getTableClasses()) {
 			classWrapper.removePropertyNameConstants();
 		}
 	}
 
 	private void resolveOneToManyDuplicates() {
-		for(ClassWrapper classWrapper : m_classWrapperList) {
+		for(ClassWrapper classWrapper : getTableClasses()) {
 			classWrapper.resolveDuplicateOneToManyProperties();
 		}
 	}
 
 	private void findManyToOneClasses() {
-		for(ClassWrapper classWrapper : m_classWrapperList) {
+		for(ClassWrapper classWrapper : getTableClasses()) {
 			classWrapper.resolveManyToOne();
 		}
 	}
 
 	private void generateOneToManyProperties() {
-		for(ClassWrapper classWrapper : m_classWrapperList) {
+		for(ClassWrapper classWrapper : getTableClasses()) {
 			classWrapper.resolveMappedBy();
 		}
 
-		for(ClassWrapper classWrapper : m_classWrapperList) {
+		for(ClassWrapper classWrapper : getTableClasses()) {
 			classWrapper.generateOneToManyProperties();
 		}
 	}
@@ -231,13 +245,13 @@ abstract public class AbstractGenerator {
 		String pkName = getForcePKIdentifier();
 		if(null == pkName)
 			return;
-		for(ClassWrapper classWrapper : m_classWrapperList) {
+		for(ClassWrapper classWrapper : getTableClasses()) {
 			classWrapper.renamePrimaryKeys(pkName);
 		}
 	}
 
 	private void calculateRelationNames() {
-		for(ClassWrapper classWrapper : m_classWrapperList) {
+		for(ClassWrapper classWrapper : getTableClasses()) {
 			classWrapper.calculateRelationNames();
 		}
 	}
@@ -252,26 +266,26 @@ abstract public class AbstractGenerator {
 	}
 
 	private void removeUnusedProperties() {
-		for(ClassWrapper classWrapper : m_classWrapperList) {
+		for(ClassWrapper classWrapper : getTableClasses()) {
 			classWrapper.removeUnusedProperties();
 		}
 	}
 
 
 	private void matchColumns() {
-		for(ClassWrapper classWrapper : m_classWrapperList) {
+		for(ClassWrapper classWrapper : getTableClasses()) {
 			classWrapper.matchColumns();
 		}
 	}
 
 	private void calculateColumnTypes() throws Exception {
-		for(ClassWrapper classWrapper : m_classWrapperList) {
+		for(ClassWrapper classWrapper : getTableClasses()) {
 			classWrapper.calculateColumnTypes(dbc());
 		}
 	}
 
 	private void renderOutput() throws Exception {
-		for(ClassWrapper wrapper : m_classWrapperList) {
+		for(ClassWrapper wrapper : getTableClasses()) {
 			wrapper.order();
 			wrapper.print();
 
@@ -280,7 +294,7 @@ abstract public class AbstractGenerator {
 	}
 
 	private void generateProperties() throws Exception {
-		for(ClassWrapper wrapper : m_classWrapperList) {
+		for(ClassWrapper wrapper : getTableClasses()) {
 			wrapper.renderProperties();
 		}
 	}
@@ -290,25 +304,39 @@ abstract public class AbstractGenerator {
 	 * @throws Exception
 	 */
 	private void matchTablesAndSources() throws Exception {
+		Set<ClassWrapper> deleteSet = new HashSet<>(getTableClasses());
+
 		for(DbTable dbTable : getAllTables()) {
+			if(dbTable.getColumnList().size() == 0) {
+				error(dbTable + ": table without columns is idiocy, skipping it");
+				continue;
+			}
+
 			ClassWrapper wrapper = findClassByTable(dbTable);
 			if(null == wrapper) {
 				wrapper = createNewWrapper(dbTable);
+			} else {
+				deleteSet.remove(wrapper);
 			}
 			wrapper.getConfig();
+		}
+
+		for(ClassWrapper classWrapper : deleteSet) {
+			warning(classWrapper + ": table deleted, this class should be removed");
+			m_wrapperList.remove(classWrapper);
 		}
 	}
 
 	@Nullable
 	public ClassWrapper findClassByTable(DbTable table) {
-		for(ClassWrapper classWrapper : m_classWrapperList) {
+		for(ClassWrapper classWrapper : getTableClasses()) {
 			if(classWrapper.getTable() == table)
 				return classWrapper;
 		}
 		return null;
 	}
 
-	private ClassWrapper createNewWrapper(DbTable tbl) {
+	protected ClassWrapper createNewWrapper(DbTable tbl) {
 		String tableName = tbl.getName();
 		String schemaName = tbl.getSchema().getName();
 		List<String> splitSchema = splitName(schemaName);
@@ -344,15 +372,16 @@ abstract public class AbstractGenerator {
 
 		String packageName = sbpackage.toString();
 
-		CompilationUnit cu = createCompilationUnit(packageName, className, tbl);
+		ClassWrapper wrapper = ClassWrapper.create(this, packageName, className);
+		m_wrapperList.add(wrapper);
+		wrapper.setTable(tbl);
+		wrapper.getRootType().setJavadocComment(createClassComment(tbl));
+		return wrapper;
+	}
 
-		ClassWrapper wrapper = new ClassWrapper(this, packageName, className, cu, tbl);
-		m_classWrapperList.add(wrapper);
-
-		String fullName = packageName + "." + className;
-		//
-		//System.out.println("Created new class " + fullName);
-		//System.out.println(cu.toString());
+	protected ClassWrapper createWrapper(String packageName, String className) {
+		ClassWrapper wrapper = ClassWrapper.create(this, packageName, className);
+		m_wrapperList.add(wrapper);
 		return wrapper;
 	}
 
@@ -370,48 +399,6 @@ abstract public class AbstractGenerator {
 		sb.append(" * Class generated by Domui's Hibernate Generator version 1.0 at " + new Date() + "\n");
 		sb.append(" ");
 		return sb.toString();
-	}
-
-	private CompilationUnit createCompilationUnit(String packageName, String className, DbTable tbl) {
-		CompilationUnit cu = new CompilationUnit();
-		cu.setPackageDeclaration(new PackageDeclaration(Name.parse(packageName)));
-
-		//// or a shortcut
-		//cu.setPackageDeclaration("java.parser.test");
-
-		// create the type declaration
-		ClassOrInterfaceDeclaration type = cu.addClass(className);
-		type.setJavadocComment(createClassComment(tbl));
-
-		//// create a method
-		//EnumSet<Modifier> modifiers = EnumSet.of(Modifier.PUBLIC);
-		//MethodDeclaration method = new MethodDeclaration(modifiers, new VoidType(), "main");
-		//modifiers.add(Modifier.STATIC);
-		//method.setModifiers(modifiers);
-		//type.addMember(method);
-		//
-		//// or a shortcut
-		//MethodDeclaration main2 = type.addMethod("main2", Modifier.PUBLIC, Modifier.STATIC);
-		//
-		//// add a parameter to the method
-		//Parameter param = new Parameter(new ClassOrInterfaceType("String"), "args");
-		//param.setVarArgs(true);
-		//method.addParameter(param);
-		//
-		//// or a shortcut
-		//main2.addAndGetParameter(String.class, "args").setVarArgs(true);
-		//
-		//// add a body to the method
-		//BlockStmt block = new BlockStmt();
-		//method.setBody(block);
-		//
-		//// add a statement do the method body
-		//NameExpr clazz = new NameExpr("System");
-		//FieldAccessExpr field = new FieldAccessExpr(clazz, "out");
-		//MethodCallExpr call = new MethodCallExpr(field, "println");
-		//call.addArgument(new StringLiteralExpr("Hello World!"));
-		//block.addStatement(call);
-		return cu;
 	}
 
 	static String capitalize(String in) {
@@ -569,13 +556,21 @@ abstract public class AbstractGenerator {
 			wrapper.scanAndRegister();
 
 			//-- We're only interested in classes that have something useful..
-			if(wrapper.getTable() != null) {
-				m_classWrapperList.add(wrapper);
-			} else if(wrapper.isBaseClass()) {
-				m_baseClassList.add(wrapper);
+			if(wrapper.getType() != ClassWrapperType.unknown) {
+				m_wrapperList.add(wrapper);
 			} else {
 				info(file + ": not entity related, skipping");
 			}
+
+			//if(wrapper.getTable() != null) {
+			//	m_classWrapperList.add(wrapper);
+			//} else if(wrapper.isBaseClass()) {
+			//	m_baseClassList.add(wrapper);
+			//} else if(wrapper.isEmbeddableClass()) {
+			//	m_embeddableClassList.add(wrapper);
+			//} else {
+			//	info(file + ": not entity related, skipping");
+			//}
 		} catch(FileNotFoundException e) {
 			error(file, "Cannot load file");
 		}
@@ -715,6 +710,7 @@ abstract public class AbstractGenerator {
 	 * @param tableName
 	 * @return
 	 */
+	@Nullable
 	public DbTable findTableByNames(@Nullable String schemaName, @Nonnull String tableName) {
 		if(schemaName == null) {
 			//-- Is there a schema in the table name, perhaps?
@@ -728,7 +724,7 @@ abstract public class AbstractGenerator {
 		if(null == schema)
 			return null;
 
-		return schema.getTable(tableName);
+		return schema.findTable(tableName);
 	}
 
 	public String getFieldPrefix() {
@@ -777,26 +773,32 @@ abstract public class AbstractGenerator {
 		return m_appendSchemaName || m_schemaSet.size() > 1;
 	}
 
+	public ClassWrapper findClassWrapper(String packageName, String className) {
+		return findClassWrapper(ClassWrapperType.tableClass, packageName, className);
+	}
+
 	/**
 	 * Try to find a class wrapper by resolving the specified className in the scope of the
 	 * package provided.
 	 *
 	 * @return
 	 */
-	public ClassWrapper findClassWrapper(String packageName, String className) {
+	public ClassWrapper findClassWrapper(ClassWrapperType type, String packageName, String className) {
 		String matchName = className;
 		if(! className.contains("."))
 			matchName = packageName + "." + className;
 
 		List<ClassWrapper> partialList = new ArrayList<>();
-		for(ClassWrapper cw : m_classWrapperList) {
-			if(cw.getClassName().equals(matchName)) {
-				return cw;
-			}
+		for(ClassWrapper cw : m_wrapperList) {
+			if(cw.getType() == type) {
+				if(cw.getClassName().equals(matchName)) {
+					return cw;
+				}
 
-			if(! className.contains(".")) {						// Unqualified?
-				if(cw.getClassName().endsWith("." + className)) {
-					partialList.add(cw);						// Partial match
+				if(!className.contains(".")) {                        // Unqualified?
+					if(cw.getClassName().endsWith("." + className)) {
+						partialList.add(cw);                        // Partial match
+					}
 				}
 			}
 		}
@@ -879,7 +881,7 @@ abstract public class AbstractGenerator {
 	public ClassWrapper findBaseClassFor(ClassWrapper other) {
 		if(isSkipBaseClasses())
 			return null;
-		for(ClassWrapper classWrapper : m_baseClassList) {
+		for(ClassWrapper classWrapper : getBaseClasses()) {
 			if(classWrapper.baseClassMatchesTable(other)) {
 				return classWrapper;
 			}
