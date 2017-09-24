@@ -971,5 +971,4 @@ public class ColumnWrapper {
 			m_parentClass = parentClass;
 		}
 	}
-
 }
