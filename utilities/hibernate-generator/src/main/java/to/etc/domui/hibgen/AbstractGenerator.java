@@ -291,9 +291,13 @@ abstract public class AbstractGenerator {
 		if(m_addSchemaNameToClassName) {
 			names.add(0, schemaName);
 		}
-		sb.setLength(0);
-		names.forEach(n -> sb.append(capitalize(n)));
-		String className = sb.toString();
+		String className = getTableConfigProperty(tbl, "className");
+		if(null == className) {
+			sb.setLength(0);
+			names.forEach(n -> sb.append(capitalize(n)));
+			className = sb.toString();
+		}
+
 		String packageName = sbpackage.toString();
 
 		CompilationUnit cu = createCompilationUnit(packageName, className, tbl);
@@ -783,5 +787,18 @@ abstract public class AbstractGenerator {
 		value.setNodeValue(tblname);
 		node.getAttributes().setNamedItem(value);
 		return node;
+	}
+
+	public String getTableConfigProperty(DbTable table, String property) {
+		Node tc = getTableConfig(table);
+		String v = DomTools.strAttr(tc, property, null);
+		if(null != v) {
+			return v.length() == 0 ? null : v;
+		}
+
+		Node value = m_configDocument.createAttribute(property);
+		value.setNodeValue("");
+		tc.getAttributes().setNamedItem(value);
+		return null;
 	}
 }
