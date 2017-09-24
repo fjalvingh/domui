@@ -3,6 +3,7 @@ package to.etc.domui.hibgen;
 import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
@@ -716,7 +717,7 @@ public class ColumnWrapper {
 			 * Normal column annotation
 			 */
 			NormalAnnotationExpr ca = createOrFindAnnotation(getter, "javax.persistence.Column");
-			ca.addPair("name", "\"" + m_column.getName() + "\"");
+			setPair(ca, "name", m_column.getName(), true);
 			if(m_setLengthField && m_column.getPrecision() > 0) {
 				setPair(ca, "length", Integer.toString(m_column.getPrecision()), false);
 			}
@@ -1057,14 +1058,21 @@ public class ColumnWrapper {
 
 			//-- We need to rename inside the getter and setter too
 			MethodDeclaration getter = getGetter();
+			GetterFieldRenamingVisitor fieldVisitor = new GetterFieldRenamingVisitor(oldName, fieldName);
 			if(null != getter) {
-				getter.accept(new GetterFieldRenamingVisitor(oldName, fieldName), null);
+				getter.accept(fieldVisitor, null);
 			}
 
 			MethodDeclaration setter = getSetter();
 			if(null != setter) {
-				setter.accept(new GetterFieldRenamingVisitor(oldName, fieldName), null);
+				setter.accept(fieldVisitor, null);
 			}
+
+			m_classWrapper.getRootType().accept(new VoidVisitorAdapter<Void>() {
+				@Override public void visit(ConstructorDeclaration n, Void arg) {
+					n.accept(fieldVisitor, null);
+				}
+			}, null);
 		}
 	}
 
@@ -1102,5 +1110,6 @@ public class ColumnWrapper {
 				}
 			}
 		}
+
 	}
 }
