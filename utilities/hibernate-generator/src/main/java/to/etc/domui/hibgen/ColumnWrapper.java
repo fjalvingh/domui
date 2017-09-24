@@ -1024,6 +1024,7 @@ public class ColumnWrapper {
 		if(null != setter) {
 			setter.getParameter(0).setType(newType);
 		}
+		m_propertyType = newType;
 	}
 
 
