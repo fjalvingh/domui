@@ -31,13 +31,20 @@ import to.etc.domui.hibgen.ColumnWrapper.RelationType;
 import javax.annotation.Nullable;
 import java.beans.Introspector;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.io.Writer;
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -73,6 +80,8 @@ class ClassWrapper {
 	private List<ColumnWrapper> m_allColumnWrappers = new ArrayList<>();
 
 	private List<ColumnWrapper> m_deletedColumns = new ArrayList<>();
+
+	private Map<String, SortedProperties> m_propertyByKeyMap = new HashMap<>();
 
 	public ClassWrapper(AbstractGenerator generator, File file, CompilationUnit unit) {
 		m_generator = generator;
@@ -559,6 +568,7 @@ class ClassWrapper {
 			}
 
 			renderColumnProperty(cw);
+			renderPropertyNls(cw.getPropertyName());
 		}
 	}
 
@@ -1076,4 +1086,64 @@ class ClassWrapper {
 		}
 	}
 
+	public void loadNlsPropertyFiles() throws Exception {
+		if(isNew())
+			return;
+		File file = m_file;
+		if(null == file)
+			throw new IllegalStateException();
+		String baseName = file.getName();
+		baseName = baseName.substring(0, baseName.lastIndexOf('.'));		// Strip extension
+
+		loadPropertyFile(file.getParentFile(), baseName, "");
+		for(String lang : g().getAltBundles()) {
+			loadPropertyFile(file.getParentFile(), baseName, lang);
+		}
+	}
+
+	private void loadPropertyFile(File parentFile, String baseName, String ext) throws Exception {
+		String extra = ext.length() == 0 ? "" : "_" + ext;
+
+		File propertyFile = new File(parentFile, baseName + extra + ".properties");
+		if(! propertyFile.exists() || ! propertyFile.isFile())
+			return;
+
+		SortedProperties sp = new SortedProperties();
+		try(Reader r = new InputStreamReader(new FileInputStream(propertyFile), "utf-8")) {
+			sp.load(r);
+		}
+
+		m_propertyByKeyMap.put(ext, sp);
+	}
+
+	void renderPropertyNls(String propertyName) {
+		renderPropertyNls("", propertyName);
+		g().getAltBundles().forEach(b -> renderPropertyNls(b, propertyName));
+	}
+
+	private void renderPropertyNls(String bundle, String propertyName) {
+		SortedProperties properties = m_propertyByKeyMap.computeIfAbsent(bundle, b -> new SortedProperties());
+
+		if(properties.get(propertyName + ".label") == null) {
+			properties.setProperty(propertyName + ".label", propertyName);
+		}
+
+		if(properties.get(propertyName + ".hint") == null) {
+			properties.setProperty(propertyName + ".hint", propertyName);
+		}
+	}
+
+	public void writeNlsPropertyFiles() throws Exception {
+		File file = getOutputFile();
+		String baseName = file.getName();
+		baseName = baseName.substring(0, baseName.lastIndexOf('.'));		// Strip extension
+
+		for(Entry<String, SortedProperties> e : m_propertyByKeyMap.entrySet()) {
+			String ext = e.getKey().length() == 0 ? "" : "_" + e.getKey();
+			File out = new File(getOutputFile().getParent(), baseName + ext + ".properties");
+			try(Writer w = new OutputStreamWriter(new FileOutputStream(out), "utf-8")) {
+				e.getValue().store(w, "NLS bundle");
+			}
+		}
+	}
 }

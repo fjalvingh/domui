@@ -1006,6 +1006,4 @@ public class ColumnWrapper {
 		String childClass = childProperty.getClassWrapper().getSimpleName();
 		setPropertyName(childPropertyName + childClass + "List");
 	}
-
-
 }

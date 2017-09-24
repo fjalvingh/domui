@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -63,6 +64,10 @@ abstract public class AbstractGenerator {
 
 	private boolean m_mapOneCharVarcharToBoolean = true;
 
+	private boolean m_skipBundles = false;
+
+	private Set<String> m_altBundles = new HashSet<>();
+
 	private String m_forcePKIdentifier = "id";
 
 	/** Postgres: when T, a Hibernate sequence identifier generator is used instead of the @Generated(GenerationType.IDENTIFIER) for an autoincrement column. */
@@ -93,8 +98,19 @@ abstract public class AbstractGenerator {
 		generateOneToManyProperties();
 		resolveOneToManyDuplicates();
 
+		loadNlsPropertyFiles();
+
 		generateProperties();
 		renderOutput();
+	}
+
+	private void loadNlsPropertyFiles() throws Exception {
+		if(m_skipBundles)
+			return;
+
+		for(ClassWrapper classWrapper : m_byTableMap.values()) {
+			classWrapper.loadNlsPropertyFiles();
+		}
 	}
 
 	private void removePropertyNameConstants() {
@@ -168,12 +184,14 @@ abstract public class AbstractGenerator {
 		}
 	}
 
-	private void renderOutput() throws IOException {
+	private void renderOutput() throws Exception {
 		for(DbTable dbTable : getAllTables()) {
 			ClassWrapper wrapper = m_byTableMap.get(dbTable);
 			if(null != wrapper) {
 				wrapper.order();
 				wrapper.print();
+
+				wrapper.writeNlsPropertyFiles();
 			}
 		}
 	}
@@ -688,5 +706,7 @@ abstract public class AbstractGenerator {
 		return null;
 	}
 
-
+	public Set<String> getAltBundles() {
+		return m_altBundles;
+	}
 }
