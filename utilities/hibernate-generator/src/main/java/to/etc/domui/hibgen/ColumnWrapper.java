@@ -340,7 +340,7 @@ public class ColumnWrapper {
 	 */
 	private void generateRelationType(DbRelation parentRelation) throws Exception {
 		DbTable parent = parentRelation.getParent();
-		ClassWrapper parentClass = g().getWrapper(parent);
+		ClassWrapper parentClass = g().findClassByTable(parent);
 		if(null == parentClass) {
 			g().error("Cannot locate class source file for " + parent + ", mapping as non-relation");
 			calculateBasicType();
@@ -618,8 +618,10 @@ public class ColumnWrapper {
 			VariableDeclarator vd = fd.getVariables().get(0);
 			setVariableDeclaration(vd);
 
-			if(m_relationType == RelationType.oneToMany)
+			if(m_relationType == RelationType.oneToMany) {
 				vd.setInitializer("new ArrayList<>()");
+				importIf("java.util.ArrayList");
+			}
 		} else {
 			if(g().isForceRenameFields() && getRelationType() == RelationType.none) {
 				String baseFieldName = ClassWrapper.calculatePropertyNameFromColumnName(getJavaColumnName());

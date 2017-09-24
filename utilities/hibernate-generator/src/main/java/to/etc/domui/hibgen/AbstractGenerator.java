@@ -36,10 +36,8 @@ import java.sql.SQLFeatureNotSupportedException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -61,11 +59,13 @@ abstract public class AbstractGenerator {
 
 	private String m_fieldPrefix = "m_";
 
-	/** Map a fq class name to its wrapper */
-	private Map<String, ClassWrapper> m_byClassnameMap = new HashMap<>();
+	///** Map a fq class name to its wrapper */
+	//private Map<String, ClassWrapper> m_byClassnameMap = new HashMap<>();
+	//
+	///** Map a table to its wrapper. */
+	//private Map<DbTable, ClassWrapper> m_byTableMap = new HashMap<>();
 
-	/** Map a table to its wrapper. */
-	private Map<DbTable, ClassWrapper> m_byTableMap = new HashMap<>();
+	private List<ClassWrapper> m_classWrapperList = new ArrayList<>();
 
 	private boolean m_hideSchemaNameFromTableName = true;
 
@@ -153,35 +153,35 @@ abstract public class AbstractGenerator {
 		if(m_skipBundles)
 			return;
 
-		for(ClassWrapper classWrapper : m_byTableMap.values()) {
+		for(ClassWrapper classWrapper : m_classWrapperList) {
 			classWrapper.loadNlsPropertyFiles();
 		}
 	}
 
 	private void removePropertyNameConstants() {
-		for(ClassWrapper classWrapper : m_byTableMap.values()) {
+		for(ClassWrapper classWrapper : m_classWrapperList) {
 			classWrapper.removePropertyNameConstants();
 		}
 	}
 
 	private void resolveOneToManyDuplicates() {
-		for(ClassWrapper classWrapper : m_byTableMap.values()) {
+		for(ClassWrapper classWrapper : m_classWrapperList) {
 			classWrapper.resolveDuplicateOneToManyProperties();
 		}
 	}
 
 	private void findManyToOneClasses() {
-		for(ClassWrapper classWrapper : m_byTableMap.values()) {
+		for(ClassWrapper classWrapper : m_classWrapperList) {
 			classWrapper.resolveManyToOne();
 		}
 	}
 
 	private void generateOneToManyProperties() {
-		for(ClassWrapper classWrapper : m_byTableMap.values()) {
+		for(ClassWrapper classWrapper : m_classWrapperList) {
 			classWrapper.resolveMappedBy();
 		}
 
-		for(ClassWrapper classWrapper : m_byTableMap.values()) {
+		for(ClassWrapper classWrapper : m_classWrapperList) {
 			classWrapper.generateOneToManyProperties();
 		}
 	}
@@ -190,13 +190,13 @@ abstract public class AbstractGenerator {
 		String pkName = getForcePKIdentifier();
 		if(null == pkName)
 			return;
-		for(ClassWrapper classWrapper : m_byTableMap.values()) {
+		for(ClassWrapper classWrapper : m_classWrapperList) {
 			classWrapper.renamePrimaryKeys(pkName);
 		}
 	}
 
 	private void calculateRelationNames() {
-		for(ClassWrapper classWrapper : m_byTableMap.values()) {
+		for(ClassWrapper classWrapper : m_classWrapperList) {
 			classWrapper.calculateRelationNames();
 		}
 	}
@@ -211,42 +211,36 @@ abstract public class AbstractGenerator {
 	}
 
 	private void removeUnusedProperties() {
-		for(ClassWrapper classWrapper : m_byTableMap.values()) {
+		for(ClassWrapper classWrapper : m_classWrapperList) {
 			classWrapper.removeUnusedProperties();
 		}
 	}
 
 
 	private void matchColumns() {
-		for(ClassWrapper classWrapper : m_byTableMap.values()) {
+		for(ClassWrapper classWrapper : m_classWrapperList) {
 			classWrapper.matchColumns();
 		}
 	}
 
 	private void calculateColumnTypes() throws Exception {
-		for(ClassWrapper classWrapper : m_byTableMap.values()) {
+		for(ClassWrapper classWrapper : m_classWrapperList) {
 			classWrapper.calculateColumnTypes(dbc());
 		}
 	}
 
 	private void renderOutput() throws Exception {
-		for(DbTable dbTable : getAllTables()) {
-			ClassWrapper wrapper = m_byTableMap.get(dbTable);
-			if(null != wrapper) {
-				wrapper.order();
-				wrapper.print();
+		for(ClassWrapper wrapper : m_classWrapperList) {
+			wrapper.order();
+			wrapper.print();
 
-				wrapper.writeNlsPropertyFiles();
-			}
+			wrapper.writeNlsPropertyFiles();
 		}
 	}
 
 	private void generateProperties() throws Exception {
-		for(DbTable dbTable : getAllTables()) {
-			ClassWrapper wrapper = m_byTableMap.get(dbTable);
-			if(null != wrapper) {
-				wrapper.renderProperties();
-			}
+		for(ClassWrapper wrapper : m_classWrapperList) {
+			wrapper.renderProperties();
 		}
 	}
 
@@ -256,12 +250,21 @@ abstract public class AbstractGenerator {
 	 */
 	private void matchTablesAndSources() throws Exception {
 		for(DbTable dbTable : getAllTables()) {
-			ClassWrapper wrapper = m_byTableMap.get(dbTable);
+			ClassWrapper wrapper = findClassByTable(dbTable);
 			if(null == wrapper) {
 				wrapper = createNewWrapper(dbTable);
 			}
 			wrapper.getConfig();
 		}
+	}
+
+	@Nullable
+	public ClassWrapper findClassByTable(DbTable table) {
+		for(ClassWrapper classWrapper : m_classWrapperList) {
+			if(classWrapper.getTable() == table)
+				return classWrapper;
+		}
+		return null;
 	}
 
 	private ClassWrapper createNewWrapper(DbTable tbl) {
@@ -303,10 +306,9 @@ abstract public class AbstractGenerator {
 		CompilationUnit cu = createCompilationUnit(packageName, className, tbl);
 
 		ClassWrapper wrapper = new ClassWrapper(this, packageName, className, cu, tbl);
+		m_classWrapperList.add(wrapper);
 
-		m_byTableMap.put(tbl, wrapper);
 		String fullName = packageName + "." + className;
-		m_byClassnameMap.put(fullName, wrapper);
 		//
 		//System.out.println("Created new class " + fullName);
 		//System.out.println(cu.toString());
@@ -511,15 +513,8 @@ abstract public class AbstractGenerator {
 			}
 
 			ClassWrapper wrapper = new ClassWrapper(this, file, parse);
-			m_byClassnameMap.put(wrapper.getClassName(), wrapper);
+			m_classWrapperList.add(wrapper);
 			wrapper.scanAndRegister();
-
-			DbTable table = wrapper.getTable();
-			if(null != table)
-				m_byTableMap.put(table, wrapper);
-
-			//} catch(ParseException px) {
-		//	System.out.println(px.toString());
 		} catch(FileNotFoundException e) {
 			error(file, "Cannot load file");
 		}
@@ -693,11 +688,6 @@ abstract public class AbstractGenerator {
 		System.out.println("warning: " + s);
 	}
 
-	@Nullable
-	public ClassWrapper getWrapper(DbTable parent) {
-		return m_byTableMap.get(parent);
-	}
-
 	public boolean isForceRenameMethods() {
 		return m_forceRenameMethods;
 	}
@@ -736,7 +726,7 @@ abstract public class AbstractGenerator {
 			matchName = packageName + "." + className;
 
 		List<ClassWrapper> partialList = new ArrayList<>();
-		for(ClassWrapper cw : m_byClassnameMap.values()) {
+		for(ClassWrapper cw : m_classWrapperList) {
 			if(cw.getClassName().equals(matchName)) {
 				return cw;
 			}
