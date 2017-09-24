@@ -84,6 +84,7 @@ abstract public class AbstractGenerator {
 		matchColumns();
 		findManyToOneClasses();
 		removeUnusedProperties();
+		removePropertyNameConstants();
 
 		renamePrimaryKeys();
 		calculateColumnTypes();
@@ -94,6 +95,12 @@ abstract public class AbstractGenerator {
 
 		generateProperties();
 		renderOutput();
+	}
+
+	private void removePropertyNameConstants() {
+		for(ClassWrapper classWrapper : m_byTableMap.values()) {
+			classWrapper.removePropertyNameConstants();
+		}
 	}
 
 	private void resolveOneToManyDuplicates() {

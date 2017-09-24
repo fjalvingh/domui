@@ -162,6 +162,35 @@ class ClassWrapper {
 		return m_table;
 	}
 
+	public void removePropertyNameConstants() {
+		for(BodyDeclaration<?> d : new ArrayList<>(m_rootType.getMembers())) {
+			if(d instanceof FieldDeclaration) {
+				removePropertyNameConstant((FieldDeclaration) d);
+			}
+		}
+	}
+
+	private void removePropertyNameConstant(FieldDeclaration d) {
+		List<VariableDeclarator> list = new ArrayList<>();
+		for(VariableDeclarator vd : d.getVariables()) {
+			String name = vd.getName().asString();
+			if(name.startsWith("p") && name.substring(1).toUpperCase().equals(name.substring(1))) {
+				//-- Got one
+				if(d.getModifiers().contains(Modifier.FINAL) && d.getModifiers().contains(Modifier.STATIC) && d.getModifiers().contains(Modifier.PUBLIC)) {
+					list.add(vd);
+				}
+			}
+		}
+
+		for(VariableDeclarator vd : list) {
+			d.getVariables().remove(vd);
+		}
+		if(d.getVariables().size() == 0) {
+			d.remove();
+		}
+	}
+
+
 	/**
 	 * Scan the class and try to find its mapped table or other related data.
 	 */
@@ -581,10 +610,10 @@ class ClassWrapper {
 			return;
 		}
 
+		dbColumn.renderConstant();
 		dbColumn.renderField();
 		dbColumn.renderGetter();
 		dbColumn.renderSetter();
-		//renderSetter(dbColumn);
 	}
 
 	private FieldDeclaration	findFieldDeclaration(String baseName) {

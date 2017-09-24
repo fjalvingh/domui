@@ -587,6 +587,13 @@ public class ColumnWrapper {
 		return m_transient;
 	}
 
+	public void renderConstant() {
+		String fieldName = "p" + getPropertyName().toUpperCase();
+		FieldDeclaration fd = m_classWrapper.getRootType().addField(new ClassOrInterfaceType("String"), fieldName, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL);
+		VariableDeclarator vd = fd.getVariables().get(0);
+		vd.setInitializer(new StringLiteralExpr(getPropertyName()));
+	}
+
 	public void renderField() {
 		FieldDeclaration fd = getFieldDeclaration();
 		String fieldPrefix = g().getFieldPrefix();
@@ -608,7 +615,11 @@ public class ColumnWrapper {
 
 			fd = m_classWrapper.getRootType().addField(type, fieldName, Modifier.PRIVATE);
 			setFieldDeclaration(fd);
-			setVariableDeclaration(fd.getVariable(0));
+			VariableDeclarator vd = fd.getVariables().get(0);
+			setVariableDeclaration(vd);
+
+			if(m_relationType == RelationType.oneToMany)
+				vd.setInitializer("new ArrayList<>()");
 		} else {
 			if(g().isForceRenameFields() && getRelationType() == RelationType.none) {
 				String baseFieldName = ClassWrapper.calculatePropertyNameFromColumnName(getJavaColumnName());
