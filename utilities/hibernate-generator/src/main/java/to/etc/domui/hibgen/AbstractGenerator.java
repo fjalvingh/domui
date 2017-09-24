@@ -82,6 +82,8 @@ abstract public class AbstractGenerator {
 	/** When T, this does not check for the same type on columns to attach the base class. */
 	private boolean m_matchBaseClassesOnColumnNameOnly = false;
 
+	private boolean m_destroyConstructors = true;
+
 	private Set<String> m_altBundles = new HashSet<>();
 
 	private String m_forcePKIdentifier = "id";
@@ -118,6 +120,10 @@ abstract public class AbstractGenerator {
 		findManyToOneClasses();
 		removeUnusedProperties();
 		removePropertyNameConstants();
+
+		if(m_destroyConstructors) {
+			m_classWrapperList.forEach(cw -> cw.destroyConstructors());
+		}
 
 		if(isForceRenameFields()) {
 			m_classWrapperList.forEach(w -> w.renameFieldName());

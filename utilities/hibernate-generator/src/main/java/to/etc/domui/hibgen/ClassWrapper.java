@@ -6,6 +6,7 @@ import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
@@ -24,6 +25,7 @@ import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.VoidType;
+import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import to.etc.dbutil.schema.DbColumn;
 import to.etc.dbutil.schema.DbPrimaryKey;
 import to.etc.dbutil.schema.DbSchema;
@@ -808,7 +810,7 @@ class ClassWrapper {
 
 	protected NormalAnnotationExpr createOrFindAnnotation(BodyDeclaration<?> getter, String fullAnnotationName) {
 		String name = AbstractGenerator.finalName(fullAnnotationName);
-		getUnit().addImport(fullAnnotationName);
+		importIf(fullAnnotationName);
 
 		for(AnnotationExpr annotationExpr : getter.getAnnotations()) {
 			String annName = annotationExpr.getName().asString();
@@ -827,7 +829,8 @@ class ClassWrapper {
 
 	protected MarkerAnnotationExpr createOrFindMarkerAnnotation(BodyDeclaration<?> getter, String fullAnnotationName) {
 		String name = AbstractGenerator.finalName(fullAnnotationName);
-		getUnit().addImport(fullAnnotationName);
+		importIf(fullAnnotationName);
+		//getUnit().addImport(fullAnnotationName);
 
 		for(AnnotationExpr annotationExpr : getter.getAnnotations()) {
 			String annName = annotationExpr.getName().asString();
@@ -1343,5 +1346,17 @@ class ClassWrapper {
 
 	public void renameFieldName() {
 		m_allColumnWrappers.forEach(w -> w.renameFieldName());
+	}
+
+	public void destroyConstructors() {
+		List<ConstructorDeclaration> list = new ArrayList<>();
+
+		getRootType().accept(new VoidVisitorAdapter<Void>() {
+			@Override public void visit(ConstructorDeclaration n, Void arg) {
+				list.add(n);
+			}
+		}, null);
+		list.forEach(n -> n.remove());
+
 	}
 }

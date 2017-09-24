@@ -739,7 +739,7 @@ public class ColumnWrapper {
 	 */
 	private void renderIdAnnotations(MethodDeclaration getter) throws Exception {
 		if(g().isAddIdentifyable()) {
-			createOrFindMarkerAnnotation(getter, "Override");
+			createOrFindMarkerAnnotation(getter, "java.lang.Override");
 		}
 
 		Boolean aic = m_column.isAutoIncrement();
@@ -817,12 +817,14 @@ public class ColumnWrapper {
 				case TemporalDate:
 					NormalAnnotationExpr na = createOrFindAnnotation(getter, "javax.persistence.Temporal");
 					if(findAnnotationPair(na, "value") == null) {
+						importIf("javax.persistence.TemporalType");
 						na.addPair("value", "TemporalType.DATE");
 					}
 					break;
 				case TemporalTimestamp:
 					na = createOrFindAnnotation(getter, "javax.persistence.Temporal");
 					if(findAnnotationPair(na, "value") == null) {
+						importIf("javax.persistence.TemporalType");
 						na.addPair("value", "TemporalType.TIMESTAMP");
 					}
 					break;
@@ -837,7 +839,7 @@ public class ColumnWrapper {
 		NormalAnnotationExpr m2o = createOrFindAnnotation(getter, "javax.persistence.ManyToOne");
 		MemberValuePair fetch = findAnnotationPair(m2o, "fetch");
 		if(null == fetch) {
-			importIf("javax.persistent.FetchType");
+			importIf("javax.persistence.FetchType");
 			m2o.addPair("fetch", "FetchType.LAZY");
 		}
 
@@ -1076,6 +1078,10 @@ public class ColumnWrapper {
 		}
 	}
 
+	/**
+	 * Finds return and assignment expressions to the old field name, and replaces
+	 * them by the new field name.
+	 */
 	private class GetterFieldRenamingVisitor extends VoidVisitorAdapter<Void> {
 		private final String m_oldName;
 
@@ -1110,6 +1116,5 @@ public class ColumnWrapper {
 				}
 			}
 		}
-
 	}
 }
