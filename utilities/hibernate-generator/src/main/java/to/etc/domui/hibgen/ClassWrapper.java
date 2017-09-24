@@ -296,9 +296,7 @@ class ClassWrapper {
 			cw.setGetter(md);
 
 		for(AnnotationExpr annotationExpr : md.getAnnotations()) {
-			if(annotationExpr instanceof NormalAnnotationExpr) {
-				handleDatabaseAnnotation(cw, (NormalAnnotationExpr) annotationExpr);
-			}
+			handleDatabaseAnnotation(cw, annotationExpr);
 		}
 	}
 
@@ -359,75 +357,77 @@ class ClassWrapper {
 		}
 
 		for(AnnotationExpr annotationExpr : d.getAnnotations()) {
-			if(annotationExpr instanceof NormalAnnotationExpr) {
-				for(ColumnWrapper columnWrapper : list) {
-					handleDatabaseAnnotation(columnWrapper, (NormalAnnotationExpr) annotationExpr);
-				}
+			for(ColumnWrapper columnWrapper : list) {
+				handleDatabaseAnnotation(columnWrapper, annotationExpr);
 			}
 		}
 	}
 
-	private void handleDatabaseAnnotation(ColumnWrapper columnWrapper, NormalAnnotationExpr annotationExpr) {
+	private void handleDatabaseAnnotation(ColumnWrapper columnWrapper, AnnotationExpr ax) {
 		if("type".equalsIgnoreCase(columnWrapper.getPropertyName())) {
 			System.out.println("GOTCHA");
 		}
 
-		String name = annotationExpr.getName().asString();
+		String name = ax.getName().asString();
 
 		if(name.equals("Transient")) {
 			columnWrapper.setTransient(true);
 			return;
 		}
 
-		if(name.equals("Column")) {
-			String columnName = null;
-			int length = -1;
-			for(MemberValuePair pair : annotationExpr.getPairs()) {
-				String prop = pair.getName().asString();
-				if(prop.equals("name")) {
-					columnName = resolveConstant(pair.getValue());
-				} else if(prop.equals("length")) {
-					length = resolveInt(pair.getValue());
-				}
-			}
+		if(ax instanceof NormalAnnotationExpr) {
+			NormalAnnotationExpr annotationExpr = (NormalAnnotationExpr) ax;
 
-			if(columnName != null && columnName.length() > 0) {
-				//m_byColNameMap.put(columnName.toLowerCase(), columnWrapper);
-				columnWrapper.setJavaColumnName(columnName);
-			}
-		} else if(name.equals("JoinColumn")) {
-			String columnName = null;
-			for(MemberValuePair pair : annotationExpr.getPairs()) {
-				String prop = pair.getName().asString();
-				if(prop.equals("name")) {
-					columnName = resolveConstant(pair.getValue());
+			if(name.equals("Column")) {
+				String columnName = null;
+				int length = -1;
+				for(MemberValuePair pair : annotationExpr.getPairs()) {
+					String prop = pair.getName().asString();
+					if(prop.equals("name")) {
+						columnName = resolveConstant(pair.getValue());
+					} else if(prop.equals("length")) {
+						length = resolveInt(pair.getValue());
+					}
 				}
-			}
 
-			if(columnName != null && columnName.length() > 0) {
-				//m_byColNameMap.put(columnName.toLowerCase(), columnWrapper);
-				columnWrapper.setJavaColumnName(columnName);
-			}
-		} else if(name.equals("OneToMany")) {
-			String mappedBy = null;
-			int length = -1;
-			for(MemberValuePair pair : annotationExpr.getPairs()) {
-				String prop = pair.getName().asString();
-				if(prop.equals("mappedBy")) {
-					mappedBy = resolveConstant(pair.getValue());
+				if(columnName != null && columnName.length() > 0) {
+					//m_byColNameMap.put(columnName.toLowerCase(), columnWrapper);
+					columnWrapper.setJavaColumnName(columnName);
 				}
-			}
-			if(null != mappedBy) {
-				columnWrapper.setOneToMany(mappedBy);
-			}
-		} else if(name.equals("ManyToOne")) {
-			//-- Find the parent class
-			Type propertyType = columnWrapper.getPropertyType();
+			} else if(name.equals("JoinColumn")) {
+				String columnName = null;
+				for(MemberValuePair pair : annotationExpr.getPairs()) {
+					String prop = pair.getName().asString();
+					if(prop.equals("name")) {
+						columnName = resolveConstant(pair.getValue());
+					}
+				}
 
-			if(! (propertyType instanceof ClassOrInterfaceType)) {
-				error("ManyToOne on primitive");
-			} else {
-				columnWrapper.setManyToOne();
+				if(columnName != null && columnName.length() > 0) {
+					//m_byColNameMap.put(columnName.toLowerCase(), columnWrapper);
+					columnWrapper.setJavaColumnName(columnName);
+				}
+			} else if(name.equals("OneToMany")) {
+				String mappedBy = null;
+				int length = -1;
+				for(MemberValuePair pair : annotationExpr.getPairs()) {
+					String prop = pair.getName().asString();
+					if(prop.equals("mappedBy")) {
+						mappedBy = resolveConstant(pair.getValue());
+					}
+				}
+				if(null != mappedBy) {
+					columnWrapper.setOneToMany(mappedBy);
+				}
+			} else if(name.equals("ManyToOne")) {
+				//-- Find the parent class
+				Type propertyType = columnWrapper.getPropertyType();
+
+				if(!(propertyType instanceof ClassOrInterfaceType)) {
+					error("ManyToOne on primitive");
+				} else {
+					columnWrapper.setManyToOne();
+				}
 			}
 		}
 	}
@@ -570,6 +570,9 @@ class ClassWrapper {
 		List<ColumnWrapper> deleteList = new ArrayList<>();
 
 		for(ColumnWrapper cw : m_allColumnWrappers) {
+			if(cw.getPropertyName().equals("fullName")) {
+				System.out.println("GOTCHA");
+			}
 			if(! cw.isTransient()) {
 				if(cw.getColumn() == null && cw.getRelationType() != RelationType.oneToMany) {
 					deleteList.add(cw);
@@ -1348,6 +1351,9 @@ class ClassWrapper {
 		m_allColumnWrappers.forEach(w -> w.renameFieldName());
 	}
 
+	/**
+	 * Delete all constructors.
+	 */
 	public void destroyConstructors() {
 		List<ConstructorDeclaration> list = new ArrayList<>();
 
