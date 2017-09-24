@@ -1008,4 +1008,23 @@ public class ColumnWrapper {
 		String childClass = childProperty.getClassWrapper().getSimpleName();
 		setPropertyName(childPropertyName + childClass + "List");
 	}
+
+	public void changePropertyType(ClassOrInterfaceType newType) {
+		VariableDeclarator vd = getVariableDeclaration();
+		if(null != vd) {
+			vd.setType(newType);
+		}
+
+		MethodDeclaration getter = getGetter();
+		if(null != getter) {
+			getter.setType(newType);
+		}
+
+		MethodDeclaration setter = getSetter();
+		if(null != setter) {
+			setter.getParameter(0).setType(newType);
+		}
+	}
+
+
 }

@@ -21,12 +21,15 @@ import com.github.javaparser.ast.expr.NormalAnnotationExpr;
 import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.expr.StringLiteralExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.VoidType;
 import to.etc.dbutil.schema.DbColumn;
+import to.etc.dbutil.schema.DbPrimaryKey;
 import to.etc.dbutil.schema.DbSchema;
 import to.etc.dbutil.schema.DbTable;
 import to.etc.domui.hibgen.ColumnWrapper.RelationType;
+import to.etc.webapp.query.IIdentifyable;
 
 import javax.annotation.Nullable;
 import java.beans.Introspector;
@@ -141,6 +144,16 @@ class ClassWrapper {
 		m_generator.info(getOutputFile(), msg);
 	}
 
+	@Nullable
+	public ColumnWrapper getPrimaryKey() {
+		DbPrimaryKey primaryKey = m_table.getPrimaryKey();
+		if(primaryKey == null)
+			return null;
+
+		if(primaryKey.getColumnList().size() != 1)
+			return null;
+		return findColumnByColumnName(primaryKey.getColumnList().get(0).getName());
+	}
 
 	private File getOutputFile() {
 		String name = m_fullClassName.replace('.', File.separatorChar) + ".java";
@@ -843,7 +856,14 @@ class ClassWrapper {
 		System.out.println(name);
 		getUnit().addImport(name);
 
-		return new ClassOrInterfaceType(AbstractGenerator.finalName(name));
+		ClassOrInterfaceType nw = new ClassOrInterfaceType(AbstractGenerator.finalName(name));
+		if(type instanceof ClassOrInterfaceType) {
+			ClassOrInterfaceType ct = (ClassOrInterfaceType) type;
+			if(ct.getTypeArguments().isPresent()) {
+				nw.setTypeArguments(ct.getTypeArguments().get());
+			}
+		}
+		return nw;
 	}
 
 	protected void importIf(String name) {
@@ -1220,5 +1240,57 @@ class ClassWrapper {
 
 	public void assignBaseClass(ClassWrapper baseClass) {
 		m_useBaseClass = baseClass;
+	}
+
+	/**
+	 * This adjusts the class's definition. If the class extends a base class then the "extends baseclass" will be added,
+	 * and if the identifyable option is set it also adds IIdentifyable&lt;T>.
+	 */
+	public void handleClassDefinition() {
+		ClassWrapper useBaseClass = m_useBaseClass;
+		ClassOrInterfaceDeclaration rootType = getRootType();
+		if(useBaseClass != null) {
+			ClassOrInterfaceType baseClass = new ClassOrInterfaceType(useBaseClass.getClassName());
+			baseClass = (ClassOrInterfaceType) importIf(baseClass);
+
+			if(! rootType.getExtendedTypes().contains(baseClass)) {
+				rootType.getExtendedTypes().add(baseClass);
+			}
+		}
+
+		ColumnWrapper primaryKey = getPrimaryKey();
+		if(g().isAddIdentifyable() && null != primaryKey) {
+			ClassOrInterfaceType iident = new ClassOrInterfaceType(IIdentifyable.class.getCanonicalName());
+			iident.setTypeArguments(NodeList.nodeList(primaryKey.getPropertyType()));
+
+			iident = (ClassOrInterfaceType) importIf(iident);
+			if(! rootType.getImplementedTypes().contains(iident)) {
+				rootType.getImplementedTypes().add(iident);
+			}
+		}
+	}
+
+	/**
+	 * If the PK for this class is a primitive then fix its type to become a wrapper.
+	 */
+	public void fixPkNullity() {
+		ColumnWrapper primaryKey = getPrimaryKey();
+		if(null == primaryKey)
+			return;
+
+		Type type = primaryKey.getPropertyType();
+		if(! (type instanceof PrimitiveType)) {
+			return;
+		}
+		error("primary key is primitive type, this is not allowed. Changing it to become a wrapper type.");
+		PrimitiveType ptype = (PrimitiveType) type;
+
+		ClassOrInterfaceType newType;
+		if(type.asString().equals("int") && g().isForcePkToLong()) {
+			newType = new ClassOrInterfaceType("Long");
+		} else {
+			newType = ptype.toBoxedType();
+		}
+		primaryKey.changePropertyType(newType);
 	}
 }

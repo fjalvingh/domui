@@ -61,6 +61,8 @@ abstract public class AbstractGenerator {
 
 	private List<ClassWrapper> m_classWrapperList = new ArrayList<>();
 
+	private boolean m_addIdentifyable = true;
+
 	private boolean m_hideSchemaNameFromTableName = true;
 
 	private boolean m_addSchemaNameToClassName = true;
@@ -74,6 +76,8 @@ abstract public class AbstractGenerator {
 	private boolean m_skipBundles = false;
 
 	private boolean m_skipBaseClasses = false;
+
+	private boolean m_forcePkToLong = true;
 
 	/** When T, this does not check for the same type on columns to attach the base class. */
 	private boolean m_matchBaseClassesOnColumnNameOnly = false;
@@ -116,6 +120,7 @@ abstract public class AbstractGenerator {
 		removePropertyNameConstants();
 
 		renamePrimaryKeys();
+		m_classWrapperList.forEach(w -> w.fixPkNullity());
 		calculateColumnTypes();
 
 		assignBaseClasses();
@@ -126,6 +131,8 @@ abstract public class AbstractGenerator {
 		resolveOneToManyDuplicates();
 
 		loadNlsPropertyFiles();
+
+		m_classWrapperList.forEach(w -> w.handleClassDefinition());
 
 		generateProperties();
 		renderOutput();
@@ -828,6 +835,14 @@ abstract public class AbstractGenerator {
 
 	public boolean isMatchBaseClassesOnColumnNameOnly() {
 		return m_matchBaseClassesOnColumnNameOnly;
+	}
+
+	public boolean isAddIdentifyable() {
+		return m_addIdentifyable;
+	}
+
+	public boolean isForcePkToLong() {
+		return m_forcePkToLong;
 	}
 
 	/**
