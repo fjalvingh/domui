@@ -59,12 +59,6 @@ abstract public class AbstractGenerator {
 
 	private String m_fieldPrefix = "m_";
 
-	///** Map a fq class name to its wrapper */
-	//private Map<String, ClassWrapper> m_byClassnameMap = new HashMap<>();
-	//
-	///** Map a table to its wrapper. */
-	//private Map<DbTable, ClassWrapper> m_byTableMap = new HashMap<>();
-
 	private List<ClassWrapper> m_classWrapperList = new ArrayList<>();
 
 	private boolean m_hideSchemaNameFromTableName = true;
@@ -79,6 +73,11 @@ abstract public class AbstractGenerator {
 
 	private boolean m_skipBundles = false;
 
+	private boolean m_skipBaseClasses = false;
+
+	/** When T, this does not check for the same type on columns to attach the base class. */
+	private boolean m_matchBaseClassesOnColumnNameOnly = false;
+
 	private Set<String> m_altBundles = new HashSet<>();
 
 	private String m_forcePKIdentifier = "id";
@@ -86,7 +85,7 @@ abstract public class AbstractGenerator {
 	/** Postgres: when T, a Hibernate sequence identifier generator is used instead of the @Generated(GenerationType.IDENTIFIER) for an autoincrement column. */
 	private boolean m_replaceSerialWithSequence = true;
 
-	/** When T this always appends a schema name. */
+	/** When T this always appends a schema name, when F it only adds it if there are more than one schemas scanned. */
 	private boolean m_appendSchemaName;
 
 	private File m_configFile;
@@ -95,6 +94,8 @@ abstract public class AbstractGenerator {
 
 	private Node m_configRoot;
 
+	private List<ClassWrapper> m_baseClassList = new ArrayList<>();
+
 	abstract protected Connection createConnection() throws Exception;
 
 	protected abstract Set<DbSchema> loadSchemas(List<String> schemaSet) throws Exception;
@@ -102,18 +103,23 @@ abstract public class AbstractGenerator {
 	public void generate(List<String> schemaSet) throws Exception {
 		loadUserConfig();
 
+		// ordered list of actions
 		createConnection();								// Fast test whether db can be opened
 		m_schemaSet = loadSchemas(schemaSet);
 		loadJavaSources();
 		matchTablesAndSources();
 		fixMissingPrimaryKeys();
 		matchColumns();
+
 		findManyToOneClasses();
 		removeUnusedProperties();
 		removePropertyNameConstants();
 
 		renamePrimaryKeys();
 		calculateColumnTypes();
+
+		assignBaseClasses();
+
 		calculateRelationNames();
 
 		generateOneToManyProperties();
@@ -125,6 +131,22 @@ abstract public class AbstractGenerator {
 		renderOutput();
 
 		saveUserConfig();
+	}
+
+	/**
+	 * For every data class, check whether it could be served by having a base class.
+	 */
+	private void assignBaseClasses() {
+		if(m_baseClassList.size() == 0 || isSkipBaseClasses())
+			return;
+
+		for(ClassWrapper cw : m_classWrapperList) {
+			ClassWrapper baseClass = findBaseClassFor(cw);
+			if(null != baseClass) {
+				cw.assignBaseClass(baseClass);
+				info(cw + " should use base class " + baseClass);
+			}
+		}
 	}
 
 	private void saveUserConfig() throws Exception {
@@ -513,8 +535,16 @@ abstract public class AbstractGenerator {
 			}
 
 			ClassWrapper wrapper = new ClassWrapper(this, file, parse);
-			m_classWrapperList.add(wrapper);
 			wrapper.scanAndRegister();
+
+			//-- We're only interested in classes that have something useful..
+			if(wrapper.getTable() != null) {
+				m_classWrapperList.add(wrapper);
+			} else if(wrapper.isBaseClass()) {
+				m_baseClassList.add(wrapper);
+			} else {
+				info(file + ": not entity related, skipping");
+			}
 		} catch(FileNotFoundException e) {
 			error(file, "Cannot load file");
 		}
@@ -789,6 +819,30 @@ abstract public class AbstractGenerator {
 		Node value = m_configDocument.createAttribute(property);
 		value.setNodeValue("");
 		tc.getAttributes().setNamedItem(value);
+		return null;
+	}
+
+	public boolean isSkipBaseClasses() {
+		return m_skipBaseClasses;
+	}
+
+	public boolean isMatchBaseClassesOnColumnNameOnly() {
+		return m_matchBaseClassesOnColumnNameOnly;
+	}
+
+	/**
+	 * If base classes are found, and if the columns they expose match those in the
+	 * actual table then return the first matching baseclass.
+	 */
+	@Nullable
+	public ClassWrapper findBaseClassFor(ClassWrapper other) {
+		if(isSkipBaseClasses())
+			return null;
+		for(ClassWrapper classWrapper : m_baseClassList) {
+			if(classWrapper.baseClassMatchesTable(other)) {
+				return classWrapper;
+			}
+		}
 		return null;
 	}
 }

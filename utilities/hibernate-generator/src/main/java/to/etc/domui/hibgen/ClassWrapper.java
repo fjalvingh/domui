@@ -45,6 +45,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -82,6 +83,12 @@ class ClassWrapper {
 	private List<ColumnWrapper> m_deletedColumns = new ArrayList<>();
 
 	private Map<String, SortedProperties> m_propertyByKeyMap = new HashMap<>();
+
+	private boolean m_baseClass;
+
+	/** When set this class should use the specified base class as it's base class. */
+	@Nullable
+	private ClassWrapper m_useBaseClass;
 
 	public ClassWrapper(AbstractGenerator generator, File file, CompilationUnit unit) {
 		m_generator = generator;
@@ -213,6 +220,8 @@ class ClassWrapper {
 			String name = annotationExpr.getName().asString();
 			if("Table".equals(name)) {
 				handleTableAnnotation(annotationExpr);
+			} else if("MappedSuperclass".equals(name)) {
+				m_baseClass = true;
 			}
 		}
 
@@ -1161,5 +1170,55 @@ class ClassWrapper {
 
 	public org.w3c.dom.Node getConfig() {
 		return g().getTableConfig(m_table);
+	}
+
+	/**
+	 * T when this is not a real entity class but a mapped SuperClass.
+	 * @return
+	 */
+	public boolean isBaseClass() {
+		return m_baseClass;
+	}
+
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	Base class handling											*/
+	/*----------------------------------------------------------------------*/
+
+
+	/**
+	 * See if this base class matches the columns and properties of the other class. If all
+	 * properties of this base class can be found in the other class then we return
+	 * true. The properties are matched on column name and property type, not on
+	 * property name as those can differ.
+	 *
+	 * @param other
+	 * @return
+	 */
+	public boolean baseClassMatchesTable(ClassWrapper other) {
+		if(! isBaseClass())
+			throw new IllegalStateException(this + ": should be a base class");
+
+		for(ColumnWrapper cw : m_allColumnWrappers) {
+			if(cw.isTransient())
+				continue;
+			String columnName = cw.getJavaColumnName();
+			if(null == columnName) {
+				columnName = cw.getPropertyName();			// If there is no column name the name of the column is, by definition, the property name
+			}
+
+			ColumnWrapper otherColumn = other.findColumnByColumnName(columnName);
+			if(null == otherColumn)
+				return false;
+			if(! g().isMatchBaseClassesOnColumnNameOnly()) {
+				if(! Objects.equals(cw.getPropertyType(), otherColumn.getPropertyType())) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	public void assignBaseClass(ClassWrapper baseClass) {
+		m_useBaseClass = baseClass;
 	}
 }
