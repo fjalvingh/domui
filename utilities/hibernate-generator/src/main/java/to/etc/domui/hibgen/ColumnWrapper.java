@@ -734,6 +734,10 @@ public class ColumnWrapper {
 	 * @param getter
 	 */
 	private void renderIdAnnotations(MethodDeclaration getter) throws Exception {
+		if(g().isAddIdentifyable()) {
+			createOrFindMarkerAnnotation(getter, "Override");
+		}
+
 		Boolean aic = m_column.isAutoIncrement();
 		if(aic != null && aic.booleanValue()) {
 			if(g().isReplaceSerialWithSequence()) {
