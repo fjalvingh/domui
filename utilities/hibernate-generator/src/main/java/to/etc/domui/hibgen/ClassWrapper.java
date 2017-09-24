@@ -1158,4 +1158,8 @@ class ClassWrapper {
 			}
 		}
 	}
+
+	public org.w3c.dom.Node getConfig() {
+		return g().getTableConfig(m_table);
+	}
 }

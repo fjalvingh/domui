@@ -5,17 +5,30 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.PackageDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.expr.Name;
+import com.sun.org.apache.xerces.internal.dom.DocumentImpl;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import to.etc.dbutil.schema.DbColumn;
 import to.etc.dbutil.schema.DbSchema;
 import to.etc.dbutil.schema.DbTable;
 import to.etc.util.FileTool;
+import to.etc.xml.DomTools;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -76,11 +89,19 @@ abstract public class AbstractGenerator {
 	/** When T this always appends a schema name. */
 	private boolean m_appendSchemaName;
 
+	private File m_configFile;
+
+	private Document m_configDocument;
+
+	private Node m_configRoot;
+
 	abstract protected Connection createConnection() throws Exception;
 
 	protected abstract Set<DbSchema> loadSchemas(List<String> schemaSet) throws Exception;
 
 	public void generate(List<String> schemaSet) throws Exception {
+		loadUserConfig();
+
 		createConnection();								// Fast test whether db can be opened
 		m_schemaSet = loadSchemas(schemaSet);
 		loadJavaSources();
@@ -102,6 +123,30 @@ abstract public class AbstractGenerator {
 
 		generateProperties();
 		renderOutput();
+
+		saveUserConfig();
+	}
+
+	private void saveUserConfig() throws Exception {
+		Source source = new DOMSource(m_configDocument);
+		StreamResult result = new StreamResult(new OutputStreamWriter(new FileOutputStream(m_configFile), "utf-8"));
+		Transformer xformer = TransformerFactory.newInstance().newTransformer();
+		xformer.setOutputProperty(OutputKeys.INDENT, "yes");
+		xformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+		xformer.transform(source, result);
+	}
+
+	private void loadUserConfig() throws Exception {
+		String packagePath = getPackageName().replace('.', File.separatorChar);
+		m_configFile = new File(getSourceDirectory(), packagePath + File.separatorChar + "genHib.xml");
+		if(m_configFile.exists()) {
+			m_configDocument = DomTools.getDocument(m_configFile, false);
+			m_configRoot = DomTools.getRootElement(m_configDocument);
+		} else {
+			Document xmlDoc = m_configDocument = new DocumentImpl();
+			m_configRoot = xmlDoc.createElement("config");
+			xmlDoc.appendChild(m_configRoot);
+		}
 	}
 
 	private void loadNlsPropertyFiles() throws Exception {
@@ -213,12 +258,13 @@ abstract public class AbstractGenerator {
 		for(DbTable dbTable : getAllTables()) {
 			ClassWrapper wrapper = m_byTableMap.get(dbTable);
 			if(null == wrapper) {
-				createNewWrapper(dbTable);
+				wrapper = createNewWrapper(dbTable);
 			}
+			wrapper.getConfig();
 		}
 	}
 
-	private void createNewWrapper(DbTable tbl) {
+	private ClassWrapper createNewWrapper(DbTable tbl) {
 		String tableName = tbl.getName();
 		String schemaName = tbl.getSchema().getName();
 		List<String> splitSchema = splitName(schemaName);
@@ -260,6 +306,7 @@ abstract public class AbstractGenerator {
 		//
 		//System.out.println("Created new class " + fullName);
 		//System.out.println(cu.toString());
+		return wrapper;
 	}
 
 	private String createClassComment(DbTable table) {
@@ -708,5 +755,33 @@ abstract public class AbstractGenerator {
 
 	public Set<String> getAltBundles() {
 		return m_altBundles;
+	}
+
+	/**
+	 * Find the node for the specified table.
+	 * @param table
+	 * @return
+	 */
+	public Node getTableConfig(DbTable table) {
+		String tblname = table.getSchema().getName() + "." + table.getName();
+
+		NodeList childNodes = m_configRoot.getChildNodes();
+		for(int i = 0; i < childNodes.getLength(); i++) {
+			Node item = childNodes.item(i);
+			if("table".equals(item.getNodeName())) {
+				String name = DomTools.strAttr(item, "name");
+				if(tblname.equals(name)) {
+					return item;
+				}
+			}
+		}
+
+		//-- Create it
+		Node node = m_configDocument.createElement("table");
+		m_configRoot.appendChild(node);
+		Node value = m_configDocument.createAttribute("name");
+		value.setNodeValue(tblname);
+		node.getAttributes().setNamedItem(value);
+		return node;
 	}
 }
