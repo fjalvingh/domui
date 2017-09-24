@@ -98,7 +98,7 @@ class ClassWrapper {
 		m_file = file;
 		m_unit = unit;
 		String name = m_file.getName();
-		m_simpleName = name.substring(0, name.lastIndexOf("."));                // Strip .java
+		m_simpleName = name.substring(0, name.indexOf("."));                // Strip any suffix
 		m_fullClassName = calculateClassName();
 
 		ClassOrInterfaceDeclaration rootType = null;
@@ -156,14 +156,17 @@ class ClassWrapper {
 	}
 
 	private File getOutputFile() {
+		File base = m_generator.getOutputDirectory();
+		if(null == base)
+			base = m_generator.getSourceDirectory();
 		String name = m_fullClassName.replace('.', File.separatorChar) + ".java";
-		return new File(m_generator.getOutputDirectory(), name);
+		return new File(base, name);
 	}
 
 	public String calculateClassName() {
 		String pkg = m_unit.getPackageDeclaration().get().getName().asString();
 		String name = m_file.getName();
-		name = name.substring(0, name.lastIndexOf("."));                // Strip .java
+		name = name.substring(0, name.indexOf("."));                // Strip .java
 		return pkg + "." + name;
 	}
 
@@ -772,8 +775,25 @@ class ClassWrapper {
 	public void print() throws IOException {
 		File outputFile = getOutputFile();
 		outputFile.getParentFile().mkdirs();
+
+		backupTarget(outputFile);
+
 		try(Writer w = new FileWriter(outputFile)) {
 			w.write(m_unit.toString());
+		}
+	}
+
+	private void backupTarget(File outputFile) {
+		if(! outputFile.exists())
+			return;
+
+		String newName = outputFile.getName() + ".old";
+		File backupFile = new File(outputFile.getParentFile(), newName);
+		if(backupFile.exists())
+			return;
+
+		if(!outputFile.renameTo(backupFile)) {
+			throw new RuntimeException("cannot rename " + outputFile + " to " + backupFile);
 		}
 	}
 

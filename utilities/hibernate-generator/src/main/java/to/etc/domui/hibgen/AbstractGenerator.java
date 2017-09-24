@@ -523,8 +523,20 @@ abstract public class AbstractGenerator {
 		}
 	}
 
+	/**
+	 * Load the java source file. But if a file exists with the same name but with the '.java.old' suffix then
+	 * this .old file gets loaded, so that multiple runs can be done on the same source data.
+	 *
+	 * @param file
+	 * @param relPath
+	 */
 	private void loadJavaFile(File file, String relPath) {
-		info("Loading " + relPath);
+		String altName = file.getName() + ".old";
+		File oldFile = new File(file.getParentFile(), altName);
+		if(oldFile.exists() && oldFile.isFile()) {
+			file = oldFile;
+		}
+		info("Loading " + oldFile);
 		try {
 			CompilationUnit parse = JavaParser.parse(file);
 
@@ -656,10 +668,12 @@ abstract public class AbstractGenerator {
 		return m_sourceDirectory;
 	}
 
+	@Nullable
 	public File getOutputDirectory() {
-		File file = new File("/tmp/gen");
-		file.mkdirs();
-		return file;
+		return null;
+		//File file = new File("/tmp/gen");
+		//file.mkdirs();
+		//return file;
 	}
 
 	@Nullable
