@@ -1094,17 +1094,27 @@ class ClassWrapper {
 			throw new IllegalStateException();
 		String baseName = file.getName();
 		baseName = baseName.substring(0, baseName.lastIndexOf('.'));		// Strip extension
+		File basePath = calculatePropertiesBasePath(file.getParentFile());
 
-		loadPropertyFile(file.getParentFile(), baseName, "");
+		loadPropertyFile(basePath, baseName, "");
 		for(String lang : g().getAltBundles()) {
-			loadPropertyFile(file.getParentFile(), baseName, lang);
+			loadPropertyFile(basePath, baseName, lang);
 		}
 	}
 
-	private void loadPropertyFile(File parentFile, String baseName, String ext) throws Exception {
+	private File calculatePropertiesBasePath(File path) {
+		String fullPath = path.getAbsolutePath();
+		if(fullPath.contains("/src/main/java/")) {
+			//-- Maven structure: resources are separate because it's made by idiots.
+			return new File(fullPath.replace("/src/main/java/",  "/src/main/resources/"));
+		}
+		return path;
+	}
+
+	private void loadPropertyFile(File basePath, String baseName, String ext) throws Exception {
 		String extra = ext.length() == 0 ? "" : "_" + ext;
 
-		File propertyFile = new File(parentFile, baseName + extra + ".properties");
+		File propertyFile = new File(basePath, baseName + extra + ".properties");
 		if(! propertyFile.exists() || ! propertyFile.isFile())
 			return;
 
@@ -1138,9 +1148,11 @@ class ClassWrapper {
 		String baseName = file.getName();
 		baseName = baseName.substring(0, baseName.lastIndexOf('.'));		// Strip extension
 
+		File basePath = calculatePropertiesBasePath(file.getParentFile());
 		for(Entry<String, SortedProperties> e : m_propertyByKeyMap.entrySet()) {
 			String ext = e.getKey().length() == 0 ? "" : "_" + e.getKey();
-			File out = new File(getOutputFile().getParent(), baseName + ext + ".properties");
+			File out = new File(basePath, baseName + ext + ".properties");
+			out.getParentFile().mkdirs();
 			try(Writer w = new OutputStreamWriter(new FileOutputStream(out), "utf-8")) {
 				e.getValue().store(w, "NLS bundle");
 			}
