@@ -189,7 +189,7 @@ public class ColumnWrapper {
 
 	public void setPropertyType(Type propertyType) {
 		if(propertyType == null)
-			throw new IllegalStateException();
+			throw new IllegalStateException(this + ": cannot set null type");
 		m_propertyType = propertyType;
 	}
 

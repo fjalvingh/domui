@@ -1,5 +1,6 @@
 package to.etc.domui.hibgen;
 
+import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.Modifier;
@@ -10,6 +11,7 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.TypeDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.AnnotationExpr;
@@ -22,8 +24,10 @@ import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.NormalAnnotationExpr;
 import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.expr.StringLiteralExpr;
+import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
+import com.github.javaparser.ast.type.PrimitiveType.Primitive;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.VoidType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
@@ -48,7 +52,9 @@ import java.io.Reader;
 import java.io.Writer;
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -654,11 +660,15 @@ class ClassWrapper {
 	 * Render all basic table properties.
 	 */
 	public void renderProperties() throws Exception {
-		DbTable table = m_table;
-		if(table == null)
-			return;
-
+		//DbTable table = m_table;
+		//if(table == null)
+		//	return;
+		//
 		renderClassAnnotations();
+
+		if("PdimetaConfDatavaultSatelliteSsmId".equalsIgnoreCase(getSimpleName())) {
+			System.out.println("GOTCHA");
+		}
 
 		for(ColumnWrapper cw : m_allColumnWrappers) {
 			if("DefinitionProductpartlist".equalsIgnoreCase(cw.getPropertyName())) {
@@ -673,11 +683,14 @@ class ClassWrapper {
 	private void renderClassAnnotations() {
 		ClassOrInterfaceDeclaration rootType = getRootType();
 		createOrFindMarkerAnnotation(rootType, "javax.persistence.Entity");
-		NormalAnnotationExpr a = createOrFindAnnotation(rootType, "javax.persistence.Table");
-		setPair(a, "name", m_table.getName(), true);
-		DbSchema schema = m_table.getSchema();
-		if(g().isAppendSchemaName()) {
-			setPair(a,"schema", schema.getName(), true);
+		DbTable table = m_table;
+		if(null != table) {
+			NormalAnnotationExpr a = createOrFindAnnotation(rootType, "javax.persistence.Table");
+			setPair(a, "name", table.getName(), true);
+			DbSchema schema = table.getSchema();
+			if(g().isAppendSchemaName()) {
+				setPair(a, "schema", schema.getName(), true);
+			}
 		}
 	}
 
@@ -1459,13 +1472,15 @@ class ClassWrapper {
 				error("Cannot locate property for primary key column " + dbColumn.getName());
 				return;
 			}
+			list.add(property);
 		}
 
 		ColumnWrapper pkProperty = m_primaryKey;
+		ClassWrapper pkWrapper;
 		if(null == pkProperty) {
 			//-- we need to create a new class and a new property.
 			String pkClassName = getSimpleName() + "Id";
-			ClassWrapper pkWrapper = g().findClassWrapper(ClassWrapperType.embeddableClass, getPackageName(), pkClassName);
+			pkWrapper = g().findClassWrapper(ClassWrapperType.embeddableClass, getPackageName(), pkClassName);
 			if(null == pkWrapper) {
 				pkWrapper = g().createWrapper(getPackageName(), pkClassName);
 				pkWrapper.setType(ClassWrapperType.embeddableClass);
@@ -1479,8 +1494,164 @@ class ClassWrapper {
 			pkProperty.setType(ColumnType.compoundKey);
 			m_primaryKey = pkProperty;
 			m_allColumnWrappers.add(pkProperty);
-
+		} else {
+			pkWrapper = g().findClassWrapper(ClassWrapperType.embeddableClass, getPackageName(), pkProperty.getPropertyType().asString());
+			if(null == pkWrapper) {
+				throw new IllegalStateException(this + ": cannot locate embeddedClass for compound primary key: " + pkProperty.getPropertyType().asString());
+			}
 		}
+
+		if(pkWrapper.getType() != ClassWrapperType.embeddableClass) {
+			throw new IllegalStateException(this+ ": compound pk class " + pkWrapper + " is not embeddable");
+		}
+
+		//-- Handle column assignments for the complex typething
+		pkWrapper.assignPkColumnProperties(list);
+		m_allColumnWrappers.removeAll(list);
+
 		m_primaryKeyRecalculated = true;
+	}
+
+	/**
+	 * For an embedded class, merge the properties passed as the properties for the ID class.
+	 * @param list
+	 */
+	private void assignPkColumnProperties(List<ColumnWrapper> list) {
+		Set<ColumnWrapper> deleteSet = new HashSet<>(m_allColumnWrappers);
+
+		boolean changed = false;
+		for(ColumnWrapper expCw : list) {
+			ColumnWrapper cn = findColumnByColumnName(expCw.getColumn().getName());
+			if(null == cn) {
+				cn = new ColumnWrapper(this);
+				m_allColumnWrappers.add(cn);
+				cn.setPropertyName(expCw.getPropertyName());
+				cn.setType(expCw.getType());
+				cn.setPropertyType(expCw.getPropertyType());
+				cn.setJavaColumnName(expCw.getColumn().getName());
+				cn.setNew(true);
+				cn.setColumn(expCw.getColumn());
+				changed = true;
+			} else {
+				deleteSet.remove(cn);
+			}
+		}
+
+		for(ColumnWrapper cw : deleteSet) {
+			deleteColumn(cw);
+			changed = true;
+		}
+
+		if(changed) {
+			regenerateEquals();
+			regenerateHashcode();
+		}
+
+	}
+
+	private void regenerateEquals() {
+		importIf("java.util.Objects");
+		EnumSet<Modifier> modifiers = EnumSet.of(Modifier.PUBLIC);
+		MethodDeclaration eq = new MethodDeclaration(modifiers, new PrimitiveType(Primitive.BOOLEAN), "equals");
+		eq.setModifiers(modifiers);
+		createOrFindMarkerAnnotation(eq, "java.lang.Override");
+
+		Parameter param = new Parameter(new ClassOrInterfaceType("Object"), "o");
+		eq.addParameter(param);
+
+		ClassOrInterfaceDeclaration rootType = getRootType();
+		rootType.addMember(eq);
+
+		BlockStmt block = new BlockStmt();
+		block.addStatement(JavaParser.parseStatement("if(o == this)\nreturn true;"));
+		block.addStatement(JavaParser.parseStatement("if(o == null || getClass() != o.getClass())\n\t\t\treturn false;"));
+		block.addStatement(JavaParser.parseStatement(getSimpleName() + " that = (" + getSimpleName() + ") o;"));
+
+		StringBuilder sb = new StringBuilder();
+		sb.append("return ");
+		int count = 0;
+		for(ColumnWrapper cw : m_allColumnWrappers) {
+			String propName = cw.getPropertyName();
+			String fieldPrefix = g().getFieldPrefix();
+			if(fieldPrefix != null) {
+				propName = fieldPrefix + propName;
+			}
+
+			sb.append("\t");
+			if(count++ > 0)
+				sb.append("&& ");
+			sb.append("Objects.equals(").append(propName).append(", that.").append(propName).append(")");
+			sb.append("\n");
+		}
+		sb.append(";");
+		System.out.println(sb.toString());
+		block.addStatement(JavaParser.parseStatement(sb.toString()));
+		eq.setBody(block);
+	}
+
+	private void regenerateHashcode() {
+		importIf("java.util.Objects");
+		EnumSet<Modifier> modifiers = EnumSet.of(Modifier.PUBLIC);
+		MethodDeclaration eq = new MethodDeclaration(modifiers, new PrimitiveType(Primitive.INT), "hashCode");
+		eq.setModifiers(modifiers);
+		createOrFindMarkerAnnotation(eq, "java.lang.Override");
+
+		ClassOrInterfaceDeclaration rootType = getRootType();
+		rootType.addMember(eq);
+
+		BlockStmt block = new BlockStmt();
+		eq.setBody(block);
+
+		StringBuilder sb = new StringBuilder();
+		sb.append("return Objects.hash(");
+		int count = 0;
+		for(ColumnWrapper cw : m_allColumnWrappers) {
+			String propName = cw.getPropertyName();
+			String fieldPrefix = g().getFieldPrefix();
+			if(fieldPrefix != null) {
+				propName = fieldPrefix + propName;
+			}
+			if(count++ > 0)
+				sb.append(", ");
+			sb.append(propName);
+		}
+		sb.append(");");
+		block.addStatement(JavaParser.parseStatement(sb.toString()));
+	}
+
+	public void renderEmbeddableAnnotations() {
+		ClassOrInterfaceDeclaration rootType = getRootType();
+		createOrFindMarkerAnnotation(rootType, "javax.persistence.Embeddable");
+	}
+
+
+	@Override public boolean equals(Object o) {
+		if(this == o)
+			return true;
+		if(o == null || getClass() != o.getClass())
+			return false;
+		ClassWrapper that = (ClassWrapper) o;
+		return m_isNew == that.m_isNew &&
+			m_errors == that.m_errors &&
+			m_primaryKeyRecalculated == that.m_primaryKeyRecalculated &&
+			Objects.equals(m_generator, that.m_generator) &&
+			Objects.equals(m_file, that.m_file) &&
+			Objects.equals(m_fullClassName, that.m_fullClassName) &&
+			Objects.equals(m_simpleName, that.m_simpleName) &&
+			Objects.equals(m_rootType, that.m_rootType) &&
+			Objects.equals(m_unit, that.m_unit) &&
+			m_type == that.m_type &&
+			Objects.equals(m_table, that.m_table) &&
+			Objects.equals(m_allColumnWrappers, that.m_allColumnWrappers) &&
+			Objects.equals(m_deletedColumns, that.m_deletedColumns) &&
+			Objects.equals(m_propertyByKeyMap, that.m_propertyByKeyMap) &&
+			Objects.equals(m_primaryKey, that.m_primaryKey) &&
+			Objects.equals(m_primaryKeyEmbeddable, that.m_primaryKeyEmbeddable) &&
+			Objects.equals(m_useBaseClass, that.m_useBaseClass);
+	}
+
+	@Override public int hashCode() {
+		return Objects.hash(m_generator, m_isNew, m_file, m_fullClassName, m_simpleName, m_rootType, m_unit, m_errors, m_type, m_table, m_allColumnWrappers, m_deletedColumns, m_propertyByKeyMap,
+			m_primaryKeyRecalculated, m_primaryKey, m_primaryKeyEmbeddable, m_useBaseClass);
 	}
 }

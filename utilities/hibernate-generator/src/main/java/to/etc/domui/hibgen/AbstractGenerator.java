@@ -113,8 +113,6 @@ abstract public class AbstractGenerator {
 		matchTablesAndSources();
 		matchColumns();
 
-		assignComplexPrimaryKeys();
-
 		removeUnusedProperties();
 		findManyToOneClasses();
 		removePropertyNameConstants();
@@ -131,6 +129,8 @@ abstract public class AbstractGenerator {
 		getTableClasses().forEach(w -> w.fixPkNullity());
 		calculateColumnTypes();
 
+		assignComplexPrimaryKeys();
+
 		assignBaseClasses();
 
 		calculateRelationNames();
@@ -144,6 +144,8 @@ abstract public class AbstractGenerator {
 
 		getTableClasses().forEach(w -> w.handleClassDefinition());
 
+		getEmbeddableClasses().forEach(w -> w.renderEmbeddableAnnotations());
+
 		generateProperties();
 		renderOutput();
 
@@ -153,6 +155,11 @@ abstract public class AbstractGenerator {
 	protected List<ClassWrapper> getTableClasses() {
 		return m_wrapperList.stream().filter(a -> a.getType() == ClassWrapperType.tableClass).collect(Collectors.toList());
 	}
+
+	protected List<ClassWrapper> getRenderedClasses() {
+		return m_wrapperList.stream().filter(a -> a.getType() == ClassWrapperType.tableClass || a.getType() == ClassWrapperType.embeddableClass).collect(Collectors.toList());
+	}
+
 
 	protected List<ClassWrapper> getBaseClasses() {
 		return m_wrapperList.stream().filter(a -> a.getType() == ClassWrapperType.baseClass).collect(Collectors.toList());
@@ -292,7 +299,7 @@ abstract public class AbstractGenerator {
 	}
 
 	private void generateProperties() throws Exception {
-		for(ClassWrapper wrapper : getTableClasses()) {
+		for(ClassWrapper wrapper : getRenderedClasses()) {
 			wrapper.renderProperties();
 		}
 	}
