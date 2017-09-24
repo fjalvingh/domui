@@ -10,6 +10,7 @@ import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.expr.AssignExpr.Operator;
 import com.github.javaparser.ast.expr.BooleanLiteralExpr;
+import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MarkerAnnotationExpr;
 import com.github.javaparser.ast.expr.MemberValuePair;
 import com.github.javaparser.ast.expr.NameExpr;
@@ -23,6 +24,7 @@ import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.type.PrimitiveType.Primitive;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.VoidType;
+import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import to.etc.dbutil.schema.DbColumn;
 import to.etc.dbutil.schema.DbPrimaryKey;
 import to.etc.dbutil.schema.DbRelation;
@@ -39,6 +41,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -623,17 +626,17 @@ public class ColumnWrapper {
 				importIf("java.util.ArrayList");
 			}
 		} else {
-			if(g().isForceRenameFields() && getRelationType() == RelationType.none) {
-				String baseFieldName = ClassWrapper.calculatePropertyNameFromColumnName(getJavaColumnName());
-				if(null != fieldPrefix) {
-					baseFieldName = fieldPrefix + baseFieldName;
-				}
-
-				String s = getVariableDeclaration().getName().asString();
-				if(! s.equals(baseFieldName)) {
-					getVariableDeclaration().setName(baseFieldName);
-				}
-			}
+			//if(g().isForceRenameFields() && getRelationType() == RelationType.none) {
+			//	String baseFieldName = ClassWrapper.calculatePropertyNameFromColumnName(getJavaColumnName());
+			//	if(null != fieldPrefix) {
+			//		baseFieldName = fieldPrefix + baseFieldName;
+			//	}
+			//
+			//	String s = getVariableDeclaration().getName().asString();
+			//	if(! s.equals(baseFieldName)) {
+			//		getVariableDeclaration().setName(baseFieldName);
+			//	}
+			//}
 		}
 	}
 
@@ -1031,5 +1034,73 @@ public class ColumnWrapper {
 		m_propertyType = newType;
 	}
 
+	public void renameFieldName() {
+		String fieldPrefix = g().getFieldPrefix();
 
+		String propertyName = getPropertyName();
+		String fieldName = propertyName;
+		if(null != fieldPrefix) {
+			fieldName = fieldPrefix + propertyName;
+		}
+
+		VariableDeclarator vd = getVariableDeclaration();
+		if(null == vd)
+			return;
+
+		if(m_classWrapper.getTable().getName().equals("definition")) {
+			System.out.println("GOTCHA");
+		}
+
+		String oldName = vd.getName().asString();
+		if(! oldName.equals(fieldName)) {
+			vd.setName(fieldName);
+
+			//-- We need to rename inside the getter and setter too
+			MethodDeclaration getter = getGetter();
+			if(null != getter) {
+				getter.accept(new GetterFieldRenamingVisitor(oldName, fieldName), null);
+			}
+
+			MethodDeclaration setter = getSetter();
+			if(null != setter) {
+				setter.accept(new GetterFieldRenamingVisitor(oldName, fieldName), null);
+			}
+		}
+	}
+
+	private class GetterFieldRenamingVisitor extends VoidVisitorAdapter<Void> {
+		private final String m_oldName;
+
+		private final String m_fieldName;
+
+		public GetterFieldRenamingVisitor(String oldName, String fieldName) {
+			m_oldName = oldName;
+			m_fieldName = fieldName;
+		}
+
+		private boolean isOldFieldName(String name) {
+			return name.equals(m_oldName) || name.equals("this." + m_oldName);
+		}
+
+		@Override public void visit(AssignExpr n, Void arg) {
+			if(n.getOperator().equals(Operator.ASSIGN)) {
+				Expression target = n.getTarget();
+				if(isOldFieldName(target.toString())) {
+					n.setTarget(new NameExpr(m_fieldName));
+				}
+
+			}
+			super.visit(n, arg);
+		}
+
+		@Override public void visit(ReturnStmt n, Void arg) {
+			Optional<Expression> expression = n.getExpression();
+			if(expression.isPresent()) {
+				Expression xp = expression.get();
+				if(isOldFieldName(xp.toString())) {
+					n.setExpression(new NameExpr(m_fieldName));
+				}
+			}
+		}
+	}
 }

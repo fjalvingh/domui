@@ -1340,4 +1340,8 @@ class ClassWrapper {
 		}
 		primaryKey.changePropertyType(newType);
 	}
+
+	public void renameFieldName() {
+		m_allColumnWrappers.forEach(w -> w.renameFieldName());
+	}
 }

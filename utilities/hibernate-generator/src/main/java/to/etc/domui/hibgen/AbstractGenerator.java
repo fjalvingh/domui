@@ -119,6 +119,10 @@ abstract public class AbstractGenerator {
 		removeUnusedProperties();
 		removePropertyNameConstants();
 
+		if(isForceRenameFields()) {
+			m_classWrapperList.forEach(w -> w.renameFieldName());
+		}
+
 		renamePrimaryKeys();
 		m_classWrapperList.forEach(w -> w.fixPkNullity());
 		calculateColumnTypes();
