@@ -292,7 +292,7 @@ public class ColumnWrapper {
 		DbTable table = column.getTable();
 		DbPrimaryKey primaryKey = table.getPrimaryKey();
 		boolean ispk = primaryKey != null && primaryKey.getColumnList().contains(column);
-		boolean nullable = column.isNullable() || ispk;
+		boolean nullable = column.isNullable(); // || ispk;		pk is fixed later.
 
 		int sqltype = column.getSqlType();
 		switch(sqltype) {

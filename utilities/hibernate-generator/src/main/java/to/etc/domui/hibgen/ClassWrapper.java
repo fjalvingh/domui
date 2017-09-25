@@ -432,6 +432,9 @@ class ClassWrapper {
 		if("type".equalsIgnoreCase(columnWrapper.getPropertyName())) {
 			System.out.println("GOTCHA");
 		}
+		if("DefinitionSubscriptionindicator".equalsIgnoreCase(getSimpleName())) {
+			System.out.println("GOTCHA");
+		}
 
 		String name = ax.getName().asString();
 
@@ -1439,6 +1442,11 @@ class ClassWrapper {
 	 * If the PK for this class is a primitive then fix its type to become a wrapper.
 	 */
 	public void fixPkNullity() {
+		if(getSimpleName().equalsIgnoreCase("DefinitionSubscriptionindicator")) {
+			System.out.println("GOTCHA");
+		}
+
+
 		ColumnWrapper primaryKey = getPrimaryKey();
 		if(null == primaryKey)
 			return;
@@ -1447,7 +1455,10 @@ class ClassWrapper {
 		if(! (type instanceof PrimitiveType)) {
 			return;
 		}
-		error("primary key is primitive type, this is not allowed. Changing it to become a wrapper type.");
+
+		//-- If the PK was coming from existing Java code, report an error.
+		if(! primaryKey.isNew())
+			error("primary key is primitive type, this is not allowed. Changing it to become a wrapper type.");
 		PrimitiveType ptype = (PrimitiveType) type;
 
 		ClassOrInterfaceType newType;

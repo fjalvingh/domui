@@ -125,11 +125,14 @@ abstract public class AbstractGenerator {
 			getTableClasses().forEach(w -> w.renameFieldName());
 		}
 
-		renamePrimaryKeys();
-		getTableClasses().forEach(w -> w.fixPkNullity());
+		renamePrimaryKeys();			// If pk name is forced, rename all pk properties
+
 		calculateColumnTypes();
 
-		assignComplexPrimaryKeys();
+		assignPrimaryKeys();							// Assign PK, either simple or complex.
+
+		getTableClasses().forEach(w -> w.fixPkNullity());				// Must be after assignPrimaryKeys
+
 
 		assignBaseClasses();
 
@@ -168,7 +171,7 @@ abstract public class AbstractGenerator {
 		return m_wrapperList.stream().filter(a -> a.getType() == ClassWrapperType.embeddableClass).collect(Collectors.toList());
 	}
 
-	private void assignComplexPrimaryKeys() {
+	private void assignPrimaryKeys() {
 		getTableClasses().forEach(w -> w.checkAssignComplexPK());
 	}
 
