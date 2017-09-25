@@ -61,6 +61,8 @@ abstract public class AbstractGenerator {
 
 	public static final String HIBERNATE_CONFIGURATION = "HibernateConfiguration";
 
+	private List<ClassWrapper> m_wrapperList = new ArrayList<>();
+
 	private Connection m_dbc;
 
 	private Set<DbSchema> m_schemaSet;
@@ -72,8 +74,6 @@ abstract public class AbstractGenerator {
 	private boolean m_schemaAsPackage;
 
 	private String m_fieldPrefix = "m_";
-
-	private List<ClassWrapper> m_wrapperList = new ArrayList<>();
 
 	private boolean m_addIdentifyable = true;
 
@@ -983,5 +983,71 @@ abstract public class AbstractGenerator {
 	}
 
 
+	public void setSchemaAsPackage(boolean schemaAsPackage) {
+		m_schemaAsPackage = schemaAsPackage;
+	}
 
+	public void setFieldPrefix(String fieldPrefix) {
+		m_fieldPrefix = fieldPrefix;
+	}
+
+	public void setAddIdentifyable(boolean addIdentifyable) {
+		m_addIdentifyable = addIdentifyable;
+	}
+
+	public void setHideSchemaNameFromTableName(boolean hideSchemaNameFromTableName) {
+		m_hideSchemaNameFromTableName = hideSchemaNameFromTableName;
+	}
+
+	public void setAddSchemaNameToClassName(boolean addSchemaNameToClassName) {
+		m_addSchemaNameToClassName = addSchemaNameToClassName;
+	}
+
+	public void setForceRenameFields(boolean forceRenameFields) {
+		m_forceRenameFields = forceRenameFields;
+	}
+
+	public void setForceRenameMethods(boolean forceRenameMethods) {
+		m_forceRenameMethods = forceRenameMethods;
+	}
+
+	public void setMapOneCharVarcharToBoolean(boolean mapOneCharVarcharToBoolean) {
+		m_mapOneCharVarcharToBoolean = mapOneCharVarcharToBoolean;
+	}
+
+	public void setSkipBundles(boolean skipBundles) {
+		m_skipBundles = skipBundles;
+	}
+
+	public void setSkipBaseClasses(boolean skipBaseClasses) {
+		m_skipBaseClasses = skipBaseClasses;
+	}
+
+	public void setForcePkToLong(boolean forcePkToLong) {
+		m_forcePkToLong = forcePkToLong;
+	}
+
+	public void setMatchBaseClassesOnColumnNameOnly(boolean matchBaseClassesOnColumnNameOnly) {
+		m_matchBaseClassesOnColumnNameOnly = matchBaseClassesOnColumnNameOnly;
+	}
+
+	public void setDestroyConstructors(boolean destroyConstructors) {
+		m_destroyConstructors = destroyConstructors;
+	}
+
+	public void setAltBundles(Set<String> altBundles) {
+		m_altBundles = altBundles;
+	}
+
+	public void setForcePKIdentifier(String forcePKIdentifier) {
+		m_forcePKIdentifier = forcePKIdentifier;
+	}
+
+	public void setReplaceSerialWithSequence(boolean replaceSerialWithSequence) {
+		m_replaceSerialWithSequence = replaceSerialWithSequence;
+	}
+
+	public void setAppendSchemaName(boolean appendSchemaName) {
+		m_appendSchemaName = appendSchemaName;
+	}
 }

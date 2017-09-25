@@ -7,6 +7,7 @@ import to.etc.util.DbConnectionInfo;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
@@ -34,6 +35,59 @@ public class HibernateGenerator {
 
 	@Option(name = "-s", aliases = {"-schema"}, usage = "One or more schema names to include in the reverse action", required = true)
 	private List<String> m_schemaSet = new ArrayList<>();
+
+	@Option(name = "-schema-package", usage = "When set, this adds the schema name as the last level to the default package")
+	private boolean m_schemaAsPackage;
+
+	@Option(name = "-field-prefix", usage = "Defines a prefix for generated fields. Defaults to 'm_', to remove use -fieldPrefix none")
+	private String m_fieldPrefix = "m_";
+
+	@Option(name = "-noi", aliases = {"-no-identifyable"}, usage = "When set this skips adding IIdentifyable<T> to each class (where T is the proper type for the @Id property)")
+	private boolean m_skipIdentifyable;
+
+	@Option(name = "-no-remove-schema", usage = "By default, if a table name starts with the schema name that name is removed from the table name. This option leaves the name intact.")
+	private boolean m_skipRemoveSchemaNameFromTableName;
+
+	@Option(name = "-nos", aliases = {"no-schemaname"}, usage = "Do not add the schema name to the generated class name (useful when you're sure all table names differ)")
+	private boolean m_noAddSchemaNameToClassName;
+
+	@Option(name = "-ffr", aliases = {"-force-field-rename"}, usage = "When set, all fields are renamed even when they occur in pre-existing classes")
+	private boolean m_forceRenameFields;
+
+	@Option(name = "-fmr", aliases = {"-force-method-rename"}, usage = "Rename getter and setter methods in existing pojos")
+	private boolean m_forceRenameMethods;
+
+	@Option(name = "-no-onechar-boolean", usage = "By default the code maps varchar(1) and char(1) with <= 2 values as boolean. This option prevents that.")
+	private boolean m_skipMapOneCharVarcharToBoolean;
+
+	@Option(name = "-nb", aliases = {"-no-bundles"}, usage = "Skips the generation/update of the .properties files for each class")
+	private boolean m_skipBundles;
+
+	@Option(name = "-no-baseclass", usage = "Does not scan for base classes that can be used for new entities")
+	private boolean m_skipBaseClasses;
+
+	@Option(name = "-keep-pktype", usage = "By default numeric primary keys < 18 precision are always mapped to Long, because using Integer is often not a good plan. But if you really want them set this option.")
+	private boolean m_skipForcePkToLong;
+
+	/** When T, this does not check for the same type on columns to attach the base class. */
+	@Option(name = "-match-columns-only", usage = "When set, this matches base classes by using column names only, not column types")
+	private boolean m_matchBaseClassesOnColumnNameOnly;
+
+	@Option(name = "-destroy-constructors", usage = "When set, this removes all constructors of existing POJO's; used to get rid of the silly constructors made by Hibernate's POJO generator")
+	private boolean m_destroyConstructors;
+
+	@Option(name = "-bundles", usage = "Each occurrence will add a new bundle language to be generaed, i.e. -bundle nl_NL adds that as an extra bundle")
+	private List<String> m_altBundles = new ArrayList<>();
+
+	@Option(name = "-pkname", usage = "By default the PK name is forced to be 'id' regardless of the name of the database column. Set this to none to remove that")
+	private String m_forcePKIdentifier = "id";
+
+	/** Postgres: when T, a Hibernate sequence identifier generator is used instead of the @Generated(GenerationType.IDENTIFIER) for an autoincrement column. */
+	@Option(name = "-no-deserial", usage = "By default postgreSQL 'serial' columns are generated as a GenerationType.SEQUENCE, so that PKs can be generated before insert. This option disables that.")
+	private boolean m_skipReplaceSerialWithSequence;
+
+	/** When T this always appends a schema name, when F it only adds it if there are more than one schemas scanned. */
+	private boolean m_appendSchemaName;
 
 	private void run(String[] args) throws Exception {
 		CmdLineParser p = new CmdLineParser(this);
@@ -66,6 +120,30 @@ public class HibernateGenerator {
 
 		generator.setPackageName(m_packageName);
 		generator.setSourceDirectory(m_targetDirectory);
+		generator.setSchemaAsPackage(m_schemaAsPackage);
+		if(m_fieldPrefix.equalsIgnoreCase("none")) {
+			generator.setFieldPrefix(null);
+		} else {
+			generator.setFieldPrefix(m_fieldPrefix);
+		}
+		generator.setAddIdentifyable(! m_skipIdentifyable);
+		generator.setAddSchemaNameToClassName(! m_skipRemoveSchemaNameFromTableName);
+		generator.setAddSchemaNameToClassName(! m_noAddSchemaNameToClassName);
+		generator.setForceRenameFields(m_forceRenameFields);
+		generator.setForceRenameMethods(m_forceRenameMethods);
+		generator.setMapOneCharVarcharToBoolean(! m_skipMapOneCharVarcharToBoolean);
+		generator.setSkipBundles(m_skipBundles);
+		generator.setSkipBaseClasses(m_skipBaseClasses);
+		generator.setForcePkToLong(! m_skipForcePkToLong);
+		generator.setMatchBaseClassesOnColumnNameOnly(m_matchBaseClassesOnColumnNameOnly);
+		generator.setDestroyConstructors(m_destroyConstructors);
+		generator.setAltBundles(new HashSet<>(m_altBundles));
+		if(m_forcePKIdentifier.equalsIgnoreCase("none")) {
+			generator.setForcePKIdentifier(null);
+		} else {
+			generator.setForcePKIdentifier(m_forcePKIdentifier);
+		}
+		generator.setReplaceSerialWithSequence(! m_skipReplaceSerialWithSequence);
 
 		try {
 			generator.generate(m_schemaSet);
