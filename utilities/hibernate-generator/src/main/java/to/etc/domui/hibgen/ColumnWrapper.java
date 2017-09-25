@@ -928,7 +928,7 @@ public class ColumnWrapper {
 				return null;
 
 			case OneZero:
-				return "one_zero";
+				return "org.hibernate.type.NumericBooleanType";
 
 			case TrueFalse:
 				return "true_false";

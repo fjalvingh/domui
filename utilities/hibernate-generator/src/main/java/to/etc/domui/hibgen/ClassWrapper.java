@@ -251,6 +251,10 @@ class ClassWrapper {
 		m_used = true;
 	}
 
+	public List<ColumnWrapper> getColumnWrappers() {
+		return m_allColumnWrappers;
+	}
+
 	/**
 	 * If this is a wrapper for a Table - this returns that table.
 	 * @return
@@ -1495,36 +1499,46 @@ class ClassWrapper {
 	public void checkAssignComplexPK() {
 		if(m_primaryKeyRecalculated)
 			return;
+		if("StgManagementSourceTable".equalsIgnoreCase(getSimpleName())) {
+			System.out.println("GOTCHA");
+		}
+
+
 		DbTable table = m_table;
 		if(null == table)
 			return;
 
+		List<ColumnWrapper> list = null;
 		DbPrimaryKey primaryKey = table.getPrimaryKey();
 		if(null == primaryKey) {
-			error("No primary key. The code generated for this table will not work.");
-			return;
-		}
-
-		if(primaryKey.getColumnList().size() == 1) {
-			String fieldName = primaryKey.getColumnList().get(0).getName();
-			ColumnWrapper column = findColumnByColumnName(fieldName);
-			if(null == column) {
-				error("Cannot locate property for primary key column " + fieldName);
+			if(m_primaryKey == null) {
+				error("No primary key defined in the database nor in existing code. The code generated for this table will not work.");
+				return;
+			} else {
+				error("No primary key defined in the database. Using the PK as defined in the code - PROBLEMS ARE ON YOUR HEAD....");
+			}
+		} else {
+			if(primaryKey.getColumnList().size() == 1) {
+				String fieldName = primaryKey.getColumnList().get(0).getName();
+				ColumnWrapper column = findColumnByColumnName(fieldName);
+				if(null == column) {
+					error("Cannot locate property for primary key column " + fieldName);
+					return;
+				}
+				m_primaryKey = column;
 				return;
 			}
-			m_primaryKey = column;
-			return;
-		}
 
-		//-- We need a compound key from all of the columns that are part of the PK
-		List<ColumnWrapper> list = new ArrayList<>();
-		for(DbColumn dbColumn : primaryKey.getColumnList()) {
-			ColumnWrapper property = findColumnByColumnName(dbColumn.getName());
-			if(property == null) {
-				error("Cannot locate property for primary key column " + dbColumn.getName());
-				return;
+			//-- We need a compound key from all of the columns that are part of the PK
+			list = new ArrayList<>();
+			for(DbColumn dbColumn : primaryKey.getColumnList()) {
+				ColumnWrapper property = findColumnByColumnName(dbColumn.getName());
+				if(property == null) {
+					error("Cannot locate property for primary key column " + dbColumn.getName());
+					return;
+				}
+				list.add(property);
 			}
-			list.add(property);
 		}
 
 		ColumnWrapper pkProperty = m_primaryKey;
@@ -1551,6 +1565,23 @@ class ClassWrapper {
 			if(null == pkWrapper) {
 				throw new IllegalStateException(this + ": cannot locate embeddedClass for compound primary key: " + pkProperty.getPropertyType().asString());
 			}
+
+			if(primaryKey == null) {
+				//-- Try to assign columns for the wrapper from its own definition (no reverse engineering from the db)
+				for(ColumnWrapper cw : new ArrayList<>(pkWrapper.getColumnWrappers())) {
+					String name = cw.getJavaColumnName();
+					if(null != name) {
+						DbColumn column = m_table.findColumn(name);
+						if(null != column) {
+							cw.setColumn(column);
+						}
+
+						ColumnWrapper myColumn = findColumnByColumnName(name);
+						if(null != myColumn)
+							deleteColumn(myColumn);
+					}
+				}
+			}
 		}
 		pkWrapper.markUsed();
 
@@ -1559,8 +1590,10 @@ class ClassWrapper {
 		}
 
 		//-- Handle column assignments for the complex typething
-		pkWrapper.assignPkColumnProperties(list);
-		m_allColumnWrappers.removeAll(list);
+		if(null != list) {										// Only if an actual PK was found
+			pkWrapper.assignPkColumnProperties(list);
+			m_allColumnWrappers.removeAll(list);
+		}
 
 		m_primaryKeyRecalculated = true;
 	}
