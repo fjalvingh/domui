@@ -284,6 +284,9 @@ abstract public class AbstractGenerator {
 	private void renderOutput() throws Exception {
 		for(ClassWrapper wrapper : m_wrapperList) {
 			switch(wrapper.getType()){
+				default:
+					break;
+
 				case embeddableClass:
 					wrapper.order();
 					wrapper.print();

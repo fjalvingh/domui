@@ -624,8 +624,7 @@ public class ColumnWrapper {
 		String propertyName = getPropertyName();
 		if(null == propertyName) {
 			System.out.println("??");
-		}
-		if(propertyName.equalsIgnoreCase("DefinitionProductpartlist")) {
+		} else if(propertyName.equalsIgnoreCase("DefinitionProductpartlist")) {
 			System.out.println("GOTCHA");
 		}
 
