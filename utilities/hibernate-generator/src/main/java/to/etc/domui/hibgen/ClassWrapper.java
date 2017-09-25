@@ -37,6 +37,7 @@ import to.etc.dbutil.schema.DbSchema;
 import to.etc.dbutil.schema.DbTable;
 import to.etc.domui.hibgen.ColumnWrapper.ColumnType;
 import to.etc.domui.hibgen.ColumnWrapper.RelationType;
+import to.etc.util.LineIterator;
 import to.etc.webapp.query.IIdentifyable;
 
 import javax.annotation.Nullable;
@@ -113,7 +114,8 @@ class ClassWrapper {
 	@Nullable
 	private ClassWrapper m_useBaseClass;
 
-	//private boolean m_embeddableClass;
+	/** Mostly for embedded classes, this marks when it is really used. */
+	private boolean m_used;
 
 	public ClassWrapper(AbstractGenerator generator, File file, CompilationUnit unit) {
 		m_generator = generator;
@@ -239,6 +241,14 @@ class ClassWrapper {
 		if(pos < 0)
 			return "";
 		return m_fullClassName.substring(0, pos);
+	}
+
+	public boolean isUsed() {
+		return m_used;
+	}
+
+	public void markUsed() {
+		m_used = true;
 	}
 
 	/**
@@ -660,10 +670,14 @@ class ClassWrapper {
 	 * Render all basic table properties.
 	 */
 	public void renderProperties() throws Exception {
-		//DbTable table = m_table;
-		//if(table == null)
-		//	return;
-		//
+		if(getType() == ClassWrapperType.embeddableClass) {
+			if(! isUsed()) {
+				//-- Unused embeddable: do not generate anything, just add a javadoc remark to the class.
+				markClassJavadoc("This class is no longer used");
+				createOrFindMarkerAnnotation(getRootType(), "java.lang.Deprecated");
+				return;
+			}
+		}
 		renderClassAnnotations();
 
 		if("PdimetaConfDatavaultSatelliteSsmId".equalsIgnoreCase(getSimpleName())) {
@@ -678,6 +692,33 @@ class ClassWrapper {
 			renderColumnProperty(cw);
 			renderPropertyNls(cw.getPropertyName());
 		}
+	}
+
+	private void markClassJavadoc(String msg) {
+		StringBuilder sb = new StringBuilder();
+		if(m_rootType.getJavadoc().isPresent()) {
+			String line = m_rootType.getJavadoc().get().toText();
+			int count = 0;
+			for(String s : new LineIterator(line)) {
+				if((s.trim().length() > 0 && ! s.trim().startsWith("*") && count > 0) || msg == null) {
+					sb.append(" * <b>WARNING</b> ").append(msg).append("\n");
+					msg = null;
+				}
+				sb.append(s).append("\n");
+				count++;
+			}
+			if(msg != null) {
+				sb.append(" * <b>WARNING</b> ").append(msg).append("\n");
+			}
+
+
+		} else {
+			sb.append("\n * ").append("<h1>WARNING</h1>\n")
+				.append(" * This class seems to be no longer used by Entity classes.\n")
+				.append(" *\n")
+			;
+		}
+		m_rootType.setJavadocComment(sb.toString());
 	}
 
 	private void renderClassAnnotations() {
@@ -1500,6 +1541,7 @@ class ClassWrapper {
 				throw new IllegalStateException(this + ": cannot locate embeddedClass for compound primary key: " + pkProperty.getPropertyType().asString());
 			}
 		}
+		pkWrapper.markUsed();
 
 		if(pkWrapper.getType() != ClassWrapperType.embeddableClass) {
 			throw new IllegalStateException(this+ ": compound pk class " + pkWrapper + " is not embeddable");
@@ -1534,6 +1576,9 @@ class ClassWrapper {
 				changed = true;
 			} else {
 				deleteSet.remove(cn);
+				if(cn.getColumn() == null) {
+					cn.setColumn(expCw.getColumn());
+				}
 			}
 		}
 
@@ -1622,36 +1667,5 @@ class ClassWrapper {
 	public void renderEmbeddableAnnotations() {
 		ClassOrInterfaceDeclaration rootType = getRootType();
 		createOrFindMarkerAnnotation(rootType, "javax.persistence.Embeddable");
-	}
-
-
-	@Override public boolean equals(Object o) {
-		if(this == o)
-			return true;
-		if(o == null || getClass() != o.getClass())
-			return false;
-		ClassWrapper that = (ClassWrapper) o;
-		return m_isNew == that.m_isNew &&
-			m_errors == that.m_errors &&
-			m_primaryKeyRecalculated == that.m_primaryKeyRecalculated &&
-			Objects.equals(m_generator, that.m_generator) &&
-			Objects.equals(m_file, that.m_file) &&
-			Objects.equals(m_fullClassName, that.m_fullClassName) &&
-			Objects.equals(m_simpleName, that.m_simpleName) &&
-			Objects.equals(m_rootType, that.m_rootType) &&
-			Objects.equals(m_unit, that.m_unit) &&
-			m_type == that.m_type &&
-			Objects.equals(m_table, that.m_table) &&
-			Objects.equals(m_allColumnWrappers, that.m_allColumnWrappers) &&
-			Objects.equals(m_deletedColumns, that.m_deletedColumns) &&
-			Objects.equals(m_propertyByKeyMap, that.m_propertyByKeyMap) &&
-			Objects.equals(m_primaryKey, that.m_primaryKey) &&
-			Objects.equals(m_primaryKeyEmbeddable, that.m_primaryKeyEmbeddable) &&
-			Objects.equals(m_useBaseClass, that.m_useBaseClass);
-	}
-
-	@Override public int hashCode() {
-		return Objects.hash(m_generator, m_isNew, m_file, m_fullClassName, m_simpleName, m_rootType, m_unit, m_errors, m_type, m_table, m_allColumnWrappers, m_deletedColumns, m_propertyByKeyMap,
-			m_primaryKeyRecalculated, m_primaryKey, m_primaryKeyEmbeddable, m_useBaseClass);
 	}
 }
