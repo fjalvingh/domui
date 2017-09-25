@@ -2,7 +2,17 @@ package to.etc.domui.hibgen;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.PackageDeclaration;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.expr.Name;
+import com.github.javaparser.ast.expr.NameExpr;
+import com.github.javaparser.ast.stmt.BlockStmt;
+import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import com.github.javaparser.ast.type.VoidType;
 import com.sun.org.apache.xerces.internal.dom.DocumentImpl;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -25,6 +35,7 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -34,6 +45,7 @@ import java.sql.SQLFeatureNotSupportedException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -46,6 +58,9 @@ import java.util.stream.Collectors;
  * Created on 21-9-17.
  */
 abstract public class AbstractGenerator {
+
+	public static final String HIBERNATE_CONFIGURATION = "HibernateConfiguration";
+
 	private Connection m_dbc;
 
 	private Set<DbSchema> m_schemaSet;
@@ -150,9 +165,63 @@ abstract public class AbstractGenerator {
 		getEmbeddableClasses().forEach(w -> w.renderEmbeddableAnnotations());
 
 		generateProperties();
+
+		generateLoaderClass();
 		renderOutput();
 
 		saveUserConfig();
+	}
+
+	protected void generateLoaderClass() throws Exception {
+		CompilationUnit cu = new CompilationUnit();
+		cu.setPackageDeclaration(new PackageDeclaration(Name.parse(getPackageName())));
+
+		// create the type declaration
+		ClassOrInterfaceDeclaration type = cu.addClass(HIBERNATE_CONFIGURATION);
+		EnumSet<Modifier> modifiers = EnumSet.of(Modifier.PUBLIC);
+		cu.addImport("to.etc.domui.hibernate.config.HibernateConfigurator");
+
+		MethodDeclaration configurator = new MethodDeclaration(modifiers, new VoidType(), "configure");
+		configurator.setModifiers(modifiers);
+		type.addMember(configurator);
+
+		BlockStmt block = new BlockStmt();
+		configurator.setBody(block);
+
+		List<ClassWrapper> tableClasses = new ArrayList<>(getTableClasses());
+		tableClasses.sort((a, b) -> a.getSimpleName().compareToIgnoreCase(b.getSimpleName()));
+		tableClasses.forEach(tc -> {
+			if(! getPackageName().equals(tc.getPackageName())) {
+				cu.addImport(tc.getClassName());
+			}
+
+			MethodCallExpr mcx = new MethodCallExpr(new NameExpr("HibernateConfigurator"), "addClasses", com.github.javaparser.ast.NodeList.nodeList(new NameExpr(tc.getSimpleName() + ".class")));
+			block.addStatement(mcx);
+		});
+
+		cu.addImport("org.hibernate.cfg.Configuration");
+		configurator = new MethodDeclaration(modifiers, new VoidType(), "configure");
+		configurator.setModifiers(modifiers);
+		Parameter param = new Parameter(new ClassOrInterfaceType("Configuration"), "config");
+		configurator.addParameter(param);
+		type.addMember(configurator);
+
+		BlockStmt block2 = new BlockStmt();		// If Java lambda's sucked only slightly harder they would be fucking black holes.
+		configurator.setBody(block2);
+
+		tableClasses.forEach(tc -> {
+			MethodCallExpr mcx = new MethodCallExpr(new NameExpr("config"), "addAnnotatedClass", com.github.javaparser.ast.NodeList.nodeList(new NameExpr(tc.getSimpleName() + ".class")));
+			block2.addStatement(mcx);
+		});
+
+		File dir = getOutputDirectory();
+		if(null == dir) {
+			dir = new File(getSourceDirectory(), getPackageName().replace('.', File.separatorChar));
+		}
+		File out = new File(dir, type.getNameAsString() + ".java");
+		try(FileWriter fw = new FileWriter(out)) {
+			fw.write(cu.toString());
+		}
 	}
 
 	protected List<ClassWrapper> getTableClasses() {
@@ -534,7 +603,8 @@ abstract public class AbstractGenerator {
 				recurseSources(file, relPath);
 			} else {
 				if(FileTool.getFileExtension(file.getName()).equalsIgnoreCase("java")) {
-					loadJavaFile(file, relPath);
+					if(! file.getName().equals(HIBERNATE_CONFIGURATION + ".java"))
+						loadJavaFile(file, relPath);
 				}
 			}
 		}
