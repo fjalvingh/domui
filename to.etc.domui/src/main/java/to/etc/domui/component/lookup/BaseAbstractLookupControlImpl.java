@@ -1,9 +1,11 @@
 package to.etc.domui.component.lookup;
 
-import javax.annotation.*;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.webapp.ProgrammerErrorException;
+import to.etc.webapp.query.QCriteria;
 
-import to.etc.domui.dom.html.*;
-import to.etc.webapp.query.*;
+import javax.annotation.Nonnull;
 
 /**
  * @author <a href="mailto:ben.schoen@itris.nl">Ben Schoen</a>
@@ -15,7 +17,7 @@ public abstract class BaseAbstractLookupControlImpl<T> implements ILookupControl
 
 	@Override
 	@Nonnull
-	abstract public AppendCriteriaResult appendCriteria(@Nonnull QCriteria< ? > crit) throws Exception;
+	abstract public AppendCriteriaResult appendCriteria(@Nonnull QCriteria<?> crit) throws Exception;
 
 	public BaseAbstractLookupControlImpl(NodeBase... nodes) {
 		if(nodes.length == 0)
@@ -43,8 +45,18 @@ public abstract class BaseAbstractLookupControlImpl<T> implements ILookupControl
 		boolean done = false;
 		if(m_nodes != null) {
 			for(NodeBase m_node : m_nodes) {
-				if(m_node instanceof IControl< ? >) {
-					((IControl< ? >) m_node).setValue(null);
+				if(m_node instanceof IControl<?>) {
+					IControl<?> control = (IControl<?>) m_node;
+					if(control.isMandatory()) {
+						throw new ProgrammerErrorException("The manually added LookupForm input control "
+							+ control
+							+ " is lacking a clearInput() method. This is needed because clearing a "
+							+ "mandatory control means setting it to its default value - and I do "
+							+ "not just know that value. See https://github.com/fjalvingh/domui/issues/6."
+						);
+					}
+
+					control.setValue(null);
 					done = true;
 				}
 			}
@@ -55,16 +67,14 @@ public abstract class BaseAbstractLookupControlImpl<T> implements ILookupControl
 
 	/**
 	 * Default implementation
-	 *
-	 * @see to.etc.domui.component.lookup.ILookupControlInstance#setDisabled(Boolean))
 	 */
 	@Override
 	public void setDisabled(boolean disabled) {
 		boolean done = false;
 		if(m_nodes != null) {
 			for(NodeBase m_node : m_nodes) {
-				if(m_node instanceof IControl< ? >) {
-					((IControl< ? >) m_node).setDisabled(disabled);
+				if(m_node instanceof IControl<?>) {
+					((IControl<?>) m_node).setDisabled(disabled);
 				}
 				done = true;
 			}
