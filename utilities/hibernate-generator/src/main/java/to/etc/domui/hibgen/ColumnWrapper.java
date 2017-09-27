@@ -33,6 +33,7 @@ import to.etc.dbutil.schema.DbSchema;
 import to.etc.dbutil.schema.DbTable;
 import to.etc.dbutil.schema.FieldPair;
 
+import javax.annotation.Nullable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -63,6 +64,13 @@ public class ColumnWrapper {
 		TemporalDate,
 		TemporalTimestamp
 	}
+
+	enum ColumnType {
+		column
+		, compoundKey
+	}
+
+	private ColumnType m_type = ColumnType.column;
 
 	private ColumnWrapper m_childsParentProperty;
 
@@ -107,6 +115,9 @@ public class ColumnWrapper {
 	private boolean m_new;
 
 	private ColumnWrapper m_parentListProperty;
+
+	@Nullable
+	private ClassWrapper m_compoundPkWrapper;
 
 	public ColumnWrapper(ClassWrapper cw) {
 		m_classWrapper = cw;
@@ -178,7 +189,7 @@ public class ColumnWrapper {
 
 	public void setPropertyType(Type propertyType) {
 		if(propertyType == null)
-			throw new IllegalStateException();
+			throw new IllegalStateException(this + ": cannot set null type");
 		m_propertyType = propertyType;
 	}
 
@@ -201,6 +212,14 @@ public class ColumnWrapper {
 	public void setColumn(DbColumn column) {
 		m_column = column;
 		m_javaColumnName = column.getName();
+	}
+
+	public ColumnType getType() {
+		return m_type;
+	}
+
+	public void setType(ColumnType type) {
+		m_type = type;
 	}
 
 	/**
@@ -273,7 +292,7 @@ public class ColumnWrapper {
 		DbTable table = column.getTable();
 		DbPrimaryKey primaryKey = table.getPrimaryKey();
 		boolean ispk = primaryKey != null && primaryKey.getColumnList().contains(column);
-		boolean nullable = column.isNullable() || ispk;
+		boolean nullable = column.isNullable(); // || ispk;		pk is fixed later.
 
 		int sqltype = column.getSqlType();
 		switch(sqltype) {
@@ -605,8 +624,7 @@ public class ColumnWrapper {
 		String propertyName = getPropertyName();
 		if(null == propertyName) {
 			System.out.println("??");
-		}
-		if(propertyName.equalsIgnoreCase("DefinitionProductpartlist")) {
+		} else if(propertyName.equalsIgnoreCase("DefinitionProductpartlist")) {
 			System.out.println("GOTCHA");
 		}
 
@@ -693,7 +711,10 @@ public class ColumnWrapper {
 
 		MethodDeclaration getter = renderGetterMethod();
 
-		if(getRelationType() == RelationType.manyToOne) {
+		if(getType() == ColumnType.compoundKey) {
+			//-- Compound keys have no column, and have an EmbeddableId annotation
+			createOrFindMarkerAnnotation(getter, "javax.persistence.EmbeddedId");
+		} else if(getRelationType() == RelationType.manyToOne) {
 			renderManyToOneAnnotations(getter);
 		} else if(getRelationType() == RelationType.oneToMany) {
 			NormalAnnotationExpr ca = createOrFindAnnotation(getter, "javax.persistence.OneToMany");
@@ -988,7 +1009,7 @@ public class ColumnWrapper {
 
 		ClassWrapper parentClass = g().findClassWrapper(m_classWrapper.getPackageName(), parentClassName);
 		if(null == parentClass) {
-			m_classWrapper.error(this + ": cannot locate class " + parentClass + " inside parsed entities");
+			m_classWrapper.error(this + ": cannot locate class " + parentClassName + " inside parsed entities");
 			return;
 		} else {
 			m_parentClass = parentClass;
@@ -1050,9 +1071,9 @@ public class ColumnWrapper {
 		if(null == vd)
 			return;
 
-		if(m_classWrapper.getTable().getName().equals("definition")) {
-			System.out.println("GOTCHA");
-		}
+		//if(m_classWrapper.getTable().getName().equals("definition")) {
+		//	System.out.println("GOTCHA");
+		//}
 
 		String oldName = vd.getName().asString();
 		if(! oldName.equals(fieldName)) {
