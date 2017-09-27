@@ -95,12 +95,20 @@ abstract public class AbstractLayoutTest extends AbstractWebDriverTest {
 
 		//-- Create an image showing the problemfamiliar
 		BufferedImage biRow = si().elementScreenshot(row);
+
+		BufferedImage r = new BufferedImage(biRow.getWidth(), biRow.getHeight(), BufferedImage.TYPE_INT_ARGB);
+		Graphics rg = r.getGraphics();
+		rg.drawImage(biRow, 0, 0, biRow.getWidth(), biRow.getHeight(), null);
+		rg.dispose();
+		biRow = r;
+
 		int relComp = blCompAbs - row.getLocation().y;
 		int relLabel = blLabelAbs - row.getLocation().y;
 
 		Graphics2D graphics = (Graphics2D) biRow.getGraphics();
 		graphics.setStroke(new BasicStroke(1));
 		graphics.setColor(Color.RED);
+		//graphics.setComposite(AlphaComposite.DstOver);
 		graphics.drawLine(label.getSize().width, relComp, biRow.getWidth()-1, relComp);
 
 		graphics.setColor(Color.GREEN);

@@ -25,6 +25,8 @@ div.ui-lui {
 	border: 1px solid $bevel_down;
 	border-top: 1px solid $bevel_up;
 
+	line-height: $form-line-height;
+
 	padding: 0px;
 	margin: 0px;
 	width: 100%;
@@ -36,6 +38,17 @@ div.ui-lui {
 	background: -webkit-linear-gradient(top, #f2f9fe 0%,#d6f0fd 100%); /* Chrome10-25,Safari5.1-6 */
 	background: linear-gradient(to bottom, #f2f9fe 0%,#d6f0fd 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
 }
+//.ui-lui-v > div { 20170913 makes input have trailing space
+//	min-width: 104px;
+//}
+
+.ui-lui-vcell {
+	min-width: 100px;
+	width: 99%;
+	//padding: 2px 5px 2px 2px;  20170927 No, causes misalignment of baseline
+	vertical-align: top;
+}
+
 
 .ui-lui-btntd {
 	vertical-align: top;
@@ -65,9 +78,10 @@ div.ui-lui {
 }
 
 .ui-lui-empty {
+	line-height: $form-line-height;
 	border: 1px solid $bevel_down;
 	white-space: nowrap;
-	padding: 2px 0px 2px 0px;
+	//padding: 2px 0px 2px 0px; 20170927 No, causes misalignment of baseline
 	min-width: $lui-min-width;
 
 	background: #f2f9fe; /* Old browsers */
@@ -107,17 +121,6 @@ div.ui-lui-selected-ro td {
 
 .ui-ro .ui-lui-v {
 	white-space: nowrap;
-}
-
-//.ui-lui-v > div { 20170913 makes input have trailing space
-//	min-width: 104px;
-//}
-
-.ui-lui-vcell {
-	min-width: 100px;
-	width: 99%;
-	padding: 2px 5px 2px 2px;
-	vertical-align: top;
 }
 
 /** Keyword part: the input when there is no selection **/
