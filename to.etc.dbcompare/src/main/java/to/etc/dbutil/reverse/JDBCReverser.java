@@ -1,14 +1,31 @@
 package to.etc.dbutil.reverse;
 
-import java.sql.*;
-import java.util.*;
+import to.etc.dbutil.schema.ColumnType;
+import to.etc.dbutil.schema.DbColumn;
+import to.etc.dbutil.schema.DbIndex;
+import to.etc.dbutil.schema.DbPrimaryKey;
+import to.etc.dbutil.schema.DbRelation;
+import to.etc.dbutil.schema.DbSchema;
+import to.etc.dbutil.schema.DbTable;
+import to.etc.util.FileTool;
+import to.etc.util.WrappedException;
+import to.etc.webapp.query.QCriteria;
 
-import javax.annotation.*;
-import javax.sql.*;
-
-import to.etc.dbutil.schema.*;
-import to.etc.util.*;
-import to.etc.webapp.query.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Generic impl of a jdbc-based reverser.
@@ -20,6 +37,8 @@ public class JDBCReverser implements Reverser {
 	private DataSource m_ds;
 
 	private DatabaseMetaData m_dmd;
+
+	private Set<DbSchema> m_schemaSet = new HashSet<>();
 
 	public JDBCReverser(DataSource dbc, DatabaseMetaData dmd) {
 		m_ds = dbc;
@@ -51,23 +70,26 @@ public class JDBCReverser implements Reverser {
 
 			DbSchema schema = new DbSchema(this, name);
 			m_dmd = dbc.getMetaData();
-			reverseTables(dbc, schema);
+			Set<DbSchema> schemaSet = m_schemaSet;
+			schemaSet.clear();
+			schemaSet.add(schema);
+			reverseTables(dbc, schemaSet);
 
 			if(!lazily) {
-				reverseColumns(dbc, schema);
+				reverseColumns(dbc, schemaSet);
 				int ncols = 0;
 				for(DbTable t : schema.getTables()) {
 					ncols += t.getColumnList().size();
 				}
 //				msg("Loaded " + ncols + " columns");
-				reverseIndexes(dbc, schema);
-				reversePrimaryKeys(dbc, schema);
-				reverseRelations(dbc, schema);
+				reverseIndexes(dbc, schemaSet);
+				reversePrimaryKeys(dbc, schemaSet);
+				reverseRelations(dbc, schemaSet);
 				reverseViews(dbc, schema);
 				reverseProcedures(dbc, schema);
 				reversePackages(dbc, schema);
 				reverseTriggers(dbc, schema);
-				reverseConstraints(dbc, schema);
+				reverseConstraints(dbc, schemaSet);
 
 				afterLoad(dbc, schema);
 			}
@@ -76,6 +98,47 @@ public class JDBCReverser implements Reverser {
 			FileTool.closeAll(dbc);
 		}
 	}
+
+	public Set<DbSchema> loadSchemaSet(@Nonnull Collection<String> schemaNames, boolean lazily) throws Exception {
+		try(Connection dbc = m_ds.getConnection()) {
+			m_dmd = dbc.getMetaData();
+
+			//-- Create the set of schema's
+			Set<DbSchema> schemaSet = m_schemaSet = new HashSet<>();
+			for(String schemaName : schemaNames) {
+				String name = translateSchemaName(dbc, schemaName);
+				if(name == null)
+					throw new ReverserException("Schema name '" + schemaName + "' not known");
+				DbSchema schema = new DbSchema(this, name);
+				schemaSet.add(schema);
+			}
+			reverseTables(dbc, schemaSet);
+
+			if(!lazily) {
+				reverseColumns(dbc, schemaSet);
+				int ncols = 0;
+				for(DbSchema schema : schemaSet) {
+					for(DbTable table : schema.getTables()) {
+						ncols += table.getColumnList().size();
+					}
+				}
+
+				msg("Loaded " + ncols + " columns");
+				reverseIndexes(dbc, schemaSet);
+				reversePrimaryKeys(dbc, schemaSet);
+				reverseRelations(dbc, schemaSet);
+//				reverseViews(dbc, schema);
+//				reverseProcedures(dbc, schema);
+//				reversePackages(dbc, schema);
+//				reverseTriggers(dbc, schema);
+				reverseConstraints(dbc, schemaSet);
+//
+//				afterLoad(dbc, schema);
+			}
+			return schemaSet;
+		}
+	}
+
 
 	protected String translateSchemaName(@Nonnull Connection dbc, @Nullable String name) throws Exception {
 		if(null == name)
@@ -88,24 +151,32 @@ public class JDBCReverser implements Reverser {
 
 	}
 
-	public void reverseIndexes(@Nonnull Connection dbc, @Nonnull DbSchema schema) throws Exception {
-		for(DbTable t : schema.getTables())
-			reverseIndexes(dbc, t);
+	public void reverseIndexes(@Nonnull Connection dbc, @Nonnull Set<DbSchema> schemaSet) throws Exception {
+		for(DbSchema schema : schemaSet) {
+			for(DbTable t : schema.getTables())
+				reverseIndexes(dbc, t);
+		}
 	}
 
-	public void reversePrimaryKeys(@Nonnull Connection dbc, @Nonnull DbSchema schema) throws Exception {
-		for(DbTable t : schema.getTables())
-			reversePrimaryKey(dbc, t);
+	public void reversePrimaryKeys(@Nonnull Connection dbc, @Nonnull Set<DbSchema> schemaSet) throws Exception {
+		for(DbSchema schema : schemaSet) {
+			for(DbTable t : schema.getTables())
+				reversePrimaryKey(dbc, t);
+		}
 	}
 
-	public void reverseRelations(@Nonnull Connection dbc, @Nonnull DbSchema schema) throws Exception {
-		for(DbTable t : schema.getTables())
-			reverseRelations(dbc, t);
+	public void reverseRelations(@Nonnull Connection dbc, @Nonnull Set<DbSchema> schemaSet) throws Exception {
+		for(DbSchema schema : schemaSet) {
+			for(DbTable t : schema.getTables())
+				reverseRelations(dbc, t);
+		}
 	}
 
-	public void reverseColumns(@Nonnull Connection dbc, @Nonnull DbSchema schema) throws Exception {
-		for(DbTable t : schema.getTables())
-			reverseColumns(dbc, t);
+	public void reverseColumns(@Nonnull Connection dbc, @Nonnull Set<DbSchema> schemaSet) throws Exception {
+		for(DbSchema schema : schemaSet) {
+			for(DbTable t : schema.getTables())
+				reverseColumns(dbc, t);
+		}
 	}
 
 	@Override
@@ -125,18 +196,39 @@ public class JDBCReverser implements Reverser {
 		return true;
 	}
 
-	protected void reverseTables(@Nonnull Connection dbc, @Nonnull DbSchema schema) throws Exception {
+	protected boolean isSchemaIn(Set<DbSchema> schemaSet, String name) {
+		return schemaSet.stream().anyMatch(s -> s.getName().equalsIgnoreCase(name));
+	}
+
+	@Nullable
+	protected DbSchema findSchema(Set<DbSchema> schemaSet, String name) {
+		Optional<DbSchema> first = schemaSet.stream().filter(s -> s.getName().equalsIgnoreCase(name)).findFirst();
+		return first.isPresent() ? first.get() : null;
+	}
+
+	@Nullable
+	protected DbSchema findSchema(String name) {
+		return findSchema(m_schemaSet, name);
+	}
+
+	protected void reverseTables(@Nonnull Connection dbc, @Nonnull Set<DbSchema> schemaSet) throws Exception {
 		ResultSet rs = null;
 		try {
-			rs = m_dmd.getTables(null, schema.getName(), null, new String[]{"TABLE"});
+			rs = m_dmd.getTables(null, null, null, new String[]{"TABLE"});
+			int count = 0;
 			while(rs.next()) {
 				if(isValidTable(rs)) {
-					String name = rs.getString("TABLE_NAME");
-					DbTable t = schema.createTable(name);
-					t.setComments(rs.getString("REMARKS"));
+					String schemaName = rs.getString("TABLE_SCHEM");		// What a jokefest
+					DbSchema schema = findSchema(schemaSet, schemaName);
+					if(null != schema) {
+						String name = rs.getString("TABLE_NAME");
+						DbTable t = schema.createTable(name);
+						count++;
+						t.setComments(rs.getString("REMARKS"));
+					}
 				}
 			}
-			msg("Loaded " + schema.getTables().size() + " tables");
+			msg("Loaded " + count + " tables");
 		} finally {
 			try {
 				if(rs != null)
@@ -178,11 +270,16 @@ public class JDBCReverser implements Reverser {
 				int nulla = rs.getInt("NULLABLE");
 				if(nulla == DatabaseMetaData.columnNullableUnknown)
 					throw new IllegalStateException("JDBC driver does not know nullability of " + t.getName() + "." + name);
-				ColumnType ct = decodeColumnType(daty, typename);
-				if(ct == null)
-					throw new IllegalStateException("Unknown type: SQLType " + daty + " (" + typename + ") in " + t.getName() + "." + name);
+				String autoi = rs.getString("IS_AUTOINCREMENT");
+				Boolean autoIncrement = autoi == null ? null : "yes".equalsIgnoreCase(autoi) ? Boolean.TRUE : Boolean.FALSE;
 
-				DbColumn c = new DbColumn(t, name, ct, prec, scale, nulla == DatabaseMetaData.columnNullable);
+				ColumnType ct = decodeColumnType(daty, typename);
+				if(ct == null) {
+					log("Unknown type: SQLType " + daty + " (" + typename + ") in " + t.getName() + "." + name);
+					continue;
+				}
+
+				DbColumn c = new DbColumn(t, name, ct, prec, scale, nulla == DatabaseMetaData.columnNullable, autoIncrement);
 				if(null != columnMap.put(name, c))
 					throw new IllegalStateException("Duplicate column name '" + name + "' in table " + t.getName());
 				columnList.add(c);
@@ -290,6 +387,8 @@ public class JDBCReverser implements Reverser {
 				for(DbColumn c : pkl)
 					if(c != null)
 						pk.addColumn(c);
+			} else {
+				t.setPrimaryKey(null);
 			}
 		} finally {
 			try {
@@ -316,6 +415,20 @@ public class JDBCReverser implements Reverser {
 			int lastord = -1;
 			DbRelation rel = null;
 			while(rs.next()) {
+				String fkSchemaName = rs.getString("FKTABLE_SCHEM");
+				String pkSchemaName = rs.getString("PKTABLE_SCHEM");
+
+				DbSchema fkSchema = findSchema(fkSchemaName);
+				DbSchema pkSchema = findSchema(pkSchemaName);
+				if(null == pkSchema) {
+					log("Missing schema '" + pkSchemaName + " for table " + t);
+					continue;
+				}
+				if(null == fkSchema) {
+					log("Missing schema '" + fkSchemaName + " for table " + t);
+					continue;
+				}
+
 				String fktname = rs.getString("FKTABLE_NAME");
 				String pktname = rs.getString("PKTABLE_NAME");
 				String fkcname = rs.getString("FKCOLUMN_NAME");
@@ -328,7 +441,7 @@ public class JDBCReverser implements Reverser {
 					throw new IllegalStateException("JDBC driver trouble: getExportedKeys returned key from table " + pktname + " while asking for table " + t.getName());
 
 				//-- Find FK table and column and PK column referred to
-				DbTable fkt = t.getSchema().getTable(fktname);
+				DbTable fkt = fkSchema.getTable(fktname);
 				DbColumn fkc = fkt.getColumn(fkcname);
 				DbColumn pkc = t.getColumn(pkcname);
 
@@ -453,7 +566,9 @@ public class JDBCReverser implements Reverser {
 
 	public void reversePackages(@Nonnull Connection dbc, @Nonnull DbSchema schema) throws Exception {}
 
-	public void reverseConstraints(@Nonnull Connection dbc, @Nonnull DbSchema schema) throws Exception {}
+	public void reverseConstraints(@Nonnull Connection dbc, @Nonnull Set<DbSchema> schema) throws Exception {
+
+	}
 
 	@Override
 	public boolean typeHasPrecision(@Nonnull DbColumn column) {
@@ -489,10 +604,6 @@ public class JDBCReverser implements Reverser {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Data retrieval.										*/
 	/*--------------------------------------------------------------*/
-	/**
-	 *
-	 * @see to.etc.dbutil.reverse.Reverser#getData(to.etc.dbutil.schema.DbTable, int, int)
-	 */
 	@Override
 	@Nonnull
 	public SQLRowSet getData(@Nonnull QCriteria<SQLRow> table, int start, int end) throws Exception {
@@ -521,6 +632,10 @@ public class JDBCReverser implements Reverser {
 
 	public boolean isOracleLimitSyntaxDisaster() {
 		return false;
+	}
+
+	protected void log(String what) {
+		System.err.println("reverser: " + what);
 	}
 
 }
