@@ -50,6 +50,10 @@ public class LookupForm1TestPage extends UrlPage {
 				crit.eq("album", track);
 				return AppendCriteriaResult.VALID;
 			}
+
+			@Override public void clearInput() {
+				trackL1.setValue(list.get(0));
+			}
 		});
 
 		lf1.addManualPropertyLabel("genre", new AbstractLookupControlImpl(genreL1) {
@@ -62,6 +66,10 @@ public class LookupForm1TestPage extends UrlPage {
 				}
 				crit.eq("genre", genre);
 				return AppendCriteriaResult.VALID;
+			}
+
+			@Override public void clearInput() {
+				genreL1.setValue(glist.get(0));
 			}
 		});
 
