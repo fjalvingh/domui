@@ -253,6 +253,16 @@ public class ColumnWrapper {
 			generateRelationType(parentRelation);
 			return;
 		}
+		String fk = getConfigProperty("fk");
+		if(null != fk) {
+			generateFakeRelation(fk);
+			return;
+		}
+
+
+		if(column.getName().endsWith("id")) {
+			g().warning(this +": column ending in 'id' but not a foreign key?");
+		}
 
 		int sqltype = column.getSqlType();
 		String typeString = column.getTypeString();
@@ -357,6 +367,25 @@ public class ColumnWrapper {
 				m_extraType = sqltype == Types.DATE ? ExtraType.TemporalDate : ExtraType.TemporalTimestamp;
 				return true;
 		}
+	}
+
+	private void generateFakeRelation(String fk) throws Exception {
+		DbTable parent = g().findTableByNames(null, fk);
+		if(null == parent) {
+			g().error(this + ": user specified FK specifies unknown table '" + fk + "'");
+			return;
+		}
+
+		ClassWrapper parentClass = g().findClassByTable(parent);
+		if(null == parentClass) {
+			g().error("Cannot locate class source file for " + parent + ", mapping as non-relation");
+			calculateBasicType();
+			return;
+		}
+
+		ClassOrInterfaceType referent = new ClassOrInterfaceType(parentClass.getClassName());
+		setPropertyType(referent);
+		setManyToOne(parentClass);
 	}
 
 	/**

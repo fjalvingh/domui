@@ -180,9 +180,9 @@ abstract public class AbstractGenerator {
 
 		// create the type declaration
 		ClassOrInterfaceDeclaration type = cu.addClass(HIBERNATE_CONFIGURATION);
-		EnumSet<Modifier> modifiers = EnumSet.of(Modifier.PUBLIC);
-		cu.addImport("to.etc.domui.hibernate.config.HibernateConfigurator");
 
+		cu.addImport("to.etc.domui.hibernate.config.HibernateConfigurator");
+		EnumSet<Modifier> modifiers = EnumSet.of(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL);
 		MethodDeclaration configurator = new MethodDeclaration(modifiers, new VoidType(), "configure");
 		configurator.setModifiers(modifiers);
 		type.addMember(configurator);
@@ -202,6 +202,7 @@ abstract public class AbstractGenerator {
 		});
 
 		cu.addImport("org.hibernate.cfg.Configuration");
+		modifiers = EnumSet.of(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL);
 		configurator = new MethodDeclaration(modifiers, new VoidType(), "configure");
 		configurator.setModifiers(modifiers);
 		Parameter param = new Parameter(new ClassOrInterfaceType("Configuration"), "config");
@@ -846,11 +847,23 @@ abstract public class AbstractGenerator {
 				tableName = ar[1];
 			}
 		}
-		DbSchema schema = schemaName == null ? getDefaultSchema() : findSchema(schemaName);
-		if(null == schema)
-			return null;
+		if(schemaName != null) {
+			DbSchema schema = findSchema(schemaName);
+			if(null == schema) {
+				return null;
+			}
+			return schema.findTable(tableName);
+		}
 
-		return schema.findTable(tableName);
+		List<DbTable> list = new ArrayList<>();
+		for(DbSchema dbSchema : m_schemaSet) {
+			DbTable table = dbSchema.findTable(tableName);
+			if(null != table)
+				list.add(table);
+		}
+		if(list.size() != 1)
+			return null;
+		return list.get(0);
 	}
 
 	public String getFieldPrefix() {
