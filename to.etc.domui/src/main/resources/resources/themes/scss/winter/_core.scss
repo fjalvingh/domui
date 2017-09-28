@@ -1,5 +1,13 @@
 @import 'variables';
 
+//-- Everything uses border-box model
+html {
+	box-sizing: border-box;
+}
+*, *:after, *:before {
+	box-sizing: inherit;
+}
+
 body, html {
 	background: $body-image $bg_color repeat-x;
 }
@@ -30,6 +38,7 @@ input, textarea, select {
 	margin: 0 2px 2px 0;
 	padding: 0 2px 0 2px;
 	font-size: $font-size;
+	font-family: $font-family;				// 20170913 Needed because this is unset in the browser??
 
 	-moz-border-radius: 2px;
 	border-radius: 2px;

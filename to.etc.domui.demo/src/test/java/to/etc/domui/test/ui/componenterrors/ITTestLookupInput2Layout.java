@@ -14,6 +14,9 @@ import to.etc.domuidemo.pages.test.componenterrors.LookupInput2TestPage;
  * Created on 25-8-17.
  */
 public class ITTestLookupInput2Layout extends AbstractWebDriverTest {
+	public ITTestLookupInput2Layout() {
+	}
+
 	@Before
 	public void initializeScreen() throws Exception {
 		wd().openScreenIf(this, LookupInput2TestPage.class);

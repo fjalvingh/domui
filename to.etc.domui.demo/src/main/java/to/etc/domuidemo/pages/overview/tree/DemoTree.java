@@ -2,12 +2,11 @@ package to.etc.domuidemo.pages.overview.tree;
 
 import to.etc.domui.component.tree.Tree;
 import to.etc.domui.dom.html.Img;
-import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.TextNode;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.parts.FileTypePart;
-import to.etc.domui.util.INodeContentRenderer;
+import to.etc.domui.util.IRenderInto;
 import to.etc.util.FileTool;
 
 import java.io.File;
@@ -23,9 +22,9 @@ public class DemoTree extends UrlPage {
 		m_model = new DemoTreeModel(new File(System.getProperty("user.home")));
 		m_tree.setModel(m_model);
 
-		m_tree.setContentRenderer(new INodeContentRenderer<File>() {
+		m_tree.setContentRenderer(new IRenderInto<File>() {
 			@Override
-			public void renderNodeContent(NodeBase component, NodeContainer node, File object, Object parameters) throws Exception {
+			public void render(NodeContainer node, File object) throws Exception {
 				if(null == object)
 					return;
 				String url;

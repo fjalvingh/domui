@@ -24,14 +24,19 @@
  */
 package to.etc.domui.component2.controlfactory;
 
-import javax.annotation.*;
+import to.etc.domui.component.input.IQueryManipulator;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.PropertyRelationType;
+import to.etc.domui.component2.lookupinput.LookupInput2;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.util.Constants;
+import to.etc.domui.util.IRenderInto;
 
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component2.lookupinput.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.domui.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Accepts any UP (parent) relation and scores 3, preferring this above the combobox-based
@@ -43,8 +48,6 @@ import to.etc.domui.util.*;
 public class ControlCreatorRelationLookup implements IControlCreator {
 	/**
 	 * Accept any UP relation.
-	 *
-	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
 	public <T> int accepts(PropertyMetaModel<T> pmm, Class< ? extends IControl<T>> controlClass) {
@@ -63,8 +66,6 @@ public class ControlCreatorRelationLookup implements IControlCreator {
 
 	/**
 	 * Create the lookup thingy.
-	 *
-	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#createControl(to.etc.domui.util.IReadOnlyModel, to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
 	public <T, C extends IControl<T>> C createControl(@Nonnull PropertyMetaModel<T> pmm, @Nullable Class<C> controlClass) {
@@ -82,11 +83,11 @@ public class ControlCreatorRelationLookup implements IControlCreator {
 
 		//-- 2. Define keyword search properties in the same way.
 		if(pmm.getLookupSelectedRenderer() != null)
-			li.setValueRenderer((INodeContentRenderer<T>) DomApplication.get().createInstance(pmm.getLookupSelectedRenderer())); // Bloody stupid Java generic crap
+			li.setValueRenderer((IRenderInto<T>) DomApplication.get().createInstance(pmm.getLookupSelectedRenderer())); // Bloody stupid Java generic crap
 		else {
 			ClassMetaModel cmm = MetaManager.findClassMeta(pmm.getActualType()); // Get meta for type reached,
 			if(cmm.getLookupSelectedRenderer() != null)
-				li.setValueRenderer((INodeContentRenderer<T>) DomApplication.get().createInstance(cmm.getLookupSelectedRenderer())); // Bloody stupid Java generic crap
+				li.setValueRenderer((IRenderInto<T>) DomApplication.get().createInstance(cmm.getLookupSelectedRenderer())); // Bloody stupid Java generic crap
 		}
 		if(pmm.isRequired())
 			li.setMandatory(true);

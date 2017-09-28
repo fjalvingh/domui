@@ -10,6 +10,7 @@ import to.etc.domui.component.agenda.MonthPanel;
 import to.etc.domui.component.agenda.ScheduleItem;
 import to.etc.domui.component.agenda.ScheduleWorkHour;
 import to.etc.domui.component.agenda.WeekAgendaComponent;
+import to.etc.domui.component.agenda.WeekAgendaComponent.IItemRenderer;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.form.TabularFormBuilder;
 import to.etc.domui.component.input.DateInput;
@@ -19,11 +20,9 @@ import to.etc.domui.component.layout.SplitPanel;
 import to.etc.domui.converter.SecondDurationConverter;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
-import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.util.DomUtil;
-import to.etc.domui.util.INodeContentRenderer;
 import to.etc.util.DateUtil;
 import to.etc.util.StringTool;
 
@@ -76,10 +75,9 @@ public class DemoWeekAgenda extends UrlPage {
 		});
 		add(b);
 
-		INodeContentRenderer<ScheduleItem> care = new DefaultScheduleItemRenderer<ScheduleItem>() {
-			@Override
-			public synchronized void renderNodeContent(NodeBase component, NodeContainer root, ScheduleItem si, Object parameters) throws Exception {
-				super.renderNodeContent(component, root, si, parameters);
+		IItemRenderer<ScheduleItem> care = new DefaultScheduleItemRenderer<ScheduleItem>() {
+			@Override public void render(WeekAgendaComponent<ScheduleItem> age, NodeContainer root, ScheduleItem si) throws Exception {
+				super.render(age, root, si);
 				root.setBackgroundColor(DomUtil.createRandomColor());
 			}
 		};

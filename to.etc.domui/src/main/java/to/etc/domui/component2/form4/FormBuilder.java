@@ -549,16 +549,16 @@ final public class FormBuilder {
 			if(null != controlCss)
 				cell.addCssClass(controlCss);
 		} else {
-			TD labelcell = b.addRowAndCell();
-			labelcell.setCssClass("ui-f4-lbl ui-f4-lbl-v");
+			TR row = b.addRow("ui-f4-row ui-f4-row-v");
+
+			TD labelcell = b.addCell("ui-f4-lbl ui-f4-lbl-v");
 			if(null != lbl)
 				labelcell.add(lbl);
 			String labelCss = m_labelCss;
 			if(labelCss != null)
 				labelcell.addCssClass(labelCss);
 
-			TD controlcell = b.addCell();
-			controlcell.setCssClass("ui-f4-ctl ui-f4-ctl-v");
+			TD controlcell = b.addCell("ui-f4-ctl ui-f4-ctl-v");
 			controlcell.add(control);
 
 			final String controlCss = m_controlCss;
@@ -574,7 +574,7 @@ final public class FormBuilder {
 		TR row = m_controlRow;
 		if(null == row) {
 			labelRow();
-			row = m_controlRow = body().addRow();
+			row = m_controlRow = body().addRow("ui-f4-row ui-f4-row-h ui-f4-crow");
 		}
 		return row;
 	}
@@ -583,7 +583,7 @@ final public class FormBuilder {
 	private TR labelRow() {
 		TR row = m_labelRow;
 		if(null == row) {
-			row = m_labelRow = body().addRow();
+			row = m_labelRow = body().addRow("ui-f4-row ui-f4-row-h ui-f4-lrow");
 		}
 		return row;
 	}

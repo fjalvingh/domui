@@ -24,12 +24,17 @@
  */
 package to.etc.domui.component.input;
 
-import java.util.*;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.impl.DisplayPropertyMetaModel;
+import to.etc.domui.util.IComboDataSet;
+import to.etc.domui.util.IListMaker;
+import to.etc.domui.util.IRenderInto;
+import to.etc.domui.util.PropertyNodeContentRenderer;
+import to.etc.webapp.query.QCriteria;
 
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.meta.impl.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.query.*;
+import java.util.List;
 
 /**
  * Combobox component where the list type is the same as the value type, i.e. it
@@ -53,7 +58,7 @@ public class ComboLookup<T> extends ComboComponentBase<T, T> {
 		super(in);
 	}
 
-	public ComboLookup(Class< ? extends IComboDataSet<T>> set, INodeContentRenderer<T> r) {
+	public ComboLookup(Class< ? extends IComboDataSet<T>> set, IRenderInto<T> r) {
 		super(set, r);
 	}
 
@@ -69,7 +74,7 @@ public class ComboLookup<T> extends ComboComponentBase<T, T> {
 	 * Create a combo which fills it's list with the result of the query passed.
 	 * @param query
 	 */
-	public ComboLookup(QCriteria<T> query, INodeContentRenderer<T> cr) {
+	public ComboLookup(QCriteria<T> query, IRenderInto<T> cr) {
 		this(query);
 		setContentRenderer(cr);
 	}
@@ -81,7 +86,7 @@ public class ComboLookup<T> extends ComboComponentBase<T, T> {
 	 */
 	public ComboLookup(QCriteria<T> query, String... properties) {
 		this(query);
-		setContentRenderer(new PropertyNodeContentRenderer<T>(properties));
+		setContentRenderer(new PropertyNodeContentRenderer<>(properties));
 	}
 
 	/**
@@ -113,7 +118,7 @@ public class ComboLookup<T> extends ComboComponentBase<T, T> {
 	 * @return
 	 */
 	static public <T> ComboLookup<T> createLookup(PropertyMetaModel<T> pmm) throws Exception {
-		INodeContentRenderer<T> r = (INodeContentRenderer<T>) MetaManager.createDefaultComboRenderer(pmm, null);
+		IRenderInto<T> r = (IRenderInto<T>) MetaManager.createDefaultComboRenderer(pmm, null);
 
 		//-- Decide on the combobox' data source to use depending on metadata.
 		ComboLookup<T> co = null;

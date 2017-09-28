@@ -1,15 +1,28 @@
 package to.etc.domui.component.meta.impl;
 
-import java.lang.reflect.*;
-import java.util.*;
+import to.etc.domui.component.controlfactory.PropertyControlFactory;
+import to.etc.domui.component.input.IQueryManipulator;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.NumericPresentation;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.PropertyMetaValidator;
+import to.etc.domui.component.meta.PropertyRelationType;
+import to.etc.domui.component.meta.SearchPropertyMetaModel;
+import to.etc.domui.component.meta.SortableType;
+import to.etc.domui.component.meta.TemporalPresentationType;
+import to.etc.domui.component.meta.YesNoType;
+import to.etc.domui.converter.IConverter;
+import to.etc.domui.util.IComboDataSet;
+import to.etc.domui.util.ILabelStringRenderer;
+import to.etc.domui.util.IRenderInto;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.controlfactory.*;
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.converter.*;
-import to.etc.domui.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.lang.reflect.Type;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -156,7 +169,7 @@ abstract public class AbstractPropertyMetaModel<T> implements PropertyMetaModel<
 
 	@Nullable
 	@Override
-	public Class<? extends INodeContentRenderer<?>> getComboNodeRenderer() {
+	public Class<? extends IRenderInto<T>> getComboNodeRenderer() {
 		return null;
 	}
 
@@ -185,7 +198,7 @@ abstract public class AbstractPropertyMetaModel<T> implements PropertyMetaModel<
 
 	@Nullable
 	@Override
-	public Class<? extends INodeContentRenderer<?>> getLookupSelectedRenderer() {
+	public Class<? extends IRenderInto<T>> getLookupSelectedRenderer() {
 		return null;
 	}
 

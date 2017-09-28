@@ -24,31 +24,57 @@
  */
 package to.etc.domui.component2.lookupinput;
 
-import to.etc.domui.component.binding.*;
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.event.*;
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.layout.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.meta.impl.*;
-import to.etc.domui.component.tbl.*;
-import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.themes.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
-import to.etc.webapp.*;
-import to.etc.webapp.query.*;
+import to.etc.domui.component.binding.OldBindingHandler;
+import to.etc.domui.component.buttons.HoverButton;
+import to.etc.domui.component.event.INotify;
+import to.etc.domui.component.input.IQueryManipulator;
+import to.etc.domui.component.input.ITypedControl;
+import to.etc.domui.component.input.SimpleLookupInputRenderer;
+import to.etc.domui.component.layout.Dialog;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.SearchPropertyMetaModel;
+import to.etc.domui.component.meta.impl.SearchPropertyMetaModelImpl;
+import to.etc.domui.component.tbl.BasicRowRenderer;
+import to.etc.domui.component.tbl.IQueryHandler;
+import to.etc.domui.component.tbl.ITableModel;
+import to.etc.domui.component.tbl.ITruncateableDataModel;
+import to.etc.domui.component.tbl.PageQueryHandler;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.IHasModifiedIndication;
+import to.etc.domui.dom.html.IReturnPressed;
+import to.etc.domui.dom.html.IValueChanged;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.Span;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.TR;
+import to.etc.domui.dom.html.Table;
+import to.etc.domui.themes.Theme;
+import to.etc.domui.trouble.ValidationException;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.IExecute;
+import to.etc.domui.util.IRenderInto;
+import to.etc.domui.util.Msgs;
+import to.etc.util.WrappedException;
+import to.etc.webapp.ProgrammerErrorException;
+import to.etc.webapp.query.QCriteria;
 
-import javax.annotation.*;
-import java.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<OT>, ITypedControl<OT>, IHasModifiedIndication, IQueryManipulator<QT> {
 	/** If set, the complete title for the popup window shown when the 'find' button is pressed. */
 	@Nullable
 	private String m_defaultTitle;
+
+	private Table m_table;
 
 	/**
 	 * EXPERIMENTAL Factory for the lookup dialog, to be shown when the lookup button
@@ -118,7 +144,7 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	 * The content renderer to use to render the current value.
 	 */
 	@Nullable
-	private INodeContentRenderer<OT> m_valueRenderer;
+	private IRenderInto<OT> m_valueRenderer;
 
 	@Nullable
 	private SearchInput2 m_keySearch;
@@ -149,7 +175,7 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 
 	private enum RebuildCause {
 		CLEAR, SELECT
-	};
+	}
 
 	@Nullable
 	private INotify<Dialog> m_onPopupOpen;
@@ -167,21 +193,6 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 
 	@Nullable
 	private IPopupOpener m_popupOpener;
-
-	@Nullable
-	private NodeContainer m_valueNode;
-
-	/**
-	 * Create a lookup control that shows the specified column set in both quick lookup mode and form lookup
-	 * mode.
-	 * @param queryClass
-	 * @param resultClass
-	 * @param resultColumns
-	 */
-//	public LookupInputBase(@Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass, @Nonnull String... resultColumns) {
-//		this(queryClass, resultClass, (ClassMetaModel) null, (ClassMetaModel) null);
-//		setResultColumns(resultColumns);
-//	}
 
 	/**
 	 * Lookup a POJO Java bean persistent class.
@@ -220,8 +231,7 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 			}
 		});
 		b.setTestID("clearButtonInputLookup");
-		b.setDisplay(DisplayType.NONE);
-		setCssClass("ui-lui2");
+		setCssClass("ui-lui");
 	}
 
 	@Nonnull
@@ -237,48 +247,52 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 			return m_clearButton;
 		throw new IllegalStateException("Clear button is not there.");
 	}
-
-	@Nonnull
-	private NodeContainer getValueNode() {
-		NodeContainer node = m_valueNode;
-		if(node == null) {
-			Span span = new Span();
-			m_valueNode = node = span;
-			span.setCssClass("ui-lui2-vspan");
-		}
-		return node;
-	}
+	//
+	//@Nonnull
+	//private NodeContainer getValueNode() {
+	//	NodeContainer node = m_valueNode;
+	//	if(node == null) {
+	//		Span span = new Span();
+	//		m_valueNode = node = span;
+	//		span.setCssClass("ui-lui2-vspan");
+	//	}
+	//	return node;
+	//}
 
 	@Override
 	public void createContent() throws Exception {
+		Table table = m_table = new Table("ui-lui-tbl");
+		add(table);
+
+		table.setCellSpacing("0");
+		table.setCellPadding("0");
+
 		m_keySearch = null;
 		removeCssClass("ui-ro");
-		if(m_value == null && isAllowKeyWordSearch() && isKeyWordSearchDefined()) {
-			//Key word search rendering should be generic, no need for customization possibilities.
-			if(isReadOnly() || isDisabled()) {
-				add(0, getValueNode());
-				renderEmptySelection();
-				addCssClass("ui-ro");
+		OT value = m_value;
+		if(value == null) {
+			if(isAllowKeyWordSearch() && isKeyWordSearchDefined()) {
+				if(isReadOnly() || isDisabled()) {
+					renderEmptySelection();
+					addCssClass("ui-ro");
+				} else {
+					renderKeyWordSearch();
+				}
 			} else {
-				renderKeyWordSearch();
+				renderEmptySelection();
 			}
 		} else {
-			//In case of rendering selected values it is possible to use customized renderers. If no customized rendered is defined then use default one.
-			INodeContentRenderer<OT> r = getValueRenderer();
+			//-- Nonnull render: render a value in the table's 1st cell
+			TD td = table.getBody().addRowAndCell("ui-lui-v");
+
+			IRenderInto<OT> r = getValueRenderer();
 			if(r == null)
-				r = new SimpleLookupInputRenderer2<>(getOutputMetaModel());
-			NodeContainer valueNode = getValueNode();
-			valueNode.removeAllChildren();
-			r.renderNodeContent(this, valueNode, m_value, null);
-			add(0, valueNode);
+				r = new SimpleLookupInputRenderer<>(getOutputMetaModel());
+			r.render(td, value);
 		}
+		appendLookupButtons();
 
 		HoverButton clearButton = getClearButton();
-		if(!isReadOnly() && !isDisabled()) {
-			//-- Append the select/clear buttons
-			add(getSelButton());
-			add(clearButton);
-		}
 
 		if(m_rebuildCause == RebuildCause.CLEAR) {
 			//User clicked clear button, so we can try to set focus to input search if possible.
@@ -287,7 +301,7 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 			}
 		} else if(m_rebuildCause == RebuildCause.SELECT) {
 			//User did reselected value, so we can try to set focus to clear button if possible.
-			if(clearButton != null && clearButton.getDisplay() != DisplayType.NONE) {
+			if(clearButton != null && !clearButton.isDisabled()) {
 				if(getPage().getFocusComponent() == null)
 					clearButton.setFocus();
 			}
@@ -301,6 +315,27 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 			else if(m_clearButton != null)
 				m_clearButton.setFocus();
 		}
+	}
+
+	private void appendLookupButtons() {
+		if(isReadOnly() || isDisabled())
+			return;
+
+		//-- Lookup button is always there
+		TR tr = m_table.getBody().getRow(0);
+		TD cell = tr.addCell("ui-lui-btntd");
+		Div d = new Div("ui-lui-btn-c");
+		cell.add(d);
+		d.add(getSelButton());
+
+		cell = tr.addCell("ui-lui-btntd");
+		d = new Div("ui-lui-btn-c");
+		cell.add(d);
+		d.add(getClearButton());
+		getClearButton().setDisabled(m_value == null);
+
+		getSelButton().setTestID(calcTestID() + "-lookup");
+		getClearButton().setTestID(calcTestID() + "-clear");
 	}
 
 	/**
@@ -327,10 +362,13 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	 * Render the presentation for empty/unselected input.
 	 */
 	private void renderEmptySelection() {
-		String txt = Msgs.BUNDLE.getString(Msgs.UI_LOOKUP_EMPTY);
-		getValueNode().setText(txt);
+		Table table = m_table;
+		table.removeAllChildren();
+		TD td = table.getBody().addRowAndCell();
+		//td.setValign(TableVAlign.TOP);
+		td.setCssClass("ui-lui-empty");
+		td.add(new Span(Msgs.BUNDLE.getString(Msgs.UI_LOOKUP_EMPTY)));
 	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Quick Search code (KeySearch)						*/
@@ -339,10 +377,6 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	 * @return true either when query control is manually implemented by keyWordSearchHandler, or if keyword search meta data is defined.
 	 */
 	private boolean isKeyWordSearchDefined() {
-		if(getStringQueryFactory() != null) {
-			return true;
-		}
-
 		if(m_keywordLookupPropertyList != null)
 			return true;
 		List<SearchPropertyMetaModel> spml = getQueryMetaModel().getKeyWordSearchProperties();
@@ -353,9 +387,13 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	 * Render the "current value" display as an input box.
 	 */
 	private void renderKeyWordSearch() {
-		getValueNode().remove();
+		m_table.removeAllChildren();
+		TD td = m_table.getBody().addRowAndCell();
+		//td.setValign(TableVAlign.TOP);
+		td.setCssClass("ui-lui-lookupf");
+
 		SearchInput2 ks = m_keySearch = new SearchInput2(m_keyWordSearchCssClass);
-		add(0, ks);
+		td.add(ks);
 
 		ks.setPopupWidth(getKeyWordSearchPopupWidth());
 
@@ -581,7 +619,7 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 
 	private void openResultsPopup(@Nonnull ITableModel<OT> model) throws Exception {
 		List<OT> list = model.getItems(0, model.getRows());
-		INodeContentRenderer<OT> renderer = new DefaultPopupRowRenderer<OT>(m_outputMetaModel);
+		IRenderInto<OT> renderer = new DefaultPopupRowRenderer<OT>(m_outputMetaModel);
 
 		SelectOnePanel<OT> pnl = m_selectPanel = new SelectOnePanel<OT>(list, renderer);
 		DomUtil.nullChecked(m_keySearch).add(pnl);
@@ -609,7 +647,8 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 		Div pnl = m_pnlMessage;
 		if(pnl == null) {
 			pnl = m_pnlMessage = new Div();
-			add(pnl);
+			Objects.requireNonNull(m_keySearch).add(pnl);
+			//add(pnl);
 		}
 		pnl.setCssClass("ui-srip-message");
 		pnl.setText(message);
@@ -698,9 +737,9 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 
 	private void updateRoStyle() {
 		if((m_disabled || m_readOnly) && m_value != null)
-			addCssClass("ui-lui2-selected-ro");
+			addCssClass("ui-lui-selected-ro");
 		else
-			removeCssClass("ui-lui2-selected-ro");
+			removeCssClass("ui-lui-selected-ro");
 	}
 
 	/**
@@ -807,11 +846,11 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 		m_value = v;
 		if(v != null) {
 			getClearButton().setDisabled(false);
-			setCssClass("ui-lui2-selected");
+			addCssClass("ui-lui-selected");
 			clearMessage();
 		} else {
 			getClearButton().setDisabled(true);
-			setCssClass("ui-lui2");
+			removeCssClass("ui-lui-selected");
 		}
 		updateRoStyle();
 		forceRebuild();
@@ -1073,12 +1112,12 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 
 	/**
 	 * Define the columns to show in "display current value" mode. This actually creates a
-	 * content renderer (a {@link to.etc.domui.component2.lookupinput.SimpleLookupInputRenderer2}) to render the fields.
+	 * content renderer (a {@link SimpleLookupInputRenderer}) to render the fields.
 	 *
 	 * @param columns
 	 */
 	public void setValueColumns(String... columns) {
-		setValueRenderer(new SimpleLookupInputRenderer2<OT>(getOutputClass(), columns));
+		setValueRenderer(new SimpleLookupInputRenderer<OT>(getOutputClass(), columns));
 	}
 
 	/**
@@ -1086,18 +1125,17 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	 * @return
 	 */
 	@Nullable
-	public INodeContentRenderer<OT> getValueRenderer() {
+	public IRenderInto<OT> getValueRenderer() {
 		return m_valueRenderer;
 	}
 
-	public void setValueRenderer(@Nullable INodeContentRenderer<OT> contentRenderer) {
+	public void setValueRenderer(@Nullable IRenderInto<OT> contentRenderer) {
 		m_valueRenderer = contentRenderer;
 	}
 
 	/**
 	 * Define the full column spec in the format described for {@link BasicRowRenderer} for the dropdown box
 	 * showing quick search results.
-	 * @param columns
 	 */
 //	public void addDropdownColumns(@Nonnull Object... columns) {
 //		getDropdownRowRenderer().addColumns(columns);

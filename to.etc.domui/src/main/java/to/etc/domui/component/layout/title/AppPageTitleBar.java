@@ -24,21 +24,31 @@
  */
 package to.etc.domui.component.layout.title;
 
-import java.util.*;
+import to.etc.domui.annotations.UIMenu;
+import to.etc.domui.component.buttons.HoverButton;
+import to.etc.domui.component.buttons.SmallImgButton;
+import to.etc.domui.component.layout.ErrorMessageDiv;
+import to.etc.domui.component.misc.OddCharacters;
+import to.etc.domui.dom.css.DisplayType;
+import to.etc.domui.dom.errors.IErrorFence;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.Img;
+import to.etc.domui.dom.html.ImgAlign;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.Page;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.TR;
+import to.etc.domui.dom.html.Table;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.state.IShelvedEntry;
+import to.etc.domui.state.UIGoto;
+import to.etc.domui.themes.Theme;
+import to.etc.domui.util.DomUtil;
 
-import javax.annotation.*;
-
-import to.etc.domui.annotations.*;
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.layout.*;
-import to.etc.domui.component.misc.*;
-import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.state.*;
-import to.etc.domui.themes.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
+import javax.annotation.Nonnull;
+import java.util.List;
 
 /**
  * A page title bar. This consists of an image in the left corner, a string describing the
@@ -62,9 +72,9 @@ public class AppPageTitleBar extends BasePageTitleBar {
 
 	private String m_hint;
 
-	// LFTODO Remove this horror
-	@Deprecated
-	private INodeContentRenderer<String> m_titleNodeRenderer;
+	//// LFTODO Remove this horror
+	//@Deprecated
+	//private IRenderInto<String> m_titleNodeRenderer;
 
 	private IErrorFence m_errorFence;
 
@@ -357,15 +367,15 @@ public class AppPageTitleBar extends BasePageTitleBar {
 
 	private void renderTitleCell() {
 		TD titleCell = getTitlePart();
-		if(m_titleNodeRenderer != null) {
-			try {
-				m_titleNodeRenderer.renderNodeContent(this, titleCell, getPageTitle(), Boolean.valueOf(isShowAsModified()));
-			} catch(Exception x) {
-				throw WrappedException.wrap(x); // Oh, the glory of checked exceptions. So useful. Sigh.
-			}
-		} else {
+		//if(m_titleNodeRenderer != null) {
+		//	try {
+		//		m_titleNodeRenderer.render(titleCell, getPageTitle()); //, Boolean.valueOf(isShowAsModified()));
+		//	} catch(Exception x) {
+		//		throw WrappedException.wrap(x); // Oh, the glory of checked exceptions. So useful. Sigh.
+		//	}
+		//} else {
 			internalRenderTitle();
-		}
+		//}
 	}
 
 	private void internalRenderTitle() {
@@ -381,9 +391,9 @@ public class AppPageTitleBar extends BasePageTitleBar {
 		}
 	}
 
-	public INodeContentRenderer<String> getTitleNodeRenderer() {
-		return m_titleNodeRenderer;
-	}
+	//public IRenderInto<String> getTitleNodeRenderer() {
+	//	return m_titleNodeRenderer;
+	//}
 
 	// jal 20150929 Highly unwanted, pending removal
 	///**

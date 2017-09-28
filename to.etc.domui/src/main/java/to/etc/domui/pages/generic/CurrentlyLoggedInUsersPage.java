@@ -1,20 +1,32 @@
 package to.etc.domui.pages.generic;
 
-import java.text.*;
-import java.util.*;
-
-import javax.annotation.*;
-
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.layout.title.*;
-import to.etc.domui.component.misc.*;
-import to.etc.domui.component.ntbl.*;
-import to.etc.domui.component.tbl.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
+import to.etc.domui.component.buttons.LinkButton;
+import to.etc.domui.component.layout.title.AppPageTitleBar;
+import to.etc.domui.component.misc.MsgBox;
+import to.etc.domui.component.ntbl.IRowButtonFactory;
+import to.etc.domui.component.tbl.DataPager;
+import to.etc.domui.component.tbl.DataTable;
+import to.etc.domui.component.tbl.RowButtonContainer;
+import to.etc.domui.component.tbl.RowRenderer;
+import to.etc.domui.component.tbl.SortableListModel;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.server.ServerClientRegistry;
 import to.etc.domui.server.ServerClientRegistry.Client;
-import to.etc.domui.util.*;
-import to.etc.util.*;
+import to.etc.domui.util.IRenderInto;
+import to.etc.util.StringTool;
+
+import javax.annotation.Nonnull;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
 
 public class CurrentlyLoggedInUsersPage extends UrlPage {
 
@@ -50,30 +62,24 @@ public class CurrentlyLoggedInUsersPage extends UrlPage {
 		RowRenderer<Client> rr = new RowRenderer<Client>(Client.class);
 
 		rr.column("remoteUser").width("10%").label("User ID");
-		rr.column().label("IP Address/host").width("1%").renderer(new INodeContentRenderer<Client>() {
+		rr.column().label("IP Address/host").width("1%").renderer(new IRenderInto<Client>() {
 			@Override
-			public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable Client cl, @Nullable Object parameters) throws Exception {
-				if(null == cl)
-					return;
+			public void render(@Nonnull NodeContainer node, @Nonnull Client cl) throws Exception {
 				node.add(cl.getRemoteAddress() + "/" + cl.getRemoteHost());
 			}
 		});
 		rr.column("NRequests").width("1%").label("# requests");
-		rr.column(Long.class, "tsSessionStart").width("1%").label("Logged in since").descending().renderer(new INodeContentRenderer<Long>() {
+		rr.column(Long.class, "tsSessionStart").width("1%").label("Logged in since").descending().renderer(new IRenderInto<Long>() {
 			@Override
-			public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable Long cl, @Nullable Object parameters) throws Exception {
-				if(null == cl)
-					return;
+			public void render(@Nonnull NodeContainer node, @Nonnull Long cl) throws Exception {
 				long ts = cl.longValue();
 				node.add(df.format(new Date(ts)) + " (" + StringTool.strDurationMillis(cts - ts) + ")");
 			}
 		});
 
-		rr.column(Long.class, "tsLastRequest").width("1%").label("Last use").sortdefault().descending().renderer(new INodeContentRenderer<Long>() {
+		rr.column(Long.class, "tsLastRequest").width("1%").label("Last use").sortdefault().descending().renderer(new IRenderInto<Long>() {
 			@Override
-			public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable Long cl, @Nullable Object parameters) throws Exception {
-				if(null == cl)
-					return;
+			public void render(@Nonnull NodeContainer node, @Nonnull Long cl) throws Exception {
 				long ts = cl.longValue();
 				node.add(df.format(new Date(ts)) + " (" + StringTool.strDurationMillis(cts - ts) + ")");
 			}

@@ -210,7 +210,7 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 			}
 			if(c.nodeRenderer() != UndefinedLabelStringRenderer.class) {
 				pmm.setRelationType(PropertyRelationType.UP);
-				pmm.setComboNodeRenderer(c.nodeRenderer());
+				pmm.setComboNodeRenderer((Class<? extends IRenderInto<T>>) c.nodeRenderer());
 			}
 			pmm.setComponentTypeHint(Constants.COMPONENT_COMBO);
 			if(c.properties() != null && c.properties().length > 0) {
@@ -243,7 +243,7 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 			 */
 			final MetaObject o = (MetaObject) an;
 			if(o.selectedRenderer() != UndefinedLabelStringRenderer.class)
-				pmm.setLookupSelectedRenderer(o.selectedRenderer());
+				pmm.setLookupSelectedRenderer((Class<? extends IRenderInto<T>>) o.selectedRenderer());
 
 			colli.later(new Runnable() {
 				@Override

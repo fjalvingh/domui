@@ -24,9 +24,9 @@
  */
 package to.etc.domui.dom.html;
 
-import javax.annotation.*;
-
 import to.etc.domui.util.*;
+
+import javax.annotation.*;
 
 public class Table extends NodeContainer {
 	private String m_cellPadding;
@@ -46,6 +46,11 @@ public class Table extends NodeContainer {
 
 	public Table() {
 		super("table");
+	}
+
+	public Table(@Nonnull String cssClass) {
+		this();
+		setCssClass(cssClass);
 	}
 
 	@Override

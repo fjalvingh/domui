@@ -170,7 +170,10 @@ final public class WebDriverCommandBuilder {
 	 */
 	public void on(@Nonnull String testid) {
 		on(m_wd.byId(testid));
+	}
 
+	public void on(@Nonnull String testid, @Nonnull String subCss) {
+		on(m_wd.byId(testid, subCss));
 	}
 
 	public void on(@Nonnull By locator) {

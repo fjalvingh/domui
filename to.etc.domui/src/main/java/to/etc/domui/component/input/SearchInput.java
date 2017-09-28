@@ -1,14 +1,30 @@
 package to.etc.domui.component.input;
 
-import java.util.*;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.tbl.DataTable;
+import to.etc.domui.component.tbl.ICellClicked;
+import to.etc.domui.component.tbl.SimpleListModel;
+import to.etc.domui.dom.css.DisplayType;
+import to.etc.domui.dom.css.Overflow;
+import to.etc.domui.dom.css.PositionType;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.ILookupTypingListener;
+import to.etc.domui.dom.html.Img;
+import to.etc.domui.dom.html.Input;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.Span;
+import to.etc.domui.util.IRenderInto;
+import to.etc.domui.util.Msgs;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.tbl.*;
-import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * This class is an &lt;input&gt; control which can do on-the-fly lookup of data that is being typed. How
@@ -104,7 +120,7 @@ public class SearchInput<T> extends Div {
 	/**
 	 * Create a control for the specified type, and show the specified properties in the popup list. This
 	 * constructor creates an <b>incomplete</b> control: you must call {@link #setHandler(IQuery)} to completely
-	 * define the control or use the {@link #SearchInput(IQuery, Class, String...)} constructor.
+	 * define the control or use the SearchInput(IQuery, Class, String...) constructor.
 	 *
 	 * @param clz
 	 * @param columns
@@ -234,9 +250,9 @@ public class SearchInput<T> extends Div {
 		KeyWordPopupRowRenderer<T> rr = new KeyWordPopupRowRenderer<T>(m_dataModel);
 
 		if(SIMPLECLASSES.contains(m_dataClass)) {
-			rr.addColumns("", new INodeContentRenderer<Object>() {
+			rr.addColumns("", new IRenderInto<Object>() {
 				@Override
-				public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable Object object, @Nullable Object parameters) throws Exception {
+				public void render(@Nonnull NodeContainer node, @Nullable Object object) throws Exception {
 					node.add(String.valueOf(object));
 				}
 			});

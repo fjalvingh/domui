@@ -16,14 +16,6 @@
     <description>DomUI Selenium testing code</description>
     <inceptionYear>2017</inceptionYear>
 
-    <url>./to.etc.domui.selenium</url>
-    <distributionManagement>
-        <site>
-            <id>maven</id>
-            <url>./to.etc.domui.selenium/</url>
-        </site>
-    </distributionManagement>
-
     <dependencies>
         <dependency>
             <groupId>to.etc.domui</groupId>

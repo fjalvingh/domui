@@ -30,6 +30,11 @@ deploy:
 before_install:
 - scripts/beforeInstall
 
+after_script:
+  - echo "Creating maven report"
+  - mvn site site:deploy
+  - scripts/deploy-test-reports.sh
+
 after_failure:
   - echo $( pwd )
-  - scripts/deploy-test-reports.sh
+

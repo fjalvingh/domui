@@ -1,21 +1,28 @@
 package to.etc.domui.component.combobox;
 
-import java.util.*;
+import to.etc.domui.component.input.ValueLabelPair;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.converter.IObjectToStringConverter;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.trouble.UIException;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.IComboDataSet;
+import to.etc.domui.util.IListMaker;
+import to.etc.domui.util.IRenderInto;
+import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.converter.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.nls.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public class SelectFixed<T> extends ComboBoxBase<ValueLabelPair<T>, T> {
-	static private final INodeContentRenderer<ValueLabelPair<Object>> STATICRENDERER = new INodeContentRenderer<ValueLabelPair<Object>>() {
+	static private final IRenderInto<ValueLabelPair<Object>> STATICRENDERER = new IRenderInto<ValueLabelPair<Object>>() {
 		@Override
-		public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable ValueLabelPair<Object> object, @Nullable Object parameters) throws Exception {
+		public void render(@Nonnull NodeContainer node, @Nullable ValueLabelPair<Object> object) throws Exception {
 			if(object != null)
 				node.setText(object.getLabel());
 		}
@@ -54,8 +61,8 @@ public class SelectFixed<T> extends ComboBoxBase<ValueLabelPair<T>, T> {
 
 	@SuppressWarnings({"unchecked"})
 	private void initRenderer() {
-		INodeContentRenderer< ? > r = STATICRENDERER;
-		setContentRenderer((INodeContentRenderer<ValueLabelPair<T>>) r);
+		IRenderInto< ? > r = STATICRENDERER;
+		setContentRenderer((IRenderInto<ValueLabelPair<T>>) r);
 	}
 
 	// 20100502 jal Horrible bug! This prevents setting customized option rendering from working!!

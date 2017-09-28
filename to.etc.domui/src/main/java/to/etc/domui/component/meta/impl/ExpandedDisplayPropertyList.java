@@ -24,10 +24,10 @@
  */
 package to.etc.domui.component.meta.impl;
 
-import java.util.*;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.util.IValueAccessor;
 
-import to.etc.domui.component.meta.*;
-import to.etc.domui.util.*;
+import java.util.List;
 
 /**
  * This is a special version of an expanded property, used when
@@ -40,11 +40,11 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 28, 2008
  */
-public class ExpandedDisplayPropertyList extends ExpandedDisplayProperty<String> {
+public class ExpandedDisplayPropertyList<T> extends ExpandedDisplayProperty<T> {
 	private List<ExpandedDisplayProperty< ? >> m_children;
 
-	protected <X> ExpandedDisplayPropertyList(PropertyMetaModel< ? > propertyMeta, IValueAccessor< ? > accessor, List<ExpandedDisplayProperty< ? >> children) {
-		super(String.class, propertyMeta, accessor);
+	protected ExpandedDisplayPropertyList(PropertyMetaModel<T> propertyMeta, IValueAccessor<T> accessor, List<ExpandedDisplayProperty< ? >> children) {
+		super(propertyMeta.getActualType(), propertyMeta, accessor);
 		m_children = children;
 	}
 
