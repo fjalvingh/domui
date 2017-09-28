@@ -90,6 +90,9 @@ public class HibernateGenerator {
 	@Option(name = "-append-schema-name", aliases = {"-as"}, usage = "When present this always appends a schema name in @Table annotations, when F it only adds it if there are more than one schemas scanned.")
 	private boolean m_appendSchemaNameInAnnotations;
 
+	@Option(name = "-verbose", usage = "Show a lot of text about why decisions are made")
+	private boolean m_verbose;
+
 	private void run(String[] args) throws Exception {
 		CmdLineParser p = new CmdLineParser(this);
 		try {
@@ -146,6 +149,7 @@ public class HibernateGenerator {
 		}
 		generator.setReplaceSerialWithSequence(! m_skipReplaceSerialWithSequence);
 		generator.setAppendSchemaNameInAnnotations(m_appendSchemaNameInAnnotations);
+		generator.setVerbose(m_verbose);
 
 		try {
 			generator.generate(m_schemaSet);

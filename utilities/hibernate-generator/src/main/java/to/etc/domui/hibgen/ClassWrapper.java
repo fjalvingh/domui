@@ -1379,6 +1379,13 @@ class ClassWrapper {
 					String myQN = tryResolveFullName(cw.getPropertyType().asString());
 					String otherQN = other.tryResolveFullName(otherColumn.getPropertyType().asString());
 					if(! myQN.equals(otherQN)) {
+						if(g().isVerbose()) {
+							System.out.println("baseClassMatch: " + other.getSimpleName()
+								+  " does not match base class " + getSimpleName()
+								+ " because column " + columnName
+								+ " has different types: " + myQN + " and " + otherQN
+							);
+						}
 						return false;
 					}
 				}

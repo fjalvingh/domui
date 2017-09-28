@@ -93,6 +93,8 @@ abstract public class AbstractGenerator {
 
 	private boolean m_forcePkToLong = true;
 
+	private boolean m_verbose;
+
 	/** When T, this does not check for the same type on columns to attach the base class. */
 	private boolean m_matchBaseClassesOnColumnNameOnly = false;
 
@@ -1128,5 +1130,13 @@ abstract public class AbstractGenerator {
 
 	public void setAppendSchemaNameInAnnotations(boolean appendSchemaNameInAnnotations) {
 		m_appendSchemaNameInAnnotations = appendSchemaNameInAnnotations;
+	}
+
+	public boolean isVerbose() {
+		return m_verbose;
+	}
+
+	public void setVerbose(boolean verbose) {
+		m_verbose = verbose;
 	}
 }
