@@ -148,12 +148,12 @@ abstract public class AbstractGenerator {
 
 		getTableClasses().forEach(w -> w.fixPkNullity());				// Must be after assignPrimaryKeys
 
-
 		assignBaseClasses();
 
 		calculateRelationNames();
 
 		generateOneToManyProperties();
+
 		resolveOneToManyDuplicates();
 
 		getTableClasses().forEach(w -> w.removeBaseClassColumns());
@@ -494,6 +494,21 @@ abstract public class AbstractGenerator {
 		}
 
 		String packageName = sbpackage.toString();
+
+		//-- Make sure this class name does not already exist
+		String oldClassName = className;
+		int index = 0;
+		for(;;) {
+			if(findClassWrapper(packageName, className) == null) {
+				break;
+			}
+
+			if(index == 0) {
+				error("Duplicate class name generated: " + packageName + "." + className);
+			}
+			index++;
+			className = oldClassName + index;
+		}
 
 		ClassWrapper wrapper = ClassWrapper.create(this, packageName, className);
 		m_wrapperList.add(wrapper);
@@ -879,7 +894,7 @@ abstract public class AbstractGenerator {
 	}
 
 	protected void error(String s) {
-		System.out.println("error: " + s);
+		System.err.println("error: " + s);
 	}
 
 	protected void warning(String s) {

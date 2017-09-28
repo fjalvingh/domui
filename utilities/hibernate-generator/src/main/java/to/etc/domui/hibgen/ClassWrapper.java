@@ -743,7 +743,7 @@ class ClassWrapper {
 		}
 	}
 
-	private void deleteColumn(ColumnWrapper cw) {
+	void deleteColumn(ColumnWrapper cw) {
 		FieldDeclaration fieldDeclaration = cw.getFieldDeclaration();
 		if(fieldDeclaration != null) {
 			if(fieldDeclaration.getVariables().size() == 1) {
@@ -1144,17 +1144,38 @@ class ClassWrapper {
 		}
 	}
 
+	//@Nullable
+	//public ColumnWrapper findColumnByMappedBy(ClassWrapper clz, String propertyName) {
+	//	for(ColumnWrapper cw : m_allColumnWrappers) {
+	//		if(cw.isTransient() || cw.getRelationType() != RelationType.oneToMany)
+	//			continue;
+	//		if(propertyName.equals(cw.getSetMappedByPropertyName())) {
+	//			if(cw.getParentClass())
+	//
+	//
+	//			return cw;
+	//		}
+	//	}
+	//	return null;
+	//}
+
+	/**
+	 * Find the OneToMany property that refers back (mappedBy) to the target column.
+	 * @param target
+	 * @return
+	 */
 	@Nullable
-	public ColumnWrapper findColumnByMappedBy(String propertyName) {
+	public ColumnWrapper findPropertyByChildProperty(ColumnWrapper target) {
 		for(ColumnWrapper cw : m_allColumnWrappers) {
 			if(cw.isTransient() || cw.getRelationType() != RelationType.oneToMany)
 				continue;
-			if(propertyName.equals(cw.getSetMappedByPropertyName())) {
+			if(cw.getChildsParentProperty() == target) {
 				return cw;
 			}
 		}
 		return null;
 	}
+
 
 	public ColumnWrapper createColumnWrapper() {
 		ColumnWrapper cw = new ColumnWrapper(this);
@@ -1163,6 +1184,13 @@ class ClassWrapper {
 	}
 
 	public ColumnWrapper createListProperty(ColumnWrapper childsParentProperty) {
+		if(getSimpleName().equalsIgnoreCase("Definition")) {
+			if(childsParentProperty.getClassWrapper().getSimpleName().equalsIgnoreCase("ConfDatamartFact")) {
+				System.out.println("GOTCHA");
+			}
+
+			System.out.println("GOTCHA");
+		}
 		ColumnWrapper cw = createColumnWrapper();
 
 		//-- Type is List<T> where T is this-property's type.
@@ -1189,53 +1217,8 @@ class ClassWrapper {
 	 */
 	public void resolveMappedBy() {
 		for(ColumnWrapper cw : new ArrayList<>(m_allColumnWrappers)) {
-			resolveMappedBy(cw);
+			cw.resolveMappedBy();
 		}
-	}
-
-	private void resolveMappedBy(ColumnWrapper cw) {
-		String mappedBy = cw.getSetMappedByPropertyName();
-		if(null == mappedBy)
-			return;
-
-		if("numberlist".equalsIgnoreCase(mappedBy)) {
-			System.out.println("GOTCHA");
-		}
-
-		//-- Find the class referred to
-		Type propertyType = cw.getPropertyType();
-		if(propertyType instanceof ClassOrInterfaceType) {
-			ClassOrInterfaceType ct = (ClassOrInterfaceType) propertyType;
-
-			String s = ct.getName().asString();
-			if("List".equals(s)) {
-				Type containerType = ct.getTypeArguments().get().get(0);
-				String childName = containerType.asString();
-				childName = tryResolveFullName(childName);
-
-				ClassWrapper childClass = g().findClassWrapper(getPackageName(), childName);
-				if(null == childClass) {
-					error(this + ": cannot locate child class " + childName);
-					return;
-				}
-
-				ColumnWrapper childColumn = childClass.findColumnByPropertyName(mappedBy);
-				if(null != childColumn) {
-					cw.setChildsParentProperty(childColumn);
-				} else {
-					childColumn = childClass.findDeletedProperty(mappedBy);
-					if(null == childColumn) {
-						error(this + ": cannot find mappedBy property '" + mappedBy + "' in child class " + childClass);
-					} else {
-						info(this  + ": child property '" + mappedBy + "' deleted from " + childClass + ", deleting OneToMany");
-
-						deleteColumn(cw);
-					}
-				}
-				return;
-			}
-		}
-		error(this + ": @OneToMany reference but property type is not correct (List<T>, but it is " + propertyType + ")");
 	}
 
 	/**

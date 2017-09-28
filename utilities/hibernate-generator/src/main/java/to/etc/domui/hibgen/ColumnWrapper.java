@@ -76,7 +76,7 @@ public class ColumnWrapper {
 
 	private ColumnWrapper m_childsParentProperty;
 
-	/** The parent class wrapper for a recognized parent relation */
+	/** The parent class wrapper for a recognized parent relation (manyToOne property) */
 	private ClassWrapper m_parentClass;
 
 	private String m_setMappedByPropertyName;
@@ -596,10 +596,15 @@ public class ColumnWrapper {
 		if(null == parentClass)
 			throw new IllegalStateException(this + ": Missing parent class for ManyToOne property " + this);
 
-		ColumnWrapper cw = parentClass.findColumnByMappedBy(getPropertyName());
+		if(m_classWrapper.getSimpleName().equalsIgnoreCase("Definition")) {
+			System.out.println("GOTCHA");
+		}
+
+		ColumnWrapper cw = parentClass.findPropertyByChildProperty(this);
 		if(cw == null) {
 			cw = parentClass.createListProperty(this);
 		}
+		System.out.println("1->N: child " + this + " parent list = " + cw);
 		m_parentListProperty = cw;
 	}
 
@@ -1014,6 +1019,7 @@ public class ColumnWrapper {
 		m_relationType = relationType;
 	}
 
+	/** The parent class wrapper for a recognized parent relation (manyToOne property) */
 	public ClassWrapper getParentClass() {
 		return m_parentClass;
 	}
@@ -1044,6 +1050,52 @@ public class ColumnWrapper {
 
 	public ColumnWrapper getChildsParentProperty() {
 		return m_childsParentProperty;
+	}
+
+	void resolveMappedBy() {
+		String mappedBy = getSetMappedByPropertyName();
+		if(null == mappedBy)
+			return;
+
+		if("numberlist".equalsIgnoreCase(mappedBy)) {
+			System.out.println("GOTCHA");
+		}
+		//System.out.println("MAPPEDBY: " + cw + " to " + mappedBy);
+
+		//-- Find the class referred to
+		Type propertyType = getPropertyType();
+		if(propertyType instanceof ClassOrInterfaceType) {
+			ClassOrInterfaceType ct = (ClassOrInterfaceType) propertyType;
+
+			String s = ct.getName().asString();
+			if("List".equals(s)) {
+				Type containerType = ct.getTypeArguments().get().get(0);
+				String childName = containerType.asString();
+				childName = m_classWrapper.tryResolveFullName(childName);
+
+				ClassWrapper childClass = g().findClassWrapper(m_classWrapper.getPackageName(), childName);
+				if(null == childClass) {
+					m_classWrapper.error(this + ": cannot locate child class " + childName);
+					return;
+				}
+
+				ColumnWrapper childColumn = childClass.findColumnByPropertyName(mappedBy);
+				if(null != childColumn) {
+					setChildsParentProperty(childColumn);
+				} else {
+					childColumn = childClass.findDeletedProperty(mappedBy);
+					if(null == childColumn) {
+						m_classWrapper.error(this + ": cannot find mappedBy property '" + mappedBy + "' in child class " + childClass);
+					} else {
+						m_classWrapper.info(this  + ": child property '" + mappedBy + "' deleted from " + childClass + ", deleting OneToMany");
+
+						m_classWrapper.deleteColumn(this);
+					}
+				}
+				return;
+			}
+		}
+		m_classWrapper.error(this + ": @OneToMany reference but property type is not correct (List<T>, but it is " + propertyType + ")");
 	}
 
 	public void resolveManyToOne() {
