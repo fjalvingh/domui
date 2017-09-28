@@ -604,7 +604,7 @@ public class ColumnWrapper {
 		if(cw == null) {
 			cw = parentClass.createListProperty(this);
 		}
-		System.out.println("1->N: child " + this + " parent list = " + cw);
+		//System.out.println("1->N: child " + this + " parent list = " + cw);
 		m_parentListProperty = cw;
 	}
 

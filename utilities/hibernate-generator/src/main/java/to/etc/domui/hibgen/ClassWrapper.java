@@ -1375,7 +1375,12 @@ class ClassWrapper {
 				return false;
 			if(! g().isMatchBaseClassesOnColumnNameOnly()) {
 				if(! Objects.equals(cw.getPropertyType(), otherColumn.getPropertyType())) {
-					return false;
+					//-- Try classname resolution
+					String myQN = tryResolveFullName(cw.getPropertyType().asString());
+					String otherQN = other.tryResolveFullName(otherColumn.getPropertyType().asString());
+					if(! myQN.equals(otherQN)) {
+						return false;
+					}
 				}
 			}
 		}
