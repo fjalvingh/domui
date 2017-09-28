@@ -48,8 +48,8 @@ public class HibernateGenerator {
 	@Option(name = "-no-remove-schema", usage = "By default, if a table name starts with the schema name that name is removed from the table name. This option leaves the name intact.")
 	private boolean m_skipRemoveSchemaNameFromTableName;
 
-	@Option(name = "-nos", aliases = {"no-schemaname"}, usage = "Do not add the schema name to the generated class name (useful when you're sure all table names differ)")
-	private boolean m_noAddSchemaNameToClassName;
+	@Option(name = "-asc", aliases = {"-add-schema-classname"}, usage = "Add the schema name to the generated class name")
+	private boolean m_addSchemaNameToClassName;
 
 	@Option(name = "-ffr", aliases = {"-force-field-rename"}, usage = "When set, all fields are renamed even when they occur in pre-existing classes")
 	private boolean m_forceRenameFields;
@@ -87,7 +87,8 @@ public class HibernateGenerator {
 	private boolean m_skipReplaceSerialWithSequence;
 
 	/** When T this always appends a schema name, when F it only adds it if there are more than one schemas scanned. */
-	private boolean m_appendSchemaName;
+	@Option(name = "-append-schema-name", aliases = {"-as"}, usage = "When present this always appends a schema name in @Table annotations, when F it only adds it if there are more than one schemas scanned.")
+	private boolean m_appendSchemaNameInAnnotations;
 
 	private void run(String[] args) throws Exception {
 		CmdLineParser p = new CmdLineParser(this);
@@ -127,8 +128,8 @@ public class HibernateGenerator {
 			generator.setFieldPrefix(m_fieldPrefix);
 		}
 		generator.setAddIdentifyable(! m_skipIdentifyable);
-		generator.setAddSchemaNameToClassName(! m_skipRemoveSchemaNameFromTableName);
-		generator.setAddSchemaNameToClassName(! m_noAddSchemaNameToClassName);
+		generator.setHideSchemaNameFromTableName(m_skipRemoveSchemaNameFromTableName);
+		generator.setAddSchemaNameToClassName(m_addSchemaNameToClassName);
 		generator.setForceRenameFields(m_forceRenameFields);
 		generator.setForceRenameMethods(m_forceRenameMethods);
 		generator.setMapOneCharVarcharToBoolean(! m_skipMapOneCharVarcharToBoolean);
@@ -144,6 +145,7 @@ public class HibernateGenerator {
 			generator.setForcePKIdentifier(m_forcePKIdentifier);
 		}
 		generator.setReplaceSerialWithSequence(! m_skipReplaceSerialWithSequence);
+		generator.setAppendSchemaNameInAnnotations(m_appendSchemaNameInAnnotations);
 
 		try {
 			generator.generate(m_schemaSet);

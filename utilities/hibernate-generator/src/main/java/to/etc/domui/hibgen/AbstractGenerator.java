@@ -106,7 +106,7 @@ abstract public class AbstractGenerator {
 	private boolean m_replaceSerialWithSequence = true;
 
 	/** When T this always appends a schema name, when F it only adds it if there are more than one schemas scanned. */
-	private boolean m_appendSchemaName;
+	private boolean m_appendSchemaNameInAnnotations;
 
 	private File m_configFile;
 
@@ -165,6 +165,8 @@ abstract public class AbstractGenerator {
 		getEmbeddableClasses().forEach(w -> w.renderEmbeddableAnnotations());
 
 		generateProperties();
+
+		getTableClasses().forEach(w -> w.generateConfig());
 
 		generateLoaderClass();
 		renderOutput();
@@ -261,12 +263,42 @@ abstract public class AbstractGenerator {
 	}
 
 	private void saveUserConfig() throws Exception {
+		sortNodes(m_configRoot, "name");
+
+		NodeList nl = m_configRoot.getChildNodes();
+		for(int i = 0; i < nl.getLength(); i++) {
+			Node item = nl.item(i);
+			if(item.getNodeType() == Node.ELEMENT_NODE) {
+				sortNodes(item, "columnName");
+			}
+		}
+
 		Source source = new DOMSource(m_configDocument);
 		StreamResult result = new StreamResult(new OutputStreamWriter(new FileOutputStream(m_configFile), "utf-8"));
 		Transformer xformer = TransformerFactory.newInstance().newTransformer();
 		xformer.setOutputProperty(OutputKeys.INDENT, "yes");
 		xformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 		xformer.transform(source, result);
+	}
+
+	private void sortNodes(Node root, String attrName) {
+		List<Node> children = new ArrayList<>();
+		for(int i = 0; i < root.getChildNodes().getLength(); i++) {
+			Node item = root.getChildNodes().item(i);
+			if(item.getNodeType() == Node.ELEMENT_NODE)
+				children.add(item);
+		}
+		while(root.getChildNodes().getLength() > 0) {
+			root.removeChild(root.getChildNodes().item(root.getChildNodes().getLength() - 1));
+		}
+
+		children.sort((a, b) -> {
+			String an = DomTools.strAttr(a, attrName);
+			String bn = DomTools.strAttr(b, attrName);
+			return an.compareToIgnoreCase(bn);
+		});
+
+		children.forEach(c -> root.appendChild(c));
 	}
 
 	private void loadUserConfig() throws Exception {
@@ -396,6 +428,7 @@ abstract public class AbstractGenerator {
 			if(null == wrapper) {
 				wrapper = createNewWrapper(dbTable);
 			} else {
+				getTableConfigProperty(dbTable, "className");
 				deleteSet.remove(wrapper);
 			}
 			wrapper.getConfig();
@@ -862,8 +895,8 @@ abstract public class AbstractGenerator {
 		return null;
 	}
 
-	public boolean isAppendSchemaName() {
-		return m_appendSchemaName || m_schemaSet.size() > 1;
+	public boolean isAppendSchemaNameInAnnotations() {
+		return m_appendSchemaNameInAnnotations || m_schemaSet.size() > 1;
 	}
 
 	public ClassWrapper findClassWrapper(String packageName, String className) {
@@ -937,14 +970,32 @@ abstract public class AbstractGenerator {
 		return node;
 	}
 
-	public String getTableConfigProperty(DbTable table, String property) {
+	/**
+	 * Set a property as "*value" if it is nonexistent or has a * value.
+	 * @param table
+	 * @param property
+	 * @param value
+	 */
+	public void setTableConfigProperty(DbTable table, String property, String value) {
 		Node tc = getTableConfig(table);
 		String v = DomTools.strAttr(tc, property, null);
+		if(v == null || v.length() == 0 || v.startsWith("*")) {
+			DomTools.setAttr(tc, property, "*" + value);
+		}
+	}
+
+	public String getTableConfigProperty(DbTable table, String property) {
+		Node tc = getTableConfig(table);
+		return getOrCreateNodeValue(tc, property);
+	}
+
+	static String getOrCreateNodeValue(Node tc, String property) {
+		String v = DomTools.strAttr(tc, property, null);
 		if(null != v) {
-			return v.length() == 0 ? null : v;
+			return v.length() == 0 || v.startsWith("*") ? null : v;
 		}
 
-		Node value = m_configDocument.createAttribute(property);
+		Node value = tc.getOwnerDocument().createAttribute(property);
 		value.setNodeValue("");
 		tc.getAttributes().setNamedItem(value);
 		return null;
@@ -1047,7 +1098,7 @@ abstract public class AbstractGenerator {
 		m_replaceSerialWithSequence = replaceSerialWithSequence;
 	}
 
-	public void setAppendSchemaName(boolean appendSchemaName) {
-		m_appendSchemaName = appendSchemaName;
+	public void setAppendSchemaNameInAnnotations(boolean appendSchemaNameInAnnotations) {
+		m_appendSchemaNameInAnnotations = appendSchemaNameInAnnotations;
 	}
 }

@@ -26,12 +26,14 @@ import com.github.javaparser.ast.type.PrimitiveType.Primitive;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.VoidType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
+import org.w3c.dom.Node;
 import to.etc.dbutil.schema.DbColumn;
 import to.etc.dbutil.schema.DbPrimaryKey;
 import to.etc.dbutil.schema.DbRelation;
 import to.etc.dbutil.schema.DbSchema;
 import to.etc.dbutil.schema.DbTable;
 import to.etc.dbutil.schema.FieldPair;
+import to.etc.xml.DomTools;
 
 import javax.annotation.Nullable;
 import java.sql.Connection;
@@ -1138,4 +1140,29 @@ public class ColumnWrapper {
 			}
 		}
 	}
+
+
+	public Node getConfigNode() {
+		return m_classWrapper.getColumnConfig(this);
+	}
+
+	public String getConfigProperty(String property) {
+		return m_classWrapper.getColumnConfigProperty(this, property);
+	}
+
+	public void setColumnProperty(String property, String value) {
+		Node tc = getConfigNode();
+		if(null == tc)
+			return;
+		String v = DomTools.strAttr(tc, property, null);
+		if(v == null || v.length() == 0 || v.startsWith("*")) {
+			DomTools.setAttr(tc, property, "*" + value);
+		}
+	}
+
+	public void generateConfig() {
+		String propertyName = getPropertyName();
+		setColumnProperty("property", propertyName);
+	}
+
 }

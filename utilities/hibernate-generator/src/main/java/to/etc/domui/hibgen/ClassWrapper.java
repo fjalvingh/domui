@@ -31,6 +31,7 @@ import com.github.javaparser.ast.type.PrimitiveType.Primitive;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.VoidType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
+import org.w3c.dom.Node;
 import to.etc.dbutil.schema.DbColumn;
 import to.etc.dbutil.schema.DbPrimaryKey;
 import to.etc.dbutil.schema.DbSchema;
@@ -39,6 +40,7 @@ import to.etc.domui.hibgen.ColumnWrapper.ColumnType;
 import to.etc.domui.hibgen.ColumnWrapper.RelationType;
 import to.etc.util.LineIterator;
 import to.etc.webapp.query.IIdentifyable;
+import to.etc.xml.DomTools;
 
 import javax.annotation.Nullable;
 import java.beans.Introspector;
@@ -571,7 +573,6 @@ class ClassWrapper {
 		if(table == null)
 			return;
 
-
 		//-- Check all properties not added as columns: without @Column annotation
 		for(ColumnWrapper cw : m_allColumnWrappers) { // byPropName
 			if(cw.isTransient())
@@ -581,7 +582,6 @@ class ClassWrapper {
 			}
 
 			if(cw.getColumn() == null) {
-
 				//-- First try by @Column/@JoinColumn name annotation
 				String javaName = cw.getJavaColumnName();
 				if(javaName != null) {
@@ -601,13 +601,15 @@ class ClassWrapper {
 
 		//-- 2. Create NEW wrappers for all columns that do not have one, yet
 		for(DbColumn dbColumn : m_table.getColumnList()) {
+			String overrideName = getColumnConfigProperty(dbColumn, "property");		// Create config property
+
 			ColumnWrapper cw = findColumnByColumnName(dbColumn.getName());
 			if(cw == null) {
 				cw = new ColumnWrapper(this, dbColumn);
 				m_allColumnWrappers.add(cw);
 				cw.setNew(true);
+				String propertyName = overrideName == null ? calculatePropertyNameFromColumnName(dbColumn.getName()) : overrideName;
 
-				String propertyName = calculatePropertyNameFromColumnName(dbColumn.getName());
 				//m_byPropNameMap.put(propertyName.toLowerCase(), cw);
 				cw.setPropertyName(propertyName);
 			}
@@ -635,7 +637,6 @@ class ClassWrapper {
 			}
 		}
 		return null;
-
 	}
 
 
@@ -736,7 +737,7 @@ class ClassWrapper {
 			NormalAnnotationExpr a = createOrFindAnnotation(rootType, "javax.persistence.Table");
 			setPair(a, "name", table.getName(), true);
 			DbSchema schema = table.getSchema();
-			if(g().isAppendSchemaName()) {
+			if(g().isAppendSchemaNameInAnnotations()) {
 				setPair(a, "schema", schema.getName(), true);
 			}
 		}
@@ -1711,5 +1712,67 @@ class ClassWrapper {
 	public void renderEmbeddableAnnotations() {
 		ClassOrInterfaceDeclaration rootType = getRootType();
 		createOrFindMarkerAnnotation(rootType, "javax.persistence.Embeddable");
+	}
+
+	protected Node getTableConfig() {
+		DbTable table = m_table;
+		if(table == null)
+			return null;
+		return g().getTableConfig(table);
+	}
+
+	public void setTableConfigProperty(String property, String value) {
+		DbTable table = m_table;
+		if(null != table)
+			g().setTableConfigProperty(m_table, property, value);
+	}
+
+	protected Node getColumnConfig(String colName) {
+		Node tableConfig = getTableConfig();
+		org.w3c.dom.NodeList childNodes = tableConfig.getChildNodes();
+		for(int i = 0; i < childNodes.getLength(); i++) {
+			Node item = childNodes.item(i);
+			if("col".equals(item.getNodeName())) {
+				String name = DomTools.strAttr(item, "columnName");
+				if(colName.equals(name)) {
+					return item;
+				}
+			}
+		}
+
+		//-- Create it
+		Node node = tableConfig.getOwnerDocument().createElement("col");
+		tableConfig.appendChild(node);
+		Node value = tableConfig.getOwnerDocument().createAttribute("columnName");
+		value.setNodeValue(colName);
+		node.getAttributes().setNamedItem(value);
+		return node;
+	}
+
+	@Nullable
+	protected Node getColumnConfig(ColumnWrapper cw) {
+		String colName = cw.getColumn() == null ? cw.getJavaColumnName() : cw.getColumn().getName();
+		if(colName == null)
+			return null;
+		colName = colName.toLowerCase();
+		return getColumnConfig(colName);
+	}
+
+	protected String getColumnConfigProperty(DbColumn col, String propertyName) {
+		Node cc = getColumnConfig(col.getName());
+		return AbstractGenerator.getOrCreateNodeValue(cc, propertyName);
+	}
+
+	protected String getColumnConfigProperty(ColumnWrapper cw, String propertyName) {
+		Node cc = getColumnConfig(cw);
+		return AbstractGenerator.getOrCreateNodeValue(cc, propertyName);
+	}
+
+	public void generateConfig() {
+		String simpleName = getSimpleName();
+		setTableConfigProperty("className", getSimpleName());
+
+		//-- Per column
+		m_allColumnWrappers.forEach(cw -> cw.generateConfig());
 	}
 }
