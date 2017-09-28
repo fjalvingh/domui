@@ -1091,10 +1091,17 @@ class ClassWrapper {
 		dupList.forEach((name, list) -> {
 			if(list.size() == 1) {
 				ColumnWrapper w = list.get(0);
-				w.setPropertyName(name);
+
+				String override = w.getConfigProperty("property");
+				w.setPropertyName(override == null ? name : override);
 			} else if(list.size() > 1) {
 				list.forEach(cw -> {
-					cw.recalculatePropertyNameFromParentRelation();
+					String override = cw.getConfigProperty("property");
+					if(null == override) {
+						cw.recalculatePropertyNameFromParentRelation();
+					} else {
+						cw.setPropertyName(override);
+					}
 				});
 			}
 		});
