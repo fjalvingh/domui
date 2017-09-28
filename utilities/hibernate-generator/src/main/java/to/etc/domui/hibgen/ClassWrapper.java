@@ -1211,9 +1211,14 @@ class ClassWrapper {
 		cw.setPropertyType(lt);
 
 		//-- Calculate a simplistic property name provisionally. This step can create duplicate property names.
-		String childName = childsParentProperty.getClassWrapper().getSimpleName();
-		String name = AbstractGenerator.camelCase(childName) + "List";
-		cw.setPropertyName(name);
+		String override = childsParentProperty.getConfigProperty("parentName");
+		if(null != override) {
+			cw.setPropertyName(override);
+		} else {
+			String childName = childsParentProperty.getClassWrapper().getSimpleName();
+			String name = AbstractGenerator.camelCase(childName) + "List";
+			cw.setPropertyName(name);
+		}
 		cw.setOneToMany(childsParentProperty);
 
 		return cw;
