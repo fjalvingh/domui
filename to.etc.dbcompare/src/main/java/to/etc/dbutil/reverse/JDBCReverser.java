@@ -288,7 +288,7 @@ public class JDBCReverser implements Reverser {
 				c.setPlatformTypeName(typename);
 				c.setSqlType(daty);
 			}
-			msg("Loaded " + t.getName() + ": " + columnMap.size() + " columns");
+			//msg("Loaded " + t.getName() + ": " + columnMap.size() + " columns");
 			t.initializeColumns(columnList, columnMap);
 		} finally {
 			try {

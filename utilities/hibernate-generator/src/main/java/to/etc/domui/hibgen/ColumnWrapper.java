@@ -260,8 +260,24 @@ public class ColumnWrapper {
 		}
 
 
-		if(column.getName().endsWith("id")) {
-			g().warning(this +": column ending in 'id' but not a foreign key?");
+		if(column.getName().endsWith("id") && column.getName().length() > 2 && !ispk) {
+			boolean warned = false;
+			String name = column.getName();
+			name = name.substring(0, name.length() - 2);
+			while(name.endsWith("_"))
+				name = name.substring(0, name.length() - 1);
+
+			//-- Can we find a table with the remaining field name?
+			if(name.length() > 0) {
+				DbTable possibleTbl = g().findTableByNames(null, name);
+				if(null != possibleTbl) {
+					setConfigProperty("fk", possibleTbl.getName());
+					g().warning(this +": column ending in 'id' but not a foreign key - probably points to table " + possibleTbl);
+					warned = true;
+				}
+			}
+			if(! warned)
+				g().warning(this +": column ending in 'id' but not a foreign key?");
 		}
 
 		int sqltype = column.getSqlType();
@@ -276,7 +292,7 @@ public class ColumnWrapper {
 			case Types.NCHAR:
 			case Types.NVARCHAR:
 			case Types.NUMERIC:
-				if(column.getPrecision() < 20) {
+				if(column.getPrecision() < 20 && ! ispk) {
 					if(calculateDistinctValues(dbc, false))
 						return;
 				}
@@ -285,7 +301,7 @@ public class ColumnWrapper {
 			case Types.BIGINT:
 			case Types.INTEGER:
 			case Types.DECIMAL:
-				if(column.getPrecision() < 20) {
+				if(column.getPrecision() < 20 && ! ispk) {
 					if(calculateDistinctValues(dbc, true))
 						return;
 				}
@@ -662,7 +678,7 @@ public class ColumnWrapper {
 		if(fd == null) {
 			Type type = getPropertyType();
 			type = importIf(type);
-			g().info(this+ ": new field " + type);
+			//g().info(this+ ": new field " + type);
 
 			String fieldName = fieldPrefix == null ? getPropertyName() : fieldPrefix + getPropertyName();
 
@@ -1179,7 +1195,7 @@ public class ColumnWrapper {
 		return m_classWrapper.getColumnConfigProperty(this, property);
 	}
 
-	public void setColumnProperty(String property, String value) {
+	public void setConfigProperty(String property, String value) {
 		Node tc = getConfigNode();
 		if(null == tc)
 			return;
@@ -1191,7 +1207,7 @@ public class ColumnWrapper {
 
 	public void generateConfig() {
 		String propertyName = getPropertyName();
-		setColumnProperty("property", propertyName);
+		setConfigProperty("property", propertyName);
 	}
 
 }
