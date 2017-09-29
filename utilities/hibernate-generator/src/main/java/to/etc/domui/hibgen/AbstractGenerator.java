@@ -594,6 +594,17 @@ abstract public class AbstractGenerator {
 		return sb.toString();
 	}
 
+	static String fixCamelCase(String s) {
+		/*
+		 * The getter/setter idiocy has trouble with names like "eAttribute", because the setter
+		 * for that would be setEAttribute. But in that case the idiot rules say that the name
+		 * of the property is EAttribute. Sigh.
+		 */
+		if(s.length() > 1 && Character.isLowerCase(s.charAt(0)) && Character.isUpperCase(s.charAt(1))) {
+			s = s.substring(0, 1).toUpperCase() + s.substring(1);
+		}
+		return s;
+	}
 
 	/**
 	 * Split a table name on underscores. If it has no underscores but it uses camelcase then split on each hump.

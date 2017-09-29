@@ -801,7 +801,9 @@ class ClassWrapper {
 	}
 
 	static String calculatePropertyNameFromColumnName(String columnName) {
-		return AbstractGenerator.camelCase(columnName);
+		String s = AbstractGenerator.camelCase(columnName);
+		s = AbstractGenerator.fixCamelCase(s);
+		return s;
 	}
 
 	private String calculateMethodName(String get, String name) {
@@ -1071,6 +1073,7 @@ class ClassWrapper {
 	static private String calculateClassBasedParentName(String parentClassName) {
 		String name = AbstractGenerator.finalName(parentClassName);
 		String newName = AbstractGenerator.camelCase(name);
+		newName = AbstractGenerator.fixCamelCase(newName);
 		return newName;
 	}
 
@@ -1191,7 +1194,7 @@ class ClassWrapper {
 	}
 
 	public ColumnWrapper createListProperty(ColumnWrapper childsParentProperty) {
-		if(getSimpleName().equalsIgnoreCase("Definition")) {
+		if(getSimpleName().equalsIgnoreCase("EAttribute")) {
 			if(childsParentProperty.getClassWrapper().getSimpleName().equalsIgnoreCase("ConfDatamartFact")) {
 				System.out.println("GOTCHA");
 			}
