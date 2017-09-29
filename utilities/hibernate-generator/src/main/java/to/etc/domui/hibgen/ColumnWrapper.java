@@ -65,6 +65,9 @@ public class ColumnWrapper {
 		YesNo,
 		TrueFalse,
 		OneZero,
+		YesNoPrimitive,
+		TrueFalsePrimitive,
+		OneZeroPrimitive,
 		TemporalDate,
 		TemporalTimestamp,
 		EnumeratedString
@@ -646,6 +649,23 @@ public class ColumnWrapper {
 		if(m_column.isNullable()) {
 			String fnn = getConfigProperty("forceNotNull");
 			if(isYes(fnn)) {
+				switch(extra) {
+					default:
+						break;
+
+					case YesNo:
+						extra = ExtraType.YesNoPrimitive;
+						break;
+
+					case OneZero:
+						extra = ExtraType.OneZeroPrimitive;
+						break;
+
+					case TrueFalse:
+						extra = ExtraType.TrueFalsePrimitive;
+						break;
+				}
+
 				setPropertyType(new PrimitiveType(Primitive.BOOLEAN));
 			} else {
 				setPropertyType(new ClassOrInterfaceType("Boolean"));
@@ -1068,6 +1088,15 @@ public class ColumnWrapper {
 		switch(type) {
 			default:
 				return null;
+
+			case YesNoPrimitive:
+				return "to.etc.domui.hibernate.types.BooleanPrimitiveYNType";
+
+			case TrueFalsePrimitive:
+				return "to.etc.domui.hibernate.types.BooleanPrimitiveTrueFalseType";
+
+			case OneZeroPrimitive:
+				return "to.etc.domui.hibernate.types.BooleanPrimitiveOneZeroType";
 
 			case OneZero:
 				return "org.hibernate.type.NumericBooleanType";

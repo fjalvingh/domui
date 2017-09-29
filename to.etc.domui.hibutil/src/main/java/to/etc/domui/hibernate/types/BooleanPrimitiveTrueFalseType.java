@@ -7,14 +7,15 @@ import java.io.Serializable;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 
 /**
  * A UserType implementation to map a boolean primitive object to a VARCHAR.<br /> A true
- * value maps to "Y" and a false value maps to "N". This type does not recognise
+ * value maps to "true" and a false value maps to "false". This type does not recognise
  * nullity; it gets interpreted as a false.
  * @author jal
  */
-final public class BooleanPrimitiveYNType implements UserType {
+final public class BooleanPrimitiveTrueFalseType implements UserType {
 	@Override
 	public Object assemble(Serializable cached, Object owner) throws HibernateException {
 		return null;
@@ -57,12 +58,12 @@ final public class BooleanPrimitiveYNType implements UserType {
 		String v = resultSet.getString(names[0]);
 		if(v == null)
 			return Boolean.FALSE;
-		return Boolean.valueOf("Y".equals(v));
+		return Boolean.valueOf("true".equalsIgnoreCase(v));
 	}
 
 	@Override
 	public void nullSafeSet(PreparedStatement statement, Object value, int index) throws HibernateException, SQLException {
-		statement.setString(index, value == null ? "N" : ((Boolean) value).booleanValue() ? "Y" : "N");
+		statement.setString(index, value == null ? "N" : ((Boolean) value).booleanValue() ? "true" : "false");
 	}
 
 	@Override
@@ -77,7 +78,7 @@ final public class BooleanPrimitiveYNType implements UserType {
 
 	@Override
 	public int[] sqlTypes() {
-		return new int[]{java.sql.Types.VARCHAR};
+		return new int[]{Types.VARCHAR};
 	}
 
 	/**
