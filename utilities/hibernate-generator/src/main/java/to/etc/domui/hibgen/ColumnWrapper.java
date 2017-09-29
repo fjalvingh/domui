@@ -291,7 +291,7 @@ public class ColumnWrapper {
 			case Types.NCHAR:
 			case Types.NVARCHAR:
 			case Types.NUMERIC:
-				if(column.getPrecision() < 20 && ! ispk) {
+				if(column.getPrecision() <= g().getEnumMaxFieldSize() && ! ispk) {
 					if(calculateDistinctValues(dbc, false))
 						return;
 				}
@@ -300,7 +300,7 @@ public class ColumnWrapper {
 			case Types.BIGINT:
 			case Types.INTEGER:
 			case Types.DECIMAL:
-				if(column.getPrecision() < 20 && ! ispk) {
+				if(column.getPrecision() < g().getEnumMaxFieldSize() && ! ispk) {
 					if(calculateDistinctValues(dbc, true))
 						return;
 				}
@@ -540,6 +540,7 @@ public class ColumnWrapper {
 					assignBooleanType(ExtraType.YesNo);
 					return true;
 				}
+				return false;
 			}
 
 			//-- Check for boolean type values
@@ -558,6 +559,13 @@ public class ColumnWrapper {
 					return true;
 				}
 			}
+
+			//-- asnumber is only used to calculate booleans, so bail out
+			if(asnumber) {
+				return false;
+			}
+
+			g().error(this + " should generate an enum with " + res.size() + " values");
 
 			return false;
 		}

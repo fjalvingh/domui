@@ -95,6 +95,8 @@ abstract public class AbstractGenerator {
 
 	private boolean m_verbose;
 
+	private int m_enumMaxFieldSize = 20;
+
 	/** When T, this does not check for the same type on columns to attach the base class. */
 	private boolean m_matchBaseClassesOnColumnNameOnly = false;
 
@@ -1167,5 +1169,13 @@ abstract public class AbstractGenerator {
 
 	public void ignoreTable(String name) {
 		m_ignoreTableSet.add(name.toLowerCase());
+	}
+
+	public int getEnumMaxFieldSize() {
+		return m_enumMaxFieldSize;
+	}
+
+	public void setEnumMaxFieldSize(int enumMaxFieldSize) {
+		m_enumMaxFieldSize = enumMaxFieldSize;
 	}
 }

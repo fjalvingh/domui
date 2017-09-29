@@ -93,6 +93,9 @@ public class HibernateGenerator {
 	@Option(name = "-append-schema-name", aliases = {"-as"}, usage = "When present this always appends a schema name in @Table annotations, when F it only adds it if there are more than one schemas scanned.")
 	private boolean m_appendSchemaNameInAnnotations;
 
+	@Option(name = "-enum-max-field-size", aliases = {"-emfs"}, usage = "Set the max size for fields to be scanned for enum values")
+	private int m_enumMaxFieldSize = 20;
+
 	@Option(name = "-verbose", usage = "Show a lot of text about why decisions are made")
 	private boolean m_verbose;
 
@@ -145,6 +148,7 @@ public class HibernateGenerator {
 		generator.setMatchBaseClassesOnColumnNameOnly(m_matchBaseClassesOnColumnNameOnly);
 		generator.setDestroyConstructors(m_destroyConstructors);
 		generator.setAltBundles(new HashSet<>(m_altBundles));
+		generator.setEnumMaxFieldSize(m_enumMaxFieldSize);
 		if(m_forcePKIdentifier.equalsIgnoreCase("none")) {
 			generator.setForcePKIdentifier(null);
 		} else {
