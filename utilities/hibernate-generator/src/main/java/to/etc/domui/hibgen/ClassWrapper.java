@@ -52,6 +52,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
+import java.io.Serializable;
 import java.io.Writer;
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -1514,7 +1515,6 @@ class ClassWrapper {
 			System.out.println("GOTCHA");
 		}
 
-
 		DbTable table = m_table;
 		if(null == table)
 			return;
@@ -1561,6 +1561,8 @@ class ClassWrapper {
 			if(null == pkWrapper) {
 				pkWrapper = g().createWrapper(getPackageName(), pkClassName);
 				pkWrapper.setType(ClassWrapperType.embeddableClass);
+
+				pkWrapper.getRootType().addImplementedType(Serializable.class);
 			}
 
 			pkProperty = new ColumnWrapper(this);
