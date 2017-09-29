@@ -2356,6 +2356,27 @@ $.extend(WebUI, {
 		return false;
 	},
 
+	postURL : function post(path, name,  params, target) {
+		var form = document.createElement("form");
+		form.setAttribute("method","post");
+		form.setAttribute("action", path);
+		if (null != target){
+			form.setAttribute("target", target);
+		}
+
+		for (var key in params) {
+			if (params.hasOwnProperty(key)) {
+				var hiddenField = document.createElement("input");
+				hiddenField.setAttribute("type", "hidden");
+				hiddenField.setAttribute("name", key);
+				hiddenField.setAttribute("value", params[key]);
+				form.appendChild(hiddenField);
+			}
+		}
+		document.body.appendChild(form);
+		form.submit();
+	},
+
 	unloaded : function() {
 		WebUI._ignoreErrors = true;
 		WebUI.sendobituary();
