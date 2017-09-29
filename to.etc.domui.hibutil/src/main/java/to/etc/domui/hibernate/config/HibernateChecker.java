@@ -1,22 +1,33 @@
 package to.etc.domui.hibernate.config;
 
 import org.hibernate.annotations.Type;
-import org.hibernate.cfg.*;
-import org.hibernate.mapping.*;
-import org.hibernate.property.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.hibernate.types.*;
-import to.etc.util.*;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.mapping.Bag;
+import org.hibernate.mapping.PersistentClass;
+import org.hibernate.mapping.Property;
+import org.hibernate.mapping.SimpleValue;
+import org.hibernate.property.Getter;
+import to.etc.domui.hibernate.types.MappedEnumType;
+import to.etc.util.ClassUtil;
+import to.etc.util.PropertyInfo;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.*;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
-import java.lang.reflect.*;
-import java.util.*;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
+import java.lang.reflect.Method;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * This class attempts to check/correct common hibernate errors that it itself is too stupid to check for.
@@ -318,14 +329,14 @@ final public class HibernateChecker {
 	}
 
 	public void checkDomuiMetadata() {
-		try {
-			m_currentProperty = null;
-			ClassMetaModel cmm = MetaManager.findClassMeta(m_currentClass);
-		} catch(Exception x) {
-			problem(Severity.MUSTFIXNOW, "DomUI Metamodel error: " + x.toString());
-			x.printStackTrace();
-			m_domuiMetaFatals++;
-		}
+		//try {
+		//	m_currentProperty = null;
+		//	ClassMetaModel cmm = MetaManager.findClassMeta(m_currentClass);
+		//} catch(Exception x) {
+		//	problem(Severity.MUSTFIXNOW, "DomUI Metamodel error: " + x.toString());
+		//	x.printStackTrace();
+		//	m_domuiMetaFatals++;
+		//}
 	}
 
 	public void report() {
