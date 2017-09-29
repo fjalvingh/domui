@@ -24,18 +24,7 @@
  */
 package to.etc.domui.util;
 
-import java.io.*;
-import java.lang.reflect.*;
-import java.math.*;
-import java.sql.*;
-import java.util.*;
-import java.util.Date;
-
-import javax.annotation.*;
-import javax.servlet.http.*;
-
 import org.slf4j.*;
-
 import to.etc.domui.annotations.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.misc.*;
@@ -48,6 +37,16 @@ import to.etc.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
+
+import javax.annotation.*;
+import javax.servlet.http.*;
+import java.io.*;
+import java.lang.reflect.*;
+import java.math.*;
+import java.sql.*;
+import java.util.*;
+import java.util.Date;
+import java.util.function.*;
 
 final public class DomUtil {
 	static public final Logger USERLOG = LoggerFactory.getLogger("to.etc.domui.userAction");
@@ -101,6 +100,23 @@ final public class DomUtil {
 	static public <T> T nullChecked(@Nullable T in) {
 		if(null == in)
 			throw new IllegalStateException("Unexpected thingy is null: " + in);
+		return in;
+	}
+
+	/**
+	 * Does explicit non null check for parameter passed in as nullable but expected to be non null.
+	 * In case of null, it throws IllegalStateException with provided exceptionMsg.
+	 *
+	 * @param in
+	 * @param exceptionMsg
+	 * @return
+	 * @deprecated Use Objects.requireNonNull.
+	 */
+	@Deprecated
+	@Nonnull
+	static public <T> T nullChecked(@Nullable T in, @Nonnull String exceptionMsg) {
+		if(null == in)
+			throw new IllegalStateException(exceptionMsg);
 		return in;
 	}
 
@@ -1357,8 +1373,8 @@ final public class DomUtil {
 	 * simple constructs. It checks to make sure the resulting document is xml-safe (well-formed),
 	 * if the input is not well-formed it will add or remove tags until the result is valid.
 	 *
-	 * @param sb
-	 * @param html
+	 * @param outsb
+	 * @param text
 	 */
 	static public void htmlRemoveUnsafe(StringBuilder outsb, String text) {
 		if(text == null || text.length() == 0)
@@ -1728,12 +1744,84 @@ final public class DomUtil {
 	}
 
 	@Nonnull
-	static public String createOpenWindowJS(@Nonnull String url, @Nullable WindowParameters newWindowParameters) {
-		//-- Send a special JAVASCRIPT open command, containing the stuff.
+	/**
+	 * create a postUrlJS command where all pageparameters are put in a json collection.
+	 */
+	static public String createPostURLJS(@Nonnull String url, @Nonnull IPageParameters pageParameters) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("DomUI.openWindow('");
+		sb.append("DomUI.postURL('");
 		sb.append(url);
 		sb.append("','");
+		sb.append("window").append(DomUtil.generateGUID());
+		sb.append("', {");
+		int i = 0;
+		for(String parameterName : pageParameters.getParameterNames()) {
+			if(i++ > 0) {
+				sb.append(',');
+			}
+			sb.append(parameterName).append(":");
+			//om narigheid te voorkomen
+			StringTool.strToJavascriptString(sb, pageParameters.getString(parameterName), true);
+		}
+		sb.append("});");
+		return sb.toString();
+	}
+
+	/**
+	 * Create a postUrlJS command where all pageparameters are put in a json collection.
+	 * Special treatment is done for parameter that defines array of values.
+	 *
+	 * @param url
+	 * @param pageParameters
+	 * @param arrayParamName  Name of parameter that is used for string array value, it is always single one.
+	 * @param useSingleQuotes When T we use single quotes to escape, otherwise we use double quotes.
+	 * @param useBlankTarget  When T, we do POST on _blank target, otherwise it navigates the same screen.
+	 * @return
+	 */
+	@Nonnull
+	static public String createPostWithArrayURLJS(@Nonnull String url, @Nonnull IPageParameters pageParameters, @Nonnull String arrayParamName, boolean useSingleQuotes, boolean useBlankTarget) {
+		char quotes = useSingleQuotes ? '\'' : '"';
+		StringBuilder sb = new StringBuilder();
+		sb.append("DomUI.postURL(").append(quotes);
+		sb.append(url);
+		sb.append(quotes).append(",").append(quotes);
+		sb.append("window").append(DomUtil.generateGUID());
+		sb.append(quotes).append(", {");
+		int i = 0;
+		for(String parameterName : pageParameters.getParameterNames()) {
+			if (!parameterName.equals(arrayParamName)) {
+				if(i++ > 0) {
+					sb.append(',');
+				}
+				sb.append(parameterName).append(":");
+				StringTool.strToJavascriptString(sb, pageParameters.getString(parameterName), !useSingleQuotes);
+			}
+		}
+		sb.append(',');
+		StringBuilder values = new StringBuilder();
+		for (String value : pageParameters.getStringArray(arrayParamName)){
+			if (values.length() > 0){
+				values.append(",");
+			}
+			StringTool.strToJavascriptString(values, value, !useSingleQuotes);
+		}
+		sb.append(arrayParamName).append(":").append("[").append(values).append("]");
+		sb.append("} ");
+		if (useBlankTarget) {
+			sb.append(", ").append(quotes).append("_blank").append(quotes);
+		}
+		sb.append(");");
+		return sb.toString();
+	}
+
+	@Nonnull
+	static public String createOpenWindowJS(@Nonnull String url, @Nullable WindowParameters newWindowParameters, boolean useSingleQuotes) {
+		char quotes = useSingleQuotes ? '\'' : '"';
+		//-- Send a special JAVASCRIPT open command, containing the stuff.
+		StringBuilder sb = new StringBuilder();
+		sb.append("DomUI.openWindow(").append(quotes);
+		sb.append(url);
+		sb.append(quotes).append(",").append(quotes);
 		String name = null;
 		if(newWindowParameters != null)
 			name = newWindowParameters.getName();
@@ -1741,7 +1829,8 @@ final public class DomUtil {
 			name = "window" + DomUtil.generateGUID();
 		}
 		sb.append(name);
-		sb.append("','");
+		sb.append(quotes).append(",").append(quotes);
+
 		if(newWindowParameters == null) {
 			// separator must be comma otherwise it wont work in IE (call 27348)
 			sb.append("resizable=yes,scrollbars=yes,toolbar=no,location=no,directories=no,status=yes,menubar=yes,copyhistory=no");
@@ -1772,8 +1861,13 @@ final public class DomUtil {
 				sb.append(newWindowParameters.getHeight());
 			}
 		}
-		sb.append("');");
+		sb.append(quotes).append(");");
 		return sb.toString();
+	}
+
+	@Nonnull
+	static public String createOpenWindowJS(@Nonnull String url, @Nullable WindowParameters newWindowParameters) {
+		return createOpenWindowJS(url, newWindowParameters, true);
 	}
 
 	public static boolean isWhitespace(char c) {
@@ -2048,5 +2142,60 @@ final public class DomUtil {
 			sb.append(text.substring(0, todo));
 		}
 		return false;
+	}
+
+	/**
+	 * Compares two nullable objects. If one is null and other is not, returns 1 or -1.
+	 * If both are null returns 0, if both are non null, and compare function is set, it returns result of compare, otherwise it returns 0.
+	 *
+	 * @param o1
+	 * @param o2
+	 * @return
+	 */
+	public static <T> int compareNullable(@Nullable T o1, @Nullable T o2, @Nullable BiFunction<T, T, Integer> compare){
+		if(o1 == null) {
+			return o2 == null ? 0 : 1;
+		} else if(o2 == null) {
+			return -1;
+		}
+		if (null == compare){
+			return 0;
+		}
+		return compare.apply(o1, o2).intValue();
+	}
+
+	/**
+	 * Compares chain of specified first level functions (usually properties) of two nullable objects, while also properties are nullable ;)
+	 * Limitation of this method is that all functions are of same result, usually getters of same field type.
+	 * In case that compare fallback needs to be done on other type property, simply use fallback as separate call to this method with different arguments.
+	 * If one specified objects 01 or 02 is null and other is not, returns 1 or -1.
+	 * If both are null returns 0, if both are non null, function applies to both to get level 1 function results in chain, and then compareNullable is applied on both results until we find any of different values.
+	 * At the end it returns null if whole chain of functions returns same results.
+	 * In order to revers compare logic (desc to asc), just reverse o1 and o2 arguments ;)
+	 *
+	 * @param o1
+	 * @param o2
+	 * @param functions
+	 * @param compare
+	 * @param <T>
+	 * @param <P>
+	 * @return
+	 */
+	@SafeVarargs
+	public static <T, P> int compareNullableOnFunctions(@Nullable T o1, @Nullable T o2, @Nonnull BiFunction<P, P, Integer> compare, @Nonnull Function<T, P>... functions){
+		if(o1 == null) {
+			return o2 == null ? 0 : 1;
+		} else if(o2 == null) {
+			return -1;
+		}
+		for (Function<T, P> function : functions) {
+			P prop1 = function.apply(o1);
+			P prop2 = function.apply(o2);
+			int result = compareNullable(prop1, prop2, compare);
+			if (result != 0){
+				return result;
+			}
+		}
+		return 0;
 	}
 }

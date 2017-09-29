@@ -1,14 +1,13 @@
 package to.etc.domui.component.lookup;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.event.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.themes.*;
 import to.etc.domui.util.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * Fragment containing the saved filter searches
@@ -46,21 +45,13 @@ public final class LookupFormSavedFilterFragment extends Div {
 		if(savedFilters.isEmpty()) {
 			return;
 		}
-		Collections.sort(savedFilters, new Comparator<SavedFilter>() {
-				@Override
-				public int compare(@Nullable SavedFilter o1, @Nullable SavedFilter o2) {
-					if(o1 == null) {
-						if(o2 == null) {
-							return 0;
-						}
-						return -1;
-					}
-					else if(o2 == null) {
-						return 1;
-					}
-					return o1.getFilterName().compareToIgnoreCase(o2.getFilterName());
-				}
-			});
+		Collections.sort(savedFilters, (o1, o2) -> {
+			int result = DomUtil.compareNullable(o1, o2, null);
+			if (result != 0 || o1 == null){
+				return result;
+			}
+			return DomUtil.compareNullable(o1.getFilterName(), o2.getFilterName(), String::compareToIgnoreCase);
+		});
 		final Table table = new Table();
 		add(table);
 		table.setCssClass("ui-lfsf-st");
