@@ -384,6 +384,11 @@ public class ColumnWrapper {
 
 				m_extraType = sqltype == Types.DATE ? ExtraType.TemporalDate : ExtraType.TemporalTimestamp;
 				return true;
+
+			case Types.BOOLEAN:
+			case Types.BIT:
+				assignBooleanType(null);
+				return true;
 		}
 	}
 

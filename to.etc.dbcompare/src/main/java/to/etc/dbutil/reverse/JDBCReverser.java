@@ -541,6 +541,8 @@ public class JDBCReverser implements Reverser {
 		switch(sqltype){
 			case Types.BIT:
 				return ColumnType.BOOLEAN;
+			case Types.BOOLEAN:
+				return ColumnType.BOOLEAN;
 
 			case Types.DECIMAL:
 				return ColumnType.NUMBER;
