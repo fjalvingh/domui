@@ -1284,4 +1284,25 @@ public class ColumnWrapper {
 		setConfigProperty("property", propertyName);
 	}
 
+	public boolean isNumeric() {
+		Type propertyType = getPropertyType();
+		String s = propertyType.asString();
+		s = s.substring(0, s.lastIndexOf('.') + 1);
+		return s.equals("int")
+			|| s.equals("short")
+			|| s.equals("byte")
+			|| s.equals("long")
+			|| s.equals("float")
+			|| s.equals("double")
+			|| s.equals("BigDecimal")
+			|| s.equals("BigInteger")
+			|| s.equals("Integer")
+			|| s.equals("Short")
+			|| s.equals("Byte")
+			|| s.equals("Long")
+			|| s.equals("Float")
+			|| s.equals("Double")
+			;
+	}
+
 }

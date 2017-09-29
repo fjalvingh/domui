@@ -172,6 +172,8 @@ abstract public class AbstractGenerator {
 
 		generateProperties();
 
+		getTableClasses().forEach(c -> c.generateDomUIAnnotations());
+
 		getTableClasses().forEach(w -> w.generateConfig());
 
 		generateLoaderClass();

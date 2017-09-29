@@ -56,6 +56,8 @@ import java.io.Serializable;
 import java.io.Writer;
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -940,7 +942,7 @@ class ClassWrapper {
 
 	protected NormalAnnotationExpr createOrFindAnnotation(BodyDeclaration<?> getter, String fullAnnotationName) {
 		String name = AbstractGenerator.finalName(fullAnnotationName);
-		importIf(fullAnnotationName);
+		//importIf(fullAnnotationName);
 
 		for(AnnotationExpr annotationExpr : getter.getAnnotations()) {
 			String annName = annotationExpr.getName().asString();
@@ -949,12 +951,27 @@ class ClassWrapper {
 			}
 		}
 
+		importIf(fullAnnotationName);
 		String pkg = AbstractGenerator.packageName(fullAnnotationName);
 		NodeList<MemberValuePair> nodes = NodeList.nodeList();
 		//Name nm = new Name(new Name(pkg), name);
 		NormalAnnotationExpr ax = new NormalAnnotationExpr(new Name(name), nodes);
 		getter.addAnnotation(ax);
 		return ax;
+	}
+
+	@Nullable
+	protected NormalAnnotationExpr findAnnotation(BodyDeclaration<?> method, String fullAnnotationName) {
+		String name = AbstractGenerator.finalName(fullAnnotationName);
+		//importIf(fullAnnotationName);
+
+		for(AnnotationExpr annotationExpr : method.getAnnotations()) {
+			String annName = annotationExpr.getName().asString();
+			if(annName.equals(fullAnnotationName) || name.equals(annName)) {
+				return (NormalAnnotationExpr) annotationExpr;
+			}
+		}
+		return null;
 	}
 
 	protected MarkerAnnotationExpr createOrFindMarkerAnnotation(BodyDeclaration<?> getter, String fullAnnotationName) {
@@ -1787,4 +1804,97 @@ class ClassWrapper {
 		//-- Per column
 		m_allColumnWrappers.forEach(cw -> cw.generateConfig());
 	}
+
+	public void generateDomUIAnnotations() {
+		//-- 1. Do we already have an annotation?
+		if(null != findAnnotation(getRootType(), "to.etc.domui.component.meta.MetaObject"))
+			return;
+
+		List<ColumnWrapper> displist = new ArrayList<>();
+		List<ColumnWrapper> searchlist = new ArrayList<>();
+
+		for(ColumnWrapper cw : m_allColumnWrappers) {
+			//-- Ignore all silly names.
+			DbColumn column = cw.getColumn();
+			if(null != column) {
+				if(g().isIgnored(column))
+					continue;
+				if(cw.isPrimaryKey())
+					continue;
+				if(cw.getRelationType() == RelationType.none)
+					displist.add(cw);
+
+				//-- For search list ignore numeric fields.
+				//System.out.println(">>> " + c.propname + ", t=" + c.type + ", fk=" + c.isfk);
+				if(cw.getRelationType() == RelationType.manyToOne || ! cw.isNumeric()) {
+					searchlist.add(cw);
+				}
+			}
+		}
+
+		//-- Sort the result.
+		if(displist.size() == 0)
+			return;
+
+		Collections.sort(displist, C_DOMUI_ORDER);
+		Collections.sort(searchlist, C_DOMUI_ORDER);
+
+		importIf("to.etc.domui.component.meta.MetaObject");
+		importIf("to.etc.domui.component.meta.MetaDisplayProperty");
+		importIf("to.etc.domui.component.meta.MetaSearchItem");
+		importIf("to.etc.domui.component.meta.SearchPropertyType");
+
+		//-- Generate the annotation. Start with display properties.
+		StringBuilder sb = new StringBuilder();
+		sb.append("@MetaObject(defaultColumns = { //\n");
+		int ct = 0;
+		for(ColumnWrapper c : displist) {
+			sb.append("\t").append(ct++ != 0 ? ", " : "").append("@MetaDisplayProperty(name = ").append(getSimpleName()).append(".p").append(c.getPropertyName().toUpperCase()).append(") //\n");
+		}
+
+		//-- Then do search properties
+		if(searchlist.size() > 0) {
+			sb.append("\t}, //\n");
+
+			sb.append("\tsearchProperties = { //\n");
+			ct = 0;
+			for(ColumnWrapper c : searchlist) {
+				sb.append("\t").append(ct++ != 0 ? ", " : "").append("@MetaSearchItem(name = ").append(getSimpleName()).append(".p").append(c.getPropertyName().toUpperCase()) //
+					.append(", order = ").append(ct) //
+					.append(", searchType = SearchPropertyType.BOTH) //\n");
+			}
+		}
+
+		sb.append("})");
+		AnnotationExpr annotationExpr = JavaParser.parseAnnotation(sb.toString());
+		getRootType().addAnnotation(annotationExpr);
+	}
+
+	static private final Comparator<ColumnWrapper> C_DOMUI_ORDER = new Comparator<ColumnWrapper>() {
+		@Override
+		public int compare(ColumnWrapper ac, ColumnWrapper bc) {
+			String an = ac.getPropertyName();
+			String bn = bc.getPropertyName();
+
+			int ao = classifyDomUIName(an);
+			int bo = classifyDomUIName(bn);
+			if(ao != bo)
+				return ao - bo;
+			return an.compareToIgnoreCase(bn);
+		}
+	};
+
+	static private int classifyDomUIName(String n) {
+		String t = n.toLowerCase();
+		if(t.contains("subtype") || t.contains("subsoort"))
+			return 2;
+		if(t.contains("type") || t.contains("soort") || t.contains("kind"))
+			return 1;
+		if(t.contains("name") || t.contains("naam"))
+			return 3;
+		if(t.contains("omschrijving") || t.contains("description"))
+			return 4;
+		return 5;
+	}
+
 }
