@@ -36,6 +36,9 @@ public class HibernateGenerator {
 	@Option(name = "-s", aliases = {"-schema"}, usage = "One or more schema names to include in the reverse action", required = true)
 	private List<String> m_schemaSet = new ArrayList<>();
 
+	@Option(name = "-i", aliases = {"-ignore"}, usage = "Ignore a table")
+	private List<String> m_ignoreTableSet = new ArrayList<>();
+
 	@Option(name = "-schema-package", usage = "When set, this adds the schema name as the last level to the default package")
 	private boolean m_schemaAsPackage;
 
@@ -150,6 +153,7 @@ public class HibernateGenerator {
 		generator.setReplaceSerialWithSequence(! m_skipReplaceSerialWithSequence);
 		generator.setAppendSchemaNameInAnnotations(m_appendSchemaNameInAnnotations);
 		generator.setVerbose(m_verbose);
+		m_ignoreTableSet.forEach(t -> generator.ignoreTable(t));
 
 		try {
 			generator.generate(m_schemaSet);

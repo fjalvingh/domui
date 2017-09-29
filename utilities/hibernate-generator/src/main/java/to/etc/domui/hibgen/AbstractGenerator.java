@@ -102,6 +102,8 @@ abstract public class AbstractGenerator {
 
 	private Set<String> m_altBundles = new HashSet<>();
 
+	private Set<String> m_ignoreTableSet = new HashSet<>();
+
 	private String m_forcePKIdentifier = "id";
 
 	/** Postgres: when T, a Hibernate sequence identifier generator is used instead of the @Generated(GenerationType.IDENTIFIER) for an autoincrement column. */
@@ -414,6 +416,15 @@ abstract public class AbstractGenerator {
 		}
 	}
 
+	private boolean isIgnoredTable(DbTable tbl) {
+		if(m_ignoreTableSet.contains(tbl.getName().toLowerCase()))
+			return true;
+		if(m_ignoreTableSet.contains(tbl.getSchema().getName().toLowerCase() + "." + tbl.getName().toLowerCase()))
+			return true;
+		return false;
+
+	}
+
 	/**
 	 * Walk all tables, and create java sources for all of them that are missing.
 	 * @throws Exception
@@ -422,6 +433,9 @@ abstract public class AbstractGenerator {
 		Set<ClassWrapper> deleteSet = new HashSet<>(getTableClasses());
 
 		for(DbTable dbTable : getAllTables()) {
+			if(isIgnoredTable(dbTable))
+				continue;
+
 			if(dbTable.getColumnList().size() == 0) {
 				error(dbTable + ": table without columns is idiocy, skipping it");
 				continue;
@@ -797,10 +811,6 @@ abstract public class AbstractGenerator {
 		m_packageName = packageName;
 	}
 
-	protected boolean isIgnored(DbTable table) {
-		return false;
-	}
-
 	protected boolean isIgnored(DbColumn column) {
 		return false;
 	}
@@ -1138,5 +1148,13 @@ abstract public class AbstractGenerator {
 
 	public void setVerbose(boolean verbose) {
 		m_verbose = verbose;
+	}
+
+	public Set<String> getIgnoreTableSet() {
+		return m_ignoreTableSet;
+	}
+
+	public void ignoreTable(String name) {
+		m_ignoreTableSet.add(name.toLowerCase());
 	}
 }

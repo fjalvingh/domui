@@ -259,7 +259,6 @@ public class ColumnWrapper {
 			return;
 		}
 
-
 		if(column.getName().endsWith("id") && column.getName().length() > 2 && !ispk) {
 			boolean warned = false;
 			String name = column.getName();
@@ -564,10 +563,25 @@ public class ColumnWrapper {
 		}
 	}
 
+	private static boolean isYes(String s) {
+		if(s == null)
+			return false;
+		if(s.equals("true"))
+			return true;
+		if(s.toLowerCase().startsWith("y"))
+			return true;
+		return false;
+	}
+
 	private void assignBooleanType(ExtraType extra) {
 		//-- Make boolean.
 		if(m_column.isNullable()) {
-			setPropertyType(new ClassOrInterfaceType("Boolean"));
+			String fnn = getConfigProperty("forceNotNull");
+			if(isYes(fnn)) {
+				setPropertyType(new PrimitiveType(Primitive.BOOLEAN));
+			} else {
+				setPropertyType(new ClassOrInterfaceType("Boolean"));
+			}
 		} else {
 			setPropertyType(new PrimitiveType(Primitive.BOOLEAN));
 		}
