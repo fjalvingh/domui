@@ -9,6 +9,7 @@ import com.github.javaparser.ast.PackageDeclaration;
 import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
+import com.github.javaparser.ast.body.EnumDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
@@ -84,7 +85,8 @@ class ClassWrapper {
 
 	private final String m_simpleName;
 
-	private final ClassOrInterfaceDeclaration m_rootType;
+	//private final ClassOrInterfaceDeclaration m_rootType;
+	private final TypeDeclaration<?> m_rootType;
 
 	private CompilationUnit m_unit;
 
@@ -161,7 +163,7 @@ class ClassWrapper {
 	//	m_type = ClassWrapperType.tableClass;
 	//}
 
-	private ClassWrapper(AbstractGenerator generator, String packageName, String className, CompilationUnit cu, ClassOrInterfaceDeclaration rootType) {
+	private ClassWrapper(AbstractGenerator generator, String packageName, String className, CompilationUnit cu, TypeDeclaration<?> rootType) {
 		m_generator = generator;
 		m_simpleName = className;
 		m_fullClassName = packageName + "." + className;
@@ -181,8 +183,27 @@ class ClassWrapper {
 		return new ClassWrapper(g, packageName, className, cu, type);
 	}
 
+	static ClassWrapper createEnum(AbstractGenerator g, String packageName, String className) {
+		CompilationUnit cu = new CompilationUnit();
+		cu.setPackageDeclaration(new PackageDeclaration(Name.parse(packageName)));
+
+		// create the type declaration
+		EnumDeclaration type = cu.addEnum(className);
+		ClassWrapper cw = new ClassWrapper(g, packageName, className, cu, type);
+		cw.setType(ClassWrapperType.enumClass);
+		return cw;
+	}
+
 	public ClassOrInterfaceDeclaration getRootType() {
-		return m_rootType;
+		if(m_rootType instanceof ClassOrInterfaceDeclaration)
+			return (ClassOrInterfaceDeclaration) m_rootType;
+		throw new IllegalStateException("Not a class");
+	}
+
+	public EnumDeclaration getEnumType() {
+		if(m_rootType instanceof EnumDeclaration)
+			return (EnumDeclaration) m_rootType;
+		throw new IllegalStateException("Not an enum");
 	}
 
 	protected void setTable(DbTable table) {

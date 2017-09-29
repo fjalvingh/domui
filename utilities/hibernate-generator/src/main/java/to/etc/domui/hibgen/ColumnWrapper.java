@@ -4,6 +4,8 @@ import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
+import com.github.javaparser.ast.body.EnumConstantDeclaration;
+import com.github.javaparser.ast.body.EnumDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
@@ -64,7 +66,8 @@ public class ColumnWrapper {
 		TrueFalse,
 		OneZero,
 		TemporalDate,
-		TemporalTimestamp
+		TemporalTimestamp,
+		EnumeratedString
 	}
 
 	enum ColumnType {
@@ -565,11 +568,63 @@ public class ColumnWrapper {
 				return false;
 			}
 
+			if(! codeenum) {
+				ClassWrapper enumWrapper = generateNormalEnum(res);
+				ClassOrInterfaceType referent = new ClassOrInterfaceType(enumWrapper.getClassName());
+				setPropertyType(referent);
+				m_extraType = ExtraType.EnumeratedString;
+				return true;
+			}
+
 			g().error(this + " should generate an enum with " + res.size() + " values");
 
 			return false;
 		}
 	}
+
+	/**
+	 * Generate the enum unless it already exists.
+	 * @param values
+	 */
+	private ClassWrapper generateNormalEnum(List<String> values) {
+		String name = m_classWrapper.getSimpleName() + AbstractGenerator.capitalizeFirst(getPropertyName());
+		ClassWrapper enumWrapper = g().findClassWrapper(m_classWrapper.getPackageName(), name);
+		if(null != enumWrapper) {
+			return enumWrapper;
+		}
+
+		//--
+		enumWrapper = g().createEnumWrapper(m_classWrapper.getPackageName(), name);
+		EnumDeclaration et = enumWrapper.getEnumType();
+
+		for(String value : values) {
+			EnumConstantDeclaration ec = et.addEnumConstant(value);
+		}
+		return enumWrapper;
+	}
+
+	/**
+	 * Generate the enum unless it already exists.
+	 * @param values
+	 */
+	private ClassWrapper generateCodeEnum(List<String> values) {
+		String name = m_classWrapper.getSimpleName() + AbstractGenerator.capitalizeFirst(getPropertyName());
+		ClassWrapper enumWrapper = g().findClassWrapper(m_classWrapper.getPackageName(), name);
+		if(null != enumWrapper) {
+			return enumWrapper;
+		}
+
+		//--
+		enumWrapper = g().createEnumWrapper(m_classWrapper.getPackageName(), name);
+		EnumDeclaration et = enumWrapper.getEnumType();
+
+		for(String value : values) {
+			EnumConstantDeclaration ec = et.addEnumConstant(AbstractGenerator.camelCase(value));
+			ec.setJavadocComment("Enum value for '" + value + "'");
+		}
+		return enumWrapper;
+	}
+
 
 	private static boolean isYes(String s) {
 		if(s == null)
@@ -909,8 +964,16 @@ public class ColumnWrapper {
 				default:
 					break;
 
+				case EnumeratedString:
+					NormalAnnotationExpr na = createOrFindAnnotation(getter, "javax.persistence.Enumerated");
+					if(findAnnotationPair(na, "value") == null) {
+						importIf("javax.persistence.EnumType");
+						na.addPair("value", "EnumType.STRING");
+					}
+					break;
+
 				case TemporalDate:
-					NormalAnnotationExpr na = createOrFindAnnotation(getter, "javax.persistence.Temporal");
+					na = createOrFindAnnotation(getter, "javax.persistence.Temporal");
 					if(findAnnotationPair(na, "value") == null) {
 						importIf("javax.persistence.TemporalType");
 						na.addPair("value", "TemporalType.DATE");

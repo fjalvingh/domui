@@ -400,6 +400,10 @@ abstract public class AbstractGenerator {
 				default:
 					break;
 
+				case enumClass:
+					wrapper.print();
+					break;
+
 				case embeddableClass:
 					wrapper.order();
 					wrapper.print();
@@ -539,6 +543,12 @@ abstract public class AbstractGenerator {
 
 	protected ClassWrapper createWrapper(String packageName, String className) {
 		ClassWrapper wrapper = ClassWrapper.create(this, packageName, className);
+		m_wrapperList.add(wrapper);
+		return wrapper;
+	}
+
+	protected ClassWrapper createEnumWrapper(String packageName, String className) {
+		ClassWrapper wrapper = ClassWrapper.createEnum(this, packageName, className);
 		m_wrapperList.add(wrapper);
 		return wrapper;
 	}
