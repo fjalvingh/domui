@@ -27,7 +27,7 @@ package to.etc.iocular.def;
 import java.io.*;
 import java.util.*;
 
-import to.etc.iocular.container.*;
+import to.etc.iocular.ioccontainer.*;
 import to.etc.util.*;
 
 /**
@@ -56,7 +56,7 @@ public class BuildPlanForContainerParameter extends AbstractBuildPlan {
 	/**
 	 * Obtain this parameter from the container.
 	 *
-	 * @see to.etc.iocular.container.BuildPlan#getObject(to.etc.iocular.container.BasicContainer)
+	 * @see to.etc.iocular.ioccontainer.BuildPlan#getObject(to.etc.iocular.ioccontainer.BasicContainer)
 	 */
 	@Override
 	public Object getObject(final BasicContainer c) throws Exception {

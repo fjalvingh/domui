@@ -24,15 +24,21 @@
  */
 package to.etc.domui.component.tree;
 
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.dom.html.ClickInfo;
+import to.etc.domui.dom.html.IHasChangeListener;
+import to.etc.domui.dom.html.IValueChanged;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.util.JavascriptUtil;
+
+import javax.annotation.DefaultNonNull;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import static to.etc.domui.util.DomUtil.nullChecked;
-
-import java.util.*;
-
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
 
 /**
  * A tree component that allows selection of multiple items.
@@ -102,7 +108,7 @@ public class TreeSelectMulti<T> extends Tree<T> implements IHasChangeListener {
 	}
 
 	@Override
-	public boolean isSelectable(T node) throws Exception {
+	public boolean isSelectable(@Nullable T node) throws Exception {
 		INodePredicate<T> predicate = getNodeSelectablePredicate();
 		if(predicate == null)
 			return true;
@@ -128,8 +134,8 @@ public class TreeSelectMulti<T> extends Tree<T> implements IHasChangeListener {
 	}
 
 	@Override
-	protected boolean isSelected(T node) {
-		return m_value.contains(m_value);
+	protected boolean isSelected(@Nullable T node) {
+		return m_value.contains(node);
 	}
 
 	@Nullable

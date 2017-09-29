@@ -16,14 +16,6 @@
     <description>The SLF4J logger replacing Logback</description>
     <inceptionYear>2017</inceptionYear>
 
-    <url>./to.etc.logger</url>
-    <distributionManagement>
-        <site>
-            <id>maven</id>
-            <url>./to.etc.logger/</url>
-        </site>
-    </distributionManagement>
-
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>

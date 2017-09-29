@@ -33,4 +33,8 @@ public class Genre extends DbRecordBase<Long> {
 	public void setName(String name) {
 		m_name = name;
 	}
+
+	@Override public String toString() {
+		return getName();
+	}
 }

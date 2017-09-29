@@ -59,7 +59,7 @@ final public class ColumnDef<I, T> {
 	private TextAlign m_align;
 
 	@Nullable
-	private INodeContentRenderer<T> m_contentRenderer;
+	private IRenderInto<T> m_contentRenderer;
 
 	@Nullable
 	private IConverter<T> m_converter;
@@ -157,6 +157,7 @@ final public class ColumnDef<I, T> {
 		return m_editable;
 	}
 
+	@Nullable
 	public <R> T getColumnValue(@Nonnull R instance) throws Exception {
 		PropertyMetaModel<T> pmm = m_propertyMetaModel;
 		if(pmm == null)
@@ -190,7 +191,7 @@ final public class ColumnDef<I, T> {
 	}
 
 	@Nullable
-	public INodeContentRenderer<T> getContentRenderer() {
+	public IRenderInto<T> getContentRenderer() {
 		return m_contentRenderer;
 	}
 
@@ -309,7 +310,7 @@ final public class ColumnDef<I, T> {
 	 * @return
 	 */
 	@Nonnull
-	public ColumnDef<I, T> renderer(@Nullable INodeContentRenderer<T> cr) {
+	public ColumnDef<I, T> renderer(@Nullable IRenderInto<T> cr) {
 		m_contentRenderer = cr;
 		return this;
 	}

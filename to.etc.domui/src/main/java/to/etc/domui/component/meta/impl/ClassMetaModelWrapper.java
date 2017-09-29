@@ -114,7 +114,7 @@ public class ClassMetaModelWrapper implements ClassMetaModel {
 	}
 
 	@Override
-	public Class< ? extends INodeContentRenderer< ? >> getComboNodeRenderer() {
+	public Class< ? extends IRenderInto< ? >> getComboNodeRenderer() {
 		return m_parent.getComboNodeRenderer();
 	}
 
@@ -154,7 +154,7 @@ public class ClassMetaModelWrapper implements ClassMetaModel {
 	}
 
 	@Override
-	public Class< ? extends INodeContentRenderer< ? >> getLookupSelectedRenderer() {
+	public Class< ? extends IRenderInto< ? >> getLookupSelectedRenderer() {
 		return m_parent.getLookupSelectedRenderer();
 	}
 

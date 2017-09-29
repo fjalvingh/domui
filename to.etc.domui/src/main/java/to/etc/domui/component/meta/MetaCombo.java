@@ -24,11 +24,17 @@
  */
 package to.etc.domui.component.meta;
 
-import java.lang.annotation.*;
+import to.etc.domui.component.input.ComboComponentBase;
+import to.etc.domui.component.meta.impl.UndefinedComboDataSet;
+import to.etc.domui.util.IComboDataSet;
+import to.etc.domui.util.ILabelStringRenderer;
+import to.etc.domui.util.IRenderInto;
+import to.etc.domui.util.UndefinedLabelStringRenderer;
 
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.meta.impl.*;
-import to.etc.domui.util.*;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Specifies how an object is shown when presented in a Combo Box. This annotation
@@ -66,7 +72,7 @@ public @interface MetaCombo {
 	 * {@link MetaManager#createDefaultComboRenderer(PropertyMetaModel, ClassMetaModel)}.
 	 * @return
 	 */
-	Class< ? extends INodeContentRenderer< ? >> nodeRenderer() default UndefinedLabelStringRenderer.class;
+	Class< ? extends IRenderInto< ? >> nodeRenderer() default UndefinedLabelStringRenderer.class;
 
 	/**
 	 * The list of properties that should be shown. This is needed ONLY when the class metadata of the

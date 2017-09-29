@@ -1,10 +1,12 @@
 package to.etc.domui.hibernate.types;
 
-import java.io.*;
-import java.sql.*;
+import org.hibernate.HibernateException;
+import org.hibernate.usertype.UserType;
 
-import org.hibernate.*;
-import org.hibernate.usertype.*;
+import java.io.Serializable;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * A UserType implementation to map a boolean primitive object to a VARCHAR.<br /> A true
@@ -12,7 +14,7 @@ import org.hibernate.usertype.*;
  * nullity; it gets interpreted as a false.
  * @author jal
  */
-public class BooleanPrimitiveYNType implements UserType {
+final public class BooleanPrimitiveYNType implements UserType {
 	@Override
 	public Object assemble(Serializable cached, Object owner) throws HibernateException {
 		return null;

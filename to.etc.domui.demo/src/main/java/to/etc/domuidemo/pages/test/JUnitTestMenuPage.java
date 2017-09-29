@@ -8,7 +8,9 @@ import to.etc.domuidemo.pages.test.binding.conversion.BindingConversionTestForm;
 import to.etc.domuidemo.pages.test.binding.order1.BindingTypeForm1;
 import to.etc.domuidemo.pages.test.binding.order1.DoNotBindControlDottedTestPage;
 import to.etc.domuidemo.pages.test.binding.order1.TestBindingOrder1;
+import to.etc.domuidemo.pages.test.componenterrors.Form4LayoutTestPage;
 import to.etc.domuidemo.pages.test.componenterrors.HtmlEditorTestPage;
+import to.etc.domuidemo.pages.test.componenterrors.LookupForm1TestPage;
 import to.etc.domuidemo.pages.test.componenterrors.LookupInput2TestPage;
 import to.etc.domuidemo.pages.test.componenterrors.LookupInputTestPage;
 
@@ -35,6 +37,10 @@ public class JUnitTestMenuPage extends MenuPage {
 		addLink(TestBindingOrder1.class, "Bindings that depend on each other should work");
 		addLink(BindingTypeForm1.class, "Binding between different types must show an error");
 		addLink(DoNotBindControlDottedTestPage.class, "Binding a generic control's value as a dotted path (value.id) should throw an exception");
+
+		addCaption("forms and components");
+		addLink(Form4LayoutTestPage.class, "Form4 vertical form builder layout");
+		addLink(LookupForm1TestPage.class, "LookupForm tests");
 
 		addCaption("Component test pages");
 		addLink(HtmlEditorTestPage.class, "Test htmleditor");

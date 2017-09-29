@@ -1,5 +1,13 @@
 @import 'variables';
 
+//-- Everything uses border-box model
+html {
+	box-sizing: border-box;
+}
+*, *:after, *:before {
+	box-sizing: inherit;
+}
+
 body, html {
 	background: $body-image $bg_color repeat-x;
 }
@@ -30,11 +38,12 @@ input, textarea, select {
 	margin: 0 2px 2px 0;
 	padding: 0 2px 0 2px;
 	font-size: $font-size;
+	font-family: $font-family;				// 20170913 Needed because this is unset in the browser??
 
 	-moz-border-radius: 2px;
 	border-radius: 2px;
 	-webkit-border-radius: 2px;
-	line-height: 17px; /* jal 20150121 Experimental: Ie 10 (what else) does not render descenders of letters in input box. */
+/*	line-height: 17px; 20170911 removed because it makes it impossible to align baselines. jal 20150121 Experimental: Ie 10 (what else) does not render descenders of letters in input box. */
 }
 
 textarea {
@@ -70,9 +79,9 @@ input[type=file]::-webkit-file-upload-button {
 	cursor: pointer;
 }
 
-input[type="text"], input[type="password"] {
-	height: 16px;
-}
+//input[type="text"], input[type="password"] { 20170911 Messes up baseline alignment between form label and form input
+//	height: 16px;
+//}
 
 input:hover, textarea:hover, select:hover {
 	border-color: $bevel_hover_up $bevel_hover_down $bevel_hover_down $bevel_hover_up;

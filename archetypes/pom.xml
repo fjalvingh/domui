@@ -8,7 +8,36 @@
     <name>DomUI :: archetypes</name>
     <description>Archetypes for quick setup of a DomUI project</description>
 
+    <distributionManagement>
+        <site>
+            <id>website</id>
+            <url>file:///tmp/website/archetypes</url>
+        </site>
+    </distributionManagement>
+
     <modules>
         <module>domui-hello</module>
     </modules>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>2.9</version>
+                <!--<reportSets>-->
+                <!--<reportSet>-->
+                <!--<reports>-->
+                <!--<report>index</report>-->
+                <!--<report>dependencies</report>-->
+                <!--</reports>-->
+                <!--</reportSet>-->
+                <!--</reportSets>-->
+                <configuration>
+                    <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </reporting>
 </project>

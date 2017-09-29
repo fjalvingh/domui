@@ -28,7 +28,7 @@ import java.lang.annotation.*;
 import java.lang.reflect.*;
 import java.util.*;
 
-import to.etc.iocular.container.*;
+import to.etc.iocular.ioccontainer.*;
 import to.etc.iocular.util.*;
 
 /**

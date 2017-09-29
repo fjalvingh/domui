@@ -25,7 +25,7 @@
     <name>domui</name>
     <description>The DomUI User Interface library</description>
 
-    <url>./</url>
+    <url>https://domui.org/maven/domui/</url>
 
     <distributionManagement>
         <snapshotRepository>
@@ -36,6 +36,10 @@
             <id>ossrh</id>
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
+        <site>
+            <id>website</id>
+            <url>file:///tmp/website</url>
+        </site>
     </distributionManagement>
 
     <organization>
@@ -75,12 +79,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <maven-project-info-reports-plugin.version>2.8.1</maven-project-info-reports-plugin.version>
+        <maven-project-info-reports-plugin.version>2.9</maven-project-info-reports-plugin.version>
     </properties>
-
-    <prerequisites>
-        <maven>3.0.5</maven>
-    </prerequisites>
 
     <modules>
         <module>parent</module>
@@ -101,6 +101,7 @@
         <module>to.etc.domui.demo</module>
         <module>to.etc.dbcompare</module>
         <module>archetypes</module>
+        <module>utilities</module>
     </modules>
 
     <build>
@@ -117,6 +118,19 @@
                     <releaseProfiles>release</releaseProfiles>
                     <goals>deploy</goals>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.6</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.wagon</groupId>
+                        <artifactId>wagon-ssh</artifactId>
+                        <version>2.0</version>
+                    </dependency>
+                </dependencies>
             </plugin>
 
             <plugin>

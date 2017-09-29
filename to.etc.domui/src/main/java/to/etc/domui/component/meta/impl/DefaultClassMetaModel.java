@@ -96,7 +96,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 */
 	private Class< ? extends ILabelStringRenderer< ? >> m_comboLabelRenderer;
 
-	private Class< ? extends INodeContentRenderer< ? >> m_comboNodeRenderer;
+	private Class< ? extends IRenderInto< ? >> m_comboNodeRenderer;
 
 //	private ComboOptionalType m_comboOptional;
 
@@ -116,7 +116,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * Default renderer which renders a lookup field's "field" contents; this is a table which must be filled with
 	 * data pertaining to the looked-up item as a single element on the "edit" screen.
 	 */
-	private Class< ? extends INodeContentRenderer< ? >> m_lookupFieldRenderer;
+	private Class< ? extends IRenderInto< ? >> m_lookupFieldRenderer;
 
 	/**
 	 * The default properties to show in a {@link LookupInput} field's instance display.
@@ -304,11 +304,11 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	}
 
 	@Override
-	public Class< ? extends INodeContentRenderer< ? >> getComboNodeRenderer() {
+	public Class< ? extends IRenderInto< ? >> getComboNodeRenderer() {
 		return m_comboNodeRenderer;
 	}
 
-	public void setComboNodeRenderer(final Class< ? extends INodeContentRenderer< ? >> comboNodeRenderer) {
+	public void setComboNodeRenderer(final Class< ? extends IRenderInto< ? >> comboNodeRenderer) {
 		m_comboNodeRenderer = comboNodeRenderer;
 	}
 
@@ -388,11 +388,11 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Class< ? extends INodeContentRenderer< ? >> getLookupSelectedRenderer() {
+	public Class< ? extends IRenderInto< ? >> getLookupSelectedRenderer() {
 		return m_lookupFieldRenderer;
 	}
 
-	public void setLookupSelectedRenderer(final Class< ? extends INodeContentRenderer< ? >> lookupFieldRenderer) {
+	public void setLookupSelectedRenderer(final Class< ? extends IRenderInto< ? >> lookupFieldRenderer) {
 		m_lookupFieldRenderer = lookupFieldRenderer;
 	}
 

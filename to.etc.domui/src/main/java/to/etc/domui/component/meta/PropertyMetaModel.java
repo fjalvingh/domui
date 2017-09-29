@@ -24,16 +24,21 @@
  */
 package to.etc.domui.component.meta;
 
-import java.lang.reflect.*;
-import java.util.*;
+import to.etc.domui.component.controlfactory.PropertyControlFactory;
+import to.etc.domui.component.input.IQueryManipulator;
+import to.etc.domui.component.input.LookupInput;
+import to.etc.domui.component.meta.impl.DisplayPropertyMetaModel;
+import to.etc.domui.converter.IConverter;
+import to.etc.domui.util.IComboDataSet;
+import to.etc.domui.util.ILabelStringRenderer;
+import to.etc.domui.util.IRenderInto;
+import to.etc.domui.util.IValueAccessor;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.controlfactory.*;
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.meta.impl.*;
-import to.etc.domui.converter.*;
-import to.etc.domui.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.lang.reflect.Type;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * Contains the metadata that is known for a field (property). Since
@@ -234,7 +239,7 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * @return
 	 */
 	@Nullable
-	Class< ? extends INodeContentRenderer< ? >> getComboNodeRenderer();
+	Class< ? extends IRenderInto<T>> getComboNodeRenderer();
 
 	/**
 	 * For a relation, this is the list of properties that should be shown. This
@@ -275,7 +280,7 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * @return
 	 */
 	@Nullable
-	Class< ? extends INodeContentRenderer< ? >> getLookupSelectedRenderer();
+	Class< ? extends IRenderInto<T>> getLookupSelectedRenderer();
 
 	/**
 	 * When this class is to be selected as a parent in an UP relation using an InputLookup
@@ -284,7 +289,7 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * @return
 	 */
 	@Nonnull
-	public List<DisplayPropertyMetaModel> getLookupSelectedProperties();
+	List<DisplayPropertyMetaModel> getLookupSelectedProperties();
 
 	/**
 	 * When used in a {@link LookupInput} field, this fields are used to show the result of a Search in the DataTable.

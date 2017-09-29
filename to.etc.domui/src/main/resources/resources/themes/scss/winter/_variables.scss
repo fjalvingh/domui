@@ -1,7 +1,8 @@
 $body-image: "";
 $bg_color: #ffffff;
 
-$font-family: 'Lato', 'Arial', 'Helvetica', sans-serif;
+$font-family: 'Arial', 'Helvetica', sans-serif;
+//$font-family: 'Lato', 'Arial', 'Helvetica', sans-serif;
 $font-size: 14px;
 $fixed_font_family: 'Courier New, Courier, monospace';
 $fixed_font_size: 11px;
@@ -31,6 +32,7 @@ $highlight2_bg: lighten($highlight_bg, 20%);
 $errors_background: #a9c5f1;
 $errors_border: #ff0000; 			// red
 $errors_foreground: #ff0000;		// red
+
 $errors_input_background: #ffe5e5;	// error bg for input component
 
 $warnings_background: #fffeee; // light yellow
@@ -40,7 +42,6 @@ $warnings_border: #fffeee;
 $info_bg: #e4eeff;		// blueish light
 $info_fg: #4075db;
 $info_border: #4075db;
-
 
 $header_bg: #7c7c7c;
 $main_color: #43b761; 				//Main green
@@ -60,6 +61,11 @@ $data_tbl_header_text_color: #ffffff;
 $data_tbl_header_bg_img: ""; //-- Table header doesn't have background image
 $data_tbl_header_btm_border: undefined;
 
+/** LookupInput and LookupInput2 **/
+$lui-warning-color: #ff4f27;				// Popup that shows 'no results'
+$lui-warning-color-border: #ff8d60;			// Border of that popup
+$lui-result-color: #d4ee9f;					// Popup showing "xxxx records"
+$lui-result-color-border: #a5c663;			// Border of that
 
 /** Misc **/
 $io_blk_wait: "io-blk-wait.gif";			/* Icon definition for DomUI icons */
@@ -96,3 +102,5 @@ $data_pager_icons: "data-pager-icons.png";
 $data_pager_icon_size_x: 32px;
 $data_pager_icon_size_y: 19px;
 
+/*** Form baseline alignment ***/
+$form-line-height:	1.5em;

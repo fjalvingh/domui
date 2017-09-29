@@ -46,9 +46,9 @@ import java.util.*;
  * Created on Nov 26, 2009
  */
 public class ComboFixed2<T> extends ComboComponentBase2<ValueLabelPair<T>, T> {
-	static private final INodeContentRenderer<ValueLabelPair<Object>> STATICRENDERER = new INodeContentRenderer<ValueLabelPair<Object>>() {
+	static private final IRenderInto<ValueLabelPair<Object>> STATICRENDERER = new IRenderInto<ValueLabelPair<Object>>() {
 		@Override
-		public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable ValueLabelPair<Object> object, @Nullable Object parameters) throws Exception {
+		public void render(@Nonnull NodeContainer node, @Nullable ValueLabelPair<Object> object) throws Exception {
 			if(object != null)
 				node.setText(object.getLabel());
 		}
@@ -61,7 +61,7 @@ public class ComboFixed2<T> extends ComboComponentBase2<ValueLabelPair<T>, T> {
 		initRenderer();
 	}
 
-	public ComboFixed2(Class< ? extends IComboDataSet<ValueLabelPair<T>>> set, INodeContentRenderer<ValueLabelPair<T>> r) {
+	public ComboFixed2(Class< ? extends IComboDataSet<ValueLabelPair<T>>> set, IRenderInto<ValueLabelPair<T>> r) {
 		super(set, r);
 	}
 
@@ -96,8 +96,8 @@ public class ComboFixed2<T> extends ComboComponentBase2<ValueLabelPair<T>, T> {
 
 	@SuppressWarnings({"unchecked"})
 	private void initRenderer() {
-		INodeContentRenderer< ? > r = STATICRENDERER;
-		setContentRenderer((INodeContentRenderer<ValueLabelPair<T>>) r);
+		IRenderInto< ? > r = STATICRENDERER;
+		setContentRenderer((IRenderInto<ValueLabelPair<T>>) r);
 	}
 	// 20100502 jal Horrible bug! This prevents setting customized option rendering from working!!
 	//	@Override

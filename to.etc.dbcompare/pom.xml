@@ -16,14 +16,6 @@
     <description>Database schema loader</description>
     <inceptionYear>2017</inceptionYear>
 
-    <url>./to.etc.dbcompare</url>
-    <distributionManagement>
-        <site>
-            <id>maven</id>
-            <url>./to.etc.alg/</url>
-        </site>
-    </distributionManagement>
-
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>

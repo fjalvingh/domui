@@ -24,13 +24,12 @@
  */
 package to.etc.domui.util;
 
-import java.util.*;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.impl.ExpandedDisplayProperty;
+import to.etc.domui.dom.html.NodeContainer;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.meta.impl.*;
-import to.etc.domui.dom.html.*;
+import javax.annotation.Nonnull;
+import java.util.List;
 
 /**
  * This INodeRenderer implementation renders a content node by using a list of DisplayPropertyMetaModel data
@@ -40,7 +39,7 @@ import to.etc.domui.dom.html.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Nov 21, 2008
  */
-public class DisplayPropertyNodeContentRenderer implements INodeContentRenderer<Object> {
+public class DisplayPropertyNodeContentRenderer implements IRenderInto<Object> {
 	//	private ClassMetaModel m_targetClassModel;
 
 	private List<ExpandedDisplayProperty< ? >> m_list;
@@ -58,8 +57,7 @@ public class DisplayPropertyNodeContentRenderer implements INodeContentRenderer<
 		m_flat = ExpandedDisplayProperty.flatten(m_list);
 	}
 
-	@Override
-	public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable Object object, @Nullable Object parameters) throws Exception {
+	@Override public void render(@Nonnull NodeContainer node, @Nonnull Object object) throws Exception {
 		prepare();
 		StringBuilder sb = new StringBuilder();
 

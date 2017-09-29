@@ -1,12 +1,16 @@
 package to.etc.dbutil.reverse;
 
-import java.sql.*;
-import java.util.*;
+import to.etc.dbutil.schema.DbColumn;
+import to.etc.dbutil.schema.DbSchema;
+import to.etc.dbutil.schema.DbTable;
+import to.etc.webapp.query.QCriteria;
 
-import javax.annotation.*;
-
-import to.etc.dbutil.schema.*;
-import to.etc.webapp.query.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.sql.Connection;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Thingy which reads a DB schema.
@@ -20,6 +24,9 @@ public interface Reverser {
 
 	@Nonnull
 	public DbSchema loadSchema(@Nullable String schemaName, boolean lazily) throws Exception;
+
+	@Nonnull
+	public Set<DbSchema> loadSchemaSet(@Nonnull Collection<String> schemaName, boolean lazily) throws Exception;
 
 	public void lazy(@Nonnull IExec what);
 

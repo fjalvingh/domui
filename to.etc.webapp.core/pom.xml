@@ -16,14 +16,6 @@
     <description>Web application generic library</description>
     <inceptionYear>2017</inceptionYear>
 
-    <url>./to.etc.webapp.core</url>
-    <distributionManagement>
-        <site>
-            <id>maven</id>
-            <url>./to.etc.webapp.core/</url>
-        </site>
-    </distributionManagement>
-
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>

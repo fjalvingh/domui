@@ -256,7 +256,7 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	}
 
 	@Override
-	public Class< ? extends INodeContentRenderer< ? >> getComboNodeRenderer() {
+	public Class< ? extends IRenderInto<T>> getComboNodeRenderer() {
 		return m_original.getComboNodeRenderer();
 	}
 
@@ -296,7 +296,7 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	}
 
 	@Override
-	public Class< ? extends INodeContentRenderer< ? >> getLookupSelectedRenderer() {
+	public Class< ? extends IRenderInto<T>> getLookupSelectedRenderer() {
 		return m_original.getLookupSelectedRenderer();
 	}
 

@@ -33,7 +33,7 @@ import to.etc.domui.component.meta.PropertyRelationType;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.util.Constants;
-import to.etc.domui.util.INodeContentRenderer;
+import to.etc.domui.util.IRenderInto;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -83,11 +83,11 @@ public class ControlFactoryRelationLookup implements PropertyControlFactory {
 
 
 		if(pmm.getLookupSelectedRenderer() != null)
-			li.setValueRenderer((INodeContentRenderer<T>) DomApplication.get().createInstance(pmm.getLookupSelectedRenderer())); // Bloody stupid Java generic crap
+			li.setValueRenderer((IRenderInto<T>) DomApplication.get().createInstance(pmm.getLookupSelectedRenderer())); // Bloody stupid Java generic crap
 		else {
 			ClassMetaModel cmm = MetaManager.findClassMeta(pmm.getActualType()); // Get meta for type reached,
 			if(cmm.getLookupSelectedRenderer() != null)
-				li.setValueRenderer((INodeContentRenderer<T>) DomApplication.get().createInstance(cmm.getLookupSelectedRenderer())); // Bloody stupid Java generic crap
+				li.setValueRenderer((IRenderInto<T>) DomApplication.get().createInstance(cmm.getLookupSelectedRenderer())); // Bloody stupid Java generic crap
 		}
 		if(pmm.isRequired())
 			li.setMandatory(true);

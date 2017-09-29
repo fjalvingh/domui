@@ -158,7 +158,7 @@ public interface ClassMetaModel {
 	 * @return
 	 */
 	@Nullable
-	Class< ? extends INodeContentRenderer< ? >> getComboNodeRenderer();
+	Class< ? extends IRenderInto< ? >> getComboNodeRenderer();
 
 	/**
 	 * If this object is shown in a combobox it needs to show the following
@@ -239,7 +239,7 @@ public interface ClassMetaModel {
 	 * @return
 	 */
 	@Nullable
-	Class< ? extends INodeContentRenderer< ? >> getLookupSelectedRenderer();
+	Class< ? extends IRenderInto< ? >> getLookupSelectedRenderer();
 
 	/**
 	 * When this class is to be selected as a parent in an UP relation using an InputLookup
