@@ -126,11 +126,6 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 
 	/**
 	 * This obtains all properties from the class and initializes their models.
-	 * @param dmm
-	 * @param m_clz
-	 * @param colli
-	 * @param m_keySearchList
-	 * @param m_searchList
 	 */
 	protected void decodeProperties(@Nonnull final DefaultJavaClassInfo colli) {
 		for(Map.Entry<PropertyInfo, DefaultPropertyMetaModel< ? >> e : colli.getMap().entrySet()) {

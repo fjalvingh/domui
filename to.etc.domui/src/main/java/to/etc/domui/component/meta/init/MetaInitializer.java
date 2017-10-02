@@ -7,6 +7,8 @@ import to.etc.domui.component.meta.impl.PathPropertyMetaModel;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +30,62 @@ public final class MetaInitializer {
 	final static private Stack<Object> m_initStack = new Stack<Object>();
 
 	final static private List<Runnable> m_initList = new ArrayList<Runnable>();
+
+	static final private class PropertyProviderRef {
+		final private int m_order;
+
+		final private IPropertyMetaProvider m_provider;
+
+		public PropertyProviderRef(int order, IPropertyMetaProvider provider) {
+			m_order = order;
+			m_provider = provider;
+		}
+
+		public int getOrder() {
+			return m_order;
+		}
+
+		public IPropertyMetaProvider getProvider() {
+			return m_provider;
+		}
+	}
+
+	static final private class ClassProviderRef {
+		final private int m_order;
+
+		final private IClassMetaProvider m_provider;
+
+		public ClassProviderRef(int order, IClassMetaProvider provider) {
+			m_order = order;
+			m_provider = provider;
+		}
+
+		public int getOrder() {
+			return m_order;
+		}
+
+		public IClassMetaProvider getProvider() {
+			return m_provider;
+		}
+	}
+
+	static private List<PropertyProviderRef> m_propertyProviderList = Collections.emptyList();
+
+	static private List<ClassProviderRef> m_classProviderList = Collections.emptyList();
+
+	static public synchronized void register(int order, IPropertyMetaProvider provider) {
+		ArrayList<PropertyProviderRef> list = new ArrayList<>(m_propertyProviderList);
+		list.add(new PropertyProviderRef(order, provider));
+		list.sort(Comparator.comparingInt(PropertyProviderRef::getOrder));
+		m_propertyProviderList = list;
+	}
+
+	static public synchronized void register(int order, IClassMetaProvider provider) {
+		ArrayList<ClassProviderRef> list = new ArrayList<>(m_classProviderList);
+		list.add(new ClassProviderRef(order, provider));
+		list.sort(Comparator.comparingInt(ClassProviderRef::getOrder));
+		m_classProviderList = list;
+	}
 
 	static synchronized public void registerModel(@Nonnull IClassMetaModelFactory model) {
 		List<IClassMetaModelFactory> mm = new ArrayList<IClassMetaModelFactory>(m_modelList);

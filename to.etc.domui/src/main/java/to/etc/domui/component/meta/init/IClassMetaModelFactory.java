@@ -30,9 +30,11 @@ import javax.annotation.Nonnull;
 import java.util.List;
 
 /**
- * The root for all metamodel lookups. When fields of known classes are
- * used in the system this can be used to lookup data pertaining to the
- * fields.
+ * This is responsible for creating the initial structure for a metamodel: the
+ * ClassMetaModel implementation and its initial population of
+ * PropertyMetaModels. It can use only the methods inside MetaInitializer, and
+ * must be able to properly handle the ClassMetaIncompleteException by adding a
+ * later task.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 16, 2008
@@ -47,7 +49,7 @@ public interface IClassMetaModelFactory {
 	int accepts(@Nonnull Object theThingy);
 
 	/**
-	 * When accept() has returned a &gt; 0 value, this <i>must</i> create an (immutable) metamodel for
+	 * When accept() has returned a &gt; 0 value, this <i>must</i> create a metamodel for
 	 * the thingy passed.
 	 *
 	 * @param theThingy
