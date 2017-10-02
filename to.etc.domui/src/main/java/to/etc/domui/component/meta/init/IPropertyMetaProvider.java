@@ -13,5 +13,5 @@ import javax.annotation.Nonnull;
  * Created on 2-10-17.
  */
 public interface IPropertyMetaProvider {
-	<T> void provide(@Nonnull ClassMetaModel cmm, @Nonnull PropertyMetaModel<T> pmm) throws Exception;
+	<T> void provide(@Nonnull MetaInitContext context, @Nonnull ClassMetaModel cmm, @Nonnull PropertyMetaModel<T> pmm) throws Exception;
 }

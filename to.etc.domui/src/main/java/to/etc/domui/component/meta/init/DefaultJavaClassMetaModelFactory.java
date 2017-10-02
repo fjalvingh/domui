@@ -24,14 +24,23 @@
  */
 package to.etc.domui.component.meta.init;
 
-import java.lang.annotation.*;
-import java.lang.reflect.*;
-import java.util.*;
-import java.util.regex.*;
-
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaCombo;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.MetaObject;
+import to.etc.domui.component.meta.MetaProperty;
+import to.etc.domui.component.meta.MetaSearch;
+import to.etc.domui.component.meta.MetaSearchItem;
+import to.etc.domui.component.meta.MetaValueValidator;
+import to.etc.domui.component.meta.NumericPresentation;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.PropertyMetaValidator;
+import to.etc.domui.component.meta.PropertyRelationType;
+import to.etc.domui.component.meta.SearchPropertyMetaModel;
+import to.etc.domui.component.meta.SearchPropertyType;
+import to.etc.domui.component.meta.SortableType;
+import to.etc.domui.component.meta.TemporalPresentationType;
+import to.etc.domui.component.meta.YesNoType;
 import to.etc.domui.component.meta.impl.DefaultClassMetaModel;
 import to.etc.domui.component.meta.impl.DefaultPropertyMetaModel;
 import to.etc.domui.component.meta.impl.DisplayPropertyMetaModel;
@@ -39,10 +48,28 @@ import to.etc.domui.component.meta.impl.MetaModelException;
 import to.etc.domui.component.meta.impl.MetaPropertyValidatorImpl;
 import to.etc.domui.component.meta.impl.SearchPropertyMetaModelImpl;
 import to.etc.domui.component.meta.impl.UndefinedComboDataSet;
-import to.etc.domui.converter.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
+import to.etc.domui.converter.ConverterRegistry;
+import to.etc.domui.converter.DummyConverter;
+import to.etc.domui.converter.IConverter;
+import to.etc.domui.converter.IValueValidator;
+import to.etc.domui.trouble.Trouble;
+import to.etc.domui.util.Constants;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.IRenderInto;
+import to.etc.domui.util.Msgs;
+import to.etc.domui.util.UndefinedLabelStringRenderer;
+import to.etc.util.PropertyInfo;
+import to.etc.util.StringTool;
+import to.etc.util.WrappedException;
+
+import javax.annotation.Nonnull;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * A default, base implementation of a MetaModel layer. This tries to discover metadata by using
@@ -61,9 +88,12 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 
 	@Override
 	@Nonnull
-	public ClassMetaModel createModel(@Nonnull List<Runnable> init, @Nonnull Object theThingy) {
-		Class< ? > clz = (Class< ? >) theThingy;
-		final DefaultJavaClassInfo colli = new DefaultJavaClassInfo(new DefaultClassMetaModel(clz), init);
+	public ClassMetaModel createModel(@Nonnull MetaInitContext context, @Nonnull Object theThingy) {
+		Class<?> clz = (Class<?>) theThingy;
+		DefaultClassMetaModel cmm = new DefaultClassMetaModel(clz);
+		return cmm;
+
+		//final DefaultJavaClassInfo colli = new DefaultJavaClassInfo(cmm, init);
 
 		/*
 		 * Business as usual: the Introspector does not properly resolve properties when using
@@ -77,26 +107,30 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 		 * BeanInfo bi = Introspector.getBeanInfo(m_metaClass);
 		 * PropertyDescriptor[] ar = bi.getPropertyDescriptors();
 		 */
-		List<PropertyInfo> pilist = ClassUtil.calculateProperties(colli.getTypeClass(), false);
-		createPropertyMetas(colli, pilist);
-
-		decodeProperties(colli); // Phase 1: decode primitive properties.
-		decodeDomainValues(colli); // Handle domain for this class (list-of-values)
-		decodeClassAnnotations(colli); // Do class-level annotations
-
-		colli.later(new Runnable() {
-			@Override
-			public void run() {
-				//-- Set both search property lists ordered by their order property.
-				Collections.sort(colli.getSearchList(), SearchPropertyMetaModel.BY_ORDER);
-				Collections.sort(colli.getKeySearchList(), SearchPropertyMetaModel.BY_ORDER);
-				colli.getModel().setSearchProperties(colli.getSearchList());
-				colli.getModel().setKeyWordSearchProperties(colli.getKeySearchList());
-			}
-		});
-
-		return colli.getModel();
+		//List<PropertyInfo> pilist = ClassUtil.calculateProperties(colli.getTypeClass(), false);
+		//createPropertyMetas(colli, pilist);
+		//
+		//decodeProperties(colli); // Phase 1: decode primitive properties.
 	}
+
+	//
+	//
+	//	decodeDomainValues(colli); // Handle domain for this class (list-of-values)
+	//	decodeClassAnnotations(colli); // Do class-level annotations
+	//
+	//	colli.later(new Runnable() {
+	//		@Override
+	//		public void run() {
+	//			//-- Set both search property lists ordered by their order property.
+	//			Collections.sort(colli.getSearchList(), SearchPropertyMetaModel.BY_ORDER);
+	//			Collections.sort(colli.getKeySearchList(), SearchPropertyMetaModel.BY_ORDER);
+	//			colli.getModel().setSearchProperties(colli.getSearchList());
+	//			colli.getModel().setKeyWordSearchProperties(colli.getKeySearchList());
+	//		}
+	//	});
+	//
+	//	return colli.getModel();
+	//}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Phase one: flat properties decode in this class.	*/
@@ -401,9 +435,6 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 
 	/**
 	 * If this is an enum or the class Boolean define it's domain values.
-	 * @param init
-	 * @param dmm
-	 * @param m_clz
 	 */
 	protected void decodeDomainValues(@Nonnull DefaultJavaClassInfo colli) {
 		//-- If this is an enumerable thingerydoo...
@@ -420,9 +451,6 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 	/*--------------------------------------------------------------*/
 	/**
 	 * Walk all known class annotations and use them to add class based metadata.
-	 * @param i
-	 * @param m_keySearchList
-	 * @param m_searchList
 	 */
 	protected void decodeClassAnnotations(@Nonnull DefaultJavaClassInfo colli) {
 		Annotation[] annar = colli.getTypeClass().getAnnotations(); // All class-level thingerydoos
@@ -456,9 +484,6 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 
 	/**
 	 * Can be overridden to decode user-specific annotations. Currently only decodes the javax.persistence.Table annotation.
-	 * @param pha
-	 * @param an
-	 * @param name
 	 */
 	protected void decodeClassAnnotationByName(@Nonnull final DefaultJavaClassInfo colli, @Nonnull final Annotation an, @Nonnull final String name) {
 		if("javax.persistence.Table".equals(name)) {
@@ -489,10 +514,6 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 
 	/**
 	 * Decodes all DomUI annotations.
-	 * @param pha
-	 * @param an
-	 * @param m_keySearchList
-	 * @param m_searchList
 	 */
 	protected void decodeClassAnnotation(@Nonnull final DefaultJavaClassInfo colli, @Nonnull final Annotation an) {
 		final DefaultClassMetaModel cmm = colli.getModel();

@@ -17,5 +17,5 @@ public interface IClassMetaProvider {
 	 * @param model
 	 * @throws Exception
 	 */
-	void 	provide(@Nonnull ClassMetaModel model) throws Exception;
+	void 	provide(@Nonnull MetaInitContext context, @Nonnull ClassMetaModel model) throws Exception;
 }

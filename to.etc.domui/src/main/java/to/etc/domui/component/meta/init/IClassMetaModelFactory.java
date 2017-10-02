@@ -27,7 +27,6 @@ package to.etc.domui.component.meta.init;
 import to.etc.domui.component.meta.ClassMetaModel;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 
 /**
  * This is responsible for creating the initial structure for a metamodel: the
@@ -56,5 +55,5 @@ public interface IClassMetaModelFactory {
 	 * @return
 	 */
 	@Nonnull
-	ClassMetaModel createModel(@Nonnull List<Runnable> actionList, @Nonnull Object theThingy);
+	ClassMetaModel createModel(@Nonnull MetaInitContext context, @Nonnull Object theThingy);
 }
