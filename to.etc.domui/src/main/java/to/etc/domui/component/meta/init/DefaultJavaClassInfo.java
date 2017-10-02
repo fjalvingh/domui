@@ -1,11 +1,15 @@
-package to.etc.domui.component.meta.impl;
+package to.etc.domui.component.meta.init;
 
-import java.util.*;
+import to.etc.domui.component.meta.SearchPropertyMetaModel;
+import to.etc.domui.component.meta.impl.DefaultClassMetaModel;
+import to.etc.domui.component.meta.impl.DefaultPropertyMetaModel;
+import to.etc.util.PropertyInfo;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.util.*;
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This collects whatever extra data is needed during the parse of this object.

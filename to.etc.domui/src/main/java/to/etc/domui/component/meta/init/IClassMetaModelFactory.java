@@ -22,11 +22,12 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component.meta;
+package to.etc.domui.component.meta.init;
 
-import java.util.*;
+import to.etc.domui.component.meta.ClassMetaModel;
 
-import javax.annotation.*;
+import javax.annotation.Nonnull;
+import java.util.List;
 
 /**
  * The root for all metamodel lookups. When fields of known classes are

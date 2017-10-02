@@ -1,6 +1,8 @@
-package to.etc.domui.component.meta;
+package to.etc.domui.component.meta.init;
 
-import to.etc.domui.component.meta.impl.DefaultJavaClassMetaModelFactory;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.impl.PathPropertyMetaModel;
 
 import javax.annotation.Nonnull;
@@ -34,7 +36,7 @@ public final class MetaInitializer {
 	}
 
 	@Nonnull
-	static synchronized List<IClassMetaModelFactory> getList() {
+	static public synchronized List<IClassMetaModelFactory> getList() {
 		if(m_modelList.size() == 0)
 			registerModel(new DefaultJavaClassMetaModelFactory());
 		return m_modelList;
@@ -50,7 +52,7 @@ public final class MetaInitializer {
 	}
 
 	@Nonnull
-	static ClassMetaModel findAndInitialize(@Nonnull Object mc) {
+	static public ClassMetaModel findAndInitialize(@Nonnull Object mc) {
 		//-- We need some factory to create it.
 		synchronized(MetaManager.class) {
 			ClassMetaModel cmm = m_classMap.get(mc);
@@ -58,7 +60,7 @@ public final class MetaInitializer {
 				return cmm;
 
 			//-- Phase 1: create the metamodel and it's direct properties.
-			checkInitStack(mc, "primary initialization");
+			checkInitStack(mc, "primary initialization");				// Signal any ordering problems
 			IClassMetaModelFactory best = findModelFactory(mc);
 			m_initStack.add(mc);
 			cmm = best.createModel(m_initList, mc);

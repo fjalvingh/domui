@@ -26,6 +26,7 @@ package to.etc.domui.component.meta.impl;
 
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.*;
+import to.etc.domui.component.meta.init.MetaInitializer;
 import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
 import to.etc.webapp.query.*;
@@ -140,7 +141,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	}
 
 	@GuardedBy("MetaManager.class")
-	void setClassProperties(List<PropertyMetaModel< ? >> reslist) {
+	public void setClassProperties(List<PropertyMetaModel< ? >> reslist) {
 		m_rootProperties = Collections.unmodifiableList(reslist);
 		Map<String, PropertyMetaModel<?>> propMap = new HashMap<>();		// Set all undotted properties
 		for(PropertyMetaModel< ? > pmm : reslist) {

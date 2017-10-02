@@ -22,7 +22,7 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component.meta.impl;
+package to.etc.domui.component.meta.init;
 
 import java.lang.annotation.*;
 import java.lang.reflect.*;
@@ -32,6 +32,13 @@ import java.util.regex.*;
 import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
+import to.etc.domui.component.meta.impl.DefaultClassMetaModel;
+import to.etc.domui.component.meta.impl.DefaultPropertyMetaModel;
+import to.etc.domui.component.meta.impl.DisplayPropertyMetaModel;
+import to.etc.domui.component.meta.impl.MetaModelException;
+import to.etc.domui.component.meta.impl.MetaPropertyValidatorImpl;
+import to.etc.domui.component.meta.impl.SearchPropertyMetaModelImpl;
+import to.etc.domui.component.meta.impl.UndefinedComboDataSet;
 import to.etc.domui.converter.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
@@ -45,7 +52,6 @@ import to.etc.util.*;
  * Created on Jun 16, 2008
  */
 public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory {
-
 	@Override
 	public int accepts(@Nonnull Object theThingy) {
 		if(!(theThingy instanceof Class< ? >)) // Only accept Class<?> thingies.

@@ -26,7 +26,7 @@ package to.etc.domui.server;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import to.etc.domui.component.meta.MetaInitializer;
+import to.etc.domui.component.meta.init.MetaInitializer;
 import to.etc.domui.server.reloader.IReloadedClassesListener;
 import to.etc.domui.server.reloader.Reloader;
 import to.etc.domui.state.AppSession;

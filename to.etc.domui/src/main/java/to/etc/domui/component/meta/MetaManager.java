@@ -31,6 +31,8 @@ import javax.annotation.*;
 
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.impl.*;
+import to.etc.domui.component.meta.init.IClassMetaModelFactory;
+import to.etc.domui.component.meta.init.MetaInitializer;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.login.*;
 import to.etc.domui.server.*;
