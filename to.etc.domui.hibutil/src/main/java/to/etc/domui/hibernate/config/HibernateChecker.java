@@ -7,6 +7,8 @@ import org.hibernate.mapping.PersistentClass;
 import org.hibernate.mapping.Property;
 import org.hibernate.mapping.SimpleValue;
 import org.hibernate.property.Getter;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.hibernate.types.MappedEnumType;
 import to.etc.util.ClassUtil;
 import to.etc.util.PropertyInfo;
@@ -329,14 +331,14 @@ final public class HibernateChecker {
 	}
 
 	public void checkDomuiMetadata() {
-		//try {
-		//	m_currentProperty = null;
-		//	ClassMetaModel cmm = MetaManager.findClassMeta(m_currentClass);
-		//} catch(Exception x) {
-		//	problem(Severity.MUSTFIXNOW, "DomUI Metamodel error: " + x.toString());
-		//	x.printStackTrace();
-		//	m_domuiMetaFatals++;
-		//}
+		try {
+			m_currentProperty = null;
+			ClassMetaModel cmm = MetaManager.findClassMeta(m_currentClass);
+		} catch(Exception x) {
+			problem(Severity.MUSTFIXNOW, "DomUI Metamodel error: " + x.toString());
+			x.printStackTrace();
+			m_domuiMetaFatals++;
+		}
 	}
 
 	public void report() {

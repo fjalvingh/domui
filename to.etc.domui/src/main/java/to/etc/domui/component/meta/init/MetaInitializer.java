@@ -58,9 +58,9 @@ public final class MetaInitializer {
 	static final class ClassProviderRef {
 		final private int m_order;
 
-		final private IClassMetaProvider m_provider;
+		final private IClassMetaProvider<?> m_provider;
 
-		public ClassProviderRef(int order, IClassMetaProvider provider) {
+		public ClassProviderRef(int order, IClassMetaProvider<?> provider) {
 			m_order = order;
 			m_provider = provider;
 		}
@@ -69,7 +69,7 @@ public final class MetaInitializer {
 			return m_order;
 		}
 
-		public IClassMetaProvider getProvider() {
+		public IClassMetaProvider<?> getProvider() {
 			return m_provider;
 		}
 	}
@@ -89,16 +89,16 @@ public final class MetaInitializer {
 		ArrayList<PropertyProviderRef> list = new ArrayList<>(m_propertyProviderList);
 		list.add(new PropertyProviderRef(order, providerFactory));
 		list.sort(Comparator.comparingInt(PropertyProviderRef::getOrder));
-		m_propertyProviderList = list;
+		m_propertyProviderList = Collections.unmodifiableList(list);
 	}
 
 
 
-	static public synchronized void register(int order, IClassMetaProvider provider) {
+	static public synchronized void register(int order, IClassMetaProvider<?> provider) {
 		ArrayList<ClassProviderRef> list = new ArrayList<>(m_classProviderList);
 		list.add(new ClassProviderRef(order, provider));
 		list.sort(Comparator.comparingInt(ClassProviderRef::getOrder));
-		m_classProviderList = list;
+		m_classProviderList = Collections.unmodifiableList(list);
 	}
 
 	static synchronized public void registerModel(@Nonnull IClassMetaModelFactory model) {

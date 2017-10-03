@@ -12,7 +12,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -55,8 +54,8 @@ final public class MetaInitContext {
 		public ClassInfo(Object type, ClassMetaModel cmm) {
 			m_type = type;
 			m_model = cmm;
-			m_propertyProviderList = MetaInitializer.getPropertyProviderList();
-			m_classProviderList = MetaInitializer.getClassProviderList();
+			m_propertyProviderList = new ArrayList<>(MetaInitializer.getPropertyProviderList());
+			m_classProviderList = new ArrayList<>(MetaInitializer.getClassProviderList());
 		}
 
 		public Object getType() {
@@ -172,8 +171,11 @@ final public class MetaInitContext {
 	}
 
 	private void handleClassProvider(ClassProviderRef cpr, ClassInfo ci) throws Exception {
+		IClassMetaProvider<ClassMetaModel> provider = (IClassMetaProvider<ClassMetaModel>) cpr.getProvider();
+		if(! provider.getModelClass().isAssignableFrom(ci.getModel().getClass()))
+			return;
 		try {
-			cpr.getProvider().provide(this, Objects.requireNonNull(ci.getModel()));
+			provider.provide(this, ci.getModel());
 			m_worked = true;
 			ci.getClassProviderList().remove(0);
 		} catch(ClassModelNotInitializedException cmx) {

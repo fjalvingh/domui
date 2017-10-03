@@ -67,6 +67,12 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 	@Nonnull
 	public ClassMetaModel createModel(@Nonnull MetaInitContext context, @Nonnull Object theThingy) {
 		Class<?> clz = (Class<?>) theThingy;
+		//if(clz.isPrimitive())
+		//	throw new IllegalStateException("Attempt to get metadata for primitive type: " + clz);
+		//if(clz.getCanonicalName().startsWith("java.lang")) {
+		//	throw new IllegalStateException("Attempt to get metadata for java.lang thing: " + clz);
+		//}
+
 		DefaultClassMetaModel cmm = new DefaultClassMetaModel(clz);
 		return cmm;
 

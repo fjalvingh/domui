@@ -18,13 +18,8 @@ import java.util.List;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 2-10-17.
  */
-public class MIClassProperties implements IClassMetaProvider {
-	@Override public void provide(@Nonnull MetaInitContext context, @Nonnull ClassMetaModel model) throws Exception {
-		if(! (model instanceof DefaultClassMetaModel))
-			return;
-
-		DefaultClassMetaModel cmm = (DefaultClassMetaModel) model;
-
+public class MIClassProperties implements IClassMetaProvider<DefaultClassMetaModel> {
+	@Override public void provide(@Nonnull MetaInitContext context, @Nonnull DefaultClassMetaModel cmm) throws Exception {
 		List<PropertyInfo> pilist = ClassUtil.calculateProperties(cmm.getActualClass(), false);
 		List<PropertyMetaModel< ? >> reslist = new ArrayList<PropertyMetaModel< ? >>(pilist.size());
 		for(PropertyInfo pd : pilist) {
@@ -43,6 +38,7 @@ public class MIClassProperties implements IClassMetaProvider {
 		}
 
 		cmm.setClassProperties(reslist);
+		System.out.println("mi: " + cmm);
 	}
 
 }
