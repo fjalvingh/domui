@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.function.Supplier;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -31,8 +32,6 @@ public final class MetaInitializer {
 	/** While a metamodel is being initialized this keeps track of recursive init's */
 	final static private Stack<Object> m_initStack = new Stack<Object>();
 
-	final static private List<Runnable> m_initList = new ArrayList<Runnable>();
-
 	/** When set this means a meta init action is running, and any call coming in asking for class data is wrong/invalid */
 	@Nullable
 	static private MetaInitContext m_currentContext;
@@ -40,9 +39,9 @@ public final class MetaInitializer {
 	static final class PropertyProviderRef {
 		final private int m_order;
 
-		final private IPropertyMetaProvider m_provider;
+		final private Supplier<IPropertyMetaProvider> m_provider;
 
-		public PropertyProviderRef(int order, IPropertyMetaProvider provider) {
+		public PropertyProviderRef(int order, Supplier<IPropertyMetaProvider> provider) {
 			m_order = order;
 			m_provider = provider;
 		}
@@ -51,7 +50,7 @@ public final class MetaInitializer {
 			return m_order;
 		}
 
-		public IPropertyMetaProvider getProvider() {
+		public Supplier<IPropertyMetaProvider> getProviderSupplier() {
 			return m_provider;
 		}
 	}
@@ -79,12 +78,21 @@ public final class MetaInitializer {
 
 	static private List<ClassProviderRef> m_classProviderList = Collections.emptyList();
 
-	static public synchronized void register(int order, IPropertyMetaProvider provider) {
+	//static public synchronized void register(int order, IPropertyMetaProvider provider) {
+	//	ArrayList<PropertyProviderRef> list = new ArrayList<>(m_propertyProviderList);
+	//	list.add(new PropertyProviderRef(order, provider));
+	//	list.sort(Comparator.comparingInt(PropertyProviderRef::getOrder));
+	//	m_propertyProviderList = list;
+	//}
+	//
+	static public synchronized void register(int order, Supplier<IPropertyMetaProvider> providerFactory) {
 		ArrayList<PropertyProviderRef> list = new ArrayList<>(m_propertyProviderList);
-		list.add(new PropertyProviderRef(order, provider));
+		list.add(new PropertyProviderRef(order, providerFactory));
 		list.sort(Comparator.comparingInt(PropertyProviderRef::getOrder));
 		m_propertyProviderList = list;
 	}
+
+
 
 	static public synchronized void register(int order, IClassMetaProvider provider) {
 		ArrayList<ClassProviderRef> list = new ArrayList<>(m_classProviderList);
@@ -260,9 +268,9 @@ public final class MetaInitializer {
 
 	static {
 		register(-1000, new MIClassProperties());						// Create properties
-		register(-990, new MIBasicPropertyAnnotations());				// Decode JPA annotations and other basic annotations
+		register(-990, MIBasicPropertyAnnotations::new);				// Decode JPA annotations and other basic annotations
 
-		register(-900, new MISimpleDomUIPropertyAnnotations());
+		register(-900, MISimpleDomUIPropertyAnnotations::new);
 
 
 	}

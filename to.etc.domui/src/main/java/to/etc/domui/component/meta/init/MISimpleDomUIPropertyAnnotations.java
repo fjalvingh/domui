@@ -37,6 +37,7 @@ import javax.annotation.DefaultNonNull;
 import javax.annotation.Nonnull;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -46,6 +47,12 @@ import java.util.regex.Pattern;
  */
 @DefaultNonNull
 public class MISimpleDomUIPropertyAnnotations implements IPropertyMetaProvider {
+	@Nonnull
+	final private List<SearchPropertyMetaModel> m_searchList = new ArrayList<SearchPropertyMetaModel>();
+
+	@Nonnull
+	final private List<SearchPropertyMetaModel> m_keySearchList = new ArrayList<SearchPropertyMetaModel>();
+
 	@Override public <T> void provide(@Nonnull MetaInitContext context, @Nonnull ClassMetaModel cmm, @Nonnull PropertyMetaModel<T> model) throws Exception {
 		if(! (model instanceof DefaultPropertyMetaModel))
 			return;
@@ -56,6 +63,15 @@ public class MISimpleDomUIPropertyAnnotations implements IPropertyMetaProvider {
 			String ana = an.annotationType().getName();
 			decodePropertyAnnotation((DefaultClassMetaModel) cmm, pmm, an);
 		}
+	}
+
+	@Override public void afterPropertiesDone(@Nonnull MetaInitContext context, @Nonnull ClassMetaModel classModel) {
+		Collections.sort(m_searchList, SearchPropertyMetaModel.BY_ORDER);
+		Collections.sort(m_keySearchList, SearchPropertyMetaModel.BY_ORDER);
+
+		DefaultClassMetaModel cmm = (DefaultClassMetaModel) classModel;
+		cmm.setSearchProperties(m_searchList);
+		cmm.setKeyWordSearchProperties(m_keySearchList);
 	}
 
 	@SuppressWarnings({"unchecked"})
@@ -128,14 +144,14 @@ public class MISimpleDomUIPropertyAnnotations implements IPropertyMetaProvider {
 		mm.setMinLength(an.minLength());
 		mm.setPropertyName(pmm.getName());
 		if(an.searchType() == SearchPropertyType.SEARCH_FIELD || an.searchType() == SearchPropertyType.BOTH) {
-			cmm.getSearchList().add(mm);
+			m_searchList.add(mm);
 		}
 		if(an.searchType() == SearchPropertyType.KEYWORD || an.searchType() == SearchPropertyType.BOTH) {
-			colli.getKeySearchList().add(mm);
+			m_keySearchList.add(mm);
 		}
 	}
 
-	private <T> void handleMetaCombo(@Nonnull DefaultJavaClassInfo colli, @Nonnull DefaultPropertyMetaModel<T> pmm, MetaCombo an) {
+	private <T> void handleMetaCombo(@Nonnull DefaultClassMetaModel cmm, @Nonnull DefaultPropertyMetaModel<T> pmm, MetaCombo an) {
 		final MetaCombo c = an;
 		if(c.dataSet() != UndefinedComboDataSet.class) {
 			pmm.setRelationType(PropertyRelationType.UP);
@@ -152,12 +168,7 @@ public class MISimpleDomUIPropertyAnnotations implements IPropertyMetaProvider {
 		pmm.setComponentTypeHint(Constants.COMPONENT_COMBO);
 		if(c.properties() != null && c.properties().length > 0) {
 			pmm.setRelationType(PropertyRelationType.UP);
-			colli.later(new Runnable() {
-				@Override
-				public void run() {
-					pmm.setComboDisplayProperties(DisplayPropertyMetaModel.decode(pmm.getValueModel(), c.properties()));
-				}
-			});
+			pmm.setComboDisplayProperties(DisplayPropertyMetaModel.decode(pmm.getValueModel(), c.properties()));
 		}
 	}
 

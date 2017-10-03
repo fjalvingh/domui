@@ -28,47 +28,25 @@ import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaCombo;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.MetaObject;
-import to.etc.domui.component.meta.MetaProperty;
-import to.etc.domui.component.meta.MetaSearch;
 import to.etc.domui.component.meta.MetaSearchItem;
-import to.etc.domui.component.meta.MetaValueValidator;
-import to.etc.domui.component.meta.NumericPresentation;
 import to.etc.domui.component.meta.PropertyMetaModel;
-import to.etc.domui.component.meta.PropertyMetaValidator;
-import to.etc.domui.component.meta.PropertyRelationType;
-import to.etc.domui.component.meta.SearchPropertyMetaModel;
 import to.etc.domui.component.meta.SearchPropertyType;
-import to.etc.domui.component.meta.SortableType;
-import to.etc.domui.component.meta.TemporalPresentationType;
-import to.etc.domui.component.meta.YesNoType;
 import to.etc.domui.component.meta.impl.DefaultClassMetaModel;
 import to.etc.domui.component.meta.impl.DefaultPropertyMetaModel;
 import to.etc.domui.component.meta.impl.DisplayPropertyMetaModel;
-import to.etc.domui.component.meta.impl.MetaModelException;
-import to.etc.domui.component.meta.impl.MetaPropertyValidatorImpl;
 import to.etc.domui.component.meta.impl.SearchPropertyMetaModelImpl;
 import to.etc.domui.component.meta.impl.UndefinedComboDataSet;
-import to.etc.domui.converter.ConverterRegistry;
-import to.etc.domui.converter.DummyConverter;
-import to.etc.domui.converter.IConverter;
-import to.etc.domui.converter.IValueValidator;
 import to.etc.domui.trouble.Trouble;
 import to.etc.domui.util.Constants;
 import to.etc.domui.util.DomUtil;
-import to.etc.domui.util.IRenderInto;
-import to.etc.domui.util.Msgs;
 import to.etc.domui.util.UndefinedLabelStringRenderer;
 import to.etc.util.PropertyInfo;
 import to.etc.util.StringTool;
-import to.etc.util.WrappedException;
 
 import javax.annotation.Nonnull;
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 /**
  * A default, base implementation of a MetaModel layer. This tries to discover metadata by using
@@ -167,9 +145,9 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 	}
 
 	protected void updatePropertyInfo(@Nonnull final DefaultJavaClassInfo colli, @Nonnull DefaultPropertyMetaModel< ? > pm, @Nonnull PropertyInfo pd) {
-		initPropertyModel(colli, pd, pm);
-		if(pm.isPrimaryKey())
-			colli.getModel().setPrimaryKey(pm);
+		//initPropertyModel(colli, pd, pm);
+		//if(pm.isPrimaryKey())
+		//	colli.getModel().setPrimaryKey(pm);
 	}
 
 	//protected void initPropertyModel(@Nonnull DefaultJavaClassInfo colli, @Nonnull PropertyInfo pd, @Nonnull DefaultPropertyMetaModel< ? > pmm) {

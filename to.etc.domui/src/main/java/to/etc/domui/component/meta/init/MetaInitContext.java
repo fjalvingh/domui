@@ -48,6 +48,10 @@ final public class MetaInitContext {
 		@Nullable
 		private List<PropertyMetaModel<?>> m_todoPropertyList;
 
+		/** When set the current property provider that needs to continue. */
+		@Nullable
+		private IPropertyMetaProvider m_propertyProvider;
+
 		public ClassInfo(Object type, ClassMetaModel cmm) {
 			m_type = type;
 			m_model = cmm;
@@ -77,6 +81,14 @@ final public class MetaInitContext {
 
 		public void setTodoPropertyList(@Nullable List<PropertyMetaModel<?>> todoPropertyList) {
 			m_todoPropertyList = todoPropertyList;
+		}
+
+		@Nullable public IPropertyMetaProvider getPropertyProvider() {
+			return m_propertyProvider;
+		}
+
+		public void setPropertyProvider(@Nullable IPropertyMetaProvider propertyProvider) {
+			m_propertyProvider = propertyProvider;
 		}
 	}
 
@@ -169,25 +181,40 @@ final public class MetaInitContext {
 		}
 	}
 
+	/**
+	 * Handle a property provider and call it for all properties of the class.
+	 *
+	 * @param ppr
+	 * @param ci
+	 * @throws Exception
+	 */
 	private void handlePropertyProvider(PropertyProviderRef ppr, ClassInfo ci) throws Exception {
 		try {
 			//-- Do we have properties to-do?
 			List<PropertyMetaModel<?>> propList = ci.getTodoPropertyList();
+			IPropertyMetaProvider provider = ci.getPropertyProvider();
 			ClassMetaModel cmm = ci.getModel();
-			if(null == propList || propList.size() == 0) {
+			if(null == propList || propList.size() == 0 || provider == null) {
+				//-- We're at the start of a new list.
 				propList = new ArrayList<>(cmm.getProperties());
 				ci.setTodoPropertyList(propList);
+				provider = ppr.getProviderSupplier().get();		// Create the provider instance
+				ci.setPropertyProvider(provider);				// And store it for continuations
+				provider.beforeProperties(this, ci.getModel());
 			}
 
 			while(propList.size() > 0) {
 				PropertyMetaModel<?> pmm = propList.get(0);
-				ppr.getProvider().provide(this, cmm, pmm);
+				provider.provide(this, cmm, pmm);
 				propList.remove(0);
 				m_worked = true;
 			}
 
 			//-- because we finished all properties- remove the provider.
+			ci.setPropertyProvider(null);
+			ci.setTodoPropertyList(null);
 			ci.getPropertyProviderList().remove(0);
+			provider.afterPropertiesDone(this, ci.getModel());
 			m_worked = true;										// For the uncommon case of a class without properties.
 		} catch(ClassModelNotInitializedException cmx) {
 			queueClassLast(ci);
