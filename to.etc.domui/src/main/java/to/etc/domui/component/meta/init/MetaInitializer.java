@@ -39,9 +39,9 @@ public final class MetaInitializer {
 	static final class PropertyProviderRef {
 		final private int m_order;
 
-		final private Supplier<IPropertyMetaProvider> m_provider;
+		final private Supplier<IPropertyMetaProvider<?, ?>> m_provider;
 
-		public PropertyProviderRef(int order, Supplier<IPropertyMetaProvider> provider) {
+		public PropertyProviderRef(int order, Supplier<IPropertyMetaProvider<?, ?>> provider) {
 			m_order = order;
 			m_provider = provider;
 		}
@@ -50,7 +50,7 @@ public final class MetaInitializer {
 			return m_order;
 		}
 
-		public Supplier<IPropertyMetaProvider> getProviderSupplier() {
+		public Supplier<IPropertyMetaProvider<?, ?>> getProviderSupplier() {
 			return m_provider;
 		}
 	}
@@ -85,7 +85,7 @@ public final class MetaInitializer {
 	//	m_propertyProviderList = list;
 	//}
 	//
-	static public synchronized void register(int order, Supplier<IPropertyMetaProvider> providerFactory) {
+	static public synchronized void register(int order, Supplier<IPropertyMetaProvider<?, ?>> providerFactory) {
 		ArrayList<PropertyProviderRef> list = new ArrayList<>(m_propertyProviderList);
 		list.add(new PropertyProviderRef(order, providerFactory));
 		list.sort(Comparator.comparingInt(PropertyProviderRef::getOrder));

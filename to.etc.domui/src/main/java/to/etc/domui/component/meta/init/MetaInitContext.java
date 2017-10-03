@@ -49,7 +49,7 @@ final public class MetaInitContext {
 
 		/** When set the current property provider that needs to continue. */
 		@Nullable
-		private IPropertyMetaProvider m_propertyProvider;
+		private IPropertyMetaProvider<?, ?> m_propertyProvider;
 
 		public ClassInfo(Object type, ClassMetaModel cmm) {
 			m_type = type;
@@ -82,11 +82,11 @@ final public class MetaInitContext {
 			m_todoPropertyList = todoPropertyList;
 		}
 
-		@Nullable public IPropertyMetaProvider getPropertyProvider() {
+		@Nullable public IPropertyMetaProvider<?, ?> getPropertyProvider() {
 			return m_propertyProvider;
 		}
 
-		public void setPropertyProvider(@Nullable IPropertyMetaProvider propertyProvider) {
+		public void setPropertyProvider(@Nullable IPropertyMetaProvider<?, ?> propertyProvider) {
 			m_propertyProvider = propertyProvider;
 		}
 	}
@@ -171,11 +171,11 @@ final public class MetaInitContext {
 	}
 
 	private void handleClassProvider(ClassProviderRef cpr, ClassInfo ci) throws Exception {
-		IClassMetaProvider<ClassMetaModel> provider = (IClassMetaProvider<ClassMetaModel>) cpr.getProvider();
-		if(! provider.getModelClass().isAssignableFrom(ci.getModel().getClass()))
-			return;
 		try {
-			provider.provide(this, ci.getModel());
+			IClassMetaProvider<ClassMetaModel> provider = (IClassMetaProvider<ClassMetaModel>) cpr.getProvider();
+			if(provider.getModelClass().isAssignableFrom(ci.getModel().getClass())) {
+				provider.provide(this, ci.getModel());
+			}
 			m_worked = true;
 			ci.getClassProviderList().remove(0);
 		} catch(ClassModelNotInitializedException cmx) {
@@ -194,13 +194,20 @@ final public class MetaInitContext {
 		try {
 			//-- Do we have properties to-do?
 			List<PropertyMetaModel<?>> propList = ci.getTodoPropertyList();
-			IPropertyMetaProvider provider = ci.getPropertyProvider();
+			IPropertyMetaProvider<ClassMetaModel, PropertyMetaModel<?>> provider = (IPropertyMetaProvider<ClassMetaModel, PropertyMetaModel<?>>) ci.getPropertyProvider();
 			ClassMetaModel cmm = ci.getModel();
 			if(null == propList || propList.size() == 0 || provider == null) {
 				//-- We're at the start of a new list.
+				provider = (IPropertyMetaProvider<ClassMetaModel, PropertyMetaModel<?>>) ppr.getProviderSupplier().get();		// Create the provider instance
+				if(! provider.getClassModelClass().isAssignableFrom(ci.getModel().getClass())) {
+					//-- We cannot use this-> skip
+					m_worked = true;
+					ci.getPropertyProviderList().remove(0);
+					return;
+				}
+
 				propList = new ArrayList<>(cmm.getProperties());
 				ci.setTodoPropertyList(propList);
-				provider = ppr.getProviderSupplier().get();		// Create the provider instance
 				ci.setPropertyProvider(provider);				// And store it for continuations
 				provider.beforeProperties(this, ci.getModel());
 			}

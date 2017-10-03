@@ -1,6 +1,5 @@
 package to.etc.domui.component.meta.init;
 
-import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaCombo;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.MetaObject;
@@ -37,7 +36,6 @@ import javax.annotation.DefaultNonNull;
 import javax.annotation.Nonnull;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -46,30 +44,25 @@ import java.util.regex.Pattern;
  * Created on 3-10-17.
  */
 @DefaultNonNull
-public class MISimpleDomUIPropertyAnnotations implements IPropertyMetaProvider {
+public class MISimpleDomUIPropertyAnnotations implements IPropertyMetaProvider<DefaultClassMetaModel, DefaultPropertyMetaModel<?>> {
 	@Nonnull
 	final private List<SearchPropertyMetaModel> m_searchList = new ArrayList<SearchPropertyMetaModel>();
 
 	@Nonnull
 	final private List<SearchPropertyMetaModel> m_keySearchList = new ArrayList<SearchPropertyMetaModel>();
 
-	@Override public <T> void provide(@Nonnull MetaInitContext context, @Nonnull ClassMetaModel cmm, @Nonnull PropertyMetaModel<T> model) throws Exception {
-		if(! (model instanceof DefaultPropertyMetaModel))
-			return;
-		DefaultPropertyMetaModel<T> pmm = (DefaultPropertyMetaModel<T>) model;
-
+	@Override public void provide(@Nonnull MetaInitContext context, @Nonnull DefaultClassMetaModel cmm, @Nonnull DefaultPropertyMetaModel<?> pmm) throws Exception {
 		Annotation[] annar = pmm.getDescriptor().getGetter().getAnnotations();
 		for(Annotation an : annar) {
 			String ana = an.annotationType().getName();
-			decodePropertyAnnotation((DefaultClassMetaModel) cmm, pmm, an);
+			decodePropertyAnnotation(cmm, pmm, an);
 		}
 	}
 
-	@Override public void afterPropertiesDone(@Nonnull MetaInitContext context, @Nonnull ClassMetaModel classModel) {
-		Collections.sort(m_searchList, SearchPropertyMetaModel.BY_ORDER);
-		Collections.sort(m_keySearchList, SearchPropertyMetaModel.BY_ORDER);
+	@Override public void afterPropertiesDone(@Nonnull MetaInitContext context, @Nonnull DefaultClassMetaModel cmm) {
+		m_searchList.sort(SearchPropertyMetaModel.BY_ORDER);
+		m_keySearchList.sort(SearchPropertyMetaModel.BY_ORDER);
 
-		DefaultClassMetaModel cmm = (DefaultClassMetaModel) classModel;
 		cmm.setSearchProperties(m_searchList);
 		cmm.setKeyWordSearchProperties(m_keySearchList);
 	}

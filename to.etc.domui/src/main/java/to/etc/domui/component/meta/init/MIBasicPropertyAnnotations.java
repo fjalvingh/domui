@@ -1,7 +1,5 @@
 package to.etc.domui.component.meta.init;
 
-import to.etc.domui.component.meta.ClassMetaModel;
-import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.PropertyRelationType;
 import to.etc.domui.component.meta.TemporalPresentationType;
 import to.etc.domui.component.meta.impl.DefaultClassMetaModel;
@@ -22,13 +20,8 @@ import java.util.Collection;
  * Created on 3-10-17.
  */
 @DefaultNonNull
-public class MIBasicPropertyAnnotations implements IPropertyMetaProvider {
-	@Override public <T> void provide(@Nonnull MetaInitContext context, @Nonnull ClassMetaModel classModel, @Nonnull PropertyMetaModel<T> model) throws Exception {
-		if(! (model instanceof DefaultPropertyMetaModel))
-			return;
-		DefaultPropertyMetaModel<T> pmm = (DefaultPropertyMetaModel<T>) model;
-		DefaultClassMetaModel cmm = (DefaultClassMetaModel) classModel;
-
+public class MIBasicPropertyAnnotations implements IPropertyMetaProvider<DefaultClassMetaModel, DefaultPropertyMetaModel<?>> {
+	@Override public void provide(@Nonnull MetaInitContext context, @Nonnull DefaultClassMetaModel cmm, @Nonnull DefaultPropertyMetaModel<?> pmm) throws Exception {
 		Annotation[] annar = pmm.getDescriptor().getGetter().getAnnotations();
 		for(Annotation an : annar) {
 			String ana = an.annotationType().getName();
