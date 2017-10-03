@@ -244,7 +244,19 @@ public class UIContext {
 					return user;
 				}
 			}
+
+			ILoginAuthenticator la = rci.getApplication().getLoginAuthenticator();
+			if(null == la)
+				return null;
+
+			IUser user = la.authenticateByRequest(rx);
+			if(null != user) {
+				//-- Store the user in the HttpSession.
+				hs.setAttribute(LOGIN_KEY, user);
+				return user;
+			}
 		}
+
 		return null;
 	}
 

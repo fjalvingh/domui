@@ -24,6 +24,11 @@
  */
 package to.etc.domui.login;
 
+import to.etc.domui.server.IRequestContext;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * Checks the user's access and if granted returns a IUser for the credentials
  * passed. If not correct this returns null. The IUser returned will be cached
@@ -38,4 +43,8 @@ public interface ILoginAuthenticator {
 	IUser authenticateByCookie(String uid, long ts, String string) throws Exception;
 
 	String calcCookieHash(String userid, long ts) throws Exception;
+
+	default @Nullable IUser authenticateByRequest(@Nonnull IRequestContext rx) throws Exception {
+		return null;
+	}
 }
