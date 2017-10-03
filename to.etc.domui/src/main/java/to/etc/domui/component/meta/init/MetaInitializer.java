@@ -4,6 +4,7 @@ import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.impl.PathPropertyMetaModel;
+import to.etc.util.WrappedException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -129,31 +130,12 @@ public final class MetaInitializer {
 		}
 	}
 
-	/**
-	 * This method is the only one allowed during metamodel initialization. It will
-	 * throw {@link ClassModelNotInitializedException} if the class is not yet known.
-	 * The method will, however, return incomplete classes (the ones being initialzied).
-	 *
-	 * @param type
-	 * @return
-	 */
-	static ClassMetaModel getModel(MetaInitContext mc, Object type) {
-		ClassMetaModel cmm = m_classMap.get(type);
-		if(null != cmm)
-			return cmm;
-
-		if(mc != m_currentContext)
-			throw new IllegalStateException("Logic error: context passed is not the current context");
-		mc.addPendingClass(type);
-		throw new ClassModelNotInitializedException(type);
-	}
-
 	@Nonnull
 	private static ClassMetaModel initializeRecursively(Object mc) {
-		MetaInitContext context = new MetaInitContext();			// Keeps track of state, and provides services to metadata providers.
+		MetaInitContext context = new MetaInitContext(m_classMap);			// Keeps track of state, and provides services to metadata providers.
 		m_currentContext = context;
 		try {
-			context.addPendingClass(mc);
+			context.getModel(mc);
 			context.initializationLoop();
 			//
 			////checkInitStack(mc, "primary initialization");      	// Signal any ordering problems
@@ -176,13 +158,11 @@ public final class MetaInitializer {
 			if(cmm == null)
 				throw new IllegalStateException(mc + ": class model not found after initialization");
 			return cmm;
+		} catch(Exception e) {
+			throw WrappedException.wrap(e);
 		} finally {
 			m_currentContext = null;
 		}
-	}
-
-	static private void initializationLoop(MetaInitContext context) {
-
 	}
 
 	private static void checkInitStack(Object mc, String msg) {
@@ -276,5 +256,11 @@ public final class MetaInitializer {
 
 	public static synchronized List<ClassProviderRef> getClassProviderList() {
 		return m_classProviderList;
+	}
+
+	static {
+		register(-1000, new MIClassProperties());
+
+
 	}
 }
