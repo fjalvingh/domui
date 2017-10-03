@@ -459,4 +459,9 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 		}
 		return Collections.emptyList();
 	}
+
+	@Nonnull
+	public PropertyInfo getDescriptor() {
+		return m_descriptor;
+	}
 }

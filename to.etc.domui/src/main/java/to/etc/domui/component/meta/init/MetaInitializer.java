@@ -259,7 +259,10 @@ public final class MetaInitializer {
 	}
 
 	static {
-		register(-1000, new MIClassProperties());
+		register(-1000, new MIClassProperties());						// Create properties
+		register(-990, new MIBasicPropertyAnnotations());				// Decode JPA annotations and other basic annotations
+
+		register(-900, new MISimpleDomUIPropertyAnnotations());
 
 
 	}

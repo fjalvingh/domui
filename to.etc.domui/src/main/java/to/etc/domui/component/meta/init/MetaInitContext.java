@@ -198,5 +198,4 @@ final public class MetaInitContext {
 		m_todoProviderClassList.remove(ci);
 		m_todoProviderClassList.add(ci);						// Move to end
 	}
-
 }
