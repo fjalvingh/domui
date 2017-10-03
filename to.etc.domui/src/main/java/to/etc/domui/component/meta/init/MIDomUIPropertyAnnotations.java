@@ -44,7 +44,7 @@ import java.util.regex.Pattern;
  * Created on 3-10-17.
  */
 @DefaultNonNull
-public class MISimpleDomUIPropertyAnnotations implements IPropertyMetaProvider<DefaultClassMetaModel, DefaultPropertyMetaModel<?>> {
+public class MIDomUIPropertyAnnotations implements IPropertyMetaProvider<DefaultClassMetaModel, DefaultPropertyMetaModel<?>> {
 	@Nonnull
 	final private List<SearchPropertyMetaModel> m_searchList = new ArrayList<SearchPropertyMetaModel>();
 

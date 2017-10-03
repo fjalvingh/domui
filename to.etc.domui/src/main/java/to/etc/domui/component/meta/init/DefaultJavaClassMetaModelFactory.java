@@ -25,28 +25,9 @@
 package to.etc.domui.component.meta.init;
 
 import to.etc.domui.component.meta.ClassMetaModel;
-import to.etc.domui.component.meta.MetaCombo;
-import to.etc.domui.component.meta.MetaManager;
-import to.etc.domui.component.meta.MetaObject;
-import to.etc.domui.component.meta.MetaSearchItem;
-import to.etc.domui.component.meta.PropertyMetaModel;
-import to.etc.domui.component.meta.SearchPropertyType;
 import to.etc.domui.component.meta.impl.DefaultClassMetaModel;
-import to.etc.domui.component.meta.impl.DefaultPropertyMetaModel;
-import to.etc.domui.component.meta.impl.DisplayPropertyMetaModel;
-import to.etc.domui.component.meta.impl.SearchPropertyMetaModelImpl;
-import to.etc.domui.component.meta.impl.UndefinedComboDataSet;
-import to.etc.domui.trouble.Trouble;
-import to.etc.domui.util.Constants;
-import to.etc.domui.util.DomUtil;
-import to.etc.domui.util.UndefinedLabelStringRenderer;
-import to.etc.util.PropertyInfo;
-import to.etc.util.StringTool;
 
 import javax.annotation.Nonnull;
-import java.lang.annotation.Annotation;
-import java.util.List;
-import java.util.Map;
 
 /**
  * A default, base implementation of a MetaModel layer. This tries to discover metadata by using
@@ -141,20 +122,20 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 	//	colli.getModel().setClassProperties(reslist);
 	//}
 
-	/**
-	 * This obtains all properties from the class and initializes their models.
-	 */
-	protected void decodeProperties(@Nonnull final DefaultJavaClassInfo colli) {
-		for(Map.Entry<PropertyInfo, DefaultPropertyMetaModel< ? >> e : colli.getMap().entrySet()) {
-			updatePropertyInfo(colli, e.getValue(), e.getKey());
-		}
-	}
-
-	protected void updatePropertyInfo(@Nonnull final DefaultJavaClassInfo colli, @Nonnull DefaultPropertyMetaModel< ? > pm, @Nonnull PropertyInfo pd) {
-		//initPropertyModel(colli, pd, pm);
-		//if(pm.isPrimaryKey())
-		//	colli.getModel().setPrimaryKey(pm);
-	}
+	///**
+	// * This obtains all properties from the class and initializes their models.
+	// */
+	//protected void decodeProperties(@Nonnull final DefaultJavaClassInfo colli) {
+	//	for(Map.Entry<PropertyInfo, DefaultPropertyMetaModel< ? >> e : colli.getMap().entrySet()) {
+	//		updatePropertyInfo(colli, e.getValue(), e.getKey());
+	//	}
+	//}
+	//
+	//protected void updatePropertyInfo(@Nonnull final DefaultJavaClassInfo colli, @Nonnull DefaultPropertyMetaModel< ? > pm, @Nonnull PropertyInfo pd) {
+	//	//initPropertyModel(colli, pd, pm);
+	//	//if(pm.isPrimaryKey())
+	//	//	colli.getModel().setPrimaryKey(pm);
+	//}
 
 	//protected void initPropertyModel(@Nonnull DefaultJavaClassInfo colli, @Nonnull PropertyInfo pd, @Nonnull DefaultPropertyMetaModel< ? > pmm) {
 	//	Annotation[] annar = pd.getGetter().getAnnotations();
@@ -416,18 +397,19 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 	//	}
 	//}
 	//
-	/**
-	 * If this is an enum or the class Boolean define it's domain values.
-	 */
-	protected void decodeDomainValues(@Nonnull DefaultJavaClassInfo colli) {
-		//-- If this is an enumerable thingerydoo...
-		if(colli.getTypeClass() == Boolean.class) {
-			colli.getModel().setDomainValues(new Object[]{Boolean.FALSE, Boolean.TRUE});
-		} else if(Enum.class.isAssignableFrom(colli.getTypeClass())) {
-			Class<Enum< ? >> ecl = (Class<Enum< ? >>) colli.getTypeClass();
-			colli.getModel().setDomainValues(ecl.getEnumConstants());
-		}
-	}
+
+	///**
+	// * If this is an enum or the class Boolean define it's domain values.
+	// */
+	//protected void decodeDomainValues(@Nonnull DefaultJavaClassInfo colli) {
+	//	//-- If this is an enumerable thingerydoo...
+	//	if(colli.getTypeClass() == Boolean.class) {
+	//		colli.getModel().setDomainValues(new Object[]{Boolean.FALSE, Boolean.TRUE});
+	//	} else if(Enum.class.isAssignableFrom(colli.getTypeClass())) {
+	//		Class<Enum< ? >> ecl = (Class<Enum< ? >>) colli.getTypeClass();
+	//		colli.getModel().setDomainValues(ecl.getEnumConstants());
+	//	}
+	//}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Annotation handling.								*/
@@ -435,135 +417,135 @@ public class DefaultJavaClassMetaModelFactory implements IClassMetaModelFactory 
 	/**
 	 * Walk all known class annotations and use them to add class based metadata.
 	 */
-	protected void decodeClassAnnotations(@Nonnull DefaultJavaClassInfo colli) {
-		Annotation[] annar = colli.getTypeClass().getAnnotations(); // All class-level thingerydoos
-		for(Annotation an : annar) {
-			String ana = an.annotationType().getName(); // Get the annotation's name
-			decodeClassAnnotationByName(colli, an, ana); // Decode by name literal
-			decodeClassAnnotation(colli, an); // Decode well-known annotations
-		}
+	//protected void decodeClassAnnotations(@Nonnull DefaultJavaClassInfo colli) {
+	//	Annotation[] annar = colli.getTypeClass().getAnnotations(); // All class-level thingerydoos
+	//	for(Annotation an : annar) {
+	//		String ana = an.annotationType().getName(); // Get the annotation's name
+	//		decodeClassAnnotationByName(colli, an, ana); // Decode by name literal
+	//		decodeClassAnnotation(colli, an); // Decode well-known annotations
+	//	}
+	//
+	//	//-- Some annotations can be on parent classes.
+	//	Class< ? > parentClass = colli.getTypeClass();
+	//	for(;;) {
+	//		parentClass = parentClass.getSuperclass();
+	//		if(parentClass == Object.class || parentClass == null)
+	//			break;
+	//
+	//		annar = parentClass.getAnnotations();
+	//		for(Annotation an : annar) {
+	//			String ana = an.annotationType().getName();				// Get the annotation's name
+	//			decodeParentClassAnnotationByName(colli, an, ana);		// Decode by name literal
+	//			//				decodeParentClassAnnotation(colli, an);					// Decode well-known annotations
+	//		}
+	//	}
+	//}
 
-		//-- Some annotations can be on parent classes.
-		Class< ? > parentClass = colli.getTypeClass();
-		for(;;) {
-			parentClass = parentClass.getSuperclass();
-			if(parentClass == Object.class || parentClass == null)
-				break;
+	//private void decodeParentClassAnnotationByName(@Nonnull DefaultJavaClassInfo colli, @Nonnull Annotation an, @Nonnull String name) {
+	//	if("javax.persistence.Table".equals(name)) {
+	//		decodeTableAnnotation(colli, an);
+	//	}
+	//}
 
-			annar = parentClass.getAnnotations();
-			for(Annotation an : annar) {
-				String ana = an.annotationType().getName();				// Get the annotation's name
-				decodeParentClassAnnotationByName(colli, an, ana);		// Decode by name literal
-				//				decodeParentClassAnnotation(colli, an);					// Decode well-known annotations
-			}
-		}
-	}
+	///**
+	// * Can be overridden to decode user-specific annotations. Currently only decodes the javax.persistence.Table annotation.
+	// */
+	//protected void decodeClassAnnotationByName(@Nonnull final DefaultJavaClassInfo colli, @Nonnull final Annotation an, @Nonnull final String name) {
+	//	if("javax.persistence.Table".equals(name)) {
+	//		//-- Decode fields from the annotation.
+	//		decodeTableAnnotation(colli, an);
+	//	} else if("to.etc.webapp.qsql.QJdbcTable".equals(name)) {
+	//		colli.getModel().setPersistentClass(true);
+	//	}
+	//}
 
-	private void decodeParentClassAnnotationByName(@Nonnull DefaultJavaClassInfo colli, @Nonnull Annotation an, @Nonnull String name) {
-		if("javax.persistence.Table".equals(name)) {
-			decodeTableAnnotation(colli, an);
-		}
-	}
-
-	/**
-	 * Can be overridden to decode user-specific annotations. Currently only decodes the javax.persistence.Table annotation.
-	 */
-	protected void decodeClassAnnotationByName(@Nonnull final DefaultJavaClassInfo colli, @Nonnull final Annotation an, @Nonnull final String name) {
-		if("javax.persistence.Table".equals(name)) {
-			//-- Decode fields from the annotation.
-			decodeTableAnnotation(colli, an);
-		} else if("to.etc.webapp.qsql.QJdbcTable".equals(name)) {
-			colli.getModel().setPersistentClass(true);
-		}
-	}
-
-	private void decodeTableAnnotation(@Nonnull final DefaultJavaClassInfo colli, @Nonnull final Annotation an) {
-		//-- Decode fields from the annotation.
-		if(colli.getModel().getTableName() != null)
-			return;
-
-		try {
-			String tablename = (String) DomUtil.getClassValue(an, "name");
-			String tableschema = (String) DomUtil.getClassValue(an, "schema");
-			if(tablename != null) {
-				if(!StringTool.isBlank(tableschema))
-					tablename = tableschema + "." + tablename;
-				colli.getModel().setTableName(tablename);
-			}
-		} catch(Exception x) {
-			Trouble.wrapException(x);
-		}
-	}
+	//private void decodeTableAnnotation(@Nonnull final DefaultJavaClassInfo colli, @Nonnull final Annotation an) {
+	//	//-- Decode fields from the annotation.
+	//	if(colli.getModel().getTableName() != null)
+	//		return;
+	//
+	//	try {
+	//		String tablename = (String) DomUtil.getClassValue(an, "name");
+	//		String tableschema = (String) DomUtil.getClassValue(an, "schema");
+	//		if(tablename != null) {
+	//			if(!StringTool.isBlank(tableschema))
+	//				tablename = tableschema + "." + tablename;
+	//			colli.getModel().setTableName(tablename);
+	//		}
+	//	} catch(Exception x) {
+	//		Trouble.wrapException(x);
+	//	}
+	//}
 
 	/**
 	 * Decodes all DomUI annotations.
 	 */
-	protected void decodeClassAnnotation(@Nonnull final DefaultJavaClassInfo colli, @Nonnull final Annotation an) {
-		final DefaultClassMetaModel cmm = colli.getModel();
-		if(an instanceof MetaCombo) {
-			final MetaCombo c = (MetaCombo) an;
-			if(c.dataSet() != UndefinedComboDataSet.class)
-				cmm.setComboDataSet(c.dataSet());
-			if(c.labelRenderer() != UndefinedLabelStringRenderer.class)
-				cmm.setComboLabelRenderer(c.labelRenderer());
-			if(c.nodeRenderer() != UndefinedLabelStringRenderer.class)
-				cmm.setComboNodeRenderer(c.nodeRenderer());
-			if(c.properties() != null && c.properties().length > 0) {
-				colli.later(new Runnable() {
-					@Override
-					public void run() {
-						cmm.setComboDisplayProperties(DisplayPropertyMetaModel.decode(cmm, c.properties()));
-					}
-				});
-
-			}
-			if(c.preferred())
-				cmm.setComponentTypeHint(Constants.COMPONENT_COMBO);
-		} else if(an instanceof MetaObject) {
-			final MetaObject mo = (MetaObject) an;
-
-			if(mo.defaultColumns().length > 0) {
-				colli.later(new Runnable() {
-					@Override
-					public void run() {
-						cmm.setTableDisplayProperties(DisplayPropertyMetaModel.decode(cmm, mo.defaultColumns()));
-					}
-				});
-			}
-			if(!mo.defaultSortColumn().equals(Constants.NONE))
-				cmm.setDefaultSortProperty(mo.defaultSortColumn());
-			cmm.setDefaultSortDirection(mo.defaultSortOrder());
-
-			if(mo.selectedRenderer() != UndefinedLabelStringRenderer.class)
-				cmm.setLookupSelectedRenderer(mo.selectedRenderer());
-			if(mo.selectedProperties().length != 0) {
-				colli.later(new Runnable() {
-					@Override
-					public void run() {
-						cmm.setLookupSelectedProperties(DisplayPropertyMetaModel.decode(cmm, mo.selectedProperties()));
-					}
-				});
-			}
-
-			//-- Handle search
-			int index = 0;
-			for(MetaSearchItem msi : mo.searchProperties()) {
-				index++;
-				List<PropertyMetaModel< ? >> pl = MetaManager.parsePropertyPath(colli.getModel(), msi.name());
-				SearchPropertyMetaModelImpl mm = new SearchPropertyMetaModelImpl(cmm, pl);
-				mm.setIgnoreCase(msi.ignoreCase());
-				mm.setOrder(msi.order() == -1 ? index : msi.order());
-				mm.setMinLength(msi.minLength());
-				mm.setPropertyName(msi.name());
-				mm.setLookupLabelKey(msi.lookupLabelKey().length() == 0 ? null : msi.lookupLabelKey());
-				mm.setLookupHintKey(msi.lookupHintKey().length() == 0 ? null : msi.lookupHintKey());
-				if(msi.searchType() == SearchPropertyType.SEARCH_FIELD || msi.searchType() == SearchPropertyType.BOTH) {
-					colli.getSearchList().add(mm);
-				}
-				if(msi.searchType() == SearchPropertyType.KEYWORD || msi.searchType() == SearchPropertyType.BOTH) {
-					colli.getKeySearchList().add(mm);
-				}
-			}
-		}
-	}
+	//protected void decodeClassAnnotation(@Nonnull final DefaultJavaClassInfo colli, @Nonnull final Annotation an) {
+	//	final DefaultClassMetaModel cmm = colli.getModel();
+	//	if(an instanceof MetaCombo) {
+	//		final MetaCombo c = (MetaCombo) an;
+	//		if(c.dataSet() != UndefinedComboDataSet.class)
+	//			cmm.setComboDataSet(c.dataSet());
+	//		if(c.labelRenderer() != UndefinedLabelStringRenderer.class)
+	//			cmm.setComboLabelRenderer(c.labelRenderer());
+	//		if(c.nodeRenderer() != UndefinedLabelStringRenderer.class)
+	//			cmm.setComboNodeRenderer(c.nodeRenderer());
+	//		if(c.properties() != null && c.properties().length > 0) {
+	//			colli.later(new Runnable() {
+	//				@Override
+	//				public void run() {
+	//					cmm.setComboDisplayProperties(DisplayPropertyMetaModel.decode(cmm, c.properties()));
+	//				}
+	//			});
+	//
+	//		}
+	//		if(c.preferred())
+	//			cmm.setComponentTypeHint(Constants.COMPONENT_COMBO);
+	//	} else if(an instanceof MetaObject) {
+	//		final MetaObject mo = (MetaObject) an;
+	//
+	//		if(mo.defaultColumns().length > 0) {
+	//			colli.later(new Runnable() {
+	//				@Override
+	//				public void run() {
+	//					cmm.setTableDisplayProperties(DisplayPropertyMetaModel.decode(cmm, mo.defaultColumns()));
+	//				}
+	//			});
+	//		}
+	//		if(!mo.defaultSortColumn().equals(Constants.NONE))
+	//			cmm.setDefaultSortProperty(mo.defaultSortColumn());
+	//		cmm.setDefaultSortDirection(mo.defaultSortOrder());
+	//
+	//		if(mo.selectedRenderer() != UndefinedLabelStringRenderer.class)
+	//			cmm.setLookupSelectedRenderer(mo.selectedRenderer());
+	//		if(mo.selectedProperties().length != 0) {
+	//			colli.later(new Runnable() {
+	//				@Override
+	//				public void run() {
+	//					cmm.setLookupSelectedProperties(DisplayPropertyMetaModel.decode(cmm, mo.selectedProperties()));
+	//				}
+	//			});
+	//		}
+	//
+	//		//-- Handle search
+	//		int index = 0;
+	//		for(MetaSearchItem msi : mo.searchProperties()) {
+	//			index++;
+	//			List<PropertyMetaModel< ? >> pl = MetaManager.parsePropertyPath(colli.getModel(), msi.name());
+	//			SearchPropertyMetaModelImpl mm = new SearchPropertyMetaModelImpl(cmm, pl);
+	//			mm.setIgnoreCase(msi.ignoreCase());
+	//			mm.setOrder(msi.order() == -1 ? index : msi.order());
+	//			mm.setMinLength(msi.minLength());
+	//			mm.setPropertyName(msi.name());
+	//			mm.setLookupLabelKey(msi.lookupLabelKey().length() == 0 ? null : msi.lookupLabelKey());
+	//			mm.setLookupHintKey(msi.lookupHintKey().length() == 0 ? null : msi.lookupHintKey());
+	//			if(msi.searchType() == SearchPropertyType.SEARCH_FIELD || msi.searchType() == SearchPropertyType.BOTH) {
+	//				colli.getSearchList().add(mm);
+	//			}
+	//			if(msi.searchType() == SearchPropertyType.KEYWORD || msi.searchType() == SearchPropertyType.BOTH) {
+	//				colli.getKeySearchList().add(mm);
+	//			}
+	//		}
+	//	}
+	//}
 }

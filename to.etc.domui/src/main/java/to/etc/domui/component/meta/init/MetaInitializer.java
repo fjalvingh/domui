@@ -268,10 +268,15 @@ public final class MetaInitializer {
 
 	static {
 		register(-1000, new MIClassProperties());						// Create properties
+
 		register(-990, MIBasicPropertyAnnotations::new);				// Decode JPA annotations and other basic annotations
 
-		register(-900, MISimpleDomUIPropertyAnnotations::new);
+		register(-980, new MISimpleClassAnnotations());
 
+		register(-900, MIDomUIPropertyAnnotations::new);
 
+		register(-800, new MIDomuiClassAnnotations());
+
+		register(-780, new MIClassDomainValues());					// Provides values for enumerable types (enums and booleans)
 	}
 }
