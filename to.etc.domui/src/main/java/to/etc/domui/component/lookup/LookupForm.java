@@ -1249,7 +1249,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 		TD ccell = new TD(); // Control cell
 		tr.add(ccell);
-		ccell.setCssClass("ui-f-in");
+		ccell.setCssClass("ui-f-in ui-f4-ctl ui-f4-ctl-v");
 
 		//-- Now add the controls and shtuff..
 		NodeBase labelcontrol = qt.getLabelControl();
