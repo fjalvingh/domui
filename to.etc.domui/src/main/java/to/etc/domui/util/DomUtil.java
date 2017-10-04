@@ -372,6 +372,31 @@ final public class DomUtil {
 		return null;
 	}
 
+
+	/**
+	 * Returns T if the topclass or one of its base classes (above the base class) has overridden
+	 * the specified method.
+	 * @param topClass
+	 * @param baseClass
+	 * @param method
+	 * @param parameters
+	 * @return
+	 */
+	static public boolean hasOverridden(Class<?> topClass, Class<?> baseClass, String method, Class<?>... parameters) {
+		Class<?> currentClass = topClass;
+
+		while(currentClass != null && currentClass != Object.class && currentClass != baseClass) {
+			try {
+				currentClass.getDeclaredMethod(method, parameters);		// Throws exception if not here.
+				return true;
+			} catch(NoSuchMethodException nmx) {
+				//-- Not here, so continue walking upwards.
+			}
+			currentClass = currentClass.getSuperclass();
+		}
+		return false;
+	}
+
 	static public String createRandomColor() {
 		int value = (int) (0xffffff * Math.random());
 		return "#" + StringTool.intToStr(value, 16, 6);
