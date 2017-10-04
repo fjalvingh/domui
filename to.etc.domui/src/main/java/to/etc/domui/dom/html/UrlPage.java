@@ -45,7 +45,7 @@ import javax.annotation.Nullable;
 
 
 /**
- * The base for all pages that can be accessed thru URL's. This is mostly a
+ * The base for all pages that can be accessed through URL's. This is mostly a
  * dummy class which ensures that all pages/fragments properly extend from DIV,
  * ensuring that the Page logic can replace the "div" tag with a "body" tag for
  * root fragments.
@@ -65,7 +65,6 @@ public class UrlPage extends Div {
 	private IThemeVariant m_themeVariant = DefaultThemeVariant.INSTANCE;
 
 	public UrlPage() {
-		setCssClass("ui-content ui-kludge");
 	}
 
 	/**
@@ -82,7 +81,8 @@ public class UrlPage extends Div {
 	}
 
 	/**
-	 * WILL BE REMOVED IN 5.2 - do not use.
+	 * No longer in use for domui 2.0.
+	 *
 	 * Remove the styles that cause the margin kludge to be applied to all pages.
 	 */
 	@Deprecated

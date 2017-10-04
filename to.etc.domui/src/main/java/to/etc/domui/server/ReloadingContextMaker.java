@@ -24,18 +24,25 @@
  */
 package to.etc.domui.server;
 
-import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import to.etc.domui.component.meta.init.MetaInitializer;
+import to.etc.domui.server.reloader.IReloadedClassesListener;
+import to.etc.domui.server.reloader.Reloader;
+import to.etc.domui.state.AppSession;
+import to.etc.domui.state.HttpSessionLink;
+import to.etc.webapp.nls.BundleRef;
 
-import javax.annotation.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
-
-import org.slf4j.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.server.reloader.*;
-import to.etc.domui.state.*;
-import to.etc.webapp.nls.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.servlet.FilterChain;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class ReloadingContextMaker extends AbstractContextMaker {
 	static private final Logger LOG = LoggerFactory.getLogger(ReloadingContextMaker.class);
@@ -172,7 +179,7 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 			throw new IllegalStateException("The main application class '" + m_applicationClassName + "' cannot be found: " + x, x);
 		}
 		if(m_application != null) {
-			MetaManager.internalClear();
+			MetaInitializer.internalClear();
 			BundleRef.internalClear();
 			for(IReloadListener ll : listeners()) {
 				try {

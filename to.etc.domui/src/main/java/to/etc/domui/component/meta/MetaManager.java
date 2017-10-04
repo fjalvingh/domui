@@ -31,6 +31,8 @@ import javax.annotation.*;
 
 import to.etc.domui.component.input.*;
 import to.etc.domui.component.meta.impl.*;
+import to.etc.domui.component.meta.init.IClassMetaModelFactory;
+import to.etc.domui.component.meta.init.MetaInitializer;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.login.*;
 import to.etc.domui.server.*;
@@ -56,31 +58,15 @@ final public class MetaManager {
 	@Nonnull
 	private static final String pFIELDHANDLER = "fieldHandler";
 
-	static private List<IClassMetaModelFactory> m_modelList = new ArrayList<IClassMetaModelFactory>();
-
-	/**
-	 * Map indexed by Class<?> or IMetaClass returning the classmodel for that instance.
-	 */
-	static private Map<Object, ClassMetaModel> m_classMap = new HashMap<Object, ClassMetaModel>();
-
-	/** While a metamodel is being initialized this keeps track of recursive init's */
-	final static private Stack<Object> m_initStack = new Stack<Object>();
-
-	final static private List<Runnable> m_initList = new ArrayList<Runnable>();
-
 	private MetaManager() {}
 
-	static synchronized public void registerModel(@Nonnull IClassMetaModelFactory model) {
-		List<IClassMetaModelFactory> mm = new ArrayList<IClassMetaModelFactory>(m_modelList);
-		mm.add(model);
-		m_modelList = mm;
+	static public void registerModel(@Nonnull IClassMetaModelFactory model) {
+		MetaInitializer.registerModel(model);
 	}
 
 	@Nonnull
 	static private synchronized List<IClassMetaModelFactory> getList() {
-		if(m_modelList.size() == 0)
-			registerModel(new DefaultJavaClassMetaModelFactory());
-		return m_modelList;
+		return MetaInitializer.getList();
 	}
 
 	@Nonnull
@@ -89,7 +75,7 @@ final public class MetaManager {
 			throw new IllegalArgumentException("Class<?> parameter cannot be null");
 		if(clz.getName().contains("$$"))
 			clz = clz.getSuperclass(); // Enhanced class (Hibernate). Get base class instead
-		return findAndInitialize(clz);
+		return MetaInitializer.findAndInitialize(clz);
 	}
 
 	/**
@@ -104,86 +90,7 @@ final public class MetaManager {
 			return (ClassMetaModel) mc;
 		if(mc == null)
 			throw new IllegalArgumentException("IMetaClass parameter cannot be null");
-		return findAndInitialize(mc);
-	}
-
-	/**
-	 * Clears the cache. In use by reloading class mechanism, hence only ever called while developing never in production. Dont use otherwise.
-	 */
-	public synchronized static void internalClear() {
-		m_classMap.clear();
-	}
-
-	@Nonnull
-	private static ClassMetaModel findAndInitialize(@Nonnull Object mc) {
-		//-- We need some factory to create it.
-		synchronized(MetaManager.class) {
-			ClassMetaModel cmm = m_classMap.get(mc);
-			if(cmm != null)
-				return cmm;
-
-			//-- Phase 1: create the metamodel and it's direct properties.
-			checkInitStack(mc, "primary initialization");
-			IClassMetaModelFactory best = findModelFactory(mc);
-			m_initStack.add(mc);
-			cmm = best.createModel(m_initList, mc);
-			m_classMap.put(mc, cmm);
-			m_initStack.remove(mc);
-
-			//-- Phase 2: create the secondary model.
-			if(m_initStack.size() == 0 && m_initList.size() > 0) {
-				List<Runnable> dl = new ArrayList<Runnable>(m_initList);
-				m_initList.clear();
-				for(Runnable r : dl) {
-					r.run();
-				}
-			}
-			return cmm;
-		}
-	}
-
-	private static void checkInitStack(Object mc, String msg) {
-		if(m_initStack.contains(mc)) {
-			m_initStack.add(mc);
-			StringBuilder sb = new StringBuilder();
-			for(Object o : m_initStack) {
-				if(sb.length() > 0)
-					sb.append(" -> ");
-				sb.append(o.toString());
-			}
-			m_initStack.clear();
-
-			throw new IllegalStateException("Circular reference in " + msg + ": " + sb.toString());
-		}
-	}
-
-	/**
-	 * We need to find a factory that knows how to deliver this metadata.
-	 */
-	@Nonnull
-	private synchronized static IClassMetaModelFactory findModelFactory(Object theThingy) {
-		int bestscore = 0;
-		int hitct = 0;
-		IClassMetaModelFactory best = null;
-		for(IClassMetaModelFactory mmf : getList()) {
-			int score = mmf.accepts(theThingy);
-			if(score > 0) {
-				if(score == bestscore)
-					hitct++;
-				else if(score > bestscore) {
-					bestscore = score;
-					best = mmf;
-					hitct = 1;
-				}
-			}
-		}
-
-		//-- We MUST have some factory now, or we're in trouble.
-		if(best == null)
-			throw new IllegalStateException("No IClassModelFactory accepts the type '" + theThingy + "', which is a " + theThingy.getClass());
-		if(hitct > 1)
-			throw new IllegalStateException("Two IClassModelFactory's accept the type '" + theThingy + "' (which is a " + theThingy.getClass() + ") at score=" + bestscore);
-		return best;
+		return MetaInitializer.findAndInitialize(mc);
 	}
 
 	/**
@@ -463,37 +370,6 @@ final public class MetaManager {
 		return res;
 	}
 
-	static public PropertyMetaModel< ? > internalCalculateDottedPath(ClassMetaModel cmm, String name) {
-		int pos = name.indexOf('.'); 							// Dotted name?
-		if(pos == -1)
-			return cmm.findSimpleProperty(name); 				// Use normal resolution directly on the class.
-
-		//-- We must create a synthetic property.
-		int ix = 0;
-		int len = name.length();
-		ClassMetaModel ccmm = cmm; 								// Current class meta-model for property reached
-		List<PropertyMetaModel< ? >> acl = new ArrayList<PropertyMetaModel< ? >>(10);
-		for(;;) {
-			String sub = name.substring(ix, pos); 				// Get path component,
-			ix = pos + 1;
-
-			PropertyMetaModel< ? > pmm = ccmm.findSimpleProperty(sub); // Find base property,
-			if(pmm == null)
-				throw new IllegalStateException("Invalid property path '" + name + "' on " + cmm + ": property '" + sub + "' on classMetaModel=" + ccmm + " does not exist");
-			acl.add(pmm); // Next access path,
-			ccmm = MetaManager.findClassMeta(pmm.getActualType());
-
-			if(ix >= len)
-				break;
-			pos = name.indexOf('.', ix);
-			if(pos == -1)
-				pos = len;
-		}
-
-		//-- Resolved to target. Return a complex proxy.
-		return new PathPropertyMetaModel<Object>(name, acl.toArray(new PropertyMetaModel[acl.size()]));
-	}
-
 	/**
 	 * Parse the property path and return the list of properties in the path. This explicitly allows
 	 * traversing child relations provided generic type information is present to denote the child's type.
@@ -652,34 +528,6 @@ final public class MetaManager {
 			throw new IllegalArgumentException("The instance " + identify(instance) + " has an undefined primary key (cannot be obtained by metadata)");
 		return pmm.getValue(instance);
 	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Expanding properties.								*/
-	/*--------------------------------------------------------------*/
-
-//	static {
-//		SIMPLE = new HashSet<Class< ? >>();
-//		SIMPLE.add(Integer.class);
-//		SIMPLE.add(Integer.TYPE);
-//		SIMPLE.add(Long.class);
-//		SIMPLE.add(Long.TYPE);
-//		SIMPLE.add(Character.class);
-//		SIMPLE.add(Character.TYPE);
-//		SIMPLE.add(Short.class);
-//		SIMPLE.add(Short.TYPE);
-//		SIMPLE.add(Byte.class);
-//		SIMPLE.add(Byte.TYPE);
-//		SIMPLE.add(Double.class);
-//		SIMPLE.add(Double.TYPE);
-//		SIMPLE.add(Float.class);
-//		SIMPLE.add(Float.TYPE);
-//		SIMPLE.add(Boolean.class);
-//		SIMPLE.add(Boolean.TYPE);
-//		SIMPLE.add(BigDecimal.class);
-//		SIMPLE.add(String.class);
-//		SIMPLE.add(BigInteger.class);
-//	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Generate metadata for search and display for testing*/
@@ -1007,7 +855,7 @@ final public class MetaManager {
 	 */
 	@Nullable
 	static synchronized public ClassMetaModel findClassByTable(@Nonnull String tableName) {
-		for(ClassMetaModel cmm : m_classMap.values()) {
+		for(ClassMetaModel cmm : MetaInitializer.getAllMetaClasses()) {
 			if(tableName.equalsIgnoreCase(cmm.getTableName()))
 				return cmm;
 		}

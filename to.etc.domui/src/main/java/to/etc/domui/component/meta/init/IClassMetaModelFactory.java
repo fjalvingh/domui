@@ -22,16 +22,18 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component.meta;
+package to.etc.domui.component.meta.init;
 
-import java.util.*;
+import to.etc.domui.component.meta.ClassMetaModel;
 
-import javax.annotation.*;
+import javax.annotation.Nonnull;
 
 /**
- * The root for all metamodel lookups. When fields of known classes are
- * used in the system this can be used to lookup data pertaining to the
- * fields.
+ * This is responsible for creating the initial structure for a metamodel: the
+ * ClassMetaModel implementation and its initial population of
+ * PropertyMetaModels. It can use only the methods inside MetaInitializer, and
+ * must be able to properly handle the ClassMetaIncompleteException by adding a
+ * later task.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 16, 2008
@@ -46,12 +48,12 @@ public interface IClassMetaModelFactory {
 	int accepts(@Nonnull Object theThingy);
 
 	/**
-	 * When accept() has returned a &gt; 0 value, this <i>must</i> create an (immutable) metamodel for
+	 * When accept() has returned a &gt; 0 value, this <i>must</i> create a metamodel for
 	 * the thingy passed.
 	 *
 	 * @param theThingy
 	 * @return
 	 */
 	@Nonnull
-	ClassMetaModel createModel(@Nonnull List<Runnable> actionList, @Nonnull Object theThingy);
+	ClassMetaModel createModel(@Nonnull MetaInitContext context, @Nonnull Object theThingy);
 }

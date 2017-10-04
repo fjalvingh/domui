@@ -24,10 +24,12 @@
  */
 package to.etc.webapp.nls;
 
-import java.util.*;
-
-import javax.annotation.*;
-import javax.annotation.concurrent.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * Represents a stack of message bundles that behaves as a single message bundle. Keys are looked up
@@ -82,7 +84,7 @@ public class BundleStack extends BundleBase implements IBundle {
 			String cn = cur.getName();
 			int pos = cn.lastIndexOf('.');
 			cn = cn.substring(pos + 1);
-			BundleRef br = BundleRef.create(clz, cn);
+			BundleRef br = BundleRef.create(cur, cn);
 			if(br.exists())
 				res.add(br);
 

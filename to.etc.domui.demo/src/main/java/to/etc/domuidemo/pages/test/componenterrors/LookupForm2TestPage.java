@@ -2,6 +2,7 @@ package to.etc.domuidemo.pages.test.componenterrors;
 
 import to.etc.domui.component.layout.Caption;
 import to.etc.domui.component.lookup.AbstractLookupControlImpl;
+import to.etc.domui.component.lookup.ILookupControlInstance;
 import to.etc.domui.component.lookup.LookupForm;
 import to.etc.domui.component.misc.VerticalSpacer;
 import to.etc.domui.component2.combo.ComboLookup2;
@@ -17,12 +18,13 @@ import javax.annotation.Nonnull;
 import java.util.List;
 
 /**
- * Test github issue #6: clearing a mandatory property must throw an exception.
+ * Test github issue #6: this should throw an error when clear is pressed because
+ * {@link ILookupControlInstance#clearInput()} is missing on a mandatory control.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 27-9-17.
  */
-public class LookupForm1TestPage extends UrlPage {
+public class LookupForm2TestPage extends UrlPage {
 	private Div m_res = new Div();
 
 
@@ -52,10 +54,6 @@ public class LookupForm1TestPage extends UrlPage {
 				crit.eq("album", track);
 				return AppendCriteriaResult.VALID;
 			}
-
-			@Override public void clearInput() {
-				trackL1.setValue(list.get(0));
-			}
 		});
 
 		lf1.addManualPropertyLabel("genre", new AbstractLookupControlImpl(genreL1) {
@@ -68,10 +66,6 @@ public class LookupForm1TestPage extends UrlPage {
 				}
 				crit.eq("genre", genre);
 				return AppendCriteriaResult.VALID;
-			}
-
-			@Override public void clearInput() {
-				genreL1.setValue(glist.get(0));
 			}
 		});
 

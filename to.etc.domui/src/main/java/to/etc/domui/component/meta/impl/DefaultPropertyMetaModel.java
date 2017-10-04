@@ -39,6 +39,9 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	@Nonnull
 	private final DefaultClassMetaModel m_classModel;
 
+	@Nullable
+	private ClassMetaModel m_valueModel;
+
 	private final PropertyInfo m_descriptor;
 
 	private int m_length = -1;
@@ -104,14 +107,20 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	@Nonnull
 	private List<SearchPropertyMetaModel> m_lookupFieldKeySearchProperties = Collections.EMPTY_LIST;
 
-	public DefaultPropertyMetaModel(@Nonnull final DefaultClassMetaModel classModel, final PropertyInfo descriptor) {
+	public DefaultPropertyMetaModel(@Nonnull final DefaultClassMetaModel classModel, final PropertyInfo descriptor, ClassMetaModel valueModel) {
 		if(classModel == null)
 			throw new IllegalStateException("Cannot be null dude");
+		m_valueModel = valueModel;
 		m_classModel = classModel;
 		m_descriptor = descriptor;
 		if(descriptor.getSetter() == null) {
 			setReadOnly(YesNoType.YES);
 		}
+	}
+
+
+	public DefaultPropertyMetaModel(@Nonnull final DefaultClassMetaModel classModel, final PropertyInfo descriptor) {
+		this(classModel, descriptor, null);
 	}
 
 	@Nonnull
@@ -128,7 +137,8 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 
 	@Override
 	public ClassMetaModel getValueModel() {
-		return MetaManager.findClassMeta(getActualType());
+		return m_valueModel;
+		//return MetaManager.findClassMeta(getActualType());
 	}
 
 	@Override
@@ -448,5 +458,10 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 			return res;
 		}
 		return Collections.emptyList();
+	}
+
+	@Nonnull
+	public PropertyInfo getDescriptor() {
+		return m_descriptor;
 	}
 }
