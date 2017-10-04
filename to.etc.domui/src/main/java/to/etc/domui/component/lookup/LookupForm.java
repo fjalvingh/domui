@@ -606,9 +606,9 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		}
 
 		//-- Walk all search fields
-		m_table = new Table();
-		m_table.setCssClass("ui-lf-st");
-		searchContainer.add(m_table);
+		Table tbl = m_table = new Table();
+		tbl.setCssClass("ui-lf-st");
+		searchContainer.add(tbl);
 		m_tbody = new TBody();
 		m_tbody.setTestID("tableBodyLookupForm");
 		m_table.add(m_tbody);
