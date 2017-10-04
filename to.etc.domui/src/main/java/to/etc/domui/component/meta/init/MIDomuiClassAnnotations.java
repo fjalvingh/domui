@@ -8,7 +8,6 @@ import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
 import to.etc.domui.component.meta.SearchPropertyType;
 import to.etc.domui.component.meta.impl.DefaultClassMetaModel;
-import to.etc.domui.component.meta.impl.DisplayPropertyMetaModel;
 import to.etc.domui.component.meta.impl.SearchPropertyMetaModelImpl;
 import to.etc.domui.component.meta.impl.UndefinedComboDataSet;
 import to.etc.domui.util.Constants;
@@ -33,7 +32,7 @@ public class MIDomuiClassAnnotations extends AbstractClassAnnotationProvider {
 			if(c.nodeRenderer() != UndefinedLabelStringRenderer.class)
 				cmm.setComboNodeRenderer(c.nodeRenderer());
 			if(c.properties() != null && c.properties().length > 0) {
-				cmm.setComboDisplayProperties(DisplayPropertyMetaModel.decode(cmm, c.properties()));
+				cmm.setComboDisplayProperties(MetaInitializer.decode(cmm, c.properties()));
 
 				//colli.later(new Runnable() {
 				//	@Override
@@ -47,7 +46,7 @@ public class MIDomuiClassAnnotations extends AbstractClassAnnotationProvider {
 			final MetaObject mo = (MetaObject) an;
 
 			if(mo.defaultColumns().length > 0) {
-				cmm.setTableDisplayProperties(DisplayPropertyMetaModel.decode(cmm, mo.defaultColumns()));
+				cmm.setTableDisplayProperties(MetaInitializer.decode(cmm, mo.defaultColumns()));
 
 				//colli.later(new Runnable() {
 				//	@Override
@@ -63,7 +62,7 @@ public class MIDomuiClassAnnotations extends AbstractClassAnnotationProvider {
 			if(mo.selectedRenderer() != UndefinedLabelStringRenderer.class)
 				cmm.setLookupSelectedRenderer(mo.selectedRenderer());
 			if(mo.selectedProperties().length != 0) {
-				cmm.setLookupSelectedProperties(DisplayPropertyMetaModel.decode(cmm, mo.selectedProperties()));
+				cmm.setLookupSelectedProperties(MetaInitializer.decode(cmm, mo.selectedProperties()));
 
 				//colli.later(new Runnable() {
 				//	@Override

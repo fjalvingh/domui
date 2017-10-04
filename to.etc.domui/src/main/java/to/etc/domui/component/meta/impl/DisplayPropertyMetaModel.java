@@ -24,14 +24,19 @@
  */
 package to.etc.domui.component.meta.impl;
 
-import java.util.*;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaComboProperty;
+import to.etc.domui.component.meta.MetaDisplayProperty;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.SortableType;
+import to.etc.domui.component.meta.YesNoType;
+import to.etc.domui.converter.ConverterRegistry;
+import to.etc.domui.converter.DummyConverter;
+import to.etc.domui.converter.IConverter;
+import to.etc.domui.util.Constants;
+import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.converter.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.nls.*;
+import javax.annotation.Nonnull;
 
 /**
  * Implementation for a Display Property metamodel. The Display Property data overrides the default
@@ -128,34 +133,6 @@ public class DisplayPropertyMetaModel {
 		return ConverterRegistry.getConverterInstance((Class< ? extends IConverter<T>>) clz);
 	}
 
-
-	/**
-	 * Converts a list of MetaDisplayProperty annotations into their metamodel equivalents.
-	 * @param cmm
-	 * @param mar
-	 * @return
-	 */
-	static public List<DisplayPropertyMetaModel> decode(ClassMetaModel cmm, MetaDisplayProperty[] mar) {
-		List<DisplayPropertyMetaModel> list = new ArrayList<DisplayPropertyMetaModel>(mar.length);
-		for(MetaDisplayProperty p : mar) {
-			list.add(new DisplayPropertyMetaModel(cmm, p));
-		}
-		return list;
-	}
-
-	/**
-	 * Convert a list of combobox display properties to their metamodel equivalents.
-	 * @param cmm
-	 * @param mar
-	 * @return
-	 */
-	static public List<DisplayPropertyMetaModel> decode(ClassMetaModel cmm, MetaComboProperty[] mar) {
-		List<DisplayPropertyMetaModel> list = new ArrayList<DisplayPropertyMetaModel>(mar.length);
-		for(MetaComboProperty p : mar) {
-			list.add(new DisplayPropertyMetaModel(cmm, p));
-		}
-		return list;
-	}
 
 	//	/**
 	//	 * Returns the property name this pertains to. This can be a property path expression.

@@ -18,7 +18,6 @@ import to.etc.domui.component.meta.TemporalPresentationType;
 import to.etc.domui.component.meta.YesNoType;
 import to.etc.domui.component.meta.impl.DefaultClassMetaModel;
 import to.etc.domui.component.meta.impl.DefaultPropertyMetaModel;
-import to.etc.domui.component.meta.impl.DisplayPropertyMetaModel;
 import to.etc.domui.component.meta.impl.MetaModelException;
 import to.etc.domui.component.meta.impl.MetaPropertyValidatorImpl;
 import to.etc.domui.component.meta.impl.SearchPropertyMetaModelImpl;
@@ -88,11 +87,11 @@ public class MIDomUIPropertyAnnotations implements IPropertyMetaProvider<Default
 			pmm.setLookupSelectedRenderer((Class<? extends IRenderInto<T>>) an.selectedRenderer());
 
 		if(an.selectedProperties().length != 0) {
-			pmm.setLookupSelectedProperties(DisplayPropertyMetaModel.decode(cmm, an.selectedProperties()));
+			pmm.setLookupSelectedProperties(MetaInitializer.decode(cmm, an.selectedProperties()));
 		}
 
 		if(an.defaultColumns().length > 0) {
-			pmm.setLookupTableProperties(DisplayPropertyMetaModel.decode(cmm, an.defaultColumns()));
+			pmm.setLookupTableProperties(MetaInitializer.decode(cmm, an.defaultColumns()));
 		}
 
 		if(an.defaultSortColumn() != Constants.NONE) {}
@@ -161,7 +160,7 @@ public class MIDomUIPropertyAnnotations implements IPropertyMetaProvider<Default
 		pmm.setComponentTypeHint(Constants.COMPONENT_COMBO);
 		if(c.properties() != null && c.properties().length > 0) {
 			pmm.setRelationType(PropertyRelationType.UP);
-			pmm.setComboDisplayProperties(DisplayPropertyMetaModel.decode(pmm.getValueModel(), c.properties()));
+			pmm.setComboDisplayProperties(MetaInitializer.decode(pmm.getValueModel(), c.properties()));
 		}
 	}
 

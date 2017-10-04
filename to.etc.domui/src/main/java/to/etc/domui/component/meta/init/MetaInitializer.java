@@ -1,8 +1,11 @@
 package to.etc.domui.component.meta.init;
 
 import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaComboProperty;
+import to.etc.domui.component.meta.MetaDisplayProperty;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.impl.DisplayPropertyMetaModel;
 import to.etc.domui.component.meta.impl.PathPropertyMetaModel;
 import to.etc.util.WrappedException;
 
@@ -235,8 +238,11 @@ public final class MetaInitializer {
 			PropertyMetaModel< ? > pmm = ccmm.findSimpleProperty(sub); // Find base property,
 			if(pmm == null)
 				throw new IllegalStateException("Invalid property path '" + name + "' on " + cmm + ": property '" + sub + "' on classMetaModel=" + ccmm + " does not exist");
-			acl.add(pmm); // Next access path,
-			ccmm = MetaManager.findClassMeta(pmm.getActualType());
+			acl.add(pmm); 										// Next access path,
+			ccmm = pmm.getValueModel(); 						// was: MetaManager.findClassMeta(pmm.getActualType());
+			if(ccmm == null) {
+				throw new IllegalStateException("Property '" + pmm + "' in path '" + name + "' has no value model: it's primitive or otherwise unusable");
+			}
 
 			if(ix >= len)
 				break;
@@ -246,7 +252,7 @@ public final class MetaInitializer {
 		}
 
 		//-- Resolved to target. Return a complex proxy.
-		return new PathPropertyMetaModel<Object>(name, acl.toArray(new PropertyMetaModel[acl.size()]));
+		return new PathPropertyMetaModel<>(name, acl.toArray(new PropertyMetaModel[acl.size()]));
 	}
 
 	/**
@@ -265,6 +271,36 @@ public final class MetaInitializer {
 	public static synchronized List<ClassProviderRef> getClassProviderList() {
 		return m_classProviderList;
 	}
+
+	/**
+	 * Converts a list of MetaDisplayProperty annotations into their metamodel equivalents.
+	 * @param cmm
+	 * @param mar
+	 * @return
+	 */
+	static public List<DisplayPropertyMetaModel> decode(ClassMetaModel cmm, MetaDisplayProperty[] mar) {
+		List<DisplayPropertyMetaModel> list = new ArrayList<DisplayPropertyMetaModel>(mar.length);
+		for(MetaDisplayProperty p : mar) {
+			list.add(new DisplayPropertyMetaModel(cmm, p));
+		}
+		return list;
+	}
+
+	/**
+	 * Convert a list of combobox display properties to their metamodel equivalents.
+	 * @param cmm
+	 * @param mar
+	 * @return
+	 */
+	static public List<DisplayPropertyMetaModel> decode(ClassMetaModel cmm, MetaComboProperty[] mar) {
+		List<DisplayPropertyMetaModel> list = new ArrayList<DisplayPropertyMetaModel>(mar.length);
+		for(MetaComboProperty p : mar) {
+			list.add(new DisplayPropertyMetaModel(cmm, p));
+		}
+		return list;
+	}
+
+
 
 	static {
 		register(-1000, new MIClassProperties());						// Create properties
