@@ -17,6 +17,7 @@ import to.etc.domui.dom.html.TD;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.server.ServerClientRegistry;
 import to.etc.domui.server.ServerClientRegistry.Client;
+import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IRenderInto;
 import to.etc.util.StringTool;
 
@@ -24,7 +25,6 @@ import javax.annotation.Nonnull;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -34,21 +34,7 @@ public class CurrentlyLoggedInUsersPage extends UrlPage {
 	public void createContent() throws Exception {
 		createHeader();
 		List<Client> activeClients = ServerClientRegistry.getInstance().getActiveClients();
-		Collections.sort(activeClients, new Comparator<Client>() {
-			@Override
-			public int compare(Client o1, Client o2) {
-				String a = o1.getRemoteUser();
-				String b = o2.getRemoteUser();
-				if(a == b)
-					return 0;
-				else if(a == null)
-					return -1;
-				else if(b == null)
-					return 1;
-				else
-					return a.compareTo(b);
-			}
-		});
+		Collections.sort(activeClients, (o1, o2) -> DomUtil.compareNullableOnFunctions(o1, o2, String::compareTo, Client::getRemoteUser));
 
 		final long cts = System.currentTimeMillis();
 //		TBody b = addTable("UserID", "IP Address/host", "#requests", "Logged in since", "Last use");
