@@ -94,3 +94,7 @@ label.ui-f4-mandatory {
 	padding-left: 12px;
 	background: url(mandatoryField.png) no-repeat left;
 }
+
+.ui-f4-line {
+	line-height: $form-line-height;
+}

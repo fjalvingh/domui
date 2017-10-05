@@ -209,9 +209,11 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		List<NodeBase> buttonList = m_buttonList;
 		if(null != buttonList) {
 			buttonList.forEach(b -> {
-				Div bd = new Div("ui-txt2-bdiv");
-				body.addCell("ui-txt2-btn").add(bd);
-				bd.add(b);
+				//Div bd = new Div("ui-txt2-bdiv");
+				//body.addCell("ui-txt2-btn").add(bd);
+				//bd.add(b);
+
+				body.addCell("ui-txt2-btn").add(b);
 			});
 		}
 	}
