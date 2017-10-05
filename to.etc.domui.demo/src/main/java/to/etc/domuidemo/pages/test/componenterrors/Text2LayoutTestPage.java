@@ -30,6 +30,7 @@ import to.etc.domui.component.misc.VerticalSpacer;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.Label;
 import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.themes.Theme;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -67,6 +68,16 @@ public class Text2LayoutTestPage extends UrlPage {
 		t3.addButton(FaIcon.faAddressBookO, a -> {});
 		t3.addButton(FaIcon.faAnchor, a -> {});
 		t3.setValue("zzzzzzzzzzzzzzzzz");
+
+		//-- Button with image
+		add(new VerticalSpacer(10));
+		d = new Div("ui-f4-line");
+		add(d);
+		Text2<String> t4	= new Text2<>(String.class);
+		d.add(new Label(t4,"zzzzzzzzzzz4"));
+		d.add(t4);
+		t4.addButton(Theme.BTN_CLEAR, a -> {});
+		t4.setValue("zzzzzzzzzzzzzzzzz");
 
 		add(new VerticalSpacer(20));
 		add(new Caption("Form4"));
