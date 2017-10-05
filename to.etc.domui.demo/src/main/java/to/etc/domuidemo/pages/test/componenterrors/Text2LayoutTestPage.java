@@ -48,6 +48,7 @@ public class Text2LayoutTestPage extends UrlPage {
 		t1.setValue("zzzzzzzzzzzzzzzzz");
 
 		//-- Single text with button
+		add(new VerticalSpacer(10));
 		d = new Div();
 		add(d);
 		Text2<String> t2	= new Text2<>(String.class);
@@ -57,6 +58,7 @@ public class Text2LayoutTestPage extends UrlPage {
 		t2.setValue("zzzzzzzzzzzzzzzzz");
 
 		//-- Single text with 2 buttons
+		add(new VerticalSpacer(10));
 		d = new Div();
 		add(d);
 		Text2<String> t3	= new Text2<>(String.class);
