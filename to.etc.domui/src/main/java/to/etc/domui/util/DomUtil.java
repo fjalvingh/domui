@@ -189,7 +189,8 @@ final public class DomUtil {
 		return true;
 	}
 
-	static public <T> T getValueSafe(IControl<T> node) {
+	@Nullable
+	static public <T> T getValueSafe(@Nonnull IControl<T> node) {
 		try {
 			return node.getValue();
 		} catch(ValidationException x) {

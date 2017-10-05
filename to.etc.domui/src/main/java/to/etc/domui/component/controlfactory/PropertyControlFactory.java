@@ -67,6 +67,8 @@ public interface PropertyControlFactory {
 
 	static public final PropertyControlFactory TEXTAREA_CF = new ControlFactoryTextArea();
 
+	static public final PropertyControlFactory OLD_STRING_CF = new ControlFactoryStringOld();
+
 	/**
 	 * This is a fallback factory; it accepts anything and shows a String edit component for it. It
 	 * hopes that the Text<?> control can convert the string input value to the actual type using the

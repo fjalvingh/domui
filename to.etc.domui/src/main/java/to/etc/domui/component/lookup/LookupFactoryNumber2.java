@@ -24,15 +24,18 @@
  */
 package to.etc.domui.component.lookup;
 
-import java.math.*;
+import to.etc.domui.component.input.Text2;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.MetaUtils;
+import to.etc.domui.component.meta.NumericPresentation;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.SearchPropertyMetaModel;
+import to.etc.domui.dom.css.TextAlign;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.util.DomUtil;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
+import javax.annotation.Nonnull;
+import java.math.BigDecimal;
 
 /**
  * This is a factory for numeric entry of values, where the value entered can be preceded with some kind of
@@ -49,11 +52,11 @@ import to.etc.domui.util.*;
  */
 final class LookupFactoryNumber2 implements ILookupControlFactory {
 	@Override
-	public <T, X extends IControl<T>> int accepts(final @Nonnull SearchPropertyMetaModel spm, final X control) {
+	public <T, X extends IControl<T>> int accepts(@Nonnull SearchPropertyMetaModel spm, X control) {
 		if(control != null) {
-			if(!(control instanceof Text< ? >))
+			if(!(control instanceof Text2< ? >))
 				return -1;
-			Text< ? > t = (Text< ? >) control;
+			Text2< ? > t = (Text2< ? >) control;
 			if(t.getActualType() != String.class)
 				return -1;
 		}
@@ -68,35 +71,20 @@ final class LookupFactoryNumber2 implements ILookupControlFactory {
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
-	public <T, X extends IControl<T>> ILookupControlInstance<?> createControl(final @Nonnull SearchPropertyMetaModel spm, final X control) {
+	public <T, X extends IControl<T>> ILookupControlInstance<?> createControl(@Nonnull SearchPropertyMetaModel spm, X control) {
 		final PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
-		Text<String> numText = (Text<String>) control;
+		Text2<String> numText = (Text2<String>) control;
 		if(numText == null) {
-			numText = new Text<String>(String.class);
+			numText = new Text2<String>(String.class);
 
 			/*
 			 * Calculate a "size=" for entering this number. We cannot assign a "maxlength" because not only the number but
 			 * operators can be added to the string too. By default we size the field some 5 characters wider than the max size
 			 * for the number as defined by scale and precision.
 			 */
-			if(pmm.getDisplayLength() > 0)
-				numText.setSize(pmm.getDisplayLength() + 5);
-			else if(pmm.getPrecision() > 0) {
-				//-- Calculate a size using scale and precision.
-				int size = pmm.getPrecision();
-				int d = size;
-				if(pmm.getScale() > 0) {
-					size++; // Inc size to allow for decimal point or comma
-					d -= pmm.getScale(); // Reduce integer part,
-					if(d >= 4) { // Can we get > 999? Then we can have thousand-separators
-						int nd = (d - 1) / 3; // How many thousand separators could there be?
-						size += nd; // Increment input size with that
-					}
-				}
-				numText.setSize(size + 5);
-			} else if(pmm.getLength() > 0) {
-				numText.setSize(pmm.getLength() < 40 ? pmm.getLength() + 5 : 40);
-			}
+			int size = MetaManager.calculateTextSize(pmm);
+			if(size > 0)
+				numText.setSize(size);
 			String s = pmm.getDefaultHint();
 			if(s != null)
 				numText.setTitle(s);

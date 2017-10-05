@@ -1,6 +1,6 @@
 /*
  * DomUI Java User Interface library
- * Copyright (c) 2010 by Frits Jalvingh, Itris B.V.
+ * Copyright (c) 2017 by Frits Jalvingh.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -11,16 +11,15 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * See the "sponsors" file for a list of supporters.
- *
  * The latest version of DomUI and related code, support and documentation
- * can be found at http://www.domui.org/
+ * can be found at http://github.com/fjalvingh/domui
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
+ *
  */
 package to.etc.domui.component.input;
 
@@ -39,9 +38,14 @@ import to.etc.domui.converter.NumericUtil;
 import to.etc.domui.converter.ValidatorRegistry;
 import to.etc.domui.dom.css.TextAlign;
 import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IHasModifiedIndication;
+import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.Input;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TD;
 import to.etc.domui.parts.MarkerImagePart;
 import to.etc.domui.trouble.UIException;
 import to.etc.domui.trouble.ValidationException;
@@ -51,6 +55,7 @@ import to.etc.util.RuntimeConversionException;
 import to.etc.util.RuntimeConversions;
 import to.etc.webapp.nls.NlsContext;
 
+import javax.annotation.DefaultNonNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.math.BigDecimal;
@@ -60,29 +65,55 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 /**
- * Use {@code Text2<T>} instead.
- *
- * A single-line input box. This extends the "input" tag with validation ability
- * and methods to handle conversions and labels.
- *
- * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * Created on Jun 11, 2008
+ * A single-line input box with conversion and validation ability, and
+ * allowing buttons to be added to its right.
  */
-@Deprecated
-public class Text<T> extends Input implements IControl<T>, IHasModifiedIndication, IConvertable<T>, ITypedControl<T> {
+@DefaultNonNull
+public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication, IConvertable<T>, ITypedControl<T> {
+	private final Input m_input = new Input() {
+		/**
+		 * Handle the input from the request for this component.
+		 * @see Input#acceptRequestParameter(String[])
+		 */
+		@Override
+		public boolean acceptRequestParameter(@Nonnull String[] values) {
+			String oldValue = getRawValue();									// Retain previous value,
+			super.acceptRequestParameter(values);								// Set the new one;
+			String oldTrimmed = oldValue == null ? "" : oldValue.trim();
+			String newTrimmed = getRawValue() == null ? "" : getRawValue().trim();
+			if(oldTrimmed.equals(newTrimmed)) {
+				return false;
+			}
+			m_validated = false;
+			DomUtil.setModifiedFlag(Text2.this);
+			return true;
+		}
+
+		@Override public String getInputType() {
+			return m_password ? "password" : "text";
+		}
+	};
+
 	/** The type of class that is expected. This is the return type of the getValue() call for a validated item */
 	@Nonnull
 	private Class<T> m_inputClass;
 
+	@Nullable
+	private IValueChanged<?> m_onValueChanged;
+
 	/**
 	 * If the value is to be converted use this converter for it.
 	 */
+	@Nullable
 	private IConverter<T> m_converter;
 
 	/** Defined value validators on this field. */
 	private List<IValueValidator< ? >> m_validators = Collections.EMPTY_LIST;
 
+	@Nullable
 	private T m_value;
+
+	private boolean m_password;
 
 	/**
 	 * This flag gets T if the validate method has been called on the current
@@ -92,6 +123,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	private boolean m_validated;
 
 	/** If validated this contains the last validation result. */
+	@Nullable
 	private UIException m_validationResult;
 
 	/**
@@ -106,9 +138,13 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	private boolean m_untrimmed;
 
 	/**
-	 * @see Text#getEmptyMarker()
+	 * @see Text2#getEmptyMarker()
 	 */
+	@Nullable
 	private String m_emptyMarker;
+
+	@Nullable
+	private List<NodeBase> m_buttonList;
 
 	public enum NumberMode {
 		NONE, DIGITS, FLOAT,
@@ -120,13 +156,16 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	/** Indication if the contents of this thing has been altered by the user. This merely compares any incoming value with the present value and goes "true" when those are not equal. */
 	private boolean m_modifiedByUser;
 
+	@Nullable
 	private String m_validationRegexp;
 
+	@Nullable
 	private String m_regexpUserString;
 
+	@Nullable
 	private String m_placeHolder;
 
-	public Text(@Nonnull Class<T> inputClass) {
+	public Text2(@Nonnull Class<T> inputClass) {
 		m_inputClass = inputClass;
 
 		NumberMode nm = NumberMode.NONE;
@@ -137,30 +176,24 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		setNumberMode(nm);
 	}
 
-	/**
-	 * Handle the input from the request for this component.
-	 * @see to.etc.domui.dom.html.Input#acceptRequestParameter(java.lang.String[])
-	 */
 	@Override
-	public boolean acceptRequestParameter(@Nonnull String[] values) {
-		String oldValue = getRawValue();									// Retain previous value,
-		super.acceptRequestParameter(values);								// Set the new one;
-		String oldTrimmed = oldValue == null ? "" : oldValue.trim();
-		String newTrimmed = getRawValue() == null ? "" : getRawValue().trim();
-		if(oldTrimmed.equals(newTrimmed)) {
-			return false;
+	public void createContent() throws Exception {
+		addCssClass("ui-txt2");
+		TBody tb = addTableForLayout("ui-txt2-tbl");
+		TD td = tb.addRowAndCell("ui-txt2-in");
+		td.add(m_input);
+		List<NodeBase> buttonList = m_buttonList;
+		if(null != buttonList) {
+			buttonList.forEach(b -> {
+				tb.addCell("ui-txt2-btn").add(b);
+			});
 		}
-		m_validated = false;
-		DomUtil.setModifiedFlag(this);
 
-		//-- Handle data updates.
-// jal 2014/11/08 This is obviously wrong because there is no way to pass in the bind-time validation failure. Disable for now as hard binding is probably not useful.
-//		T old = m_value;
-//		if(validate(true)) {
-//			fireModified("value", old, m_value);
-//		}
+		renderMode();
+	}
 
-		return true;
+	protected void setPassword() {
+		m_password = true;
 	}
 
 	/**
@@ -197,7 +230,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 */
 	private void validatePrimitive() {
 		//-- 1. Get the appropriate raw value && trim
-		String raw = getRawValue();
+		String raw = m_input.getRawValue();
 		if(raw != null && !m_untrimmed)
 			raw = raw.trim();
 
@@ -291,6 +324,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 *
 	 * @return
 	 */
+	@Nullable
 	@Override
 	public IConverter<T> getConverter() {
 		return m_converter;
@@ -305,11 +339,11 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 * @param converter
 	 */
 	@Override
-	public void setConverter(IConverter<T> converter) {
+	public void setConverter(@Nullable IConverter<T> converter) {
 		m_converter = converter;
 		if(m_numberMode != NumberMode.NONE && converter != null) {
 			m_numberMode = NumberMode.NONE;
-			setOnKeyPressJS(null);
+			m_input.setOnKeyPressJS(null);
 		}
 	}
 
@@ -321,6 +355,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 * </ul>
 	 * @return
 	 */
+	@Nullable
 	public T getBindValue() {
 		validate(false);												// Validate, and throw exception without UI change on trouble.
 		return m_value;
@@ -333,11 +368,8 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		setValue(value);
 	}
 
-
-	/**
-	 * @see to.etc.domui.dom.html.IControl#getValue()
-	 */
 	@Override
+	@Nullable
 	public T getValue() {
 		try {
 			validate(true);
@@ -350,7 +382,6 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 
 	/**
 	 * Clear message and reset validated flag, so next getValue would result with new validation check.
-	 * @see to.etc.domui.dom.html.NodeBase#clearMessage()
 	 */
 	@Override
 	public void clearMessage() {
@@ -358,17 +389,12 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		m_validated = false;
 	}
 
-	/**
-	 * @see to.etc.domui.dom.html.IControl#getValueSafe()
-	 */
 	@Override
+	@Nullable
 	public T getValueSafe() {
 		return DomUtil.getValueSafe(this);
 	}
 
-	/**
-	 * @see to.etc.domui.dom.html.IControl#hasError()
-	 */
 	@Override
 	public boolean hasError() {
 		getValueSafe();
@@ -379,8 +405,6 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 * Set a new value in this component. The value will be converted to a string representation by
 	 * any converter set or by one of the default converters. This string value will then be shown
 	 * to the users.
-	 *
-	 * @see to.etc.domui.dom.html.IControl#setValue(java.lang.Object)
 	 */
 	@Override
 	public void setValue(@Nullable T value) {
@@ -403,7 +427,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 			setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.UNEXPECTED_EXCEPTION, x));
 			return;
 		}
-		setRawValue(converted == null ? "" : converted); // jal 20090821 If set to null for empty the value attribute will not be renderered, it must render a value as empty string
+		m_input.setRawValue(converted == null ? "" : converted); // jal 20090821 If set to null for empty the value attribute will not be renderered, it must render a value as empty string
 
 		clearMessage();
 
@@ -418,7 +442,6 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 
 	/**
 	 * Returns T if this control is mandatory.
-	 * @see to.etc.domui.dom.html.IControl#isMandatory()
 	 */
 	@Override
 	public boolean isMandatory() {
@@ -427,8 +450,6 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 
 	/**
 	 * Set the control as mandatory. A mandatory control expects the value filled in to be non-whitespace.
-	 *
-	 * @see to.etc.domui.dom.html.IControl#setMandatory(boolean)
 	 */
 	@Override
 	public void setMandatory(boolean mandatory) {
@@ -439,9 +460,38 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		m_mandatory = mandatory;
 	}
 
+	@Override public boolean isDisabled() {
+		return m_input.isDisabled();
+	}
+
+	@Override public void setDisabled(boolean d) {
+		m_input.setDisabled(d);
+	}
+
+	@Override public boolean isReadOnly() {
+		return m_input.isReadOnly();
+	}
+
+	@Override public void setReadOnly(boolean ro) {
+		m_input.setReadOnly(ro);
+	}
+
+	@Nullable
+	@Override public IValueChanged<?> getOnValueChanged() {
+		return m_onValueChanged;
+	}
+
+	@Override public void setOnValueChanged(@Nullable IValueChanged<?> onValueChanged) {
+		m_onValueChanged = onValueChanged;
+		if(null == onValueChanged) {
+			m_input.setOnValueChanged(null);
+		} else {
+			m_input.setOnValueChanged(a -> ((IValueChanged<Text2<T>>) onValueChanged).onValueChanged(this));
+		}
+	}
+
 	/**
 	 * Returns T if the input is to be left untrimmed.
-	 * @return
 	 */
 	public boolean isUntrimmed() {
 		return m_untrimmed;
@@ -450,7 +500,6 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	/**
 	 * Specify whether the input is to be space-trimmed before being used. This defaults to TRUE, causing
 	 * values to be trimmed before being returned to the converter code.
-	 * @param untrimmed
 	 */
 	public void setUntrimmed(boolean untrimmed) {
 		m_untrimmed = untrimmed;
@@ -467,9 +516,8 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 
 	/**
 	 * Returns assigned empty marker.
-	 *
-	 * @see Text#setEmptyMarker(String)
 	 */
+	@Nullable
 	public String getEmptyMarker() {
 		return m_emptyMarker;
 	}
@@ -478,9 +526,8 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 * This sets a marker image to be used as the background image for an empty text box. It should contain the URL to a fully-constructed
 	 * background image. To create such an image from an icon plus text use one of the setMarkerXxx methods. This method should be used
 	 * only for manually-constructed images.
-	 * @param emptyMarker
 	 */
-	public void setMarkerImage(String emptyMarker) {
+	public void setMarkerImage(@Nullable String emptyMarker) {
 		if(DomUtil.isBlank(emptyMarker)) {
 			setSpecialAttribute("marker", null);
 		} else {
@@ -491,9 +538,8 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 
 	/**
 	 * Returns assigned empty marker.
-	 *
-	 * @see Text#setMarkerImage(String)
 	 */
+	@Nullable
 	public String getMarkerImage() {
 		return m_emptyMarker;
 	}
@@ -501,7 +547,6 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 
 	/**
 	 * Method can be used to show default marker icon (THEME/icon-search.png) with magnifier image in background of input. Image is hidden when input have focus or has any content.
-	 * @return
 	 */
 	public void setMarker() {
 		setMarkerImage(MarkerImagePart.getBackgroundIconOnly());
@@ -509,9 +554,6 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 
 	/**
 	 * Method can be used to show custom marker icon as image in background of input. Image is hidden when input have focus or has any content.
-	 *
-	 * @param iconUrl
-	 * @return
 	 */
 	public void setMarker(String iconUrl) {
 		setMarkerImage(MarkerImagePart.getBackgroundIconOnly(iconUrl));
@@ -519,9 +561,6 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 
 	/**
 	 * Method can be used to show default marker icon (THEME/icon-search.png) with magnifier and custom label as image in background of input. Image is hidden when input have focus or has any content.
-	 *
-	 * @param caption
-	 * @return
 	 */
 	public void setMarkerText(String caption) {
 		setMarkerImage(MarkerImagePart.getBackgroundImage(caption));
@@ -529,10 +568,6 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 
 	/**
 	 * Method can be used to show custom marker icon and custom label as image in background of input. Image is hidden when input have focus or has any content.
-	 *
-	 * @param iconUrl
-	 * @param caption
-	 * @return
 	 */
 	public void setMarker(String iconUrl, String caption) {
 		setMarkerImage(MarkerImagePart.getBackgroundImage(iconUrl, caption));
@@ -540,7 +575,6 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 
 	/**
 	 * Returns the current numeric mode in effect. This mode prevents letters from being input on the screen.
-	 * @return
 	 */
 	@Nonnull
 	public NumberMode getNumberMode() {
@@ -549,27 +583,31 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 
 	/**
 	 * Sets the current numeric mode in effect. This mode prevents letters from being input on the screen.
-	 * @param numberMode
 	 */
 	public void setNumberMode(@Nonnull NumberMode numberMode) {
 		m_numberMode = numberMode;
+		renderMode();
+	}
 
-		switch(numberMode){
+	/**
+	 * Append appropriate JS based on current {@link NumberMode}
+	 */
+	private void renderMode() {
+		switch(m_numberMode){
 			default:
-				throw new IllegalStateException(numberMode + "?");
-
+				throw new IllegalStateException(m_numberMode + "?");
 			case NONE:
-				setOnKeyPressJS("");
+				m_input.setOnKeyPressJS("");
 				break;
 			case DIGITS:
-				setOnKeyPressJS("WebUI.isNumberKey(event)");
+				m_input.setOnKeyPressJS("WebUI.isNumberKey(event)");
 				break;
 			case FLOAT:
-				setOnKeyPressJS("WebUI.isFloatKey(event)");
+				m_input.setOnKeyPressJS("WebUI.isFloatKey(event)");
 				break;
 		}
-
 	}
+
 
 	public void addValidator(IValueValidator< ? > v) {
 		if(m_validators == Collections.EMPTY_LIST)
@@ -591,19 +629,21 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		addValidator(new MetaPropertyValidatorImpl(clz, parameters));
 	}
 
+	@Nullable
 	public String getValidationRegexp() {
 		return m_validationRegexp;
 	}
 
-	public void setValidationRegexp(String validationRegexp) {
+	public void setValidationRegexp(@Nullable String validationRegexp) {
 		m_validationRegexp = validationRegexp;
 	}
 
+	@Nullable
 	public String getRegexpUserString() {
 		return m_regexpUserString;
 	}
 
-	public void setRegexpUserString(String regexpUserString) {
+	public void setRegexpUserString(@Nullable String regexpUserString) {
 		m_regexpUserString = regexpUserString;
 	}
 
@@ -612,7 +652,6 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	/*--------------------------------------------------------------*/
 	/**
 	 * Returns the modified-by-user flag.
-	 * @see to.etc.domui.dom.html.IHasModifiedIndication#isModified()
 	 */
 	@Override
 	public boolean isModified() {
@@ -621,22 +660,20 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 
 	/**
 	 * Set or clear the modified by user flag.
-	 * @see to.etc.domui.dom.html.IHasModifiedIndication#setModified(boolean)
 	 */
 	@Override
 	public void setModified(boolean as) {
 		m_modifiedByUser = as;
 	}
 
-	/**
-	 * This adds a validator for the maximal and minimal value for an input, gotten from the property metamodel.
-	 * @param control
-	 * @param pmm
-	 */
-	public static final void assignPrecisionValidator(@Nonnull Text< ? > control, @Nonnull PropertyMetaModel< ? > pmm) {
-		IValueValidator<?> validator = MetaManager.calculatePrecisionValidator(pmm);
-		if(null != validator)
-			control.addValidator(validator);
+	public Text2<T> setSize(int size) {
+		m_input.setSize(size);
+		return this;
+	}
+
+	public Text2<T> setMaxLength(int size) {
+		m_input.setMaxLength(size);
+		return this;
 	}
 
 	/*--------------------------------------------------------------*/
@@ -644,41 +681,38 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	/*--------------------------------------------------------------*/
 	/**
 	 * Create a control to input a monetary value proper for the specified property.
-	 * @param clz
-	 * @param property
-	 * @return
 	 */
 	@Nonnull
-	static public Text<Double> createDoubleMoneyInput(@Nonnull Class< ? > clz, @Nonnull String property, boolean editable) {
-		return Text.createDoubleMoneyInput((PropertyMetaModel<Double>) MetaManager.getPropertyMeta(clz, property), editable);
+	static public Text2<Double> createDoubleMoneyInput(@Nonnull Class< ? > clz, @Nonnull String property, boolean editable) {
+		return Text2.createDoubleMoneyInput((PropertyMetaModel<Double>) MetaManager.getPropertyMeta(clz, property), editable);
 	}
 
 	@Nonnull
-	static public Text<BigDecimal> createBDMoneyInput(Class< ? > clz, String property, boolean editable) {
-		return Text.createBDMoneyInput((PropertyMetaModel<BigDecimal>) MetaManager.findPropertyMeta(clz, property), editable);
+	static public Text2<BigDecimal> createBDMoneyInput(Class< ? > clz, String property, boolean editable) {
+		return Text2.createBDMoneyInput((PropertyMetaModel<BigDecimal>) MetaManager.getPropertyMeta(clz, property), editable);
 	}
 
 	@Nonnull
-	static public Text<BigDecimal> createBDMoneyInput(PropertyMetaModel<BigDecimal> pmm, boolean editable) {
+	static public Text2<BigDecimal> createBDMoneyInput(PropertyMetaModel<BigDecimal> pmm, boolean editable) {
 		if(pmm == null)
 			throw new NullPointerException("Null property model not allowed");
-		Text<BigDecimal> txt = new Text<BigDecimal>(BigDecimal.class);
-		Text.configureNumericInput(txt, pmm, editable);
+		Text2<BigDecimal> txt = new Text2<BigDecimal>(BigDecimal.class);
+		Text2.configureNumericInput(txt, pmm, editable);
 		MoneyUtil.assignMonetaryConverter(pmm, editable, txt);
 		return txt;
 	}
 
 	@Nonnull
-	static public Text<Double> createDoubleMoneyInput(@Nonnull PropertyMetaModel<Double> pmm, boolean editable) {
+	static public Text2<Double> createDoubleMoneyInput(@Nonnull PropertyMetaModel<Double> pmm, boolean editable) {
 		if(pmm == null)
 			throw new NullPointerException("Null property model not allowed");
-		Text<Double> txt = new Text<Double>(Double.class);
-		Text.configureNumericInput(txt, pmm, editable);
+		Text2<Double> txt = new Text2<Double>(Double.class);
+		Text2.configureNumericInput(txt, pmm, editable);
 		MoneyUtil.assignMonetaryConverter(pmm, editable, txt);
 		return txt;
 	}
 
-	public static void configureNumericInput(@Nonnull Text< ? > txt, @Nonnull PropertyMetaModel< ? > pmm, boolean editable) {
+	public static void configureNumericInput(@Nonnull Text2< ? > txt, @Nonnull PropertyMetaModel< ? > pmm, boolean editable) {
 		if(!editable)
 			txt.setReadOnly(true);
 
@@ -695,7 +729,6 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		IValueValidator<?> validator = MetaManager.calculatePrecisionValidator(pmm);
 		if(null != validator)
 			txt.addValidator(validator);
-		Text.assignPrecisionValidator(txt, pmm);
 
 		if(pmm.getLength() > 0)
 			txt.setMaxLength(pmm.getLength());
@@ -714,11 +747,11 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	/*--------------------------------------------------------------*/
 
 	@Nonnull
-	static public <T extends Number> Text<T> createNumericInput(PropertyMetaModel<T> pmm, boolean editable) {
+	static public <T extends Number> Text2<T> createNumericInput(PropertyMetaModel<T> pmm, boolean editable) {
 		if(pmm == null)
 			throw new NullPointerException("Null property model not allowed");
-		Text<T> txt = new Text<T>(pmm.getActualType());
-		Text.configureNumericInput(txt, pmm, editable);
+		Text2<T> txt = new Text2<T>(pmm.getActualType());
+		Text2.configureNumericInput(txt, pmm, editable);
 		NumericUtil.assignNumericConverter(pmm, editable, txt, pmm.getActualType());
 		return txt;
 	}
@@ -731,53 +764,42 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 * @return
 	 */
 	@Nonnull
-	static public Text<Integer> createIntInput(Class< ? > clz, String property, boolean editable) {
-		return Text.createNumericInput((PropertyMetaModel<Integer>) MetaManager.findPropertyMeta(clz, property), editable);
+	static public Text2<Integer> createIntInput(Class< ? > clz, String property, boolean editable) {
+		return Text2.createNumericInput((PropertyMetaModel<Integer>) MetaManager.getPropertyMeta(clz, property), editable);
 	}
 
 	@Nonnull
-	static public Text<Long> createLongInput(Class< ? > clz, String property, boolean editable) {
-		return Text.createNumericInput((PropertyMetaModel<Long>) MetaManager.findPropertyMeta(clz, property), editable);
+	static public Text2<Long> createLongInput(Class< ? > clz, String property, boolean editable) {
+		return Text2.createNumericInput((PropertyMetaModel<Long>) MetaManager.getPropertyMeta(clz, property), editable);
 	}
 
 	@Nonnull
-	static public Text<Double> createDoubleInput(Class< ? > clz, String property, boolean editable) {
-		return Text.createNumericInput((PropertyMetaModel<Double>) MetaManager.findPropertyMeta(clz, property), editable);
-	}
-
-//	@Nonnull
-//	static public <N extends Number> Text<N> createNumericInput(PropertyMetaModel<N> pmm, boolean editable) {
-//		if(pmm == null)
-//			throw new NullPointerException("Null property model not allowed");
-//		Text<N> txt = new Text<N>(pmm.getActualType());
-//		Text.configureNumericInput(txt, pmm, editable);
-//		NumericUtil.assignNumericConverter(pmm, editable, txt, pmm.getActualType());
-//		return txt;
-//	}
-//
-
-	@Nonnull
-	static public Text<BigDecimal> createBigDecimalInput(Class< ? > clz, String property, boolean editable) {
-		return Text.createNumericInput((PropertyMetaModel<BigDecimal>) MetaManager.findPropertyMeta(clz, property), editable);
+	static public Text2<Double> createDoubleInput(Class< ? > clz, String property, boolean editable) {
+		return Text2.createNumericInput((PropertyMetaModel<Double>) MetaManager.getPropertyMeta(clz, property), editable);
 	}
 
 	@Nonnull
-	static public <T> Text< ? > createText(Class< ? > clz, String property, boolean editable) {
+	static public Text2<BigDecimal> createBigDecimalInput(Class< ? > clz, String property, boolean editable) {
+		return Text2.createNumericInput((PropertyMetaModel<BigDecimal>) MetaManager.getPropertyMeta(clz, property), editable);
+	}
+
+	@Nonnull
+	static public <T> Text2< ? > createText(Class< ? > clz, String property, boolean editable) {
 		PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) MetaManager.getPropertyMeta(clz, property);
-		return Text.createText(pmm.getActualType(), pmm, editable);
+		return Text2.createText(pmm.getActualType(), pmm, editable);
 	}
 
 	@Nonnull
-	static public <T> Text<T> createText(Class<T> iclz, PropertyMetaModel<T> pmm, boolean editable) {
+	static public <T> Text2<T> createText(Class<T> iclz, PropertyMetaModel<T> pmm, boolean editable) {
 		return createText(iclz, pmm, editable, false);
 	}
 
 	@Nonnull
-	static public <T> Text<T> createText(Class<T> iclz, PropertyMetaModel<T> pmm, boolean editable, boolean setDefaultErrorLocation) {
+	static public <T> Text2<T> createText(Class<T> iclz, PropertyMetaModel<T> pmm, boolean editable, boolean setDefaultErrorLocation) {
 		Class< ? > aclz = pmm.getActualType();
 		if(!iclz.isAssignableFrom(aclz))
 			throw new IllegalStateException("Invalid class type=" + iclz + " for property " + pmm);
-		Text<T> txt = new Text<T>(iclz);
+		Text2<T> txt = new Text2<T>(iclz);
 
 		//-- Get simple things to do out of the way.
 		if(!editable)
@@ -811,7 +833,9 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		int calcsz = -1; // Calculated display size,
 
 		if(pmm.getPrecision() > 0) {
-			Text.assignPrecisionValidator(txt, pmm);
+			IValueValidator<?> validator = MetaManager.calculatePrecisionValidator(pmm);
+			if(null != validator)
+				txt.addValidator(validator);
 
 			// FIXME This should be localized somehow...
 			//-- Calculate a size using scale and precision.
@@ -879,27 +903,5 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 			txt.setErrorLocation(pmm.getDefaultLabel());
 		}
 		return txt;
-	}
-
-	/**
-	 * Append appropriate JS based on current {@link NumberMode}
-	 */
-	private void renderMode() {
-		switch(m_numberMode){
-			default:
-				break;
-			case DIGITS:
-				setOnKeyPressJS("WebUI.isNumberKey(event)");
-				break;
-			case FLOAT:
-				setOnKeyPressJS("WebUI.isFloatKey(event)");
-				break;
-		}
-	}
-
-	@Override
-	public void createContent() throws Exception {
-		super.createContent();
-		renderMode();
 	}
 }

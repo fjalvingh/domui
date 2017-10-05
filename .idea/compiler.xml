@@ -31,7 +31,6 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="domui" target="1.5" />
       <module name="domui-archetypes" target="1.5" />
       <module name="domui-hello" target="1.5" />
       <module name="domui-hibernate-generator" target="1.8" />

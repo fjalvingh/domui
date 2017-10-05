@@ -24,26 +24,51 @@
  */
 package to.etc.domui.component.meta;
 
-import java.lang.reflect.*;
-import java.util.*;
-
-import javax.annotation.*;
-
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.meta.impl.*;
+import to.etc.domui.component.input.Text2;
+import to.etc.domui.component.input.ValueLabelPair;
+import to.etc.domui.component.meta.impl.DisplayPropertyMetaModel;
+import to.etc.domui.component.meta.impl.ExpandedDisplayProperty;
+import to.etc.domui.component.meta.impl.MetaModelException;
+import to.etc.domui.component.meta.impl.SearchPropertyMetaModelImpl;
 import to.etc.domui.component.meta.init.IClassMetaModelFactory;
 import to.etc.domui.component.meta.init.MetaInitializer;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.login.*;
-import to.etc.domui.server.*;
-import to.etc.domui.state.*;
-import to.etc.domui.util.*;
-import to.etc.domui.util.db.*;
-import to.etc.util.*;
-import to.etc.webapp.*;
-import to.etc.webapp.nls.*;
-import to.etc.webapp.qsql.*;
-import to.etc.webapp.query.*;
+import to.etc.domui.converter.IValueValidator;
+import to.etc.domui.converter.MaxMinValidator;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.login.IUser;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.IRequestContext;
+import to.etc.domui.state.UIContext;
+import to.etc.domui.util.DisplayPropertyNodeContentRenderer;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.ILabelStringRenderer;
+import to.etc.domui.util.IRenderInto;
+import to.etc.domui.util.Msgs;
+import to.etc.domui.util.db.CriteriaMatchingVisitor;
+import to.etc.util.DeveloperOptions;
+import to.etc.webapp.ProgrammerErrorException;
+import to.etc.webapp.nls.NlsContext;
+import to.etc.webapp.qsql.JdbcUtil;
+import to.etc.webapp.query.IIdentifyable;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QDataContext;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.lang.reflect.Array;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Accessor class to the generalized metadata thingies.
@@ -938,5 +963,66 @@ final public class MetaManager {
 				res.add(item);
 		}
 		return res;
+	}
+
+	/**
+	 * Calculate the size of some text entity from metadata.
+	 * @param pmm
+	 * @return
+	 */
+	static public int calculateTextSize(PropertyMetaModel<?> pmm) {
+		if(pmm.getDisplayLength() > 0)
+			return pmm.getDisplayLength();
+		if(pmm.getPrecision() > 0) {
+			//-- Calculate a size using scale and precision.
+			int size = pmm.getPrecision();
+			int d = size;
+			if(pmm.getScale() > 0) {
+				size++; // Inc size to allow for decimal point or comma
+				d -= pmm.getScale(); // Reduce integer part,
+				if(d >= 4) { // Can we get > 999? Then we can have thousand-separators
+					int nd = (d - 1) / 3; // How many thousand separators could there be?
+					size += nd; // Increment input size with that
+				}
+			}
+			return size;
+		}
+
+		if(pmm.getLength() > 0) {
+			return pmm.getLength() < 40 ? pmm.getLength() : 40;
+		}
+		return -1;
+	}
+
+	/**
+	 * This adds a validator for the maximal and minimal value for an input, gotten from the property metamodel.
+	 */
+	@Nullable
+	public static IValueValidator<?> calculatePrecisionValidator(@Nonnull PropertyMetaModel< ? > pmm) {
+		return calculatePrecisionValidator(pmm.getPrecision(), pmm.getScale());
+	}
+
+	/**
+	 * This adds a validator for the maximal and minimal value for a numeric input, depending on the precision
+	 * and scale.
+	 */
+	@Nullable
+	public static IValueValidator<?> calculatePrecisionValidator(int precision, int scale) {
+		if(precision <= 0) {
+			return null;
+		}
+
+		int d = precision;
+		if(scale > 0)
+			d -= scale;
+		if(d < 0)
+			return null;
+
+		BigDecimal bd = BigDecimal.valueOf(10);
+		bd = bd.pow(d); 										// 10^n, this is the EXCLUSIVE max/min value.
+
+		BigDecimal fraction = BigDecimal.ONE.divide(BigDecimal.TEN.pow(scale));	// BigDecimal.pow() does not support -ve exponents, sigh.
+		bd = bd.subtract(fraction);
+		return new MaxMinValidator(bd.negate(), bd);
 	}
 }
