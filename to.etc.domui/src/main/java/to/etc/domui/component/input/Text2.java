@@ -23,6 +23,7 @@
  */
 package to.etc.domui.component.input;
 
+import to.etc.domui.component.buttons.SmallImgButton;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.MetaUtils;
 import to.etc.domui.component.meta.NumericPresentation;
@@ -39,6 +40,7 @@ import to.etc.domui.converter.ValidatorRegistry;
 import to.etc.domui.dom.css.TextAlign;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IHasModifiedIndication;
 import to.etc.domui.dom.html.IValueChanged;
@@ -46,6 +48,8 @@ import to.etc.domui.dom.html.Input;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.TBody;
 import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.TR;
+import to.etc.domui.dom.html.Table;
 import to.etc.domui.parts.MarkerImagePart;
 import to.etc.domui.trouble.UIException;
 import to.etc.domui.trouble.ValidationException;
@@ -146,6 +150,9 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	@Nullable
 	private List<NodeBase> m_buttonList;
 
+	@Nullable
+	private TBody m_body;
+
 	public enum NumberMode {
 		NONE, DIGITS, FLOAT,
 	}
@@ -179,17 +186,32 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	@Override
 	public void createContent() throws Exception {
 		addCssClass("ui-txt2");
-		TBody tb = addTableForLayout("ui-txt2-tbl");
+		Table tbl = new Table("ui-txt2-tbl");
+		add(tbl);
+		TBody tb = m_body= tbl.addBody();
 		TD td = tb.addRowAndCell("ui-txt2-in");
 		td.add(m_input);
+		renderButtons();
+		renderMode();
+	}
+
+	private void renderButtons() {
+		TBody body = m_body;
+		if(null == body)
+			return;
+
+		//-- Get row 1 and remove all cells but the 1st one
+		TR tr = body.getRow(0);
+		while(tr.getChildCount() > 1) {
+			tr.getChild(tr.getChildCount() - 1).remove();
+		}
+
 		List<NodeBase> buttonList = m_buttonList;
 		if(null != buttonList) {
 			buttonList.forEach(b -> {
-				tb.addCell("ui-txt2-btn").add(b);
+				body.addCell("ui-txt2-btn").add(b);
 			});
 		}
-
-		renderMode();
 	}
 
 	protected void setPassword() {
@@ -605,6 +627,24 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 			case FLOAT:
 				m_input.setOnKeyPressJS("WebUI.isFloatKey(event)");
 				break;
+		}
+	}
+
+	public SmallImgButton addButton(String image, IClicked<NodeBase> clicked) {
+		SmallImgButton sib = new SmallImgButton(image, clicked);
+		addButton(sib);
+		return sib;
+	}
+
+	public void addButton(NodeBase button) {
+		List<NodeBase> buttonList = m_buttonList;
+		if(null == buttonList) {
+			m_buttonList = buttonList = new ArrayList<>(2);
+		}
+		buttonList.add(button);
+		TBody body = m_body;
+		if(isBuilt() && body != null) {
+			renderButtons();
 		}
 	}
 

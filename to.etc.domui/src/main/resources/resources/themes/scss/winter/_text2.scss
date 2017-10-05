@@ -1,0 +1,64 @@
+/*!
+ * DomUI Java User Interface library
+ * Copyright (c) 2017 by Frits Jalvingh.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * See the "sponsors" file for a list of supporters.
+ * The latest version of DomUI and related code, support and documentation
+ * can be found at http://github.com/fjalvingh/domui
+ * The contact for the project is Frits Jalvingh <jal@etc.to>.
+ */
+@import "variables";
+
+/** Text2 component **/
+.ui-txt2 {
+	display: inline-block;
+	line-height: $form-line-height;		// Important: this defines where the baseline is! Mirror the same setting on input.
+
+	td.ui-txt2-btn {
+		text-align: left;
+		white-space: nowrap;
+
+		border: 1px solid $bevel_down;
+		border-top: 1px solid $bevel_up;
+		border-left: none;
+
+		padding: 0;
+		width: 21px;
+	}
+}
+
+.ui-txt2-tbl {
+	border-spacing: 0;
+	margin: 0;
+	padding: 0;
+	width: auto;
+}
+
+.ui-txt2 input {
+	@extend .ui-beveled-border;
+	margin: 0;
+	padding: 0;
+	font-size: $font-size;
+	font-family: $font-family;				// 20170913 Needed because this is unset in the browser??
+
+	-moz-border-radius: 2px;
+	border-radius: 2px;
+	-webkit-border-radius: 2px;
+
+	:hover {
+		border-color: $bevel_hover_up $bevel_hover_down $bevel_hover_down $bevel_hover_up;
+	}
+}
