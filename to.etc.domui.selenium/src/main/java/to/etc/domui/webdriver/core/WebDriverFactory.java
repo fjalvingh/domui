@@ -137,6 +137,10 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		caps.setCapability("os", "Windows");
 		caps.setCapability("browserstack.debug", "true");
 
+		//-- Local passthrough support
+		caps.setCapability("browserstack.local", "true");
+		caps.setCapability("browserstack.localIdentifier", "btest");
+
 		String url = "https://" + userName + ":" + key + "@hub-cloud.browserstack.com/wd/hub";
 		return new RemoteWebDriver(new URL(url), caps);
 	}
