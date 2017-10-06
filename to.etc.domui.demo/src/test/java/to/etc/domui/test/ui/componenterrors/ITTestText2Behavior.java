@@ -24,7 +24,7 @@ public class ITTestText2Behavior extends AbstractLayoutTest {
 		wd().cmd().type("abc").on("t31", "input");
 		WebElement input = wd().getElement("t31", "input");
 		String value = input.getAttribute("value");
-		Assert.assertEquals("123.45", value);
+		Assert.assertEquals("", value);				// Value is cleared by input
 	}
 
 	@Test

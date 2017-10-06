@@ -307,10 +307,11 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	@Override
 	public void setConverter(IConverter<T> converter) {
 		m_converter = converter;
-		if(m_numberMode != NumberMode.NONE && converter != null) {
-			m_numberMode = NumberMode.NONE;
-			setOnKeyPressJS(null);
-		}
+		//-- 20171005 jal Very, very wrong. If you want to clear defaults do it manually.
+		//if(m_numberMode != NumberMode.NONE && converter != null) {
+		//	m_numberMode = NumberMode.NONE;
+		//	setOnKeyPressJS(null);
+		//}
 	}
 
 	/**

@@ -367,10 +367,11 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	@Override
 	public void setConverter(@Nullable IConverter<T> converter) {
 		m_converter = converter;
-		if(m_numberMode != NumberMode.NONE && converter != null) {
-			m_numberMode = NumberMode.NONE;
-			m_input.setOnKeyPressJS(null);
-		}
+		//-- 20171005 jal Very, very wrong. If you want to clear defaults do it manually.
+		//if(m_numberMode != NumberMode.NONE && converter != null) {
+		//	m_numberMode = NumberMode.NONE;
+		//	m_input.setOnKeyPressJS(null);
+		//}
 	}
 
 	/**
