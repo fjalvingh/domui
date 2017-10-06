@@ -3,7 +3,16 @@ package to.etc.domui.webdriver.core;
 import javax.annotation.Nonnull;
 
 public enum BrowserModel {
-	FIREFOX("firefox"), CHROME("chrome-desktop"), CHROME_HEADLESS("chrome"), IE("ie"), IE9("ie9"), IE10("ie10"), IE11("ie11"), EDGE("edge"), PHANTOMJS("phantomjs");
+	FIREFOX("firefox")
+	, CHROME("chrome-desktop")
+	, CHROME_HEADLESS("chrome")
+	, IE("ie")
+	, IE9("ie9")
+	, IE10("ie10")
+	, IE11("ie11")
+	, EDGE14("edge-14")
+	, EDGE15("edge-15")
+	, PHANTOMJS("phantomjs");
 
 	private final @Nonnull
 	String m_code;
