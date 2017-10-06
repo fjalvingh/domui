@@ -1771,6 +1771,20 @@ final public class WebDriverConnector {
 	}
 
 	@Nonnull
+	public WebElement getElement(String testId, String extraCss) {
+		WebElement element = findElement(testId, extraCss);
+		if(null == element)
+			throw new ElementNotFoundException("testID " + testId + " and " + extraCss);
+		return element;
+	}
+
+
+	@Nullable
+	public WebElement findElement(String testId, String extraCss) {
+		return findElement(byId(testId, extraCss));
+	}
+
+	@Nonnull
 	public WebElement getElement(By by) {
 		WebElement element = findElement(by);
 		if(null == element)
