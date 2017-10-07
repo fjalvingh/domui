@@ -5,4 +5,6 @@ interface JQuery {
 
 interface JQueryStatic {
 	expr: any;
+	browser: any;
+
 }

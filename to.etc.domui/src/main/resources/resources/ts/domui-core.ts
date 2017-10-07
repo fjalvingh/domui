@@ -2648,7 +2648,7 @@ $.extend(WebUI, {
 	},
 
 	//We need to re-show element to force IE7 browser to recalculate correct height of element. This must be done to fix some IE7 missbehaviors.
-	refreshElement: function(id) {
+	refreshElement: function(id: string) : void {
 		var elem = document.getElementById(id);
 		if (elem){
 			$(elem).hide();

@@ -1,0 +1,9 @@
+declare const WebUI: WebUI;
+
+interface WebUI {
+	refreshElement(id: string) : void;
+	blockUI() : void;
+	_T: any;
+	_hideExpiredMessage: boolean;
+	isNormalIE9plus() : boolean;
+}
