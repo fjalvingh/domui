@@ -269,6 +269,164 @@ namespace WebUIStatic {
 		}
 	}
 
+	function nearestID(elem: any) : any {
+		while(elem) {
+			if(elem.id)
+				return elem.id;
+			elem = elem.parentNode;
+		}
+		return undefined;
+	}
+
+	//We need to re-show element to force IE7 browser to recalculate correct height of element. This must be done to fix some IE7 missbehaviors.
+	function refreshElement(id: string) : void {
+		var elem = document.getElementById(id);
+		if (elem){
+			$(elem).hide();
+			$(elem).show(1); //needs to be done on timeout/animation, otherwise it still fails to recalculate...
+		}
+	}
+
+	//Use this to make sure that item would be visible inside parent scrollable area. It uses scroll animation. In case when item is already in visible part, we just do single blink to gets user attention ;)
+	function scrollMeToTop(elemId: string, selColor: string, offset: number) : void {
+		var elem = document.getElementById(elemId);
+		if (!elem){
+			return;
+		}
+		var parent = elem.parentNode as any;
+		if (!parent){
+			return;
+		}
+		if (parent.scrollHeight > parent.offsetHeight){ //if parent has scroll
+			var elemPos = $(elem).position().top;
+			if (elemPos > 0 && elemPos < parent.offsetHeight){
+				//if elem already visible -> just do one blink
+				if (selColor){
+					var oldColor = $(elem).css('background-color');
+					$(elem).animate({backgroundColor: selColor}, "slow", function(){$(elem).animate({backgroundColor: oldColor}, "fast");});
+				}
+			}else{
+				//else scroll parent to show me at top
+				var newPos = $(elem).position().top + parent.scrollTop;
+				if($.browser.msie && parseInt($.browser.version) < 11){
+					if ($(elem).height() == 0){
+						newPos = newPos - 15; //On IE browsers older than 11 we need this correction :¬|
+					}
+				}
+				if (offset){
+					newPos = newPos - offset;
+				}
+				$(parent).animate({scrollTop: newPos}, 'slow');
+			}
+		}
+	}
+
+	//Use this to make sure that option in dropdown would be visible. It needs fix only in FF sinve IE would always make visible selected option.
+	function makeOptionVisible(elemId: string, offset: number) : void {
+		if($.browser.msie){
+			//IE already fix this... we need fix only for FF and other browsers
+			return;
+		}
+		var elem = document.getElementById(elemId);
+		if (!elem){
+			return;
+		}
+		var parent = elem.parentNode as any;
+		if (!parent){
+			return;
+		}
+		if (parent.scrollHeight > parent.offsetHeight){ //if parent has scroll
+			var elemPos = $(elem).position().top;
+			//if elem is not currenlty visible
+			if (elemPos <= 0 || elemPos >= parent.offsetHeight){
+				//else scroll parent to show me at top
+				var newPos = elemPos + parent.scrollTop;
+				if (offset){
+					newPos = newPos - offset;
+				}
+				$(parent).animate({scrollTop: newPos}, 'slow');
+			}
+		}
+	}
+
+	function truncateUtfBytes(str: string, nbytes: number) : number {
+		//-- Loop characters and calculate running length
+		var bytes = 0;
+		var length = str.length;
+		for(var ix = 0; ix < length; ix++) {
+			var c = str.charCodeAt(ix);
+			if(c < 0x80)
+				bytes++;
+			else if(c < 0x800)
+				bytes += 2;
+			else
+				bytes += 3;
+			if(bytes > nbytes)
+				return ix;
+		}
+		return length;
+	}
+
+	function utf8Length(str: string) : number {
+		var bytes = 0;
+		var length = str.length;
+		for(var ix = 0; ix < length; ix++) {
+			var c = str.charCodeAt(ix);
+			if(c < 0x80)
+				bytes++;
+			else if(c < 0x800)
+				bytes += 2;
+			else
+				bytes += 3;
+		}
+		return bytes;
+	}
+
+	/** In tables that have special class selectors that might cause text-overflow we show full text on hover */
+	function showOverflowTextAsTitle(id: string, selector: string) : boolean {
+		var root = $("#" + id);
+		if (root) {
+			root.find(selector).each(function () {
+				if (this.offsetWidth < this.scrollWidth) {
+					var $this = $(this);
+					$this.attr("title", $this.text());
+				}
+			});
+		}
+		return true;
+	}
+
+	function replaceBrokenImageSrc(id: string, alternativeImage: string) : void {
+		$('img#' + id).error(function() {
+			$(this).attr("src", alternativeImage);
+		});
+	}
+
+	function deactivateHiddenAccessKeys(windowId: string) : void {
+		$('button').each(function(index) {
+			var iButton = $(this);
+			if(isButtonChildOfElement(iButton, windowId)){
+				var oldAccessKey = $(iButton).attr('accesskey');
+				if(oldAccessKey != null ){
+					$(iButton).attr('accesskey', $(windowId).attr('id') + '~' + oldAccessKey);
+				}
+			}
+		});
+	}
+
+	function reactivateHiddenAccessKeys(windowId: string) : void {
+		$("button[accesskey*='" + windowId + "~']" ).each(function(index) {
+			let attr = $(this).attr('accesskey') as string;
+			var accessKeyArray = attr.split(windowId + '~');
+			$(this).attr('accesskey', accessKeyArray[accessKeyArray.length - 1]);
+		});
+	}
+
+	function isButtonChildOfElement(buttonId: any, windowId: string) : boolean {
+		return $(buttonId).parents('#' + $(windowId).attr('id')).length == 0;
+	}
+
+
 
 
 

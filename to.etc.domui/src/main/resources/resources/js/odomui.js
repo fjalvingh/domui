@@ -2343,15 +2343,6 @@ $.extend(WebUI, {
 		}
 	},
 
-	nearestID: function(elem) {
-		while(elem) {
-			if(elem.id)
-				return elem.id;
-			elem = elem.parentNode;
-		}
-		return undefined;
-	},
-
 	handleDevelopmentMode: function() {
 		$(document).bind("keydown", function(e) {
 			if(e.keyCode != 192)
@@ -2490,102 +2481,6 @@ $.extend(WebUI, {
 		}
 	},
 
-	//We need to re-show element to force IE7 browser to recalculate correct height of element. This must be done to fix some IE7 missbehaviors.
-	refreshElement: function(id) {
-		var elem = document.getElementById(id);
-		if (elem){
-			$(elem).hide();
-			$(elem).show(1); //needs to be done on timeout/animation, otherwise it still fails to recalculate...
-		}
-	},
-
-	//Use this to make sure that item would be visible inside parent scrollable area. It uses scroll animation. In case when item is already in visible part, we just do single blink to gets user attention ;)
-	scrollMeToTop: function(elemId, selColor, offset) {
-		var elem = document.getElementById(elemId);
-		if (!elem){
-			return;
-		}
-		var parent = elem.parentNode;
-		if (!parent){
-			return;
-		}
-		if (parent.scrollHeight > parent.offsetHeight){ //if parent has scroll
-			var elemPos = $(elem).position().top;
-			if (elemPos > 0 && elemPos < parent.offsetHeight){
-				//if elem already visible -> just do one blink
-				if (selColor){
-					var oldColor = $(elem).css('background-color');
-					$(elem).animate({backgroundColor: selColor}, "slow", function(){$(elem).animate({backgroundColor: oldColor}, "fast");});
-				}
-			}else{
-				//else scroll parent to show me at top
-				var newPos = $(elem).position().top + parent.scrollTop;
-				if($.browser.msie && parseInt($.browser.version) < 11){
-					if ($(elem).height() == 0){
-						newPos = newPos - 15; //On IE browsers older than 11 we need this correction :¬|
-					}
-				}
-				if (offset){
-					newPos = newPos - offset;
-				}
-				$(parent).animate({scrollTop: newPos}, 'slow');
-			}
-		}
-	},
-
-	//Use this to make sure that option in dropdown would be visible. It needs fix only in FF sinve IE would always make visible selected option.
-	makeOptionVisible: function(elemId, offset) {
-		if($.browser.msie){
-			//IE already fix this... we need fix only for FF and other browsers
-			return;
-		}
-		var elem = document.getElementById(elemId);
-		if (!elem){
-			return;
-		}
-		var parent = elem.parentNode;
-		if (!parent){
-			return;
-		}
-		if (parent.scrollHeight > parent.offsetHeight){ //if parent has scroll
-			var elemPos = $(elem).position().top;
-			//if elem is not currenlty visible
-			if (elemPos <= 0 || elemPos >= parent.offsetHeight){
-				//else scroll parent to show me at top
-				var newPos = elemPos + parent.scrollTop;
-				if (offset){
-					newPos = newPos - offset;
-				}
-				$(parent).animate({scrollTop: newPos}, 'slow');
-			}
-		}
-	},
-
-	//Returns T if browser is really using IE7 rendering engine (since IE8 compatibility mode presents  browser as version 7 but renders as IE8!)
-	isReallyIE7: function() {
-		//Stupid IE8 in compatibility mode lies that it is IE7, and renders as IE8! At least we can detect that using document.documentMode (it is 8 in that case)
-		//document.documentMode == 7 		 --- IE8 running in IE7 mode
-		//document.documentMode == 8 		 --- IE8 running in IE8 mode or IE7 Compatibility mode
-		//document.documentMode == undefined --- plain old IE7
-		return ($.browser.msie && parseInt($.browser.version) == 7 && (!document.documentMode || document.documentMode == 7));
-	},
-	//Returns T if browser is IE8 or IE8 compatibility mode
-	isIE8orIE8c: function() {
-		//Stupid IE8 in compatibility mode lies that it is IE7, and renders as IE8! At least we can detect that using document.documentMode (it is 8 in that case)
-		//document.documentMode == 7 		 --- IE8 running in IE7 mode
-		//document.documentMode == 8 		 --- IE8 running in IE8 mode or IE7 Compatibility mode
-		//document.documentMode == undefined --- plain old IE7
-		return ($.browser.msie && (parseInt($.browser.version) == 8 || (parseInt($.browser.version) == 7 && document.documentMode == 8)));
-	},
-	//Returns T if browser is IE of at least version 9 and does not run in any of compatibility modes for earlier versions
-	isNormalIE9plus: function() {
-		return ($.browser.msie && parseInt($.browser.version) >= 9 && document.documentMode >= 9);
-	},
-
-	//Returns T if browser is IE of at least version 8 even if it runs in IE7 compatibility mode
-	isIE8orNewer: function() {
-		return ($.browser.msie && (parseInt($.browser.version) >= 8 || (parseInt($.browser.version) == 7 && document.documentMode >= 8)));
-	},
 
 	// CK editor support, map of key (id of editor) value (pair of [editor instance, assigned resize function])
 	_ckEditorMap : {},
@@ -3169,39 +3064,6 @@ WebUI.doCustomUpdates = function() {
 	//$('.ui-dt-ovflw-tbl').floatThead('reflow');
 };
 
-WebUI.truncateUtfBytes = function(str, nbytes) {
-	//-- Loop characters and calculate running length
-	var bytes = 0;
-	var length = str.length;
-	for(var ix = 0; ix < length; ix++) {
-		var c = str.charCodeAt(ix);
-		if(c < 0x80)
-			bytes++;
-		else if(c < 0x800)
-			bytes += 2;
-		else
-			bytes += 3;
-		if(bytes > nbytes)
-			return ix;
-	}
-	return length;
-};
-
-WebUI.utf8Length = function(str) {
-	var bytes = 0;
-	var length = str.length;
-	for(var ix = 0; ix < length; ix++) {
-		var c = str.charCodeAt(ix);
-		if(c < 0x80)
-			bytes++;
-		else if(c < 0x800)
-			bytes += 2;
-		else
-			bytes += 3;
-	}
-	return bytes;
-};
-
 
 WebUI.onDocumentReady = function() {
 	WebUI.checkBrowser();
@@ -3249,26 +3111,6 @@ WebUI.flareStayCustom = function(id, delay, fadeOut) {
 			});
 		});
 	});
-};
-
-WebUI.replaceBrokenImageSrc = function(id, alternativeImage) {
-	$('img#' + id).error(function() {
-		$(this).attr("src", alternativeImage);
-	});
-};
-
-/** In tables that have special class selectors that might cause text-overflow we show full text on hover */
-WebUI.showOverflowTextAsTitle = function(id, selector) {
-	var root = $("#" + id);
-	if (root) {
-		root.find(selector).each(function () {
-			if (this.offsetWidth < this.scrollWidth) {
-				var $this = $(this);
-				$this.attr("title", $this.text());
-			}
-		});
-	}
-	return true;
 };
 
 /** Bulk upload code using swfupload */
@@ -3493,25 +3335,6 @@ function FCKeditor_OnComplete(editorInstance){
 	};
 }
 
-WebUI.deactivateHiddenAccessKeys = function(windowId) {
-	$('button').each(function(index) {
-		var iButton = $(this);
-		if(isButtonChildOfElement(iButton, windowId)){
-			var oldAccessKey = $(iButton).attr('accesskey');
-			if(oldAccessKey != null ){
-				$(iButton).attr('accesskey', $(windowId).attr('id') + '~' + oldAccessKey);
-			}
-		}
-	});
-};
-
-WebUI.reactivateHiddenAccessKeys = function(windowId) {
-	$("button[accesskey*='" + windowId + "~']" ).each(function(index){
-		var accessKeyArray = $(this).attr('accesskey').split(windowId + '~');
-		$(this).attr('accesskey', accessKeyArray[accessKeyArray.length - 1]);
-	});
-};
-
 WebUI.initScrollableTableOld = function(id) {
 	$('#'+id+" table").fixedHeaderTable({});
 	var sbody = $('#'+id+" .fht-tbody");
@@ -3613,9 +3436,6 @@ WebUI.initScrollableTable = function(id, tblid) {
 
 
 
-isButtonChildOfElement = function(buttonId, windowId){
-	return $(buttonId).parents('#' + $(windowId).attr('id')).length == 0;
-};
 
 WebUI.notifyPage = function(command) {
 	var bodyId = '_1';
