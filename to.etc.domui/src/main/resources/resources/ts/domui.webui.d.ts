@@ -1,6 +1,6 @@
-declare const WebUI: WebUI;
+declare const WebUI: WebUIStatic;
 
-interface WebUI {
+interface WebUIStatic {
 	refreshElement(id: string) : void;
 	blockUI() : void;
 	_T: any;

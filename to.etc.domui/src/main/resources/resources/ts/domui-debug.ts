@@ -1,4 +1,5 @@
-import jQuery from "jquery";
+/// <reference path="typings/jquery/jquery.d.ts" />
+/// <reference path="domui.jquery.d.ts" />
 
 (function($) {
 	if($.browser.msie && $.browser.majorVersion < 10) {

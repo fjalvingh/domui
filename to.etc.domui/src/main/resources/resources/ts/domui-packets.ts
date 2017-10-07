@@ -366,8 +366,9 @@
 				|| tag == 'button'
 				|| (tag == 'select' && node
 					.getAttribute('multiple'))) {
+				let xxa;
 				try {
-					var xxa = copyAttrs(null, node, true);
+					xxa = copyAttrs(null, node, true);
 					e = document.createElement('<' + tag + ' '
 						+ xxa + '>');
 				} catch(xx) {
