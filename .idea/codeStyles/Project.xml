@@ -44,6 +44,11 @@
       <option name="KEYWORD_CASE" value="1" />
       <option name="IDENTIFIER_CASE" value="1" />
     </SqlCodeStyleSettings>
+    <TypeScriptCodeStyleSettings>
+      <option name="SPACE_BEFORE_FUNCTION_LEFT_PARENTH" value="false" />
+      <option name="USE_CHAINED_CALLS_GROUP_INDENTS" value="true" />
+      <option name="SPACE_BEFORE_ASYNC_ARROW_LPAREN" value="false" />
+    </TypeScriptCodeStyleSettings>
     <XML>
       <option name="XML_LEGACY_SETTINGS_IMPORTED" value="true" />
     </XML>
@@ -105,6 +110,16 @@
       <indentOptions>
         <option name="INDENT_SIZE" value="4" />
         <option name="TAB_SIZE" value="4" />
+        <option name="USE_TAB_CHARACTER" value="true" />
+      </indentOptions>
+    </codeStyleSettings>
+    <codeStyleSettings language="TypeScript">
+      <option name="SPACE_BEFORE_IF_PARENTHESES" value="false" />
+      <option name="SPACE_BEFORE_WHILE_PARENTHESES" value="false" />
+      <option name="SPACE_BEFORE_FOR_PARENTHESES" value="false" />
+      <option name="SPACE_BEFORE_CATCH_PARENTHESES" value="false" />
+      <option name="SPACE_BEFORE_SWITCH_PARENTHESES" value="false" />
+      <indentOptions>
         <option name="USE_TAB_CHARACTER" value="true" />
       </indentOptions>
     </codeStyleSettings>
