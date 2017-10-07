@@ -19,6 +19,9 @@
 .ui-sib:hover {
 	background-color: $header_bg !important;
 }
+.ui-sib:focus {
+	background-color: lighten($header_bg, 20%) !important;
+}
 
 .ui-sib[disabled] {
 	cursor: default;

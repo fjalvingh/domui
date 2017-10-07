@@ -1,14 +1,23 @@
 package to.etc.domui.component.lookup;
 
-import java.util.*;
+import to.etc.domui.component.buttons.SmallImgButton;
+import to.etc.domui.component.event.INotify;
+import to.etc.domui.dom.html.ATag;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TR;
+import to.etc.domui.dom.html.Table;
+import to.etc.domui.themes.Theme;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.Msgs;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.event.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.themes.*;
-import to.etc.domui.util.*;
+import javax.annotation.DefaultNonNull;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Fragment containing the saved filter searches
@@ -46,21 +55,13 @@ public final class LookupFormSavedFilterFragment extends Div {
 		if(savedFilters.isEmpty()) {
 			return;
 		}
-		Collections.sort(savedFilters, new Comparator<SavedFilter>() {
-				@Override
-				public int compare(@Nullable SavedFilter o1, @Nullable SavedFilter o2) {
-					if(o1 == null) {
-						if(o2 == null) {
-							return 0;
-						}
-						return -1;
-					}
-					else if(o2 == null) {
-						return 1;
-					}
-					return o1.getFilterName().compareToIgnoreCase(o2.getFilterName());
-				}
-			});
+		Collections.sort(savedFilters, (o1, o2) -> {
+			int result = DomUtil.compareNullable(o1, o2, null);
+			if(result != 0 || o1 == null) {
+				return result;
+			}
+			return DomUtil.compareNullable(o1.getFilterName(), o2.getFilterName(), String::compareToIgnoreCase);
+		});
 		final Table table = new Table();
 		add(table);
 		table.setCssClass("ui-lfsf-st");
@@ -69,7 +70,7 @@ public final class LookupFormSavedFilterFragment extends Div {
 		body.setTestID("tableBodyLookupSavedFilter");
 		table.add(body);
 		body.addCssClass("");
-		for(final SavedFilter filter: m_savedFilters) {
+		for(final SavedFilter filter : m_savedFilters) {
 			ATag filterName = new ATag();
 			filterName.setText(filter.getFilterName());
 			final TR row = body.addRow();

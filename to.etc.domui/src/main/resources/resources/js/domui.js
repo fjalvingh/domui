@@ -28,7 +28,9 @@ $(window).bind('beforeunload', function() {
 				$.browser.msie = true;
 		}
 
-
+		if (/Edge/.test(navigator.userAgent)) {
+			$.browser.ieedge = true;
+		}
 	} catch(x) {}
 
 //	alert('bmaj='+$.browser.majorVersion+", mv="+$.browser.minorVersion);
@@ -166,7 +168,7 @@ $(window).bind('beforeunload', function() {
 			log("Redirecting- ");
 			var to = xml.documentElement.getAttribute('url');
 
-			if (!$.browser.msie) {
+			if (!$.browser.msie && ! $.browser.ieedge) {
 				//-- jal 20130129 For large documents, redirecting "inside" an existing document causes huge problems, the
 				// jquery loops in the "source" document while the new one is loading. This part "clears" the existing document
 				// causing an ugly white screen while loading - but the loading now always works..
@@ -2354,6 +2356,27 @@ $.extend(WebUI, {
 		if (!h)
 			alert(WebUI._T.sysPopupBlocker);
 		return false;
+	},
+
+	postURL : function post(path, name,  params, target) {
+		var form = document.createElement("form");
+		form.setAttribute("method","post");
+		form.setAttribute("action", path);
+		if (null != target){
+			form.setAttribute("target", target);
+		}
+
+		for (var key in params) {
+			if (params.hasOwnProperty(key)) {
+				var hiddenField = document.createElement("input");
+				hiddenField.setAttribute("type", "hidden");
+				hiddenField.setAttribute("name", key);
+				hiddenField.setAttribute("value", params[key]);
+				form.appendChild(hiddenField);
+			}
+		}
+		document.body.appendChild(form);
+		form.submit();
 	},
 
 	unloaded : function() {

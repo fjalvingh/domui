@@ -34,7 +34,6 @@ import to.etc.domui.converter.ConverterRegistry;
 import to.etc.domui.converter.IConvertable;
 import to.etc.domui.converter.IConverter;
 import to.etc.domui.converter.IValueValidator;
-import to.etc.domui.converter.MaxMinValidator;
 import to.etc.domui.converter.MoneyUtil;
 import to.etc.domui.converter.NumericUtil;
 import to.etc.domui.converter.ValidatorRegistry;
@@ -61,12 +60,15 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 /**
+ * Use {@code Text2<T>} instead.
+ *
  * A single-line input box. This extends the "input" tag with validation ability
  * and methods to handle conversions and labels.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 11, 2008
  */
+@Deprecated
 public class Text<T> extends Input implements IControl<T>, IHasModifiedIndication, IConvertable<T>, ITypedControl<T> {
 	/** The type of class that is expected. This is the return type of the getValue() call for a validated item */
 	@Nonnull
@@ -305,10 +307,11 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	@Override
 	public void setConverter(IConverter<T> converter) {
 		m_converter = converter;
-		if(m_numberMode != NumberMode.NONE && converter != null) {
-			m_numberMode = NumberMode.NONE;
-			setOnKeyPressJS(null);
-		}
+		//-- 20171005 jal Very, very wrong. If you want to clear defaults do it manually.
+		//if(m_numberMode != NumberMode.NONE && converter != null) {
+		//	m_numberMode = NumberMode.NONE;
+		//	setOnKeyPressJS(null);
+		//}
 	}
 
 	/**
@@ -632,31 +635,9 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 * @param pmm
 	 */
 	public static final void assignPrecisionValidator(@Nonnull Text< ? > control, @Nonnull PropertyMetaModel< ? > pmm) {
-		Text.assignPrecisionValidator(control, pmm.getPrecision(), pmm.getScale());
-	}
-
-	/**
-	 * This adds a validator for the maximal and minimal value for a numeric input, depending on the precision
-	 * and scale.
-	 * @param control
-	 * @param precision
-	 * @param scale
-	 */
-	public static final void assignPrecisionValidator(@Nonnull Text< ? > control, int precision, int scale) {
-		if(precision > 0) {
-			int d = precision;
-			if(scale > 0)
-				d -= scale;
-			if(d < 0)
-				return;
-
-			BigDecimal bd = BigDecimal.valueOf(10);
-			bd = bd.pow(d); 										// 10^n, this is the EXCLUSIVE max/min value.
-
-			BigDecimal fraction = BigDecimal.ONE.divide(BigDecimal.TEN.pow(scale));	// BigDecimal.pow() does not support -ve exponents, sigh.
-			bd = bd.subtract(fraction);
-			control.addValidator(new MaxMinValidator(bd.negate(), bd));
-		}
+		IValueValidator<?> validator = MetaManager.calculatePrecisionValidator(pmm);
+		if(null != validator)
+			control.addValidator(validator);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -706,28 +687,15 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		 * Length calculation using the metadata. This uses the "length" field as LAST, because it is often 255 because the
 		 * JPA's column annotation defaults length to 255 to make sure it's usability is bloody reduced. Idiots.
 		 */
-		if(pmm.getDisplayLength() > 0)
-			txt.setSize(pmm.getDisplayLength());
-		else if(pmm.getPrecision() > 0) {
-			// FIXME This should be localized somehow...
-			//-- Calculate a size using scale and precision.
-			int size = pmm.getPrecision();
-			int d = size;
-			if(pmm.getScale() > 0) {
-				size++; // Inc size to allow for decimal point or comma
-				d -= pmm.getScale(); // Reduce integer part,
-				if(d >= 4) { // Can we get > 999? Then we can have thousand-separators
-					int nd = (d - 1) / 3; // How many thousand separators could there be?
-					size += nd; // Increment input size with that
-				}
-			}
+		int size = MetaManager.calculateTextSize(pmm);
+		if(size > 0)
 			txt.setSize(size);
 
-		} else if(pmm.getLength() > 0) {
-			txt.setSize(pmm.getLength() < 40 ? pmm.getLength() : 40);
-		}
 		//-- 20100318 Since we have precision and scale, add a range check to this control.
 		//-- 20110721 jal Move it globally: it does not work when an explicit display size is set.
+		IValueValidator<?> validator = MetaManager.calculatePrecisionValidator(pmm);
+		if(null != validator)
+			txt.addValidator(validator);
 		Text.assignPrecisionValidator(txt, pmm);
 
 		if(pmm.getLength() > 0)
@@ -934,12 +902,5 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	public void createContent() throws Exception {
 		super.createContent();
 		renderMode();
-	};
-
-
-	public static void main(String[] args) {
-		BigDecimal fraction = BigDecimal.ONE.divide(BigDecimal.TEN.pow(0));
-
-		System.out.println("pow " + fraction);
 	}
 }

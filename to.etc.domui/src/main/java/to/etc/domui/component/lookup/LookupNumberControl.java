@@ -24,17 +24,24 @@
  */
 package to.etc.domui.component.lookup;
 
-import java.math.*;
-import java.util.*;
+import to.etc.domui.component.input.Text2;
+import to.etc.domui.converter.MiniScanner;
+import to.etc.domui.converter.MoneyUtil;
+import to.etc.domui.converter.NumericUtil;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.trouble.UIException;
+import to.etc.domui.trouble.ValidationException;
+import to.etc.domui.util.Msgs;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QLiteral;
+import to.etc.webapp.query.QOperation;
+import to.etc.webapp.query.QPropertyComparison;
+import to.etc.webapp.query.QUnaryProperty;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.input.*;
-import to.etc.domui.converter.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.query.*;
+import javax.annotation.Nonnull;
+import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Base utility class when lookups of custom numeric conditions should be implemented.
@@ -50,7 +57,7 @@ public class LookupNumberControl<T extends Number> extends BaseAbstractLookupCon
 
 	final private String m_propertyName;
 
-	final private Text<String> m_input;
+	final private Text2<String> m_input;
 
 	private final int m_scale;
 
@@ -75,11 +82,11 @@ public class LookupNumberControl<T extends Number> extends BaseAbstractLookupCon
 	private static final Double m_min_jdbc_column_value = Double.valueOf(-1e126d);
 
 	static {
-		UNARY_OPS = new HashSet<QOperation>();
+		UNARY_OPS = new HashSet<>();
 		UNARY_OPS.add(QOperation.ISNOTNULL);
 		UNARY_OPS.add(QOperation.ISNULL);
 
-		BINARY_OPS = new HashSet<QOperation>();
+		BINARY_OPS = new HashSet<>();
 		BINARY_OPS.add(QOperation.EQ);
 		BINARY_OPS.add(QOperation.NE);
 		BINARY_OPS.add(QOperation.LT);
@@ -90,11 +97,11 @@ public class LookupNumberControl<T extends Number> extends BaseAbstractLookupCon
 		BINARY_OPS.add(QOperation.ILIKE);
 	}
 
-	public LookupNumberControl(final Class<T> valueType, Text<String> node, String propertyName, Number minValue, Number maxValue, boolean monetary, int scale) {
+	public LookupNumberControl(final Class<T> valueType, Text2<String> node, String propertyName, Number minValue, Number maxValue, boolean monetary, int scale) {
 		this(valueType, node, propertyName, minValue, maxValue, monetary, true, scale);
 	}
 
-	public LookupNumberControl(final Class<T> valueType, Text<String> node, String propertyName, Number minValue, Number maxValue, boolean monetary, boolean allowLike, int scale) {
+	public LookupNumberControl(final Class<T> valueType, Text2<String> node, String propertyName, Number minValue, Number maxValue, boolean monetary, boolean allowLike, int scale) {
 		super(node);
 		m_input = node;
 		m_valueType = valueType;
@@ -108,7 +115,6 @@ public class LookupNumberControl<T extends Number> extends BaseAbstractLookupCon
 
 	/**
 	 * T if this control handles a monetary amount.
-	 * @return
 	 */
 	final public boolean isMonetary() {
 		return m_monetary;

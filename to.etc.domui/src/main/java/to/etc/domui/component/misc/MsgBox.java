@@ -27,6 +27,7 @@ package to.etc.domui.component.misc;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.buttons.LinkButton;
 import to.etc.domui.component.input.Text;
+import to.etc.domui.component.input.Text2;
 import to.etc.domui.component.layout.IWindowClosed;
 import to.etc.domui.component.layout.Window;
 import to.etc.domui.component.meta.MetaManager;
@@ -442,6 +443,18 @@ public class MsgBox extends Window {
 	}
 
 	public static <T> void inputString(NodeBase dad, String message, Text<T> input, IInput<T> onanswer) {
+		MsgBox box = create(dad);
+		box.setType(Type.INPUT);
+		box.setMessage(message);
+		box.addButton(MsgBoxButton.CONTINUE);
+		box.addButton(MsgBoxButton.CANCEL);
+		box.setCloseButton(MsgBoxButton.CANCEL);
+		box.setOninput(onanswer);
+		box.setInputControl(input);
+		box.construct();
+	}
+
+	public static <T> void inputString(NodeBase dad, String message, Text2<T> input, IInput<T> onanswer) {
 		MsgBox box = create(dad);
 		box.setType(Type.INPUT);
 		box.setMessage(message);

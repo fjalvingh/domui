@@ -29,6 +29,22 @@ final class SassCapturingErrorHandler extends SCSSErrorHandler {
 		.append("\n");
 	}
 
+	private void render(String type, String message) {
+		m_sb.append("ERROR: ").append(message).append("\n");
+	}
+
+	@Override public void traverseError(Exception e) {
+		super.traverseError(e);
+		render("error", e.toString());
+		m_hasError = true;
+	}
+
+	@Override public void traverseError(String message) {
+		super.traverseError(message);
+		render("error", message);
+		m_hasError = true;
+	}
+
 	@Override public void error(CSSParseException e) throws CSSException {
 		m_hasError = true;
 		render("error", e);

@@ -312,6 +312,7 @@ public abstract class DomApplication {
 
 	protected void registerControlFactories() {
 		registerControlFactory(PropertyControlFactory.STRING_CF);
+		registerControlFactory(PropertyControlFactory.OLD_STRING_CF);
 		registerControlFactory(PropertyControlFactory.TEXTAREA_CF);
 		registerControlFactory(PropertyControlFactory.BOOLEAN_AND_ENUM_CF);
 		registerControlFactory(PropertyControlFactory.DATE_CF);

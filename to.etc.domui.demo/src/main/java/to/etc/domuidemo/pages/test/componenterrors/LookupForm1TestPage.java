@@ -17,6 +17,8 @@ import javax.annotation.Nonnull;
 import java.util.List;
 
 /**
+ * Test github issue #6: clearing a mandatory property must throw an exception.
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 27-9-17.
  */

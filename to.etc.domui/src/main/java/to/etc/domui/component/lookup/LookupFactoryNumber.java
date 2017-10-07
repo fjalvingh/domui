@@ -24,22 +24,32 @@
  */
 package to.etc.domui.component.lookup;
 
-import java.math.*;
-import java.util.*;
+import to.etc.domui.component.input.ComboFixed;
+import to.etc.domui.component.input.Text2;
+import to.etc.domui.component.input.ValueLabelPair;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.MetaUtils;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.PropertyMetaValidator;
+import to.etc.domui.component.meta.SearchPropertyMetaModel;
+import to.etc.domui.converter.ConverterRegistry;
+import to.etc.domui.converter.IConverter;
+import to.etc.domui.dom.css.DisplayType;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.IValueChanged;
+import to.etc.domui.util.DomUtil;
+import to.etc.webapp.nls.NlsContext;
+import to.etc.webapp.query.QCriteria;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.converter.*;
-import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.nls.*;
-import to.etc.webapp.query.*;
+import javax.annotation.Nonnull;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Represents factory for numeric values lookup. For lookup condition uses combo with numeric relation trailed by one or two fields (when between relation is selected) for definition of numeric parameters.
+ * Represents factory for numeric values lookup. For lookup condition uses
+ * combo with numeric relation trailed by one or two fields (when between
+ * relation is selected) for definition of numeric parameters.
  *
  * FIXME The condition must be mandatory and may not have an empty value; the default MUST be "equals". The lookup is to be considered "empty" when the value field is empty.
  *
@@ -53,28 +63,25 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 			throw new IllegalStateException();
 
 		final PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
-		final List<ValueLabelPair<NumericRelationType>> values = new ArrayList<ValueLabelPair<NumericRelationType>>();
+		final List<ValueLabelPair<NumericRelationType>> values = new ArrayList<>();
 		for(NumericRelationType relationEnum : NumericRelationType.values()) {
-			values.add(new ValueLabelPair<NumericRelationType>(relationEnum, MetaManager.findClassMeta(NumericRelationType.class).getDomainLabel(NlsContext.getLocale(), relationEnum)));
+			values.add(new ValueLabelPair<>(relationEnum, MetaManager.findClassMeta(NumericRelationType.class).getDomainLabel(NlsContext.getLocale(), relationEnum)));
 		}
 
-		final Text< ? > numA = createNumericInput(pmm);
-		final Text< ? > numB = createNumericInput(pmm);
+		final Text2< ? > numA = createNumericInput(pmm);
+		final Text2< ? > numB = createNumericInput(pmm);
 		numB.setDisplay(DisplayType.NONE);
 
 		final ComboFixed<NumericRelationType> relationCombo = new ComboFixed<NumericRelationType>(values);
 
-		relationCombo.setOnValueChanged(new IValueChanged<ComboFixed<NumericRelationType>>() {
-			@Override
-			public void onValueChanged(@Nonnull ComboFixed<NumericRelationType> component) throws Exception {
-				if(component.getValue() == NumericRelationType.BETWEEN) {
-					if(numB.getDisplay() == DisplayType.NONE) {
-						numB.setDisplay(DisplayType.INLINE);
-					}
-				} else {
-					if(numB.getDisplay() != DisplayType.NONE) {
-						numB.setDisplay(DisplayType.NONE);
-					}
+		relationCombo.setOnValueChanged((IValueChanged<ComboFixed<NumericRelationType>>) component -> {
+			if(component.getValue() == NumericRelationType.BETWEEN) {
+				if(numB.getDisplay() == DisplayType.NONE) {
+					numB.setDisplay(DisplayType.INLINE);
+				}
+			} else {
+				if(numB.getDisplay() != DisplayType.NONE) {
+					numB.setDisplay(DisplayType.NONE);
 				}
 			}
 		});
@@ -86,14 +93,6 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 		}
 
 		return new AbstractLookupControlImpl(relationCombo, numA, numB) {
-			/*			@Override
-			public NodeBase[] getInputControls() {
-				if(relationCombo.getValue() == NumericRelationType.BETWEEN)
-					return new NodeBase[]{relationCombo, numA, numB};
-				else
-					return new NodeBase[]{relationCombo, numA};
-			}*/
-
 			@Override
 			public @Nonnull AppendCriteriaResult appendCriteria(@Nonnull QCriteria< ? > crit) throws Exception {
 				NumericRelationType relation;
@@ -143,41 +142,25 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 		};
 	}
 
-	private <T> Text<T> createNumericInput(final PropertyMetaModel<T> pmm) {
+	private <T> Text2<T> createNumericInput(final PropertyMetaModel<T> pmm) {
 		Class<T> iclz = pmm.getActualType();
 
 		//-- Create first text control that accept any numeric type.
-		final Text<T> numText = new Text<T>(iclz);
-		/*
-		 * Length calculation using the metadata. This uses the "length" field as LAST, because it is often 255 because the
-		 * JPA's column annotation defaults length to 255 to make sure it's usability is bloody reduced. Idiots.
-		 */
-		if(pmm.getDisplayLength() > 0)
-			numText.setSize(pmm.getDisplayLength());
-		else if(pmm.getPrecision() > 0) {
-			//-- Calculate a size using scale and precision.
-			int size = pmm.getPrecision();
-			int d = size;
-			if(pmm.getScale() > 0) {
-				size++; // Inc size to allow for decimal point or comma
-				d -= pmm.getScale(); // Reduce integer part,
-				if(d >= 4) { // Can we get > 999? Then we can have thousand-separators
-					int nd = (d - 1) / 3; // How many thousand separators could there be?
-					size += nd; // Increment input size with that
-				}
-			}
+		final Text2<T> numText = new Text2<T>(iclz);
+		int size = MetaManager.calculateTextSize(pmm);
+		if(size > 0)
 			numText.setSize(size);
-		} else if(pmm.getLength() > 0) {
-			numText.setSize(pmm.getLength() < 40 ? pmm.getLength() : 40);
-		}
+
 		IConverter<T> cvt = ConverterRegistry.findBestConverter(pmm);
 		numText.setConverter(cvt);
 
 		if(pmm.getLength() > 0)
 			numText.setMaxLength(pmm.getLength());
+
 		String s = pmm.getDefaultHint();
 		if(s != null)
 			numText.setTitle(s);
+
 		for(PropertyMetaValidator mpv : pmm.getValidators())
 			numText.addValidator(mpv);
 

@@ -1,0 +1,103 @@
+/*!
+ * DomUI Java User Interface library
+ * Copyright (c) 2017 by Frits Jalvingh.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * See the "sponsors" file for a list of supporters.
+ * The latest version of DomUI and related code, support and documentation
+ * can be found at http://github.com/fjalvingh/domui
+ * The contact for the project is Frits Jalvingh <jal@etc.to>.
+ */
+@import "variables";
+
+/** Text2 component **/
+.ui-txt2 {
+	display: inline-block;
+
+	td {
+		padding: 0;
+		margin: 0;
+		position: relative;
+	}
+
+	.ui-txt2-bdiv {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		height: 100%;
+		border: 1px solid $bevel_down;
+		border-top: 1px solid $bevel_up;
+		border-left: none;
+		vertical-align: middle;
+		text-align: center;
+
+		.fa {
+			vertical-align: middle;
+		}
+	}
+
+	.ui-sib {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		height: 100%;
+		border: 1px solid $bevel_down;
+		border-top: 1px solid $bevel_up;
+		border-left: none;
+		vertical-align: middle;
+		text-align: center;
+		width: 21px;
+
+		.fa {
+			vertical-align: middle;
+		}
+	}
+
+
+	td.ui-txt2-btn {
+		text-align: left;
+		white-space: nowrap;
+		width: 21px;
+		padding: 0;
+	}
+}
+
+.ui-txt2-tbl {
+	border-spacing: 0;
+	border-collapse: collapse;
+	margin: 0;
+	padding: 0;
+	width: auto;
+}
+
+.ui-txt2 input {
+	@extend .ui-beveled-border;
+	margin: 0;
+	padding: 0;
+	font-size: $font-size;
+	font-family: $font-family;			// 20170913 Needed because this is unset in the browser??
+
+	line-height: $form-line-height;		// Important: this defines where the baseline is! Mirror the same setting on input.
+
+	border-radius: 2px 0 0 2px;
+
+	:hover {
+		border-color: $bevel_hover_up $bevel_hover_down $bevel_hover_down $bevel_hover_up;
+	}
+}

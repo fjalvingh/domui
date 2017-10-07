@@ -60,6 +60,9 @@ final public class FormBuilder {
 
 	private boolean m_append;
 
+	@Nullable
+	private String m_testid;
+
 	/** ReadOnly as set directly in the Builder */
 	private Boolean m_readOnly;
 
@@ -241,6 +244,11 @@ final public class FormBuilder {
 		m_disabled = Boolean.valueOf(ro);
 		return this;
 	}
+	@Nonnull
+	public FormBuilder testId(String id) {
+		m_testid = id;
+		return this;
+	}
 
 	@Nonnull
 	public <I> FormBuilder disabled(@Nonnull I instance, @Nonnull String property) {
@@ -410,6 +418,7 @@ final public class FormBuilder {
 		m_labelCss = null;
 		m_errorLocation = null;
 		m_bindingConverter = null;
+		m_testid = null;
 	}
 
 	/*--------------------------------------------------------------*/
@@ -436,9 +445,17 @@ final public class FormBuilder {
 		else
 			addVertical(control);
 
+		String testid = m_testid;
+		PropertyMetaModel<?> pmm = m_propertyMetaModel;
+		if(null != testid)
+			control.setTestID(testid);
+		else if(control.getTestID() == null) {
+			if(pmm != null)
+				control.setTestID(pmm.getName());
+		}
+
 		if(control instanceof IControl) {
 			IControl< ? > ctl = (IControl< ? >) control;
-			PropertyMetaModel< ? > pmm = m_propertyMetaModel;
 			if(null != pmm) {
 				Object instance = m_instance;
 				if(null != instance) {

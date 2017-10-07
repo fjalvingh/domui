@@ -308,15 +308,9 @@ public class DefaultBugListener implements IBugListener {
 
 		//-- Show all bugs. Stop at MAX_BUGS.
 		List<BugItem> list = new ArrayList<BugItem>(ref.getBugList());
-		Collections.sort(list, new Comparator<BugItem>() {
-			@Override
-			public int compare(BugItem a, BugItem b) {
-				long res = a.getTimestamp().getTime() - b.getTimestamp().getTime();
-				if(res == 0)
-					return b.getNumber() - a.getNumber();
-				return res < 0 ? 1 : -1; // REVERSE ORDER (descending date)
-			}
-		});
+
+		// REVERSE ORDER (descending date)
+		Collections.sort(list, (a, b) -> DomUtil.compareNullableOnFunctions(b, a, Long::compareTo, (item -> item.getTimestamp().getTime()), (item -> Long.valueOf(item.getNumber()))));
 
 		Table tbl = new Table();
 		fw.add(tbl);

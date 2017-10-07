@@ -65,9 +65,12 @@ import java.util.regex.Pattern;
  */
 @DefaultNonNull
 final public class WebDriverConnector {
+
 	private static final Logger LOG = LoggerFactory.getLogger(WebDriverConnector.class);
 
 	public static final String PAGENAME_PARAMETER = "pagename";
+
+	public static final String BROWSERSTACK = "browserstack://";
 
 	static private List<WebDriverConnector> m_webDriverConnectorList = new ArrayList<WebDriverConnector>();
 
@@ -187,9 +190,16 @@ final public class WebDriverConnector {
 		 * we assume local.
 		 */
 		String ws = Objects.requireNonNull(p.getProperty("webdriver.hub", "chrome"));
-		String[] frag = ws.split("@");
-		String browserName = frag[0];
-		String remote = frag.length > 1 ? frag[1] : "local";
+		int pos = ws.indexOf('@');
+		String browserName;
+		String remote;
+		if(pos > 0) {
+			browserName = ws.substring(0, pos);
+			remote = ws.substring(pos + 1);
+		} else {
+			remote = "local";
+			browserName = ws;
+		}
 
 		BrowserModel browserModel = BrowserModel.get(browserName);
 		WebDriverType webDriverType = getDriverType(remote);
@@ -212,6 +222,9 @@ final public class WebDriverConnector {
 			return WebDriverType.HTMLUNIT;                    // Used as a target because it can emulate multiple browser types
 		if("local".equals(hubUrl.trim()))
 			return WebDriverType.LOCAL;
+		if(hubUrl.startsWith(BROWSERSTACK)) {
+			return WebDriverType.BROWSERSTACK;
+		}
 		return WebDriverType.REMOTE;
 	}
 
@@ -1755,6 +1768,20 @@ final public class WebDriverConnector {
 		if(null == element)
 			throw new ElementNotFoundException("testID " + testId);
 		return element;
+	}
+
+	@Nonnull
+	public WebElement getElement(String testId, String extraCss) {
+		WebElement element = findElement(testId, extraCss);
+		if(null == element)
+			throw new ElementNotFoundException("testID " + testId + " and " + extraCss);
+		return element;
+	}
+
+
+	@Nullable
+	public WebElement findElement(String testId, String extraCss) {
+		return findElement(byId(testId, extraCss));
 	}
 
 	@Nonnull

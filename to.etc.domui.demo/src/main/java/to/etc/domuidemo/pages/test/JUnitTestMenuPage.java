@@ -11,8 +11,10 @@ import to.etc.domuidemo.pages.test.binding.order1.TestBindingOrder1;
 import to.etc.domuidemo.pages.test.componenterrors.Form4LayoutTestPage;
 import to.etc.domuidemo.pages.test.componenterrors.HtmlEditorTestPage;
 import to.etc.domuidemo.pages.test.componenterrors.LookupForm1TestPage;
+import to.etc.domuidemo.pages.test.componenterrors.LookupForm2TestPage;
 import to.etc.domuidemo.pages.test.componenterrors.LookupInput2TestPage;
 import to.etc.domuidemo.pages.test.componenterrors.LookupInputTestPage;
+import to.etc.domuidemo.pages.test.componenterrors.Text2LayoutTestPage;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -40,7 +42,9 @@ public class JUnitTestMenuPage extends MenuPage {
 
 		addCaption("forms and components");
 		addLink(Form4LayoutTestPage.class, "Form4 vertical form builder layout");
-		addLink(LookupForm1TestPage.class, "LookupForm tests");
+		addLink(Text2LayoutTestPage.class, "Text2 layout");
+		addLink(LookupForm1TestPage.class, "LookupForm tests: clearInput with LookupInput mandatory control");
+		addLink(LookupForm2TestPage.class, "LookupForm tests: same, checks that clearInput is implemented");
 
 		addCaption("Component test pages");
 		addLink(HtmlEditorTestPage.class, "Test htmleditor");

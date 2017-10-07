@@ -30,14 +30,10 @@ package to.etc.domui.component.input;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 22, 2009
  */
-public class HiddenText<T> extends Text<T> {
+public class HiddenText<T> extends Text2<T> {
 	public HiddenText(Class<T> inputClass) {
 		super(inputClass);
-		setCssClass("ui-hit");
-	}
-
-	@Override
-	public String getInputType() {
-		return "password";
+		addCssClass("ui-hit");
+		setPassword();
 	}
 }

@@ -28,6 +28,7 @@ import to.etc.domui.component.misc.FaIcon;
 import to.etc.domui.dom.html.Button;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.Img;
+import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.util.DomUtil;
 
 /**
@@ -63,7 +64,7 @@ public class SmallImgButton extends Button {
 	 * @param rurl
 	 * @param cl
 	 */
-	public SmallImgButton(String rurl, IClicked<SmallImgButton> cl) {
+	public SmallImgButton(String rurl, IClicked<? extends NodeBase> cl) {
 		this();
 		setClicked(cl);
 		setSrc(rurl);

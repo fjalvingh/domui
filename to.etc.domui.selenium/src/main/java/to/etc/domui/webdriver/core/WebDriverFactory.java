@@ -29,10 +29,12 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 import static to.etc.domui.util.DomUtil.nullChecked;
 
@@ -66,7 +68,81 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 
 			case REMOTE:
 				return allocateRemoteInstance(browser, nullChecked(hubUrl), lang);
+
+			case BROWSERSTACK:
+				return allocateBrowserStack(browser, Objects.requireNonNull(hubUrl), lang);
 		}
+	}
+
+	private static WebDriver allocateBrowserStack(BrowserModel browser, String huburl, Locale lang) throws MalformedURLException {
+		if(huburl.startsWith(WebDriverConnector.BROWSERSTACK)) {
+			huburl = huburl.substring(WebDriverConnector.BROWSERSTACK.length());
+		}
+
+		//-- Format is browserstack://username:password
+		String[] spl = huburl.split(":");
+		if(spl.length != 2) {
+			throw new IllegalStateException("Invalid browserstack:// url: use browserstack://username:key");
+		}
+		String userName = spl[0];
+		String key = spl[1];
+		if(key.endsWith("/"))
+			key = key.substring(0, key.length() - 1);
+
+		DesiredCapabilities caps = new DesiredCapabilities();
+		switch(browser) {
+			default:
+				throw new IllegalStateException("browserstack: unsupported browser type " + browser);
+
+			case CHROME:
+				caps.setCapability("browser", "chrome");
+				break;
+
+			case EDGE14:
+				caps.setCapability("browser", "Edge");
+				caps.setCapability("browser_version", "14");
+				caps.setCapability("os_version", "10");
+				break;
+
+			case EDGE15:
+				caps.setCapability("browser", "Edge");
+				caps.setCapability("browser_version", "15");
+				caps.setCapability("os_version", "10");
+				break;
+
+			case FIREFOX:
+				caps.setCapability("browser", "Firefox");
+				caps.setCapability("os_version", "8");
+				break;
+
+			case IE:
+				caps.setCapability("browser", "IE");
+				caps.setCapability("browser_version", "11.0");
+				caps.setCapability("os_version", "8");
+				break;
+
+			case IE10:
+				caps.setCapability("browser", "IE");
+				caps.setCapability("browser_version", "10.0");
+				caps.setCapability("os_version", "8");
+				break;
+
+			case IE11:
+				caps.setCapability("browser", "IE");
+				caps.setCapability("browser_version", "11.0");
+				caps.setCapability("os_version", "10");
+				break;
+		}
+
+		caps.setCapability("os", "Windows");
+		caps.setCapability("browserstack.debug", "true");
+
+		//-- Local passthrough support
+		caps.setCapability("browserstack.local", "true");
+		caps.setCapability("browserstack.localIdentifier", "btest");
+
+		String url = "https://" + userName + ":" + key + "@hub-cloud.browserstack.com/wd/hub";
+		return new RemoteWebDriver(new URL(url), caps);
 	}
 
 	private static WebDriver allocatePhantomjsInstance(Locale lang) throws Exception {
@@ -154,7 +230,8 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 			case IE9:
 			case IE10:
 			case IE11:
-			case EDGE:
+			case EDGE14:
+			case EDGE15:
 				return getIECapabilities(browser, lang);
 		}
 	}
@@ -175,7 +252,8 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 			case IE9:
 			case IE10:
 			case IE11:
-			case EDGE:
+			case EDGE14:
+			case EDGE15:
 				return allocateIEDriver(browser, lang);
 		}
 	}
@@ -315,7 +393,10 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 			case IE11:
 				dc.setVersion("11");
 				break;
-			case EDGE:
+			case EDGE14:
+				dc.setVersion("10");
+				break;
+			case EDGE15:
 				dc.setVersion("11");
 				break;
 		}

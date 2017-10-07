@@ -606,9 +606,9 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		}
 
 		//-- Walk all search fields
-		m_table = new Table();
-		m_table.setCssClass("ui-lf-st");
-		searchContainer.add(m_table);
+		Table tbl = m_table = new Table();
+		tbl.setCssClass("ui-lf-st");
+		searchContainer.add(tbl);
 		m_tbody = new TBody();
 		m_tbody.setTestID("tableBodyLookupForm");
 		m_table.add(m_tbody);
@@ -1249,7 +1249,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 		TD ccell = new TD(); // Control cell
 		tr.add(ccell);
-		ccell.setCssClass("ui-f-in");
+		ccell.setCssClass("ui-f-in ui-f4-ctl ui-f4-ctl-v");
 
 		//-- Now add the controls and shtuff..
 		NodeBase labelcontrol = qt.getLabelControl();

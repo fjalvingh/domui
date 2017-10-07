@@ -24,21 +24,24 @@
  */
 package to.etc.domui.component.lookup;
 
-import javax.annotation.*;
+import to.etc.domui.component.input.Text2;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.MetaUtils;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.SearchPropertyMetaModel;
+import to.etc.domui.dom.html.IControl;
+import to.etc.webapp.query.QCriteria;
 
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.html.*;
-import to.etc.webapp.query.*;
+import javax.annotation.Nonnull;
 
 @SuppressWarnings("unchecked")
 final class LookupFactoryString implements ILookupControlFactory {
 	@Override
 	public <T, X extends IControl<T>> int accepts(final @Nonnull SearchPropertyMetaModel spm, final X control) {
 		if(control != null) {
-			if(!(control instanceof Text< ? >))
+			if(!(control instanceof Text2< ? >))
 				return -1;
-			Text< ? > t = (Text< ? >) control;
+			Text2< ? > t = (Text2< ? >) control;
 			if(t.getActualType() != String.class)
 				return -1;
 		}
@@ -56,23 +59,11 @@ final class LookupFactoryString implements ILookupControlFactory {
 		}
 
 		//-- Treat everything else as a String using a converter.
-		final Text<T> txt = new Text<T>(iclz);
-		if(pmm.getDisplayLength() > 0) {
-			int sz = pmm.getDisplayLength();
-			if(sz > 40)
-				sz = 40;
-			txt.setSize(sz);
-		} else {
-			//-- We must decide on a length....
-			int sz = 0;
-			if(pmm.getLength() > 0) {
-				sz = pmm.getLength();
-				if(sz > 40)
-					sz = 40;
-			}
-			if(sz != 0)
-				txt.setSize(sz);
-		}
+		final Text2<T> txt = new Text2<T>(iclz);
+		int size = MetaManager.calculateTextSize(pmm);
+		if(size > 0)
+			txt.setSize(size);
+
 		if(pmm.getConverter() != null)
 			txt.setConverter(pmm.getConverter());
 		if(pmm.getLength() > 0)
