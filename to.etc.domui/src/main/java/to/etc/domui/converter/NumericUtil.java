@@ -24,15 +24,19 @@
  */
 package to.etc.domui.converter;
 
-import java.math.*;
-import java.text.*;
+import to.etc.domui.component.meta.NumericPresentation;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.trouble.ValidationException;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.Msgs;
+import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.nls.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
 
 public class NumericUtil {
 	private NumericUtil() {}
@@ -229,7 +233,7 @@ public class NumericUtil {
 	};
 
 	@Nonnull
-	static public String renderNumber(Number v, NumericPresentation np, int scale) {
+	static public String renderNumber(Number v, NumericPresentation np, int inScale) {
 		if(v == null)
 			return "";
 		Class< ? > type = v.getClass();
@@ -252,6 +256,7 @@ public class NumericUtil {
 			}
 		}
 
+		int scale = inScale;
 		if(scale > 6)
 			scale = 6;
 		else if(scale < 0)
@@ -263,6 +268,13 @@ public class NumericUtil {
 
 			case UNKNOWN:
 			case NUMBER:
+				//-- If scale is unknown and the number is scaled, just print everything.
+				if(inScale == -1 && DomUtil.isScaledType(v.getClass())) {
+					NumberFormat nf = NumberFormat.getInstance(NlsContext.getLocale());
+					nf.setGroupingUsed(true);
+					return nf.format(v);
+				}
+
 				@Nonnull
 				String res = new DecimalFormat(NUMBER_BY_SCALE_TRUNC_ZEROS[scale], dfs).format(v);
 				if(res != null && (res.endsWith(".") || res.endsWith(","))) {
