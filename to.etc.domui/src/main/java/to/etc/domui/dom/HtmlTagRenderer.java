@@ -966,7 +966,6 @@ public class HtmlTagRenderer implements INodeVisitor {
 			o().attr("onblur", sb().append(transformScript).append("WebUI.hideLookupTypingPopup('").append(n.getActualID()).append("')").toString());
 		} else {
 			//-- Attach normal onKeyPress handling.
-			System.out.println("    onkp" + n.getActualID() + " " + n.getOnKeyPressJS());
 			if(!StringTool.isBlank(n.getOnKeyPressJS())) {
 				o().attr("onkeypress", "return " + n.getOnKeyPressJS());
 			}
