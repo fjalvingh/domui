@@ -14,6 +14,7 @@ interface WebUIStatic {
 	blockUI() : void;
 	getPostURL() : string;
 	_T: any;
+	format(message: string, ...rest) : string;
 	getPostURL() : string;
 	_hideExpiredMessage: boolean;
 	isReallyIE7() : boolean;
@@ -22,4 +23,9 @@ interface WebUIStatic {
 	isNormalIE9plus() : boolean;
 	normalizeKey(evt: any): number;
 	stretchHeightOnNode(elem : HTMLElement) : void;
+	truncateUtfBytes(str: string, nbytes: number) : number;
+	utf8Length(str: string) : number;
+
+	// handler
+	doCustomUpdates(): void;
 }

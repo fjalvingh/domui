@@ -227,7 +227,7 @@ namespace WebUIStatic {
 	 * @param message
 	 * @returns
 	 */
-	function format(message: string) : string {
+	function format(message: string, ...rest) : string {
 		for(let i = 1; i < arguments.length; i++) {
 			message = message.replace("{"+(i-1)+"}", arguments[i]);
 		}

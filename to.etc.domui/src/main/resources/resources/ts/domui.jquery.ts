@@ -57,7 +57,7 @@ $.fn.extend({
 	/**
 	 * Read or set a cookie.
 	 */
-	cookie: function(name, value, options) : any {
+	cookie: function(name: string, value : any, options: any) : any {
 		if(value !== undefined) {
 			if(value === null)
 				options.expires = -1;

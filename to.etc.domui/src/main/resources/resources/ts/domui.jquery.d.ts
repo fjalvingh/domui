@@ -5,11 +5,19 @@ interface JQuery {
 	error(fn: Function):  void;
 
 	markerTransformed: boolean;
+
+	doStretch() : void;
+	fixOverflow() : void;
+	setBackgroundImageMarker() : void;
+
 }
 
 interface JQueryStatic {
-	webui(xml: any) : void;
+	webui(xml: any): void;
+
 	expr: any;
 	browser: any;
 	dbg: any;
+
+	cookie(name: string, value?: any, options?: any): any;
 }

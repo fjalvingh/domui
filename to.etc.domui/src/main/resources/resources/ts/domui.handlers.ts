@@ -1,0 +1,137 @@
+/// <reference path="typings/jquery/jquery.d.ts" />
+/// <reference path="domui.jquery.d.ts" />
+/// <reference path="domui.webui.d.ts" />
+//import WebUI from "domui.webui.util";
+
+namespace WebUIStatic {
+	let _customUpdatesContributors = $.Callbacks("unique");
+
+	let _customUpdatesContributorsTimerID: number = null;
+
+	let _browserChecked = false;
+
+	/**
+	 * registers function that gets called after doCustomUpdates sequence of calls ends, with 500 delay - doCustomUpdates can trigger new doCustomUpdates etc...
+	 * @param contributorFunction
+	 */
+	function registerCustomUpdatesContributor(contributorFunction: Function): void {
+		_customUpdatesContributors.add(contributorFunction);
+	}
+
+	function unregisterCustomUpdatesContributor(contributorFunction: Function): void {
+		_customUpdatesContributors.remove(contributorFunction);
+	}
+
+	function doCustomUpdates(): void {
+		$('.floatThead-wrapper').each(
+			function(index, node) {
+				$(node).attr('stretch', $(node).find('>:first-child').attr('stretch'));
+			}
+		);
+		$('[stretch=true]').doStretch();
+		$('.ui-dt, .ui-fixovfl').fixOverflow();
+		$('input[marker]').setBackgroundImageMarker();
+
+		//-- Limit textarea size on paste events
+		$("textarea[mxlength], textarea[maxbytes]")
+			.unbind("input.domui")
+			.unbind("propertychange.domui")
+			.bind('input.domui propertychange.domui', function() {
+				let maxLength = attrNumber(this, 'mxlength');				// Use mxlength because Chrome improperly implements maxlength (issue 252613)
+				let maxBytes = attrNumber(this, 'maxbytes');
+				let val = $(this).val() as string;
+				let newlines = (val.match(/\r\n/g) || []).length;				// Count the #of 2-char newlines, as they will be replaced by 1 newline character
+				if(maxBytes < 0) {
+					if(maxLength < 0)
+						return;
+				} else if(maxLength < 0) {
+					maxLength = maxBytes;
+				}
+
+				if(val.length + newlines > maxLength) {
+					val = val.substring(0, maxLength - newlines);
+					$(this).val(val);
+				}
+				if(maxBytes > 0) {
+					let cutoff = WebUI.truncateUtfBytes(val, maxBytes);
+					if(cutoff < val.length) {
+						val = val.substring(0, cutoff);
+						$(this).val(val);
+					}
+				}
+			});
+
+		//-- Limit textarea size on key presses
+		$("textarea[mxlength], textarea[maxbytes]")
+			.unbind("keypress.domui")
+			.bind('keypress.domui', function(evt) {
+				if(evt.which == 0 || evt.which == 8)
+					return true;
+
+				//-- Is the thing too long already?
+				let maxLength = attrNumber(this, 'mxlength');				// Use mxlength because Chrome improperly implements maxlength (issue 252613)
+				let maxBytes = attrNumber(this, 'maxbytes');
+				let val = $(this).val() as string;
+				let newlines = (val.match(/\r\n/g) || []).length;				// Count the #of 2-char newlines, as they will be replaced by 1 newline character
+				if(maxBytes < 0) {
+					if(maxLength < 0)
+						return true;
+				} else if(maxLength < 0) {
+					maxLength = maxBytes;
+				}
+				if(val.length - newlines >= maxLength)							// Too many chars -> not allowed
+					return false;
+				if(maxBytes > 0) {
+					let bytes = WebUI.utf8Length(val);
+					if(bytes >= maxBytes)
+						return false;
+				}
+				return true;
+			});
+
+		//custom updates may fire several times in sequence, se we fire custom contributors only after it gets steady for a while (500ms)
+		if(_customUpdatesContributorsTimerID) {
+			window.clearTimeout(_customUpdatesContributorsTimerID);
+			_customUpdatesContributorsTimerID = null;
+		}
+		_customUpdatesContributorsTimerID = window.setTimeout(function() {
+			try {
+				_customUpdatesContributors.fire()
+			} catch(ex) {
+			}
+		}, 500);
+		//$('.ui-dt-ovflw-tbl').floatThead('reflow');
+	}
+
+	function attrNumber(elem, name: string): number {
+		let val = $(elem).attr(name);
+		if(typeof val == 'undefined')
+			return -1;
+		return Number(val);
+	}
+
+	function onDocumentReady(): void {
+		checkBrowser();
+		WebUI.handleCalendarChanges();
+		if((window as any).DomUIDevel)
+			WebUI.handleDevelopmentMode();
+		doCustomUpdates();
+	}
+
+	function checkBrowser() : void {
+		if(this._browserChecked)
+			return;
+		this._browserChecked = true;
+
+		//-- We do not support IE 7 and lower anymore.
+		if($.browser.msie && $.browser.majorVersion < 8) {
+			//-- Did we already report that warning this session?
+			if($.cookie("domuiie") == null) {
+				alert(WebUI.format(WebUI._T.sysUnsupported, $.browser.majorVersion));
+				$.cookie("domuiie", "true", {});
+			}
+		}
+	}
+
+}
+

@@ -948,20 +948,6 @@ $.extend(WebUI, {
 	},
 
 
-	checkBrowser: function() {
-		if(this._browserChecked)
-			return;
-		this._browserChecked = true;
-
-		//-- We do not support IE 7 and lower anymore.
-		if($.browser.msie && $.browser.majorVersion < 8) {
-			//-- Did we already report that warning this session?
-			if($.cookie("domuiie") == null) {
-				alert(WebUI.format(WebUI._T.sysUnsupported, $.browser.majorVersion));
-				$.cookie("domuiie", "true", {});
-			}
-		}
-	},
 
 	/** ***************** ScrollableTabPanel stuff. **************** */
 	_ignoreScrollClick: 0,
@@ -1930,96 +1916,6 @@ WebUI._customUpdatesContributors = $.Callbacks("unique");
 
 WebUI._customUpdatesContributorsTimerID = null;
 
-/**
- * registers function that gets called after doCustomUpdates sequence of calls ends, with 500 delay - doCustomUpdates can trigger new doCustomUpdates etc...
- * @param contributorFunction
- */
-WebUI.registerCustomUpdatesContributor = function(contributorFunction) {
-	WebUI._customUpdatesContributors.add(contributorFunction);
-}
-
-WebUI.unregisterCustomUpdatesContributor = function(contributorFunction) {
-	WebUI._customUpdatesContributors.remove(contributorFunction);
-}
-
-WebUI.doCustomUpdates = function() {
-	$('.floatThead-wrapper').each(
-		function (index, node){
-			$(node).attr('stretch', $(node).find('>:first-child').attr('stretch'));
-		}
-	);
-	$('[stretch=true]').doStretch();
-	$('.ui-dt, .ui-fixovfl').fixOverflow();
-	$('input[marker]').setBackgroundImageMarker();
-
-	//-- Limit textarea size on paste events
-	$("textarea[mxlength], textarea[maxbytes]").unbind("input.domui").unbind("propertychange.domui").bind('input.domui propertychange.domui', function() {
-		var maxLength = Number($(this).attr('mxlength'));				// Use mxlength because Chrome improperly implements maxlength (issue 252613)
-		var maxBytes = Number($(this).attr('maxbytes'));
-		var val = $(this).val();
-		var newlines = (val.match(/\r\n/g) || []).length;				// Count the #of 2-char newlines, as they will be replaced by 1 newline character
-		if(maxBytes === NaN) {
-			if(maxLength === NaN)
-				return;
-		} else if(maxLength === NaN) {
-			maxLength = maxBytes;
-		}
-
-		if(val.length + newlines > maxLength) {
-			val = val.substring(0, maxLength - newlines);
-			$(this).val(val);
-		}
-		if(maxBytes !== NaN) {
-			var cutoff = WebUI.truncateUtfBytes(val, maxBytes);
-			if(cutoff < val.length) {
-				val = val.substring(0, cutoff);
-				$(this).val(val);
-			}
-		}
-	});
-
-	//-- Limit textarea size on key presses
-	$("textarea[mxlength], textarea[maxbytes]").unbind("keypress.domui").bind('keypress.domui', function(evt) {
-		if(evt.which == 0 || evt.which == 8)
-			return true;
-
-		//-- Is the thing too long already?
-		var maxLength = Number($(this).attr('mxlength'));
-		var maxBytes = Number($(this).attr('maxbytes'));
-		var val = $(this).val();
-		var newlines = (val.match(/\r\n/g) || []).length;				// Count the #of 2-char newlines, as they will be replaced by 1 newline character
-		if(maxBytes === NaN) {
-			if(maxLength === NaN)
-				return true;
-		} else if(maxLength === NaN) {
-			maxLength = maxBytes;
-		}
-		if(val.length - newlines >= maxLength)							// Too many chars -> not allowed
-			return false;
-		if(maxBytes !== NaN) {
-			var bytes = WebUI.utf8Length(val);
-			if(bytes >= maxBytes)
-				return false;
-		}
-		return true;
-	});
-
-	//custom updates may fire several times in sequence, se we fire custom contributors only after it gets steady for a while (500ms)
-	if (WebUI._customUpdatesContributorsTimerID) {
-		window.clearTimeout(WebUI._customUpdatesContributorsTimerID);
-	}
-	WebUI._customUpdatesContributorsTimerID = window.setTimeout(function(){ try{ WebUI._customUpdatesContributors.fire()}catch(ex) {}}, 500);
-	//$('.ui-dt-ovflw-tbl').floatThead('reflow');
-};
-
-
-WebUI.onDocumentReady = function() {
-	WebUI.checkBrowser();
-	WebUI.handleCalendarChanges();
-	if(DomUIDevel)
-		WebUI.handleDevelopmentMode();
-	WebUI.doCustomUpdates();
-};
 
 WebUI.floatingDivResize = function(ev, ui) {
 	$(ui.helper.get(0)).css('position', 'fixed');
