@@ -1,5 +1,9 @@
 declare const WebUI: WebUIStatic;
 
+declare global {
+
+}
+
 interface WebUIStatic {
 	// ajax
 	clicked(h, id : string, evt: any);
@@ -9,6 +13,7 @@ interface WebUIStatic {
 	handleResponse(data, state): void;
 	scall(id: string, action: string, fields? : any) : void;
 	valuechanged(unknown : string, id: string) : void;
+	beforeUnload() : void;
 
 	// busy
 	blockUI() : void;
@@ -43,6 +48,9 @@ interface WebUIStatic {
 
 	// handler
 	doCustomUpdates(): void;
+	addPagerAccessKeys(e): void;
+	onDocumentReady(): void;
+	onWindowResize() : void;
 
 	// dateinput
 	handleCalendarChanges() : void;

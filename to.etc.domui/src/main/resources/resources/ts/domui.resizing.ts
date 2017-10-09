@@ -102,7 +102,7 @@ namespace WebUIStatic {
 		$('.ui-dt, .ui-fixovfl').fixOverflow();
 	}
 
-	function onWindowResize() {
+	function onWindowResize() : void {
 		WebUI.doCustomUpdates();
 	}
 
