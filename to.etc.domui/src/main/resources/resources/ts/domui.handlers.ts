@@ -114,7 +114,7 @@ namespace WebUIStatic {
 		checkBrowser();
 		WebUI.handleCalendarChanges();
 		if((window as any).DomUIDevel)
-			WebUI.handleDevelopmentMode();
+			handleDevelopmentMode();
 		doCustomUpdates();
 	}
 
@@ -131,6 +131,36 @@ namespace WebUIStatic {
 				$.cookie("domuiie", "true", {});
 			}
 		}
+	}
+
+	let _debugLastKeypress : number;
+	let _debugMouseTarget : HTMLElement;
+
+	function handleDevelopmentMode() : void {
+		$(document).bind("keydown", function(e) {
+			if(e.keyCode != 192)
+				return;
+
+			var t = new Date().getTime();
+			if(! _debugLastKeypress || (t - _debugLastKeypress) > 250) {
+				_debugLastKeypress = t;
+				return;
+			}
+
+			//-- Send a DEBUG command to the server, indicating the current node below the last mouse move....
+			var id = WebUI.nearestID(_debugMouseTarget);
+			if(! id) {
+				id = document.body.id;
+			}
+
+			WebUI.scall(id, "DEVTREE", {});
+		});
+		$(document.body).bind("mousemove", function(e) {
+//			if(WebUI._NOMOVE)
+//				return;
+//			console.debug("move ", e);
+			_debugMouseTarget = e.target; // e.srcElement || e.originalTarget;
+		});
 	}
 
 }

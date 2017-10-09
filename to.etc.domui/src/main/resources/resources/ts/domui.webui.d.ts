@@ -7,7 +7,7 @@ interface WebUIStatic {
 	cancelPolling(): void;
 	handleError(request, status, exc): boolean;
 	handleResponse(data, state): void;
-
+	scall(id: string, action: string, fields? : any) : void;
 
 	//-- util
 	refreshElement(id: string) : void;
@@ -21,6 +21,7 @@ interface WebUIStatic {
 	isIE8orIE8c() : boolean;
 	isIE8orNewer() : boolean;
 	isNormalIE9plus() : boolean;
+	nearestID(elem: HTMLElement) : any;
 	normalizeKey(evt: any): number;
 	stretchHeightOnNode(elem : HTMLElement) : void;
 	truncateUtfBytes(str: string, nbytes: number) : number;
@@ -28,4 +29,7 @@ interface WebUIStatic {
 
 	// handler
 	doCustomUpdates(): void;
+
+	// dateinput
+	handleCalendarChanges() : void;
 }

@@ -120,7 +120,7 @@ namespace WebUIStatic {
 	}
 
 
-	function getPostURL() : string {
+	function getPostURL(): string {
 		let p = window.location.href;
 		let ix = p.indexOf('?');
 		if(ix != -1)
@@ -128,7 +128,7 @@ namespace WebUIStatic {
 		return p;
 	}
 
-	function getObituaryURL() : string {
+	function getObituaryURL(): string {
 		let u = getPostURL();
 		let ix = u.lastIndexOf('.');
 		if(ix < 0)
@@ -136,28 +136,28 @@ namespace WebUIStatic {
 		return u.substring(0, ix) + ".obit";
 	}
 
-	function openWindow(url: string, name: string, par: any) : boolean {
+	function openWindow(url: string, name: string, par: any): boolean {
 		let h = undefined;
 		try {
 			h = window.open(url, name, par);
 		} catch(x) {
-			alert("Got popup exception: "+x);
+			alert("Got popup exception: " + x);
 		}
-		if (!h)
+		if(!h)
 			alert(WebUI._T.sysPopupBlocker);
 		return false;
 	}
 
-	function postURL(path: string, name: string, params, target) : void {
+	function postURL(path: string, name: string, params, target): void {
 		let form = document.createElement("form");
-		form.setAttribute("method","post");
+		form.setAttribute("method", "post");
 		form.setAttribute("action", path);
-		if (null != target){
+		if(null != target) {
 			form.setAttribute("target", target);
 		}
 
-		for (let key in params) {
-			if (params.hasOwnProperty(key)) {
+		for(let key in params) {
+			if(params.hasOwnProperty(key)) {
 				let hiddenField = document.createElement("input");
 				hiddenField.setAttribute("type", "hidden");
 				hiddenField.setAttribute("name", key);
@@ -172,7 +172,7 @@ namespace WebUIStatic {
 	/**
 	 * Do not use- kept for when we find a solution to IE's close problem.
 	 */
-	function isBrowserClosed(e) : boolean {
+	function isBrowserClosed(e): boolean {
 		try {
 			// -- ie does not work as usual.
 			if(window.event) {
@@ -181,23 +181,23 @@ namespace WebUIStatic {
 					+ e.clientX + ", dw="
 					+ document.documentElement.clientWidth + ", screentop="
 					+ self.screenTop);
-				if (e.clientY < 0 && (e.clientX > (document.documentElement.clientWidth - 5) || e.clientX < 15))
+				if(e.clientY < 0 && (e.clientX > (document.documentElement.clientWidth - 5) || e.clientX < 15))
 					return true;
 			}
-		} catch (x) {
+		} catch(x) {
 		}
 
 		try { // Firefox part works properly.
-			if (window.innerWidth == 0 && window.innerHeight == 0)
+			if(window.innerWidth == 0 && window.innerHeight == 0)
 				return true;
-		} catch (x) {
+		} catch(x) {
 		}
 
 		return false;
 	}
 
 
-	function toClip(value: any) : void {
+	function toClip(value: any): void {
 		let w = (window as any);
 		if(w.clipboardData) {
 			// the IE-way
@@ -227,14 +227,14 @@ namespace WebUIStatic {
 	 * @param message
 	 * @returns
 	 */
-	function format(message: string, ...rest) : string {
+	function format(message: string, ...rest): string {
 		for(let i = 1; i < arguments.length; i++) {
-			message = message.replace("{"+(i-1)+"}", arguments[i]);
+			message = message.replace("{" + (i - 1) + "}", arguments[i]);
 		}
 		return message;
 	}
 
-	function findParentOfTagName(node: any, type: string) : any {
+	function findParentOfTagName(node: any, type: string): any {
 		while(node != null) {
 			node = node.parentNode;
 			if(node.tagName == type)
@@ -247,7 +247,7 @@ namespace WebUIStatic {
 	 * @deprecated This is incorrect! Use disableSelect below!
 	 * Disable selection on the given element.
 	 */
-	function disableSelection(node: any) : void {
+	function disableSelection(node: any): void {
 		node.onselectstart = function() {
 			return false;
 		};
@@ -272,51 +272,141 @@ namespace WebUIStatic {
 		}
 	}
 
-	function nearestID(elem: any) : any {
+	function nearestID(elem: HTMLElement): any {
 		while(elem) {
 			if(elem.id)
 				return elem.id;
-			elem = elem.parentNode;
+			elem = elem.parentNode as HTMLElement;
 		}
 		return undefined;
 	}
 
 	//We need to re-show element to force IE7 browser to recalculate correct height of element. This must be done to fix some IE7 missbehaviors.
-	function refreshElement(id: string) : void {
+	function refreshElement(id: string): void {
 		let elem = document.getElementById(id);
-		if (elem){
+		if(elem) {
 			$(elem).hide();
 			$(elem).show(1); //needs to be done on timeout/animation, otherwise it still fails to recalculate...
 		}
 	}
 
+	class Point {
+		x: number;
+		y: number;
+
+		constructor(x, y) {
+			this.x = x;
+			this.y = y;
+		}
+	}
+
+	class Rect {
+		bx: number;
+		by: number;
+		ex: number;
+		ey: number;
+
+		constructor(_bx, _by, _ex, _ey) {
+			this.bx = _bx;
+			this.ex = _ex;
+			this.by = _by;
+			this.ey = _ey;
+		}
+	}
+
+	function getAbsolutePosition(obj): Point {
+		var top = 0, left = 0;
+		while(obj) {
+			top += obj.offsetTop;
+			left += obj.offsetLeft;
+			obj = obj.offsetParent;
+		}
+		return new Point(left, top);
+	}
+
+	/**
+	 * None of the "standard" JS libraries like Rico or Prototype have code that
+	 * actually <i>works</i> to get the actual <i>page or absolute</i>
+	 * position of elements when scrolling is used. All of them unconditionally
+	 * add scroll offsets to the relative positions but scrolling *will* cause
+	 * items to become *invisible* because they are scrolled out of view. The
+	 * calls here obtain a location for elements taking scrolling into account,
+	 * and they will return null if the item is not visible at all.
+	 */
+	function getAbsScrolledPosition(el): Rect {
+		// -- Calculate the element's current offseted locations
+		var bx = el.offsetLeft || 0;
+		var by = el.offsetTop || 0;
+		var ex = bx + el.offsetWidth;
+		var ey = by + el.offsetHeight;
+
+		var el = el.parentNode;
+		while(el != null) {
+			if(el.clientHeight != null) {
+				// -- Check the current location within the parent's bounds.
+				if(by < el.scrollTop)
+					by = el.scrollTop;
+				if(bx < el.scrollLeft)
+					bx = el.scrollLeft;
+				if(bx >= ex || by >= ey) // Not visible
+					return null;
+
+				// -- Check the end coordinates.
+				var vey = el.scrollTop + el.clientHeight;
+				var vex = el.scrollLeft + el.clientWidth;
+				if(ex > vex)
+					ex = vex;
+				if(ey > vey)
+					ey = vey;
+				if(by >= ey || bx >= ex) // Past the viewport's bounds?
+					return null;
+
+				// -- This much of the rectangle fits the viewport. Now make the
+				// position absolute within the viewport.
+				by -= el.scrollTop;
+				ey -= el.scrollTop;
+				bx -= el.scrollLeft;
+				ex -= el.scrollLeft;
+
+				by += el.offsetTop;
+				ey += el.offsetTop;
+				bx += el.offsetLeft;
+				ex += el.offsetLeft;
+			}
+			el = el.parentNode;
+		}
+		return new Rect(bx, by, ex, ey);
+	}
+
 	//Use this to make sure that item would be visible inside parent scrollable area. It uses scroll animation. In case when item is already in visible part, we just do single blink to gets user attention ;)
-	function scrollMeToTop(elemId: string, selColor: string, offset: number) : void {
+	function scrollMeToTop(elemId: string, selColor: string, offset: number): void {
 		let elem = document.getElementById(elemId);
-		if (!elem){
+		if(!elem) {
 			return;
 		}
 		let parent = elem.parentNode as any;
-		if (!parent){
+		if(!parent) {
 			return;
 		}
-		if (parent.scrollHeight > parent.offsetHeight){ //if parent has scroll
+		if(parent.scrollHeight > parent.offsetHeight) { //if parent has scroll
 			let elemPos = $(elem).position().top;
-			if (elemPos > 0 && elemPos < parent.offsetHeight){
+			if(elemPos > 0 && elemPos < parent.offsetHeight) {
 				//if elem already visible -> just do one blink
-				if (selColor){
+				if(selColor) {
 					let oldColor = $(elem).css('background-color');
-					$(elem).animate({backgroundColor: selColor}, "slow", function(){$(elem).animate({backgroundColor: oldColor}, "fast");});
+					$(elem).animate({backgroundColor: selColor}, "slow", function() {
+						$(elem).animate({backgroundColor: oldColor}, "fast");
+					});
 				}
-			}else{
+			} else {
 				//else scroll parent to show me at top
 				let newPos = $(elem).position().top + parent.scrollTop;
-				if($.browser.msie && parseInt($.browser.version) < 11){
-					if ($(elem).height() == 0){
+				if($.browser.msie && parseInt($.browser.version) < 11) {
+					if($(elem).height() == 0) {
 						newPos = newPos - 15; //On IE browsers older than 11 we need this correction :¬|
 					}
 				}
-				if (offset){
+				if(offset) {
 					newPos = newPos - offset;
 				}
 				$(parent).animate({scrollTop: newPos}, 'slow');
@@ -325,26 +415,26 @@ namespace WebUIStatic {
 	}
 
 	//Use this to make sure that option in dropdown would be visible. It needs fix only in FF sinve IE would always make visible selected option.
-	function makeOptionVisible(elemId: string, offset: number) : void {
-		if($.browser.msie){
+	function makeOptionVisible(elemId: string, offset: number): void {
+		if($.browser.msie) {
 			//IE already fix this... we need fix only for FF and other browsers
 			return;
 		}
 		let elem = document.getElementById(elemId);
-		if (!elem){
+		if(!elem) {
 			return;
 		}
 		let parent = elem.parentNode as any;
-		if (!parent){
+		if(!parent) {
 			return;
 		}
-		if (parent.scrollHeight > parent.offsetHeight){ //if parent has scroll
+		if(parent.scrollHeight > parent.offsetHeight) { //if parent has scroll
 			let elemPos = $(elem).position().top;
 			//if elem is not currenlty visible
-			if (elemPos <= 0 || elemPos >= parent.offsetHeight){
+			if(elemPos <= 0 || elemPos >= parent.offsetHeight) {
 				//else scroll parent to show me at top
 				let newPos = elemPos + parent.scrollTop;
-				if (offset){
+				if(offset) {
 					newPos = newPos - offset;
 				}
 				$(parent).animate({scrollTop: newPos}, 'slow');
@@ -352,7 +442,7 @@ namespace WebUIStatic {
 		}
 	}
 
-	function truncateUtfBytes(str: string, nbytes: number) : number {
+	function truncateUtfBytes(str: string, nbytes: number): number {
 		//-- Loop characters and calculate running length
 		let bytes = 0;
 		let length = str.length;
@@ -370,7 +460,7 @@ namespace WebUIStatic {
 		return length;
 	}
 
-	function utf8Length(str: string) : number {
+	function utf8Length(str: string): number {
 		let bytes = 0;
 		let length = str.length;
 		for(let ix = 0; ix < length; ix++) {
@@ -386,11 +476,11 @@ namespace WebUIStatic {
 	}
 
 	/** In tables that have special class selectors that might cause text-overflow we show full text on hover */
-	function showOverflowTextAsTitle(id: string, selector: string) : boolean {
+	function showOverflowTextAsTitle(id: string, selector: string): boolean {
 		let root = $("#" + id);
-		if (root) {
-			root.find(selector).each(function () {
-				if (this.offsetWidth < this.scrollWidth) {
+		if(root) {
+			root.find(selector).each(function() {
+				if(this.offsetWidth < this.scrollWidth) {
 					let $this = $(this);
 					$this.attr("title", $this.text());
 				}
@@ -399,81 +489,78 @@ namespace WebUIStatic {
 		return true;
 	}
 
-	function replaceBrokenImageSrc(id: string, alternativeImage: string) : void {
+	function replaceBrokenImageSrc(id: string, alternativeImage: string): void {
 		$('img#' + id).error(function() {
 			$(this).attr("src", alternativeImage);
 		});
 	}
 
-	function deactivateHiddenAccessKeys(windowId: string) : void {
+	function deactivateHiddenAccessKeys(windowId: string): void {
 		$('button').each(function(index) {
 			let iButton = $(this);
-			if(isButtonChildOfElement(iButton, windowId)){
+			if(isButtonChildOfElement(iButton, windowId)) {
 				let oldAccessKey = $(iButton).attr('accesskey');
-				if(oldAccessKey != null ){
+				if(oldAccessKey != null) {
 					$(iButton).attr('accesskey', $(windowId).attr('id') + '~' + oldAccessKey);
 				}
 			}
 		});
 	}
 
-	function reactivateHiddenAccessKeys(windowId: string) : void {
-		$("button[accesskey*='" + windowId + "~']" ).each(function(index) {
+	function reactivateHiddenAccessKeys(windowId: string): void {
+		$("button[accesskey*='" + windowId + "~']").each(function(index) {
 			let attr = $(this).attr('accesskey') as string;
 			let accessKeyArray = attr.split(windowId + '~');
 			$(this).attr('accesskey', accessKeyArray[accessKeyArray.length - 1]);
 		});
 	}
 
-	function isButtonChildOfElement(buttonId: any, windowId: string) : boolean {
+	function isButtonChildOfElement(buttonId: any, windowId: string): boolean {
 		return $(buttonId).parents('#' + $(windowId).attr('id')).length == 0;
 	}
 
 	/** ***************** Stretch elemnt height. Must be done via javascript. **************** */
-	function stretchHeight(elemId: string) : void {
+	function stretchHeight(elemId: string): void {
 		let elem = document.getElementById(elemId);
-		if (!elem){
+		if(!elem) {
 			return;
 		}
 		stretchHeightOnNode(elem);
 	}
 
-	function stretchHeightOnNode(elem : HTMLElement) : void {
+	function stretchHeightOnNode(elem: HTMLElement): void {
 		let elemHeight = $(elem).height();
 		let totHeight = 0;
 		$(elem).siblings().each(function(index, node) {
 			//do not count target element and other siblings positioned absolute or relative to parent in order to calculate how much space is actually taken / available
-			if (node != elem && $(node).css('position') == 'static' && ($(node).css('float') == 'none' || $(node).css('width') != '100%' /* count in floaters that occupies total width */)){
+			if(node != elem && $(node).css('position') == 'static' && ($(node).css('float') == 'none' || $(node).css('width') != '100%' /* count in floaters that occupies total width */)) {
 				//In IE7 hidden nodes needs to be additionaly excluded from count...
-				if (!($(node).css('visibility') == 'hidden' || $(node).css('display') == 'none')){
+				if(!($(node).css('visibility') == 'hidden' || $(node).css('display') == 'none')) {
 					//totHeight += node.offsetHeight;
 					totHeight += $(node).outerHeight(true);
 				}
 			}
 		});
 		let elemDeltaHeight = $(elem).outerHeight(true) - $(elem).height(); //we need to also take into account elem paddings, borders... So we take its delta between outter and inner height.
-		if (WebUI.isIE8orIE8c()){
+		if(WebUI.isIE8orIE8c()) {
 			//from some reason we need +1 only for IE8!
 			elemDeltaHeight = elemDeltaHeight + 1;
 		}
 		$(elem).height($(elem).parent().height() - totHeight - elemDeltaHeight);
-		if($.browser.msie && $.browser.version.substring(0, 1) == "7"){
+		if($.browser.msie && $.browser.version.substring(0, 1) == "7") {
 			//we need to special handle another IE7 muddy hack -> extra padding-bottom that is added to table to prevent non-necesarry vertical scrollers
-			if (elem.scrollWidth > elem.offsetWidth){
+			if(elem.scrollWidth > elem.offsetWidth) {
 				$(elem).height($(elem).height() - 20);
 				//show hidden vertical scroller if it is again needed after height is decreased.
-				if ($(elem).css('overflow-y') == 'hidden'){
-					if (elem.scrollHeight > elem.offsetHeight){
-						$(elem).css({'overflow-y' : 'auto'});
+				if($(elem).css('overflow-y') == 'hidden') {
+					if(elem.scrollHeight > elem.offsetHeight) {
+						$(elem).css({'overflow-y': 'auto'});
 					}
 				}
 				return;
 			}
 		}
 	}
-
-
-
 
 
 }

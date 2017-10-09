@@ -167,7 +167,7 @@ namespace WebUIStatic {
 		};
 	}
 
-	function scall(id, action, fields?) {
+	function scall(id: string, action: string, fields? : any) : void {
 		let call = prepareAjaxCall(id, action, fields);
 		cancelPolling();
 		$.ajax(call);
@@ -447,6 +447,42 @@ namespace WebUIStatic {
 			success: handleResponse,
 			error: handleErrorAsy
 		});
+	}
+
+	/**
+	 * Send Ajax request to the server every 2 minutes. This keeps the session
+	 * alive. The response can contain commands to execute which will indicate
+	 * important events or changes have taken place.
+	 */
+	function pingServer(timeout : number) : void {
+		var url = (window as any).DomUIappURL + "to.etc.domui.parts.PollInfo.part";
+		var fields= {};
+		fields["$pt"] = (window as any).DomUIpageTag;
+		fields["$cid"] = (window as any).DomUICID;
+		$.ajax( {
+			url: url,
+			dataType: "*",
+			data: fields,
+			cache: false,
+			global: false, // jal 20091015 prevent block/unblock on polling call.
+			success: function(data, state) {
+				executePollCommands(data);
+			},
+			error : function() {
+				//-- Ignore all errors.
+			}
+		});
+		startPingServer(timeout);
+	}
+
+	function startPingServer(timeout: number) : void {
+		if(timeout < 60*1000)
+			timeout = 60*1000;
+		setTimeout("WebUI.pingServer("+timeout+")", timeout);
+	}
+
+	function executePollCommands(data) {
+		// TBD
 	}
 
 }
