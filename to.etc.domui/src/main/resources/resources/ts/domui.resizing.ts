@@ -75,7 +75,7 @@ namespace WebUIStatic {
 		$(flexid).height(height + "px");
 	}
 
-	function notifySizePositionChangedOnId(elemId) {
+	function notifySizePositionChangedOnId(elemId : string) : void {
 		var element = document.getElementById(elemId);
 		if (!element){
 			return;

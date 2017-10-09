@@ -264,7 +264,7 @@ namespace WebUIStatic {
 		scall(id, 'clickandvchange');
 	}
 
-	function valuechanged(h, id) {
+	function valuechanged(unknown : string, id: string) : void{
 		// FIXME 20100315 jal Temporary fix for bug 680: if a DateInput has a value changed listener the onblur does not execute. So handle it here too.... The fix is horrible and needs generalization.
 		let item = document.getElementById(id);
 		if(item && (item.tagName == "input" || item.tagName == "INPUT") && item.className == "ui-di") {

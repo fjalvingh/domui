@@ -8,12 +8,15 @@ interface WebUIStatic {
 	handleError(request, status, exc): boolean;
 	handleResponse(data, state): void;
 	scall(id: string, action: string, fields? : any) : void;
+	valuechanged(unknown : string, id: string) : void;
 
 	// busy
 	blockUI() : void;
 	unblockUI() : void;
+	isUIBlocked() : boolean;
 
 	//-- util
+	log(...args): void;
 	refreshElement(id: string) : void;
 	blockUI() : void;
 	getPostURL() : string;
@@ -23,6 +26,7 @@ interface WebUIStatic {
 	getObituaryURL(): string;
 
 	_hideExpiredMessage: boolean;
+	toClip(value: any): void;
 	isReallyIE7() : boolean;
 	isIE8orIE8c() : boolean;
 	isIE8orNewer() : boolean;
@@ -42,6 +46,9 @@ interface WebUIStatic {
 
 	// dateinput
 	handleCalendarChanges() : void;
+
+	// resize
+	notifySizePositionChangedOnId(elemId : string) : void;
 }
 
 declare namespace WebUIStatic {

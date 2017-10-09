@@ -27,7 +27,7 @@ namespace WebUIStatic {
 		_busyTimer = setTimeout("WebUI.busyIndicate()", 250);
 	}
 
-	function isUIBlocked() {
+	function isUIBlocked() : boolean {
 		return _busyOvl != undefined && _busyOvl != null;
 	}
 

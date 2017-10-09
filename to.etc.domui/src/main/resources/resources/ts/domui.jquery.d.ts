@@ -10,6 +10,8 @@ interface JQuery {
 	fixOverflow() : void;
 	setBackgroundImageMarker() : void;
 
+	ColorPicker: any;
+
 }
 
 interface JQueryStatic {

@@ -4588,7 +4588,7 @@ interface JQuery<TElement extends Node = HTMLElement> extends Iterable<TElement>
 	 * @see {@link https://api.jquery.com/position/}
 	 * @since 1.2
 	 */
-	position(): JQuery.Coordinates;
+	position(to?): JQuery.Coordinates;
 	/**
 	 * Insert content, specified by the parameter, to the beginning of each element in the set of matched elements.
 	 *
