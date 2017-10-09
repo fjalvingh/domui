@@ -19,7 +19,8 @@
 		changeTagAttributes: function(a) {
 			log("aarg=", a);
 		},
-	});
+		executeDeltaXML: executeXML
+});
 
 	$.expr[':'].taconiteTag = function(a) {
 		return (a as any).taconiteTag === 1;

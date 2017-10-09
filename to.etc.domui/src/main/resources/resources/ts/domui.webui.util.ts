@@ -68,13 +68,13 @@ namespace WebUIStatic {
 
 	function isNumberKey(evt: any): boolean {
 		//-- onKeyPress event: use keyCode
-		var keyCode = normalizeKey(evt);
+		let keyCode = normalizeKey(evt);
 		//$.dbg("kp: norm="+keyCode+", keyCode="+evt.keyCode+", chc="+evt.charCode+", which="+evt.which, evt);
 		return (keyCode >= 1000 || (keyCode >= 48 && keyCode <= 57) || keyCode == 45);
 	}
 
 	function isFloatKey(evt: any): boolean {
-		var keyCode = normalizeKey(evt);
+		let keyCode = normalizeKey(evt);
 		//alert('keycode='+evt.keyCode+", charCode="+evt.charCode+", which="+evt.which+", norm="+keyCode);
 		return (keyCode >= 1000 || keyCode == 0x2c || keyCode == 0x2e || (keyCode >= 48 && keyCode <= 57) || keyCode == 45);
 	}
@@ -84,12 +84,12 @@ namespace WebUIStatic {
 			alert('internal: odd call to delayedSetAttributes: ' + arguments.length);
 			return;
 		}
-		var n = document.getElementById(arguments[0]);
+		let n = document.getElementById(arguments[0]);
 		if(n == undefined)
 			return;
 //		alert('Node is '+arguments[0]);
 		//-- Now set pair values
-		for(var i = 1; i < arguments.length; i += 2) {
+		for(let i = 1; i < arguments.length; i += 2) {
 			try {
 				n[arguments[i]] = arguments[i + 1];
 			} catch(x) {
@@ -99,7 +99,7 @@ namespace WebUIStatic {
 	}
 
 	function focus(id: string): void {
-		var n = document.getElementById(id);
+		let n = document.getElementById(id);
 		if(n) {
 			if($.browser.msie) {
 				setTimeout(function() {
@@ -121,16 +121,16 @@ namespace WebUIStatic {
 
 
 	function getPostURL() : string {
-		var p = window.location.href;
-		var ix = p.indexOf('?');
+		let p = window.location.href;
+		let ix = p.indexOf('?');
 		if(ix != -1)
 			p = p.substring(0, ix); // Discard query string.
 		return p;
 	}
 
 	function getObituaryURL() : string {
-		var u = getPostURL();
-		var ix = u.lastIndexOf('.');
+		let u = getPostURL();
+		let ix = u.lastIndexOf('.');
 		if(ix < 0)
 			throw "INVALID PAGE URL";
 		return u.substring(0, ix) + ".obit";
@@ -138,7 +138,7 @@ namespace WebUIStatic {
 
 	function openWindow(url: string, name: string, par: any) : boolean {
 		try {
-			var h = window.open(url, name, par);
+			let h = window.open(url, name, par);
 		} catch(x) {
 			alert("Got popup exception: "+x);
 		}
@@ -148,16 +148,16 @@ namespace WebUIStatic {
 	}
 
 	function postURL(path: string, name: string, params, target) : void {
-		var form = document.createElement("form");
+		let form = document.createElement("form");
 		form.setAttribute("method","post");
 		form.setAttribute("action", path);
 		if (null != target){
 			form.setAttribute("target", target);
 		}
 
-		for (var key in params) {
+		for (let key in params) {
 			if (params.hasOwnProperty(key)) {
-				var hiddenField = document.createElement("input");
+				let hiddenField = document.createElement("input");
 				hiddenField.setAttribute("type", "hidden");
 				hiddenField.setAttribute("name", key);
 				hiddenField.setAttribute("value", params[key]);
@@ -203,18 +203,18 @@ namespace WebUIStatic {
 			w.clipboardData.setData("Text", value);
 		} else if(w.netscape) {
 			if(value.createTextRange) {
-				var range = value.createTextRange();
+				let range = value.createTextRange();
 				if(range /*&& BodyLoaded == 1 */)
 					range.execCommand('Copy');
 			} else {
-				var flashcopier = 'flashcopier';
+				let flashcopier = 'flashcopier';
 				if(!document.getElementById(flashcopier)) {
-					var divholder = document.createElement('div');
+					let divholder = document.createElement('div');
 					divholder.id = flashcopier;
 					document.body.appendChild(divholder);
 				}
 				document.getElementById(flashcopier).innerHTML = '';
-				var divinfo = '<embed src="$js/_clipboard.swf" FlashVars="clipboard=' + encodeURIComponent(value) + '" width="0" height="0" type="application/x-shockwave-flash"></embed>';
+				let divinfo = '<embed src="$js/_clipboard.swf" FlashVars="clipboard=' + encodeURIComponent(value) + '" width="0" height="0" type="application/x-shockwave-flash"></embed>';
 				document.getElementById(flashcopier).innerHTML = divinfo;
 			}
 		}
@@ -227,7 +227,7 @@ namespace WebUIStatic {
 	 * @returns
 	 */
 	function format(message: string) : string {
-		for(var i = 1; i < arguments.length; i++) {
+		for(let i = 1; i < arguments.length; i++) {
 			message = message.replace("{"+(i-1)+"}", arguments[i]);
 		}
 		return message;
@@ -282,7 +282,7 @@ namespace WebUIStatic {
 
 	//We need to re-show element to force IE7 browser to recalculate correct height of element. This must be done to fix some IE7 missbehaviors.
 	function refreshElement(id: string) : void {
-		var elem = document.getElementById(id);
+		let elem = document.getElementById(id);
 		if (elem){
 			$(elem).hide();
 			$(elem).show(1); //needs to be done on timeout/animation, otherwise it still fails to recalculate...
@@ -291,25 +291,25 @@ namespace WebUIStatic {
 
 	//Use this to make sure that item would be visible inside parent scrollable area. It uses scroll animation. In case when item is already in visible part, we just do single blink to gets user attention ;)
 	function scrollMeToTop(elemId: string, selColor: string, offset: number) : void {
-		var elem = document.getElementById(elemId);
+		let elem = document.getElementById(elemId);
 		if (!elem){
 			return;
 		}
-		var parent = elem.parentNode as any;
+		let parent = elem.parentNode as any;
 		if (!parent){
 			return;
 		}
 		if (parent.scrollHeight > parent.offsetHeight){ //if parent has scroll
-			var elemPos = $(elem).position().top;
+			let elemPos = $(elem).position().top;
 			if (elemPos > 0 && elemPos < parent.offsetHeight){
 				//if elem already visible -> just do one blink
 				if (selColor){
-					var oldColor = $(elem).css('background-color');
+					let oldColor = $(elem).css('background-color');
 					$(elem).animate({backgroundColor: selColor}, "slow", function(){$(elem).animate({backgroundColor: oldColor}, "fast");});
 				}
 			}else{
 				//else scroll parent to show me at top
-				var newPos = $(elem).position().top + parent.scrollTop;
+				let newPos = $(elem).position().top + parent.scrollTop;
 				if($.browser.msie && parseInt($.browser.version) < 11){
 					if ($(elem).height() == 0){
 						newPos = newPos - 15; //On IE browsers older than 11 we need this correction :¬|
@@ -329,20 +329,20 @@ namespace WebUIStatic {
 			//IE already fix this... we need fix only for FF and other browsers
 			return;
 		}
-		var elem = document.getElementById(elemId);
+		let elem = document.getElementById(elemId);
 		if (!elem){
 			return;
 		}
-		var parent = elem.parentNode as any;
+		let parent = elem.parentNode as any;
 		if (!parent){
 			return;
 		}
 		if (parent.scrollHeight > parent.offsetHeight){ //if parent has scroll
-			var elemPos = $(elem).position().top;
+			let elemPos = $(elem).position().top;
 			//if elem is not currenlty visible
 			if (elemPos <= 0 || elemPos >= parent.offsetHeight){
 				//else scroll parent to show me at top
-				var newPos = elemPos + parent.scrollTop;
+				let newPos = elemPos + parent.scrollTop;
 				if (offset){
 					newPos = newPos - offset;
 				}
@@ -353,10 +353,10 @@ namespace WebUIStatic {
 
 	function truncateUtfBytes(str: string, nbytes: number) : number {
 		//-- Loop characters and calculate running length
-		var bytes = 0;
-		var length = str.length;
-		for(var ix = 0; ix < length; ix++) {
-			var c = str.charCodeAt(ix);
+		let bytes = 0;
+		let length = str.length;
+		for(let ix = 0; ix < length; ix++) {
+			let c = str.charCodeAt(ix);
 			if(c < 0x80)
 				bytes++;
 			else if(c < 0x800)
@@ -370,10 +370,10 @@ namespace WebUIStatic {
 	}
 
 	function utf8Length(str: string) : number {
-		var bytes = 0;
-		var length = str.length;
-		for(var ix = 0; ix < length; ix++) {
-			var c = str.charCodeAt(ix);
+		let bytes = 0;
+		let length = str.length;
+		for(let ix = 0; ix < length; ix++) {
+			let c = str.charCodeAt(ix);
 			if(c < 0x80)
 				bytes++;
 			else if(c < 0x800)
@@ -386,11 +386,11 @@ namespace WebUIStatic {
 
 	/** In tables that have special class selectors that might cause text-overflow we show full text on hover */
 	function showOverflowTextAsTitle(id: string, selector: string) : boolean {
-		var root = $("#" + id);
+		let root = $("#" + id);
 		if (root) {
 			root.find(selector).each(function () {
 				if (this.offsetWidth < this.scrollWidth) {
-					var $this = $(this);
+					let $this = $(this);
 					$this.attr("title", $this.text());
 				}
 			});
@@ -406,9 +406,9 @@ namespace WebUIStatic {
 
 	function deactivateHiddenAccessKeys(windowId: string) : void {
 		$('button').each(function(index) {
-			var iButton = $(this);
+			let iButton = $(this);
 			if(isButtonChildOfElement(iButton, windowId)){
-				var oldAccessKey = $(iButton).attr('accesskey');
+				let oldAccessKey = $(iButton).attr('accesskey');
 				if(oldAccessKey != null ){
 					$(iButton).attr('accesskey', $(windowId).attr('id') + '~' + oldAccessKey);
 				}
@@ -419,13 +419,56 @@ namespace WebUIStatic {
 	function reactivateHiddenAccessKeys(windowId: string) : void {
 		$("button[accesskey*='" + windowId + "~']" ).each(function(index) {
 			let attr = $(this).attr('accesskey') as string;
-			var accessKeyArray = attr.split(windowId + '~');
+			let accessKeyArray = attr.split(windowId + '~');
 			$(this).attr('accesskey', accessKeyArray[accessKeyArray.length - 1]);
 		});
 	}
 
 	function isButtonChildOfElement(buttonId: any, windowId: string) : boolean {
 		return $(buttonId).parents('#' + $(windowId).attr('id')).length == 0;
+	}
+
+	/** ***************** Stretch elemnt height. Must be done via javascript. **************** */
+	function stretchHeight(elemId: string) : void {
+		let elem = document.getElementById(elemId);
+		if (!elem){
+			return;
+		}
+		stretchHeightOnNode(elem);
+	}
+
+	function stretchHeightOnNode(elem : HTMLElement) : void {
+		let elemHeight = $(elem).height();
+		let totHeight = 0;
+		$(elem).siblings().each(function(index, node) {
+			//do not count target element and other siblings positioned absolute or relative to parent in order to calculate how much space is actually taken / available
+			if (node != elem && $(node).css('position') == 'static' && ($(node).css('float') == 'none' || $(node).css('width') != '100%' /* count in floaters that occupies total width */)){
+				//In IE7 hidden nodes needs to be additionaly excluded from count...
+				if (!($(node).css('visibility') == 'hidden' || $(node).css('display') == 'none')){
+					//totHeight += node.offsetHeight;
+					totHeight += $(node).outerHeight(true);
+				}
+			}
+		});
+		let elemDeltaHeight = $(elem).outerHeight(true) - $(elem).height(); //we need to also take into account elem paddings, borders... So we take its delta between outter and inner height.
+		if (WebUI.isIE8orIE8c()){
+			//from some reason we need +1 only for IE8!
+			elemDeltaHeight = elemDeltaHeight + 1;
+		}
+		$(elem).height($(elem).parent().height() - totHeight - elemDeltaHeight);
+		if($.browser.msie && $.browser.version.substring(0, 1) == "7"){
+			//we need to special handle another IE7 muddy hack -> extra padding-bottom that is added to table to prevent non-necesarry vertical scrollers
+			if (elem.scrollWidth > elem.offsetWidth){
+				$(elem).height($(elem).height() - 20);
+				//show hidden vertical scroller if it is again needed after height is decreased.
+				if ($(elem).css('overflow-y') == 'hidden'){
+					if (elem.scrollHeight > elem.offsetHeight){
+						$(elem).css({'overflow-y' : 'auto'});
+					}
+				}
+				return;
+			}
+		}
 	}
 
 

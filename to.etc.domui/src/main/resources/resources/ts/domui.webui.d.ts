@@ -6,4 +6,7 @@ interface WebUIStatic {
 	_T: any;
 	_hideExpiredMessage: boolean;
 	isNormalIE9plus() : boolean;
+	getPostURL() : string;
+	stretchHeightOnNode(elem : HTMLElement) : void;
+
 }

@@ -41,7 +41,7 @@ namespace WebUIStatic {
 			let val;
 			if(sel.className == 'ui-ckeditor') {
 				//-- Locate the variable for this editor.
-				let editor = CKEDITOR.instances[sel.id];
+				let editor = (window as any).CKEDITOR.instances[sel.id];
 				if(null == editor)
 					throw "Cannot locate editor with id=" + sel.id;
 				val = editor.getData();
@@ -282,18 +282,18 @@ namespace WebUIStatic {
 		cancelPolling();
 
 		$.ajax({
-			url: getPostURL(),
+			url: WebUI.getPostURL(),
 			dataType: "*",
 			data: fields,
 			cache: false,
 			type: "POST",
-			success: WebUI.handleResponse,
-			error: WebUI.handleError
+			success: handleResponse,
+			error: handleError
 		});
 	}
 
 	function handleResponse(data, state): void {
-		WebUI.clearErrorAsy();
+		clearErrorAsy();
 		// if (false && window.console && window.console.debug)
 		// 	console.debug("data is ", data);
 		$.webui(data);
@@ -323,9 +323,9 @@ namespace WebUIStatic {
 	let _asyHider = undefined;
 
 	function handleErrorAsy(request, status, exc): void {
-		if(WebUI._asyalerted) {
+		if(_asyalerted) {
 			//-- We're still in error.. Silently redo the poll.
-			WebUI.startPolling(WebUI._pollInterval);
+			startPolling(_pollInterval);
 			return;
 		}
 //		$.dbg("Got into error state - start "+request.responseText);
@@ -347,22 +347,22 @@ namespace WebUIStatic {
 		 * that timer.
 		 */
 		setTimeout(function() {
-			if(WebUI._ignoreErrors)
+			if(_ignoreErrors)
 				return;
 
 			//-- Show an alert error on top of the screen
 			document.body.style.cursor = 'default';
-			var hdr = document.createElement('div');
+			let hdr = document.createElement('div');
 			document.body.appendChild(hdr);
 			hdr.className = 'ui-io-blk2';
-			WebUI._asyHider = hdr;
+			_asyHider = hdr;
 
-			var ald = document.createElement('div');
+			let ald = document.createElement('div');
 			document.body.appendChild(ald);
 			ald.className = 'ui-ioe-asy';
-			WebUI._asyDialog = ald;
+			_asyDialog = ald;
 
-			var d = document.createElement('div');			// Title bar
+			let d = document.createElement('div');			// Title bar
 			ald.appendChild(d);
 			d.className = "ui-ioe-ttl";
 			d.appendChild(document.createTextNode(WebUI._T.sysPollFailTitle));	// Server unreachable
@@ -376,25 +376,25 @@ namespace WebUIStatic {
 			ald.appendChild(d);
 			d.className = "ui-ioe-msg2";
 
-			var img = document.createElement('div');
+			let img = document.createElement('div');
 			d.appendChild(img);
 			img.className = "ui-ioe-img";
 			d.appendChild(document.createTextNode(WebUI._T.sysPollFailCont));	// Waiting for the server to return.
-			WebUI.startPolling(WebUI._pollInterval);
+			startPolling(_pollInterval);
 		}, 250);
 	}
 
 	function clearErrorAsy(): void {
 //		$.dbg("clear asy called");
-		if(WebUI._asyDialog) {
-			$(WebUI._asyDialog).remove();
+		if(_asyDialog) {
+			$(_asyDialog).remove();
 		}
-		if(WebUI._asyHider) {
-			$(WebUI._asyHider).remove();
+		if(_asyHider) {
+			$(_asyHider).remove();
 		}
-		WebUI._asyDialog = null;
-		WebUI._asyHider = null;
-		WebUI._asyalerted = false;
+		_asyDialog = null;
+		_asyHider = null;
+		_asyalerted = false;
 	}
 
 
@@ -402,9 +402,9 @@ namespace WebUIStatic {
 	/**
 	 * Will be set by startPolling to define the poll interval.
 	 */
-	let _pollInterval: 2500;
+	let _pollInterval = 2500;
 
-	let _pollActive: false;
+	let _pollActive = false;
 
 	let _pollTimer: number = undefined;
 
@@ -413,18 +413,18 @@ namespace WebUIStatic {
 			alert("Bad interval: " + interval);
 			return;
 		}
-		WebUI._pollInterval = interval;
-		if(WebUI._pollActive)
+		_pollInterval = interval;
+		if(_pollActive)
 			return;
-		WebUI._pollActive = true;
-		WebUI._pollTimer = setTimeout("WebUI.poll()", WebUI._pollInterval);
+		_pollActive = true;
+		_pollTimer = setTimeout("WebUI.poll()", _pollInterval);
 	}
 
 	function cancelPolling(): void {
-		if(!WebUI._pollActive)
+		if(!_pollActive)
 			return;
-		clearTimeout(WebUI._pollTimer);
-		WebUI._pollActive = false;
+		clearTimeout(_pollTimer);
+		_pollActive = false;
 	}
 
 	function poll(): void {

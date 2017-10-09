@@ -3,6 +3,8 @@ interface JQuery {
 	disableSelection(): void;
 	enableSelection():  void;
 	error(fn: Function):  void;
+
+	markerTransformed: boolean;
 }
 
 interface JQueryStatic {
