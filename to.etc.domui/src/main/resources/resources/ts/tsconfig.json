@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+//    "noImplicitAny": true,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "sourceMap": true,
+
+    // https://github.com/angular/angular/issues/14595: fixes cannot find Iterable
+    "lib" : ["es2015", "es2015.iterable", "es2017", "dom"
+      // Fixes cannot find ActiveXObject" https://github.com/dojo/typings/issues/124
+    , "scripthost"
+    ]
+  },
+  "include": [
+    "**/*"
+  ]
+}

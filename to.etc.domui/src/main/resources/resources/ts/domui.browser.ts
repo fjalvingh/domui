@@ -28,7 +28,7 @@ namespace WebUIStatic {
 	}
 
 	//Returns T if browser is IE of at least version 8 even if it runs in IE7 compatibility mode
-	function isIE8orNewer() {
+	function isIE8orNewer() : boolean {
 		let doc = document as any;
 		return ($.browser.msie && (parseInt($.browser.version) >= 8 || (parseInt($.browser.version) == 7 && doc.documentMode >= 8)));
 	}

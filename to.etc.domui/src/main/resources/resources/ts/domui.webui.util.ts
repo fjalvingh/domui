@@ -1,6 +1,6 @@
 /// <reference path="typings/jquery/jquery.d.ts" />
 /// <reference path="domui.jquery.d.ts" />
-declare module "domui.webui.util";
+// declare module "domui.webui.util";
 
 namespace WebUIStatic {
 	function definePageName(pn: string): void {
@@ -137,8 +137,9 @@ namespace WebUIStatic {
 	}
 
 	function openWindow(url: string, name: string, par: any) : boolean {
+		let h = undefined;
 		try {
-			let h = window.open(url, name, par);
+			h = window.open(url, name, par);
 		} catch(x) {
 			alert("Got popup exception: "+x);
 		}
