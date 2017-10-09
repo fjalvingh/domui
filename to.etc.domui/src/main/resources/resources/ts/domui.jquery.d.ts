@@ -14,6 +14,7 @@ interface JQuery {
 
 interface JQueryStatic {
 	webui(xml: any): void;
+	executeXML(xml: any): void;
 
 	expr: any;
 	browser: any;

@@ -118,7 +118,7 @@ namespace WebUIStatic {
 		doCustomUpdates();
 	}
 
-	function checkBrowser() : void {
+	function checkBrowser(): void {
 		if(this._browserChecked)
 			return;
 		this._browserChecked = true;
@@ -133,23 +133,23 @@ namespace WebUIStatic {
 		}
 	}
 
-	let _debugLastKeypress : number;
-	let _debugMouseTarget : HTMLElement;
+	let _debugLastKeypress: number;
+	let _debugMouseTarget: HTMLElement;
 
-	function handleDevelopmentMode() : void {
+	function handleDevelopmentMode(): void {
 		$(document).bind("keydown", function(e) {
 			if(e.keyCode != 192)
 				return;
 
-			var t = new Date().getTime();
-			if(! _debugLastKeypress || (t - _debugLastKeypress) > 250) {
+			let t = new Date().getTime();
+			if(!_debugLastKeypress || (t - _debugLastKeypress) > 250) {
 				_debugLastKeypress = t;
 				return;
 			}
 
 			//-- Send a DEBUG command to the server, indicating the current node below the last mouse move....
-			var id = WebUI.nearestID(_debugMouseTarget);
-			if(! id) {
+			let id = WebUI.nearestID(_debugMouseTarget);
+			if(!id) {
 				id = document.body.id;
 			}
 
@@ -163,5 +163,27 @@ namespace WebUIStatic {
 		});
 	}
 
+	/** *************** Debug thingy - it can be used internaly for debuging javascript ;) ************** */
+	function debug(debugId: string, posX: number, posY: number, debugInfoHtml: any) {
+		//Be aware that debugId must not start with digit when using FF! Just lost 1 hour to learn this...
+		if("0123456789".indexOf(debugId.charAt(0)) > -1) {
+			alert("debugId(" + debugId + ") starts with digit! Please use different one!");
+		}
+		let debugPanel = document.getElementById(debugId);
+		if(null == debugPanel) {
+			debugPanel = document.createElement(debugId);
+			$(debugPanel).attr('id', debugId);
+			$(debugPanel).css('position', 'absolute');
+			$(debugPanel).css('marginLeft', 0);
+			$(debugPanel).css('marginTop', 0);
+			$(debugPanel).css('background-color', 'yellow');
+			$(debugPanel).css('border', '1px');
+			$(debugPanel).css('z-index', 2000);
+			$(debugPanel).appendTo('body');
+		}
+		$(debugPanel).css('left', posX);
+		$(debugPanel).css('top', posY);
+		$(debugPanel).html(debugInfoHtml);
+	}
 }
 

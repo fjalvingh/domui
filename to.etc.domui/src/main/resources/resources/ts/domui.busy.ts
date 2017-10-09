@@ -10,7 +10,7 @@ namespace WebUIStatic {
 	/*
 	 * Block the UI while an AJAX call is in progress.
 	 */
-	function blockUI() {
+	function blockUI() : void {
 //		console.debug('block, busy=', WebUI._busyCount);
 		if(_busyCount++ > 0)
 			return;

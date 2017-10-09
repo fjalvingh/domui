@@ -300,7 +300,7 @@ namespace WebUIStatic {
 	}
 
 	function handleError(request, status, exc): boolean {
-		var txt = request.responseText;
+		let txt = request.responseText;
 		if(document.body)
 			document.body.style.cursor = 'default';
 		// alert('Server error: '+status+", len="+txt.length+", val="+txt);
@@ -334,7 +334,7 @@ namespace WebUIStatic {
 
 		_asyalerted = true;
 
-		var txt = request.responseText || "No response - status=" + status;
+		let txt = request.responseText || "No response - status=" + status;
 		if(txt.length > 512)
 			txt = txt.substring(0, 512) + "...";
 		if(txt.length == 0)
@@ -433,7 +433,7 @@ namespace WebUIStatic {
 		/*
 		 * Issue a pollasy request using ajax, then handle the result.
 		 */
-		var fields = {};
+		let fields = {};
 		fields["webuia"] = "pollasy";
 		fields["$pt"] = (window as any).DomUIpageTag;
 		fields["$cid"] = (window as any).DomUICID;
@@ -455,8 +455,8 @@ namespace WebUIStatic {
 	 * important events or changes have taken place.
 	 */
 	function pingServer(timeout : number) : void {
-		var url = (window as any).DomUIappURL + "to.etc.domui.parts.PollInfo.part";
-		var fields= {};
+		let url = (window as any).DomUIappURL + "to.etc.domui.parts.PollInfo.part";
+		let fields= {};
 		fields["$pt"] = (window as any).DomUIpageTag;
 		fields["$cid"] = (window as any).DomUICID;
 		$.ajax( {
@@ -485,4 +485,37 @@ namespace WebUIStatic {
 		// TBD
 	}
 
+	function unloaded() : void {
+		_ignoreErrors = true;
+		sendobituary();
+	}
+
+	function beforeUnload() : void {
+		//-- Make sure no "ajax" errors are reported.
+		_ignoreErrors = true;
+	}
+
+	/**
+	 * Called at page unload time, this quickly tries to send an obituary to the
+	 * server. This is currently unconditional but can later be augmented to
+	 * send the obituary only when the browser window closes.
+	 */
+	function sendobituary() : void {
+		try {
+			let rq;
+			let w = window as any;
+			if (w.XMLHttpRequest) {
+				rq = new XMLHttpRequest();
+			} else if (w.ActiveXObject) {
+				rq = new ActiveXObject("Microsoft.XMLHTTP");
+			} else {
+				alert("Cannot send obituary (no transport)");
+				return;
+			}
+			rq.open("GET", WebUI.getObituaryURL() + "?$cid=" + w.DomUICID + "&webuia=OBITUARY&$pt=" + w.DomUIpageTag, false);
+			rq.send(null);
+		} catch(ex) {
+//			alert("Sending obit failed:"+ex);
+		}
+	}
 }

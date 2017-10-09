@@ -563,5 +563,42 @@ namespace WebUIStatic {
 	}
 
 
+	/** Dynamically loading stylesheets and javascript files (Header Contributer delta's) **/
+	/**
+	 * Load the specified stylesheet by creating a script tag and inserting it @ head.
+	 */
+	function loadStylesheet(path) {
+		var head = document.getElementsByTagName("head")[0];
+		if(! head)
+			throw "Headless document!?";
+		var link = document.createElement('link');
+		link.type = 'text/css';
+		link.rel = 'stylesheet';
+		link.href = path;
+		link.media = 'screen';
+		head.appendChild(link);
+	}
+
+	function loadJavascript(path) {
+		var head = document.getElementsByTagName("head")[0];
+		if(! head)
+			throw "Headless document!?";
+		var scp = document.createElement('script');
+		scp.type = 'text/javascript';
+		scp.src = path;
+		head.appendChild(scp);
+	}
+
+	/** Prevents default action to be executed if IE11 is detected */
+	function preventIE11DefaultAction(e){
+		if((navigator.userAgent.match(/Trident\/7\./))){
+			e.preventDefault();
+		}
+	}
+
+	function preventSelection() : boolean {
+		return false;
+	}
+
 }
 
