@@ -32,10 +32,32 @@ interface WebUIStatic {
 	stretchHeightOnNode(elem : HTMLElement) : void;
 	truncateUtfBytes(str: string, nbytes: number) : number;
 	utf8Length(str: string) : number;
+	preventSelection() : boolean;
+
+	getAbsolutePosition(obj): WebUIStatic.Point;
+	findParentOfTagName(node: any, type: string): any;
 
 	// handler
 	doCustomUpdates(): void;
 
 	// dateinput
 	handleCalendarChanges() : void;
+}
+
+declare namespace WebUIStatic {
+	class Point {
+		x: number;
+		y: number;
+
+		constructor(x, y);
+	}
+
+	class Rect {
+		bx: number;
+		by: number;
+		ex: number;
+		ey: number;
+
+		constructor(_bx, _by, _ex, _ey);
+	}
 }
