@@ -4,7 +4,7 @@
 //import WebUI from "domui.webui.util";
 
 namespace WebUIStatic {
-	function getInputFields(fields) {
+	function getInputFields(fields: object): object {
 		// Collect all input, then create input.
 		let q1 = $("input").get();
 		for(let i = q1.length; --i >= 0;) {
@@ -101,7 +101,7 @@ namespace WebUIStatic {
 		return null;
 	}
 
-	function clicked(h, id, evt) {
+	function clicked(h, id : string, evt: any) {
 		//-- Trigger the before-clicked event on body
 		$(document.body).trigger("beforeclick", [$("#" + id), evt]);
 
