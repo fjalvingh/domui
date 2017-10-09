@@ -8,6 +8,10 @@ namespace WebUIStatic {
 
 	let _popinCloseList = [];
 
+	let _fckEditorIDs: number[] = [];
+
+	let FCKeditor_fixLayout;
+
 	function oddCharAndClickCallback(nodeId, clickId): void {
 		oddChar(document.getElementById(nodeId));
 		document.getElementById(clickId).click();
@@ -19,13 +23,13 @@ namespace WebUIStatic {
 
 	function popupMenuShow(refid, menu): void {
 		registerPopinClose(menu);
-		var pos = $(refid).offset();
-		var eWidth = $(refid).outerWidth();
-		var mwidth = $(menu).outerWidth();
-		var left = (pos.left);
+		let pos = $(refid).offset();
+		let eWidth = $(refid).outerWidth();
+		let mwidth = $(menu).outerWidth();
+		let left = (pos.left);
 		if(left + mwidth > screen.width)
 			left = screen.width - mwidth - 10;
-		var top = 3 + pos.top;
+		let top = 3 + pos.top;
 		$(menu).css({
 			position: 'absolute',
 			zIndex: 100,
@@ -57,7 +61,7 @@ namespace WebUIStatic {
 	}
 
 	function popinClosed(id): void {
-		for(var i = 0; i < _popinCloseList.length; i++) {
+		for(let i = 0; i < _popinCloseList.length; i++) {
 			if(id === _popinCloseList[i]) {
 				//-- This one is done -> remove mouse handler.
 				$(id).unbind("mousedown", popinMouseClose);
@@ -72,10 +76,10 @@ namespace WebUIStatic {
 	}
 
 	function popinBeforeClick(ee1, obj, clickevt): void {
-		for(var i = 0; i < _popinCloseList.length; i++) {
-			var id = _popinCloseList[i];
+		for(let i = 0; i < _popinCloseList.length; i++) {
+			let id = _popinCloseList[i];
 			obj = $(obj);
-			var cl = obj.closest(id);
+			let cl = obj.closest(id);
 			if(cl.size() > 0) {
 				//-- This one is done -> remove mouse handler.
 				$(id).unbind("mousedown", popinMouseClose);
@@ -94,9 +98,9 @@ namespace WebUIStatic {
 			return;
 
 		try {
-			for(var i = 0; i < _popinCloseList.length; i++) {
-				var id = _popinCloseList[i];
-				var el = $(id);
+			for(let i = 0; i < _popinCloseList.length; i++) {
+				let id = _popinCloseList[i];
+				let el = $(id);
 				if(el) {
 					el.unbind("mousedown", popinMouseClose);
 					WebUI.scall(id.substring(1), "POPINCLOSE?", {});
@@ -113,7 +117,7 @@ namespace WebUIStatic {
 	function popinKeyClose(evt): void {
 		if(!evt)
 			evt = window.event;
-		var kk = WebUI.normalizeKey(evt);
+		let kk = WebUI.normalizeKey(evt);
 		if(kk == 27 || kk == 27000) {
 			// Prevent ESC from cancelling the AJAX call in Firefox!!
 			evt.preventDefault();
@@ -145,7 +149,7 @@ namespace WebUIStatic {
 	 */
 	function unregisterCkEditorId(id): void {
 		try {
-			var editorBindings = _ckEditorMap[id];
+			let editorBindings = _ckEditorMap[id];
 			_ckEditorMap[id] = null;
 			if(editorBindings && editorBindings[1]) {
 				$(window).unbind('resize', editorBindings[1]);
@@ -162,10 +166,10 @@ namespace WebUIStatic {
 	 */
 	function CKeditor_OnComplete(id): void {
 		WebUI.doCustomUpdates();
-		var elem = document.getElementById(id);
-		var parentDiv = elem.parentNode;
-		var editor = _ckEditorMap[id][0];
-		var resizeFunction = function(ev) {
+		let elem = document.getElementById(id);
+		let parentDiv = elem.parentNode;
+		let editor = _ckEditorMap[id][0];
+		let resizeFunction = function(ev) {
 			try {
 				editor.resize($(parentDiv).width() - 2, $(parentDiv).height());
 			} catch(ex) {
@@ -180,18 +184,18 @@ namespace WebUIStatic {
 	// connects input to usually hidden list select and provides autocomplete
 	// feature inside input. Down arrow does show and focus select list.
 	function initAutocomplete(inputId, selectId): void {
-		var input = document.getElementById(inputId) as HTMLInputElement;
-		var select = document.getElementById(selectId);
+		let input = document.getElementById(inputId) as HTMLInputElement;
+		let select = document.getElementById(selectId);
 		$(input).keyup(function(event) {
 			autocomplete(event, inputId, selectId);
 		});
 		$(select).keypress(function(event) {
 			//esc hides select and prevents firing of click and blur handlers that are temporary disconnected while focus moves back to input
-			var keyCode = WebUI.normalizeKey(event);
+			let keyCode = WebUI.normalizeKey(event);
 			if(keyCode == 27 || keyCode == 27000) {
-				var oldVal = input.value;
-				var selectOnClick = select.click;
-				var selectOnBlur = select.blur;
+				let oldVal = input.value;
+				let selectOnClick = select.click;
+				let selectOnBlur = select.blur;
 				select.click = null;
 				select.blur = null;
 				select.style.display = 'none';
@@ -205,13 +209,13 @@ namespace WebUIStatic {
 
 	// does autocomplete part of logic
 	function autocomplete(event, inputId, selectId): void {
-		var select = document.getElementById(selectId) as HTMLSelectElement;
-		var cursorKeys = "8;46;37;38;39;40;33;34;35;36;45;";
+		let select = document.getElementById(selectId) as HTMLSelectElement;
+		let cursorKeys = "8;46;37;38;39;40;33;34;35;36;45;";
 		if(cursorKeys.indexOf(event.keyCode + ";") == -1) {
-			var input = document.getElementById(inputId) as HTMLInputElement;
-			var found = false;
-			var foundAtIndex = -1;
-			for(var i = 0; i < select.options.length; i++) {
+			let input = document.getElementById(inputId) as HTMLInputElement;
+			let found = false;
+			let foundAtIndex = -1;
+			for(let i = 0; i < select.options.length; i++) {
 				if((found = select.options[i].text.toUpperCase().indexOf(input.value.toUpperCase()) == 0)) {
 					foundAtIndex = i;
 					break;
@@ -219,8 +223,8 @@ namespace WebUIStatic {
 			}
 			select.selectedIndex = foundAtIndex;
 
-			var oldValue = input.value;
-			var newValue = found ? select.options[foundAtIndex].text : oldValue;
+			let oldValue = input.value;
+			let newValue = found ? select.options[foundAtIndex].text : oldValue;
 			if(newValue != oldValue) {
 				if(typeof input.selectionStart != "undefined") {
 					//normal browsers
@@ -235,7 +239,7 @@ namespace WebUIStatic {
 					input.value = newValue;
 					input.focus();
 					input.select();
-					var range = dsel.createRange();
+					let range = dsel.createRange();
 					range.collapse(true);
 					range.moveStart("character", oldValue.length);
 					range.moveEnd("character", newValue.length);
@@ -243,7 +247,7 @@ namespace WebUIStatic {
 				} else if((input as any).createTextRange) {
 					//IE8-
 					input.value = newValue;
-					var rNew = (input as any).createTextRange();
+					let rNew = (input as any).createTextRange();
 					rNew.moveStart('character', oldValue.length);
 					rNew.select();
 				}
@@ -279,20 +283,20 @@ namespace WebUIStatic {
 
 	function colorPickerInput(inid, divid, value, onchange) {
 		$(inid).ColorPicker({
-			color: '#'+value,
+			color: '#' + value,
 			flat: false,
-			onShow: function (colpkr) {
+			onShow: function(colpkr) {
 				$(colpkr).fadeIn(500);
 				return false;
 			},
-			onHide: function (colpkr) {
+			onHide: function(colpkr) {
 				$(colpkr).fadeOut(500);
 				return false;
 			},
 			onBeforeShow: function() {
 				($(this) as any).ColorPickerSetColor(this.value);
 			},
-			onChange: function (hsb, hex, rgb) {
+			onChange: function(hsb, hex, rgb) {
 				$(divid).css('backgroundColor', '#' + hex);
 				$(inid).val(hex);
 				if(onchange)
@@ -309,7 +313,7 @@ namespace WebUIStatic {
 
 	let _colorTimer: number;
 
-	let _colorLastID : string;
+	let _colorLastID: string;
 
 	function colorPickerOnchange(id, last) {
 		if(_colorLast == last && _colorLastID == id)
@@ -323,9 +327,226 @@ namespace WebUIStatic {
 		_colorTimer = window.setTimeout("WebUI.colorPickerChangeEvent('" + id + "')", 500);
 	}
 
-	function colorPickerChangeEvent(id) {
+	function colorPickerChangeEvent(id): void {
 		window.clearTimeout(_colorTimer);
 		_colorTimer = undefined;
 		WebUI.valuechanged('eh', id);
 	}
+
+	function flare(id): void {
+		$('#' + id).fadeIn('fast', function() {
+			$('#' + id).delay(500).fadeOut(1000, function() {
+				$('#' + id).remove();
+			});
+		});
+	}
+
+	function flareStay(id): void {
+		$('#' + id).fadeIn('fast', function() {
+			$('body,html').bind('mousemove.' + id, function(e) {
+				$('body,html').unbind('mousemove.' + id);
+				$('#' + id).delay(500).fadeOut(1000, function() {
+					$('#' + id).remove();
+				});
+			});
+		});
+	}
+
+	function flareStayCustom(id, delay, fadeOut): void {
+		$('#' + id).fadeIn('fast', function() {
+			$('body,html').bind('mousemove.' + id, function(e) {
+				$('body,html').unbind('mousemove.' + id);
+				$('#' + id).delay(delay).fadeOut(fadeOut, function() {
+					$('#' + id).remove();
+				});
+			});
+		});
+	}
+
+	//piece of support needed for FCK editor to properly fix heights in IE8+
+	function FCKeditor_OnComplete(editorInstance) {
+		if(WebUI.isIE8orNewer()) {
+			for(let i = 0; i < _fckEditorIDs.length; i++) {
+				let fckId = _fckEditorIDs[i];
+				let fckIFrame = document.getElementById(fckId + '___Frame') as HTMLIFrameElement;
+				if(fckIFrame) {
+					$(fckIFrame.contentWindow.window).bind('resize', function() {
+						FCKeditor_fixLayout(fckIFrame, fckId);
+					});
+					$(fckIFrame.contentWindow.window).trigger('resize');
+				}
+				;
+			}
+			;
+		}
+		;
+	}
+
+	function initScrollableTableOld(id): void {
+		($('#' + id + " table") as any).fixedHeaderTable({});
+		let sbody = $('#' + id + " .fht-tbody");
+		sbody.scroll(function() {
+			let bh = $(sbody).height();
+			let st = $(sbody).scrollTop()
+			let tbl = $('#' + id + " .fht-table tbody");
+			let th = tbl.height();
+			let left = tbl.height() - bh - st;
+			//$.dbg("scrolling: bodyheight="+bh+" scrolltop="+st+" tableheight="+th+" left="+left);
+
+			if(left > 100) {
+				//$.dbg("Scrolling: area left="+left);
+				return;
+			}
+
+			let lastRec = sbody.find("tr[lastRow]");
+			if(lastRec.length != 0) {
+				//$.dbg("scrolling: lastrec found");
+				return;
+			}
+			WebUI.scall(id, "LOADMORE", {});
+		});
+
+	}
+
+	function scrollableTableReset(id, tblid) {
+		let tbl = $('#' + tblid);
+		let container = $('#' + id);
+		(tbl as any).floatThead('reflow');
+		WebUI.doCustomUpdates();
+
+		$.dbg('recreate');
+
+		//tbl.floatThead('destroy');
+		//tbl.floatThead({
+		//	scrollContainer: function() {
+		//		return container;
+		//	}
+		//});
+
+		container.scrollTop(0);
+	}
+
+	function initScrollableTable(id, tblid) {
+		let container = $('#' + id);
+		let tbl = $('#' + tblid);
+		WebUI.doCustomUpdates();
+
+		(tbl as any).floatThead({
+			scrollContainer: function() {
+				return container;
+			},
+			getSizingRow: function($table) { // this is only called when using IE, we need any row without colspan, see http://mkoryak.github.io/floatThead/examples/row-groups/
+				let rows = $table.find('tbody tr:visible').get();
+				for(let i = 0; i < rows.length; i++) {
+					let cells = $(rows[i]).find('td');
+					let isInvalidRow = false;
+					for(let i = 0; i < cells.get().length; i++) {
+						if(Number($(cells[i]).attr('colspan')) > 1) {
+							isInvalidRow = true;
+						}
+					}
+					if(!isInvalidRow) {
+						return cells;
+					}
+				}
+				if(rows.length > 0) {
+					return $(rows[0]).find('td'); //as fallback we just return first row cells
+				} else {
+					return null; //or nothing -> but this should not be possible since getSizingRow is called only on table with rows
+				}
+			}
+		});
+		container.scroll(function() {
+			let bh = $(container).height();
+			let st = $(container).scrollTop()
+			let tbl = $('#' + id + " tbody");
+			let th = tbl.height();
+			let left = tbl.height() - bh - st;
+			$.dbg("scrolling: bodyheight=" + bh + " scrolltop=" + st + " tableheight=" + th + " left=" + left);
+
+			if(left > 100) {
+				//$.dbg("Scrolling: area left="+left);
+				return;
+			}
+
+			let lastRec = tbl.find("tr[lastRow]");
+			if(lastRec.length != 0) {
+				//$.dbg("scrolling: lastrec found");
+				return;
+			}
+			WebUI.scall(id, "LOADMORE", {});
+		});
+
+	}
+
+	class closeOnClick {
+		_id: string;
+		private _clickHandler: () => void;
+		private _keyUpHandler: (t: any) => any;
+
+		constructor(id: string) {
+			this._id = id;
+			var clickHandler = this._clickHandler = $.proxy(this.closeMenu, this);
+			 $(document).click(clickHandler);
+			var keyUpHandler = this._keyUpHandler = $.proxy(this.buttonHandler, this);
+			$(document).keyup(keyUpHandler);
+			$('#' + id).data('inst', this);
+		}
+
+		closeMenu() {
+			this.unbind();
+			WebUI.scall(this._id, "CLOSEMENU?", {});
+		}
+
+		unbind() {
+			$(document).unbind("click", this._clickHandler);
+			$(document).unbind("keyup", this._keyUpHandler);
+		}
+
+		markClosed(id) {
+			var inst = $('#' + id).data('inst');
+			if(inst) {
+				inst.unbind();
+			}
+		}
+
+		isInputTagEvent(event) {
+			var src = event.srcElement;
+			if(src) {
+				var tn = src.tagName.toUpperCase();
+				if(tn === 'INPUT' || tn == 'SELECT' || tn == "TEXTAREA")
+					return true;
+			}
+			return false;
+		}
+
+		buttonHandler(event) {
+			if (this.isInputTagEvent(event))
+				return;
+
+			if (event.which == 27) {				// escape
+				this.closeMenu();
+			}
+		}
+	}
+
+	namespace DbPerformance {
+		function post(id: string, sessionid: string) {
+			$(document).ready(function() {
+				setTimeout(function() {
+					$.get((window as any).DomUIappURL + "nl.itris.vp.parts.DbPerf.part?requestid=" + sessionid, function(data) {
+						//-- Insert the div as the last in the body
+						$('#' + id).html(data);
+						$(".vp-lspf").draggable({ghosting: false, zIndex: 100, handle: '.vp-lspf-ttl'});
+						$(".vp-lspf-close").click(function() {
+							$(".vp-lspf").hide();
+						});
+
+					});
+				}, 500);
+			})
+		}
+	}
+
+
 }

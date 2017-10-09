@@ -95,4 +95,15 @@ namespace WebUIStatic {
 		}
 		notifySizePositionChangedOnId(element.id);
 	}
+
+	function floatingDivResize(ev, ui) : void {
+		$(ui.helper.get(0)).css('position', 'fixed');
+		$('[stretch=true]').doStretch();
+		$('.ui-dt, .ui-fixovfl').fixOverflow();
+	}
+
+	function onWindowResize() {
+		WebUI.doCustomUpdates();
+	}
+
 }

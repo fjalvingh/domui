@@ -185,5 +185,29 @@ namespace WebUIStatic {
 		$(debugPanel).css('top', posY);
 		$(debugPanel).html(debugInfoHtml);
 	}
+
+	function addPagerAccessKeys(e): void {
+		let KEY = {
+			HOME: 36,
+			END: 35,
+			PAGE_UP: 33,
+			PAGE_DOWN: 34
+		};
+		if($('div.ui-dp-btns').size() > 0) {
+			if(e.altKey) {
+				if(e.keyCode == KEY.HOME) {
+					$("div.ui-dp-btns > a:nth-child(1)").click();
+				} else if(e.keyCode == KEY.PAGE_UP) {
+					$("div.ui-dp-btns > a:nth-child(2)").click();
+				} else if(e.keyCode == KEY.PAGE_DOWN) {
+					$("div.ui-dp-btns > a:nth-child(3)").click();
+				} else if(e.keyCode == KEY.END) {
+					$("div.ui-dp-btns > a:nth-child(4)").click();
+				}
+			}
+		}
+	}
+
+
 }
 

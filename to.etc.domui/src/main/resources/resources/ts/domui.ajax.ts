@@ -518,4 +518,17 @@ namespace WebUIStatic {
 //			alert("Sending obit failed:"+ex);
 		}
 	}
+	
+	function notifyPage(command) {
+		let bodyId = '_1';
+		let pageBody = document.getElementById(bodyId);
+		//check for exsistence, since it is delayed action component can be removed when action is executed.
+		if (pageBody){
+			let fields = {};
+			fields["webuia"] = "notifyPage";
+			fields[bodyId + "_command"] = command;
+			WebUI.scall(bodyId, "notifyPage", fields);
+		}
+	}
+
 }

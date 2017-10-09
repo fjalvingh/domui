@@ -10,7 +10,10 @@ interface JQuery {
 	fixOverflow() : void;
 	setBackgroundImageMarker() : void;
 
+	size() : number;
+
 	ColorPicker: any;
+	draggable: any;
 
 }
 
