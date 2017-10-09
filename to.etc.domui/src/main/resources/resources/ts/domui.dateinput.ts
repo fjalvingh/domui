@@ -28,7 +28,7 @@
  0905	-> HHMM format, adapted to 09:05.
  905		-> HMM format, adapted to 09:05; you always have to specify 2 digit minutes, but leading 0-s for hours may be omitted
  */
-namespace WebUIStatic {
+namespace WebUI {
 	declare let Calendar: any;
 
 	/***** DateInput control code ****/

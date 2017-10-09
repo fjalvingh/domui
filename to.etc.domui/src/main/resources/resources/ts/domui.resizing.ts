@@ -3,7 +3,7 @@
 /// <reference path="domui.webui.d.ts" />
 //import WebUI from "domui.webui.util";
 
-namespace WebUIStatic {
+namespace WebUI {
 	/**
 	 * This adds a "resize" listener to the window, and every window "resize" it will call a method
 	 * to recalculate the height of a single div (flexid) based on the position of:

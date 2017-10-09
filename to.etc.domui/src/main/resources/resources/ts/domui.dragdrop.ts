@@ -3,7 +3,7 @@
 /// <reference path="domui.webui.d.ts" />
 //import WebUI from "domui.webui.util";
 
-namespace WebUIStatic {
+namespace WebUI {
 	let _dragType: string;
 
 	let _dragMode: number;
@@ -214,7 +214,7 @@ namespace WebUIStatic {
 	class DropInfo {
 		_tbody: HTMLElement;
 		_dropTarget: HTMLElement;
-		_position: WebUIStatic.Point;
+		_position: WebUI.Point;
 		_width: number;
 		_height: number;
 		_types: string[];

@@ -2,7 +2,7 @@
 /// <reference path="domui.jquery.d.ts" />
 /// <reference path="domui.webui.d.ts" />
 //import WebUI from "domui.webui.util";
-namespace WebUIStatic {
+namespace WebUI {
 	let _ignoreScrollClick = 0;
 
 	function scrollLeft(bLeft) : void {

@@ -3,7 +3,7 @@
 /// <reference path="domui.webui.d.ts" />
 //import WebUI from "domui.webui.util";
 
-namespace WebUIStatic {
+namespace WebUI {
 	function returnKeyPress(evt, node) : boolean {
 		var keyCode = WebUI.normalizeKey(evt);
 		if (keyCode != 13000 && keyCode != 13)

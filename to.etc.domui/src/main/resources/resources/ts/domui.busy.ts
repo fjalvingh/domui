@@ -1,6 +1,6 @@
 /// <reference path="typings/jquery/jquery.d.ts" />
 /// <reference path="domui.jquery.d.ts" />
-namespace WebUIStatic {
+export namespace WebUI {
 	var _busyCount = 0;
 
 	var _busyOvl: any;
@@ -10,7 +10,7 @@ namespace WebUIStatic {
 	/*
 	 * Block the UI while an AJAX call is in progress.
 	 */
-	function blockUI() : void {
+	export function blockUI() : void {
 //		console.debug('block, busy=', WebUI._busyCount);
 		if(_busyCount++ > 0)
 			return;
@@ -27,7 +27,7 @@ namespace WebUIStatic {
 		_busyTimer = setTimeout("WebUI.busyIndicate()", 250);
 	}
 
-	function isUIBlocked() : boolean {
+	export function isUIBlocked() : boolean {
 		return _busyOvl != undefined && _busyOvl != null;
 	}
 
@@ -41,7 +41,7 @@ namespace WebUIStatic {
 		}
 	}
 
-	function unblockUI() {
+	export function unblockUI() {
 //		console.debug('unblock, busy=', WebUI._busyCount);
 		if(_busyCount <= 0 || ! _busyOvl)
 			return;

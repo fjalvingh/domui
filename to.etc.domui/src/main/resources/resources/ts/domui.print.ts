@@ -3,7 +3,7 @@
 /// <reference path="domui.webui.d.ts" />
 //import WebUI from "domui.webui.util";
 
-namespace WebUIStatic {
+namespace WebUI {
 	/*-- Printing support --*/
 	let _frmIdCounter = 0;
 

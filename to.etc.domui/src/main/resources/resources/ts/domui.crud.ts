@@ -3,7 +3,7 @@
 /// <reference path="domui.webui.d.ts" />
 //import WebUI from "domui.webui.util";
 
-namespace WebUIStatic {
+namespace WebUI {
 	function handleCalendarChanges(): void {
 		// -- find all Calendars
 		let cals = $("div.ui-wa").get();

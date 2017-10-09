@@ -1,65 +1,57 @@
-declare const WebUI: WebUIStatic;
-
-declare global {
-
-}
-
-interface WebUIStatic {
+declare namespace WebUI {
 	// ajax
-	clicked(h, id : string, evt: any);
-	getInputFields(fields: object): object;
-	cancelPolling(): void;
-	handleError(request, status, exc): boolean;
-	handleResponse(data, state): void;
-	scall(id: string, action: string, fields? : any) : void;
-	valuechanged(unknown : string, id: string) : void;
-	beforeUnload() : void;
+	export function clicked(h, id : string, evt: any);
+	function getInputFields(fields: object): object;
+	function cancelPolling(): void;
+	function handleError(request, status, exc): boolean;
+	function handleResponse(data, state): void;
+	function scall(id: string, action: string, fields? : any) : void;
+	function valuechanged(unknown : string, id: string) : void;
+	function beforeUnload() : void;
 
 	// busy
-	blockUI() : void;
-	unblockUI() : void;
-	isUIBlocked() : boolean;
+	function blockUI() : void;
+	function unblockUI() : void;
+	function isUIBlocked() : boolean;
 
 	//-- util
-	log(...args): void;
-	refreshElement(id: string) : void;
-	blockUI() : void;
-	getPostURL() : string;
-	_T: any;
-	format(message: string, ...rest) : string;
-	getPostURL() : string;
-	getObituaryURL(): string;
+	function log(...args): void;
+	function refreshElement(id: string) : void;
+	function blockUI() : void;
+	export function getPostURL() : string;
+	let _T: any;
+	function format(message: string, ...rest) : string;
+	function getPostURL() : string;
+	function getObituaryURL(): string;
 
-	_hideExpiredMessage: boolean;
-	toClip(value: any): void;
-	isReallyIE7() : boolean;
-	isIE8orIE8c() : boolean;
-	isIE8orNewer() : boolean;
-	isNormalIE9plus() : boolean;
-	nearestID(elem: HTMLElement) : any;
-	normalizeKey(evt: any): number;
-	stretchHeightOnNode(elem : HTMLElement) : void;
-	truncateUtfBytes(str: string, nbytes: number) : number;
-	utf8Length(str: string) : number;
-	preventSelection() : boolean;
+	let _hideExpiredMessage: boolean;
+	function toClip(value: any): void;
+	function isReallyIE7() : boolean;
+	function isIE8orIE8c() : boolean;
+	function isIE8orNewer() : boolean;
+	function isNormalIE9plus() : boolean;
+	function nearestID(elem: HTMLElement) : any;
+	function normalizeKey(evt: any): number;
+	function stretchHeightOnNode(elem : HTMLElement) : void;
+	function truncateUtfBytes(str: string, nbytes: number) : number;
+	function utf8Length(str: string) : number;
+	function preventSelection() : boolean;
 
-	getAbsolutePosition(obj): WebUIStatic.Point;
-	findParentOfTagName(node: any, type: string): any;
+	function getAbsolutePosition(obj): WebUI.Point;
+	function findParentOfTagName(node: any, type: string): any;
 
 	// handler
-	doCustomUpdates(): void;
-	addPagerAccessKeys(e): void;
-	onDocumentReady(): void;
-	onWindowResize() : void;
+	function doCustomUpdates(): void;
+	function addPagerAccessKeys(e): void;
+	function onDocumentReady(): void;
+	function onWindowResize() : void;
 
 	// dateinput
-	handleCalendarChanges() : void;
+	function handleCalendarChanges() : void;
 
 	// resize
-	notifySizePositionChangedOnId(elemId : string) : void;
-}
+	function notifySizePositionChangedOnId(elemId : string) : void;
 
-declare namespace WebUIStatic {
 	class Point {
 		x: number;
 		y: number;

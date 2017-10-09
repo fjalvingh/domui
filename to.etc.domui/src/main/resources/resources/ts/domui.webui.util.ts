@@ -2,7 +2,7 @@
 /// <reference path="domui.jquery.d.ts" />
 // declare module "domui.webui.util";
 
-namespace WebUIStatic {
+namespace WebUI {
 	function definePageName(pn: string): void {
 		$(document.body).attr("pageName", pn);
 	}

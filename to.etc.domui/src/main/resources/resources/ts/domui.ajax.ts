@@ -1,10 +1,9 @@
 /// <reference path="typings/jquery/jquery.d.ts" />
 /// <reference path="domui.jquery.d.ts" />
-/// <reference path="domui.webui.d.ts" />
-//import WebUI from "domui.webui.util";
+// <reference path="domui.webui.d.ts" />
 
-namespace WebUIStatic {
-	function getInputFields(fields: object): object {
+namespace WebUI {
+	export function getInputFields(fields: object): object {
 		// Collect all input, then create input.
 		let q1 = $("input").get();
 		for(let i = q1.length; --i >= 0;) {
@@ -77,7 +76,7 @@ namespace WebUIStatic {
 	 * This registers a non-html control as a source of input for {@link getInputFields}. The control
 	 * must have a method "getInputFields(fields: Map)" which defines the inputs to send for the control.
 	 */
-	function registerInputControl(id, control) {
+	export function registerInputControl(id, control) {
 		let list = _inputFieldList;
 		for(let i = list.length; --i >= 0;) {
 			let item = list[i];
@@ -101,7 +100,7 @@ namespace WebUIStatic {
 		return null;
 	}
 
-	function clicked(h, id : string, evt: any) {
+	export function clicked(h, id : string, evt: any) {
 		//-- Trigger the before-clicked event on body
 		$(document.body).trigger("beforeclick", [$("#" + id), evt]);
 
@@ -146,7 +145,7 @@ namespace WebUIStatic {
 		return false;						// jal 20131107 Was false, but inhibits clicking on radiobutton inside a table in Chrome.
 	}
 
-	function prepareAjaxCall(id, action, fields?) {
+	export function prepareAjaxCall(id, action, fields?) {
 		if(!fields)
 			fields = new Object();
 		// Collect all input, then create input.
@@ -167,13 +166,13 @@ namespace WebUIStatic {
 		};
 	}
 
-	function scall(id: string, action: string, fields? : any) : void {
+	export function scall(id: string, action: string, fields? : any) : void {
 		let call = prepareAjaxCall(id, action, fields);
 		cancelPolling();
 		$.ajax(call);
 	}
 
-	function jsoncall(id, fields) {
+	export function jsoncall(id, fields) {
 		if(!fields)
 			fields = new Object();
 		fields["webuia"] = "$pagejson";
@@ -223,7 +222,7 @@ namespace WebUIStatic {
 	 * @param fields
 	 * @returns
 	 */
-	function callJsonFunction(id, action, fields) {
+	export function callJsonFunction(id, action, fields) {
 		if(!fields)
 			fields = new Object();
 		fields.webuia = "#" + action;
@@ -252,7 +251,7 @@ namespace WebUIStatic {
 //		}
 	}
 
-	function clickandchange(h, id, evt) {
+	export function clickandchange(h, id, evt) {
 		//-- Do not call upward handlers too.
 		if(!evt)
 			evt = window.event;
@@ -264,7 +263,7 @@ namespace WebUIStatic {
 		scall(id, 'clickandvchange');
 	}
 
-	function valuechanged(unknown : string, id: string) : void{
+	export function valuechanged(unknown : string, id: string) : void{
 		// FIXME 20100315 jal Temporary fix for bug 680: if a DateInput has a value changed listener the onblur does not execute. So handle it here too.... The fix is horrible and needs generalization.
 		let item = document.getElementById(id);
 		if(item && (item.tagName == "input" || item.tagName == "INPUT") && item.className == "ui-di") {
@@ -292,7 +291,7 @@ namespace WebUIStatic {
 		});
 	}
 
-	function handleResponse(data, state): void {
+	export function handleResponse(data, state): void {
 		clearErrorAsy();
 		// if (false && window.console && window.console.debug)
 		// 	console.debug("data is ", data);
@@ -518,7 +517,7 @@ namespace WebUIStatic {
 //			alert("Sending obit failed:"+ex);
 		}
 	}
-	
+
 	function notifyPage(command) {
 		let bodyId = '_1';
 		let pageBody = document.getElementById(bodyId);
