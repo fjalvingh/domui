@@ -1,10 +1,13 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-//    "noImplicitAny": true,
+//    "module": "commonjs",
+    "module": "system",
+
+    //    "noImplicitAny": true,
     "removeComments": true,
     "preserveConstEnums": true,
     "sourceMap": true,
+    "outFile": "domui-combined.js",
 
     // https://github.com/angular/angular/issues/14595: fixes cannot find Iterable
     "lib" : ["es2015", "es2015.iterable", "es2017", "dom"
