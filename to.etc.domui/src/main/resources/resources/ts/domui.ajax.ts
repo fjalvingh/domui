@@ -1,18 +1,21 @@
 /// <reference path="typings/jquery/jquery.d.ts" />
 /// <reference path="domui.jquery.d.ts" />
+/// <reference path="domui.webui.d.ts" />
+//import WebUI from "domui.webui.util";
+
 namespace WebUIStatic {
 	function getInputFields(fields) {
 		// Collect all input, then create input.
-		var q1 = $("input").get();
-		for ( var i = q1.length; --i >= 0;) {
-			var t = q1[i];
-			if (t.type == 'file')
+		let q1 = $("input").get();
+		for(let i = q1.length; --i >= 0;) {
+			let t: any = q1[i];
+			if(t.type == 'file')
 				continue;
-			if (t.type == 'hidden' && !t.getAttribute('s')) // All hidden input nodes are created directly in browser java-script and because that are filtered out from server requests.
+			if(t.type == 'hidden' && !t.getAttribute('s')) // All hidden input nodes are created directly in browser java-script and because that are filtered out from server requests.
 				continue;
 
-			var val = undefined;
-			if (t.type == 'checkbox' || t.type == 'radio') {
+			let val = undefined;
+			if(t.type == 'checkbox' || t.type == 'radio') {
 				val = t.checked ? "y" : "n";
 			} else {
 				val = t.value;
@@ -21,25 +24,26 @@ namespace WebUIStatic {
 			fields[t.id] = val;
 		}
 
-		var q1 = $("select").get();
-		for ( var i = q1.length; --i >= 0;) {
-			var sel = q1[i];
-			var val = undefined;
-			if (sel.selectedIndex != -1) {
+		q1 = $("select").get();
+		for(let i = q1.length; --i >= 0;) {
+			let sel: HTMLSelectElement = q1[i] as HTMLSelectElement;
+			let val = undefined;
+			if(sel.selectedIndex != -1) {
 				val = sel.options[sel.selectedIndex].value;
 			}
 
 			if(val != undefined)
 				fields[sel.id] = val;
 		}
-		var q1 = $("textarea").get();
-		for ( var i = q1.length; --i >= 0;) {
-			var sel = q1[i];
-			if (sel.className == 'ui-ckeditor') {
+		q1 = $("textarea").get();
+		for(let i = q1.length; --i >= 0;) {
+			let sel = q1[i] as HTMLTextAreaElement;
+			let val;
+			if(sel.className == 'ui-ckeditor') {
 				//-- Locate the variable for this editor.
-				var editor = CKEDITOR.instances[sel.id];
+				let editor = CKEDITOR.instances[sel.id];
 				if(null == editor)
-					throw "Cannot locate editor with id="+sel.id;
+					throw "Cannot locate editor with id=" + sel.id;
 				val = editor.getData();
 			} else {
 //				if($.browser.msie) { // The MS idiots remove newlines from value....
@@ -52,14 +56,14 @@ namespace WebUIStatic {
 		}
 
 		//-- Handle all registered controls
-		var list = WebUI._inputFieldList;
-		for(var i = list.length; --i >= 0;) {
-			var item = list[i];
-			if(! document.getElementById(item.id)) {
+		let list = _inputFieldList;
+		for(let i = list.length; --i >= 0;) {
+			let item = list[i];
+			if(!document.getElementById(item.id)) {
 				//-- Node gone - remove input
 				list.splice(i, 1);
 			} else {
-				var data = item.control.getInputField();
+				let data = item.control.getInputField();
 				fields[item.id] = data;
 			}
 		}
@@ -67,29 +71,29 @@ namespace WebUIStatic {
 		return fields;
 	}
 
-	var _inputFieldList: [];
+	let _inputFieldList: any[];
 
 	/**
 	 * This registers a non-html control as a source of input for {@link getInputFields}. The control
 	 * must have a method "getInputFields(fields: Map)" which defines the inputs to send for the control.
 	 */
 	function registerInputControl(id, control) {
-		var list = WebUI._inputFieldList;
-		for(var i = list.length; --i >= 0;) {
-			var item = list[i];
+		let list = _inputFieldList;
+		for(let i = list.length; --i >= 0;) {
+			let item = list[i];
 			if(item.id == id) {
 				item.control = control;
 				return;
 			}
 		}
-		list.push({id: id, control:control});
+		list.push({id: id, control: control});
 	}
 
 	function findInputControl(id) {
 		//-- return registered component by id, if not found returns null
-		var list = WebUI._inputFieldList;
-		for(var i = list.length; --i >= 0;) {
-			var item = list[i];
+		let list = _inputFieldList;
+		for(let i = list.length; --i >= 0;) {
+			let item = list[i];
 			if(item.id == id && document.getElementById(item.id)) {
 				return item.control;
 			}
@@ -99,19 +103,19 @@ namespace WebUIStatic {
 
 	function clicked(h, id, evt) {
 		//-- Trigger the before-clicked event on body
-		$(document.body).trigger("beforeclick", $("#"+id), evt);
+		$(document.body).trigger("beforeclick", [$("#" + id), evt]);
 
 		// Collect all input, then create input.
-		var fields : any = {};
+		let fields: any = {};
 		this.getInputFields(fields);
 		fields.webuia = "clicked";
 		fields.webuic = id;
-		fields["$pt"] = DomUIpageTag;
-		fields["$cid"] = DomUICID;
-		WebUI.cancelPolling();
+		fields["$pt"] = (window as any).DomUIpageTag;
+		fields["$cid"] = (window as any).DomUICID;
+		cancelPolling();
 
 		//-- Do not call upward handlers too.
-		if(! evt)
+		if(!evt)
 			evt = window.event;
 
 		// jal 20131107 Cancelling the event means that you cannot click items inside a clickable item
@@ -120,7 +124,7 @@ namespace WebUIStatic {
 			if(evt.stopPropagation)
 				evt.stopPropagation();
 		}
-		var e = $.event.fix(evt);		// Convert to jQuery event
+		let e = ($ as any).event.fix(evt);		// Convert to jQuery event
 		//e.preventDefault(); // jal 20110216 DO NOT PREVENTDEFAULT- it will disable checkbox enable/disable
 
 		//-- add click-related parameters
@@ -130,69 +134,69 @@ namespace WebUIStatic {
 		fields._shiftKey = e.shiftKey == true;
 		fields._altKey = e.altKey == true;
 
-		$.ajax( {
-			url :DomUI.getPostURL(),
-			dataType :"*",
-			data :fields,
-			cache :false,
+		$.ajax({
+			url: WebUI.getPostURL(),
+			dataType: "*",
+			data: fields,
+			cache: false,
 			type: "POST",
-			error :WebUI.handleError,
-			success :WebUI.handleResponse
+			error: handleError,
+			success: handleResponse
 		});
 		return false;						// jal 20131107 Was false, but inhibits clicking on radiobutton inside a table in Chrome.
 	}
 
-	function prepareAjaxCall(id, action, fields) {
-		if (!fields)
+	function prepareAjaxCall(id, action, fields?) {
+		if(!fields)
 			fields = new Object();
 		// Collect all input, then create input.
 		this.getInputFields(fields);
 		fields.webuia = action;
 		fields.webuic = id;
-		fields["$pt"] = DomUIpageTag;
-		fields["$cid"] = DomUICID;
+		fields["$pt"] = (window as any).DomUIpageTag;
+		fields["$cid"] = (window as any).DomUICID;
 
 		return {
-			url :DomUI.getPostURL(),
-			dataType :"*",
-			data :fields,
-			cache :false,
+			url: WebUI.getPostURL(),
+			dataType: "*",
+			data: fields,
+			cache: false,
 			type: "POST",
-			success :WebUI.handleResponse,
-			error :WebUI.handleError
+			success: handleResponse,
+			error: handleError
 		};
 	}
 
-	function scall(id, action, fields) {
-		var call = WebUI.prepareAjaxCall(id, action, fields);
-		WebUI.cancelPolling();
+	function scall(id, action, fields?) {
+		let call = prepareAjaxCall(id, action, fields);
+		cancelPolling();
 		$.ajax(call);
 	}
 
 	function jsoncall(id, fields) {
-		if (!fields)
+		if(!fields)
 			fields = new Object();
-		fields.webuia = "$pagejson";
-		fields.webuic = id;
-		fields["$pt"] = DomUIpageTag;
-		fields["$cid"] = DomUICID;
+		fields["webuia"] = "$pagejson";
+		fields["webuic"] = id;
+		fields["$pt"] = (window as any).DomUIpageTag;
+		fields["$cid"] = (window as any).DomUICID;
 
-		var response = "";
-		$.ajax( {
-			url :DomUI.getPostURL(),
-			dataType :"text/xml",
-			data :fields,
-			cache :false,
+		let response = "";
+		$.ajax({
+			url: WebUI.getPostURL(),
+			dataType: "text/xml",
+			data: fields,
+			cache: false,
 			async: false,
 			type: "POST",
-			success : function(data, state) {
+			success: function(data, state) {
 				response = data;
 			},
-			error :WebUI.handleError
+			error: handleError
 		});
 //		console.debug("jsoncall-", response);
 //		try {
-		return eval("("+response+")");
+		return eval("(" + response + ")");
 //		} catch(x) {
 //			console.debug("json data error", x);
 //		}
@@ -205,9 +209,9 @@ namespace WebUIStatic {
 	 * @returns void
 	 */
 	function sendJsonAction(id, action, json) {
-		var fields = new Object();
-		fields.json = JSON.stringify(json);
-		WebUI.scall(id, action, fields);
+		let fields = {};
+		fields["json"] = JSON.stringify(json);
+		scall(id, action, fields);
 	}
 
 	/**
@@ -220,108 +224,29 @@ namespace WebUIStatic {
 	 * @returns
 	 */
 	function callJsonFunction(id, action, fields) {
-		if (!fields)
+		if(!fields)
 			fields = new Object();
-		fields.webuia = "#"+action;
+		fields.webuia = "#" + action;
 		fields.webuic = id;
-		fields["$pt"] = DomUIpageTag;
-		fields["$cid"] = DomUICID;
+		fields["$pt"] = (window as any).DomUIpageTag;
+		fields["$cid"] = (window as any).DomUICID;
 
-		var response = "";
-		$.ajax( {
-			url :DomUI.getPostURL(),
-			dataType :"text/xml",
-			data :fields,
-			cache :false,
+		let response = "";
+		$.ajax({
+			url: WebUI.getPostURL(),
+			dataType: "text/xml",
+			data: fields,
+			cache: false,
 			async: false,
 			type: "POST",
-			success : function(data, state) {
+			success: function(data, state) {
 				response = data;
 			},
-			error :WebUI.handleError
+			error: handleError
 		});
 //		console.debug("jsoncall-", response);
 //		try {
-		return eval("("+response+")");
-//		} catch(x) {
-//			console.debug("json data error", x);
-//		}
-	}
-
-	/**
-	 * Send a server request to a component, which will be handled by that component's componentHandleWebAction
-	 * method. The json data is sent as a string parameter with the name "json"; the response is handled as a normal
-	 * DomUI page request: the page is updated and any delta is returned.
-	 * @returns void
-	 */
-	function sendJsonAction(id, action, json) {
-		var fields = new Object();
-		fields.json = JSON.stringify(json);
-		WebUI.scall(id, action, fields);
-	}
-
-	/**
-	 * Call a JSON handler on a component. This is "out of bound": the current browser state of
-	 * the page is /not/ sent, and the response must be a JSON document which will be the return
-	 * value of this function.
-	 *
-	 * @param id
-	 * @param fields
-	 * @returns
-	 */
-	function callJsonFunction(id, action, fields) {
-		if (!fields)
-			fields = new Object();
-		fields.webuia = "#"+action;
-		fields.webuic = id;
-		fields["$pt"] = DomUIpageTag;
-		fields["$cid"] = DomUICID;
-
-		var response = "";
-		$.ajax( {
-			url :DomUI.getPostURL(),
-			dataType :"text/xml",
-			data :fields,
-			cache :false,
-			async: false,
-			type: "POST",
-			success : function(data, state) {
-				response = data;
-			},
-			error :WebUI.handleError
-		});
-//		console.debug("jsoncall-", response);
-//		try {
-		return eval("("+response+")");
-//		} catch(x) {
-//			console.debug("json data error", x);
-//		}
-	}
-
-	function jsoncall(id, fields) {
-		if (!fields)
-			fields = new Object();
-		fields.webuia = "$pagejson";
-		fields.webuic = id;
-		fields["$pt"] = DomUIpageTag;
-		fields["$cid"] = DomUICID;
-
-		var response = "";
-		$.ajax( {
-			url :DomUI.getPostURL(),
-			dataType :"text/xml",
-			data :fields,
-			cache :false,
-			async: false,
-			type: "POST",
-			success : function(data, state) {
-				response = data;
-			},
-			error :WebUI.handleError
-		});
-//		console.debug("jsoncall-", response);
-//		try {
-		return eval("("+response+")");
+		return eval("(" + response + ")");
 //		} catch(x) {
 //			console.debug("json data error", x);
 //		}
@@ -329,43 +254,199 @@ namespace WebUIStatic {
 
 	function clickandchange(h, id, evt) {
 		//-- Do not call upward handlers too.
-		if(! evt)
+		if(!evt)
 			evt = window.event;
 		if(evt) {
 			evt.cancelBubble = true;
 			if(evt.stopPropagation)
 				evt.stopPropagation();
 		}
-		WebUI.scall(id, 'clickandvchange');
+		scall(id, 'clickandvchange');
 	}
 
 	function valuechanged(h, id) {
 		// FIXME 20100315 jal Temporary fix for bug 680: if a DateInput has a value changed listener the onblur does not execute. So handle it here too.... The fix is horrible and needs generalization.
-		var item = document.getElementById(id);
+		let item = document.getElementById(id);
 		if(item && (item.tagName == "input" || item.tagName == "INPUT") && item.className == "ui-di") {
 			//-- DateInput control: manually call the onblur listener.
 			this.dateInputRepairValueIn(item);
 		}
 
 		// Collect all input, then create input.
-		var fields = new Object();
+		let fields = new Object();
 		this.getInputFields(fields);
-		fields.webuia = "vchange";
-		fields.webuic = id;
-		fields["$pt"] = DomUIpageTag;
-		fields["$cid"] = DomUICID;
-		WebUI.cancelPolling();
+		fields["webuia"] = "vchange";
+		fields["webuic"] = id;
+		fields["$pt"] = (window as any).DomUIpageTag;
+		fields["$cid"] = (window as any).DomUICID;
+		cancelPolling();
 
-		$.ajax( {
-			url :DomUI.getPostURL(),
-			dataType :"*",
-			data :fields,
-			cache :false,
+		$.ajax({
+			url: getPostURL(),
+			dataType: "*",
+			data: fields,
+			cache: false,
 			type: "POST",
-			success :WebUI.handleResponse,
-			error :WebUI.handleError
+			success: WebUI.handleResponse,
+			error: WebUI.handleError
 		});
 	}
 
+	function handleResponse(data, state): void {
+		WebUI.clearErrorAsy();
+		// if (false && window.console && window.console.debug)
+		// 	console.debug("data is ", data);
+		$.webui(data);
+	}
+
+	function handleError(request, status, exc): boolean {
+		var txt = request.responseText;
+		if(document.body)
+			document.body.style.cursor = 'default';
+		// alert('Server error: '+status+", len="+txt.length+", val="+txt);
+		if(txt.length == 0) {
+			//-- Firefox fix: if the page is unloading but a request is pending this may cause an status=ERROR for that page. Prevent us from then overwriting the new document....
+			if(status == "error")
+				return;
+
+			txt = "De server is niet bereikbaar 1, status=" + status + ", " + request.statusText;
+		}
+		document.write(txt);
+		document.close();
+		window.setTimeout('document.body.style.cursor="default"', 1000);
+		return true;
+	}
+
+	let _asyalerted = false;
+	let _asyDialog = null;
+	let _ignoreErrors = false;
+	let _asyHider = undefined;
+
+	function handleErrorAsy(request, status, exc): void {
+		if(WebUI._asyalerted) {
+			//-- We're still in error.. Silently redo the poll.
+			WebUI.startPolling(WebUI._pollInterval);
+			return;
+		}
+//		$.dbg("Got into error state - start "+request.responseText);
+		if(status === "abort")
+			return;
+
+		_asyalerted = true;
+
+		var txt = request.responseText || "No response - status=" + status;
+		if(txt.length > 512)
+			txt = txt.substring(0, 512) + "...";
+		if(txt.length == 0)
+			txt = WebUI._T.sysPollFailMsg + status;
+
+		/*
+		 * As usual there is a problem with error reporting: if the request is aborted because the browser reloads the page
+		 * any pending request is cancelled and comes in here- but with the wrong error code of course. So to prevent us from
+		 * showing an error message: set a timer to show that message 250 milli's later, and hope the stupid browser disables
+		 * that timer.
+		 */
+		setTimeout(function() {
+			if(WebUI._ignoreErrors)
+				return;
+
+			//-- Show an alert error on top of the screen
+			document.body.style.cursor = 'default';
+			var hdr = document.createElement('div');
+			document.body.appendChild(hdr);
+			hdr.className = 'ui-io-blk2';
+			WebUI._asyHider = hdr;
+
+			var ald = document.createElement('div');
+			document.body.appendChild(ald);
+			ald.className = 'ui-ioe-asy';
+			WebUI._asyDialog = ald;
+
+			var d = document.createElement('div');			// Title bar
+			ald.appendChild(d);
+			d.className = "ui-ioe-ttl";
+			d.appendChild(document.createTextNode(WebUI._T.sysPollFailTitle));	// Server unreachable
+
+			d = document.createElement('div');				// Message content
+			ald.appendChild(d);
+			d.className = "ui-ioe-msg";
+			d.appendChild(document.createTextNode(txt));	// Server unreachable
+
+			d = document.createElement('div');				// Message content
+			ald.appendChild(d);
+			d.className = "ui-ioe-msg2";
+
+			var img = document.createElement('div');
+			d.appendChild(img);
+			img.className = "ui-ioe-img";
+			d.appendChild(document.createTextNode(WebUI._T.sysPollFailCont));	// Waiting for the server to return.
+			WebUI.startPolling(WebUI._pollInterval);
+		}, 250);
+	}
+
+	function clearErrorAsy(): void {
+//		$.dbg("clear asy called");
+		if(WebUI._asyDialog) {
+			$(WebUI._asyDialog).remove();
+		}
+		if(WebUI._asyHider) {
+			$(WebUI._asyHider).remove();
+		}
+		WebUI._asyDialog = null;
+		WebUI._asyHider = null;
+		WebUI._asyalerted = false;
+	}
+
+
+	/** *************** Polling code ************* */
+	/**
+	 * Will be set by startPolling to define the poll interval.
+	 */
+	let _pollInterval: 2500;
+
+	let _pollActive: false;
+
+	let _pollTimer: number = undefined;
+
+	function startPolling(interval: number): void {
+		if(interval < 100 || interval == undefined || interval == null) {
+			alert("Bad interval: " + interval);
+			return;
+		}
+		WebUI._pollInterval = interval;
+		if(WebUI._pollActive)
+			return;
+		WebUI._pollActive = true;
+		WebUI._pollTimer = setTimeout("WebUI.poll()", WebUI._pollInterval);
+	}
+
+	function cancelPolling(): void {
+		if(!WebUI._pollActive)
+			return;
+		clearTimeout(WebUI._pollTimer);
+		WebUI._pollActive = false;
+	}
+
+	function poll(): void {
+		cancelPolling();
+
+		/*
+		 * Issue a pollasy request using ajax, then handle the result.
+		 */
+		var fields = {};
+		fields["webuia"] = "pollasy";
+		fields["$pt"] = (window as any).DomUIpageTag;
+		fields["$cid"] = (window as any).DomUICID;
+
+		$.ajax({
+			url: window.location.href,
+			dataType: "*", // "text/xml",
+			data: fields,
+			cache: false,
+			global: false, // jal 20091015 prevent block/unblock on polling call.
+			success: handleResponse,
+			error: handleErrorAsy
+		});
+	}
 
 }

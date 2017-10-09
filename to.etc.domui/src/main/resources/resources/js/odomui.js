@@ -171,16 +171,9 @@ $.extend(WebUI, {
 	_hideExpiredMessage: false,
 
 	/**
-	 * Will be set by startPolling to define the poll interval.
-	 */
-	_pollInterval: 2500,
-
-	/**
 	 * When this is > 0, this keeps any page "alive" by sending an async
 	 */
 	_keepAliveInterval: 0,
-
-	_ignoreErrors: false,
 
 	setHideExpired: function() {
 		WebUI._hideExpiredMessage = true;
@@ -544,106 +537,6 @@ $.extend(WebUI, {
 			error :WebUI.handleError
 		});
 	},
-	handleResponse : function(data, state) {
-		WebUI.clearErrorAsy();
-		if (false && window.console && window.console.debug)
-			console.debug("data is ", data);
-		$.webui(data);
-	},
-	handleError : function(request, status, exc) {
-		var txt = request.responseText;
-		if (document.body)
-			document.body.style.cursor = 'default';
-		// alert('Server error: '+status+", len="+txt.length+", val="+txt);
-		if (txt.length == 0) {
-			//-- Firefox fix: if the page is unloading but a request is pending this may cause an status=ERROR for that page. Prevent us from then overwriting the new document....
-			if(status == "error")
-				return;
-
-			txt = "De server is niet bereikbaar 1, status="+status+", "+request.statusText;
-		}
-		document.write(txt);
-		document.close();
-		window.setTimeout('document.body.style.cursor="default"', 1000);
-		return true;
-	},
-
-	_asyalerted: false,
-	_asyDialog: null,
-
-	handleErrorAsy : function(request, status, exc) {
-		if(WebUI._asyalerted) {
-			//-- We're still in error.. Silently redo the poll.
-			WebUI.startPolling(WebUI._pollInterval);
-			return;
-		}
-//		$.dbg("Got into error state - start "+request.responseText);
-		if(status === "abort")
-			return;
-
-		WebUI._asyalerted = true;
-		var txt = request.responseText || "No response - status="+status;
-		if(txt.length > 512)
-			txt = txt.substring(0, 512)+"...";
-		if(txt.length == 0)
-			txt = WebUI._T.sysPollFailMsg+status;
-
-		/*
-		 * As usual there is a problem with error reporting: if the request is aborted because the browser reloads the page
-		 * any pending request is cancelled and comes in here- but with the wrong error code of course. So to prevent us from
-		 * showing an error message: set a timer to show that message 250 milli's later, and hope the stupid browser disables
-		 * that timer.
-		 */
-		setTimeout(function() {
-			if(WebUI._ignoreErrors)
-				return;
-
-			//-- Show an alert error on top of the screen
-			document.body.style.cursor = 'default';
-			var hdr = document.createElement('div');
-			document.body.appendChild(hdr);
-			hdr.className = 'ui-io-blk2';
-			WebUI._asyHider = hdr;
-
-			var ald = document.createElement('div');
-			document.body.appendChild(ald);
-			ald.className = 'ui-ioe-asy';
-			WebUI._asyDialog = ald;
-
-			var d = document.createElement('div');			// Title bar
-			ald.appendChild(d);
-			d.className = "ui-ioe-ttl";
-			d.appendChild(document.createTextNode(WebUI._T.sysPollFailTitle));	// Server unreachable
-
-			d = document.createElement('div');				// Message content
-			ald.appendChild(d);
-			d.className = "ui-ioe-msg";
-			d.appendChild(document.createTextNode(txt));	// Server unreachable
-
-			d = document.createElement('div');				// Message content
-			ald.appendChild(d);
-			d.className = "ui-ioe-msg2";
-
-			var img = document.createElement('div');
-			d.appendChild(img);
-			img.className = "ui-ioe-img";
-			d.appendChild(document.createTextNode(WebUI._T.sysPollFailCont));	// Waiting for the server to return.
-			WebUI.startPolling(WebUI._pollInterval);
-		}, 250);
-	},
-
-	clearErrorAsy: function() {
-//		$.dbg("clear asy called");
-		if(WebUI._asyDialog) {
-			$(WebUI._asyDialog).remove();
-		}
-		if(WebUI._asyHider) {
-			$(WebUI._asyHider).remove();
-		}
-		WebUI._asyDialog = null;
-		WebUI._asyHider = null;
-		WebUI._asyalerted = false;
-	},
 
 	returnKeyPress : function(evt, node) {
 		var keyCode = WebUI.normalizeKey(evt);
@@ -983,47 +876,6 @@ $.extend(WebUI, {
 			ex :ex,
 			ey :ey
 		};
-	},
-
-	/** *************** Polling code ************* */
-	startPolling : function(interval) {
-		if(interval < 100 || interval == undefined || interval == null) {
-			alert("Bad interval: "+interval);
-			return;
-		}
-		WebUI._pollInterval = interval;
-		if (WebUI._pollActive)
-			return;
-		WebUI._pollActive = true;
-		WebUI._pollTimer = setTimeout("WebUI.poll()", WebUI._pollInterval);
-	},
-	cancelPolling : function() {
-		if (!WebUI._pollActive)
-			return;
-		clearTimeout(WebUI._pollTimer);
-		WebUI._pollActive = false;
-	},
-
-	poll : function() {
-		WebUI.cancelPolling();
-
-		/*
-		 * Issue a pollasy request using ajax, then handle the result.
-		 */
-		var fields = new Object();
-		fields.webuia = "pollasy";
-		fields["$pt"] = DomUIpageTag;
-		fields["$cid"] = DomUICID;
-
-		$.ajax( {
-			url :window.location.href,
-			dataType :"*", // "text/xml",
-			data :fields,
-			cache :false,
-			global: false, // jal 20091015 prevent block/unblock on polling call.
-			success :WebUI.handleResponse,
-			error :WebUI.handleErrorAsy
-		});
 	},
 
 	/**
