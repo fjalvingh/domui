@@ -2,7 +2,6 @@ package to.etc.domui.sass;
 
 import com.vaadin.sass.internal.ScssStylesheet;
 import com.vaadin.sass.internal.resolver.ScssStylesheetResolver;
-import org.jetbrains.annotations.NotNull;
 import org.w3c.css.sac.InputSource;
 import to.etc.domui.parts.ParameterInfoImpl;
 import to.etc.domui.server.DomApplication;
@@ -152,7 +151,7 @@ final class SassDomuiResolver implements ScssStylesheetResolver {
 		return is;
 	}
 
-	@NotNull private String calculateParameterFile() {
+	@Nonnull private String calculateParameterFile() {
 		String pf = m_parameterFile;
 		if(null == pf) {
 
