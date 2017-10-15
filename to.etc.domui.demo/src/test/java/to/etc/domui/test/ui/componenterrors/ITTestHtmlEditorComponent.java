@@ -32,7 +32,7 @@ public class ITTestHtmlEditorComponent extends AbstractWebDriverTest {
 		ScreenInspector inspector = wd().screenInspector();
 		if(null == inspector)
 			return;
-		WebElement two = findEditorElement("two");
+		WebElement two = findEditorElement("twoText");
 		BufferedImage bi = inspector.elementScreenshot(two);
 		//ImageIO.write(bi, "png", new File("/tmp/test.png"));
 		Assert.assertTrue("The background of the control should be red because it is in error", TestHelper.isReddish(bi));
@@ -43,7 +43,7 @@ public class ITTestHtmlEditorComponent extends AbstractWebDriverTest {
 		inspector = wd().screenInspector();
 		if(null == inspector)
 			throw new IllegalStateException();
-		two = findEditorElement("two");
+		two = findEditorElement("twoText");
 		bi = inspector.elementScreenshot(two);
 		//ImageIO.write(bi, "png", new File("/tmp/test.png"));
 		Assert.assertTrue("The background of the control should be red because it is in error after screen refresh", TestHelper.isReddish(bi));
