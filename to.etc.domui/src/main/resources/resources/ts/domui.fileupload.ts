@@ -1,6 +1,6 @@
 /// <reference path="typings/jquery/jquery.d.ts" />
 /// <reference path="domui.jquery.d.ts" />
-/// <reference path="domui.webui.d.ts" />
+/// <reference path="domui.webui.ts" />
 //import WebUI from "domui.webui.util";
 namespace WebUI {
 	function fileUploadChange(e) {

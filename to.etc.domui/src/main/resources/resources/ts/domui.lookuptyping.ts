@@ -1,6 +1,6 @@
 /// <reference path="typings/jquery/jquery.d.ts" />
 /// <reference path="domui.jquery.d.ts" />
-/// <reference path="domui.webui.d.ts" />
+/// <reference path="domui.webui.ts" />
 //import WebUI from "domui.webui.util";
 
 namespace WebUI {
@@ -8,7 +8,7 @@ namespace WebUI {
 	 * can be set to true from server code with appendJavaScript so that the expired messages will not show and
 	 * block effortless refresh on class reload. Configurable in .developer.properties domui.hide-expired-alert.
 	 */
-	let _hideExpiredMessage = false;
+	export let _hideExpiredMessage = false;
 
 	/**
 	 * When this is > 0, this keeps any page "alive" by sending an async

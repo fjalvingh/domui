@@ -1,6 +1,6 @@
 /// <reference path="typings/jquery/jquery.d.ts" />
 /// <reference path="domui.jquery.d.ts" />
-/// <reference path="domui.webui.d.ts" />
+/// <reference path="domui.webui.ts" />
 //import WebUI from "domui.webui.util";
 
 namespace WebUI {
@@ -62,20 +62,20 @@ namespace WebUI {
 
 	}
 
-	function autoHeight(flexid, bottom) {
+	export function autoHeight(flexid, bottom) {
 		$(window).bind("resize", function() {
 			autoHeightRecalc(flexid, bottom);
 		});
 		autoHeightRecalc(flexid, bottom);
 	}
 
-	function autoHeightRecalc(flexid, bottom) {
+	export function autoHeightRecalc(flexid, bottom) {
 		var tbot = $(flexid).offset().top;
 		var height = $(window).height() - tbot - bottom;
 		$(flexid).height(height + "px");
 	}
 
-	function notifySizePositionChangedOnId(elemId : string) : void {
+	export function notifySizePositionChangedOnId(elemId : string) : void {
 		var element = document.getElementById(elemId);
 		if (!element){
 			return;
@@ -88,7 +88,7 @@ namespace WebUI {
 		WebUI.scall(element.id, "notifyClientPositionAndSize", fields);
 	}
 
-	function notifySizePositionChanged(event, ui) {
+	export function notifySizePositionChanged(event, ui) {
 		var element = ui.helper.get(0);
 		if (!element){
 			return;
@@ -96,13 +96,13 @@ namespace WebUI {
 		notifySizePositionChangedOnId(element.id);
 	}
 
-	function floatingDivResize(ev, ui) : void {
+	export function floatingDivResize(ev, ui) : void {
 		$(ui.helper.get(0)).css('position', 'fixed');
 		$('[stretch=true]').doStretch();
 		$('.ui-dt, .ui-fixovfl').fixOverflow();
 	}
 
-	function onWindowResize() : void {
+	export function onWindowResize() : void {
 		WebUI.doCustomUpdates();
 	}
 

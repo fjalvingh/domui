@@ -1,10 +1,10 @@
 /// <reference path="typings/jquery/jquery.d.ts" />
 /// <reference path="domui.jquery.d.ts" />
-/// <reference path="domui.webui.d.ts" />
+// <reference path="domui.webui.d.ts" />
 //import WebUI from "domui.webui.util";
 
 namespace WebUI {
-	function handleCalendarChanges(): void {
+	export function handleCalendarChanges(): void {
 		// -- find all Calendars
 		let cals = $("div.ui-wa").get();
 		for(let i = cals.length; --i >= 0;)

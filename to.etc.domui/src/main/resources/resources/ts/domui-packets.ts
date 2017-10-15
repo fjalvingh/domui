@@ -1,6 +1,6 @@
 /// <reference path="typings/jquery/jquery.d.ts" />
 /// <reference path="domui.jquery.d.ts" />
-/// <reference path="domui.webui.d.ts" />
+/// <reference path="domui.webui.ts" />
 
 (function($: JQueryStatic) {
 	$.fn.extend({

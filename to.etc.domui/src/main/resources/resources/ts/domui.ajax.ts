@@ -1,7 +1,7 @@
 /// <reference path="typings/jquery/jquery.d.ts" />
 /// <reference path="domui.jquery.d.ts" />
 // <reference path="domui.webui.d.ts" />
-
+/// <reference path="domui.webui.ts" />
 namespace WebUI {
 	export function getInputFields(fields: object): object {
 		// Collect all input, then create input.
@@ -88,7 +88,7 @@ namespace WebUI {
 		list.push({id: id, control: control});
 	}
 
-	function findInputControl(id) {
+	export function findInputControl(id) {
 		//-- return registered component by id, if not found returns null
 		let list = _inputFieldList;
 		for(let i = list.length; --i >= 0;) {
@@ -207,7 +207,7 @@ namespace WebUI {
 	 * DomUI page request: the page is updated and any delta is returned.
 	 * @returns void
 	 */
-	function sendJsonAction(id, action, json) {
+	export function sendJsonAction(id, action, json) {
 		let fields = {};
 		fields["json"] = JSON.stringify(json);
 		scall(id, action, fields);
@@ -298,7 +298,7 @@ namespace WebUI {
 		$.webui(data);
 	}
 
-	function handleError(request, status, exc): boolean {
+	export function handleError(request, status, exc): boolean {
 		let txt = request.responseText;
 		if(document.body)
 			document.body.style.cursor = 'default';
@@ -321,7 +321,7 @@ namespace WebUI {
 	let _ignoreErrors = false;
 	let _asyHider = undefined;
 
-	function handleErrorAsy(request, status, exc): void {
+	export function handleErrorAsy(request, status, exc): void {
 		if(_asyalerted) {
 			//-- We're still in error.. Silently redo the poll.
 			startPolling(_pollInterval);
@@ -383,7 +383,7 @@ namespace WebUI {
 		}, 250);
 	}
 
-	function clearErrorAsy(): void {
+	export function clearErrorAsy(): void {
 //		$.dbg("clear asy called");
 		if(_asyDialog) {
 			$(_asyDialog).remove();
@@ -407,7 +407,7 @@ namespace WebUI {
 
 	let _pollTimer: number = undefined;
 
-	function startPolling(interval: number): void {
+	export function startPolling(interval: number): void {
 		if(interval < 100 || interval == undefined || interval == null) {
 			alert("Bad interval: " + interval);
 			return;
@@ -419,14 +419,14 @@ namespace WebUI {
 		_pollTimer = setTimeout("WebUI.poll()", _pollInterval);
 	}
 
-	function cancelPolling(): void {
+	export function cancelPolling(): void {
 		if(!_pollActive)
 			return;
 		clearTimeout(_pollTimer);
 		_pollActive = false;
 	}
 
-	function poll(): void {
+	export function poll(): void {
 		cancelPolling();
 
 		/*
@@ -453,7 +453,7 @@ namespace WebUI {
 	 * alive. The response can contain commands to execute which will indicate
 	 * important events or changes have taken place.
 	 */
-	function pingServer(timeout : number) : void {
+	export function pingServer(timeout : number) : void {
 		let url = (window as any).DomUIappURL + "to.etc.domui.parts.PollInfo.part";
 		let fields= {};
 		fields["$pt"] = (window as any).DomUIpageTag;
@@ -474,7 +474,7 @@ namespace WebUI {
 		startPingServer(timeout);
 	}
 
-	function startPingServer(timeout: number) : void {
+	export function startPingServer(timeout: number) : void {
 		if(timeout < 60*1000)
 			timeout = 60*1000;
 		setTimeout("WebUI.pingServer("+timeout+")", timeout);
@@ -484,12 +484,12 @@ namespace WebUI {
 		// TBD
 	}
 
-	function unloaded() : void {
+	export function unloaded() : void {
 		_ignoreErrors = true;
 		sendobituary();
 	}
 
-	function beforeUnload() : void {
+	export function beforeUnload() : void {
 		//-- Make sure no "ajax" errors are reported.
 		_ignoreErrors = true;
 	}
@@ -499,7 +499,7 @@ namespace WebUI {
 	 * server. This is currently unconditional but can later be augmented to
 	 * send the obituary only when the browser window closes.
 	 */
-	function sendobituary() : void {
+	export function sendobituary() : void {
 		try {
 			let rq;
 			let w = window as any;
@@ -518,7 +518,7 @@ namespace WebUI {
 		}
 	}
 
-	function notifyPage(command) {
+	export function notifyPage(command) {
 		let bodyId = '_1';
 		let pageBody = document.getElementById(bodyId);
 		//check for exsistence, since it is delayed action component can be removed when action is executed.

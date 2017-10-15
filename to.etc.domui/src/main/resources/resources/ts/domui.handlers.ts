@@ -1,6 +1,6 @@
 /// <reference path="typings/jquery/jquery.d.ts" />
 /// <reference path="domui.jquery.d.ts" />
-/// <reference path="domui.webui.d.ts" />
+/// <reference path="domui.webui.ts" />
 //import WebUI from "domui.webui.util";
 
 namespace WebUI {
@@ -14,15 +14,15 @@ namespace WebUI {
 	 * registers function that gets called after doCustomUpdates sequence of calls ends, with 500 delay - doCustomUpdates can trigger new doCustomUpdates etc...
 	 * @param contributorFunction
 	 */
-	function registerCustomUpdatesContributor(contributorFunction: Function): void {
+	export function registerCustomUpdatesContributor(contributorFunction: Function): void {
 		_customUpdatesContributors.add(contributorFunction);
 	}
 
-	function unregisterCustomUpdatesContributor(contributorFunction: Function): void {
+	export function unregisterCustomUpdatesContributor(contributorFunction: Function): void {
 		_customUpdatesContributors.remove(contributorFunction);
 	}
 
-	function doCustomUpdates(): void {
+	export function doCustomUpdates(): void {
 		$('.floatThead-wrapper').each(
 			function(index, node) {
 				$(node).attr('stretch', $(node).find('>:first-child').attr('stretch'));
@@ -110,7 +110,7 @@ namespace WebUI {
 		return Number(val);
 	}
 
-	function onDocumentReady(): void {
+	export function onDocumentReady(): void {
 		checkBrowser();
 		WebUI.handleCalendarChanges();
 		if((window as any).DomUIDevel)
@@ -136,7 +136,7 @@ namespace WebUI {
 	let _debugLastKeypress: number;
 	let _debugMouseTarget: HTMLElement;
 
-	function handleDevelopmentMode(): void {
+	export function handleDevelopmentMode(): void {
 		$(document).bind("keydown", function(e) {
 			if(e.keyCode != 192)
 				return;
@@ -164,7 +164,7 @@ namespace WebUI {
 	}
 
 	/** *************** Debug thingy - it can be used internaly for debuging javascript ;) ************** */
-	function debug(debugId: string, posX: number, posY: number, debugInfoHtml: any) {
+	export function debug(debugId: string, posX: number, posY: number, debugInfoHtml: any) {
 		//Be aware that debugId must not start with digit when using FF! Just lost 1 hour to learn this...
 		if("0123456789".indexOf(debugId.charAt(0)) > -1) {
 			alert("debugId(" + debugId + ") starts with digit! Please use different one!");
@@ -186,7 +186,7 @@ namespace WebUI {
 		$(debugPanel).html(debugInfoHtml);
 	}
 
-	function addPagerAccessKeys(e): void {
+	export function addPagerAccessKeys(e): void {
 		let KEY = {
 			HOME: 36,
 			END: 35,

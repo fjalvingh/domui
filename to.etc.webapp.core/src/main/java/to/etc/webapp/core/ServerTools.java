@@ -141,12 +141,27 @@ final public class ServerTools {
 	static public String getMimeType(String fn) {
 		initMimeMap();
 
-		//-- Get the file's extension,
-		int xi = fn.lastIndexOf('.');
-		if(xi == -1)
-			return null; // No suffix -> unknown MIME
-		String ext = fn.substring(xi + 1).toLowerCase();
-		return m_mimemap_p.getProperty(ext);
+		//-- Get the last part of the name
+		int pos = fn.lastIndexOf('/');
+		if(pos == -1) {
+			pos = fn.lastIndexOf('\\');
+		}
+		if(pos != -1) {
+			fn = fn.substring(pos + 1);
+		}
+
+		//-- Walk all possible indices
+		int spos = 0;
+		for(;;) {
+			pos = fn.indexOf('.', spos);
+			if(pos == -1)
+				return null;
+			String ext = fn.substring(pos + 1).toLowerCase();
+			String mime = m_mimemap_p.getProperty(ext);
+			if(null != mime)
+				return mime;
+			spos = pos + 1;
+		}
 	}
 
 	static public String getMimeExtension(String mimetype) {
@@ -232,7 +247,9 @@ final public class ServerTools {
 			"xls", "application/vnd.ms-excel", "xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "xbm", "image/x-xbitmap", "xpm", "image/x-xpixmax", "xwd",
 			"image/x-xwindowdump", "xml", "text/xml",
 
-			"zip", "application/zip", "z", "application/octet-stream",};
+			"zip", "application/zip", "z", "application/octet-stream",
+			"js.map", "application/json"
+		};
 
 		m_mimemap_p = new Properties();
 

@@ -1,7 +1,6 @@
 /// <reference path="typings/jquery/jquery.d.ts" />
 /// <reference path="domui.jquery.d.ts" />
-/// <reference path="domui.webui.d.ts" />
-//import WebUI from "domui.webui.util";
+/// <reference path="domui.webui.ts" />
 /**
  * Acceptable input for dates:
  '/', '.' or '-' are accepted as separators; for brevity only '/' formats will be listed below:

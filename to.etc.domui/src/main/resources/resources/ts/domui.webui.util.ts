@@ -1,13 +1,16 @@
 /// <reference path="typings/jquery/jquery.d.ts" />
 /// <reference path="domui.jquery.d.ts" />
+/// <reference path="domui.webui.ts" />
 // declare module "domui.webui.util";
 
 namespace WebUI {
-	function definePageName(pn: string): void {
+	export let _T  : any = {};
+
+	export function definePageName(pn: string): void {
 		$(document.body).attr("pageName", pn);
 	}
 
-	function log(...args): void {
+	export function log(...args): void {
 		$.dbg.apply(this, args);
 	}
 
@@ -49,7 +52,7 @@ namespace WebUI {
 	 * all non-input like arrows, fn keys etc. FF has keycode which is used ONLY
 	 * for non-input keys and charcode for input.
 	 */
-	function normalizeKey(evt: any): number {
+	export function normalizeKey(evt: any): number {
 		if($.browser.mozilla) {
 			if(evt.charCode > 0)
 				return evt.charCode;
@@ -66,20 +69,20 @@ namespace WebUI {
 		return evt.keyCode;					// Return IE charcode
 	}
 
-	function isNumberKey(evt: any): boolean {
+	export function isNumberKey(evt: any): boolean {
 		//-- onKeyPress event: use keyCode
 		let keyCode = normalizeKey(evt);
 		//$.dbg("kp: norm="+keyCode+", keyCode="+evt.keyCode+", chc="+evt.charCode+", which="+evt.which, evt);
 		return (keyCode >= 1000 || (keyCode >= 48 && keyCode <= 57) || keyCode == 45);
 	}
 
-	function isFloatKey(evt: any): boolean {
+	export function isFloatKey(evt: any): boolean {
 		let keyCode = normalizeKey(evt);
 		//alert('keycode='+evt.keyCode+", charCode="+evt.charCode+", which="+evt.which+", norm="+keyCode);
 		return (keyCode >= 1000 || keyCode == 0x2c || keyCode == 0x2e || (keyCode >= 48 && keyCode <= 57) || keyCode == 45);
 	}
 
-	function delayedSetAttributes(): void {
+	export function delayedSetAttributes(): void {
 		if(arguments.length < 3 || ((arguments.length & 1) != 1)) {
 			alert('internal: odd call to delayedSetAttributes: ' + arguments.length);
 			return;
@@ -98,7 +101,7 @@ namespace WebUI {
 		}
 	}
 
-	function focus(id: string): void {
+	export function focus(id: string): void {
 		let n = document.getElementById(id);
 		if(n) {
 			if($.browser.msie) {
@@ -120,7 +123,7 @@ namespace WebUI {
 	}
 
 
-	function getPostURL(): string {
+	export function getPostURL(): string {
 		let p = window.location.href;
 		let ix = p.indexOf('?');
 		if(ix != -1)
@@ -128,7 +131,7 @@ namespace WebUI {
 		return p;
 	}
 
-	function getObituaryURL(): string {
+	export function getObituaryURL(): string {
 		let u = getPostURL();
 		let ix = u.lastIndexOf('.');
 		if(ix < 0)
@@ -136,7 +139,7 @@ namespace WebUI {
 		return u.substring(0, ix) + ".obit";
 	}
 
-	function openWindow(url: string, name: string, par: any): boolean {
+	export function openWindow(url: string, name: string, par: any): boolean {
 		let h = undefined;
 		try {
 			h = window.open(url, name, par);
@@ -148,7 +151,7 @@ namespace WebUI {
 		return false;
 	}
 
-	function postURL(path: string, name: string, params, target): void {
+	export function postURL(path: string, name: string, params, target): void {
 		let form = document.createElement("form");
 		form.setAttribute("method", "post");
 		form.setAttribute("action", path);
@@ -172,7 +175,7 @@ namespace WebUI {
 	/**
 	 * Do not use- kept for when we find a solution to IE's close problem.
 	 */
-	function isBrowserClosed(e): boolean {
+	export function isBrowserClosed(e): boolean {
 		try {
 			// -- ie does not work as usual.
 			if(window.event) {
@@ -197,7 +200,7 @@ namespace WebUI {
 	}
 
 
-	function toClip(value: any): void {
+	export function toClip(value: any): void {
 		let w = (window as any);
 		if(w.clipboardData) {
 			// the IE-way
@@ -227,14 +230,14 @@ namespace WebUI {
 	 * @param message
 	 * @returns
 	 */
-	function format(message: string, ...rest): string {
+	export function format(message: string, ...rest): string {
 		for(let i = 1; i < arguments.length; i++) {
 			message = message.replace("{" + (i - 1) + "}", arguments[i]);
 		}
 		return message;
 	}
 
-	function findParentOfTagName(node: any, type: string): any {
+	export function findParentOfTagName(node: any, type: string): any {
 		while(node != null) {
 			node = node.parentNode;
 			if(node.tagName == type)
@@ -247,7 +250,7 @@ namespace WebUI {
 	 * @deprecated This is incorrect! Use disableSelect below!
 	 * Disable selection on the given element.
 	 */
-	function disableSelection(node: any): void {
+	export function disableSelection(node: any): void {
 		node.onselectstart = function() {
 			return false;
 		};
@@ -256,7 +259,7 @@ namespace WebUI {
 		node.style.cursor = "default";
 	}
 
-	function disableSelect(id: string) {
+	export function disableSelect(id: string) {
 		if($.browser.msie) {
 			$('#' + id).disableSelection();
 		} else {
@@ -264,7 +267,7 @@ namespace WebUI {
 		}
 	}
 
-	function enableSelect(id: string) {
+	export function enableSelect(id: string) {
 		if($.browser.msie) {
 			$('#' + id).enableSelection();
 		} else {
@@ -272,7 +275,7 @@ namespace WebUI {
 		}
 	}
 
-	function nearestID(elem: HTMLElement): any {
+	export function nearestID(elem: HTMLElement): any {
 		while(elem) {
 			if(elem.id)
 				return elem.id;
@@ -282,7 +285,7 @@ namespace WebUI {
 	}
 
 	//We need to re-show element to force IE7 browser to recalculate correct height of element. This must be done to fix some IE7 missbehaviors.
-	function refreshElement(id: string): void {
+	export function refreshElement(id: string): void {
 		let elem = document.getElementById(id);
 		if(elem) {
 			$(elem).hide();
@@ -290,7 +293,7 @@ namespace WebUI {
 		}
 	}
 
-	class Point {
+	export class Point {
 		x: number;
 		y: number;
 
@@ -300,7 +303,7 @@ namespace WebUI {
 		}
 	}
 
-	class Rect {
+	export class Rect {
 		bx: number;
 		by: number;
 		ex: number;
@@ -314,7 +317,7 @@ namespace WebUI {
 		}
 	}
 
-	function getAbsolutePosition(obj): Point {
+	export function getAbsolutePosition(obj): Point {
 		var top = 0, left = 0;
 		while(obj) {
 			top += obj.offsetTop;
@@ -333,7 +336,7 @@ namespace WebUI {
 	 * calls here obtain a location for elements taking scrolling into account,
 	 * and they will return null if the item is not visible at all.
 	 */
-	function getAbsScrolledPosition(el): Rect {
+	export function getAbsScrolledPosition(el): Rect {
 		// -- Calculate the element's current offseted locations
 		var bx = el.offsetLeft || 0;
 		var by = el.offsetTop || 0;
@@ -379,7 +382,7 @@ namespace WebUI {
 	}
 
 	//Use this to make sure that item would be visible inside parent scrollable area. It uses scroll animation. In case when item is already in visible part, we just do single blink to gets user attention ;)
-	function scrollMeToTop(elemId: string, selColor: string, offset: number): void {
+	export function scrollMeToTop(elemId: string, selColor: string, offset: number): void {
 		let elem = document.getElementById(elemId);
 		if(!elem) {
 			return;
@@ -415,7 +418,7 @@ namespace WebUI {
 	}
 
 	//Use this to make sure that option in dropdown would be visible. It needs fix only in FF sinve IE would always make visible selected option.
-	function makeOptionVisible(elemId: string, offset: number): void {
+	export function makeOptionVisible(elemId: string, offset: number): void {
 		if($.browser.msie) {
 			//IE already fix this... we need fix only for FF and other browsers
 			return;
@@ -442,7 +445,7 @@ namespace WebUI {
 		}
 	}
 
-	function truncateUtfBytes(str: string, nbytes: number): number {
+	export function truncateUtfBytes(str: string, nbytes: number): number {
 		//-- Loop characters and calculate running length
 		let bytes = 0;
 		let length = str.length;
@@ -460,7 +463,7 @@ namespace WebUI {
 		return length;
 	}
 
-	function utf8Length(str: string): number {
+	export function utf8Length(str: string): number {
 		let bytes = 0;
 		let length = str.length;
 		for(let ix = 0; ix < length; ix++) {
@@ -476,7 +479,7 @@ namespace WebUI {
 	}
 
 	/** In tables that have special class selectors that might cause text-overflow we show full text on hover */
-	function showOverflowTextAsTitle(id: string, selector: string): boolean {
+	export function showOverflowTextAsTitle(id: string, selector: string): boolean {
 		let root = $("#" + id);
 		if(root) {
 			root.find(selector).each(function() {
@@ -489,13 +492,13 @@ namespace WebUI {
 		return true;
 	}
 
-	function replaceBrokenImageSrc(id: string, alternativeImage: string): void {
+	export function replaceBrokenImageSrc(id: string, alternativeImage: string): void {
 		$('img#' + id).error(function() {
 			$(this).attr("src", alternativeImage);
 		});
 	}
 
-	function deactivateHiddenAccessKeys(windowId: string): void {
+	export function deactivateHiddenAccessKeys(windowId: string): void {
 		$('button').each(function(index) {
 			let iButton = $(this);
 			if(isButtonChildOfElement(iButton, windowId)) {
@@ -507,7 +510,7 @@ namespace WebUI {
 		});
 	}
 
-	function reactivateHiddenAccessKeys(windowId: string): void {
+	export function reactivateHiddenAccessKeys(windowId: string): void {
 		$("button[accesskey*='" + windowId + "~']").each(function(index) {
 			let attr = $(this).attr('accesskey') as string;
 			let accessKeyArray = attr.split(windowId + '~');
@@ -515,12 +518,12 @@ namespace WebUI {
 		});
 	}
 
-	function isButtonChildOfElement(buttonId: any, windowId: string): boolean {
+	export function isButtonChildOfElement(buttonId: any, windowId: string): boolean {
 		return $(buttonId).parents('#' + $(windowId).attr('id')).length == 0;
 	}
 
 	/** ***************** Stretch elemnt height. Must be done via javascript. **************** */
-	function stretchHeight(elemId: string): void {
+	export function stretchHeight(elemId: string): void {
 		let elem = document.getElementById(elemId);
 		if(!elem) {
 			return;
@@ -528,7 +531,7 @@ namespace WebUI {
 		stretchHeightOnNode(elem);
 	}
 
-	function stretchHeightOnNode(elem: HTMLElement): void {
+	export function stretchHeightOnNode(elem: HTMLElement): void {
 		let elemHeight = $(elem).height();
 		let totHeight = 0;
 		$(elem).siblings().each(function(index, node) {
@@ -567,7 +570,7 @@ namespace WebUI {
 	/**
 	 * Load the specified stylesheet by creating a script tag and inserting it @ head.
 	 */
-	function loadStylesheet(path) {
+	export function loadStylesheet(path) {
 		var head = document.getElementsByTagName("head")[0];
 		if(! head)
 			throw "Headless document!?";
@@ -579,7 +582,7 @@ namespace WebUI {
 		head.appendChild(link);
 	}
 
-	function loadJavascript(path) {
+	export function loadJavascript(path) {
 		var head = document.getElementsByTagName("head")[0];
 		if(! head)
 			throw "Headless document!?";
@@ -590,13 +593,13 @@ namespace WebUI {
 	}
 
 	/** Prevents default action to be executed if IE11 is detected */
-	function preventIE11DefaultAction(e){
+	export function preventIE11DefaultAction(e){
 		if((navigator.userAgent.match(/Trident\/7\./))){
 			e.preventDefault();
 		}
 	}
 
-	function preventSelection() : boolean {
+	export function preventSelection() : boolean {
 		return false;
 	}
 

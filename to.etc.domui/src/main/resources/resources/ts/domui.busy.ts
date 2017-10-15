@@ -1,6 +1,7 @@
 /// <reference path="typings/jquery/jquery.d.ts" />
 /// <reference path="domui.jquery.d.ts" />
-export namespace WebUI {
+/// <reference path="domui.webui.ts" />
+namespace WebUI {
 	var _busyCount = 0;
 
 	var _busyOvl: any;
