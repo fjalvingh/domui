@@ -12,16 +12,16 @@ namespace WebUI {
 
 	let FCKeditor_fixLayout;
 
-	function oddCharAndClickCallback(nodeId, clickId): void {
+	export function oddCharAndClickCallback(nodeId, clickId): void {
 		oddChar(document.getElementById(nodeId));
 		document.getElementById(clickId).click();
 	}
 
-	function oddChar(obj) {
+	export function oddChar(obj) {
 		WebUI.toClip(obj.innerHTML);
 	}
 
-	function popupMenuShow(refid, menu): void {
+	export function popupMenuShow(refid, menu): void {
 		registerPopinClose(menu);
 		let pos = $(refid).offset();
 		let eWidth = $(refid).outerWidth();
@@ -40,7 +40,7 @@ namespace WebUI {
 		$(menu).hide().fadeIn();
 	}
 
-	function popupSubmenuShow(parentId, submenu) {
+	export function popupSubmenuShow(parentId, submenu) {
 		$(submenu).position({my: 'left top', at: 'center top', of: parentId});
 	}
 
@@ -51,7 +51,7 @@ namespace WebUI {
 	 *
 	 * @param id
 	 */
-	function registerPopinClose(id): void {
+	export function registerPopinClose(id): void {
 		_popinCloseList.push(id);
 		$(id).bind("mouseleave", popinMouseClose);
 		if(_popinCloseList.length != 1)
@@ -60,7 +60,7 @@ namespace WebUI {
 //		$(document.body).bind("beforeclick", WebUI.popinBeforeClick);	// Called when a click is done somewhere - not needed anymore, handled from java
 	}
 
-	function popinClosed(id): void {
+	export function popinClosed(id): void {
 		for(let i = 0; i < _popinCloseList.length; i++) {
 			if(id === _popinCloseList[i]) {
 				//-- This one is done -> remove mouse handler.
@@ -75,7 +75,7 @@ namespace WebUI {
 		}
 	}
 
-	function popinBeforeClick(ee1, obj, clickevt): void {
+	export function popinBeforeClick(ee1, obj, clickevt): void {
 		for(let i = 0; i < _popinCloseList.length; i++) {
 			let id = _popinCloseList[i];
 			obj = $(obj);
@@ -93,7 +93,7 @@ namespace WebUI {
 		}
 	}
 
-	function popinMouseClose(): void {
+	export function popinMouseClose(): void {
 		if(WebUI.isUIBlocked())							// We will get a LEAVE if the UI blocks during menu code... Ignore it
 			return;
 
@@ -114,7 +114,7 @@ namespace WebUI {
 		}
 	}
 
-	function popinKeyClose(evt): void {
+	export function popinKeyClose(evt): void {
 		if(!evt)
 			evt = window.event;
 		let kk = WebUI.normalizeKey(evt);
@@ -138,7 +138,7 @@ namespace WebUI {
 	 * @param id
 	 * @param ckeInstance
 	 */
-	function registerCkEditorId(id, ckeInstance): void {
+	export function registerCkEditorId(id, ckeInstance): void {
 		_ckEditorMap[id] = [ckeInstance, null];
 	}
 
@@ -147,7 +147,7 @@ namespace WebUI {
 	 *
 	 * @param id
 	 */
-	function unregisterCkEditorId(id): void {
+	export function unregisterCkEditorId(id): void {
 		try {
 			let editorBindings = _ckEditorMap[id];
 			_ckEditorMap[id] = null;
@@ -164,7 +164,7 @@ namespace WebUI {
 	 *
 	 * @param id
 	 */
-	function CKeditor_OnComplete(id): void {
+	export function CKeditor_OnComplete(id): void {
 		WebUI.doCustomUpdates();
 		let elem = document.getElementById(id);
 		let parentDiv = elem.parentNode;
@@ -183,7 +183,7 @@ namespace WebUI {
 
 	// connects input to usually hidden list select and provides autocomplete
 	// feature inside input. Down arrow does show and focus select list.
-	function initAutocomplete(inputId, selectId): void {
+	export function initAutocomplete(inputId, selectId): void {
 		let input = document.getElementById(inputId) as HTMLInputElement;
 		let select = document.getElementById(selectId);
 		$(input).keyup(function(event) {
@@ -208,7 +208,7 @@ namespace WebUI {
 	}
 
 	// does autocomplete part of logic
-	function autocomplete(event, inputId, selectId): void {
+	export function autocomplete(event, inputId, selectId): void {
 		let select = document.getElementById(selectId) as HTMLSelectElement;
 		let cursorKeys = "8;46;37;38;39;40;33;34;35;36;45;";
 		if(cursorKeys.indexOf(event.keyCode + ";") == -1) {
@@ -261,7 +261,7 @@ namespace WebUI {
 	/**
 	 * Make a structure a color button.
 	 */
-	function colorPickerButton(btnid, inid, value, onchange) {
+	export function colorPickerButton(btnid, inid, value, onchange) {
 		$(btnid).ColorPicker({
 			color: '#' + value,
 			onShow: function(colpkr) {
@@ -281,7 +281,7 @@ namespace WebUI {
 		});
 	}
 
-	function colorPickerInput(inid, divid, value, onchange) {
+	export function colorPickerInput(inid, divid, value, onchange) {
 		$(inid).ColorPicker({
 			color: '#' + value,
 			flat: false,
@@ -305,7 +305,7 @@ namespace WebUI {
 		});
 	}
 
-	function colorPickerDisable(id) {
+	export function colorPickerDisable(id) {
 		// $(id).die();
 	}
 
@@ -315,7 +315,7 @@ namespace WebUI {
 
 	let _colorLastID: string;
 
-	function colorPickerOnchange(id, last) {
+	export function colorPickerOnchange(id, last) {
 		if(_colorLast == last && _colorLastID == id)
 			return;
 
@@ -327,13 +327,13 @@ namespace WebUI {
 		_colorTimer = window.setTimeout("WebUI.colorPickerChangeEvent('" + id + "')", 500);
 	}
 
-	function colorPickerChangeEvent(id): void {
+	export function colorPickerChangeEvent(id): void {
 		window.clearTimeout(_colorTimer);
 		_colorTimer = undefined;
 		WebUI.valuechanged('eh', id);
 	}
 
-	function flare(id): void {
+	export function flare(id): void {
 		$('#' + id).fadeIn('fast', function() {
 			$('#' + id).delay(500).fadeOut(1000, function() {
 				$('#' + id).remove();
@@ -341,7 +341,7 @@ namespace WebUI {
 		});
 	}
 
-	function flareStay(id): void {
+	export function flareStay(id): void {
 		$('#' + id).fadeIn('fast', function() {
 			$('body,html').bind('mousemove.' + id, function(e) {
 				$('body,html').unbind('mousemove.' + id);
@@ -352,7 +352,7 @@ namespace WebUI {
 		});
 	}
 
-	function flareStayCustom(id, delay, fadeOut): void {
+	export function flareStayCustom(id, delay, fadeOut): void {
 		$('#' + id).fadeIn('fast', function() {
 			$('body,html').bind('mousemove.' + id, function(e) {
 				$('body,html').unbind('mousemove.' + id);
@@ -364,7 +364,7 @@ namespace WebUI {
 	}
 
 	//piece of support needed for FCK editor to properly fix heights in IE8+
-	function FCKeditor_OnComplete(editorInstance) {
+	export function FCKeditor_OnComplete(editorInstance) {
 		if(WebUI.isIE8orNewer()) {
 			for(let i = 0; i < _fckEditorIDs.length; i++) {
 				let fckId = _fckEditorIDs[i];
@@ -382,7 +382,7 @@ namespace WebUI {
 		;
 	}
 
-	function initScrollableTableOld(id): void {
+	export function initScrollableTableOld(id): void {
 		($('#' + id + " table") as any).fixedHeaderTable({});
 		let sbody = $('#' + id + " .fht-tbody");
 		sbody.scroll(function() {
@@ -408,7 +408,7 @@ namespace WebUI {
 
 	}
 
-	function scrollableTableReset(id, tblid) {
+	export function scrollableTableReset(id, tblid) {
 		let tbl = $('#' + tblid);
 		let container = $('#' + id);
 		(tbl as any).floatThead('reflow');
@@ -426,7 +426,7 @@ namespace WebUI {
 		container.scrollTop(0);
 	}
 
-	function initScrollableTable(id, tblid) {
+	export function initScrollableTable(id, tblid) {
 		let container = $('#' + id);
 		let tbl = $('#' + tblid);
 		WebUI.doCustomUpdates();
@@ -531,7 +531,7 @@ namespace WebUI {
 	}
 
 	namespace DbPerformance {
-		function post(id: string, sessionid: string) {
+		export function post(id: string, sessionid: string) {
 			$(document).ready(function() {
 				setTimeout(function() {
 					$.get((window as any).DomUIappURL + "nl.itris.vp.parts.DbPerf.part?requestid=" + sessionid, function(data) {

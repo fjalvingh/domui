@@ -30,7 +30,7 @@ namespace WebUI {
 	 * For this code to work no item may "overlap" a day. The server code takes
 	 * care of splitting long appointments into multiple "items" here.
 	 */
-	function handleCalendar(caldiv) : void {
+	export function handleCalendar(caldiv) : void {
 		// -- TEST calendar object clicky.
 		let cal = new Agenda(caldiv);
 		// $(caldiv).mousedown(function(e) {

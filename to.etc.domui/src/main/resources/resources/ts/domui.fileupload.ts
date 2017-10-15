@@ -3,7 +3,7 @@
 /// <reference path="domui.webui.ts" />
 //import WebUI from "domui.webui.util";
 namespace WebUI {
-	function fileUploadChange(e) {
+	export function fileUploadChange(e) {
 		var tgt = e.currentTarget || e.srcElement;
 		var vv = tgt.value.toString();
 
@@ -149,7 +149,7 @@ namespace WebUI {
 	 *
 	 * @param e
 	 */
-	function ieUpdateUpload(e) { // Piece of crap
+	export function ieUpdateUpload(e) { // Piece of crap
 		var iframe = document.getElementById('webuiif') as HTMLIFrameElement;
 		var xml;
 		let cw = iframe.contentWindow as any;
@@ -181,7 +181,7 @@ namespace WebUI {
 		updateUpload(xml, iframe);
 	}
 
-	function updateUpload(doc, ifr?) {
+	export function updateUpload(doc, ifr?) {
 		try {
 			$.executeXML(doc);
 		} catch (x) {

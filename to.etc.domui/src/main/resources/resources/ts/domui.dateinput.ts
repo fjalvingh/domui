@@ -31,7 +31,7 @@ namespace WebUI {
 	declare let Calendar: any;
 
 	/***** DateInput control code ****/
-	function dateInputCheckInput(evt) {
+	export function dateInputCheckInput(evt) {
 		if(!evt) {
 			evt = window.event;
 			if(!evt) {
@@ -42,7 +42,7 @@ namespace WebUI {
 		dateInputRepairValueIn(c);
 	}
 
-	function dateInputRepairValueIn(c) {
+	export function dateInputRepairValueIn(c) {
 		if(!c)
 			return;
 		let val = c.value;
@@ -81,9 +81,9 @@ namespace WebUI {
 	}
 
 	// /**
-	//  * Function that checks is format valid after check that input has separators.
+	//  * export function that checks is format valid after check that input has separators.
 	//  */
-	// function parsingOfFormat(inputValue, format) {
+	// export function parsingOfFormat(inputValue, format) {
 	// 	// splits to array of alphanumeric "words" from an input (separators are non-alphanumeric characters)
 	// 	let inputValueSplitted = inputValue.match(/(\w+)/g);
 	// 	let formatWithoutPercentCharSplitted = format.replace(/%/g, "").match(/(\w+)/g);
@@ -105,7 +105,7 @@ namespace WebUI {
 	// 	return result;
 	// }
 
-	// function formingResultForDayOrMonth(inputValue, result) {
+	// export function formingResultForDayOrMonth(inputValue, result) {
 	// 	if(!hasFieldInvalidFormat(inputValue)) {
 	// 		return result = setDayOrMonthFormat(inputValue, result);
 	// 	}
@@ -114,7 +114,7 @@ namespace WebUI {
 	// 	}
 	// }
 	//
-	// function formingResultForYear(inputValue, result) {
+	// export function formingResultForYear(inputValue, result) {
 	// 	let VALID_LENGTH_YEAR = 2;
 	// 	if(inputValue.length == VALID_LENGTH_YEAR) {
 	// 		return result = WebUI.setYearFormat(inputValue, result);
@@ -125,9 +125,9 @@ namespace WebUI {
 	// }
 
 	/**
-	 * Function that checks is format valid of fields day and month.
+	 * export function that checks is format valid of fields day and month.
 	 */
-	function hasFieldInvalidFormat(inputValue) {
+	export function hasFieldInvalidFormat(inputValue) {
 		let MAX_LENGTH = 2;
 		let FORBIDDEN_CHARACTER = "0";
 
@@ -135,9 +135,9 @@ namespace WebUI {
 	}
 
 	/**
-	 * Function that converts day and month parts of input string that represents date.
+	 * export function that converts day and month parts of input string that represents date.
 	 */
-	function setDayOrMonthFormat(inputValue, result) {
+	export function setDayOrMonthFormat(inputValue, result) {
 		let NEEDED_CHARACTER_DAY_MONTH = "0";
 
 		if(inputValue.length == 1) {
@@ -149,9 +149,9 @@ namespace WebUI {
 	}
 
 	/**
-	 * Function that converts year part of input string that represents date.
+	 * export function that converts year part of input string that represents date.
 	 */
-	function setYearFormat(inputValue, result) {
+	export function setYearFormat(inputValue, result) {
 		let NEEDED_CHARACTER_YEAR = "20";
 
 		return result += NEEDED_CHARACTER_YEAR + inputValue;
@@ -160,7 +160,7 @@ namespace WebUI {
 	/**
 	 *
 	 */
-	function showCalendar(id, withtime) {
+	export function showCalendar(id, withtime) {
 		let inp = document.getElementById(id) as HTMLInputElement;
 		let params : any = {
 			inputField: inp,
@@ -212,7 +212,7 @@ namespace WebUI {
 			cal.showAt(params.position[0], params.position[1]);
 	}
 
-	function onDateSelect(cal) {
+	export function onDateSelect(cal) {
 		let p = cal.params;
 		let update = (cal.dateClicked || p.electric);
 		if(update && p.inputField) {
@@ -233,7 +233,7 @@ namespace WebUI {
 	}
 
 	/** *** DateInput control code *** */
-	function dateInputCheck(evt) {
+	export function dateInputCheck(evt) {
 		if(!evt) {
 			evt = window.event;
 			if(!evt) {
@@ -244,7 +244,7 @@ namespace WebUI {
 		dateInputRepairValueIn(c);
 	}
 
-	function dateInputRepairDateValue(val) {
+	export function dateInputRepairDateValue(val) {
 		let fmt = Calendar._TT["DEF_DATE_FORMAT"];
 		let separatorsCount = countSeparators(val);
 		if(separatorsCount < 2) {
@@ -257,7 +257,7 @@ namespace WebUI {
 		return res.print(fmt);
 	}
 
-	function dateInputRepairTimeValue(val) {
+	export function dateInputRepairTimeValue(val) {
 		let fmt = Calendar._TT["DEF_TIME_FORMAT"];
 		let tempSep = "~";
 		let count = getTimeSeparatorCount(val);
@@ -277,12 +277,12 @@ namespace WebUI {
 		return (dummyDate as any).print(fmt);
 	}
 
-	function getTimeSeparatorCount(time) {
+	export function getTimeSeparatorCount(time) {
 		let supportedTimeSeparators = Calendar._TT["TIME_SEPARATOR"];
 		return (time.match(new RegExp("[" + supportedTimeSeparators + "]", "g")) || []).length;
 	}
 
-	function dateInputRepairDateTimeValue(val) {
+	export function dateInputRepairDateTimeValue(val) {
 		let fmt = Calendar._TT["DEF_DATETIME_FORMAT"];
 
 		let parts = val.split(Calendar._TT["DATE_TIME_SEPARATOR"]);
@@ -297,7 +297,7 @@ namespace WebUI {
 	/**
 	 * Count of separator chars (anything else than letters and/or digits).
 	 */
-	function countSeparators(str) {
+	export function countSeparators(str) {
 		let count = 0;
 		for(let i = str.length; --i >= 0;) {
 			if(isDateSeparator(str.charAt(i)))
@@ -309,11 +309,11 @@ namespace WebUI {
 	/**
 	 * Returns T if char is anything else than letters and/or digits.
 	 */
-	function isDateSeparator(c) {
+	export function isDateSeparator(c) {
 		return Calendar._TT["DATE_SEPARATOR"].indexOf(c) > -1;
 	}
 
-	function insertDateSeparators(str, fmt, separatorsCount) {
+	export function insertDateSeparators(str, fmt, separatorsCount) {
 		let b = fmt.match(/%./g); // Split format items
 		let len = str.length;
 		let ylen;
@@ -365,7 +365,7 @@ namespace WebUI {
 		return res;
 	}
 
-	function isYearInSupportedRange(date) {
+	export function isYearInSupportedRange(date) {
 		if(date.getFullYear() < Calendar._TT["MIN_YEAR"] || date.getFullYear() > Calendar._TT["MAX_YEAR"]) {
 			return false;
 		} else {

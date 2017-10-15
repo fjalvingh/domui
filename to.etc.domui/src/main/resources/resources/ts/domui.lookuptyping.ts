@@ -15,7 +15,7 @@ namespace WebUI {
 	 */
 	let _keepAliveInterval = 0;
 
-	function setHideExpired() : void {
+	export function setHideExpired() : void {
 		_hideExpiredMessage = true;
 	}
 
@@ -23,7 +23,7 @@ namespace WebUI {
 	/**
 	 * Handle enter key pressed on keyPress for component with onLookupTyping listener. This needs to be executed on keyPress (was part of keyUp handling), otherwise other global return key listener (returnKeyPress handler) would fire.
 	 */
-	function onLookupTypingReturnKeyHandler(id, event) : void {
+	export function onLookupTypingReturnKeyHandler(id, event) : void {
 		let node = document.getElementById(id);
 		if(!node || node.tagName.toLowerCase() != 'input')
 			return;
@@ -71,10 +71,10 @@ namespace WebUI {
 	/*
 	 * Executed as onkeyup event on input field that has implemented listener for onLookupTyping event.
 	 * In case of return key call lookupTypingDone ajax that is transformed into onLookupTyping(done=true).
-	 * In case of other key, lookupTyping funcion is called with delay of 500ms. Previuosly scheduled lookupTyping function is canceled.
+	 * In case of other key, lookupTyping funcion is called with delay of 500ms. Previuosly scheduled lookupTyping export function is canceled.
 	 * This cause that fast typing would not trigger ajax for each key stroke, only when user stops typing for 500ms ajax would be called by lookupTyping function.
 	 */
-	function scheduleOnLookupTypingEvent(id, event) : void {
+	export function scheduleOnLookupTypingEvent(id, event) : void {
 		let node = document.getElementById(id);
 		if(!node || node.tagName.toLowerCase() != 'input')
 			return;
@@ -152,7 +152,7 @@ namespace WebUI {
 		}
 	}
 
-	function getKeywordPopupSelectedRowIndex(keywordInputNode) : number {
+	export function getKeywordPopupSelectedRowIndex(keywordInputNode) : number {
 		let selectedIndexInput = $(keywordInputNode.parentNode).children("input:hidden").get(0);
 		if (selectedIndexInput instanceof HTMLInputElement) {
 			if (selectedIndexInput.value && selectedIndexInput.value != ""){
@@ -162,7 +162,7 @@ namespace WebUI {
 		return -1;
 	}
 
-	function setKeywordPopupSelectedRowIndex(keywordInputNode, intValue) : void {
+	export function setKeywordPopupSelectedRowIndex(keywordInputNode, intValue) : void {
 		let selectedIndexInput = $(keywordInputNode.parentNode).children("input:hidden").get(0) as HTMLInputElement;
 		if (!selectedIndexInput){
 			selectedIndexInput = document.createElement("input");
@@ -172,7 +172,7 @@ namespace WebUI {
 		selectedIndexInput.value = intValue;
 	}
 
-	function lookupPopupClicked(id : string) {
+	export function lookupPopupClicked(id : string) {
 		let node = document.getElementById(id);
 		if(!node || node.tagName.toLowerCase() != 'input') {
 			return;
@@ -187,7 +187,7 @@ namespace WebUI {
 		}
 	}
 
-	function lookupRowMouseOver(keywordInputId, rowNodeId) : void {
+	export function lookupRowMouseOver(keywordInputId, rowNodeId) : void {
 		let keywordInput = document.getElementById(keywordInputId);
 		if(!keywordInput || keywordInput.tagName.toLowerCase() != 'input') {
 			return;
@@ -222,7 +222,7 @@ namespace WebUI {
 	}
 
 	//Called only from onBlur of input node that is used for lookup typing.
-	function hideLookupTypingPopup(id : string) : void {
+	export function hideLookupTypingPopup(id : string) : void {
 		let node = document.getElementById(id);
 		if(!node || node.tagName.toLowerCase() != 'input')
 			return;
@@ -245,7 +245,7 @@ namespace WebUI {
 		}
 	}
 
-	function showLookupTypingPopupIfStillFocusedAndFixZIndex(id: string) {
+	export function showLookupTypingPopupIfStillFocusedAndFixZIndex(id: string) {
 		let node = document.getElementById(id);
 		if(!node || node.tagName.toLowerCase() != 'input')
 			return;
@@ -286,9 +286,9 @@ namespace WebUI {
 
 	/*
 	 * In case of longer waiting for lookupTyping ajax response show waiting animated marker.
-	 * Function is called with delay of 500ms from ajax.beforeSend method for lookupTyping event.
+	 * export function is called with delay of 500ms from ajax.beforeSend method for lookupTyping event.
 	 */
-	function displayWaiting(id : string) : void {
+	export function displayWaiting(id : string) : void {
 		let node = document.getElementById(id);
 		if (node){
 			for ( let i = 0; i < node.childNodes.length; i++ ){
@@ -302,9 +302,9 @@ namespace WebUI {
 
 	/*
 	 * Hiding waiting animated marker that was shown in case of longer waiting for lookupTyping ajax response.
-	 * Function is called from ajax.completed method for lookupTyping event.
+	 * export function is called from ajax.completed method for lookupTyping event.
 	 */
-	function hideWaiting(id : string) : void {
+	export function hideWaiting(id : string) : void {
 		let node = document.getElementById(id);
 		if (node){
 			for ( let i = 0; i < node.childNodes.length; i++ ){
@@ -316,7 +316,7 @@ namespace WebUI {
 		}
 	}
 
-	function lookupTyping(id : string) : void {
+	export function lookupTyping(id : string) : void {
 		let lookupField = document.getElementById(id);
 		//check for existence, since it is delayed action component can be removed when action is executed.
 		if (lookupField){
@@ -370,7 +370,7 @@ namespace WebUI {
 		}
 	}
 
-	function lookupTypingDone(id : string) {
+	export function lookupTypingDone(id : string) {
 		// Collect all input, then create input.
 		let fields = new Object();
 		this.getInputFields(fields);

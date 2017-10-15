@@ -3,7 +3,9 @@
 // <reference path="domui.webui.d.ts" />
 /// <reference path="domui.webui.ts" />
 namespace WebUI {
-	export function getInputFields(fields: object): object {
+	let _inputFieldList: any[] = [];
+
+	export function getInputFields(fields: any): object {
 		// Collect all input, then create input.
 		let q1 = $("input").get();
 		for(let i = q1.length; --i >= 0;) {
@@ -69,8 +71,6 @@ namespace WebUI {
 
 		return fields;
 	}
-
-	let _inputFieldList: any[];
 
 	/**
 	 * This registers a non-html control as a source of input for {@link getInputFields}. The control

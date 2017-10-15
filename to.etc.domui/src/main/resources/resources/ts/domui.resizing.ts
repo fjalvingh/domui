@@ -17,14 +17,14 @@ namespace WebUI {
 	 * @param flexid
 	 * @param bottom
 	 */
-	function autoHeightReset(topid, flexid, bottom) {
+	export function autoHeightReset(topid, flexid, bottom) {
 		$(window).bind("resize", function() {
 			recalculateAutoHeight(topid, flexid, bottom);
 		});
 		recalculateAutoHeight(topid, flexid, bottom);
 	}
 
-	function recalculateAutoHeight(topid, flexid, bottom) {
+	export function recalculateAutoHeight(topid, flexid, bottom) {
 		try {
 			var tbot = $(topid).offset().top + $(topid).height();
 			var height = $(window).height() - tbot - bottom;
@@ -34,7 +34,7 @@ namespace WebUI {
 		}
 	}
 
-	function setThreePanelHeight(top, middle, bottom) {
+	export function setThreePanelHeight(top, middle, bottom) {
 //		try {
 		middle = "#"+middle;
 		var height = $(middle).parent().height();		// Assigned height of the container

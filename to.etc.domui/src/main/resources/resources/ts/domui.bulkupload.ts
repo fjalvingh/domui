@@ -7,7 +7,7 @@ namespace WebUI {
 	var SWFUpload;
 
 	/** Bulk upload code using swfupload */
-	function bulkUpload(id, buttonId, url) {
+	export function bulkUpload(id, buttonId, url) {
 		var ctl = $('#'+id) as any;
 		ctl.swfupload({
 			upload_url: url,

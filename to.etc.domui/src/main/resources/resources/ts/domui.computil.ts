@@ -4,7 +4,7 @@
 //import WebUI from "domui.webui.util";
 
 namespace WebUI {
-	function returnKeyPress(evt, node) : boolean {
+	export function returnKeyPress(evt, node) : boolean {
 		var keyCode = WebUI.normalizeKey(evt);
 		if (keyCode != 13000 && keyCode != 13)
 			return true;
@@ -18,13 +18,13 @@ namespace WebUI {
 		return false;
 	}
 
-	function wtMouseDown(e) {
+	export function wtMouseDown(e) {
 		alert(e);
 	}
 
 	//alignment methods
 	//sticks top of element with nodeId to bottom of element with alignToId, with extra offsetY.
-	function alignTopToBottom(nodeId, alignToId, offsetY, doCallback) : void {
+	export function alignTopToBottom(nodeId, alignToId, offsetY, doCallback) : void {
 		var alignNode = $('#' + alignToId);
 		var node = $('#' + nodeId);
 		var myTopPos;
@@ -40,7 +40,7 @@ namespace WebUI {
 	}
 
 	//align top of element with nodeId to top of element with alignToId, with extra offsetY
-	function alignToTop(nodeId, alignToId, offsetY, doCallback) : void {
+	export function alignToTop(nodeId, alignToId, offsetY, doCallback) : void {
 		var alignNode = $('#' + alignToId);
 		var node = $('#' + nodeId);
 		var myTopPos;
@@ -60,7 +60,7 @@ namespace WebUI {
 	}
 
 	//align left edge of element with nodeId to left edge of element with alignToId, with extra offsetX
-	function alignToLeft(nodeId, alignToId, offsetX, doCallback) : void {
+	export function alignToLeft(nodeId, alignToId, offsetX, doCallback) : void {
 		var node = $('#' + nodeId);
 		var alignNode = $('#' + alignToId);
 		var myLeftPos;
@@ -83,7 +83,7 @@ namespace WebUI {
 	}
 
 	//align right edge of element with nodeId to right edge of element with alignToId, with extra offsetX
-	function alignToRight(nodeId, alignToId, offsetX, doCallback) : void {
+	export function alignToRight(nodeId, alignToId, offsetX, doCallback) : void {
 		var node = $('#' + nodeId);
 		var alignNode = $('#' + alignToId);
 		var myLeftPos;
@@ -102,7 +102,7 @@ namespace WebUI {
 	}
 
 	//align horizontaly middle of element with nodeId to middle of element with alignToId, with extra offsetX
-	function alignToMiddle(nodeId, alignToId, offsetX, doCallback) : void {
+	export function alignToMiddle(nodeId, alignToId, offsetX, doCallback) : void {
 		var node = $('#' + nodeId);
 		var alignNode = $('#' + alignToId);
 		var myLeftPos;

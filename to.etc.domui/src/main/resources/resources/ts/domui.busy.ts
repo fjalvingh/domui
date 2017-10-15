@@ -25,7 +25,7 @@ namespace WebUI {
 		el.appendChild(d);
 		d.className = 'ui-io-blk';
 		_busyOvl = d;
-		_busyTimer = setTimeout("WebUI.busyIndicate()", 250);
+		_busyTimer = setTimeout(() => busyIndicate(), 250);
 	}
 
 	export function isUIBlocked() : boolean {

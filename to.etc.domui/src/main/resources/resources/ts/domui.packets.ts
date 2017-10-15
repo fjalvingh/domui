@@ -2,25 +2,20 @@
 /// <reference path="domui.jquery.d.ts" />
 /// <reference path="domui.webui.ts" />
 
-(function($: JQueryStatic) {
-	$.fn.extend({
-		webui: function(xml) {
-			processDoc(xml);
-		},
+(function($: any) {
+	$.webui = function(xml) {
+		processDoc(xml);
+	};
 
-		replace: function(a) {
+	$.fn.extend({
+			replace: function(a) {
 			return this.after(a).remove();
 		},
 
 		replaceContent: function(a) {
 			return this.empty().append(a);
-		},
-
-		changeTagAttributes: function(a) {
-			log("aarg=", a);
-		},
-		executeDeltaXML: executeXML
-});
+		}
+	});
 
 	$.expr[':'].taconiteTag = function(a) {
 		return (a as any).taconiteTag === 1;
@@ -199,6 +194,7 @@
 
 		if(cmd == 'changeTagAttributes') {
 			executeChangeTagAttributes(cmdNode, q);
+			return true;
 		}
 
 		var cdataWrap = cmdNode.getAttribute('cdataWrap') || 'div';
@@ -233,7 +229,12 @@
 		// 	let arg = els ? '...' : a.join(',');
 		// 	//log("invoke command: $('", q, "').", cmd, '(' + arg + ')');
 		// }
-		(jq[cmd] as any).apply(jq, a);
+		try {
+			(jq[cmd] as any).apply(jq, a);
+		} catch(e) {
+			console.log("exception on node " + jq + " command " + cmd);
+			throw e;
+		}
 		return true;
 	}
 
@@ -354,7 +355,6 @@
 	function fixTextNode(s) {
 		return document.createTextNode(s);
 	}
-	;
 
 	function createElement(node, cdataWrap: string) {
 		var e, tag = node.tagName.toLowerCase();
@@ -408,7 +408,6 @@
 		}
 		return e;
 	}
-	;
 
 	function copyAttrs(dest, src, inline) {
 		for(var i = 0, attr = ''; i < src.attributes.length; i++) {

@@ -7,7 +7,7 @@ namespace WebUI {
 	/*-- Printing support --*/
 	let _frmIdCounter = 0;
 
-	function backgroundPrint(url: string) : void {
+	export function backgroundPrint(url: string) : void {
 		try {
 			var frmname = priparePrintDiv(url);
 			framePrint(frmname);
@@ -16,7 +16,7 @@ namespace WebUI {
 		}
 	}
 
-	function framePrint(frmname: string) : void {
+	export function framePrint(frmname: string) : void {
 		if (jQuery.browser.msie) {
 			documentPrintIE(frmname);
 		} else {
@@ -24,7 +24,7 @@ namespace WebUI {
 		}
 	}
 
-	function documentPrintIE(frmname: string) : void {
+	export function documentPrintIE(frmname: string) : void {
 		let ex = undefined;
 		try {
 			var frm = window.frames[frmname];
@@ -48,7 +48,7 @@ namespace WebUI {
 		}
 	}
 
-	function documentPrintNonIE(frmname: string) : void {
+	export function documentPrintNonIE(frmname: string) : void {
 		try {
 			var frm = window.frames[frmname];
 			$("#"+frmname).on("load", function() {
@@ -66,7 +66,7 @@ namespace WebUI {
 		}
 	}
 
-	function priparePrintDiv(url: string) : string {
+	export function priparePrintDiv(url: string) : string {
 		// Create embedded sizeless div to contain the iframe, invisibly.
 		var div = document.getElementById('domuiprif');
 		if (div)
@@ -95,7 +95,7 @@ namespace WebUI {
 	}
 
 	/*-- Printing support for simple text messages. Parameter is id of input/textarea tag that contrains text to be printed out. --*/
-	function printtext(id : string) : void {
+	export function printtext(id : string) : void {
 		var item = document.getElementById(id);
 		var textData;
 		if(item && (item.tagName == "input" || item.tagName == "INPUT" || item.tagName == "textarea" || item.tagName == "TEXTAREA")) {

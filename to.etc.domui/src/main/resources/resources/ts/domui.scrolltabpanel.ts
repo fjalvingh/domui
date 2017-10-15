@@ -5,7 +5,7 @@
 namespace WebUI {
 	let _ignoreScrollClick = 0;
 
-	function scrollLeft(bLeft) : void {
+	export function scrollLeft(bLeft) : void {
 		if(this._ignoreScrollClick != 0 || $(bLeft).hasClass('ui-stab-dis'))
 			return;
 
@@ -28,7 +28,7 @@ namespace WebUI {
 		});
 	}
 
-	function scrollRight(bRight) : void {
+	export function scrollRight(bRight) : void {
 		if(this._ignoreScrollClick != 0 || $(bRight).hasClass('ui-stab-dis'))
 			return;
 
@@ -57,7 +57,7 @@ namespace WebUI {
 		});
 	}
 
-	function recalculateScrollers(scrlNavigId) : void {
+	export function recalculateScrollers(scrlNavigId) : void {
 		let scrlNavig = document.getElementById(scrlNavigId);
 		let tabsTotalWidth = $('li:last',scrlNavig).width() + 8 /* paddong = 8 */ + $('li:last',scrlNavig).offset().left - $('li:first',scrlNavig).offset().left;
 		let tabsVisibleWidth = $(scrlNavig).width() - 2 * $('.ui-stab-scrl-right',scrlNavig).width();

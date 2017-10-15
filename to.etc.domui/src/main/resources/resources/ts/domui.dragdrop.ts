@@ -32,7 +32,7 @@ namespace WebUI {
 	 * mode where the first move will create a visible representation of this
 	 * node, ready for dropping.
 	 */
-	function dragMouseDown(item, evt): void {
+	export function dragMouseDown(item, evt): void {
 		dragReset();
 		_dragType = item.getAttribute('uitype');
 		if(!_dragType)
@@ -59,7 +59,7 @@ namespace WebUI {
 		}
 	}
 
-	function dragMouseUp(): void {
+	export function dragMouseUp(): void {
 		// -- If we're in DRAGGING mode we may accept the drop
 		try {
 			if(_dragMode == 2) {
@@ -77,7 +77,7 @@ namespace WebUI {
 		}
 	}
 
-	function dragMouseMove(e): void {
+	export function dragMouseMove(e): void {
 		if(_dragMode == 0) {
 			dragReset();
 			return;
@@ -102,7 +102,7 @@ namespace WebUI {
 		dragResetTimer();
 	}
 
-	function dragCreateCopy(source): HTMLElement {
+	export function dragCreateCopy(source): HTMLElement {
 		var dv = document.createElement('div');
 
 		// If we drag a TR we need to encapsulate the thingy in a table/tbody to prevent trouble.
@@ -136,12 +136,12 @@ namespace WebUI {
 	 * which drop zone effects are done. This causes the dropzone indicator
 	 * delay when moving the mouse.
 	 */
-	function dragResetTimer(): void {
+	export function dragResetTimer(): void {
 		dragClearTimer();
 		_dragTimer = setTimeout("WebUI.dragTimerFired()", 250);
 	}
 
-	function dragClearTimer(): void {
+	export function dragClearTimer(): void {
 		if(_dragTimer) {
 			clearTimeout(_dragTimer);
 			_dragTimer = undefined;
@@ -153,7 +153,7 @@ namespace WebUI {
 	 * initiates the rendering of any drop zone indicators if the mouse is above
 	 * a drop zone.
 	 */
-	function dragTimerFired(): void {
+	export function dragTimerFired(): void {
 		// console.debug("timer fired");
 		var dz = dropTargetFind(_dragLastX, _dragLastY);
 		if(!dz) {
@@ -172,13 +172,13 @@ namespace WebUI {
 		// console.debug("AlterClass on "+dz._dropTarget);
 	}
 
-	function findDropZoneHandler(type): IDropZoneHandler {
+	export function findDropZoneHandler(type): IDropZoneHandler {
 		if(type == "ROW")
 			return _ROW_DROPZONE_HANDLER;
 		return _DEFAULT_DROPZONE_HANDLER;
 	}
 
-	function dropClearZone(): void {
+	export function dropClearZone(): void {
 		if(_currentDropZone) {
 			_currentDropZone._drophandler.unmark(_currentDropZone);
 			_currentDropZone = undefined;
@@ -188,7 +188,7 @@ namespace WebUI {
 	/**
 	 * Clears any node being dragged.
 	 */
-	function dragReset(): void {
+	export function dragReset(): void {
 		dragClearTimer();
 		if(_dragCopy) {
 			$(_dragCopy).remove();
@@ -229,7 +229,7 @@ namespace WebUI {
 	 * drop target. The list gets cached globally in the WebUI object; if an
 	 * AJAX request is done the list gets cleared.
 	 */
-	function dropGetList(): any[] {
+	export function dropGetList(): any[] {
 		if(_dropList)
 			return _dropList;
 
@@ -264,11 +264,11 @@ namespace WebUI {
 		return _dropList;
 	}
 
-	function dropClearList(): void {
+	export function dropClearList(): void {
 		_dropList = undefined;
 	}
 
-	function dropTargetFind(x, y): any {
+	export function dropTargetFind(x, y): any {
 		var dl = dropGetList();
 		for(var i = dl.length; --i >= 0;) {
 			var d = dl[i];
@@ -285,7 +285,7 @@ namespace WebUI {
 		return null;
 	}
 
-	function dropRemoveNonsense(body): void {
+	export function dropRemoveNonsense(body): void {
 		for(var i = body.childNodes.length; --i >= 0;) {
 			var n = body.childNodes[i];
 			if(n.nodeName == '#text')
