@@ -32,6 +32,10 @@
 		position: relative;
 	}
 
+	&.ui-input-err input {
+		background-color: $errors_input_background;
+	}
+
 	.ui-txt2-bdiv {
 		position: absolute;
 		top: 0;

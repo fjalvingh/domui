@@ -249,6 +249,7 @@ final public class ServerTools {
 
 			"zip", "application/zip", "z", "application/octet-stream",
 			"js.map", "application/json"
+			, "ts", "text/x-typescript"
 		};
 
 		m_mimemap_p = new Properties();
