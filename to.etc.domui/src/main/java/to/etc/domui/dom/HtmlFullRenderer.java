@@ -262,6 +262,8 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		o().writeRaw(ctx().getRelativePath(sheet));
 		if(isXml())
 			o().writeRaw("\"/>");
+		else
+			o().writeRaw("\">\n");
 		//else
 		//	o().writeRaw("\"></link>\n");
 	}
