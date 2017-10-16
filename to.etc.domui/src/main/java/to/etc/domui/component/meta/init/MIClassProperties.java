@@ -38,7 +38,6 @@ public class MIClassProperties implements IClassMetaProvider<DefaultClassMetaMod
 		}
 
 		cmm.setClassProperties(reslist);
-		System.out.println("mi: " + cmm);
 	}
 
 }

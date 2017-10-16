@@ -49,9 +49,12 @@ public class Text2LayoutTestPage extends UrlPage {
 
 	private Integer	m_t22 = Integer.valueOf("12345");
 
+	private String		m_t23;
+
 	private BigDecimal m_t30;
 
 	private BigDecimal m_t31 = new BigDecimal("123.45");
+
 
 	@Override public void createContent() throws Exception {
 		add(new Caption("Without form builder"));
@@ -103,6 +106,10 @@ public class Text2LayoutTestPage extends UrlPage {
 		fb.label("$ mandatory").property(this, "t20").control();
 		fb.label("$ optional").property(this, "t21").control();
 		fb.label("integer").property(this, "t22").control();
+		Text2<String> t23 = fb.label("integer").property(this, "t23").control(Text2.class);
+		t23.addButton(FaIcon.faFile, a -> {});
+		t23.addButton(Theme.BTN_EDIT, a -> {});
+
 		fb.label("bigdecimal empty").property(this, "t30").control();
 		fb.label("bigdecimal 123.45").property(this, "t31").control();
 
@@ -148,5 +155,14 @@ public class Text2LayoutTestPage extends UrlPage {
 
 	public void setT31(BigDecimal t31) {
 		m_t31 = t31;
+	}
+
+	@MetaProperty(required = YesNoType.YES)
+	public String getT23() {
+		return m_t23;
+	}
+
+	public void setT23(String t23) {
+		m_t23 = t23;
 	}
 }
