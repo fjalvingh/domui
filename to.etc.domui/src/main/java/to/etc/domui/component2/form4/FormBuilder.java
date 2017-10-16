@@ -134,7 +134,7 @@ final public class FormBuilder {
 
 	static private <I, V> BindReference<I, V> createRef(@Nonnull I instance, @Nonnull String property, @Nonnull Class<V> type) {
 		PropertyMetaModel<?> pmm = MetaManager.getPropertyMeta(instance.getClass(), property);
-		if(DomUtil.normalizePrimitivesToBoxedTypes(pmm.getActualType()) != DomUtil.normalizePrimitivesToBoxedTypes(type)) {
+		if(DomUtil.getBoxedForPrimitive(pmm.getActualType()) != DomUtil.getBoxedForPrimitive(type)) {
 			throw new ProgrammerErrorException(pmm + " must be of type " + type.getName());
 		}
 		return new BindReference<>(instance, (PropertyMetaModel<V>) pmm);

@@ -3051,5 +3051,14 @@ public class StringTool {
 		return input;
 	}
 
+	@Nullable
+	static public String nullIfEmpty(@Nullable  String in) {
+		if(null == in)
+			return null;
+		if(in.trim().length() == 0)
+			return null;
+		return in;
+	}
+
 }
 

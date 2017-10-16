@@ -27,10 +27,10 @@ package to.etc.domui.component2.controlfactory;
 import to.etc.domui.component.input.Text2;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.dom.html.IControl;
+import to.etc.domui.util.DomUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.math.BigDecimal;
 
 /**
  * This is a fallback factory; it accepts anything and shows a String edit component OR a
@@ -58,14 +58,12 @@ public class ControlCreatorString implements IControlCreator {
 
 	@Override
 	public <T, C extends IControl<T>> C createControl(@Nonnull PropertyMetaModel<T> pmm, @Nullable Class<C> controlClass) {
-		Class<T> iclz = pmm.getActualType();
-
+		Class<T> type = pmm.getActualType();
 		Text2<T> txt;
-
-		if(pmm.getActualType() == Double.class || pmm.getActualType() == double.class || pmm.getActualType() == BigDecimal.class) {
+		if(Number.class.isAssignableFrom(DomUtil.getBoxedForPrimitive(type))) {
 			txt = (Text2<T>) Text2.createNumericInput((PropertyMetaModel<Double>) pmm, true);
 		} else {
-			txt = Text2.createText(iclz, pmm, true);
+			txt = Text2.createText(type, pmm, true);
 		}
 		return (C) txt;
 	}

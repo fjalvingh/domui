@@ -184,14 +184,14 @@ final public class ComponentPropertyBinding implements IBinding {
 		//-- Check: are the types of the binding ok?
 		if(pmm instanceof PropertyMetaModel<?> && m_converter == null) {
 			PropertyMetaModel<?> p = (PropertyMetaModel<?>) pmm;
-			Class<?> actualType = DomUtil.normalizePrimitivesToBoxedTypes(p.getActualType());
-			Class<?> controlType = DomUtil.normalizePrimitivesToBoxedTypes(m_controlProperty.getActualType());
+			Class<?> actualType = DomUtil.getBoxedForPrimitive(p.getActualType());
+			Class<?> controlType = DomUtil.getBoxedForPrimitive(m_controlProperty.getActualType());
 
 			if(controlType == Object.class) {
 				//-- Type erasure, deep, deep sigh. Can the control tell us the actual type contained?
 				if(m_control instanceof ITypedControl) {
 					ITypedControl<?> typedControl = (ITypedControl<?>) m_control;
-					controlType = DomUtil.normalizePrimitivesToBoxedTypes(typedControl.getActualType());
+					controlType = DomUtil.getBoxedForPrimitive(typedControl.getActualType());
 				}
 			}
 

@@ -319,7 +319,7 @@ WebUI.Agenda.prototype.roundOff = function(min) {
 
 WebUI.Agenda.prototype.timeMove = function(e) {
 	if(this._dragMode && this._dragMode > 0) {
-		this.apptMove(e);
+		// this.apptMove(e);			FIXME THIS IS MISSING
 		return;
 	}
 

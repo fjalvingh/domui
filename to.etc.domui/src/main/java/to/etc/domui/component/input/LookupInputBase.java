@@ -30,7 +30,6 @@ import java.util.*;
 import javax.annotation.*;
 import javax.annotation.Nullable;
 
-import org.jetbrains.annotations.*;
 import to.etc.domui.component.binding.*;
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.layout.*;

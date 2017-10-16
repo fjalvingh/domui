@@ -129,7 +129,7 @@ final public class DomUtil {
 	 * @return
 	 */
 	@Nonnull
-	static public Class<?> normalizePrimitivesToBoxedTypes(@Nonnull Class<?> clz) {
+	static public Class<?> getBoxedForPrimitive(@Nonnull Class<?> clz) {
 		Class<?> newClass = BOXINGDISASTER.get(clz);
 		return newClass != null ? newClass : clz;
 	}
@@ -334,6 +334,15 @@ final public class DomUtil {
 	 */
 	static public boolean isRealType(Class<?> clz) {
 		return clz == float.class || clz == Float.class || clz == Double.class || clz == double.class;
+	}
+
+	/**
+	 * Returns T if the type is some numeric type that can have a fraction.
+	 * @param clz
+	 * @return
+	 */
+	static public boolean isScaledType(Class<?> clz) {
+		return isRealType(clz) || clz == BigDecimal.class;
 	}
 
 	/**
