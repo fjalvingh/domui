@@ -1,8 +1,0 @@
-Bundle-SymbolicName: db.annotation-processing;singleton=true
-Bundle-Version: 1.0
-Export-Package: db.annotationprocessing
-Require-Bundle: org.eclipse.core.runtime;bundle-version="3.8.0",
- org.eclipse.jdt.apt.core;bundle-version="3.3.500"
-Bundle-Activator: db.annotationprocessing.Activator
-Provide-Package: db.annotationprocessing
-Eclipse-AutoStart: true
