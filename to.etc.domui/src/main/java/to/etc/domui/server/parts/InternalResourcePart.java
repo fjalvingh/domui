@@ -161,7 +161,8 @@ final public class InternalResourcePart implements IBufferedPartFactory<ResKey> 
 			pr.setCacheTime(da.getDefaultExpiryTime());
 		}
 
-		pr.setMime(ServerTools.getExtMimeType(FileTool.getFileExtension(rurl)));
+		//pr.setMime(ServerTools.getExtMimeType(FileTool.getFileExtension(rurl)));
+		pr.setMime(ServerTools.getMimeType(rurl));
 		InputStream is = ires.getInputStream();
 		if(is == null)
 			throw new ThingyNotFoundException(k.getRURL());

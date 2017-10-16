@@ -1,8 +1,6 @@
 package to.etc.domui.test.ui.componenterrors;
 
-import org.junit.Assert;
 import org.junit.Test;
-import org.openqa.selenium.WebElement;
 import to.etc.domuidemo.pages.test.componenterrors.Text2LayoutTestPage;
 
 /**
@@ -28,10 +26,4 @@ public class ITTestText2Layout extends AbstractLayoutTest {
 		checkBaseLine("t22", "input");
 	}
 
-	@Test
-	public void testBigDecimalValue() {
-		WebElement input = wd().getElement("t31", "input");
-		String value = input.getAttribute("value");
-		Assert.assertEquals("123.45", value);
-	}
 }
