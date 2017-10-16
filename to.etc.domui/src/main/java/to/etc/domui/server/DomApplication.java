@@ -1818,4 +1818,13 @@ public abstract class DomApplication {
 		return (Class<T>) AccessDeniedPage.class;
 	}
 
+	/**
+	 * Returns the default page title (as shown in the browser title bar). Override to define your own
+	 * title mechanism.
+	 */
+	public String getDefaultPageTitle(UrlPage body) {
+		return "DomUI Application - " + body.getClass().getSimpleName();
+	}
+
+
 }

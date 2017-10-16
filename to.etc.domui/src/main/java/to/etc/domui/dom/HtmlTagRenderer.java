@@ -641,7 +641,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 					o.attr("testid", testid);
 			}
 
-			//-- Adjust any title, if there
+			//-- Adjust any title, if there - except on body where it is the page title.
 			if(!(b instanceof UrlPage)) {
 				if(ttl != null) {
 					if(testid != null) {

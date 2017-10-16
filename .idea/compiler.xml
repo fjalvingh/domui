@@ -12,7 +12,6 @@
         <outputRelativeToContentRoot value="true" />
         <module name="domui-hello" />
         <module name="domui-hibernate-generator" />
-        <module name="property-annotations-processor" />
         <module name="to.etc.alg" />
         <module name="to.etc.db" />
         <module name="to.etc.dbcompare" />

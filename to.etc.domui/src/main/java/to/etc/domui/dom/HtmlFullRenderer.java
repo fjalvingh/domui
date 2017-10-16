@@ -234,7 +234,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 			);
 		} else {
 			o().writeRaw(
-				"<!DOCTYPE html>"
+				"<!DOCTYPE html>\n"
 			+ 	"<html>\n"					//
 			+ "<head>\n"					//
 			+ 	"<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n"	//
@@ -262,8 +262,8 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		o().writeRaw(ctx().getRelativePath(sheet));
 		if(isXml())
 			o().writeRaw("\"/>");
-		else
-			o().writeRaw("\"></link>\n");
+		//else
+		//	o().writeRaw("\"></link>\n");
 	}
 
 	/**
@@ -289,7 +289,8 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		o().attr("type", "text/css");
 		o().attr("href", path);
 		o().endtag();
-		o().closetag("link");
+		o().dec();					// do not close
+		//o().closetag("link");
 	}
 
 	public void renderLoadJavascript(@Nonnull String path) throws Exception {
@@ -300,7 +301,6 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 
 		//-- render an app-relative url
 		o().tag("script");
-		o().attr("language", "javascript");
 		o().attr("src", path);
 		o().endtag();
 		o().closetag("script");
@@ -329,13 +329,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 //		page.build();  jal 20100618 moved to users of full renderer; building and rendering are now separate concerns
 
 		renderPageHeader();
-		//		o().writeRaw(
-		//			"<script language=\"javascript\"><!--\n"
-		//		+	"var DomUIpageTag="+page.getPageTag()+";\n"
-		//		+	"var DomUIThemeURL="+StringTool.strToJavascriptString(ctx.getRelativePath( ctx.getRelativeThemePath("") ), true)+";\n"
-		//		+	"--></script>\n"
-		//		);
-		o().writeRaw("<script language=\"javascript\">");
+		o().writeRaw("<script>");
 		if(!isXml())
 			o().writeRaw("<!--\n");
 
@@ -364,12 +358,20 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 
 		renderThemeCSS();
 		renderHeadContributors();
-		if(page.getBody().getTitle() != null) {
-			o().tag("title");
-			o().endtag();
-			o().text(page.getBody().getTitle());
-			o().closetag("title");
+
+		//-- Title is a required entity in head.
+		String pageTitle = page.getBody().getTitle();
+		if(null == pageTitle) {
+			pageTitle = application.getDefaultPageTitle(page.getBody());
+			if(null == pageTitle) {
+				pageTitle = "DomUI Application";
+			}
 		}
+
+		o().tag("title");
+		o().endtag();
+		o().text(pageTitle);
+		o().closetag("title");
 		o().closetag("head");
 
 		// Render rest ;-)
@@ -380,7 +382,6 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		 * as soon as the body load has completed.
 		 */
 		o().tag("script");
-		o().attr("language", "javascript");
 		o().endtag();
 		o().text("$(document).ready(function() {");
 
