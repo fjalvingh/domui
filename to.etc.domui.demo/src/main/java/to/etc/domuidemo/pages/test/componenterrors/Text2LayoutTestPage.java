@@ -106,7 +106,8 @@ public class Text2LayoutTestPage extends UrlPage {
 		fb.label("$ mandatory").property(this, "t20").control();
 		fb.label("$ optional").property(this, "t21").control();
 		fb.label("integer").property(this, "t22").control();
-		Text2<String> t23 = fb.label("integer").property(this, "t23").control(Text2.class);
+
+		Text2<String> t23 = fb.label("string").property(this, "t23").control(Text2.class);
 		t23.addButton(FaIcon.faFile, a -> {});
 		t23.addButton(Theme.BTN_EDIT, a -> {});
 
