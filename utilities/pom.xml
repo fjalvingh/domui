@@ -22,6 +22,5 @@
 
     <modules>
         <module>hibernate-generator</module>
-        <module>property-annotation-processor</module>
     </modules>
 </project>

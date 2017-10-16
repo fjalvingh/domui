@@ -10,7 +10,17 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <processorPath>
+          <entry name="$PROJECT_DIR$/utilities/property-annotation-processor/target/property-annotations-processor-1.2-SNAPSHOT.jar" />
+        </processorPath>
         <module name="domui-hello" />
+        <module name="vaadin-sass-compiler" />
+      </profile>
+      <profile name="Annotation profile for domui" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processor name="db.annotationprocessing.EntityAnnotationProcessor" />
         <module name="domui-hibernate-generator" />
         <module name="property-annotations-processor" />
         <module name="to.etc.alg" />
@@ -28,7 +38,6 @@
         <module name="to.etc.pater" />
         <module name="to.etc.syntaxer" />
         <module name="to.etc.webapp.core" />
-        <module name="vaadin-sass-compiler" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
