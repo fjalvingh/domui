@@ -40,7 +40,7 @@ import javax.annotation.*;
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on 21 Jan 2010
  */
-public class KeyWordSearchInput<T> extends Div {
+public class KeyWordSearchInput<T> extends Div implements IForTarget {
 
 	private int m_resultsCount = -1; //-1 states for not visible
 
@@ -113,6 +113,10 @@ public class KeyWordSearchInput<T> extends Div {
 		add(m_imgWaiting);
 		add(m_keySearch);
 		renderResultsCountPart();
+	}
+
+	@Nullable @Override public NodeBase getForTarget() {
+		return m_keySearch.getForTarget();
 	}
 
 	@Nullable

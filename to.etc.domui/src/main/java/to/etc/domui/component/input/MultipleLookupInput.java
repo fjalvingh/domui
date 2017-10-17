@@ -24,8 +24,6 @@ import java.util.*;
  * Created on 13 Oct 2011
  */
 public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, ITypedControl<T> {
-
-
 	/**
 	 * Specific implementation for use in {@link MultiLookupInput}. It sets inner {@link DataTable} of {@link LookupInput}
 	 * to multi-select mode.
@@ -219,6 +217,14 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 		m_selectionContainer.removeAllChildren();
 		applyIE10Workaround();
 		endUpdate();
+	}
+
+	@Nullable @Override protected String getFocusID() {
+		return m_lookupInput.getFocusID();
+	}
+
+	@Nullable @Override public NodeBase getForTarget() {
+		return m_lookupInput.getForTarget();
 	}
 
 	/**

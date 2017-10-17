@@ -71,6 +71,10 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 		m_rows = rows;
 	}
 
+	@Nullable @Override public NodeBase getForTarget() {
+		return this;
+	}
+
 	@Override
 	public void visit(INodeVisitor v) throws Exception {
 		v.visitTextArea(this);

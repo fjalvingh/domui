@@ -27,6 +27,7 @@ package to.etc.domui.component.binding;
 import to.etc.domui.component.input.ITypedControl;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.YesNoType;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IDisplayControl;
@@ -448,7 +449,9 @@ final public class ComponentPropertyBinding implements IBinding {
 					modelValue = ((IBindingConverter<Object, Object>) converter).modelToControl(modelValue);
 				}
 
-				((IValueAccessor<Object>) m_controlProperty).setValue(m_control, modelValue);
+				if(m_controlProperty.getReadOnly() != YesNoType.YES) {
+					((IValueAccessor<Object>) m_controlProperty).setValue(m_control, modelValue);
+				}
 				m_bindError = null;                                    // Let's assume binding has no trouble.
 			}
 		} catch(Exception x) {

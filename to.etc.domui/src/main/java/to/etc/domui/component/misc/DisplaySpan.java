@@ -33,6 +33,7 @@ import to.etc.domui.converter.IConvertable;
 import to.etc.domui.converter.IConverter;
 import to.etc.domui.dom.html.IDisplayControl;
 import to.etc.domui.dom.html.IValueChanged;
+import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Span;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IRenderInto;
@@ -244,6 +245,10 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 			setTitle(s);
 
 		// FIXME Define more fully.
+	}
+
+	@Nullable @Override public NodeBase getForTarget() {
+		return null;
 	}
 
 	/*--------------------------------------------------------------*/

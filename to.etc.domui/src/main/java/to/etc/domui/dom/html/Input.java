@@ -37,7 +37,7 @@ import java.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 1, 2008
  */
-public class Input extends NodeBase implements INativeChangeListener, IHasChangeListener, INodeErrorDelegate, IHtmlInput {
+public class Input extends NodeBase implements INativeChangeListener, IHasChangeListener, INodeErrorDelegate, IHtmlInput, IForTarget {
 	private boolean m_disabled;
 
 	private int m_maxLength;
@@ -272,5 +272,9 @@ public class Input extends NodeBase implements INativeChangeListener, IHasChange
 			return;
 		m_placeHolder = placeHolder;
 		changed();
+	}
+
+	@Nullable @Override public NodeBase getForTarget() {
+		return this;
 	}
 }

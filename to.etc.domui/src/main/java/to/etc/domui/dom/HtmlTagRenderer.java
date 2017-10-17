@@ -1125,8 +1125,25 @@ public class HtmlTagRenderer implements INodeVisitor {
 	public void visitLabel(final Label n) throws Exception {
 		o().setIndentEnabled(false); // 20170830 jal
 		basicNodeRender(n, o());
-		if(n.getFor() != null)
-			o().attr("for", n.getFor());
+
+		String forLabel = null;
+		NodeBase target = n.getForNode();
+		while(target != null) {
+			if(target instanceof IForTarget) {
+				NodeBase next = ((IForTarget) target).getForTarget();
+				if(next == null || next == target) {
+					break;
+				}
+				target = next;
+			} else {
+				target = null;
+			}
+		}
+		if(null != target) {
+			forLabel = target.getActualID();
+			o().attr("for", forLabel);
+		}
+
 		renderTagend(n, o());
 	}
 

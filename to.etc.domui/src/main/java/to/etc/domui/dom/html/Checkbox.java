@@ -31,7 +31,7 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class Checkbox extends NodeBase implements INativeChangeListener, IControl<Boolean>, IHasModifiedIndication {
+public class Checkbox extends NodeBase implements INativeChangeListener, IControl<Boolean>, IHasModifiedIndication, IForTarget {
 	public static final String TYPE_HINT = "Checkbox";
 
 	private boolean m_checked;
@@ -245,4 +245,7 @@ public class Checkbox extends NodeBase implements INativeChangeListener, IContro
 		m_immediate = true;
 	}
 
+	@Nullable @Override public NodeBase getForTarget() {
+		return this;
+	}
 }

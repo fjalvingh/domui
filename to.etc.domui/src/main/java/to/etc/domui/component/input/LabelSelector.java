@@ -110,6 +110,13 @@ public class LabelSelector<T> extends Div implements IControl<List<T>>, ITypedCo
 		}
 	}
 
+	@Nullable @Override public NodeBase getForTarget() {
+		SearchInput<T> input = m_input;
+		if(null != input)
+			return input.getForTarget();
+		return null;
+	}
+
 	private void updateTooltip() throws Exception {
 		if(isDefaultTooltip()) {
 			fillTooltipWithAvailableLabels();

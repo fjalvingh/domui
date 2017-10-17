@@ -99,6 +99,15 @@ public class FileUpload extends Div implements IUploadAcceptingComponent, IContr
 		renderSelectedFiles();
 	}
 
+	@Nullable @Override protected String getFocusID() {
+		FileInput input = m_input;
+		return null == input ? null : input.getActualID();
+	}
+
+	@Nullable @Override public NodeBase getForTarget() {
+		return m_input;
+	}
+
 	private void renderSelectedFiles() {
 		Table t = new Table();
 		t.addCssClass("ui-fu-selected");
