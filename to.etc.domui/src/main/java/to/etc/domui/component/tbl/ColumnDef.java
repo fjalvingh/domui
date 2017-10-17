@@ -65,7 +65,7 @@ final public class ColumnDef<I, T> {
 	private IConverter<T> m_converter;
 
 	@Nullable
-	private ICellClicked< ? > m_cellClicked;
+	private ICellClicked<I> m_cellClicked;
 
 	@Nullable
 	private String m_renderHint;
@@ -228,7 +228,7 @@ final public class ColumnDef<I, T> {
 	}
 
 	@Nullable
-	public ICellClicked< ? > getCellClicked() {
+	public ICellClicked<I> getCellClicked() {
 		return m_cellClicked;
 	}
 
@@ -299,7 +299,7 @@ final public class ColumnDef<I, T> {
 	 * @return
 	 */
 	@Nonnull
-	public ColumnDef<I, T> cellClicked(@Nullable ICellClicked< ? > ck) {
+	public ColumnDef<I, T> cellClicked(@Nullable ICellClicked<I> ck) {
 		m_cellClicked = ck;
 		return this;
 	}

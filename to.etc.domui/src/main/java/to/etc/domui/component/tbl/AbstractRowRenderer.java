@@ -288,8 +288,8 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 	 * @param cellClicked
 	 */
 	@Override
-	public <V> void setCellClicked(final int col, @Nullable final ICellClicked<V> cellClicked) {
-		((SimpleColumnDef<V>) getColumn(col)).setCellClicked(cellClicked);
+	public void setCellClicked(final int col, @Nullable final ICellClicked<T> cellClicked) {
+		((SimpleColumnDef<T>) getColumn(col)).setCellClicked(cellClicked);
 	}
 
 

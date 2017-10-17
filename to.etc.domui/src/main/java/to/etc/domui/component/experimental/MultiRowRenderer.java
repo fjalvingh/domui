@@ -634,8 +634,8 @@ final public class MultiRowRenderer<T> implements IClickableRowRenderer<T> {
 	 * @param cellClicked
 	 */
 	@Override
-	public <V> void setCellClicked(final int col, @Nullable final ICellClicked<V> cellClicked) {
-		((ColumnDef<T, V>) getColumn(col)).cellClicked(cellClicked);
+	public void setCellClicked(final int col, @Nullable final ICellClicked<T> cellClicked) {
+		((ColumnDef<T, ?>) getColumn(col)).cellClicked(cellClicked);
 	}
 
 	/*--------------------------------------------------------------*/
