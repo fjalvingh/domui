@@ -37,7 +37,7 @@ import java.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 19, 2008
  */
-public class Button extends NodeContainer implements IActionControl {
+public class Button extends NodeContainer implements IActionControl, IForTarget {
 	private boolean m_disabled;
 
 	private ButtonType m_type = ButtonType.BUTTON;
@@ -143,5 +143,9 @@ public class Button extends NodeContainer implements IActionControl {
 
 	public void setAccessKey(char accessKey) {
 		m_accessKey = accessKey;
+	}
+
+	@Nullable @Override public NodeBase getForTarget() {
+		return this;
 	}
 }

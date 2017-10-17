@@ -1,24 +1,39 @@
 package to.etc.domui.component.image;
 
-import java.io.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import to.etc.domui.component.buttons.HoverButton;
+import to.etc.domui.component.misc.MessageFlare;
+import to.etc.domui.component.upload.IUploadAcceptingComponent;
+import to.etc.domui.component.upload.UploadPart;
+import to.etc.domui.dom.errors.MsgType;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.FileInput;
+import to.etc.domui.dom.html.Form;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.IValueChanged;
+import to.etc.domui.dom.html.Img;
+import to.etc.domui.dom.html.ImgAlign;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.parts.ComponentPartRenderer;
+import to.etc.domui.server.RequestContextImpl;
+import to.etc.domui.state.ConversationContext;
+import to.etc.domui.state.PageParameters;
+import to.etc.domui.state.UIContext;
+import to.etc.domui.themes.Theme;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.Msgs;
+import to.etc.domui.util.upload.FileUploadException;
+import to.etc.domui.util.upload.UploadItem;
+import to.etc.util.FileTool;
+import to.etc.webapp.nls.BundleRef;
 
-import javax.annotation.*;
-
-import org.slf4j.*;
-
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.misc.*;
-import to.etc.domui.component.upload.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.parts.*;
-import to.etc.domui.server.*;
-import to.etc.domui.state.*;
-import to.etc.domui.themes.*;
-import to.etc.domui.util.*;
-import to.etc.domui.util.upload.*;
-import to.etc.util.*;
-import to.etc.webapp.nls.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * This control allows selecting a single image as an upload. The image is
@@ -58,6 +73,9 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 
 	private IValueChanged< ? > m_onValueChanged;
 
+	@Nullable
+	private HoverButton m_sib;
+
 	public ImageSelectControl(@Nullable IUIImage value) {
 		m_value = value;
 	}
@@ -89,7 +107,7 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 
 		if(!isDisabled() && ! isReadOnly()) {
 			add(" ");
-			HoverButton sib = new HoverButton(Theme.ISCT_ERASE, new IClicked<HoverButton>() {
+			HoverButton sib = m_sib = new HoverButton(Theme.ISCT_ERASE, new IClicked<HoverButton>() {
 				@Override
 				public void clicked(HoverButton clickednode) throws Exception {
 					setValue(null);
@@ -117,6 +135,15 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 			fi.setSpecialAttribute("onchange", "WebUI.fileUploadChange(event)");
 			fi.setSpecialAttribute("fuallowed", "jpg,jpeg,png");
 		}
+	}
+
+	@Nullable @Override protected String getFocusID() {
+		HoverButton sib = m_sib;
+		return sib == null ? null : sib.getActualID();
+	}
+
+	@Nullable @Override public NodeBase getForTarget() {
+		return m_sib;
 	}
 
 	/**

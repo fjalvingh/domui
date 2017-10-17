@@ -156,6 +156,10 @@ public class ComboBoxBase<T, V> extends Div implements IControl<V> {
 
 	}
 
+	@Nullable @Override public NodeBase getForTarget() {
+		return null;
+	}
+
 	private void internalSetSelectedIndex(int ix) {
 		m_currentIndex = ix;
 	}

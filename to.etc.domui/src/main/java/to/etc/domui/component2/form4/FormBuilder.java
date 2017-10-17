@@ -583,7 +583,7 @@ final public class FormBuilder {
 				controlcell.addCssClass(controlCss);
 		}
 		if(null != lbl)
-			lbl.setForNode(control);
+			lbl.setForTarget(control);
 	}
 
 	@Nonnull
@@ -642,7 +642,7 @@ final public class FormBuilder {
 				controlcell.addCssClass(controlCss);
 		}
 		if(null != lbl)
-			lbl.setForNode(control);
+			lbl.setForTarget(control);
 	}
 
 	public void appendAfterControl(@Nonnull NodeBase what) {

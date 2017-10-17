@@ -239,6 +239,10 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 		return null;
 	}
 
+	@Nullable @Override public NodeBase getForTarget() {
+		return m_select;
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	value setting logic.								*/
 	/*--------------------------------------------------------------*/

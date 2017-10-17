@@ -83,13 +83,14 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		public boolean acceptRequestParameter(@Nonnull String[] values) {
 			String oldValue = getRawValue();									// Retain previous value,
 			super.acceptRequestParameter(values);								// Set the new one;
-			String oldTrimmed = oldValue == null ? "" : oldValue.trim();
-			String newTrimmed = getRawValue() == null ? "" : getRawValue().trim();
-			if(oldTrimmed.equals(newTrimmed)) {
+
+			oldValue = oldValue == null ? "" : m_untrimmed ? oldValue : oldValue.trim();
+			String newValue = getRawValue() == null ? "" : m_untrimmed ? getRawValue() : getRawValue().trim();
+			if(oldValue.equals(newValue)) {
 				return false;
 			}
 			m_validated = false;
-			DomUtil.setModifiedFlag(Text2.this);
+			DomUtil.setModifiedFlag(this);
 			return true;
 		}
 
@@ -193,6 +194,14 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		td.add(m_input);
 		renderButtons();
 		renderMode();
+	}
+
+	@Nullable @Override protected String getFocusID() {
+		return m_input.getActualID();
+	}
+
+	@Nullable @Override public NodeBase getForTarget() {
+		return m_input;
 	}
 
 	private void renderButtons() {

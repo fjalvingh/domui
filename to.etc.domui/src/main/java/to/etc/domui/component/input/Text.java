@@ -145,9 +145,9 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	public boolean acceptRequestParameter(@Nonnull String[] values) {
 		String oldValue = getRawValue();									// Retain previous value,
 		super.acceptRequestParameter(values);								// Set the new one;
-		String oldTrimmed = oldValue == null ? "" : oldValue.trim();
-		String newTrimmed = getRawValue() == null ? "" : getRawValue().trim();
-		if(oldTrimmed.equals(newTrimmed)) {
+		oldValue = oldValue == null ? "" : m_untrimmed ? oldValue : oldValue.trim();
+		String newValue = getRawValue() == null ? "" : m_untrimmed ? getRawValue() : getRawValue().trim();
+		if(oldValue.equals(newValue)) {
 			return false;
 		}
 		m_validated = false;

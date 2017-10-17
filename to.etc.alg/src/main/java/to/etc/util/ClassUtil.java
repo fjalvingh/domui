@@ -287,12 +287,16 @@ final public class ClassUtil {
 			i = new Info();
 			map.put(name, i);
 		}
+
+		//-- Private rules: a property is private only if the getter is private.
 		if(pvt) {
-			i.isPrivate = true;
-		} else if(i.isPrivate) {
+			if(! setter) {
+				i.isPrivate = true;
+			}
+		} else if(i.isPrivate && ! setter) {
 			i.isPrivate = false;
-			i.getter = null;
-			i.setterList.clear();
+			//i.getter = null;
+			//i.setterList.clear();
 		}
 
 		if(setter)

@@ -211,7 +211,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @param v
 	 * @throws Exception
 	 */
-	abstract public void visit(INodeVisitor v) throws Exception;
+	abstract public void visit(@Nonnull INodeVisitor v) throws Exception;
 
 	protected NodeBase(@Nonnull final String tag) {
 		m_tag = tag;

@@ -5,6 +5,7 @@ import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.dom.html.Checkbox;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IValueChanged;
+import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.util.IRenderInto;
 
 import javax.annotation.Nonnull;
@@ -72,6 +73,16 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 				renderCheckbox(lv);
 			}
 		}
+	}
+
+	@Nullable @Override public NodeBase getForTarget() {
+		List<Checkbox> children = getChildren(Checkbox.class);
+		return children.size() > 0 ? children.get(0) : null;
+	}
+
+	@Nullable @Override protected String getFocusID() {
+		NodeBase id = getForTarget();
+		return id == null ? null : id.getActualID();
 	}
 
 	private void renderCheckbox(@Nonnull T lv) throws Exception {

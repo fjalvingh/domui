@@ -45,9 +45,11 @@ import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.IForTarget;
 import to.etc.domui.dom.html.IHasModifiedIndication;
 import to.etc.domui.dom.html.IReturnPressed;
 import to.etc.domui.dom.html.IValueChanged;
+import to.etc.domui.dom.html.Label;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Span;
 import to.etc.domui.dom.html.TD;
@@ -69,12 +71,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<OT>, ITypedControl<OT>, IHasModifiedIndication, IQueryManipulator<QT> {
+abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<OT>, ITypedControl<OT>, IHasModifiedIndication, IQueryManipulator<QT>, IForTarget {
 	/** If set, the complete title for the popup window shown when the 'find' button is pressed. */
 	@Nullable
 	private String m_defaultTitle;
 
 	private Table m_table;
+
+	@Nullable
+	private Label m_forLabel;
 
 	/**
 	 * EXPERIMENTAL Factory for the lookup dialog, to be shown when the lookup button
@@ -261,6 +266,7 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 
 	@Override
 	public void createContent() throws Exception {
+		m_keySearch = null;
 		Table table = m_table = new Table("ui-lui-tbl");
 		add(table);
 
@@ -346,16 +352,8 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	@Nullable
 	@Override
 	protected String getFocusID() {
-		SearchInput2 keySearch = m_keySearch;
-		if(null != keySearch && keySearch.isAttached())
-			return keySearch.getActualID();
-		HoverButton selButton = m_selButton;
-		if(null != selButton && selButton.isAttached())
-			return selButton.getActualID();
-		HoverButton clearButton = m_clearButton;
-		if(null != clearButton && clearButton.isAttached())
-			return clearButton.getActualID();
-		return null;
+		NodeBase forTarget = getForTarget();
+		return forTarget == null ? null : forTarget.getActualID();
 	}
 
 	/**
@@ -368,6 +366,19 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 		//td.setValign(TableVAlign.TOP);
 		td.setCssClass("ui-lui-empty");
 		td.add(new Span(Msgs.BUNDLE.getString(Msgs.UI_LOOKUP_EMPTY)));
+	}
+
+	@Nullable @Override public NodeBase getForTarget() {
+		SearchInput2 keySearch = m_keySearch;
+		if(null != keySearch && keySearch.isAttached())
+			return keySearch;
+		HoverButton selButton = m_selButton;
+		if(null != selButton && selButton.isAttached())
+			return selButton;
+		HoverButton clearButton = m_clearButton;
+		if(null != clearButton && clearButton.isAttached())
+			return clearButton;
+		return null;
 	}
 
 	/*--------------------------------------------------------------*/

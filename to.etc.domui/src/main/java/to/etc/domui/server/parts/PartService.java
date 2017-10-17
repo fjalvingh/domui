@@ -304,8 +304,10 @@ public class PartService {
 		PartResponse pr = new PartResponse(os);
 		pf.generate(pr, m_application, key, rdl);
 		String mime = pr.getMime();
-		if(mime == null)
-			throw new IllegalStateException("The part " + pf + " did not set a MIME type, key=" + key);
+		if(mime == null) {
+			System.err.println("The part " + pf + " did not set a MIME type, key=" + key + ", using octet-stream");
+			mime = "application/octet-stream";
+		}
 		os.close();
 		cp = new PartData(os.getBuffers(), os.getSize(), pr.getCacheTime(), mime, rdl.createDependencies(), pr.getExtra());
 		synchronized(m_cache) {
