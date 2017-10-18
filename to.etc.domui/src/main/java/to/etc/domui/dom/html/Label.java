@@ -99,7 +99,6 @@ public class Label extends NodeContainer {
 		if(Objects.equals(m_forNode, forNode))
 			return;
 
-		System.out.println("binder " + forNode);
 		m_forNode = forNode;
 		changed();
 	}
