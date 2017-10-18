@@ -36,6 +36,7 @@ import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IReadOnlyModel;
 import to.etc.domui.util.IValueAccessor;
 import to.etc.domui.util.IWriteOnlyModel;
+import to.etc.domui.util.Msgs;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.nls.CodeException;
 
@@ -413,7 +414,13 @@ final public class ComponentPropertyBinding implements IBinding {
 		}
 
 		//-- When in error we cannot set anything anyway, so exit.
-		if(null != newError) {
+		if(null != newError && !newError.getCode().equals(Msgs.MANDATORY)) {
+			/*
+			 * jal 20171018 When a mandatory LookupInput gets cleared its value becomes null, and this
+			 * value should be propagated to the model. It seems likely that in ALL cases of error
+			 * we need to move a null there!
+			 */
+
 			return null;
 		}
 
