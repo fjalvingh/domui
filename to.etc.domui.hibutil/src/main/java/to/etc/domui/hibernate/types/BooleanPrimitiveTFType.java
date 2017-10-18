@@ -15,7 +15,7 @@ import java.sql.Types;
  * nullity; it gets interpreted as a false.
  * @author jal
  */
-final public class BooleanPrimitiveTrueFalseType implements UserType {
+final public class BooleanPrimitiveTFType implements UserType {
 	@Override
 	public Object assemble(Serializable cached, Object owner) throws HibernateException {
 		return null;
@@ -63,7 +63,7 @@ final public class BooleanPrimitiveTrueFalseType implements UserType {
 
 	@Override
 	public void nullSafeSet(PreparedStatement statement, Object value, int index) throws HibernateException, SQLException {
-		statement.setString(index, value == null ? "false" : ((Boolean) value).booleanValue() ? "true" : "false");
+		statement.setString(index, value == null ? "F" : ((Boolean) value).booleanValue() ? "T" : "F");
 	}
 
 	@Override
