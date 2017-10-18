@@ -3,6 +3,7 @@
 
 .ui-srip {
     position: relative;
+    z-index: 1;
     display: inline-block;
 }
 .ui-srip-keyword-popup {
@@ -43,7 +44,7 @@ tr.uixx-keyword-popup-row {
     border-radius: 4px;
     -webkit-border-radius: 4px;
     padding: 5px;
-    z-index: 1;
+    z-index: 10;
 }
 .ui-srip-waiting {
     position: absolute;

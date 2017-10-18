@@ -137,6 +137,9 @@ $.extend(WebUI.SearchPopup.prototype, {
 	handleFocus: function() {
 		$('#'+this._id+" .ui-ssop").fadeIn(200);
 		var parentNode = document.getElementById(this._id).parentNode;
+
+		parentNode.style.zIndex = 10;
+		$('#' + parentNode.id + " .ui-srip-message").css("z-index", "999");
 		$('#' + parentNode.id + " .ui-srip-message").fadeIn(200);
 	},
 
@@ -144,6 +147,7 @@ $.extend(WebUI.SearchPopup.prototype, {
 	 * When the input is left remove any popup visible.
 	 */
 	handleBlur: function() {
+		return;
 		//-- 1. If we have a popup panel-> fade it out,
 		var selectOnePanel = $('#' + this._id + " .ui-ssop");
 		selectOnePanel.fadeOut(200);

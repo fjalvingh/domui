@@ -9,10 +9,9 @@ $lui-min-width: 160px;
 	margin: 0px;
 }
 div.ui-lui {
-	width: 12em; /*	this width match with date field picker icon on IE rendering */
+	width: 12em; 	/*	this width match with date field picker icon on IE rendering */
 	display: inline-block;
 }
-
 //div.ui-lui > table { jal 20170916 do not address table.
 //	width: 1%;
 //}
@@ -148,7 +147,7 @@ img.ui-lui-waiting {
 	width: auto;
 	border-radius: 4px;
 	padding: 5px;
-	z-index: 1;
+	z-index: 10;
 }
 .ui-lui-result-none, .ui-lui-result-large {
 	background-color: $lui-warning-color;
