@@ -26,6 +26,7 @@ package to.etc.domui.themes;
 
 import to.etc.domui.server.BrowserVersion;
 import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.IRequestContext;
 import to.etc.domui.trouble.ThingyNotFoundException;
 import to.etc.domui.util.js.IScriptScope;
 import to.etc.domui.util.js.RhinoTemplateCompiler;
@@ -114,6 +115,10 @@ final public class ThemeManager {
 	 */
 	@Nonnull
 	public ITheme getTheme(@Nonnull IThemeFactory factory, @Nonnull String themeName, @Nonnull IThemeVariant variant, @Nullable IResourceDependencyList rdl) {
+		return getTheme(factory, factory.appendThemeVariant(themeName, variant), rdl);
+	}
+
+	public ITheme getTheme(@Nonnull IThemeFactory factory, @Nonnull String themeName, @Nullable IResourceDependencyList rdl) {
 		synchronized(this) {
 			if(m_themeReapCount++ > 1000) {
 				m_themeReapCount = 0;
@@ -136,7 +141,7 @@ final public class ThemeManager {
 			//-- No such cached theme yet, or the theme has changed. (Re)load it.
 			ITheme theme;
 			try {
-				theme = factory.getTheme(m_application, themeName, variant);
+				theme = factory.getTheme(m_application, themeName);
 			} catch(Exception x) {
 				throw WrappedException.wrap(x);
 			}
@@ -254,32 +259,32 @@ final public class ThemeManager {
 		return ts.getPropertyScope();
 	}
 
-	///**
-	// * This checks to see if the RURL passed is a theme-relative URL. These URLs start
-	// * with THEME/. If not the RURL is returned as-is; otherwise the URL is translated
-	// * to a path containing the current theme string:
-	// * <pre>
-	// * 	$THEME/[currentThemeString]/[name]
-	// * </pre>
-	// * where [name] is the rest of the path string after THEME/ has been removed from it.
-	// * @param themeStyle			The substyle/variant of the theme that the page wants to use.
-	// * @param path
-	// * @return
-	// */
-	//@Nonnull
-	//public String getThemedResourceRURL(@Nonnull IThemeVariant themeStyle, @Nonnull String path) {
-	//	if(path.startsWith("THEME/")) {
-	//		path = path.substring(6); 							// Strip THEME/
-	//	} else if(path.startsWith("ICON/")) {
-	//		throw new IllegalStateException("Bad ROOT: ICON/. Use THEME/ instead.");
-	//	} else
-	//		return path;										// Not theme-relative, so return as-is.
-	//	if(path == null)
-	//		throw new NullPointerException();
-	//
-	//	//-- This *is* a theme URL. Do we need to replace the icon?
-	//	ITheme theme = getTheme(getDefaultTheme()+"/"+themeStyle.getVariantName(), null);
-	//	String newicon = theme.translateResourceName(path);
-	//	return ThemeResourceFactory.PREFIX + getDefaultTheme() + "/" + themeStyle.getVariantName() + "/" + newicon;
-	//}
+	/**
+	 * This checks to see if the RURL passed is a theme-relative URL. These URLs start
+	 * with THEME/. If not the RURL is returned as-is; otherwise the URL is translated
+	 * to a path containing the current theme string:
+	 * <pre>
+	 * 	$THEME/[currentThemeString]/[name]
+	 * </pre>
+	 * where [name] is the rest of the path string after THEME/ has been removed from it.
+	 */
+	@Nonnull
+	public String getThemedResourceRURL(@Nonnull IRequestContext context, @Nonnull String path) {
+		if(path.startsWith("THEME/")) {
+			path = path.substring(6); 							// Strip THEME/
+		} else if(path.startsWith("ICON/")) {
+			throw new IllegalStateException("Bad ROOT: ICON/. Use THEME/ instead.");
+		} else
+			return path;										// Not theme-relative, so return as-is.
+		if(path == null)
+			throw new NullPointerException();
+
+		try {
+			ITheme theme = context.getCurrentTheme();
+			String newicon = theme.translateResourceName(path);
+			return ThemeResourceFactory.PREFIX + theme.getThemeName() + "/" + newicon;
+		} catch(Exception x) {
+			throw WrappedException.wrap(x);
+		}
+	}
 }

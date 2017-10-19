@@ -77,9 +77,9 @@ public class UrlPage extends Div {
 		UIContext.getRequestContext().setThemeVariant(themeVariant);
 	}
 
-	public final IThemeVariant getThemeVariant() {
-		return UIContext.getRequestContext().getThemeVariant();
-	}
+	//public final IThemeVariant getThemeVariant() {
+	//	return UIContext.getRequestContext().getThemeVariant();
+	//}
 
 	/**
 	 * No longer in use for domui 2.0.

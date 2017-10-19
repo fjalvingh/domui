@@ -45,8 +45,18 @@ public interface IThemeFactory {
 	 * @throws Exception
 	 */
 	@Nonnull
-	ITheme getTheme(@Nonnull DomApplication da, @Nonnull String themeName, @Nonnull IThemeVariant variant) throws Exception;
+	ITheme getTheme(@Nonnull DomApplication da, @Nonnull String themeName) throws Exception;
 
 	@Nonnull
 	String getDefaultThemeName();
+
+	/**
+	 * Do whatever's necessary to add the variant indicator to the theme name.
+	 * @param themeName
+	 * @param variant
+	 * @return
+	 */
+	default String appendThemeVariant(String themeName, IThemeVariant variant) {
+		return themeName + "/" + variant.getVariantName();
+	}
 }

@@ -114,8 +114,6 @@ public class FragmentedThemeFactory {
 	/*--------------------------------------------------------------*/
 	/**
 	 * Constructor for a factory instance that will generate the ITheme.
-	 * @param da
-	 * @param themeName
 	 */
 	protected FragmentedThemeFactory(DomApplication da, String themeName) {
 		m_application = da;

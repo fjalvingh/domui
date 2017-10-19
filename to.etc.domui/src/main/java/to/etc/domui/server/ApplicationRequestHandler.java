@@ -1342,12 +1342,12 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		dataMap.put("x", x);
 		dataMap.put("ctx", ctx);
 		dataMap.put("app", ctx.getRelativePath(""));
-		String sheet = themeManager.getThemedResourceRURL(DefaultThemeVariant.INSTANCE, "THEME/style.theme.css");
+		String sheet = themeManager.getThemedResourceRURL(ctx, "THEME/style.theme.css");
 		if(null == sheet)
 			throw new IllegalStateException("Unexpected null??");
 		dataMap.put("stylesheet", sheet);
 
-		String theme = themeManager.getThemedResourceRURL(DefaultThemeVariant.INSTANCE, "THEME/");
+		String theme = themeManager.getThemedResourceRURL(ctx, "THEME/");
 		dataMap.put("theme", theme);
 
 		StringBuilder sb = new StringBuilder();

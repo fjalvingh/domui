@@ -84,7 +84,6 @@ public class MarkerImagePart implements IBufferedPartFactory<MarkerImagePartKey>
 					is.close();
 			} catch(Exception x) {}
 		}
-
 	}
 
 	private InputStream getInputStream(BufferedImage bi) throws IOException {

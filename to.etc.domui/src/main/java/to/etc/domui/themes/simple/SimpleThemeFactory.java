@@ -24,16 +24,22 @@
  */
 package to.etc.domui.themes.simple;
 
-import java.io.*;
-import java.util.*;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.themes.ITheme;
+import to.etc.domui.themes.IThemeFactory;
+import to.etc.domui.themes.StyleException;
+import to.etc.domui.trouble.ThingyNotFoundException;
+import to.etc.domui.util.js.RhinoExecutor;
+import to.etc.domui.util.js.RhinoExecutorFactory;
+import to.etc.domui.util.resources.IResourceDependencyList;
+import to.etc.domui.util.resources.IResourceRef;
+import to.etc.domui.util.resources.ResourceDependencyList;
 
-import javax.annotation.*;
-
-import to.etc.domui.server.*;
-import to.etc.domui.themes.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.js.*;
-import to.etc.domui.util.resources.*;
+import javax.annotation.Nonnull;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Very simple theme engine which uses a theme name defined as themedir/icon/color.
@@ -71,10 +77,10 @@ public class SimpleThemeFactory implements IThemeFactory {
 
 	private String m_colorName;
 
+	private String m_variantName;
+
 	/** A Javascript execution environment. */
 	private RhinoExecutor m_executor;
-
-	private String m_variantName;
 
 	/**
 	 * Factory constructor.
@@ -159,8 +165,6 @@ public class SimpleThemeFactory implements IThemeFactory {
 
 	/**
 	 * Load property files as Javascript files. All of the data is contained in one object.
-	 * @param map
-	 * @param da
 	 * @param rurl
 	 * @param rdl
 	 * @throws Exception

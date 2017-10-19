@@ -107,12 +107,7 @@ public class PartUtil {
 	}
 
 	/**
-	 * Load an image, either thru a resource (when the part starts with RES) or as a webapp file.
-	 * @param r
-	 * @param image
-	 * @param depset
-	 * @return
-	 * @throws Exception
+	 * Load an image, either through a resource (when the part starts with RES) or as a webapp file.
 	 */
 	static public BufferedImage loadImage(DomApplication da, String in, @Nonnull IResourceDependencyList rdl) throws Exception {
 		//-- Split input in URL and parameters (QD for generic retrieval of resources)

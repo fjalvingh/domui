@@ -50,7 +50,7 @@ import to.etc.domui.parts.IComponentUrlDataProvider;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.state.IPageParameters;
-import to.etc.domui.themes.IThemeVariant;
+import to.etc.domui.state.UIContext;
 import to.etc.domui.trouble.UIException;
 import to.etc.domui.util.Constants;
 import to.etc.domui.util.DomUtil;
@@ -72,7 +72,6 @@ import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.StringTokenizer;
 
 /**
  * Base node for all non-container html dom nodes.
@@ -1852,8 +1851,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 */
 	@Nonnull
 	final public String getThemedResourceRURL(@Nonnull String path) {
-		IThemeVariant themeStyle = getPage().getBody().getThemeVariant();
-		return DomApplication.get().internalGetThemeManager().getThemedResourceRURL(themeStyle, path);
+		return DomApplication.get().internalGetThemeManager().getThemedResourceRURL(UIContext.getRequestContext(), path);
 	}
 
 	/*----------------------------------------------------------------------*/
@@ -1983,7 +1981,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	/**
 	 * Adds javascript that aligns node top to top of specified node, with applying y offset.
-	 * 
+	 *
 	 * @param node
 	 * @param yOffset
 	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
@@ -1994,7 +1992,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	/**
 	 * Adds javascript that aligns node top to top of specified node, with applying y offset.
-	 * 
+	 *
 	 * @param node
 	 * @param yOffset
 	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
@@ -2003,10 +2001,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	public void alignToTop(@Nonnull NodeBase node, int yOffset, boolean appendAsCreateJs, boolean addServerPositionCallback){
 		alignTo(AlignmentType.Top, "WebUI.alignToTop", node, yOffset, appendAsCreateJs, addServerPositionCallback);
 	}
-	
+
 	/**
 	 * Adds javascript that aligns node top to bottom of specified node, with applying y offset.
-	 * 
+	 *
 	 * @param node
 	 * @param yOffset
 	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
@@ -2017,7 +2015,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	/**
 	 * Adds javascript that aligns node top to bottom of specified node, with applying y offset.
-	 * 
+	 *
 	 * @param node
 	 * @param yOffset
 	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
@@ -2026,10 +2024,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	public void alignTopToBottom(@Nonnull NodeBase node, int yOffset, boolean appendAsCreateJs, boolean addServerPositionCallback){
 		alignTo(AlignmentType.TopToBottom, "WebUI.alignTopToBottom", node, yOffset, appendAsCreateJs, addServerPositionCallback);
 	}
-	
+
 	/**
 	 * Adds javascript that aligns node left to left position of specified node, with applying offset.
-	 * 
+	 *
 	 * @param node
 	 * @param xOffset
 	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
@@ -2040,7 +2038,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	/**
 	 * Adds javascript that aligns node left to left position of specified node, with applying offset.
-	 * 
+	 *
 	 * @param node
 	 * @param xOffset
 	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
@@ -2049,10 +2047,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	public void alignToLeft(@Nonnull NodeBase node, int xOffset, boolean appendAsCreateJs, boolean addServerPositionCallback){
 		alignTo(AlignmentType.Left, "WebUI.alignToLeft", node, xOffset, appendAsCreateJs, addServerPositionCallback);
 	}
-	
+
 	/**
 	 * Adds javascript that aligns node right to right position of specified node, with applying offset.
-	 * 
+	 *
 	 * @param node
 	 * @param xOffset
 	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
@@ -2063,7 +2061,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	/**
 	 * Adds javascript that aligns node right to right position of specified node, with applying offset.
-	 * 
+	 *
 	 * @param node
 	 * @param xOffset
 	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
@@ -2072,10 +2070,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	public void alignToRight(@Nonnull NodeBase node, int xOffset, boolean appendAsCreateJs, boolean addServerPositionCallback){
 		alignTo(AlignmentType.Right, "WebUI.alignToRight", node, xOffset, appendAsCreateJs, addServerPositionCallback);
 	}
-	
+
 	/**
 	 * Adds javascript that aligns node horizontal middle to middle position of specified node, with applying offset.
-	 * 
+	 *
 	 * @param node
 	 * @param xOffset
 	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
@@ -2086,7 +2084,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	/**
 	 * Adds javascript that aligns node horizontal middle to middle position of specified node, with applying offset.
-	 * 
+	 *
 	 * @param node
 	 * @param xOffset
 	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
@@ -2095,7 +2093,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	public void alignToMiddle(@Nonnull NodeBase node, int xOffset, boolean appendAsCreateJs, boolean addServerPositionCallback){
 		alignTo(AlignmentType.Middle, "WebUI.alignToMiddle", node, xOffset, appendAsCreateJs, addServerPositionCallback);
 	}
-	
+
 	private void alignTo(final @Nonnull AlignmentType alignment, @Nonnull String jsFunction, @Nonnull NodeBase node, int offset, boolean appendAsCreateJs, boolean addServerPositionCallback){
 		setPosition(PositionType.ABSOLUTE);
 		String id = getActualID();
@@ -2108,14 +2106,14 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		}
 		if (addServerPositionCallback){
 			setOnSizeAndPositionChange(new INotify<NodeBase>(){
-	
+
 				@Override
 				public void onNotify(NodeBase sender) throws Exception {
 					Rect clientBounds = getClientBounds();
 					if (null != clientBounds){
 						switch (alignment){
-							case Top: 
-							case TopToBottom: 
+							case Top:
+							case TopToBottom:
 								setTop(clientBounds.getTop());
 								break;
 							default: //other are horizontal alignments, so we set left position
@@ -2127,7 +2125,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 			});
 		}
 	}
-	
+
 	@Nullable
 	protected Rect getClientBounds() {
 		return m_clientBounds;
