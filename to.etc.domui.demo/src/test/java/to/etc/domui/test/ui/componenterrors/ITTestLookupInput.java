@@ -104,7 +104,7 @@ public class ITTestLookupInput extends AbstractWebDriverTest {
 		}
 
 		WebElement input = wd().getElement(By.cssSelector("#" + two.getAttribute("id") + " input"));
-		WebElement label = wd().getElement(By.cssSelector("label[for='" + two.getAttribute("id")+"']"));
+		WebElement label = wd().getElement(By.cssSelector("label[for='" + input.getAttribute("id")+"']"));
 
 		ImageHelper.checkBaseLine("/tmp/testInitialLayout", wd(), By.id(label.getAttribute("id")), By.id(input.getAttribute("id")), By.id("_A"));
 	}
