@@ -287,4 +287,33 @@ final public class ThemeManager {
 			throw WrappedException.wrap(x);
 		}
 	}
+
+	/**
+	 * This checks to see if the RURL passed is a theme-relative URL. These URLs start
+	 * with THEME/. If not the RURL is returned as-is; otherwise the URL is translated
+	 * to a path containing the current theme string:
+	 * <pre>
+	 * 	$THEME/[currentThemeString]/[name]
+	 * </pre>
+	 * where [name] is the rest of the path string after THEME/ has been removed from it.
+	 */
+	@Nonnull
+	public String getThemedResourceRURL(@Nonnull ITheme theme, @Nonnull String path) {
+		if(path.startsWith("THEME/")) {
+			path = path.substring(6); 							// Strip THEME/
+		} else if(path.startsWith("ICON/")) {
+			throw new IllegalStateException("Bad ROOT: ICON/. Use THEME/ instead.");
+		} else
+			return path;										// Not theme-relative, so return as-is.
+		if(path == null)
+			throw new NullPointerException();
+
+		try {
+			String newicon = theme.translateResourceName(path);
+			return ThemeResourceFactory.PREFIX + theme.getThemeName() + "/" + newicon;
+		} catch(Exception x) {
+			throw WrappedException.wrap(x);
+		}
+	}
+
 }
