@@ -48,6 +48,7 @@ import to.etc.domui.sass.*;
 import to.etc.domui.server.parts.*;
 import to.etc.domui.state.*;
 import to.etc.domui.themes.*;
+import to.etc.domui.themes.sass.SassThemeFactory;
 import to.etc.domui.themes.simple.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
@@ -151,6 +152,20 @@ public abstract class DomApplication {
 
 	@Nonnull
 	private ResourceInfoCache	m_resourceInfoCache = new ResourceInfoCache(this);
+
+	/** The theme manager where theme calls are delegated to. */
+	final private ThemeManager m_themeManager = new ThemeManager(this);
+
+	/** Global properties for all themes */
+	final private Map<String, String> m_themeApplicationProperties = new HashMap<>();
+
+	/** The thing that themes the application. Set only once @ init time. */
+	@Nonnull
+	private volatile IThemeFactory m_defaultThemeFactory = SassThemeFactory.INSTANCE;
+
+	/** The "current theme". This will become part of all themed resource URLs and is interpreted by the theme factory to resolve resources. */
+	@Nonnull
+	private volatile String m_defaultTheme = "winter";
 
 	/**
 	 * Must return the "root" class of the application; the class rendered when the application's
@@ -1554,12 +1569,6 @@ public abstract class DomApplication {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Programmable theme code.							*/
 	/*--------------------------------------------------------------*/
-	/** The theme manager where theme calls are delegated to. */
-	final private ThemeManager m_themeManager = new ThemeManager(this);
-
-	/** Global properties for all themes */
-	final private Map<String, String> m_themeApplicationProperties = new HashMap<>();
-
 	/**
 	 * This method can be overridden to add extra stuff to the theme map, after
 	 * it has been loaded from properties or whatnot.
@@ -1577,10 +1586,10 @@ public abstract class DomApplication {
 	 * and is interpreted by the theme factory to resolve resources. The string is used
 	 * as a "parameter" for the theme factory which will use it to decide on the "real"
 	 * theme to use.
-	 * @param currentTheme	The theme name, valid for the current theme engine. Cannot be null nor the empty string.
+	 * @param themeName	The theme name, valid for the current theme engine. Cannot be null nor the empty string.
 	 */
-	final public void setDefaultTheme(@Nonnull String currentTheme) {
-		m_themeManager.setDefaultTheme(currentTheme);
+	final public void setDefaultTheme(@Nonnull String themeName) {
+		m_defaultTheme = themeName;
 	}
 
 	/**
@@ -1589,7 +1598,7 @@ public abstract class DomApplication {
 	 */
 	@Nonnull
 	final public String getDefaultTheme() {
-		return m_themeManager.getDefaultTheme();
+		return m_defaultTheme;
 	}
 
 	/**
@@ -1613,8 +1622,20 @@ public abstract class DomApplication {
 	 * Set the application-default theme factory, and make the factory set its default theme.
 	 */
 	final public void setDefaultThemeFactory(@Nonnull IThemeFactory themer) {
-		m_themeManager.setDefaultThemeFactory(themer);
-		m_themeManager.setDefaultTheme(themer.getDefaultThemeName());
+		m_defaultThemeFactory = themer;
+		m_defaultTheme = themer.getDefaultThemeName();
+	}
+
+	@Nonnull public IThemeFactory getDefaultThemeFactory() {
+		return m_defaultThemeFactory;
+	}
+
+	/**
+	 * Get an ITheme instance for the default theme manager and theme.
+	 */
+	@Nonnull
+	public ITheme getDefaultThemeInstance() {
+		return m_themeManager.getTheme(getDefaultThemeFactory(), getDefaultTheme(), null);
 	}
 
 	/**
@@ -1634,7 +1655,7 @@ public abstract class DomApplication {
 	 */
 	@Nonnull
 	public ITheme calculateUserTheme(IRequestContext ctx) {
-		return m_themeManager.getDefaultThemeInstance();
+		return getDefaultThemeInstance();
 	}
 
 	/**

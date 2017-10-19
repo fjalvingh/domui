@@ -45,12 +45,6 @@ import to.etc.util.*;
 final public class ThemeManager {
 	final private DomApplication m_application;
 
-	/** The thing that themes the application. Set only once @ init time. */
-	private IThemeFactory m_defaultThemeFactory;
-
-	/** The "current theme". This will become part of all themed resource URLs and is interpreted by the theme factory to resolve resources. */
-	private String m_defaultTheme = "domui";
-
 	static private class ThemeRef {
 		final private ITheme m_theme;
 
@@ -87,56 +81,6 @@ final public class ThemeManager {
 		m_application = application;
 	}
 
-	/**
-	 * Sets the current theme string. This string is used as a "parameter" for the theme factory
-	 * which will use it to decide on the "real" theme to use.
-	 * @param defaultTheme	The theme name, valid for the current theme engine. Cannot be null nor the empty string.
-	 */
-	public synchronized void setDefaultTheme(@Nonnull String defaultTheme) {
-		if(null == defaultTheme)
-			throw new IllegalArgumentException("This cannot be null");
-		m_defaultTheme = defaultTheme;
-	}
-
-	/**
-	 * Gets the application-default theme string.  This will become part of all themed resource URLs
-	 * and is interpreted by the theme factory to resolve resources.
-	 * @return
-	 */
-	@Nonnull
-	public synchronized String getDefaultTheme() {
-		return m_defaultTheme;
-	}
-
-	/**
-	 * Get the current theme factory.
-	 * @return
-	 */
-	@Nonnull
-	private synchronized IThemeFactory getDefaultThemeFactory() {
-		if(m_defaultThemeFactory == null)
-			throw new IllegalStateException("Theme factory cannot be null");
-		return m_defaultThemeFactory;
-	}
-
-	/**
-	 * Set the factory for handling the theme.
-	 * @param themer
-	 */
-	public synchronized void setDefaultThemeFactory(@Nonnull IThemeFactory themer) {
-		if(themer == null)
-			throw new IllegalStateException("Theme factory cannot be null");
-		m_defaultThemeFactory = themer;
-		m_themeMap.clear();
-	}
-
-	/**
-	 * Get an ITheme instance for the default theme manager and theme.
-	 */
-	@Nonnull
-	public ITheme getDefaultThemeInstance() {
-		return getTheme(getDefaultTheme(), null);
-	}
 
 
 	/*--------------------------------------------------------------*/
@@ -149,23 +93,23 @@ final public class ThemeManager {
 	private long m_themeNextReapTS;
 
 	/**
+	 * Cached get of a factory/theme ITheme instance.
+	 *
 	 * Get the theme store representing the specified theme name. This is the name as obtained
 	 * from the resource name which is the part between $THEME/ and the actual filename. This
 	 * code is fast once the theme is loaded after the 1st call.
-	 *
-	 * @param rdl
-	 * @return
-	 * @throws Exception
 	 */
 	@Nonnull
-	public ITheme getTheme(String themeName, @Nullable IResourceDependencyList rdl) {
+	public ITheme getTheme(IThemeFactory factory, String themeName, @Nullable IResourceDependencyList rdl) {
 		synchronized(this) {
 			if(m_themeReapCount++ > 1000) {
 				m_themeReapCount = 0;
 				checkReapThemes();
 			}
 
-			ThemeRef tr = m_themeMap.get(themeName);
+			String key = themeKey(factory, themeName);
+
+			ThemeRef tr = m_themeMap.get(key);
 			if(tr != null) {
 				//-- Developer mode: is the theme still valid?
 				if(tr.getDependencies() == null || !tr.getDependencies().isModified()) {
@@ -179,7 +123,7 @@ final public class ThemeManager {
 			//-- No such cached theme yet, or the theme has changed. (Re)load it.
 			ITheme theme;
 			try {
-				theme = getDefaultThemeFactory().getTheme(m_application, themeName);
+				theme = factory.getTheme(m_application, themeName);
 			} catch(Exception x) {
 				throw WrappedException.wrap(x);
 			}
@@ -193,9 +137,13 @@ final public class ThemeManager {
 			tr = new ThemeRef(theme, deps);
 			if(rdl != null && deps != null)
 				rdl.add(deps);
-			m_themeMap.put(themeName, tr);
+			m_themeMap.put(key, tr);
 			return theme;
 		}
+	}
+
+	private String themeKey(IThemeFactory factory, String themeName) {
+		return factory.getClass().getCanonicalName() + "/" + themeName;
 	}
 
 	/**
@@ -227,8 +175,8 @@ final public class ThemeManager {
 	}
 
 
-	public String getThemeReplacedString(@Nonnull IResourceDependencyList rdl, String rurl) throws Exception {
-		return getThemeReplacedString(rdl, rurl, null);
+	public String getThemeReplacedString(@Nonnull IThemeFactory factory, @Nonnull IResourceDependencyList rdl, String rurl) throws Exception {
+		return getThemeReplacedString(factory, rdl, rurl, null);
 	}
 
 	/**
@@ -239,11 +187,8 @@ final public class ThemeManager {
 	 * inside the theme's folder, or can be configured dynamically using a IThemeMapFactory.
 	 *
 	 * The result is returned as a string.
-	 *
-	 * @param rdl
-	 * @return
 	 */
-	public String getThemeReplacedString(@Nonnull IResourceDependencyList rdl, @Nonnull String rurl, @Nullable BrowserVersion bv) throws Exception {
+	public String getThemeReplacedString(@Nonnull IThemeFactory factory, @Nonnull IResourceDependencyList rdl, @Nonnull String rurl, @Nullable BrowserVersion bv) throws Exception {
 		long ts = System.nanoTime();
 		IResourceRef ires = m_application.getResource(rurl, rdl); // Get the template source file
 		if(!ires.exists()) {
@@ -252,7 +197,7 @@ final public class ThemeManager {
 		}
 
 		String[] spl = ThemeResourceFactory.splitThemeURL(rurl);
-		ITheme theme = getTheme(spl[0], null); // Dependencies already added by get-resource call.
+		ITheme theme = getTheme(factory, spl[0], null); // Dependencies already added by get-resource call.
 		IScriptScope ss = theme.getPropertyScope();
 		ss = ss.newScope();
 
@@ -290,13 +235,9 @@ final public class ThemeManager {
 	 * Return the current theme map (a readonly map), cached from the last
 	 * time. It will refresh automatically when the resource dependencies
 	 * for the theme are updated.
-	 *
-	 * @param rdl
-	 * @return
-	 * @throws Exception
 	 */
-	public IScriptScope getThemeMap(String themeName, IResourceDependencyList rdlin) throws Exception {
-		ITheme ts = getTheme(themeName, rdlin);
+	public IScriptScope getThemeMap(IThemeFactory factory, String themeName, IResourceDependencyList rdlin) throws Exception {
+		ITheme ts = getTheme(factory, themeName, rdlin);
 		return ts.getPropertyScope();
 	}
 
