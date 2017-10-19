@@ -245,11 +245,11 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 	/**
 	 * Render the proper themed stylesheet. This will be "style.theme.css" within the current
 	 * "theme directory", which is defined by the "currentTheme" in DomApplication.
-	 * @throws Exception
 	 */
 	protected void renderThemeCSS() throws Exception {
 		String currentTheme = DomApplication.get().getDefaultTheme();
 		IThemeVariant variant = m_page.getBody().getThemeVariant();
+		m_ctx.getCurrentTheme();
 		ITheme theme = DomApplication.get().getTheme(currentTheme + "/" + variant.getVariantName(), ResourceDependencyList.NULL);
 		String sheet = theme.getStyleSheetName();
 

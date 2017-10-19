@@ -1635,19 +1635,15 @@ public abstract class DomApplication {
 	 */
 	@Nonnull
 	public ITheme getDefaultThemeInstance() {
-		return m_themeManager.getTheme(getDefaultThemeFactory(), getDefaultTheme(), null);
+		return m_themeManager.getTheme(getDefaultThemeFactory(), getDefaultTheme(), DefaultThemeVariant.INSTANCE, null);
 	}
 
 	/**
 	 * Get the theme store representing the specified theme name. This is the name as obtained
 	 * from the resource name which is the part between $THEME/ and the actual filename.
-	 *
-	 * @param rdl
-	 * @return
-	 * @throws Exception
 	 */
-	final public ITheme getTheme(@Nonnull String themeName, @Nullable IResourceDependencyList rdl) throws Exception {
-		return m_themeManager.getTheme(themeName, rdl);
+	final public ITheme getTheme(@Nonnull IThemeFactory factory, @Nonnull String themeName, @Nonnull IThemeVariant variant, @Nullable IResourceDependencyList rdl) throws Exception {
+		return m_themeManager.getTheme(factory, themeName, variant, rdl);
 	}
 
 	/**
@@ -1655,40 +1651,40 @@ public abstract class DomApplication {
 	 */
 	@Nonnull
 	public ITheme calculateUserTheme(IRequestContext ctx) {
-		return getDefaultThemeInstance();
+		return m_themeManager.getTheme(getDefaultThemeFactory(), getDefaultTheme(), ctx.getThemeVariant(), null);
 	}
 
-	/**
-	 * EXPENSIVE CALL - ONLY USE TO CREATE CACHED RESOURCES
-	 *
-	 * This loads a theme resource as an utf-8 encoded template, then does expansion using the
-	 * current theme's variable map. This map is either a "style.properties" file
-	 * inside the theme's folder, or can be configured dynamically using a IThemeMapFactory.
-	 *
-	 * The result is returned as a string.
-	 *
-	 *
-	 * @param rdl
-	 * @param rurl
-	 * @return
-	 * @throws Exception
-	 */
-	final public String getThemeReplacedString(IResourceDependencyList rdl, String rurl) throws Exception {
-		return m_themeManager.getThemeReplacedString(rdl, rurl);
-	}
-
-	/**
-	 * EXPENSIVE CALL - ONLY USE TO CREATE CACHED RESOURCES
-	 *
-	 * This loads a theme resource as an utf-8 encoded template, then does expansion using the
-	 * current theme's variable map. This map is either a "style.properties" file
-	 * inside the theme's folder, or can be configured dynamically using a IThemeMapFactory.
-	 *
-	 * The result is returned as a string.
-	 */
-	final public String getThemeReplacedString(IResourceDependencyList rdl, String rurl, BrowserVersion bv) throws Exception {
-		return m_themeManager.getThemeReplacedString(rdl, rurl, bv);
-	}
+	///**
+	// * EXPENSIVE CALL - ONLY USE TO CREATE CACHED RESOURCES
+	// *
+	// * This loads a theme resource as an utf-8 encoded template, then does expansion using the
+	// * current theme's variable map. This map is either a "style.properties" file
+	// * inside the theme's folder, or can be configured dynamically using a IThemeMapFactory.
+	// *
+	// * The result is returned as a string.
+	// *
+	// *
+	// * @param rdl
+	// * @param rurl
+	// * @return
+	// * @throws Exception
+	// */
+	//final public String getThemeReplacedString(IResourceDependencyList rdl, String rurl) throws Exception {
+	//	return m_themeManager.getThemeReplacedString(rdl, rurl);
+	//}
+	//
+	///**
+	// * EXPENSIVE CALL - ONLY USE TO CREATE CACHED RESOURCES
+	// *
+	// * This loads a theme resource as an utf-8 encoded template, then does expansion using the
+	// * current theme's variable map. This map is either a "style.properties" file
+	// * inside the theme's folder, or can be configured dynamically using a IThemeMapFactory.
+	// *
+	// * The result is returned as a string.
+	// */
+	//final public String getThemeReplacedString(IResourceDependencyList rdl, String rurl, BrowserVersion bv) throws Exception {
+	//	return m_themeManager.getThemeReplacedString(rdl, rurl, bv);
+	//}
 
 	/**
 	 * Get the cache that keeps things like icon sizes for themes.

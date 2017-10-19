@@ -24,16 +24,29 @@
  */
 package to.etc.domui.themes;
 
-import java.io.*;
-import java.util.*;
+import to.etc.domui.server.BrowserVersion;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.trouble.ThingyNotFoundException;
+import to.etc.domui.util.js.IScriptScope;
+import to.etc.domui.util.js.RhinoTemplateCompiler;
+import to.etc.domui.util.resources.IIsModified;
+import to.etc.domui.util.resources.IResourceDependencyList;
+import to.etc.domui.util.resources.IResourceRef;
+import to.etc.domui.util.resources.ResourceDependencies;
+import to.etc.util.StringTool;
+import to.etc.util.WrappedException;
 
-import javax.annotation.*;
-
-import to.etc.domui.server.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.js.*;
-import to.etc.domui.util.resources.*;
-import to.etc.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This is used by DomApplication to manage themes. It exists to reduce the code in DomApplication; it
@@ -100,7 +113,7 @@ final public class ThemeManager {
 	 * code is fast once the theme is loaded after the 1st call.
 	 */
 	@Nonnull
-	public ITheme getTheme(IThemeFactory factory, String themeName, @Nullable IResourceDependencyList rdl) {
+	public ITheme getTheme(@Nonnull IThemeFactory factory, @Nonnull String themeName, @Nonnull IThemeVariant variant, @Nullable IResourceDependencyList rdl) {
 		synchronized(this) {
 			if(m_themeReapCount++ > 1000) {
 				m_themeReapCount = 0;
@@ -123,7 +136,7 @@ final public class ThemeManager {
 			//-- No such cached theme yet, or the theme has changed. (Re)load it.
 			ITheme theme;
 			try {
-				theme = factory.getTheme(m_application, themeName);
+				theme = factory.getTheme(m_application, themeName, variant);
 			} catch(Exception x) {
 				throw WrappedException.wrap(x);
 			}
@@ -175,8 +188,8 @@ final public class ThemeManager {
 	}
 
 
-	public String getThemeReplacedString(@Nonnull IThemeFactory factory, @Nonnull IResourceDependencyList rdl, String rurl) throws Exception {
-		return getThemeReplacedString(factory, rdl, rurl, null);
+	public String getThemeReplacedString(@Nonnull IThemeFactory factory, @Nonnull IResourceDependencyList rdl, String rurl, IThemeVariant variant) throws Exception {
+		return getThemeReplacedString(factory, rdl, rurl, variant, null);
 	}
 
 	/**
@@ -188,16 +201,16 @@ final public class ThemeManager {
 	 *
 	 * The result is returned as a string.
 	 */
-	public String getThemeReplacedString(@Nonnull IThemeFactory factory, @Nonnull IResourceDependencyList rdl, @Nonnull String rurl, @Nullable BrowserVersion bv) throws Exception {
+	public String getThemeReplacedString(@Nonnull IThemeFactory factory, @Nonnull IResourceDependencyList rdl, @Nonnull String rurl, @Nonnull IThemeVariant variant, @Nullable BrowserVersion bv) throws Exception {
 		long ts = System.nanoTime();
-		IResourceRef ires = m_application.getResource(rurl, rdl); // Get the template source file
+		IResourceRef ires = m_application.getResource(rurl, rdl);			// Get the template source file
 		if(!ires.exists()) {
 			System.out.println(">>>> RESOURCE ERROR: " + rurl + ", ref=" + ires);
 			throw new ThingyNotFoundException("Unexpected: cannot get input stream for IResourceRef rurl=" + rurl + ", ref=" + ires);
 		}
 
 		String[] spl = ThemeResourceFactory.splitThemeURL(rurl);
-		ITheme theme = getTheme(factory, spl[0], null); // Dependencies already added by get-resource call.
+		ITheme theme = getTheme(factory, spl[0], variant, null);		// Dependencies already added by get-resource call.
 		IScriptScope ss = theme.getPropertyScope();
 		ss = ss.newScope();
 
@@ -236,37 +249,37 @@ final public class ThemeManager {
 	 * time. It will refresh automatically when the resource dependencies
 	 * for the theme are updated.
 	 */
-	public IScriptScope getThemeMap(IThemeFactory factory, String themeName, IResourceDependencyList rdlin) throws Exception {
-		ITheme ts = getTheme(factory, themeName, rdlin);
+	public IScriptScope getThemeMap(IThemeFactory factory, String themeName, @Nonnull IThemeVariant variant, IResourceDependencyList rdlin) throws Exception {
+		ITheme ts = getTheme(factory, themeName, variant, rdlin);
 		return ts.getPropertyScope();
 	}
 
-	/**
-	 * This checks to see if the RURL passed is a theme-relative URL. These URLs start
-	 * with THEME/. If not the RURL is returned as-is; otherwise the URL is translated
-	 * to a path containing the current theme string:
-	 * <pre>
-	 * 	$THEME/[currentThemeString]/[name]
-	 * </pre>
-	 * where [name] is the rest of the path string after THEME/ has been removed from it.
-	 * @param themeStyle			The substyle/variant of the theme that the page wants to use.
-	 * @param path
-	 * @return
-	 */
-	@Nonnull
-	public String getThemedResourceRURL(@Nonnull IThemeVariant themeStyle, @Nonnull String path) {
-		if(path.startsWith("THEME/")) {
-			path = path.substring(6); 							// Strip THEME/
-		} else if(path.startsWith("ICON/")) {
-			throw new IllegalStateException("Bad ROOT: ICON/. Use THEME/ instead.");
-		} else
-			return path;										// Not theme-relative, so return as-is.
-		if(path == null)
-			throw new NullPointerException();
-
-		//-- This *is* a theme URL. Do we need to replace the icon?
-		ITheme theme = getTheme(getDefaultTheme()+"/"+themeStyle.getVariantName(), null);
-		String newicon = theme.translateResourceName(path);
-		return ThemeResourceFactory.PREFIX + getDefaultTheme() + "/" + themeStyle.getVariantName() + "/" + newicon;
-	}
+	///**
+	// * This checks to see if the RURL passed is a theme-relative URL. These URLs start
+	// * with THEME/. If not the RURL is returned as-is; otherwise the URL is translated
+	// * to a path containing the current theme string:
+	// * <pre>
+	// * 	$THEME/[currentThemeString]/[name]
+	// * </pre>
+	// * where [name] is the rest of the path string after THEME/ has been removed from it.
+	// * @param themeStyle			The substyle/variant of the theme that the page wants to use.
+	// * @param path
+	// * @return
+	// */
+	//@Nonnull
+	//public String getThemedResourceRURL(@Nonnull IThemeVariant themeStyle, @Nonnull String path) {
+	//	if(path.startsWith("THEME/")) {
+	//		path = path.substring(6); 							// Strip THEME/
+	//	} else if(path.startsWith("ICON/")) {
+	//		throw new IllegalStateException("Bad ROOT: ICON/. Use THEME/ instead.");
+	//	} else
+	//		return path;										// Not theme-relative, so return as-is.
+	//	if(path == null)
+	//		throw new NullPointerException();
+	//
+	//	//-- This *is* a theme URL. Do we need to replace the icon?
+	//	ITheme theme = getTheme(getDefaultTheme()+"/"+themeStyle.getVariantName(), null);
+	//	String newicon = theme.translateResourceName(path);
+	//	return ThemeResourceFactory.PREFIX + getDefaultTheme() + "/" + themeStyle.getVariantName() + "/" + newicon;
+	//}
 }

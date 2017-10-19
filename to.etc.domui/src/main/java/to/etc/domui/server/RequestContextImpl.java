@@ -27,7 +27,9 @@ package to.etc.domui.server;
 import to.etc.domui.state.AppSession;
 import to.etc.domui.state.CidPair;
 import to.etc.domui.state.WindowSession;
+import to.etc.domui.themes.DefaultThemeVariant;
 import to.etc.domui.themes.ITheme;
+import to.etc.domui.themes.IThemeVariant;
 import to.etc.domui.util.Constants;
 import to.etc.domui.util.upload.UploadItem;
 import to.etc.util.FileTool;
@@ -79,6 +81,9 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	/** The theme for this user, lazy */
 	@Nullable
 	private ITheme m_currentTheme;
+
+	@Nonnull
+	private IThemeVariant m_themeVariant = DefaultThemeVariant.INSTANCE;
 	
 	static private final int PAGE_HEADER_BUFFER_LENGTH = 4000;
 
@@ -240,6 +245,14 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 			currentTheme = m_application.calculateUserTheme(this);
 		}
 		return currentTheme;
+	}
+
+	@Override @Nonnull public IThemeVariant getThemeVariant() {
+		return m_themeVariant;
+	}
+
+	@Override public void setThemeVariant(@Nonnull IThemeVariant themeVariant) {
+		m_themeVariant = themeVariant;
 	}
 
 	public void flush() throws Exception {

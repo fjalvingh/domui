@@ -32,6 +32,7 @@ import to.etc.domui.logic.LogicContextImpl;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.IRequestContext;
 import to.etc.domui.server.RequestContextImpl;
+import to.etc.domui.state.UIContext;
 import to.etc.domui.themes.DefaultThemeVariant;
 import to.etc.domui.themes.IThemeVariant;
 import to.etc.domui.util.Constants;
@@ -73,11 +74,11 @@ public class UrlPage extends Div {
 	 * @param themeVariant
 	 */
 	public final void setThemeVariant(@Nonnull IThemeVariant themeVariant) {
-		m_themeVariant = themeVariant;
+		UIContext.getRequestContext().setThemeVariant(themeVariant);
 	}
 
 	public final IThemeVariant getThemeVariant() {
-		return m_themeVariant;
+		return UIContext.getRequestContext().getThemeVariant();
 	}
 
 	/**

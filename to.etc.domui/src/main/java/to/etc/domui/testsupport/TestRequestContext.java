@@ -32,7 +32,9 @@ import to.etc.domui.server.IRequestResponse;
 import to.etc.domui.server.IServerSession;
 import to.etc.domui.state.AppSession;
 import to.etc.domui.state.WindowSession;
+import to.etc.domui.themes.DefaultThemeVariant;
 import to.etc.domui.themes.ITheme;
+import to.etc.domui.themes.IThemeVariant;
 import to.etc.domui.util.js.IScriptScope;
 import to.etc.domui.util.resources.IResourceDependencyList;
 import to.etc.domui.util.resources.IResourceRef;
@@ -192,5 +194,12 @@ public class TestRequestContext implements IRequestContext {
 				return "style.css";
 			}
 		};
+	}
+
+	@Nonnull @Override public IThemeVariant getThemeVariant() {
+		return DefaultThemeVariant.INSTANCE;
+	}
+
+	@Override public void setThemeVariant(@Nonnull IThemeVariant variant) {
 	}
 }

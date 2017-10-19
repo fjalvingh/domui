@@ -45,7 +45,7 @@ public interface IThemeFactory {
 	 * @throws Exception
 	 */
 	@Nonnull
-	ITheme getTheme(@Nonnull DomApplication da, @Nonnull String themeName) throws Exception;
+	ITheme getTheme(@Nonnull DomApplication da, @Nonnull String themeName, @Nonnull IThemeVariant variant) throws Exception;
 
 	@Nonnull
 	String getDefaultThemeName();

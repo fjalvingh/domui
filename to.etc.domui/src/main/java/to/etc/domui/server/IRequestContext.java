@@ -27,6 +27,7 @@ package to.etc.domui.server;
 import to.etc.domui.state.AppSession;
 import to.etc.domui.state.WindowSession;
 import to.etc.domui.themes.ITheme;
+import to.etc.domui.themes.IThemeVariant;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -55,6 +56,10 @@ public interface IRequestContext extends IExtendedParameterInfo {
 	 * @return
 	 */
 	@Nonnull ITheme getCurrentTheme() throws Exception;
+
+	@Nonnull IThemeVariant getThemeVariant();
+
+	void setThemeVariant(@Nonnull IThemeVariant variant);
 
 	/**
 	 * Get the generic server request/response object for this context.
