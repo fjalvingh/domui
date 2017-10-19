@@ -141,7 +141,8 @@ img.ui-lui-waiting {
  * - the table cell has NO position/z-index.
  * - there is a div in the table cell with position: relative which contains the real content AND the
  *   div that will become the popup. In here those are the classes ui-lui-kwsi and ui-srip in _searchInput2.scss.
- * - the popup cell has display: block/inline, position: absolute and z-index higher. See fiddle XXXX.
+ * - the popup cell has display: block/inline, position: absolute and z-index higher.
+ * See fiddle https://jsfiddle.net/fjalvingh/jmd0ycta/ for example.
  */
 .ui-lui-kwsi {
 	position: relative;

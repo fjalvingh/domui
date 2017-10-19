@@ -122,7 +122,7 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 
 		ITableModel<OT> initialModel = m_initialModel;
 
-		lf.setCollapsed(initialModel != null && initialModel.getRows() > 0);
+		//lf.setCollapsed(initialModel != null && initialModel.getRows() > 0);		jal this is very confusing, to have the thing collapse while it opens.
 		lf.forceRebuild(); // jal 20091002 Force rebuild to remove any state from earlier invocations of the same form. This prevents the form from coming up in "collapsed" state if it was left that way last time it was used (Lenzo).
 
 		add(lf);

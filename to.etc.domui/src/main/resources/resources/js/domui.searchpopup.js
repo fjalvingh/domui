@@ -60,6 +60,7 @@ $.extend(WebUI.SearchPopup.prototype, {
 						selectedTrNode = selection.get(0);
 					}
 				}
+				event.preventDefault();
 				break;
 		}
 		var node = document.getElementById(this._inputid);
@@ -75,6 +76,7 @@ $.extend(WebUI.SearchPopup.prototype, {
 
 		//-- Send a "returnPressed" event.
 		this.lookupTypingDone();
+		return false;
 	},
 
 	/*
