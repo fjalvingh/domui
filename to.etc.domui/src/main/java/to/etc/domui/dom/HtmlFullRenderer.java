@@ -248,7 +248,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 	 * @throws Exception
 	 */
 	protected void renderThemeCSS() throws Exception {
-		String currentTheme = DomApplication.get().getCurrentTheme();
+		String currentTheme = DomApplication.get().getDefaultTheme();
 		IThemeVariant variant = m_page.getBody().getThemeVariant();
 		ITheme theme = DomApplication.get().getTheme(currentTheme + "/" + variant.getVariantName(), ResourceDependencyList.NULL);
 		String sheet = theme.getStyleSheetName();

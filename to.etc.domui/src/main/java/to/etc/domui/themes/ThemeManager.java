@@ -46,10 +46,10 @@ final public class ThemeManager {
 	final private DomApplication m_application;
 
 	/** The thing that themes the application. Set only once @ init time. */
-	private IThemeFactory m_themeFactory;
+	private IThemeFactory m_defaultThemeFactory;
 
 	/** The "current theme". This will become part of all themed resource URLs and is interpreted by the theme factory to resolve resources. */
-	private String m_currentTheme = "domui";
+	private String m_defaultTheme = "domui";
 
 	static private class ThemeRef {
 		final private ITheme m_theme;
@@ -90,22 +90,22 @@ final public class ThemeManager {
 	/**
 	 * Sets the current theme string. This string is used as a "parameter" for the theme factory
 	 * which will use it to decide on the "real" theme to use.
-	 * @param currentTheme	The theme name, valid for the current theme engine. Cannot be null nor the empty string.
+	 * @param defaultTheme	The theme name, valid for the current theme engine. Cannot be null nor the empty string.
 	 */
-	public synchronized void setCurrentTheme(@Nonnull String currentTheme) {
-		if(null == currentTheme)
+	public synchronized void setDefaultTheme(@Nonnull String defaultTheme) {
+		if(null == defaultTheme)
 			throw new IllegalArgumentException("This cannot be null");
-		m_currentTheme = currentTheme;
+		m_defaultTheme = defaultTheme;
 	}
 
 	/**
-	 * Gets the current theme string.  This will become part of all themed resource URLs
+	 * Gets the application-default theme string.  This will become part of all themed resource URLs
 	 * and is interpreted by the theme factory to resolve resources.
 	 * @return
 	 */
 	@Nonnull
-	public synchronized String getCurrentTheme() {
-		return m_currentTheme;
+	public synchronized String getDefaultTheme() {
+		return m_defaultTheme;
 	}
 
 	/**
@@ -113,20 +113,20 @@ final public class ThemeManager {
 	 * @return
 	 */
 	@Nonnull
-	public synchronized IThemeFactory getThemeFactory() {
-		if(m_themeFactory == null)
+	private synchronized IThemeFactory getDefaultThemeFactory() {
+		if(m_defaultThemeFactory == null)
 			throw new IllegalStateException("Theme factory cannot be null");
-		return m_themeFactory;
+		return m_defaultThemeFactory;
 	}
 
 	/**
 	 * Set the factory for handling the theme.
 	 * @param themer
 	 */
-	public synchronized void setThemeFactory(@Nonnull IThemeFactory themer) {
+	public synchronized void setDefaultThemeFactory(@Nonnull IThemeFactory themer) {
 		if(themer == null)
 			throw new IllegalStateException("Theme factory cannot be null");
-		m_themeFactory = themer;
+		m_defaultThemeFactory = themer;
 		m_themeMap.clear();
 	}
 
@@ -171,7 +171,7 @@ final public class ThemeManager {
 			//-- No such cached theme yet, or the theme has changed. (Re)load it.
 			ITheme theme;
 			try {
-				theme = getThemeFactory().getTheme(m_application, themeName);
+				theme = getDefaultThemeFactory().getTheme(m_application, themeName);
 			} catch(Exception x) {
 				throw WrappedException.wrap(x);
 			}
@@ -316,8 +316,8 @@ final public class ThemeManager {
 			throw new NullPointerException();
 
 		//-- This *is* a theme URL. Do we need to replace the icon?
-		ITheme theme = getTheme(getCurrentTheme()+"/"+themeStyle.getVariantName(), null);
+		ITheme theme = getTheme(getDefaultTheme()+"/"+themeStyle.getVariantName(), null);
 		String newicon = theme.translateResourceName(path);
-		return ThemeResourceFactory.PREFIX + getCurrentTheme() + "/" + themeStyle.getVariantName() + "/" + newicon;
+		return ThemeResourceFactory.PREFIX + getDefaultTheme() + "/" + themeStyle.getVariantName() + "/" + newicon;
 	}
 }

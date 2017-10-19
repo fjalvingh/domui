@@ -52,7 +52,7 @@ import static to.etc.domui.util.DomUtil.*;
  * The full theme is then described as a string: style/iconset/color/variant. An example theme instance is: "domui/domui/orange/default".
  * This four-part string is the <i>theme name</i>. This factory is used to instantiate a theme instance for a specific "theme name".</p>.
  *
- * <p>The first three parts of the theme name come from an application-level global setting: the string set as {@link DomApplication#setCurrentTheme(String)}.
+ * <p>The first three parts of the theme name come from an application-level global setting: the string set as {@link DomApplication#setDefaultTheme(String)}.
  * This defines the "global" theme for the application. The last part, the variant, is provided by the page itself: it allows a page to specify a different
  * version for the master stylesheet. The use case for this is migration to different style sheets if an older one has problems; by creating pages that
  * refer to a new sheet we can change the stylesheet without regression risk for existing pages.</p>

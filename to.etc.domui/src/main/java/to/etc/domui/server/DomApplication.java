@@ -296,8 +296,8 @@ public abstract class DomApplication {
 				return true;
 			}
 		});
-		setCurrentTheme("blue/domui/blue");
-		setThemeFactory(SimpleThemeFactory.INSTANCE);
+		setDefaultTheme("blue/domui/blue");
+		setDefaultThemeFactory(SimpleThemeFactory.INSTANCE);
 
 		registerResourceFactory(new ClassRefResourceFactory());
 		registerResourceFactory(new VersionedJsResourceFactory());
@@ -1550,6 +1550,7 @@ public abstract class DomApplication {
 	public static void setPlatformVarcharByteLimit(int platformVarcharByteLimit) {
 		m_platformVarcharByteLimit = platformVarcharByteLimit;
 	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Programmable theme code.							*/
 	/*--------------------------------------------------------------*/
@@ -1572,30 +1573,27 @@ public abstract class DomApplication {
 	}
 
 	/**
-	 * Sets the current theme string. This will become part of all themed resource URLs
+	 * Sets the application-default theme string. This will become part of all themed resource URLs
 	 * and is interpreted by the theme factory to resolve resources. The string is used
 	 * as a "parameter" for the theme factory which will use it to decide on the "real"
 	 * theme to use.
 	 * @param currentTheme	The theme name, valid for the current theme engine. Cannot be null nor the empty string.
 	 */
-	final public void setCurrentTheme(@Nonnull String currentTheme) {
-		m_themeManager.setCurrentTheme(currentTheme);
+	final public void setDefaultTheme(@Nonnull String currentTheme) {
+		m_themeManager.setDefaultTheme(currentTheme);
 	}
 
 	/**
-	 * Gets the current theme string.  This will become part of all themed resource URLs
+	 * Gets the application-default theme string. This will become part of all themed resource URLs
 	 * and is interpreted by the theme factory to resolve resources.
-	 * @return
 	 */
 	@Nonnull
-	final public String getCurrentTheme() {
-		return m_themeManager.getCurrentTheme();
+	final public String getDefaultTheme() {
+		return m_themeManager.getDefaultTheme();
 	}
 
 	/**
 	 * Set a property for all themes.
-	 * @param name
-	 * @param value
 	 */
 	final public void setThemeProperty(@Nonnull String name, @Nullable String value) {
 		m_themeApplicationProperties.put(name, value);
@@ -1612,12 +1610,11 @@ public abstract class DomApplication {
 	}
 
 	/**
-	 * Set the factory for handling the theme.
-	 * @param themer
+	 * Set the application-default theme factory, and make the factory set its default theme.
 	 */
-	final public void setThemeFactory(@Nonnull IThemeFactory themer) {
-		m_themeManager.setThemeFactory(themer);
-		m_themeManager.setCurrentTheme(themer.getDefaultThemeName());
+	final public void setDefaultThemeFactory(@Nonnull IThemeFactory themer) {
+		m_themeManager.setDefaultThemeFactory(themer);
+		m_themeManager.setDefaultTheme(themer.getDefaultThemeName());
 	}
 
 	/**
@@ -1659,10 +1656,6 @@ public abstract class DomApplication {
 	 * inside the theme's folder, or can be configured dynamically using a IThemeMapFactory.
 	 *
 	 * The result is returned as a string.
-	 *
-	 * @param rdl
-	 * @param key
-	 * @return
 	 */
 	final public String getThemeReplacedString(IResourceDependencyList rdl, String rurl, BrowserVersion bv) throws Exception {
 		return m_themeManager.getThemeReplacedString(rdl, rurl, bv);

@@ -24,11 +24,13 @@
  */
 package to.etc.domui.server;
 
-import java.io.*;
+import to.etc.domui.state.AppSession;
+import to.etc.domui.state.WindowSession;
 
-import javax.annotation.*;
-
-import to.etc.domui.state.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.io.Writer;
 
 /**
  * Interface representing the context for a request to the server. In a real server request
@@ -43,100 +45,65 @@ import to.etc.domui.state.*;
 public interface IRequestContext extends IExtendedParameterInfo {
 	/**
 	 * Return the DomApplication instance.
-	 * @return
 	 */
 	@Nonnull
-	public DomApplication getApplication();
+	DomApplication getApplication();
 
 	@Nonnull
-	public IRequestResponse getRequestResponse();
+	IRequestResponse getRequestResponse();
 
 	/**
 	 * Return this-user's AppSession.
-	 * @return
 	 */
 	@Nonnull
-	public AppSession getSession();
+	AppSession getSession();
 
 	@Nullable
-	public IServerSession getServerSession(boolean create);
+	IServerSession getServerSession(boolean create);
 
 	/**
 	 * Return the WindowSession for this request. The WindowSession represents one of the possible
 	 * multiple open browser windows. Since each browser window shares a single HttpSession (sigh)
 	 * the WindowSession is used to separate the administration for separate browser windows.
-	 * @return
 	 */
 	@Nonnull
-	public WindowSession getWindowSession();
+	WindowSession getWindowSession();
 
 	/**
 	 * Return the name extension of the input URL without it's "." character. This extension is defined
 	 * as the part after the <i>last</i> dot in the <i>last</i> "directory name fragment" of the name.
 	 * For example, for the url "/demo/css/style.css" this call will return "css" (no dot). If the page
 	 * has no extension this returns the empty string.
-	 * @return
 	 */
 	@Nonnull
-	public String getExtension();
+	String getExtension();
 
 	/**
 	 * Return the input path <i>relative to the webapp's root</i>. The webapp context path is <i>not</i>
 	 * part of this path, and the path never starts with a slash. So for the webapp "demo" with input
 	 * URL "http://localhost/demo/css/style.css" this will return "css/style.css".
-	 * @return
 	 */
 	@Override
 	@Nonnull
-	public String getInputPath();
+	String getInputPath();
 
 	/**
 	 * Returns the value of the "User-Agent" header to determine the browser type.
-	 * @return
 	 */
 	@Nullable
-	public String getUserAgent();
+	String getUserAgent();
 
 	/**
 	 * Creates a full path from an application-relative path. So if the root of the application
 	 * is "http://localhost/demo/", calling this with "img/button.png" will return the string
 	 * "http://localhost/demo/img/button.png".
-	 * @param rel
-	 * @return
 	 */
 	@Nonnull
-	public String getRelativePath(@Nonnull String rel);
-
-	///**
-	// * Creates a full path to a possibly themed resource. The path always starts with the proper webapp
-	// * context. If the name passed starts with on the predefined locations (like THEME/) it gets replaced
-	// * with the proper theme path that is current.
-	// * @since 2011/12/12
-	// *
-	// * @param in
-	// * @return
-	// */
-	//public String getThemedPath(String in);
+	String getRelativePath(@Nonnull String rel);
 
 	/**
 	 * Returns the buffered writer to use to generate text-based output to this context.
-	 * @return
-	 * @throws IOException
 	 */
 	@Nonnull
-	public Writer getOutputWriter(@Nonnull String contentType, @Nullable String encoding) throws IOException;
-
-	//	/**
-	//	 * Create a full path from a path relative to the current theme. It adds the path
-	//	 * to the current theme before the parameter ("$themes/blue" if the current theme
-	//	 * is "blue"). The result is an application-relative path. To get a full path that
-	//	 * needs to be passed into {@link #getRelativePath(String)} so that the webapp
-	//	 * context is added.
-	//	 * @param frag
-	//	 * @return
-	//	 */
-	//	@Nonnull
-	//	public String getRelativeThemePath(@Nonnull String frag);
-
-	//	public String translateResourceName(String in);
+	Writer getOutputWriter(@Nonnull String contentType, @Nullable String encoding) throws IOException;
 }
