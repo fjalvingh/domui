@@ -1630,6 +1630,14 @@ public abstract class DomApplication {
 	}
 
 	/**
+	 * Called from the user session to detect the user's theme; override to assign per-user theme.
+	 */
+	@Nonnull
+	public ITheme calculateUserTheme(IRequestContext ctx) {
+		return m_themeManager.getDefaultThemeInstance();
+	}
+
+	/**
 	 * EXPENSIVE CALL - ONLY USE TO CREATE CACHED RESOURCES
 	 *
 	 * This loads a theme resource as an utf-8 encoded template, then does expansion using the

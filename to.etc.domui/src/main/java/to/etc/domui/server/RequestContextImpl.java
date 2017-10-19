@@ -24,15 +24,23 @@
  */
 package to.etc.domui.server;
 
-import java.io.*;
-import java.util.*;
+import to.etc.domui.state.AppSession;
+import to.etc.domui.state.CidPair;
+import to.etc.domui.state.WindowSession;
+import to.etc.domui.themes.ITheme;
+import to.etc.domui.util.Constants;
+import to.etc.domui.util.upload.UploadItem;
+import to.etc.util.FileTool;
 
-import javax.annotation.*;
-
-import to.etc.domui.state.*;
-import to.etc.domui.util.*;
-import to.etc.domui.util.upload.*;
-import to.etc.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.File;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class RequestContextImpl implements IRequestContext, IAttributeContainer {
 	@Nonnull
@@ -59,6 +67,18 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 
 	@Nonnull
 	final private String m_extension;
+
+	private boolean m_amLockingSession;
+
+	private String m_outputContentType;
+
+	private String m_outputEncoding;
+
+	private Exception m_outputAllocated;
+
+	/** The theme for this user, lazy */
+	@Nullable
+	private ITheme m_currentTheme;
 	
 	static private final int PAGE_HEADER_BUFFER_LENGTH = 4000;
 
@@ -95,14 +115,6 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	final public @Nonnull DomApplication getApplication() {
 		return m_application;
 	}
-
-	private boolean m_amLockingSession;
-
-	private String m_outputContentType;
-
-	private String m_outputEncoding;
-
-	private Exception m_outputAllocated;
 
 	/**
 	 * Get the session for this context.
@@ -220,6 +232,14 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 			m_browserVersion = BrowserVersion.parseUserAgent(getUserAgent());
 		}
 		return m_browserVersion;
+	}
+
+	@Nonnull @Override public ITheme getCurrentTheme() {
+		ITheme currentTheme = m_currentTheme;
+		if(null == currentTheme) {
+			currentTheme = m_application.calculateUserTheme(this);
+		}
+		return currentTheme;
 	}
 
 	public void flush() throws Exception {

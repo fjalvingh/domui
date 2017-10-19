@@ -36,6 +36,9 @@ import javax.annotation.*;
  * Created on Jan 12, 2011
  */
 public interface ITheme {
+	/** The theme name: the part of the URL inside all theme resources that identifies the theme to take the resource from */
+	@Nonnull String getThemeName();
+
 	/**
 	 * The dependencies for this theme instance. This will be used by the engine to check
 	 * if this instance needs to be reloaded because it's source files have changed in

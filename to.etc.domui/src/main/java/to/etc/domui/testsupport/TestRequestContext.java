@@ -24,14 +24,28 @@
  */
 package to.etc.domui.testsupport;
 
-import java.io.*;
-import java.util.*;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.server.BrowserVersion;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.IRequestContext;
+import to.etc.domui.server.IRequestResponse;
+import to.etc.domui.server.IServerSession;
+import to.etc.domui.state.AppSession;
+import to.etc.domui.state.WindowSession;
+import to.etc.domui.themes.ITheme;
+import to.etc.domui.util.js.IScriptScope;
+import to.etc.domui.util.resources.IResourceDependencyList;
+import to.etc.domui.util.resources.IResourceRef;
+import to.etc.domui.util.resources.ResourceDependencies;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.domui.state.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A dummy test request context used for testing.
@@ -150,5 +164,33 @@ public class TestRequestContext implements IRequestContext {
 	@Nullable
 	public IServerSession getServerSession(boolean create) {
 		throw new IllegalStateException("Not implemented");
+	}
+
+	@Nonnull @Override public ITheme getCurrentTheme() {
+		return new ITheme() {
+			@Nonnull @Override public String getThemeName() {
+				return "aa/bb";
+			}
+
+			@Nonnull @Override public ResourceDependencies getDependencies() {
+				return new ResourceDependencies(Collections.emptyList());
+			}
+
+			@Nonnull @Override public IResourceRef getThemeResource(@Nonnull String name, @Nonnull IResourceDependencyList rdl) throws Exception {
+				throw new IllegalStateException("Not implemented");
+			}
+
+			@Nonnull @Override public IScriptScope getPropertyScope() {
+				throw new IllegalStateException("Not implemented");
+			}
+
+			@Nonnull @Override public String translateResourceName(@Nonnull String name) {
+				return name;
+			}
+
+			@Nonnull @Override public String getStyleSheetName() throws Exception {
+				return "style.css";
+			}
+		};
 	}
 }

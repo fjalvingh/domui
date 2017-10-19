@@ -44,6 +44,10 @@ final public class SassTheme implements ITheme {
 		m_searchPath = searchpath;
 	}
 
+	@Nonnull @Override public String getThemeName() {
+		return m_themeName;
+	}
+
 	@Nonnull @Override public IScriptScope getPropertyScope() {
 		throw new IllegalStateException("Cannot do this as I'm not javascript based.");
 	}

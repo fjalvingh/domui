@@ -61,6 +61,10 @@ public class FragmentedThemeStore implements ITheme {
 		m_themeName = themeName;
 	}
 
+	@Nonnull @Override public String getThemeName() {
+		return m_themeName;
+	}
+
 	@Nonnull @Override public String getStyleSheetName() {
 		return ThemeResourceFactory.PREFIX + m_themeName + "/style.theme.css";
 	}

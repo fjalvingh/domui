@@ -130,6 +130,14 @@ final public class ThemeManager {
 		m_themeMap.clear();
 	}
 
+	/**
+	 * Get an ITheme instance for the default theme manager and theme.
+	 */
+	@Nonnull
+	public ITheme getDefaultThemeInstance() {
+		return getTheme(getDefaultTheme(), null);
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Getting a theme instance.							*/
