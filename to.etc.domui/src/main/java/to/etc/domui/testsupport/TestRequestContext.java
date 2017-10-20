@@ -206,4 +206,8 @@ public class TestRequestContext implements IRequestContext {
 	@Nullable @Override public String getThemeName() {
 		return getCurrentTheme().getThemeName();
 	}
+
+	@Override public void setThemeName(String userThemeName) {
+
+	}
 }

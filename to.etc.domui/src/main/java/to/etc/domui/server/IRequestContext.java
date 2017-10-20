@@ -57,6 +57,8 @@ public interface IRequestContext extends IExtendedParameterInfo {
 	 */
 	@Nonnull ITheme getCurrentTheme() throws Exception;
 
+	void setThemeName(String userThemeName);
+
 	@Nonnull IThemeVariant getThemeVariant();
 
 	void setThemeVariant(@Nonnull IThemeVariant variant);

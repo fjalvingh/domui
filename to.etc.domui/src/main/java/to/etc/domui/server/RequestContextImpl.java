@@ -33,6 +33,7 @@ import to.etc.domui.themes.IThemeVariant;
 import to.etc.domui.util.Constants;
 import to.etc.domui.util.upload.UploadItem;
 import to.etc.util.FileTool;
+import to.etc.util.WrappedException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -78,9 +79,13 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 
 	private Exception m_outputAllocated;
 
-	/** The theme for this user, lazy */
+	/** Cached copy of theme for this user, lazy */
 	@Nullable
 	private ITheme m_currentTheme;
+
+	/** The theme name for this user, lazily initialized. */
+	@Nullable
+	private String m_themeName;
 
 	@Nonnull
 	private IThemeVariant m_themeVariant = DefaultThemeVariant.INSTANCE;
@@ -243,17 +248,36 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 * This should be replaced by getThemeName below as that uniquely identifies the theme.
 	 * @return
 	 */
-	@Deprecated
-	@Nonnull @Override public ITheme getCurrentTheme() {
+	@Nonnull @Override final public ITheme getCurrentTheme() {
 		ITheme currentTheme = m_currentTheme;
 		if(null == currentTheme) {
-			currentTheme = m_application.calculateUserTheme(this);
+			try {
+				currentTheme = m_currentTheme = m_application.getTheme(getThemeName(), null);
+			} catch(Exception x) {
+				throw WrappedException.wrap(x);
+			}
 		}
 		return currentTheme;
 	}
 
+	static private final String THEMENAME = "ctx$themename";
+
 	@Nonnull @Override public String getThemeName() {
-		return getCurrentTheme().getThemeName();
+		String themeName = m_themeName;
+		if(null == themeName) {
+			 themeName = (String) getSession().getAttribute(THEMENAME);
+			 if(null == themeName) {
+				 themeName = m_application.calculateUserTheme(this);
+			 }
+			 m_themeName = themeName;
+		}
+		return themeName;
+	}
+
+	@Override
+	public void setThemeName(String userThemeName) {
+		m_themeName = userThemeName;
+		getSession().setAttribute(THEMENAME, userThemeName);
 	}
 
 	@Override @Nonnull public IThemeVariant getThemeVariant() {
@@ -308,14 +332,6 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		return sb.toString();
 	}
 
-	//@Override
-	//public String getThemedPath(String in) {
-	//	String p = getApplication().getThemedResourceRURL(in);
-	//	if(p == null)
-	//		throw new NullPointerException("?");
-	//	return getRelativePath(p);
-	//}
-	//
 	/**
 	 * This returns a fully buffered output writer. Calling it twice is explicitly
 	 * allowed, but clears the data written before as it's assumed that another route

@@ -109,6 +109,7 @@ final public class ThemeManager {
 
 	/**
 	 * Cached get of a factory/theme ITheme instance.
+	 * FIXME Get rid of rdl parameter
 	 *
 	 * Get the theme store representing the specified theme name. This is the name as obtained
 	 * from the resource name which is the part between $THEME/ and the actual filename. This

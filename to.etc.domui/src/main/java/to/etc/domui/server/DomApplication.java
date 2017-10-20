@@ -1642,6 +1642,7 @@ public abstract class DomApplication {
 	}
 
 	/**
+	 * FIXME Get rid of rdl parameter
 	 * Get the theme store representing the specified theme name. This is the name as obtained
 	 * from the resource name which is the part between $THEME/ and the actual filename.
 	 */
@@ -1653,41 +1654,9 @@ public abstract class DomApplication {
 	 * Called from the user session to detect the user's theme; override to assign per-user theme.
 	 */
 	@Nonnull
-	public ITheme calculateUserTheme(IRequestContext ctx) {
-		return m_themeManager.getTheme(getDefaultThemeName(), ctx.getThemeVariant(), null);
+	public String calculateUserTheme(IRequestContext ctx) {
+		return getDefaultThemeName();
 	}
-
-	///**
-	// * EXPENSIVE CALL - ONLY USE TO CREATE CACHED RESOURCES
-	// *
-	// * This loads a theme resource as an utf-8 encoded template, then does expansion using the
-	// * current theme's variable map. This map is either a "style.properties" file
-	// * inside the theme's folder, or can be configured dynamically using a IThemeMapFactory.
-	// *
-	// * The result is returned as a string.
-	// *
-	// *
-	// * @param rdl
-	// * @param rurl
-	// * @return
-	// * @throws Exception
-	// */
-	//final public String getThemeReplacedString(IResourceDependencyList rdl, String rurl) throws Exception {
-	//	return m_themeManager.getThemeReplacedString(rdl, rurl);
-	//}
-	//
-	///**
-	// * EXPENSIVE CALL - ONLY USE TO CREATE CACHED RESOURCES
-	// *
-	// * This loads a theme resource as an utf-8 encoded template, then does expansion using the
-	// * current theme's variable map. This map is either a "style.properties" file
-	// * inside the theme's folder, or can be configured dynamically using a IThemeMapFactory.
-	// *
-	// * The result is returned as a string.
-	// */
-	//final public String getThemeReplacedString(IResourceDependencyList rdl, String rurl, BrowserVersion bv) throws Exception {
-	//	return m_themeManager.getThemeReplacedString(rdl, rurl, bv);
-	//}
 
 	/**
 	 * Get the cache that keeps things like icon sizes for themes.
