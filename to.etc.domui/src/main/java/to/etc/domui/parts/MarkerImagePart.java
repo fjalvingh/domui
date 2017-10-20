@@ -24,21 +24,24 @@
  */
 package to.etc.domui.parts;
 
+import to.etc.domui.component.input.Text;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.IExtendedParameterInfo;
+import to.etc.domui.server.parts.IBufferedPartFactory;
+import to.etc.domui.server.parts.PartResponse;
+import to.etc.domui.state.UIContext;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.resources.IResourceDependencyList;
+import to.etc.util.FileTool;
+
+import javax.annotation.Nonnull;
+import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.image.*;
-import java.io.*;
-
-import javax.annotation.*;
-import javax.imageio.*;
-
-import to.etc.domui.component.input.*;
-import to.etc.domui.server.*;
-import to.etc.domui.server.parts.*;
-import to.etc.domui.state.*;
-import to.etc.domui.themes.*;
-import to.etc.domui.util.*;
-import to.etc.domui.util.resources.*;
-import to.etc.util.*;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Generates background image for specified input field caption.
@@ -49,14 +52,11 @@ import to.etc.util.*;
  * Created on Nov 1, 2011
  */
 public class MarkerImagePart implements IBufferedPartFactory<MarkerImagePartKey> {
-
-	private static final String DEFAULT_ICON = "THEME/icon-search.png";
-
 	private static final Color DEFAULT_COLOR = Color.GRAY;
 
 	@Override
-	public @Nonnull MarkerImagePartKey decodeKey(@Nonnull IExtendedParameterInfo param) throws Exception {
-		MarkerImagePartKey key = MarkerImagePartKey.decode(param);
+	public @Nonnull MarkerImagePartKey decodeKey(DomApplication application, @Nonnull IExtendedParameterInfo param) throws Exception {
+		MarkerImagePartKey key = MarkerImagePartKey.decode(application, param);
 		return key;
 	}
 
@@ -69,7 +69,7 @@ public class MarkerImagePart implements IBufferedPartFactory<MarkerImagePartKey>
 		InputStream is = null;
 
 		try {
-			BufferedImage bi = PartUtil.loadImage(da, da.internalGetThemeManager().getThemedResourceRURL(DefaultThemeVariant.INSTANCE, DomUtil.isBlank(sipKey.getIcon()) ? DEFAULT_ICON : sipKey.getIcon().trim()), rdl);
+			BufferedImage bi = PartUtil.loadImage(da, sipKey.getIcon(), rdl);
 			is = getInputStream(drawImage(bi, sipKey));
 
 			if(is == null)

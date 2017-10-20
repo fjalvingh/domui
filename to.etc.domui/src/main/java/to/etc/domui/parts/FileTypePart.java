@@ -24,14 +24,17 @@
  */
 package to.etc.domui.parts;
 
-import java.io.*;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.IExtendedParameterInfo;
+import to.etc.domui.server.parts.IBufferedPartFactory;
+import to.etc.domui.server.parts.PartResponse;
+import to.etc.domui.util.resources.IResourceDependencyList;
+import to.etc.util.FileTool;
 
-import javax.annotation.*;
-
-import to.etc.domui.server.*;
-import to.etc.domui.server.parts.*;
-import to.etc.domui.util.resources.*;
-import to.etc.util.*;
+import javax.annotation.Nonnull;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 
 public class FileTypePart implements IBufferedPartFactory<String> {
 	static private final String PREFIX = "$filetype$";
@@ -41,7 +44,7 @@ public class FileTypePart implements IBufferedPartFactory<String> {
 	 * the resource name preceded with a prefix to make it unique.
 	 */
 	@Override
-	public @Nonnull String decodeKey(@Nonnull IExtendedParameterInfo param) throws Exception {
+	public @Nonnull String decodeKey(DomApplication application, @Nonnull IExtendedParameterInfo param) throws Exception {
 		return PREFIX + param.getInputPath();
 	}
 

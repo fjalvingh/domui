@@ -89,7 +89,7 @@ final public class ThemeManager {
 	}
 
 	/** Map of themes by theme name, as implemented by the current engine. */
-	private final Map<String, ThemeRef> m_themeMap = new HashMap<String, ThemeRef>();
+	private final Map<ThemeKey, ThemeRef> m_themeMap = new HashMap<>();
 
 	public ThemeManager(DomApplication application) {
 		m_application = application;
@@ -119,13 +119,16 @@ final public class ThemeManager {
 	}
 
 	public ITheme getTheme(@Nonnull IThemeFactory factory, @Nonnull String themeName, @Nullable IResourceDependencyList rdl) {
+		ThemeKey key = new ThemeKey(factory, themeName);
+		return getiTheme(key, rdl);
+	}
+
+	public ITheme getiTheme(ThemeKey key, @Nullable IResourceDependencyList rdl) {
 		synchronized(this) {
 			if(m_themeReapCount++ > 1000) {
 				m_themeReapCount = 0;
 				checkReapThemes();
 			}
-
-			String key = themeKey(factory, themeName);
 
 			ThemeRef tr = m_themeMap.get(key);
 			if(tr != null) {
@@ -141,7 +144,7 @@ final public class ThemeManager {
 			//-- No such cached theme yet, or the theme has changed. (Re)load it.
 			ITheme theme;
 			try {
-				theme = factory.getTheme(m_application, themeName);
+				theme = key.getFactory().getTheme(m_application, key.getThemeName());
 			} catch(Exception x) {
 				throw WrappedException.wrap(x);
 			}
@@ -193,8 +196,8 @@ final public class ThemeManager {
 	}
 
 
-	public String getThemeReplacedString(@Nonnull IThemeFactory factory, @Nonnull IResourceDependencyList rdl, String rurl, IThemeVariant variant) throws Exception {
-		return getThemeReplacedString(factory, rdl, rurl, variant, null);
+	public String getThemeReplacedString(@Nonnull IThemeFactory factory, @Nonnull IResourceDependencyList rdl, String rurl) throws Exception {
+		return getThemeReplacedString(factory, rdl, rurl, null);
 	}
 
 	/**
@@ -206,7 +209,7 @@ final public class ThemeManager {
 	 *
 	 * The result is returned as a string.
 	 */
-	public String getThemeReplacedString(@Nonnull IThemeFactory factory, @Nonnull IResourceDependencyList rdl, @Nonnull String rurl, @Nonnull IThemeVariant variant, @Nullable BrowserVersion bv) throws Exception {
+	public String getThemeReplacedString(@Nonnull IThemeFactory factory, @Nonnull IResourceDependencyList rdl, @Nonnull String rurl, @Nullable BrowserVersion bv) throws Exception {
 		long ts = System.nanoTime();
 		IResourceRef ires = m_application.getResource(rurl, rdl);			// Get the template source file
 		if(!ires.exists()) {
@@ -215,7 +218,7 @@ final public class ThemeManager {
 		}
 
 		String[] spl = ThemeResourceFactory.splitThemeURL(rurl);
-		ITheme theme = getTheme(factory, spl[0], variant, null);		// Dependencies already added by get-resource call.
+		ITheme theme = getTheme(factory, spl[0], null);					// Dependencies already added by get-resource call.
 		IScriptScope ss = theme.getPropertyScope();
 		ss = ss.newScope();
 

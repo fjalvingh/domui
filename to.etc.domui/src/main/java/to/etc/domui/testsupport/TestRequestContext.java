@@ -35,6 +35,7 @@ import to.etc.domui.state.WindowSession;
 import to.etc.domui.themes.DefaultThemeVariant;
 import to.etc.domui.themes.ITheme;
 import to.etc.domui.themes.IThemeVariant;
+import to.etc.domui.themes.ThemeKey;
 import to.etc.domui.util.js.IScriptScope;
 import to.etc.domui.util.resources.IResourceDependencyList;
 import to.etc.domui.util.resources.IResourceRef;
@@ -201,5 +202,9 @@ public class TestRequestContext implements IRequestContext {
 	}
 
 	@Override public void setThemeVariant(@Nonnull IThemeVariant variant) {
+	}
+
+	@Nullable @Override public ThemeKey getThemeKey() {
+		return getCurrentTheme().getKey();
 	}
 }

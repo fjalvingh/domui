@@ -24,17 +24,23 @@
  */
 package to.etc.domui.parts;
 
-import java.io.*;
-
-import javax.annotation.*;
-
-import org.apache.batik.transcoder.*;
-import org.apache.batik.transcoder.image.*;
-
+import org.apache.batik.transcoder.SVGAbstractTranscoder;
+import org.apache.batik.transcoder.TranscoderInput;
+import org.apache.batik.transcoder.TranscoderOutput;
+import org.apache.batik.transcoder.image.PNGTranscoder;
 import to.etc.domui.parts.SvgPartFactory.SvgKey;
-import to.etc.domui.server.*;
-import to.etc.domui.server.parts.*;
-import to.etc.domui.util.resources.*;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.IExtendedParameterInfo;
+import to.etc.domui.server.IParameterInfo;
+import to.etc.domui.server.parts.IBufferedPartFactory;
+import to.etc.domui.server.parts.IUrlMatcher;
+import to.etc.domui.server.parts.PartResponse;
+import to.etc.domui.themes.ThemeKey;
+import to.etc.domui.util.resources.IResourceDependencyList;
+
+import javax.annotation.Nonnull;
+import java.io.StringReader;
+import java.util.Objects;
 
 /**
  * Themed SVG generator.
@@ -49,11 +55,14 @@ public class SvgPartFactory implements IBufferedPartFactory<SvgKey> {
 	};
 
 	static public final class SvgKey {
+		private final ThemeKey m_theme;
+
 		private String m_rurl;
 
 		private int m_width, m_height;
 
-		public SvgKey(String rurl, int width, int height) {
+		public SvgKey(ThemeKey theme, String rurl, int width, int height) {
+			m_theme = theme;
 			m_rurl = rurl;
 			m_width = width;
 			m_height = height;
@@ -71,49 +80,38 @@ public class SvgPartFactory implements IBufferedPartFactory<SvgKey> {
 			return m_height;
 		}
 
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + m_height;
-			result = prime * result + ((m_rurl == null) ? 0 : m_rurl.hashCode());
-			result = prime * result + m_width;
-			return result;
+		public ThemeKey getTheme() {
+			return m_theme;
 		}
 
-		@Override
-		public boolean equals(Object obj) {
-			if(this == obj)
+		@Override public boolean equals(Object o) {
+			if(this == o)
 				return true;
-			if(obj == null)
+			if(o == null || getClass() != o.getClass())
 				return false;
-			if(getClass() != obj.getClass())
-				return false;
-			SvgKey other = (SvgKey) obj;
-			if(m_height != other.m_height)
-				return false;
-			if(m_rurl == null) {
-				if(other.m_rurl != null)
-					return false;
-			} else if(!m_rurl.equals(other.m_rurl))
-				return false;
-			if(m_width != other.m_width)
-				return false;
-			return true;
+			SvgKey svgKey = (SvgKey) o;
+			return m_width == svgKey.m_width &&
+				m_height == svgKey.m_height &&
+				Objects.equals(m_theme, svgKey.m_theme) &&
+				Objects.equals(m_rurl, svgKey.m_rurl);
+		}
+
+		@Override public int hashCode() {
+			return Objects.hash(m_theme, m_rurl, m_width, m_height);
 		}
 	}
 
 	@Override
-	public @Nonnull SvgKey decodeKey(@Nonnull IExtendedParameterInfo param) throws Exception {
+	public @Nonnull SvgKey decodeKey(DomApplication application, @Nonnull IExtendedParameterInfo param) throws Exception {
 		int width = PartUtil.getInt(param, "w", -1);
 		int height = PartUtil.getInt(param, "h", -1);
-		return new SvgKey(param.getInputPath(), width, height);
+		return new SvgKey(param.getThemeKey(), param.getInputPath(), width, height);
 	}
 
 	@Override
 	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull SvgKey k, @Nonnull IResourceDependencyList rdl) throws Exception {
 		//-- 1. Get the input as a theme-replaced resource
-		String svg = da.getThemeReplacedString(rdl, k.getRurl());
+		String svg = da.internalGetThemeManager().getThemeReplacedString(k.getTheme().getFactory(), rdl, k.getRurl());
 
 		//-- 2. Now generate the thingy using the Batik transcoder:
 		PNGTranscoder coder = new PNGTranscoder();

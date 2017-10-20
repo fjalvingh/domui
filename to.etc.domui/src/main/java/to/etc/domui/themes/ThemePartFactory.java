@@ -139,7 +139,7 @@ final public class ThemePartFactory implements IBufferedPartFactory<Key> {
 	}
 
 	@Override
-	public @Nonnull Key decodeKey(@Nonnull IExtendedParameterInfo param) throws Exception {
+	public @Nonnull Key decodeKey(DomApplication application, @Nonnull IExtendedParameterInfo param) throws Exception {
 		String iv = param.getParameter("iv");
 		int val = 0;
 		if(null != iv)

@@ -36,6 +36,8 @@ import javax.annotation.*;
  * Created on Jan 12, 2011
  */
 public interface ITheme {
+	@Nonnull ThemeKey getKey();
+
 	/** The theme name: the part of the URL inside all theme resources that identifies the theme to take the resource from */
 	@Nonnull String getThemeName();
 

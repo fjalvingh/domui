@@ -33,7 +33,7 @@ public class SassPartFactory implements IBufferedPartFactory<ParameterInfoImpl> 
 		}
 	};
 
-	@Nonnull @Override public ParameterInfoImpl decodeKey(@Nonnull IExtendedParameterInfo param) throws Exception {
+	@Nonnull @Override public ParameterInfoImpl decodeKey(DomApplication application, @Nonnull IExtendedParameterInfo param) throws Exception {
 		ParameterInfoImpl ppi = new ParameterInfoImpl(param, name -> ! name.startsWith("$"));	// Ignore DomUI system parameters
 		return ppi;
 	}
