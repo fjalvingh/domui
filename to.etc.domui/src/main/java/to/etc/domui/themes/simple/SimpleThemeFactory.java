@@ -25,6 +25,7 @@
 package to.etc.domui.themes.simple;
 
 import to.etc.domui.server.DomApplication;
+import to.etc.domui.themes.DefaultThemeVariant;
 import to.etc.domui.themes.ITheme;
 import to.etc.domui.themes.IThemeFactory;
 import to.etc.domui.themes.StyleException;
@@ -64,8 +65,28 @@ import java.util.List;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Apr 27, 2011
  */
-public class SimpleThemeFactory implements IThemeFactory {
-	static public final SimpleThemeFactory INSTANCE = new SimpleThemeFactory();
+public class SimpleThemeFactory {
+	static public final IThemeFactory INSTANCE = new IThemeFactory() {
+		@Override public String getFactoryName() {
+			return "s";
+		}
+
+		@Override
+		public @Nonnull ITheme getTheme(@Nonnull DomApplication da, @Nonnull String themeName) throws Exception {
+			SimpleThemeFactory stf = new SimpleThemeFactory(da, themeName);
+			try {
+				return stf.createTheme();
+			} finally {
+				try {
+					stf.close();
+				} catch(Exception x) {}
+			}
+		}
+
+		@Nonnull @Override public String getDefaultThemeName() {
+			return getFactoryName() + "-blue-blue-blue";
+		}
+	};
 
 	private DomApplication m_application;
 
@@ -93,22 +114,6 @@ public class SimpleThemeFactory implements IThemeFactory {
 		m_themeName = themeName;
 	}
 
-	@Nonnull @Override public String getDefaultThemeName() {
-		return "blue/blue/blue";
-	}
-
-	@Override
-	public @Nonnull ITheme getTheme(@Nonnull DomApplication da, @Nonnull String themeName) throws Exception {
-		SimpleThemeFactory stf = new SimpleThemeFactory(da, themeName);
-		try {
-			return stf.createTheme();
-		} finally {
-			try {
-				stf.close();
-			} catch(Exception x) {}
-		}
-	}
-
 	private RhinoExecutor executor() throws Exception {
 		if(m_executor == null) {
 			m_executor = RhinoExecutorFactory.getInstance().createExecutor();
@@ -129,13 +134,13 @@ public class SimpleThemeFactory implements IThemeFactory {
 	 */
 	private SimpleTheme createTheme() throws Exception {
 		//-- Split theme name into theme/icons/color
-		String[] ar = m_themeName.split("\\/");
-		if(ar.length != 4)
-			throw new StyleException("The theme name '" + m_themeName + "' is invalid for the factory SimpleThemeFactory: expecting theme/icon/color");
-		m_styleName = ar[0];
-		m_iconName = ar[1];
-		m_colorName = ar[2];
-		m_variantName = ar[3];
+		String[] ar = m_themeName.split("-");
+		if(ar.length != 4 && ar.length != 5)
+			throw new StyleException("The theme name '" + m_themeName + "' is invalid for the factory SimpleThemeFactory: expecting factory-theme-icon-color-variant");
+		m_styleName = ar[1];
+		m_iconName = ar[2];
+		m_colorName = ar[3];
+		m_variantName = ar.length == 4 ? DefaultThemeVariant.INSTANCE.getVariantName() : ar[4];
 
 		ResourceDependencyList rdl = new ResourceDependencyList();
 

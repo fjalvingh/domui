@@ -35,7 +35,6 @@ import to.etc.domui.server.IParameterInfo;
 import to.etc.domui.server.parts.IBufferedPartFactory;
 import to.etc.domui.server.parts.IUrlMatcher;
 import to.etc.domui.server.parts.PartResponse;
-import to.etc.domui.themes.ThemeKey;
 import to.etc.domui.util.resources.IResourceDependencyList;
 
 import javax.annotation.Nonnull;
@@ -55,13 +54,13 @@ public class SvgPartFactory implements IBufferedPartFactory<SvgKey> {
 	};
 
 	static public final class SvgKey {
-		private final ThemeKey m_theme;
+		private final String m_theme;
 
 		private String m_rurl;
 
 		private int m_width, m_height;
 
-		public SvgKey(ThemeKey theme, String rurl, int width, int height) {
+		public SvgKey(String theme, String rurl, int width, int height) {
 			m_theme = theme;
 			m_rurl = rurl;
 			m_width = width;
@@ -80,7 +79,7 @@ public class SvgPartFactory implements IBufferedPartFactory<SvgKey> {
 			return m_height;
 		}
 
-		public ThemeKey getTheme() {
+		public String getTheme() {
 			return m_theme;
 		}
 
@@ -105,13 +104,13 @@ public class SvgPartFactory implements IBufferedPartFactory<SvgKey> {
 	public @Nonnull SvgKey decodeKey(DomApplication application, @Nonnull IExtendedParameterInfo param) throws Exception {
 		int width = PartUtil.getInt(param, "w", -1);
 		int height = PartUtil.getInt(param, "h", -1);
-		return new SvgKey(param.getThemeKey(), param.getInputPath(), width, height);
+		return new SvgKey(param.getThemeName(), param.getInputPath(), width, height);
 	}
 
 	@Override
 	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull SvgKey k, @Nonnull IResourceDependencyList rdl) throws Exception {
 		//-- 1. Get the input as a theme-replaced resource
-		String svg = da.internalGetThemeManager().getThemeReplacedString(k.getTheme().getFactory(), rdl, k.getRurl());
+		String svg = da.internalGetThemeManager().getThemeReplacedString(rdl, k.getRurl());
 
 		//-- 2. Now generate the thingy using the Batik transcoder:
 		PNGTranscoder coder = new PNGTranscoder();

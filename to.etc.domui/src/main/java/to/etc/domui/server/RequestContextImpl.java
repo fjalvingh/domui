@@ -239,12 +239,21 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		return m_browserVersion;
 	}
 
+	/**
+	 * This should be replaced by getThemeName below as that uniquely identifies the theme.
+	 * @return
+	 */
+	@Deprecated
 	@Nonnull @Override public ITheme getCurrentTheme() {
 		ITheme currentTheme = m_currentTheme;
 		if(null == currentTheme) {
 			currentTheme = m_application.calculateUserTheme(this);
 		}
 		return currentTheme;
+	}
+
+	@Nonnull @Override public String getThemeName() {
+		return getCurrentTheme().getThemeName();
 	}
 
 	@Override @Nonnull public IThemeVariant getThemeVariant() {

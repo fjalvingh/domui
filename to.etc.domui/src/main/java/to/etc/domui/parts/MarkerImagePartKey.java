@@ -72,8 +72,8 @@ final public class MarkerImagePartKey {
 		MarkerImagePartKey k = new MarkerImagePartKey();
 
 		String icon = info.getParameter(PARAM_ICON);
-		ITheme theme = da.internalGetThemeManager().getiTheme(info.getThemeKey(), null);
-		String url = da.internalGetThemeManager().getThemedResourceRURL(theme, DomUtil.isBlank(icon) ? DEFAULT_ICON : icon.trim());
+		ITheme theme = da.internalGetThemeManager().getTheme(info.getThemeName(), null);
+		String url = da.internalGetThemeManager().getThemedResourceRURL(theme, icon == null || DomUtil.isBlank(icon) ? DEFAULT_ICON : icon.trim());
 		k.setIcon(url);
 
 		k.setCaption(info.getParameter(PARAM_CAPTION));

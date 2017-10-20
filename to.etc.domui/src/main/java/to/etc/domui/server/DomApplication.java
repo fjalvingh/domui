@@ -48,6 +48,7 @@ import to.etc.domui.sass.*;
 import to.etc.domui.server.parts.*;
 import to.etc.domui.state.*;
 import to.etc.domui.themes.*;
+import to.etc.domui.themes.fragmented.FragmentedThemeFactory;
 import to.etc.domui.themes.sass.SassThemeFactory;
 import to.etc.domui.themes.simple.*;
 import to.etc.domui.trouble.*;
@@ -159,13 +160,9 @@ public abstract class DomApplication {
 	/** Global properties for all themes */
 	final private Map<String, String> m_themeApplicationProperties = new HashMap<>();
 
-	/** The thing that themes the application. Set only once @ init time. */
-	@Nonnull
-	private volatile IThemeFactory m_defaultThemeFactory = SassThemeFactory.INSTANCE;
-
 	/** The "current theme". This will become part of all themed resource URLs and is interpreted by the theme factory to resolve resources. */
 	@Nonnull
-	private volatile String m_defaultTheme = "winter";
+	private volatile String m_defaultTheme = "";
 
 	/**
 	 * Must return the "root" class of the application; the class rendered when the application's
@@ -260,6 +257,8 @@ public abstract class DomApplication {
 
 	private String m_problemFromAddress;
 
+	static private Map<String, IThemeFactory> THEME_FACTORIES = new HashMap<>();
+
 	/**
 	 * The only constructor.
 	 */
@@ -311,7 +310,7 @@ public abstract class DomApplication {
 				return true;
 			}
 		});
-		setDefaultTheme("blue/domui/blue");
+		setDefaultThemeName("blue/domui/blue");
 		setDefaultThemeFactory(SimpleThemeFactory.INSTANCE);
 
 		registerResourceFactory(new ClassRefResourceFactory());
@@ -1586,9 +1585,10 @@ public abstract class DomApplication {
 	 * and is interpreted by the theme factory to resolve resources. The string is used
 	 * as a "parameter" for the theme factory which will use it to decide on the "real"
 	 * theme to use.
+	 *
 	 * @param themeName	The theme name, valid for the current theme engine. Cannot be null nor the empty string.
 	 */
-	final public void setDefaultTheme(@Nonnull String themeName) {
+	final public void setDefaultThemeName(@Nonnull String themeName) {
 		m_defaultTheme = themeName;
 	}
 
@@ -1597,7 +1597,7 @@ public abstract class DomApplication {
 	 * and is interpreted by the theme factory to resolve resources.
 	 */
 	@Nonnull
-	final public String getDefaultTheme() {
+	final public String getDefaultThemeName() {
 		return m_defaultTheme;
 	}
 
@@ -1622,12 +1622,7 @@ public abstract class DomApplication {
 	 * Set the application-default theme factory, and make the factory set its default theme.
 	 */
 	final public void setDefaultThemeFactory(@Nonnull IThemeFactory themer) {
-		m_defaultThemeFactory = themer;
 		m_defaultTheme = themer.getDefaultThemeName();
-	}
-
-	@Nonnull public IThemeFactory getDefaultThemeFactory() {
-		return m_defaultThemeFactory;
 	}
 
 	/**
@@ -1635,15 +1630,23 @@ public abstract class DomApplication {
 	 */
 	@Nonnull
 	public ITheme getDefaultThemeInstance() {
-		return m_themeManager.getTheme(getDefaultThemeFactory(), getDefaultTheme(), DefaultThemeVariant.INSTANCE, null);
+		return m_themeManager.getTheme(getDefaultThemeName(), DefaultThemeVariant.INSTANCE, null);
 	}
 
 	/**
 	 * Get the theme store representing the specified theme name. This is the name as obtained
 	 * from the resource name which is the part between $THEME/ and the actual filename.
 	 */
-	final public ITheme getTheme(@Nonnull IThemeFactory factory, @Nonnull String themeName, @Nonnull IThemeVariant variant, @Nullable IResourceDependencyList rdl) throws Exception {
-		return m_themeManager.getTheme(factory, themeName, variant, rdl);
+	final public ITheme getTheme(@Nonnull String themeName, @Nonnull IThemeVariant variant, @Nullable IResourceDependencyList rdl) throws Exception {
+		return m_themeManager.getTheme(themeName, variant, rdl);
+	}
+
+	/**
+	 * Get the theme store representing the specified theme name. This is the name as obtained
+	 * from the resource name which is the part between $THEME/ and the actual filename.
+	 */
+	final public ITheme getTheme(@Nonnull String themeName, @Nullable IResourceDependencyList rdl) throws Exception {
+		return m_themeManager.getTheme(themeName, rdl);
 	}
 
 	/**
@@ -1651,7 +1654,7 @@ public abstract class DomApplication {
 	 */
 	@Nonnull
 	public ITheme calculateUserTheme(IRequestContext ctx) {
-		return m_themeManager.getTheme(getDefaultThemeFactory(), getDefaultTheme(), ctx.getThemeVariant(), null);
+		return m_themeManager.getTheme(getDefaultThemeName(), ctx.getThemeVariant(), null);
 	}
 
 	///**
@@ -1844,5 +1847,24 @@ public abstract class DomApplication {
 		return "DomUI Application - " + body.getClass().getSimpleName();
 	}
 
+	public static void register(IThemeFactory factory) {
+		THEME_FACTORIES.put(factory.getFactoryName(), factory);
+	}
 
+	@Nonnull public static IThemeFactory getFactoryFromThemeName(String name) {
+		int pos = name.indexOf('-');
+		if(pos == -1)
+			throw new RuntimeException("Missing - in theme name '" + name + "'");
+		String fn = name.substring(0, pos);
+		IThemeFactory factory = THEME_FACTORIES.get(fn);
+		if(null == factory)
+			throw new RuntimeException("Undefined theme factory '" + fn +"'");
+		return factory;
+	}
+
+	static {
+		register(SassThemeFactory.INSTANCE);
+		register(SimpleThemeFactory.INSTANCE);
+		register(FragmentedThemeFactory.getInstance());
+	}
 }

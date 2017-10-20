@@ -24,13 +24,11 @@
  */
 package to.etc.domui.server;
 
-import to.etc.domui.themes.ThemeKey;
-
 import javax.annotation.Nullable;
 
 public interface IExtendedParameterInfo extends IParameterInfo {
 	BrowserVersion getBrowserVersion();
 
 	@Nullable
-	ThemeKey getThemeKey();
+	String getThemeName();
 }

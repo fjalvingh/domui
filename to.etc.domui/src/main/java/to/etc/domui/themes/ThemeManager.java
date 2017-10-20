@@ -89,7 +89,7 @@ final public class ThemeManager {
 	}
 
 	/** Map of themes by theme name, as implemented by the current engine. */
-	private final Map<ThemeKey, ThemeRef> m_themeMap = new HashMap<>();
+	private final Map<String, ThemeRef> m_themeMap = new HashMap<>();
 
 	public ThemeManager(DomApplication application) {
 		m_application = application;
@@ -106,6 +106,7 @@ final public class ThemeManager {
 
 	private long m_themeNextReapTS;
 
+
 	/**
 	 * Cached get of a factory/theme ITheme instance.
 	 *
@@ -114,16 +115,14 @@ final public class ThemeManager {
 	 * code is fast once the theme is loaded after the 1st call.
 	 */
 	@Nonnull
-	public ITheme getTheme(@Nonnull IThemeFactory factory, @Nonnull String themeName, @Nonnull IThemeVariant variant, @Nullable IResourceDependencyList rdl) {
-		return getTheme(factory, factory.appendThemeVariant(themeName, variant), rdl);
+	public ITheme getTheme(@Nonnull String themeName, @Nonnull IThemeVariant variant, @Nullable IResourceDependencyList rdl) {
+		IThemeFactory factory = DomApplication.getFactoryFromThemeName(themeName);
+		return getTheme(factory.appendThemeVariant(themeName, variant), rdl);
 	}
 
-	public ITheme getTheme(@Nonnull IThemeFactory factory, @Nonnull String themeName, @Nullable IResourceDependencyList rdl) {
-		ThemeKey key = new ThemeKey(factory, themeName);
-		return getiTheme(key, rdl);
-	}
+	public ITheme getTheme(String key, @Nullable IResourceDependencyList rdl) {
+		IThemeFactory factory = DomApplication.getFactoryFromThemeName(key);
 
-	public ITheme getiTheme(ThemeKey key, @Nullable IResourceDependencyList rdl) {
 		synchronized(this) {
 			if(m_themeReapCount++ > 1000) {
 				m_themeReapCount = 0;
@@ -144,7 +143,7 @@ final public class ThemeManager {
 			//-- No such cached theme yet, or the theme has changed. (Re)load it.
 			ITheme theme;
 			try {
-				theme = key.getFactory().getTheme(m_application, key.getThemeName());
+				theme = factory.getTheme(m_application, key);
 			} catch(Exception x) {
 				throw WrappedException.wrap(x);
 			}
@@ -161,10 +160,6 @@ final public class ThemeManager {
 			m_themeMap.put(key, tr);
 			return theme;
 		}
-	}
-
-	private String themeKey(IThemeFactory factory, String themeName) {
-		return factory.getClass().getCanonicalName() + "/" + themeName;
 	}
 
 	/**
@@ -195,9 +190,8 @@ final public class ThemeManager {
 		m_themeNextReapTS = ts + OLD_THEME_TIME;
 	}
 
-
-	public String getThemeReplacedString(@Nonnull IThemeFactory factory, @Nonnull IResourceDependencyList rdl, String rurl) throws Exception {
-		return getThemeReplacedString(factory, rdl, rurl, null);
+	public String getThemeReplacedString(@Nonnull IResourceDependencyList rdl, String rurl) throws Exception {
+		return getThemeReplacedString(rdl, rurl, null);
 	}
 
 	/**
@@ -209,16 +203,16 @@ final public class ThemeManager {
 	 *
 	 * The result is returned as a string.
 	 */
-	public String getThemeReplacedString(@Nonnull IThemeFactory factory, @Nonnull IResourceDependencyList rdl, @Nonnull String rurl, @Nullable BrowserVersion bv) throws Exception {
+	public String getThemeReplacedString(@Nonnull IResourceDependencyList rdl, @Nonnull String resourceURL, @Nullable BrowserVersion bv) throws Exception {
 		long ts = System.nanoTime();
-		IResourceRef ires = m_application.getResource(rurl, rdl);			// Get the template source file
+		IResourceRef ires = m_application.getResource(resourceURL, rdl);			// Get the template source file
 		if(!ires.exists()) {
-			System.out.println(">>>> RESOURCE ERROR: " + rurl + ", ref=" + ires);
-			throw new ThingyNotFoundException("Unexpected: cannot get input stream for IResourceRef rurl=" + rurl + ", ref=" + ires);
+			System.out.println(">>>> RESOURCE ERROR: " + resourceURL + ", ref=" + ires);
+			throw new ThingyNotFoundException("Unexpected: cannot get input stream for IResourceRef rurl=" + resourceURL + ", ref=" + ires);
 		}
 
-		String[] spl = ThemeResourceFactory.splitThemeURL(rurl);
-		ITheme theme = getTheme(factory, spl[0], null);					// Dependencies already added by get-resource call.
+		String[] spl = ThemeResourceFactory.splitThemeResourceURL(resourceURL);
+		ITheme theme = getTheme(spl[0], null);					// Dependencies already added by get-resource call.
 		IScriptScope ss = theme.getPropertyScope();
 		ss = ss.newScope();
 
@@ -230,20 +224,20 @@ final public class ThemeManager {
 		//-- 2. Get a reader.
 		InputStream is = ires.getInputStream();
 		if(is == null) {
-			System.out.println(">>>> RESOURCE ERROR: " + rurl + ", ref=" + ires);
-			throw new ThingyNotFoundException("Unexpected: cannot get input stream for IResourceRef rurl=" + rurl + ", ref=" + ires);
+			System.out.println(">>>> RESOURCE ERROR: " + resourceURL + ", ref=" + ires);
+			throw new ThingyNotFoundException("Unexpected: cannot get input stream for IResourceRef rurl=" + resourceURL + ", ref=" + ires);
 		}
 		try {
 			Reader r = new InputStreamReader(is, "utf-8");
 			StringBuilder sb = new StringBuilder(65536);
 
 			RhinoTemplateCompiler rtc = new RhinoTemplateCompiler();
-			rtc.execute(sb, r, rurl, ss);
+			rtc.execute(sb, r, resourceURL, ss);
 			ts = System.nanoTime() - ts;
 			if(bv != null)
-				System.out.println("theme-replace: " + rurl + " for " + bv.getBrowserName() + ":" + bv.getMajorVersion() + " took " + StringTool.strNanoTime(ts));
+				System.out.println("theme-replace: " + resourceURL + " for " + bv.getBrowserName() + ":" + bv.getMajorVersion() + " took " + StringTool.strNanoTime(ts));
 			else
-				System.out.println("theme-replace: " + rurl + " for all browsers took " + StringTool.strNanoTime(ts));
+				System.out.println("theme-replace: " + resourceURL + " for all browsers took " + StringTool.strNanoTime(ts));
 			return sb.toString();
 		} finally {
 			try {
@@ -253,12 +247,15 @@ final public class ThemeManager {
 	}
 
 	/**
+	 * FIXME Variant kludge
+	 *
 	 * Return the current theme map (a readonly map), cached from the last
 	 * time. It will refresh automatically when the resource dependencies
 	 * for the theme are updated.
 	 */
-	public IScriptScope getThemeMap(IThemeFactory factory, String themeName, @Nonnull IThemeVariant variant, IResourceDependencyList rdlin) throws Exception {
-		ITheme ts = getTheme(factory, themeName, variant, rdlin);
+	@Deprecated
+	public IScriptScope getThemeMap(String themeName, @Nonnull IThemeVariant variant, IResourceDependencyList rdlin) throws Exception {
+		ITheme ts = getTheme(themeName, variant, rdlin);
 		return ts.getPropertyScope();
 	}
 

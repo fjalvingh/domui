@@ -24,21 +24,27 @@
  */
 package to.etc.domui.parts;
 
+import org.apache.batik.transcoder.SVGAbstractTranscoder;
+import org.apache.batik.transcoder.TranscoderInput;
+import org.apache.batik.transcoder.TranscoderOutput;
+import org.apache.batik.transcoder.image.ImageTranscoder;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.IParameterInfo;
+import to.etc.domui.trouble.ThingyNotFoundException;
+import to.etc.domui.util.resources.IResourceDependencyList;
+import to.etc.domui.util.resources.IResourceRef;
+import to.etc.sjit.ImaTool;
+import to.etc.util.StringInputStream;
+
+import javax.annotation.Nonnull;
 import java.awt.*;
-import java.awt.image.*;
-import java.io.*;
-import java.util.*;
-
-import javax.annotation.*;
-
-import org.apache.batik.transcoder.*;
-import org.apache.batik.transcoder.image.*;
-
-import to.etc.domui.server.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.resources.*;
-import to.etc.sjit.*;
-import to.etc.util.*;
+import java.awt.image.BufferedImage;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.StringTokenizer;
 
 public class PartUtil {
 	private PartUtil() {}
@@ -74,7 +80,7 @@ public class PartUtil {
 	 */
 	@Nonnull
 	static public Properties loadProperties(DomApplication da, String src, IResourceDependencyList rdl) throws Exception {
-		String svg = da.getThemeReplacedString(rdl, src);
+		String svg = da.internalGetThemeManager().getThemeReplacedString(rdl, src);
 
 		InputStream is = new StringInputStream(svg, "utf-8");
 		try {
@@ -152,7 +158,7 @@ public class PartUtil {
 
 	private static BufferedImage loadSvg(DomApplication da, IResourceDependencyList rdl, String image, IParameterInfo param) throws Exception {
 		//-- 1. Get the input as a theme-replaced resource
-		String svg = da.getThemeReplacedString(rdl, image);
+		String svg = da.internalGetThemeManager().getThemeReplacedString(rdl, image);
 
 		//-- 2. Now generate the thingy using the Batik transcoder:
 		BufferedImageTranscoder bit = new BufferedImageTranscoder();
@@ -192,10 +198,9 @@ public class PartUtil {
 		 * Writes the specified image to the specified output.
 		 * @param img the image to write
 		 * @param output the output where to store the image
-		 * @param TranscoderException if an error occured while storing the image
 		 */
 		@Override
-		public void writeImage(BufferedImage img, TranscoderOutput output) throws TranscoderException {
+		public void writeImage(BufferedImage img, TranscoderOutput output) {
 			m_bi = img;
 		}
 

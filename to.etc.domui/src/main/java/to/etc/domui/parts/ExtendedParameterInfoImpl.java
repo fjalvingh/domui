@@ -12,14 +12,22 @@ import javax.annotation.*;
 public class ExtendedParameterInfoImpl extends ParameterInfoImpl implements IExtendedParameterInfo {
 	private final BrowserVersion m_browser;
 
-	public ExtendedParameterInfoImpl(BrowserVersion browser, String rurl, String queryString) {
+	private final String m_themeName;
+
+	public ExtendedParameterInfoImpl(String themeName, BrowserVersion browser, String rurl, String queryString) {
 		super(rurl, queryString);
 		m_browser = browser;
+		m_themeName = themeName;
 	}
 
-	public ExtendedParameterInfoImpl(BrowserVersion browser, String in) {
-		super(in);
-		m_browser = browser;
+	//public ExtendedParameterInfoImpl(BrowserVersion browser, String in) {
+	//	super(in);
+	//	m_browser = browser;
+	//	m_themeName = null;
+	//}
+
+	@Nullable @Override public String getThemeName() {
+		return m_themeName;
 	}
 
 	@Override public BrowserVersion getBrowserVersion() {
