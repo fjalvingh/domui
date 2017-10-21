@@ -130,10 +130,9 @@ final public class MultiRowRenderer<T> implements IClickableRowRenderer<T> {
 			setSortDescending(column.getSortable() == SortableType.SORTABLE_DESC);
 		}
 
-		getColumnList().assignPercentages();				// Calculate widths
+		getColumnList().calculateWidths();
 		m_completed = true;
 	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Actual rendering: the header.						*/
@@ -201,7 +200,9 @@ final public class MultiRowRenderer<T> implements IClickableRowRenderer<T> {
 				th.setCssClass(sb.toString());
 			}
 
-			th.setWidth(cd.getWidth());
+			th.setWidth(cd.getRenderedCellWidth());
+			if(cd.isNowrap())
+				th.setNowrap(true);
 			ix++;
 		}
 

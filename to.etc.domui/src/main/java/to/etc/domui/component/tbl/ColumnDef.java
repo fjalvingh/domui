@@ -31,8 +31,9 @@ final public class ColumnDef<I, T> {
 	@Nullable
 	private String m_sortProperty;
 
+	/** Some special width, like "1%" */
 	@Nullable
-	private String m_width; // = "1%";					// jal 20150408 Default to 1% width for now
+	private String m_width;
 
 	@Nullable
 	private String m_propertyName;
@@ -43,8 +44,8 @@ final public class ColumnDef<I, T> {
 	@Nullable
 	private String m_headerCssClass;
 
-	@Deprecated
-	private int m_displayLength;
+	/** Set from metadata, specifies the width in characters. */
+	private int m_characterWidth;
 
 	private boolean m_nowrap = true;
 
@@ -73,9 +74,12 @@ final public class ColumnDef<I, T> {
 	/** @since 2014/1/2 T when this should create an editable component bound to the column's value. */
 	private boolean m_editable;
 
+	/** This gets set by calculation rules, and is the actual CSS width of a cell. */
+	private String m_renderedCellWidth;
+
 	private IRowControlFactory<I> m_controlFactory;
 
-	<X> ColumnDef(@Nonnull ColumnList<I> cdl, @Nonnull Class<T> valueClass) {
+	ColumnDef(@Nonnull ColumnList<I> cdl, @Nonnull Class<T> valueClass) {
 		m_actualClass = valueClass;
 		m_columnType = valueClass;
 		m_defList = cdl;
@@ -102,6 +106,7 @@ final public class ColumnDef<I, T> {
 		if(pmm.getNowrap() == YesNoType.YES)
 			nowrap();
 		converter(ConverterRegistry.findBestConverter(pmm));
+		width(MetaManager.calculateTextSize(pmm));
 	}
 
 	@Nonnull
@@ -181,6 +186,23 @@ final public class ColumnDef<I, T> {
 		return m_width;
 	}
 
+	/**
+	 * The requested width in characters, often set from metadata. Only used when it is > 0, and
+	 * overridden by {@link #width(String)}.
+	 */
+	public int getCharacterWidth() {
+		return m_characterWidth;
+	}
+
+	/**
+	 * The requested width in characters, often set from metadata. Only used when it is > 0, and
+	 * overridden by {@link #width(String)}.
+	 */
+	public ColumnDef<I, T> width(int characters) {
+		m_characterWidth = characters;
+		return this;
+	}
+
 	@Nullable
 	public String getPropertyName() {
 		return m_propertyName;
@@ -198,7 +220,6 @@ final public class ColumnDef<I, T> {
 	/**
 	 * When set this defines the css class to set on each value cell for this column. Setting this
 	 * does NOT set a css class for the header!!
-	 * @return
 	 */
 	@Nullable
 	public String getCssClass() {
@@ -212,15 +233,6 @@ final public class ColumnDef<I, T> {
 	@Nullable
 	public String getHeaderCssClass() {
 		return m_headerCssClass;
-	}
-
-	/**
-	 * Seems nonsense, use width instead.
-	 * @return
-	 */
-	@Deprecated
-	public int getDisplayLength() {
-		return m_displayLength;
 	}
 
 	public boolean isNowrap() {
@@ -440,6 +452,14 @@ final public class ColumnDef<I, T> {
 	public ColumnDef<I, T> width(@Nullable String w) {
 		m_width = w;
 		return this;
+	}
+
+	public String getRenderedCellWidth() {
+		return m_renderedCellWidth;
+	}
+
+	public void setRenderedCellWidth(String renderedCellWidth) {
+		m_renderedCellWidth = renderedCellWidth;
 	}
 
 	@Nonnull

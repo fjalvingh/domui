@@ -52,6 +52,15 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	@Nullable
 	private TableModelTableBase<T> m_tableModelTable;
 
+	@Nullable
+	private ITableModel<T> m_lastSortedModel;
+
+	@Nullable
+	private ColumnDef<T, ?> m_lastSortedColumn;
+
+	@Nullable
+	private Boolean m_lastSortedDirection;
+
 	@Nonnull
 	private List<TableHeader> m_tableHeaderBeforeList = Collections.EMPTY_LIST;
 
@@ -109,7 +118,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 			setSortDescending(column.getSortable() == SortableType.SORTABLE_DESC);
 		}
 
-		getColumnList().assignPercentages();				// Calculate widths
+		getColumnList().calculateWidths();
 		m_completed = true;
 	}
 
@@ -180,7 +189,9 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 				th.setCssClass(sb.toString());
 			}
 
-			th.setWidth(cd.getWidth());
+			th.setWidth(cd.getRenderedCellWidth());
+			if(cd.isNowrap())
+				th.setNowrap(true);
 			ix++;
 		}
 
@@ -208,15 +219,6 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 
 		resort(scd, parent);
 	}
-
-	@Nullable
-	private ITableModel<T> m_lastSortedModel;
-
-	@Nullable
-	private ColumnDef<T, ?> m_lastSortedColumn;
-
-	@Nullable
-	private Boolean m_lastSortedDirection;
 
 	private boolean hasSortChanged(@Nonnull ColumnDef<T, ?> newColumn, @Nonnull TableModelTableBase<T> tableComponent) {
 		if(newColumn != m_lastSortedColumn)

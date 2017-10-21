@@ -1,5 +1,6 @@
 package to.etc.domuidemo;
 
+import to.etc.domuidemo.pages.DataTable1Page;
 import to.etc.domuidemo.pages.MenuPage;
 import to.etc.domuidemo.pages.TableMenuPage;
 import to.etc.domuidemo.pages.basic.DemoTextArea;
@@ -93,6 +94,7 @@ public class ComponentListPage extends MenuPage {
 
 		addCaption("Tables");
 		addLink(TableMenuPage.class, "Data tables, row renderers and ITableModels.");
+		addLink(DataTable1Page.class, "Simple data table");
 
 		addCaption("Trees");
 		addLink(Tree2DemoPage.class, "The tree2 component");
