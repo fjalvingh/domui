@@ -1,20 +1,40 @@
 package to.etc.domui.component.tbl;
 
-import kotlin.reflect.*;
-import to.etc.domui.component.controlfactory.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.misc.*;
-import to.etc.domui.component.ntbl.*;
-import to.etc.domui.converter.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
-import to.etc.webapp.*;
-import to.etc.webapp.annotations.*;
+import kotlin.reflect.KProperty1;
+import to.etc.domui.component.controlfactory.ControlBuilder;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.NumericPresentation;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.SortableType;
+import to.etc.domui.component.misc.DisplaySpan;
+import to.etc.domui.component.ntbl.IRowButtonFactory;
+import to.etc.domui.converter.ConverterRegistry;
+import to.etc.domui.converter.IConverter;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.Img;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.Span;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.TH;
+import to.etc.domui.dom.html.TR;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.util.IRenderInto;
+import to.etc.util.StringTool;
+import to.etc.webapp.ProgrammerErrorException;
+import to.etc.webapp.annotations.GProperty;
 
-import javax.annotation.*;
-import java.util.*;
+import javax.annotation.DefaultNonNull;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This is the type-safe replacement for the other row renderers which are now deprecated.
@@ -22,14 +42,12 @@ import java.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Feb 11, 2013
  */
-@DefaultNonNull
-final public class RowRenderer<T> implements IClickableRowRenderer<T> {
+@DefaultNonNull final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	/** The class whose instances we'll render in this table. */
 	@Nonnull
 	private final Class<T> m_dataClass;
 
-	@Nonnull
-	final private ClassMetaModel m_metaModel;
+	@Nonnull final private ClassMetaModel m_metaModel;
 
 	@Nullable
 	private IRowRenderHelper<T> m_helper;
@@ -116,7 +134,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 			String dsp = model().getDefaultSortProperty();
 			getColumnList().setDefaultSortColumn(dsp);
 		}
-		ColumnDef<T, ? > column = getSortColumn();
+		ColumnDef<T, ?> column = getSortColumn();
 		if(null != column) {
 			setSortDescending(column.getSortable() == SortableType.SORTABLE_DESC);
 		}
@@ -130,6 +148,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Actual rendering: the header.						*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Render the header for a table, using the simple column metadata provided. This renders a rich
 	 * header, containing column labels, sort boxes and the like.
@@ -137,9 +156,9 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	 */
 	@Override
 	public void renderHeader(@Nonnull final TableModelTableBase<T> tbl, @Nonnull final HeaderContainer<T> cc) throws Exception {
-		for(TableHeader h: m_tableHeaderBeforeList)
+		for(TableHeader h : m_tableHeaderBeforeList)
 			cc.addHeader(false, h);
-		for(TableHeader h: m_tableHeaderAfterList)
+		for(TableHeader h : m_tableHeaderAfterList)
 			cc.addHeader(true, h);
 
 		Img[] sortImages = m_sortImages = new Img[m_columnList.size()];
@@ -149,7 +168,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 
 		Map<ColumnDef<T, ?>, String> widthMap = calculateWidths(tbl);
 
-		for(final ColumnDef<T, ? > cd : m_columnList) {
+		for(final ColumnDef<T, ?> cd : m_columnList) {
 			TH th;
 			String label = cd.getColumnLabel();
 			if(!cd.getSortable().isSortable() || !sortablemodel) {
@@ -176,7 +195,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 				// Add the label;
 				if(!StringTool.isBlank(label))
 					cellSpan.add(new Span(label));
-				final ColumnDef<T, ? > scd = cd;
+				final ColumnDef<T, ?> scd = cd;
 				th.setClicked(new IClicked<TH>() {
 					@Override
 					public void clicked(final @Nonnull TH b) throws Exception {
@@ -215,7 +234,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 		boolean fullWidth = width != null && width.contains("100%");
 
 		//-- 1. If any width is set with width(String) then we only use that.
-		boolean hasAssignedWidth = m_columnList.stream().anyMatch(a -> ! StringTool.isBlank(a.getWidth()) );
+		boolean hasAssignedWidth = m_columnList.stream().anyMatch(a -> !StringTool.isBlank(a.getWidth()));
 		if(hasAssignedWidth) {
 			//-- Just copy all widths.
 			m_columnList.forEach(a -> map.put(a, a.getWidth()));
@@ -224,7 +243,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 
 		//-- No assignments: use character widths from metadata
 		for(int i = 0; i < m_columnList.size(); i++) {
-			if(i < m_columnList.size()-1 || !fullWidth) {
+			if(i < m_columnList.size() - 1 || !fullWidth) {
 				/*
 				 * We skip the last column if we have 100% so that the last column takes the remaining space.
 				 * In the other case the real width of the table will be calculated by the columns.
@@ -240,16 +259,16 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 		return map;
 	}
 
-	private void handleSortClick(@Nonnull final NodeBase nb, @Nonnull final ColumnDef<T, ? > scd) throws Exception {
+	private void handleSortClick(@Nonnull final NodeBase nb, @Nonnull final ColumnDef<T, ?> scd) throws Exception {
 		//-- 1. Is this the same as the "current" sort column? If so toggle the sort order only.
-		ColumnDef<T, ? > sortColumn = getSortColumn();
+		ColumnDef<T, ?> sortColumn = getSortColumn();
 		if(scd == sortColumn) {
 			setSortDescending(!isSortDescending());
 		} else {
 			if(sortColumn != null)
 				updateSortImage(sortColumn, "THEME/sort-none.png");
 
-			m_columnList.setSortColumn(scd, scd.getSortable());			 // Set the new sort column
+			m_columnList.setSortColumn(scd, scd.getSortable());             // Set the new sort column
 		}
 		updateSortImage(scd, isSortDescending() ? "THEME/sort-desc.png" : "THEME/sort-asc.png");
 
@@ -274,12 +293,12 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	}
 
 	private void resort(@Nonnull ColumnDef<T, ?> scd, TableModelTableBase<T> parent) throws Exception {
-		if(! hasSortChanged(scd, parent))
+		if(!hasSortChanged(scd, parent))
 			return;
 
 		ISortHelper<T> sortHelper = (ISortHelper<T>) scd.getSortHelper();
 		if(sortHelper != null) {
-			sortHelper.adjustSort(parent.getModel(), isSortDescending());	// Tell the helper to sort
+			sortHelper.adjustSort(parent.getModel(), isSortDescending());    // Tell the helper to sort
 		} else {
 			final ISortableTableModel stm = (ISortableTableModel) parent.getModel();
 			String propertyName = scd.getSortProperty();
@@ -293,7 +312,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 		m_lastSortedColumn = scd;
 	}
 
-	private void updateSortImage(@Nonnull final ColumnDef<T, ? > scd, @Nonnull final String img) {
+	private void updateSortImage(@Nonnull final ColumnDef<T, ?> scd, @Nonnull final String img) {
 		Img[] sortImages = m_sortImages;
 		if(sortImages == null)
 			return;
@@ -317,7 +336,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 			return;
 		}
 
-		ColumnDef<T, ? > scol = getSortColumn();
+		ColumnDef<T, ?> scol = getSortColumn();
 		if(scol == null)
 			return;
 
@@ -328,6 +347,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Actual rendering: a row.							*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 *
 	 */
@@ -337,7 +357,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 		if(null != helper)
 			helper.setRow(instance);
 
-		for(final ColumnDef<T, ? > cd : m_columnList) {
+		for(final ColumnDef<T, ?> cd : m_columnList) {
 			renderColumn(tbl, cc, index, instance, cd);
 		}
 
@@ -372,7 +392,8 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	 * @param cd
 	 * @throws Exception
 	 */
-	protected <X> void renderColumn(@Nonnull final TableModelTableBase<T> tbl, @Nonnull final ColumnContainer<T> cc, final int index, @Nonnull final T instance, @Nonnull final ColumnDef<T, X> cd) throws Exception {
+	protected <X> void renderColumn(@Nonnull final TableModelTableBase<T> tbl, @Nonnull final ColumnContainer<T> cc, final int index, @Nonnull final T instance, @Nonnull final ColumnDef<T, X> cd)
+		throws Exception {
 		TD cell = cc.add((NodeBase) null);
 		String cssClass = cd.getCssClass();
 		if(cssClass != null)
@@ -418,10 +439,10 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 			//-- Bind the property to a display control.
 			IConverter<X> converter = cellConverter;
 			if(null == converter) {
-				converter  = ConverterRegistry.findBestConverter(pmm);
+				converter = ConverterRegistry.findBestConverter(pmm);
 			}
 			DisplaySpan<X> ds = new DisplaySpan<X>(pmm.getActualType(), null);
-			ds.bind().to(instance, pmm);					// Bind value to model
+			ds.bind().to(instance, pmm);                    // Bind value to model
 			if(null != contentRenderer) {
 				// Bind the display control and let it render through the content renderer, enabling binding
 				ds.setRenderer(new IRenderInto<X>() {
@@ -528,7 +549,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	 * @param cd
 	 * @param type
 	 */
-	public void setDefaultSort(@Nonnull ColumnDef<T, ? > cd, @Nonnull SortableType type) {
+	public void setDefaultSort(@Nonnull ColumnDef<T, ?> cd, @Nonnull SortableType type) {
 		getColumnList().setSortColumn(cd, type);
 	}
 
@@ -546,7 +567,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	 * @return
 	 */
 	@Nonnull
-	protected Class< ? > getActualClass() {
+	protected Class<?> getActualClass() {
 		return m_dataClass;
 	}
 
@@ -558,12 +579,12 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 		return m_completed;
 	}
 
-	protected void setSortColumn(@Nullable ColumnDef<T, ? > cd, @Nullable SortableType type) {
+	protected void setSortColumn(@Nullable ColumnDef<T, ?> cd, @Nullable SortableType type) {
 		m_columnList.setSortColumn(cd, type);
 	}
 
 	@Nullable
-	protected ColumnDef<T, ? > getSortColumn() {
+	protected ColumnDef<T, ?> getSortColumn() {
 		return m_columnList.getSortColumn();
 	}
 
@@ -581,7 +602,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	 * @return
 	 */
 	@Nonnull
-	public ColumnDef<T, ? > getColumn(final int ix) {
+	public ColumnDef<T, ?> getColumn(final int ix) {
 		return m_columnList.get(ix);
 	}
 
@@ -601,8 +622,8 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	 * @return
 	 */
 	@Nonnull
-	public ColumnDef<T, ? > getColumnByName(String propertyName) {
-		for(ColumnDef<T, ? > scd : m_columnList) {
+	public ColumnDef<T, ?> getColumnByName(String propertyName) {
+		for(ColumnDef<T, ?> scd : m_columnList) {
 			if(propertyName.equals(scd.getPropertyName()))
 				return scd;
 		}
@@ -647,7 +668,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	 * @return
 	 */
 	@Nullable
-	public IRenderInto< ? > getNodeRenderer(final int index) {
+	public IRenderInto<?> getNodeRenderer(final int index) {
 		return getColumn(index).getContentRenderer();
 	}
 
@@ -677,7 +698,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	 * @return
 	 */
 	@Nullable
-	public ICellClicked< ? > getCellClicked(final int col) {
+	public ICellClicked<?> getCellClicked(final int col) {
 		return getColumn(col).getCellClicked();
 	}
 
@@ -694,6 +715,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Typesafe definition delegates.						*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Add and return the column definition for a column on the specified property. Because Java still has no
 	 * first-class properties (sigh) you need to pass in the property's type to get a typeful column. If you
@@ -714,7 +736,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	 * @return
 	 */
 	@Nonnull
-	public ColumnDef<T, ? > column(@Nonnull String property) {
+	public ColumnDef<T, ?> column(@Nonnull String property) {
 		return getColumnList().column(property);
 	}
 
@@ -725,6 +747,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	public <A, B> ColumnDef<T, B> column(@Nonnull KProperty1<T, A> property1, @Nonnull KProperty1<A, B> property2) {
 		return getColumnList().column(property1, property2);
 	}
+
 	public <A, B, C> ColumnDef<T, C> column(@Nonnull KProperty1<T, A> property1, @Nonnull KProperty1<A, B> property2, @Nonnull KProperty1<B, C> property3) {
 		return getColumnList().column(property1, property2, property3);
 	}
@@ -753,6 +776,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 			m_tableHeaderBeforeList = new ArrayList<>(2);
 		m_tableHeaderBeforeList.add(header);
 	}
+
 	public void addHeaderAfter(@Nonnull TableHeader header) {
 		if(m_tableHeaderAfterList.size() == 0)
 			m_tableHeaderAfterList = new ArrayList<>(2);

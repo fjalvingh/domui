@@ -24,13 +24,31 @@
  */
 package to.etc.domui.component.tbl;
 
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.misc.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.misc.MiniLogger;
+import to.etc.domui.dom.html.Checkbox;
+import to.etc.domui.dom.html.ClickInfo;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClickBase;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.IClicked2;
+import to.etc.domui.dom.html.Img;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.TH;
+import to.etc.domui.dom.html.THead;
+import to.etc.domui.dom.html.TR;
+import to.etc.domui.dom.html.Table;
+import to.etc.domui.dom.html.TextNode;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.JavascriptUtil;
+import to.etc.domui.util.Msgs;
 
-import javax.annotation.*;
-import java.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * POC for a datatable based on the live dom code.
@@ -76,11 +94,10 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 	/** When T, rows are not highlighted when table has no selection callbacks on rows. */
 	private boolean m_preventRowHighlight;
 
-	@Nonnull
-	final private IClicked<TH> m_headerSelectClickHandler = new IClicked<TH>() {
+	@Nonnull final private IClicked<TH> m_headerSelectClickHandler = new IClicked<TH>() {
 		@Override
 		public void clicked(@Nonnull TH clickednode) throws Exception {
-			if (isDisabled()){
+			if(isDisabled()) {
 				return;
 			}
 			ISelectionModel<T> sm = getSelectionModel();
@@ -114,7 +131,6 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 	public DataTable() {
 		setWidth("100%");
 	}
-
 
 	/**
 	 * Return the backing table for this data browser. For component extension only - DO NOT MAKE PUBLIC.
@@ -277,7 +293,7 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 		m_dataBody = null;
 
 		//-- Render the header.
-		if(! m_table.isAttached())
+		if(!m_table.isAttached())
 			add(m_table);
 		THead hd = new THead();
 		m_table.add(hd);
@@ -340,6 +356,7 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Row rendering & select click handling.				*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * DO NOT OVERRIDE - DEPRECATED FOR EXTERNAL USE!!
 	 * Renders row content into specified row.
@@ -363,7 +380,7 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 				}
 			});
 			cc.getTR().addCssClass("ui-rowsel");
-		} else if(!m_preventRowHighlight){
+		} else if(!m_preventRowHighlight) {
 			cc.getTR().addCssClass("ui-dt-row-nosel");
 		}
 
@@ -381,7 +398,7 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 				TD td = cc.add(cb);
 				if(cb.isReadOnly()) {
 					td.addCssClass("ui-cur-default");
-				}else{
+				} else {
 					//it very annoying to target small check box, so we also allow click in cell outside to perform check/uncheck
 					hookCheckboxClickToCellToo(td, cb);
 				}
@@ -393,10 +410,10 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 	}
 
 	private void hookCheckboxClickToCellToo(TD td, Checkbox cb) {
-		td.setClicked2((IClicked2<TD>)(node, clinfo) -> {
-			if (!cb.isDisabled()){
+		td.setClicked2((IClicked2<TD>) (node, clinfo) -> {
+			if(!cb.isDisabled()) {
 				IClickBase<?> clickHandler = cb.getClicked();
-				if (null != clickHandler && clickHandler instanceof IClicked2){
+				if(null != clickHandler && clickHandler instanceof IClicked2) {
 					cb.setChecked(!cb.isChecked());
 					((IClicked2<Checkbox>) clickHandler).clicked(cb, clinfo);
 				}
@@ -435,14 +452,14 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 				handleSelectClicky(instance, clinfo, null);
 				return; // Do NOT fire on selection clickies.
 			} else {
-				if(! selectionModel.isMultiSelect()) {
+				if(!selectionModel.isMultiSelect()) {
 					handleSelectClicky(instance, clinfo, null);
 				}
 			}
 		}
 
 		//-- If this has a click handler- fire it.
-		ICellClicked< ? > rowClicked = m_rowRenderer.getRowClicked();
+		ICellClicked<?> rowClicked = m_rowRenderer.getRowClicked();
 		if(null != rowClicked)
 			((ICellClicked<T>) rowClicked).cellClicked(instance);
 	}
@@ -470,7 +487,7 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 	 * @return
 	 */
 	protected int findRowIndex(T item) {
-		for(int i = m_visibleItemList.size(); --i >= 0;) {
+		for(int i = m_visibleItemList.size(); --i >= 0; ) {
 			if(item == m_visibleItemList.get(i))
 				return i;
 		}
@@ -483,7 +500,7 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 	 *
 	 * @param instance
 	 * @param clinfo
-	 * @param setTo		When null toggle, else set to specific.
+	 * @param setTo        When null toggle, else set to specific.
 	 */
 	private void handleSelectClicky(@Nonnull T instance, @Nonnull ClickInfo clinfo, @Nullable Boolean setTo) throws Exception {
 		ISelectionModel<T> sm = getSelectionModel();
@@ -529,7 +546,7 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 		}
 
 		//-- Now toggle all instances, in batches, to prevent loading 1000+ records that cannot be gc'd.
-		for(int i = sl; i < el;) {
+		for(int i = sl; i < el; ) {
 			int ex = i + 50;
 			if(ex > el)
 				ex = el;
@@ -549,6 +566,7 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Selection UI update handling.						*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Updates the "selection" state of the specified local row#.
 	 * @param instance
@@ -625,7 +643,7 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 			final Checkbox cb = createSelectionCheckbox(instance, getSelectionModel());
 			if(cb.isReadOnly()) {
 				td.addCssClass("ui-cur-default");
-			}else{
+			} else {
 				//it very annoying to target small check box, so we also allow click in cell outside to perform check/uncheck
 				hookCheckboxClickToCellToo(td, cb);
 			}
@@ -654,6 +672,7 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Dumbass setters and getters.						*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Return the page size: the #of records to show. If &lt;= 0 all records are shown.
 	 */
@@ -678,6 +697,7 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 	/*--------------------------------------------------------------*/
 	/*	CODING:	ITableModelListener implementation					*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Called when there are sweeping changes to the model. It forces a complete re-render of the table.
 	 */
@@ -711,7 +731,7 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 			//-- What relative row?
 			setResults();
 			int rrow = index - m_six; // This is the location within the child array
-			ml("rowAdded before anything: rrow=" + rrow +" index=" + index);
+			ml("rowAdded before anything: rrow=" + rrow + " index=" + index);
 			ColumnContainer<T> cc = new ColumnContainer<T>(this);
 			TR tr = new TR();
 			m_dataBody.add(rrow, tr);
@@ -774,7 +794,7 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 				return;
 			}
 			int rrow = index - m_six;                                // This is the location within the child array
-			ml("rowDeleted before, index=" + index +", rrow=" + rrow);
+			ml("rowDeleted before, index=" + index + ", rrow=" + rrow);
 			m_dataBody.removeChild(rrow);
 			m_visibleItemList.remove(rrow);
 			if(m_dataBody.getChildCount() == 0) {
@@ -877,6 +897,7 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 	/*--------------------------------------------------------------*/
 	/*	CODING:	ISelectionListener.									*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Called when a selection event fires. The underlying model has already been changed. It
 	 * tries to see if the row is currently paged in, and if so asks the row renderer to update
@@ -898,6 +919,7 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Handling selections.								*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Called when a selection cleared event fires. The underlying model has already been changed. It
 	 * tries to see if the row is currently paged in, and if so asks the row renderer to update
