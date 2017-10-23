@@ -833,7 +833,7 @@ import java.util.Map;
 		for(ColumnDef<T, ?> cd : getColumnList()) {
 			TH th = m_columnByThIdMap.get(cd);
 			if(null != th) {
-				String cw = context.getParameter(th.getActualID());
+				String cw = context.getParameter("column_" + th.getActualID());
 				if(null != cw) {
 					th.unchanged(() -> th.setWidth(cw));								// Update TH
 					list.add(new ColumnWidth<>(cd, index, cw));

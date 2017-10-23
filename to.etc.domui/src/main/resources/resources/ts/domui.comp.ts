@@ -135,9 +135,9 @@ namespace WebUI {
 		let list = {};
 		for(let i = 0; i < hdrs.length; i++) {
 			let wid = hdrs[i].style.width;
-			list[hdrs[i].id] = hdrs[i].style.width;
+			list["column_" + hdrs[i].id] = hdrs[i].style.width;
 		}
-		WebUI.scall(tblId, "COLWIDTHS", {columns: list});
+		WebUI.scall(tblId, "COLWIDTHS", list);
 		console.log("Change event", tbl);
 	}
 

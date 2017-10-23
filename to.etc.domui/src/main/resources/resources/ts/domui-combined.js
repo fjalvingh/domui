@@ -732,9 +732,9 @@ var WebUI;
         var list = {};
         for (var i = 0; i < hdrs.length; i++) {
             var wid = hdrs[i].style.width;
-            list[hdrs[i].id] = hdrs[i].style.width;
+            list["column_" + hdrs[i].id] = hdrs[i].style.width;
         }
-        WebUI.scall(tblId, "COLWIDTHS", { columns: list });
+        WebUI.scall(tblId, "COLWIDTHS", list);
         console.log("Change event", tbl);
     }
     WebUI.dataTableUpdateWidths = dataTableUpdateWidths;
