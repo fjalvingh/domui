@@ -41,6 +41,7 @@ import to.etc.domui.dom.html.THead;
 import to.etc.domui.dom.html.TR;
 import to.etc.domui.dom.html.Table;
 import to.etc.domui.dom.html.TextNode;
+import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.JavascriptUtil;
 import to.etc.domui.util.Msgs;
@@ -97,21 +98,18 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	private boolean m_preventRowHighlight;
 
 	@Nonnull
-	final private IClicked<TH> m_headerSelectClickHandler = new IClicked<TH>() {
-		@Override
-		public void clicked(@Nonnull TH clickednode) throws Exception {
-			if(isDisabled()) {
-				return;
-			}
-			ISelectionModel<T> sm = getSelectionModel();
-			if(null == sm)
-				return;
-			int ct = sm.getSelectionCount();
-			if(0 == ct && sm.isMultiSelect()) {
-				sm.selectAll(getModel());
-			} else {
-				sm.clearSelection();
-			}
+	final private IClicked<TH> m_headerSelectClickHandler = clickednode -> {
+		if(isDisabled()) {
+			return;
+		}
+		ISelectionModel<T> sm = getSelectionModel();
+		if(null == sm)
+			return;
+		int ct = sm.getSelectionCount();
+		if(0 == ct && sm.isMultiSelect()) {
+			sm.selectAll(getModel());
+		} else {
+			sm.clearSelection();
 		}
 	};
 
@@ -207,6 +205,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 
 		m_table.removeAllChildren();
 		add(m_table);
+		appendJavascript("$('#" + m_table.getActualID() + "').colResizable({postbackSafe: false, onResize: function(tbl) {WebUI.dataTableUpdateWidths(tbl, '" + getActualID() + "');}});");
 
 		//-- Render the header.
 		THead hd = new THead();
@@ -1056,5 +1055,13 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	void appendExtraRowBefore(TableRowSet<T> rowSet, DataTableRow<T> newRow, DataTableRow<T> row) {
 		checkVisible(rowSet);
 		row.appendBeforeMe(newRow);
+	}
+
+	/**
+	 * Gets called when column widths have been altered. This retrieves all columns that were changed
+	 * and saves the widths so that a next render will reuse the sizes.
+	 */
+	public void webActionCOLWIDTHS(@Nonnull RequestContextImpl context) throws Exception {
+		m_rowRenderer.updateWidths(this, context);
 	}
 }

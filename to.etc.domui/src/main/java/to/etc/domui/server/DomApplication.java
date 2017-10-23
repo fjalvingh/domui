@@ -64,6 +64,7 @@ import javax.servlet.http.*;
 import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *
@@ -189,6 +190,9 @@ public abstract class DomApplication {
 
 	@Nonnull
 	private List<FilterRef> m_requestHandlerList = Collections.emptyList();
+
+	@Nonnull
+	private Map<String, Object> m_attributeMap = new ConcurrentHashMap<>();
 
 	/**
 	 * When > 0, TextArea components will automatically have their maxByteLength property
@@ -819,6 +823,7 @@ public abstract class DomApplication {
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery.blockUI.js"), -970);
 		addHeaderContributor(HeaderContributor.loadJavascript("$ts/domui-combined.js"), -900);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/domui.searchpopup.js"), -895);
+		addHeaderContributor(HeaderContributor.loadJavascript("$js/colResizable-1.6.js"), -895);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/weekagenda.js"), -790);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery.wysiwyg.js"), -780);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/wysiwyg.rmFormat.js"), -779);
@@ -1784,6 +1789,18 @@ public abstract class DomApplication {
 			System.out.println("DOMUI: UI Test mode set, testid identifiers will be added automatically");
 		}
 		m_uiTestMode = true;
+	}
+
+	public void setAttribute(String key, Object what) {
+		if(null == what)
+			m_attributeMap.remove(key);
+		else
+			m_attributeMap.put(key, what);
+	}
+
+	@Nullable
+	public Object getAttribute(String key) {
+		return m_attributeMap.get(key);
 	}
 
 	/**

@@ -22,6 +22,7 @@ import to.etc.domui.dom.html.TD;
 import to.etc.domui.dom.html.TH;
 import to.etc.domui.dom.html.TR;
 import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.util.IRenderInto;
 import to.etc.util.StringTool;
 import to.etc.webapp.ProgrammerErrorException;
@@ -43,6 +44,9 @@ import java.util.Map;
  * Created on Feb 11, 2013
  */
 @DefaultNonNull final public class RowRenderer<T> implements IClickableRowRenderer<T> {
+	/** Used in DomApplication.setAttribute to set a generic {@link IColumnListener} for all pages. */
+	static public final String COLUMN_LISTENER = RowRenderer.class.getCanonicalName() + ".rowl";
+
 	/** The class whose instances we'll render in this table. */
 	@Nonnull
 	private final Class<T> m_dataClass;
@@ -80,6 +84,8 @@ import java.util.Map;
 	@Nullable
 	private Boolean m_lastSortedDirection;
 
+	private Map<ColumnDef<T, ?>, TH> m_columnByThIdMap = new HashMap<>();
+
 	@Nonnull
 	private List<TableHeader> m_tableHeaderBeforeList = Collections.EMPTY_LIST;
 
@@ -90,6 +96,13 @@ import java.util.Map;
 
 	/** The factor to multiply the #of characters with to get the real em width of a column. */
 	private double m_emFactor = 0.65;
+
+	@Nullable
+	private IColumnListener<T> m_columnListener;
+
+	public interface IColumnListener<T> {
+		void columnsChanged(TableModelTableBase<T> tbl, List<ColumnWidth<T, ?>> newWidths) throws Exception;
+	}
 
 	public interface IRowRendered<T> {
 		void rowRendered(@Nonnull TR row, @Nonnull T instance);
@@ -167,6 +180,7 @@ import java.util.Map;
 
 		Map<ColumnDef<T, ?>, String> widthMap = calculateWidths(tbl);
 
+		m_columnByThIdMap.clear();
 		for(final ColumnDef<T, ?> cd : m_columnList) {
 			TH th;
 			String label = cd.getColumnLabel();
@@ -178,7 +192,7 @@ import java.util.Map;
 				final Div cellSpan = new Div();
 				cellSpan.setCssClass("ui-sortable");
 				th = cc.add(cellSpan);
-				th.setCssClass("ui-sortable");
+				th.addCssClass("ui-sortable");
 
 				//-- Add the sort order indicator: a single image containing either ^, v or both.
 				final Img img = new Img();
@@ -201,7 +215,6 @@ import java.util.Map;
 						handleSortClick(b, scd);
 					}
 				});
-
 			}
 			if(cd.getHeaderCssClass() != null) {
 				sb.setLength(0);
@@ -216,6 +229,8 @@ import java.util.Map;
 			th.setWidth(widthMap.get(cd));
 			if(cd.isNowrap())
 				th.setNowrap(true);
+
+			m_columnByThIdMap.put(cd, th);
 			ix++;
 		}
 
@@ -775,5 +790,75 @@ import java.util.Map;
 		if(m_tableHeaderAfterList.size() == 0)
 			m_tableHeaderAfterList = new ArrayList<>(2);
 		m_tableHeaderAfterList.add(header);
+	}
+
+	public final static class ColumnWidth<T, I> {
+		private final ColumnDef<T, I> m_column;
+
+		final private int m_index;
+
+		final private String m_width;
+
+		public ColumnWidth(ColumnDef<T, I> column, int index, String width) {
+			m_column = column;
+			m_index = index;
+			m_width = width;
+		}
+
+		public ColumnDef<T, I> getColumn() {
+			return m_column;
+		}
+
+		public int getIndex() {
+			return m_index;
+		}
+
+		public String getWidth() {
+			return m_width;
+		}
+	}
+
+
+	/**
+	 * Called when the column size has been changed by the user, this stores the new sizes
+	 * in the column to be sure they are re-rendered with the same widths when paging
+	 * or re-rendering. In addition it calls the store method if configured.
+	 *
+	 * @param context
+	 */
+	@Override public void updateWidths(@Nonnull TableModelTableBase<T> tbl, @Nonnull RequestContextImpl context) throws Exception {
+		//-- Get the CSS widths for all heads.
+		List<ColumnWidth<T, ?>> list = new ArrayList<>();
+		int index = 0;
+		for(ColumnDef<T, ?> cd : getColumnList()) {
+			TH th = m_columnByThIdMap.get(cd);
+			if(null != th) {
+				String cw = context.getParameter(th.getActualID());
+				if(null != cw) {
+					th.unchanged(() -> th.setWidth(cw));								// Update TH
+					list.add(new ColumnWidth<>(cd, index, cw));
+				}
+			}
+			index++;
+		}
+
+		//-- If a listener is there delegate there, else delegate to the page.
+		IColumnListener<T> listener = getColumnListener();
+		if(null != listener) {
+			listener.columnsChanged(tbl, list);
+		} else {
+			listener = (IColumnListener<T>) DomApplication.get().getAttribute(COLUMN_LISTENER);
+			if(null != listener) {
+				listener.columnsChanged(tbl, list);
+			}
+		}
+	}
+
+	@Nullable public IColumnListener<T> getColumnListener() {
+		return m_columnListener;
+	}
+
+	public void setColumnListener(@Nullable IColumnListener<T> columnListener) {
+		m_columnListener = columnListener;
 	}
 }

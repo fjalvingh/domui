@@ -128,6 +128,18 @@ namespace WebUI {
 		}
 	}
 
+	/*-------------- DataTable column --------------------*/
+	export function dataTableUpdateWidths(evt, tblId) {
+		const tbl = evt.currentTarget;
+		let hdrs = $(tbl).find(".ui-dt-th");
+		let list = {};
+		for(let i = 0; i < hdrs.length; i++) {
+			let wid = hdrs[i].style.width;
+			list[hdrs[i].id] = hdrs[i].style.width;
+		}
+		WebUI.scall(tblId, "COLWIDTHS", {columns: list});
+		console.log("Change event", tbl);
+	}
 
 	// CK editor support, map of key (id of editor) value (pair of [editor instance, assigned resize function])
 	let _ckEditorMap = {};

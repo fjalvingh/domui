@@ -60,6 +60,7 @@ import to.etc.domui.util.IDragHandler;
 import to.etc.domui.util.IDraggable;
 import to.etc.domui.util.IDropHandler;
 import to.etc.domui.util.IDropTargetable;
+import to.etc.domui.util.IExecute;
 import to.etc.domui.util.javascript.JavascriptStmt;
 import to.etc.webapp.nls.BundleStack;
 import to.etc.webapp.nls.IBundle;
@@ -205,6 +206,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	@Nullable
 	private Dimension m_browserWindowSize;
 
+	private byte m_disableChanged;
+
 	/**
 	 * This must visit the appropriate method in the node visitor. It should NOT recurse it's children.
 	 * @param v
@@ -286,6 +289,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 */
 	@Override
 	final protected void changed() {
+		if(m_disableChanged > 0)
+			return;
 		setCachedStyle(null);
 		internalSetHasChangedAttributes();
 		NodeContainer p = m_parent;
@@ -293,6 +298,17 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 			p.childChanged(); 									// Indicate child has changed
 		super.changed();
 	}
+
+	/**
+	 * Call anything inside the thingy, and force the node to remain unchanged.
+	 * @param exec
+	 */
+	final public void unchanged(IExecute exec) throws Exception {
+		m_disableChanged++;
+		exec.execute();
+		m_disableChanged--;
+	}
+
 
 	/**
 	 * INTERNAL USE ONLY Changes the OLD PARENT pointer. THIS FORCES A "set", and validates the pointer
