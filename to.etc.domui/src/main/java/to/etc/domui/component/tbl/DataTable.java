@@ -99,6 +99,7 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 	public DataTable(@Nonnull ITableModel<T> m, @Nonnull IRowRenderer<T> r) {
 		super(m);
 		m_rowRenderer = r;
+		setWidth("100%");
 	}
 
 	public DataTable(@Nonnull IRowRenderer<T> r) {
@@ -107,9 +108,12 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 
 	public DataTable(@Nonnull ITableModel<T> m) {
 		super(m);
+		setWidth("100%");
 	}
 
-	public DataTable() {}
+	public DataTable() {
+		setWidth("100%");
+	}
 
 
 	/**
@@ -153,6 +157,7 @@ public class DataTable<T> extends PageableTabularComponentBase<T> implements ISe
 		m_dataBody = null;
 		m_errorDiv = null;
 		addCssClass("ui-dt");
+		m_table.setWidth(getWidth());
 
 		//-- Do we need to render multiselect checkboxes?
 		ISelectionModel<T> sm = getSelectionModel();

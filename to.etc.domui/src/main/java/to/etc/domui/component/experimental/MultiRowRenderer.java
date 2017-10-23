@@ -42,7 +42,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This is the type-safe replacement for the other row renderers which are now deprecated.
@@ -84,6 +86,9 @@ final public class MultiRowRenderer<T> implements IClickableRowRenderer<T> {
 
 	@Nonnull
 	private List<TableHeader> m_tableHeaderAfterList = Collections.EMPTY_LIST;
+
+	/** The factor to multiply the #of characters with to get the real em width of a column. */
+	private double m_emFactor = 0.65;
 
 	public MultiRowRenderer(@Nonnull Class<T> data) {
 		this(data, MetaManager.findClassMeta(data));
@@ -130,7 +135,8 @@ final public class MultiRowRenderer<T> implements IClickableRowRenderer<T> {
 			setSortDescending(column.getSortable() == SortableType.SORTABLE_DESC);
 		}
 
-		getColumnList().calculateWidths();
+		String width = tbl.getWidth();
+		boolean fullWidth = width != null && width.contains("100%");
 		m_completed = true;
 	}
 
@@ -153,6 +159,8 @@ final public class MultiRowRenderer<T> implements IClickableRowRenderer<T> {
 		int ix = 0;
 		final boolean sortablemodel = tbl.getModel() instanceof ISortableTableModel;
 		StringBuilder sb = new StringBuilder();
+
+		Map<ColumnDef<T, ?>, String> widthMap = calculateWidths(tbl);
 
 		for(final ColumnDef<T, ? > cd : m_columnList) {
 			TH th;
@@ -200,7 +208,7 @@ final public class MultiRowRenderer<T> implements IClickableRowRenderer<T> {
 				th.setCssClass(sb.toString());
 			}
 
-			th.setWidth(cd.getRenderedCellWidth());
+			th.setWidth(widthMap.get(cd));
 			if(cd.isNowrap())
 				th.setNowrap(true);
 			ix++;
@@ -208,6 +216,41 @@ final public class MultiRowRenderer<T> implements IClickableRowRenderer<T> {
 
 		if(getRowButtonFactory() != null)
 			cc.add("");
+	}
+
+	/**
+	 * This calculates the widths.
+	 */
+	private Map<ColumnDef<T, ?>, String> calculateWidths(TableModelTableBase<T> tbl) {
+		Map<ColumnDef<T, ?>, String> map = new HashMap<>();
+
+		String width = tbl.getWidth();
+		boolean fullWidth = width != null && width.contains("100%");
+
+		//-- 1. If any width is set with width(String) then we only use that.
+		boolean hasAssignedWidth = m_columnList.stream().anyMatch(a -> ! StringTool.isBlank(a.getWidth()) );
+		if(hasAssignedWidth) {
+			//-- Just copy all widths.
+			m_columnList.forEach(a -> map.put(a, a.getWidth()));
+			return map;
+		}
+
+		//-- No assignments: use character widths from metadata
+		for(int i = 0; i < m_columnList.size(); i++) {
+			if(i < m_columnList.size()-1 || !fullWidth) {
+				/*
+				 * We skip the last column if we have 100% so that the last column takes the remaining space.
+				 * In the other case the real width of the table will be calculated by the columns.
+				 */
+				ColumnDef<T, ?> cd = m_columnList.get(i);
+				int ch = cd.getCharacterWidth();
+				if(ch < 0)
+					ch = 10;
+				long adj = Math.round(ch * getEmFactor() + 1.0);
+				map.put(cd, adj + "em");
+			}
+		}
+		return map;
 	}
 
 	private void handleSortClick(@Nonnull final NodeBase nb, @Nonnull final ColumnDef<T, ? > scd) throws Exception {
@@ -446,6 +489,18 @@ final public class MultiRowRenderer<T> implements IClickableRowRenderer<T> {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Setters and getters.								*/
 	/*--------------------------------------------------------------*/
+
+	public double getEmFactor() {
+		return m_emFactor;
+	}
+
+	/**
+	 * The factor to multiply the #of characters with to get the real em width of a column; defaults to 0.6.
+	 */
+	public MultiRowRenderer<T> emFactor(double factor) {
+		m_emFactor = factor;
+		return this;
+	}
 
 	/**
 	 *

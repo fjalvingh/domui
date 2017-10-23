@@ -74,9 +74,6 @@ final public class ColumnDef<I, T> {
 	/** @since 2014/1/2 T when this should create an editable component bound to the column's value. */
 	private boolean m_editable;
 
-	/** This gets set by calculation rules, and is the actual CSS width of a cell. */
-	private String m_renderedCellWidth;
-
 	private IRowControlFactory<I> m_controlFactory;
 
 	ColumnDef(@Nonnull ColumnList<I> cdl, @Nonnull Class<T> valueClass) {
@@ -452,14 +449,6 @@ final public class ColumnDef<I, T> {
 	public ColumnDef<I, T> width(@Nullable String w) {
 		m_width = w;
 		return this;
-	}
-
-	public String getRenderedCellWidth() {
-		return m_renderedCellWidth;
-	}
-
-	public void setRenderedCellWidth(String renderedCellWidth) {
-		m_renderedCellWidth = renderedCellWidth;
 	}
 
 	@Nonnull

@@ -1,14 +1,21 @@
 package to.etc.domui.component.tbl;
 
-import kotlin.reflect.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.meta.impl.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
-import to.etc.webapp.annotations.*;
+import kotlin.reflect.KProperty1;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.NumericPresentation;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.SortableType;
+import to.etc.domui.component.meta.impl.DisplayPropertyMetaModel;
+import to.etc.domui.component.meta.impl.ExpandedDisplayProperty;
+import to.etc.domui.util.DomUtil;
+import to.etc.webapp.annotations.GProperty;
 
-import javax.annotation.*;
-import java.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * A list of columns defined in a new-style row renderer.
@@ -27,6 +34,9 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 	private ColumnDef< T, ? > m_sortColumn;
 
 	private boolean m_sortDescending;
+
+	/** The factor to multiply the #of characters with to get the real em width of a column. */
+	private double m_emFactor = 0.65;
 
 	@Nonnull
 	final private Class<T> m_actualClass;
@@ -112,226 +122,9 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 		return scd;
 	}
 
-	enum WidthType {
-		Chars, Pct, NONE, Pixels
+	public Stream<ColumnDef<T, ?>> stream() {
+		return m_columnList.stream();
 	}
-
-	private final class ColSize {
-		private ColumnDef<T, ?> m_col;
-
-		private int m_size;
-
-		private WidthType m_type;
-
-		public ColSize(ColumnDef<T, ?> col, int size, WidthType type) {
-			m_col = col;
-			m_size = size;
-			m_type = type;
-		}
-
-		public ColumnDef<T, ?> getCol() {
-			return m_col;
-		}
-
-		public int getSize() {
-			return m_size;
-		}
-
-		public WidthType getType() {
-			return m_type;
-		}
-	}
-
-	final private class Cols {
-		private final List<ColSize> m_list;
-
-		private final WidthType m_type;
-
-		private final int m_winnerSize;
-
-		public Cols(List<ColSize> list, WidthType type, int winnerSize) {
-			m_list = list;
-			m_type = type;
-			m_winnerSize = winnerSize;
-		}
-
-		public List<ColSize> getList() {
-			return m_list;
-		}
-
-		public WidthType getType() {
-			return m_type;
-		}
-
-		public int getWinnerSize() {
-			return m_winnerSize;
-		}
-	}
-
-	private Cols getColSizes() {
-		List<ColSize> l = new ArrayList<>();
-		int nchar = 0;
-		int npct = 0;
-		int npix = 0;
-		int totpct = 0;
-		int totpix = 0;
-		int totchar = 0;
-		for(final ColumnDef<T, ? > scd : m_columnList) {
-			int count = 0;
-			WidthType wt = WidthType.NONE;
-			String cwidth = scd.getWidth();
-			if(null != cwidth)
-				cwidth = cwidth.trim();
-			if(cwidth == null || cwidth.length() == 0) {
-				int chars = scd.getCharacterWidth();
-				if(chars > 0) {
-					wt = WidthType.Chars;
-					count = chars;
-					nchar++;
-					totchar += chars;
-				}
-			} else {
-				int pct = getPct(cwidth);
-				if(pct > 0) {
-					wt = WidthType.Pct;
-					count = pct;
-					npct++;
-					totpct += pct;
-				} else {
-					int px = getPx(cwidth);
-					if(px > 0) {
-						npix++;
-						totpix += px;
-						wt = WidthType.Pixels;
-						count = px;
-					}
-				}
-			}
-			l.add(new ColSize(scd, count, wt));
-
-		}
-
-		if(nchar >= npct && nchar >= npix) {
-			return new Cols(l, WidthType.Chars, totchar);
-		} else if(npct > nchar && npct > npix) {
-			return new Cols(l, WidthType.Pct, totpct);
-		} else if(npix > nchar && npix > npct) {
-			return new Cols(l, WidthType.Pixels, totpix);
-		} else
-			throw new IllegalStateException("? No winner in calculation assignment");
-	}
-
-	/**
-	 *
-	 */
-	public void calculateWidths() {
-		Cols c = getColSizes();
-
-		switch(c.getType()) {
-			default:
-				throw new IllegalStateException(c.getType() + " ?");
-
-			case Chars:
-				calculateCharWidths(c.getList(), c.getWinnerSize());
-				break;
-			case Pct:
-				calculateCharWidths(c.getList(), c.getWinnerSize());
-				break;
-			case Pixels:
-				calculateCharWidths(c.getList(), c.getWinnerSize());
-				break;
-		}
-	}
-
-	/**
-	 * Assign all columns except the last one a size in em's.
-	 */
-	private void calculateCharWidths(List<ColSize> cols, int total) {
-		for(int i = 0; i < cols.size()-1; i++) {
-			ColSize col = cols.get(i);
-			if(col.getType() == WidthType.Chars) {
-
-				double size = col.getSize() * 0.50;
-				col.getCol().setRenderedCellWidth(Math.round(size) + "em");
-			} else if(col.getType() == WidthType.Pct) {
-				col.getCol().setRenderedCellWidth(col.getSize() + "%");
-			} else if(col.getType() == WidthType.Pixels) {
-				col.getCol().setRenderedCellWidth(col.getSize() + "px");
-			} else {
-				col.getCol().setRenderedCellWidth("10em");
-			}
-		}
-
-		//-- Last one must be auto
-		if(cols.size() > 0) {
-			cols.get(cols.size() - 1).getCol().setRenderedCellWidth("auto");
-		}
-	}
-
-	private int getPx(String s) {
-		if(! s.endsWith("px"))
-			return -1;
-		return StringTool.strToInt(s.substring(0, s.length() - 2).trim(), -1);
-	}
-
-	private int getPct(String s) {
-		if(! s.endsWith("%"))
-			return -1;
-		return StringTool.strToInt(s.substring(0, s.length() - 1).trim(), -1);
-	}
-
-
-	///**
-	// * Width calculations: this tries to assign widths to columns that have no explicit width assigned. It starts
-	// * by calculating all assigned widths in percents and in pixels. It then calculates widths for the columns that
-	// * have no widths assigned.
-	// */
-	//public void assignPercentages() {
-	//	//-- Loop 1: calculate current size allocations for columns that have a width assigned.
-	//	int totpct = 0;
-	//	int totpix = 0;
-	//	int ntoass = 0; // #columns that need a width
-	//	int totdw = 0; // Total display width of all unassigned columns.
-	//	for(final ColumnDef<T, ? > scd : m_columnList) {
-	//		String cwidth = scd.getWidth();
-	//		if(cwidth == null || cwidth.length() == 0) {
-	//			ntoass++;
-	//			totdw += scd.getEmWidth();
-	//		} else {
-	//			int pct = getPct(cwidth);
-	//			if(pct > 0)
-	//				totpct += pct;
-	//			else {
-	//				int px = getPx(cwidth);
-	//				if(px > 0)
-	//					totpix += px;
-	//			}
-	//		}
-	//	}
-	//
-	//	//-- Is there something to assign, and are the numbers reasonable? If so calculate...
-	//	final int pixwidth = 1280;
-	//	if(ntoass > 0 && totpct < 100 && totpix < pixwidth) {
-	//		int pctleft = 100 - totpct; // How many percents left?
-	//		if(pctleft == 100 && totpix > 0) {
-	//			//-- All widths assigned in pixels... Calculate a percentage of the #pixels left
-	//			pctleft = (100 * (pixwidth - totpix)) / pixwidth;
-	//		}
-	//
-	//		//-- Reassign the percentage left over all unassigned columns. Do it streaming, to ensure we reach 100%
-	//		for(final ColumnDef<T, ? > scd : m_columnList) {
-	//			String width = scd.getWidth();
-	//			if(width == null || width.length() == 0) {
-	//				//-- Calculate a size factor, then use it to assign
-	//				final double fact = (double) scd.getEmWidth() / (double) totdw;
-	//				final int pct = (int) (fact * pctleft + 0.5);
-	//				pctleft -= pct;
-	//				totdw -= scd.getEmWidth();
-	//				scd.width(pct + "%");
-	//			}
-	//		}
-	//	}
-	//}
 
 	/**
 	 * Return the iterator for all elements.
@@ -363,6 +156,14 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 
 	public void setSortDescending(boolean desc) {
 		m_sortDescending = desc;
+	}
+
+	public double getEmFactor() {
+		return m_emFactor;
+	}
+
+	public void setEmFactor(double emFactor) {
+		m_emFactor = emFactor;
 	}
 
 	/*--------------------------------------------------------------*/

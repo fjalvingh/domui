@@ -22,7 +22,7 @@ div.ui-dt > table {
 	position: relative;
 	border-collapse: collapse;
 	border-spacing: 2px;
-	width: 100%;
+	//width: 100%; jal 20171023 Let table default to 100% in Java, so that we can easily override it
 	border: 1px solid #bdbdbd;
 
 	margin: 0;
