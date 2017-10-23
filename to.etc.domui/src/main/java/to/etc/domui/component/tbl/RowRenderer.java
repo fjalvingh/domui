@@ -47,7 +47,8 @@ import java.util.Map;
 	@Nonnull
 	private final Class<T> m_dataClass;
 
-	@Nonnull final private ClassMetaModel m_metaModel;
+	@Nonnull
+	final private ClassMetaModel m_metaModel;
 
 	@Nullable
 	private IRowRenderHelper<T> m_helper;
@@ -144,11 +145,9 @@ import java.util.Map;
 		m_completed = true;
 	}
 
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Actual rendering: the header.						*/
 	/*--------------------------------------------------------------*/
-
 	/**
 	 * Render the header for a table, using the simple column metadata provided. This renders a rich
 	 * header, containing column labels, sort boxes and the like.
@@ -347,7 +346,6 @@ import java.util.Map;
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Actual rendering: a row.							*/
 	/*--------------------------------------------------------------*/
-
 	/**
 	 *
 	 */
@@ -392,8 +390,7 @@ import java.util.Map;
 	 * @param cd
 	 * @throws Exception
 	 */
-	protected <X> void renderColumn(@Nonnull final TableModelTableBase<T> tbl, @Nonnull final ColumnContainer<T> cc, final int index, @Nonnull final T instance, @Nonnull final ColumnDef<T, X> cd)
-		throws Exception {
+	protected <X> void renderColumn(@Nonnull final TableModelTableBase<T> tbl, @Nonnull final ColumnContainer<T> cc, final int index, @Nonnull final T instance, @Nonnull final ColumnDef<T, X> cd) throws Exception {
 		TD cell = cc.add((NodeBase) null);
 		String cssClass = cd.getCssClass();
 		if(cssClass != null)
@@ -441,7 +438,7 @@ import java.util.Map;
 			if(null == converter) {
 				converter = ConverterRegistry.findBestConverter(pmm);
 			}
-			DisplaySpan<X> ds = new DisplaySpan<X>(pmm.getActualType(), null);
+			DisplaySpan<X> ds = new DisplaySpan<>(pmm.getActualType(), null);
 			ds.bind().to(instance, pmm);                    // Bind value to model
 			if(null != contentRenderer) {
 				// Bind the display control and let it render through the content renderer, enabling binding
@@ -482,8 +479,6 @@ import java.util.Map;
 	 * @param instance
 	 */
 	private <X, C extends NodeBase & IControl<X>> void renderEditable(@Nonnull TableModelTableBase<T> tbl, @Nonnull ColumnDef<T, X> cd, @Nonnull TD cell, @Nonnull T instance) throws Exception {
-		//if(!(instance instanceof IObservableEntity))
-		//	throw new IllegalStateException("The instance type " + instance.getClass().getName() + "' is not an Observable entity; I need one to be able to bind to it's properties");
 		PropertyMetaModel<X> pmm = cd.getPropertyMetaModel();
 		if(null == pmm)
 			throw new IllegalStateException("Cannot render edit value for row type");
@@ -715,7 +710,6 @@ import java.util.Map;
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Typesafe definition delegates.						*/
 	/*--------------------------------------------------------------*/
-
 	/**
 	 * Add and return the column definition for a column on the specified property. Because Java still has no
 	 * first-class properties (sigh) you need to pass in the property's type to get a typeful column. If you
