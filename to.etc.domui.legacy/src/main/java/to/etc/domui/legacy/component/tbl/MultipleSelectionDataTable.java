@@ -22,8 +22,13 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component.tbl;
+package to.etc.domui.legacy.component.tbl;
 
+import to.etc.domui.component.tbl.ColumnContainer;
+import to.etc.domui.component.tbl.HeaderContainer;
+import to.etc.domui.component.tbl.ICellClicked;
+import to.etc.domui.component.tbl.IRowRenderer;
+import to.etc.domui.component.tbl.ITableModel;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
@@ -37,7 +42,7 @@ import java.util.*;
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on 26 Oct 2009
  */
-public class MultipleSelectionDataTable<T> extends DataTable<T> {
+public class MultipleSelectionDataTable<T> extends DataTableOld<T> {
 
 	public MultipleSelectionDataTable(@Nonnull Class<T> dataClass, @Nonnull ITableModel<T> m, @Nonnull IRowRenderer<T> r) {
 		super(m, r);

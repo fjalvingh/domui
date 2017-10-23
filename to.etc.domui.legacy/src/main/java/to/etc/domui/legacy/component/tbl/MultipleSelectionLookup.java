@@ -22,22 +22,34 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component.lookup;
+package to.etc.domui.legacy.component.tbl;
 
-import java.util.*;
+import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.input.AbstractFloatingLookup;
+import to.etc.domui.component.input.IQueryManipulator;
+import to.etc.domui.component.layout.IWindowClosed;
+import to.etc.domui.component.lookup.IMultiSelectionResult;
+import to.etc.domui.component.lookup.LookupForm;
+import to.etc.domui.component.lookup.LookupForm.ButtonMode;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.tbl.DataPager;
+import to.etc.domui.component.tbl.ICellClicked;
+import to.etc.domui.component.tbl.IQueryHandler;
+import to.etc.domui.component.tbl.ITableModel;
+import to.etc.domui.component.tbl.SimpleSearchModel;
+import to.etc.domui.dom.errors.IErrorMessageListener;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.Msgs;
+import to.etc.webapp.query.QContextManager;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QDataContextFactory;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.layout.*;
-import to.etc.domui.component.lookup.LookupForm.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.tbl.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.query.*;
+import javax.annotation.Nonnull;
+import java.util.Collections;
 
 /**
  * Dialog that enables multiple lookup selection.

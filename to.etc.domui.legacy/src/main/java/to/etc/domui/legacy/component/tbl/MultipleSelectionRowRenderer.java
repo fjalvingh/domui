@@ -22,7 +22,7 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component.tbl;
+package to.etc.domui.legacy.component.tbl;
 
 import java.util.*;
 
@@ -30,6 +30,8 @@ import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
+import to.etc.domui.component.tbl.SimpleColumnDef;
+import to.etc.domui.component.tbl.SimpleRowRenderer;
 
 /**
  * Deprecated: the widths calculation is completely unclear (jal 2012/05/11).

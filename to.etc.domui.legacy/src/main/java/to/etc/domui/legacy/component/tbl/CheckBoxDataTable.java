@@ -22,13 +22,18 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component.tbl;
+package to.etc.domui.legacy.component.tbl;
 
 import java.util.*;
 
 import javax.annotation.*;
 
 import to.etc.domui.component.meta.*;
+import to.etc.domui.component.tbl.ColumnContainer;
+import to.etc.domui.component.tbl.DataTable;
+import to.etc.domui.component.tbl.HeaderContainer;
+import to.etc.domui.component.tbl.IRowRenderer;
+import to.etc.domui.component.tbl.ITableModel;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
 
@@ -42,7 +47,7 @@ import to.etc.domui.util.*;
  * Created on Mar 23, 2010
  */
 @Deprecated
-public class CheckBoxDataTable<T> extends DataTable<T> {
+public class CheckBoxDataTable<T> extends DataTableOld<T> {
 	@Nonnull
 	private List<T> m_selectedRows = Collections.EMPTY_LIST;
 

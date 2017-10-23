@@ -1,8 +1,8 @@
-package to.etc.domui.component.experimental;
+package to.etc.domui.component.tbl;
 
-import javax.annotation.*;
+import to.etc.domui.dom.html.TR;
 
-import to.etc.domui.dom.html.*;
+import javax.annotation.DefaultNonNull;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
