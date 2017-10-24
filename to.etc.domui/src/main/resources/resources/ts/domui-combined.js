@@ -730,6 +730,7 @@ var WebUI;
         setTimeout(function (a) {
             $('#' + id).colResizable({
                 postbackSafe: false,
+                resizeMode: 'flex',
                 onResize: function (tbl) {
                     WebUI.dataTableUpdateWidths(tbl, compId);
                 }

@@ -136,7 +136,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	}
 
 	private void cInit() {
-		if(DeveloperOptions.getBool("domui.colresizable", false)) {
+		if(DeveloperOptions.getBool("domui.colresizable", true)) {
 			m_table.appendCreateJS("WebUI.dataTableResults('" + m_table.getActualID() + "','" + getActualID() + "');");
 		}
 		setWidth("100%");

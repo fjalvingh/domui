@@ -133,6 +133,7 @@ namespace WebUI {
 		setTimeout(a => {
             $('#' +id).colResizable({
                 postbackSafe: false,
+				resizeMode: 'flex',
                 onResize: function(tbl) {
                     WebUI.dataTableUpdateWidths(tbl, compId);
                 }
