@@ -4,11 +4,13 @@ import to.etc.domui.component.headers.GenericHeader;
 import to.etc.domui.component.headers.GenericHeader.Type;
 import to.etc.domui.component.layout.ButtonBar;
 import to.etc.domui.component.layout.ContentPanel;
+import to.etc.domui.component.misc.FaIcon;
 import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.component.misc.MsgBoxButton;
 import to.etc.domui.component.misc.VerticalSpacer;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.UrlPage;
+import to.etc.domuidemo.pages.Lorem;
 
 public class DemoMsgBox extends UrlPage {
 	@Override
@@ -62,5 +64,21 @@ public class DemoMsgBox extends UrlPage {
 			};
 			MsgBox.yesNoCancel(DemoMsgBox.this, "Answer handling on all of them", onSaveConfirmHandler);
 		});
+
+
+		cp.add(new VerticalSpacer(20));
+		cp.add(new GenericHeader(Type.HEADER_1, "Content area sizing"));
+		bb = new ButtonBar();
+		cp.add(bb);
+
+		bb.addButton("Big content", FaIcon.faHandODown, a -> {
+			MsgBox.info(this, Lorem.getSentences(8192));
+		});
+
+		bb.addButton("Simple markup", FaIcon.faExpand, a -> {
+			//MsgBox.info(this, "You should not that not <b>all</b> people are good, <ul><li>Not evil ones</li><li>Not even Java's architects</li></ul>");
+			MsgBox.info(this, "You should know that not <b>all</b> people are good");
+		});
+
 	}
 }
