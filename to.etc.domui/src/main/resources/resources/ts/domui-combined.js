@@ -726,6 +726,9 @@ var WebUI;
         }
     }
     WebUI.popinKeyClose = popinKeyClose;
+    function dataTableResults(id) {
+    }
+    WebUI.dataTableResults = dataTableResults;
     function dataTableUpdateWidths(evt, tblId) {
         var tbl = evt.currentTarget;
         var hdrs = $(tbl).find(".ui-dt-th");

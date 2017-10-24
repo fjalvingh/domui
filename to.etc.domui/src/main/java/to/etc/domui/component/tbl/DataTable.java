@@ -205,7 +205,8 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 
 		m_table.removeAllChildren();
 		add(m_table);
-		appendJavascript("$('#" + m_table.getActualID() + "').colResizable({postbackSafe: false, onResize: function(tbl) {WebUI.dataTableUpdateWidths(tbl, '" + getActualID() + "');}});");
+		//appendJavascript("$('#" + m_table.getActualID() + "').colResizable({postbackSafe: false, onResize: function(tbl) {WebUI.dataTableUpdateWidths(tbl, '" + getActualID() + "');}});");
+		appendJavascript("WebUI.dataTableResults('"+ m_table.getActualID() + "');");
 
 		//-- Render the header.
 		THead hd = new THead();

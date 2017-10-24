@@ -3,6 +3,7 @@ interface JQuery {
 	disableSelection(): void;
 	enableSelection():  void;
 	error(fn: Function):  void;
+	colResizable(val: any): void;
 
 	markerTransformed: boolean;
 

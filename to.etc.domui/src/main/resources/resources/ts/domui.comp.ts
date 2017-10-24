@@ -129,6 +129,22 @@ namespace WebUI {
 	}
 
 	/*-------------- DataTable column --------------------*/
+	export function dataTableResults(id: string) {
+		// setTimeout(a => {
+         //    $('#' +id).colResizable({
+         //        postbackSafe: false,
+         //        onResize: function(tbl) {
+         //            WebUI.dataTableUpdateWidths(tbl, id);
+         //        }
+         //    });
+		// }, 1500);
+	}
+
+    /**
+	 * Callback which sends the new sizes of columns to the server.
+     * @param evt
+     * @param tblId
+     */
 	export function dataTableUpdateWidths(evt, tblId) {
 		const tbl = evt.currentTarget;
 		let hdrs = $(tbl).find(".ui-dt-th");
