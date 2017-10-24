@@ -45,6 +45,7 @@ import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.JavascriptUtil;
 import to.etc.domui.util.Msgs;
+import to.etc.util.DeveloperOptions;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -117,20 +118,27 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	public DataTable(@Nonnull ITableModel<T> m, @Nonnull IRowRenderer<T> r) {
 		super(m);
 		m_rowRenderer = r;
-		setWidth("100%");
+		cInit();
 	}
 
 	public DataTable(@Nonnull IRowRenderer<T> r) {
 		m_rowRenderer = r;
-		setWidth("100%");
+		cInit();
 	}
 
 	public DataTable(@Nonnull ITableModel<T> m) {
 		super(m);
-		setWidth("100%");
+		cInit();
 	}
 
 	public DataTable() {
+		cInit();
+	}
+
+	private void cInit() {
+		if(DeveloperOptions.getBool("domui.colresizable", false)) {
+			m_table.appendCreateJS("WebUI.dataTableResults('" + m_table.getActualID() + "','" + getActualID() + "');");
+		}
 		setWidth("100%");
 	}
 
@@ -206,7 +214,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 		m_table.removeAllChildren();
 		add(m_table);
 		//appendJavascript("$('#" + m_table.getActualID() + "').colResizable({postbackSafe: false, onResize: function(tbl) {WebUI.dataTableUpdateWidths(tbl, '" + getActualID() + "');}});");
-		appendJavascript("WebUI.dataTableResults('"+ m_table.getActualID() + "');");
+		//m_table.appendCreateJS("WebUI.dataTableResults('"+ m_table.getActualID() + "','" + getActualID() + "');");
 
 		//-- Render the header.
 		THead hd = new THead();

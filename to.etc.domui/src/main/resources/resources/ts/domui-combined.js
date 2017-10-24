@@ -726,10 +726,18 @@ var WebUI;
         }
     }
     WebUI.popinKeyClose = popinKeyClose;
-    function dataTableResults(id) {
+    function dataTableResults(id, compId) {
+        setTimeout(function (a) {
+            $('#' + id).colResizable({
+                postbackSafe: false,
+                onResize: function (tbl) {
+                    WebUI.dataTableUpdateWidths(tbl, compId);
+                }
+            });
+        }, 500);
     }
     WebUI.dataTableResults = dataTableResults;
-    function dataTableUpdateWidths(evt, tblId) {
+    function dataTableUpdateWidths(evt, compId) {
         var tbl = evt.currentTarget;
         var hdrs = $(tbl).find(".ui-dt-th");
         var list = {};
@@ -737,7 +745,7 @@ var WebUI;
             var wid = hdrs[i].style.width;
             list["column_" + hdrs[i].id] = hdrs[i].style.width;
         }
-        WebUI.scall(tblId, "COLWIDTHS", list);
+        WebUI.scall(compId, "COLWIDTHS", list);
         console.log("Change event", tbl);
     }
     WebUI.dataTableUpdateWidths = dataTableUpdateWidths;

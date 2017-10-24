@@ -24,17 +24,31 @@
  */
 package to.etc.webapp.qsql;
 
-import java.math.*;
-import java.sql.*;
-import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import to.etc.util.DateUtil;
+import to.etc.util.FileTool;
+import to.etc.util.StringTool;
+import to.etc.webapp.query.IIdentifyable;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.math.BigDecimal;
+import java.sql.Blob;
+import java.sql.CallableStatement;
+import java.sql.Clob;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.RowId;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.sql.Types;
+import java.util.ArrayList;
 import java.util.Date;
-
-import javax.annotation.*;
-
-import org.slf4j.*;
-
-import to.etc.util.*;
-import to.etc.webapp.query.*;
+import java.util.List;
 
 /**
  * Utility class for JDBC code.
@@ -733,6 +747,12 @@ public class JdbcUtil {
 	public static java.util.Date readDate(@Nonnull ResultSet rs, @Nonnull String colName) throws SQLException {
 		return DateUtil.sqlToUtilDate(rs.getDate(colName));
 	}
+
+	@Nullable
+	public static java.util.Date readDate(@Nonnull ResultSet rs, int index) throws SQLException {
+		return DateUtil.sqlToUtilDate(rs.getDate(index));
+	}
+
 
 	@Nullable
 	public static java.util.Date readTimestamp(@Nonnull ResultSet rs, int colIndex) throws SQLException {
