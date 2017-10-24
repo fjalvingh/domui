@@ -119,7 +119,7 @@ public class MsgBox extends Window {
 	protected MsgBox() {
 		super(true, false, WIDTH, -1, "");
 		setErrorFence(null); // Do not accept handling errors!!
-		m_theButtons.addCssClass("ui-bb-middle");
+		m_theButtons.addCssClass("ui-mbx-btns");
 		setOnClose(new IWindowClosed() {
 			@Override
 			public void closed(@Nonnull String closeReason) throws Exception {
