@@ -60,7 +60,7 @@ public class Text2LayoutTestPage extends UrlPage {
 		add(new Caption("Without form builder"));
 
 		//-- Single text
-		Div d = new Div("ui-f4-line");
+		Div d = new Div("");
 		add(d);
 		Text2<String> t1	= new Text2<>(String.class);
 		d.add(new Label(t1,"zzzzzzzz"));
@@ -69,7 +69,7 @@ public class Text2LayoutTestPage extends UrlPage {
 
 		//-- Single text with button
 		add(new VerticalSpacer(10));
-		d = new Div("ui-f4-line");
+		d = new Div("");
 		add(d);
 		Text2<String> t2	= new Text2<>(String.class);
 		d.add(new Label(t2,"z22222222"));
@@ -79,7 +79,7 @@ public class Text2LayoutTestPage extends UrlPage {
 
 		//-- Single text with 2 buttons
 		add(new VerticalSpacer(10));
-		d = new Div("ui-f4-line");
+		d = new Div("");
 		add(d);
 		Text2<String> t3	= new Text2<>(String.class);
 		d.add(new Label(t3,"z3333333"));
@@ -90,7 +90,7 @@ public class Text2LayoutTestPage extends UrlPage {
 
 		//-- Button with image
 		add(new VerticalSpacer(10));
-		d = new Div("ui-f4-line");
+		d = new Div("");
 		add(d);
 		Text2<String> t4	= new Text2<>(String.class);
 		d.add(new Label(t4,"zzzzzzzzzzz4"));

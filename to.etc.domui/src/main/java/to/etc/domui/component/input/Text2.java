@@ -46,10 +46,6 @@ import to.etc.domui.dom.html.IHasModifiedIndication;
 import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.Input;
 import to.etc.domui.dom.html.NodeBase;
-import to.etc.domui.dom.html.TBody;
-import to.etc.domui.dom.html.TD;
-import to.etc.domui.dom.html.TR;
-import to.etc.domui.dom.html.Table;
 import to.etc.domui.parts.MarkerImagePart;
 import to.etc.domui.trouble.UIException;
 import to.etc.domui.trouble.ValidationException;
@@ -151,8 +147,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	@Nullable
 	private List<NodeBase> m_buttonList;
 
-	@Nullable
-	private TBody m_body;
+	private List<Div> m_buttonDivs = new ArrayList<>();
 
 	public enum NumberMode {
 		NONE, DIGITS, FLOAT,
@@ -186,12 +181,12 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 
 	@Override
 	public void createContent() throws Exception {
-		addCssClass("ui-txt2");
-		Table tbl = new Table("ui-txt2-tbl");
-		add(tbl);
-		TBody tb = m_body= tbl.addBody();
-		TD td = tb.addRowAndCell("ui-txt2-in");
-		td.add(m_input);
+		addCssClass("field");
+
+		Div ctl = new Div("control");
+		add(ctl);
+		ctl.add(m_input);
+		m_input.addCssClass("input");
 		renderButtons();
 		renderMode();
 	}
@@ -205,24 +200,23 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	}
 
 	private void renderButtons() {
-		TBody body = m_body;
-		if(null == body)
-			return;
+		m_buttonDivs.forEach(b -> b.remove());
+		m_buttonDivs.clear();
 
-		//-- Get row 1 and remove all cells but the 1st one
-		TR tr = body.getRow(0);
-		while(tr.getChildCount() > 1) {
-			tr.getChild(tr.getChildCount() - 1).remove();
-		}
-
+		removeCssClass("has-addons");
 		List<NodeBase> buttonList = m_buttonList;
 		if(null != buttonList) {
+			if(buttonList.size() > 0)
+				addCssClass("has-addons");
 			buttonList.forEach(b -> {
 				//Div bd = new Div("ui-txt2-bdiv");
 				//body.addCell("ui-txt2-btn").add(bd);
 				//bd.add(b);
-
-				body.addCell("ui-txt2-btn").add(b);
+				Div d = new Div("control");
+				add(d);
+				m_buttonDivs.add(d);
+				d.add(b);
+				b.setCssClass("button is-primary");
 			});
 		}
 	}
@@ -656,8 +650,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 			m_buttonList = buttonList = new ArrayList<>(2);
 		}
 		buttonList.add(button);
-		TBody body = m_body;
-		if(isBuilt() && body != null) {
+		if(isBuilt()) {
 			renderButtons();
 		}
 	}
