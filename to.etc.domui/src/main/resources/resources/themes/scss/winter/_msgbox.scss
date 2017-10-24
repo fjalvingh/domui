@@ -1,4 +1,6 @@
 /*** MsgBox ***/
+@import "variables";
+
 .ui-mbx-top {
 	height: 140px;
 }
@@ -34,6 +36,16 @@
 	vertical-align: baseline;
 }
 
-.ui-mbx-buttons {
+.ui-mbx-btns {
+	padding: 8px $horizontal-padding 8px $horizontal-padding;
+	//margin-bottom: 8px;
+
+	& > * {
+		margin-right: 10px;
+	}
+	//button {
+	//	margin-bottom: 2px !important;
+	//}
+
 
 }
