@@ -830,6 +830,7 @@ public abstract class DomApplication {
 		addHeaderContributor(HeaderContributor.loadStylesheet("$js/jquery.wysiwyg.css"), -780);
 		//addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery-plugins/jquery.fixedheadertable.js"), -790);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery-plugins/jquery.floatThead.js"), -790);
+		addHeaderContributor(HeaderContributor.loadStylesheet("$bulma/bulma.css"), -770);
 
 		/*
 		 * FIXME: Delayed construction of components causes problems with components
