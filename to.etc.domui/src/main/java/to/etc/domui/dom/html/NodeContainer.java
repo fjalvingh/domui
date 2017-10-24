@@ -30,6 +30,8 @@ import to.etc.domui.converter.IConverter;
 import to.etc.domui.dom.errors.ErrorFenceHandler;
 import to.etc.domui.dom.errors.IErrorFence;
 import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.logic.errors.ProblemModel;
+import to.etc.domui.logic.errors.ProblemReporter;
 import to.etc.domui.util.DomUtil;
 import to.etc.webapp.ProgrammerErrorException;
 
@@ -874,6 +876,28 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 				((NodeContainer) ctrl).disableAllChildControlsDeep();
 			}
 		}
+	}
+
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	Validation framework.										*/
+	/*----------------------------------------------------------------------*/
+
+	/**
+	 * When called this asks all underlying nodes to validate. Anything having some
+	 * validation error will report it. Before validation all existing validation
+	 * errors are cleared.
+	 *
+	 * @return T if there are validation errors.
+	 */
+	public boolean validationErrors() throws Exception {
+		//validationClear();
+		ProblemModel pm = new ProblemModel();
+		validateComponents(pm);
+		new ProblemReporter(this, pm).report();
+		return pm.hasErrors();
+	}
+
+	protected void validateComponents(ProblemModel pm) throws Exception {
 	}
 }
 

@@ -726,6 +726,30 @@ var WebUI;
         }
     }
     WebUI.popinKeyClose = popinKeyClose;
+    function dataTableResults(id, compId) {
+        setTimeout(function (a) {
+            $('#' + id).colResizable({
+                postbackSafe: false,
+                resizeMode: 'flex',
+                onResize: function (tbl) {
+                    WebUI.dataTableUpdateWidths(tbl, compId);
+                }
+            });
+        }, 500);
+    }
+    WebUI.dataTableResults = dataTableResults;
+    function dataTableUpdateWidths(evt, compId) {
+        var tbl = evt.currentTarget;
+        var hdrs = $(tbl).find(".ui-dt-th");
+        var list = {};
+        for (var i = 0; i < hdrs.length; i++) {
+            var wid = hdrs[i].style.width;
+            list["column_" + hdrs[i].id] = hdrs[i].style.width;
+        }
+        WebUI.scall(compId, "COLWIDTHS", list);
+        console.log("Change event", tbl);
+    }
+    WebUI.dataTableUpdateWidths = dataTableUpdateWidths;
     var _ckEditorMap = {};
     function registerCkEditorId(id, ckeInstance) {
         _ckEditorMap[id] = [ckeInstance, null];

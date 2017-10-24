@@ -128,6 +128,35 @@ namespace WebUI {
 		}
 	}
 
+	/*-------------- DataTable column --------------------*/
+	export function dataTableResults(id: string, compId: string): void {
+		setTimeout(a => {
+            $('#' +id).colResizable({
+                postbackSafe: false,
+				resizeMode: 'flex',
+                onResize: function(tbl) {
+                    WebUI.dataTableUpdateWidths(tbl, compId);
+                }
+            });
+		}, 500);
+	}
+
+    /**
+	 * Callback which sends the new sizes of columns to the server.
+     * @param evt
+     * @param compId
+     */
+	export function dataTableUpdateWidths(evt, compId) {
+		const tbl = evt.currentTarget;
+		let hdrs = $(tbl).find(".ui-dt-th");
+		let list = {};
+		for(let i = 0; i < hdrs.length; i++) {
+			let wid = hdrs[i].style.width;
+			list["column_" + hdrs[i].id] = hdrs[i].style.width;
+		}
+		WebUI.scall(compId, "COLWIDTHS", list);
+		console.log("Change event", tbl);
+	}
 
 	// CK editor support, map of key (id of editor) value (pair of [editor instance, assigned resize function])
 	let _ckEditorMap = {};

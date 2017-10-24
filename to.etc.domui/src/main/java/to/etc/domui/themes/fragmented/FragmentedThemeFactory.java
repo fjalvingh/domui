@@ -52,7 +52,7 @@ import static to.etc.domui.util.DomUtil.*;
  * The full theme is then described as a string: style/iconset/color/variant. An example theme instance is: "domui/domui/orange/default".
  * This four-part string is the <i>theme name</i>. This factory is used to instantiate a theme instance for a specific "theme name".</p>.
  *
- * <p>The first three parts of the theme name come from an application-level global setting: the string set as {@link DomApplication#setCurrentTheme(String)}.
+ * <p>The first three parts of the theme name come from an application-level global setting: the string set as {@link DomApplication#setDefaultThemeName(String)}.
  * This defines the "global" theme for the application. The last part, the variant, is provided by the page itself: it allows a page to specify a different
  * version for the master stylesheet. The use case for this is migration to different style sheets if an older one has problems; by creating pages that
  * refer to a new sheet we can change the stylesheet without regression risk for existing pages.</p>
@@ -88,8 +88,12 @@ public class FragmentedThemeFactory {
 			return stf.createTheme();
 		}
 
+		@Nonnull @Override public String getFactoryName() {
+			return "fragmented";
+		}
+
 		@Nonnull @Override public String getDefaultThemeName() {
-			return "domui/orange/domui";
+			return getFactoryName() + "-domui-orange-domui";
 		}
 	};
 
@@ -114,8 +118,6 @@ public class FragmentedThemeFactory {
 	/*--------------------------------------------------------------*/
 	/**
 	 * Constructor for a factory instance that will generate the ITheme.
-	 * @param da
-	 * @param themeName
 	 */
 	protected FragmentedThemeFactory(DomApplication da, String themeName) {
 		m_application = da;
@@ -156,13 +158,13 @@ public class FragmentedThemeFactory {
 
 	protected void loadStyleInfo() throws Exception {
 		//-- Split theme name into css/icons/color
-		String[] ar = m_themeName.split("/");
-		if(ar.length != 4)
+		String[] ar = m_themeName.split("-");
+		if(ar.length != 4 && ar.length != 5)
 			throw new StyleException("The theme name '" + m_themeName + "' is invalid for "+getClass()+": expecting styleName/icon/color/variant");
-		String styleName = ar[0];
-		String iconName = ar[1];
-		String colorName = ar[2];
-		String variant = ar[3];
+		String styleName = ar[1];
+		String iconName = ar[2];
+		String colorName = ar[3];
+		String variant = ar.length == 4 ? DefaultThemeVariant.INSTANCE.getVariantName() : ar[4];
 
 		loadColors(colorName);
 		loadIcons(iconName, variant);

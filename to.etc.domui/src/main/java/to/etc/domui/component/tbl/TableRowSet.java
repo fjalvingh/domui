@@ -1,8 +1,9 @@
-package to.etc.domui.component.experimental;
+package to.etc.domui.component.tbl;
 
-import java.util.*;
-
-import javax.annotation.*;
+import javax.annotation.DefaultNonNull;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * This maintains the list-of-rows associated with a single data entity. A RowSet
@@ -14,7 +15,7 @@ import javax.annotation.*;
  */
 @DefaultNonNull
 final public class TableRowSet<T> implements Iterable<DataTableRow<T>> {
-	final private MultiRowDataTable<T> m_dataTable;
+	final private DataTable<T> m_dataTable;
 
 	final private T m_instance;
 
@@ -24,7 +25,7 @@ final public class TableRowSet<T> implements Iterable<DataTableRow<T>> {
 
 	private boolean m_even;
 
-	public TableRowSet(MultiRowDataTable<T> dataTable, T instance) {
+	public TableRowSet(DataTable<T> dataTable, T instance) {
 		m_dataTable = dataTable;
 		m_instance = instance;
 		m_primaryRow = new DataTableRow<>(this);
@@ -63,6 +64,7 @@ final public class TableRowSet<T> implements Iterable<DataTableRow<T>> {
 		m_dataTable.appendExtraRowBefore(this, newRow, row);
 		return newRow;
 	}
+
 
 	public int rowCount() {
 		return m_rowsList.size();

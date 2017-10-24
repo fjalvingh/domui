@@ -1,115 +1,84 @@
 package to.etc.domuidemo.pages.overview.misc;
 
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.misc.*;
-import to.etc.domui.dom.html.*;
+import to.etc.domui.component.headers.GenericHeader;
+import to.etc.domui.component.headers.GenericHeader.Type;
+import to.etc.domui.component.layout.ButtonBar;
+import to.etc.domui.component.layout.ContentPanel;
+import to.etc.domui.component.misc.FaIcon;
+import to.etc.domui.component.misc.MsgBox;
+import to.etc.domui.component.misc.MsgBoxButton;
+import to.etc.domui.component.misc.VerticalSpacer;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domuidemo.pages.Lorem;
 
 public class DemoMsgBox extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
-		final Div d = new Div();
-		add(d);
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+		cp.add(new GenericHeader(Type.HEADER_1, "Message box variants"));
 
-		Label l = new Label("DemoMsgBox");
-		d.add(l);
-		DefaultButton db1 = new DefaultButton("Information", "img/btnSmileyQuestion.gif", new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(DefaultButton clickednode) throws Exception {
-				MsgBox.message(d, MsgBox.Type.INFO, "Information message");
-			}
-		});
-		d.add(db1);
-		DefaultButton db2 = new DefaultButton("Warning", "img/btnSmileyTongue.gif", new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(DefaultButton clickednode) throws Exception {
-				MsgBox.message(d, MsgBox.Type.WARNING, "Warning message");
-			}
-		});
-		d.add(db2);
-		DefaultButton db3 = new DefaultButton("Error", "img/btnSmileySad.gif", new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(DefaultButton clickednode) throws Exception {
-				MsgBox.message(d, MsgBox.Type.ERROR, "Error message");
-			}
-		});
-		d.add(db3);
+		ButtonBar bb = new ButtonBar();
+		cp.add(bb);
 
-		d.add(new VerticalSpacer(20));
-		d.add("Messages with simple Dialog handling");
-		final Div d1 = new Div();
-		add(d1);
-		DefaultButton db7 = new DefaultButton("Continuation", "img/btnSmileyWink.png", new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(DefaultButton clickednode) throws Exception {
-				MsgBox.continueCancel(DemoMsgBox.this, "Click Continuation or Cancel<BR/><BR/>(Cancel has no action)", new IClicked<MsgBox>() {
-					@Override
-					public void clicked(MsgBox clickednode1) throws Exception {
-						d1.add("==> You choose Continue");
-					}
-				});
+		bb.addButton("Information", "img/btnSmileyQuestion.gif", clickednode -> MsgBox.message(this, MsgBox.Type.INFO, "Information message"));
+		bb.addButton("Warning", "img/btnSmileyTongue.gif", clickednode -> MsgBox.message(this, MsgBox.Type.WARNING, "Warning message"));
+		bb.addButton("Error", "img/btnSmileySad.gif", clickednode -> MsgBox.message(this, MsgBox.Type.ERROR, "Error message"));
+
+		bb.addButton("Continuation", "img/btnSmileyWink.png",
+			clickednode -> MsgBox.continueCancel(DemoMsgBox.this, "Click Continuation or Cancel<BR/><BR/>(Cancel has no action)", (IClicked<MsgBox>) clickednode1 -> {
+				MsgBox.info(this, "You chose continue");
+			}));
+
+		bb.addButton("Yes/No", "img/btnReload.gif", clickednode -> MsgBox.yesNo(DemoMsgBox.this, "Click Yes or No<BR/><BR/>(No has no action)", (IClicked<MsgBox>) clickednode1 -> {
+			MsgBox.info(this, "You chose YES");
+		}));
+
+		cp.add(new VerticalSpacer(20));
+		cp.add(new GenericHeader(Type.HEADER_1, "More complex answer handling"));
+		bb = new ButtonBar();
+		cp.add(bb);
+
+
+		bb.addButton("Yes/No", "img/btnSmileyGrin.gif", clickednode -> {
+			MsgBox.IAnswer onDeleteHandler = result -> {
+				if(result == MsgBoxButton.YES) {
+					MsgBox.info(this, "==> You choose Yes");
+				} else if(result == MsgBoxButton.NO) {
+					MsgBox.info(this, "==> You choose No");
+				}
 			};
+			MsgBox.yesNo(DemoMsgBox.this, "Answer handling on both<BR/>", onDeleteHandler);
 		});
-		d1.add(db7);
 
-		final Div d2 = new Div();
-		add(d2);
-		DefaultButton db4 = new DefaultButton("Yes/No", "img/btnReload.gif", new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(DefaultButton clickednode) throws Exception {
-				MsgBox.yesNo(DemoMsgBox.this, "Click Yes or No<BR/><BR/>(No has no action)", new IClicked<MsgBox>() {
-					@Override
-					public void clicked(MsgBox clickednode1) throws Exception {
-						d2.add("==> You choose Yes");
-					}
-				});
-			}
+		bb.addButton("Yes/No/Cancel", "img/btnSmileySing.gif", clickednode -> {
+			MsgBox.IAnswer onSaveConfirmHandler = result -> {
+				if(result == MsgBoxButton.YES) {
+					MsgBox.info(this, "==> You choose Yes");
+				} else if(result == MsgBoxButton.NO) {
+					MsgBox.info(this, "==> You choose No");
+				} else if(result == MsgBoxButton.CANCEL) {
+					MsgBox.info(this, "==> You choose Cancel");
+				}
+			};
+			MsgBox.yesNoCancel(DemoMsgBox.this, "Answer handling on all of them", onSaveConfirmHandler);
 		});
-		d2.add(db4);
 
-		Div d3 = new Div();
-		add(d3);
-		d3.add(new BR());
-		d3.add("More complex answer handling");
-		final Div d4 = new Div();
-		add(d4);
-		DefaultButton db5 = new DefaultButton("Yes/No", "img/btnSmileyGrin.gif", new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(DefaultButton clickednode) throws Exception {
-				MsgBox.IAnswer onDeleteHandler = new MsgBox.IAnswer() {
-					@Override
-					public void onAnswer(MsgBoxButton result) throws Exception {
-						if(result == MsgBoxButton.YES) {
-							d4.add("==> You choose Yes");
-						} else if(result == MsgBoxButton.NO) {
-							d4.add("==> You choose No");
-						}
-					}
-				};
-				MsgBox.yesNo(DemoMsgBox.this, "Answer handling on both<BR/>", onDeleteHandler);
-			}
-		});
-		d4.add(db5);
 
-		final Div d5 = new Div();
-		add(d5);
-		DefaultButton db6 = new DefaultButton("Yes/No/Cancel", "img/btnSmileySing.gif", new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(DefaultButton clickednode) throws Exception {
-				MsgBox.IAnswer onSaveConfirmHandler = new MsgBox.IAnswer() {
-					@Override
-					public void onAnswer(MsgBoxButton result) throws Exception {
-						if(result == MsgBoxButton.YES) {
-							d5.add("==> You choose Yes");
-						} else if(result == MsgBoxButton.NO) {
-							d5.add("==> You choose No");
-						} else if(result == MsgBoxButton.CANCEL) {
-							d5.add("==> You choose Cancel");
-						}
-					}
-				};
-				MsgBox.yesNoCancel(DemoMsgBox.this, "Answer handling on all of them", onSaveConfirmHandler);
-			}
+		cp.add(new VerticalSpacer(20));
+		cp.add(new GenericHeader(Type.HEADER_1, "Content area sizing"));
+		bb = new ButtonBar();
+		cp.add(bb);
+
+		bb.addButton("Big content", FaIcon.faHandODown, a -> {
+			MsgBox.info(this, Lorem.getSentences(8192));
 		});
-		d5.add(db6);
+
+		bb.addButton("Simple markup", FaIcon.faExpand, a -> {
+			//MsgBox.info(this, "You should not that not <b>all</b> people are good, <ul><li>Not evil ones</li><li>Not even Java's architects</li></ul>");
+			MsgBox.info(this, "You should know that not <b>all</b> people are good");
+		});
+
 	}
 }

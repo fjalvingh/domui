@@ -24,17 +24,27 @@
  */
 package to.etc.domui.dom;
 
-import to.etc.domui.component.misc.*;
-import to.etc.domui.dom.header.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.domui.themes.*;
-import to.etc.domui.util.javascript.*;
-import to.etc.domui.util.resources.*;
-import to.etc.util.*;
+import to.etc.domui.component.misc.LiteralXhtml;
+import to.etc.domui.dom.header.HeaderContributor;
+import to.etc.domui.dom.header.HeaderContributorEntry;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.NodeVisitorBase;
+import to.etc.domui.dom.html.Page;
+import to.etc.domui.dom.html.PagePhase;
+import to.etc.domui.dom.html.TextArea;
+import to.etc.domui.dom.html.TextNode;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.IRequestContext;
+import to.etc.domui.themes.ITheme;
+import to.etc.domui.util.javascript.JavascriptStmt;
+import to.etc.util.DeveloperOptions;
+import to.etc.util.StringTool;
 
-import javax.annotation.*;
-import java.util.*;
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Visits the node tree in such a way that a valid html document is generated.
@@ -245,17 +255,10 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 	/**
 	 * Render the proper themed stylesheet. This will be "style.theme.css" within the current
 	 * "theme directory", which is defined by the "currentTheme" in DomApplication.
-	 * @throws Exception
 	 */
 	protected void renderThemeCSS() throws Exception {
-		String currentTheme = DomApplication.get().getCurrentTheme();
-		IThemeVariant variant = m_page.getBody().getThemeVariant();
-		ITheme theme = DomApplication.get().getTheme(currentTheme + "/" + variant.getVariantName(), ResourceDependencyList.NULL);
+		ITheme theme = m_ctx.getCurrentTheme();
 		String sheet = theme.getStyleSheetName();
-
-		//String sheet = m_page.getBody().getThemedResourceRURL("THEME/style.theme.css");
-		//if(null == sheet)
-		//	throw new IllegalStateException("Unexpected null??");
 
 		//-- Render style fragments part.
 		o().writeRaw("<link rel=\"stylesheet\" type=\"text/css\" href=\"");
@@ -265,7 +268,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		else
 			o().writeRaw("\">\n");
 		//else
-		//	o().writeRaw("\"></link>\n");
+		//	o().writeRaw("\"></link>\n");					No longer needed
 	}
 
 	/**

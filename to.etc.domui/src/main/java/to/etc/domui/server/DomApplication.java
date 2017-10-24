@@ -48,6 +48,8 @@ import to.etc.domui.sass.*;
 import to.etc.domui.server.parts.*;
 import to.etc.domui.state.*;
 import to.etc.domui.themes.*;
+import to.etc.domui.themes.fragmented.FragmentedThemeFactory;
+import to.etc.domui.themes.sass.SassThemeFactory;
 import to.etc.domui.themes.simple.*;
 import to.etc.domui.trouble.*;
 import to.etc.domui.util.*;
@@ -62,6 +64,7 @@ import javax.servlet.http.*;
 import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *
@@ -152,6 +155,16 @@ public abstract class DomApplication {
 	@Nonnull
 	private ResourceInfoCache	m_resourceInfoCache = new ResourceInfoCache(this);
 
+	/** The theme manager where theme calls are delegated to. */
+	final private ThemeManager m_themeManager = new ThemeManager(this);
+
+	/** Global properties for all themes */
+	final private Map<String, String> m_themeApplicationProperties = new HashMap<>();
+
+	/** The "current theme". This will become part of all themed resource URLs and is interpreted by the theme factory to resolve resources. */
+	@Nonnull
+	private volatile String m_defaultTheme = "";
+
 	/**
 	 * Must return the "root" class of the application; the class rendered when the application's
 	 * root URL is entered without a class name.
@@ -177,6 +190,9 @@ public abstract class DomApplication {
 
 	@Nonnull
 	private List<FilterRef> m_requestHandlerList = Collections.emptyList();
+
+	@Nonnull
+	private Map<String, Object> m_attributeMap = new ConcurrentHashMap<>();
 
 	/**
 	 * When > 0, TextArea components will automatically have their maxByteLength property
@@ -245,6 +261,8 @@ public abstract class DomApplication {
 
 	private String m_problemFromAddress;
 
+	static private Map<String, IThemeFactory> THEME_FACTORIES = new HashMap<>();
+
 	/**
 	 * The only constructor.
 	 */
@@ -296,8 +314,8 @@ public abstract class DomApplication {
 				return true;
 			}
 		});
-		setCurrentTheme("blue/domui/blue");
-		setThemeFactory(SimpleThemeFactory.INSTANCE);
+		setDefaultThemeName("blue/domui/blue");
+		setDefaultThemeFactory(SimpleThemeFactory.INSTANCE);
 
 		registerResourceFactory(new ClassRefResourceFactory());
 		registerResourceFactory(new VersionedJsResourceFactory());
@@ -805,6 +823,7 @@ public abstract class DomApplication {
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery.blockUI.js"), -970);
 		addHeaderContributor(HeaderContributor.loadJavascript("$ts/domui-combined.js"), -900);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/domui.searchpopup.js"), -895);
+		addHeaderContributor(HeaderContributor.loadJavascript("$js/colResizable-1.6.js"), -895);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/weekagenda.js"), -790);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery.wysiwyg.js"), -780);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/wysiwyg.rmFormat.js"), -779);
@@ -1550,15 +1569,10 @@ public abstract class DomApplication {
 	public static void setPlatformVarcharByteLimit(int platformVarcharByteLimit) {
 		m_platformVarcharByteLimit = platformVarcharByteLimit;
 	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Programmable theme code.							*/
 	/*--------------------------------------------------------------*/
-	/** The theme manager where theme calls are delegated to. */
-	final private ThemeManager m_themeManager = new ThemeManager(this);
-
-	/** Global properties for all themes */
-	final private Map<String, String> m_themeApplicationProperties = new HashMap<>();
-
 	/**
 	 * This method can be overridden to add extra stuff to the theme map, after
 	 * it has been loaded from properties or whatnot.
@@ -1572,30 +1586,28 @@ public abstract class DomApplication {
 	}
 
 	/**
-	 * Sets the current theme string. This will become part of all themed resource URLs
+	 * Sets the application-default theme string. This will become part of all themed resource URLs
 	 * and is interpreted by the theme factory to resolve resources. The string is used
 	 * as a "parameter" for the theme factory which will use it to decide on the "real"
 	 * theme to use.
-	 * @param currentTheme	The theme name, valid for the current theme engine. Cannot be null nor the empty string.
+	 *
+	 * @param themeName	The theme name, valid for the current theme engine. Cannot be null nor the empty string.
 	 */
-	final public void setCurrentTheme(@Nonnull String currentTheme) {
-		m_themeManager.setCurrentTheme(currentTheme);
+	final public void setDefaultThemeName(@Nonnull String themeName) {
+		m_defaultTheme = themeName;
 	}
 
 	/**
-	 * Gets the current theme string.  This will become part of all themed resource URLs
+	 * Gets the application-default theme string. This will become part of all themed resource URLs
 	 * and is interpreted by the theme factory to resolve resources.
-	 * @return
 	 */
 	@Nonnull
-	final public String getCurrentTheme() {
-		return m_themeManager.getCurrentTheme();
+	final public String getDefaultThemeName() {
+		return m_defaultTheme;
 	}
 
 	/**
 	 * Set a property for all themes.
-	 * @param name
-	 * @param value
 	 */
 	final public void setThemeProperty(@Nonnull String name, @Nullable String value) {
 		m_themeApplicationProperties.put(name, value);
@@ -1612,60 +1624,43 @@ public abstract class DomApplication {
 	}
 
 	/**
-	 * Set the factory for handling the theme.
-	 * @param themer
+	 * Set the application-default theme factory, and make the factory set its default theme.
 	 */
-	final public void setThemeFactory(@Nonnull IThemeFactory themer) {
-		m_themeManager.setThemeFactory(themer);
-		m_themeManager.setCurrentTheme(themer.getDefaultThemeName());
+	final public void setDefaultThemeFactory(@Nonnull IThemeFactory themer) {
+		m_defaultTheme = themer.getDefaultThemeName();
+	}
+
+	/**
+	 * Get an ITheme instance for the default theme manager and theme.
+	 */
+	@Nonnull
+	public ITheme getDefaultThemeInstance() {
+		return m_themeManager.getTheme(getDefaultThemeName(), DefaultThemeVariant.INSTANCE, null);
 	}
 
 	/**
 	 * Get the theme store representing the specified theme name. This is the name as obtained
 	 * from the resource name which is the part between $THEME/ and the actual filename.
-	 *
-	 * @param rdl
-	 * @return
-	 * @throws Exception
+	 */
+	final public ITheme getTheme(@Nonnull String themeName, @Nonnull IThemeVariant variant, @Nullable IResourceDependencyList rdl) throws Exception {
+		return m_themeManager.getTheme(themeName, variant, rdl);
+	}
+
+	/**
+	 * FIXME Get rid of rdl parameter
+	 * Get the theme store representing the specified theme name. This is the name as obtained
+	 * from the resource name which is the part between $THEME/ and the actual filename.
 	 */
 	final public ITheme getTheme(@Nonnull String themeName, @Nullable IResourceDependencyList rdl) throws Exception {
 		return m_themeManager.getTheme(themeName, rdl);
 	}
 
 	/**
-	 * EXPENSIVE CALL - ONLY USE TO CREATE CACHED RESOURCES
-	 *
-	 * This loads a theme resource as an utf-8 encoded template, then does expansion using the
-	 * current theme's variable map. This map is either a "style.properties" file
-	 * inside the theme's folder, or can be configured dynamically using a IThemeMapFactory.
-	 *
-	 * The result is returned as a string.
-	 *
-	 *
-	 * @param rdl
-	 * @param rurl
-	 * @return
-	 * @throws Exception
+	 * Called from the user session to detect the user's theme; override to assign per-user theme.
 	 */
-	final public String getThemeReplacedString(IResourceDependencyList rdl, String rurl) throws Exception {
-		return m_themeManager.getThemeReplacedString(rdl, rurl);
-	}
-
-	/**
-	 * EXPENSIVE CALL - ONLY USE TO CREATE CACHED RESOURCES
-	 *
-	 * This loads a theme resource as an utf-8 encoded template, then does expansion using the
-	 * current theme's variable map. This map is either a "style.properties" file
-	 * inside the theme's folder, or can be configured dynamically using a IThemeMapFactory.
-	 *
-	 * The result is returned as a string.
-	 *
-	 * @param rdl
-	 * @param key
-	 * @return
-	 */
-	final public String getThemeReplacedString(IResourceDependencyList rdl, String rurl, BrowserVersion bv) throws Exception {
-		return m_themeManager.getThemeReplacedString(rdl, rurl, bv);
+	@Nonnull
+	public String calculateUserTheme(IRequestContext ctx) {
+		return getDefaultThemeName();
 	}
 
 	/**
@@ -1796,6 +1791,18 @@ public abstract class DomApplication {
 		m_uiTestMode = true;
 	}
 
+	public void setAttribute(String key, Object what) {
+		if(null == what)
+			m_attributeMap.remove(key);
+		else
+			m_attributeMap.put(key, what);
+	}
+
+	@Nullable
+	public Object getAttribute(String key) {
+		return m_attributeMap.get(key);
+	}
+
 	/**
 	 * Override this to add specific page {@link HeaderContributor}s to a page when
 	 * we're in UI testing mode (Selenium testing mode).
@@ -1826,5 +1833,24 @@ public abstract class DomApplication {
 		return "DomUI Application - " + body.getClass().getSimpleName();
 	}
 
+	public static void register(IThemeFactory factory) {
+		THEME_FACTORIES.put(factory.getFactoryName(), factory);
+	}
 
+	@Nonnull public static IThemeFactory getFactoryFromThemeName(String name) {
+		int pos = name.indexOf('-');
+		if(pos == -1)
+			throw new RuntimeException("Missing - in theme name '" + name + "'");
+		String fn = name.substring(0, pos);
+		IThemeFactory factory = THEME_FACTORIES.get(fn);
+		if(null == factory)
+			throw new RuntimeException("Undefined theme factory '" + fn +"'");
+		return factory;
+	}
+
+	static {
+		register(SassThemeFactory.INSTANCE);
+		register(SimpleThemeFactory.INSTANCE);
+		register(FragmentedThemeFactory.getInstance());
+	}
 }

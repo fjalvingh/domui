@@ -139,7 +139,7 @@ final public class ThemePartFactory implements IBufferedPartFactory<Key> {
 	}
 
 	@Override
-	public @Nonnull Key decodeKey(@Nonnull IExtendedParameterInfo param) throws Exception {
+	public @Nonnull Key decodeKey(DomApplication application, @Nonnull IExtendedParameterInfo param) throws Exception {
 		String iv = param.getParameter("iv");
 		int val = 0;
 		if(null != iv)
@@ -152,7 +152,7 @@ final public class ThemePartFactory implements IBufferedPartFactory<Key> {
 		if(!da.inDevelopmentMode()) { 					// Not gotten from WebContent or not in DEBUG mode? Then we may cache!
 			pr.setCacheTime(da.getDefaultExpiryTime());
 		}
-		String content = da.getThemeReplacedString(rdl, key.getRurl(), key.getBrowserVersion());
+		String content = da.internalGetThemeManager().getThemeReplacedString(rdl, key.getRurl(), key.getBrowserVersion());
 		PrintWriter pw = new PrintWriter(new OutputStreamWriter(pr.getOutputStream()));
 		pw.append(content);
 		pw.close();

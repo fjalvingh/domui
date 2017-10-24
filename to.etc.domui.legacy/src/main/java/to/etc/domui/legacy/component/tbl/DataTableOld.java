@@ -22,7 +22,7 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component.experimental;
+package to.etc.domui.legacy.component.tbl;
 
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.misc.MiniLogger;
@@ -35,7 +35,6 @@ import to.etc.domui.component.tbl.ISelectableTableComponent;
 import to.etc.domui.component.tbl.ISelectionListener;
 import to.etc.domui.component.tbl.ISelectionModel;
 import to.etc.domui.component.tbl.ITableModel;
-import to.etc.domui.component.tbl.ITableModelListener;
 import to.etc.domui.component.tbl.PageableTabularComponentBase;
 import to.etc.domui.dom.html.Checkbox;
 import to.etc.domui.dom.html.ClickInfo;
@@ -62,12 +61,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * POC for a datatable based on the live dom code.
+ * This is the legacy DomUI 1.1 DataTable, that was replaced with the multirow datatable.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 1, 2008
  */
-final public class MultiRowDataTable<T> extends PageableTabularComponentBase<T> implements ISelectionListener<T>, ISelectableTableComponent<T> {
+public class DataTableOld<T> extends PageableTabularComponentBase<T> implements ISelectionListener<T>, ISelectableTableComponent<T> {
 	private MiniLogger m_ml = new MiniLogger(40);
 
 	private Table m_table = new Table();
@@ -84,7 +83,7 @@ final public class MultiRowDataTable<T> extends PageableTabularComponentBase<T> 
 	private Div m_errorDiv;
 
 	/** The items that are currently on-screen, to prevent a reload from the model when reused. */
-	final private List<TableRowSet<T>> m_visibleItemList = new ArrayList<>();
+	final private List<T> m_visibleItemList = new ArrayList<T>();
 
 	/** When set, the table is in "multiselect" mode and shows checkboxes before all rows. */
 	private boolean m_multiSelectMode;
@@ -102,11 +101,13 @@ final public class MultiRowDataTable<T> extends PageableTabularComponentBase<T> 
 	/** When T, the header of the table is always shown, even if the list of results is empty. */
 	private boolean m_showHeaderAlways;
 
-	@Nonnull
-	final private IClicked<TH> m_headerSelectClickHandler = new IClicked<TH>() {
+	/** When T, rows are not highlighted when table has no selection callbacks on rows. */
+	private boolean m_preventRowHighlight;
+
+	@Nonnull final private IClicked<TH> m_headerSelectClickHandler = new IClicked<TH>() {
 		@Override
 		public void clicked(@Nonnull TH clickednode) throws Exception {
-			if (isDisabled()){
+			if(isDisabled()) {
 				return;
 			}
 			ISelectionModel<T> sm = getSelectionModel();
@@ -122,23 +123,46 @@ final public class MultiRowDataTable<T> extends PageableTabularComponentBase<T> 
 	};
 
 
-	public MultiRowDataTable(@Nonnull ITableModel<T> m, @Nonnull IRowRenderer<T> r) {
+	public DataTableOld(@Nonnull ITableModel<T> m, @Nonnull IRowRenderer<T> r) {
 		super(m);
+		m_rowRenderer = r;
+		setWidth("100%");
+	}
+
+	public DataTableOld(@Nonnull IRowRenderer<T> r) {
 		m_rowRenderer = r;
 	}
 
-	public MultiRowDataTable(@Nonnull IRowRenderer<T> r) {
-		m_rowRenderer = r;
-	}
-
-	public MultiRowDataTable(@Nonnull ITableModel<T> m) {
+	public DataTableOld(@Nonnull ITableModel<T> m) {
 		super(m);
+		setWidth("100%");
 	}
 
-	public MultiRowDataTable() {}
+	public DataTableOld() {
+		setWidth("100%");
+	}
 
+	/**
+	 * Return the backing table for this data browser. For component extension only - DO NOT MAKE PUBLIC.
+	 * @return
+	 */
+	@Nonnull
+	protected Table getTable() {
+		if(null == m_table)
+			throw new IllegalStateException("Backing table is still null");
+		return m_table;
+	}
 
-	private void updateBodyClipboardSelection() {
+	/**
+	 * UNSTABLE INTERFACE - UNDER CONSIDERATION.
+	 * @param dataBody
+	 */
+	protected void setDataBody(@Nonnull TBody dataBody) {
+		m_dataBody = dataBody;
+		updateBodyClipboardSelection();
+	}
+
+	protected void updateBodyClipboardSelection() {
 		TBody dataBody = m_dataBody;
 		if(null == dataBody)
 			return;
@@ -147,11 +171,19 @@ final public class MultiRowDataTable<T> extends PageableTabularComponentBase<T> 
 		}
 	}
 
+	@Nonnull
+	protected TBody getDataBody() {
+		if(null == m_dataBody)
+			throw new IllegalStateException("dataBody is still null");
+		return m_dataBody;
+	}
+
 	@Override
 	public void createContent() throws Exception {
 		m_dataBody = null;
 		m_errorDiv = null;
 		addCssClass("ui-dt");
+		m_table.setWidth(getWidth());
 
 		//-- Do we need to render multiselect checkboxes?
 		ISelectionModel<T> sm = getSelectionModel();
@@ -166,11 +198,11 @@ final public class MultiRowDataTable<T> extends PageableTabularComponentBase<T> 
 		//-- Ask the renderer for a sort order, if applicable
 		if(m_rowRenderer == null)
 			throw new IllegalStateException("There is no row renderer assigned to the table");
-		m_rowRenderer.beforeQuery(this); 					// ORDER!! BEFORE CALCINDICES or any other call that materializes the result.
+		m_rowRenderer.beforeQuery(this); // ORDER!! BEFORE CALCINDICES or any other call that materializes the result.
 
-		calcIndices(); 										// Calculate rows to show.
+		calcIndices(); // Calculate rows to show.
 
-		List<T> list = getPageItems(); 						// Data to show
+		List<T> list = getPageItems(); // Data to show
 		if(list.size() == 0) {
 			setNoResults();
 			return;
@@ -179,13 +211,12 @@ final public class MultiRowDataTable<T> extends PageableTabularComponentBase<T> 
 		setResults();
 
 		//-- Render the rows.
-		ColumnContainer<T> cc = new ColumnContainer<>(this);
+		ColumnContainer<T> cc = new ColumnContainer<T>(this);
 		m_visibleItemList.clear();
 		int ix = m_six;
 		for(T o : list) {
-			TableRowSet<T> rowSet = new TableRowSet<>(this, o);
-			m_visibleItemList.add(rowSet);
-			TR tr = rowSet.getPrimaryRow();
+			m_visibleItemList.add(o);
+			TR tr = new TR();
 			m_dataBody.add(tr);
 			tr.setTestRepeatID("r" + ix);
 			cc.setParent(tr);
@@ -193,6 +224,8 @@ final public class MultiRowDataTable<T> extends PageableTabularComponentBase<T> 
 			ix++;
 		}
 		ml("createContent rebuilt visibleList after render");
+		//if(isDisableClipboardSelection())
+		//	appendCreateJS(JavascriptUtil.disableSelection(this)); // Needed to prevent ctrl+click in IE doing clipboard-select, because preventDefault does not work there of course.
 	}
 
 	@SuppressWarnings("deprecation")
@@ -270,7 +303,7 @@ final public class MultiRowDataTable<T> extends PageableTabularComponentBase<T> 
 		m_dataBody = null;
 
 		//-- Render the header.
-		if(! m_table.isAttached())
+		if(!m_table.isAttached())
 			add(m_table);
 		THead hd = new THead();
 		m_table.add(hd);
@@ -318,10 +351,24 @@ final public class MultiRowDataTable<T> extends PageableTabularComponentBase<T> 
 		renderNoResultsMessage();
 	}
 
+	public void setEmptyMessage(@Nullable String message) {
+		if(null != message)
+			m_emptyMessage = new TextNode(message);
+		else
+			m_emptyMessage = null;
+	}
+
+	public void setEmptyMessage(@Nullable NodeBase node) {
+		m_emptyMessage = node;
+	}
+
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Row rendering & select click handling.				*/
 	/*--------------------------------------------------------------*/
+
 	/**
+	 * DO NOT OVERRIDE - DEPRECATED FOR EXTERNAL USE!!
 	 * Renders row content into specified row.
 	 *
 	 * @param cc
@@ -343,7 +390,7 @@ final public class MultiRowDataTable<T> extends PageableTabularComponentBase<T> 
 				}
 			});
 			cc.getTR().addCssClass("ui-rowsel");
-		} else {
+		} else if(!m_preventRowHighlight) {
 			cc.getTR().addCssClass("ui-dt-row-nosel");
 		}
 
@@ -361,7 +408,7 @@ final public class MultiRowDataTable<T> extends PageableTabularComponentBase<T> 
 				TD td = cc.add(cb);
 				if(cb.isReadOnly()) {
 					td.addCssClass("ui-cur-default");
-				}else{
+				} else {
 					//it very annoying to target small check box, so we also allow click in cell outside to perform check/uncheck
 					hookCheckboxClickToCellToo(td, cb);
 				}
@@ -373,10 +420,10 @@ final public class MultiRowDataTable<T> extends PageableTabularComponentBase<T> 
 	}
 
 	private void hookCheckboxClickToCellToo(TD td, Checkbox cb) {
-		td.setClicked2((IClicked2<TD>)(node, clinfo) -> {
-			if (!cb.isDisabled()){
+		td.setClicked2((IClicked2<TD>) (node, clinfo) -> {
+			if(!cb.isDisabled()) {
 				IClickBase<?> clickHandler = cb.getClicked();
-				if (null != clickHandler && clickHandler instanceof IClicked2){
+				if(null != clickHandler && clickHandler instanceof IClicked2) {
 					cb.setChecked(!cb.isChecked());
 					((IClicked2<Checkbox>) clickHandler).clicked(cb, clinfo);
 				}
@@ -400,28 +447,29 @@ final public class MultiRowDataTable<T> extends PageableTabularComponentBase<T> 
 	/**
 	 * Click handler for rows. This handles both row clicked handling and row selection handling.
 	 *
+	 * @param tbl
 	 * @param b
 	 * @param instance
 	 * @param clinfo
 	 * @throws Exception
 	 */
 	private void handleRowClick(final TR b, final T instance, final ClickInfo clinfo) throws Exception {
-		////-- If we have a selection model: check if this is some selecting clicky.
-		//ISelectionModel<T> selectionModel = getSelectionModel();
-		//if(selectionModel != null) {
-		//	//-- Treat clicks with ctrl or shift as selection clickies
-		//	if(clinfo.isControl() || clinfo.isShift()) {
-		//		handleSelectClicky(instance, clinfo, null);
-		//		return; // Do NOT fire on selection clickies.
-		//	} else {
-		//		if(! selectionModel.isMultiSelect()) {
-		//			handleSelectClicky(instance, clinfo, null);
-		//		}
-		//	}
-		//}
+		//-- If we have a selection model: check if this is some selecting clicky.
+		ISelectionModel<T> selectionModel = getSelectionModel();
+		if(selectionModel != null) {
+			//-- Treat clicks with ctrl or shift as selection clickies
+			if(clinfo.isControl() || clinfo.isShift()) {
+				handleSelectClicky(instance, clinfo, null);
+				return; // Do NOT fire on selection clickies.
+			} else {
+				if(!selectionModel.isMultiSelect()) {
+					handleSelectClicky(instance, clinfo, null);
+				}
+			}
+		}
 
 		//-- If this has a click handler- fire it.
-		ICellClicked< ? > rowClicked = m_rowRenderer.getRowClicked();
+		ICellClicked<?> rowClicked = m_rowRenderer.getRowClicked();
 		if(null != rowClicked)
 			((ICellClicked<T>) rowClicked).cellClicked(instance);
 	}
@@ -431,100 +479,115 @@ final public class MultiRowDataTable<T> extends PageableTabularComponentBase<T> 
 	 * @param instance
 	 * @param checked
 	 * @param info
+	 * @param clickednode
 	 * @throws Exception
 	 */
 	private void selectionCheckboxClicked(T instance, boolean checked, ClickInfo info, @Nonnull Checkbox checkbox) throws Exception {
-		//handleSelectClicky(instance, info, Boolean.valueOf(checked));
-		//ISelectionModel<T> sm = getSelectionModel();
-		//if(null != sm) {
-		//	checkbox.setChecked(sm.isSelected(instance));
-		//}
-
+		handleSelectClicky(instance, info, Boolean.valueOf(checked));
+		ISelectionModel<T> sm = getSelectionModel();
+		if(null != sm) {
+			checkbox.setChecked(sm.isSelected(instance));
+		}
 	}
 
-	///**
-	// * Handle a click that is meant to select/deselect the item(s). It handles ctrl+click as "toggle selection",
-	// * and shift+click as "toggle everything between this and the last one".
-	// *
-	// * @param instance
-	// * @param clinfo
-	// * @param setTo		When null toggle, else set to specific.
-	// */
-	//private void handleSelectClicky(@Nonnull T instance, @Nonnull ClickInfo clinfo, @Nullable Boolean setTo) throws Exception {
-	//	ISelectionModel<T> sm = getSelectionModel();
-	//	if(null == sm)
-	//		throw new IllegalStateException("SelectionModel is null??");
-	//	boolean nvalue = setTo != null ? setTo.booleanValue() : !sm.isSelected(instance);
-	//
-	//	if(!clinfo.isShift()) {
-	//		sm.setInstanceSelected(instance, nvalue);
-	//		m_lastSelectionLocation = -1;
-	//		return;
-	//	}
-	//
-	//	//-- Toggle region. Get the current item's index.
-	//	int itemindex = -1, index = 0;
-	//	for(T item : m_visibleItemList) {
-	//		if(MetaManager.areObjectsEqual(item, instance)) {
-	//			itemindex = index;
-	//			break;
-	//		}
-	//		index++;
-	//	}
-	//	if(itemindex == -1) // Ignore when thingy not found
-	//		return;
-	//	itemindex += m_six;
-	//
-	//	//-- Is a previous location set? If not: just toggle the current and retain the location.
-	//	if(m_lastSelectionLocation == -1) {
-	//		//-- Start of region....
-	//		m_lastSelectionLocation = itemindex;
-	//		sm.setInstanceSelected(instance, !sm.isSelected(instance));
-	//		return;
-	//	}
-	//
-	//	//-- We have a previous location- we need to toggle all instances;
-	//	int sl, el;
-	//	if(m_lastSelectionLocation < itemindex) {
-	//		sl = m_lastSelectionLocation + 1; // Exclusive
-	//		el = itemindex + 1;
-	//	} else {
-	//		sl = itemindex;
-	//		el = m_lastSelectionLocation; // Exclusive
-	//	}
-	//
-	//	//-- Now toggle all instances, in batches, to prevent loading 1000+ records that cannot be gc'd.
-	//	for(int i = sl; i < el;) {
-	//		int ex = i + 50;
-	//		if(ex > el)
-	//			ex = el;
-	//
-	//		List<T> sub = getModel().getItems(i, ex);
-	//		i += ex;
-	//
-	//		for(T item : sub) {
-	//			if(item == null)
-	//				throw new IllegalStateException("null item in list");
-	//			sm.setInstanceSelected(item, !sm.isSelected(item));
-	//		}
-	//	}
-	//	m_lastSelectionLocation = -1;
-	//}
+	/**
+	 * If the specified item is on-screen, this returns the row index inside TBody for that item.
+	 * It returns -1 if the thing is not found.
+	 * @param item
+	 * @return
+	 */
+	protected int findRowIndex(T item) {
+		for(int i = m_visibleItemList.size(); --i >= 0; ) {
+			if(item == m_visibleItemList.get(i))
+				return i;
+		}
+		return -1;
+	}
+
+	/**
+	 * Handle a click that is meant to select/deselect the item(s). It handles ctrl+click as "toggle selection",
+	 * and shift+click as "toggle everything between this and the last one".
+	 *
+	 * @param instance
+	 * @param clinfo
+	 * @param setTo        When null toggle, else set to specific.
+	 */
+	private void handleSelectClicky(@Nonnull T instance, @Nonnull ClickInfo clinfo, @Nullable Boolean setTo) throws Exception {
+		ISelectionModel<T> sm = getSelectionModel();
+		if(null == sm)
+			throw new IllegalStateException("SelectionModel is null??");
+		boolean nvalue = setTo != null ? setTo.booleanValue() : !sm.isSelected(instance);
+
+		if(!clinfo.isShift()) {
+			sm.setInstanceSelected(instance, nvalue);
+			m_lastSelectionLocation = -1;
+			return;
+		}
+
+		//-- Toggle region. Get the current item's index.
+		int itemindex = -1, index = 0;
+		for(T item : m_visibleItemList) {
+			if(MetaManager.areObjectsEqual(item, instance)) {
+				itemindex = index;
+				break;
+			}
+			index++;
+		}
+		if(itemindex == -1) // Ignore when thingy not found
+			return;
+		itemindex += m_six;
+
+		//-- Is a previous location set? If not: just toggle the current and retain the location.
+		if(m_lastSelectionLocation == -1) {
+			//-- Start of region....
+			m_lastSelectionLocation = itemindex;
+			sm.setInstanceSelected(instance, !sm.isSelected(instance));
+			return;
+		}
+
+		//-- We have a previous location- we need to toggle all instances;
+		int sl, el;
+		if(m_lastSelectionLocation < itemindex) {
+			sl = m_lastSelectionLocation + 1; // Exclusive
+			el = itemindex + 1;
+		} else {
+			sl = itemindex;
+			el = m_lastSelectionLocation; // Exclusive
+		}
+
+		//-- Now toggle all instances, in batches, to prevent loading 1000+ records that cannot be gc'd.
+		for(int i = sl; i < el; ) {
+			int ex = i + 50;
+			if(ex > el)
+				ex = el;
+
+			List<T> sub = getModel().getItems(i, ex);
+			i += ex;
+
+			for(T item : sub) {
+				if(item == null)
+					throw new IllegalStateException("null item in list");
+				sm.setInstanceSelected(item, !sm.isSelected(item));
+			}
+		}
+		m_lastSelectionLocation = -1;
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Selection UI update handling.						*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Updates the "selection" state of the specified local row#.
 	 * @param instance
-	 * @param tableRowSet
+	 * @param i
 	 * @param on
 	 */
-	private void updateSelectionChanged(T instance, TableRowSet<T> tableRowSet, boolean on) throws Exception {
+	private void updateSelectionChanged(T instance, int lrow, boolean on) throws Exception {
 		ISelectionModel<T> sm = getSelectionModel();
 		if(sm == null)
 			throw new IllegalStateException("No selection model!?");
-		TR row = tableRowSet.getPrimaryRow();
+		TR row = (TR) m_dataBody.getChild(lrow);
 		THead head = m_table.getHead();
 		if(null == head)
 			throw new IllegalStateException("I've lost my head!?");
@@ -549,7 +612,7 @@ final public class MultiRowDataTable<T> extends PageableTabularComponentBase<T> 
 				return;
 
 			//-- Render the multiselect UI: add the header cell and row cells.
-			//createMultiselectUI(headerrow);
+			createMultiselectUI(headerrow);
 		}
 
 		//-- The checkbox is in cell0; get it and change it's value if (still) needed
@@ -563,57 +626,88 @@ final public class MultiRowDataTable<T> extends PageableTabularComponentBase<T> 
 			row.removeCssClass("mselected");
 	}
 
-	///**
-	// * Make the multiselect UI for all visible rows and the header.
-	// */
-	//private void createMultiselectUI(TR headerrow) {
-	//	if(m_multiSelectMode)
-	//		return;
-	//	m_multiSelectMode = true;
-	//
-	//	//-- 1. Add the select TH.
-	//	TD th = new TH();
-	//	th.add(new Img("THEME/dspcb-on.png"));
-	//	th.setTestID("dt_select_all");
-	//	th.setWidth("1%");
-	//	headerrow.add(0, th);
-	//	th.setClicked(m_headerSelectClickHandler);
-	//	th.setCssClass("ui-clickable");
-	//
-	//	//-- 2. Insert a checkbox in all rows.
-	//	for(int i = 0; i < m_dataBody.getChildCount(); i++) {
-	//		final T instance = m_visibleItemList.get(i);
-	//		TR tr = (TR) m_dataBody.getChild(i);
-	//		TD td = new TD();
-	//		tr.add(0, td);
-	//
-	//		final Checkbox cb = createSelectionCheckbox(instance, getSelectionModel());
-	//		if(cb.isReadOnly()) {
-	//			td.addCssClass("ui-cur-default");
-	//		}else{
-	//			//it very annoying to target small check box, so we also allow click in cell outside to perform check/uncheck
-	//			hookCheckboxClickToCellToo(td, cb);
-	//		}
-	//		td.add(cb);
-	//		cb.setChecked(false);
-	//	}
-	//
-	//	fireSelectionUIChanged();
-	//}
-	//
+	/**
+	 * Make the multiselect UI for all visible rows and the header.
+	 */
+	private void createMultiselectUI(TR headerrow) {
+		if(m_multiSelectMode)
+			return;
+		m_multiSelectMode = true;
+
+		//-- 1. Add the select TH.
+		TD th = new TH();
+		th.add(new Img("THEME/dspcb-on.png"));
+		th.setTestID("dt_select_all");
+		th.setWidth("1%");
+		headerrow.add(0, th);
+		th.setClicked(m_headerSelectClickHandler);
+		th.setCssClass("ui-clickable");
+
+		//-- 2. Insert a checkbox in all rows.
+		for(int i = 0; i < m_dataBody.getChildCount(); i++) {
+			final T instance = m_visibleItemList.get(i);
+			TR tr = (TR) m_dataBody.getChild(i);
+			TD td = new TD();
+			tr.add(0, td);
+
+			final Checkbox cb = createSelectionCheckbox(instance, getSelectionModel());
+			if(cb.isReadOnly()) {
+				td.addCssClass("ui-cur-default");
+			} else {
+				//it very annoying to target small check box, so we also allow click in cell outside to perform check/uncheck
+				hookCheckboxClickToCellToo(td, cb);
+			}
+			td.add(cb);
+			cb.setChecked(false);
+		}
+
+		fireSelectionUIChanged();
+	}
+
 	@Override
 	protected void createSelectionUI() throws Exception {
-		//THead head = m_table.getHead();
-		//if(null == head)
-		//	throw new IllegalStateException("I've lost my head!?");
-		//
-		//TR headerrow = (TR) head.getChild(0);
-		//createMultiselectUI(headerrow);
+		THead head = m_table.getHead();
+		if(null == head)
+			throw new IllegalStateException("I've lost my head!?");
+
+		TR headerrow = (TR) head.getChild(0);
+		createMultiselectUI(headerrow);
+	}
+
+	@Override
+	public boolean isMultiSelectionVisible() {
+		return m_multiSelectMode;
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Dumbass setters and getters.						*/
+	/*--------------------------------------------------------------*/
+
+	/**
+	 * Return the page size: the #of records to show. If &lt;= 0 all records are shown.
+	 */
+	@Override
+	public int getPageSize() {
+		return m_pageSize;
+	}
+
+	/**
+	 * Set the page size: the #of records to show. If &lt;= 0 all records are shown.
+	 *
+	 * @param pageSize
+	 */
+	public void setPageSize(int pageSize) {
+		if(m_pageSize == pageSize)
+			return;
+		m_pageSize = pageSize;
+		forceRebuild();
+		firePageChanged();
 	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	ITableModelListener implementation					*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Called when there are sweeping changes to the model. It forces a complete re-render of the table.
 	 */
@@ -631,7 +725,7 @@ final public class MultiRowDataTable<T> extends PageableTabularComponentBase<T> 
 	 * the correct result.
 	 * When called the actual insert has already taken place in the model.
 	 *
-	 * @see ITableModelListener#rowAdded(ITableModel, int, Object)
+	 * @see to.etc.domui.component.tbl.ITableModelListener#rowAdded(ITableModel, int, Object)
 	 */
 	@Override
 	public void rowAdded(@Nonnull ITableModel<T> model, int index, @Nonnull T value) throws Exception {
@@ -647,32 +741,30 @@ final public class MultiRowDataTable<T> extends PageableTabularComponentBase<T> 
 			//-- What relative row?
 			setResults();
 			int rrow = index - m_six; // This is the location within the child array
-			ml("rowAdded before anything: rrow=" + rrow +" index=" + index);
+			ml("rowAdded before anything: rrow=" + rrow + " index=" + index);
 			ColumnContainer<T> cc = new ColumnContainer<T>(this);
-
-			//-- We need a new TableRowSet.
-			TableRowSet<T> rowSet = new TableRowSet<T>(this, value);
-			DataTableRow<T> tr = rowSet.getPrimaryRow();
-			m_visibleItemList.add(rrow, rowSet);
-
-			//-- Locate the insert position for this row and add it to the table before rendering
-			int bodyIndex = calculateBodyPosition(rrow);
-			m_dataBody.add(bodyIndex, tr);
+			TR tr = new TR();
+			m_dataBody.add(rrow, tr);
 			cc.setParent(tr);
 			tr.setTestRepeatID("r" + index);
 			renderRow(tr, cc, index, value);
-			ml("rowAdded after adds: rrow=" + rrow + ", index=" + index + ", bodyIndex=" + bodyIndex);
+			m_visibleItemList.add(rrow, value);
+			ml("rowAdded after adds: rrow=" + rrow + ", index=" + index);
 
-			//-- If we exceed the page size delete the last row.
-			if(m_pageSize > 0 && m_visibleItemList.size() > m_pageSize) {
+			//-- Is the size not > the page size?
+			if(m_pageSize > 0 && m_dataBody.getChildCount() > m_pageSize) {
 				//-- Delete the last row.
-				int lastChildIndex = m_visibleItemList.size() - 1;
-
-				ml("rowAdded removing last item at " + lastChildIndex);
-				TableRowSet<T> lastRow = m_visibleItemList.remove(lastChildIndex);
-				for(DataTableRow<T> tableRow : lastRow) {
-					tableRow.remove();
+				int lastChildIndex = m_dataBody.getChildCount() - 1;
+				ml("rowAdded removing last BODY row at " + lastChildIndex);
+				m_dataBody.removeChild(lastChildIndex); // Delete last element
+			}
+			if(m_pageSize > 0) {
+				while(m_visibleItemList.size() > m_pageSize) {
+					int lastChildIndex = m_visibleItemList.size() - 1;
+					ml("rowAdded removing last VISIBLE row at " + lastChildIndex);
+					m_visibleItemList.remove(lastChildIndex);
 				}
+				ml("rowAdded after pgsz delete visibleSz=" + m_visibleItemList.size());
 			}
 			handleOddEven(rrow);
 			firePageChanged();
@@ -680,23 +772,6 @@ final public class MultiRowDataTable<T> extends PageableTabularComponentBase<T> 
 			System.err.println("Last DataTable actions:\n" + m_ml.getData());
 			throw x;
 		}
-	}
-
-	/**
-	 * This calculates the starting index position inside the TBody for the data row with
-	 * the specified rowIndex. It walks all visibleItems up till the rowIndex, and adds
-	 * their rowSize to get the next index.
-	 *
-	 * @param rowIndex
-	 * @return
-	 */
-	private int calculateBodyPosition(int rowIndex) {
-		int position = 0;
-		for(int i = 0; i < rowIndex; i++) {
-			TableRowSet<T> rowSet = m_visibleItemList.get(i);
-			position += rowSet.rowCount();
-		}
-		return position;
 	}
 
 	private void ml(String rest) {
@@ -714,7 +789,7 @@ final public class MultiRowDataTable<T> extends PageableTabularComponentBase<T> 
 	 * delete the row. This causes one less row to be shown, so we check if we have a pagesize
 	 * set; if so we add a new row at the end IF it is available.
 	 *
-	 * @see ITableModelListener#rowDeleted(ITableModel, int, Object)
+	 * @see to.etc.domui.component.tbl.ITableModelListener#rowDeleted(ITableModel, int, Object)
 	 */
 	@Override
 	public void rowDeleted(@Nonnull ITableModel<T> model, int index, @Nonnull T value) throws Exception {
@@ -723,20 +798,17 @@ final public class MultiRowDataTable<T> extends PageableTabularComponentBase<T> 
 				return;
 
 			//-- We need the indices of the OLD data, so DO NOT RECALCULATE - the model size has changed.
-			if(index < m_six || index >= m_eix) {			// Outside visible bounds
-				calcIndices();								// Calculate visible nodes
+			if(index < m_six || index >= m_eix) {                    // Outside visible bounds
+				calcIndices();                                        // Calculate visible nodes
 				firePageChanged();
 				return;
 			}
-			int rrow = index - m_six;						// This is the location within the visible items list
-			ml("rowDeleted before, index=" + index +", rrow=" + rrow);
-
-			TableRowSet<T> rowSet = m_visibleItemList.remove(rrow);
-			for(DataTableRow<T> tableRow : rowSet) {
-				tableRow.remove();
-			}
-			if(m_visibleItemList.size() == 0) {
-				calcIndices();								// Calculate visible nodes
+			int rrow = index - m_six;                                // This is the location within the child array
+			ml("rowDeleted before, index=" + index + ", rrow=" + rrow);
+			m_dataBody.removeChild(rrow);
+			m_visibleItemList.remove(rrow);
+			if(m_dataBody.getChildCount() == 0) {
+				calcIndices();                                        // Calculate visible nodes
 				setNoResults();
 				firePageChanged();
 				return;
@@ -746,20 +818,14 @@ final public class MultiRowDataTable<T> extends PageableTabularComponentBase<T> 
 			int peix = m_six + m_pageSize - 1;                        // Index of last element on "page"
 			if(m_pageSize > 0 && peix < m_eix && peix < getModel().getRows()) {
 				ml("rowDelete grow page: peix=" + peix + ", rrow=" + rrow);
-
-				T mi = getModelItem(peix);
-				TableRowSet<T> newSet = new TableRowSet<T>(this, mi);
-				int lastIndex = m_pageSize - 1;
-				m_visibleItemList.add(lastIndex, newSet);
-
-				ColumnContainer<T> cc = new ColumnContainer<>(this);
-				DataTableRow<T> tr = newSet.getPrimaryRow();
+				ColumnContainer<T> cc = new ColumnContainer<T>(this);
+				TR tr = new TR();
 				cc.setParent(tr);
 
-				int bodyIndex = calculateBodyPosition(lastIndex);
-				ml("rowDelete add at body index " + lastIndex);
-				m_dataBody.add(lastIndex, tr);
+				T mi = getModelItem(peix);
+				m_dataBody.add(m_pageSize - 1, tr);
 				renderRow(tr, cc, peix, mi);
+				m_visibleItemList.add(m_pageSize - 1, mi);
 			}
 			calcIndices(); // Calculate visible nodes
 			handleOddEven(rrow);
@@ -773,46 +839,39 @@ final public class MultiRowDataTable<T> extends PageableTabularComponentBase<T> 
 		}
 	}
 
-	/**
-	 * For all VisibleItems, this marks all of their rows as odd/even, starting at the specified index
-	 * till the end of the visible range.
-	 *
-	 * @param index
-	 */
 	private void handleOddEven(int index) {
-		for(int ix = index; ix < m_visibleItemList.size(); ix++) {
-			TableRowSet<T> rowSet = m_visibleItemList.get(ix);
-			rowSet.markEven((ix & 0x1) == 0);
+		for(int ix = index; ix < m_dataBody.getChildCount(); ix++) {
+			TR tr = (TR) m_dataBody.getChild(ix);
+			if((ix & 0x1) == 0) {
+				//-- Even
+				tr.removeCssClass("ui-odd");
+				tr.addCssClass("ui-even");
+			} else {
+				tr.addCssClass("ui-odd");
+				tr.removeCssClass("ui-even");
+			}
 		}
 	}
 
 	/**
 	 * Merely force a full redraw of the appropriate row.
 	 *
-	 * @see ITableModelListener#rowModified(ITableModel, int, Object)
+	 * @see to.etc.domui.component.tbl.ITableModelListener#rowModified(ITableModel, int, Object)
 	 */
 	@Override
 	public void rowModified(@Nonnull ITableModel<T> model, int index, @Nonnull T value) throws Exception {
 		if(!isBuilt())
 			return;
-		if(index < m_six || index >= m_eix)					// Outside visible bounds
+		if(index < m_six || index >= m_eix) // Outside visible bounds
 			return;
 		try {
-			int rrow = index - m_six;						// This is the location within the child array
-
-			TableRowSet<T> rowSet = m_visibleItemList.get(rrow);
-			for(DataTableRow<T> tableRow : rowSet) {
-				tableRow.remove();
-			}
-			rowSet = new TableRowSet<T>(this, value);
-			m_visibleItemList.set(rrow, rowSet);			// Replace with new rowSet
-
+			int rrow = index - m_six; // This is the location within the child array
+			TR tr = (TR) m_dataBody.getChild(rrow); // The visible row there
+			tr.removeAllChildren(); // Discard current contents.
+			m_visibleItemList.set(rrow, value);
 			ml("rowModified: index=" + index + ", rrow=" + rrow);
-			TR tr = rowSet.getPrimaryRow();
-			int bodyIndex = calculateBodyPosition(rrow);
-			m_dataBody.add(bodyIndex, tr);
 
-			ColumnContainer<T> cc = new ColumnContainer<>(this);
+			ColumnContainer<T> cc = new ColumnContainer<T>(this);
 			cc.setParent(tr);
 			renderRow(tr, cc, index, value);
 		} catch(Exception x) {
@@ -848,6 +907,7 @@ final public class MultiRowDataTable<T> extends PageableTabularComponentBase<T> 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	ISelectionListener.									*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Called when a selection event fires. The underlying model has already been changed. It
 	 * tries to see if the row is currently paged in, and if so asks the row renderer to update
@@ -858,9 +918,9 @@ final public class MultiRowDataTable<T> extends PageableTabularComponentBase<T> 
 	@Override
 	public void selectionChanged(@Nonnull T row, boolean on) throws Exception {
 		//-- Is this a visible row?
-		for(TableRowSet<T> tableRowSet : m_visibleItemList) {
-			if(MetaManager.areObjectsEqual(row, tableRowSet.getInstance())) {
-				updateSelectionChanged(row, tableRowSet, on);
+		for(int i = 0; i < m_visibleItemList.size(); i++) {
+			if(MetaManager.areObjectsEqual(row, m_visibleItemList.get(i))) {
+				updateSelectionChanged(row, i, on);
 				return;
 			}
 		}
@@ -869,6 +929,7 @@ final public class MultiRowDataTable<T> extends PageableTabularComponentBase<T> 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Handling selections.								*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Called when a selection cleared event fires. The underlying model has already been changed. It
 	 * tries to see if the row is currently paged in, and if so asks the row renderer to update
@@ -880,8 +941,9 @@ final public class MultiRowDataTable<T> extends PageableTabularComponentBase<T> 
 		if(sm == null)
 			throw new IllegalStateException("Got selection changed event but selection model is empty?");
 		//-- Is this a visible row?
-		for(TableRowSet<T> tableRowSet : m_visibleItemList) {
-			updateSelectionChanged(tableRowSet.getInstance(), tableRowSet, sm.isSelected(tableRowSet.getInstance()));
+		for(int i = 0; i < m_visibleItemList.size(); i++) {
+			T item = m_visibleItemList.get(i);
+			updateSelectionChanged(item, i, sm.isSelected(item));
 		}
 	}
 
@@ -916,18 +978,6 @@ final public class MultiRowDataTable<T> extends PageableTabularComponentBase<T> 
 		forceRebuild();
 	}
 
-	public void setEmptyMessage(@Nullable String message) {
-		if(null != message)
-			m_emptyMessage = new TextNode(message);
-		else
-			m_emptyMessage = null;
-	}
-
-	public void setEmptyMessage(@Nullable NodeBase node) {
-		m_emptyMessage = node;
-	}
-
-
 	/**
 	 * When T, the header of the table is always shown, even if the list of results is empty.
 	 * @return
@@ -944,75 +994,17 @@ final public class MultiRowDataTable<T> extends PageableTabularComponentBase<T> 
 		m_showHeaderAlways = showHeaderAlways;
 	}
 
-	/**
-	 * Return the backing table for this data browser. For component extension only - DO NOT MAKE PUBLIC.
-	 * @return
-	 */
-	@Nonnull
-	private Table getTable() {
-		if(null == m_table)
-			throw new IllegalStateException("Backing table is still null");
-		return m_table;
+	public boolean isPreventRowHighlight() {
+		return m_preventRowHighlight;
 	}
 
 	/**
-	 * UNSTABLE INTERFACE - UNDER CONSIDERATION.
-	 * @param dataBody
-	 */
-	private void setDataBody(@Nonnull TBody dataBody) {
-		m_dataBody = dataBody;
-		updateBodyClipboardSelection();
-	}
-
-	@Nonnull
-	private TBody getDataBody() {
-		if(null == m_dataBody)
-			throw new IllegalStateException("dataBody is still null");
-		return m_dataBody;
-	}
-
-	@Override
-	public boolean isMultiSelectionVisible() {
-		return m_multiSelectMode;
-	}
-
-	/**
-	 * Return the page size: the #of records to show. If &lt;= 0 all records are shown.
-	 */
-	@Override
-	public int getPageSize() {
-		return m_pageSize;
-	}
-
-	/**
-	 * Set the page size: the #of records to show. If &lt;= 0 all records are shown.
+	 * When T, rows are not highlighted when table has no selection callbacks on rows.
 	 *
-	 * @param pageSize
+	 * @param preventRowHighlight
 	 */
-	public void setPageSize(int pageSize) {
-		if(m_pageSize == pageSize)
-			return;
-		m_pageSize = pageSize;
-		forceRebuild();
-		firePageChanged();
+	public void setPreventRowHighlight(boolean preventRowHighlight) {
+		m_preventRowHighlight = preventRowHighlight;
 	}
 
-	private void checkVisible(TableRowSet<T> rowSet) {
-		if(! m_visibleItemList.contains(rowSet))
-			throw new IllegalStateException("The row set is no longer visible");
-	}
-
-	public boolean isVisible(TableRowSet<T> rowSet) {
-		return m_visibleItemList.contains(rowSet);
-	}
-
-	void appendExtraRowAfter(TableRowSet<T> rowSet, DataTableRow<T> newRow, DataTableRow<T> row) {
-		checkVisible(rowSet);
-		row.appendAfterMe(newRow);
-	}
-
-	void appendExtraRowBefore(TableRowSet<T> rowSet, DataTableRow<T> newRow, DataTableRow<T> row) {
-		checkVisible(rowSet);
-		row.appendBeforeMe(newRow);
-	}
 }

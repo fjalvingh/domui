@@ -1,5 +1,6 @@
 package to.etc.domuidemo;
 
+import to.etc.domuidemo.pages.DataTable1Page;
 import to.etc.domuidemo.pages.MenuPage;
 import to.etc.domuidemo.pages.TableMenuPage;
 import to.etc.domuidemo.pages.basic.DemoTextArea;
@@ -39,6 +40,7 @@ import to.etc.domuidemo.pages.overview.menu.DemoPopupMenu;
 import to.etc.domuidemo.pages.overview.misc.DemoALink;
 import to.etc.domuidemo.pages.overview.misc.DemoDisplayCheckbox;
 import to.etc.domuidemo.pages.overview.misc.DemoDisplayValue;
+import to.etc.domuidemo.pages.overview.misc.DemoMsgBox;
 import to.etc.domuidemo.pages.overview.tree.DemoTree;
 import to.etc.domuidemo.pages.overview.tree2.Tree2DemoPage;
 import to.etc.formbuilder.pages.FormDesigner;
@@ -62,6 +64,7 @@ public class ComponentListPage extends MenuPage {
 		addLink(DemoScrollableTabPanel.class, "The ScrollableTabPanel panel, when there's many tabs to show.");
 		addLink(DemoSplitterPanel.class, "The SplitterPanel, containing two panels with a movable separator between them");
 		addLink(DemoMessageLine.class, "A message line");
+		addLink(DemoMsgBox.class, "The Message Box");
 
 		addCaption("Simple components");
 		addLink(DemoDefaultButton.class, "The DefaultButton");
@@ -93,6 +96,7 @@ public class ComponentListPage extends MenuPage {
 
 		addCaption("Tables");
 		addLink(TableMenuPage.class, "Data tables, row renderers and ITableModels.");
+		addLink(DataTable1Page.class, "Simple data table");
 
 		addCaption("Trees");
 		addLink(Tree2DemoPage.class, "The tree2 component");

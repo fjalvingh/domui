@@ -24,9 +24,15 @@
  */
 package to.etc.domui.component.tbl;
 
-import javax.annotation.*;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.TH;
+import to.etc.domui.dom.html.THead;
+import to.etc.domui.dom.html.TR;
+import to.etc.domui.dom.html.TextNode;
 
-import to.etc.domui.dom.html.*;
+import javax.annotation.DefaultNonNull;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Temp thingy to create the header for a table.
@@ -96,6 +102,7 @@ final public class HeaderContainer<T> {
 	public TH add(@Nullable NodeBase columnContent) {
 		TH td = new TH();
 		row().add(td);
+		td.addCssClass("ui-dt-th");
 		if(columnContent != null)
 			td.add(columnContent);
 		return td;

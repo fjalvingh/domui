@@ -1,4 +1,6 @@
+@import "variables";
+
 /*** ContentPanel ***/
 .ui-cpnl {
-	padding: 10px 0px 0px 10px;
+	padding: $vertical-padding 0px 0px $horizontal-padding;
 }

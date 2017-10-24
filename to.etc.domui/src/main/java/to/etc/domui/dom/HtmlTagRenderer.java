@@ -210,7 +210,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 		return "#" + s;
 	}
 
-	public void appendStyle(final NodeBase c, final Appendable a) throws IOException { // Bloody idiot.
+	public void appendStyle(final NodeBase c, final Appendable a) throws Exception {
 		if(c.getBackgroundAttachment() != null) {
 			a.append("background-attachment: ");
 			switch(c.getBackgroundAttachment()){
@@ -574,7 +574,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 	 * @param b
 	 * @return
 	 */
-	protected String getStyleFor(final NodeBase b) throws IOException {
+	protected String getStyleFor(final NodeBase b) throws Exception {
 		String s = b.getCachedStyle();
 		if(s != null)
 			return s;
