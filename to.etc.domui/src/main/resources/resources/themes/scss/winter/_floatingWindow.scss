@@ -1,3 +1,5 @@
+@import "variables";
+
 /*** Window and FloatingDiv styles. ***/
 .ui-flw {
 	padding: 0;
@@ -22,6 +24,7 @@
 }
 
 .ui-flw-c {
+	padding: $vertical-padding $horizontal-padding;
 	/*?  padding: <%= margins_main %>; */
 	margin: 0;
 	overflow: auto;
