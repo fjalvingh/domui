@@ -1,5 +1,7 @@
 package to.etc.domui.util.exporters;
 
+import to.etc.domui.util.IValueTransformer;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -7,14 +9,18 @@ import javax.annotation.Nullable;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 26-10-17.
  */
-public interface IExportColumn {
+public interface IExportColumn<T> extends IValueTransformer<T> {
 	@Nullable String getLabel();
 
 	@Nonnull Class<?> getActualType();
 
 	@Nullable
-	IExportCellRenderer<?, ?, ?> getRenderer();
+	default IExportCellRenderer<?, ?, ?> getRenderer() {
+		return null;
+	}
 
 	@Nullable
-	Object convertValue(@Nullable Object value);
+	default Object convertValue(@Nullable Object value) {
+		return value;
+	}
 }

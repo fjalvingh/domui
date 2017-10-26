@@ -28,11 +28,13 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * This writer exports data in Excel XLS or XLSX format.
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 26-10-17.
  */
 @DefaultNonNull
-public class ExcelExportWriter implements IExportWriter {
+public class ExcelExportWriter<T> implements IExportWriter<T> {
 	private static final int EXCEL_CHAR_WIDTH = 256;
 
 	private final ExcelFormat m_format;
@@ -64,14 +66,16 @@ public class ExcelExportWriter implements IExportWriter {
 	@Nullable
 	private CellStyle m_defaultCellStyle;
 
-	private List<IExportColumn> m_columnList = Collections.emptyList();
+	private int m_maxRows;
+
+	private List<IExportColumn<?>> m_columnList = Collections.emptyList();
 
 	public ExcelExportWriter(ExcelFormat format) {
 		m_format = format;
 		Arrays.fill(m_sheetRowIndex, -1);
 	}
 
-	@Override public void startExport(List<IExportColumn> columnList) throws Exception {
+	@Override public void startExport(List<IExportColumn<?>> columnList) throws Exception {
 		m_columnList = columnList;
 		Workbook wb = m_workbook = createWorkbook();
 		Font defaultFont = wb.createFont();
@@ -108,25 +112,25 @@ public class ExcelExportWriter implements IExportWriter {
 		createNewSheet(columnList);
 	}
 
-	@Override public void exportRow(List<?> data) throws Exception {
+	@Override public void exportRow(T record) throws Exception {
 		Row row = addRow();
 
 		for(int i = 0; i < m_columnList.size(); i++) {
-			renderColumn(row, i, data.get(i));
+			renderColumn(row, i, record);
 		}
 	}
 
-	private void renderColumn(Row row, int columnIndex, Object value) throws Exception {
+	private void renderColumn(Row row, int columnIndex, T record) throws Exception {
 		Cell cell = row.createCell(columnIndex);
-		IExportColumn columnInfo = m_columnList.get(columnIndex);
-
+		IExportColumn<?> columnInfo = m_columnList.get(columnIndex);
+		Object value = columnInfo.getValue(record);
 		Object convertedValue = columnInfo.convertValue(value);
 		if(null == convertedValue) {
 			cell.setCellStyle(m_defaultCellStyle);
 			return;
 		}
 
-		IExportCellRenderer<ExcelExportWriter, Cell, Object> renderer = (IExportCellRenderer<ExcelExportWriter, Cell, Object>) columnInfo.getRenderer();
+		IExportCellRenderer<ExcelExportWriter<?>, Cell, Object> renderer = (IExportCellRenderer<ExcelExportWriter<?>, Cell, Object>) columnInfo.getRenderer();
 		if(null == renderer) {
 			renderer = findRenderer(columnInfo.getActualType());
 			if(null == renderer) {
@@ -136,7 +140,6 @@ public class ExcelExportWriter implements IExportWriter {
 
 		renderer.renderCell(this, cell, columnIndex, value);
 	}
-
 
 	@Override public void close() {
 
@@ -148,10 +151,25 @@ public class ExcelExportWriter implements IExportWriter {
 				throw new IllegalStateException("Excel format not implemented: " + m_format);
 
 			case XLS:
+				m_maxRows = 65535;
 				return new HSSFWorkbook();
 
 			case XLSX:
+				m_maxRows = 1024*1024-1;
 				return new SXSSFWorkbook();
+		}
+	}
+
+	@Override public int getRowLimit() {
+		switch(m_format) {
+			default:
+				throw new IllegalStateException("Excel format not implemented: " + m_format);
+
+			case XLS:
+				return 65535;
+
+			case XLSX:
+				return 1024*1024-1;
 		}
 	}
 
@@ -162,7 +180,7 @@ public class ExcelExportWriter implements IExportWriter {
 		return row;
 	}
 
-	protected Sheet createNewSheet(List<IExportColumn> columnList) {
+	protected Sheet createNewSheet(List<IExportColumn<?>> columnList) {
 		Sheet s = createSheet();
 		s.getPrintSetup().setPaperSize(PrintSetup.A4_PAPERSIZE);
 		s.getPrintSetup().setLandscape(true);
@@ -182,18 +200,18 @@ public class ExcelExportWriter implements IExportWriter {
 		return m_sheetList.get(m_sheetIndex);
 	}
 
-	protected void renderHeader(List<IExportColumn> itemlist, Sheet s) {
+	protected void renderHeader(List<IExportColumn<?>> itemlist, Sheet s) {
 		int index = getRowIndex();
 		Row r = s.createRow(index++);
 		setRowIndex(index);
 		int cellnum = 0;
-		for(IExportColumn formItem : itemlist) {
+		for(IExportColumn<?> formItem : itemlist) {
 			renderHeaderCell(formItem, r, s, cellnum);
 			cellnum++;
 		}
 	}
 
-	void renderHeaderCell(IExportColumn column, Row row, Sheet s, int cellnum) {
+	void renderHeaderCell(IExportColumn<?> column, Row row, Sheet s, int cellnum) {
 		Cell cell = row.createCell(cellnum);
 		cell.setCellStyle(m_headerStyle);
 		String label = column.getLabel();
@@ -245,23 +263,23 @@ public class ExcelExportWriter implements IExportWriter {
 	/**
 	 * Registers all possible renderers for a type.
 	 */
-	static private final Map<Class<?>, IExportCellRenderer<ExcelExportWriter, Cell, ?>> m_renderMap = new ConcurrentHashMap<>();
+	static private final Map<Class<?>, IExportCellRenderer<ExcelExportWriter<?>, Cell, ?>> m_renderMap = new ConcurrentHashMap<>();
 
-	static public void register(Class<?> clz, IExportCellRenderer<ExcelExportWriter, Cell, ?> renderer) {
+	static public void register(Class<?> clz, IExportCellRenderer<ExcelExportWriter<?>, Cell, ?> renderer) {
 		m_renderMap.put(clz, renderer);
 	}
 
-	static public <V> IExportCellRenderer<ExcelExportWriter, Cell, V> findRenderer(Class<?> clz) {
+	static public <V> IExportCellRenderer<ExcelExportWriter<?>, Cell, V> findRenderer(Class<?> clz) {
 		if(Enum.class.isAssignableFrom(clz)) {
-			return (IExportCellRenderer<ExcelExportWriter, Cell, V>) ENUM_RENDERER;
+			return (IExportCellRenderer<ExcelExportWriter<?>, Cell, V>) ENUM_RENDERER;
 		}
 
-		IExportCellRenderer<ExcelExportWriter, Cell, ?> r = m_renderMap.get(clz);
-		return (IExportCellRenderer<ExcelExportWriter, Cell, V>) r;
+		IExportCellRenderer<ExcelExportWriter<?>, Cell, ?> r = m_renderMap.get(clz);
+		return (IExportCellRenderer<ExcelExportWriter<?>, Cell, V>) r;
 	}
 
-	static private final IExportCellRenderer<ExcelExportWriter, Cell, Number> NUMBER_CONVERTER = new IExportCellRenderer<ExcelExportWriter, Cell, Number>() {
-		@Override public void renderCell(ExcelExportWriter exporter, Cell cell, int cellIndex, @Nullable Number value) throws Exception {
+	static private final IExportCellRenderer<ExcelExportWriter<?>, Cell, Number> NUMBER_CONVERTER = new IExportCellRenderer<ExcelExportWriter<?>, Cell, Number>() {
+		@Override public void renderCell(ExcelExportWriter<?> exporter, Cell cell, int cellIndex, @Nullable Number value) throws Exception {
 			cell.setCellStyle(exporter.m_numberStyle);
 			if(null != value) {
 				cell.setCellValue(value.doubleValue());
@@ -270,8 +288,8 @@ public class ExcelExportWriter implements IExportWriter {
 		}
 	};
 
-	static private final IExportCellRenderer<ExcelExportWriter, Cell, Date> DATE_CONVERTER = new IExportCellRenderer<ExcelExportWriter, Cell, Date>() {
-		@Override public void renderCell(ExcelExportWriter exporter, Cell cell, int cellIndex, @Nullable Date value) throws Exception {
+	static private final IExportCellRenderer<ExcelExportWriter<?>, Cell, Date> DATE_CONVERTER = new IExportCellRenderer<ExcelExportWriter<?>, Cell, Date>() {
+		@Override public void renderCell(ExcelExportWriter<?> exporter, Cell cell, int cellIndex, @Nullable Date value) throws Exception {
 			cell.setCellStyle(exporter.m_dateStyle);
 			if(null != value) {
 				cell.setCellValue(value);
@@ -280,8 +298,8 @@ public class ExcelExportWriter implements IExportWriter {
 		}
 	};
 
-	static private final IExportCellRenderer<ExcelExportWriter, Cell, Object> DEFAULT_RENDERER = new IExportCellRenderer<ExcelExportWriter, Cell, Object>() {
-		@Override public void renderCell(ExcelExportWriter w, Cell cell, int cellIndex, @Nullable Object value) throws Exception {
+	static private final IExportCellRenderer<ExcelExportWriter<?>, Cell, Object> DEFAULT_RENDERER = new IExportCellRenderer<ExcelExportWriter<?>, Cell, Object>() {
+		@Override public void renderCell(ExcelExportWriter<?> w, Cell cell, int cellIndex, @Nullable Object value) throws Exception {
 			String string = String.valueOf(value);
 			cell.setCellValue(string);
 			cell.setCellStyle(w.m_defaultCellStyle);
@@ -289,8 +307,8 @@ public class ExcelExportWriter implements IExportWriter {
 		}
 	};
 
-	static private final IExportCellRenderer<ExcelExportWriter, Cell, Enum<?>> ENUM_RENDERER = new IExportCellRenderer<ExcelExportWriter, Cell, Enum<?>>() {
-		@Override public void renderCell(ExcelExportWriter exporter, Cell cell, int cellIndex, @Nullable Enum<?> value) throws Exception {
+	static private final IExportCellRenderer<ExcelExportWriter<?>, Cell, Enum<?>> ENUM_RENDERER = new IExportCellRenderer<ExcelExportWriter<?>, Cell, Enum<?>>() {
+		@Override public void renderCell(ExcelExportWriter<?> exporter, Cell cell, int cellIndex, @Nullable Enum<?> value) throws Exception {
 			cell.setCellStyle(exporter.m_defaultCellStyle);
 			if(null != value) {
 				String text = MetaManager.findClassMeta(value.getClass()).getDomainLabel(NlsContext.getLocale(), value);
