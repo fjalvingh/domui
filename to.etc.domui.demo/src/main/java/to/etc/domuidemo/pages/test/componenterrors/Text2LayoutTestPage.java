@@ -57,7 +57,7 @@ public class Text2LayoutTestPage extends UrlPage {
 
 
 	@Override public void createContent() throws Exception {
-		add(new Caption("Without form builder"));
+		add(new Caption("Without form4 builder"));
 
 		//-- Single text
 		Div d = new Div("ui-f4-line");
