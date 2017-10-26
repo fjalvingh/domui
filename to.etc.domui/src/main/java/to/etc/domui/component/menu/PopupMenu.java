@@ -1,10 +1,13 @@
 package to.etc.domui.component.menu;
 
-import java.util.*;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Definition for a popup menu.
@@ -136,7 +139,7 @@ public class PopupMenu {
 	 * @param ref
 	 * @param target
 	 */
-	public <T> void show(NodeContainer ref, T target) {
+	public <T> void show(NodeBase ref, T target) {
 		NodeContainer nc = ref.getPage().getPopIn();
 		if(nc instanceof SimplePopupMenu) {
 			SimplePopupMenu sp = (SimplePopupMenu) nc;
@@ -149,5 +152,9 @@ public class PopupMenu {
 		SimplePopupMenu sp = new SimplePopupMenu(ref, this, m_actionList, target);
 		ref.getPage().setPopIn(sp);
 		ref.getPage().getBody().add(0, sp);
+	}
+
+	public void show(NodeBase ref) {
+		show(ref, null);
 	}
 }

@@ -409,4 +409,6 @@ public interface Msgs {
 	static final public String E_BINDING_FAILED = "e.binding.failed";
 
 	static final public String E_BINDING_DEFINITION = "e.binding.definition";
+
+	String EXPORT_BUTTON = "ui.btn.export";
 }

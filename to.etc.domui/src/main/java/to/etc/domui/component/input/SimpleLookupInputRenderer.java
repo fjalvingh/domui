@@ -81,8 +81,10 @@ import java.util.*;
 	private List<ExpandedDisplayProperty<?>> initRenderingModel(ClassMetaModel cmm, @Nonnull String[] colset) {
 		List<ExpandedDisplayProperty< ? >> xpl;
 		if(colset.length == 0) {
-			//-- Has default meta?
-			List<DisplayPropertyMetaModel> l = cmm.getTableDisplayProperties();
+			//-- Do we have a "selected properties" meta renderer?
+			List<DisplayPropertyMetaModel> l = cmm.getLookupSelectedProperties();
+			if(l.size() == 0)
+				l = cmm.getTableDisplayProperties();
 			if(l.size() == 0)
 				l = cmm.getComboDisplayProperties();
 			if(l.size() == 0)

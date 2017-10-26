@@ -668,15 +668,28 @@ final public class DateUtil {
 	}
 
 	/**
-	 * Returns month for Date. January is 1, February 2, etc...
-	 *
-	 * @param date
-	 * @return
+	 * Returns the correct (non-Java) month for Date. January is 1, February 2, etc...
 	 */
-	public static int getMonth(@Nonnull Date date) {
+	public static int getMonthReal(@Nonnull Date date) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
 		return cal.get(Calendar.MONTH) + 1;
+	}
+
+	/**
+	 * Return the month as defined by the complete and utter IDIOT that defined
+	 * Java's Calendar jokefest: 0 = january etc.
+	 */
+	public static int getMonthDumbJava(@Nonnull Date date) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		return cal.get(Calendar.MONTH) + 1;
+	}
+
+	public static int getDay(@Nonnull Date date) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		return cal.get(Calendar.DAY_OF_MONTH);
 	}
 
 	/**
