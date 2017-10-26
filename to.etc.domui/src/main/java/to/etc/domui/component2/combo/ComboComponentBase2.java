@@ -24,38 +24,19 @@
  */
 package to.etc.domui.component2.combo;
 
-import to.etc.domui.component.buttons.SmallImgButton;
-import to.etc.domui.component.input.AbstractDivControl;
-import to.etc.domui.component.input.CriteriaComboDataSet;
-import to.etc.domui.component.meta.ClassMetaModel;
-import to.etc.domui.component.meta.MetaManager;
-import to.etc.domui.component.meta.PropertyMetaModel;
-import to.etc.domui.dom.errors.UIMessage;
-import to.etc.domui.dom.html.IClicked;
-import to.etc.domui.dom.html.IControl;
-import to.etc.domui.dom.html.IHasModifiedIndication;
-import to.etc.domui.dom.html.IValueChanged;
-import to.etc.domui.dom.html.NodeBase;
-import to.etc.domui.dom.html.NodeContainer;
-import to.etc.domui.dom.html.Select;
-import to.etc.domui.dom.html.SelectOption;
-import to.etc.domui.server.DomApplication;
-import to.etc.domui.trouble.ValidationException;
-import to.etc.domui.util.DomUtil;
-import to.etc.domui.util.IComboDataSet;
-import to.etc.domui.util.IListMaker;
-import to.etc.domui.util.IRenderInto;
-import to.etc.domui.util.IValueTransformer;
-import to.etc.domui.util.Msgs;
-import to.etc.util.StringTool;
-import to.etc.util.WrappedException;
-import to.etc.webapp.query.QCriteria;
+import to.etc.domui.component.buttons.*;
+import to.etc.domui.component.input.*;
+import to.etc.domui.component.meta.*;
+import to.etc.domui.dom.errors.*;
+import to.etc.domui.dom.html.*;
+import to.etc.domui.server.*;
+import to.etc.domui.trouble.*;
+import to.etc.domui.util.*;
+import to.etc.util.*;
+import to.etc.webapp.query.*;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import javax.annotation.*;
+import java.util.*;
 
 /**
  * Alternate version of the combobox that wraps a select instead of being one. This version properly
@@ -686,4 +667,10 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 		super.setMaxWidth(maxWidth);
 		m_select.setMaxWidth(maxWidth);
 	}
+
+	@Nonnull
+	public Select getSelect() {
+		return m_select;
+	}
+
 }
