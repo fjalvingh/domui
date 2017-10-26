@@ -173,6 +173,19 @@ public class ExcelExportWriter<T> implements IExportWriter<T> {
 		}
 	}
 
+	@Override public String getMimeType() {
+		switch(m_format) {
+			default:
+				throw new IllegalStateException("Excel format not implemented: " + m_format);
+
+			case XLS:
+				return "application/x-xls";
+
+			case XLSX:
+				return "appication/x-xlsx";
+		}
+	}
+
 	@Override public int getRowLimit() {
 		switch(m_format) {
 			default:
@@ -215,7 +228,7 @@ public class ExcelExportWriter<T> implements IExportWriter<T> {
 
 	protected void renderHeader(List<IExportColumn<?>> itemlist, Sheet s) {
 		int index = getRowIndex();
-		Row r = s.createRow(index++);
+		Row r = s.createRow(++index);
 		setRowIndex(index);
 		int cellnum = 0;
 		for(IExportColumn<?> formItem : itemlist) {

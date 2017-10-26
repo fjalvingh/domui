@@ -22,7 +22,7 @@ import javax.annotation.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 1/13/15.
  */
-abstract public class AsyncDialogTask implements IAsyncRunnable {
+abstract public class AsyncDialogTask {
 	@Nullable
 	private QDataContext m_dc;
 
@@ -31,14 +31,12 @@ abstract public class AsyncDialogTask implements IAsyncRunnable {
 
 	private boolean m_done;
 
-	private boolean m_defaultOnCompleted;
-
 	protected abstract void execute(@Nonnull IProgress progress) throws Exception;
 
 	public AsyncDialogTask() {
 	}
 
-	@Override public void run(@Nonnull IProgress p) throws Exception {
+	final private void run(@Nonnull IProgress p) throws Exception {
 		try {
 			execute(p);
 		} finally {
@@ -76,14 +74,20 @@ abstract public class AsyncDialogTask implements IAsyncRunnable {
 		return lc;
 	}
 
-	@Override public void onCompleted(boolean cancelled, @Nullable Exception errorException) throws Exception {
-		synchronized(this) {
-			m_defaultOnCompleted = true;
-		}
+	protected void onCompleted(NodeContainer node) throws Exception {
 	}
 
-	private synchronized boolean isDefault() {
-		return m_defaultOnCompleted;
+	protected void onError(Dialog dlg, boolean cancelled, @Nonnull Exception errorException) {
+		if(errorException instanceof CodeException) {
+			CodeException cx = (CodeException) errorException;
+			String msg = cx.getMessage();
+			dlg.add(msg);
+		} else {
+			String msg = errorException.getMessage();
+			if(StringTool.isBlank(msg))
+				msg = errorException.toString();
+			dlg.add(msg);
+		}
 	}
 
 	static public void runInDialog(@Nonnull NodeContainer addTo, @Nonnull final AsyncDialogTask task, @Nonnull String dialogTitle, final boolean isAbortable, final boolean autoClose) {
@@ -97,32 +101,39 @@ abstract public class AsyncDialogTask implements IAsyncRunnable {
 			}
 
 			@Override public void onCompleted(boolean cancelled, @Nullable Exception errorException) throws Exception {
-				task.onCompleted(cancelled, errorException);
-
-				boolean haserror = false;
-				if(task.isDefault()) {
-					if(errorException != null) {
-						haserror = true;
-						if(errorException instanceof CodeException) {
-							CodeException cx = (CodeException) errorException;
-							String msg = cx.getMessage();
-							dlg.add(msg);
-						} else {
-							String msg = errorException.getMessage();
-							if(StringTool.isBlank(msg))
-								msg = errorException.toString();
-							dlg.add(msg);
-						}
-					}
-				}
-
-				if(! haserror) {
+				if(errorException == null) {
+					task.onCompleted(addTo);
 					if(autoClose) {
 						dlg.close();
-					} else {
-						dlg.add(Msgs.BUNDLE.getString(Msgs.ASYD_COMPLETED));
 					}
+				} else {
+					task.onError(dlg, cancelled, errorException);
 				}
+				//
+				//boolean haserror = false;
+				//if(task.isDefault()) {
+				//	if(errorException != null) {
+				//		haserror = true;
+				//		if(errorException instanceof CodeException) {
+				//			CodeException cx = (CodeException) errorException;
+				//			String msg = cx.getMessage();
+				//			dlg.add(msg);
+				//		} else {
+				//			String msg = errorException.getMessage();
+				//			if(StringTool.isBlank(msg))
+				//				msg = errorException.toString();
+				//			dlg.add(msg);
+				//		}
+				//	}
+				//}
+				//
+				//if(! haserror) {
+				//	if(autoClose) {
+				//		dlg.close();
+				//	} else {
+				//		dlg.add(Msgs.BUNDLE.getString(Msgs.ASYD_COMPLETED));
+				//	}
+				//}
 			}
 		});
 		if (!isAbortable){
@@ -130,5 +141,4 @@ abstract public class AsyncDialogTask implements IAsyncRunnable {
 		}
 		dlg.add(pd);
 	}
-
 }

@@ -10,6 +10,8 @@ import java.util.List;
  */
 @DefaultNonNull
 public interface IExportWriter<R> {
+	String getMimeType();
+
 	void startExport(File target, List<IExportColumn<?>> columnList) throws Exception;
 
 	void exportRow(R data) throws Exception;

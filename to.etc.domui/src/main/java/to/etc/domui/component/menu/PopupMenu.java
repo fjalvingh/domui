@@ -153,4 +153,8 @@ public class PopupMenu {
 		ref.getPage().setPopIn(sp);
 		ref.getPage().getBody().add(0, sp);
 	}
+
+	public void show(NodeBase ref) {
+		show(ref, null);
+	}
 }

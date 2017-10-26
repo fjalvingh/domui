@@ -8,10 +8,12 @@ import javax.annotation.DefaultNonNull;
  */
 @DefaultNonNull
 public interface IExportFormat {
-
+	/** The descriptive name for the format */
 	String name();
 
+	/** The file extension without "." */
 	String extension();
 
+	/** The actual exporter */
 	IExportWriter<?> createWriter();
 }

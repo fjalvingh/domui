@@ -1,10 +1,12 @@
 package to.etc.domui.util.exporters;
 
+import to.etc.domui.component.delayed.IProgress;
 import to.etc.domui.component.meta.impl.ExpandedDisplayProperty;
-import to.etc.util.Progress;
 import to.etc.webapp.query.QCriteria;
 import to.etc.webapp.query.QDataContext;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,7 +26,7 @@ public class QCriteriaExporter<T> {
 
 	private final List<IExportColumn<?>> m_columnList;
 
-	public QCriteriaExporter(File target, IExportWriter<T> writer, QDataContext dc, QCriteria<T> query, String... columns) {
+	public QCriteriaExporter(@Nonnull File target, @Nonnull IExportWriter<T> writer, @Nonnull QDataContext dc, @Nonnull QCriteria<T> query, @Nullable String... columns) {
 		m_target = target;
 		m_dc = dc;
 		m_query = query;
@@ -42,10 +44,10 @@ public class QCriteriaExporter<T> {
 	}
 
 	public QCriteriaExporter(File target, IExportWriter<T> writer, QDataContext dc, QCriteria<T> query, List<String> columns) {
-		this(target, writer, dc, query, columns.toArray(new String[columns.size()]));
+		this(target, writer, dc, query, columns == null ? null : columns.toArray(new String[columns.size()]));
 	}
 
-	public ExportResult export(Progress p) throws Exception {
+	public ExportResult export(IProgress p) throws Exception {
 		if(m_columnList.size() == 0)
 			return ExportResult.EMPTY;
 
@@ -64,11 +66,10 @@ public class QCriteriaExporter<T> {
 					break;
 				}
 				m_exportWriter.exportRow(t);
-				p.increment(1.0);
+				p.setCompleted(count);
 			}
 
 			m_exportWriter.finish();
-			p.complete();
 			return list.size() >= rowLimit ? ExportResult.TRUNCATED : ExportResult.COMPLETED;
 		} finally {
 			m_exportWriter.close();
