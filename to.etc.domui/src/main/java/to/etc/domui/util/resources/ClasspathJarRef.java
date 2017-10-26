@@ -24,10 +24,16 @@
  */
 package to.etc.domui.util.resources;
 
-import java.io.*;
-import java.util.*;
+import to.etc.util.ByteBufferInputStream;
+import to.etc.util.FileTool;
 
-import to.etc.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A reference to a .jar file containing some resource. This has special code to handle
