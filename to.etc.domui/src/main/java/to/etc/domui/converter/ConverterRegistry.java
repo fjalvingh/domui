@@ -24,13 +24,21 @@
  */
 package to.etc.domui.converter;
 
-import to.etc.domui.component.meta.*;
-import to.etc.util.*;
-import to.etc.webapp.*;
-import to.etc.webapp.nls.*;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.SortableType;
+import to.etc.util.RuntimeConversions;
+import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.*;
-import java.util.*;
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * A repository of Converter instances.
@@ -444,9 +452,18 @@ public class ConverterRegistry {
 		return (Comparator<T>) getComparator(cmm, property, descending);
 	}
 
-	static public Comparator< ? > getComparator(@Nonnull ClassMetaModel cmm, @Nonnull String property, boolean descending) {
-		String[] ar = property.split(";");
-		List<Comparator<Object>> all = new ArrayList<Comparator<Object>>();
+	/**
+	 * Get a comparator to compare one or more properties. The propertyPath can contain a list of properties
+	 * in the format: "property{:a|d};property{:a|d}", for instance:
+	 * <pre>
+	 *     lastName;firstName
+	 *     lastName:a;firstName:d
+	 * </pre>
+	 * If no order parameters are specified the order defaults to the "descending" parameter.
+	 */
+	static public <C> Comparator<C> getComparator(@Nonnull ClassMetaModel cmm, @Nonnull String propertyPath, boolean descending) {
+		List<Comparator<C>> all = new ArrayList<>();
+		String[] ar = propertyPath.split(";");
 		for(String pn : ar) {
 			pn = pn.trim();
 			boolean desc = descending;
@@ -460,20 +477,12 @@ public class ConverterRegistry {
 					desc = true;
 			}
 
-			PropertyMetaModel<Object> pmm = (PropertyMetaModel<Object>) cmm.findProperty(pn);
-			if(null == pmm)
-				throw new ProgrammerErrorException("The property '" + cmm + "." + property + "' is not known.");
-
-			//-- Get the actual data type, and get a comparator for that data type;
-			Comparator<Object> comp = (Comparator<Object>) findComparatorForType(pmm.getActualType());
-			if(null == comp) {
-				comp = DEFAULT_COMPARATOR;
-			}
-			all.add(new PropertyComparator<Object>(pmm, comp, descending));
+			PropertyComparator<C> comp = PropertyComparator.create(cmm, pn, desc ? SortableType.SORTABLE_DESC : SortableType.SORTABLE_ASC);
+			all.add(comp);
 		}
 		if(all.size() == 1)
 			return all.get(0);
-		return new CompoundComparator<Object>(all, false);
+		return new CompoundComparator<>(all, false);
 	}
 
 	/**
@@ -481,7 +490,7 @@ public class ConverterRegistry {
 	 * @param actualType
 	 * @return
 	 */
-	private static Comparator< ? > findComparatorForType(Class< ? > actualType) {
+	public static Comparator< ? > findComparatorForType(Class<?> actualType) {
 		Class<?> t = actualType;
 		Map<Class< ? >, Comparator< ? >> cm = getComparatorMap();
 		for(;;) {
