@@ -49,7 +49,6 @@ import to.etc.domui.dom.html.IForTarget;
 import to.etc.domui.dom.html.IHasModifiedIndication;
 import to.etc.domui.dom.html.IReturnPressed;
 import to.etc.domui.dom.html.IValueChanged;
-import to.etc.domui.dom.html.Label;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Span;
 import to.etc.domui.dom.html.TD;
@@ -78,9 +77,6 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 
 	private Table m_table;
 
-	@Nullable
-	private Label m_forLabel;
-
 	/**
 	 * EXPERIMENTAL Factory for the lookup dialog, to be shown when the lookup button
 	 * is pressed.
@@ -90,7 +86,7 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	 */
 	public interface IPopupOpener {
 		@Nonnull
-		public <A, B, L extends LookupInputBase2<A, B>> Dialog createDialog(@Nonnull L control, @Nullable ITableModel<B> initialModel, @Nonnull IExecute callOnWindowClose);
+		<A, B, L extends LookupInputBase2<A, B>> Dialog createDialog(@Nonnull L control, @Nullable ITableModel<B> initialModel, @Nonnull IExecute callOnWindowClose);
 	}
 
 	/**
