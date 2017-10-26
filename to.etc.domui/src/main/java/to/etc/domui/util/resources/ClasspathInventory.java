@@ -70,11 +70,6 @@ public class ClasspathInventory {
 	/** Maps resource and class names to the container they were found in first */
 	private final Map<String, IFileContainer> m_fileContainerMap = new HashMap<>();
 
-	/**
-	 * This maps resourcePath names to the jar they are contained in.
-	 */
-	private Map<String, ClasspathJarRef> m_jarMap = new HashMap<String, ClasspathJarRef>();
-
 	static private final IModifyableResource NOT_FOUND = new IModifyableResource() {
 		@Override
 		public long getLastModified() {

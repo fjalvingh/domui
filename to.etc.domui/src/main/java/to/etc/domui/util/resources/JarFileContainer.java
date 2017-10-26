@@ -54,7 +54,7 @@ final public class JarFileContainer implements IFileContainer {
 		try(ZipInputStream zis = new ZipInputStream(new FileInputStream(m_file))) {
 			ZipEntry ze;
 			while(null != (ze = zis.getNextEntry())) {
-				JarredFileRef jf = new JarredFileRef(ze.getName(), ze.getTime(), ze.getSize());
+				JarredFileRef jf = new JarredFileRef(this, ze.getName(), ze.getTime(), ze.getSize());
 				m_fileMap.put(ze.getName(), jf);
 			}
 		} catch(Exception xz) {
