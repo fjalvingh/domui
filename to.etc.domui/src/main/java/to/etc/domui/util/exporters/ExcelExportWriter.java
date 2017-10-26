@@ -16,6 +16,9 @@ import to.etc.webapp.nls.NlsContext;
 
 import javax.annotation.DefaultNonNull;
 import javax.annotation.Nullable;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -70,12 +73,16 @@ public class ExcelExportWriter<T> implements IExportWriter<T> {
 
 	private List<IExportColumn<?>> m_columnList = Collections.emptyList();
 
+	@Nullable
+	private File m_target;
+
 	public ExcelExportWriter(ExcelFormat format) {
 		m_format = format;
 		Arrays.fill(m_sheetRowIndex, -1);
 	}
 
-	@Override public void startExport(List<IExportColumn<?>> columnList) throws Exception {
+	@Override public void startExport(File target, List<IExportColumn<?>> columnList) throws Exception {
+		m_target = target;
 		m_columnList = columnList;
 		Workbook wb = m_workbook = createWorkbook();
 		Font defaultFont = wb.createFont();
@@ -110,6 +117,12 @@ public class ExcelExportWriter<T> implements IExportWriter<T> {
 		hds.setFont(headerFont);
 
 		createNewSheet(columnList);
+	}
+
+	@Override public void finish() throws Exception {
+		try(OutputStream out = new FileOutputStream(Objects.requireNonNull(m_target))) {
+			getWorkbook().write(out);
+		}
 	}
 
 	@Override public void exportRow(T record) throws Exception {
