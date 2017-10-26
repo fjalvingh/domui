@@ -102,7 +102,6 @@ public class ReloadingClassLoader extends URLClassLoader {
 	}
 
 	private void addWatchFor(Class< ? > clz) {
-
 		IModifyableResource rt = m_classInventory.findClassSource(clz);
 		if(rt == null) {
 			LOG.info("Cannot find source file for class=" + clz + "; changes to this class are not tracked");
@@ -117,7 +116,7 @@ public class ReloadingClassLoader extends URLClassLoader {
 
 	List<ResourceTimestamp> getDependencyList() {
 		synchronized(m_reloader) {
-			return new ArrayList<ResourceTimestamp>(m_dependList);
+			return new ArrayList<>(m_dependList);
 		}
 	}
 
@@ -182,8 +181,6 @@ public class ReloadingClassLoader extends URLClassLoader {
 
 	/**
 	 * This adds watches for resources in the same directory as the onlywatch class. Those will not be loaded by this classloader.
-	 * @param loadClass
-	 * @throws Exception
 	 */
 	@Nonnull
 	private final Set<String> m_scannedPackages = new HashSet<String>();

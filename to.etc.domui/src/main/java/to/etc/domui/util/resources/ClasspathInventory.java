@@ -24,16 +24,27 @@
  */
 package to.etc.domui.util.resources;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.util.zip.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import to.etc.util.StringTool;
 
-import javax.annotation.*;
-
-import org.slf4j.*;
-
-import to.etc.util.*;
+import javax.annotation.DefaultNonNull;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * Inventory of all files (.class and other resources) reachable in the classpath. It lazily
@@ -46,10 +57,12 @@ import to.etc.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 5, 2011
  */
+@DefaultNonNull
 public class ClasspathInventory {
 	static final Logger LOG = LoggerFactory.getLogger(ClasspathInventory.class);
 
 	/** If needed: a singleton maintaining the inventory data. */
+	@Nullable
 	static private ClasspathInventory m_instance;
 
 	/** The set of directories and .jar files. */
@@ -111,9 +124,10 @@ public class ClasspathInventory {
 	 * @return
 	 */
 	static synchronized public ClasspathInventory getInstance() {
-		if(m_instance == null)
-			m_instance = create(ClasspathInventory.class.getClassLoader());
-		return m_instance;
+		ClasspathInventory instance = m_instance;
+		if(instance == null)
+			m_instance = instance = create(ClasspathInventory.class.getClassLoader());
+		return instance;
 	}
 
 	/**
@@ -154,6 +168,7 @@ public class ClasspathInventory {
 	 * @return
 	 * @throws URISyntaxException
 	 */
+	@Nullable
 	public synchronized IModifyableResource findResourceSource(String resourcePath) {
 		long t = System.nanoTime();
 		if(resourcePath.startsWith("/")) // Resources should start with /, but do not use that in the scan.
@@ -185,6 +200,7 @@ public class ClasspathInventory {
 	 * @return
 	 * @throws URISyntaxException
 	 */
+	@Nullable
 	public synchronized IModifyableResource findClassSource(Class< ? > clz) {
 		//-- 1. Do a quick lookup of the classname itself
 		IModifyableResource rr = m_lookupMap.get(clz.getName()); // Already looked up earlier?
@@ -237,6 +253,7 @@ public class ClasspathInventory {
 	 * checked later on for changes on this resource's source.
 	 *
 	 */
+	@Nullable
 	private IModifyableResource checkForFile(File f, String rel) {
 		if(f.getName().toLowerCase().endsWith(".jar"))
 			return null; ///checkJarContents(f, rel);
@@ -254,7 +271,6 @@ public class ClasspathInventory {
 
 	/**
 	 * Scan all JAR files and create a map of their content linked to the jar file itself.
-	 * @throws URISyntaxException
 	 */
 	private synchronized void scanJars() {
 		long ts = System.nanoTime();
@@ -277,7 +293,6 @@ public class ClasspathInventory {
 
 	/**
 	 * If the specified url is a JAR load it's fileset and store in the jarmap.
-	 * @param u
 	 */
 	private synchronized boolean loadJarInventory(File f) {
 		String name = f.getAbsolutePath();
