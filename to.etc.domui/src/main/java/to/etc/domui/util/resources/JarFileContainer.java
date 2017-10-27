@@ -1,5 +1,6 @@
 package to.etc.domui.util.resources;
 
+import to.etc.domui.server.reloader.Reloader;
 import to.etc.util.ByteBufferInputStream;
 import to.etc.util.FileTool;
 
@@ -11,13 +12,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 /**
- * Contains the content of a .jar file, with timestamps for all files in there.
+ * Contains the inventory of a .jar file, with timestamps for all files in there.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 26-10-17.
@@ -42,21 +45,33 @@ final public class JarFileContainer implements IFileContainer {
 		return c;
 	}
 
+	/**
+	 * Reload, keeping the original references but updating them if their timestamp or existence changed.
+	 */
 	private synchronized void reload() {
-		m_fileMap.clear();
-
 		if(! m_file.exists()) {
 			m_tsModified = -1;
+			m_fileMap.values().forEach(a -> a.update(-1, -1));
 			return;
 		}
 		m_tsModified = m_file.lastModified();
 
 		try(ZipInputStream zis = new ZipInputStream(new FileInputStream(m_file))) {
 			ZipEntry ze;
+			Set<String> oldNames = new HashSet<>(m_fileMap.keySet());
 			while(null != (ze = zis.getNextEntry())) {
-				JarredFileRef jf = new JarredFileRef(this, ze.getName(), ze.getTime(), ze.getSize());
-				m_fileMap.put(ze.getName(), jf);
+				JarredFileRef jr = m_fileMap.get(ze.getName());
+				if(null == jr) {
+					jr = new JarredFileRef(this, ze.getName(), ze.getTime(), ze.getSize());
+					m_fileMap.put(ze.getName(), jr);
+				} else {
+					oldNames.remove(ze.getName());
+					jr.update(ze.getTime(), ze.getSize());
+				}
 			}
+
+			//-- All oldNames are marked as DELETED
+			oldNames.forEach(name ->m_fileMap.get(name).update(-1, -1));
 		} catch(Exception xz) {
 			System.out.println("domui: failed to scan " + m_file + ": " + xz);
 		}
@@ -74,12 +89,14 @@ final public class JarFileContainer implements IFileContainer {
 		return m_fileMap.get(name);
 	}
 
-	private void reloadIfChanged() {
+	public void reloadIfChanged() {
 		if(! m_file.exists()) {
 			if(m_tsModified == -1)
 				return;
 		} else if(m_file.lastModified() == m_tsModified)
 			return;
+		if(Reloader.DEBUG)
+			System.out.println("jarContainer: reloading " + m_file);
 		reload();
 	}
 

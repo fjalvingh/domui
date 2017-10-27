@@ -24,9 +24,9 @@
  */
 package to.etc.domui.server.reloader;
 
-import java.net.*;
+import org.slf4j.Logger;
 
-import org.slf4j.*;
+import java.net.URLClassLoader;
 
 /**
  * This ClassLoader is used to load classes that are not to be reloaded but which must
@@ -69,7 +69,8 @@ public class CheckingClassLoader extends URLClassLoader {
 	 */
 	@Override
 	public synchronized Class< ? > loadClass(String name, boolean resolve) throws ClassNotFoundException {
-		//		System.out.println("checkingLoader: input="+name);
+		if(Reloader.DEBUG)
+			System.out.println("checkingLoader: input="+name);
 		if(!name.startsWith(m_applicationClass)) // Not the Application class?
 			return m_reloader.getReloadingLoader().loadClass(name); // Then delegate to the reloading classloader
 
@@ -94,7 +95,6 @@ public class CheckingClassLoader extends URLClassLoader {
 
 		if(resolve)
 			resolveClass(clz);
-		//		System.out.println("ccl: class "+clz+" loader "+clz.getClassLoader());
 		return clz;
 	}
 }

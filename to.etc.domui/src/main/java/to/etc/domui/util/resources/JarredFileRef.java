@@ -15,9 +15,9 @@ final public class JarredFileRef implements IModifyableResource {
 
 	private final String m_name;
 
-	private final long m_time;
+	private volatile long m_time;
 
-	private final long m_size;
+	private volatile long m_size;
 
 	public JarredFileRef(JarFileContainer container, String name, long time, long size) {
 		m_container = container;
@@ -27,6 +27,7 @@ final public class JarredFileRef implements IModifyableResource {
 	}
 
 	@Override public long getLastModified() {
+		m_container.reloadIfChanged();
 		return m_time;
 	}
 
@@ -36,5 +37,10 @@ final public class JarredFileRef implements IModifyableResource {
 
 	public InputStream getResource() throws IOException {
 		return m_container.getResource(m_name);
+	}
+
+	public void update(long lastModified, long size) {
+		m_time = lastModified;
+		m_size = size;
 	}
 }

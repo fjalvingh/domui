@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Contains the inventory for a classpath directory.
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 26-10-17.
  */

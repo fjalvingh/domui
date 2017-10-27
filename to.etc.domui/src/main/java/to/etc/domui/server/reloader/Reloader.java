@@ -69,6 +69,8 @@ import java.util.regex.Pattern;
  */
 @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "DMI_COLLECTION_OF_URLS", justification = "URLs here are not network based")
 final public class Reloader {
+	static public final boolean DEBUG = false;
+
 	static final Logger LOG = LoggerFactory.getLogger(Reloader.class);
 
 	//	/** A reloader exists only once in a webapp. */

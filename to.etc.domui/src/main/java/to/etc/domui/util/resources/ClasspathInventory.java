@@ -26,6 +26,7 @@ package to.etc.domui.util.resources;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import to.etc.domui.server.reloader.Reloader;
 import to.etc.util.StringTool;
 
 import javax.annotation.DefaultNonNull;
@@ -90,7 +91,6 @@ public class ClasspathInventory {
 	 * @param loader
 	 */
 	static private void findUrlsFor(Set<File> result, ClassLoader loader) {
-		//		System.out.println(".. loader="+loader);
 		if(loader == null)
 			return;
 		if(loader instanceof URLClassLoader) {
@@ -150,7 +150,9 @@ public class ClasspathInventory {
 		} finally {
 			if(LOG.isDebugEnabled()) {
 				t = System.nanoTime() - t;
-				LOG.debug("inventory: " + (ref == null ? "un" : "") + "succesful findResourceSource " + resourcePath + " took " + StringTool.strNanoTime(t));
+				LOG.debug("inventory: " + (ref == null ? "un" : "") + "successful findResourceSource " + resourcePath + " took " + StringTool.strNanoTime(t));
+				if(Reloader.DEBUG)
+					System.out.println("inventory: " + (ref == null ? "un" : "") + "successful findResourceSource " + resourcePath + " took " + StringTool.strNanoTime(t));
 			}
 		}
 	}
