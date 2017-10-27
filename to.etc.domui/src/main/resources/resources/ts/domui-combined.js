@@ -3860,6 +3860,9 @@ var WebUI;
         }
         process(xml.documentElement.childNodes);
     }
+    $.executeXML = function (xml) {
+        executeXML(xml);
+    };
     function process(commands) {
         var param = {
             postProcess: false

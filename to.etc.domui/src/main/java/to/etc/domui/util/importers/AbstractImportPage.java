@@ -39,7 +39,7 @@ public class AbstractImportPage extends UrlPage {
 	}
 
 	public boolean isUploadDisabled() {
-		return m_upload == null || m_upload.getFiles().size() > 0;
+		return m_upload == null || m_upload.getFiles().size() == 0;
 	}
 
 	protected ButtonBar getButtonBar() {
@@ -52,7 +52,7 @@ public class AbstractImportPage extends UrlPage {
 	}
 
 	protected FileUpload createUpload() {
-		FileUpload fu = m_upload = new FileUpload(1, "xls xlsx");
+		FileUpload fu = m_upload = new FileUpload("xls", "xlsx");
 		return fu;
 	}
 }

@@ -24,12 +24,23 @@
  */
 package to.etc.domui.util;
 
-import java.util.*;
+import to.etc.domui.component.input.ComboFixed;
+import to.etc.domui.component.input.ComboLookup;
+import to.etc.domui.component.input.Text;
+import to.etc.domui.component.input.TextStr;
+import to.etc.domui.component.input.ValueLabelPair;
+import to.etc.domui.component.layout.ButtonBar;
+import to.etc.domui.component.layout.IButtonBar;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.TH;
+import to.etc.domui.dom.html.THead;
+import to.etc.domui.dom.html.TR;
+import to.etc.domui.dom.html.Table;
 
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.layout.*;
-import to.etc.domui.component.upload.*;
-import to.etc.domui.dom.html.*;
+import java.util.List;
 
 /**
  * Helper thingy to create something based on a table.
@@ -168,14 +179,14 @@ public class MiniTableBuilder {
 		return add(new TextStr());
 	}
 
-	public FileUpload addUpload(int maxfiles, String exts) {
-		return add(new FileUpload(maxfiles, exts));
-	}
+	//public FileUpload addUpload(int maxfiles, String exts) {
+	//	return add(new FileUpload(maxfiles, exts));
+	//}
 
-	public FileUpload addUpload(String label, int maxfiles, String exts) {
-		doLabelCtl(label);
-		return addUpload(maxfiles, exts);
-	}
+	//public FileUpload addUpload(String label, int maxfiles, String exts) {
+	//	doLabelCtl(label);
+	//	return addUpload(maxfiles, exts);
+	//}
 
 	public <T> ComboLookup<T> addComboLookup(IListMaker<T> maker) {
 		ComboLookup<T> cb = new ComboLookup<T>(maker);

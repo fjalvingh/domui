@@ -37,6 +37,7 @@ import to.etc.domui.util.upload.*;
 
 import javax.annotation.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Represents a file upload thingy which handles ajaxy uploads. The basic model
@@ -64,7 +65,8 @@ import java.util.*;
  * Created on Oct 13, 2008
  */
 public class FileUpload extends Div implements IUploadAcceptingComponent, IControl<UploadItem> /* implements IHasChangeListener */ {
-	private String m_allowedExtensions;
+	@Nonnull
+	private List<String> m_allowedExtensions;
 
 	private int m_maxSize;
 
@@ -82,16 +84,21 @@ public class FileUpload extends Div implements IUploadAcceptingComponent, IContr
 
 	private boolean m_readOnly;
 
-	public FileUpload() {}
+	public FileUpload() {
+		m_allowedExtensions = new ArrayList<>();
+	}
 
 	/**
-	 * Create an upload item that acceps a max #of files and a set of extensions.
-	 * @param maxfiles
-	 * @param allowedExt
+	 * Create an upload item that accepts a max #of files and a set of extensions.
 	 */
-	public FileUpload(int maxfiles, String allowedExt) {
+	public FileUpload(int maxfiles, @Nonnull List<String> allowedExtensions) {
 		m_maxFiles = maxfiles;
-		m_allowedExtensions = allowedExt;
+		m_allowedExtensions = allowedExtensions;
+	}
+
+	public FileUpload(String...allowedExt) {
+		m_maxFiles = 1;
+		m_allowedExtensions = Arrays.asList(allowedExt);
 	}
 
 	@Override
@@ -136,8 +143,11 @@ public class FileUpload extends Div implements IUploadAcceptingComponent, IContr
 			fi.setSpecialAttribute("onkeypress", "WebUI.preventIE11DefaultAction(event)");
 			fi.setSpecialAttribute("onchange", "WebUI.fileUploadChange(event)");
 			fi.setDisabled(isDisabled() || isReadOnly());
-			if(null != m_allowedExtensions)
-				fi.setSpecialAttribute("fuallowed", m_allowedExtensions);
+			if(m_allowedExtensions.size() > 0) {
+				String values = m_allowedExtensions.stream().map(s -> s.startsWith(".") || s.contains("/") ? s : "." + s).collect(Collectors.joining(","));
+				fi.setSpecialAttribute("fuallowed", values);
+				fi.setSpecialAttribute("accept", values);
+			}
 			//			fi.setSpecialAttribute("fumaxsz", Integer.toString(m_maxSize));
 			int maxSize = getMaxSize();
 			if(maxSize <= 0)
@@ -258,7 +268,7 @@ public class FileUpload extends Div implements IUploadAcceptingComponent, IContr
 	 * Return the space separated list of allowed file extensions.
 	 * @return
 	 */
-	public String getAllowedExtensions() {
+	public List<String> getAllowedExtensions() {
 		return m_allowedExtensions;
 	}
 
@@ -266,11 +276,11 @@ public class FileUpload extends Div implements IUploadAcceptingComponent, IContr
 	 * Set the list of allowed file extensions.
 	 * @param allowedExtensions
 	 */
-	public void setAllowedExtensions(String allowedExtensions) {
+	public void setAllowedExtensions(List<String> allowedExtensions) {
 		if(DomUtil.isEqual(allowedExtensions, m_allowedExtensions))
 			return;
 
-		m_allowedExtensions = allowedExtensions;
+		m_allowedExtensions = new ArrayList<>(allowedExtensions);
 		changed();
 	}
 
