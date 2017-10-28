@@ -1,9 +1,10 @@
 //@import url('https://fonts.googleapis.com/css?family=Fira+Mono|Josefin+Sans:400,400i,600,600i&subset=latin-ext');
 
-@IMPORT url("calendar-theme.css");
+//@IMPORT url("calendar-theme.css");
 
 @import 'color';
 @import 'variables';
+@import "functions.scss";
 @import 'parameters';
 
 @import 'reset';
