@@ -8,8 +8,10 @@ import java.util.List;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 29-10-17.
  */
-public class SassCompilerFactory {
+final public class SassCompilerFactory {
 	static private List<ISassCompiler> m_compilerList = Collections.emptyList();
+
+	private SassCompilerFactory() {}
 
 	public static ISassCompiler createCompiler() {
 		List<ISassCompiler> compilerList = getCompilerList();
@@ -31,5 +33,10 @@ public class SassCompilerFactory {
 		List<ISassCompiler> list = new ArrayList<>(m_compilerList);
 		list.add(compiler);
 		m_compilerList = list;
+	}
+
+	static {
+		register(new JSassCompiler());
+		register(new VaadinSassCompiler());
 	}
 }

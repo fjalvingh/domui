@@ -21,6 +21,7 @@ import java.io.Writer;
  * Created on 29-10-17.
  */
 public class VaadinSassCompiler implements ISassCompiler {
+	@Override
 	public void compiler(String rurl, Writer output, @Nonnull ParameterInfoImpl params, @Nonnull IResourceDependencyList rdl) throws Exception {
 		SassCapturingErrorHandler errorHandler = new SassCapturingErrorHandler();
 

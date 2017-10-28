@@ -89,6 +89,12 @@
             <version>3.17</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/io.bit3/jsass -->
+        <dependency>
+            <groupId>io.bit3</groupId>
+            <artifactId>jsass</artifactId>
+        </dependency>
+
         <!-- EXPERIMENTAL: sass support -->
         <dependency>
             <groupId>com.vaadin</groupId>

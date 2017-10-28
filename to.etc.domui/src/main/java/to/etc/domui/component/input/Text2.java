@@ -665,7 +665,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 
 	public void addValidator(IValueValidator< ? > v) {
 		if(m_validators == Collections.EMPTY_LIST)
-			m_validators = new ArrayList<IValueValidator< ? >>(5);
+			m_validators = new ArrayList<>(5);
 		m_validators.add(v);
 	}
 
