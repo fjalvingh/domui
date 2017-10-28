@@ -128,6 +128,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 
 	public Text(@Nonnull Class<T> inputClass) {
 		m_inputClass = inputClass;
+		addCssClass("ui-otxt");
 
 		NumberMode nm = NumberMode.NONE;
 		if(BigDecimal.class.isAssignableFrom(inputClass) || DomUtil.isRealType(inputClass))

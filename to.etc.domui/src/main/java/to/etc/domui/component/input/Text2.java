@@ -46,10 +46,6 @@ import to.etc.domui.dom.html.IHasModifiedIndication;
 import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.Input;
 import to.etc.domui.dom.html.NodeBase;
-import to.etc.domui.dom.html.TBody;
-import to.etc.domui.dom.html.TD;
-import to.etc.domui.dom.html.TR;
-import to.etc.domui.dom.html.Table;
 import to.etc.domui.parts.MarkerImagePart;
 import to.etc.domui.trouble.UIException;
 import to.etc.domui.trouble.ValidationException;
@@ -151,9 +147,6 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	@Nullable
 	private List<NodeBase> m_buttonList;
 
-	@Nullable
-	private TBody m_body;
-
 	public enum NumberMode {
 		NONE, DIGITS, FLOAT,
 	}
@@ -187,11 +180,9 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	@Override
 	public void createContent() throws Exception {
 		addCssClass("ui-txt2");
-		Table tbl = new Table("ui-txt2-tbl");
-		add(tbl);
-		TBody tb = m_body= tbl.addBody();
-		TD td = tb.addRowAndCell("ui-txt2-in");
-		td.add(m_input);
+		Div d1 = new Div("ui-control");
+		add(d1);
+		d1.add(m_input);
 		renderButtons();
 		renderMode();
 	}
@@ -205,26 +196,25 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	}
 
 	private void renderButtons() {
-		TBody body = m_body;
-		if(null == body)
+		if(! isBuilt())
 			return;
 
-		//-- Get row 1 and remove all cells but the 1st one
-		TR tr = body.getRow(0);
-		while(tr.getChildCount() > 1) {
-			tr.getChild(tr.getChildCount() - 1).remove();
+		//-- Remove all but the 1st child
+		while(getChildCount() > 1) {
+			getChild(getChildCount() - 1).remove();
 		}
 
 		List<NodeBase> buttonList = m_buttonList;
-		if(null != buttonList) {
+		if(null != buttonList && buttonList.size() > 0) {
 			buttonList.forEach(b -> {
-				//Div bd = new Div("ui-txt2-bdiv");
-				//body.addCell("ui-txt2-btn").add(bd);
-				//bd.add(b);
-
-				body.addCell("ui-txt2-btn").add(b);
+				Div d = new Div("ui-control");
+				add(d);
+				d.add(b);
 			});
+			addCssClass("ui-has-addons");
+			return;
 		}
+		removeCssClass("ui-has-addons");
 	}
 
 	protected void setPassword() {
@@ -656,12 +646,8 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 			m_buttonList = buttonList = new ArrayList<>(2);
 		}
 		buttonList.add(button);
-		TBody body = m_body;
-		if(isBuilt() && body != null) {
-			renderButtons();
-		}
+		renderButtons();
 	}
-
 
 	public void addValidator(IValueValidator< ? > v) {
 		if(m_validators == Collections.EMPTY_LIST)

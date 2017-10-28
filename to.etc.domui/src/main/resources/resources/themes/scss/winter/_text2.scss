@@ -24,84 +24,108 @@
 
 /** Text2 component **/
 .ui-txt2 {
-	display: inline-block;
+	display: inline-flex;
 
-	td {
-		padding: 0;
+	input {
+		@include ui-input-base;
 		margin: 0;
-		position: relative;
+		padding: 0;
+		line-height: $form-line-height;		// Important: this defines where the baseline is! Mirror the same setting on input.
 	}
 
 	&.ui-input-err input {
 		background-color: $errors_input_background;
 	}
-
-	.ui-txt2-bdiv {
-		position: absolute;
-		top: 0;
-		bottom: 0;
-		left: 0;
-		right: 0;
-		height: 100%;
-		border: 1px solid $bevel_down;
-		border-top: 1px solid $bevel_up;
-		border-left: none;
-		vertical-align: middle;
-		text-align: center;
-
-		.fa {
-			vertical-align: middle;
-		}
-	}
-
 	.ui-sib {
-		position: absolute;
-		top: 0;
-		bottom: 0;
-		left: 0;
-		right: 0;
+		border: 1px solid #dbdbdb;
 		height: 100%;
-		border: 1px solid $bevel_down;
-		border-top: 1px solid $bevel_up;
-		border-left: none;
-		vertical-align: middle;
-		text-align: center;
-		width: 21px;
-
-		.fa {
-			vertical-align: middle;
-		}
+		width: 2em;
 	}
 
-
-	td.ui-txt2-btn {
-		text-align: left;
-		white-space: nowrap;
-		width: 21px;
-		padding: 0;
+	&.ui-has-addons .ui-control input {
+		border-radius: 0;
 	}
-}
-
-.ui-txt2-tbl {
-	border-spacing: 0;
-	border-collapse: collapse;
-	margin: 0;
-	padding: 0;
-	width: auto;
-}
-
-.ui-txt2 input {
-	@extend .ui-beveled-border;
-	margin: 0;
-	padding: 0;
-	font-size: $font-size;
-	font-family: $font-family;			// 20170913 Needed because this is unset in the browser??
-
-	line-height: $form-line-height;		// Important: this defines where the baseline is! Mirror the same setting on input.
-
-	border-radius: 2px 0 0 2px;
-
-	:hover {
-		border-color: $bevel_hover_up $bevel_hover_down $bevel_hover_down $bevel_hover_up;
+	&.ui-has-addons .ui-control > * {
+		border-left-width: 0;
 	}
+
+	&.ui-has-addons .ui-control:first-child input {
+		border-bottom-left-radius: 3px;
+		border-top-left-radius: 3px;
+		border-left-width: 1px;
+	}
+
+	&.ui-has-addons .ui-control:last-child > * {
+		border-bottom-right-radius: 3px;
+		border-top-right-radius: 3px;
+	}
+
+	//.ui-txt2-bdiv {
+	//	position: absolute;
+	//	top: 0;
+	//	bottom: 0;
+	//	left: 0;
+	//	right: 0;
+	//	height: 100%;
+	//	border: 1px solid $bevel_down;
+	//	border-top: 1px solid $bevel_up;
+	//	border-left: none;
+	//	vertical-align: middle;
+	//	text-align: center;
+	//
+	//	.fa {
+	//		vertical-align: middle;
+	//	}
+	//}
+	//
+	//.ui-sib {
+	//	position: absolute;
+	//	top: 0;
+	//	bottom: 0;
+	//	left: 0;
+	//	right: 0;
+	//	height: 100%;
+	//	border: 1px solid $bevel_down;
+	//	border-top: 1px solid $bevel_up;
+	//	border-left: none;
+	//	vertical-align: middle;
+	//	text-align: center;
+	//	width: 21px;
+	//
+	//	.fa {
+	//		vertical-align: middle;
+	//	}
+	//}
+	//
+	//
+	//td.ui-txt2-btn {
+	//	text-align: left;
+	//	white-space: nowrap;
+	//	width: 21px;
+	//	padding: 0;
+	//}
 }
+
+//.ui-txt2-tbl {
+//	border-spacing: 0;
+//	border-collapse: collapse;
+//	margin: 0;
+//	padding: 0;
+//	width: auto;
+//}
+//
+//.ui-txt2 input {
+//	@extend .ui-beveled-border;
+//	margin: 0;
+//	padding: 0;
+//	font-size: $font-size;
+//	font-family: $font-family;			// 20170913 Needed because this is unset in the browser??
+//
+//	line-height: $form-line-height;		// Important: this defines where the baseline is! Mirror the same setting on input.
+//
+//	border-radius: 2px 0 0 2px;
+//
+//	:hover {
+//		border-color: $bevel_hover_up $bevel_hover_down $bevel_hover_down $bevel_hover_up;
+//	}
+//}
