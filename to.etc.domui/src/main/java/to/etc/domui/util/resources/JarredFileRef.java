@@ -1,5 +1,8 @@
 package to.etc.domui.util.resources;
 
+import to.etc.util.ByteBufferInputStream;
+
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -19,6 +22,9 @@ final public class JarredFileRef implements IModifyableResource {
 
 	private volatile long m_size;
 
+	@Nullable
+	private byte[][] m_resourceData;
+
 	public JarredFileRef(JarFileContainer container, String name, long time, long size) {
 		m_container = container;
 		m_name = name;
@@ -35,12 +41,32 @@ final public class JarredFileRef implements IModifyableResource {
 		return "JarredFile " + m_name + " ts=" + m_time;
 	}
 
+	/**
+	 * In debug mode, this tries to read the specified resource from the .jar file and
+	 * caches it. This does an explicit test for the jar being changed and clears the
+	 * cache if it has.
+	 */
 	public InputStream getResource() throws IOException {
-		return m_container.getResource(m_name);
+		byte[][] rd = m_resourceData;
+		if(rd == null) {
+			rd = m_resourceData = m_container.loadResource(m_name);
+		}
+		return new ByteBufferInputStream(rd);
 	}
 
 	public void update(long lastModified, long size) {
+		if(lastModified != m_time || size != m_size) {
+			m_resourceData = null;
+		}
 		m_time = lastModified;
 		m_size = size;
+	}
+
+	@Nullable byte[][] getResourceData() {
+		return m_resourceData;
+	}
+
+	void setResourceData(@Nullable byte[][] resourceData) {
+		m_resourceData = resourceData;
 	}
 }

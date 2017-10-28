@@ -24,6 +24,7 @@
 package to.etc.domuidemo.pages.test.componenterrors;
 
 import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.input.Text;
 import to.etc.domui.component.input.Text2;
 import to.etc.domui.component.layout.Caption;
 import to.etc.domui.component.meta.MetaProperty;
@@ -113,6 +114,13 @@ public class Text2LayoutTestPage extends UrlPage {
 
 		fb.label("bigdecimal empty").property(this, "t30").control();
 		fb.label("bigdecimal 123.45").property(this, "t31").control();
+
+		add(new Caption("Old Text<> control"));
+		fb = new FormBuilder(this);
+		fb.label("Text 41").control(new Text<>(String.class));
+		Text<String> t42 = new Text<String>(String.class);
+		t42.setValue("zzzzaaaXXX");
+		fb.label("Text 42").control(t42);
 
 		add(new DefaultButton("validate", a -> bindErrors()));
 	}

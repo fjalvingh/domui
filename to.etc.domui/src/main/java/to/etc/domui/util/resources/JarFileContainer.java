@@ -1,10 +1,10 @@
 package to.etc.domui.util.resources;
 
 import to.etc.domui.server.reloader.Reloader;
-import to.etc.util.ByteBufferInputStream;
 import to.etc.util.FileTool;
 
 import javax.annotation.DefaultNonNull;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,8 +25,7 @@ import java.util.zip.ZipInputStream;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 26-10-17.
  */
-@DefaultNonNull
-final public class JarFileContainer implements IFileContainer {
+@DefaultNonNull final public class JarFileContainer implements IFileContainer {
 	private final File m_file;
 
 	private long m_tsModified;
@@ -49,7 +48,7 @@ final public class JarFileContainer implements IFileContainer {
 	 * Reload, keeping the original references but updating them if their timestamp or existence changed.
 	 */
 	private synchronized void reload() {
-		if(! m_file.exists()) {
+		if(!m_file.exists()) {
 			m_tsModified = -1;
 			m_fileMap.values().forEach(a -> a.update(-1, -1));
 			return;
@@ -68,10 +67,15 @@ final public class JarFileContainer implements IFileContainer {
 					oldNames.remove(ze.getName());
 					jr.update(ze.getTime(), ze.getSize());
 				}
+
+				//-- If the entry was cached: update its data.
+				if(jr.getResourceData() != null) {
+					jr.setResourceData(FileTool.loadByteBuffers(zis));
+				}
 			}
 
 			//-- All oldNames are marked as DELETED
-			oldNames.forEach(name ->m_fileMap.get(name).update(-1, -1));
+			oldNames.forEach(name -> m_fileMap.get(name).update(-1, -1));
 		} catch(Exception xz) {
 			System.out.println("domui: failed to scan " + m_file + ": " + xz);
 		}
@@ -90,7 +94,7 @@ final public class JarFileContainer implements IFileContainer {
 	}
 
 	public void reloadIfChanged() {
-		if(! m_file.exists()) {
+		if(!m_file.exists()) {
 			if(m_tsModified == -1)
 				return;
 		} else if(m_file.lastModified() == m_tsModified)
@@ -100,44 +104,12 @@ final public class JarFileContainer implements IFileContainer {
 		reload();
 	}
 
-	/**
-	 * In debug mode, this tries to read the specified resource from the .jar file and
-	 * caches it. This does an explicit test for the jar being changed and clears the
-	 * cache if it has.
-	 *
-	 * @param relname
-	 * @return
-	 */
-	private synchronized byte[][] getCachedResource(String relname) throws IOException {
-		reloadIfChanged();
-
-		//-- Load the entry
-		byte[][] bufs = m_cachedMap.get(relname);
-		if(bufs == null) {
-			bufs = loadFromJar(relname);
-			if(bufs == null)
-				throw new IOException("Jar file entry " + relname + " not found in jar " + m_file);
-			m_cachedMap.put(relname, bufs);
-		}
-		return bufs;
-	}
-
-	/**
-	 * Load the specified resource from the .jar file, as a set of byte buffers.
-	 * @param name
-	 * @return
-	 * @throws IOException
-	 */
-	private byte[][] loadFromJar(String name) throws IOException {
-		try (InputStream is = FileTool.getZipContent(m_file, name)) {
+	@Nonnull
+	byte[][] loadResource(@Nonnull String name) throws IOException {
+		try(InputStream is = FileTool.getZipContent(m_file, name)) {
 			if(null == is)
 				throw new IOException("File '" + name + "' not found in jar " + m_file);
-			return FileTool.loadByteBuffers(is); // Load as a set of byte buffers.
+			return FileTool.loadByteBuffers(is);                    // Load as a set of byte buffers.
 		}
 	}
-
-	public InputStream getResource(String relname) throws IOException {
-		return new ByteBufferInputStream(getCachedResource(relname));
-	}
-
 }
