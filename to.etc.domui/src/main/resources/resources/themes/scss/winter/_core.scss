@@ -28,13 +28,13 @@ button {
 	vertical-align: bottom;
 }
 
-.ui-beveled-border {
+@mixin ui-beveled-border {
 	border: 1px solid $bevel_down;
 	border-top-color: $bevel_up;
 }
 
 input, textarea, select {
-	@extend .ui-beveled-border;
+	@include ui-beveled-border;
 	margin: 0 2px 2px 0;
 	padding: 0 2px 0 2px;
 	font-size: $font-size;
@@ -67,7 +67,7 @@ input[type=file] {
 }
 
 input[type=file]::-ms-value {
-	@extend .ui-beveled-border;
+	@include ui-beveled-border;
 	padding: 0;
 }
 
