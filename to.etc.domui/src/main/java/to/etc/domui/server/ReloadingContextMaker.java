@@ -149,6 +149,8 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 	 * other threads execute in the code (and this remains true while this runs).
 	 */
 	private void checkReload() throws Exception {
+		if(Reloader.DEBUG)
+			System.out.println("reloader: checking");
 		LOG.debug("Checking for reload");
 		if(m_application == null) {
 			//-- Just load && be done
@@ -156,9 +158,14 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 			reloaded();
 			return;
 		}
-		if(!m_reloader.isChanged())
+		if(!m_reloader.isChanged()) {
+			if(Reloader.DEBUG)
+				System.out.println("reloader: no changes");
 			return;
+		}
 
+		if(Reloader.DEBUG)
+			System.out.println("reloader: reload needed");
 		LOG.info("Reloading system");
 		//-- Call all listeners
 		for(IReloadedClassesListener l : getListeners()) {

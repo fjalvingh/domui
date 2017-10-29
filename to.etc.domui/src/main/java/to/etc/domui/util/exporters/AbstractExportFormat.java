@@ -1,6 +1,8 @@
 package to.etc.domui.util.exporters;
 
 /**
+ * Base class for {@link IExportFormat} factories.
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 26-10-17.
  */

@@ -308,7 +308,8 @@ public class NumericUtil {
 			if(DomUtil.isIntegerType(type) && scale != 0) {
 				//FIXME: vmijic 20110718 - Since this combination in pmm can break existing code, for now we just log this places.
 				//SCHEDULED FOR DELETE - if it is proven that this actually does not happen, (if no such items in logs are found) this check shold be removed.
-				System.out.println("WRONG SCALE on int types! Detected (scale :" + scale + ") is changed to 0!");
+				if(scale > 0)
+					System.out.println(pmm + ": WRONG SCALE on int types! Detected (scale :" + scale + ") is changed to 0!");
 				scale = 0;
 			}
 			IConverter<T> c = createNumberConverter(type, np, scale);
