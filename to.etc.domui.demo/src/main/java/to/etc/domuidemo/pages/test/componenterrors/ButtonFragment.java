@@ -37,8 +37,36 @@ public class ButtonFragment extends Div {
 		add(new Caption("Buttons component"));
 
 		addAction("Normal", a -> {});
-		addAction("primary", a -> a.css("is-primary"));
 		addAction("is-dark", a -> a.css("is-dark"));
+		addAction("is-light", a -> a.css("is-light"));
+		addAction("is-black", a -> a.css("is-black"));
+
+		addAction("primary", a -> a.css("is-primary"));
+		addAction("is-link", a -> a.css("is-link"));
+		addAction("is-info", a -> a.css("is-info"));
+		addAction("is-success", a -> a.css("is-success"));
+		addAction("is-warning", a -> a.css("is-warning"));
+		addAction("is-danger", a -> a.css("is-danger"));
+
+		addAction("is-outlined", a -> a.css("is-outlined"));
+		addAction("outlined primary", a -> a.css("is-primary is-outlined"));
+		addAction("outlined link", a -> a.css("is-link is-outlined"));
+		addAction("outlined info", a -> a.css("is-info is-outlined"));
+		addAction("outlined success", a -> a.css("is-success is-outlined"));
+		addAction("outlined warning", a -> a.css("is-warning is-outlined"));
+		addAction("outlined danger", a -> a.css("is-danger is-outlined"));
+
+		//-- loading
+		addAction("is-loading", a -> a.css("is-loading"));
+		addAction("outlined primary", a -> a.css("is-primary is-loading"));
+		addAction("outlined link", a -> a.css("is-link is-loading"));
+		addAction("outlined info", a -> a.css("is-info is-loading"));
+		addAction("outlined success", a -> a.css("is-success is-loading"));
+		addAction("outlined warning", a -> a.css("is-warning is-loading"));
+		addAction("outlined danger", a -> a.css("is-danger is-loading"));
+
+
+		addAction("is-", a -> a.css("is-"));
 
 		Table tbl = new Table();
 		add(tbl);
