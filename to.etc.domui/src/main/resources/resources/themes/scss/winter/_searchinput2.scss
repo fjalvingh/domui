@@ -1,6 +1,6 @@
 /*** SearchInput2: replacement for KeywordSearchInput, used in lookupInput2 but an independent component(!) ***/
 @import "variables";
-@import "core";
+@import "core_defs";
 
 .ui-srip {
 	position: relative;
@@ -71,5 +71,5 @@ tr.uixx-keyword-popup-row {
 }
 
 .ui-lui2-dlg .ui-f-in input {
-	margin: 0px !important;
+	margin: 0 !important;
 }

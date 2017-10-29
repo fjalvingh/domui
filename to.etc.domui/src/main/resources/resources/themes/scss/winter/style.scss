@@ -2,11 +2,14 @@
 
 //@IMPORT url("calendar-theme.css");
 
+//-- Variable and mixing common imports
 @import 'color';
 @import 'variables';
-@import "functions.scss";
-@import "derived-variables.scss";
+@import "functions";
+@import "derived-variables";
 @import 'parameters';
+
+@import "_core_defs";
 
 @import 'reset';
 @import 'core';
