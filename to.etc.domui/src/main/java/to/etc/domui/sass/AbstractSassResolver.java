@@ -67,7 +67,7 @@ abstract public class AbstractSassResolver<O> {
 
 			//-- Make sure we have a suffix
 			String identifier = original;
-			if(!identifier.endsWith(".scss") && ! identifier.endsWith(".sass")) {
+			if(!identifier.endsWith(".scss") && ! identifier.endsWith(".sass") && ! identifier.endsWith(".css")) {
 				boolean isSass = parentFile.toLowerCase().endsWith(".sass");
 				identifier += isSass ? ".sass" : ".scss";
 			}

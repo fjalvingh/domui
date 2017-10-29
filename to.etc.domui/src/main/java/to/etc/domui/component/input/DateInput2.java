@@ -94,6 +94,7 @@ public class DateInput2 extends Text2<Date> {
 	public void createContent() throws Exception {
 		super.createContent();
 		SmallImgButton sib = addButton(FaIcon.faCalendar, a -> { });
+		sib.setClicked(null);
 		sib.setOnClickJS("WebUI.showCalendar('" + internalGetInput().getActualID() + "'," + isWithTime() + ")");
 		internalGetInput().setSpecialAttribute("onblur", "WebUI.dateInputCheckInput(event);");
 		if(! m_hideTodayButton) {
