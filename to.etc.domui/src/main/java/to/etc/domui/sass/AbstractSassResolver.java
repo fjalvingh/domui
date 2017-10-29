@@ -56,11 +56,10 @@ abstract public class AbstractSassResolver<O> {
 		m_dependencyList = dependencyList;
 	}
 
-	public O resolve(String original, String fileBase) {
-		int ixof = fileBase.lastIndexOf("/");
-		if(ixof > 0) {
-			fileBase = fileBase.substring(0, ixof);            // Base directory exclusive final slash
-		}
+	public O resolve(String original, String parentFile) {
+		int ixof = parentFile.lastIndexOf("/");
+
+		String fileBase = ixof > 0 ? parentFile.substring(0, ixof) : "";		// Base directory exclusive final slash
 
 		long ts = System.nanoTime();
 		try {
@@ -68,11 +67,12 @@ abstract public class AbstractSassResolver<O> {
 
 			//-- Make sure we have a suffix
 			String identifier = original;
-			if(!identifier.endsWith(".scss")) {
-				identifier += ".scss";
+			if(!identifier.endsWith(".scss") && ! identifier.endsWith(".sass")) {
+				boolean isSass = parentFile.toLowerCase().endsWith(".sass");
+				identifier += isSass ? ".sass" : ".scss";
 			}
 
-			if(identifier.equals("_parameters.scss") || identifier.equals("parameters.scss")) {
+			if(identifier.equals("_parameters.scss") || identifier.equals("parameters.scss") || identifier.equals("_parameters.sass") || identifier.equals("parameters.sass")) {
 				return calculateParameterFile();
 			}
 			List<String> sourceUris = Collections.emptyList(); // parentStylesheet.getSourceUris();
