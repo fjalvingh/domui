@@ -1,5 +1,6 @@
 /*** 145_smallimgbutton.frag.css ***/
 @import "variables";
+@import "derived-variables";
 
 .ui-sib {
 	padding: 0px 1px 0px 1px;
@@ -29,4 +30,14 @@
 
 .ui-sib[disabled]:hover {
 	background: none !important;
+}
+
+@each $name, $pair in $colors {
+	$color: nth($pair, 1);
+	$color-invert: nth($pair, 2);
+	&.is-#{$name} {
+		background-color: $color;
+		border-color: transparent;
+		color: $color-invert;
+	}
 }
