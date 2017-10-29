@@ -2,6 +2,8 @@ package to.etc.domui.sass;
 
 import io.bit3.jsass.Compiler;
 import io.bit3.jsass.Options;
+import io.bit3.jsass.Output;
+import io.bit3.jsass.OutputStyle;
 import io.bit3.jsass.context.StringContext;
 import io.bit3.jsass.importer.Import;
 import to.etc.domui.parts.ParameterInfoImpl;
@@ -10,7 +12,7 @@ import to.etc.domui.util.resources.IResourceDependencyList;
 import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.Writer;
-import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -33,17 +35,22 @@ public class JSassCompiler implements ISassCompiler {
 
 		Import file = jsr.resolve(rurl, rurl);
 		File out = File.createTempFile("sass-out-", ".css");
+		System.out.println("out " + out);
 
 		Options opt = new Options();
-		opt.setImporters(Arrays.asList(jsr));
-
+		opt.setImporters(Collections.singletonList(jsr));
+		opt.setOutputStyle(OutputStyle.EXPANDED);
+		opt.setIndent("\t");
+		opt.setLinefeed("\n");
+		opt.setSourceMapEmbed(true);
 
 		StringContext fc = new StringContext(file.getContents(), file.getImportUri(), out.toURI(), opt);
 		Compiler co = new Compiler();
-		co.compile(fc);
+		Output res = co.compile(fc);
+		String css = res.getCss();
+		output.write(css);
 		jsr.close();
 	}
-
 
 	@Override public boolean available() {
 		return true;
