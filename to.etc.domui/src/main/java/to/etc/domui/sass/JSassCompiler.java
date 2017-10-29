@@ -7,6 +7,7 @@ import io.bit3.jsass.OutputStyle;
 import io.bit3.jsass.context.StringContext;
 import io.bit3.jsass.importer.Import;
 import to.etc.domui.parts.ParameterInfoImpl;
+import to.etc.domui.trouble.ThingyNotFoundException;
 import to.etc.domui.util.resources.IResourceDependencyList;
 
 import javax.annotation.Nonnull;
@@ -34,6 +35,9 @@ public class JSassCompiler implements ISassCompiler {
 		JSassResolver jsr = new JSassResolver(params, basePath, rdl);
 
 		Import file = jsr.resolve(rurl, rurl);
+		if(null == file)
+			throw new ThingyNotFoundException("The sass/scss file " + rurl + " could not be found");
+
 		File out = File.createTempFile("sass-out-", ".css");
 		System.out.println("out " + out);
 
@@ -44,11 +48,15 @@ public class JSassCompiler implements ISassCompiler {
 		opt.setLinefeed("\n");
 		opt.setSourceMapEmbed(true);
 
+		boolean isSass = rurl.toLowerCase().endsWith(".sass");
+		opt.setIsIndentedSyntaxSrc(isSass);
+
 		StringContext fc = new StringContext(file.getContents(), file.getImportUri(), out.toURI(), opt);
 		Compiler co = new Compiler();
 		Output res = co.compile(fc);
 		String css = res.getCss();
 		output.write(css);
+		out.delete();
 		jsr.close();
 	}
 
