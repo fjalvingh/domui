@@ -111,6 +111,8 @@ $data_pager_icon_size_y: 19px;
 $form-line-height:	1.5em;
 $input-line-height: $form-line-height;
 
+/***----------------- Bulma like -------------------------***/
+
 /*** Colors ***/
 $orange:       hsl(14,  100%, 53%) !default;
 $yellow:       hsl(48,  100%, 67%) !default;
@@ -135,5 +137,24 @@ $white-ter:    hsl(0, 0%, 96%) !default;
 $white-bis:    hsl(0, 0%, 98%) !default;
 $white:        hsl(0, 0%, 100%) !default;
 
+$size-1: 3rem !default;
+$size-2: 2.5rem !default;
+$size-3: 2rem !default;
+$size-4: 1.5rem !default;
+$size-5: 1.25rem !default;
+$size-6: 1rem !default;
+$size-7: 0.75rem !default;
 
+$weight-light: 300 !default;
+$weight-normal: 400 !default;
+$weight-medium: 500 !default;
+$weight-semibold: 600 !default;
+$weight-bold: 700 !default;
+
+//-- Misc
+$easing: ease-out !default;
+$radius-small: 2px !default;
+$radius: 3px !default;
+$radius-large: 5px !default;
+$speed: 86ms !default;
 

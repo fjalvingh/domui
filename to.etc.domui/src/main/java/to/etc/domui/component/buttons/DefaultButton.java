@@ -68,7 +68,8 @@ public class DefaultButton extends Button implements IActionControl {
 	 * Create an empty button.
 	 */
 	public DefaultButton() {
-		setCssClass("ui-sdbtn");
+		addCssClass("xxui-sdbtn");
+		addCssClass("ui-button");
 	}
 
 	/**
@@ -131,15 +132,16 @@ public class DefaultButton extends Button implements IActionControl {
 
 	@Override
 	public void createContent() throws Exception {
+
 		Span s = new Span();
 		add(s);
-		s.setCssClass("ui-sdbtn-w");
+		s.setCssClass("xxui-sdbtn-w");
 		String iconUrl = m_icon;
 		if(null != iconUrl) {
 			//-- Does the URL contain a dot? That indicates a resource somehow.
 			if(DomUtil.isIconName(iconUrl)) {
 				FaIcon icon = new FaIcon(iconUrl);
-				icon.addCssClass("ui-sdbtn-icon");
+				icon.addCssClass("xxui-sdbtn-icon ui-icon");
 				s.add(icon);
 			} else {
 				String icon = getThemedResourceRURL(iconUrl);
@@ -147,10 +149,11 @@ public class DefaultButton extends Button implements IActionControl {
 				s.add(img);
 				img.setImgBorder(0);
 				img.setDisabled(isDisabled());
+				img.setCssClass("ui-icon");
 			}
 		}
 		Span txt = new Span();
-		txt.setCssClass("ui-sdbtn-txt");
+		txt.setCssClass("xxui-sdbtn-txt");
 		s.add(txt);
 		if(!DomUtil.isBlank(m_text))
 			decodeAccelerator(m_text, txt);

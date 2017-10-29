@@ -37,6 +37,8 @@ public class ButtonFragment extends Div {
 		add(new Caption("Buttons component"));
 
 		addAction("Normal", a -> {});
+		addAction("primary", a -> a.css("is-primary"));
+		addAction("is-dark", a -> a.css("is-dark"));
 
 		Table tbl = new Table();
 		add(tbl);
