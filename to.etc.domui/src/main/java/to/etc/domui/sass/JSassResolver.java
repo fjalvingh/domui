@@ -9,10 +9,9 @@ import to.etc.domui.util.resources.IResourceDependencyList;
 import to.etc.domui.util.resources.IResourceRef;
 import to.etc.util.FileTool;
 import to.etc.util.StringTool;
+import to.etc.util.WrappedException;
 
 import javax.annotation.Nonnull;
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
@@ -56,7 +55,7 @@ class JSassResolver implements Importer {
 	final private Map<String, Line> m_map = new HashMap<>();
 
 
-	private File m_parameterFile;
+	private Import m_parameterFile;
 
 	public JSassResolver(ParameterInfoImpl params, String basePath, IResourceDependencyList rdl) {
 		m_params = params;
@@ -87,9 +86,9 @@ class JSassResolver implements Importer {
 				identifier += ".scss";
 			}
 
-			//if(identifier.equals("_parameters.scss") || identifier.equals("parameters.scss")) {
-			//	return createParameterFile();
-			//}
+			if(identifier.equals("_parameters.scss") || identifier.equals("parameters.scss")) {
+				return calculateParameterFile();
+			}
 			List<String> sourceUris = Collections.emptyList(); // parentStylesheet.getSourceUris();
 			DomApplication app = DomApplication.get();
 
@@ -154,15 +153,8 @@ class JSassResolver implements Importer {
 	}
 
 
-	//private InputSource createParameterFile() {
-	//	String parameters = calculateParameterFile();
-	//	InputSource is = new InputSource(new StringReader(parameters));
-	//	is.setURI("_parameter.scss");
-	//	return is;
-	//}
-
-	@Nonnull private File calculateParameterFile() throws IOException {
-		File pf = m_parameterFile;
+	@Nonnull private Import calculateParameterFile() {
+		Import pf = m_parameterFile;
 		if(null == pf) {
 
 			StringBuilder sb = new StringBuilder();
@@ -176,7 +168,11 @@ class JSassResolver implements Importer {
 					sb.append("$").append(name).append(": ").append(value).append(";\n");
 				}
 			}
-			pf = m_parameterFile = File.createTempFile("sass-params-", ".scss");
+			try {
+				pf = m_parameterFile = new Import("_parameters.scss", "_parameters.scss", sb.toString());
+			} catch(Exception x) {
+				throw WrappedException.wrap(x);
+			}
 		}
 		return pf;
 	}
