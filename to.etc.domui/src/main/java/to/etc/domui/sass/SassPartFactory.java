@@ -1,19 +1,19 @@
 package to.etc.domui.sass;
 
-import com.vaadin.sass.internal.*;
-import com.vaadin.sass.internal.ScssContext.*;
-import com.vaadin.sass.internal.handler.*;
-import com.vaadin.sass.internal.parser.*;
-import com.vaadin.sass.internal.visitor.*;
 import to.etc.domui.parts.ParameterInfoImpl;
-import to.etc.domui.server.*;
-import to.etc.domui.server.parts.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.resources.*;
-import to.etc.util.*;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.IExtendedParameterInfo;
+import to.etc.domui.server.IParameterInfo;
+import to.etc.domui.server.parts.IBufferedPartFactory;
+import to.etc.domui.server.parts.IUrlMatcher;
+import to.etc.domui.server.parts.PartResponse;
+import to.etc.domui.util.resources.IResourceDependencyList;
+import to.etc.util.StringTool;
 
-import javax.annotation.*;
-import java.io.*;
+import javax.annotation.DefaultNonNull;
+import javax.annotation.Nonnull;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 
 /**
  * This Web part accepts requests ending in .scss, and compiles them into a .css stylesheet on-the-fly.
@@ -29,7 +29,7 @@ public class SassPartFactory implements IBufferedPartFactory<ParameterInfoImpl> 
 	 */
 	static public final IUrlMatcher MATCHER = new IUrlMatcher() {
 		@Override public boolean accepts(@Nonnull IParameterInfo parameters) {
-			return parameters.getInputPath().endsWith(".scss");
+			return parameters.getInputPath().endsWith(".scss") || parameters.getInputPath().endsWith(".sass");
 		}
 	};
 
