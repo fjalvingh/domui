@@ -43,6 +43,7 @@ public class JSassCompiler implements ISassCompiler {
 		opt.setIndent("\t");
 		opt.setLinefeed("\n");
 		opt.setSourceMapEmbed(true);
+		opt.setSourceComments(false);
 
 		StringContext fc = new StringContext(file.getContents(), file.getImportUri(), out.toURI(), opt);
 		Compiler co = new Compiler();

@@ -24,7 +24,7 @@
  */
 package to.etc.domui.component2.controlfactory;
 
-import to.etc.domui.component.input.Text2;
+import to.etc.domui.component.input.Text;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.util.DomUtil;
@@ -42,28 +42,28 @@ import javax.annotation.Nullable;
  * Created on Jul 2, 2009
  */
 @SuppressWarnings("unchecked")
-public class ControlCreatorString implements IControlCreator {
+public class ControlCreatorOldString implements IControlCreator {
 	/**
 	 * Accept any type using a string.
 	 */
 	@Override
 	public <T> int accepts(PropertyMetaModel<T> pmm, Class< ? extends IControl<T>> controlClass) {
 		if(controlClass != null) {
-			if(!controlClass.isAssignableFrom(Text2.class))
+			if(!controlClass.isAssignableFrom(Text.class))
 				return -1;
 		}
 
-		return 2;
+		return 1;
 	}
 
 	@Override
 	public <T, C extends IControl<T>> C createControl(@Nonnull PropertyMetaModel<T> pmm, @Nullable Class<C> controlClass) {
 		Class<T> type = pmm.getActualType();
-		Text2<T> txt;
+		Text<T> txt;
 		if(Number.class.isAssignableFrom(DomUtil.getBoxedForPrimitive(type))) {
-			txt = (Text2<T>) Text2.createNumericInput((PropertyMetaModel<Double>) pmm, true);
+			txt = (Text<T>) Text.createNumericInput((PropertyMetaModel<Double>) pmm, true);
 		} else {
-			txt = Text2.createText(type, pmm, true);
+			txt = Text.createText(type, pmm, true);
 		}
 		return (C) txt;
 	}
