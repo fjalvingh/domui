@@ -1,5 +1,6 @@
 /*** SearchInput2: replacement for KeywordSearchInput, used in lookupInput2 but an independent component(!) ***/
 @import "variables";
+@import "core";
 
 .ui-srip {
 	position: relative;
@@ -17,6 +18,7 @@
 }
 
 .ui-srip-keyword {
+	@include ui-input-base;
 	background-position: 0px 4px;
 }
 

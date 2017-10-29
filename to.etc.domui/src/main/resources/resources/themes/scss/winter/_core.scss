@@ -3,6 +3,8 @@
 //-- Everything uses border-box model
 html {
 	box-sizing: border-box;
+	-webkit-font-smoothing: antialiased;
+	text-rendering: optimizeLegibility;
 }
 *, *:after, *:before {
 	box-sizing: inherit;
