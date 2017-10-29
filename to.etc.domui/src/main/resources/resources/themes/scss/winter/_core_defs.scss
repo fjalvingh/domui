@@ -26,6 +26,13 @@
 	}
 }
 
+@mixin ui-focus-border {
+	&:focus {
+		border-color: #3273dc;
+		box-shadow: 0 0 0 0.125em rgba(50, 115, 220, 0.25);
+	}
+}
+
 /** Common mixins **/
 @mixin border-radius($radius) {
 	-khtml-border-radius: $radius;

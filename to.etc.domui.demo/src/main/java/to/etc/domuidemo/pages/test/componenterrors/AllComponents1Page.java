@@ -16,6 +16,8 @@ public class AllComponents1Page extends UrlPage {
 		add(new LookupInputFragment());
 		add(new VerticalSpacer(20));
 		add(new DateInputFragment());
+		add(new VerticalSpacer(20));
+		add(new ButtonFragment());
 
 		add(new VerticalSpacer(800));
 	}

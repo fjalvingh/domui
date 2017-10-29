@@ -121,6 +121,14 @@ public class DefaultButton extends Button implements IActionControl {
 		setClicked(clicked);
 	}
 
+	@Nonnull
+	public DefaultButton css(String... classNames) {
+		for(String cn : classNames) {
+			addCssClass(cn);
+		}
+		return this;
+	}
+
 	@Override
 	public void createContent() throws Exception {
 		Span s = new Span();
@@ -233,7 +241,7 @@ public class DefaultButton extends Button implements IActionControl {
 					sb.append(txt, ix, pos);
 
 				if(pos + 1 >= len) {
-					//-- Ends in '!' - treat as liternal 8-/
+					//-- Ends in '!' - treat as literal 8-/
 					sb.append('!');
 					into.add(sb.toString());
 					return;

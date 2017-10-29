@@ -46,8 +46,10 @@
 	&.ui-has-addons .ui-control input {
 		border-radius: 0;
 	}
-	&.ui-has-addons .ui-control > * {
+
+	&.ui-has-addons .ui-control > * {			// hide the borders between the buttons
 		border-left-width: 0;
+		border-right-width: 0;
 	}
 
 	&.ui-has-addons .ui-control:first-child input {

@@ -115,7 +115,7 @@ public class Application extends DomApplication {
 	}
 
 	@Override public void addDefaultErrorComponent(NodeContainer page) {
-		ErrorPanel panel = new ErrorPanel();
+		NodeContainer panel = new ErrorMessageDiv(page, true);
 		for(int i = 0; i < page.getChildCount(); i++) {
 			NodeBase child = page.getChild(i);
 			if(child instanceof PageHeader) {

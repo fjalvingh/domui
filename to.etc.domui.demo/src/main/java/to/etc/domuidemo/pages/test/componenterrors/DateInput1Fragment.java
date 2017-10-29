@@ -31,7 +31,7 @@ public class DateInput1Fragment extends Div {
 
 
 	@Override public void createContent() throws Exception {
-		m_f20 = m_f21 = m_f22 = m_f23 = m_f14 = m_f25 = new Date();
+		m_f20 = m_f21 = m_f22 = m_f23 = m_f24 = m_f25 = new Date();
 
 		FormBuilder fb = new FormBuilder(this);
 		DateInput d10 = new DateInput();
