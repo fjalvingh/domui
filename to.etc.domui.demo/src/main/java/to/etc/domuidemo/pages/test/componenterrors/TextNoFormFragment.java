@@ -9,14 +9,14 @@ import to.etc.domui.dom.html.TD;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 29-10-17.
  */
-public class TextFragment extends Div {
+public class TextNoFormFragment extends Div {
 	@Override public void createContent() throws Exception {
-		add(new Caption("Text component"));
+		add(new Caption("Text component outside form"));
 
-		TBody tb = addTable("With form builder", "Without form builder");
+		TBody tb = addTable("Text2", "Text");
 		TD td = tb.addRowAndCell();
 		td.setWidth("600px");
-		td.add(new TextF4Fragment());
+		td.add(new Text2RawFragment());
 		td = tb.addCell();
 		td.setWidth("600px");
 		td.add(new TextRawFragment());

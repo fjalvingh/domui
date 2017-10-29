@@ -33,6 +33,7 @@ import to.etc.domui.component.misc.FaIcon;
 import to.etc.domui.converter.ConverterRegistry;
 import to.etc.domui.converter.DateConverter;
 import to.etc.domui.converter.DateTimeConverter;
+import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.util.DomUtil;
@@ -68,6 +69,10 @@ public class DateInput2 extends Text2<Date> {
 
 	private boolean m_hideTodayButton;
 
+	private SmallImgButton m_showCalendarButton;
+
+	private SmallImgButton m_todayButton;
+
 	/**
 	 * Default constructor creates a date-only input.
 	 */
@@ -94,6 +99,7 @@ public class DateInput2 extends Text2<Date> {
 	public void createContent() throws Exception {
 		super.createContent();
 		SmallImgButton sib = addButton(FaIcon.faCalendar, a -> { });
+		m_showCalendarButton = sib;
 		sib.setClicked(null);
 		sib.setOnClickJS("WebUI.showCalendar('" + internalGetInput().getActualID() + "'," + isWithTime() + ")");
 		internalGetInput().setSpecialAttribute("onblur", "WebUI.dateInputCheckInput(event);");
@@ -113,29 +119,40 @@ public class DateInput2 extends Text2<Date> {
 					((IValueChanged<NodeBase>) ovc).onValueChanged(DateInput2.this);
 				}
 			});
+			m_todayButton = todayBtn;
+		}
+		updateButtonState();
+	}
 
-			todayBtn.setDisabled(isReadOnly() || isDisabled());
+	private void updateButtonState() {
+		SmallImgButton btn = m_todayButton;
+		if(btn != null) {
+			btn.setDisabled(isDisabled());
+			btn.setDisplay(isReadOnly() ? DisplayType.NONE : null);
+		}
+
+		btn = m_showCalendarButton;
+		if(null != btn) {
+			btn.setDisabled(isDisabled());
+			btn.setDisplay(isReadOnly() ? DisplayType.NONE : null);
 		}
 	}
 
 	@Override
 	public void setReadOnly(boolean readOnly) {
+		if(isReadOnly() == readOnly)
+			return;
 		super.setReadOnly(readOnly);
-		super.setDisabled(readOnly);
-		//updateCalendarButtons(readOnly ? DisplayType.NONE : DisplayType.INLINE);
+		updateButtonState();
 	}
 
 	@Override
 	public void setDisabled(boolean disabled) {
+		if(isDisabled() == disabled)
+			return;
 		super.setDisabled(disabled);
-		//updateCalendarButtons(disabled ? DisplayType.NONE : DisplayType.INLINE);
+		updateButtonState();
 	}
-
-	//private void updateCalendarButtons(@Nonnull DisplayType displayType) {
-	//	m_selCalButton.setDisplay(displayType);
-	//	if(null != m_todayButton)
-	//		m_todayButton.setDisplay(displayType);
-	//}
 
 	public boolean isWithTime() {
 		return m_withTime;

@@ -9,9 +9,9 @@ import to.etc.domui.dom.html.UrlPage;
  */
 public class AllComponents1Page extends UrlPage {
 	@Override public void createContent() throws Exception {
-		add(new TextFragment());
+		add(new TextNoFormFragment());
 		add(new VerticalSpacer(20));
-		add(new Text2Fragment());
+		add(new TextFormFragment());
 		add(new VerticalSpacer(20));
 		add(new LookupInputFragment());
 		add(new VerticalSpacer(20));

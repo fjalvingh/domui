@@ -46,10 +46,10 @@ public class DateInput1Fragment extends Div {
 		fb.property(this, "f13").label("optional datetime").control(d13);
 		DateInput d14 = new DateInput();
 		d14.setDisabled(true);
-		fb.property(this, "f10").label("disabled date").control(d14);
+		fb.property(this, "f14").label("disabled date").control(d14);
 		DateInput d15 = new DateInput();
 		d15.setReadOnly(true);
-		fb.property(this, "f10").label("readonly date").control(d15);
+		fb.property(this, "f15").label("readonly date").control(d15);
 
 		DateInput d20 = new DateInput();
 		fb.property(this, "f20").label("mand date").control(d20);
@@ -63,10 +63,10 @@ public class DateInput1Fragment extends Div {
 		fb.property(this, "f23").label("opt datetime").control(d23);
 		DateInput d24 = new DateInput();
 		d24.setDisabled(true);
-		fb.property(this, "f10").label("disabled date").control(d24);
+		fb.property(this, "f24").label("disabled date").control(d24);
 		DateInput d25 = new DateInput();
 		d25.setReadOnly(true);
-		fb.property(this, "f10").label("readonly date").control(d25);
+		fb.property(this, "f25").label("readonly date").control(d25);
 
 		DefaultButton validate = new DefaultButton("validate", a -> bindErrors());
 		add(validate);
