@@ -50,6 +50,8 @@ final public class JarredFileRef implements IModifyableResource {
 		byte[][] rd = m_resourceData;
 		if(rd == null) {
 			rd = m_resourceData = m_container.loadResource(m_name);
+		} else {
+			m_container.reloadIfChanged();
 		}
 		return new ByteBufferInputStream(rd);
 	}
