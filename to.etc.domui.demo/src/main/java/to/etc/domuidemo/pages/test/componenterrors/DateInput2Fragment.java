@@ -1,7 +1,7 @@
 package to.etc.domuidemo.pages.test.componenterrors;
 
 import to.etc.domui.component.buttons.DefaultButton;
-import to.etc.domui.component.input.DateInput;
+import to.etc.domui.component.input.DateInput2;
 import to.etc.domui.component.meta.MetaProperty;
 import to.etc.domui.component.meta.TemporalPresentationType;
 import to.etc.domui.component.meta.YesNoType;
@@ -14,7 +14,7 @@ import java.util.Date;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 29-10-17.
  */
-public class DateInput1Fragment extends Div {
+public class DateInput2Fragment extends Div {
 	private Date m_f10;
 	private Date	m_f11;
 	private Date	m_f12;
@@ -30,22 +30,22 @@ public class DateInput1Fragment extends Div {
 		m_f20 = m_f21 = m_f22 = m_f23 = new Date();
 
 		FormBuilder fb = new FormBuilder(this);
-		DateInput d10 = new DateInput();
+		DateInput2 d10 = new DateInput2();
 		fb.property(this, "f10").control(d10);
-		DateInput d11 = new DateInput();
+		DateInput2 d11 = new DateInput2();
 		fb.property(this, "f11").control(d11);
-		DateInput d12 = new DateInput();
+		DateInput2 d12 = new DateInput2();
 		fb.property(this, "f12").control(d12);
-		DateInput d13 = new DateInput();
+		DateInput2 d13 = new DateInput2();
 		fb.property(this, "f13").control(d13);
 
-		DateInput d20 = new DateInput();
+		DateInput2 d20 = new DateInput2();
 		fb.property(this, "f20").control(d20);
-		DateInput d21 = new DateInput();
+		DateInput2 d21 = new DateInput2();
 		fb.property(this, "f21").control(d21);
-		DateInput d22 = new DateInput();
+		DateInput2 d22 = new DateInput2();
 		fb.property(this, "f22").control(d22);
-		DateInput d23 = new DateInput();
+		DateInput2 d23 = new DateInput2();
 		fb.property(this, "f23").control(d23);
 
 		DefaultButton validate = new DefaultButton("validate", a -> bindErrors());

@@ -217,6 +217,10 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		removeCssClass("ui-has-addons");
 	}
 
+	protected Input internalGetInput() {
+		return m_input;
+	}
+
 	protected void setPassword() {
 		m_password = true;
 	}

@@ -17,7 +17,7 @@ public class DateInputFragment extends Div {
 		//tb.getTable().setWidth("100%");
 		TD td = tb.addRowAndCell();
 		td.setWidth("600px");
-		td.add(new DateInput1Fragment());
+		td.add(new DateInput2Fragment());
 		td = tb.addCell();
 		td.setWidth("600px");
 		td.add(new DateInput1Fragment());
