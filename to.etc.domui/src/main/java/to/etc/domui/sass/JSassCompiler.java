@@ -2,13 +2,15 @@ package to.etc.domui.sass;
 
 import io.bit3.jsass.Compiler;
 import io.bit3.jsass.Options;
-import io.bit3.jsass.context.FileContext;
+import io.bit3.jsass.context.StringContext;
+import io.bit3.jsass.importer.Import;
 import to.etc.domui.parts.ParameterInfoImpl;
 import to.etc.domui.util.resources.IResourceDependencyList;
 
 import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.Writer;
+import java.util.Arrays;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -29,13 +31,17 @@ public class JSassCompiler implements ISassCompiler {
 
 		JSassResolver jsr = new JSassResolver(params, basePath, rdl);
 
-		File file = jsr.resolve(rurl, rurl);
+		Import file = jsr.resolve(rurl, rurl);
 		File out = File.createTempFile("sass-out-", ".css");
-		Options opt = new Options();
 
-		FileContext fc = new FileContext(file.toURI(), out.toURI(), opt);
+		Options opt = new Options();
+		opt.setImporters(Arrays.asList(jsr));
+
+
+		StringContext fc = new StringContext(file.getContents(), file.getImportUri(), out.toURI(), opt);
 		Compiler co = new Compiler();
 		co.compile(fc);
+		jsr.close();
 	}
 
 
