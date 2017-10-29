@@ -92,7 +92,7 @@
 }
 
 .ui-txt2 input {
-	@extend .ui-beveled-border;
+	@include ui-beveled-border;
 	margin: 0;
 	padding: 0;
 	font-size: $font-size;
