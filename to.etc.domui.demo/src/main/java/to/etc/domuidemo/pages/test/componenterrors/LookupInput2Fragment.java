@@ -1,6 +1,7 @@
 package to.etc.domuidemo.pages.test.componenterrors;
 
 import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.layout.CaptionedHeader;
 import to.etc.domui.component.meta.MetaProperty;
 import to.etc.domui.component.meta.YesNoType;
 import to.etc.domui.component2.form4.FormBuilder;
@@ -10,180 +11,207 @@ import to.etc.domui.derbydata.db.Artist;
 import to.etc.domui.dom.html.Div;
 import to.etc.webapp.query.QCriteria;
 
-import java.util.Date;
-
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 29-10-17.
  */
 public class LookupInput2Fragment extends Div {
-	private Artist m_artist;
+	private Artist m_f10;
 
-	private Album m_album;
+	private Album m_f11;
 
-	private Album m_album3;
+	private Album m_f12;
 
-	private Album m_album4;
+	private Album m_f13;
 
-	private Artist m_artist2;
+	private Artist m_f20;
 
-	private Album m_album2;
+	private Album m_f21;
 
-	private Album m_album22;
+	private Album m_f22;
 
-	private Album m_album23;
+	private Album m_f23;
 
-	private String m_text = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaargh";
+	private Artist m_f30;
 
-	private String m_memo = "bbbbbbbbbbbbbbbbbbbbbbbbrgh";
+	private Album m_f31;
 
-	private Date m_date = new Date();
+	private Album m_f32;
+
+	private Album m_f33;
 
 	@Override public void createContent() throws Exception {
 		QCriteria<Album> q = QCriteria.create(Album.class).eq("title", "Angel Dust");
-		m_album4 = m_album3 = m_album22 = m_album23 = getSharedContext().queryOne(q);
+		m_f13 = m_f12 = m_f23 = m_f22 = m_f32 = m_f33 = getSharedContext().queryOne(q);
 
 		FormBuilder fb = new FormBuilder(this);
 
-		//-- LookupInput2
-		LookupInput2<Artist> li = new LookupInput2<>(Artist.class);
-		li.setTestID("one");
-		li.setMandatory(true);
-		fb.property(this, "artist").control(li);
+		LookupInput2<Artist> lf10 = new LookupInput2<>(Artist.class);
+		lf10.setMandatory(true);
+		fb.property(this, "f10").label("empty no quick").control(lf10);
 
-		// This input uses Album which allows no quick lookup, only search form lookup.
-		LookupInput2<Album> li2 = new LookupInput2<>(Album.class);
-		li2.setTestID("two");
-		li2.setMandatory(true);
-		fb.property(this, "album").control(li2);
+		LookupInput2<Album> lf11 = new LookupInput2<>(Album.class);
+		lf11.setMandatory(true);
+		fb.property(this, "f11").label("empty quicks").control(lf11);
 
-		LookupInput2<Album> li7 = new LookupInput2<>(Album.class);
-		li7.setTestID("seven");
-		li7.setMandatory(true);
-		fb.property(this, "album3").control(li7);
+		LookupInput2<Album> lf12 = new LookupInput2<>(Album.class);
+		lf12.setMandatory(true);
+		fb.property(this, "f12").label("filled 1line val").control(lf12);
 
-		LookupInput2<Album> li8 = new LookupInput2<>(Album.class);
-		li8.setValueColumns("title", "artist.name");
-		li8.setTestID("eight");
-		li8.setMandatory(true);
-		fb.property(this, "album4").control(li8);
+		LookupInput2<Album> lf13 = new LookupInput2<>(Album.class);
+		lf13.setValueColumns("title", "artist.name");
+		lf13.setMandatory(true);
+		fb.property(this, "f13").label("filled 2line val").control(lf13);
 
-		LookupInput2<Album> li4 = new LookupInput2<>(Album.class);
-		li4.setTestID("four");
-		li4.setMandatory(true);
-		fb.property(this, "album2").control(li4);
+		//-- Readonly set
+		add(new CaptionedHeader("ReadOnly"));
+		fb = new FormBuilder(this);
+		LookupInput2<Artist> lf20 = new LookupInput2<>(Artist.class);
+		lf20.setMandatory(true);
+		lf20.setReadOnly(true);
+		fb.property(this, "f20").label("empty no quick").control(lf20);
 
-		LookupInput2<Album> li22 = new LookupInput2<>(Album.class);
-		li22.setTestID("l22");
-		li22.setMandatory(true);
-		fb.property(this, "album22").control(li22);
+		LookupInput2<Album> lf21 = new LookupInput2<>(Album.class);
+		lf21.setMandatory(true);
+		lf21.setReadOnly(true);
+		fb.property(this, "f21").label("empty quicks").control(lf21);
 
-		LookupInput2<Album> li23 = new LookupInput2<>(Album.class);
-		li23.setValueColumns("title", "artist.name");
-		li23.setTestID("l23");
-		li23.setMandatory(true);
-		fb.property(this, "album23").control(li23);
+		LookupInput2<Album> lf22 = new LookupInput2<>(Album.class);
+		lf22.setMandatory(true);
+		lf22.setReadOnly(true);
+		fb.property(this, "f22").label("filled 1line val").control(lf22);
+
+		LookupInput2<Album> lf23 = new LookupInput2<>(Album.class);
+		lf23.setValueColumns("title", "artist.name");
+		lf23.setReadOnly(true);
+		lf23.setMandatory(true);
+		fb.property(this, "f23").label("filled 2line val").control(lf23);
+
+		//-- disabled set
+		add(new CaptionedHeader("disabled"));
+		fb = new FormBuilder(this);
+		LookupInput2<Artist> lf30 = new LookupInput2<>(Artist.class);
+		lf30.setMandatory(true);
+		lf30.setDisabled(true);
+		fb.property(this, "f30").label("empty no quick").control(lf30);
+
+		LookupInput2<Album> lf31 = new LookupInput2<>(Album.class);
+		lf31.setMandatory(true);
+		lf31.setDisabled(true);
+		fb.property(this, "f31").label("empty quicks").control(lf31);
+
+		LookupInput2<Album> lf32 = new LookupInput2<>(Album.class);
+		lf32.setMandatory(true);
+		lf32.setDisabled(true);
+		fb.property(this, "f32").label("filled 1line val").control(lf32);
+
+		LookupInput2<Album> lf33 = new LookupInput2<>(Album.class);
+		lf33.setValueColumns("title", "artist.name");
+		lf33.setDisabled(true);
+		lf33.setMandatory(true);
+		fb.property(this, "f33").label("filled 2line val").control(lf33);
 
 		DefaultButton validate = new DefaultButton("validate", a -> bindErrors());
 		add(validate);
 	}
 
 	@MetaProperty(required = YesNoType.YES)
-	public Artist getArtist() {
-		return m_artist;
+	public Artist getF10() {
+		return m_f10;
 	}
 
-	public void setArtist(Artist artist) {
-		m_artist = artist;
-	}
-
-	@MetaProperty(required = YesNoType.YES)
-	public Album getAlbum() {
-		return m_album;
-	}
-
-	public void setAlbum(Album album) {
-		m_album = album;
+	public void setF10(Artist f10) {
+		m_f10 = f10;
 	}
 
 	@MetaProperty(required = YesNoType.YES)
-	public Artist getArtist2() {
-		return m_artist2;
+	public Album getF11() {
+		return m_f11;
 	}
 
-	public void setArtist2(Artist artist2) {
-		m_artist2 = artist2;
-	}
-
-	@MetaProperty(required = YesNoType.YES)
-	public Album getAlbum2() {
-		return m_album2;
-	}
-
-	public void setAlbum2(Album album2) {
-		m_album2 = album2;
-	}
-
-	@MetaProperty(required = YesNoType.YES, length = 70)
-	public String getText() {
-		return m_text;
-	}
-
-	@Override public void setText(String text) {
-		m_text = text;
+	public void setF11(Album f11) {
+		m_f11 = f11;
 	}
 
 	@MetaProperty(required = YesNoType.YES)
-	public Date getDate() {
-		return m_date;
+	public Album getF12() {
+		return m_f12;
 	}
 
-	public void setDate(Date date) {
-		m_date = date;
-	}
-
-	@MetaProperty(required = YesNoType.YES)
-	public String getMemo() {
-		return m_memo;
-	}
-
-	public void setMemo(String memo) {
-		m_memo = memo;
+	public void setF12(Album f12) {
+		m_f12 = f12;
 	}
 
 	@MetaProperty(required = YesNoType.YES)
-	public Album getAlbum3() {
-		return m_album3;
+	public Album getF13() {
+		return m_f13;
 	}
 
-	public void setAlbum3(Album album3) {
-		m_album3 = album3;
+	public void setF13(Album f13) {
+		m_f13 = f13;
 	}
 
-	@MetaProperty(required = YesNoType.YES)
-	public Album getAlbum4() {
-		return m_album4;
+	public Artist getF20() {
+		return m_f20;
 	}
 
-	public void setAlbum4(Album album4) {
-		m_album4 = album4;
+	public void setF20(Artist f20) {
+		m_f20 = f20;
 	}
 
-	@MetaProperty(required = YesNoType.YES)
-	public Album getAlbum22() {
-		return m_album22;
+	public Album getF21() {
+		return m_f21;
 	}
 
-	public void setAlbum22(Album album22) {
-		m_album22 = album22;
+	public void setF21(Album f21) {
+		m_f21 = f21;
 	}
 
-	@MetaProperty(required = YesNoType.YES)
-	public Album getAlbum23() {
-		return m_album23;
+	public Album getF22() {
+		return m_f22;
 	}
 
-	public void setAlbum23(Album album23) {
-		m_album23 = album23;
+	public void setF22(Album f22) {
+		m_f22 = f22;
+	}
+
+	public Album getF23() {
+		return m_f23;
+	}
+
+	public void setF23(Album f23) {
+		m_f23 = f23;
+	}
+
+	public Artist getF30() {
+		return m_f30;
+	}
+
+	public void setF30(Artist f30) {
+		m_f30 = f30;
+	}
+
+	public Album getF31() {
+		return m_f31;
+	}
+
+	public void setF31(Album f31) {
+		m_f31 = f31;
+	}
+
+	public Album getF32() {
+		return m_f32;
+	}
+
+	public void setF32(Album f32) {
+		m_f32 = f32;
+	}
+
+	public Album getF33() {
+		return m_f33;
+	}
+
+	public void setF33(Album f33) {
+		m_f33 = f33;
 	}
 }

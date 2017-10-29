@@ -19,34 +19,54 @@ public class DateInput2Fragment extends Div {
 	private Date	m_f11;
 	private Date	m_f12;
 	private Date	m_f13;
+	private Date	m_f14;
+	private Date	m_f15;
 
 	private Date	m_f20;
 	private Date	m_f21;
 	private Date	m_f22;
 	private Date	m_f23;
+	private Date	m_f24;
+	private Date	m_f25;
 
 
 	@Override public void createContent() throws Exception {
-		m_f20 = m_f21 = m_f22 = m_f23 = new Date();
+		m_f20 = m_f21 = m_f22 = m_f23 = m_f14 = m_f25 = new Date();
 
 		FormBuilder fb = new FormBuilder(this);
 		DateInput2 d10 = new DateInput2();
-		fb.property(this, "f10").control(d10);
+		fb.property(this, "f10").label("mandatory date").control(d10);
 		DateInput2 d11 = new DateInput2();
-		fb.property(this, "f11").control(d11);
+		fb.property(this, "f11").label("optional date").control(d11);
 		DateInput2 d12 = new DateInput2();
-		fb.property(this, "f12").control(d12);
+		d12.setWithTime(true);
+		fb.property(this, "f12").label("mandatory datetime").control(d12);
 		DateInput2 d13 = new DateInput2();
-		fb.property(this, "f13").control(d13);
+		d13.setWithTime(true);
+		fb.property(this, "f13").label("optional datetime").control(d13);
+		DateInput2 d14 = new DateInput2();
+		d14.setDisabled(true);
+		fb.property(this, "f10").label("disabled date").control(d14);
+		DateInput2 d15 = new DateInput2();
+		d15.setReadOnly(true);
+		fb.property(this, "f10").label("readonly date").control(d15);
 
 		DateInput2 d20 = new DateInput2();
-		fb.property(this, "f20").control(d20);
+		fb.property(this, "f20").label("mand date").control(d20);
 		DateInput2 d21 = new DateInput2();
-		fb.property(this, "f21").control(d21);
+		fb.property(this, "f21").label("optional date").control(d21);
 		DateInput2 d22 = new DateInput2();
-		fb.property(this, "f22").control(d22);
+		d22.setWithTime(true);
+		fb.property(this, "f22").label("mand datetime").control(d22);
 		DateInput2 d23 = new DateInput2();
-		fb.property(this, "f23").control(d23);
+		d23.setWithTime(true);
+		fb.property(this, "f23").label("opt datetime").control(d23);
+		DateInput2 d24 = new DateInput2();
+		d24.setDisabled(true);
+		fb.property(this, "f10").label("disabled date").control(d24);
+		DateInput2 d25 = new DateInput2();
+		d25.setReadOnly(true);
+		fb.property(this, "f10").label("readonly date").control(d25);
 
 		DefaultButton validate = new DefaultButton("validate", a -> bindErrors());
 		add(validate);
@@ -121,5 +141,37 @@ public class DateInput2Fragment extends Div {
 
 	public void setF23(Date f23) {
 		m_f23 = f23;
+	}
+
+	public Date getF14() {
+		return m_f14;
+	}
+
+	public void setF14(Date f14) {
+		m_f14 = f14;
+	}
+
+	public Date getF15() {
+		return m_f15;
+	}
+
+	public void setF15(Date f15) {
+		m_f15 = f15;
+	}
+
+	public Date getF24() {
+		return m_f24;
+	}
+
+	public void setF24(Date f24) {
+		m_f24 = f24;
+	}
+
+	public Date getF25() {
+		return m_f25;
+	}
+
+	public void setF25(Date f25) {
+		m_f25 = f25;
 	}
 }
