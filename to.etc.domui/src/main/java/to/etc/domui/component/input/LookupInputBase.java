@@ -24,61 +24,22 @@
  */
 package to.etc.domui.component.input;
 
-import to.etc.domui.component.binding.OldBindingHandler;
-import to.etc.domui.component.buttons.HoverButton;
-import to.etc.domui.component.layout.FloatingWindow;
-import to.etc.domui.component.layout.IWindowClosed;
-import to.etc.domui.component.lookup.LookupForm;
-import to.etc.domui.component.meta.ClassMetaModel;
-import to.etc.domui.component.meta.MetaManager;
-import to.etc.domui.component.meta.PropertyMetaModel;
-import to.etc.domui.component.meta.SearchPropertyMetaModel;
-import to.etc.domui.component.meta.impl.SearchPropertyMetaModelImpl;
-import to.etc.domui.component.tbl.BasicRowRenderer;
-import to.etc.domui.component.tbl.DataPager;
-import to.etc.domui.component.tbl.DataTable;
-import to.etc.domui.component.tbl.ICellClicked;
-import to.etc.domui.component.tbl.IClickableRowRenderer;
-import to.etc.domui.component.tbl.IQueryHandler;
-import to.etc.domui.component.tbl.IRowRenderer;
-import to.etc.domui.component.tbl.ITableModel;
-import to.etc.domui.component2.lookupinput.SearchInput2;
-import to.etc.domui.dom.errors.IErrorMessageListener;
-import to.etc.domui.dom.errors.UIMessage;
-import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
-import to.etc.domui.dom.html.IControl;
-import to.etc.domui.dom.html.IHasModifiedIndication;
-import to.etc.domui.dom.html.IValueChanged;
-import to.etc.domui.dom.html.NodeBase;
-import to.etc.domui.dom.html.NodeContainer;
-import to.etc.domui.dom.html.Span;
-import to.etc.domui.dom.html.TD;
-import to.etc.domui.dom.html.TR;
-import to.etc.domui.dom.html.Table;
-import to.etc.domui.dom.html.TableVAlign;
-import to.etc.domui.themes.Theme;
-import to.etc.domui.trouble.ValidationException;
-import to.etc.domui.util.DomUtil;
-import to.etc.domui.util.IRenderInto;
-import to.etc.domui.util.LookupInputPropertyRenderer;
-import to.etc.domui.util.Msgs;
-import to.etc.util.RuntimeConversions;
-import to.etc.util.StringTool;
-import to.etc.util.WrappedException;
-import to.etc.webapp.ProgrammerErrorException;
-import to.etc.webapp.query.IIdentifyable;
-import to.etc.webapp.query.QCriteria;
-import to.etc.webapp.query.QLiteral;
-import to.etc.webapp.query.QOperation;
-import to.etc.webapp.query.QPropertyComparison;
-import to.etc.webapp.query.QRestrictor;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
+import to.etc.domui.component.binding.*;
+import to.etc.domui.component.buttons.*;
+import to.etc.domui.component.layout.*;
+import to.etc.domui.component.lookup.*;
+import to.etc.domui.component.meta.*;
+import to.etc.domui.component.meta.impl.*;
+import to.etc.domui.component.tbl.*;
+import to.etc.domui.component2.lookupinput.*;
+import to.etc.domui.dom.errors.*;
+import to.etc.domui.dom.html.*;
+import to.etc.domui.themes.*;
+import to.etc.domui.trouble.*;
+import to.etc.domui.util.*;
+import to.etc.util.*;
+import to.etc.webapp.*;
+import to.etc.webapp.query.*;
 
 import javax.annotation.*;
 import java.math.*;
@@ -174,13 +135,16 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	/** When T (default) you can press search on an empty popup form. 20120511 jal Default set to true. */
 	private boolean m_allowEmptyQuery = true;
 
-	private boolean m_searchImmediately;
+	/**
+	 * When T, it sets default lookup popup with by default collapsed search fields.
+	 */
+	private boolean m_popupInitiallyCollapsed;
 
 	/**
-	 * When set, it controls default lookup popup collapsed/expanded search fields.
+	 * When T, it sets default lookup popup to search immediately.
 	 */
-	@Nullable
-	private Boolean m_popupInitiallyCollapsed;
+	private boolean m_searchImmediately;
+
 
 	@Nullable
 	private String m_keyWordSearchCssClass;
@@ -895,9 +859,10 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 			setLookupForm(lf);
 		}
 
-		Boolean collapsed = getPopupInitiallyCollapsed();
+		boolean collapsed = isPopupInitiallyCollapsed();
 
-		lf.setCollapsed(keySearchModel != null && keySearchModel.getRows() > 0 || null != collapsed && collapsed.booleanValue());
+		lf.setCollapsed(collapsed || keySearchModel != null && keySearchModel.getRows() > 0);
+
 		lf.forceRebuild(); // jal 20091002 Force rebuild to remove any state from earlier invocations of the same form. This prevents the form from coming up in "collapsed" state if it was left that way last time it was used (Lenzo).
 
 		if(getLookupFormInitialization() != null) {
@@ -935,12 +900,11 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	}
 
 	private void decoratePopup(@Nonnull Dialog floater) {
-		Boolean popupInitiallyCollapsed = getPopupInitiallyCollapsed();
-		if (null != popupInitiallyCollapsed && floater instanceof DefaultLookupInputDialog) {
-			((DefaultLookupInputDialog<?, ?>) floater).setInitiallyCollapsed(popupInitiallyCollapsed.booleanValue());
+		if (isPopupInitiallyCollapsed() && floater instanceof DefaultLookupInputDialog) {
+			((DefaultLookupInputDialog<?, ?>) floater).setInitiallyCollapsed(true);
 		}
 
-		if (m_searchImmediately && floater instanceof DefaultLookupInputDialog) {
+		if (isSearchImmediately() && floater instanceof DefaultLookupInputDialog) {
 			((DefaultLookupInputDialog<?, ?>) floater).setSearchImmediately(true);
 		}
 	}
@@ -1693,12 +1657,11 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		m_popupOpener = popupOpener;
 	}
 
-	@Nullable
-	public Boolean getPopupInitiallyCollapsed() {
+	public boolean isPopupInitiallyCollapsed() {
 		return m_popupInitiallyCollapsed;
 	}
 
-	public void setPopupInitiallyCollapsed(@Nullable Boolean popupInitiallyCollapsed) {
+	public void setPopupInitiallyCollapsed(boolean popupInitiallyCollapsed) {
 		m_popupInitiallyCollapsed = popupInitiallyCollapsed;
 	}
 
