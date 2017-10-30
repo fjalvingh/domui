@@ -1111,15 +1111,15 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 			if(lookupInstance instanceof LookupInputBase<?, ?>) {
 				((LookupInputBase<?, ?>) lookupInstance).setSearchImmediately(true);
 			}else if(lookupInstance instanceof LookupInputBase2<?, ?>) {
-				((LookupInputBase2<?, ?>) lookupInstance).setPopupSearchImmediately(Boolean.TRUE);
+				((LookupInputBase2<?, ?>) lookupInstance).setPopupSearchImmediately(true);
 			}
 		}
 
 		if (spmm.isPopupInitiallyCollapsed()) {
 			if(lookupInstance instanceof LookupInputBase<?, ?>) {
-				((LookupInputBase<?, ?>) lookupInstance).setPopupInitiallyCollapsed(Boolean.TRUE);
+				((LookupInputBase<?, ?>) lookupInstance).setPopupInitiallyCollapsed(true);
 			}else if(lookupInstance instanceof LookupInputBase2<?, ?>) {
-				((LookupInputBase2<?, ?>) lookupInstance).setPopupInitiallyCollapsed(Boolean.TRUE);
+				((LookupInputBase2<?, ?>) lookupInstance).setPopupInitiallyCollapsed(true);
 			}
 		}
 

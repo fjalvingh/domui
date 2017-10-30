@@ -54,7 +54,7 @@ final class LookupFactoryRelation implements ILookupControlFactory {
 				l.setSearchImmediately(true);
 			}
 			if (spm.isPopupInitiallyCollapsed()){
-				l.setPopupInitiallyCollapsed(Boolean.TRUE);
+				l.setPopupInitiallyCollapsed(true);
 			}
 		}
 		return new EqLookupControlImpl<>(spm.getPropertyName(), input);
