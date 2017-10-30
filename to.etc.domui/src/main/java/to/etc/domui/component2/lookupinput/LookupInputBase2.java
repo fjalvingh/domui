@@ -77,18 +77,6 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 	private Table m_table;
 
 	/**
-	 * EXPERIMENTAL Factory for the lookup dialog, to be shown when the lookup button
-	 * is pressed.
-	 *
-	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
-	 * Created on Jul 8, 2014
-	 */
-	public interface IPopupOpener {
-		@Nonnull
-		public <A, B, L extends LookupInputBase2<A, B>> Dialog createDialog(@Nonnull L control, @Nullable ITableModel<B> initialModel, @Nonnull IExecute callOnWindowClose);
-	}
-
-	/**
 	 * The query class/type. For Java classes this usually also defines the metamodel to use; for generic meta this should
 	 * be the value record class type.
 	 */
@@ -193,6 +181,28 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 
 	@Nullable
 	private IPopupOpener m_popupOpener;
+
+	/**
+	 * When T, it sets default lookup popup with by default collapsed search fields.
+	 */
+	private boolean m_popupInitiallyCollapsed;
+
+	/**
+	 * When T, it sets default lookup popup to search immediately.
+	 */
+	private boolean m_popupSearchImmediately;
+	
+	/**
+	 * EXPERIMENTAL Factory for the lookup dialog, to be shown when the lookup button
+	 * is pressed.
+	 *
+	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+	 * Created on Jul 8, 2014
+	 */
+	public interface IPopupOpener {
+		@Nonnull
+		public <A, B, L extends LookupInputBase2<A, B>> Dialog createDialog(@Nonnull L control, @Nullable ITableModel<B> initialModel, @Nonnull IExecute callOnWindowClose);
+	}
 
 	/**
 	 * Lookup a POJO Java bean persistent class.
@@ -564,9 +574,22 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 		floater.modal();
 		add(floater);
 
-		INotify<Dialog> onPopupOpen = m_onPopupOpen;
+		INotify<Dialog> onPopupOpen = getOnPopupOpen();
+
+		decoratePopup(floater);
+
 		if(null != onPopupOpen)
 			onPopupOpen.onNotify(floater);
+	}
+
+	private void decoratePopup(@Nonnull Dialog floater) {
+		if (isPopupInitiallyCollapsed() && floater instanceof DefaultLookupInputDialog) {
+			((DefaultLookupInputDialog<?, ?>) floater).setInitiallyCollapsed(true);
+		}
+
+		if (isPopupSearchImmediately() && floater instanceof DefaultLookupInputDialog) {
+			((DefaultLookupInputDialog<?, ?>) floater).setSearchImmediately(true);
+		}
 	}
 
 	@Nullable
@@ -1180,6 +1203,22 @@ abstract public class LookupInputBase2<QT, OT> extends Div implements IControl<O
 			throw new ProgrammerErrorException("can't set popup opener on built component!");
 		}
 		m_popupOpener = popupOpener;
+	}
+
+	public boolean isPopupInitiallyCollapsed() {
+		return m_popupInitiallyCollapsed;
+	}
+
+	public void setPopupInitiallyCollapsed(boolean popupInitiallyCollapsed) {
+		m_popupInitiallyCollapsed = popupInitiallyCollapsed;
+	}
+
+	public boolean isPopupSearchImmediately() {
+		return m_popupSearchImmediately;
+	}
+
+	public void setPopupSearchImmediately(boolean popupSearchImmediatelly) {
+		m_popupSearchImmediately = popupSearchImmediatelly;
 	}
 
 }

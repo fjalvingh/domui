@@ -24,9 +24,9 @@
  */
 package to.etc.domui.component.meta.impl;
 
-import java.util.*;
-
 import to.etc.domui.component.meta.*;
+
+import java.util.*;
 
 /**
  * Represents the metadata for a field that can be searched on.
@@ -50,6 +50,10 @@ public class SearchPropertyMetaModelImpl implements SearchPropertyMetaModel {
 	private String m_lookupLabelKey;
 
 	private String m_lookupHintKey;
+
+	private boolean m_popupInitiallyCollapsed;
+
+	private boolean m_popupSearchImmediately;
 
 	public SearchPropertyMetaModelImpl(ClassMetaModel cmm, List<PropertyMetaModel< ? >> mli) {
 		m_classModel = cmm;
@@ -147,5 +151,29 @@ public class SearchPropertyMetaModelImpl implements SearchPropertyMetaModel {
 		if(m_lookupHintKey == null)
 			return null;
 		return m_classModel.getClassBundle().getString(m_lookupHintKey);
+	}
+
+	/**
+	 * @see to.etc.domui.component.meta.SearchPropertyMetaModel#isPopupSearchImmediately()
+	 */
+	@Override
+	public boolean isPopupSearchImmediately() {
+		return m_popupSearchImmediately;
+	}
+
+	public void setPopupSearchImmediately(boolean v) {
+		m_popupSearchImmediately = v;
+	}
+
+	/**
+	 * @see to.etc.domui.component.meta.SearchPropertyMetaModel#isPopupInitiallyCollapsed()
+	 */
+	@Override
+	public boolean isPopupInitiallyCollapsed() {
+		return m_popupInitiallyCollapsed;
+	}
+
+	public void setPopupInitiallyCollapsed(boolean v) {
+		m_popupInitiallyCollapsed = v;
 	}
 }

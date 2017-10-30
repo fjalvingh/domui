@@ -65,10 +65,20 @@ public interface SearchPropertyMetaModel {
 	 */
 	String getLookupHint();
 
-	static public final Comparator<SearchPropertyMetaModel> BY_ORDER = new Comparator<SearchPropertyMetaModel>() {
+	Comparator<SearchPropertyMetaModel> BY_ORDER = new Comparator<SearchPropertyMetaModel>() {
 		@Override
 		public int compare(SearchPropertyMetaModel a, SearchPropertyMetaModel b) {
 			return a.getOrder() - b.getOrder();
 		}
 	};
+
+	/**
+	 * When T, and when search field is resolved as LookupInput/LookupInput2 type of control, lookup popup is shown with performed initial search automatically.
+	 */
+	boolean isPopupSearchImmediately();
+
+	/**
+	 * When T, and when search field is resolved as LookupInput/LookupInput2 type of control, lookup popup is shown with initially collapsed search options on it's LookupForm.
+	 */
+	boolean isPopupInitiallyCollapsed();
 }

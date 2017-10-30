@@ -24,12 +24,6 @@
  */
 package to.etc.domui.component.input;
 
-import java.math.*;
-import java.util.*;
-
-import javax.annotation.*;
-import javax.annotation.Nullable;
-
 import to.etc.domui.component.binding.*;
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.layout.*;
@@ -37,7 +31,7 @@ import to.etc.domui.component.lookup.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.component.tbl.*;
-import to.etc.domui.dom.css.*;
+import to.etc.domui.component2.lookupinput.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.themes.*;
@@ -47,23 +41,13 @@ import to.etc.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.query.*;
 
+import javax.annotation.*;
+import java.math.*;
+import java.util.*;
+
 abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT>, ITypedControl<OT>, IHasModifiedIndication {
 
 	public static final String MAGIC_ID_MARKER = "?id?";
-
-	/**
-	 * Interface provides assess to used lookup form initialization method.
-	 *
-	 * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
-	 * Created on 19 Jul 2011
-	 */
-	public interface ILookupFormModifier<T> {
-		/**
-		 * Sends LookupForm for initialization.
-		 * @param lf
-		 */
-		void initialize(@Nonnull LookupForm<T> lf) throws Exception;
-	}
 
 	/**
 	 * The query class/type. For Java classes this usually also defines the metamodel to use; for generic meta this should
@@ -153,6 +137,12 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 
 	private boolean m_searchImmediately;
 
+	/**
+	 * When set, it controls default lookup popup collapsed/expanded search fields.
+	 */
+	@Nullable
+	private Boolean m_popupInitiallyCollapsed;
+
 	@Nullable
 	private String m_keyWordSearchCssClass;
 
@@ -183,9 +173,15 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	@Nullable
 	private List<SearchPropertyMetaModel> m_searchPropertyList;
 
+	/**
+	 * Provides alternative lookup popup factory.
+	 */
+	@Nullable
+	private IPopupOpener m_popupOpener;
+
 	private enum RebuildCause {
 		CLEAR, SELECT
-	};
+	}
 
 	/**
 	 * When we trigger forceRebuild, we can specify reason for this, and use this later to resolve focus after content is re-rendered.
@@ -226,6 +222,31 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	private QCriteria<QT> m_rootCriteria;
 
 	private boolean m_doFocus;
+
+	/**
+	 * Interface provides assess to used lookup form initialization method.
+	 *
+	 * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
+	 * Created on 19 Jul 2011
+	 */
+	public interface ILookupFormModifier<T> {
+		/**
+		 * Sends LookupForm for initialization.
+		 * @param lf
+		 */
+		void initialize(@Nonnull LookupForm<T> lf) throws Exception;
+	}
+
+	/**
+	 * Factory for the lookup dialog, to be shown when the lookup button is pressed.
+	 *
+	 * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
+	 * Created on Sep 1, 2017
+	 */
+	public interface IPopupOpener {
+		@Nullable
+		<A, B, L extends LookupInputBase<A, B>> Dialog createDialog(@Nonnull L control, @Nullable ITableModel<B> initialModel, @Nonnull IExecute callOnWindowClose);
+	}
 
 	/**
 	 * This must create the table model for the output type from the query on the input type.
@@ -445,7 +466,6 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 
 	/**
 	 * Render the "current value" display as an input box or display box with clear and select buttons.
-	 * @param parameters
 	 */
 	private void renderKeyWordSearch() {
 		m_table.removeAllChildren();
@@ -780,6 +800,17 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 			return;
 		}
 
+		IPopupOpener popupOpener = getPopupOpener();
+		if (null != popupOpener){
+			Dialog floater = popupOpener.createDialog(this, keySearchModel, () -> {});
+			if (null != floater) {
+				floater.modal();
+				add(floater);
+				decoratePopup(floater);
+			}
+			return;
+		}
+
 		final FloatingWindow f = m_floater = FloatingWindow.create(this, getFormTitle() == null ? getDefaultTitle() : getFormTitle());
 		f.setWidth("740px");
 		f.setHeight("90%");
@@ -802,9 +833,12 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 				lf = new LookupForm<QT>(getQueryClass(), getQueryMetaModel());
 			if(m_searchPropertyList != null && m_searchPropertyList.size() != 0)
 				lf.setSearchProperties(m_searchPropertyList);
+			setLookupForm(lf);
 		}
 
-		lf.setCollapsed(keySearchModel != null && keySearchModel.getRows() > 0);
+		Boolean collapsed = getPopupInitiallyCollapsed();
+
+		lf.setCollapsed(keySearchModel != null && keySearchModel.getRows() > 0 || null != collapsed && collapsed.booleanValue());
 		lf.forceRebuild(); // jal 20091002 Force rebuild to remove any state from earlier invocations of the same form. This prevents the form from coming up in "collapsed" state if it was left that way last time it was used (Lenzo).
 
 		if(getLookupFormInitialization() != null) {
@@ -838,6 +872,17 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 			setResultModel(keySearchModel);
 		} else if(isSearchImmediately()) {
 			search(lf);
+		}
+	}
+
+	private void decoratePopup(@Nonnull Dialog floater) {
+		Boolean popupInitiallyCollapsed = getPopupInitiallyCollapsed();
+		if (null != popupInitiallyCollapsed && floater instanceof DefaultLookupInputDialog) {
+			((DefaultLookupInputDialog<?, ?>) floater).setInitiallyCollapsed(popupInitiallyCollapsed.booleanValue());
+		}
+
+		if (m_searchImmediately && floater instanceof DefaultLookupInputDialog) {
+			((DefaultLookupInputDialog<?, ?>) floater).setSearchImmediately(true);
 		}
 	}
 
@@ -1320,7 +1365,6 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 
 	/**
 	 * Getter for keyword search hint. See {@link LookupInput#setKeySearchHint}.
-	 * @param hint
 	 */
 	@Nullable
 	public String getKeySearchHint() {
@@ -1329,7 +1373,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 
 	/**
 	 * Set hint to keyword search input. Usually says how search condition is resolved.
-	 * @param hint
+	 * @param keySearchHint
 	 */
 	public void setKeySearchHint(@Nullable String keySearchHint) {
 		m_keySearchHint = keySearchHint;
@@ -1577,4 +1621,26 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		else if(!isBuilt())
 			m_doFocus = true;
 	}
+
+	@Nullable
+	public IPopupOpener getPopupOpener() {
+		return m_popupOpener;
+	}
+
+	public void setPopupOpener(@Nullable IPopupOpener popupOpener) {
+		if (isBuilt()){
+			throw new ProgrammerErrorException("can't set popup opener on built component!");
+		}
+		m_popupOpener = popupOpener;
+	}
+
+	@Nullable
+	public Boolean getPopupInitiallyCollapsed() {
+		return m_popupInitiallyCollapsed;
+	}
+
+	public void setPopupInitiallyCollapsed(@Nullable Boolean popupInitiallyCollapsed) {
+		m_popupInitiallyCollapsed = popupInitiallyCollapsed;
+	}
+
 }
