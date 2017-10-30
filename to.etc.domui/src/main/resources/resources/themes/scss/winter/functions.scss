@@ -42,3 +42,11 @@
 	}
 }
 
+@function findColorHighlight($color, $percentage) {
+	@if (colorLuminance($color) > 0.30) {
+		@return darken($color, $percentage);
+	} @else {
+		@return lighten($color, $percentage);
+	}
+}
+

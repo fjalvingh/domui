@@ -33,6 +33,7 @@ import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.Span;
 import to.etc.domui.dom.html.Underline;
 import to.etc.domui.util.DomUtil;
+import to.etc.util.StringTool;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -132,31 +133,31 @@ public class DefaultButton extends Button implements IActionControl {
 
 	@Override
 	public void createContent() throws Exception {
-
-		Span s = new Span();
-		add(s);
-		s.setCssClass("xxui-sdbtn-w");
 		String iconUrl = m_icon;
 		if(null != iconUrl) {
 			//-- Does the URL contain a dot? That indicates a resource somehow.
+			Span iconSpan = new Span();
+			add(iconSpan);
+			iconSpan.setCssClass("ui-icon");
 			if(DomUtil.isIconName(iconUrl)) {
 				FaIcon icon = new FaIcon(iconUrl);
-				icon.addCssClass("xxui-sdbtn-icon ui-icon");
-				s.add(icon);
+				//icon.addCssClass("xxui-sdbtn-icon ui-icon");
+				iconSpan.add(icon);
 			} else {
 				String icon = getThemedResourceRURL(iconUrl);
 				Img img = new Img(icon);
-				s.add(img);
+				iconSpan.add(img);
 				img.setImgBorder(0);
 				img.setDisabled(isDisabled());
-				img.setCssClass("ui-icon");
 			}
 		}
-		Span txt = new Span();
-		txt.setCssClass("xxui-sdbtn-txt");
-		s.add(txt);
-		if(!DomUtil.isBlank(m_text))
-			decodeAccelerator(m_text, txt);
+		if(! StringTool.isBlank(getText())) {
+			Span txt = new Span();
+			txt.setCssClass("xxui-sdbtn-txt");
+			add(txt);
+			if(!DomUtil.isBlank(m_text))
+				decodeAccelerator(m_text, txt);
+		}
 	}
 
 	/**

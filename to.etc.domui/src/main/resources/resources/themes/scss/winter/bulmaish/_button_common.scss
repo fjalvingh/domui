@@ -58,7 +58,7 @@ $button-static-border-color: $grey-lighter !default;
 		color: inherit;
 	}
 
-	.icon {
+	.ui-icon {
 		&,
 		&.is-small,
 		&.is-medium,
@@ -123,7 +123,7 @@ $button-static-border-color: $grey-lighter !default;
 
 		&:active,
 		&.is-active {
-			background-color: darken($button-text-hover-background-color, 5%);
+			background-color: darken($button-text-hover-background-color, 15%);
 			color: $button-text-hover-color;
 		}
 
@@ -145,7 +145,7 @@ $button-static-border-color: $grey-lighter !default;
 
 			&:hover,
 			&.is-hovered {
-				background-color: darken($color, 2.5%);
+				background-color: findColorHighlight($color, 5%); //darken($color, 2.5%);
 				border-color: transparent;
 				color: $color-invert;
 			}
@@ -162,7 +162,7 @@ $button-static-border-color: $grey-lighter !default;
 
 			&:active,
 			&.is-active {
-				background-color: darken($color, 5%);
+				background-color: findColorHighlight($color, 20%); //darken($color, 15%);
 				border-color: transparent;
 				color: $color-invert;
 			}
