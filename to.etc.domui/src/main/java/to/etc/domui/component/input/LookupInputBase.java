@@ -24,22 +24,61 @@
  */
 package to.etc.domui.component.input;
 
-import to.etc.domui.component.binding.*;
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.layout.*;
-import to.etc.domui.component.lookup.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.meta.impl.*;
-import to.etc.domui.component.tbl.*;
-import to.etc.domui.component2.lookupinput.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.themes.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
-import to.etc.webapp.*;
-import to.etc.webapp.query.*;
+import to.etc.domui.component.binding.OldBindingHandler;
+import to.etc.domui.component.buttons.HoverButton;
+import to.etc.domui.component.layout.FloatingWindow;
+import to.etc.domui.component.layout.IWindowClosed;
+import to.etc.domui.component.lookup.LookupForm;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.SearchPropertyMetaModel;
+import to.etc.domui.component.meta.impl.SearchPropertyMetaModelImpl;
+import to.etc.domui.component.tbl.BasicRowRenderer;
+import to.etc.domui.component.tbl.DataPager;
+import to.etc.domui.component.tbl.DataTable;
+import to.etc.domui.component.tbl.ICellClicked;
+import to.etc.domui.component.tbl.IClickableRowRenderer;
+import to.etc.domui.component.tbl.IQueryHandler;
+import to.etc.domui.component.tbl.IRowRenderer;
+import to.etc.domui.component.tbl.ITableModel;
+import to.etc.domui.component2.lookupinput.SearchInput2;
+import to.etc.domui.dom.errors.IErrorMessageListener;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.IHasModifiedIndication;
+import to.etc.domui.dom.html.IValueChanged;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.Span;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.TR;
+import to.etc.domui.dom.html.Table;
+import to.etc.domui.dom.html.TableVAlign;
+import to.etc.domui.themes.Theme;
+import to.etc.domui.trouble.ValidationException;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.IRenderInto;
+import to.etc.domui.util.LookupInputPropertyRenderer;
+import to.etc.domui.util.Msgs;
+import to.etc.util.RuntimeConversions;
+import to.etc.util.StringTool;
+import to.etc.util.WrappedException;
+import to.etc.webapp.ProgrammerErrorException;
+import to.etc.webapp.query.IIdentifyable;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QLiteral;
+import to.etc.webapp.query.QOperation;
+import to.etc.webapp.query.QPropertyComparison;
+import to.etc.webapp.query.QRestrictor;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.*;
 import java.math.*;
@@ -323,6 +362,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 
 	@Override
 	public void createContent() throws Exception {
+		m_keySearch = null;
 		Table table = m_table = new Table("ui-lui-tbl");
 		add(table);
 
@@ -347,6 +387,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 			}
 		} else {
 			//-- Nonnull render: render a value in the table's 1st cell
+			m_keySearch = null;
 			TD td = table.getBody().addRowAndCell("ui-lui-v");
 
 			IRenderInto<OT> r = getValueRenderer();
@@ -427,24 +468,42 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		}
 	}
 
-	private void appendParameters(@Nonnull TD cell, @Nonnull Object parameters) {
-		TD tdParameters = new TD();
-		cell.appendAfterMe(tdParameters);
-		tdParameters.setCssClass("ui-lui-btntd");
-		tdParameters.setValign(TableVAlign.TOP);
-		tdParameters.add((NodeBase) parameters); // Add the button,
-	}
-
 	/**
 	 * Render the presentation for empty/unselected input.
 	 */
 	private void renderEmptySelection() {
+		m_keySearch = null;
 		Table table = m_table;
 		table.removeAllChildren();
 		TD td = table.getBody().addRowAndCell();
 		//td.setValign(TableVAlign.TOP);
 		td.setCssClass("ui-lui-empty");
 		td.add(new Span(Msgs.BUNDLE.getString(Msgs.UI_LOOKUP_EMPTY)));
+	}
+
+	/**
+	 * Depending on what is present return the ID of a component that can
+	 * receive focus.
+	 * @return
+	 */
+	@Nullable
+	@Override
+	protected String getFocusID() {
+		NodeBase forTarget = getForTarget();
+		return forTarget == null ? null : forTarget.getActualID();
+	}
+
+	@Nullable @Override public NodeBase getForTarget() {
+		KeyWordSearchInput<OT> keySearch = m_keySearch;
+		if(null != keySearch && keySearch.isAttached())
+			return keySearch.getForTarget();
+		HoverButton selButton = m_selButton;
+		if(null != selButton && selButton.isAttached())
+			return selButton;
+		HoverButton clearButton = m_clearButton;
+		if(null != clearButton && clearButton.isAttached())
+			return clearButton;
+		return null;
 	}
 
 	/*--------------------------------------------------------------*/

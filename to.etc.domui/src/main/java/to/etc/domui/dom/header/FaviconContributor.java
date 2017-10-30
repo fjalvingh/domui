@@ -18,7 +18,8 @@ final public class FaviconContributor extends HeaderContributor {
 		o.attr("rel", "shortcut icon");
 		o.attr("href", r.ctx().getRelativePath(m_favicon));
 		o.endtag();
-		o.closetag("link");
+		o.dec();
+		//o.closetag("link");
 	}
 
 	@Override

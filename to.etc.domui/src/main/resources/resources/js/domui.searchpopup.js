@@ -60,6 +60,7 @@ $.extend(WebUI.SearchPopup.prototype, {
 						selectedTrNode = selection.get(0);
 					}
 				}
+				event.preventDefault();
 				break;
 		}
 		var node = document.getElementById(this._inputid);
@@ -75,6 +76,7 @@ $.extend(WebUI.SearchPopup.prototype, {
 
 		//-- Send a "returnPressed" event.
 		this.lookupTypingDone();
+		return false;
 	},
 
 	/*
@@ -137,6 +139,9 @@ $.extend(WebUI.SearchPopup.prototype, {
 	handleFocus: function() {
 		$('#'+this._id+" .ui-ssop").fadeIn(200);
 		var parentNode = document.getElementById(this._id).parentNode;
+
+		// parentNode.style.zIndex = 10;
+		// $('#' + parentNode.id + " .ui-srip-message").css("z-index", "999");
 		$('#' + parentNode.id + " .ui-srip-message").fadeIn(200);
 	},
 

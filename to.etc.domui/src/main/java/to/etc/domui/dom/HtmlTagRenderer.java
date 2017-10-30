@@ -210,7 +210,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 		return "#" + s;
 	}
 
-	public void appendStyle(final NodeBase c, final Appendable a) throws IOException { // Bloody idiot.
+	public void appendStyle(final NodeBase c, final Appendable a) throws Exception {
 		if(c.getBackgroundAttachment() != null) {
 			a.append("background-attachment: ");
 			switch(c.getBackgroundAttachment()){
@@ -574,7 +574,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 	 * @param b
 	 * @return
 	 */
-	protected String getStyleFor(final NodeBase b) throws IOException {
+	protected String getStyleFor(final NodeBase b) throws Exception {
 		String s = b.getCachedStyle();
 		if(s != null)
 			return s;
@@ -641,7 +641,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 					o.attr("testid", testid);
 			}
 
-			//-- Adjust any title, if there
+			//-- Adjust any title, if there - except on body where it is the page title.
 			if(!(b instanceof UrlPage)) {
 				if(ttl != null) {
 					if(testid != null) {
@@ -1125,8 +1125,25 @@ public class HtmlTagRenderer implements INodeVisitor {
 	public void visitLabel(final Label n) throws Exception {
 		o().setIndentEnabled(false); // 20170830 jal
 		basicNodeRender(n, o());
-		if(n.getFor() != null)
-			o().attr("for", n.getFor());
+
+		String forLabel = null;
+		NodeBase target = n.getForNode();
+		while(target != null) {
+			if(target instanceof IForTarget) {
+				NodeBase next = ((IForTarget) target).getForTarget();
+				if(next == null || next == target) {
+					break;
+				}
+				target = next;
+			} else {
+				target = null;
+			}
+		}
+		if(null != target) {
+			forLabel = target.getActualID();
+			o().attr("for", forLabel);
+		}
+
 		renderTagend(n, o());
 	}
 

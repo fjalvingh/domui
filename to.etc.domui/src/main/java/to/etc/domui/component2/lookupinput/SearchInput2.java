@@ -24,12 +24,16 @@
  */
 package to.etc.domui.component2.lookupinput;
 
-import javax.annotation.*;
+import to.etc.domui.component.input.TextStr;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IForTarget;
+import to.etc.domui.dom.html.IReturnPressed;
+import to.etc.domui.dom.html.IValueChanged;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.server.IRequestContext;
 
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.layout.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Represents keyword search panel that is used from other components, like LookupInput.
@@ -39,8 +43,7 @@ import to.etc.domui.server.*;
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on 21 Jan 2010
  */
-public class SearchInput2 extends Div {
-
+public class SearchInput2 extends Div implements IForTarget {
 	@Nonnull
 	final private TextStr m_keySearch = new TextStr();
 
@@ -92,6 +95,10 @@ public class SearchInput2 extends Div {
 		if(m_keySearch != null) {
 			m_keySearch.setFocus();
 		}
+	}
+
+	@Nullable @Override public NodeBase getForTarget() {
+		return m_keySearch.getForTarget();
 	}
 
 	/**

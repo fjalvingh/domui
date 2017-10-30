@@ -207,7 +207,7 @@ public class ProblemReporter {
 				if(DEBUG)
 					System.out.println("    er: "+desc(n)+" component set to "+ui);
 				//}
-				fence.addMessage(ui);
+				//fence.addMessage(ui);			// jal 20171024 causes duplicate message because component also registers with fence
 				if(DEBUG)
 					System.out.println("    er: " + desc(n) + " added " + ui+" to fence");
 			} else {

@@ -1409,9 +1409,9 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 				}
 			}
 		}
-		if(!success) { // Some input failed to validate their input criteria?
+		if(!success) { 										// Some input failed to validate their input criteria?
 			m_hasUserDefinedCriteria = false;
-			return null; // Then exit null -> should only display errors.
+			return null; 									// Then exit null -> should only display errors.
 		}
 		return root;
 	}

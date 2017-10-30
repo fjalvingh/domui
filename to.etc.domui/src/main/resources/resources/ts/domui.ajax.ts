@@ -149,7 +149,7 @@ namespace WebUI {
 		if(!fields)
 			fields = new Object();
 		// Collect all input, then create input.
-		this.getInputFields(fields);
+		WebUI.getInputFields(fields);
 		fields.webuia = action;
 		fields.webuic = id;
 		fields["$pt"] = (window as any).DomUIpageTag;

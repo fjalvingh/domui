@@ -138,6 +138,10 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 		positionPicker();
 	}
 
+	@Nullable @Override public NodeBase getForTarget() {
+		return m_picker.getForTarget();
+	}
+
 	void handlePickerValueChanged() throws Exception {
 		appendJavascript("$('#" + m_picker.getActualID() + "').css('display', 'none');");
 		m_selected = m_picker.getValue();

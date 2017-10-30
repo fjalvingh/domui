@@ -35,7 +35,7 @@ import to.etc.domui.util.*;
 public class IdentityAccessor<T> implements IValueAccessor<T> {
 	@Override
 	public T getValue(Object in) throws Exception {
-		InstanceRefresher.refresh(in);
+		//InstanceRefresher.refresh(in);
 		return (T) in;
 	}
 

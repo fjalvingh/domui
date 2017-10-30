@@ -24,16 +24,30 @@
  */
 package to.etc.domui.themes;
 
-import java.io.*;
-import java.util.*;
+import to.etc.domui.server.BrowserVersion;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.IRequestContext;
+import to.etc.domui.trouble.ThingyNotFoundException;
+import to.etc.domui.util.js.IScriptScope;
+import to.etc.domui.util.js.RhinoTemplateCompiler;
+import to.etc.domui.util.resources.IIsModified;
+import to.etc.domui.util.resources.IResourceDependencyList;
+import to.etc.domui.util.resources.IResourceRef;
+import to.etc.domui.util.resources.ResourceDependencies;
+import to.etc.util.StringTool;
+import to.etc.util.WrappedException;
 
-import javax.annotation.*;
-
-import to.etc.domui.server.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.js.*;
-import to.etc.domui.util.resources.*;
-import to.etc.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This is used by DomApplication to manage themes. It exists to reduce the code in DomApplication; it
@@ -44,12 +58,6 @@ import to.etc.util.*;
  */
 final public class ThemeManager {
 	final private DomApplication m_application;
-
-	/** The thing that themes the application. Set only once @ init time. */
-	private IThemeFactory m_themeFactory;
-
-	/** The "current theme". This will become part of all themed resource URLs and is interpreted by the theme factory to resolve resources. */
-	private String m_currentTheme = "domui";
 
 	static private class ThemeRef {
 		final private ITheme m_theme;
@@ -81,54 +89,12 @@ final public class ThemeManager {
 	}
 
 	/** Map of themes by theme name, as implemented by the current engine. */
-	private final Map<String, ThemeRef> m_themeMap = new HashMap<String, ThemeRef>();
+	private final Map<String, ThemeRef> m_themeMap = new HashMap<>();
 
 	public ThemeManager(DomApplication application) {
 		m_application = application;
 	}
 
-	/**
-	 * Sets the current theme string. This string is used as a "parameter" for the theme factory
-	 * which will use it to decide on the "real" theme to use.
-	 * @param currentTheme	The theme name, valid for the current theme engine. Cannot be null nor the empty string.
-	 */
-	public synchronized void setCurrentTheme(@Nonnull String currentTheme) {
-		if(null == currentTheme)
-			throw new IllegalArgumentException("This cannot be null");
-		m_currentTheme = currentTheme;
-	}
-
-	/**
-	 * Gets the current theme string.  This will become part of all themed resource URLs
-	 * and is interpreted by the theme factory to resolve resources.
-	 * @return
-	 */
-	@Nonnull
-	public synchronized String getCurrentTheme() {
-		return m_currentTheme;
-	}
-
-	/**
-	 * Get the current theme factory.
-	 * @return
-	 */
-	@Nonnull
-	public synchronized IThemeFactory getThemeFactory() {
-		if(m_themeFactory == null)
-			throw new IllegalStateException("Theme factory cannot be null");
-		return m_themeFactory;
-	}
-
-	/**
-	 * Set the factory for handling the theme.
-	 * @param themer
-	 */
-	public synchronized void setThemeFactory(@Nonnull IThemeFactory themer) {
-		if(themer == null)
-			throw new IllegalStateException("Theme factory cannot be null");
-		m_themeFactory = themer;
-		m_themeMap.clear();
-	}
 
 
 	/*--------------------------------------------------------------*/
@@ -140,24 +106,31 @@ final public class ThemeManager {
 
 	private long m_themeNextReapTS;
 
+
 	/**
+	 * Cached get of a factory/theme ITheme instance.
+	 * FIXME Get rid of rdl parameter
+	 *
 	 * Get the theme store representing the specified theme name. This is the name as obtained
 	 * from the resource name which is the part between $THEME/ and the actual filename. This
 	 * code is fast once the theme is loaded after the 1st call.
-	 *
-	 * @param rdl
-	 * @return
-	 * @throws Exception
 	 */
 	@Nonnull
-	public ITheme getTheme(String themeName, @Nullable IResourceDependencyList rdl) {
+	public ITheme getTheme(@Nonnull String themeName, @Nonnull IThemeVariant variant, @Nullable IResourceDependencyList rdl) {
+		IThemeFactory factory = DomApplication.getFactoryFromThemeName(themeName);
+		return getTheme(factory.appendThemeVariant(themeName, variant), rdl);
+	}
+
+	public ITheme getTheme(String key, @Nullable IResourceDependencyList rdl) {
+		IThemeFactory factory = DomApplication.getFactoryFromThemeName(key);
+
 		synchronized(this) {
 			if(m_themeReapCount++ > 1000) {
 				m_themeReapCount = 0;
 				checkReapThemes();
 			}
 
-			ThemeRef tr = m_themeMap.get(themeName);
+			ThemeRef tr = m_themeMap.get(key);
 			if(tr != null) {
 				//-- Developer mode: is the theme still valid?
 				if(tr.getDependencies() == null || !tr.getDependencies().isModified()) {
@@ -171,7 +144,7 @@ final public class ThemeManager {
 			//-- No such cached theme yet, or the theme has changed. (Re)load it.
 			ITheme theme;
 			try {
-				theme = getThemeFactory().getTheme(m_application, themeName);
+				theme = factory.getTheme(m_application, key);
 			} catch(Exception x) {
 				throw WrappedException.wrap(x);
 			}
@@ -185,7 +158,7 @@ final public class ThemeManager {
 			tr = new ThemeRef(theme, deps);
 			if(rdl != null && deps != null)
 				rdl.add(deps);
-			m_themeMap.put(themeName, tr);
+			m_themeMap.put(key, tr);
 			return theme;
 		}
 	}
@@ -218,7 +191,6 @@ final public class ThemeManager {
 		m_themeNextReapTS = ts + OLD_THEME_TIME;
 	}
 
-
 	public String getThemeReplacedString(@Nonnull IResourceDependencyList rdl, String rurl) throws Exception {
 		return getThemeReplacedString(rdl, rurl, null);
 	}
@@ -231,20 +203,17 @@ final public class ThemeManager {
 	 * inside the theme's folder, or can be configured dynamically using a IThemeMapFactory.
 	 *
 	 * The result is returned as a string.
-	 *
-	 * @param rdl
-	 * @return
 	 */
-	public String getThemeReplacedString(@Nonnull IResourceDependencyList rdl, @Nonnull String rurl, @Nullable BrowserVersion bv) throws Exception {
+	public String getThemeReplacedString(@Nonnull IResourceDependencyList rdl, @Nonnull String resourceURL, @Nullable BrowserVersion bv) throws Exception {
 		long ts = System.nanoTime();
-		IResourceRef ires = m_application.getResource(rurl, rdl); // Get the template source file
+		IResourceRef ires = m_application.getResource(resourceURL, rdl);			// Get the template source file
 		if(!ires.exists()) {
-			System.out.println(">>>> RESOURCE ERROR: " + rurl + ", ref=" + ires);
-			throw new ThingyNotFoundException("Unexpected: cannot get input stream for IResourceRef rurl=" + rurl + ", ref=" + ires);
+			System.out.println(">>>> RESOURCE ERROR: " + resourceURL + ", ref=" + ires);
+			throw new ThingyNotFoundException("Unexpected: cannot get input stream for IResourceRef rurl=" + resourceURL + ", ref=" + ires);
 		}
 
-		String[] spl = ThemeResourceFactory.splitThemeURL(rurl);
-		ITheme theme = getTheme(spl[0], null); // Dependencies already added by get-resource call.
+		String[] spl = ThemeResourceFactory.splitThemeResourceURL(resourceURL);
+		ITheme theme = getTheme(spl[0], null);					// Dependencies already added by get-resource call.
 		IScriptScope ss = theme.getPropertyScope();
 		ss = ss.newScope();
 
@@ -256,20 +225,20 @@ final public class ThemeManager {
 		//-- 2. Get a reader.
 		InputStream is = ires.getInputStream();
 		if(is == null) {
-			System.out.println(">>>> RESOURCE ERROR: " + rurl + ", ref=" + ires);
-			throw new ThingyNotFoundException("Unexpected: cannot get input stream for IResourceRef rurl=" + rurl + ", ref=" + ires);
+			System.out.println(">>>> RESOURCE ERROR: " + resourceURL + ", ref=" + ires);
+			throw new ThingyNotFoundException("Unexpected: cannot get input stream for IResourceRef rurl=" + resourceURL + ", ref=" + ires);
 		}
 		try {
 			Reader r = new InputStreamReader(is, "utf-8");
 			StringBuilder sb = new StringBuilder(65536);
 
 			RhinoTemplateCompiler rtc = new RhinoTemplateCompiler();
-			rtc.execute(sb, r, rurl, ss);
+			rtc.execute(sb, r, resourceURL, ss);
 			ts = System.nanoTime() - ts;
 			if(bv != null)
-				System.out.println("theme-replace: " + rurl + " for " + bv.getBrowserName() + ":" + bv.getMajorVersion() + " took " + StringTool.strNanoTime(ts));
+				System.out.println("theme-replace: " + resourceURL + " for " + bv.getBrowserName() + ":" + bv.getMajorVersion() + " took " + StringTool.strNanoTime(ts));
 			else
-				System.out.println("theme-replace: " + rurl + " for all browsers took " + StringTool.strNanoTime(ts));
+				System.out.println("theme-replace: " + resourceURL + " for all browsers took " + StringTool.strNanoTime(ts));
 			return sb.toString();
 		} finally {
 			try {
@@ -279,16 +248,15 @@ final public class ThemeManager {
 	}
 
 	/**
+	 * FIXME Variant kludge
+	 *
 	 * Return the current theme map (a readonly map), cached from the last
 	 * time. It will refresh automatically when the resource dependencies
 	 * for the theme are updated.
-	 *
-	 * @param rdl
-	 * @return
-	 * @throws Exception
 	 */
-	public IScriptScope getThemeMap(String themeName, IResourceDependencyList rdlin) throws Exception {
-		ITheme ts = getTheme(themeName, rdlin);
+	@Deprecated
+	public IScriptScope getThemeMap(String themeName, @Nonnull IThemeVariant variant, IResourceDependencyList rdlin) throws Exception {
+		ITheme ts = getTheme(themeName, variant, rdlin);
 		return ts.getPropertyScope();
 	}
 
@@ -300,12 +268,9 @@ final public class ThemeManager {
 	 * 	$THEME/[currentThemeString]/[name]
 	 * </pre>
 	 * where [name] is the rest of the path string after THEME/ has been removed from it.
-	 * @param themeStyle			The substyle/variant of the theme that the page wants to use.
-	 * @param path
-	 * @return
 	 */
 	@Nonnull
-	public String getThemedResourceRURL(@Nonnull IThemeVariant themeStyle, @Nonnull String path) {
+	public String getThemedResourceRURL(@Nonnull IRequestContext context, @Nonnull String path) {
 		if(path.startsWith("THEME/")) {
 			path = path.substring(6); 							// Strip THEME/
 		} else if(path.startsWith("ICON/")) {
@@ -315,9 +280,41 @@ final public class ThemeManager {
 		if(path == null)
 			throw new NullPointerException();
 
-		//-- This *is* a theme URL. Do we need to replace the icon?
-		ITheme theme = getTheme(getCurrentTheme()+"/"+themeStyle.getVariantName(), null);
-		String newicon = theme.translateResourceName(path);
-		return ThemeResourceFactory.PREFIX + getCurrentTheme() + "/" + themeStyle.getVariantName() + "/" + newicon;
+		try {
+			ITheme theme = context.getCurrentTheme();
+			String newicon = theme.translateResourceName(path);
+			return ThemeResourceFactory.PREFIX + theme.getThemeName() + "/" + newicon;
+		} catch(Exception x) {
+			throw WrappedException.wrap(x);
+		}
 	}
+
+	/**
+	 * This checks to see if the RURL passed is a theme-relative URL. These URLs start
+	 * with THEME/. If not the RURL is returned as-is; otherwise the URL is translated
+	 * to a path containing the current theme string:
+	 * <pre>
+	 * 	$THEME/[currentThemeString]/[name]
+	 * </pre>
+	 * where [name] is the rest of the path string after THEME/ has been removed from it.
+	 */
+	@Nonnull
+	public String getThemedResourceRURL(@Nonnull ITheme theme, @Nonnull String path) {
+		if(path.startsWith("THEME/")) {
+			path = path.substring(6); 							// Strip THEME/
+		} else if(path.startsWith("ICON/")) {
+			throw new IllegalStateException("Bad ROOT: ICON/. Use THEME/ instead.");
+		} else
+			return path;										// Not theme-relative, so return as-is.
+		if(path == null)
+			throw new NullPointerException();
+
+		try {
+			String newicon = theme.translateResourceName(path);
+			return ThemeResourceFactory.PREFIX + theme.getThemeName() + "/" + newicon;
+		} catch(Exception x) {
+			throw WrappedException.wrap(x);
+		}
+	}
+
 }

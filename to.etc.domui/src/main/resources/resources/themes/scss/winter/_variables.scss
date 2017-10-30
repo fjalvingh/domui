@@ -8,6 +8,10 @@ $fixed_font_family: 'Courier New, Courier, monospace';
 $fixed_font_size: 11px;
 $hdr_font_size: 14px;
 
+// Core padding
+$horizontal-padding: 10px;
+$vertical-padding: 10px;
+
 /** colors **/
 $link_color: #2200cc;	// dark blue
 
@@ -104,3 +108,4 @@ $data_pager_icon_size_y: 19px;
 
 /*** Form baseline alignment ***/
 $form-line-height:	1.5em;
+$input-line-height: $form-line-height;

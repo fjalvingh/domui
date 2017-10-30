@@ -27,6 +27,7 @@ package to.etc.domui.component.binding;
 import to.etc.domui.component.input.ITypedControl;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.YesNoType;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IDisplayControl;
@@ -35,6 +36,7 @@ import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IReadOnlyModel;
 import to.etc.domui.util.IValueAccessor;
 import to.etc.domui.util.IWriteOnlyModel;
+import to.etc.domui.util.Msgs;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.nls.CodeException;
 
@@ -412,7 +414,13 @@ final public class ComponentPropertyBinding implements IBinding {
 		}
 
 		//-- When in error we cannot set anything anyway, so exit.
-		if(null != newError) {
+		if(null != newError && !newError.getCode().equals(Msgs.MANDATORY)) {
+			/*
+			 * jal 20171018 When a mandatory LookupInput gets cleared its value becomes null, and this
+			 * value should be propagated to the model. It seems likely that in ALL cases of error
+			 * we need to move a null there!
+			 */
+
 			return null;
 		}
 
@@ -448,7 +456,9 @@ final public class ComponentPropertyBinding implements IBinding {
 					modelValue = ((IBindingConverter<Object, Object>) converter).modelToControl(modelValue);
 				}
 
-				((IValueAccessor<Object>) m_controlProperty).setValue(m_control, modelValue);
+				if(m_controlProperty.getReadOnly() != YesNoType.YES) {
+					((IValueAccessor<Object>) m_controlProperty).setValue(m_control, modelValue);
+				}
 				m_bindError = null;                                    // Let's assume binding has no trouble.
 			}
 		} catch(Exception x) {

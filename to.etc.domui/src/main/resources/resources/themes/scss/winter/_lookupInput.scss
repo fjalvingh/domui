@@ -9,10 +9,9 @@ $lui-min-width: 160px;
 	margin: 0px;
 }
 div.ui-lui {
-	width: 12em; /*	this width match with date field picker icon on IE rendering */
+	width: 12em; 	/*	this width match with date field picker icon on IE rendering */
 	display: inline-block;
 }
-
 //div.ui-lui > table { jal 20170916 do not address table.
 //	width: 1%;
 //}
@@ -136,9 +135,17 @@ img.ui-lui-waiting {
 }
 
 /* The small popup showing the result count or the no results message */
-.ui-lui-kwsi, .ui-srip {
+/*
+ * About popups: the popups work by positioning themselves (position: absolute) and
+ * use a z-index to pop over the content. In tables this ONLY works when:
+ * - the table cell has NO position/z-index.
+ * - there is a div in the table cell with position: relative which contains the real content AND the
+ *   div that will become the popup. In here those are the classes ui-lui-kwsi and ui-srip in _searchInput2.scss.
+ * - the popup cell has display: block/inline, position: absolute and z-index higher.
+ * See fiddle https://jsfiddle.net/fjalvingh/jmd0ycta/ for example.
+ */
+.ui-lui-kwsi {
 	position: relative;
-	z-index: 0;
 }
 
 .ui-lui-popup {
@@ -148,7 +155,7 @@ img.ui-lui-waiting {
 	width: auto;
 	border-radius: 4px;
 	padding: 5px;
-	z-index: 1;
+	z-index: 10;
 }
 .ui-lui-result-none, .ui-lui-result-large {
 	background-color: $lui-warning-color;

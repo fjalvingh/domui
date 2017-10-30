@@ -129,6 +129,10 @@
 		process(xml.documentElement.childNodes);
 	}
 
+	$.executeXML = function(xml) {
+		executeXML(xml);
+	};
+
 	// -- process the commands
 	function process(commands: any[]) : void {
 		const param = {

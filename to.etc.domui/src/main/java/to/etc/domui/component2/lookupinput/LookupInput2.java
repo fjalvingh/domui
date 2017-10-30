@@ -24,11 +24,14 @@
  */
 package to.etc.domui.component2.lookupinput;
 
-import javax.annotation.*;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.tbl.ListQueryHandler;
+import to.etc.domui.util.DomUtil;
+import to.etc.webapp.query.QCriteria;
 
-import to.etc.domui.component.meta.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.query.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.List;
 
 
 /**
@@ -69,6 +72,11 @@ final public class LookupInput2<T> extends LookupInputBase2<T, T> {
 
 	public LookupInput2(@Nonnull QCriteria<T> rootQuery) {
 		super(new SameTypeModelFactory<T>(), rootQuery, DomUtil.nullChecked(rootQuery.getBaseClass()));
+	}
+
+	public LookupInput2(@Nonnull Class<T> dataClass, @Nonnull List<T> data) {
+		super(new SameTypeModelFactory<>(), dataClass, dataClass);
+		setQueryHandler(new ListQueryHandler<>(data));
 	}
 
 	@Nonnull

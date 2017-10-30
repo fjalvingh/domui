@@ -25,6 +25,8 @@
 package to.etc.domui.util.resources;
 
 
+import to.etc.domui.server.reloader.Reloader;
+
 /**
  * Holds the last-modified timestamp for some source "file" used in some production at the time
  * it was used; plus a reference to that file so it's /original/ change time can be determined.
@@ -45,7 +47,10 @@ final public class ResourceTimestamp implements IIsModified {
 	@Override
 	public boolean isModified() {
 		try {
-			return m_ref.getLastModified() != m_ts;
+			boolean b = m_ref.getLastModified() != m_ts;
+			if(Reloader.DEBUG)
+				System.out.println(m_ref + ": " + (b ? " changed" : "unchanged"));
+			return b;
 		} catch(Exception x) {
 			return true;
 		}

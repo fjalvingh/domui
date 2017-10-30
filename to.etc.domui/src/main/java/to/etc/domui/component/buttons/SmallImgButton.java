@@ -31,6 +31,10 @@ import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.util.DomUtil;
 
+import javax.annotation.DefaultNonNull;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * A Button tag containing a single, usually small, image. The image is a normal image
  * resource and not in any way changed by the server. This button type is typically used
@@ -39,7 +43,9 @@ import to.etc.domui.util.DomUtil;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 17, 2008
  */
+@DefaultNonNull
 public class SmallImgButton extends Button {
+	@Nullable
 	private String m_icon;
 
 	/**
@@ -70,16 +76,25 @@ public class SmallImgButton extends Button {
 		setSrc(rurl);
 	}
 
+	@Nonnull
+	public SmallImgButton css(String... classNames) {
+		for(String cn : classNames) {
+			addCssClass(cn);
+		}
+		return this;
+	}
+
 	/**
 	 * Set a new image using a web resource's absolute path. If the name is prefixed
 	 * with THEME/ it specifies an image from the current THEME's directory.
 	 * @param src
 	 */
-	public void setSrc(String src) {
+	public void setSrc(@Nullable String src) {
 		m_icon = src;
 		forceRebuild();
 	}
 
+	@Nullable
 	public String getSrc() {
 		return m_icon;
 	}

@@ -39,4 +39,10 @@ public class ParameterInfoProxy implements IExtendedParameterInfo {
 			return ((IExtendedParameterInfo) m_delegate).getBrowserVersion();
 		return null;
 	}
+
+	@Nullable @Override public String getThemeName() {
+		if(m_delegate instanceof IExtendedParameterInfo)
+			return ((IExtendedParameterInfo) m_delegate).getThemeName();
+		return null;
+	}
 }

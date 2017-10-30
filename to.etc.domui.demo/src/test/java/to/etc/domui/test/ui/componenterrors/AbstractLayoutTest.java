@@ -137,11 +137,21 @@ abstract public class AbstractLayoutTest extends AbstractWebDriverTest {
 		Assert.fail("The baseline for the first element is " + ImageHelper.distance(blCompAbs, blLabelAbs) + " the second");
 	}
 
+	static public WebElement findFormLabelFor(WebElement one) {
+		WebElement row = AbstractLayoutTest.getParentTR(one, "ui-f4-row");
+		if(null == row) {
+			Assert.assertNotNull("The form's parent row cannot be located for testid one");
+			throw new IllegalStateException();
+		}
+		WebElement label = row.findElement(By.tagName("label"));
+		return label;
+	}
+
 	/**
 	 * Find the TR on the vertical form that contains the element specified by testid.
 	 */
 	@Nullable
-	private static WebElement getParentTR(@Nonnull WebElement comp, @Nonnull String needClass) {
+	public static WebElement getParentTR(@Nonnull WebElement comp, @Nonnull String needClass) {
 		WebElement current = comp;
 		for(;;) {
 			if(current == null) {

@@ -28,13 +28,13 @@ button {
 	vertical-align: bottom;
 }
 
-.ui-beveled-border {
+@mixin ui-beveled-border {
 	border: 1px solid $bevel_down;
 	border-top-color: $bevel_up;
 }
 
 input, textarea, select {
-	@extend .ui-beveled-border;
+	@include ui-beveled-border;
 	margin: 0 2px 2px 0;
 	padding: 0 2px 0 2px;
 	font-size: $font-size;
@@ -67,7 +67,7 @@ input[type=file] {
 }
 
 input[type=file]::-ms-value {
-	@extend .ui-beveled-border;
+	@include ui-beveled-border;
 	padding: 0;
 }
 
@@ -188,3 +188,20 @@ i, em {
 	font-style: italic;
 }
 
+.listtbl {
+	background: white;
+}
+
+.listtbl TD {
+	padding: 1px 2px;
+	border-left: 1px solid #aaaaaa;
+	vertical-align: top;
+	line-height: 130%;
+}
+
+.listtbl THEAD TH {
+	font-weight: bold;
+	padding: 3px;
+	border-left: 1px solid #7c7c7c;
+	text-align: left;
+}

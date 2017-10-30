@@ -24,24 +24,37 @@
  */
 package to.etc.domui.dom.html;
 
+import to.etc.domui.component.binding.ComponentPropertyBinding;
+import to.etc.util.WrappedException;
+
+import javax.annotation.DefaultNonNull;
+import javax.annotation.Nullable;
+import java.util.Objects;
+
+@DefaultNonNull
 public class Label extends NodeContainer {
+	@Nullable
+	private NodeBase m_forTarget;
+
+	@Nullable
 	private NodeBase m_forNode;
 
-	private String m_for;
+	@Nullable
+	private ComponentPropertyBinding m_binding;
 
 	public Label() {
 		super("label");
 	}
 
-	public Label(String text) {
+	public Label(@Nullable String text) {
 		super("label");
 		setText(text);
 	}
 
-	public Label(NodeBase fr, String text) {
+	public Label(@Nullable NodeBase fr, String text) {
 		super("label");
 		setText(text);
-		setForNode(fr);
+		setForTarget(fr);
 	}
 
 	public Label(String text, String cssClass) {
@@ -53,7 +66,7 @@ public class Label extends NodeContainer {
 	public Label(NodeBase fr, String text, String cssClass) {
 		super("label");
 		setText(text);
-		setForNode(fr);
+		setForTarget(fr);
 		setCssClass(cssClass);
 	}
 
@@ -62,21 +75,56 @@ public class Label extends NodeContainer {
 		v.visitLabel(this);
 	}
 
+	@Nullable public NodeBase getForTarget() {
+		return m_forTarget;
+	}
+
+	/**
+	 * This private property is the one actually containing the link to the "for". It
+	 * is bound to the controls's "getForNode" method as exposed by that control's
+	 * IForTarget interface.
+	 *
+	 * @return
+	 */
+	@Nullable
 	public NodeBase getForNode() {
 		return m_forNode;
 	}
 
-	public void setForNode(NodeBase forNode) {
+	/**
+	 * As this method is not meant to be used from code: hide it.
+	 * @param forNode
+	 */
+	private void setForNode(@Nullable NodeBase forNode) {
+		if(Objects.equals(m_forNode, forNode))
+			return;
+
 		m_forNode = forNode;
+		changed();
 	}
 
-	public String getFor() {
-		if(m_forNode != null)
-			return m_forNode.getActualID();
-		return m_for;
-	}
-
-	public void setFor(String for1) {
-		m_for = for1;
+	public void setForTarget(@Nullable NodeBase forTarget) {
+		if(Objects.equals(m_forTarget, forTarget))
+			return;
+		NodeBase old = m_forTarget;
+		if(null != old) {
+			// Unbind from previous
+			ComponentPropertyBinding binding = m_binding;
+			if(null != binding)
+				old.removeBinding(binding);
+			m_binding = null;
+		}
+		m_forTarget = forTarget;
+		if(forTarget instanceof IForTarget) {
+			try {
+				ComponentPropertyBinding binding = m_binding = bind("forNode");
+				binding.to(forTarget, "forTarget");
+			} catch(Exception x) {
+				throw WrappedException.wrap(x);
+			}
+		} else {
+			m_binding = null;
+		}
+		changed();
 	}
 }

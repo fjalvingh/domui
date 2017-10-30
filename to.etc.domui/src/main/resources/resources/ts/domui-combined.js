@@ -117,7 +117,7 @@ var WebUI;
     function prepareAjaxCall(id, action, fields) {
         if (!fields)
             fields = new Object();
-        this.getInputFields(fields);
+        WebUI.getInputFields(fields);
         fields.webuia = action;
         fields.webuic = id;
         fields["$pt"] = window.DomUIpageTag;
@@ -726,6 +726,30 @@ var WebUI;
         }
     }
     WebUI.popinKeyClose = popinKeyClose;
+    function dataTableResults(id, compId) {
+        setTimeout(function (a) {
+            $('#' + id).colResizable({
+                postbackSafe: false,
+                resizeMode: 'flex',
+                onResize: function (tbl) {
+                    WebUI.dataTableUpdateWidths(tbl, compId);
+                }
+            });
+        }, 500);
+    }
+    WebUI.dataTableResults = dataTableResults;
+    function dataTableUpdateWidths(evt, compId) {
+        var tbl = evt.currentTarget;
+        var hdrs = $(tbl).find(".ui-dt-th");
+        var list = {};
+        for (var i = 0; i < hdrs.length; i++) {
+            var wid = hdrs[i].style.width;
+            list["column_" + hdrs[i].id] = hdrs[i].style.width;
+        }
+        WebUI.scall(compId, "COLWIDTHS", list);
+        console.log("Change event", tbl);
+    }
+    WebUI.dataTableUpdateWidths = dataTableUpdateWidths;
     var _ckEditorMap = {};
     function registerCkEditorId(id, ckeInstance) {
         _ckEditorMap[id] = [ckeInstance, null];
@@ -3719,46 +3743,6 @@ var WebUI;
     }
     WebUI.preventSelection = preventSelection;
 })(WebUI || (WebUI = {}));
-$(function () {
-    $.getScript("$js/domui-date-checker.js");
-});
-function _block() {
-    WebUI.blockUI();
-}
-function _unblock() {
-    WebUI.unblockUI();
-}
-$(document).ajaxStart(_block).ajaxStop(_unblock);
-$(window).bind('beforeunload', function () {
-    WebUI.beforeUnload();
-    return undefined;
-});
-{
-    try {
-        var v = $.browser.version.split(".");
-        $.browser.majorVersion = parseInt(v[0], 10);
-        $.browser.minorVersion = parseInt(v[1], 10);
-        if (navigator.appName == 'Netscape') {
-            var ua = navigator.userAgent;
-            if (ua.indexOf("Trident/") != -1)
-                $.browser.msie = true;
-        }
-        if (/Edge/.test(navigator.userAgent)) {
-            $.browser.ieedge = true;
-        }
-    }
-    catch (x) { }
-}
-var DomUI = WebUI;
-$(document).ready(WebUI.onDocumentReady);
-$(window).resize(WebUI.onWindowResize);
-$(document).ajaxComplete(function () {
-    WebUI.handleCalendarChanges();
-    WebUI.doCustomUpdates();
-});
-$(document).keydown(function (e) {
-    WebUI.addPagerAccessKeys(e);
-});
 (function ($) {
     $.webui = function (xml) {
         processDoc(xml);
@@ -3876,6 +3860,9 @@ $(document).keydown(function (e) {
         }
         process(xml.documentElement.childNodes);
     }
+    $.executeXML = function (xml) {
+        executeXML(xml);
+    };
     function process(commands) {
         var param = {
             postProcess: false
@@ -4183,4 +4170,44 @@ $(document).keydown(function (e) {
         return attr;
     }
 })(jQuery);
+$(function () {
+    $.getScript("$js/domui-date-checker.js");
+});
+function _block() {
+    WebUI.blockUI();
+}
+function _unblock() {
+    WebUI.unblockUI();
+}
+$(document).ajaxStart(_block).ajaxStop(_unblock);
+$(window).bind('beforeunload', function () {
+    WebUI.beforeUnload();
+    return undefined;
+});
+{
+    try {
+        var v = $.browser.version.split(".");
+        $.browser.majorVersion = parseInt(v[0], 10);
+        $.browser.minorVersion = parseInt(v[1], 10);
+        if (navigator.appName == 'Netscape') {
+            var ua = navigator.userAgent;
+            if (ua.indexOf("Trident/") != -1)
+                $.browser.msie = true;
+        }
+        if (/Edge/.test(navigator.userAgent)) {
+            $.browser.ieedge = true;
+        }
+    }
+    catch (x) { }
+}
+var DomUI = WebUI;
+$(document).ready(WebUI.onDocumentReady);
+$(window).resize(WebUI.onWindowResize);
+$(document).ajaxComplete(function () {
+    WebUI.handleCalendarChanges();
+    WebUI.doCustomUpdates();
+});
+$(document).keydown(function (e) {
+    WebUI.addPagerAccessKeys(e);
+});
 //# sourceMappingURL=domui-combined.js.map

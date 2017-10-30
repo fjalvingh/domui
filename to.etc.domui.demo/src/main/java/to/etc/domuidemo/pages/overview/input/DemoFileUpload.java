@@ -1,13 +1,19 @@
 package to.etc.domuidemo.pages.overview.input;
 
-import java.io.*;
-import java.util.*;
+import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.upload.FileUpload;
+import to.etc.domui.dom.html.BR;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.Label;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.util.upload.UploadItem;
+import to.etc.util.FileTool;
+import to.etc.util.StringTool;
 
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.upload.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.upload.*;
-import to.etc.util.*;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 public class DemoFileUpload extends UrlPage {
 
@@ -25,7 +31,7 @@ public class DemoFileUpload extends UrlPage {
 		d.add(upload);
 
 		// Set the extensions allowed uploading
-		upload.setAllowedExtensions("jpg,gif,png,log");
+		upload.setAllowedExtensions(Arrays.asList("jpg", "gif","png","log"));
 
 		// Set the max number of files allowed to upload
 		upload.setMaxFiles(3);

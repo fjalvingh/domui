@@ -225,7 +225,7 @@ final public class FormBuilder {
 	 * after this are no longer bound to the previously set property.
 	 */
 	@Nonnull
-	public FormBuilder readOnlyAll() {
+	public FormBuilder readOnlyAllClear() {
 		m_readOnlyGlobal = null;
 		return this;
 	}
@@ -271,7 +271,7 @@ final public class FormBuilder {
 	 * after this are no longer bound to the previously set property.
 	 */
 	@Nonnull
-	public FormBuilder disabledAll() {
+	public FormBuilder disabledAllClear() {
 		m_disabledGlobal = null;
 		return this;
 	}
@@ -298,7 +298,7 @@ final public class FormBuilder {
 	}
 
 	@Nonnull
-	public FormBuilder disabledBecause() {
+	public FormBuilder disabledBecauseClear() {
 		m_disabledMessageGlobal = null;
 		return this;
 	}
@@ -583,7 +583,7 @@ final public class FormBuilder {
 				controlcell.addCssClass(controlCss);
 		}
 		if(null != lbl)
-			lbl.setForNode(control);
+			lbl.setForTarget(control);
 	}
 
 	@Nonnull
@@ -642,7 +642,7 @@ final public class FormBuilder {
 				controlcell.addCssClass(controlCss);
 		}
 		if(null != lbl)
-			lbl.setForNode(control);
+			lbl.setForTarget(control);
 	}
 
 	public void appendAfterControl(@Nonnull NodeBase what) {

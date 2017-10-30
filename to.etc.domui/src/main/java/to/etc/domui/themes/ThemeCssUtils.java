@@ -71,7 +71,7 @@ public class ThemeCssUtils {
 		k.setText(text);
 		StringBuilder sb = new StringBuilder();
 		sb.append("/").append(AppFilter.internalGetWebappContext()).append("/");
-		k.append(DefaultThemeVariant.INSTANCE, sb);
+		k.append(sb);
 		return sb.toString();
 	}
 

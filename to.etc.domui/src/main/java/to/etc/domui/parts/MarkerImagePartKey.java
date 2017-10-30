@@ -24,9 +24,11 @@
  */
 package to.etc.domui.parts;
 
-import to.etc.domui.server.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.IExtendedParameterInfo;
+import to.etc.domui.themes.ITheme;
+import to.etc.domui.util.DomUtil;
+import to.etc.util.StringTool;
 
 /**
  * Key for cache. Used in {@link MarkerImagePart}
@@ -35,7 +37,7 @@ import to.etc.util.*;
  * @author <a href="mailto:btadic@execom.eu">Bojan Tadic</a>
  * Created on Nov 3, 2011
  */
-public class MarkerImagePartKey {
+final public class MarkerImagePartKey {
 	static final String PARAM_ICON = "icon";
 
 	static final String PARAM_CAPTION = "caption";
@@ -47,6 +49,8 @@ public class MarkerImagePartKey {
 	static final String PARAM_FONTSIZE = "fontsize";
 
 	static final String PARAM_SPEC = "fontspec";
+
+	private static final String DEFAULT_ICON = "THEME/icon-search.png";
 
 	private String m_icon;
 
@@ -64,10 +68,15 @@ public class MarkerImagePartKey {
 
 	private FontSpec m_fontSpec;
 
-	static public MarkerImagePartKey decode(IExtendedParameterInfo info) {
+	static public MarkerImagePartKey decode(DomApplication da, IExtendedParameterInfo info) {
 		MarkerImagePartKey k = new MarkerImagePartKey();
+
+		String icon = info.getParameter(PARAM_ICON);
+		ITheme theme = da.internalGetThemeManager().getTheme(info.getThemeName(), null);
+		String url = da.internalGetThemeManager().getThemedResourceRURL(theme, icon == null || DomUtil.isBlank(icon) ? DEFAULT_ICON : icon.trim());
+		k.setIcon(url);
+
 		k.setCaption(info.getParameter(PARAM_CAPTION));
-		k.setIcon(info.getParameter(PARAM_ICON));
 		k.setColor(info.getParameter(PARAM_COLOR));
 		k.setFont(info.getParameter(PARAM_FONT));
 		String s = info.getParameter(PARAM_FONTSIZE);

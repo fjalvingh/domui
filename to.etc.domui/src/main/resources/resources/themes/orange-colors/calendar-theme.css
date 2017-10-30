@@ -3,6 +3,7 @@
 div.calendar { position: relative; }
 
 .calendar, .calendar table {
+    width: 220px;
   border: 1px solid #655;
   font-size: 11px;
   color: #000;

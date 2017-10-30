@@ -53,17 +53,14 @@ public class ITTestLookupInputLayout extends AbstractWebDriverTest {
 	@Test
 	public void labelMustBeAlignedOne() throws Exception {
 		WebElement one = wd().getElement("one");
-		String id = one.getAttribute("id");
-		WebElement label = wd().getElement(By.cssSelector("label[for='" + id + "']"));
-
+		WebElement label = AbstractLayoutTest.findFormLabelFor(one);
 		Assert.assertEquals("Label and control for ONE must be on same Y", label.getLocation().getY(), one.getLocation().getY());
 	}
 
 	@Test
 	public void labelMustBeAlignedTwo() throws Exception {
 		WebElement two = wd().getElement("two");
-		String id = two.getAttribute("id");
-		WebElement label = wd().getElement(By.cssSelector("label[for='" + id + "']"));
+		WebElement label = AbstractLayoutTest.findFormLabelFor(two);
 
 		Assert.assertEquals("Label and control for TWO must be on same Y", label.getLocation().getY(), two.getLocation().getY());
 	}

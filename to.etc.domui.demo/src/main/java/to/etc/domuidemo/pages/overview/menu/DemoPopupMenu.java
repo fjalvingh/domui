@@ -37,7 +37,7 @@ public class DemoPopupMenu extends UrlPage {
 	}
 
 	protected void createPopup(LinkButton clickednode) {
-		SimplePopupMenu pm = new SimplePopupMenu();
+		SimplePopupMenu pm = new SimplePopupMenu(clickednode);
 		pm.addItem("Happy", "img/btnSmileySmiley.gif", null);
 		pm.addItem("Sad", "img/btnSmileySad.gif", null);
 		clickednode.appendBeforeMe(pm);

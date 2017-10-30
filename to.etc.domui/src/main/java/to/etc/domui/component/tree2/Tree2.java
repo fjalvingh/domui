@@ -140,7 +140,8 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 
 		int len = getModel().getChildCount(parentValue); // #of items in this thingy.
 		if(len == 0) {
-			throw new IllegalStateException("Implement 'expanding node having 0 children': parentValue=" + parentValue);
+			return ul;								// If the root node has no children this happens.
+			//throw new IllegalStateException("Implement 'expanding node having 0 children': parentValue=" + parentValue);
 		}
 
 		//-- Render each child && assign their Tree2Node thingy.

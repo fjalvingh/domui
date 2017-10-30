@@ -24,16 +24,24 @@
  */
 package to.etc.domui.component.layout;
 
-import java.util.*;
+import to.etc.domui.component.event.INotify;
+import to.etc.domui.dom.css.ClearType;
+import to.etc.domui.dom.css.DisplayType;
+import to.etc.domui.dom.html.ATag;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.Img;
+import to.etc.domui.dom.html.Li;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.Span;
+import to.etc.domui.dom.html.TextNode;
+import to.etc.domui.util.DomUtil;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.event.*;
-import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TabPanelBase extends Div {
 
@@ -44,7 +52,7 @@ public class TabPanelBase extends Div {
 	 * Created on 24 Sep 2009
 	 */
 	public interface ITabSelected {
-		public void onTabSelected(TabPanelBase tabPanel, int oldTabIndex, int newTabIndex) throws Exception;
+		void onTabSelected(TabPanelBase tabPanel, int oldTabIndex, int newTabIndex) throws Exception;
 	}
 
 	private List<TabInstance> m_tablist = new ArrayList<TabInstance>();
@@ -141,7 +149,7 @@ public class TabPanelBase extends Div {
 		NodeBase label = ti.getLabel();
 		if(label != null)
 			dt.add(label);
-		d.setClicked((IClicked<Div>) b -> setCurrentTab(ti));
+		li.setClicked(b -> setCurrentTab(ti));
 
 		if(ti.isCloseable()) {
 			ATag x = new ATag();
@@ -155,8 +163,6 @@ public class TabPanelBase extends Div {
 	/**
 	 * Close the given tab instance.
 	 *
-	 * @param into
-	 * @param index
 	 * @throws Exception
 	 */
 	public void closeTab(@Nonnull final ITabHandle th) throws Exception {

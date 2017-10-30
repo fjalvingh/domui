@@ -9,6 +9,7 @@ import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.css.Overflow;
 import to.etc.domui.dom.css.PositionType;
 import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IForTarget;
 import to.etc.domui.dom.html.ILookupTypingListener;
 import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.Input;
@@ -49,7 +50,7 @@ import java.util.Set;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 9, 2011
  */
-public class SearchInput<T> extends Div {
+public class SearchInput<T> extends Div implements IForTarget {
 	static private final int MAX_RESULTS = 7;
 
 	@Nonnull
@@ -162,6 +163,14 @@ public class SearchInput<T> extends Div {
 				handleLookupTyping(done);
 			}
 		});
+	}
+
+	@Nullable @Override public NodeBase getForTarget() {
+		return m_input;
+	}
+
+	@Nullable @Override protected String getFocusID() {
+		return m_input.getActualID();
 	}
 
 	/**

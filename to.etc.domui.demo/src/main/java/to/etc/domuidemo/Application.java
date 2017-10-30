@@ -2,6 +2,10 @@ package to.etc.domuidemo;
 
 import to.etc.domui.caches.images.*;
 import to.etc.domui.component.layout.*;
+import to.etc.domui.component.tbl.RowRenderer;
+import to.etc.domui.component.tbl.RowRenderer.ColumnWidth;
+import to.etc.domui.component.tbl.RowRenderer.IColumnListener;
+import to.etc.domui.component.tbl.TableModelTableBase;
 import to.etc.domui.derbydata.init.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.header.*;
@@ -18,6 +22,7 @@ import to.etc.formbuilder.pages.*;
 import javax.annotation.*;
 import javax.servlet.*;
 import java.io.*;
+import java.util.List;
 
 public class Application extends DomApplication {
 	private boolean m_hibinit;
@@ -33,18 +38,18 @@ public class Application extends DomApplication {
 	protected void initialize(final ConfigParameters pp) throws Exception {
 		ImageCache.initialize(32 * 1024 * 1024, 5l * 1024 * 1024 * 1024, new File("/tmp/imagecache"));
 
-		setThemeFactory(SassThemeFactory.INSTANCE);
+		setDefaultThemeFactory(SassThemeFactory.INSTANCE);
 		//
 		//
 		//String newtheme = DeveloperOptions.getString("domuidemo.simpletheme");
 		//if(null != newtheme) {
 		//	//-- Set the SIMPLE theme provider with the specified theme set.
-		//	setThemeFactory(SimpleThemeFactory.INSTANCE);
-		//	setCurrentTheme(newtheme);
+		//	setDefaultThemeFactory(SimpleThemeFactory.INSTANCE);
+		//	setDefaultTheme(newtheme);
 		//} else {
-		//	setThemeFactory(FragmentedThemeFactory.getInstance());
+		//	setDefaultThemeFactory(FragmentedThemeFactory.getInstance());
 		//	String stylename = DeveloperOptions.getString("domuidemo.theme", "domui/domui/orange");        // Default to DomUI's native fragmented theme
-		//	setCurrentTheme(stylename);
+		//	setDefaultTheme(stylename);
 		//}
 
 		//-- Append the default style sheet.
@@ -89,6 +94,24 @@ public class Application extends DomApplication {
 			public void newPageCreated(@Nonnull UrlPage body) throws Exception {
 			}
 		});
+
+		/*
+		 * Add a generic listener for column width changed events.
+		 */
+		setAttribute(RowRenderer.COLUMN_LISTENER, new IColumnListener<Object>() {
+			@Override public void columnsChanged(TableModelTableBase<Object> tbl, List<ColumnWidth<Object, ?>> newWidths) throws Exception {
+				saveColumnWidths(tbl, newWidths);
+			}
+		});
+
+
+	}
+
+	private void saveColumnWidths(TableModelTableBase<Object> tbl, List<ColumnWidth<Object, ?>> newWidths) {
+		System.out.println("Columns changed for page " + tbl.getPage().getBody().getClass().getCanonicalName() + ", table " + tbl.getActualID() + ":");
+		for(ColumnWidth<Object, ?> nw : newWidths) {
+			System.out.println(" - column " + nw.getIndex() + " (" + nw.getColumn() + ") width " + nw.getWidth());
+		}
 	}
 
 	@Override public void addDefaultErrorComponent(NodeContainer page) {

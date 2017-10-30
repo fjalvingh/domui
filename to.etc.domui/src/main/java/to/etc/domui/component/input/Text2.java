@@ -196,6 +196,14 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		renderMode();
 	}
 
+	@Nullable @Override protected String getFocusID() {
+		return m_input.getActualID();
+	}
+
+	@Nullable @Override public NodeBase getForTarget() {
+		return m_input;
+	}
+
 	private void renderButtons() {
 		TBody body = m_body;
 		if(null == body)
@@ -657,7 +665,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 
 	public void addValidator(IValueValidator< ? > v) {
 		if(m_validators == Collections.EMPTY_LIST)
-			m_validators = new ArrayList<IValueValidator< ? >>(5);
+			m_validators = new ArrayList<>(5);
 		m_validators.add(v);
 	}
 

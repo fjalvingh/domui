@@ -24,6 +24,7 @@
 package to.etc.domuidemo.pages.test.componenterrors;
 
 import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.input.Text;
 import to.etc.domui.component.input.Text2;
 import to.etc.domui.component.layout.Caption;
 import to.etc.domui.component.meta.MetaProperty;
@@ -57,7 +58,7 @@ public class Text2LayoutTestPage extends UrlPage {
 
 
 	@Override public void createContent() throws Exception {
-		add(new Caption("Without form builder"));
+		add(new Caption("Without form4 builder"));
 
 		//-- Single text
 		Div d = new Div("ui-f4-line");
@@ -106,12 +107,20 @@ public class Text2LayoutTestPage extends UrlPage {
 		fb.label("$ mandatory").property(this, "t20").control();
 		fb.label("$ optional").property(this, "t21").control();
 		fb.label("integer").property(this, "t22").control();
-		Text2<String> t23 = fb.label("integer").property(this, "t23").control(Text2.class);
+
+		Text2<String> t23 = fb.label("string").property(this, "t23").control(Text2.class);
 		t23.addButton(FaIcon.faFile, a -> {});
 		t23.addButton(Theme.BTN_EDIT, a -> {});
 
 		fb.label("bigdecimal empty").property(this, "t30").control();
 		fb.label("bigdecimal 123.45").property(this, "t31").control();
+
+		add(new Caption("Old Text<> control"));
+		fb = new FormBuilder(this);
+		fb.label("Text 41").control(new Text<>(String.class));
+		Text<String> t42 = new Text<String>(String.class);
+		t42.setValue("zzzzaaaXXX");
+		fb.label("Text 42").control(t42);
 
 		add(new DefaultButton("validate", a -> bindErrors()));
 	}
