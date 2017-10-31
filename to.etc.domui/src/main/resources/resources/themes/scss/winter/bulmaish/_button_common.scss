@@ -152,11 +152,14 @@ $button-static-border-color: $grey-lighter !default;
 
 			&:focus,
 			&.is-focused {
-				border-color: transparent;
+				//border-color: transparent;
+				//border-color: $button-focus-border-color;
+				border-color: findButtonFocusBorderColor($color);
 				color: $color-invert;
 
 				&:not(:active) {
-					box-shadow: $button-focus-box-shadow-size rgba($color, 0.25);
+					//box-shadow: $button-focus-box-shadow-size rgba($color, 0.25);
+					box-shadow: $button-focus-box-shadow-size rgba($button-focus-border-color, 0.45);
 				}
 			}
 

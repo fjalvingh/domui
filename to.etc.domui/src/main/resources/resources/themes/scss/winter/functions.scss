@@ -50,3 +50,23 @@
 	}
 }
 
+@function findButtonFocusBorderColor($color) {
+	$newlum: colorLuminance($color);
+	$hue: hue($color);
+	$sat: saturation($color);
+	$lig: lightness($color);
+
+	@if($newlum < 0.1) {
+		@return $button-focus-border-color;
+		//@return hsl($hue + 180, 70%, 70%);
+		//@return saturate(adjust-hue($color, 180), 50%);
+	} @else if($newlum > 0.7) {
+		@return adjust-hue($color, 180);
+	} @else {
+		@return saturate(adjust-hue($color, 90), 50%);
+	}
+
+	//@return adjust-hue($color, 180);
+}
+
+
