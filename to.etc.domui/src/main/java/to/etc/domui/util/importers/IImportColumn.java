@@ -1,11 +1,11 @@
 package to.etc.domui.util.importers;
 
+import javax.annotation.Nullable;
+
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 31-10-17.
  */
-public interface IImportRow {
-	int getColumnCount();
-
-	IImportColumn get(int index);
+public interface IImportColumn {
+	@Nullable String getStringValue();
 }

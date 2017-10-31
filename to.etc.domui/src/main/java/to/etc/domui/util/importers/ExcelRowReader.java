@@ -13,7 +13,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -58,16 +61,16 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 		checkStart();
 		Sheet sheet = getSheet();
 		if(m_hasHeaderRow) {
-			return new RowIterator(sheet, sheet.getFirstRowNum() + 1);
+			return new RowIterator(sheet, sheet.getFirstRowNum() + 1, getCurrentHeaderNames());
 		} else {
-			return new RowIterator(sheet, sheet.getFirstRowNum());
+			return new RowIterator(sheet, sheet.getFirstRowNum(), getCurrentHeaderNames());
 		}
 	}
 
 	@Override public IImportRow getHeaderRow() {
 		if(! m_hasHeaderRow)
 			throw new IllegalStateException("You cannot ask for a header row when hasHeaderRow is false");
-		return new ExcelImportRow(getSheet().getRow(getSheet().getFirstRowNum()));
+		return new ExcelImportRow(getSheet().getRow(getSheet().getFirstRowNum()), Collections.emptyList());
 	}
 
 	private void checkStart() {
@@ -101,6 +104,29 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 			m_setIndex = setIndex;
 			m_progressIndicator = 0;
 		}
+	}
+
+	/**
+	 * If the current sheet has a header (as defined with hasHeader) then this reads that 1st row
+	 * and returns a list of header names indexed by column index. If no header names are available
+	 * this returns the empty list.
+	 */
+	private List<String> getCurrentHeaderNames() {
+		if(! m_hasHeaderRow) {
+			return Collections.emptyList();
+		}
+		IImportRow row = getHeaderRow();
+		List<String> res = new ArrayList<>();
+		for(int i = 0; i < row.getColumnCount(); i++) {
+			String name = row.get(i).getStringValue();
+			if(null != name) {
+				name = name.trim();
+				if(name.length() == 0)
+					name = null;
+			}
+			res.add(name);
+		}
+		return res;
 	}
 
 	private Sheet getSheet() {
@@ -138,13 +164,16 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 		/** The next row to read */
 		private int m_nextRow;
 
+		private final List<String> m_headerNames;
+
 		/** The last row we're expecting (inclusive) */
 		private int m_lastRow;
 
-		public RowIterator(Sheet sheet, int firstRowNum) {
+		public RowIterator(Sheet sheet, int firstRowNum, List<String> headerNames) {
 			m_sheet = sheet;
 			m_lastRow = sheet.getLastRowNum();
 			m_nextRow = firstRowNum;
+			m_headerNames = headerNames;
 		}
 
 		@Override public boolean hasNext() {
@@ -160,7 +189,7 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 				throw new IllegalStateException("Calling next() after hasNext() returned false");
 			Row row = m_sheet.getRow(m_nextRow++);
 			m_progressIndicator++;
-			return new ExcelImportRow(row);
+			return new ExcelImportRow(row, m_headerNames);
 		}
 	}
 }
