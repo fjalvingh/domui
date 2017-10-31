@@ -7,7 +7,6 @@ import to.etc.webapp.query.QDataContext;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.File;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,8 +15,6 @@ import java.util.stream.Collectors;
  * Created on 26-10-17.
  */
 public class QCriteriaExporter<T> {
-	private final File m_target;
-
 	private final QDataContext m_dc;
 
 	private final QCriteria<T> m_query;
@@ -26,8 +23,7 @@ public class QCriteriaExporter<T> {
 
 	private final List<IExportColumn<?>> m_columnList;
 
-	public QCriteriaExporter(@Nonnull File target, @Nonnull IExportWriter<T> writer, @Nonnull QDataContext dc, @Nonnull QCriteria<T> query, @Nullable String... columns) {
-		m_target = target;
+	public QCriteriaExporter(@Nonnull IExportWriter<T> writer, @Nonnull QDataContext dc, @Nonnull QCriteria<T> query, @Nullable String... columns) {
 		m_dc = dc;
 		m_query = query;
 		m_exportWriter = writer;
@@ -43,8 +39,8 @@ public class QCriteriaExporter<T> {
 		return xProps.stream().map(a -> new ExpandedDisplayPropertyColumnWrapper<>(a)).collect(Collectors.toList());
 	}
 
-	public QCriteriaExporter(File target, IExportWriter<T> writer, QDataContext dc, QCriteria<T> query, List<String> columns) {
-		this(target, writer, dc, query, columns == null ? null : columns.toArray(new String[columns.size()]));
+	public QCriteriaExporter(IExportWriter<T> writer, QDataContext dc, QCriteria<T> query, List<String> columns) {
+		this(writer, dc, query, columns == null ? null : columns.toArray(new String[columns.size()]));
 	}
 
 	public ExportResult export(IProgress p) throws Exception {
@@ -57,7 +53,7 @@ public class QCriteriaExporter<T> {
 			m_query.limit(rowLimit + 1);
 
 		List<T> list = m_dc.query(m_query);
-		m_exportWriter.startExport(m_target, m_columnList);
+		m_exportWriter.startExport(m_columnList);
 		try {
 			int count = 0;
 			p.setTotalWork(list.size() + (list.size() / 100));
@@ -68,8 +64,6 @@ public class QCriteriaExporter<T> {
 				m_exportWriter.exportRow(t);
 				p.setCompleted(count);
 			}
-
-			m_exportWriter.finish();
 			return list.size() >= rowLimit ? ExportResult.TRUNCATED : ExportResult.COMPLETED;
 		} finally {
 			m_exportWriter.close();

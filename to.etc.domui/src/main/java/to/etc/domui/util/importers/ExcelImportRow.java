@@ -45,7 +45,7 @@ public class ExcelImportRow implements IImportRow {
 		int index = -1;
 		for(int i = m_headerNames.size(); --i >= 0;) {
 			if(m_headerNames.get(i).equals(name)) {
-				if(index != -1)
+				if(index == -1)
 					index = i;
 				else
 					throw new IllegalStateException("The field name '" + name + "' occurs more than once in the header");

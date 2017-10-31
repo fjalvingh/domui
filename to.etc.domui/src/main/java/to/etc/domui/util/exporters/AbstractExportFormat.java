@@ -1,5 +1,7 @@
 package to.etc.domui.util.exporters;
 
+import java.io.File;
+
 /**
  * Base class for {@link IExportFormat} factories.
  *
@@ -25,5 +27,5 @@ abstract public class AbstractExportFormat implements IExportFormat {
 		return m_extension;
 	}
 
-	@Override abstract public IExportWriter<?> createWriter();
+	@Override abstract public IExportWriter<?> createWriter(File output) throws Exception;
 }
