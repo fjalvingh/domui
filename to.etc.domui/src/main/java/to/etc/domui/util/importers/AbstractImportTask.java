@@ -21,8 +21,18 @@ abstract public class AbstractImportTask extends AbstractAsyncDialogTask {
 
 	@Override public void run(IProgress progress) throws Exception {
 		try(IRowReader reader = openReader(Objects.requireNonNull(m_inputFile))) {
+			initialize(reader);
 			execute(reader, progress);
+			finish(reader);
 		}
+	}
+
+	protected void finish(IRowReader reader) throws Exception {
+
+	}
+
+	protected void initialize(IRowReader reader) throws Exception {
+
 	}
 
 	/**
@@ -35,12 +45,13 @@ abstract public class AbstractImportTask extends AbstractAsyncDialogTask {
 		onHeaderRow(headerRow);
 		progress.setTotalWork((int) reader.getSetSizeIndicator());
 		for(IImportRow row : reader) {
-			onRow(row);
+			if(! onRow(row))
+				break;
 			progress.setCompleted((int) reader.getProgressIndicator());
 		}
 	}
 
-	protected abstract void onRow(IImportRow row) throws Exception;
+	protected abstract boolean onRow(IImportRow row) throws Exception;
 
 	private void onHeaderRow(IImportRow headerRow) throws Exception {
 	}

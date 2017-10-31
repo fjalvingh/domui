@@ -6,6 +6,7 @@ import to.etc.domui.component.delayed.IProgress;
 import to.etc.domui.component.layout.Dialog;
 import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.trouble.UIException;
 import to.etc.function.ConsumerEx;
 
 import javax.annotation.Nonnull;
@@ -43,7 +44,12 @@ final public class AsyncDialog {
 						onComplete.accept(task);
 				} else {
 					if(onError == null) {
-						MsgBox.error(addTo, errorException.toString());
+						if(errorException instanceof UIException) {
+							MsgBox.error(addTo, errorException.getMessage());
+						} else {
+							MsgBox.error(addTo, errorException.toString());
+							errorException.printStackTrace();
+						}
 					} else {
 						onError.accept(errorException);
 					}

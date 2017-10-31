@@ -4,6 +4,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import to.etc.webapp.query.QNotFoundException;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Date;
 import java.util.List;
@@ -37,9 +38,12 @@ public class ExcelImportRow implements IImportRow {
 		if(index > m_row.getLastCellNum() || index < 0)
 			throw new IllegalStateException("Row index " + index + " is invalid: must be 0 <= index <=" + (m_row.getLastCellNum() + 1));
 		if(index < m_row.getFirstCellNum())
-			return new EmptyColumn();
+			return new EmptyColumn(getHeaderName(index));
 
-		return new ExcelColumn(m_row.getCell(index), getHeaderName(index));
+		Cell cell = m_row.getCell(index);
+		if(null == cell)
+			return new EmptyColumn(getHeaderName(index));
+		return new ExcelColumn(cell, getHeaderName(index));
 	}
 
 	public IImportColumn get(String name) {
@@ -62,7 +66,9 @@ public class ExcelImportRow implements IImportRow {
 
 		private final String m_name;
 
-		public ExcelColumn(Cell cell, String name) {
+		public ExcelColumn(@Nonnull Cell cell, String name) {
+			if(null == cell)
+				throw new IllegalStateException("Cell cannot be null");
 			m_cell = cell;
 			m_name = name;
 		}
@@ -82,6 +88,12 @@ public class ExcelImportRow implements IImportRow {
 	}
 
 	static private class EmptyColumn implements IImportColumn {
+		private final String m_name;
+
+		public EmptyColumn(String name) {
+			m_name = name;
+		}
+
 		@Nullable @Override public String getStringValue() {
 			return null;
 		}
