@@ -1,24 +1,19 @@
 package to.etc.domui.util.importers;
 
 import to.etc.domui.component.buttons.DefaultButton;
-import to.etc.domui.component.delayed.IProgress;
 import to.etc.domui.component.layout.ButtonBar;
-import to.etc.domui.component.layout.Dialog;
 import to.etc.domui.component.misc.FaIcon;
 import to.etc.domui.component.upload.FileUpload;
-import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.UrlPage;
-import to.etc.domui.util.AsyncDialogTask;
+import to.etc.domui.util.asyncdialog.AsyncDialog;
 import to.etc.domui.util.upload.UploadItem;
-
-import javax.annotation.Nonnull;
-import java.io.File;
+import to.etc.function.ConsumerEx;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 27-10-17.
  */
-public class AbstractImportPage<R> extends UrlPage {
+public class AbstractImportPage extends UrlPage {
 	private FileUpload m_upload;
 
 	private ButtonBar m_buttonBar;
@@ -34,17 +29,17 @@ public class AbstractImportPage<R> extends UrlPage {
 		getButtonBar().addBackButton(string, FaIcon.faCircle);
 	}
 
-	protected void addUploadButton(String text, IImportTask<R> task) throws Exception {
-		DefaultButton b = getButtonBar().addButton(text, FaIcon.faUpload, v -> startUpload(task));
+	protected <T extends AbstractImportTask> void addUploadButton(String text, T task, ConsumerEx<T> onComplete) throws Exception {
+		DefaultButton b = getButtonBar().addButton(text, FaIcon.faUpload, v -> startUpload(task, onComplete));
 		b.bind("disabled").to(this, "uploadDisabled");
 	}
 
-	private void startUpload(IImportTask<R> handler) {
+	private <T extends AbstractImportTask> void startUpload(T task, ConsumerEx<T> onComplete) {
 		UploadItem value = m_upload.getValue();
 		if(null == value)
 			return;
-		ImporterTask<R> task = new ImporterTask<>(handler, value.getFile());
-		AsyncDialogTask.runInDialog(this, task, "Import", true, true);
+		task.setInputFile(value.getFile());
+		AsyncDialog.runInDialog(this, task, "Import", true, onComplete);
 	}
 
 	public boolean isUploadDisabled() {
@@ -63,31 +58,5 @@ public class AbstractImportPage<R> extends UrlPage {
 	protected FileUpload createUpload() {
 		FileUpload fu = m_upload = new FileUpload("xls", "xlsx");
 		return fu;
-	}
-
-	private class ImporterTask<R> extends AsyncDialogTask {
-		private final IImportTask<R> m_handler;
-
-		private File m_input;
-
-		private R m_result;
-
-		public ImporterTask(IImportTask<R> handler, File input) {
-			m_handler = handler;
-			m_input = input;
-		}
-
-		@Override protected void execute(@Nonnull IProgress progress) throws Exception {
-			m_result = m_handler.execute(m_input, progress);
-		}
-
-		@Override public void onCompleted(NodeContainer node) {
-			m_handler.onComplete(node, m_result);
-		}
-
-		@Override protected void onError(Dialog dlg, boolean cancelled, @Nonnull Exception errorException) {
-			errorException.printStackTrace();
-			super.onError(dlg, cancelled, errorException);
-		}
 	}
 }

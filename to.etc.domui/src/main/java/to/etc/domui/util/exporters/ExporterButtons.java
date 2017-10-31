@@ -6,13 +6,17 @@ import to.etc.domui.component.menu.PopupMenu;
 import to.etc.domui.component.misc.FaIcon;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
-import to.etc.domui.util.AsyncDialogTask;
+import to.etc.domui.parts.TempFilePart;
+import to.etc.domui.parts.TempFilePart.Disposition;
 import to.etc.domui.util.Msgs;
+import to.etc.domui.util.asyncdialog.AsyncDialog;
 import to.etc.function.ConsumerEx;
 import to.etc.webapp.query.QCriteria;
 
 import javax.annotation.Nonnull;
+import java.io.File;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Helper class that creates Export buttons, or handles the actions thereof.
@@ -43,10 +47,11 @@ public class ExporterButtons {
 
 	public static <T> void export(NodeContainer node, IExportFormat xf, QCriteria<T> query, List<String> columns) {
 		Exporter<T> x = new Exporter<>(xf, query, columns);
-		AsyncDialogTask.runInDialog(node, x, "Export", true, true);
+		AsyncDialog.runInDialog(node, x, "Export", true, task -> {
+			File target = Objects.requireNonNull(task.getOutputFile());
+			TempFilePart.createDownloadAction(node, target, task.getMimeType(), Disposition.Attachment, target.getName());
+		});
 	}
-
-
 
 	static private class Exporter<T> extends AbstractExporter<T> {
 		final private QCriteria<T> m_criteria;

@@ -1,23 +1,23 @@
 package to.etc.domui.util.exporters;
 
 import to.etc.domui.component.delayed.IProgress;
-import to.etc.domui.component.layout.Dialog;
-import to.etc.domui.dom.html.NodeContainer;
-import to.etc.domui.parts.TempFilePart;
-import to.etc.domui.parts.TempFilePart.Disposition;
-import to.etc.domui.util.AsyncDialogTask;
+import to.etc.domui.util.asyncdialog.AbstractAsyncDialogTask;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Objects;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 31-10-17.
  */
-abstract public class AbstractExporter<T> extends AsyncDialogTask {
+abstract public class AbstractExporter<T> extends AbstractAsyncDialogTask implements IExportFile {
 	private final IExportFormat m_format;
+
+	private final String m_outputName;
 
 	@Nullable
 	private File m_out;
@@ -25,26 +25,42 @@ abstract public class AbstractExporter<T> extends AsyncDialogTask {
 	@Nullable
 	private IExportWriter<T> m_writer;
 
+	@Nonnull
+	private String m_mimeType = "application/octet-stream";
+
 	public AbstractExporter(IExportFormat format) {
 		m_format = format;
+		m_outputName = "export-" + new SimpleDateFormat("yyyymmdd-HHmm").format(new Date()) + "." + format.extension();
 	}
 
-	@Override protected void execute(@Nonnull IProgress progress) throws Exception {
+	public AbstractExporter(IExportFormat format, String name) {
+		m_format = format;
+		m_outputName = name + " " + new SimpleDateFormat("yyyymmdd-HHmm").format(new Date()) + "." + format.extension();
+	}
+
+	@Override protected void run(@Nonnull IProgress progress) throws Exception {
 		File out = m_out = File.createTempFile("xp-",  "." + m_format.extension());
 		try(IExportWriter<T> writer = m_writer = (IExportWriter<T>) m_format.createWriter(out)) {
+			m_mimeType = writer.getMimeType();
 			export(writer, progress);
 		}
 	}
 
+	@Override
+	@Nonnull public File getOutputFile() {
+		return Objects.requireNonNull(m_out);
+	}
+
+	@Nonnull
+	@Override
+	public String getOutputName() {
+		return m_outputName;
+	}
+
+	@Override
+	@Nonnull public String getMimeType() {
+		return m_mimeType;
+	}
+
 	abstract protected void export(@Nonnull IExportWriter<T> out, @Nonnull IProgress progress) throws Exception;
-
-	@Override public void onCompleted(NodeContainer node) {
-		File target = Objects.requireNonNull(m_out);
-		TempFilePart.createDownloadAction(node, target, Objects.requireNonNull(m_writer).getMimeType(), Disposition.Attachment, target.getName());
-	}
-
-	@Override protected void onError(Dialog dlg, boolean cancelled, @Nonnull Exception errorException) {
-		errorException.printStackTrace();
-		super.onError(dlg, cancelled, errorException);
-	}
 }

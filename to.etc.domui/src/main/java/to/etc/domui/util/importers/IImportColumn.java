@@ -1,6 +1,7 @@
 package to.etc.domui.util.importers;
 
 import javax.annotation.Nullable;
+import java.util.Date;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -8,4 +9,6 @@ import javax.annotation.Nullable;
  */
 public interface IImportColumn {
 	@Nullable String getStringValue();
+
+	@Nullable Date asDate();
 }

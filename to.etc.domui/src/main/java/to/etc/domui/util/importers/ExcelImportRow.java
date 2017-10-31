@@ -5,6 +5,7 @@ import org.apache.poi.ss.usermodel.Row;
 import to.etc.webapp.query.QNotFoundException;
 
 import javax.annotation.Nullable;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -74,10 +75,18 @@ public class ExcelImportRow implements IImportRow {
 		@Nullable @Override public String getStringValue() {
 			return m_cell.getStringCellValue();
 		}
+
+		@Override public Date asDate() {
+			return m_cell.getDateCellValue();
+		}
 	}
 
 	static private class EmptyColumn implements IImportColumn {
 		@Nullable @Override public String getStringValue() {
+			return null;
+		}
+
+		@Override public Date asDate() {
 			return null;
 		}
 	}

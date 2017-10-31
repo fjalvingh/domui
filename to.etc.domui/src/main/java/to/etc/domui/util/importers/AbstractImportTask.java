@@ -1,20 +1,28 @@
 package to.etc.domui.util.importers;
 
 import to.etc.domui.component.delayed.IProgress;
-import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.util.asyncdialog.AbstractAsyncDialogTask;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
+import java.util.Objects;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 31-10-17.
  */
-abstract public class AbstractImportTask<R> implements IImportTask<R> {
-	@Override public R execute(File input, IProgress progress) throws Exception {
-		try(IRowReader reader = openReader(input)) {
+abstract public class AbstractImportTask extends AbstractAsyncDialogTask {
+	@Nullable
+	private File m_inputFile;
+
+	public AbstractImportTask() {
+	}
+
+	@Override public void run(IProgress progress) throws Exception {
+		try(IRowReader reader = openReader(Objects.requireNonNull(m_inputFile))) {
 			execute(reader, progress);
 		}
-		return null;
 	}
 
 	/**
@@ -37,9 +45,10 @@ abstract public class AbstractImportTask<R> implements IImportTask<R> {
 	private void onHeaderRow(IImportRow headerRow) throws Exception {
 	}
 
+	@Nonnull
 	abstract protected IRowReader openReader(File input) throws Exception;
 
-	@Override public void onComplete(NodeContainer node, R result) {
-
+	public void setInputFile(File inputFile) {
+		m_inputFile = inputFile;
 	}
 }
