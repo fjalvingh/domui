@@ -27,6 +27,8 @@
 
 	select {
 		@include ui-input-base;
+		@include ui-control-base;
+		border-color: $input-border-color;
 		cursor: pointer;
 		display: block;
 		font-size: 1em;

@@ -10,6 +10,38 @@
 	-moz-appearance: none;
 }
 
+@mixin ui-control-base {
+	-moz-appearance: none;
+	-webkit-appearance: none;
+	align-items: center;
+	border: 1px solid transparent;
+	border-radius: $control-radius;
+	box-shadow: none;
+	display: inline-flex;
+	font-size: $size-normal;
+	height: 2.25em;
+	justify-content: flex-start;
+	line-height: 1.5;
+	padding-bottom: $control-padding-vertical;
+	padding-left: $control-padding-horizontal;
+	padding-right: $control-padding-horizontal;
+	padding-top: $control-padding-vertical;
+	position: relative;
+	vertical-align: top;
+
+	// States
+	&:focus,
+	&.is-focused,
+	&:active,
+	&.is-active {
+		outline: none;
+	}
+
+	&[disabled] {
+		cursor: not-allowed;
+	}
+}
+
 @mixin ui-input-base {
 	@include ui-appearance-none;
 	padding-bottom: calc(0.375em - 1px);
