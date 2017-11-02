@@ -37,6 +37,7 @@ import to.etc.util.StringTool;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Objects;
 
 /**
  * The default button for DomUI renders a sliding doors button that can
@@ -123,11 +124,35 @@ public class DefaultButton extends Button implements IActionControl {
 		setClicked(clicked);
 	}
 
+	/**
+	 * Add the specified css class(es) to the button.
+	 */
 	@Nonnull
 	public DefaultButton css(String... classNames) {
 		for(String cn : classNames) {
 			addCssClass(cn);
 		}
+		return this;
+	}
+
+	/**
+	 * Set the optional text (which may include an accelerator).
+	 */
+	@Nonnull
+	public DefaultButton text(String text) {
+		setText(text);
+		return this;
+	}
+
+	@Nonnull
+	public DefaultButton icon(String icon) {
+		setIcon(icon);
+		return this;
+	}
+
+	@Nonnull
+	public DefaultButton clicked(IClicked<DefaultButton> on) {
+		setClicked(on);
 		return this;
 	}
 
@@ -208,6 +233,8 @@ public class DefaultButton extends Button implements IActionControl {
 	 */
 	@Override
 	public void setText(final @Nullable String text) {
+		if(Objects.equals(text, m_text))
+			return;
 		m_text = text;
 		if(null != text)
 			setCalculcatedId("button_" + DomUtil.convertToID(text));

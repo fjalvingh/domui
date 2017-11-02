@@ -24,6 +24,8 @@ public class Text2F4Fragment extends Div {
 
 	private String		m_t23;
 
+	private String		m_t24;
+
 	private BigDecimal m_t30;
 
 	private BigDecimal m_t31 = new BigDecimal("123.45");
@@ -38,6 +40,10 @@ public class Text2F4Fragment extends Div {
 		Text2<String> t23 = fb.label("string").property(this, "t23").control(Text2.class);
 		t23.addButton(FaIcon.faFile, a -> {}).css("is-primary");
 		t23.addButton(Theme.BTN_EDIT, a -> {}).css("is-link");
+
+		Text2<String> t24 = fb.label("string w/btn").property(this, "t24").control(Text2.class);
+		//t24.addButton().text("Validate");
+		t24.addButton().icon(FaIcon.faCrosshairs);
 
 		fb.label("bigdecimal empty").property(this, "t30").control();
 		fb.label("bigdecimal 123.45").property(this, "t31").control();
@@ -93,5 +99,13 @@ public class Text2F4Fragment extends Div {
 
 	public void setT23(String t23) {
 		m_t23 = t23;
+	}
+
+	public String getT24() {
+		return m_t24;
+	}
+
+	public void setT24(String t24) {
+		m_t24 = t24;
 	}
 }

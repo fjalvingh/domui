@@ -1,0 +1,20 @@
+
+.ui-has-addons .ui-control .ui-input, .ui-has-addons .ui-control .ui-button {
+	border-radius: 0;
+}
+
+.ui-has-addons .ui-control > * {			// hide the borders between the buttons
+	border-left-width: 0;
+	//border-right-width: 0;
+}
+
+.ui-has-addons .ui-control:first-child .ui-input, .ui-has-addons .ui-control:first-child .ui-button {
+	border-bottom-left-radius: 3px;
+	border-top-left-radius: 3px;
+	border-left-width: 1px;
+}
+
+.ui-has-addons .ui-control:last-child > * {
+	border-bottom-right-radius: 3px;
+	border-top-right-radius: 3px;
+}

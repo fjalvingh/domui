@@ -26,6 +26,7 @@ package to.etc.domui.component.buttons;
 
 import to.etc.domui.component.misc.FaIcon;
 import to.etc.domui.dom.html.Button;
+import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.NodeBase;
@@ -52,7 +53,7 @@ public class SmallImgButton extends Button {
 	 * Create the empty button.
 	 */
 	public SmallImgButton() {
-		setCssClass("ui-sib");
+		setCssClass("ui-button xxui-sib");
 	}
 
 	/**
@@ -76,11 +77,20 @@ public class SmallImgButton extends Button {
 		setSrc(rurl);
 	}
 
+	/**
+	 * Add the specified css class(es) to the button.
+	 */
 	@Nonnull
 	public SmallImgButton css(String... classNames) {
 		for(String cn : classNames) {
 			addCssClass(cn);
 		}
+		return this;
+	}
+
+	@Nonnull
+	public SmallImgButton icon(String icon) {
+		setSrc(icon);
 		return this;
 	}
 
@@ -109,14 +119,16 @@ public class SmallImgButton extends Button {
 		String iconUrl = m_icon;
 		if(null != iconUrl) {
 			//-- Does the URL contain a dot? That indicates a resource somehow.
+			Div d = new Div("ui-icon");
+			add(d);
 			if(DomUtil.isIconName(iconUrl)) {
 				FaIcon icon = new FaIcon(iconUrl);
-				icon.addCssClass("ui-sib-icon");
-				add(icon);
+				//icon.addCssClass("ui-sib-icon");
+				d.add(icon);
 			} else {
 				String icon = getThemedResourceRURL(iconUrl);
 				Img img = new Img(icon);
-				add(img);
+				d.add(img);
 				img.setImgBorder(0);
 				img.setDisabled(isDisabled());
 			}

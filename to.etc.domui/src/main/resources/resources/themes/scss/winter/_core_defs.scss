@@ -12,7 +12,11 @@
 
 @mixin ui-input-base {
 	@include ui-appearance-none;
+	padding-bottom: calc(0.375em - 1px);
+	padding-top: calc(0.375em - 1px);
+
 	line-height: $input-line-height;		// FIXME NEW Should be removed for baseline merge?
+	height: 2.25em;
 	border: 1px solid #dbdbdb;
 	border-radius: 3px;
 	font-size: 1rem;

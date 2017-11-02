@@ -23,6 +23,7 @@
  */
 package to.etc.domui.component.input;
 
+import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.buttons.SmallImgButton;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.MetaUtils;
@@ -183,6 +184,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		Div d1 = new Div("ui-control");
 		add(d1);
 		d1.add(m_input);
+		m_input.addCssClass("ui-input");
 		renderButtons();
 		renderMode();
 	}
@@ -651,6 +653,13 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		}
 		buttonList.add(button);
 		renderButtons();
+	}
+
+	@Nonnull
+	public DefaultButton addButton() {
+		DefaultButton sib = new DefaultButton();
+		addButton(sib);
+		return sib;
 	}
 
 	public void addValidator(IValueValidator< ? > v) {
