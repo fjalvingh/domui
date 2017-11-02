@@ -15,6 +15,8 @@ public class AllComponents1Page extends UrlPage {
 		add(new VerticalSpacer(20));
 		add(new TextFormFragment());
 		add(new VerticalSpacer(20));
+		add(new ComboFragment());
+		add(new VerticalSpacer(20));
 		add(new LookupInputFragment());
 		add(new VerticalSpacer(20));
 		add(new DateInputFragment());

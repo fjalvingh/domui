@@ -35,3 +35,16 @@ $control-padding-horizontal: calc(0.625em - 1px) !default;
 		cursor: not-allowed;
 	}
 }
+
+@mixin arrow($color) {
+	border: 1px solid $color;
+	border-right: 0;
+	border-top: 0;
+	content: " ";
+	display: block;
+	height: 0.5em;
+	pointer-events: none;
+	position: absolute;
+	transform: rotate(-45deg);
+	width: 0.5em;
+}
