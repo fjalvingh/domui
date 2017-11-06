@@ -24,21 +24,38 @@
  */
 package to.etc.xml;
 
-import java.io.*;
-import java.text.*;
-import java.util.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.InputSource;
+import to.etc.util.FileTool;
+import to.etc.util.StringTool;
 
-import javax.annotation.*;
-import javax.xml.parsers.*;
-import javax.xml.stream.*;
-import javax.xml.transform.*;
-import javax.xml.transform.dom.*;
-import javax.xml.transform.stream.*;
-
-import org.w3c.dom.*;
-import org.xml.sax.*;
-
-import to.etc.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.Writer;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.TimeZone;
 
 /**
  * Static utility class having stuff to easily obtain data from a DOM parsed
@@ -151,6 +168,12 @@ public class DomTools {
 		inf = inf.getAbsoluteFile();
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		dbf.setNamespaceAware(nsaware);
+		dbf.setValidating(false);
+		dbf.setFeature("http://xml.org/sax/features/namespaces", false);
+		dbf.setFeature("http://xml.org/sax/features/validation", false);
+		dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+		dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+
 		DocumentBuilder db = dbf.newDocumentBuilder();
 		try {
 			//-- Assign myself as the error handler for parsing,
