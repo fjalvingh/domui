@@ -34,6 +34,7 @@ import to.etc.domui.component.misc.WindowParameters;
 import to.etc.domui.dom.errors.IErrorFence;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.BR;
+import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IHasModifiedIndication;
 import to.etc.domui.dom.html.IUserInputModifiedFence;
@@ -65,6 +66,7 @@ import to.etc.util.ByteArrayUtil;
 import to.etc.util.ExceptionClassifier;
 import to.etc.util.FileTool;
 import to.etc.util.HtmlScanner;
+import to.etc.util.LineIterator;
 import to.etc.util.StringTool;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.nls.BundleRef;
@@ -1453,7 +1455,31 @@ final public class DomUtil {
 			top.add(sb.toString());
 	}
 
+	static public void renderLines(@Nonnull NodeContainer nc, @Nullable String text) {
+		renderLines(nc, text, null);
+	}
+
 	/**
+	 * Render a text with crlf line endings into a node.
+	 * @param nc
+	 * @param text
+	 */
+	static public void renderLines(@Nonnull NodeContainer nc, @Nullable String text, @Nullable Function<String, String> lineFixer) {
+		if(text == null)
+			return;
+		text = text.trim();
+		if(text == null || text.length() == 0)					// Extra nullity test is because ecj is nuts
+			return;
+		for(String line : new LineIterator(text)) {
+			Div d = new Div("ui-nl-line");
+			nc.add(d);
+			if(lineFixer != null)
+				line = lineFixer.apply(line);
+			d.add(line);
+		}
+	}
+
+ 	/**
 	 * This scans the input, and only copies "safe" html, which is HTML with only
 	 * simple constructs. It checks to make sure the resulting document is xml-safe (well-formed),
 	 * if the input is not well-formed it will add or remove tags until the result is valid.
