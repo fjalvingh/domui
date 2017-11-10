@@ -24,16 +24,24 @@
  */
 package to.etc.domui.state;
 
-import java.io.*;
-import java.util.*;
+import to.etc.domui.dom.html.Page;
+import to.etc.domui.login.ILoginAuthenticator;
+import to.etc.domui.login.IUser;
+import to.etc.domui.login.LoginResult;
+import to.etc.domui.login.UILogin;
+import to.etc.domui.server.HttpServerRequestResponse;
+import to.etc.domui.server.ILoginListener;
+import to.etc.domui.server.IRequestContext;
+import to.etc.domui.server.IServerSession;
+import to.etc.domui.server.RequestContextImpl;
+import to.etc.domui.trouble.NotLoggedInException;
 
-import javax.annotation.*;
-import javax.servlet.http.*;
-
-import to.etc.domui.dom.html.*;
-import to.etc.domui.login.*;
-import to.etc.domui.server.*;
-import to.etc.domui.trouble.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpSession;
+import java.io.File;
+import java.util.List;
 
 /**
  * A class which allows access to the page's context and related information. This
@@ -46,32 +54,16 @@ import to.etc.domui.trouble.*;
  * Created on Jun 22, 2008
  */
 public class UIContext {
+	static public long FAILLOGIN_TIMEOUT = 5*60*1000;
+
+	/** After this amount of failed logins just pretend we're logging in */
+	static public int MAXFAILLOGINS = 10;
+
 	static private ThreadLocal<IRequestContext> m_current = new ThreadLocal<IRequestContext>();
 
 	static private ThreadLocal<Page> m_page = new ThreadLocal<Page>();
 
 	static private ThreadLocal<IUser> m_currentUser = new ThreadLocal<IUser>();
-
-	static final private class IgnoredHash {
-		final private long m_ts;
-
-		final private String m_hash;
-
-		public IgnoredHash(long ts, String hash) {
-			m_ts = ts;
-			m_hash = hash;
-		}
-
-		public long getTs() {
-			return m_ts;
-		}
-
-		public String getHash() {
-			return m_hash;
-		}
-	}
-
-	static private List<IgnoredHash> m_ignoredHashList = new ArrayList<UIContext.IgnoredHash>();
 
 	@Nonnull
 	static public IRequestContext getRequestContext() {
@@ -144,6 +136,10 @@ public class UIContext {
 		return m_currentUser.get();
 	}
 
+	static public void setCurrentUser(IUser user) {
+		m_currentUser.set(user);
+	}
+
 	/**
 	 * This returns the currently logged in user. If the user is not logged in this throws
 	 * a login exception which should cause the user to log in.
@@ -176,9 +172,6 @@ public class UIContext {
 	 * retrieve a copy from the HttpSession. The AppSession is not used; this allows a login
 	 * to persist when running in DEBUG mode, where AppSessions are destroyed when a class
 	 * is changed.
-	 *
-	 * @param rci
-	 * @return
 	 */
 	static public IUser internalGetLoggedInUser(final IRequestContext rx) throws Exception {
 		if(!(rx instanceof RequestContextImpl))
@@ -210,7 +203,7 @@ public class UIContext {
 					for(Cookie c : car) {
 						if(c.getName().equals("domuiLogin")) {
 							String domval = c.getValue();
-							IUser user = decodeCookie(rci, domval);
+							IUser user = UILogin.getLoginHandler().decodeCookie(rci, domval);
 							if(user != null) {
 								//-- Store the user in the HttpSession.
 								hs.setAttribute(LOGIN_KEY, user);
@@ -261,102 +254,13 @@ public class UIContext {
 	}
 
 	/**
-	 * Register a hash value to ignore because it was logged out.
-	 * @param hash
-	 */
-	static private synchronized void registerIgnoredHash(String hash) {
-		m_ignoredHashList.add(new IgnoredHash(System.currentTimeMillis(), hash));
-	}
-
-	/**
-	 * If the hash is an ignored hash then return false. In the process clean up "old" hashes.
-	 * @param hash
-	 * @return
-	 */
-	static private synchronized boolean isIgnoredHash(String hash) {
-		long cts = System.currentTimeMillis() - 1000 * 60;
-		for(int i = m_ignoredHashList.size(); --i >= 0;) {
-			IgnoredHash ih = m_ignoredHashList.get(i);
-			if(ih.getHash().equalsIgnoreCase(hash)) {
-				return true;
-			}
-			if(ih.getTs() < cts)
-				m_ignoredHashList.remove(i);
-		}
-		return false;
-	}
-
-
-	/**
-	 * Decode and check the cookie. It has the format:
-	 * <pre>
-	 * userid:timestamp:authhash
-	 * </pre>
-	 * The userid, timestamp as an yyyymmdd string and the password are hashed as an MD5 string and
-	 * must be the same as the authhash for cookie auth to succeed.
-	 * @param rci
-	 * @param cookie
-	 */
-	static private IUser decodeCookie(final RequestContextImpl rci, final String cookie) {
-		if(cookie == null)
-			return null;
-		String[] car = cookie.split(":");
-		if(car.length != 3)
-			return null;
-		try {
-			if(isIgnoredHash(car[2]))
-				return null;
-			String uid = car[0];
-			long ts = Long.parseLong(car[1]); // Timestamp
-
-			//-- Lookup userid;
-			ILoginAuthenticator la = rci.getApplication().getLoginAuthenticator();
-			if(null == la)
-				return null;
-
-			return la.authenticateByCookie(uid, ts, car[2]); // Authenticate by cookie
-		} catch(Exception x) {
-			return null; // All cookie format exceptions mean no login
-		}
-	}
-
-	/**
 	 * Logs in a user. If he was logged in before he is logged out.
 	 * @param userid
 	 * @param password
 	 * @return
 	 */
 	static public boolean login(final String userid, final String password) throws Exception {
-		IRequestContext rcx = m_current.get();
-		if(rcx == null)
-			throw new IllegalStateException("You can login from a server request only");
-		if(!(rcx instanceof RequestContextImpl))
-			return false;
-
-		IServerSession hs = rcx.getServerSession(false);
-		if(hs == null)
-			return false;
-		synchronized(hs) {
-			//-- Force logout
-			hs.setAttribute(LOGIN_KEY, null);
-
-			//-- Check credentials,
-			ILoginAuthenticator la = rcx.getApplication().getLoginAuthenticator();
-			if(la == null)
-				throw new IllegalStateException("There is no login authenticator set in the Application!");
-			IUser user = la.authenticateUser(userid, password);
-			if(user == null)
-				return false;
-
-			//-- Login succeeded: save the user in the session context
-			hs.setAttribute(LOGIN_KEY, user); 					// This causes the user to be logged on.
-			m_currentUser.set(user);
-
-			List<ILoginListener> ll = rcx.getApplication().getLoginListenerList();
-			for(ILoginListener l : ll)
-				l.userLogin(user);
-			return true;
-		}
+		return UILogin.getLoginHandler().login(userid, password) == LoginResult.SUCCESS;
 	}
 
 	/**
@@ -437,7 +341,7 @@ public class UIContext {
 					String[] var = c.getValue().split(":");
 					if(var.length == 3) {
 						//-- Make sure the same hash value is not used for login again. This prevents "relogin" when the browser sends some requests with the "old" cookie value (obituaries)
-						registerIgnoredHash(var[2]);
+						UILogin.getLoginHandler().registerIgnoredHash(var[2]);
 					}
 
 					//-- Create a new cookie value containing a delete.
@@ -451,9 +355,6 @@ public class UIContext {
 		}
 		return false;
 	}
-
-
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Handle cookies.										*/
