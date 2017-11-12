@@ -21,7 +21,6 @@
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
 @import "variables";
-@import "core_defs";
 
 /** Text2 component **/
 .ui-txt2 {
@@ -37,24 +36,4 @@
 	&.ui-input-err input {
 		background-color: $errors_input_background;
 	}
-
-	//&.ui-has-addons .ui-control ui-input {
-	//	border-radius: 0;
-	//}
-	//
-	//&.ui-has-addons .ui-control > * {			// hide the borders between the buttons
-	//	border-left-width: 0;
-	//	//border-right-width: 0;
-	//}
-	//
-	//&.ui-has-addons .ui-control:first-child input {
-	//	border-bottom-left-radius: 3px;
-	//	border-top-left-radius: 3px;
-	//	border-left-width: 1px;
-	//}
-	//
-	//&.ui-has-addons .ui-control:last-child > * {
-	//	border-bottom-right-radius: 3px;
-	//	border-top-right-radius: 3px;
-	//}
 }

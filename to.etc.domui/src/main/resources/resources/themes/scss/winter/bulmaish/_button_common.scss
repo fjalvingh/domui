@@ -41,7 +41,7 @@ $button-static-border-color: $grey-lighter !default;
 }
 
 .ui-button {
-	@include control;
+	@include ui-control-base;
 	@include unselectable;
 
 	background-color: $button-background-color;

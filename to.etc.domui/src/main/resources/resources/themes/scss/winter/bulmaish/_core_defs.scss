@@ -1,4 +1,10 @@
-@import "variables";
+@import "../variables";
+
+$control-radius: $radius !default;
+$control-radius-small: $radius-small !default;
+
+$control-padding-vertical: calc(0.375em - 1px) !default;
+$control-padding-horizontal: calc(0.625em - 1px) !default;
 
 @mixin ui-beveled-border {
 	border: 1px solid $bevel_down;
@@ -97,6 +103,19 @@
 	height: 1em;
 	position: relative;
 	width: 1em;
+}
+
+@mixin arrow($color) {
+	border: 1px solid $color;
+	border-right: 0;
+	border-top: 0;
+	content: " ";
+	display: block;
+	height: 0.5em;
+	pointer-events: none;
+	position: absolute;
+	transform: rotate(-45deg);
+	width: 0.5em;
 }
 
 @mixin center($width, $height: 0) {

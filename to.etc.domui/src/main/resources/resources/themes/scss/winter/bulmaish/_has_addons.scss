@@ -1,6 +1,8 @@
 
-.ui-has-addons .ui-control .ui-input, .ui-has-addons .ui-control .ui-button {
-	border-radius: 0;
+.ui-has-addons .ui-control {
+	.ui-input, .ui-button {
+		border-radius: 0;
+	}
 }
 
 .ui-has-addons .ui-control > * {			// hide the borders between the buttons
