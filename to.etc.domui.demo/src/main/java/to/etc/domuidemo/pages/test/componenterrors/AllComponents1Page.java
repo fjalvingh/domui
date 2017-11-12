@@ -29,7 +29,7 @@ public class AllComponents1Page extends UrlPage {
 		container.add(new DateInput1Fragment().css("flex-table-column"));
 
 		container.add(new HTag(1, "Buttons").css("ui-header flex-table-header"));
-		container.add(new ButtonFragment());
+		container.add(new ButtonFragment().css("flex-table-column"));
 
 		container.add(new HTag(1, "Text components outside a form").css("ui-header flex-table-header"));
 		container.add(new Text2RawFragment().css("flex-table-column"));

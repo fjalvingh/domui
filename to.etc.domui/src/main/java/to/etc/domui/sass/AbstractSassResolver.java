@@ -88,7 +88,8 @@ abstract public class AbstractSassResolver<O> {
 				idName = identifier.substring(pos + 1);
 			}
 
-			if(idPath.length() > 0) {            // If a path- try from root
+			if(identifier.startsWith("/")) {
+				//-- Root based path -> no relative replacements.
 				//-- Try literal name
 				O res = tryRef(app, idPath + idName);
 				if(null != res)
@@ -100,17 +101,63 @@ abstract public class AbstractSassResolver<O> {
 				if(null != res) {
 					return res;
 				}
+				return null;
 			}
 
+			//-- If we have a path: prepare the absolute path
+			String absPath = fileBase;
+
+			if(idPath.length() > 0) {
+				String[] segs = idPath.split("/");
+				for(int i = 0; i < segs.length; i++) {
+					String seg = segs[i];
+					if(seg.equals("..")) {
+						//-- remove one segment from basePath, if still possible.
+						if(absPath.length() == 0)		// Cannot go higher
+							return null;
+
+						int slp = absPath.lastIndexOf('/');
+						if(slp == -1) {
+							absPath = "";
+						} else {
+							absPath = absPath.substring(0, slp);		// Strip off last segment
+						}
+					} else if(seg.equals(".")) {
+						// Ignore
+					} else {
+						if(absPath.length() > 0) {
+							absPath += "/" + seg;
+						} else {
+							absPath = seg;
+						}
+					}
+				}
+			}
+			//
+			//
+			//if(idPath.length() > 0) {            // If a path- try from root
+			//	//-- Try literal name
+			//	O res = tryRef(app, idPath + idName);
+			//	if(null != res)
+			//		return res;
+			//
+			//	//-- Try for a "partial"
+			//	String newName = idPath + "_" + idPath;
+			//	res = tryRef(app, newName);
+			//	if(null != res) {
+			//		return res;
+			//	}
+			//}
+
 			//-- Try to prefix the relative path from its parent
-			String newName = fileBase + "/" + idPath + "_" + idName;		// Get new path relative to parent
+			String newName = absPath + "/" + "_" + idName;		// Get new path relative to parent
 			O ref = tryRef(app, newName);
 			if(null != ref) {
 				return ref;
 			}
 
 			//-- Try for a non partial
-			newName = fileBase + "/" + idPath + idName;
+			newName = absPath + "/" + idName;
 			ref = tryRef(app, newName);
 			if(null != ref) {
 				return ref;
