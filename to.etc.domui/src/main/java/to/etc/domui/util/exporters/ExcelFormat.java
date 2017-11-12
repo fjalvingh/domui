@@ -1,5 +1,7 @@
 package to.etc.domui.util.exporters;
 
+import javax.annotation.Nullable;
+
 /**
  * Denotes the supported Excel formats.
  *
@@ -25,5 +27,16 @@ public enum ExcelFormat {
 
 	public String getSuffix() {
 		return m_suffix;
+	}
+
+	@Nullable
+	static public ExcelFormat	byExtension(String ext) {
+		if(ext.startsWith("."))
+			ext = ext.substring(1);
+		for(ExcelFormat excelFormat : values()) {
+			if(excelFormat.getSuffix().equalsIgnoreCase(ext))
+				return excelFormat;
+		}
+		return null;
 	}
 }

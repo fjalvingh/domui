@@ -36,6 +36,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 /**
  * This is the type-safe replacement for the other row renderers which are now deprecated.
@@ -416,19 +417,22 @@ import java.util.Map;
 
 		//-- If a cell clicked thing is present attach it to the td
 		if(cd.getCellClicked() != null) {
-			/*
-			 * FIXME For now I add a separate instance of the handler to every cell. A single instance is OK too,
-			 * provided it can calculate the row and cell data from the TR it is attached to.
-			 */
-			cell.setClicked(new IClicked<TD>() {
-				@Override
-				public void clicked(final @Nonnull TD b) throws Exception {
-					ICellClicked<Object> clicked = (ICellClicked<Object>) cd.getCellClicked();
-					if(null != clicked)
-						clicked.cellClicked(instance);
-				}
-			});
-			cell.addCssClass("ui-cellsel");
+			Predicate<T> predicate = cd.getShowCellClickedWhen();
+			if(null == predicate || predicate.test(instance)) {
+				/*
+				 * FIXME For now I add a separate instance of the handler to every cell. A single instance is OK too,
+				 * provided it can calculate the row and cell data from the TR it is attached to.
+				 */
+				cell.setClicked(new IClicked<TD>() {
+					@Override
+					public void clicked(final @Nonnull TD b) throws Exception {
+						ICellClicked<Object> clicked = (ICellClicked<Object>) cd.getCellClicked();
+						if(null != clicked)
+							clicked.cellClicked(instance);
+					}
+				});
+				cell.addCssClass("ui-cellsel");
+			}
 		}
 
 		if(cd.getAlign() != null)

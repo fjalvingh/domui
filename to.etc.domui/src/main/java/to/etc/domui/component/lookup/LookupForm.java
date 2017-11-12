@@ -163,6 +163,9 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 	private IQueryFactory<T> m_queryFactory;
 
+	/** When adding properties yourself: do not clear metadata beforehand. */
+	private boolean m_keepMetaData;
+
 	private Map<String, ILookupControlInstance<?>> getFilterItems() {
 		Map<String, ILookupControlInstance<?>> filterValues = new HashMap<>();
 		for(Item item : m_itemList) {
@@ -569,8 +572,8 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		}
 
 		//-- Ok, we need the items we're going to show now.
-		if(m_itemList.size() == 0) // If we don't have an item set yet....
-			setDefaultItems(); // ..define it from metadata, and abort if there is nothing there
+		if(m_itemList.size() == 0 || isKeepMetaData())			// If we don't have an item set yet....
+			setDefaultItems(); 									// ..define it from metadata, and abort if there is nothing there
 
 		NodeContainer searchContainer = sroot;
 		if(containsItemBreaks(m_itemList)) {
@@ -877,7 +880,6 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 * to the item list. The list is cleared before that!
 	 */
 	public void setDefaultItems() {
-		m_itemList.clear();
 		List<SearchPropertyMetaModel> list = getMetaModel().getSearchProperties();
 		if(list == null || list.size() == 0) {
 			list = MetaManager.calculateSearchProperties(getMetaModel()); // 20100416 jal EXPERIMENTAL
@@ -1663,6 +1665,16 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 */
 	public void setQueryFactory(IQueryFactory<T> queryFactory) {
 		m_queryFactory = queryFactory;
+	}
+
+	public boolean isKeepMetaData() {
+		return m_keepMetaData;
+	}
+
+	@Nonnull
+	public LookupForm<T> setKeepMetaData(boolean keepMetaData) {
+		m_keepMetaData = keepMetaData;
+		return this;
 	}
 
 	/*--------------------------------------------------------------*/

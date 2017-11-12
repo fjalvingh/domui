@@ -71,18 +71,18 @@ public class ExcelExportWriter<T> implements IExportWriter<T> {
 
 	private int m_maxRows;
 
-	private List<IExportColumn<?>> m_columnList = Collections.emptyList();
+	private List<? extends IExportColumn<?>> m_columnList = Collections.emptyList();
 
 	@Nullable
 	private File m_target;
 
-	public ExcelExportWriter(ExcelFormat format) {
+	public ExcelExportWriter(ExcelFormat format, File target) {
+		m_target = target;
 		m_format = format;
 		Arrays.fill(m_sheetRowIndex, -1);
 	}
 
-	@Override public void startExport(File target, List<IExportColumn<?>> columnList) throws Exception {
-		m_target = target;
+	@Override public void startExport(List<? extends IExportColumn<?>> columnList) throws Exception {
 		m_columnList = columnList;
 		Workbook wb = m_workbook = createWorkbook();
 		Font defaultFont = wb.createFont();
@@ -119,12 +119,6 @@ public class ExcelExportWriter<T> implements IExportWriter<T> {
 		createNewSheet(columnList);
 	}
 
-	@Override public void finish() throws Exception {
-		try(OutputStream out = new FileOutputStream(Objects.requireNonNull(m_target))) {
-			getWorkbook().write(out);
-		}
-	}
-
 	@Override public void exportRow(T record) throws Exception {
 		Row row = addRow();
 
@@ -154,8 +148,10 @@ public class ExcelExportWriter<T> implements IExportWriter<T> {
 		renderer.renderCell(this, cell, columnIndex, value);
 	}
 
-	@Override public void close() {
-
+	@Override public void close() throws Exception {
+		try(OutputStream out = new FileOutputStream(Objects.requireNonNull(m_target))) {
+			getWorkbook().write(out);
+		}
 	}
 
 	private Workbook createWorkbook() {
@@ -206,7 +202,7 @@ public class ExcelExportWriter<T> implements IExportWriter<T> {
 		return row;
 	}
 
-	protected Sheet createNewSheet(List<IExportColumn<?>> columnList) {
+	protected Sheet createNewSheet(List<? extends IExportColumn<?>> columnList) {
 		Sheet s = createSheet();
 		s.getPrintSetup().setPaperSize(PrintSetup.A4_PAPERSIZE);
 		s.getPrintSetup().setLandscape(true);
@@ -226,7 +222,7 @@ public class ExcelExportWriter<T> implements IExportWriter<T> {
 		return m_sheetList.get(m_sheetIndex);
 	}
 
-	protected void renderHeader(List<IExportColumn<?>> itemlist, Sheet s) {
+	protected void renderHeader(List<? extends IExportColumn<?>> itemlist, Sheet s) {
 		int index = getRowIndex();
 		Row r = s.createRow(++index);
 		setRowIndex(index);

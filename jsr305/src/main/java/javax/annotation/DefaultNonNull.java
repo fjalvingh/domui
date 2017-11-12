@@ -24,15 +24,21 @@
  */
 package javax.annotation;
 
-import static java.lang.annotation.ElementType.*;
+import javax.annotation.meta.TypeQualifier;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import java.lang.annotation.*;
-
-import javax.annotation.meta.*;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PACKAGE;
+import static java.lang.annotation.ElementType.TYPE;
 
 @Documented
 @TypeQualifier
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value={FIELD,METHOD,PACKAGE,TYPE})
 public @interface DefaultNonNull {
+	boolean value() default true;
 }

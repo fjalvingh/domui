@@ -164,9 +164,6 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	@Nullable
 	private String m_regexpUserString;
 
-	@Nullable
-	private String m_placeHolder;
-
 	public Text2(@Nonnull Class<T> inputClass) {
 		m_inputClass = inputClass;
 
@@ -223,8 +220,10 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		return m_input;
 	}
 
-	protected void setPassword() {
+	@Nonnull
+	public Text2<T> password() {
 		m_password = true;
+		return this;
 	}
 
 	/**
@@ -956,5 +955,13 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 			txt.setErrorLocation(pmm.getDefaultLabel());
 		}
 		return txt;
+	}
+
+	public void setPlaceHolder(String text) {
+		m_input.setPlaceHolder(text);
+	}
+
+	@Nullable public String getPlaceHolder() {
+		return m_input.getPlaceHolder();
 	}
 }

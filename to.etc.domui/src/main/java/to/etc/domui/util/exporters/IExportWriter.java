@@ -1,7 +1,6 @@
 package to.etc.domui.util.exporters;
 
 import javax.annotation.DefaultNonNull;
-import java.io.File;
 import java.util.List;
 
 /**
@@ -9,16 +8,14 @@ import java.util.List;
  * Created on 26-10-17.
  */
 @DefaultNonNull
-public interface IExportWriter<R> {
+public interface IExportWriter<R> extends AutoCloseable {
 	String getMimeType();
 
-	void startExport(File target, List<IExportColumn<?>> columnList) throws Exception;
+	void startExport(List<? extends IExportColumn<?>> columnList) throws Exception;
 
 	void exportRow(R data) throws Exception;
 
 	int getRowLimit();
 
-	void close() throws Exception;
-
-	void finish() throws Exception;
+	@Override void close() throws Exception;
 }

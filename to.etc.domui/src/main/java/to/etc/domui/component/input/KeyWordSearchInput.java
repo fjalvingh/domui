@@ -204,7 +204,7 @@ public class KeyWordSearchInput<T> extends Div implements IForTarget {
 		if(parentWindowZIndex < 0) {
 			parentWindowZIndex = 0;
 		}
-		setZIndex(parentWindowZIndex);
+		setZIndex(parentWindowZIndex+1);			// jal 20171109 z-index 0 does not work with handling popup
 	}
 
 	public void showResultsHintPopup(@Nullable final ITableModel<T> popupResults) throws Exception {

@@ -718,7 +718,8 @@ public class HtmlTagRenderer implements INodeVisitor {
 	 */
 	@Override
 	public void visitDiv(final Div n) throws Exception {
-		setInlineIndent(n);
+		o().setIndentEnabled(false);
+		//setInlineIndent(n);
 		basicNodeRender(n, m_o);
 		if(n.getTag().equals("body")) {
 			o().attr("onunload", "WebUI.unloaded()");
@@ -740,6 +741,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 
 	@Override
 	public void visitSpan(final Span n) throws Exception {
+		o().setIndentEnabled(false);
 		basicNodeRender(n, m_o);
 		renderTagend(n, m_o);
 	}
