@@ -7,6 +7,7 @@ import to.etc.domui.component2.combo.ComboFixed2;
 import to.etc.domui.component2.form4.FormBuilder;
 import to.etc.domui.dom.css.PositionType;
 import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.HTag;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -21,6 +22,8 @@ public class Combo2FFragment extends Div {
 
 
 	@Override public void createContent() throws Exception {
+		add(new HTag(2, "ComboXxxx2 components").css("ui-header"));
+
 		FormBuilder fb = new FormBuilder(this);
 
 		ComboFixed2<PositionType> c10 = ComboFixed2.createEnumCombo(PositionType.class);

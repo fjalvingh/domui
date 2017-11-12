@@ -6,6 +6,7 @@ import to.etc.domui.component.meta.MetaProperty;
 import to.etc.domui.component.meta.YesNoType;
 import to.etc.domui.component2.form4.FormBuilder;
 import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.HTag;
 
 import java.math.BigDecimal;
 
@@ -13,7 +14,7 @@ import java.math.BigDecimal;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 29-10-17.
  */
-public class TextF4Fragment extends Div {
+public class Text1F4Fragment extends Div {
 	private String		m_t20;
 
 	private String		m_t21 = "zzaabb";
@@ -27,6 +28,8 @@ public class TextF4Fragment extends Div {
 	private BigDecimal m_t31 = new BigDecimal("123.45");
 
 	@Override public void createContent() throws Exception {
+		add(new HTag(2, "Text components").css("ui-header"));
+
 		FormBuilder fb = new FormBuilder(this);
 
 		fb.label("$ mandatory").property(this, "t20").control();

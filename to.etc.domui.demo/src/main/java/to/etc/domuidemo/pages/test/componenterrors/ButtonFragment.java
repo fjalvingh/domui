@@ -1,7 +1,6 @@
 package to.etc.domuidemo.pages.test.componenterrors;
 
 import to.etc.domui.component.buttons.DefaultButton;
-import to.etc.domui.component.layout.Caption;
 import to.etc.domui.component.misc.FaIcon;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.TBody;
@@ -34,8 +33,6 @@ public class ButtonFragment extends Div {
 	private TR m_headRow;
 
 	@Override public void createContent() throws Exception {
-		add(new Caption("Buttons component"));
-
 		addAction("Normal", a -> {});
 		addAction("is-dark", a -> a.css("is-dark"));
 		addAction("is-light", a -> a.css("is-light"));

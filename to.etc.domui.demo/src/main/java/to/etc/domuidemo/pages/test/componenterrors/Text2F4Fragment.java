@@ -5,9 +5,10 @@ import to.etc.domui.component.input.Text2;
 import to.etc.domui.component.meta.MetaProperty;
 import to.etc.domui.component.meta.YesNoType;
 import to.etc.domui.component.misc.FaIcon;
+import to.etc.domui.component.misc.VerticalSpacer;
 import to.etc.domui.component2.form4.FormBuilder;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.themes.Theme;
+import to.etc.domui.dom.html.HTag;
 
 import java.math.BigDecimal;
 
@@ -30,7 +31,17 @@ public class Text2F4Fragment extends Div {
 
 	private BigDecimal m_t31 = new BigDecimal("123.45");
 
+	private String 		m_t40 = "Hello, world";
+
+	private String m_t41 = "The time has come, the Walrus said";
+
+	private String m_t50;
+
+	private String m_t51;
+
 	@Override public void createContent() throws Exception {
+		add(new HTag(2, "Text2 components").css("ui-header"));
+
 		FormBuilder fb = new FormBuilder(this);
 
 		fb.label("$ mandatory").property(this, "t20").control();
@@ -38,15 +49,32 @@ public class Text2F4Fragment extends Div {
 		fb.label("integer").property(this, "t22").control();
 
 		Text2<String> t23 = fb.label("string").property(this, "t23").control(Text2.class);
-		t23.addButton(FaIcon.faFile, a -> {}).css("is-primary");
-		t23.addButton(Theme.BTN_EDIT, a -> {}).css("is-link");
-
-		Text2<String> t24 = fb.label("string w/btn").property(this, "t24").control(Text2.class);
-		//t24.addButton().text("Validate");
-		t24.addButton().icon(FaIcon.faCrosshairs);
+			Text2<String> t24 = fb.label("string w/btn").property(this, "t24").control(Text2.class);
 
 		fb.label("bigdecimal empty").property(this, "t30").control();
 		fb.label("bigdecimal 123.45").property(this, "t31").control();
+
+		add(new VerticalSpacer(10));
+		add(new HTag(3, "Text2 allows adding buttons").css("ui-header"));
+
+		Text2<String> t40 = new Text2<>(String.class);
+		t40.addButton(FaIcon.faBell, a -> {});
+		t40.addButton(FaIcon.faFile, a -> {});
+		fb = new FormBuilder(this);
+		fb.property(this, "t40").label("default buttons").control(t40);
+
+		Text2<String> t41 = new Text2<>(String.class);
+		t41.addButton(FaIcon.faBell, a -> {}).css("is-primary");
+		t41.addButton(FaIcon.faCloud, a -> {}).css("is-danger");
+		fb.property(this, "t41").label("is-primary, is-danger").control(t41);
+
+		Text2<String>	t50 = new Text2<>(String.class);
+		t50.addButton(new DefaultButton("Big Button", a -> {}));
+		fb.property(this,"t50").label("Big button").control(t50);
+
+		Text2<String>	t51 = new Text2<>(String.class);
+		t51.addButton(new DefaultButton("Colored Button", a -> {}).css("is-danger"));
+		fb.property(this,"t51").label("Colored button").control(t51);
 
 		add(new DefaultButton("validate", a -> bindErrors()));
 	}
@@ -107,5 +135,37 @@ public class Text2F4Fragment extends Div {
 
 	public void setT24(String t24) {
 		m_t24 = t24;
+	}
+
+	public String getT40() {
+		return m_t40;
+	}
+
+	public void setT40(String t40) {
+		m_t40 = t40;
+	}
+
+	public String getT41() {
+		return m_t41;
+	}
+
+	public void setT41(String t41) {
+		m_t41 = t41;
+	}
+
+	public String getT50() {
+		return m_t50;
+	}
+
+	public void setT50(String t50) {
+		m_t50 = t50;
+	}
+
+	public String getT51() {
+		return m_t51;
+	}
+
+	public void setT51(String t51) {
+		m_t51 = t51;
 	}
 }

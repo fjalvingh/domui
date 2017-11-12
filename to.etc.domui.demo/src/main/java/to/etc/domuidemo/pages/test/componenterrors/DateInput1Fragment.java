@@ -7,6 +7,7 @@ import to.etc.domui.component.meta.TemporalPresentationType;
 import to.etc.domui.component.meta.YesNoType;
 import to.etc.domui.component2.form4.FormBuilder;
 import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.HTag;
 
 import java.util.Date;
 
@@ -31,6 +32,8 @@ public class DateInput1Fragment extends Div {
 
 
 	@Override public void createContent() throws Exception {
+		add(new HTag(2, "DateInput"));
+
 		m_f20 = m_f21 = m_f22 = m_f23 = m_f24 = m_f25 = new Date();
 
 		FormBuilder fb = new FormBuilder(this);

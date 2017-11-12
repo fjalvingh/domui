@@ -16,7 +16,7 @@ public class TextFragment extends Div {
 		TBody tb = addTable("With form builder", "Without form builder");
 		TD td = tb.addRowAndCell();
 		td.setWidth("600px");
-		td.add(new TextF4Fragment());
+		td.add(new Text1F4Fragment());
 		td = tb.addCell();
 		td.setWidth("600px");
 		td.add(new TextRawFragment());

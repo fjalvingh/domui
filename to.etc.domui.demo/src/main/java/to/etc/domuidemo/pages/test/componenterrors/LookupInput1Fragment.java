@@ -2,13 +2,13 @@ package to.etc.domuidemo.pages.test.componenterrors;
 
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.input.LookupInput;
-import to.etc.domui.component.layout.CaptionedHeader;
 import to.etc.domui.component.meta.MetaProperty;
 import to.etc.domui.component.meta.YesNoType;
 import to.etc.domui.component2.form4.FormBuilder;
 import to.etc.domui.derbydata.db.Album;
 import to.etc.domui.derbydata.db.Artist;
 import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.HTag;
 import to.etc.webapp.query.QCriteria;
 
 /**
@@ -41,6 +41,8 @@ public class LookupInput1Fragment extends Div {
 	private Album m_f33;
 
 	@Override public void createContent() throws Exception {
+		add(new HTag(2, "LookupInput component").css("ui-header"));
+
 		QCriteria<Album> q = QCriteria.create(Album.class).eq("title", "Angel Dust");
 		m_f13 = m_f12 = m_f23 = m_f22 = m_f32 = m_f33 = getSharedContext().queryOne(q);
 
@@ -64,7 +66,7 @@ public class LookupInput1Fragment extends Div {
 		fb.property(this, "f13").label("filled 2line val").control(lf13);
 
 		//-- Readonly set
-		add(new CaptionedHeader("ReadOnly"));
+		add(new HTag(3, "ReadOnly").css("ui-header"));
 		fb = new FormBuilder(this);
 		LookupInput<Artist> lf20 = new LookupInput<>(Artist.class);
 		lf20.setMandatory(true);
@@ -88,7 +90,7 @@ public class LookupInput1Fragment extends Div {
 		fb.property(this, "f23").label("filled 2line val").control(lf23);
 
 		//-- disabled set
-		add(new CaptionedHeader("disabled"));
+		add(new HTag(3, "disabled").css("ui-header"));
 		fb = new FormBuilder(this);
 		LookupInput<Artist> lf30 = new LookupInput<>(Artist.class);
 		lf30.setMandatory(true);

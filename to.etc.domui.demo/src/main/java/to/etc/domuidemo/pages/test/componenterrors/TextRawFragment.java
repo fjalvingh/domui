@@ -3,6 +3,7 @@ package to.etc.domuidemo.pages.test.componenterrors;
 import to.etc.domui.component.input.Text;
 import to.etc.domui.component.misc.VerticalSpacer;
 import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.HTag;
 import to.etc.domui.dom.html.Label;
 
 /**
@@ -11,6 +12,8 @@ import to.etc.domui.dom.html.Label;
  */
 public class TextRawFragment extends Div {
 	@Override public void createContent() throws Exception {
+		add(new HTag(2, "Text components").css("ui-header"));
+
 		//-- Single text
 		Div d = new Div("ui-f4-line");
 		add(d);

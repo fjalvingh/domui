@@ -128,10 +128,9 @@ public class DefaultButton extends Button implements IActionControl {
 	 * Add the specified css class(es) to the button.
 	 */
 	@Nonnull
+	@Override
 	public DefaultButton css(String... classNames) {
-		for(String cn : classNames) {
-			addCssClass(cn);
-		}
+		super.css(classNames);
 		return this;
 	}
 

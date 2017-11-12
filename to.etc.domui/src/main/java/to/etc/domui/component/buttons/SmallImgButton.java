@@ -81,10 +81,9 @@ public class SmallImgButton extends Button {
 	 * Add the specified css class(es) to the button.
 	 */
 	@Nonnull
-	public SmallImgButton css(String... classNames) {
-		for(String cn : classNames) {
-			addCssClass(cn);
-		}
+	@Override
+	public SmallImgButton css(@Nonnull String... classNames) {
+		super.css(classNames);
 		return this;
 	}
 
