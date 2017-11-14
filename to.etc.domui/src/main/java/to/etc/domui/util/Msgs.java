@@ -411,4 +411,5 @@ public interface Msgs {
 	static final public String E_BINDING_DEFINITION = "e.binding.definition";
 
 	String EXPORT_BUTTON = "ui.btn.export";
+	String UI_UPLOAD_TEXT = "ui.upload.button";
 }

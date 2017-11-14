@@ -101,6 +101,10 @@ public class FileUpload extends Div implements IUploadAcceptingComponent, IContr
 		m_allowedExtensions = Arrays.asList(allowedExt);
 	}
 
+
+	/**
+	 * Renders the presentation.
+	 */
 	@Override
 	public void createContent() throws Exception {
 		renderSelectedFiles();
@@ -114,6 +118,7 @@ public class FileUpload extends Div implements IUploadAcceptingComponent, IContr
 	@Nullable @Override public NodeBase getForTarget() {
 		return m_input;
 	}
+
 
 	private void renderSelectedFiles() {
 		Table t = new Table();

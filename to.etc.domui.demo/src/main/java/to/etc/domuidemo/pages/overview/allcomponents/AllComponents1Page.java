@@ -12,6 +12,10 @@ public class AllComponents1Page extends UrlPage {
 	@Override public void createContent() throws Exception {
 		Div container = new Div("flex-table");
 		add(container);
+
+		container.add(new HTag(1, "Miscellany").css("ui-header flex-table-header"));
+		container.add(new FileUploadFragment());
+
 		container.add(new HTag(1, "Text components inside a form").css("ui-header flex-table-header"));
 		container.add(new Text2F4Fragment().css("flex-table-column"));
 		container.add(new Text1F4Fragment().css("flex-table-column"));
