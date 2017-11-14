@@ -1,4 +1,4 @@
-package to.etc.domuidemo.pages.test.componenterrors;
+package to.etc.domuidemo.pages.overview.allcomponents;
 
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.misc.FaIcon;

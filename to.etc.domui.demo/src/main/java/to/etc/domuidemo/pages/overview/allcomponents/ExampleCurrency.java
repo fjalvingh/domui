@@ -1,4 +1,4 @@
-package to.etc.domuidemo.pages.test.componenterrors;
+package to.etc.domuidemo.pages.overview.allcomponents;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>

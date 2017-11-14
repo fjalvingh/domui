@@ -1,10 +1,10 @@
-package to.etc.domuidemo.pages.test.componenterrors;
+package to.etc.domuidemo.pages.overview.allcomponents;
 
 import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.input.LookupInput;
 import to.etc.domui.component.meta.MetaProperty;
 import to.etc.domui.component.meta.YesNoType;
 import to.etc.domui.component2.form4.FormBuilder;
-import to.etc.domui.component2.lookupinput.LookupInput2;
 import to.etc.domui.derbydata.db.Album;
 import to.etc.domui.derbydata.db.Artist;
 import to.etc.domui.dom.html.Div;
@@ -15,7 +15,7 @@ import to.etc.webapp.query.QCriteria;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 29-10-17.
  */
-public class LookupInput2Fragment extends Div {
+public class LookupInput1Fragment extends Div {
 	private Artist m_f10;
 
 	private Album m_f11;
@@ -41,26 +41,26 @@ public class LookupInput2Fragment extends Div {
 	private Album m_f33;
 
 	@Override public void createContent() throws Exception {
-		add(new HTag(2, "LookupInput2 component").css("ui-header"));
+		add(new HTag(2, "LookupInput component").css("ui-header"));
 
 		QCriteria<Album> q = QCriteria.create(Album.class).eq("title", "Angel Dust");
 		m_f13 = m_f12 = m_f23 = m_f22 = m_f32 = m_f33 = getSharedContext().queryOne(q);
 
 		FormBuilder fb = new FormBuilder(this);
 
-		LookupInput2<Artist> lf10 = new LookupInput2<>(Artist.class);
+		LookupInput<Artist> lf10 = new LookupInput<>(Artist.class);
 		lf10.setMandatory(true);
 		fb.property(this, "f10").label("empty no quick").control(lf10);
 
-		LookupInput2<Album> lf11 = new LookupInput2<>(Album.class);
+		LookupInput<Album> lf11 = new LookupInput<>(Album.class);
 		lf11.setMandatory(true);
 		fb.property(this, "f11").label("empty quicks").control(lf11);
 
-		LookupInput2<Album> lf12 = new LookupInput2<>(Album.class);
+		LookupInput<Album> lf12 = new LookupInput<>(Album.class);
 		lf12.setMandatory(true);
 		fb.property(this, "f12").label("filled 1line val").control(lf12);
 
-		LookupInput2<Album> lf13 = new LookupInput2<>(Album.class);
+		LookupInput<Album> lf13 = new LookupInput<>(Album.class);
 		lf13.setValueColumns("title", "artist.name");
 		lf13.setMandatory(true);
 		fb.property(this, "f13").label("filled 2line val").control(lf13);
@@ -68,46 +68,46 @@ public class LookupInput2Fragment extends Div {
 		//-- Readonly set
 		add(new HTag(3, "ReadOnly").css("ui-header"));
 		fb = new FormBuilder(this);
-		LookupInput2<Artist> lf20 = new LookupInput2<>(Artist.class);
+		LookupInput<Artist> lf20 = new LookupInput<>(Artist.class);
 		lf20.setMandatory(true);
 		lf20.setReadOnly(true);
 		fb.property(this, "f20").label("empty no quick").control(lf20);
 
-		LookupInput2<Album> lf21 = new LookupInput2<>(Album.class);
+		LookupInput<Album> lf21 = new LookupInput<>(Album.class);
 		lf21.setMandatory(true);
 		lf21.setReadOnly(true);
 		fb.property(this, "f21").label("empty quicks").control(lf21);
 
-		LookupInput2<Album> lf22 = new LookupInput2<>(Album.class);
+		LookupInput<Album> lf22 = new LookupInput<>(Album.class);
 		lf22.setMandatory(true);
 		lf22.setReadOnly(true);
 		fb.property(this, "f22").label("filled 1line val").control(lf22);
 
-		LookupInput2<Album> lf23 = new LookupInput2<>(Album.class);
+		LookupInput<Album> lf23 = new LookupInput<>(Album.class);
 		lf23.setValueColumns("title", "artist.name");
 		lf23.setReadOnly(true);
 		lf23.setMandatory(true);
 		fb.property(this, "f23").label("filled 2line val").control(lf23);
 
 		//-- disabled set
-		add(new HTag(3,"disabled").css("ui-header"));
+		add(new HTag(3, "disabled").css("ui-header"));
 		fb = new FormBuilder(this);
-		LookupInput2<Artist> lf30 = new LookupInput2<>(Artist.class);
+		LookupInput<Artist> lf30 = new LookupInput<>(Artist.class);
 		lf30.setMandatory(true);
 		lf30.setDisabled(true);
 		fb.property(this, "f30").label("empty no quick").control(lf30);
 
-		LookupInput2<Album> lf31 = new LookupInput2<>(Album.class);
+		LookupInput<Album> lf31 = new LookupInput<>(Album.class);
 		lf31.setMandatory(true);
 		lf31.setDisabled(true);
 		fb.property(this, "f31").label("empty quicks").control(lf31);
 
-		LookupInput2<Album> lf32 = new LookupInput2<>(Album.class);
+		LookupInput<Album> lf32 = new LookupInput<>(Album.class);
 		lf32.setMandatory(true);
 		lf32.setDisabled(true);
 		fb.property(this, "f32").label("filled 1line val").control(lf32);
 
-		LookupInput2<Album> lf33 = new LookupInput2<>(Album.class);
+		LookupInput<Album> lf33 = new LookupInput<>(Album.class);
 		lf33.setValueColumns("title", "artist.name");
 		lf33.setDisabled(true);
 		lf33.setMandatory(true);

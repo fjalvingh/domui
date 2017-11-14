@@ -1,7 +1,7 @@
-package to.etc.domuidemo.pages.test.componenterrors;
+package to.etc.domuidemo.pages.overview.allcomponents;
 
 import to.etc.domui.component.buttons.DefaultButton;
-import to.etc.domui.component.input.DateInput;
+import to.etc.domui.component.input.DateInput2;
 import to.etc.domui.component.meta.MetaProperty;
 import to.etc.domui.component.meta.TemporalPresentationType;
 import to.etc.domui.component.meta.YesNoType;
@@ -15,7 +15,7 @@ import java.util.Date;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 29-10-17.
  */
-public class DateInput1Fragment extends Div {
+public class DateInput2Fragment extends Div {
 	private Date m_f10;
 	private Date	m_f11;
 	private Date	m_f12;
@@ -32,46 +32,46 @@ public class DateInput1Fragment extends Div {
 
 
 	@Override public void createContent() throws Exception {
-		add(new HTag(2, "DateInput"));
+		add(new HTag(2, "DateInput2 (based on Text2)"));
 
 		m_f20 = m_f21 = m_f22 = m_f23 = m_f24 = m_f25 = new Date();
 
 		FormBuilder fb = new FormBuilder(this);
-		DateInput d10 = new DateInput();
+		DateInput2 d10 = new DateInput2();
 		fb.property(this, "f10").label("mandatory date").control(d10);
-		DateInput d11 = new DateInput();
+		DateInput2 d11 = new DateInput2();
 		fb.property(this, "f11").label("optional date").control(d11);
-		DateInput d12 = new DateInput();
+		DateInput2 d12 = new DateInput2();
 		d12.setWithTime(true);
 		fb.property(this, "f12").label("mandatory datetime").control(d12);
-		DateInput d13 = new DateInput();
+		DateInput2 d13 = new DateInput2();
 		d13.setWithTime(true);
 		fb.property(this, "f13").label("optional datetime").control(d13);
-		DateInput d14 = new DateInput();
+		DateInput2 d14 = new DateInput2();
 		d14.setDisabled(true);
 		fb.property(this, "f14").label("disabled date").control(d14);
-		DateInput d15 = new DateInput();
+		DateInput2 d15 = new DateInput2();
 		d15.setReadOnly(true);
 		fb.property(this, "f15").label("readonly date").control(d15);
 
-		DateInput d20 = new DateInput();
+		DateInput2 d20 = new DateInput2();
 		fb.property(this, "f20").label("mand date").control(d20);
-		DateInput d21 = new DateInput();
+		DateInput2 d21 = new DateInput2();
 		fb.property(this, "f21").label("optional date").control(d21);
-		DateInput d22 = new DateInput();
+		DateInput2 d22 = new DateInput2();
 		d22.setWithTime(true);
 		fb.property(this, "f22").label("mand datetime").control(d22);
-		DateInput d23 = new DateInput();
+		DateInput2 d23 = new DateInput2();
 		d23.setWithTime(true);
 		fb.property(this, "f23").label("opt datetime").control(d23);
-		DateInput d24 = new DateInput();
+		DateInput2 d24 = new DateInput2();
 		d24.setDisabled(true);
 		fb.property(this, "f24").label("disabled date").control(d24);
-		DateInput d25 = new DateInput();
+		DateInput2 d25 = new DateInput2();
 		d25.setReadOnly(true);
 		fb.property(this, "f25").label("readonly date").control(d25);
 
-		DefaultButton validate = new DefaultButton("validate", a -> bindErrors());
+		DefaultButton validate = new DefaultButton("validate", a -> bindErrors()).css("is-primary");
 		add(validate);
 	}
 

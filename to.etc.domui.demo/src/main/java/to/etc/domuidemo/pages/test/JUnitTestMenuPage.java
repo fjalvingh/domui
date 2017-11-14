@@ -8,7 +8,7 @@ import to.etc.domuidemo.pages.test.binding.conversion.BindingConversionTestForm;
 import to.etc.domuidemo.pages.test.binding.order1.BindingTypeForm1;
 import to.etc.domuidemo.pages.test.binding.order1.DoNotBindControlDottedTestPage;
 import to.etc.domuidemo.pages.test.binding.order1.TestBindingOrder1;
-import to.etc.domuidemo.pages.test.componenterrors.AllComponents1Page;
+import to.etc.domuidemo.pages.overview.allcomponents.AllComponents1Page;
 import to.etc.domuidemo.pages.test.componenterrors.Form4LayoutTestPage;
 import to.etc.domuidemo.pages.test.componenterrors.HtmlEditorTestPage;
 import to.etc.domuidemo.pages.test.componenterrors.LookupForm1TestPage;

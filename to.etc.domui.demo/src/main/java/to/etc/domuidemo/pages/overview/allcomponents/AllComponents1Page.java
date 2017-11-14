@@ -1,4 +1,4 @@
-package to.etc.domuidemo.pages.test.componenterrors;
+package to.etc.domuidemo.pages.overview.allcomponents;
 
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.HTag;
