@@ -35,3 +35,13 @@
 ::-webkit-file-upload-button {
 	cursor: pointer;
 }
+button.ui-fup2-del {
+	@include ui-appearance-none;
+	margin: 0;
+	outline: none;
+	border: none;
+	background: transparent;
+	line-height: $input-line-height;		// FIXME NEW Should be removed for baseline merge?
+	padding: 0 5px 0 0;
+}
+
