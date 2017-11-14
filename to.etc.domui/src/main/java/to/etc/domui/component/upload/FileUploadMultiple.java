@@ -79,7 +79,7 @@ public class FileUploadMultiple extends Div implements IUploadAcceptingComponent
 	private boolean m_readOnly;
 
 	@Nullable
-	private String m_buttonText = Msgs.BUNDLE.getString(Msgs.UI_UPLOAD_TEXT);
+	private String m_buttonText = Msgs.BUNDLE.getString(Msgs.UI_UPLOADMULTI_TEXT);
 
 	@Nullable
 	private String m_clearButtonText;
@@ -111,10 +111,7 @@ public class FileUploadMultiple extends Div implements IUploadAcceptingComponent
 	@Override
 	public void createContent() throws Exception {
 		addCssClass("ui-fup2 ui-control ui-has-addons");
-		if(m_value.size() == 0)
-			renderEmpty();
-		else
-			renderSelected();
+		render();
 	}
 
 	private void renderSelected() {
@@ -136,9 +133,22 @@ public class FileUploadMultiple extends Div implements IUploadAcceptingComponent
 		}
 	}
 
-	private void renderEmpty() {
+	private void render() {
+		Div valueD = new Div("ui-fup2-value-empty ui-control");
+		add(valueD);
+		for(UploadItem uploadItem : m_value) {
+			renderValue(valueD, uploadItem);
+		}
+
+		Div btn = new Div("ui-button ui-control");
+		add(btn);
+		String buttonText = m_buttonText;
+		if(null != buttonText) {
+			btn.add(buttonText);
+		}
+
 		Form f = new Form();
-		add(f);
+		btn.add(f);
 		f.setCssClass("ui-szless");
 		f.setEnctype("multipart/form-data");
 		f.setMethod("POST");
@@ -146,15 +156,6 @@ public class FileUploadMultiple extends Div implements IUploadAcceptingComponent
 		ComponentPartRenderer.appendComponentURL(sb, UploadPart.class, this, UIContext.getRequestContext());
 		sb.append("?uniq=" + System.currentTimeMillis()); // Uniq the URL to prevent IE's caching.
 		f.setAction(sb.toString());
-
-		Div valueD = new Div("ui-fup2-value-empty ui-control");
-		f.add(valueD);
-		Div btn = new Div("ui-button ui-control");
-		f.add(btn);
-		String buttonText = m_buttonText;
-		if(null != buttonText) {
-			btn.add(buttonText);
-		}
 
 		FileInput input = m_input = new FileInput();
 		f.add(input);
@@ -167,13 +168,18 @@ public class FileUploadMultiple extends Div implements IUploadAcceptingComponent
 			input.setSpecialAttribute("fuallowed", values);
 			input.setSpecialAttribute("accept", values);
 		}
+
 		int maxSize = getMaxSize();
 		if(maxSize <= 0)
-			maxSize = 100*1024*1024;
+			maxSize = 100 * 1024 * 1024;
 		input.setSpecialAttribute("fumaxsize", Integer.toString(maxSize));
 	}
 
-
+	private void renderValue(Div valueD, UploadItem uploadItem) {
+		Div d = new Div();
+		valueD.add(d);
+		d.add(uploadItem.getRemoteFileName());
+	}
 
 	@Nullable @Override protected String getFocusID() {
 		FileInput input = m_input;
