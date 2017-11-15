@@ -6,7 +6,7 @@ import to.etc.domui.dom.html.Para;
 import to.etc.domui.dom.html.Span;
 import to.etc.domui.util.DomUtil;
 import to.etc.domuidemo.ComponentListPage;
-import to.etc.domuidemo.GitOptions;
+import to.etc.domui.util.vcs.GitOptions;
 import to.etc.domuidemo.components.SourceIcon;
 import to.etc.domuidemo.pages.cddb.CdCollection;
 import to.etc.domuidemo.pages.test.JUnitTestMenuPage;
