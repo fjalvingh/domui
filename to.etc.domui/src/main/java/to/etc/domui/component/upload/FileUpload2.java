@@ -128,7 +128,7 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 	 */
 	@Override
 	public void createContent() throws Exception {
-		addCssClass("ui-fup2");
+		addCssClass("ui-fup2 ctl-has-addons");
 		UploadItem value = m_value;
 		if(null == value)
 			renderEmpty();
@@ -137,7 +137,7 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 	}
 
 	private void renderSelected(@Nonnull UploadItem value) {
-		Div valueD = new Div("ui-fup2-value");
+		Div valueD = new Div("ui-fup2-value ui-input");
 		add(valueD);
 
 		//-- render the selected file as a name
@@ -151,39 +151,80 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 	}
 
 	private void renderEmpty() {
-		Form f = new Form();
-		add(f);
-		f.setCssClass("ui-szless");
-		f.setEnctype("multipart/form-data");
-		f.setMethod("POST");
-		StringBuilder sb = new StringBuilder();
-		ComponentPartRenderer.appendComponentURL(sb, UploadPart.class, this, UIContext.getRequestContext());
-		sb.append("?uniq=" + System.currentTimeMillis()); // Uniq the URL to prevent IE's caching.
-		f.setAction(sb.toString());
+		if(true) {
+			Div valueD = new Div("ui-fup2-value-empty ui-control ui-input");
+			add(valueD);
 
-		Div valueD = new Div("ui-fup2-value-empty");
-		f.add(valueD);
-		Div btn = new Div("ui-fup2-button ui-button");
-		f.add(btn);
-		String buttonText = m_buttonText;
-		if(null != buttonText) {
-			btn.add(buttonText);
-		}
+			Div buttonDiv = new Div("ui-fup2-button ui-button ui-control ui-input");
+			add(buttonDiv);
 
-		FileInput input = m_input = new FileInput();
-		f.add(input);
-		input.setSpecialAttribute("onkeypress", "WebUI.preventIE11DefaultAction(event)");
-		input.setSpecialAttribute("onchange", "WebUI.fileUploadChange(event)");
-		input.setDisabled(isDisabled() || isReadOnly());
-		if(m_allowedExtensions.size() > 0) {
-			String values = m_allowedExtensions.stream().map(s -> s.startsWith(".") || s.contains("/") ? s : "." + s).collect(Collectors.joining(","));
-			input.setSpecialAttribute("fuallowed", values);
-			input.setSpecialAttribute("accept", values);
+			Form f = new Form();
+			buttonDiv.add(f);
+			f.setCssClass("ui-szless");
+			f.setEnctype("multipart/form-data");
+			f.setMethod("POST");
+			StringBuilder sb = new StringBuilder();
+			ComponentPartRenderer.appendComponentURL(sb, UploadPart.class, this, UIContext.getRequestContext());
+			sb.append("?uniq=" + System.currentTimeMillis()); // Uniq the URL to prevent IE's caching.
+			f.setAction(sb.toString());
+
+			//Div btn = new Div("ui-fup2-button ui-button ui-control");
+			Div btn = new Div("ui-fup2-button");
+			f.add(btn);
+			String buttonText = m_buttonText;
+			if(null != buttonText) {
+				btn.add(buttonText);
+			}
+
+			FileInput input = m_input = new FileInput();
+			f.add(input);
+			input.setSpecialAttribute("onkeypress", "WebUI.preventIE11DefaultAction(event)");
+			input.setSpecialAttribute("onchange", "WebUI.fileUploadChange(event)");
+			input.setDisabled(isDisabled() || isReadOnly());
+			if(m_allowedExtensions.size() > 0) {
+				String values = m_allowedExtensions.stream().map(s -> s.startsWith(".") || s.contains("/") ? s : "." + s).collect(Collectors.joining(","));
+				input.setSpecialAttribute("fuallowed", values);
+				input.setSpecialAttribute("accept", values);
+			}
+			int maxSize = getMaxSize();
+			if(maxSize <= 0)
+				maxSize = 100 * 1024 * 1024;
+			input.setSpecialAttribute("fumaxsize", Integer.toString(maxSize));
+		} else {
+			Form f = new Form();
+			add(f);
+			f.setCssClass("ui-szless");
+			f.setEnctype("multipart/form-data");
+			f.setMethod("POST");
+			StringBuilder sb = new StringBuilder();
+			ComponentPartRenderer.appendComponentURL(sb, UploadPart.class, this, UIContext.getRequestContext());
+			sb.append("?uniq=" + System.currentTimeMillis()); // Uniq the URL to prevent IE's caching.
+			f.setAction(sb.toString());
+
+			Div valueD = new Div("ui-fup2-value-empty ui-control ui-input");
+			f.add(valueD);
+			Div btn = new Div("ui-fup2-button ui-button ui-control ui-input");
+			f.add(btn);
+			String buttonText = m_buttonText;
+			if(null != buttonText) {
+				btn.add(buttonText);
+			}
+
+			FileInput input = m_input = new FileInput();
+			f.add(input);
+			input.setSpecialAttribute("onkeypress", "WebUI.preventIE11DefaultAction(event)");
+			input.setSpecialAttribute("onchange", "WebUI.fileUploadChange(event)");
+			input.setDisabled(isDisabled() || isReadOnly());
+			if(m_allowedExtensions.size() > 0) {
+				String values = m_allowedExtensions.stream().map(s -> s.startsWith(".") || s.contains("/") ? s : "." + s).collect(Collectors.joining(","));
+				input.setSpecialAttribute("fuallowed", values);
+				input.setSpecialAttribute("accept", values);
+			}
+			int maxSize = getMaxSize();
+			if(maxSize <= 0)
+				maxSize = 100 * 1024 * 1024;
+			input.setSpecialAttribute("fumaxsize", Integer.toString(maxSize));
 		}
-		int maxSize = getMaxSize();
-		if(maxSize <= 0)
-			maxSize = 100*1024*1024;
-		input.setSpecialAttribute("fumaxsize", Integer.toString(maxSize));
 	}
 
 
@@ -270,7 +311,7 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 			return;
 
 		m_allowedExtensions = new ArrayList<>(allowedExtensions);
-		changed();
+		forceRebuild();
 	}
 
 	/**

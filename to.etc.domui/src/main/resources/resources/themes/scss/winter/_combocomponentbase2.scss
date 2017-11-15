@@ -37,7 +37,10 @@
 		&::-ms-expand {
 			display: none;
 		}
-
+		&:-moz-focusring {
+			color: transparent;
+			text-shadow: 0 0 0 #000;
+		}
 		&[disabled]:hover {
 			border-color: $input-disabled-border-color;
 		}

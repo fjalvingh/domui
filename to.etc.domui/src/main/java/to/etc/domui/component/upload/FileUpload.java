@@ -74,7 +74,7 @@ public class FileUpload extends Div implements IUploadAcceptingComponent, IContr
 
 	private int m_maxFiles = 1;
 
-	List<UploadItem> m_files = new ArrayList<UploadItem>();
+	private List<UploadItem> m_files = new ArrayList<UploadItem>();
 
 	private FileInput m_input;
 

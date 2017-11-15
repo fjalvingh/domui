@@ -63,23 +63,23 @@ input[type=checkbox] {
 	padding-top: 2px;
 }
 
-input[type=file] {
-	padding: 0px !important;
-	cursor: pointer;
-}
-
-input[type=file]::-ms-value {
-	@include ui-beveled-border;
-	padding: 0;
-}
-
-input[type=file]::-ms-browse {
-	border: 0;
-}
-
-input[type=file]::-webkit-file-upload-button {
-	cursor: pointer;
-}
+//input[type=file] {
+//	padding: 0px !important;
+//	cursor: pointer;
+//}
+//
+//input[type=file]::-ms-value {
+//	@include ui-beveled-border;
+//	padding: 0;
+//}
+//
+//input[type=file]::-ms-browse {
+//	border: 0;
+//}
+//
+//input[type=file]::-webkit-file-upload-button {
+//	cursor: pointer;
+//}
 
 //input[type="text"], input[type="password"] { 20170911 Messes up baseline alignment between form label and form input
 //	height: 16px;

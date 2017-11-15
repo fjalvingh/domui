@@ -111,7 +111,7 @@ public class FileUploadMultiple extends Div implements IUploadAcceptingComponent
 	 */
 	@Override
 	public void createContent() throws Exception {
-		addCssClass("ui-fup2 ui-control ui-has-addons");
+		addCssClass("ui-fup2 ui-control ctl-has-addons");
 		render();
 	}
 
@@ -135,7 +135,7 @@ public class FileUploadMultiple extends Div implements IUploadAcceptingComponent
 	}
 
 	private void render() {
-		Div valueD = new Div("ui-fup2-value-empty ui-control");
+		Div valueD = new Div("ui-fup2-value-empty ui-control ui-input");
 		add(valueD);
 		for(UploadItem uploadItem : m_value) {
 			renderValue(valueD, uploadItem);

@@ -28,10 +28,7 @@ $control-padding-horizontal: calc(0.625em - 1px) !default;
 	height: 2.25em;
 	justify-content: flex-start;
 	line-height: 1.5;
-	padding-bottom: $control-padding-vertical;
-	padding-left: $control-padding-horizontal;
-	padding-right: $control-padding-horizontal;
-	padding-top: $control-padding-vertical;
+	padding: $control-padding-vertical $control-padding-horizontal;
 	position: relative;
 	vertical-align: top;
 
@@ -55,12 +52,11 @@ $control-padding-horizontal: calc(0.625em - 1px) !default;
 
 	line-height: $input-line-height;		// FIXME NEW Should be removed for baseline merge?
 	height: 2.25em;
-	border: 1px solid #dbdbdb;
+	border: 1px solid $border; // $input-border-color;
 	border-radius: 3px;
 	font-size: 1rem;
 	font-family: $font-family;				// 20170913 Needed because this is unset in the browser??
 	box-shadow: inset 0 1px 2px rgba(10, 10, 10, 0.1);
-	//border-color: #dbdbdb;
 
 	&:focus {
 		border-color: #3273dc;

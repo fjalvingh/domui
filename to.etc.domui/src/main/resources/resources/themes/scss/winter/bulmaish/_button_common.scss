@@ -45,7 +45,7 @@ $button-static-border-color: $grey-lighter !default;
 	@include unselectable;
 
 	background-color: $button-background-color;
-	border-color: $button-border-color;
+	border: 1px solid $button-border-color;
 	color: $button-color;
 	cursor: pointer;
 	justify-content: center;

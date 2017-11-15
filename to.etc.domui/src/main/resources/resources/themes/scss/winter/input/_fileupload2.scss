@@ -4,15 +4,18 @@
 	font-size: 1rem;
 }
 .ui-fup2-value-empty, .ui-fup2-value {
+	@include ui-control-base;
 	display: inline-block;
-	position: relative;
-	min-height: 2.25rem;
-	line-height: 1.5em;
+	border: 1px solid $border;
+	min-height: 2.25em;
+	height: auto;
+	//position: relative;
+	//min-height: 2.25rem;
+	//line-height: 1.5em;
 	min-width: 20em;
-	font-size: 1rem;
-	padding: $control-padding-vertical $control-padding-horizontal;
-	border: 1px solid #aaa;
-	border-radius: 0.25rem 0 0 0.25rem;
+	//font-size: 1rem;
+	//padding: $control-padding-vertical $control-padding-horizontal;
+	//border-radius: 0.25rem 0 0 0.25rem;
 	background-color: white;
 }
 .ui-fup2 input[type="file"] {
