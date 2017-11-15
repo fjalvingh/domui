@@ -128,7 +128,7 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 	 */
 	@Override
 	public void createContent() throws Exception {
-		addCssClass("ui-fup2 ui-control ui-has-addons");
+		addCssClass("ui-fup2");
 		UploadItem value = m_value;
 		if(null == value)
 			renderEmpty();
@@ -161,9 +161,9 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 		sb.append("?uniq=" + System.currentTimeMillis()); // Uniq the URL to prevent IE's caching.
 		f.setAction(sb.toString());
 
-		Div valueD = new Div("ui-fup2-value-empty ui-control");
+		Div valueD = new Div("ui-fup2-value-empty");
 		f.add(valueD);
-		Div btn = new Div("ui-button ui-control");
+		Div btn = new Div("ui-fup2-button ui-button");
 		f.add(btn);
 		String buttonText = m_buttonText;
 		if(null != buttonText) {
