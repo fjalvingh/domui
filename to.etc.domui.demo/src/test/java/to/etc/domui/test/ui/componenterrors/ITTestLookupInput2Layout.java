@@ -29,6 +29,7 @@ public class ITTestLookupInput2Layout extends AbstractWebDriverTest {
 		Assert.assertTrue("Control one must span one line", one.getSize().height < 30);
 	}
 
+	@Ignore("While redesigning")
 	@Test
 	public void testOneLineForTwo() throws Exception {
 		WebElement two = wd().getElement("two");

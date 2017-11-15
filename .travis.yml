@@ -25,7 +25,7 @@ deploy:
   provider: script
   script: scripts/demo-deploy $DEPLOY_KEY
   on:
-    branch: master
+    branch: master testing
 
 before_install:
 - scripts/beforeInstall

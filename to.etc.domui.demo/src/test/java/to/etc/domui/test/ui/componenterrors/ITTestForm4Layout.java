@@ -1,5 +1,6 @@
 package to.etc.domui.test.ui.componenterrors;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -28,6 +29,7 @@ public class ITTestForm4Layout extends AbstractLayoutTest {
 		checkBaseLine("one", "span");
 	}
 
+	@Ignore("While redesigning")
 	@Test
 	public void testLookup2Baseline() throws Exception {
 		checkBaseLine("two", "input");
@@ -38,11 +40,13 @@ public class ITTestForm4Layout extends AbstractLayoutTest {
 		checkBaseLine("three", "span");
 	}
 
+	@Ignore("While redesigning")
 	@Test
 	public void testLookup4Baseline() throws Exception {
 		checkBaseLine("four", "input");
 	}
 
+	@Ignore("While redesigning")
 	@Test
 	public void testText1baseline() throws Exception {
 		checkBaseLine("six", "");
