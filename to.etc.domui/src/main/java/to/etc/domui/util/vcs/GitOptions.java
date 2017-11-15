@@ -1,4 +1,4 @@
-package to.etc.domuidemo;
+package to.etc.domui.util.vcs;
 
 import java.io.InputStream;
 import java.util.Properties;
