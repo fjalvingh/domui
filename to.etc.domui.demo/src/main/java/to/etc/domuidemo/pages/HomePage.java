@@ -53,15 +53,17 @@ public class HomePage extends MenuPage {
 		Div commits = new Div("d-git-commits");
 		add(commits);
 
-		if(GitOptions.hasProperties()) {
+		GitOptions options = GitOptions.get("domui.git.properties");
+
+		if(options.hasProperties()) {
 			commits.add(new Span("d-git-lbl", "commit"));
-			commits.add(new Span("d-git-val", GitOptions.getCommit()));
+			commits.add(new Span("d-git-val", options.getCommit()));
 
 			commits.add(new Span("d-git-lbl", " on "));
-			commits.add(new Span("d-git-val", GitOptions.getCommitDate()));
+			commits.add(new Span("d-git-val", options.getCommitDate()));
 
 			commits.add(new Span("d-git-lbl", " at "));
-			commits.add(new Span("d-git-val", GitOptions.getCommitDate()));
+			commits.add(new Span("d-git-val", options.getCommitDate()));
 		}
 	}
 }

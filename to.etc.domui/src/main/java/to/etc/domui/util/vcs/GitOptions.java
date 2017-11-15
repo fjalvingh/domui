@@ -1,47 +1,55 @@
 package to.etc.domui.util.vcs;
 
+import javax.annotation.Nonnull;
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 29-8-17.
  */
 final public class GitOptions {
-	private static Properties m_properties;
+	private static ConcurrentHashMap<String, GitOptions> m_map = new ConcurrentHashMap<>();
 
-	private GitOptions() {
+	private Properties m_properties;
+
+	private GitOptions(Properties p) {
+		m_properties = p;
 	}
 
-	static synchronized private Properties getProperties() {
-		Properties properties = m_properties;
-		if(null == properties) {
-			m_properties = properties = new Properties();
-			try(InputStream is = GitOptions.class.getResourceAsStream("/git.properties")) {
-				properties.load(is);
+	@Nonnull
+	static public GitOptions get(String name) {
+		GitOptions g = m_map.get(name);
+		if(null == g) {
+			Properties p = new Properties();
+			try(InputStream is = GitOptions.class.getResourceAsStream("/" + name)) {
+				p.load(is);
 			} catch(Exception x) {
 			}
+			g = new GitOptions(p);
+			m_map.put(name, g);
 		}
-		return properties;
+		return g;
 	}
 
-	static public boolean hasProperties() {
-		return getProperties().size() != 0;
+	public boolean hasProperties() {
+		return m_properties.size() != 0;
 	}
 
-	static public String getCommit() {
-		return getProperties().getProperty("git.commit.id");
+	public String getCommit() {
+		return m_properties.getProperty("git.commit.id");
 	}
 
-	static public String getBuildDate() {
-		return getProperties().getProperty("git.build.time");
+	public String getBuildDate() {
+		return m_properties.getProperty("git.build.time");
 	}
 
-	static public String getCommitDate() {
-		return getProperties().getProperty("git.commit.time");
+	public String getCommitDate() {
+		return m_properties.getProperty("git.commit.time");
 	}
 
-	static public String getLastCommitter() {
-		return getProperties().getProperty("git.commit.user.email");
+	public String getLastCommitter() {
+		return m_properties.getProperty("git.commit.user.email");
 	}
 }
