@@ -40,6 +40,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
+ * Please use {@link FileUpload2} or {@link FileUploadMultiple}.
+ *
  * Represents a file upload thingy which handles ajaxy uploads. The basic model
  * is as follows:
  * <ul>
@@ -64,6 +66,7 @@ import java.util.stream.Collectors;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 13, 2008
  */
+@Deprecated
 public class FileUpload extends Div implements IUploadAcceptingComponent, IControl<UploadItem> /* implements IHasChangeListener */ {
 	@Nonnull
 	private List<String> m_allowedExtensions;
