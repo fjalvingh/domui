@@ -29,8 +29,6 @@
 	input {
 		@include ui-input-base;
 		margin: 0;
-		padding: 0;
-		line-height: $form-line-height;		// Important: this defines where the baseline is! Mirror the same setting on input.
 	}
 
 	&.ui-input-err input {

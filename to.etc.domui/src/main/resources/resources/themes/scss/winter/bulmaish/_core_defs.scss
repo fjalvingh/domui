@@ -27,7 +27,7 @@ $control-padding-horizontal: calc(0.625em - 1px) !default;
 	font-size: $size-normal;
 	height: 2.25em;
 	justify-content: flex-start;
-	line-height: 1.5;
+	line-height: $input-line-height;
 	padding: $control-padding-vertical $control-padding-horizontal;
 	position: relative;
 	vertical-align: top;
@@ -47,21 +47,18 @@ $control-padding-horizontal: calc(0.625em - 1px) !default;
 
 @mixin ui-input-base {
 	@include ui-appearance-none;
-	padding-bottom: calc(0.375em - 1px);
-	padding-top: calc(0.375em - 1px);
+	@include ui-control-base;
+	@include ui-focus-border;
 
-	line-height: $input-line-height;		// FIXME NEW Should be removed for baseline merge?
+	padding: $control-padding-vertical $control-padding-horizontal;
+
+	line-height: $input-line-height;
 	height: 2.25em;
 	border: 1px solid $border; // $input-border-color;
 	border-radius: 3px;
 	font-size: 1rem;
 	font-family: $font-family;				// 20170913 Needed because this is unset in the browser??
 	box-shadow: inset 0 1px 2px rgba(10, 10, 10, 0.1);
-
-	&:focus {
-		border-color: #3273dc;
-		box-shadow: 0 0 0 0.125em rgba(50, 115, 220, 0.25);
-	}
 }
 
 @mixin ui-focus-border {
