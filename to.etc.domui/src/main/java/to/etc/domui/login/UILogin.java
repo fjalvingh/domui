@@ -197,7 +197,7 @@ public class UILogin {
 		hs.setAttribute(IMPERSONATION_KEY, user);
 	}
 
-	static public void impersonate(@Nonnull String userId) throws Exception {
+	static public void impersonateByLoginId(@Nonnull String userId) throws Exception {
 		//-- Be sure the current user is allowed this.
 		IUser realUser = getRealUser();
 		if(null == realUser)
