@@ -76,6 +76,8 @@ public class ExcelExportWriter<T> implements IExportWriter<T> {
 	@Nullable
 	private File m_target;
 
+	private boolean m_started;
+
 	public ExcelExportWriter(ExcelFormat format, File target) {
 		m_target = target;
 		m_format = format;
@@ -83,6 +85,9 @@ public class ExcelExportWriter<T> implements IExportWriter<T> {
 	}
 
 	@Override public void startExport(List<? extends IExportColumn<?>> columnList) throws Exception {
+		if(m_started)
+			throw new IllegalArgumentException("The writer was already started");
+		m_started = true;
 		m_columnList = columnList;
 		Workbook wb = m_workbook = createWorkbook();
 		Font defaultFont = wb.createFont();
@@ -149,6 +154,9 @@ public class ExcelExportWriter<T> implements IExportWriter<T> {
 	}
 
 	@Override public void close() throws Exception {
+		if(! m_started)
+			return;
+
 		try(OutputStream out = new FileOutputStream(Objects.requireNonNull(m_target))) {
 			getWorkbook().write(out);
 		}
