@@ -72,7 +72,7 @@ public class UIContext {
 		m_current.set(rc);
 		boolean ok = false;
 		try {
-			UILogin.setCurrentUser(UILogin.internalGetLoggedInUser(rc));
+			UILogin.internalSetLoggedInUser(rc);
 			ok = true;
 		} finally {
 			if(!ok)

@@ -7,6 +7,8 @@ import to.etc.domui.server.IServerSession;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.state.UIContext;
 
+import javax.annotation.DefaultNonNull;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpSession;
@@ -16,10 +18,21 @@ import java.util.List;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 10-11-17.
  */
+@DefaultNonNull
 public class UILogin {
 	static private volatile ILoginHandler	m_loginHandler = new DefaultLoginHandler();
 
-	static private ThreadLocal<IUser> m_currentUser = new ThreadLocal<IUser>();
+	/**
+	 * Contains, for the current request, the user that is to be considered the
+	 * "actual user". When impersonating this contains the impersonated user.
+	 */
+	static private ThreadLocal<IUser> m_currentUser = new ThreadLocal<>();
+
+	/**
+	 * If impersonation is active this contains the user ID of the actual user,
+	 * i.e. the original user that impersonated the new user.
+	 */
+	static private ThreadLocal<IUser> m_impersonator = new ThreadLocal<>();
 
 	private UILogin() {
 	}
@@ -36,6 +49,17 @@ public class UILogin {
 
 	static public void setCurrentUser(@Nullable IUser user) {
 		m_currentUser.set(user);
+		if(null == user) {
+			m_impersonator.set(null);
+		}
+	}
+
+	/**
+	 * If impersonation is active this is the actual user that was doing the impersonation.
+	 */
+	@Nullable
+	static public IUser getImpersonator() {
+		return m_impersonator.get();
 	}
 
 	public static ILoginHandler getLoginHandler() {
@@ -45,15 +69,20 @@ public class UILogin {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Login page logic. Temporary location.				*/
 	/*--------------------------------------------------------------*/
-	static public final String LOGIN_KEY = IUser.class.getName();
+	static public final String LOGIN_KEY = IUser.class.getName() + ".user";
+
+	static public final String IMPERSONATION_KEY = IUser.class.getName() + ".impersonated";
 
 	/**
 	 * UNSTABLE INTERFACE. This tries to retrieve an IUser context for the user. It tries to
 	 * retrieve a copy from the HttpSession. The AppSession is not used; this allows a login
 	 * to persist when running in DEBUG mode, where AppSessions are destroyed when a class
-	 * is changed.
+	 * is changed. This does not handle impersonation: that is done later.
+	 *
+	 * @return The actual IUser if logged in (not the impersonated one) - or null if not logged in.
 	 */
-	static public IUser internalGetLoggedInUser(final IRequestContext rx) throws Exception {
+	@Nullable
+	static private IUser internalGetLoggedInUser(final IRequestContext rx) throws Exception {
 		if(!(rx instanceof RequestContextImpl))
 			return null;
 		RequestContextImpl rci = (RequestContextImpl) rx;
@@ -134,10 +163,62 @@ public class UILogin {
 	}
 
 	/**
+	 * Returns the real user, i.e. the impersonator if impersonating.
+	 */
+	@Nullable
+	static public IUser	getRealUser() {
+		IUser impersonator = getImpersonator();
+		if(null != impersonator)
+			return impersonator;
+		return m_currentUser.get();
+	}
+
+	/**
+	 * Impersonate the specified user. The user should not be yourself. Setting to null
+	 * means stop impersonating.
+	 */
+	static public void impersonate(@Nullable IUser user) {
+		IUser real = getRealUser();
+		if(null == real)
+			throw new IllegalStateException("There is no currently logged in user");
+		IRequestContext rc = UIContext.getRequestContext();
+		IServerSession hs = rc.getServerSession(true);
+		if(null == hs)
+			throw new IllegalStateException("There is no http session available");
+
+		if(real == user || real.equals(user) || user == null) {
+			setCurrentUser(real);
+			m_impersonator.set(null);
+			hs.setAttribute(IMPERSONATION_KEY, null);
+			return;
+		}
+		m_currentUser.set(user);
+		m_impersonator.set(real);
+		hs.setAttribute(IMPERSONATION_KEY, user);
+	}
+
+	static public void impersonate(@Nonnull String userId) throws Exception {
+		//-- Be sure the current user is allowed this.
+		IUser realUser = getRealUser();
+		if(null == realUser)
+			throw new IllegalStateException("There is no currently logged in user");
+		if(! realUser.canImpersonate())
+			throw new ImpersonationFailedException("You have no rights to impersonate");
+
+		//-- Ask login provider for an IUser instance.
+		IRequestContext rc = UIContext.getRequestContext();
+		ILoginAuthenticator la = rc.getApplication().getLoginAuthenticator();
+		if(null == la)
+			throw new IllegalStateException("No login authenticator is set in DomApplication");
+
+		IUser user = la.authenticateUser(userId, null);				// Passwordless authentication
+		if(user == null)
+			throw new ImpersonationFailedException("Could not log in as user '" + userId + "'");
+		impersonate(user);
+	}
+
+	/**
 	 * Logs in a user. If he was logged in before he is logged out.
-	 * @param userid
-	 * @param password
-	 * @return
 	 */
 	static public boolean login(final String userid, final String password) throws Exception {
 		return UILogin.getLoginHandler().login(userid, password) == LoginResult.SUCCESS;
@@ -175,6 +256,7 @@ public class UILogin {
 
 			//-- Force logout
 			hs.setAttribute(LOGIN_KEY, null);
+			hs.setAttribute(IMPERSONATION_KEY, null);
 			m_currentUser.set(null);
 			try {
 				hs.invalidate();
@@ -185,7 +267,8 @@ public class UILogin {
 		}
 	}
 
-	public static Cookie createLoginCookie(final long l) throws Exception {
+	@Nullable
+	public static Cookie createLoginCookie(long l) throws Exception {
 		IUser user = m_currentUser.get();
 		if(user == null)
 			return null;
@@ -232,4 +315,26 @@ public class UILogin {
 		return false;
 	}
 
+	/**
+	 * Called when a request enters the server to set the current login.
+	 */
+	public static void internalSetLoggedInUser(IRequestContext rc) throws Exception {
+		IUser user = UILogin.internalGetLoggedInUser(rc);
+		if(null == user) {
+			setCurrentUser(null);
+			return;
+		}
+		IServerSession hs = rc.getServerSession(false);
+		if(hs != null) {
+			Object o = hs.getAttribute(IMPERSONATION_KEY);
+			if(o instanceof IUser) {
+				//-- Impersonation is active.
+				m_impersonator.set(user);						// The actual login
+				user = (IUser) o;								// And the one we're impersonating is the "current user"
+
+			}
+		}
+
+		setCurrentUser(user);
+	}
 }
