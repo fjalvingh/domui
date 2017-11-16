@@ -1,5 +1,6 @@
 package to.etc.domui.derbydata.init;
 
+import org.jetbrains.annotations.NotNull;
 import to.etc.dbpool.ConnectionPool;
 import to.etc.dbpool.PoolManager;
 import to.etc.util.DeveloperOptions;
@@ -32,6 +33,10 @@ final public class TestDB {
 		}
 		System.out.println("Database path is " + path);
 
+		return getPool(path);
+	}
+
+	@NotNull private static ConnectionPool getPool(String path) throws Exception {
 		ConnectionPool pool = m_pool;
 		if(null == pool) {
 			String poolid = DeveloperOptions.getString("domuidemo.poolid"); // Is a poolid defined in .developer.proeprties? Then use that,
@@ -59,6 +64,9 @@ final public class TestDB {
 
 	static public DataSource	getDataSource() throws Exception {
 		return getPool().getPooledDataSource();
+	}
+	static public DataSource	getDataSource(String path) throws Exception {
+		return getPool(path).getPooledDataSource();
 	}
 
 	static public void initialize() throws Exception {

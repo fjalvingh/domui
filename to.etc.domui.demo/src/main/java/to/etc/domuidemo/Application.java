@@ -18,6 +18,7 @@ import to.etc.domuidemo.components.*;
 import to.etc.domuidemo.pages.*;
 import to.etc.domuidemo.sourceviewer.*;
 import to.etc.formbuilder.pages.*;
+import to.etc.webapp.query.QContextManager;
 
 import javax.annotation.*;
 import javax.servlet.*;
@@ -168,7 +169,14 @@ public class Application extends DomApplication {
 	 * @throws Exception
 	 */
 	private void initDatabase() throws Exception {
-		TestDB.initialize();
+		File appFile = getAppFile(".").getAbsoluteFile();
+		String context = appFile.getParentFile().getName();
+		File dbPath = new File("/tmp/" + context + "DB");
+
+		DbUtil.initialize(TestDB.getDataSource(dbPath.toString()));
+
+		//-- Tell the generic layer how to create default DataContext's.
+		QContextManager.setImplementation(QContextManager.DEFAULT, DbUtil.getContextSource()); // Prime factory with connection source
 	}
 
 	static public void main(String[] args) {
