@@ -206,14 +206,15 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		List<NodeBase> buttonList = m_buttonList;
 		if(null != buttonList && buttonList.size() > 0) {
 			buttonList.forEach(b -> {
-				Div d = new Div("ui-control");
-				add(d);
-				d.add(b);
+				//Div d = new Div("ui-control");
+				//add(d);
+				//d.add(b);
+				add(b);
 			});
-			addCssClass("ui-has-addons");
+			addCssClass("ctl-has-addons");
 			return;
 		}
-		removeCssClass("ui-has-addons");
+		removeCssClass("ctl-has-addons");
 	}
 
 	protected Input internalGetInput() {

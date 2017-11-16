@@ -1,39 +1,16 @@
-
-//.ui-has-addons .ui-control {
-//	.ui-input, .ui-button {
-//		border-radius: 0;
-//	}
-//}
-//
-//.ui-has-addons .ui-control > * {			// hide the borders between the buttons
-//	border-left-width: 0;
-//	//border-right-width: 0;
-//}
-//
-//.ui-has-addons .ui-control:first-child .ui-input, .ui-has-addons .ui-control:first-child .ui-button {
-//	border-bottom-left-radius: 3px;
-//	border-top-left-radius: 3px;
-//	border-left-width: 1px;
-//}
-//
-//.ui-has-addons .ui-control:last-child > * {
-//	border-bottom-right-radius: 3px;
-//	border-top-right-radius: 3px;
-//}
-
 /*** Form layer ***/
-.ui-has-addons .control:not(:first-child) {
+.ui-has-addons .ui-control:not(:first-child) {
 	&, .ui-input, .ui-button {
 		border-bottom-left-radius: 0px;
 		border-top-left-radius: 0px;
 	}
 }
-.ui-has-addons .control:not(:last-child) {
+.ui-has-addons .ui-control:not(:last-child) {
 	.ui-input, .ui-button {
 		border-bottom-right-radius: 0px;
 		border-top-right-radius: 0px;
+		margin-right: -1px;
 	}
-	margin-right: -1px;
 }
 
 /*** Control layer ***/
@@ -45,6 +22,20 @@
 	&:not(:last-child) {
 		border-bottom-right-radius: 0;
 		border-top-right-radius: 0;
+		margin-right: -1px;
 	}
-	margin-right: -1px;
+	//margin-right: -1px;
+}
+.ctl-has-addons .ui-control:not(:first-child) {
+	&, .ui-input, .ui-button {
+		border-bottom-left-radius: 0px;
+		border-top-left-radius: 0px;
+	}
+}
+.ctl-has-addons .ui-control:not(:last-child) {
+	.ui-input, .ui-button {
+		border-bottom-right-radius: 0px;
+		border-top-right-radius: 0px;
+		margin-right: -1px;
+	}
 }

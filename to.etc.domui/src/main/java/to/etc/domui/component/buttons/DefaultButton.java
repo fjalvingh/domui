@@ -72,6 +72,7 @@ public class DefaultButton extends Button implements IActionControl {
 	public DefaultButton() {
 		addCssClass("xxui-sdbtn");
 		addCssClass("ui-button");
+		addCssClass("ui-control");
 	}
 
 	/**
