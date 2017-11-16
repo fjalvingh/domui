@@ -1,10 +1,12 @@
 package to.etc.domui.server;
 
-import javax.annotation.*;
-import javax.servlet.http.*;
+import to.etc.domui.login.IUser;
+import to.etc.domui.login.UILogin;
 
-import to.etc.domui.login.*;
-import to.etc.domui.state.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 /**
  * This login determinator uses declarative security to determine the logged-in user.
@@ -20,7 +22,7 @@ final public class DefaultLoginDeterminator implements ILoginDeterminator {
 		String remoteUser = req.getRemoteUser();
 		if(remoteUser == null || remoteUser.length() == 0) {
 			HttpSession hs = req.getSession();
-			Object sval = hs.getAttribute(UIContext.LOGIN_KEY); // Try to find the key,
+			Object sval = hs.getAttribute(UILogin.LOGIN_KEY); // Try to find the key,
 			if(sval == null)
 				return null;
 			if(!(sval instanceof IUser))
