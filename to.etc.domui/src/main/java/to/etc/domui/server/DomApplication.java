@@ -24,46 +24,113 @@
  */
 package to.etc.domui.server;
 
-import org.slf4j.*;
-import to.etc.domui.ajax.*;
+import org.apache.poi.ss.formula.functions.T;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import to.etc.domui.ajax.AjaxRequestHandler;
 import to.etc.domui.component.binding.DefaultBindingHandler;
 import to.etc.domui.component.binding.IBindingHandler;
 import to.etc.domui.component.binding.IBindingHandlerFactory;
-import to.etc.domui.component.controlfactory.*;
-import to.etc.domui.component.delayed.*;
-import to.etc.domui.component.layout.*;
-import to.etc.domui.component.layout.title.*;
-import to.etc.domui.component.lookup.*;
-import to.etc.domui.component2.controlfactory.*;
-import to.etc.domui.dom.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.header.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.dom.webaction.*;
-import to.etc.domui.injector.*;
+import to.etc.domui.component.controlfactory.ControlBuilder;
+import to.etc.domui.component.controlfactory.ControlFactoryMoney;
+import to.etc.domui.component.controlfactory.PropertyControlFactory;
+import to.etc.domui.component.delayed.IAsyncListener;
+import to.etc.domui.component.layout.ErrorPanel;
+import to.etc.domui.component.layout.title.AppPageTitleBar;
+import to.etc.domui.component.layout.title.BasePageTitleBar;
+import to.etc.domui.component.lookup.ILookupControlFactory;
+import to.etc.domui.component2.controlfactory.ControlCreatorRegistry;
+import to.etc.domui.dom.HtmlFullRenderer;
+import to.etc.domui.dom.HtmlTagRenderer;
+import to.etc.domui.dom.IBrowserOutput;
+import to.etc.domui.dom.IHtmlRenderFactory;
+import to.etc.domui.dom.MsCrapwareRenderFactory;
+import to.etc.domui.dom.StandardHtmlFullRenderer;
+import to.etc.domui.dom.StandardHtmlTagRenderer;
+import to.etc.domui.dom.errors.IExceptionListener;
+import to.etc.domui.dom.header.HeaderContributor;
+import to.etc.domui.dom.header.HeaderContributorEntry;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.Page;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.dom.webaction.JsonWebActionFactory;
+import to.etc.domui.dom.webaction.SimpleWebActionFactory;
+import to.etc.domui.dom.webaction.WebActionRegistry;
+import to.etc.domui.injector.DefaultPageInjector;
 import to.etc.domui.injector.IPageInjector;
-import to.etc.domui.login.*;
-import to.etc.domui.parts.*;
-import to.etc.domui.sass.*;
-import to.etc.domui.server.parts.*;
-import to.etc.domui.state.*;
-import to.etc.domui.themes.*;
+import to.etc.domui.login.AccessDeniedPage;
+import to.etc.domui.login.ILoginAuthenticator;
+import to.etc.domui.login.ILoginDialogFactory;
+import to.etc.domui.parts.SvgPartFactory;
+import to.etc.domui.sass.SassPartFactory;
+import to.etc.domui.server.parts.IPartFactory;
+import to.etc.domui.server.parts.IUrlMatcher;
+import to.etc.domui.server.parts.InternalResourcePart;
+import to.etc.domui.server.parts.PartRequestHandler;
+import to.etc.domui.server.parts.PartService;
+import to.etc.domui.state.AppSession;
+import to.etc.domui.state.ConversationContext;
+import to.etc.domui.state.DelayedActivitiesManager;
+import to.etc.domui.state.PageParameters;
+import to.etc.domui.state.UIGoto;
+import to.etc.domui.state.WindowSession;
+import to.etc.domui.themes.DefaultThemeVariant;
+import to.etc.domui.themes.ITheme;
+import to.etc.domui.themes.IThemeFactory;
+import to.etc.domui.themes.IThemeVariant;
+import to.etc.domui.themes.ThemeCssUtils;
+import to.etc.domui.themes.ThemeManager;
+import to.etc.domui.themes.ThemePartFactory;
+import to.etc.domui.themes.ThemeResourceFactory;
 import to.etc.domui.themes.fragmented.FragmentedThemeFactory;
 import to.etc.domui.themes.sass.SassThemeFactory;
-import to.etc.domui.themes.simple.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
-import to.etc.domui.util.js.*;
-import to.etc.domui.util.resources.*;
-import to.etc.util.*;
-import to.etc.webapp.nls.*;
-import to.etc.webapp.query.*;
+import to.etc.domui.themes.simple.SimpleThemeFactory;
+import to.etc.domui.trouble.DataAccessViolationException;
+import to.etc.domui.trouble.DataAccessViolationPage;
+import to.etc.domui.trouble.ExpiredDataPage;
+import to.etc.domui.trouble.NotLoggedInException;
+import to.etc.domui.trouble.ThingyNotFoundException;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.ICachedListMaker;
+import to.etc.domui.util.IListMaker;
+import to.etc.domui.util.INewPageInstantiated;
+import to.etc.domui.util.js.IScriptScope;
+import to.etc.domui.util.resources.ClassRefResourceFactory;
+import to.etc.domui.util.resources.ClasspathInventory;
+import to.etc.domui.util.resources.IModifyableResource;
+import to.etc.domui.util.resources.IResourceDependencyList;
+import to.etc.domui.util.resources.IResourceFactory;
+import to.etc.domui.util.resources.IResourceRef;
+import to.etc.domui.util.resources.ProductionClassResourceRef;
+import to.etc.domui.util.resources.ReloadingClassResourceRef;
+import to.etc.domui.util.resources.ResourceDependencyList;
+import to.etc.domui.util.resources.ResourceInfoCache;
+import to.etc.domui.util.resources.SimpleResourceFactory;
+import to.etc.domui.util.resources.VersionedJsResourceFactory;
+import to.etc.domui.util.resources.WebappResourceRef;
+import to.etc.util.DeveloperOptions;
+import to.etc.util.WrappedException;
+import to.etc.webapp.nls.BundleRef;
+import to.etc.webapp.nls.NlsContext;
+import to.etc.webapp.query.QNotFoundException;
 
-import javax.annotation.*;
-import javax.servlet.http.*;
-import java.io.*;
-import java.lang.reflect.*;
-import java.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
+import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -89,6 +156,29 @@ public abstract class DomApplication {
 
 	@Nullable
 	private String m_urlExtension;
+
+	/**
+	 * When set this overrides the URLs generated by the framework as detected from the request headers, as people are apparently too dumb to create
+	 * transparent proxies. When set it must contain a full URL including scheme, as that URL is also used to get the host name for cookies and the
+	 * like.
+	 */
+	@Nullable
+	private String m_applicationURL;
+
+	/**
+	 * Calculated from the applicationURL if that one is set manually, this gets used when
+	 * cookies are to be sent.
+	 */
+	@Nullable
+	private String m_hostName;
+
+	/**
+	 * Set from the applicationURL when defined. -1 means: do not specify a port number.
+	 */
+	private int m_applicationPortNumber = -1;
+
+	@Nullable
+	private String m_applicationContext;
 
 	@Nonnull
 	private ControlBuilder m_controlBuilder = new ControlBuilder(this);
@@ -539,6 +629,59 @@ public abstract class DomApplication {
 			}
 			setAutoRefreshPollInterval(refreshinterval);
 		}
+	}
+
+	/**
+	 * Overrides the application URL with a fixed version. Usually the URL gets dynamically calculated
+	 * from the input URL as this allows zero config and allows a single application to be present
+	 * under multiple URLs. But some hosting companies find transparent proxies hard, apparently, and
+	 * fsck up the request headers in a very bad way. We cannot even use the headers usually present
+	 * in a proxied request (x-forwarded-host) because of course the scheme and port number are missing-
+	 * so those are pretty useless.
+	 *
+	 * @param url		The url including scheme, like "https://demo.domui.org".
+	 */
+	protected void setApplicationURL(String url) {
+		String s = url.toLowerCase();
+
+		if(s.startsWith("http://")) {
+			s = s.substring(0, 7);				// Strip http://
+		} else if(s.startsWith("https://")) {
+			s = s.substring(8);					// Same
+		} else {
+			throw new IllegalArgumentException("Expecting an URL that starts with http:// or https://");
+		}
+
+		//-- Get a host name and a port number, if applicable
+		String hostPart;
+		String rest;
+		int ix = s.indexOf('/');				// End of host name
+		if(ix == -1) {
+			hostPart = s;
+			rest = "";
+		} else {
+			hostPart = s.substring(0, ix);		// Only hostname and port number.
+			rest = s.substring(ix + 1);			// Should be appcontext, if present
+		}
+		ix = hostPart.indexOf(':');
+		int portNumber;
+		if(ix == -1) {
+			portNumber = -1;					// No portnumber present
+		} else {
+			portNumber = Integer.parseInt(hostPart.substring(ix + 1));
+			hostPart = s.substring(0, ix);
+		}
+
+		ix = rest.indexOf('/');					// / in context part?
+		if(ix != -1) {
+			rest = rest.substring(0, ix);		// Get only 1st path fragment
+		}
+
+		if(! url.endsWith("/"))
+			url += "/";
+		m_applicationURL = url;
+		m_hostName = hostPart;
+		m_applicationContext = rest;
 	}
 
 	static public synchronized final int internalNextPageTag() {

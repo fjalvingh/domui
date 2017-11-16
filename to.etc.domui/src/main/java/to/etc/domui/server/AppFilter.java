@@ -90,6 +90,21 @@ public class AppFilter implements Filter {
 	public void doFilter(final ServletRequest req, final ServletResponse res, final FilterChain chain) throws IOException, ServletException {
 		try {
 			HttpServletRequest rq = (HttpServletRequest) req;
+			System.out.println("DEBUG CODE");
+
+			Enumeration<String> enu = rq.getHeaderNames();
+			while(enu.hasMoreElements()) {
+				String name = (String) enu.nextElement();
+				Enumeration<String> henu = rq.getHeaders(name);
+				while(henu.hasMoreElements()) {
+					String val = (String) henu.nextElement();
+					System.out.println("header: " + name + ": " + val);
+				}
+			}
+			System.out.println("uri " + rq.getRequestURI());
+			System.out.println("url " + rq.getRequestURL());
+			System.out.println("localName " + rq.getLocalName());
+
 			HttpServletResponse response = (HttpServletResponse) res;
 			IRequestResponseWrapper ww = m_ioWrapper;
 			if(null != ww) {
