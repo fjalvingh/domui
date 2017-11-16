@@ -206,6 +206,10 @@ public class TestRequestResponse implements IRequestResponse {
 		return m_testInfo.getWebappContext();
 	}
 
+	@Nonnull @Override public String getHostName() {
+		return m_testInfo.getApplicationHost();
+	}
+
 	@Override
 	public void addCookie(@Nonnull Cookie cookie) {
 	}

@@ -24,7 +24,6 @@
  */
 package to.etc.domui.server;
 
-import org.apache.poi.ss.formula.functions.T;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.domui.ajax.AjaxRequestHandler;
@@ -478,6 +477,35 @@ public abstract class DomApplication {
 		throw new IllegalStateException("Application is not initialized");
 	}
 
+	/**
+	 * If an explicit app URL is set this returns the port number of that URL. If the URL is not
+	 * set OR does not contain a port number this returns -1.
+	 */
+	public int getApplicationPortNumber() {
+		return m_applicationPortNumber;
+	}
+
+	/**
+	 * If an explicit app URL is set this returns the context part of that URL, without any slashes.
+	 */
+	@Nullable public String getApplicationContext() {
+		return m_applicationContext;
+	}
+
+	/**
+	 * If an explicit app URL is set this returns the hostname from that URL, to use for cookies and so.
+	 */
+	@Nullable public String getHostName() {
+		return m_hostName;
+	}
+
+	/**
+	 * If the application URL has been set manually this returns that URL.
+	 * @return
+	 */
+	@Nullable public String getApplicationURL() {
+		return m_applicationURL;
+	}
 
 	/**
 	 * Internal: return the sorted-by-descending-priority list of request handlers.
@@ -822,7 +850,7 @@ public abstract class DomApplication {
 	}
 
 	/**
-	 * When {@link #isAutoRefreshPage()} is enabled (T), this defines the poll interval that a client uses
+	 * This defines the poll interval that a client uses
 	 * to check for server-side changes. It defaults to 2.5 seconds (in domui.js), and can be set to a faster update value
 	 * to have the update check faster for development. If the interval is not set this contains 0, else it contains the
 	 * refresh time in milliseconds.
