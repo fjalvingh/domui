@@ -21,12 +21,13 @@ cache:
   - $HOME/.m2
 
 deploy:
-  skip_cleanup: true
   - provider: script
+    skip_cleanup: true
     script: scripts/demo-deploy $DEPLOY_KEY
     on:
       branch: master
   - provider: script
+    skip_cleanup: true
     script: scripts/demo-deploy $DEPLOY_KEY
     on:
       branch: testing
