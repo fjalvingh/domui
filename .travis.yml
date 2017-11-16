@@ -22,10 +22,14 @@ cache:
 
 deploy:
   skip_cleanup: true
-  provider: script
-  script: scripts/demo-deploy $DEPLOY_KEY
-  on:
-    branch: master testing
+  - provider: script
+    script: scripts/demo-deploy $DEPLOY_KEY
+    on:
+      branch: master
+  - provider: script
+    script: scripts/demo-deploy $DEPLOY_KEY
+    on:
+      branch: testing
 
 before_install:
 - scripts/beforeInstall
