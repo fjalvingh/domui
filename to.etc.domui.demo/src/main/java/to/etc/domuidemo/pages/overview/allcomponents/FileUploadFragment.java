@@ -1,5 +1,6 @@
 package to.etc.domuidemo.pages.overview.allcomponents;
 
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.upload.FileUpload2;
 import to.etc.domui.component.upload.FileUploadMultiple;
 import to.etc.domui.component2.form4.FormBuilder;
@@ -14,7 +15,10 @@ public class FileUploadFragment extends Div {
 	@Override public void createContent() throws Exception {
 		add(new HTag(2, "File upload component").css("ui-header"));
 
-		FormBuilder fb = new FormBuilder(this);
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
+		FormBuilder fb = new FormBuilder(cp);
 		FileUpload2 u1 = new FileUpload2("png", "jpg", "gif", "jpeg");
 		fb.label("Select an image").item(u1);
 
