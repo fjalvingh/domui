@@ -9,8 +9,10 @@ import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.css.Overflow;
 import to.etc.domui.dom.css.PositionType;
 import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IForTarget;
 import to.etc.domui.dom.html.ILookupTypingListener;
+import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.Input;
 import to.etc.domui.dom.html.NodeBase;
@@ -50,7 +52,7 @@ import java.util.Set;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 9, 2011
  */
-public class SearchInput<T> extends Div implements IForTarget {
+public class SearchInput<T> extends Div implements IForTarget, IControl<T> {
 	static private final int MAX_RESULTS = 7;
 
 	@Nonnull
@@ -332,5 +334,49 @@ public class SearchInput<T> extends Div implements IForTarget {
 
 	public void setHandler(IQuery<T> handler) {
 		m_handler = handler;
+	}
+
+	@Override public void setValue(@Nullable T v) {
+
+	}
+
+	@Nullable @Override public T getValue() {
+		return null;
+	}
+
+	@Override public T getValueSafe() {
+		return null;
+	}
+
+	@Override public boolean isReadOnly() {
+		return false;
+	}
+
+	@Override public void setReadOnly(boolean ro) {
+
+	}
+
+	@Override public boolean isDisabled() {
+		return false;
+	}
+
+	@Override public boolean isMandatory() {
+		return false;
+	}
+
+	@Override public void setMandatory(boolean ro) {
+
+	}
+
+	@Override public void setDisabled(boolean d) {
+
+	}
+
+	@Override public IValueChanged<?> getOnValueChanged() {
+		return null;
+	}
+
+	@Override public void setOnValueChanged(IValueChanged<?> onValueChanged) {
+
 	}
 }

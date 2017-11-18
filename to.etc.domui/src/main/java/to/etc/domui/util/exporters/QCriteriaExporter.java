@@ -66,7 +66,7 @@ public class QCriteriaExporter<T> {
 			}
 			return list.size() >= rowLimit ? ExportResult.TRUNCATED : ExportResult.COMPLETED;
 		} finally {
-			m_exportWriter.close();
+			//m_exportWriter.close();					// We do not own exportWriter, this leads to double close.
 		}
 	}
 }

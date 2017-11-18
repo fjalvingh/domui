@@ -16,8 +16,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created on 10-11-17.
  */
 public class DefaultLoginHandler implements ILoginHandler {
-	static public final String LOGIN_KEY = IUser.class.getName();
-
 	/** After this amount of failed logins just pretend we're logging in */
 	private volatile int m_maxFailLogins = 10;
 
@@ -130,7 +128,7 @@ public class DefaultLoginHandler implements ILoginHandler {
 			return LoginResult.FAILED;
 		synchronized(hs) {
 			//-- Force logout
-			hs.setAttribute(LOGIN_KEY, null);
+			hs.setAttribute(UILogin.LOGIN_KEY, null);
 
 			//-- Am I still in failed login state?
 			long cts = System.currentTimeMillis();
@@ -163,7 +161,7 @@ public class DefaultLoginHandler implements ILoginHandler {
 			//-- Login succeeded: save the user in the session context
 			if(null != ll)
 				ll.setFailCount(0);
-			hs.setAttribute(LOGIN_KEY, user); 					// This causes the user to be logged on.
+			hs.setAttribute(UILogin.LOGIN_KEY, user); 					// This causes the user to be logged on.
 			UIContext.setCurrentUser(user);
 
 			List<ILoginListener> li = rcx.getApplication().getLoginListenerList();

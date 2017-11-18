@@ -60,4 +60,8 @@ public interface IUser {
 	 * @return
 	 */
 	<T> boolean hasRight(@Nonnull String r, @Nullable T dataElement);
+
+	default boolean canImpersonate() {
+		return false;
+	}
 }

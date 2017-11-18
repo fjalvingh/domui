@@ -75,6 +75,7 @@ import to.etc.webapp.query.IIdentifyable;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -1622,6 +1623,50 @@ final public class DomUtil {
 		if(iconUrl.contains("/"))
 			return false;
 		return iconUrl.startsWith("fa-");
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Handle cookies.										*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Find a cookie if it exists, return null otherwise.
+	 * @param name
+	 * @return
+	 */
+	@Nullable
+	static public Cookie findCookie(@Nonnull String name) {
+		IRequestContext rci = UIContext.getRequestContext();
+		Cookie[] car = rci.getRequestResponse().getCookies();
+		if(car == null || car.length == 0)
+			return null;
+
+		for(Cookie c : car) {
+			if(c.getName().equals(name)) {
+				return c;
+			}
+		}
+		return null;
+	}
+
+	@Nullable
+	static public String findCookieValue(@Nonnull String name) {
+		Cookie c = findCookie(name);
+		return c == null ? null : c.getValue();
+	}
+
+	/**
+	 * Set a new or overwrite an existing cookie.
+	 *
+	 * @param name
+	 * @param value
+	 * @param maxage	Max age, in seconds.
+	 */
+	static public void setCookie(@Nonnull String name, String value, int maxage) {
+		IRequestContext rci = UIContext.getRequestContext();
+		Cookie k = new Cookie(name, value);
+		k.setMaxAge(maxage);
+		k.setPath("/" + rci.getRequestResponse().getWebappContext());
+		rci.getRequestResponse().addCookie(k);
 	}
 
 	/*--------------------------------------------------------------*/

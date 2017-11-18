@@ -64,6 +64,9 @@ public interface IRequestResponse {
 	String getHostURL();
 
 	@Nonnull
+	String getHostName();
+
+	@Nonnull
 	public String[] getParameters(@Nonnull String name);
 
 	@Nullable
