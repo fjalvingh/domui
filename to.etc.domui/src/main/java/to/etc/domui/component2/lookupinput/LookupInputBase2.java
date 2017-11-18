@@ -46,6 +46,7 @@ import to.etc.domui.dom.html.IReturnPressed;
 import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.Table;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IExecute;
 import to.etc.domui.util.IRenderInto;
@@ -146,8 +147,9 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 	 */
 	@Override
 	protected void renderKeyWordSearch() {
-		m_table.removeAllChildren();
-		TD td = m_table.getBody().addRowAndCell();
+		Table table = Objects.requireNonNull(m_table);
+		table.removeAllChildren();
+		TD td = table.getBody().addRowAndCell();
 		//td.setValign(TableVAlign.TOP);
 		td.setCssClass("ui-lui-lookupf");
 

@@ -29,6 +29,7 @@ import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
 import to.etc.webapp.query.QCriteria;
 
+import javax.annotation.DefaultNonNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -36,9 +37,12 @@ import java.util.List;
 import java.util.Objects;
 
 /**
+ * Absolute base class of all LookupInput classes, sharing all common code.
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 18-11-17.
  */
+@DefaultNonNull
 abstract public class AbstractLookupInputBase<QT, OT> extends Div implements IControl<OT>, ITypedControl<OT>, IHasModifiedIndication, IQueryManipulator<QT>, IForTarget {
 	protected enum RebuildCause {
 		CLEAR, SELECT
@@ -124,6 +128,7 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 
 	private boolean m_doFocus;
 
+	@Nullable
 	@Deprecated
 	protected Table m_table;
 
@@ -153,6 +158,7 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 
 	protected abstract boolean isKeyWordSearchDefined();
 
+	@Nullable
 	protected abstract NodeBase getKeySearch();
 
 	public AbstractLookupInputBase(@Nullable QCriteria<QT> rootCriteria, @Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass, @Nullable ClassMetaModel queryMetaModel, @Nullable ClassMetaModel outputMetaModel) {
@@ -216,10 +222,11 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 
 		HoverButton clearButton = getClearButton();
 
+		NodeBase keySearch = getKeySearch();
 		if(m_rebuildCause == RebuildCause.CLEAR) {
 			//User clicked clear button, so we can try to set focus to input search if possible.
-			if(getKeySearch() != null) {
-				getKeySearch().setFocus();
+			if(keySearch != null) {
+				keySearch.setFocus();
 			}
 		} else if(m_rebuildCause == RebuildCause.SELECT) {
 			//User did reselected value, so we can try to set focus to clear button if possible.
@@ -232,8 +239,8 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 
 		if(m_doFocus) {
 			m_doFocus = false;
-			if(getKeySearch() != null)
-				getKeySearch().setFocus();
+			if(keySearch != null)
+				keySearch.setFocus();
 			else if(m_clearButton != null)
 				m_clearButton.setFocus();
 		}
@@ -243,7 +250,7 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 	 * Render the presentation for empty/unselected input.
 	 */
 	private void renderEmptySelection() {
-		Table table = m_table;
+		Table table = Objects.requireNonNull(m_table);
 		table.removeAllChildren();
 		TD td = table.getBody().addRowAndCell();
 		//td.setValign(TableVAlign.TOP);
@@ -256,7 +263,7 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 			return;
 
 		//-- Lookup button is always there
-		TR tr = m_table.getBody().getRow(0);
+		TR tr = Objects.requireNonNull(m_table).getBody().getRow(0);
 		TD cell = tr.addCell("ui-lui-btntd");
 		Div d = new Div("ui-lui-btn-c");
 		cell.add(d);
@@ -343,8 +350,9 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 
 	@Override
 	public void setFocus() {
-		if(null != getKeySearch())
-			getKeySearch().setFocus();
+		NodeBase keySearch = getKeySearch();
+		if(null != keySearch)
+			keySearch.setFocus();
 		else if(!isBuilt())
 			m_doFocus = true;
 	}
@@ -587,6 +595,7 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 	/**
 	 * The value without any consequences
 	 */
+	@Nullable
 	public OT getWorkValue() {
 		OT valueSafe = getValueSafe();
 		clearMessage();

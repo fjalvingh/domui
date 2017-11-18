@@ -47,6 +47,7 @@ import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.Table;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.LookupInputPropertyRenderer;
 import to.etc.domui.util.Msgs;
@@ -63,6 +64,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 
 abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT, OT> implements IControl<OT>, ITypedControl<OT>, IHasModifiedIndication {
 
@@ -217,8 +219,9 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	 */
 	@Override
 	protected void renderKeyWordSearch() {
-		m_table.removeAllChildren();
-		TD td = m_table.getBody().addRowAndCell();
+		Table table = Objects.requireNonNull(m_table);
+		table.removeAllChildren();
+		TD td = table.getBody().addRowAndCell();
 		//td.setValign(TableVAlign.TOP);
 		td.setCssClass("ui-lui-lookupf");
 //		td.setWidth("100%"); jal 20121025 Width should not be set but style should be used?
