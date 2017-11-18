@@ -225,7 +225,7 @@ final public class MsgBox2 extends Window {
 
 		Div bd = m_buttonDiv = new Div();
 		add(bd);
-		bd.addCssClass("ui-bb-middle");
+		bd.addCssClass("ui-mbx-btns");
 		for(Button btn: m_theButtons) {
 			bd.add(btn);
 		}
