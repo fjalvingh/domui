@@ -45,8 +45,6 @@ import to.etc.domui.dom.html.IHasModifiedIndication;
 import to.etc.domui.dom.html.IReturnPressed;
 import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
-import to.etc.domui.dom.html.TD;
-import to.etc.domui.dom.html.Table;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IExecute;
 import to.etc.domui.util.IRenderInto;
@@ -147,32 +145,18 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 	 */
 	@Override
 	protected void renderKeyWordSearch() {
-		Table table = Objects.requireNonNull(m_table);
-		table.removeAllChildren();
-		TD td = table.getBody().addRowAndCell();
-		//td.setValign(TableVAlign.TOP);
-		td.setCssClass("ui-lui-lookupf");
-
 		SearchInput2 ks = new SearchInput2(getKeyWordSearchCssClass());
-		td.add(ks);
+		add(ks);
 		setKeySearch(ks);
 
 		ks.setPopupWidth(getKeyWordSearchPopupWidth());
 
-		ks.setOnLookupTyping(new IValueChanged<SearchInput2>() {
-			@Override
-			public void onValueChanged(@Nonnull SearchInput2 component) throws Exception {
-				ITableModel<OT> keySearchModel = searchKeyWord(component.getValue());
-				showResults(keySearchModel);
-			}
+		ks.setOnLookupTyping(component -> {
+			ITableModel<OT> keySearchModel = searchKeyWord(component.getValue());
+			showResults(keySearchModel);
 		});
 
-		ks.setReturnPressed(new IReturnPressed<SearchInput2>() {
-			@Override
-			public void returnPressed(SearchInput2 node) throws Exception {
-				handleSelection(node);
-			}
-		});
+		ks.setReturnPressed((IReturnPressed<SearchInput2>) this::handleSelection);
 
 		if(m_keyWordSearchCssClass != null) {
 			addCssClass(m_keyWordSearchCssClass);

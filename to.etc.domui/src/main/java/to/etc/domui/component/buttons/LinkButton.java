@@ -191,6 +191,7 @@ public class LinkButton extends ATag implements IActionControl {
 		actionRefresh();
 	}
 
+	@Override
 	public boolean isDisabled() {
 		return m_disabled;
 	}

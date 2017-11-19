@@ -965,12 +965,12 @@ var WebUI;
                     });
                     $(fckIFrame.contentWindow.window).trigger('resize');
                 }
-			};
+            };
             for (var i = 0; i < _fckEditorIDs.length; i++) {
                 _loop_1(i);
             }
-		}
-	}
+        }
+    }
     WebUI.FCKeditor_OnComplete = FCKeditor_OnComplete;
     function initScrollableTableOld(id) {
         $('#' + id + " table").fixedHeaderTable({});
@@ -2716,7 +2716,7 @@ var WebUI;
             if (selectedIndexInput.value && selectedIndexInput.value != "") {
                 return parseInt(selectedIndexInput.value);
             }
-		}
+        }
         return -1;
     }
     WebUI.getKeywordPopupSelectedRowIndex = getKeywordPopupSelectedRowIndex;
@@ -3713,7 +3713,7 @@ var WebUI;
                         $(elem).css({ 'overflow-y': 'auto' });
                     }
                 }
-
+                return;
             }
         }
     }
@@ -4144,7 +4144,6 @@ var WebUI;
                     alert('domjs_ eval failed: ' + ex + ", js=" + s);
                     throw ex;
                 }
-
             }
             else if (v != "" && dest && ($.browser.msie || $.browser.webkit || ($.browser.mozilla && $.browser.majorVersion >= 9)) && n.substring(0, 2) == 'on') {
                 try {

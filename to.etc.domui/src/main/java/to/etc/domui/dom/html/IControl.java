@@ -101,6 +101,7 @@ public interface IControl<T> extends IActionControl, IHasChangeListener, INodeEr
 	 * For those controls the readonly state mirrors the disabled state.
 	 * @return
 	 */
+	@Override
 	boolean isDisabled();
 
 	/**

@@ -43,11 +43,8 @@ import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IHasModifiedIndication;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
-import to.etc.domui.dom.html.TD;
-import to.etc.domui.dom.html.Table;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.LookupInputPropertyRenderer;
 import to.etc.domui.util.Msgs;
@@ -64,7 +61,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Objects;
 
 abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT, OT> implements IControl<OT>, ITypedControl<OT>, IHasModifiedIndication {
 
@@ -105,13 +101,13 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 
 	private int m_keyWordSearchPopupWidth;
 
-	/**
-	 * SPECIAL QUIRK MODE, USUALLY YOU DO NOT NEED IT.
-	 * When T (default is F), it renders lookup input in a way that pop-up with search as you type results rolls down exceeding the boundaries of parent control.
-	 * This is useful when your LookupInput is last control in pop-up Windows, and you want to avoid scroll-bar in dialog. However, mode is not applicable in all other regular cases since
-	 * it interfere rendering of LookupInput that goes over controls bellow it.
-	 */
-	private boolean m_absolutePopupLayoutQuirkMode;
+	///**
+	// * SPECIAL QUIRK MODE, USUALLY YOU DO NOT NEED IT.
+	// * When T (default is F), it renders lookup input in a way that pop-up with search as you type results rolls down exceeding the boundaries of parent control.
+	// * This is useful when your LookupInput is last control in pop-up Windows, and you want to avoid scroll-bar in dialog. However, mode is not applicable in all other regular cases since
+	// * it interfere rendering of LookupInput that goes over controls bellow it.
+	// */
+	//private boolean m_absolutePopupLayoutQuirkMode;
 
 	/** The search properties to use in the lookup form when created. If null uses the default attributes on the class. */
 	@Nullable
@@ -219,73 +215,57 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	 */
 	@Override
 	protected void renderKeyWordSearch() {
-		Table table = Objects.requireNonNull(m_table);
-		table.removeAllChildren();
-		TD td = table.getBody().addRowAndCell();
-		//td.setValign(TableVAlign.TOP);
-		td.setCssClass("ui-lui-lookupf");
-//		td.setWidth("100%"); jal 20121025 Width should not be set but style should be used?
-		addKeySearchField(td);
+		//Div sdiv = new Div("ui-lui-lookupf");
+		//add(sdiv);
+		addKeySearchField(this);
 	}
 
 	private void addKeySearchField(NodeContainer parent) {
 		KeyWordSearchInput<OT> ks = new KeyWordSearchInput<>(getKeyWordSearchCssClass());
 		setKeySearch(ks);
 		ks.setPopupWidth(getKeyWordSearchPopupWidth());
-		ks.setAbsolutePopupLayoutQuirkMode(m_absolutePopupLayoutQuirkMode);
+		//ks.setAbsolutePopupLayoutQuirkMode(m_absolutePopupLayoutQuirkMode);
 		KeyWordPopupRowRenderer<OT> rr = getDropdownRowRenderer();
-		rr.setRowClicked(new ICellClicked<OT>() {
-			@Override
-			public void cellClicked(@Nonnull OT val) throws Exception {
-				handleSetValue(val);
-			}
-		});
+		rr.setRowClicked(val -> handleSetValue(val));
 		ks.setResultsHintPopupRowRenderer(rr);
 
-		ks.setOnLookupTyping(new IValueChanged<KeyWordSearchInput<OT>>() {
-
-			@Override
-			public void onValueChanged(@Nonnull KeyWordSearchInput<OT> component) throws Exception {
-				ITableModel<OT> keySearchModel = searchKeyWord(component.getKeySearchValue());
-				component.showResultsHintPopup(null);
-				if(keySearchModel == null) {
-					//in case of insufficient searchString data cancel search and return.
-					component.setResultsCount(-1);
-					component.setFocus(); //focus must be set manually.
-					return;
-				}
-				if(keySearchModel.getRows() == 1) {
-					//in case of single match select value.
-					handleSetValue(keySearchModel.getItems(0, 1).get(0));
-				} else {
-					//show results count info
-					component.setResultsCount(keySearchModel.getRows());
-					if((keySearchModel.getRows() > 0) && (keySearchModel.getRows() < 10)) {
-						component.showResultsHintPopup(keySearchModel);
-					}
+		ks.setOnLookupTyping(component -> {
+			ITableModel<OT> keySearchModel = searchKeyWord(component.getKeySearchValue());
+			component.showResultsHintPopup(null);
+			if(keySearchModel == null) {
+				//in case of insufficient searchString data cancel search and return.
+				component.setResultsCount(-1);
+				component.setFocus(); //focus must be set manually.
+				return;
+			}
+			if(keySearchModel.getRows() == 1) {
+				//in case of single match select value.
+				handleSetValue(keySearchModel.getItems(0, 1).get(0));
+			} else {
+				//show results count info
+				component.setResultsCount(keySearchModel.getRows());
+				if((keySearchModel.getRows() > 0) && (keySearchModel.getRows() < 10)) {
+					component.showResultsHintPopup(keySearchModel);
 				}
 			}
 		});
 
-		ks.setOnShowResults(new IValueChanged<KeyWordSearchInput<OT>>() {
-			@Override
-			public void onValueChanged(@Nonnull KeyWordSearchInput<OT> component) throws Exception {
-				ITableModel<OT> keySearchModel = searchKeyWord(component.getKeySearchValue());
-				component.showResultsHintPopup(null);
-				if(keySearchModel == null) {
-					//in case of insufficient searchString data cancel search and popup clean search dialog.
-					component.setResultsCount(-1);
-					toggleFloater(null);
-					return;
-				}
-				if(keySearchModel.getRows() == 1) {
-					//in case of single match select value.
-					handleSetValue(keySearchModel.getItems(0, 1).get(0));
-				} else {
-					//in case of more results show narrow result in search popup.
-					component.setResultsCount(keySearchModel.getRows());
-					toggleFloater(keySearchModel);
-				}
+		ks.setOnShowResults(component -> {
+			ITableModel<OT> keySearchModel = searchKeyWord(component.getKeySearchValue());
+			component.showResultsHintPopup(null);
+			if(keySearchModel == null) {
+				//in case of insufficient searchString data cancel search and popup clean search dialog.
+				component.setResultsCount(-1);
+				toggleFloater(null);
+				return;
+			}
+			if(keySearchModel.getRows() == 1) {
+				//in case of single match select value.
+				handleSetValue(keySearchModel.getItems(0, 1).get(0));
+			} else {
+				//in case of more results show narrow result in search popup.
+				component.setResultsCount(keySearchModel.getRows());
+				toggleFloater(keySearchModel);
 			}
 		});
 		parent.add(ks);
@@ -776,9 +756,9 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 		m_keyWordSearchPopupWidth = keyWordSearchPopupWidth;
 	}
 
-	public void setAbsolutePopupLayoutQuirkMode(boolean value) {
-		m_absolutePopupLayoutQuirkMode = value;
-	}
+	//public void setAbsolutePopupLayoutQuirkMode(boolean value) {
+	//	m_absolutePopupLayoutQuirkMode = value;
+	//}
 
 	/**
 	 * Returns T if we are using stretching of result table height to all remained parent height.

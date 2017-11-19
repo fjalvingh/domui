@@ -1,26 +1,23 @@
 package to.etc.domui.component.input;
 
 import to.etc.domui.component.binding.OldBindingHandler;
-import to.etc.domui.component.buttons.HoverButton;
+import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
 import to.etc.domui.component.meta.impl.SearchPropertyMetaModelImpl;
+import to.etc.domui.component.misc.FaIcon;
 import to.etc.domui.component.tbl.IQueryHandler;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.IActionControl;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IForTarget;
 import to.etc.domui.dom.html.IHasModifiedIndication;
 import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Span;
-import to.etc.domui.dom.html.TD;
-import to.etc.domui.dom.html.TR;
-import to.etc.domui.dom.html.Table;
-import to.etc.domui.themes.Theme;
 import to.etc.domui.trouble.ValidationException;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IRenderInto;
@@ -75,10 +72,10 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 	final private ClassMetaModel m_outputMetaModel;
 
 	@Nonnull
-	final private HoverButton m_selButton;
+	final private DefaultButton m_selButton;
 
 	@Nonnull
-	final private HoverButton m_clearButton;
+	final private DefaultButton m_clearButton;
 
 	@Nullable
 	private QCriteria<QT> m_rootCriteria;
@@ -129,10 +126,6 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 	private boolean m_doFocus;
 
 	@Nullable
-	@Deprecated
-	protected Table m_table;
-
-	@Nullable
 	private IValueChanged< ? > m_onValueChanged;
 
 	@Nullable
@@ -167,36 +160,20 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 		m_outputClass = resultClass;
 		m_queryMetaModel = queryMetaModel != null ? queryMetaModel : MetaManager.findClassMeta(queryClass);
 		m_outputMetaModel = outputMetaModel != null ? outputMetaModel : MetaManager.findClassMeta(resultClass);
-		HoverButton b = m_selButton = new HoverButton(Theme.BTN_HOVERPOPUPLOOKUP);
-		b.addCssClass("ui-lui-sel-btn");
-		b.setClicked(new IClicked<NodeBase>() {
-			@Override
-			public void clicked(@Nonnull NodeBase b) throws Exception {
-				openPopupWithClick();
-			}
-		});
+		setCssClass("ui-lui ctl-has-addons ui-control");
 
-		b = m_clearButton = new HoverButton(Theme.BTN_HOVERCLEARLOOKUP, new IClicked<HoverButton>() {
-			@Override
-			@SuppressWarnings("synthetic-access")
-			public void clicked(@Nonnull HoverButton b) throws Exception {
-				handleSetValue(null);
-			}
-		});
-		b.addCssClass("ui-lui-clear-btn");
-		setCssClass("ui-lui");
+		m_selButton = new DefaultButton("", FaIcon.faSearch, b12 -> openPopupWithClick());
+		//b.addCssClass("ui-lui-sel-btn");
+
+		m_clearButton = new DefaultButton("", FaIcon.faWindowCloseO, b1 -> handleSetValue(null));
+		//b.addCssClass("ui-lui-clear-btn");
 	}
 
 	@Override
 	public void createContent() throws Exception {
 		clearKeySearch();
-		Table table = m_table = new Table("ui-lui-tbl");
-		add(table);
-
-		table.setCellSpacing("0");
-		table.setCellPadding("0");
-
 		removeCssClass("ui-ro");
+
 		OT value = m_value;
 		if(value == null) {
 			if(isAllowKeyWordSearch() && isKeyWordSearchDefined()) {
@@ -210,18 +187,17 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 				renderEmptySelection();
 			}
 		} else {
-			//-- Nonnull render: render a value in the table's 1st cell
-			TD td = table.getBody().addRowAndCell("ui-lui-v");
-
+			Div vdiv = new Div("ui-lui-v ui-control");
+			add(vdiv);
 			IRenderInto<OT> r = getValueRenderer();
 			if(r == null)
 				r = new SimpleLookupInputRenderer<>(getOutputMetaModel());
-			r.render(td, value);
+			r.render(vdiv, value);
 			handleSelectionCss();
 		}
 		appendLookupButtons();
 
-		HoverButton clearButton = getClearButton();
+		IActionControl clearButton = getClearButton();
 
 		NodeBase keySearch = getKeySearch();
 		if(m_rebuildCause == RebuildCause.CLEAR) {
@@ -251,31 +227,21 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 	 * Render the presentation for empty/unselected input.
 	 */
 	private void renderEmptySelection() {
-		Table table = Objects.requireNonNull(m_table);
-		table.removeAllChildren();
-		TD td = table.getBody().addRowAndCell();
-		//td.setValign(TableVAlign.TOP);
-		td.setCssClass("ui-lui-empty");
-		td.add(new Span(Msgs.BUNDLE.getString(Msgs.UI_LOOKUP_EMPTY)));
+		Div vdiv = new Div("ui-lui-empty ui-control");
+		add(vdiv);
+		vdiv.add(new Span(Msgs.BUNDLE.getString(Msgs.UI_LOOKUP_EMPTY)));
 	}
 
 	private void appendLookupButtons() {
-		if(isReadOnly() || isDisabled())
+		if(isReadOnly()) {
+			removeCssClass("ctl-has-addons");
 			return;
+		}
+		add(getSelButton());
+		add(getClearButton());
 
-		//-- Lookup button is always there
-		TR tr = Objects.requireNonNull(m_table).getBody().getRow(0);
-		TD cell = tr.addCell("ui-lui-btntd");
-		Div d = new Div("ui-lui-btn-c");
-		cell.add(d);
-		d.add(getSelButton());
-
-		cell = tr.addCell("ui-lui-btntd");
-		d = new Div("ui-lui-btn-c");
-		cell.add(d);
-		d.add(getClearButton());
-		getClearButton().setDisabled(m_value == null);
-
+		getClearButton().setDisabled(m_value == null || isDisabled());
+		getSelButton().setDisabled(isDisabled());
 		getSelButton().setTestID(calcTestID() + "-lookup");
 		getClearButton().setTestID(calcTestID() + "-clear");
 	}
@@ -292,17 +258,13 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 	}
 
 	@Nonnull
-	private HoverButton getSelButton() {
-		if(null != m_selButton)
-			return m_selButton;
-		throw new IllegalStateException("Selection button is not there.");
+	private DefaultButton getSelButton() {
+		return m_selButton;
 	}
 
 	@Nonnull
-	public HoverButton getClearButton() {
-		if(null != m_clearButton)
-			return m_clearButton;
-		throw new IllegalStateException("Clear button is not there.");
+	private DefaultButton getClearButton() {
+		return m_clearButton;
 	}
 
 	@Nullable
@@ -379,10 +341,10 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 		NodeBase keySearch = getKeySearch();
 		if(null != keySearch && keySearch.isAttached())
 			return keySearch;
-		HoverButton selButton = m_selButton;
+		DefaultButton selButton = m_selButton;
 		if(selButton.isAttached())
 			return selButton;
-		HoverButton clearButton = m_clearButton;
+		DefaultButton clearButton = m_clearButton;
 		if(clearButton.isAttached())
 			return clearButton;
 		return null;

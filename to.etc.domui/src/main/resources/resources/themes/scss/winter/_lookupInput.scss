@@ -3,15 +3,26 @@
 
 $lui-min-width: 14em;
 
+
+
+
 .ui-lui {
-	/* background: #ffffff; */
-	padding: 0px;
-	margin: 0px;
+	display: inline-flex;
+
+	input {
+		@include ui-input-base;
+		margin: 0;
+	}
+
+	&.ui-input-err input {
+		background-color: $errors_input_background;
+	}
 }
-div.ui-lui {
-	width: 12em; 	/*	this width match with date field picker icon on IE rendering */
-	display: inline-block;
-}
+
+//div.ui-lui {
+//	width: 12em; 	/*	this width match with date field picker icon on IE rendering */
+//	display: inline-block;
+//}
 //div.ui-lui > table { jal 20170916 do not address table.
 //	width: 1%;
 //}
@@ -21,22 +32,34 @@ div.ui-lui {
 }
 
 .ui-lui-v {
-	border: 1px solid $bevel_down;
-	border-top: 1px solid $bevel_up;
-
-	line-height: $form-line-height;
-
-	padding: 0px;
-	margin: 0px;
-	width: 100%;
+	@include ui-input-base;
 	min-width: $lui-min-width;
-	white-space: pre;
+	height: auto;
+	//
+	//line-height: $form-line-height;
+	//
+	//padding: 0px;
+	//margin: 0px;
+	//width: 100%;
+	//min-width: $lui-min-width;
+	//white-space: pre;
+	//
+	background: #f2f9fe; /* Old browsers */
+	background: -moz-linear-gradient(top, #f2f9fe 0%, #d6f0fd 100%); /* FF3.6-15 */
+	background: -webkit-linear-gradient(top, #f2f9fe 0%,#d6f0fd 100%); /* Chrome10-25,Safari5.1-6 */
+	background: linear-gradient(to bottom, #f2f9fe 0%,#d6f0fd 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+}
+
+.ui-lui-empty {
+	@include ui-input-base;
+	min-width: $lui-min-width;
 
 	background: #f2f9fe; /* Old browsers */
 	background: -moz-linear-gradient(top, #f2f9fe 0%, #d6f0fd 100%); /* FF3.6-15 */
 	background: -webkit-linear-gradient(top, #f2f9fe 0%,#d6f0fd 100%); /* Chrome10-25,Safari5.1-6 */
 	background: linear-gradient(to bottom, #f2f9fe 0%,#d6f0fd 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
 }
+
 //.ui-lui-v > div { 20170913 makes input have trailing space
 //	min-width: 104px;
 //}
@@ -48,65 +71,48 @@ div.ui-lui {
 	vertical-align: top;
 }
 
+//.ui-lui-btntd {
+//	vertical-align: top;
+//}
+//
+//// The single "lookup" button td for an open quicksearch
+//.ui-lui-btn-c {
+//	text-align: left;
+//	white-space: nowrap;
+//
+//	border: 1px solid $bevel_down;
+//	border-top: 1px solid $bevel_up;
+//	border-left: none;
+//
+//	padding: 3px 2px;
+//	width: 21px;
+//	height: calc(1em + 9px);
+//}
+//
+//// The single td containing 2 buttons to lookup and clear, sigh.
+//.ui-lui-btncell {
+//	min-width: 38px;
+//
+//	button {
+//		margin: 4px;
+//	}
+//}
 
-.ui-lui-btntd {
-	vertical-align: top;
-}
-
-// The single "lookup" button td for an open quicksearch
-.ui-lui-btn-c {
-	text-align: left;
-	white-space: nowrap;
-
-	border: 1px solid $bevel_down;
-	border-top: 1px solid $bevel_up;
-	border-left: none;
-
-	padding: 3px 2px;
-	width: 21px;
-	height: calc(1em + 9px);
-}
-
-// The single td containing 2 buttons to lookup and clear, sigh.
-.ui-lui-btncell {
-	min-width: 38px;
-
-	button {
-		margin: 4px;
-	}
-}
-
-.ui-lui-empty {
-	line-height: $form-line-height;
-	border: 1px solid $bevel_down;
-	white-space: nowrap;
-	//padding: 2px 0px 2px 0px; 20170927 No, causes misalignment of baseline
-	min-width: $lui-min-width;
-
-	background: #f2f9fe; /* Old browsers */
-	background: -moz-linear-gradient(top, #f2f9fe 0%, #d6f0fd 100%); /* FF3.6-15 */
-	background: -webkit-linear-gradient(top, #f2f9fe 0%,#d6f0fd 100%); /* Chrome10-25,Safari5.1-6 */
-	background: linear-gradient(to bottom, #f2f9fe 0%,#d6f0fd 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-}
 .ui-lui.ui-input-err {
 	.ui-lui-empty, .ui-lui-v, .ui-lui-keyword, .ui-srip-keyword {
 		background: $errors_input_background;
 	}
 }
-//.ui-input-err * .ui-lui-v {
-//	background-color: $errors_input_background !important;
-//}
 
 div.ui-lui-selected-ro {
 	//border: $readonly_border solid 1px; /* same border color as one used for ui-dspv fields */
 	border: none !important;
-	margin-bottom: 0px;
+	margin-bottom: 0;
 }
 
 div.ui-lui-selected-ro td {
-	padding: 0px;
+	padding: 0;
 }
-
 
 /*
  * Add a 2 pixel padding on top so that the "no selection" text takes the same relative position
@@ -145,8 +151,12 @@ img.ui-lui-waiting {
  * - the popup cell has display: block/inline, position: absolute and z-index higher.
  * See fiddle https://jsfiddle.net/fjalvingh/jmd0ycta/ for example.
  */
-.ui-lui-kwsi {
-	position: relative;
+//.ui-lui-kwsi input {
+//	@include ui-input-base;
+//}
+
+.ui-lui-kwsi input {
+	min-width: $lui-min-width;
 }
 
 .ui-lui-popup {

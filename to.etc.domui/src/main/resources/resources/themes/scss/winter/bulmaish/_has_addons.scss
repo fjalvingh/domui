@@ -33,7 +33,7 @@
 	}
 }
 .ctl-has-addons .ui-control:not(:last-child) {
-	.ui-input, .ui-button {
+	&, .ui-input, .ui-button {
 		border-bottom-right-radius: 0px;
 		border-top-right-radius: 0px;
 		margin-right: -1px;

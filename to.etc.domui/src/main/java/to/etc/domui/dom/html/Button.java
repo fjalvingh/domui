@@ -77,6 +77,7 @@ public class Button extends NodeContainer implements IActionControl, IForTarget 
 		super.internalOnClicked(cli);
 	}
 
+	@Override
 	public boolean isDisabled() {
 		return m_disabled;
 	}

@@ -57,20 +57,18 @@ public class SearchInput2 extends Div implements IForTarget {
 
 	public SearchInput2(@Nullable String cssClass) {
 		if(cssClass != null)
-			m_keySearch.setCssClass(cssClass);
+			m_keySearch.addCssClass(cssClass);
 	}
 
 	@Override
 	public void createContent() throws Exception {
-		addCssClass("ui-srip");
-		if(m_keySearch.getCssClass() == null) {
-			m_keySearch.setCssClass("ui-srip-keyword");
-		}
+		css("ui-lui-kwsi", "ui-control");
 		m_keySearch.setMaxLength(40);
 		m_keySearch.setSize(14);
 		//m_keySearch.setMarker();
 
 		add(m_keySearch);
+		m_keySearch.addCssClass("ui-input");
 
 		appendCreateJS("new WebUI.SearchPopup('" + getActualID() + "','" + m_keySearch.getActualID() + "');");
 	}
