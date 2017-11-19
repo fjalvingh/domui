@@ -1,14 +1,17 @@
 package to.etc.domui.util.resources;
 
-import java.io.*;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.trouble.ThingyNotFoundException;
+import to.etc.util.ByteBufferInputStream;
+import to.etc.util.ByteBufferOutputStream;
+import to.etc.util.FileTool;
+import to.etc.util.LineIterator;
 
-import javax.annotation.*;
+import javax.annotation.Nonnull;
+import java.io.IOException;
+import java.io.InputStream;
 
-import to.etc.domui.server.*;
-import to.etc.domui.trouble.*;
-import to.etc.util.*;
-
-public class CompoundResourceRef implements IResourceRef, IModifyableResource {
+final public class CompoundResourceRef implements IResourceRef, IModifyableResource {
 	private byte[][] m_buffers;
 
 	private CompoundResourceRef(@Nonnull byte[][] buffers) {
@@ -27,16 +30,13 @@ public class CompoundResourceRef implements IResourceRef, IModifyableResource {
 	}
 
 	@Override
-	@Nullable
+	@Nonnull
 	public InputStream getInputStream() throws Exception {
 		return new ByteBufferInputStream(m_buffers);
 	}
 
 	/**
 	 * Load the spec, and create the ref from it.
-	 * @param da
-	 * @param inclset
-	 * @return
 	 */
 	public static IResourceRef loadBySpec(@Nonnull DomApplication da, @Nonnull String baseDir, @Nonnull String inclset, @Nonnull String origname) throws Exception {
 		ByteBufferOutputStream	bos = new ByteBufferOutputStream();
@@ -61,15 +61,13 @@ public class CompoundResourceRef implements IResourceRef, IModifyableResource {
 		IResourceRef resource = da.getAppFileOrResource(filename);
 		if(! resource.exists())
 			throw new ThingyNotFoundException("Cannot find include file " + filename + " referenced in " + origname);
-		InputStream is = null;
+		InputStream is = resource.getInputStream();
+		if(is == null)
+			throw new IOException("Cannot open resource " + resource);
 		try {
-			is = resource.getInputStream();
 			FileTool.copyFile(bos, is);
 		} finally {
 			FileTool.closeAll(is);
 		}
-
 	}
-
-
 }

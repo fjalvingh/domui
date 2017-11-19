@@ -43,10 +43,6 @@ import java.io.*;
  */
 @Deprecated
 public abstract class MultipartFile {
-	public MultipartFile() {
-	}
-
-
 	/**
 	 * This must provide data for the file to sent. It gets called with a buffer
 	 * that should be filled with as much data as will fit. It will be called

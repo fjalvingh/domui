@@ -420,8 +420,6 @@ final public class MsgBox2 extends Window {
 	 */
 	@Nonnull
 	public MsgBox2  button(@Nonnull final MsgBoxButton mbb) {
-		if(mbb == null)
-			throw new NullPointerException("A message button cannot be null");
 		String lbl = MetaManager.findEnumLabel(mbb);
 		if(lbl == null)
 			lbl = mbb.name();

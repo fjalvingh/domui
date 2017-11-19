@@ -262,19 +262,9 @@ final public class ThemeManager {
 	 */
 	@Nonnull
 	public String getThemedResourceRURL(@Nonnull IRequestContext context, @Nonnull String path) {
-		if(path.startsWith("THEME/")) {
-			path = path.substring(6); 							// Strip THEME/
-		} else if(path.startsWith("ICON/")) {
-			throw new IllegalStateException("Bad ROOT: ICON/. Use THEME/ instead.");
-		} else
-			return path;										// Not theme-relative, so return as-is.
-		if(path == null)
-			throw new NullPointerException();
-
 		try {
 			ITheme theme = context.getCurrentTheme();
-			String newicon = theme.translateResourceName(path);
-			return ThemeResourceFactory.PREFIX + theme.getThemeName() + "/" + newicon;
+			return getThemedResourceRURL(theme, path);
 		} catch(Exception x) {
 			throw WrappedException.wrap(x);
 		}
@@ -297,9 +287,6 @@ final public class ThemeManager {
 			throw new IllegalStateException("Bad ROOT: ICON/. Use THEME/ instead.");
 		} else
 			return path;										// Not theme-relative, so return as-is.
-		if(path == null)
-			throw new NullPointerException();
-
 		try {
 			String newicon = theme.translateResourceName(path);
 			return ThemeResourceFactory.PREFIX + theme.getThemeName() + "/" + newicon;

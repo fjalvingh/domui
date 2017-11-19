@@ -6,6 +6,7 @@ import to.etc.domui.parts.ParameterInfoImpl;
 import to.etc.domui.util.resources.IResourceDependencyList;
 import to.etc.util.WrappedException;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,7 +26,7 @@ class JSassResolver extends AbstractSassResolver<Import> implements Importer {
 	@Override public Collection<Import> apply(String s, Import anImport) {
 		Import resolve = resolve(s, anImport.getAbsoluteUri().toString());
 		if(null == resolve)
-			throw new RuntimeException(s + ": sass import not found");
+			throw new WrappedException(new IOException((s + ": sass import not found")));	// CHECKED EXCEPTIONS SUCK
 		return Collections.singletonList(resolve);
 	}
 

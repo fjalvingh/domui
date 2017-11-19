@@ -186,8 +186,9 @@ $.extend(WebUI.SearchPopup.prototype, {
 			return;
 		var wasInFocus = node === document.activeElement;
 		var qDivPopup = $(node.parentNode).children("div.ui-ssop");
+		var divPopup = null;
 		if(qDivPopup.length > 0) {
-			var divPopup = qDivPopup.get(0);
+			divPopup = qDivPopup.get(0);
 			//z-index correction must be set manually from javascript (because some bug in IE7 -> if set from domui renders incorrectly until page is refreshed?)
 			divPopup.style.zIndex = node.style.zIndex + 1;
 			node.parentNode.style.zIndex = divPopup.style.zIndex;
