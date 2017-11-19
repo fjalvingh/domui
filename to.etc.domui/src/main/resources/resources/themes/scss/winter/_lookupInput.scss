@@ -154,6 +154,10 @@ img.ui-lui-waiting {
 .ui-lui-srip {
 	position: relative;
 
+	input {
+		min-width: $lui-min-width;
+	}
+
 	@include ui-loading-base;
 	//& input {
 	//	z-index: 2;				// Needed because hover sets z-index 2
