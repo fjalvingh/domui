@@ -62,7 +62,7 @@ public class SearchInput2 extends Div implements IForTarget {
 
 	@Override
 	public void createContent() throws Exception {
-		css("ui-lui-kwsi", "ui-control");
+		css("ui-lui-srip", "ui-control");
 		m_keySearch.setMaxLength(40);
 		m_keySearch.setSize(14);
 		//m_keySearch.setMarker();

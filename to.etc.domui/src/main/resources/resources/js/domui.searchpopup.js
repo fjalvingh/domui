@@ -8,6 +8,7 @@ WebUI.K_HOME = 36;
 WebUI.K_END = 35;
 WebUI.K_PGUP = 33;
 WebUI.K_PGDN = 34;
+WebUI.K_TAB = 9;
 
 /**
  * JavascriptHandler for the new, generic SearchInput2 control.
@@ -21,15 +22,15 @@ WebUI.SearchPopup = function(id, inputid) {
 	$('#' + inputid).keypress(function(event) {
 		self.keypressHandler(event);
 	})
-		.keydown(function(event) {
-			self.keyUpHandler(event);
-		})
-		.focus(function() {
-			self.handleFocus();
-		})
-		.blur(function(event) {
-			self.handleBlur();
-		});
+	.keydown(function(event) {
+		self.keyUpHandler(event);
+	})
+	.focus(function() {
+		self.handleFocus();
+	})
+	.blur(function(event) {
+		self.handleBlur();
+	});
 };
 
 /**
@@ -44,7 +45,7 @@ $.extend(WebUI.SearchPopup.prototype, {
 	 * Handle enter key pressed on keyPress for component with onLookupTyping listener. This needs to be executed on keyPress (was part of keyUp handling), otherwise other global return key listener (returnKeyPress handler) would fire.
 	 */
 	keypressHandler: function(event) {
-		//console.debug("SearchPopup.keypressHandler: "+event.which);
+		// console.log("SearchPopup.keypressHandler: "+event.which);
 		var key = event.which;
 		var selectedTrNode = null;
 		switch(key) {
@@ -86,8 +87,22 @@ $.extend(WebUI.SearchPopup.prototype, {
 	 * This cause that fast typing would not trigger ajax for each key stroke, only when user stops typing for 500ms ajax would be called by lookupTyping function.
 	 */
 	keyUpHandler: function(event) {
-		//console.debug("SearchPopup.keyup: "+event.which);
+		console.log("SearchPopup.keyup: "+event.which);
 		switch(event.which) {
+			//-- The following just edit, but should not cause a keytyped event.
+			case WebUI.K_END:
+			case WebUI.K_HOME:
+			case WebUI.K_LEFT:
+			case WebUI.K_RIGHT:
+			case WebUI.K_RETURN:
+			case WebUI.K_UP:
+			case WebUI.K_DOWN:
+			case WebUI.K_TAB:
+				return;
+
+			case 229:		// added by some browsers when characters are repeatedly pressed, indicating that the Input Monitor is busy
+				return;
+
 			case WebUI.K_ESC:
 				//esc clears the input and selection
 				var node = document.getElementById(this._inputid);
@@ -109,19 +124,6 @@ $.extend(WebUI.SearchPopup.prototype, {
 				}, 500);
 
 				return true;
-
-			//-- The following just edit, but should not cause a keytyped event.
-			case WebUI.K_END:
-			case WebUI.K_HOME:
-			case WebUI.K_LEFT:
-			case WebUI.K_RIGHT:
-			case WebUI.K_RETURN:
-			case WebUI.K_UP:
-			case WebUI.K_DOWN:
-				return;
-
-			case 229:		// added by some browsers when characters are repeatedly pressed, indicating that the Input Monitor is busy
-				return;
 		}
 	},
 
@@ -143,12 +145,14 @@ $.extend(WebUI.SearchPopup.prototype, {
 		// parentNode.style.zIndex = 10;
 		// $('#' + parentNode.id + " .ui-srip-message").css("z-index", "999");
 		$('#' + parentNode.id + " .ui-srip-message").fadeIn(200);
+		console.log("focus");
 	},
 
 	/**
 	 * When the input is left remove any popup visible.
 	 */
 	handleBlur: function() {
+		console.log("blur");
 		//-- 1. If we have a popup panel-> fade it out,
 		var selectOnePanel = $('#' + this._id + " .ui-ssop");
 		selectOnePanel.fadeOut(200);

@@ -151,6 +151,10 @@ img.ui-lui-waiting {
  * - the popup cell has display: block/inline, position: absolute and z-index higher.
  * See fiddle https://jsfiddle.net/fjalvingh/jmd0ycta/ for example.
  */
+.ui-lui-srip {
+	position: relative;
+}
+
 //.ui-lui-kwsi input {
 //	@include ui-input-base;
 //}

@@ -76,7 +76,7 @@ public class KeyWordSearchInput<T> extends Div implements IForTarget {
 
 	@Override
 	public void createContent() throws Exception {
-		css("ui-lui-kwsi", "ui-control");
+		css("ui-lui-srip", "ui-control");
 
 		//m_imgWaiting.setCssClass("ui-lui-waiting");
 		//m_imgWaiting.setDisplay(DisplayType.NONE);
