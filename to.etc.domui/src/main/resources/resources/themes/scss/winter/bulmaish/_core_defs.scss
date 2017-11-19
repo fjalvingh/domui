@@ -16,6 +16,52 @@ $control-padding-horizontal: calc(0.625em - 1px) !default;
 	-moz-appearance: none;
 }
 
+@mixin loader {
+	animation: spinAround 500ms infinite linear;
+	border: 2px solid $border;
+	border-radius: 290486px;
+	border-right-color: transparent;
+	border-top-color: transparent;
+	content: "";
+	display: block;
+	height: 1em;
+	position: relative;
+	width: 1em;
+}
+
+@mixin ui-focus-border {
+	&:focus {
+		border-color: #3273dc;
+		box-shadow: 0 0 0 0.125em rgba(50, 115, 220, 0.25);
+		z-index: 2;
+	}
+}
+
+@mixin ui-loading-base {
+	&.is-loading {
+		&::after {
+			@include loader;
+
+			position: absolute !important;
+			right: 0.625em;
+			top: 0.625em;
+			z-index: 2;						// added to make loading work with focus
+		}
+
+		&.is-small:after {
+			font-size: $size-small;
+		}
+
+		&.is-medium:after {
+			font-size: $size-medium;
+		}
+
+		&.is-large:after {
+			font-size: $size-large;
+		}
+	}
+}
+
 @mixin ui-control-base {
 	-moz-appearance: none;
 	-webkit-appearance: none;
@@ -61,14 +107,6 @@ $control-padding-horizontal: calc(0.625em - 1px) !default;
 	box-shadow: inset 0 1px 2px rgba(10, 10, 10, 0.1);
 }
 
-@mixin ui-focus-border {
-	&:focus {
-		border-color: #3273dc;
-		box-shadow: 0 0 0 0.125em rgba(50, 115, 220, 0.25);
-		z-index: 2;
-	}
-}
-
 /** Common mixins **/
 @mixin border-radius($radius) {
 	-khtml-border-radius: $radius;
@@ -84,19 +122,6 @@ $control-padding-horizontal: calc(0.625em - 1px) !default;
 	-moz-user-select: none;
 	-ms-user-select: none;
 	user-select: none;
-}
-
-@mixin loader {
-	animation: spinAround 500ms infinite linear;
-	border: 2px solid $border;
-	border-radius: 290486px;
-	border-right-color: transparent;
-	border-top-color: transparent;
-	content: "";
-	display: block;
-	height: 1em;
-	position: relative;
-	width: 1em;
 }
 
 @mixin arrow($color) {

@@ -113,6 +113,19 @@ public class LookupInput2Fragment extends Div {
 		lf33.setMandatory(true);
 		fb.property(this, "f33").label("filled 2line val").control(lf33);
 
+		LookupInput2<Album> lf40 = new LookupInput2<>(Album.class);
+		lf40.setValueColumns("title", "artist.name");
+		fb.label("SlowLookup").item(lf40);
+		lf40.setQueryManipulator(c -> {
+			try {
+				Thread.sleep(4000);
+			} catch(Exception x) {
+
+			}
+			return c;
+		});
+
+
 		DefaultButton validate = new DefaultButton("validate", a -> bindErrors());
 		add(validate);
 	}

@@ -87,7 +87,7 @@ $.extend(WebUI.SearchPopup.prototype, {
 	 * This cause that fast typing would not trigger ajax for each key stroke, only when user stops typing for 500ms ajax would be called by lookupTyping function.
 	 */
 	keyUpHandler: function(event) {
-		console.log("SearchPopup.keyup: "+event.which);
+		// console.log("SearchPopup.keyup: "+event.which);
 		switch(event.which) {
 			//-- The following just edit, but should not cause a keytyped event.
 			case WebUI.K_END:
@@ -145,14 +145,14 @@ $.extend(WebUI.SearchPopup.prototype, {
 		// parentNode.style.zIndex = 10;
 		// $('#' + parentNode.id + " .ui-srip-message").css("z-index", "999");
 		$('#' + parentNode.id + " .ui-srip-message").fadeIn(200);
-		console.log("focus");
+		// console.log("focus");
 	},
 
 	/**
 	 * When the input is left remove any popup visible.
 	 */
 	handleBlur: function() {
-		console.log("blur");
+		// console.log("blur");
 		//-- 1. If we have a popup panel-> fade it out,
 		var selectOnePanel = $('#' + this._id + " .ui-ssop");
 		selectOnePanel.fadeOut(200);
@@ -215,13 +215,16 @@ $.extend(WebUI.SearchPopup.prototype, {
 	 * Function is called with delay of 500ms from ajax.beforeSend method for lookupTyping event.
 	 */
 	displayWaiting: function() {
-		var waitdiv = this._waitDiv;
-		if(waitdiv)
-			return;
+		console.log("waiting");
+		$('#' + this._id).addClass("is-loading");
 
-		waitdiv = $('<div class="ui-srip-waiting"><div></div></div>');
-		$('#' + this._id).append(waitdiv);
-		this._waitDiv = waitdiv;
+		// var waitdiv = this._waitDiv;
+		// if(waitdiv)
+		// 	return;
+		//
+		// waitdiv = $('<div class="ui-srip-waiting"><div></div></div>');
+		// $('#' + this._id).append(waitdiv);
+		// this._waitDiv = waitdiv;
 	},
 
 	/*
@@ -229,12 +232,14 @@ $.extend(WebUI.SearchPopup.prototype, {
 	 * Function is called from ajax.completed method for lookupTyping event.
 	 */
 	hideWaiting: function() {
-		var waitdiv = this._waitDiv;
-		if(!waitdiv)
-			return;
-		delete this._waitDiv;
-
-		$(waitdiv).remove();
+		console.log("waiting done");
+		$('#' + this._id).removeClass("is-loading");
+		// var waitdiv = this._waitDiv;
+		// if(!waitdiv)
+		// 	return;
+		// delete this._waitDiv;
+		//
+		// $(waitdiv).remove();
 	},
 
 	lookupTyping: function() {

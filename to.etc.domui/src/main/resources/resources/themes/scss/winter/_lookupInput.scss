@@ -153,6 +153,11 @@ img.ui-lui-waiting {
  */
 .ui-lui-srip {
 	position: relative;
+
+	@include ui-loading-base;
+	//& input {
+	//	z-index: 2;				// Needed because hover sets z-index 2
+	//}
 }
 
 //.ui-lui-kwsi input {
