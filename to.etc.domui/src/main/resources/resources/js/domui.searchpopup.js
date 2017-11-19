@@ -54,9 +54,9 @@ $.extend(WebUI.SearchPopup.prototype, {
 			case WebUI.K_RETURN:
 				//locate keyword input node
 				var node = document.getElementById(this._inputid);
-				if(node && node.tagName.toLowerCase() == 'input') {
+				if(node && node.tagName.toLowerCase() === 'input') {
 					var selection = $(node.parentNode).find("tr.ui-ssop-selected");
-					if (selection && selection.length == 1){
+					if (selection && selection.length === 1){
 						selectedTrNode = selection.get(0);
 					}
 				}
@@ -64,7 +64,7 @@ $.extend(WebUI.SearchPopup.prototype, {
 				break;
 		}
 		var node = document.getElementById(this._inputid);
-		if(!node || node.tagName.toLowerCase() != 'input')
+		if(!node || node.tagName.toLowerCase() !== 'input')
 			return;
 
 		this.cancelEvent(event);
@@ -91,7 +91,7 @@ $.extend(WebUI.SearchPopup.prototype, {
 			case WebUI.K_ESC:
 				//esc clears the input and selection
 				var node = document.getElementById(this._inputid);
-				if(node && node.tagName.toLowerCase() == 'input') {
+				if(node && node.tagName.toLowerCase() === 'input') {
 					node.value = "";
 					if (this._popup) {
 						var jsPopupRef = WebUI.findInputControl(this._popup.id);
@@ -163,7 +163,7 @@ $.extend(WebUI.SearchPopup.prototype, {
 
 		//following is needed to fix situations when lookups are under each other -> inputs get over previous popups
 		var node = document.getElementById(this._inputid);
-		if(!node || node.tagName.toLowerCase() != 'input')
+		if(!node || node.tagName.toLowerCase() !== 'input')
 			return;		//fix z-index to one saved in input node
 		if ($.browser.msie){
             //IE kills event stack (click is canceled) when z index is set during onblur event handler... So, we need to postpone it a bit...
@@ -182,9 +182,9 @@ $.extend(WebUI.SearchPopup.prototype, {
 		
 	showLookupTypingPopupIfStillFocusedAndFixZIndex: function() {
 		var node = document.getElementById(this._inputid);
-		if(!node || node.tagName.toLowerCase() != 'input')
+		if(!node || node.tagName.toLowerCase() !== 'input')
 			return;
-		var wasInFocus = node == document.activeElement;
+		var wasInFocus = node === document.activeElement;
 		var qDivPopup = $(node.parentNode).children("div.ui-ssop");
 		if (qDivPopup.length > 0){
 			var divPopup = qDivPopup.get(0);
@@ -279,7 +279,7 @@ $.extend(WebUI.SearchPopup.prototype, {
 		evt.cancelBubble = true;
 		if(evt.stopPropagation)
 			evt.stopPropagation();
-	},
+	}
 });
 
 /*** SelectOnePanel ***/
@@ -320,7 +320,7 @@ $.extend(WebUI.SelectOnePanel.prototype, {
 
 	mouseOverHandler: function(event) {
 		var node = $(event.target).closest(".ui-ssop-row");
-		if(node.length == 0)
+		if(node.length === 0)
 			return;
 		var index = $(node).index();							// Find # in list
 		this.selectNode(index);									// Select the new node.
@@ -379,6 +379,6 @@ $.extend(WebUI.SelectOnePanel.prototype, {
 		evt.cancelBubble = true;
 		if(evt.stopPropagation)
 			evt.stopPropagation();
-	},
+	}
 
 });
