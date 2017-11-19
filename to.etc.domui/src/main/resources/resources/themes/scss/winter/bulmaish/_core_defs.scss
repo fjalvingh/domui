@@ -65,6 +65,7 @@ $control-padding-horizontal: calc(0.625em - 1px) !default;
 	&:focus {
 		border-color: #3273dc;
 		box-shadow: 0 0 0 0.125em rgba(50, 115, 220, 0.25);
+		z-index: 2;
 	}
 }
 

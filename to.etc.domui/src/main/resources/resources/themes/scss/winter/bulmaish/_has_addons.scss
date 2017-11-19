@@ -18,6 +18,10 @@
 	&:not(:first-child) {
 		border-bottom-left-radius: 0;
 		border-top-left-radius: 0;
+
+		&:hover, &:focus {
+			z-index: 2;
+		}
 	}
 	&:not(:last-child) {
 		border-bottom-right-radius: 0;
@@ -30,6 +34,10 @@
 	&, .ui-input, .ui-button {
 		border-bottom-left-radius: 0px;
 		border-top-left-radius: 0px;
+
+		&:hover, &:focus {
+			z-index: 2;
+		}
 	}
 }
 .ctl-has-addons .ui-control:not(:last-child) {
