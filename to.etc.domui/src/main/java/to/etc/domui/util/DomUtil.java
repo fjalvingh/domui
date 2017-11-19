@@ -34,6 +34,7 @@ import to.etc.domui.component.misc.WindowParameters;
 import to.etc.domui.dom.errors.IErrorFence;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.BR;
+import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IHasModifiedIndication;
 import to.etc.domui.dom.html.IUserInputModifiedFence;
@@ -65,6 +66,7 @@ import to.etc.util.ByteArrayUtil;
 import to.etc.util.ExceptionClassifier;
 import to.etc.util.FileTool;
 import to.etc.util.HtmlScanner;
+import to.etc.util.LineIterator;
 import to.etc.util.StringTool;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.nls.BundleRef;
@@ -73,6 +75,7 @@ import to.etc.webapp.query.IIdentifyable;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -1453,7 +1456,31 @@ final public class DomUtil {
 			top.add(sb.toString());
 	}
 
+	static public void renderLines(@Nonnull NodeContainer nc, @Nullable String text) {
+		renderLines(nc, text, null);
+	}
+
 	/**
+	 * Render a text with crlf line endings into a node.
+	 * @param nc
+	 * @param text
+	 */
+	static public void renderLines(@Nonnull NodeContainer nc, @Nullable String text, @Nullable Function<String, String> lineFixer) {
+		if(text == null)
+			return;
+		text = text.trim();
+		if(text == null || text.length() == 0)					// Extra nullity test is because ecj is nuts
+			return;
+		for(String line : new LineIterator(text)) {
+			Div d = new Div("ui-nl-line");
+			nc.add(d);
+			if(lineFixer != null)
+				line = lineFixer.apply(line);
+			d.add(line);
+		}
+	}
+
+ 	/**
 	 * This scans the input, and only copies "safe" html, which is HTML with only
 	 * simple constructs. It checks to make sure the resulting document is xml-safe (well-formed),
 	 * if the input is not well-formed it will add or remove tags until the result is valid.
@@ -1596,6 +1623,50 @@ final public class DomUtil {
 		if(iconUrl.contains("/"))
 			return false;
 		return iconUrl.startsWith("fa-");
+	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Handle cookies.										*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Find a cookie if it exists, return null otherwise.
+	 * @param name
+	 * @return
+	 */
+	@Nullable
+	static public Cookie findCookie(@Nonnull String name) {
+		IRequestContext rci = UIContext.getRequestContext();
+		Cookie[] car = rci.getRequestResponse().getCookies();
+		if(car == null || car.length == 0)
+			return null;
+
+		for(Cookie c : car) {
+			if(c.getName().equals(name)) {
+				return c;
+			}
+		}
+		return null;
+	}
+
+	@Nullable
+	static public String findCookieValue(@Nonnull String name) {
+		Cookie c = findCookie(name);
+		return c == null ? null : c.getValue();
+	}
+
+	/**
+	 * Set a new or overwrite an existing cookie.
+	 *
+	 * @param name
+	 * @param value
+	 * @param maxage	Max age, in seconds.
+	 */
+	static public void setCookie(@Nonnull String name, String value, int maxage) {
+		IRequestContext rci = UIContext.getRequestContext();
+		Cookie k = new Cookie(name, value);
+		k.setMaxAge(maxage);
+		k.setPath("/" + rci.getRequestResponse().getWebappContext());
+		rci.getRequestResponse().addCookie(k);
 	}
 
 	/*--------------------------------------------------------------*/

@@ -54,11 +54,6 @@ public class HttpServerRequestResponse implements IRequestResponse {
 		return m_webappContext;
 	}
 
-//	@Nonnull
-//	public String getExtension() {
-//		return m_extension;
-//	}
-//
 	@Nonnull
 	static public HttpServerRequestResponse create(@Nonnull DomApplication application, @Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response) {
 		String webapp = request.getContextPath();
@@ -110,13 +105,34 @@ public class HttpServerRequestResponse implements IRequestResponse {
 	@Override
 	@Nonnull
 	public String getApplicationURL() {
+		String appUrl = DomApplication.get().getApplicationURL();
+		if(null != appUrl) {
+			return appUrl;
+		}
+
 		return NetTools.getApplicationURL(getRequest());
 	}
 
 	@Override
 	@Nonnull
 	public String getHostURL() {
+		String appUrl = DomApplication.get().getApplicationURL();
+		if(null != appUrl) {
+			int ix = appUrl.indexOf('/', 8);			// After http and https, first /
+			if(ix == -1)
+				return appUrl;
+			return appUrl.substring(0, ix + 1);
+		}
 		return NetTools.getHostURL(getRequest());
+	}
+
+	@Override
+	@Nonnull
+	public String getHostName() {
+		String hostName = DomApplication.get().getHostName();
+		if(null != hostName)
+			return hostName;
+		return NetTools.getHostName(m_request);
 	}
 
 	/**
@@ -224,7 +240,7 @@ public class HttpServerRequestResponse implements IRequestResponse {
 
 	@Override
 	public void addCookie(@Nonnull Cookie cookie) {
-		cookie.setDomain(NetTools.getHostName(getRequest()));
+		cookie.setDomain(getHostName());
 		getResponse().addCookie(cookie);
 	}
 
@@ -261,14 +277,4 @@ public class HttpServerRequestResponse implements IRequestResponse {
 			return (HttpServerRequestResponse) rr;
 		return null;
 	}
-
-//
-//	@Nullable
-//	public static HttpSession getSession(RequestContextImpl ci, boolean create) {
-//		IRequestResponse rr = ci.getRequestResponse();
-//		if(!(rr instanceof HttpServerRequestResponse))
-//			return null;
-//		HttpServerRequestResponse hr = (HttpServerRequestResponse) rr;
-//		return hr.getRequest().getSession(create);
-//	}
 }

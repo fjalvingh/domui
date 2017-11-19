@@ -3316,6 +3316,18 @@ var WebUI;
         }
     }
     WebUI.focus = focus;
+    function refreshPage() {
+        var url = window.location.href;
+        var ix1 = url.indexOf("$cid=");
+        if (ix1 > 0) {
+            var ix2 = url.indexOf("&", ix1);
+            if (ix2 > ix1) {
+                url = url.substring(0, ix1) + url.substring(ix2 + 1);
+                window.location.href = url;
+            }
+        }
+    }
+    WebUI.refreshPage = refreshPage;
     function getPostURL() {
         var p = window.location.href;
         var ix = p.indexOf('?');

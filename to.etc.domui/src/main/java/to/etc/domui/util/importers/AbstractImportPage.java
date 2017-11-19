@@ -5,7 +5,9 @@ import to.etc.domui.component.layout.ButtonBar;
 import to.etc.domui.component.misc.FaIcon;
 import to.etc.domui.component.upload.FileUpload;
 import to.etc.domui.dom.html.UrlPage;
-import to.etc.domui.util.Msgs;
+import to.etc.domui.util.asyncdialog.AsyncDialog;
+import to.etc.domui.util.upload.UploadItem;
+import to.etc.function.ConsumerEx;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -18,24 +20,26 @@ public class AbstractImportPage extends UrlPage {
 
 	@Override public void createContent() throws Exception {
 		add(createUpload());
-
-		addUploadButton("Inlezen");
-		addCancelButton(Msgs.BUNDLE.getString(Msgs.BTN_CANCEL));
+		//
+		//addUploadButton("Inlezen", );
+		//addCancelButton(Msgs.BUNDLE.getString("ui.buttonbar.back"));
 	}
 
-	private void addCancelButton(String string) {
+	protected void addCancelButton(String string) {
 		getButtonBar().addBackButton(string, FaIcon.faCircle);
 	}
 
-	private void addUploadButton(String text) throws Exception {
-		DefaultButton b = getButtonBar().addButton(text, FaIcon.faUpload, v -> startUpload());
+	protected <T extends AbstractImportTask> void addUploadButton(String text, T task, ConsumerEx<T> onComplete) throws Exception {
+		DefaultButton b = getButtonBar().addButton(text, FaIcon.faUpload, v -> startUpload(task, onComplete));
 		b.bind("disabled").to(this, "uploadDisabled");
 	}
 
-	private void startUpload() {
-
-
-
+	private <T extends AbstractImportTask> void startUpload(T task, ConsumerEx<T> onComplete) {
+		UploadItem value = m_upload.getValue();
+		if(null == value)
+			return;
+		task.setInputFile(value.getFile());
+		AsyncDialog.runInDialog(this, task, "Import", true, onComplete);
 	}
 
 	public boolean isUploadDisabled() {

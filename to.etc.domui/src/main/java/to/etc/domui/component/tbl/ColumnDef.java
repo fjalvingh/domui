@@ -6,6 +6,7 @@ import to.etc.domui.dom.css.*;
 import to.etc.domui.util.*;
 
 import javax.annotation.*;
+import java.util.function.Predicate;
 
 final public class ColumnDef<I, T> {
 	@Nonnull
@@ -75,6 +76,9 @@ final public class ColumnDef<I, T> {
 	private boolean m_editable;
 
 	private IRowControlFactory<I> m_controlFactory;
+
+	@Nullable
+	private Predicate<I> m_showCellClickedWhen;
 
 	ColumnDef(@Nonnull ColumnList<I> cdl, @Nonnull Class<T> valueClass) {
 		m_actualClass = valueClass;
@@ -241,6 +245,10 @@ final public class ColumnDef<I, T> {
 		return m_cellClicked;
 	}
 
+	@Nullable public Predicate<I> getShowCellClickedWhen() {
+		return m_showCellClickedWhen;
+	}
+
 	@Nonnull
 	public NumericPresentation getNumericPresentation() {
 		return m_numericPresentation;
@@ -312,6 +320,19 @@ final public class ColumnDef<I, T> {
 		m_cellClicked = ck;
 		return this;
 	}
+
+	/**
+	 * Set the cell click handler.
+	 * @param ck
+	 * @return
+	 */
+	@Nonnull
+	public ColumnDef<I, T> cellClicked(@Nullable ICellClicked<I> ck, @Nonnull Predicate<I> showWhen) {
+		m_cellClicked = ck;
+		m_showCellClickedWhen = showWhen;
+		return this;
+	}
+
 
 	/**
 	 * Set the node content renderer.

@@ -1,9 +1,10 @@
 package to.etc.domui.logic;
 
-import javax.annotation.*;
+import to.etc.domui.logic.errors.ProblemModel;
+import to.etc.webapp.query.IIdentifyable;
+import to.etc.webapp.query.QDataContext;
 
-import to.etc.domui.logic.errors.*;
-import to.etc.webapp.query.*;
+import javax.annotation.Nonnull;
 
 /**
  * Created by jal on 11/8/14.
@@ -20,7 +21,8 @@ public interface ILogicContext {
 
 	<T extends ILogic, K, V extends IIdentifyable<K>> void register(Class<?> registrationType, T logicClass, V dataClass);
 
-	<L extends ILogic> L get(@Nonnull Class<L> clz, Object reference) throws Exception;
+	@Nonnull
+	<L extends ILogic> L get(@Nonnull Class<L> clz, @Nonnull Object reference) throws Exception;
 
 	@Nonnull
 	ProblemModel getErrorModel();

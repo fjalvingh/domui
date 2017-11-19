@@ -9,7 +9,9 @@ html {
 }
 
 body, html {
-	background: $body-image $bg_color repeat-x;
+	height: 100%;
+	margin: 0;
+	background: $bg_color;
 }
 
 body {

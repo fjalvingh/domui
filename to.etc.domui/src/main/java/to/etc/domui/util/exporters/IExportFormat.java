@@ -1,6 +1,8 @@
 package to.etc.domui.util.exporters;
 
 import javax.annotation.DefaultNonNull;
+import javax.annotation.Nonnull;
+import java.io.File;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -15,5 +17,5 @@ public interface IExportFormat {
 	String extension();
 
 	/** The actual exporter */
-	IExportWriter<?> createWriter();
+	IExportWriter<?> createWriter(@Nonnull File output) throws Exception;
 }

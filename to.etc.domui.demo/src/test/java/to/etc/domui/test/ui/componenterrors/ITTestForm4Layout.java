@@ -48,7 +48,7 @@ public class ITTestForm4Layout extends AbstractLayoutTest {
 		checkBaseLine("six", "");
 	}
 
-	@Test
+	//@Test
 	public void testDate1Baseline() throws Exception {
 		checkBaseLine("date", "");
 	}

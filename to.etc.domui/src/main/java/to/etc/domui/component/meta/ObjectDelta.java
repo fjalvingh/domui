@@ -1,9 +1,17 @@
 package to.etc.domui.component.meta;
 
-import java.util.*;
+import org.jetbrains.annotations.NotNull;
+import to.etc.domui.component.meta.ObjectDelta.Delta;
 
-import javax.annotation.*;
-import javax.annotation.concurrent.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Create delta's by comparing two objects's values. Currently only supports non-deep
@@ -12,7 +20,7 @@ import javax.annotation.concurrent.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 31, 2013
  */
-final public class ObjectDelta {
+final public class ObjectDelta implements Iterable<Delta<?>> {
 	@Nonnull
 	final private Map<String, Delta< ? >> m_deltaMap;
 
@@ -91,6 +99,10 @@ final public class ObjectDelta {
 		}
 
 		return new ObjectDelta(deltaMap);
+	}
+
+	@NotNull @Override public Iterator<Delta<?>> iterator() {
+		return m_deltaMap.values().iterator();
 	}
 
 	static private <T, V> void compare(@Nonnull Map<String, Delta< ? >> deltaMap, @Nonnull T a, @Nonnull T b, @Nonnull PropertyMetaModel<V> pmm) throws Exception {
