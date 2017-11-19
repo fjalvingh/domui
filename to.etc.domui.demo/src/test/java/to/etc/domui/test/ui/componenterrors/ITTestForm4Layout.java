@@ -24,6 +24,7 @@ public class ITTestForm4Layout extends AbstractLayoutTest {
 		wd().cmd().type("aaaaaaaaa").on("four", "input");
 	}
 
+	@Ignore("While redesigning")
 	@Test
 	public void testLookup1Baseline() throws Exception {
 		checkBaseLine("one", "span");
@@ -35,6 +36,7 @@ public class ITTestForm4Layout extends AbstractLayoutTest {
 		checkBaseLine("two", "input");
 	}
 
+	@Ignore("While redesigning")
 	@Test
 	public void testLookup3Baseline() throws Exception {
 		checkBaseLine("three", "span");
@@ -64,6 +66,7 @@ public class ITTestForm4Layout extends AbstractLayoutTest {
 		checkBaseLine("memo", "");
 	}
 
+	@Ignore("While redesigning")
 	@Test
 	public void testTextArea2() throws Exception {
 		WebElement memo = wd().getElement("memo");

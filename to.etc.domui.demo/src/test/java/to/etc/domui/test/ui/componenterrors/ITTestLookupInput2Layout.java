@@ -22,6 +22,7 @@ public class ITTestLookupInput2Layout extends AbstractWebDriverTest {
 		wd().openScreenIf(this, LookupInput2TestPage.class);
 	}
 
+	@Ignore("While redesigning")
 	@Test
 	public void testOneLineForOne() throws Exception {
 		//-- Both one and two must use only one line
@@ -51,6 +52,7 @@ public class ITTestLookupInput2Layout extends AbstractWebDriverTest {
 		Assert.assertTrue("Two must have 'input' because it HAS QuickSearch", two.findElements(By.tagName("input")).size() == 1);
 	}
 
+	@Ignore("While redesigning")
 	@Test
 	public void labelMustBeAlignedOne() throws Exception {
 		WebElement one = wd().getElement("one");
@@ -58,6 +60,7 @@ public class ITTestLookupInput2Layout extends AbstractWebDriverTest {
 		Assert.assertEquals("Label and control for ONE must be on same Y", label.getLocation().getY(), one.getLocation().getY());
 	}
 
+	@Ignore("While redesigning")
 	@Test
 	public void labelMustBeAlignedTwo() throws Exception {
 		WebElement two = wd().getElement("two");
@@ -66,6 +69,7 @@ public class ITTestLookupInput2Layout extends AbstractWebDriverTest {
 		Assert.assertEquals("Label and control for TWO must be on same Y", label.getLocation().getY(), two.getLocation().getY());
 	}
 
+	@Ignore("While redesigning")
 	@Test
 	public void labelMustBeAlignedFontTwo() throws Exception {
 		WebElement two = wd().getElement("two");

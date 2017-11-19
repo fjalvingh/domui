@@ -25,6 +25,7 @@ public class ITTestLookupInputLayout extends AbstractWebDriverTest {
 	}
 
 	@Test
+	@Ignore("While redesigning")
 	public void testOneLineForOne() throws Exception {
 		//-- Both one and two must use only one line
 		WebElement one = wd().getElement("one");
@@ -53,6 +54,7 @@ public class ITTestLookupInputLayout extends AbstractWebDriverTest {
 	}
 
 	@Test
+	@Ignore("While redesigning")
 	public void labelMustBeAlignedOne() throws Exception {
 		WebElement one = wd().getElement("one");
 		WebElement label = AbstractLayoutTest.findFormLabelFor(one);
@@ -60,6 +62,7 @@ public class ITTestLookupInputLayout extends AbstractWebDriverTest {
 	}
 
 	@Test
+	@Ignore("While redesigning")
 	public void labelMustBeAlignedTwo() throws Exception {
 		WebElement two = wd().getElement("two");
 		WebElement label = AbstractLayoutTest.findFormLabelFor(two);
