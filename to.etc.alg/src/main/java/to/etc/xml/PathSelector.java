@@ -32,5 +32,5 @@ import org.w3c.dom.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
 public interface PathSelector {
-	public Node select(Node root, Node parent) throws Exception;
+	Node select(Node root, Node parent) throws Exception;
 }

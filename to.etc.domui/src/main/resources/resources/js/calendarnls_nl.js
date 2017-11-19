@@ -10,15 +10,14 @@
 // include your contact information in the header, as can be seen above.
 
 // full day names
-Calendar._DN = new Array
-("Zondag",
+Calendar._DN = ["Zondag",
  "Maandag",
  "Dinsdag",
  "Woensdag",
  "Donderdag",
  "Vrijdag",
  "Zaterdag",
- "Zondag");
+ "Zondag"];
 
 // Please note that the following array of short day names (and the same goes
 // for short month names, _SMN) isn't absolutely necessary.  We give it here
@@ -39,8 +38,7 @@ Calendar._SDN_len = 2;
 Calendar._FD = 1;
 
 // full month names
-Calendar._MN = new Array
-("Januari",
+Calendar._MN = ["Januari",
  "Februari",
  "Maart",
  "April",
@@ -51,7 +49,7 @@ Calendar._MN = new Array
  "September",
  "Oktober",
  "November",
- "December");
+ "December"];
 
 Calendar._SMN_len = 3;
 

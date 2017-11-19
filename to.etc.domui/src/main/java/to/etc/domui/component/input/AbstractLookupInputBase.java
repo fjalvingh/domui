@@ -501,7 +501,6 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 		String ksValue = getKeySearchValue();
 		if(DomUtil.isEqual(m_value, v) && ksValue == null)
 			return;
-		OT old = m_value;
 		m_value = v;
 		if(v != null) {
 			getClearButton().setDisabled(false);

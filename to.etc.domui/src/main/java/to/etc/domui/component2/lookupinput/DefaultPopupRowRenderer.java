@@ -53,7 +53,7 @@ public class DefaultPopupRowRenderer<T> implements IRenderInto<T> {
 			else {
 				IObjectToStringConverter<X> presentationConverter = cd.getPresentationConverter();
 				if(presentationConverter != null)
-					s = ((IConverter<X>) presentationConverter).convertObjectToString(NlsContext.getLocale(), colval);
+					s = presentationConverter.convertObjectToString(NlsContext.getLocale(), colval);
 				else
 					s = String.valueOf(colval);
 			}

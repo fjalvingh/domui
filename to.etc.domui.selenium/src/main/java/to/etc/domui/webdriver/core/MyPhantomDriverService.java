@@ -82,13 +82,13 @@ public class MyPhantomDriverService {
 			Object cap = desiredCapabilities.getCapability(capabilityName);
 			if (cap != null) {
 				if (cap instanceof String[]) {
-					return (String[])((String[])cap);
+					return ((String[])cap);
 				}
 
 				if (cap instanceof Collection) {
 					try {
 						Collection<String> capCollection = (Collection<String>)cap;
-						return (String[])capCollection.toArray(new String[capCollection.size()]);
+						return capCollection.toArray(new String[capCollection.size()]);
 					} catch (Exception var4) {
 						System.err.println(String.format("Unable to set Capability '%s' as it was neither a String[] or a Collection<String>", capabilityName));
 					}

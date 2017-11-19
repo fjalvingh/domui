@@ -9,7 +9,7 @@ import javax.annotation.*;
 class MetaObjectCopyBase<T> {
 	final private T m_source;
 
-	static public enum Mode {
+	public enum Mode {
 		DEEP, SHALLOW, COPY, IGNORE, ONLY
 	}
 
@@ -67,7 +67,7 @@ class MetaObjectCopyBase<T> {
 		}
 	}
 
-	protected <I> I cloneInstance(I source, StringBuilder sb) throws InstantiationException, IllegalAccessException, Exception {
+	protected <I> I cloneInstance(I source, StringBuilder sb) throws Exception {
 		if(++m_copies > 100)
 			throw new IllegalStateException("Too many copies");
 		ClassMetaModel cmm = MetaManager.findClassMeta(source.getClass());

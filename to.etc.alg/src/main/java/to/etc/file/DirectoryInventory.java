@@ -253,7 +253,7 @@ final public class DirectoryInventory implements Serializable {
 	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
 	 * Created on Nov 16, 2013
 	 */
-	static public interface IDeltaListener {
+	public interface IDeltaListener {
 		void fileDeleted(@Nonnull String path, long lastModified, @Nonnull byte[] md5hash) throws Exception;
 
 		void directoryDeleted(@Nonnull String path) throws Exception;

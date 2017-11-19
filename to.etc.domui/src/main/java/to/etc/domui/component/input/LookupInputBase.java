@@ -74,20 +74,6 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 		m_keySearch = keySearch;
 	}
 
-	/**
-	 * Interface provides assess to used lookup form initialization method.
-	 *
-	 * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
-	 * Created on 19 Jul 2011
-	 */
-	public interface ILookupFormModifier<T> {
-		/**
-		 * Sends LookupForm for initialization.
-		 * @param lf
-		 */
-		void initialize(@Nonnull LookupForm<T> lf) throws Exception;
-	}
-
 	@Nullable
 	private LookupForm<QT> m_lookupForm;
 
@@ -160,6 +146,20 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	private KeyWordPopupRowRenderer<OT> m_dropdownRowRenderer;
 
 	/**
+	 * Interface provides assess to used lookup form initialization method.
+	 *
+	 * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
+	 * Created on 19 Jul 2011
+	 */
+	public interface ILookupFormModifier<T> {
+		/**
+		 * Sends LookupForm for initialization.
+		 * @param lf
+		 */
+		void initialize(@Nonnull LookupForm<T> lf) throws Exception;
+	}
+
+	/**
 	 * This must create the table model for the output type from the query on the input type.
 	 * @param query
 	 * @return
@@ -176,7 +176,7 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	 * @param resultColumns
 	 */
 	public LookupInputBase(@Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass, @Nonnull String... resultColumns) {
-		this(null, queryClass, resultClass, (ClassMetaModel) null, (ClassMetaModel) null);
+		this(null, queryClass, resultClass, null, null);
 		setResultColumns(resultColumns);
 	}
 
@@ -185,11 +185,11 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	 * @param queryClass
 	 */
 	public LookupInputBase(@Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass) {
-		this(null, queryClass, resultClass, (ClassMetaModel) null, (ClassMetaModel) null);
+		this(null, queryClass, resultClass, null, null);
 	}
 
 	public LookupInputBase(@Nonnull QCriteria<QT> rootCriteria, @Nonnull Class<OT> resultClass) {
-		this(rootCriteria, DomUtil.nullChecked(rootCriteria.getBaseClass()), resultClass, (ClassMetaModel) null, (ClassMetaModel) null);
+		this(rootCriteria, DomUtil.nullChecked(rootCriteria.getBaseClass()), resultClass, null, null);
 	}
 
 	public LookupInputBase(@Nullable QCriteria<QT> rootCriteria, @Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass, @Nullable ClassMetaModel queryMetaModel, @Nullable ClassMetaModel outputMetaModel) {

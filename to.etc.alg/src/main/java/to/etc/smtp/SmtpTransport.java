@@ -147,7 +147,7 @@ public class SmtpTransport {
 				if(res.length() < 3)
 					throw new MailException("SMTP error: empty response");
 				String code = res.substring(0, 3);
-				boolean more = res.length() > 3 ? res.charAt(3) == '-' : false;
+				boolean more = res.length() > 3 && res.charAt(3) == '-';
 				//				String rest = res.length() > 4 ? res.substring(4) : "";
 				//				System.out.println("response: code="+code+", more="+more+", string="+rest);
 

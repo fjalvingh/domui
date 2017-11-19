@@ -38,232 +38,232 @@ public interface Msgs {
 	/**
 	 * A reference to the global shared message bundle for DomUI messages.
 	 */
-	static public final BundleRef BUNDLE = BundleRef.create(Msgs.class, "messages");
+	BundleRef BUNDLE = BundleRef.create(Msgs.class, "messages");
 
-	public static final String UNEXPECTED_EXCEPTION = "ui.unexpected_exception";
+	String UNEXPECTED_EXCEPTION = "ui.unexpected_exception";
 
-	public static final String MANDATORY = "ui.mandatory";
+	String MANDATORY = "ui.mandatory";
 
-	public static final String ONE_OF_IS_MANDATORY = "ui.one.of.mandatory";
+	String ONE_OF_IS_MANDATORY = "ui.one.of.mandatory";
 
-	public static final String NOT_VALID = "ui.invalid";
+	String NOT_VALID = "ui.invalid";
 
-	public static final String UI_BOOL_TRUE = "ui.boolean.true";
+	String UI_BOOL_TRUE = "ui.boolean.true";
 
-	public static final String UI_BOOL_FALSE = "ui.boolean.false";
+	String UI_BOOL_FALSE = "ui.boolean.false";
 
-	public static final String UI_DATA_INCONSISTENT = "ui.data.inconsistent";
+	String UI_DATA_INCONSISTENT = "ui.data.inconsistent";
 
 	/** The database query timed out and was cancelled. */
-	public static final String UI_QUERY_TIMEOUT = "ui.query.timeout";
+	String UI_QUERY_TIMEOUT = "ui.query.timeout";
 
-	public static final String UI_VALIDATION_FAILED = "ui.validation.failed";
+	String UI_VALIDATION_FAILED = "ui.validation.failed";
 
-	public static final String UI_VALIDATION_INTERRUPTED = "ui.validation.wait";
+	String UI_VALIDATION_INTERRUPTED = "ui.validation.wait";
 
 	//# Control texts
 	/** Page x of y */
-	public static final String UI_PAGER_TEXT = "ui.pagertext";
+	String UI_PAGER_TEXT = "ui.pagertext";
 
 	/** The result is truncated to {0} rows */
-	public static final String UI_PAGER_OVER = "ui.pagerover";
+	String UI_PAGER_OVER = "ui.pagerover";
 
 	/** No results */
-	public static final String UI_PAGER_EMPTY = "ui.pagerempty";
+	String UI_PAGER_EMPTY = "ui.pagerempty";
 
 	/** No results (data table) */
-	public static final String UI_DATATABLE_EMPTY = "ui.dt.empty";
+	String UI_DATATABLE_EMPTY = "ui.dt.empty";
 
-	public static final String UI_LOOKUP_DATE_TILL = "ui.date.till";
+	String UI_LOOKUP_DATE_TILL = "ui.date.till";
 
 	/** Error component panel header text: Fouten */
-	public static final String UI_ERROR_HEADER = "ui.error.header";
+	String UI_ERROR_HEADER = "ui.error.header";
 
 	/** Error component panel header text: Warnings */
-	public static final String UI_WARNING_HEADER = "ui.warning.header";
+	String UI_WARNING_HEADER = "ui.warning.header";
 
 	/** Error component panel header text: Info */
-	public static final String UI_INFO_HEADER = "ui.info.header";
+	String UI_INFO_HEADER = "ui.info.header";
 
 	/** (empty field) - the text shown when a lookup-popup-thingy is empty. */
-	public static final String UI_LOOKUP_EMPTY = "ui.lookup.empty";
+	String UI_LOOKUP_EMPTY = "ui.lookup.empty";
 
-	public static final String UI_KEYWORD_SEARCH_COUNT = "ui.keyword.search.count";
+	String UI_KEYWORD_SEARCH_COUNT = "ui.keyword.search.count";
 
-	public static final String UI_KEYWORD_SEARCH_NO_MATCH = "ui.keyword.search.no.match";
+	String UI_KEYWORD_SEARCH_NO_MATCH = "ui.keyword.search.no.match";
 
-	public static final String UI_KEYWORD_SEARCH_LARGE_MATCH = "ui.keyword.search.large.match";
+	String UI_KEYWORD_SEARCH_LARGE_MATCH = "ui.keyword.search.large.match";
 
-	public static final String UI_KEYWORD_SEARCH_HINT = "ui.keyword.search.hint";
+	String UI_KEYWORD_SEARCH_HINT = "ui.keyword.search.hint";
 
 	/** Lookup value invalid */
-	public static final String UI_LOOKUP_INVALID = "ui.lookup.invalid";
+	String UI_LOOKUP_INVALID = "ui.lookup.invalid";
 
-	public static final String UI_LOOKUP_BAD_OPERATOR_COMBI = "ui.lookup.op.combi";
+	String UI_LOOKUP_BAD_OPERATOR_COMBI = "ui.lookup.op.combi";
 
-	public static final String UI_LUI_TTL = "ui.lui.ttl";
+	String UI_LUI_TTL = "ui.lui.ttl";
 
-	public static final String UI_LUI_TTL_MULTI = "ui.lui.ttl.multi";
+	String UI_LUI_TTL_MULTI = "ui.lui.ttl.multi";
 
 	/** Lookup input title if entityName is available. */
-	public static final String UI_LUI_TTL_WEN = "ui.lui.ttl.wen";
+	String UI_LUI_TTL_WEN = "ui.lui.ttl.wen";
 
-	public static final String UI_MLUI_COL_TTL = "ui.mlui.col.ttl";
+	String UI_MLUI_COL_TTL = "ui.mlui.col.ttl";
 
 	//# Control: message box
-	public static final String UI_MBX_WARNING = "ui.mbx.warning";
+	String UI_MBX_WARNING = "ui.mbx.warning";
 
-	public static final String UI_MBX_ERROR = "ui.mbx.error";
+	String UI_MBX_ERROR = "ui.mbx.error";
 
-	public static final String UI_MBX_INFO = "ui.mbx.info";
+	String UI_MBX_INFO = "ui.mbx.info";
 
-	public static final String UI_MBX_DIALOG = "ui.mbx.dialog";
+	String UI_MBX_DIALOG = "ui.mbx.dialog";
 
-	public static final String UI_MBX_INPUT = "ui.mbx.input";
+	String UI_MBX_INPUT = "ui.mbx.input";
 
 	//-- ExpandingEditTable
-	public static final String UI_XDT_DELETE = "ui.xdt.delete";
+	String UI_XDT_DELETE = "ui.xdt.delete";
 
-	public static final String UI_XDT_DELSURE = "ui.xdt.delsure";
+	String UI_XDT_DELSURE = "ui.xdt.delsure";
 
-	public static final String UI_XDT_ADD = "ui.xdt.add";
+	String UI_XDT_ADD = "ui.xdt.add";
 
-	public static final String UI_XDT_CONFIRM = "ui.xdt.confirm";
+	String UI_XDT_CONFIRM = "ui.xdt.confirm";
 
-	public static final String UI_XDT_CANCEL = "ui.xdt.cancel";
+	String UI_XDT_CANCEL = "ui.xdt.cancel";
 
-	public static final String UI_XDT_SURE = "ui.xdt.sure";
+	String UI_XDT_SURE = "ui.xdt.sure";
 
 	//# Exceptions.
 
 	/** The required page parameter {0} is missing. */
-	public static final String X_MISSING_PARAMETER = "x.missing.parameter";
+	String X_MISSING_PARAMETER = "x.missing.parameter";
 
 	/** Multiple values for parameter x not expected */
-	public static final String X_MULTIPLE_PARAMETER = "x.multiple.parameter";
+	String X_MULTIPLE_PARAMETER = "x.multiple.parameter";
 
 	/** The page parameter {0} is invalid . */
-	public static final String X_INVALID_PARAMETER = "x.invalid.parameter";
+	String X_INVALID_PARAMETER = "x.invalid.parameter";
 
 	/**  . */
-	public static final String X_INVALID_PARAMTYPE = "x.badtype.parameter";
+	String X_INVALID_PARAMTYPE = "x.badtype.parameter";
 
 	/** The page {0} is in too many conversations, and a conversation was not specified. This usually indicates that a page was linked to incorrectly. */
-	public static final String X_TOO_MANY_CONVERSATIONS = "x.conver.toomany";
+	String X_TOO_MANY_CONVERSATIONS = "x.conver.toomany";
 
 	//# Validators
 
 	/** Invalid date */
-	public static final String V_INVALID_DATE = "v.invalid.date";
+	String V_INVALID_DATE = "v.invalid.date";
 
 	/** Alle zoekvelden zijn leeg; vul minimaal een veld in om een zoekopdracht te doen. */
-	public static final String V_MISSING_SEARCH = "v.missing.search";
+	String V_MISSING_SEARCH = "v.missing.search";
 
-	public static final String V_BAD_DURATION = "v.bad.duration";
+	String V_BAD_DURATION = "v.bad.duration";
 
 	/** Invalid monetary amount */
-	public static final String V_BAD_AMOUNT = "v.bad.amount";
+	String V_BAD_AMOUNT = "v.bad.amount";
 
 	/** Invalid percentage value */
-	public static final String V_BAD_PERCENTAGE = "v.bad.percentage";
+	String V_BAD_PERCENTAGE = "v.bad.percentage";
 
 	/** Invalid double */
-	public static final String V_INVALID_DOUBLE = "v.invalid.double";
+	String V_INVALID_DOUBLE = "v.invalid.double";
 
 	/** Invalid operator */
-	public static final String V_INVALID_OPERATOR = "v.invalid.operator";
+	String V_INVALID_OPERATOR = "v.invalid.operator";
 
 	/** Invalid not unique */
-	public static final String V_INVALID_NOT_UNIQUE = "v.invalid.not.unique";
+	String V_INVALID_NOT_UNIQUE = "v.invalid.not.unique";
 
 	/** Value out of range */
-	public static final String V_OUT_OF_RANGE = "v.out.of.range";
+	String V_OUT_OF_RANGE = "v.out.of.range";
 
 	/** Invalid value */
-	public static final String V_INVALID = "v.invalid";
+	String V_INVALID = "v.invalid";
 
 	/** The input is not in the format {0} */
-	public static final String V_NO_RE_MATCH = "v.no.re.match";
+	String V_NO_RE_MATCH = "v.no.re.match";
 
-	public static final String V_TOOSMALL = "v.toosmall";
+	String V_TOOSMALL = "v.toosmall";
 
-	public static final String V_TOOLARGE = "v.toolarge";
+	String V_TOOLARGE = "v.toolarge";
 
-	public static final String V_LOGIC_ERROR = "v.logic.error";
+	String V_LOGIC_ERROR = "v.logic.error";
 
 
 	//# Server errors.
 	/** Your session with the server has expired. The page will be reloaded with original data from the server. */
-	public static final String S_EXPIRED = "s.session.expired";
+	String S_EXPIRED = "s.session.expired";
 
 	/** Your browser is out-of-sync with the server, most probably because your session with the server has expired. The page will be reloaded with original data from the server.  */
-	public static final String S_BADNODE = "s.session.badnode";
+	String S_BADNODE = "s.session.badnode";
 
 	/** The page has been reset and loaded again; the error message is passed on. */
-	public static final String S_PAGE_CLEARED = "s.page.cleared";
+	String S_PAGE_CLEARED = "s.page.cleared";
 
 	/*---------- Metamodel ----------*/
-	public static final String MM_COMPOUND_PROPERTY_NOT_FOUND = "mm.compound.prop";
+	String MM_COMPOUND_PROPERTY_NOT_FOUND = "mm.compound.prop";
 
-	public static final String MM_UNKNOWN_COLLECTION_TYPE = "mm.unknown.collection.type";
+	String MM_UNKNOWN_COLLECTION_TYPE = "mm.unknown.collection.type";
 
-	public static final String MM_BAD_REGEXP = "mm.bad.re";
+	String MM_BAD_REGEXP = "mm.bad.re";
 
 	//# Login and access denied code
-	public static final String LOGIN_ACCESS_TITLE = "login.access.title";
+	String LOGIN_ACCESS_TITLE = "login.access.title";
 
-	public static final String LOGIN_ACCESS_DENIED = "login.access.denied";
+	String LOGIN_ACCESS_DENIED = "login.access.denied";
 
-	public static final String LOGIN_REQUIRED_RIGHTS = "login.required.rights";
+	String LOGIN_REQUIRED_RIGHTS = "login.required.rights";
 
-	public static final String LOGIN_REFUSAL_REASON = "login.refusal.reason";
+	String LOGIN_REFUSAL_REASON = "login.refusal.reason";
 
-	public static final String LOGIN_TO_INDEX = "login.toindex";
+	String LOGIN_TO_INDEX = "login.toindex";
 
-	public static final String RIGHTS_NOT_ALLOWED = "rights.disallowed";
+	String RIGHTS_NOT_ALLOWED = "rights.disallowed";
 
 	//# Data not found code
-	public static final String DATA_EXPIRED_TITLE = "expired.data.title";
+	String DATA_EXPIRED_TITLE = "expired.data.title";
 
-	public static final String DATA_EXPIRED_REFRESH = "expired.data.refresh";
+	String DATA_EXPIRED_REFRESH = "expired.data.refresh";
 
 	// AsyncDialogTask
-	public static final String ASYD_COMPLETED = "async.dialog.completed";
+	String ASYD_COMPLETED = "async.dialog.completed";
 
 	//# Access denied
-	public static final String DATA_ACCESS_VIOLATION_TITLE = "data.access.violation.title";
+	String DATA_ACCESS_VIOLATION_TITLE = "data.access.violation.title";
 
-	public static final String ACCESS_DENIED_MSG = "access.denied.msg";
+	String ACCESS_DENIED_MSG = "access.denied.msg";
 
-	public static final String INSUFFICIENT_RIGHTS = "insufficient.rights";
+	String INSUFFICIENT_RIGHTS = "insufficient.rights";
 
 	//# Session expired
-	public static final String SESSION_EXPIRED_TITLE = "session.expired.title";
+	String SESSION_EXPIRED_TITLE = "session.expired.title";
 
-	public static final String SESSION_EXPIRED_MESSAGE = "session.expired.msg";
+	String SESSION_EXPIRED_MESSAGE = "session.expired.msg";
 
 	//# SaveSearchFilterDialog
 	/** savesearchfilter.name.exists key */
-	public static final String SAVE_SEARCH_DIALOG_NAME_EXISTS = "savesearchfilter.name.exists";
+	String SAVE_SEARCH_DIALOG_NAME_EXISTS = "savesearchfilter.name.exists";
 
 	/** savesearchfilter.name.too.long key */
-	public static final String SAVE_SEARCH_DIALOG_NAME_TOO_LONG = "savesearchfilter.name.too.long";
+	String SAVE_SEARCH_DIALOG_NAME_TOO_LONG = "savesearchfilter.name.too.long";
 
 	/** savesearchfilter.name.saved */
-	public static final String SAVE_SEARCH_DIALOG_NAME_SAVED = "savesearchfilter.name.saved";
+	String SAVE_SEARCH_DIALOG_NAME_SAVED = "savesearchfilter.name.saved";
 
 	//# LookupForm
 	/** lookupform.search key */
-	public static final String LOOKUP_FORM_SEARCH = "lookupform.search";
+	String LOOKUP_FORM_SEARCH = "lookupform.search";
 
 	/** lookupform.clear key */
-	public static final String LOOKUP_FORM_CLEAR = "lookupform.clear";
+	String LOOKUP_FORM_CLEAR = "lookupform.clear";
 
 	/** lookupform.cancel key */
-	public static final String LOOKUP_FORM_CANCEL = "lookupform.cancel";
+	String LOOKUP_FORM_CANCEL = "lookupform.cancel";
 
 	/** lookupform.savesearch key */
-	public static final String LOOKUP_FORM_SAVE_SEARCH = "lookupform.savesearch";
+	String LOOKUP_FORM_SAVE_SEARCH = "lookupform.savesearch";
 
 	/** lookupform.save.filters label */
 	String LOOKUP_FORM_SAVED_FILTERS = "lookupform.saved.filters.label";
@@ -271,146 +271,146 @@ public interface Msgs {
 	String LOOKUP_FORM_DELETE_FILTER = "lookupform.delete.filter";
 
 	/** lookupform.confirm key */
-	public static final String LOOKUP_FORM_CONFIRM = "lookupform.confirm";
+	String LOOKUP_FORM_CONFIRM = "lookupform.confirm";
 
 	/** lookupform.new key */
-	public static final String LOOKUP_FORM_NEW = "lookupform.new";
+	String LOOKUP_FORM_NEW = "lookupform.new";
 
 	/** lookupform.collapse key */
-	public static final String LOOKUP_FORM_COLLAPSE = "lookupform.collapse";
+	String LOOKUP_FORM_COLLAPSE = "lookupform.collapse";
 
 	/** lookupform.restore key */
-	public static final String LOOKUP_FORM_RESTORE = "lookupform.restore";
+	String LOOKUP_FORM_RESTORE = "lookupform.restore";
 
 	/** lookupform.collapse title */
-	public static final String LOOKUP_FORM_COLLAPSE_TITLE = "lookupform.btn.collapse.title";
+	String LOOKUP_FORM_COLLAPSE_TITLE = "lookupform.btn.collapse.title";
 
 	/** lookupform.clear title */
-	public static final String LOOKUP_FORM_CLEAR_TITLE = "lookupform.btn.clear.title";
+	String LOOKUP_FORM_CLEAR_TITLE = "lookupform.btn.clear.title";
 
 	/** lookupform.new title */
-	public static final String LOOKUP_FORM_NEW_TITLE = "lookupform.btn.new.title";
+	String LOOKUP_FORM_NEW_TITLE = "lookupform.btn.new.title";
 
 	/** lookupform.search title */
-	public static final String LOOKUP_FORM_SEARCH_TITLE = "lookupform.btn.search.title";
+	String LOOKUP_FORM_SEARCH_TITLE = "lookupform.btn.search.title";
 
 	/** lookupform.cancel title */
-	public static final String LOOKUP_FORM_CANCEL_TITLE = "lookupform.btn.cancel.title";
+	String LOOKUP_FORM_CANCEL_TITLE = "lookupform.btn.cancel.title";
 
-	public static final String VERBATIM = "verbatim";
+	String VERBATIM = "verbatim";
 
 	//# AsyncContainer
 	/** asynccontainer.cancel key */
-	public static final String ASYNC_CONTAINER_CANCEL = "asynccontainer.cancel";
+	String ASYNC_CONTAINER_CANCEL = "asynccontainer.cancel";
 
 	/** asynccontainer.complete.indicator key */
-	public static final String ASYNC_CONTAINER_COMPLETE_INDICATOR = "asynccontainer.complete.indicator";
+	String ASYNC_CONTAINER_COMPLETE_INDICATOR = "asynccontainer.complete.indicator";
 
 	/** asynccontainer.cancelled key */
-	public static final String ASYNC_CONTAINER_CANCELLED = "asynccontainer.cancelled";
+	String ASYNC_CONTAINER_CANCELLED = "asynccontainer.cancelled";
 
 	/** asynccontainer.cancelled.msg key */
-	public static final String ASYNC_CONTAINER_CANCELLED_MSG = "asynccontainer.cancelled.msg";
+	String ASYNC_CONTAINER_CANCELLED_MSG = "asynccontainer.cancelled.msg";
 
 	/** asynccontainer.no.results.msg key */
-	public static final String ASYNC_CONTAINER_NO_RESULTS_MSG = "asynccontainer.no.results.msg";
+	String ASYNC_CONTAINER_NO_RESULTS_MSG = "asynccontainer.no.results.msg";
 
 	/** EditDialog */
-	public static final String EDLG_OKAY = "edlg.okay";
+	String EDLG_OKAY = "edlg.okay";
 
-	public static final String EDLG_CANCEL = "edlg.cancel";
+	String EDLG_CANCEL = "edlg.cancel";
 
 	/** General purpose */
-	public static final String BTN_CLOSE = "btn.close";
+	String BTN_CLOSE = "btn.close";
 
-	public static final String BTN_PRINT = "btn.print";
+	String BTN_PRINT = "btn.print";
 
 	/*** BulkUpload ***/
-	public static final String BULKUPLD_DISABLED = "bupl.disabled";
+	String BULKUPLD_DISABLED = "bupl.disabled";
 
-	public static final String BULKUPLD_SELECT_FILES = "bupl.select.files";
+	String BULKUPLD_SELECT_FILES = "bupl.select.files";
 
-	public static final String BULKUPLD_UPLOAD_QUEUE = "bupl.upload.queue";
+	String BULKUPLD_UPLOAD_QUEUE = "bupl.upload.queue";
 
 	/*** ImageSelectControl ***/
-	public static final String ISCT_EMPTY_TITLE = "isct.empty.title";
+	String ISCT_EMPTY_TITLE = "isct.empty.title";
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Available icons within the framework theme set.		*/
 	/*--------------------------------------------------------------*/
-	static public final String ICON_ADD_TO_SELECTION = "THEME/addToSelection.png";
+	String ICON_ADD_TO_SELECTION = "THEME/addToSelection.png";
 
-	static public final String ICON_BIG_INFO = "THEME/big-info.png";
+	String ICON_BIG_INFO = "THEME/big-info.png";
 
-	static public final String BTN_SHOW_CALENDAR = "THEME/btn-datein.png";
+	String BTN_SHOW_CALENDAR = "THEME/btn-datein.png";
 
-	static public final String BTN_LOOKUP = Theme.BTN_POPUPLOOKUP;
+	String BTN_LOOKUP = Theme.BTN_POPUPLOOKUP;
 
-	static public final String BTN_CANCEL = Theme.BTN_CANCEL;
+	String BTN_CANCEL = Theme.BTN_CANCEL;
 
-	static public final String ICON_CHECKMARK = Theme.BTN_CHECKMARK;
+	String ICON_CHECKMARK = Theme.BTN_CHECKMARK;
 
-	static public final String BTN_CLEAR = Theme.BTN_CLEAR;
+	String BTN_CLEAR = Theme.BTN_CLEAR;
 
-	static public final String BTN_CLEAR_LOOKUP = Theme.BTN_CLEARLOOKUP;
+	String BTN_CLEAR_LOOKUP = Theme.BTN_CLEARLOOKUP;
 
-	static public final String BTN_CLOCK = "THEME/btnClock.png";
+	String BTN_CLOCK = "THEME/btnClock.png";
 
-	static public final String BTN_CONFIRM = "THEME/btnConfirm.png";
+	String BTN_CONFIRM = "THEME/btnConfirm.png";
 
-	static public final String BTN_DELETE = "THEME/btnDelete.png";
+	String BTN_DELETE = "THEME/btnDelete.png";
 
-	static public final String BTN_EDIT = "THEME/btnEdit.png";
+	String BTN_EDIT = "THEME/btnEdit.png";
 
-	static public final String BTN_FIND = "THEME/btnFind.png";
+	String BTN_FIND = "THEME/btnFind.png";
 
-	static public final String BTN_HIDE_DETAILS = "THEME/btnHideDetails.png";
+	String BTN_HIDE_DETAILS = "THEME/btnHideDetails.png";
 
-	static public final String BTN_HIDE_LOOKUP = "THEME/btnHideLookup.png";
+	String BTN_HIDE_LOOKUP = "THEME/btnHideLookup.png";
 
-	static public final String BTN_NEW = "THEME/btnNew.png";
+	String BTN_NEW = "THEME/btnNew.png";
 
-	static public final String ICON_RED_CROSS = "THEME/btnRedCross.png";
+	String ICON_RED_CROSS = "THEME/btnRedCross.png";
 
-	static public final String BTN_SAVE = "THEME/btnSave.png";
+	String BTN_SAVE = "THEME/btnSave.png";
 
-	static public final String BTN_SHOW_DETAILS = "THEME/btnShowDetails.png";
+	String BTN_SHOW_DETAILS = "THEME/btnShowDetails.png";
 
-	static public final String BTN_SPECIAL_CHARS = "THEME/btnSpecialChar.png";
+	String BTN_SPECIAL_CHARS = "THEME/btnSpecialChar.png";
 
-	static public final String BTN_TODAY = "THEME/btnToday.png";
+	String BTN_TODAY = "THEME/btnToday.png";
 
-	static public final String ICON_CLOSE = "THEME/close.png";
+	String ICON_CLOSE = "THEME/close.png";
 
-	static public final String ICON_BIG_WARNING = "THEME/mbx-warning.png";
+	String ICON_BIG_WARNING = "THEME/mbx-warning.png";
 
-	static public final String ICON_BIG_ERROR = Theme.ICON_MBX_ERROR;
+	String ICON_BIG_ERROR = Theme.ICON_MBX_ERROR;
 
-	static public final String ICON_BIG_QUESTION = "THEME/mbx-question.png";
+	String ICON_BIG_QUESTION = "THEME/mbx-question.png";
 
-	static public final String ICON_MINI_ERROR = "THEME/mini-error.png";
+	String ICON_MINI_ERROR = "THEME/mini-error.png";
 
-	static public final String ICON_MINI_WARNING = "THEME/mini-warning.png";
+	String ICON_MINI_WARNING = "THEME/mini-warning.png";
 
-	static public final String ICON_MINI_INFO = "THEME/mini-info.png";
+	String ICON_MINI_INFO = "THEME/mini-info.png";
 
-	static public final String ICON_PROGRESSBAR = "THEME/progressbar.gif";
+	String ICON_PROGRESSBAR = "THEME/progressbar.gif";
 
-	static public final String ICON_RESIZE = "THEME/resize.png";
+	String ICON_RESIZE = "THEME/resize.png";
 
-	static final String UPLOAD_TOO_LARGE = "upload.too.large";
+	String UPLOAD_TOO_LARGE = "upload.too.large";
 
-	static final String UPLOAD_DATA_ERROR = "upload.data.error";
+	String UPLOAD_DATA_ERROR = "upload.data.error";
 
-	static final String UPLOAD_INTERRUPTED = "upload.interrupted";
+	String UPLOAD_INTERRUPTED = "upload.interrupted";
 
-	static final public String CONVERSATION_DESTROYED = "conversation.destroyed";
+	String CONVERSATION_DESTROYED = "conversation.destroyed";
 
-	static final public String E_BINDING_FAILED = "e.binding.failed";
+	String E_BINDING_FAILED = "e.binding.failed";
 
-	static final public String E_BINDING_DEFINITION = "e.binding.definition";
+	String E_BINDING_DEFINITION = "e.binding.definition";
 
-	static public final String EXPORT_BUTTON = "ui.btn.export";
-	static public final String UI_UPLOAD_TEXT = "ui.upload.button";
-	static public final String UI_UPLOADMULTI_TEXT = "ui.uploadmulti.button";
+	String EXPORT_BUTTON = "ui.btn.export";
+	String UI_UPLOAD_TEXT = "ui.upload.button";
+	String UI_UPLOADMULTI_TEXT = "ui.uploadmulti.button";
 }

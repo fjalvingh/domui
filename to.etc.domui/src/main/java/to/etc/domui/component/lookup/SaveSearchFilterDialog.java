@@ -83,9 +83,6 @@ public final class SaveSearchFilterDialog extends Dialog {
 
 		// Check required field
 		boolean hasBindingErrors = OldBindingHandler.reportBindingErrors(this);
-		if(hasBindingErrors) {
-			return false;
-		}
-		return true;
+		return !hasBindingErrors;
 	}
 }

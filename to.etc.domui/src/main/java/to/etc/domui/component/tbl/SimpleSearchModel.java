@@ -49,7 +49,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
 	 * Created on May 23, 2010
 	 */
-	public static interface IQuery<T> {
+	public interface IQuery<T> {
 		List<T> query(QDataContext dc, String sortOn, int maxrows) throws Exception;
 	}
 

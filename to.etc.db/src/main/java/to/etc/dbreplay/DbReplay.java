@@ -70,7 +70,7 @@ public class DbReplay {
 	/** When set by -maxwait, this limits the max time to wait between statements, ignoring the time delta's in the log file. */
 	private long m_maxStatementDelay = Long.MAX_VALUE;
 
-	private static enum XType {
+	private enum XType {
 		DUMP, RUN
 	}
 

@@ -671,7 +671,7 @@ public class PGDataSync {
 	 * @throws Exception
 	 * @throws SQLException
 	 */
-	private PreparedStatement getUpdateStatement(Database dest, DbTable t, String lobkey) throws SQLException, Exception {
+	private PreparedStatement getUpdateStatement(Database dest, DbTable t, String lobkey) throws Exception {
 		PreparedStatement ps = m_updateStmtMap.get(lobkey);
 		if(ps == null) {
 			StringBuilder sb = new StringBuilder();
@@ -966,7 +966,7 @@ public class PGDataSync {
 			Object a = aa[i];
 			Object b = ba[i];
 			if(a == null && b == null) {
-				; // same
+				// same
 			} else if(a == null && b != null) {
 				return -1;
 			} else if(a != null && b == null) {

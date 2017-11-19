@@ -36,5 +36,5 @@ import org.hibernate.*;
  * Created on Jun 26, 2008
  */
 public interface HibernateSessionMaker {
-	public Session makeSession(@Nonnull BuggyHibernateBaseContext bhbc) throws Exception;
+	Session makeSession(@Nonnull BuggyHibernateBaseContext bhbc) throws Exception;
 }

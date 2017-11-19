@@ -151,7 +151,9 @@ public class SlowSampler {
 				}
 
 				//-- Make a proper RGB pair,
-				int br, bg, bb;
+				int br;
+				int bg;
+				int bb;
 
 				if(r > 255f)
 					br = 255;

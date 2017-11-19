@@ -105,8 +105,7 @@ public interface QDataContext extends AutoCloseable {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
-	public <R> List<R> query(@Nonnull Class<R> resultInterface, @Nonnull QSelection< ? > sel) throws Exception;
+	@Nonnull <R> List<R> query(@Nonnull Class<R> resultInterface, @Nonnull QSelection<?> sel) throws Exception;
 
 	/**
 	 * Execute the selection query specified by q, and expect and return at most 1 result. If the query has no
@@ -128,8 +127,7 @@ public interface QDataContext extends AutoCloseable {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nullable
-	public <R> R queryOne(@Nonnull Class<R> resultInterface, @Nonnull QSelection< ? > sel) throws Exception;
+	@Nullable <R> R queryOne(@Nonnull Class<R> resultInterface, @Nonnull QSelection<?> sel) throws Exception;
 
 	/**
 	 * Load the persistent object with the specified type and primary key from the database. This will

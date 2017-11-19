@@ -77,7 +77,7 @@ public class ModificationFenceDiv extends Div implements IUserInputModifiedFence
 
 	@Override
 	public boolean isModified() {
-		return m_ignoreModifiedInputs ? false : m_modified;
+		return !m_ignoreModifiedInputs && m_modified;
 	}
 
 	@Override

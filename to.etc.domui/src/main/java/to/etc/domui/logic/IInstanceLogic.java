@@ -12,6 +12,5 @@ import to.etc.webapp.query.*;
  */
 public interface IInstanceLogic<T extends IIdentifyable< ? >> extends IClassLogic {
 
-	@Nonnull
-	public T getInstance();
+	@Nonnull T getInstance();
 }

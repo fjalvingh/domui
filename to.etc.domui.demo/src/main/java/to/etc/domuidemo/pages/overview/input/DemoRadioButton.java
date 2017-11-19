@@ -4,7 +4,7 @@ import to.etc.domui.component.buttons.*;
 import to.etc.domui.dom.html.*;
 
 public class DemoRadioButton extends UrlPage {
-	static private enum Gender {
+	private enum Gender {
 		MALE, FEMALE, UNKNOWN
 	}
 

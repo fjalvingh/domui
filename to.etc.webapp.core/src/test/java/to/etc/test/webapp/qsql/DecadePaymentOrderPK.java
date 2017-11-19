@@ -90,11 +90,9 @@ public class DecadePaymentOrderPK {
 		} else if(!m_administrationID.equals(other.m_administrationID))
 			return false;
 		if(m_docnr == null) {
-			if(other.m_docnr != null)
-				return false;
-		} else if(!m_docnr.equals(other.m_docnr))
-			return false;
-		return true;
+			return other.m_docnr == null;
+		} else
+			return m_docnr.equals(other.m_docnr);
 	}
 
 }

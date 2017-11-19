@@ -57,7 +57,7 @@ var WebUI;
         if (!element) {
             return;
         }
-        var fields = new Object();
+        var fields = {};
         fields[element.id + "_rect"] = $(element).position().left + "," + $(element).position().top + "," + $(element).width() + "," + $(element).height();
         fields["window_size"] = window.innerWidth + "," + window.innerHeight;
         WebUI.scall(element.id, "notifyClientPositionAndSize", fields);

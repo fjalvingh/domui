@@ -43,8 +43,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +55,16 @@ import java.util.Map;
  * Created on Apr 27, 2011
  */
 final public class ThemeManager {
+	static private final long OLD_THEME_TIME = 5 * 60 * 1000;
+
 	final private DomApplication m_application;
+
+	/** Map of themes by theme name, as implemented by the current engine. */
+	private final Map<String, ThemeRef> m_themeMap = new HashMap<>();
+
+	private int m_themeReapCount;
+
+	private long m_themeNextReapTS;
 
 	static private class ThemeRef {
 		final private ITheme m_theme;
@@ -88,24 +95,9 @@ final public class ThemeManager {
 		}
 	}
 
-	/** Map of themes by theme name, as implemented by the current engine. */
-	private final Map<String, ThemeRef> m_themeMap = new HashMap<>();
-
 	public ThemeManager(DomApplication application) {
 		m_application = application;
 	}
-
-
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Getting a theme instance.							*/
-	/*--------------------------------------------------------------*/
-	static private final long OLD_THEME_TIME = 5 * 60 * 1000;
-
-	private int m_themeReapCount;
-
-	private long m_themeNextReapTS;
-
 
 	/**
 	 * Cached get of a factory/theme ITheme instance.
@@ -173,13 +165,10 @@ final public class ThemeManager {
 			return;
 
 		//-- Get a list of all themes and sort in ascending time order.
-		List<ThemeRef> list = new ArrayList<ThemeRef>(m_themeMap.values());
-		Collections.sort(list, new Comparator<ThemeRef>() {
-			@Override
-			public int compare(ThemeRef a, ThemeRef b) {
-				long d = a.getLastuse() - b.getLastuse();
-				return d == 0 ? 0 : d > 0 ? 1 : -1;
-			}
+		List<ThemeRef> list = new ArrayList<>(m_themeMap.values());
+		list.sort((a, b) -> {
+			long d = a.getLastuse() - b.getLastuse();
+			return d == 0 ? 0 : d > 0 ? 1 : -1;
 		});
 
 		long abstime = ts - OLD_THEME_TIME;
@@ -243,7 +232,9 @@ final public class ThemeManager {
 		} finally {
 			try {
 				is.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				// Ignore close exception.
+			}
 		}
 	}
 

@@ -109,11 +109,9 @@ final public class InternalResourcePart implements IBufferedPartFactory<ResKey> 
 			} else if(!m_loc.equals(other.m_loc))
 				return false;
 			if(m_rurl == null) {
-				if(other.m_rurl != null)
-					return false;
-			} else if(!m_rurl.equals(other.m_rurl))
-				return false;
-			return true;
+				return other.m_rurl == null;
+			} else
+				return m_rurl.equals(other.m_rurl);
 		}
 	}
 

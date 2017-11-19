@@ -93,9 +93,7 @@ final public class VersionNumber implements Comparable<VersionNumber> {
 				return false;
 		} else if(!m_suffix.equals(other.m_suffix))
 			return false;
-		if(!Arrays.equals(m_version, other.m_version))
-			return false;
-		return true;
+		return Arrays.equals(m_version, other.m_version);
 	}
 
 	/**

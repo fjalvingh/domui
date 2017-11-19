@@ -78,7 +78,7 @@ var WebUI;
             this._pxPerHour = (tblheight - this._headerHeight + 1) / (this._endHour - this._startHour);
             this._endDate = new Date(this._date.getTime());
             this._endDate.setDate(this._endDate.getDate() + this._days);
-            this._dayMap = new Array();
+            this._dayMap = [];
             this._itemdivs = $("div.ui-wa-it", this._rootdiv).get();
         };
         Agenda.prototype.reposition = function () {
@@ -123,7 +123,7 @@ var WebUI;
                 day = this._dayMap[so.day] = { day: so.day, ways: [[]] };
             var ys = Math.round(so.min * this._pxPerHour / 60);
             var ye = Math.round(eo.min * this._pxPerHour / 60);
-            var item = new Object();
+            var item = {};
             item.day = so.day;
             item.ys = ys;
             item.ye = ye;
@@ -131,7 +131,7 @@ var WebUI;
             for (var i = 0; i < 4; i++) {
                 var way = day.ways[i];
                 if (way == undefined)
-                    way = day.ways[i] = new Array();
+                    way = day.ways[i] = [];
                 if (this.placeOnWay(way, item))
                     return;
             }
@@ -224,7 +224,7 @@ var WebUI;
             }
             if (this._timeMode && this._timeMode > 0) {
                 this.timeReset();
-                var fields = new Object();
+                var fields = {};
                 fields.date = this._timeDate.getTime();
                 fields.duration = this._timeDuration;
                 WebUI.scall(this._rootdiv.id, 'newappt', fields);

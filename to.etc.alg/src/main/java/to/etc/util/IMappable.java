@@ -38,15 +38,15 @@ public interface IMappable<K, V> {
 	 * @param key
 	 * @return
 	 */
-	public V get(K key);
+	V get(K key);
 
 	/**
 	 * Returns the #of objects in the map
 	 * @return
 	 */
-	public int size();
+	int size();
 
-	public Iterator<K> getKeyIterator();
+	Iterator<K> getKeyIterator();
 
-	public Iterator<V> getValueIterator();
+	Iterator<V> getValueIterator();
 }

@@ -109,11 +109,9 @@ public class ButtonPartKey {
 		} else if(!getPropFile().equals(other.getPropFile()))
 			return false;
 		if(getText() == null) {
-			if(other.getText() != null)
-				return false;
-		} else if(!getText().equals(other.getText()))
-			return false;
-		return true;
+			return other.getText() == null;
+		} else
+			return getText().equals(other.getText());
 	}
 
 	public void setPropFile(String propfile) {
@@ -140,19 +138,19 @@ public class ButtonPartKey {
 		return m_text;
 	}
 
-	void setColor(String color) {
+	public void setColor(String color) {
 		m_color = color;
 	}
 
-	String getColor() {
+	public String getColor() {
 		return m_color;
 	}
 
-	void setImg(String img) {
+	public void setImg(String img) {
 		m_img = img;
 	}
 
-	String getImg() {
+	public String getImg() {
 		return m_img;
 	}
 }

@@ -34,21 +34,21 @@ import java.util.*;
  */
 public interface ScheduleItem {
 	/** An unique identifier that can be used to locate this appointment. */
-	public String getID();
+	String getID();
 
 	/** The start of the appointment. */
-	public Date getStart();
+	Date getStart();
 
 	/** The end of the appointment. */
-	public Date getEnd();
+	Date getEnd();
 
 	/** The short text describing this appointment (mandatory) */
-	public String getName();
+	String getName();
 
 	/** A short string describing the appointment type */
-	public String getType();
+	String getType();
 
-	public String getImageURL();
+	String getImageURL();
 
-	public String getDetails();
+	String getDetails();
 }

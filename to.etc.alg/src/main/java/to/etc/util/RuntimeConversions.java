@@ -540,9 +540,7 @@ public class RuntimeConversions {
 		if(val instanceof Collection< ? > || val instanceof Map< ? , ? >)
 			return true;
 		Class< ? > cla = val.getClass();
-		if(cla.isArray())
-			return true;
-		return false;
+		return cla.isArray();
 	}
 
 	/*--------------------------------------------------------------*/
@@ -742,9 +740,7 @@ public class RuntimeConversions {
 	static public boolean isCollectionType(Class< ? > cl) {
 		if(cl.isArray())
 			return true;
-		if(Collection.class.isAssignableFrom(cl)) // Is some generic collection?
-			return true;
-		return false;
+		return Collection.class.isAssignableFrom(cl);
 	}
 
 	/**

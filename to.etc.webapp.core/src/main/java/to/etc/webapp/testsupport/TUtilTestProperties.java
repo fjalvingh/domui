@@ -172,9 +172,7 @@ public class TUtilTestProperties {
 			return true;
 		TestProperties p = getTestProperties();
 		db = p.getProperty("database");
-		if(db != null)
-			return true;
-		return false;
+		return db != null;
 	}
 
 	/**

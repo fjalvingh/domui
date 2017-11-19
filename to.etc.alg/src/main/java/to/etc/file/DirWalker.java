@@ -16,8 +16,7 @@ final public class DirWalker {
 	private DirWalker() {}
 
 	public interface IEntry<T> {
-		@Nullable
-		public T onEntry(@Nonnull File file, @Nonnull String relativePath) throws Exception;
+		@Nullable T onEntry(@Nonnull File file, @Nonnull String relativePath) throws Exception;
 	}
 
 	/**

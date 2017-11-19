@@ -128,13 +128,11 @@ final public class ThemePartFactory implements IBufferedPartFactory<Key> {
 			} else if(!m_browserID.equals(other.m_browserID))
 				return false;
 			if(m_rurl == null) {
-				if(other.m_rurl != null)
-					return false;
+				return other.m_rurl == null;
 			} else if(!m_rurl.equals(other.m_rurl))
 				return false;
-			else if(m_iv != other.m_iv)
-				return false;
-			return true;
+			else
+				return m_iv == other.m_iv;
 		}
 	}
 

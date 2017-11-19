@@ -300,13 +300,11 @@ public class UIMessage {
 			return false;
 		}
 		if(m_errorLocation == null) {
-			if(other.m_errorLocation != null)
-				return false;
-		} else if(!m_errorLocation.equals(other.m_errorLocation))
-			return false;
+			return other.m_errorLocation == null;
+		} else
+			return m_errorLocation.equals(other.m_errorLocation);
 
 
-		return true;
 	}
 
 	@Nonnull

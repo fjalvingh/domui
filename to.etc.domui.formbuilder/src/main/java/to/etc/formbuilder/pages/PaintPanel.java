@@ -30,7 +30,7 @@ public class PaintPanel extends Div {
 	private Set<ComponentInstance> m_selectSet = new HashSet<ComponentInstance>();
 
 	public interface ISelectionChanged {
-		public void selectionChanged(@Nonnull Set<ComponentInstance> newSelection, Set<ComponentInstance> oldSelection) throws Exception;
+		void selectionChanged(@Nonnull Set<ComponentInstance> newSelection, Set<ComponentInstance> oldSelection) throws Exception;
 	}
 
 	@Nonnull

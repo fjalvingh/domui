@@ -361,7 +361,7 @@ public class InternalParentTree extends Div {
 		}
 	}
 
-	static public enum AnswerType {
+	public enum AnswerType {
 		NOCONNECTION, REFUSED, ERROR, SUCCESS
 	}
 

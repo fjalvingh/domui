@@ -19,19 +19,16 @@ public interface IRequestResponse {
 	 * start with a '/'.
 	 * @return
 	 */
-	@Nonnull
-	public String getRequestURI();
+	@Nonnull String getRequestURI();
 
-	@Nonnull
-	public String getQueryString();
+	@Nonnull String getQueryString();
 
 	/**
 	 * Called when uploaded files are no longer needed; this can then discard of them.
 	 */
-	public void releaseUploads();
+	void releaseUploads();
 
-	@Nonnull
-	public String getUserAgent();
+	@Nonnull String getUserAgent();
 
 	/**
 	 * The "remote" user ID from a server request, if present. This does <b>not</b> need to represent the
@@ -39,8 +36,7 @@ public interface IRequestResponse {
 	 * null if DomUI internal login code is used.
 	 * @return
 	 */
-	@Nullable
-	public String getRemoteUser();
+	@Nullable String getRemoteUser();
 
 	/**
 	 * Returns a wrapper for a {@link HttpSession}. If "create" is true the session will be
@@ -48,8 +44,7 @@ public interface IRequestResponse {
 	 * @param create
 	 * @return
 	 */
-	@Nullable
-	public IServerSession getServerSession(boolean create);
+	@Nullable IServerSession getServerSession(boolean create);
 
 	/**
 	 * Return the base URL to the web application from the current requests. This uses hostname, protocol, portname
@@ -57,8 +52,7 @@ public interface IRequestResponse {
 	 * in a slash.
 	 * @return
 	 */
-	@Nonnull
-	public String getApplicationURL();
+	@Nonnull String getApplicationURL();
 
 	@Nonnull
 	String getHostURL();
@@ -66,58 +60,49 @@ public interface IRequestResponse {
 	@Nonnull
 	String getHostName();
 
-	@Nonnull
-	public String[] getParameters(@Nonnull String name);
+	@Nonnull String[] getParameters(@Nonnull String name);
 
-	@Nullable
-	public String getParameter(@Nonnull String name);
+	@Nullable String getParameter(@Nonnull String name);
 
-	@Nonnull
-	public String[] getParameterNames();
+	@Nonnull String[] getParameterNames();
 
-	@Nonnull
-	public String[] getFileParameters() throws Exception;
+	@Nonnull String[] getFileParameters() throws Exception;
 
-	@Nonnull
-	public UploadItem[] getFileParameter(@Nonnull String name) throws Exception;
+	@Nonnull UploadItem[] getFileParameter(@Nonnull String name) throws Exception;
 
-	public void setNoCache();
+	void setNoCache();
 
 	/*--- Content output ---*/
 
-	public void addHeader(@Nonnull String name, @Nonnull String value);
+	void addHeader(@Nonnull String name, @Nonnull String value);
 
-	@Nonnull
-	public Writer getOutputWriter(@Nonnull String contentType, @Nullable String encoding) throws Exception;
+	@Nonnull Writer getOutputWriter(@Nonnull String contentType, @Nullable String encoding) throws Exception;
 
-	@Nonnull
-	public OutputStream getOutputStream(@Nonnull String contentType, @Nullable String encoding, int contentLength) throws Exception;
+	@Nonnull OutputStream getOutputStream(@Nonnull String contentType, @Nullable String encoding, int contentLength) throws Exception;
 
 	/**
 	 * Returns the webapp context as either an empty string for the ROOT context or a string starting without a slash and always ending
 	 * in one, like "viewpoint/".
 	 * @return
 	 */
-	@Nonnull
-	public String getWebappContext();
+	@Nonnull String getWebappContext();
 
-	public void addCookie(@Nonnull Cookie cookie);
+	void addCookie(@Nonnull Cookie cookie);
 
-	@Nonnull
-	public Cookie[] getCookies();
+	@Nonnull Cookie[] getCookies();
 
-	public void setExpiry(int cacheTime);
+	void setExpiry(int cacheTime);
 
 	/**
 	 * Send a redirect response to the client.
 	 * @param newUrl
 	 */
-	public void redirect(@Nonnull String newUrl) throws Exception;
+	void redirect(@Nonnull String newUrl) throws Exception;
 
 	/**
 	 * Send an error back to the client.
 	 * @param httpErrorCode
 	 * @param message
 	 */
-	public void sendError(int httpErrorCode, @Nonnull String message) throws Exception;
+	void sendError(int httpErrorCode, @Nonnull String message) throws Exception;
 }

@@ -168,7 +168,7 @@ namespace WebUI {
 			this._pxPerHour = (tblheight - this._headerHeight + 1) / (this._endHour - this._startHour);
 			this._endDate = new Date(this._date.getTime());
 			this._endDate.setDate(this._endDate.getDate() + this._days);
-			this._dayMap = new Array();
+			this._dayMap = [];
 			//	alert('layout: tbl.height='+tblheight+", hdrheight="+this._headerHeight+", endhour="+this._endHour+", starthour="+this._startHour+", pxperhr="+this._pxPerHour);
 
 			/*
@@ -252,7 +252,7 @@ namespace WebUI {
 			var ys = Math.round(so.min * this._pxPerHour / 60);
 			var ye = Math.round(eo.min * this._pxPerHour / 60);
 
-			var item = new Object() as any;
+			var item = {} as any;
 			item.day = so.day;
 			item.ys = ys;
 			item.ye = ye;
@@ -262,7 +262,7 @@ namespace WebUI {
 			for(var i = 0; i < 4; i++) {
 				var way = day.ways[i];
 				if(way == undefined)
-					way = day.ways[i] = new Array();// Add another way.
+					way = day.ways[i] = [];// Add another way.
 				if(this.placeOnWay(way, item))
 					return;
 			}
@@ -388,7 +388,7 @@ namespace WebUI {
 			}
 			if(this._timeMode && this._timeMode > 0) {
 				this.timeReset();
-				var fields = new Object() as any;
+				var fields = {} as any;
 				fields.date = this._timeDate.getTime();
 				fields.duration = this._timeDuration;
 				WebUI.scall(this._rootdiv.id, 'newappt', fields);

@@ -147,7 +147,7 @@ namespace WebUI {
 
 	export function prepareAjaxCall(id, action, fields?) {
 		if(!fields)
-			fields = new Object();
+			fields = {};
 		// Collect all input, then create input.
 		WebUI.getInputFields(fields);
 		fields.webuia = action;
@@ -174,7 +174,7 @@ namespace WebUI {
 
 	export function jsoncall(id, fields) {
 		if(!fields)
-			fields = new Object();
+			fields = {};
 		fields["webuia"] = "$pagejson";
 		fields["webuic"] = id;
 		fields["$pt"] = (window as any).DomUIpageTag;
@@ -224,7 +224,7 @@ namespace WebUI {
 	 */
 	export function callJsonFunction(id, action, fields) {
 		if(!fields)
-			fields = new Object();
+			fields = {};
 		fields.webuia = "#" + action;
 		fields.webuic = id;
 		fields["$pt"] = (window as any).DomUIpageTag;
@@ -272,7 +272,7 @@ namespace WebUI {
 		}
 
 		// Collect all input, then create input.
-		let fields = new Object();
+		let fields = {};
 		this.getInputFields(fields);
 		fields["webuia"] = "vchange";
 		fields["webuic"] = id;

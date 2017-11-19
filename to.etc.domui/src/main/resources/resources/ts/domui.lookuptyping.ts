@@ -157,7 +157,7 @@ namespace WebUI {
 		if (selectedIndexInput instanceof HTMLInputElement) {
 			if (selectedIndexInput.value && selectedIndexInput.value != ""){
 				return parseInt(selectedIndexInput.value);
-			};
+			}
 		}
 		return -1;
 	}
@@ -372,7 +372,7 @@ namespace WebUI {
 
 	export function lookupTypingDone(id : string) {
 		// Collect all input, then create input.
-		let fields = new Object();
+		let fields = {};
 		this.getInputFields(fields);
 		fields["webuia"] = "lookupTypingDone";
 		fields["webuic"] = id;

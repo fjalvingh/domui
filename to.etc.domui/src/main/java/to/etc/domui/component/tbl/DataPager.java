@@ -173,7 +173,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 	@Nullable
 	private ISelectableTableComponent< ? > getSelectableTable() {
 		if(m_table instanceof ISelectableTableComponent< ? >)
-			return (ISelectableTableComponent< ? >) m_table;
+			return m_table;
 		return null;
 	}
 
@@ -201,9 +201,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 			throw new IllegalStateException("Null selectable table?");
 		if(tc.isMultiSelectionVisible())
 			return false;
-		if(tc.getModel() == null || tc.getModel().getRows() == 0)
-			return false;
-		return true;
+		return tc.getModel() != null && tc.getModel().getRows() != 0;
 	}
 
 	@Override

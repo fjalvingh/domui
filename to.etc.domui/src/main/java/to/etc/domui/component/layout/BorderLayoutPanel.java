@@ -8,8 +8,8 @@ import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
 
 public class BorderLayoutPanel extends Div {
-	static public enum Panel {
-		NORTH, SOUTH, WEST, EAST, CENTER;
+	public enum Panel {
+		NORTH, SOUTH, WEST, EAST, CENTER
 	}
 
 	final private Map<Panel, Div> m_panelMap = new HashMap<Panel, Div>();

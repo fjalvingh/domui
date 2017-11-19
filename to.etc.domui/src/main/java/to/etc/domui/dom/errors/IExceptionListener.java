@@ -30,5 +30,5 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 
 public interface IExceptionListener {
-	public boolean handleException(@Nonnull IRequestContext ctx, @Nonnull Page pg, @Nullable NodeBase source, @Nonnull Throwable t) throws Exception;
+	boolean handleException(@Nonnull IRequestContext ctx, @Nonnull Page pg, @Nullable NodeBase source, @Nonnull Throwable t) throws Exception;
 }

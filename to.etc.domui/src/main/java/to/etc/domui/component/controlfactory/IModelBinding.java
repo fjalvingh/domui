@@ -25,9 +25,9 @@
 package to.etc.domui.component.controlfactory;
 
 public interface IModelBinding {
-	public void moveModelToControl() throws Exception;
+	void moveModelToControl() throws Exception;
 
-	public void moveControlToModel() throws Exception;
+	void moveControlToModel() throws Exception;
 
-	public void setControlsEnabled(boolean on);
+	void setControlsEnabled(boolean on);
 }

@@ -125,9 +125,7 @@ public class StringTool {
 		if(lastdot == -1 && !"LOCALHOST".equalsIgnoreCase(s)) {
 			return false; // There must be at least one dot.
 		}
-		if(lastdot + 1 == len)
-			return false;
-		return true;
+		return lastdot + 1 != len;
 	}
 
 	/**
@@ -175,9 +173,7 @@ public class StringTool {
 			return false;
 		}
 		String dom = em.substring(ix + 1);
-		if(!isValidDomainName(dom))
-			return false;
-		return true;
+		return isValidDomainName(dom);
 	}
 
 	/**
@@ -228,9 +224,7 @@ public class StringTool {
 			return true;
 		if(Character.isLetter(c))
 			return true;
-		if(c == '.' || c == '_')
-			return true;
-		return false;
+		return c == '.' || c == '_';
 	}
 
 
@@ -1640,9 +1634,7 @@ public class StringTool {
 			return true;
 		if(c == '0')
 			return false;
-		if(Character.isDigit(c))
-			return true;
-		return false;
+		return Character.isDigit(c);
 	}
 
 	/**

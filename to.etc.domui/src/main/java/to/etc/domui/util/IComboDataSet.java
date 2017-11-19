@@ -37,6 +37,5 @@ import to.etc.domui.dom.html.*;
  * Created on Jul 11, 2008
  */
 public interface IComboDataSet<T> {
-	@Nonnull
-	public List<T> getComboDataSet(@Nonnull UrlPage page) throws Exception;
+	@Nonnull List<T> getComboDataSet(@Nonnull UrlPage page) throws Exception;
 }

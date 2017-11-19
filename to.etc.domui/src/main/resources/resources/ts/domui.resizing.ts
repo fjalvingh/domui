@@ -81,7 +81,7 @@ namespace WebUI {
 			return;
 		}
 		// Send back size information to server
-		var fields = new Object();
+		var fields = {};
 		// fields["webuia"] = "notifyClientPositionAndSize";
 		fields[element.id + "_rect"] = $(element).position().left + "," + $(element).position().top + "," + $(element).width() + "," + $(element).height();
 		fields["window_size"] = window.innerWidth + "," + window.innerHeight;

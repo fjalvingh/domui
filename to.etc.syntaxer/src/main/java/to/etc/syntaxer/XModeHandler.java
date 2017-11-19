@@ -69,39 +69,39 @@ public abstract class XModeHandler extends HandlerBase
 		}
 		else if(aname == "AT_LINE_START")
 		{
-			lastAtLineStart = (isSpecified) ? (value.equals("TRUE")) : false;
+			lastAtLineStart = (isSpecified) && (value.equals("TRUE"));
 		}
 		else if(aname == "AT_WHITESPACE_END")
 		{
-			lastAtWhitespaceEnd = (isSpecified) ? (value.equals("TRUE")) : false;
+			lastAtWhitespaceEnd = (isSpecified) && (value.equals("TRUE"));
 		}
 		else if(aname == "AT_WORD_START")
 		{
-			lastAtWordStart = (isSpecified) ? (value.equals("TRUE")) : false;
+			lastAtWordStart = (isSpecified) && (value.equals("TRUE"));
 		}
 		else if(aname == "NO_LINE_BREAK")
 		{
-			lastNoLineBreak = (isSpecified) ? (value.equals("TRUE")) : false;
+			lastNoLineBreak = (isSpecified) && (value.equals("TRUE"));
 		}
 		else if(aname == "NO_WORD_BREAK")
 		{
-			lastNoWordBreak = (isSpecified) ? (value.equals("TRUE")) : false;
+			lastNoWordBreak = (isSpecified) && (value.equals("TRUE"));
 		}
 		else if(aname == "NO_ESCAPE")
 		{
-			lastNoEscape = (isSpecified) ? (value.equals("TRUE")) : false;
+			lastNoEscape = (isSpecified) && (value.equals("TRUE"));
 		}
 		else if(aname == "EXCLUDE_MATCH")
 		{
-			lastExcludeMatch = (isSpecified) ? (value.equals("TRUE")) : false;
+			lastExcludeMatch = (isSpecified) && (value.equals("TRUE"));
 		}
 		else if(aname == "IGNORE_CASE")
 		{
-			lastIgnoreCase = (isSpecified) ? (value.equals("TRUE")) : true;
+			lastIgnoreCase = (!isSpecified) || (value.equals("TRUE"));
 		}
 		else if(aname == "HIGHLIGHT_DIGITS")
 		{
-			lastHighlightDigits = (isSpecified) ? (value.equals("TRUE")) : false;
+			lastHighlightDigits = (isSpecified) && (value.equals("TRUE"));
 		}
 		else if(aname == "DIGIT_RE")
 		{

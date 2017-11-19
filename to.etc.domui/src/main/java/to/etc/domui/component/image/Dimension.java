@@ -46,10 +46,7 @@ public class Dimension {
 
 		if(m_height != dimension.m_height)
 			return false;
-		if(m_width != dimension.m_width)
-			return false;
-
-		return true;
+		return m_width == dimension.m_width;
 	}
 
 	@Override

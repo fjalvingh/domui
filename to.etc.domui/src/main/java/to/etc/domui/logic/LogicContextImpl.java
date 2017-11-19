@@ -216,9 +216,7 @@ final public class LogicContextImpl implements ILogicContext {
 			return false;
 		if(!formals[0].isAssignableFrom(ILogicContext.class))
 			return false;
-		if(!formals[1].isAssignableFrom(parameterObject.getClass()))
-			return false;
-		return true;
+		return formals[1].isAssignableFrom(parameterObject.getClass());
 	}
 
 	@Override

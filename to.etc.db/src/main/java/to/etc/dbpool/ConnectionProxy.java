@@ -406,7 +406,7 @@ final public class ConnectionProxy implements Connection {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Hanging connections checker.						*/
 	/*--------------------------------------------------------------*/
-	static private enum LongRunState {
+	private enum LongRunState {
 		/**
 		 * The connection is closed or invalidated.
 		 */

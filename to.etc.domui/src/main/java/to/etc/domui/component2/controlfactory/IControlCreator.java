@@ -13,7 +13,7 @@ public interface IControlCreator {
 	 * @param controlClass When set the control factory *must* be able to return a component which is assignment-compatible with this class type. If it cannot it MUST refuse to create the control.
 	 * @return
 	 */
-	public <T> int accepts(@Nonnull PropertyMetaModel<T> pmm, @Nullable Class< ? extends IControl<T>> controlClass);
+	<T> int accepts(@Nonnull PropertyMetaModel<T> pmm, @Nullable Class<? extends IControl<T>> controlClass);
 
 	/**
 	 * This MUST create all nodes necessary for a control to edit the specified item. The nodes must be added
@@ -26,6 +26,5 @@ public interface IControlCreator {
 	 * @param container
 	 * @return
 	 */
-	@Nonnull
-	public <T, C extends IControl<T>> C createControl(@Nonnull PropertyMetaModel<T> pmm, @Nullable Class<C> controlClass);
+	@Nonnull <T, C extends IControl<T>> C createControl(@Nonnull PropertyMetaModel<T> pmm, @Nullable Class<C> controlClass);
 }

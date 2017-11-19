@@ -1316,8 +1316,7 @@ $.ui.plugin.add("draggable", "connectToSortable", {
 					inst.dropped = false; //draggable revert needs that
 				}
 
-			};
-
+			}
 		});
 
 	}
@@ -1478,8 +1477,7 @@ $.ui.plugin.add("draggable", "snap", {
 				(inst.options.snap.snap && inst.options.snap.snap.call(inst.element, event, $.extend(inst._uiHash(), { snapItem: inst.snapElements[i].item })));
 			inst.snapElements[i].snapping = (ts || bs || ls || rs || first);
 
-		};
-
+		}
 	}
 });
 
@@ -1727,7 +1725,12 @@ $.ui.ddmanager = {
 		droppablesLoop: for (var i = 0; i < m.length; i++) {
 
 			if(m[i].options.disabled || (t && !m[i].accept.call(m[i].element[0],(t.currentItem || t.element)))) continue;	//No disabled and non-accepted
-			for (var j=0; j < list.length; j++) { if(list[j] == m[i].element[0]) { m[i].proportions.height = 0; continue droppablesLoop; } }; //Filter out elements in the current dragged item
+			for(var j = 0; j < list.length; j++) {
+				if(list[j] == m[i].element[0]) {
+					m[i].proportions.height = 0;
+					continue droppablesLoop;
+				}
+			} //Filter out elements in the current dragged item
 			m[i].visible = m[i].element.css("display") != "none"; if(!m[i].visible) continue; 									//If the element is not visible, continue
 
 			m[i].offset = m[i].element.offset();
@@ -1912,8 +1915,7 @@ $.widget("ui.resizable", $.ui.mouse, {
 				//TODO : What's going on here?
 				if ('se' == handle) {
 					axis.addClass('ui-icon ui-icon-gripsmall-diagonal-se');
-				};
-
+				}
 				//Insert into internal handles object and append to element
 				this.handles[handle] = '.ui-resizable-'+handle;
 				this.element.append(axis);
@@ -1952,7 +1954,7 @@ $.widget("ui.resizable", $.ui.mouse, {
 
 				//TODO: What's that good for? There's not anything to be executed left
 				if(!$(this.handles[i]).length)
-					continue;
+
 
 			}
 		};
@@ -2235,8 +2237,7 @@ $.widget("ui.resizable", $.ui.mouse, {
 				width: (element.width() - this.borderDif[1] - this.borderDif[3]) || 0
 			});
 
-		};
-
+		}
 	},
 
 	_renderProxy: function() {
@@ -3411,8 +3412,8 @@ $.widget("ui.sortable", $.ui.mouse, {
 					if(inst && inst != this && !inst.options.disabled) {
 						queries.push([$.isFunction(inst.options.items) ? inst.options.items.call(inst.element) : $(inst.options.items, inst.element).not(".ui-sortable-helper").not('.ui-sortable-placeholder'), inst]);
 					}
-				};
-			};
+				}
+			}
 		}
 
 		queries.push([$.isFunction(this.options.items) ? this.options.items.call(this.element, null, { options: this.options, item: this.currentItem }) : $(this.options.items, this.element).not(".ui-sortable-helper").not('.ui-sortable-placeholder'), this]);
@@ -3421,8 +3422,7 @@ $.widget("ui.sortable", $.ui.mouse, {
 			queries[i][0].each(function() {
 				items.push(this);
 			});
-		};
-
+		}
 		return $(items);
 
 	},
@@ -3436,10 +3436,8 @@ $.widget("ui.sortable", $.ui.mouse, {
 			for (var j=0; j < list.length; j++) {
 				if(list[j] == this.items[i].item[0])
 					this.items.splice(i,1);
-			};
-
-		};
-
+			}
+		}
 	},
 
 	_refreshItems: function(event) {
@@ -3460,8 +3458,8 @@ $.widget("ui.sortable", $.ui.mouse, {
 						queries.push([$.isFunction(inst.options.items) ? inst.options.items.call(inst.element[0], event, { item: this.currentItem }) : $(inst.options.items, inst.element), inst]);
 						this.containers.push(inst);
 					}
-				};
-			};
+				}
+			}
 		}
 
 		for (var i = queries.length - 1; i >= 0; i--) {
@@ -3479,9 +3477,8 @@ $.widget("ui.sortable", $.ui.mouse, {
 					width: 0, height: 0,
 					left: 0, top: 0
 				});
-			};
-		};
-
+			}
+		}
 	},
 
 	refreshPositions: function(fast) {
@@ -3504,8 +3501,7 @@ $.widget("ui.sortable", $.ui.mouse, {
 			var p = t.offset();
 			item.left = p.left;
 			item.top = p.top;
-		};
-
+		}
 		if(this.options.custom && this.options.custom.refreshContainers) {
 			this.options.custom.refreshContainers.call(this);
 		} else {
@@ -3515,7 +3511,7 @@ $.widget("ui.sortable", $.ui.mouse, {
 				this.containers[i].containerCache.top = p.top;
 				this.containers[i].containerCache.width	= this.containers[i].element.outerWidth();
 				this.containers[i].containerCache.height = this.containers[i].element.outerHeight();
-			};
+			}
 		}
 
 		return this;
@@ -3546,8 +3542,12 @@ $.widget("ui.sortable", $.ui.mouse, {
 					if(className && !o.forcePlaceholderSize) return;
 
 					//If the element doesn't have a actual height by itself (without styles coming from a stylesheet), it receives the inline height from the dragged item
-					if(!p.height()) { p.height(self.currentItem.innerHeight() - parseInt(self.currentItem.css('paddingTop')||0, 10) - parseInt(self.currentItem.css('paddingBottom')||0, 10)); };
-					if(!p.width()) { p.width(self.currentItem.innerWidth() - parseInt(self.currentItem.css('paddingLeft')||0, 10) - parseInt(self.currentItem.css('paddingRight')||0, 10)); };
+					if(!p.height()) {
+						p.height(self.currentItem.innerHeight() - parseInt(self.currentItem.css('paddingTop') || 0, 10) - parseInt(self.currentItem.css('paddingBottom') || 0, 10));
+					}
+					if(!p.width()) {
+						p.width(self.currentItem.innerWidth() - parseInt(self.currentItem.css('paddingLeft') || 0, 10) - parseInt(self.currentItem.css('paddingRight') || 0, 10));
+					}
 				}
 			};
 		}
@@ -3880,9 +3880,8 @@ $.widget("ui.sortable", $.ui.mouse, {
 					delayedTriggers.push((function(c) { return function(event) { c._trigger("receive", event, this._uiHash(this)); };  }).call(this, this.containers[i]));
 					delayedTriggers.push((function(c) { return function(event) { c._trigger("update", event, this._uiHash(this));  }; }).call(this, this.containers[i]));
 				}
-			};
-		};
-
+			}
+		}
 		//Post events to containers
 		for (var i = this.containers.length - 1; i >= 0; i--){
 			if(!noPropagation) delayedTriggers.push((function(c) { return function(event) { c._trigger("deactivate", event, this._uiHash(this)); };  }).call(this, this.containers[i]));
@@ -3901,7 +3900,9 @@ $.widget("ui.sortable", $.ui.mouse, {
 		if(this.cancelHelperRemoval) {
 			if(!noPropagation) {
 				this._trigger("beforeStop", event, this._uiHash());
-				for (var i=0; i < delayedTriggers.length; i++) { delayedTriggers[i].call(this, event); }; //Trigger all delayed events
+				for(var i = 0; i < delayedTriggers.length; i++) {
+					delayedTriggers[i].call(this, event);
+				} //Trigger all delayed events
 				this._trigger("stop", event, this._uiHash());
 			}
 			return false;
@@ -3915,7 +3916,9 @@ $.widget("ui.sortable", $.ui.mouse, {
 		if(this.helper[0] != this.currentItem[0]) this.helper.remove(); this.helper = null;
 
 		if(!noPropagation) {
-			for (var i=0; i < delayedTriggers.length; i++) { delayedTriggers[i].call(this, event); }; //Trigger all delayed events
+			for(var i = 0; i < delayedTriggers.length; i++) {
+				delayedTriggers[i].call(this, event);
+			} //Trigger all delayed events
 			this._trigger("stop", event, this._uiHash());
 		}
 
@@ -3959,9 +3962,8 @@ $.extend($.ui.sortable, {
  *
  * http://docs.jquery.com/UI/Effects/
  */
-;jQuery.effects || (function($, undefined) {
-
-$.effects = {};
+jQuery.effects || (function($, undefined) {
+	$.effects = {};
 
 
 
@@ -4037,8 +4039,7 @@ function getColor(elem, attr) {
 		} while ( elem = elem.parentNode );
 
 		return getRGB(color);
-};
-
+}
 // Some named colors to work with
 // From Interface by Stefan Petre
 // http://interface.eyecon.ro/
@@ -4290,13 +4291,13 @@ $.extend($.effects, {
 			case 'middle': y = 0.5; break;
 			case 'bottom': y = 1; break;
 			default: y = origin[0] / original.height;
-		};
+		}
 		switch (origin[1]) {
 			case 'left': x = 0; break;
 			case 'center': x = 0.5; break;
 			case 'right': x = 1; break;
 			default: x = origin[1] / original.width;
-		};
+		}
 		return {x: x, y: y};
 	},
 
@@ -4794,14 +4795,14 @@ $.effects.bounce = function(o) {
 			el.animate(animation, speed / 2, o.options.easing);
 			distance = distance / 2;
 			times--;
-		};
+		}
 		for (var i = 0; i < times; i++) { // Bounces
 			var animation1 = {}, animation2 = {};
 			animation1[ref] = (motion == 'pos' ? '-=' : '+=') + distance;
 			animation2[ref] = (motion == 'pos' ? '+=' : '-=') + distance;
 			el.animate(animation1, speed / 2, o.options.easing).animate(animation2, speed / 2, o.options.easing);
 			distance = (mode == 'hide') ? distance * 2 : distance / 2;
-		};
+		}
 		if (mode == 'hide') { // Last Bounce
 			var animation = {opacity: 0};
 			animation[ref] = (motion == 'pos' ? '-=' : '+=')  + distance;
@@ -4818,7 +4819,7 @@ $.effects.bounce = function(o) {
 				$.effects.restore(el, props); $.effects.removeWrapper(el); // Restore
 				if(o.callback) o.callback.apply(this, arguments); // Callback
 			});
-		};
+		}
 		el.queue('fx', function() { el.dequeue(); });
 		el.dequeue();
 	});
@@ -5265,10 +5266,15 @@ $.effects.scale = function(o) {
 		el.to = {height: original.height * factor.y, width: original.width * factor.x}; // Set to state
 
 		if (o.options.fade) { // Fade option to support puff
-			if (mode == 'show') {el.from.opacity = 0; el.to.opacity = 1;};
-			if (mode == 'hide') {el.from.opacity = 1; el.to.opacity = 0;};
-		};
-
+			if(mode == 'show') {
+				el.from.opacity = 0;
+				el.to.opacity = 1;
+			}
+			if(mode == 'hide') {
+				el.from.opacity = 1;
+				el.to.opacity = 0;
+			}
+		}
 		// Animation
 		options.from = el.from; options.to = el.to; options.mode = mode;
 
@@ -5306,7 +5312,7 @@ $.effects.size = function(o) {
 			el.from.left = (original.width - el.from.width) * baseline.x;
 			el.to.top = (original.height - el.to.height) * baseline.y;
 			el.to.left = (original.width - el.to.width) * baseline.x;
-		};
+		}
 		var factor = { // Set scaling factor
 			from: {y: el.from.height / original.height, x: el.from.width / original.width},
 			to: {y: el.to.height / original.height, x: el.to.width / original.width}
@@ -5316,20 +5322,20 @@ $.effects.size = function(o) {
 				props = props.concat(vProps);
 				el.from = $.effects.setTransition(el, vProps, factor.from.y, el.from);
 				el.to = $.effects.setTransition(el, vProps, factor.to.y, el.to);
-			};
+			}
 			if (factor.from.x != factor.to.x) { // Horizontal props scaling
 				props = props.concat(hProps);
 				el.from = $.effects.setTransition(el, hProps, factor.from.x, el.from);
 				el.to = $.effects.setTransition(el, hProps, factor.to.x, el.to);
-			};
-		};
+			}
+		}
 		if (scale == 'content' || scale == 'both') { // Scale the content
 			if (factor.from.y != factor.to.y) { // Vertical props scaling
 				props = props.concat(cProps);
 				el.from = $.effects.setTransition(el, cProps, factor.from.y, el.from);
 				el.to = $.effects.setTransition(el, cProps, factor.to.y, el.to);
-			};
-		};
+			}
+		}
 		$.effects.save(el, restore ? props : props1); el.show(); // Save & Show
 		$.effects.createWrapper(el); // Create Wrapper
 		el.css('overflow','hidden').css(el.from); // Shift
@@ -5348,18 +5354,17 @@ $.effects.size = function(o) {
 				if (factor.from.y != factor.to.y) { // Vertical props scaling
 					child.from = $.effects.setTransition(child, vProps, factor.from.y, child.from);
 					child.to = $.effects.setTransition(child, vProps, factor.to.y, child.to);
-				};
+				}
 				if (factor.from.x != factor.to.x) { // Horizontal props scaling
 					child.from = $.effects.setTransition(child, hProps, factor.from.x, child.from);
 					child.to = $.effects.setTransition(child, hProps, factor.to.x, child.to);
-				};
+				}
 				child.css(child.from); // Shift children
 				child.animate(child.to, o.duration, o.options.easing, function(){
 					if (restore) $.effects.restore(child, props2); // Restore children
 				}); // Animate children
 			});
-		};
-
+		}
 		// Animate
 		el.animate(el.to, { queue: false, duration: o.duration, easing: o.options.easing, complete: function() {
 			if (el.to.opacity === 0) {
@@ -5420,7 +5425,7 @@ $.effects.shake = function(o) {
 		el.animate(animation, speed, o.options.easing);
 		for (var i = 1; i < times; i++) { // Shakes
 			el.animate(animation1, speed, o.options.easing).animate(animation2, speed, o.options.easing);
-		};
+		}
 		el.animate(animation1, speed, o.options.easing).
 		animate(animation, speed / 2, o.options.easing, function(){ // Last shake
 			$.effects.restore(el, props); $.effects.removeWrapper(el); // Restore
@@ -5911,7 +5916,7 @@ $.widget( "ui.accordion", {
 		this.active = clickedIsActive ? $([]) : clicked;
 		this._toggle( toShow, toHide, data, clickedIsActive, down );
 
-		return;
+
 	},
 
 	_toggle: function( toShow, toHide, data, clickedIsActive, down ) {
@@ -8806,18 +8811,16 @@ function extendRemove(target, props) {
 		if (props[name] == null || props[name] == undefined)
 			target[name] = props[name];
 	return target;
-};
-
-/* Determine whether an object is an array. */
+}
+	/* Determine whether an object is an array. */
 function isArray(a) {
 	return (a && (($.browser.safari && typeof a == 'object' && a.length) ||
 		(a.constructor && a.constructor.toString().match(/\Array\(\)/))));
-};
-
-/* Invoke the datepicker functionality.
-   @param  options  string - a command, optionally followed by additional parameters or
-                    Object - settings for attaching new datepicker functionality
-   @return  jQuery object */
+}
+	/* Invoke the datepicker functionality.
+	   @param  options  string - a command, optionally followed by additional parameters or
+						Object - settings for attaching new datepicker functionality
+	   @return  jQuery object */
 $.fn.datepicker = function(options){
 
 	/* Initialise the date picker. */

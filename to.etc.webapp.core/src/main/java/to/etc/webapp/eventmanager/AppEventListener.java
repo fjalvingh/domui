@@ -33,5 +33,5 @@ import javax.annotation.*;
  * Created on Sep 12, 2006
  */
 public interface AppEventListener<T extends AppEventBase> {
-	public void handleEvent(@Nonnull T obj) throws Exception;
+	void handleEvent(@Nonnull T obj) throws Exception;
 }

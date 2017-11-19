@@ -404,11 +404,8 @@ namespace WebUI {
 					});
 					$(fckIFrame.contentWindow.window).trigger('resize');
 				}
-				;
 			}
-			;
 		}
-		;
 	}
 
 	export function initScrollableTableOld(id): void {
@@ -416,7 +413,7 @@ namespace WebUI {
 		let sbody = $('#' + id + " .fht-tbody");
 		sbody.scroll(function() {
 			let bh = $(sbody).height();
-			let st = $(sbody).scrollTop()
+			let st = $(sbody).scrollTop();
 			let tbl = $('#' + id + " .fht-table tbody");
 			let th = tbl.height();
 			let left = tbl.height() - bh - st;
@@ -487,7 +484,7 @@ namespace WebUI {
 		});
 		container.scroll(function() {
 			let bh = $(container).height();
-			let st = $(container).scrollTop()
+			let st = $(container).scrollTop();
 			let tbl = $('#' + id + " tbody");
 			let th = tbl.height();
 			let left = tbl.height() - bh - st;

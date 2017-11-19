@@ -52,11 +52,9 @@ final public class JavaScriptletContributor extends HeaderContributor {
 			return false;
 		JavaScriptletContributor other = (JavaScriptletContributor) obj;
 		if(m_javascript == null) {
-			if(other.m_javascript != null)
-				return false;
-		} else if(!m_javascript.equals(other.m_javascript))
-			return false;
-		return true;
+			return other.m_javascript == null;
+		} else
+			return m_javascript.equals(other.m_javascript);
 	}
 
 	/**

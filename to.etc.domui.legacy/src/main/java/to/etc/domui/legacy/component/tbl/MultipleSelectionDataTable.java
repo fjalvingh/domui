@@ -97,7 +97,7 @@ public class MultipleSelectionDataTable<T> extends DataTableOld<T> {
 				T accumulatedItem = m_accumulatedRows.get(index);
 				TR tr = new TR();
 				getDataBody().add(tr);
-				boolean selected = (m_accumulatedSelections.size() > index ? m_accumulatedSelections.get(index).booleanValue() : false);
+				boolean selected = (m_accumulatedSelections.size() > index && m_accumulatedSelections.get(index).booleanValue());
 				renderAccumulatedItem(tr, cc, accumulatedItem, selected, index);
 			}
 
@@ -289,7 +289,7 @@ public class MultipleSelectionDataTable<T> extends DataTableOld<T> {
 	public List<T> getAccumulatedResults() {
 		List<T> results = new ArrayList<T>();
 		for(int index = 0; index < m_accumulatedRows.size(); index++) {
-			boolean selected = (m_accumulatedSelections.size() > index ? m_accumulatedSelections.get(index).booleanValue() : false);
+			boolean selected = (m_accumulatedSelections.size() > index && m_accumulatedSelections.get(index).booleanValue());
 			if(selected) {
 				results.add(m_accumulatedRows.get(index));
 			}

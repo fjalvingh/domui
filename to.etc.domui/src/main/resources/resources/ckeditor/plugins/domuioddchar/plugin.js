@@ -34,7 +34,7 @@ CKEDITOR.plugins.add( 'domuioddchar',
 /** ckeditor domuioddchar plugin for DomUI helper namespace */
 var CkeditorDomUIOddChar;
 if(CkeditorDomUIOddChar === undefined)
-	CkeditorDomUIOddChar = new Object();
+	CkeditorDomUIOddChar = {};
 
 $.extend(CkeditorDomUIOddChar, {
 	/***

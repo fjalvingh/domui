@@ -1,10 +1,14 @@
 package to.etc.domui.component.buttons;
 
-import javax.annotation.*;
+import to.etc.domui.component.image.Dimension;
+import to.etc.domui.dom.html.Button;
+import to.etc.domui.dom.html.IActionControl;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.server.DomApplication;
 
-import to.etc.domui.component.image.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
+import javax.annotation.DefaultNonNull;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * This is a button that has hover functionality to handle the button's
@@ -36,9 +40,6 @@ final public class HoverButton extends Button implements IActionControl {
 
 	@Nullable
 	private String m_url;
-
-	@Nullable
-	private Size m_size;
 
 	/**
 	 * Create the empty button.

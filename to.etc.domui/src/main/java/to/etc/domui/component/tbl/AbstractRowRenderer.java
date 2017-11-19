@@ -68,8 +68,8 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 
 	private boolean m_sortDescending;
 
-	public static interface IRowRendered<T> {
-		public void rowRendered(@Nonnull TR row, @Nonnull T instance);
+	public interface IRowRendered<T> {
+		void rowRendered(@Nonnull TR row, @Nonnull T instance);
 	}
 
 	public AbstractRowRenderer(@Nonnull Class<T> data) {

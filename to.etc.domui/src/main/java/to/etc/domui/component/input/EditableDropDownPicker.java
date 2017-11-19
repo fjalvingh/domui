@@ -180,7 +180,7 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 			setComboSize(getData().size());
 			//workaround: we have to set a value to avoid rendering of empty option for mandatory combo
 			if(!getData().isEmpty() && getData().get(0) != null && m_picker != null){
-				((ComboLookup<T>)m_picker.getSelectControl()).setValue(getData().get(0));;
+				((ComboLookup<T>)m_picker.getSelectControl()).setValue(getData().get(0));
 			}
 		} else {
 			setComboSize(getData().size() + 1);

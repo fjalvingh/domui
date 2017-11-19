@@ -6,5 +6,5 @@ import javax.sql.*;
 
 
 public interface ReverserFactory {
-	public Reverser createReverser(DataSource dbc, DatabaseMetaData dmd) throws Exception;
+	Reverser createReverser(DataSource dbc, DatabaseMetaData dmd) throws Exception;
 }

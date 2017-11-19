@@ -77,7 +77,7 @@ final public class MsgBox2 extends Window {
 		}
 	}
 
-	public static enum Type {
+	public enum Type {
 		INFO, WARNING, ERROR, DIALOG, INPUT
 	}
 
@@ -280,7 +280,7 @@ final public class MsgBox2 extends Window {
 
 	private void setFocusOnButton() {
 		if(m_buttonDiv.getChildCount() > 0 && m_buttonDiv.getChild(0) instanceof Button) {
-			((Button) m_buttonDiv.getChild(0)).setFocus();
+			m_buttonDiv.getChild(0).setFocus();
 		}
 	}
 

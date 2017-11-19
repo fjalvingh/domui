@@ -71,7 +71,7 @@ final public class HibernateChecker {
 
 	private int m_badManyToOne;
 
-	private static enum Severity {
+	private enum Severity {
 		INFO, WARNING, ERROR, MUSTFIXNOW
 	}
 

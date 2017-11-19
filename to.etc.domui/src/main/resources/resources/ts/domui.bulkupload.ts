@@ -127,24 +127,24 @@ namespace WebUI {
 		uploadStarted = function() {
 			$(".ui-bupl-stat", this._ui).html(WebUI._T.buplRunning);
 			$(".ui-bupl-inner", this._ui).removeClass("ui-bupl-pending").addClass("ui-bupl-running");
-		}
+		};
 		setProgress = function(pct) {
 			$(".ui-bupl-perc", this._ui).width(pct+"%");
-		}
+		};
 		uploadError = function(message) {
 			$(".ui-bupl-stat", this._ui).html(WebUI._T.buplError+": "+message);
 			$(".ui-bupl-inner", this._ui).removeClass("ui-bupl-pending").removeClass("ui-bupl-running").addClass("ui-bupl-error");
 			$(".ui-bupl-cancl", this._ui).remove();
 			this.setProgress(0);
 			this.suicide();
-		}
+		};
 		uploadComplete = function() {
 			$(".ui-bupl-stat", this._ui).html(WebUI._T.buplComplete);
 			$(".ui-bupl-inner", this._ui).removeClass("ui-bupl-pending").removeClass("ui-bupl-running").removeClass("ui-bupl-error").addClass("ui-bupl-complete");
 			this.setProgress(100);
 			$(".ui-bupl-cancl", this._ui).remove();
 			this.suicide();
-		}
+		};
 		suicide = function() {
 			this._ui.delay(8000).fadeOut(500);
 		}

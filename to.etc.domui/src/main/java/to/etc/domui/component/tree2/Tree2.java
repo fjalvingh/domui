@@ -365,7 +365,7 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 
 	private void renderContent(@Nonnull final NodeContainer cell, @Nullable final T value) throws Exception {
 		if(m_actualContentRenderer == null)
-			m_actualContentRenderer = (IRenderInto<T>) calculateContentRenderer(value);
+			m_actualContentRenderer = calculateContentRenderer(value);
 		m_actualContentRenderer.renderOpt(cell, value);
 
 		if(isSelectable(value)) {
@@ -402,7 +402,7 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 
 	protected void cellClicked(@Nonnull final T value, @Nonnull ClickInfo clinfo) throws Exception {
 		if(getCellClicked() != null)
-			((ICellClicked<Object>) getCellClicked()).cellClicked(value);
+			getCellClicked().cellClicked(value);
 	}
 
 	/**

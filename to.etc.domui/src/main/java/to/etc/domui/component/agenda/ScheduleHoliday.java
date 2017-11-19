@@ -34,11 +34,11 @@ import java.util.*;
  */
 public interface ScheduleHoliday {
 	/** The day the holiday occurs on */
-	public Date getDate();
+	Date getDate();
 
 	/** A short name for the holyday */
-	public String getHolidayName(Locale loc);
+	String getHolidayName(Locale loc);
 
 	/** An URL to an image describing this holiday */
-	public String getImageURL();
+	String getImageURL();
 }

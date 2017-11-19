@@ -133,7 +133,7 @@ public class QBrace {
 					throw new Exception("No restriction found before first OR : " + this);
 				}
 				if(lastObject != null && lastObject instanceof QOperatorNode && object instanceof QOperatorNode) {
-					if(lastnode instanceof QMultiNode && ((QMultiNode) lastnode).getOperation() == AND) {
+					if(lastnode instanceof QMultiNode && lastnode.getOperation() == AND) {
 						m = (QMultiNode) lastnode;
 						m.add(node);
 					} else {

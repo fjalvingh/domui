@@ -78,7 +78,7 @@ final public class HibernateConfigurator {
 	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
 	 * Created on Dec 30, 2010
 	 */
-	static public enum Mode {
+	public enum Mode {
 		/**
 		 * Assume the database is correct and the same as the Hibernate expected schema.
 		 */

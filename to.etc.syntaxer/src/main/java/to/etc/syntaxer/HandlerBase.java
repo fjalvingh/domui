@@ -151,7 +151,7 @@ public class HandlerBase implements XmlHandler
 	 * @exception com.microstar.xml.XmlException A specific parsing error.
 	 * @exception java.lang.Exception Derived methods may throw exceptions.
 	 */
-	public void error(String message, String systemId, int line, int column) throws XmlException, java.lang.Exception
+	public void error(String message, String systemId, int line, int column) throws java.lang.Exception
 	{
 		throw new XmlException(message, systemId, line, column);
 	}

@@ -36,20 +36,19 @@ import javax.annotation.*;
  * Created on Sep 29, 2008
  */
 public interface IErrorFence {
-	public void addErrorListener(@Nonnull IErrorMessageListener eml);
+	void addErrorListener(@Nonnull IErrorMessageListener eml);
 
-	public void removeErrorListener(@Nonnull IErrorMessageListener eml);
+	void removeErrorListener(@Nonnull IErrorMessageListener eml);
 
-	public void addMessage(@Nonnull UIMessage uim);
+	void addMessage(@Nonnull UIMessage uim);
 
-	public void removeMessage(@Nonnull UIMessage uim);
+	void removeMessage(@Nonnull UIMessage uim);
 
-	public void clearGlobalMessages(@Nullable String code);
+	void clearGlobalMessages(@Nullable String code);
 
 	/**
 	 * Experimental, do not use. Return the current set of errors inside this fence.
 	 * @return
 	 */
-	@Nonnull
-	public List<UIMessage> getMessageList();
+	@Nonnull List<UIMessage> getMessageList();
 }

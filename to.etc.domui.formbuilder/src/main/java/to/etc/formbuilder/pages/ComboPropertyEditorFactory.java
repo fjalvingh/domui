@@ -80,8 +80,6 @@ public class ComboPropertyEditorFactory implements IPropertyEditorFactory {
 			return false;
 		if(m_required != other.m_required)
 			return false;
-		if(!Arrays.equals(m_values, other.m_values))
-			return false;
-		return true;
+		return Arrays.equals(m_values, other.m_values);
 	}
 }

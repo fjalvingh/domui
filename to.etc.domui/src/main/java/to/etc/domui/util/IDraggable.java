@@ -37,11 +37,11 @@ public interface IDraggable {
 	 * means the associated class can be dragged. When set to null the instance is undraggable.
 	 * @param dh
 	 */
-	public void setDragHandler(IDragHandler dh);
+	void setDragHandler(IDragHandler dh);
 
 	/**
 	 * Returns the current handler for dragging. If null this node cannot be dragged.
 	 * @return
 	 */
-	public IDragHandler getDragHandler();
+	IDragHandler getDragHandler();
 }

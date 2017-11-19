@@ -1,7 +1,6 @@
 package to.etc.domuidemo.pages.overview.tree;
 
 import to.etc.domui.component.tree.ITreeModel;
-import to.etc.domui.component.tree.ITreeModelChangedListener;
 
 import java.io.File;
 import java.util.Arrays;
@@ -18,14 +17,17 @@ import java.util.Map;
  */
 public class DemoTreeModel implements ITreeModel<File> {
 	private class Link {
-		private File		m_base;
-		private Link[]		m_children;
+		private File m_base;
+
+		private Link[] m_children;
+
 		public Link(File base) {
 			m_base = base;
 		}
+
 		public Link[] children() {
 			if(m_children == null) {
-				File[]	ar = m_base.listFiles();
+				File[] ar = m_base.listFiles();
 				if(ar == null) {
 					m_children = new Link[0];
 				} else {
@@ -40,7 +42,7 @@ public class DemoTreeModel implements ITreeModel<File> {
 					});
 
 					m_children = new Link[ar.length];
-					for(int i = ar.length; --i >= 0;) {
+					for(int i = ar.length; --i >= 0; ) {
 						m_children[i] = new Link(ar[i]);
 						m_linkMap.put(ar[i], m_children[i]);
 					}
@@ -48,21 +50,22 @@ public class DemoTreeModel implements ITreeModel<File> {
 			}
 			return m_children;
 		}
+
 		public File getBase() {
 			return m_base;
 		}
 	}
 
-	private Link		m_root;
+	private Link m_root;
 
-	Map<File, Link>		m_linkMap = new HashMap<File, Link>();
+	private Map<File, Link> m_linkMap = new HashMap<File, Link>();
 
 	public DemoTreeModel(File root) {
 		m_root = new Link(root);
 		m_linkMap.put(root, m_root);
 	}
 
-	private Link	getLink(File f) {
+	private Link getLink(File f) {
 		Link l = m_linkMap.get(f);
 		if(l == null)
 			throw new IllegalStateException("File not located in link thing");
@@ -70,21 +73,10 @@ public class DemoTreeModel implements ITreeModel<File> {
 	}
 
 	@Override
-	public void addChangeListener(ITreeModelChangedListener<File> l) {
-	}
-
-	@Override
 	public File getChild(File parent, int index) throws Exception {
-//		System.out.println("Entered getChild");
-//		Link	l = getLink(parent);
-//		System.out.println(">> link = "+l);
-//		Link[]	children = l.children();
-//		System.out.println("Children="+children);
-//		l	= children[index];
-//		System.out.println("child link="+l);
-//		return l.getBase();
 		return getLink(parent).children()[index].getBase();
 	}
+
 	@Override
 	public File getParent(File child) throws Exception {
 		if(child == m_root.getBase() || child == null)
@@ -100,26 +92,5 @@ public class DemoTreeModel implements ITreeModel<File> {
 	@Override
 	public File getRoot() throws Exception {
 		return m_root.getBase();
-	}
-
-	@Override
-	public boolean hasChildren(File item) throws Exception {
-		return getChildCount(item) != 0;
-	}
-
-	@Override
-	public void removeChangeListener(ITreeModelChangedListener<File> l) {
-	}
-
-	@Override
-	public void collapseChildren(File item) throws Exception {
-	// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void expandChildren(File item) throws Exception {
-	// TODO Auto-generated method stub
-
 	}
 }

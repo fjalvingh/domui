@@ -41,6 +41,5 @@ public interface IStringQueryFactory<T> {
 	 * @param keyCondition
 	 * @return In case that query has to be canceled return null, otherwise return modified query.
 	 */
-	@Nullable
-	public QCriteria<T> createQuery(@Nonnull String searchString) throws Exception;
+	@Nullable QCriteria<T> createQuery(@Nonnull String searchString) throws Exception;
 }

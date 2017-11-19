@@ -494,4 +494,4 @@
 		ColorPickerSetColor: ColorPicker.setColor,
 		ColorPickerGetColor: ColorPicker.getColor
 	});
-})(jQuery)
+})(jQuery);

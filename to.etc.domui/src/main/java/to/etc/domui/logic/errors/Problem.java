@@ -173,11 +173,9 @@ public class Problem {
 			return false;
 		Problem other = (Problem) obj;
 		if(m_key == null) {
-			if(other.m_key != null)
-				return false;
-		} else if(!m_key.equals(other.m_key))
-			return false;
-		return true;
+			return other.m_key == null;
+		} else
+			return m_key.equals(other.m_key);
 	}
 
 	@Override

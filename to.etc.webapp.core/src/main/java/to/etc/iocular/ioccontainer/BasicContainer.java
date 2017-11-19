@@ -69,7 +69,7 @@ public class BasicContainer implements Container {
 	/** Map of all instantiated objects of a given definition */
 	private final Map<ComponentDef, ContainerObjectRef> m_singletonMap = new HashMap<ComponentDef, ContainerObjectRef>();
 
-	private static enum RefState {
+	private enum RefState {
 		NEW, OKAY, ALLOCATING, ERROR
 	}
 

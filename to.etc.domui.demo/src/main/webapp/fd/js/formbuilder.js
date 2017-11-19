@@ -4,11 +4,11 @@ FormBuilder = function(id, paintid, compid) {
 	this._id = id;
 	this._paintid = paintid;
 	this._compid = compid;
-	this._componentTypeMap = new Object();
-	this._pendingUpdateList = new Array();
-	this._componentMap = new Object();
-	this._componentNodeMap = new Object();
-	this._selectionList = new Array();
+	this._componentTypeMap = {};
+	this._pendingUpdateList = [];
+	this._componentMap = {};
+	this._componentNodeMap = {};
+	this._selectionList = [];
 	this.register();
 };
 
@@ -43,7 +43,7 @@ $.extend(FormBuilder.prototype, {
 	sendEvent: function(action, json) {
 		var pupd = this._pendingUpdateList;
 		if(pupd.length > 0) {
-			this._pendingUpdateList = new Array();
+			this._pendingUpdateList = [];
 		}
 		WebUI.sendJsonAction(this._id, action, json);
 	},
@@ -152,7 +152,7 @@ $.extend(FormBuilder.prototype, {
 			var item = this._selectionList[i];
 			item.setSelected(false);
 		}
-		this._selectionList = new Array();
+		this._selectionList = [];
 	},
 
 	selectionIndex: function(item) {
@@ -174,7 +174,7 @@ $.extend(FormBuilder.prototype, {
 		}
 
 		//-- Send a SELECTION event with all selected item IDs
-		var curs = new Array();
+		var curs = [];
 		for(var i = this._selectionList.length; --i >= 0;) {
 			curs.push(this._selectionList[i]._id);
 		}

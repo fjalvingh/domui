@@ -133,7 +133,7 @@ public class ConversationContext implements IQContextContainer {
 	/** True when this context was destroyed because the session was invalidated. */
 	private boolean m_sessionDestroyed;
 
-	static enum ConversationState {
+	enum ConversationState {
 		DETACHED, ATTACHED, DESTROYED
 	}
 
@@ -450,7 +450,7 @@ public class ConversationContext implements IQContextContainer {
 	 */
 	public boolean isPollCallbackRequired() {
 		DelayedActivitiesManager delayManager = m_delayManager;
-		return delayManager == null ? false : delayManager.callbackRequired();
+		return delayManager != null && delayManager.callbackRequired();
 	}
 
 	/**
