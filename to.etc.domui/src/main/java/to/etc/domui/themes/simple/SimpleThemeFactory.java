@@ -25,7 +25,6 @@
 package to.etc.domui.themes.simple;
 
 import to.etc.domui.server.DomApplication;
-import to.etc.domui.themes.DefaultThemeVariant;
 import to.etc.domui.themes.ITheme;
 import to.etc.domui.themes.IThemeFactory;
 import to.etc.domui.themes.StyleException;
@@ -132,7 +131,7 @@ public class SimpleThemeFactory {
 		String styleName = ar[1];
 		String iconName = ar[2];
 		String colorName = ar[3];
-		String variantName = ar.length == 4 ? DefaultThemeVariant.INSTANCE.getVariantName() : ar[4];
+		//String variantName = ar.length == 4 ? DefaultThemeVariant.INSTANCE.getVariantName() : ar[4];
 
 		ResourceDependencyList rdl = new ResourceDependencyList();
 

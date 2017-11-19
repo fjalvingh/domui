@@ -1,12 +1,29 @@
 package to.etc.dbutil.datacompare;
 
-import java.io.*;
-import java.sql.*;
-import java.util.*;
+import to.etc.dbpool.BetterSQLException;
+import to.etc.dbutil.schema.Database;
+import to.etc.dbutil.schema.DbColumn;
+import to.etc.dbutil.schema.DbPrimaryKey;
+import to.etc.dbutil.schema.DbRelation;
+import to.etc.dbutil.schema.DbTable;
+import to.etc.util.FileTool;
+import to.etc.util.StringTool;
 
-import to.etc.dbpool.*;
-import to.etc.dbutil.schema.*;
-import to.etc.util.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.InputStream;
+import java.sql.Blob;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * QD Sync between Posgresql databases.
@@ -965,18 +982,18 @@ public class PGDataSync {
 		for(int i = 0; i < aa.length; i++) {
 			Object a = aa[i];
 			Object b = ba[i];
-			if(a == null && b == null) {
-				// same
-			} else if(a == null && b != null) {
-				return -1;
-			} else if(a != null && b == null) {
-				return 1;
-			} else {
-				Comparable ca = (Comparable) a;
-				Comparable cb = (Comparable) b;
-				int res = ca.compareTo(cb);
-				if(res != 0)
-					return res;
+			if(a != null || b != null) {
+				if(a == null && b != null) {
+					return -1;
+				} else if(a != null && b == null) {
+					return 1;
+				} else {
+					Comparable ca = (Comparable) a;
+					Comparable cb = (Comparable) b;
+					int res = ca.compareTo(cb);
+					if(res != 0)
+						return res;
+				}
 			}
 		}
 		return 0;

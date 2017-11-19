@@ -384,7 +384,7 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 			searchQuery.eq("id", magicId);
 			return searchQuery;
 		}
-		throw new RuntimeException("This instance cannot be used for filling in lookup using magic string: " + getQueryClass());
+		throw new IllegalArgumentException("This instance cannot be used for filling in lookup using magic string: " + getQueryClass());
 	}
 
 	@Nullable

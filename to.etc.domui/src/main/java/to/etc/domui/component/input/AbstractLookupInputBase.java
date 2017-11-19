@@ -217,6 +217,7 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 			if(r == null)
 				r = new SimpleLookupInputRenderer<>(getOutputMetaModel());
 			r.render(td, value);
+			handleSelectionCss();
 		}
 		appendLookupButtons();
 
@@ -286,7 +287,7 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 			//When text is cutoff by that css, we have to show entire text in hover.
 			//We use internal ui-lui-vcell style here, since it can not be provided from INodeContentRenderer itself :(
 			//Since this is internal component code too, relaying on this internal details of renderer are not too bad
-			getParent().appendShowOverflowTextAsTitleJs("." + selectionCssClass + " td.ui-lui-vcell");
+			getParent().appendShowOverflowTextAsTitleJs("." + selectionCssClass + " .ui-lui-v");
 		}
 	}
 
@@ -319,24 +320,30 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 			if(null == spm)
 				throw new IllegalStateException("null entry in keyword search list");
 
-			if(spm.getLookupLabel() != null) {
-				sb.append(spm.getLookupLabel());
-			} else {
-				//FIXME: vmijic 20110906 Scheduled for delete. We add extra tests and logging in code just to be sure if such cases can happen in production.
-				//This should be removed soon after we are sure that problem is solved.
-				String propertyName = spm.getPropertyName();
-				if(propertyName == null)
-					throw new IllegalStateException("Search property name is null");
-				PropertyMetaModel< ? > pmm = getQueryMetaModel().findProperty(propertyName);
-				if(pmm == null)
-					throw new IllegalStateException(propertyName + ": undefined property in " + getQueryMetaModel());
-				if(pmm.getDefaultLabel() != null)
-					sb.append(pmm.getDefaultLabel());
-				else
-					sb.append(pmm.getName());
-			}
+			appendHintFromProperty(sb, spm);
 		}
 		return sb.toString();
+	}
+
+	private void appendHintFromProperty(StringBuilder sb, SearchPropertyMetaModel spm) {
+		if(spm.getLookupLabel() != null) {
+			sb.append(spm.getLookupLabel());
+		} else {
+			//FIXME: vmijic 20110906 Scheduled for delete. We add extra tests and logging in code just to be sure if such cases can happen in production.
+			//This should be removed soon after we are sure that problem is solved.
+			PropertyMetaModel<?> pmm = getPropertyMetaFromSearchMeta(spm);
+			sb.append(pmm.getDefaultLabel());
+		}
+	}
+
+	@Nonnull private PropertyMetaModel<?> getPropertyMetaFromSearchMeta(SearchPropertyMetaModel spm) {
+		String propertyName = spm.getPropertyName();
+		if(propertyName == null)
+			throw new IllegalStateException("Search property name is null");
+		PropertyMetaModel< ? > pmm = getQueryMetaModel().findProperty(propertyName);
+		if(pmm == null)
+			throw new IllegalStateException(propertyName + ": undefined property in " + getQueryMetaModel());
+		return pmm;
 	}
 
 	/*----------------------------------------------------------------------*/

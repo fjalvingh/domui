@@ -18,18 +18,18 @@ WebUI.SearchPopup = function(id, inputid) {
 	this._popup = null;
 
 	var self = this;
-	$('#'+inputid).keypress(function(event) {
+	$('#' + inputid).keypress(function(event) {
 		self.keypressHandler(event);
 	})
-	.keydown(function(event) {
-		self.keyUpHandler(event);
-	})
-	.focus(function() {
-		self.handleFocus();
-	})
-	.blur(function(event) {
-		self.handleBlur();
-	});
+		.keydown(function(event) {
+			self.keyUpHandler(event);
+		})
+		.focus(function() {
+			self.handleFocus();
+		})
+		.blur(function(event) {
+			self.handleBlur();
+		});
 };
 
 /**
@@ -39,7 +39,7 @@ WebUI.SearchPopup._timerID = null;
 
 $.extend(WebUI.SearchPopup.prototype, {
 	_selectedIndex: -1,
-	
+
 	/**
 	 * Handle enter key pressed on keyPress for component with onLookupTyping listener. This needs to be executed on keyPress (was part of keyUp handling), otherwise other global return key listener (returnKeyPress handler) would fire.
 	 */
@@ -50,13 +50,13 @@ $.extend(WebUI.SearchPopup.prototype, {
 		switch(key) {
 			default:
 				return;
-			
+
 			case WebUI.K_RETURN:
 				//locate keyword input node
 				var node = document.getElementById(this._inputid);
 				if(node && node.tagName.toLowerCase() === 'input') {
 					var selection = $(node.parentNode).find("tr.ui-ssop-selected");
-					if (selection && selection.length === 1){
+					if(selection && selection.length === 1) {
 						selectedTrNode = selection.get(0);
 					}
 				}
@@ -69,7 +69,7 @@ $.extend(WebUI.SearchPopup.prototype, {
 
 		this.cancelEvent(event);
 
-		if (selectedTrNode){
+		if(selectedTrNode) {
 			$(this._popup).trigger('click'); //does server round-trip and delivers SelectOnePanel changed value
 			return;
 		}
@@ -93,14 +93,14 @@ $.extend(WebUI.SearchPopup.prototype, {
 				var node = document.getElementById(this._inputid);
 				if(node && node.tagName.toLowerCase() === 'input') {
 					node.value = "";
-					if (this._popup) {
+					if(this._popup) {
 						var jsPopupRef = WebUI.findInputControl(this._popup.id);
-						if (jsPopupRef) {
+						if(jsPopupRef) {
 							jsPopupRef.selectNode(-1);
 						}
 					}
 				}
-				//fall trough
+			//fall trough
 			default:
 				var self = this;
 				this.cancelLookupTypingTimer();
@@ -137,7 +137,7 @@ $.extend(WebUI.SearchPopup.prototype, {
 	 * If the input is re-entered: show the last popup shown or message, if present.
 	 */
 	handleFocus: function() {
-		$('#'+this._id+" .ui-ssop").fadeIn(200);
+		$('#' + this._id + " .ui-ssop").fadeIn(200);
 		var parentNode = document.getElementById(this._id).parentNode;
 
 		// parentNode.style.zIndex = 10;
@@ -165,40 +165,40 @@ $.extend(WebUI.SearchPopup.prototype, {
 		var node = document.getElementById(this._inputid);
 		if(!node || node.tagName.toLowerCase() !== 'input')
 			return;		//fix z-index to one saved in input node
-		if ($.browser.msie){
-            //IE kills event stack (click is canceled) when z index is set during onblur event handler... So, we need to postpone it a bit...
-            window.setTimeout(function() {
-            	try {
-            		node.parentNode.style.zIndex = node.style.zIndex;
-            	} catch (e) {
-            		//just ignore
-            	}
-            }, 200);
-		}else{
-            //Other browsers don't suffer of this problem, and we can set z index instantly
-            node.parentNode.style.zIndex = node.style.zIndex;
+		if($.browser.msie) {
+			//IE kills event stack (click is canceled) when z index is set during onblur event handler... So, we need to postpone it a bit...
+			window.setTimeout(function() {
+				try {
+					node.parentNode.style.zIndex = node.style.zIndex;
+				} catch(e) {
+					//just ignore
+				}
+			}, 200);
+		} else {
+			//Other browsers don't suffer of this problem, and we can set z index instantly
+			node.parentNode.style.zIndex = node.style.zIndex;
 		}
 	},
-		
+
 	showLookupTypingPopupIfStillFocusedAndFixZIndex: function() {
 		var node = document.getElementById(this._inputid);
 		if(!node || node.tagName.toLowerCase() !== 'input')
 			return;
 		var wasInFocus = node === document.activeElement;
 		var qDivPopup = $(node.parentNode).children("div.ui-ssop");
-		if (qDivPopup.length > 0){
+		if(qDivPopup.length > 0) {
 			var divPopup = qDivPopup.get(0);
 			//z-index correction must be set manually from javascript (because some bug in IE7 -> if set from domui renders incorrectly until page is refreshed?)
 			divPopup.style.zIndex = node.style.zIndex + 1;
 			node.parentNode.style.zIndex = divPopup.style.zIndex;
-		}else{
+		} else {
 			//fix z-index to one saved in input node
 			node.parentNode.style.zIndex = node.style.zIndex;
 		}
 
-		if (divPopup){
+		if(divPopup) {
 			this._popup = divPopup;
-			if (wasInFocus) {
+			if(wasInFocus) {
 				//show popup in case that input field still has focus
 				$(divPopup).show();
 			}
@@ -213,9 +213,9 @@ $.extend(WebUI.SearchPopup.prototype, {
 		var waitdiv = this._waitDiv;
 		if(waitdiv)
 			return;
-		
+
 		waitdiv = $('<div class="ui-srip-waiting"><div></div></div>');
-		$('#'+this._id).append(waitdiv);
+		$('#' + this._id).append(waitdiv);
 		this._waitDiv = waitdiv;
 	},
 
@@ -225,17 +225,17 @@ $.extend(WebUI.SearchPopup.prototype, {
 	 */
 	hideWaiting: function() {
 		var waitdiv = this._waitDiv;
-		if(! waitdiv)
+		if(!waitdiv)
 			return;
 		delete this._waitDiv;
 
 		$(waitdiv).remove();
 	},
 
-	lookupTyping : function() {
+	lookupTyping: function() {
 		var lookupField = document.getElementById(this._id);
 		//check for existence, since it is delayed action component can be removed when action is executed.
-		if (lookupField){
+		if(lookupField) {
 			var self = this;
 
 			var showWaitingTimerId = null;
@@ -244,7 +244,7 @@ $.extend(WebUI.SearchPopup.prototype, {
 
 			axaj.beforeSend = function() {
 				var parentDiv = lookupField.parentNode;
-				if (parentDiv) {
+				if(parentDiv) {
 					showWaitingTimerId = window.setTimeout(function() {
 						self.displayWaiting();
 					}, 500);
@@ -273,7 +273,7 @@ $.extend(WebUI.SearchPopup.prototype, {
 		WebUI.scall(this._id, "lookupTypingDone");
 	},
 
-	cancelEvent: function(evt){
+	cancelEvent: function(evt) {
 		this.cancelLookupTypingTimer();
 		evt.preventDefault();
 		evt.cancelBubble = true;
@@ -293,9 +293,9 @@ WebUI.SelectOnePanel = function(id, inputid) {
 	// 	self._selected = true;
 	// 	console.log("click event on selectOnePanel");
 	// });
-	
-	var node = inputid ? $('#'+inputid) : $(document.body);
-	
+
+	var node = inputid ? $('#' + inputid) : $(document.body);
+
 	var self = this;
 	node.keyup(function(event) {
 		self.keyUpHandler(event);
@@ -311,7 +311,7 @@ $.extend(WebUI.SelectOnePanel.prototype, {
 	 * confuse the keyboard and mouse style of selecting.
 	 */
 	attachHovers: function() {
-		$('#'+this._id+" tr.ui-ssop-row").bind("mouseover", $.proxy(this.mouseOverHandler, this));
+		$('#' + this._id + " tr.ui-ssop-row").bind("mouseover", $.proxy(this.mouseOverHandler, this));
 	},
 
 	getInputField: function() {
@@ -327,7 +327,7 @@ $.extend(WebUI.SelectOnePanel.prototype, {
 	},
 
 	selectNode: function(index) {
-		var trs = $('#'+this._id+" tr.ui-ssop-row");			// Find all rows
+		var trs = $('#' + this._id + " tr.ui-ssop-row");			// Find all rows
 		if(index < -1 || index > trs.length)
 			return;
 
@@ -335,7 +335,7 @@ $.extend(WebUI.SelectOnePanel.prototype, {
 		if(selectedIndex >= 0 && selectedIndex < trs.length) {
 			$(trs[selectedIndex]).removeClass("ui-ssop-selected");
 		}
-		if (index >= 0) {
+		if(index >= 0) {
 			$(trs[index]).addClass("ui-ssop-selected");
 		}
 		this._selectedIndex = index;
@@ -348,11 +348,11 @@ $.extend(WebUI.SelectOnePanel.prototype, {
 		switch(event.which) {
 			default:
 				return;
-			
+
 			case WebUI.K_DOWN:
 				direction = 1;
 				break;
-				
+
 			case WebUI.K_UP:
 				direction = -1;
 				break;
@@ -360,7 +360,7 @@ $.extend(WebUI.SelectOnePanel.prototype, {
 
 		var selectedIndex = this._selectedIndex;
 		selectedIndex += direction;
-		var trs = $('#'+this._id+" tr.ui-ssop-row");		// Find all rows
+		var trs = $('#' + this._id + " tr.ui-ssop-row");		// Find all rows
 
 		//when rotating, we also use -1 for no selection -> its usage is when enter is pressed -> it opens popup dialog with preselection
 		//it also allows users to continue typing and narrowing results
@@ -374,7 +374,7 @@ $.extend(WebUI.SelectOnePanel.prototype, {
 		this.cancelEvent(event);
 	},
 
-	cancelEvent: function(evt){
+	cancelEvent: function(evt) {
 		evt.preventDefault();
 		evt.cancelBubble = true;
 		if(evt.stopPropagation)

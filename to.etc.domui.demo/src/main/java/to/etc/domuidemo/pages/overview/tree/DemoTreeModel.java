@@ -16,6 +16,10 @@ import java.util.Map;
  * Created on Apr 18, 2010
  */
 public class DemoTreeModel implements ITreeModel<File> {
+	private Link m_root;
+
+	private Map<File, Link> m_linkMap = new HashMap<File, Link>();
+
 	private class Link {
 		private File m_base;
 
@@ -55,10 +59,6 @@ public class DemoTreeModel implements ITreeModel<File> {
 			return m_base;
 		}
 	}
-
-	private Link m_root;
-
-	private Map<File, Link> m_linkMap = new HashMap<File, Link>();
 
 	public DemoTreeModel(File root) {
 		m_root = new Link(root);

@@ -9,6 +9,10 @@
 // Unicode is the answer to a real internationalized world.  Also please
 // include your contact information in the header, as can be seen above.
 
+var Calendar;
+if(! Calendar)
+ Calendar = {};
+
 // full day names
 Calendar._DN = ["Sunday",
  "Monday",

@@ -1,5 +1,9 @@
 // ** I18N
 
+var Calendar;
+if(! Calendar)
+	Calendar = {};
+
 // Calendar NL language
 // Author: fixed by legolas558
 // Encoding: any
