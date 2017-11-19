@@ -124,7 +124,9 @@ public class BetterSQLException extends SQLException {
 
 			StreamTokenizer st = new StreamTokenizer(new StringReader(sql)) {
 				@Override
-				public void parseNumbers() {}
+				public void parseNumbers() {
+					// Ignore this
+				}
 			};
 			st.wordChars('_', '_');
 			st.wordChars('.', '.');

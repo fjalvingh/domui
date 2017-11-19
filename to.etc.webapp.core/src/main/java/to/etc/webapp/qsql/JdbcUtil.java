@@ -693,7 +693,7 @@ public class JdbcUtil {
 		if(val == null)
 			return "null";
 		else if(val instanceof String) {
-			return "[String] '" + (String) val + "'";
+			return "[String] '" + val + "'";
 		} else if(val instanceof Long) {
 			return "[Long] " + ((Long) val).longValue();
 		} else if(val instanceof Integer) {

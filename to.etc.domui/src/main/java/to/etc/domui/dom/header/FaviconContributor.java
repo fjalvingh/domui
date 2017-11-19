@@ -44,10 +44,8 @@ final public class FaviconContributor extends HeaderContributor {
 			return false;
 		FaviconContributor other = (FaviconContributor) obj;
 		if(m_favicon == null) {
-			if(other.m_favicon != null)
-				return false;
-		} else if(!m_favicon.equals(other.m_favicon))
-			return false;
-		return true;
+			return other.m_favicon == null;
+		} else
+			return m_favicon.equals(other.m_favicon);
 	}
 }

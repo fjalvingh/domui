@@ -10,7 +10,6 @@ import javax.annotation.*;
  */
 public interface IClassLogic extends ILogic {
 
-	@Nonnull
-	public ILogicContext lc();
+	@Nonnull ILogicContext lc();
 
 }

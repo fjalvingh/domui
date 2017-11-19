@@ -27,7 +27,7 @@ public class AbstractFloatingLookup<T> extends FloatingWindow {
 	 * @param lookupClass
 	 */
 	public AbstractFloatingLookup(Class<T> lookupClass) {
-		this(lookupClass, (ClassMetaModel) null);
+		this(lookupClass, null);
 	}
 
 	public AbstractFloatingLookup(Class<T> lookupClass, ClassMetaModel metaModel) {

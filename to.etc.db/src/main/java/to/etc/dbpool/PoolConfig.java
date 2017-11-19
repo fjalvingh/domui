@@ -323,9 +323,7 @@ final public class PoolConfig {
 			return false;
 		if(!m_driverClassName.equals(p.m_driverClassName))
 			return false;
-		if(!m_pw.equals(p.m_pw))
-			return false;
-		return true;
+		return m_pw.equals(p.m_pw);
 	}
 
 

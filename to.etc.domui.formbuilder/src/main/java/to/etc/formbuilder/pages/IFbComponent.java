@@ -7,27 +7,21 @@ import javax.annotation.*;
 import to.etc.domui.dom.html.*;
 
 public interface IFbComponent {
-	@Nonnull
-	public String getTypeID();
+	@Nonnull String getTypeID();
 
-	public void drawSelector(@Nonnull NodeContainer container) throws Exception;
+	void drawSelector(@Nonnull NodeContainer container) throws Exception;
 
-	@Nonnull
-	public String getShortName();
+	@Nonnull String getShortName();
 
-	@Nonnull
-	public String getLongName();
+	@Nonnull String getLongName();
 
-	@Nonnull
-	public String getCategoryName();
+	@Nonnull String getCategoryName();
 
-	@Nonnull
-	public NodeBase createNodeInstance() throws Exception;
+	@Nonnull NodeBase createNodeInstance() throws Exception;
 
 	/**
 	 * Return all properties for this component.
 	 * @return
 	 */
-	@Nonnull
-	public Set<PropertyDefinition> getProperties();
+	@Nonnull Set<PropertyDefinition> getProperties();
 }

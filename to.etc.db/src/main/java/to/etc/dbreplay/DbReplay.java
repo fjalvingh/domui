@@ -28,14 +28,6 @@ import java.util.Set;
  * Created on Aug 31, 2011
  */
 public class DbReplay {
-	public static void main(String[] args) {
-		try {
-			new DbReplay().run(args);
-		} catch(Exception x) {
-			x.printStackTrace();
-		}
-	}
-
 	private File m_inputFile;
 
 	private File m_driverPath;
@@ -70,10 +62,6 @@ public class DbReplay {
 	/** When set by -maxwait, this limits the max time to wait between statements, ignoring the time delta's in the log file. */
 	private long m_maxStatementDelay = Long.MAX_VALUE;
 
-	private static enum XType {
-		DUMP, RUN
-	}
-
 	private XType m_runType;
 
 	private PrintWriter m_log;
@@ -81,6 +69,10 @@ public class DbReplay {
 	private boolean m_stopped;
 
 	private IReplayer m_replayer;
+
+	private enum XType {
+		DUMP, RUN
+	}
 
 	private void run(String[] args) throws Exception {
 		if(!decodeOptions(args))
@@ -805,4 +797,13 @@ public class DbReplay {
 
 		return SPACES.substring(0, nfill) + val + " ";
 	}
+
+	public static void main(String[] args) {
+		try {
+			new DbReplay().run(args);
+		} catch(Exception x) {
+			x.printStackTrace();
+		}
+	}
+
 }

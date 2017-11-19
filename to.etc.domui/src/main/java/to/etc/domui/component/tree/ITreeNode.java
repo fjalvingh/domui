@@ -42,14 +42,14 @@ public interface ITreeNode<T extends ITreeNode<T>> {
 	 * @param item
 	 * @return
 	 */
-	public boolean hasChildren() throws Exception;
+	boolean hasChildren() throws Exception;
 
 	/**
 	 * Returns the #of children for this object. This must return the actual number.
 	 * @param item
 	 * @return
 	 */
-	public int getChildCount() throws Exception;
+	int getChildCount() throws Exception;
 
 	/**
 	 * Returns the nth child in the parent's list.
@@ -58,7 +58,7 @@ public interface ITreeNode<T extends ITreeNode<T>> {
 	 * @return
 	 * @throws Exception
 	 */
-	public T getChild(int index) throws Exception;
+	T getChild(int index) throws Exception;
 
-	public T getParent() throws Exception;
+	T getParent() throws Exception;
 }

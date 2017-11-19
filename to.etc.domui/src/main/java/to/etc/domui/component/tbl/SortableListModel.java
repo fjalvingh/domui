@@ -51,7 +51,7 @@ public class SortableListModel<T> extends SimpleListModel<T> implements ISortabl
 		} else {
 			//-- We need the property meta model for the specified property.
 			ClassMetaModel cmm = MetaManager.findClassMeta(getDataClass());
-			Comparator<T> comp = (Comparator<T>) ConverterRegistry.getComparator(cmm, key, descending);
+			Comparator<T> comp = ConverterRegistry.getComparator(cmm, key, descending);
 			setComparator(comp);
 			fireModelChanged();
 		}

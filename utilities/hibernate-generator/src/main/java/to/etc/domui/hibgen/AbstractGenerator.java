@@ -427,9 +427,7 @@ abstract public class AbstractGenerator {
 	private boolean isIgnoredTable(DbTable tbl) {
 		if(m_ignoreTableSet.contains(tbl.getName().toLowerCase()))
 			return true;
-		if(m_ignoreTableSet.contains(tbl.getSchema().getName().toLowerCase() + "." + tbl.getName().toLowerCase()))
-			return true;
-		return false;
+		return m_ignoreTableSet.contains(tbl.getSchema().getName().toLowerCase() + "." + tbl.getName().toLowerCase());
 
 	}
 

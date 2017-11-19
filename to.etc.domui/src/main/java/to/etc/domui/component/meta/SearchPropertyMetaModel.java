@@ -65,7 +65,7 @@ public interface SearchPropertyMetaModel {
 	 */
 	String getLookupHint();
 
-	static public final Comparator<SearchPropertyMetaModel> BY_ORDER = new Comparator<SearchPropertyMetaModel>() {
+	Comparator<SearchPropertyMetaModel> BY_ORDER = new Comparator<SearchPropertyMetaModel>() {
 		@Override
 		public int compare(SearchPropertyMetaModel a, SearchPropertyMetaModel b) {
 			return a.getOrder() - b.getOrder();

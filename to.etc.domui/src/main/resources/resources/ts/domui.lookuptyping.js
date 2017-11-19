@@ -114,8 +114,7 @@ var WebUI;
             if (selectedIndexInput.value && selectedIndexInput.value != "") {
                 return parseInt(selectedIndexInput.value);
             }
-            ;
-        }
+		}
         return -1;
     }
     function setKeywordPopupSelectedRowIndex(keywordInputNode, intValue) {
@@ -287,7 +286,7 @@ var WebUI;
         }
     }
     function lookupTypingDone(id) {
-        var fields = new Object();
+        var fields = {};
         this.getInputFields(fields);
         fields["webuia"] = "lookupTypingDone";
         fields["webuic"] = id;

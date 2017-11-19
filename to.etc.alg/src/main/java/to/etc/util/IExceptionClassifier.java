@@ -15,6 +15,5 @@ import to.etc.util.ExceptionClassifier.Severity;
  * @since Jun 20, 2014
  */
 public interface IExceptionClassifier {
-	@Nonnull
-	public Severity getExceptionSeverity(@Nonnull Throwable throwable);
+	@Nonnull Severity getExceptionSeverity(@Nonnull Throwable throwable);
 }

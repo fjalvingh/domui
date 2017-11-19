@@ -13,5 +13,5 @@ import to.etc.domui.dom.errors.*;
  * Created on Feb 12, 2013
  */
 public interface IMessageListener {
-	public void actionMessages(@Nonnull List<UIMessage> msgl);
+	void actionMessages(@Nonnull List<UIMessage> msgl);
 }

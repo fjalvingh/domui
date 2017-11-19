@@ -107,7 +107,7 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 	 * @param queryClass
 	 */
 	public LookupInputBase2(@Nonnull ITableModelFactory<QT, OT> modelFactory, @Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass) {
-		this(modelFactory, queryClass, resultClass, (ClassMetaModel) null, (ClassMetaModel) null);
+		this(modelFactory, queryClass, resultClass, null, null);
 	}
 
 	public LookupInputBase2(@Nonnull ITableModelFactory<QT, OT> modelFactory, @Nonnull QCriteria<QT> rootCriteria, @Nonnull Class<OT> resultClass) {

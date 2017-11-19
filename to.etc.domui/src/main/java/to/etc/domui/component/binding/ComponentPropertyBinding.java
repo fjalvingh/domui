@@ -428,7 +428,7 @@ final public class ComponentPropertyBinding implements IBinding {
 		if(MetaManager.areObjectsEqual(propertyValue, controlValue))
 			return null;
 
-		return new BindingValuePair<>(this, controlValue, propertyValue);
+		return new BindingValuePair<>(this, controlValue);
 	}
 
 	/**

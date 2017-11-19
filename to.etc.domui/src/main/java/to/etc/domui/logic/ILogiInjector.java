@@ -10,8 +10,7 @@ import javax.annotation.*;
  * Created on Feb 28, 2014
  */
 public interface ILogiInjector {
-	@Nonnull
-	public <T> T getInstance(@Nonnull Class<T> typeClass);
+	@Nonnull <T> T getInstance(@Nonnull Class<T> typeClass);
 
-	public <T> void injectMembers(@Nonnull T instance);
+	<T> void injectMembers(@Nonnull T instance);
 }

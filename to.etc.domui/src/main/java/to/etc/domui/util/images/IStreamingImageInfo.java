@@ -43,16 +43,16 @@ public interface IStreamingImageInfo {
 	 *
 	 * @return
 	 */
-	public long getLastModifiedDate(String key) throws Exception;
+	long getLastModifiedDate(String key) throws Exception;
 
-	public String getMimeType() throws Exception;
+	String getMimeType() throws Exception;
 
 	/**
 	 * This returns the image's data if that data is available. If not this returns null.
 	 * @return
 	 * @throws Exception
 	 */
-	public ImageInfo getImageData() throws Exception;
+	ImageInfo getImageData() throws Exception;
 
 	/**
 	 * Returns the datastream containing this image. This may be called only ONCE for an image and must
@@ -60,5 +60,5 @@ public interface IStreamingImageInfo {
 	 * @return
 	 * @throws Exception
 	 */
-	public InputStream getInputStream() throws Exception;
+	InputStream getInputStream() throws Exception;
 }

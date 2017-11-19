@@ -80,11 +80,9 @@ public class BeforeImageInterceptor extends EmptyInterceptor {
 			} else if(!m_key.equals(other.m_key))
 				return false;
 			if(m_role == null) {
-				if(other.m_role != null)
-					return false;
-			} else if(!m_role.equals(other.m_role))
-				return false;
-			return true;
+				return other.m_role == null;
+			} else
+				return m_role.equals(other.m_role);
 		}
 	}
 

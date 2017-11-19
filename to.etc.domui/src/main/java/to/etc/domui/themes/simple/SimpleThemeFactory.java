@@ -25,7 +25,6 @@
 package to.etc.domui.themes.simple;
 
 import to.etc.domui.server.DomApplication;
-import to.etc.domui.themes.DefaultThemeVariant;
 import to.etc.domui.themes.ITheme;
 import to.etc.domui.themes.IThemeFactory;
 import to.etc.domui.themes.StyleException;
@@ -92,14 +91,6 @@ public class SimpleThemeFactory {
 
 	private String m_themeName;
 
-	private String m_styleName;
-
-	private String m_iconName;
-
-	private String m_colorName;
-
-	private String m_variantName;
-
 	/** A Javascript execution environment. */
 	private RhinoExecutor m_executor;
 
@@ -137,10 +128,10 @@ public class SimpleThemeFactory {
 		String[] ar = m_themeName.split("-");
 		if(ar.length != 4 && ar.length != 5)
 			throw new StyleException("The theme name '" + m_themeName + "' is invalid for the factory SimpleThemeFactory: expecting factory-theme-icon-color-variant");
-		m_styleName = ar[1];
-		m_iconName = ar[2];
-		m_colorName = ar[3];
-		m_variantName = ar.length == 4 ? DefaultThemeVariant.INSTANCE.getVariantName() : ar[4];
+		String styleName = ar[1];
+		String iconName = ar[2];
+		String colorName = ar[3];
+		//String variantName = ar.length == 4 ? DefaultThemeVariant.INSTANCE.getVariantName() : ar[4];
 
 		ResourceDependencyList rdl = new ResourceDependencyList();
 
@@ -149,17 +140,17 @@ public class SimpleThemeFactory {
 		 */
 		executor().eval(Object.class, "icon = new Object();", "internal");
 
-		loadProperties("$themes/" + m_colorName + ".color.js", rdl);
-		loadProperties("$themes/" + m_iconName + ".icons.js", rdl);
-		loadProperties("$themes/css-" + m_styleName + "/style.props.js", rdl);
+		loadProperties("$themes/" + colorName + ".color.js", rdl);
+		loadProperties("$themes/" + iconName + ".icons.js", rdl);
+		loadProperties("$themes/css-" + styleName + "/style.props.js", rdl);
 
 		List<String> searchpath = new ArrayList<String>(3);
-		searchpath.add("$themes/" + m_iconName + "-icons");			// [iconname]-icons
-		searchpath.add("$themes/" + m_colorName + "-colors");		// [iconname]-icons
-		searchpath.add("$themes/css-" + m_styleName);				// [style]
+		searchpath.add("$themes/" + iconName + "-icons");			// [iconname]-icons
+		searchpath.add("$themes/" + colorName + "-colors");		// [iconname]-icons
+		searchpath.add("$themes/css-" + styleName);				// [style]
 		searchpath.add("$themes/all");								// 20130327 jal The "all" folder contains stuff shared for all themes
 
-		return new SimpleTheme(m_application, m_themeName, m_styleName, executor(), rdl.createDependencies(), searchpath);
+		return new SimpleTheme(m_application, m_themeName, styleName, executor(), rdl.createDependencies(), searchpath);
 	}
 
 	/**

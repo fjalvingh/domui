@@ -149,7 +149,7 @@ public class Checkbox extends NodeBase implements INativeChangeListener, IContro
 	 */
 	@Override
 	public void setValue(@Nullable Boolean v) {
-		setChecked((v == null) ? false : v.booleanValue());
+		setChecked((v != null) && v.booleanValue());
 	}
 
 	/**

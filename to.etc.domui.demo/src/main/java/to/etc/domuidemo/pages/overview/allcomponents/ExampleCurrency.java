@@ -8,5 +8,5 @@ public enum ExampleCurrency {
 	Dollar
 	, Euro
 	, Yen
-	, Bitcoin;
+	, Bitcoin
 }

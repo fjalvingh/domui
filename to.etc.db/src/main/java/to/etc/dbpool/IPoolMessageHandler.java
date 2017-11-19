@@ -30,7 +30,7 @@ package to.etc.dbpool;
  * @author jal
  */
 public interface IPoolMessageHandler {
-	public void sendPanic(String shortdesc, String body);
+	void sendPanic(String shortdesc, String body);
 
-	public void sendLogUnexpected(Exception t, String s);
+	void sendLogUnexpected(Exception t, String s);
 }

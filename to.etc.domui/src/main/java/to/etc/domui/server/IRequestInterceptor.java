@@ -31,7 +31,7 @@ package to.etc.domui.server;
  * Created on Sep 24, 2008
  */
 public interface IRequestInterceptor {
-	public void before(IRequestContext rc) throws Exception;
+	void before(IRequestContext rc) throws Exception;
 
-	public void after(IRequestContext rc, Exception x) throws Exception;
+	void after(IRequestContext rc, Exception x) throws Exception;
 }

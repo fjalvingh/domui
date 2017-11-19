@@ -139,7 +139,16 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public abstract class DomApplication {
 	static public final Logger LOG = LoggerFactory.getLogger(DomApplication.class);
+
 	static public final Logger LOGRES = LoggerFactory.getLogger("to.etc.domui.resources");
+
+	static private final String[][] JQUERYSETS = {												//
+		{"1.4.4", "jquery-1.4.4", "jquery.js", "jquery-ui.js"},								//
+		{"1.10.2", "jquery-1.10.2", "jquery.js", "jquery-ui.js", "jquery-migrate.js"},		//
+
+	};
+
+	static private final Map<String, IThemeFactory> THEME_FACTORIES = new HashMap<>();
 
 	@Nonnull
 	private final PartService m_partService = new PartService(this);
@@ -290,6 +299,36 @@ public abstract class DomApplication {
 	 */
 	static private volatile int m_platformVarcharByteLimit;
 
+	private static final Comparator<FilterRef> C_HANDLER_DESCPRIO = new Comparator<FilterRef>() {
+		@Override
+		public int compare(FilterRef a, FilterRef b) {
+			return b.getPriority() - a.getPriority();
+		}
+	};
+
+	@Nonnull
+	private List<IAsyncListener< ? >> m_asyncListenerList = Collections.emptyList();
+
+	@Nonnull
+	private final WebActionRegistry m_webActionRegistry = new WebActionRegistry();
+
+	/** The ORDERED list of [exception.class, handler] pairs. Exception SUPERCLASSES are ordered AFTER their subclasses. */
+	private List<ExceptionEntry> m_exceptionListeners = new ArrayList<ExceptionEntry>();
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Initialization and session management.				*/
+	/*--------------------------------------------------------------*/
+	@Nonnull
+	private String m_jQueryVersion;
+
+	@Nonnull
+	private List<String> m_jQueryScripts;
+
+	@Nonnull
+	private String m_jQueryPath;
+
+	private String m_problemFromAddress;
+
 	/**
 	 * A single request filter and it's priority in the filter list.
 	 *
@@ -316,41 +355,6 @@ public abstract class DomApplication {
 			return m_handler;
 		}
 	}
-
-	private static final Comparator<FilterRef> C_HANDLER_DESCPRIO = new Comparator<FilterRef>() {
-		@Override
-		public int compare(FilterRef a, FilterRef b) {
-			return b.getPriority() - a.getPriority();
-		}
-	};
-
-	@Nonnull
-	private List<IAsyncListener< ? >> m_asyncListenerList = Collections.emptyList();
-
-	@Nonnull
-	private final WebActionRegistry m_webActionRegistry = new WebActionRegistry();
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Initialization and session management.				*/
-	/*--------------------------------------------------------------*/
-	static private String[][] JQUERYSETS = {												//
-		{"1.4.4", "jquery-1.4.4", "jquery.js", "jquery-ui.js"},								//
-		{"1.10.2", "jquery-1.10.2", "jquery.js", "jquery-ui.js", "jquery-migrate.js"},		//
-
-	};
-
-	@Nonnull
-	private String m_jQueryVersion;
-
-	@Nonnull
-	private List<String> m_jQueryScripts;
-
-	@Nonnull
-	private String m_jQueryPath;
-
-	private String m_problemFromAddress;
-
-	static private Map<String, IThemeFactory> THEME_FACTORIES = new HashMap<>();
 
 	/**
 	 * The only constructor.
@@ -1487,9 +1491,6 @@ public abstract class DomApplication {
 			return m_listener;
 		}
 	}
-
-	/** The ORDERED list of [exception.class, handler] pairs. Exception SUPERCLASSES are ordered AFTER their subclasses. */
-	private List<ExceptionEntry> m_exceptionListeners = new ArrayList<ExceptionEntry>();
 
 	/**
 	 * Return the current, immutable, threadsafe copy of the list-of-listeners.

@@ -74,7 +74,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * @param item
 	 */
 	public void addContent(@Nonnull NodeBase item) {
-		addContent((NodeBase) null, new NodeBase[]{item}, false);
+		addContent(null, new NodeBase[]{item}, false);
 	}
 
 	/**

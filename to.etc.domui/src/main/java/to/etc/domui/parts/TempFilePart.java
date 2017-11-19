@@ -83,7 +83,7 @@ public class TempFilePart implements IUnbufferedPartFactory {
 		Inline,
 
 		/** Do content-disposition: let the browser decide what to do with the thing */
-		None;
+		None
 	}
 
 	/**

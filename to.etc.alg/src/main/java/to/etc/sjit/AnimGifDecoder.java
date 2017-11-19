@@ -154,9 +154,7 @@ public class AnimGifDecoder {
 			m_is.mark(10);
 			if(m_is.read(ar) != 6)
 				return false; // Cannot read -> invalid,
-			if(ar[0] == 'G' && ar[1] == 'I' && ar[2] == 'F' && ar[3] == '8' && (ar[4] == '7' || ar[4] == '9') && ar[5] == 'a')
-				return true;
-			return false;
+			return ar[0] == 'G' && ar[1] == 'I' && ar[2] == 'F' && ar[3] == '8' && (ar[4] == '7' || ar[4] == '9') && ar[5] == 'a';
 		} finally {
 			try {
 				m_is.reset();

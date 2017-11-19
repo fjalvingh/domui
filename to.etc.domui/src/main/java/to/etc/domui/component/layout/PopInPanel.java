@@ -40,7 +40,7 @@ public class PopInPanel extends Div {
 
 	//	private Div m_content;
 
-	static public enum Bar {
+	public enum Bar {
 		LEFT, TOP, RIGHT, BOTTOM
 	}
 

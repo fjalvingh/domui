@@ -277,11 +277,9 @@ public final class DbLockKeeper {
 			} else if(!m_lockName.equals(other.m_lockName))
 				return false;
 			if(m_thread == null) {
-				if(other.m_thread != null)
-					return false;
-			} else if(!m_thread.equals(other.m_thread))
-				return false;
-			return true;
+				return other.m_thread == null;
+			} else
+				return m_thread.equals(other.m_thread);
 		}
 
 	}

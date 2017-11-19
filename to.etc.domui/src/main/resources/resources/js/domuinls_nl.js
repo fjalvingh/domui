@@ -1,4 +1,4 @@
-WebUI._T = new Object();
+WebUI._T = {};
 
 //-- Domui system
 WebUI._T.sysSessionExpired = 'Uw sessie is verlopen. Het scherm wordt opnieuw opgevraagd met originele gegevens.';

@@ -21,7 +21,7 @@ public interface TokenHandler
 	 * @param context The line context
 	 * @since jEdit 4.2pre3
 	 */
-	public void handleToken(Segment seg, byte id, int offset, int length, TokenMarker.LineContext context);
+	void handleToken(Segment seg, byte id, int offset, int length, TokenMarker.LineContext context);
 
 	/**
 	 * The token handler can compare this object with the object
@@ -30,5 +30,5 @@ public interface TokenHandler
 	 * retokenized).
 	 * @since jEdit 4.2pre6
 	 */
-	public void setLineContext(TokenMarker.LineContext lineContext);
+	void setLineContext(TokenMarker.LineContext lineContext);
 }

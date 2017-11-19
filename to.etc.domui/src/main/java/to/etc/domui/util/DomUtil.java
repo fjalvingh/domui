@@ -621,7 +621,7 @@ final public class DomUtil {
 	 * @return
 	 */
 	static public String getApplicationURL() {
-		return ((RequestContextImpl) UIContext.getRequestContext()).getRequestResponse().getApplicationURL();
+		return UIContext.getRequestContext().getRequestResponse().getApplicationURL();
 	}
 
 	/**
@@ -632,7 +632,7 @@ final public class DomUtil {
 	 * @return
 	 */
 	static public String getApplicationContext() {
-		return ((RequestContextImpl) UIContext.getRequestContext()).getRequestResponse().getWebappContext();
+		return UIContext.getRequestContext().getRequestResponse().getWebappContext();
 	}
 
 	/**
@@ -1678,9 +1678,9 @@ final public class DomUtil {
 	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
 	 * Created on Nov 3, 2009
 	 */
-	static public interface IPerNode {
+	public interface IPerNode {
 		/** When this object instance is returned by the before(NodeBase) method we SKIP the downwards traversal. */
-		static public final Object SKIP = new Object();
+		Object SKIP = new Object();
 
 		/**
 		 * Called when the node is first encountered in the tree. It can return null causing the rest of the tree
@@ -1850,9 +1850,7 @@ final public class DomUtil {
 	static public boolean isRelativeURL(String in) {
 		if(in == null)
 			return false;
-		if(in.startsWith("http:") || in.startsWith("https:") || in.startsWith("/"))
-			return false;
-		return true;
+		return !in.startsWith("http:") && !in.startsWith("https:") && !in.startsWith("/");
 	}
 
 	/**

@@ -34,7 +34,7 @@ CKEDITOR.plugins.add( 'domuiimage',
 /** ckeditor domuiimage plugin for DomUI helper namespace */
 var CkeditorDomUIImage;
 if(CkeditorDomUIImage === undefined)
-	CkeditorDomUIImage = new Object();
+	CkeditorDomUIImage = {};
 
 $.extend(CkeditorDomUIImage, {
 	/***

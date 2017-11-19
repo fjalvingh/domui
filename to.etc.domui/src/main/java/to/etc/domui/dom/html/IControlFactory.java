@@ -9,6 +9,5 @@ import javax.annotation.*;
  * Created on Mar 23, 2013
  */
 public interface IControlFactory<T> {
-	@Nonnull
-	public IControl<T> createControl() throws Exception;
+	@Nonnull IControl<T> createControl() throws Exception;
 }

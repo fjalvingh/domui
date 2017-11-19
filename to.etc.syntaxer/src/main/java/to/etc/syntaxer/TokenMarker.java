@@ -277,8 +277,7 @@ public class TokenMarker
 		if((rule.action & ParserRule.NO_ESCAPE) == 0)
 		{
 			ParserRule escape = m_context.parent.rules.getEscapeRule();
-			if(escape != null && handleRule(escape, false))
-				return true;
+			return escape != null && handleRule(escape, false);
 		}
 
 		return false;

@@ -278,7 +278,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 			/**
 			 * Force all input controls for certain lookup field to become disabled for user input.
 			 */
-			FORCE_DISABLED;
+			FORCE_DISABLED
 		}
 
 		private String m_propertyName;
@@ -460,7 +460,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	/** The primary list of defined lookup items. */
 	private final List<Item> m_itemList = new ArrayList<Item>(20);
 
-	static public enum ButtonMode {
+	public enum ButtonMode {
 		/** Show this button only when the lookup form is expanded */
 		NORMAL,
 
@@ -507,7 +507,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	private List<ButtonRowItem> m_buttonItemList = Collections.EMPTY_LIST;
 
 	public LookupForm(@Nonnull final Class<T> lookupClass, @GProperty String... propertyList) {
-		this(lookupClass, (ClassMetaModel) null, propertyList);
+		this(lookupClass, null, propertyList);
 	}
 
 	/**
@@ -525,7 +525,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	}
 
 	public LookupForm(@Nonnull QCriteria<T> rootCriteria, String... propertyList) {
-		this(DomUtil.nullChecked(rootCriteria.getBaseClass()), (ClassMetaModel) null, propertyList);
+		this(DomUtil.nullChecked(rootCriteria.getBaseClass()), null, propertyList);
 		m_rootCriteria = rootCriteria;
 	}
 
@@ -964,7 +964,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		Item it = new Item();
 		it.setPropertyName(path);
 		it.setLabelText(label);
-		it.setIgnoreCase(ignorecase == null ? true : ignorecase.booleanValue());
+		it.setIgnoreCase(ignorecase == null || ignorecase.booleanValue());
 		it.setMinLength(minlen);
 		addAndFinish(it);
 		updateUI(it);

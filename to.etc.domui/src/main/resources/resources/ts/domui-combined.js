@@ -116,7 +116,7 @@ var WebUI;
     WebUI.clicked = clicked;
     function prepareAjaxCall(id, action, fields) {
         if (!fields)
-            fields = new Object();
+            fields = {};
         WebUI.getInputFields(fields);
         fields.webuia = action;
         fields.webuic = id;
@@ -141,7 +141,7 @@ var WebUI;
     WebUI.scall = scall;
     function jsoncall(id, fields) {
         if (!fields)
-            fields = new Object();
+            fields = {};
         fields["webuia"] = "$pagejson";
         fields["webuic"] = id;
         fields["$pt"] = window.DomUIpageTag;
@@ -170,7 +170,7 @@ var WebUI;
     WebUI.sendJsonAction = sendJsonAction;
     function callJsonFunction(id, action, fields) {
         if (!fields)
-            fields = new Object();
+            fields = {};
         fields.webuia = "#" + action;
         fields.webuic = id;
         fields["$pt"] = window.DomUIpageTag;
@@ -207,7 +207,7 @@ var WebUI;
         if (item && (item.tagName == "input" || item.tagName == "INPUT") && item.className == "ui-di") {
             this.dateInputRepairValueIn(item);
         }
-        var fields = new Object();
+        var fields = {};
         this.getInputFields(fields);
         fields["webuia"] = "vchange";
         fields["webuic"] = id;
@@ -965,15 +965,12 @@ var WebUI;
                     });
                     $(fckIFrame.contentWindow.window).trigger('resize');
                 }
-                ;
-            };
+			};
             for (var i = 0; i < _fckEditorIDs.length; i++) {
                 _loop_1(i);
             }
-            ;
-        }
-        ;
-    }
+		}
+	}
     WebUI.FCKeditor_OnComplete = FCKeditor_OnComplete;
     function initScrollableTableOld(id) {
         $('#' + id + " table").fixedHeaderTable({});
@@ -1309,7 +1306,7 @@ var WebUI;
             this._pxPerHour = (tblheight - this._headerHeight + 1) / (this._endHour - this._startHour);
             this._endDate = new Date(this._date.getTime());
             this._endDate.setDate(this._endDate.getDate() + this._days);
-            this._dayMap = new Array();
+            this._dayMap = [];
             this._itemdivs = $("div.ui-wa-it", this._rootdiv).get();
         };
         Agenda.prototype.reposition = function () {
@@ -1354,7 +1351,7 @@ var WebUI;
                 day = this._dayMap[so.day] = { day: so.day, ways: [[]] };
             var ys = Math.round(so.min * this._pxPerHour / 60);
             var ye = Math.round(eo.min * this._pxPerHour / 60);
-            var item = new Object();
+            var item = {};
             item.day = so.day;
             item.ys = ys;
             item.ye = ye;
@@ -1362,7 +1359,7 @@ var WebUI;
             for (var i = 0; i < 4; i++) {
                 var way = day.ways[i];
                 if (way == undefined)
-                    way = day.ways[i] = new Array();
+                    way = day.ways[i] = [];
                 if (this.placeOnWay(way, item))
                     return;
             }
@@ -1455,7 +1452,7 @@ var WebUI;
             }
             if (this._timeMode && this._timeMode > 0) {
                 this.timeReset();
-                var fields = new Object();
+                var fields = {};
                 fields.date = this._timeDate.getTime();
                 fields.duration = this._timeDuration;
                 WebUI.scall(this._rootdiv.id, 'newappt', fields);
@@ -2719,8 +2716,7 @@ var WebUI;
             if (selectedIndexInput.value && selectedIndexInput.value != "") {
                 return parseInt(selectedIndexInput.value);
             }
-            ;
-        }
+		}
         return -1;
     }
     WebUI.getKeywordPopupSelectedRowIndex = getKeywordPopupSelectedRowIndex;
@@ -2901,7 +2897,7 @@ var WebUI;
     }
     WebUI.lookupTyping = lookupTyping;
     function lookupTypingDone(id) {
-        var fields = new Object();
+        var fields = {};
         this.getInputFields(fields);
         fields["webuia"] = "lookupTypingDone";
         fields["webuic"] = id;
@@ -3104,7 +3100,7 @@ var WebUI;
         if (!element) {
             return;
         }
-        var fields = new Object();
+        var fields = {};
         fields[element.id + "_rect"] = $(element).position().left + "," + $(element).position().top + "," + $(element).width() + "," + $(element).height();
         fields["window_size"] = window.innerWidth + "," + window.innerHeight;
         WebUI.scall(element.id, "notifyClientPositionAndSize", fields);
@@ -3717,7 +3713,7 @@ var WebUI;
                         $(elem).css({ 'overflow-y': 'auto' });
                     }
                 }
-                return;
+
             }
         }
     }
@@ -4148,7 +4144,7 @@ var WebUI;
                     alert('domjs_ eval failed: ' + ex + ", js=" + s);
                     throw ex;
                 }
-                continue;
+
             }
             else if (v != "" && dest && ($.browser.msie || $.browser.webkit || ($.browser.mozilla && $.browser.majorVersion >= 9)) && n.substring(0, 2) == 'on') {
                 try {

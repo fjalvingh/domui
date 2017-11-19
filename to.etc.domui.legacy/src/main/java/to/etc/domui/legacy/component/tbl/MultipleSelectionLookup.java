@@ -89,7 +89,7 @@ public class MultipleSelectionLookup<T> extends AbstractFloatingLookup<T> {
 	}
 
 	public MultipleSelectionLookup(Class<T> lookupClass, boolean isModal, String title, IMultiSelectionResult<T> onReceiveResult) {
-		this(lookupClass, (ClassMetaModel) null, isModal, title, onReceiveResult);
+		this(lookupClass, null, isModal, title, onReceiveResult);
 	}
 
 	public void show(NodeBase parent) {

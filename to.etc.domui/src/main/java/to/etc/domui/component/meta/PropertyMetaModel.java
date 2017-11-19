@@ -50,7 +50,7 @@ import java.util.Locale;
  * Created on Jun 16, 2008
  */
 public interface PropertyMetaModel<T> extends IValueAccessor<T> {
-	static public final PropertyMetaValidator[] NO_VALIDATORS = new PropertyMetaValidator[0];
+	PropertyMetaValidator[] NO_VALIDATORS = new PropertyMetaValidator[0];
 
 	/**
 	 * The ClassModel that this property is a property of.

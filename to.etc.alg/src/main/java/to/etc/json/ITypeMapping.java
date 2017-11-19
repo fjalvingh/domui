@@ -3,7 +3,7 @@ package to.etc.json;
 import javax.annotation.*;
 
 public interface ITypeMapping {
-	public void render(@Nonnull JsonWriter w, @Nonnull Object instance) throws Exception;
+	void render(@Nonnull JsonWriter w, @Nonnull Object instance) throws Exception;
 
-	public Object parse(@Nonnull JsonReader reader) throws Exception;
+	Object parse(@Nonnull JsonReader reader) throws Exception;
 }

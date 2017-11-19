@@ -56,11 +56,9 @@ final class CssContributor extends HeaderContributor {
 			return false;
 		CssContributor other = (CssContributor) obj;
 		if(m_path == null) {
-			if(other.m_path != null)
-				return false;
-		} else if(!m_path.equals(other.m_path))
-			return false;
-		return true;
+			return other.m_path == null;
+		} else
+			return m_path.equals(other.m_path);
 	}
 
 	@Override

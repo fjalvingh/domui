@@ -83,7 +83,7 @@ public class ControlCreatorRelationLookup implements IControlCreator {
 
 		//-- 2. Define keyword search properties in the same way.
 		if(pmm.getLookupSelectedRenderer() != null)
-			li.setValueRenderer((IRenderInto<T>) DomApplication.get().createInstance(pmm.getLookupSelectedRenderer())); // Bloody stupid Java generic crap
+			li.setValueRenderer(DomApplication.get().createInstance(pmm.getLookupSelectedRenderer())); // Bloody stupid Java generic crap
 		else {
 			ClassMetaModel cmm = MetaManager.findClassMeta(pmm.getActualType()); // Get meta for type reached,
 			if(cmm.getLookupSelectedRenderer() != null)

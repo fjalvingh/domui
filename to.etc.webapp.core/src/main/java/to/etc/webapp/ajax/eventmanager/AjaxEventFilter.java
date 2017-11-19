@@ -50,11 +50,11 @@ public interface AjaxEventFilter {
 	 * @param eventCometContext
 	 * @return
 	 */
-	public Object filterEvent(EventCometContext eventCometContext, Object eventdata) throws Exception;
+	Object filterEvent(EventCometContext eventCometContext, Object eventdata) throws Exception;
 
 	/**
 	 * Eventueel opruimen van allerlei zooi.
 	 *
 	 */
-	public void close();
+	void close();
 }

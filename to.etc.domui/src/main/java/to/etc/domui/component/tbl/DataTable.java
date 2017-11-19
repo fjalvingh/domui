@@ -480,9 +480,6 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	/**
 	 * Handle a click that is meant to select/deselect the item(s). It handles ctrl+click as "toggle selection",
 	 * and shift+click as "toggle everything between this and the last one".
-	 *
-	 * @param instance
-	 * @param clinfo
 	 * @param setTo        When null toggle, else set to specific.
 	 */
 	private void handleSelectClicky(@Nonnull T instance, @Nonnull ClickInfo clinfo, @Nullable Boolean setTo) throws Exception {
@@ -496,17 +493,8 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 			m_lastSelectionLocation = -1;
 			return;
 		}
-
-		//-- Toggle region. Get the current item's index.
-		int itemindex = -1, index = 0;
-		for(TableRowSet<T> rowSet : m_visibleItemList) {
-			if(MetaManager.areObjectsEqual(rowSet.getInstance(), instance)) {
-				itemindex = index;
-				break;
-			}
-			index++;
-		}
-		if(itemindex == -1) // Ignore when thingy not found
+		int itemindex = getVisibleItemindex(instance);
+		if(itemindex == -1)									// Ignore when thingy not found
 			return;
 		itemindex += m_six;
 
@@ -521,14 +509,19 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 		//-- We have a previous location- we need to toggle all instances;
 		int sl, el;
 		if(m_lastSelectionLocation < itemindex) {
-			sl = m_lastSelectionLocation + 1; // Exclusive
+			sl = m_lastSelectionLocation + 1;				// Exclusive
 			el = itemindex + 1;
 		} else {
 			sl = itemindex;
-			el = m_lastSelectionLocation; // Exclusive
+			el = m_lastSelectionLocation;					// Exclusive
 		}
 
 		//-- Now toggle all instances, in batches, to prevent loading 1000+ records that cannot be gc'd.
+		toggleAllInstances(sm, sl, el);
+		m_lastSelectionLocation = -1;
+	}
+
+	private void toggleAllInstances(ISelectionModel<T> sm, int sl, int el) throws Exception {
 		for(int i = sl; i < el; ) {
 			int ex = i + 50;
 			if(ex > el)
@@ -543,7 +536,19 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 				sm.setInstanceSelected(item, !sm.isSelected(item));
 			}
 		}
-		m_lastSelectionLocation = -1;
+	}
+
+	private int getVisibleItemindex(@Nonnull T instance) {
+		//-- Toggle region. Get the current item's index.
+		int itemindex = -1, index = 0;
+		for(TableRowSet<T> rowSet : m_visibleItemList) {
+			if(MetaManager.areObjectsEqual(rowSet.getInstance(), instance)) {
+				itemindex = index;
+				break;
+			}
+			index++;
+		}
+		return itemindex;
 	}
 
 	/*--------------------------------------------------------------*/

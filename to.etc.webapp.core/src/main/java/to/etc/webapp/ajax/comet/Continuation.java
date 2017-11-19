@@ -25,7 +25,7 @@
 package to.etc.webapp.ajax.comet;
 
 public interface Continuation {
-	public void resume();
+	void resume();
 
-	public void setTimeout(long ms);
+	void setTimeout(long ms);
 }

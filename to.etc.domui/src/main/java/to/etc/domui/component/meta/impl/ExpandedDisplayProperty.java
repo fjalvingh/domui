@@ -585,17 +585,17 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 
 	@Override
 	public boolean isPrimaryKey() {
-		return m_propertyMeta == null ? false : m_propertyMeta.isPrimaryKey();
+		return m_propertyMeta != null && m_propertyMeta.isPrimaryKey();
 	}
 
 	@Override
 	public boolean isRequired() {
-		return m_propertyMeta == null ? false : m_propertyMeta.isRequired();
+		return m_propertyMeta != null && m_propertyMeta.isRequired();
 	}
 
 	@Override
 	public boolean isTransient() {
-		return m_propertyMeta == null ? true : m_propertyMeta.isTransient();
+		return m_propertyMeta == null || m_propertyMeta.isTransient();
 	}
 
 	@Nonnull

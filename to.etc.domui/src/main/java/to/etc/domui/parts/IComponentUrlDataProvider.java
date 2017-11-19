@@ -20,5 +20,5 @@ import to.etc.domui.state.*;
  * Created on Sep 12, 2013
  */
 public interface IComponentUrlDataProvider {
-	public void provideUrlData(@Nonnull RequestContextImpl parameterSource) throws Exception;
+	void provideUrlData(@Nonnull RequestContextImpl parameterSource) throws Exception;
 }

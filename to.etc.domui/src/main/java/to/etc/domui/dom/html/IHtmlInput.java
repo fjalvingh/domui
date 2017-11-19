@@ -1,7 +1,7 @@
 package to.etc.domui.dom.html;
 
 public interface IHtmlInput {
-	public boolean isDisabled();
+	boolean isDisabled();
 
-	public void setDisabled(boolean yes);
+	void setDisabled(boolean yes);
 }

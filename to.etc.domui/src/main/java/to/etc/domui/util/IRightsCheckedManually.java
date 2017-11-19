@@ -28,5 +28,5 @@ public interface IRightsCheckedManually {
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean isAccessAllowedBy(@Nonnull IUser user) throws Exception;
+	boolean isAccessAllowedBy(@Nonnull IUser user) throws Exception;
 }

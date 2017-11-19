@@ -14,7 +14,7 @@ public enum CaptionType {
 	@Nonnull
 	final private String m_css;
 
-	private CaptionType(@Nonnull String css) {
+	CaptionType(@Nonnull String css) {
 		m_css = css;
 	}
 

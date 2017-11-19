@@ -17,19 +17,19 @@ public interface IResourceDependencyList {
 	 *
 	 * @param ref
 	 */
-	public abstract void add(@Nonnull IResourceRef ref);
+	void add(@Nonnull IResourceRef ref);
 
 	/**
 	 * Add a IIsModified instance.
 	 * @param m
 	 */
-	public abstract void add(@Nonnull IIsModified m);
+	void add(@Nonnull IIsModified m);
 
 	/**
 	 * Add an {@link IModifyableResource} instance.
 	 * @param m
 	 */
-	public abstract void add(@Nonnull IModifyableResource c);
+	void add(@Nonnull IModifyableResource c);
 
 	//	/**
 	//	 * Add another list of resources to this one.

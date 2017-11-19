@@ -686,7 +686,7 @@ public class MsgBox extends Window {
 
 	private void setFocusOnButton() {
 		if(m_theButtons.getChildCount() > 0 && m_theButtons.getChild(0) instanceof Button) {
-			((Button) m_theButtons.getChild(0)).setFocus();
+			m_theButtons.getChild(0).setFocus();
 		}
 	}
 

@@ -288,7 +288,7 @@ public class ImageCache {
 		System.out.println(s);
 	}
 
-	static private interface ISpecTask {
+	private interface ISpecTask {
 		Object executeTask(ImageTask task, Object args) throws Exception;
 	}
 

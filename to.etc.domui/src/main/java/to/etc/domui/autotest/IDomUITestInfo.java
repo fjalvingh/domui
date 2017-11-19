@@ -9,32 +9,27 @@ public interface IDomUITestInfo {
 	 * Return the Application instance under test.
 	 * @return
 	 */
-	@Nonnull
-	public DomApplication getApplication();
+	@Nonnull DomApplication getApplication();
 
 	/**
 	 * Return the user agent string to use to define browser version in test.
 	 * @return
 	 */
-	@Nonnull
-	public String getUserAgent();
+	@Nonnull String getUserAgent();
 
 	/**
 	 * Return the fake application URL.
 	 * @return
 	 */
-	@Nonnull
-	public String getApplicationHost();
+	@Nonnull String getApplicationHost();
 
 	/**
 	 * Return the web app context. This is either the empty string (for a ROOT context) or
 	 * a string without any slashes.
 	 * @return
 	 */
-	@Nonnull
-	public String getWebappContext();
+	@Nonnull String getWebappContext();
 
-	@Nullable
-	public String getRemoteUser();
+	@Nullable String getRemoteUser();
 
 }

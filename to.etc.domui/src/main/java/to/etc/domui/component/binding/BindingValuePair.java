@@ -14,13 +14,9 @@ final public class BindingValuePair<CV, PV> {
 	@Nullable
 	private final CV m_controlValue;
 
-	@Nullable
-	private final PV m_propertyValue;
-
-	public BindingValuePair(@Nonnull IBinding binding, @Nullable CV controlValue, @Nullable PV propertyValue) {
+	public BindingValuePair(@Nonnull IBinding binding, @Nullable CV controlValue) {
 		m_binding = binding;
 		m_controlValue = controlValue;
-		m_propertyValue = propertyValue;
 	}
 
 	/**

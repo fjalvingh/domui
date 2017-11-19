@@ -36,8 +36,7 @@ import javax.annotation.*;
  * Created on Nov 30, 2009
  */
 public interface IImageReference extends Closeable {
-	@Override
-	public void close() throws IOException;
+	@Override void close() throws IOException;
 
 	/**
 	 * If this retriever accesses resources that can change after use this must return some usable
@@ -48,15 +47,14 @@ public interface IImageReference extends Closeable {
 	 *
 	 * @return
 	 */
-	public long getVersionLong() throws Exception;
+	long getVersionLong() throws Exception;
 
 	/**
 	 * This must return the image's actual mime type.
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
-	public String getMimeType() throws Exception;
+	@Nonnull String getMimeType() throws Exception;
 
 	/**
 	 * Returns the datastream containing this image. This may be called only ONCE for an image and must
@@ -64,6 +62,6 @@ public interface IImageReference extends Closeable {
 	 * @return
 	 * @throws Exception
 	 */
-	public InputStream getInputStream() throws Exception;
+	InputStream getInputStream() throws Exception;
 
 }

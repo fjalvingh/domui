@@ -541,9 +541,7 @@ final public class WindowSession {
 		if(ac == null)
 			return false;
 
-		if(clz.getName().equals(ac.getName()))
-			return true;
-		return false;
+		return clz.getName().equals(ac.getName());
 	}
 
 	void generateRedirect(@Nonnull final RequestContextImpl ctx, @Nonnull final Page to, boolean ajax) throws Exception {

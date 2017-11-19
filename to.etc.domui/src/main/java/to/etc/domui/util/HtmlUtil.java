@@ -19,13 +19,13 @@ import net.htmlparser.jericho.*;
 final public class HtmlUtil {
 	private HtmlUtil() {}
 
-	private static final Set<String> VALID_ELEMENT_NAMES = new HashSet<String>(Arrays.asList(new String[]{HTMLElementName.BR, HTMLElementName.P, HTMLElementName.B, HTMLElementName.I,
+	private static final Set<String> VALID_ELEMENT_NAMES = new HashSet<String>(Arrays.asList(HTMLElementName.BR, HTMLElementName.P, HTMLElementName.B, HTMLElementName.I,
 		HTMLElementName.OL, HTMLElementName.UL, HTMLElementName.LI, HTMLElementName.A, HTMLElementName.CODE, HTMLElementName.DIV
 		//, HTMLElementName.H1, HTMLElementName.H2, HTMLElementName.H3, HTMLElementName.H4, HTMLElementName.H5, HTMLElementName.H6, HTMLElementName.EM
 		//, HTMLElementName.DD, HTMLElementName.DL, HTMLElementName.DT, HTMLElementName.FONT, HTMLElementName.PRE
-	}));
+	));
 
-	private static final Set<String> VALID_ATTRIBUTE_NAMES = new HashSet<String>(Arrays.asList(new String[]{"id", "class", "href", "target", "title", "color", "face", "size"}));
+	private static final Set<String> VALID_ATTRIBUTE_NAMES = new HashSet<String>(Arrays.asList("id", "class", "href", "target", "title", "color", "face", "size"));
 
 	private static final Object VALID_MARKER = new Object();
 

@@ -209,7 +209,7 @@ public class TestDataContextMock extends TestDataContextStub {
 	public <T> T get(@Nonnull Class<T> clz, @Nonnull Object pk) throws Exception {
 		T item = find(clz, pk);
 		if (null == item) {
-			throw new IllegalStateException("Not located object of class " + clz + " with ID: " + ((Long) pk));
+			throw new IllegalStateException("Not located object of class " + clz + " with ID: " + pk);
 		}
 		return item;
 	}

@@ -306,9 +306,9 @@ final public class ConnectionPool {
 	 * Created on Mar 11, 2013
 	 */
 	public interface IPoolEvent {
-		public void connectionAllocated(@Nonnull Connection dbc) throws Exception;
+		void connectionAllocated(@Nonnull Connection dbc) throws Exception;
 
-		public void connectionReleased(@Nonnull Connection dbc) throws Exception;
+		void connectionReleased(@Nonnull Connection dbc) throws Exception;
 	}
 
 	@Nonnull
@@ -1626,13 +1626,13 @@ final public class ConnectionPool {
 			writeLong(baos, ((Long) object).longValue());
 		} else if(object instanceof BigDecimal) {
 			baos.write('B');
-			writeString(baos, ((BigDecimal) object).toString());
+			writeString(baos, object.toString());
 		} else if(object instanceof Double) {
 			baos.write('d');
-			writeString(baos, ((Double) object).toString());
+			writeString(baos, object.toString());
 		} else if(object instanceof Float) {
 			baos.write('f');
-			writeString(baos, ((Float) object).toString());
+			writeString(baos, object.toString());
 		} else if(object instanceof String) {
 			baos.write('$');
 			writeString(baos, (String) object);

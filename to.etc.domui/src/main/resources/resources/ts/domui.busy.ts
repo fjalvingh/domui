@@ -6,7 +6,7 @@ namespace WebUI {
 
 	var _busyOvl: any;
 
-	var _busyTimer: number
+	var _busyTimer: number;
 
 	/*
 	 * Block the UI while an AJAX call is in progress.

@@ -12,17 +12,14 @@ import to.etc.util.FileTool;
 import java.io.File;
 
 public class DemoTree extends UrlPage {
-	private DemoTreeModel				m_model;
-	private Tree<File>						m_tree;
-
 	@Override
 	public void createContent() throws Exception {
-		m_tree = new Tree<>();
-		add(m_tree);
-		m_model = new DemoTreeModel(new File(System.getProperty("user.home")));
-		m_tree.setModel(m_model);
+		Tree<File> tree = new Tree<>();
+		add(tree);
+		DemoTreeModel model = new DemoTreeModel(new File(System.getProperty("user.home")));
+		tree.setModel(model);
 
-		m_tree.setContentRenderer(new IRenderInto<File>() {
+		tree.setContentRenderer(new IRenderInto<File>() {
 			@Override
 			public void render(NodeContainer node, File object) throws Exception {
 				if(null == object)

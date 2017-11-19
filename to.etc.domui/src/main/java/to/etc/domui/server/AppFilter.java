@@ -110,10 +110,10 @@ public class AppFilter implements Filter {
 
 				Enumeration<String> enu = rq.getHeaderNames();
 				while(enu.hasMoreElements()) {
-					String name = (String) enu.nextElement();
+					String name = enu.nextElement();
 					Enumeration<String> henu = rq.getHeaders(name);
 					while(henu.hasMoreElements()) {
-						String val = (String) henu.nextElement();
+						String val = henu.nextElement();
 						System.out.println("header: " + name + ": " + val);
 					}
 				}

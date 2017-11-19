@@ -159,7 +159,7 @@ final public class ClassUtil {
 		public Method		getter;
 
 		public List<Method>	setterList	= new ArrayList<Method>();
-	};
+	}
 
 	static private final Map<Class< ? >, ClassInfo>	m_classMap	= new HashMap<Class< ? >, ClassInfo>();
 

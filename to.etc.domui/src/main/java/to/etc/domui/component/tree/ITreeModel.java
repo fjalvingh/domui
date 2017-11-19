@@ -52,7 +52,9 @@ public interface ITreeModel<T> {
 	 * @param item
 	 * @return
 	 */
-	boolean hasChildren(@Nullable T item) throws Exception;
+	default boolean hasChildren(@Nullable T item) throws Exception {
+		return getChildCount(item) != 0;
+	}
 
 	/**
 	 * Get the root object of the tree.
@@ -87,13 +89,13 @@ public interface ITreeModel<T> {
 	 * Add a listener to be called when nodes on the tree change.
 	 * @param l
 	 */
-	void addChangeListener(@Nonnull ITreeModelChangedListener<T> l);
+	default void addChangeListener(@Nonnull ITreeModelChangedListener<T> l) {}
 
 	/**
 	 * Remove a registered change listener. Fails silently when the listener was not registered at all.
 	 * @param l
 	 */
-	void removeChangeListener(@Nonnull ITreeModelChangedListener<T> l);
+	default void removeChangeListener(@Nonnull ITreeModelChangedListener<T> l) {}
 
 	/**
 	 * Called when this node is attempted to be expanded. This call can be used to refresh/lazily load the
@@ -103,7 +105,8 @@ public interface ITreeModel<T> {
 	 * @param item
 	 * @throws Exception
 	 */
-	void expandChildren(@Nullable T item) throws Exception;
+	default void expandChildren(@Nullable T item) throws Exception {
+	}
 
 	/**
 	 * Called when this node's children are to be collapsed. This call is executed for every node that
@@ -112,5 +115,6 @@ public interface ITreeModel<T> {
 	 * @param item
 	 * @throws Exception
 	 */
-	void collapseChildren(@Nullable T item) throws Exception;
+	default void collapseChildren(@Nullable T item) throws Exception {
+	}
 }

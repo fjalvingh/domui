@@ -153,11 +153,9 @@ final public class MarkerImagePartKey {
 		if(m_fontSpec != other.m_fontSpec)
 			return false;
 		if(m_icon == null) {
-			if(other.m_icon != null)
-				return false;
-		} else if(!m_icon.equals(other.m_icon))
-			return false;
-		return true;
+			return other.m_icon == null;
+		} else
+			return m_icon.equals(other.m_icon);
 	}
 
 	public void setIcon(String icon) {

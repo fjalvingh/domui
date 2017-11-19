@@ -565,9 +565,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		int pos = cssClass.indexOf(cls);
 		if(pos == -1)
 			return false;
-		if(pos != 0 && cssClass.charAt(pos - 1) != ' ')
-			return false;
-		return true;
+		return pos == 0 || cssClass.charAt(pos - 1) == ' ';
 	}
 
 
@@ -1781,8 +1779,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		if(n instanceof IHasChangeListener) { // FIXME Why this 'if'?
 			if(n instanceof IControl< ? >) {
 				IControl< ? > in = (IControl< ? >) n;
-				if(!in.isDisabled() && !in.isReadOnly())
-					return true;
+				return !in.isDisabled() && !in.isReadOnly();
 			} else
 				return true;
 		}
@@ -1993,7 +1990,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		appendJavascript("try { window.opener.WebUI.notifyPage('" + command + "'); } catch (err) {}");
 	}
 
-	private enum AlignmentType {Top, TopToBottom, Left, Right, Middle};
+	private enum AlignmentType {Top, TopToBottom, Left, Right, Middle}
 
 	/**
 	 * Adds javascript that aligns node top to top of specified node, with applying y offset.

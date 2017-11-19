@@ -124,9 +124,7 @@ public class ColumnType implements Serializable {
 			return false;
 		if(m_scale != other.m_scale)
 			return false;
-		if(m_sqlType != other.m_sqlType)
-			return false;
-		return true;
+		return m_sqlType == other.m_sqlType;
 	}
 
 }

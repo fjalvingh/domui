@@ -574,7 +574,7 @@ public class PendingOperationTaskProvider implements IPollQueueTaskProvider {
 	 * @throws SQLException
 	 */
 	public boolean isBusyWithJob(final String externalId) throws SQLException {
-		return (getCurrentProgress(externalId) != null ? true : false);
+		return (getCurrentProgress(externalId) != null);
 	}
 
 }

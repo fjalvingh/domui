@@ -11,8 +11,7 @@ import to.etc.domui.dom.html.*;
  * Created on Feb 11, 2013
  */
 public interface IButtonContainer {
-	public void addButton(@Nonnull NodeBase thing, int order);
+	void addButton(@Nonnull NodeBase thing, int order);
 
-	@Nonnull
-	public Page getPage();
+	@Nonnull Page getPage();
 }
