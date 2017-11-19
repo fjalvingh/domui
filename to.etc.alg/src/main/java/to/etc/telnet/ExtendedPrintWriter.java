@@ -24,12 +24,32 @@
  */
 package to.etc.telnet;
 
-import java.io.*;
-import java.util.*;
+import to.etc.util.StringTool;
 
-import to.etc.util.*;
+import java.io.PrintWriter;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ExtendedPrintWriter extends PrintWriter {
+	static public final int		STR			= 0;
+
+	static public final int		INT			= 1;
+
+	static public final int		COMMAD		= 2;
+
+	static public final int		SIZE		= 3;
+
+	static public final int		STRTRUNC	= 4;
+
+	static private final FSpec	NULL_FSPEC	= new FSpec(0, -1, "", false);
+
+	private List<FSpec>			m_flist		= new ArrayList<FSpec>();
+
+	private boolean				m_init;
+
+	private int					m_index;
+
 	public ExtendedPrintWriter(Writer out) {
 		super(out);
 	}
@@ -83,24 +103,6 @@ public class ExtendedPrintWriter extends PrintWriter {
 			m_right = right;
 		}
 	}
-
-	static public final int		STR			= 0;
-
-	static public final int		INT			= 1;
-
-	static public final int		COMMAD		= 2;
-
-	static public final int		SIZE		= 3;
-
-	static public final int		STRTRUNC	= 4;
-
-	static private final FSpec	NULL_FSPEC	= new FSpec(0, -1, "", false);
-
-	private List<FSpec>			m_flist		= new ArrayList<FSpec>();
-
-	private boolean				m_init;
-
-	private int					m_index;
 
 	public void clear() {
 		m_flist.clear();
